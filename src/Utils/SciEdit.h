@@ -18,13 +18,8 @@
 //
 #pragma once
 #include "scintilla.h"
-#include "SciLexer.h"
 #include "myspell\\myspell.hxx"
 #include "myspell\\mythes.hxx"
-#include "ProjectProperties.h"
-
-//forward declaration
-class CSciEdit;
 
 /**
  * \ingroup Utils
@@ -49,45 +44,6 @@ class CAutoCompletionList : public CStringArray
 {
 public:
 	void		AddSorted(const CString& elem, bool bNoDuplicates = true);
-};
-
-/**
- * \ingroup Utils
- * This class acts as an interface so that CSciEdit can call these methods
- * on other objects which implement this interface.
- * Classes implementing this interface must call RegisterContextMenuHandler()
- * in CSciEdit to register themselves.
- *
- * \par requirements
- * MFC or ATL
- *
- * \version 1.0
- * first version
- *
- * \date MAR-2005
- *
- * \author Stefan Kueng
- *
- */
-class CSciEditContextMenuInterface
-{
-public:
-	/**
-	 * When the handler is called with this method, it can add entries
-	 * to the \a mPopup context menu itself. The \a nCmd param is the command
-	 * ID number the handler must use for its commands. For every added command,
-	 * the handler is responsible to increment the \a nCmd param by one.
-	 */
-	virtual void		InsertMenuItems(CMenu& mPopup, int& nCmd);
-	
-	/**
-	 * The handler is called when the user clicks on any context menu entry
-	 * which isn't handled by CSciEdit itself. That means the handler might
-	 * be called for entries it hasn't added itself! 
-	 * \remark the handler should return \a true if it handled the call, otherwis
-	 * it should return \a false
-	 */
-	virtual bool		HandleMenuItemClick(int cmd, CSciEdit * pSciEdit);
 };
 
 /**
@@ -120,7 +76,6 @@ public:
 	 * Initialize the scintilla control. Must be called prior to any other
 	 * method!
 	 */
-	void		Init(const ProjectProperties& props);
 	void		Init(LONG lLanguage = 0);
 	/**
 	 * Execute a scintilla command, e.g. SCI_GETLINE.
@@ -130,12 +85,8 @@ public:
 	 * The specified text is written to the scintilla control.
 	 */
 	void		SetText(const CString& sText);
-	/**
-	 * The specified text is inserted at the cursor position. If a text is
-	 * selected, that text is replaced.
-	 * \param bNewLine if set to true, a newline is appended.
-	 */
 	void		InsertText(const CString& sText, bool bNewLine = false);
+
 	/**
 	 * Retreives the text in the scintilla control.
 	 */
@@ -153,11 +104,8 @@ public:
 	 */
 	CString		GetWordUnderCursor(bool bSelectWord = false);
 	
-	void		RegisterContextMenuHandler(CSciEditContextMenuInterface * object) {m_arContextHandlers.Add(object);}
-	
 	CStringA	StringForControl(const CString& text);
 	CString		StringFromControl(const CStringA& text);
-	
 private:
 	HMODULE		m_hModule;
 	LRESULT		m_DirectFunction;
@@ -166,18 +114,12 @@ private:
 	MyThes *	pThesaur;
 	CAutoCompletionList m_autolist;
 	TCHAR		m_separator;
-	CString		m_sCommand;
-	CString		m_sBugID;
-	rpattern	m_patCommand;
-	rpattern	m_patBugID;
-	CArray<CSciEditContextMenuInterface *, CSciEditContextMenuInterface *> m_arContextHandlers;
 protected:
 	virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
 	void		CheckSpelling(void);
 	void		SuggestSpellingAlternatives(void);
 	void		DoAutoCompletion(void);
 	BOOL		LoadDictionaries(LONG lLanguageID);
-	BOOL		MarkEnteredBugID(NMHDR* nmhdr);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	DECLARE_MESSAGE_MAP()

@@ -50,17 +50,13 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CLogPromptDlg : public CResizableStandAloneDialog, public CSciEditContextMenuInterface
+class CLogPromptDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CLogPromptDlg)
 
 public:
 	CLogPromptDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CLogPromptDlg();
-
-	// CSciEditContextMenuInterface
-	virtual void		InsertMenuItems(CMenu& mPopup, int& nCmd);
-	virtual bool		HandleMenuItemClick(int cmd, CSciEdit * pSciEdit);
 
 private:
 	static UINT StatusThreadEntry(LPVOID pVoid);
@@ -80,13 +76,12 @@ protected:
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnBnClickedShowunversioned();
 	afx_msg void OnEnChangeLogmessage();
+	afx_msg void OnBnClickedFilllog();
+	afx_msg void OnCbnSelchangeOldlogs();
 	afx_msg void OnCbnCloseupOldlogs();
 	afx_msg LRESULT OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
-	afx_msg LRESULT OnAutoListReady(WPARAM, LPARAM);
 	void Refresh();
-	void GetAutocompletionList();
-	void ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags);
-
+	void GetAutocompletionList(CAutoCompletionList& list);
 	DECLARE_MESSAGE_MAP()
 
 
@@ -97,20 +92,14 @@ public:
 	CString			m_sLogMessage;
 
 private:
-	CWinThread*		m_pThread;
 	CAutoCompletionList		m_autolist;
 	CSVNStatusListCtrl		m_ListCtrl;
 	CHistoryCombo	m_OldLogs;
 	BOOL			m_bShowUnversioned;
 	BOOL			m_bBlock;
-	BOOL			m_bThreadRunning;
-	BOOL			m_bRunThread;
 	CBalloon		m_tooltips;
 	CRegDWORD		m_regAddBeforeCommit;
 	ProjectProperties		m_ProjectProperties;
 	CButton			m_SelectAll;
 	CString			m_sBugID;
-	static UINT		WM_AUTOLISTREADY;
-	int				m_nPopupPasteListCmd;
-public:
 };

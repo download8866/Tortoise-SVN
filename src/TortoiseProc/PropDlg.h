@@ -49,7 +49,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	CTSVNPath	m_Path;
+	CString		m_sPath;
 	SVNRev		m_rev;
 private:
 	HANDLE		m_hThread;

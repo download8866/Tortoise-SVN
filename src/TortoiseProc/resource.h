@@ -50,7 +50,6 @@
 #define IDR_REVISIONGRAPH               183
 #define IDD_OVERLAYICONS                184
 #define IDR_ACC_REVISIONGRAPH           185
-#define IDI_LOGFILTER                   186
 #define IDS_CHSTAT_FILECOL              1000
 #define IDS_CHSTAT_WCCOL                1001
 #define IDS_CHSTAT_REPOCOL              1002
@@ -146,7 +145,6 @@
 #define IDC_BUGID                       1077
 #define IDC_WCURL                       1077
 #define IDC_EXCLUDEPATHS                1077
-#define IDC_WCPATH                      1078
 #define IDC_DRIVEGROUP                  1079
 #define IDC_PROXYGROUP                  1080
 #define IDC_SSHGROUP                    1081
@@ -205,7 +203,6 @@
 #define IDC_PATCH_TO_CLIPBOARD          1132
 #define IDC_CHECKREPO                   1132
 #define IDC_SELECTOVERLAYSET            1132
-#define IDC_WCLOG                       1132
 #define IDC_GRAPHCOMBO                  1133
 #define IDC_GRAPHTYPELABEL              1134
 #define IDC_COMMITSEACHWEEK             1135
@@ -270,40 +267,17 @@
 #define IDS_SVNACTION_SKIP              1177
 #define IDS_PROGS_EXTCOL                1178
 #define IDS_PROGS_TOOLCOL               1179
-#define IDC_DRYRUNBUTTON                1179
 #define IDS_LOG_FILE                    1180
-#define IDC_BUTTON3                     1180
-#define IDC_DIFFBUTTON                  1180
 #define IDS_SVN_USERCANCELLED           1181
-#define IDC_AUTOCLOSECOMBO              1181
 #define IDS_LOG_SIZE                    1182
-#define IDC_RADIO1                      1182
-#define IDC_COPYHEAD                    1182
-#define IDC_COPYWC                      1183
-#define IDC_AUTOCOMPLETION              1184
-#define IDC_COPYREV                     1185
-#define IDC_COPYREVTEXT                 1186
-#define IDC_BROWSEFROM                  1187
 #define IDS_REPO_BROWSEREV              1190
-#define IDC_SLIDERBOTTOM                1190
-#define IDC_SLIDERTOP                   1191
 #define IDS_REPO_BROWSEURL              1191
-#define IDC_SPLITTERTOP                 1191
-#define IDC_SPLITTERBOTTOM              1192
-#define IDC_SPLITTER                    1193
-#define IDC_SEARCHEDIT                  1194
-#define IDC_FILTERICON                  1196
-#define IDC_DATETO                      1198
-#define IDC_DATEFROM                    1199
 #define IDS_SSL_CERTIFICATETYPE         1200
-#define IDC_FROMLABEL                   1200
 #define IDS_SSL_ACCEPTQUESTION          1201
-#define IDC_TOLABEL                     1201
 #define IDS_SSL_CLIENTCERTIFICATEFILENAME 1202
 #define IDS_SSL_PEM                     1203
 #define IDS_SSL_PKCS12                  1204
 #define IDS_IMPORT_DEFAULTMSG           1205
-#define IDS_LOG_COPYFROM                1206
 #define IDS_LOG_MESSAGE                 1207
 #define IDS_LOG_REVISION                1208
 #define IDS_LOG_AUTHOR                  1209
@@ -351,7 +325,7 @@
 #define IDS_SETTINGS_DIFFVIEWER_TT      1252
 #define IDS_SETTINGS_AUTOCLOSE_TT       1253
 #define IDS_UTILS_SELECTTEXTVIEWER      1254
-#define IDS_SETTINGS_CONVERTBASE_TT     1255
+#define IDS_SETTINGS_DONTCONVERTBASE_TT 1255
 #define IDS_PROC_WARNREVERT             1256
 #define IDS_PROC_CLEANUPFINISHED        1257
 #define IDS_PROC_REPOCREATEERR          1258
@@ -400,17 +374,11 @@
 #define IDS_ERR_INVALIDREV              1304
 #define IDS_ERR_EMPTYDIFF               1305
 #define IDS_ERR_NOTHINGTOADD            1306
-#define IDS_ERR_ERROR                   1307
-#define IDS_ERR_NOVALIDPATH             1308
-#define IDS_ERR_FAILEDUNIGNOREPROPERTY  1309
 #define IDS_WARN_FOLDERNOTEXIST         1400
 #define IDS_WARN_SHAREFILEACCESS        1401
 #define IDS_WARN_RELOCATEREALLY         1402
 #define IDS_WARN_UPDATETOREV_WITHMODS   1403
 #define IDS_WARN_FOLDERNOTEMPTY         1404
-#define IDS_WARN_WARNING                1405
-#define IDS_WARN_NOTE                   1406
-#define IDS_WARN_NOVALIDPATH            1407
 #define IDS_CHECKOUT_TT_DIR             1500
 #define IDS_CHECKOUT_EXPORTDIR          1501
 #define IDS_IMPORT_TT_MODULENAMECHECK   1510
@@ -441,15 +409,7 @@
 #define IDS_LOG_POPUP_GNUDIFF           1802
 #define IDS_LOG_POPUP_FIND              1803
 #define IDS_LOG_POPUP_OPEN              1804
-#define IDS_LOG_POPUP_EDITAUTHOR        1805
-#define IDS_LOG_POPUP_EDITLOG           1806
 #define IDS_LOG_COPY_SUCCESS            1830
-#define IDS_LOG_MESSAGEEDITTITLE        1831
-#define IDS_LOG_AUTHOREDITTITLE         1832
-#define IDS_LOG_FILTER_ALL              1850
-#define IDS_LOG_FILTER_PATHS            1851
-#define IDS_LOG_FILTER_AUTHORS          1852
-#define IDS_LOG_FILTER_MESSAGES         1853
 #define IDS_PROGRESSGETFILE             1900
 #define IDS_PROGRESSREVISION            1901
 #define IDS_PROGRESSWAIT                1902
@@ -482,9 +442,6 @@
 #define IDS_PROC_RESOLVE                2308
 #define IDS_PROC_RTFM                   2309
 #define IDS_PROC_CASERENAME             2310
-#define IDS_PROC_UnIGNORESUCCESS        2311
-#define IDS_PROC_UNIGNORESUCCESS        2311
-#define IDS_PROC_FORCEMOVE              2312
 #define IDS_DIFF_WCNAME                 2400
 #define IDS_DIFF_BASENAME               2401
 #define IDS_DIFF_WORKINGCOPY            2402
@@ -502,7 +459,6 @@
 #define IDS_LOGPROMPT_ONLYNUMBERS       2702
 #define IDS_LOGPROMPT_NOISSUEWARNING    2703
 #define IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED 2704
-#define IDS_LOGPROMPT_POPUP_PASTEFILELIST 2750
 #define IDS_SPELLEDIT_THESAURUS         3000
 #define IDS_SPELLEDIT_CORRECTIONS       3001
 #define IDS_SETTINGS_CHECKNEWER_TT      3100
@@ -528,22 +484,14 @@
 #define IDS_STATUSLIST_COLREMOTETEXTSTATUS 3305
 #define IDS_STATUSLIST_COLREMOTEPROPSTATUS 3306
 #define IDS_STATUSLIST_COLURL           3307
-#define IDS_STATUSLIST_COLEXT           3308
 #define IDS_STATUSLIST_MULTIPLETARGETS  3320
 #define IDS_STATUSLIST_PROPONLY         3321
 #define IDS_STATUSLIST_CONTEXT_ADD      3330
 #define IDS_PROGRS_CONFLICTSOCCURED_WARNING 3500
 #define IDS_PROGRS_CONFLICTSOCCURED     3501
-#define IDS_PROGRS_DRYRUN               3502
-#define IDS_PROGRS_TITLE_RENAME         3530
-#define IDS_PROGRS_CLOSE_MANUAL         3540
-#define IDS_PROGRS_CLOSE_NOERROR        3541
-#define IDS_PROGRS_CLOSE_NOCONFLICTS    3542
-#define IDS_PROGRS_CLOSE_NOMERGES       3543
 #define IDS_PROGRS_PATHATREV            3600
 #define IDS_SSL_SAVE_CERTPATH           3700
 #define IDS_REPOSTATUS_HEADREV          3800
-#define IDS_REPOSTATUS_WCINFO           3801
 #define IDS_STATGRAPH_COMMITSBYAUTHOR   3900
 #define IDS_STATGRAPH_COMMITSBYDATE     3901
 #define IDS_STATGRAPH_COMMITSBYDATEX    3902
@@ -576,7 +524,6 @@
 #define IDS_REVGRAPH_ERR_NOBITMAP       4361
 #define IDS_REVGRAPH_ERR_NOENCODER      4362
 #define IDS_REVGRAPH_ERR_NODC           4363
-#define IDS_REVGRAPH_ERR_NOGRAPH        4363
 #define IDS_SCIEDIT_UNDO                6000
 #define IDS_SCIEDIT_REDO                6001
 #define IDS_SCIEDIT_CUT                 6002
@@ -591,9 +538,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        187
+#define _APS_NEXT_RESOURCE_VALUE        186
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1202
+#define _APS_NEXT_CONTROL_VALUE         1179
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

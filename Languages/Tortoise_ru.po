@@ -6,8 +6,6 @@
 # Authors:
 # Alexander <brambo@inbox.ru>
 # Shura Zam <tonal@promsoft.ru>
-# Dimitry Ivanov [dimitry@dimitry.ru]
-# Dimitry Mardiyan <dimitry.mardiyan@gmail.com>
 #
 # Checkout -- Извлечь
 # Commit -- Фиксировать
@@ -32,8 +30,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 09:49+0200\n"
-"PO-Revision-Date: 2005-02-21 20:49+0500\n"
-"Last-Translator: Alexander <brambo@inbox.ru>\n"
+"PO-Revision-Date: 2005-01-28 14:50+0600\n"
+"Last-Translator: Shura Zam <tonal@promsoft.ru>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
@@ -204,6 +202,11 @@ msgstr "&CD-ROM"
 msgid "&Cancel"
 msgstr "&Отменить"
 
+# Control-ID:1066,
+#: Control-ID:1066
+msgid "&Close windows automatically"
+msgstr "&Закрывать окна автоматически"
+
 # ID:76,
 #: ID:76
 msgid "&Compare Revisions"
@@ -218,11 +221,6 @@ msgstr "&Копировать в..."
 #: ID:101
 msgid "&Delete"
 msgstr "&Удалить"
-
-# Control-ID:1061,
-#: Control-ID:1179
-msgid "&Dry Run"
-msgstr "&Пробный запуск"
 
 # Control-ID:1031,
 #: Control-ID:1031
@@ -472,11 +470,6 @@ msgstr "&Откат"
 #: MenuEntry
 msgid "&Undo\tCtrl+Z"
 msgstr "&Назад\tCtrl+Z"
-
-# Control-ID:65535,
-#: Control-ID:1180
-msgid "&Unified Diff"
-msgstr "&Патч-файл"
 
 # Control-ID:1061,
 #: Control-ID:1061
@@ -1011,21 +1004,6 @@ msgstr "Автор:                        Stefan Kueng"
 msgid "Authors:                      Stefan Kueng, Tim Kemp"
 msgstr "Авторы:                      Stefan Kueng, Tim Kemp"
 
-# Control-ID:1123,
-#: ID:222
-msgid "Auto-close if no conflicts"
-msgstr "Автоматически закрывать при отстутствии к&онфликтов"
-
-# ID:222,
-#: ID:222
-msgid "Auto-close if no errors"
-msgstr "Автоматически закрывать при отстутствии ошибок"
-
-# ID:222,
-#: ID:222
-msgid "Auto-close if no merges, adds or deletes"
-msgstr "Автоматически закрывать при отстутствии слияний, добавлений и удалений"
-
 # Control-ID:1067,
 #: Control-ID:1067
 msgid "Automatically resolve conflicted subversion status on save"
@@ -1244,6 +1222,16 @@ msgstr "Проверить на наличие обновлений"
 msgid "Check for newer &versions"
 msgstr "Проверить на наличие новых &версий"
 
+# Отметьте -- орфографическая ошибка?
+# ID:79,
+#: ID:79
+msgid ""
+"Check if you want the progress dialog to close\n"
+"automatically after the operation finishes."
+msgstr ""
+"Пометьте, если Вы хотите, чтобы диалоги закрывались\n"
+"автоматически после завершения операции."
+
 # ID:9,
 #: ID:9
 msgid "Check out a working copy from a repository"
@@ -1276,7 +1264,7 @@ msgstr "Веберите, если хотите менее подробных д
 # ID:270,
 #: ID:270
 msgid "Checking for forward copies"
-msgstr "Проверка пересланных копий"
+msgstr ""
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -1342,11 +1330,6 @@ msgstr "Нажмите на \"Дополнительно\" для определ
 msgid "Clipboard"
 msgstr "Буфер обмена"
 
-# ID:222,
-#: ID:222
-msgid "Close manually"
-msgstr "Закрывать вручную"
-
 # ID:3825,
 #: ID:3825
 msgid "Close the active window and prompts to save the documents"
@@ -1355,7 +1338,7 @@ msgstr "Закрывает активное окно и приглашает с�
 # Control-ID:1068,
 #: Control-ID:1068
 msgid "Color code in-line changes"
-msgstr "Помечать цветом изменения внутри строк"
+msgstr ""
 
 # Dlg-ID:138,
 #: Dlg-ID:138
@@ -1450,12 +1433,6 @@ msgstr "Контекстное меню"
 msgid "Continue"
 msgstr "Продолжить"
 
-# или Через Базу?
-# Control-ID:1073,
-#: Control-ID:1073
-msgid "Convert files when diffing against BASE"
-msgstr "Преобразовывать файлы при сравнении с Базой"
-
 # ID:376,
 #: ID:376
 msgid "Cop&y"
@@ -1470,11 +1447,6 @@ msgstr "Скопировано"
 #: ID:126
 msgid "Copied remotely"
 msgstr "Скопировано удаленно"
-
-# ID:76,
-#: ID:76
-msgid "Copy From Path"
-msgstr "Копировать из пути"
 
 # ID:101,
 #: ID:101
@@ -1667,6 +1639,11 @@ msgstr ""
 "Вырезать выбранное и положить в Буфер обмена\n"
 "Вырезать"
 
+# Control-ID:1123,
+#: Control-ID:1123
+msgid "D&on't close on conflicts"
+msgstr "Не закрывать при к&онфликтах"
+
 # ID:76,
 #: ID:76
 msgid "Date"
@@ -1753,7 +1730,7 @@ msgstr "Диск полон при обращении к %1."
 # ID:3860,
 #: ID:3860
 msgid "Dispatch exception: %1"
-msgstr "Диспетчер исключений: %1"
+msgstr ""
 
 # ID:3605,
 #: ID:3605
@@ -1832,6 +1809,12 @@ msgstr ""
 msgid "Do you want to save your changes?"
 msgstr "Вы хотите сохранить изменения?"
 
+# или Через Базу?
+# Control-ID:1073,
+#: Control-ID:1073
+msgid "Don't convert files when diffing against BASE"
+msgstr "Не преобразовывать файлы при сравнении с Базой"
+
 # ID:73,
 #: ID:73
 msgid "Don't show this message again"
@@ -1841,6 +1824,11 @@ msgstr "Не показывать это сообщение снова"
 #: Control-ID:1079
 msgid "Drive Types"
 msgstr "Типы накопителей"
+
+# Control-ID:1061,
+#: Control-ID:1179
+msgid "Dry Run"
+msgstr "Пробный запуск"
 
 #: MenuEntry
 msgid "E&xit"
@@ -2102,7 +2090,7 @@ msgstr "Обновить иконки оболочки"
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "From: (start URL and revision of the range to merge)"
-msgstr "Из: (начальный URL и ревизия области слияния)"
+msgstr ""
 
 # ID:273,
 #: ID:273
@@ -2245,8 +2233,8 @@ msgstr ""
 
 # ID:79,
 #: ID:79
-msgid "If checked, TortoiseSVN creates a temporary file to do the diff with the keywords not expanded"
-msgstr "Если выбрано, TortoiseSVN создает временный файл для сравнения, в коором ключевые слова не заменены их значениями."
+msgid "If checked, TortoiseSVN doesn't create a temporary file to do the diff but diffs the original file against BASE"
+msgstr "Если выбрано, TortoiseSVN не будет создавать временного файла, а будет сравнивать прямо через базу."
 
 # ID:194,
 #: ID:194
@@ -2365,8 +2353,8 @@ msgstr "Неправильное имя файла."
 #: ID:82
 msgid ""
 "Invalid revision number! Valid revisions are:\n"
-"HEAD, BASE, PREV, COMMITTED, WC,\n"
-"positive decimal numbers,\n"
+"HEAD, BASE, PREV, COMMITTED, WC\n"
+"positive decimal numbers\n"
 "dates in one of the following example forms:\n"
 "{2002-02-17}\n"
 "{15:30}\n"
@@ -2383,7 +2371,7 @@ msgstr ""
 "Неправильный номер ревизии! Правильные ревизии:\n"
 "HEAD, BASE, PREV, COMMITTED, WC\n"
 "положительные десятичные числа\n"
-"даты в одном из нижеследующих форматов:\n"
+"даты в нижеследующих форматах:\n"
 "{2002-02-17}\n"
 "{15:30}\n"
 "{15:30:00.200000}\n"
@@ -2936,11 +2924,11 @@ msgstr "Пожалуйста,  выполите команду \"Очистка\
 msgid ""
 "Please note:\n"
 "your working copy remains on the previous path. If you want your next changes\n"
-"to be in the just created copy then you need to switch over\n"
-"to that copy path. Use the Switch command to do that."
+"to be in the just created copy then you need to <b>switch</b> over\n"
+"to that copy path. Use the <b>Switch</b> command to do that."
 msgstr ""
 "Обратите внимание:\n"
-"Ваша рабочая копия осталась по прежнему пути. Если Вы хотите, чтобы\n"
+"Ваша рабочая копия осталась на прежней ветке. Если Вы хотите, чтобы\n"
 "следующие изменения были в только что созданной копии, вы должны\n"
 "<b>переключиться</b> на путь этой копии. Используйте для этого\n"
 "команду <b>Переключиться</b>"
@@ -2985,11 +2973,6 @@ msgstr "Программа"
 #: ID:157
 msgid "Programs (*.exe)|*.exe|All Files (*.*)|*.*||"
 msgstr "Программы (*.exe)|*.exe|Все файлы (*.*)|*.*||"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Progress dialog:"
-msgstr "Диалог прогресса"
 
 # Control-ID:65535,#:
 # Dlg-ID:177,
@@ -3307,7 +3290,7 @@ msgstr "SSH"
 # ID:77,
 #: ID:77
 msgid "SVN Add..."
-msgstr "Команда SVN Добавление..."
+msgstr "Комманда SVN Добавление..."
 
 # ID:132,
 #: ID:132
@@ -3317,52 +3300,47 @@ msgstr "SVN 'Авторы файла'"
 # ID:77,
 #: ID:77
 msgid "SVN Checkout..."
-msgstr "Команда SVN Извлечение..."
+msgstr "Комманда SVN Извлечение..."
 
 # ID:77,
 #: ID:77
 msgid "SVN Commit..."
-msgstr "Команда SVN Фиксирование..."
+msgstr "Комманда SVN Фиксирование..."
 
 # ID:78,
 #: ID:78
 msgid "SVN Copy..."
-msgstr "Команда SVN Копирование..."
+msgstr "Комманда SVN Копирование..."
 
 # ID:78,
 #: ID:78
 msgid "SVN Export..."
-msgstr "Команда SVN Экспорт..."
+msgstr "Комманда SVN Экспорт..."
 
 # ID:77,
 #: ID:77
 msgid "SVN Import..."
-msgstr "Команда SVN Импорт..."
+msgstr "Комманда SVN Импорт..."
 
 # ID:78,
 #: ID:78
 msgid "SVN Merge..."
-msgstr "Команда SVN Слияние..."
+msgstr "Комманда SVN Слияние..."
 
 # Dlg-ID:134,
 #: Dlg-ID:134
 msgid "SVN Progress"
 msgstr "SVN Прогресс"
 
-# ID:101,
-#: ID:221
-msgid "SVN Rename/Move"
-msgstr "&Переименовать/Переместить..."
-
 # ID:77,
 #: ID:77
 msgid "SVN Resolve..."
-msgstr "Команда SVN Разрешение..."
+msgstr "Комманда SVN Разрешение..."
 
 # ID:77,
 #: ID:77
 msgid "SVN Revert..."
-msgstr "Команда SVN Возвращение..."
+msgstr "Комманда SVN Возвращение..."
 
 # ID:11,
 #: ID:11
@@ -3377,7 +3355,7 @@ msgstr "SVN Статус"
 # ID:78,
 #: ID:78
 msgid "SVN Switch..."
-msgstr "Команда SVN Переключение..."
+msgstr "Комманда SVN Переключение..."
 
 # ID:77,
 #: ID:77
@@ -3542,11 +3520,6 @@ msgstr ""
 "Выберите папку для экспорта.\n"
 "Можете создать новую папку перед выполнением экспорта."
 
-# ID:79,
-#: ID:79
-msgid "Select the behaviour of the progress dialog at the end of the operation."
-msgstr "Выберите поведение диалога прогресса операций по их завершению"
-
 # ID:3603,
 #: ID:3603
 msgid ""
@@ -3710,7 +3683,7 @@ msgstr "Показать неверсионные файлы"
 # ID:15,
 #: ID:15
 msgid "Shows a graphical representation of copies/tags/branches"
-msgstr "Показывает копии/таги/ветки в графическом виде"
+msgstr ""
 
 # ID:13,
 #: ID:13
@@ -3761,7 +3734,7 @@ msgstr ""
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Specify the revision range which you want to merge:"
-msgstr "Укажите диапазон ревизий которые вы хотите слить:"
+msgstr ""
 
 # ID:3604,
 #: ID:3604
@@ -3798,7 +3771,7 @@ msgstr "Состояние объекта в SVN"
 # Control-ID:1130,
 #: Control-ID:1130
 msgid "Stop On Copy/Rename"
-msgstr "Остановиться на копировании/переименовании"
+msgstr ""
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -4052,12 +4025,6 @@ msgid ""
 "<i>%s</i>\n"
 "matches it better. Do you want to use the suggested path instead?"
 msgstr ""
-"Похоже патч\n"
-"<i>%s</i>\n"
-"не подходит к патчу в патч-файле.\n"
-"Но TortoiseMerge нашла патч\n"
-"<i>%s</i>\n"
-"который подходит больше. Хотите-ли вы использовать предложенный патч вместо исходного?"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -4077,7 +4044,7 @@ msgstr ""
 #: ID:88
 msgid ""
 "The target folder is not empty!\n"
-"Are you sure you want to checkout/export into that folder?"
+"Are you sure you want to check out into that folder?"
 msgstr ""
 "Указанная папка не пустая!\n"
 "Вы уверены что извлекать файлы надо сюда?"
@@ -4175,7 +4142,7 @@ msgstr "Чтобы посмотреть изменения, которые Вы 
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "To: (end URL and revision of the range to merge)"
-msgstr "В: (конечный URL и ревизия области слияния)"
+msgstr ""
 
 # ID:7,#:
 # ID:3585,#:
@@ -4370,6 +4337,12 @@ msgstr ""
 msgid "Unexpected file format."
 msgstr "Неожиданный формат файла."
 
+# Control-ID:65535,
+#: Control-ID:1180
+#, fuzzy
+msgid "Unified Diff"
+msgstr "Применить патч-файл"
+
 # ID:81,
 #: ID:81
 msgid ""
@@ -4377,9 +4350,6 @@ msgid ""
 "  Fingerprint: %s\n"
 "  Distinguished name: %s"
 msgstr ""
-"Неизвестна сторона, выдавшая сертификат.\n"
-"  Fingerprint: %s\n"
-"  Distinguished name: %s"
 
 # Род?
 # ID:3841,#:
@@ -4449,7 +4419,7 @@ msgstr "Использовать Увеличитель в Локаторе."
 # Control-ID:1126,
 #: Control-ID:1126
 msgid "Use Text viewer to view blames"
-msgstr "Использовать Text viewer для просмотра аннотаций"
+msgstr ""
 
 # Control-ID:1073,
 #: Control-ID:1073
@@ -4659,8 +4629,6 @@ msgid ""
 "You haven't entered an issue number!\n"
 "Are you sure you want to commit without an issue number?"
 msgstr ""
-"Вы не ввели номер проблемы!\n"
-"Вы действительно хотите зафиксировать файл(ы) без номера проблемы?"
 
 # ID:77,
 #: ID:77
@@ -4688,11 +4656,11 @@ msgstr "Ваш файл:"
 # ID:78,
 #: ID:78
 msgid ""
-"Your working copy appears to be on a tag path!\n"
+"Your working copy appears to be on a <b>tag</b> path!\n"
 "You should first switch to a branch or the main trunk before committing."
 msgstr ""
 "Похоже, Ваша рабочая копия находится на <b>tag</b> пути!\n"
-"Вы должны переключиться на ветку либо главный путь перед фиксированием."
+"Вы должны переключиться на ветку либо главный корень перед фиксированием."
 
 # ID:88,
 #: ID:88
@@ -4701,10 +4669,6 @@ msgid ""
 "Note: updating to another revision won't lose those modifications so the working copy\n"
 "won't look exactly as it was in the revision you're updating to!"
 msgstr ""
-"Ваша рабочая копия содержит локальные модификации!\n"
-"Учтите: обвновление до другой ревизии приведет к потере этих модификаций,\n"
-" следовательно рабочая копия после обновления не будет в точности\n"
-"соотвествовать той ревизии до которой Вы обновляетесь!"
 
 #: MenuEntry
 msgid "Zoom &In"
@@ -4744,10 +4708,6 @@ msgid ""
 "log message. The default is \"true\" which means the bugtracking ID\n"
 "is appended to the log message."
 msgstr ""
-"bugtraq:append\n"
-"Установите в \"false\" если вы хотите чтобы багтрекинг ID был всавлен в начале\n"
-"лог-сообщения. По умолчанию \"true\" означает, что багтрекинг ID\n"
-"добавляется в конец лог-сообшения."
 
 # ID:14,
 #: ID:14
@@ -4758,17 +4718,6 @@ msgstr ""
 "bugtraq:label\n"
 "Текст заголовка для ввода issue номера."
 
-# ID:15,
-#: ID:15
-msgid ""
-"bugtraq:logregex\n"
-"two regular expressions separated by a newline\n"
-"The first expression is used to find a string referring to an issue, the second expression is used to extract the bare bug ID from that string."
-msgstr ""
-"bugtraq:logregex\n"
-"Два регулярных выпажения, разделенный символом новой строки\n"
-"Первое выражение используется для поиска строки, ссылающейся на обращение, второе выражение используется для извлечения  ID из этой строки."
-
 # ID:14,
 #: ID:14
 msgid ""
@@ -4776,9 +4725,6 @@ msgid ""
 "String which is appended to a log message when an issue number is entered.\n"
 "The string must contain \"%BUGID%\" which gets replaced with the issue number."
 msgstr ""
-"bugtraq:message\n"
-"Строка, которая добавляется к сообщению когда вводится номер проблемы.\n"
-"Строка должна содержать подстроку \"%BUGID%\" которая будет заменена на номер проблемы."
 
 # ID:14,
 #: ID:14
@@ -4786,8 +4732,6 @@ msgid ""
 "bugtraq:number\n"
 "Set to \"false\" if your bugtracking system has issues which are referenced not by numbers."
 msgstr ""
-"bugtraq:number\n"
-"Установите в \"false\" если ваша система багтрекинга содержит проблемы ссылки на которые идут не по номерам."
 
 # ID:14,
 #: ID:14
@@ -4796,9 +4740,6 @@ msgid ""
 "URL pointing to the issue tracker. It must contain \"%BUGID%\" which\n"
 "gets replaced with the issue number."
 msgstr ""
-"bugtraq:url\n"
-"URL указывает на трекер проблем. Он должен содержать подстроку \"%BUGID%\"\n"
-"которая будет заменена на номер проблемы."
 
 # ID:145,
 #: ID:145
@@ -5004,9 +4945,6 @@ msgid ""
 "Set to \"false\" if you don't want the list of changed files to be pasted in english\n"
 "in the commit dialog."
 msgstr ""
-"tsvn:logfilelistenglish\n"
-"Установите в \"false\" если вы не хотите чтобы список измененных файлов\n"
-"отображался в диалоге коммита."
 
 # ID:15,
 #: ID:15

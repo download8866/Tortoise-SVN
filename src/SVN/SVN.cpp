@@ -38,8 +38,6 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define SVN_DATE_BUFFER 260
-
 SVN::SVN(void)
 {
 	parentpool = svn_pool_create(NULL);
@@ -324,13 +322,12 @@ BOOL SVN::Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force)
 
 BOOL SVN::Update(const CTSVNPath& path, SVNRev revision, BOOL recurse)
 {
-	SVNPool(localpool);
 	Err = svn_client_update(NULL,
 							path.GetSVNApiPath(),
 							revision,
 							recurse,
 							m_pctx,
-							localpool);
+							pool);
 
 	if(Err != NULL)
 	{
@@ -472,22 +469,16 @@ BOOL SVN::Resolve(const CTSVNPath& path, BOOL recurse)
 	return TRUE;
 }
 
-BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revision, BOOL force, CProgressDlg * pProgDlg, BOOL extended)
+BOOL SVN::Export(CString srcPath, CString destPath, SVNRev revision, BOOL force, CProgressDlg * pProgDlg, BOOL extended)
 {
+
 	if (revision.IsWorking()&&(pProgDlg))
 	{
-		// files are special!
-		if (!srcPath.IsDirectory())
-		{
-			CopyFile(srcPath.GetWinPath(), destPath.GetWinPath(), FALSE);
-			return TRUE;
-		}
 		// our own "export" function with a callback and the ability to export
 		// unversioned items too
-		// BUGBUG: If a folder is marked as deleted, we export that folder too!
 		if (extended)
 		{
-			CDirFileEnum lister1(srcPath.GetWinPathString());
+			CDirFileEnum lister1(srcPath);
 			DWORD maxval = 0;
 			DWORD current = 0;
 			// first, count all the items we have to copy
@@ -497,7 +488,7 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 				if (srcfile.Find(_T(SVN_WC_ADM_DIR_NAME))<0)
 					maxval++;
 			}
-			CDirFileEnum lister2(srcPath.GetWinPathString());
+			CDirFileEnum lister2(srcPath);
 			CString sSVN_ADMIN_DIR = _T("\\");
 			sSVN_ADMIN_DIR += _T(SVN_WC_ADM_DIR_NAME);
 			while (lister2.NextFile(srcfile, NULL))
@@ -506,7 +497,7 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 				if ((srcfile.Find(sSVN_ADMIN_DIR+_T("\\"))>=0)||(srcfile.Right(sSVN_ADMIN_DIR.GetLength()).Compare(sSVN_ADMIN_DIR)==0))
 					continue;	// exclude everything inside an admin directory
 				current++;
-				CString destination = destPath.GetWinPathString() + _T("\\") + srcfile.Mid(srcPath.GetWinPathString().GetLength());
+				CString destination = destPath + _T("\\") + srcfile.Mid(srcPath.GetLength());
 				pProgDlg->SetProgress(current, maxval);
 				pProgDlg->SetLine(2, srcfile, TRUE);
 				if (CUtils::FileCopy(srcfile, destination, force)==FALSE)
@@ -534,25 +525,25 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 				}
 				if (pProgDlg->HasUserCancelled())
 				{
-					Err = svn_error_create(NULL, NULL, CStringA(MAKEINTRESOURCE(IDS_SVN_USERCANCELLED)));
+					Err = svn_error_create(NULL, NULL, "user cancelled");
 					return FALSE;
 				}
 			} // while (lister2.NextFile(srcfile))
 		}
 		else
 		{
-			CTSVNPath statusPath;
+			const TCHAR * strbuf = NULL;
 			svn_wc_status_t * s;
 			SVNStatus status;
-			if ((s = status.GetFirstFileStatus(srcPath, statusPath))!=0)
+			if ((s = status.GetFirstFileStatus(srcPath, &strbuf))!=0)
 			{
 				DWORD maxval = status.GetVersionedCount();
 				DWORD current = 0;
 				if (SVNStatus::GetMoreImportant(s->text_status, svn_wc_status_unversioned)!=svn_wc_status_unversioned)
 				{
 					current++;
-					CString src = statusPath.GetWinPathString();
-					CString destination = destPath.GetWinPathString() + _T("\\") + src.Mid(srcPath.GetWinPathString().GetLength());
+					CString src = strbuf;
+					CString destination = destPath + _T("\\") + src.Mid(srcPath.GetLength());
 					pProgDlg->SetProgress(current, maxval);
 					pProgDlg->SetLine(2, src, TRUE);
 					if (CUtils::FileCopy(src, destination, force)==FALSE)
@@ -579,7 +570,7 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 						return FALSE;
 					}
 				}
-				while ((s = status.GetNextFileStatus(statusPath))!=0)
+				while ((s = status.GetNextFileStatus(&strbuf))!=0)
 				{
 					if ((s->text_status == svn_wc_status_unversioned)||
 						(s->text_status == svn_wc_status_ignored)||
@@ -590,8 +581,8 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 						(s->text_status == svn_wc_status_deleted))
 						continue;
 					
-					CString src = statusPath.GetWinPathString();
-					CString destination = destPath.GetWinPathString() + _T("\\") + src.Mid(srcPath.GetWinPathString().GetLength());
+					CString src = strbuf;
+					CString destination = destPath + _T("\\") + src.Mid(srcPath.GetLength());
 					pProgDlg->SetProgress(current, maxval);
 					pProgDlg->SetLine(2, src, TRUE);
 					if (CUtils::FileCopy(src, destination, force)==FALSE)
@@ -619,7 +610,7 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 					}
 					if (pProgDlg->HasUserCancelled())
 					{
-						Err = svn_error_create(NULL, NULL, CStringA(MAKEINTRESOURCE(IDS_SVN_USERCANCELLED)));
+						Err = svn_error_create(NULL, NULL, "user cancelled");
 						return FALSE;
 					}
 				} // while (s = status.GetNextFileStatus(&strbuf))
@@ -633,9 +624,13 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev rev
 	}
 	else
 	{
+
+		preparePath(srcPath);
+		preparePath(destPath);
+
 		Err = svn_client_export2(NULL,		//no resulting revision needed
-			srcPath.GetSVNApiPath(),
-			destPath.GetSVNApiPath(),
+			MakeSVNUrlOrPath(srcPath),
+			MakeSVNUrlOrPath(destPath),
 			revision,
 			force,
 			NULL,
@@ -1043,7 +1038,7 @@ svn_error_t* SVN::blameReceiver(void* baton,
 	svn_error_t * error = NULL;
 	CString author_native;
 	CStringA line_native;
-	TCHAR date_native[SVN_DATE_BUFFER] = {0};
+	TCHAR date_native[MAX_PATH] = {0};
 
 	SVN * svn = (SVN *)baton;
 
@@ -1082,7 +1077,7 @@ svn_error_t* SVN::logReceiver(void* baton,
 								apr_pool_t* pool)
 {
 	svn_error_t * error = NULL;
-	TCHAR date_native[SVN_DATE_BUFFER] = {0};
+	TCHAR date_native[MAX_PATH] = {0};
 	CString author_native;
 	CString msg_native;
 
@@ -1186,6 +1181,9 @@ void SVN::notify( void *baton,
 					svn_revnum_t revision)
 {
 	SVN * svn = (SVN *)baton;
+//	WCHAR buf[MAX_PATH*4];
+//	if (!MultiByteToWideChar(CP_UTF8, 0, path, -1, buf, MAX_PATH*4))
+//		buf[0] = 0;
 
 	CTSVNPath tsvnPath;
 	tsvnPath.SetFromSVN(path);
@@ -1382,7 +1380,7 @@ BOOL SVN::Ls(const CTSVNPath& url, SVNRev revision, CStringArray& entries, BOOL 
 		if (extended)
 		{
 			CString author, revnum, size, dateval;
-			TCHAR date_native[SVN_DATE_BUFFER];
+			TCHAR date_native[_MAX_PATH];
 			author = CUnicodeUtils::GetUnicode(val->last_author);
 			revnum.Format(_T("%u"), val->created_rev);
 			if (val->kind != svn_node_dir)
@@ -1597,8 +1595,8 @@ void SVN::formatDate(TCHAR date_native[], apr_time_t& date_svn, bool force_short
 	apr_time_exp_t exploded_time = {0};
 	
 	SYSTEMTIME systime;
-	TCHAR timebuf[SVN_DATE_BUFFER];
-	TCHAR datebuf[SVN_DATE_BUFFER];
+	TCHAR timebuf[MAX_PATH];
+	TCHAR datebuf[MAX_PATH];
 
 	LCID locale = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT));
 	locale = MAKELCID(locale, SORT_DEFAULT);
@@ -1615,19 +1613,19 @@ void SVN::formatDate(TCHAR date_native[], apr_time_t& date_svn, bool force_short
 	systime.wYear = (WORD)exploded_time.tm_year+1900;
 	if (force_short_fmt || CRegDWORD(_T("Software\\TortoiseSVN\\LogDateFormat")) == 1)
 	{
-		GetDateFormat(locale, DATE_SHORTDATE, &systime, NULL, datebuf, SVN_DATE_BUFFER);
-		GetTimeFormat(locale, 0, &systime, NULL, timebuf, SVN_DATE_BUFFER);
-		_tcsncat(date_native, datebuf, SVN_DATE_BUFFER);
-		_tcsncat(date_native, _T(" "), SVN_DATE_BUFFER);
-		_tcsncat(date_native, timebuf, SVN_DATE_BUFFER);
+		GetDateFormat(locale, DATE_SHORTDATE, &systime, NULL, datebuf, MAX_PATH);
+		GetTimeFormat(locale, 0, &systime, NULL, timebuf, MAX_PATH);
+		_tcsncat(date_native, datebuf, MAX_PATH);
+		_tcsncat(date_native, _T(" "), MAX_PATH);
+		_tcsncat(date_native, timebuf, MAX_PATH);
 	}
 	else
 	{
-		GetDateFormat(locale, DATE_LONGDATE, &systime, NULL, datebuf, SVN_DATE_BUFFER);
-		GetTimeFormat(locale, 0, &systime, NULL, timebuf, SVN_DATE_BUFFER);
-		_tcsncat(date_native, timebuf, SVN_DATE_BUFFER);
-		_tcsncat(date_native, _T(", "), SVN_DATE_BUFFER);
-		_tcsncat(date_native, datebuf, SVN_DATE_BUFFER);
+		GetDateFormat(locale, DATE_LONGDATE, &systime, NULL, datebuf, MAX_PATH);
+		GetTimeFormat(locale, 0, &systime, NULL, timebuf, MAX_PATH);
+		_tcsncat(date_native, timebuf, MAX_PATH);
+		_tcsncat(date_native, _T(", "), MAX_PATH);
+		_tcsncat(date_native, datebuf, MAX_PATH);
 	}
 }
 
@@ -1789,7 +1787,7 @@ void SVN::StartConflictEditor(const CTSVNPath& conflictedFilePath)
 	//we have the conflicted file (%merged)
 	//now look for the other required files
 	SVNStatus stat;
-	stat.GetStatus(merge);
+	stat.GetStatus(merge.GetSVNPathString());
 	if (stat.status && stat.status->entry)
 	{
 		if (stat.status->entry->conflict_new)
@@ -1813,7 +1811,7 @@ BOOL SVN::DiffFileAgainstBase(const CTSVNPath& filePath, CTSVNPath& temporaryFil
 	CTSVNPath basePath(GetPristinePath(filePath));
 	CTSVNPath wcPath;
 	// If necessary, convert the line-endings on the file before diffing
-	if ((CRegDWORD(_T("Software\\TortoiseSVN\\ConvertBase"), FALSE))&&(GetTranslatedFile(wcPath, filePath)))
+	if ((!CRegDWORD(_T("Software\\TortoiseSVN\\DontConvertBase"), TRUE))&&(GetTranslatedFile(wcPath, filePath)))
 	{
 		temporaryFile = wcPath;
 	}

@@ -27,9 +27,9 @@
 
 // CCheckoutDlg dialog
 
-IMPLEMENT_DYNAMIC(CCheckoutDlg, CDialog)
+IMPLEMENT_DYNAMIC(CCheckoutDlg, CStandAloneDialog)
 CCheckoutDlg::CCheckoutDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCheckoutDlg::IDD, pParent)
+	: CStandAloneDialog(CCheckoutDlg::IDD, pParent)
 	, Revision(_T("HEAD"))
 	, m_strCheckoutDirectory(_T(""))
 	, IsExport(FALSE)
@@ -43,7 +43,7 @@ CCheckoutDlg::~CCheckoutDlg()
 
 void CCheckoutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Control(pDX, IDC_REVISION_NUM, m_editRevision);
 	DDX_Control(pDX, IDC_BROWSE, m_butBrowse);
@@ -53,7 +53,7 @@ void CCheckoutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CCheckoutDlg, CDialog)
+BEGIN_MESSAGE_MAP(CCheckoutDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_REVISION_N, OnBnClickedRevisionN)
 	ON_BN_CLICKED(IDC_REVISION_HEAD, OnBnClickedRevisionHead)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
@@ -64,18 +64,15 @@ END_MESSAGE_MAP()
 
 BOOL CCheckoutDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
-	m_URLCombo.SetCurSel(0);
+
 	// set head revision as default revision
 	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
 
 	m_editRevision.SetWindowText(_T(""));
-
-	if (!m_URL.IsEmpty())
-		m_URLCombo.SetWindowText(m_URL);
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_CHECKOUTDIRECTORY, IDS_CHECKOUT_TT_DIR);
@@ -93,8 +90,9 @@ BOOL CCheckoutDlg::OnInitDialog()
 		GetDlgItem(IDC_NON_RECURSIVE)->ShowWindow(SW_HIDE);
 	} // if (IsExport)
 
-	if ((m_pParentWnd==NULL)&&(hWndExplorer))
+	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
+	EnableSaveRestore(_T("CheckoutDlg"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -103,14 +101,6 @@ void CCheckoutDlg::OnOK()
 {
 	if (!UpdateData(TRUE))
 		return; // don't dismiss dialog (error message already shown by MFC framework)
-
-	CTSVNPath m_CheckoutDirectory;
-	m_CheckoutDirectory.SetFromWin(m_strCheckoutDirectory);
-	if (!m_CheckoutDirectory.IsValidOnWindows())
-	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_CHECKOUTDIRECTORY), IDS_ERR_NOVALIDPATH, TRUE, IDI_EXCLAMATION);
-		return;
-	}
 
 	// if head revision, set revision as -1
 	if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
@@ -165,7 +155,7 @@ void CCheckoutDlg::OnOK()
 			return;		//don't dismiss the dialog
 	}
 	UpdateData(FALSE);
-	CDialog::OnOK();
+	CStandAloneDialog::OnOK();
 }
 
 void CCheckoutDlg::OnBnClickedRevisionN()
@@ -258,7 +248,7 @@ void CCheckoutDlg::OnBnClickedCheckoutdirectoryBrowse()
 BOOL CCheckoutDlg::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltips.RelayEvent(pMsg);
-	return CDialog::PreTranslateMessage(pMsg);
+	return CStandAloneDialog::PreTranslateMessage(pMsg);
 }
 
 void CCheckoutDlg::OnEnChangeCheckoutdirectory()

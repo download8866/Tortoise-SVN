@@ -26,8 +26,7 @@ CUnicodeUtils::CUnicodeUtils(void)
 CUnicodeUtils::~CUnicodeUtils(void)
 {
 }
-
-#if defined(_MFC_VER) || defined(CSTRING_AVAILABLE)
+#ifdef _MFC_VER
 
 CStringA CUnicodeUtils::GetUTF8(const CStringW& string)
 {
@@ -66,23 +65,17 @@ CString CUnicodeUtils::GetUnicode(const CStringA& string)
 #ifdef UNICODE
 std::string CUnicodeUtils::StdGetUTF8(const wide_string& wide)
 {
-	int size = (int)wide.size()*4;
-	char * narrow = new char[size];
-	int ret = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), narrow, size-1, NULL, NULL);
+	char narrow[_MAX_PATH * 3];
+	int ret = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), narrow, _MAX_PATH*3 - 1, NULL, NULL);
 	narrow[ret] = 0;
-	std::string sRet = std::string(narrow);
-	delete narrow;
-	return sRet;
+	return std::string(narrow);
 }
 
 wide_string CUnicodeUtils::StdGetUnicode(const std::string& multibyte)
 {
-	int size = (int)multibyte.size()*4;
-	wchar_t * wide = new wchar_t[size];
-	int ret = MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, size - 1);
+	wchar_t wide[_MAX_PATH * 3];
+	int ret = MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, _MAX_PATH*3 - 1);
 	wide[ret] = 0;
-	wide_string sRet = wide_string(wide);
-	delete wide;
-	return sRet;
+	return wide_string(wide);
 }
 #endif

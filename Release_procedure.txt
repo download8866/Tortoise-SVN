@@ -1,17 +1,3 @@
-- about a week or two before a new release, which can be initiated by 
-  any dev, we create a branch from /trunk for that release
-- the nightly builds switch from /trunk to that branch so that from this
-  time on users can test the release candidate
-- bugs found and fixed during that time are fixed on /trunk, and 
-  mentioned in a Backport.txt file on the branch
-- the dev who fixed that bug decides himself if it should be backportet 
-  or not, and if yes merges it to the release branch right away
-- if another dev then objects to that merge (of course always with an 
-  explanation why) that fix get's undone on the branch. I don't think 
-  that will happen very often though.
-
-Then, on the release branch:
-
 - Check the latest versions of Apache, openssl, zlib, neon and of course
   download any newer versions available.
 - increment the version number in the installer script
@@ -38,10 +24,6 @@ Now commit those changes and then create the tag in the repository
 - run the build.bat script again
 
 The last steps:
-- zip the files Languages\TortoiseProcLang.dll and 
-  Languages\TortoiseMergeLang.dll to Languages_1.1.x.zip and replace the
-  previously uploaded file with the current one (indicating the new revision
-  number after the last commit).
 - rename the msi installer files to indicate the correct version number
 - upload the msi files to the filesharing area on tigris.org
 - edit the web files download.html, index.html, project_status.html to

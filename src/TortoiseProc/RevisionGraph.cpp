@@ -162,13 +162,7 @@ svn_error_t* CRevisionGraph::logDataReceiver(void* baton,
 		temp.LoadString(IDS_REVGRAPH_PROGGETREVS);
 		temp2.Format(IDS_REVGRAPH_PROGCURRENTREV, rev);
 		if (!me->ProgressCallback(temp, temp2, me->m_lHeadRevision - rev, me->m_lHeadRevision))
-		{
 			me->m_bCancelled = TRUE;
-			CStringA temp3;
-			temp3.LoadString(IDS_SVN_USERCANCELLED);
-			error = svn_error_create(SVN_ERR_CANCELLED, NULL, temp3);
-			return error;
-		}
 	}
 	APR_ARRAY_PUSH(me->m_logdata, log_entry *) = e;
 	return SVN_NO_ERROR;
@@ -265,7 +259,7 @@ BOOL CRevisionGraph::AnalyzeRevisionData(CString path)
 	sRepoRoot.ReleaseBuffer();
 	url = url.Mid(sRepoRoot.GetLength());
 	m_nRecurseLevel = 0;
-	if (AnalyzeRevisions(url, m_lHeadRevision, 0))
+	if (AnalyzeRevisions(url, m_lHeadRevision, 1))
 	{
 		return CheckForwardCopies();
 	}
@@ -367,8 +361,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 								else
 								{
 									// get all the information from that source too.
-									if (!AnalyzeRevisions(val->copyfrom_path, currentrev-1, 1))
-										return FALSE;
+									AnalyzeRevisions(val->copyfrom_path, currentrev-1, 1);
 								}
 							}
 							else
@@ -488,8 +481,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 							else
 							{
 								// get all the information from that source too.
-								if (!AnalyzeRevisions(self, currentrev-1, 1))
-									return FALSE;
+								AnalyzeRevisions(self, currentrev-1, 1);
 							}
 						}
 						else
@@ -605,8 +597,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 							m_arEntryPtrs.Add(reventry);
 							TRACELEVELSPACE;
 							TRACE("revision entry(4): %ld - level %d - %s\n", reventry->revision, reventry->level, reventry->url);
-							if (!AnalyzeRevisions(self, currentrev+1, startrev > endrev ? startrev : endrev))
-								return FALSE;
+							AnalyzeRevisions(self, currentrev+1, startrev > endrev ? startrev : endrev);
 						}
 					}
 				}

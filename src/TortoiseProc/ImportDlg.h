@@ -23,7 +23,7 @@
 #include "ProjectProperties.h"
 #include "Balloon.h"
 #include "HistoryCombo.h"
-#include "TSVNPath.h"
+
 
 /**
  * \ingroup TortoiseProc
@@ -74,11 +74,12 @@ protected:
 	afx_msg void OnBnClickedBrowse();
 	afx_msg void OnBnClickedSelectall();
 	afx_msg void OnBnClickedHelp();
+	afx_msg void OnCbnSelchangeOldlogs();
 	afx_msg void OnCbnCloseupOldlogs();
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_url;
-	CTSVNPath m_path;
+	CString m_path;
 	CString m_sMessage;
 	CHistoryCombo m_URLCombo;
 	CSciEdit m_cMessage;

@@ -23,7 +23,7 @@
 
 // CSimplePrompt dialog
 
-class CSimplePrompt : public CDialog
+class CSimplePrompt : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CSimplePrompt)
 

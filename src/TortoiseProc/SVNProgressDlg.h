@@ -24,8 +24,8 @@
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
-/** 
- * Options which can be used to configure the way the dialog box works
+/** Options which can be used to configure the way the dialog box works
+ *
  */
 typedef enum
 {
@@ -36,13 +36,6 @@ typedef enum
 	ProgOptDryRun = 0x04
 } ProgressOptions;
 
-typedef enum
-{
-	CLOSE_MANUAL = 0,
-	CLOSE_NOERRORS,
-	CLOSE_NOCONFLICTS,
-	CLOSE_NOMERGES
-} ProgressCloseOptions;
 
 /**
  * \ingroup TortoiseProc
@@ -89,8 +82,7 @@ public:
 		Merge = 10,
 		Enum_Merge = 10,
 		Copy = 11,
-		Relocate = 12,
-		Rename = 13
+		Relocate = 12
 	} Command;
 
 private:
@@ -175,17 +167,16 @@ protected:
 	static BOOL	m_bAscending;
 	static int	m_nSortedColumn;
 	CStringList m_ExtStack;
+public:			//need to be public for the thread to access
 
 private:
 	static UINT ProgressThreadEntry(LPVOID pVoid);
 	UINT ProgressThread();
 	virtual void OnOK();
-	void ReportSVNError();
-	void ReportError(const CString& sError);
-	void ReportWarning(const CString& sWarning);
-	void ReportNotification(const CString& sNotification);
-	void ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
+	void ReportSVNError() const;
 	void AddItemToList(const NotificationData* pData);
+
+public:
 
 private:
 	/**
@@ -198,7 +189,7 @@ private:
 
 
 public:
-	DWORD		m_dwCloseOnEnd;
+	BOOL		m_bCloseOnEnd;
 	SVNRev		m_RevisionEnd;
 
 private:
@@ -220,8 +211,6 @@ private:
 	BOOL		m_bCancelled;
 	BOOL		m_bThreadRunning;
 	bool		m_bConflictsOccurred;
-	bool		m_bErrorsOccurred;
-	bool		m_bMergesAddsDeletesOccurred;
 	int			iFirstResized;
 	BOOL		bSecondResized;
 	// The path of the item we will offer to show a log for, after an 'update' is complete

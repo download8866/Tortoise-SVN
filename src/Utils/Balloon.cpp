@@ -953,23 +953,23 @@ void CBalloon::GetGradientColors(COLORREF & crBegin, COLORREF & crMid, COLORREF 
 	crEnd = GetColor(BALLOON_COLOR_BK_END);
 } 
 
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, UINT nIdIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, UINT nIdIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF crStart, COLORREF crMid, COLORREF crEnd)
 {
 	CString str;
 	str.LoadString(nIdText);
-	return ShowBalloon(pWnd, pt, str, nIdIcon, showCloseButton, nDirection, nEffect, crStart, crMid, crEnd);
+	ShowBalloon(pWnd, pt, str, nIdIcon, showCloseButton, nDirection, nEffect, crStart, crMid, crEnd);
 }
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, HICON hIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, HICON hIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF crStart, COLORREF crMid, COLORREF crEnd)
 {
 	CString str;
 	str.LoadString(nIdText);
-	return ShowBalloon(pWnd, pt, str, showCloseButton, hIcon, nDirection, nEffect, crStart, crMid, crEnd);
+	ShowBalloon(pWnd, pt, str, showCloseButton, hIcon, nDirection, nEffect, crStart, crMid, crEnd);
 }
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, UINT nIdIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, UINT nIdIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF crStart, COLORREF crMid, COLORREF crEnd)
 {
@@ -982,23 +982,23 @@ CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL sho
 		
 		hIcon = (HICON)::LoadImage(hInstResource, MAKEINTRESOURCE(nIdIcon), IMAGE_ICON, 0, 0, 0);
 	}
-	return ShowBalloon(pWnd, pt, sText, showCloseButton, hIcon, nDirection, nEffect, crStart, crMid, crEnd);
+	ShowBalloon(pWnd, pt, sText, showCloseButton, hIcon, nDirection, nEffect, crStart, crMid, crEnd);
 }
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF /*crStart*/, COLORREF /*crMid*/, COLORREF /*crEnd*/)
 {
 	HICON hIcon = (HICON)::LoadImage(NULL, szIcon, IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTSIZE);
-	return ShowBalloon(pWnd, pt, nIdText, showCloseButton, hIcon, nDirection, nEffect);
+	ShowBalloon(pWnd, pt, nIdText, showCloseButton, hIcon, nDirection, nEffect);
 }
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, LPCTSTR szIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, LPCTSTR szIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF /*crStart*/, COLORREF /*crMid*/, COLORREF /*crEnd*/)
 {
 	HICON hIcon = (HICON)::LoadImage(NULL, szIcon, IMAGE_ICON, 0, 0, LR_SHARED | LR_DEFAULTSIZE);
-	return ShowBalloon(pWnd, pt, sText, showCloseButton, hIcon, nDirection, nEffect);
+	ShowBalloon(pWnd, pt, sText, showCloseButton, hIcon, nDirection, nEffect);
 }
-CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, HICON hIcon, 
+void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, HICON hIcon, 
 							UINT nDirection, UINT nEffect, 
 							COLORREF crStart, COLORREF crMid, COLORREF crEnd)
 {
@@ -1030,7 +1030,6 @@ CBalloon * CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL sho
 	pSB->DisplayToolTip(&pt);
 	if (!showCloseButton)
 		pSB->SetTimer(BALLOON_HIDE, 5000, NULL); //auto close the dialog if no close button is shown
-	return pSB;
 }
 
 void CBalloon::AddTool(int nIdWnd, UINT nIdText, HICON hIcon/* = NULL*/)

@@ -21,7 +21,6 @@
 #ifdef _MFC_VER
 #	include "SVNPrompt.h"
 #endif
-#include "TSVNPath.h"
 
 #pragma warning (push,1)
 typedef std::basic_string<wchar_t> wide_string;
@@ -32,8 +31,7 @@ typedef std::basic_string<wchar_t> wide_string;
 #endif
 #pragma warning (pop)
 
-#define MAX_STATUS_STRING_LENGTH		100
-
+class CTSVNPathList;
 
 /**
  * \ingroup TortoiseShell
@@ -71,7 +69,7 @@ public:
 	 * If the status of the text and property part are different
 	 * then the more important status is returned.
 	 */
-	static svn_wc_status_kind GetAllStatus(const CTSVNPath& path, BOOL recursive = FALSE);
+	static svn_wc_status_kind GetAllStatus(const TCHAR * path, BOOL recursive = FALSE);
 
 	/**
 	 * Reads the Subversion status of the working copy entry and all its
@@ -80,7 +78,7 @@ public:
 	 * If the status of the text and property part are different then
 	 * the more important status is returned.
 	 */
-	static svn_wc_status_kind GetAllStatusRecursive(const CTSVNPath& path);
+	static svn_wc_status_kind GetAllStatusRecursive(const TCHAR * path);
 
 	/**
 	 * Returns the status which is more "important" of the two statuses specified.
@@ -108,7 +106,7 @@ public:
 	 * \return If update is set to true the HEAD revision of the repository is returned. If update is false then -1 is returned.
 	 * \remark If the return value is -2 then the status could not be obtained.
 	 */
-	svn_revnum_t GetStatus(const CTSVNPath& path, bool update = false, bool noignore = false);
+	svn_revnum_t GetStatus(const TCHAR * path, bool update = false, bool noignore = false);
 
 	/**
 	 * Returns a string representation of a Subversion status.
@@ -126,14 +124,14 @@ public:
 	 * \param update set this to true if you want the status to be updated with the repository (needs network access)
 	 * \return the status
 	 */
-	svn_wc_status_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false);
+	svn_wc_status_t * GetFirstFileStatus(const TCHAR * path, const TCHAR ** retPath, bool update = false);
 	unsigned int GetFileCount() {return apr_hash_count(m_statushash);}
 	unsigned int GetVersionedCount();
 	/**
 	 * Returns the status of the next file in the filelist. If no more files are in the list then NULL is returned.
 	 * See GetFirstFileStatus() for details.
 	 */
-	svn_wc_status_t * GetNextFileStatus(CTSVNPath& retPath);
+	svn_wc_status_t * GetNextFileStatus(const TCHAR ** retPath);
 
 	/**
 	 * Clears the memory pool.

@@ -23,13 +23,10 @@
 #include "Balloon.h"
 #include "BrowseFolder.h"
 #include "MessageBox.h"
-#include "registry.h"
-#include "Utils.h"
-#include ".\mergedlg.h"
 
-IMPLEMENT_DYNAMIC(CMergeDlg, CDialog)
+IMPLEMENT_DYNAMIC(CMergeDlg, CStandAloneDialog)
 CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CMergeDlg::IDD, pParent)
+	: CStandAloneDialog(CMergeDlg::IDD, pParent)
 	, m_URLFrom(_T(""))
 	, m_URLTo(_T(""))
 	, StartRev(0)
@@ -45,23 +42,24 @@ CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
 CMergeDlg::~CMergeDlg()
 {
 	if (m_pLogDlg)
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 	if (m_pLogDlg2)
-		delete m_pLogDlg2;
+		delete [] m_pLogDlg2;
 }
 
 void CMergeDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Text(pDX, IDC_REVISION_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
 	DDX_Check(pDX, IDC_USEFROMURL, m_bUseFromURL);
+	DDX_Check(pDX, IDC_DRYRUN, m_bDryRun);
 }
 
 
-BEGIN_MESSAGE_MAP(CMergeDlg, CDialog)
+BEGIN_MESSAGE_MAP(CMergeDlg, CStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBnClickedBrowse2)
@@ -73,10 +71,6 @@ BEGIN_MESSAGE_MAP(CMergeDlg, CDialog)
 	ON_BN_CLICKED(IDC_FINDBRANCHEND, OnBnClickedFindbranchend)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_USEFROMURL, OnBnClickedUsefromurl)
-	ON_BN_CLICKED(IDC_WCLOG, OnBnClickedWCLog)
-	ON_BN_CLICKED(IDC_DRYRUNBUTTON, OnBnClickedDryrunbutton)
-	ON_BN_CLICKED(IDC_DIFFBUTTON, OnBnClickedDiffbutton)
-	ON_CBN_EDITCHANGE(IDC_URLCOMBO, OnCbnEditchangeUrlcombo)
 END_MESSAGE_MAP()
 
 
@@ -84,20 +78,19 @@ END_MESSAGE_MAP()
 
 BOOL CMergeDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	m_bFile = !PathIsDirectory(m_URLFrom);
 	SVN svn;
 	CString url = svn.GetURLFromPath(CTSVNPath(m_wcPath));
-	CString sUUID = svn.GetUUIDFromPath(CTSVNPath(m_wcPath));
 	if (url.IsEmpty())
 	{
 		CString temp;
-		temp.Format(IDS_ERR_NOURLOFFILE, m_wcPath.GetWinPath());
+		temp.Format(IDS_ERR_NOURLOFFILE, (LPCTSTR)m_wcPath);
 		CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_ICONERROR);
 		this->EndDialog(IDCANCEL);
 		return TRUE;
-	}
+	} // if ((status.status == NULL) || (status.status->entry == NULL))
 	else
 	{
 		if (!bRepeating)
@@ -106,19 +99,14 @@ BOOL CMergeDlg::OnInitDialog()
 			m_URLTo = url;
 		}
 		GetDlgItem(IDC_WCURL)->SetWindowText(url);
-		GetDlgItem(IDC_WCPATH)->SetWindowText(m_wcPath.GetWinPath());
 	}
 
 	m_URLCombo.SetURLHistory(TRUE);
-	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
-	m_URLCombo.SetCurSel(0);
-	if ((m_URLCombo.GetString().IsEmpty())||bRepeating)
-		m_URLCombo.SetWindowText(m_URLFrom);
+	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
+	m_URLCombo.SetWindowText(m_URLFrom);
 	m_URLCombo2.SetURLHistory(TRUE);
-	m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
-	m_URLCombo2.SetCurSel(0);
-	if ((m_URLCombo2.GetString().IsEmpty())||bRepeating)
-		m_URLCombo2.SetWindowText(m_URLTo);
+	m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
+	m_URLCombo2.SetWindowText(m_URLTo);
 
 	if (bRepeating)
 	{
@@ -145,17 +133,17 @@ BOOL CMergeDlg::OnInitDialog()
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 	}
-	OnBnClickedUsefromurl();
-	if ((m_pParentWnd==NULL)&&(hWndExplorer))
+	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
+	EnableSaveRestore(_T("MergeDlg"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-BOOL CMergeDlg::CheckData()
+void CMergeDlg::OnOK()
 {
 	if (!UpdateData(TRUE))
-		return FALSE;
+		return; // don't dismiss dialog (error message already shown by MFC framework)
 
 	StartRev = SVNRev(m_sStartRev);
 	EndRev = SVNRev(m_sEndRev);
@@ -167,7 +155,7 @@ BOOL CMergeDlg::CheckData()
 	if (!StartRev.IsValid())
 	{
 		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_START), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
-		return FALSE;
+		return;
 	}
 
 	// if head revision, set revision as -1
@@ -178,7 +166,7 @@ BOOL CMergeDlg::CheckData()
 	if (!EndRev.IsValid())
 	{
 		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_END), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
-		return FALSE;
+		return;
 	}
 
 	m_URLCombo.SaveHistory();
@@ -192,55 +180,8 @@ BOOL CMergeDlg::CheckData()
 		m_URLTo = m_URLFrom;
 
 	UpdateData(FALSE);
-	return TRUE;
-}
 
-void CMergeDlg::OnOK()
-{
-	m_bDryRun = FALSE;
-	if (CheckData())
-		CDialog::OnOK();
-	else
-		return;
-}
-
-void CMergeDlg::OnBnClickedDryrunbutton()
-{
-	m_bDryRun = TRUE;
-	if (CheckData())
-		CDialog::OnOK();
-	else
-		return;
-}
-
-void CMergeDlg::OnBnClickedDiffbutton()
-{
-	if (!CheckData())
-		return;
-	AfxGetApp()->DoWaitCursor(1);
-	// create a unified diff of the merge
-	SVN svn;
-	CTSVNPath tempfile = CUtils::GetTempFilePath(CTSVNPath(_T("test.diff")));
-	if (m_bUseFromURL)
-	{
-		if (!svn.PegDiff(CTSVNPath(m_URLFrom), StartRev, StartRev, EndRev, TRUE, FALSE, FALSE, CString(), tempfile))
-		{
-			CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-			AfxGetApp()->DoWaitCursor(-1);
-			return;
-		}
-	}
-	else
-	{
-		if (!svn.Diff(CTSVNPath(m_URLFrom), StartRev, CTSVNPath(m_URLTo), EndRev, TRUE, FALSE, FALSE, CString(), tempfile))
-		{
-			CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-			AfxGetApp()->DoWaitCursor(-1);
-			return;
-		}
-	}
-	CUtils::StartUnifiedDiffViewer(tempfile);
-	AfxGetApp()->DoWaitCursor(-1);
+	CStandAloneDialog::OnOK();
 }
 
 void CMergeDlg::OnBnClickedBrowse()
@@ -390,7 +331,7 @@ void CMergeDlg::OnBnClickedRevisionN1()
 void CMergeDlg::OnBnClickedFindbranchstart()
 {
 	UpdateData(TRUE);
-	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
+	if ((m_pLogDlg)&&(m_pLogDlg->IsWindowVisible()))
 		return;
 	CString url;
 	m_URLCombo.GetWindowText(url);
@@ -398,21 +339,21 @@ void CMergeDlg::OnBnClickedFindbranchstart()
 	//now show the log dialog for the main trunk
 	if (!url.IsEmpty())
 	{
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
-		m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, TRUE);
+		m_pLogDlg->SetParams(url, SVNRev::REV_HEAD, 1, TRUE);
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg->ShowWindow(SW_SHOW);
-		m_pLogDlg->m_wParam = (m_bUseFromURL ? (MERGE_REVSELECTSTARTEND | MERGE_REVSELECTMINUSONE) : MERGE_REVSELECTSTART);
 		m_pLogDlg->m_pNotifyWindow = this;
-	}
+		m_pLogDlg->m_wParam = 0;
+	} // if (!url.IsEmpty()) 
 	AfxGetApp()->DoWaitCursor(-1);
 }
 
 void CMergeDlg::OnBnClickedFindbranchend()
 {
 	UpdateData(TRUE);
-	if (::IsWindow(m_pLogDlg2->GetSafeHwnd())&&(m_pLogDlg2->IsWindowVisible()))
+	if ((m_pLogDlg2)&&(m_pLogDlg2->IsWindowVisible()))
 		return;
 	CString url;
 	if (m_bUseFromURL)
@@ -423,36 +364,34 @@ void CMergeDlg::OnBnClickedFindbranchend()
 	//now show the log dialog for the main trunk
 	if (!url.IsEmpty())
 	{
-		delete m_pLogDlg2;
+		delete [] m_pLogDlg2;
 		m_pLogDlg2 = new CLogDlg();
-		m_pLogDlg2->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, TRUE);
+		m_pLogDlg2->SetParams(url, SVNRev::REV_HEAD, 1, TRUE);
 		m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg2->ShowWindow(SW_SHOW);
-		m_pLogDlg2->m_wParam = (m_bUseFromURL ? (MERGE_REVSELECTSTARTEND | MERGE_REVSELECTMINUSONE) : MERGE_REVSELECTEND);
 		m_pLogDlg2->m_pNotifyWindow = this;
-	}
+		m_pLogDlg2->m_wParam = 1;
+	} // if (!url.IsEmpty()) 
 	AfxGetApp()->DoWaitCursor(-1);
 }
 
 LPARAM CMergeDlg::OnRevSelected(WPARAM wParam, LPARAM lParam)
 {
 	CString temp;
-
-	if (wParam & MERGE_REVSELECTSTART)
+	temp.Format(_T("%ld"), lParam);
+	if (wParam == 0)
 	{
-		if (wParam & MERGE_REVSELECTMINUSONE)
-			lParam--;
-		temp.Format(_T("%ld"), lParam);
 		GetDlgItem(IDC_REVISION_START)->SetWindowText(temp);
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 		GetDlgItem(IDC_REVISION_START)->EnableWindow(TRUE);
+
 	}
-	if (wParam & MERGE_REVSELECTEND)
+	else
 	{
-		temp.Format(_T("%ld"), lParam);
 		GetDlgItem(IDC_REVISION_END)->SetWindowText(temp);
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
 		GetDlgItem(IDC_REVISION_END)->EnableWindow(TRUE);
+
 	}
 	return 0;
 }
@@ -467,9 +406,8 @@ void CMergeDlg::OnBnClickedUsefromurl()
 	UpdateData();
 	if (m_bUseFromURL)
 	{
-		CString str;
-		m_URLCombo.GetWindowText(str);
-		m_URLCombo2.SetWindowText(str);
+		GetDlgItem(IDC_URLCOMBO2)->SetWindowText(m_URLFrom);
+		m_URLTo = m_URLFrom;
 		GetDlgItem(IDC_URLCOMBO2)->EnableWindow(FALSE);
 		GetDlgItem(IDC_BROWSE2)->EnableWindow(FALSE);
 	}
@@ -479,34 +417,6 @@ void CMergeDlg::OnBnClickedUsefromurl()
 		GetDlgItem(IDC_BROWSE2)->EnableWindow(TRUE);
 	}
 	UpdateData(FALSE);
-}
-
-void CMergeDlg::OnBnClickedWCLog()
-{
-	UpdateData(TRUE);
-	if ((m_pLogDlg)&&(m_pLogDlg->IsWindowVisible()))
-		return;
-	AfxGetApp()->DoWaitCursor(1);
-	//now show the log dialog for working copy
-	if (!m_wcPath.IsEmpty())
-	{
-		delete [] m_pLogDlg;
-		m_pLogDlg = new CLogDlg();
-		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_HEAD, -(long)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100), TRUE);
-		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->ShowWindow(SW_SHOW);
-	} // if (!url.IsEmpty()) 
-	AfxGetApp()->DoWaitCursor(-1);
-}
-
-void CMergeDlg::OnCbnEditchangeUrlcombo()
-{
-	if (m_bUseFromURL)
-	{
-		CString str;
-		m_URLCombo.GetWindowText(str);
-		m_URLCombo2.SetWindowText(str);
-	}
 }
 
 

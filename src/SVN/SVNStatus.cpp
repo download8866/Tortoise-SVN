@@ -151,7 +151,7 @@ stdstring SVNStatus::GetLastErrorMsg()
 #endif
 
 //static method
-svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, BOOL recursive)
+svn_wc_status_kind SVNStatus::GetAllStatus(const TCHAR * path, BOOL recursive)
 {
 	//svn_auth_baton_t *			auth_baton;
 	svn_client_ctx_t 			ctx;
@@ -159,11 +159,27 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, BOOL recursive
 	svn_wc_status_kind			statuskind;
 	apr_pool_t *				pool;
 	svn_error_t *				err;
+	const char *				internalpath;
 	BOOL						isDir;
 
-	isDir = path.IsDirectory();
-	if (!path.HasAdminDir())
+	TCHAR						pathbuf[MAX_PATH];
+	_tcscpy(pathbuf, path);
+	isDir = PathIsDirectory(path);
+	if (!isDir)
+	{
+		TCHAR * ptr = _tcsrchr(pathbuf, '\\');
+		if (ptr == 0)
+			ptr = _tcsrchr(pathbuf, '/');
+		if (ptr == 0)
+			return svn_wc_status_unversioned;
+		*ptr = 0;
+	} // if (!isDir)
+	_tcscat(pathbuf, _T("\\"));
+	_tcscat(pathbuf, _T(SVN_WC_ADM_DIR_NAME));
+	if (!PathFileExists(pathbuf))
 		return svn_wc_status_unversioned;
+	if ((isDir)&&(!recursive))
+		return svn_wc_status_normal;
 
 	pool = svn_pool_create (NULL);				// create the memory pool
 	svn_utf_initialize(pool);
@@ -174,12 +190,16 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, BOOL recursive
 
 	memset (&ctx, 0, sizeof (ctx));
 
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), pool);
+
 	svn_revnum_t youngest = SVN_INVALID_REVNUM;
 	svn_opt_revision_t rev;
 	rev.kind = svn_opt_revision_unspecified;
 	statuskind = svn_wc_status_none;
 	err = svn_client_status (&youngest,
-							path.GetSVNApiPath(),
+							internalpath,
 							&rev,
 							getallstatus,
 							&statuskind,
@@ -202,7 +222,7 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, BOOL recursive
 }
 
 //static method
-svn_wc_status_kind SVNStatus::GetAllStatusRecursive(const CTSVNPath& path)
+svn_wc_status_kind SVNStatus::GetAllStatusRecursive(const TCHAR * path)
 {
 	return GetAllStatus(path, TRUE);
 }
@@ -250,11 +270,16 @@ int SVNStatus::GetStatusRanking(svn_wc_status_kind status)
 	return 0;
 }
 
-svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false */, bool noignore /* = false */)
+svn_revnum_t SVNStatus::GetStatus(const TCHAR * path, bool update /* = false */, bool noignore /* = false */)
 {
 	apr_hash_t *				statushash;
 	apr_array_header_t *		statusarray;
 	const sort_item*			item;
+	const char *				internalpath;
+
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), m_pool);
 
 	statushash = apr_hash_make(m_pool);
 	svn_revnum_t youngest = SVN_INVALID_REVNUM;
@@ -264,7 +289,7 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	hashbaton.hash = statushash;
 	hashbaton.pThis = this;
 	m_err = svn_client_status (&youngest,
-							path.GetSVNApiPath(),
+							internalpath,
 							&rev,
 							getstatushash,
 							&hashbaton,
@@ -295,9 +320,15 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	
 	return youngest;
 }
-svn_wc_status_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update)
+svn_wc_status_t * SVNStatus::GetFirstFileStatus(const TCHAR * path, const TCHAR ** retPath, bool update)
 {
 	const sort_item*			item;
+	const char *				internalpath;
+
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), m_pool);
+
 
 	m_statushash = apr_hash_make(m_pool);
 	headrev = SVN_INVALID_REVNUM;
@@ -307,7 +338,7 @@ svn_wc_status_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath
 	hashbaton.hash = m_statushash;
 	hashbaton.pThis = this;
 	m_err = svn_client_status (&headrev,
-							path.GetSVNApiPath(),
+							internalpath,
 							&rev,
 							getstatushash,
 							&hashbaton,
@@ -333,7 +364,14 @@ svn_wc_status_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath
 	//only the first entry is needed (no recurse)
 	m_statushashindex = 0;
 	item = &APR_ARRAY_IDX (m_statusarray, m_statushashindex, const sort_item);
-	retPath.SetFromSVN((const char*)item->key);
+#ifdef UNICODE
+	int len = MultiByteToWideChar(CP_UTF8, 0, (const char *)item->key, -1, 0, 0);
+	*retPath = (const TCHAR *)apr_palloc(m_pool, len * sizeof(TCHAR));
+	MultiByteToWideChar(CP_UTF8, 0, (const char *)item->key, -1, (LPWSTR)*retPath, len);
+#else
+	if (svn_utf_cstring_from_utf8 (retPath, (const char *)item->key, m_pool) != NULL)
+		return NULL;
+#endif
 	return (svn_wc_status_t *) item->value;
 }
 
@@ -353,7 +391,7 @@ unsigned int SVNStatus::GetVersionedCount()
 	return count;
 }
 
-svn_wc_status_t * SVNStatus::GetNextFileStatus(CTSVNPath& retPath)
+svn_wc_status_t * SVNStatus::GetNextFileStatus(const TCHAR ** retPath)
 {
 	const sort_item*			item;
 
@@ -362,7 +400,14 @@ svn_wc_status_t * SVNStatus::GetNextFileStatus(CTSVNPath& retPath)
 	m_statushashindex++;
 
 	item = &APR_ARRAY_IDX (m_statusarray, m_statushashindex, const sort_item);
-	retPath.SetFromSVN((const char*)item->key);
+#ifdef UNICODE
+	int len = MultiByteToWideChar(CP_UTF8, 0, (const char *)item->key, -1, 0, 0);
+	*retPath = (const TCHAR *)apr_palloc(m_pool, len * sizeof(TCHAR));
+	MultiByteToWideChar(CP_UTF8, 0, (const char *)item->key, -1, (LPWSTR)*retPath, len);
+#else
+	if (svn_utf_cstring_from_utf8 (retPath, (const char *)item->key, m_pool) != NULL)
+		return NULL;
+#endif	
 	return (svn_wc_status_t *) item->value;
 }
 
@@ -402,7 +447,7 @@ void SVNStatus::GetStatusString(svn_wc_status_kind status, TCHAR * string)
 			buf = _T("conflicted\0");
 			break;
 		case svn_wc_status_obstructed:
-			buf = _T("obstructed\0");
+			buf = _T("conflicted\0");
 			break;
 		case svn_wc_status_ignored:
 			buf = _T("ignored");

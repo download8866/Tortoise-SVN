@@ -129,17 +129,47 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 				} // if (sLine.Left(7).Compare(_T("Index: "))==0)
 				else
 				{
+					//the line
+					//Index: <filepath>
+					//was not found at the start of a filediff!
+					
+					//maybe an empty line? 
+					if (sLine.IsEmpty())
+						break;			//then just try again
+					TCHAR type  = sLine.GetAt(0);
+					if (type == '\\')
+						break;
+					if (sLine.Left(14).Compare(_T("Cannot display"))==0)
+						break;
+					if (sLine.Left(13).Compare(_T("svn:mime-type"))==0)
+						break;
+					if (sLine.Left(20).Compare(_T("Property changes on:"))==0)
+						break;
+					if (sLine.Left(3).Compare(_T("___"))==0)
+						break;
+					if (sLine.Left(5).Compare(_T("Name:"))==0)
+						break;
+					if (sLine.Left(3).Compare(_T("   "))==0)
+						break;
+					if (sLine.Left(1).Compare(_T(" "))==0)
+						break;
+					//But before throwing an error, check first if 
+					//instead of a new filediff we just have a new chunk:
 					if (nIndex > 0)
 					{
 						nIndex--;
 						state = 4;
 						if (chunks == NULL)
 						{
-							//the line
-							//Index: <filepath>
-							//was not found at the start of a filediff!
-							break;
+							m_sErrorMessage.Format(IDS_ERR_PATCH_UNKOWNLINETYPE, nIndex);
+							goto errorcleanup;
 						}
+
+					} // if (nIndex > 0) 
+					else
+					{
+						m_sErrorMessage.LoadString(IDS_ERR_PATCH_NOINDEX);
+						goto errorcleanup;
 					}
 				}
 			} 
@@ -560,19 +590,6 @@ CString	CPatch::CheckPatchPath(const CString& path)
 		if (CountMatches(subpath) > (GetNumberOfFiles()/3))
 			return subpath;
 	}
-	
-	// if a patch file only contains newly added files
-	// we can't really find the correct path.
-	// But: we can compare paths strings without the filenames
-	// and check if at least those match
-	upperpath = path;
-	while (upperpath.ReverseFind('\\')>0)
-	{
-		upperpath = upperpath.Left(upperpath.ReverseFind('\\'));
-		if (CountDirMatches(upperpath) > (GetNumberOfFiles()/3))
-			return upperpath;
-	}
-	
 	return path;
 }
 
@@ -585,23 +602,6 @@ int CPatch::CountMatches(const CString& path)
 		temp.Replace('/', '\\');
 		if (PathIsRelative(temp))
 			temp = path + _T("\\")+ temp;
-		if (PathFileExists(temp))
-			matches++;
-	}
-	return matches;
-}
-
-int CPatch::CountDirMatches(const CString& path)
-{
-	int matches = 0;
-	for (int i=0; i<GetNumberOfFiles(); ++i)
-	{
-		CString temp = GetFilename(i);
-		temp.Replace('/', '\\');
-		if (PathIsRelative(temp))
-			temp = path + _T("\\")+ temp;
-		// remove the filename
-		temp = temp.Left(temp.ReverseFind('\\'));
 		if (PathFileExists(temp))
 			matches++;
 	}

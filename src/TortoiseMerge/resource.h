@@ -108,7 +108,6 @@
 #define IDC_STRIKEOUT                   1066
 #define IDC_CHECK3                      1067
 #define IDC_RESOLVE                     1067
-#define IDC_CASEINSENSITIVE             1067
 #define IDC_CHECK4                      1068
 #define IDC_USEBDIFF                    1068
 #define IDC_VERSIONBOX                  1075
@@ -118,7 +117,6 @@
 #define IDC_FONTSIZES                   1086
 #define IDS_ERR_FILE_OPEN               1100
 #define IDS_ERR_FILE_BINARY             1101
-#define IDS_ERR_FILE_NOTAFILE           1102
 #define IDS_ABOUTVERSION                1700
 #define IDS_ABOUTVERSIONBOX             1701
 #define IDS_SETTINGSTITLE               1702

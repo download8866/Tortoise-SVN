@@ -26,70 +26,49 @@
 #include "BrowseFolder.h"
 #include "Registry.h"
 #include "TSVNPath.h"
-#include ".\copydlg.h"
 
 // CCopyDlg dialog
 
-IMPLEMENT_DYNAMIC(CCopyDlg, CDialog)
+IMPLEMENT_DYNAMIC(CCopyDlg, CStandAloneDialog)
 CCopyDlg::CCopyDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CCopyDlg::IDD, pParent)
+	: CStandAloneDialog(CCopyDlg::IDD, pParent)
 	, m_URL(_T(""))
 	, m_sLogMessage(_T(""))
+	, m_bDirectCopy(TRUE)
 	, m_sBugID(_T(""))
-	, m_CopyRev(SVNRev::REV_HEAD)
 {
-	m_pLogDlg = NULL;
 }
 
 CCopyDlg::~CCopyDlg()
 {
-	if (m_pLogDlg)
-		delete m_pLogDlg;
 }
 
 void CCopyDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Control(pDX, IDC_BROWSE, m_butBrowse);
+	DDX_Check(pDX, IDC_DIRECTCOPY, m_bDirectCopy);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Control(pDX, IDC_OLDLOGS, m_OldLogs);
 	DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
 }
 
 
-BEGIN_MESSAGE_MAP(CCopyDlg, CDialog)
-	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
+BEGIN_MESSAGE_MAP(CCopyDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
+	ON_CBN_SELCHANGE(IDC_OLDLOGS, OnCbnSelchangeOldlogs)
 	ON_CBN_CLOSEUP(IDC_OLDLOGS, OnCbnCloseupOldlogs)
-	ON_BN_CLICKED(IDC_BROWSEFROM, OnBnClickedBrowsefrom)
-	ON_BN_CLICKED(IDC_COPYHEAD, OnBnClickedCopyhead)
-	ON_BN_CLICKED(IDC_COPYREV, OnBnClickedCopyrev)
-	ON_BN_CLICKED(IDC_COPYWC, OnBnClickedCopywc)
 END_MESSAGE_MAP()
 
 
 BOOL CCopyDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	CTSVNPath path(m_path);
 
-	if (m_CopyRev.IsHead())
-	{
-		CheckRadioButton(IDC_COPYHEAD, IDC_COPYREV, IDC_COPYHEAD);
-		GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(FALSE);
-	}
-	else
-	{
-		CheckRadioButton(IDC_COPYHEAD, IDC_COPYREV, IDC_COPYREV);
-		GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(TRUE);
-		CString temp;
-		temp.Format(_T("%ld"), (LONG)m_CopyRev);
-		GetDlgItem(IDC_COPYREVTEXT)->SetWindowText(temp);
-	}
-	
 	m_bFile = !path.IsDirectory();
 	SVN svn;
 	m_wcURL = svn.GetURLFromPath(path);
@@ -99,9 +78,9 @@ BOOL CCopyDlg::OnInitDialog()
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_NOURLOFFILE, IDS_APPNAME, MB_ICONERROR);
 		TRACE(_T("could not retrieve the URL of the file!\n"));
 		this->EndDialog(IDCANCEL);		//exit
-	}
+	} // if ((rev == (-2))||(status.status->entry == NULL))
 	m_URLCombo.SetURLHistory(TRUE);
-	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
+	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
 	m_URLCombo.AddString(m_wcURL, 0);
 	m_URLCombo.SelectString(-1, m_wcURL);
 	GetDlgItem(IDC_FROMURL)->SetWindowText(m_wcURL);
@@ -111,7 +90,7 @@ BOOL CCopyDlg::OnInitDialog()
 	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
 
 	m_ProjectProperties.ReadProps(m_path);
-	m_cLogMessage.Init(m_ProjectProperties);
+	m_cLogMessage.Init(m_ProjectProperties.lProjectLanguage);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	if (m_ProjectProperties.sMessage.IsEmpty())
 	{
@@ -127,9 +106,22 @@ BOOL CCopyDlg::OnInitDialog()
 			GetDlgItem(IDC_BUGIDLABEL)->SetWindowText(m_ProjectProperties.sLabel);
 		GetDlgItem(IDC_BUGID)->SetFocus();
 	}
+	if (m_ProjectProperties.nLogWidthMarker)
+	{
+		m_cLogMessage.Call(SCI_SETWRAPMODE, SC_WRAP_NONE);
+		m_cLogMessage.Call(SCI_SETEDGEMODE, EDGE_LINE);
+		m_cLogMessage.Call(SCI_SETEDGECOLUMN, m_ProjectProperties.nLogWidthMarker);
+	}
+	else
+	{
+		m_cLogMessage.Call(SCI_SETEDGEMODE, EDGE_NONE);
+		m_cLogMessage.Call(SCI_SETWRAPMODE, SC_WRAP_WORD);
+	}
+	m_cLogMessage.SetText(m_ProjectProperties.sLogTemplate);
 
-	if ((m_pParentWnd==NULL)&&(hWndExplorer))
+	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
+	EnableSaveRestore(_T("CopyDlg"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -138,33 +130,35 @@ void CCopyDlg::OnOK()
 {
 	CString id;
 	GetDlgItem(IDC_BUGID)->GetWindowText(id);
-	CString sRevText;
-	GetDlgItem(IDC_COPYREVTEXT)->GetWindowText(sRevText);
-	if (!m_ProjectProperties.CheckBugID(id))
+	if (m_ProjectProperties.bNumber)
 	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
-		return;
+		TCHAR c = 0;
+		BOOL bInvalid = FALSE;
+		int len = id.GetLength();
+		for (int i=0; i<len; ++i)
+		{
+			c = id.GetAt(i);
+			if ((c < '0')&&(c != ','))
+			{
+				bInvalid = TRUE;
+				break;
+			}
+			if (c > '9')
+				bInvalid = TRUE;
+		}
+		if (bInvalid)
+		{
+			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
+			return;
+		}
 	}
-	if ((m_ProjectProperties.bWarnIfNoIssue) && (id.IsEmpty() && !m_ProjectProperties.HasBugID(m_sLogMessage)))
+	if ((m_ProjectProperties.bWarnIfNoIssue)&&(id.IsEmpty()))
 	{
 		if (CMessageBox::Show(this->m_hWnd, IDS_LOGPROMPT_NOISSUEWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
 			return;
 	}
 	UpdateData(TRUE);
 
-	if (GetCheckedRadioButton(IDC_COPYHEAD, IDC_COPYREV) == IDC_COPYHEAD)
-		m_CopyRev = SVNRev(SVNRev::REV_HEAD);
-	else if (GetCheckedRadioButton(IDC_COPYHEAD, IDC_COPYREV) == IDC_COPYWC)
-		m_CopyRev = SVNRev(SVNRev::REV_WC);
-	else
-		m_CopyRev = SVNRev(sRevText);
-	
-	if (!m_CopyRev.IsValid())
-	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_COPYREVTEXT), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
-		return;
-	}
-		
 	CString combourl;
 	m_URLCombo.GetWindowText(combourl);
 	if (m_wcURL.CompareNoCase(combourl)==0)
@@ -193,7 +187,7 @@ void CCopyDlg::OnOK()
 			m_sLogMessage = sBugID + _T("\n") + m_sLogMessage;
 		UpdateData(FALSE);		
 	}
-	CDialog::OnOK();
+	CStandAloneDialog::OnOK();
 }
 
 void CCopyDlg::OnBnClickedBrowse()
@@ -247,16 +241,21 @@ void CCopyDlg::OnBnClickedHelp()
 	OnHelp();
 }
 
+void CCopyDlg::OnCbnSelchangeOldlogs()
+{
+	m_cLogMessage.SetText(m_OldLogs.GetString());
+}
+
 void CCopyDlg::OnCbnCloseupOldlogs()
 {
-	m_cLogMessage.InsertText(m_OldLogs.GetString());
+	m_cLogMessage.SetText(m_OldLogs.GetString());
 }
 
 void CCopyDlg::OnCancel()
 {
 	m_OldLogs.AddString(m_cLogMessage.GetText(), 0);
 	m_OldLogs.SaveHistory();
-	CDialog::OnCancel();
+	CStandAloneDialog::OnCancel();
 }
 
 BOOL CCopyDlg::PreTranslateMessage(MSG* pMsg)
@@ -275,53 +274,5 @@ BOOL CCopyDlg::PreTranslateMessage(MSG* pMsg)
 		}
 	}
 
-	return CDialog::PreTranslateMessage(pMsg);
-}
-
-void CCopyDlg::OnBnClickedBrowsefrom()
-{
-	UpdateData(TRUE);
-	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
-		return;
-	AfxGetApp()->DoWaitCursor(1);
-	//now show the log dialog
-	if (!m_wcURL.IsEmpty())
-	{
-		delete m_pLogDlg;
-		m_pLogDlg = new CLogDlg();
-		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
-		long revend = reg;
-		revend = -revend;
-		m_pLogDlg->SetParams(CTSVNPath(m_wcURL), SVNRev::REV_HEAD, revend, TRUE);
-		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->ShowWindow(SW_SHOW);
-		m_pLogDlg->m_wParam = 0;
-		m_pLogDlg->m_pNotifyWindow = this;
-	}
-	AfxGetApp()->DoWaitCursor(-1);
-}
-
-LPARAM CCopyDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
-{
-	CString temp;
-	temp.Format(_T("%ld"), lParam);
-	GetDlgItem(IDC_COPYREVTEXT)->SetWindowText(temp);
-	CheckRadioButton(IDC_COPYHEAD, IDC_COPYREV, IDC_COPYREV);
-	GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(TRUE);
-	return 0;
-}
-
-void CCopyDlg::OnBnClickedCopyhead()
-{
-	GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(FALSE);
-}
-
-void CCopyDlg::OnBnClickedCopyrev()
-{
-	GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(TRUE);
-}
-
-void CCopyDlg::OnBnClickedCopywc()
-{
-	GetDlgItem(IDC_COPYREVTEXT)->EnableWindow(FALSE);
+	return CStandAloneDialog::PreTranslateMessage(pMsg);
 }
