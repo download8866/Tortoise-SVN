@@ -17,18 +17,15 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 
-#include "stdafx.h"
 #include <string>
 #include <windows.h>
 
 #pragma warning (push,1)
 typedef std::wstring wide_string;
-#ifndef stdstring
-#	ifdef UNICODE
-#		define stdstring wide_string
-#	else
-#		define stdstring std::string
-#	endif
+#ifdef UNICODE
+#define stdstring wide_string
+#else
+#define stdstring std::string
 #endif
 #pragma warning (pop)
 // String resource helpers

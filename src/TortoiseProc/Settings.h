@@ -21,7 +21,6 @@
 #include "SetMainPage.h"
 #include "SetProxyPage.h"
 #include "SetOverlayPage.h"
-#include "SetMenuPage.h"
 
 
 
@@ -75,7 +74,6 @@ private:
 	CSetMainPage *		m_pMainPage;
 	CSetProxyPage *		m_pProxyPage;
 	CSetOverlayPage *	m_pOverlayPage;
-	CSetMenuPage *		m_pMenuPage;
 
 public:
 	CSettings(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);

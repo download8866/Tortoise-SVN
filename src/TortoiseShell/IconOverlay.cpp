@@ -68,8 +68,7 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 		case Versioned : iconName = _T("InSubversionIcon"); break;
 		case Modified  : iconName = _T("ModifiedIcon"); break;
 		case Conflict  : iconName = _T("ConflictIcon"); break;
-		case Deleted   : iconName = _T("DeletedIcon"); break;
-		case Added     : iconName = _T("AddedIcon"); break;
+		//case Deleted   : iconName = "DeletedIcon"; break;
 	}
 
 	for (int i = 0; i < 2; ++i)
@@ -121,14 +120,8 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 		case Modified:
 			*pPriority = 1;
 			break;
-		case Deleted:
-			*pPriority = 2;
-			break;
-		case Added:
-			*pPriority = 3;
-			break;
 		case Versioned:
-			*pPriority = 4;
+			*pPriority = 2;
 			break;
 		default:
 			*pPriority = 100;
@@ -155,6 +148,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /* dwAttrib */)
 #else
 	std::string sPath = WideToUTF8(std::basic_string<wchar_t>(pwszPath));
 #endif
+	CRegStdWORD showrecursive(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
 	//if recursive is set in the registry then check directories recursive for status and show
 	//the overlay with the highest priority on the folder.
 	//since this can be slow for big directories it is optional - but very neat
@@ -165,48 +159,35 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /* dwAttrib */)
 	}
 	else
 	{
-		if (! g_ShellCache.IsPathAllowed(sPath.c_str()))
+		CRegStdWORD driveremote(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
+		CRegStdWORD drivefixed(_T("Software\\TortoiseSVN\\DriveMaskFixed"));
+		CRegStdWORD drivecdrom(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
+		CRegStdWORD driveremove(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
+		TCHAR pathbuf[MAX_PATH+4];
+		_tcscpy(pathbuf, sPath.c_str());
+		if (!PathIsDirectory(sPath.c_str()))
+		{
+			PathRemoveFileSpec(pathbuf);
+		}
+		PathAddBackslash(pathbuf);
+		UINT drivetype = GetDriveType(pathbuf);
+		if ((drivetype == DRIVE_REMOVABLE)&&(driveremove == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_FIXED)&&(drivefixed == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_REMOTE)&&(driveremote == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_CDROM)&&(drivecdrom == 0))
 			return S_FALSE;
 
+		if ((showrecursive == 0)||(!PathIsDirectory(sPath.c_str())))
+			status = CachedStatus.GetFileStatus(sPath.c_str());
+		else
+			status = SVNStatus::GetAllStatusRecursive(sPath.c_str());
 		if (PathIsDirectory(sPath.c_str()))
 		{
-			TCHAR buf[MAX_PATH];
-			_tcscpy(buf, sPath.c_str());
-			_tcscat(buf, _T("\\"));
-			_tcscat(buf, _T(SVN_WC_ADM_DIR_NAME));
-			if (PathFileExists(buf))
-			{
-				if (!g_ShellCache.IsRecursive())
-				{
-					status = svn_wc_status_normal;
-				}
-				else
-				{
-					DWORD dwWaitResult = WaitForSingleObject(hMutex, 100);
-					if (dwWaitResult == WAIT_OBJECT_0)
-					{
-						filestatuscache * s = g_CachedStatus.GetFullStatus(sPath.c_str());
-						status = s->status;
-						ReleaseMutex(hMutex);
-					} // if (dwWaitResult == WAIT_OBJECT_0) 
-					else
-						status = svn_wc_status_normal;
-				}
-			} // if (PathFileExists(buf))
-			else
-			{
-				status = svn_wc_status_unversioned;
-			}
-		} // if (PathIsDirectory(filepath))
-		else
-		{
-			DWORD dwWaitResult = WaitForSingleObject(hMutex, 100);
-			if (dwWaitResult == WAIT_OBJECT_0)
-			{
-				filestatuscache * s = g_CachedStatus.GetFullStatus(sPath.c_str());
-				status = s->status;
-				ReleaseMutex(hMutex);
-			} // if (dwWaitResult == WAIT_OBJECT_0)
+			if (status == svn_wc_status_ignored)
+				status = svn_wc_status_normal;
 		}
 		filepath.clear();
 		filepath = sPath;
@@ -224,20 +205,22 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /* dwAttrib */)
 		case svn_wc_status_unversioned:
 			return S_FALSE;
 		case svn_wc_status_normal:
-		case svn_wc_status_external:
-		case svn_wc_status_incomplete:
 			if (m_State == Versioned)
 				return S_OK;
 			else
 				return S_FALSE;
 		case svn_wc_status_added:
-			if (m_State == Added)
+			if (m_State == Modified)
 				return S_OK;
 			else
 				return S_FALSE;
 		case svn_wc_status_absent:
+			if (m_State == Modified)
+				return S_OK;
+			else
+				return S_FALSE;
 		case svn_wc_status_deleted:
-			if (m_State == Deleted)
+			if (m_State == Modified)
 				return S_OK;
 			else
 				return S_FALSE;

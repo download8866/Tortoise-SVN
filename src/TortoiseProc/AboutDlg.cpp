@@ -20,14 +20,7 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "AboutDlg.h"
-#include "svn_version.h"
-#include "..\version.h"
 
-#ifdef UNICODE
-#	define STRINGWIDTH  "UNICODE"
-#else
-#	define STRINGWIDTH	"MBCS"
-#endif
 
 // CAboutDlg dialog
 
@@ -100,14 +93,6 @@ BOOL CAboutDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	//set the version string
-	CString temp;
-	temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD_INCVERSION, 
-		SVN_VER_MAJOR, SVN_VER_MINOR, SVN_VER_MICRO, _T(SVN_VER_TAG));
-	GetDlgItem(IDC_VERSIONABOUT)->SetWindowText(temp);
-	temp.Format(_T("%s, %s version"), _T("TortoiseSVN"), _T(STRINGWIDTH));
-	this->SetWindowText(temp);
-
 	CPictureHolder tmpPic;
 	tmpPic.CreateFromBitmap(IDB_LOGOFLIPPED);
 	m_renderSrc.Create32BitFromPicture(&tmpPic,301,167);
@@ -116,7 +101,6 @@ BOOL CAboutDlg::OnInitDialog()
 	m_waterEffect.Create(301,167);
 	SetTimer(ID_EFFECTTIMER, 40, NULL);
 	SetTimer(ID_DROPTIMER, 300, NULL);
-	CenterWindow(CWnd::FromHandle(hWndExplorer));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }

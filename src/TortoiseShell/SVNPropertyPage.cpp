@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "svnpropertypage.h"
 #include "SVNStatus.h"
 #include "SVNProperties.h"
@@ -7,7 +6,6 @@
 #include <string>
 #include <Shlwapi.h>
 #include <commctrl.h>
-#include "ProgressDlg.h"
 
 #define MAX_PROP_STRING_LENGTH		4096			//should be big enough
 
@@ -19,29 +17,23 @@ UINT CALLBACK PropPageCallbackProc ( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp 
 STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
                                   LPARAM lParam)
 {
-	for (std::vector<stdstring>::iterator I = files_.begin(); I != files_.end(); ++I)
-	{
-		SVNStatus svn = SVNStatus();
-		if (svn.GetStatus(I->c_str()) == (-2))
-			return NOERROR;			// file/directory not under version control
+	SVNStatus svn = SVNStatus();
+	if ((!isOnlyOneItemSelected)||(svn.GetStatus(files_.front().c_str()) == (-2)))
+		return NOERROR;			// file/directory not under version control
 
-		if (svn.status->entry == NULL)
-			return NOERROR;
-	} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
-
-	if (files_.size() == 0)
+	if (svn.status->entry == NULL)
 		return NOERROR;
 
-	LoadLangDll();
+	InitCommonControls();
     PROPSHEETPAGE psp;
-	ZeroMemory(&psp, sizeof(PROPSHEETPAGE));
-	HPROPSHEETPAGE hPage;
-	CSVNPropertyPage *sheetpage = new CSVNPropertyPage(files_);
+    HPROPSHEETPAGE hPage;
+    CSVNPropertyPage *sheetpage = new CSVNPropertyPage(files_.front());
 
     psp.dwSize = sizeof (psp);
-    psp.dwFlags = PSP_USEREFPARENT | PSP_USETITLE | PSP_USEICONID | PSP_USECALLBACK;	
-	psp.hInstance = g_hResInst;
-	psp.pszTemplate = MAKEINTRESOURCE(IDD_PROPPAGE);
+    psp.dwFlags = PSP_USEREFPARENT | PSP_USETITLE | PSP_USEICONID | PSP_USECALLBACK | PSP_DLGINDIRECT;	
+    psp.hInstance = g_hmodThisDll;
+    psp.pszTemplate = NULL;
+	psp.pResource = (PROPSHEETPAGE_RESOURCE)LockResource(LoadResource(g_hmodThisDll, FindResourceEx(g_hmodThisDll, RT_DIALOG, MAKEINTRESOURCE(IDD_PROPPAGE), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))));
     psp.pszIcon = MAKEINTRESOURCE(IDI_MENU);
     psp.pszTitle = _T("Subversion");
     psp.pfnDlgProc = (DLGPROC) PageProc;
@@ -51,14 +43,15 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
 
     hPage = CreatePropertySheetPage (&psp);
 
-	if (hPage != NULL)
+    if (hPage != NULL)
 	{
         if (!lpfnAddPage (hPage, lParam))
         {
             delete sheetpage;
             DestroyPropertySheetPage (hPage);
         }
-	} // if (hPage != NULL) 
+	}
+
 
     return NOERROR;
 }
@@ -82,7 +75,7 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
         sheetpage = (CSVNPropertyPage*) ((LPPROPSHEETPAGE) lParam)->lParam;
         SetWindowLong (hwnd, GWL_USERDATA, (LONG) sheetpage);
         sheetpage->SetHwnd(hwnd);
-    } // if (uMessage == WM_INITDIALOG) 
+    }
     else
     {
         sheetpage = (CSVNPropertyPage*) GetWindowLong (hwnd, GWL_USERDATA);
@@ -102,20 +95,21 @@ UINT CALLBACK PropPageCallbackProc ( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp 
         CSVNPropertyPage* sheetpage = (CSVNPropertyPage*) ppsp->lParam;
         if (sheetpage != NULL)
             delete sheetpage;
-    } // if ( PSPCB_RELEASE == uMsg ) 
+    }
     return 1;
 }
 
 // *********************** CSVNPropertyPage *************************
 
-CSVNPropertyPage::CSVNPropertyPage(const std::vector<stdstring> &newFilenames)
-	:filenames(newFilenames)
+CSVNPropertyPage::CSVNPropertyPage(const stdstring &newFilename)
+	:filename(newFilename)
 {
 }
 
 CSVNPropertyPage::~CSVNPropertyPage(void)
 {
 }
+
 
 void CSVNPropertyPage::SetHwnd(HWND newHwnd)
 {
@@ -149,23 +143,20 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 					//now fill in the edit boxes so it will be easier to edit existing properties
 					if (count > 0)
 					{
-						TCHAR * buf = NULL;
+						TCHAR buf[MAX_PROP_STRING_LENGTH];
 						int sel = ListView_GetSelectionMark(lvh);
-						//ListView_GetItemText(lvh, sel, 0, buf, MAX_PROP_STRING_LENGTH);
-						ListView_GetItemTextEx(lvh, sel, 0, buf);
+						ListView_GetItemText(lvh, sel, 0, buf, MAX_PROP_STRING_LENGTH);
 						SetDlgItemText(m_hwnd, IDC_EDITNAME, buf);
-						//ListView_GetItemText(lvh, sel, 1, buf, MAX_PROP_STRING_LENGTH);
-						ListView_GetItemTextEx(lvh, sel, 1, buf);
+						ListView_GetItemText(lvh, sel, 1, buf, MAX_PROP_STRING_LENGTH);
 						SetDlgItemText(m_hwnd, IDC_EDITVALUE, buf);
-						delete [] buf;
-					} // if (count > 0) 
+					}
 					else
 					{
 						SetDlgItemText(m_hwnd, IDC_EDITNAME, _T(""));
 						SetDlgItemText(m_hwnd, IDC_EDITVALUE, _T(""));
-					} 
-				} // if ((code == LVN_ITEMCHANGED)||(code == LVN_ITEMACTIVATE)) 
-			} // if (wParam == IDC_PROPLIST) 
+					}
+				}
+			}
 			SetWindowLong(m_hwnd, DWL_MSGRESULT, FALSE);
 			return TRUE;        
 
@@ -182,77 +173,26 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						int sel = ListView_GetSelectionMark(lvh);
 						if (sel < 0)
 							return TRUE;			//nothing selected to delete
-						TCHAR * buf = NULL;
-						ListView_GetItemTextEx(lvh, sel, 0, buf);
-						HWND hCheck = GetDlgItem(m_hwnd, IDC_RECURSIVE);
-						BOOL checked = (SendMessage(hCheck,(UINT) BM_GETCHECK, 0, 0) == BST_CHECKED);
-						ULONG all = filenames.size();
-						ULONG count = 0;
-						CProgressDlg dlg;
-						TCHAR s[MAX_PATH];
-						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PATH);
-						dlg.SetTitle(s);
-						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PATH);
-						dlg.SetCancelMsg(s);
-						dlg.SetTime(TRUE);
-						dlg.SetShowProgressBar(TRUE);
-						dlg.ShowModal(m_hwnd);
-						for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
-						{
-							dlg.SetLine(1, I->c_str(), TRUE);
-							SVNProperties props = SVNProperties(I->c_str());
-							props.Remove(buf, checked);
-							count++;
-							dlg.SetProgress(count, all);
-							if (dlg.HasUserCancelled())
-								break;
-						} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I) 
-						dlg.Stop();
-						delete [] buf;
+						TCHAR buf[MAX_PROP_STRING_LENGTH];
+						ListView_GetItemText(lvh, sel, 0, buf, MAX_PROP_STRING_LENGTH);
+						SVNProperties props = SVNProperties(filename.c_str());
+						props.Remove(buf);
 						InitWorkfileView();
 						return TRUE;
 					}
 					if (LOWORD(wParam) == IDC_ADDBUTTON)
 					{
-						TCHAR * name = NULL;
-						TCHAR * value = NULL;
-						GetDlgItemTextEx(m_hwnd, IDC_EDITNAME, name);
-						GetDlgItemTextEx(m_hwnd, IDC_EDITVALUE, value);
+						TCHAR * name = new TCHAR[MAX_PROP_STRING_LENGTH];
+						TCHAR * value = new TCHAR[MAX_PROP_STRING_LENGTH];
+						GetDlgItemText(m_hwnd, IDC_EDITNAME, name, MAX_PROP_STRING_LENGTH);
+						GetDlgItemText(m_hwnd, IDC_EDITVALUE, value, MAX_PROP_STRING_LENGTH);
+						SVNProperties props = SVNProperties(filename.c_str());
 #ifdef UNICODE
 						std::string t = WideToMultibyte(value);
 #else
 						std::string t = std::string(value);
 #endif
-						HWND hCheck = GetDlgItem(m_hwnd, IDC_RECURSIVE);
-						BOOL checked = (SendMessage(hCheck,(UINT) BM_GETCHECK, 0, 0) == BST_CHECKED);
-						ULONG all = filenames.size();
-						ULONG count = 0;
-						CProgressDlg dlg;
-						TCHAR s[MAX_PATH];
-						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PATH);
-						dlg.SetTitle(s);
-						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PATH);
-						dlg.SetCancelMsg(s);
-						dlg.SetTime(TRUE);
-						dlg.SetShowProgressBar(TRUE);
-						dlg.ShowModal(m_hwnd);
-						for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
-						{
-							dlg.SetLine(1, I->c_str(), TRUE);
-							SVNProperties props = SVNProperties(I->c_str());
-							props.Add(name, t.c_str(), checked);
-							count++;
-							dlg.SetProgress(count, all);
-							if (dlg.HasUserCancelled())
-								break;
-							SVNStatus stat = SVNStatus();
-							if (stat.GetStatus(I->c_str())==(-2))
-							{
-								::MessageBox(m_hwnd, stat.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
-								props.Remove(name);
-							}
-						} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I) 
-						dlg.Stop();
+						props.Add(name, t.c_str());
 						InitWorkfileView();
 						delete name;
 						delete value;
@@ -268,7 +208,7 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 						stdstring svnCmd = _T(" /command:");
 						svnCmd += _T("log /path:\"");
-						svnCmd += filenames.front().c_str();
+						svnCmd += filename.c_str();
 						svnCmd += _T("\"");
 						CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process);
 					}
@@ -287,242 +227,86 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						}
 						delete buf;
 						return TRUE;
-					} // if ((LOWORD(wParam) == IDC_EDITNAME)||(LOWORD(wParam) == IDC_EDITVALUE)) 
-			} // switch (HIWORD(wParam)) 
-	} // switch (uMessage) 
+					}
+			}
+	}
 	return FALSE;
-}
-void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf)
-{
-	struct tm * newtime;
-	SYSTEMTIME systime;
-	TCHAR timebuf[MAX_PROP_STRING_LENGTH];
-	TCHAR datebuf[MAX_PROP_STRING_LENGTH];
-
-	LCID locale = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT));
-	locale = MAKELCID(locale, SORT_DEFAULT);
-
-	newtime = _localtime64(&time);
-
-	systime.wDay = newtime->tm_mday;
-	systime.wDayOfWeek = newtime->tm_wday;
-	systime.wHour = newtime->tm_hour;
-	systime.wMilliseconds = 0;
-	systime.wMinute = newtime->tm_min;
-	systime.wMonth = newtime->tm_mon+1;
-	systime.wSecond = newtime->tm_sec;
-	systime.wYear = newtime->tm_year+1900;
-	GetDateFormat(locale, 0, &systime, NULL, datebuf, MAX_PROP_STRING_LENGTH);
-	GetTimeFormat(locale, 0, &systime, NULL, timebuf, MAX_PROP_STRING_LENGTH);
-	*buf = '\0';
-	_tcsncat(buf, timebuf, MAX_PROP_STRING_LENGTH-1);
-	_tcsncat(buf, _T(", "), MAX_PROP_STRING_LENGTH-1);
-	_tcsncat(buf, datebuf, MAX_PROP_STRING_LENGTH-1);
 }
 
 void CSVNPropertyPage::InitWorkfileView()
 {
 	SVNStatus svn = SVNStatus();
-	TCHAR tbuf[MAX_PROP_STRING_LENGTH];
-	if (filenames.size() == 1)
+	if (svn.GetStatus(filename.c_str())>(-2))
 	{
-		if (svn.GetStatus(filenames.front().c_str())>(-2))
+		if (svn.status->entry != NULL)
 		{
-			if (svn.status->entry != NULL)
+			TCHAR buf[MAX_PROP_STRING_LENGTH];
+			__time64_t	time;
+			_stprintf(buf, _T("%d"), svn.status->entry->revision);
+			SetDlgItemText(m_hwnd, IDC_REVISION, buf);
+			if (svn.status->entry->url)
+#ifdef UNICODE
+				PathSetDlgItemPath(m_hwnd, IDC_REPOURL, UTF8ToWide(svn.status->entry->url).c_str());
+#else
+				PathSetDlgItemPath(m_hwnd, IDC_REPOURL, svn.status->entry->url);
+#endif
+			_stprintf(buf, _T("%d"), svn.status->entry->cmt_rev);
+			SetDlgItemText(m_hwnd, IDC_CREVISION, buf);
+			time = (__time64_t)svn.status->entry->cmt_date/1000000L;
+			_stprintf(buf, _T("%s"), _tctime64(&time));
+			SetDlgItemText(m_hwnd, IDC_CDATE, buf);
+			if (svn.status->entry->cmt_author)
+#ifdef UNICODE
+				SetDlgItemText(m_hwnd, IDC_AUTHOR, UTF8ToWide(svn.status->entry->cmt_author).c_str());
+#else
+				SetDlgItemText(m_hwnd, IDC_AUTHOR, svn.status->entry->cmt_author);
+#endif
+			SVNStatus::GetStatusString(g_hmodThisDll, svn.status->text_status, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+			SetDlgItemText(m_hwnd, IDC_TEXTSTATUS, buf);
+			SVNStatus::GetStatusString(g_hmodThisDll, svn.status->prop_status, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+			SetDlgItemText(m_hwnd, IDC_PROPSTATUS, buf);
+			time = (__time64_t)svn.status->entry->text_time/1000000L;
+			_stprintf(buf, _T("%s"), _tctime64(&time));
+			SetDlgItemText(m_hwnd, IDC_TEXTDATE, buf);
+			time = (__time64_t)svn.status->entry->prop_time/1000000L;
+			_stprintf(buf, _T("%s"), _tctime64(&time));
+			SetDlgItemText(m_hwnd, IDC_PROPDATE, buf);
+			if (svn.status->locked)
 			{
-				LoadLangDll();
-				TCHAR buf[MAX_PROP_STRING_LENGTH];
-				__time64_t	time;
-				int datelen = 0;
-				_stprintf(buf, _T("%d"), svn.status->entry->revision);
-				SetDlgItemText(m_hwnd, IDC_REVISION, buf);
-				if (svn.status->entry->url)
-				{
-#ifdef UNICODE
-					_tcsncpy(tbuf, UTF8ToWide(svn.status->entry->url).c_str(), 4095);
-#else
-					_tcsncpy(tbuf, svn.status->entry->url, 4095);
-#endif
-					Unescape(tbuf);
-					SetDlgItemText(m_hwnd, IDC_REPOURL, tbuf);
-				} // if (svn.status->entry->url) 
-				_stprintf(buf, _T("%d"), svn.status->entry->cmt_rev);
-				SetDlgItemText(m_hwnd, IDC_CREVISION, buf);
-				time = (__time64_t)svn.status->entry->cmt_date/1000000L;
-				Time64ToTimeString(time, buf);
-				SetDlgItemText(m_hwnd, IDC_CDATE, buf);
-				if (svn.status->entry->cmt_author)
-#ifdef UNICODE
-					SetDlgItemText(m_hwnd, IDC_AUTHOR, UTF8ToWide(svn.status->entry->cmt_author).c_str());
-#else
-					SetDlgItemText(m_hwnd, IDC_AUTHOR, svn.status->entry->cmt_author);
-#endif
-				SVNStatus::GetStatusString(g_hResInst, svn.status->text_status, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-				SetDlgItemText(m_hwnd, IDC_TEXTSTATUS, buf);
-				SVNStatus::GetStatusString(g_hResInst, svn.status->prop_status, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-				SetDlgItemText(m_hwnd, IDC_PROPSTATUS, buf);
-				time = (__time64_t)svn.status->entry->text_time/1000000L;
-				Time64ToTimeString(time, buf);
-				SetDlgItemText(m_hwnd, IDC_TEXTDATE, buf);
-				time = (__time64_t)svn.status->entry->prop_time/1000000L;
-				Time64ToTimeString(time, buf);
-				SetDlgItemText(m_hwnd, IDC_PROPDATE, buf);
-				if (svn.status->locked)
-				{
-					MAKESTRING(IDS_PROPLOCKED);
-					SetDlgItemText(m_hwnd, IDC_LOCKED, stringtablebuffer);
-				}
-				else
-				{
-					SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
-				}
-				SVNProperties props = SVNProperties(filenames.front().c_str());
-				//get the handle of the listview
-				HWND lvh = GetDlgItem(m_hwnd, IDC_PROPLIST);
-				ListView_SetExtendedListViewStyle (lvh, LVS_EX_FULLROWSELECT);
-				ListView_DeleteAllItems(lvh);
-				HWND header = ListView_GetHeader(lvh);
-				if (Header_GetItemCount(header)<=0)
-				{
-					LVCOLUMN lcol1 = {0};
-					LVCOLUMN lcol2 = {0};
-					lcol1.mask = LVCF_TEXT | LVCF_WIDTH;
-					MAKESTRING(IDS_PROPPROPERTY);
-					lcol1.pszText = stringtablebuffer;
-					lcol1.cx = 30;
-					ListView_InsertColumn(lvh, 0, &lcol1);
-					lcol2.mask = LVCF_TEXT;
-					MAKESTRING(IDS_PROPVALUE);
-					lcol2.pszText = stringtablebuffer;
-					ListView_InsertColumn(lvh, 1, &lcol2);
-				} // if (Header_GetItemCount(header)<=0)
-				stdstring stemp;
-				for (int i=0; i<props.GetCount(); i++)
-				{
-					stdstring temp;
-					LVITEM lvitem = {0};
-					lvitem.mask = LVIF_TEXT;
-					temp = props.GetItemName(i);
-					lvitem.pszText = (LPTSTR)temp.c_str();
-					if (lvitem.pszText)
-					{
-						lvitem.iItem = i;
-						lvitem.iSubItem = 0;
-						lvitem.state = 0;
-						lvitem.stateMask = 0;
-						lvitem.cchTextMax = _tcslen(lvitem.pszText)+1;
-						ListView_InsertItem(lvh, &lvitem);
-						temp = props.GetItemValue(i);
-						//treat values as normal text even if they're not
-#ifdef UNICODE
-						stemp = MultibyteToWide((char *)temp.c_str());
-#else
-						stemp = temp;
-#endif
-						ListView_SetItemText(lvh, i, 1, (LPTSTR)(stemp.c_str()));
-					} // if (lvitem.pszText) 
-				} // for (int i=0; i<props.GetCount(); i++) 
-				//now adjust the column widths
-				ListView_SetColumnWidth(lvh, 0, LVSCW_AUTOSIZE_USEHEADER);
-				ListView_SetColumnWidth(lvh, 1, LVSCW_AUTOSIZE_USEHEADER);
-			} // if (svn.status->entry != NULL) 
-		} // if (svn.GetStatus(filename.c_str())>(-2)) 
-	} // if (filenames.size() == 1) 
-	else if (filenames.size() != 0)
-	{
-		//deactivate the show log button
-		HWND logwnd = GetDlgItem(m_hwnd, IDC_SHOWLOG);
-		::EnableWindow(logwnd, FALSE);
-		//get the handle of the listview
-		HWND lvh = GetDlgItem(m_hwnd, IDC_PROPLIST);
-		ListView_SetExtendedListViewStyle (lvh, LVS_EX_FULLROWSELECT);
-		ListView_DeleteAllItems(lvh);
-		HWND header = ListView_GetHeader(lvh);
-		if (Header_GetItemCount(header)<=0)
-		{
-			LVCOLUMN lcol1 = {0};
-			LVCOLUMN lcol2 = {0};
-			lcol1.mask = LVCF_TEXT | LVCF_WIDTH;
-			MAKESTRING(IDS_PROPPROPERTY);
-			lcol1.pszText = stringtablebuffer;
-			lcol1.cx = 30;
-			ListView_InsertColumn(lvh, 0, &lcol1);
-			lcol2.mask = LVCF_TEXT;
-			MAKESTRING(IDS_PROPVALUE);
-			lcol2.pszText = stringtablebuffer;
-			ListView_InsertColumn(lvh, 1, &lcol2);
-		} // if (Header_GetItemCount(header)<=0)
-		if (svn.GetStatus(filenames.front().c_str())>(-2))
-		{
-			if (svn.status->entry != NULL)
+				MAKESTRING(IDS_PROPLOCKED);
+				SetDlgItemText(m_hwnd, IDC_LOCKED, stringtablebuffer);
+			}
+			else
 			{
-				LoadLangDll();
-				int datelen = 0;
-				if (svn.status->entry->url)
-				{
-#ifdef UNICODE
-					_tcsncpy(tbuf, UTF8ToWide(svn.status->entry->url).c_str(), 4095);
-#else
-					_tcsncpy(tbuf, svn.status->entry->url, 4095);
-#endif
-					Unescape(tbuf);
-					TCHAR * ptr = _tcsrchr(tbuf, '/');
-					if (ptr != 0)
-					{
-						*ptr = 0;
-					}
-					SetDlgItemText(m_hwnd, IDC_REPOURL, tbuf);
-				} // if (svn.status->entry->url) 
 				SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
-			} // if (svn.status->entry != NULL)
-		} // if (svn.GetStatus(filenames.front().c_str())>(-2))
-
-		//read all properties of all selected files
-		//compare the properties and show _only_ those
-		//which are identical for all files!
-		std::vector<listproperty> proplist;
-		for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
-		{
-			SVNProperties props = SVNProperties(I->c_str());
+			}
+			SVNProperties props = SVNProperties(filename.c_str());
+			//get the handle of the listview
+			HWND lvh = GetDlgItem(m_hwnd, IDC_PROPLIST);
+			ListView_SetExtendedListViewStyle (lvh, LVS_EX_FULLROWSELECT);
+			ListView_DeleteAllItems(lvh);
+			HWND header = ListView_GetHeader(lvh);
+			if (Header_GetItemCount(header)<=0)
+			{
+				LVCOLUMN lcol1 = {0};
+				LVCOLUMN lcol2 = {0};
+				lcol1.mask = LVCF_TEXT | LVCF_WIDTH;
+				MAKESTRING(IDS_PROPPROPERTY);
+				lcol1.pszText = stringtablebuffer;
+				lcol1.cx = 30;
+				ListView_InsertColumn(lvh, 0, &lcol1);
+				lcol2.mask = LVCF_TEXT;
+				MAKESTRING(IDS_PROPVALUE);
+				lcol2.pszText = stringtablebuffer;
+				ListView_InsertColumn(lvh, 1, &lcol2);
+			}
 			for (int i=0; i<props.GetCount(); i++)
 			{
-				listproperty prop;
-				prop.name = props.GetItemName(i);
-				prop.value = props.GetItemValue(i);
-				stdstring stemp;
-#ifdef UNICODE
-				stemp = MultibyteToWide((char *)prop.value.c_str());
-#else
-				stemp = prop.value;
-#endif
-				prop.value = stemp;
-				prop.count = 1;
-				BOOL found = FALSE;
-				for (std::vector<listproperty>::iterator I = proplist.begin(); I != proplist.end(); ++I)
-				{
-					if ((I->name.compare(prop.name)==0)&&(I->value.compare(prop.value)==0))
-					{
-						I->count++;
-						found = TRUE;
-					}
-				} // for (std::vector<listproperty>::iterator I = proplist.begin(); I != proplist.end(); ++I)
-				if (found == FALSE)
-				{
-					proplist.push_back(prop);
-				}
-			} // for (int i=0; i<props.GetCount(); i++) 
-		} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
-		//now go through the list of properties and add all those 
-		//which are identical on all files/folders
-		int i = 0;
-		for (std::vector<listproperty>::iterator I = proplist.begin(); I != proplist.end(); ++I)
-		{
-			if (I->count == filenames.size())
-			{
-				stdstring stemp;
+				stdstring temp;
 				LVITEM lvitem = {0};
 				lvitem.mask = LVIF_TEXT;
-				lvitem.pszText = (LPTSTR)I->name.c_str();
+				temp = props.GetItemName(i);
+				lvitem.pszText = (LPTSTR)temp.c_str();
 				if (lvitem.pszText)
 				{
 					lvitem.iItem = i;
@@ -531,70 +315,22 @@ void CSVNPropertyPage::InitWorkfileView()
 					lvitem.stateMask = 0;
 					lvitem.cchTextMax = _tcslen(lvitem.pszText)+1;
 					ListView_InsertItem(lvh, &lvitem);
-					ListView_SetItemText(lvh, i, 1, (LPTSTR)(I->value.c_str()));
-					i++;
-				} // if (lvitem.pszText)
-			} // if (I->count == filenames.size()) 
-		} // for (std::vector<listproperty>::iterator I = proplist.begin(); I != proplist.end(); ++I) 
-
-		//now adjust the column widths
-		ListView_SetColumnWidth(lvh, 0, LVSCW_AUTOSIZE_USEHEADER);
-		ListView_SetColumnWidth(lvh, 1, LVSCW_AUTOSIZE_USEHEADER);
-	} 
-}
-
-void CSVNPropertyPage::Unescape(LPTSTR psz)
-{
-	LPTSTR pszSource = psz;
-	LPTSTR pszDest = psz;
-
-	static const TCHAR szHex[] = _T("0123456789ABCDEF");
-
-	// Unescape special characters. The number of characters
-	// in the *pszDest is assumed to be <= the number of characters
-	// in pszSource (they are both the same string anyway)
-
-	while (*pszSource != '\0' && *pszDest != '\0')
-	{
-		if (*pszSource == '+')
-			*pszDest++ = ' ';
-		else if (*pszSource == '%')
-		{
-			// The next two chars following '%' should be digits
-			if ( *(pszSource + 1) == '\0' ||
-				 *(pszSource + 2) == '\0' )
-			{
-				// nothing left to do
-				break;
-			}
-
-			TCHAR nValue = '?';
-			LPCTSTR pszLow = NULL;
-			LPCTSTR pszHigh = NULL;
-			pszSource++;
-
-			*pszSource = (TCHAR) _totupper(*pszSource);
-			pszHigh = _tcschr(szHex, *pszSource);
-
-			if (pszHigh != NULL)
-			{
-				pszSource++;
-				*pszSource = (TCHAR) _totupper(*pszSource);
-				pszLow = _tcschr(szHex, *pszSource);
-
-				if (pszLow != NULL)
-				{
-					nValue = (TCHAR) (((pszHigh - szHex) << 4) +
-									(pszLow - szHex));
+					temp = props.GetItemValue(i);
+					//treat values as normal text even if they're not
+					TCHAR tbuf[4096];
+					_tcsncpy(tbuf, temp.c_str(), 4095);
+#ifdef UNICODE
+					stdstring stemp = MultibyteToWide((char *)tbuf);
+#else
+					stdstring stemp = stdstring((char *)tbuf);
+#endif
+					ListView_SetItemText(lvh, i, 1, (LPTSTR)(stemp.c_str()));
 				}
-			} // if (pszHigh != NULL) 
-			*pszDest++ = nValue;
-		} 
-		else
-			*pszDest++ = *pszSource;
-			
-		pszSource++;
+			}
+			//now adjust the column widths
+			ListView_SetColumnWidth(lvh, 0, LVSCW_AUTOSIZE_USEHEADER);
+			ListView_SetColumnWidth(lvh, 1, LVSCW_AUTOSIZE_USEHEADER);
+		}
 	}
-
-	*pszDest = '\0';
 }
+

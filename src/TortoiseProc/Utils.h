@@ -59,34 +59,4 @@ public:
 	 * Returns the path of the external diff program.
 	 */
 	static CString GetDiffPath();
-
-	/**
-	 * Launches the external merge program if there is one.
-	 * \return TRUE if the program could be started
-	 */
-	static BOOL StartExtMerge(CString basefile, CString theirfile, CString yourfile, CString mergedfile);
-
-	/**
-	 * Launches the diff viewer application or the standard app which is associated
-	 * with diff files or if nothing helps then start the default text editor.
-	 * \return TRUE if the program could be started.
-	 */
-	static BOOL StartDiffViewer(CString file);
-
-	/**
-	 * Launches the standard text viewer/editor application which is associated
-	 * with txt files.
-	 * \return TRUE if the program could be started.
-	 */
-	static BOOL StartTextViewer(CString file);
-
-	/**
-	 * Returns a path to a temporary file
-	 */
-	static CString GetTempFile();
-
-	static void Unescape(LPTSTR psz);
-	static CString PathEscape(CString path);
-	static CString GetVersionFromFile(const CString & p_strDateiname);
-
 };

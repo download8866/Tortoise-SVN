@@ -23,45 +23,46 @@
 #include "CheckTempFiles.h"
 #include "LogPromptDlg.h"
 #include "UnicodeUtils.h"
-#include ".\logpromptdlg.h"
 
 
 // CLogPromptDlg dialog
 
-IMPLEMENT_DYNAMIC(CLogPromptDlg, CResizableDialog)
+IMPLEMENT_DYNAMIC(CLogPromptDlg, CDialog)
 CLogPromptDlg::CLogPromptDlg(CWnd* pParent /*=NULL*/)
-	: CResizableDialog(CLogPromptDlg::IDD, pParent)
+	: CDialog(CLogPromptDlg::IDD, pParent)
 	, m_sLogMessage(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-	m_templist.RemoveAll();
 }
 
 CLogPromptDlg::~CLogPromptDlg()
 {
-	for (int i=0; i<m_templist.GetCount(); i++)
-	{
-		DeleteFile(m_templist.GetAt(i));
-	}
-	m_templist.RemoveAll();
 }
 
 void CLogPromptDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CResizableDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_LOGMESSAGE, m_sLogMessage);
 	DDX_Control(pDX, IDC_FILELIST, m_ListCtrl);
 }
 
 
-BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableDialog)
+BEGIN_MESSAGE_MAP(CLogPromptDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, OnLvnItemchangedFilelist)
 	ON_NOTIFY(NM_DBLCLK, IDC_FILELIST, OnNMDblclkFilelist)
-	ON_WM_SIZING()
 END_MESSAGE_MAP()
+
+BEGIN_RESIZER_MAP(CLogPromptDlg)
+	RESIZER(IDC_COMMIT_TO,RS_BORDER,RS_BORDER,RS_BORDER,RS_KEEPSIZE,0)
+    RESIZER(IDC_LOGMESSAGE,RS_BORDER,IDC_COMMIT_TO,RS_BORDER,IDC_FILELIST,0)
+	RESIZER(IDC_FILELIST, RS_BORDER, IDC_LOGMESSAGE, RS_BORDER, IDC_HINTLABEL, 0)
+	RESIZER(IDC_HINTLABEL, RS_BORDER, RS_KEEPSIZE, RS_BORDER, IDOK, 0)
+	RESIZER(IDOK, RS_KEEPSIZE, RS_KEEPSIZE, RS_BORDER, RS_BORDER, 0)
+	RESIZER(IDCANCEL, RS_BORDER, RS_KEEPSIZE, RS_KEEPSIZE, RS_BORDER, 0)
+END_RESIZER_MAP
 
 
 // CLogPromptDlg message handlers
@@ -71,6 +72,7 @@ END_MESSAGE_MAP()
 
 void CLogPromptDlg::OnPaint() 
 {
+	RESIZER_GRIP;
 	if (IsIconic())
 	{
 		CPaintDC dc(this); // device context for painting
@@ -90,7 +92,7 @@ void CLogPromptDlg::OnPaint()
 	}
 	else
 	{
-		CResizableDialog::OnPaint();
+		CDialog::OnPaint();
 	}
 }
 
@@ -101,9 +103,16 @@ HCURSOR CLogPromptDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CLogPromptDlg::OnSize(UINT nType, int cx, int cy)
+{
+	__super::OnSize(nType, cx, cy);
+
+	UPDATE_RESIZER;
+}
+
 BOOL CLogPromptDlg::OnInitDialog()
 {
-	CResizableDialog::OnInitDialog();
+	CDialog::OnInitDialog();
 	// Set the icon for this dialog.  The framework does this automatically
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
@@ -141,16 +150,8 @@ BOOL CLogPromptDlg::OnInitDialog()
 	}
 	m_ListCtrl.UpdateData(FALSE);
 
-	GetDlgItem(IDC_LOGMESSAGE)->SetFocus();
-
-	AddAnchor(IDC_COMMIT_TO, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_HINTLABEL, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDOK, BOTTOM_LEFT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-	CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return FALSE;  // return TRUE unless you set the focus to a control
+	INIT_RESIZER;
+	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
@@ -194,28 +195,10 @@ void CLogPromptDlg::OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 		return;		//we don't compare a deleted file (nothing) with something
 	CString path1 = m_arFileList.GetAt(pNMLV->iItem);
 	CString path2 = SVN::GetPristinePath(path1);
-
-	//TODO:
-	//as soon as issue 1361 of subversion 
-	//http://subversion.tigris.org/issues/show_bug.cgi?id=1361
-	//uncomment the lines below and delete the 
-	//line above. This will then allow diff-viewers which
-	//don't ignore different line endings to work correctly
-
-	//CString path2 = CUtils::GetTempFile();
-	//SVN svn;
-	//if (!svn.Cat(path1, SVN::REV_BASE, path2))
-	//{
-	//	path2 = SVN::GetPristinePath(path1);
-	//}
-	//else
-	//{
-	//	m_templist.Add(path2);
-	//}
-
 	CString diffpath = CUtils::GetDiffPath();
 	if (diffpath != _T(""))
 	{
+
 		CString cmdline;
 		cmdline = _T("\"")+diffpath; //ensure the diff exe is prepend the commandline
 		cmdline += _T("\" ");
@@ -242,29 +225,12 @@ void CLogPromptDlg::OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 				NULL 
 				);
 			CString temp;
+			//temp.Format("could not start external diff program!\n<hr=100%>\n%s", lpMsgBuf);
 			temp.Format(IDS_ERR_EXTDIFFSTART, lpMsgBuf);
 			CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION);
 			LocalFree( lpMsgBuf );
 		} // if (CreateProcess(diffpath, cmdline, NULL, NULL, FALSE, 0, 0, 0, &startup, &process)==0)
 	} // if (diffpath != "")
-	else
-	{
-		//there's no diff program available!
-		//as a workaround, perform a unified diff of the two files
-		//and show that to the user
-		SVN svn;
-		CString tempfile = CUtils::GetTempFile();
-		tempfile += _T(".diff");
-		if (!svn.Diff(path1, SVN::REV_BASE, path1, SVN::REV_WC, FALSE, FALSE, TRUE, _T(""), tempfile))
-		{
-			DeleteFile(tempfile);
-		}
-		else
-		{
-			m_templist.Add(tempfile);
-			CUtils::StartDiffViewer(tempfile);
-		}
-	}
 }
 
 void CLogPromptDlg::OnOK()
@@ -278,11 +244,6 @@ void CLogPromptDlg::OnOK()
 			{
 				SVN svn;
 				svn.Add(m_arFileList.GetAt(j), FALSE);
-			} // if (m_arFileStatus.GetAt(j) == svn_wc_status_unversioned)
-			if (m_arFileStatus.GetAt(j) == svn_wc_status_absent)
-			{
-				SVN svn;
-				svn.Remove(m_arFileList.GetAt(j), TRUE);
 			}
 		}
 	}
@@ -296,16 +257,15 @@ void CLogPromptDlg::OnOK()
 			{
 				file.WriteString(m_arFileList.GetAt(i)+_T("\n"));
 			}
-		} // for (int i=0; i<m_ListCtrl.GetItemCount(); i++) 
+		}
 		file.Close();
 	}
-	catch (CFileException* pE)
+	catch (CFileException)
 	{
 		TRACE(_T("CFileException in Commit!\n"));
-		pE->Delete();
 	}
 
-	CResizableDialog::OnOK();
+	CDialog::OnOK();
 }
 
 DWORD WINAPI StatusThread(LPVOID pVoid)
@@ -328,8 +288,7 @@ DWORD WINAPI StatusThread(LPVOID pVoid)
 		const TCHAR * strbuf = NULL;;
 		while (file.ReadString(strLine))
 		{
-			strLine.Replace('\\', '/');
-			BOOL bIsFolder = PathIsDirectory(strLine);
+			
 			SVNStatus status;
 			svn_wc_status_t *s;
 			s = status.GetFirstFileStatus(strLine, &strbuf);
@@ -337,82 +296,67 @@ DWORD WINAPI StatusThread(LPVOID pVoid)
 			{
 				CString temp;
 				svn_wc_status_kind stat;
-				stat = SVNStatus::GetMoreImportant(s->text_status, s->prop_status);
-				if (s->entry)
-				{
-					CString url = CUnicodeUtils::GetUnicode(s->entry->url);
-					CUtils::Unescape(url.GetBuffer());
-					url.ReleaseBuffer();
-					pDlg->GetDlgItem(IDC_COMMIT_TO)->SetWindowText(url);
-				}
+				stat = max(s->text_status, s->prop_status);
+				pDlg->GetDlgItem(IDC_COMMIT_TO)->SetWindowText(CUnicodeUtils::GetUnicode(s->entry->url));
 				temp = strbuf;
-				if (SVNStatus::IsImportant(stat))
+				if (stat > svn_wc_status_normal)
 				{
 					pDlg->m_arFileList.Add(strLine);
 					pDlg->m_arFileStatus.Add(stat);
 					int count = pDlg->m_ListCtrl.GetItemCount();
-					pDlg->m_ListCtrl.InsertItem(count, strLine.Right(strLine.GetLength() - strLine.ReverseFind('/') - 1));
-					SVNStatus::GetStatusString(stat, buf);
-					if ((stat == s->prop_status)&&(!SVNStatus::IsImportant(s->text_status)))
-						_tcscat(buf, _T("(P only)"));
+					pDlg->m_ListCtrl.InsertItem(count, strLine.Right(strLine.GetLength() - strLine.ReverseFind('\\') - 1));
+					SVNStatus::GetStatusString(theApp.m_hInstance, stat, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 					pDlg->m_ListCtrl.SetItemText(count, 1, buf);
 					pDlg->m_ListCtrl.SetCheck(count);
 				} // if (stat > svn_wc_status_normal)
-				if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(strLine))&&(CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"))))
+				if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(strLine)))
 				{
 					if (!CCheckTempFiles::IsTemp(strLine))
 					{
 						pDlg->m_arFileList.Add(strLine);
 						pDlg->m_arFileStatus.Add(stat);
 						int count = pDlg->m_ListCtrl.GetItemCount();
-						pDlg->m_ListCtrl.InsertItem(count, strLine.Right(strLine.GetLength() - strLine.ReverseFind('/') - 1));
-						SVNStatus::GetStatusString(stat, buf);
+						pDlg->m_ListCtrl.InsertItem(count, strLine.Right(strLine.GetLength() - strLine.ReverseFind('\\') - 1));
+						SVNStatus::GetStatusString(theApp.m_hInstance, stat, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 						pDlg->m_ListCtrl.SetItemText(count, 1, buf);
-					} // if (!CCheckTempFiles::IsTemp(strLine)) 
-				} // if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(strLine))&&(CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit")))) 
+						//unversioned items are NOT checked by default, 'cause they need to be added before committing!
+					}
+				}
 				while ((s = status.GetNextFileStatus(&strbuf)) != NULL)
 				{
 					temp = strbuf;
-					stat = SVNStatus::GetMoreImportant(s->text_status, s->prop_status);
-					if (SVNStatus::IsImportant(stat))
+					stat = max(s->text_status, s->prop_status);
+					if (stat > svn_wc_status_normal)
 					{
 						pDlg->m_arFileList.Add(temp);
 						pDlg->m_arFileStatus.Add(stat);
 						int count = pDlg->m_ListCtrl.GetItemCount();
-						if (bIsFolder)
-							pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - strLine.GetLength() - 1));
-						else
-							pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - temp.ReverseFind('/') - 1));
-						SVNStatus::GetStatusString(stat, buf);
-						if ((stat == s->prop_status)&&(!SVNStatus::IsImportant(s->text_status)))
-							_tcscat(buf, _T("(P only)"));
+						pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - temp.ReverseFind('/') - 1));
+						SVNStatus::GetStatusString(theApp.m_hInstance, stat, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 						pDlg->m_ListCtrl.SetItemText(count, 1, buf);
 						pDlg->m_ListCtrl.SetCheck(count);
-					} // if (SVNStatus::IsImportant(stat)) 
-					if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(temp))&&(CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"))))
+					}
+					if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(temp)))
 					{
 						if (!CCheckTempFiles::IsTemp(temp))
 						{
 							pDlg->m_arFileList.Add(temp);
 							pDlg->m_arFileStatus.Add(stat);
 							int count = pDlg->m_ListCtrl.GetItemCount();
-							if (bIsFolder)
-								pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - strLine.GetLength() - 1));
-							else
-								pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - temp.ReverseFind('/') - 1));
-							SVNStatus::GetStatusString(stat, buf);
+							pDlg->m_ListCtrl.InsertItem(count, temp.Right(temp.GetLength() - temp.ReverseFind('/') - 1));
+							SVNStatus::GetStatusString(theApp.m_hInstance, stat, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 							pDlg->m_ListCtrl.SetItemText(count, 1, buf);
-						} // if (!CCheckTempFiles::IsTemp(temp))
-					} // if ((stat == svn_wc_status_unversioned)&&(!PathIsDirectory(temp))&&(CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit")))) 
-				} // while ((s = status.GetNextFileStatus(&strbuf)) != NULL) 
+							//unversioned items are NOT checked by default, 'cause they need to be added before committing!
+						}
+					}
+				} // while ((s = status.GetNextFileStatus(buf)) != NULL)
 			} // if (s!=0) 
 		} // while (file.ReadString(strLine)) 
 		file.Close();
 	}
-	catch (CFileException* pE)
+	catch (CFileException)
 	{
 		TRACE("CFileException in Commit!\n");
-		pE->Delete();
 	}
 
 
@@ -427,21 +371,8 @@ DWORD WINAPI StatusThread(LPVOID pVoid)
 
 	pDlg->GetDlgItem(IDOK)->EnableWindow(true);
 	pDlg->GetDlgItem(IDCANCEL)->EnableWindow(true);
-	if (pDlg->m_ListCtrl.GetItemCount()==0)
-	{
-		CMessageBox::Show(pDlg->m_hWnd, IDS_LOGPROMPT_NOTHINGTOCOMMIT, IDS_APPNAME, MB_ICONINFORMATION);
-		pDlg->EndDialog(0);
-	}
 	return 0;
 }
-
-void CLogPromptDlg::OnCancel()
-{
-	UpdateData(TRUE);
-	CResizableDialog::OnCancel();
-}
-
-
 
 
 

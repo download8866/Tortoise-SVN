@@ -17,35 +17,11 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
-
-#include "stdafx.h"
 #include <windows.h>
+#include "registry.h"
 
-#define MENUCHECKOUT		0x00000001
-#define MENUUPDATE			0x00000002
-#define MENUCOMMIT			0x00000004
-#define MENUADD				0x00000008
-#define MENUREVERT			0x00000010
-#define MENUCLEANUP			0x00000020
-#define MENURESOLVE			0x00000040
-#define MENUSWITCH			0x00000080
-#define MENUIMPORT			0x00000100
-#define MENUEXPORT			0x00000200
-#define MENUCREATEREPOS		0x00000400
-#define MENUCOPY			0x00000800
-#define MENUMERGE			0x00001000
-#define MENUREMOVE			0x00002000
-#define MENURENAME			0x00004000
-#define MENUUPDATEEXT		0x00008000
-#define MENUDIFF			0x00010000
-#define MENULOG				0x00020000
-#define MENUCONFLICTEDITOR	0x00040000
-#define MENURELOCATE		0x00080000
-#define MENUSHOWCHANGED		0x00100000
-#define MENUIGNORE			0x00200000
-#define MENUREPOBROWSE		0x00400000
-#define MENUBLAME			0x00800000
-
+extern	UINT		g_cRefThisDll; // Reference count of this DLL.
+extern	HINSTANCE	g_hmodThisDll; // Instance handle for this DLL
 /**
  * Since we need an own COM-object for every different
  * Icon-Overlay implemented this enum defines which class
@@ -58,9 +34,7 @@ enum FileState
     Modified,
     Conflict,
 	Deleted,
-	Added,
 	DropHandler,
 	Invalid
 };
-
 

@@ -32,9 +32,8 @@
 #include "svn_config.h"
 #include "svn_time.h"
 #include "svn_subst.h"
-#include "svn_auth.h"
 
-#include "SVNPrompt.h"
+#include "PromptDlg.h"
 
 svn_error_t * svn_cl__get_log_message (const char **log_msg,
 									const char **tmp_file,
@@ -72,16 +71,16 @@ svn_error_t * svn_cl__get_log_message (const char **log_msg,
  * \bug 
  *
  */
-class SVN : public SVNPrompt
+class SVN
 {
 public:
 	SVN(void);
 	~SVN(void);
 
+	virtual BOOL Prompt(CString& info, CString prompt, BOOL hide);
 	virtual BOOL Cancel();
 	virtual BOOL Notify(CString path, svn_wc_notify_action_t action, svn_node_kind_t kind, CString myme_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev);
-	virtual BOOL Log(LONG rev, CString author, CString date, CString message, CString& cpaths);
-	virtual BOOL BlameCallback(LONG linenumber, LONG revision, CString author, CString date, CString line);
+	virtual BOOL Log(LONG rev, CString author, CString date, CString message, CString cpaths);
 
 	/**
 	 * If a method of this class returns FALSE then you can
@@ -116,7 +115,7 @@ public:
 	 * \param force if TRUE, all files including those not versioned are deleted. If FALSE the operation
 	 * will fail if a directory contains unversioned files or if the file itself is not versioned.
 	 */
-	BOOL Remove(CString path, BOOL force, CString message = _T(""));
+	BOOL Remove(CString path, BOOL force);
 	/**
 	 * Reverts a file/directory to its pristine state. I.e. its reverted to the state where it
 	 * was last updated with the repository.
@@ -184,7 +183,7 @@ public:
 	 * \param destPath destination path
 	 * \return the new revision number
 	 */
-	BOOL Copy(CString srcPath, CString destPath, LONG revision, CString logmsg = _T(""));
+	BOOL Copy(CString srcPath, CString destPath, LONG revision);
 	/**
 	 * Move srcPath to destPath.
 	 * 
@@ -206,7 +205,7 @@ public:
 	 * \param revision 
 	 * \param force 
 	 */
-	BOOL Move(CString srcPath, CString destPath, BOOL force, CString message = _T(""));
+	BOOL Move(CString srcPath, CString destPath, BOOL force);
 	/**
 	 * If path is a URL, use the message to immediately
 	 * attempt to commit the creation of the directory URL in the
@@ -246,9 +245,8 @@ public:
 	 * \param destPath	the path to the directory where you wish to create the exported tree.
 	 * \param revision	the revision that should be exported, which is only used 
 	 *					when exporting from a repository.
-	 * \param force		TRUE if existing files should be overwritten
 	 */
-	BOOL Export(CString srcPath, CString destPath, LONG revision, BOOL force = TRUE);
+	BOOL Export(CString srcPath, CString destPath, LONG revision);
 	/**
 	 * Switch working tree path to URL at revision
 	 *
@@ -281,10 +279,12 @@ public:
 	 *
 	 * \param path		the file/directory to import
 	 * \param url		the url to import to
+	 * \param newEntry	the new entry created in the repository directory
+	 *					identified by URL.
 	 * \param message	log message used for the 'commit'
 	 * \param recurse 
 	 */
-	BOOL Import(CString path, CString url, CString message, BOOL recurse);
+	BOOL Import(CString path, CString url, CString newEntry, CString message, BOOL recurse);
 	/**
 	 * Merge changes from path1/revision1 to path2/revision2 into the
 	 * working-copy path localPath.  path1 and path2 can be either
@@ -313,34 +313,7 @@ public:
 	 * \param force		see description
 	 * \param recurse 
 	 */
-	BOOL Merge(CString path1, LONG revision1, CString path2, LONG revision2, CString localPath, BOOL force, BOOL recurse, BOOL ignoreanchestry = FALSE);
-
-	/**
-	 * Produce diff output which describes the delta between \a path1/\a revision1 and \a path2/\a revision2
-	 * Print the output of the diff to \a outputfile, and any errors to \a errorfile. \a path1 
-	 * and \a path2 can be either working-copy paths or URLs.
-	 * \a path1 and \a path2 must both represent the same node kind -- that
-	 * is, if \a path1 is a directory, \a path2 must also be, and if \a path1
-	 * is a file, \a path2 must also be.  (Currently, \a path1 and \a path2
-	 * must be the exact same path)
-	 * 
-	 * If \a recurse is true (and the \a paths are directories) this will be a
-	 * recursive operation.
-	 *
-	 * Use \a ignore_ancestry to control whether or not items being
-	 * diffed will be checked for relatedness first.  Unrelated items
-	 * are typically transmitted to the editor as a deletion of one thing
-	 * and the addition of another, but if this flag is \c TRUE,
-	 * unrelated items will be diffed as if they were related.
-	 * 
-	 * If \a no_diff_deleted is true, then no diff output will be
-	 * generated on deleted files.
-	 * 
-	 * \a diff_options (an array of <tt>const char *</tt>) is used to pass 
-	 * additional command line options to the diff processes invoked to compare files.
-	 */
-	BOOL Diff(CString path1, LONG revision1, CString path2, LONG revision2, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, CString options, CString outputfile, CString errorfile = _T(""));
-
+	BOOL Merge(CString path1, LONG revision1, CString path2, LONG revision2, CString localPath, BOOL force, BOOL recurse);
 	/**
 	 * fires the Log-event on each log message from revisionStart
 	 * to revisionEnd inclusive (but never fires the event
@@ -352,7 +325,7 @@ public:
 	 * \param revisionEnd the revision to stop the logs
 	 * \param changed TRUE if the log should follow changed paths 
 	 */
-	BOOL ReceiveLog(CString path, LONG revisionStart, LONG revisionEnd, BOOL changed, BOOL strict = FALSE);
+	BOOL ReceiveLog(CString path, LONG revisionStart, LONG revisionEnd, BOOL changed);
 	
 	/**
 	 * Checks out a file with \a revision to \a localpath.
@@ -373,36 +346,9 @@ public:
 	BOOL Ls(CString url, LONG revision, CStringArray& entries);
 
 	/**
-	 * Relocates a working copy to a new/changes repository URL. Use this function
-	 * if the URL of the repository server has changed.
-	 * \param path path to the working copy
-	 * \param from the old URL of the repository
-	 * \param to the new URL of the repository
-	 * \param recurse TRUE if the operation should be recursive
-	 * \return TRUE if successful
-	 */
-	BOOL Relocate(CString path, CString from, CString to, BOOL recurse);
-
-	/**
-	 * Determine the author for each line in a file (blame the changes on someone).
-	 * The result is given in the callback function BlameCallback()
-	 *
-	 * \param path the path or url of the file
-	 * \param startrev the revision from which the check is done from
-	 * \param endrev the end revision where the check is stopped
-	 * \param strict if TRUE, the copy history is not traversed
-	 */
-	BOOL Blame(CString path, LONG startrev, LONG endrev, BOOL strict);
-	/**
 	 * Checks if a windows path is a local repository
 	 */
 	BOOL IsRepository(const CString& strPath);
-
-	/**
-	 * Finds the repository root of a given url. 
-	 * \return The root url or an empty string
-	 */
-	CString GetRepositoryRoot(CString url);
 
 	/**
 	 * Returns a text representation of an action enum.
@@ -432,25 +378,6 @@ public:
 	 */
 	static CString GetPristinePath(CString wcPath);
 
-	/**
-	 * convert path to a subversion path (replace '\' with '/')
-	 */
-	static void preparePath(CString &path);
-
-	/**
-	 * Tells the shell (explorer) to update the icon overlays.
-	 * \param path the path to the files/folders which have changed.
-	 */
-	static void UpdateShell(CString path);
-
-
-	enum
-	{
-		REV_HEAD = -1,		///< head revision
-		REV_BASE = -2,		///< base revision
-		REV_WC = -3,		///< revision of the working copy
-	};
-
 private:
 	svn_auth_baton_t *			auth_baton;
 	svn_client_ctx_t 			ctx;
@@ -462,11 +389,18 @@ private:
 	svn_opt_revision_t			rev;			///< subversion revision. used by getRevision()
 	svn_error_t *				Err;			///< Global error object struct
 
+
 	svn_opt_revision_t *	getRevision (long revNumber);
 	void * logMessage (const char * message, char * baseDirectory = NULL);
+	void	preparePath(CString &path);
 	apr_array_header_t * target (LPCTSTR path);
 	svn_error_t * get_url_from_target (const char **URL, const char *target);
-		
+
+	static svn_error_t* prompt(char **info, 
+					const char *prompt, 
+					svn_boolean_t hide, 
+					void *baton, 
+					apr_pool_t *pool);
 	static svn_error_t* cancel(void *baton);
 	static void notify( void *baton,
 					const char *path,
@@ -483,16 +417,10 @@ private:
 					const char* date, 
 					const char* msg, 
 					apr_pool_t* pool);
-	static svn_error_t* blameReceiver(void* baton,
-					apr_off_t line_no,
-					svn_revnum_t revision,
-					const char * author,
-					const char * date,
-					const char * line,
-					apr_pool_t * pool);
-	void SaveAuthentication(BOOL save);
 
 
 };
+
+
 
 

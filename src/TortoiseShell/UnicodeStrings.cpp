@@ -15,49 +15,41 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-#include "stdafx.h"
 #include "UnicodeStrings.h"
+#include <windows.h>
 #include <string.h>
 
 std::string WideToMultibyte(wide_string wide)
 {
-	char * narrow = new char[wide.length()*3+2];
+	char narrow[_MAX_PATH * 3];
 	BOOL defaultCharUsed;
-	int ret = (int)WideCharToMultiByte(CP_ACP, 0, wide.c_str(), (int)wide.size(), narrow, (int)wide.length()*3 - 1, ".", &defaultCharUsed);
+	int ret = WideCharToMultiByte(CP_ACP, 0, wide.c_str(), wide.size(), narrow, _MAX_PATH*3 - 1, ".", &defaultCharUsed);
 	narrow[ret] = 0;
-	std::string str = narrow;
-	delete[] narrow;
-	return str;
+	return std::string(narrow);
 }
 
 std::string WideToUTF8(wide_string wide)
 {
-	char * narrow = new char[wide.length()*3+2];
-	int ret = (int)WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), narrow, (int)wide.length()*3 - 1, NULL, NULL);
+	char narrow[_MAX_PATH * 3];
+	int ret = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), wide.size(), narrow, _MAX_PATH*3 - 1, NULL, NULL);
 	narrow[ret] = 0;
-	std::string str = narrow;
-	delete[] narrow;
-	return str;
+	return std::string(narrow);
 }
 
 wide_string MultibyteToWide(std::string multibyte)
 {
-	wchar_t * wide = new wchar_t[multibyte.length()*2+2];
-	int ret = (int)MultiByteToWideChar(CP_ACP, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)multibyte.length()*2 - 1);
+	wchar_t wide[_MAX_PATH * 3];
+	int ret = MultiByteToWideChar(CP_ACP, 0, multibyte.c_str(), multibyte.size(), wide, _MAX_PATH*3 - 1);
 	wide[ret] = 0;
-	wide_string str = wide;
-	delete[] wide;
-	return str;
+	return wide_string(wide);
 }
 
 wide_string UTF8ToWide(std::string multibyte)
 {
-	wchar_t * wide = new wchar_t[multibyte.length()*2+2];
-	int ret = (int)MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)multibyte.length()*2 - 1);
+	wchar_t wide[_MAX_PATH * 3];
+	int ret = MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), multibyte.size(), wide, _MAX_PATH*3 - 1);
 	wide[ret] = 0;
-	wide_string str = wide;
-	delete[] wide;
-	return str;
+	return wide_string(wide);
 }
 #ifdef UNICODE
 stdstring UTF8ToString(std::string string) {return UTF8ToWide(string);}

@@ -17,7 +17,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
-#include "stdafx.h"
 #include <windows.h>
 #include "resource.h"
 #include <tchar.h>
@@ -31,20 +30,6 @@
 #include "svn_wc.h"
 #include "svn_utf.h"
 #include "svn_config.h"
-#include <string>
-
-#ifdef _MFC_VER
-#	include "SVNPrompt.h"
-#endif
-
-#pragma warning (push,1)
-typedef std::basic_string<wchar_t> wide_string;
-#ifdef UNICODE
-#define stdstring wide_string
-#else
-#define stdstring std::string
-#endif
-#pragma warning (pop)
 
 
 /**
@@ -76,14 +61,20 @@ typedef std::basic_string<wchar_t> wide_string;
  *
  */
 class SVNStatus
-#ifdef _MFC_VER
-	: public SVNPrompt
-#endif
 {
 public:
 	SVNStatus(void);
 	~SVNStatus(void);
-
+	/**
+	 * Reads the Subversion text status of the working copy entry. No
+	 * recurse is done, even if the entry is a directory.
+	 * Only the status of the text entry is returned, properties
+	 * are ignored.
+	 * 
+	 * \param path the pathname of the entry
+	 * \return the status
+	 */
+	static svn_wc_status_kind GetTextStatus(const TCHAR * path);
 
 	/**
 	 * Reads the Subversion status of the working copy entry. No
@@ -91,7 +82,21 @@ public:
 	 * If the status of the text and property part are different
 	 * then the higher value is returned.
 	 */
-	static svn_wc_status_kind GetAllStatus(const TCHAR * path, BOOL recursive = FALSE);
+	static svn_wc_status_kind GetAllStatus(const TCHAR * path);
+
+	/**
+	 * Reads the Subversion text status of the working copy entry and all its
+	 * subitems. The resulting status is determined by using priorities for each
+	 * status. The status with the highest priority is then returned.
+	 * Only the status of the text entry is returned, properties
+	 * are ignored.
+	 * \remark Use this method only after checking that the entry is a directory. Using this
+	 * method for files is ineffective and slow.
+	 * 
+	 * \param path the pathname of the entry
+	 * \return the status
+	 */
+	static svn_wc_status_kind GetTextStatusRecursive(const TCHAR * path);
 
 	/**
 	 * Reads the Subversion status of the working copy entry and all its
@@ -103,15 +108,6 @@ public:
 	static svn_wc_status_kind GetAllStatusRecursive(const TCHAR * path);
 
 	/**
-	 * Returns the status which is more "important" of the two statuses specified.
-	 * This is used for the "recursive" status functions on folders - i.e. which status
-	 * should be returned for a folder which has several files with different statuses
-	 * in it.
-	 */	 	 	 	 	
-	static svn_wc_status_kind GetMoreImportant(svn_wc_status_kind status1, svn_wc_status_kind status2);
-	
-	static BOOL IsImportant(svn_wc_status_kind status) {return (GetMoreImportant(svn_wc_status_added, status)==status);}
-	/**
 	 * Reads the Subversion text status of the working copy entry. No
 	 * recurse is done, even if the entry is a directory.
 	 * The result is stored in the public member variable status.
@@ -121,7 +117,7 @@ public:
 	 * \return If update is set to true the HEAD revision of the repository is returned. If update is false then -1 is returned.
 	 * \remark If the return value is -2 then the status could not be obtained.
 	 */
-	svn_revnum_t GetStatus(const TCHAR * path, bool update = false, bool noignore = false);
+	svn_revnum_t GetStatus(const TCHAR * path, bool update = false);
 
 
 	/**
@@ -151,30 +147,11 @@ public:
 	 * This member variable hold the status of the last call to GetStatus().
 	 */
 	svn_wc_status_t *			status;				///< the status result of GetStatus()
-
-#ifdef _MFC_VER
-	CString GetLastErrorMsg();
-	void SaveAuthentication(BOOL save);
-#else
-	stdstring GetLastErrorMsg();
-#endif
-	svn_wc_status_kind			m_allstatus;
-
-protected:
-	apr_pool_t *				m_pool;
 private:
 	apr_pool_t *				m_parentpool;
+	apr_pool_t *				m_pool;
 	svn_auth_baton_t *			m_auth_baton;
 	svn_client_ctx_t 			m_ctx;
-	svn_error_t *				m_err;
-	static int GetStatusRanking(svn_wc_status_kind status);
-	static void getallstatus (void *baton, const char *path, svn_wc_status_t *status);
-	static void getstatushash (void *baton, const char *path, svn_wc_status_t *status);
-	struct hashbaton_t
-	{
-		apr_hash_t *	hash;
-		apr_pool_t *	pool;
-	};
 
 	//for GetFirstFileStatus and GetNextFileStatus
 	apr_hash_t *				m_statushash;
@@ -194,3 +171,66 @@ private:
 
 };
 
+typedef struct filestatuscache
+{
+	TCHAR					filename[MAX_PATH];
+	svn_wc_status_kind		status;
+	int						askedcounter;
+} filestatuscache;
+
+#define SVNFOLDERSTATUS_CACHETIMES 1
+/**
+ * \ingroup TortoiseShell
+ * This class represents a caching mechanism for the
+ * subversion statuses. Once a status for a versioned
+ * file is requested (GetFileStatus()) first its checked
+ * if that status is already in the cache. If it is not
+ * then the subversion statuses for ALL files in the same
+ * directory is fetched and cached. This is because subversion
+ * needs almost the same time to get one or all status (in
+ * the same directory).
+ * To prevent a cache flush for the explorer folder view
+ * the cache is only fetched for versioned files and
+ * not for folders.
+ *
+ * \par requirements
+ * win95 or later\n
+ * winNT4 or later\n
+ * MFC\n
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 04-10-2003
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \todo 
+ *
+ * \bug 
+ *
+ */
+class SVNFolderStatus
+{
+public:
+	SVNFolderStatus(void);
+	~SVNFolderStatus(void);
+	svn_wc_status_kind GetFileStatus(LPCTSTR filename);
+
+private:
+	BOOL	IsCacheValid(LPCTSTR filename);
+	void	BuildCache(LPCTSTR folderpath);
+	int		FindFile(LPCTSTR filename);
+	
+	TCHAR	m_currentfolder[MAX_PATH];			///< holds the path of the current folder
+	filestatuscache	*	m_pStatusCache;
+	int		m_nCacheCount;
+	
+};

@@ -19,29 +19,19 @@
 #pragma once
 #include "afxcmn.h"
 #include "afxtempl.h"
-#include "afxdlgs.h"
 #include "svn.h"
 #include "promptdlg.h"
 
+#include "resizer.h"
 #include "Registry.h"
-#include "ResizableDialog.h"
 
 #define ID_COMPARE		1
 #define ID_SAVEAS		2
 #define ID_COMPARETWO	3
-#define ID_UPDATE		4
-#define ID_COPY			5
-#define ID_REVERTREV	6
-#define ID_GNUDIFF1		7
-#define ID_GNUDIFF2		8
-#define ID_FINDENTRY	9
-#define ID_REVERT	   10
-
-#define ID_DIFF			20
 
 /**
  * \ingroup TortoiseProc
- * Shows log messages of a single file or folder in a listbox. 
+ * Shows log messages of a single file in a listbox. Used by the property sheet handler of TortoiseShell.
  *
  * \par requirements
  * win95 or later
@@ -73,10 +63,11 @@
  * \bug 
  *
  */
-class CLogDlg : public CResizableDialog, public SVN
+class CLogDlg : public CDialog, public SVN
 {
 	DECLARE_DYNAMIC(CLogDlg)
 
+	DECLARE_RESIZER;
 public:
 	CLogDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CLogDlg();
@@ -86,57 +77,41 @@ public:
 
 protected:
 	//implement the virtual methods from SVN base class
-	virtual BOOL Log(LONG rev, CString author, CString date, CString message, CString& cpaths);
+	virtual BOOL Log(LONG rev, CString author, CString date, CString message, CString cpaths);
 	virtual BOOL Cancel();
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	HICON m_hIcon;
 
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMRclickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnGetInfoTipLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-
-	void	FillLogMessageCtrl(CString msg);
-	BOOL	StartDiff(CString path1, LONG rev1, CString path2, LONG rev2);
 
 	DECLARE_MESSAGE_MAP()
 public:
-	void SetParams(CString path, long startrev = 0, long endrev = -1, BOOL hasWC = TRUE);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
+	virtual BOOL OnInitDialog();
+	void SetParams(CString path, long startrev = 0, long endrev = -1);
 
 public:
 	CListCtrl	m_LogList;
-	CListCtrl	m_LogMsgCtrl;
 	CString		m_path;
 	long		m_startrev;
 	long		m_endrev;
 	long		m_logcounter;
 	BOOL		m_bCancelled;
-	BOOL		m_bShowedAll;
 private:
-	HICON		m_hIcon;
 	HANDLE		m_hThread;
+	CString		m_sLogMsgCtrl;
 	CStringArray m_arLogMessages;
-	CDWordArray m_arFileListStarts;
 	CDWordArray m_arRevs;
-	BOOL		m_hasWC;
-	int			m_nSearchIndex;
-	static const UINT m_FindDialogMessage;
-	CFindReplaceDialog *m_pFindDialog;
-	CStringArray	m_templist;
 public:
-//	afx_msg void OnLvnItemActivateLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnItemchangingLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMRclickLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMClickLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnKeydownLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnBnClickedGetall();
+	afx_msg void OnNMRclickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 protected:
-	virtual void OnCancel();
+	virtual void OnOK();
+public:
+	afx_msg void OnLvnGetInfoTipLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 DWORD WINAPI LogThread(LPVOID pVoid);

@@ -20,9 +20,8 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "CopyDlg.h"
-#include "MessageBox.h"
-#include "UnicodeUtils.h"
 #include "RepositoryBrowser.h"
+
 
 // CCopyDlg dialog
 
@@ -30,7 +29,6 @@ IMPLEMENT_DYNAMIC(CCopyDlg, CDialog)
 CCopyDlg::CCopyDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CCopyDlg::IDD, pParent)
 	, m_URL(_T(""))
-	, m_sLogMessage(_T("made a copy"))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -44,7 +42,6 @@ void CCopyDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Control(pDX, IDC_BROWSE, m_butBrowse);
-	DDX_Text(pDX, IDC_LOGMESSAGE, m_sLogMessage);
 }
 
 
@@ -99,23 +96,12 @@ BOOL CCopyDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	SVNStatus status;
-	long rev = status.GetStatus(m_path);
-	if ((rev == (-2))||(status.status->entry == NULL))
-	{
-		CMessageBox::Show(this->m_hWnd, IDS_ERR_NOURLOFFILE, IDS_APPNAME, MB_ICONERROR);
-		TRACE(_T("could not retrieve the URL of the file!\n"));
-		this->EndDialog(IDCANCEL);		//exit
-	} // if ((rev == (-2))||(status.status->entry == NULL))
-	m_wcURL = CUnicodeUtils::GetUnicode(status.status->entry->url);
 	m_URLCombo.LoadHistory(_T("repoURLS"), _T("url"));
-	m_URLCombo.AddString(m_wcURL);
-	m_URLCombo.SelectString(-1, m_wcURL);
-	CString unescapedurl = m_wcURL;
-	CUtils::Unescape(unescapedurl.GetBuffer());
-	unescapedurl.ReleaseBuffer();
-	GetDlgItem(IDC_FROMURL)->SetWindowText(unescapedurl);
-	CenterWindow(CWnd::FromHandle(hWndExplorer));
+	m_URLCombo.AddString(m_URL);
+	m_URLCombo.SelectString(-1, m_URL);
+
+	GetDlgItem(IDC_FROMURL)->SetWindowText(m_URL);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -123,16 +109,6 @@ BOOL CCopyDlg::OnInitDialog()
 void CCopyDlg::OnOK()
 {
 	UpdateData(TRUE);
-
-	CString combourl;
-	m_URLCombo.GetWindowText(combourl);
-	if (m_wcURL.CompareNoCase(combourl)==0)
-	{
-		CString temp;
-		temp.Format(IDS_ERR_COPYITSELF, m_wcURL, m_URLCombo.GetString());
-		CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_ICONERROR);
-		return;
-	}
 	m_URLCombo.SaveHistory();
 	m_URL = m_URLCombo.GetString();
 
@@ -171,10 +147,7 @@ void CCopyDlg::OnBnClickedBrowse()
 			}
 		}
 	}
-	else if ((strUrl.Left(7) == _T("http://")
-		||(strUrl.Left(8) == _T("https://"))
-		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(10) == _T("svn+ssl://"))) && strUrl.GetLength() > 6)
+	else if ((strUrl.Left(7) == _T("http://")||(strUrl.Left(8) == _T("https://"))) && strUrl.GetLength() > 7)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this);

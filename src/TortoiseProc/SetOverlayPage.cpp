@@ -17,18 +17,6 @@ CSetOverlayPage::CSetOverlayPage()
 	, m_bCDROM(FALSE)
 {
 	this->m_pPSP->dwFlags &= ~PSP_HASHELP;
-	m_regShowChangedDirs = CRegDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
-	m_regDriveMaskRemovable = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
-	m_regDriveMaskRemote = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
-	m_regDriveMaskFixed = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"));
-	m_regDriveMaskCDROM = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
-
-	m_bShowChangedDirs = m_regShowChangedDirs;
-	m_bRemovable = m_regDriveMaskRemovable;
-	m_bNetwork = m_regDriveMaskRemote;
-	m_bFixed = m_regDriveMaskFixed;
-	m_bCDROM = m_regDriveMaskCDROM;
-
 }
 
 CSetOverlayPage::~CSetOverlayPage()
@@ -68,10 +56,23 @@ BOOL CSetOverlayPage::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
+	m_regShowChangedDirs = CRegDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
+	m_regDriveMaskRemovable = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
+	m_regDriveMaskRemote = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
+	m_regDriveMaskFixed = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"));
+	m_regDriveMaskCDROM = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
+
+	m_bShowChangedDirs = m_regShowChangedDirs;
+
+	m_bRemovable = m_regDriveMaskRemovable;
+	m_bNetwork = m_regDriveMaskRemote;
+	m_bFixed = m_regDriveMaskFixed;
+	m_bCDROM = m_regDriveMaskCDROM;
+
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_CHANGEDDIRS, IDS_SETTINGS_CHANGEDDIRS_TT);
-	//m_tooltips.SetEffectBk(CBalloon::BALLOON_EFFECT_HGRADIENT);
-	//m_tooltips.SetGradientColors(0x80ffff, 0x000000, 0xffff80);
+	m_tooltips.SetEffectBk(CBalloon::BALLOON_EFFECT_HGRADIENT);
+	m_tooltips.SetGradientColors(0x80ffff, 0x000000, 0xffff80);
 
 
 	UpdateData(FALSE);
@@ -113,7 +114,6 @@ void CSetOverlayPage::OnBnClickedCdrom()
 
 BOOL CSetOverlayPage::OnApply()
 {
-	UpdateData();
 	SaveData();
 	SetModified(FALSE);
 	return CPropertyPage::OnApply();

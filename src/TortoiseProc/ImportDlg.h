@@ -19,10 +19,6 @@
 #include "afxwin.h"
 #include "HistoryCombo.h"
 #include "Balloon.h"
-#include "CheckTempFiles.h"
-#include "DirFileList.h"
-#include "afxcmn.h"
-#include "ResizableDialog.h"
 
 /**
  * \ingroup TortoiseProc
@@ -55,7 +51,7 @@
  * \bug 
  *
  */
-class CImportDlg : public CResizableDialog
+class CImportDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CImportDlg)
 
@@ -67,14 +63,8 @@ public:
 	enum { IDD = IDD_IMPORT };
 
 protected:
-	CBalloon	m_tooltips;
-	CButton		m_butBrowse;
-	HICON		m_hIcon;
-	BOOL		m_bSelectAll;
+	HICON m_hIcon;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	afx_msg void OnBnClickedBrowse();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnLvnItemchangedFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 
 	virtual void OnOK();
 	virtual BOOL OnInitDialog();
@@ -83,10 +73,14 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_url;
-	CString m_path;
 	CString m_message;
 	CHistoryCombo m_URLCombo;
-	CListCtrl m_FileList;
-
-	afx_msg void OnBnClickedSelectall();
+protected:
+	CBalloon	m_tooltips;
+public:
+	CButton m_butBrowse;
+	afx_msg void OnBnClickedBrowse();
+	bool m_bUseFolderAsModule;
+	CButton m_folderCheck;
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

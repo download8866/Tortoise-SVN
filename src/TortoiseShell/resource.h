@@ -2,10 +2,10 @@
 // Microsoft Visual C++ generated include file.
 // Used by resource.rc
 //
-#define IDR_DLLMANIFEST                 2
+#define IDR_MANIFEST                    1
+#define IDD_PROPPAGE                    102
 #define IDI_ICON5                       105
 #define IDI_MENU                        105
-#define IDD_PROPPAGE                    107
 #define IDI_APP                         108
 #define IDS_MENUCHECKOUT                120
 #define IDI_CHECKOUT                    121
@@ -43,22 +43,14 @@
 #define IDS_MENUDESCUPDATE              137
 #define IDI_ABOUT                       137
 #define IDS_MENUDESCCOMMIT              138
+#define IDI_ICON1                       138
 #define IDI_SETTINGS                    138
 #define IDS_MENUDESCADD                 139
-#define IDI_ICON1                       139
-#define IDI_CREATEREPOS                 139
 #define IDS_MENUDESCREVERT              140
-#define IDI_ICON2                       140
-#define IDI_CONFLICT                    140
 #define IDS_MENUDESCCLEANUP             141
-#define IDI_ICON3                       141
-#define IDI_RELOCATE                    141
 #define IDS_MENUDESCRESOLVE             142
-#define IDI_HELP                        142
 #define IDS_MENUDESCSWITCH              143
-#define IDI_SHOWCHANGED                 143
 #define IDS_MENUDESCIMPORT              144
-#define IDI_IGNORE                      144
 #define IDS_MENUDESCEXPORT              145
 #define IDS_MENUDESCABOUT               146
 #define IDS_MENUDESCCREATEREPOS         147
@@ -96,30 +88,6 @@
 #define IDS_DROPMOVEMENU                179
 #define IDS_MENULOG                     180
 #define IDS_MENUDESCLOG                 181
-#define IDS_COLTITLEURL                 182
-#define IDS_COLDESCURL                  183
-#define IDS_COLTITLESHORTURL            184
-#define IDS_COLDESCSHORTURL             185
-#define IDS_MENUCONFLICT                186
-#define IDS_MENUDESCCONFLICT            187
-#define IDS_MENURELOCATE                188
-#define IDS_MENUDESCRELOCATE            189
-#define IDS_MENUHELP                    190
-#define IDS_MENUDESCHELP                191
-#define IDS_MENUSHOWCHANGED             192
-#define IDS_MENUDESCSHOWCHANGED         193
-#define IDS_MENUIGNORE                  194
-#define IDS_MENUDESCIGNORE              195
-#define IDS_STATUSINCOMPLETE            196
-#define IDS_STATUSIGNORED               197
-#define IDS_DROPCOPYMENU                198
-#define IDS_PROPWAITCANCEL              199
-#define IDS_SETPROPTITLE                200
-#define IDS_MENUREPOBROWSE              201
-#define IDS_MENUDESCREPOBROWSE          202
-#define IDS_MENUBLAME                   203
-#define IDS_STATUSEXTERNAL              204
-#define IDS_MENUDESCBLAME               205
 #define IDC_REVISION                    1001
 #define IDC_LOCKED                      1002
 #define IDC_REPOURL                     1003
@@ -136,19 +104,14 @@
 #define IDC_EDITNAME                    1014
 #define IDC_EDITVALUE                   1015
 #define IDC_SHOWLOG                     1016
-#define IDC_REPOURL2                    1017
-#define IDC_RECURSIVE                   1018
-#define IDI_REPOBROWSE                  5145
-#define IDI_ICON4                       5146
-#define IDI_BLAME                       5146
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        5147
+#define _APS_NEXT_RESOURCE_VALUE        139
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         11019
-#define _APS_NEXT_SYMED_VALUE           5101
+#define _APS_NEXT_CONTROL_VALUE         1017
+#define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -21,24 +21,21 @@
 #include "svn.h"
 #include "promptdlg.h"
 
-#include "ResizableDialog.h"
+#include "resizer.h"
 
 typedef enum
 {
 	Checkout = 1,
-	Update = 2,
-	Enum_Update = 2,
-	Commit = 3,
-	Add = 4,
-	Revert = 5,
-	Resolve = 6,
-	Import = 7,
-	Switch = 8,
-	Export = 9,
-	Merge = 10,
-	Enum_Merge = 10,
-	Copy = 11,
-	Relocate = 12
+	Update,
+	Commit,
+	Add,
+	Revert,
+	Resolve,
+	Import,
+	Switch,
+	Export,
+	Merge,
+	Copy
 } Command;
 
 /**
@@ -73,9 +70,11 @@ typedef enum
  * \bug 
  *
  */
-class CSVNProgressDlg : public CResizableDialog, public SVN
+class CSVNProgressDlg : public CDialog, public SVN
 {
 	DECLARE_DYNAMIC(CSVNProgressDlg)
+
+	DECLARE_RESIZER;
 
 public:
 	CSVNProgressDlg(CWnd* pParent = NULL);   // standard constructor
@@ -92,6 +91,9 @@ public:
 	 */
 	void SetParams(Command cmd, BOOL isTempFile, CString path, CString url = _T(""), CString message = _T(""), LONG revision = -1, CString modName = _T(""));
 
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+
 // Dialog Data
 	enum { IDD = IDD_SVNPROGRESS };
 
@@ -99,23 +101,12 @@ protected:
 	//implement the virtual methods from SVN base class
 	virtual BOOL Notify(CString path, svn_wc_notify_action_t action, svn_node_kind_t kind, CString myme_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev);
 	virtual BOOL Cancel();
-	virtual void OnCancel();
 
 	HICON m_hIcon;
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	/**
-	 * Resizes the columns of the progress list so that the headings are visible.
-	 */
-	void ResizeColumns();
 
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
-	afx_msg void OnNMCustomdrawSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnBnClickedLogbutton();
-	afx_msg void OnBnClickedOk();
-	afx_msg void OnClose();
-	virtual void OnOK();
 
 	DECLARE_MESSAGE_MAP()
 
@@ -130,12 +121,22 @@ public:			//need to be public for the thread to access
 	CDWordArray	m_arActions;
 	CDWordArray	m_arActionCStates;
 	CDWordArray	m_arActionPStates;
-	CStringArray m_arPaths;
 	LONG		m_nRevision;
 	LONG		m_nRevisionEnd;
 	BOOL		m_IsTempFile;
 	BOOL		m_bCancelled;
 	BOOL		m_bThreadRunning;
 	CString		m_sModName;
+	afx_msg void OnBnClickedLogbutton();
+	afx_msg void OnBnClickedOk();
+protected:
+	virtual void OnOK();
+private:
+	/**
+	 * Resizes the columns of the progress list so that the headings are visible.
+	 */
+	void ResizeColumns();
+public:
+	afx_msg void OnNMCustomdrawSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
 };
 DWORD WINAPI ProgressThread(LPVOID pVoid);

@@ -19,23 +19,6 @@
 #pragma once
 #include "HistoryCombo.h"
 
-class LogHelper : public SVN
-{
-public:
-	LogHelper() {m_firstrev = -1;}
-
-	virtual BOOL Log(LONG rev, CString author, CString date, CString message, CString& cpaths)
-	{
-		if (m_firstrev == -1)
-			m_firstrev = rev;
-		m_lastrev = rev;
-		return TRUE;
-	}
-
-public:
-	LONG		m_firstrev;
-	LONG		m_lastrev;
-};
 
 /**
  * \ingroup TortoiseProc
@@ -91,15 +74,7 @@ protected:
 	afx_msg void OnBnClickedBrowse();
 
 	DECLARE_MESSAGE_MAP()
-
-	CLogDlg *	m_pLogDlg;
 public:
 	CString m_URL;
-	CString m_BranchURL;
 	CHistoryCombo m_URLCombo;
-	long m_lStartRev;
-	long m_lEndRev;
-	afx_msg void OnBnClickedRevisionHead();
-	afx_msg void OnBnClickedRevisionN();
-	afx_msg void OnBnClickedFindbranchstart();
 };

@@ -22,8 +22,6 @@
 #include "UnicodeStrings.h"
 #include "PreserveChdir.h"
 #include <string>
-#include <Shlwapi.h>
-#include <wininet.h>
 
 // If this is set the SVN columns will always show if the current directory contains SVN content
 // Otherwise the user will have to add the columns via the "more..." button
@@ -38,9 +36,9 @@ const static int ColumnFlags = SHCOLSTATE_TYPE_STR|SHCOLSTATE_SECONDARYUI;
 // IColumnProvider members
 STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 {
-	if (dwIndex > 4)
+	if (dwIndex > 2)
 		return S_FALSE;
-	LoadLangDll();
+
 	wide_string ws;
 	switch (dwIndex)
 	{
@@ -87,48 +85,6 @@ STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 #endif
 			break;
 		case 2:
-			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-			psci->scid.pid = dwIndex;
-			psci->vt = VT_BSTR;
-			psci->fmt = LVCFMT_LEFT;
-			psci->cChars = 30;
-			psci->csFlags = ColumnFlags;
-
-			MAKESTRING(IDS_COLTITLEURL);
-#ifdef UNICODE
-			lstrcpyW(psci->wszTitle, stringtablebuffer);
-#else
-			lstrcpyW(psci->wszTitle, MultibyteToWide(stringtablebuffer).c_str());
-#endif
-			MAKESTRING(IDS_COLDESCURL);
-#ifdef UNICODE
-			lstrcpyW(psci->wszDescription, stringtablebuffer);
-#else
-			lstrcpyW(psci->wszDescription, MultibyteToWide(stringtablebuffer).c_str());
-#endif
-			break;
-		case 3:
-			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-			psci->scid.pid = dwIndex;
-			psci->vt = VT_BSTR;
-			psci->fmt = LVCFMT_LEFT;
-			psci->cChars = 30;
-			psci->csFlags = ColumnFlags;
-
-			MAKESTRING(IDS_COLTITLESHORTURL);
-#ifdef UNICODE
-			lstrcpyW(psci->wszTitle, stringtablebuffer);
-#else
-			lstrcpyW(psci->wszTitle, MultibyteToWide(stringtablebuffer).c_str());
-#endif
-			MAKESTRING(IDS_COLDESCSHORTURL);
-#ifdef UNICODE
-			lstrcpyW(psci->wszDescription, stringtablebuffer);
-#else
-			lstrcpyW(psci->wszDescription, MultibyteToWide(stringtablebuffer).c_str());
-#endif
-			break;
-		case 4:
 			psci->scid.fmtid = FMTID_SummaryInformation;	// predefined FMTID
 			psci->scid.pid   = PIDSI_AUTHOR;				// Predefined - author
 			psci->vt         = VT_LPSTR;					// We'll return the data as a string
@@ -143,12 +99,12 @@ STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 
 STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData)
 {
-	LoadLangDll();
-	DWORD dwWaitResult = 0;
-	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 4) 
+	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 2) 
 	{
 		PreserveChdir preserveChdir;
 		stdstring szInfo;
+		svn_wc_status_kind status;
+		CRegStdWORD showrecursive(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
 #ifdef UNICODE
 		std::wstring path = pscd->wszFile;
 #else
@@ -156,47 +112,68 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 #endif
 
 		TCHAR buf[MAX_PATH];
+
+		CRegStdWORD driveremote(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
+		CRegStdWORD drivefixed(_T("Software\\TortoiseSVN\\DriveMaskFixed"));
+		CRegStdWORD drivecdrom(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
+		CRegStdWORD driveremove(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
+		TCHAR pathbuf[MAX_PATH+4];
+		_tcscpy(pathbuf, path.c_str());
+		if (!PathIsDirectory(path.c_str()))
+		{
+			PathRemoveFileSpec(pathbuf);
+		}
+		PathAddBackslash(pathbuf);
+		UINT drivetype = GetDriveType(pathbuf);
+		if ((drivetype == DRIVE_REMOVABLE)&&(driveremove == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_FIXED)&&(drivefixed == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_REMOTE)&&(driveremote == 0))
+			return S_FALSE;
+		if ((drivetype == DRIVE_CDROM)&&(drivecdrom == 0))
+			return S_FALSE;
+
 		switch (pscid->pid) 
 		{
 			case 0:
-				dwWaitResult = WaitForSingleObject(hMutex, 100);
-				if (dwWaitResult == WAIT_OBJECT_0)
-				{
-					GetColumnStatus(path);
-					SVNStatus::GetStatusString(g_hResInst, filestatus, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-					szInfo = buf;
-					ReleaseMutex(hMutex);
-				} // if (dwWaitResult == WAIT_OBJECT_0)
-				break;
-			case 1:
-				dwWaitResult = WaitForSingleObject(hMutex, 100);
-				if (dwWaitResult == WAIT_OBJECT_0)
-				{
-					GetColumnStatus(path);
-					if (columnrev >= 0)
-						_sntprintf(buf, MAX_PATH, _T("%d"), columnrev);
-					else
-						buf[0] = '\0';
-					ReleaseMutex(hMutex);
-				}
+				//if recursive is set in the registry then check directories recursive for status and show
+				//the column info with the highest priority on the folder.
+				//since this can be slow for big directories it is optional - but very neat.
+				if ((showrecursive == 0)||(!PathIsDirectory(path.c_str())))
+					status = SVNStatus::GetAllStatus(path.c_str());
+				else if (showrecursive != 0)
+					status = SVNStatus::GetAllStatusRecursive(path.c_str());
+
+				SVNStatus::GetStatusString(g_hmodThisDll, status, buf, sizeof(buf), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 				szInfo = buf;
 				break;
-			case 2:
-				dwWaitResult = WaitForSingleObject(hMutex, 100);
-				if (dwWaitResult == WAIT_OBJECT_0)
+			case 1:
+				if (columnfilepath.compare(path)==0)
 				{
-					GetColumnStatus(path);
-					szInfo = itemurl;
-					ReleaseMutex(hMutex);
+					_sntprintf(buf, MAX_PATH, _T("%d"), columnrev);
+					szInfo = buf;
 				}
-				break;
-			case 3:
-				dwWaitResult = WaitForSingleObject(hMutex, 100);
-				if (dwWaitResult == WAIT_OBJECT_0)
+				else
 				{
-					GetColumnStatus(path);
-					szInfo = itemshorturl;
-					ReleaseMutex(hMutex);
+					SVNStatus status;
+					if (status.GetStatus(path.c_str()) != (-2))
+					{
+						if (status.status->entry == NULL)
+							return S_FALSE;
+						_sntprintf(buf, MAX_PATH, _T("%d"), status.status->entry->cmt_rev);
+						szInfo = buf;
+						columnrev = status.status->entry->cmt_rev;
+						if (status.status->entry->cmt_author == NULL)
+							return S_FALSE;
+#ifdef UNICODE
+						columnauthor = UTF8ToWide(status.status->entry->cmt_author);
+#else
+						columnauthor = status.status->entry->cmt_author;
+#endif
+					}
+					else
+						return S_FALSE;
 				}
 				break;
 			default:
@@ -225,16 +202,32 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 		switch (pscid->pid)
 		{
 			case PIDSI_AUTHOR:			// author
-				dwWaitResult = WaitForSingleObject(hMutex, 10);
-				if (dwWaitResult == WAIT_OBJECT_0)
+				if (columnfilepath.compare(path)==0)
 				{
-					GetColumnStatus(path);
 					szInfo = columnauthor;
-					ReleaseMutex(hMutex);
+				}
+				else
+				{
+					SVNStatus status;
+					if (status.GetStatus(path.c_str()) != (-2))
+					{
+						if (status.status->entry == NULL)
+							return S_FALSE;
+						columnrev = status.status->entry->cmt_rev;
+						if (status.status->entry->cmt_author == NULL)
+							return S_FALSE;
+#ifdef UNICODE
+						szInfo = UTF8ToWide(status.status->entry->cmt_author);
+						columnauthor = UTF8ToWide(status.status->entry->cmt_author);
+#else
+						szInfo = status.status->entry->cmt_author;
+						columnauthor = status.status->entry->cmt_author;
+#endif
+					}
+					else
+						return S_FALSE;
 				}
 				break;
-			default:
-				return S_FALSE;
 		} // switch (pscid->pid)
 #ifdef UNICODE
 		wide_string wsInfo = szInfo;
@@ -273,49 +266,5 @@ STDMETHODIMP CShellExt::Initialize(LPCSHCOLUMNINIT psci)
 #endif
 
 	return S_OK;
-}
-
-void CShellExt::GetColumnStatus(stdstring path)
-{
-	if (columnfilepath.compare(path)==0)
-		return;
-	LoadLangDll();
-	columnfilepath = path;
-	filestatuscache * status = g_CachedStatus.GetFullStatus(path.c_str());
-	filestatus = status->status;
-
-#ifdef UNICODE
-	columnauthor = UTF8ToWide(status->author);
-#else
-	columnauthor = status->author;
-#endif
-	columnrev = status->rev;
-#ifdef UNICODE
-	itemurl = UTF8ToWide(status->url);
-#else
-	itemurl = status->url;
-#endif
-	TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
-
-	URL_COMPONENTS urlComponents;
-	memset(&urlComponents, 0, sizeof(URL_COMPONENTS));
-	urlComponents.dwStructSize = sizeof(URL_COMPONENTS);
-	urlComponents.dwUrlPathLength = INTERNET_MAX_URL_LENGTH;
-	urlComponents.lpszUrlPath = urlpath;
-	if (InternetCrackUrl(itemurl.c_str(), 0, ICU_DECODE, &urlComponents))
-	{
-		TCHAR * ptr = _tcsrchr(urlComponents.lpszUrlPath, '/');
-		if (ptr == NULL)
-			ptr = _tcsrchr(urlComponents.lpszUrlPath, '\\');
-		if (ptr)
-		{
-			*ptr = '\0';
-			itemshorturl = urlComponents.lpszUrlPath;
-		} // if (ptr)
-		else 
-			itemshorturl = _T(" ");
-	}
-	else
-		itemshorturl = _T(" ");
 }
 

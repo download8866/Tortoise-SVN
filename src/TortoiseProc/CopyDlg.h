@@ -73,8 +73,5 @@ protected:
 public:
 	CHistoryCombo m_URLCombo;
 	CString	m_URL;
-	CString m_path;
-	CString m_wcURL;
 	CButton m_butBrowse;
-	CString m_sLogMessage;
 };

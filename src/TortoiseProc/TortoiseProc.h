@@ -25,9 +25,7 @@
 #include "CrashHandler.h"
 
 #include "resource.h"		// main symbols
-#include "..\\TortoiseShell\\resource.h"
 #include "Utils.h"
-#include "SVNStatus.h"
 #include "BrowseFolder.h"
 #include "ProgressDlg.h"
 #include "CmdLineParser.h"
@@ -36,6 +34,7 @@
 #include "SVNProgressDlg.h"
 #include "CheckoutDlg.h"
 #include "LogPromptDlg.h"
+#include "WatcherDlg.h"
 #include "ImportDlg.h"
 #include "SwitchDlg.h"
 #include "MergeDlg.h"
@@ -44,11 +43,6 @@
 #include "RenameDlg.h"
 #include "UpdateDlg.h"
 #include "AddDlg.h"
-#include "RelocateDlg.h"
-#include "ChangedDlg.h"
-#include "RepositoryBrowser.h"
-#include "BlameDlg.h"
-
 
 /**
  * \ingroup TortoiseProc
@@ -93,13 +87,11 @@ public:
 public:
 	virtual BOOL InitInstance();
 
-	void CrashProgram();
 // Implementation
 
-	//DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 private:
 	HANDLE	m_mutex;
 };
 
 extern CTortoiseProcApp theApp;
-extern HWND hWndExplorer;

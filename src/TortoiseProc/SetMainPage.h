@@ -72,30 +72,15 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
-	
-	CString GetVersionFromFile(const CString & p_strDateiname);
-
 private:
 	CString			m_sDiffPath;
 	CRegString		m_regDiffPath;
-	CString			m_sMergePath;
-	CRegString		m_regMergePath;
-	CString			m_sDiffViewerPath;
-	CRegString		m_regDiffViewerPath;
 	CRegString		m_regExtensions;
 	CString			m_sTempExtensions;
 	CBalloon		m_tooltips;
 	CComboBox		m_LanguageCombo;
 	CRegDWORD		m_regLanguage;
 	DWORD			m_dwLanguage;
-	CRegDWORD		m_regAddBeforeCommit;
-	BOOL			m_bAddBeforeCommit;
-	CRegDWORD		m_regNoRemoveLogMsg;
-	BOOL			m_bNoRemoveLogMsg;
-	CRegDWORD		m_regAutoClose;
-	BOOL			m_bAutoClose;
-	CRegDWORD		m_regDefaultLogs;
-	CString			m_sDefaultLogs;
 
 public:
 	afx_msg void OnBnClickedExtdiffbrowse();
@@ -105,12 +90,4 @@ public:
 	afx_msg void OnCbnSelchangeLanguagecombo();
 	afx_msg void OnEnChangeTempextensions();
 	virtual BOOL OnApply();
-	afx_msg void OnBnClickedAddbeforecommit();
-	afx_msg void OnBnClickedExtmergebrowse();
-	afx_msg void OnEnChangeExtmerge();
-	afx_msg void OnBnClickedDiffviewerrowse();
-	afx_msg void OnEnChangeDiffviewer();
-	afx_msg void OnBnClickedNoremovelogmsg();
-	afx_msg void OnBnClickedAutoclose();
-	afx_msg void OnEnChangeDefaultlog();
 };

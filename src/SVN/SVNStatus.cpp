@@ -16,71 +16,43 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include "stdafx.h"
-#include "resource.h"
-#include "..\\TortoiseShell\\resource.h"
 
 #include "SVNStatus.h"
 #include "UnicodeUtils.h"
-#ifdef _MFC_VER
-#	include "MessageBox.h"
-#endif
 
 SVNStatus::SVNStatus(void)
 {
 	apr_initialize();
 	m_pool = svn_pool_create (NULL);				// create the memory pool
-#ifdef _MFC_VER
-	svn_config_ensure(NULL, m_pool);
-	hWnd = NULL;
-#endif
+	svn_config_ensure(m_pool);
+
 	memset (&m_ctx, 0, sizeof (m_ctx));
 
-#ifdef _MFC_VER
 	// set up authentication
-	svn_auth_provider_object_t *provider;
 
-	/* The whole list of registered providers */
-	apr_array_header_t *providers = apr_array_make (m_pool, 10, sizeof (svn_auth_provider_object_t *));
+    /* The whole list of registered providers */
+    apr_array_header_t *providers
+      = apr_array_make (m_pool, 1, sizeof (svn_auth_provider_object_t *));
 
-	/* The main disk-caching auth providers, for both
-	'username/password' creds and 'username' creds.  */
-	svn_client_get_simple_provider (&provider, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_username_provider (&provider, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+    /* The main disk-caching auth providers, for both
+       'username/password' creds and 'username' creds.  */
+    svn_auth_provider_object_t *simple_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (m_pool, sizeof(*simple_wc_provider));
 
-	/* The server-cert, client-cert, and client-cert-password providers. */
-	svn_client_get_ssl_server_trust_file_provider (&provider, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_ssl_client_cert_file_provider (&provider, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_ssl_client_cert_pw_file_provider (&provider, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+    svn_auth_provider_object_t *username_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (m_pool, sizeof(*username_wc_provider));
 
-	/* Two prompting providers, one for username/password, one for
-	just username. */
-	svn_client_get_simple_prompt_provider (&provider, (svn_auth_simple_prompt_func_t)simpleprompt, this, 2, /* retry limit */ m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_username_prompt_provider (&provider, (svn_auth_username_prompt_func_t)userprompt, this, 2, /* retry limit */ m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+    svn_client_get_simple_provider (&(simple_wc_provider->vtable), &(simple_wc_provider->provider_baton), m_pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = simple_wc_provider;
 
-	/* Three prompting providers for server-certs, client-certs,
-	and client-cert-passphrases.  */
-	svn_client_get_ssl_server_trust_prompt_provider (&provider, sslserverprompt, this, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_ssl_client_cert_prompt_provider (&provider, sslclientprompt, this, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_ssl_client_cert_pw_prompt_provider (&provider, sslpwprompt, this, m_pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+    svn_client_get_username_provider(&(username_wc_provider->vtable), &(username_wc_provider->provider_baton), m_pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = username_wc_provider;
 
-	/* Build an authentication baton to give to libsvn_client. */
 	svn_auth_open (&m_auth_baton, providers, m_pool);
-	m_ctx.auth_baton = m_auth_baton;
 
+	m_ctx.auth_baton = m_auth_baton;
+	m_ctx.prompt_func = NULL;
+	m_ctx.prompt_baton = NULL;
 	// set up the configuration
-	svn_config_get_config (&(m_ctx.config), NULL, m_pool);
-#endif
+	svn_config_get_config (&(m_ctx.config), m_pool);
 }
 
 SVNStatus::~SVNStatus(void)
@@ -89,216 +61,317 @@ SVNStatus::~SVNStatus(void)
 	apr_terminate();
 }
 
-#ifdef _MFC_VER
-void SVNStatus::SaveAuthentication(BOOL save)
-{
-	if (save)
-	{
-		svn_auth_set_parameter(m_ctx.auth_baton, SVN_AUTH_PARAM_NO_AUTH_CACHE, NULL);
-	}
-	else
-	{
-		svn_auth_set_parameter(m_ctx.auth_baton, SVN_AUTH_PARAM_NO_AUTH_CACHE, (void *) "");
-	}
-}
-#endif //_MFC_VER
-
 //static method
-svn_wc_status_kind SVNStatus::GetAllStatus(const TCHAR * path, BOOL recursive)
+svn_wc_status_kind SVNStatus::GetTextStatus(const TCHAR * path)
 {
-	//svn_auth_baton_t *			auth_baton;
-	svn_client_ctx_t 			ctx;
-	//apr_hash_t *				statushash;
-	svn_wc_status_kind			statuskind;
+	svn_wc_status_t *			status;
 	apr_pool_t *				pool;
 	svn_error_t *				err;
 	const char *				internalpath;
-	BOOL						isDir;
-
-	TCHAR						pathbuf[MAX_PATH];
-	_tcscpy(pathbuf, path);
-	isDir = PathIsDirectory(path);
-	if (!isDir)
-	{
-		TCHAR * ptr = _tcsrchr(pathbuf, '\\');
-		if (ptr == 0)
-			ptr = _tcsrchr(pathbuf, '/');
-		if (ptr == 0)
-			return svn_wc_status_unversioned;
-		*ptr = 0;
-	} // if (!isDir)
-	_tcscat(pathbuf, _T("\\"));
-	_tcscat(pathbuf, _T(SVN_WC_ADM_DIR_NAME));
-	if (!PathFileExists(pathbuf))
-		return svn_wc_status_unversioned;
-	if ((isDir)&&(!recursive))
-		return svn_wc_status_normal;
-
 	apr_initialize();
 	pool = svn_pool_create (NULL);				// create the memory pool
-	memset (&ctx, 0, sizeof (ctx));
 
 	//we need to convert the path to subversion internal format
 	//the internal format uses '/' instead of the windows '\'
 	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), pool);
 
-	svn_revnum_t youngest = SVN_INVALID_REVNUM;
-	svn_opt_revision_t rev;
-	rev.kind = svn_opt_revision_unspecified;
-	statuskind = svn_wc_status_none;
-	err = svn_client_status (&youngest,
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+
+
+
+	svn_wc_adm_access_t *adm_access;
+
+	// Need to lock the tree as even a non-recursive status requires the
+	// immediate directories to be locked. 
+	err = svn_wc_adm_probe_open (&adm_access, NULL, internalpath, FALSE, FALSE, pool);
+
+	if (err != NULL)
+	{
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+	// Ask the wc to give us a list of svn_wc_status_t structures.
+	// These structures contain nothing but information found in the
+	// working copy. 
+	err = svn_wc_status (&status, internalpath, adm_access, pool);
+	if (err != NULL)
+	{
+		svn_wc_adm_close (adm_access);			//unlock the directory
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+
+	err = svn_wc_adm_close (adm_access);
+	if (err != NULL)
+	{
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+
+	svn_wc_status_kind text = status->text_status;
+	svn_pool_destroy(pool);
+	apr_terminate();
+	return text;
+}
+
+//static method
+svn_wc_status_kind SVNStatus::GetTextStatusRecursive(const TCHAR * path)
+{
+	svn_auth_baton_t *			auth_baton;
+	svn_client_ctx_t 			ctx;
+	apr_hash_t *				statushash;
+	svn_wc_status_kind			statuskind;
+	apr_pool_t *				pool;
+	svn_error_t *				err;
+	const char *				internalpath;
+	apr_initialize();
+	pool = svn_pool_create (NULL);				// create the memory pool
+	memset (&ctx, 0, sizeof (ctx));
+	svn_config_ensure(pool);
+
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), pool);
+
+	// set up authentication
+
+    /* The whole list of registered providers */
+    apr_array_header_t *providers
+      = apr_array_make (pool, 1, sizeof (svn_auth_provider_object_t *));
+
+    /* The main disk-caching auth providers, for both
+       'username/password' creds and 'username' creds.  */
+    svn_auth_provider_object_t *simple_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (pool, sizeof(*simple_wc_provider));
+
+    svn_auth_provider_object_t *username_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (pool, sizeof(*username_wc_provider));
+
+    svn_client_get_simple_provider (&(simple_wc_provider->vtable), &(simple_wc_provider->provider_baton), pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = simple_wc_provider;
+
+    svn_client_get_username_provider(&(username_wc_provider->vtable), &(username_wc_provider->provider_baton), pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = username_wc_provider;
+
+	svn_auth_open (&auth_baton, providers, pool);
+
+	// set up the configuration
+	svn_config_get_config (&(ctx.config), pool);
+
+	ctx.auth_baton = auth_baton;
+
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+	err = svn_client_status (&statushash,
+							&youngest,
 							internalpath,
-							&rev,
-							getallstatus,
-							&statuskind,
-							recursive,	//descend
-							TRUE,		//getall
-							FALSE,		//update
-							TRUE,		//noignore
+							TRUE,				//descend to subitems
+							1,
+							false,				//don't update with repository
+							1,
 							&ctx,
 							pool);
 
-	// Error present
-	if (err != NULL)
+	// Error present if function is not under version control
+	if ((err != NULL) || (apr_hash_count(statushash) == 0))
 	{
 		svn_pool_destroy (pool);				//free allocated memory
 		return svn_wc_status_unversioned;	
 	}
 
+    apr_hash_index_t *hi;
+	statuskind = svn_wc_status_unversioned;
+    for (hi = apr_hash_first (pool, statushash); hi; hi = apr_hash_next (hi))
+    {
+		svn_wc_status_t * tempstatus;
+		apr_hash_this(hi, NULL, NULL, (void **)&tempstatus);
+		//check if this status has higher priority
+		//to keep things easy the higher priority is also the higher enum value...
+		if ((tempstatus->text_status > statuskind)&&(tempstatus->text_status != svn_wc_status_ignored))
+		{
+			statuskind = tempstatus->text_status;
+		}
+	}
 	svn_pool_destroy (pool);				//free allocated memory
 	apr_terminate();
 	return statuskind;
 }
 
 //static method
-svn_wc_status_kind SVNStatus::GetAllStatusRecursive(const TCHAR * path)
+svn_wc_status_kind SVNStatus::GetAllStatus(const TCHAR * path)
 {
-	return GetAllStatus(path, TRUE);
+	svn_wc_status_t *			status;
+	apr_pool_t *				pool;
+	svn_error_t *				err;
+	const char *				internalpath;
+	apr_initialize();
+	pool = svn_pool_create (NULL);				// create the memory pool
+
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), pool);
+
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+
+
+
+	svn_wc_adm_access_t *adm_access;
+
+	// Need to lock the tree as even a non-recursive status requires the
+	// immediate directories to be locked. 
+	err = svn_wc_adm_probe_open (&adm_access, NULL, internalpath, FALSE, FALSE, pool);
+
+	if (err != NULL)
+	{
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+	// Ask the wc to give us a list of svn_wc_status_t structures.
+	// These structures contain nothing but information found in the
+	// working copy. 
+	err = svn_wc_status (&status, internalpath, adm_access, pool);
+	if (err != NULL)
+	{
+		svn_wc_adm_close (adm_access);			//unlock the directory
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+
+	err = svn_wc_adm_close (adm_access);
+	if (err != NULL)
+	{
+		svn_pool_destroy (pool);				//free allocated memory
+		apr_terminate();
+		return svn_wc_status_unversioned;		//error occured, so treat entry as unversioned
+	}
+
+	svn_wc_status_kind text = status->text_status > status->prop_status ? status->text_status : status->prop_status;
+	if (text == svn_wc_status_none)
+		text = svn_wc_status_unversioned;
+	svn_pool_destroy(pool);
+	apr_terminate();
+	return text;
 }
 
 //static method
-svn_wc_status_kind SVNStatus::GetMoreImportant(svn_wc_status_kind status1, svn_wc_status_kind status2)
+svn_wc_status_kind SVNStatus::GetAllStatusRecursive(const TCHAR * path)
 {
-	if (GetStatusRanking(status1) > GetStatusRanking(status2))
-		return status1;
-	return status2;
-}
-//static private method
-int SVNStatus::GetStatusRanking(svn_wc_status_kind status)
-{
-	switch (status)
-	{
-		case svn_wc_status_none:
-			return 0;
-		case svn_wc_status_unversioned:
-			return 1;
-		case svn_wc_status_ignored:
-			return 2;
-		case svn_wc_status_external:
-			return 3;
-		case svn_wc_status_incomplete:
-			return 4;
-		case svn_wc_status_normal:
-			return 5;
-		case svn_wc_status_added:
-			return 6;
-		case svn_wc_status_absent:
-			return 7;
-		case svn_wc_status_deleted:
-			return 8;
-		case svn_wc_status_replaced:
-			return 9;
-		case svn_wc_status_modified:
-			return 10;
-		case svn_wc_status_merged:
-			return 11;
-		case svn_wc_status_conflicted:
-			return 12;
-		case svn_wc_status_obstructed:
-			return 13;
-	} // switch (status)
-	return 0;
-}
+	svn_auth_baton_t *			auth_baton;
+	svn_client_ctx_t 			ctx;
+	apr_hash_t *				statushash;
+	svn_wc_status_kind			statuskind;
+	apr_pool_t *				pool;
+	svn_error_t *				err;
+	const char *				internalpath;
+	apr_initialize();
+	pool = svn_pool_create (NULL);				// create the memory pool
+	memset (&ctx, 0, sizeof (ctx));
+	svn_config_ensure(pool);
 
-#ifdef _MFC_VER
-CString SVNStatus::GetLastErrorMsg()
-{
-	CString msg;
-	if (m_err != NULL)
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), pool);
+
+	// set up authentication
+
+    /* The whole list of registered providers */
+    apr_array_header_t *providers
+      = apr_array_make (pool, 1, sizeof (svn_auth_provider_object_t *));
+
+    /* The main disk-caching auth providers, for both
+       'username/password' creds and 'username' creds.  */
+    svn_auth_provider_object_t *simple_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (pool, sizeof(*simple_wc_provider));
+
+    svn_auth_provider_object_t *username_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (pool, sizeof(*username_wc_provider));
+
+    svn_client_get_simple_provider (&(simple_wc_provider->vtable), &(simple_wc_provider->provider_baton), pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = simple_wc_provider;
+
+    svn_client_get_username_provider(&(username_wc_provider->vtable), &(username_wc_provider->provider_baton), pool);
+    *(svn_auth_provider_object_t **)apr_array_push (providers) = username_wc_provider;
+
+	svn_auth_open (&auth_baton, providers, pool);
+
+	// set up the configuration
+	svn_config_get_config (&(ctx.config), pool);
+
+	ctx.auth_baton = auth_baton;
+
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+	err = svn_client_status (&statushash,
+							&youngest,
+							internalpath,
+							TRUE,				//descend to subitems
+							1,
+							false,				//don't update with repository
+							1,
+							&ctx,
+							pool);
+
+	// Error present if function is not under version control
+	if ((err != NULL) || (apr_hash_count(statushash) == 0))
 	{
-		msg = m_err->message;
-		while (m_err->child)
-		{
-			m_err = m_err->child;
-			msg += "\n";
-			msg += m_err->message;
-		}
-		return msg;
+		svn_pool_destroy (pool);				//free allocated memory
+		return svn_wc_status_unversioned;	
 	}
-	return _T("");
-}
-#else
-stdstring SVNStatus::GetLastErrorMsg()
-{
-	stdstring msg;
-	if (m_err != NULL)
-	{
-#ifdef UNICODE
-		msg = CUnicodeUtils::StdGetUnicode(m_err->message);
-#else
-		msg = m_err->message;
-#endif
-		while (m_err->child)
-		{
-			m_err = m_err->child;
-			msg += _T("\n");
-#ifdef UNICODE
-			msg += CUnicodeUtils::StdGetUnicode(m_err->message);
-#else
-			msg += m_err->message;
-#endif
-		} // while (m_err->child)
-		return msg;
-	} // if (m_err != NULL)
-	return msg;
-}
-#endif
 
-svn_revnum_t SVNStatus::GetStatus(const TCHAR * path, bool update /* = false */, bool noignore /* = false */)
+    apr_hash_index_t *hi;
+	statuskind = svn_wc_status_unversioned;
+    for (hi = apr_hash_first (pool, statushash); hi; hi = apr_hash_next (hi))
+    {
+		svn_wc_status_t * tempstatus;
+		apr_hash_this(hi, NULL, NULL, (void **)&tempstatus);
+		//check if this status has higher priority
+		//to keep things easy the higher priority is also the higher enum value...
+		if ((tempstatus->text_status > statuskind)&&(tempstatus->text_status != svn_wc_status_ignored))
+		{
+			statuskind = tempstatus->text_status;
+		}
+		if ((tempstatus->prop_status > statuskind)&&(tempstatus->prop_status != svn_wc_status_ignored))
+		{
+			statuskind = tempstatus->prop_status;
+		}
+	}
+	svn_pool_destroy (pool);				//free allocated memory
+	apr_terminate();
+	return statuskind;
+}
+
+svn_revnum_t SVNStatus::GetStatus(const TCHAR * path, bool update /* = false */)
 {
 	apr_hash_t *				statushash;
 	apr_array_header_t *		statusarray;
 	const svn_item_t*			item;
+	svn_error_t *				err;
 	const char *				internalpath;
 
 	//we need to convert the path to subversion internal format
 	//the internal format uses '/' instead of the windows '\'
 	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), m_pool);
 
-	statushash = apr_hash_make(m_pool);
-	svn_revnum_t youngest = SVN_INVALID_REVNUM;
-	svn_opt_revision_t rev;
-	rev.kind = svn_opt_revision_unspecified;
-	struct hashbaton_t hashbaton;
-	hashbaton.hash = statushash;
-	hashbaton.pool = m_pool;
-	m_err = svn_client_status (&youngest,
+
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+
+	err = svn_client_status (&statushash,
+							&youngest,
 							internalpath,
-							&rev,
-							getstatushash,
-							&hashbaton,
-							FALSE,		//descend
-							TRUE,		//getall
-							update,		//update
-							noignore,		//noignore
+							0,
+							1,
+							update,
+							1,
 							&m_ctx,
 							m_pool);
 
-
 	// Error present if function is not under version control
-	if ((m_err != NULL) || (apr_hash_count(statushash) == 0))
+	if ((err != NULL) || (apr_hash_count(statushash) == 0))
 	{
-		status = NULL;
 		return -2;	
 	}
 
@@ -311,12 +384,14 @@ svn_revnum_t SVNStatus::GetStatus(const TCHAR * path, bool update /* = false */,
 	item = &APR_ARRAY_IDX (statusarray, 0, const svn_item_t);
 	
 	status = (svn_wc_status_t *) item->value;
+
 	
 	return youngest;
 }
 svn_wc_status_t * SVNStatus::GetFirstFileStatus(const TCHAR * path, const TCHAR ** retPath, bool update)
 {
 	const svn_item_t*			item;
+	svn_error_t *				err;
 	const char *				internalpath;
 
 	//we need to convert the path to subversion internal format
@@ -324,28 +399,21 @@ svn_wc_status_t * SVNStatus::GetFirstFileStatus(const TCHAR * path, const TCHAR 
 	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(path).c_str(), m_pool);
 
 
-	m_statushash = apr_hash_make(m_pool);
-	svn_revnum_t youngest = SVN_INVALID_REVNUM;
-	svn_opt_revision_t rev;
-	rev.kind = svn_opt_revision_unspecified;
-	struct hashbaton_t hashbaton;
-	hashbaton.hash = m_statushash;
-	hashbaton.pool = m_pool;
-	m_err = svn_client_status (&youngest,
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+
+	err = svn_client_status (&m_statushash,
+							&youngest,
 							internalpath,
-							&rev,
-							getstatushash,
-							&hashbaton,
-							TRUE,		//descend
-							TRUE,		//getall
-							update,		//update
-							TRUE,		//noignore
+							1,					//recurse
+							1,					//getall
+							update,
+							1,					//no ignore
 							&m_ctx,
 							m_pool);
 
-
 	// Error present if function is not under version control
-	if ((m_err != NULL) || (apr_hash_count(m_statushash) == 0))
+	if ((err != NULL) || (apr_hash_count(m_statushash) == 0))
 	{
 		return NULL;	
 	}
@@ -427,15 +495,6 @@ void SVNStatus::GetStatusString(svn_wc_status_kind status, TCHAR * string)
 		case svn_wc_status_obstructed:
 			buf = _T("conflicted\0");
 			break;
-		case svn_wc_status_ignored:
-			buf = _T("ignored");
-			break;
-		case svn_wc_status_external:
-			buf = _T("external");
-			break;
-		case svn_wc_status_incomplete:
-			buf = _T("incomplete\0");
-			break;
 		default:
 			buf = _T("\0");
 			break;
@@ -477,17 +536,8 @@ void SVNStatus::GetStatusString(HINSTANCE hInst, svn_wc_status_kind status, TCHA
 		case svn_wc_status_conflicted:
 			LoadStringEx(hInst, IDS_STATUSCONFLICTED, string, size, lang);
 			break;
-		case svn_wc_status_ignored:
-			LoadStringEx(hInst, IDS_STATUSIGNORED, string, size, lang);
-			break;
 		case svn_wc_status_obstructed:
 			LoadStringEx(hInst, IDS_STATUSOBSTRUCTED, string, size, lang);
-			break;
-		case svn_wc_status_external:
-			LoadStringEx(hInst, IDS_STATUSEXTERNAL, string, size, lang);
-			break;
-		case svn_wc_status_incomplete:
-			LoadStringEx(hInst, IDS_STATUSINCOMPLETE, string, size, lang);
 			break;
 		default:
 			LoadStringEx(hInst, IDS_STATUSNONE, string, size, lang);
@@ -547,16 +597,155 @@ int SVNStatus::LoadStringEx(HINSTANCE hInstance, UINT uID, LPCTSTR lpBuffer, int
 	return ret;
 }
 
-void SVNStatus::getallstatus(void * baton, const char * path, svn_wc_status_t * status)
+SVNFolderStatus::SVNFolderStatus(void)
 {
-	svn_wc_status_kind * s = (svn_wc_status_kind *)baton;
-	*s = SVNStatus::GetMoreImportant(*s, status->text_status);
-	*s = SVNStatus::GetMoreImportant(*s, status->prop_status);
+	m_pStatusCache = NULL;
 }
 
-void SVNStatus::getstatushash(void * baton, const char * path, svn_wc_status_t * status)
+SVNFolderStatus::~SVNFolderStatus(void)
 {
-	hashbaton_t * hash = (hashbaton_t *)baton;
-	svn_wc_status_t * statuscopy = svn_wc_dup_status (status, hash->pool);
-	apr_hash_set (hash->hash, apr_pstrdup(hash->pool, path), APR_HASH_KEY_STRING, statuscopy);
+	if (m_pStatusCache != NULL)
+		delete[] m_pStatusCache;
+}
+
+void SVNFolderStatus::BuildCache(LPCTSTR folderpath)
+{
+	svn_client_ctx_t 			ctx;
+	apr_hash_t *				statushash;
+	apr_pool_t *				pool;
+	svn_error_t *				err;
+	const char *				internalpath;
+	m_nCacheCount = 0;
+	apr_initialize();
+	pool = svn_pool_create (NULL);				// create the memory pool
+	memset (&ctx, 0, sizeof (ctx));
+	memset (m_currentfolder, 0, sizeof(m_currentfolder));
+	//we need to convert the path to subversion internal format
+	//the internal format uses '/' instead of the windows '\'
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(folderpath).c_str(), pool);
+
+	_tcscpy(m_currentfolder, CUnicodeUtils::StdGetUnicode(internalpath).c_str());
+
+
+	ctx.auth_baton = NULL;
+
+	svn_revnum_t			youngest;
+	youngest = SVN_INVALID_REVNUM;				//always get status from newest revision
+	err = svn_client_status (&statushash,
+							&youngest,
+							internalpath,
+							FALSE,				//don't descend to subitems
+							1,
+							false,				//don't update with repository
+							1,
+							&ctx,
+							pool);
+
+	// Error present if function is not under version control
+	if ((err != NULL) || (apr_hash_count(statushash) == 0))
+	{
+		svn_pool_destroy (pool);				//free allocated memory
+		return;	
+	}
+
+    apr_hash_index_t *hi;
+	if (m_pStatusCache != NULL)
+		delete[] m_pStatusCache;
+	m_nCacheCount = apr_hash_count(statushash);
+	m_pStatusCache = new filestatuscache[m_nCacheCount];
+	int i=0;
+    for (hi = apr_hash_first (pool, statushash); hi; hi = apr_hash_next (hi))
+    {
+		svn_wc_status_t * tempstatus;
+		apr_hash_this(hi, NULL, NULL, (void **)&tempstatus);
+		m_pStatusCache[i].status = svn_wc_status_unversioned;
+		//check if this status has higher priority
+		//to keep things easy the higher priority is also the higher enum value...
+		if (m_pStatusCache[i].status < tempstatus->text_status)
+			m_pStatusCache[i].status = tempstatus->text_status;
+		if (m_pStatusCache[i].status < tempstatus->prop_status)
+			m_pStatusCache[i].status = tempstatus->prop_status;
+		m_pStatusCache[i].askedcounter = SVNFOLDERSTATUS_CACHETIMES;
+		if (tempstatus->entry)
+		{
+			if (tempstatus->entry->kind == svn_node_dir)
+			{
+				_tcscpy(m_pStatusCache[i].filename, _tcsrchr(CUnicodeUtils::StdGetUnicode(tempstatus->entry->url).c_str(), _T('/')) + sizeof(TCHAR));
+			}
+			else
+			{
+				_tcscpy(m_pStatusCache[i].filename, CUnicodeUtils::StdGetUnicode(tempstatus->entry->name).c_str());
+			}
+			i++;
+		}
+	}
+	svn_pool_destroy (pool);				//free allocated memory
+	apr_terminate();
+}
+
+int SVNFolderStatus::FindFile(LPCTSTR filename)
+{
+	for (int i=0; i<m_nCacheCount; i++)
+	{
+		if (_tcsicmp(filename, m_pStatusCache[i].filename) == 0)
+			return i;
+	} // for (int i=0; i<m_nCacheCount; i++)
+	return -1;		//not found!
+}
+
+BOOL SVNFolderStatus::IsCacheValid(LPCTSTR filename)
+{
+	int i = FindFile(filename);
+	if (i>=0)
+	{
+		if (m_pStatusCache[i].askedcounter > 0)
+			return TRUE;
+	} // if (i>=0)
+	return FALSE;
+}
+
+svn_wc_status_kind SVNFolderStatus::GetFileStatus(LPCTSTR filepath)
+{
+	TCHAR * filename;
+	TCHAR * filepathnonconst = (LPTSTR)filepath;
+	//first change the filename to 'internal' format
+	for (UINT i=0; i<_tcsclen(filepath); i++)
+	{
+		if (filepath[i] == _T('\\'))
+			filepathnonconst[i] = _T('/');
+	} // for (int i=0; i<_tcsclen(filename); i++)
+	filename = _tcsrchr(filepath, _T('/')) + 1;
+	//check if the file is in the current folder
+	if (_tcsnicmp(filepath, m_currentfolder, (filename-filepath)-1) == 0)
+	{
+		//now check if the cache is still valid
+		if (m_pStatusCache != NULL)
+		{
+			for (int j=0; j<m_nCacheCount; j++)
+			{
+				if (_tcsicmp(filename, m_pStatusCache[j].filename) == 0)
+				{
+					if (m_pStatusCache[j].askedcounter--)
+						return m_pStatusCache[j].status;
+					break;
+				}
+			}
+		} // if (m_pStatusCache != NULL)
+	} // if (_tcsnicmp(filepath, m_currentfolder, (filepath - filename)) == 0)
+	//we don't build the cache for directories. This
+	//prevents us from building the cache for items in the folder view.
+	if (PathIsDirectory(filepath))
+		return SVNStatus::GetAllStatus(filepath);		//don't build the cache for dirs
+	//also, don't build the cache for unversioned items
+	if (SVNStatus::GetAllStatus(filepath) == svn_wc_status_unversioned)
+		return svn_wc_status_unversioned;
+	TCHAR buildpath[MAX_PATH] = {0};
+	_tcsncpy(buildpath, filepath, filename-filepath);
+	BuildCache(buildpath);
+	for (int k=0; k<m_nCacheCount; k++)
+	{
+		if (_tcsicmp(filename, m_pStatusCache[k].filename) == 0)
+			return m_pStatusCache[k].status;
+	} // for (int k=0; k<m_nCacheCount; k++)
+	return svn_wc_status_unversioned;
 }

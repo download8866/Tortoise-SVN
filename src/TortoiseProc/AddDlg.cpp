@@ -22,15 +22,13 @@
 #include "CheckTempFiles.h"
 #include "DirFileList.h"
 #include "AddDlg.h"
-#include ".\adddlg.h"
 
 
 // CAddDlg dialog
 
-IMPLEMENT_DYNAMIC(CAddDlg, CResizableDialog)
+IMPLEMENT_DYNAMIC(CAddDlg, CDialog)
 CAddDlg::CAddDlg(CWnd* pParent /*=NULL*/)
-	: CResizableDialog(CAddDlg::IDD, pParent)
-	, m_bSelectAll(TRUE)
+	: CDialog(CAddDlg::IDD, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -41,24 +39,28 @@ CAddDlg::~CAddDlg()
 
 void CAddDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CResizableDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_ADDLIST, m_addListCtrl);
-	DDX_Check(pDX, IDC_SELECTALL, m_bSelectAll);
 }
 
 
-BEGIN_MESSAGE_MAP(CAddDlg, CResizableDialog)
+BEGIN_MESSAGE_MAP(CAddDlg, CDialog)
 	ON_WM_SIZE()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_ADDLIST, OnLvnItemchangedAddlist)
-	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 END_MESSAGE_MAP()
+
+BEGIN_RESIZER_MAP(CAddDlg)
+	RESIZER(IDC_FILELIST, RS_BORDER, RS_BORDER, RS_BORDER, IDOK, 0)
+	RESIZER(IDOK, RS_KEEPSIZE, RS_KEEPSIZE, RS_BORDER, RS_BORDER, 0)
+	RESIZER(IDCANCEL, RS_BORDER, RS_KEEPSIZE, RS_KEEPSIZE, RS_BORDER, 0)
+END_RESIZER_MAP
 
 
 // CAddDlg message handlers
 void CAddDlg::OnPaint() 
 {
+	RESIZER_GRIP;
 	if (IsIconic())
 	{
 		CPaintDC dc(this); // device context for painting
@@ -78,7 +80,7 @@ void CAddDlg::OnPaint()
 	}
 	else
 	{
-		CResizableDialog::OnPaint();
+		CDialog::OnPaint();
 	}
 }
 // The system calls this function to obtain the cursor to display while the user drags
@@ -88,9 +90,16 @@ HCURSOR CAddDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CAddDlg::OnSize(UINT nType, int cx, int cy)
+{
+	__super::OnSize(nType, cx, cy);
+
+	UPDATE_RESIZER;
+}
+
 BOOL CAddDlg::OnInitDialog()
 {
-	CResizableDialog::OnInitDialog();
+	CDialog::OnInitDialog();
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
@@ -124,11 +133,8 @@ BOOL CAddDlg::OnInitDialog()
 	}
 	m_addListCtrl.UpdateData(FALSE);
 
-	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDOK, BOTTOM_LEFT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-	CenterWindow(CWnd::FromHandle(hWndExplorer));
+	INIT_RESIZER;
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -148,65 +154,12 @@ void CAddDlg::OnOK()
 		}
 		file.Close();
 	}
-	catch (CFileException* pE)
+	catch (CFileException)
 	{
 		TRACE("CFileException in Add!\n");
-		pE->Delete();
 	}
 
-	CResizableDialog::OnOK();
-}
-
-void CAddDlg::OnBnClickedSelectall()
-{
-	UpdateData();
-	theApp.DoWaitCursor(1);
-	for (int i=0; i<m_addListCtrl.GetItemCount(); i++)
-	{
-		m_addListCtrl.SetCheck(i, m_bSelectAll);
-	}
-	theApp.DoWaitCursor(-1);
-}
-
-void CAddDlg::OnLvnItemchangedAddlist(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-	*pResult = 0;
-	int index = pNMLV->iItem;
-	if (!GetDlgItem(IDOK)->IsWindowEnabled())
-		return;			//thread is still running
-	if (!m_addListCtrl.GetCheck(index))
-	{
-		if (PathIsDirectory(m_arFileList.GetAt(index)))
-		{
-			//disable all files within that folder
-			CString folderpath = m_arFileList.GetAt(index);
-			for (int i=0; i<m_addListCtrl.GetItemCount(); i++)
-			{
-				if (folderpath.CompareNoCase(m_arFileList.GetAt(i).Left(folderpath.GetLength()))==0)
-				{
-					m_addListCtrl.SetCheck(i, FALSE);
-				}
-			} // for (int i=0; i<m_addListCtrl.GetItemCount(); i++)
-		} // if (PathIsDirectory(m_arFileList.GetAt(index)))
-	} // if (!m_addListCtrl.GetCheck(index))
-	else
-	{
-		if (!PathIsDirectory(m_arFileList.GetAt(index)))
-		{
-			//user selected a file, so we need to check the parent folder too
-			CString folderpath = m_arFileList.GetAt(index);
-			folderpath = folderpath.Left(folderpath.ReverseFind('\\'));
-			for (int i=0; i<m_addListCtrl.GetItemCount(); i++)
-			{
-				if (folderpath.CompareNoCase(m_arFileList.GetAt(i))==0)
-				{
-					m_addListCtrl.SetCheck(i, TRUE);
-					return;
-				}
-			} // for (int i=0; i<m_addListCtrl.GetItemCount(); i++)
-		}
-	}
+	CDialog::OnOK();
 }
 
 DWORD WINAPI AddThread(LPVOID pVoid)
@@ -219,6 +172,7 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 	pDlg->GetDlgItem(IDOK)->EnableWindow(false);
 	pDlg->GetDlgItem(IDCANCEL)->EnableWindow(false);
 
+		
 	pDlg->m_addListCtrl.SetRedraw(false);
 
 	try
@@ -236,8 +190,8 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 			{
 				CString temp = strbuf;
 				svn_wc_status_kind stat;
-				stat = SVNStatus::GetMoreImportant(s->text_status, s->prop_status);
-				if (!SVNStatus::IsImportant(stat))
+				stat = max(s->text_status, s->prop_status);
+				if (stat == svn_wc_status_unversioned)
 				{
 					if ((!CCheckTempFiles::IsTemp(strLine))||(!bIsDir))
 					{
@@ -259,7 +213,7 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 							if (!CCheckTempFiles::IsTemp(filename))
 							{
 								pDlg->m_arFileList.Add(filename);
-								pDlg->m_addListCtrl.InsertItem(count, filename.Right(filename.GetLength() - strLine.ReverseFind('\\') - 1));
+								pDlg->m_addListCtrl.InsertItem(count, filename.Right(filename.GetLength() - filename.ReverseFind('\\') - 1));
 								pDlg->m_addListCtrl.SetCheck(count++);
 							}
 						}
@@ -268,8 +222,8 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 				while ((s = status.GetNextFileStatus(&strbuf)) != NULL)
 				{
 					temp = strbuf;
-					stat = SVNStatus::GetMoreImportant(s->text_status, s->prop_status);
-					if (!SVNStatus::IsImportant(stat))
+					stat = max(s->text_status, s->prop_status);
+					if (stat == svn_wc_status_unversioned)
 					{
 						if ((!CCheckTempFiles::IsTemp(temp))||(!bIsDir))
 						{
@@ -290,7 +244,7 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 								if (!CCheckTempFiles::IsTemp(filename))
 								{
 									pDlg->m_arFileList.Add(filename);
-									pDlg->m_addListCtrl.InsertItem(count, filename.Right(filename.GetLength() - strLine.ReverseFind('\\') - 1));
+									pDlg->m_addListCtrl.InsertItem(count, filename.Right(filename.GetLength() - filename.ReverseFind('\\') - 1));
 									pDlg->m_addListCtrl.SetCheck(count++);
 								}
 							}
@@ -301,10 +255,9 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 		} // while (file.ReadString(strLine)) 
 		file.Close();
 	}
-	catch (CFileException* pE)
+	catch (CFileException)
 	{
 		TRACE("CFileException in Commit!\n");
-		pE->Delete();
 	}
 
 
@@ -321,7 +274,5 @@ DWORD WINAPI AddThread(LPVOID pVoid)
 	pDlg->GetDlgItem(IDCANCEL)->EnableWindow(true);
 	return 0;
 }
-
-
 
 

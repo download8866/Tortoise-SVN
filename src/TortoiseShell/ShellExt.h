@@ -26,21 +26,11 @@
 #include "registry.h"
 #include "resource.h"
 #include "SVNStatus.h"
-#include "SVNFolderStatus.h"
 
 #pragma warning (push,1)
 #include <vector>
 #include <map>
 #pragma warning (pop)
-
-extern	UINT				g_cRefThisDll;			// Reference count of this DLL.
-extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
-extern	SVNFolderStatus		g_CachedStatus;			// status cache
-extern	ShellCache			g_ShellCache;			// caching of registry entries, ...
-extern	CRegStdWORD			g_regLang;
-extern	DWORD				g_langid;
-extern	HINSTANCE			g_hResInst;
-extern	void				LoadLangDll();
 
 // The actual OLE Shell context menu handler
 /**
@@ -88,10 +78,9 @@ class CShellExt : public IContextMenu3,
 // http://www.microsoft.com/msdownload/platformsdk/sdkupdate/
 {
 protected:
-
 	enum SVNCommands
 	{
-		SubMenu = 1,
+		SubMenu = 0,
 		Checkout,
 		Update,
 		Commit,
@@ -114,15 +103,7 @@ protected:
 		DropCopyAdd,
 		DropMoveAdd,
 		DropMove,
-		DropCopy,
-		Log,
-		ConflictEditor,
-		Relocate,
-		Help,
-		ShowChanged,
-		Ignore,
-		RepoBrowse,
-		Blame
+		Log
 	};
 
 	FileState m_State;
@@ -133,31 +114,24 @@ protected:
 	std::vector<stdstring> files_;
 	bool isOnlyOneItemSelected;
 	bool isInSVN;
-	bool isIgnored;
 	bool isConflicted;
 	bool isFolder;
-	bool isInVersionedFolder;
 	bool isFolderInSVN;
 	bool isNormal;
-	int space;
 	TCHAR stringtablebuffer[255];
 	stdstring filepath;				///< holds the last file/dir path
-	svn_wc_status_kind filestatus;	///< holds the corresponding status to the file/dir above
-	stdstring columnfilepath;		///< holds the last file/dir path for the column provider
+	svn_wc_status_kind filestatus;		///< holds the corresponding status to the file/dir above
+	stdstring columnfilepath;			///< holds the last file/dir path for the column provider
 	stdstring columnauthor;			///< holds the corresponding author of the file/dir above
-	stdstring itemurl;
-	stdstring itemshorturl;
-	svn_revnum_t columnrev;			///< holds the corresponding revision to the file/dir above
-	HANDLE hMutex;
+	svn_revnum_t columnrev;				///< holds the corresponding revision to the file/dir above
+	CRegStdWORD g_regLang;
+	SVNFolderStatus CachedStatus;
 
-#define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
-//#define MAKESTRING(ID) LoadString(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer))
+#define MAKESTRING(ID) LoadStringEx(g_hmodThisDll, ID, stringtablebuffer, sizeof(stringtablebuffer), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 private:
-	void InsertSVNMenu(BOOL ownerdrawn, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com);
+	void InsertSVNMenu(HMENU menu, UINT pos, UINT flags, UINT_PTR id, UINT stringid, UINT idCmdFirst, SVNCommands com);
 	stdstring WriteFileListToTempFile();
 	LPCTSTR GetMenuTextFromResource(int id);
-	void GetColumnStatus(stdstring path);
-	HBITMAP IconToBitmap(UINT hIcon, COLORREF transparentColor);
 public:
 	CShellExt(FileState state);
 	virtual ~CShellExt();

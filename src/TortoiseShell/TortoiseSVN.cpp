@@ -1,16 +1,9 @@
 #include "Globals.h"
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
-#include "ShellCache.h"
-#include "SVNFolderStatus.h"
 
-UINT      g_cRefThisDll = 0;				///< reference count of this DLL.
-HINSTANCE g_hmodThisDll = NULL;				///< handle to this DLL itself.
-SVNFolderStatus g_CachedStatus;				///< status cache
-ShellCache g_ShellCache;					///< caching of registry entries, ...
-CRegStdWORD			g_regLang;
-DWORD				g_langid;
-HINSTANCE			g_hResInst;
+UINT      g_cRefThisDll = 0;		///< reference count of this DLL.
+HINSTANCE g_hmodThisDll = NULL;		///< handle to this DLL itself.
 
 extern "C" int APIENTRY
 DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
@@ -47,10 +40,6 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
         state = Uncontrolled;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DROPHANDLER))
 		state = DropHandler;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DELETED))
-		state = Deleted;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_ADDED))
-		state = Added;
 	
     if (state != Invalid)
     {

@@ -16,8 +16,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include "stdafx.h"
-
 #pragma warning (disable : 4786)
 
 // Initialize GUIDs (should be done only and at-least once per DLL/EXE)
@@ -27,9 +25,9 @@
 #include "Guids.h"
 #include "Globals.h"
 #include "ShellExt.h"
-#include "..\\version.h"
+
 #include "UnicodeStrings.h"
-#include "atltrace.h"
+
 
 
 // *********************** CShellExt *************************
@@ -38,123 +36,34 @@ CShellExt::CShellExt(FileState state)
     m_State = state;
 	
     m_cRef = 0L;
+	//if this is the first time the dll is loaded also start the watcher process.
+	//the process itself makes sure that it is not started twice so the
+	//check 'first start of dll' is enough.
+#ifndef _DEBUG
+	//if (g_cRefThisDll == 1)
+	//{
+	//	STARTUPINFO startup;
+	//	PROCESS_INFORMATION process;
+	//	memset(&startup, 0, sizeof(startup));
+	//	startup.cb = sizeof(startup);
+	//	memset(&process, 0, sizeof(process));
+	//	//get location of TortoiseProc from the registry
+	//	CRegStdString tortoiseProcPath("Software\\TortoiseSVN\\ProcPath", "TortoiseProc.exe", false, HKEY_LOCAL_MACHINE);
+	//	CreateProcess(tortoiseProcPath, " /command:changewatcher", NULL, NULL, FALSE, 0, 0, 0, &startup, &process);
+	//} // if (g_cRefThisDll == 1)
+#endif
     g_cRefThisDll++;
-
-	hMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, _T("TortoiseSVNShell"));
-	if (hMutex == NULL)
-	{
-		hMutex = CreateMutex(NULL, NULL,  _T("TortoiseSVNShell"));
-		ATLTRACE2(_T("created mutex\n"));
-	}
-	else
-	{
-		ATLTRACE2(_T("opened mutex\n"));
-	}
 	
     INITCOMMONCONTROLSEX used = {
         sizeof(INITCOMMONCONTROLSEX),
 			ICC_LISTVIEW_CLASSES | ICC_WIN95_CLASSES
     };
     InitCommonControlsEx(&used);
-	LoadLangDll();
 }
 
 CShellExt::~CShellExt()
 {
 	g_cRefThisDll--;
-}
-
-void LoadLangDll()
-{
-	if (g_langid != g_ShellCache.GetLangID())
-	{
-		g_langid = g_ShellCache.GetLangID();
-		DWORD langId = g_langid;
-		TCHAR langDll[MAX_PATH];
-		HINSTANCE hInst = NULL;
-		CRegStdString str(_T("Software\\TortoiseSVN\\Directory"),_T(""), FALSE, HKEY_LOCAL_MACHINE);
-		do
-		{
-			_stprintf(langDll, _T("%s\\TortoiseProc%d.dll"), (LPCTSTR)str, langId);
-			BOOL versionmatch = TRUE;
-
-			struct TRANSARRAY
-			{
-				WORD wLanguageID;
-				WORD wCharacterSet;
-			};
-
-			DWORD dwReserved,dwBufferSize;
-			dwBufferSize = GetFileVersionInfoSize((LPTSTR)langDll,&dwReserved);
-
-			if (dwBufferSize > 0)
-			{
-				LPVOID pBuffer = (void*) malloc(dwBufferSize);
-
-				if (pBuffer != (void*) NULL)
-				{
-					UINT        nInfoSize = 0,
-						nFixedLength = 0;
-					LPSTR       lpVersion = NULL;
-					VOID*       lpFixedPointer;
-					TRANSARRAY* lpTransArray;
-					TCHAR       strLangProduktVersion[MAX_PATH];
-
-					GetFileVersionInfo((LPTSTR)langDll,
-						dwReserved,
-						dwBufferSize,
-						pBuffer);
-
-					// Abfragen der aktuellen Sprache
-					VerQueryValue(	pBuffer,
-						_T("\\VarFileInfo\\Translation"),
-						&lpFixedPointer,
-						&nFixedLength);
-					lpTransArray = (TRANSARRAY*) lpFixedPointer;
-
-					_stprintf(strLangProduktVersion, _T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
-						lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
-
-					if (VerQueryValue(pBuffer,
-						(LPTSTR)strLangProduktVersion,
-						(LPVOID *)&lpVersion,
-						&nInfoSize))
-						versionmatch = (_tcsncmp((LPCTSTR)lpVersion, _T(STRPRODUCTVER_INCVERSION), MAX_PATH) == 0);
-
-					free(pBuffer);
-				} // if (pBuffer != (void*) NULL) 
-			} // if (dwBufferSize > 0)  
-
-			if (versionmatch)
-				hInst = LoadLibrary(langDll);
-			if (hInst != NULL)
-			{
-				if (g_hResInst != g_hmodThisDll)
-					FreeLibrary(g_hResInst);
-				g_hResInst = hInst;
-			} // if (hInst != NULL) 
-			else
-			{
-				DWORD lid = SUBLANGID(langId);
-				lid--;
-				if (lid > 0)
-				{
-					langId = MAKELANGID(PRIMARYLANGID(langId), lid);
-				}
-				else
-					langId = 0;
-			} 
-		} while ((hInst == NULL) && (langId != 0));
-		if (hInst == NULL)
-		{
-			if (g_hResInst != g_hmodThisDll)
-				FreeLibrary(g_hResInst);
-			g_hResInst = g_hmodThisDll;
-			CRegStdWORD lid(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
-			lid.removeValue();
-			g_langid = 0;
-		}
-	} // if (g_langid != g_ShellCache.GetLangID()) 
 }
 
 STDMETHODIMP CShellExt::QueryInterface(REFIID riid, LPVOID FAR *ppv)

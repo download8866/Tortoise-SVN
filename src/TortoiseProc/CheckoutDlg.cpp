@@ -23,7 +23,6 @@
 #include "RepositoryBrowser.h"
 #include "Messagebox.h"
 #include "Dbghelp.h"
-#include "PathUtils.h"
 
 
 // CCheckoutDlg dialog
@@ -62,7 +61,6 @@ BEGIN_MESSAGE_MAP(CCheckoutDlg, CDialog)
 	ON_BN_CLICKED(IDC_REVISION_HEAD, OnBnClickedRevisionHead)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDC_CHECKOUTDIRECTORY_BROWSE, OnBnClickedCheckoutdirectoryBrowse)
-	ON_EN_CHANGE(IDC_CHECKOUTDIRECTORY, OnEnChangeCheckoutdirectory)
 END_MESSAGE_MAP()
 
 // If you add a minimize button to your dialog, you will need the code below
@@ -118,9 +116,9 @@ BOOL CCheckoutDlg::OnInitDialog()
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_CHECKOUTDIRECTORY, IDS_CHECKOUT_TT_DIR);
-	//m_tooltips.SetEffectBk(CBalloon::BALLOON_EFFECT_HGRADIENT);
-	//m_tooltips.SetGradientColors(0x80ffff, 0x000000, 0xffff80);
-	CenterWindow(CWnd::FromHandle(hWndExplorer));
+	m_tooltips.SetEffectBk(CBalloon::BALLOON_EFFECT_HGRADIENT);
+	m_tooltips.SetGradientColors(0x80ffff, 0x000000, 0xffff80);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -136,22 +134,22 @@ void CCheckoutDlg::OnOK()
 	{
 		m_lRevision = -1;
 	}
-	if (m_strCheckoutDirectory.IsEmpty())
-	{
-		return;			//don't dismiss the dialog
-	}
 	if (!PathFileExists(m_strCheckoutDirectory))
 	{
 		CString temp;
 		temp.Format(IDS_WARN_FOLDERNOTEXIST, m_strCheckoutDirectory);
 		if (CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
 		{
-			CPathUtils::MakeSureDirectoryPathExists(m_strCheckoutDirectory);
+			//MakeSureDirectoryPathExists needs the dbghelp.dll which comes with win2k and later
+			//for older systems we must redistribute that dll.
+			//if (m_strCheckoutDirectory.Right(1).Compare(_T("\\"))!=0)
+			//	MakeSureDirectoryPathExists(m_strCheckoutDirectory+_T("\\"));
+			//else
+			//	MakeSureDirectoryPathExists(m_strCheckoutDirectory);
 		}
 		else
 			return;		//don't dismiss the dialog
-	} // if (!PathFileExists(m_strCheckoutDirectory))
-	UpdateData(FALSE);
+	}
 	CDialog::OnOK();
 }
 
@@ -197,28 +195,13 @@ void CCheckoutDlg::OnBnClickedBrowse()
 			}
 		}
 	}
-	else if ((strUrl.Left(7) == _T("http://")
-		||(strUrl.Left(8) == _T("https://"))
-		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(10) == _T("svn+ssl://"))) && strUrl.GetLength() > 6)
+	else if ((strUrl.Left(7) == _T("http://")||(strUrl.Left(8) == _T("https://"))) && strUrl.GetLength() > 7)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this);
 		if (browser.DoModal() == IDOK)
 		{
 			m_URLCombo.SetWindowText(browser.m_strUrl);
-		}
-	}
-	else
-	{
-		// browse local directories
-		CBrowseFolder folderBrowser;
-		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
-		{
-			SVN::PathToUrl(strUrl);
-
-			m_URLCombo.SetWindowText(strUrl);
 		}
 	}
 }
@@ -246,17 +229,4 @@ BOOL CCheckoutDlg::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltips.RelayEvent(pMsg);
 	return CDialog::PreTranslateMessage(pMsg);
-}
-
-void CCheckoutDlg::OnEnChangeCheckoutdirectory()
-{
-	UpdateData(TRUE);
-	if (m_strCheckoutDirectory.IsEmpty())
-	{
-		GetDlgItem(IDOK)->EnableWindow(FALSE);
-	}
-	else
-	{
-		GetDlgItem(IDOK)->EnableWindow(TRUE);
-	}
 }

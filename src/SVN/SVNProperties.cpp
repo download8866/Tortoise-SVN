@@ -24,7 +24,6 @@ svn_error_t*	SVNProperties::Refresh()
 	svn_error_t*				error = NULL;
 	svn_opt_revision_t			rev;
 
-	m_propCount = 0;
 	rev.kind = svn_opt_revision_unspecified;
 	rev.value.number = -1;
 	error = svn_client_proplist (&m_props,
@@ -36,6 +35,7 @@ svn_error_t*	SVNProperties::Refresh()
 	if(error != NULL)
 		return error;
 
+	m_propCount = 0;
 
 	for (int j = 0; j < m_props->nelts; j++)
 	{
@@ -63,7 +63,7 @@ SVNProperties::SVNProperties(const TCHAR * filepath)
 {
 	apr_initialize();
 	m_pool = svn_pool_create (NULL);				// create the memory pool
-	svn_config_ensure(NULL, m_pool);
+	svn_config_ensure(m_pool);
 	memset (&m_ctx, 0, sizeof (m_ctx));
 
 	//we need to convert the path to subversion internal format
@@ -82,19 +82,19 @@ SVNProperties::SVNProperties(const TCHAR * filepath)
 
     svn_auth_provider_object_t *username_wc_provider = (svn_auth_provider_object_t *)apr_pcalloc (m_pool, sizeof(*username_wc_provider));
 
-    svn_client_get_simple_provider (&(simple_wc_provider), m_pool);
+    svn_client_get_simple_provider (&(simple_wc_provider->vtable), &(simple_wc_provider->provider_baton), m_pool);
     *(svn_auth_provider_object_t **)apr_array_push (providers) = simple_wc_provider;
 
-    svn_client_get_username_provider(&(username_wc_provider), m_pool);
+    svn_client_get_username_provider(&(username_wc_provider->vtable), &(username_wc_provider->provider_baton), m_pool);
     *(svn_auth_provider_object_t **)apr_array_push (providers) = username_wc_provider;
 
 	svn_auth_open (&m_auth_baton, providers, m_pool);
 
-	//m_ctx.prompt_func = NULL;
-	//m_ctx.prompt_baton = NULL;
+	m_ctx.prompt_func = NULL;
+	m_ctx.prompt_baton = NULL;
 	m_ctx.auth_baton = m_auth_baton;
 	// set up the configuration
-	svn_config_get_config (&(m_ctx.config), NULL, m_pool);
+	svn_config_get_config (&(m_ctx.config), m_pool);
 
 	SVNProperties::Refresh();
 }
@@ -159,7 +159,7 @@ stdstring SVNProperties::GetItem(int index, BOOL name)
 			//UTF8, so convert to the native format.
 			if (svn_prop_needs_translation (pname_utf8))
 			{
-				error = svn_subst_detranslate_string (&propval, propval, FALSE, m_pool);
+				error = svn_subst_detranslate_string (&propval, propval, m_pool);
 				if (error != NULL)
 					return NULL;
 			}
@@ -177,7 +177,7 @@ BOOL SVNProperties::IsSVNProperty(int index)
 	const char *pname_utf8;
 	const char *name = StringToUTF8(SVNProperties::GetItem(index, true)).c_str();
 
-	svn_utf_cstring_to_utf8 (&pname_utf8, name, m_pool);
+	svn_utf_cstring_to_utf8 (&pname_utf8, name, NULL, m_pool);
 	svn_boolean_t is_svn_prop = svn_prop_needs_translation (pname_utf8);
 
 	return is_svn_prop;

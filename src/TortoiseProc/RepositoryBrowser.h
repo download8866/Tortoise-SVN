@@ -17,17 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #include "repositorytree.h"
-#include "ResizableDialog.h"
+#include "resizer.h"
 
-
-#define ID_POPSAVEAS		1
-#define ID_POPSHOWLOG		2
-#define	ID_POPOPEN			3
-#define ID_POPDELETE		4
-#define ID_POPIMPORT		5
-#define ID_POPRENAME		6
-#define ID_POPCOPYTO		7
-#define ID_POPMKDIR			8
 
 /**
  * \ingroup TortoiseProc
@@ -57,10 +48,11 @@
  * \bug 
  *
  */
-class CRepositoryBrowser : public CResizableDialog
+class CRepositoryBrowser : public CDialog
 {
 	DECLARE_DYNAMIC(CRepositoryBrowser)
 
+	DECLARE_RESIZER;
 public:
 	CRepositoryBrowser(const CString& strUrl, CWnd* pParent = NULL);   // standard constructor
 	virtual ~CRepositoryBrowser();
@@ -78,10 +70,9 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	BOOL m_bStandAlone;
 	CRepositoryTree m_treeRepository;
 	virtual BOOL OnInitDialog();
 	afx_msg void OnTvnSelchangedReposTree(NMHDR *pNMHDR, LRESULT *pResult);
 	CString m_strUrl;
-	afx_msg void OnNMRclickReposTree(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

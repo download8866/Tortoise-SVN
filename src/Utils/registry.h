@@ -482,14 +482,7 @@ protected:
 
 #endif
 
-typedef std::wstring wide_string;
-#ifndef stdstring
-#	ifdef UNICODE
-#		define stdstring wide_string
-#	else
-#		define stdstring std::string
-#	endif
-#endif
+typedef std::basic_string<TCHAR> stdstring;
 
 class CRegStdBase
 {

@@ -22,7 +22,7 @@ public:
 	static CStringW GetUnicode(CStringA string);
 #else
 	static CStringA GetUTF8(CString string);
-	static CStringA GetUnicode(CStringA string);
+	static CStringA GetUnicode(CStringA string) {return string;}
 #endif
 #endif
 #ifdef UNICODE
