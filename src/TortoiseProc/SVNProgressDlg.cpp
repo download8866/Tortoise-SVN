@@ -115,7 +115,6 @@ void CSVNProgressDlg::AddItemToList(const NotificationData* pData)
 
 BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t action, svn_node_kind_t kind, const CString& mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev)
 {
-	bool bNoNotify = false;
 	NotificationData * data = new NotificationData();
 	data->path = path;
 	data->action = action;
@@ -130,7 +129,6 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 	case svn_wc_notify_add:
 	case svn_wc_notify_update_add:
 	case svn_wc_notify_commit_added:
-	case svn_wc_notify_commit_modified:
 		data->color = GetSysColor(COLOR_HIGHLIGHT);
 		break;
 	case svn_wc_notify_delete:
@@ -140,14 +138,6 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 		data->color = RGB(100,0,0);
 		break;
 	case svn_wc_notify_update_update:
-		// if this is an inoperative dir change, don't show the nofification.
-		// an inoperative dir change is when a directory gets updated without
-		// any real change in either text or properties.
-		if ((kind == svn_node_dir)
-			&& ((prop_state == svn_wc_notify_state_inapplicable)
-			|| (prop_state == svn_wc_notify_state_unknown)
-			|| (prop_state == svn_wc_notify_state_unchanged)))
-			bNoNotify = true;
 		if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
 		{
 			data->color = RGB(255, 0, 0);
@@ -158,6 +148,9 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 		{
 			data->color = RGB(0, 100, 0);
 		}
+		break;
+	case svn_wc_notify_commit_modified:
+		data->color = GetSysColor(COLOR_HIGHLIGHT);
 		break;
 
 	case svn_wc_notify_update_external:
@@ -199,27 +192,22 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 		break;
 	} // switch (action)
 
-	if (bNoNotify)
-		delete data;
-	else
+	if (data->sActionColumnText.IsEmpty())
 	{
-		if (data->sActionColumnText.IsEmpty())
-		{
-			data->sActionColumnText = SVN::GetActionText(action, content_state, prop_state);
-		}
-		if(!data->bAuxItem)
-		{
-			data->sPathColumnText = path.GetUIPathString();
-		}
+		data->sActionColumnText = SVN::GetActionText(action, content_state, prop_state);
+	}
+	if(!data->bAuxItem)
+	{
+		data->sPathColumnText = path.GetUIPathString();
+	}
 
-		m_arData.push_back(data);
-		AddItemToList(data);
+	m_arData.push_back(data);
+	AddItemToList(data);
 
-		if ((action == svn_wc_notify_commit_postfix_txdelta)&&(bSecondResized == FALSE))
-		{
-			ResizeColumns();
-			bSecondResized = TRUE;
-		}
+	if ((action == svn_wc_notify_commit_postfix_txdelta)&&(bSecondResized == FALSE))
+	{
+		ResizeColumns();
+		bSecondResized = TRUE;
 	}
 
 	return TRUE;
@@ -701,11 +689,6 @@ UINT CSVNProgressDlg::ProgressThread()
 			{
 				ASSERT(m_targetPathList.GetCount() == 1);
 				sWindowTitle.LoadString(IDS_PROGRS_TITLE_MERGE);
-				if (m_options & ProgOptDryRun)
-				{
-					CString sDryRun(MAKEINTRESOURCE(IDS_PROGRS_DRYRUN));
-					sWindowTitle += _T(" ") + sDryRun;
-				}
 				SetWindowText(sWindowTitle);
 				// Eeek!  m_sMessage is actually a path for this command...
 				CTSVNPath urlTo(m_sMessage);

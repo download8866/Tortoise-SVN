@@ -1,18 +1,3 @@
-- ADD: Option to resolve a conflicted file in the status list control. (Stefan)
-- CHG: When an entry from the log message history combo is selected, it isn't
-       inserted at the beginning of an existing text anymore but at the
-       current cursor location. A text which is selected is automatically
-       replaced with the history text. (Stefan)
-- CHG: When doing a merge dry-run, the window title in the progress dialog
-       indicates that. (Stefan)
-- CHG: The 'recursive' checkbox is now disabled when the property page is
-       shown for files since there the recursive option doesn't make sense
-       anyway. (Stefan)
-- CHG: When updating a working copy, the progress dialog doesn't show inoperable
-       updates to folders anymore. This makes it look more consistent with the
-       command line client. (Stefan)
-- BUG: The icon set chooser dialog sometimes showed the overlays only in part. (Stefan)
-
 Version 1.1.3
 - ADD: Autocompletion for paths/filenames in the commit dialog. (Stefan)
 - ADD: Spell checker suggestions when pressing Ctrl-Tab. (Stefan)

@@ -38,18 +38,17 @@
 const UINT CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED
 			= ::RegisterWindowMessage(_T("SVNSLNM_ITEMCOUNTCHANGED"));
 
-#define IDSVNLC_REVERT			 1
-#define IDSVNLC_COMPARE			 2
-#define IDSVNLC_OPEN			 3
-#define IDSVNLC_DELETE			 4
-#define IDSVNLC_IGNORE			 5
-#define IDSVNLC_GNUDIFF1		 6
-#define IDSVNLC_UPDATE           7
-#define IDSVNLC_LOG              8
-#define IDSVNLC_EDITCONFLICT     9
-#define IDSVNLC_IGNOREMASK	    10
-#define IDSVNLC_ADD			    11
-#define IDSVNLC_RESOLVECONFLICT 12
+#define IDSVNLC_REVERT			1
+#define IDSVNLC_COMPARE			2
+#define IDSVNLC_OPEN			3
+#define IDSVNLC_DELETE			4
+#define IDSVNLC_IGNORE			5
+#define IDSVNLC_GNUDIFF1		6
+#define IDSVNLC_UPDATE			7
+#define IDSVNLC_LOG				8
+#define IDSVNLC_EDITCONFLICT	9
+#define IDSVNLC_IGNOREMASK	   10
+#define IDSVNLC_ADD			   11
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
 	ON_NOTIFY(HDN_ITEMCLICKA, 0, OnHdnItemclick)
@@ -415,17 +414,16 @@ void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 												const CTSVNPath& basePath, 
 												apr_array_header_t *pIgnorePatterns)
 {
-	CSimpleFileFind filefinder(folderName.GetWinPathString());
-
-	CTSVNPath filename;
+	CDirFileEnum filefinder(folderName.GetWinPathString());
+	CString filename;
+	bool bIsDirectory;
 	m_bHasUnversionedItems = TRUE;
-	while (filefinder.FindNextFileNoDots())
+	while (filefinder.NextFile(filename,&bIsDirectory))
 	{
-		filename.SetFromWin(filefinder.GetFilePath(), filefinder.IsDirectory());
-		if (!SVNConfig::MatchIgnorePattern(filename.GetSVNPathString(),pIgnorePatterns))
+		if (!SVNConfig::MatchIgnorePattern(filename,pIgnorePatterns))
 		{
 			FileEntry * entry = new FileEntry();
-			entry->path = filename;
+			entry->path.SetFromWin(filename,bIsDirectory);
 			entry->basepath = basePath; 
 			entry->status = svn_wc_status_unversioned;
 			entry->textstatus = svn_wc_status_unversioned;
@@ -437,13 +435,9 @@ void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 			entry->checked = false;
 			entry->inexternal = false;
 			entry->direct = false;
-			entry->isfolder = filefinder.IsDirectory(); 
+			entry->isfolder = bIsDirectory; 
 
 			m_arStatusArray.push_back(entry);
-			if (entry->isfolder)
-			{
-				AddUnversionedFolder(entry->path, basePath, pIgnorePatterns);
-			}
 		}
 	} // while (filefinder.NextFile(filename,&bIsDirectory))
 }
@@ -1151,12 +1145,10 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						}
 					}
 				}
-				if ((wcStatus == svn_wc_status_conflicted)&&(GetSelectedCount()==1))
+				if (wcStatus == svn_wc_status_conflicted)
 				{
 					temp.LoadString(IDS_MENUCONFLICT);
 					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_EDITCONFLICT, temp);
-					temp.LoadString(IDS_MENURESOLVE);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_RESOLVECONFLICT, temp);
 				}
 				int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 				m_bBlock = TRUE;
@@ -1520,24 +1512,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					break;
 				case IDSVNLC_EDITCONFLICT:
 					SVN::StartConflictEditor(filepath);
-					break;
-				case IDSVNLC_RESOLVECONFLICT:
-					{
-						if (CMessageBox::Show(m_hWnd, IDS_PROC_RESOLVE, IDS_APPNAME, MB_ICONQUESTION | MB_YESNO)==IDYES)
-						{
-							SVN svn;
-							if (!svn.Resolve(filepath, FALSE))
-							{
-								CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-							}
-							else
-							{
-								entry->status = svn_wc_status_modified;
-								entry->textstatus = svn_wc_status_modified;
-								Show(m_dwShow);
-							}
-						}
-					}
 					break;
 				case IDSVNLC_ADD:
 					{

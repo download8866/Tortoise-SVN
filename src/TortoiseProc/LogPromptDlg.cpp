@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableStandAloneDialog)
 	ON_EN_CHANGE(IDC_LOGMESSAGE, OnEnChangeLogmessage)
 	ON_BN_CLICKED(IDC_FILLLOG, OnBnClickedFilllog)
 	ON_CBN_SELCHANGE(IDC_OLDLOGS, OnCbnSelchangeOldlogs)
+	ON_CBN_CLOSEUP(IDC_OLDLOGS, OnCbnCloseupOldlogs)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 END_MESSAGE_MAP()
 
@@ -122,11 +123,6 @@ BOOL CLogPromptDlg::OnInitDialog()
 		m_cLogMessage.Call(SCI_SETWRAPMODE, SC_WRAP_WORD);
 	}
 	m_cLogMessage.SetText(m_ProjectProperties.sLogTemplate);
-	
-	SVN svn;
-	CString reg;
-	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), svn.GetUUIDFromPath(m_pathList[0]));
-	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
 	
 	AddAnchor(IDC_COMMITLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BUGIDLABEL, TOP_RIGHT);
@@ -385,12 +381,9 @@ UINT CLogPromptDlg::StatusThread()
 			}
 		}
 	}
-	if (m_OldLogs.GetCount()==0)
-	{
-		CString reg;
-		reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)m_ListCtrl.m_sUUID);
-		m_OldLogs.LoadHistory(reg, _T("logmsgs"));
-	}
+	CString reg;
+	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)m_ListCtrl.m_sUUID);
+	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
 	m_autolist.RemoveAll();
 	GetAutocompletionList(m_autolist);
 	m_cLogMessage.SetAutoCompletionList(m_autolist, '*');
@@ -523,7 +516,22 @@ void CLogPromptDlg::OnBnClickedFilllog()
 void CLogPromptDlg::OnCbnSelchangeOldlogs()
 {
 	if (m_OldLogs.GetString().Compare(m_cLogMessage.GetText().Left(m_OldLogs.GetString().GetLength()))!=0)
-		m_cLogMessage.InsertText(m_OldLogs.GetString(), true);
+		m_cLogMessage.SetText(m_OldLogs.GetString() + m_cLogMessage.GetText());
+	if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
+	{
+		GetDlgItem(IDOK)->EnableWindow(FALSE);
+	}
+	else
+	{
+		if (!m_bBlock)
+			GetDlgItem(IDOK)->EnableWindow(TRUE);
+	}
+}
+
+void CLogPromptDlg::OnCbnCloseupOldlogs()
+{
+	if (m_OldLogs.GetString().Compare(m_cLogMessage.GetText().Left(m_OldLogs.GetString().GetLength()))!=0)
+		m_cLogMessage.SetText(m_OldLogs.GetString() + m_cLogMessage.GetText());
 	if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
 	{
 		GetDlgItem(IDOK)->EnableWindow(FALSE);

@@ -59,6 +59,7 @@ BEGIN_MESSAGE_MAP(CCopyDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_CBN_SELCHANGE(IDC_OLDLOGS, OnCbnSelchangeOldlogs)
+	ON_CBN_CLOSEUP(IDC_OLDLOGS, OnCbnCloseupOldlogs)
 END_MESSAGE_MAP()
 
 
@@ -242,7 +243,12 @@ void CCopyDlg::OnBnClickedHelp()
 
 void CCopyDlg::OnCbnSelchangeOldlogs()
 {
-	m_cLogMessage.InsertText(m_OldLogs.GetString());
+	m_cLogMessage.SetText(m_OldLogs.GetString());
+}
+
+void CCopyDlg::OnCbnCloseupOldlogs()
+{
+	m_cLogMessage.SetText(m_OldLogs.GetString());
 }
 
 void CCopyDlg::OnCancel()
