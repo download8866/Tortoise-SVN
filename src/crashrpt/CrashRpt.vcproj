@@ -13,7 +13,7 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\Release\bin"
+			OutputDirectory="..\..\bin\Release"
 			IntermediateDirectory="..\..\obj\CrashRpt\Release"
 			ConfigurationType="2"
 			UseOfMFC="0"

@@ -3,10 +3,10 @@
 <assemblyIdentity 
     version="1.0.0.0" 
     processorArchitecture="X86" 
-    name="Microsoft.Windows.TortoiseMerge"
+    name="Microsoft.Windows.TortoiseProc"
     type="win32" 
 /> 
-<description>Diff/Merge/Patch utility</description> 
+<description>Your app description here</description> 
 <dependency> 
     <dependentAssembly> 
         <assemblyIdentity 

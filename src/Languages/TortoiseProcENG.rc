@@ -26,16 +26,16 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // AVI
 //
 
-IDR_ANIMATION           AVI                     "bin168.avi"
-IDR_MOVEANI             AVI                     "bin167.avi"
-IDR_SEARCH              AVI                     "search.avi"
+IDR_ANIMATION           AVI                     "res\\bin168.avi"
+IDR_MOVEANI             AVI                     "res\\bin167.avi"
+IDR_SEARCH              AVI                     "res\\search.avi"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // RT_MANIFEST
 //
 
-IDR_MANIFEST            RT_MANIFEST             "TortoiseProc.manifest"
+IDR_MANIFEST            RT_MANIFEST             "res\\TortoiseProc.manifest"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -44,19 +44,19 @@ IDR_MANIFEST            RT_MANIFEST             "TortoiseProc.manifest"
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "Tortoise.ico"
-IDI_DRIVES              ICON                    "Drives.ico"
-IDI_SSH                 ICON                    "ssh.ico"
-IDI_PROXY               ICON                    "proxy.ico"
-IDI_MISC                ICON                    "misc.ico"
+IDR_MAINFRAME           ICON                    "res\\Tortoise.ico"
+IDI_DRIVES              ICON                    "res\\Drives.ico"
+IDI_SSH                 ICON                    "res\\ssh.ico"
+IDI_PROXY               ICON                    "res\\proxy.ico"
+IDI_MISC                ICON                    "res\\misc.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
 // Bitmap
 //
 
-IDB_LOGOFLIPPED         BITMAP                  "tortoisesvn_logoflipped.bmp"
-IDB_TTF_BMP             BITMAP                  "ttf_glyph.bmp"
+IDB_LOGOFLIPPED         BITMAP                  "res\\tortoisesvn_logoflipped.bmp"
+IDB_TTF_BMP             BITMAP                  "res\\ttf_glyph.bmp"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -412,9 +412,8 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Network"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    CONTROL         "&Enable Proxy Server (Don't use the IE settings)",
-                    IDC_ENABLE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,7,286,
-                    10
+    CONTROL         "&Enable Proxy Server",IDC_ENABLE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,7,286,10
     GROUPBOX        "Proxy Settings",IDC_PROXYGROUP,7,20,286,128
     LTEXT           "Server &address:",IDC_STATIC,17,36,101,8
     EDITTEXT        IDC_SERVERADDRESS,118,34,101,14,ES_AUTOHSCROLL
@@ -1444,7 +1443,7 @@ BEGIN
     "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
     "LANGUAGE 9, 1\r\n"
     "#pragma code_page(1252)\r\n"
-    "#include ""TortoiseProc.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
+    "#include ""res\\TortoiseProc.rc2""  // non-Microsoft Visual C++ edited resources\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#endif\r\n"
     "\0"
@@ -1470,7 +1469,7 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE 9, 1
 #pragma code_page(1252)
-#include "TortoiseProc.rc2"  // non-Microsoft Visual C++ edited resources
+#include "res\TortoiseProc.rc2"  // non-Microsoft Visual C++ edited resources
 #include "afxres.rc"         // Standard components
 #endif
 

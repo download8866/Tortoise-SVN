@@ -5,8 +5,6 @@ rem
 rem build script for TortoiseSVN
 rem
 @if "%VSINSTALLDIR%"=="" call "%VS71COMNTOOLS%\vsvars32.bat"
-if "%TortoiseVars%"=="" call TortoiseVars.bat
-echo %~dp0
 
 if "%1"=="" (
   SET _RELEASE=ON
@@ -53,73 +51,24 @@ rem Subversion
 echo ================================================================================
 echo building Subversion
 cd ..\..\Subversion
-rem perl apr-util\build\w32locatedb.pl dll .\db4-win32\include .\db4-win32\lib
 copy build\generator\vcnet_sln.ezt build\generator\vcnet_sln7.ezt
 copy ..\TortoiseSVN\vcnet_sln.ezt build\generator\vcnet_sln.ezt
-rem next line is commented because the vcproj generator is broken!
-rem Workaround: execute that line, then open subversion_vcnet.sln and add "..\db4-win32\lib\libdb42.lib"
-rem to the libaprutil project as an additional link
-rem call python gen-make.py -t vcproj --with-openssl=..\Common\openssl --with-zlib=..\Common\zlib --with-apr=apr --with-apr-util=apr-util --with-apr-iconv=apr-iconv --enable-nls
+call python gen-make.py -t vcproj --with-openssl=..\Common\openssl --with-zlib=..\Common\zlib
 copy build\generator\vcnet_sln7.ezt build\generator\vcnet_sln.ezt /Y
 del build\generator\vcnet_sln7.ezt
 if %_DEBUG%==ON (
-  devenv subversion_vcnet.sln /useenv /build debug /project "__ALL__")
+  devenv subversion_vcnet.sln /rebuild debug /project "__ALL__")
 if %_RELEASE%==ON (
-  devenv subversion_vcnet.sln /useenv /build release /project "__ALL__"
-) else if %_RELEASE_MBCS%==ON (
-  devenv subversion_vcnet.sln /useenv /build release /project "__ALL__")
+  devenv subversion_vcnet.sln /rebuild release /project "__ALL__")
+else if %_RELEASE_MBCS%==ON (
+  devenv subversion_vcnet.sln /rebuild release /project "__ALL__")
 
 @echo off
 
 rem TortoiseSVN
 echo ================================================================================
-echo copying files
-cd ..\TortoiseSVN
-if %_DEBUG%==ON (
-  if EXIST bin\debug\iconv rmdir /S /Q bin\debug\iconv > NUL
-  mkdir bin\debug\iconv > NUL
-  copy ..\Subversion\apr-iconv\Debug\iconv\*.so bin\debug\iconv > NUL
-  if EXIST bin\debug\bin rmdir /S /Q bin\debug\bin > NUL
-  mkdir bin\debug\bin > NUL
-  copy ..\Common\openssl\out32dll\*.dll bin\debug\bin /Y > NUL
-  copy ..\Common\gettext\bin\intl.dll bin\debug\bin /Y > NUL
-  copy ..\Common\gettext\bin\iconv.dll bin\debug\bin /Y > NUL
-  copy ..\Subversion\db4-win32\bin\libdb42d.dll bin\debug\bin /Y > NUL
-  copy ..\Subversion\apr\Debug\libapr.dll bin\Debug\bin /Y > NUL 
-  copy ..\Subversion\apr-util\Debug\libaprutil.dll bin\Debug\bin /Y > NUL 
-  copy ..\Subversion\apr-iconv\Debug\libapriconv.dll bin\Debug\bin /Y > NUL 
-)
-if %_RELEASE%==ON (
-  if EXIST bin\release\iconv rmdir /S /Q bin\release\iconv > NUL
-  mkdir bin\release\iconv > NUL
-  copy ..\Subversion\apr-iconv\Release\iconv\*.so bin\release\iconv > NUL
-  if EXIST bin\release\bin rmdir /S /Q bin\release\bin > NUL
-  mkdir bin\release\bin > NUL
-  copy ..\Common\openssl\out32dll\*.dll bin\release\bin /Y > NUL
-  copy ..\Common\gettext\bin\intl.dll bin\release\bin /Y > NUL
-  copy ..\Common\gettext\bin\iconv.dll bin\release\bin /Y > NUL
-  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release\bin /Y > NUL
-  copy ..\Subversion\apr\Release\libapr.dll bin\Release\bin /Y > NUL 
-  copy ..\Subversion\apr-util\Release\libaprutil.dll bin\Release\bin /Y > NUL 
-  copy ..\Subversion\apr-iconv\Release\libapriconv.dll bin\Release\bin /Y > NUL 
-)
-if %_RELEASE_MBCS%==ON (
-  if EXIST bin\release_mbcs\iconv rmdir /S /Q bin\release_mbcs\iconv > NUL
-  mkdir bin\release_mbcs\iconv > NUL
-  copy ..\Subversion\apr-iconv\Release\iconv\*.so bin\release_mbcs\iconv > NUL
-  if EXIST bin\release_mbcs\bin rmdir /S /Q bin\release_mbcs\bin > NUL
-  mkdir bin\release_mbcs\bin > NUL
-  copy ..\Common\openssl\out32dll\*.dll bin\release_mbcs\bin /Y > NUL
-  copy ..\Common\gettext\bin\intl.dll bin\release_mbcs\bin /Y > NUL
-  copy ..\Common\gettext\bin\iconv.dll bin\release_mbcs\bin /Y > NUL
-  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release_mbcs\bin /Y > NUL
-  copy ..\Subversion\apr\Release\libapr.dll bin\Release_MBCS\bin /Y > NUL 
-  copy ..\Subversion\apr-util\Release\libaprutil.dll bin\Release_MBCS\bin /Y > NUL 
-  copy ..\Subversion\apr-iconv\Release\libapriconv.dll bin\Release_MBCS\bin /Y > NUL 
-)
-echo ================================================================================
 echo building TortoiseSVN
-cd src
+cd ..\TortoiseSVN\src
 devenv TortoiseSVN.sln /rebuild release /project SubWCRev
 ..\bin\release\SubWCRev.exe .. version.in version.h
 if %_RELEASE%==ON (
@@ -131,6 +80,27 @@ if %_DEBUG%==ON (
 cd Languages
 call Make_Pot.bat
 cd ..\..
+if %_DEBUG%==ON (
+  if EXIST bin\debug\iconv rmdir /S /Q bin\debug\iconv > NUL
+  mkdir bin\debug\iconv > NUL
+  copy ..\Subversion\apr-iconv\LibD\iconv\*.so bin\debug\iconv > NUL
+  copy ..\Common\openssl\out32dll\*.dll bin\debug /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42d.dll bin\debug /Y > NUL
+)
+if %_RELEASE%==ON (
+  if EXIST bin\release\iconv rmdir /S /Q bin\release\iconv > NUL
+  mkdir bin\release\iconv > NUL
+  copy ..\Subversion\apr-iconv\LibR\iconv\*.so bin\release\iconv > NUL
+  copy ..\Common\openssl\out32dll\*.dll bin\release /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release /Y > NUL
+)
+if %_RELEASE_MBCS%==ON (
+  if EXIST bin\release_mbcs\iconv rmdir /S /Q bin\release_mbcs\iconv > NUL
+  mkdir bin\release_mbcs\iconv > NUL
+  copy ..\Subversion\apr-iconv\LibR\iconv\*.so bin\release_mbcs\iconv > NUL
+  copy ..\Common\openssl\out32dll\*.dll bin\release_mbcs /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release_mbcs /Y > NUL
+)
 @echo off
 
 echo ================================================================================
