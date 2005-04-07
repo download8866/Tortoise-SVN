@@ -51,7 +51,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CCheckoutDlg : public CDialog
+class CCheckoutDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCheckoutDlg)
 
@@ -85,7 +85,6 @@ public:
 	SVNRev			Revision;
 	BOOL			IsExport;
 	BOOL			m_bNonRecursive;
-	BOOL			m_bNoExternals;
 	CButton			m_butBrowse;
 	CEdit			m_editRevision;
 	CString			m_strCheckoutDirectory;

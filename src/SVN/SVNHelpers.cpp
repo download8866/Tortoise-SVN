@@ -40,9 +40,10 @@ SVNPool::operator apr_pool_t*()
 }
 
 
+/*
 // The time is not yet right for this base class, but I'm thinking about it...
 
-SVNHelper::SVNHelper(void)
+SVNHelperBase::SVNHelperBase(void)
 {
 	m_pool = svn_pool_create (NULL);				// create the memory pool
 	
@@ -53,14 +54,15 @@ SVNHelper::SVNHelper(void)
 	svn_utf_cstring_to_utf8(&deststr, "dummy", m_pool);
 	svn_utf_cstring_from_utf8(&deststr, "dummy", m_pool);
 
-	svn_client_create_context(&m_ctx, m_pool);
+	svn_error_t* err = svn_client_create_context(&m_ctx, m_pool);
 
 }
 
-SVNHelper::~SVNHelper(void)
+SVNHelperBase::~SVNHelperBase(void)
 {
 	svn_pool_destroy (m_pool);
 }
+
 
 
 static class SVNHelperTests
@@ -68,12 +70,9 @@ static class SVNHelperTests
 public:
 	SVNHelperTests()
 	{
-		apr_initialize();
-		{
-			SVNHelper base;
-		}
-		apr_terminate();
+		SVNHelperBase base;
 	}
 
 } SVNHelperTestsInstance;
 
+*/

@@ -115,9 +115,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	m_progressDlg.FormatNonPathLine(2, IDS_BLAME_PROGRESSINFOSTART);
 	m_progressDlg.SetCancelMsg(IDS_BLAME_PROGRESSCANCEL);
 	m_progressDlg.SetTime(FALSE);
-	m_nHeadRev = endrev;
-	if (m_nHeadRev < 0)
-		m_nHeadRev = GetHEADRevision(path);
+	m_nHeadRev = GetHEADRevision(path);
 	m_progressDlg.SetProgress(0, m_nHeadRev);
 	if (!this->Blame(path, startrev, endrev))
 	{
@@ -135,7 +133,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 			logfile.Empty();
 			return m_sSavePath;
 		}
-		if (!this->ReceiveLog(CTSVNPathList(path), SVNRev::REV_HEAD, m_lowestrev, 0, TRUE))
+		if (!this->ReceiveLog(CTSVNPathList(path), SVNRev::REV_HEAD, m_lowestrev, TRUE))
 		{
 			m_saveLog.Close();
 			DeleteFile(logfile);
@@ -148,12 +146,8 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 
 	return m_sSavePath;
 }
-BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/, 
-					svn_node_kind_t /*kind*/, const CString& /*mime_type*/, 
-					svn_wc_notify_state_t /*content_state*/, 
-					svn_wc_notify_state_t /*prop_state*/, LONG rev,
-					const svn_lock_t * /*lock*/, svn_wc_notify_lock_state_t /*lock_state*/,
-					svn_error_t * /*err*/, apr_pool_t * /*pool*/)
+
+BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/, svn_node_kind_t /*kind*/, const CString& /*myme_type*/, svn_wc_notify_state_t /*content_state*/, svn_wc_notify_state_t /*prop_state*/, LONG rev)
 {
 	m_progressDlg.FormatNonPathLine(2, IDS_BLAME_PROGRESSINFO2, rev, m_nHeadRev);
 	m_progressDlg.SetProgress(rev, m_nHeadRev);

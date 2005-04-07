@@ -59,7 +59,7 @@
 			Tim studied the sourcecode of TortoiseCVS and used it as a base for
 			TortoiseSVN. He then started the project, registered the domain
 			tortoisesvn.org and put the sourcecode online. During that time,
-			Stefan Küng was looking for a good and free version control system
+			Stefan Kng was looking for a good and free version control system
 			and found Subversion and the source for TortoiseSVN. Since TortoiseSVN
 			was still not ready for use then he joined the project and started
 			programming. Soon he rewrote most of the existing code and started
@@ -70,7 +70,7 @@
 			As Subversion became more stable it attracted more and more users
 			who also started using TortoiseSVN as their Subversion client.
 			The userbase grew quickly (and is still growing every day).
-			That's when Lübbe Onken offered to help out with some nice icons
+			That's when Lbbe Onken offered to help out with some nice icons
 			and a logo for TortoiseSVN. And he takes care of the website.
 		</para>
 	</sect1>
@@ -244,7 +244,27 @@
 			</indexterm>
 			<title>System requirements</title>
 			<para>
-				TortoiseSVN runs on Win2k SP2, WinXP or higher.
+				TortoiseSVN runs on Windows 98/Me, Win2k SP2 or WinXP,
+				IE5.5 or later.
+			</para>
+			<para>
+				It also works on WinNT4 and Win95, but you need to have the
+				IE4 shell extensions installed to get a newer shell version.
+				Check the following FAQ entry
+				<xref linkend="tsvn-faq-installation-1"/>
+				to find out how.
+				The minimum shell version is 4.72! We have reports that
+				TortoiseSVN works on these old systems,
+				but use it at your own risk.
+			</para>
+			<para>
+				Win98/ME <emphasis>can not</emphasis> host BDB repositories,
+				check the following Subversion FAQ entry
+				<ulink url="http://subversion.tigris.org/project_faq.html#portability">
+					<citetitle>What operating systems does Subversion run on?</citetitle>
+				</ulink>
+				to find out why. However, you can use an Fsfs repository,
+				introduced in Subversion 1.1.0.
 			</para>
 		</sect2>
 		<sect2>
@@ -252,8 +272,8 @@
 			<para>
 				TortoiseSVN comes with an easy to use installer. Doubleclick on
 				the installer file and follow the instructions. The installer
-				will take care of the rest. 
-				Make sure to select the <literal>Install for all users</literal>
+				will take care of the rest. On WinNT, Win2K, WinXP and later,
+				be sure to select the <literal>Install for all users</literal>
 				option, unless you <emphasis>really</emphasis> want to restrict
 				its use to the current user only.
 			</para>
@@ -305,10 +325,6 @@
 				Then just copy them to the <literal>bin</literal> sub-folder of
 				the TortoiseSVN installation folder. Normally this will be
 				<filename>C:\Program Files\TortoiseSVN\bin</filename>.
-				If you don't want to litter the <literal>bin</literal> sub-folder,
-				you can place your spell checker files also in
-				<filename>C:\Program Files\TortoiseSVN\dic</filename>. If that folder isn't
-				there, you have to create it first.
 				The next time you start TortoiseSVN, the spell checker will be available.
 			</para>
 			<para>

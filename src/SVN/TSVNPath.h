@@ -18,11 +18,6 @@
 
 #pragma once
 
-#if defined(_MFC_VER)
-// CSTRING is always available in an MFC build
-#define CSTRING_AVAILABLE
-#endif
-
 /**
 * \ingroup Utils
 * This class represents a path and the corresponding methods to convert the path
@@ -54,7 +49,6 @@ public:
 	 * Set the path as an UTF8 string with forward slashes
 	 */
 	void SetFromSVN(const char* pPath);
-	void SetFromSVN(const char* pPath, bool bIsDirectory);
 	void SetFromSVN(const CString& sPath);
 	/**
 	 * Set the path as UNICODE with backslashes
@@ -151,7 +145,11 @@ public:
 	 * Compares two paths. Slash format is irrelevant.
 	 */
 	static int Compare(const CTSVNPath& left, const CTSVNPath& right);
-
+	/**
+	* Compares two paths and return true if left is earlier in sort order than right
+	* (Uses CTSVNPath::Compare logic, but is suitable for std::sort and similar)
+	*/
+	static bool PredLeftEarlierThanRight(const CTSVNPath& left, const CTSVNPath& right);
 	/* As PredLeftLessThanRight, but for checking if paths are equivalent 
 	*/
 	static bool PredLeftEquivalentToRight(const CTSVNPath& left, const CTSVNPath& right);
@@ -171,31 +169,6 @@ public:
 	*/
 	void AppendPathString(const CString& sAppend);
 
-	/**
-	* Get the file modification time - returns zero for files which don't exist
-	* Returns a FILETIME structure cast to an __int64, for easy comparisons
-	*/
-	__int64 GetLastWriteTime() const;
-	
-	/**
-	 * Checks if a Subversion admin directory is present. For files, the check
-	 * is done in the same directory. For folders, it checks if the folder itself
-	 * contains an admin directory.
-	 */
-	bool HasAdminDir() const;
-
-#if defined(_MFC_VER)
-	/**
-	 * Checks if the path or URL is valid on Windows.
-	 * A path is valid if conforms to the specs in the windows API.
-	 * An URL is valid if the path checked out from it is valid
-	 * on windows. That means an URL which is valid according to the WWW specs
-	 * isn't necessarily valid as a windows path (e.g. http://myserver.com/repos/file:name 
-	 * is a valid URL, but the path is illegal on windows ("file:name" is illegal), so
-	 * this function would return \c false for that URL).
-	 */
-	bool IsValidOnWindows() const;
-#endif
 private:
 	// All these functions are const, and all the data
 	// is mutable, in order that the hidden caching operations
@@ -214,8 +187,6 @@ private:
 	*/
 	static bool ArePathStringsEqual(const CString& sP1, const CString& sP2);
 
-	void UpdateAttributes() const;
-
 private:
 	mutable CString m_sBackslashPath;
 	mutable CString m_sFwdslashPath;
@@ -225,24 +196,9 @@ private:
 	// Have we yet determined if this is a directory or not?
 	mutable bool m_bDirectoryKnown;
 	mutable bool m_bIsDirectory;
-	mutable bool m_bLastWriteTimeKnown;
 	mutable bool m_bURLKnown;
 	mutable bool m_bIsURL;
-	mutable __int64 m_lastWriteTime;
-	mutable bool m_bHasAdminDirKnown;
-	mutable bool m_bHasAdminDir;
-	mutable bool m_bIsValidOnWindowsKnown;
-	mutable bool m_bIsValidOnWindows;
-
-	friend bool operator<(const CTSVNPath& left, const CTSVNPath& right);
 };
-
-/**
-* Compares two paths and return true if left is earlier in sort order than right
-* (Uses CTSVNPath::Compare logic, but is suitable for std::sort and similar)
-*/
-bool operator<(const CTSVNPath& left, const CTSVNPath& right);
-
 
 //////////////////////////////////////////////////////////////////////////
 

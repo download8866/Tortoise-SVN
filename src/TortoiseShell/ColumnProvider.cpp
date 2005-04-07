@@ -188,8 +188,8 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 
 		// reserve for the path + trailing \0
 
-		TCHAR buf[MAX_STATUS_STRING_LENGTH+1];
-		ZeroMemory(buf, MAX_STATUS_STRING_LENGTH);
+		TCHAR buf[MAX_PATH+1];
+		ZeroMemory(buf, MAX_PATH);
 		switch (pscid->pid) 
 		{
 			case 0:
@@ -217,7 +217,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 			case 5:
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props = SVNProperties(CTSVNPath(path));
+					SVNProperties props = SVNProperties(path);
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
@@ -309,7 +309,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		status = &g_CachedStatus.invalidstatus;
 	else
 	{
-		status = g_CachedStatus.GetFullStatus(CTSVNPath(path), bIsDir, TRUE);
+		status = g_CachedStatus.GetFullStatus(path, bIsDir, TRUE);
 	}
 	filestatus = status->status;
 

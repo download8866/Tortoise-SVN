@@ -31,8 +31,6 @@ class SVNStatus;
 #define SVNSLC_COLREMOTETEXT	0x000000020
 #define SVNSLC_COLREMOTEPROP	0x000000040
 #define SVNSLC_COLURL			0x000000080
-#define SVNSLC_COLEXT			0x000000100
-#define SVNSLC_COLOWNER			0x000000200
 
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
@@ -68,7 +66,7 @@ SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLE
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
 /**
- * \ingroup SVN
+ * \ingroup TortoiseProc
  * A List control, based on the MFC CListCtrl which shows a list of
  * files with their Subversion status. The control also provides a context
  * menu to do some Subversion tasks on the selected files.
@@ -121,17 +119,10 @@ public:
 		{
 			return checked;
 		}
-		CString GetRelativeSVNPath() const
-		{
-			return path.GetSVNPathString().Mid(basepath.GetSVNPathString().GetLength()+1);
-		}
 	private:
 		CTSVNPath				path;					///< full path of the file
 		CTSVNPath				basepath;				///< common ancestor path of all files
 		CString					url;					///< Subversion URL of the file
-		CString					lock_token;				///< universally unique URI representing lock 
-		CString					lock_owner;				///< the username which owns the lock
-		
 	public:
 		svn_wc_status_kind		status;					///< local status
 	private:
@@ -145,7 +136,7 @@ public:
 		bool					inexternal;				///< if the item is in an external folder
 		bool					direct;					///< directly included (TRUE) or just a child of a folder
 		bool					isfolder;				///< TRUE if entry refers to a folder
-		LONG					lRevision;				///< the last committed revision
+
 		friend class CSVNStatusListCtrl;
 	};
 
@@ -227,10 +218,6 @@ public:
 	 */
 	void WriteCheckedNamesToPathList(CTSVNPathList& pathList);
 
-	/** fills in \a lMin and \a lMax with the lowest/highest revision of all
-	 * files/folders in the working copy.
-	 */
-	void GetMinMaxRevisions(LONG& lMin, LONG& lMax);
 
 public:
 	CString GetLastErrorMessage() {return m_sLastError;}
@@ -257,40 +244,40 @@ private:
 	//static int __cdecl SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 	static bool CSVNStatusListCtrl::SortCompare(const FileEntry* entry1, const FileEntry* entry2);
 
-	/// Process one line of the command file supplied to GetStatus
-	bool FetchStatusForSingleTarget(SVNConfig& config, SVNStatus& status, const CTSVNPath& target, bool bFetchStatusFromRepository, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, bool bAllDirect); 
+	///< Process one line of the command file supplied to GetStatus
+	bool FetchStatusForSingleTarget(SVNConfig& config, SVNStatus& status, const CTSVNPath& target, bool bFetchStatusFromRepository, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths); 
 
-	/// Create 'status' data for each item in an unversioned folder
+	///< Create 'status' data for each item in an unversioned folder
 	void AddUnversionedFolder(const CTSVNPath& strFolderName, const CTSVNPath& strBasePath, apr_array_header_t *pIgnorePatterns);
 
-	/// Read the all the other status items which result from a single GetFirstStatus call
-	void ReadRemainingItemsStatus(SVNStatus& status, const CTSVNPath& strBasePath, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, apr_array_header_t *pIgnorePatterns, bool bAllDirect);
+	///< Read the all the other status items which result from a single GetFirstStatus call
+	void ReadRemainingItemsStatus(SVNStatus& status, const CTSVNPath& strBasePath, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, apr_array_header_t *pIgnorePatterns);
 
-	/// Clear the status vector (contains custodial pointers)
+	///< Clear the status vector (contains custodial pointers)
 	void ClearStatusArray();
 
-	/// Sort predicate function - Compare the paths of two entries without regard to case
+	///< Sort predicate function - Compare the paths of two entries without regard to case
 	static bool EntryPathCompareNoCase(const FileEntry* pEntry1, const FileEntry* pEntry2);
 
-	/// Predicate used to build a list of only the versioned entries of the FileEntry array
+	///< Predicate used to build a list of only the versioned entries of the FileEntry array
 	static bool IsEntryVersioned(const FileEntry* pEntry1);
 
-	/// Look up the relevant show flags for a particular SVN status value
+	///< Look up the relevant show flags for a particular SVN status value
 	DWORD GetShowFlagsFromSVNStatus(svn_wc_status_kind status);
 
-	/// Build a FileEntry item and add it to the FileEntry array
+	///< Build a FileEntry item and add it to the FileEntry array
 	const FileEntry* AddNewFileEntry(
-		const svn_wc_status2_t* pSVNStatus,  // The return from the SVN GetStatus functions
+		const svn_wc_status_t* pSVNStatus,  // The return from the SVN GetStatus functions
 		const CTSVNPath& path,				// The path of the item we're adding
 		const CTSVNPath& basePath,			// The base directory for this status build
 		bool bDirectItem,					// Was this item the first found by GetFirstFileStatus or by a subsequent GetNextFileStatus call
 		bool bInExternal					// Are we in an 'external' folder
 		);
 
-	/// Adjust the checkbox-state on all descendents of a specific item
+	///< Adjust the checkbox-state on all descendents of a specific item
 	void SetCheckOnAllDescendentsOf(const FileEntry* parentEntry, bool bCheck);
 
-	/// Build a path list of all the selected items in the list (NOTE - SELECTED, not CHECKED)
+	///< Build a path list of all the selected items in the list (NOTE - SELECTED, not CHECKED)
 	void FillListOfSelectedItemPaths(CTSVNPathList& pathList);
 
 	afx_msg void OnHdnItemclick(NMHDR *pNMHDR, LRESULT *pResult);

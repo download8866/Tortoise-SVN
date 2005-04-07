@@ -18,10 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "MessageBox.h"
-#include "TSVNPath.h"
 #include "RenameDlg.h"
-#include ".\renamedlg.h"
 
 
 // CRenameDlg dialog
@@ -69,16 +66,4 @@ BOOL CRenameDlg::OnInitDialog()
 	EnableSaveRestore(_T("RenameDlg"));
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
-}
-
-void CRenameDlg::OnOK()
-{
-	UpdateData();
-	CTSVNPath path(m_name);
-	if (!path.IsValidOnWindows())
-	{
-		if (CMessageBox::Show(GetSafeHwnd(), IDS_WARN_NOVALIDPATH, IDS_APPNAME, MB_ICONWARNING | MB_OKCANCEL)==IDCANCEL)
-			return;
-	}
-	CResizableDialog::OnOK();
 }

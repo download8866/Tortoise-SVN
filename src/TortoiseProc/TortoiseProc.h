@@ -73,7 +73,6 @@ public:
 	virtual BOOL InitInstance();
 
 	void CrashProgram();
-	void CheckUpgrade();
 // Implementation
 
 private:

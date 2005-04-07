@@ -23,9 +23,9 @@
 
 // CSimplePrompt dialog
 
-IMPLEMENT_DYNAMIC(CSimplePrompt, CDialog)
+IMPLEMENT_DYNAMIC(CSimplePrompt, CStandAloneDialog)
 CSimplePrompt::CSimplePrompt(CWnd* pParent /*=NULL*/)
-	: CDialog(CSimplePrompt::IDD, pParent)
+	: CStandAloneDialog(CSimplePrompt::IDD, pParent)
 	, m_sUsername(_T(""))
 	, m_sPassword(_T(""))
 	, m_bSaveAuthentication(FALSE)
@@ -38,14 +38,14 @@ CSimplePrompt::~CSimplePrompt()
 
 void CSimplePrompt::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_USEREDIT, m_sUsername);
 	DDX_Text(pDX, IDC_PASSEDIT, m_sPassword);
 	DDX_Check(pDX, IDC_SAVECHECK, m_bSaveAuthentication);
 }
 
 
-BEGIN_MESSAGE_MAP(CSimplePrompt, CDialog)
+BEGIN_MESSAGE_MAP(CSimplePrompt, CStandAloneDialog)
 END_MESSAGE_MAP()
 
 
@@ -53,11 +53,10 @@ END_MESSAGE_MAP()
 
 BOOL CSimplePrompt::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	GetDlgItem(IDC_USEREDIT)->SetFocus();
-	if ((m_hParentWnd==NULL)&&(hWndExplorer))
-		CenterWindow(CWnd::FromHandle(m_hParentWnd));
+	CenterWindow(CWnd::FromHandle(m_hParentWnd));
 	return FALSE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }

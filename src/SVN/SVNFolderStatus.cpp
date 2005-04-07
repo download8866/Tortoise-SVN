@@ -20,7 +20,6 @@
 #include "ShellExt.h"
 #include "SVNFolderStatus.h"
 #include "UnicodeUtils.h"
-#include "..\TSVNCache\CacheInterface.h"
 
 extern ShellCache g_ShellCache;
 
@@ -96,12 +95,13 @@ SVNFolderStatus::~SVNFolderStatus(void)
 	CloseHandle(m_hInvalidationEvent);
 }
 
-const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bDirectFolder)
+const FileStatusCacheEntry * SVNFolderStatus::BuildCache(LPCTSTR filepath, BOOL bIsFolder)
 {
 	svn_client_ctx_t *			ctx;
 	apr_hash_t *				statushash;
 	apr_pool_t *				pool;
 	svn_error_t *				err = NULL; // If svn_client_status comes out through catch(...), err would else be unassigned
+	const char *				internalpath;
 
 	//dont' build the cache if an instance of TortoiseProc is running
 	//since this could interfere with svn commands running (concurrent
@@ -141,7 +141,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	ATLTRACE2(_T("building cache for %s\n"), filepath);
 	if (bIsFolder)
 	{
-		if (g_ShellCache.IsRecursive() || bDirectFolder)
+		if (g_ShellCache.IsRecursive())
 		{
 			// initialize record members
 			dirstat.rev = -1;
@@ -164,13 +164,10 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 					dirstat.author = authors.GetString (status->entry->cmt_author);
 					dirstat.url = authors.GetString (status->entry->url);
 					dirstat.rev = status->entry->cmt_rev;
-				}
-				if (!bDirectFolder)
-					dirstat.status = SVNStatus::GetAllStatusRecursive(filepath);
-				else
-					dirstat.status = SVNStatus::GetMoreImportant(status->text_status, status->prop_status);
+				} // if (status.status->entry)
+				dirstat.status = SVNStatus::GetAllStatusRecursive(filepath);
 			} // if (status)
-			m_cache[filepath.GetWinPath()] = dirstat;
+			m_cache[filepath] = dirstat;
 			m_TimeStamp = GetTickCount();
 			svn_pool_destroy (pool);				//free allocated memory
 			ClearPool();
@@ -183,6 +180,17 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	//Fill in the cache with
 	//all files inside the same folder as the asked file/folder is
 	//since subversion can do this in one step
+	TCHAR pathbuf[MAX_PATH+4];
+	_tcscpy(pathbuf, filepath);
+	const TCHAR * p = _tcsrchr(filepath, '\\');
+	if (p)
+		pathbuf[p-filepath] = '\0';
+	if ((bIsFolder)&&(!g_ShellCache.HasSVNAdminDir(pathbuf, bIsFolder)))
+	{
+		_tcscpy(pathbuf, filepath);
+	}
+
+	internalpath = svn_path_internal_style (CUnicodeUtils::StdGetUTF8(pathbuf).c_str(), pool);
 	ctx->auth_baton = NULL;
 
 	statushash = apr_hash_make(pool);
@@ -191,8 +199,8 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	rev.kind = svn_opt_revision_unspecified;
 	try
 	{
-		err = svn_client_status2 (&youngest,
-			filepath.GetDirectory().GetSVNApiPath(),
+		err = svn_client_status (&youngest,
+			internalpath,
 			&rev,
 			fillstatusmap,
 			this,
@@ -200,7 +208,6 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 			TRUE,		//getall
 			FALSE,		//update
 			TRUE,		//noignore
-			FALSE,		//ignore externals
 			ctx,
 			pool);
 	}
@@ -220,7 +227,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	m_TimeStamp = GetTickCount();
 	const FileStatusCacheEntry * ret = NULL;
 	FileStatusMap::const_iterator iter;
-	if ((iter = m_cache.find(filepath.GetWinPath())) != m_cache.end())
+	if ((iter = m_cache.find(filepath)) != m_cache.end())
 	{
 		ret = &iter->second;
 		m_mostRecentPath = filepath;
@@ -233,9 +240,9 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 		// path too before giving up.
 		// This is especially true when right-clicking directly on a SUBST'ed
 		// drive to get the context menu
-		if (_tcslen(filepath.GetWinPath())==3)
+		if (_tcslen(filepath)==3)
 		{
-			if ((iter = m_cache.find((LPCTSTR)filepath.GetWinPathString().Left(2))) != m_cache.end())
+			if ((iter = m_cache.find(pathbuf)) != m_cache.end())
 			{
 				ret = &iter->second;
 				m_mostRecentPath = filepath;
@@ -260,38 +267,11 @@ DWORD SVNFolderStatus::GetTimeoutValue()
 	return factor*timeout;
 }
 
-const FileStatusCacheEntry * SVNFolderStatus::GetFullStatus(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bColumnProvider)
+const FileStatusCacheEntry * SVNFolderStatus::GetFullStatus(LPCTSTR filepath, BOOL bIsFolder, BOOL bColumnProvider)
 {
 	const FileStatusCacheEntry * ret = NULL;
-
-	if(g_ShellCache.UseExternalCache())
-	{
-		TSVNCacheResponse fullStatus;
-		if(!m_remoteCacheLink.GetStatusFromRemoteCache(filepath, &fullStatus, false))
-		{
-			return &invalidstatus;
-		}
-
-		if (fullStatus.m_status.entry != NULL)
-		{
-			filestat.author = authors.GetString(fullStatus.m_status.entry->cmt_author);
-			filestat.url = urls.GetString(fullStatus.m_status.entry->url);
-			filestat.rev = fullStatus.m_status.entry->cmt_rev;
-		}
-		else
-		{
-			filestat.author = authors.GetString(NULL);
-			filestat.url = urls.GetString(NULL);
-			filestat.rev = -1;
-		}
-		filestat.status = svn_wc_status_unversioned;
-		filestat.status = SVNStatus::GetMoreImportant(filestat.status, fullStatus.m_status.text_status);
-		filestat.status = SVNStatus::GetMoreImportant(filestat.status, fullStatus.m_status.prop_status);
-
-		return &filestat;
-	}
-
-	BOOL bHasAdminDir = g_ShellCache.HasSVNAdminDir(filepath.GetWinPath(), bIsFolder);
+	m_bColumnProvider = bColumnProvider;
+	BOOL bHasAdminDir = g_ShellCache.HasSVNAdminDir(filepath, bIsFolder);
 	
 	//no overlay for unversioned folders
 	if ((!bColumnProvider)&&(!bHasAdminDir))
@@ -299,15 +279,6 @@ const FileStatusCacheEntry * SVNFolderStatus::GetFullStatus(const CTSVNPath& fil
 	//for the SVNStatus column, we have to check the cache to see
 	//if it's not just unversioned but ignored
 	ret = GetCachedItem(filepath);
-	if ((ret)&&(ret->status == svn_wc_status_unversioned)&&(bIsFolder)&&(bHasAdminDir))
-	{
-		// an 'unversioned' folder, but with an ADMIN dir --> nested layout!
-		ret = BuildCache(filepath, bIsFolder, TRUE);
-		if (ret)
-			return ret;
-		else
-			return &invalidstatus;
-	}
 	if (ret)
 		return ret;
 
@@ -322,13 +293,13 @@ const FileStatusCacheEntry * SVNFolderStatus::GetFullStatus(const CTSVNPath& fil
 		return &invalidstatus;
 }
 
-const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& filepath)
+const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(LPCTSTR filepath)
 {
-	sCacheKey.assign(filepath.GetWinPath());
+	sCacheKey.assign(filepath);
 	FileStatusMap::const_iterator iter;
 	const FileStatusCacheEntry *retVal;
 
-	if(m_mostRecentPath.IsEquivalentTo(CTSVNPath(sCacheKey.c_str())))
+	if(sCacheKey == m_mostRecentPath)
 	{
 		// We've hit the same result as we were asked for last time
 		ATLTRACE2(_T("fast cache hit for %s\n"), filepath);
@@ -339,7 +310,7 @@ const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& fil
 		ATLTRACE2(_T("cache found for %s\n"), filepath);
 		retVal = &iter->second;
 		m_mostRecentStatus = retVal;
-		m_mostRecentPath = CTSVNPath(sCacheKey.c_str());
+		m_mostRecentPath = sCacheKey;
 	}
 	else
 	{
@@ -370,7 +341,7 @@ const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& fil
 	return NULL;
 }
 
-void SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn_wc_status2_t * status)
+void SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn_wc_status_t * status)
 {
 	SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
 	if ((status->entry)&&(g_ShellCache.IsRecursive())&&(status->entry->kind == svn_node_dir))
@@ -395,14 +366,21 @@ void SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn_wc_stat
 	{
 		s.status = SVNStatus::GetMoreImportant(s.status, status->text_status);
 		s.status = SVNStatus::GetMoreImportant(s.status, status->prop_status);
-		s.lock = status->repos_lock;
 	}
 	s.askedcounter = SVNFOLDERSTATUS_CACHETIMES;
 	stdstring str;
 	if (path)
 	{
-		str = CUnicodeUtils::StdGetUnicode(path);
-		std::replace(str.begin(), str.end(), '/', '\\');
+		char osPath[MAX_PATH+1];
+		for (UINT i=0; path[i] != '\0'; i++)
+		{
+			if (path[i] =='/')
+				osPath[i] = '\\';
+			else
+				osPath[i] = path[i];
+		}
+		osPath[i] = 0;
+		str = CUnicodeUtils::StdGetUnicode(osPath);
 	}
 	else
 		str = _T(" ");
@@ -413,7 +391,7 @@ void SVNFolderStatus::ClearCache()
 {
 	m_cache.clear();
 	m_mostRecentStatus = NULL;
-	m_mostRecentPath.Reset();
+	m_mostRecentPath.clear();
 	// If we're about to rebuild the cache, there's no point hanging on to 
 	// an event which tells us that it's invalid
 	ResetEvent(m_hInvalidationEvent);

@@ -1297,9 +1297,8 @@ msgid "Do not show this message again"
 msgstr "Vis ikke denne meddelelse igen"
 
 #: ID:76,
-#,fuzzy
-msgid "Do you really want to revert all changes to\n%s\nwhich were made in this revision?"
-msgstr "Er du helt sikker på, at du vil tilbageføre alle ændringerne i\n%s\nsom blev lavet i denne revision?"
+msgid "Do you really want to revert all changes\nwhich were made in this revision?"
+msgstr "Er du helt sikker på, at du vil tilbageføre alle\nde ændringer, som blev lavet i denne revision?"
 
 #: ID:76,
 msgid "Do you want to proceed?"

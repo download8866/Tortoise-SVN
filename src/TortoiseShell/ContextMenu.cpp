@@ -21,7 +21,7 @@
 #include "ItemIDList.h"
 #include "PreserveChdir.h"
 #include "UnicodeStrings.h"
-#include "SVNProperties.h"
+
 
 #define GetPIDLFolder(pida) (LPCITEMIDLIST)(((LPBYTE)pida)+(pida)->aoffset[0])
 #define GetPIDLItem(pida, i) (LPCITEMIDLIST)(((LPBYTE)pida)+(pida)->aoffset[i+1])
@@ -65,6 +65,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					return E_INVALIDARG;
 
 
+				TCHAR m_szFileName[MAX_PATH];
 				HDROP drop = (HDROP)GlobalLock(stg.hGlobal);
 				if ( NULL == drop )
 				{
@@ -75,18 +76,9 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				int count = DragQueryFile(drop, (UINT)-1, NULL, 0);
 				for (int i = 0; i < count; i++)
 				{
-					// find the path length in chars
-					UINT len = DragQueryFile(drop, i, NULL, 0);
-					if (len == 0)
+					if (0 == DragQueryFile(drop, i, m_szFileName, sizeof(m_szFileName)))
 						continue;
-					TCHAR * szFileName = new TCHAR[len+1];
-					if (0 == DragQueryFile(drop, i, szFileName, len+1))
-					{
-						delete szFileName;
-						continue;
-					}
-					stdstring str = stdstring(szFileName);
-					delete szFileName;
+					stdstring str = stdstring(m_szFileName);
 					if (str.empty() == false)
 					{
 						files_.push_back(str);
@@ -96,24 +88,13 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 							svn_wc_status_kind status = svn_wc_status_unversioned;
 							try
 							{
-								bool bIsDirectory = !!PathIsDirectory(str.c_str());
-								const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(CTSVNPath(str.c_str()), bIsDirectory);
-								if (s)
-								{
-									status = s->status;
-								}
-								// if the status is unversioned and the item is a folder,
-								// it still could be versioned! That's because svn_client_status()
-								// returns unversioned for nested layouts if the folder
-								// is from a different repository/wc!
-								if ((status == svn_wc_status_unversioned)&&(bIsDirectory))
-									status = SVNStatus::GetAllStatus(CTSVNPath(str.c_str()));
+								status = SVNStatus::GetAllStatus(str.c_str());
 							}
 							catch ( ... )
 							{
 								ATLTRACE2(_T("Exception in SVNStatus::GetAllStatus()\n"));
 							}
-							if ((status != svn_wc_status_unversioned)&&(status != svn_wc_status_ignored)&&(status != svn_wc_status_none))
+							if ((status != svn_wc_status_unversioned)&&(status != svn_wc_status_ignored))
 								isInSVN = true;
 							if (status == svn_wc_status_ignored)
 								isIgnored = true;
@@ -135,9 +116,8 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				ItemIDList parent( GetPIDLFolder (cida));
 
 				int count = cida->cidl;
+				TCHAR buf[MAX_PATH+1];
 				BOOL statfetched = FALSE;
-				stdstring sAdm = _T("\\");
-				sAdm += _T(SVN_WC_ADM_DIR_NAME);
 				for (int i = 0; i < count; ++i)
 				{
 					ItemIDList child (GetPIDLItem (cida, i), &parent);
@@ -145,56 +125,33 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					if (str.empty() == false)
 					{
 						//check if our menu is requested for a subversion admin directory
-						if ((str.length() > sAdm.length())&&(str.compare(str.length()-sAdm.length(), sAdm.length(), sAdm)==0))
-							continue;
+						_tcscpy(buf, str.c_str());
+						TCHAR * lastpart = NULL;
+						if ((lastpart = _tcsrchr(buf, '\\'))!=0)
+						{
+							*lastpart++ = 0;
+							if (_tcscmp(lastpart, _T(SVN_WC_ADM_DIR_NAME))==0)
+								continue;
+						}
 
 						files_.push_back(str);
-						CTSVNPath strpath;
-						strpath.SetFromWin(str.c_str());
 						if (!statfetched)
 						{
 							//get the Subversion status of the item
 							svn_wc_status_kind status = svn_wc_status_unversioned;
 							try
 							{
-								AutoLocker lock(g_csCacheGuard);
-								bool bIsDirectory = strpath.IsDirectory();
-								const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(strpath, bIsDirectory);
-								if (s)
-								{
-									status = s->status;
-								}
-								// if the status is unversioned and the item is a folder,
-								// it still could be versioned! That's because svn_client_status()
-								// returns unversioned for nested layouts if the folder
-								// is from a different repository/wc!
-								if ((status == svn_wc_status_unversioned)&&(bIsDirectory))
-									status = SVNStatus::GetAllStatus(strpath);
+								status = SVNStatus::GetAllStatus(str.c_str());
 								statfetched = TRUE;
 							}
 							catch ( ... )
 							{
 								ATLTRACE2(_T("Exception in SVNStatus::GetAllStatus()\n"));
 							}
-							if ((status != svn_wc_status_unversioned)&&(status != svn_wc_status_ignored)&&(status != svn_wc_status_none))
+							if ((status != svn_wc_status_unversioned)&&(status != svn_wc_status_ignored))
 								isInSVN = true;
 							if (status == svn_wc_status_ignored)
-							{
 								isIgnored = true;
-								// the item is ignored. Get the svn:ignored properties so we can (maybe) later
-								// offer a 'remove from ignored list' entry
-								SVNProperties props(strpath.GetContainingDirectory());
-								ignoredprops.empty();
-								for (int p=0; p<props.GetCount(); ++p)
-								{
-									if (props.GetItemName(p).compare(stdstring(_T("svn:ignore")))==0)
-									{
-										stdstring st = props.GetItemValue(p);
-										ignoredprops = MultibyteToWide((char *)st.c_str());
-										break;
-									}
-								}
-							}
 							if (status == svn_wc_status_normal)
 								isNormal = true;
 							if (status == svn_wc_status_conflicted)
@@ -227,7 +184,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 		try
 		{
 			AutoLocker lock(g_csCacheGuard);
-			const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(CTSVNPath(folder_.c_str()), PathIsDirectory(folder_.c_str()));
+			const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(folder_.c_str(), PathIsDirectory(folder_.c_str()));
 			if (s)
 			{
 				status = s->status;
@@ -256,7 +213,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 			try
 			{
 				AutoLocker lock(g_csCacheGuard);
-				const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(CTSVNPath(folder_.c_str()), TRUE);
+				const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(folder_.c_str(), TRUE);
 				if (s)
 				{
 					status = s->status;
@@ -275,6 +232,8 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				isAdded = true;
 		}
 	}
+	if ((isFolder == true)&&(isIgnored == true))
+		isInSVN = true;
 		
 	return NOERROR;
 }
@@ -384,13 +343,12 @@ stdstring CShellExt::WriteFileListToTempFile()
 {
 	//write all selected files and paths to a temporary file
 	//for TortoiseProc.exe to read out again.
-	DWORD pathlength = GetTempPath(0, NULL);
-	TCHAR * path = new TCHAR[pathlength+1];
-	TCHAR * tempFile = new TCHAR[pathlength + 100];
-	GetTempPath (pathlength+1, path);
+	TCHAR path[MAX_PATH];
+	TCHAR tempFile[MAX_PATH];
+
+	GetTempPath (MAX_PATH, path);
 	GetTempFileName (path, _T("svn"), 0, tempFile);
-	stdstring retFilePath = stdstring(tempFile);
-	
+
 	HANDLE file = ::CreateFile (tempFile,
 								GENERIC_WRITE, 
 								FILE_SHARE_READ, 
@@ -399,11 +357,6 @@ stdstring CShellExt::WriteFileListToTempFile()
 								FILE_ATTRIBUTE_TEMPORARY,
 								0);
 
-	delete path;
-	delete tempFile;
-	if (file == INVALID_HANDLE_VALUE)
-		return stdstring();
-		
 	DWORD written = 0;
 	if (files_.empty())
 	{
@@ -417,7 +370,7 @@ stdstring CShellExt::WriteFileListToTempFile()
 		::WriteFile (file, _T("\n"), 2, &written, 0);
 	}
 	::CloseHandle(file);
-	return retFilePath;
+	return stdstring(tempFile);
 }
 
 STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
@@ -442,6 +395,11 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 
 		if (((uFlags & 0x000f)!=CMF_NORMAL)&&(!(uFlags & CMF_EXPLORE))&&(!(uFlags & CMF_VERBSONLY)))
 			return NOERROR;
+		//check if our menu is requested for the start menu
+		//TCHAR buf[MAX_PATH];
+		//SHGetSpecialFolderPath(NULL, buf, CSIDL_STARTMENU, FALSE);
+		//if (_tcscmp(buf, folder_.c_str())==0)
+		//	return NOERROR;
 
 		//the drophandler only has four commands, but not all are visible at the same time:
 		//if the source file(s) are under version control then those files can be moved
@@ -480,7 +438,7 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 	if (((uFlags & 0x000f)!=CMF_NORMAL)&&(!(uFlags & CMF_EXPLORE))&&(!(uFlags & CMF_VERBSONLY)))
 		return NOERROR;
 	//check if our menu is requested for the start menu
-	TCHAR buf[MAX_PATH];	//MAX_PATH ok, since SHGetSpecialFolderPath doesn't return the required buffer length!
+	TCHAR buf[MAX_PATH];
 	if (SHGetSpecialFolderPath(NULL, buf, CSIDL_STARTMENU, FALSE))
 	{
 		if (_tcscmp(buf, folder_.c_str())==0)
@@ -518,10 +476,14 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 	}
 	
 	//check if our menu is requested for a subversion admin directory
-	stdstring sAdm = _T("\\");
-	sAdm += _T(SVN_WC_ADM_DIR_NAME);
-	if ((folder_.length() > sAdm.length())&&(folder_.compare(folder_.length()-sAdm.length(), sAdm.length(), sAdm)==0))
-		return NOERROR;
+	_tcscpy(buf, folder_.c_str());
+	TCHAR * lastpart = NULL;
+	if ((lastpart = _tcsrchr(buf, '\\'))!=0)
+	{
+		*lastpart++ = 0;
+		if (_tcscmp(lastpart, _T(SVN_WC_ADM_DIR_NAME))==0)
+			return NOERROR;
+	}
 
 	LoadLangDll();
 	//bool extended = ((uFlags & CMF_EXTENDEDVERBS)!=0);		//true if shift was pressed for the context menu
@@ -625,125 +587,76 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 
 	if ((!isInSVN)&&(isFolder)&&(!isFolderInSVN))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUCREATEREPOS), HMENU(MENUCREATEREPOS), INDEXMENU(MENUCREATEREPOS), idCmd++, IDS_MENUCREATEREPOS, IDI_CREATEREPOS, idCmdFirst, CreateRepos);
-	if ((!isInSVN && isInVersionedFolder)||(isInSVN && isFolder)||(isIgnored))
+	if ((!isInSVN && isInVersionedFolder)||(isInSVN && isFolder))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUADD), HMENU(MENUADD), INDEXMENU(MENUADD), idCmd++, IDS_MENUADD, IDI_ADD, idCmdFirst, Add);
 	if ((!isInSVN)&&(isFolder))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUIMPORT), HMENU(MENUIMPORT), INDEXMENU(MENUIMPORT), idCmd++, IDS_MENUIMPORT, IDI_IMPORT, idCmdFirst, Import);
-	if ((isInSVN)&&(!isFolder)&&(!isAdded)&&(isOnlyOneItemSelected))
+	if ((isInSVN)&&(!isFolder)&&(!isAdded))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUBLAME), HMENU(MENUBLAME), INDEXMENU(MENUBLAME), idCmd++, IDS_MENUBLAME, IDI_BLAME, idCmdFirst, Blame);
-	if (((!isInSVN)&&(!isIgnored)&&(isInVersionedFolder))||(isOnlyOneItemSelected && isIgnored && (ignoredprops.size() > 0)))
+	if ((!isInSVN)&&(!isIgnored)&&(isInVersionedFolder))
 	{
-		HMENU ignoresubmenu = NULL;
+		HMENU ignoresubmenu = CreateMenu();
 		int indexignoresub = 0;
-		bool bShowIgnoreMenu = false;
-		TCHAR maskbuf[MAX_PATH];		// MAX_PATH is ok, since this only holds a filename
-		TCHAR ignorepath[MAX_PATH];		// MAX_PATH is ok, since this only holds a filename
+		TCHAR maskbuf[MAX_PATH];
+		TCHAR ignorepath[MAX_PATH];
 		std::vector<stdstring>::iterator I = files_.begin();
 		if (_tcsrchr(I->c_str(), '\\'))
 			_tcscpy(ignorepath, _tcsrchr(I->c_str(), '\\')+1);
 		else
 			_tcscpy(ignorepath, I->c_str());
-		if (isIgnored)
+
+		if (isOnlyOneItemSelected)
 		{
-			// check if the item name is ignored or the mask
-			size_t p = ignoredprops.find(ignorepath);
-			if ((p!=-1) &&
-				((ignoredprops.compare(ignorepath)==0) || (ignoredprops.find('\n', p)==p+_tcslen(ignorepath)+1) || (ignoredprops.rfind('\n', p)==p-1)))
-			{
-				ignoresubmenu = CreateMenu();
-				InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
-				myIDMap[idCmd - idCmdFirst] = UnIgnore;
-				myIDMap[idCmd++] = UnIgnore;
-				bShowIgnoreMenu = true;
-			}
+			InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
+			myIDMap[idCmd - idCmdFirst] = Ignore;
+			myIDMap[idCmd++] = Ignore;
+
 			_tcscpy(maskbuf, _T("*"));
 			if (_tcsrchr(ignorepath, '.'))
 			{
 				_tcscat(maskbuf, _tcsrchr(ignorepath, '.'));
-				p = ignoredprops.find(maskbuf);
-				if ((p!=-1) &&
-					((ignoredprops.compare(maskbuf)==0) || (ignoredprops.find('\n', p)==p+_tcslen(maskbuf)+1) || (ignoredprops.rfind('\n', p)==p-1)))
-				{
-					if (ignoresubmenu==NULL)
-						ignoresubmenu = CreateMenu();
-
-					InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, maskbuf);
-					myIDMap[idCmd - idCmdFirst] = UnIgnoreCaseSensitive;
-					myIDMap[idCmd++] = UnIgnoreCaseSensitive;
-					bShowIgnoreMenu = true;
-				}
+				InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, maskbuf);
+				myIDMap[idCmd - idCmdFirst] = IgnoreCaseSensitive;
+				myIDMap[idCmd++] = IgnoreCaseSensitive;
 			}
 		}
 		else
 		{
-			bShowIgnoreMenu = true;
-			ignoresubmenu = CreateMenu();
-			if (isOnlyOneItemSelected)
-			{
-				InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
-				myIDMap[idCmd - idCmdFirst] = Ignore;
-				myIDMap[idCmd++] = Ignore;
-
-				_tcscpy(maskbuf, _T("*"));
-				if (_tcsrchr(ignorepath, '.'))
-				{
-					_tcscat(maskbuf, _tcsrchr(ignorepath, '.'));
-					InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, maskbuf);
-					myIDMap[idCmd - idCmdFirst] = IgnoreCaseSensitive;
-					myIDMap[idCmd++] = IgnoreCaseSensitive;
-				}
-			}
-			else
-			{
-				MAKESTRING(IDS_MENUIGNOREMULTIPLE);
-				_stprintf(ignorepath, stringtablebuffer, files_.size());
-				InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
-				myIDMap[idCmd - idCmdFirst] = Ignore;
-				myIDMap[idCmd++] = Ignore;
-			}
+			MAKESTRING(IDS_MENUIGNOREMULTIPLE);
+			_stprintf(ignorepath, stringtablebuffer, files_.size());
+			InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
+			myIDMap[idCmd - idCmdFirst] = Ignore;
+			myIDMap[idCmd++] = Ignore;
 		}
 
-		if (bShowIgnoreMenu)
-		{
-			MENUITEMINFO menuiteminfo;
-			ZeroMemory(&menuiteminfo, sizeof(menuiteminfo));
-			menuiteminfo.cbSize = sizeof(menuiteminfo);
-			OSVERSIONINFOEX inf;
-			ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-			inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-			GetVersionEx((OSVERSIONINFO *)&inf);
-			WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-			if ((ownerdrawn==1)&&(fullver >= 0x0501))
-				menuiteminfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
-			else if (ownerdrawn == 0)
-				menuiteminfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_CHECKMARKS | MIIM_DATA;
-			else
-				menuiteminfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU| MIIM_DATA;
-			menuiteminfo.fType = MFT_OWNERDRAW;
-			HBITMAP bmp = IconToBitmap(IDI_IGNORE, (COLORREF)GetSysColor(COLOR_MENU));
-			menuiteminfo.hbmpChecked = bmp;
-			menuiteminfo.hbmpUnchecked = bmp;
-			menuiteminfo.hSubMenu = ignoresubmenu;
-			menuiteminfo.wID = idCmd;
-			ZeroMemory(stringtablebuffer, sizeof(stringtablebuffer));
-			if (isIgnored)
-				GetMenuTextFromResource(UnIgnore);
-			else
-				GetMenuTextFromResource(IgnoreSub);
-			menuiteminfo.dwTypeData = stringtablebuffer;
-			menuiteminfo.cch = (UINT)min(_tcslen(menuiteminfo.dwTypeData), UINT_MAX);
-			InsertMenuItem(HMENU(MENUIGNORE), INDEXMENU(MENUIGNORE), TRUE, &menuiteminfo);
-			if (isIgnored)
-			{
-				myIDMap[idCmd - idCmdFirst] = UnIgnoreSub;
-				myIDMap[idCmd++] = UnIgnoreSub;
-			}
-			else
-			{
-				myIDMap[idCmd - idCmdFirst] = IgnoreSub;
-				myIDMap[idCmd++] = IgnoreSub;
-			}
-		}
+
+		MENUITEMINFO menuiteminfo;
+		ZeroMemory(&menuiteminfo, sizeof(menuiteminfo));
+		menuiteminfo.cbSize = sizeof(menuiteminfo);
+		OSVERSIONINFOEX inf;
+		ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+		inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+		GetVersionEx((OSVERSIONINFO *)&inf);
+		WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+		if ((ownerdrawn==1)&&(fullver >= 0x0501))
+			menuiteminfo.fMask = MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
+		else if (ownerdrawn == 0)
+			menuiteminfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU | MIIM_CHECKMARKS | MIIM_DATA;
+		else
+			menuiteminfo.fMask = MIIM_STRING | MIIM_ID | MIIM_SUBMENU| MIIM_DATA;
+		menuiteminfo.fType = MFT_OWNERDRAW;
+		HBITMAP bmp = IconToBitmap(IDI_IGNORE, (COLORREF)GetSysColor(COLOR_MENU));
+		menuiteminfo.hbmpChecked = bmp;
+		menuiteminfo.hbmpUnchecked = bmp;
+		menuiteminfo.hSubMenu = ignoresubmenu;
+		menuiteminfo.wID = idCmd;
+		ZeroMemory(stringtablebuffer, sizeof(stringtablebuffer));
+		GetMenuTextFromResource(IgnoreSub);
+		menuiteminfo.dwTypeData = stringtablebuffer;
+		menuiteminfo.cch = (UINT)min(_tcslen(menuiteminfo.dwTypeData), UINT_MAX);
+		InsertMenuItem(HMENU(MENUIGNORE), INDEXMENU(MENUIGNORE), TRUE, &menuiteminfo);
+		myIDMap[idCmd - idCmdFirst] = IgnoreSub;
+		myIDMap[idCmd++] = IgnoreSub;
 	}
 
 	//---- separator 
@@ -883,19 +796,6 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 					case IgnoreCaseSensitive:
 						tempfile = WriteFileListToTempFile();
 						svnCmd += _T("ignore /path:\"");
-						svnCmd += tempfile;
-						svnCmd += _T("\"");
-						svnCmd += _T(" /onlymask");
-						break;
-					case UnIgnore:
-						tempfile = WriteFileListToTempFile();
-						svnCmd += _T("unignore /path:\"");
-						svnCmd += tempfile;
-						svnCmd += _T("\"");
-						break;
-					case UnIgnoreCaseSensitive:
-						tempfile = WriteFileListToTempFile();
-						svnCmd += _T("unignore /path:\"");
 						svnCmd += tempfile;
 						svnCmd += _T("\"");
 						svnCmd += _T(" /onlymask");
@@ -1257,12 +1157,6 @@ STDMETHODIMP CShellExt::GetCommandString(UINT_PTR idCmd,
 			break;
 		case RepoBrowse:
 			MAKESTRING(IDS_MENUDESCREPOBROWSE);
-			break;
-		case UnIgnore:
-			MAKESTRING(IDS_MENUDESCUNIGNORE);
-			break;
-		case UnIgnoreCaseSensitive:
-			MAKESTRING(IDS_MENUDESCUNIGNORE);
 			break;
 		case Ignore:
 			MAKESTRING(IDS_MENUDESCIGNORE);
@@ -1634,14 +1528,6 @@ LPCTSTR CShellExt::GetMenuTextFromResource(int id)
 		case IgnoreSub:
 		case Ignore:
 			MAKESTRING(IDS_MENUIGNORE);
-			resource = MAKEINTRESOURCE(IDI_IGNORE);
-			SETSPACE(MENUIGNORE);
-			PREPENDSVN(MENUIGNORE);
-			break;
-		case UnIgnoreSub:
-		case UnIgnoreCaseSensitive:
-		case UnIgnore:
-			MAKESTRING(IDS_MENUUNIGNORE);
 			resource = MAKEINTRESOURCE(IDI_IGNORE);
 			SETSPACE(MENUIGNORE);
 			PREPENDSVN(MENUIGNORE);

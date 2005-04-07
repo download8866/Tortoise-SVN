@@ -19,21 +19,7 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "Utils.h"
-#include <string>
-#include "regexpr2.h"
 #include ".\sciedit.h"
-
-using namespace std;
-using namespace regex;
-
-
-void CSciEditContextMenuInterface::InsertMenuItems(CMenu&, int&) {return;}
-bool CSciEditContextMenuInterface::HandleMenuItemClick(int, CSciEdit *) {return false;}
-
-
-
-#define STYLE_BOLD			11
-#define STYLE_BOLDITALIC	12
 
 IMPLEMENT_DYNAMIC(CSciEdit, CWnd)
 
@@ -65,8 +51,9 @@ void CSciEdit::Init(LONG lLanguage)
 	Call(SCI_SETUSETABS, 0);		//pressing TAB inserts spaces
 	Call(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_END);
 	Call(SCI_AUTOCSETIGNORECASE, 1);
-	Call(SCI_SETLEXER, SCLEX_CONTAINER);
+	
 	Call(SCI_SETCODEPAGE, SC_CP_UTF8);
+	
 	// look for dictionary files and use them if found
 	long langId = GetUserDefaultLCID();
 	if (!((lLanguage)&&(!LoadDictionaries(lLanguage))))
@@ -86,35 +73,6 @@ void CSciEdit::Init(LONG lLanguage)
 				langId = 1033;
 		} while ((langId)&&((pChecker==NULL)||(pThesaur==NULL)));
 	}
-}
-
-void CSciEdit::Init(const ProjectProperties& props)
-{
-	Init(props.lProjectLanguage);
-	m_sCommand = props.sCheckRe;
-	m_sBugID = props.sBugIDRe;
-	try
-	{
-		if (!m_sBugID.IsEmpty())
-			m_patBugID.init((LPCTSTR)m_sBugID);
-		if (!m_sCommand.IsEmpty())
-			m_patCommand.init((LPCTSTR)m_sCommand);
-	}
-	catch (bad_alloc){m_sBugID.Empty();m_sCommand.Empty();}
-	catch (bad_regexpr){m_sBugID.Empty();m_sCommand.Empty();}
-	
-	if (props.nLogWidthMarker)
-	{
-		Call(SCI_SETWRAPMODE, SC_WRAP_NONE);
-		Call(SCI_SETEDGEMODE, EDGE_LINE);
-		Call(SCI_SETEDGECOLUMN, props.nLogWidthMarker);
-	}
-	else
-	{
-		Call(SCI_SETEDGEMODE, EDGE_NONE);
-		Call(SCI_SETWRAPMODE, SC_WRAP_WORD);
-	}
-	SetText(props.sLogTemplate);
 }
 
 BOOL CSciEdit::LoadDictionaries(LONG lLanguageID)
@@ -264,12 +222,6 @@ void CSciEdit::SetFont(CString sFontName, int iFontSizeInPoints)
 	Call(SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)(LPCSTR)StringForControl(sFontName));
 	Call(SCI_STYLESETSIZE, STYLE_DEFAULT, iFontSizeInPoints);
 	Call(SCI_STYLECLEARALL);
-	// set the styles for the bug ID strings
-	Call(SCI_STYLESETBOLD, STYLE_BOLD, TRUE);
-	Call(SCI_STYLESETFORE, STYLE_BOLD, (LPARAM)GetSysColor(COLOR_HIGHLIGHT));
-	Call(SCI_STYLESETBOLD, STYLE_BOLDITALIC, (LPARAM)TRUE);
-	Call(SCI_STYLESETITALIC, STYLE_BOLDITALIC, (LPARAM)TRUE);
-	Call(SCI_STYLESETFORE, STYLE_BOLDITALIC, (LPARAM)GetSysColor(COLOR_HIGHLIGHT));
 }
 
 void CSciEdit::SetAutoCompletionList(const CAutoCompletionList& list, const TCHAR separator)
@@ -427,10 +379,6 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
 			}
 			return TRUE;
 			break;
-		case SCN_STYLENEEDED:
-			MarkEnteredBugID(lpnmhdr);
-			return TRUE;
-			break;
 		}
 	}
 	return CWnd::OnChildNotify(message, wParam, lParam, pLResult);
@@ -525,24 +473,10 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 
 		popup.AppendMenu(MF_SEPARATOR);
 
-		// now add any custom context menus
-		int nCustoms = 1;
-		for (INT_PTR handlerindex = 0; handlerindex < m_arContextHandlers.GetCount(); ++handlerindex)
-		{
-			CSciEditContextMenuInterface * pHandler = m_arContextHandlers.GetAt(handlerindex);
-			pHandler->InsertMenuItems(popup, nCustoms);
-		}
-		if (nCustoms)
-		{
-			// custom menu entries present, so add another separator
-			popup.AppendMenu(MF_SEPARATOR);
-		}
-		int menuid = nCustoms;
-
 		CMenu corrections;
 		corrections.CreatePopupMenu();
 		CStringA worda = CStringA(GetWordUnderCursor());
-		int nCorrections = nCustoms;
+		int nCorrections = 0;
 		if ((pChecker)&&(!worda.IsEmpty()))
 		{
 			char ** wlst;
@@ -552,7 +486,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 				for (int i=0; i < ns; i++) 
 				{
 					CString sug = CString(wlst[i]);
-					corrections.InsertMenu((UINT)-1, 0, menuid++, sug);
+					corrections.InsertMenu((UINT)-1, 0, i+1, sug);
 					free(wlst[i]);
 				} 
 				free(wlst);
@@ -576,6 +510,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			mentry * pmean;
 			worda.MakeLower();
 			int count = pThesaur->Lookup(worda, worda.GetLength(),&pmean);
+			int menuid = 50;		//offset (spell check menu items start with 1, thesaurus entries with 50)
 			if (count)
 			{
 				mentry * pm = pmean;
@@ -621,16 +556,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			Call(cmd);
 			break;
 		default:
-			if (cmd < nCustoms)
-			{
-				for (INT_PTR handlerindex = 0; handlerindex < m_arContextHandlers.GetCount(); ++handlerindex)
-				{
-					CSciEditContextMenuInterface * pHandler = m_arContextHandlers.GetAt(handlerindex);
-					if (pHandler->HandleMenuItemClick(cmd, this))
-						break;
-				}		
-			}
-			else if (cmd <= nCorrections)
+			if (cmd <= nCorrections)
 			{
 				GetWordUnderCursor(true);
 				CString temp;
@@ -653,148 +579,10 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 	Call(SCI_SETANCHOR, anchor);
 }
 
-BOOL CSciEdit::MarkEnteredBugID(NMHDR* nmhdr)
-{
-	if (m_sCommand.IsEmpty())
-		return FALSE;
-	SCNotification* notify = (SCNotification*)nmhdr;
-	// get the text between the start and end position we have to style
-	const int line_number = Call(SCI_LINEFROMPOSITION, Call(SCI_GETENDSTYLED));
-	const int start_pos = Call(SCI_POSITIONFROMLINE, (WPARAM)line_number);
-	const int end_pos = notify->position;
-
-	if (start_pos == end_pos)
-		return FALSE;
-	
-	char * textbuffer = new char[end_pos - start_pos + 2];
-	TEXTRANGEA textrange;
-	textrange.lpstrText = textbuffer;
-	textrange.chrg.cpMin = start_pos;
-	textrange.chrg.cpMax = end_pos;
-	Call(SCI_GETTEXTRANGE, 0, (LPARAM)&textrange);
-	CString msg = StringFromControl(textbuffer);
-	delete textbuffer;
-	int offset1 = 0;
-	int offset2 = 0;
-	
-	Call(SCI_STARTSTYLING, start_pos, 0x1f);
-
-	if (!m_sBugID.IsEmpty())
-	{
-		try
-		{
-			match_results results;
-			match_results::backref_type br;
-			do 
-			{
-				br = m_patCommand.match( (LPCTSTR)msg.Mid(offset1), results );
-				if( br.matched ) 
-				{
-					// clear the styles up to the match position
-					Call(SCI_SETSTYLING, results.rstart(0), STYLE_DEFAULT);
-					ATLTRACE("STYLE_DEFAULT %d chars\n", results.rstart(0)-offset1);
-					offset1 += results.rstart(0);
-					offset2 = offset1 + results.rlength(0);
-					ATLTRACE("matched string : %ws\n", msg.Mid(offset1, offset2-offset1));
-					{
-						int idoffset1=offset1;
-						int idoffset2=offset2;
-						match_results idresults;
-						match_results::backref_type idbr;
-						do 
-						{
-							idbr = m_patBugID.match( (LPCTSTR)msg.Mid(idoffset1, offset2-idoffset1), idresults);
-							if (idbr.matched)
-							{
-								// bold style up to the id match
-								if (idresults.rstart(0) > 0)
-									Call(SCI_SETSTYLING, idresults.rstart(0), STYLE_BOLD);
-								idoffset1 += idresults.rstart(0);
-								idoffset2 = idoffset1 + idresults.rlength(0);
-								ATLTRACE("matched id : %ws\n", msg.Mid(idoffset1, idoffset2-idoffset1));
-								// bold and recursive style for the bug ID itself
-								if (idoffset2-idoffset1 > 0)
-									Call(SCI_SETSTYLING, idoffset2-idoffset1, STYLE_BOLDITALIC);
-								idoffset1 = idoffset2;
-							}
-							else
-							{
-								// bold style for the rest of the string which isn't matched
-								if (offset2-idoffset1 > 0)
-									Call(SCI_SETSTYLING, offset2-idoffset1, STYLE_BOLD);
-							}
-						} while(idbr.matched);
-					}
-					offset1 = offset2;
-				}
-				else
-				{
-					// bold style for the rest of the string which isn't matched
-					if (end_pos-offset2 > 0)
-						Call(SCI_SETSTYLING, end_pos-offset2, STYLE_DEFAULT);
-				}
-			} while(br.matched);
-			return TRUE;
-		}
-		catch (bad_alloc) {}
-		catch (bad_regexpr){}
-	}
-	else
-	{
-		try
-		{
-			match_results results;
-			match_results::backref_type br;
-			TCHAR * szMsg = msg.GetBuffer(msg.GetLength()+1);
-			do 
-			{
-				br = m_patCommand.match( &szMsg[offset1], results );
-				if( br.matched ) 
-				{
-					// clear the styles up to the match position
-					ATLTRACE("matched string : %ws\n", results.backref(0).str().c_str());
-					Call(SCI_SETSTYLING, results.rstart(0), STYLE_DEFAULT);
-					ATLTRACE("STYLE_DEFAULT %d chars\n", results.rstart(0));
-					offset1 += results.rstart(0);
-					{
-						for (size_t i=1; i<results.cbackrefs(); ++i)
-						{
-							if (results.backref(i).begin()-szMsg-offset1 > 0)
-							{
-								Call(SCI_SETSTYLING, results.backref(i).begin()-szMsg-offset1, STYLE_BOLD);
-								ATLTRACE("STYLE_BOLD %d chars\n", results.backref(i).begin()-szMsg-offset1);
-							}
-							offset1 = results.backref(i).end()-szMsg;
-							if (results.backref(i).end()-results.backref(i).begin() > 0)
-							{
-								Call(SCI_SETSTYLING, results.backref(i).end()-results.backref(i).begin(), STYLE_BOLDITALIC);
-								ATLTRACE("STYLE_BOLDITALIC %d chars\n", results.backref(i).end()-results.backref(i).begin());
-							}
-						}
-					}
-				}
-				else
-				{
-					// bold style for the rest of the string which isn't matched
-					if (end_pos > offset1)
-						Call(SCI_SETSTYLING, end_pos-offset1, STYLE_DEFAULT);
-				}
-			} while(br.matched);
-			msg.ReleaseBuffer();
-			return TRUE;
-		}
-		catch (bad_alloc) {}
-		catch (bad_regexpr){}
-	}
-	return FALSE;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 void CAutoCompletionList::AddSorted(const CString& elem, bool bNoDuplicates /*= true*/)
 {
-	if (elem.IsEmpty())
-		return;
 	if (GetCount()==0)
 		return InsertAt(0, elem);
 	
@@ -802,8 +590,8 @@ void CAutoCompletionList::AddSorted(const CString& elem, bool bNoDuplicates /*= 
 	int nMax = GetUpperBound();
 	while (nMin <= nMax)
 	{
-		UINT nHit = (UINT)(nMin + nMax) >> 1; // fast divide by 2
-		int cmp = elem.Compare(GetAt(nHit));
+		UINT nHit = (UINT)(nMin + nMax) >> 1; // fast devide by 2
+		int cmp = elem.CompareNoCase(GetAt(nHit));
 
 		if (cmp > 0)
 			nMin = nHit + 1;

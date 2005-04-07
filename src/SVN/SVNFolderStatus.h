@@ -20,8 +20,6 @@
 
 #include "CApr.h"
 #include "SVNStatus.h"
-#include "RemoteCacheLink.h"
-#include "TSVNPath.h"
 
 /**
  * \ingroup TortoiseShell
@@ -98,7 +96,6 @@ typedef struct FileStatusCacheEntry
 	const char*				url;		///< points to a (possibly) shared value
 	svn_revnum_t			rev;
 	int						askedcounter;
-	svn_lock_t *			lock;
 } FileStatusCacheEntry;
 
 #define SVNFOLDERSTATUS_CACHETIMES				10
@@ -143,17 +140,18 @@ class SVNFolderStatus :  public CApr, public SVNStatus
 public:
 	SVNFolderStatus(void);
 	~SVNFolderStatus(void);
-	const FileStatusCacheEntry *	GetFullStatus(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bColumnProvider = FALSE);
-	const FileStatusCacheEntry *	GetCachedItem(const CTSVNPath& filepath);
+	const FileStatusCacheEntry *	GetFullStatus(LPCTSTR filepath, BOOL bIsFolder, BOOL bColumnProvider = FALSE);
+	const FileStatusCacheEntry *	GetCachedItem(LPCTSTR filepath);
 
 	FileStatusCacheEntry		invalidstatus;
 
 private:
-	const FileStatusCacheEntry * BuildCache(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bDirectFolder = FALSE);
+	const FileStatusCacheEntry * BuildCache(LPCTSTR filepath, BOOL bIsFolder);
 	DWORD				GetTimeoutValue();
-	static void			fillstatusmap (void *baton, const char *path, svn_wc_status2_t *status);
+	static void			fillstatusmap (void *baton, const char *path, svn_wc_status_t *status);
 	void				ClearCache();
 	
+	BOOL				m_bColumnProvider;
 	int					m_nCounter;
 	typedef std::map<stdstring, FileStatusCacheEntry> FileStatusMap;
 	FileStatusMap			m_cache;
@@ -173,10 +171,8 @@ private:
 	HANDLE			m_hInvalidationEvent;
 
 	// The item we most recently supplied status for 
-	CTSVNPath		m_mostRecentPath;
+	stdstring		m_mostRecentPath;
 	const FileStatusCacheEntry* m_mostRecentStatus;
 
-public:
-	CRemoteCacheLink m_remoteCacheLink;
 };
 

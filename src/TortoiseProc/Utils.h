@@ -102,7 +102,7 @@ public:
 	/**
 	 * Returns TRUE if the path/URL contains escaped chars
 	 */
-	static BOOL IsEscaped(const char * path);
+	static BOOL IsEscaped(const CStringA& path);
 
 	/**
 	 * Returns the version string from the VERSION resource of a dll or exe.

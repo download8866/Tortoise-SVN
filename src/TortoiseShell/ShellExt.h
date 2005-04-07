@@ -31,8 +31,6 @@ extern	ShellCache			g_ShellCache;			// caching of registry entries, ...
 extern	CRegStdWORD			g_regLang;
 extern	DWORD				g_langid;
 extern	HINSTANCE			g_hResInst;
-extern	stdstring			g_filepath;
-extern	svn_wc_status_kind	g_filestatus;	///< holds the corresponding status to the file/dir above
 extern	void				LoadLangDll();
 extern  CComCriticalSection	g_csCacheGuard;
 typedef CComCritSecLock<CComCriticalSection> AutoLocker;
@@ -121,10 +119,7 @@ protected:
 		Blame,
 		ApplyPatch,
 		CreatePatch,
-		RevisionGraph,
-		UnIgnoreSub,
-		UnIgnoreCaseSensitive,
-		UnIgnore
+		RevisionGraph
 	};
 
 	FileState m_State;
@@ -148,7 +143,6 @@ protected:
 	stdstring columnauthor;			///< holds the corresponding author of the file/dir above
 	stdstring itemurl;
 	stdstring itemshorturl;
-	stdstring ignoredprops;
 	svn_revnum_t columnrev;			///< holds the corresponding revision to the file/dir above
 	svn_wc_status_kind	filestatus;
 #define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))

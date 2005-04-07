@@ -22,11 +22,6 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 
-#define MERGE_REVSELECTSTART	 1
-#define MERGE_REVSELECTEND       2
-#define MERGE_REVSELECTSTARTEND  3		///< both
-#define MERGE_REVSELECTMINUSONE  4		///< first with N-1
-
 /**
  * \ingroup TortoiseProc
  * Prompts the user for required information to do a merge command.
@@ -54,7 +49,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CMergeDlg : public CDialog
+class CMergeDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CMergeDlg)
 
@@ -71,7 +66,6 @@ protected:
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	afx_msg void OnBnClickedBrowse();
-	BOOL CheckData();
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedRevisionHead();
 	afx_msg void OnBnClickedRevisionN();
@@ -82,10 +76,6 @@ protected:
 	afx_msg void OnBnClickedRevisionHead1();
 	afx_msg void OnBnClickedRevisionN1();
 	afx_msg void OnBnClickedUsefromurl();
-	afx_msg void OnBnClickedWCLog();
-	afx_msg void OnBnClickedDryrunbutton();
-	afx_msg void OnBnClickedDiffbutton();
-	afx_msg void OnCbnEditchangeUrlcombo();
 	DECLARE_MESSAGE_MAP()
 
 	CLogDlg *	m_pLogDlg;
@@ -97,7 +87,7 @@ protected:
 	CHistoryCombo m_URLCombo2;
 	BOOL		m_bUseFromURL;
 public:
-	CTSVNPath	m_wcPath;
+	CString		m_wcPath;
 	CString		m_URLFrom;
 	CString		m_URLTo;
 	SVNRev		StartRev;
@@ -105,3 +95,4 @@ public:
 	BOOL		m_bDryRun;
 	BOOL		bRepeating;
 };
+static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));

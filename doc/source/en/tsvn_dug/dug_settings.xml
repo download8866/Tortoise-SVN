@@ -138,41 +138,21 @@
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Progress Dialog</term>
+					<term>Close windows automatically</term>
 					<listitem>
 						<para>
-							TortoiseSVN can automatically close all progress dialogs 
-							when the action is finished without error. This setting
-							allows you to select the conditions for closing the
-							dialogs. The default (recommended) setting is
-							<guilabel>Close manually</guilabel>
-							which allows you to review all messages and check what
-							has happened. However, you may decide that you want to
-							ignore some types of message and have the dialog
-							close automatically if there are no critical changes.
+							TortoiseSVN will automatically close all progress dialogs 
+							when the action is finished without error.
 						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Don't close on conflicts</term>
+					<listitem>
 						<para>
-							<guilabel>Auto-close if no merges, adds or deletes</guilabel>
-							means that the progress dialog will close if there were
-							simple updates, but if changes from the repository were
-							merged with yours, or if any files were added or deleted,
-							the dialog will remain open.
-						</para>
-						<para>
-							<guilabel>Auto-close if no conflicts</guilabel>
-							relaxes the criteria further and will close the dialog
-							even if there were merges, adds or deletes. However,
-							if there were any conflicts or errors, the dialog
-							remains open.
-						</para>
-						<para>
-							<guilabel>Auto-close if no errors</guilabel>
-							always closes the dialog even if there were conflicts.
-							The only condition that keeps the dialog open is an
-							error condition, which occurs when subversion is unable
-							to complete the task. For example, an update fails
-							because the server is inaccessible, or a commit fails
-							because the working copy is out-of-date.
+							Automatic window closing is suppressed if there were
+							conflicts during an update. This option is highly
+							recommended to avoid missing conflict reports.
 						</para>
 					</listitem>
 				</varlistentry>
@@ -183,6 +163,25 @@
 							If checked, TortoiseSVN will check once a week 
 							to see if an update is available
 						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Force shell icon refresh</term>
+					<listitem>
+						<para>
+							If checked, TortoiseSVN will refresh all the overlay
+							icons after every operation without you having to
+							press F5.
+						</para>
+						<warning>
+							Explorer will refresh <emphasis>every</emphasis>
+							visible icon, not just the status overlays. If
+							you have a network share, or a CD-ROM or floppy
+							showing, then explorer will go and update all the
+							icons from their original source files, and that
+							can be <emphasis>very</emphasis> slow, blocking
+							the explorer process completely for many seconds.
+						</warning>
 					</listitem>
 				</varlistentry>
 <!-- This item has been removed, but may come back another day ...
@@ -275,8 +274,6 @@
 		<para>
 			You can also specify which program TortoiseSVN should use to
 			establish a secure connection to a svn+ssh repository.
-			We recommend that you use TortoisePlink.exe. This is a version
-			of the popular Plink program, and is included with TortoiseSVN.
 		</para>
 	</sect2>
 	<sect2 id="tsvn-DUG-settings-progs">
@@ -290,192 +287,164 @@
 			Here you can define your own diff/merge programs that TortoiseSVN
 			should use. The basic setting is to use the builtin TortoiseMerge
 			which is installed alongside TortoiseSVN.
+			<variablelist>
+				<varlistentry>
+					<term>Diff Program</term>
+					<listitem>
+						<para>
+							An external diff program used for comparing different
+							revisions of files.
+							You can specify the following parameters to the path:
+							<variablelist>
+								<varlistentry>
+									<term>%base</term>
+									<listitem>
+										<para>
+											The original file without your changes
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%bname</term>
+									<listitem>
+										<para>
+											The window title for the base file
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%mine</term>
+									<listitem>
+										<para>
+											Your own file, with your changes
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%yname</term>
+									<listitem>
+										<para>
+											The window title for your file
+										</para>
+									</listitem>
+								</varlistentry>
+							</variablelist>
+						</para>
+						<para>
+							The window titles are not pure filenames.
+							TortoiseSVN treats that as a name to display and creates
+							the names accordingly. So e.g. if you're doing a
+							diff from a file in revision 123 with a file 
+							in your working copy, the names will be
+							<filename>filename : revision 123</filename>
+							and
+							<filename>filename : working copy</filename>
+						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Merge Program</term>
+					<listitem>
+						<para>
+							An external merge program used to resolve conflicted
+							files. You can specify the following parameters to
+							the path. The order of the parameters depends on the 
+							merge program you use.
+							<variablelist>
+								<varlistentry>
+									<term>%base</term>
+									<listitem>
+										<para>
+											the original file without your or
+											the others changes
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%bname</term>
+									<listitem>
+										<para>
+											The window title for the base file
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%mine</term>
+									<listitem>
+										<para>
+											your own file, with your changes
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%yname</term>
+									<listitem>
+										<para>
+											The window title for your file
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%theirs</term>
+									<listitem>
+										<para>
+											the file as it is in the repository
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%tname</term>
+									<listitem>
+										<para>
+											The window title for the file in the repository
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%merged</term>
+									<listitem>
+										<para>
+											the conflicted file, the result of
+											the merge operation
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>%mname</term>
+									<listitem>
+										<para>
+											The window title for the merged file
+										</para>
+									</listitem>
+								</varlistentry>
+							</variablelist>
+						</para>
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Diff Viewer</term>
+					<listitem>
+						<para>
+							A viewer program for unified-diff files (patch files).
+							If you don't have one the builtin option is to use NotePad.
+							No Parameters.
+						</para>
+						<para>
+							The original Windows NotePad program does not behave
+							well on files which do not have standard CR-LF
+							line-endings. Since most unified diff files have pure
+							LF line-endings, they do not view well in NotePad.
+							However, you can download a free NotePad replacement
+							<ulink url="http://www.flos-freeware.ch/notepad2.html">
+								<citetitle>Notepad2</citetitle>
+							</ulink>
+							which not only displays the line-endings correctly,
+							but also colour codes the added and removed lines.
+						</para>
+					</listitem>
+				</varlistentry>
+			</variablelist>
 		</para>
-		<sect3 id="tsvn-DUG-settings-Diff">
-			<title>Diff Program</title>
-			<para>
-				An external diff program may be used for comparing different
-				revisions of files. The external program will need to
-				obtain the filenames from the command line, along with
-				any other command line options. TortoiseSVN uses
-				substitution parameters prefixed with <literal>%</literal>.
-				When it encounters one of these it will substitute the
-				appropriate value. The order of the parameters will depend
-				on the Diff program you use.
-				<variablelist>
-					<varlistentry>
-						<term>%base</term>
-						<listitem>
-							<para>
-								The original file without your changes
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%bname</term>
-						<listitem>
-							<para>
-								The window title for the base file
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%mine</term>
-						<listitem>
-							<para>
-								Your own file, with your changes
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%yname</term>
-						<listitem>
-							<para>
-								The window title for your file
-							</para>
-						</listitem>
-					</varlistentry>
-				</variablelist>
-			</para>
-			<para>
-				The window titles are not pure filenames.
-				TortoiseSVN treats that as a name to display and creates
-				the names accordingly. So e.g. if you're doing a
-				diff from a file in revision 123 with a file 
-				in your working copy, the names will be
-				<filename>filename : revision 123</filename>
-				and
-				<filename>filename : working copy</filename>
-			</para>
-			<para>
-				For example, with ExamDiff Pro:
-<screen>
-C:\Path-To\ExamDiff.exe %base %mine
-</screen>
-				or with KDiff3:
-<screen>
-C:\Path-To\kdiff3.exe %base %mine --L1 %bname --L2 %yname
-</screen>
-			</para>
-			<para>
-				If you use the <literal>svn:keywords</literal> property to
-				expand keywords, and in particular the <literal>revision</literal>
-				of a file, then there may be a difference between files which
-				is purely due to the current value of the keyword. TSVN can
-				hide this artificial difference by first parsing the files
-				for keywords before doing the diff operation. However, this
-				can take some time, especially with large files, so this
-				behaviour is optional. If
-				<guilabel>Convert files when diffing against BASE</guilabel>
-				is checked then TSVN will pre-process the files.
-			</para>
-		</sect3>
-		<sect3 id="tsvn-DUG-settings-Merge">
-			<title>Merge Program</title>
-			<para>
-				An external merge program used to resolve conflicted
-				files. Parameter substitution is used in the same way
-				as with the Diff Program.
-				<variablelist>
-					<varlistentry>
-						<term>%base</term>
-						<listitem>
-							<para>
-								the original file without your or
-								the others changes
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%bname</term>
-						<listitem>
-							<para>
-								The window title for the base file
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%mine</term>
-						<listitem>
-							<para>
-								your own file, with your changes
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%yname</term>
-						<listitem>
-							<para>
-								The window title for your file
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%theirs</term>
-						<listitem>
-							<para>
-								the file as it is in the repository
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%tname</term>
-						<listitem>
-							<para>
-								The window title for the file in the repository
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%merged</term>
-						<listitem>
-							<para>
-								the conflicted file, the result of
-								the merge operation
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>%mname</term>
-						<listitem>
-							<para>
-								The window title for the merged file
-							</para>
-						</listitem>
-					</varlistentry>
-				</variablelist>
-			</para>
-			<para>
-				For example, with Perforce WinMerge:
-<screen>
-C:\Path-To\P4WinMrg.exe %base %theirs %mine %merged
-</screen>
-				or with KDiff3:
-<screen>
-C:\Path-To\kdiff3.exe %base %mine %theirs -o %merged
-</screen>
-			</para>
-		</sect3>
-		<sect3 id="tsvn-DUG-settings-Patch">
-			<title>Diff Viewer</title>
-			<para>
-				A viewer program for unified-diff files (patch files).
-				If you don't have one the builtin option is to use NotePad.
-				No parameters are required.
-			</para>
-			<para>
-				The original Windows NotePad program does not behave
-				well on files which do not have standard CR-LF
-				line-endings. Since most unified diff files have pure
-				LF line-endings, they do not view well in NotePad.
-				However, you can download a free NotePad replacement
-				<ulink url="http://www.flos-freeware.ch/notepad2.html">
-					<citetitle>Notepad2</citetitle>
-				</ulink>
-				which not only displays the line-endings correctly,
-				but also colour codes the added and removed lines.
-			</para>
-		</sect3>
 		<para>
 			<figure id="tsvn-DUG-settings-dia-6">
 				<title>The Settings Dialog, Diff/Merge Advanced Dialog</title>
@@ -483,29 +452,7 @@ C:\Path-To\kdiff3.exe %base %mine %theirs -o %merged
 			</figure>
 			In the advanced settings, you can define a different diff and merge
 			program for every file extension. For instance you could associate
-			Photoshop as the <quote>Diff</quote> Program for .jpg files :-)
-		</para>
-	</sect2>
-	<sect2 id="tsvn-DUG-settings-sounds">
-		<title>TortoiseSVN's Sounds</title>
-		<indexterm>
-			<primary>sounds</primary>
-		</indexterm>
-		<para>
-			TortoiseSVN has three custom sounds which are installed by default.
-			<itemizedlist>
-				<listitem>
-					Error
-				</listitem>
-				<listitem>
-					Notice
-				</listitem>
-				<listitem>
-					Warning
-				</listitem>
-			</itemizedlist>
-			You can select different sounds (or turn these sounds off completely)
-			using the Windows Control Panel, not the TortoiseSVN settings dialog.
+			Photoshop as the "Diff" Program for .jpg files :-)
 		</para>
 	</sect2>
 </sect1>

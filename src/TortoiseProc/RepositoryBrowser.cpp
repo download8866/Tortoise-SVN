@@ -29,7 +29,6 @@
 #include "Repositorybrowser.h"
 #include "BrowseFolder.h"
 #include "RenameDlg.h"
-#include "RevisionGraphDlg.h"
 #include "Utils.h"
 
 
@@ -47,7 +46,6 @@
 #define ID_POPBLAME			12
 #define ID_POPCOPYTOWC		13
 #define ID_POPIMPORTFOLDER  14
-#define ID_REVGRAPH			15
 //#define ID_POPPROPS			17		commented out because already defined to 17 in LogDlg.h
 
 // CRepositoryBrowser dialog
@@ -204,10 +202,13 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 			if (uSelCount == 1)
 			{
 				// Let "Open" be the very first entry, like in Explorer
-				if (!bFolder)
+				if (GetRevision().IsHead())
 				{
-					temp.LoadString(IDS_REPOBROWSE_OPEN);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPOPEN, temp);		// "open"
+					if (!bFolder && (url.Left(4).CompareNoCase(_T("http")) == 0))
+					{
+						temp.LoadString(IDS_REPOBROWSE_OPEN);
+						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPOPEN, temp);		// "open"
+					}
 				}
 
 				temp.LoadString(IDS_REPOBROWSE_SHOWLOG);
@@ -218,9 +219,6 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					temp.LoadString(IDS_MENUBLAME);
 					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPBLAME, temp);			// "Blame..."
 				}
-				
-				temp.LoadString(IDS_MENUREVISIONGRAPH);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVGRAPH, temp);
 
 				if (bFolder)
 				{
@@ -314,12 +312,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					OPENFILENAME ofn;		// common dialog box structure
 					TCHAR szFile[MAX_PATH];  // buffer for file name
 					ZeroMemory(szFile, sizeof(szFile));
-					CString filename = url.Mid(url.ReverseFind('/')+1);
-					_tcscpy(szFile, filename);
 					// Initialize OPENFILENAME
 					ZeroMemory(&ofn, sizeof(OPENFILENAME));
-					ofn.lStructSize = sizeof(OPENFILENAME);
-					//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+					//ofn.lStructSize = sizeof(OPENFILENAME);
+					ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 					ofn.hwndOwner = this->m_hWnd;
 					ofn.lpstrFile = szFile;
 					ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -370,39 +366,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					CLogDlg dlg;
 					long revend = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
 					revend = -revend;
-					dlg.SetParams(CTSVNPath(url), GetRevision(), revend, FALSE);
+					dlg.SetParams(url, GetRevision(), revend, TRUE);
 					dlg.m_ProjectProperties = m_ProjectProperties;
-					dlg.DoModal();
-				}
-				break;
-			case ID_REVGRAPH:
-				{
-					CRevisionGraphDlg dlg;
-					dlg.m_sPath = url;
 					dlg.DoModal();
 				}
 				break;
 			case ID_POPOPEN:
 				{
-					if (GetRevision().IsHead())
-					{
-						if (url.Left(4).CompareNoCase(_T("http")) == 0)
-						{
-							ShellExecute(NULL, _T("open"), url, NULL, NULL, SW_SHOWNORMAL);
-							break;
-						}
-					}
-					CTSVNPath tempfile = CUtils::GetTempFilePath(CTSVNPath(url));
-					CWaitCursorEx wait_cursor;
-					SVN svn;
-					svn.SetPromptApp(&theApp);
-					if (!svn.Cat(CTSVNPath(url), GetRevision(), tempfile))
-					{
-						wait_cursor.Hide();
-						CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						break;;
-					}
-					ShellExecute(NULL, _T("open"), tempfile.GetWinPathString(), NULL, NULL, SW_SHOWNORMAL);
+					ShellExecute(NULL, _T("open"), url, NULL, NULL, SW_SHOWNORMAL);
 				}
 				break;
 			case ID_POPDELETE:
@@ -445,8 +416,8 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					ZeroMemory(szFile, sizeof(szFile));
 					// Initialize OPENFILENAME
 					ZeroMemory(&ofn, sizeof(OPENFILENAME));
-					ofn.lStructSize = sizeof(OPENFILENAME);
-					//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+					//ofn.lStructSize = sizeof(OPENFILENAME);
+					ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 					ofn.hwndOwner = this->m_hWnd;
 					ofn.lpstrFile = szFile;
 					ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -565,8 +536,8 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					ZeroMemory(szFile, sizeof(szFile));
 					// Initialize OPENFILENAME
 					ZeroMemory(&ofn, sizeof(OPENFILENAME));
-					ofn.lStructSize = sizeof(OPENFILENAME);
-					//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+					//ofn.lStructSize = sizeof(OPENFILENAME);
+					ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 					ofn.hwndOwner = this->m_hWnd;
 					ofn.lpstrFile = szFile;
 					ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -647,12 +618,12 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					CTSVNPath tempfile = CUtils::GetTempFilePath();
 					tempfile.AppendRawString(_T(".diff"));
 					SVN svn;
-					if (!svn.Diff(url1, GetRevision(), url2, GetRevision(), TRUE, FALSE, TRUE, TRUE, _T(""), tempfile))
+					if (!svn.Diff(url1, GetRevision(), url2, GetRevision(), TRUE, FALSE, TRUE, _T(""), tempfile))
 					{
 						CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						::DeleteFile(tempfile.GetWinPath());
 						break;		//exit
-					}
+					} // if (!Diff(url1, GetRevision(), url2, GetRevision(), TRUE, FALSE, TRUE, _T(""), tempfile)) 
 					else
 					{
 						m_templist.AddPath(tempfile);
@@ -669,7 +640,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						::DeleteFile(tempfile1.GetWinPath());
 						break;		//exit
-					}
+					} // if (!Cat(url1, GetRevision(), tempfile1))
 					m_templist.AddPath(tempfile1);
 					CTSVNPath tempfile2 = CUtils::GetTempFilePath(url2);
 					if (!svn.Cat(url2, GetRevision(), CTSVNPath(tempfile2)))
@@ -678,14 +649,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						::DeleteFile(tempfile2.GetWinPath());
 						break;		//exit
 					}
-					CUtils::StartExtDiff(tempfile1, tempfile2, url1.GetUIPathString(), url2.GetUIPathString());	
+					CUtils::StartExtDiff(tempfile2, tempfile1, url1.GetUIPathString(), url2.GetUIPathString());	
 				}
 				break;
 			case ID_POPPROPS:
 				{
 					CPropDlg dlg;
 					dlg.m_rev = GetRevision();
-					dlg.m_Path = CTSVNPath(url);
+					dlg.m_sPath = url;
 					dlg.DoModal();
 				}
 				break;
@@ -785,7 +756,6 @@ void CRepositoryBrowser::DeleteSelectedEntries()
 	CUtils::RemoveAccelerators(dlg.m_sTitle);
 	dlg.m_sInputText.LoadString(IDS_INPUT_REMOVELOGMSG);
 	CUtils::RemoveAccelerators(dlg.m_sInputText);
-	dlg.m_pProjectProperties = &m_ProjectProperties;
 	if (dlg.DoModal()==IDOK)
 	{
 		int selItem = m_treeRepository.GetFirstSelectedItem();
