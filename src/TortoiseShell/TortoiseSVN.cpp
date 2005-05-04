@@ -23,23 +23,13 @@
 
 UINT      g_cRefThisDll = 0;				///< reference count of this DLL.
 HINSTANCE g_hmodThisDll = NULL;				///< handle to this DLL itself.
-CRemoteCacheLink	g_remoteCacheLink;
+SVNFolderStatus g_CachedStatus;				///< status cache
 ShellCache g_ShellCache;					///< caching of registry entries, ...
 CRegStdWORD			g_regLang;
 DWORD				g_langid;
 HINSTANCE			g_hResInst;
 stdstring			g_filepath;
 svn_wc_status_kind	g_filestatus;	///< holds the corresponding status to the file/dir above
-bool				g_readonlyoverlay = false;
-bool				g_lockedoverlay = false;
-
-bool				g_normalovlloaded = false;
-bool				g_modifiedovlloaded = false;
-bool				g_conflictedovlloaded = false;
-bool				g_readonlyovlloaded = false;
-bool				g_deletedovlloaded = false;
-bool				g_lockedovlloaded = false;
-bool				g_addedovlloaded = false;
 CComCriticalSection	g_csCacheGuard;
 
 extern "C" int APIENTRY
@@ -51,7 +41,7 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 	// it.
 
 	bool bInShellTest = false;
-	TCHAR buf[_MAX_PATH + 1];		// MAX_PATH ok, the test really is for debugging anyway.
+	TCHAR buf[_MAX_PATH + 1];
 	DWORD pathLength = GetModuleFileName(NULL, buf, _MAX_PATH);
 	if(pathLength >= 14)
 	{
@@ -107,12 +97,8 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 		state = DropHandler;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DELETED))
 		state = Deleted;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_READONLY))
-		state = ReadOnly;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_LOCKED))
-		state = LockedOverlay;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_ADDED))
-		state = AddedOverlay;
+		state = Added;
 	
     if (state != Invalid)
     {

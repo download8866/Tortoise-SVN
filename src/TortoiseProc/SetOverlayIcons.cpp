@@ -33,10 +33,8 @@ CSetOverlayIcons::CSetOverlayIcons(CWnd* pParent /*=NULL*/)
 	m_regInSubversion = CRegString(_T("Software\\TortoiseSVN\\InSubversionIcon"));
 	m_regModified = CRegString(_T("Software\\TortoiseSVN\\ModifiedIcon"));
 	m_regConflicted = CRegString(_T("Software\\TortoiseSVN\\ConflictIcon"));
-	m_regReadOnly = CRegString(_T("Software\\TortoiseSVN\\ReadOnlyIcon"));
-	m_regDeleted = CRegString(_T("Software\\TortoiseSVN\\DeletedIcon"));
-	m_regLocked = CRegString(_T("Software\\TortoiseSVN\\LockedIcon"));
 	m_regAdded = CRegString(_T("Software\\TortoiseSVN\\AddedIcon"));
+	m_regDeleted = CRegString(_T("Software\\TortoiseSVN\\DeletedIcon"));
 }
 
 CSetOverlayIcons::~CSetOverlayIcons()
@@ -108,12 +106,11 @@ BOOL CSetOverlayIcons::OnInitDialog()
 	m_sModified = statustext;
 	SVNStatus::GetStatusString(svn_wc_status_conflicted, statustext);
 	m_sConflicted = statustext;
-	SVNStatus::GetStatusString(svn_wc_status_deleted, statustext);
-	m_sDeleted = statustext;
 	SVNStatus::GetStatusString(svn_wc_status_added, statustext);
 	m_sAdded = statustext;
-	m_sReadOnly.LoadString(IDS_SETTINGS_READONLYNAME);
-	m_sLocked.LoadString(IDS_SETTINGS_LOCKEDNAME);
+	SVNStatus::GetStatusString(svn_wc_status_deleted, statustext);
+	m_sDeleted = statustext;
+
 	ShowIconSet(true);
 
 	AddAnchor(IDC_ICONSETLABEL, TOP_LEFT);
@@ -160,25 +157,17 @@ void CSetOverlayIcons::ShowIconSet(bool bSmallIcons)
 	HICON hConflictedOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseConflict.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
 	index = pImageList->Add(hConflictedOverlay);
 	VERIFY(pImageList->SetOverlayImage(index, 3));
-	HICON hReadOnlyOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseReadOnly.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
-	index = pImageList->Add(hReadOnlyOverlay);
+	HICON hAddedOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseAdded.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
+	index = pImageList->Add(hAddedOverlay);
 	VERIFY(pImageList->SetOverlayImage(index, 4));
 	HICON hDeletedOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseDeleted.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
 	index = pImageList->Add(hDeletedOverlay);
 	VERIFY(pImageList->SetOverlayImage(index, 5));
-	HICON hLockedOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseLocked.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
-	index = pImageList->Add(hLockedOverlay);
-	VERIFY(pImageList->SetOverlayImage(index, 6));
-	HICON hAddedOverlay = (HICON)LoadImage(NULL, sIconSetPath+_T("\\TortoiseAdded.ico"), IMAGE_ICON, pixelsize, pixelsize, LR_LOADFROMFILE);
-	index = pImageList->Add(hAddedOverlay);
-	VERIFY(pImageList->SetOverlayImage(index, 7));
 	DestroyIcon(hNormalOverlay);
 	DestroyIcon(hModifiedOverlay);
 	DestroyIcon(hConflictedOverlay);
-	DestroyIcon(hReadOnlyOverlay);
-	DestroyIcon(hDeletedOverlay);
-	DestroyIcon(hLockedOverlay);
 	DestroyIcon(hAddedOverlay);
+	DestroyIcon(hDeletedOverlay);
 
 	//create an image list with different file icons
 	SHFILEINFO sfi;
@@ -204,14 +193,10 @@ void CSetOverlayIcons::ShowIconSet(bool bSmallIcons)
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(2), TVIS_OVERLAYMASK);
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sConflicted, folderindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(3), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sReadOnly, folderindex);
+	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sAdded, folderindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(4), TVIS_OVERLAYMASK);
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sDeleted, folderindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(5), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sLocked, folderindex);
-	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(6), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sAdded, folderindex);
-	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(7), TVIS_OVERLAYMASK);
 
 	AddFileTypeGroup(_T(".cpp"), bSmallIcons);
 	AddFileTypeGroup(_T(".h"), bSmallIcons);
@@ -272,14 +257,11 @@ void CSetOverlayIcons::AddFileTypeGroup(CString sFileType, bool bSmallIcons)
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(2), TVIS_OVERLAYMASK);
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sConflicted+sFileType, imageindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(3), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sReadOnly+sFileType, imageindex);
+	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sAdded+sFileType, imageindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(4), TVIS_OVERLAYMASK);
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sDeleted+sFileType, imageindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(5), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sLocked+sFileType, imageindex);
-	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(6), TVIS_OVERLAYMASK);
-	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sAdded+sFileType, imageindex);
-	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(7), TVIS_OVERLAYMASK);
+
 }
 
 void CSetOverlayIcons::OnBnClickedListradio()
@@ -318,10 +300,8 @@ void CSetOverlayIcons::OnOK()
 				m_regInSubversion = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseInSubversion.ico");
 				m_regModified = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseModified.ico");
 				m_regConflicted = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseConflict.ico");
-				m_regReadOnly = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseReadOnly.ico");
-				m_regDeleted = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseDeleted.ico");
-				m_regLocked = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseLocked.ico");
 				m_regAdded = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseAdded.ico");
+				m_regDeleted = m_sIconPath + _T("\\") + sIconSet + _T("\\TortoiseDeleted.ico");
 			}
 		}
 	}

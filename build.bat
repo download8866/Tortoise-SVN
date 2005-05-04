@@ -8,11 +8,12 @@ rem
 @if "%VSINSTALLDIR%"=="" call "%VS71COMNTOOLS%\vsvars32.bat"
 if "%TortoiseVars%"=="" call TortoiseVars.bat
 
-set INCLUDE=%~dp0ext\svn-win32-libintl\inc;%INCLUDE%
-set LIB=%~dp0ext\svn-win32-libintl\lib;%LIB%
+set INCLUDE=%~dp0ext\gettext\include;%INCLUDE%
+set LIB=%~dp0ext\gettext\lib;%LIB%
 
 if "%1"=="" (
   SET _RELEASE=ON
+  SET _RELEASE_MBCS=ON
   SET _DEBUG=ON
   SET _DOCS=ON
   SET _SETUP=ON
@@ -23,12 +24,20 @@ if "%1"=="release" SET _RELEASE=ON
 if "%1"=="RELEASE" SET _RELEASE=ON
 if "%1"=="debug" SET _DEBUG=ON
 if "%1"=="DEBUG" SET _DEBUG=ON
+if "%1"=="release_mbcs" SET _RELEASE_MBCS=ON
+if "%1"=="RELEASE_MBCS" SET _RELEASE_MBCS=ON
 if "%1"=="doc" SET _DOCS=ON
 if "%1"=="DOC" SET _DOCS=ON
 if "%1"=="setup" SET _SETUP=ON
 if "%1"=="SETUP" SET _SETUP=ON
 shift
 if NOT "%1"=="" goto :getparam
+
+if DEFINED _RELEASE (
+  set _RELEASE_OR_RELEASE_MBCS=ON
+) else if DEFINED _RELEASE_MBCS (
+  set _RELEASE_OR_RELEASE_MBCS=ON
+)
 
 rem patch apr-iconv
 copy ext\apr-iconv_patch\lib\iconv_module.c ..\Subversion\apr-iconv\lib /Y
@@ -58,8 +67,11 @@ cd ..\..\Subversion
 rem perl apr-util\build\w32locatedb.pl dll .\db4-win32\include .\db4-win32\lib
 copy build\generator\vcnet_sln.ezt build\generator\vcnet_sln7.ezt
 copy %startdir%\vcnet_sln.ezt build\generator\vcnet_sln.ezt
-xcopy /Q /Y /I /E %startdir%\ext\berkeley-db\db4.3-win32 db4-win32
+xcopy /Q /Y /I /E %startdir%\ext\berkeley-db\db4.2-win32 db4-win32
 rmdir /s /q build\win32\vcnet-vcproj
+rem next line is commented because the vcproj generator is broken!
+rem Workaround: execute that line, then open subversion_vcnet.sln and add "..\db4-win32\lib\libdb42.lib"
+rem to the libaprutil project as an additional link
 call python gen-make.py -t vcproj --with-openssl=..\Common\openssl --with-zlib=..\Common\zlib --with-apr=apr --with-apr-util=apr-util --with-apr-iconv=apr-iconv --enable-nls --enable-bdb-in-apr-util
 copy /Y %startdir%\ext\libaprutil.vcproj apr-util\libaprutil.vcproj
 
@@ -112,8 +124,8 @@ if DEFINED _DEBUG (
   if EXIST bin\debug\bin rmdir /S /Q bin\debug\bin > NUL
   mkdir bin\debug\bin > NUL
   copy ..\Common\openssl\out32dll\*.dll bin\debug\bin /Y > NUL
-  copy .\ext\svn-win32-libintl\bin\intl3_svn.dll bin\debug\bin /Y > NUL
-  copy ..\Subversion\db4-win32\bin\libdb43d.dll bin\debug\bin /Y > NUL
+  copy .\ext\gettext\bin\intl.dll bin\debug\bin /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42d.dll bin\debug\bin /Y > NUL
   copy ..\Subversion\apr\Debug\libapr.dll bin\Debug\bin /Y > NUL 
   copy ..\Subversion\apr-util\Debug\libaprutil.dll bin\Debug\bin /Y > NUL 
   copy ..\Subversion\apr-iconv\Debug\libapriconv.dll bin\Debug\bin /Y > NUL 
@@ -125,27 +137,39 @@ if DEFINED _RELEASE (
   if EXIST bin\release\bin rmdir /S /Q bin\release\bin > NUL
   mkdir bin\release\bin > NUL
   copy ..\Common\openssl\out32dll\*.dll bin\release\bin /Y > NUL
-  copy .\ext\svn-win32-libintl\bin\intl3_svn.dll bin\release\bin /Y > NUL
-  copy ..\Subversion\db4-win32\bin\libdb43.dll bin\release\bin /Y > NUL
+  copy .\ext\gettext\bin\intl.dll bin\release\bin /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release\bin /Y > NUL
   copy ..\Subversion\apr\Release\libapr.dll bin\Release\bin /Y > NUL 
   copy ..\Subversion\apr-util\Release\libaprutil.dll bin\Release\bin /Y > NUL 
   copy ..\Subversion\apr-iconv\Release\libapriconv.dll bin\Release\bin /Y > NUL 
 )
+if DEFINED _RELEASE_MBCS (
+  if EXIST bin\release_mbcs\iconv rmdir /S /Q bin\release_mbcs\iconv > NUL
+  mkdir bin\release_mbcs\iconv > NUL
+  copy ..\Subversion\apr-iconv\Release\iconv\*.so bin\release_mbcs\iconv > NUL
+  if EXIST bin\release_mbcs\bin rmdir /S /Q bin\release_mbcs\bin > NUL
+  mkdir bin\release_mbcs\bin > NUL
+  copy ..\Common\openssl\out32dll\*.dll bin\release_mbcs\bin /Y > NUL
+  copy .\ext\gettext\bin\intl.dll bin\release_mbcs\bin /Y > NUL
+  copy ..\Subversion\db4-win32\bin\libdb42.dll bin\release_mbcs\bin /Y > NUL
+  copy ..\Subversion\apr\Release\libapr.dll bin\Release_MBCS\bin /Y > NUL 
+  copy ..\Subversion\apr-util\Release\libaprutil.dll bin\Release_MBCS\bin /Y > NUL 
+  copy ..\Subversion\apr-iconv\Release\libapriconv.dll bin\Release_MBCS\bin /Y > NUL 
+)
+
 echo ================================================================================
 echo building TortoiseSVN
 cd src
-rem Build SubWCRev twice to include its own version info
-copy /y version.none version.h
-if NOT EXIST ..\bin\release\bin\SubWCRev.exe devenv TortoiseSVN.sln /rebuild release /project SubWCRev
-..\bin\release\bin\SubWCRev.exe .. version.in version.h
 devenv TortoiseSVN.sln /rebuild release /project SubWCRev
+..\bin\release\bin\SubWCRev.exe .. version.in version.h
 if DEFINED _RELEASE (
   devenv TortoiseSVN.sln /rebuild release
-  copy TortoiseSVNSetup\autolist.txt ..\bin\release\bin
+)
+if DEFINED _RELEASE_MBCS (
+  devenv TortoiseSVN.sln /rebuild release_mbcs
 )
 if DEFINED _DEBUG (
   devenv TortoiseSVN.sln /rebuild debug
-  copy TortoiseSVNSetup\autolist.txt ..\bin\debug\bin
 )
 
 echo ================================================================================
@@ -154,6 +178,7 @@ cd Utils\scintilla\win32
 nmake -f scintilla.mak
 copy ..\bin\SciLexer.dll ..\..\..\..\bin\debug\bin /Y > NUL
 copy ..\bin\SciLexer.dll ..\..\..\..\bin\release\bin /Y > NUL
+copy ..\bin\SciLexer.dll ..\..\..\..\bin\release_mbcs\bin /Y > NUL
 del ..\bin\*.dll > NUL
 del ..\bin\*.exp > NUL
 del ..\bin\*.lib > NUL

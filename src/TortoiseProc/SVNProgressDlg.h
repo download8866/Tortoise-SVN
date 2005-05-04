@@ -24,29 +24,18 @@
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
-/** 
- * Options which can be used to configure the way the dialog box works
+/** Options which can be used to configure the way the dialog box works
+ *
  */
 typedef enum
 {
 	ProgOptNone = 0,
 	ProgOptRecursive = 0x01,
 	ProgOptNonRecursive = 0x00,
-	/// Don't actually do the merge - just practice it
-	ProgOptDryRun = 0x04,
-	ProgOptIgnoreExternals = 0x08,
-	ProgOptKeeplocks = 0x10,
-	/// for locking this means steal the lock, for unlocking it means breaking the lock
-	ProgOptLockForce = 0x20
+	// Don't actually do the merge - just practice it
+	ProgOptDryRun = 0x04
 } ProgressOptions;
 
-typedef enum
-{
-	CLOSE_MANUAL = 0,
-	CLOSE_NOERRORS,
-	CLOSE_NOCONFLICTS,
-	CLOSE_NOMERGES
-} ProgressCloseOptions;
 
 /**
  * \ingroup TortoiseProc
@@ -93,10 +82,7 @@ public:
 		Merge = 10,
 		Enum_Merge = 10,
 		Copy = 11,
-		Relocate = 12,
-		Rename = 13,
-		Lock = 14,
-		Unlock = 15
+		Relocate = 12
 	} Command;
 
 private:
@@ -111,8 +97,7 @@ private:
 			rev(0),
 			color(::GetSysColor(COLOR_WINDOWTEXT)),
 			bConflictedActionItem(false),
-			bAuxItem(false),
-			lock_state(svn_wc_notify_lock_state_unchanged)
+			bAuxItem(false)
 		{
 		}
 	public:
@@ -125,10 +110,9 @@ private:
 		CString					mime_type;
 		svn_wc_notify_state_t	content_state;
 		svn_wc_notify_state_t	prop_state;
-		svn_wc_notify_lock_state_t lock_state;
 		LONG					rev;
 		COLORREF				color;
-		CString					owner;						///< lock owner
+
 		bool					bConflictedActionItem;		// Is this item a conflict?
 		bool					bAuxItem;					// Set if this item is not a true 'SVN action' 
 		CString					sPathColumnText;	
@@ -160,12 +144,7 @@ public:
 
 protected:
 	//implement the virtual methods from SVN base class
-	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
-		svn_node_kind_t kind, const CString& mime_type, 
-		svn_wc_notify_state_t content_state, 
-		svn_wc_notify_state_t prop_state, LONG rev,
-		const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
-		svn_error_t * err, apr_pool_t * pool);
+	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, svn_node_kind_t kind, const CString& mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev);
 	virtual BOOL Cancel();
 	virtual void OnCancel();
 
@@ -188,17 +167,16 @@ protected:
 	static BOOL	m_bAscending;
 	static int	m_nSortedColumn;
 	CStringList m_ExtStack;
+public:			//need to be public for the thread to access
 
 private:
 	static UINT ProgressThreadEntry(LPVOID pVoid);
 	UINT ProgressThread();
 	virtual void OnOK();
-	void ReportSVNError();
-	void ReportError(const CString& sError);
-	void ReportWarning(const CString& sWarning);
-	void ReportNotification(const CString& sNotification);
-	void ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
+	void ReportSVNError() const;
 	void AddItemToList(const NotificationData* pData);
+
+public:
 
 private:
 	/**
@@ -211,7 +189,7 @@ private:
 
 
 public:
-	DWORD		m_dwCloseOnEnd;
+	BOOL		m_bCloseOnEnd;
 	SVNRev		m_RevisionEnd;
 
 private:
@@ -233,10 +211,10 @@ private:
 	BOOL		m_bCancelled;
 	BOOL		m_bThreadRunning;
 	bool		m_bConflictsOccurred;
-	bool		m_bErrorsOccurred;
-	bool		m_bMergesAddsDeletesOccurred;
 	int			iFirstResized;
 	BOOL		bSecondResized;
+	// The path of the item we will offer to show a log for, after an 'update' is complete
+	CTSVNPath	m_updatedPath;
 
 private:
 	// In preparation for removing SVN as base class

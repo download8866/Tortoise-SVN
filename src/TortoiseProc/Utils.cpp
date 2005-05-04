@@ -39,10 +39,9 @@ CUtils::~CUtils(void)
 
 CString CUtils::GetTempFile(const CString& origfilename)
 {
-	DWORD len = ::GetTempPath(0, NULL);
-	TCHAR * path = new TCHAR[len+1];
-	TCHAR * tempF = new TCHAR[len+50];
-	::GetTempPath (len+1, path);
+	TCHAR path[MAX_PATH];
+	TCHAR tempF[MAX_PATH];
+	::GetTempPath (MAX_PATH, path);
 	CString tempfile;
 	if (origfilename.IsEmpty())
 	{
@@ -54,7 +53,7 @@ CString CUtils::GetTempFile(const CString& origfilename)
 		int i=0;
 		do
 		{
-			tempfile.Format(_T("%ssvn%3.3x.tmp%s"), path, i, (LPCTSTR)CUtils::GetFileExtFromPath(origfilename));
+			tempfile.Format(_T("%s\\svn%3.3x.tmp%s"), path, i, (LPCTSTR)CUtils::GetFileExtFromPath(origfilename));
 			i++;
 		} while (PathFileExists(tempfile));
 	}
@@ -62,8 +61,6 @@ CString CUtils::GetTempFile(const CString& origfilename)
 	//different filenames.
 	HANDLE hFile = CreateFile(tempfile, GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
 	CloseHandle(hFile);
-	delete path;
-	delete tempF;
 	return tempfile;
 }
 
@@ -147,57 +144,29 @@ BOOL CUtils::StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirfile
 		com.Replace(_T("%merged"), _T("\"") + mergedfile.GetWinPathString() + _T("\""));
 	if (basename.IsEmpty())
 	{
-		if (basefile.IsEmpty())
-		{
-			com.Replace(_T("/basename:%bname"), _T(""));
-			com.Replace(_T("%bname"), _T(""));
-		}
-		else
-		{
-			com.Replace(_T("%bname"), _T("\"") + basefile.GetFileOrDirectoryName() + _T("\""));
-		}
+		com.Replace(_T("/basename:%bname"), _T(""));
+		com.Replace(_T("%bname"), _T(""));
 	}
 	else
 		com.Replace(_T("%bname"), _T("\"") + basename + _T("\""));
 	if (theirname.IsEmpty())
 	{
-		if (theirfile.IsEmpty())
-		{
-			com.Replace(_T("/theirsname:%tname"), _T(""));
-			com.Replace(_T("%tname"), _T(""));
-		}
-		else
-		{
-			com.Replace(_T("%tname"), _T("\"") + theirfile.GetFileOrDirectoryName() + _T("\""));
-		}
+		com.Replace(_T("/theirsname:%tname"), _T(""));
+		com.Replace(_T("%tname"), _T(""));
 	}
 	else
 		com.Replace(_T("%tname"), _T("\"") + theirname + _T("\""));
 	if (yourname.IsEmpty())
 	{
-		if (yourfile.IsEmpty())
-		{
-			com.Replace(_T("/yoursname:%yname"), _T(""));
-			com.Replace(_T("%yname"), _T(""));
-		}
-		else
-		{
-			com.Replace(_T("%yname"), _T("\"") + yourfile.GetFileOrDirectoryName() + _T("\""));
-		}
+		com.Replace(_T("/yoursname:%yname"), _T(""));
+		com.Replace(_T("%yname"), _T(""));
 	}
 	else
 		com.Replace(_T("%yname"), _T("\"") + yourname + _T("\""));
 	if (mergedname.IsEmpty())
 	{
-		if (mergedfile.IsEmpty())
-		{
-			com.Replace(_T("/mergedname:%mname"), _T(""));
-			com.Replace(_T("%mname"), _T(""));
-		}
-		else
-		{
-			com.Replace(_T("%mname"), _T("\"") + mergedfile.GetFileOrDirectoryName() + _T("\""));
-		}
+		com.Replace(_T("/mergedname:%mname"), _T(""));
+		com.Replace(_T("%mname"), _T(""));
 	}
 	else
 		com.Replace(_T("%mname"), _T("\"") + mergedname + _T("\""));
@@ -272,12 +241,12 @@ BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const 
 	}
 
 	if (sName1.IsEmpty())
-		viewer.Replace(_T("%bname"), _T("\"") + file1.GetFileOrDirectoryName() + _T("\""));
+		viewer.Replace(_T("%bname"), _T("\"") + file1.GetWinPathString() + _T("\""));
 	else
 		viewer.Replace(_T("%bname"), _T("\"") + sName1 + _T("\""));
 
 	if (sName2.IsEmpty())
-		viewer.Replace(_T("%yname"), _T("\"") + file2.GetFileOrDirectoryName() + _T("\""));
+		viewer.Replace(_T("%yname"), _T("\"") + file2.GetWinPathString() + _T("\""));
 	else
 		viewer.Replace(_T("%yname"), _T("\"") + sName2 + _T("\""));
 
@@ -309,11 +278,9 @@ BOOL CUtils::StartUnifiedDiffViewer(const CTSVNPath& patchfile, BOOL bWait)
 			CRegString txtexe = CRegString(viewer, _T(""), FALSE, HKEY_CLASSES_ROOT);
 			viewer = txtexe;
 		}
-		DWORD len = ExpandEnvironmentStrings(viewer, NULL, 0);
-		TCHAR * buf = new TCHAR[len+1];
-		ExpandEnvironmentStrings(viewer, buf, len);
+		TCHAR buf[MAX_PATH];
+		ExpandEnvironmentStrings(viewer, buf, MAX_PATH);
 		viewer = buf;
-		delete buf;
 	}
 	if (viewer.Find(_T("%1"))>=0)
 	{
@@ -340,27 +307,21 @@ BOOL CUtils::StartTextViewer(CString file)
 	viewer = viewer + _T("\\Shell\\Open\\Command\\");
 	CRegString txtexe = CRegString(viewer, _T(""), FALSE, HKEY_CLASSES_ROOT);
 	viewer = txtexe;
-
-	DWORD len = ExpandEnvironmentStrings(viewer, NULL, 0);
-	TCHAR * buf = new TCHAR[len+1];
-	ExpandEnvironmentStrings(viewer, buf, len);
+	TCHAR buf[32*1024];
+	ExpandEnvironmentStrings(viewer, buf, MAX_PATH);
 	viewer = buf;
-	delete buf;
-	len = ExpandEnvironmentStrings(file, NULL, 0);
-	buf = new TCHAR[len+1];
-	ExpandEnvironmentStrings(file, buf, len);
+	ExpandEnvironmentStrings(file, buf, MAX_PATH);
 	file = buf;
-	delete buf;
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
 		OPENFILENAME ofn;		// common dialog box structure
-		TCHAR szFile[MAX_PATH];  // buffer for file name. Explorer can't handle paths longer than MAX_PATH.
+		TCHAR szFile[MAX_PATH];  // buffer for file name
 		ZeroMemory(szFile, sizeof(szFile));
 		// Initialize OPENFILENAME
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
-		ofn.lStructSize = sizeof(OPENFILENAME);
-		//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+		//ofn.lStructSize = sizeof(OPENFILENAME);
+		ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 		ofn.hwndOwner = NULL;
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -499,37 +460,37 @@ CStringA CUtils::PathEscape(const CStringA& path)
 	return ret;
 }
 
-BOOL CUtils::IsEscaped(const char * path)
+BOOL CUtils::IsEscaped(const CStringA& path)
 {
-	if (strstr(path, "%20") > 0)
+	if (path.Find("%20")>=0)
 		return TRUE;
-	if (strstr(path, "%5E") > 0)
+	if (path.Find("%5E")>=0)
 		return TRUE;
-	if (strstr(path, "%26") > 0)
+	if (path.Find("%26")>=0)
 		return TRUE;
-	if (strstr(path, "%60") > 0)
+	if (path.Find("%60")>=0)
 		return TRUE;
-	if (strstr(path, "%7B") > 0)
+	if (path.Find("%7B")>=0)
 		return TRUE;
-	if (strstr(path, "%7D") > 0)
+	if (path.Find("%7D")>=0)
 		return TRUE;
-	if (strstr(path, "%7C") > 0)
+	if (path.Find("%7C")>=0)
 		return TRUE;
-	if (strstr(path, "%5D") > 0)
+	if (path.Find("%5D")>=0)
 		return TRUE;
-	if (strstr(path, "%5B") > 0)
+	if (path.Find("%5B")>=0)
 		return TRUE;
-	if (strstr(path, "%22") > 0)
+	if (path.Find("%22")>=0)
 		return TRUE;
-	if (strstr(path, "%3C") > 0)
+	if (path.Find("%3C")>=0)
 		return TRUE;
-	if (strstr(path, "%3E") > 0)
+	if (path.Find("%3E")>=0)
 		return TRUE;
-	if (strstr(path, "%5C") > 0)
+	if (path.Find("%5C")>=0)
 		return TRUE;
-	if (strstr(path, "%23") > 0)
+	if (path.Find("%23")>=0)
 		return TRUE;
-	if (strstr(path, "%3F") > 0)
+	if (path.Find("%3F")>=0)
 		return TRUE;
 	return FALSE;
 }
@@ -609,28 +570,20 @@ CString CUtils::GetLongPathname(const CString& path)
 {
 	if (path.IsEmpty())
 		return path;
-	TCHAR pathbufcanonicalized[MAX_PATH]; // MAX_PATH ok.
+	TCHAR pathbuf[MAX_PATH];
+	TCHAR pathbufcanonicalized[MAX_PATH];
 	DWORD ret = 0;
-	CString sRet;
 	if (PathCanonicalize(pathbufcanonicalized, path))
 	{
-		ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-		TCHAR * pathbuf = new TCHAR[ret+2];	
-		ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, ret+1);
-		sRet = CString(pathbuf, ret);
-		delete pathbuf;
+		ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, MAX_PATH);
 	}
 	else
 	{
-		ret = ::GetLongPathName(path, NULL, 0);
-		TCHAR * pathbuf = new TCHAR[ret+2];
-		ret = ::GetLongPathName(path, pathbuf, ret+1);
-		sRet = CString(pathbuf, ret);
-		delete pathbuf;
+		ret = ::GetLongPathName(path, pathbuf, MAX_PATH);
 	}
-	if (ret == 0)
+	if ((ret == 0)||(ret > MAX_PATH))
 		return path;
-	return sRet;
+	return CString(pathbuf, ret);
 }
 
 BOOL CUtils::FileCopy(CString srcPath, CString destPath, BOOL force)
@@ -787,25 +740,19 @@ bool CUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sLogF
 
 CString CUtils::GetAppDirectory()
 {
-	CString path;
-	DWORD len = 0;
-	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
-	path.GetBuffer(bufferlen);
-	do 
-	{
-		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		path.ReleaseBuffer(0);
-		len = GetModuleFileName(NULL, path.GetBuffer(bufferlen+1), bufferlen);				
-	} while(len == bufferlen);
-	path.ReleaseBuffer();
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
+	TCHAR procpath[MAX_PATH] = {0};
+	GetModuleFileName(NULL, procpath, MAX_PATH);
+	CString langpath = procpath;
+	langpath = langpath.Left(langpath.ReverseFind('\\')+1);
+	return langpath;
 }
 
 CString CUtils::GetAppParentDirectory()
 {
-	CString path = GetAppDirectory();
-	path = path.Left(path.ReverseFind('\\'));
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
+	TCHAR procpath[MAX_PATH] = {0};
+	GetModuleFileName(NULL, procpath, MAX_PATH);
+	CString langpath = procpath;
+	langpath = langpath.Left(langpath.ReverseFind('\\'));
+	langpath = langpath.Left(langpath.ReverseFind('\\')+1);
+	return langpath;
 }

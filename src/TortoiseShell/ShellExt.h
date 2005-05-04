@@ -22,28 +22,15 @@
 #include "registry.h"
 #include "resource.h"
 #include "ShellCache.h"
-#include "RemoteCacheLink.h"
+#include "SVNFolderStatus.h"
 
 extern	UINT				g_cRefThisDll;			// Reference count of this DLL.
 extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
-extern	CRemoteCacheLink	g_remoteCacheLink;
+extern	SVNFolderStatus		g_CachedStatus;			// status cache
 extern	ShellCache			g_ShellCache;			// caching of registry entries, ...
 extern	CRegStdWORD			g_regLang;
 extern	DWORD				g_langid;
 extern	HINSTANCE			g_hResInst;
-extern	stdstring			g_filepath;
-extern	svn_wc_status_kind	g_filestatus;	///< holds the corresponding status to the file/dir above
-extern  bool				g_readonlyoverlay;		///< whether to show the readonly overlay or not
-extern	bool				g_lockedoverlay;		///< whether to show the locked overlay or not
-
-extern bool					g_normalovlloaded;
-extern bool					g_modifiedovlloaded;
-extern bool					g_conflictedovlloaded;
-extern bool					g_readonlyovlloaded;
-extern bool					g_deletedovlloaded;
-extern bool					g_lockedovlloaded;
-extern bool					g_addedovlloaded;
-
 extern	void				LoadLangDll();
 extern  CComCriticalSection	g_csCacheGuard;
 typedef CComCritSecLock<CComCriticalSection> AutoLocker;
@@ -132,13 +119,7 @@ protected:
 		Blame,
 		ApplyPatch,
 		CreatePatch,
-		RevisionGraph,
-		UnIgnoreSub,
-		UnIgnoreCaseSensitive,
-		UnIgnore,
-		Lock,
-		Unlock,
-		UnlockForce
+		RevisionGraph
 	};
 
 	FileState m_State;
@@ -156,15 +137,12 @@ protected:
 	bool isFolderInSVN;
 	bool isNormal;
 	bool isAdded;
-	bool isLocked;
 	int space;
 	TCHAR stringtablebuffer[255];
 	stdstring columnfilepath;		///< holds the last file/dir path for the column provider
 	stdstring columnauthor;			///< holds the corresponding author of the file/dir above
 	stdstring itemurl;
 	stdstring itemshorturl;
-	stdstring ignoredprops;
-	stdstring owner;
 	svn_revnum_t columnrev;			///< holds the corresponding revision to the file/dir above
 	svn_wc_status_kind	filestatus;
 #define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
@@ -175,7 +153,6 @@ private:
 	LPCTSTR GetMenuTextFromResource(int id);
 	void GetColumnStatus(const TCHAR * path, BOOL bIsDir);
 	HBITMAP IconToBitmap(UINT hIcon, COLORREF transparentColor);
-	int GetInstalledOverlays();		///< returns the maximum number of overlays TSVN shall use
 public:
 	CShellExt(FileState state);
 	virtual ~CShellExt();

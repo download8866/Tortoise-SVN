@@ -80,19 +80,13 @@ protected:
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void OnRVNKeyDownReposTree(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedHelp();
-	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	afx_msg LRESULT OnAfterInitDialog(WPARAM wParam, LPARAM lParam);
-	
+
 	void ShowContextMenu(CPoint pt, LRESULT *pResult);
 	DECLARE_MESSAGE_MAP()
 
 	void DeleteSelectedEntries();
 	void SetupInputDlg(CInputDlg * dlg);
 
-	static UINT InitThreadEntry(LPVOID pVoid);
-	UINT InitThread();
-
-	bool				m_bInitDone;
 	CRepositoryTree		m_treeRepository;
 	CRepositoryBar		m_barRepository;
 	CRepositoryBarCnr	m_cnrRepositoryBar;
@@ -101,8 +95,6 @@ protected:
 private:
 	bool m_bStandAlone;
 	SVNUrl m_InitialSvnUrl;
-	static const UINT	m_AfterInitMessage;
 public:
 };
-static UINT WM_AFTERINIT = RegisterWindowMessage(_T("TORTOISESVN_AFTERINIT_MSG"));
 

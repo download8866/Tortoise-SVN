@@ -27,6 +27,8 @@
 #include "MessageBox.h"
 #include "Utils.h"
 
+#include "auth_providers.h"
+
 SVNPrompt::SVNPrompt()
 {
 	m_app = NULL;
@@ -48,9 +50,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 
 	/* The main disk-caching auth providers, for both
 	'username/password' creds and 'username' creds.  */
-	svn_client_get_windows_simple_provider (&provider, pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_client_get_simple_provider (&provider, pool);
+	tsvn_client_get_simple_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	svn_client_get_username_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
@@ -65,7 +65,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 
 	/* Two prompting providers, one for username/password, one for
 	just username. */
-	svn_client_get_simple_prompt_provider (&provider, (svn_auth_simple_prompt_func_t)simpleprompt, this, 2, /* retry limit */ pool);
+	tsvn_client_get_simple_prompt_provider (&provider, (svn_auth_simple_prompt_func_t)simpleprompt, this, 2, /* retry limit */ pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	svn_client_get_username_prompt_provider (&provider, (svn_auth_username_prompt_func_t)userprompt, this, 2, /* retry limit */ pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
@@ -291,8 +291,8 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = svn->m_hParentWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);

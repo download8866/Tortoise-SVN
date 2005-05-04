@@ -40,8 +40,8 @@ CSetMainPage::CSetMainPage()
 	, m_bDiffBar(FALSE)
 	, m_bStrikeout(FALSE)
 	, m_bReloadNeeded(FALSE)
+	, m_bResolve(FALSE)
 	, m_bDisplayBinDiff(TRUE)
-	, m_bCaseInsensitive(FALSE)
 {
 	m_regLanguage = CRegDWORD(_T("Software\\TortoiseMerge\\LanguageID"), 1033);
 	m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
@@ -54,10 +54,10 @@ CSetMainPage::CSetMainPage()
 	m_regMagnifier = CRegDWORD(_T("Software\\TortoiseMerge\\Magnifier"), TRUE);
 	m_regDiffBar = CRegDWORD(_T("Software\\TortoiseMerge\\DiffBar"), TRUE);
 	m_regStrikeout = CRegDWORD(_T("Software\\TortoiseMerge\\StrikeOut"), TRUE);
+	m_regResolve = CRegDWORD(_T("Software\\TortoiseMerge\\Resolve"), FALSE);
 	m_regFontName = CRegString(_T("Software\\TortoiseMerge\\LogFontName"), _T("Courier New"));
 	m_regFontSize = CRegDWORD(_T("Software\\TortoiseMerge\\LogFontSize"), 10);
 	m_regDisplayBinDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
-	m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
 
 	m_dwLanguage = m_regLanguage;
 	m_bBackup = m_regBackup;
@@ -70,8 +70,8 @@ CSetMainPage::CSetMainPage()
 	m_bMagnifier = m_regMagnifier;
 	m_bDiffBar = m_regDiffBar;
 	m_bStrikeout = m_regStrikeout;
+	m_bResolve = m_regResolve;
 	m_bDisplayBinDiff = m_regDisplayBinDiff;
-	m_bCaseInsensitive = m_regCaseInsensitive;
 }
 
 CSetMainPage::~CSetMainPage()
@@ -102,8 +102,8 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_MAGNIFIER, m_bMagnifier);
 	DDX_Check(pDX, IDC_DIFFBAR, m_bDiffBar);
 	DDX_Check(pDX, IDC_STRIKEOUT, m_bStrikeout);
+	DDX_Check(pDX, IDC_RESOLVE, m_bResolve);
 	DDX_Check(pDX, IDC_USEBDIFF, m_bDisplayBinDiff);
-	DDX_Check(pDX, IDC_CASEINSENSITIVE, m_bCaseInsensitive);
 }
 
 void CSetMainPage::SaveData()
@@ -121,8 +121,8 @@ void CSetMainPage::SaveData()
 	m_regMagnifier = m_bMagnifier;
 	m_regDiffBar = m_bDiffBar;
 	m_regStrikeout = m_bStrikeout;
+	m_regResolve = m_bResolve;
 	m_regDisplayBinDiff = m_bDisplayBinDiff;
-	m_regCaseInsensitive = m_bCaseInsensitive;
 }
 
 BOOL CSetMainPage::OnApply()
@@ -156,7 +156,7 @@ BOOL CSetMainPage::OnInitDialog()
 	m_bMagnifier = m_regMagnifier;
 	m_bDiffBar = m_regDiffBar;
 	m_bStrikeout = m_regStrikeout;
-	m_bCaseInsensitive = m_bCaseInsensitive;
+	m_bResolve = m_regResolve;
 
 	UINT uRadio = IDC_WSIGNORELEADING;
 	switch (m_nIgnoreWS)
@@ -253,12 +253,12 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_MAGNIFIER, OnBnClickedMagnifier)
 	ON_BN_CLICKED(IDC_DIFFBAR, OnBnClickedDiffbar)
 	ON_BN_CLICKED(IDC_STRIKEOUT, OnBnClickedStrikeout)
+	ON_BN_CLICKED(IDC_RESOLVE, OnBnClickedResolve)
 	ON_EN_CHANGE(IDC_TABSIZE, OnEnChangeTabsize)
 	ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnCbnSelchangeLanguagecombo)
 	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnCbnSelchangeFontsizes)
 	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnCbnSelchangeFontnames)
 	ON_BN_CLICKED(IDC_USEBDIFF, OnBnClickedUsebdiff)
-	ON_BN_CLICKED(IDC_CASEINSENSITIVE, OnBnClickedCaseinsensitive)
 END_MESSAGE_MAP()
 
 
@@ -306,6 +306,11 @@ void CSetMainPage::OnBnClickedDiffbar()
 }
 
 void CSetMainPage::OnBnClickedStrikeout()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedResolve()
 {
 	SetModified();
 }
@@ -389,11 +394,6 @@ void CSetMainPage::OnCbnSelchangeFontnames()
 }
 
 void CSetMainPage::OnBnClickedUsebdiff()
-{
-	SetModified();
-}
-
-void CSetMainPage::OnBnClickedCaseinsensitive()
 {
 	SetModified();
 }

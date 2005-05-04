@@ -13,54 +13,45 @@ file to see what it looks like, but pressing F1 in TSVN will not "help" you :-)
 Structure:
 ==========
 The most important directories for you are:
-source\en - contains the english XML text source.
-images\en - contains the base (english) images for the docs. If you don't localize 
-	    your screenshots, these will be used instead.
-images\*  - contain the localized screenshots for other languages.
-po\*      - contain the translations for each language. Best edited with poEdit.
-tools     - contains the tools and the dtd to validate and build the docs.
-	    You might want to place your tools directory somewhere else on your 
-            harddisk, if you want to use it to build other docs too. This will 
-            however require tweaking the build scripts.
-            I'd recommend to leave tools\dtd in place, so the source stays 
-            compatible between TSVN doc developers.
+source	- contains the XML text source and localized images for each language.
+images	- contains the base (english) images for the docs. If you don't localize 
+	  your screenshots, these will be used instead.
+tools	- contains the tools and the dtd to validate and build the docs.
+	  You might want to place your tools directory somewhere else on your 
+	  harddisk, if you want to use it to build other docs too. This will 
+	  however require tweaking the build scripts.
+	  I'd recommend to leave tools\dtd in place, so the source stays 
+	  compatible between TSVN doc developers.
+
+source/en - contains the english xml sources.
+source/de - contains the german xml sources. 
+source/de/images - would contain localized screenshots
 
 The scripts:
 ============
-Three scripts are provided to build the documentation:
+Two scripts are provided to build the documentation
+gendoc.bat 	   - will loop over all known applications and every directory 
+		     it finds inside source (so don't place any nonsense there).
+source\makedoc.bat - is called from gendoc.bat and will generate html, pdf and chm 
+		     docs for the given application and language.
+		     makedoc.bat takes three or more parameters where
+		     %1 = Target application to build docs for
+		     %2 = Target language (as in source/en)
+		     %3..%5 = any of [pdf chm html]
 
-TranslateDoc.bat:
-  will translate into the given language if the po file exists.
-  "TranslateDoc de" will use de.po and the English xml files to
-  build the German document stucture in source\de
-  This script uses xml2po.py and requires a Python runtime
-  environment to be installed.
-
-GenDoc.bat:
-  will loop over all known applications and every directory 
-  it finds inside "source" (so don't place any nonsense there).
-
-source\MakeDoc.bat:
-  is called from GenDoc.bat and will generate html, pdf and chm 
-  docs for the given application and language.
-  makedoc.bat takes three or more parameters where
-  %1 = Target application to build docs for
-  %2 = Target language (as in source/en)
-  %3..%5 = any of [pdf chm html]
-
-  "makedoc tortoisesvn de pdf"      will build the pdf docs in directory source/de  
-                                    (German) for tortoisesvn. Simple.
-  "makedoc tortoisesvn en chm html" will build the chm and html docs in directory 
-                                    source/en (English)
+"makedoc tortoisesvn de pdf"      will build the pdf docs in directory source/de  
+                                  (german) for tortoisesvn. Simple.
+"makedoc tortoisesvn en chm html" will build the chm and html docs in directory 
+                                  source/en (english)
 
 Translate:
 ==========
-If you want to translate the docs into a new language (assume french), just go ahead
-and copy po\doc.pot to po\fr.po. Start to translate phrases and test your translation
-with "TranslateDoc fr" and "makedoc tortoisesvn fr".
+If you want to translate the docs into a new language (assume french), just go ahead and copy the 
+entire directory e.g. source/en to source/fr. Now open tortoisesvn.xml and change the line
+<book id="tsvn" lang="en"> to <book id="tsvn" lang="fr"> and you're almost done :-)
 
-Place localized screenshots in images\fr. We document which images need updating in
-ImageStatus.txt. Just add another column for french.
+now you can call "makedoc tortoisesvn fr" and you will see, that the navigation links are
+already translated. This is done automatically by the xsl transformation.
 
 Now go ahead and translate the rest.
 

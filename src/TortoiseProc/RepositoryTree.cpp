@@ -24,7 +24,8 @@
 #include "WaitCursorEx.h"
 #include "RepositoryBar.h"
 #include "TSVNPath.h"
-#include "SVN.h"
+
+
 
 // CRepositoryTree
 
@@ -35,7 +36,6 @@ CRepositoryTree::CRepositoryTree(const CString& strUrl, BOOL bFile) :
 	m_bFile(bFile)
 {
 	m_strUrl.TrimRight('/');
-	m_strNoItems.LoadString(IDS_REPOBROWSE_INITWAIT);
 }
 
 CRepositoryTree::~CRepositoryTree()
@@ -57,13 +57,6 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 {
 	m_strUrl = svn_url.GetPath();
 	m_Revision = svn_url.GetRevision();
-	if (m_strReposRoot.IsEmpty())
-	{
-		SVN svn;
-		m_strReposRoot = svn.GetRepositoryRoot(CTSVNPath(m_strUrl));
-		m_strReposRoot = SVNUrl::Unescape(m_strReposRoot);
-		svn.GetLocks(CTSVNPath(m_strReposRoot), &m_locks);
-	}
 
 	DeleteAllItems();
 
@@ -84,17 +77,6 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool init)
 {
 	CString folder_path;
-	if ((init)&&(!m_strReposRoot.IsEmpty()))
-	{
-		HTREEITEM hRootItem = FindUrl(m_strReposRoot);
-		if (hRootItem == 0)
-		{
-			DeleteDummyItem(RVTI_ROOT);
-			hRootItem = CReportCtrl::InsertItem(m_strReposRoot, m_nIconFolder, -1, -1, RVTI_ROOT, RVTI_SORT);
-			InsertDummyItem(hRootItem);
-			SetItemData(GetItemIndex(hRootItem), 0);
-		}
-	}
 	AfxExtractSubString(folder_path, SVNUrl(folder), 0, '\t');
 
 	HTREEITEM hItem = FindUrl(folder_path);
@@ -108,6 +90,8 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 			hParentItem = FindUrl(parent_folder);
 			if (hParentItem == 0)
 			{
+				//if (!force)
+				//	return NULL;
 				hParentItem = AddFolder(parent_folder, force);
 			}
 		}
@@ -126,7 +110,7 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 	}
 	// insert other columns text
 	CString temp;
-	for (int col=1; col<GetActiveSubItemCount()-1; col++)
+	for (int col=1; col<GetActiveSubItemCount(); col++)
 	{
 		if (AfxExtractSubString(temp, folder, col, '\t'))
 			SetItemText(GetItemIndex(hItem), col, temp);
@@ -141,7 +125,7 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 		rvi.Param64 = _ttoi64(temp);
 		SetItem(&rvi);
 	}
-	SetItemText(GetItemIndex(hItem), 5, _T(""));
+
 	return hItem;
 }
 
@@ -182,7 +166,7 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force)
 
 	// insert other columns text
 	CString temp;
-	for (int col=1; col<GetActiveSubItemCount()-1; col++)
+	for (int col=1; col<GetActiveSubItemCount(); col++)
 	{
 		if (AfxExtractSubString(temp, file, col, '\t'))
 			SetItemText(GetItemIndex(hItem), col, temp);
@@ -197,8 +181,6 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force)
 		rvi.Param64 = _ttoi64(temp);
 		SetItem(&rvi);
 	}
-	CString file_path_stripped = file_path.Mid(m_strReposRoot.GetLength());
-	SetItemText(GetItemIndex(hItem), 5, m_locks[file_path_stripped].owner);
 	return hItem;
 }
 
@@ -242,11 +224,7 @@ HTREEITEM CRepositoryTree::FindUrl(const CString& url)
 	if (hRoot == NULL)
 		return NULL;
 
-	CString root_path = m_strReposRoot;
-	if (root_path.IsEmpty())
-	{
-		root_path = SVNUrl(url).GetRootPath();
-	}
+	CString root_path = SVNUrl(url).GetRootPath();
 	CString root_item = GetItemText(GetItemIndex(hRoot), 0);
 
 	// root item must be compared case-insensitive
@@ -325,7 +303,7 @@ void CRepositoryTree::LoadChildItems(HTREEITEM hItem, BOOL recursive)
 
 	m_svn.SetPromptApp(&theApp);
 
-	if (m_svn.Ls(folder, m_Revision, m_Revision, entries, true, recursive))
+	if (m_svn.Ls(folder, m_Revision, entries, true, recursive))
 	{
 		DeleteChildItems(hItem);
 		if (entries.GetCount() == 1)
@@ -339,7 +317,7 @@ void CRepositoryTree::LoadChildItems(HTREEITEM hItem, BOOL recursive)
 				//a folder!
 				CString item = entries.GetAt(0);
 				entries.RemoveAll();
-				if (m_svn.Ls(folder.GetContainingDirectory(), m_Revision, m_Revision, entries, true, recursive))
+				if (m_svn.Ls(folder.GetContainingDirectory(), m_Revision, entries, true, recursive))
 				{
 					BOOL found = FALSE;
 					for (int j=0; j<entries.GetCount(); ++j)
@@ -560,17 +538,10 @@ void CRepositoryTree::Init(const SVNRev& revision)
 	rvs.nFormat = RVCF_LEFT|RVCF_TEXT;
 	DefineSubItem(4, &rvs);
 	ActivateSubItem(4, 4);
-	//
-	// column 5: lock owner
-	temp.LoadString(IDS_STATUSLIST_COLLOCK);
-	rvs.lpszText = temp;
-	rvs.iWidth = 125;
-	rvs.iMinWidth = 25;
-	rvs.nFormat = RVCF_LEFT|RVCF_TEXT;
-	DefineSubItem(5, &rvs);
-	ActivateSubItem(5, 5);
 
 	SVNUrl svn_url(m_strUrl, m_Revision);
+
+	ChangeToUrl(svn_url);
 
 	SetSortCallback(SortCallback, (LPARAM)this);
 	bInit = FALSE;

@@ -23,11 +23,9 @@
 #include "SVNConfig.h"
 #include "SVNProperties.h"
 #include "MessageBox.h"
-#include "Utils.h"
 #include "SVN.h"
 #include "Registry.h"
 #include "SVNStatus.h"
-#include ".\logpromptdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -37,28 +35,17 @@ static char THIS_FILE[] = __FILE__;
 
 // CLogPromptDlg dialog
 
-UINT CLogPromptDlg::WM_AUTOLISTREADY = RegisterWindowMessage(_T("TORTOISESVN_AUTOLISTREADY_MSG"));
-
-
 IMPLEMENT_DYNAMIC(CLogPromptDlg, CResizableStandAloneDialog)
 CLogPromptDlg::CLogPromptDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CLogPromptDlg::IDD, pParent)
 	, m_bRecursive(FALSE)
 	, m_bShowUnversioned(FALSE)
 	, m_bBlock(FALSE)
-	, m_bThreadRunning(FALSE)
-	, m_bRunThread(FALSE)
-	, m_pThread(NULL)
-	, m_bKeepLocks(FALSE)
 {
 }
 
 CLogPromptDlg::~CLogPromptDlg()
 {
-	if(m_pThread != NULL)
-	{
-		delete m_pThread;
-	}
 }
 
 void CLogPromptDlg::DoDataExchange(CDataExchange* pDX)
@@ -70,7 +57,6 @@ void CLogPromptDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Control(pDX, IDC_OLDLOGS, m_OldLogs);
-	DDX_Check(pDX, IDC_KEEPLOCK, m_bKeepLocks);
 }
 
 
@@ -79,10 +65,10 @@ BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_EN_CHANGE(IDC_LOGMESSAGE, OnEnChangeLogmessage)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
+	ON_BN_CLICKED(IDC_FILLLOG, OnBnClickedFilllog)
+	ON_CBN_SELCHANGE(IDC_OLDLOGS, OnCbnSelchangeOldlogs)
 	ON_CBN_CLOSEUP(IDC_OLDLOGS, OnCbnCloseupOldlogs)
+	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 END_MESSAGE_MAP()
 
 // CLogPromptDlg message handlers
@@ -90,7 +76,7 @@ END_MESSAGE_MAP()
 BOOL CLogPromptDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-	
+
 	m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"), TRUE);
 	m_bShowUnversioned = m_regAddBeforeCommit;
 
@@ -98,13 +84,15 @@ BOOL CLogPromptDlg::OnInitDialog()
 	
 	OnEnChangeLogmessage();
 
-	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK);
+//	CString temp = m_sPath;
+
+	m_ListCtrl.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS);
 	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
-	m_cLogMessage.Init(m_ProjectProperties);
+	m_cLogMessage.Init(m_ProjectProperties.lProjectLanguage);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
-	m_cLogMessage.RegisterContextMenuHandler(this);
+
 
 	m_tooltips.Create(this);
 	m_SelectAll.SetCheck(BST_INDETERMINATE);
@@ -123,11 +111,18 @@ BOOL CLogPromptDlg::OnInitDialog()
 			GetDlgItem(IDC_BUGIDLABEL)->SetWindowText(m_ProjectProperties.sLabel);
 		GetDlgItem(IDC_BUGID)->SetFocus();
 	}
-	
-	SVN svn;
-	CString reg;
-	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), svn.GetUUIDFromPath(m_pathList[0]));
-	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
+	if (m_ProjectProperties.nLogWidthMarker)
+	{
+		m_cLogMessage.Call(SCI_SETWRAPMODE, SC_WRAP_NONE);
+		m_cLogMessage.Call(SCI_SETEDGEMODE, EDGE_LINE);
+		m_cLogMessage.Call(SCI_SETEDGECOLUMN, m_ProjectProperties.nLogWidthMarker);
+	}
+	else
+	{
+		m_cLogMessage.Call(SCI_SETEDGEMODE, EDGE_NONE);
+		m_cLogMessage.Call(SCI_SETWRAPMODE, SC_WRAP_WORD);
+	}
+	m_cLogMessage.SetText(m_ProjectProperties.sLogTemplate);
 	
 	AddAnchor(IDC_COMMITLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BUGIDLABEL, TOP_RIGHT);
@@ -141,7 +136,7 @@ BOOL CLogPromptDlg::OnInitDialog()
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HINTLABEL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_KEEPLOCK, BOTTOM_LEFT, BOTTOM_RIGHT);
+	AddAnchor(IDC_FILLLOG, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -151,15 +146,9 @@ BOOL CLogPromptDlg::OnInitDialog()
 
 	//first start a thread to obtain the file list with the status without
 	//blocking the dialog
-	m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
-	if (m_pThread==NULL)
+	if (AfxBeginThread(StatusThreadEntry, this)==NULL)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-	}
-	else
-	{
-		m_pThread->m_bAutoDelete = FALSE;
-		m_pThread->ResumeThread();
 	}
 	m_bBlock = TRUE;
 
@@ -171,26 +160,33 @@ void CLogPromptDlg::OnOK()
 {
 	if (m_bBlock)
 		return;
-	if (m_bThreadRunning)
-	{
-		m_bRunThread = FALSE;
-		WaitForSingleObject(m_pThread->m_hThread, 1000);
-		if (m_bThreadRunning)
-		{
-			// we gave the thread a chance to quit. Since the thread didn't
-			// listen to us we have to kill it.
-			TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-			m_bThreadRunning = FALSE;
-		}
-	}
 	CString id;
 	GetDlgItem(IDC_BUGID)->GetWindowText(id);
-	if (!m_ProjectProperties.CheckBugID(id))
+	if (m_ProjectProperties.bNumber)
 	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
-		return;
+		// check if the revision actually _is_ a number
+		// or a list of numbers separated by colons
+		TCHAR c = 0;
+		BOOL bInvalid = FALSE;
+		int len = id.GetLength();
+		for (int i=0; i<len; ++i)
+		{
+			c = id.GetAt(i);
+			if ((c < '0')&&(c != ','))
+			{
+				bInvalid = TRUE;
+				break;
+			}
+			if (c > '9')
+				bInvalid = TRUE;
+		}
+		if (bInvalid)
+		{
+			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
+			return;
+		}
 	}
-	if ((m_ProjectProperties.bWarnIfNoIssue) && (id.IsEmpty() && !m_ProjectProperties.HasBugID(m_sLogMessage)))
+	if ((m_ProjectProperties.bWarnIfNoIssue)&&(id.IsEmpty()))
 	{
 		if (CMessageBox::Show(this->m_hWnd, IDS_LOGPROMPT_NOISSUEWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
 			return;
@@ -319,15 +315,16 @@ UINT CLogPromptDlg::StatusThread()
 	m_bBlock = TRUE;
 	GetDlgItem(IDCANCEL)->EnableWindow(false);
 	GetDlgItem(IDOK)->EnableWindow(false);
+	GetDlgItem(IDC_FILLLOG)->EnableWindow(false);
 	// to make gettext happy
 	SetThreadLocale(CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033));
 
 	// Initialise the list control with the status of the files/folders below us
 	BOOL success = m_ListCtrl.GetStatus(m_pathList);
 
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWLOCKS;
+	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS;
 	dwShow |= DWORD(m_regAddBeforeCommit) ? SVNSLC_SHOWUNVERSIONED : 0;
-	m_ListCtrl.Show(dwShow, SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWMISSING|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWLOCKS);
+	m_ListCtrl.Show(dwShow, SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWMISSING|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED);
 
 	if (m_ListCtrl.HasExternalsFromDifferentRepos())
 	{
@@ -339,6 +336,7 @@ UINT CLogPromptDlg::StatusThread()
 	GetCursorPos(&pt);
 	SetCursorPos(pt.x, pt.y);
 	GetDlgItem(IDCANCEL)->EnableWindow(true);
+	GetDlgItem(IDC_FILLLOG)->EnableWindow(true);
 	CString logmsg;
 	GetDlgItem(IDC_LOGMESSAGE)->GetWindowText(logmsg);
 	if (m_ProjectProperties.nMinLogSize > logmsg.GetLength())
@@ -372,7 +370,7 @@ UINT CLogPromptDlg::StatusThread()
 			{
 				m_bShowUnversioned = TRUE;
 				GetDlgItem(IDC_SHOWUNVERSIONED)->SendMessage(BM_SETCHECK, BST_CHECKED);
-				DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWLOCKS;
+				DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWUNVERSIONED;
 				m_ListCtrl.Show(dwShow);
 			}
 			else
@@ -383,25 +381,13 @@ UINT CLogPromptDlg::StatusThread()
 			}
 		}
 	}
-	if (m_OldLogs.GetCount()==0)
-	{
-		CString reg;
-		reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)m_ListCtrl.m_sUUID);
-		m_OldLogs.LoadHistory(reg, _T("logmsgs"));
-	}
+	CString reg;
+	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)m_ListCtrl.m_sUUID);
+	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
 	m_autolist.RemoveAll();
-	// we don't have to block the commit dialog while we fetch the
-	// auto completion list.
-	m_bThreadRunning = TRUE;	// so the main thread knows that this thread is still running
-	m_bRunThread = TRUE;		// if this is set to FALSE, the thread should stop
+	GetAutocompletionList(m_autolist);
+	m_cLogMessage.SetAutoCompletionList(m_autolist, '*');
 	m_bBlock = FALSE;
-	if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\Autocompletion"), TRUE)==TRUE)
-		GetAutocompletionList();
-	// we have the list, now signal the main thread about it
-	if (m_bRunThread)
-		SendMessage(WM_AUTOLISTREADY);	// only send the message if the thread wasn't told to quit!
-	m_bRunThread = FALSE;
-	m_bThreadRunning = FALSE;
 	return 0;
 }
 
@@ -409,18 +395,6 @@ void CLogPromptDlg::OnCancel()
 { 
 	if (m_bBlock)
 		return;
-	if (m_bThreadRunning)
-	{
-		m_bRunThread = FALSE;
-		WaitForSingleObject(m_pThread->m_hThread, 1000);
-		if (m_bThreadRunning)
-		{
-			// we gave the thread a chance to quit. Since the thread didn't
-			// listen to us we have to kill it.
-			TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-			m_bThreadRunning = FALSE;
-		}
-	}
 	m_OldLogs.AddString(m_cLogMessage.GetText(), 0);
 	m_OldLogs.SaveHistory();
 	CResizableStandAloneDialog::OnCancel();
@@ -489,7 +463,7 @@ void CLogPromptDlg::OnBnClickedShowunversioned()
 	m_regAddBeforeCommit = m_bShowUnversioned;
 	if (!m_bBlock)
 	{
-		DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWLOCKS;
+		DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS;
 		dwShow |= DWORD(m_regAddBeforeCommit) ? SVNSLC_SHOWUNVERSIONED : 0;
 		m_ListCtrl.Show(dwShow);
 	}
@@ -510,10 +484,54 @@ void CLogPromptDlg::OnEnChangeLogmessage()
 	}
 }
 
+void CLogPromptDlg::OnBnClickedFilllog()
+{
+	if (m_bBlock)
+		return;
+	CString logmsg;
+	TCHAR buf[MAX_PATH];
+	int nListItems = m_ListCtrl.GetItemCount();
+	for (int i=0; i<nListItems; ++i)
+	{
+		CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(i);
+		if (entry->IsChecked())
+		{
+			CString line;
+			svn_wc_status_kind status = entry->status;
+			if (status == svn_wc_status_unversioned)
+				status = svn_wc_status_added;
+			if (status == svn_wc_status_missing)
+				status = svn_wc_status_deleted;
+			WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
+			if ((DWORD)CRegStdWORD(_T("Software\\TortoiseSVN\\EnglishTemplate"), FALSE)==TRUE)
+				langID = 1033;
+			SVNStatus::GetStatusString(AfxGetResourceHandle(), status, buf, sizeof(buf)/sizeof(TCHAR), langID);
+			line.Format(_T("%-10s %s\r\n"), buf, (LPCTSTR)m_ListCtrl.GetItemText(i,0));
+			logmsg += line;
+		}
+	}
+	m_cLogMessage.InsertText(logmsg);
+}
+
+void CLogPromptDlg::OnCbnSelchangeOldlogs()
+{
+	if (m_OldLogs.GetString().Compare(m_cLogMessage.GetText().Left(m_OldLogs.GetString().GetLength()))!=0)
+		m_cLogMessage.SetText(m_OldLogs.GetString() + m_cLogMessage.GetText());
+	if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
+	{
+		GetDlgItem(IDOK)->EnableWindow(FALSE);
+	}
+	else
+	{
+		if (!m_bBlock)
+			GetDlgItem(IDOK)->EnableWindow(TRUE);
+	}
+}
+
 void CLogPromptDlg::OnCbnCloseupOldlogs()
 {
 	if (m_OldLogs.GetString().Compare(m_cLogMessage.GetText().Left(m_OldLogs.GetString().GetLength()))!=0)
-		m_cLogMessage.InsertText(m_OldLogs.GetString(), !m_cLogMessage.GetText().IsEmpty());
+		m_cLogMessage.SetText(m_OldLogs.GetString() + m_cLogMessage.GetText());
 	if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
 	{
 		GetDlgItem(IDOK)->EnableWindow(FALSE);
@@ -540,7 +558,7 @@ LRESULT CLogPromptDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 			if (CMessageBox::Show(*this, IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
 			{
 				m_bShowUnversioned = TRUE;
-				DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWLOCKS;
+				DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWUNVERSIONED;
 				m_ListCtrl.Show(dwShow);
 				UpdateData(FALSE);
 			}
@@ -554,222 +572,33 @@ LRESULT CLogPromptDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 	return 0;
 }
 
-LRESULT CLogPromptDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
+void CLogPromptDlg::GetAutocompletionList(CAutoCompletionList& list)
 {
-	Refresh();
-	return 0;
-}
-
-LRESULT CLogPromptDlg::OnAutoListReady(WPARAM, LPARAM)
-{
-	m_cLogMessage.SetAutoCompletionList(m_autolist, '*');
-	return 0;
-}
-
-//////////////////////////////////////////////////////////////////////////
-// functions which run in the status thread
-//////////////////////////////////////////////////////////////////////////
-
-void CLogPromptDlg::GetAutocompletionList()
-{
-	// the autocompletion list is made of strings from each selected files.
-	// the strings used are extracted from the files with regexes found
-	// in the file "autolist.txt".
-	// the format of that file is:
-	// file extensions separated with commas '=' regular expression to use
-	// example:
-	// (MULTILINE|NOCASE) .h, .hpp = (?<=class[\s])\b\w+\b|(\b\w+(?=[\s ]?\(\);))
-	// .cpp = (?<=[^\s]::)\b\w+\b
-	
-	CStringArray arExtensions;
-	CStringArray arRegexes;
-	CString sRegexFile = CUtils::GetAppDirectory();
-	sRegexFile += _T("autolist.txt");
-	if (!m_bRunThread)
-		return;
-	REGEX_FLAGS rflags = NOFLAGS;
-	DWORD timeout = GetTickCount()+5000;		// stop parsing after 5 seconds.
-	try
+	TCHAR buf[MAX_PATH];
+	int nListItems = m_ListCtrl.GetItemCount();
+	for (int i=0; i<nListItems; ++i)
 	{
-		CString strLine;
-		CStdioFile file(sRegexFile, CFile::typeText | CFile::modeRead);
-		while (m_bRunThread && (GetTickCount()<timeout) && file.ReadString(strLine))
+		CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(i);
+		if (entry->IsChecked())
 		{
-			CString sRegex = strLine.Mid(strLine.Find('=')+1).Trim();
-			CString sFlags = (strLine[0] == '(' ? strLine.Left(strLine.Find(')')+1).Trim(_T(" ()")) : _T(""));
-			rflags |= sFlags.Find(_T("GLOBAL"))>=0 ? GLOBAL : NOFLAGS;
-			rflags |= sFlags.Find(_T("MULTILINE"))>=0 ? MULTILINE : NOFLAGS;
-			rflags |= sFlags.Find(_T("SINGLELINE"))>=0 ? SINGLELINE : NOFLAGS;
-			rflags |= sFlags.Find(_T("RIGHTMOST"))>=0 ? RIGHTMOST : NOFLAGS;
-			rflags |= sFlags.Find(_T("NORMALIZE"))>=0 ? NORMALIZE : NOFLAGS;
-			rflags |= sFlags.Find(_T("NOCASE"))>=0 ? NOCASE : NOFLAGS;
-				
-			if (!sFlags.IsEmpty())
-				strLine = strLine.Mid(strLine.Find(')')+1).Trim();
-			int pos = -1;
-			while ((pos = strLine.Find(','))>=0)
+			svn_wc_status_kind status = entry->status;
+			if (status == svn_wc_status_unversioned)
+				status = svn_wc_status_added;
+			if (status == svn_wc_status_missing)
+				status = svn_wc_status_deleted;
+			WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
+			if ((DWORD)CRegStdWORD(_T("Software\\TortoiseSVN\\EnglishTemplate"), FALSE)==TRUE)
+				langID = 1033;
+			SVNStatus::GetStatusString(AfxGetResourceHandle(), status, buf, sizeof(buf)/sizeof(TCHAR), langID);
+			list.AddSorted(buf);
+			CString sRelativePath = m_ListCtrl.GetItemText(i,0);
+			int slashpos = -1;
+			do 
 			{
-				arExtensions.Add(strLine.Left(pos));
-				arRegexes.Add(sRegex);
-				strLine = strLine.Mid(pos+1).Trim();
-			}
-			arExtensions.Add(strLine.Left(strLine.Find('=')).Trim());
-			arRegexes.Add(sRegex);						
-		}
-		file.Close();
-		
-		// now we have two arrays of strings, where the first array contains all
-		// file extensions we can use and the second the corresponding regex strings
-		// to apply to those files.
-		
-		// the next step is to go over all files shown in the commit dialog
-		// and scan them for strings we can use
-		int nListItems = m_ListCtrl.GetItemCount();
-
-		for (int i=0; i<nListItems; ++i)
-		{
-			if ((!m_bRunThread)||(GetTickCount()>timeout))
-				return;
-			const CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(i);
-			if (entry->IsChecked())
-			{
-				// add the path parts to the autocompletion list too
-				CString sPartPath = entry->GetRelativeSVNPath();
-				m_autolist.AddSorted(sPartPath);
-				int pos = 0;
-				while ((pos = sPartPath.Find('/', pos)) >= 0)
-				{
-					pos++;
-					m_autolist.AddSorted(sPartPath.Mid(pos));
-				}
-				CString sExt = entry->GetPath().GetFileExtension();
-				CString sRegex;
-				// find the regex string which corresponds to the file extension
-				for (int j=0; (m_bRunThread && (j<arExtensions.GetCount())); ++j)
-				{
-					if (sExt.CompareNoCase(arExtensions.GetAt(j))==0)
-					{
-						sRegex = arRegexes.GetAt(j);
-						break;
-					}
-				}
-				if (!sRegex.IsEmpty())
-					ScanFile(entry->GetPath().GetWinPathString(), sRegex, rflags);
-			}
+				list.AddSorted(sRelativePath);
+				slashpos = sRelativePath.Find('/');
+				sRelativePath = sRelativePath.Mid(slashpos+1);
+			} while(slashpos > 0);
 		}
 	}
-	catch (CFileException* pE)
-	{
-		TRACE("CFileException loading autolist regex file\n");
-		pE->Delete();
-		return;
-	}
-}
-
-void CLogPromptDlg::ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags)
-{
-	CString sFileContent;
-	HANDLE hFile = CreateFile(sFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-	if (hFile != INVALID_HANDLE_VALUE)
-	{
-		DWORD size = GetFileSize(hFile, NULL);
-		if (size > 1000000L)
-		{
-			// no files bigger than 1 Meg
-			CloseHandle(hFile);
-			return;
-		}
-		// allocate memory to hold file contents
-		char * buffer = new char[size];
-		DWORD readbytes;
-		ReadFile(hFile, buffer, size, &readbytes, NULL);
-		CloseHandle(hFile);
-		int opts = 0;
-		IsTextUnicode(buffer, readbytes, &opts);
-		if (opts & IS_TEXT_UNICODE_NULL_BYTES)
-		{
-			delete buffer;
-			return;
-		}
-		if (opts & IS_TEXT_UNICODE_UNICODE_MASK)
-		{
-			CString sText = CString(buffer, readbytes);
-			sFileContent = sText;
-		}
-		if ((opts & IS_TEXT_UNICODE_NOT_UNICODE_MASK)||(opts == 0))
-		{
-			CStringA sText = CStringA(buffer, readbytes);
-			sFileContent = CString(sText);
-		}
-		delete buffer;
-	}
-	if (sFileContent.IsEmpty()|| !m_bRunThread)
-		return;
-	match_results results;
-	int offset = 0;
-	try
-	{
-		rpattern pat( (LPCTSTR)sRegex, rflags ); 
-		match_results::backref_type br;
-		TCHAR * szFileContent = sFileContent.GetBuffer(sFileContent.GetLength()+1);
-		do 
-		{
-			br = pat.match( &szFileContent[offset], results );
-			if( br.matched ) 
-			{
-				for (size_t i=1; i<results.cbackrefs(); ++i)
-				{
-					m_autolist.AddSorted((LPCTSTR)results.backref(i).str().c_str());
-					ATLTRACE("group %d is \"%ws\"\n", i, results.backref(i).str().c_str());
-				}
-				offset += results.rstart(0);
-				offset += results.rlength(0);
-			}
-		} while((br.matched)&&(m_bRunThread));
-		sFileContent.ReleaseBuffer();
-	}
-	catch (bad_alloc) {}
-	catch (bad_regexpr) {}
-}
-
-// CSciEditContextMenuInterface
-void CLogPromptDlg::InsertMenuItems(CMenu& mPopup, int& nCmd)
-{
-	CString sMenuItemText(MAKEINTRESOURCE(IDS_LOGPROMPT_POPUP_PASTEFILELIST));
-	m_nPopupPasteListCmd = nCmd++;
-	mPopup.AppendMenu(MF_STRING | MF_ENABLED, m_nPopupPasteListCmd, sMenuItemText);
-}
-
-bool CLogPromptDlg::HandleMenuItemClick(int cmd, CSciEdit * pSciEdit)
-{
-	if (m_bBlock)
-		return false;
-	if (cmd == m_nPopupPasteListCmd)
-	{
-		CString logmsg;
-		TCHAR buf[MAX_STATUS_STRING_LENGTH];
-		int nListItems = m_ListCtrl.GetItemCount();
-		for (int i=0; i<nListItems; ++i)
-		{
-			CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(i);
-			if (entry->IsChecked())
-			{
-				CString line;
-				svn_wc_status_kind status = entry->status;
-				if (status == svn_wc_status_unversioned)
-					status = svn_wc_status_added;
-				if (status == svn_wc_status_missing)
-					status = svn_wc_status_deleted;
-				WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
-				if ((DWORD)CRegStdWORD(_T("Software\\TortoiseSVN\\EnglishTemplate"), FALSE)==TRUE)
-					langID = 1033;
-				SVNStatus::GetStatusString(AfxGetResourceHandle(), status, buf, sizeof(buf)/sizeof(TCHAR), langID);
-				line.Format(_T("%-10s %s\r\n"), buf, (LPCTSTR)m_ListCtrl.GetItemText(i,0));
-				logmsg += line;
-			}
-		}
-		pSciEdit->InsertText(logmsg);
-		return true;
-	}
-	return false;
 }

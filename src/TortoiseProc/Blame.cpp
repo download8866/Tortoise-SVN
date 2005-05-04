@@ -25,38 +25,6 @@
 #include "Utils.h"
 #include "UnicodeUtils.h"
 
-
-void CStdioFileA::WriteString(LPCSTR lpsz)
-{
-	ASSERT(lpsz != NULL);
-	ASSERT(m_pStream != NULL);
-	
-	if (lpsz == NULL)
-	{
-		AfxThrowInvalidArgException();
-	}
-
-	if (fputs(lpsz, m_pStream) == EOF)
-		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
-}
-
-
-void CStdioFileA::WriteString(LPCWSTR lpsz)
-{
-	ASSERT(lpsz != NULL);
-	ASSERT(m_pStream != NULL);
-	
-	if (lpsz == NULL)
-	{
-		AfxThrowInvalidArgException();
-	}
-
-	if (fputws(lpsz, m_pStream) == EOF)
-		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
-}
-
-
-
 CBlame::CBlame()
 {
 	m_bCancelled = FALSE;
@@ -73,7 +41,7 @@ CBlame::~CBlame()
 BOOL CBlame::BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line)
 {
 	CString infolineA;
-	CStringA fulllineA;
+	CString fulllineA;
 
 	if ((m_lowestrev < 0)||(m_lowestrev > revision))
 		m_lowestrev = revision;
@@ -83,8 +51,8 @@ BOOL CBlame::BlameCallback(LONG linenumber, LONG revision, const CString& author
 	CString dateA(CUnicodeUtils::GetUTF8(date));
 	infolineA.Format(_T("%6ld %6ld %30s %-30s "), linenumber, revision, (LPCTSTR)dateA, (LPCTSTR)author);
 	fulllineA = line;
-	fulllineA.TrimRight("\r\n");
-	fulllineA += "\n";
+	fulllineA.TrimRight(_T("\r\n"));
+	fulllineA += _T("\n");
 	if (m_saveFile.m_hFile != INVALID_HANDLE_VALUE)
 	{
 		m_saveFile.WriteString(infolineA);
@@ -147,9 +115,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	m_progressDlg.FormatNonPathLine(2, IDS_BLAME_PROGRESSINFOSTART);
 	m_progressDlg.SetCancelMsg(IDS_BLAME_PROGRESSCANCEL);
 	m_progressDlg.SetTime(FALSE);
-	m_nHeadRev = endrev;
-	if (m_nHeadRev < 0)
-		m_nHeadRev = GetHEADRevision(path);
+	m_nHeadRev = GetHEADRevision(path);
 	m_progressDlg.SetProgress(0, m_nHeadRev);
 	if (!this->Blame(path, startrev, endrev))
 	{
@@ -167,7 +133,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 			logfile.Empty();
 			return m_sSavePath;
 		}
-		if (!this->ReceiveLog(CTSVNPathList(path), SVNRev::REV_HEAD, m_lowestrev, 0, TRUE))
+		if (!this->ReceiveLog(CTSVNPathList(path), SVNRev::REV_HEAD, m_lowestrev, TRUE))
 		{
 			m_saveLog.Close();
 			DeleteFile(logfile);
@@ -180,12 +146,8 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 
 	return m_sSavePath;
 }
-BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/, 
-					svn_node_kind_t /*kind*/, const CString& /*mime_type*/, 
-					svn_wc_notify_state_t /*content_state*/, 
-					svn_wc_notify_state_t /*prop_state*/, LONG rev,
-					const svn_lock_t * /*lock*/, svn_wc_notify_lock_state_t /*lock_state*/,
-					svn_error_t * /*err*/, apr_pool_t * /*pool*/)
+
+BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/, svn_node_kind_t /*kind*/, const CString& /*myme_type*/, svn_wc_notify_state_t /*content_state*/, svn_wc_notify_state_t /*prop_state*/, LONG rev)
 {
 	m_progressDlg.FormatNonPathLine(2, IDS_BLAME_PROGRESSINFO2, rev, m_nHeadRev);
 	m_progressDlg.SetProgress(rev, m_nHeadRev);

@@ -20,46 +20,38 @@
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
 #include "Balloon.h"
-#include "registry.h"
 
 
 // CUpdateDlg dialog
 
-IMPLEMENT_DYNAMIC(CUpdateDlg, CDialog)
+IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CUpdateDlg::IDD, pParent)
+	: CStandAloneDialog(CUpdateDlg::IDD, pParent)
 	, Revision(_T("HEAD"))
 	, m_bNonRecursive(FALSE)
-	, m_bNoExternals(FALSE)
-	, m_pLogDlg(NULL)
 {
 }
 
 CUpdateDlg::~CUpdateDlg()
 {
-	if (m_pLogDlg)
-		delete m_pLogDlg;
 }
 
 void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_REVNUM, m_sRevision);
 	DDX_Check(pDX, IDC_NON_RECURSIVE, m_bNonRecursive);
-	DDX_Check(pDX, IDC_NOEXTERNALS, m_bNoExternals);
 }
 
 
-BEGIN_MESSAGE_MAP(CUpdateDlg, CDialog)
+BEGIN_MESSAGE_MAP(CUpdateDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_NEWEST, OnBnClickedNewest)
 	ON_BN_CLICKED(IDC_REVISION_N, OnBnClickedRevisionN)
-	ON_BN_CLICKED(IDC_LOG, OnBnClickedShowLog)
-	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
 END_MESSAGE_MAP()
 
 BOOL CUpdateDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	// Since this dialog is called to update to a specific revision, we should
 	// enable and set focus to the edit control so that the user can enter the
@@ -67,8 +59,9 @@ BOOL CUpdateDlg::OnInitDialog()
 	CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
 	GetDlgItem(IDC_REVNUM)->EnableWindow(TRUE);
 	GetDlgItem(IDC_REVNUM)->SetFocus();
-	if ((m_pParentWnd==NULL)&&(hWndExplorer))
+	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
+	EnableSaveRestore(_T("UpdateDlg"));
 	return FALSE;  // return TRUE unless you set the focus to a control
 	               // EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -102,35 +95,5 @@ void CUpdateDlg::OnOK()
 
 	UpdateData(FALSE);
 
-	CDialog::OnOK();
-}
-
-void CUpdateDlg::OnBnClickedShowLog()
-{
-	UpdateData(TRUE);
-	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
-		return;
-	if (!m_wcPath.IsEmpty())
-	{
-		delete m_pLogDlg;
-		m_pLogDlg = new CLogDlg();
-		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
-		int limit = (int)(LONG)reg;
-		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_HEAD, 1, limit, TRUE);
-		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->ShowWindow(SW_SHOW);
-		m_pLogDlg->m_wParam = 0;
-		m_pLogDlg->m_pNotifyWindow = this;
-	}
-	AfxGetApp()->DoWaitCursor(-1);
-}
-
-LPARAM CUpdateDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
-{
-	CString temp;
-	temp.Format(_T("%ld"), lParam);
-	GetDlgItem(IDC_REVNUM)->SetWindowText(temp);
-	CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
-	GetDlgItem(IDC_REVNUM)->EnableWindow(TRUE);
-	return 0;
+	CStandAloneDialog::OnOK();
 }

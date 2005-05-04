@@ -4,18 +4,15 @@
 	<indexterm>
 		<primary>log</primary>
 	</indexterm>
-	<indexterm>
-		<primary>history</primary>
-	</indexterm>
 	<?dbhh topicname="HIDD_LOGMESSAGE"?>
 	<para>
-		For every change you make and commit, you should provide
+		For every change you make and commit, you also have to provide
 		a log message for that change. That way you can later find out
-		what changes you made and why, and you have a detailed log for
-		your development process.
+		what/why you made a change and you have a detailed log for your
+		development process.
 	</para>
 	<para>
-		The Revision Log Dialog retrieves all those log messages and shows them
+		The Log Dialog retrieves all those log messages and shows them
 		to you.
 		The display is divided into 3 panes.
 		<itemizedlist>
@@ -48,14 +45,15 @@
 		commands which you can use to get even more information about the
 		project history.
 	</para>
+
 	<sect2 id="tsvn-DUG-showlog-1">
-		<title>Invoking the Revision Log Dialog</title>
+		<title>Invoking The Log Dialog</title>
 		<para>
 			<figure id="tsvn-DUG-showlog-1-dia-1">
-				<title>The Revision Log Dialog</title>
+				<title>The Log Dialog</title>
 				<graphic fileref="images/LogMessages.png"/>
 			</figure>
-			There are several places from where you can show the Log dialog:
+			There are several places from where you can show the Log Dialog:
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -69,8 +67,8 @@
 				</listitem>
 				<listitem>
 					<para>
-						From the Progress dialog after an update
-						has finished. Then the Log dialog only shows those revisions
+						From the Progress Dialog after an update
+						has finished. Then the Log Dialog only shows those revisions
 						which were changed since your last update
 					</para>
 				</listitem>
@@ -81,10 +79,10 @@
 		<title>Getting Additional Information</title>
 		<para>
 			<figure id="tsvn-DUG-showlog-2-dia-1">
-				<title>The Revision Log Dialog Top Pane with Context Menu</title>
+				<title>The Log Dialog Top Pane with Context Menu</title>
 				<graphic fileref="images/LogContextMenu.png"/>
 			</figure>
-			The top pane of the Log dialog has a context menu that allows you to
+			The top pane of the Log Dialog has a context menu that allows you to
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -153,13 +151,6 @@
 				</listitem>
 				<listitem>
 					<para>
-						Edit the log message or author attached to a previous commit.
-						Read <xref linkend="tsvn-DUG-showlog-4"/> to find out
-						how this works.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
 						Search log messages for the text you enter. This searches
 						the log messages that you entered and also the action summaries
 						created by Subversion (shown in the bottom pane). The search
@@ -203,7 +194,7 @@
 				<title>The Log Dialog Bottom Pane with Context Menu</title>
 				<graphic fileref="images/LogContextMenu2.png"/>
 			</figure>
-			The bottom pane of the Log dialog also has a context menu that allows you to
+			The bottom pane of the Log Dialog also has a context menu that allows you to
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -220,16 +211,17 @@
 				</listitem>
 				<listitem>
 					<para>
-						View the Subversion properties for the selected item.
+						View the subversion properties for the selected item.
 					</para>
 				</listitem>
 			</itemizedlist>
 		</para>
 	</sect2>
+
 	<sect2 id="tsvn-DUG-showlog-3">
 		<title>Getting all log messages</title>
 		<para>
-			The Log dialog does not always show all changes ever made for a
+			The Log Dialog does not always show all changes ever made for a
 			number of reasons:
 			<itemizedlist>
 				<listitem>
@@ -241,7 +233,6 @@
 						messages fetched is limited to 100, but you can change
 						this value in 
 						<menuchoice>
-							<guimenu>TortoiseSVN</guimenu>
 							<guimenuitem>Settings</guimenuitem>
 						</menuchoice>
 						(<xref linkend="tsvn-DUG-settings"/>),
@@ -249,36 +240,25 @@
 				</listitem>
 				<listitem>
 					<para>
-						When the <guilabel>Stop on copy/rename</guilabel>
-						box is checked, Show Log will stop at the point that
-						the selected file or folder was copied from somewhere
-						else within the repository. This can be useful when
-						looking at branches (or tags) as it stops at the root
-						of that branch, and gives a quick indication of changes
-						made in that branch only.
+						When you check the log messages for a branch (or tag),
+						Show Log only displays log messages back to the root
+						of that particular branch - the point where the copy
+						was made. This gives a quick indication of the changes
+						that were made in that branch only.
 					</para>
 					<para>
-						This option is normally unchecked by default, except
-						when the Show Log dialog is invoked from within the
-						Merge dialog.
-					</para>
-					<para>
-						Note that Subversion currently implements renaming
-						as a copy/delete pair, so renaming a file or folder
-						will also cause the log display to stop if this
-						option is checked.
+						Note that this only applies in your working copy.
+						If you are using the repo-browser, log messages
+						continue through branch points.
 					</para>
 				</listitem>
 			</itemizedlist>
-			If you want to see <emphasis>all</emphasis> log messages right back
-			to revision 1, press <guibutton>Get All</guibutton>.
-		</para>
+				If you want to see <emphasis>all</emphasis> log messages right back
+				to revision 1, press <guibutton>Get All</guibutton>.
+			</para>
 	</sect2>
 	<sect2 id="tsvn-DUG-showlog-4">
-		<title>Changing the Log Message and Author</title>
-		<indexterm>
-			<primary>edit log/author</primary>
-		</indexterm>
+		<title>Changing the log message and author</title>
 		<para>
 			Sometimes you might want to change a log message you once entered,
 			maybe because there's a spelling error in it or you want to
@@ -296,13 +276,17 @@
 				<citetitle>Hook Scripts</citetitle>
 			</ulink>
 			in the Subversion Book for details about how to do that.
-			Read <xref linkend="tsvn-repository-hooks"/> to find some further
+			Read <xref linkend="tsvn-serversetup-hooks"/> to find some further
 			notes on implementing hooks on a Windows machine.
 		</para>
 		<para>
 			Once you've set up your server with the required hooks, you can
-			change both author and log message of any revision, using the context
-			menu from the top pane of the Log dialog.
+			change both author and log message of any revision. To do that with
+			TortoiseSVN you must <action>double click</action> on either the
+			author or logmessage column in the log dialog while holding down
+			the SHIFT-key. If you don't press the SHIFT-key or don't click on
+			one of these columns the default doubleclick action is executed
+			(showing a diff of that revision).
 		</para>
 		<warning>
 			<para>
@@ -315,22 +299,18 @@
 		</warning>
 	</sect2>
 	<sect2 id="tsvn-DUG-showlog-5">
-	<?dbhh topicname="HIDD_STATGRAPH"?>
 		<title>Statistical Information</title>
-		<indexterm>
-			<primary>statistics</primary>
-		</indexterm>
 		<para>
 			The <guibutton>Statistics</guibutton> button brings up a box
 			showing some interesting information about the revisions
-			shown in the Log dialog. This shows how many authors have
+			shown in the log dialog. This shows how many authors have
 			been at work, how many commits they have made, progress
 			by week, and much more. Now you can see at a glance who
 			has been working hardest and who is slacking ;-)
 		</para>
 		<para>
 			Note that the statistics cover the same period as the
-			Log dialog. If that is only displaying one revision
+			Show Log dialog. If that is only displaying one revision
 			then the statistics will not tell you very much.
 		</para>
 	</sect2>

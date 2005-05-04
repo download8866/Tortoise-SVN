@@ -202,8 +202,8 @@ BOOL CResizableSheet::ArrangeLayoutCallback(LAYOUTINFO &layout) const
 	if (IsWizard())	// wizard mode
 	{
 		// use pre-calculated margins
-		layout.marginTopLeft = m_sizePageTL;
-		layout.marginBottomRight = m_sizePageBR;
+		layout.sizeMarginTL = m_sizePageTL;
+		layout.sizeMarginBR = m_sizePageBR;
 	}
 	else	// tab mode
 	{
@@ -228,13 +228,13 @@ BOOL CResizableSheet::ArrangeLayoutCallback(LAYOUTINFO &layout) const
 		pTab->SetRedraw(TRUE);
 
 		// set margins
-		layout.marginTopLeft = rectPage.TopLeft() - rectSheet.TopLeft();
-		layout.marginBottomRight = rectPage.BottomRight() - rectSheet.BottomRight();
+		layout.sizeMarginTL = rectPage.TopLeft() - rectSheet.TopLeft();
+		layout.sizeMarginBR = rectPage.BottomRight() - rectSheet.BottomRight();
 	}
 
 	// set anchor types
-	layout.anchorTopLeft = TOP_LEFT;
-	layout.anchorBottomRight = BOTTOM_RIGHT;
+	layout.anchorTypeTL = TOP_LEFT;
+	layout.anchorTypeBR = BOTTOM_RIGHT;
 
 	// use this layout info
 	return TRUE;

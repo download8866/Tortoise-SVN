@@ -23,7 +23,6 @@
 #include "registry.h"
 #include "Utils.h"
 #include "SVN.h"
-#include "TSVNPath.h"
 #include ".\revisiongraph.h"
 
 #ifdef _DEBUG
@@ -163,13 +162,7 @@ svn_error_t* CRevisionGraph::logDataReceiver(void* baton,
 		temp.LoadString(IDS_REVGRAPH_PROGGETREVS);
 		temp2.Format(IDS_REVGRAPH_PROGCURRENTREV, rev);
 		if (!me->ProgressCallback(temp, temp2, me->m_lHeadRevision - rev, me->m_lHeadRevision))
-		{
 			me->m_bCancelled = TRUE;
-			CStringA temp3;
-			temp3.LoadString(IDS_SVN_USERCANCELLED);
-			error = svn_error_create(SVN_ERR_CANCELLED, NULL, temp3);
-			return error;
-		}
 	}
 	APR_ARRAY_PUSH(me->m_logdata, log_entry *) = e;
 	return SVN_NO_ERROR;
@@ -205,14 +198,9 @@ BOOL CRevisionGraph::FetchRevisionData(CString path)
 		url = CUtils::PathEscape(url);
 
 	// we have to get the log from the repository root
-	CTSVNPath urlpath;
-	urlpath.SetFromSVN(url);
-	SVN svn;
-	m_sRepoRoot = svn.GetRepositoryRoot(urlpath);
-	url = m_sRepoRoot;
-	if (m_sRepoRoot.IsEmpty())
+	if (!GetRepositoryRoot(url))
 		return FALSE;
-
+	m_sRepoRoot = url;
 	apr_array_header_t *targets = apr_array_make (pool, 1, sizeof (const char *));
 	const char * target = apr_pstrdup (pool, url);
 	(*((const char **) apr_array_push (targets))) = target;
@@ -271,7 +259,7 @@ BOOL CRevisionGraph::AnalyzeRevisionData(CString path)
 	sRepoRoot.ReleaseBuffer();
 	url = url.Mid(sRepoRoot.GetLength());
 	m_nRecurseLevel = 0;
-	if (AnalyzeRevisions(url, m_lHeadRevision, 0))
+	if (AnalyzeRevisions(url, m_lHeadRevision, 1))
 	{
 		return CheckForwardCopies();
 	}
@@ -373,8 +361,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 								else
 								{
 									// get all the information from that source too.
-									if (!AnalyzeRevisions(val->copyfrom_path, currentrev-1, 1))
-										return FALSE;
+									AnalyzeRevisions(val->copyfrom_path, currentrev-1, 1);
 								}
 							}
 							else
@@ -494,8 +481,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 							else
 							{
 								// get all the information from that source too.
-								if (!AnalyzeRevisions(self, currentrev-1, 1))
-									return FALSE;
+								AnalyzeRevisions(self, currentrev-1, 1);
 							}
 						}
 						else
@@ -611,8 +597,7 @@ BOOL CRevisionGraph::AnalyzeRevisions(CStringA url, LONG startrev, LONG endrev)
 							m_arEntryPtrs.Add(reventry);
 							TRACELEVELSPACE;
 							TRACE("revision entry(4): %ld - level %d - %s\n", reventry->revision, reventry->level, reventry->url);
-							if (!AnalyzeRevisions(self, currentrev+1, startrev > endrev ? startrev : endrev))
-								return FALSE;
+							AnalyzeRevisions(self, currentrev+1, startrev > endrev ? startrev : endrev);
 						}
 					}
 				}
@@ -865,3 +850,26 @@ CString CRevisionGraph::GetLastErrorMessage()
 	return SVN::GetErrorString(Err);
 }
 
+BOOL CRevisionGraph::GetRepositoryRoot(CStringA& url)
+{
+	svn_ra_plugin_t *ra_lib;
+	void *ra_baton, *session;
+	const char * returl;
+
+	apr_pool_t * localpool = svn_pool_create(pool);
+	/* Get the RA library that handles URL. */
+	if ((Err = svn_ra_init_ra_libs (&ra_baton, localpool))!=0)
+		return FALSE;
+	if ((Err = svn_ra_get_ra_library (&ra_lib, ra_baton, url, localpool))!=0)
+		return FALSE;
+
+	/* Open a repository session to the URL. */
+	if ((Err = svn_client__open_ra_session (&session, ra_lib, url, NULL, NULL, NULL, FALSE, FALSE, &m_ctx, localpool))!=0)
+		return FALSE;
+
+	if ((Err = ra_lib->get_repos_root(session, &returl, localpool))!=0)
+		return FALSE;
+	url = CStringA(returl);
+	svn_pool_clear(localpool);
+	return TRUE;
+}

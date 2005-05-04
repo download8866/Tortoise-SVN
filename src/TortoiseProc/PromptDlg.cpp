@@ -23,9 +23,9 @@
 
 // CPromtDlg dialog
 
-IMPLEMENT_DYNAMIC(CPromptDlg, CDialog)
+IMPLEMENT_DYNAMIC(CPromptDlg, CStandAloneDialog)
 CPromptDlg::CPromptDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CPromptDlg::IDD, pParent)
+	: CStandAloneDialog(CPromptDlg::IDD, pParent)
 	, m_info(_T(""))
 	, m_sPass(_T(""))
 	, m_saveCheck(FALSE)
@@ -40,7 +40,7 @@ CPromptDlg::~CPromptDlg()
 
 void CPromptDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_INFOTEXT, m_info);
 	DDX_Text(pDX, IDC_PASSEDIT, m_sPass);
 	DDX_Control(pDX, IDC_PASSEDIT, m_pass);
@@ -52,13 +52,13 @@ void CPromptDlg::SetHide(BOOL hide)
 	m_hide = hide;
 }
 
-BEGIN_MESSAGE_MAP(CPromptDlg, CDialog)
+BEGIN_MESSAGE_MAP(CPromptDlg, CStandAloneDialog)
 END_MESSAGE_MAP()
 
 
 BOOL CPromptDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	if (m_hide)
 	{
@@ -72,8 +72,7 @@ BOOL CPromptDlg::OnInitDialog()
 	}
 	
 	m_pass.SetFocus();
-	if ((m_hParentWnd==NULL)&&(hWndExplorer))
-		CenterWindow(CWnd::FromHandle(m_hParentWnd));
+	CenterWindow(CWnd::FromHandle(m_hParentWnd));
 	return FALSE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }

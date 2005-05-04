@@ -24,7 +24,6 @@
 #include "ProgressDlg.h"
 #include "UnicodeStrings.h"
 #include "UnicodeUtils.h"
-#include "SVNStatus.h"
 
 #define MAX_PROP_STRING_LENGTH		4096			//should be big enough
 
@@ -39,7 +38,7 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
 	for (std::vector<stdstring>::iterator I = files_.begin(); I != files_.end(); ++I)
 	{
 		SVNStatus svn = SVNStatus();
-		if (svn.GetStatus(CTSVNPath(I->c_str())) == (-2))
+		if (svn.GetStatus(I->c_str()) == (-2))
 			return NOERROR;			// file/directory not under version control
 
 		if (svn.status->entry == NULL)
@@ -155,53 +154,26 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 			cbInfo.cbSize = sizeof(COMBOBOXINFO);
 			if (hwndCombo)
 			{
-#				define FOLDERPROPS 1
-#				define FILEPROPS   2
-				int iShowProps = 0;
-				if (filenames.size() == 1)
-				{
-					if (PathIsDirectory(filenames.front().c_str()))
-						iShowProps = FOLDERPROPS;
-					else
-						iShowProps = FILEPROPS;
-				}
-				else
-				{
-					// when multiple items are selected, show all available properties
-					iShowProps = FILEPROPS | FOLDERPROPS;
-				}
 				// Initialize the combobox with the default svn: properties
-				if (iShowProps & FILEPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:eol-style"));
-				if (iShowProps & FILEPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:executable"));
-				if (iShowProps & FOLDERPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:externals"));
-				if (iShowProps & FOLDERPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:ignore"));
-				if (iShowProps & FILEPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:keywords"));
-				if (iShowProps & FILEPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:needs-lock"));
-				if (iShowProps & FILEPROPS)
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:mime-type"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:externals"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:executable"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:mime-type"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:ignore"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:keywords"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("svn:eol-style"));
 
-				if (iShowProps & FOLDERPROPS)
-				{
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:url"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:logregex"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:label"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:message"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:number"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:warnifnoissue"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:append"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:label"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:message"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:number"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:url"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:warnifnoissue"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("bugtraq:append"));
 
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logtemplate"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logwidthmarker"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logminsize"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logfilelistenglish"));
-					SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:projectlanguage"));
-				}
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logtemplate"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logwidthmarker"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logminsize"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:logfilelistenglish"));
+				SendMessage(hwndCombo, CB_ADDSTRING, 0, (LPARAM)_T("tsvn:projectlanguage"));
 				GetComboBoxInfo(hwndCombo, &cbInfo);
 			}
 			// Create a tooltip window
@@ -227,17 +199,13 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 			ti.hwnd = hwnd;
 			ti.hinst = NULL;
 			ti.lpszText = LPSTR_TEXTCALLBACK;
-			ti.lParam = 0;
 
 			// Send ADDTOOL messages to the tooltip control window
 			ti.uId = (UINT)GetDlgItem(hwnd, IDC_EDITVALUE);
 			SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM) (LPTOOLINFO) &ti);	
 			ti.uId = (UINT)cbInfo.hwndItem;
 			SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM) (LPTOOLINFO) &ti);	
-			ti.uId = (UINT)GetDlgItem(hwnd, IDC_RECURSIVE);
-			ti.lParam = IDC_RECURSIVE;
-			SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM) (LPTOOLINFO) &ti);
-			
+
 			return TRUE;
 		}
 	case WM_NOTIFY:
@@ -286,110 +254,92 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 				lpnmtdi->szText[0] = 0;
 				lpnmtdi->lpszText = NULL;
 				lpnmtdi->uFlags = NULL;
-				if (lpnmtdi->lParam == IDC_RECURSIVE)
+				if (_tcscmp(name, _T("svn:externals"))==0)
 				{
-					LoadString(g_hResInst, IDS_TT_RECURSIVE, buf, MAX_PROP_STRING_LENGTH);
+					LoadString(g_hResInst, IDS_TT_EXTERNALS, buf, MAX_PROP_STRING_LENGTH);
 					lpnmtdi->lpszText = buf;
 				}
-				else
+				if (_tcscmp(name, _T("svn:executable"))==0)
 				{
-					if (_tcscmp(name, _T("svn:externals"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_EXTERNALS, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("svn:executable"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_EXECUTABLE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("svn:needs-lock"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_NEEDSLOCK, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("svn:mime-type"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_MIMETYPE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("svn:ignore"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_IGNORE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("svn:keywords"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_KEYWORDS, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-						nWindowWidth = 800;
-					}
-					if (_tcscmp(name, _T("svn:eol-style"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_EOLSTYLE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-
-					if (_tcscmp(name, _T("bugtraq:label"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQLABEL, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:message"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQMESSAGE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:number"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQNUMBER, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:url"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQURL, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:warnifnoissue"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQWARNNOISSUE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:append"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQAPPEND, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("bugtraq:logregex"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_BQLOGREGEX, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("tsvn:logtemplate"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_TSVNLOGTEMPLATE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("tsvn:logwidthmarker"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_TSVNLOGWIDTHMARKER, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("tsvn:logminsize"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_TSVNLOGMINSIZE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("tsvn:logfilelistenglish"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_TSVNLOGFILELISTENGLISH, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
-					if (_tcscmp(name, _T("tsvn:projectlanguage"))==0)
-					{
-						LoadString(g_hResInst, IDS_TT_TSVNPROJECTLANGUAGE, buf, MAX_PROP_STRING_LENGTH);
-						lpnmtdi->lpszText = buf;
-					}
+					LoadString(g_hResInst, IDS_TT_EXECUTABLE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("svn:mime-type"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_MIMETYPE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("svn:ignore"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_IGNORE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("svn:keywords"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_KEYWORDS, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+					nWindowWidth = 800;
+				}
+				if (_tcscmp(name, _T("svn:eol-style"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_EOLSTYLE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				
+				if (_tcscmp(name, _T("bugtraq:label"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQLABEL, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("bugtraq:message"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQMESSAGE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("bugtraq:number"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQNUMBER, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("bugtraq:url"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQURL, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("bugtraq:warnifnoissue"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQWARNNOISSUE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("bugtraq:append"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_BQAPPEND, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("tsvn:logtemplate"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_TSVNLOGTEMPLATE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("tsvn:logwidthmarker"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_TSVNLOGWIDTHMARKER, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("tsvn:logminsize"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_TSVNLOGMINSIZE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("tsvn:logfilelistenglish"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_TSVNLOGFILELISTENGLISH, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
+				}
+				if (_tcscmp(name, _T("tsvn:projectlanguage"))==0)
+				{
+					LoadString(g_hResInst, IDS_TT_TSVNPROJECTLANGUAGE, buf, MAX_PROP_STRING_LENGTH);
+					lpnmtdi->lpszText = buf;
 				}
 
 				SendMessage(lpnmtdi->hdr.hwndFrom, TTM_SETMAXTIPWIDTH, 0, nWindowWidth);
@@ -419,10 +369,10 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						ULONGLONG all = filenames.size();
 						ULONGLONG count = 0;
 						CProgressDlg dlg;
-						TCHAR s[MAX_PROP_STRING_LENGTH];
-						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PROP_STRING_LENGTH);
+						TCHAR s[MAX_PATH];
+						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PATH);
 						dlg.SetTitle(s);
-						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PROP_STRING_LENGTH);
+						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PATH);
 						dlg.SetCancelMsg(s);
 						dlg.SetTime(TRUE);
 						dlg.SetShowProgressBar(TRUE);
@@ -430,8 +380,7 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 						{
 							dlg.SetLine(1, I->c_str(), TRUE);
-							SVNProperties props = SVNProperties(CTSVNPath(I->c_str()));
-							CShellUpdater::Instance().AddPathForUpdate(CTSVNPath(I->c_str()));
+							SVNProperties props = SVNProperties(I->c_str());
 							props.Remove(buf, checked);
 							count++;
 							dlg.SetProgress64(count, all);
@@ -459,10 +408,10 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						ULONGLONG all = filenames.size();
 						ULONGLONG count = 0;
 						CProgressDlg dlg;
-						TCHAR s[MAX_PROP_STRING_LENGTH];
-						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PROP_STRING_LENGTH);
+						TCHAR s[MAX_PATH];
+						LoadString(g_hResInst, IDS_SETPROPTITLE, s, MAX_PATH);
 						dlg.SetTitle(s);
-						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PROP_STRING_LENGTH);
+						LoadString(g_hResInst, IDS_PROPWAITCANCEL, s, MAX_PATH);
 						dlg.SetCancelMsg(s);
 						dlg.SetTime(TRUE);
 						dlg.SetShowProgressBar(TRUE);
@@ -470,8 +419,7 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 						for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 						{
 							dlg.SetLine(1, I->c_str(), TRUE);
-							SVNProperties props = SVNProperties(CTSVNPath(I->c_str()));
-							CShellUpdater::Instance().AddPathForUpdate(CTSVNPath(I->c_str()));
+							SVNProperties props = SVNProperties(I->c_str());
 							if (!props.Add(name, t.c_str(), checked))
 							{
 								::MessageBox(m_hwnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
@@ -481,7 +429,7 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 							if (dlg.HasUserCancelled())
 								break;
 							SVNStatus stat = SVNStatus();
-							if (stat.GetStatus(CTSVNPath(I->c_str()))==(-2))
+							if (stat.GetStatus(I->c_str())==(-2))
 							{
 								::MessageBox(m_hwnd, stat.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
 								props.Remove(name);
@@ -532,7 +480,6 @@ BOOL CSVNPropertyPage::PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM
 					break;
 			} // switch (HIWORD(wParam)) 
 	} // switch (uMessage) 
-	CShellUpdater::Instance().Flush();
 	return FALSE;
 }
 void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf)
@@ -576,19 +523,13 @@ void CSVNPropertyPage::InitWorkfileView()
 	TCHAR tbuf[MAX_PROP_STRING_LENGTH];
 	if (filenames.size() == 1)
 	{
-		if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+		if (svn.GetStatus(filenames.front().c_str())>(-2))
 		{
-			TCHAR buf[MAX_PROP_STRING_LENGTH];
-			__time64_t	time;
 			if (svn.status->entry != NULL)
 			{
-				if (svn.status->entry->kind == svn_node_file)
-				{
-					//disable the 'recursive' checkbox for files
-					HWND recursivewnd = GetDlgItem(m_hwnd, IDC_RECURSIVE);
-					::EnableWindow(recursivewnd, FALSE);					
-				}
 				LoadLangDll();
+				TCHAR buf[MAX_PROP_STRING_LENGTH];
+				__time64_t	time;
 				_stprintf(buf, _T("%d"), svn.status->entry->revision);
 				SetDlgItemText(m_hwnd, IDC_REVISION, buf);
 				if (svn.status->entry->url)
@@ -632,7 +573,7 @@ void CSVNPropertyPage::InitWorkfileView()
 				{
 					SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
 				}
-				SVNProperties props = SVNProperties(CTSVNPath(filenames.front().c_str()));
+				SVNProperties props = SVNProperties(filenames.front().c_str());
 				//get the handle of the listview
 				HWND lvh = GetDlgItem(m_hwnd, IDC_PROPLIST);
 				ListView_SetExtendedListViewStyle (lvh, LVS_EX_FULLROWSELECT);
@@ -689,16 +630,7 @@ void CSVNPropertyPage::InitWorkfileView()
 				//now adjust the column widths
 				ListView_SetColumnWidth(lvh, 0, LVSCW_AUTOSIZE_USEHEADER);
 				ListView_SetColumnWidth(lvh, 1, LVSCW_AUTOSIZE_USEHEADER);
-				if (svn.status->entry->lock_owner)
-#ifdef UNICODE
-					SetDlgItemText(m_hwnd, IDC_LOCKOWNER, UTF8ToWide(svn.status->entry->lock_owner).c_str());
-#else
-					SetDlgItemText(m_hwnd, IDC_LOCKOWNER, svn.status->entry->lock_owner);
-#endif
-				time = (__time64_t)svn.status->entry->lock_creation_date/1000000L;
-				Time64ToTimeString(time, buf);
-				SetDlgItemText(m_hwnd, IDC_LOCKDATE, buf);
-			} // if (svn.status->entry != NULL)
+			} // if (svn.status->entry != NULL) 
 		} // if (svn.GetStatus(filename.c_str())>(-2)) 
 	} // if (filenames.size() == 1) 
 	else if (filenames.size() != 0)
@@ -725,7 +657,7 @@ void CSVNPropertyPage::InitWorkfileView()
 			lcol2.pszText = stringtablebuffer;
 			ListView_InsertColumn(lvh, 1, &lcol2);
 		} // if (Header_GetItemCount(header)<=0)
-		if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+		if (svn.GetStatus(filenames.front().c_str())>(-2))
 		{
 			if (svn.status->entry != NULL)
 			{
@@ -756,7 +688,7 @@ void CSVNPropertyPage::InitWorkfileView()
 		std::vector<listproperty> proplist;
 		for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 		{
-			SVNProperties props = SVNProperties(CTSVNPath(I->c_str()));
+			SVNProperties props = SVNProperties(I->c_str());
 			for (int i=0; i<props.GetCount(); i++)
 			{
 				listproperty prop;

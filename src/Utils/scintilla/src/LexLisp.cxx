@@ -66,6 +66,9 @@ static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, W
 	styler.StartAt(startPos);
 
 	int state = initStyle;
+	if (state == SCE_LISP_STRINGEOL)	// Does not leak onto next line
+		state = SCE_LISP_DEFAULT;
+	char chPrev = ' ';
 	char chNext = styler[startPos];
 	unsigned int lengthDoc = startPos + length;
 	styler.StartSegment(startPos);
@@ -74,9 +77,19 @@ static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, W
 		chNext = styler.SafeGetCharAt(i + 1);
 
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
+		if (atEOL) {
+			// Trigger on CR only (Mac style) or either on LF from CR+LF (Dos/Win) or on LF alone (Unix)
+			// Avoid triggering two times on Dos/Win
+			// End of line
+			if (state == SCE_LISP_STRINGEOL) {
+				styler.ColourTo(i, state);
+				state = SCE_LISP_DEFAULT;
+			}
+		}
 
 		if (styler.IsLeadByte(ch)) {
 			chNext = styler.SafeGetCharAt(i + 2);
+			chPrev = ' ';
 			i += 1;
 			continue;
 		}
@@ -94,9 +107,9 @@ static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, W
 				styler.ColourTo(i - 1, state);
 				styler.ColourTo(i, SCE_LISP_OPERATOR);
 			}
+
 			else if (ch == '\"') {
-				styler.ColourTo(i - 1, state);
-				state = SCE_LISP_STRING;
+					state = SCE_LISP_STRING;
 			}
 		} else if (state == SCE_LISP_IDENTIFIER) {
 			if (!isLispwordstart(ch)) {
@@ -118,15 +131,20 @@ static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, W
 				if (ch == '\\') {
 					if (chNext == '\"' || chNext == '\'' || chNext == '\\') {
 						i++;
+						ch = chNext;
 						chNext = styler.SafeGetCharAt(i + 1);
 					}
 				} else if (ch == '\"') {
 					styler.ColourTo(i, state);
 					state = SCE_LISP_DEFAULT;
+				} else if ((chNext == '\r' || chNext == '\n') && (chPrev != '\\')) {
+					styler.ColourTo(i - 1, SCE_LISP_STRINGEOL);
+					state = SCE_LISP_STRINGEOL;
 				}
 			}
 		}
 
+		chPrev = ch;
 	}
 	styler.ColourTo(lengthDoc - 1, state);
 }

@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <sect1 id="tsvn-DUG-propertypage">
-	<title>Project Settings</title>
+	<title>Get/Set Information About Files/Directories</title>
 	<indexterm>
 		<primary>properties</primary>
 	</indexterm>
@@ -15,7 +15,6 @@
 		explorer properties dialog. Just select the file or
 		directory and select
 		<menuchoice>
-			<guimenu>Windows Menu</guimenu>
 			<guimenuitem>properties</guimenuitem>
 		</menuchoice>
 		in the context menu (note: this is the normal properties menu entry
@@ -26,12 +25,12 @@
 	<para>
 		On the Subversion page you can see all relevant
 		information about the selected file/directory. In
-		addition you can read and set the Subversion properties.
+		addition you can read and set the subversion properties.
 		You can add your own properties, or some properties with a 
-		special meaning in Subversion. These begin with <literal>svn:</literal>. 
+		special meaning in subversion. These begin with <literal>svn:</literal>. 
 		<literal>svn:externals</literal> is such a property; see how to handle
 		externals in <xref linkend="tsvn-DUG-import-4"/>.
-		For more information about properties in Subversion see the  
+		For more information about properties in subversion see the  
 		<ulink url="http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3">
 			<citetitle>Subversion Manual</citetitle>
 		</ulink>.
@@ -64,7 +63,7 @@
 		<itemizedlist>
 			<listitem>
 				<para>
-					<literal>tsvn:logminsize</literal>
+					<literal>tsvn:minlogmsgsize</literal>
 					sets the minimum length of a log message for a commit.
 					If you enter a shorter message than specified here, the commit
 					is disabled. This feature is very useful for reminding you to
@@ -93,7 +92,7 @@
 					a multi-line text string which will be inserted in the commit
 					message box when you start a commit. You can then edit it to
 					include the required information. Note: if you are also using
-					<literal>tsvn:logminsize</literal>, be sure to set the length
+					<literal>tsvn:minlogmsgsize</literal>, be sure to set the length
 					longer than the template or you will lose the protection mechanism.
 				</para>
 			</listitem>
@@ -175,13 +174,13 @@
 	<tip>
 		<title>Automatic property setting</title>
 		<para>
-			You can configure Subversion to set properties automatically 
+			You can configure subversion to set properties automatically 
 			on files and folders when they are added to the repository.
 			Read <xref linkend="tsvn-DUG-settings"/> for further information. 
 		</para>
 	</tip>
 	<para>
-		TortoiseSVN can integrate with some bugtracking 
+		<application>TortoiseSVN</application> can integrate with some bugtracking 
 		tools. This uses properties, which start with <literal>bugtraq:</literal>.
 		Read <xref linkend="tsvn-DUG-bugtracker"/> for further information. 
 	</para>

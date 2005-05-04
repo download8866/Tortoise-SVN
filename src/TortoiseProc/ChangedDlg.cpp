@@ -28,7 +28,6 @@ IMPLEMENT_DYNAMIC(CChangedDlg, CResizableStandAloneDialog)
 CChangedDlg::CChangedDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CChangedDlg::IDD, pParent)
 	, m_bShowUnversioned(FALSE)
-	, m_iShowUnmodified(0)
 {
 	m_bRemote = FALSE;
 }
@@ -42,15 +41,12 @@ void CChangedDlg::DoDataExchange(CDataExchange* pDX)
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHANGEDLIST, m_FileListCtrl);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
-	DDX_Check(pDX, IDC_SHOWUNMODIFIED, m_iShowUnmodified);
 }
 
 
 BEGIN_MESSAGE_MAP(CChangedDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_CHECKREPO, OnBnClickedCheckrepo)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
-	ON_BN_CLICKED(IDC_SHOWUNMODIFIED, OnBnClickedShowUnmodified)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
 BOOL CChangedDlg::OnInitDialog()
@@ -63,12 +59,11 @@ BOOL CChangedDlg::OnInitDialog()
 	m_bShowUnversioned = m_regAddBeforeCommit;
 	UpdateData(FALSE);
 
-	m_FileListCtrl.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP | SVNSLC_COLLOCK | SVNSLC_COLLOCKCOMMENT, FALSE);
+	m_FileListCtrl.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP, FALSE);
 
 	AddAnchor(IDC_CHANGEDLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SUMMARYTEXT, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SHOWUNMODIFIED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_CHECKREPO, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	SetPromptParentWindow(m_hWnd);
@@ -104,22 +99,14 @@ UINT CChangedDlg::ChangedStatusThread()
 	{
 		CMessageBox::Show(m_hWnd, m_FileListCtrl.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
+	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
-	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
 	m_FileListCtrl.Show(dwShow);
-	LONG lMin, lMax;
-	m_FileListCtrl.GetMinMaxRevisions(lMin, lMax);
+
 	if (LONG(m_FileListCtrl.m_HeadRev) >= 0)
 	{
 		CString temp;
-		temp.Format(IDS_REPOSTATUS_HEADREV, lMin, lMax, LONG(m_FileListCtrl.m_HeadRev));
-		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
-	}
-	else
-	{
-		CString temp;
-		temp.Format(IDS_REPOSTATUS_WCINFO, lMin, lMax);
+		temp.Format(IDS_REPOSTATUS_HEADREV, LONG(m_FileListCtrl.m_HeadRev));
 		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
 	}
 
@@ -157,30 +144,10 @@ void CChangedDlg::OnBnClickedCheckrepo()
 void CChangedDlg::OnBnClickedShowunversioned()
 {
 	UpdateData();
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
+	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
-	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
 	m_FileListCtrl.Show(dwShow);
 	m_regAddBeforeCommit = m_bShowUnversioned;
-}
-
-void CChangedDlg::OnBnClickedShowUnmodified()
-{
-	UpdateData();
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
-	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
-	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
-	m_FileListCtrl.Show(dwShow);
-	m_regAddBeforeCommit = m_bShowUnversioned;
-}
-
-LRESULT CChangedDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
-{
-	if (AfxBeginThread(ChangedStatusThreadEntry, this)==NULL)
-	{
-		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-	}
-	return 0;
 }
 
 

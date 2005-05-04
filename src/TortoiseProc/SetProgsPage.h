@@ -60,13 +60,12 @@ protected:
 	afx_msg void OnBnClickedDiffviewerOn();
 	afx_msg void OnBnClickedExtdiffadvanced();
 	afx_msg void OnBnClickedExtmergeadvanced();
-	afx_msg void OnBnClickedDontconvert();
 
 	DECLARE_MESSAGE_MAP()
 
 private:
 	bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
-	void CheckProgComment();
+
 private:
 	CString			m_sDiffPath;
 	CString			m_sMergePath;
@@ -81,7 +80,4 @@ private:
 	CSetProgsAdvDlg m_dlgAdvMerge;
 	CBalloon		m_tooltips;
 	BOOL			m_bInitialized;
-	CRegDWORD		m_regConvertBase;	///< registry value for the "Don't Convert" flag
-	BOOL			m_bConvertBase;		///< don't convert files when diffing agains BASE
-public:
 };

@@ -29,7 +29,6 @@ CInputDlg::CInputDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CInputDlg::IDD, pParent)
 	, m_sInputText(_T(""))
 	, m_pProjectProperties(NULL)
-	, m_iCheck(0)
 {
 }
 
@@ -41,7 +40,6 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_INPUTTEXT, m_cInput);
-	DDX_Check(pDX, IDC_CHECKBOX, m_iCheck);
 }
 
 
@@ -56,10 +54,9 @@ BOOL CInputDlg::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 
 	if (m_pProjectProperties)
-		m_cInput.Init(*m_pProjectProperties);
+		m_cInput.Init(m_pProjectProperties->lProjectLanguage);
 	else
 		m_cInput.Init();
-
 	m_cInput.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 
 	if (m_pProjectProperties)
@@ -89,19 +86,9 @@ BOOL CInputDlg::OnInitDialog()
 	{
 		this->SetWindowText(m_sTitle);
 	}
-	if (!m_sCheckText.IsEmpty())
-	{
-		GetDlgItem(IDC_CHECKBOX)->SetWindowText(m_sCheckText);
-		GetDlgItem(IDC_CHECKBOX)->ShowWindow(SW_SHOW);
-	}
-	else
-	{
-		GetDlgItem(IDC_CHECKBOX)->ShowWindow(SW_HIDE);
-	}
 
 	AddAnchor(IDC_HINTTEXT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_INPUTTEXT, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_CHECKBOX, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("InputDlg"));
@@ -113,7 +100,6 @@ BOOL CInputDlg::OnInitDialog()
 
 void CInputDlg::OnOK()
 {
-	UpdateData();
 	m_sInputText = m_cInput.GetText();
 	CResizableDialog::OnOK();
 }

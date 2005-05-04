@@ -46,7 +46,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CRevisionDlg : public CDialog, public SVNRev
+class CRevisionDlg : public CStandAloneDialog, public SVNRev
 {
 	DECLARE_DYNAMIC(CRevisionDlg)
 
@@ -56,7 +56,7 @@ public:
 
 // Dialog Data
 	enum { IDD = IDD_REVISION };
-	CString GetEnteredRevisionString() {return m_sRevision;}
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();

@@ -150,10 +150,6 @@ SOURCE=..\src\LexAsm.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\LexAsn1.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\LexAU3.cxx
 # End Source File
 # Begin Source File
@@ -170,15 +166,7 @@ SOURCE=..\src\LexBash.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\LexBasic.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\LexBullant.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexCaml.cxx
 # End Source File
 # Begin Source File
 
@@ -223,10 +211,6 @@ SOURCE=..\src\LexFortran.cxx
 # Begin Source File
 
 SOURCE=..\src\LexGui4Cli.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexHaskell.cxx
 # End Source File
 # Begin Source File
 
@@ -327,10 +311,6 @@ SOURCE=..\src\LexVB.cxx
 # Begin Source File
 
 SOURCE=..\src\LexVerilog.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexVHDL.cxx
 # End Source File
 # Begin Source File
 

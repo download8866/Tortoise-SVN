@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <fcntl.h>
 
 #include "Platform.h"
 
@@ -83,7 +84,7 @@ static void ColouriseLuaDoc(
 	}
 
 	// Do not leak onto next line
-	if (initStyle == SCE_LUA_STRINGEOL || initStyle == SCE_LUA_COMMENTLINE) {
+	if (initStyle == SCE_LUA_STRINGEOL) {
 		initStyle = SCE_LUA_DEFAULT;
 	}
 
@@ -137,7 +138,7 @@ static void ColouriseLuaDoc(
 				sc.SetState(SCE_LUA_DEFAULT);
 			}
 		} else if (sc.state == SCE_LUA_IDENTIFIER) {
-			if (!IsAWordChar(sc.ch) || sc.Match('.', '.')) {
+			if (!IsAWordChar(sc.ch)) {
 				char s[100];
 				sc.GetCurrent(s, sizeof(s));
 				if (keywords.InList(s)) {
@@ -163,11 +164,11 @@ static void ColouriseLuaDoc(
 			}
 		} else if (sc.state == SCE_LUA_COMMENTLINE ) {
 			if (sc.atLineEnd) {
-				sc.ForwardSetState(SCE_LUA_DEFAULT);
+				sc.SetState(SCE_LUA_DEFAULT);
 			}
 		} else if (sc.state == SCE_LUA_PREPROCESSOR ) {
 			if (sc.atLineEnd) {
-				sc.ForwardSetState(SCE_LUA_DEFAULT);
+				sc.SetState(SCE_LUA_DEFAULT);
 			}
 		} else if (sc.state == SCE_LUA_STRING) {
 			if (sc.ch == '\\') {

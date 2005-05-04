@@ -20,7 +20,6 @@
 
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
-#include "LogDlg.h"
 
 
 /**
@@ -47,7 +46,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CUpdateDlg : public CDialog
+class CUpdateDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CUpdateDlg)
 
@@ -64,16 +63,11 @@ protected:
 	virtual void OnOK();
 	afx_msg void OnBnClickedNewest();
 	afx_msg void OnBnClickedRevisionN();
-	afx_msg void OnBnClickedShowLog();
-	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()
 
-	CLogDlg *	m_pLogDlg;
-	CString		m_sRevision;
+	CString m_sRevision;
 public:
-	SVNRev		Revision;
-	CTSVNPath	m_wcPath;
-	BOOL		m_bNonRecursive;
-	BOOL		m_bNoExternals;
+	SVNRev Revision;
+	BOOL m_bNonRecursive;
 };

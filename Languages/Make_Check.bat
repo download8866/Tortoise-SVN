@@ -4,8 +4,7 @@ rem Script to build the language dlls
 SETLOCAL ENABLEDELAYEDEXPANSION
 if "%TortoiseVars%"=="" call ..\TortoiseVars.bat
 set LogFile=statusreport.txt
-set TmpFileDone=statusreport.tm1
-set TmpFileReview=statusreport.tm2
+set TmpFile=statusreport.tmp
 set LotsOfBlanks="                              "
 
 rem Count all messages in PO Template file
@@ -22,16 +21,15 @@ FOR %%i in (_Tortois_*.po) DO (
 )
 
 echo. > %LogFile%
-echo GUI Translation Status report for r!version:~0,4! >> %LogFile%
+echo Translation Status report for r!version:~0,4! >> %LogFile%
 echo ----------------------------------- >> %LogFile%
 echo Total=!total! >> %LogFile%
 echo. >> %LogFile%
 echo Language : translated - fuzzy - untranslated - missing accelerator keys >> %LogFile%
 echo. >> %LogFile%
-echo Incomplete: >> %Logfile%
 
 echo.
-echo GUI Translation Status report for r!version:~0,4!
+echo Translation Status report for r!version:~0,4!
 echo ------------------------------------------
 echo Total=!total!
 echo.
@@ -64,14 +62,10 @@ FOR /F "eol=# delims=	; tokens=1,5" %%i IN (Languages.txt) DO (
 
     if !errsum! EQU 0 (
       echo !LANGNAME! !total! - OK
-      echo %%j ^(%%i^) >> %TmpFileDone% 
+      echo %%j ^(%%i^) >> %TmpFile% 
     ) else (
       echo !LANGNAME! !tra! - !fuz! - !unt! - !errors!
-      if !total! EQU !tra! (
-        echo !LANGNAME! !tra! - !fuz! - !unt! - !errors! >> %TmpFileReview% 
-      ) else (
-        echo !LANGNAME! !tra! - !fuz! - !unt! - !errors! >> %LogFile% 
-      )
+      echo !LANGNAME! !tra! - !fuz! - !unt! - !errors! >> %LogFile% 
     )
   ) ELSE (
     echo !LANGNAME! !POFILE! not found
@@ -80,15 +74,11 @@ FOR /F "eol=# delims=	; tokens=1,5" %%i IN (Languages.txt) DO (
 )
 
 echo. >> %Logfile%
-echo Needs review: >> %Logfile%
-type %TmpFileReview% >> %LogFile%
-
+echo Finished: >> %Logfile%
 echo. >> %Logfile%
-echo Up to date: >> %Logfile%
-type %TmpFileDone% >> %LogFile%
+type %TmpFile% >> %LogFile%
 
-del %TmpFileReview%
-del %TmpFileDone%
+del %TmpFile%
 del _Tortois_*.po /Q
 del *.mo
 

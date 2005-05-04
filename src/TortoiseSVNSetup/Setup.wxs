@@ -3,7 +3,7 @@
   <Product 	UpgradeCode="3E07F1EB-9543-437C-9DE2-58FFCADD39A9" 
   			Name="TortoiseSVN" 
 			Id="????????-????-????-????-????????????"
-			Version="1.2.0.$WCREV$"
+			Version="1.1.6.$WCREV$"
 			Manufacturer="TortoiseSVN" 
 			Language="1033">
     <Package 	Id="????????-????-????-????-????????????"
@@ -52,7 +52,12 @@
     </Property>
     <Condition Message="[ProductName] needs at least Internet Explorer 5">NOT ((VERSIONIE&lt;&lt;"1") OR (VERSIONIE&lt;&lt;"2") OR (VERSIONIE&lt;&lt;"3") OR (VERSIONIE&lt;&lt;"4"))</Condition>
     <Condition Message="[ProductName] needs at least shell32.dll version 4.72">(NOT (""=VERSIONSHELL)) OR (Installed)</Condition>
+	<?if $(env.TSVNBUILD) = release ?>
 	  <Condition Message="This installer requires an NT based OS">(VersionNT)</Condition>
+	<?endif ?>
+	<?if $(env.TSVNBUILD) = release_mbcs ?>
+	  <Condition Message="[ProductName] requires at least Windows98. Also this installer doesn't run on NT based systems">(400&lt;Version9X)</Condition>
+	<?endif ?>
 	 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Component Id="C__infofiles" Guid="625A2E1E-90D3-4107-8AE8-C5C37975FEA0" >
@@ -63,7 +68,6 @@
 
 		<Component Id="C__shellregistry" Guid="D3F48AA6-A01B-47c5-A314-70319092E89A" >
 			<Registry Root="HKCR" Key="Drive\shellex\ContextMenuHandlers\TortoiseSVN" KeyPath="yes" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_F9920D9B7AC24A00B3EB165F5443F396" Type="string" />
-			<Registry Root="HKCR" Key="Drive\shellex\PropertySheetHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_428E92FA10104428898CD781195E2EE7" Type="string" />
 			<Registry Root="HKCR" Key="Directory\shellex\ContextMenuHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_FB91C533FB924DD5AF9B3C7D11ED96F5" Type="string" />
 			<Registry Root="HKCR" Key="Directory\shellex\DragDropHandlers\TortoiseSVN" Value="{3035134a-7B7D-4fcc-81B4-1E394CA267EB}" Id="_7E90BAAA1EC6477987268183EEE362BE" Type="string" />
 			<Registry Root="HKCR" Key="Directory\shellex\PropertySheetHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_2D85E376087449549EFDFEF3731801BD" Type="string" />
@@ -71,10 +75,6 @@
 			<Registry Root="HKCR" Key="Folder\shellex\ColumnHandlers\{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_B4DEDCD9C43D400F906D14B21BAA297E" />
 			<Registry Root="HKCR" Key="Folder\shellex\ContextMenuHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_CB48DAD85B7B459A9E81C4A82EF4BF2B" Type="string" />
 			<Registry Root="HKCR" Key="Folder\shellex\DragDropHandlers\TortoiseSVN" Value="{3035134a-7B7D-4fcc-81B4-1E394CA267EB}" Id="_FD52B6DA67C142CF9827680867DE80AF" Type="string" />
-			<Registry Root="HKCR" Key="CLSID\{3035134e-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Value="[TARGETDIR]bin\tortoisesvn.dll" Id="_ED8D2F572F7B4ebf8F0CFE1505768A33" Type="string" />
-			<Registry Root="HKCR" Key="CLSID\{3035134e-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Name="ThreadingModel" Value="Apartment" Id="_F2F0FB2D449A4840B64FDEFF86F53316" Type="string" />
-			<Registry Root="HKCR" Key="CLSID\{3035134d-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Value="[TARGETDIR]bin\tortoisesvn.dll" Id="_DFD56DFF0C0B41a68EA51483F49BFB0B" Type="string" />
-			<Registry Root="HKCR" Key="CLSID\{3035134d-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Name="ThreadingModel" Value="Apartment" Id="_26ABCF593D8B464f80EB7C59D25DFBBC" Type="string" />
 			<Registry Root="HKCR" Key="CLSID\{3035134c-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Value="[TARGETDIR]bin\tortoisesvn.dll" Id="_1AC3643934F64DAA8BD9526D7444678A" Type="string" />
 			<Registry Root="HKCR" Key="CLSID\{3035134c-7B7D-4fcc-81B4-1E394CA267EB}\InProcServer32" Name="ThreadingModel" Value="Apartment" Id="_9A406BB1F3704CBD81869F7F9A575C90" Type="string" />
 			<Registry Root="HKCR" Key="CLSID\{30351346-7B7D-4fcc-81B4-1E394CA267EB}" Name="*" Id="_5915B62ECE2F4CD5B84BFA1CB973E301" />
@@ -98,26 +98,21 @@
 			<Registry Root="HKCR" Key="InternetShortcut\shellex\ContextMenuHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_734B600DBE1A477C8BFCF38DBE26EA89" Type="string" />
 			<Registry Root="HKCR" Key="*\shellex\ContextMenuHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_CA3C804229C5460CA8097C61AD265365" Type="string" />
 			<Registry Root="HKCR" Key="*\shellex\PropertySheetHandlers\TortoiseSVN" Value="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Id="_ACD2E04AF69A400381700023A1A13B20" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\2TortoiseSVN" Value="{30351347-7B7D-4fcc-81B4-1E394CA267EB}" Id="_EC32293931D84E1EBAAD88D807D05D02" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\3TortoiseSVN" Value="{30351348-7B7D-4fcc-81B4-1E394CA267EB}" Id="_7DECEC1B053B4F6EAB22C71ED39E4EA8" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\5TortoiseSVN" Value="{3035134c-7B7D-4fcc-81B4-1E394CA267EB}" Id="_8E5D806C07CC4AA9BF617C14225CD5C2" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\1TortoiseSVN" Value="{30351346-7B7D-4fcc-81B4-1E394CA267EB}" Id="_8FFBEF9F51C2449EBF549D15949779EA" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\4TortoiseSVN" Value="{3035134b-7B7D-4fcc-81B4-1E394CA267EB}" Id="_BE50C516B3444976864879716C66A602" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\6TortoiseSVN" Value="{3035134d-7B7D-4fcc-81B4-1E394CA267EB}" Id="_25D18C201635477284E55464D240E699" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\7TortoiseSVN" Value="{3035134e-7B7D-4fcc-81B4-1E394CA267EB}" Id="_999586B904944935990B39114DEBC4ED" Type="string" />
+			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\_TortoiseSVN2" Value="{30351347-7B7D-4fcc-81B4-1E394CA267EB}" Id="_EC32293931D84E1EBAAD88D807D05D02" Type="string" />
+			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\_TortoiseSVN3" Value="{30351348-7B7D-4fcc-81B4-1E394CA267EB}" Id="_7DECEC1B053B4F6EAB22C71ED39E4EA8" Type="string" />
+			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\_TortoiseSVN5" Value="{3035134c-7B7D-4fcc-81B4-1E394CA267EB}" Id="_8E5D806C07CC4AA9BF617C14225CD5C2" Type="string" />
+			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\_TortoiseSVN1" Value="{30351346-7B7D-4fcc-81B4-1E394CA267EB}" Id="_8FFBEF9F51C2449EBF549D15949779EA" Type="string" />
+			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Explorer\ShellIconOverlayIdentifiers\_TortoiseSVN4" Value="{3035134b-7B7D-4fcc-81B4-1E394CA267EB}" Id="_BE50C516B3444976864879716C66A602" Type="string" />
 		</Component>
 		<Component Id="C__machineregistry" Guid="4913F361-DE93-490c-81D0-1FB002EBF141" >
-			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="ReadOnlyIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseReadOnly.ico" KeyPath="yes" Id="_0420474DA5564BCDBDA699049D561034" Type="string" />
+			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="AddedIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseAdded.ico" KeyPath="yes" Id="_0420474DA5564BCDBDA699049D561034" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="DeletedIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseDeleted.ico" Id="_06060DF88EA34CAB9BECB0F277B7D7C6" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="ProcPath" Value="[TARGETDIR]bin\TortoiseProc.exe" Id="_144EF42CC6B14DC8A344CD7656CE7B17" Type="string" />
-			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="CachePath" Value="[TARGETDIR]bin\TSVNCache.exe" Id="_C847099F97C04eadA6ED7C1AE15DCCBA" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="InSubversionIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseInSubversion.ico" Id="_19FFFCD9435246F78F7F76A285870C72" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="TMergePath" Value="[TARGETDIR]bin\TortoiseMerge.exe" Id="_7ABD6ED2AA3E4F869231418117F668E2" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="ModifiedIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseModified.ico" Id="_B2E8ECE44B6747A384B8D7B4E567DFED" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="Directory" Value="[TARGETDIR]" Id="_DA13C02D9F0545A19698C64A47B57F5A" Type="string" />
 			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="ConflictIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseConflict.ico" Id="_EDA19D325D75468D81C6144482C53F02" Type="string" />
-			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="LockedIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseLocked.ico" Id="_AF5B89505F0B43b985F2772FDA47B9FB" Type="string" />
-			<Registry Root="HKLM" Key="Software\[Manufacturer]" Name="AddedIcon" Value="[TARGETDIR]icons\XPStyle\TortoiseAdded.ico" Id="_210FB7CC8AD14982A5F56D9A332B9348" Type="string" />
 		</Component>
 		<Component Id="C__approveshellcomponents" Guid="A5B89BEC-D213-461d-AACD-8F46477E87D0" >
 			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{30351348-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" KeyPath="yes" Id="_1D2348740FDB4E30A124BDDE44B50D1F" Type="string" />
@@ -127,35 +122,15 @@
 			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{30351346-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" Id="_B8821E6175384DD6BB7A002C2FC18240" Type="string" />
 			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{30351349-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" Id="_DA71E1D52B69440B8ED17B3525AE8E4C" Type="string" />
 			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{3035134b-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" Id="_F0052C2095E04B12A90D7803CEEE2978" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{3035134d-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" Id="_82842FE919AB4f3bB79074B4F9D51075" Type="string" />
-			<Registry Root="HKLM" Key="Software\Microsoft\Windows\CurrentVersion\Shell Extensions\Approved" Name="{3035134e-7B7D-4fcc-81B4-1E394CA267EB}" Value="TortoiseSVN" Id="_F5ED360F12D244c28DD4BC7BB7A7F044" Type="string" />
 		</Component>
-		<Component Id="C__svnprotocoll" Guid="02271D5C-3065-4038-AD86-46A271854FA6" >
-			<Registry Root="HKCR" Key="svn" KeyPath="yes" Value="URL:SVN Protocol" Id="_1A7DD312DA684baaA316AED127286F1A" Type="string" />
-			<Registry Root="HKCR" Key="svn" Name="URL Protocol" Id="_67DCDC3D928D4184A22F402F42200334" Type="string" />
-			<Registry Root="HKCR" Key="svn\DefaultIcon" Value="[TARGETDIR]bin\TortoiseProc.exe" Id="_E769D66E9B064912913A8D182828BE2D" Type="string" />
-			<Registry Root="HKCR" Key="svn\shell\open\command" Value="[TARGETDIR]bin\TortoiseProc.exe /command:repobrowser /path:&quot;%1&quot;" Id="_6C99C8E31975426e9CD13E502CE8A247" Type="string" />
-			
-			<Registry Root="HKCR" Key="svn+ssh" Value="URL:SVN+SSH Protocol" Id="_A292EBDFAFFC406784B9D90F1E9883D8" Type="string" />
-			<Registry Root="HKCR" Key="svn+ssh" Name="URL Protocol" Id="_EC7E2AEE0634419bB4E7040904214BA7" Type="string" />
-			<Registry Root="HKCR" Key="svn+ssh\DefaultIcon" Value="[TARGETDIR]bin\TortoiseProc.exe" Id="_3B07731EA68A41bcBC58B7E275862D3A" Type="string" />
-			<Registry Root="HKCR" Key="svn+ssh\shell\open\command" Value="[TARGETDIR]bin\TortoiseProc.exe /command:repobrowser /path:&quot;%1&quot;" Id="_80E38B43490F449f9C1AFBFAF1D335D3" Type="string" />
 
-			<Registry Root="HKCR" Key="tsvn" Value="URL:TSVN Protocol" Id="_0D278C31382F4c719D91F9BA663B7286" Type="string" />
-			<Registry Root="HKCR" Key="tsvn" Name="URL Protocol" Id="_88BA4ADF25CF42d79BF7F251D62EC40E" Type="string" />
-			<Registry Root="HKCR" Key="tsvn\DefaultIcon" Value="[TARGETDIR]bin\TortoiseProc.exe" Id="_D72059B72F5F45c3A1E54A060029452F" Type="string" />
-			<Registry Root="HKCR" Key="tsvn\shell\open\command" Value="[TARGETDIR]bin\TortoiseProc.exe /command:checkout /url:&quot;%1&quot;" Id="_BA71DAF4AF4C46b69BDA7806804A5E8A" Type="string" />
-		</Component>
-		<!-- <Component Id="C_autostart" Guid="A990D83C-0D37-428f-8954-3A7B725009D1" >
-			<Registry Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Run" Name="TSVNCache" Value="[TARGETDIR]bin\TSVNCache.exe" Id="_DE6679C450FA41159579F317E33D0353" Type="string" />
-		</Component>  -->
 	  <Directory Id="D__Bin" Name="BIN" LongName="bin" >
 	      <Component Id="C__libssl" Guid="53F3D18C-528D-4b08-AB1A-8644BFD3D5F2" >
 	        <File Id="F__libeay32" Name="LIBEAY32.DLL" LongName="libeay32.dll" DiskId="1" src="..\..\..\Common\openssl\out32dll\libeay32.dll" KeyPath="yes" />
 	        <File Id="F__ssleay32" Name="SSLEAY32.DLL" LongName="ssleay32.dll" DiskId="1" src="..\..\..\Common\openssl\out32dll\ssleay32.dll" />
 	      </Component>
 	      <Component Id="C__berkeleydb" Guid="DFD268E2-1B3B-4341-9243-E028E1416040" >
-	        <File Id="F__libdb43" Name="LIBDB43.DLL" LongName="libdb43.dll" DiskId="1" src="..\..\..\Subversion\db4-win32\bin\libdb43.dll" KeyPath="yes" />
+	        <File Id="F__libdb42" Name="LIBDB42.DLL" LongName="libdb42.dll" DiskId="1" src="..\..\..\Subversion\db4-win32\bin\libdb42.dll" KeyPath="yes" />
 	      </Component>
 
 	      <Component Id="C__apr" Guid="A1388B55-1EC3-4199-9EF7-72DDA13F164A" >
@@ -165,7 +140,7 @@
 	      </Component>
 
 	      <Component Id="C__gettext" Guid="A0CCA4FD-553C-465f-8E73-1BE7B3AFB83D" >
-	        <File Id="F__intl" Name="INTL3_~1.DLL" LongName="intl3_svn.dll" DiskId="1" src="..\..\ext\svn-win32-libintl\bin\intl3_svn.dll" KeyPath="yes" />
+	        <File Id="F__intl" Name="INTL.DLL" LongName="intl.dll" DiskId="1" src="..\..\ext\gettext\bin\intl.dll" KeyPath="yes" />
 	      </Component>
 	
 	      <Component Id="C__crash" Guid="B9F4D4E1-83BE-4224-A000-FBC637AD6058" >
@@ -180,12 +155,10 @@
 	      </Component>
 	      
 	      <Component Id="C__TortoiseSVN" Guid="2F1FD4CC-32F0-51FB-A9CE-9DB539518655" >
-	        <File Id="F__TortoiseProc" Name="TORTOI~1.EXE" LongName="TortoiseProc.exe" DiskId="1" src="..\..\bin\release\bin\TortoiseProc.exe" KeyPath="yes" />
-	        <File Id="F__TortoiseShell" Name="TORTOI~1.DLL" LongName="TortoiseSVN.dll" DiskId="1" src="..\..\bin\release\bin\TortoiseSVN.dll" />
+	        <File Id="F__TortoiseProc" Name="TORTOI~1.EXE" LongName="TortoiseProc.exe" DiskId="1" src="..\..\bin\$(env.TSVNBUILD)\bin\TortoiseProc.exe" KeyPath="yes" />
+	        <File Id="F__TortoiseShell" Name="TORTOI~1.DLL" LongName="TortoiseSVN.dll" DiskId="1" src="..\..\bin\$(env.TSVNBUILD)\bin\TortoiseSVN.dll" />
 	        <File Id="F__TortoisePlink" Name="TORTOI~2.EXE" LongName="TortoisePlink.exe" DiskId="1" src="..\..\bin\release\bin\TortoisePlink.exe" />
 	        <File Id="F__SubWCRev" Name="SUBWCR~1.EXE" LongName="SubWCRev.exe" DiskId="1" src="..\..\bin\release\bin\SubWCRev.exe" />
-	        <File Id="F__TSVNCache" Name="TSVNCA~1.EXE" LongName="TSVNCache.exe" DiskId="1" src="..\..\bin\release\bin\TSVNCache.exe" />
-	        <File Id="F__TSVNAutolist" Name="AUTOLIST.TXT" LongName="autolist.txt" DiskId="1" src="autolist.txt" />
 	        
 	        <Shortcut Id="S__RTFM" Directory="D_TortoisePrgMenu" Name="TORTOI~1" LongName="TortoiseSVN" Advertise="no"
 						Target="[TARGETDIR]bin\TortoiseProc.exe" Description="TortoiseSVN" Arguments="/command:rtfm" Show="normal" />
@@ -193,7 +166,7 @@
 						Target="[TARGETDIR]bin\TortoiseProc.exe" Description="Documentation about TortoiseSVN" Arguments="/command:help" Show="normal" />
 	      </Component>
 	      <Component Id="C__TortoiseMerge" Guid="2F8D9AF8-A660-47f0-83CE-DD7DA0FB73DD" >
-	        <File Id="F__TortoiseMerge" Name="TORTOI~3.EXE" LongName="TortoiseMerge.exe" DiskId="1" src="..\..\bin\release\bin\TortoiseMerge.exe" />
+	        <File Id="F__TortoiseMerge" Name="TORTOI~3.EXE" LongName="TortoiseMerge.exe" DiskId="1" src="..\..\bin\$(env.TSVNBUILD)\bin\TortoiseMerge.exe" />
 	        
 	        <Shortcut Id="S__TortoiseMerge" Directory="D_TortoisePrgMenu" Name="TORTOI~2" LongName="TortoiseMerge" Advertise="no"
 						Target="[TARGETDIR]bin\TortoiseMerge.exe" Description="View Diff's, Merge Diff's, Resolve Conflicted Files and Apply Patches" Show="normal" />
@@ -204,14 +177,9 @@
 	        <File Id="F__mfc71" Name="MFC71.DLL" LongName="mfc71.dll" DiskId="1" src="$(env.windir)\system32\mfc71.dll" />
 	        <File Id="F__msvcp71" Name="MSVCP71.DLL" LongName="msvcp71.dll" DiskId="1" src="$(env.windir)\system32\msvcp71.dll" />
 	      </Component>
-	      <Component Id="C__Sounds" Guid="8C3F26B0-D4EE-4eb9-8E88-9FA60AD48B83" >
-	        <File Id="F__sounderror" Name="TORTOI~5.WAV" LongName="TortoiseSVN_error.wav" DiskId="1" src="..\Resources\TortoiseSVN_error.wav" KeyPath="yes" />
-	        <File Id="F__soundwarning" Name="TORTOI~6.WAV" LongName="TortoiseSVN_Warning.wav" DiskId="1" src="..\Resources\TortoiseSVN_Warning.wav" />
-	        <File Id="F__soundnotification" Name="TORTOI~7.WAV" LongName="TortoiseSVN_Notification.wav" DiskId="1" src="..\Resources\TortoiseSVN_Notification.wav" />
-	      </Component>
 	      <Component Id="C__TortoiseBlame" Guid="1B00F2A6-4D6B-4dbe-8B69-C8B493B4BBE5" >
-	        <File Id="F__TortoiseBlame" Name="TORTOI~4.EXE" LongName="TortoiseBlame.exe" DiskId="1" src="..\..\bin\release\bin\TortoiseBlame.exe" KeyPath="yes" />
-	        <File Id="F__SciLexer" Name="SCILEX~1.DLL" LongName="SciLexer.dll" DiskId="1" src="..\..\bin\release\bin\SciLexer.dll" />
+	        <File Id="F__TortoiseBlame" Name="TORTOI~4.EXE" LongName="TortoiseBlame.exe" DiskId="1" src="..\..\bin\$(env.TSVNBUILD)\bin\TortoiseBlame.exe" KeyPath="yes" />
+	        <File Id="F__SciLexer" Name="SCILEX~1.DLL" LongName="SciLexer.dll" DiskId="1" src="..\..\bin\$(env.TSVNBUILD)\bin\SciLexer.dll" />
 	      </Component>
 	  </Directory>
       <Directory Id="D__Iconv" Name="ICONV" LongName="iconv" >
@@ -456,10 +424,8 @@
 				<File Id="F__ClassicConflictIcon" Name="TORTOI~1.ICO" LongName="TortoiseConflict.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseConflict.ico" KeyPath="yes" />
 				<File Id="F__ClassicInSubversionIcon" Name="TORTOI~2.ICO" LongName="TortoiseInSubVersion.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseInSubversion.ico" />
 				<File Id="F__ClassicModifiedIcon" Name="TORTOI~3.ICO" LongName="TortoiseModified.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseModified.ico" />
-				<File Id="F__ClassicReadOnlyIcon" Name="TORTOI~4.ICO" LongName="TortoiseReadOnly.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseReadOnly.ico" />
+				<File Id="F__ClassicAddedIcon" Name="TORTOI~4.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 				<File Id="F__ClassicDeletedIcon" Name="TORTOI~5.ICO" LongName="TortoiseDeleted.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseDeleted.ico" />
-				<File Id="F__ClassicLockedIcon" Name="TORTOI~6.ICO" LongName="TortoiseLocked.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseLocked.ico" />
-				<File Id="F__ClassicAddedIcon" Name="TORTOI~7.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 			</Component>
 		</Directory>
 		<Directory Id="D__iconsmodern" Name="Modern" >
@@ -467,10 +433,8 @@
 				<File Id="F__ModernConflictIcon" Name="TORTOI~1.ICO" LongName="TortoiseConflict.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseConflict.ico" KeyPath="yes" />
 				<File Id="F__ModernInSubversionIcon" Name="TORTOI~2.ICO" LongName="TortoiseInSubVersion.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseInSubversion.ico" />
 				<File Id="F__ModernModifiedIcon" Name="TORTOI~3.ICO" LongName="TortoiseModified.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseModified.ico" />
-				<File Id="F__ModernReadOnlyIcon" Name="TORTOI~4.ICO" LongName="TortoiseReadOnly.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseReadOnly.ico" />
+				<File Id="F__ModernAddedIcon" Name="TORTOI~4.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseAdded.ico" />
 				<File Id="F__ModernDeletedIcon" Name="TORTOI~5.ICO" LongName="TortoiseDeleted.ico" DiskId="1" src="..\Resources\Icons\Modern\TortoiseDeleted.ico" />
-				<File Id="F__ModernLockedIcon" Name="TORTOI~6.ICO" LongName="TortoiseLocked.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseLocked.ico" />
-				<File Id="F__ModernAddedIcon" Name="TORTOI~7.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 			</Component>
 		</Directory>
 		<Directory Id="D__iconsxpstyle" Name="XPStyle" >
@@ -478,10 +442,8 @@
 				<File Id="F__XPStyleConflictIcon" Name="TORTOI~1.ICO" LongName="TortoiseConflict.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseConflict.ico" KeyPath="yes" />
 				<File Id="F__XPStyleInSubversionIcon" Name="TORTOI~2.ICO" LongName="TortoiseInSubVersion.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseInSubversion.ico" />
 				<File Id="F__XPStyleModifiedIcon" Name="TORTOI~3.ICO" LongName="TortoiseModified.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseModified.ico" />
-				<File Id="F__XPStyleReadOnlyIcon" Name="TORTOI~4.ICO" LongName="TortoiseReadOnly.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseReadOnly.ico" />
+				<File Id="F__XPStyleAddedIcon" Name="TORTOI~4.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseAdded.ico" />
 				<File Id="F__XPStyleDeletedIcon" Name="TORTOI~5.ICO" LongName="TortoiseDeleted.ico" DiskId="1" src="..\Resources\Icons\XPStyle\TortoiseDeleted.ico" />
-				<File Id="F__XPStyleLockedIcon" Name="TORTOI~6.ICO" LongName="TortoiseLocked.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseLocked.ico" />
-				<File Id="F__XPStyleAddedIcon" Name="TORTOI~7.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 			</Component>
 		</Directory>
 		<Directory Id="D__iconssubclipse" Name="SUBCLI~1" LongName="Subclipse" >
@@ -489,10 +451,8 @@
 				<File Id="F__SubclipseConflictIcon" Name="TORTOI~1.ICO" LongName="TortoiseConflict.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseConflict.ico" KeyPath="yes" />
 				<File Id="F__SubclipseInSubversionIcon" Name="TORTOI~2.ICO" LongName="TortoiseInSubVersion.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseInSubversion.ico" />
 				<File Id="F__SubclipseModifiedIcon" Name="TORTOI~3.ICO" LongName="TortoiseModified.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseModified.ico" />
-				<File Id="F__SubclipseReadOnlyIcon" Name="TORTOI~4.ICO" LongName="TortoiseReadOnly.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseReadOnly.ico" />
+				<File Id="F__SubclipseAddedIcon" Name="TORTOI~4.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseAdded.ico" />
 				<File Id="F__SubclipseDeletedIcon" Name="TORTOI~5.ICO" LongName="TortoiseDeleted.ico" DiskId="1" src="..\Resources\Icons\Subclipse\TortoiseDeleted.ico" />
-				<File Id="F__SubclipseLockedIcon" Name="TORTOI~6.ICO" LongName="TortoiseLocked.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseLocked.ico" />
-				<File Id="F__SubclipseAddedIcon" Name="TORTOI~7.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 			</Component>
 		</Directory>
 		<Directory Id="D__iconsstraight" Name="Straight" >
@@ -500,10 +460,8 @@
 				<File Id="F__StraightConflictIcon" Name="TORTOI~1.ICO" LongName="TortoiseConflict.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseConflict.ico" KeyPath="yes" />
 				<File Id="F__StraightInSubversionIcon" Name="TORTOI~2.ICO" LongName="TortoiseInSubVersion.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseInSubversion.ico" />
 				<File Id="F__StraightModifiedIcon" Name="TORTOI~3.ICO" LongName="TortoiseModified.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseModified.ico" />
-				<File Id="F__StraightReadOnlyIcon" Name="TORTOI~4.ICO" LongName="TortoiseReadOnly.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseReadOnly.ico" />
+				<File Id="F__StraightAddedIcon" Name="TORTOI~4.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseAdded.ico" />
 				<File Id="F__StraightDeletedIcon" Name="TORTOI~5.ICO" LongName="TortoiseDeleted.ico" DiskId="1" src="..\Resources\Icons\Straight\TortoiseDeleted.ico" />
-				<File Id="F__StraightLockedIcon" Name="TORTOI~6.ICO" LongName="TortoiseLocked.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseLocked.ico" />
-				<File Id="F__StraightAddedIcon" Name="TORTOI~7.ICO" LongName="TortoiseAdded.ico" DiskId="1" src="..\Resources\Icons\Classic\TortoiseAdded.ico" />
 			</Component>
 		</Directory>
       </Directory>
@@ -528,13 +486,10 @@
       <ComponentRef Id="C__WebsiteLink" />
       <ComponentRef Id="C__shellregistry" />
       <ComponentRef Id="C__machineregistry" />
-      <ComponentRef Id="C__svnprotocoll" />
       <ComponentRef Id="C__approveshellcomponents" />
       <ComponentRef Id="C__ProgramMenuFolder" />
       <ComponentRef Id="C__TortoiseBlame" />
       <ComponentRef Id="C__Languages" />
-      <ComponentRef Id="C__Sounds" />
-      <!-- <ComponentRef Id="C_autostart" /> -->
     </Feature>
     <Feature Id="CrashReporter" Level="1" ConfigurableDirectory="TARGETDIR">
       <ComponentRef Id="C__crash" />
@@ -943,7 +898,7 @@ Click "Close" to exit.</Text>
           <Condition Action="show">REMOVE=""</Condition>
           <Condition Action="hide">REMOVE&lt;&gt;""</Condition>
         </Control>
-        <Control Id="ShowChangelogBox" Type="CheckBox" Property="ShowChangelog" X="9" Y="220" Width="354" Height="32" CheckBoxValue="yes" >
+        <Control Id="ShowChangelogBox" Type="CheckBox" Property="ShowChangelog" X="9" Y="220" Width="354" Height="32" CheckBoxValue="yes">
           <Text>{\Sans_Serif13}Show the changelog after installation is complete</Text>
           <Condition Action="show">REMOVE=""</Condition>
           <Condition Action="hide">REMOVE&lt;&gt;""</Condition>
@@ -1430,18 +1385,18 @@ Click "Next" to start the installation.</Text>
           <Text>{\Sans_Serif13}The installer will guide you through the steps required to install [ProductName] on your computer.</Text>
         </Control>
       </Dialog>
-      <RadioButtonGroup Property="MaintenanceForm_Action">
+      <RadioGroup Property="MaintenanceForm_Action">
         <RadioButton Value="Repair" Text="{\Sans_Serif13}&amp;Repair [ProductName]" X="0" Y="0" Width="348" Height="17" />
         <RadioButton Value="Remove" Text="{\Sans_Serif13}Re&amp;move [ProductName]" X="0" Y="18" Width="348" Height="17" />
-      </RadioButtonGroup>
-      <RadioButtonGroup Property="AdminMaintenanceForm_Action">
+      </RadioGroup>
+      <RadioGroup Property="AdminMaintenanceForm_Action">
         <RadioButton Value="Repair" Text="{\Sans_Serif13}&amp;Repair [ProductName]" X="0" Y="0" Width="348" Height="17" />
         <RadioButton Value="Remove" Text="{\Sans_Serif13}Re&amp;move [ProductName]" X="0" Y="18" Width="348" Height="17" />
-      </RadioButtonGroup>
-      <RadioButtonGroup Property="FolderForm_AllUsers">
+      </RadioGroup>
+      <RadioGroup Property="FolderForm_AllUsers">
         <RadioButton Value="ALL" Text="{\Sans_Serif13}&amp;Everyone" X="0" Y="0" Width="342" Height="17" />
         <RadioButton Value="ME" Text="{\Sans_Serif13}Just &amp;me" X="0" Y="18" Width="342" Height="17" />
-      </RadioButtonGroup>
+      </RadioGroup>
       <TextStyle Id="Sans_Serif13" FaceName="MS Sans Serif" Size="9" Red="0" Green="0" Blue="0" />
       <TextStyle Id="Sans_Serif16" FaceName="MS Sans Serif" Size="12" Red="0" Green="0" Blue="0" Bold="yes" />
       <TextStyle Id="Shell_Dlg13" FaceName="MS Shell Dlg" Size="9" Red="0" Green="0" Blue="0" />

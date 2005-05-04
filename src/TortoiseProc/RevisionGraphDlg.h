@@ -49,7 +49,7 @@ enum NodeShape
 #define MAXFONTS				4
 #define	MAX_TT_LENGTH			10000
 
-class CRevisionGraphDlg : public CResizableStandAloneDialog, public CRevisionGraph //CResizableStandAloneDialog
+class CRevisionGraphDlg : public CResizableStandAloneDialog, public CRevisionGraph
 {
 	DECLARE_DYNAMIC(CRevisionGraphDlg)
 public:
@@ -67,7 +67,6 @@ public:
 	void			FillTestData();
 #endif
 protected:
-	BOOL			m_bNoGraph;
 	DWORD			m_dwTicks;
 	CRect			m_ViewRect;
 	CPtrArray		m_arConnections;
@@ -109,8 +108,6 @@ protected:
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void	OnViewZoomin();
 	afx_msg void	OnViewZoomout();
-	afx_msg void	OnMenuexit();
-	afx_msg void	OnMenuhelp();
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -123,12 +120,12 @@ private:
 	void			DrawNode(CDC * pDC, const CRect& rect,
 							COLORREF contour, CRevisionEntry *rentry,
 							NodeShape shape, BOOL isSel, int penStyle = PS_SOLID);
-	void			DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos, bool bDirectDraw);
+	void			DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos);
 	void			BuildConnections();
 	void			DrawConnections(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos);
 	int				GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 	void			DoZoom(int nZoomFactor);
-	static UINT		WorkerThread(LPVOID pVoid);
+	static UINT WorkerThread(LPVOID pVoid);
 
 
 };
