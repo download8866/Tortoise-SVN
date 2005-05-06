@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <sect1 id="tsvn-DUG-revgraph">
-	<?dbhh topicname="HIDD_REVISIONGRAPH"?>
 	<title>Revision Graphs</title>
 	<indexterm>
 		<primary>revision</primary>
@@ -17,7 +16,6 @@
 		the trunk, and the ideal way to view this sort of information is
 		as a graph or tree structure. That's when you need to use
 		<menuchoice>
-			<guimenu>TortoiseSVN</guimenu>
 			<guimenuitem>Revision Graph...</guimenuitem>
 		</menuchoice>
 	</para>
@@ -62,17 +60,15 @@
 		Note that the graph only shows the points at which items were added or
 		deleted. Showing every revision of a project would generate an impossibly
 		large graph for non-trivial cases.
-		For this reason, simple project structures with no adds or deletes will
-		produce an empty revision graph.
 	</para>
 	<para>
 		The revision date, author and comments are shown in a hint box whenever
 		the mouse hovers over a revision box.
 	</para>
-	<caution>
-		Because Subversion cannot provide all the information required,
+	<warning>
+		Because subversion cannot provide all the information required,
 		a certain amount of interpretation is required, which can sometimes
 		give strange results. Nevertheless, the output for the trunk will
 		generally give useful results.
-	</caution>
+	</warning>
 </sect1>

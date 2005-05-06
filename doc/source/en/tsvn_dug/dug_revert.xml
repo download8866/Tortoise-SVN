@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <sect1 id="tsvn-DUG-revert">
-	<?dbhh topicname="HIDD_REVERT"?>
 	<title>Undo Changes</title>
 	<indexterm>
 		<primary>revert</primary>
@@ -14,11 +13,11 @@
 		<action>right click</action> to pop up the context menu and then select
 		the command
 		<menuchoice>
-			<guimenu>TortoiseSVN</guimenu>
-			<guimenuitem>Revert</guimenuitem>
+			<guimenuitem>revert</guimenuitem>
 		</menuchoice>
-		A dialog will pop up showing you the files that you've changed and
-		can revert. Select those you want to revert and click on
+		in the TortoiseSVN submenu. A dialog will pop up showing you the 
+		files you've changed and you can revert. Select those you want to 
+		revert and press
 		<guibutton>OK</guibutton>.
 		<figure id="tsvn-DUG-revert-dia-1">
 			<title>Revert dialog</title>

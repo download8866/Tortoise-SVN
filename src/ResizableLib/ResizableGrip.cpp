@@ -1,3 +1,5 @@
+// ResizableGrip.cpp: implementation of the CResizableGrip class.
+//
 /////////////////////////////////////////////////////////////////////////////
 //
 // This file is part of ResizableLib
@@ -14,11 +16,6 @@
 // If you find this code useful, credits would be nice!
 //
 /////////////////////////////////////////////////////////////////////////////
-
-/*!
- *  @file
- *  @brief Implementation of the CResizableGrip class.
- */
 
 #include "stdafx.h"
 #include "ResizableGrip.h"

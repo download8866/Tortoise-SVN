@@ -27,7 +27,6 @@
 #include "ShellExt.h"
 #include "..\\version.h"
 #include "libintl.h"
-#undef swprintf
 
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)

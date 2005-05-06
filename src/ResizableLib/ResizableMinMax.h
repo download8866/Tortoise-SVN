@@ -1,3 +1,5 @@
+// ResizableMinMax.h: interface for the CResizableMinMax class.
+//
 /////////////////////////////////////////////////////////////////////////////
 //
 // This file is part of ResizableLib
@@ -15,11 +17,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/*!
- *  @file
- *  @brief Interface for the CResizableMinMax class.
- */
-
 #if !defined(AFX_RESIZABLEMINMAX_H__INCLUDED_)
 #define AFX_RESIZABLEMINMAX_H__INCLUDED_
 
@@ -27,15 +24,7 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-/*! @addtogroup CoreComponents
- *  @{
- */
-
-//! @brief brief_description
-/*!
- *  long_description
- */
-class CResizableMinMax
+class CResizableMinMax  
 {
 // Attributes
 private:
@@ -76,5 +65,4 @@ protected:
 	void ResetMaxTrackSize();					// reset to default maximum tracking size
 };
 
-// @}
 #endif // !defined(AFX_RESIZABLEMINMAX_H__INCLUDED_)

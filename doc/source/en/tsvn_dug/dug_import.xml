@@ -112,10 +112,9 @@
 						<action>right click</action> on the folder and
 						selecting
 						<menuchoice>
-							<guimenu>TortoiseSVN</guimenu>
 							<guimenuitem>Import...</guimenuitem>
 						</menuchoice>
-						This will import your temp
+						from the context menu. This will import your temp
 						folder into the repository root to create the basic
 						repository layout.
 					</para>
@@ -176,7 +175,6 @@ C:\Temp\New\tags
 			<action>right click</action>
 			to open the context menu. Select the command
 			<menuchoice>
-				<guimenu>TortoiseSVN</guimenu>
 				<guimenuitem>Import...</guimenuitem>
 			</menuchoice>
 			which brings up a dialog box:
@@ -278,8 +276,7 @@ C:\Temp\New\tags
 			Select the folder <filename>D:\dev\project1</filename>,
 			<action>right click</action> and choose 
 			<menuchoice>
-				<guimenu>Windows Menu</guimenu>
-				<guimenuitem>Properties</guimenuitem>
+				<guimenuitem>properties</guimenuitem>
 			</menuchoice>
 			from the context menu. 
 			The Properties Dialog comes up. Then go to the Subversion tab.
@@ -295,7 +292,7 @@ subversion http://svn.collab.net/repos/svn/trunk
 			If a user updates their working copy the external project is checked out, too.
 		</para>
 		<para>
-			If you need more information how TortoiseSVN
+			If you need more information how <application>TortoiseSVN</application>
 			handles Properties read <xref linkend="tsvn-DUG-propertypage"/>.
 		</para>
 	</sect2>

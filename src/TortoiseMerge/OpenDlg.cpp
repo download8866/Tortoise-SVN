@@ -48,11 +48,6 @@ void COpenDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_YOURFILEEDIT, m_sYourFile);
 	DDX_Text(pDX, IDC_DIFFFILEEDIT, m_sUnifiedDiffFile);
 	DDX_Text(pDX, IDC_DIRECTORYEDIT, m_sPatchDirectory);
-	DDX_Control(pDX, IDC_BASEFILEEDIT, m_cBaseFileEdit);
-	DDX_Control(pDX, IDC_THEIRFILEEDIT, m_cTheirFileEdit);
-	DDX_Control(pDX, IDC_YOURFILEEDIT, m_cYourFileEdit);
-	DDX_Control(pDX, IDC_DIFFFILEEDIT, m_cDiffFileEdit);
-	DDX_Control(pDX, IDC_DIRECTORYEDIT, m_cDirEdit);
 }
 
 BEGIN_MESSAGE_MAP(COpenDlg, CDialog)
@@ -136,8 +131,8 @@ BOOL COpenDlg::BrowseForFile(CString& filepath, CString title, UINT nFileFilter)
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);

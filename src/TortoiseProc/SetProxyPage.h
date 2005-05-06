@@ -21,8 +21,6 @@
 #include "IconStatic.h"
 #include "Balloon.h"
 #include "Registry.h"
-#include "FileDropEdit.h"
-#include "afxwin.h"
 
 
 /**
@@ -64,8 +62,6 @@ public:
 	 * discarded!
 	 */
 	void SaveData();
-
-	UINT GetIconID() {return IDI_PROXY;}
 
 	enum { IDD = IDD_SETTINGSPROXY };
 
@@ -113,5 +109,4 @@ private:
 	CString		m_Exceptions;
 	CIconStatic	m_cSSHGroup;
 	CIconStatic	m_cProxyGroup;
-	CFileDropEdit m_cSSHClientEdit;
 };

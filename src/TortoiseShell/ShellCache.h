@@ -28,8 +28,7 @@ class ShellCache
 public:
 	ShellCache()
 	{
-		bUseExternalCache = CRegStdWORD(_T("Software\\TortoiseSVN\\ExternalCache"), TRUE);
-		showrecursive = CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
+		showrecursive = CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
 		folderoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
 		driveremote = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
 		drivefixed = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"), TRUE);
@@ -41,7 +40,6 @@ public:
 		includelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
 		recursiveticker = GetTickCount();
 		folderoverlayticker = GetTickCount();
-		externalCacheTicker = recursiveticker;
 		driveticker = recursiveticker;
 		drivetypeticker = recursiveticker;
 		langticker = recursiveticker;
@@ -67,7 +65,7 @@ public:
 		columnrevformat.Grouping = _ttoi(szBuffer);
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer));
 		columnrevformat.NegativeOrder = _ttoi(szBuffer);
-		sAdminDirCacheKey.reserve(MAX_PATH);		// MAX_PATH as buffer reservation ok.
+		sAdminDirCacheKey.reserve(MAX_PATH);
 	}
 	DWORD BlockStatus()
 	{
@@ -95,15 +93,6 @@ public:
 			showrecursive.read();
 		} // if ((GetTickCount() - REGISTRYTIMEOUT)>recursiveticker)
 		return (showrecursive);
-	}
-	BOOL UseExternalCache()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>externalCacheTicker)
-		{
-			externalCacheTicker = GetTickCount();
-			bUseExternalCache.read();
-		} 
-		return bUseExternalCache;
 	}
 	BOOL IsFolderOverlay()
 	{
@@ -168,7 +157,7 @@ public:
 			if ((drivetype == -1)||((GetTickCount() - DRIVETYPETIMEOUT)>drivetypeticker))
 			{
 				drivetypeticker = GetTickCount();
-				TCHAR pathbuf[MAX_PATH+4];		// MAX_PATH ok here. PathStripToRoot works with partial paths too.
+				TCHAR pathbuf[MAX_PATH+4];
 				_tcscpy(pathbuf, path);
 				PathStripToRoot(pathbuf);
 				PathAddBackslash(pathbuf);
@@ -179,7 +168,7 @@ public:
 		} // if ((drivenumber >=0)&&(drivenumber < 25)) 
 		else
 		{
-			TCHAR pathbuf[MAX_PATH+4];		// MAX_PATH ok here. PathIsUNCServer works with partial paths too.
+			TCHAR pathbuf[MAX_PATH+4];
 			_tcscpy(pathbuf, path);
 			if (PathIsUNCServer(pathbuf))
 				drivetype = DRIVE_REMOTE;
@@ -187,14 +176,14 @@ public:
 			{
 				PathStripToRoot(pathbuf);
 				PathAddBackslash(pathbuf);
-				if (_tcsncmp(pathbuf, drivetypepathcache, MAX_PATH-1)==0)		// MAX_PATH ok.
+				if (_tcsncmp(pathbuf, drivetypepathcache, MAX_PATH-1)==0)
 					drivetype = drivetypecache[26];
 				else
 				{
 					ATLTRACE2(_T("GetDriveType for %s\n"), pathbuf);
 					drivetype = GetDriveType(pathbuf);
 					drivetypecache[26] = drivetype;
-					_tcsncpy(drivetypepathcache, pathbuf, MAX_PATH);			// MAX_PATH ok.
+					_tcsncpy(drivetypepathcache, pathbuf, MAX_PATH);
 				} 
 			}
 		}
@@ -256,8 +245,7 @@ public:
 	}
 	BOOL HasSVNAdminDir(LPCTSTR path, BOOL bIsDir)
 	{
-		size_t len = _tcslen(path);
-		TCHAR * buf = new TCHAR[len+1];
+		TCHAR buf[MAX_PATH];
 		BOOL hasAdminDir = FALSE;
 		_tcscpy(buf, path);
 		if (! bIsDir)
@@ -274,11 +262,10 @@ public:
 			sAdminDirCacheKey.assign(buf);
 			if ((iter = admindircache.find(sAdminDirCacheKey)) != admindircache.end())
 			{
-				delete buf;
 				return iter->second;
 			}
 		}
-		TCHAR * buf2 = new TCHAR[len+10];		//BUGBUG: what if SVN_WC_ADM_DIR_NAME suddenly is bigger than 10 chars?
+		TCHAR buf2[MAX_PATH];
 		_tcscpy(buf2, buf);
 		_tcscat(buf2, _T("\\"));
 		_tcscat(buf2, _T(SVN_WC_ADM_DIR_NAME));
@@ -286,8 +273,6 @@ public:
 		admindirticker = GetTickCount();
 		admindircache.clear();
 		admindircache[buf] = hasAdminDir;
-		delete buf;
-		delete buf2;
 		return hasAdminDir;
 	}
 private:
@@ -357,7 +342,6 @@ private:
 	CRegStdWORD blockstatus;
 	CRegStdWORD langid;
 	CRegStdWORD showrecursive;
-	CRegStdWORD bUseExternalCache;
 	CRegStdWORD folderoverlay;
 	CRegStdWORD driveremote;
 	CRegStdWORD drivefixed;
@@ -372,7 +356,6 @@ private:
 	CRegStdString includelist;
 	stdstring includeliststr;
 	std::vector<stdstring> invector;
-	DWORD externalCacheTicker;
 	DWORD recursiveticker;
 	DWORD folderoverlayticker;
 	DWORD driveticker;
@@ -384,7 +367,7 @@ private:
 	DWORD excludelistticker;
 	DWORD includelistticker;
 	UINT  drivetypecache[27];
-	TCHAR drivetypepathcache[MAX_PATH];		// MAX_PATH ok.
+	TCHAR drivetypepathcache[MAX_PATH];
 	NUMBERFMT columnrevformat;
 	TCHAR szDecSep[5];
 	TCHAR szThousandsSep[5];

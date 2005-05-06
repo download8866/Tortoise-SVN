@@ -22,9 +22,6 @@
 #include "ProjectProperties.h"
 #include "StandAloneDlg.h"
 #include "TSVNPath.h"
-#include "SplitterControl.h"
-#include "afxwin.h"
-#include "afxdtctl.h"
 
 #define ID_COMPARE		1
 #define ID_SAVEAS		2
@@ -43,20 +40,8 @@
 #define ID_IGNORE	   15
 #define	ID_LOG		   16
 #define ID_POPPROPS	   17
-#define ID_EDITAUTHOR  18
-#define ID_EDITLOG     19
 
 #define ID_DIFF			20
-#define ID_EDITCONFLICT	21
-#define ID_OPENWITH		22
-
-#define LOGFILTER_ALL      1
-#define LOGFILTER_MESSAGES 2
-#define LOGFILTER_PATHS    3
-#define LOGFILTER_AUTHORS  4
-
-
-#define LOGFILTER_TIMER		101
 
 /**
  * \ingroup TortoiseProc
@@ -84,7 +69,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CLogDlg : public CResizableStandAloneDialog, public SVN //CResizableStandAloneDialog
+class CLogDlg : public CResizableStandAloneDialog, public SVN
 {
 	DECLARE_DYNAMIC(CLogDlg)
 
@@ -114,12 +99,6 @@ protected:
 	afx_msg void OnEnLinkMsgview(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedStatbutton();
 	afx_msg void OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnStnClickedFiltericon();
-	afx_msg void OnEnChangeSearchedit();
-	afx_msg void OnTimer(UINT nIDEvent);
-	afx_msg void OnDtnDatetimechangeDateto(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDtnDatetimechangeDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
 	virtual void OnCancel();
 	virtual void OnOK();
 	virtual BOOL OnInitDialog();
@@ -131,67 +110,43 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	void SetParams(const CTSVNPath& path, long startrev, long endrev, int limit, BOOL bStrict = FALSE);
+	void SetParams(const CString& path, long startrev = 0, long endrev = -1, BOOL bStrict = FALSE);
 
 private:
 	static UINT LogThreadEntry(LPVOID pVoid);
 	UINT LogThread();
-	BOOL DiffPossible(LogChangedPath * changedpath, long rev);
-	void EditAuthor(int index);
-	void EditLogMessage(int index);
-	void DoSizeV1(int delta);
-	void DoSizeV2(int delta);
-	void SetSplitterRange();
-	void SetFilterCueText();
-	BOOL IsEntryInDateRange(int i);
-	
-	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 
 public:
-	CWnd *				m_pNotifyWindow;
-	ProjectProperties	m_ProjectProperties;
-	WORD				m_wParam;
+	CWnd *		m_pNotifyWindow;
+	ProjectProperties m_ProjectProperties;
+	WORD		m_wParam;
 private:
-	CListCtrl			m_LogList;
-	CListCtrl			m_LogMsgCtrl;
-	CProgressCtrl		m_LogProgress;
-	CTSVNPath			m_path;
-	long				m_startrev;
-	long				m_endrev;
-	long				m_logcounter;
-	BOOL				m_bCancelled;
-	BOOL				m_bThreadRunning;
-	BOOL				m_bStrict;
-	CStringArray		m_arLogMessages;
-	CStringArray		m_arShortLogMessages;
+	CListCtrl	m_LogList;
+	CListCtrl	m_LogMsgCtrl;
+	CProgressCtrl m_LogProgress;
+	CTSVNPath   m_path;
+	long		m_startrev;
+	long		m_endrev;
+	long		m_logcounter;
+	BOOL		m_bCancelled;
+	BOOL		m_bShowedAll;
+	BOOL		m_bThreadRunning;
+	BOOL		m_bStrict;
+	BOOL		m_bGotRevisions;
+	CStringArray m_arLogMessages;
 	CArray<LogChangedPathArray*, LogChangedPathArray*> m_arLogPaths;
-	CDWordArray			m_arDates;
-	CStringArray		m_arDateStrings;
-	CStringArray		m_arAuthors;
-	CDWordArray			m_arFileChanges;
-	CDWordArray			m_arRevs;
-	CDWordArray			m_arCopies;
-	CDWordArray			m_arShownList;
-	BOOL				m_hasWC;
-	int					m_nSearchIndex;
-	static const UINT	m_FindDialogMessage;
+	CDWordArray	m_arDates;
+	CStringArray m_arAuthors;
+	CDWordArray m_arFileChanges;
+	CDWordArray m_arRevs;
+	CDWordArray	m_arCopies;
+	BOOL		m_hasWC;
+	int			m_nSearchIndex;
+	static const UINT m_FindDialogMessage;
 	CFindReplaceDialog *m_pFindDialog;
-	CTSVNPathList		m_tempFileList;
-	CFont				m_logFont;
-	CString				m_sMessageBuf;
-	CSplitterControl	m_wndSplitter1;
-	CSplitterControl	m_wndSplitter2;
-	CString				m_sFilterText;
-	int					m_nSelectedFilter;
-	bool				m_bNoDispUpdates;
-	CDateTimeCtrl		m_DateFrom;
-	CDateTimeCtrl		m_DateTo;
-	DWORD				m_tFrom;
-	DWORD				m_tTo;
-	int					m_limit;
-	int					m_limitcounter;
-public:
-	afx_msg void OnBnClickedNexthundred();
+//	CStringArray	m_templist;
+	CTSVNPathList m_tempFileList;
+	CFont		m_logFont;
+	CString		m_sMessageBuf;
 };
-static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
 

@@ -1,5 +1,5 @@
-#if !defined(AFX_RESIZABLECOMBOLBOX_H__INCLUDED_)
-#define AFX_RESIZABLECOMBOLBOX_H__INCLUDED_
+#if !defined(AFX_RESIZABLELISTBOX_H__06867B74_5C72_483A_8FC5_C4846EAE83CB__INCLUDED_)
+#define AFX_RESIZABLELISTBOX_H__06867B74_5C72_483A_8FC5_C4846EAE83CB__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -9,11 +9,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 //
-// This file is part of ResizableLib
-// http://sourceforge.net/projects/resizablelib
-//
 // Copyright (C) 2000-2004 by Paolo Messina
-// http://www.geocities.com/ppescher - mailto:ppescher@hotmail.com
+// (http://www.geocities.com/ppescher - ppescher@hotmail.com)
 //
 // The contents of this file are subject to the Artistic License (the "License").
 // You may not use this file except in compliance with the License. 
@@ -24,14 +21,12 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-#include "ResizableGrip.h"
+class CResizableComboBox;
 
 /////////////////////////////////////////////////////////////////////////////
 // CResizableComboLBox window
 
-class CResizableComboBox;
-
-class CResizableComboLBox : public CWnd, public CResizableGrip
+class CResizableComboLBox : public CWnd
 {
 	friend class CResizableComboBox;
 
@@ -50,7 +45,6 @@ public:
 	//{{AFX_VIRTUAL(CResizableComboLBox)
 	protected:
 	virtual void PreSubclassWindow();
-	virtual LRESULT WindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	//}}AFX_VIRTUAL
 
 // Implementation
@@ -77,12 +71,6 @@ protected:
 
 	BOOL IsRTL();
 
-	virtual CWnd* GetResizableWnd() const
-	{
-		// make the layout know its parent window
-		return CWnd::FromHandle(m_hWnd);
-	};
-
 	// Generated message map functions
 protected:
 	//{{AFX_MSG(CResizableComboLBox)
@@ -103,4 +91,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_RESIZABLECOMBOLBOX_H__INCLUDED_)
+#endif // !defined(AFX_RESIZABLELISTBOX_H__06867B74_5C72_483A_8FC5_C4846EAE83CB__INCLUDED_)

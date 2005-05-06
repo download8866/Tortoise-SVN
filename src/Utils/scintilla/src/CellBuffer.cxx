@@ -96,20 +96,17 @@ void MarkerHandleSet::RemoveHandle(int handle) {
 	}
 }
 
-bool MarkerHandleSet::RemoveNumber(int markerNum) {
-	bool performedDeletion = false;
+void MarkerHandleSet::RemoveNumber(int markerNum) {
 	MarkerHandleNumber **pmhn = &root;
 	while (*pmhn) {
 		MarkerHandleNumber *mhn = *pmhn;
 		if (mhn->number == markerNum) {
 			*pmhn = mhn->next;
 			delete mhn;
-			performedDeletion = true;
 		} else {
 			pmhn = &((*pmhn)->next);
 		}
 	}
-	return performedDeletion;
 }
 
 void MarkerHandleSet::CombineWith(MarkerHandleSet *other) {
@@ -254,7 +251,11 @@ void LineVector::Remove(int pos) {
 		linesData[i] = linesData[i + 1];
 	}
 	if (levels) {
-		for (int j = pos; j < lines; j++) {
+		// Level information merges back onto previous line
+		int posAbove = pos - 1;
+		if (posAbove < 0)
+			posAbove = 0;
+		for (int j = posAbove; j < lines; j++) {
 			levels[j] = levels[j + 1];
 		}
 	}
@@ -305,18 +306,13 @@ void LineVector::MergeMarkers(int pos) {
 	}
 }
 
-void LineVector::DeleteMark(int line, int markerNum, bool all) {
+void LineVector::DeleteMark(int line, int markerNum) {
 	if (linesData[line].handleSet) {
 		if (markerNum == -1) {
 			delete linesData[line].handleSet;
 			linesData[line].handleSet = 0;
 		} else {
-			bool performedDeletion = 
-				linesData[line].handleSet->RemoveNumber(markerNum);
-			while (all && performedDeletion) {
-				performedDeletion = 
-					linesData[line].handleSet->RemoveNumber(markerNum);
-			}
+			linesData[line].handleSet->RemoveNumber(markerNum);
 			if (linesData[line].handleSet->Length() == 0) {
 				delete linesData[line].handleSet;
 				linesData[line].handleSet = 0;
@@ -446,9 +442,6 @@ void UndoHistory::AppendAction(actionType at, int position, char *data, int leng
 	//Platform::DebugPrintf("%% %d action %d %d %d\n", at, position, lengthData, currentAction);
 	//Platform::DebugPrintf("^ %d action %d %d\n", actions[currentAction - 1].at,
 	//	actions[currentAction - 1].position, actions[currentAction - 1].lenData);
-	if (currentAction < savePoint) {
-		savePoint = -1;
-	}
 	if (currentAction >= 1) {
 		if (0 == undoSequenceDepth) {
 			// Top level actions may not always be coalesced
@@ -840,7 +833,7 @@ int CellBuffer::AddMark(int line, int markerNum) {
 
 void CellBuffer::DeleteMark(int line, int markerNum) {
 	if ((line >= 0) && (line < lv.lines)) {
-		lv.DeleteMark(line, markerNum, false);
+		lv.DeleteMark(line, markerNum);
 	}
 }
 
@@ -856,7 +849,7 @@ int CellBuffer::GetMark(int line) {
 
 void CellBuffer::DeleteAllMarks(int markerNum) {
 	for (int line = 0; line < lv.lines; line++) {
-		lv.DeleteMark(line, markerNum, true);
+		lv.DeleteMark(line, markerNum);
 	}
 }
 

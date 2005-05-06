@@ -115,7 +115,6 @@ void CSetProxyPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_SSHCLIENT, m_SSHClient);
 	DDX_Control(pDX, IDC_SSHGROUP, m_cSSHGroup);
 	DDX_Control(pDX, IDC_PROXYGROUP, m_cProxyGroup);
-	DDX_Control(pDX, IDC_SSHCLIENT, m_cSSHClientEdit);
 }
 
 
@@ -205,7 +204,6 @@ void CSetProxyPage::OnBnClickedEnable()
 	{
 		EnableGroup(FALSE);
 	}
-	SetModified();
 }
 
 void CSetProxyPage::EnableGroup(BOOL b)
@@ -276,8 +274,8 @@ void CSetProxyPage::OnBnClickedSshbrowse()
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);

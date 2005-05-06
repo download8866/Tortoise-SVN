@@ -136,13 +136,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 	{
 		Reserve(lengthHint);
 	}
-	
-	if (PathIsDirectory(sFilePath))
-	{
-		m_sErrorString.Format(IDS_ERR_FILE_NOTAFILE, sFilePath);
-		return FALSE;
-	}
-	
+
 	if (!PathFileExists(sFilePath))
 	{
 		//file does not exist, so just return SUCCESS
@@ -280,25 +274,12 @@ CFileTextLines::StripAsciiWhiteSpace(CStringA& sLine)
 	sLine.ReleaseBuffer(outputLen);
 }
 
-BOOL CFileTextLines::Save(const CString& sFilePath, BOOL bIgnoreWhitespaces /*= FALSE*/, BOOL bIgnoreLineendings /*= FALSE*/, BOOL bIgnoreCase /*= FALSE*/)
+BOOL CFileTextLines::Save(const CString& sFilePath, BOOL bIgnoreWhitespaces /*= FALSE*/, BOOL bIgnoreLineendings /*= FALSE*/)
 {
 	if (bIgnoreLineendings)
 		m_LineEndings = AUTOLINE;
 	try
 	{
-		CString destPath = sFilePath;
-		// now make sure that the destination directory exists
-		int ind = 0;
-		while (destPath.Find('\\', ind)>=0)
-		{
-			if (!PathIsDirectory(destPath.Left(destPath.Find('\\', ind))))
-			{
-				if (!CreateDirectory(destPath.Left(destPath.Find('\\', ind)), NULL))
-					return FALSE;
-			}
-			ind = destPath.Find('\\', ind)+1;
-		}
-		
 		CStdioFile file;			// Hugely faster the CFile for big file writes - because it uses buffering
 		if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
 		{
@@ -318,8 +299,6 @@ BOOL CFileTextLines::Save(const CString& sFilePath, BOOL bIgnoreWhitespaces /*= 
 					sLine.Replace(_T(" "), _T(""));
 					sLine.Replace(_T("\t"), _T(""));
 				}
-				if (bIgnoreCase)
-					sLine = sLine.MakeLower();
 				file.Write((LPCTSTR)sLine, sLine.GetLength());
 				switch (m_LineEndings)
 				{
@@ -344,22 +323,11 @@ BOOL CFileTextLines::Save(const CString& sFilePath, BOOL bIgnoreWhitespaces /*= 
 		{
 			for (int i=0; i< GetCount(); i++)
 			{
-				// Copy CString to 8 bit wihout conversion
-				CStringA sLine;
-				CString sLineT = GetAt(i);
-
-				char *pszLine = sLine.GetBuffer(sLineT.GetLength());
-				for (int l = 0; l < sLineT.GetLength(); ++l)
-					*pszLine++ = LOBYTE(sLineT[l]);
-				*pszLine = 0;
-				sLine.ReleaseBuffer();
-
+				CStringA sLine = CStringA(GetAt(i));
 				if (bIgnoreWhitespaces)
 				{
 					StripAsciiWhiteSpace(sLine);
 				}
-				if (bIgnoreCase)
-					sLine = sLine.MakeLower();
 				switch (m_LineEndings)
 				{
 				case CR:
@@ -393,8 +361,6 @@ BOOL CFileTextLines::Save(const CString& sFilePath, BOOL bIgnoreWhitespaces /*= 
 				{
 					StripAsciiWhiteSpace(sLine);
 				} // if (bIgnoreWhitespaces)
-				if (bIgnoreCase)
-					sLine = sLine.MakeLower();
 
 				switch (m_LineEndings)
 				{

@@ -18,11 +18,13 @@
 //
 #pragma once
 #include "SVNRev.h"
+#include "StandAloneDlg.h"
+#include "StandAloneDlg.h"
 #include "Registry.h"
 
 // CBlameDlg dialog
 
-class CBlameDlg : public CDialog
+class CBlameDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CBlameDlg)
 

@@ -1,5 +1,5 @@
-#if !defined(AFX_RESIZABLEFRAME_H__INCLUDED_)
-#define AFX_RESIZABLEFRAME_H__INCLUDED_
+#if !defined(AFX_RESIZABLEFRAME_H__4BA07057_6EF3_43A4_A80B_A24FA3A8B5C7__INCLUDED_)
+#define AFX_RESIZABLEFRAME_H__4BA07057_6EF3_43A4_A80B_A24FA3A8B5C7__INCLUDED_
 
 #if _MSC_VER > 1000
 #pragma once
@@ -76,7 +76,6 @@ protected:
 	afx_msg void OnGetMinMaxInfo(MINMAXINFO FAR* lpMMI);
 	afx_msg void OnDestroy();
 	afx_msg BOOL OnNcCreate(LPCREATESTRUCT lpCreateStruct);
-	afx_msg void OnWindowPosChanging(WINDOWPOS FAR* lpwndpos);
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };
@@ -86,4 +85,4 @@ protected:
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
 
-#endif // !defined(AFX_RESIZABLEFRAME_H__INCLUDED_)
+#endif // !defined(AFX_RESIZABLEFRAME_H__4BA07057_6EF3_43A4_A80B_A24FA3A8B5C7__INCLUDED_)

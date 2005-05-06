@@ -266,7 +266,7 @@ int Document::LenChar(int pos) {
 		return 1;
 	}
 }
-
+#include <assert.h>
 // Normalise a position so that it is not halfway through a two byte character.
 // This can occur in two situations -
 // When lines are terminated with \r\n pairs which should be treated as one character.
@@ -280,7 +280,7 @@ int Document::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) {
 	if (pos >= Length())
 		return Length();
 
-	// PLATFORM_ASSERT(pos > 0 && pos < Length());
+	// assert pos > 0 && pos < Length()
 	if (checkLineEnd && IsCrLf(pos - 1)) {
 		if (moveDir > 0)
 			return pos + 1;
@@ -524,17 +524,15 @@ bool Document::InsertString(int position, const char *s) {
  */
 bool Document::InsertString(int position, const char *s, size_t insertLength) {
 	bool changed = false;
-	if (insertLength > 0) {
-		char *sWithStyle = new char[insertLength * 2];
-		if (sWithStyle) {
-			for (size_t i = 0; i < insertLength; i++) {
-				sWithStyle[i*2] = s[i];
-				sWithStyle[i*2 + 1] = 0;
-			}
-			changed = InsertStyledString(position*2, sWithStyle,
-				static_cast<int>(insertLength*2));
-			delete []sWithStyle;
+	char *sWithStyle = new char[insertLength * 2];
+	if (sWithStyle) {
+		for (size_t i = 0; i < insertLength; i++) {
+			sWithStyle[i*2] = s[i];
+			sWithStyle[i*2 + 1] = 0;
 		}
+		changed = InsertStyledString(position*2, sWithStyle,
+			static_cast<int>(insertLength*2));
+		delete []sWithStyle;
 	}
 	return changed;
 }
@@ -613,10 +611,8 @@ void Document::SetLineIndentation(int line, int indent) {
 		CreateIndentation(linebuf, sizeof(linebuf), indent, tabInChars, !useTabs);
 		int thisLineStart = LineStart(line);
 		int indentPos = GetLineIndentPosition(line);
-		BeginUndoAction();
 		DeleteChars(thisLineStart, indentPos - thisLineStart);
 		InsertString(thisLineStart, linebuf);
-		EndUndoAction();
 	}
 }
 
@@ -657,7 +653,7 @@ int Document::FindColumn(int line, int column) {
 	int position = LineStart(line);
 	int columnCurrent = 0;
 	if ((line >= 0) && (line < LinesTotal())) {
-		while ((columnCurrent < column) && (position < Length())) {
+		while (columnCurrent < column) {
 			char ch = cb.CharAt(position);
 			if (ch == '\t') {
 				columnCurrent = NextTab(columnCurrent, tabInChars);
@@ -686,113 +682,71 @@ void Document::Indent(bool forwards, int lineBottom, int lineTop) {
 	}
 }
 
-// Convert line endings for a piece of text to a particular mode.
-// Stop at len or when a NUL is found.
-// Caller must delete the returned pointer.
-char *Document::TransformLineEnds(int *pLenOut, const char *s, size_t len, int eolMode) {
-	char *dest = new char[2 * len + 1];
-	const char *sptr = s;
-	char *dptr = dest;
-	for (size_t i = 0; (i < len) && (*sptr != '\0'); i++) {
-		if (*sptr == '\n' || *sptr == '\r') {
-			if (eolMode == SC_EOL_CR) {
-				*dptr++ = '\r';
-			} else if (eolMode == SC_EOL_LF) {
-				*dptr++ = '\n';
-			} else { // eolMode == SC_EOL_CRLF
-				*dptr++ = '\r';
-				*dptr++ = '\n';
-			}
-			if ((*sptr == '\r') && (i+1 < len) && (*(sptr+1) == '\n')) {
-				i++;
-				sptr++;
-			}
-			sptr++;
-		} else {
-			*dptr++ = *sptr++;
-		}
-	}
-	*dptr++ = '\0';
-	*pLenOut = (dptr - dest) - 1;
-	return dest;
-}
-
 void Document::ConvertLineEnds(int eolModeSet) {
 	BeginUndoAction();
-
 	for (int pos = 0; pos < Length(); pos++) {
 		if (cb.CharAt(pos) == '\r') {
 			if (cb.CharAt(pos + 1) == '\n') {
-				// CRLF
-				if (eolModeSet == SC_EOL_CR) {
-					DeleteChars(pos + 1, 1); // Delete the LF
-				} else if (eolModeSet == SC_EOL_LF) {
-					DeleteChars(pos, 1); // Delete the CR
+				if (eolModeSet != SC_EOL_CRLF) {
+					DeleteChars(pos, 2);
+					if (eolModeSet == SC_EOL_CR)
+						InsertString(pos, "\r", 1);
+					else
+						InsertString(pos, "\n", 1);
 				} else {
 					pos++;
 				}
 			} else {
-				// CR
-				if (eolModeSet == SC_EOL_CRLF) {
-					InsertString(pos + 1, "\n", 1); // Insert LF
-					pos++;
-				} else if (eolModeSet == SC_EOL_LF) {
-					InsertString(pos, "\n", 1); // Insert LF
-					DeleteChars(pos + 1, 1); // Delete CR
+				if (eolModeSet != SC_EOL_CR) {
+					DeleteChars(pos, 1);
+					if (eolModeSet == SC_EOL_CRLF) {
+						InsertString(pos, "\r\n", 2);
+						pos++;
+					} else {
+						InsertString(pos, "\n", 1);
+					}
 				}
 			}
 		} else if (cb.CharAt(pos) == '\n') {
-			// LF
-			if (eolModeSet == SC_EOL_CRLF) {
-				InsertString(pos, "\r", 1); // Insert CR
-				pos++;
-			} else if (eolModeSet == SC_EOL_CR) {
-				InsertString(pos, "\r", 1); // Insert CR
-				DeleteChars(pos + 1, 1); // Delete LF
+			if (eolModeSet != SC_EOL_LF) {
+				DeleteChars(pos, 1);
+				if (eolModeSet == SC_EOL_CRLF) {
+					InsertString(pos, "\r\n", 2);
+					pos++;
+				} else {
+					InsertString(pos, "\r", 1);
+				}
 			}
 		}
 	}
-
 	EndUndoAction();
-}
-
-bool Document::IsWhiteLine(int line) {
-	int currentChar = LineStart(line);
-	int endLine = LineEnd(line);
-	while (currentChar < endLine) {
-		if (cb.CharAt(currentChar) != ' ' && cb.CharAt(currentChar) != '\t') {
-			return false;
-		}
-		++currentChar;
-	}
-	return true;
-}
-
-int Document::ParaUp(int pos) {
-	int line = LineFromPosition(pos);
-	line--;
-	while (line >= 0 && IsWhiteLine(line)) { // skip empty lines
-		line--;
-	}
-	while (line >= 0 && !IsWhiteLine(line)) { // skip non-empty lines
-		line--;
-	}
-	line++;
-	return LineStart(line);
 }
 
 int Document::ParaDown(int pos) {
 	int line = LineFromPosition(pos);
-	while (line < LinesTotal() && !IsWhiteLine(line)) { // skip non-empty lines
+	while (line < LinesTotal() && LineStart(line) != LineEnd(line)) { // skip non-empty lines
 		line++;
 	}
-	while (line < LinesTotal() && IsWhiteLine(line)) { // skip empty lines
+	while (line < LinesTotal() && LineStart(line) == LineEnd(line)) { // skip empty lines
 		line++;
 	}
 	if (line < LinesTotal())
 		return LineStart(line);
 	else // end of a document
 		return LineEnd(line-1);
+}
+
+int Document::ParaUp(int pos) {
+	int line = LineFromPosition(pos);
+	line--;
+	while (line >= 0 && LineStart(line) == LineEnd(line)) { // skip empty lines
+		line--;
+	}
+	while (line >= 0 && LineStart(line) != LineEnd(line)) { // skip non-empty lines
+		line--;
+	}
+	line++;
+	return LineStart(line);
 }
 
 Document::charClassification Document::WordCharClass(unsigned char ch) {
@@ -900,7 +854,7 @@ bool Document::IsWordStartAt(int pos) {
  * the next character is of a different character class.
  */
 bool Document::IsWordEndAt(int pos) {
-	if (pos < Length()) {
+	if (pos < Length() - 1) {
 		charClassification ccPrev = WordCharClass(CharAt(pos-1));
 		return (ccPrev == ccWord || ccPrev == ccPunctuation) &&
 			(ccPrev != WordCharClass(CharAt(pos)));
@@ -1017,7 +971,7 @@ long Document::FindText(int minPos, int maxPos, const char *s,
 				if (line == lineRangeStart) {
 					if ((startPos != endOfLine) && (searchEnd == '$'))
 						continue;	// Can't match end of line if start position before end of line
-					endOfLine = startPos;
+					endOfLine = startPos+1;
 				}
 			}
 
@@ -1029,10 +983,10 @@ long Document::FindText(int minPos, int maxPos, const char *s,
 				if (increment == -1) {
 					// Check for the last match on this line.
 					int repetitions = 1000;	// Break out of infinite loop
-					while (success && (pre->eopat[0] <= endOfLine) && (repetitions--)) {
-						success = pre->Execute(di, pos+1, endOfLine);
+					while (success && (pre->eopat[0] <= (endOfLine+1)) && (repetitions--)) {
+						success = pre->Execute(di, pos+1, endOfLine+1);
 						if (success) {
-							if (pre->eopat[0] <= minPos) {
+							if (pre->eopat[0] <= (minPos+1)) {
 								pos = pre->bopat[0];
 								lenRet = pre->eopat[0] - pre->bopat[0];
 							} else {
@@ -1068,13 +1022,12 @@ long Document::FindText(int minPos, int maxPos, const char *s,
 		char firstChar = s[0];
 		if (!caseSensitive)
 			firstChar = static_cast<char>(MakeUpperCase(firstChar));
-		int pos = forward ? startPos : (startPos - 1);
+		int pos = startPos;
 		while (forward ? (pos < endSearch) : (pos >= endSearch)) {
 			char ch = CharAt(pos);
 			if (caseSensitive) {
 				if (ch == firstChar) {
 					bool found = true;
-					if (pos + lengthFind > Platform::Maximum(startPos, endPos)) found = false;
 					for (int posMatch = 1; posMatch < lengthFind && found; posMatch++) {
 						ch = CharAt(pos + posMatch);
 						if (ch != s[posMatch])
@@ -1090,7 +1043,6 @@ long Document::FindText(int minPos, int maxPos, const char *s,
 			} else {
 				if (MakeUpperCase(ch) == firstChar) {
 					bool found = true;
-					if (pos + lengthFind > Platform::Maximum(startPos, endPos)) found = false;
 					for (int posMatch = 1; posMatch < lengthFind && found; posMatch++) {
 						ch = CharAt(pos + posMatch);
 						if (MakeUpperCase(ch) != MakeUpperCase(s[posMatch]))

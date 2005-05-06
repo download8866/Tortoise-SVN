@@ -21,9 +21,6 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 #include "SciEdit.h"
-#include "TSVNPath.h"
-#include "SVNRev.h"
-#include "LogDlg.h"
 
 /**
  * \ingroup TortoiseProc
@@ -50,7 +47,7 @@
  * or makes your car start emitting strange noises when you start it up.
  * This code has no bugs, just undocumented features!
  */
-class CCopyDlg : public CDialog
+class CCopyDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCopyDlg)
 
@@ -70,21 +67,17 @@ protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedBrowse();
 	afx_msg void OnBnClickedHelp();
+	afx_msg void OnCbnSelchangeOldlogs();
 	afx_msg void OnCbnCloseupOldlogs();
-	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnBnClickedBrowsefrom();
-	afx_msg void OnBnClickedCopyhead();
-	afx_msg void OnBnClickedCopyrev();
-	afx_msg void OnBnClickedCopywc();
 	DECLARE_MESSAGE_MAP()
 
 public:
 	CString	m_URL;
-	CTSVNPath m_path;
+	CString m_path;
 	CString m_sLogMessage;
-	SVNRev m_CopyRev;
+	BOOL m_bDirectCopy;
+
 private:
-	CLogDlg *	m_pLogDlg;
 	CSciEdit	m_cLogMessage;
 	CFont		m_logFont;
 	BOOL		m_bFile;

@@ -31,7 +31,7 @@ svn_error_t * svn_cl__get_log_message (const char **log_msg,
 									void *baton, apr_pool_t * pool);
 
 /**
- * \ingroup SVN
+ * \ingroup TortoiseProc
  * This class provides all Subversion commands as methods and adds some helper
  * methods to the Subversion commands. Also provides virtual methods for the
  * callbacks Subversion uses. This class can't be used directly but must be
@@ -76,25 +76,10 @@ public:
 	} ;
 	typedef CArray<LogChangedPath*, LogChangedPath*> LogChangedPathArray;
 	virtual BOOL Cancel();
-	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
-							svn_node_kind_t kind, const CString& mime_type, 
-							svn_wc_notify_state_t content_state, 
-							svn_wc_notify_state_t prop_state, LONG rev,
-							const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
-							svn_error_t * err, apr_pool_t * pool);
+	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, svn_node_kind_t kind, const CString& myme_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev);
 	virtual BOOL Log(LONG rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies);
 	virtual BOOL BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line);
 
-	struct SVNLock
-	{
-		CString path;
-		CString token;
-		CString owner;
-		CString comment;
-		__time64_t creation_date;
-		__time64_t expiration_date;
-	};
-	
 	/**
 	 * If a method of this class returns FALSE then you can
 	 * get the detailed error message with this method.
@@ -107,11 +92,9 @@ public:
 	 * \param moduleName the path/url of the repository
 	 * \param destPath the path to the local working copy
 	 * \param revision the revision number to check out
-	 * \param pegrev the peg revision to use
 	 * \param recurse TRUE if you want to check out all subdirs and files (recommended)
-	 * \param bIgnoreExternals if TRUE, do not check out externals
 	 */
-	BOOL Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL recurse, BOOL bIgnoreExternals);
+	BOOL Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRev revision, BOOL recurse);
 	/**
 	 * If pathlist contains an URL, use the MESSAGE to immediately attempt 
 	 * to commit a deletion of the URL from the repository. 
@@ -155,12 +138,11 @@ public:
 	BOOL Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force = FALSE);
 	/**
 	 * Update working tree path to revision.
-	 * \param pathList the files/directories to update
+	 * \param path the file/directory to update
 	 * \param revision the revision the local copy should be updated to or -1 for HEAD
 	 * \param recurse 
-	 * \param ignoreexternals if TRUE, don't update externals
 	 */
-	BOOL Update(const CTSVNPathList& pathList, SVNRev revision, BOOL recurse, BOOL ignoreexternals);
+	BOOL Update(const CTSVNPath& path, SVNRev revision, BOOL recurse);
 	/**
 	 * Commit file or directory path into repository, using message as
 	 * the log message.
@@ -174,10 +156,9 @@ public:
 	 * \param path the file/directory to commit
 	 * \param message a log message describing the changes you made
 	 * \param recurse 
-	 * \param keep_locks if TRUE, the locks are not removed on commit
-	 * \return the resulting revision number.
+	 * \param revision the resulting revision number. return value.
 	 */
-	LONG Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks);
+	LONG Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse);
 	/**
 	 * Copy srcPath to destPath.
 	 * 
@@ -264,7 +245,7 @@ public:
 	 *					when exporting from a repository.
 	 * \param force		TRUE if existing files should be overwritten
 	 */
-	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, CProgressDlg * pProgDlg = NULL, BOOL extended = FALSE);
+	BOOL Export(CString srcPath, CString destPath, SVNRev revision, BOOL force = TRUE, CProgressDlg * pProgDlg = NULL, BOOL extended = FALSE);
 	/**
 	 * Switch working tree path to URL at revision
 	 *
@@ -359,8 +340,8 @@ public:
 	 * \remark - the use of two overloaded functions rather than default parameters is to avoid the
 	 * CTSVNPath constructor (and hence #include) being visible in this header file
 	 */
-	BOOL Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype, CString options, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
-	BOOL Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype,  CString options, const CTSVNPath& outputfile);
+	BOOL Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, CString options, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
+	BOOL Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, CString options, const CTSVNPath& outputfile);
 
 	/**
 	 * Produce diff output which describes the delta between the filesystem object \a path in 
@@ -370,8 +351,8 @@ public:
 	 *
 	 * All other options are handled identically to Diff().
 	 */
-	BOOL PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SVNRev endrev, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype,  CString options, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
-	BOOL PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SVNRev endrev, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype,  CString options, const CTSVNPath& outputfile);
+	BOOL PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SVNRev endrev, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, CString options, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
+	BOOL PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SVNRev endrev, BOOL recurse, BOOL ignoreancestry, BOOL nodiffdeleted, CString options, const CTSVNPath& outputfile);
 
 	/**
 	 * fires the Log-event on each log message from revisionStart
@@ -384,7 +365,7 @@ public:
 	 * \param revisionEnd the revision to stop the logs
 	 * \param changed TRUE if the log should follow changed paths 
 	 */
-	BOOL ReceiveLog(const CTSVNPathList& pathlist, SVNRev revisionStart, SVNRev revisionEnd, int limit, BOOL changed, BOOL strict = FALSE);
+	BOOL ReceiveLog(const CTSVNPathList& pathlist, SVNRev revisionStart, SVNRev revisionEnd, BOOL changed, BOOL strict = FALSE);
 	
 	/**
 	 * Checks out a file with \a revision to \a localpath.
@@ -410,13 +391,12 @@ public:
 	 * Browser.
 	 *
 	 * \param url url to the repository you wish to ls.
-	 * \param pegrev peg revision
 	 * \param revision	the revision that you want to explore
 	 * \param entries CStringArray of subdirectories
 	 * \param extended Set to TRUE for entries in extended format (see above)
 	 * \param recursive Set this to TRUE to get all entries recursively
 	 */
-	BOOL Ls(const CTSVNPath& url, SVNRev pegrev, SVNRev revision, CStringArray& entries, BOOL extended = FALSE, BOOL recursive = FALSE);
+	BOOL Ls(const CTSVNPath& url, SVNRev revision, CStringArray& entries, BOOL extended = FALSE, BOOL recursive = FALSE);
 
 	/**
 	 * Relocates a working copy to a new/changes repository URL. Use this function
@@ -438,25 +418,6 @@ public:
 	 * \param endrev the end revision where the check is stopped
 	 */
 	BOOL Blame(const CTSVNPath& path, SVNRev startrev, SVNRev endrev);
-	
-	/**
-	 * Lock a file for exclusive use so no other users are allowed to edit
-	 * the same file. A commit of a locked file is rejected if the lock isn't
-	 * owned by the committer himself.
-	 * \param pathList a list of filepaths to lock
-	 * \param bStealLock if TRUE, an already existing lock is overwritten
-	 * \param comment a comment to assign to the lock. Only used by svnserve!
-	 */
-	BOOL Lock(const CTSVNPathList& pathList, BOOL bStealLock, const CString& comment = CString());
-	
-	/**
-	 * Removes existing locks from files.
-	 * \param pathList a list of filepaths to remove the lock from
-	 * \param bBreakLock if TRUE, the locks are removed even if the committer
-	 * isn't the owner of the locks!
-	 */
-	BOOL Unlock(const CTSVNPathList& pathList, BOOL bBreakLock);
-	
 	/**
 	 * Checks if a windows path is a local repository
 	 */
@@ -495,18 +456,15 @@ public:
 	 */
 	CString	RevPropertyGet(CString sName, CString sURL, SVNRev rev);
 
-	/**
-	 * Fetches all locks for \a url and the paths below.
-	 * \remark The CString key in the map is the absolute path in
-	 * the repository of the lock. It is \b not an absolute URL, the
-	 * repository root part is stripped off!
-	 */
-	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);	
-
 	CString GetURLFromPath(const CTSVNPath& path);
 	CString GetUUIDFromPath(const CTSVNPath& path);
 
 	static CString CheckConfigFile();
+
+	/**
+	 * Returns a text representation of an action enum.
+	 */
+	static CString GetActionText(svn_wc_notify_action_t action, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state);
 
 	/**
 	 * Creates a repository at the specified location.
@@ -603,8 +561,13 @@ private:
 	svn_error_t * get_uuid_from_target (const char **UUID, const char *target);
 	static svn_error_t* cancel(void *baton);
 	static void notify( void *baton,
-						const svn_wc_notify_t *notify,
-						apr_pool_t *pool);
+					const char *path,
+					svn_wc_notify_action_t action,
+					svn_node_kind_t kind,
+					const char *mime_type,
+					svn_wc_notify_state_t content_state,
+					svn_wc_notify_state_t prop_state,
+					svn_revnum_t revision);
 	static svn_error_t* logReceiver(void* baton, 
 					apr_hash_t* ch_paths, 
 					svn_revnum_t rev, 

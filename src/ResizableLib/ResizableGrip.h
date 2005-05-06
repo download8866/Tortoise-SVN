@@ -1,3 +1,5 @@
+// ResizableGrip.h: interface for the CResizableGrip class.
+//
 /////////////////////////////////////////////////////////////////////////////
 //
 // This file is part of ResizableLib
@@ -15,11 +17,6 @@
 //
 /////////////////////////////////////////////////////////////////////////////
 
-/*!
- *  @file
- *  @brief Interface for the CResizableGrip class.
- */
-
 #if !defined(AFX_RESIZABLEGRIP_H__INCLUDED_)
 #define AFX_RESIZABLEGRIP_H__INCLUDED_
 
@@ -27,14 +24,6 @@
 #pragma once
 #endif // _MSC_VER > 1000
 
-/*! @addtogroup CoreComponents
- *  @{
- */
-
-//! @brief brief_description
-/*!
- *  long_description
- */
 class CResizableGrip  
 {
 private:
@@ -90,5 +79,4 @@ public:
 	virtual ~CResizableGrip();
 };
 
-// @}
 #endif // !defined(AFX_RESIZABLEGRIP_H__INCLUDED_)

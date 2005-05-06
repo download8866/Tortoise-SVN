@@ -21,10 +21,10 @@
 	<sect1 id="tsvn-ch-1-sect-1">
 		<title>What is TortoiseSVN?</title>
 		<para>
-			TortoiseSVN is a free open-source client for the
-			<firstterm>Subversion</firstterm> version control system.
+			TortoiseSVN is a free/open-source client for the Subversion version
+			control system.
 			That is, TortoiseSVN manages files and directories over time.
-			Files are stored in a central <firstterm>repository</firstterm>.
+			Files are stored into a central <firstterm>repository</firstterm>.
 			The repository is much like an ordinary file server, except that it
 			remembers every change ever made to your files and directories.
 			This allows you to recover older versions of your files and examine
@@ -52,14 +52,14 @@
 		<para>
 			In 2002, Tim Kemp found that Subversion was a very good version
 			control system, but it lacked a good GUI client. The idea for a
-			Subversion client as a Windows shell integration was inspired by
+			subversion client as a Windows shell integration was inspired by
 			the similar client for CVS named TortoiseCVS.
 		</para>
 		<para>
 			Tim studied the sourcecode of TortoiseCVS and used it as a base for
 			TortoiseSVN. He then started the project, registered the domain
 			tortoisesvn.org and put the sourcecode online. During that time,
-			Stefan Küng was looking for a good and free version control system
+			Stefan Kng was looking for a good and free version control system
 			and found Subversion and the source for TortoiseSVN. Since TortoiseSVN
 			was still not ready for use then he joined the project and started
 			programming. Soon he rewrote most of the existing code and started
@@ -70,9 +70,8 @@
 			As Subversion became more stable it attracted more and more users
 			who also started using TortoiseSVN as their Subversion client.
 			The userbase grew quickly (and is still growing every day).
-			That's when Lübbe Onken offered to help out with some nice icons
-			and a logo for TortoiseSVN. And he takes care of the website
-			and manages the translation.
+			That's when Lbbe Onken offered to help out with some nice icons
+			and a logo for TortoiseSVN. And he takes care of the website.
 		</para>
 	</sect1>
 	<!-- ================================================================= -->
@@ -95,7 +94,7 @@
 						<indexterm>
 							<primary>explorer</primary>
 						</indexterm>
-						TortoiseSVN integrates seamlessly into the Windows shell
+						TortoiseSVN integrates seamless into the Windows shell
 						(i.e. the explorer). This means you can keep working
 						with the tools you're already familiar with. And you
 						do not have to change into a different application
@@ -103,14 +102,14 @@
 					</para>
 					<para>
 						And you are not even forced to use the Windows Explorer.
-						TortoiseSVN's context menus work in many other file managers,
-						and in the File/Open dialog which is common to most
-						standard Windows applications.
-						You should, however, bear in mind that TortoiseSVN
+						Also in other filemanagers principally the context menu
+						as well as the other functions of TortoiseSVN are
+						readily available for you. Any time you want or need
+						them. One should, however, bear in mind that TortoiseSVN
 						is intentionally developed as extension for the Windows
 						Explorer. Thus it is possible that in other applications
 						the integration is not as complete and e.g. the icon
-						overlays may not be shown.
+						overlays are not shown.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -135,7 +134,7 @@
 			</varlistentry>
 		</variablelist>
 		<para>
-			Since TortoiseSVN is a Subversion client, we would also like to show you
+			Since TortoiseSVN is a Subversion client, we also like to show you
 			some of the features of Subversion itself:
 		</para>
 		<variablelist>
@@ -217,7 +216,7 @@
 						branches and tags by simply copying the project, using
 						a mechanism similar to a hard-link.
 						Thus these operations take only a very small,
-						constant amount of time, and very little space in the repository.
+						constant amount of time.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -245,7 +244,27 @@
 			</indexterm>
 			<title>System requirements</title>
 			<para>
-				TortoiseSVN runs on Win2k SP2, WinXP or higher.
+				TortoiseSVN runs on Windows 98/Me, Win2k SP2 or WinXP,
+				IE5.5 or later.
+			</para>
+			<para>
+				It also works on WinNT4 and Win95, but you need to have the
+				IE4 shell extensions installed to get a newer shell version.
+				Check the following FAQ entry
+				<xref linkend="tsvn-faq-installation-1"/>
+				to find out how.
+				The minimum shell version is 4.72! We have reports that
+				TortoiseSVN works on these old systems,
+				but use it at your own risk.
+			</para>
+			<para>
+				Win98/ME <emphasis>can not</emphasis> host BDB repositories,
+				check the following Subversion FAQ entry
+				<ulink url="http://subversion.tigris.org/project_faq.html#portability">
+					<citetitle>What operating systems does Subversion run on?</citetitle>
+				</ulink>
+				to find out why. However, you can use an Fsfs repository,
+				introduced in Subversion 1.1.0.
 			</para>
 		</sect2>
 		<sect2>
@@ -253,8 +272,8 @@
 			<para>
 				TortoiseSVN comes with an easy to use installer. Doubleclick on
 				the installer file and follow the instructions. The installer
-				will take care of the rest. 
-				Make sure to select the <literal>Install for all users</literal>
+				will take care of the rest. On WinNT, Win2K, WinXP and later,
+				be sure to select the <literal>Install for all users</literal>
 				option, unless you <emphasis>really</emphasis> want to restrict
 				its use to the current user only.
 			</para>
@@ -272,7 +291,7 @@
 				<ulink url="http://mozilla.org">
 					<citetitle>Mozilla</citetitle>
 				</ulink>
-				use. You can find the required dictionary files in various
+				use. You can find the required dictionary files on various
 				places:
 				<itemizedlist>
 					<listitem>
@@ -303,17 +322,13 @@
 						</para>
 					</listitem>
 				</itemizedlist>
-				Then just copy them to the <filename>bin</filename> sub-folder of
+				Then just copy them to the <literal>bin</literal> sub-folder of
 				the TortoiseSVN installation folder. Normally this will be
 				<filename>C:\Program Files\TortoiseSVN\bin</filename>.
-				If you don't want to litter the <filename>bin</filename> sub-folder,
-				you can instead place your spell checker files in
-				<filename>C:\Program Files\TortoiseSVN\dic</filename>. If that folder isn't
-				there, you have to create it first.
 				The next time you start TortoiseSVN, the spell checker will be available.
 			</para>
 			<para>
-				If you encounter any problems during or after installing
+				If you encounter any problems while or after installing
 				TortoiseSVN please refer to
 				<xref linkend="tsvn-faq"/>
 				first.

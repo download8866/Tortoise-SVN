@@ -26,7 +26,6 @@
 #include "SVNStatus.h"
 #include "Utils.h"
 #include "UnicodeUtils.h"
-#include "SoundUtils.h"
 
 
 // CSVNProgressDlg dialog
@@ -40,11 +39,10 @@ CSVNProgressDlg::CSVNProgressDlg(CWnd* pParent /*=NULL*/)
 	, m_Revision(_T("HEAD"))
 	, m_RevisionEnd(0)
 {
+	m_bCloseOnEnd = FALSE;
 	m_bCancelled = FALSE;
 	m_bThreadRunning = FALSE;
 	m_bConflictsOccurred = FALSE;
-	m_bErrorsOccurred = FALSE;
-	m_bMergesAddsDeletesOccurred = FALSE;
 	m_nUpdateStartRev = -1;
 	m_pThread = NULL;
 	m_options = ProgOptNone;
@@ -114,15 +112,9 @@ void CSVNProgressDlg::AddItemToList(const NotificationData* pData)
 		m_ProgList.EnsureVisible(iInsertedAt, false);
 	}
 }
-BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
-							svn_node_kind_t kind, const CString& mime_type, 
-							svn_wc_notify_state_t content_state, 
-							svn_wc_notify_state_t prop_state, LONG rev,
-							const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
-							svn_error_t * err, apr_pool_t * /*pool*/)
+
+BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t action, svn_node_kind_t kind, const CString& mime_type, svn_wc_notify_state_t content_state, svn_wc_notify_state_t prop_state, LONG rev)
 {
-	bool bNoNotify = false;
-	bool bDoAddData = true;
 	NotificationData * data = new NotificationData();
 	data->path = path;
 	data->action = action;
@@ -131,105 +123,51 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 	data->content_state = content_state;
 	data->prop_state = prop_state;
 	data->rev = rev;
-	data->lock_state = lock_state;
-	if ((lock)&&(lock->owner))
-		data->owner = CUnicodeUtils::GetUnicode(lock->owner);
-	data->sPathColumnText = path.GetUIPathString();
+
 	switch (data->action)
 	{
 	case svn_wc_notify_add:
 	case svn_wc_notify_update_add:
-		m_bMergesAddsDeletesOccurred = true;
-		data->sActionColumnText.LoadString(IDS_SVNACTION_ADD);
-		data->color = GetSysColor(COLOR_HIGHLIGHT);
-		break;
 	case svn_wc_notify_commit_added:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_ADDING);
-		data->color = GetSysColor(COLOR_HIGHLIGHT);
-		break;
-	case svn_wc_notify_copy:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_COPY);
-		break;
-	case svn_wc_notify_commit_modified:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_MODIFIED);
 		data->color = GetSysColor(COLOR_HIGHLIGHT);
 		break;
 	case svn_wc_notify_delete:
 	case svn_wc_notify_update_delete:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_DELETE);
-		m_bMergesAddsDeletesOccurred = true;
-		data->color = RGB(100,0,0);
-		break;
 	case svn_wc_notify_commit_deleted:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_DELETING);
-		data->color = RGB(100,0,0);
-		break;
-	case svn_wc_notify_restore:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_RESTORE);
-		break;
-	case svn_wc_notify_revert:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_REVERT);
-		break;
-	case svn_wc_notify_resolved:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_RESOLVE);
-		break;
 	case svn_wc_notify_commit_replaced:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_REPLACED);
 		data->color = RGB(100,0,0);
 		break;
 	case svn_wc_notify_update_update:
-		// if this is an inoperative dir change, don't show the nofification.
-		// an inoperative dir change is when a directory gets updated without
-		// any real change in either text or properties.
-		if ((kind == svn_node_dir)
-			&& ((prop_state == svn_wc_notify_state_inapplicable)
-			|| (prop_state == svn_wc_notify_state_unknown)
-			|| (prop_state == svn_wc_notify_state_unchanged)))
-		{
-			bNoNotify = true;
-			break;
-		}
 		if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
 		{
 			data->color = RGB(255, 0, 0);
 			data->bConflictedActionItem = true;
 			m_bConflictsOccurred = true;
-			data->sActionColumnText.LoadString(IDS_SVNACTION_CONFLICTED);
 		}
 		else if ((data->content_state == svn_wc_notify_state_merged) || (data->prop_state == svn_wc_notify_state_merged))
 		{
 			data->color = RGB(0, 100, 0);
-			m_bMergesAddsDeletesOccurred = true;
-			data->sActionColumnText.LoadString(IDS_SVNACTION_MERGED);
 		}
-		else
-		{
-			data->sActionColumnText.LoadString(IDS_SVNACTION_UPDATE);
-		}
-		if (lock_state == svn_wc_notify_lock_state_unlocked)
-		{
-			CString temp(MAKEINTRESOURCE(IDS_SVNACTION_UNLOCKED));
-			data->sActionColumnText += _T(", ") + temp;
-		}
+		break;
+	case svn_wc_notify_commit_modified:
+		data->color = GetSysColor(COLOR_HIGHLIGHT);
 		break;
 
 	case svn_wc_notify_update_external:
 		// For some reason we build a list of externals...
 		m_ExtStack.AddHead(path.GetUIPathString());
-		data->sActionColumnText.LoadString(IDS_SVNACTION_EXTERNAL);
 		break;
 
 	case svn_wc_notify_update_completed:
 		{
-			data->sActionColumnText.LoadString(IDS_SVNACTION_COMPLETED);
 			data->bAuxItem = true;
-			bool bEmpty = !!m_ExtStack.IsEmpty();
-			if (!bEmpty)
+
+			if (!m_ExtStack.IsEmpty())
 				data->sPathColumnText.Format(IDS_PROGRS_PATHATREV, (LPCTSTR)m_ExtStack.RemoveHead(), rev);
 			else
 				data->sPathColumnText.Format(IDS_PROGRS_ATREV, rev);
 
-			if ((m_bConflictsOccurred)&&(bEmpty))
+			if ((m_bConflictsOccurred)&&(m_ExtStack.IsEmpty()))
 			{
 				// We're going to add another aux item - let's shove this current onto the list first
 				// I don't really like this, but it will do for the moment.
@@ -241,68 +179,35 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 				data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
 				data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
 				data->color = RGB(255,0,0);
-				CSoundUtils::PlayTSVNWarning();
+
 				// This item will now be added after the switch statement
 			}
 			m_RevisionEnd = rev;
 
 		}
 		break;
-	case svn_wc_notify_commit_postfix_txdelta:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_POSTFIX);
-		break;
-	case svn_wc_notify_failed_revert:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_FAILEDREVERT);
-		break;
-	case svn_wc_notify_status_completed:
-	case svn_wc_notify_status_external:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_STATUS);
-		break;
-	case svn_wc_notify_skip:
-		if (content_state == svn_wc_notify_state_missing)
-			data->sActionColumnText.LoadString(IDS_SVNACTION_SKIPMISSING);
-		else
-			data->sActionColumnText.LoadString(IDS_SVNACTION_SKIP);
-		break;
-	case svn_wc_notify_locked:
-		if ((lock)&&(lock->owner))
-			data->sActionColumnText.Format(IDS_SVNACTION_LOCKEDBY, CUnicodeUtils::GetUnicode(lock->owner));
-		break;
-	case svn_wc_notify_unlocked:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_UNLOCKED);
-		break;
-	case svn_wc_notify_failed_lock:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_FAILEDLOCK);
-		m_arData.push_back(data);
-		AddItemToList(data);
-		ReportError(SVN::GetErrorString(err));
-		bDoAddData = false;
-		break;
-	case svn_wc_notify_failed_unlock:
-		data->sActionColumnText.LoadString(IDS_SVNACTION_FAILEDUNLOCK);
-		m_arData.push_back(data);
-		AddItemToList(data);
-		ReportError(SVN::GetErrorString(err));
-		bDoAddData = false;
-		break;
+
 	default:
+		// Lots of actions fall through here
 		break;
 	} // switch (action)
 
-	if (bNoNotify)
-		delete data;
-	else
+	if (data->sActionColumnText.IsEmpty())
 	{
-		if (bDoAddData)
-		{
-			m_arData.push_back(data);
-			AddItemToList(data);
-		}
-		if ((action == svn_wc_notify_commit_postfix_txdelta)&&(bSecondResized == FALSE))
-		{
-			ResizeColumns();
-			bSecondResized = TRUE;
-		}
+		data->sActionColumnText = SVN::GetActionText(action, content_state, prop_state);
+	}
+	if(!data->bAuxItem)
+	{
+		data->sPathColumnText = path.GetUIPathString();
+	}
+
+	m_arData.push_back(data);
+	AddItemToList(data);
+
+	if ((action == svn_wc_notify_commit_postfix_txdelta)&&(bSecondResized == FALSE))
+	{
+		ResizeColumns();
+		bSecondResized = TRUE;
 	}
 
 	return TRUE;
@@ -488,7 +393,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
 	m_pThread = AfxBeginThread(ProgressThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
 	if (m_pThread==NULL)
 	{
-		ReportError(CString(MAKEINTRESOURCE(IDS_ERR_THREADSTARTFAILED)));
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_ICONERROR);
 	}
 	else
 	{
@@ -513,59 +418,10 @@ BOOL CSVNProgressDlg::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CSVNProgressDlg::ReportSVNError()
+void CSVNProgressDlg::ReportSVNError() const
 {
-	ReportError(m_pSvn->GetLastErrorMessage());
-}
-
-void CSVNProgressDlg::ReportError(const CString& sError)
-{
-	CSoundUtils::PlayTSVNError();
-	ReportString(sError, CString(MAKEINTRESOURCE(IDS_ERR_ERROR)), RGB(255, 0, 0));
-	m_bErrorsOccurred = true;
-}
-
-void CSVNProgressDlg::ReportWarning(const CString& sWarning)
-{
-	CSoundUtils::PlayTSVNWarning();
-	ReportString(sWarning, CString(MAKEINTRESOURCE(IDS_WARN_WARNING)), RGB(255, 0, 0));
-}
-
-void CSVNProgressDlg::ReportNotification(const CString& sNotification)
-{
-	CSoundUtils::PlayTSVNNotification();
-	ReportString(sNotification, CString(MAKEINTRESOURCE(IDS_WARN_NOTE)));
-}
-
-void CSVNProgressDlg::ReportString(CString sMessage, const CString& sMsgKind, COLORREF color)
-{
-	//instead of showing a dialog box with the error message or notification,
-	//just insert the error text into the list control.
-	//that way the user isn't 'interrupted' by a dialog box popping up!
-
-	//the message may be split up into different lines
-	//so add a new entry for each line of the message
-	while (!sMessage.IsEmpty())
-	{
-		NotificationData * data = new NotificationData();
-		data->bAuxItem = true;
-		data->sActionColumnText = sMsgKind;
-		if (sMessage.Find('\n')>=0)
-			data->sPathColumnText = sMessage.Left(sMessage.Find('\n'));
-		else
-			data->sPathColumnText = sMessage;		
-		data->sPathColumnText.Trim(_T("\n\r"));
-		data->color = color;
-		if (sMessage.Find('\n')>=0)
-		{
-			sMessage = sMessage.Mid(sMessage.Find('\n'));
-			sMessage.Trim(_T("\n\r"));
-		}
-		else
-			sMessage.Empty();
-		m_arData.push_back(data);
-		AddItemToList(data);
-	}
+	TRACE(_T("%s"), (LPCTSTR)m_pSvn->GetLastErrorMessage());
+	CMessageBox::Show(m_hWnd, m_pSvn->GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 }
 
 UINT CSVNProgressDlg::ProgressThreadEntry(LPVOID pVoid)
@@ -578,7 +434,11 @@ UINT CSVNProgressDlg::ProgressThreadEntry(LPVOID pVoid)
 
 UINT CSVNProgressDlg::ProgressThread()
 {
-// The SetParams function should have loaded something for us
+	int updateFileCounter = 0;
+
+	// The SetParams function should have loaded something for us
+// See comments in SetParams about this ASSERT
+//	ASSERT(m_targetPathList.GetCount() > 0);
 
 	CString temp;
 	CString sWindowTitle;
@@ -597,7 +457,7 @@ UINT CSVNProgressDlg::ProgressThread()
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_CHECKOUT);
 			sTempWindowTitle = m_url.GetFileOrDirectoryName()+_T(" - ")+sWindowTitle;
 			SetWindowText(sTempWindowTitle);
-			if (!m_pSvn->Checkout(m_url, m_targetPathList[0], m_Revision, m_Revision, m_options & ProgOptRecursive, m_options & ProgOptIgnoreExternals))
+			if (!m_pSvn->Checkout(m_url, m_targetPathList[0], m_Revision, m_options & ProgOptRecursive))
 			{
 				ReportSVNError();
 			}
@@ -615,6 +475,7 @@ UINT CSVNProgressDlg::ProgressThread()
 		case Update:
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_UPDATE);
 			SetWindowText(sWindowTitle);
+			updateFileCounter = 0;
 			{
 				int targetcount = m_targetPathList.GetCount();
 				CString sfile;
@@ -623,7 +484,7 @@ UINT CSVNProgressDlg::ProgressThread()
 				UuidMap uuidmap;
 				bool bRecursive = !!(m_options & ProgOptRecursive);
 				SVNRev revstore = m_Revision;
-				for(int nItem = 0; nItem < targetcount; nItem++)
+				for(int nItem = 0; nItem < m_targetPathList.GetCount(); nItem++)
 				{
 					const CTSVNPath& targetPath = m_targetPathList[nItem];
 					SVNStatus st;
@@ -631,7 +492,7 @@ UINT CSVNProgressDlg::ProgressThread()
 					m_Revision = revstore;
 					if (m_Revision.IsHead())
 					{
-						if ((targetcount > 1)&&((headrev = st.GetStatus(targetPath, true)) != (-2)))
+						if ((targetcount > 1)&&((headrev = st.GetStatus(targetPath.GetSVNPathString(), true)) != (-2)))
 						{
 							if (st.status->entry != NULL)
 							{
@@ -645,35 +506,34 @@ UINT CSVNProgressDlg::ProgressThread()
 									else
 										headrev = iter->second;
 									m_Revision = headrev;
-								}
+								} // if (st.status->entry->uuid)
 								else
 									m_Revision = headrev;
-							}
-						}
+							} // if (st.status->entry != NULL) 
+						} // if ((headrev = st.GetStatus(strLine)) != (-2)) 
 						else
 						{
-							if ((headrev = st.GetStatus(targetPath, FALSE)) != (-2))
+							if ((headrev = st.GetStatus(targetPath.GetSVNPathString(), FALSE)) != (-2))
 							{
 								if (st.status->entry != NULL)
 									m_nUpdateStartRev = st.status->entry->cmt_rev;
 							}
 						}
 					} // if (m_Revision.IsHead()) 
-				} // for(int nItem = 0; nItem < m_targetPathList.GetCount(); nItem++)
-				if (m_targetPathList.GetCount() > 1) 
-					SetWindowText(m_targetPathList.GetCommonDirectory().GetWinPathString()+_T(" - ")+sWindowTitle);
-				else if (m_targetPathList.GetCount() == 1)
-					SetWindowText(m_targetPathList[0].GetWinPathString()+_T(" - ")+sWindowTitle);
-				
-				if (!m_pSvn->Update(m_targetPathList, m_Revision, bRecursive, m_options & ProgOptIgnoreExternals))
-				{
-					ReportSVNError();
-					break;
-				}
+					TRACE(_T("update file %s\n"), targetPath.GetWinPath());
+					SetWindowText(targetPath.GetFileOrDirectoryName()+_T(" - ")+sWindowTitle);
+					if (!m_pSvn->Update(targetPath, m_Revision, bRecursive))
+					{
+						ReportSVNError();
+						break;
+					}
+					updateFileCounter++;
+					m_updatedPath = targetPath;
+				} // while (file.ReadString(strLine)) 
 
 				// after an update, show the user the log button, but only if only one single item was updated
 				// (either a file or a directory)
-				if (m_targetPathList.GetCount() == 1)
+				if (updateFileCounter == 1)
 					GetDlgItem(IDC_LOGBUTTON)->ShowWindow(SW_SHOW);
 			} 
 			break;
@@ -726,7 +586,7 @@ UINT CSVNProgressDlg::ProgressThread()
 					if (CMessageBox::Show(m_hWnd, IDS_PROGRS_COMMITT_TRUNK, IDS_APPNAME, MB_OKCANCEL | MB_DEFBUTTON2 | MB_ICONEXCLAMATION)==IDCANCEL)
 						break;
 				}
-				if (!m_pSvn->Commit(m_targetPathList, m_sMessage, (m_Revision == 0), m_options & ProgOptKeeplocks))
+				if (!m_pSvn->Commit(m_targetPathList, m_sMessage, (m_Revision == 0)))
 				{
 					ReportSVNError();
 				}
@@ -778,7 +638,7 @@ UINT CSVNProgressDlg::ProgressThread()
 					TRACE(_T("CFileException in Resolve!\n"));
 					TCHAR error[10000] = {0};
 					pE->GetErrorMessage(error, 10000);
-					ReportError(error);
+					CMessageBox::Show(NULL, error, _T("TortoiseSVN"), MB_ICONERROR);
 					pE->Delete();
 				}
 				if (bMarkers)
@@ -797,7 +657,7 @@ UINT CSVNProgressDlg::ProgressThread()
 				sWindowTitle.LoadString(IDS_PROGRS_TITLE_SWITCH);
 				SetWindowText(sWindowTitle);
 				LONG rev = 0;
-				if (st.GetStatus(m_targetPathList[0]) != (-2))
+				if (st.GetStatus(m_targetPathList[0].GetWinPath()) != (-2))
 				{
 					if (st.status->entry != NULL)
 					{
@@ -820,7 +680,7 @@ UINT CSVNProgressDlg::ProgressThread()
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_EXPORT);
 			sTempWindowTitle = m_url.GetFileOrDirectoryName()+_T(" - ")+sWindowTitle;
 			SetWindowText(sTempWindowTitle);
-			if (!m_pSvn->Export(m_url, m_targetPathList[0], m_Revision, m_Revision, TRUE, m_options & ProgOptIgnoreExternals))
+			if (!m_pSvn->Export(m_url.GetSVNPathString(), m_targetPathList[0].GetSVNPathString(), m_Revision))
 			{
 				ReportSVNError();
 			}
@@ -829,11 +689,6 @@ UINT CSVNProgressDlg::ProgressThread()
 			{
 				ASSERT(m_targetPathList.GetCount() == 1);
 				sWindowTitle.LoadString(IDS_PROGRS_TITLE_MERGE);
-				if (m_options & ProgOptDryRun)
-				{
-					CString sDryRun(MAKEINTRESOURCE(IDS_PROGRS_DRYRUN));
-					sWindowTitle += _T(" ") + sDryRun;
-				}
 				SetWindowText(sWindowTitle);
 				// Eeek!  m_sMessage is actually a path for this command...
 				CTSVNPath urlTo(m_sMessage);
@@ -857,7 +712,6 @@ UINT CSVNProgressDlg::ProgressThread()
 			}
 			break;
 		case Copy:
-		{
 			ASSERT(m_targetPathList.GetCount() == 1);
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_COPY);
 			SetWindowText(sWindowTitle);
@@ -866,44 +720,10 @@ UINT CSVNProgressDlg::ProgressThread()
 				ReportSVNError();
 				break;
 			}
-			CString sMsg(MAKEINTRESOURCE(IDS_PROGRS_COPY_WARNING));
-			ReportNotification(sMsg);
-		}
-		break;
-		case Rename:
-		{
-			ASSERT(m_targetPathList.GetCount() == 1);
-			sWindowTitle.LoadString(IDS_PROGRS_TITLE_RENAME);
-			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Move(m_targetPathList[0], m_url, m_Revision, m_sMessage))
-			{
-				ReportSVNError();
-				break;
-			}
-		}
-		break;
-		case Lock:
-		{
-			sWindowTitle.LoadString(IDS_PROGRS_TITLE_LOCK);
-			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Lock(m_targetPathList, m_options & ProgOptLockForce, m_sMessage))
-			{
-				ReportSVNError();
-				break;
-			}
-		}
-		break;
-		case Unlock:
-		{
-			sWindowTitle.LoadString(IDS_PROGRS_TITLE_UNLOCK);
-			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Unlock(m_targetPathList, m_options & ProgOptLockForce))
-			{
-				ReportSVNError();
-				break;
-			}
-		}
-		break;
+			CString sTemp;
+			sTemp.LoadString(IDS_PROGRS_COPY_WARNING);
+			CMessageBox::Show(m_hWnd, sTemp, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION);
+			break;
 	}
 	temp.LoadString(IDS_PROGRS_TITLEFIN);
 	sWindowTitle = sWindowTitle + _T(" ") + temp;
@@ -922,18 +742,12 @@ UINT CSVNProgressDlg::ProgressThread()
 	GetDlgItem(IDC_INFOTEXT)->SetWindowText(info);
 	ResizeColumns();
 
-	DWORD dwAutoClose = CRegStdWORD(_T("Software\\TortoiseSVN\\AutoClose"));
-	if (m_options & ProgOptDryRun)
-		dwAutoClose = 0;		// dry run means progress dialog doesn't autoclose at all
-	if (m_dwCloseOnEnd != 0)
-		dwAutoClose = m_dwCloseOnEnd;		// command line value has priority over setting value
-	if ((dwAutoClose == CLOSE_NOERRORS)&&(!m_bErrorsOccurred))
-		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
-	if ((dwAutoClose == CLOSE_NOCONFLICTS)&&(!m_bErrorsOccurred)&&(!m_bConflictsOccurred))
-		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
-	if ((dwAutoClose == CLOSE_NOMERGES)&&(!m_bErrorsOccurred)&&(!m_bConflictsOccurred)&&(!m_bMergesAddsDeletesOccurred))
-		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
-		
+	if (((WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\AutoClose"), FALSE)&&(!(m_options & ProgOptDryRun))
+	 ||	m_bCloseOnEnd))
+	{
+		if (!(WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\AutoCloseNoForReds"), FALSE) || (!m_bConflictsOccurred) || m_bCloseOnEnd) 
+			PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
+	}
 	//Don't do anything here which might cause messages to be sent to the window
 	//The window thread is probably now blocked in OnOK if we've done an autoclose
 	return 0;
@@ -941,10 +755,8 @@ UINT CSVNProgressDlg::ProgressThread()
 
 void CSVNProgressDlg::OnBnClickedLogbutton()
 {
-	if (m_targetPathList.GetCount() != 1)
-		return;
 	CLogDlg dlg;
-	dlg.SetParams(m_targetPathList[0], m_RevisionEnd, m_nUpdateStartRev, 0, TRUE);
+	dlg.SetParams(m_updatedPath.GetWinPathString(), m_RevisionEnd, m_nUpdateStartRev);
 	dlg.DoModal();
 }
 
@@ -967,8 +779,6 @@ void CSVNProgressDlg::OnClose()
 
 void CSVNProgressDlg::OnOK()
 {
-	if (GetFocus() != GetDlgItem(IDOK))
-		return;
 	if ((m_bCancelled)&&(!m_bThreadRunning))
 	{
 		// I have made this wait a sensible amount of time (10 seconds) for the thread to finish
@@ -1033,9 +843,7 @@ void CSVNProgressDlg::OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 	if (pNMLV->iItem < 0)
 		return;
-	if (m_options & ProgOptDryRun)
-		return;	//don't do anything in a dry-run.
-		
+
 	const NotificationData * data = m_arData[pNMLV->iItem];
 	ASSERT(data != NULL);
 	if (data->bConflictedActionItem)
@@ -1195,7 +1003,7 @@ BOOL CSVNProgressDlg::PreTranslateMessage(MSG* pMsg)
 							CString sPath = m_ProgList.GetItemText(nItem, 1);
 							CString sMime = m_ProgList.GetItemText(nItem, 2);
 							CString sLogCopyText;
-							sLogCopyText.Format(_T("%s: %s  %s\r\n"),
+							sLogCopyText.Format(_T("%s: %s  %s\n"),
 								(LPCTSTR)sAction, (LPCTSTR)sPath, (LPCTSTR)sMime);
 							sClipdata +=  CStringA(sLogCopyText);
 						}
@@ -1210,9 +1018,6 @@ BOOL CSVNProgressDlg::PreTranslateMessage(MSG* pMsg)
 
 void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	if (m_options & ProgOptDryRun)
-		return;	//don't do anything in a dry-run.
-
 	if (pWnd == &m_ProgList)
 	{
 		int selIndex = m_ProgList.GetSelectionMark();
@@ -1235,24 +1040,10 @@ void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 				if (m_ProgList.GetSelectedCount() == 1)
 				{
 					const NotificationData * data = m_arData[selIndex];
-					if ((data)&&(!data->path.IsDirectory()))
+					if ((data)&&(!data->path.IsDirectory())&&(data->action == svn_wc_notify_update_update))
 					{
-						if (data->action == svn_wc_notify_update_update)
-						{
-							temp.LoadString(IDS_LOG_POPUP_COMPARE);
-							popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARE, temp);
-							if (data->bConflictedActionItem)
-							{
-								temp.LoadString(IDS_MENUCONFLICT);
-								popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EDITCONFLICT, temp);
-								popup.SetDefaultItem(ID_EDITCONFLICT, FALSE);
-							}
-							else
-								popup.SetDefaultItem(ID_COMPARE, FALSE);
-
-							temp.LoadString(IDS_MENULOG);
-							popup.AppendMenu(MF_STRING | MF_ENABLED, ID_LOG, temp);
-						}
+						temp.LoadString(IDS_LOG_POPUP_COMPARE);
+						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARE, temp);
 
 						int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 						GetDlgItem(IDOK)->EnableWindow(FALSE);
@@ -1278,20 +1069,6 @@ void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 									wcname.Format(IDS_DIFF_WCNAME, (LPCTSTR)data->path.GetFileOrDirectoryName());
 									CUtils::StartExtDiff(tempfile, data->path, revname, wcname);
 								}
-							}
-							break;
-						case ID_EDITCONFLICT:
-							{
-								SVN::StartConflictEditor(data->path);
-							}
-							break;
-						case ID_LOG:
-							{
-								CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
-								int limit = (int)(DWORD)reg;
-								CLogDlg dlg;
-								dlg.SetParams(data->path, m_RevisionEnd, 1, limit, TRUE);
-								dlg.DoModal();
 							}
 							break;
 						}

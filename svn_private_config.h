@@ -31,22 +31,10 @@
 #define SVN_NULL_DEVICE_NAME "nul"
 
 /* Defined to be the path to the installed binaries */
-#define SVN_BINDIR "/usr/local/bin"
-
-
-
-/* The default FS back-end type */
-#define DEFAULT_FS_TYPE "fsfs"
-
-/* Define to the Python/C API format character suitable for apr_int64_t */
-#if defined(_WIN64)
-#define SVN_APR_INT64_T_PYCFMT "l"
-#elif defined(_WIN32)
-#define SVN_APR_INT64_T_PYCFMT "L"
-#endif
+#define SVN_BINARY_DIR "/usr/local/bin"
 
 /* Setup gettext macros */
-#define N_(x) x
+#define N_(x) (x)
 #define PACKAGE_NAME "subversion"
 
 #ifdef ENABLE_NLS

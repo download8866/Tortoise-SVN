@@ -160,8 +160,8 @@
 						<guibutton>Save</guibutton>
 						saves any changes you have made.
 						If you have selected
-						<guilabel>Resolve conflicted Subversion status on save</guilabel>
-						in the settings dialog, then Subversion's conflict
+						<guilabel>Resolve conflicted subversion status on save</guilabel>
+						in the settings dialog, then subversion's conflict
 						working files will be deleted automatically if all
 						conflicts were resolved.
 					</para>
@@ -244,7 +244,6 @@
 			left file (<literal>Theirs</literal>),
 			<action>right-click</action> on the changed lines and select
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>Use text block from <quote>theirs</quote></guimenuitem>
 			</menuchoice>.
 			Then the changes from the left file are added to the right file.
@@ -256,18 +255,15 @@
 			you can <action>right-click</action> on conflicted
 			lines and either select
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>Use text block from <quote>theirs</quote></guimenuitem>
 			</menuchoice>
 			or
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>Use text block from <quote>yours</quote></guimenuitem>
 			</menuchoice>.
 			In addition, if you want <emphasis>both</emphasis> blocks, you can
 			select
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>
 					Use text block from <quote>yours</quote>
 					before <quote>theirs</quote>
@@ -275,7 +271,6 @@
 			</menuchoice>
 			or
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>
 					Use text block from <quote>theirs</quote>
 					before <quote>yours</quote>

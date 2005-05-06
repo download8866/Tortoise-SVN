@@ -22,8 +22,6 @@
 #include "PreserveChdir.h"
 #include "SVNProperties.h"
 #include "UnicodeStrings.h"
-#include "SVNStatus.h"
-#include "..\TSVNCache\CacheInterface.h"
 
 
 const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
@@ -44,7 +42,7 @@ const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
 // IColumnProvider members
 STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 {
-	if (dwIndex > 6)
+	if (dwIndex > 5)
 		return S_FALSE;
 
 	// Read and select the system's locale settings.
@@ -169,28 +167,6 @@ STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 #else
 			lstrcpynW(psci->wszDescription, MultibyteToWide(stringtablebuffer).c_str(), MAX_COLUMN_DESC_LEN);
 #endif
-			break;
-		case 6:
-			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-			psci->scid.pid = dwIndex;
-			psci->vt = VT_BSTR;
-			psci->fmt = LVCFMT_LEFT;
-			psci->cChars = 30;
-			psci->csFlags = ColumnFlags;
-
-			MAKESTRING(IDS_COLTITLEOWNER);
-#ifdef UNICODE
-			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
-#else
-			lstrcpynW(psci->wszTitle, MultibyteToWide(stringtablebuffer).c_str(), MAX_COLUMN_NAME_LEN);
-#endif
-			MAKESTRING(IDS_COLDESCOWNER);
-#ifdef UNICODE
-			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
-#else
-			lstrcpynW(psci->wszDescription, MultibyteToWide(stringtablebuffer).c_str(), MAX_COLUMN_DESC_LEN);
-#endif
-			break;
 	}
 
 	return S_OK;
@@ -199,7 +175,7 @@ STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData)
 {
 	LoadLangDll();
-	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 7) 
+	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 6) 
 	{
 		PreserveChdir preserveChdir;
 		stdstring szInfo;
@@ -212,8 +188,8 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 
 		// reserve for the path + trailing \0
 
-		TCHAR buf[MAX_STATUS_STRING_LENGTH+1];
-		ZeroMemory(buf, MAX_STATUS_STRING_LENGTH);
+		TCHAR buf[MAX_PATH+1];
+		ZeroMemory(buf, MAX_PATH);
 		switch (pscid->pid) 
 		{
 			case 0:
@@ -241,7 +217,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 			case 5:
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props = SVNProperties(CTSVNPath(path));
+					SVNProperties props = SVNProperties(path);
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
@@ -255,10 +231,6 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 					}
 				}
 				break;
-			case 6:
-				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-				szInfo = owner;
-				break;
 			default:
 				return S_FALSE;
 		}
@@ -271,7 +243,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 		V_VT(pvarData) = VT_BSTR;
 		V_BSTR(pvarData) = SysAllocString(wsInfo);
 		return S_OK;
-	}
+	} // if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 4) 
 	if (pscid->fmtid == FMTID_SummaryInformation)
 	{
 		PreserveChdir preserveChdir;
@@ -325,38 +297,32 @@ STDMETHODIMP CShellExt::Initialize(LPCSHCOLUMNINIT psci)
 	return S_OK;
 }
 
-void CShellExt::GetColumnStatus(const TCHAR * path, BOOL /*bIsDir*/)
+void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
 	if (_tcscmp(path, columnfilepath.c_str())==0)
 		return;
 	LoadLangDll();
 	columnfilepath = path;
 	AutoLocker lock(g_csCacheGuard);
-
-	TSVNCacheResponse itemStatus;
-	ZeroMemory(&itemStatus, sizeof(itemStatus));
-	if(g_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(path), &itemStatus, false))
-	{
-		filestatus = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
-	}
+	const FileStatusCacheEntry * status;
+	if (! g_ShellCache.IsPathAllowed(path))
+		status = &g_CachedStatus.invalidstatus;
 	else
-		return;	
+	{
+		status = g_CachedStatus.GetFullStatus(path, bIsDir, TRUE);
+	}
+	filestatus = status->status;
 
 #ifdef UNICODE
-	columnauthor = UTF8ToWide(itemStatus.m_author);
+	columnauthor = UTF8ToWide(status->author);
 #else
-	columnauthor = itemStatus.m_author;
+	columnauthor = status->author;
 #endif
-	columnrev = itemStatus.m_entry.cmt_rev;
+	columnrev = status->rev;
 #ifdef UNICODE
-	itemurl = UTF8ToWide(itemStatus.m_url);
+	itemurl = UTF8ToWide(status->url);
 #else
-	itemurl = itemStatus.m_url;
-#endif
-#ifdef UNICODE
-	owner = UTF8ToWide(itemStatus.m_owner);
-#else
-	owner = itemStatus.m_owner;
+	itemurl = status->url;
 #endif
 	TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
 

@@ -21,7 +21,6 @@
 #include "SetProgsPage.h"
 #include "SetProgsAdvDlg.h"
 #include "Utils.h"
-#include ".\setprogspage.h"
 
 
 // CSetProgsPage dialog
@@ -38,8 +37,6 @@ CSetProgsPage::CSetProgsPage()
 	, m_dlgAdvDiff(_T("Diff"))
 	, m_dlgAdvMerge(_T("Merge"))
 	, m_bInitialized(FALSE)
-	, m_regConvertBase(_T("Software\\TortoiseSVN\\ConvertBase"), FALSE)
-	, m_bConvertBase(false)
 {
 	m_regDiffPath = CRegString(_T("Software\\TortoiseSVN\\Diff"));
 	m_regDiffViewerPath = CRegString(_T("Software\\TortoiseSVN\\DiffViewer"));
@@ -64,7 +61,6 @@ void CSetProgsPage::SaveData()
 		m_regDiffPath = m_sDiffPath;
 		m_regDiffViewerPath = m_sDiffViewerPath;
 		m_regMergePath = m_sMergePath;
-		m_regConvertBase = m_bConvertBase;
 
 		m_dlgAdvDiff.SaveData();
 		m_dlgAdvMerge.SaveData();
@@ -80,7 +76,6 @@ void CSetProgsPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Radio(pDX, IDC_EXTDIFF_OFF, m_iExtDiff);
 	DDX_Radio(pDX, IDC_DIFFVIEWER_OFF, m_iDiffViewer);
 	DDX_Radio(pDX, IDC_EXTMERGE_OFF, m_iExtMerge);
-	DDX_Check(pDX, IDC_DONTCONVERT, m_bConvertBase);
 
 	GetDlgItem(IDC_EXTDIFF)->EnableWindow(m_iExtDiff == 1);
 	GetDlgItem(IDC_EXTDIFFBROWSE)->EnableWindow(m_iExtDiff == 1);
@@ -88,9 +83,6 @@ void CSetProgsPage::DoDataExchange(CDataExchange* pDX)
 	GetDlgItem(IDC_DIFFVIEWERBROWSE)->EnableWindow(m_iDiffViewer == 1);
 	GetDlgItem(IDC_EXTMERGE)->EnableWindow(m_iExtMerge == 1);
 	GetDlgItem(IDC_EXTMERGEBROWSE)->EnableWindow(m_iExtMerge == 1);
-	DDX_Control(pDX, IDC_EXTDIFF, m_cDiffEdit);
-	DDX_Control(pDX, IDC_EXTMERGE, m_cMergeEdit);
-	DDX_Control(pDX, IDC_DIFFVIEWER, m_cUnifiedDiffEdit);
 }
 
 
@@ -109,7 +101,6 @@ BEGIN_MESSAGE_MAP(CSetProgsPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_DIFFVIEWER_ON, OnBnClickedDiffviewerOn)
 	ON_BN_CLICKED(IDC_EXTDIFFADVANCED, OnBnClickedExtdiffadvanced)
 	ON_BN_CLICKED(IDC_EXTMERGEADVANCED, OnBnClickedExtmergeadvanced)
-	ON_BN_CLICKED(IDC_DONTCONVERT, OnBnClickedDontconvert)
 END_MESSAGE_MAP()
 
 
@@ -120,8 +111,8 @@ void CSetProgsPage::OnBnClickedExtdiffbrowse()
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -165,8 +156,8 @@ void CSetProgsPage::OnBnClickedExtmergebrowse()
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -211,8 +202,8 @@ void CSetProgsPage::OnBnClickedDiffviewerbrowse()
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -272,14 +263,11 @@ BOOL CSetProgsPage::OnInitDialog()
 	SHAutoComplete(::GetDlgItem(m_hWnd, IDC_DIFFVIEWER), SHACF_FILESYSTEM | SHACF_FILESYS_ONLY);
 	SHAutoComplete(::GetDlgItem(m_hWnd, IDC_EXTMERGE), SHACF_FILESYSTEM | SHACF_FILESYS_ONLY);
 
-	m_bConvertBase = m_regConvertBase;
-
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_EXTDIFF, IDS_SETTINGS_EXTDIFF_TT);
 	m_tooltips.AddTool(IDC_DIFFVIEWER, IDS_SETTINGS_DIFFVIEWER_TT);
 	m_tooltips.AddTool(IDC_EXTMERGE, IDS_SETTINGS_EXTMERGE_TT);
 	m_tooltips.AddTool(IDC_EXTDIFFBROWSE, IDS_SETTINGS_EXTDIFFBROWSE_TT);
-	m_tooltips.AddTool(IDC_DONTCONVERT, IDS_SETTINGS_CONVERTBASE_TT);
 
 	m_bInitialized = TRUE;
 	UpdateData(FALSE);
@@ -319,58 +307,58 @@ BOOL CSetProgsPage::PreTranslateMessage(MSG* pMsg)
 void CSetProgsPage::OnBnClickedExtdiffOff()
 {
 	m_iExtDiff = 0;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_EXTDIFF)->EnableWindow(false);
 	GetDlgItem(IDC_EXTDIFFBROWSE)->EnableWindow(false);
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedExtdiffOn()
 {
 	m_iExtDiff = 1;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_EXTDIFF)->EnableWindow(true);
 	GetDlgItem(IDC_EXTDIFFBROWSE)->EnableWindow(true);
 	GetDlgItem(IDC_EXTDIFF)->SetFocus();
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedExtmergeOff()
 {
 	m_iExtMerge = 0;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_EXTMERGE)->EnableWindow(FALSE);
 	GetDlgItem(IDC_EXTMERGEBROWSE)->EnableWindow(FALSE);
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedExtmergeOn()
 {
 	m_iExtMerge = 1;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_EXTMERGE)->EnableWindow(TRUE);
 	GetDlgItem(IDC_EXTMERGEBROWSE)->EnableWindow(TRUE);
 	GetDlgItem(IDC_EXTMERGE)->SetFocus();
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedDiffviewerOff()
 {
 	m_iDiffViewer = 0;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_DIFFVIEWER)->EnableWindow(FALSE);
 	GetDlgItem(IDC_DIFFVIEWERBROWSE)->EnableWindow(FALSE);
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedDiffviewerOn()
 {
 	m_iDiffViewer = 1;
+	UpdateData(FALSE);
 	SetModified();
 	GetDlgItem(IDC_DIFFVIEWER)->EnableWindow(TRUE);
 	GetDlgItem(IDC_DIFFVIEWERBROWSE)->EnableWindow(TRUE);
 	GetDlgItem(IDC_DIFFVIEWER)->SetFocus();
-	CheckProgComment();
 }
 
 void CSetProgsPage::OnBnClickedExtdiffadvanced()
@@ -383,27 +371,4 @@ void CSetProgsPage::OnBnClickedExtmergeadvanced()
 {
 	if (m_dlgAdvMerge.DoModal() == IDOK)
 		SetModified();
-}
-
-void CSetProgsPage::OnBnClickedDontconvert()
-{
-	SetModified();
-}
-
-void CSetProgsPage::CheckProgComment()
-{
-	UpdateData();
-	if (m_iExtDiff == 0 && !m_sDiffPath.IsEmpty() && m_sDiffPath.Left(1) != _T("#"))
-		m_sDiffPath = _T("#") + m_sDiffPath;
-	else if (m_iExtDiff == 1)
-		m_sDiffPath.TrimLeft('#');
-	if (m_iDiffViewer == 0 && !m_sDiffViewerPath.IsEmpty() && m_sDiffViewerPath.Left(1) != _T("#"))
-		m_sDiffViewerPath = _T("#") + m_sDiffViewerPath;
-	else if (m_iDiffViewer == 1)
-		m_sDiffViewerPath.TrimLeft('#');
-	if (m_iExtMerge == 0 && !m_sMergePath.IsEmpty() && m_sMergePath.Left(1) != _T("#"))
-		m_sMergePath = _T("#") + m_sMergePath;
-	else if (m_iExtMerge == 1)
-		m_sMergePath.TrimLeft('#');
-	UpdateData(FALSE);
 }

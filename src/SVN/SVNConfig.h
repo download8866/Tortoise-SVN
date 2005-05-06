@@ -19,7 +19,7 @@
 #pragma once
 
 /**
- * \ingroup SVN
+ * \ingroup TortoiseProc
  * A small wrapper for the Subversion configs
  *
  * \par requirements

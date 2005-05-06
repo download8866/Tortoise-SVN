@@ -32,9 +32,9 @@
 
 // CAboutDlg dialog
 
-IMPLEMENT_DYNAMIC(CAboutDlg, CDialog)
+IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
 CAboutDlg::CAboutDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CAboutDlg::IDD, pParent)
+	: CStandAloneDialog(CAboutDlg::IDD, pParent)
 {
 }
 
@@ -44,12 +44,12 @@ CAboutDlg::~CAboutDlg()
 
 void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_WEBLINK, m_cWebLink);
 	DDX_Control(pDX, IDC_SUPPORTLINK, m_cSupportLink);
 }
 
-BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
+BEGIN_MESSAGE_MAP(CAboutDlg, CStandAloneDialog)
 	ON_WM_TIMER()
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDC_UPDATE, OnBnClickedUpdate)
@@ -57,7 +57,7 @@ END_MESSAGE_MAP()
 
 BOOL CAboutDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	//set the version string
 	CString temp, boxtitle;
@@ -66,7 +66,7 @@ BOOL CAboutDlg::OnInitDialog()
 	const svn_version_t * svnver = svn_client_version();
 
 	temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(STRINGWIDTH),
-		svnver->major, svnver->minor, svnver->patch, CString(svnver->tag), 
+		svnver->major, svnver->major, svnver->patch, CString(svnver->tag), 
 		APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
 		API_MAJOR_VERSION, API_MINOR_VERSION, API_PATCH_VERSION,
 		APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
@@ -113,7 +113,7 @@ void CAboutDlg::OnTimer(UINT nIDEvent)
 		r.bottom = r.top + m_renderSrc.GetHeight();
 		m_waterEffect.Blob(random(r.left,r.right), random(r.top, r.bottom), 2, 400, m_waterEffect.m_iHpage);
 	}
-	CDialog::OnTimer(nIDEvent);
+	CStandAloneDialog::OnTimer(nIDEvent);
 }
 
 void CAboutDlg::OnMouseMove(UINT nFlags, CPoint point)
@@ -138,7 +138,7 @@ void CAboutDlg::OnMouseMove(UINT nFlags, CPoint point)
 	}
 
 
-	CDialog::OnMouseMove(nFlags, point);
+	CStandAloneDialog::OnMouseMove(nFlags, point);
 }
 
 void CAboutDlg::OnBnClickedUpdate()

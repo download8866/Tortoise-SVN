@@ -17,16 +17,10 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include <iostream>
-#include <string>
-#include "regexpr2.h"
-using namespace std;
-using namespace regex;
 
 #define BUGTRAQPROPNAME_LABEL             _T("bugtraq:label")
 #define BUGTRAQPROPNAME_MESSAGE           _T("bugtraq:message")
 #define BUGTRAQPROPNAME_NUMBER            _T("bugtraq:number")
-#define BUGTRAQPROPNAME_LOGREGEX		  _T("bugtraq:logregex")
 #define BUGTRAQPROPNAME_URL               _T("bugtraq:url")
 #define BUGTRAQPROPNAME_WARNIFNOISSUE     _T("bugtraq:warnifnoissue")
 #define BUGTRAQPROPNAME_APPEND		      _T("bugtraq:append")
@@ -71,7 +65,7 @@ public:
 	 * then the properties are read from the parent folder of that file.
 	 * \param path path to a file or a folder
 	 */
-	BOOL ReadProps(CTSVNPath path);
+	BOOL ReadProps(CString path);
 	/**
 	 * Reads the properties from all paths found in a pathlist.
 	 * This method calls ReadProps() for each path .
@@ -87,25 +81,12 @@ public:
 	 * \param pWnd Pointer to a rich edit control
 	 */
 	BOOL FindBugID(const CString& msg, CWnd * pWnd);
-	
-	/**
-	 * Checks if the bug ID is valid. If bugtraq:number is 'true', then the
-	 * functions checks if the bug ID doens't contain any non-number chars in it.
-	 */
-	BOOL CheckBugID(const CString& sID);
-	
-	/**
-	 * Checks if the log message \c sMessage contains a bug ID. This is done by
-	 * using the bugtraq:checkre property.
-	 */
-	BOOL HasBugID(const CString& sMessage);
-	
 	/**
 	 * Returns the URL pointing to the Issue in the issuetracker. The URL is
 	 * created from the bugtraq:url property and the BugID found in the logmessage.
-	 * \param msg the BugID extracted from the log message
+	 * \param msg the BudID extracted from the log message
 	 */
-	CString GetBugIDUrl(const CString& sBugID);
+	CString GetBugIDUrl(const CString& msg);
 
 public:
 	/** The label to show in the commit dialog where the issue number/bug id
@@ -120,13 +101,6 @@ public:
 	/** If this is set, then the bug-id / issue number must be a number, no text */
 	BOOL		bNumber;
 
-	/** replaces bNumer: a regular expression string to check the validity of
-	  * the entered bug ID. */
-	CString		sCheckRe;
-	
-	/** used to extract the bug ID from the string matched by sCheckRe */
-	CString		sBugIDRe;
-	
 	/** The url pointing to the issue tracker. If the url contains the string
 	 * "%BUGID% the client has to replace it with the issue number / bug id
 	 * the user entered. */
@@ -156,7 +130,4 @@ public:
 	
 	/** The language identifier this project uses for log messages. */
 	LONG		lProjectLanguage;
-private:
-	rpattern	patCheckRe;
-	rpattern	patBugIDRe;
 };

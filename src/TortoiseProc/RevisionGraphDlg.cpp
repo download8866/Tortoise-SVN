@@ -44,10 +44,7 @@ CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
 	m_bThreadRunning = FALSE;
 	m_lSelectedRev = -1;
 	m_pDlgTip = NULL;
-	m_bNoGraph = FALSE;
 
-	m_ViewRect.SetRectEmpty();
-	
 	m_nFontSize = 12;
 	m_node_rect_width = NODE_RECT_WIDTH;
 	m_node_space_left = NODE_SPACE_LEFT;
@@ -104,8 +101,6 @@ BEGIN_MESSAGE_MAP(CRevisionGraphDlg, CResizableStandAloneDialog)
 	ON_WM_MOUSEWHEEL()
 	ON_COMMAND(ID_VIEW_ZOOMIN, OnViewZoomin)
 	ON_COMMAND(ID_VIEW_ZOOMOUT, OnViewZoomout)
-	ON_COMMAND(ID_MENUEXIT, OnMenuexit)
-	ON_COMMAND(ID_MENUHELP, OnMenuhelp)
 END_MESSAGE_MAP()
 
 
@@ -145,7 +140,7 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RevisionGraphDlg"));
-	SetSizeGripVisibility(FALSE);
+
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -173,17 +168,14 @@ UINT CRevisionGraphDlg::WorkerThread(LPVOID pVoid)
 	pDlg = (CRevisionGraphDlg*)pVoid;
 	pDlg->m_bThreadRunning = TRUE;
 	pDlg->m_Progress.ShowModeless(pDlg->m_hWnd);
-	pDlg->m_bNoGraph = FALSE;
 	if (!pDlg->FetchRevisionData(pDlg->m_sPath))
 	{
 		CMessageBox::Show(pDlg->m_hWnd, pDlg->GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-		pDlg->m_bNoGraph = TRUE;
 		goto cleanup;
 	}
 	if (!pDlg->AnalyzeRevisionData(pDlg->m_sPath))
 	{
 		CMessageBox::Show(pDlg->m_hWnd, pDlg->GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-		pDlg->m_bNoGraph = TRUE;
 	}
 #ifdef DEBUG
 	//pDlg->FillTestData();
@@ -198,7 +190,6 @@ cleanup:
 
 void CRevisionGraphDlg::InitView()
 {
-	m_ViewRect.SetRectEmpty();
 	GetViewSize();
 	BuildConnections();
 	SetScrollbars();
@@ -279,16 +270,8 @@ void CRevisionGraphDlg::OnPaint()
 		CResizableStandAloneDialog::OnPaint();
 		return;
 	}
-	else if ((m_bNoGraph)||(m_arEntryPtrs.GetCount()==0))
-	{
-		CString sNoGraphText;
-		sNoGraphText.LoadString(IDS_REVGRAPH_ERR_NOGRAPH);
-		dc.FillSolidRect(rect, RGB(255,255,255));
-		dc.ExtTextOut(20,20,ETO_CLIPPED,NULL,sNoGraphText,NULL);
-		return;
-	}
 	GetViewSize();
-	DrawGraph(&dc, rect, GetScrollPos(SB_VERT), GetScrollPos(SB_HORZ), false);
+	DrawGraph(&dc, rect, GetScrollPos(SB_VERT), GetScrollPos(SB_HORZ));
 }
 
 void CRevisionGraphDlg::DrawOctangle(CDC * pDC, const CRect& rect)
@@ -394,7 +377,7 @@ void CRevisionGraphDlg::DrawNode(CDC * pDC, const CRect& rect,
 		textrect.left += 4;
 		textrect.right -= 4;
 		TEXTMETRIC textMetric;
-		pDC->GetOutputTextMetrics(&textMetric);
+		pDC->GetTextMetrics(&textMetric);
 		temp.Format(IDS_REVGRAPH_BOXREVISIONTITLE, rentry->revision);
 		pDC->DrawText(temp, &r, DT_CALCRECT);
 		pDC->ExtTextOut(textrect.left + ((rect.Width()-r.Width())/2), textrect.top + m_node_rect_heigth/4, ETO_CLIPPED, NULL, temp, NULL);
@@ -439,20 +422,11 @@ void CRevisionGraphDlg::DrawNode(CDC * pDC, const CRect& rect,
 	END_CATCH_ALL
 }
 
-void CRevisionGraphDlg::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos, bool bDirectDraw)
+void CRevisionGraphDlg::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos)
 {
-	CDC * memDC;
-	if (bDirectDraw)
-	{
-		memDC = pDC;
-	}
-	else
-	{
-		memDC = new CMemDC(pDC);
-	}
-	
-	memDC->FillSolidRect(rect, RGB(255,255,255));		// white background
-	memDC->SetBkMode(TRANSPARENT);
+	CMemDC memDC(pDC);
+	memDC.FillSolidRect(rect, RGB(255,255,255));		// white background
+	memDC.SetBkMode(TRANSPARENT);
 
 	INT_PTR i = 0;
 	while (i*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) <= nVScrollPos)
@@ -477,24 +451,23 @@ void CRevisionGraphDlg::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 		switch (entry->action)
 		{
 		case 'D':
-			DrawNode(memDC, noderect, RGB(0,0,0), entry, TSVNOctangle, m_lSelectedRev==entry->revision);
+			DrawNode(&memDC, noderect, RGB(0,0,0), entry, TSVNOctangle, m_lSelectedRev==entry->revision);
 			break;
 		case 'A':
-			DrawNode(memDC, noderect, RGB(0,0,0), entry, TSVNRoundRect, m_lSelectedRev==entry->revision);
+			DrawNode(&memDC, noderect, RGB(0,0,0), entry, TSVNRoundRect, m_lSelectedRev==entry->revision);
 			break;
 		case 'R':
-			DrawNode(memDC, noderect, RGB(0,0,0), entry, TSVNOctangle, m_lSelectedRev==entry->revision);
+			DrawNode(&memDC, noderect, RGB(0,0,0), entry, TSVNOctangle, m_lSelectedRev==entry->revision);
 			break;
 		default:
-			DrawNode(memDC, noderect, RGB(0,0,0), entry, TSVNRectangle, m_lSelectedRev==entry->revision);
+			DrawNode(&memDC, noderect, RGB(0,0,0), entry, TSVNRectangle, m_lSelectedRev==entry->revision);
 			break;
 		}
 		m_arNodeList.Add(noderect);
 		m_arNodeRevList.Add(entry->revision);
 	}
-	DrawConnections(memDC, rect, nVScrollPos, nHScrollPos);
-	if (!bDirectDraw)
-		delete memDC;
+	DrawConnections(&memDC, rect, nVScrollPos, nHScrollPos);
+
 }
 
 void CRevisionGraphDlg::BuildConnections()
@@ -1012,8 +985,8 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
+	//ofn.lStructSize = sizeof(OPENFILENAME);
+	ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -1044,139 +1017,117 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 	if (GetSaveFileName(&ofn)==TRUE)
 	{
 		tempfile = CString(ofn.lpstrFile);
-		// if the user doesn't specify a file extension, default to
-		// wmf and add that extension to the filename. But only if the
-		// user chose the 'pictures' filter. The filename isn't changed
-		// if the 'All files' filter was chosen.
-		CString extension;
-		int dotPos = tempfile.ReverseFind('.');
-		int slashPos = tempfile.ReverseFind('\\');
-		if (dotPos > slashPos)
-			extension = tempfile.Mid(dotPos);
-		if ((ofn.nFilterIndex == 1)&&(extension.IsEmpty()))
+		//create dc to paint on
+		CWindowDC ddc(this);
+		CDC dc;
+		if (!dc.CreateCompatibleDC(&ddc))
 		{
-			extension = _T(".wmf");
-			tempfile += extension;
-		}
-		
-		if (extension.CompareNoCase(_T(".wmf"))==0)
-		{
-			// save the graph as an enhanced metafile
-			CMetaFileDC wmfDC;
-			wmfDC.CreateEnhanced(NULL, tempfile, NULL, _T("TortoiseSVN\0Revision Graph\0\0"));
-			CRect rect;
-			rect = GetViewSize();
-			DrawGraph(&wmfDC, rect, 0, 0, true);
-			HENHMETAFILE hemf = wmfDC.CloseEnhanced();
-			DeleteEnhMetaFile(hemf);
-		}
-		else
-		{
-			// save the graph as a pixel picture instead of a vector picture
-			// create dc to paint on
-			CWindowDC ddc(this);
-			CDC dc;
-			if (!dc.CreateCompatibleDC(&ddc))
+			LPVOID lpMsgBuf;
+			if (!FormatMessage( 
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+				FORMAT_MESSAGE_FROM_SYSTEM | 
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				(LPTSTR) &lpMsgBuf,
+				0,
+				NULL ))
 			{
-				LPVOID lpMsgBuf;
-				if (!FormatMessage( 
-					FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-					FORMAT_MESSAGE_FROM_SYSTEM | 
-					FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL,
-					GetLastError(),
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-					(LPTSTR) &lpMsgBuf,
-					0,
-					NULL ))
-				{
-					return;
-				}
-				MessageBox( (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
-				LocalFree( lpMsgBuf );
 				return;
 			}
-			CRect rect;
-			rect = GetViewSize();
-			HBITMAP hbm = ::CreateCompatibleBitmap(ddc.m_hDC, rect.Width(), rect.Height());
-			if (hbm==0)
+
+			// Display the string.
+			MessageBox( (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
+
+			// Free the buffer.
+			LocalFree( lpMsgBuf );
+			return;
+		}
+		CRect rect;
+		rect = GetViewSize();
+		HBITMAP hbm = ::CreateCompatibleBitmap(ddc.m_hDC, rect.Width(), rect.Height());
+		if (hbm==0)
+		{
+			LPVOID lpMsgBuf;
+			if (!FormatMessage( 
+				FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+				FORMAT_MESSAGE_FROM_SYSTEM | 
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				(LPTSTR) &lpMsgBuf,
+				0,
+				NULL ))
 			{
-				LPVOID lpMsgBuf;
-				if (!FormatMessage( 
-					FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-					FORMAT_MESSAGE_FROM_SYSTEM | 
-					FORMAT_MESSAGE_IGNORE_INSERTS,
-					NULL,
-					GetLastError(),
-					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-					(LPTSTR) &lpMsgBuf,
-					0,
-					NULL ))
-				{
-					return;
-				}
-				MessageBox( (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
-				LocalFree( lpMsgBuf );
 				return;
 			}
-			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			//paint the whole graph
-			DrawGraph(&dc, rect, 0, 0, false);
-			//now use GDI+ to save the picture
-			CLSID   encoderClsid;
-			GdiplusStartupInput gdiplusStartupInput;
-			ULONG_PTR           gdiplusToken;
-			CString sErrormessage;
-			if (GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL )==Ok)
-			{   
+
+			// Display the string.
+			MessageBox( (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
+
+			// Free the buffer.
+			LocalFree( lpMsgBuf );
+			return;
+		}
+		HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
+		//paint the whole graph
+		DrawGraph(&dc, rect, 0, 0);
+		//now use GDI+ to save the picture
+		CLSID   encoderClsid;
+		GdiplusStartupInput gdiplusStartupInput;
+		ULONG_PTR           gdiplusToken;
+		CString sErrormessage;
+		if (GdiplusStartup( &gdiplusToken, &gdiplusStartupInput, NULL )==Ok)
+		{   
+			{
+				Bitmap bitmap(hbm, NULL);
+				if (bitmap.GetLastStatus()==Ok)
 				{
-					Bitmap bitmap(hbm, NULL);
-					if (bitmap.GetLastStatus()==Ok)
+					// Get the CLSID of the encoder.
+					int ret = 0;
+					if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".png"))==0)
+						ret = GetEncoderClsid(L"image/png", &encoderClsid);
+					else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".jpg"))==0)
+						ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
+					else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".jpeg"))==0)
+						ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
+					else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".bmp"))==0)
+						ret = GetEncoderClsid(L"image/bmp", &encoderClsid);
+					else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".gif"))==0)
+						ret = GetEncoderClsid(L"image/gif", &encoderClsid);
+					else
 					{
-						// Get the CLSID of the encoder.
-						int ret = 0;
-						if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".png"))==0)
-							ret = GetEncoderClsid(L"image/png", &encoderClsid);
-						else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".jpg"))==0)
-							ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-						else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".jpeg"))==0)
-							ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-						else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".bmp"))==0)
-							ret = GetEncoderClsid(L"image/bmp", &encoderClsid);
-						else if (CUtils::GetFileExtFromPath(tempfile).CompareNoCase(_T(".gif"))==0)
-							ret = GetEncoderClsid(L"image/gif", &encoderClsid);
-						else
-						{
-							tempfile += _T(".jpg");
-							ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-						}
-						if (ret >= 0)
-						{
-							CStringW tfile = CStringW(tempfile);
-							bitmap.Save(tfile, &encoderClsid, NULL);
-						}
-						else
-						{
-							sErrormessage.Format(IDS_REVGRAPH_ERR_NOENCODER, CUtils::GetFileExtFromPath(tempfile));
-						}
+						tempfile += _T(".jpg");
+						ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
+					}
+					if (ret >= 0)
+					{
+						CStringW tfile = CStringW(tempfile);
+						bitmap.Save(tfile, &encoderClsid, NULL);
 					}
 					else
 					{
-						sErrormessage.LoadString(IDS_REVGRAPH_ERR_NOBITMAP);
+						sErrormessage.Format(IDS_REVGRAPH_ERR_NOENCODER, CUtils::GetFileExtFromPath(tempfile));
 					}
 				}
-				GdiplusShutdown(gdiplusToken);
+				else
+				{
+					sErrormessage.LoadString(IDS_REVGRAPH_ERR_NOBITMAP);
+				}
 			}
-			else
-			{
-				sErrormessage.LoadString(IDS_REVGRAPH_ERR_GDIINIT);
-			}
-			dc.SelectObject(oldbm);
-			dc.DeleteDC();
-			if (!sErrormessage.IsEmpty())
-			{
-				CMessageBox::Show(m_hWnd, sErrormessage, _T("TortoiseSVN"), MB_ICONERROR);
-			}
+			GdiplusShutdown(gdiplusToken);
+		}
+		else
+		{
+			sErrormessage.LoadString(IDS_REVGRAPH_ERR_GDIINIT);
+		}
+		dc.SelectObject(oldbm);
+		dc.DeleteDC();
+		if (!sErrormessage.IsEmpty())
+		{
+			CMessageBox::Show(m_hWnd, sErrormessage, _T("TortoiseSVN"), MB_ICONERROR);
 		}
 	} // if (GetSaveFileName(&ofn)==TRUE)
 	delete [] pszFilters;
@@ -1245,6 +1196,7 @@ void CRevisionGraphDlg::DoZoom(int nZoomFactor)
 		}
 		m_apFonts[i] = NULL;
 	}
+	m_ViewRect.SetRect(0,0,0,0);
 	InitView();
 	Invalidate();
 }
@@ -1265,16 +1217,6 @@ void CRevisionGraphDlg::OnViewZoomout()
 		m_nZoomFactor--;
 		DoZoom(m_nZoomFactor);
 	}
-}
-
-void CRevisionGraphDlg::OnMenuexit()
-{
-	EndDialog(IDOK);
-}
-
-void CRevisionGraphDlg::OnMenuhelp()
-{
-	OnHelp();
 }
 
 #ifdef DEBUG
@@ -1464,8 +1406,6 @@ void CRevisionGraphDlg::FillTestData()
 	m_arEntryPtrs.Add(e);
 }
 #endif //DEBUG
-
-
 
 
 

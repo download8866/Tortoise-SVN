@@ -29,8 +29,7 @@
 		The file's parent folder shows a "deleted" icon overlay.
 		You can always get the file back, if you call
 		<menuchoice>
-			<guimenu>TortoiseSVN</guimenu>
-			<guimenuitem>Revert</guimenuitem>
+			<guimenuitem>revert</guimenuitem>
 		</menuchoice>
 		on the parent folder.
 	</para>
@@ -58,8 +57,7 @@
 				<para>
 					in the popup menu select
 					<menuchoice>
-						<guimenu>Context Menu</guimenu>
-						<guimenuitem>Move files in Subversion to here</guimenuitem>
+						<guimenuitem>move files in Subversion to here</guimenuitem>
 					</menuchoice>
 				</para>
 			</listitem>
@@ -88,7 +86,6 @@
 			If you have deleted a file or a folder and already committed
 			that delete operation to the repository, then a normal 
 			<menuchoice>
-				<guimenu>TortoiseSVN</guimenu>
 				<guimenuitem>Revert</guimenuitem>
 			</menuchoice>
 			can't bring it back anymore. But the file or folder is not
@@ -97,7 +94,6 @@
 			the repository browser and switch to that revision. Then select
 			the file or folder you deleted, right-click and select
 			<menuchoice>
-				<guimenu>Context Menu</guimenu>
 				<guimenuitem>Copy to...</guimenuitem>
 			</menuchoice>
 			as the target for that copy operation select the path to your

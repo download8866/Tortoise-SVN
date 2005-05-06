@@ -128,8 +128,6 @@ public:
 	void Refresh(HTREEITEM hItem);
 	void RefreshMe(HTREEITEM hItem);
 
-	CString		m_strReposRoot;
-	std::map<CString, SVN::SVNLock> m_locks;
 private:
 	//! Finds the tree item corresponding to \a path, starting at \a hParent.
 	HTREEITEM FindPath(const CString& path, HTREEITEM hParent);

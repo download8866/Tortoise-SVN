@@ -21,13 +21,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../../Subversion/apr-util/include&quot;;&quot;../../../Subversion/apr-util/xml/expat/lib&quot;;../../../Subversion/subversion/include;../../../Subversion/subversion/libsvn_client;../../../Subversion/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet"
+				AdditionalIncludeDirectories="&quot;../../../Subversion/apr-util/include&quot;;&quot;../../../Subversion/apr-util/xml/expat/lib&quot;;../../../Subversion/subversion/include;../../../Subversion/subversion/libsvn_client;../../../Subversion/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;..\..\ext\gettext\include;..\Utils\scintilla\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;SVN_DEBUG;APU_HAVE_DB=1;ENABLE_NLS"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
 				RuntimeLibrary="3"
 				TreatWChar_tAsBuiltInType="TRUE"
-				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="3"
 				WarningLevel="4"
 				DebugInformationFormat="4"/>
@@ -35,10 +34,10 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="delayimp.lib wininet.lib shfolder.lib shell32.lib comctl32.lib mswsock.lib ws2_32.lib rpcrt4.lib shlwapi.lib Version.lib gdiplus.lib ../../obj\ResizableLib\Debug\ResizableLib.lib ../../../Subversion\db4-win32\lib\libdb43d.lib ../../../Subversion\Debug\subversion\libsvn_repos\libsvn_repos-1.lib ../../../Subversion\Debug\subversion\libsvn_diff\libsvn_diff-1.lib ../../../Subversion\Debug\subversion\libsvn_fs\libsvn_fs-1.lib ../../../Subversion\Debug\subversion\libsvn_fs_base\libsvn_fs_base-1.lib ../../../Subversion\Debug\subversion\libsvn_fs_fs\libsvn_fs_fs-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_dav\libsvn_ra_dav-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_local\libsvn_ra_local-1.lib ../../../Subversion\Debug\subversion\libsvn_ra\libsvn_ra-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_svn\libsvn_ra_svn-1.lib ../../../Subversion\neon\libneonD.lib ../../../Subversion\Debug\subversion\libsvn_wc\libsvn_wc-1.lib ../../../Subversion\Debug\subversion\libsvn_subr\libsvn_subr-1.lib ../../../Subversion\Debug\subversion\libsvn_client\libsvn_client-1.lib ../../../Subversion\Debug\subversion\libsvn_delta\libsvn_delta-1.lib ../../../Subversion\apr\Debug\libapr.lib ../../../Subversion\apr-util\Debug\libaprutil.lib ../../../Subversion\apr-iconv\Debug\libapriconv.lib ../../../Subversion\apr-util\xml\expat\lib\LibD\xml.lib ../../ext/svn-win32-libintl/lib/intl3_svn.lib"
+				AdditionalDependencies="delayimp.lib wininet.lib shfolder.lib shell32.lib comctl32.lib mswsock.lib ws2_32.lib rpcrt4.lib shlwapi.lib Version.lib gdiplus.lib ../../obj\ResizableLib\Debug\ResizableLib.lib ../../../Subversion\db4-win32\lib\libdb42d.lib ../../../Subversion\Debug\subversion\libsvn_repos\libsvn_repos-1.lib ../../../Subversion\Debug\subversion\libsvn_diff\libsvn_diff-1.lib ../../../Subversion\Debug\subversion\libsvn_fs\libsvn_fs-1.lib ../../../Subversion\Debug\subversion\libsvn_fs_base\libsvn_fs_base-1.lib ../../../Subversion\Debug\subversion\libsvn_fs_fs\libsvn_fs_fs-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_dav\libsvn_ra_dav-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_local\libsvn_ra_local-1.lib ../../../Subversion\Debug\subversion\libsvn_ra\libsvn_ra-1.lib ../../../Subversion\Debug\subversion\libsvn_ra_svn\libsvn_ra_svn-1.lib ../../../Subversion\neon\libneonD.lib ../../../Subversion\Debug\subversion\libsvn_wc\libsvn_wc-1.lib ../../../Subversion\Debug\subversion\libsvn_subr\libsvn_subr-1.lib ../../../Subversion\Debug\subversion\libsvn_client\libsvn_client-1.lib ../../../Subversion\Debug\subversion\libsvn_delta\libsvn_delta-1.lib ../../../Subversion\apr\Debug\libapr.lib ../../../Subversion\apr-util\Debug\libaprutil.lib ../../../Subversion\apr-iconv\Debug\libapriconv.lib ../../../Subversion\apr-util\xml\expat\lib\LibD\xml.lib ../../ext/gettext/lib/intl.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="LIBC;shell32;msvcrt.lib"
-				DelayLoadDLLs="gdiplus.dll;libdb43d.dll;libeay32.dll"
+				DelayLoadDLLs="gdiplus.dll;libdb42d.dll;libeay32.dll"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				TargetMachine="1"/>
@@ -83,7 +82,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="&quot;../../../Subversion/apr-util/include&quot;;&quot;../../../Subversion/apr-util/xml/expat/lib&quot;;../../../Subversion/subversion/include;../../../Subversion/subversion/libsvn_client;../../../Subversion/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet"
+				AdditionalIncludeDirectories="&quot;../../../Subversion/apr-util/include&quot;;&quot;../../../Subversion/apr-util/xml/expat/lib&quot;;../../../Subversion/subversion/include;../../../Subversion/subversion/libsvn_client;../../../Subversion/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;..\..\ext\gettext\include;..\Utils\scintilla\include"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APU_HAVE_DB=1"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -97,15 +96,79 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="delayimp.lib wininet.lib shfolder.lib shell32.lib comctl32.lib mswsock.lib ws2_32.lib rpcrt4.lib shlwapi.lib Version.lib gdiplus.lib ../../obj/ResizableLib/Release/ResizableLib.Lib ../../../Subversion\db4-win32\lib\libdb43.lib ../../../Subversion\Release\subversion\libsvn_repos\libsvn_repos-1.lib ../../../Subversion\Release\subversion\libsvn_diff\libsvn_diff-1.lib ../../../Subversion\Release\subversion\libsvn_fs\libsvn_fs-1.lib ../../../Subversion\Release\subversion\libsvn_fs_base\libsvn_fs_base-1.lib ../../../Subversion\Release\subversion\libsvn_fs_fs\libsvn_fs_fs-1.lib ../../../Subversion\Release\subversion\libsvn_ra_dav\libsvn_ra_dav-1.lib ../../../Subversion\Release\subversion\libsvn_ra_local\libsvn_ra_local-1.lib ../../../Subversion\Release\subversion\libsvn_ra\libsvn_ra-1.lib ../../../Subversion\Release\subversion\libsvn_ra_svn\libsvn_ra_svn-1.lib ../../../Subversion\neon\libneon.lib ../../../Subversion\Release\subversion\libsvn_wc\libsvn_wc-1.lib ../../../Subversion\Release\subversion\libsvn_subr\libsvn_subr-1.lib ../../../Subversion\Release\subversion\libsvn_client\libsvn_client-1.lib ../../../Subversion\Release\subversion\libsvn_delta\libsvn_delta-1.lib ../../../Subversion\apr\Release\libapr.lib ../../../Subversion\apr-util\Release\libaprutil.lib ../../../Subversion\apr-iconv\Release\libapriconv.lib ../../../Subversion\apr-util\xml\expat\lib\LibR\xml.lib ../../ext/svn-win32-libintl/lib/intl3_svn.lib"
+				AdditionalDependencies="delayimp.lib wininet.lib shfolder.lib shell32.lib comctl32.lib mswsock.lib ws2_32.lib rpcrt4.lib shlwapi.lib Version.lib gdiplus.lib ../../obj/ResizableLib/Release/ResizableLib.Lib ../../../Subversion\db4-win32\lib\libdb42.lib ../../../Subversion\Release\subversion\libsvn_repos\libsvn_repos-1.lib ../../../Subversion\Release\subversion\libsvn_diff\libsvn_diff-1.lib ../../../Subversion\Release\subversion\libsvn_fs\libsvn_fs-1.lib ../../../Subversion\Release\subversion\libsvn_fs_base\libsvn_fs_base-1.lib ../../../Subversion\Release\subversion\libsvn_fs_fs\libsvn_fs_fs-1.lib ../../../Subversion\Release\subversion\libsvn_ra_dav\libsvn_ra_dav-1.lib ../../../Subversion\Release\subversion\libsvn_ra_local\libsvn_ra_local-1.lib ../../../Subversion\Release\subversion\libsvn_ra\libsvn_ra-1.lib ../../../Subversion\Release\subversion\libsvn_ra_svn\libsvn_ra_svn-1.lib ../../../Subversion\neon\libneon.lib ../../../Subversion\Release\subversion\libsvn_wc\libsvn_wc-1.lib ../../../Subversion\Release\subversion\libsvn_subr\libsvn_subr-1.lib ../../../Subversion\Release\subversion\libsvn_client\libsvn_client-1.lib ../../../Subversion\Release\subversion\libsvn_delta\libsvn_delta-1.lib ../../../Subversion\apr\Release\libapr.lib ../../../Subversion\apr-util\Release\libaprutil.lib ../../../Subversion\apr-iconv\Release\libapriconv.lib ../../../Subversion\apr-util\xml\expat\lib\LibR\xml.lib ../../ext/gettext/lib/intl.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames="libcd.lib;libc;shell32;"
-				DelayLoadDLLs="gdiplus.dll;libdb43.dll;libeay32.dll"
+				DelayLoadDLLs="gdiplus.dll;libdb42.dll;libeay32.dll"
 				GenerateDebugInformation="TRUE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				OptimizeForWindows98="1"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="FALSE"/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"
+				AdditionalIncludeDirectories="&quot;$(IntDir)&quot;;..\TortoiseShell"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release_MBCS|Win32"
+			OutputDirectory="..\..\bin\Release_MBCS\bin"
+			IntermediateDirectory="..\..\obj\TortoiseProc\Release_MBCS"
+			ConfigurationType="1"
+			UseOfMFC="2"
+			CharacterSet="2"
+			WholeProgramOptimization="TRUE">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="1"
+				GlobalOptimizations="FALSE"
+				InlineFunctionExpansion="1"
+				FavorSizeOrSpeed="2"
+				OptimizeForWindowsApplication="TRUE"
+				AdditionalIncludeDirectories="&quot;../../../Subversion/apr-util/include&quot;;&quot;../../../Subversion/apr-util/xml/expat/lib&quot;;../../../Subversion/subversion/include;../../../Subversion/subversion/libsvn_client;../../../Subversion/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;..\..\ext\gettext\include;..\Utils\scintilla\include"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APU_HAVE_DB=1"
+				StringPooling="TRUE"
+				MinimalRebuild="FALSE"
+				RuntimeLibrary="2"
+				BufferSecurityCheck="FALSE"
+				TreatWChar_tAsBuiltInType="TRUE"
+				UsePrecompiledHeader="3"
+				WarningLevel="4"
+				DebugInformationFormat="3"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="delayimp.lib wininet.lib shfolder.lib shell32.lib comctl32.lib mswsock.lib ws2_32.lib rpcrt4.lib shlwapi.lib Version.lib gdiplus.lib ../../../Subversion\db4-win32\lib\libdb42.lib ../../../Subversion\Release\subversion\libsvn_repos\libsvn_repos-1.lib ../../../Subversion\Release\subversion\libsvn_diff\libsvn_diff-1.lib ../../../Subversion\Release\subversion\libsvn_fs\libsvn_fs-1.lib ../../../Subversion\Release\subversion\libsvn_fs_base\libsvn_fs_base-1.lib ../../../Subversion\Release\subversion\libsvn_fs_fs\libsvn_fs_fs-1.lib ../../../Subversion\Release\subversion\libsvn_ra_dav\libsvn_ra_dav-1.lib ../../../Subversion\Release\subversion\libsvn_ra_local\libsvn_ra_local-1.lib ../../../Subversion\Release\subversion\libsvn_ra\libsvn_ra-1.lib ../../../Subversion\Release\subversion\libsvn_ra_svn\libsvn_ra_svn-1.lib ../../../Subversion\neon\libneon.lib ../../../Subversion\Release\subversion\libsvn_wc\libsvn_wc-1.lib ../../../Subversion\Release\subversion\libsvn_subr\libsvn_subr-1.lib ../../../Subversion\Release\subversion\libsvn_client\libsvn_client-1.lib ../../../Subversion\Release\subversion\libsvn_delta\libsvn_delta-1.lib ../../../Subversion\apr\Release\libapr.lib ../../../Subversion\apr-util\Release\libaprutil.lib ../../../Subversion\apr-iconv\Release\libapriconv.lib ../../../Subversion\apr-util\xml\expat\lib\LibR\xml.lib ../../ext/gettext/lib/intl.lib"
+				LinkIncremental="1"
+				IgnoreDefaultLibraryNames="libcd;libc;shell32"
+				DelayLoadDLLs="gdiplus.dll;libdb42.dll;libeay32.dll"
+				GenerateDebugInformation="TRUE"
+				SubSystem="2"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
 				TargetMachine="1"/>
 			<Tool
 				Name="VCMIDLTool"
@@ -153,30 +216,6 @@
 					RelativePath="..\Utils\CmdLineParser.h">
 				</File>
 				<File
-					RelativePath="..\Utils\DragDropImpl.cpp">
-					<FileConfiguration
-						Name="Debug|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-					<FileConfiguration
-						Name="Release|Win32">
-						<Tool
-							Name="VCCLCompilerTool"
-							UsePrecompiledHeader="0"/>
-					</FileConfiguration>
-				</File>
-				<File
-					RelativePath="..\Utils\DragDropImpl.h">
-				</File>
-				<File
-					RelativePath="..\Utils\InsertControl.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\InsertControl.h">
-				</File>
-				<File
 					RelativePath="..\Utils\NewAPIs.h">
 				</File>
 				<File
@@ -208,12 +247,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\ShellUpdater.h">
-				</File>
-				<File
-					RelativePath="..\Utils\SoundUtils.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\SoundUtils.h">
 				</File>
 				<File
 					RelativePath="..\Utils\stdex_vector.h">
@@ -283,12 +316,6 @@
 					RelativePath="..\Utils\DlgTemplate.h">
 				</File>
 				<File
-					RelativePath="..\Utils\FileDropEdit.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\FileDropEdit.h">
-				</File>
-				<File
 					RelativePath="..\Utils\FontPreviewCombo.cpp">
 				</File>
 				<File
@@ -349,12 +376,6 @@
 					RelativePath="..\Utils\SciEdit.h">
 				</File>
 				<File
-					RelativePath="..\Utils\SplitterControl.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\SplitterControl.h">
-				</File>
-				<File
 					RelativePath="..\Utils\StandAloneDlg.cpp">
 				</File>
 				<File
@@ -405,6 +426,12 @@
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\Utils\myspell\affentry.hxx">
@@ -419,6 +446,12 @@
 						</FileConfiguration>
 						<FileConfiguration
 							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
 							<Tool
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
@@ -447,6 +480,12 @@
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\Utils\myspell\csutil.hxx">
@@ -461,6 +500,12 @@
 						</FileConfiguration>
 						<FileConfiguration
 							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
 							<Tool
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
@@ -483,6 +528,12 @@
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\Utils\myspell\hashmgr.cxx">
@@ -494,6 +545,12 @@
 						</FileConfiguration>
 						<FileConfiguration
 							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
 							<Tool
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
@@ -519,6 +576,12 @@
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\Utils\myspell\myspell.hxx">
@@ -537,6 +600,12 @@
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
 						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
 					</File>
 					<File
 						RelativePath="..\Utils\myspell\mythes.hxx">
@@ -551,6 +620,12 @@
 						</FileConfiguration>
 						<FileConfiguration
 							Name="Release|Win32">
+							<Tool
+								Name="VCCLCompilerTool"
+								UsePrecompiledHeader="0"/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release_MBCS|Win32">
 							<Tool
 								Name="VCCLCompilerTool"
 								UsePrecompiledHeader="0"/>
@@ -582,79 +657,17 @@
 						RelativePath="..\Utils\ReportCtrl\ReportOptionsCtrl.h">
 					</File>
 				</Filter>
-				<Filter
-					Name="GRETA"
-					Filter="">
-					<File
-						RelativePath="..\..\ext\Greta\regexpr2.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\ext\Greta\regexpr2.h">
-					</File>
-					<File
-						RelativePath="..\..\ext\Greta\reimpl2.h">
-					</File>
-					<File
-						RelativePath="..\..\ext\Greta\restack.h">
-					</File>
-					<File
-						RelativePath="..\..\ext\Greta\syntax2.cpp">
-						<FileConfiguration
-							Name="Debug|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32">
-							<Tool
-								Name="VCCLCompilerTool"
-								UsePrecompiledHeader="0"/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\ext\Greta\syntax2.h">
-					</File>
-				</Filter>
-				<Filter
-					Name="TreePropSheet"
-					Filter="">
-					<File
-						RelativePath="..\Utils\TreePropSheet\PropPageFrame.cpp">
-					</File>
-					<File
-						RelativePath="..\Utils\TreePropSheet\PropPageFrame.h">
-					</File>
-					<File
-						RelativePath="..\Utils\TreePropSheet\PropPageFrameDefault.cpp">
-					</File>
-					<File
-						RelativePath="..\Utils\TreePropSheet\PropPageFrameDefault.h">
-					</File>
-					<File
-						RelativePath="..\Utils\TreePropSheet\TreePropSheet.cpp">
-					</File>
-					<File
-						RelativePath="..\Utils\TreePropSheet\TreePropSheet.h">
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
 		<Filter
 			Name="Subversion"
 			Filter="">
+			<File
+				RelativePath="..\Svn\auth_providers.cpp">
+			</File>
+			<File
+				RelativePath="..\Svn\auth_providers.h">
+			</File>
 			<File
 				RelativePath="..\SVN\SVN.cpp">
 			</File>
@@ -672,12 +685,6 @@
 			</File>
 			<File
 				RelativePath="..\Svn\SVNHelpers.h">
-			</File>
-			<File
-				RelativePath="..\Svn\SVNInfo.cpp">
-			</File>
-			<File
-				RelativePath="..\Svn\SVNInfo.h">
 			</File>
 			<File
 				RelativePath="..\Svn\SVNPrompt.cpp">
@@ -1010,9 +1017,6 @@
 				RelativePath="..\Resources\lineremoved.ico">
 			</File>
 			<File
-				RelativePath="..\Resources\logfilter.ico">
-			</File>
-			<File
 				RelativePath="..\Resources\menuabout.ico">
 			</File>
 			<File
@@ -1103,9 +1107,6 @@
 				RelativePath="..\Resources\ModifiedIcon.ico">
 			</File>
 			<File
-				RelativePath="..\Resources\Overlays.ico">
-			</File>
-			<File
 				RelativePath="..\Resources\proxy.ico">
 			</File>
 			<File
@@ -1161,6 +1162,12 @@
 			</FileConfiguration>
 			<FileConfiguration
 				Name="Release|Win32">
+				<Tool
+					Name="VCCLCompilerTool"
+					UsePrecompiledHeader="1"/>
+			</FileConfiguration>
+			<FileConfiguration
+				Name="Release_MBCS|Win32">
 				<Tool
 					Name="VCCLCompilerTool"
 					UsePrecompiledHeader="1"/>

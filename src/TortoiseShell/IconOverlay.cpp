@@ -21,8 +21,6 @@
 #include "Guids.h"
 #include "PreserveChdir.h"
 #include "UnicodeStrings.h"
-#include "SVNStatus.h"
-#include "..\TSVNCache\CacheInterface.h"
 
 // "The Shell calls IShellIconOverlayIdentifier::GetOverlayInfo to request the
 //  location of the handler's icon overlay. The icon overlay handler returns
@@ -45,7 +43,7 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
         (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
         osv.dwMajorVersion == 4 && osv.dwMinorVersion > 0); // plus Windows 98/Me
 	
-	// There is also a user-option to suppress this
+	// There is also a user-option to supress this
 	if(bAllowOverlayInFileDialogs && CRegStdWORD(_T("Software\\TortoiseSVN\\OverlaysOnlyInExplorer"), FALSE))
 	{
 		bAllowOverlayInFileDialogs = false;
@@ -54,34 +52,16 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 	if(!bAllowOverlayInFileDialogs)
 	{
 		// Test if we are in Explorer
-		DWORD modpathlen = 0;
-		TCHAR * buf = NULL;
-		DWORD pathLength = 0;
-		do 
-		{
-			modpathlen += MAX_PATH;		// MAX_PATH is not the limit here!
-			if (buf)
-				delete buf;
-			buf = new TCHAR[modpathlen];
-			pathLength = GetModuleFileName(NULL, buf, modpathlen);
-		} while (pathLength == modpathlen);
+		TCHAR buf[_MAX_PATH + 1];
+		DWORD pathLength = GetModuleFileName(NULL, buf, _MAX_PATH);
 		if(pathLength >= 13)
 		{
 			if ((_tcsicmp(&buf[pathLength-13], _T("\\explorer.exe"))) != 0)
 			{
-				delete buf;
 				return S_FALSE;
 			}
 		}
-		delete buf;
 	}
-
-	int nInstalledOverlays = GetInstalledOverlays();
-	
-	if ((m_State == AddedOverlay)&&(nInstalledOverlays > 12))
-		return S_FALSE;		// don't use the 'added' overlay
-	if ((m_State == LockedOverlay)&&(nInstalledOverlays > 13))
-		return S_FALSE;		// don't show the 'locked' overlay
 
     // Get folder icons from registry
 	// Default icons are stored in LOCAL MACHINE
@@ -95,13 +75,11 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 	HKEY hkeys [] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
 	switch (m_State)
 	{
-		case Versioned		: iconName = _T("InSubversionIcon"); break;
-		case Modified		: iconName = _T("ModifiedIcon"); break;
-		case Conflict		: iconName = _T("ConflictIcon"); break;
-		case Deleted		: iconName = _T("DeletedIcon"); break;
-		case ReadOnly		: iconName = _T("ReadOnlyIcon"); break;
-		case LockedOverlay	: iconName = _T("LockedIcon"); break;
-		case AddedOverlay	: iconName = _T("AddedIcon"); break;
+		case Versioned : iconName = _T("InSubversionIcon"); break;
+		case Modified  : iconName = _T("ModifiedIcon"); break;
+		case Conflict  : iconName = _T("ConflictIcon"); break;
+		case Deleted   : iconName = _T("DeletedIcon"); break;
+		case Added     : iconName = _T("AddedIcon"); break;
 	}
 
 	for (int i = 0; i < 2; ++i)
@@ -137,22 +115,6 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 #endif		
     else
         return S_FALSE;
-
-	// Now here's where we can find out if due to lack of enough overlay
-	// slots some of our overlays won't be shown.
-	// To do that we have to mark every overlay handler that's successfully
-	// loaded, so we can later check if some are missing
-	switch (m_State)
-	{
-		case Versioned		: g_normalovlloaded = true; break;
-		case Modified		: g_modifiedovlloaded = true; break;
-		case Conflict		: g_conflictedovlloaded = true; break;
-		case Deleted		: g_deletedovlloaded = true; break;
-		case ReadOnly		: g_readonlyovlloaded = true; break;
-		case LockedOverlay	: g_lockedovlloaded = true; break;
-		case AddedOverlay	: g_addedovlloaded = true; break;
-	}
-
 	ATLTRACE2(_T("Icon loaded : %s\n"), icon.c_str());
     *pIndex = 0;
     *pdwFlags = ISIOI_ICONFILE;
@@ -172,17 +134,11 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 		case Deleted:
 			*pPriority = 2;
 			break;
-		case ReadOnly:
+		case Added:
 			*pPriority = 3;
 			break;
-		case LockedOverlay:
-			*pPriority = 4;
-			break;
-		case AddedOverlay:
-			*pPriority = 5;
-			break;
 		case Versioned:
-			*pPriority = 6;
+			*pPriority = 4;
 			break;
 		default:
 			*pPriority = 100;
@@ -202,8 +158,6 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 {
 	PreserveChdir preserveChdir;
 	svn_wc_status_kind status = svn_wc_status_unversioned;
-	bool readonlyoverlay = false;
-	bool lockedoverlay = false;
 	if (pwszPath == NULL)
 		return S_FALSE;
 #ifdef UNICODE
@@ -213,49 +167,66 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 	const TCHAR* pPath = snPath.c_str();
 #endif
 
-	// since the shell calls each and every overlay handler with the same filepath
-	// we use a small 'fast' cache of just one path here.
-	// To make sure that cache expires, clear it as soon as one handler is used.
-	if (_tcscmp(pPath, g_filepath.c_str())==0)
+	//if recursive is set in the registry then check directories recursive for status and show
+	//the overlay with the highest priority on the folder.
+	//since this can be slow for big directories it is optional - but very neat
+	AutoLocker lock(g_csCacheGuard);
+
+	// Look in our caches for this item 
+	const FileStatusCacheEntry * s = g_CachedStatus.GetCachedItem(pPath);
+	if (s)
 	{
-		status = g_filestatus;
-		readonlyoverlay = g_readonlyoverlay;
-		lockedoverlay = g_lockedoverlay;
+		status = s->status;
 	}
 	else
 	{
-		if (!g_ShellCache.IsPathAllowed(pPath))
+		// No cached status available 
+
+		// Check if we fetch icon overlays for this type of path
+		if (! g_ShellCache.IsPathAllowed(pPath))
 		{
 			return S_FALSE;
 		}
-
-		TSVNCacheResponse itemStatus;
-		ZeroMemory(&itemStatus, sizeof(itemStatus));
-		if (g_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(pPath), &itemStatus, !!g_ShellCache.IsRecursive()))
+		// since the dwAttrib param of the IsMemberOf() function does not
+		// have the SFGAO_FOLDER flag set at all (it's 0 for files and folders!)
+		// we have to check if the path is a folder ourselves :(
+		if (PathIsDirectory(pPath))
 		{
-			status = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
-			if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&(itemStatus.m_readonly))
-				readonlyoverlay = true;
-			if (itemStatus.m_owner[0]!=0)
-				lockedoverlay = true;
+			if (g_ShellCache.HasSVNAdminDir(pPath, TRUE))
+			{
+				if ((!g_ShellCache.IsRecursive()) && (!g_ShellCache.IsFolderOverlay()))
+				{
+					status = svn_wc_status_normal;
+				}
+				else
+				{
+					const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(pPath, TRUE);
+					status = s->status;
+					status = SVNStatus::GetMoreImportant(svn_wc_status_normal, status);
+				}
+			}
+			else
+			{
+				status = svn_wc_status_unversioned;
+			}
+		} // if (PathIsDirectory(g_filepath))
+		else
+		{
+			const FileStatusCacheEntry * s = g_CachedStatus.GetFullStatus(pPath, FALSE);
+			status = s->status;
 		}
-		ATLTRACE("Status %d for file %ws\n", status, pwszPath);
 	}
-	g_filepath.clear();
-	g_filepath = pPath;
-	g_filestatus = status;
-	g_readonlyoverlay = readonlyoverlay;
-	g_lockedoverlay = lockedoverlay;
-	
+
+	lock.Unlock();
+
+	ATLTRACE("Status %d for file %ws\n", status, pwszPath);
+
 	//the priority system of the shell doesn't seem to work as expected (or as I expected):
 	//as it seems that if one handler returns S_OK then that handler is used, no matter
 	//if other handlers would return S_OK too (they're never called on my machine!)
 	//So we return S_OK for ONLY ONE handler!
 	switch (status)
 	{
-		// note: we can show other overlays if due to lack of enough free overlay
-		// slots some of our overlays aren't loaded. But we assume that
-		// at least the 'normal' and 'modified' overlay are available.
 		case svn_wc_status_none:
 			return S_FALSE;
 		case svn_wc_status_unversioned:
@@ -263,146 +234,45 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_normal:
 		case svn_wc_status_external:
 		case svn_wc_status_incomplete:
-			if ((readonlyoverlay)&&(g_readonlyovlloaded))
-			{
-				if (m_State == ReadOnly)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
-			else if ((lockedoverlay)&&(g_lockedovlloaded))
-			{
-				if (m_State == LockedOverlay)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
-			else if (m_State == Versioned)
-			{
-				g_filepath.clear();
+			if (m_State == Versioned)
 				return S_OK;
-			}
+			else
+				return S_FALSE;
+		case svn_wc_status_added:
+			if (m_State == Added)
+				return S_OK;
 			else
 				return S_FALSE;
 		case svn_wc_status_missing:
 		case svn_wc_status_deleted:
-			if (g_deletedovlloaded)
-			{
-				if (m_State == Deleted)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
-			else
-			{
-				// the 'deleted' overlay isn't available (due to lack of enough
-				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == Modified)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
-		case svn_wc_status_replaced:
-		case svn_wc_status_modified:
-		case svn_wc_status_merged:
-			if (m_State == Modified)
-			{
-				g_filepath.clear();
+			if (m_State == Deleted)
 				return S_OK;
-			}
 			else
 				return S_FALSE;
-		case svn_wc_status_added:
-			if (g_addedovlloaded)
-			{
-				if (m_State== AddedOverlay)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
+		case svn_wc_status_replaced:
+			if (m_State == Modified)
+				return S_OK;
 			else
-			{
-				// the 'added' overlay isn't available (due to lack of enough
-				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == Modified)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
+				return S_FALSE;
+		case svn_wc_status_modified:
+			if (m_State == Modified)
+				return S_OK;
+			else
+				return S_FALSE;
+		case svn_wc_status_merged:
+			if (m_State == Modified)
+				return S_OK;
+			else
+				return S_FALSE;
 		case svn_wc_status_conflicted:
 		case svn_wc_status_obstructed:
-			if (g_conflictedovlloaded)
-			{
-				if (m_State == Conflict)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
+			if (m_State == Conflict)
+				return S_OK;
 			else
-			{
-				// the 'conflicted' overlay isn't available (due to lack of enough
-				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == Modified)
-				{
-					g_filepath.clear();
-					return S_OK;
-				}
-				else
-					return S_FALSE;
-			}
+				return S_FALSE;
 		default:
 			return S_FALSE;
 	} // switch (status)
     //return S_FALSE;
 }
 
-int CShellExt::GetInstalledOverlays()
-{
-	// if there are more than 12 overlay handlers installed, then that means not all
-	// of the overlay handlers can't be shown. Windows chooses the ones first
-	// returned by RegEnumKeyEx() and just drops the ones that come last in
-	// that enumeration.
-	int nInstalledOverlayhandlers = 0;
-	// scan the registry for installed overlay handlers
-	HKEY hKey;
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, 
-		_T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers"),
-		0, KEY_ENUMERATE_SUB_KEYS, &hKey)==ERROR_SUCCESS)
-	{
-		for (int i = 0, rc = ERROR_SUCCESS; rc == ERROR_SUCCESS; i++)
-		{ 
-			TCHAR value[1024];
-			DWORD size = sizeof value / sizeof TCHAR;
-			FILETIME last_write_time;
-			rc = RegEnumKeyEx(hKey, i, value, &size, NULL, NULL, NULL, &last_write_time);
-			if (rc == ERROR_SUCCESS) 
-			{
-				ATLTRACE("installed handler %ws\n", value);
-				nInstalledOverlayhandlers++;
-			}
-		}
-	}
-	RegCloseKey(hKey);
-	return nInstalledOverlayhandlers;
-}

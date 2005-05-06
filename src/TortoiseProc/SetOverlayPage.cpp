@@ -21,7 +21,6 @@
 #include "SetOverlayPage.h"
 #include "SetOverlayIcons.h"
 #include "Globals.h"
-#include "ShellUpdater.h"
 #include ".\setoverlaypage.h"
 
 
@@ -40,7 +39,10 @@ CSetOverlayPage::CSetOverlayPage()
 	, m_bOnlyExplorer(FALSE)
 	, m_sExcludePaths(_T(""))
 	, m_sIncludePaths(_T(""))
+	, m_bShowFolderStatus(TRUE)
 {
+	m_regShowChangedDirs = CRegDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"));
+	m_regShowFolderStatus = CRegDWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
 	m_regOnlyExplorer = CRegDWORD(_T("Software\\TortoiseSVN\\OverlaysOnlyInExplorer"), FALSE);
 	m_regDriveMaskRemovable = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
 	m_regDriveMaskRemote = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
@@ -52,6 +54,8 @@ CSetOverlayPage::CSetOverlayPage()
 	m_regExcludePaths = CRegString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
 	m_regIncludePaths = CRegString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
 
+	m_bShowChangedDirs = m_regShowChangedDirs;
+	m_bShowFolderStatus = m_regShowFolderStatus;
 	m_bOnlyExplorer = m_regOnlyExplorer;
 	m_bRemovable = m_regDriveMaskRemovable;
 	m_bNetwork = m_regDriveMaskRemote;
@@ -73,6 +77,7 @@ CSetOverlayPage::~CSetOverlayPage()
 void CSetOverlayPage::DoDataExchange(CDataExchange* pDX)
 {
 	CPropertyPage::DoDataExchange(pDX);
+	DDX_Check(pDX, IDC_CHANGEDDIRS, m_bShowChangedDirs);
 	DDX_Check(pDX, IDC_REMOVABLE, m_bRemovable);
 	DDX_Check(pDX, IDC_NETWORK, m_bNetwork);
 	DDX_Check(pDX, IDC_FIXED, m_bFixed);
@@ -84,10 +89,12 @@ void CSetOverlayPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MENULIST, m_cMenuList);
 	DDX_Text(pDX, IDC_EXCLUDEPATHS, m_sExcludePaths);
 	DDX_Text(pDX, IDC_INCLUDEPATHS, m_sIncludePaths);
+	DDX_Check(pDX, IDC_SHOWFOLDERSTATUS, m_bShowFolderStatus);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetOverlayPage, CPropertyPage)
+	ON_BN_CLICKED(IDC_CHANGEDDIRS, OnBnClickedChangeddirs)
 	ON_BN_CLICKED(IDC_REMOVABLE, OnBnClickedRemovable)
 	ON_BN_CLICKED(IDC_NETWORK, OnBnClickedNetwork)
 	ON_BN_CLICKED(IDC_FIXED, OnBnClickedFixed)
@@ -98,6 +105,8 @@ BEGIN_MESSAGE_MAP(CSetOverlayPage, CPropertyPage)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_MENULIST, OnLvnItemchangedMenulist)
 	ON_EN_CHANGE(IDC_EXCLUDEPATHS, OnEnChangeExcludepaths)
 	ON_EN_CHANGE(IDC_INCLUDEPATHS, OnEnChangeIncludepaths)
+	ON_BN_CLICKED(IDC_SHOWFOLDERSTATUS, OnBnClickedShowfolderstatus)
+	ON_BN_CLICKED(IDC_SELECTOVERLAYSET, OnBnClickedSelectoverlayset)
 END_MESSAGE_MAP()
 
 
@@ -105,6 +114,8 @@ void CSetOverlayPage::SaveData()
 {
 	if (m_bInitialized)
 	{
+		m_regShowChangedDirs = m_bShowChangedDirs;
+		m_regShowFolderStatus = m_bShowFolderStatus;
 		m_regOnlyExplorer = m_bOnlyExplorer;
 		m_regDriveMaskRemovable = m_bRemovable;
 		m_regDriveMaskRemote = m_bNetwork;
@@ -133,6 +144,8 @@ BOOL CSetOverlayPage::OnInitDialog()
 	m_cDriveGroup.SetIcon(IDI_DRIVES);
 
 	m_tooltips.Create(this);
+	m_tooltips.AddTool(IDC_CHANGEDDIRS, IDS_SETTINGS_CHANGEDDIRS_TT);
+	m_tooltips.AddTool(IDC_SHOWFOLDERSTATUS, IDS_SETTINGS_FOLDERSTATUS_TT);
 	m_tooltips.AddTool(IDC_ONLYEXPLORER, IDS_SETTINGS_ONLYEXPLORER_TT);
 	m_tooltips.AddTool(IDC_MENULIST, IDS_SETTINGS_MENULAYOUT_TT);
 	m_tooltips.AddTool(IDC_EXCLUDEPATHS, IDS_SETTINGS_EXCLUDELIST_TT);	
@@ -165,8 +178,6 @@ BOOL CSetOverlayPage::OnInitDialog()
 	InsertItem(IDS_MENUREMOVE, IDI_DELETE, MENUREMOVE);
 	InsertItem(IDS_MENUREVERT, IDI_REVERT, MENUREVERT);
 	InsertItem(IDS_MENUCLEANUP, IDI_CLEANUP, MENUCLEANUP);
-	InsertItem(IDS_MENU_LOCK, IDI_LOCK, MENULOCK);
-	InsertItem(IDS_MENU_UNLOCK, IDI_UNLOCK, MENUUNLOCK);
 	InsertItem(IDS_MENUBRANCH, IDI_COPY, MENUCOPY);
 	InsertItem(IDS_MENUSWITCH, IDI_SWITCH, MENUSWITCH);
 	InsertItem(IDS_MENUMERGE, IDI_MERGE, MENUMERGE);
@@ -202,6 +213,11 @@ BOOL CSetOverlayPage::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltips.RelayEvent(pMsg);
 	return CPropertyPage::PreTranslateMessage(pMsg);
+}
+
+void CSetOverlayPage::OnBnClickedChangeddirs()
+{
+	SetModified();
 }
 
 void CSetOverlayPage::OnBnClickedRemovable()
@@ -258,7 +274,7 @@ void CSetOverlayPage::InsertItem(UINT nTextID, UINT nIconID, DWORD dwFlags)
 	int nIndex = m_cMenuList.GetItemCount();
 	m_cMenuList.InsertItem(nIndex, temp, nImage);
 	DWORD topmenu = CRegDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
-	m_cMenuList.SetCheck(nIndex, !(topmenu & dwFlags));
+	m_cMenuList.SetCheck(nIndex, topmenu & dwFlags);
 }
 
 void CSetOverlayPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
@@ -269,35 +285,33 @@ void CSetOverlayPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *pRes
 	{
 		int i=0;
 		m_topmenu = 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCHECKOUT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUPDATE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCOMMIT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUDIFF;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENULOG;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUSHOWCHANGED;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREVISIONGRAPH;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREPOBROWSE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCONFLICTEDITOR;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURESOLVE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUPDATEEXT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURENAME;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREMOVE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREVERT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCLEANUP;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENULOCK;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUNLOCK;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCOPY;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUSWITCH;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUMERGE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUEXPORT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURELOCATE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCREATEREPOS;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUADD;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUIMPORT;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUBLAME;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUIGNORE;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCREATEPATCH;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUAPPLYPATCH;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCHECKOUT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOMMIT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFF : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENULOG : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSHOWCHANGED : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREVISIONGRAPH : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREPOBROWSE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCONFLICTEDITOR : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURESOLVE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATEEXT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURENAME : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREMOVE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREVERT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCLEANUP : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOPY : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSWITCH : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUMERGE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUEXPORT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURELOCATE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEREPOS : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUADD : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIMPORT : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUBLAME : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIGNORE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEPATCH : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUAPPLYPATCH : 0;
 	} // if (m_cMenuList.GetItemCount() > 0) 
 	*pResult = 0;
 }
@@ -310,4 +324,15 @@ void CSetOverlayPage::OnEnChangeExcludepaths()
 void CSetOverlayPage::OnEnChangeIncludepaths()
 {
 	SetModified();
+}
+
+void CSetOverlayPage::OnBnClickedShowfolderstatus()
+{
+	SetModified();
+}
+
+void CSetOverlayPage::OnBnClickedSelectoverlayset()
+{
+	CSetOverlayIcons dlg;
+	dlg.DoModal();
 }

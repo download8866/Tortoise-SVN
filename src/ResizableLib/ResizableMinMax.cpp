@@ -1,3 +1,5 @@
+// ResizableMinMax.cpp: implementation of the CResizableMinMax class.
+//
 /////////////////////////////////////////////////////////////////////////////
 //
 // This file is part of ResizableLib
@@ -14,11 +16,6 @@
 // If you find this code useful, credits would be nice!
 //
 /////////////////////////////////////////////////////////////////////////////
-
-/*!
- *  @file
- *  @brief Implementation of the CResizableMinMax class.
- */
 
 #include "stdafx.h"
 #include "ResizableMinMax.h"

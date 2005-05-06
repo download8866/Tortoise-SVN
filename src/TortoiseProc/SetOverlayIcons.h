@@ -23,23 +23,13 @@
 
 // CSetOverlayIcons dialog
 
-class CSetOverlayIcons : public CPropertyPage
+class CSetOverlayIcons : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CSetOverlayIcons)
 
 public:
-	CSetOverlayIcons();   // standard constructor
+	CSetOverlayIcons(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CSetOverlayIcons();
-
-	/**
-	* Saves the changed settings to the registry.
-	* \remark If the dialog is closed/dismissed without calling
-	* this method first then all settings the user made must be
-	* discarded!
-	*/
-	void SaveData();
-
-	UINT GetIconID() {return IDI_SET_OVERLAYS;}
 
 // Dialog Data
 	enum { IDD = IDD_OVERLAYICONS };
@@ -47,16 +37,16 @@ public:
 protected:
 	virtual void			DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL			OnInitDialog();
+	virtual void			OnOK();
 	afx_msg void			OnBnClickedListradio();
 	afx_msg void			OnBnClickedSymbolradio();
 	afx_msg void			OnCbnSelchangeIconsetcombo();
+	afx_msg void			OnBnClickedHelp();
 
 	void					ShowIconSet(bool bSmallIcons);
 	void					AddFileTypeGroup(CString sFileType, bool bSmallIcons);
 	DECLARE_MESSAGE_MAP()
 protected:
-	int				m_selIndex;
-	CString			m_sIconSet;
 	CComboBox		m_cIconSet;
 	CListCtrl		m_cIconList;
 
@@ -65,20 +55,14 @@ protected:
 	CString			m_sNormal;
 	CString			m_sModified;
 	CString			m_sConflicted;
-	CString			m_sReadOnly;
-	CString			m_sDeleted;
 	CString			m_sAdded;
-	CString			m_sLocked;
+	CString			m_sDeleted;
 	CImageList		m_ImageList;
 	CImageList		m_ImageListBig;
 
 	CRegString		m_regInSubversion;
 	CRegString		m_regModified;
 	CRegString		m_regConflicted;
-	CRegString		m_regReadOnly;
-	CRegString		m_regDeleted;
-	CRegString		m_regLocked;
 	CRegString		m_regAdded;
-public:
-	virtual BOOL OnApply();
+	CRegString		m_regDeleted;
 };

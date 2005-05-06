@@ -81,10 +81,8 @@
 						<ulink url="http://httpd.apache.org/download.cgi">
 							<citetitle>http://httpd.apache.org/download.cgi</citetitle>
 						</ulink>.
-						Make sure that you download the version &gt; 2.0.54 -
-						the version 1.3.xx won't work! Also, versions lower than
-						2.0.54 won't work with Subversion 1.2 because of a bug in
-						how Apache &lt; 2.0.54 was built for Windows.
+						Make sure that you download the version 2.0.xx -
+						the version 1.3.xx won't work!
 					</para>
 				</listitem>
 				<listitem>
@@ -118,29 +116,6 @@
 					</para>
 				</listitem>
 			</orderedlist>
-			<caution>
-				<para>
-					If you decide to install Apache as a service, be warned that
-					by default it will run as the local system account.
-					It would be a more secure practice for you to create a
-					separate account for Apache to run as.
-				</para>
-				<para>
-					Make sure that the account on the server that Apache is running as
-					has an explicit entry in the repository directory's access control 
-					list (right-click directory | properties | security), with full 
-					control.  Otherwise, users will not be able to commit their changes.
-				</para>
-				<para>
-					Even if Apache runs as local system, you still need such an entry 
-					(which will be the Administrator account in this case).
-				</para>
-				<para>
-					If Apache does not have this permission set up, your users will get 
-					"Access denied" error messages, which show up in the Apache error log 
-					as error 500.
-				</para>
-			</caution>
 		</para>
 	</sect2>
 	<sect2 id="tsvn-serversetup-apache-3">
@@ -196,9 +171,8 @@
 					</para>
 					<para>
 						Uncomment (remove the '<literal>#</literal>' mark) the
-						following lines:
+						following line:
 <screen>#LoadModule dav_fs_module modules/mod_dav_fs.so</screen>
-						<screen>#LoadModule dav_module modules/mod_dav.so</screen>
 						Add the following two lines to the end of the
 						<literal>LoadModule</literal> section.
 <screen>
@@ -212,6 +186,69 @@ LoadModule authz_svn_module modules/mod_authz_svn.so
 	</sect2>
 	<sect2 id="tsvn-serversetup-apache-4">
 		<title>Configuration</title>
+		<para>
+			If you haven't created a Subversion repository yet,
+			it's time to do that now.
+		</para>
+		<orderedlist>
+			<listitem>
+				<para>
+					Create an empty folder with the name SVN
+					(e.g. <filename>D:\SVN\</filename>),
+					which is used as root for all your repositories.
+					Remember the name you give to this folder since you
+					need it again when you configure Apache.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					Create another folder
+					<filename>MyNewRepository</filename> inside
+					<filename>D:\SVN\</filename>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					You can create a repository with the FSFS backend or with the
+					old but stable Berkeley Database (BDB) format. The FSFS format
+					is faster and it now works on network shares and Windows 98
+					without problems. The BDB format is more stable because it has
+					been tested longer. Read
+					<ulink url="http://svnbook.red-bean.com/en/1.1/ch05.html#svn-ch-5-sect-1.2.A">
+						<citetitle>Chapter 5, Repository Data-Stores</citetitle>
+					</ulink>
+					in the SVN book for more information
+				</para>
+				<para>
+					Open the command prompt (or DOS-Box), change into 
+					<filename>D:\SVN\</filename> and type
+<screen>
+svnadmin create --fs-type bdb MyNewRepository
+</screen>
+or
+<screen>
+svnadmin create --fs-type fsfs MyNewRepository
+</screen>
+					You can also use TortoiseSVN to create a repository. See 
+					<xref linkend="tsvn-serversetup-local-2"/>.
+				</para>
+			</listitem>
+		</orderedlist>
+		<para>
+			Now you've got a new repository located at
+			<filename>D:\SVN\MyNewRepository</filename>.
+		</para>
+		<warning>
+			<para>
+				Do not create or access a Berkeley DB repository on a network share.
+				It <emphasis>cannot</emphasis> exist on a remote filesystem.
+				Not even if you have the network drive mapped to a drive letter.
+				If you attempt to use Berkeley DB on a network share,
+				the results are unpredictable - you may see mysterious errors
+				right away, or it may be months before you discover that your
+				repository database is subtly corrupted.
+			</para>
+		</warning>
 		<para>
 			Now you have set up Apache and Subversion, but Apache doesn't
 			know how to handle Subversion clients like TortoiseSVN yet.
@@ -236,12 +273,9 @@ Require valid-user
 &lt;/Location&gt;
 </screen>
 						This configures Apache so that all your Subversion
-						repositories are physically located below
-						<filename>D:\SVN</filename>. The repositories are
-						served to the outside world from the URL:
+						repositories are available at
 						<systemitem class="url">
-							http://MyServer/svn/
-						</systemitem>.
+						http://MyServer/svn/</systemitem>.
 						Access is restricted to known users/passwords 
 						listed in the <filename>passwd</filename> file.
 					</para>
@@ -348,7 +382,7 @@ bin\htpasswd passwd &lt;username&gt;
 							<entry>AuthzSVNAccessFile</entry>
 							<entry>
 								Location of the Access file for paths inside a
-								Subversion repository
+								subversion repository
 							</entry>
 						</row>
 						<row>
@@ -427,7 +461,6 @@ docs = user5,user6,user7
 				SMB (normal windows file access). So I just create a new folder
 				there, run the TortoiseSVN command
 				<menuchoice>
-					<guimenu>TortoiseSVN</guimenu>
 					<guimenuitem>Create repository here...</guimenuitem>
 				</menuchoice>
 				and a new project has a home...
@@ -455,7 +488,7 @@ docs = user5,user6,user7
 			</para>
 		</tip>
 		<sidebar>
-			<programlisting role="PHP"><![CDATA[
+<programlisting role="PHP"><![CDATA[
 <html>
 <head>
 <title>Subversion Repositories</title>
@@ -699,12 +732,12 @@ SetEnvIf User-Agent ".*MSIE.*" \
 						There are (were?) good reasons for this configuration, 
 						see
 						<ulink url="http://www.modssl.org/docs/2.8/ssl_faq.html#ToC49">
-								<citetitle>http://www.modssl.org/docs/2.8/ssl_faq.html#ToC49</citetitle>
-							</ulink>
+							<citetitle>http://www.modssl.org/docs/2.8/ssl_faq.html#ToC49</citetitle>
+						</ulink>
 						But if you want ntlm authentication you have to use keepalive:
 						<ulink url="http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/qos_enablekeepalives.asp">
-								<citetitle>http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/qos_enablekeepalives.asp</citetitle>
-							</ulink>
+							<citetitle>http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/qos_enablekeepalives.asp</citetitle>
+						</ulink>
 						If You uncomment the whole "SetEnvIf" You should be able to
 						authenticate IE with windows authentication over SSL against 
 						the apache on Win32 with included mod_auth_sspi.
@@ -878,30 +911,5 @@ bin\openssl x509 -in my-server.cert -out my-server.der.crt -outform DER
 				</para>
 			</listitem>
 		</orderedlist>
-		<important>
-			<title>Forcing SSL access</title>
-			<para>
-				When you've set up SSL to make your repository more secure, you
-				might want to disable the normal access via non-ssl (http) and
-				only allow https access.
-				To do this, you have to add another directive to the Subversion
-				&lt;Location&gt; block: <literal>SSLRequireSSL</literal>.
-			</para>
-			<para>
-					An example &lt;Location&gt; block would look like this:
-<screen>
-&lt;Location /svn&gt;
-DAV svn
-SVNParentPath D:\SVN
-SSLRequireSSL
-AuthType Basic
-AuthName "Subversion repositories"
-AuthUserFile passwd
-#AuthzSVNAccessFile svnaccessfile
-Require valid-user
-&lt;/Location&gt;
-</screen>
-			</para>
-		</important>
 	</sect2>
 </sect1>

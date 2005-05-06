@@ -125,8 +125,7 @@ static void ColourisePovDoc(
 			}
 		} else if (sc.state == SCE_POV_DIRECTIVE) {
 			if (!IsAWordChar(sc.ch)) {
-				char s[100];
-				char *p;
+				char s[100], *p;
 				sc.GetCurrent(s, sizeof(s));
 				p = s;
 				// Skip # and whitespace between # and directive word

@@ -33,14 +33,11 @@ CTempFiles::~CTempFiles(void)
 
 CString CTempFiles::GetTempFilePath()
 {
-	DWORD len = GetTempPath(0, NULL);
-	TCHAR * path = new TCHAR[len+1];
-	TCHAR * tempF = new TCHAR[len+100];
-	GetTempPath (len+1, path);
+	TCHAR path[MAX_PATH];
+	TCHAR tempF[MAX_PATH];
+	GetTempPath (MAX_PATH, path);
 	GetTempFileName (path, TEXT("tsm"), 0, tempF);
 	CString tempfile = CString(tempF);
-	delete path;
-	delete tempF;
 	m_arTempFileList.Add(tempfile);
 	return tempfile;
 }
