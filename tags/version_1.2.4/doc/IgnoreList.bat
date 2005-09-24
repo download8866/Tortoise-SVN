@@ -1,0 +1,1 @@
+SET IGNORELIST=tsvn_app_automation.xml Pubdate.xml
