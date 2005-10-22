@@ -52,7 +52,6 @@ protected:
 	afx_msg void OnBnClickedOnlyexplorer();
 	afx_msg void OnLvnItemchangedMenulist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedSimplecontext();
-	afx_msg void OnBnClickedOwnerdrawn();
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -72,7 +71,4 @@ private:
 	
 	CRegDWORD		m_regSimpleContext;
 	BOOL			m_bSimpleContext;
-	
-	CRegDWORD		m_regOwnerDrawn;
-	int				m_OwnerDrawn;
 };

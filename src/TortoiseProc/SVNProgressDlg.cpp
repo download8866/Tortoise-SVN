@@ -35,8 +35,6 @@
 BOOL	CSVNProgressDlg::m_bAscending = FALSE;
 int		CSVNProgressDlg::m_nSortedColumn = -1;
 
-#define TRANSFERTIMER 100
-
 IMPLEMENT_DYNAMIC(CSVNProgressDlg, CResizableStandAloneDialog)
 CSVNProgressDlg::CSVNProgressDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CSVNProgressDlg::IDD, pParent)
@@ -83,8 +81,6 @@ BEGIN_MESSAGE_MAP(CSVNProgressDlg, CResizableStandAloneDialog)
 	ON_NOTIFY(HDN_ITEMCLICK, 0, OnHdnItemclickSvnprogress)
 	ON_WM_SETCURSOR()
 	ON_WM_CONTEXTMENU()
-	ON_REGISTERED_MESSAGE(WM_SVNPROGRESS, OnSVNProgress)
-	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -148,28 +144,28 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 	case svn_wc_notify_update_add:
 		m_bMergesAddsDeletesOccurred = true;
 		data->sActionColumnText.LoadString(IDS_SVNACTION_ADD);
-		data->color = m_Colors.GetColor(CColors::Added);
+		data->color = CUtils::MyColor(CUtils::PURPLE);
 		break;
 	case svn_wc_notify_commit_added:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_ADDING);
-		data->color = m_Colors.GetColor(CColors::Added);
+		data->color = CUtils::MyColor(CUtils::PURPLE);
 		break;
 	case svn_wc_notify_copy:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_COPY);
 		break;
 	case svn_wc_notify_commit_modified:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_MODIFIED);
-		data->color = m_Colors.GetColor(CColors::Modified);
+		data->color = CUtils::MyColor(CUtils::BLUE);
 		break;
 	case svn_wc_notify_delete:
 	case svn_wc_notify_update_delete:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_DELETE);
 		m_bMergesAddsDeletesOccurred = true;
-		data->color = m_Colors.GetColor(CColors::Deleted);
+		data->color = CUtils::MyColor(CUtils::BROWN);
 		break;
 	case svn_wc_notify_commit_deleted:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_DELETING);
-		data->color = m_Colors.GetColor(CColors::Deleted);
+		data->color = CUtils::MyColor(CUtils::BROWN);
 		break;
 	case svn_wc_notify_restore:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_RESTORE);
@@ -182,7 +178,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 		break;
 	case svn_wc_notify_commit_replaced:
 		data->sActionColumnText.LoadString(IDS_SVNACTION_REPLACED);
-		data->color = m_Colors.GetColor(CColors::Deleted);
+		data->color = CUtils::MyColor(CUtils::BROWN);
 		break;
 	case svn_wc_notify_update_update:
 		// if this is an inoperative dir change, don't show the nofification.
@@ -198,14 +194,14 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 		}
 		if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
 		{
-			data->color = m_Colors.GetColor(CColors::Conflict);
+			data->color = CUtils::MyColor(CUtils::RED);
 			data->bConflictedActionItem = true;
 			m_bConflictsOccurred = true;
 			data->sActionColumnText.LoadString(IDS_SVNACTION_CONFLICTED);
 		}
 		else if ((data->content_state == svn_wc_notify_state_merged) || (data->prop_state == svn_wc_notify_state_merged))
 		{
-			data->color = m_Colors.GetColor(CColors::Merged);
+			data->color = CUtils::MyColor(CUtils::GREEN);
 			m_bMergesAddsDeletesOccurred = true;
 			data->sActionColumnText.LoadString(IDS_SVNACTION_MERGED);
 		}
@@ -247,7 +243,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, svn_wc_notify_action_t actio
 				data->bAuxItem = true;
 				data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
 				data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
-				data->color = m_Colors.GetColor(CColors::Conflict);
+				data->color = CUtils::MyColor(CUtils::RED);
 				CSoundUtils::PlayTSVNWarning();
 				// This item will now be added after the switch statement
 			}
@@ -502,8 +498,6 @@ BOOL CSVNProgressDlg::OnInitDialog()
 	ResizeColumns();
 
 	AddAnchor(IDC_SVNPROGRESS, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_PROGRESSLABEL, BOTTOM_LEFT, BOTTOM_CENTER);
-	AddAnchor(IDC_PROGRESSBAR, BOTTOM_CENTER, BOTTOM_RIGHT);
 	AddAnchor(IDC_INFOTEXT, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -522,14 +516,14 @@ void CSVNProgressDlg::ReportSVNError()
 void CSVNProgressDlg::ReportError(const CString& sError)
 {
 	CSoundUtils::PlayTSVNError();
-	ReportString(sError, CString(MAKEINTRESOURCE(IDS_ERR_ERROR)), m_Colors.GetColor(CColors::Conflict));
+	ReportString(sError, CString(MAKEINTRESOURCE(IDS_ERR_ERROR)), CUtils::MyColor(CUtils::RED));
 	m_bErrorsOccurred = true;
 }
 
 void CSVNProgressDlg::ReportWarning(const CString& sWarning)
 {
 	CSoundUtils::PlayTSVNWarning();
-	ReportString(sWarning, CString(MAKEINTRESOURCE(IDS_WARN_WARNING)), m_Colors.GetColor(CColors::Conflict));
+	ReportString(sWarning, CString(MAKEINTRESOURCE(IDS_WARN_WARNING)), CUtils::MyColor(CUtils::RED));
 }
 
 void CSVNProgressDlg::ReportNotification(const CString& sNotification)
@@ -583,7 +577,7 @@ UINT CSVNProgressDlg::ProgressThread()
 
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
 	GetDlgItem(IDCANCEL)->EnableWindow(TRUE);
-	SetAndClearProgressInfo(m_hWnd);
+
 	m_bThreadRunning = TRUE;
 	iFirstResized = 0;
 	bSecondResized = FALSE;
@@ -604,7 +598,7 @@ UINT CSVNProgressDlg::ProgressThread()
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_IMPORT);
 			sWindowTitle = m_targetPathList[0].GetFileOrDirectoryName()+_T(" - ")+sWindowTitle;
 			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Import(m_targetPathList[0], m_url, m_sMessage, true, true))
+			if (!m_pSvn->Import(m_targetPathList[0], m_url, m_sMessage, true))
 			{
 				ReportSVNError();
 			}
@@ -756,7 +750,7 @@ UINT CSVNProgressDlg::ProgressThread()
 		case Add:
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_ADD);
 			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Add(m_targetPathList, false, FALSE, TRUE))
+			if (!m_pSvn->Add(m_targetPathList, false))
 			{
 				ReportSVNError();
 			}
@@ -963,10 +957,6 @@ UINT CSVNProgressDlg::ProgressThread()
 	SendMessage(DM_SETDEFID, IDOK);
 	GetDlgItem(IDOK)->SetFocus();	
 
-	KillTimer(TRANSFERTIMER);
-	GetDlgItem(IDC_PROGRESSLABEL)->SetWindowText(m_sTotalBytesTransferred);
-	GetDlgItem(IDC_PROGRESSBAR)->ShowWindow(SW_HIDE);
-	
 	m_bCancelled = TRUE;
 	m_bThreadRunning = FALSE;
 	POINT pt;
@@ -1132,47 +1122,6 @@ bool CSVNProgressDlg::NotificationDataIsAux(const NotificationData* pData)
 	return pData->bAuxItem;
 }
 
-LRESULT CSVNProgressDlg::OnSVNProgress(WPARAM /*wParam*/, LPARAM lParam)
-{
-	SVNProgress * pProgressData = (SVNProgress *)lParam;
-	CProgressCtrl * progControl = (CProgressCtrl *)GetDlgItem(IDC_PROGRESSBAR);
-	if ((pProgressData->total > 1000)&&(!progControl->IsWindowVisible()))
-	{
-		progControl->ShowWindow(SW_SHOW);
-	}
-	if ((pProgressData->total < 0)&&(pProgressData->progress > 1000)&&(progControl->IsWindowVisible()))
-	{
-		progControl->ShowWindow(SW_HIDE);
-	}
-	if (!GetDlgItem(IDC_PROGRESSLABEL)->IsWindowVisible())
-		GetDlgItem(IDC_PROGRESSLABEL)->ShowWindow(SW_SHOW);
-	SetTimer(TRANSFERTIMER, 2000, NULL);
-	if ((pProgressData->total > 0)&&(pProgressData->progress > 1000))
-	{
-		progControl->SetPos((int)pProgressData->progress);
-		progControl->SetRange32(0, (int)pProgressData->total);
-	}
-	CString progText;
-	progText.Format(IDS_SVN_PROGRESS_SPEED, pProgressData->SpeedString);
-	GetDlgItem(IDC_PROGRESSLABEL)->SetWindowText(progText);
-	if (pProgressData->overall_total < 1200000)
-		m_sTotalBytesTransferred.Format(IDS_SVN_PROGRESS_TOTALTRANSFERRED, pProgressData->overall_total / 1024);
-	else
-		m_sTotalBytesTransferred.Format(IDS_SVN_PROGRESS_TOTALMBTRANSFERRED, (double)((double)pProgressData->overall_total / 1024000.0));
-	return 0;
-}
-
-void CSVNProgressDlg::OnTimer(UINT_PTR nIDEvent)
-{
-	if (nIDEvent == TRANSFERTIMER)
-	{
-		CString progText;
-		progText.Format(IDS_SVN_PROGRESS_SPEED, _T("0 Bytes/s"));
-		GetDlgItem(IDC_PROGRESSLABEL)->SetWindowText(progText);
-		KillTimer(TRANSFERTIMER);
-	}
-}
-
 void CSVNProgressDlg::Sort()
 {
 	if(m_arData.size() < 2)
@@ -1327,7 +1276,7 @@ void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 			point = rect.CenterPoint();
 		}
 
-		if ((selIndex >= 0)&&(!m_bThreadRunning))
+		if ((selIndex >= 0)&&(!m_bThreadRunning)&&(GetDlgItem(IDC_LOGBUTTON)->IsWindowVisible()))
 		{
 			//entry is selected, thread has finished with updating so show the popup menu
 			CMenu popup;
@@ -1358,16 +1307,7 @@ void CSVNProgressDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 
 							temp.LoadString(IDS_MENULOG);
 							popup.AppendMenu(MF_STRING | MF_ENABLED, ID_LOG, temp);
-						}
-						if ((data->action == svn_wc_notify_add)||
-							(data->action == svn_wc_notify_update_add)||
-							(data->action == svn_wc_notify_commit_added)||
-							(data->action == svn_wc_notify_commit_modified)||
-							(data->action == svn_wc_notify_restore)||
-							(data->action == svn_wc_notify_revert)||
-							(data->action == svn_wc_notify_resolved)||
-							(data->action == svn_wc_notify_commit_replaced))
-						{
+							
 							popup.AppendMenu(MF_SEPARATOR, NULL);
 							temp.LoadString(IDS_LOG_POPUP_OPEN);
 							popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPEN, temp);

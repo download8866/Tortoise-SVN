@@ -27,7 +27,6 @@
 #include "SetOverlayIcons.h"
 #include "SetLookAndFeelPage.h"
 #include "SetDialogs.h"
-#include "SettingsColors.h"
 #include "TreePropSheet/TreePropSheet.h"
 
 using namespace TreePropSheet;
@@ -83,7 +82,6 @@ private:
 	CSettingsProgsUniDiff * m_pProgsUniDiffPage;
 	CSetLookAndFeelPage *	m_pLookAndFeelPage;
 	CSetDialogs *			m_pDialogsPage;
-	CSettingsColors *		m_pColorsPage;
 
 	HICON					m_hIcon;
 public:

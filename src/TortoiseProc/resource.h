@@ -70,9 +70,6 @@
 #define IDD_RESOLVE                     207
 #define IDD_CREATEPATCH                 208
 #define IDI_EXTERNALWARNING             210
-#define IDD_HISTORYDLG                  211
-#define IDR_CLEANUPANI                  212
-#define IDD_SETTINGSCOLORS              212
 #define IDS_CHSTAT_FILECOL              1000
 #define IDS_CHSTAT_WCCOL                1001
 #define IDS_CHSTAT_REPOCOL              1002
@@ -370,43 +367,25 @@
 #define IDS_PROGRS_COPY_WARNING         1238
 #define IDC_EXTERNALWARNING             1238
 #define IDS_PROGRS_COMMITT_TRUNK        1239
-#define IDC_SOUNDS                      1239
 #define IDS_PROGRS_REVERTMARKERS        1240
-#define IDC_ENABLEACCELERATORS          1240
 #define IDS_SETTINGS_SELECTDIFF         1241
-#define IDC_MESSAGEGROUP                1241
 #define IDS_SETTINGS_SELECTDIFFVIEWER   1242
-#define IDC_LISTGROUP                   1242
 #define IDS_SETTINGS_SELECTMERGE        1243
-#define IDC_PROGRESSBAR                 1243
 #define IDS_SETTINGS_SELECTSSH          1244
-#define IDC_PROGRESSLABEL               1244
 #define IDS_SETTINGS_EXTDIFF_TT         1245
-#define IDC_HISTORYLIST                 1245
 #define IDS_SETTINGS_EXTDIFFBROWSE_TT   1246
-#define IDC_HISTORY                     1246
 #define IDS_SETTINGS_CHANGEDDIRS_TT     1247
 #define IDS_SETTINGS_TEMPEXTENSIONS_TT  1248
 #define IDS_SETTINGS_FOLDERSTATUS_TT    1249
-#define IDC_CONFLICTCOLOR               1249
 #define IDS_SETTINGS_EXTMERGE_TT        1250
-#define IDC_ADDEDCOLOR                  1250
 #define IDS_SETTINGS_PROXYSERVER_TT     1251
-#define IDC_DELETEDCOLOR                1251
 #define IDS_SETTINGS_DIFFVIEWER_TT      1252
-#define IDC_MERGEDCOLOR                 1252
 #define IDS_SETTINGS_AUTOCLOSE_TT       1253
-#define IDC_MODIFIEDCOLOR               1253
 #define IDS_UTILS_SELECTTEXTVIEWER      1254
-#define IDC_RESTORE                     1254
 #define IDS_SETTINGS_CONVERTBASE_TT     1255
-#define IDC_DELETEDNODECOLOR            1255
 #define IDS_PROC_WARNREVERT             1256
-#define IDC_ADDEDNODECOLOR              1256
 #define IDS_PROC_CLEANUPFINISHED        1257
-#define IDC_RENAMEDNODECOLOR            1257
 #define IDS_PROC_REPOCREATEERR          1258
-#define IDC_REPLACEDNODECOLOR           1258
 #define IDS_PROC_EXPORT_1               1259
 #define IDS_PROC_EXPORT_2               1260
 #define IDS_PROC_EXPORT_3               1261
@@ -475,7 +454,6 @@
 #define IDS_PROC_NEWNAME                1551
 #define IDS_PROC_NEWNAMECOPY            1552
 #define IDS_PROC_NEWNAMEMOVE            1553
-#define IDS_PROC_NEWNAMELABEL           1554
 #define IDS_REPOBROWSE_SAVEAS           1600
 #define IDS_REPOBROWSE_SHOWLOG          1601
 #define IDS_REPOBROWSE_OPEN             1602
@@ -530,11 +508,6 @@
 #define IDS_PROGRESSGETFILE             1900
 #define IDS_PROGRESSREVISION            1901
 #define IDS_PROGRESSWAIT                1902
-#define IDS_PROGRESS_UNIFIEDDIFF        1903
-#define IDS_PROGRESS_COMPARE            1904
-#define IDS_PROGRESS_INFO               1905
-#define IDS_PROGRESSGETFILEREVISION     1906
-#define IDS_PROGRESSIMPORT              1907
 #define IDS_INPUT_ENTERLOG              2000
 #define IDS_INPUT_LOGTITLE              2001
 #define IDS_INPUT_REMOVELOGMSG          2002
@@ -569,8 +542,6 @@
 #define IDS_PROC_UNIGNORESUCCESS        2311
 #define IDS_PROC_FORCEMOVE              2312
 #define IDS_PROC_OMMITEXTERNALS         2313
-#define IDS_PROC_ICONCACHEREBUILT       2314
-#define IDS_PROC_ICONCACHENOTREBUILT    2315
 #define IDS_DIFF_WCNAME                 2400
 #define IDS_DIFF_BASENAME               2401
 #define IDS_DIFF_WORKINGCOPY            2402
@@ -612,7 +583,6 @@
 #define IDS_SETTINGS_USEWCURL_TT        3117
 #define IDS_SETTINGS_SPELLCHECKER_TT    3118
 #define IDS_SETTINGS_REPOCHECK_TT       3119
-#define IDS_SETTINGS_OWNERDRAWN_TT      3120
 #define IDS_CHECKNEWER_YOURVERSION      3200
 #define IDS_CHECKNEWER_CURRENTVERSION   3201
 #define IDS_CHECKNEWER_YOURUPTODATE     3202
@@ -629,9 +599,6 @@
 #define IDS_STATUSLIST_COLEXT           3308
 #define IDS_STATUSLIST_COLLOCK          3309
 #define IDS_STATUSLIST_COLLOCKCOMMENT   3310
-#define IDS_STATUSLIST_COLAUTHOR        3311
-#define IDS_STATUSLIST_COLDATE          3312
-#define IDS_STATUSLIST_COLREVISION      3313
 #define IDS_STATUSLIST_MULTIPLETARGETS  3320
 #define IDS_STATUSLIST_PROPONLY         3321
 #define IDS_STATUSLIST_COPYFROM         3322
@@ -709,10 +676,6 @@
 #define IDS_FILEDIFF_COMMENT            5101
 #define IDS_FILEDIFF_COMMENTCOPY        5102
 #define IDS_FILEDIFF_COMMENTRENAMED     5103
-#define IDS_CREATEPATCH_ADDEDFOLDERS    5400
-#define IDS_SVN_PROGRESS_SPEED          5700
-#define IDS_SVN_PROGRESS_TOTALTRANSFERRED 5701
-#define IDS_SVN_PROGRESS_TOTALMBTRANSFERRED 5702
 #define IDS_SCIEDIT_UNDO                6000
 #define IDS_SCIEDIT_REDO                6001
 #define IDS_SCIEDIT_CUT                 6002
@@ -734,9 +697,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        213
+#define _APS_NEXT_RESOURCE_VALUE        211
 #define _APS_NEXT_COMMAND_VALUE         32789
-#define _APS_NEXT_CONTROL_VALUE         1259
+#define _APS_NEXT_CONTROL_VALUE         1239
 #define _APS_NEXT_SYMED_VALUE           195
 #endif
 #endif

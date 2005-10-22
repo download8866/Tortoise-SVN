@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet;..\Utils\ColourPickerXP"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;SVN_DEBUG;APU_HAVE_DB=1;ENABLE_NLS;THESAURUS"
 				MinimalRebuild="TRUE"
 				ExceptionHandling="TRUE"
@@ -85,7 +85,7 @@
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
 				OptimizeForWindowsApplication="TRUE"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet;..\Utils\ColourPickerXP"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;..\TortoiseProc;..\Utils;..\SVN;..\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\scintilla\include;..\..\ext\GRETA;..\Utils\TreePropSheet"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APU_HAVE_DB=1;THESAURUS"
 				StringPooling="TRUE"
 				MinimalRebuild="FALSE"
@@ -308,18 +308,6 @@
 					RelativePath="..\Utils\BrowseFolder.h">
 				</File>
 				<File
-					RelativePath=".\Colors.cpp">
-				</File>
-				<File
-					RelativePath=".\Colors.h">
-				</File>
-				<File
-					RelativePath="..\Utils\ColourPickerXP\ColourPickerXP.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\ColourPickerXP\ColourPickerXP.h">
-				</File>
-				<File
 					RelativePath="..\Utils\Cursor.h">
 				</File>
 				<File
@@ -426,12 +414,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\WaterEffect.h">
-				</File>
-				<File
-					RelativePath="..\Utils\ColourPickerXP\XPTheme.cpp">
-				</File>
-				<File
-					RelativePath="..\Utils\ColourPickerXP\XPTheme.h">
 				</File>
 			</Filter>
 			<Filter
@@ -711,12 +693,6 @@
 				RelativePath="..\SVN\SVN.h">
 			</File>
 			<File
-				RelativePath="..\Svn\SVNAdminDir.cpp">
-			</File>
-			<File
-				RelativePath="..\Svn\SVNAdminDir.h">
-			</File>
-			<File
 				RelativePath="..\Svn\SVNConfig.cpp">
 			</File>
 			<File
@@ -987,12 +963,6 @@
 					RelativePath="Settings.h">
 				</File>
 				<File
-					RelativePath=".\SettingsColors.cpp">
-				</File>
-				<File
-					RelativePath=".\SettingsColors.h">
-				</File>
-				<File
 					RelativePath=".\SettingsProgsDiff.cpp">
 				</File>
 				<File
@@ -1037,12 +1007,6 @@
 				</File>
 				<File
 					RelativePath=".\FileDiffDlg.h">
-				</File>
-				<File
-					RelativePath=".\HistoryDlg.cpp">
-				</File>
-				<File
-					RelativePath=".\HistoryDlg.h">
 				</File>
 				<File
 					RelativePath=".\InputDlg.cpp">
@@ -1296,9 +1260,6 @@
 				RelativePath="..\Resources\ttf_glyph.bmp">
 			</File>
 		</Filter>
-		<File
-			RelativePath="..\Resources\cleananim.avi">
-		</File>
 		<File
 			RelativePath="stdafx.cpp">
 			<FileConfiguration

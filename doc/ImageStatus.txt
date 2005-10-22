@@ -30,8 +30,8 @@ En	De	Es	Filename
 -	#	#	ch02dia6.png
 -	#	#	ch02dia7.png
 -	-	-	Checkout.png
--	-	#	Commit.png (show externals warning symbol and context menu)
--	-	#	CommitSpellcheck.png
+-	#	#	Commit.png (show externals warning symbol and context menu)
+-	#	#	CommitSpellcheck.png
 -	-	-	CommitProgress.png
 -	-	-	ContextMenuDirControl.png
 -	-	-	ContextMenuDirNoControl.png
@@ -50,8 +50,6 @@ En	De	Es	Filename
 -	-	-	MergeOpen.png
 -	-	-	MergePatchWindow.png
 -	#	#	mergeprinciple.png
--	-	-	MergeSettingsColors.png
--	-	-	MergeSettingsGeneral.png
 -	#	-	MergeThreePane.png
 -	#	-	MergeTwoPane.png
 -	-	-	Properties.png
@@ -61,15 +59,16 @@ En	De	Es	Filename
 -	-	-	Revert.png
 -	-	-	RevisionGraph.png
 -	-	-	RightDragMenu.png
-#	#	#	SettingsColors.png
-#	#	#	SettingsContext.png
+-	-	-	SettingsColors.png
+-	-	-	SettingsContext.png
 -	-	-	SettingsDialog.png
-#	-	#	SettingsMain.png
+-	-	-	SettingsGeneral.png
+-	-	-	SettingsMain.png
 -	-	-	SettingsOverlay.png
 -	-	-	SettingsOverlayChooser.png
 -	-	-	SettingsProgs.png
 -	-	-	SettingsProgsAdv.png
--	-	#	SettingsProxy.png
+-	#	#	SettingsProxy.png
 -	-	-	Switch.png
 -	-	-	TortoiseBlame.png
 -	#	-	UpdateFinished.png

@@ -29,8 +29,6 @@
 #include "libintl.h"
 #undef swprintf
 
-std::set<CShellExt *> g_exts;
-
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
 {
@@ -39,7 +37,6 @@ CShellExt::CShellExt(FileState state)
     m_cRef = 0L;
     g_cRefThisDll++;
 
-	g_exts.insert(this);
 	
     INITCOMMONCONTROLSEX used = {
         sizeof(INITCOMMONCONTROLSEX),
@@ -47,6 +44,7 @@ CShellExt::CShellExt(FileState state)
     };
     InitCommonControlsEx(&used);
 	LoadLangDll();
+	apr_initialize();
 }
 
 CShellExt::~CShellExt()
@@ -58,7 +56,7 @@ CShellExt::~CShellExt()
 	}
 	bitmaps.clear();
 	g_cRefThisDll--;
-	g_exts.erase(this);
+	apr_terminate();
 }
 
 void LoadLangDll()

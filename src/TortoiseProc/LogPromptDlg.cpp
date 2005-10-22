@@ -69,6 +69,7 @@ void CLogPromptDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
+	DDX_Control(pDX, IDC_OLDLOGS, m_OldLogs);
 	DDX_Check(pDX, IDC_KEEPLOCK, m_bKeepLocks);
 }
 
@@ -77,11 +78,11 @@ BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
-	ON_BN_CLICKED(IDC_HISTORY, OnBnClickedHistory)
 	ON_EN_CHANGE(IDC_LOGMESSAGE, OnEnChangeLogmessage)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
+	ON_CBN_CLOSEUP(IDC_OLDLOGS, OnCbnCloseupOldlogs)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -128,22 +129,26 @@ BOOL CLogPromptDlg::OnInitDialog()
 	
 	if (!m_sLogMessage.IsEmpty())
 		m_cLogMessage.SetText(m_sLogMessage);
-		
+	
+	SVN svn;
+	CString reg;
+	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), svn.GetUUIDFromPath(m_pathList[0]));
+	m_OldLogs.LoadHistory(reg, _T("logmsgs"));
+	
 	GetWindowText(m_sWindowTitle);
 	
 	AddAnchor(IDC_COMMITLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BUGIDLABEL, TOP_RIGHT);
 	AddAnchor(IDC_BUGID, TOP_RIGHT);
 	AddAnchor(IDC_COMMIT_TO, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_HISTORY, TOP_RIGHT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
-	
-	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
+	AddAnchor(IDC_CHIST, TOP_LEFT);
+	AddAnchor(IDC_OLDLOGS, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_EXTERNALWARNING, BOTTOM_RIGHT, BOTTOM_RIGHT);
+	AddAnchor(IDC_HINTLABEL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_KEEPLOCK, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -294,8 +299,8 @@ void CLogPromptDlg::OnOK()
 	m_bBlock = FALSE;
 	m_sBugID.Trim();
 	m_sLogMessage = m_cLogMessage.GetText();
-	m_HistoryDlg.AddString(m_sLogMessage);
-	m_HistoryDlg.SaveHistory();
+	m_OldLogs.AddString(m_sLogMessage, 0);
+	m_OldLogs.SaveHistory();
 	if (!m_sBugID.IsEmpty())
 	{
 		m_sBugID.Replace(_T(", "), _T(","));
@@ -395,11 +400,11 @@ UINT CLogPromptDlg::StatusThread()
 			}
 		}
 	}
-	if (m_HistoryDlg.GetCount()==0)
+	if (m_OldLogs.GetCount()==0)
 	{
 		CString reg;
 		reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)m_ListCtrl.m_sUUID);
-		m_HistoryDlg.LoadHistory(reg, _T("logmsgs"));
+		m_OldLogs.LoadHistory(reg, _T("logmsgs"));
 	}
 
 	CTSVNPath commonDir = m_ListCtrl.GetCommonDirectory(false);
@@ -440,8 +445,8 @@ void CLogPromptDlg::OnCancel()
 			m_bThreadRunning = FALSE;
 		}
 	}
-	m_HistoryDlg.AddString(m_cLogMessage.GetText());
-	m_HistoryDlg.SaveHistory();
+	m_OldLogs.AddString(m_cLogMessage.GetText(), 0);
+	m_OldLogs.SaveHistory();
 	CResizableStandAloneDialog::OnCancel();
 }
 
@@ -526,6 +531,21 @@ void CLogPromptDlg::OnEnChangeLogmessage()
 	else
 	{
 		GetDlgItem(IDOK)->EnableWindow(FALSE);
+	}
+}
+
+void CLogPromptDlg::OnCbnCloseupOldlogs()
+{
+	if (m_OldLogs.GetString().Compare(m_cLogMessage.GetText().Left(m_OldLogs.GetString().GetLength()))!=0)
+		m_cLogMessage.InsertText(m_OldLogs.GetString(), !m_cLogMessage.GetText().IsEmpty());
+	if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
+	{
+		GetDlgItem(IDOK)->EnableWindow(FALSE);
+	}
+	else
+	{
+		if (!m_bBlock)
+			GetDlgItem(IDOK)->EnableWindow(TRUE);
 	}
 }
 
@@ -791,27 +811,4 @@ void CLogPromptDlg::OnTimer(UINT_PTR nIDEvent)
 	if (nIDEvent == ENDDIALOGTIMER)
 		EndDialog(0);
 	__super::OnTimer(nIDEvent);
-}
-
-void CLogPromptDlg::OnBnClickedHistory()
-{
-	SVN svn;
-	CString reg;
-	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), svn.GetUUIDFromPath(m_pathList[0]));
-	m_HistoryDlg.LoadHistory(reg, _T("logmsgs"));
-	if (m_HistoryDlg.DoModal()==IDOK)
-	{
-		if (m_HistoryDlg.GetSelectedText().Compare(m_cLogMessage.GetText().Left(m_HistoryDlg.GetSelectedText().GetLength()))!=0)
-			m_cLogMessage.InsertText(m_HistoryDlg.GetSelectedText(), !m_cLogMessage.GetText().IsEmpty());
-		if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
-		{
-			GetDlgItem(IDOK)->EnableWindow(FALSE);
-		}
-		else
-		{
-			if (!m_bBlock)
-				GetDlgItem(IDOK)->EnableWindow(TRUE);
-		}
-	}
-	
 }

@@ -170,18 +170,10 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 
 	// Check if the entries file has been changed
 	CTSVNPath entriesFilePath(m_directoryPath);
+	entriesFilePath.AppendPathString(_T(SVN_WC_ADM_DIR_NAME) _T("\\entries"));
 	CTSVNPath propsDirPath(m_directoryPath);
-	if (g_SVNAdminDir.IsVSNETHackActive())
-	{
-		entriesFilePath.AppendPathString(g_SVNAdminDir.GetVSNETAdminDirName() + _T("\\entries"));
-		propsDirPath.AppendPathString(g_SVNAdminDir.GetVSNETAdminDirName() + _T("\\dir-props"));
-	}
-	else
-	{
-		entriesFilePath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\entries"));
-		propsDirPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\dir-props"));
-	}
-	if (m_entriesFileTime == entriesFilePath.GetLastWriteTime() && m_propsFileTime == propsDirPath.GetLastWriteTime())
+	propsDirPath.AppendPathString(_T(SVN_WC_ADM_DIR_NAME) _T("\\dir-props"));
+	if(m_entriesFileTime == entriesFilePath.GetLastWriteTime() && m_propsFileTime == propsDirPath.GetLastWriteTime())
 	{
 		if(m_entriesFileTime == 0)
 		{
@@ -284,7 +276,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	// We've not got this item in the cache - let's add it
 	// We never bother asking SVN for the status of just one file, always for its containing directory
 
-	if (g_SVNAdminDir.IsAdminDirPath(path.GetWinPathString()))
+	if(path.IsDirectory() && path.GetFileOrDirectoryName().CompareNoCase(_T(SVN_WC_ADM_DIR_NAME)) == 0)
 	{
 		// We're being asked for the status of an .SVN directory
 		// It's not worth asking for this

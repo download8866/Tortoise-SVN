@@ -19,7 +19,6 @@
 #pragma once
 #include "registry.h"
 #include "Globals.h"
-#include "SVNAdminDir.h"
 
 #define REGISTRYTIMEOUT 2000
 #define EXCLUDELISTTIMEOUT 5000
@@ -56,11 +55,9 @@ public:
 		excludelistticker = recursiveticker;
 		includelistticker = recursiveticker;
 		admindirticker = recursiveticker;
-		columnseverywhereticker = recursiveticker;
 		menulayout = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
 		langid = CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 		blockstatus = CRegStdWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
-		columnseverywhere = CRegStdWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
 		for (int i=0; i<27; i++)
 		{
 			drivetypecache[i] = (UINT)-1;
@@ -271,6 +268,7 @@ public:
 	{
 		size_t len = _tcslen(path);
 		TCHAR * buf = new TCHAR[len+1];
+		BOOL hasAdminDir = FALSE;
 		_tcscpy(buf, path);
 		if (! bIsDir)
 		{
@@ -290,11 +288,16 @@ public:
 				return iter->second;
 			}
 		}
-		BOOL hasAdminDir = g_SVNAdminDir.HasAdminDir(buf, true);
+		TCHAR * buf2 = new TCHAR[len+10];		//BUGBUG: what if SVN_WC_ADM_DIR_NAME suddenly is bigger than 10 chars?
+		_tcscpy(buf2, buf);
+		_tcscat(buf2, _T("\\"));
+		_tcscat(buf2, _T(SVN_WC_ADM_DIR_NAME));
+		hasAdminDir = PathFileExists(buf2);
 		admindirticker = GetTickCount();
 		Locker lock(m_critSec);
 		admindircache[buf] = hasAdminDir;
 		delete buf;
+		delete buf2;
 		return hasAdminDir;
 	}
 	bool IsMenuInserted(HMENU hMenu)
@@ -313,15 +316,6 @@ public:
 		bMenuInserted = bVal;
 		insertedmenu = hMenu;
 		menuinsertedticker = GetTickCount();
-	}
-	bool IsColumnsEveryWhere()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT) > columnseverywhereticker)
-		{
-			columnseverywhereticker = GetTickCount();
-			columnseverywhere.read();
-		} 
-		return !!(DWORD)columnseverywhere;
 	}
 private:
 	void DriveValid()
@@ -402,7 +396,6 @@ private:
 	CRegStdWORD menulayout;
 	CRegStdWORD simplecontext;
 	CRegStdString excludelist;
-	CRegStdWORD columnseverywhere;
 	stdstring excludeliststr;
 	std::vector<stdstring> exvector;
 	CRegStdString includelist;
@@ -420,7 +413,6 @@ private:
 	DWORD excludelistticker;
 	DWORD includelistticker;
 	DWORD simplecontextticker;
-	DWORD columnseverywhereticker;
 	UINT  drivetypecache[27];
 	TCHAR drivetypepathcache[MAX_PATH];		// MAX_PATH ok.
 	NUMBERFMT columnrevformat;

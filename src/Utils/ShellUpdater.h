@@ -62,7 +62,7 @@ public:
 	 */
 	void Flush();
 	
-	static bool RebuildIcons();
+	static void RebuildIcons();
 
 private:
 	void UpdateShell();

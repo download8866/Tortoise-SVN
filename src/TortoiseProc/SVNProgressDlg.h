@@ -21,7 +21,6 @@
 #include "StandAloneDlg.h"
 #include "TSVNPath.h"
 #include "SVN.h"
-#include "Colors.h"
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
@@ -185,8 +184,6 @@ protected:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg void OnClose();
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-	afx_msg LRESULT OnSVNProgress(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
@@ -243,8 +240,6 @@ private:
 	bool		m_bMergesAddsDeletesOccurred;
 	int			iFirstResized;
 	BOOL		bSecondResized;
-	CString		m_sTotalBytesTransferred;
-	CColors		m_Colors;
 
 private:
 	// In preparation for removing SVN as base class

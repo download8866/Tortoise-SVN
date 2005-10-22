@@ -24,7 +24,7 @@
 #include "registry.h"
 #include "..\crashrpt\CrashReport.h"
 #include "SecAttribs.h"
-#include "SVNAdminDir.h"
+
 
 #include "..\version.h"
 
@@ -130,7 +130,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	}
 
 	apr_initialize();
-	g_SVNAdminDir.Init();
 	CSVNStatusCache::Create();
 
 	DWORD dwThreadId; 
@@ -250,7 +249,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 
 	Shell_NotifyIcon(NIM_DELETE,&niData);
 	CSVNStatusCache::Destroy();
-	g_SVNAdminDir.Close();
 	apr_terminate();
 
 	return 0;
