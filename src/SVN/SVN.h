@@ -27,10 +27,8 @@ class CTSVNPathList;
 
 svn_error_t * svn_cl__get_log_message (const char **log_msg,
 									const char **tmp_file,
-									const apr_array_header_t * commit_items,
+									apr_array_header_t * commit_items,
 									void *baton, apr_pool_t * pool);
-#define SVN_PROGRESS_QUEUE_SIZE 10
-#define SVN_DATE_BUFFER 260
 
 /**
  * \ingroup SVN
@@ -73,7 +71,7 @@ public:
 	{
 		CString sPath;
 		CString sCopyFromPath;
-		svn_revnum_t lCopyFromRev;
+		LONG	lCopyFromRev;
 		CString sAction;
 	} ;
 	typedef CArray<LogChangedPath*, LogChangedPath*> LogChangedPathArray;
@@ -81,11 +79,11 @@ public:
 	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
 							svn_node_kind_t kind, const CString& mime_type, 
 							svn_wc_notify_state_t content_state, 
-							svn_wc_notify_state_t prop_state, svn_revnum_t rev,
+							svn_wc_notify_state_t prop_state, LONG rev,
 							const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
 							svn_error_t * err, apr_pool_t * pool);
-	virtual BOOL Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies);
-	virtual BOOL BlameCallback(LONG linenumber, svn_revnum_t revision, const CString& author, const CString& date, const CStringA& line);
+	virtual BOOL Log(LONG rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies);
+	virtual BOOL BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line);
 
 	struct SVNLock
 	{
@@ -95,15 +93,6 @@ public:
 		CString comment;
 		__time64_t creation_date;
 		__time64_t expiration_date;
-	};
-	
-	struct SVNProgress
-	{
-		apr_off_t progress;			///< operation progress
-		apr_off_t total;			///< operation progress
-		apr_off_t overall_total;	///< total bytes transferred, use SetAndClearProgressInfo() to reset this
-		apr_off_t BytesPerSecond;	///< Speed in bytes per second
-		CString	  SpeedString;		///< String for speed. Either "xxx Bytes/s" or "xxx kBytes/s"
 	};
 	
 	/**
@@ -162,9 +151,8 @@ public:
 	 * \param recurse 
 	 * \param force if TRUE, then an adding an already versioned folder will add
 	 *              all unversioned files in it (in combination with \a recurse)
-	 * \param no_ignore if FALSE, then don't add ignored files.
 	 */
-	BOOL Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force = FALSE, BOOL no_ignore = FALSE);
+	BOOL Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force = FALSE);
 	/**
 	 * Update working tree path to revision.
 	 * \param pathList the files/directories to update
@@ -189,7 +177,7 @@ public:
 	 * \param keep_locks if TRUE, the locks are not removed on commit
 	 * \return the resulting revision number.
 	 */
-	svn_revnum_t Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks);
+	LONG Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks);
 	/**
 	 * Copy srcPath to destPath.
 	 * 
@@ -231,9 +219,10 @@ public:
 	 * 
 	 * \param srcPath source path
 	 * \param destPath destination path
+	 * \param revision 
 	 * \param force 
 	 */
-	BOOL Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, CString message = _T(""));
+	BOOL Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, CString message = _T(""), SVNRev rev = SVNRev::REV_HEAD);
 	/**
 	 * If path is a URL, use the message to immediately
 	 * attempt to commit the creation of the directory URL in the
@@ -310,9 +299,8 @@ public:
 	 * \param url		the url to import to
 	 * \param message	log message used for the 'commit'
 	 * \param recurse 
-	 * \param no_ignore	If no_ignore is FALSE, don't add files or directories that match ignore patterns.
 	 */
-	BOOL Import(const CTSVNPath& path, const CTSVNPath& url, CString message, BOOL recurse, BOOL no_ignore);
+	BOOL Import(const CTSVNPath& path, const CTSVNPath& url, CString message, BOOL recurse);
 	/**
 	 * Merge changes from path1/revision1 to path2/revision2 into the
 	 * working-copy path localPath.  path1 and path2 can be either
@@ -489,9 +477,9 @@ public:
 	 * Returns the HEAD revision of the URL or WC-Path.
 	 * Or -1 if the function failed.
 	 */
-	svn_revnum_t GetHEADRevision(const CTSVNPath& url);
+	LONG GetHEADRevision(const CTSVNPath& url);
 
-	BOOL GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev);
+	BOOL GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, LONG& rev);
 
 	/**
 	 * Set the revision property \a sName to the new value \a sValue.
@@ -499,7 +487,7 @@ public:
 	 * \param rev the revision number to change the revprop
 	 * \return the actual revision number the property value was set
 	 */
-	svn_revnum_t RevPropertySet(CString sName, CString sValue, CString sURL, SVNRev rev);
+	LONG RevPropertySet(CString sName, CString sValue, CString sURL, SVNRev rev);
 
 	/**
 	 * Reads the revision property \a sName and returns its value.
@@ -579,9 +567,6 @@ public:
 	*/
 	void SetPromptApp(CWinApp* pWinApp);
 
-	void SetAndClearProgressInfo(HWND hWnd);
-	void SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgressBar = false);
-	
 	static CString GetErrorString(svn_error_t * Err);
 	static CStringA MakeSVNUrlOrPath(const CString& UrlOrPath);
 	static CString MakeUIUrlOrPath(CStringA UrlOrPath);
@@ -599,7 +584,7 @@ private:
 	svn_opt_revision_t			rev;			///< subversion revision. used by getRevision()
 	SVNPrompt					m_prompt;
 
-	svn_opt_revision_t *	getRevision (svn_revnum_t revNumber);
+	svn_opt_revision_t *	getRevision (long revNumber);
 	void * logMessage (const char * message, char * baseDirectory = NULL);
 
 	// Convert a TSVNPathList into an array of SVN paths
@@ -626,20 +611,7 @@ private:
 					const char * line,
 					apr_pool_t * pool);
 
-	static void progress_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t *pool);
-	SVNProgress		m_SVNProgressMSG;
-	HWND			m_progressWnd;
-	CProgressDlg *	m_pProgressDlg;
-	bool			m_progressWndIsCProgress;
-	bool			m_bShowProgressBar;
-	apr_off_t	progress_total;
-	apr_off_t	progress_averagehelper;
-	apr_off_t	progress_lastprogress;
-	apr_off_t	progress_lasttotal;
-	DWORD		progress_lastTicks;
-	std::vector<apr_off_t> progress_vector;
 
 };
 
-static UINT WM_SVNPROGRESS = RegisterWindowMessage(_T("TORTOISESVN_SVNPROGRESS_MSG"));
 

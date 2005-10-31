@@ -73,7 +73,6 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_CLEARAUTH, OnBnClickedClearauth)
 	ON_BN_CLICKED(IDC_CHECKNEWERBUTTON, OnBnClickedChecknewerbutton)
 	ON_BN_CLICKED(IDC_COMMITFILETIMES, OnBnClickedCommitfiletimes)
-	ON_BN_CLICKED(IDC_SOUNDS, OnBnClickedSounds)
 END_MESSAGE_MAP()
 
 
@@ -209,10 +208,6 @@ void CSetMainPage::OnBnClickedChecknewerbutton()
 	CUtils::LaunchApplication(com, 0, false);
 }
 
-void CSetMainPage::OnBnClickedSounds()
-{
-	CUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
-}
 
 
 

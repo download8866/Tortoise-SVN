@@ -246,13 +246,13 @@
 					<Text>Click on the icons in the tree below to change the way features will be installed.</Text>
 				</Control>
 				<Control Id="Tree" Type="SelectionTree" X="25" Y="70" Width="175" Height="130" Property="_BrowseProperty" Sunken="yes" TabSkip="no" Text="Tree of selections" />
-				<Control Id="DescriptionBox" X="205" Y="66" Width="140" Height="85" Type="GroupBox" Text="Feature Description" />
-				<Control Id="ItemDescription" X="210" Y="76" Width="130" Height="70" Text="Multiline description of the currently selected item." Type="Text">
+				<Control Id="DescriptionBox" X="205" Y="66" Width="140" Height="48" Type="GroupBox" Text="Feature Description" />
+				<Control Id="ItemDescription" X="210" Y="76" Width="130" Height="33" Text="Multiline description of the currently selected item." Type="Text">
 					<Text>Multiline description of the currently selected item.</Text>
 					<Subscribe Event="SelectionDescription" Attribute="Text" />
 				</Control>
-				<Control Id="SizeBox" X="205" Y="153" Width="140" Height="48" Type="GroupBox" Text="Feature Size" />
-				<Control Id="ItemSize" Type="Text" X="210" Y="163" Width="130" Height="33">
+				<Control Id="SizeBox" X="205" Y="116" Width="140" Height="85" Type="GroupBox" Text="Feature Size" />
+				<Control Id="ItemSize" Type="Text" X="210" Y="126" Width="130" Height="70">
 					<Text>The size of the currently selected item.</Text>
 					<Subscribe Event="SelectionSize" Attribute="Text" />
 				</Control>
@@ -336,7 +336,7 @@
 			<Dialog Id="ExitDlg" Width="370" Height="270" Title="[ProductName] [Setup]" NoMinimize="yes">
 				<Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Disabled="yes" Text="[ButtonText_Back]" />
 				<Control Id="Finish" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="[ButtonText_Finish]">
-					<Publish Event="DoAction" Value="ShowChangelogAction">(NOT Installed) AND (ShowChangelogCheck = 1)</Publish>
+					<Publish Event="DoAction" Value="ShowChangelogAction">ShowChangelog="Yes"</Publish>
 					<Publish Event="EndDialog" Value="Return">1</Publish>
 				</Control>
 				<Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Disabled="yes" Text="[ButtonText_Cancel]" />
@@ -344,17 +344,6 @@
 				<Control Id="BackgroundBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="234" TabSkip="no" Text="[DialogBitmap]" />
 				<Control Id="Title" Type="Text" X="135" Y="20" Width="220" Height="60" Transparent="yes" NoPrefix="yes">
 					<Text>{\VerdanaBold13}Completing the [ProductName] [Wizard]</Text>
-				</Control>
-				
-				<!-- Since Checkboxes aren't transparent, reduce the checkbox control to the actual box alone, and add
-					 a normal text control adjacent to it, with the text control being transparent -->
-				<Control Id="ChangeLog" Type="CheckBox" X="135" Y="120" Width="12" Height="12"
-					Property='ShowChangelogCheck' CheckBoxValue='1' >
-					<Condition Action="hide">(Installed)</Condition>
-				</Control>
-				<Control Id="Changelogtext" Type="Text" X="150" Y="120" Width="150" Height="20" Transparent="yes" NoPrefix="yes" >
-					<Text>Show Changelog</Text>
-					<Condition Action="hide">(Installed)</Condition>
 				</Control>
 				<Control Id="DialogDescription" Type="Text" X="135" Y="70" Width="220" Height="20" Transparent="yes" NoPrefix="yes">
 					<Text>Click the Finish button to exit the [Wizard].</Text>
@@ -521,7 +510,7 @@
 					<Text>{\VerdanaBold13}Welcome to the [ProductName] [Wizard]</Text>
 				</Control>
 				<Control Id="DialogDescription" Type="Text" X="135" Y="70" Width="220" Height="60" Transparent="yes" NoPrefix="yes">
-					<Text>The [Wizard] will allow you to change the way [ProductName] features are installed on your computer or even to remove [ProductName] v$(var.VersionNumberUserVisible) from your computer. Click Next to continue or Cancel to exit the [Wizard].</Text>
+					<Text>The [Wizard] will allow you to change the way [ProductName] features are installed on your computer or even to remove [ProductName] v$(var.VersionNumber) from your computer. Click Next to continue or Cancel to exit the [Wizard].</Text>
 				</Control>
 				<Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 			</Dialog>
@@ -800,7 +789,7 @@
 					<Text>{\VerdanaBold13}Welcome to the [ProductName] [Wizard]</Text>
 				</Control>
 				<Control Id="DialogDescription" Type="Text" X="135" Y="90" Width="220" Height="30" Transparent="yes" NoPrefix="yes">
-					<Text>The [Wizard] will install [ProductName] v$(var.VersionNumberUserVisible) on your computer. Click Next to continue or Cancel to exit the [Wizard].</Text>
+					<Text>The [Wizard] will install [ProductName] v$(var.VersionNumber) on your computer. Click Next to continue or Cancel to exit the [Wizard].</Text>
 				</Control>
 				<Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
 			</Dialog>

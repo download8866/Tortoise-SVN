@@ -155,6 +155,8 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 
 				int count = cida->cidl;
 				BOOL statfetched = FALSE;
+				stdstring sAdm = _T("\\");
+				sAdm += _T(SVN_WC_ADM_DIR_NAME);
 				for (int i = 0; i < count; ++i)
 				{
 					ItemIDList child (GetPIDLItem (cida, i), &parent);
@@ -162,7 +164,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					if (str.empty() == false)
 					{
 						//check if our menu is requested for a subversion admin directory
-						if (g_SVNAdminDir.IsAdminDirPath(str.c_str()))
+						if ((str.length() > sAdm.length())&&(str.compare(str.length()-sAdm.length(), sAdm.length(), sAdm)==0))
 							continue;
 
 						files_.push_back(str);
@@ -381,8 +383,6 @@ void CShellExt::InsertSVNMenu(BOOL ownerdrawn, BOOL istop, HMENU menu, UINT pos,
 	// (drawitem callback uses absolute, others relative)
 	myIDMap[id - idCmdFirst] = com;
 	myIDMap[id] = com;
-	if (!istop)
-		mySubMenuMap[pos] = com;
 }
 
 HBITMAP CShellExt::IconToBitmap(UINT uIcon, COLORREF transparentColor)
@@ -593,7 +593,9 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 	}
 	
 	//check if our menu is requested for a subversion admin directory
-	if (g_SVNAdminDir.IsAdminDirPath(folder_.c_str()))
+	stdstring sAdm = _T("\\");
+	sAdm += _T(SVN_WC_ADM_DIR_NAME);
+	if ((folder_.length() > sAdm.length())&&(folder_.compare(folder_.length()-sAdm.length(), sAdm.length(), sAdm)==0))
 		return NOERROR;
 
 	BOOL ownerdrawn = CRegStdWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus"), 1);
@@ -859,7 +861,7 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 		lastSeparator = idCmd++;
 	} // if ((idCmd != (lastSeparator + 1)) && (indexSubMenu != 0))
 
-	if ((isInSVN)&&(!isAdded))
+	if ((isInSVN)&&(!isAdded)&&((isFolder)&&(isFolderInSVN)))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUCREATEPATCH), HMENU(MENUCREATEPATCH), INDEXMENU(MENUCREATEPATCH), idCmd++, IDS_MENUCREATEPATCH, IDI_CREATEPATCH, idCmdFirst, CreatePatch);
 	if (((isInSVN)&&(!isAdded)&&(isFolder)&&(isFolderInSVN))||(isOnlyOneItemSelected && isPatchFile))
 		InsertSVNMenu(ownerdrawn, ISTOP(MENUAPPLYPATCH), HMENU(MENUAPPLYPATCH), INDEXMENU(MENUAPPLYPATCH), idCmd++, IDS_MENUAPPLYPATCH, IDI_PATCH, idCmdFirst, ApplyPatch);
@@ -1469,7 +1471,7 @@ STDMETHODIMP CShellExt::HandleMenuMsg(UINT uMsg, WPARAM wParam, LPARAM lParam)
    return HandleMenuMsg2(uMsg, wParam, lParam, &res);
 }
 
-STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT *pResult)
+STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM /*wParam*/, LPARAM lParam, LRESULT *pResult)
 {
 //a great tutorial on owner drawn menus in shell extension can be found
 //here: http://www.codeproject.com/shell/shellextguide7.asp
@@ -1566,6 +1568,7 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 
 					int tempY = lpdis->rcItem.top + ((lpdis->rcItem.bottom - lpdis->rcItem.top) - bm.bmHeight) / 2;
 					SetRect(&rt, ix, tempY, ix + 16, tempY + 16);
+
 					ExtTextOut(lpdis->hDC, 0, 0, ETO_CLIPPED|ETO_OPAQUE, &rtTemp, NULL, 0, (LPINT)NULL);
 					rtTemp.left = rt.right;
 
@@ -1590,99 +1593,20 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 				iy = lpdis->rcItem.top + (iy>=0 ? iy : 0);
 				SetRect(&rt, ix , iy, lpdis->rcItem.right - 4, lpdis->rcItem.bottom);
 				ExtTextOut(lpdis->hDC, ix, iy, ETO_CLIPPED|ETO_OPAQUE, &rtTemp, NULL, 0, (LPINT)NULL);
-				UINT uFormat = DT_LEFT|DT_EXPANDTABS;
-				// only draw accelerators on the submenu!
-				// Reason: we only get the WM_MENUCHAR message if the *whole* menu is ownerdrawn,
-				// which the top level context menu is *not*. So drawing there the accelerators
-				// is futile because they won't get used.
-				if ((_tcsncmp(szItem, _T("SVN"), 3)==0)||(myIDMap[lpdis->itemID] == SubMenu))
-					uFormat |= DT_HIDEPREFIX;
-				else
-					uFormat |= (lpdis->itemState & ODS_NOACCEL) ? DT_HIDEPREFIX : 0;
 				if (lpdis->itemState & ODS_GRAYED)
 				{        
 					SetBkMode(lpdis->hDC, TRANSPARENT);
 					OffsetRect( &rt, 1, 1 );
 					SetTextColor( lpdis->hDC, RGB(255,255,255) );
-					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, uFormat );
+					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, DT_LEFT|DT_EXPANDTABS );
 					OffsetRect( &rt, -1, -1 );
 					SetTextColor( lpdis->hDC, RGB(128,128,128) );
-					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, uFormat );         
+					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, DT_LEFT|DT_EXPANDTABS );         
 				}
 				else
-					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, uFormat );
+					DrawText( lpdis->hDC, szItem, lstrlen(szItem), &rt, DT_LEFT|DT_EXPANDTABS );
 			}
 			*pResult = TRUE;
-		}
-		break;
-		case WM_MENUCHAR:
-		{
-			LPCTSTR resource;
-			TCHAR *szItem;
-			if (HIWORD(wParam) != MF_POPUP)
-				return NOERROR;
-			int nChar = LOWORD(wParam);
-			if (_istascii((wint_t)nChar) && _istupper((wint_t)nChar))
-				nChar = tolower(nChar);
-			// we have the char the user pressed, now search that char in all our
-			// menu items
-			std::vector<int> accmenus;
-			for (std::map<UINT_PTR, int>::iterator It = mySubMenuMap.begin(); It != mySubMenuMap.end(); ++It)
-			{
-				resource = GetMenuTextFromResource(mySubMenuMap[It->first]);
-				if (resource == NULL)
-					continue;
-				szItem = stringtablebuffer;
-				TCHAR * amp = _tcschr(szItem, '&');
-				if (amp == NULL)
-					continue;
-				amp++;
-				int ampChar = LOWORD(*amp);
-				if (_istascii((wint_t)ampChar) && _istupper((wint_t)ampChar))
-					ampChar = tolower(ampChar);
-				if (ampChar == nChar)
-				{
-					// yep, we found a menu which has the pressed key
-					// as an accelerator. Add that menu to the list to
-					// process later.
-					accmenus.push_back(It->first);
-				}
-			}
-			if (accmenus.size() == 0)
-			{
-				// no menu with that accelerator key.
-				*pResult = MAKELONG(0, MNC_IGNORE);
-				return NOERROR;
-			}
-			if (accmenus.size() == 1)
-			{
-				// Only one menu with that accelerator key. We're lucky!
-				// So just execute that menu entry.
-				*pResult = MAKELONG(accmenus[0], MNC_EXECUTE);
-				return NOERROR;
-			}
-			if (accmenus.size() > 1)
-			{
-				// we have more than one menu item with this accelerator key!
-				MENUITEMINFO mif;
-				mif.cbSize = sizeof(MENUITEMINFO);
-				mif.fMask = MIIM_STATE;
-				for (std::vector<int>::iterator it = accmenus.begin(); it != accmenus.end(); ++it)
-				{
-					GetMenuItemInfo((HMENU)lParam, *it, TRUE, &mif);
-					if (mif.fState == MFS_HILITE)
-					{
-						// this is the selected item, so select the next one
-						++it;
-						if (it == accmenus.end())
-							*pResult = MAKELONG(accmenus[0], MNC_SELECT);
-						else
-							*pResult = MAKELONG(*it, MNC_SELECT);
-						return NOERROR;
-					}
-				}
-				*pResult = MAKELONG(accmenus[0], MNC_SELECT);
-			}
 		}
 		break;
 		default:

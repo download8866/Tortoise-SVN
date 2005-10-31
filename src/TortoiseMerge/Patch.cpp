@@ -22,7 +22,6 @@
 #include "DirFileEnum.h"
 #include "TortoiseMerge.h"
 #include "svn_wc.h"
-#include "SVNAdminDir.h"
 #include "Patch.h"
 
 #ifdef _DEBUG
@@ -583,11 +582,13 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	bool isDir = false;
 	CString subpath;
 	CDirFileEnum filefinder(path);
+	CString sAdminDir = _T("\\");
+	sAdminDir += _T(SVN_WC_ADM_DIR_NAME);
 	while (filefinder.NextFile(subpath, &isDir))
 	{
 		if (!isDir)
 			continue;
-		if (g_SVNAdminDir.IsAdminDirPath(subpath))
+		if (subpath.Find(sAdminDir) >= 0)
 			continue;
 		if (CountMatches(subpath) > (GetNumberOfFiles()/3))
 			return subpath;

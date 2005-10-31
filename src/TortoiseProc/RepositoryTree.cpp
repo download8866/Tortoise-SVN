@@ -78,6 +78,7 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 		SVN svn;
 		m_strReposRoot = svn.GetRepositoryRoot(CTSVNPath(m_strUrl));
 		m_strReposRoot = SVNUrl::Unescape(m_strReposRoot);
+		svn.GetLocks(CTSVNPath(m_strReposRoot), &m_locks);
 		m_Revision = SVNRev::REV_HEAD;
 		if (m_pRepositoryBar)
 			m_pRepositoryBar->SetRevision(m_Revision);
@@ -160,15 +161,7 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 		rvi.Param64 = _ttoi64(temp);
 		SetItem(&rvi);
 	}
-	// get the lock information
-	if (AfxExtractSubString(temp, folder, col, '\t'))
-	{
-		// lock owner
-		SetItemText(GetItemIndex(hItem), col, temp);
-	}
-	else
-		SetItemText(GetItemIndex(hItem), col, _T(""));
-	
+	SetItemText(GetItemIndex(hItem), 6, _T(""));
 	return hItem;
 }
 
@@ -225,19 +218,13 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force)
 		rvi.Param64 = _ttoi64(temp);
 		SetItem(&rvi);
 	}
-	// get the lock information
-	if (AfxExtractSubString(temp, file, col, '\t'))
-	{
-		// lock owner
-		SetItemText(GetItemIndex(hItem), col, temp);
-	}
-	else
-		SetItemText(GetItemIndex(hItem), col, _T(""));
+	CString file_path_stripped = file_path.Mid(m_strReposRoot.GetLength());
+	SetItemText(GetItemIndex(hItem), 6, m_locks[file_path_stripped].owner);
 	CString sExt;
-	int dotPos = file_path.ReverseFind('.');
-	int slashPos = file_path.ReverseFind('/');
-	if ((dotPos > slashPos)&&(dotPos <= file_path.GetLength()))
-		sExt = file_path.Mid(dotPos+1);
+	int dotPos = file_path_stripped.ReverseFind('.');
+	int slashPos = file_path_stripped.ReverseFind('/');
+	if ((dotPos > slashPos)&&(dotPos <= file_path_stripped.GetLength()))
+		sExt = file_path_stripped.Mid(dotPos+1);
 	SetItemText(GetItemIndex(hItem), 1, sExt);
 	return hItem;
 }
@@ -700,6 +687,9 @@ void CRepositoryTree::Refresh(HTREEITEM hItem)
 	hItem = GetNextItem(hItem, RVGN_PARENT);
 	if (hItem != 0)
 	{
+		SVN svn;
+		m_locks.clear();
+		svn.GetLocks(CTSVNPath(m_strReposRoot), &m_locks);
 		LoadChildItems(hItem, GetKeyState(VK_CONTROL)&0x8000);
 	}
 }
@@ -708,6 +698,9 @@ void CRepositoryTree::RefreshMe(HTREEITEM hItem)
 {
 	if (hItem != 0)
 	{
+		SVN svn;
+		m_locks.clear();
+		svn.GetLocks(CTSVNPath(m_strReposRoot), &m_locks);
 		LoadChildItems(hItem, (GetKeyState(VK_CONTROL)&0x8000)!=0);
 	}
 }
@@ -887,8 +880,6 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 					{
 						CRenameDlg renDlg;
 						renDlg.m_name = urlList[i].GetFileOrDirectoryName();
-						renDlg.m_windowtitle.Format(IDS_PROC_NEWNAME, renDlg.m_name);
-						renDlg.m_label.LoadString(IDS_PROC_NEWNAMELABEL);
 						if (renDlg.DoModal()==IDOK)
 						{
 							CTSVNPath tempUrl = urlList[i];

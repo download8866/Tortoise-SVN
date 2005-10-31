@@ -33,7 +33,7 @@ CUtils::~CUtils(void)
 }
 
 BOOL CUtils::StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-						   		const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname, bool bReadOnly)
+						   		const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname)
 {
 
 	CRegString regCom = CRegString(_T("Software\\TortoiseSVN\\Merge"));
@@ -156,9 +156,6 @@ BOOL CUtils::StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirfile
 	}
 	else
 		com.Replace(_T("%mname"), _T("\"") + mergedname + _T("\""));
-
-	if (bReadOnly)
-		com += _T(" /readonly");
 
 	if(!LaunchApplication(com, IDS_ERR_EXTMERGESTART, false))
 	{
@@ -823,6 +820,34 @@ CString CUtils::GetAppParentDirectory()
 	path = path.Left(path.ReverseFind('\\'));
 	path = path.Left(path.ReverseFind('\\')+1);
 	return path;
+}
+
+COLORREF CUtils::MyColor(int nIndex)
+{
+	COLORREF crWin = GetSysColor(COLOR_WINDOW);
+
+	if (GetRValue(crWin) + GetGValue(crWin) + GetBValue(crWin) < 50)
+	{
+		// Dark window - use default colour for everything.
+		return GetSysColor(COLOR_WINDOWTEXT);
+	}
+	else
+	{
+		switch (nIndex)
+		{
+			case BLUE:
+				return RGB(0, 50, 160);
+			case BROWN:
+				return RGB(100, 0, 0);
+			case RED:
+				return RGB(255, 0, 0);
+			case GREEN:
+				return RGB(0, 100, 0);
+			case PURPLE:
+				return RGB(100, 0, 100);
+		}
+	}	
+	return GetSysColor(COLOR_WINDOWTEXT);
 }
 
 void CUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)

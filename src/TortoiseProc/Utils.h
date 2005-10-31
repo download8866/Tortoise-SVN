@@ -54,7 +54,7 @@ public:
 	 * \return TRUE if the program could be started
 	 */
 	static BOOL StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-		const CString& basename = CString(), const CString& theirname = CString(), const CString& yourname = CString(), const CString& mergedname = CString(), bool bReadOnly = false);
+		const CString& basename = CString(), const CString& theirname = CString(), const CString& yourname = CString(), const CString& mergedname = CString());
 
 	/**
 	 * Starts the external patch program (currently always TortoiseMerge)
@@ -168,4 +168,14 @@ public:
 
 	static void ResizeAllListCtrlCols(CListCtrl * pListCtrl);
 
+
+	enum MyColors
+	{
+		BLUE = 0,
+		BROWN,
+		RED,
+		GREEN,
+		PURPLE
+	};
+	static COLORREF MyColor(int nIndex);
 };

@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2005-10-29 16:50+0100\n"
+"PO-Revision-Date: 2005-09-16 20:17+0100\n"
 "Last-Translator: Szente-Varga Bálint <info@bociusz.hu>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -33,12 +33,6 @@ msgstr " "
 #, c-format
 msgid "! %d"
 msgstr "! %d"
-
-# ID:357,
-#: ID:357
-#, c-format
-msgid "%.2f MBytes transferred"
-msgstr "%.2f MB forgalom"
 
 # ID:3868,#:
 # ID:3868,
@@ -120,18 +114,6 @@ msgstr ""
 "Nem található ez a fájl.\n"
 "Ellenőrizd, hogy helyes az elérési útvonal."
 
-# ID:357,
-#: ID:357
-#, c-format
-msgid "%I64d Bytes transferred"
-msgstr "%I64d bájt forgalom"
-
-# ID:357,
-#: ID:357
-#, c-format
-msgid "%I64d kBytes transferred"
-msgstr "%I64d KB forgalom"
-
 # ID:169,
 #: ID:169
 #, c-format
@@ -147,8 +129,8 @@ msgstr "%s - az alábbi verzióval: %d"
 # ID:151,
 #: ID:151
 #, c-format
-msgid "%s : Remote file"
-msgstr "%s : Távoli fájl"
+msgid "%s : Remote File"
+msgstr "%s : Távoli Fájl"
 
 # ID:151,
 #: ID:151
@@ -161,12 +143,6 @@ msgstr "%s : Munka Alap"
 #, c-format
 msgid "%s : Working Copy"
 msgstr "%s : Munka Másolat"
-
-# ID:357,
-#: ID:357
-#, c-format
-msgid "%s, at %s"
-msgstr "%s, %s-nél"
 
 # ID:145,
 #: ID:145
@@ -199,7 +175,6 @@ msgid "&About TortoiseMerge..."
 msgstr "&A TortoiseMerge névjegye..."
 
 # Control-ID:1098,
-#: ID:8
 #: Control-ID:1098
 msgid "&Add..."
 msgstr "&Hozzáad..."
@@ -213,33 +188,13 @@ msgstr "&Speciális..."
 
 # Control-ID:1013,
 #: Control-ID:1013
-msgid "&Apply unified diff"
-msgstr "&Egyesített folt beépítése"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "&Autoclose:"
-msgstr "&Egyből bezárja:"
-
-# Control-ID:1015,
-#: Control-ID:1015
-msgid "&Backup original file"
-msgstr "&Biztonsági másolat készítése"
-
-# Control-ID:1128,
-#: Control-ID:1128
-msgid "&Berkeley database (BDB)"
-msgstr "&Berkeley adatbázis (BDB)"
-
-# ID:13,
-#: ID:13
-msgid "&Blame..."
-msgstr "&Szemrehányás..."
+msgid "&Apply Unified Diff"
+msgstr "&Egyesített Folt Beépítése"
 
 # ID:138,
 #: ID:138
-msgid "&Browse repository"
-msgstr "&A tárház böngészése"
+msgid "&Browse Repository"
+msgstr "&A Tárház böngészése"
 
 # Control-ID:1011,
 #: Control-ID:1011
@@ -271,34 +226,9 @@ msgstr "&Mégsem"
 msgid "&Check Now"
 msgstr "&Ellerőrzés most"
 
-# ID:8,
-#: ID:8
-msgid "&Clean up"
-msgstr "&Takarítás"
-
-# ID:8,
-#: ID:8
-msgid "&Commit..."
-msgstr "&Beküldés..."
-
 #: MenuEntry
-msgid "&Compare revisions"
-msgstr "&Compare revisions"
-
-# Control-ID:1019,
-#: Control-ID:1019
-msgid "&Compare whitespaces"
-msgstr "A &láthatatlan karakterek összehasonlítása"
-
-# Control-ID:65535,
-#: Control-ID:1227
-msgid "&Contact the repository on startup"
-msgstr "Tárházhoz &kapcsolódás indításkor"
-
-# Control-ID:1073,
-#: Control-ID:1073
-msgid "&Convert files when diffing against BASE"
-msgstr "&Fájlok konvertálása az alaphoz való különbségek keresésekor"
+msgid "&Compare Revisions"
+msgstr "&Verziók összehasonlítása"
 
 # ID:376,
 #: MenuEntry
@@ -307,27 +237,17 @@ msgstr "&Másol"
 
 # ID:101,
 #: ID:101
-msgid "&Copy to..."
+msgid "&Copy To..."
 msgstr "&Másolás Ide..."
-
-# ID:11,
-#: ID:11
-msgid "&Delete"
-msgstr "&Törlés"
 
 # ID:101,
 #: ID:101
 msgid "&Delete..."
 msgstr "&Törlés..."
 
-# ID:12,
-#: ID:12
-msgid "&Diff"
-msgstr "&Folt"
-
 # Control-ID:1179,
 #: Control-ID:1179
-msgid "&Dry run"
+msgid "&Dry Run"
 msgstr "&Száraz futás"
 
 # Control-ID:1031,
@@ -335,11 +255,6 @@ msgstr "&Száraz futás"
 #: MenuEntry
 msgid "&Edit"
 msgstr "&Szerkeszt"
-
-# ID:12,
-#: ID:12
-msgid "&Edit conflicts"
-msgstr "&Ellentmondások szerkesztése"
 
 # Control-ID:1099,
 #: Control-ID:1099
@@ -350,11 +265,6 @@ msgstr "&Szerkeszt..."
 #: Control-ID:1023
 msgid "&Enable Proxy Server"
 msgstr "&Proxy Szerver engedélyezése"
-
-# Control-ID:1213,
-#: Control-ID:1213
-msgid "&Enter a message describing why you lock the file(s)."
-msgstr "&Részletezd, hogy miért zárolsz fájlokat:"
 
 #: MenuEntry
 msgid "&Exit"
@@ -385,13 +295,8 @@ msgstr "&Merevlemezek"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "&Font for log messages:"
-msgstr "&Megjegyzések betűtípusa:"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "&Font:"
-msgstr "&Betűtípus:"
+msgid "&From Revision"
+msgstr "&Verziótól"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -403,33 +308,15 @@ msgstr "&URL-ből:"
 msgid "&From WC at URL:"
 msgstr "&WC-ből az alábbi címen:"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "&From revision"
-msgstr "&Verziótól"
-
 # Control-ID:1032,#:
 # Control-ID:1115,#:
 # Control-ID:1019,#:
 # Control-ID:1019,
-#: Control-ID:1115
 #: Control-ID:1032
+#: Control-ID:1115
+#: Control-ID:1019
 msgid "&HEAD Revision"
 msgstr "&FŐ Verzió"
-
-# Control-ID:1032,#:
-# Control-ID:1115,#:
-# Control-ID:1019,#:
-# Control-ID:1019,
-#: Control-ID:1032
-#: Control-ID:1019
-msgid "&HEAD revision"
-msgstr "&FŐ Verzió"
-
-# Control-ID:1182,
-#: Control-ID:1182
-msgid "&HEAD revision in the repository"
-msgstr "&FŐ verzió a Tárházban"
 
 # MenuEntry#:
 # Control-ID:57670,#:
@@ -448,47 +335,10 @@ msgstr "&Súgó témák"
 msgid "&Hide"
 msgstr "&Elrejt"
 
-# Control-ID:1246,#:
-# Control-ID:1246,
-#: Control-ID:1246
-msgid "&History"
-msgstr "&Előzmények"
-
-# Control-ID:1170,
-#: Control-ID:1170
-msgid "&Icon Set:"
-msgstr "&Ikonok:"
-
-# ID:15,
-#: ID:15
-#, c-format
-msgid "&Ignore %d items"
-msgstr "%d elem el&utasítása"
-
-# Control-ID:1020,
-#: Control-ID:1020
-msgid "&Ignore leading whitespaces"
-msgstr "Soreleji láthatatlan karakterek e&lutasítása"
-
-# ID:9,
-#: ID:9
-msgid "&Import..."
-msgstr "&Importálás..."
-
-# Control-ID:1016,
-#: Control-ID:1016
-msgid "&Jump to first difference when loading"
-msgstr "Az &első eltéréshez ugrik betöltéskor"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "&Language:"
 msgstr "&Nyelv:"
-
-# Control-ID:1172,
-#: Control-ID:1172
-msgid "&List View"
-msgstr "&Lista Nézet"
 
 #: MenuEntry
 msgid "&Mark as resolved"
@@ -498,22 +348,12 @@ msgstr "&Megoldottnak jelöl"
 #: Control-ID:1
 #: MenuEntry
 msgid "&Merge"
-msgstr "&Összegyúr"
-
-# ID:9,
-#: ID:9
-msgid "&Merge..."
-msgstr "&Összegyúrás..."
+msgstr "&Egyesít"
 
 # Control-ID:1012,
 #: Control-ID:1012
 msgid "&Merging"
 msgstr "&Egyesít"
-
-# Control-ID:1129,
-#: Control-ID:1129
-msgid "&Native filesystem (FSFS)"
-msgstr "&Természetes fájlrendszer (FSFS)"
 
 # Control-ID:1049,
 #: Control-ID:1049
@@ -625,45 +465,9 @@ msgstr "&Azonosítás mentése"
 msgid "&Set"
 msgstr "&Beállít"
 
-# ID:9,#:
-# ID:107,
-#: ID:9
-msgid "&Settings"
-msgstr "&Beállítások"
-
-# Control-ID:1185,
-#: Control-ID:1185
-msgid "&Specific revision in repository"
-msgstr "&Meghatározott verzió a tárházban"
-
 #: MenuEntry
 msgid "&Status Bar"
 msgstr "&Állapotsor"
-
-# Control-ID:1211,
-#: Control-ID:1211
-msgid "&Steal the locks"
-msgstr "Zárak ello&pása"
-
-# Control-ID:1130,
-#: Control-ID:1130
-msgid "&Stop on copy/rename"
-msgstr "Másolásnál / Átnevezésnél &megáll"
-
-# Control-ID:1173,
-#: Control-ID:1173
-msgid "&Symbol View"
-msgstr "S&zimbólikus megjelenés"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "&Tab size:"
-msgstr "&Tab Méret:"
-
-# Control-ID:1222,
-#: Control-ID:1222
-msgid "&Timeout in seconds to stop the autocompletion parsing"
-msgstr "Másodpercek, amíg az elemzés &fut."
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -685,25 +489,12 @@ msgstr "&Címre:"
 msgid "&Toolbar"
 msgstr "&Eszöztár"
 
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: ID:9
-msgid "&TortoiseSVN"
-msgstr "&TortoiseSVN"
-
 # Control-ID:65535,#:
 # Control-ID:1058,
 #: Control-ID:65535
 #: Control-ID:1058
 msgid "&URL of repository:"
 msgstr "A &Tárház címe:"
-
-# Control-ID:65535,#:
-# Control-ID:1076,
-#: Control-ID:1076
-msgid "&URL:"
-msgstr "&URL:"
 
 # ID:376,
 #: ID:376
@@ -715,34 +506,18 @@ msgid "&Undo\tCtrl+Z"
 msgstr "&Visszavonás\tCtrl+Z"
 
 #: MenuEntry
-msgid "&Unified diff"
-msgstr "&Egyesített folt"
+msgid "&Unified Diff"
+msgstr "&Egyesített Folt"
 
 # Control-ID:1061,
 #: Control-ID:1061
 msgid "&Unknown drives"
 msgstr "&Ismeretlen meghajtók"
 
-# ID:8,#:
-# Dlg-ID:152,
-#: ID:8
-msgid "&Update"
-msgstr "&Frissít"
-
 # ID:76,
 #: ID:76
-msgid "&Update item to revision"
+msgid "&Update Item To Revision"
 msgstr "&Elem frissítése a verzióhoz"
-
-# ID:11,
-#: ID:11
-msgid "&Update to revision..."
-msgstr "&Frissít egy verzióhoz..."
-
-# Control-ID:1184,
-#: Control-ID:1184
-msgid "&Use autocompletion of filepaths and keywords"
-msgstr "&Automata útvonal és kulcsszó kitöltés"
 
 # Control-ID:65535,#:
 # Control-ID:1005,#:
@@ -760,11 +535,6 @@ msgstr "&Nézet"
 #: MenuEntry
 msgid "&Whitespaces"
 msgstr "&Láthatatlan karakterek"
-
-# Control-ID:1183,
-#: Control-ID:1183
-msgid "&Working copy"
-msgstr "&Munkamásolat"
 
 # ID:219,
 #: ID:219
@@ -834,37 +604,17 @@ msgstr ": munka másolat"
 # ID:88,
 #: ID:88
 msgid ""
-"<b>ATTENTION:</b>\n"
-"The Relocate command is only used if the URL of the\n"
-"repository root has changed due to a server IP address change, protocol\n"
-"change (e.g. http:// to https://) or a change of the repository root\n"
-"path in the server setup.\n"
-"<b>This is a very infrequently used operation</b> and applies neither if you\n"
-"want to move to another Subversion repository nor if you want to switch\n"
-"to another branch or directory <b>within the same repository.</b>\n"
-"To move to another Subversion repository, perform a clean checkout from\n"
-"the new repository location.\n"
-"To associate your working copy with another branch or another directory\n"
-"within the same repository, use the Switch command from the main menu\n"
-"\n"
-"An inadequately used Relocate command <b>will corrupt your working copy!</b>\n"
-"If you are unsure whether Relocate is the correct operation, it probably\n"
-"is not and you should consult <b>Help</b>."
+"<b>ATTENTION:</b> Only use the Relocate command if the original repository has moved to a new URL.\n"
+"If you use Relocate to direct your working copy to another repository or branch,\n"
+"this <b>will corrupt your working copy!</b>\n"
+"To associate your working copy with another branch, use the Switch command.\n"
+"Are you sure you want to relocate?"
 msgstr ""
-"<b>FIGYELMEZTETÉS:</b>\n"
-"Az Áthelyezés parancsot csak akkor használd, ha a tárház\n"
-"URL-je vagy protokollja megváltozott (pl. http:// -ról https:// -re)\n"
-"vagy a tárház gyökérkönyvtára a szerveren.\n"
-"<b>Ezt a paracson nagyon ritkán kell használni</b> és nem fog használni\n"
-"ha egy Subversion tárházat egy másik ágra akarsz áthelyezni.\n"
-"Ha egy másik tárházra akarsz átállni, akkor hajts végre egy teljes\n"
-"letöltést az új címről egy új könyvtárba.\n"
-"Hogy hozzárendeld a munkapéldányod egy másik ághoz vagy\n"
-"könyvtárhoz az azonos tárházban, akkor használd a Váltás parancsot.\n"
-"\n"
-"Egy rosszul használt Áthelyezés parancs <b>tönkreteheti a munkapéldányod!</b>\n"
-"Ha nem tudod, hogy ez-e a megfelelő parancs, akkor inkább\n"
-"ne használd, és olvasd el a <b>Súgót!</b>."
+"<b>FIGYELEM:</b> Csak akkor használd az Áthelyezés parancsot, ha az eredeti Tárház új címre költözött.\n"
+"Ha a helyi változatodat egy másik Tárházra irányítod, akkor az \n"
+"<b>használhatatlan lesz!</b>\n"
+"Ha másik Tárházra akarsz átállni, használd az Átállás parancsot.\n"
+"Biztos hogy áthelyezed?"
 
 # ID:145,
 #: ID:145
@@ -941,20 +691,20 @@ msgstr ""
 "Egy GNU diff fájl (folt fájl) nézegető program.\n"
 "Ha nincs, használd a Jegyzettömböt."
 
-# ID:9,
-#: ID:9
-msgid "A&bout"
-msgstr "&Névjegy"
-
 # ID:101,
 #: ID:101
-msgid "A&dd folder..."
+msgid "A&dd Folder..."
 msgstr "&Mappa hozzáadása..."
 
 # ID:73,
 #: ID:73
 msgid "Abort"
 msgstr "Megszakítás"
+
+# ID:9,
+#: ID:9
+msgid "About"
+msgstr "Névjegy"
 
 # Dlg-ID:136,
 #: Dlg-ID:136
@@ -968,13 +718,13 @@ msgstr "A TortoiseSVN névjegye"
 
 # ID:82,
 #: ID:82
-msgid "Accept once"
-msgstr "Egyszer elfogad"
+msgid "Accept Once"
+msgstr "Egyszer Elfogad"
 
 # ID:82,
 #: ID:82
-msgid "Accept permanently"
-msgstr "Végleg elfogad"
+msgid "Accept Permanently"
+msgstr "Végleg Elfogad"
 
 # ID:3867,#:
 # ID:3867,
@@ -997,44 +747,39 @@ msgstr "Feladatlista aktiválása"
 # ID:209,#:
 # Dlg-ID:155,
 #: ID:209
+#: Dlg-ID:155
 msgid "Add"
 msgstr "Hozzáad"
 
 # ID:101,
 #: ID:101
-msgid "Add &file..."
+msgid "Add &File..."
 msgstr "&Fájl hozzáadása..."
 
-# ID:376,
-#: ID:376
-#, c-format
-msgid "Add '%s' to dictionary"
-msgstr "'%s' hozzáadása a szótárhoz"
-
-# ID:16,
-#: ID:16
-msgid "Add (as replacement)..."
-msgstr "Hozzáad (csereként)..."
+# ID:110,
+#: ID:110
+msgid "Add Extension Specific Diff Program"
+msgstr "Kiterjesztésfüggő Foltkészítő program hozzáadáasa"
 
 # ID:110,
 #: ID:110
-msgid "Add extension specific diff program"
-msgstr "Kiterjesztésfüggő foltkészítő program hozzáadáasa"
-
-# ID:110,
-#: ID:110
-msgid "Add extension specific merge program"
-msgstr "Kiterjesztésfüggő összegyúró program hozzáadáasa"
+msgid "Add Extension Specific Merge Program"
+msgstr "Kiterjesztésfüggő Foltbeépítő program hozzáadáasa"
 
 # ID:13,
 #: ID:13
-msgid "Add to &ignore list"
-msgstr "&Az elutasító listához adás"
+msgid "Add To Ignore List"
+msgstr "A elutasító listához adás"
+
+# Control-ID:1098,
+#: ID:8
+msgid "Add..."
+msgstr "Hozzáad..."
 
 # Dlg-ID:171,
 #: Dlg-ID:171
 msgid "Add/Edit Extension Specific Diff/Merge Program"
-msgstr "Kiterjeszésfüggő foltkészítő/összegyúró program hozzáadása/szerkesztése"
+msgstr "Kiterjeszésfüggő foltkészítő/foltbeépítő program hozzáadása/szerkesztése"
 
 # ID:73,#:
 # Control-ID:65535,
@@ -1057,12 +802,6 @@ msgstr "Mappa távolról hozzáadva"
 #: ID:126
 msgid "Added items remotely"
 msgstr "Elemek távolról hozzáadva"
-
-# ID:73,#:
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Added node"
-msgstr "Csomópont hozzáadva"
 
 # ID:145,
 #: ID:145
@@ -1100,20 +839,20 @@ msgstr ""
 "Beállítás\n"
 "Beállítások"
 
+# ID:110,
+#: ID:110
+msgid "Advanced Diff Settings"
+msgstr "Speciális Készítési Beállítások"
+
 # Dlg-ID:170,
 #: Dlg-ID:170
 msgid "Advanced Diff/Merge Settings"
-msgstr "Speciális Készítési/Összegyúrási Beállítások"
+msgstr "Speciális Készítési/Beépítési Beállítások"
 
 # ID:110,
 #: ID:110
-msgid "Advanced diff settings"
-msgstr "Speciális készítési beállítások"
-
-# ID:110,
-#: ID:110
-msgid "Advanced merge settings"
-msgstr "Speciális összegyúrási beállítások"
+msgid "Advanced Merge Settings"
+msgstr "Speciális Beépítési Beállítások"
 
 # ID:3841,#:
 # ID:3841,
@@ -1186,7 +925,7 @@ msgid ""
 "%mine\t\tyour own file, with your changes\n"
 "%base\t\tthe original file without your changes"
 msgstr ""
-"Külső összegyúró program volt használva\n"
+"Külső egyesítő program volt használva\n"
 "az ellentmondó fájlok megoldásához.\n"
 "<hr=100%>\n"
 "Az alábbi kapcsolókat adhatod meg:\n"
@@ -1270,12 +1009,12 @@ msgstr ""
 
 # ID:13,
 #: ID:13
-msgid "Apply &patch..."
-msgstr "F&olt beépítése..."
+msgid "Apply Patch..."
+msgstr "Folt beépítése..."
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Apply unified diff"
+msgid "Apply Unified Diff"
 msgstr "Egyesített folt beépítése"
 
 # ID:145,
@@ -1294,9 +1033,15 @@ msgstr "Biztos,hogy visszaállítod? Az <b>összes</b> módosításod elveszik!"
 msgid "At revision: %d"
 msgstr "Verzió %d"
 
+# Dlg-ID:131,#:
+# Dlg-ID:160,
+#: Dlg-ID:131
+#: Dlg-ID:160
+msgid "Authentication"
+msgstr "Azonosítás"
+
 # ID:76,
 #: ID:76
-#: ID:207
 msgid "Author"
 msgstr "Fejlesztő"
 
@@ -1328,7 +1073,12 @@ msgstr "Egyből bezárja, ha nincs hiba"
 # ID:222,
 #: ID:222
 msgid "Auto-close if no merges, adds or deletes"
-msgstr "Egyből bezárja, ha nincs összegyúrás, hozzáadás, törlés"
+msgstr "Egyből bezárja, ha nincs egyesítés, hozzáadás, törlés"
+
+# Control-ID:65535,
+#: Control-ID:65535
+msgid "Autoclose:"
+msgstr "Egyből bezárja:"
 
 # ID:195,
 #: ID:195
@@ -1354,10 +1104,30 @@ msgstr "Átlagos"
 msgid "B&rowse..."
 msgstr "&Tallózás..."
 
+# Control-ID:1015,
+#: Control-ID:1015
+msgid "Backup original file"
+msgstr "Biztonsági másolat készítése"
+
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Base file:"
+msgid "Base File:"
 msgstr "Alap fájl:"
+
+# Control-ID:1128,
+#: Control-ID:1128
+msgid "Berkeley Database (BDB)"
+msgstr "Berkeley aDatBázis (BDB)"
+
+# Dlg-ID:162,
+#: Dlg-ID:162
+msgid "Blame"
+msgstr "Szemrehányás"
+
+# ID:13,
+#: ID:13
+msgid "Blame..."
+msgstr "Szemrehányás..."
 
 # ID:13,
 #: ID:13
@@ -1371,18 +1141,18 @@ msgstr "&Tallózás..."
 
 # ID:115,
 #: ID:115
-msgid "Branch / tag created successfully!"
+msgid "Branch / Tag created successfully!"
 msgstr "Branch / Tag mellékág létrehozva!"
 
 # ID:9,
 #: ID:9
-msgid "Branch/&tag..."
-msgstr "&Branch/Tag..."
+msgid "Branch/Tag..."
+msgstr "Branch/Tag..."
 
 # ID:16,
 #: ID:16
-msgid "Break loc&k"
-msgstr "&Zár feltörése"
+msgid "Break Lock"
+msgstr "Zár feltörése"
 
 # Control-ID:1009,
 #: Control-ID:1009
@@ -1407,23 +1177,17 @@ msgstr "Tallózás..."
 # Control-ID:1119,#:
 # Control-ID:1119,
 #: Control-ID:1119
-msgid "Bug-&ID / Issue-Nr:"
-msgstr "A &hiba/téma száma:"
-
-# Control-ID:1119,#:
-# Control-ID:1119,
-#: Control-ID:1119
 msgid "Bug-ID / Issue-Nr:"
 msgstr "A hiba/téma száma:"
 
 # ID:101,
 #: ID:101
-msgid "C&reate folder..."
+msgid "C&reate Folder..."
 msgstr "&Mappa létrehozása..."
 
 # ID:77,
 #: ID:77
-msgid "C&reate tag from revision"
+msgid "C&reate Tag From Revision"
 msgstr "&Kiadás (Tag) készítsése verzióból"
 
 # ID:3697,
@@ -1454,7 +1218,7 @@ msgstr "Mégsem"
 
 # ID:132,
 #: ID:132
-msgid "Cancelling TortoiseSVN Blame..."
+msgid "Cancelling SVN Blame..."
 msgstr "SVN Szemrehányás leállítása..."
 
 # ID:270,
@@ -1464,7 +1228,7 @@ msgstr "Folyamat leállítása..."
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Cascaded context menu"
+msgid "Cascaded Context Menu"
 msgstr "Lezúduló tartalom menü"
 
 # ID:82,
@@ -1499,21 +1263,16 @@ msgstr "Az ablak helyének megváltoztatása"
 msgid "Change the window size"
 msgstr "Az ablak méretének megváltoztatása"
 
+# Dlg-ID:199,
+#: Dlg-ID:199
+msgid "Changed Files"
+msgstr "Megváltozott Fájlok"
+
 # ID:163,
 #: ID:163
 #, c-format
 msgid "Changed files: %d"
 msgstr "Megváltozott fájlok: %d"
-
-# Control-ID:1242,
-#: Control-ID:1242
-msgid "Changes made (double-click for details):"
-msgstr "Változások (duplakatt a részletekért):"
-
-# ID:8,
-#: ID:8
-msgid "Chec&kout..."
-msgstr "&Frissítés..."
 
 # ID:3887,#:
 # ID:3887,
@@ -1521,30 +1280,35 @@ msgstr "&Frissítés..."
 msgid "Check"
 msgstr "Ellenőrzés"
 
+# ID:13,
+#: Control-ID:65535
+msgid "Check For Modifications"
+msgstr "Változások Keresése"
+
+# Dlg-ID:174,
+#: Dlg-ID:174
+msgid "Check For Updates"
+msgstr "Frissítések Keresése"
+
 # Control-ID:1031,
 #: Control-ID:1031
 msgid "Check For Updates..."
 msgstr "Frissítések Keresése..."
 
-# ID:13,
-#: ID:13
-msgid "Check for modi&fications"
-msgstr "&Változások keresése"
+# Control-ID:1132,
+#: Control-ID:1132
+msgid "Check Repository"
+msgstr "Tárházról frissítés"
 
 # ID:13,
-#: Control-ID:65535
-msgid "Check for modifications"
-msgstr "Változások keresése"
+#: ID:13
+msgid "Check for Modifications"
+msgstr "Változások Keresése"
 
 # ID:9,
 #: ID:9
 msgid "Check out a working copy from a repository"
 msgstr "Működő másolat frissítése a Tárházból"
-
-# Control-ID:1132,
-#: Control-ID:1132
-msgid "Check repository"
-msgstr "Tárházról frissítés"
 
 # ID:95,
 #: ID:95
@@ -1580,10 +1344,25 @@ msgstr "További másolatok ellenőrzése"
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Újabb TortoiseSVN verzió keresése..."
 
+# Dlg-ID:133,
+#: Dlg-ID:133
+msgid "Checkout"
+msgstr "Frissítés"
+
 # Control-ID:1074,
 #: Control-ID:1074
 msgid "Checkout &directory:"
-msgstr "&Mappa frissítése"
+msgstr "&Mappa Frissítése"
+
+# ID:8,
+#: ID:8
+msgid "Checkout..."
+msgstr "Frissítés..."
+
+# ID:8,
+#: ID:8
+msgid "Clean Up"
+msgstr "Takarítás"
 
 # ID:79,
 #: ID:79
@@ -1617,7 +1396,7 @@ msgstr "Kattints a \"Speciális\" gombra a kiterjesztésfüggő foltkészítő p
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Click on \"Advanced\" to specify alternate merge programs based on file extension"
-msgstr "Kattints a \"Speciális\" gombra az összegyúró program alkalmazásához"
+msgstr "Kattints a \"Speciális\" gombra a kiterjesztésfüggő foltbeépítő program alkalmazásához"
 
 # ID:257,
 #: ID:257
@@ -1636,8 +1415,8 @@ msgstr "Válaszd ki az aktív ablakot és parancssort a dokumentumok elmentésé
 
 # Control-ID:1068,
 #: Control-ID:1068
-msgid "Color co&de in-line changes"
-msgstr "Soron belüli változások &kiszínezése"
+msgid "Color code in-line changes"
+msgstr "Soron belüli változások kiszínezése"
 
 # Dlg-ID:138,
 #: Dlg-ID:138
@@ -1665,6 +1444,11 @@ msgstr "Beküldés"
 msgid "Commit to:"
 msgstr "Beküldés ide:"
 
+# ID:8,
+#: ID:8
+msgid "Commit..."
+msgstr "Beküldés..."
+
 # ID:244,
 #: ID:244
 msgid "Commits by author"
@@ -1686,39 +1470,33 @@ msgid "Commits your changes to the repository"
 msgstr "Elküldi a tárházba a változtatásaidat"
 
 #: MenuEntry
-msgid "Compare &HEAD revisions"
-msgstr "A &FŐ verziók összehasonlítása"
+msgid "Compare &HEAD Revisions"
+msgstr "A &FŐ Verziók összehasonlítása"
+
+# Control-ID:1019,
+#: Control-ID:1019
+msgid "Compare Whitespaces"
+msgstr "A láthatatlan karakterek összehasonlítása"
+
+# ID:138,
+#: ID:138
+msgid "Compare With B&ase"
+msgstr "Összehasonlítás az &Alappal"
 
 # ID:76,
 #: ID:76
 msgid "Compare with &working copy"
 msgstr "Összehasonlítás a &munkamásolattal"
 
-# ID:138,
-#: ID:138
-msgid "Compare with b&ase"
-msgstr "Összehasonlítás az &alappal"
-
 # ID:12,
 #: ID:12
 msgid "Compares the file with the last committed revision to show you the changes you made"
 msgstr "Összehasonlítja a fájlt a legutolsó beküldött verzióval és mutatja a változtatásaidat"
 
-# ID:80,
-#: ID:120
-#, c-format
-msgid "Comparing %s to %s"
-msgstr "%s és %s összehasonlítása"
-
 # ID:74,
 #: ID:74
 msgid "Completed"
 msgstr "Teljesítve"
-
-# ID:73,
-#: Control-ID:1239
-msgid "Configure"
-msgstr "Beállítás"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -1748,10 +1526,20 @@ msgstr "Ellentmondó"
 msgid "Conflicts: %d"
 msgstr "Ellentmondások: %d"
 
+# Control-ID:65535,
+#: Control-ID:1227
+msgid "Contact the repository on startup"
+msgstr "Tárházhoz kapcsolódás indításkor"
+
 # ID:73,
 #: ID:73
 msgid "Continue"
 msgstr "Folytatás"
+
+# Control-ID:1073,
+#: Control-ID:1073
+msgid "Convert files when diffing against BASE"
+msgstr "Fájlok konvertálása az alaphoz való különbségek keresésekor"
 
 # ID:376,
 #: ID:376
@@ -1774,15 +1562,25 @@ msgstr "Távolról másolva"
 msgid "Copy %s"
 msgstr "%s másolása"
 
+# Dlg-ID:142,
+#: Dlg-ID:142
+msgid "Copy (Branch / Tag)"
+msgstr "Másol (Branch / Tag)"
+
+# ID:76,
+#: ID:76
+msgid "Copy From Path"
+msgstr "Útvonalból másol"
+
+# ID:101,
+#: ID:101
+msgid "Copy To Working Copy..."
+msgstr "A munkamásolatba másol"
+
 # ID:101,
 #: ID:101
 msgid "Copy URL to clipboard"
 msgstr "A cím másolása a vágólapra"
-
-# ID:76,
-#: ID:76
-msgid "Copy from path"
-msgstr "Útvonalból másol"
 
 # ID:3603,
 #: ID:3603
@@ -1802,11 +1600,6 @@ msgstr "Másolás a vágólapra"
 #: ID:103
 msgid "Copy to working copy"
 msgstr "A munkamásolatba másol"
-
-# ID:103,
-#: ID:101
-msgid "Copy to working copy..."
-msgstr "A munkamásolatba másol..."
 
 # ID:97,
 #: ID:98
@@ -1932,7 +1725,7 @@ msgid ""
 "<hr=100%>\n"
 "%s"
 msgstr ""
-"A külső összegyúró nem indítható!!\n"
+"A külső beépítő nem indítható!!\n"
 "<hr=100%>\n"
 "%s"
 
@@ -1948,19 +1741,29 @@ msgid "Could not start thread!"
 msgstr "A feladat nem indítható el!"
 
 # ID:13,
+#: Dlg-ID:208
+msgid "Create Patch"
+msgstr "Folt készítése"
+
+# ID:13,
 #: ID:13
-msgid "Create &patch..."
-msgstr "&Folt készítése..."
+msgid "Create Patch..."
+msgstr "Folt készítése..."
+
+# Dlg-ID:178,
+#: Dlg-ID:178
+msgid "Create Repository"
+msgstr "Tárház készítése"
+
+# ID:8,
+#: ID:8
+msgid "Create Repository here..."
+msgstr "Tárház készítése itt..."
 
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Create copy in the repository from:"
 msgstr "Másolás a Tárházba innen:"
-
-# ID:8,
-#: ID:8
-msgid "Create repositor&y here..."
-msgstr "&Tárház készítése itt..."
 
 # ID:126,
 #: ID:126
@@ -1992,17 +1795,6 @@ msgstr "Készítők:"
 msgid "Cu&t"
 msgstr "&Kivágás"
 
-# Control-ID:1113,
-#: Control-ID:1113
-msgid "Current version is:"
-msgstr "Jelenlegi verzió:"
-
-# ID:201,
-#: ID:201
-#, c-format
-msgid "Current version is: %s"
-msgstr "Jelenlegi verzió: %s"
-
 # ID:3603,
 #: ID:3603
 msgid ""
@@ -2014,7 +1806,6 @@ msgstr ""
 
 # ID:76,
 #: ID:76
-#: ID:208
 msgid "Date"
 msgstr "Dátum"
 
@@ -2023,15 +1814,15 @@ msgstr "Dátum"
 msgid "Default &number of log messages"
 msgstr "Alapértelmezett naplóüzenetek &száma"
 
+# ID:11,
+#: ID:11
+msgid "Delete"
+msgstr "Törlés"
+
 # ID:73,
 #: ID:73
 msgid "Deleted"
 msgstr "Törölve"
-
-# ID:73,
-#: Control-ID:65535
-msgid "Deleted node"
-msgstr "Csomópont törölve"
 
 # ID:11,
 #: ID:11
@@ -2049,10 +1840,15 @@ msgstr "Törlés"
 msgid "Destination disk drive is full."
 msgstr "A célmeghajtó tele van."
 
+# ID:12,
+#: ID:12
+msgid "Diff"
+msgstr "Folt"
+
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Diff file:"
-msgstr "Folt fájl:"
+msgid "Diff File:"
+msgstr "Folt Fájl:"
 
 # Control-ID:1022,
 #: Control-ID:1022
@@ -2123,6 +1919,11 @@ msgstr ""
 "Programinformációk verziószám és szerzői jog\n"
 "Névjegy"
 
+# ID:80,
+#: ID:80
+msgid "Do not show this message again"
+msgstr "Ne mutassa többször ezt az üzenetet"
+
 # ID:145,
 #: ID:145
 msgid "Do you really want to move this file or folder?"
@@ -2175,7 +1976,6 @@ msgstr "Dokumentáció - Simon Large"
 
 # ID:73,
 #: ID:73
-#: ID:80
 msgid "Don't show this message again"
 msgstr "Ne mutassa mégegyszer ezt az üzenetet"
 
@@ -2187,11 +1987,6 @@ msgstr "Meghajtótípus"
 #: MenuEntry
 msgid "E&xit"
 msgstr "&Kilépés"
-
-# ID:9,
-#: ID:9
-msgid "E&xport..."
-msgstr "&Export..."
 
 # ID:3697,
 #: ID:3697
@@ -2205,26 +2000,35 @@ msgstr "Szerkeszt"
 
 # ID:113,
 #: ID:113
-msgid "Edit author"
+msgid "Edit Author"
 msgstr "Fejlesztő szerkesztése"
+
+# ID:12,
+#: ID:12
+msgid "Edit Conflicts"
+msgstr "Ellentmondások szerkesztése"
+
+# ID:110,
+#: ID:110
+msgid "Edit Extension Specific Diff Program"
+msgstr "Kiterjesztésfüggő foltkészítő program szerkesztése"
+
+# ID:110,
+#: ID:110
+msgid "Edit Extension Specific Merge Program"
+msgstr "Kiterjesztésfüggő foltbeépítő program szerkesztése"
+
+# ID:113,
+#: ID:113
+msgid "Edit Log Message"
+msgstr "Megjegyzés Szerkesztése"
 
 # ID:115,
 #: ID:115
 msgid "Edit author name"
 msgstr "Fejlesztő nevének szerkesztése"
 
-# ID:110,
-#: ID:110
-msgid "Edit extension specific diff program"
-msgstr "Kiterjesztésfüggő foltkészítő program szerkesztése"
-
-# ID:110,
-#: ID:110
-msgid "Edit extension specific merge program"
-msgstr "Kiterjesztésfüggő összegyúró program szerkesztése"
-
 # ID:115,
-#: ID:113
 #: ID:115
 msgid "Edit log message"
 msgstr "Megjegyzés szerkesztése"
@@ -2239,20 +2043,6 @@ msgstr "Írd be a proxy IP-jét vagy nevét"
 msgid "Empty"
 msgstr "Üres"
 
-# Control-ID:1240,
-#: Control-ID:1240
-msgid "Enable &accelerators on the top level menu"
-msgstr "Gyorsbillentyűk engedélyezése a felső menüben"
-
-# ID:196,
-#: ID:196
-msgid ""
-"Enable this if you want keyboard accelerators on the top level context menu too.\n"
-"Note that the context menu icons look nicer with this disabled."
-msgstr ""
-"Itt kapcsolhatod be, hogy a gyorsbillentyűk működjenek a felső menüben.\n"
-"Ha nem használod kapcsold ki, mert úgy jobban néz ki a program."
-
 # Control-ID:1224,
 #: ID:195
 msgid ""
@@ -2265,6 +2055,18 @@ msgstr "Bekapcsolja a helyesírás ellenőrzőt, ha a tsvn:projectlanguage aktí
 msgid "Enlarge the window to full size"
 msgstr "Teljes képernyős méret"
 
+# Dlg-ID:135,
+#: Dlg-ID:135
+msgid "Enter Log Message"
+msgstr "Írd be a megjegyzést"
+
+# ID:126,#:
+# Control-ID:1065,
+#: ID:126
+#: Control-ID:1065
+msgid "Enter Log Message:"
+msgstr "Írd be a megjegyzést:"
+
 # ID:80,
 #: ID:80
 msgid "Enter URL"
@@ -2275,17 +2077,10 @@ msgstr "Írd be a címet:"
 msgid "Enter a lock message (optional):"
 msgstr "Írd be a zár-üzenetet (nem kötelező):"
 
-# ID:126,#:
-# Control-ID:1065,
-#: Control-ID:1065
-msgid "Enter log &message:"
-msgstr "Írd be a &megjegyzést:"
-
-# ID:126,#:
-# Control-ID:1065,
-#: ID:126
-msgid "Enter log message:"
-msgstr "Írd be a megjegyzést:"
+# Control-ID:1213,
+#: Control-ID:1213
+msgid "Enter a message describing why you lock the file(s)."
+msgstr "Részletezd, hogy miért zárolsz fájlokat:"
 
 # ID:3603,
 #: ID:3603
@@ -2309,11 +2104,6 @@ msgstr ""
 #: ID:82
 msgid "Error"
 msgstr "Hiba"
-
-# ID:145,
-#: ID:145
-msgid "Error rebuilding Shell Icon Cache!"
-msgstr "Hiba az Ikonadatbázis újraépítésekor!"
 
 # ID:81,
 #: ID:81
@@ -2343,13 +2133,18 @@ msgstr "Felfedez"
 
 # ID:94,
 #: ID:94
-msgid "Export directory:"
-msgstr "Mappa export:"
+msgid "Export Directory:"
+msgstr "Mappa Export:"
 
 # ID:79,
 #: ID:79
 msgid "Export unversioned files too"
 msgstr "Nem verziókezelt fájlokat is exportálja"
+
+# ID:9,
+#: ID:9
+msgid "Export..."
+msgstr "Export..."
 
 # ID:79,
 #: ID:79
@@ -2396,7 +2191,7 @@ msgstr "Külső Programok::Folt nézőke"
 # Dlg-ID:193,
 #: Dlg-ID:193
 msgid "External Programs::Merge Tool"
-msgstr "Külső Programok::Összegyúró eszköz"
+msgstr "Külső Programok::Foltbeépítő eszköz"
 
 # Dlg-ID:194,
 #: Dlg-ID:194
@@ -2405,7 +2200,7 @@ msgstr "Külső Programok::Egyesített folt nézőke"
 
 # ID:74,
 #: ID:74
-msgid "Failed revert"
+msgid "Failed Revert"
 msgstr "Nem sikerült visszaállítani"
 
 # ID:3857,#:
@@ -2434,12 +2229,12 @@ msgstr "Nem sikerült a dokumentumot kimenteni"
 
 # Control-ID:1217,
 #: Control-ID:1217
-msgid "Fetch &status for context menu"
-msgstr "Ne fűzze bele az &állapotot a tartalom menübe"
+msgid "Fetch status for context menu"
+msgstr "Ne fűzze bele az állapotot a tartalom menübe"
 
 # ID:313,
 #: ID:313
-msgid "Fetching file..."
+msgid "Fetching File..."
 msgstr "Fájl hozzáfűzése..."
 
 # ID:313,
@@ -2460,22 +2255,22 @@ msgstr "%s verzió hozzáfűzése a fájlhoz:"
 msgid "File"
 msgstr "Fájl"
 
-# Control-ID:1138,
-#: Control-ID:1138
-msgid "File changes each week:"
-msgstr "Minden héten változó fájl:"
-
 # ID:376,
 #: ID:376
-msgid "File diffs"
+msgid "File Diffs"
 msgstr "Fájlfoltok"
 
 # ID:376,#:
 # Dlg-ID:135,
 #: ID:376
 #: Dlg-ID:135
-msgid "File patches"
+msgid "File Patches"
 msgstr "Fájlfoltok"
+
+# Control-ID:1138,
+#: Control-ID:1138
+msgid "File changes each week:"
+msgstr "Minden héten változó fájl:"
 
 # ID:3603,
 #: ID:3603
@@ -2491,6 +2286,16 @@ msgstr ""
 msgid "Finished!"
 msgstr "Befejezve!"
 
+# Control-ID:65535,
+#: Control-ID:65535
+msgid "Font for log messages:"
+msgstr "Megjegyzések betűtípusa:"
+
+# Control-ID:65535,
+#: Control-ID:65535
+msgid "Font:"
+msgstr "Betűtípus:"
+
 # ID:3585,
 #: ID:3585
 msgid "For Help, press F1"
@@ -2504,7 +2309,7 @@ msgstr "Ettől:"
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "From: (start URL and revision of the range to merge)"
-msgstr "Ettől: (kezdő cím és verzió az összegyúrandó tartománynak)"
+msgstr "Ettől: (kezdő cím és verzió az egyesíteni való tartománynak)"
 
 # ID:273,
 #: ID:273
@@ -2537,25 +2342,19 @@ msgstr "Általános"
 
 # ID:144,
 #: ID:144
-msgid "Generating patchfile..."
-msgstr "Foltfájl készítése..."
+msgid "Generating Patchfile..."
+msgstr "Foltfájl Készítése..."
 
 # ID:16,
 #: ID:16
-msgid "Get loc&k..."
-msgstr "&Kulcs szerzése..."
+msgid "Get Lock..."
+msgstr "Kulcs Szerzése..."
 
 # ID:119,
 #: ID:119
 #, c-format
-msgid "Getting file %s"
-msgstr "%s fájl megszerzése"
-
-# ID:119,
-#: ID:120
-#, c-format
-msgid "Getting file %s, revision %ld"
-msgstr "%s fájl %ld verziója"
+msgid "Getting File %s"
+msgstr "%s fájl megszerzése..."
 
 # ID:132,
 #: ID:132
@@ -2567,20 +2366,10 @@ msgstr "Fájlinformáció megszerzése..."
 msgid "Getting information from repository..."
 msgstr "Információ letöltése a Tárházból"
 
-# ID:269,
-#: ID:120
-msgid "Getting information..."
-msgstr "Információ letöltése..."
-
 # ID:132,
 #: ID:132
 msgid "Getting log info..."
 msgstr "Megjegyzések letöltése..."
-
-# ID:132,
-#: ID:119
-msgid "Getting unified diff"
-msgstr "Egyesített folt megszerzése"
 
 # ID:2051,
 #: ID:2051
@@ -2623,16 +2412,27 @@ msgstr ""
 msgid "Graph type:"
 msgstr "Grafikon típus:"
 
-# Control-ID:1229,
-#: Control-ID:1229
-msgid "H&ide unrelated changed paths"
-msgstr "Nem kapcsolódó változó útvonalak el&rejtése"
+# Control-ID:1032,
+#: Control-ID:1032
+msgid "H&EAD Revision"
+msgstr "&FŐ Verzió"
+
+# Control-ID:1182,
+#: Control-ID:1182
+msgid "HEAD revision in the repository"
+msgstr "FŐ verzió a Tárházban"
 
 # ID:12,#:
 # Control-ID:1004,
+#: ID:12
 #: Control-ID:1004
 msgid "Help"
 msgstr "Súgó"
+
+# Control-ID:1229,
+#: Control-ID:1229
+msgid "Hide unrelated changed paths"
+msgstr "Nem kapcsolódó változó útvonalak elrejtése"
 
 # Control-ID:1127,
 #: Control-ID:1127
@@ -2649,6 +2449,11 @@ msgstr "Számítógépnév eltérés (%s)"
 #: Control-ID:65535
 msgid "Icon Overlays / Status Columns"
 msgstr "Ikon feliratok / Állapot oszlopok"
+
+# Control-ID:1170,
+#: Control-ID:1170
+msgid "Icon Set:"
+msgstr "Ikonok:"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2692,11 +2497,16 @@ msgstr "Ha engedélyezve van, akkor a TortoiseSVN hetente újabb programverziót
 
 # ID:195,
 #: ID:195
+msgid "If enabled, speeds up fetching log messages from pre-1.2 repository servers"
+msgstr "Ha engedélyezve van felgyorsítja a naplóüzenetek összefűzését az 1.2-es verziónál régebbi Tárházakon"
+
+# ID:195,
+#: ID:195
 msgid ""
 "If enabled, the Merge dialog initializes the \"From:\" URL with the URL of the selected working copy\n"
 "instead of the last used URL."
 msgstr ""
-"Ha be van kapcsolva, az Összegyúró ablak a kiválasztott munkapéldány címét használja a\n"
+"Ha be van kapcsolva, az Beépítő ablak a kiválasztott munkapéldány címét használja a\n"
 "legutoljára használt cím helyett."
 
 # ID:195,
@@ -2727,31 +2537,46 @@ msgstr "Ha fel akarod törni a zárat, használd a \"Módosítások keresése\" 
 msgid "Ignore"
 msgstr "Elutasít"
 
+# ID:15,
+#: ID:15
+#, c-format
+msgid "Ignore %d items"
+msgstr "%d elem elutasítva"
+
 # Control-ID:1021,
 #: Control-ID:1021
-msgid "Ignore &all whitespaces"
-msgstr "Az &összes láthatatlan karakter elutasítása"
+msgid "Ignore All Whitespaces"
+msgstr "Láthatatlan karakterek elutasítása"
 
-# Control-ID:1067,
-#: Control-ID:1067
-msgid "Ignore &case changes"
-msgstr "Kisbetű/nagybetű &nem különbség"
+# Control-ID:1020,
+#: Control-ID:1020
+msgid "Ignore Leading Whitespaces"
+msgstr "Soreleji láthatatlan karakterek elutasítása"
 
 # Control-ID:1018,
 #: Control-ID:1018
-msgid "Ignore line&endings (recommended)"
-msgstr "&Sorvégek elutasítása (ajánlott)"
+msgid "Ignore Lineendings (recommended)"
+msgstr "Sorvégek elutasítása (ajánlott)"
+
+# Control-ID:1067,
+#: Control-ID:1067
+msgid "Ignore case changes"
+msgstr "Kisbetű/nagybetű nem különbség"
+
+# Dlg-ID:139,
+#: Dlg-ID:139
+msgid "Import"
+msgstr "Importálás"
 
 # Control-ID:1056,
 #: Control-ID:1056
-msgid "Import &message"
+msgid "Import &Message"
 msgstr "Üzene&t Importálása"
 
-# ID:103,
-#: ID:120
-#, c-format
-msgid "Importing file %s"
-msgstr "%s importálása"
+# ID:9,
+#: ID:9
+msgid "Import..."
+msgstr "Importálás..."
 
 # ID:10,
 #: ID:10
@@ -2765,13 +2590,18 @@ msgstr "Útvonalak belevétele:"
 
 # ID:76,
 #: ID:76
-msgid "Initial import"
+msgid "Initial Import"
 msgstr "Első import"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Inline whitespace diff"
+msgid "Inline Whitespace Diff"
 msgstr "Sorközi láthatatlan karakter különbség"
+
+# Dlg-ID:161,
+#: Dlg-ID:161
+msgid "Input"
+msgstr "Bevitel"
 
 # ID:3603,
 #: ID:3603
@@ -2851,10 +2681,20 @@ msgstr ""
 "Például VaLaMi.txt nem lehet VALAMI.txt.\n"
 "Nézz utánna a dokumentációban további információkért."
 
+# Control-ID:1016,
+#: Control-ID:1016
+msgid "Jump to first difference when loading"
+msgstr "Az első eltéréshez ugrik betöltéskor"
+
 # Control-ID:1203,
 #: Control-ID:1203
-msgid "Keep &locks"
-msgstr "Zárak &megtartása"
+msgid "Keep Locks"
+msgstr "Zárak megtartása"
+
+# Control-ID:65535,
+#: Control-ID:65535
+msgid "Language:"
+msgstr "Nyelv:"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2869,7 +2709,7 @@ msgstr "Utolsó mentett verzió az elemből"
 # ID:12,
 #: ID:12
 msgid "Launches the external diff / merge program to solve the conflicts"
-msgstr "Elindítja a külső összegyúró programot az ellentmondások megoldásáért"
+msgstr "ELindítja a külső foltkezelő programot az ellentmondások megoldásáért"
 
 # Control-ID:1137,
 #: Control-ID:1137
@@ -2895,10 +2735,15 @@ msgstr ""
 "Kilistázza a súgótémákat\n"
 "Súgótémák"
 
+# Control-ID:1172,
+#: Control-ID:1172
+msgid "List View"
+msgstr "Lista Nézet"
+
 # ID:63,
 #: ID:63
-msgid "Local status"
-msgstr "Helyi állapot"
+msgid "Local Status"
+msgstr "Helyi Állapot"
 
 # ID:94,
 #: ID:94
@@ -2916,15 +2761,20 @@ msgstr ""
 msgid "Lock"
 msgstr "Lezár"
 
+# ID:207,
+#: ID:207
+msgid "Lock Comment"
+msgstr "Megjegyzés lezárása"
+
+# Dlg-ID:191,
+#: Dlg-ID:191
+msgid "Lock Files"
+msgstr "Fájlok lezárása"
+
 # ID:209,
 #: ID:209
 msgid "Lock broken!"
 msgstr "Eltört a zár!"
-
-# ID:207,
-#: ID:207
-msgid "Lock comment"
-msgstr "Megjegyzés lezárása"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2965,24 +2815,26 @@ msgstr "Napló"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Log message"
+msgid "Log Message"
 msgstr "Megjegyzés"
+
+# Control-ID:1125,#:
+# Control-ID:1125,
+#: Control-ID:1125
+msgid "Log Message History:"
+msgstr "Megjegyzések naplója:"
 
 # Dlg-ID:130,#:
 # Control-ID:65535,
+#: Dlg-ID:130
 #: Control-ID:65535
-msgid "Log messages"
+msgid "Log Messages"
 msgstr "Megjegyzések"
 
 # Dlg-ID:195,
 #: Dlg-ID:195
 msgid "Look and Feel"
 msgstr "Kinézet"
-
-# Dlg-ID:196,
-#: Dlg-ID:212
-msgid "Look and Feel::Colors"
-msgstr "Kinézet::Színek"
 
 # Dlg-ID:196,
 #: Dlg-ID:196
@@ -3002,13 +2854,13 @@ msgstr "Kinézet::Ikonok"
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest revision: %ld - Highest revision: %ld"
+msgid "Lowest Revision: %ld - Highest Revision: %ld"
 msgstr "Legrégebbi verzió: %ld - Legújabb verzió: %ld"
 
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest revision: %ld - Highest revision: %ld - HEAD revision: %ld"
+msgid "Lowest Revision: %ld - Highest Revision: %ld - HEAD revision: %ld"
 msgstr "Legrégebbi verzió: %ld - Legújabb verzió: %ld - FŐ verzió: %ld"
 
 # ID:3866,#:
@@ -3032,19 +2884,25 @@ msgid "Max"
 msgstr "Max"
 
 # Dlg-ID:141,
+#: Dlg-ID:141
 #: Control-ID:65535
 msgid "Merge"
-msgstr "Összegyúr"
+msgstr "Beépít"
+
+# ID:9,
+#: ID:9
+msgid "Merge..."
+msgstr "Beépítés..."
 
 # ID:263,
 #: ID:263
 msgid "Merged"
-msgstr "Összegyúrva"
+msgstr "Beépítve"
 
 # ID:10,
 #: ID:10
 msgid "Merges a branch into the main trunk"
-msgstr "Összegyúr egy mellékágat a főágba"
+msgstr "Beépít egy mellékágat a főágba"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3056,11 +2914,6 @@ msgstr "Beépítés"
 msgid "Message"
 msgstr "Üzenet"
 
-# ID:76,
-#: Control-ID:1241
-msgid "Message:"
-msgstr "Üzenet:"
-
 # ID:116,
 #: ID:116
 msgid "Messages"
@@ -3068,13 +2921,13 @@ msgstr "Üzenetek"
 
 # ID:116,
 #: ID:116
-msgid "Messages, authors and paths"
-msgstr "Üzenetek, fejlesztők és útvonalak"
+msgid "Messages, Authors And Paths"
+msgstr "Üzenetek, Fejlesztők és Útvonalak"
 
 # ID:78,
 #: ID:78
-msgid "Mime type"
-msgstr "Mime típus"
+msgid "Mime Type"
+msgstr "Mime Típus"
 
 # Control-ID:1158,
 #: Control-ID:1158
@@ -3131,7 +2984,7 @@ msgstr "Áthelyezés..."
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "My file:"
+msgid "My File:"
 msgstr "A fájlom:"
 
 #: MenuEntry
@@ -3142,6 +2995,11 @@ msgstr "&Következő ellentmondás"
 #: ID:3697
 msgid "NUM"
 msgstr "NUM"
+
+# Control-ID:1129,
+#: Control-ID:1129
+msgid "Native Filesystem (FSFS)"
+msgstr "Eredeti Fájlrendszer (FSFS)"
 
 # ID:73,
 #: ID:210
@@ -3161,19 +3019,14 @@ msgstr "Új"
 
 # Control-ID:1076,
 #: Control-ID:1076
-msgid "New &name:"
-msgstr "Új &név:"
+msgid "New Name:"
+msgstr "Új Név:"
 
 # ID:97,
 #: ID:97
 #, c-format
 msgid "New name for %s"
 msgstr "%s új neve"
-
-# Control-ID:1076,
-#: ID:98
-msgid "New name:"
-msgstr "Új név:"
 
 # ID:73,
 #: ID:73
@@ -3312,14 +3165,8 @@ msgstr "OVE"
 # ID:145,#:
 # Control-ID:1202,#:
 # Control-ID:1202,
-#: Control-ID:1202
-msgid "Omit e&xternals"
-msgstr "Külsőket &kihagy"
-
-# ID:145,#:
-# Control-ID:1202,#:
-# Control-ID:1202,
 #: ID:145
+#: Control-ID:1202
 msgid "Omit externals"
 msgstr "Külsőket kihagy"
 
@@ -3330,8 +3177,8 @@ msgstr "Egy vagy több fájl ellentmondó"
 
 # Control-ID:1073,
 #: Control-ID:1073
-msgid "Only check out the &top folder"
-msgstr "Csak a leg&fölső mappát ellenőrizze"
+msgid "Only check out the top folder"
+msgstr "Csak a legfölső mappát ellenőrizze"
 
 # ID:319,
 #: ID:319
@@ -3350,13 +3197,13 @@ msgstr ""
 
 # Control-ID:1073,
 #: Control-ID:1073
-msgid "Only update the &top folder"
-msgstr "Csak a legfölső mappát &frissítse"
+msgid "Only update the top folder"
+msgstr "Csak a legfölső mappát frissítse"
 
 # Control-ID:1224,
 #: Control-ID:1224
-msgid "Only use s&pellchecker when tsvn:projectlanguage is set"
-msgstr "Csak akkor használja a &helyesírás ellenőrzőt, ha a tsvn:projectlanguage aktív"
+msgid "Only use spellchecker when tsvn:projectlanguage is set"
+msgstr "Csak akkor használja a helyesírás ellenőrzőt, ha a tsvn:projectlanguage aktív"
 
 # ID:3841,#:
 # ID:3841,
@@ -3425,8 +3272,8 @@ msgstr "Fájlnév lista beillesztése"
 
 # ID:376,
 #: ID:376
-msgid "Patch all"
-msgstr "Mindet foltoz"
+msgid "Patch All"
+msgstr "Mind foltoz"
 
 # ID:157,#:
 # ID:157,
@@ -3597,6 +3444,7 @@ msgstr "Haladás"
 # Control-ID:65535,#:
 # Dlg-ID:177,
 #: Control-ID:65535
+#: Dlg-ID:177
 msgid "Properties"
 msgstr "Tulajdonságok"
 
@@ -3610,15 +3458,15 @@ msgstr "Tulajdonság"
 msgid "Property Page"
 msgstr "Tulajdonságok"
 
+# ID:207,
+#: ID:207
+msgid "Property Status"
+msgstr "Tulajdonságok"
+
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Property Status:"
 msgstr "Tulajdonságok:"
-
-# ID:207,
-#: ID:207
-msgid "Property status"
-msgstr "Tulajdonos állapot"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3654,16 +3502,6 @@ msgstr "REC"
 msgid "Re&movable drives"
 msgstr "&Eltávolítható meghajtók"
 
-# ID:11,
-#: ID:11
-msgid "Re&name..."
-msgstr "&Átnevezés..."
-
-# ID:8,
-#: ID:8
-msgid "Re&vert..."
-msgstr "&Visszavonás..."
-
 # ID:12,
 #: ID:12
 msgid "Read the 'Daily Use Guide' before you are stuck..."
@@ -3697,8 +3535,8 @@ msgstr "Elvet"
 
 # ID:16,
 #: ID:16
-msgid "Release loc&k"
-msgstr "Z&ár feloldása"
+msgid "Release Lock"
+msgstr "Zár feloldása"
 
 # ID:16,
 #: ID:16
@@ -3709,11 +3547,6 @@ msgstr "Feltöri a zárat, akkor is, ha nem te tetted rá."
 #: ID:16
 msgid "Releases locks on files so other users can edit them again."
 msgstr "Feltöri a zárat, így a többi felhasználó újra képes használni."
-
-# ID:12,
-#: ID:12
-msgid "Relo&cate..."
-msgstr "Át&helyezés..."
 
 #: MenuEntry
 msgid "Reload"
@@ -3728,6 +3561,16 @@ msgstr ""
 "Újratölti a fájlt, elvetve a módosításokat.\n"
 "Újratölt"
 
+# Dlg-ID:157,
+#: Dlg-ID:157
+msgid "Relocate"
+msgstr "Áthelyez"
+
+# ID:12,
+#: ID:12
+msgid "Relocate..."
+msgstr "Áthelyezés..."
+
 # ID:80,
 #: ID:80
 msgid "Relocating..."
@@ -3735,25 +3578,25 @@ msgstr "Áthelyezés..."
 
 # ID:207,
 #: ID:207
-msgid "Remote property status"
-msgstr "Távoli tulajdonos állapot"
+msgid "Remote Property Status"
+msgstr "Távoli Tulajdonság Állapot"
 
 # ID:63,#:
 # ID:207,
 #: ID:63
 #: ID:207
-msgid "Remote status"
-msgstr "Távoli állapot"
+msgid "Remote Status"
+msgstr "Távoli Állapot"
 
 # ID:207,
 #: ID:207
-msgid "Remote text status"
-msgstr "Távoli szöveges állapot"
+msgid "Remote Text Status"
+msgstr "Távoli Szöveg Állapot"
 
 # ID:15,
 #: ID:15
-msgid "Remove from &ignore list"
-msgstr "El&távolít az elutasító listáról"
+msgid "Remove From Ignore List"
+msgstr "Eltávolít az elutasító listáról"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3782,22 +3625,27 @@ msgstr ""
 msgid "Removes the file or filemask from the list of ignored items"
 msgstr "Eltávolít egy fájlt vagy egy kiterjesztést az elutasított elemekből"
 
+# Dlg-ID:151,
+#: Dlg-ID:151
+msgid "Rename"
+msgstr "Átnevez"
+
 # ID:97,
 #: ID:97
 #, c-format
 msgid "Rename %s"
 msgstr "%s átnevezése"
 
+# ID:11,
+#: ID:11
+msgid "Rename..."
+msgstr "Átnevezés..."
+
 # ID:97,
 #: ID:319
 #, c-format
 msgid "Renamed from %s"
 msgstr "%s-ról átnevezve"
-
-# ID:126,
-#: Control-ID:65535
-msgid "Renamed node"
-msgstr "Átnevezett csomópont"
 
 # ID:126,
 #: ID:126
@@ -3827,11 +3675,6 @@ msgstr ""
 "Megadott szöveget másra cserél\n"
 "Csere"
 
-# ID:10,
-#: Control-ID:65535
-msgid "Replaced node"
-msgstr "Lecserélt csomópont"
-
 # ID:74,
 #: ID:74
 msgid "Replacing"
@@ -3839,8 +3682,8 @@ msgstr "Cserélés"
 
 # ID:13,
 #: ID:13
-msgid "Repo-browser"
-msgstr "Tárház-böngésző"
+msgid "Repo-Browser"
+msgstr "Tárház-Böngésző"
 
 # Control-ID:65535,#:
 # Control-ID:1055,#:
@@ -3850,6 +3693,11 @@ msgstr "Tárház-böngésző"
 msgid "Repository"
 msgstr "Tárház"
 
+# Dlg-ID:153,
+#: Dlg-ID:153
+msgid "Repository Browser"
+msgstr "Tárház Böngésző"
+
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Requests a username and a password"
@@ -3857,9 +3705,9 @@ msgstr "Felhasználónevet és jelszót igényel"
 
 # ID:8,#:
 # ID:74,
-#: ID:8
-msgid "Res&olved..."
-msgstr "&Megoldva..."
+#: Dlg-ID:207
+msgid "Resolve"
+msgstr "Megold"
 
 # ID:9,
 #: ID:282
@@ -3880,6 +3728,12 @@ msgstr "Megoldva"
 
 # ID:8,#:
 # ID:74,
+#: ID:8
+msgid "Resolved..."
+msgstr "Megoldva..."
+
+# ID:8,#:
+# ID:74,
 #: ID:282
 #, c-format
 msgid ""
@@ -3893,11 +3747,6 @@ msgstr ""
 #: ID:9
 msgid "Resolves conflicted files"
 msgstr "Ellentmondó fájlok megoldása"
-
-# ID:73,
-#: Control-ID:1254
-msgid "Restore Default"
-msgstr "Alapbeállítás Visszaállítása"
 
 # ID:3826,
 #: ID:3826
@@ -3914,10 +3763,20 @@ msgstr "Visszaállítva"
 msgid "Retry"
 msgstr "Újrapróbáld"
 
+# Dlg-ID:175,
+#: Dlg-ID:175
+msgid "Revert"
+msgstr "Visszaállít"
+
 # ID:114,
 #: ID:114
 msgid "Revert changes from these revisions"
 msgstr "Ezen verziók változtatásainak visszavonása"
+
+# ID:8,
+#: ID:8
+msgid "Revert..."
+msgstr "Visszavonás..."
 
 # ID:73,
 #: ID:73
@@ -3933,7 +3792,6 @@ msgstr "Minden módosítást visszaállít az utolsó frissítés óta"
 # Control-ID:65535,#:
 # Control-ID:65535,
 #: ID:76
-#: ID:208
 #: Control-ID:65535
 msgid "Revision"
 msgstr "Verzió"
@@ -3954,13 +3812,6 @@ msgstr "%d verzió"
 msgid "Revision %ld"
 msgstr "%ld verzió"
 
-# ID:15,#:
-# ID:269,#:
-# Dlg-ID:182,
-#: ID:15
-msgid "Revision &graph"
-msgstr "&Verzió grafikon"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Revision / Author:"
@@ -3969,10 +3820,11 @@ msgstr "Verzió / Fejlesztő"
 # ID:15,#:
 # ID:269,#:
 # Dlg-ID:182,
+#: ID:15
 #: ID:269
-#: Control-ID:65535
-msgid "Revision graph"
-msgstr "Verzió grafikon"
+#: Dlg-ID:182
+msgid "Revision Graph"
+msgstr "Verzió Grafikon"
 
 # ID:75,
 #: ID:75
@@ -3995,18 +3847,6 @@ msgstr "Jobb oldali nézet:"
 msgid "S&ettings"
 msgstr "&Beállítások"
 
-# ID:245,#:
-# Control-ID:1132,#:
-# Dlg-ID:179,
-#: Control-ID:1132
-msgid "S&tatistics"
-msgstr "&Statiszikák"
-
-# ID:9,
-#: ID:9
-msgid "S&witch..."
-msgstr "Átá&llás"
-
 # ID:3697,
 #: ID:3697
 msgid "SCRL"
@@ -4022,21 +3862,46 @@ msgstr "SSH"
 msgid "SVN Add files to this WC"
 msgstr "SVN Fájlok hozzáadása ehhez a WC-hez"
 
+# ID:77,
+#: ID:77
+msgid "SVN Add..."
+msgstr "SVN Hozzáadás..."
+
 # ID:76,
 #: ID:16
 msgid "SVN Author"
 msgstr "SVN Fejlesztő"
 
+# ID:132,
+#: ID:132
+msgid "SVN Blame"
+msgstr "SVN Szemrehányás"
+
+# ID:77,
+#: ID:77
+msgid "SVN Checkout..."
+msgstr "SVN Kitekintés..."
+
+# ID:77,
+#: ID:77
+msgid "SVN Commit..."
+msgstr "SVN Beküldés..."
+
 # ID:13,
 #: ID:16
-msgid "SVN Copy and rename versioned files here"
-msgstr "SVN verziókezelt fájlok másolása és átnevezése ide"
+msgid "SVN Copy and Rename versioned files here"
+msgstr "SVN Verziókezelt fájlok Másolása és Átnevezése ide"
 
 # Control-ID:1073,#:
 # Control-ID:1073,
 #: ID:13
 msgid "SVN Copy versioned files here"
 msgstr "SVN Verziókezelt fájlok idemásolása"
+
+# ID:78,
+#: ID:78
+msgid "SVN Copy..."
+msgstr "SVN másolás..."
 
 # ID:14,
 #: ID:14
@@ -4048,16 +3913,51 @@ msgstr "SVN Export mindent ide"
 msgid "SVN Export to here"
 msgstr "SVN Exportálás ide"
 
+# ID:78,
+#: ID:78
+msgid "SVN Export..."
+msgstr "SVN Exportálás..."
+
+# ID:77,
+#: ID:77
+msgid "SVN Import..."
+msgstr "SVN Importálás..."
+
 # ID:16,
 #: ID:16
-msgid "SVN Lock owner"
-msgstr "SVN Kulcs tulajdonosa"
+msgid "SVN Lock Owner"
+msgstr "SVN Kulcs Tulajdonosa"
+
+# ID:78,
+#: ID:78
+msgid "SVN Merge..."
+msgstr "SVN Beépít..."
 
 # Control-ID:1073,#:
 # Control-ID:1073,
 #: ID:12
 msgid "SVN Move versioned files here"
 msgstr "SVN Verziókezelt fájlok idehelyezése"
+
+# Dlg-ID:134,
+#: Dlg-ID:134
+msgid "SVN Progress"
+msgstr "SVN Haladás"
+
+# ID:221,
+#: ID:221
+msgid "SVN Rename/Move"
+msgstr "SVN Átnevez/Áthelyez"
+
+# ID:77,
+#: ID:77
+msgid "SVN Resolve..."
+msgstr "SVN Megold..."
+
+# ID:77,
+#: ID:77
+msgid "SVN Revert..."
+msgstr "SVN Visszaállít..."
 
 # ID:11,
 #: ID:11
@@ -4068,6 +3968,16 @@ msgstr "SVN Verzió"
 #: ID:11
 msgid "SVN Status"
 msgstr "SVN Állapot"
+
+# ID:78,
+#: ID:78
+msgid "SVN Switch..."
+msgstr "SVN Kapcsoló..."
+
+# ID:77,
+#: ID:77
+msgid "SVN Update..."
+msgstr "SVN Frissítés..."
 
 # ID:12,
 #: ID:12
@@ -4088,16 +3998,26 @@ msgstr "SVN rövid cím"
 msgid "Save &As..."
 msgstr "Mentés M&ásként..."
 
-# ID:313,
-#: ID:101
-msgid "Save &as..."
-msgstr "Mentés m&ásként..."
-
 # ID:3841,#:
 # ID:3841,
 #: ID:3841
 msgid "Save As"
 msgstr "Mentés Másként"
+
+# ID:272,
+#: ID:272
+msgid "Save Graph as..."
+msgstr "Grafikon mentése mint..."
+
+# ID:76,
+#: ID:76
+msgid "Save Revision &To..."
+msgstr "Verzió Mentése &Ide..."
+
+# Control-ID:1132,
+#: Control-ID:1132
+msgid "Save To Clipboard"
+msgstr "Vágólapra Mentés"
 
 # ID:313,
 #: ID:313
@@ -4116,16 +4036,6 @@ msgstr "Mentés ide: %1?"
 msgid "Save client certificate path"
 msgstr "Kliens tanusítvány útvonal mentése"
 
-# ID:272,
-#: ID:272
-msgid "Save graph as..."
-msgstr "Grafikon mentése mint..."
-
-# ID:76,
-#: ID:76
-msgid "Save revision &to..."
-msgstr "Verzió mentése &ide..."
-
 # ID:3601,#:
 # ID:3601,
 #: ID:3601
@@ -4136,21 +4046,16 @@ msgstr ""
 "A módosított fájl mentése\n"
 "Fájl mentése"
 
-# Control-ID:1132,
-#: Control-ID:1132
-msgid "Save to clipboard"
-msgstr "Vágólapra mentés"
+# ID:103,
+#: ID:103
+msgid "Saving Files"
+msgstr "Fájlok mentése"
 
 # ID:103,
 #: ID:103
 #, c-format
 msgid "Saving file %s"
 msgstr "%s mentése"
-
-# ID:103,
-#: ID:103
-msgid "Saving files"
-msgstr "Fájlok mentése"
 
 # ID:144,
 #: ID:144
@@ -4188,8 +4093,13 @@ msgstr "Mindet &Kijelöl"
 # Control-ID:1067,#:
 # Control-ID:1067,
 #: Control-ID:1067
-msgid "Select / deselect &all"
-msgstr "Mindet kijelöl / &Semmit sem jelöl ki"
+msgid "Select / Deselect &All"
+msgstr "Mindet Kijelöl / &Semmit sem jelöl ki"
+
+# ID:78,
+#: ID:78
+msgid "Select Diff Application"
+msgstr "Válssz foltkezelő programot"
 
 # ID:13,
 #: ID:13
@@ -4198,18 +4108,33 @@ msgstr "Válassz fájlt..."
 
 # ID:78,
 #: ID:78
-msgid "Select SSH client"
-msgstr "Válassz SSH klienst"
+msgid "Select Merge Application"
+msgstr "Válassz beépítő programot"
+
+# Dlg-ID:173,
+#: Dlg-ID:173
+msgid "Select Revision"
+msgstr "Válassz verziót"
+
+# ID:78,
+#: ID:78
+msgid "Select SSH Client"
+msgstr "Válassz SSH Klienst"
+
+# ID:79,
+#: ID:79
+msgid "Select Text Editor Application"
+msgstr "Válassz Szövegszerkesztő Programot"
+
+# ID:78,
+#: ID:78
+msgid "Select Viewer for Diff-Files"
+msgstr "Válssz foltfájl nézőkét"
 
 # ID:3585,
 #: ID:3585
 msgid "Select an object on which to get Help"
 msgstr "Válassz egy elemet, aminek a súgója kell"
-
-# ID:78,
-#: ID:78
-msgid "Select diff application"
-msgstr "Válssz foltkezelő programot"
 
 # ID:313,
 #: ID:313
@@ -4230,11 +4155,6 @@ msgstr ""
 "Válassz egy mappát ahová exportálsz.\n"
 "Új mappát is létrehozhatsz."
 
-# ID:78,
-#: ID:78
-msgid "Select merge application"
-msgstr "Válassz összegyúró programot"
-
 # Dlg-ID:173,
 #: ID:276
 msgid "Select revision range"
@@ -4244,11 +4164,6 @@ msgstr "Válassz verzió-intervalumot"
 #: ID:276
 msgid "Select start revision"
 msgstr "Válassz kezdeti-verziót"
-
-# ID:79,
-#: ID:79
-msgid "Select text editor application"
-msgstr "Válassz szövegszerkesztő programot"
 
 # ID:79,
 #: ID:79
@@ -4269,11 +4184,6 @@ msgstr ""
 msgid "Select the type of repository you want to create:"
 msgstr "Válaszd ki a kívánt Tárház típust:"
 
-# ID:78,
-#: ID:78
-msgid "Select viewer for diff-files"
-msgstr "Válssz foltfájl nézőkét"
-
 # ID:3866,#:
 # ID:3866,
 #: ID:3866
@@ -4282,7 +4192,7 @@ msgstr "Nem sikerült levelet küldeni."
 
 # ID:74,
 #: ID:74
-msgid "Sending content"
+msgid "Sending Content"
 msgstr "Tartalom küldése"
 
 # Control-ID:65535,
@@ -4297,28 +4207,24 @@ msgstr "A fájldátumokat a \"beküldés idejéhez\" állítja"
 
 # ID:13,
 #: ID:13
-msgid "Setting properties..."
-msgstr "Beállítások szerkesztése..."
+msgid "Setting Properties..."
+msgstr "Beállítás Tulajdonságok..."
 
 # ID:9,#:
 # ID:107,
+#: ID:9
 #: ID:107
 msgid "Settings"
 msgstr "Beállítások"
 
 # Control-ID:1132,
 #: Control-ID:1132
-msgid "Sh&ow log"
+msgid "Sh&ow Log"
 msgstr "&Napló megtekintése"
-
-# ID:145,
-#: ID:145
-msgid "Shell Icon Cache was rebuilt!"
-msgstr "Az ikonadatbázis sikeresen újraépült!"
 
 # ID:101,
 #: ID:101
-msgid "Sho&w properties"
+msgid "Sho&w Properties"
 msgstr "&Tulajdonságok megtekintése"
 
 # Control-ID:1105,
@@ -4338,50 +4244,55 @@ msgstr "&Mindet mutat"
 
 # ID:113,
 #: ID:113
-msgid "Show &differences"
+msgid "Show &Differences"
 msgstr "&Különbségeket mutat"
 
-# Control-ID:1016,
-#: ID:12
+# ID:101,#:
+# Control-ID:1031,#:
+# Control-ID:1034,#:
+# Control-ID:1132,
 #: ID:101
-#: Control-ID:1016
 #: Control-ID:1228
 #: Control-ID:1031
 #: Control-ID:1034
 #: Control-ID:1132
-msgid "Show &log"
+msgid "Show &Log"
 msgstr "&Naplót mutat"
 
 # Control-ID:1031,
 #: Control-ID:1031
-msgid "Show &log..."
+msgid "Show &Log..."
 msgstr "&Naplót mutat..."
+
+# Control-ID:1016,
+#: Control-ID:1016
+msgid "Show &log"
+msgstr "&Naplót mutat"
 
 # Control-ID:1088,
 #: Control-ID:1088
 msgid "Show &overlays only in explorer"
 msgstr "&Feliratok csak az Intézőben"
 
-# Control-ID:1073,#:
-# Control-ID:1073,
-#: Control-ID:1073
-msgid "Show &unversioned files"
-msgstr "&Nem verziókezelt fájlok mutatása"
-
 # ID:113,
 #: ID:113
-msgid "Show differences as &unified diff"
-msgstr "Különbségek mutatása mint &egyesített Folt"
+msgid "Show Differences as &Unified Diff"
+msgstr "Különbségek mutatása mint &Egyesített Folt"
 
 # Control-ID:1065,
 #: Control-ID:1065
-msgid "Show li&ne diff bar"
-msgstr "Sorkülönbség &csík mutatása"
+msgid "Show Line Diff Bar"
+msgstr "Sorkülönbség csík mutatása"
 
 # Control-ID:1063,
 #: Control-ID:1063
-msgid "Show linenumber&s"
-msgstr "Sorszámo&k mutatása"
+msgid "Show Linenumbers"
+msgstr "Sorszámok mutatása"
+
+# ID:12,
+#: ID:12
+msgid "Show Log"
+msgstr "Napló Megjelenítése"
 
 # ID:3713,
 #: ID:3713
@@ -4466,6 +4377,11 @@ msgstr "Kihagyva"
 msgid "Skipped missing target"
 msgstr "Hiányzó cél kihagyva"
 
+# Control-ID:1185,
+#: Control-ID:1185
+msgid "Specific revision in repository"
+msgstr "Meghatározott verzió a tárházban"
+
 # ID:79,
 #: ID:79
 msgid ""
@@ -4480,7 +4396,7 @@ msgstr ""
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Specify the revision range which you want to merge:"
-msgstr "Válasz egy verzió tartományt amit össze akarsz gyúrni:"
+msgstr "Válasz egy verzió tartományt amit be akarsz építeni:"
 
 # ID:3604,
 #: ID:3604
@@ -4495,6 +4411,8 @@ msgstr ""
 # Control-ID:1132,#:
 # Dlg-ID:179,
 #: ID:245
+#: Control-ID:1132
+#: Dlg-ID:179
 msgid "Statistics"
 msgstr "Statiszikák"
 
@@ -4507,11 +4425,6 @@ msgstr "Statiszikák"
 msgid "Status"
 msgstr "Állapot"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Status and action colors"
-msgstr "Állapot és cselekvés színek"
-
 # ID:11,
 #: ID:11
 msgid "Status of item in SVN"
@@ -4519,18 +4432,28 @@ msgstr "Álapotelem az SVN-ben"
 
 # ID:16,
 #: ID:16
-msgid "Steal loc&k"
-msgstr "Zá&r ellopása"
+msgid "Steal Lock"
+msgstr "Zár ellopása"
 
 # ID:313,
 #: ID:313
 msgid "Steal the lock"
 msgstr "Zár ellopása"
 
+# Control-ID:1211,
+#: Control-ID:1211
+msgid "Steal the locks"
+msgstr "Zárak ellopása"
+
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Stefan Küng, Lübbe Onken"
 msgstr "Stefan Küng, Lübbe Onken"
+
+# Control-ID:1130,
+#: Control-ID:1130
+msgid "Stop On Copy/Rename"
+msgstr "Másolásnál / Átnevezésnél megáll"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -4573,14 +4496,14 @@ msgstr ""
 msgid "Subversion server file:"
 msgstr "Subversion szerverfájl:"
 
-# ID:9,
-#: Control-ID:1232
-msgid "Sw&itch working copy to new branch/tag"
-msgstr "A munkapéldány át&állítása egy új mellékágra"
-
 #: MenuEntry
 msgid "Switch Left<->Right"
 msgstr "Balra <-> Jobbra vált"
+
+# Dlg-ID:140,
+#: Dlg-ID:140
+msgid "Switch To Branch / Tag"
+msgstr "Mellékágra váltás"
 
 # ID:3606,
 #: ID:3606
@@ -4633,10 +4556,20 @@ msgstr "Az előző dokumentumablakra ugrk"
 msgid "Switch working copy to another branch / tag"
 msgstr "Munkapéldány átállítása mellékágra"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "System Sounds"
-msgstr "Rendszerhangok"
+# ID:9,
+#: Control-ID:1232
+msgid "Switch working copy to new branch/tag"
+msgstr "A munkapéldány átállítása egy új mellékágra"
+
+# ID:9,
+#: ID:9
+msgid "Switch..."
+msgstr "Átállás"
+
+# Control-ID:1173,
+#: Control-ID:1173
+msgid "Symbol View"
+msgstr "Szimbólikus megjelenés"
 
 # ID:3857,#:
 # ID:3857,
@@ -4644,21 +4577,26 @@ msgstr "Rendszerhangok"
 msgid "System registry entries have been removed and the INI file (if any) was deleted."
 msgstr "A regisztációs adatbázis bejegyzések és az INI fájl törölve lett."
 
+# Control-ID:65535,
+#: Control-ID:65535
+msgid "Tab Size:"
+msgstr "Tab Méret:"
+
 # ID:79,
 #: ID:79
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "A munkapéldány %s mellékágra lett másolva"
 
+# ID:207,
+#: ID:207
+msgid "Text Status"
+msgstr "Szöveg Állapot"
+
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Text Status:"
 msgstr "Szöveg Állapot:"
-
-# ID:207,
-#: ID:207
-msgid "Text status"
-msgstr "Szöveg állapot"
 
 # ID:69,
 #: ID:69
@@ -4833,7 +4771,7 @@ msgstr ""
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "The result of the merge is stored in the working copy at:"
-msgstr "Az összegyúrás eredménye el lett tárolva a munkapéldányban:"
+msgstr "A beépítés eredmény el lett tárolva a munkapéldányban:"
 
 # ID:78,
 #: ID:78
@@ -4917,7 +4855,7 @@ msgstr ""
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Their file:"
+msgid "Their File:"
 msgstr "A fájljuk:"
 
 # ID:188,
@@ -4998,6 +4936,16 @@ msgstr "Tulajdonságai csak a mappáknak vannak."
 msgid "This property must not have multiple lines. Only one line is allowed."
 msgstr "A tulajdonság csak egy sort tartalmazhat."
 
+# Control-ID:1222,
+#: Control-ID:1222
+msgid "Timeout in seconds to stop the autocompletion parsing"
+msgstr "Másodpercek, amíg az elemzés fut."
+
+# Control-ID:1052,
+#: Control-ID:1052
+msgid "To see the changes you made, double click on the files above."
+msgstr "Hogy megnézd a változtatásaidat, duplán kattints a fenti fájlokra."
+
 # Control-ID:1201,
 #: Control-ID:1201
 msgid "To:"
@@ -5006,7 +4954,7 @@ msgstr "Ide:"
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "To: (end URL and revision of the range to merge)"
-msgstr "Ide: (URL cím és verzió az összegyúrni kívánt tartománynak)"
+msgstr "Ide: (URL cím és verzió a beépíteni kívánt tartománynak)"
 
 # ID:7,#:
 # ID:3585,#:
@@ -5042,6 +4990,7 @@ msgstr ""
 # ID:9,#:
 # ID:80,#:
 # Control-ID:65535,
+#: ID:9
 #: ID:80
 #: Control-ID:65535
 msgid "TortoiseSVN"
@@ -5077,258 +5026,10 @@ msgstr ""
 "%s\r\n"
 "zlib %s"
 
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:155
-msgid "TortoiseSVN : Add"
-msgstr "TortoiseSVN : Hozzáad"
-
-# ID:80,
-#: Dlg-ID:131
-#: Dlg-ID:160
-msgid "TortoiseSVN : Authentication"
-msgstr "TortoiseSVN : Azonosítás"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:162
-msgid "TortoiseSVN : Blame"
-msgstr "TortoiseSVN : Szemrehányás"
-
-# Dlg-ID:199,
-#: Dlg-ID:199
-msgid "TortoiseSVN : Changed Files"
-msgstr "TortoiseSVN : Megváltozott Fájlok"
-
-# Dlg-ID:174,
-#: Dlg-ID:174
-msgid "TortoiseSVN : Check For Updates"
-msgstr "TortoiseSVN : Frissítések Keresése"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:133
-msgid "TortoiseSVN : Checkout"
-msgstr "TortoiseSVN : Kitekintés"
-
-# Dlg-ID:142,
-#: Dlg-ID:142
-msgid "TortoiseSVN : Copy (Branch / Tag)"
-msgstr "TortoiseSVN : Másol (Branch / Tag)"
-
-# ID:80,
-#: Dlg-ID:208
-msgid "TortoiseSVN : Create Patch"
-msgstr "TortoiseSVN : Folt készítése"
-
-# Dlg-ID:178,
-#: Dlg-ID:178
-msgid "TortoiseSVN : Create Repository"
-msgstr "TortoiseSVN : Tárház készítése"
-
-# Dlg-ID:135,
-#: Dlg-ID:135
-msgid "TortoiseSVN : Enter Log Message"
-msgstr "TortoiseSVN : Írd be a megjegyzést"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:139
-msgid "TortoiseSVN : Import"
-msgstr "TortoiseSVN : Import"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:161
-msgid "TortoiseSVN : Input"
-msgstr "TortoiseSVN : Bemenet"
-
-# ID:80,
-#: Dlg-ID:191
-msgid "TortoiseSVN : Lock Files"
-msgstr "TortoiseSVN : Fájlok zárolása"
-
-# ID:80,
-#: Dlg-ID:211
-msgid "TortoiseSVN : Log History"
-msgstr "TortoiseSVN : Megjegyzések előzménye"
-
-# ID:80,
-#: Dlg-ID:130
-msgid "TortoiseSVN : Log Messages"
-msgstr "TortoiseSVN : Megjegyzések"
-
-# ID:7,#:
-# ID:3585,#:
-# Dlg-ID:130,
-#: Dlg-ID:141
-msgid "TortoiseSVN : Merge"
-msgstr "TortoiseSVN : Összegyúr"
-
-# Dlg-ID:134,
-#: Dlg-ID:134
-msgid "TortoiseSVN : Progress"
-msgstr "TortoiseSVN : Haladás"
-
-# ID:80,
-#: Dlg-ID:177
-msgid "TortoiseSVN : Properties"
-msgstr "TortoiseSVN : Tulajdonságok"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:157
-msgid "TortoiseSVN : Relocate"
-msgstr "TortoiseSVN : Áthelyez"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:151
-msgid "TortoiseSVN : Rename"
-msgstr "TortoiseSVN : Átnevez"
-
-# Dlg-ID:153,
-#: Dlg-ID:153
-msgid "TortoiseSVN : Repository Browser"
-msgstr "TortoiseSVN : Tárház Böngésző"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:207
-msgid "TortoiseSVN : Resolve"
-msgstr "TortoiseSVN : Megold"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:175
-msgid "TortoiseSVN : Revert"
-msgstr "TortoiseSVN : Visszaállít"
-
-# ID:15,#:
-# ID:269,#:
-# Dlg-ID:182,
-#: Dlg-ID:182
-msgid "TortoiseSVN : Revision Graph"
-msgstr "TortoiseSVN : Verzió Grafikon"
-
-# ID:80,
-#: Dlg-ID:173
-msgid "TortoiseSVN : Select Revision"
-msgstr "TortoiseSVN : Verzió Választás"
-
-# ID:80,
-#: Dlg-ID:179
-msgid "TortoiseSVN : Statistics"
-msgstr "TortoiseSVN : Statisztikák"
-
-# Dlg-ID:140,
-#: Dlg-ID:140
-msgid "TortoiseSVN : Switch To Branch / Tag"
-msgstr "TortoiseSVN : Mellékágra (Branch / Tag) váltás"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:164
-msgid "TortoiseSVN : URL"
-msgstr "TortoiseSVN : URL"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: Dlg-ID:152
-msgid "TortoiseSVN : Update"
-msgstr "TortoiseSVN : Frissít"
-
-# ID:151,
-#: Dlg-ID:158
-msgid "TortoiseSVN : Working Copy"
-msgstr "TortoiseSVN : Munkamásolat"
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: ID:77
-msgid "TortoiseSVN Add..."
-msgstr "TortoiseSVN Hozzáad..."
-
-# ID:9,#:
-# ID:80,#:
-# Control-ID:65535,
-#: ID:132
-msgid "TortoiseSVN Blame"
-msgstr "TortoiseSVN Szemrehány"
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Checkout..."
-msgstr "TortoiseSVN Kitekint..."
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Commit..."
-msgstr "TortoiseSVN Beküldés..."
-
-# ID:78,
-#: ID:78
-msgid "TortoiseSVN Copy..."
-msgstr "TortoiseSVN Másolás..."
-
-# ID:78,
-#: ID:78
-msgid "TortoiseSVN Export..."
-msgstr "TortoiseSVN Exportálás..."
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Import..."
-msgstr "TortoiseSVN Importálás..."
-
-# ID:7,#:
-# ID:3585,#:
-# Dlg-ID:130,
-#: ID:78
-msgid "TortoiseSVN Merge..."
-msgstr "TortoiseSVN Összegyúrás..."
-
-# ID:221,
-#: ID:221
-msgid "TortoiseSVN Rename/move"
-msgstr "TortoiseSVN Átnevez/áthelyez"
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Resolve..."
-msgstr "TortoiseSVN Megold..."
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Revert..."
-msgstr "TortoiseSVN Visszaállít..."
-
 # ID:80,
 #: ID:80
 msgid "TortoiseSVN Settings"
 msgstr "TortoiseSVN Beállítások"
-
-# ID:78,
-#: ID:78
-msgid "TortoiseSVN Switch..."
-msgstr "TortoiseSVN Átkapcsoló..."
-
-# ID:77,
-#: ID:77
-msgid "TortoiseSVN Update..."
-msgstr "TortoiseSVN Frissítés..."
 
 # Control-ID:1162,
 #: Control-ID:1162
@@ -5340,21 +5041,15 @@ msgstr "Elemzett beküldések száma:"
 msgid "Total file changes:"
 msgstr "Összes fájlváltozás:"
 
-# ID:357,
-#: ID:357
-#, c-format
-msgid "Transferring at %s"
-msgstr "%s sebességen"
+# ID:73,
+#: ID:73
+msgid "Try Again"
+msgstr "Próbáld Újra"
 
 # ID:251,
 #: ID:251
 msgid "Try a \"Cleanup\". If that doesn't work you need to do a fresh checkout."
 msgstr "Próbáld a \"Takarítást\"! Ha nem működik újra le kell tölteni egy munkapéldányt."
-
-# ID:73,
-#: ID:73
-msgid "Try again"
-msgstr "Próbáld újra"
 
 # ID:10,
 #: ID:10
@@ -5365,6 +5060,11 @@ msgstr "TortoiseSVN Finomhangolása"
 msgid "Two-way &Diff"
 msgstr "Kettős-&eljárásű Folt"
 
+# Dlg-ID:164,
+#: Dlg-ID:164
+msgid "URL"
+msgstr "URL"
+
 # ID:12,
 #: ID:12
 msgid "URL of Subversion items"
@@ -5373,6 +5073,7 @@ msgstr "A Subversion elemek URL-je"
 # Control-ID:65535,#:
 # Control-ID:1076,
 #: Control-ID:65535
+#: Control-ID:1076
 msgid "URL:"
 msgstr "URL:"
 
@@ -5453,8 +5154,8 @@ msgid "Unexpected file format."
 msgstr "Váratlan fájlformátum."
 
 #: MenuEntry
-msgid "Unified &diff of HEAD revisions"
-msgstr "&Egyesített FŐ verzió folt"
+msgid "Unified &Diff Of HEAD Revisions"
+msgstr "&Egyesített FŐ Verzió Folt "
 
 # ID:81,
 #: ID:81
@@ -5489,6 +5190,18 @@ msgstr "Feloldva"
 msgid "Untitled"
 msgstr "Névtelen"
 
+# ID:8,#:
+# Dlg-ID:152,
+#: ID:8
+#: Dlg-ID:152
+msgid "Update"
+msgstr "Frissít"
+
+# ID:11,
+#: ID:11
+msgid "Update To Revision..."
+msgstr "Frissít Verzióhoz..."
+
 # ID:74,
 #: ID:74
 msgid "Updated"
@@ -5514,51 +5227,61 @@ msgstr "Url"
 msgid "Url:"
 msgstr "Url:"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use &magnifier on locatorbar"
-msgstr "&Nagyító használata a poziciósávon"
-
-# Control-ID:1024,
-#: Control-ID:1024
-msgid "Use &one-pane view as default for 2-file diff"
-msgstr "&Egypaneles nézet alapból különbségkeresésnél"
-
 # ID:251,
 #: ID:251
 msgid "Use &other text block"
 msgstr "Másik &szöveg blokkot használ"
 
-# Control-ID:1126,
-#: Control-ID:1126
-msgid "Use &text viewer to view blames"
-msgstr "&Szövegszerkesztő használata a szemrehányáskor"
-
 # ID:195,
 #: ID:195
 msgid ""
-"Use '*' as a wildcard character when specifying an exception.\n"
+"Use '*' as a wildcard character when specifying an exception\n"
 "To separate multiple exceptions, use commas (',').\n"
 "Example: *.mylan.com, *.company.com"
 msgstr ""
 "Használd a '*' jokerkaraktert ismeretlen szövegrészeknél.\n"
 "Elválasztáshoz használj vesszőt (',').\n"
-"Példa: *.bociusz.hu, *.idokep.hu"
+"Példa: *.bociusz.hu, *.company.com"
+
+# Control-ID:1064,
+#: Control-ID:1064
+msgid "Use Magnifier on Locatorbar"
+msgstr "Nagyító használata a poziciósávon"
+
+# Control-ID:1126,
+#: Control-ID:1126
+msgid "Use Text viewer to view blames"
+msgstr "Szövegszerkesztő használata a szemrehányáskor"
 
 # Control-ID:1230,
 #: Control-ID:1230
-msgid "Use URL of &WC as the default \"From:\" URL"
-msgstr "A &munkapéldány címeként használd az alap \"Innen:\" címet"
+msgid "Use URL of WC as the default \"From:\" URL"
+msgstr "A WC címként használd az alap \"Innen:\" címet"
 
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
 msgstr "Használd az \"Innen:\" URL (a verzió tartomány a fenti ablakban kiválasztható)"
 
+# Control-ID:1184,
+#: Control-ID:1184
+msgid "Use autocompletion of filepaths and keywords"
+msgstr "Automata útvonal és kulcsszó kitöltés"
+
+# Control-ID:1214,
+#: Control-ID:1214
+msgid "Use old APIs to fetch log messages"
+msgstr "Régi eljárásokkal történő napló összevágás"
+
+# Control-ID:1024,
+#: Control-ID:1024
+msgid "Use one-pane view as default for 2-file diff"
+msgstr "Egypaneles nézet alapból különbségkeresésnél"
+
 # Control-ID:1066,
 #: Control-ID:1066
-msgid "Use stri&keout for deleted lines"
-msgstr "&Kitörölt sorok erőszakolása"
+msgid "Use strikeout for deleted lines"
+msgstr "Kitörölt sorok erőszakolása"
 
 # ID:251,
 #: ID:251
@@ -5625,7 +5348,7 @@ msgstr ""
 "/base:<útvonal az alapjfájlhoz>\n"
 "/theirs:<útvonal az ő fájljaihoz>\n"
 "/mine:<útvonal a fájlodhoz>\n"
-"/merged:<útvonal az összegyúrt fájlhoz>\n"
+"/merged:<útvonal az egyesített fájlhoz>\n"
 "/diff:<útvonal az egyesített foltfájlhoz>\n"
 "/patchpath:<útvonal a mappához>"
 
@@ -5661,6 +5384,16 @@ msgstr "Figyelem!"
 msgid "Whitespace diff"
 msgstr "Láthatatlan karakter különbség"
 
+# Dlg-ID:158,
+#: Dlg-ID:158
+msgid "Working Copy"
+msgstr "Munkamásolat"
+
+# Control-ID:1183,
+#: Control-ID:1183
+msgid "Working copy"
+msgstr "Munkamásolat"
+
 # ID:80,
 #: ID:80
 #, c-format
@@ -5678,8 +5411,8 @@ msgstr "Igen"
 
 # ID:145,
 #: ID:145
-msgid "Yes to all"
-msgstr "Mind igen"
+msgid "Yes To All"
+msgstr "Mind Igen"
 
 # ID:201,
 #: ID:201
@@ -5751,15 +5484,6 @@ msgstr ""
 "\n"
 "Biztos hogy ezt teszed?"
 
-# ID:16,
-#: ID:16
-msgid ""
-"You have modified properties without saving them first.\n"
-"Do you want to save them now?"
-msgstr ""
-"Módosítottad a beállításokat, de nem mentetted.\n"
-"Ki akarod most menteni?"
-
 # ID:251,
 #: ID:251
 msgid "You have to update your working copy first."
@@ -5808,26 +5532,6 @@ msgstr ""
 "Megváltoztattad a <i>%s</i> ikonokat <i>%s</i> típusúra.\n"
 "Az érvénybe léptetéshez újra kell indítani a Windowst!"
 
-# ID:338,
-#: ID:338
-msgid ""
-"You've selected added folders. The patch won't contain added files within such added folders.\n"
-"Do you want to proceed anyway?"
-msgstr ""
-"Új, hozzáadandó mappákat választottál. A folt nem fogja az új mappában létrehozott új fájlokat tárolni.\n"
-"Mégis folytatod?"
-
-# Control-ID:1112,
-#: Control-ID:1112
-msgid "Your version is:"
-msgstr "A verziód:"
-
-# ID:201,
-#: ID:201
-#, c-format
-msgid "Your version is: %d.%d.%d.%d"
-msgstr "A verziód: %d.%d.%d.%d"
-
 # ID:78,
 #: ID:78
 msgid ""
@@ -5853,22 +5557,17 @@ msgstr ""
 "a Tárház verziójával!"
 
 #: MenuEntry
-msgid "Zoom &in\tCtrl-+"
-msgstr "Zoom &be\tCtrl-+"
+msgid "Zoom &In\tCtrl-+"
+msgstr "Zoom &Be\tCtrl-+"
 
 #: MenuEntry
-msgid "Zoom &out\tCtrl--"
-msgstr "Zoom &ki\tCtrl--"
+msgid "Zoom &Out\tCtrl--"
+msgstr "Zoom &Ki\tCtrl--"
 
 # ID:10,
 #: ID:10
 msgid "added"
 msgstr "hozzáadva"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "added files"
-msgstr "hozzáadott fájlok"
 
 # ID:3841,#:
 # ID:3841,
@@ -5978,6 +5677,17 @@ msgstr ""
 "másolva innen:\r\n"
 "%s - %ld verzió"
 
+# Control-ID:1113,
+#: Control-ID:1113
+msgid "current version is:"
+msgstr "jelenlegi verzió:"
+
+# ID:201,
+#: ID:201
+#, c-format
+msgid "current version is: %s"
+msgstr "jelenlegi verzió: %s"
+
 # ID:10,
 #: ID:10
 msgid "deleted"
@@ -6021,29 +5731,18 @@ msgstr "zárolva"
 
 # ID:11,
 #: ID:11
-#: Control-ID:65535
 msgid "merged"
-msgstr "összegyúrva"
+msgstr "beépítve"
 
 # ID:10,
 #: ID:10
 msgid "missing"
 msgstr "hiányzó"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "missing / deleted / replaced"
-msgstr "hiányzó / törölt / cserélt"
-
 # ID:10,
 #: ID:10
 msgid "modified"
 msgstr "módosított"
-
-# ID:10,
-#: Control-ID:65535
-msgid "modified / copied"
-msgstr "módosított / másolt"
 
 # ID:10,
 #: ID:10
@@ -6070,11 +5769,6 @@ msgstr "eltömött"
 #: ID:3869
 msgid "pixels"
 msgstr "képpontok"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "possible or real conflict / obstructed"
-msgstr "lehetséges vagy valós ellentmondás / elrekesztve"
 
 # Control-ID:1018,
 #: Control-ID:1018
@@ -6253,4 +5947,15 @@ msgstr "hét"
 #: Control-ID:65535
 msgid "which points to the repository at URL:"
 msgstr "ami a Tárházra mutat ezen az URL-en:"
+
+# Control-ID:1112,
+#: Control-ID:1112
+msgid "your version is:"
+msgstr "a verziód:"
+
+# ID:201,
+#: ID:201
+#, c-format
+msgid "your version is: %d.%d.%d.%d"
+msgstr "a verziód: %d.%d.%d.%d"
 

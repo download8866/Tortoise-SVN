@@ -118,7 +118,7 @@ END_MESSAGE_MAP()
 
 
 
-void CLogDlg::SetParams(const CTSVNPath& path, svn_revnum_t startrev, svn_revnum_t endrev, int limit, BOOL bStrict /* = FALSE */, BOOL bSaveStrict /* = TRUE */)
+void CLogDlg::SetParams(const CTSVNPath& path, long startrev, long endrev, int limit, BOOL bStrict /* = FALSE */, BOOL bSaveStrict /* = TRUE */)
 {
 	m_path = path;
 	m_startrev = startrev;
@@ -386,41 +386,6 @@ void CLogDlg::OnBnClickedGetall()
 	m_bShowedAll = true;
 }
 
-void CLogDlg::Refresh()
-{
-	UpdateData();
-
-	m_limit = 0;
-	if (m_logEntries.size() != 0)
-	{
-		m_endrev = m_logEntries[m_logEntries.size()-1]->dwRev;
-	}
-	m_startrev = -1;
-	m_bCancelled = FALSE;
-
-	m_LogMsgCtrl.SetItemCountEx(0);
-	m_LogMsgCtrl.Invalidate();
-	m_LogList.SetItemCountEx(0);
-	m_LogList.Invalidate();
-	m_bNoDispUpdates = true;
-	CWnd * pMsgView = GetDlgItem(IDC_MSGVIEW);
-	pMsgView->SetWindowText(_T(""));
-
-	SetSortArrow(&m_LogList, -1, true);
-
-	m_LogList.DeleteAllItems();
-	m_arShownList.RemoveAll();
-	m_logEntries.ClearAll();
-
-	m_bThreadRunning = TRUE;
-	if (AfxBeginThread(LogThreadEntry, this)==NULL)
-	{
-		m_bThreadRunning = FALSE;
-		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-	}
-	GetDlgItem(IDC_LOGLIST)->UpdateData(FALSE);
-}
-
 void CLogDlg::OnBnClickedNexthundred()
 {
 	UpdateData();
@@ -467,7 +432,7 @@ void CLogDlg::OnCancel()
 	__super::OnCancel();
 }
 
-BOOL CLogDlg::Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies)
+BOOL CLogDlg::Log(LONG rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies)
 {
 	int found = 0;
 	m_logcounter += 1;
@@ -589,6 +554,14 @@ UINT CLogDlg::LogThread()
 		m_startrev = r;
 	}
 	
+	BOOL bOldAPI = (BOOL)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\OldLogAPI"), FALSE);
+	if ((bOldAPI)&&(m_limit != 0))
+	{
+		m_endrev = m_startrev - m_limit;
+		if (m_endrev < 1)
+			m_endrev = 1;
+		m_limit = 0;
+	}
 	if (m_limit != 0)
 	{
 		m_limitcounter = m_limit;
@@ -603,12 +576,12 @@ UINT CLogDlg::LogThread()
 	}
 	m_LogList.SetItemCountEx(m_arShownList.GetCount());
 
-	m_timFrom = (__time64_t(m_tFrom));
-	m_timTo = (__time64_t(m_tTo));
-	m_DateFrom.SetTime(&m_timFrom);
-	m_DateTo.SetTime(&m_timTo);
-	m_DateFrom.SetRange(&m_timFrom, &m_timTo);
-	m_DateTo.SetRange(&m_timFrom, &m_timTo);
+	__time64_t rt = m_tFrom;
+	CTime tim(rt);
+	m_DateFrom.SetTime(&tim);
+	rt = m_tTo;
+	tim = rt;
+	m_DateTo.SetTime(&tim);
 
 	GetDlgItem(IDC_GETALL)->EnableWindow(TRUE);
 	
@@ -696,7 +669,7 @@ void CLogDlg::CopySelectionToClipBoard()
 	}
 }
 
-BOOL CLogDlg::DiffPossible(LogChangedPath * changedpath, svn_revnum_t rev)
+BOOL CLogDlg::DiffPossible(LogChangedPath * changedpath, long rev)
 {
 	CString added, deleted;
 	added.LoadString(IDS_SVNACTION_ADD);
@@ -850,7 +823,7 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						long rev = pLogEntry->dwRev;
 						this->m_bCancelled = FALSE;
 						SVNDiff diff(this, this->m_hWnd, true);
-						diff.SetHEADPeg(m_LogRevision);
+						
 						diff.ShowUnifiedDiff(m_path, rev-1, m_path, rev);
 					}
 					break;
@@ -864,7 +837,6 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						this->m_bCancelled = FALSE;
 
 						SVNDiff diff(this, this->m_hWnd, true);
-						diff.SetHEADPeg(m_LogRevision);
 						diff.ShowUnifiedDiff(m_path, rev2, m_path, rev1);
 					}
 					break;
@@ -923,8 +895,6 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 							dlg.m_CopyRev = SVNRev(rev);
 							if (dlg.DoModal() == IDOK)
 							{
-								// should we show here a progress dialog? Copies are done really fast
-								// and without much network traffic.
 								SVN svn;
 								if (!svn.Copy(CTSVNPath(url), CTSVNPath(dlg.m_URL), dlg.m_CopyRev, dlg.m_sLogMessage))
 								{
@@ -934,7 +904,7 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 								{
 									CMessageBox::Show(this->m_hWnd, IDS_LOG_COPY_SUCCESS, IDS_APPNAME, MB_ICONINFORMATION);
 								}
-							}
+							} // if (dlg.DoModal() == IDOK) 
 						}
 					} 
 					break;
@@ -946,8 +916,7 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						long rev = pLogEntry->dwRev;
 						this->m_bCancelled = FALSE;
 						SVNDiff diff(this, this->m_hWnd, true);
-						diff.SetHEADPeg(m_LogRevision);
-						diff.ShowCompare(m_path, SVNRev::REV_WC, m_path, rev);
+						diff.ShowCompare(m_path, SVNRev::REV_WC, m_path, rev, m_LogRevision);
 					}
 					break;
 				case ID_COMPARETWO:
@@ -966,8 +935,8 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						{
 							url.SetFromSVN(GetURLFromPath(m_path));
 						}
-						diff.SetHEADPeg(m_LogRevision);
-						diff.ShowCompare(url, rev2, url, rev1);
+
+						diff.ShowCompare(url, rev2, url, rev1, SVNRev::REV_HEAD);
 					}
 					break;
 				case ID_SAVEAS:
@@ -1026,25 +995,14 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						{
 							tempfile.SetFromWin(ofn.lpstrFile);
 							SVN svn;
-							CProgressDlg progDlg;
-							progDlg.SetTitle(IDS_APPNAME);
-							CString sInfoLine;
-							sInfoLine.Format(IDS_PROGRESSGETFILEREVISION, m_path.GetWinPath(), (LONG)rev);
-							progDlg.SetLine(1, sInfoLine);
-							svn.SetAndClearProgressInfo(&progDlg);
-							progDlg.ShowModeless(m_hWnd);
 							if (!svn.Cat(m_path, SVNRev(SVNRev::REV_HEAD), rev, tempfile))
 							{
-								progDlg.Stop();
-								svn.SetAndClearProgressInfo((HWND)NULL);
 								delete [] pszFilters;
 								CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 								GetDlgItem(IDOK)->EnableWindow(TRUE);
 								break;
-							}
-							progDlg.Stop();
-							svn.SetAndClearProgressInfo((HWND)NULL);
-						}
+							} // if (!svn.Cat(m_path, rev, tempfile)) 
+						} // if (GetSaveFileName(&ofn)==TRUE)
 						delete [] pszFilters;
 					}
 					break;
@@ -1056,26 +1014,15 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(m_LogList.GetSelectionMark()));
                         long rev = pLogEntry->dwRev;
                         
-						CProgressDlg progDlg;
-						progDlg.SetTitle(IDS_APPNAME);
-						CString sInfoLine;
-						sInfoLine.Format(IDS_PROGRESSGETFILEREVISION, m_path.GetWinPath(), (LONG)rev);
-						progDlg.SetLine(1, sInfoLine);
-						SetAndClearProgressInfo(&progDlg);
-						progDlg.ShowModeless(m_hWnd);
 						CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(true, m_path);
 						if (!Cat(m_path, SVNRev(SVNRev::REV_HEAD), rev, tempfile))
 						{
-							progDlg.Stop();
-							SetAndClearProgressInfo((HWND)NULL);
 							CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 							GetDlgItem(IDOK)->EnableWindow(TRUE);
 							break;
 						}
 						else
 						{
-							progDlg.Stop();
-							SetAndClearProgressInfo((HWND)NULL);
 							SetFileAttributes(tempfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
 							int ret = 0;
 							if (!bOpenWith)
@@ -1095,22 +1042,12 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(m_LogList.GetSelectionMark()));
                         long rev = pLogEntry->dwRev;
 						SVN svn;
-						CProgressDlg progDlg;
-						progDlg.SetTitle(IDS_APPNAME);
-						progDlg.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROGRESSWAIT)));
-						progDlg.SetTime(false);
-						svn.SetAndClearProgressInfo(&progDlg);
-						progDlg.ShowModeless(m_hWnd);
 						if (!svn.Update(CTSVNPathList(m_path), rev, TRUE, FALSE))
 						{
-							progDlg.Stop();
-							svn.SetAndClearProgressInfo((HWND)NULL);
 							CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 							GetDlgItem(IDOK)->EnableWindow(TRUE);
 							break;
 						}
-						progDlg.Stop();
-						svn.SetAndClearProgressInfo((HWND)NULL);
 					}
 					break;
 				case ID_FINDENTRY:
@@ -1423,28 +1360,15 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 							tempfile.SetFromWin(ofn.lpstrFile);
 							CString sAction(MAKEINTRESOURCE(IDS_SVNACTION_DELETE));
 							SVNRev getrev = (sAction.Compare(changedpath->sAction)==0) ? rev-1 : rev;
-
-							CProgressDlg progDlg;
-							progDlg.SetTitle(IDS_APPNAME);
-							CString sInfoLine;
-							sInfoLine.Format(IDS_PROGRESSGETFILEREVISION, filepath, (LONG)getrev);
-							progDlg.SetLine(1, sInfoLine);
-							SetAndClearProgressInfo(&progDlg);
-							progDlg.ShowModeless(m_hWnd);
-
 							if (!Cat(CTSVNPath(filepath), getrev, getrev, tempfile))
 							{
-								progDlg.Stop();
-								SetAndClearProgressInfo((HWND)NULL);
 								delete [] pszFilters;
 								CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 								GetDlgItem(IDOK)->EnableWindow(TRUE);
 								theApp.DoWaitCursor(-1);
 								break;
 							}
-							progDlg.Stop();
-							SetAndClearProgressInfo((HWND)NULL);
-						}
+						} // if (GetSaveFileName(&ofn)==TRUE)
 						delete [] pszFilters;
 						GetDlgItem(IDOK)->EnableWindow(TRUE);
 						theApp.DoWaitCursor(-1);
@@ -1479,26 +1403,14 @@ void CLogDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						filepath = GetRepositoryRoot(CTSVNPath(filepath));
 						filepath += changedpath->sPath;
 
-						CProgressDlg progDlg;
-						progDlg.SetTitle(IDS_APPNAME);
-						CString sInfoLine;
-						sInfoLine.Format(IDS_PROGRESSGETFILEREVISION, filepath, (LONG)rev);
-						progDlg.SetLine(1, sInfoLine);
-						SetAndClearProgressInfo(&progDlg);
-						progDlg.ShowModeless(m_hWnd);
-
 						CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(true, CTSVNPath(filepath));
 						if (!Cat(CTSVNPath(filepath), SVNRev(rev), rev, tempfile))
 						{
-							progDlg.Stop();
-							SetAndClearProgressInfo((HWND)NULL);
 							CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 							GetDlgItem(IDOK)->EnableWindow(TRUE);
 							theApp.DoWaitCursor(-1);
 							break;
 						}
-						progDlg.Stop();
-						SetAndClearProgressInfo((HWND)NULL);
 						SetFileAttributes(tempfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
 						if (!bOpenWith)
 						{
@@ -1783,7 +1695,7 @@ void CLogDlg::OnNMDblclkLogmsg(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 	}
 }
 
-void CLogDlg::DoDiffFromLog(int selIndex, svn_revnum_t rev)
+void CLogDlg::DoDiffFromLog(int selIndex, long rev)
 {
 	GetDlgItem(IDOK)->EnableWindow(FALSE);
 	SetPromptApp(&theApp);
@@ -1818,7 +1730,7 @@ void CLogDlg::DoDiffFromLog(int selIndex, svn_revnum_t rev)
 
 	CString firstfile = changedpath->sPath;
 	CString secondfile = firstfile;
-	svn_revnum_t fromrev = rev - 1;
+	long fromrev = rev - 1;
 
 	if (changedpath->lCopyFromRev > 0) // is it an added file with history?
 	{
@@ -1830,7 +1742,6 @@ void CLogDlg::DoDiffFromLog(int selIndex, svn_revnum_t rev)
 	secondfile = filepath + secondfile.Trim();
 
 	SVNDiff diff(this, this->m_hWnd, true);
-	diff.SetHEADPeg(m_LogRevision);
 	diff.ShowCompare(CTSVNPath(secondfile), fromrev, CTSVNPath(firstfile), rev);
 
 	theApp.DoWaitCursor(-1);
@@ -1966,7 +1877,7 @@ BOOL CLogDlg::PreTranslateMessage(MSG* pMsg)
 			{
 				if (!GetDlgItem(IDC_GETALL)->IsWindowEnabled())
 					return __super::PreTranslateMessage(pMsg);
-				Refresh();
+				OnBnClickedGetall();
 			}
 			break;
 		case 'F':
@@ -2125,7 +2036,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 		if (m_arShownList.GetCount() > (INT_PTR)pLVCD->nmcd.dwItemSpec)
 		{
 			if (((PLOGENTRYDATA)m_arShownList.GetAt(pLVCD->nmcd.dwItemSpec))->bCopies)
-				crText = m_Colors.GetColor(CColors::Modified);
+				crText = CUtils::MyColor(CUtils::BLUE);
 		}
 		// Store the color back in the NMLVCUSTOMDRAW struct.
 		pLVCD->clrText = crText;
@@ -2459,12 +2370,12 @@ void CLogDlg::OnBnClickedFiltercancel()
 	m_arShownList.RemoveAll();
 
 	// reset the time filter too
-	m_timFrom = (__time64_t(m_tFrom));
-	m_timTo = (__time64_t(m_tTo));
-	m_DateFrom.SetTime(&m_timFrom);
-	m_DateTo.SetTime(&m_timTo);
-	m_DateFrom.SetRange(&m_timFrom, &m_timTo);
-	m_DateTo.SetRange(&m_timFrom, &m_timTo);
+	__time64_t rt = m_tFrom;
+	CTime tim(rt);
+	m_DateFrom.SetTime(&tim);
+	rt = m_tTo;
+	tim = rt;
+	m_DateTo.SetTime(&tim);
 
 	for (DWORD i=0; i<m_logEntries.size(); ++i)
 	{

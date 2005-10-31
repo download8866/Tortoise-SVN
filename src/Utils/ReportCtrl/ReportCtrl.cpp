@@ -3113,15 +3113,7 @@ BOOL CReportCtrl::ExpandAll(HTREEITEM hItem, UINT nCode, INT iLevels)
 	if(!(m_dwStyle&RVS_TREEMASK))
 		return FALSE;
 
-	LPTREEITEM lpti = (LPTREEITEM)hItem;;
-
-	if (nCode == RVE_TOGGLE)
-	{
-		if (lpti->bOpen)
-			nCode = RVE_COLLAPSE;
-		else
-			nCode = RVE_EXPAND;
-	}
+	LPTREEITEM lpti;
 	
 	if(hItem == RVTI_ROOT)
 	{
@@ -3895,8 +3887,6 @@ BOOL CReportCtrl::LoadItemData(LPITEM lpItem, INT iItem, INT iSubItem, UINT nMas
 		lpItem->nPreview =	nmrvic.item.nMask&RVIM_PREVIEW ? nmrvic.item.nPreview:0;
 		lpItem->nState =	nmrvic.item.nMask&RVIM_STATE ? nmrvic.item.nState:0;
 		lpItem->iIndent =	nmrvic.item.nMask&RVIM_INDENT ? nmrvic.item.iIndent:-1;
-		lpItem->lParam =	nmrvic.item.nMask&RVIM_LPARAM ? nmrvic.item.lParam:-1;
-		lpItem->Param64 =	nmrvic.item.nMask&RVIM_PARAM64 ? nmrvic.item.Param64:-1;
 
 		return TRUE;
 	}
@@ -5764,10 +5754,7 @@ void CReportCtrl::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		if(!Notify(RVN_ITEMEXPANDING, rvhti.iItem, rvhti.iSubItem))
 		{
-			if (GetKeyState(VK_CONTROL)&0x8000)
-				ExpandAll((HTREEITEM)m_arrayItems[rvhti.iItem].lptiItem, RVE_TOGGLE);
-			else
-				Expand((HTREEITEM)m_arrayItems[rvhti.iItem].lptiItem, RVE_TOGGLE);
+			Expand((HTREEITEM)m_arrayItems[rvhti.iItem].lptiItem, RVE_TOGGLE);
 
 			Notify(RVN_ITEMEXPANDED, rvhti.iItem, rvhti.iSubItem);
 			return;
@@ -6401,7 +6388,7 @@ void CReportCtrl::OnHdnItemClick(NMHDR* pNMHDR, LRESULT* pResult)
 			if(iNew == iOld)
 				bAscending = !bAscending;
 			else
-				bAscending = FALSE;
+				bAscending = TRUE;
 
 			SortItems(nmrvhdr.iSubItem, bAscending);
 		}

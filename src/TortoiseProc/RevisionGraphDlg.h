@@ -20,7 +20,6 @@
 #include "StandAloneDlg.h"
 #include "RevisionGraph.h"
 #include "ProgressDlg.h"
-#include "Colors.h"
 
 enum NodeShape
 {
@@ -56,13 +55,7 @@ enum NodeShape
 #define ID_UNIDIFFREVS 3
 #define ID_UNIDIFFHEADS 4
 
-/**
- * \ingroup TortoiseProc
- * A dialog showing a revision graph.
- *
- * The analyzation of the log data is done in the child class CRevisionGraph.
- * Here, we handle the drawing.
- */
+
 class CRevisionGraphDlg : public CResizableStandAloneDialog, public CRevisionGraph //CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CRevisionGraphDlg)
@@ -77,20 +70,18 @@ public:
 	BOOL			m_bThreadRunning;
 
 	void			InitView();
-
+#ifdef DEBUG
+	void			FillTestData();
+#endif
 protected:
 	BOOL			m_bNoGraph;
 	DWORD			m_dwTicks;
 	CRect			m_ViewRect;
 	CPtrArray		m_arConnections;
-	CDWordArray		m_arVertPositions;
-	
-	std::multimap<source_entry*, CRevisionEntry*>		m_targetsbottom;
-	std::multimap<source_entry*, CRevisionEntry*>		m_targetsright;
-
-	
-	CRevisionEntry * m_SelectedEntry1;
-	CRevisionEntry * m_SelectedEntry2;
+	CArray<CRect, CRect> m_arNodeList;
+	CDWordArray		m_arNodeRevList;
+	LONG			m_lSelectedRev1;
+	LONG			m_lSelectedRev2;
 	LOGFONT			m_lfBaseFont;
 	CFont *			m_apFonts[MAXFONTS];
 	int				m_nFontSize;
@@ -105,10 +96,8 @@ protected:
 	int				m_node_rect_heigth;
 	int				m_node_space_top;
 	int				m_node_space_bottom;
-	int				m_nIconSize;
 	CPoint			m_RoundRectPt;
 	int				m_nZoomFactor;
-	CColors			m_Colors;
 	
 	HACCEL			m_hAccel;
 
@@ -143,22 +132,16 @@ private:
 	void			UnifiedDiffRevs(bool bHead);
 	CTSVNPath		DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIsFolder);
 	INT_PTR			GetIndexOfRevision(LONG rev) const;
-	INT_PTR			GetIndexOfRevision(source_entry * sentry);
-	void			SetScrollbars(int nVert = 0, int nHorz = 0, int oldwidth = 0, int oldheight = 0);
+	void			SetScrollbars(int nVert = 0, int nHorz = 0);
 	CRect *			GetViewSize();
 	CFont*			GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE);
 
 	void			DrawOctangle(CDC * pDC, const CRect& rect);
 	void			DrawNode(CDC * pDC, const CRect& rect,
 							COLORREF contour, CRevisionEntry *rentry,
-							NodeShape shape, BOOL isSel, HICON hIcon, int penStyle = PS_SOLID);
+							NodeShape shape, BOOL isSel, int penStyle = PS_SOLID);
 	void			DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos, bool bDirectDraw);
-
 	void			BuildConnections();
-	void			ClearEntryConnections();
-	void			CountEntryConnections();
-	void			MarkSpaceLines(source_entry * entry, int level, svn_revnum_t startrev, svn_revnum_t endrev);
-	void			DecrementSpaceLines(source_entry * reventry);
 	void			DrawConnections(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos);
 	int				GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 	void			DoZoom(int nZoomFactor);

@@ -20,7 +20,6 @@
 
 #include "TSVNPath.h"
 #include "SVNRev.h"
-#include "Colors.h"
 
 class SVNConfig;
 class SVNStatus;
@@ -35,9 +34,6 @@ class SVNStatus;
 #define SVNSLC_COLEXT			0x000000100
 #define SVNSLC_COLLOCK			0x000000200
 #define SVNSLC_COLLOCKCOMMENT	0x000000400
-#define SVNSLC_COLAUTHOR		0x000000800
-#define	SVNSLC_COLREVISION		0x000001000
-#define	SVNSLC_COLDATE			0x000002000
 
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
@@ -54,7 +50,6 @@ class SVNStatus;
 #define SVNSLC_SHOWEXTERNAL		0x000000800
 #define SVNSLC_SHOWINCOMPLETE	0x000001000
 #define SVNSLC_SHOWINEXTERNALS	0x000002000
-#define SVNSLC_SHOWREMOVEDANDPRESENT 0x000004000
 
 #define SVNSLC_SHOWLOCKS		0x000008000
 #define SVNSLC_SHOWDIRECTFILES	0x000010000
@@ -147,28 +142,9 @@ public:
 	 * Helper class for CSVNStatusListCtrl which represents
 	 * the data for each file shown.
 	 */
-	class FileEntry 
+	class FileEntry
 	{
 	public:
-		FileEntry() : status(svn_wc_status_unversioned)
-			, copyfrom_rev(0)
-			, last_commit_date(0)
-			, last_commit_rev(0)
-			, textstatus(svn_wc_status_unversioned)
-			, propstatus(svn_wc_status_unversioned)
-			, remotestatus(svn_wc_status_unversioned)
-			, remotetextstatus(svn_wc_status_unversioned)
-			, remotepropstatus(svn_wc_status_unversioned)
-			, copied(false)
-			, checked(false)
-			, inunversionedfolder(false)
-			, inexternal(false)
-			, direct(false)
-			, isfolder(false)
-			, isNested(false)
-			, Revision(0)
-		{
-		}
 		const CTSVNPath& GetPath() const					
 		{
 			return path;
@@ -191,8 +167,6 @@ public:
 		{
 			return isfolder;
 		}
-	public:
-		svn_wc_status_kind		status;					///< local status
 	private:
 		CTSVNPath				path;					///< full path of the file
 		CTSVNPath				basepath;				///< common ancestor path of all files
@@ -203,10 +177,10 @@ public:
 		CString					lock_remotetoken;		///< the unique URI in the repository of the lock
 		CString					lock_comment;			///< the message for the lock
 		CString					copyfrom_url;			///< the copied-from URL (if available, i.e. \a copied is true)
-		svn_revnum_t			copyfrom_rev;			///< the copied-from revision
-		CString					last_commit_author;		///< the author which last committed this item
-		apr_time_t				last_commit_date;		///< the date when this item was last committed
-		svn_revnum_t			last_commit_rev;		///< the revision where this item was last committed
+		LONG					copyfrom_rev;			///< the copied-from revision
+	public:
+		svn_wc_status_kind		status;					///< local status
+	private:
 		svn_wc_status_kind		textstatus;				///< local text status
 		svn_wc_status_kind		propstatus;				///< local property status
 		svn_wc_status_kind		remotestatus;			///< remote status
@@ -219,7 +193,7 @@ public:
 		bool					direct;					///< directly included (TRUE) or just a child of a folder
 		bool					isfolder;				///< TRUE if entry refers to a folder
 		bool					isNested;				///< TRUE if the folder from a different repository and/or path
-		svn_revnum_t			Revision;				///< the last committed revision
+		LONG					lRevision;				///< the last committed revision
 		friend class CSVNStatusListCtrl;
 	};
 
@@ -304,7 +278,7 @@ public:
 	/** fills in \a lMin and \a lMax with the lowest/highest revision of all
 	 * files/folders in the working copy.
 	 */
-	void GetMinMaxRevisions(svn_revnum_t& rMin, svn_revnum_t& rMax);
+	void GetMinMaxRevisions(LONG& lMin, LONG& lMax);
 	
 	/**
 	 * Returns the parent directory of all entries in the control.
@@ -426,5 +400,4 @@ private:
 
 	CWnd *						m_pStatLabel;
 	CButton *					m_pSelectButton;
-	CColors						m_Colors;
 };

@@ -61,7 +61,6 @@
 #include "ShellUpdater.h"
 #include "SVNDiff.h"
 #include "CreatePatch.h"
-#include "SVNAdminDir.h"
 
 #include "..\version.h"
 
@@ -122,8 +121,7 @@ typedef enum
 	cmdUpdateCheck,
 	cmdRevisionGraph,
 	cmdLock,
-	cmdUnlock,
-	cmdRebuildIconCache
+	cmdUnlock
 } TSVNCommand;
 
 static const struct CommandInfo
@@ -174,10 +172,11 @@ static const struct CommandInfo
 	{	cmdRevisionGraph,	_T("revisiongraph"),	false	},
 	{	cmdLock,			_T("lock"),				true	},
 	{	cmdUnlock,			_T("unlock"),			true	},
-	{	cmdRebuildIconCache,_T("rebuildiconcache"),	false	},
 };
 
 //////////////////////////////////////////////////////////////////////////
+
+
 
 CTortoiseProcApp::CTortoiseProcApp()
 {
@@ -186,17 +185,17 @@ CTortoiseProcApp::CTortoiseProcApp()
 	const char* const * argv = NULL;
 	apr_app_initialize(&argc, &argv, NULL);
 	SYS_IMAGE_LIST();
-	g_SVNAdminDir.Init();
 }
 
 CTortoiseProcApp::~CTortoiseProcApp()
 {
-	// since it is undefined *when* the global object SVNAdminDir is
-	// destroyed, we tell it to destroy the memory pools and terminate apr
-	// *now* instead of later when the object itself is destroyed.
-	g_SVNAdminDir.Close();
-	SYS_IMAGE_LIST().Cleanup();
 	apr_terminate();
+	// seems that apr_initialize() is called every time the dll is loaded,
+	// but since the dll isn't forcibly unloaded the apr_terminate() has
+	// a count of > 1 and therefore doesn't clean up allocated memory.
+	// So clean up the memory by force here.
+	apr_pool_terminate();
+	SYS_IMAGE_LIST().Cleanup();
 }
 
 // The one and only CTortoiseProcApp object
@@ -686,7 +685,6 @@ BOOL CTortoiseProcApp::InitInstance()
 			CProgressDlg progress;
 			progress.SetTitle(IDS_PROC_CLEANUP);
 			progress.ShowModeless(PWND);
-			progress.SetAnimation(IDR_CLEANUPANI);
 			SVN svn;
 			if (!svn.CleanUp(cmdLinePath))
 			{
@@ -701,12 +699,15 @@ BOOL CTortoiseProcApp::InitInstance()
 				// notification for every directory to the shell. This will update the
 				// overlays in the left treeview of the explorer.
 				CDirFileEnum crawler(cmdLinePath.GetWinPathString());
+				CString sAdminDir = _T("\\");
+				sAdminDir += _T(SVN_WC_ADM_DIR_NAME);
+				sAdminDir += _T("\\");
 				CString sPath;
 				bool bDir = false;
 				CTSVNPathList updateList;
 				while (crawler.NextFile(sPath, &bDir))
 				{
-					if ((bDir) && (!g_SVNAdminDir.IsAdminDirPath(sPath)))
+					if ((bDir)&&(sPath.Find(sAdminDir)<0))
 					{
 						updateList.AddPath(CTSVNPath(sPath));
 					}
@@ -1263,7 +1264,7 @@ BOOL CTortoiseProcApp::InitInstance()
 			if (dlg.DoModal() == IDOK)
 			{
 				TRACE(_T("relocate from %s to %s\n"), (LPCTSTR)dlg.m_sFromUrl, (LPCTSTR)dlg.m_sToUrl);
-				if (CMessageBox::Show((EXPLORERHWND), IDS_WARN_RELOCATEREALLY, IDS_APPNAME, MB_YESNO | MB_ICONWARNING | MB_DEFBUTTON2)==IDYES)
+				if (CMessageBox::Show((EXPLORERHWND), IDS_WARN_RELOCATEREALLY, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)==IDYES)
 				{
 					SVN s;
 
@@ -1372,11 +1373,11 @@ BOOL CTortoiseProcApp::InitInstance()
 			{
 				//strLine = _T("F:\\Development\\DirSync\\DirSync.cpp");
 				CString name = pathList[nPath].GetFileOrDirectoryName();
+				filelist += name + _T("\n");
 				if (parser.HasKey(_T("onlymask")))
 				{
 					name = _T("*")+pathList[nPath].GetFileExtension();
 				}
-				filelist += name + _T("\n");
 				CTSVNPath parentfolder = pathList[nPath].GetContainingDirectory();
 				SVNProperties props(parentfolder);
 				CStringA value;
@@ -1536,7 +1537,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		{
 			CString savepath = CUtils::GetLongPathname(parser.GetVal(_T("savepath")));
 			CCreatePatch dlg;
-			dlg.m_pathList = pathList;
+			dlg.m_pathList = CTSVNPathList(cmdLinePath);
 			if (dlg.DoModal()==IDOK)
 			{
 				CreatePatch(cmdLinePath, dlg.m_pathList, CTSVNPath(savepath));
@@ -1610,22 +1611,6 @@ BOOL CTortoiseProcApp::InitInstance()
 				CSVNProgressDlg progDlg;
 				progDlg.SetParams(CSVNProgressDlg::Unlock, parser.HasKey(_T("force")) ? ProgOptLockForce : 0, lockedList);
 				progDlg.DoModal();
-			}
-		} 
-		//#endregion
-		//#region rebuildiconcache
-		if (command == cmdRebuildIconCache)
-		{
-			bool bQuiet = !!parser.HasKey(_T("noquestion"));
-			if (CShellUpdater::RebuildIcons())
-			{
-				if (!bQuiet)
-					CMessageBox::Show(EXPLORERHWND, IDS_PROC_ICONCACHEREBUILT, IDS_APPNAME, MB_ICONINFORMATION);
-			}
-			else
-			{
-				if (!bQuiet)
-					CMessageBox::Show(EXPLORERHWND, IDS_PROC_ICONCACHENOTREBUILT, IDS_APPNAME, MB_ICONINFORMATION);
 			}
 		} 
 		//#endregion

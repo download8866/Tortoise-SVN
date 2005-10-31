@@ -18,7 +18,6 @@
 #include "StdAfx.h"
 #include "TSVNPath.h"
 #include "UnicodeUtils.h"
-#include "SVNAdminDir.h"
 #if defined(_MFC_VER)
 #include "regexpr2.h"
 #include "MessageBox.h"
@@ -526,7 +525,7 @@ bool CTSVNPath::HasAdminDir() const
 {
 	if (m_bHasAdminDirKnown)
 		return m_bHasAdminDir;
-	m_bHasAdminDir = g_SVNAdminDir.HasAdminDir(m_sBackslashPath, IsDirectory());
+	m_bHasAdminDir = !!PathFileExists(GetDirectory().GetWinPathString() + _T("\\") + _T(SVN_WC_ADM_DIR_NAME));
 	m_bHasAdminDirKnown = true;
 	return m_bHasAdminDir;
 }
@@ -535,9 +534,20 @@ bool CTSVNPath::IsAdminDir() const
 {
 	if (m_bIsAdminDirKnown)
 		return m_bIsAdminDir;
-	
+	m_bIsAdminDir = false;
 	EnsureBackslashPathSet();
-	m_bIsAdminDir = g_SVNAdminDir.IsAdminDirPath(m_sBackslashPath);
+	int ind = m_sBackslashPath.Find(_T(SVN_WC_ADM_DIR_NAME));
+	if (ind >= 0)
+	{
+		if (ind == (m_sBackslashPath.GetLength() - (int)strlen(SVN_WC_ADM_DIR_NAME)))
+		{
+			m_bIsAdminDir = true;
+		}
+		else if (m_sBackslashPath.Find(_T(SVN_WC_ADM_DIR_NAME)_T("\\"))>=0)
+		{
+			m_bIsAdminDir = true;
+		}
+	}
 	m_bIsAdminDirKnown = true;
 	return m_bIsAdminDir;
 }
@@ -859,7 +869,7 @@ void CTSVNPathList::RemoveChildren()
 //////////////////////////////////////////////////////////////////////////
 
 
-#if defined(_DEBUG) && defined(_MFC_VER)
+#if defined(_DEBUG)
 // Some test cases for these classes
 static class CPathTests
 {

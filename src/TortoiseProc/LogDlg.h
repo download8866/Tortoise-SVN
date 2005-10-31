@@ -24,7 +24,6 @@
 #include "TSVNPath.h"
 #include "registry.h"
 #include "SplitterControl.h"
-#include "Colors.h"
 #include "afxwin.h"
 #include "afxdtctl.h"
 
@@ -106,7 +105,7 @@ public:
 
 protected:
 	//implement the virtual methods from SVN base class
-	virtual BOOL Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies);
+	virtual BOOL Log(LONG rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies);
 	virtual BOOL Cancel();
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -142,11 +141,11 @@ protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	void	FillLogMessageCtrl(bool bShow = true);
-	void	DoDiffFromLog(int selIndex, svn_revnum_t rev);
+	void	DoDiffFromLog(int selIndex, long rev);
 
 	DECLARE_MESSAGE_MAP()
 public:
-	void SetParams(const CTSVNPath& path, svn_revnum_t startrev, long svn_revnum_t, int limit, 
+	void SetParams(const CTSVNPath& path, long startrev, long endrev, int limit, 
 				BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE), BOOL bSaveStrict = TRUE);
 	void SetProjectPropertiesPath(const CTSVNPath& path) {m_ProjectProperties.ReadProps(path);}
 	bool IsThreadRunning() {return !!m_bThreadRunning;}
@@ -156,8 +155,7 @@ public:
 private:
 	static UINT LogThreadEntry(LPVOID pVoid);
 	UINT LogThread();
-	void Refresh();
-	BOOL DiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
+	BOOL DiffPossible(LogChangedPath * changedpath, long rev);
 	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
@@ -184,9 +182,9 @@ private:
 	CListCtrl			m_LogMsgCtrl;
 	CProgressCtrl		m_LogProgress;
 	CTSVNPath			m_path;
-	svn_revnum_t		m_startrev;
-	svn_revnum_t		m_LogRevision;
-	svn_revnum_t		m_endrev;
+	long				m_startrev;
+	long				m_LogRevision;
+	long				m_endrev;
 	long				m_logcounter;
 	BOOL				m_bCancelled;
 	BOOL				m_bThreadRunning;
@@ -224,10 +222,6 @@ private:
 	bool				m_bShowedAll;
 	CString				m_sTitle;
 	bool				m_bSelect;
-	
-	CTime				m_timFrom;
-	CTime				m_timTo;
-	CColors				m_Colors;
 private:
     typedef struct LogEntryData
     {   

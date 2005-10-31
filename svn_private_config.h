@@ -2,7 +2,7 @@
  * svn_private_config.hw : Template for svn_private_config.h on Win32.
  *
  * ====================================================================
- * Copyright (c) 2000-2004 CollabNet.  All rights reserved.
+ * Copyright (c) 2000-2005 CollabNet.  All rights reserved.
  *
  * This software is licensed as described in the file COPYING, which
  * you should have received as part of this distribution.  The terms
@@ -21,14 +21,8 @@
 
 
 
-#ifndef SVN_PRIVATE_CONFIG_HW
-#define SVN_PRIVATE_CONFIG_HW
-
-/* The version of Berkeley DB we want */
-#define SVN_FS_WANT_DB_MAJOR	4
-#define SVN_FS_WANT_DB_MINOR	0
-#define SVN_FS_WANT_DB_PATCH	14
-
+#ifndef CONFIG_HW
+#define CONFIG_HW
 
 /* Path separator for local filesystem */
 #define SVN_PATH_LOCAL_SEPARATOR '\\'
@@ -43,7 +37,6 @@
 
 /* The default FS back-end type */
 #define DEFAULT_FS_TYPE "fsfs"
-
 
 /* Define to the Python/C API format character suitable for apr_int64_t */
 #if defined(_WIN64)
@@ -67,4 +60,4 @@
 #define dgettext(domain,x) (x)
 #endif
 
-#endif /* SVN_PRIVATE_CONFIG_HW */
+#endif /* CONFIG_HW */

@@ -34,7 +34,6 @@
 #include "StringUtils.h"
 #include "TempFile.h"
 #include "ShellFileOp.h"
-#include "SVNAdminDir.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -42,13 +41,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-SVN::SVN(void) :
-	m_progressWnd(0),
-	m_pProgressDlg(NULL),
-	m_bShowProgressBar(false),
-	progress_total(0),
-	progress_lastprogress(0),
-	progress_lasttotal(0)
+#define SVN_DATE_BUFFER 260
+
+SVN::SVN(void)
 {
 	parentpool = svn_pool_create(NULL);
 	svn_utf_initialize(parentpool);
@@ -74,16 +69,14 @@ SVN::SVN(void) :
 	// set up authentication
 	m_prompt.Init(parentpool, m_pctx);
 
-	m_pctx->log_msg_func2 = svn_cl__get_log_message;
-	m_pctx->log_msg_baton2 = logMessage("");
+	m_pctx->log_msg_func = svn_cl__get_log_message;
+	m_pctx->log_msg_baton = logMessage("");
 	m_pctx->notify_func2 = notify;
 	m_pctx->notify_baton2 = this;
 	m_pctx->notify_func = NULL;
 	m_pctx->notify_baton = NULL;
 	m_pctx->cancel_func = cancel;
 	m_pctx->cancel_baton = this;
-	m_pctx->progress_func = progress_func;
-	m_pctx->progress_baton = this;
 
 	//set up the SVN_SSH param
 	CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
@@ -96,6 +89,7 @@ SVN::SVN(void) :
 			APR_HASH_KEY_STRING);
 		svn_config_set(cfg, SVN_CONFIG_SECTION_TUNNELS, "ssh", CUnicodeUtils::GetUTF8(tsvn_ssh));
 	}
+	//UseIEProxySettings(ctx.config);
 }
 
 SVN::~SVN(void)
@@ -142,14 +136,14 @@ BOOL SVN::Cancel() {return FALSE;};
 BOOL SVN::Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
 				svn_node_kind_t kind, const CString& mime_type, 
 				svn_wc_notify_state_t content_state, 
-				svn_wc_notify_state_t prop_state, svn_revnum_t rev,
+				svn_wc_notify_state_t prop_state, LONG rev,
 				const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
 				svn_error_t * err, apr_pool_t * pool) {return TRUE;};
-BOOL SVN::Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies) {return TRUE;};
-BOOL SVN::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString& author, const CString& date, const CStringA& line) {return TRUE;}
+BOOL SVN::Log(LONG rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies) {return TRUE;};
+BOOL SVN::BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line) {return TRUE;}
 #pragma warning(pop)
 
-struct log_msg_baton2
+struct log_msg_baton
 {
   const char *message;  /* the message. */
   const char *message_encoding; /* the locale/encoding of the message. */
@@ -275,17 +269,17 @@ BOOL SVN::Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRe
 
 BOOL SVN::Remove(const CTSVNPathList& pathlist, BOOL force, CString message)
 {
+	svn_client_commit_info_t *commit_info = NULL;
+	message.Replace(_T("\r"), _T(""));
+	m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(message));
+
 	// svn_client_delete needs to run on a sub-pool, so that after it's run, the pool
 	// cleanups get run.  For example, after a failure do to an unforced delete on 
 	// a modified file, if you don't do a cleanup, the WC stays locked
 	SVNPool subPool(pool);
-	svn_commit_info_t *commit_info = svn_create_commit_info(subPool);
-	message.Replace(_T("\r"), _T(""));
-	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-
-	Err = svn_client_delete2 (&commit_info, MakePathArray(pathlist), force,
-							  m_pctx,
-							  subPool);
+	Err = svn_client_delete (&commit_info, MakePathArray(pathlist), force,
+							m_pctx,
+							subPool);
 	if(Err != NULL)
 	{
 		return FALSE;
@@ -325,14 +319,14 @@ BOOL SVN::Revert(const CTSVNPathList& pathlist, BOOL recurse)
 }
 
 
-BOOL SVN::Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force /* = FALSE */, BOOL no_ignore /* = FALSE */)
+BOOL SVN::Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force)
 {
 	for(int nItem = 0; nItem < pathList.GetCount(); nItem++)
 	{
 		TRACE(_T("add file %s\n"), pathList[nItem].GetWinPath());
 
 		SVNPool subpool(pool);
-		Err = svn_client_add3 (pathList[nItem].GetSVNApiPath(), recurse, force, no_ignore, m_pctx, subpool);
+		Err = svn_client_add2 (pathList[nItem].GetSVNApiPath(), recurse, force, m_pctx, subpool);
 		if(Err != NULL)
 		{
 			return FALSE;
@@ -365,19 +359,19 @@ BOOL SVN::Update(const CTSVNPathList& pathList, SVNRev revision, BOOL recurse, B
 	return TRUE;
 }
 
-svn_revnum_t SVN::Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks)
+LONG SVN::Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks)
 {
-	svn_commit_info_t *commit_info = svn_create_commit_info(pool);
+	svn_client_commit_info_t *commit_info = NULL;
 
 	message.Replace(_T("\r"), _T(""));
-	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-	Err = svn_client_commit3 (&commit_info, 
+	m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(message));
+	Err = svn_client_commit2 (&commit_info, 
 							MakePathArray(pathlist), 
 							recurse,
 							keep_locks,
 							m_pctx,
 							pool);
-	m_pctx->log_msg_baton2 = logMessage("");
+	m_pctx->log_msg_baton = logMessage("");
 	if(Err != NULL)
 	{
 		return 0;
@@ -398,13 +392,13 @@ BOOL SVN::Copy(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revis
 {
 	SVNPool subpool(pool);
 
-	svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
+	svn_client_commit_info_t *commit_info = NULL;
 	logmsg.Replace(_T("\r"), _T(""));
 	if (logmsg.IsEmpty())
-		m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(CString(_T("made a copy"))));
+		m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(CString(_T("made a copy"))));
 	else
-		m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(logmsg));
-	Err = svn_client_copy2 (&commit_info,
+		m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(logmsg));
+	Err = svn_client_copy (&commit_info,
 							srcPath.GetSVNApiPath(),
 							revision,
 							destPath.GetSVNApiPath(),
@@ -420,15 +414,16 @@ BOOL SVN::Copy(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revis
 	return TRUE;
 }
 
-BOOL SVN::Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, CString message)
+BOOL SVN::Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, CString message, SVNRev rev)
 {
 	SVNPool subpool(pool);
 
-	svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
+	svn_client_commit_info_t *commit_info = NULL;
 	message.Replace(_T("\r"), _T(""));
-	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-	Err = svn_client_move3 (&commit_info,
+	m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(message));
+	Err = svn_client_move (&commit_info,
 							srcPath.GetSVNApiPath(),
+							rev,
 							destPath.GetSVNApiPath(),
 							force,
 							m_pctx,
@@ -448,13 +443,13 @@ BOOL SVN::Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, 
 
 BOOL SVN::MakeDir(const CTSVNPathList& pathlist, CString message)
 {
-	svn_commit_info_t *commit_info = svn_create_commit_info(pool);
+	svn_client_commit_info_t *commit_info = NULL;
 	message.Replace(_T("\r"), _T(""));
-	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-	Err = svn_client_mkdir2 (&commit_info,
-							 MakePathArray(pathlist),
-							 m_pctx,
-							 pool);
+	m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(message));
+	Err = svn_client_mkdir (&commit_info,
+							MakePathArray(pathlist),
+							m_pctx,
+							pool);
 	if(Err != NULL)
 	{
 		return FALSE;
@@ -518,12 +513,14 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev peg
 			CString srcfile;
 			CShellFileOp fop;
 			CDirFileEnum lister(srcPath.GetWinPathString());
+			CString sSVN_ADMIN_DIR = _T("\\");
+			sSVN_ADMIN_DIR += _T(SVN_WC_ADM_DIR_NAME);
 			fop.AddSourceFile(srcPath.GetWinPath());
 			fop.AddDestFile(destPath.GetWinPath());
 			while (lister.NextFile(srcfile, NULL))
 			{
-				if (g_SVNAdminDir.IsAdminDirPath(srcfile))
-					continue;
+				if ((srcfile.Find(sSVN_ADMIN_DIR+_T("\\"))>=0)||(srcfile.Right(sSVN_ADMIN_DIR.GetLength()).Compare(sSVN_ADMIN_DIR)==0))
+					continue;	// exclude everything inside an admin directory
 				if (!fop.AddSourceFile(srcfile))
 				{
 					Err = svn_error_create(NULL, NULL, CStringA(MAKEINTRESOURCE(IDS_ERR_NOTENOUGHMEMORY)));
@@ -639,19 +636,18 @@ BOOL SVN::Switch(const CTSVNPath& path, const CTSVNPath& url, SVNRev revision, B
 	return TRUE;
 }
 
-BOOL SVN::Import(const CTSVNPath& path, const CTSVNPath& url, CString message, BOOL recurse, BOOL no_ignore)
+BOOL SVN::Import(const CTSVNPath& path, const CTSVNPath& url, CString message, BOOL recurse)
 {
-	svn_commit_info_t *commit_info = svn_create_commit_info(pool);
+	svn_client_commit_info_t *commit_info = NULL;
 	message.Replace(_T("\r"), _T(""));
-	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-	Err = svn_client_import2 (&commit_info,
+	m_pctx->log_msg_baton = logMessage(CUnicodeUtils::GetUTF8(message));
+	Err = svn_client_import (&commit_info,
 							path.GetSVNApiPath(),
 							url.GetSVNApiPath(),
 							!recurse,
-							no_ignore,
 							m_pctx,
 							pool);
-	m_pctx->log_msg_baton2 = logMessage("");
+	m_pctx->log_msg_baton = logMessage("");
 	if(Err != NULL)
 	{
 		return FALSE;
@@ -751,7 +747,7 @@ BOOL SVN::Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2,
 	if (Err)
 		return FALSE;
 
-	Err = svn_client_diff3 (opts,
+	Err = svn_client_diff2 (opts,
 						   path1.GetSVNApiPath(),
 						   revision1,
 						   path2.GetSVNApiPath(),
@@ -760,7 +756,6 @@ BOOL SVN::Diff(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2,
 						   ignoreancestry,
 						   nodiffdeleted,
 						   ignorecontenttype,
-						   APR_LOCALE_CHARSET,
 						   outfile,
 						   errfile,
 						   m_pctx,
@@ -815,7 +810,7 @@ BOOL SVN::PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SV
 	if (Err)
 		return FALSE;
 
-	Err = svn_client_diff_peg3 (opts,
+	Err = svn_client_diff_peg2 (opts,
 		path.GetSVNApiPath(),
 		pegrevision,
 		startrev,
@@ -824,7 +819,6 @@ BOOL SVN::PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SV
 		ignoreancestry,
 		nodiffdeleted,
 		ignorecontenttype,
-		APR_LOCALE_CHARSET,
 		outfile,
 		errfile,
 		m_pctx,
@@ -1135,7 +1129,7 @@ svn_error_t* SVN::cancel(void *baton)
 
 void * SVN::logMessage (const char * message, char * baseDirectory)
 {
-	log_msg_baton2* baton = (log_msg_baton2 *) apr_palloc (pool, sizeof (*baton));
+	log_msg_baton* baton = (log_msg_baton *) apr_palloc (pool, sizeof (*baton));
 	baton->message = apr_pstrdup(pool, message);
 	baton->base_dir = baseDirectory ? baseDirectory : "";
 
@@ -1191,11 +1185,11 @@ void	SVN::preparePath(CString &path)
 
 svn_error_t* svn_cl__get_log_message (const char **log_msg,
 									const char **tmp_file,
-									const apr_array_header_t * /*commit_items*/,
+									apr_array_header_t * /*commit_items*/,
 									void *baton, 
 									apr_pool_t * pool)
 {
-	log_msg_baton2 *lmb = (log_msg_baton2 *) baton;
+	log_msg_baton *lmb = (log_msg_baton *) baton;
 	*tmp_file = NULL;
 	if (lmb->message)
 	{
@@ -1274,10 +1268,8 @@ BOOL SVN::Ls(const CTSVNPath& url, SVNRev pegrev, SVNRev revision, CStringArray&
 	SVNPool subpool(pool);
 
 	apr_hash_t* hash = apr_hash_make(subpool);
-	apr_hash_t* lockhash = apr_hash_make(subpool);
 
-	Err = svn_client_ls3(&hash,
-						&lockhash,
+	Err = svn_client_ls2(&hash, 
 						url.GetSVNApiPath(),
 						pegrev,
 						revision,
@@ -1326,21 +1318,6 @@ BOOL SVN::Ls(const CTSVNPath& url, SVNRev pegrev, SVNRev revision, CStringArray&
 			formatDate(date_native, val->time, true);
 			dateval.Format(_T("%I64u"), val->time);
 			temp = temp + _T("\t") + revnum + _T("\t") + author + _T("\t") + size + _T("\t") + date_native + _T("\t") + dateval;;
-			svn_lock_t * lock = (svn_lock_t *)apr_hash_get(lockhash, key, APR_HASH_KEY_STRING);
-			if (lock)
-			{
-				// we have lock information for this item.
-				temp += _T("\t");
-				if (lock->owner)
-				{
-					temp += lock->owner;
-				}
-				temp += _T("\t");
-				if (lock->comment)
-				{
-					temp += lock->comment;
-				}
-			}
 		}
 		entries.Add(temp);
     }
@@ -1414,22 +1391,20 @@ CString SVN::GetRepositoryRoot(const CTSVNPath& url)
 	const char * goodurl = svn_path_canonicalize(url.GetSVNApiPath(), localpool);
 	
 	/* use subpool to create a temporary RA session */
-	Err = svn_client_open_ra_session (&ra_session, goodurl, m_pctx, localpool);
-	if (Err)
+	if (svn_client__open_ra_session (&ra_session, goodurl, NULL, /* no base dir */NULL, NULL, FALSE, TRUE, m_pctx, localpool))
 		return _T("");
 	
-	Err = svn_ra_get_repos_root(ra_session, &returl, localpool);
-	if (Err)
+	if (svn_ra_get_repos_root(ra_session, &returl, localpool))
 		return _T("");
 
 	return CString(returl);
 }
 
-svn_revnum_t SVN::GetHEADRevision(const CTSVNPath& url)
+LONG SVN::GetHEADRevision(const CTSVNPath& url)
 {
 	svn_ra_session_t *ra_session;
 	const char * urla;
-	svn_revnum_t rev;
+	LONG rev;
 
 	SVNPool localpool(pool);
 	if (!url.IsUrl())
@@ -1444,17 +1419,15 @@ svn_revnum_t SVN::GetHEADRevision(const CTSVNPath& url)
 		return -1;
 
 	/* use subpool to create a temporary RA session */
-	Err = svn_client_open_ra_session (&ra_session, urla, m_pctx, localpool);
-	if (Err)
+	if (svn_client__open_ra_session (&ra_session, urla, NULL, /* no base dir */NULL, NULL, FALSE, TRUE, m_pctx, localpool))
 		return -1;
 
-	Err = svn_ra_get_latest_revnum(ra_session, &rev, localpool);
-	if (Err)
+	if (svn_ra_get_latest_revnum(ra_session, &rev, localpool))
 		return -1;
 	return rev;
 }
 
-BOOL SVN::GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev)
+BOOL SVN::GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, LONG& rev)
 {
 	svn_ra_session_t *ra_session;
 	const char * urla;
@@ -1473,16 +1446,13 @@ BOOL SVN::GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& re
 		return FALSE;
 
 	/* use subpool to create a temporary RA session */
-	Err = svn_client_open_ra_session (&ra_session, urla, m_pctx, localpool);
-	if (Err)
+	if (svn_client__open_ra_session (&ra_session, urla, NULL, /* no base dir */NULL, NULL, FALSE, TRUE, m_pctx, localpool))
 		return FALSE;
 
-	Err = svn_ra_get_latest_revnum(ra_session, &rev, localpool);
-	if (Err)
+	if (svn_ra_get_latest_revnum(ra_session, &rev, localpool))
 		return FALSE;
 
-	Err = svn_ra_get_repos_root(ra_session, &returl, localpool);
-	if (Err)
+	if (svn_ra_get_repos_root(ra_session, &returl, localpool))
 		return FALSE;
 		
 	url.SetFromSVN(CUnicodeUtils::GetUnicode(returl));
@@ -1498,7 +1468,7 @@ BOOL SVN::GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks)
 	apr_hash_t * hash = apr_hash_make(localpool);
 
 	/* use subpool to create a temporary RA session */
-	Err = svn_client_open_ra_session (&ra_session, url.GetSVNApiPath(), m_pctx, localpool);
+	Err = svn_client__open_ra_session (&ra_session, url.GetSVNApiPath(), NULL, /* no base dir */NULL, NULL, FALSE, TRUE, m_pctx, localpool);
 	if (Err != NULL)
 		return FALSE;
 
@@ -1527,7 +1497,7 @@ BOOL SVN::GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks)
 	return TRUE;
 }
 
-svn_revnum_t SVN::RevPropertySet(CString sName, CString sValue, CString sURL, SVNRev rev)
+LONG SVN::RevPropertySet(CString sName, CString sValue, CString sURL, SVNRev rev)
 {
 	svn_revnum_t set_rev;
 	svn_string_t*	pval;
@@ -1799,90 +1769,5 @@ apr_array_header_t * SVN::MakePathArray(const CTSVNPathList& pathList)
 		(*((const char **) apr_array_push (targets))) = target;
 	}
 	return targets;
-}
-
-void SVN::SetAndClearProgressInfo(HWND hWnd)
-{
-	m_progressWnd = hWnd;
-	m_pProgressDlg = NULL;
-	progress_total = 0;
-	progress_lastprogress = 0;
-	progress_lasttotal = 0;
-	progress_lastTicks = GetTickCount();
-}
-
-void SVN::SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgressBar/* = false*/)
-{
-	m_progressWnd = NULL;
-	m_pProgressDlg = pProgressDlg;
-	progress_total = 0;
-	progress_lastprogress = 0;
-	progress_lasttotal = 0;
-	progress_lastTicks = GetTickCount();
-	m_bShowProgressBar = bShowProgressBar;
-}
-
-void SVN::progress_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t * /*pool*/)
-{
-	SVN * pSVN = (SVN*)baton;
-	if ((pSVN==0)||((pSVN->m_progressWnd == 0)&&(pSVN->m_pProgressDlg == 0)))
-		return;
-	apr_off_t delta = progress;
-	if ((progress >= pSVN->progress_lastprogress)&&(total == pSVN->progress_lasttotal))
-		delta = progress - pSVN->progress_lastprogress;
-	pSVN->progress_lastprogress = progress;
-	pSVN->progress_lasttotal = total;
-	
-	DWORD ticks = GetTickCount();
-	pSVN->progress_vector.push_back(delta);
-	pSVN->progress_total += delta;
-	//ATLTRACE("progress = %I64d, total = %I64d, delta = %I64d, overall total is : %I64d\n", progress, total, delta, pSVN->progress_total);
-	if ((pSVN->progress_lastTicks + 1000) < ticks)
-	{
-		double divby = (double(ticks - pSVN->progress_lastTicks)/1000.0);
-		if (divby == 0)
-			divby = 1;
-		pSVN->m_SVNProgressMSG.overall_total = pSVN->progress_total;
-		pSVN->m_SVNProgressMSG.progress = progress;
-		pSVN->m_SVNProgressMSG.total = total;
-		pSVN->progress_lastTicks = ticks;
-		apr_off_t average = 0;
-		for (std::vector<apr_off_t>::iterator it = pSVN->progress_vector.begin(); it != pSVN->progress_vector.end(); ++it)
-		{
-			average += *it;
-		}
-		average = apr_off_t(double(average) / divby);
-		pSVN->m_SVNProgressMSG.BytesPerSecond = average;
-		if (average < 1024)
-			pSVN->m_SVNProgressMSG.SpeedString.Format(_T("%ld Bytes/s"), average);
-		else
-		{
-			double averagekb = (double)average / 1024.0;
-			pSVN->m_SVNProgressMSG.SpeedString.Format(_T("%.2f kBytes/s"), averagekb);
-		}
-		if (pSVN->m_progressWnd)
-			SendMessage(pSVN->m_progressWnd, WM_SVNPROGRESS, 0, (LPARAM)&pSVN->m_SVNProgressMSG);
-		else if (pSVN->m_pProgressDlg)
-		{
-			if ((pSVN->m_bShowProgressBar && (progress > 1000) && (total > 0)))
-				pSVN->m_pProgressDlg->SetProgress64(progress, total);
-			else
-				pSVN->m_pProgressDlg->SetProgress64(0, 0);
-
-			CString sTotal;
-			CString temp;
-			if (pSVN->m_SVNProgressMSG.overall_total < 1024)
-				sTotal.Format(IDS_SVN_PROGRESS_TOTALBYTESTRANSFERRED, pSVN->m_SVNProgressMSG.overall_total);
-			else if (pSVN->m_SVNProgressMSG.overall_total < 1200000)
-				sTotal.Format(IDS_SVN_PROGRESS_TOTALTRANSFERRED, pSVN->m_SVNProgressMSG.overall_total / 1024);
-			else
-				sTotal.Format(IDS_SVN_PROGRESS_TOTALMBTRANSFERRED, (double)((double)pSVN->m_SVNProgressMSG.overall_total / 1024000.0));
-			temp.Format(IDS_SVN_PROGRESS_TOTALANDSPEED, sTotal, pSVN->m_SVNProgressMSG.SpeedString);
-
-			pSVN->m_pProgressDlg->SetLine(2, temp);
-		}
-		pSVN->progress_vector.clear();
-	}
-	return;
 }
 

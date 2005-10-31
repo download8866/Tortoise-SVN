@@ -165,7 +165,7 @@ void CShellUpdater::UpdateShell()
 	}
 }
 
-bool CShellUpdater::RebuildIcons()
+void CShellUpdater::RebuildIcons()
 {
 	const int BUFFER_SIZE = 1024;
 	TCHAR *buf = NULL;
@@ -175,10 +175,8 @@ bool CShellUpdater::RebuildIcons()
 	DWORD dwSize;
 	DWORD_PTR dwResult;
 	LONG lRegResult;
-	std::wstring sRegValueName;
-	std::wstring sDefaultIconSize;
-	int iDefaultIconSize;
-	bool bResult = false;
+	stdstring sFilename;
+	stdstring sRegValueName;
 
 	lRegResult = RegOpenKeyEx(HKEY_CURRENT_USER, _T("Control Panel\\Desktop\\WindowMetrics"),
 		0, KEY_READ | KEY_WRITE, &hRegKey);
@@ -189,29 +187,32 @@ bool CShellUpdater::RebuildIcons()
 	if(buf == NULL)
 		goto Cleanup;
 
-	// we're going to change the Shell Icon Size value
-	sRegValueName = _T("Shell Icon Size");
+	// we're going to change the color depth
+	sRegValueName = _T("Shell Icon BPP");
 
 	// Read registry value
 	dwSize = BUFFER_SIZE;
 	lRegResult = RegQueryValueEx(hRegKey, sRegValueName.c_str(), NULL, NULL, 
 		(LPBYTE) buf, &dwSize);
-	if (lRegResult != ERROR_FILE_NOT_FOUND)
+	if (lRegResult == ERROR_FILE_NOT_FOUND)
 	{
-		// If registry key doesn't exist create it using system current setting
-		iDefaultIconSize = ::GetSystemMetrics(SM_CXICON);
-		if (0 == iDefaultIconSize)
-			iDefaultIconSize = 32;
-		_sntprintf(buf, BUFFER_SIZE, _T("%d"), iDefaultIconSize); 
+		_tcsncpy(buf, _T("32"), BUFFER_SIZE);
 	}
 	else if (lRegResult != ERROR_SUCCESS)
 		goto Cleanup;
 
 	// Change registry value
 	dwRegValue = _ttoi(buf);
-	dwRegValueTemp = dwRegValue-1;
+	if (dwRegValue == 4)
+	{
+		dwRegValueTemp = 32;
+	}
+	else
+	{
+		dwRegValueTemp = 4;
+	}
 
-	dwSize = _sntprintf(buf, BUFFER_SIZE, _T("%d"), dwRegValueTemp) + sizeof(TCHAR); 
+	dwSize = _sntprintf(buf, BUFFER_SIZE, _T("%d"), dwRegValueTemp) + 1; 
 	lRegResult = RegSetValueEx(hRegKey, sRegValueName.c_str(), 0, REG_SZ, 
 		(LPBYTE) buf, dwSize); 
 	if (lRegResult != ERROR_SUCCESS)
@@ -223,7 +224,7 @@ bool CShellUpdater::RebuildIcons()
 		0, SMTO_ABORTIFHUNG, 5000, &dwResult);
 
 	// Reset registry value
-	dwSize = _sntprintf(buf, BUFFER_SIZE, _T("%d"), dwRegValue) + sizeof(TCHAR); 
+	dwSize = _sntprintf(buf, BUFFER_SIZE, _T("%d"), dwRegValue) + 1; 
 	lRegResult = RegSetValueEx(hRegKey, sRegValueName.c_str(), 0, REG_SZ, 
 		(LPBYTE) buf, dwSize); 
 	if(lRegResult != ERROR_SUCCESS)
@@ -232,8 +233,6 @@ bool CShellUpdater::RebuildIcons()
 	// Update all windows
 	SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETNONCLIENTMETRICS, 
 		0, SMTO_ABORTIFHUNG, 5000, &dwResult);
-
-	bResult = true;
 
 Cleanup:
 	if (hRegKey != 0)
@@ -244,7 +243,6 @@ Cleanup:
 	{
 		delete buf;
 	}
-
-	return bResult;
+	return;
 
 }
