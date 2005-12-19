@@ -1,0 +1,80 @@
+First, you need to install some utilities/programs:
+- Install VS.NET2003
+- Install the java runtime. Get it from http://java.sun.com
+  or from this direct link:
+  http://java.sun.com/webapps/getjava/BrowserRedirect
+- Install Python 2.4. You can get it from here:
+  http://www.python.org/windows/
+- Set the path where you installed python to the PATH environement variable.
+- To translate the docs, you will also need the libxml2 python bindings.
+  Get them from here: http://users.skynet.be/sbi/libxml-python/
+- Install Perl. Get it from http://www.activestate.com/Products/ActivePerl/
+- Get the WiX tools from http://wix.sourceforge.net and unzip them. Then add
+  it to the PATH environement variable.
+- If you want to include the dictionary and thesaurus in the installer/languagepacks,
+  then you have to download those from http://lingucomponent.openoffice.org/.
+  Important: Only the thesaurus in the format for OO2 will work! Earlier versions
+  will crash TSVN!!
+- Get NSIS from http://nsis.sourceforge.net and install it.
+- Install the latest Nant release. Get it from http://nant.sourceforge.net
+- Add the Nant bin folder to the PATH environement variable.
+
+You may have to logoff/logon to make the new environement variables take effect!
+
+- create a new folder on your harddisk, e.g. SVN. Make sure you have at least
+  1.5 GB of free space left!!!
+- create a new folder in SVN called 'common'
+- Download the openssl source package from
+  http://www.openssl.org/source/ and unzip it to SVN\common, then rename
+  the folder from openssl-0.9.xx to openssl
+- Download the zlib source from 
+  http://www.gzip.org/zlib/ and unzip it to SVN\common\zlib
+- The dictionary files should be placed in SVN\common\Spell
+  Note: the names of the files are important! They have to be
+  en_US.aff, en_US.dic, en_GB.aff and en_GB.dic.
+- Checkout the TortoiseSVN sources from the Subversion repository into
+  SVN\TortoiseSVN
+- Download the tools to build the TSVN docs from 
+  http://tortoisesvn.tigris.org/files/documents/406/11147/Tools.zip and
+  unzip them into SVN\TortoiseSVN\Tools\
+- Make a copy of the file toolpaths.tmpl in the TSVN root folder and
+  rename that copy to toolpaths.build. Then simply adjust the paths as mentioned
+  in that file.
+- To compile the crashrpt project for TortoiseSVN, you'll need the WTL.
+  You can get that library from here: http://wtl.sourceforge.net/
+  Unzip it and then add the path to the VS.NET include path.
+
+Hint: before you can start building TortoiseSVN, you need to call the vsvars32.bat
+file which is located in %VS80COMNTOOLS%. If you don't want to do that every time,
+you can have the command shell call this file automatically:
+- Create a .reg file with the following code and merge it in your registry
+  Windows Registry Editor Version 5.00
+  
+  [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor]
+  "AutoRun"="\"C:\\Program Files\\Microsoft Visual Studio 8\\Common7\\Tools\\vsvars.bat\""
+Next time you start the command prompt, that file will be executed automatically.
+
+
+Now, if you got some time left you can run the build script to compile
+TortoiseSVN. Grab a cup of coffee - it can take up to two hours, depending on
+how fast your computer is (on mine, it takes 1 hour and 50 minutes)!
+
+> nant
+will show you some help about the targets you can use
+
+> nant setup
+will compile everything, including docs and languagepacks and create the msi installer
+
+Note: you may notice some compiler errors when the build script compiles 
+Subversion. The errors you will see are:
+> error C2065: 'SVN_FS_WANT_DB_MAJOR' : undeclared identifier
+> error C2065: 'SVN_FS_WANT_DB_MINOR' : undeclared identifier
+> error C2065: 'SVN_FS_WANT_DB_PATCH' : undeclared identifier
+This is expected and you don't have to worry about that. The reason for those
+erros is that TortoiseSVN builds the Subversion library twice. Once with 
+all the ra-layers and all dbs, and once without those. The errors come
+from that 'raw' build, but from libraries which aren't used in that build
+anyway. Sure, the build script could just compile the libraries which
+are really needed for that build, but it's much easier to just build the
+whole solution instead of individual projects.
+If you want to improve the build script to get rid of those errors, be our guest!
