@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -614,36 +614,6 @@ void CLogPromptDlg::GetAutocompletionList()
 			mapRegex[strLine.Left(strLine.Find('=')).Trim()] = sRegex;
 		}
 		file.Close();
-		SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, sRegexFile.GetBuffer(MAX_PATH+1));
-		sRegexFile.ReleaseBuffer();
-		sRegexFile += _T("\\TortoiseSVN\\autolist.txt");
-		if (PathFileExists(sRegexFile))
-		{
-			CStdioFile file2(sRegexFile, CFile::typeText | CFile::modeRead);
-			while (m_bRunThread && file2.ReadString(strLine))
-			{
-				int eqpos = strLine.Find('=');
-				CString sRegex = strLine.Mid(eqpos+1).Trim();
-				CString sFlags = (strLine[0] == '(' ? strLine.Left(strLine.Find(')')+1).Trim(_T(" ()")) : _T(""));
-				rflags |= sFlags.Find(_T("GLOBAL"))>=0 ? GLOBAL : NOFLAGS;
-				rflags |= sFlags.Find(_T("MULTILINE"))>=0 ? MULTILINE : NOFLAGS;
-				rflags |= sFlags.Find(_T("SINGLELINE"))>=0 ? SINGLELINE : NOFLAGS;
-				rflags |= sFlags.Find(_T("RIGHTMOST"))>=0 ? RIGHTMOST : NOFLAGS;
-				rflags |= sFlags.Find(_T("NORMALIZE"))>=0 ? NORMALIZE : NOFLAGS;
-				rflags |= sFlags.Find(_T("NOCASE"))>=0 ? NOCASE : NOFLAGS;
-
-				if (!sFlags.IsEmpty())
-					strLine = strLine.Mid(strLine.Find(')')+1).Trim();
-				int pos = -1;
-				while (((pos = strLine.Find(','))>=0)&&(pos < eqpos))
-				{
-					mapRegex[strLine.Left(pos)] = sRegex;
-					strLine = strLine.Mid(pos+1).Trim();
-				}
-				mapRegex[strLine.Left(strLine.Find('=')).Trim()] = sRegex;
-			}
-			file2.Close();
-		}
 		DWORD timeout = GetTickCount()+timeoutvalue;		// stop parsing after timeout
 		
 		// now we have two arrays of strings, where the first array contains all

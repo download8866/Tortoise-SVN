@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -99,7 +99,6 @@ CMainFrame::CMainFrame()
 	m_bInitSplitter = FALSE;
 	m_bOneWay = (0 != ((DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\OnePane"))));
 	m_bReversedPatch = FALSE;
-	m_bHasConflicts = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -455,7 +454,6 @@ void CMainFrame::OnFileOpen()
 
 BOOL CMainFrame::LoadViews(BOOL bReload)
 {
-	m_bHasConflicts = false;
 	if (bReload)
 	{
 		if (!this->m_Data.Load())
@@ -612,7 +610,6 @@ BOOL CMainFrame::LoadViews(BOOL bReload)
 	SetActiveView(m_pwndLeftView);
 	if (bGoFirstDiff)
 		m_pwndLeftView->GoToFirstDifference();
-	CheckResolved();
 	return TRUE;
 }
 
@@ -683,7 +680,6 @@ void CMainFrame::OnViewOnewaydiff()
 int CMainFrame::CheckResolved()
 {
 	//only in three way diffs can be conflicts!
-	m_bHasConflicts = true;
 	if (this->m_pwndBottomView->IsWindowVisible())
 	{
 		if (this->m_pwndBottomView->m_arLineStates)
@@ -692,10 +688,9 @@ int CMainFrame::CheckResolved()
 			{
 				if (CDiffData::DIFFSTATE_CONFLICTED == (CDiffData::DiffStates)this->m_pwndBottomView->m_arLineStates->GetAt(i))
 					return i;
-			}
-		}
-	}
-	m_bHasConflicts = false;
+			} // for (int i=0; i<this->m_pwndBottomView->m_arLineStates->GetCount(); i++) 
+		} // if (this->m_pwndBottomView->m_arLineStates) 
+	} // if (this->m_pwndBottomView->IsWindowVisible())
 	return -1;
 }
 
@@ -1347,12 +1342,12 @@ BOOL CMainFrame::MarkAsResolved()
 
 void CMainFrame::OnUpdateMergeNextconflict(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_bHasConflicts);
+	pCmdUI->Enable((m_pwndBottomView)&&(m_pwndBottomView->IsWindowVisible()));
 }
 
 void CMainFrame::OnUpdateMergePreviousconflict(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_bHasConflicts);
+	pCmdUI->Enable((m_pwndBottomView)&&(m_pwndBottomView->IsWindowVisible()));
 }
 
 void CMainFrame::OnMoving(UINT fwSide, LPRECT pRect)
