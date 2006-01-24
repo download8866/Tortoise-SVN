@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,10 +57,9 @@ BOOL CAddDlg::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 
 	//set the listcontrol to support checkboxes
-	m_addListCtrl.Init(0, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD));
+	m_addListCtrl.Init(0, SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD));
 	m_addListCtrl.SetUnversionedRecurse(true);
 	m_addListCtrl.SetSelectButton(&m_SelectAll);
-	m_addListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_addListCtrl.SetEmptyString(IDS_ERR_NOTHINGTOADD);
 
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);

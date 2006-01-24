@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,9 +33,8 @@
 
 #include <ShellAPI.h>
 
-#ifdef _WIN32
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 
 CCrashReport crasher("crashreports@tortoisesvn.tigris.org", "Crash Report for TSVNCache : " STRPRODUCTVER, TRUE);// crash
 

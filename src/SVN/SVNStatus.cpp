@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 
 #include "stdafx.h"
 #include "resource.h"
@@ -289,7 +288,7 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	
 	return youngest;
 }
-svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update, bool recurse, bool bNoIgnore /* = true */)
+svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update, bool recurse)
 {
 	const sort_item*			item;
 
@@ -308,7 +307,7 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 							recurse,	//descend
 							TRUE,		//getall
 							update,		//update
-							bNoIgnore,	//noignore
+							TRUE,		//noignore
 							FALSE,		//noexternals
 							ctx,
 							m_pool);

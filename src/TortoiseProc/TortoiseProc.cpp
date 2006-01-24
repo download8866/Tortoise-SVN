@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,11 +69,9 @@
 #define new DEBUG_NEW
 #endif
 
-#ifdef _WIN32
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#	ifdef _DEBUG
-#		pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
-#	endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifdef _DEBUG
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
 #endif
 
 #define PWND (hWndExplorer ? CWnd::FromHandle(hWndExplorer) : NULL)
@@ -676,10 +674,6 @@ BOOL CTortoiseProcApp::InitInstance()
 						dlg.m_sLogMessage.Empty();
 					}
 				}
-			}
-			if (parser.HasKey(_T("bugid")))
-			{
-				dlg.m_sBugID = parser.GetVal(_T("bugid"));
 			}
 			dlg.m_pathList = pathList;
 			if (dlg.DoModal() == IDOK)

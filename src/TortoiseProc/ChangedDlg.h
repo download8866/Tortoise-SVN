@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "StandAloneDlg.h"
 #include "StandAloneDlg.h"
 #include "SVN.h"
 #include "SVNStatusListCtrl.h"
@@ -42,7 +43,6 @@ protected:
 	afx_msg void			OnBnClickedCheckrepo();
 	afx_msg void			OnBnClickedShowunversioned();
 	afx_msg void			OnBnClickedShowUnmodified();
-	afx_msg void			OnBnClickedShowignored();
 	virtual BOOL			OnInitDialog();
 	virtual void			OnOK();
 	virtual void			OnCancel();
@@ -68,6 +68,5 @@ private:
 	volatile LONG	m_bBlock;
 	CString			m_sTitle;
 	bool			m_bCanceled;
-	BOOL			m_bShowIgnored;
 };
 

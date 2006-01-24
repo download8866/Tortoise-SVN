@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -67,7 +67,6 @@ public:
 private:
 	static UINT StatusThreadEntry(LPVOID pVoid);
 	UINT StatusThread();
-	void UpdateOKButton();
 
 // Dialog Data
 	enum { IDD = IDD_LOGPROMPT };
@@ -88,7 +87,6 @@ protected:
 	afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 	afx_msg LRESULT OnAutoListReady(WPARAM, LPARAM);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnLvnItemchangedFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	void Refresh();
 	void GetAutocompletionList();
 	void ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags);
@@ -102,7 +100,6 @@ public:
 	CSciEdit		m_cLogMessage;
 	CString			m_sLogMessage;
 	BOOL			m_bKeepLocks;
-	CString			m_sBugID;
 
 private:
 	CWinThread*		m_pThread;
@@ -116,6 +113,7 @@ private:
 	CRegDWORD		m_regAddBeforeCommit;
 	ProjectProperties		m_ProjectProperties;
 	CButton			m_SelectAll;
+	CString			m_sBugID;
 	CString			m_sWindowTitle;
 	static UINT		WM_AUTOLISTREADY;
 	int				m_nPopupPasteListCmd;

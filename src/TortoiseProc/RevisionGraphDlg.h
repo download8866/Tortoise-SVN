@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,8 +26,7 @@ enum NodeShape
 {
 	TSVNRectangle,
 	TSVNRoundRect,
-	TSVNOctangle,
-	TSVNEllipse
+	TSVNOctangle
 };
 #define STARTPOINT_PT		(CPoint(5, 5))
 #define SHADOW_OFFSET_PT	(CPoint(4, 4))

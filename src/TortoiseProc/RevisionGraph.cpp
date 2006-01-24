@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -354,7 +354,7 @@ bool CRevisionGraph::BuildForwardCopies()
 				default:
 					action = CRevisionEntry::nothing;
 					break;
-				}
+				}		
 				if (val->copyfrom_path)
 				{
 					// yes, this entry was copied from somewhere
@@ -368,11 +368,6 @@ bool CRevisionGraph::BuildForwardCopies()
 					reventry->action = action;
 				}
 				else if (val->action == 'R')
-				{
-					CRevisionEntry * reventry = GetRevisionEntry(key, logentry->rev);
-					reventry->action = action;
-				}
-				else
 				{
 					CRevisionEntry * reventry = GetRevisionEntry(key, logentry->rev);
 					reventry->action = action;
@@ -392,8 +387,6 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 
 	bool bRenamed = false;
 	bool bDeleted = false;
-	CRevisionEntry * lastchangedreventry = NULL;
-	CRevisionEntry * firstchangedreventry = NULL;
 	for (svn_revnum_t currentrev=startrev; currentrev <= m_lHeadRevision; ++currentrev)
 	{
 		// show progress info
@@ -418,15 +411,13 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 			reventry = (CRevisionEntry*)m_arEntryPtrs[findrev];
 			if (reventry->revision == currentrev)
 			{
+				if ((bDeleted)&&(reventry->action != CRevisionEntry::added))
+					continue;
 				// we have an entry
 				if (IsParentOrItself(reventry->url, url))
 				{
-					if ((bDeleted)&&(reventry->action != CRevisionEntry::added))
+					if ((bDeleted)&&(strcmp(reventry->url, url)!=0))
 						continue;
-					bool bIsSame = (strcmp(reventry->url, url) == 0);
-					if ((bDeleted)&&(!bIsSame))
-						continue;
-
 					bDeleted = false;
 					reventry->level = m_nRecurseLevel;
 					if (reventry->action == CRevisionEntry::deleted)
@@ -439,11 +430,6 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 							TRACE(_T("%s renamed to %s in revision %ld\n"), (LPCTSTR)CString(url), (LPCTSTR)CString(newname), currentrev);
 							url = newname;
 							ATLASSERT(reventry->sourcearray.GetCount()==0);
-							if (reventry == lastchangedreventry)
-							{
-								lastchangedreventry = NULL;
-								firstchangedreventry = NULL;
-							}
 							delete reventry;
 							m_arEntryPtrs.RemoveAt(findrev);
 							findrev = -1;
@@ -470,9 +456,10 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 					{
 						reventry->bUsed = true;
 					}
-					CStringA child = url.Mid(strlen(reventry->url));
+					CStringA child;
 					if (reventry->action != CRevisionEntry::added)
 					{
+						child = url.Mid(strlen(reventry->url));
 						if (!child.IsEmpty())
 						{
 							reventry->url = apr_pstrcat(pool, reventry->url, (LPCSTR)child, NULL);
@@ -493,65 +480,13 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 						{
 							source_entry * sentry = (source_entry*)reventry->sourcearray[copytoindex];
 							// follow all copy to targets
-							CStringA targetURL = sentry->pathto + url.Mid(strlen(reventry->realurl));
+							CStringA targetURL = sentry->pathto + child;
 							AnalyzeRevisions(targetURL, sentry->revisionto);
 						}
 					}
-					if (bIsSame)
-					{
-						if ((bDeleted)||(reventry->action == CRevisionEntry::deleted)||(reventry->action == CRevisionEntry::replaced))
-							continue;
-						if (lastchangedreventry)
-						{
-							if (reventry->revision > lastchangedreventry->revision)
-								lastchangedreventry = reventry;
-						}
-						else
-							lastchangedreventry = reventry;
-						if (firstchangedreventry)
-						{
-							if (reventry->revision < firstchangedreventry->revision)
-								firstchangedreventry = reventry;
-						}
-						else
-							firstchangedreventry = reventry;
-					}
-				}
-				else if (IsParentOrItself(url, reventry->url))
-				{
-					if ((bDeleted)||(reventry->action == CRevisionEntry::deleted)||(reventry->action == CRevisionEntry::replaced))
-						continue;
-					if (lastchangedreventry)
-					{
-						if (reventry->revision > lastchangedreventry->revision)
-							lastchangedreventry = reventry;
-					}
-					else
-						lastchangedreventry = reventry;
-					if (firstchangedreventry)
-					{
-						if (reventry->revision < firstchangedreventry->revision)
-							firstchangedreventry = reventry;
-					}
-					else
-						firstchangedreventry = reventry;
 				}
 			}
 		}
-	}
-	if ((lastchangedreventry)&&(!lastchangedreventry->bUsed))
-	{
-		lastchangedreventry->bUsed = true;
-		lastchangedreventry->action = CRevisionEntry::lastcommit;
-		lastchangedreventry->level = m_nRecurseLevel;
-		lastchangedreventry->url = apr_pstrdup(pool, url);
-	}
-	if ((firstchangedreventry)&&(!firstchangedreventry->bUsed))
-	{
-		firstchangedreventry->bUsed = true;
-		firstchangedreventry->action = CRevisionEntry::lastcommit;
-		firstchangedreventry->level = m_nRecurseLevel;
-		firstchangedreventry->url = apr_pstrdup(pool, url);
 	}
 	m_nRecurseLevel--;
 	return true;
@@ -622,7 +557,6 @@ CRevisionEntry * CRevisionGraph::GetRevisionEntry(const char * path, svn_revnum_
 		reventry = new CRevisionEntry();
 		reventry->revision = rev;
 		reventry->url = apr_pstrdup(pool, path);
-		reventry->realurl = apr_pstrdup(pool, path);
 		log_entry * logentry = APR_ARRAY_IDX(m_logdata, m_lHeadRevision-rev, log_entry*);
 		if (logentry)
 		{

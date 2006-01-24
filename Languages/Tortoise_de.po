@@ -1,6 +1,6 @@
 #
 # German translation for TortoiseSVN
-# Copyright (C) 2004-2006 the TortoiseSVN team
+# Copyright (C) 2004-2005 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Authors:
@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 14:09+0200\n"
-"PO-Revision-Date: 2006-01-24 09:20+0100\n"
+"PO-Revision-Date: 2005-12-29 11:07+0100\n"
 "Last-Translator: Lübbe Onken <luebbe@tigris.org>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -181,7 +181,7 @@ msgstr "Standard-Diff &anwenden"
 
 #: Control-ID:65535
 msgid "&Autoclose:"
-msgstr "&Schließen:"
+msgstr "&Automatisch Schließen:"
 
 #: Control-ID:1015
 msgid "&Backup original file"
@@ -239,7 +239,7 @@ msgstr "&Einrichten"
 
 #: Control-ID:1227
 msgid "&Contact the repository on startup"
-msgstr "&Projektarchiv automatisch prüfen"
+msgstr "&Projektarchiv beim Start kontaktieren"
 
 #: Control-ID:1073
 msgid "&Convert files when diffing against BASE"
@@ -314,7 +314,7 @@ msgstr "&Lokale Laufwerke"
 
 #: Control-ID:65535
 msgid "&Font for log messages:"
-msgstr "&Zeichensatz:"
+msgstr "&Zeichensatz für Log-Meldungen:"
 
 #: Control-ID:65535
 msgid "&Font:"
@@ -408,7 +408,7 @@ msgstr "&Zusammenführen"
 
 #: Control-ID:1129
 msgid "&Native filesystem (FSFS)"
-msgstr "&Eigenes Dateisystem (FSFS)"
+msgstr "&Eigenes Dateisystem (fsfs)"
 
 #: Control-ID:1049
 msgid "&Network drives"
@@ -710,7 +710,7 @@ msgid ""
 msgstr ""
 "<b>TortoiseSVN</b> ist eine Shell Erweiterung.\n"
 "Das bedeutet, dass es in den Windows Explorer integriert ist. Um\n"
-"<b>TortoiseSVN</b> zu verwenden, öffnen Sie den Explorer und machen\n"
+"<b>TortoiseSVN</b> zu verwenden, öffen Sie den Explorer und machen\n"
 "Sie einen Rechts-Klick, damit das Kontextmenü angezeigt wird.\n"
 "Dort finden Sie sämtliche <b>TortoiseSVN</b> Befehle.\n"
 "Und <u>lesen Sie das Handbuch!</u>"
@@ -748,7 +748,7 @@ msgstr ""
 
 #: ID:3843
 msgid "A required resource was unavailable."
-msgstr "Eine benötigte Ressource war nicht verfügbar."
+msgstr "Eine benötigte Resource war nicht verfügbar."
 
 #: ID:3867
 #, c-format
@@ -1036,11 +1036,10 @@ msgid "Are you sure you want to mark the conflicted file(s) as resolved?"
 msgstr "Sind Sie sicher, dass sie den Konflikt aufgelöst haben?"
 
 #: ID:79
-#, c-format
-msgid "Are you sure you want to revert %d item(s)? You will lose <b>all</b> changes since the last update!"
+msgid "Are you sure you want to revert? You will lose <b>all</b> changes since the last update!"
 msgstr ""
-"Sind Sie sicher dass Sie die Änderungen an %d Objekten rückgängig machen wollen?\n"
-"Sie werden <b>alle</b> Änderungen seit der letzten Aktualisierung verlieren!"
+"Sind Sie sicher dass Sie die Ihre Änderungen rückgängig machen wollen?\n"
+"Sie werden <b>alle</b> Ihre Änderungen seit der letzten Aktualisierung verlieren!"
 
 #: ID:77
 #, c-format
@@ -1336,7 +1335,7 @@ msgstr "Manuell"
 
 #: ID:3825
 msgid "Close the active window and prompts to save the documents"
-msgstr "Schließt das aktive Fenster und fragt nach, ob die Daten gespeichert werden sollen"
+msgstr "Schliesst das aktive Fenster und fragt nach, ob die Daten gespeichert werden sollen"
 
 #: Control-ID:1068
 msgid "Color co&de in-line changes"
@@ -1865,7 +1864,7 @@ msgstr ""
 
 #: ID:3825
 msgid "Enlarge the window to full size"
-msgstr "Vergrößert das Fenster auf Bildschirmgröße"
+msgstr "Vergrössert das Fenster auf Bildschirmgrösse"
 
 #: ID:80
 msgid "Enter URL"
@@ -2054,11 +2053,11 @@ msgstr "Von: (Start-URL und Revision des zusammenzuführenden Bereichs)"
 
 #: ID:273
 msgid "GDI+ couldn't be initialized!"
-msgstr "GDI+ konnte nicht initialisiert werden!"
+msgstr "GDI+ konnte nicht intialisiert werden!"
 
 #: ID:273
 msgid "GDI+ couldn't create a bitmap object. You probably don't have enough memory."
-msgstr "GDI+ konnte kein Bitmapobjekt erzeugen. Vermutlich reicht der Speicher nicht aus."
+msgstr "GDI+ konne kein Bitmapobjekt erzeugen. Vermutlich reicht der Speicher nicht aus."
 
 # ID:83,
 #: ID:83
@@ -2699,7 +2698,7 @@ msgstr ""
 "dem letzten Übertragen verändert.\n"
 "Es gibt nichts zu tun für TortoiseSVN...\n"
 "\n"
-"Soll TortoiseSVN die nicht versionierten Dateien anzeigen?"
+"Soll TortoiseSVN die nicht versionierten Dateien angezeigen?"
 
 #: ID:273
 msgid "No graph available"
@@ -2779,7 +2778,7 @@ msgid ""
 "Only numbers (optionally separated by commas)\n"
 "are allowed!"
 msgstr ""
-"Nur Zahlen (ggf. durch Kommata separiert)\n"
+"Nur Zahlen (ggfs durch Kommata separiert)\n"
 "sind zugelassen!"
 
 #: Control-ID:1073
@@ -3226,7 +3225,7 @@ msgstr "Standardfarben"
 
 #: ID:3826
 msgid "Restore the window to normal size"
-msgstr "Stelle die Normalgröße des Fensters wieder her"
+msgstr "Stelle die Normalgrösse des Fensters wieder her"
 
 #: ID:73
 msgid "Restored"
@@ -3387,7 +3386,7 @@ msgstr "Änderungen in %1 speichern?"
 
 #: ID:232
 msgid "Save client certificate path"
-msgstr "Client Zertifikatsdatei speichern"
+msgstr "Client Zertifikatsdatei speichen"
 
 #: ID:272
 msgid "Save graph as..."
@@ -3524,7 +3523,7 @@ msgstr "Sende Inhalt"
 
 #: Control-ID:65535
 msgid "Server &address:"
-msgstr "&Server Adresse:"
+msgstr "&Server Addresse:"
 
 #: Control-ID:1088
 msgid "Set filedates to the \"last commit &time\""
@@ -3553,7 +3552,7 @@ msgstr "Zeige &Eigenschaften"
 
 #: Control-ID:1105
 msgid "Short &date/time format in log messages"
-msgstr "&Kurzes Datum- / Zeitformat"
+msgstr "&Kurzes Datum/Zeit Format in Log Meldungen"
 
 #: ID:12
 msgid "Short Url of Subversion items"
@@ -3592,10 +3591,6 @@ msgstr "Zeige &nicht versionierte Dateien"
 #: ID:113
 msgid "Show differences as &unified diff"
 msgstr "Zeige Unterschiede als &Standard-Diff"
-
-#: Control-ID:1264
-msgid "Show ignored files"
-msgstr "Ignorierte Dateien &zeigen"
 
 #: Control-ID:1065
 msgid "Show li&ne diff bar"
@@ -3861,7 +3856,7 @@ msgstr "Das Projektarchiv wurde erfolgreich erstellt."
 
 #: ID:63
 msgid "The chunk size did not match the number of added/removed lines!"
-msgstr "Die Stück-Größe stimmt nicht mit der Anzahl hinzugefügter/gelöschter Linien überein!"
+msgstr "Die Stück-Grösse stimmt nicht mit der Anzahl hinzugefügter/gelöschter Linien überein!"
 
 #: ID:63
 #, c-format
@@ -3889,7 +3884,7 @@ msgstr "Die Datei %s wurde in der Patch-Datei nicht gefunden!"
 
 #: ID:3857
 msgid "The file is too large to open."
-msgstr "Die Datei ist zu groß, um sie zu öffnen."
+msgstr "Die Datei ist zu gross, um sie zu öffnen."
 
 #: ID:80
 #, c-format
@@ -4312,7 +4307,7 @@ msgstr "TortoiseSVN : Projektarchiv"
 
 #: Dlg-ID:207
 msgid "TortoiseSVN : Resolve"
-msgstr "TortoiseSVN : Auflösen"
+msgstr "TortoiseSVN : Aulösen"
 
 #: Dlg-ID:175
 msgid "TortoiseSVN : Revert"
@@ -4710,7 +4705,7 @@ msgid ""
 "Do you really want to do that?"
 msgstr ""
 "Sie versuchen auf ein Projektarchiv mittels file:/// zuzugreifen, welches auf einer Netzwerkfreigabe liegt.\n"
-"<b>Dies kann zur Zerstörung des Projektarchivs führen!</b>\n"
+"<b>Dies kann zur Zerstörung des Projektarchivs führen!</b>.\n"
 "Möchten Sie dies wirklich tun?"
 
 # ID:16,

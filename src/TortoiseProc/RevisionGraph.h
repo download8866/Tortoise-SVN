@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,8 +53,7 @@ public:
 		added,
 		addedwithhistory,
 		renamed,
-		replaced,
-		lastcommit
+		replaced
 	};
 	//methods
 	CRevisionEntry(void) : revision(0), url(NULL), author(NULL), date(0),
@@ -66,7 +65,6 @@ public:
 	//members
 	LONG			revision;
 	const char *	url;
-	const char *	realurl;
 	const char *	author;
 	apr_time_t		date;
 	const char *	message;

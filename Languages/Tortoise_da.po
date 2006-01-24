@@ -1,13 +1,13 @@
 #
 # Danish translation for TortoiseSVN
-# Copyright (C) 2004-2006 the TortoiseSVN team
+# Copyright (C) 2005-2006 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Author:
 # Jan Normann Nielsen <spam@dubbekarl.dk>
 # Gunther Strube <gbs@users.sourceforge.net>
 #
-# Based on Tortoise.pot r5272
+# Based on Tortoise.pot r5300
 #
 msgid ""
 msgstr ""

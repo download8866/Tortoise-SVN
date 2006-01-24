@@ -111,18 +111,17 @@ BEGIN
     PUSHBUTTON      "&Help",IDHELP,187,133,50,14
 END
 
-IDD_CHANGEDFILES DIALOGEX 0, 0, 446, 231
+IDD_CHANGEDFILES DIALOGEX 0, 0, 446, 222
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "TortoiseSVN : Working Copy"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     CONTROL         "",IDC_CHANGEDLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,432,171
     CONTROL         "Show unversioned files",IDC_SHOWUNVERSIONED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,181,260,10
-    CONTROL         "Show unmodified files",IDC_SHOWUNMODIFIED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,191,262,10
-    LTEXT           "",IDC_SUMMARYTEXT,7,213,281,11
-    PUSHBUTTON      "Check repository",IDC_CHECKREPO,294,210,87,14
-    DEFPUSHBUTTON   "&OK",IDOK,389,210,50,14
-    CONTROL         "Show ignored files",IDC_SHOWIGNORED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,201,263,10
+    CONTROL         "Show unmodified files",IDC_SHOWUNMODIFIED,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,192,262,10
+    LTEXT           "",IDC_SUMMARYTEXT,7,203,281,12
+    PUSHBUTTON      "Check repository",IDC_CHECKREPO,294,201,87,14
+    DEFPUSHBUTTON   "&OK",IDOK,389,201,50,14
 END
 
 IDD_CHECKOUT DIALOGEX 0, 0, 300, 177
@@ -875,7 +874,7 @@ BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 439
         TOPMARGIN, 7
-        BOTTOMMARGIN, 224
+        BOTTOMMARGIN, 215
     END
 
     IDD_CHECKOUT, DIALOG
@@ -1471,7 +1470,7 @@ BEGIN
     IDS_UTILS_SELECTTEXTVIEWER "Select text editor application"
     IDS_SETTINGS_CONVERTBASE_TT 
                             "If checked, TortoiseSVN creates a temporary file of the BASE to do the diff with the keywords expanded and the lineendings adjusted."
-    IDS_PROC_WARNREVERT     "Are you sure you want to revert %d item(s)? You will lose <b>all</b> changes since the last update!"
+    IDS_PROC_WARNREVERT     "Are you sure you want to revert? You will lose <b>all</b> changes since the last update!"
     IDS_PROC_CLEANUPFINISHED "Cleanup has finished"
     IDS_PROC_REPOCREATEERR  "Subversion reported an error while creating a repository!\nMake sure the folder is empty and not write protected."
     IDS_PROC_EXPORT_1       "Select folder to export to.\nYou might need to create a new folder before performing this export."

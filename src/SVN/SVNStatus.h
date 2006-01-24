@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 
 #pragma once
 
@@ -127,7 +126,7 @@ public:
 	 * \param update set this to true if you want the status to be updated with the repository (needs network access)
 	 * \return the status
 	 */
-	svn_wc_status2_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false, bool recurse = true, bool bNoIgnore = true);
+	svn_wc_status2_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false, bool recurse = true);
 	unsigned int GetFileCount() {return apr_hash_count(m_statushash);}
 	unsigned int GetVersionedCount();
 	/**
