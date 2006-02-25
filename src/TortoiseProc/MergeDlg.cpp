@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,6 @@ CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
 	, EndRev(_T("HEAD"))
 	, m_bUseFromURL(TRUE)
 	, m_bDryRun(FALSE)
-	, m_bIgnoreAncestry(FALSE)
 {
 	m_pLogDlg = NULL;
 	m_pLogDlg2 = NULL;
@@ -60,7 +59,6 @@ void CMergeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
 	DDX_Check(pDX, IDC_USEFROMURL, m_bUseFromURL);
-	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
 }
 
 
@@ -383,7 +381,6 @@ void CMergeDlg::OnBnClickedFindbranchstart()
 		m_pLogDlg->m_pNotifyWindow = this;
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
-		m_pLogDlg->ContinuousSelection(true);
 		m_pLogDlg->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);
@@ -416,7 +413,6 @@ void CMergeDlg::OnBnClickedFindbranchend()
 		m_pLogDlg2->m_pNotifyWindow = this;
 		m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg2->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
-		m_pLogDlg2->ContinuousSelection(true);
 		m_pLogDlg2->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);

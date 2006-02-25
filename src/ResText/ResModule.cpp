@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -959,14 +959,15 @@ const WORD * CResModule::CountMemReplaceDialogResource(const WORD * res, size_t 
 		{
 			newDialog[(*wordcount)++] = GET_WORD(res++);	//exStyle
 			newDialog[(*wordcount)++] = GET_WORD(res++);	//exStyle
-			//style = GET_DWORD(res);
-			//newDialog[(*wordcount)++] = GET_WORD(res++);	//style
-			//newDialog[(*wordcount)++] = GET_WORD(res++);	//style
-		}
+			style = GET_DWORD(res);
+			newDialog[(*wordcount)++] = GET_WORD(res++);	//style
+			newDialog[(*wordcount)++] = GET_WORD(res++);	//style
+		} // if (newDialog)
 		else
 		{
-			res += 2;
-			(*wordcount) += 2;
+			res += 4;
+			style = GET_DWORD(res);
+			(*wordcount) += 4;
 		}
 	}
 

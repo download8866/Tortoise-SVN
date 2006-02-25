@@ -1,21 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
-
-// Copyright (C) 2003-2006 - Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// LockDlg.cpp : implementation file
 //
+
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "MessageBox.h"
@@ -29,7 +14,6 @@ CLockDlg::CLockDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CLockDlg::IDD, pParent)
 	, m_bStealLocks(FALSE)
 	, m_pThread(NULL)
-	, m_bCancelled(false)
 {
 }
 
@@ -62,9 +46,7 @@ BOOL CLockDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK, _T("LockDlg"));
-	m_cFileList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
-	m_cFileList.SetCancelBool(&m_bCancelled);
+	m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK);
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
 	m_cEdit.Init(m_ProjectProperties);
 	m_cEdit.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
@@ -116,7 +98,6 @@ void CLockDlg::OnOK()
 
 void CLockDlg::OnCancel()
 {
-	m_bCancelled = true;
 	if (m_bBlock)
 		return;
 	CResizableStandAloneDialog::OnCancel();
@@ -133,13 +114,11 @@ UINT CLockDlg::StatusThread()
 	//and show the ones which have to be committed to the user
 	//in a listcontrol. 
 	m_bBlock = TRUE;
+	GetDlgItem(IDCANCEL)->EnableWindow(false);
 	GetDlgItem(IDOK)->EnableWindow(false);
-	m_bCancelled = false;
+
 	// Initialise the list control with the status of the files/folders below us
-	if (!m_cFileList.GetStatus(m_pathList))
-	{
-		CMessageBox::Show(m_hWnd, m_cFileList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-	}
+	m_cFileList.GetStatus(m_pathList);
 
 	DWORD dwShow = SVNSLC_SHOWNORMAL | SVNSLC_SHOWMODIFIED | SVNSLC_SHOWMERGED | SVNSLC_SHOWLOCKS;
 	m_cFileList.Show(dwShow, dwShow, false);
@@ -147,6 +126,7 @@ UINT CLockDlg::StatusThread()
 	POINT pt;
 	GetCursorPos(&pt);
 	SetCursorPos(pt.x, pt.y);
+	GetDlgItem(IDCANCEL)->EnableWindow(true);
 	CString logmsg;
 	GetDlgItem(IDC_LOCKMESSAGE)->GetWindowText(logmsg);
 	if (m_ProjectProperties.nMinLockMsgSize > logmsg.GetLength())

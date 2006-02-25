@@ -1,20 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
-
-// Copyright (C) 2003-2006 - Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// CreatePatch.cpp : implementation file
 //
 
 #include "stdafx.h"
@@ -29,9 +13,8 @@
 
 IMPLEMENT_DYNAMIC(CCreatePatch, CResizableStandAloneDialog)
 CCreatePatch::CCreatePatch(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CCreatePatch::IDD, pParent)
-	, m_bThreadRunning(FALSE)
-	, m_bCancelled(false)
+	: CResizableStandAloneDialog(CCreatePatch::IDD, pParent),
+	m_bThreadRunning(FALSE)
 {
 }
 
@@ -60,10 +43,8 @@ BOOL CCreatePatch::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 
 	//set the listcontrol to support checkboxes
-	m_PatchList.Init(0, _T("CreatePatchDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT));
-	m_PatchList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
+	m_PatchList.Init(0, SVNSLC_POPALL ^ (SVNSLC_POPIGNORE));
 	m_PatchList.SetSelectButton(&m_SelectAll);
-	m_PatchList.SetCancelBool(&m_bCancelled);
 
 	AddAnchor(IDC_PATCHLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -95,17 +76,14 @@ UINT CCreatePatch::PatchThread()
 	//and show the ones which have to be committed to the user
 	//in a listcontrol. 
 	GetDlgItem(IDOK)->EnableWindow(false);
-	m_bCancelled = false;
+	GetDlgItem(IDCANCEL)->EnableWindow(false);
 
-	if (!m_PatchList.GetStatus(m_pathList))
-	{
-		CMessageBox::Show(m_hWnd, m_PatchList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-	}
-
+	m_PatchList.GetStatus(m_pathList);
 	m_PatchList.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS, 
 						SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS);
 
 	GetDlgItem(IDOK)->EnableWindow(true);
+	GetDlgItem(IDCANCEL)->EnableWindow(true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }
@@ -166,7 +144,6 @@ void CCreatePatch::OnBnClickedHelp()
 
 void CCreatePatch::OnCancel()
 {
-	m_bCancelled = true;
 	if (m_bThreadRunning)
 		return;
 

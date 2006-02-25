@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,11 +69,9 @@
 #define new DEBUG_NEW
 #endif
 
-#ifndef WIN64
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#	ifdef _DEBUG
-#		pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
-#	endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifdef _DEBUG
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
 #endif
 
 #define PWND (hWndExplorer ? CWnd::FromHandle(hWndExplorer) : NULL)
@@ -604,7 +602,7 @@ BOOL CTortoiseProcApp::InitInstance()
 				CSVNProgressDlg progDlg;
 				progDlg.m_dwCloseOnEnd = parser.GetLongVal(_T("closeonend"));
 				m_pMainWnd = &progDlg;
-				progDlg.SetParams(CSVNProgressDlg::Import, dlg.m_bIncludeIgnored ? ProgOptIncludeIgnored : 0, pathList, dlg.m_url, dlg.m_sMessage);
+				progDlg.SetParams(CSVNProgressDlg::Import, 0, pathList, dlg.m_url, dlg.m_sMessage);
 				progDlg.DoModal();
 			}
 		}
@@ -676,10 +674,6 @@ BOOL CTortoiseProcApp::InitInstance()
 						dlg.m_sLogMessage.Empty();
 					}
 				}
-			}
-			if (parser.HasKey(_T("bugid")))
-			{
-				dlg.m_sBugID = parser.GetVal(_T("bugid"));
 			}
 			dlg.m_pathList = pathList;
 			if (dlg.DoModal() == IDOK)
@@ -919,9 +913,7 @@ BOOL CTortoiseProcApp::InitInstance()
 					CSVNProgressDlg progDlg;
 					progDlg.m_dwCloseOnEnd = parser.GetLongVal(_T("closeonend"));
 					//m_pMainWnd = &progDlg;
-					int options = dlg.m_bDryRun ? ProgOptDryRun : 0;
-					options |= dlg.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
-					progDlg.SetParams(CSVNProgressDlg::Merge, options, pathList, dlg.m_URLFrom, dlg.m_URLTo, dlg.StartRev);		//use the message as the second url
+					progDlg.SetParams(CSVNProgressDlg::Merge, dlg.m_bDryRun ? ProgOptDryRun : 0, pathList, dlg.m_URLFrom, dlg.m_URLTo, dlg.StartRev);		//use the message as the second url
 					progDlg.m_RevisionEnd = dlg.EndRev;
 					progDlg.DoModal();
 					repeat = dlg.m_bDryRun;
@@ -1194,20 +1186,8 @@ BOOL CTortoiseProcApp::InitInstance()
 				return FALSE;
 			SVN svn;
 			unsigned long count = 0;
-			pathList.RemoveAdminPaths();
-			CString sNewName;
-			if ((parser.HasKey(_T("rename")))&&(pathList.GetCount()==1))
-			{
-				// ask for a new name of the source item
-				CRenameDlg renDlg;
-				renDlg.m_name = pathList[0].GetFileOrDirectoryName();
-				if (renDlg.DoModal() != IDOK)
-				{
-					return FALSE;
-				}
-				sNewName = renDlg.m_name;
-			}
 			CProgressDlg progress;
+			pathList.RemoveAdminPaths();
 			if (progress.IsValid())
 			{
 				progress.SetTitle(IDS_PROC_MOVING);
@@ -1217,16 +1197,10 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 			for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 			{
-				CTSVNPath destPath;
-				if (sNewName.IsEmpty())
-					destPath = CTSVNPath(droppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
-				else
-					destPath = CTSVNPath(droppath+_T("\\")+sNewName);
-				if (destPath.Exists())
+				CTSVNPath destPath(droppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
+				if (pathList[nPath].IsEquivalentTo(destPath))
 				{
 					CString name = pathList[nPath].GetFileOrDirectoryName();
-					if (!sNewName.IsEmpty())
-						name = sNewName;
 					progress.Stop();
 					CRenameDlg dlg;
 					dlg.m_windowtitle.Format(IDS_PROC_NEWNAMEMOVE, (LPCTSTR)name);
@@ -1287,13 +1261,6 @@ BOOL CTortoiseProcApp::InitInstance()
 			for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 			{
 				CString dropper = droppath + _T("\\") + pathList[nPath].GetFileOrDirectoryName();
-				if (PathFileExists(dropper))
-					dropper.Format(IDS_PROC_EXPORTFOLDERNAME, droppath, pathList[nPath].GetFileOrDirectoryName());
-				int exportcount = 1;
-				while (PathFileExists(dropper))
-				{
-					dropper.Format(IDS_PROC_EXPORTFOLDERNAME2, droppath, exportcount++, pathList[nPath].GetFileOrDirectoryName());
-				}
 				if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, TRUE, FALSE, EXPLORERHWND, parser.HasKey(_T("extended"))))
 				{
 					CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
@@ -1615,16 +1582,9 @@ BOOL CTortoiseProcApp::InitInstance()
 		//#region blame
 		if (command == cmdBlame)
 		{
-			bool bShowDialog = true;
 			CBlameDlg dlg;
 			dlg.EndRev = SVNRev::REV_HEAD;
-			if (parser.HasKey(_T("startrev")) && parser.HasKey(_T("endrev")))
-			{
-				bShowDialog = false;
-				dlg.StartRev = parser.GetLongVal(_T("startrev"));
-				dlg.EndRev = parser.GetLongVal(_T("endrev"));
-			}
-			if ((!bShowDialog)||(dlg.DoModal() == IDOK))
+			if (dlg.DoModal() == IDOK)
 			{
 				CBlame blame;
 				CString tempfile;
@@ -1705,7 +1665,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		if (command == cmdRevisionGraph)
 		{
 			CRevisionGraphDlg dlg;
-			dlg.SetPath(cmdLinePath.GetWinPathString());
+			dlg.m_sPath = cmdLinePath.GetWinPathString();
 			dlg.DoModal();
 		} 
 		//#endregion

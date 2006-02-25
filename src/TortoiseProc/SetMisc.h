@@ -1,6 +1,11 @@
+#pragma once
+
+
+// CSetMisc dialog
+
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +40,7 @@ public:
 	  */
 	void SaveData();
 	
-	UINT GetIconID() {return IDI_DIALOGS;}
+	UINT GetIconID() {return IDI_MISC;}
 
 // Dialog Data
 	enum { IDD = IDD_SETTINGSMISC };
@@ -60,6 +65,4 @@ private:
 	BOOL			m_bSpell;
 	CRegDWORD		m_regCheckRepo;
 	BOOL			m_bCheckRepo;
-	CRegDWORD		m_regMaxHistory;
-	DWORD			m_dwMaxHistory;
 };

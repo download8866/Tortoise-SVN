@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,6 @@ protected:
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnBnClickedStacked();
 	afx_msg void OnNeedText(NMHDR *pnmh, LRESULT *pResult);
-	afx_msg void OnBnClickedIgnorecase();
 
 	DECLARE_MESSAGE_MAP()
 	
@@ -51,7 +50,6 @@ protected:
 	CComboBox		m_cGraphType;
 	CSliderCtrl		m_Skipper;
 	BOOL			m_bStacked;
-	BOOL			m_bIgnoreAuthorCase;
 	
 	void		ShowCommitsByDate();
 	void		ShowCommitsByAuthor();

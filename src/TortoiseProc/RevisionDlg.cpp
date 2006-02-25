@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,6 @@ IMPLEMENT_DYNAMIC(CRevisionDlg, CDialog)
 CRevisionDlg::CRevisionDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CRevisionDlg::IDD, pParent)
 	, SVNRev(_T("HEAD"))
-	, m_bAllowWCRevs(true)
 {
 }
 
@@ -84,12 +83,12 @@ void CRevisionDlg::OnOK()
 		SVNRev::Create(_T("HEAD"));
 		m_sRevision = _T("HEAD");
 	}
-	if ((!IsValid())||((!m_bAllowWCRevs)&&(IsPrev() || IsCommitted() || IsBase())))
+	if (!IsValid())
 	{
 		CWnd* ctrl = GetDlgItem(IDC_REVNUM);
 		CRect rt;
 		ctrl->GetWindowRect(rt);
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_REVNUM), m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC, TRUE, IDI_EXCLAMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_REVNUM), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return;
 	}
 

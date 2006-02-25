@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 #include "StdAfx.h"
 #include "TSVNPath.h"
 #include "UnicodeUtils.h"
@@ -76,7 +75,6 @@ void CTSVNPath::SetFromSVN(const char* pPath)
 		len = MultiByteToWideChar(CP_UTF8, 0, pPath, -1, m_sFwdslashPath.GetBuffer(len+1), len+1);
 		m_sFwdslashPath.ReleaseBuffer(len-1);
 	}
-	ATLASSERT(m_sFwdslashPath.Find('\\')<0);
 }
 
 void CTSVNPath::SetFromSVN(const char* pPath, bool bIsDirectory)
@@ -90,20 +88,17 @@ void CTSVNPath::SetFromSVN(const CString& sPath)
 {
 	Reset();
 	m_sFwdslashPath = sPath;
-	ATLASSERT(m_sFwdslashPath.Find('\\')<0);
 }
 
 void CTSVNPath::SetFromWin(LPCTSTR pPath)
 {
 	Reset();
 	m_sBackslashPath = pPath;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath)
 {
 	Reset();
 	m_sBackslashPath = sPath;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
 {
@@ -111,7 +106,6 @@ void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
 	m_sBackslashPath = sPath;
 	m_bIsDirectory = bIsDirectory;
 	m_bDirectoryKnown = true;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromUnknown(const CString& sPath)
 {
@@ -618,8 +612,6 @@ bool CTSVNPath::HasAdminDir() const
 {
 	if (m_bHasAdminDirKnown)
 		return m_bHasAdminDir;
-
-	EnsureBackslashPathSet();
 	m_bHasAdminDir = g_SVNAdminDir.HasAdminDir(m_sBackslashPath, IsDirectory());
 	m_bHasAdminDirKnown = true;
 	return m_bHasAdminDir;
@@ -921,15 +913,13 @@ void CTSVNPathList::RemoveDuplicates()
 void CTSVNPathList::RemoveAdminPaths()
 {
 	PathVector::iterator it;
-	for(it = m_paths.begin(); it != m_paths.end(); )
+	for(it = m_paths.begin(); it != m_paths.end(); ++it)
 	{
 		if (it->IsAdminDir())
 		{
 			m_paths.erase(it);
 			it = m_paths.begin();
 		}
-		else
-			++it;
 	}
 }
 
@@ -1195,7 +1185,7 @@ private:
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing%20again"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
-		testPath.SetFromUnknown(_T("http://testing special chars \344\366\374"));
+		testPath.SetFromUnknown(_T("http://testing special chars הצü"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20special%20chars%20%C3%A4%C3%B6%C3%BC") == 0);		
 #endif
 	}

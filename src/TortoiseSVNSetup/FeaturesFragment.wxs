@@ -4,6 +4,7 @@
 		<Feature Id="DefaultFeature" Level="1" ConfigurableDirectory="INSTALLDIR" Title="TortoiseSVN" Absent="disallow" 
 			TypicalDefault="install" Description="The TortoiseSVN package and dependencies." Display="expand" InstallDefault="local" >
 			<ComponentRef Id="C__infofiles" />
+			<ComponentRef Id="C__libssl" />
 			<ComponentRef Id="C__berkeleydb" />
 			<ComponentRef Id="C__iconv" />
 			<ComponentRef Id="C__apr" />
@@ -18,7 +19,6 @@
 			<ComponentRef Id="C__machineregistry" />
 			<ComponentRef Id="C__svnprotocoll" />
 			<ComponentRef Id="C__approveshellcomponents" />
-			<ComponentRef Id="C__ProgramMenuFolder" />
 			<ComponentRef Id="C__Sounds" />
 			<ComponentRef Id="C__DiffScripts" />
 			<ComponentRef Id="C__iconsxpstyle" />
@@ -60,13 +60,11 @@ DO NOT INSTALL THIS FEATURE if you don't use VS.NET with Web Projects!!!"
 				<ComponentRef Id="C__ASPDOTNETHACK" />
 			</Feature>
 
-			<?if $(env.Platform) = "win32" ?>
-				<?if $(env.IncludeCrashReportDll) = 1 ?>
-					<Feature Id="CrashReporter" Level="1" Title="Crash Reporter" Description="In official builds, sends crash dumps to the developers." 
-						TypicalDefault="install" Display="hidden" InstallDefault="followParent">
-						<ComponentRef Id="C__crash" />
-					</Feature>
-				<?endif ?>
+			<?if $(env.IncludeCrashReportDll) = 1 ?>
+				<Feature Id="CrashReporter" Level="1" Title="Crash Reporter" Description="In official builds, sends crash dumps to the developers." 
+					TypicalDefault="install" Display="hidden" InstallDefault="followParent">
+					<ComponentRef Id="C__crash" />
+				</Feature>
 			<?endif ?>
 
 			</Feature>

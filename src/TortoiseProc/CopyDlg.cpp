@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -77,8 +77,6 @@ BOOL CCopyDlg::OnInitDialog()
 	CStandAloneDialog::OnInitDialog();
 
 	CTSVNPath path(m_path);
-
-	m_HistoryDlg.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	if (m_CopyRev.IsHead())
 	{

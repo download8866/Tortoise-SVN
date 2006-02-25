@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,7 +49,6 @@ void CSettings::AddPropPages()
 	m_pDialogsPage = new CSetDialogs();
 	m_pMiscPage = new CSetMisc();
 	m_pColorsPage = new CSettingsColors();
-	m_pSavedPage = new CSetSavedDataPage();
 
 	SetPageIcon(m_pMainPage, m_pMainPage->GetIconID());
 	SetPageIcon(m_pOverlayPage, m_pOverlayPage->GetIconID());
@@ -62,7 +61,6 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pDialogsPage, m_pDialogsPage->GetIconID());
 	SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
 	SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
-	SetPageIcon(m_pSavedPage, m_pSavedPage->GetIconID());
 
 	AddPage(m_pMainPage);
 	AddPage(m_pOverlayPage);
@@ -75,7 +73,6 @@ void CSettings::AddPropPages()
 	AddPage(m_pDialogsPage);
 	AddPage(m_pMiscPage);
 	AddPage(m_pColorsPage);
-	AddPage(m_pSavedPage);
 }
 
 void CSettings::RemovePropPages()
@@ -91,7 +88,6 @@ void CSettings::RemovePropPages()
 	delete m_pDialogsPage;
 	delete m_pMiscPage;
 	delete m_pColorsPage;
-	delete m_pSavedPage;
 }
 
 void CSettings::SaveData()
@@ -107,7 +103,6 @@ void CSettings::SaveData()
 	m_pDialogsPage->SaveData();
 	m_pMiscPage->SaveData();
 	m_pColorsPage->SaveData();
-	m_pSavedPage->SaveData();
 }
 
 BEGIN_MESSAGE_MAP(CSettings, CTreePropSheet)

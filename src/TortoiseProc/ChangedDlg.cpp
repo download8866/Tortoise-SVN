@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,6 @@ CChangedDlg::CChangedDlg(CWnd* pParent /*=NULL*/)
 	, m_iShowUnmodified(0)
 	, m_bBlock(FALSE)
 	, m_bCanceled(false)
-	, m_bShowIgnored(FALSE)
 {
 	m_bRemote = FALSE;
 }
@@ -46,7 +45,6 @@ void CChangedDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_CHANGEDLIST, m_FileListCtrl);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_SHOWUNMODIFIED, m_iShowUnmodified);
-	DDX_Check(pDX, IDC_SHOWIGNORED, m_bShowIgnored);
 }
 
 
@@ -55,7 +53,6 @@ BEGIN_MESSAGE_MAP(CChangedDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_BN_CLICKED(IDC_SHOWUNMODIFIED, OnBnClickedShowUnmodified)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_BN_CLICKED(IDC_SHOWIGNORED, &CChangedDlg::OnBnClickedShowignored)
 END_MESSAGE_MAP()
 
 BOOL CChangedDlg::OnInitDialog()
@@ -72,15 +69,13 @@ BOOL CChangedDlg::OnInitDialog()
 						SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP | 
 						SVNSLC_COLLOCK | SVNSLC_COLLOCKCOMMENT |
 						SVNSLC_COLAUTHOR | SVNSLC_COLAUTHOR |
-						SVNSLC_COLREVISION | SVNSLC_COLDATE, _T("ChangedDlg"),
-						SVNSLC_POPALL, false);
+						SVNSLC_COLREVISION | SVNSLC_COLDATE, SVNSLC_POPALL, false);
 	m_FileListCtrl.SetCancelBool(&m_bCanceled);
 	
 	AddAnchor(IDC_CHANGEDLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SUMMARYTEXT, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNMODIFIED, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SHOWIGNORED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_CHECKREPO, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	SetPromptParentWindow(m_hWnd);
@@ -114,16 +109,14 @@ UINT CChangedDlg::ChangedStatusThread()
 	GetDlgItem(IDC_CHECKREPO)->EnableWindow(FALSE);
 	GetDlgItem(IDC_SHOWUNVERSIONED)->EnableWindow(FALSE);
 	GetDlgItem(IDC_SHOWUNMODIFIED)->EnableWindow(FALSE);
-	GetDlgItem(IDC_SHOWIGNORED)->EnableWindow(FALSE);
 	CString temp;
-	if (!m_FileListCtrl.GetStatus(m_pathList, m_bRemote, !!m_bShowIgnored))
+	if (!m_FileListCtrl.GetStatus(m_pathList, m_bRemote))
 	{
 		CMessageBox::Show(m_hWnd, m_FileListCtrl.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
 	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
 	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
-	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
 	LONG lMin, lMax;
 	m_FileListCtrl.GetMinMaxRevisions(lMin, lMax);
@@ -146,7 +139,6 @@ UINT CChangedDlg::ChangedStatusThread()
 	GetDlgItem(IDC_CHECKREPO)->EnableWindow(TRUE);
 	GetDlgItem(IDC_SHOWUNVERSIONED)->EnableWindow(TRUE);
 	GetDlgItem(IDC_SHOWUNMODIFIED)->EnableWindow(TRUE);
-	GetDlgItem(IDC_SHOWIGNORED)->EnableWindow(TRUE);
 	InterlockedExchange(&m_bBlock, FALSE);
 	return 0;
 }
@@ -186,7 +178,6 @@ void CChangedDlg::OnBnClickedShowunversioned()
 	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
 	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
-	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
 	m_regAddBeforeCommit = m_bShowUnversioned;
 }
@@ -197,18 +188,8 @@ void CChangedDlg::OnBnClickedShowUnmodified()
 	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
 	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
-	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
 	m_regAddBeforeCommit = m_bShowUnversioned;
-}
-
-void CChangedDlg::OnBnClickedShowignored()
-{
-	UpdateData();
-	if (AfxBeginThread(ChangedStatusThreadEntry, this)==NULL)
-	{
-		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-	}
 }
 
 LRESULT CChangedDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
@@ -241,5 +222,4 @@ BOOL CChangedDlg::PreTranslateMessage(MSG* pMsg)
 
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }
-
 

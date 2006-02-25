@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -613,7 +613,7 @@ UINT CSVNProgressDlg::ProgressThread()
 			sWindowTitle.LoadString(IDS_PROGRS_TITLE_IMPORT);
 			sWindowTitle = m_targetPathList[0].GetFileOrDirectoryName()+_T(" - ")+sWindowTitle;
 			SetWindowText(sWindowTitle);
-			if (!m_pSvn->Import(m_targetPathList[0], m_url, m_sMessage, true, m_options & ProgOptIncludeIgnored ? true : false))
+			if (!m_pSvn->Import(m_targetPathList[0], m_url, m_sMessage, true, false))
 			{
 				ReportSVNError();
 			}
@@ -880,7 +880,7 @@ UINT CSVNProgressDlg::ProgressThread()
 				{
 					if (!m_pSvn->PegMerge(m_url, m_Revision, m_RevisionEnd, 
 						m_pegRev.IsValid() ? m_pegRev : (m_url.IsUrl() ? m_RevisionEnd : SVNRev(SVNRev::REV_WC)),
-						m_targetPathList[0], true, true, !!(m_options & ProgOptIgnoreAncestry), !!(m_options & ProgOptDryRun)))
+						m_targetPathList[0], true, true, false, !!(m_options & ProgOptDryRun)))
 					{
 						ReportSVNError();
 					}
@@ -888,7 +888,7 @@ UINT CSVNProgressDlg::ProgressThread()
 				else
 				{
 					if (!m_pSvn->Merge(m_url, m_Revision, urlTo, m_RevisionEnd, m_targetPathList[0], 
-						true, true, !!(m_options & ProgOptIgnoreAncestry), !!(m_options & ProgOptDryRun)))
+						true, true, false, !!(m_options & ProgOptDryRun)))
 					{
 						ReportSVNError();
 					}

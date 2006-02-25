@@ -44,10 +44,7 @@ destination = word.Documents.Open(sNewDoc);
 destination.Compare(sBaseDoc);
     
 // Show the comparison result
-if (Number(word.Version) < 12)
-{
-	word.ActiveDocument.Windows(1).Visible = 1;
-}
+word.ActiveDocument.Windows(1).Visible = 1;
     
 // Mark the comparison document as saved to prevent the annoying
 // "Save as" dialog from appearing.

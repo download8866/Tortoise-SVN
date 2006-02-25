@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-settings">
+<sect1 id="tsvn-DUG-settings">
 	<title>TortoiseSVN's Settings</title>
 	<indexterm>
 		<primary>settings</primary>
@@ -10,14 +10,14 @@
 		mouse pointer a second on the editbox/checkbox... and a helpful
 		tooltip will popup.
 	</para>
-	<sect2 id="tsvn-dug-settings-main">
+	<sect2 id="tsvn-DUG-settings-main">
 		<?dbhh topicname="HIDD_SETTINGSMAIN"?>
 		<title>General Settings</title>
 		<indexterm>
 			<primary>sounds</primary>
 		</indexterm>
 		<para>
-			<figure id="tsvn-dug-settings-dia-main">
+			<figure id="tsvn-DUG-settings-dia-main">
 				<title>The Settings Dialog, General Page</title>
 				<graphic fileref="../images/SettingsMain.png"/>
 			</figure>
@@ -40,10 +40,6 @@
 					<para>
 						If checked, TortoiseSVN will contact its download site once a week 
 						to see if there is a newer version of the program available.
-						Use <guibutton>Check now</guibutton> if you want an answer
-						right away. The new version will not be downloaded; you
-						simply receive an information dialog telling you that the
-						new version is available.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -71,12 +67,12 @@
 						</itemizedlist>
 						You can select different sounds (or turn these sounds
 						off completely) using the Windows Control Panel.
-						<guibutton>Configure</guibutton> is a shortcut to the Control Panel.
+						This button is a shortcut to the Control Panel.
 					</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Global ignore pattern</term>
+				<term>Exclude/Ignore pattern</term>
 				<listitem>
 					<indexterm>
 						<primary>exclude pattern</primary>
@@ -85,19 +81,19 @@
 						<primary>global ignore</primary>
 					</indexterm>
 					<para>
-						Global ignore patterns are used to prevent unversioned files from
+						Exclude patterns are used to prevent unversioned files from
 						showing up e.g. in the commit dialog. Files matching the
 						patterns are also ignored by an import.
-						Ignore files or directories by typing in the names or extensions.
+						Exclude files or directories by typing in the names or extensions.
 						Patterns are separated by spaces e.g.
 						<literal>*/bin */obj *.bak *.~?? *.jar *.[Tt]mp</literal>.
 						The first two entries refer to directories, the 
 						other four to files.
 						These patterns use filename globbing. Read
-						<xref linkend="tsvn-dug-ignore-glob"/> for more information.
+						<xref linkend="tsvn-DUG-ignore-glob"/> for more information.
 					</para>
 					<para>
-						Note that the ignore patterns you specify here will also
+						Note that the exclude patterns you specify here will also
 						affect other Subversion clients running on your PC, including
 						the command line client.
 					</para>
@@ -105,18 +101,18 @@
 						<para>
 						If you use the Subversion configuration file to set
 						a <literal>global-ignores</literal> pattern, it will
-						override the settings you make here. The Subversion
+						override the settings you made here. The Subversion
 						configuration file is accessed using the
 						<guibutton>Edit</guibutton> as described below.
 						</para>
 					</caution>
 					<para>
-						This ignore pattern will affect all your projects.
+						This exclude pattern will affect all your projects.
 						It is not versioned, so it will not affect other users.
 						By contrast you can also use the versioned
 						<literal>svn:ignore</literal> property to exclude
 						files or directories from version control. Read
-						<xref linkend="tsvn-dug-ignore"/>
+						<xref linkend="tsvn-DUG-ignore"/>
 						for more information. 
 					</para>
 				</listitem>
@@ -138,11 +134,10 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Subversion configuration file</term>
+				<term>Edit...</term>
 				<listitem>
 					<para>
-						Use <guibutton>Edit</guibutton> to edit the
-						Subversion configuration file directly.
+						... the Subversion configuration file directly.
 						Some settings cannot be modified directly by
 						TortoiseSVN, and need to be set here instead.
 						For more information about the Subversion
@@ -165,28 +160,23 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Subversion authentication data</term>
+				<term>Clear Auth Cache</term>
 				<listitem>
 					<para>
 						When you authenticate with a subversion server, the username
 						and password are cached locally so you don't have to keep
 						entering them. To clear everything from that cache,
-						use <guibutton>Clear now</guibutton>.
-					</para>
-					<para>
-						If you want to clear auth data for one particular server only,
-						read <xref linkend="tsvn-dug-general-auth"/> for instructions
-						on how to find the cached data.
+						use this button.
 					</para>
 				</listitem>
 			</varlistentry>
 		</variablelist>
 	</sect2>
-	<sect2 id="tsvn-dug-settings-look-feel">
+	<sect2 id="tsvn-DUG-settings-look-feel">
 		<title>Look and Feel Settings</title>
 		<?dbhh topicname="HIDD_SETTINGSLOOKANDFEEL"?>
 		<para>
-			<figure id="tsvn-dug-settings-dia-context">
+			<figure id="tsvn-DUG-settings-dia-context">
 				<title>The Settings Dialog, Look and Feel Page</title>
 				<graphic fileref="../images/SettingsContext.png"/>
 			</figure>
@@ -212,47 +202,11 @@
 			for an <literal>Added</literal> folder, which will not work because
 			the folder is not yet in the repository.
 		</para>
-		<para>
-			The option <guilabel>Enable accelerators on the top level menu</guilabel>
-			has three states:
-			<variablelist>
-				<varlistentry>
-					<term>Unchecked (default)</term>
-					<listitem>
-						<para>
-							In this state the menu items are all drawn by TortoiseSVN. No
-							accelerator keys are shown.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Checked</term>
-					<listitem>
-						<para>
-							This activates the accelerators for TortoiseSVN commands,
-							but of course these may conflict with the accelerators for anything
-							else in the explorer context menu. Pressing the shortcut key
-							multiple times will cycle through the matching context menu items.
-							In this state, the menu items are drawn by Windows which makes
-							the icons look ugly.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Indeterminate</term>
-					<listitem>
-						<para>In this mode the accelerator keys are active and the menu items
-						are drawn in text only mode without icons.
-						</para>
-					</listitem>
-				</varlistentry>
-			</variablelist>
-		</para>
-		<sect3 id="tsvn-dug-settings-overlay">
+		<sect3 id="tsvn-DUG-settings-overlay">
 			<title>Icon Overlay Settings</title>
 			<?dbhh topicname="HIDD_SETTINGSOVERLAY"?>
 			<para>
-				<figure id="tsvn-dug-settings-dia-overlay">
+				<figure id="tsvn-DUG-settings-dia-overlay">
 					<title>The Settings Dialog, Look and Feel Page</title>
 					<graphic fileref="../images/SettingsOverlay.png"/>
 				</figure>
@@ -262,108 +216,34 @@
 				You can even disable all icon overlays, but where's the fun in that?
 			</para>
 			<para>
-				USB Flash drives appear to be a special case in that the drive type
-				is identified by the device itself. Some appear as fixed drives,
-				and some as removable drives.
-			</para>
-			<para>
 				By default, overlay icons will appear in all open/save dialogs
 				as well as in Windows Explorer. If you want them to appear
 				<emphasis>only</emphasis> in Windows Explorer, check the
 				<guilabel>Show overlays only in explorer</guilabel> box.
 			</para>
 			<para>
-				Since it takes quite a while to fetch the status of a working copy,
-				TortoiseSVN uses a cache to store the status in so the explorer
-				doesn't get hogged too much when showing the overlays.
-				You can choose which type of cache TortoiseSVN should use according
-				to your system and working copy size here:
-				<variablelist>
-					<varlistentry>
-						<term>Default</term>
-						<listitem>
-							<para>
-								Caches all status information in a separate process
-								(<filename>TSVNCache.exe</filename>). That process
-								watches all drives for changes and fetches the status
-								again if files inside a working copy get modified.
-								The process runs with the least possible priority so
-								other programs don't get hogged because of it. That 
-								also means that the status information is not
-								<emphasis>realtime</emphasis> but it can take a few
-								seconds for the overlays to change.
-							</para>
-							<para>
-								Advantage: the overlays show the status recursively,
-								i.e. if a file deep inside a working copy is modified,
-								all folders up to the working copy root will also
-								show the modified overlay. And since the process can
-								send notifications to the shell, the overlays on the left
-								treeview usually change too.
-							</para>
-							<para>
-								Disadvantage: the process runs constantly, even if you're not 
-								working on your projects. It also uses around 10-50 MB of RAM 
-								depending on number and size of your working copies.
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>Shell</term>
-						<listitem>
-							<para>
-								Caching is done directly inside the shell extension
-								dll, but only for the currently visible folder.
-								Each time you navigate to another folder, the status
-								information is fetched again.
-							</para>
-							<para>
-								Advantage: needs only very little memory (around 1 MB of RAM)
-								and can show the status in <emphasis>realtime</emphasis>.
-							</para>
-							<para>
-								Disadvantage: Since only one folder is cached, the overlays
-								don't show the status recursively. For big working copies,
-								it can take more time to show a folder in explorer than
-								with the default cache. Also the mime-type column is not
-								available.
-							</para>
-						</listitem>
-					</varlistentry>
-					<varlistentry>
-						<term>None</term>
-						<listitem>
-							<para>
-								With this setting, the TortoiseSVN does not fetch the status
-								at all in Explorer. Because of that, files don't get an overlay
-								and folders only get a 'normal' overlay if they're versioned.
-								No other overlays are shown, and no extra columns are available
-								either.
-							</para>
-							<para>
-								Advantage: uses absolutely no additional memory and does
-								not slow down the Explorer at all while browsing.
-							</para>
-							<para>
-								Disadvantage: Status information of files and folders is not
-								shown in Explorer. To see if your working copies are modified,
-								you have to use the "Check for modifications" dialog.
-							</para>
-						</listitem>
-					</varlistentry>
-				</variablelist>
+				Normally the icon overlays act recursively, which means that the
+				overlay for a folder shows the most significant status of all its
+				subfolders. If there is a modified file deep in the hierarchy,
+				the top level folder will also show modified status to remind you
+				that there are buried changes.
+				If you have <emphasis>very</emphasis> large working copies then
+				you may find that the recursive status feature causes too much
+				disk activity and disruption on your system, although this is not
+				usually a problem. In that case you can uncheck
+				<guilabel>Show overlay status icons recursively</guilabel> so
+				that folder status is shown only for the folder itself.
 			</para>
 			<para>
-				The <guilabel>Exclude Paths</guilabel> are used to tell TortoiseSVN
-				those paths for which it should <emphasis>not</emphasis> show icon
-				overlays and status columns.
+				The <guilabel>Exclude Paths</guilabel> are used to tell TortoiseSVN for which
+				paths <emphasis>not</emphasis> to show icon overlays and status columns.
 				This is useful if you have some very big working copies containing
 				only libraries which you won't change at all and therefore don't
 				need the overlays. For example:
 			</para>
 			<para>
 				<filename>f:\development\SVN\Subversion</filename> will disable
-				the overlays <emphasis>only</emphasis> on that specific folder. You
+				the overlays on <emphasis>only</emphasis> that specific folder. You
 				still can see the overlays on all files and folder inside that folder.
 			</para>
 			<para>
@@ -376,19 +256,14 @@
 			<para>
 				The same applies to the <guilabel>Include Paths</guilabel>. Except that
 				for those paths the overlays are shown even if the overlays are disabled
-				for that specific drive type, or by an exclude path specified above.
-			</para>
-			<para>
-				TSVNCache.exe also uses these paths to restrict its scanning. If you
-				want it to look only in particular folders, disable all drive types
-				and include only the folders you specifically want to be scanned.
+				for that specific drive type.
 			</para>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-icon-set">
+		<sect3 id="tsvn-DUG-settings-icon-set">
 			<title>Icon Set Selection</title>
 			<?dbhh topicname="HIDD_OVERLAYICONS"?>
 			<para>
-				<figure id="tsvn-dug-settings-dia-icons">
+				<figure id="tsvn-DUG-settings-dia-icons">
 					<title>The Settings Dialog, Icon Set Page</title>
 					<graphic fileref="../images/SettingsOverlayChooser.png"/>
 				</figure>
@@ -397,11 +272,11 @@
 				your computer for the changes to take effect.
 			</para>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-dialogs">
+		<sect3 id="tsvn-DUG-settings-dialogs">
 			<title>TortoiseSVN Dialog Settings 1</title>
 			<?dbhh topicname="HIDD_SETTINGSDIALOGS"?>
 			<para>
-				<figure id="tsvn-dug-settings-dia-dialogs">
+				<figure id="tsvn-DUG-settings-dia-dialogs">
 					<title>The Settings Dialog, Dialogs 1 Page</title>
 					<graphic fileref="../images/SettingsDialog.png"/>
 				</figure>
@@ -500,10 +375,10 @@
 				</varlistentry>
 			</variablelist>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-dialogs-2">
+		<sect3 id="tsvn-DUG-settings-dialogs-2">
 			<title>TortoiseSVN Dialog Settings 2</title>
 			<para>
-				<figure id="tsvn-dug-settings-dia-dialogs-2">
+				<figure id="tsvn-DUG-settings-dia-dialogs-2">
 					<title>The Settings Dialog, Dialogs 2 Page</title>
 					<graphic fileref="../images/SettingsDialog2.png"/>
 				</figure>
@@ -572,11 +447,11 @@
 				</varlistentry>
 			</variablelist>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-colours">
+		<sect3 id="tsvn-DUG-settings-colours">
 			<title>TortoiseSVN Colour Settings</title>
 			<?dbhh topicname="HIDD_SETTINGSCOLORS"?>
 			<para>
-				<figure id="tsvn-dug-settings-dia-colors">
+				<figure id="tsvn-DUG-settings-dia-colors">
 					<title>The Settings Dialog, Colours Page</title>
 					<graphic fileref="../images/SettingsColors.png"/>
 				</figure>
@@ -671,14 +546,14 @@
 			</variablelist>
 		</sect3>
 	</sect2>
-	<sect2 id="tsvn-dug-settings-network">
+	<sect2 id="tsvn-DUG-settings-network">
 		<?dbhh topicname="HIDD_SETTINGSPROXY"?>
 		<title>Network Settings</title>
 		<indexterm>
 			<primary>proxy server</primary>
 		</indexterm>
 		<para>
-			<figure id="tsvn-dug-settings-dia-4">
+			<figure id="tsvn-DUG-settings-dia-4">
 				<title>The Settings Dialog, Network Page</title>
 				<graphic fileref="../images/SettingsProxy.png"/>
 			</figure>
@@ -699,37 +574,26 @@
 			You can also specify which program TortoiseSVN should use to
 			establish a secure connection to a svn+ssh repository.
 			We recommend that you use TortoisePlink.exe. This is a version
-			of the popular Plink program, and is included with TortoiseSVN,
-			but it is compiled as a Windowless app, so you don't get a DOS
-			box popping up every time you authenticate.
-		</para>
-		<para>
-			One side-effect of not having a window is that there is
-			nowhere for any error messages to go, so if authentication
-			fails you will simply get a message saying something like
-			<quote>Unable to write to standard output</quote>.
-			For this reason we recommend that you first set up using
-			standard Plink. When everything is working, you can use
-			TortoisePlink with exactly the same parameters.
+			of the popular Plink program, and is included with TortoiseSVN.
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-settings-progs">
+	<sect2 id="tsvn-DUG-settings-progs">
 		<title>External Program Settings</title>
 		<para>
-			<figure id="tsvn-dug-settings-dia-5">
+			<figure id="tsvn-DUG-settings-dia-5">
 				<title>The Settings Dialog, Diff Viewer Page</title>
 				<?dbhh topicname="HIDD_SETTINGSPROGSDIFF"?>
 				<graphic fileref="../images/SettingsProgs.png"/>
 			</figure>
 			Here you can define your own diff/merge programs that TortoiseSVN
-			should use. The default setting is to use TortoiseMerge
+			should use. The basic setting is to use the builtin TortoiseMerge
 			which is installed alongside TortoiseSVN.
 		</para>
 		<para>
-			Read <xref linkend="tsvn-dug-diff-tools"/> for a list of some of the
+			Read <xref linkend="tsvn-DUG-diff-tools"/> for a list of some of the
 			external diff/merge programs that people are using with TortoiseSVN.
 		</para>
-		<sect3 id="tsvn-dug-settings-Diff">
+		<sect3 id="tsvn-DUG-settings-Diff">
 			<title>Diff Viewer</title>
 			<?dbhh topicname="HIDD_SETTINGSPROGSDIFF"?>
 			<para>
@@ -820,7 +684,7 @@ C:\Path-To\compare.exe /max /wait /title1:%bname /title2:%yname
 				is unchecked then TSVN will skip pre-processing the files.
 			</para>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-Merge">
+		<sect3 id="tsvn-DUG-settings-Merge">
 			<title>Merge Tool</title>
 			<?dbhh topicname="HIDD_SETTINGSPROGSMERGE"?>
 			<para>
@@ -913,11 +777,11 @@ C:\Path-To\compare.exe /max /wait /3 /title1:%tname /title2:%bname
 </screen>
 			</para>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-Progs-Adv">
+		<sect3 id="tsvn-DUG-settings-Progs-Adv">
 			<title>Diff/Merge Advanced Settings</title>
 			<?dbhh topicname="HIDD_SETTINGSPROGSADV"?>
 			<para>
-				<figure id="tsvn-dug-settings-dia-6">
+				<figure id="tsvn-DUG-settings-dia-6">
 					<title>The Settings Dialog, Diff/Merge Advanced Dialog</title>
 					<graphic fileref="../images/SettingsProgsAdv.png"/>
 				</figure>
@@ -932,17 +796,13 @@ C:\Path-To\compare.exe /max /wait /3 /title1:%tname /title2:%bname
 				<literal>*.BMP</literal>.
 			</para>
 		</sect3>
-		<sect3 id="tsvn-dug-settings-Patch">
+		<sect3 id="tsvn-DUG-settings-Patch">
 			<title>Unified Diff Viewer</title>
 			<?dbhh topicname="HIDD_SETTINGSPROGSUNIDIFF"?>
 			<para>
 				A viewer program for unified-diff files (patch files).
+				If you don't have one the builtin option is to use NotePad.
 				No parameters are required.
-				The <guilabel>Default</guilabel> option is to check for
-				a file association for <filename>.diff</filename> files,
-				and then for <filename>.txt</filename> files.
-				If you don't have a viewer for <filename>.diff</filename>
-				files, you will most likely get NotePad.
 			</para>
 			<para>
 				The original Windows NotePad program does not behave

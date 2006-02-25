@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,18 +23,16 @@
 #include "resource.h"
 #include "ShellCache.h"
 #include "RemoteCacheLink.h"
-#include "SVNFolderStatus.h"
 
 extern	UINT				g_cRefThisDll;			// Reference count of this DLL.
 extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
-extern	SVNFolderStatus *	g_pCachedStatus;		// status cache
 extern	CRemoteCacheLink	g_remoteCacheLink;
 extern	ShellCache			g_ShellCache;			// caching of registry entries, ...
 extern	CRegStdWORD			g_regLang;
 extern	DWORD				g_langid;
 extern	HINSTANCE			g_hResInst;
 extern	stdstring			g_filepath;
-extern	svn_wc_status_kind	g_filestatus;			///< holds the corresponding status to the file/dir above
+extern	svn_wc_status_kind	g_filestatus;	///< holds the corresponding status to the file/dir above
 extern  bool				g_readonlyoverlay;		///< whether to show the readonly overlay or not
 extern	bool				g_lockedoverlay;		///< whether to show the locked overlay or not
 
@@ -45,7 +43,6 @@ extern bool					g_readonlyovlloaded;
 extern bool					g_deletedovlloaded;
 extern bool					g_lockedovlloaded;
 extern bool					g_addedovlloaded;
-extern LPCTSTR				g_MenuIDString;
 
 extern	void				LoadLangDll();
 extern  CComCriticalSection	g_csCacheGuard;
@@ -96,10 +93,6 @@ protected:
 	enum SVNCommands
 	{
 		SubMenu = 1,
-		SubMenuFolder,
-		SubMenuFile,
-		SubMenuLink,
-		SubMenuMultiple,
 		Checkout,
 		Update,
 		Commit,
@@ -123,7 +116,6 @@ protected:
 		DropCopyAdd,
 		DropMoveAdd,
 		DropMove,
-		DropMoveRename,
 		DropCopy,
 		DropCopyRename,
 		DropExport,
@@ -172,7 +164,6 @@ protected:
 	bool isDeleted;
 	bool isLocked;
 	bool isPatchFile;
-	bool isShortcut;
 	int space;
 	TCHAR stringtablebuffer[255];
 	stdstring columnfilepath;		///< holds the last file/dir path for the column provider
@@ -191,7 +182,7 @@ private:
 	stdstring WriteFileListToTempFile();
 	LPCTSTR GetMenuTextFromResource(int id);
 	void GetColumnStatus(const TCHAR * path, BOOL bIsDir);
-	HBITMAP IconToBitmap(UINT uIcon, COLORREF transparentColor);
+	HBITMAP IconToBitmap(UINT hIcon, COLORREF transparentColor);
 	int GetInstalledOverlays();		///< returns the maximum number of overlays TSVN shall use
 public:
 	CShellExt(FileState state);

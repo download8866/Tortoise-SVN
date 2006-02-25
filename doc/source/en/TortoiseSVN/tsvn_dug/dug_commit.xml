@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-commit">
+<sect1 id="tsvn-DUG-commit">
 	<title>Sending Your Changes To The Repository</title>
 	<indexterm>
 		<primary>commit</primary>
@@ -30,7 +30,7 @@
 			<guimenu>TortoiseSVN</guimenu>
 			<guimenuitem>Commit...</guimenuitem>
 		</menuchoice>.
-		<figure id="tsvn-dug-commit-dia-1">
+		<figure id="tsvn-DUG-commit-dia-1">
 			<title>The Commit dialog</title>
 			<graphic fileref="../images/Commit.png"/>
 		</figure>
@@ -90,26 +90,13 @@
 					</para>
 				</listitem>
 			</itemizedlist>
-			Read <xref linkend="tsvn-dug-ignore"/> for more information. 
+			Read <xref linkend="tsvn-DUG-ignore"/> for more information. 
 		</para>
 	</tip>
 	<para>
 		<action>Doubleclicking</action> on any modified file in the commit
 		dialog will launch the external diff tool to show your changes.
 		The context menu will give you more options, as shown in the screenshot.
-	</para>
-	<para>
-		The columns displayed in the bottom pane are customizable. If you
-		<action>right click</action> on any column header you will see a
-		context menu allowing you to select which columns are displayed.
-		You can also change column width by using the drag handle which
-		appears when you move the mouse over a column boundary. These
-		customizations are preserved, so you will see the same headings
-		next time.
-		Note that due to an implementation detail, you may see two different
-		drag icons, depending on exactly where you position the mouse over the
-		boundary. One has a solid vertical dividing line and the other has two
-		thin vertical lines. Only the solid drag pointer works.
 	</para>
 	<para>
 		Be sure to enter a log message which describes the changes you are
@@ -120,7 +107,7 @@
 		a strict format.
 	</para>
 	<para>
-		<figure id="tsvn-dug-commit-dia-2">
+		<figure id="tsvn-DUG-commit-dia-2">
 			<title>The Commit Dialog Spellchecker</title>
 			<graphic fileref="../images/CommitSpellcheck.png"/>
 		</figure>
@@ -134,7 +121,7 @@
 	<para>
 		After pressing <guibutton>OK</guibutton>, a dialog appears displaying
 		the progress of the commit.
-		<figure id="tsvn-dug-commit-dia-3">
+		<figure id="tsvn-DUG-commit-dia-3">
 			<title>The Progress dialog showing a commit in progress</title>
 			<graphic fileref="../images/CommitProgress.png"/>
 		</figure>
@@ -177,18 +164,13 @@
 			</varlistentry>
 		</variablelist>
 	</para>
-	<para>
-		This is the default colour scheme, but you can customise those colours
-		using the settings dialog.
-		Read <xref linkend="tsvn-dug-settings-colours"/> for more information.
-	</para>
 	<tip>
 		<title>Special Folder Properties</title>
 		<para>
 			There are several special folder properties which can be used to
 			help give more control over the formatting of commit log messages and
 			the language used by the spellchecker module.
-			Read <xref linkend="tsvn-dug-propertypage"/> for further information.
+			Read <xref linkend="tsvn-DUG-propertypage"/> for further information.
 		</para>
 	</tip>
 	<tip>
@@ -196,7 +178,7 @@
 		<para>
 			If you have activated the bugtracking system, you could set one or more 
 			Issues in the <guilabel>Bug-ID / Issue-Nr:</guilabel> Textfield. Several Issues 
-			should be comma separated. Learn more <xref linkend="tsvn-dug-bugtracker"/>.
+			should be comma separated. Learn more <xref linkend="tsvn-DUG-bugtracker"/>.
 		</para>
 	</tip>
 </sect1>

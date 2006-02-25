@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,7 +55,6 @@
 #define ID_CHECKOUT		24
 #define ID_CONFLICTUSETHEIRS 25
 #define ID_CONFLICTUSEMINE 26
-#define ID_REVERTTOREV	27
 
 #define LOGFILTER_ALL      1
 #define LOGFILTER_MESSAGES 2
@@ -153,7 +152,6 @@ public:
 	bool IsThreadRunning() {return !!m_bThreadRunning;}
 	void SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
 	void SetSelect(bool bSelect) {m_bSelect = bSelect;}
-	void ContinuousSelection(bool bCont = true) {m_bSelectionMustBeContinuous = bCont;}
 
 private:
 	static UINT LogThreadEntry(LPVOID pVoid);
@@ -171,13 +169,9 @@ private:
 	CTSVNPathList GetChangedPathsFromSelectedRevisions(bool bRelativePaths = false, bool bUseFilter = true);
     void SortShownListArray();
     void SetSortArrow(CListCtrl * control, int nColumn, bool bAscending);
-	bool IsSelectionContinuous();
-	void EnableOKButton();
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
-
-	void ResizeAllListCtrlCols(CListCtrl &list);
 
 public:
 	CWnd *				m_pNotifyWindow;
@@ -193,7 +187,6 @@ private:
 	svn_revnum_t		m_startrev;
 	svn_revnum_t		m_LogRevision;
 	svn_revnum_t		m_endrev;
-	bool				m_bSelectionMustBeContinuous;
 	long				m_logcounter;
 	bool				m_bCancelled;
 	volatile LONG 		m_bThreadRunning;

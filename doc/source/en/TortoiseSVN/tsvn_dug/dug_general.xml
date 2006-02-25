@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-general">
+<sect1 id="tsvn-DUG-general">
 	<title>Getting Started</title>
-	<sect2 id="tsvn-dug-general-menu">
+	<sect2 id="tsvn-DUG-general-menu">
 		<title>Context Menus</title>
 		<indexterm>
 			<primary>context menu</primary>
 		</indexterm>
 		<para>
-			<figure id="tsvn-dug-context-dir-control">
+			<figure id="tsvn-DUG-context-dir-control">
 				<title>Context menu for a directory under version control</title>
 				<graphic fileref="../images/ContextMenuDirControl.png"/>
 			</figure>
@@ -18,7 +18,7 @@
 			file or folder or its parent folder is under version control or not.
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-general-drag">
+	<sect2 id="tsvn-DUG-general-drag">
 		<title>Drag and Drop</title>
 		<indexterm>
 			<primary>drag handler</primary>
@@ -27,7 +27,7 @@
 			<primary>drag-n-drop</primary>
 		</indexterm>
 		<para>
-			<figure id="tsvn-dug-right-drag">
+			<figure id="tsvn-DUG-right-drag">
 				<title>Right drag menu for a directory under version control</title>
 				<graphic fileref="../images/RightDragMenu.png"/>
 			</figure>
@@ -37,7 +37,7 @@
 			which is under version control.
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-general-auth">
+	<sect2 id="tsvn-DUG-general-auth">
 		<title>Authentication</title>
 		<indexterm>
 			<primary>authentication</primary>
@@ -51,45 +51,15 @@
 			</figure>
 			Enter your username and password. The checkbox will make TortoiseSVN
 			store the credentials in Subversion's default directory: 
-			<filename>$APPDATA\Subversion\auth</filename> in three subdirectories:
-			<itemizedlist>
-				<listitem>
-					<para>
-						<filename>svn.simple</filename> contains credentials
-						for basic authentication (username/password).
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						<filename>svn.ssl.server</filename> contains
-						SSL server certificates.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						<filename>svn.username</filename> contains credentials
-						for username-only authentication (no password needed).
-					</para>
-				</listitem>
-			</itemizedlist>
-			There is one file for each server that you access, formatted as
-			plain text, so you can use a text editor to check which server
-			it applies to. If you want to make Subversion and TortoiseSVN
-			(and any other Subversion client) forget your credentials for
-			a particular server, you have to delete the corresponding file.
-		</para>
-		<para>
-			If you want to clear the authentication cache for <emphasis>all</emphasis>
-			servers, you can do so from the <guilabel>General</guilabel> page
-			of TortoiseSVN's settings dialog. That button will clear all cached
-			auth data from the Subversion auth directories, as well as any auth
-			data stored in the registry by earlier versions of TortoiseSVN.
-			Refer to <xref linkend="tsvn-dug-settings-main"/>.
+			<filename>$APPDATA\Subversion\auth</filename>. One file for each
+			server that you access. If you want to make Subversion and
+			TortoiseSVN forget your credentials, you have to delete the
+			corresponding file(s).
 		</para>
 		<para>
 			For more information on how to set up your server for
 			authentication and access control, refer to
-			<xref linkend="tsvn-serversetup"/>
+			<xref linkend="tsvn_serversetup"/>
 		</para>
 		<tip>
 			<para>

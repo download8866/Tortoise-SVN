@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,9 +30,8 @@
 
 IMPLEMENT_DYNAMIC(CAddDlg, CResizableStandAloneDialog)
 CAddDlg::CAddDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CAddDlg::IDD, pParent)
-	, m_bThreadRunning(FALSE)
-	, m_bCancelled(false)
+	: CResizableStandAloneDialog(CAddDlg::IDD, pParent),
+	m_bThreadRunning(FALSE)
 {
 }
 
@@ -58,12 +57,10 @@ BOOL CAddDlg::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 
 	//set the listcontrol to support checkboxes
-	m_addListCtrl.Init(0, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
+	m_addListCtrl.Init(0, SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD));
 	m_addListCtrl.SetUnversionedRecurse(true);
 	m_addListCtrl.SetSelectButton(&m_SelectAll);
-	m_addListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_addListCtrl.SetEmptyString(IDS_ERR_NOTHINGTOADD);
-	m_addListCtrl.SetCancelBool(&m_bCancelled);
 
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -99,7 +96,6 @@ void CAddDlg::OnOK()
 
 void CAddDlg::OnCancel()
 {
-	m_bCancelled = true;
 	if (m_bThreadRunning)
 		return;
 
@@ -131,15 +127,14 @@ UINT CAddDlg::AddThread()
 	//and show the ones which have to be committed to the user
 	//in a listcontrol. 
 	GetDlgItem(IDOK)->EnableWindow(false);
-	m_bCancelled = false;
-	if (!m_addListCtrl.GetStatus(m_pathList))
-	{
-		CMessageBox::Show(m_hWnd, m_addListCtrl.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-	}
+	GetDlgItem(IDCANCEL)->EnableWindow(false);
+
+	m_addListCtrl.GetStatus(m_pathList);
 	m_addListCtrl.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT, 
 						SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT);
 
 	GetDlgItem(IDOK)->EnableWindow(true);
+	GetDlgItem(IDCANCEL)->EnableWindow(true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }

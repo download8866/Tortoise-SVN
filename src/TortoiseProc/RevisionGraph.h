@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 
 #include "SVNPrompt.h"
-#include <map>
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
@@ -54,22 +53,18 @@ public:
 		added,
 		addedwithhistory,
 		renamed,
-		replaced,
-		lastcommit,
-		initial,
-		source
+		replaced
 	};
 	//methods
-	CRevisionEntry(void) : revision(0), url(NULL), realurl(NULL), author(NULL), date(0),
+	CRevisionEntry(void) : revision(0), url(NULL), author(NULL), date(0),
 		message(NULL), action(nothing), level(1), bUsed(false),
 		leftconnections(0),	rightconnections(0), bottomconnections(0),
 		rightlines(0), bottomlines(0),
 		leftconnectionsleft(0),	rightconnectionsleft(0), bottomconnectionsleft(0),
 		rightlinesleft(0), bottomlinesleft(0) {};
 	//members
-	svn_revnum_t	revision;
+	LONG			revision;
 	const char *	url;
-	const char *	realurl;
 	const char *	author;
 	apr_time_t		date;
 	const char *	message;
@@ -88,7 +83,6 @@ public:
 	int				bottomconnectionsleft;
 	int				rightlinesleft;
 	int				bottomlinesleft;
-	std::set<INT_PTR>	connections;
 	
 	CRect			drawrect;
 };
@@ -112,30 +106,25 @@ public:
 	CRevisionGraph(void);
 	~CRevisionGraph(void);
 	BOOL						FetchRevisionData(CString path);
-	BOOL						AnalyzeRevisionData(CString path, bool bShowAll = false, bool bArrangeByPath = false);
+	BOOL						AnalyzeRevisionData(CString path);
 	virtual BOOL				ProgressCallback(CString text1, CString text2, DWORD done, DWORD total);
 	
 	
 	CString						GetLastErrorMessage();
 	static bool					IsParentOrItself(const char * parent, const char * child);
 	CPtrArray					m_arEntryPtrs;
-
-	typedef std::multimap<svn_revnum_t, CRevisionEntry*>::iterator EntryPtrsIterator;
-	typedef std::pair<svn_revnum_t, CRevisionEntry*> EntryPair;
-	std::multimap<svn_revnum_t, CRevisionEntry*> m_mapEntryPtrs;
 	CString						GetReposRoot() {return CString(m_sRepoRoot);}
 
 	BOOL						m_bCancelled;
 	apr_array_header_t *		m_logdata;
 	apr_pool_t *				pool;			///< memory pool
-	apr_pool_t *				graphpool;
 	svn_client_ctx_t 			m_ctx;
 	SVNPrompt					m_prompt;
 
 private:
 	bool						BuildForwardCopies();
-	bool						AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool bShowAll);
-	bool						Cleanup(CStringA url, bool bArrangeByPath);
+	bool						AnalyzeRevisions(CStringA url, svn_revnum_t startrev);
+	bool						Cleanup(CStringA url);
 	
 	bool						SetCopyTo(const char * copyfrom_path, svn_revnum_t copyfrom_rev, 
 											const char * copyto_path, svn_revnum_t copyto_rev);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,7 +53,7 @@ public:
 	void Clear();
 
 	/// Get the status for a single path (main entry point, called from named-pipe code
-	CStatusCacheEntry GetStatusForPath(const CTSVNPath& path, DWORD flags,  bool bFetch = true);
+	CStatusCacheEntry GetStatusForPath(const CTSVNPath& path, DWORD flags);
 
 	/// Find a directory in the cache (a new entry will be created if there isn't an existing entry)
 	CCachedDirectory * GetDirectoryCacheEntry(const CTSVNPath& path);
@@ -74,8 +74,6 @@ public:
 	/// A notification is only sent for paths which aren't currently
 	/// in the list of handled shell requests to avoid deadlocks.
 	void UpdateShell(const CTSVNPath& path);
-
-	size_t GetCacheSize() {return m_directoryCache.size();}
 
 	void Stop();
 
