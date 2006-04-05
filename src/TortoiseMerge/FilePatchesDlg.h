@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -56,8 +56,6 @@ public:
 #define FPDLG_FILESTATE_PATCHED		0x0002
 
 #define ID_PATCHALL					1
-#define ID_PATCHSELECTED			2
-#define ID_PATCHPREVIEW				3
 /**
  * \ingroup TortoiseMerge
  *
@@ -94,8 +92,6 @@ protected:
 	CWnd *						m_pMainFrame;
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual void OnCancel();
-	virtual void OnOK();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnLvnGetInfoTipFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult);

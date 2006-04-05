@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -111,7 +111,6 @@ protected:
 	BOOL			m_bMatchCase;
 	static const UINT m_FindDialogMessage;
 	CFindReplaceDialog *m_pFindDialog;
-	bool			m_bHasConflicts;
 
 public:
 	CLeftView *		m_pwndLeftView;
@@ -121,7 +120,6 @@ public:
 	BOOL			m_bReversedPatch;
 	CDiffData		m_Data;
 	bool			m_bReadOnly;
-	bool			m_bBlame;
 };
 
 

@@ -57,7 +57,6 @@
 #define IDS_ERR_PATCH_FILESAVE          1023
 #define IDC_MISCGROUP                   1023
 #define IDC_ONEPANE                     1024
-#define IDC_WSIGNOREENDING              1026
 #define IDC_BKUNKNOWN                   1027
 #define IDC_FGUNKNOWN                   1028
 #define IDC_BKNORMAL                    1029
@@ -109,7 +108,6 @@
 #define IDC_CHECK3                      1067
 #define IDC_RESOLVE                     1067
 #define IDC_CASEINSENSITIVE             1067
-#define ID_RESOLVE                      1067
 #define IDC_CHECK4                      1068
 #define IDC_USEBDIFF                    1068
 #define IDC_VERSIONBOX                  1075
@@ -142,8 +140,6 @@
 #define IDS_VIEWCONTEXTMENU_USETHISFILE 4005
 #define IDS_VIEWCONTEXTMENU_USEOTHERBLOCK 4006
 #define IDS_VIEWCONTEXTMENU_USEOTHERFILE 4007
-#define IDS_VIEWCONTEXTMENU_USEBOTHTHISFIRST 4008
-#define IDS_VIEWCONTEXTMENU_USEBOTHTHISLAST 4009
 #define IDS_VIEWTITLE_THEIRS            4200
 #define IDS_VIEWTITLE_MERGED            4201
 #define IDS_VIEWTITLE_MINE              4202
@@ -161,8 +157,6 @@
 #define IDS_PATCH_ALL                   6000
 #define IDS_PATCH_TITLE                 6001
 #define IDS_DIFF_TITLE                  6002
-#define IDS_PATCH_SELECTED              6003
-#define IDS_PATCH_PREVIEW               6004
 #define IDS_COLOURPICKER_CUSTOMTEXT     7000
 #define IDS_COLOURPICKER_DEFAULTTEXT    7001
 #define ID_VIEW_WHITESPACES             32774

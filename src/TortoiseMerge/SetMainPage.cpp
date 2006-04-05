@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -170,14 +170,11 @@ BOOL CSetMainPage::OnInitDialog()
 	case 2:
 		uRadio = IDC_WSIGNORELEADING;
 		break;	
-	case 3:
-		uRadio = IDC_WSIGNOREENDING;
-		break;
 	default:
 		break;	
 	}
 
-	CheckRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREENDING, uRadio);
+	CheckRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREALL, uRadio);
 
 	//set up the language selecting combobox
 	m_LanguageCombo.AddString(_T("English"));
@@ -250,10 +247,9 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_IGNORELF, OnBnClickedIgnorelf)
 	ON_BN_CLICKED(IDC_ONEPANE, OnBnClickedOnepane)
 	ON_BN_CLICKED(IDC_FIRSTDIFFONLOAD, OnBnClickedFirstdiffonload)
-	ON_BN_CLICKED(IDC_WSCOMPARE, OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_WSIGNORELEADING, OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_WSIGNOREENDING, OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_WSIGNOREALL, OnBnClickedWhitespace)
+	ON_BN_CLICKED(IDC_WSCOMPARE, OnBnClickedWscompare)
+	ON_BN_CLICKED(IDC_WSIGNORELEADING, OnBnClickedWsignoreleading)
+	ON_BN_CLICKED(IDC_WSIGNOREALL, OnBnClickedWsignoreall)
 	ON_BN_CLICKED(IDC_LINENUMBERS, OnBnClickedLinenumbers)
 	ON_BN_CLICKED(IDC_MAGNIFIER, OnBnClickedMagnifier)
 	ON_BN_CLICKED(IDC_DIFFBAR, OnBnClickedDiffbar)
@@ -315,11 +311,11 @@ void CSetMainPage::OnBnClickedStrikeout()
 	SetModified();
 }
 
-void CSetMainPage::OnBnClickedWhitespace()
+void CSetMainPage::OnBnClickedWscompare()
 {
 	m_bReloadNeeded = TRUE;
 	SetModified();
-	UINT uRadio = GetCheckedRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREENDING);
+	UINT uRadio = GetCheckedRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREALL);
 	switch (uRadio)
 	{
 	case IDC_WSCOMPARE:
@@ -331,9 +327,48 @@ void CSetMainPage::OnBnClickedWhitespace()
 	case IDC_WSIGNORELEADING:
 		m_nIgnoreWS = 2;
 		break;	
-	case IDC_WSIGNOREENDING:
-		m_nIgnoreWS = 3;
+	default:
+		break;	
+	}
+}
+
+void CSetMainPage::OnBnClickedWsignoreleading()
+{
+	m_bReloadNeeded = TRUE;
+	SetModified();
+	UINT uRadio = GetCheckedRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREALL);
+	switch (uRadio)
+	{
+	case IDC_WSCOMPARE:
+		m_nIgnoreWS = 0;
 		break;
+	case IDC_WSIGNOREALL:
+		m_nIgnoreWS = 1;
+		break;
+	case IDC_WSIGNORELEADING:
+		m_nIgnoreWS = 2;
+		break;	
+	default:
+		break;	
+	}
+}
+
+void CSetMainPage::OnBnClickedWsignoreall()
+{
+	m_bReloadNeeded = TRUE;
+	SetModified();
+	UINT uRadio = GetCheckedRadioButton(IDC_WSCOMPARE, IDC_WSIGNOREALL);
+	switch (uRadio)
+	{
+	case IDC_WSCOMPARE:
+		m_nIgnoreWS = 0;
+		break;
+	case IDC_WSIGNOREALL:
+		m_nIgnoreWS = 1;
+		break;
+	case IDC_WSIGNORELEADING:
+		m_nIgnoreWS = 2;
+		break;	
 	default:
 		break;	
 	}

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-showlog">
+<sect1 id="tsvn-DUG-showlog">
 	<title>Revision Log Dialog</title>
 	<indexterm>
 		<primary>log</primary>
@@ -49,10 +49,10 @@
 		commands which you can use to get even more information about the
 		project history.
 	</para>
-	<sect2 id="tsvn-dug-showlog-1">
+	<sect2 id="tsvn-DUG-showlog-1">
 		<title>Invoking the Revision Log Dialog</title>
 		<para>
-			<figure id="tsvn-dug-showlog-1-dia-1">
+			<figure id="tsvn-DUG-showlog-1-dia-1">
 				<title>The Revision Log Dialog</title>
 				<graphic fileref="../images/LogMessages.png"/>
 			</figure>
@@ -78,10 +78,10 @@
 			</itemizedlist>
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-showlog-2">
+	<sect2 id="tsvn-DUG-showlog-2">
 		<title>Getting Additional Information</title>
 		<para>
-			<figure id="tsvn-dug-showlog-2-dia-1">
+			<figure id="tsvn-DUG-showlog-2-dia-1">
 				<title>The Revision Log Dialog Top Pane with Context Menu</title>
 				<graphic fileref="../images/LogContextMenu.png"/>
 			</figure>
@@ -100,10 +100,11 @@
 				<listitem>
 					<para>
 						View the changes made in the selected revision as a
-						Unified-Diff file (GNU patch format). This shows
-						only the differences with a few lines of context. It
-						is harder to read than a visual file compare, but will
-						show all file changes together in a compact format.
+						Unified-Diff file.
+						The Unified-Diff operation is faster than invoking the 
+						<quote>normal</quote> external
+						diff viewer because TortoiseSVN doesn't have to fetch
+						whole files but only the differences.
 					</para>
 				</listitem>
 				<listitem>
@@ -153,21 +154,8 @@
 				</listitem>
 				<listitem>
 					<para>
-						Revert to an earlier revision. If you have made several
-						changes, and then decide that you really want to go back to
-						how things were in revision N, this is the command you need.
-						Again, the changes are reverted in your working copy so
-						this operation does <emphasis>not</emphasis> affect the
-						repository until you commit the changes. Note that this
-						will undo <emphasis>all</emphasis> changes made after the
-						selected revision, replacing the file/folder with the
-						earlier version.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
 						Edit the log message or author attached to a previous commit.
-						Read <xref linkend="tsvn-dug-showlog-4"/> to find out
+						Read <xref linkend="tsvn-DUG-showlog-4"/> to find out
 						how this works.
 					</para>
 				</listitem>
@@ -182,7 +170,7 @@
 			</itemizedlist>
 		</para>
 		<para>
-			<figure id="tsvn-dug-showlog-2-dia-1a">
+			<figure id="tsvn-DUG-showlog-2-dia-1a">
 				<title>Top Pane Context Menu for 2 Selected Files</title>
 				<graphic fileref="../images/LogContextMenu1.png"/>
 			</figure>
@@ -225,7 +213,7 @@
 			way to rollback a group of revisions in one go.
 		</para>
 		<para>
-			<figure id="tsvn-dug-showlog-2-dia-2">
+			<figure id="tsvn-DUG-showlog-2-dia-2">
 				<title>The Log Dialog Bottom Pane with Context Menu</title>
 				<graphic fileref="../images/LogContextMenu2.png"/>
 			</figure>
@@ -268,7 +256,7 @@
 			</itemizedlist>
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-showlog-3">
+	<sect2 id="tsvn-DUG-showlog-3">
 		<title>Getting more log messages</title>
 		<para>
 			The Log dialog does not always show all changes ever made for a
@@ -286,7 +274,7 @@
 							<guimenu>TortoiseSVN</guimenu>
 							<guimenuitem>Settings</guimenuitem>
 						</menuchoice>
-						(<xref linkend="tsvn-dug-settings"/>),
+						(<xref linkend="tsvn-DUG-settings"/>),
 					</para>
 				</listitem>
 				<listitem>
@@ -326,21 +314,11 @@
 			You can repeat this as many times as needed.
 		</para>
 		<para>
-			Next to this button there is a multi-function button which remembers
-			the last option you used it for. Click on the arrow to see the other
-			options offered.
-		</para>
-		<para>
-			Use <guibutton>Show Range ...</guibutton> if you want to view a specific
-			range of revisions. A dialog will then prompt you to enter the start
-			and end revision.
-		</para>
-		<para>
-			Use <guibutton>Show All</guibutton> if you want to see
-			<emphasis>all</emphasis> log messages from HEAD right back to revision 1.
+			If you want to see <emphasis>all</emphasis> log messages right back
+			to revision 1, press <guibutton>Show All</guibutton>.
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-showlog-4">
+	<sect2 id="tsvn-DUG-showlog-4">
 		<title>Changing the Log Message and Author</title>
 		<indexterm>
 			<primary>edit log/author</primary>
@@ -380,7 +358,7 @@
 			</para>
 		</warning>
 	</sect2>
-	<sect2 id="tsvn-dug-showlog-filter">
+	<sect2 id="tsvn-DUG-showlog-filter">
 		<title>Filtering Log Messages</title>
 		<indexterm>
 			<primary>filter</primary>
@@ -399,7 +377,7 @@
 			They do not control downloading of messages from the repository.
 		</para>
 	</sect2>
-	<sect2 id="tsvn-dug-showlog-5">
+	<sect2 id="tsvn-DUG-showlog-5">
 		<?dbhh topicname="HIDD_STATGRAPH"?>
 		<title>Statistical Information</title>
 		<indexterm>
@@ -412,14 +390,6 @@
 			been at work, how many commits they have made, progress
 			by week, and much more. Now you can see at a glance who
 			has been working hardest and who is slacking ;-)
-		</para>
-		<para>
-			By default the analysis is case-sensitive so users
-			<literal>PeterEgan</literal> and <literal>PeteRegan</literal>
-			are treated as different authors. However, in many cases usernames
-			are not case-sensitive, and are sometimes entered inconsistently.
-			Use the <guilabel>Authors case insensitive</guilabel> checkbox
-			to control how this is handled.
 		</para>
 		<para>
 			Note that the statistics cover the same period as the

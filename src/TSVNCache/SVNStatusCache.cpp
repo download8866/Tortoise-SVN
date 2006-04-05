@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -316,7 +316,7 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntryNoCreate(const CTSVNPa
 	return NULL;
 }
 
-CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD flags,  bool bFetch /* = true */)
+CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD flags)
 {
 	bool bRecursive = !!(flags & TSVNCACHE_FLAGS_RECUSIVE_STATUS);
 
@@ -324,7 +324,7 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 	long now = (long)GetTickCount();
 	if(now-m_mostRecentExpiresAt < 0)
 	{
-		if(path.IsEquivalentTo(m_mostRecentPath))
+		if(path.IsEquivalentToWithCase(m_mostRecentPath))
 		{
 			return m_mostRecentStatus;
 		}
@@ -340,7 +340,7 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 
 		CCachedDirectory * cachedDir = GetDirectoryCacheEntry(path.GetContainingDirectory());
 		if (cachedDir)
-			return m_mostRecentStatus = cachedDir->GetStatusForMember(path, bRecursive, bFetch);
+			return m_mostRecentStatus = cachedDir->GetStatusForMember(path, bRecursive);
 	}
 	ATLTRACE("ignored no good path %ws\n", path.GetWinPath());
 	return (m_mostRecentStatus = CStatusCacheEntry());

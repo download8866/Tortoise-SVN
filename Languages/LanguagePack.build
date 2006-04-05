@@ -40,9 +40,6 @@ NAnt build script for the TortoiseSVN language pack installers
 	</target>
 	
 	<target name="doit">
-		<property name="platformfolder" value="${configuration}" />
-		<property name="platformfolder" value="${configuration}64" if="${platform == 'x64'}" />
-
 		<regex 
 			pattern="^(?'langISO'[A-z_]+);[ \t]+(?'langCC'\d+);[ \t]+(?'langhelpfile'\d+);[ \t]+(?'langUI'.+);[ \t]+(?'langweb'.+);[ \t]+(?'langnative'.+)" 
 			input="${langline}"
@@ -51,13 +48,13 @@ NAnt build script for the TortoiseSVN language pack installers
 		<!-- create the dlls -->
 		<exec program="..\bin\release\bin\restext.exe">
 			<arg value="apply" />
-			<arg value="..\bin\${platformfolder}\bin\TortoiseProcLang.dll" />
+			<arg value="TortoiseProcLang.dll" />
 			<arg value="..\bin\TortoiseProc${langCC}.dll" />
 			<arg value="Tortoise_${langISO}.po" />
 		</exec>
 		<exec program="..\bin\release\bin\restext.exe">
 			<arg value="apply" />
-			<arg value="..\bin\${platformfolder}\bin\TortoiseMergeLang.dll" />
+			<arg value="TortoiseMergeLang.dll" />
 			<arg value="..\bin\TortoiseMerge${langCC}.dll" />
 			<arg value="Tortoise_${langISO}.po" />
 		</exec>
@@ -67,7 +64,6 @@ NAnt build script for the TortoiseSVN language pack installers
 		<echo file="product.nsh" append="true">!define CountryID "${langCC}"</echo>
 		<echo file="product.nsh" append="true">!define InstLang "${langUI}"</echo>
 		<echo file="product.nsh" append="true" if="${langhelpfile == '1'}">!define LangHelp</echo>
-		<echo file="product.nsh" append="true" if="${devrelease != '-dev'}">!define HelpFatal</echo>
 		<!-- create the mo files -->
 		<exec program="msgfmt" if="${file::exists('..\ext\Subversion\Subversion\po\${langISO}.po')}" failonerror="false" >
 			<arg value="..\ext\Subversion\Subversion\po\${langISO}.po" />
@@ -84,8 +80,6 @@ NAnt build script for the TortoiseSVN language pack installers
 						<token key="MinorVersion" value="${environment::get-variable('MinorVersion')}" />
 						<token key="MicroVersion" value="${environment::get-variable('Microversion')}" />
 						<token key="WCREV" value="${environment::get-variable('WCREV')}" />
-						<token key="DEVRELEASE" value="${devrelease}" />
-						<token key="PLATFORM" value="${platform}" />
 					</replacetokens>
 				</filterchain>
 			</loadfile>

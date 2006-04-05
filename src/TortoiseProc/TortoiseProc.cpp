@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
-//#include "vld.h"
 #include "TortoiseProc.h"
 #include "messagebox.h"
 #include "SysImageList.h"
@@ -52,8 +51,6 @@
 #include "RevisionGraphDlg.h"
 #include "FileDiffDlg.h"
 #include "InputDlg.h"
-#include "EditPropertiesDlg.h"
-#include "EditPropertyValueDlg.h"
 #include "BrowseFolder.h"
 #include "SVNStatus.h"
 #include "SVNInfo.h"
@@ -72,11 +69,9 @@
 #define new DEBUG_NEW
 #endif
 
-#ifndef WIN64
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#	ifdef _DEBUG
-#		pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
-#	endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifdef _DEBUG
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
 #endif
 
 #define PWND (hWndExplorer ? CWnd::FromHandle(hWndExplorer) : NULL)
@@ -133,8 +128,7 @@ typedef enum
 	cmdRevisionGraph,
 	cmdLock,
 	cmdUnlock,
-	cmdRebuildIconCache,
-	cmdProperties
+	cmdRebuildIconCache
 } TSVNCommand;
 
 static const struct CommandInfo
@@ -186,7 +180,6 @@ static const struct CommandInfo
 	{	cmdLock,			_T("lock"),				true	},
 	{	cmdUnlock,			_T("unlock"),			true	},
 	{	cmdRebuildIconCache,_T("rebuildiconcache"),	false	},
-	{	cmdProperties,		_T("properties"),		true	},
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -280,32 +273,15 @@ BOOL CTortoiseProcApp::InitInstance()
 	m_pszHelpFilePath=_tcsdup(sHelppath);
 	do
 	{
+		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf));
 		CString sLang = _T("_");
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)))
+		sLang += buf;
+		sHelppath.Replace(_T("_en"), sLang);
+		if (PathFileExists(sHelppath))
 		{
-			sLang += buf;
-			sHelppath.Replace(_T("_en"), sLang);
-			if (PathFileExists(sHelppath))
-			{
-				free((void*)m_pszHelpFilePath);
-				m_pszHelpFilePath=_tcsdup(sHelppath);
-				break;
-			}
-		}
-		sHelppath.Replace(sLang, _T("_en"));
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)))
-		{
-			sLang += _T("_");
-			sLang += buf;
-			sHelppath.Replace(_T("_en"), sLang);
-			if (PathFileExists(sHelppath))
-			{
-				free((void*)m_pszHelpFilePath);
-				m_pszHelpFilePath=_tcsdup(sHelppath);
-				break;
-			}
-		}
-		sHelppath.Replace(sLang, _T("_en"));
+			free((void*)m_pszHelpFilePath);
+			m_pszHelpFilePath=_tcsdup(sHelppath);
+		} // if (PathFileExists(sHelppath))
 
 		DWORD lid = SUBLANGID(langId);
 		lid--;
@@ -626,7 +602,7 @@ BOOL CTortoiseProcApp::InitInstance()
 				CSVNProgressDlg progDlg;
 				progDlg.m_dwCloseOnEnd = parser.GetLongVal(_T("closeonend"));
 				m_pMainWnd = &progDlg;
-				progDlg.SetParams(CSVNProgressDlg::Import, dlg.m_bIncludeIgnored ? ProgOptIncludeIgnored : 0, pathList, dlg.m_url, dlg.m_sMessage);
+				progDlg.SetParams(CSVNProgressDlg::Import, 0, pathList, dlg.m_url, dlg.m_sMessage);
 				progDlg.DoModal();
 			}
 		}
@@ -698,10 +674,6 @@ BOOL CTortoiseProcApp::InitInstance()
 						dlg.m_sLogMessage.Empty();
 					}
 				}
-			}
-			if (parser.HasKey(_T("bugid")))
-			{
-				dlg.m_sBugID = parser.GetVal(_T("bugid"));
 			}
 			dlg.m_pathList = pathList;
 			if (dlg.DoModal() == IDOK)
@@ -941,9 +913,7 @@ BOOL CTortoiseProcApp::InitInstance()
 					CSVNProgressDlg progDlg;
 					progDlg.m_dwCloseOnEnd = parser.GetLongVal(_T("closeonend"));
 					//m_pMainWnd = &progDlg;
-					int options = dlg.m_bDryRun ? ProgOptDryRun : 0;
-					options |= dlg.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
-					progDlg.SetParams(CSVNProgressDlg::Merge, options, pathList, dlg.m_URLFrom, dlg.m_URLTo, dlg.StartRev);		//use the message as the second url
+					progDlg.SetParams(CSVNProgressDlg::Merge, dlg.m_bDryRun ? ProgOptDryRun : 0, pathList, dlg.m_URLFrom, dlg.m_URLTo, dlg.StartRev);		//use the message as the second url
 					progDlg.m_RevisionEnd = dlg.EndRev;
 					progDlg.DoModal();
 					repeat = dlg.m_bDryRun;
@@ -1061,7 +1031,7 @@ BOOL CTortoiseProcApp::InitInstance()
 					destinationPath.AppendPathString(dlg.m_name);
 				else
 					destinationPath.SetFromWin(dlg.m_name);
-				if (cmdLinePath.GetWinPathString().CompareNoCase(destinationPath.GetWinPathString())==0)
+				if (cmdLinePath.IsEquivalentTo(destinationPath))
 				{
 					//rename to the same file!
 					CMessageBox::Show(EXPLORERHWND, IDS_PROC_CASERENAME, IDS_APPNAME, MB_ICONERROR);
@@ -1071,9 +1041,6 @@ BOOL CTortoiseProcApp::InitInstance()
 					CString sMsg;
 					if (SVN::PathIsURL(cmdLinePath.GetSVNPathString()))
 					{
-						// rename an URL.
-						// Ask for a commit message, then rename directly in
-						// the repository
 						CInputDlg input;
 						input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
 						CUtils::RemoveAccelerators(input.m_sHintText);
@@ -1091,9 +1058,6 @@ BOOL CTortoiseProcApp::InitInstance()
 					}
 					if ((cmdLinePath.IsDirectory())||(pathList.GetCount() > 1))
 					{
-						// renaming a directory can take a while: use the
-						// progress dialog to show the progress of the renaming
-						// operation.
 						CSVNProgressDlg progDlg;
 						progDlg.m_dwCloseOnEnd = parser.GetLongVal(_T("closeonend"));
 						progDlg.SetParams(CSVNProgressDlg::Rename, 0, pathList, destinationPath.GetWinPathString(), sMsg, SVNRev::REV_WC);
@@ -1102,107 +1066,14 @@ BOOL CTortoiseProcApp::InitInstance()
 					else
 					{
 						SVN svn;
-						CString sFilemask = cmdLinePath.GetFilename();
-						if (sFilemask.Find('.')>=0)
+						if (!svn.Move(cmdLinePath, destinationPath, TRUE, sMsg))
 						{
-							sFilemask = sFilemask.Left(sFilemask.Find('.'));
+							TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
+							CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
-						else
-							sFilemask.Empty();
-						CString sNewMask = destinationPath.GetFilename();
-						if (sNewMask.Find('.'>=0))
-						{
-							sNewMask = sNewMask.Left(sNewMask.Find('.'));
-						}
-						else
-							sNewMask.Empty();
-
-						if (((!sFilemask.IsEmpty()) && (parser.HasKey(_T("noquestion")))) ||
-							(cmdLinePath.GetFileExtension().Compare(destinationPath.GetFileExtension())!=0))
-						{
-							if (!svn.Move(cmdLinePath, destinationPath, TRUE, sMsg))
-							{
-								TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
-								CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-							}
-						}
-						else
-						{
-							// when refactoring, multiple files have to be renamed
-							// at once because those files belong together.
-							// e.g. file.aspx, file.aspx.cs, file.aspx.resx
-							CTSVNPathList renlist;
-							CSimpleFileFind filefind(cmdLinePath.GetDirectory().GetWinPathString(), sFilemask+_T(".*"));
-							while (filefind.FindNextFileNoDots())
-							{
-								if (!filefind.IsDirectory())
-									renlist.AddPath(CTSVNPath(filefind.GetFilePath()));
-							}
-							if (renlist.GetCount()<=1)
-							{
-								// we couldn't find any other matching files
-								// just do the default...
-								if (!svn.Move(cmdLinePath, destinationPath, TRUE, sMsg))
-								{
-									TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
-									CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-								}
-							}
-							else
-							{
-								std::map<CString, CString> renmap;
-								CString sTemp;
-								CString sRenList;
-								for (int i=0; i<renlist.GetCount(); ++i)
-								{
-									CString sFilename = renlist[i].GetFilename();
-									CString sNewFilename = sNewMask + sFilename.Mid(sFilemask.GetLength());
-									sTemp.Format(_T("\n%s -> %s"), sFilename, sNewFilename);
-									sRenList += sTemp;
-									renmap[renlist[i].GetWinPathString()] = renlist[i].GetContainingDirectory().GetWinPathString()+_T("\\")+sNewFilename;
-								}
-								CString sRenameMultipleQuestion;
-								sRenameMultipleQuestion.Format(IDS_PROC_MULTIRENAME, sRenList);
-								UINT idret = CMessageBox::Show(EXPLORERHWND, sRenameMultipleQuestion, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNOCANCEL);
-								if (idret == IDYES)
-								{
-									CProgressDlg progress;
-									progress.SetTitle(IDS_PROC_MOVING);
-									progress.SetAnimation(IDR_MOVEANI);
-									progress.SetTime(true);
-									progress.ShowModeless(CWnd::FromHandle(EXPLORERHWND));
-									DWORD count = 1;
-									for (std::map<CString, CString>::iterator it=renmap.begin(); it != renmap.end(); ++it)
-									{
-										progress.FormatPathLine(1, IDS_PROC_MOVINGPROG, it->first);
-										progress.FormatPathLine(2, IDS_PROC_CPYMVPROG2, it->second);
-										progress.SetProgress(count, renmap.size());
-										if (!svn.Move(CTSVNPath(it->first), CTSVNPath(it->second), TRUE, sMsg))
-										{
-											TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
-											CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-										}
-									}
-									progress.Stop();
-								}
-								else if (idret == IDNO)
-								{
-									// no, user wants to just rename the file he selected
-									if (!svn.Move(cmdLinePath, destinationPath, TRUE, sMsg))
-									{
-										TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
-										CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-									}
-								}
-								else if (idret == IDCANCEL)
-								{
-									// nothing
-								}
-							}
-						}
-					} // else from if ((cmdLinePath.IsDirectory())||(pathList.GetCount() > 1))
-				} // if (cmdLinePath.IsEquivalentTo(destinationPath))
-			} // if (dlg.DoModal() == IDOK)
+					}
+				}
+			}
 		}
 		//#endregion
 		//#region diff
@@ -1315,20 +1186,8 @@ BOOL CTortoiseProcApp::InitInstance()
 				return FALSE;
 			SVN svn;
 			unsigned long count = 0;
-			pathList.RemoveAdminPaths();
-			CString sNewName;
-			if ((parser.HasKey(_T("rename")))&&(pathList.GetCount()==1))
-			{
-				// ask for a new name of the source item
-				CRenameDlg renDlg;
-				renDlg.m_name = pathList[0].GetFileOrDirectoryName();
-				if (renDlg.DoModal() != IDOK)
-				{
-					return FALSE;
-				}
-				sNewName = renDlg.m_name;
-			}
 			CProgressDlg progress;
+			pathList.RemoveAdminPaths();
 			if (progress.IsValid())
 			{
 				progress.SetTitle(IDS_PROC_MOVING);
@@ -1338,16 +1197,10 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 			for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 			{
-				CTSVNPath destPath;
-				if (sNewName.IsEmpty())
-					destPath = CTSVNPath(droppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
-				else
-					destPath = CTSVNPath(droppath+_T("\\")+sNewName);
-				if (destPath.Exists())
+				CTSVNPath destPath(droppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
+				if (pathList[nPath].IsEquivalentTo(destPath))
 				{
 					CString name = pathList[nPath].GetFileOrDirectoryName();
-					if (!sNewName.IsEmpty())
-						name = sNewName;
 					progress.Stop();
 					CRenameDlg dlg;
 					dlg.m_windowtitle.Format(IDS_PROC_NEWNAMEMOVE, (LPCTSTR)name);
@@ -1408,13 +1261,6 @@ BOOL CTortoiseProcApp::InitInstance()
 			for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 			{
 				CString dropper = droppath + _T("\\") + pathList[nPath].GetFileOrDirectoryName();
-				if (PathFileExists(dropper))
-					dropper.Format(IDS_PROC_EXPORTFOLDERNAME, droppath, pathList[nPath].GetFileOrDirectoryName());
-				int exportcount = 1;
-				while (PathFileExists(dropper))
-				{
-					dropper.Format(IDS_PROC_EXPORTFOLDERNAME2, droppath, exportcount++, pathList[nPath].GetFileOrDirectoryName());
-				}
 				if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, TRUE, FALSE, EXPLORERHWND, parser.HasKey(_T("extended"))))
 				{
 					CMessageBox::Show(EXPLORERHWND, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
@@ -1689,10 +1535,10 @@ BOOL CTortoiseProcApp::InitInstance()
 					CString propname(props.GetItemName(i).c_str());
 					if (propname.CompareNoCase(_T("svn:ignore"))==0)
 					{
+						stdstring stemp;
 						stdstring tmp = props.GetItemValue(i);
 						//treat values as normal text even if they're not
 						value = (char *)tmp.c_str();
-						break;
 					}
 				}
 				value = value.Trim("\n\r");
@@ -1742,16 +1588,9 @@ BOOL CTortoiseProcApp::InitInstance()
 		//#region blame
 		if (command == cmdBlame)
 		{
-			bool bShowDialog = true;
 			CBlameDlg dlg;
 			dlg.EndRev = SVNRev::REV_HEAD;
-			if (parser.HasKey(_T("startrev")) && parser.HasKey(_T("endrev")))
-			{
-				bShowDialog = false;
-				dlg.StartRev = parser.GetLongVal(_T("startrev"));
-				dlg.EndRev = parser.GetLongVal(_T("endrev"));
-			}
-			if ((!bShowDialog)||(dlg.DoModal() == IDOK))
+			if (dlg.DoModal() == IDOK)
 			{
 				CBlame blame;
 				CString tempfile;
@@ -1832,7 +1671,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		if (command == cmdRevisionGraph)
 		{
 			CRevisionGraphDlg dlg;
-			dlg.SetPath(cmdLinePath.GetWinPathString());
+			dlg.m_sPath = cmdLinePath.GetWinPathString();
 			dlg.DoModal();
 		} 
 		//#endregion
@@ -1905,15 +1744,6 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 		} 
 		//#endregion
-		//#region properties
-		if (command == cmdProperties)
-		{
-			CEditPropertiesDlg dlg;
-			dlg.SetPathList(pathList);
-			dlg.DoModal();
-		}
-		//#endregion
-
 
 		if (TSVNMutex)
 			::CloseHandle(TSVNMutex);

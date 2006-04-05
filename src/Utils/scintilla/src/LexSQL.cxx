@@ -43,6 +43,7 @@ static inline bool IsANumberChar(int ch) {
              ch == '.' || ch == '-' || ch == '+');
 }
 
+
 static void ColouriseSQLDoc(unsigned int startPos, int length, int initStyle, WordList *keywordlists[],
                             Accessor &styler) {
 
@@ -59,7 +60,7 @@ static void ColouriseSQLDoc(unsigned int startPos, int length, int initStyle, Wo
 
 	bool sqlBackslashEscapes = styler.GetPropertyInt("sql.backslash.escapes", 0) != 0;
 	bool sqlBackticksIdentifier = styler.GetPropertyInt("lexer.sql.backticks.identifier", 0) != 0;
-	int styleBeforeDCKeyword = SCE_SQL_DEFAULT;
+	int styleBeforeDCKeyword = SCE_C_DEFAULT;
 	bool fold = styler.GetPropertyInt("fold") != 0;
 	int lineCurrent = styler.GetLine(startPos);
 
@@ -247,7 +248,7 @@ static void FoldSQLDoc(unsigned int startPos, int length, int initStyle,
 	int lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
 	if (lineCurrent > 0) {
-		levelCurrent = styler.LevelAt(lineCurrent - 1) >> 16;
+		levelCurrent = styler.LevelAt(lineCurrent - 1) & SC_FOLDLEVELNUMBERMASK;
 	}
 	int levelNext = levelCurrent;
 	char chNext = styler[startPos];
@@ -325,14 +326,16 @@ static void FoldSQLDoc(unsigned int startPos, int length, int initStyle,
 			}
 		}
 		if (atEOL) {
-			int levelUse = levelCurrent;
-			int lev = levelUse | levelNext << 16;
-			if (visibleChars == 0 && foldCompact)
-				lev |= SC_FOLDLEVELWHITEFLAG;
-			if (levelUse < levelNext)
-				lev |= SC_FOLDLEVELHEADERFLAG;
-			if (lev != styler.LevelAt(lineCurrent)) {
-				styler.SetLevel(lineCurrent, lev);
+			int level = levelCurrent;
+			if (visibleChars == 0 && foldCompact) {
+				// Empty line
+				level |= SC_FOLDLEVELWHITEFLAG;
+			}
+			if (visibleChars > 0 && levelNext > levelCurrent) {
+				level |= SC_FOLDLEVELHEADERFLAG;
+			}
+			if (level != styler.LevelAt(lineCurrent)) {
+				styler.SetLevel(lineCurrent, level);
 			}
 			lineCurrent++;
 			levelCurrent = levelNext;

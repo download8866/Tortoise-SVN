@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,10 +55,10 @@ BEGIN_MESSAGE_MAP(CSettingsColors, CPropertyPage)
 	ON_BN_CLICKED(IDC_RESTORE, OnBnClickedRestore)
 END_MESSAGE_MAP()
 
-int CSettingsColors::SaveData()
+void CSettingsColors::SaveData()
 {
 	if (!bInit)
-		return 0;
+		return;
 	m_Colors.SetColor(CColors::Added, m_cAdded.GetColor(TRUE));
 	m_Colors.SetColor(CColors::Deleted, m_cDeleted.GetColor(TRUE));
 	m_Colors.SetColor(CColors::Merged, m_cMerged.GetColor(TRUE));
@@ -67,8 +67,7 @@ int CSettingsColors::SaveData()
 	m_Colors.SetColor(CColors::AddedNode, m_cAddedNode.GetColor(TRUE));
 	m_Colors.SetColor(CColors::DeletedNode, m_cDeletedNode.GetColor(TRUE));
 	m_Colors.SetColor(CColors::RenamedNode, m_cRenamedNode.GetColor(TRUE));
-	m_Colors.SetColor(CColors::ReplacedNode, m_cReplacedNode.GetColor(TRUE));
-	return 0;
+	m_Colors.SetColor(CColors::ReplacedNode, m_cReplacedNode.GetColor(TRUE));	
 }
 
 BOOL CSettingsColors::OnInitDialog()

@@ -7,7 +7,7 @@
 			List of keyboard shortcuts and commands.
 		</para>
 	</simplesect>
-	<sect1 id="tme-keyboard-shortcuts">
+	<sect1 id="tme-keyboard-sect-1">
 		<title>Keyboard shortcuts</title>
 		<variablelist>
 			<varlistentry>
@@ -75,22 +75,6 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Shift-cursor-right</term>
-				<listitem>
-					<para>
-						Go to next conflict
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Shift-cursor-left</term>
-				<listitem>
-					<para>
-						Go to previous conflict
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
 				<term>Ctrl-D</term>
 				<listitem>
 					<para>
@@ -111,14 +95,6 @@
 				<listitem>
 					<para>
 						Toggles between showing whitespaces or not
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Ctrl-wheelmouse</term>
-				<listitem>
-					<para>
-						Scroll the display left/right
 					</para>
 				</listitem>
 			</varlistentry>

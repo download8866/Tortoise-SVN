@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "registry.h"
 #include "SplitterControl.h"
 #include "Colors.h"
-#include "MenuButton.h"
 #include "afxwin.h"
 #include "afxdtctl.h"
 
@@ -56,11 +55,6 @@
 #define ID_CHECKOUT		24
 #define ID_CONFLICTUSETHEIRS 25
 #define ID_CONFLICTUSEMINE 26
-#define ID_REVERTTOREV	27
-#define ID_EXPLORE		28
-#define ID_BLAMECOMPARE 29
-#define ID_BLAMETWO     30
-#define ID_BLAMEDIFF    31
 
 #define LOGFILTER_ALL      1
 #define LOGFILTER_MESSAGES 2
@@ -76,6 +70,28 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 /**
  * \ingroup TortoiseProc
  * Shows log messages of a single file or folder in a listbox. 
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.1
+ * log messages have the modified/added/removed/moved files listed
+ * at the bottom.
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CLogDlg : public CResizableStandAloneDialog, public SVN //CResizableStandAloneDialog
 {
@@ -126,7 +142,7 @@ protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	void	FillLogMessageCtrl(bool bShow = true);
-	void	DoDiffFromLog(int selIndex, svn_revnum_t rev, bool blame);
+	void	DoDiffFromLog(int selIndex, svn_revnum_t rev);
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -136,7 +152,6 @@ public:
 	bool IsThreadRunning() {return !!m_bThreadRunning;}
 	void SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
 	void SetSelect(bool bSelect) {m_bSelect = bSelect;}
-	void ContinuousSelection(bool bCont = true) {m_bSelectionMustBeContinuous = bCont;}
 
 private:
 	static UINT LogThreadEntry(LPVOID pVoid);
@@ -154,13 +169,9 @@ private:
 	CTSVNPathList GetChangedPathsFromSelectedRevisions(bool bRelativePaths = false, bool bUseFilter = true);
     void SortShownListArray();
     void SetSortArrow(CListCtrl * control, int nColumn, bool bAscending);
-	bool IsSelectionContinuous();
-	void EnableOKButton();
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
-
-	void ResizeAllListCtrlCols(CListCtrl &list);
 
 public:
 	CWnd *				m_pNotifyWindow;
@@ -172,12 +183,10 @@ private:
 	CListCtrl			m_LogList;
 	CListCtrl			m_LogMsgCtrl;
 	CProgressCtrl		m_LogProgress;
-	CMenuButton			m_btnShow;
 	CTSVNPath			m_path;
-	SVNRev				m_startrev;
-	SVNRev				m_LogRevision;
-	SVNRev				m_endrev;
-	bool				m_bSelectionMustBeContinuous;
+	svn_revnum_t		m_startrev;
+	svn_revnum_t		m_LogRevision;
+	svn_revnum_t		m_endrev;
 	long				m_logcounter;
 	bool				m_bCancelled;
 	volatile LONG 		m_bThreadRunning;
@@ -215,7 +224,6 @@ private:
 	bool				m_bShowedAll;
 	CString				m_sTitle;
 	bool				m_bSelect;
-	bool				m_bShowBugtraqColumn;
 	
 	CTime				m_timFrom;
 	CTime				m_timTo;
@@ -225,9 +233,6 @@ private:
 	HICON				m_hReplacedIcon;
 	HICON				m_hAddedIcon;
 	HICON				m_hDeletedIcon;
-
-	CString sModifiedStatus, sReplacedStatus, sAddStatus, sDeleteStatus;
-
 private:
     typedef struct LogEntryData
     {   

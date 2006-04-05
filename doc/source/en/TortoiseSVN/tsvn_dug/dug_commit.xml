@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-commit">
+<sect1 id="tsvn-DUG-commit">
 	<title>Sending Your Changes To The Repository</title>
 	<indexterm>
 		<primary>commit</primary>
@@ -30,7 +30,7 @@
 			<guimenu>TortoiseSVN</guimenu>
 			<guimenuitem>Commit...</guimenuitem>
 		</menuchoice>.
-		<figure id="tsvn-dug-commit-dia-1">
+		<figure id="tsvn-DUG-commit-dia-1">
 			<title>The Commit dialog</title>
 			<graphic fileref="../images/Commit.png"/>
 		</figure>
@@ -41,12 +41,6 @@
 		want a changed file to be committed, just uncheck that
 		file. If you want to include an unversioned file,
 		just check that file to add it to the commit.
-	</para>
-	<para>
-		Items which have been switched to a different repository path are
-		also indicated using an <literal>(s)</literal> marker. You may have
-		switched something while working on a branch and forgotten to switch
-		back to trunk. This is your warning sign!
 	</para>
 	<tip>
 		<title>Commit files or folders?</title>
@@ -96,42 +90,14 @@
 					</para>
 				</listitem>
 			</itemizedlist>
-			Read <xref linkend="tsvn-dug-ignore"/> for more information. 
+			Read <xref linkend="tsvn-DUG-ignore"/> for more information. 
 		</para>
 	</tip>
 	<para>
 		<action>Doubleclicking</action> on any modified file in the commit
 		dialog will launch the external diff tool to show your changes.
 		The context menu will give you more options, as shown in the screenshot.
-		You can also drag files from here into another application such as a
-		text editor or an IDE.
 	</para>
-	<para>
-		The columns displayed in the bottom pane are customizable. If you
-		<action>right click</action> on any column header you will see a
-		context menu allowing you to select which columns are displayed.
-		You can also change column width by using the drag handle which
-		appears when you move the mouse over a column boundary. These
-		customizations are preserved, so you will see the same headings
-		next time.
-		Note that due to an implementation detail, you may see two different
-		drag icons, depending on exactly where you position the mouse over the
-		boundary. One has a solid vertical dividing line and the other has two
-		thin vertical lines. Only the solid drag pointer works.
-	</para>
-	<tip>
-		<title>Drag and Drop</title>
-		<para>
-			You can drag files into the commit dialog from elsewhere, so
-			long as the working copies are checked out from the same repository.
-			For example, you may have a huge working copy with several
-			explorer windows open to look at distant folders of the
-			hierarchy. If you want to avoid committing from the top
-			level folder (with a lengthy folder crawl to check for changes)
-			you can open the commit dialog for one folder and drag in items
-			from the other windows to include within the same atomic commit.
-		</para>
-	</tip>
 	<para>
 		Be sure to enter a log message which describes the changes you are
 		committing. This will help you to see what happened and when, as you
@@ -141,7 +107,7 @@
 		a strict format.
 	</para>
 	<para>
-		<figure id="tsvn-dug-commit-dia-2">
+		<figure id="tsvn-DUG-commit-dia-2">
 			<title>The Commit Dialog Spellchecker</title>
 			<graphic fileref="../images/CommitSpellcheck.png"/>
 		</figure>
@@ -153,25 +119,9 @@
 		just add them to your personal dictionary using the context menu.
 	</para>
 	<para>
-		The log message window also includes a filename and function auto-completion
-		facility. This uses regular expressions to extract class and function names
-		from the (text) files you are committing, as well as the filenames themselves.
-		If a word you are typing matches anything in the list (after you have typed at
-		least 3 characters), a drop-down appears allowing you to select the full name.
-		The regular expressions supplied with TortoiseSVN are held in the TortoiseSVN
-		installation <filename>bin</filename> folder. You can also define your own
-		regexes and store them in <filename>%APPDATA%\TortoiseSVN\autolist.txt</filename>.
-		Of course your private autolist will not be overwritten when you update your
-		installation of TortoiseSVN. If you are unfamiliar with regular expressions,
-		take a look at the online documentation and tutorial at
-		<ulink url="http://www.regular-expressions.info/">
-			<citetitle>http://www.regular-expressions.info/</citetitle>
-		</ulink>.
-	</para>
-	<para>
 		After pressing <guibutton>OK</guibutton>, a dialog appears displaying
 		the progress of the commit.
-		<figure id="tsvn-dug-commit-dia-3">
+		<figure id="tsvn-DUG-commit-dia-3">
 			<title>The Progress dialog showing a commit in progress</title>
 			<graphic fileref="../images/CommitProgress.png"/>
 		</figure>
@@ -214,29 +164,21 @@
 			</varlistentry>
 		</variablelist>
 	</para>
-	<para>
-		This is the default colour scheme, but you can customise those colours
-		using the settings dialog.
-		Read <xref linkend="tsvn-dug-settings-colours"/> for more information.
-	</para>
 	<tip>
 		<title>Special Folder Properties</title>
 		<para>
 			There are several special folder properties which can be used to
 			help give more control over the formatting of commit log messages and
 			the language used by the spellchecker module.
-			Read <xref linkend="tsvn-dug-propertypage"/> for further information.
+			Read <xref linkend="tsvn-DUG-propertypage"/> for further information.
 		</para>
 	</tip>
 	<tip>
 		<title>Integration with Bugtracking Tools</title>
 		<para>
-			If you have activated the bugtracking system, you can set one or more 
-			Issues in the <guilabel>Bug-ID / Issue-Nr:</guilabel> text box. Multiple
-			issues should be comma separated. Alternatively, if you are using
-			regex-based bugtracking support, just add your issue references
-			as part of the log message.
-			Learn more <xref linkend="tsvn-dug-bugtracker"/>.
+			If you have activated the bugtracking system, you could set one or more 
+			Issues in the <guilabel>Bug-ID / Issue-Nr:</guilabel> Textfield. Several Issues 
+			should be comma separated. Learn more <xref linkend="tsvn-DUG-bugtracker"/>.
 		</para>
 	</tip>
 </sect1>

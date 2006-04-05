@@ -38,19 +38,9 @@ This will only build the english HTML helpf file for TortoiseSVN
 		unless="${property::exists('docformats')}"
 	/>
 	<property name="languages" 
-		value="en,de,es,fr,ja,ru,zh_CN" 
+		value="en,de,es,ja" 
 		unless="${property::exists('languages')}"
 	/>
-
-	<!-- ============================================================ -->
-  <!-- Define property so that doc.build alone doesn't fail         -->
-
-	<property name="devrelease"
-	  value="" 
-		unless="${property::exists('devrelease')}"
-	/>
-
-  <property name="critical" value="${devrelease!='-dev'}" />
 
 	<!-- ============================================================ -->
 	<!-- Settings for the translation                                 -->
@@ -61,29 +51,6 @@ This will only build the english HTML helpf file for TortoiseSVN
 		value="en"
 		unless="${property::exists('lang.base')}"
 	/>
-	
-	<!-- ============================================================ -->
-	<!-- Settings for the CHM Help creation                           -->
-	<!-- Attention, this is implemented as a target, because I could  -->
-	<!-- not find a better way to create the property depending on    -->
-	<!-- the app name                                                 -->
-	
-	<target name="help.prepare.TortoiseSVN">
-	<echo message="help.prepare.TortoiseSVN"/>
-		<property name="help.resource.TortoiseSVN"
-		  value="../src/TortoiseProc/resource.h"
-			unless="${property::exists('help.resource.TortoiseSVN')}"
-		/>
-		<property name="help.resource" value="${help.resource.TortoiseSVN}" />
-	</target>
-	<target name="help.prepare.TortoiseMerge">
-	<echo message="help.prepare.TortoiseMerge"/>
-		<property name="help.resource.TortoiseMerge"
-	  	value="../src/TortoiseMerge/resource.h"
-			unless="${property::exists('help.resource.TortoiseMerge')}"
-		/>
-		<property name="help.resource" value="${help.resource.TortoiseMerge}" />
-	</target>
 	
 	<!-- Fileset to exclude from translation and .pot creation        -->
 	<!-- Duplicate these files in the "sourcefiles" fileset           -->
@@ -138,11 +105,11 @@ This will only build the english HTML helpf file for TortoiseSVN
 	<!-- stylesheets and stringparams                                 -->
 	<property name="xsl.pdf.params" value="--nonet --xinclude"/>
 	<property name="xsl.pdf.file" value="pdfdoc.xsl"/>
-	<property name="xsl.chm.params" value="--nonet --xinclude --stringparam html.stylesheet styles_chm.css --stringparam use.id.as.filename 1"/>
+	<property name="xsl.chm.params" value="--nonet --xinclude --stringparam html.stylesheet styles_chm.css"/>
 	<property name="xsl.chm.file" value="htmlhelp.xsl"/>
-	<property name="xsl.html.params" value="--nonet --xinclude --stringparam html.stylesheet styles_html.css --stringparam use.id.as.filename 1"/>
+	<property name="xsl.html.params" value="--nonet --xinclude --stringparam html.stylesheet styles_html.css"/>
 	<property name="xsl.html.file" value="htmlsingle.xsl"/>
-	<property name="xsl.htmlsingle.params" value="--nonet --xinclude --stringparam html.stylesheet styles_html.css --stringparam use.id.as.filename 1"/>
+	<property name="xsl.htmlsingle.params" value="--nonet --xinclude --stringparam html.stylesheet styles_html.css"/>
 	<property name="xsl.htmlsingle.file" value="htmlchunk.xsl"/>
 	<property name="xsl.profile.params" value="--nonet --xinclude --stringparam profile.condition &quot;exclude&quot;"/>
 	<property name="xsl.profile.file" value="profile.xsl"/>
@@ -224,8 +191,10 @@ This will only build the english HTML helpf file for TortoiseSVN
 <!-- ====================================================================== -->
 
 	<target name="help.prepare" description="Create CHM help context">
-		<call target="help.prepare.${app}" />
-<!--		if="${target::exists('help.prepare.${app}')}"/>-->
+		<property name="help.resource" value="../src/TortoiseMerge/resource.h" />
+		<if test="${string::starts-with(doc.target.name,'TortoiseSVN')}">
+			<property name="help.resource" value="../src/TortoiseProc/resource.h" />
+		</if>
 
 		<echo message="help resource generation with file ${help.resource}" />
 		
@@ -270,10 +239,14 @@ This will only build the english HTML helpf file for TortoiseSVN
 					append="true"
 					verbose="false" />
 
+	</target>
 
-		<!-- Copy help context to target location -->
+<!-- ====================================================================== -->
+<!-- Copy help context to target location                                   -->
+<!-- ====================================================================== -->
+
+	<target name="help.custom" description="Create CHM help context">
 		<copy file="${help.context}" todir="${doc.target.work}" overwrite="true"/>
-
 	</target>
 
 </project>

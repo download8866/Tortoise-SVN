@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,6 @@
 #include "SetDialogs.h"
 #include "SettingsColors.h"
 #include "SetMisc.h"
-#include "SetSavedDataPage.h"
 #include "TreePropSheet/TreePropSheet.h"
 
 using namespace TreePropSheet;
@@ -42,6 +41,25 @@ using namespace TreePropSheet;
  * the settings the user has made - if that method is not called then
  * it means that the changes are discarded! Each settings page has
  * to make sure that no changes are saved outside that method.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 11-28-2002
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CSettings : public CTreePropSheet
 {
@@ -68,7 +86,6 @@ private:
 	CSetDialogs *			m_pDialogsPage;
 	CSettingsColors *		m_pColorsPage;
 	CSetMisc *				m_pMiscPage;
-	CSetSavedDataPage *		m_pSavedPage;
 
 	HICON					m_hIcon;
 public:

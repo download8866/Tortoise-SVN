@@ -61,11 +61,6 @@ IDI_CREATEPATCH         ICON                    "..\\Resources\\menudiff.ico"
 IDI_REVISIONGRAPH       ICON                    "..\\Resources\\menurevisiongraph.ico"
 IDI_LOCK                ICON                    "..\\Resources\\menulock.ico"
 IDI_UNLOCK              ICON                    "..\\Resources\\menuunlock.ico"
-IDI_MENUFILE            ICON                    "..\\Resources\\tsvnmenufile.ico"
-IDI_MENUFOLDER          ICON                    "..\\Resources\\tsvnmenufolder.ico"
-IDI_MENULINK            ICON                    "..\\Resources\\tsvnmenulink.ico"
-IDI_MENUMULTIPLE        ICON                    "..\\Resources\\tsvnmenumultiple.ico"
-IDI_PROPERTIES          ICON                    "..\\Resources\\menuproperties.ico"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -85,35 +80,53 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 IDD_PROPPAGE DIALOGEX 0, 0, 247, 277
-STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD | WS_VISIBLE | WS_CAPTION
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | WS_CHILD | WS_VISIBLE | 
+    WS_CAPTION
 CAPTION "Property Page"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     LTEXT           "URL:",IDC_STATIC,4,5,26,8
-    EDITTEXT        IDC_REPOURL,34,5,209,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_REPOURL,34,5,209,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
     LTEXT           "Revision / Author:",IDC_STATIC,4,18,76,8
-    EDITTEXT        IDC_REVISION,80,18,40,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_AUTHOR,120,18,94,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_REVISION,80,18,40,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_AUTHOR,120,18,94,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
     LTEXT           "locked",IDC_LOCKED,222,18,21,8
     LTEXT           "Last commit revision:",IDC_STATIC,4,30,76,8
-    EDITTEXT        IDC_CREVISION,80,30,40,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_CDATE,120,30,123,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_CREVISION,80,30,40,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_CDATE,120,30,123,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
     LTEXT           "Text Status:",IDC_STATIC,4,42,76,8
-    EDITTEXT        IDC_TEXTSTATUS,80,42,40,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_TEXTDATE,120,42,123,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_TEXTSTATUS,80,42,40,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_TEXTDATE,120,42,123,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
     LTEXT           "Property Status:",IDC_STATIC,4,54,76,8
-    EDITTEXT        IDC_PROPSTATUS,80,54,40,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_PROPDATE,120,54,123,8,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_PROPSTATUS,80,54,40,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_PROPDATE,120,54,123,8,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_TRANSPARENT
     LTEXT           "Lock owner:",IDC_STATIC,4,66,76,8
-    EDITTEXT        IDC_LOCKOWNER,80,66,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_LOCKOWNER,80,66,163,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
     LTEXT           "Lock creation date:",IDC_STATIC,4,78,76,8
-    EDITTEXT        IDC_LOCKDATE,80,79,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    EDITTEXT        IDC_LOCKDATE,80,79,163,12,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER
     PUSHBUTTON      "Show &log",IDC_SHOWLOG,4,93,239,14
     GROUPBOX        "Properties",IDC_STATIC,4,113,239,159
-    CONTROL         "",IDC_PROPLIST,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | WS_BORDER | WS_TABSTOP,11,124,225,63
-    COMBOBOX        IDC_EDITNAME,12,193,107,88,CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_EDITVALUE,11,209,225,41,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL
-    CONTROL         "re&cursive",IDC_RECURSIVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,256,69,10
+    CONTROL         "",IDC_PROPLIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_ALIGNLEFT | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,11,124,225,63
+    COMBOBOX        IDC_EDITNAME,12,193,107,88,CBS_DROPDOWN | 
+                    CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDITVALUE,11,209,225,41,ES_MULTILINE | 
+                    ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | 
+                    WS_VSCROLL
+    CONTROL         "re&cursive",IDC_RECURSIVE,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,11,256,69,10
     PUSHBUTTON      "&Set",IDC_ADDBUTTON,87,254,70,14,WS_DISABLED
     PUSHBUTTON      "&Remove",IDC_REMOVEBUTTON,164,254,72,14
 END
@@ -232,9 +245,9 @@ BEGIN
     IDS_PROPPROPERTY        "Property"
     IDS_PROPVALUE           "Value"
     IDS_MENURENAME          "Re&name..."
-    IDS_MENUDESCRENAME      "Renames files / folders inside version control"
+    IDS_MENUDESCRENAME      "Renames files / folders inside source control"
     IDS_MENUREMOVE          "&Delete"
-    IDS_MENUDESCREMOVE      "Deletes files / folders from version control"
+    IDS_MENUDESCREMOVE      "Deletes files / folders from source control"
     IDS_MENUUPDATEEXT       "&Update to revision..."
     IDS_MENUDESCUPDATEEXT   "Updates the working copy to a specific revision"
     IDS_COLTITLESTATUS      "SVN Status"
@@ -271,10 +284,10 @@ BEGIN
     IDS_DROPMOVEMENU        "SVN Move versioned files here"
     IDS_MENULOG             "Show &log"
     IDS_MENUDESCLOG         "Shows the log for the selected file / folder"
-    IDS_COLTITLEURL         "SVN URL"
+    IDS_COLTITLEURL         "SVN Url"
     IDS_COLDESCURL          "URL of Subversion items"
-    IDS_COLTITLESHORTURL    "SVN short URL"
-    IDS_COLDESCSHORTURL     "Short URL of Subversion items"
+    IDS_COLTITLESHORTURL    "SVN short Url"
+    IDS_COLDESCSHORTURL     "Short Url of Subversion items"
     IDS_MENUCONFLICT        "&Edit conflicts"
     IDS_MENUDESCCONFLICT    "Launches the external diff / merge program to solve the conflicts"
     IDS_MENURELOCATE        "Relo&cate..."
@@ -291,7 +304,7 @@ BEGIN
     IDS_TT_KEYWORDS         "svn:keywords\nKeywords to be expanded. Valid keywords are:\nURL, HeadURL\t\t\tThe URL for the head revision of the object.\nAuthor, LastChangedBy\t\tThe last person to modify the file.\nDate, LastChangedDate\t\tThe date/time the object was last modified.\nRev, LastChangedRevision\tThe last revision the object changed.\nId\t\t\t\tA compressed summary of the previous 4 keywords."
     IDS_TT_EXECUTABLE       "svn:executable\nIf present, make the file executable. This property cannot be set on a directory. A non-recursive attempt will fail, and a recursive attempt will set the property only on the file children of the directory."
     IDS_TT_EOLSTYLE         "svn:eol-style\nOne of 'native', 'LF', 'CR', 'CRLF'."
-    IDS_TT_MIMETYPE         "svn:mime-type\nThe mime type of the file. Used to determine whether to merge the file, and how to serve it from Apache. A mime type beginning with 'text/' (or an absent mime type) is treated as text. Anything else is treated as binary."
+    IDS_TT_MIMETYPE         "svn:mime-type\nThe mimetype of the file. Used to determine whether to merge the file, and how to serve it from Apache. A mimetype beginning with 'text/' (or an absent mimetype) is treated as text. Anything else is treated as binary."
     IDS_TT_EXTERNALS        "svn:externals\nA newline separated list of module specifiers, each of which consists of a relative directory path, optional revision flags, and an URL. For example\nfoo\t\thttp://example.com/repos/zig\nfoo/bar -r 1234\thttp://example.com/repos/zag"
     IDS_COLTITLEMIMETYPE    "SVN mime-type"
     IDS_COLDESCMIMETYPE     "Shows the mime type of the versioned file"
@@ -340,7 +353,7 @@ BEGIN
     IDS_COLTITLEOWNER       "SVN Lock owner"
     IDS_COLDESCOWNER        "The user who owns the lock of the file"
     IDS_TT_NEEDSLOCK        "svn:needs-lock\nSet this to any value (e.g. '*') to enforce locking for this file.\nThe file will be set to read-only when checked out or updated,\nindicating that a user must acquire a lock on the file\nbefore they can edit it and commit changes."
-    IDS_DROPCOPYRENAMEMENU  "SVN Copy and rename versioned file here"
+    IDS_DROPCOPYRENAMEMENU  "SVN Copy and rename versioned files here"
     IDS_COLTITLEAUTHOR      "SVN Author"
     IDS_COLDESCAUTHOR       "The user who did the last commit"
     IDS_FILEPROPONFOLDER    "You can't set this property on folders, only on files!\nIf you want to set it on all files within that folder,\nyou must activate the 'recursive' checkbox."
@@ -350,9 +363,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_DROPMOVERENAMEMENU  "SVN Move and rename versioned files here"
-    IDS_MENUPROPERTIES      "Properties"
-    IDS_MENUDESCPROPERTIES  "Manage Subversion properties"
+    IDS_SVN_USERCANCELLED   "User cancelled"
 END
 
 #endif    // English (U.S.) resources

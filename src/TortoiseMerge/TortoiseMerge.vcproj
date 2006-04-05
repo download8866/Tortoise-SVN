@@ -11,9 +11,6 @@
 		<Platform
 			Name="Win32"
 		/>
-		<Platform
-			Name="x64"
-		/>
 	</Platforms>
 	<ToolFiles>
 	</ToolFiles>
@@ -47,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\SubVersion\subversion\include;..\..\ext\SubVersion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\SubVersion\subversion\include;..\..\ext\SubVersion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -77,92 +74,6 @@
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Debug|x64"
-			OutputDirectory="..\..\bin\Debug64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseMerge\Debug64"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
-			CharacterSet="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\SubVersion\subversion\include;..\..\ext\SubVersion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN;..\Utils\MiscUI"
-				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="true"
-				ForceConformanceInForLoopScope="true"
-				UsePrecompiledHeader="2"
-				WarningLevel="4"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib Version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/apr\debug_x64\libapr.lib ../../ext/apr-util\debug_x64\libaprutil.lib ../../ext/apr-iconv\debug_x64\libapriconv.lib ../../ext/svn-x64-libintl/lib/intl3_svn.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib"
-				LinkIncremental="2"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				TargetMachine="17"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -221,7 +132,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -278,96 +189,6 @@
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
-		<Configuration
-			Name="Release|x64"
-			OutputDirectory="..\..\bin\Release64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseMerge\Release64"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
-			CharacterSet="1"
-			ManagedExtensions="0"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="false"
-				TargetEnvironment="3"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="3"
-				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\apr\include;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_diff;..\Utils;..\Utils\NewMenu;..\Utils\ColourPickerXP;..\TortoiseMerge;..\crashrpt;..\;..\SVN;..\Utils\MiscUI"
-				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
-				MinimalRebuild="false"
-				RuntimeLibrary="2"
-				TreatWChar_tAsBuiltInType="true"
-				ForceConformanceInForLoopScope="true"
-				UsePrecompiledHeader="2"
-				WarningLevel="4"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1033"
-				AdditionalIncludeDirectories="$(IntDir)"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="shlwapi.lib Version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/apr\release_x64\libapr.lib ../../ext/apr-util\release_x64\libaprutil.lib ../../ext/apr-iconv\release_x64\libapriconv.lib ../../ext/svn-x64-libintl/lib/intl3_svn.lib ../../ext/Subversion\release_x64\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib"
-				LinkIncremental="1"
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="17"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
 	</Configurations>
 	<References>
 	</References>
@@ -390,7 +211,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\BrowseFolder.cpp"
+				RelativePath="..\Utils\BrowseFolder.cpp"
 				>
 			</File>
 			<File
@@ -398,11 +219,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\ColourPickerXP.cpp"
+				RelativePath="..\Utils\ColourPickerXP\ColourPickerXP.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\DIB.cpp"
+				RelativePath="..\Utils\DIB.cpp"
 				>
 			</File>
 			<File
@@ -425,23 +246,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -450,7 +255,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\FileDropEdit.cpp"
+				RelativePath="..\Utils\FileDropEdit.cpp"
 				>
 			</File>
 			<File
@@ -462,15 +267,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\FontPreviewCombo.cpp"
+				RelativePath="..\Utils\FontPreviewCombo.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\HTMLFormatter.cpp"
+				RelativePath="..\Utils\HTMLFormatter.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\HyperLink.cpp"
+				RelativePath="..\Utils\HyperLink.cpp"
 				>
 			</File>
 			<File
@@ -490,7 +295,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\MessageBox.cpp"
+				RelativePath="..\Utils\MessageBox.cpp"
 				>
 			</File>
 			<File
@@ -510,7 +315,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\ProgressDlg.cpp"
+				RelativePath="..\Utils\ProgressDlg.cpp"
 				>
 			</File>
 			<File
@@ -545,23 +350,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -590,7 +379,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\WaterEffect.cpp"
+				RelativePath="..\Utils\WaterEffect.cpp"
 				>
 			</File>
 			<File
@@ -598,7 +387,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\XPTheme.cpp"
+				RelativePath="..\Utils\ColourPickerXP\XPTheme.cpp"
 				>
 			</File>
 			<File
@@ -624,7 +413,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\BrowseFolder.h"
+				RelativePath="..\Utils\BrowseFolder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Utils\CApr.h"
 				>
 			</File>
 			<File
@@ -632,11 +425,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\ColourPickerXP.h"
+				RelativePath="..\Utils\ColourPickerXP\ColourPickerXP.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\DIB.h"
+				RelativePath="..\Utils\DIB.h"
 				>
 			</File>
 			<File
@@ -652,7 +445,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\FileDropEdit.h"
+				RelativePath="..\Utils\FileDropEdit.h"
 				>
 			</File>
 			<File
@@ -664,15 +457,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\FontPreviewCombo.h"
+				RelativePath="..\Utils\FontPreviewCombo.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\HTMLFormatter.h"
+				RelativePath="..\Utils\HTMLFormatter.h"
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\HyperLink.h"
+				RelativePath="..\Utils\HyperLink.h"
 				>
 			</File>
 			<File
@@ -692,7 +485,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\MessageBox.h"
+				RelativePath="..\Utils\MemDC.h"
+				>
+			</File>
+			<File
+				RelativePath="..\Utils\MessageBox.h"
 				>
 			</File>
 			<File
@@ -712,7 +509,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\ProgressDlg.h"
+				RelativePath="..\Utils\ProgressDlg.h"
 				>
 			</File>
 			<File
@@ -764,7 +561,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\WaterEffect.h"
+				RelativePath="..\Utils\WaterEffect.h"
 				>
 			</File>
 			<File
@@ -772,7 +569,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\XPTheme.h"
+				RelativePath="..\Utils\ColourPickerXP\XPTheme.h"
+				>
+			</File>
+			<File
+				RelativePath=".\XSplitter.h"
 				>
 			</File>
 		</Filter>
@@ -817,23 +618,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug|x64"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="VCCustomBuildTool"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool

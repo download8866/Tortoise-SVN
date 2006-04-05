@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "StandAloneDlg.h"
 #include "SVN.h"
 #include "TSVNPath.h"
-#include "Blame.h"
 
 class CFileDiffDlg : public CResizableStandAloneDialog
 {
@@ -45,7 +44,6 @@ public:
 
 	bool	SetUnifiedDiff(const CTSVNPath& diffFile, const CString& sRepoRoot);
 	void	AddFile(FileDiff filediff);
-	void	DoBlame(bool blame = true) {m_bBlame = blame;}
 
 // Dialog Data
 	enum { IDD = IDD_DIFFFILES };
@@ -60,12 +58,10 @@ protected:
 	
 	DECLARE_MESSAGE_MAP()
 
-	void DoDiff(int selIndex, bool blame);
+	void DoDiff(int selIndex);
 private:
 	CString				m_sRepoRoot;
 	CListCtrl			m_cFileList;
 	SVN					m_SVN;
-	bool				m_bBlame;
-	CBlame				m_blamer;
 	CArray<FileDiff, FileDiff> m_arFileList;
 };

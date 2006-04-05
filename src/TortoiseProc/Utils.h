@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,25 @@ class CTSVNPath;
 /**
  * \ingroup TortoiseProc
  * An Utility class with static classes.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 02-02-2003
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CUtils
 {
@@ -54,7 +73,7 @@ public:
 	 * Starts the external diff application
 	 */
 	static BOOL StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, 
-			const CString& sName1 = CString(), const CString& sName2 = CString(), BOOL bWait = FALSE, BOOL bBlame = FALSE);
+			const CString& sName1 = CString(), const CString& sName2 = CString(), BOOL bWait = FALSE);
 
 	/**
 	 * Launches the standard text viewer/editor application which is associated
@@ -147,17 +166,6 @@ public:
 	 */
 	static CString GetAppParentDirectory();
 
-	/**
-	 * Resizes all columns in a list control. Considers also icons in columns
-	 * with no text.
-	 */
 	static void ResizeAllListCtrlCols(CListCtrl * pListCtrl);
 
-	/**
-	 * parses a string for a path or url. If no path or url is found,
-	 * an empty string is returned.
-	 * \remark if more than one path or url is inside the string, only
-	 * the first one is returned.
-	 */
-	static CString ParsePathInString(const CString& Str);
 };

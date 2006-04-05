@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@
 IMPLEMENT_DYNAMIC(CImportDlg, CResizableStandAloneDialog)
 CImportDlg::CImportDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CImportDlg::IDD, pParent)
-	, m_bIncludeIgnored(FALSE)
 {
 	m_url = _T("");
 }
@@ -47,7 +46,6 @@ void CImportDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Control(pDX, IDC_BROWSE, m_butBrowse);
 	DDX_Control(pDX, IDC_MESSAGE, m_cMessage);
-	DDX_Check(pDX, IDC_IMPORTIGNORED, m_bIncludeIgnored);
 }
 
 
@@ -61,8 +59,6 @@ END_MESSAGE_MAP()
 BOOL CImportDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	m_HistoryDlg.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	if (m_url.IsEmpty())
 	{
@@ -90,7 +86,6 @@ BOOL CImportDlg::OnInitDialog()
 	AddAnchor(IDC_STATIC2, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_MESSAGE, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
-	AddAnchor(IDC_IMPORTIGNORED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -167,7 +162,7 @@ void CImportDlg::OnBnClickedBrowse()
 	else if ((strUrl.Left(7) == _T("http://")
 		||(strUrl.Left(8) == _T("https://"))
 		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+		||(strUrl.Left(10) == _T("svn+ssh://"))) && strUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this);

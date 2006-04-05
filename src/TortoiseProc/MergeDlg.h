@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "LogDlg.h"
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
-#include "Balloon.h"
 
 #define MERGE_REVSELECTSTART	 1
 #define MERGE_REVSELECTEND       2
@@ -33,6 +32,27 @@
  * Prompts the user for required information to do a merge command.
  * A merge command is used to either merge a branch into the working
  * copy or to 'revert' a file/directory to an older revision.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.1
+ * added browse for repo button, changed URL editbox to historycombo
+ * \version 1.0
+ * first version
+ *
+ * \date 11-21-2002
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CMergeDlg : public CStandAloneDialog
 {
@@ -50,7 +70,6 @@ protected:
 
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedBrowse();
 	BOOL CheckData();
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
@@ -75,7 +94,6 @@ protected:
 	CHistoryCombo m_URLCombo;
 	CHistoryCombo m_URLCombo2;
 	BOOL		m_bUseFromURL;
-	CBalloon	m_tooltips;
 public:
 	CTSVNPath	m_wcPath;
 	CString		m_URLFrom;
@@ -84,5 +102,4 @@ public:
 	SVNRev		EndRev;
 	BOOL		m_bDryRun;
 	BOOL		bRepeating;
-	BOOL		m_bIgnoreAncestry;
 };

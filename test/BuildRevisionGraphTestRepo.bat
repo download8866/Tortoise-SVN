@@ -209,91 +209,30 @@ svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -m ""
 
 :: revision 39
 
-echo ttt > tags\V1.5\file2
+echo tt > branches\5.2.x\file2
 svn ci -m ""
 
 :: revision 40
 
-echo tt > branches\5.2.x\file2
-svn ci -m ""
+svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -r37 -m ""
 
 :: revision 41
 
-svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -r37 -m ""
+svn rm %REPOROOT%/tags/5.2.2 -m ""
 
 :: revision 42
 
-svn rm %REPOROOT%/tags/5.2.2 -m ""
+svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -m ""
 
 :: revision 43
 
-svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -m ""
+svn rm %REPOROOT%/tags/5.2.2 -m ""
 
 :: revision 44
 
-svn rm %REPOROOT%/tags/5.2.2 -m ""
+svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -m ""
 
 :: revision 45
 
-svn cp %REPOROOT%/branches/5.2.x %REPOROOT%/tags/5.2.2 -m ""
-
-:: revision 46
-
-echo test > trunk\file2
-svn ci -m ""
-:: revision 47
-echo test2 > trunk\file2
-svn ci -m ""
-:: revision 48
-echo test3 > trunk\file2
-svn ci -m ""
-:: revision 49
-
-echo test3 > tags\V1.5\file1
-svn ci -m ""
-:: revision 50
-
-echo mmmm > trunk\Ordner\file1
-svn ci -m ""
-:: revision 51
-
-echo mmmm > trunk\Ordner\file2
-svn ci -m ""
-:: revision 52
-
-echo mmmm > trunk\Ordner\file3
-svn ci -m ""
-:: revision 53
-
-echo mmmm > trunk\Ordner\file4
-svn ci -m ""
-:: revision 54
-
-echo modified > trunk\Ordner\file1
-svn ci -m ""
-:: revision 55
-
-echo added > trunk\file1
-svn add trunk\file1
-svn ci -m ""
-:: revision 56
-
-echo modified > trunk\file1
-svn ci -m ""
-:: revision 57
-
-svn cp trunk\file1 trunk\file1_ab
-svn ci -m ""
-:: revision 58
-
-svn cp trunk\file1 trunk\file1_cd
-svn ci -m ""
-:: revision 59
-
-echo modified again > trunk\file1
-svn rm trunk\file1_ab
-svn rm trunk\file1_cd
-svn ci -m ""
-:: revision 60
 
 cd ..

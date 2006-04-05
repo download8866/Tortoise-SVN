@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -176,7 +176,7 @@ void CFolderCrawler::WorkerThread()
 				}
 				if ((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath)))
 					continue;
-				// don't crawl paths that are excluded
+				// don't crawl paths that are exluded
 				if (!CSVNStatusCache::Instance().IsPathAllowed(workingPath))
 					continue;
 				// check if the changed path is inside an .svn folder

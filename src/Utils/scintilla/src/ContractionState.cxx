@@ -280,10 +280,4 @@ void ContractionState::ShowAll() {
 	delete []lines;
 	lines = 0;
 	size = 0;
-
-	delete []docLines;
-	docLines = 0;
-	sizeDocLines = 0;
-
-	linesInDisplay = linesInDoc;
 }

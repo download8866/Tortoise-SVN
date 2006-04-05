@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,8 +38,9 @@ CDiffData::CDiffData(void)
 {
 	apr_initialize();
 	g_SVNAdminDir.Init();
-
-	m_bBlame = false;
+	//	m_diffYourBase = NULL;
+	//	m_diffTheirBase = NULL;
+	//	m_diffTheirYourBase = NULL;
 
 	m_regForegroundColors[DIFFSTATE_UNKNOWN] = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorUnknownF"), DIFFSTATE_UNKNOWN_DEFAULT_FG);
 	m_regForegroundColors[DIFFSTATE_NORMAL] = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorNormalF"), DIFFSTATE_NORMAL_DEFAULT_FG);
@@ -201,7 +202,7 @@ BOOL CDiffData::Load()
 		}
 		CFileTextLines converted(m_arBaseFile);
 		sConvertedBaseFilename = tempfiles.GetTempFilePath();
-		converted.Save(sConvertedBaseFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase, m_bBlame);
+		converted.Save(sConvertedBaseFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase);
 	}
 
 	if (IsTheirFileInUse())
@@ -215,7 +216,7 @@ BOOL CDiffData::Load()
 		}
 		CFileTextLines converted(m_arTheirFile);
 		sConvertedTheirFilename = tempfiles.GetTempFilePath();
-		converted.Save(sConvertedTheirFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase, m_bBlame);
+		converted.Save(sConvertedTheirFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase);
 	} // if (IsTheirFileInUse())
 
 	if (IsYourFileInUse())
@@ -229,7 +230,7 @@ BOOL CDiffData::Load()
 		}
 		CFileTextLines converted(m_arYourFile);
 		sConvertedYourFilename = tempfiles.GetTempFilePath();
-		converted.Save(sConvertedYourFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase, m_bBlame);
+		converted.Save(sConvertedYourFilename, dwIgnoreWS, bIgnoreEOL, bIgnoreCase);
 	} // if (IsYourFileInUse()) 
 
 	// Calculate the number of lines in the largest of the three files
@@ -313,22 +314,12 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 				m_arDiffYourBaseBoth.Add(sCurrentBaseLine);
 				if (sCurrentBaseLine != sCurrentYourLine)
 				{
-					if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
+					if (dwIgnoreWS == 2)
 					{
 						CString s1 = m_arBaseFile.GetAt(baseline);
+						s1 = s1.TrimLeft(_T(" \t"));
 						CString s2 = sCurrentYourLine;
-						
-						if ( dwIgnoreWS == 2 )
-						{
-							s1.TrimLeft(_T(" \t"));
-							s2.TrimLeft(_T(" \t"));
-						}
-						else
-						{
-							s1.TrimRight(_T(" \t"));
-							s2.TrimRight(_T(" \t"));
-						}
-
+						s2 = s2.TrimLeft(_T(" \t"));
 						if (s1 != s2)
 						{
 							m_arStateYourBaseBoth.Add(DIFFSTATE_REMOVEDWHITESPACE);
@@ -402,21 +393,12 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 				m_arLinesYourBaseRight.Add(yourline);
 				if (sCurrentBaseLine != sCurrentYourLine)
 				{
-					if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
+					if (dwIgnoreWS == 2)
 					{
 						CString s1 = sCurrentBaseLine;
+						s1 = s1.TrimLeft(_T(" \t"));
 						CString s2 = sCurrentYourLine;
-						if ( dwIgnoreWS == 2 )
-						{
-							s1 = s1.TrimLeft(_T(" \t"));
-							s2 = s2.TrimLeft(_T(" \t"));
-						}
-						else
-						{
-							s1 = s1.TrimRight(_T(" \t"));
-							s2 = s2.TrimRight(_T(" \t"));
-						}
-						
+						s2 = s2.TrimLeft(_T(" \t"));
 						if (s1 != s2)
 						{
 							m_arStateYourBaseLeft.Add(DIFFSTATE_WHITESPACE);

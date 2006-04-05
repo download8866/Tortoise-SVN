@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "TortoiseProc.h"
 #include "StatGraphDlg.h"
 #include "UnicodeUtils.h"
-#include <locale>
 
 
 // CStatGraphDlg dialog
@@ -29,7 +28,6 @@ IMPLEMENT_DYNAMIC(CStatGraphDlg, CResizableStandAloneDialog)
 CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CStatGraphDlg::IDD, pParent)
 	, m_bStacked(FALSE)
-	, m_bIgnoreAuthorCase(FALSE)
 {
 	m_parDates = NULL;
 	m_parFileChanges = NULL;
@@ -50,7 +48,6 @@ void CStatGraphDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GRAPHCOMBO, m_cGraphType);
 	DDX_Control(pDX, IDC_SKIPPER, m_Skipper);
 	DDX_Check(pDX, IDC_STACKED, m_bStacked);
-	DDX_Check(pDX, IDC_IGNORECASE, m_bIgnoreAuthorCase);
 }
 
 
@@ -59,7 +56,6 @@ BEGIN_MESSAGE_MAP(CStatGraphDlg, CResizableStandAloneDialog)
 	ON_WM_HSCROLL()
 	ON_BN_CLICKED(IDC_STACKED, &CStatGraphDlg::OnBnClickedStacked)
 	ON_NOTIFY(TTN_NEEDTEXT, NULL, OnNeedText)
-	ON_BN_CLICKED(IDC_IGNORECASE, &CStatGraphDlg::OnBnClickedIgnorecase)
 END_MESSAGE_MAP()
 
 
@@ -121,7 +117,6 @@ BOOL CStatGraphDlg::OnInitDialog()
 	AddAnchor(IDC_FILECHANGESEACHWEEKMIN, TOP_RIGHT);
 	AddAnchor(IDC_FILECHANGESEACHWEEKMAX, TOP_RIGHT);
 	AddAnchor(IDC_STACKED, BOTTOM_LEFT);
-	AddAnchor(IDC_IGNORECASE, BOTTOM_LEFT);
 	AddAnchor(IDC_SKIPPER, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SKIPPERLABEL, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -200,20 +195,15 @@ void CStatGraphDlg::ShowCommitsByAuthor()
 	m_graph.SetGraphTitle(temp);
 
 	std::map<stdstring, LONG> authorcommits;
-	LONG nTotalCommits = 0;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
 		if (authorcommits.find(author) != authorcommits.end())
 		{
 			authorcommits[author] += 1;
 		}
 		else
 			authorcommits[author] = 1;
-		nTotalCommits++;
 	}
 
 	int nGroup(-1);
@@ -225,7 +215,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
 	int nOthersCount = 0;
 	while (iter != authorcommits.end())
 	{
-		if (iter->second < (nTotalCommits * m_Skipper.GetPos() / 200))
+		if (iter->second < (m_parAuthors->GetCount() * m_Skipper.GetPos() / 200))
 		{
 			nOthers += iter->second;
 			nOthersCount++;
@@ -275,20 +265,15 @@ void CStatGraphDlg::ShowCommitsByDate()
 
 	// Find how many commits each author has done
 	std::map<stdstring, LONG> author_commits;
-	LONG nTotalCommits = 0;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
 		if (author_commits.find(author) != author_commits.end())
 		{
 			author_commits[author] += 1;
 		}
 		else
 			author_commits[author] = 1;
-		nTotalCommits++;
 	}
 
 	// Append each author to the graph
@@ -298,7 +283,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 	iter = author_commits.begin();
 	while (iter != author_commits.end())
 	{
-		if (author_commits[iter->first] < (nTotalCommits * m_Skipper.GetPos() / 200))
+		if (author_commits[iter->first] < (m_parAuthors->GetCount() * m_Skipper.GetPos() / 200))
 			nOthersCount++;
 		else
 			authors[iter->first] = m_graph.AppendGroup(iter->first.c_str());
@@ -384,10 +369,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 			authorcommits.clear();
 		}
 		lasttime = time;
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
 		if (authorcommits.find(author) != authorcommits.end())
 		{
 			if (authors.find(author) != authors.end())
@@ -447,10 +429,7 @@ void CStatGraphDlg::ShowStats()
 	std::map<stdstring, LONG> authors;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
 		if (authors.find(author) == authors.end())
 		{
 			authors[author] = m_graph.AppendGroup(author.c_str());
@@ -475,10 +454,7 @@ void CStatGraphDlg::ShowStats()
 		commits++;
 		filechanges += m_parFileChanges->GetAt(i);
 		weekover = FALSE;
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
 		if (authorcommits.find(author) != authorcommits.end())
 		{
 			authorcommits[author] += 1;
@@ -819,24 +795,7 @@ void CStatGraphDlg::OnNeedText(NMHDR *pnmh, LRESULT * /*pResult*/)
 	if (pttt->hdr.idFrom == (UINT) m_Skipper.GetSafeHwnd())
 	{
 		CString string;
-		string.Format(_T("%d %%"), m_Skipper.GetPos()/2);
+		string.Format(_T("%d %%"), m_Skipper.GetPos());
 		::lstrcpy(pttt->szText, (LPCTSTR) string);
-	}
-}
-
-void CStatGraphDlg::OnBnClickedIgnorecase()
-{
-	UpdateData();
-	switch (m_cGraphType.GetItemData(m_cGraphType.GetCurSel()))
-	{
-	case 1:
-		ShowStats();
-		break;
-	case 2:
-		ShowCommitsByDate();
-		break;
-	case 3:
-		ShowCommitsByAuthor();
-		break;
 	}
 }

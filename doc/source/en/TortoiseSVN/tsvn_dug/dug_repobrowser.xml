@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-repobrowser">
+<sect1 id="tsvn-DUG-repobrowser">
 	<title>The Repository Browser</title>
 	<indexterm>
 		<primary>repobrowser</primary>
@@ -12,7 +12,7 @@
 		is for. Just as the explorer and the icon overlays allow you to view your
 		working copy, so the Repository Browser allows you to view the structure
 		and status of the repository.
-		<figure id="tsvn-dug-repobrowser-dia-1">
+		<figure id="tsvn-DUG-repobrowser-dia-1">
 			<title>The Repository Browser</title>
 			<graphic fileref="../images/Repobrowser.png"/>
 		</figure>
@@ -57,17 +57,5 @@
 		give it a new name at the same time, you can <action>right-drag</action>
 		the item instead of just drag it. In that case, a rename dialog
 		is shown where you can enter a new name for the file or folder.
-	</para>
-	<para>
-		Sometimes when you try to open a path you will get an error message
-		in place of the item details. This might happen if you specified an
-		invalid URL, or if you don't have access permission, or if there is
-		some other server problem. If you need to copy this message to include
-		it in an email, just right click on it and use
-		<menuchoice>
-			<guimenu>Context Menu</guimenu>
-			<guimenuitem>Copy error message to clipboard</guimenuitem>
-		</menuchoice>,
-		or simply use <action>CTRL+C</action>.
 	</para>
 </sect1>

@@ -621,10 +621,6 @@ CReportCtrl::CReportCtrl() :
 	if(FAILED(CoCreateInstance(CLSID_DragDropHelper,NULL,CLSCTX_INPROC_SERVER,
 		IID_IDropTargetHelper,(LPVOID*)&m_pDropTargetHelper)))
 		m_pDropTargetHelper = NULL;
-
-	m_nLastToggledItem = -1;
-
-	m_nAutoscrollTimerticks = 0;
 }
 
 CReportCtrl::~CReportCtrl()
@@ -706,82 +702,6 @@ void CReportCtrl::OnDestroy()
 	CWnd::OnDestroy();
 }
 
-void CReportCtrl::OnTimer(UINT_PTR nIDEvent)
-{
-	if ( nIDEvent==REPORTCTRL_AUTOEXPAND_TIMERID )
-	{
-		KillTimer( REPORTCTRL_AUTOEXPAND_TIMERID );
-
-		CPoint currentPoint;
-		GetCursorPos(&currentPoint);
-		ScreenToClient(&currentPoint);
-
-		RVHITTESTINFO rvhti;
-		rvhti.point = currentPoint;
-		HitTest(&rvhti);
-		HTREEITEM hItem = rvhti.hItem;
-
-		if (hItem)
-		{
-			if(m_dwStyle&RVS_TREEMASK && rvhti.nFlags&(RVHT_ONITEM|RVHT_ONITEMTREEBOX))
-			{
-				if(!Notify(RVN_ITEMEXPANDING, rvhti.iItem, rvhti.iSubItem))
-				{
-					Expand((HTREEITEM)m_arrayItems[rvhti.iItem].lptiItem, RVE_TOGGLE);
-					Notify(RVN_ITEMEXPANDED, rvhti.iItem, rvhti.iSubItem);
-				}
-			}
-		}
-	}
-	else if ( nIDEvent==REPORTCTRL_AUTOSCROLL_TIMERID )
-	{
-		m_nAutoscrollTimerticks++;
-
-		CWnd* parent = GetParent();
-
-		POINT pt;
-		GetCursorPos( &pt );
-		parent->ScreenToClient( &pt );
-
-		RECT rect;
-		GetWindowRect( &rect );
-		parent->ScreenToClient(&rect);
-
-		if( pt.y < rect.top + 10 )
-		{
-			// We need to scroll up
-			// Scroll slowly if cursor near the control
-			int nSkipTicks = 6 - (rect.top + 10 - pt.y) / 20;
-			if ( nSkipTicks <=0 )
-			{
-				nSkipTicks = 1;
-			}
-			if( 0 == ( m_nAutoscrollTimerticks % nSkipTicks ) )
-			{
-				SendMessage( WM_VSCROLL, SB_LINEUP);
-			}
-		}
-		else if( pt.y > rect.bottom - 10 )
-		{
-			// We need to scroll down
-			// Scroll slowly if cursor near the control
-			int nSkipTicks = 6 - (pt.y - rect.bottom + 10 ) / 20;
-			if ( nSkipTicks <=0 )
-			{
-				nSkipTicks = 1;
-			}
-			if( 0 == ( m_nAutoscrollTimerticks % nSkipTicks ) )
-			{
-				SendMessage( WM_VSCROLL, SB_LINEDOWN);
-			}
-		}
-	}
-	else
-	{
-		CWnd::OnTimer(nIDEvent);
-	}
-}
-
 BEGIN_MESSAGE_MAP(CReportCtrl, CWnd)
 	//{{AFX_MSG_MAP(CReportCtrl)
 	ON_WM_DESTROY()
@@ -816,7 +736,6 @@ BEGIN_MESSAGE_MAP(CReportCtrl, CWnd)
 	ON_WM_RBUTTONDOWN()
 	ON_WM_RBUTTONUP()
 	ON_WM_WINDOWPOSCHANGING()
-	ON_WM_TIMER()
 	//}}AFX_MSG_MAP
     ON_MESSAGE(WM_SETFONT, OnSetFont)
     ON_MESSAGE(WM_GETFONT, OnGetFont)
@@ -6447,9 +6366,6 @@ void CReportCtrl::OnMouseMove(UINT nFlags, CPoint point)
 	if( m_wndTip.IsWindowVisible() && bHide )
 		m_wndTip.Hide();
 
-	KillTimer(REPORTCTRL_AUTOEXPAND_TIMERID);
-	KillTimer(REPORTCTRL_AUTOSCROLL_TIMERID);
-
 	CWnd::OnMouseMove(nFlags, point);
 }
 
@@ -6641,9 +6557,6 @@ HRESULT CReportCtrl::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyStat
 	if(pDataObj == NULL)
 		return E_INVALIDARG;
 
-	SetTimer(REPORTCTRL_AUTOSCROLL_TIMERID,REPORTCTRL_SCROLL,NULL);
-	m_nAutoscrollTimerticks = 0; //reset so that the first offset is constant
-
 	if(m_pDropTargetHelper)
 		m_pDropTargetHelper->DragEnter(m_hWnd, pDataObj, (LPPOINT)&pt, *pdwEffect);
 	
@@ -6694,25 +6607,6 @@ HRESULT CReportCtrl::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdw
 			}
 		}
 	}
-
-	CPoint currentPoint;
-	GetCursorPos(&currentPoint);
-	ScreenToClient(&currentPoint);
-
-	RVHITTESTINFO rvhti;
-	rvhti.point = currentPoint;
-	INT nToggledItem = HitTest(&rvhti);
-
-	if (nToggledItem==-1)
-	{
-		m_nLastToggledItem = -1;
-	}
-	else if (nToggledItem!=m_nLastToggledItem)
-	{
-		SetTimer(REPORTCTRL_AUTOEXPAND_TIMERID, REPORTCTRL_AUTOEXPAND,NULL);
-		m_nLastToggledItem = nToggledItem;
-	}
-
 	return S_OK;
 }
 
@@ -6721,15 +6615,11 @@ HRESULT CReportCtrl::DragLeave()
 	m_pDropDataObj = NULL;
 	if(m_pDropTargetHelper)
 		m_pDropTargetHelper->DragLeave();
-
 	return S_OK;
 }
 
 HRESULT CReportCtrl::Drop(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect)
 {
-	KillTimer(REPORTCTRL_AUTOEXPAND_TIMERID);
-	KillTimer(REPORTCTRL_AUTOSCROLL_TIMERID);
-
 	if (pDataObj == NULL)
 		return E_INVALIDARG;	
 
@@ -7485,7 +7375,7 @@ BOOL CReportTipCtrl::Show(CRect rectText, LPCTSTR lpszText, CFont* pFont)
 				UpdateWindow();
 
 				if(m_nAlpha < 255)
-					SetTimer(REPORTTIPCTRL_FADE_TIMERID, REPORTTIPCTRL_FADETIME/(255/REPORTTIPCTRL_FADESTEP), NULL);
+					SetTimer(1, REPORTTIPCTRL_FADETIME/(255/REPORTTIPCTRL_FADESTEP), NULL);
 
 				g_lpfnSetLayeredWindowAttributes(
 					GetSafeHwnd(),
@@ -7518,7 +7408,7 @@ void CReportTipCtrl::Hide()
 	if(m_bLayeredWindows)
 	{
 		m_nAlpha = 255;
-		SetTimer( REPORTTIPCTRL_FADE_TIMERID, REPORTTIPCTRL_FADETIMEOUT, NULL );
+		SetTimer( 1, REPORTTIPCTRL_FADETIMEOUT, NULL );
 	}
 
 	if(IsWindowVisible())
@@ -7652,7 +7542,7 @@ BOOL CReportTipCtrl::PreTranslateMessage(MSG* pMsg)
 
 void CReportTipCtrl::OnTimer(UINT_PTR nIDEvent) 
 {
-	if(nIDEvent == REPORTTIPCTRL_FADE_TIMERID )
+	if(nIDEvent == 1 )
 	{
 		ASSERT(m_bLayeredWindows == TRUE);
 		if(m_nAlpha < 255)
@@ -7661,7 +7551,7 @@ void CReportTipCtrl::OnTimer(UINT_PTR nIDEvent)
 			if( m_nAlpha >= 255 )
 			{
 				m_nAlpha = 255;
-				KillTimer(REPORTTIPCTRL_FADE_TIMERID);
+				KillTimer(1);
 			}
 
 			g_lpfnSetLayeredWindowAttributes(
@@ -7674,7 +7564,7 @@ void CReportTipCtrl::OnTimer(UINT_PTR nIDEvent)
 		else
 		{
 			m_nAlpha = 0;
-			KillTimer(REPORTTIPCTRL_FADE_TIMERID);
+			KillTimer(1);
 		}
 	}
 

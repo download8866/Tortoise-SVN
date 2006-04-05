@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,10 +81,8 @@ BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableStandAloneDialog)
 	ON_EN_CHANGE(IDC_LOGMESSAGE, OnEnChangeLogmessage)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
 	ON_WM_TIMER()
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, &CLogPromptDlg::OnLvnItemchangedFilelist)
 END_MESSAGE_MAP()
 
 // CLogPromptDlg message handlers
@@ -96,18 +94,15 @@ BOOL CLogPromptDlg::OnInitDialog()
 	m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"), TRUE);
 	m_bShowUnversioned = m_regAddBeforeCommit;
 
-	m_HistoryDlg.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
-
 	UpdateData(FALSE);
 	
 	OnEnChangeLogmessage();
 
-	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"));
+	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK);
 	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ListCtrl.SetCancelBool(&m_bCancelled);
 	m_ListCtrl.SetEmptyString(IDS_LOGPROMPT_NOTHINGTOCOMMIT);
-	m_ListCtrl.EnableFileDrop();
 	
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
 	m_cLogMessage.Init(m_ProjectProperties);
@@ -151,10 +146,10 @@ BOOL CLogPromptDlg::OnInitDialog()
 	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT);
-	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
+	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_EXTERNALWARNING, BOTTOM_RIGHT, BOTTOM_RIGHT);
 	AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_KEEPLOCK, BOTTOM_LEFT);
+	AddAnchor(IDC_KEEPLOCK, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -222,12 +217,10 @@ void CLogPromptDlg::OnOK()
 	//first add all the unversioned files the user selected
 	//and check if all versioned files are selected
 	int nUnchecked = 0;
-	m_bRecursive = true;
 	int nListItems = m_ListCtrl.GetItemCount();
 
 	CTSVNPathList itemsToAdd;
 	CTSVNPathList itemsToRemove;
-	bool bCheckedInExternal = false;
 	bool bHasConflicted = false;
 	for (int j=0; j<nListItems; j++)
 	{
@@ -250,35 +243,12 @@ void CLogPromptDlg::OnOK()
 			{
 				arDeleted.Add(j);
 			}
-			if (entry->IsInExternal())
-			{
-				bCheckedInExternal = true;
-			}
 		}
 		else
 		{
 			if ((entry->status != svn_wc_status_unversioned)	&&
 				(entry->status != svn_wc_status_ignored))
-			{
 				nUnchecked++;
-
-				if ( m_bRecursive )
-				{
-					// This algorithm is for the sake of simplicity of the complexity O(N²)
-					for (int k=0; k<nListItems; k++)
-					{
-						const CSVNStatusListCtrl::FileEntry * entryK = m_ListCtrl.GetListEntry(k);
-						if (entryK->IsChecked() && entryK->GetPath().IsAncestorOf(entry->GetPath())  )
-						{
-							// Fall back to a non-recursive commit to prevent items being
-							// committed which aren't checked although its parent is checked
-							// (property change, directory deletion, ... )
-							m_bRecursive = false;
-							break;
-						}
-					}
-				}
-			}
 		}
 	} // for (int j=0; j<m_ListCtrl.GetItemCount(); j++)
 
@@ -293,8 +263,16 @@ void CLogPromptDlg::OnOK()
 	itemsToRemove.SortByPathname();
 	svn.Remove(itemsToRemove, TRUE);
 
-	if ((nUnchecked != 0)||(bCheckedInExternal)||(bHasConflicted))
+	if ((nUnchecked == 0)&&(m_ListCtrl.m_nTargetCount == 1))
 	{
+		m_bRecursive = TRUE;
+	}
+	else
+		m_bRecursive = FALSE;
+	if ((nUnchecked != 0)||(bHasConflicted))
+	{
+		m_bRecursive = FALSE;
+
 		//the next step: find all deleted files and check if they're 
 		//inside a deleted folder. If that's the case, then remove those
 		//files from the list since they'll get deleted by the parent
@@ -326,14 +304,17 @@ void CLogPromptDlg::OnOK()
 			}
 		} // for (int i=0; i<arDeleted.GetCount(); i++) 
 		m_ListCtrl.Block(FALSE);
-		//save only the files the user has checked into the temporary file
-		m_ListCtrl.WriteCheckedNamesToPathList(m_pathList);
+
 	}
+	//save only the files the user has checked into the temporary file
+	m_ListCtrl.WriteCheckedNamesToPathList(m_pathList);
 	UpdateData();
 	m_regAddBeforeCommit = m_bShowUnversioned;
 	InterlockedExchange(&m_bBlock, FALSE);
 	m_sBugID.Trim();
 	m_sLogMessage = m_cLogMessage.GetText();
+	m_HistoryDlg.AddString(m_sLogMessage);
+	m_HistoryDlg.SaveHistory();
 	if (!m_sBugID.IsEmpty())
 	{
 		m_sBugID.Replace(_T(", "), _T(","));
@@ -345,8 +326,6 @@ void CLogPromptDlg::OnOK()
 		else
 			m_sLogMessage = sBugID + _T("\n") + m_sLogMessage;
 	}
-	m_HistoryDlg.AddString(m_sLogMessage);
-	m_HistoryDlg.SaveHistory();
 	CResizableStandAloneDialog::OnOK();
 }
 
@@ -460,21 +439,7 @@ void CLogPromptDlg::OnCancel()
 			InterlockedExchange(&m_bThreadRunning, FALSE);
 		}
 	}
-	UpdateData();
-	m_sBugID.Trim();
-	m_sLogMessage = m_cLogMessage.GetText();
-	if (!m_sBugID.IsEmpty())
-	{
-		m_sBugID.Replace(_T(", "), _T(","));
-		m_sBugID.Replace(_T(" ,"), _T(","));
-		CString sBugID = m_ProjectProperties.sMessage;
-		sBugID.Replace(_T("%BUGID%"), m_sBugID);
-		if (m_ProjectProperties.bAppend)
-			m_sLogMessage += _T("\n") + sBugID + _T("\n");
-		else
-			m_sLogMessage = sBugID + _T("\n") + m_sLogMessage;
-	}
-	m_HistoryDlg.AddString(m_sLogMessage);
+	m_HistoryDlg.AddString(m_cLogMessage.GetText());
 	m_HistoryDlg.SaveHistory();
 	CResizableStandAloneDialog::OnCancel();
 }
@@ -550,7 +515,17 @@ void CLogPromptDlg::OnBnClickedShowunversioned()
 
 void CLogPromptDlg::OnEnChangeLogmessage()
 {
-	UpdateOKButton();
+	CString sTemp;
+	GetDlgItem(IDC_LOGMESSAGE)->GetWindowText(sTemp);
+	if (sTemp.GetLength() >= m_ProjectProperties.nMinLogSize)
+	{
+		if (!m_bBlock)
+			GetDlgItem(IDOK)->EnableWindow(TRUE);
+	}
+	else
+	{
+		GetDlgItem(IDOK)->EnableWindow(FALSE);
+	}
 }
 
 LRESULT CLogPromptDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
@@ -585,19 +560,6 @@ LRESULT CLogPromptDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 LRESULT CLogPromptDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	Refresh();
-	return 0;
-}
-
-LRESULT CLogPromptDlg::OnFileDropped(WPARAM, LPARAM lParam)
-{
-	CTSVNPath path;
-	path.SetFromWin((LPCTSTR)lParam);
-	if (!m_ListCtrl.HasPath(path))
-	{
-		m_pathList.AddPath(path);
-		m_pathList.RemoveDuplicates();
-		Refresh();
-	}
 	return 0;
 }
 
@@ -658,36 +620,6 @@ void CLogPromptDlg::GetAutocompletionList()
 			mapRegex[strLine.Left(strLine.Find('=')).Trim()] = sRegex;
 		}
 		file.Close();
-		SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, sRegexFile.GetBuffer(MAX_PATH+1));
-		sRegexFile.ReleaseBuffer();
-		sRegexFile += _T("\\TortoiseSVN\\autolist.txt");
-		if (PathFileExists(sRegexFile))
-		{
-			CStdioFile file2(sRegexFile, CFile::typeText | CFile::modeRead);
-			while (m_bRunThread && file2.ReadString(strLine))
-			{
-				int eqpos = strLine.Find('=');
-				CString sRegex = strLine.Mid(eqpos+1).Trim();
-				CString sFlags = (strLine[0] == '(' ? strLine.Left(strLine.Find(')')+1).Trim(_T(" ()")) : _T(""));
-				rflags |= sFlags.Find(_T("GLOBAL"))>=0 ? GLOBAL : NOFLAGS;
-				rflags |= sFlags.Find(_T("MULTILINE"))>=0 ? MULTILINE : NOFLAGS;
-				rflags |= sFlags.Find(_T("SINGLELINE"))>=0 ? SINGLELINE : NOFLAGS;
-				rflags |= sFlags.Find(_T("RIGHTMOST"))>=0 ? RIGHTMOST : NOFLAGS;
-				rflags |= sFlags.Find(_T("NORMALIZE"))>=0 ? NORMALIZE : NOFLAGS;
-				rflags |= sFlags.Find(_T("NOCASE"))>=0 ? NOCASE : NOFLAGS;
-
-				if (!sFlags.IsEmpty())
-					strLine = strLine.Mid(strLine.Find(')')+1).Trim();
-				int pos = -1;
-				while (((pos = strLine.Find(','))>=0)&&(pos < eqpos))
-				{
-					mapRegex[strLine.Left(pos)] = sRegex;
-					strLine = strLine.Mid(pos+1).Trim();
-				}
-				mapRegex[strLine.Left(strLine.Find('=')).Trim()] = sRegex;
-			}
-			file2.Close();
-		}
 		DWORD timeout = GetTickCount()+timeoutvalue;		// stop parsing after timeout
 		
 		// now we have two arrays of strings, where the first array contains all
@@ -869,15 +801,7 @@ void CLogPromptDlg::OnBnClickedHistory()
 	if (m_HistoryDlg.DoModal()==IDOK)
 	{
 		if (m_HistoryDlg.GetSelectedText().Compare(m_cLogMessage.GetText().Left(m_HistoryDlg.GetSelectedText().GetLength()))!=0)
-		{
-			CString sMsg = m_HistoryDlg.GetSelectedText();
-			CString sBugID = m_ProjectProperties.GetBugIDFromLog(sMsg);
-			if (!sBugID.IsEmpty())
-			{
-				GetDlgItem(IDC_BUGID)->SetWindowText(sBugID);
-			}
-			m_cLogMessage.InsertText(sMsg, !m_cLogMessage.GetText().IsEmpty());
-		}
+			m_cLogMessage.InsertText(m_HistoryDlg.GetSelectedText(), !m_cLogMessage.GetText().IsEmpty());
 		if (m_ProjectProperties.nMinLogSize > m_cLogMessage.GetText().GetLength())
 		{
 			GetDlgItem(IDOK)->EnableWindow(FALSE);
@@ -890,30 +814,3 @@ void CLogPromptDlg::OnBnClickedHistory()
 	}
 	
 }
-void CLogPromptDlg::OnLvnItemchangedFilelist(NMHDR* /*pNMHDR*/, LRESULT *pResult)
-{
-	UpdateOKButton();
-	
-	*pResult = 0;
-}
-
-void CLogPromptDlg::UpdateOKButton()
-{
-	BOOL bValidLogSize;
-
-	CString sTemp;
-	GetDlgItem(IDC_LOGMESSAGE)->GetWindowText(sTemp);
-	if (sTemp.GetLength() >= m_ProjectProperties.nMinLogSize)
-	{
-		bValidLogSize = !m_bBlock;
-	}
-	else
-	{
-		bValidLogSize = FALSE;
-	}
-
-	LONG nSelectedItems = m_ListCtrl.GetSelected();
-
-	GetDlgItem(IDOK)->EnableWindow(bValidLogSize && nSelectedItems>0);
-}
-

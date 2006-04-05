@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -453,9 +453,8 @@ public:
 	 * \param path the path or url of the file
 	 * \param startrev the revision from which the check is done from
 	 * \param endrev the end revision where the check is stopped
-	 * \param peg the peg revision to use
 	 */
-	BOOL Blame(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg = SVNRev());
+	BOOL Blame(const CTSVNPath& path, SVNRev startrev, SVNRev endrev);
 	
 	/**
 	 * Lock a file for exclusive use so no other users are allowed to edit

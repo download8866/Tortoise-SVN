@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -94,7 +94,6 @@ public:
 	} ;
 
 	BOOL						Load();
-	void						SetBlame(bool bBlame = true) {m_bBlame = bBlame;}
 	void						LoadRegistry();
 	int							GetLineCount();
 	int							GetLineActualLength(int index);
@@ -158,5 +157,4 @@ public:
 protected:
 	CRegDWORD					m_regForegroundColors[DIFFSTATE_END];
 	CRegDWORD					m_regBackgroundColors[DIFFSTATE_END];
-	bool						m_bBlame;
 };

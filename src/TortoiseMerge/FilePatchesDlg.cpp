@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -280,35 +280,11 @@ void CFilePatchesDlg::OnNMRclickFilelist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 	GetCursorPos(&point);
 	if (popup.CreatePopupMenu())
 	{
-		UINT nFlags;
-		
-		nFlags = MF_STRING | (m_cFileList.GetSelectedCount()==1 ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
-		temp.LoadString(IDS_PATCH_PREVIEW);
-		popup.AppendMenu(nFlags, ID_PATCHPREVIEW, temp);
-		popup.SetDefaultItem(ID_PATCHPREVIEW, FALSE);
-
 		temp.LoadString(IDS_PATCH_ALL);
 		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_PATCHALL, temp);
-		
-		nFlags = MF_STRING | (m_cFileList.GetSelectedCount()>0 ? MF_ENABLED : MF_DISABLED | MF_GRAYED);
-		temp.LoadString(IDS_PATCH_SELECTED);
-		popup.AppendMenu(nFlags, ID_PATCHSELECTED, temp);
-		
 		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 		switch (cmd)
 		{
-		case ID_PATCHPREVIEW:
-			{
-				if (m_pCallBack)
-				{
-					int nIndex = m_cFileList.GetSelectionMark();
-					if ( m_arFileStates.GetAt(nIndex)!=FPDLG_FILESTATE_PATCHED)
-					{
-						m_pCallBack->PatchFile(GetFullPath(nIndex), m_pPatch->GetRevision(nIndex));
-					}
-				}
-			}
-			break;
 		case ID_PATCHALL:
 			{
 				if (m_pCallBack)
@@ -319,23 +295,6 @@ void CFilePatchesDlg::OnNMRclickFilelist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 							m_pCallBack->PatchFile(GetFullPath(i), m_pPatch->GetRevision(i), TRUE);
 					} // for (int i=0; i<m_arFileStates.GetCount(); i++) 
 				} // if ((m_pCallBack)&&(!temp.IsEmpty())) 
-			} 
-			break;
-		case ID_PATCHSELECTED:
-			{
-				if (m_pCallBack)
-				{
-					// The list cannot be sorted by user, so the order of the
-					// items in the list is identical to the order in the array
-					// m_arFileStates.
-					POSITION pos = m_cFileList.GetFirstSelectedItemPosition();
-					int index;
-					while ((index = m_cFileList.GetNextSelectedItem(pos)) >= 0)
-					{
-						if (m_arFileStates.GetAt(index)!= FPDLG_FILESTATE_PATCHED)
-							m_pCallBack->PatchFile(GetFullPath(index), m_pPatch->GetRevision(index), TRUE);
-					}
-				} // if (m_pCallBack) 
 			} 
 			break;
 		default:
@@ -379,14 +338,4 @@ void CFilePatchesDlg::OnMoving(UINT fwSide, LPRECT pRect)
 		pRect->left = pRect->right - width;
 	}
 	CDialog::OnMoving(fwSide, pRect);
-}
-
-void CFilePatchesDlg::OnCancel()
-{
-	return;
-}
-
-void CFilePatchesDlg::OnOK()
-{
-	return;
 }

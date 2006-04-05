@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,9 +39,7 @@ typedef enum
 	ProgOptKeeplocks = 0x10,
 	/// for locking this means steal the lock, for unlocking it means breaking the lock
 	ProgOptLockForce = 0x20,
-	ProgOptSwitchAfterCopy = 0x40,
-	ProgOptIncludeIgnored = 0x80,
-	ProgOptIgnoreAncestry = 0x100
+	ProgOptSwitchAfterCopy = 0x40
 } ProgressOptions;
 
 typedef enum
@@ -249,8 +247,6 @@ private:
 	BOOL		bSecondResized;
 	CString		m_sTotalBytesTransferred;
 	CColors		m_Colors;
-
-	bool		m_bLockWarning;
 
 private:
 	// In preparation for removing SVN as base class

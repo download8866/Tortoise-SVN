@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -192,12 +192,10 @@ BOOL CUtils::StartExtPatch(const CTSVNPath& patchfile, const CTSVNPath& dir, con
 	return TRUE;
 }
 
-BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait, BOOL bBlame)
+BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait)
 {
 	CString viewer;
 	CRegString diffexe(_T("Software\\TortoiseSVN\\Diff"));
-	CRegDWORD blamediff(_T("Software\\TortoiseSVN\\DiffBlamesWithTortoiseMerge"), FALSE);
-	bool bUseTMerge = !!(DWORD)blamediff;
 	viewer = diffexe;
 	if (!file2.GetFileExtension().IsEmpty())
 	{
@@ -208,7 +206,7 @@ BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const 
 			viewer = difftool;
 		}
 	}
-	if (bUseTMerge||viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
+	if (viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
 	{
 		//no registry entry (or commented out) for a diff program
 		//use TortoiseMerge
@@ -216,8 +214,6 @@ BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const 
 		viewer += _T("TortoiseMerge.exe");
 		viewer = _T("\"") + viewer + _T("\"");
 		viewer = viewer + _T(" /base:%base /mine:%mine /basename:%bname /minename:%yname");
-		if (bBlame)
-			viewer += _T(" /blame");
 	}
 	// check if the params are set. If not, just add the files to the command line
 	if ((viewer.Find(_T("%base"))<0)&&(viewer.Find(_T("%mine"))<0))
@@ -708,46 +704,23 @@ void CUtils::RemoveAccelerators(CString& text)
 
 bool CUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, HWND hOwningWnd)
 {
+	//TODO The error handling in here is not exactly sparkling!
+
 	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
 		hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipdata.GetLength()+1);
-		if (hClipboardData)
-		{
-			char * pchData;
-			pchData = (char*)GlobalLock(hClipboardData);
-			if (pchData)
-			{
-				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-				if (GlobalUnlock(hClipboardData))
-				{
-					if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
-					{
-						CloseClipboard();
-						return false;
-					}
-				}
-				else
-				{
-					CloseClipboard();
-					return false;
-				}
-			}
-			else
-			{
-				CloseClipboard();
-				return false;
-			}
-		}
-		else
-		{
-			CloseClipboard();
-			return false;
-		}
+		char * pchData;
+		pchData = (char*)GlobalLock(hClipboardData);
+		strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
+		GlobalUnlock(hClipboardData);
+		SetClipboardData(CF_TEXT,hClipboardData);
 		CloseClipboard();
+
 		return true;
-	}
+	} // if (OpenClipboard()) 
+
 	return false;
 }
 
@@ -889,22 +862,4 @@ void CUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)
 		}
 		pListCtrl->SetColumnWidth(col, cx);
 	}
-}
-
-CString CUtils::ParsePathInString(const CString& Str)
-{
-	CString sToken;
-	int curPos = 0;
-	sToken = Str.Tokenize(_T(" \t\r\n"), curPos);
-	while (!sToken.IsEmpty())
-	{
-		if ((sToken.Find('/')>=0)||(sToken.Find('\\')>=0))
-		{
-			sToken.Trim(_T("'\""));
-			return sToken;
-		}
-		sToken = Str.Tokenize(_T(" \t\r\n"), curPos);
-	}
-	sToken.Empty();
-	return sToken;
 }

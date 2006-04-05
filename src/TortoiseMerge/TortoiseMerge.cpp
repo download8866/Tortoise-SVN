@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,11 +29,9 @@
 #define new DEBUG_NEW
 #endif
 
-#ifndef WIN64
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#	ifdef _DEBUG
-#		pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
-#	endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifdef _DEBUG
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
 #endif
 
 BEGIN_MESSAGE_MAP(CTortoiseMergeApp, CWinApp)
@@ -105,20 +103,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 		{
 			free((void*)m_pszHelpFilePath);
 			m_pszHelpFilePath=_tcsdup(sHelppath);
-			break;
 		}
-		sHelppath.Replace(sLang, _T("_en"));
-		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf));
-		sLang += _T("_");
-		sLang += buf;
-		sHelppath.Replace(_T("_en"), sLang);
-		if (PathFileExists(sHelppath))
-		{
-			free((void*)m_pszHelpFilePath);
-			m_pszHelpFilePath=_tcsdup(sHelppath);
-			break;
-		}
-		sHelppath.Replace(sLang, _T("_en"));
 
 		DWORD lid = SUBLANGID(langId);
 		lid--;
@@ -146,7 +131,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 		sHelpText.LoadString(IDS_COMMANDLINEHELP);
 		MessageBox(NULL, sHelpText, _T("TortoiseMerge"), MB_ICONINFORMATION);
 		return FALSE;
-	}
+	} // if (parser.HasKey(_T("?")) || parser.HasKey(_T("help"))) 
 
 	// Initialize OLE libraries
 	if (!AfxOleInit())
@@ -268,10 +253,6 @@ BOOL CTortoiseMergeApp::InitInstance()
 	} // if ((parser.HasKey(_T("patchpath")))&&(!parser.HasVal(_T("diff")))) 
 
 	pFrame->m_bReadOnly = !!parser.HasKey(_T("readonly"));
-	pFrame->m_bBlame = !!parser.HasKey(_T("blame"));
-	// diffing a blame means no editing!
-	if (pFrame->m_bBlame)
-		pFrame->m_bReadOnly = true;
 	// The one and only window has been initialized, so show and update it
 	pFrame->ActivateFrame();
 	pFrame->ShowWindow(SW_SHOW);

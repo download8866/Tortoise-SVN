@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,6 +27,18 @@
  * \par requirements 
  * - win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
  * - import library Shlwapi.lib
+ *
+ * \author Stefan Kueng
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.0 
+ * \date 06-2002
  */
 class CRegBase
 {
@@ -46,36 +58,11 @@ public:	//methods
 	 */
 	LONG removeValue() { RegOpenKeyEx(m_base, m_path, 0, KEY_WRITE, &m_hKey); return RegDeleteValue(m_hKey, (LPCTSTR)m_key); }
 
-	/**
-	 * Returns the string of the last error occurred.
-	 */
-	CString getErrorString()
-	{
-		LPVOID lpMsgBuf;
-
-		FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL,
-			LastError,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR) &lpMsgBuf,
-			0, NULL );
-#if defined IDS_REG_ERROR
-		CString sTemp;
-		sTemp.Format(IDS_REG_ERROR, m_path, (LPCTSTR)lpMsgBuf);
-		return sTemp;
-#else
-		return CString((LPCTSTR)lpMsgBuf);
-#endif
-	};
-
 public:	//members
 	HKEY m_base;		///< handle to the registry base
 	HKEY m_hKey;		///< handle to the open registry key
 	CString m_key;		///< the name of the value
 	CString m_path;		///< the path to the key
-	LONG LastError;		///< the value of the last error occurred
 };
 
 /**
@@ -115,6 +102,24 @@ public:	//members
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng (stefan_kueng@catv.rol.ch)
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.1
+ * added base class CRegBase with methods removeKey() and removeValue()
+ * \version 1.0 
+ * \date 06-2002
  */
 class CRegDWORD : public CRegBase
 {
@@ -149,7 +154,7 @@ public:
 	CRegDWORD& operator&=(DWORD d) { return *this = *this & d;}
 	CRegDWORD& operator|=(DWORD d) { return *this = *this | d;}
 	CRegDWORD& operator^=(DWORD d) { return *this = *this ^ d;}
-
+	
 protected:
 
 	DWORD	m_value;					///< the cached value of the registry
@@ -203,6 +208,25 @@ protected:
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng (stefan_kueng@catv.rol.ch)
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.1
+ * corrected a bug, thanks to Hans Dietrich for the correction.
+ * added base class CRegBase with methods removeKey() and removeValue()
+ * \version 1.0 
+ * \date 06-2002
  */
 class CRegString : public CRegBase
 {
@@ -224,7 +248,9 @@ public:
 	operator CString();
 	CRegString& operator=(const CString& s);
 	CRegString& operator+=(const CString& s) { return *this = (CString)*this + s; }
-		
+	
+	
+	
 protected:
 
 	CString	m_value;					///< the cached value of the registry
@@ -279,6 +305,25 @@ protected:
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng (stefan_kueng@catv.rol.ch)
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.1
+ * corrected a bug, thanks to Hans Dietrich for the correction.
+ * added base class CRegBase with methods removeKey() and removeValue()
+ * \version 1.0 
+ * \date 06-2002
  */
 class CRegRect : public CRegBase
 {
@@ -310,6 +355,7 @@ public:
 	
 	CRegRect& operator&=(CRect r) { return *this = r & *this;}
 	CRegRect& operator|=(CRect r) { return *this = r | *this;}
+	
 	
 protected:
 
@@ -364,6 +410,25 @@ protected:
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng (stefan_kueng@catv.rol.ch)
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.1
+ * corrected a bug, thanks to Hans Dietrich for the correction.
+ * added base class CRegBase with methods removeKey() and removeValue()
+ * \version 1.0 
+ * \date 06-2002
  */
 class CRegPoint : public CRegBase
 {
@@ -388,6 +453,7 @@ public:
 	CRegPoint& operator+=(CPoint p) { return *this = p + *this; }
 	CRegPoint& operator-=(CPoint p) { return *this = p - *this; }
 	
+	
 protected:
 
 	CPoint	m_value;					///< the cached value of the registry
@@ -400,6 +466,22 @@ protected:
  * \ingroup CommonClasses
  * Manages a registry key (not a value). Provides methods to create and remove the
  * key and to query the list of values and subkeys.
+ *
+ * \par requirements 
+ * - win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * - import library Shlwapi.lib
+ *
+ * \author Thomas Epting
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.0 
+ * \date 02-2004
  */
 class CRegistryKey
 {
@@ -462,26 +544,11 @@ public:	//methods
 	 */
 	LONG removeValue() { RegOpenKeyEx(m_base, m_path.c_str(), 0, KEY_WRITE, &m_hKey); return RegDeleteValue(m_hKey, m_key.c_str()); }
 
-	stdstring getErrorString()
-	{
-		LPVOID lpMsgBuf;
-
-		FormatMessage(
-			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM,
-			NULL,
-			LastError,
-			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR) &lpMsgBuf,
-			0, NULL );
-		return stdstring((LPCTSTR)lpMsgBuf);
-	}
 public:	//members
 	HKEY m_base;		///< handle to the registry base
 	HKEY m_hKey;		///< handle to the open registry key
 	stdstring m_key;		///< the name of the value
 	stdstring m_path;		///< the path to the key
-	LONG LastError;		///< the last value of the last occurred error
 };
 
 /**
@@ -515,6 +582,23 @@ public:	//members
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng (stefan_kueng@catv.rol.ch)
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.0
+ * first version which uses std::string instead of CString.
+ * \date 10-2002
  */
 class CRegStdString : public CRegStdBase
 {
@@ -537,6 +621,7 @@ public:
 	CRegStdString& operator=(stdstring s);
 	CRegStdString& operator+=(stdstring s) { return *this = (stdstring)*this + s; }
 	operator LPCTSTR();
+	
 	
 protected:
 
@@ -583,6 +668,22 @@ protected:
  * to force a write use the method write();
  * another option to force reads and writes to the registry is to specify TRUE as the
  * third parameter in the constructor.
+ *
+ * \par requirements 
+ * win98 or later, win2k or later, win95 with IE4 or later, winNT4 with IE4 or later
+ * import library Shlwapi.lib
+ *
+ * \author Stefan Kueng
+ *
+ * \par license 
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness 
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ * 
+ * \version 1.0 
+ * \date 11-2002
  */
 class CRegStdWORD : public CRegStdBase
 {
@@ -613,6 +714,7 @@ public:
 	CRegStdWORD& operator&=(DWORD d) { return *this = *this & d;}
 	CRegStdWORD& operator|=(DWORD d) { return *this = *this | d;}
 	CRegStdWORD& operator^=(DWORD d) { return *this = *this ^ d;}
+	
 	
 protected:
 

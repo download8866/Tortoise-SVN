@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -134,13 +134,10 @@ BOOL COpenDlg::BrowseForFile(CString& filepath, CString title, UINT nFileFilter)
 	OPENFILENAME ofn;		// common dialog box structure
 	TCHAR szFile[MAX_PATH];  // buffer for file name
 	ZeroMemory(szFile, sizeof(szFile));
-	if (!filepath.IsEmpty())
-	{
-		_tcscpy_s(szFile, filepath);
-	}
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
+	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -190,7 +187,7 @@ void COpenDlg::OnBnClickedDirectorybrowse()
 	CBrowseFolder folderBrowser;
 	UpdateData();
 	folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-	folderBrowser.Show(GetSafeHwnd(), m_sPatchDirectory, m_sPatchDirectory);
+	folderBrowser.Show(GetSafeHwnd(), m_sPatchDirectory);
 	UpdateData(FALSE);
 }
 
