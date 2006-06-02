@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -91,7 +91,9 @@ protected:
 	afx_msg void OnBnClickedIgnorelf();
 	afx_msg void OnBnClickedOnepane();
 	afx_msg void OnBnClickedFirstdiffonload();
-	afx_msg void OnBnClickedWhitespace();
+	afx_msg void OnBnClickedWscompare();
+	afx_msg void OnBnClickedWsignoreleading();
+	afx_msg void OnBnClickedWsignoreall();
 	afx_msg void OnEnChangeTabsize();
 	afx_msg void OnCbnSelchangeFontsizes();
 	afx_msg void OnCbnSelchangeFontnames();

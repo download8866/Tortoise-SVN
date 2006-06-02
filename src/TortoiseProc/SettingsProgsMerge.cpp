@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,7 +60,7 @@ BEGIN_MESSAGE_MAP(CSettingsProgsMerge, CPropertyPage)
 END_MESSAGE_MAP()
 
 
-int CSettingsProgsMerge::SaveData()
+void CSettingsProgsMerge::SaveData()
 {
 	if (m_bInitialized)
 	{
@@ -71,7 +71,6 @@ int CSettingsProgsMerge::SaveData()
 
 		m_dlgAdvMerge.SaveData();
 	}
-	return 0;
 }
 
 BOOL CSettingsProgsMerge::OnInitDialog()

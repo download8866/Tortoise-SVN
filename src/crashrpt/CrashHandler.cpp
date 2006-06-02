@@ -67,16 +67,13 @@ CCrashHandler::CCrashHandler():
 {
    // wtl initialization stuff...
 	HRESULT hRes = ::CoInitialize(NULL);
-	if (hRes != S_OK)
-		m_pid = 0;
-	else
-		_crashStateMap.Add(m_pid, this);
+	ATLASSERT(SUCCEEDED(hRes));
+
+   _crashStateMap.Add(m_pid, this);
 }
 
 void CCrashHandler::Install(LPGETLOGFILE lpfn, LPCTSTR lpcszTo, LPCTSTR lpcszSubject, BOOL bUseUI)
 {
-	if (m_pid == 0)
-		return;
 	OutputDebugString("::Install\n");
 	if (m_installed) {
 		Uninstall();
@@ -228,7 +225,7 @@ DWORD WINAPI CCrashHandler::DialogThreadExecute(LPVOID pParam)
 
    mainDlg.m_pUDFiles = &self->m_files;
    mainDlg.m_sendButton = !self->m_sTo.IsEmpty();
-   INT_PTR status = mainDlg.DoModal();
+   int status = mainDlg.DoModal();
    if (IDOK == status || IDC_SAVE == status)
    {
       if (IDC_SAVE == status || self->m_sTo.IsEmpty() || 

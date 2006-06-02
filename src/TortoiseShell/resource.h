@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by resource.rc
 //
+#define IDI_MENU                        105
 #define IDD_PROPPAGE                    107
 #define IDI_APP                         108
 #define IDS_MENUCHECKOUT                120
@@ -164,14 +165,6 @@
 #define IDS_FILEPROPONFOLDER            253
 #define IDS_PROPSNOTSAVED               254
 #define IDS_MENUADDASREPLACEMENT        255
-#define IDS_DROPMOVERENAMEMENU          256
-#define IDS_MENUPROPERTIES              257
-#define IDS_MENUDESCPROPERTIES          258
-#define IDS_COLTITLEEOLSTYLE            259
-#define IDS_COLDESCEOLSTYLE             260
-#define IDS_MENUURLDIFF                 261
-#define IDS_MENUDESCURLDIFF             262
-#define IDS_PROPBIN                     263
 #define IDC_REVISION                    1001
 #define IDC_LOCKED                      1002
 #define IDC_REPOURL                     1003
@@ -197,22 +190,16 @@
 #define IDI_REVISIONGRAPH               5151
 #define IDI_LOCK                        5152
 #define IDI_UNLOCK                      5153
-#define IDI_MENUFILE                    5154
-#define IDI_MENUFOLDER                  5155
-#define IDI_MENULINK                    5156
-#define IDI_MENUMULTIPLE                5157
-#define IDI_PROPERTIES                  5158
 #define IDC_LOCKOWNER                   11019
 #define IDC_LOCKDATE                    11020
-#define IDC_EDITPROPERTIES              11021
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        5159
+#define _APS_NEXT_RESOURCE_VALUE        5154
 #define _APS_NEXT_COMMAND_VALUE         40001
-#define _APS_NEXT_CONTROL_VALUE         11022
+#define _APS_NEXT_CONTROL_VALUE         11020
 #define _APS_NEXT_SYMED_VALUE           5101
 #endif
 #endif

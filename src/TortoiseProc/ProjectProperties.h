@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -89,7 +89,6 @@ public:
 	 */
 	BOOL FindBugID(const CString& msg, CWnd * pWnd);
 
-	CString FindBugID(const CString& msg);
 	/**
 	 * Searches for the BugID inside a log message. If one is found,
 	 * that BugID is returned. If none is found, an empty string is returned.

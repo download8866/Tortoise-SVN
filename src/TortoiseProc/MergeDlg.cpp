@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,6 @@ CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
 	, EndRev(_T("HEAD"))
 	, m_bUseFromURL(TRUE)
 	, m_bDryRun(FALSE)
-	, m_bIgnoreAncestry(FALSE)
 {
 	m_pLogDlg = NULL;
 	m_pLogDlg2 = NULL;
@@ -60,7 +59,6 @@ void CMergeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
 	DDX_Check(pDX, IDC_USEFROMURL, m_bUseFromURL);
-	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
 }
 
 
@@ -87,8 +85,6 @@ BOOL CMergeDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	m_tooltips.Create(this);
-
 	m_bFile = !PathIsDirectory(m_URLFrom);
 	SVN svn;
 	CString url = svn.GetURLFromPath(CTSVNPath(m_wcPath));
@@ -109,9 +105,7 @@ BOOL CMergeDlg::OnInitDialog()
 			m_URLTo = url;
 		}
 		GetDlgItem(IDC_WCURL)->SetWindowText(url);
-		m_tooltips.AddTool(IDC_WCURL, url);
 		GetDlgItem(IDC_WCPATH)->SetWindowText(m_wcPath.GetWinPath());
-		m_tooltips.AddTool(IDC_WCPATH, m_wcPath.GetWinPathString());
 	}
 
 	m_URLCombo.SetURLHistory(TRUE);
@@ -196,12 +190,6 @@ BOOL CMergeDlg::CheckData()
 	}
 	else
 		m_URLTo = m_URLFrom;
-
-	if ( (LONG)StartRev == (LONG)EndRev && m_URLFrom==m_URLTo)
-	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_HEAD1), IDS_ERR_MERGEIDENTICALREVISIONS, TRUE, IDI_EXCLAMATION);
-		return FALSE;
-	}
 
 	UpdateData(FALSE);
 	return TRUE;
@@ -292,7 +280,7 @@ void CMergeDlg::OnBnClickedBrowse()
 	else if ((strUrl.Left(7) == _T("http://")
 		||(strUrl.Left(8) == _T("https://"))
 		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+		||(strUrl.Left(10) == _T("svn+ssh://"))) && strUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this, m_bFile);
@@ -364,7 +352,7 @@ void CMergeDlg::OnBnClickedBrowse2()
 	else if ((strUrl.Left(7) == _T("http://")
 		||(strUrl.Left(8) == _T("https://"))
 		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+		||(strUrl.Left(10) == _T("svn+ssh://"))) && strUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this, m_bFile);
@@ -412,8 +400,7 @@ void CMergeDlg::OnBnClickedFindbranchstart()
 		m_pLogDlg->SetSelect(true);
 		m_pLogDlg->m_pNotifyWindow = this;
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
-		m_pLogDlg->ContinuousSelection(true);
+		m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
 		m_pLogDlg->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);
@@ -445,8 +432,7 @@ void CMergeDlg::OnBnClickedFindbranchend()
 		m_pLogDlg2->SetSelect(true);
 		m_pLogDlg2->m_pNotifyWindow = this;
 		m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg2->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
-		m_pLogDlg2->ContinuousSelection(true);
+		m_pLogDlg2->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
 		m_pLogDlg2->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);
@@ -513,7 +499,7 @@ void CMergeDlg::OnBnClickedWCLog()
 		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_WC, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100), TRUE, FALSE);
+		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100), TRUE, FALSE);
 		m_pLogDlg->ShowWindow(SW_SHOW);
 	} // if (!url.IsEmpty()) 
 	AfxGetApp()->DoWaitCursor(-1);
@@ -546,10 +532,4 @@ void CMergeDlg::OnEnChangeRevisionStart()
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_HEAD1);
 	else
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
-}
-
-BOOL CMergeDlg::PreTranslateMessage(MSG* pMsg)
-{
-	m_tooltips.RelayEvent(pMsg);
-	return CStandAloneDialogTmpl<CDialog>::PreTranslateMessage(pMsg);
 }

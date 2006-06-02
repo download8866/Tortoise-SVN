@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,18 +17,8 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include <map>
-#include <string>
 
 using std::map;
-
-#ifndef stdstring
-#	ifdef UNICODE
-#		define stdstring std::wstring
-#	else
-#		define stdstring std::string
-#	endif
-#endif
 
 /**
  * \ingroup Utils
@@ -61,7 +51,7 @@ using std::map;
 class CCmdLineParser 
 {
 public:
-	typedef map<stdstring, stdstring> CValsMap;
+	typedef map<CString, CString> CValsMap;
 	typedef CValsMap::const_iterator ITERPOS;
 public:
 	/**
@@ -75,7 +65,7 @@ public:
 	 * returns the command line string this object was created on.
 	 * \return the command line
 	 */
-	LPCTSTR getCmdLine() const { return m_sCmdLine.c_str(); }
+	LPCTSTR getCmdLine() const { return m_sCmdLine; }
 
 	/**
 	 * Starts an iteration over all command line parameters.
@@ -92,7 +82,7 @@ public:
 	 * \param sValue returns the value
 	 * \return the next position
 	 */
-	ITERPOS getNext(ITERPOS& pos, stdstring& sKey, stdstring& sValue) const;
+	ITERPOS getNext(ITERPOS& pos, CString& sKey, CString& sValue) const;
 		
 	/**
 	 * Checks if the position is the last or if there are more key/value pairs in the command line.
@@ -135,7 +125,7 @@ private:
 	CValsMap::const_iterator findKey(LPCTSTR sKey) const;
 	const CValsMap& getVals() const { return m_valueMap; }
 private:
-	stdstring 	m_sCmdLine;
+	CString 	m_sCmdLine;
 	CValsMap	m_valueMap;
 
 	static const TCHAR m_sDelims[];

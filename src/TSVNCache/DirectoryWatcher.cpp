@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -362,14 +362,6 @@ void CDirectoryWatcher::WorkerThread()
 										break;
 									continue;
 								}
-							}
-							if ((pFound = wcsstr(buf, L".tmp"))!=NULL)
-							{
-								// assume files with a .tmp extension are not versioned and interesting,
-								// so ignore them.
-								if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
-									break;
-								continue;
 							}
 							ATLTRACE("change notification: %ws\n", buf);
 							m_FolderCrawler->AddPathForUpdate(CTSVNPath(buf));

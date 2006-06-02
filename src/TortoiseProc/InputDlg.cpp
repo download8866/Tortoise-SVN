@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,7 +30,6 @@ CInputDlg::CInputDlg(CWnd* pParent /*=NULL*/)
 	, m_sInputText(_T(""))
 	, m_pProjectProperties(NULL)
 	, m_iCheck(0)
-	, m_bUseLogWidth(true)
 {
 }
 
@@ -47,7 +46,6 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CInputDlg, CResizableStandAloneDialog)
-	ON_EN_CHANGE(IDC_INPUTTEXT, OnEnChangeLogmessage)
 END_MESSAGE_MAP()
 
 
@@ -139,18 +137,4 @@ BOOL CInputDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
-}
-
-void CInputDlg::OnEnChangeLogmessage()
-{
-	CString sTemp;
-	GetDlgItem(IDC_INPUTTEXT)->GetWindowText(sTemp);
-	if ((!m_bUseLogWidth)||((m_pProjectProperties==NULL)||(sTemp.GetLength() >= m_pProjectProperties->nMinLogSize)))
-	{
-		GetDlgItem(IDOK)->EnableWindow(TRUE);
-	}
-	else
-	{
-		GetDlgItem(IDOK)->EnableWindow(FALSE);
-	}
 }

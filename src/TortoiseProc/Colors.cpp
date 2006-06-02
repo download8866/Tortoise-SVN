@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,13 +25,10 @@ CColors::CColors(void) :
 	, m_regModified(_T("Software\\TortoiseSVN\\Colors\\Modified"), RGB(0, 50, 160))
 	, m_regMerged(_T("Software\\TortoiseSVN\\Colors\\Merged"), RGB(0, 100, 0))
 	, m_regDeleted(_T("Software\\TortoiseSVN\\Colors\\Deleted"), RGB(100, 0, 0))
-	, m_regLastCommit(_T("Software\\TortoiseSVN\\Colors\\LastCommit"), RGB(100, 100, 100))
 	, m_regDeletedNode(_T("Software\\TortoiseSVN\\Colors\\DeletedNode"), RGB(255, 0, 0))
 	, m_regAddedNode(_T("Software\\TortoiseSVN\\Colors\\AddedNode"), RGB(0, 255, 0))
 	, m_regReplacedNode(_T("Software\\TortoiseSVN\\Colors\\ReplacedNode"), RGB(0, 255, 0))
 	, m_regRenamedNode(_T("Software\\TortoiseSVN\\Colors\\RenamedNode"), RGB(0, 0, 255))
-	, m_regLastCommitNode(_T("Software\\TortoiseSVN\\Colors\\LastCommitNode"), RGB(200, 200, 200))
-	, m_regPropertyChanged(_T("Software\\TortoiseSVN\\Colors\\PropertyChanged"), RGB(0, 50, 160))
 {
 }
 
@@ -63,10 +60,6 @@ COLORREF CColors::GetColor(Colors col, bool bDefault /*=true*/)
 		if (bDefault)
 			return RGB(100, 0, 100);
 		return (COLORREF)(DWORD)m_regAdded;
-	case LastCommit:
-		if (bDefault)
-			return RGB(100, 100, 100);
-		return (COLORREF)(DWORD)m_regAdded;
 	case DeletedNode:
 		if (bDefault)
 			return RGB(255, 0, 0);
@@ -83,14 +76,6 @@ COLORREF CColors::GetColor(Colors col, bool bDefault /*=true*/)
 		if (bDefault)
 			return RGB(0, 0, 255);
 		return (COLORREF)(DWORD)m_regRenamedNode;
-	case LastCommitNode:
-		if (bDefault)
-			return RGB(200, 200, 200);
-		return (COLORREF)(DWORD)m_regLastCommitNode;
-	case PropertyChanged:
-		if (bDefault)
-			return RGB(0, 50, 160);
-		return (COLORREF)(DWORD)m_regPropertyChanged;
 	}
 	return RGB(0,0,0);
 }
@@ -113,24 +98,6 @@ void CColors::SetColor(Colors col, COLORREF cr)
 		break;
 	case Added:
 		m_regAdded = cr;
-		break;
-	case DeletedNode:
-		m_regDeletedNode = cr;
-		break;
-	case AddedNode:
-		m_regAddedNode = cr;
-		break;
-	case ReplacedNode:
-		m_regReplacedNode = cr;
-		break;
-	case RenamedNode:
-		m_regRenamedNode = cr;
-		break;
-	case LastCommit:
-		m_regLastCommit = cr;
-		break;
-	case PropertyChanged:
-		m_regPropertyChanged = cr;
 		break;
 	default:
 		ATLASSERT(false);

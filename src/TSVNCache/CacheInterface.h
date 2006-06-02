@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,15 +21,8 @@
 #include "wininet.h"
 
 // The name of the named-pipe for the cache
-#ifdef WIN64
-#define TSVN_CACHE_PIPE_NAME _T("\\\\.\\pipe\\TSVNCache64")
-#define TSVN_CACHE_COMMANDPIPE_NAME _T("\\\\.\\pipe\\TSVNCacheCommand64")
-#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow64")
-#else
 #define TSVN_CACHE_PIPE_NAME _T("\\\\.\\pipe\\TSVNCache")
 #define TSVN_CACHE_COMMANDPIPE_NAME _T("\\\\.\\pipe\\TSVNCacheCommand")
-#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow")
-#endif
 
 
 // A structure passed as a request from the shell (or other client) to the external cache
@@ -38,10 +31,6 @@ struct TSVNCacheRequest
 	DWORD flags;
 	WCHAR path[MAX_PATH+1];
 };
-
-// CustomActions will use this header but does not need nor understand the SVN types ...
-
-#ifdef SVN_WC_H
 
 // The structure returned as a response
 struct TSVNCacheResponse
@@ -53,10 +42,7 @@ struct TSVNCacheResponse
 	char m_owner[255];		///< owner of the lock
 	char m_author[255];
 	bool m_readonly;		///< whether the file is write protected or not
-	bool m_needslock;		///< whether the file has the svn:needs-lock property set or not (only works with the new working copy version)
 };
-
-#endif // SVN_WC_H
 
 struct TSVNCacheCommand
 {

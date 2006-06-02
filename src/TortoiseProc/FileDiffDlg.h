@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,34 +21,29 @@
 #include "StandAloneDlg.h"
 #include "SVN.h"
 #include "TSVNPath.h"
-#include "Blame.h"
-#include "SVN.h"
-#include "HintListCtrl.h"
-#include "Colors.h"
-#include "XPImageButton.h"
-#include "Balloon.h"
-#include "afxwin.h"
 
-class CFileDiffDlg : public CResizableStandAloneDialog, public SVN
+class CFileDiffDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CFileDiffDlg)
 public:
 	class FileDiff
 	{
 	public:
-		CTSVNPath path;
-		svn_client_diff_summarize_kind_t kind; 
-		bool propchanged;
-		svn_node_kind_t node;
+		CString url1;
+		CString middle1;
+		CString relative1;
+		SVNRev	rev1;
+		CString url2;
+		CString middle2;
+		CString relative2;
+		SVNRev	rev2;
 	};
 public:
 	CFileDiffDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFileDiffDlg();
 
-	void SetDiff(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, bool recurse, bool ignoreancestry);
-	void SetDiff(const CTSVNPath& path, SVNRev peg, SVNRev rev1, SVNRev rev2, bool recurse, bool ignoreancestry);
-
-	void	DoBlame(bool blame = true) {m_bBlame = blame;}
+	bool	SetUnifiedDiff(const CTSVNPath& diffFile, const CString& sRepoRoot);
+	void	AddFile(FileDiff filediff);
 
 // Dialog Data
 	enum { IDD = IDD_DIFFFILES };
@@ -56,50 +51,17 @@ public:
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnGetInfoTipFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMCustomdrawFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
-	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	afx_msg void OnEnSetfocusSecondurl();
-	afx_msg void OnEnSetfocusFirsturl();
-	afx_msg void OnBnClickedSwitchleftright();
 	
 	DECLARE_MESSAGE_MAP()
 
-	virtual svn_error_t* DiffSummarizeCallback(const CTSVNPath& path, 
-											svn_client_diff_summarize_kind_t kind, 
-											bool propchanged, 
-											svn_node_kind_t node);
-
-	int AddEntry(FileDiff * fd);
-	void DoDiff(int selIndex, bool blame);
-	void DiffProps(int selIndex);
-	void SetURLLabels();
+	void DoDiff(int selIndex);
 private:
-	static UINT			DiffThreadEntry(LPVOID pVoid);
-	UINT				DiffThread();
-
-	CBalloon			m_tooltips;
-
-	CXPImageButton		m_SwitchButton;
-	HICON				m_hSwitchIcon;
-	CColors				m_colors;
-	CHintListCtrl		m_cFileList;
-	bool				m_bBlame;
-	CBlame				m_blamer;
+	CString				m_sRepoRoot;
+	CListCtrl			m_cFileList;
+	SVN					m_SVN;
 	CArray<FileDiff, FileDiff> m_arFileList;
-
-	int					m_nIconFolder;
-
-	CTSVNPath			m_path1;
-	SVNRev				m_peg;
-	SVNRev				m_rev1;
-	CTSVNPath			m_path2;
-	SVNRev				m_rev2;
-	bool				m_bRecurse;
-	bool				m_bIgnoreancestry;
-	bool				m_bDoPegDiff;
-	volatile LONG		m_bThreadRunning;
 };

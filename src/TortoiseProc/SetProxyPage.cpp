@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "Utils.h"
 #include "SVN.h"
 #include ".\setproxypage.h"
-#include "MessageBox.h"
 
 // CSetProxyPage dialog
 
@@ -60,7 +59,7 @@ CSetProxyPage::~CSetProxyPage()
 {
 }
 
-int CSetProxyPage::SaveData()
+void CSetProxyPage::SaveData()
 {
 	if (m_bInit)
 	{
@@ -68,30 +67,18 @@ int CSetProxyPage::SaveData()
 		{
 			CString temp;
 			m_regServeraddress = m_serveraddress;
-			if (m_regServeraddress.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regServeraddress.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regServeraddress_copy = m_serveraddress;
 			temp.Format(_T("%d"), m_serverport);
 			m_regServerport = temp;
-			if (m_regServerport.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regServerport.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regServerport_copy = temp;
 			m_regUsername = m_username;
-			if (m_regUsername.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regUsername.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regUsername_copy = m_username;
 			m_regPassword = m_password;
-			if (m_regPassword.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regPassword.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regPassword_copy = m_password;
 			temp.Format(_T("%d"), m_timeout);
 			m_regTimeout = temp;
-			if (m_regTimeout.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regTimeout.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regTimeout_copy = temp;
 			m_regExceptions = m_Exceptions;
-			if (m_regExceptions.LastError != ERROR_SUCCESS)
-				CMessageBox::Show(m_hWnd, m_regExceptions.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 			m_regExceptions_copy = m_Exceptions;
 		} // if (m_isEnabled)
 		else
@@ -115,7 +102,6 @@ int CSetProxyPage::SaveData()
 		}
 		m_regSSHClient = m_SSHClient;
 	}
-	return 0;
 }
 
 void CSetProxyPage::DoDataExchange(CDataExchange* pDX)

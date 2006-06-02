@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Tim Kemp and Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -66,9 +66,9 @@ BOOL SVNConfig::GetDefaultIgnores(apr_array_header_t** ppPatterns)
 	return TRUE;
 }
 
-BOOL SVNConfig::MatchIgnorePattern(const CString& name, apr_array_header_t *patterns)
+BOOL SVNConfig::MatchIgnorePattern(const CString& sFilepath, apr_array_header_t *patterns)
 {
 	if (patterns == NULL)
 		return FALSE;
-	return svn_cstring_match_glob_list(CUnicodeUtils::GetUTF8(name), patterns);
+	return svn_cstring_match_glob_list(CUnicodeUtils::GetUTF8(sFilepath), patterns);
 }

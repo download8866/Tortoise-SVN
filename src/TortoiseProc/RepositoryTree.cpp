@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,8 +39,7 @@ CRepositoryTree::CRepositoryTree(const CString& strUrl, BOOL bFile) :
 	m_strUrl(strUrl),
 	m_Revision(SVNRev::REV_HEAD),
 	m_bFile(bFile),
-	m_pProjectProperties(NULL),
-	m_bSortNumerical(false)
+	m_pProjectProperties(NULL)
 {
 	m_strUrl.TrimRight('/');
 	m_strNoItems.LoadString(IDS_REPOBROWSE_INITWAIT);
@@ -537,8 +536,6 @@ static INT CALLBACK SortCallback(INT iItem1, INT iSubItem1, INT iItem2, INT iSub
 		}
 		// fall through
 	case 3:
-		if (rctrl->m_bSortNumerical)
-			return CUtils::CompareNumerical(szText1, szText2);
 		return _tcsicmp(szText1, szText2);
 	case 2:
 	case 4:

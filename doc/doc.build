@@ -29,7 +29,7 @@ All user/site specific configuration is stored in doc.build.user.
 		depends="prepare" >
 
 		<foreach item="String" in="${languages}" delim="," property="lang.target">
-			<call target="doit" failonerror="${critical or lang.base==lang.target}"/>
+			<call target="doit"/>
 		</foreach>
 	</target>
 	
@@ -144,23 +144,20 @@ All user/site specific configuration is stored in doc.build.user.
 
 	<target name="profile" description="Profile source into a single file" >
 
-		<call target="uptodate"/>
+		<property name="xslt.params" value="${xsl.profile.params}"/>
+		<property name="xslt.file" value="${xsl.profile.file}"/>
+		<property name="xslt.target" value="${file.target}.tmp"/>
+	
+		<echo message="Profiling into: ${file.target}"/>
+		<call target="xsltproc"/>
 
-		<if test="${not file.target.uptodate}">
-			<property name="xslt.params" value="${xsl.profile.params}"/>
-			<property name="xslt.file" value="${xsl.profile.file}"/>
-			<property name="xslt.target" value="${file.target}.tmp"/>
+		<!-- Removes the moreinfo="" attributes added by xsltproc -->
+		<move file="${xslt.target}" tofile="${file.target}" overwrite="true">
+			<filterchain>
+				<replacestring from=" moreinfo=&quot;none&quot;" to="" />
+			</filterchain>
+		</move>
 
-			<echo message="Profiling into: ${file.target}"/>
-			<call target="xsltproc"/>
-
-			<!-- Removes the moreinfo="" attributes added by xsltproc -->
-			<move file="${xslt.target}" tofile="${file.target}" overwrite="true">
-				<filterchain>
-					<replacestring from=" moreinfo=&quot;none&quot;" to="" />
-				</filterchain>
-			</move>
-		</if>
 	</target>
 
 <!-- ====================================================================== -->
@@ -181,12 +178,12 @@ All user/site specific configuration is stored in doc.build.user.
 
 			<call target="profile" />
 
-			<if test="${not file::up-to-date(file.target, potfile)}">
+			<ifnot test="${file::up-to-date(file.target, potfile)}">
 				<echo message="Creating po template from sources"/>
 				<exec program="python"
 							commandline="xml2po.py -e -o ${potfile} ${file.target}"
 							verbose="false"/>
-			</if>
+			</ifnot>
 			<echo message="" />
 		</foreach>
 	</target>
@@ -228,14 +225,14 @@ All user/site specific configuration is stored in doc.build.user.
 					</targetfiles>
 				</uptodate>
 
-				<if test="${not file.target.uptodate}">
+				<ifnot test="${file.target.uptodate}">
 					<echo message="${file.target}"/>
 					<property name="dir.target" value="${path::get-directory-name(file.target)}"/>
 					<mkdir dir="${dir.target}" unless="${directory::exists(dir.target)}"/>
 					<exec program="python"
 								commandline="xml2po.py -t ${lang.target}.mo -o ${file.target} ${file.base}"
 								verbose="false"/>
-				</if>
+				</ifnot>
 			</do>
 		</foreach>
 
@@ -263,7 +260,7 @@ All user/site specific configuration is stored in doc.build.user.
 		<property name="file.target" value="${doc.target.work}.pdf"/>
 		<call target="uptodate"/>
 
-		<if test="${not file.target.uptodate}">
+		<ifnot test="${file.target.uptodate}">
 			<property name="xslt.params" value="${xsl.pdf.params}"/>
 			<property name="xslt.file" value="${xsl.pdf.file}"/>
 			<property name="xslt.target" value="${doc.target.work}/${doc.target.name}.fo"/>
@@ -278,7 +275,7 @@ All user/site specific configuration is stored in doc.build.user.
 						commandline="${commandline}"
 						basedir="${path.fop}"
 						verbose="false"/>
-		</if>
+		</ifnot>
 	</target>
 
 <!-- ====================================================================== -->
@@ -290,7 +287,7 @@ All user/site specific configuration is stored in doc.build.user.
 		<property name="file.target" value="${doc.target.work}.chm"/>
 		<call target="uptodate"/>
 
-		<if test="${not file.target.uptodate}">
+		<ifnot test="${file.target.uptodate}">
 			<property name="xslt.params" value="${xsl.chm.params}"/>
 			<property name="xslt.file" value="${xsl.chm.file}"/>
 			<property name="xslt.target" value="${doc.target.work}/${doc.target.name}"/>
@@ -299,7 +296,7 @@ All user/site specific configuration is stored in doc.build.user.
 			
 			<!-- The CHM helpcontext target resides in an external build file -->
 			<call target="help.prepare" if="${target::exists('help.prepare')}"/>
-
+			<call target="help.custom" if="${target::exists('help.custom')}"/>
 			<copy file="${path.user.css}/styles_chm.css" todir="${doc.target.work}"/>
 
 			<exec program="hhc.exe"
@@ -310,7 +307,7 @@ All user/site specific configuration is stored in doc.build.user.
 						verbose="false"/>
 
 			<copy file="${doc.target.work}/htmlhelp.chm" tofile="${file.target}"/>
-		</if>
+		</ifnot>
 		<delete>
 			<fileset>
 				<include name="${doc.target.work}/*.*"/>
@@ -326,7 +323,7 @@ All user/site specific configuration is stored in doc.build.user.
 		<property name="file.target" value="${doc.target.work}/index.html"/>
 		<call target="uptodate"/>
 
-		<if test="${not file.target.uptodate}">
+		<ifnot test="${file.target.uptodate}">
 			<property name="xslt.params" value="${xsl.htmlsingle.params}"/>
 			<property name="xslt.file" value="${xsl.htmlsingle.file}"/>
 			<property name="xslt.target" value="${doc.target.work}/${doc.target.name}"/>
@@ -336,7 +333,7 @@ All user/site specific configuration is stored in doc.build.user.
 
 			<call target="xsltproc" />
 
-		</if>
+		</ifnot>
 	</target>
 
 <!-- ====================================================================== -->
@@ -348,7 +345,7 @@ All user/site specific configuration is stored in doc.build.user.
 		<property name="file.target" value="${doc.target.work}/help-onepage.html"/>
 		<call target="uptodate"/>
 
-		<if test="${not file.target.uptodate}">
+		<ifnot test="${file.target.uptodate}">
 			<property name="xslt.params" value="${xsl.html.params}"/>
 			<property name="xslt.file" value="${xsl.html.file}"/>
 			<property name="xslt.target" value="${file.target}"/>
@@ -358,7 +355,7 @@ All user/site specific configuration is stored in doc.build.user.
 
 			<call target="xsltproc" />
 
-		</if>
+		</ifnot>
 	</target>
 </project>
 

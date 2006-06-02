@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -192,12 +192,10 @@ BOOL CUtils::StartExtPatch(const CTSVNPath& patchfile, const CTSVNPath& dir, con
 	return TRUE;
 }
 
-BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait, BOOL bBlame)
+BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait)
 {
 	CString viewer;
 	CRegString diffexe(_T("Software\\TortoiseSVN\\Diff"));
-	CRegDWORD blamediff(_T("Software\\TortoiseSVN\\DiffBlamesWithTortoiseMerge"), FALSE);
-	bool bUseTMerge = !!(DWORD)blamediff;
 	viewer = diffexe;
 	if (!file2.GetFileExtension().IsEmpty())
 	{
@@ -207,27 +205,8 @@ BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const 
 		{
 			viewer = difftool;
 		}
-		else
-		{
-			// check if we maybe should use TortoiseIDiff
-			CString sExtension = file2.GetFileExtension();
-			if ((sExtension.CompareNoCase(_T(".jpg"))==0)||
-				(sExtension.CompareNoCase(_T(".jpeg"))==0)||
-				(sExtension.CompareNoCase(_T(".bmp"))==0)||
-				(sExtension.CompareNoCase(_T(".gif"))==0)||
-				(sExtension.CompareNoCase(_T(".png"))==0)||
-				(sExtension.CompareNoCase(_T(".ico"))==0)||
-				(sExtension.CompareNoCase(_T(".dib"))==0)||
-				(sExtension.CompareNoCase(_T(".emf"))==0))
-			{
-				viewer = CUtils::GetAppDirectory();
-				viewer += _T("TortoiseIDiff.exe");
-				viewer = _T("\"") + viewer + _T("\"");
-				viewer = viewer + _T(" /left:%base /right:%mine /lefttitle:%bname /righttitle:%yname");
-			}
-		}
 	}
-	if (bUseTMerge||viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
+	if (viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
 	{
 		//no registry entry (or commented out) for a diff program
 		//use TortoiseMerge
@@ -235,8 +214,6 @@ BOOL CUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const 
 		viewer += _T("TortoiseMerge.exe");
 		viewer = _T("\"") + viewer + _T("\"");
 		viewer = viewer + _T(" /base:%base /mine:%mine /basename:%bname /minename:%yname");
-		if (bBlame)
-			viewer += _T(" /blame");
 	}
 	// check if the params are set. If not, just add the files to the command line
 	if ((viewer.Find(_T("%base"))<0)&&(viewer.Find(_T("%mine"))<0))
@@ -727,46 +704,23 @@ void CUtils::RemoveAccelerators(CString& text)
 
 bool CUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, HWND hOwningWnd)
 {
+	//TODO The error handling in here is not exactly sparkling!
+
 	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
 		hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipdata.GetLength()+1);
-		if (hClipboardData)
-		{
-			char * pchData;
-			pchData = (char*)GlobalLock(hClipboardData);
-			if (pchData)
-			{
-				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-				if (GlobalUnlock(hClipboardData))
-				{
-					if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
-					{
-						CloseClipboard();
-						return false;
-					}
-				}
-				else
-				{
-					CloseClipboard();
-					return false;
-				}
-			}
-			else
-			{
-				CloseClipboard();
-				return false;
-			}
-		}
-		else
-		{
-			CloseClipboard();
-			return false;
-		}
+		char * pchData;
+		pchData = (char*)GlobalLock(hClipboardData);
+		strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
+		GlobalUnlock(hClipboardData);
+		SetClipboardData(CF_TEXT,hClipboardData);
 		CloseClipboard();
+
 		return true;
-	}
+	} // if (OpenClipboard()) 
+
 	return false;
 }
 
@@ -908,110 +862,4 @@ void CUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)
 		}
 		pListCtrl->SetColumnWidth(col, cx);
 	}
-}
-
-CString CUtils::ParsePathInString(const CString& Str)
-{
-	CString sToken;
-	int curPos = 0;
-	sToken = Str.Tokenize(_T(" \t\r\n"), curPos);
-	while (!sToken.IsEmpty())
-	{
-		if ((sToken.Find('/')>=0)||(sToken.Find('\\')>=0))
-		{
-			sToken.Trim(_T("'\""));
-			return sToken;
-		}
-		sToken = Str.Tokenize(_T(" \t\r\n"), curPos);
-	}
-	sToken.Empty();
-	return sToken;
-}
-
-#define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
-
-int CUtils::CompareNumerical(LPCTSTR x_str, LPCTSTR y_str)
-{
-  LPCTSTR num_x_begin = x_str, num_y_begin = y_str;
-  DWORD num_x_cnt = 0, num_y_cnt = 0;
-  int cs_cmp_result = 2;
-
-  // skip same chars and remember last numeric part of strings
-  while ((*x_str || *y_str) && CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE | NORM_IGNOREWIDTH, x_str, 1, y_str, 1) == 2 /* equal */ )
-  {
-    if (IsCharNumeric(*x_str))
-    {
-      ++num_x_cnt;
-      ++num_y_cnt;
-    }
-    else
-    {
-      num_x_begin = CharNext(x_str);
-      num_y_begin = CharNext(y_str);
-      num_x_cnt = 0;
-      num_y_cnt = 0;
-	  if (cs_cmp_result == 2)
-		  cs_cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, x_str, 1, y_str, 1);
-    }
-    x_str = CharNext(x_str);
-    y_str = CharNext(y_str);
-  }
-
-  // parse numeric part of first arg
-  if (num_x_cnt || IsCharNumeric(*x_str))
-  {
-    LPCTSTR x_str_tmp = x_str;
-    while (IsCharNumeric(*x_str_tmp))
-    {
-      ++num_x_cnt;
-      x_str_tmp = CharNext(x_str_tmp);
-    }
-
-    // parse numeric part of second arg
-    if (num_y_cnt || IsCharNumeric(*y_str))
-    {
-      LPCTSTR y_str_tmp = y_str;
-      while (IsCharNumeric(*y_str_tmp))
-      {
-        ++num_y_cnt;
-        y_str_tmp = CharNext(y_str_tmp);
-      }
-
-      DWORD num_x_cnt_with_zeros = num_x_cnt, num_y_cnt_with_zeros = num_y_cnt;
-
-      while (num_x_cnt < num_y_cnt)
-      {
-        if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_y_begin, 1, TEXT("0"), 1) != 2 /* not equal to '0' */ )
-          return -1;
-        num_y_begin = CharNext(num_y_begin);
-        --num_y_cnt;
-      }
-
-      while (num_x_cnt > num_y_cnt)
-      {
-        if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_x_begin, 1, TEXT("0"), 1) != 2 /* not equal to '0' */ )
-          return 1;
-        num_x_begin = CharNext(num_x_begin);
-        --num_x_cnt;
-      }
-
-      // here num_x_cnt == num_y_cnt
-      int cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_x_begin, num_x_cnt, num_y_begin, num_y_cnt);
-
-      if (cmp_result != 2)
-        return cmp_result - 2;
-      if (num_x_cnt_with_zeros != num_y_cnt_with_zeros)
-        return num_x_cnt_with_zeros < num_y_cnt_with_zeros ? -1 : 1;
-	  if (cs_cmp_result != 2)
-        return cs_cmp_result - 2;
-    }
-  }
-
-  // otherwise, compare literally
-  int cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE | NORM_IGNOREWIDTH, x_str, -1, y_str, -1);
-  if (cmp_result != 2)
-	  return cmp_result - 2;
-  if (cs_cmp_result == 2)
-	  cs_cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, x_str, -1, y_str, -1);
-  return cs_cmp_result - 2;
 }

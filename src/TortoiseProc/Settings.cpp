@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "Settings.h"
-#include "MessageBox.h"
+#include ".\settings.h"
 
 
 
@@ -49,7 +49,6 @@ void CSettings::AddPropPages()
 	m_pDialogsPage = new CSetDialogs();
 	m_pMiscPage = new CSetMisc();
 	m_pColorsPage = new CSettingsColors();
-	m_pSavedPage = new CSetSavedDataPage();
 
 	SetPageIcon(m_pMainPage, m_pMainPage->GetIconID());
 	SetPageIcon(m_pOverlayPage, m_pOverlayPage->GetIconID());
@@ -62,7 +61,6 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pDialogsPage, m_pDialogsPage->GetIconID());
 	SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
 	SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
-	SetPageIcon(m_pSavedPage, m_pSavedPage->GetIconID());
 
 	AddPage(m_pMainPage);
 	AddPage(m_pOverlayPage);
@@ -75,7 +73,6 @@ void CSettings::AddPropPages()
 	AddPage(m_pDialogsPage);
 	AddPage(m_pMiscPage);
 	AddPage(m_pColorsPage);
-	AddPage(m_pSavedPage);
 }
 
 void CSettings::RemovePropPages()
@@ -91,26 +88,21 @@ void CSettings::RemovePropPages()
 	delete m_pDialogsPage;
 	delete m_pMiscPage;
 	delete m_pColorsPage;
-	delete m_pSavedPage;
 }
 
 void CSettings::SaveData()
 {
-	int restart = 0;
-	restart |= m_pMainPage->SaveData();
-	restart |= m_pOverlayPage->SaveData();
-	restart |= m_pOverlaysPage->SaveData();
-	restart |= m_pProxyPage->SaveData();
-	restart |= m_pProgsDiffPage->SaveData();
-	restart |= m_pProgsMergePage->SaveData();
-	restart |= m_pProgsUniDiffPage->SaveData();
-	restart |= m_pLookAndFeelPage->SaveData();
-	restart |= m_pDialogsPage->SaveData();
-	restart |= m_pMiscPage->SaveData();
-	restart |= m_pColorsPage->SaveData();
-	restart |= m_pSavedPage->SaveData();
-	if (restart)
-		CMessageBox::Show(NULL, IDS_SETTINGS_RESTARTSYSTEM, IDS_APPNAME, MB_ICONINFORMATION);
+	m_pMainPage->SaveData();
+	m_pOverlayPage->SaveData();
+	m_pOverlaysPage->SaveData();
+	m_pProxyPage->SaveData();
+	m_pProgsDiffPage->SaveData();
+	m_pProgsMergePage->SaveData();
+	m_pProgsUniDiffPage->SaveData();
+	m_pLookAndFeelPage->SaveData();
+	m_pDialogsPage->SaveData();
+	m_pMiscPage->SaveData();
+	m_pColorsPage->SaveData();
 }
 
 BEGIN_MESSAGE_MAP(CSettings, CTreePropSheet)

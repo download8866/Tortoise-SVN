@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -280,7 +280,6 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 {
 	size_t offset1 = 0;
 	size_t offset2 = 0;
-	bool bFound = false;
 
 	if (sUrl.IsEmpty())
 		return FALSE;
@@ -330,7 +329,6 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 									format.dwEffects = CFE_LINK;
 									pWnd->SendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
 									idoffset1 = idoffset2;
-									bFound = true;
 								}
 							} while(idbr.matched);
 						}
@@ -387,7 +385,6 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 								format.dwMask = CFM_LINK;
 								format.dwEffects = CFE_LINK;
 								pWnd->SendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
-								bFound = true;
 							}
 							offset1 += results.rlength(0);
 						}
@@ -398,7 +395,8 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 			catch (bad_regexpr) {}
 		}
 	}
-	else if ((!bFound)&&(!sMessage.IsEmpty()))
+
+	if (!sMessage.IsEmpty())
 	{
 		CString sBugLine;
 		CString sFirstPart;
@@ -465,177 +463,6 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 		return TRUE;
 	}
 	return FALSE;
-}
-
-CString ProjectProperties::FindBugID(const CString& msg)
-{
-	size_t offset1 = 0;
-	size_t offset2 = 0;
-	bool bFound = false;
-
-	CString sRet;
-	if (sUrl.IsEmpty())
-		return sRet;
-
-	// for use with GRETA, actually a basic_string<TCHAR>
-	restring reMsg = (LPCTSTR)msg;
-
-	// first use the checkre string to find bug ID's in the message
-	if (!sCheckRe.IsEmpty())
-	{
-		if (!sBugIDRe.IsEmpty())
-		{
-			// match with two regex strings (without grouping!)
-			try
-			{
-				match_results results;
-				match_results::backref_type br;
-				do 
-				{
-					br = patCheckRe.match( reMsg, results, offset1 );
-					if( br.matched ) 
-					{
-						offset1 += results.rstart(0);
-						offset2 = offset1 + results.rlength(0);
-						ATLTRACE("matched %ws\n", results.backref(0).str().c_str());
-						// now we have a full match. To create the links we need to extract the
-						// bare bug ID's first.
-						{
-							size_t idoffset1=offset1;
-							size_t idoffset2=offset2;
-							match_results idresults;
-							match_results::backref_type idbr;
-							do 
-							{
-								idbr = patBugIDRe.match( reMsg, idresults, idoffset1, offset2-idoffset1);
-								if (idbr.matched)
-								{
-									idoffset1 += idresults.rstart(0);
-									idoffset2 = idoffset1 + idresults.rlength(0);
-									ATLTRACE("matched id : %ws\n", idresults.backref(0).str().c_str());
-									sRet += idresults.backref(0).str().c_str();
-									sRet += _T(" ");
-									idoffset1 = idoffset2;
-									bFound = true;
-								}
-							} while(idbr.matched);
-						}
-						offset1 = offset2;
-					}
-				} while(br.matched);
-			}
-			catch (bad_alloc) {}
-			catch (bad_regexpr){}
-		}
-		else
-		{
-			try
-			{
-				match_results results;
-				match_results::backref_type br;
-
-				do 
-				{
-					br = patCheckRe.match( reMsg, results, offset1 );
-					if( br.matched ) 
-					{
-						// clear the styles up to the match position
-						ATLTRACE("matched string : %ws\n", results.backref(0).str().c_str());
-						offset1 += results.rstart(0);
-						{
-							ATLTRACE("matched results : %ld\n", results.cbackrefs());
-							for (size_t test=0; test<results.cbackrefs(); ++test)
-							{
-								ATLTRACE("matched (%d): %ws\n", test, results.backref(test).str().c_str());
-							}
-							// we define group 1 as the whole issue text
-							// and group 2 as the issue number
-							CHARRANGE range;
-							if (results.cbackrefs() > 2)
-							{
-								if (results.backref(2).str().empty())
-									range.cpMin = (LONG)(offset1 + results.rlength(1));
-								else
-									range.cpMin = (LONG)(offset1 + results.rlength(1)-results.rlength(2));
-								range.cpMax =  (LONG)(offset1 + results.rlength(1));
-							}
-							else
-							{
-								range.cpMin = (LONG)(offset1 + results.rlength(0) - results.rlength(1));
-								range.cpMax = (LONG)(range.cpMin + results.rlength(1));
-							}
-							if (range.cpMin != range.cpMax)
-							{
-								sRet += msg.Mid(range.cpMin, range.cpMax-range.cpMin);
-								sRet += _T(" ");
-								bFound = true;
-							}
-							offset1 += results.rlength(0);
-						}
-					}
-				} while ((br.matched)&&((int)offset1<msg.GetLength()));
-			}
-			catch (bad_alloc) {}
-			catch (bad_regexpr) {}
-		}
-	}
-	else if ((!bFound)&&(!sMessage.IsEmpty()))
-	{
-		CString sBugLine;
-		CString sFirstPart;
-		CString sLastPart;
-		BOOL bTop = FALSE;
-		if (sMessage.Find(_T("%BUGID%"))<0)
-			return sRet;
-		sFirstPart = sMessage.Left(sMessage.Find(_T("%BUGID%")));
-		sLastPart = sMessage.Mid(sMessage.Find(_T("%BUGID%"))+7);
-		CString sMsg = msg;
-		sMsg.TrimRight('\n');
-		if (sMsg.ReverseFind('\n')>=0)
-			sBugLine = sMsg.Mid(sMsg.ReverseFind('\n')+1);
-		else
-			sBugLine = sMsg;
-		if (sBugLine.Left(sFirstPart.GetLength()).Compare(sFirstPart)!=0)
-			sBugLine.Empty();
-		if (sBugLine.Right(sLastPart.GetLength()).Compare(sLastPart)!=0)
-			sBugLine.Empty();
-		if (sBugLine.IsEmpty())
-		{
-			if (sMsg.Find('\n')>=0)
-				sBugLine = sMsg.Left(sMsg.Find('\n'));
-			if (sBugLine.Left(sFirstPart.GetLength()).Compare(sFirstPart)!=0)
-				sBugLine.Empty();
-			if (sBugLine.Right(sLastPart.GetLength()).Compare(sLastPart)!=0)
-				sBugLine.Empty();
-			bTop = TRUE;
-		}
-		if (sBugLine.IsEmpty())
-			return sRet;
-		CString sBugIDPart = sBugLine.Mid(sFirstPart.GetLength(), sBugLine.GetLength() - sFirstPart.GetLength() - sLastPart.GetLength());
-		if (sBugIDPart.IsEmpty())
-			return sRet;
-		//the bug id part can contain several bug id's, separated by commas
-		if (!bTop)
-			offset1 = sMsg.GetLength() - sBugLine.GetLength() + sFirstPart.GetLength();
-		else
-			offset1 = sFirstPart.GetLength();
-		sBugIDPart.Trim(_T(","));
-		while (sBugIDPart.Find(',')>=0)
-		{
-			offset2 = offset1 + sBugIDPart.Find(',');
-			CHARRANGE range = {(LONG)offset1, (LONG)offset2};
-			sRet += msg.Mid(range.cpMin, range.cpMax-range.cpMin);
-			sRet += _T(" ");
-			sBugIDPart = sBugIDPart.Mid(sBugIDPart.Find(',')+1);
-			offset1 = offset2 + 1;
-		}
-		offset2 = offset1 + sBugIDPart.GetLength();
-		CHARRANGE range = {(LONG)offset1, (LONG)offset2};
-		sRet += msg.Mid(range.cpMin, range.cpMax-range.cpMin);
-		sRet += _T(" ");
-		return sRet;
-	}
-	return sRet;
 }
 
 CString ProjectProperties::GetBugIDUrl(const CString& sBugID)
@@ -706,12 +533,12 @@ static class PropTest
 public:
 	PropTest()
 	{
-		CString msg = _T("this is a test logmessage: issue 222\nIssue #456, #678, 901  #456");
 		size_t offset1 = 0;
 		size_t offset2 = 0;
 		CString sUrl = _T("http://tortoisesvn.tigris.org/issues/show_bug.cgi?id=%BUGID%");
 		CString sCheckRe = _T("[Ii]ssue #?(\\d+)(,? ?#?(\\d+))+");
 		CString sBugIDRe = _T("(\\d+)");
+		CString msg = _T("this is a test logmessage: issue 222\nIssue #456, #678, 901  #456");
 		match_results results;
 		rpattern pat( (LPCTSTR)sCheckRe, MULTILINE ); 
 		match_results::backref_type br;

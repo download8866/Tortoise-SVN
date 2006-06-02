@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 #include "StdAfx.h"
 #include "TSVNPath.h"
 #include "UnicodeUtils.h"
@@ -76,7 +75,6 @@ void CTSVNPath::SetFromSVN(const char* pPath)
 		len = MultiByteToWideChar(CP_UTF8, 0, pPath, -1, m_sFwdslashPath.GetBuffer(len+1), len+1);
 		m_sFwdslashPath.ReleaseBuffer(len-1);
 	}
-	ATLASSERT(m_sFwdslashPath.Find('\\')<0);
 }
 
 void CTSVNPath::SetFromSVN(const char* pPath, bool bIsDirectory)
@@ -90,20 +88,17 @@ void CTSVNPath::SetFromSVN(const CString& sPath)
 {
 	Reset();
 	m_sFwdslashPath = sPath;
-	ATLASSERT(m_sFwdslashPath.Find('\\')<0);
 }
 
 void CTSVNPath::SetFromWin(LPCTSTR pPath)
 {
 	Reset();
 	m_sBackslashPath = pPath;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath)
 {
 	Reset();
 	m_sBackslashPath = sPath;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
 {
@@ -111,7 +106,6 @@ void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
 	m_sBackslashPath = sPath;
 	m_bIsDirectory = bIsDirectory;
 	m_bDirectoryKnown = true;
-	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromUnknown(const CString& sPath)
 {
@@ -177,6 +171,16 @@ const char* CTSVNPath::GetSVNApiPath() const
 	if (svn_path_is_url(m_sUTF8FwdslashPath))
 	{
 		m_sUTF8FwdslashPathEscaped = CUtils::PathEscape(m_sUTF8FwdslashPath);
+		// we must make sure that the protocol part of the URL
+		// is in lowercase (at least for http/https)
+		if (m_sUTF8FwdslashPathEscaped.Left(5).CompareNoCase("https")==0)
+		{
+			m_sUTF8FwdslashPathEscaped = "https" + m_sUTF8FwdslashPathEscaped.Mid(5);
+		}
+		else if (m_sUTF8FwdslashPathEscaped.Left(4).CompareNoCase("http")==0)
+		{
+			m_sUTF8FwdslashPathEscaped = "http" + m_sUTF8FwdslashPathEscaped.Mid(4);
+		}
 		return m_sUTF8FwdslashPathEscaped;
 	}
 #endif // _MFC_VER
@@ -434,7 +438,7 @@ bool CTSVNPath::ArePathStringsEqual(const CString& sP1, const CString& sP2)
 	LPCTSTR pP2 = ((LPCTSTR)sP2)+(length-1);
 	while(length-- > 0)
 	{
-		if((*pP1--) != (*pP2--))
+		if(_totupper(*pP1--) != _totupper(*pP2--))
 		{
 			return false;
 		}
@@ -476,6 +480,24 @@ bool CTSVNPath::IsEmpty() const
 // Test if both paths refer to the same item
 // Ignores case and slash direction
 bool CTSVNPath::IsEquivalentTo(const CTSVNPath& rhs) const
+{
+	// Try and find a slash direction which avoids having to convert
+	// both filenames
+	if(!m_sBackslashPath.IsEmpty())
+	{
+		// *We've* got a \ path - make sure that the RHS also has a \ path
+		rhs.EnsureBackslashPathSet();
+		return ArePathStringsEqual(m_sBackslashPath, rhs.m_sBackslashPath);
+	}
+	else
+	{
+		// Assume we've got a fwdslash path and make sure that the RHS has one
+		rhs.EnsureFwdslashPathSet();
+		return ArePathStringsEqual(m_sFwdslashPath, rhs.m_sFwdslashPath);
+	}
+}
+
+bool CTSVNPath::IsEquivalentToWithCase(const CTSVNPath& rhs) const
 {
 	// Try and find a slash direction which avoids having to convert
 	// both filenames
@@ -590,8 +612,6 @@ bool CTSVNPath::HasAdminDir() const
 {
 	if (m_bHasAdminDirKnown)
 		return m_bHasAdminDir;
-
-	EnsureBackslashPathSet();
 	m_bHasAdminDir = g_SVNAdminDir.HasAdminDir(m_sBackslashPath, IsDirectory());
 	m_bHasAdminDirKnown = true;
 	return m_bHasAdminDir;
@@ -849,7 +869,7 @@ CTSVNPath CTSVNPathList::GetCommonRoot() const
 			const CString& sPath = it->GetWinPathString();
 			if (sTempRoot.IsEmpty())
 				sTempRoot = sPath.Left(i);
-			if (sTempRoot.Compare(sPath.Left(i))!=0)
+			if (sTempRoot.CompareNoCase(sPath.Left(i))!=0)
 			{
 				bEqual = false;
 				break;
@@ -893,15 +913,13 @@ void CTSVNPathList::RemoveDuplicates()
 void CTSVNPathList::RemoveAdminPaths()
 {
 	PathVector::iterator it;
-	for(it = m_paths.begin(); it != m_paths.end(); )
+	for(it = m_paths.begin(); it != m_paths.end(); ++it)
 	{
 		if (it->IsAdminDir())
 		{
 			m_paths.erase(it);
 			it = m_paths.begin();
 		}
-		else
-			++it;
 	}
 }
 
@@ -1060,7 +1078,7 @@ private:
 		list.AddPath(CTSVNPath(_T("Z")));
 		list.AddPath(CTSVNPath(_T("A")));
 		list.AddPath(CTSVNPath(_T("E")));
-		list.AddPath(CTSVNPath(_T("E")));
+		list.AddPath(CTSVNPath(_T("e")));
 
 		ATLASSERT(list[2].IsEquivalentTo(list[3]));
 		ATLASSERT(list[2]==list[3]);
@@ -1072,7 +1090,7 @@ private:
 		ATLASSERT(list.GetCount() == 3);
 
 		ATLASSERT(list[0].GetWinPathString() == _T("A"));
-		ATLASSERT(list[1].GetWinPathString().Compare(_T("E")) == 0);
+		ATLASSERT(list[1].GetWinPathString().CompareNoCase(_T("e")) == 0);
 		ATLASSERT(list[2].GetWinPathString() == _T("Z"));
 	}
 	
@@ -1096,9 +1114,9 @@ private:
 
 		list.SortByPathname();
 
-		ATLASSERT(list[0].GetWinPathString().Compare(_T("c:\\parent")) == 0);
-		ATLASSERT(list[1].GetWinPathString().Compare(_T("c:\\test")) == 0);
-		ATLASSERT(list[2].GetWinPathString().Compare(_T("c:\\testfile")) == 0);
+		ATLASSERT(list[0].GetWinPathString().CompareNoCase(_T("c:\\parent")) == 0);
+		ATLASSERT(list[1].GetWinPathString().CompareNoCase(_T("c:\\test")) == 0);
+		ATLASSERT(list[2].GetWinPathString().CompareNoCase(_T("c:\\testfile")) == 0);
 	}
 
 #if defined(_MFC_VER)
@@ -1167,7 +1185,7 @@ private:
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing%20again"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
-		testPath.SetFromUnknown(_T("http://testing special chars \344\366\374"));
+		testPath.SetFromUnknown(_T("http://testing special chars הצü"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20special%20chars%20%C3%A4%C3%B6%C3%BC") == 0);		
 #endif
 	}

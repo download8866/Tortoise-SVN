@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,6 +24,19 @@
 * \ingroup Utils
 * This singleton class contains a list of items which require a shell-update notification
 * This update is done lazily at the end of a run of SVN operations
+*
+* \par requirements
+* win95 or later
+* winNT4 or later
+* MFC
+*
+* \version 1.0
+* first version
+*
+* \date JAN-2002
+*
+* \author Will Dean
+*
 */
 class CShellUpdater
 {

@@ -1,21 +1,3 @@
-// TortoiseSVN - a Windows shell extension for easy version control
-
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 #include "StdAfx.h"
 #include ".\cacheddirectory.h"
 #include "SVNHelpers.h"
@@ -174,18 +156,18 @@ BOOL CCachedDirectory::LoadFromDisk(FILE * pFile)
 
 }
 
-CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bool bRecursive,  bool bFetch /* = true */)
+CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bool bRecursive)
 {
 	CString strCacheKey;
 	bool bThisDirectoryIsUnversioned = false;
 	bool bRequestForSelf = false;
-	if(path.IsEquivalentTo(m_directoryPath))
+	if(path.IsEquivalentToWithCase(m_directoryPath))
 	{
 		bRequestForSelf = true;
 	}
 
 	// In all most circumstances, we ask for the status of a member of this directory.
-	ATLASSERT(m_directoryPath.IsEquivalentTo(path.GetContainingDirectory()) || bRequestForSelf);
+	ATLASSERT(m_directoryPath.IsEquivalentToWithCase(path.GetContainingDirectory()) || bRequestForSelf);
 
 	// Check if the entries file has been changed
 	CTSVNPath entriesFilePath(m_directoryPath);
@@ -277,25 +259,6 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 		}
 		else
 		{
-			{
-				// if we currently are fetching the status of the directory
-				// we want the status for, we just return an empty entry here
-				// and don't wait for that fetching to finish.
-				// That's because fetching the status can take a *really* long
-				// time (e.g. if a commit is also in progress on that same
-				// directory), and we don't want to make the explorer appear
-				// to hang.
-				AutoLocker pathlock(m_critSecPath);
-				if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
-				{
-					if ((m_currentStatusFetchingPath.IsAncestorOf(path))&&((m_currentStatusFetchingPathTicks + 1000)<GetTickCount()))
-					{
-						ATLTRACE("returning empty status (status fetch in progress) for %ws\n", path.GetWinPath());
-						m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-						return CStatusCacheEntry();
-					}
-				}
-			}
 			// Look up a file in our own cache
 			AutoLocker lock(m_critSec);
 			strCacheKey = GetCacheKey(path);
@@ -307,13 +270,10 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				{
 					if(itMap->second.DoesFileTimeMatch(path.GetLastWriteTime()))
 					{
-						if ((itMap->second.GetEffectiveStatus()!=svn_wc_status_missing)||(!PathFileExists(path.GetWinPath())))
-						{
-							// Note: the filetime matches after a modified has been committed too.
-							// So in that case, we would return a wrong status (e.g. 'modified' instead
-							// of 'normal') here.
-							return itMap->second;
-						}
+						// Note: the filetime matches after a modified has been committed too.
+						// So in that case, we would return a wrong status (e.g. 'modified' instead
+						// of 'normal') here.
+						return itMap->second;
 					}
 				}
 			}
@@ -321,25 +281,6 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	}
 	else
 	{
-		AutoLocker pathlock(m_critSecPath);
-		if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
-		{
-			if ((m_currentStatusFetchingPath.IsAncestorOf(path))&&((m_currentStatusFetchingPathTicks + 1000)<GetTickCount()))
-			{
-				ATLTRACE("returning empty status (status fetch in progress) for %ws\n", path.GetWinPath());
-				m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-				return CStatusCacheEntry();
-			}
-		}
-		// if we're fetching the status for the explorer,
-		// we don't refresh the status but use the one
-		// we already have (to save time and make the explorer
-		// more responsive in stress conditions).
-		// We leave the refreshing to the crawler.
-		if ((!bFetch)&&(m_entriesFileTime))
-		{
-			return m_ownStatus;
-		}
 		AutoLocker lock(m_critSec);
 		m_entriesFileTime = entriesFilePath.GetLastWriteTime();
 		m_propsFileTime = propsDirPath.GetLastWriteTime();
@@ -357,20 +298,11 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	{
 		// We're being asked for the status of an .SVN directory
 		// It's not worth asking for this
+		AddEntry(path, NULL);
 		return CStatusCacheEntry();
 	}
 
 	{
-		AutoLocker pathlock(m_critSecPath);
-		if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
-		{
-			if ((m_currentStatusFetchingPath.IsAncestorOf(path))&&((m_currentStatusFetchingPathTicks + 1000)<GetTickCount()))
-			{
-				ATLTRACE("returning empty status (status fetch in progress) for %ws\n", path.GetWinPath());
-				m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-				return CStatusCacheEntry();
-			}
-		}
 		AutoLocker lock(m_critSec);
 		CSVNStatusCache& mainCache = CSVNStatusCache::Instance();
 		SVNPool subPool(mainCache.m_svnHelp.Pool());
@@ -381,11 +313,6 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 		m_bRecursive = bRecursive;
 		if(!bThisDirectoryIsUnversioned)
 		{
-			{
-				AutoLocker pathlock(m_critSecPath);
-				m_currentStatusFetchingPath = m_directoryPath;
-				m_currentStatusFetchingPathTicks = GetTickCount();
-			}
 			ATLTRACE("svn_cli_stat for '%ws' (req %ws)\n", m_directoryPath.GetWinPath(), path.GetWinPath());
 			svn_error_t* pErr = svn_client_status2 (
 				NULL,
@@ -401,11 +328,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				mainCache.m_svnHelp.ClientContext(),
 				subPool
 				);
-			{
-				AutoLocker pathlock(m_critSecPath);
-				m_currentStatusFetchingPath.Reset();
-			}
-			ATLTRACE("svn_cli_stat finished for '%ws'\n", m_directoryPath.GetWinPath(), path.GetWinPath());
+
 			if(pErr)
 			{
 				// Handle an error
@@ -477,25 +400,17 @@ CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNSt
 	}
 	else
 	{
-		CString cachekey = GetCacheKey(path);
-		CacheEntryMap::iterator entry_it = m_entryCache.lower_bound(cachekey);
-		if (entry_it != m_entryCache.end() && entry_it->first == cachekey)
+		if ((pSVNStatus)&&(m_entryCache.find(GetCacheKey(path))!=m_entryCache.end()))
 		{
-			if (pSVNStatus)
+			CStatusCacheEntry oldentry = m_entryCache[GetCacheKey(path)];
+			if ((oldentry.GetEffectiveStatus() > svn_wc_status_unversioned)&&
+				(oldentry.GetEffectiveStatus() != SVNStatus::GetMoreImportant(pSVNStatus->prop_status, pSVNStatus->text_status)))
 			{
-				if (entry_it->second.GetEffectiveStatus() > svn_wc_status_unversioned &&
-					entry_it->second.GetEffectiveStatus() != SVNStatus::GetMoreImportant(pSVNStatus->prop_status, pSVNStatus->text_status))
-				{
-					CSVNStatusCache::Instance().UpdateShell(path);
-					ATLTRACE("shell update for %ws\n", path.GetWinPath());
-				}
+				CSVNStatusCache::Instance().UpdateShell(path);
+				ATLTRACE("shell update for %ws\n", path.GetWinPath());
 			}
 		}
-		else
-		{
-			entry_it = m_entryCache.insert(entry_it, std::make_pair(cachekey, CStatusCacheEntry()));
-		}
-		entry_it->second = CStatusCacheEntry(pSVNStatus, path.GetLastWriteTime(), path.IsReadOnly());
+		m_entryCache[GetCacheKey(path)] = CStatusCacheEntry(pSVNStatus, path.GetLastWriteTime(), path.IsReadOnly());
 	}
 }
 
@@ -529,7 +444,7 @@ void CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_s
 
 		if(svnPath.IsDirectory())
 		{
-			if(!svnPath.IsEquivalentTo(pThis->m_directoryPath))
+			if(!svnPath.IsEquivalentToWithCase(pThis->m_directoryPath))
 			{
 				if (pThis->m_bRecursive)
 				{
@@ -567,7 +482,7 @@ void CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_s
 		// part of another working copy (nested layouts).
 		// So we have to make sure that such an 'unversioned' folder really
 		// is unversioned.
-		if ((status->text_status == svn_wc_status_unversioned)&&(!svnPath.IsEquivalentTo(pThis->m_directoryPath))&&(svnPath.IsDirectory()))
+		if ((status->text_status == svn_wc_status_unversioned)&&(!svnPath.IsEquivalentToWithCase(pThis->m_directoryPath))&&(svnPath.IsDirectory()))
 		{
 			if (svnPath.HasAdminDir())
 			{
@@ -601,8 +516,7 @@ CCachedDirectory::IsOwnStatusValid() const
 		   // 'external' isn't a valid status. That just
 		   // means the folder is not part of the current working
 		   // copy but it still has its own 'real' status
-		   m_ownStatus.GetEffectiveStatus()!=svn_wc_status_external &&
-		   m_ownStatus.IsKindKnown();
+		   m_ownStatus.GetEffectiveStatus()!=svn_wc_status_external;
 }
 
 void CCachedDirectory::Invalidate()
@@ -716,9 +630,7 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 		{
 			CTSVNPath filePath(m_directoryPath);
 			filePath.AppendPathString(itMembers->first);
-			std::set<CTSVNPath>::iterator refr_it;
-			if ((!filePath.IsEquivalentTo(m_directoryPath))&&
-				(((refr_it = refreshedpaths.lower_bound(filePath)) == refreshedpaths.end()) || !filePath.IsEquivalentTo(*refr_it)))
+			if ((!filePath.IsEquivalentToWithCase(m_directoryPath))&&(refreshedpaths.find(filePath)==refreshedpaths.end()))
 			{
 				if ((itMembers->second.HasExpired(now))||(!itMembers->second.DoesFileTimeMatch(filePath.GetLastWriteTime())))
 				{
@@ -728,7 +640,7 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 					// So start the loop again, but add this path to the refreshedpaths set
 					// to make sure we don't refresh this path again. This is to make sure
 					// that we don't end up in an endless loop.
-					refreshedpaths.insert(refr_it, filePath);
+					refreshedpaths.insert(filePath);
 					itMembers = m_entryCache.begin();
 					if (m_entryCache.size()==0)
 						return;

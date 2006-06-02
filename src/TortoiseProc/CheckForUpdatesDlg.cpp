@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,7 +34,6 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
 {
 	m_bShowInfo = FALSE;
 	m_bVisible = FALSE;
-	m_sUpdateDownloadLink = _T("http://tortoisesvn.tigris.org");
 }
 
 CCheckForUpdatesDlg::~CCheckForUpdatesDlg()
@@ -98,7 +97,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
 
 	CString temp;
 	CString tempfile = CTempFiles::Instance().GetTempFilePath(true).GetWinPathString();
-
+	
 	CRegString checkurluser = CRegString(_T("Software\\TortoiseSVN\\UpdateCheckURL"), _T(""));
 	CRegString checkurlmachine = CRegString(_T("Software\\TortoiseSVN\\UpdateCheckURL"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
 	CString sCheckURL = checkurluser;
@@ -141,7 +140,6 @@ UINT CCheckForUpdatesDlg::CheckThread()
 					GetDlgItem(IDC_CURRENTVERSION)->SetWindowText(temp);
 					temp.Format(_T("%d.%d.%d.%d"), TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
 				}
-
 				if (_ttoi(ver)==0)
 				{
 					temp.LoadString(IDS_CHECKNEWER_NETERROR);
@@ -149,16 +147,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
 				}
 				else if (bNewer)
 				{
-					if(file.ReadString(temp) && !temp.IsEmpty()){	// Read the next line, it could contain a message for the user
-						CString tempLink;
-						if(file.ReadString(tempLink) && !tempLink.IsEmpty()){	// Read another line to find out the download link-URL, if any
-							m_sUpdateDownloadLink = tempLink;
-						}
-
-					}
-					else{
-						temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
-					}
+					temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
 					GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 					m_bShowInfo = TRUE;
 				}
@@ -190,10 +179,10 @@ UINT CCheckForUpdatesDlg::CheckThread()
 void CCheckForUpdatesDlg::OnStnClickedCheckresult()
 {
 	//user clicked on the label, start the browser with our webpage
-	HINSTANCE result = ShellExecute(NULL, _T("opennew"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
+	HINSTANCE result = ShellExecute(NULL, _T("opennew"), _T("http://tortoisesvn.tigris.org"), NULL,NULL, SW_SHOWNORMAL);
 	if ((UINT)result <= HINSTANCE_ERROR)
 	{
-		result = ShellExecute(NULL, _T("open"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
+		result = ShellExecute(NULL, _T("open"), _T("http://tortoisesvn.tigris.org"), NULL,NULL, SW_SHOWNORMAL);
 	}
 }
 

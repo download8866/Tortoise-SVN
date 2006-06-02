@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "Balloon.h"
+#include "..\\Utils\\Balloon.h"
 #include "FontPreviewCombo.h"
 #include "Registry.h"
 #include "afxwin.h"
@@ -37,12 +37,11 @@ public:
 	virtual ~CSetMainPage();
 	/**
 	 * Saves the changed settings to the registry.
-	 * returns 0 if no restart is needed for the changes to take effect
 	 * \remark If the dialog is closed/dismissed without calling
 	 * this method first then all settings the user made must be
 	 * discarded!
 	 */
-	int SaveData();
+	void SaveData();
 	
 	UINT GetIconID() {return IDI_GENERAL;}
 
@@ -68,15 +67,16 @@ private:
 	CRegString		m_regLastCommitTime;
 	BOOL			m_bLastCommitTime;
 
-	BOOL			m_bUseDotNetHack;
-
 public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnModified();
-	afx_msg void OnASPHACK();
+	afx_msg void OnCbnSelchangeLanguagecombo();
+	afx_msg void OnEnChangeTempextensions();
 	virtual BOOL OnApply();
 	afx_msg void OnBnClickedEditconfig();
+	afx_msg void OnBnClickedChecknewerversion();
+	afx_msg void OnBnClickedClearauth();
 	afx_msg void OnBnClickedChecknewerbutton();
+	afx_msg void OnBnClickedCommitfiletimes();
 	afx_msg void OnBnClickedSounds();
 };

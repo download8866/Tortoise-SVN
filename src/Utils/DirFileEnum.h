@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2005 - 2006 - Jon Foster
+// Copyright (C) 2005 - Jon Foster
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,6 +32,21 @@
  * 3) Support for ignoring the "." and ".." directories
  *    automatically.
  * 4) No dynamic memory allocation.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 18-Feb-2004
+ *
+ * \author Jon Foster
+ *
+ * \par license
+ * This code is GPL'd.
  */
 class CSimpleFileFind {
 private:

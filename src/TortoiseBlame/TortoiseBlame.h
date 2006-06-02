@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,15 +36,6 @@ const int blockSize = 128 * 1024;
 
 #define MAX_LOG_LENGTH 2000
 
-
-#ifndef GET_X_LPARAM
-#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
-#endif
-#ifndef GET_Y_LPARAM
-#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
-#endif
-
-
 class TortoiseBlame
 {
 public:
@@ -76,15 +67,12 @@ public:
 	void DrawBlame(HDC hDC);
 	void DrawHeader(HDC hDC);
 	void StartSearch();
-	void CopySelectedLogToClipboard();
 	bool DoSearch(LPSTR what, DWORD flags);
 
 	LONG						m_mouserev;
 	std::string					m_mouseauthor;
 	LONG						m_selectedrev;
 	std::string					m_selectedauthor;
-	std::string					m_selecteddate;
-
 	std::vector<LONG>			revs;
 	std::vector<std::string>	dates;
 	std::vector<std::string>	authors;

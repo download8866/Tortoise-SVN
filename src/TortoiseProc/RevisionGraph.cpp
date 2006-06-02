@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,6 @@ CRevisionGraph::CRevisionGraph(void) :
 
 	Err = svn_config_ensure(NULL, parentpool);
 	pool = svn_pool_create (parentpool);
-	graphpool = svn_pool_create(parentpool);
 	// set up the configuration
 	if (Err == 0)
 		Err = svn_config_get_config (&(m_ctx.config), g_pConfigDir, pool);
@@ -51,7 +50,6 @@ CRevisionGraph::CRevisionGraph(void) :
 	{
 		::MessageBox(NULL, this->GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		svn_pool_destroy (pool);
-		svn_pool_destroy (graphpool);
 		svn_pool_destroy (parentpool);
 		exit(-1);
 	} // if (Err != 0) 
@@ -78,17 +76,15 @@ CRevisionGraph::CRevisionGraph(void) :
 CRevisionGraph::~CRevisionGraph(void)
 {
 	svn_pool_destroy (parentpool);
-	for (EntryPtrsIterator it = m_mapEntryPtrs.begin(); it != m_mapEntryPtrs.end(); ++it)
+	for (int i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-		CRevisionEntry * e = it->second;
+		CRevisionEntry * e = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
 		for (int j=0; j<e->sourcearray.GetCount(); ++j)
 		{
 			delete (source_entry*)e->sourcearray.GetAt(j);
 		}
 		delete e;
 	}
-	m_mapEntryPtrs.clear();
-	m_arEntryPtrs.RemoveAll();
 }
 
 BOOL CRevisionGraph::ProgressCallback(CString /*text*/, CString /*text2*/, DWORD /*done*/, DWORD /*total*/) {return TRUE;}
@@ -139,7 +135,7 @@ svn_error_t* CRevisionGraph::logDataReceiver(void* baton,
 		//create a copy of the hash
 		e->ch_paths = apr_hash_make(me->pool);
 		apr_hash_index_t* hi;
-		for (hi = apr_hash_first (me->pool, ch_paths); hi; hi = apr_hash_next (hi))
+		for (hi = apr_hash_first (localPool, ch_paths); hi; hi = apr_hash_next (hi))
 		{
 			const char * key;
 			const char * keycopy;
@@ -183,12 +179,6 @@ svn_error_t* CRevisionGraph::logDataReceiver(void* baton,
 
 BOOL CRevisionGraph::FetchRevisionData(CString path)
 {
-	// set some text on the progress dialog, before we wait
-	// for the log operation to start
-	CString temp;
-	temp.LoadString(IDS_REVGRAPH_PROGGETREVS);
-	ProgressCallback(temp, _T(""), 0, 1);
-
 	// prepare the path for Subversion
 	SVN::preparePath(path);
 	CStringA url = CUnicodeUtils::GetUTF8(path);
@@ -248,30 +238,10 @@ BOOL CRevisionGraph::FetchRevisionData(CString path)
 	return TRUE;
 }
 
-BOOL CRevisionGraph::AnalyzeRevisionData(CString path, bool bShowAll /* = false */, bool bArrangeByPath /* = false */)
+BOOL CRevisionGraph::AnalyzeRevisionData(CString path)
 {
 	if (m_logdata == NULL)
 		return FALSE;
-
-	svn_pool_destroy(graphpool);
-	graphpool = svn_pool_create(parentpool);
-
-	for (EntryPtrsIterator it = m_mapEntryPtrs.begin(); it != m_mapEntryPtrs.end(); ++it)
-	{
-		CRevisionEntry * e = it->second;
-		for (int j=0; j<e->sourcearray.GetCount(); ++j)
-		{
-			delete (source_entry*)e->sourcearray.GetAt(j);
-		}
-		delete e;
-	}
-	m_mapEntryPtrs.clear();
-	m_arEntryPtrs.RemoveAll();
-	m_maxurllength = 0;
-	m_maxurl.Empty();
-	m_numRevisions = 0;
-	m_maxlevel = 0;
-
 	SVN::preparePath(path);
 	CStringA url = CUnicodeUtils::GetUTF8(path);
 
@@ -281,13 +251,13 @@ BOOL CRevisionGraph::AnalyzeRevisionData(CString path, bool bShowAll /* = false 
 		//not an url, so get the URL from the working copy path first
 		svn_wc_adm_access_t *adm_access;          
 		const svn_wc_entry_t *entry;  
-		const char * canontarget = svn_path_canonicalize(url, graphpool);
+		const char * canontarget = svn_path_canonicalize(url, pool);
 #pragma warning(push)
 #pragma warning(disable: 4127)	// conditional expression is constant
 		Err = svn_wc_adm_probe_open2 (&adm_access, NULL, canontarget,
-			FALSE, 0, graphpool);
+			FALSE, 0, pool);
 		if (Err) return FALSE;
-		Err =  svn_wc_entry (&entry, canontarget, adm_access, FALSE, graphpool);
+		Err =  svn_wc_entry (&entry, canontarget, adm_access, FALSE, pool);
 		if (Err) return FALSE;
 		Err = svn_wc_adm_close (adm_access);
 		if (Err) return FALSE;
@@ -318,7 +288,7 @@ BOOL CRevisionGraph::AnalyzeRevisionData(CString path, bool bShowAll /* = false 
 		if ((logentry)&&(logentry->ch_paths))
 		{
 			apr_hash_index_t* hi;
-			for (hi = apr_hash_first (graphpool, logentry->ch_paths); hi; hi = apr_hash_next (hi))
+			for (hi = apr_hash_first (pool, logentry->ch_paths); hi; hi = apr_hash_next (hi))
 			{
 				const char * key;
 				svn_log_changed_path_t *val;
@@ -333,32 +303,15 @@ BOOL CRevisionGraph::AnalyzeRevisionData(CString path, bool bShowAll /* = false 
 						realurl += child;
 					}
 					else if (strcmp(key, realurl)==0)
-					{
 						initialrev = logentry->rev;
-						// this is where our entry got added
-						// break out of the loop, we don't need
-						// to go further back.
-						currentrev = 0;
-						break;
-					}
 				}
 			}
 		}
 	}
-
-	CRevisionEntry * reventry = GetRevisionEntry(realurl, initialrev, true);
-	if (reventry)
+	
+	if (AnalyzeRevisions(realurl, initialrev))
 	{
-		if (reventry->action == CRevisionEntry::nothing)
-		{
-			reventry->action = CRevisionEntry::initial;
-			reventry->bUsed = true;
-		}
-	}
-
-	if (AnalyzeRevisions(realurl, initialrev, bShowAll))
-	{
-		return Cleanup(realurl, bArrangeByPath);
+		return Cleanup(realurl);
 	}
 	return FALSE;
 }
@@ -375,7 +328,7 @@ bool CRevisionGraph::BuildForwardCopies()
 		{
 			ASSERT(logentry->rev == currentrev);
 			apr_hash_index_t* hi;
-			for (hi = apr_hash_first (graphpool, logentry->ch_paths); hi; hi = apr_hash_next (hi))
+			for (hi = apr_hash_first (pool, logentry->ch_paths); hi; hi = apr_hash_next (hi))
 			{
 				const char * key;
 				svn_log_changed_path_t *val;
@@ -401,7 +354,7 @@ bool CRevisionGraph::BuildForwardCopies()
 				default:
 					action = CRevisionEntry::nothing;
 					break;
-				}
+				}		
 				if (val->copyfrom_path)
 				{
 					// yes, this entry was copied from somewhere
@@ -419,18 +372,13 @@ bool CRevisionGraph::BuildForwardCopies()
 					CRevisionEntry * reventry = GetRevisionEntry(key, logentry->rev);
 					reventry->action = action;
 				}
-				else
-				{
-					CRevisionEntry * reventry = GetRevisionEntry(key, logentry->rev);
-					reventry->action = action;
-				}
 			}
 		}
 	}
 	return true;
 }
 
-bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool bShowAll)
+bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev)
 {
 #define TRACELEVELSPACE {for (int traceloop = 1; traceloop < m_nRecurseLevel; traceloop++) TRACE(_T(" "));}
 	m_nRecurseLevel++;
@@ -439,7 +387,6 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool 
 
 	bool bRenamed = false;
 	bool bDeleted = false;
-	CRevisionEntry * lastchangedreventry = NULL;
 	for (svn_revnum_t currentrev=startrev; currentrev <= m_lHeadRevision; ++currentrev)
 	{
 		// show progress info
@@ -459,26 +406,18 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool 
 
 		CRevisionEntry * reventry = NULL;
 		// find all entries with this revision
-		for (EntryPtrsIterator it = m_mapEntryPtrs.lower_bound(currentrev); it != m_mapEntryPtrs.upper_bound(currentrev); )
+		for (INT_PTR findrev=0; findrev < m_arEntryPtrs.GetCount(); ++findrev)
 		{
-			reventry = it->second;
+			reventry = (CRevisionEntry*)m_arEntryPtrs[findrev];
 			if (reventry->revision == currentrev)
 			{
+				if ((bDeleted)&&(reventry->action != CRevisionEntry::added))
+					continue;
 				// we have an entry
 				if (IsParentOrItself(reventry->url, url))
 				{
-					if ((bDeleted)&&(reventry->action != CRevisionEntry::added))
-					{
-						++it;
+					if ((bDeleted)&&(strcmp(reventry->url, url)!=0))
 						continue;
-					}
-					bool bIsSame = (strcmp(reventry->url, url) == 0);
-					if ((bDeleted)&&(!bIsSame))
-					{
-						++it;
-						continue;
-					}
-
 					bDeleted = false;
 					reventry->level = m_nRecurseLevel;
 					if (reventry->action == CRevisionEntry::deleted)
@@ -491,23 +430,9 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool 
 							TRACE(_T("%s renamed to %s in revision %ld\n"), (LPCTSTR)CString(url), (LPCTSTR)CString(newname), currentrev);
 							url = newname;
 							ATLASSERT(reventry->sourcearray.GetCount()==0);
-							if (reventry == lastchangedreventry)
-							{
-								lastchangedreventry = NULL;
-							}
 							delete reventry;
-							if (it == m_mapEntryPtrs.begin())
-							{
-								m_mapEntryPtrs.erase(it);
-								it = m_mapEntryPtrs.begin();
-							}
-							else
-							{
-								EntryPtrsIterator it2 = it;
-								--it2;
-								m_mapEntryPtrs.erase(it);
-								it = it2;
-							}
+							m_arEntryPtrs.RemoveAt(findrev);
+							findrev = -1;
 							bRenamed = true;
 							continue;
 						}
@@ -521,35 +446,29 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool 
 						CStringA child = url.Mid(strlen(reventry->url));
 						if (!child.IsEmpty())
 						{
-							reventry->url = apr_pstrcat(graphpool, reventry->url, (LPCSTR)child, NULL);
+							reventry->url = apr_pstrcat(pool, reventry->url, (LPCSTR)child, NULL);
 						}
 						reventry->bUsed = true;
 						bDeleted = true;
-						++it;
 						continue;
 					}
 					if (reventry->action == CRevisionEntry::replaced)
 					{
 						reventry->bUsed = true;
 					}
-					CStringA child = url.Mid(strlen(reventry->url));
+					CStringA child;
 					if (reventry->action != CRevisionEntry::added)
 					{
+						child = url.Mid(strlen(reventry->url));
 						if (!child.IsEmpty())
 						{
-							reventry->url = apr_pstrcat(graphpool, reventry->url, (LPCSTR)child, NULL);
+							reventry->url = apr_pstrcat(pool, reventry->url, (LPCSTR)child, NULL);
 						}
 					}
 					// and the entry is for us
-					if (reventry->action != CRevisionEntry::modified)
-					{
-						reventry->bUsed = true;
-						if (reventry->action == CRevisionEntry::nothing)
-							reventry->action = CRevisionEntry::source;
-					}
+					reventry->bUsed = true;
 					if (bRenamed)
 					{
-						reventry->bUsed = true;
 						reventry->action = CRevisionEntry::renamed;
 						bRenamed = false;
 					}
@@ -557,77 +476,17 @@ bool CRevisionGraph::AnalyzeRevisions(CStringA url, svn_revnum_t startrev, bool 
 					{
 						// the entry is a source of a copy
 						reventry->bUsed = true;
-						if (reventry->action == CRevisionEntry::nothing)
-							reventry->action = CRevisionEntry::source;
 						for (INT_PTR copytoindex=0; copytoindex<reventry->sourcearray.GetCount(); ++copytoindex)
 						{
 							source_entry * sentry = (source_entry*)reventry->sourcearray[copytoindex];
 							// follow all copy to targets
-							CStringA targetURL = sentry->pathto + url.Mid(strlen(reventry->realurl));
-							AnalyzeRevisions(targetURL, sentry->revisionto, bShowAll);
-						}
-					}
-					if (bIsSame)
-					{
-						if ((bDeleted)||(reventry->action == CRevisionEntry::deleted)||(reventry->action == CRevisionEntry::replaced))
-						{
-							++it;
-							continue;
-						}
-						if (lastchangedreventry)
-						{
-							if (reventry->revision > lastchangedreventry->revision)
-								lastchangedreventry = reventry;
-						}
-						else
-							lastchangedreventry = reventry;
-						if (bShowAll)
-						{
-							if (!reventry->bUsed)
-							{
-								reventry->bUsed = true;
-								reventry->action = CRevisionEntry::nothing;
-								reventry->level = m_nRecurseLevel;
-								reventry->url = apr_pstrdup(graphpool, url);
-							}
-						}
-					}
-				}
-				else if (IsParentOrItself(url, reventry->url))
-				{
-					if ((bDeleted)||(reventry->action == CRevisionEntry::deleted)||(reventry->action == CRevisionEntry::replaced))
-					{
-						++it;
-						continue;
-					}
-					if (lastchangedreventry)
-					{
-						if (reventry->revision > lastchangedreventry->revision)
-							lastchangedreventry = reventry;
-					}
-					else
-						lastchangedreventry = reventry;
-					if (bShowAll)
-					{
-						if (!reventry->bUsed)
-						{
-							reventry->bUsed = true;
-							reventry->action = CRevisionEntry::nothing;
-							reventry->level = m_nRecurseLevel;
-							reventry->url = apr_pstrdup(graphpool, url);
+							CStringA targetURL = sentry->pathto + child;
+							AnalyzeRevisions(targetURL, sentry->revisionto);
 						}
 					}
 				}
 			}
-			++it;
 		}
-	}
-	if ((lastchangedreventry)&&((!lastchangedreventry->bUsed)||(lastchangedreventry->action == CRevisionEntry::nothing)))
-	{
-		lastchangedreventry->bUsed = true;
-		lastchangedreventry->action = CRevisionEntry::lastcommit;
-		lastchangedreventry->level = m_nRecurseLevel;
-		lastchangedreventry->url = apr_pstrdup(graphpool, url);
 	}
 	m_nRecurseLevel--;
 	return true;
@@ -642,7 +501,7 @@ bool CRevisionGraph::SetCopyTo(const char * copyfrom_path, svn_revnum_t copyfrom
 		// the entry was deleted! So it can't be the source of a copy operation
 		reventry = new CRevisionEntry();
 		reventry->revision = copyfrom_rev;
-		reventry->url = apr_pstrdup(graphpool, copyfrom_path);
+		reventry->url = apr_pstrdup(pool, copyfrom_path);
 		log_entry * logentry = APR_ARRAY_IDX(m_logdata, m_lHeadRevision-copyfrom_rev, log_entry*);
 		if (logentry)
 		{
@@ -651,10 +510,10 @@ bool CRevisionGraph::SetCopyTo(const char * copyfrom_path, svn_revnum_t copyfrom
 			reventry->message = logentry->msg;
 			reventry->date = logentry->time;
 		}
-		m_mapEntryPtrs.insert(EntryPair(reventry->revision, reventry));
+		m_arEntryPtrs.Add(reventry);
 	}
 	source_entry * sentry = new source_entry;
-	sentry->pathto = apr_pstrdup(graphpool, copyto_path);
+	sentry->pathto = apr_pstrdup(pool, copyto_path);
 	sentry->revisionto = copyto_rev;
 	reventry->sourcearray.Add(sentry);
 	return true;
@@ -663,9 +522,9 @@ bool CRevisionGraph::SetCopyTo(const char * copyfrom_path, svn_revnum_t copyfrom
 CRevisionEntry * CRevisionGraph::GetRevisionEntry(const char * path, svn_revnum_t rev, bool bCreate /* = true */)
 {
 	CRevisionEntry * reventry = NULL;
-	for (EntryPtrsIterator it = m_mapEntryPtrs.lower_bound(rev); it != m_mapEntryPtrs.upper_bound(rev); ++it)
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-		CRevisionEntry * rentry = it->second;
+		CRevisionEntry * rentry = (CRevisionEntry *)m_arEntryPtrs[i];
 		if (rentry->revision == rev)
 		{
 			if (strcmp(rentry->url, path)==0)
@@ -697,8 +556,7 @@ CRevisionEntry * CRevisionGraph::GetRevisionEntry(const char * path, svn_revnum_
 	{
 		reventry = new CRevisionEntry();
 		reventry->revision = rev;
-		reventry->url = apr_pstrdup(graphpool, path);
-		reventry->realurl = apr_pstrdup(graphpool, path);
+		reventry->url = apr_pstrdup(pool, path);
 		log_entry * logentry = APR_ARRAY_IDX(m_logdata, m_lHeadRevision-rev, log_entry*);
 		if (logentry)
 		{
@@ -707,45 +565,28 @@ CRevisionEntry * CRevisionGraph::GetRevisionEntry(const char * path, svn_revnum_
 			reventry->message = logentry->msg;
 			reventry->date = logentry->time;
 		}
-		m_mapEntryPtrs.insert(EntryPair(reventry->revision, reventry));
+		m_arEntryPtrs.Add(reventry);
 	}
 	return reventry;
 }
 
-bool CRevisionGraph::Cleanup(CStringA url, bool bArrangeByPath)
+bool CRevisionGraph::Cleanup(CStringA url)
 {
 	// step one: remove all entries which aren't marked as in use
-	for (EntryPtrsIterator it = m_mapEntryPtrs.begin(); it != m_mapEntryPtrs.end();)
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-		CRevisionEntry * reventry = it->second;
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
 		if (!reventry->bUsed)
 		{
 			// delete unused entry
 			for (INT_PTR j=0; j<reventry->sourcearray.GetCount(); ++j)
 				delete (source_entry*)reventry->sourcearray[j];
 			delete reventry;
-			reventry = NULL;
-			if (it == m_mapEntryPtrs.begin())
-			{
-				m_mapEntryPtrs.erase(it);
-				it = m_mapEntryPtrs.begin();
-			}
-			else
-			{
-				EntryPtrsIterator it2 = it;
-				--it2;
-				m_mapEntryPtrs.erase(it);
-				it = it2;
-			}
+			m_arEntryPtrs.RemoveAt(i);
+			i=-1;
 		}
-		else
-			++it;
 	}	
-	for (EntryPtrsIterator it = m_mapEntryPtrs.begin(); it != m_mapEntryPtrs.end(); ++it)
-	{
-		CRevisionEntry * reventry = it->second;
-		m_arEntryPtrs.Add(reventry);
-	}
+	
 	// step two: sort the entries
 	qsort(m_arEntryPtrs.GetData(), m_arEntryPtrs.GetSize(), sizeof(CRevisionEntry *), (GENERICCOMPAREFN)SortCompareRevUrl);
 	
@@ -758,137 +599,37 @@ bool CRevisionGraph::Cleanup(CStringA url, bool bArrangeByPath)
 			CRevisionEntry * reventry2 = (CRevisionEntry*)m_arEntryPtrs[i+1];
 			if ((reventry2->revision == reventry->revision)&&(strcmp(reventry->url, reventry2->url)==0))
 			{
-				if (reventry->action == CRevisionEntry::nothing)
-				{
-					reventry->action = reventry2->action;
-				}
-				else if (reventry->action == CRevisionEntry::source)
-				{
-					if (reventry2->action != CRevisionEntry::nothing)
-						reventry->action = reventry2->action;
-				}
-				else if (reventry->action == CRevisionEntry::lastcommit)
-				{
-					if ((reventry2->action != CRevisionEntry::nothing)&&(reventry2->action != CRevisionEntry::source))
-						reventry2->action = reventry2->action;
-				}
+				reventry->action = reventry->action == CRevisionEntry::nothing ? reventry2->action : CRevisionEntry::nothing;
 				reventry->level = min(reventry->level, reventry2->level);
 				for (INT_PTR si=0; si<reventry2->sourcearray.GetCount(); ++si)
 				{
 					reventry->sourcearray.Add(reventry2->sourcearray[si]);
 				}
-				for (EntryPtrsIterator it = m_mapEntryPtrs.lower_bound(reventry2->revision); it != m_mapEntryPtrs.upper_bound(reventry2->revision); )
-				{
-					if (it->second == reventry2)
-					{
-						delete reventry2;
-						if (it == m_mapEntryPtrs.begin())
-						{
-							m_mapEntryPtrs.erase(it);
-							it = m_mapEntryPtrs.begin();
-						}
-						else
-						{
-							EntryPtrsIterator it2 = it;
-							--it2;
-							m_mapEntryPtrs.erase(it);
-							it = it2;
-						}
-						m_arEntryPtrs.RemoveAt(i+1);
-						break;
-					}
-					else
-						++it;
-				}
+				delete reventry2;
+				m_arEntryPtrs.RemoveAt(i+1);
 				i=-1;
 			}
 		}
 	}
 
-	// step two and a half: rearrange the nodes by path if requested
-	if (bArrangeByPath)
+	// step four: adjust the entry levels
+	qsort(m_arEntryPtrs.GetData(), m_arEntryPtrs.GetSize(), sizeof(CRevisionEntry *), (GENERICCOMPAREFN)SortCompareRevLevels);
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-		// arraning the nodes by path:
-		// each URL gets its own column, as long as there are more than just
-		// one node of that URL.
-
-		struct view
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+		if (i<m_arEntryPtrs.GetCount()-1)
 		{
-			int count;
-			int level;
-		};
-		std::map<std::string, view> pathmap;
-
-		// go through all nodes, and count the number of nodes for each URL
-		// don't assign a valid level for those yet
-		for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
-		{
-			CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
-			if (reventry->url)
+			CRevisionEntry * reventry2 = (CRevisionEntry*)m_arEntryPtrs[i+1];
+			if ((reventry2->revision == reventry->revision)&&(reventry2->level == reventry->level))
 			{
-				std::string surl(reventry->url);
-				std::map<std::string, view>::iterator findit = pathmap.lower_bound(surl);
-				if (findit == pathmap.end() || findit->first != surl)
-				{
-					findit = pathmap.insert(findit, std::make_pair(surl, view()));
-					findit->second.count = 0;
-					findit->second.level = 0;
-				}
-				// that URL already is in the map, so just increase its count
-				findit->second.count++;
+				reventry2->level++;
+				qsort(m_arEntryPtrs.GetData(), m_arEntryPtrs.GetSize(), sizeof(CRevisionEntry *), (GENERICCOMPAREFN)SortCompareRevLevels);
+				i=-1;
 			}
-		}
-
-		// since the map is ordered alphabetically by URL, we assign each URL
-		// a level according to its order. This makes sure that e.g. all tags
-		// get on the same level, because they will all be ordered after each
-		// other in the map.
-		int proplevel=1;
-		bool bLastWasCountEqualOne = false;
-		for (std::map<std::string,view>::iterator it = pathmap.begin(); it != pathmap.end(); ++it)
-		{
-			if (it->second.count > 1)
-			{
-				if (bLastWasCountEqualOne)
-					++proplevel;
-				bLastWasCountEqualOne = false;
-				it->second.level = proplevel++;
-			}
-			else
-			{
-				it->second.level = proplevel;
-				bLastWasCountEqualOne = true;
-			}
-		}
-
-		// ordering the nodes alphabetically by URL doesn't look that good
-		// in the graph, because 'branch' comes before 'tags' and only then
-		// comes 'trunk'.
-		// So we reorder the nodes again, but this time by revisions an URL
-		// appears first. That way the graph looks a lot nicer.
-		
-		std::map<int, int> levelmap;	// Assigns each alphabetical level a real level
-		std::map<std::string, view>::iterator lev = pathmap.begin();
-		int reallevel = 1;
-		for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
-		{
-			CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
-			if ((lev = pathmap.find(std::string(reventry->url))) != pathmap.end())
-			{
-				std::map<int, int>::iterator levelit = levelmap.lower_bound(lev->second.level);
-				if (levelit == levelmap.end() || levelit->first != lev->second.level)
-				{
-					levelit = levelmap.insert(levelit, std::make_pair(lev->second.level, reallevel));
-					++reallevel;
-				}
-				reventry->level = levelit->second;
-			}
-			else
-				ATLASSERT(FALSE);
 		}
 	}
-
-	// step four: connect entries with the same name and the same level
+	
+	// step five: connect entries with the same name and the same level
 	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
 		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
@@ -926,32 +667,13 @@ bool CRevisionGraph::Cleanup(CStringA url, bool bArrangeByPath)
 						sentry->pathto = preventry->url;
 						sentry->revisionto = preventry->revision;
 						reventry->sourcearray.Add(sentry);
-						if (reventry->action == CRevisionEntry::lastcommit)
-							reventry->action = CRevisionEntry::source;
 						break;
 					}
 				}
 			}
 		}
 	}
-
-	// step five: adjust the entry levels
-	qsort(m_arEntryPtrs.GetData(), m_arEntryPtrs.GetSize(), sizeof(CRevisionEntry *), (GENERICCOMPAREFN)SortCompareRevLevels);
-	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
-	{
-		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
-		if (i<m_arEntryPtrs.GetCount()-1)
-		{
-			CRevisionEntry * reventry2 = (CRevisionEntry*)m_arEntryPtrs[i+1];
-			if ((reventry2->revision == reventry->revision)&&(reventry2->level == reventry->level))
-			{
-				reventry2->level++;
-				qsort(m_arEntryPtrs.GetData(), m_arEntryPtrs.GetSize(), sizeof(CRevisionEntry *), (GENERICCOMPAREFN)SortCompareRevLevels);
-				i=-1;
-			}
-		}
-	}
-
+	
 	// step six: sort the connections in each revision
 	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
@@ -1019,7 +741,7 @@ char * CRevisionGraph::GetRename(const char * url, LONG rev)
 	if (logentry)
 	{
 		apr_hash_index_t* hashindex;
-		for (hashindex = apr_hash_first (graphpool, logentry->ch_paths); hashindex; hashindex = apr_hash_next (hashindex))
+		for (hashindex = apr_hash_first (pool, logentry->ch_paths); hashindex; hashindex = apr_hash_next (hashindex))
 		{
 			const char * key;
 			svn_log_changed_path_t *val;
@@ -1028,7 +750,7 @@ char * CRevisionGraph::GetRename(const char * url, LONG rev)
 			{
 				// check if copyfrom_path was removed in this revision
 				apr_hash_index_t* hashindex2;
-				for (hashindex2 = apr_hash_first (graphpool, logentry->ch_paths); hashindex2; hashindex2 = apr_hash_next (hashindex2))
+				for (hashindex2 = apr_hash_first (pool, logentry->ch_paths); hashindex2; hashindex2 = apr_hash_next (hashindex2))
 				{
 					const char * key2;
 					svn_log_changed_path_t *val2;
@@ -1037,7 +759,7 @@ char * CRevisionGraph::GetRename(const char * url, LONG rev)
 					{
 						CStringA child = url;
 						child = child.Mid(strlen(key));
-						return apr_pstrcat(graphpool, key, (const char *)child, NULL);
+						return apr_pstrcat(pool, key, (const char *)child, NULL);
 					}
 				}	
 			}

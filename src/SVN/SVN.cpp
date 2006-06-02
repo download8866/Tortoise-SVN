@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -148,7 +148,6 @@ BOOL SVN::Notify(const CTSVNPath& path, svn_wc_notify_action_t action,
 				svn_error_t * err, apr_pool_t * pool) {return TRUE;};
 BOOL SVN::Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies, DWORD actions) {return TRUE;};
 BOOL SVN::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString& author, const CString& date, const CStringA& line) {return TRUE;}
-svn_error_t* SVN::DiffSummarizeCallback(const CTSVNPath& path, svn_client_diff_summarize_kind_t kind, bool propchanged, svn_node_kind_t node) {return SVN_NO_ERROR;}
 #pragma warning(pop)
 
 struct log_msg_baton2
@@ -294,6 +293,7 @@ BOOL SVN::Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRe
 	{
 		return FALSE;
 	}
+	//CShellUpdater::Instance().AddPathForUpdate(destPath);
 
 	return TRUE;
 }
@@ -321,7 +321,7 @@ BOOL SVN::Remove(const CTSVNPathList& pathlist, BOOL force, CString message)
 		for (int i=0; i<pathlist.GetCount(); ++i)
 			Notify(pathlist[i], svn_wc_notify_update_completed, svn_node_none, _T(""), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown, commit_info->revision, NULL, svn_wc_notify_lock_state_unchanged, NULL, pool);
 	}
-
+	//CShellUpdater::Instance().AddPathsForUpdate(pathlist);
 	for(int nPath = 0; nPath < pathlist.GetCount(); nPath++)
 	{
 		if (!pathlist[nPath].IsDirectory())
@@ -343,6 +343,8 @@ BOOL SVN::Revert(const CTSVNPathList& pathlist, BOOL recurse)
 	{
 		return FALSE;
 	}
+	
+	//CShellUpdater::Instance().AddPathsForUpdate(pathlist);
 
 	return TRUE;
 }
@@ -362,6 +364,8 @@ BOOL SVN::Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force /* = FALSE
 		}
 	}
 
+	CShellUpdater::Instance().AddPathsForUpdate(pathList);
+
 	return TRUE;
 }
 
@@ -380,6 +384,8 @@ BOOL SVN::Update(const CTSVNPathList& pathList, SVNRev revision, BOOL recurse, B
 	{
 		return FALSE;
 	}
+
+	//CShellUpdater::Instance().AddPathsForUpdate(pathList);
 
 	return TRUE;
 }
@@ -408,6 +414,8 @@ svn_revnum_t SVN::Commit(const CTSVNPathList& pathlist, CString message, BOOL re
 		return commit_info->revision;
 	}
 
+	CShellUpdater::Instance().AddPathsForUpdate(pathlist);
+
 	return -1;
 }
 
@@ -421,7 +429,7 @@ BOOL SVN::Copy(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revis
 		m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(CString(_T("made a copy"))));
 	else
 		m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(logmsg));
-	Err = svn_client_copy3 (&commit_info,
+	Err = svn_client_copy2 (&commit_info,
 							srcPath.GetSVNApiPath(),
 							revision,
 							destPath.GetSVNApiPath(),
@@ -433,7 +441,7 @@ BOOL SVN::Copy(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revis
 	}
 	if (commit_info && SVN_IS_VALID_REVNUM (commit_info->revision))
 		Notify(destPath, svn_wc_notify_update_completed, svn_node_none, _T(""), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown, commit_info->revision, NULL, svn_wc_notify_lock_state_unchanged, NULL, pool);
-
+	//CShellUpdater::Instance().AddPathForUpdate(destPath);
 	return TRUE;
 }
 
@@ -444,7 +452,7 @@ BOOL SVN::Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, 
 	svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
 	message.Replace(_T("\r"), _T(""));
 	m_pctx->log_msg_baton2 = logMessage(CUnicodeUtils::GetUTF8(message));
-	Err = svn_client_move4 (&commit_info,
+	Err = svn_client_move3 (&commit_info,
 							srcPath.GetSVNApiPath(),
 							destPath.GetSVNApiPath(),
 							force,
@@ -456,6 +464,9 @@ BOOL SVN::Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, 
 	}
 	if (commit_info && SVN_IS_VALID_REVNUM (commit_info->revision))
 		Notify(destPath, svn_wc_notify_update_completed, svn_node_none, _T(""), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown, commit_info->revision, NULL, svn_wc_notify_lock_state_unchanged, NULL, pool);
+
+	//CShellUpdater::Instance().AddPathForUpdate(srcPath);
+	//CShellUpdater::Instance().AddPathForUpdate(destPath);
 
 	return TRUE;
 }
@@ -479,6 +490,8 @@ BOOL SVN::MakeDir(const CTSVNPathList& pathlist, CString message)
 			Notify(pathlist[i], svn_wc_notify_update_completed, svn_node_none, _T(""), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown, commit_info->revision, NULL, svn_wc_notify_lock_state_unchanged, NULL, pool);
 	}
 
+	//CShellUpdater::Instance().AddPathsForUpdate(pathlist);
+
 	return TRUE;
 }
 
@@ -490,6 +503,8 @@ BOOL SVN::CleanUp(const CTSVNPath& path)
 	{
 		return FALSE;
 	}
+
+	//CShellUpdater::Instance().AddPathForUpdate(path);
 
 	return TRUE;
 }
@@ -504,6 +519,8 @@ BOOL SVN::Resolve(const CTSVNPath& path, BOOL recurse)
 	{
 		return FALSE;
 	}
+
+	//CShellUpdater::Instance().AddPathForUpdate(path);
 
 	return TRUE;
 }
@@ -644,6 +661,8 @@ BOOL SVN::Switch(const CTSVNPath& path, const CTSVNPath& url, SVNRev revision, B
 		return FALSE;
 	}
 	
+	//CShellUpdater::Instance().AddPathForUpdate(path);
+
 	return TRUE;
 }
 
@@ -671,7 +690,7 @@ BOOL SVN::Import(const CTSVNPath& path, const CTSVNPath& url, CString message, B
 
 BOOL SVN::Merge(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, const CTSVNPath& localPath, BOOL force, BOOL recurse, BOOL ignoreanchestry, BOOL dryrun)
 {
-	Err = svn_client_merge2(path1.GetSVNApiPath(),
+	Err = svn_client_merge (path1.GetSVNApiPath(),
 							revision1,
 							path2.GetSVNApiPath(),
 							revision2,
@@ -680,7 +699,6 @@ BOOL SVN::Merge(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2
 							ignoreanchestry,
 							force,
 							dryrun,
-							NULL,
 							m_pctx,
 							pool);
 	if(Err != NULL)
@@ -688,12 +706,14 @@ BOOL SVN::Merge(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2
 		return FALSE;
 	}
 
+	//CShellUpdater::Instance().AddPathForUpdate(CTSVNPath(localPath));
+
 	return TRUE;
 }
 
 BOOL SVN::PegMerge(const CTSVNPath& source, SVNRev revision1, SVNRev revision2, SVNRev pegrevision, const CTSVNPath& destpath, BOOL force, BOOL recurse, BOOL ignoreancestry, BOOL dryrun)
 {
-	Err = svn_client_merge_peg2 (source.GetSVNApiPath(),
+	Err = svn_client_merge_peg (source.GetSVNApiPath(),
 		revision1,
 		revision2,
 		pegrevision,
@@ -702,13 +722,14 @@ BOOL SVN::PegMerge(const CTSVNPath& source, SVNRev revision1, SVNRev revision2, 
 		ignoreancestry,
 		force,
 		dryrun,
-		NULL,
 		m_pctx,
 		pool);
 	if(Err != NULL)
 	{
 		return FALSE;
 	}
+
+	//CShellUpdater::Instance().AddPathForUpdate(destpath);
 
 	return TRUE;
 }
@@ -846,40 +867,10 @@ BOOL SVN::PegDiff(const CTSVNPath& path, SVNRev pegrevision, SVNRev startrev, SV
 	return TRUE;
 }
 
-bool SVN::DiffSummarize(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, bool recurse, bool ignoreancestry)
+BOOL SVN::ReceiveLog(const CTSVNPathList& pathlist, SVNRev revisionStart, SVNRev revisionEnd, int limit, BOOL changed, BOOL strict /* = FALSE */)
 {
 	SVNPool localpool(pool);
-	Err = svn_client_diff_summarize(path1.GetSVNApiPath(), rev1,
-									path2.GetSVNApiPath(), rev2,
-									recurse, ignoreancestry,
-									summarize_func, this,
-									m_pctx, localpool);
-	if(Err != NULL)
-	{
-		return false;
-	}
-	return true;
-}
-
-bool SVN::DiffSummarizePeg(const CTSVNPath& path, SVNRev peg, SVNRev rev1, SVNRev rev2, bool recurse, bool ignoreancestry)
-{
-	SVNPool localpool(pool);
-	Err = svn_client_diff_summarize_peg(path.GetSVNApiPath(), peg, rev1, rev2,
-										recurse, ignoreancestry,
-										summarize_func, this,
-										m_pctx, localpool);
-	if(Err != NULL)
-	{
-		return false;
-	}
-	return true;
-}
-
-BOOL SVN::ReceiveLog(const CTSVNPathList& pathlist, SVNRev revisionPeg, SVNRev revisionStart, SVNRev revisionEnd, int limit, BOOL changed, BOOL strict /* = FALSE */)
-{
-	SVNPool localpool(pool);
-	Err = svn_client_log3 (MakePathArray(pathlist), 
-						revisionPeg,
+	Err = svn_client_log2 (MakePathArray(pathlist), 
 						revisionStart, 
 						revisionEnd, 
 						limit,
@@ -962,28 +953,11 @@ BOOL SVN::CreateRepository(CString path, CString fstype)
 	return TRUE;
 }
 
-BOOL SVN::Blame(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, bool ignoremimetype)
+BOOL SVN::Blame(const CTSVNPath& path, SVNRev startrev, SVNRev endrev)
 {
-	svn_diff_file_options_t * options = svn_diff_file_options_create(pool);
-	options->ignore_space = svn_diff_file_ignore_space_none;
-	options->ignore_eol_style = false;
-	// Subversion < 1.4 silently changed a revision WC to BASE. Due to a bug
-	// report this was changed: now Subversion returns an error 'not implemented'
-	// since it actually blamed the BASE file and not the working copy file.
-	// Until that's implemented, we 'fall back' here to the old behavior and
-	// just change and REV_WC to REV_BASE.
-	if (peg.IsWorking())
-		peg = SVNRev::REV_BASE;
-	if (startrev.IsWorking())
-		startrev = SVNRev::REV_BASE;
-	if (endrev.IsWorking())
-		endrev = SVNRev::REV_BASE;
-	Err = svn_client_blame3 ( path.GetSVNApiPath(),
-							 peg,
+	Err = svn_client_blame ( path.GetSVNApiPath(),
 							 startrev,  
-							 endrev,
-							 options,
-							 ignoremimetype,
+							 endrev,  
 							 blameReceiver,  
 							 (void *)this,  
 							 m_pctx,  
@@ -1047,17 +1021,6 @@ BOOL SVN::Unlock(const CTSVNPathList& pathList, BOOL bBreakLock)
 {
 	Err = svn_client_unlock(MakePathArray(pathList), bBreakLock, m_pctx, pool);
 	return (Err == NULL);
-}
-
-svn_error_t* SVN::summarize_func(const svn_client_diff_summarize_t *diff, void *baton, apr_pool_t * /*pool*/)
-{
-	SVN * svn = (SVN *)baton;
-	if (diff)
-	{
-		CTSVNPath path = CTSVNPath(CUnicodeUtils::GetUnicode(diff->path));
-		return svn->DiffSummarizeCallback(path, diff->summarize_kind, !!diff->prop_changed, diff->node_kind);
-	}
-	return SVN_NO_ERROR;
 }
 
 svn_error_t* SVN::logReceiver(void* baton, 
@@ -1176,6 +1139,9 @@ void SVN::notify( void *baton,
 
 	CTSVNPath tsvnPath;
 	tsvnPath.SetFromSVN(notify->path);
+
+	// Let the shell know (eventually) that we might have changed the state of this path
+	//CShellUpdater::Instance().AddPathForUpdate(tsvnPath);
 
 	CString mime;
 	if (notify->mime_type)
@@ -1904,27 +1870,6 @@ void SVN::SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgres
 	progress_lasttotal = 0;
 	progress_lastTicks = GetTickCount();
 	m_bShowProgressBar = bShowProgressBar;
-}
-
-CString SVN::GetSummarizeActionText(svn_client_diff_summarize_kind_t kind)
-{
-	CString sAction;
-	switch (kind)
-	{
-	case svn_client_diff_summarize_kind_normal:
-		sAction.LoadString(IDS_SVN_SUMMARIZENORMAL);
-		break;
-	case svn_client_diff_summarize_kind_added:
-		sAction.LoadString(IDS_SVN_SUMMARIZEADDED);
-		break;
-	case svn_client_diff_summarize_kind_modified:
-		sAction.LoadString(IDS_SVN_SUMMARIZEMODIFIED);
-		break;
-	case svn_client_diff_summarize_kind_deleted:
-		sAction.LoadString(IDS_SVN_SUMMARIZEDELETED);
-		break;
-	}
-	return sAction;
 }
 
 void SVN::progress_func(apr_off_t progress, apr_off_t total, void *baton, apr_pool_t * /*pool*/)

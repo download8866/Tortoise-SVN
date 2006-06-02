@@ -15,13 +15,11 @@ public:
 	int markType;
 	ColourPair fore;
 	ColourPair back;
-	int alpha;
 	XPM *pxpm;
 	LineMarker() {
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
 		back = ColourDesired(0xff,0xff,0xff);
-		alpha = SC_ALPHA_NOALPHA;
 		pxpm = NULL;
 	}
 	LineMarker(const LineMarker &) {
@@ -29,7 +27,6 @@ public:
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
 		back = ColourDesired(0xff,0xff,0xff);
-		alpha = SC_ALPHA_NOALPHA;
 		pxpm = NULL;
 	}
 	~LineMarker() {
@@ -40,7 +37,6 @@ public:
 		markType = SC_MARK_CIRCLE;
 		fore = ColourDesired(0,0,0);
 		back = ColourDesired(0xff,0xff,0xff);
-		alpha = SC_ALPHA_NOALPHA;
 		delete pxpm;
 		pxpm = NULL;
 		return *this;

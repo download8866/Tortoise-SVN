@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -102,7 +102,7 @@ void CRelocateDlg::OnBnClickedBrowse()
 	else if ((m_sToUrl.Left(7) == _T("http://")
 		||(m_sToUrl.Left(8) == _T("https://"))
 		||(m_sToUrl.Left(6) == _T("svn://"))
-		||(m_sToUrl.Left(4) == _T("svn+"))) && m_sToUrl.GetLength() > 6)
+		||(m_sToUrl.Left(10) == _T("svn+ssh://"))) && m_sToUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(m_sToUrl, this);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,7 +46,7 @@ bool CStatusCacheEntry::SaveToDisk(FILE * pFile)
 #define WRITEVALUETOFILE(x) if (fwrite(&x, sizeof(x), 1, pFile)!=1) return false;
 #define WRITESTRINGTOFILE(x) if (x.IsEmpty()) {value=0;WRITEVALUETOFILE(value);}else{value=x.GetLength();WRITEVALUETOFILE(value);if (fwrite((LPCSTR)x, sizeof(char), value, pFile)!=value) return false;}
 
-	unsigned int value = 4;
+	unsigned int value = 3;
 	WRITEVALUETOFILE(value); // 'version' of this save-format
 	WRITEVALUETOFILE(m_highestPriorityLocalStatus);
 	WRITEVALUETOFILE(m_lastWriteTime);
@@ -58,7 +58,6 @@ bool CStatusCacheEntry::SaveToDisk(FILE * pFile)
 	WRITESTRINGTOFILE(m_sAuthor);
 	WRITEVALUETOFILE(m_kind);
 	WRITEVALUETOFILE(m_bReadOnly);
-	WRITESTRINGTOFILE(m_sPresentProps);
 
 	// now save the status struct (without the entry field, because we don't use that)
 	WRITEVALUETOFILE(m_svnStatus.copied);
@@ -77,7 +76,7 @@ bool CStatusCacheEntry::LoadFromDisk(FILE * pFile)
 
 	unsigned int value = 0;
 	LOADVALUEFROMFILE(value);
-	if (value != 4)
+	if (value != 3)
 		return false;		// not the correct version
 	LOADVALUEFROMFILE(m_highestPriorityLocalStatus);
 	LOADVALUEFROMFILE(m_lastWriteTime);
@@ -118,16 +117,6 @@ bool CStatusCacheEntry::LoadFromDisk(FILE * pFile)
 	}
 	LOADVALUEFROMFILE(m_kind);
 	LOADVALUEFROMFILE(m_bReadOnly);
-	LOADVALUEFROMFILE(value);
-	if (value != 0)
-	{
-		if (fread(m_sPresentProps.GetBuffer(value), sizeof(char), value, pFile)!=value)
-		{
-			m_sPresentProps.ReleaseBuffer(0);
-			return false;
-		}
-		m_sPresentProps.ReleaseBuffer(value);
-	}
 	LOADVALUEFROMFILE(m_svnStatus.copied);
 	LOADVALUEFROMFILE(m_svnStatus.locked);
 	LOADVALUEFROMFILE(m_svnStatus.prop_status);
@@ -160,8 +149,6 @@ void CStatusCacheEntry::SetStatus(const svn_wc_status2_t* pSVNStatus)
 			m_sOwner = pSVNStatus->entry->lock_owner;
 			m_kind = pSVNStatus->entry->kind;
 			m_sAuthor = pSVNStatus->entry->cmt_author;
-			if (pSVNStatus->entry->present_props)
-				m_sPresentProps = pSVNStatus->entry->present_props;
 		}
 		else
 		{
@@ -210,14 +197,6 @@ void CStatusCacheEntry::BuildCacheResponse(TSVNCacheResponse& response, DWORD& r
 
 		response.m_kind = m_kind;
 		response.m_readonly = m_bReadOnly;
-
-		if (m_sPresentProps.Find("svn:needs-lock")>=0)
-		{
-			response.m_needslock = true;
-			ATLTRACE("found svn:needs-lock on file %s\n", m_sUrl);
-		}
-		else
-			response.m_needslock = false;
 		// The whole of response has been zero'd, so this will copy safely 
 		strncat_s(response.m_url, INTERNET_MAX_URL_LENGTH+1, m_sUrl, sizeof(response.m_url)-1);
 		strncat_s(response.m_owner, 255, m_sOwner, sizeof(response.m_owner)-1);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
-
 #pragma once
 #include "SVN.h"
 #include "ProgressDlg.h"
@@ -44,13 +43,10 @@ public:
 	 * Since this operation takes a long time a progress dialog is shown if \a showprogress is set to TRUE
 	 * \param startrev the starting revision of the operation
 	 * \param endrev the revision to stop the operation
-	 * \param pegrev the peg revision
 	 * \param path the path to the file to determine the required information
 	 * \return The path to the temporary file or an empty string in case of an error.
 	 */
-	CString		BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, BOOL showprogress = TRUE);
-
-	bool		BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile);
+	CString		BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, CString& logfile, BOOL showprogress = TRUE);
 private:
 	BOOL		BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line);
 	BOOL		Cancel();
@@ -65,7 +61,6 @@ private:
 	BOOL		m_bCancelled;			///< TRUE if the operation should be cancelled
 	LONG		m_nCounter;				///< Counts the number of calls to the Cancel() callback (revisions?)
 	LONG		m_nHeadRev;				///< The HEAD revision of the file
-	bool		m_bNoLineNo;			///< if true, then the line number isn't written to the file
 
 	CString		m_sSavePath;			///< Where to save the blame data
 	CStdioFileA	m_saveFile;				///< The file object to write to

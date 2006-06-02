@@ -192,14 +192,10 @@ Palette::Palette() {
 	allowRealization = false;
 	allocatedPalette = 0;
 	allocatedLen = 0;
-	size = 100;
-	entries = new ColourPair[size];
 }
 
 Palette::~Palette() {
 	Release();
-	delete []entries;
-	entries = 0;
 }
 
 void Palette::Release() {
@@ -207,9 +203,6 @@ void Palette::Release() {
 	delete [](reinterpret_cast<GdkColor *>(allocatedPalette));
 	allocatedPalette = 0;
 	allocatedLen = 0;
-	delete []entries;
-	size = 100;
-	entries = new ColourPair[size];
 }
 
 // This method either adds a colour to the list of wanted colours (want==true)
@@ -217,27 +210,18 @@ void Palette::Release() {
 // This is one method to make it easier to keep the code for wanting and retrieving in sync.
 void Palette::WantFind(ColourPair &cp, bool want) {
 	if (want) {
-		for (int i=0; i < used; i++) {
+		for (int i = 0; i < used; i++) {
 			if (entries[i].desired == cp.desired)
 				return;
 		}
 
-		if (used >= size) {
-			int sizeNew = size * 2;
-			ColourPair *entriesNew = new ColourPair[sizeNew];
-			for (int j=0; j<size; j++) {
-				entriesNew[j] = entries[j];
-			}
-			delete []entries;
-			entries = entriesNew;
-			size = sizeNew;
+		if (used < numEntries) {
+			entries[used].desired = cp.desired;
+			entries[used].allocated.Set(cp.desired.AsLong());
+			used++;
 		}
-
-		entries[used].desired = cp.desired;
-		entries[used].allocated.Set(cp.desired.AsLong());
-		used++;
 	} else {
-		for (int i=0; i < used; i++) {
+		for (int i = 0; i < used; i++) {
 			if (entries[i].desired == cp.desired) {
 				cp.allocated = entries[i].allocated;
 				return;
@@ -713,8 +697,6 @@ public:
 	void FillRectangle(PRectangle rc, ColourAllocated back);
 	void FillRectangle(PRectangle rc, Surface &surfacePattern);
 	void RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAllocated back);
-	void AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
-		ColourAllocated outline, int alphaOutline, int flags);
 	void Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back);
 	void Copy(PRectangle rc, Point from, Surface &surfaceSource);
 
@@ -1016,92 +998,6 @@ void SurfaceImpl::RoundedRectangle(PRectangle rc, ColourAllocated fore, ColourAl
 	}
 }
 
-#if GTK_MAJOR_VERSION >= 2
-
-// Plot a point into a guint32 buffer symetrically to all 4 qudrants
-static void AllFour(guint32 *pixels, int stride, int width, int height, int x, int y, guint32 val) {
-	pixels[y*stride+x] = val;
-	pixels[y*stride+width-1-x] = val;
-	pixels[(height-1-y)*stride+x] = val;
-	pixels[(height-1-y)*stride+width-1-x] = val;
-}
-
-static unsigned int GetRValue(unsigned int co) {
-	return (co >> 16) & 0xff;
-}
-
-static unsigned int GetGValue(unsigned int co) {
-	return (co >> 8) & 0xff;
-}
-
-static unsigned int GetBValue(unsigned int co) {
-	return co & 0xff;
-}
-
-#endif
-
-#if GTK_MAJOR_VERSION < 2
-void SurfaceImpl::AlphaRectangle(PRectangle rc, int , ColourAllocated , int , ColourAllocated outline, int , int ) {
-	if (gc && drawable) {
-		// Can't use GdkPixbuf on GTK+ 1.x, so draw an outline rather than use alpha.
-		PenColour(outline);
-		gdk_draw_rectangle(drawable, gc, 0,
-		                   rc.left, rc.top,
-		                   rc.right - rc.left - 1, rc.bottom - rc.top - 1);
-	}
-}
-#else
-void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
-		ColourAllocated outline, int alphaOutline, int flags) {
-	if (gc && drawable) {
-		int width = rc.Width();
-		int height = rc.Height();
-		// Ensure not distorted too much by corners when small
-		cornerSize = Platform::Minimum(cornerSize, (Platform::Minimum(width, height) / 2) - 2);
-		// Make a 32 bit deep pixbuf with alpha
-		GdkPixbuf *pixalpha = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
-
-		guint8 pixVal[4] = {0};
-		guint32 valEmpty = *(reinterpret_cast<guint32 *>(pixVal));
-		pixVal[0] = GetRValue(fill.AsLong());
-		pixVal[1] = GetGValue(fill.AsLong());
-		pixVal[2] = GetBValue(fill.AsLong());
-		pixVal[3] = alphaFill;
-		guint32 valFill = *(reinterpret_cast<guint32 *>(pixVal));
-		pixVal[0] = GetRValue(outline.AsLong());
-		pixVal[1] = GetGValue(outline.AsLong());
-		pixVal[2] = GetBValue(outline.AsLong());
-		pixVal[3] = alphaOutline;
-		guint32 valOutline = *(reinterpret_cast<guint32 *>(pixVal));
-		guint32 *pixels = reinterpret_cast<guint32 *>(gdk_pixbuf_get_pixels(pixalpha));
-		int stride = gdk_pixbuf_get_rowstride(pixalpha) / 4;
-		for (int y=0; y<height; y++) {
-			for (int x=0; x<width; x++) {
-				if ((x==0) || (x==width-1) || (y == 0) || (y == height-1)) {
-					pixels[y*stride+x] = valOutline;
-				} else {
-					pixels[y*stride+x] = valFill;
-				}
-			}
-		}
-		for (int c=0;c<cornerSize; c++) {
-			for (int x=0;x<c+1; x++) {
-				AllFour(pixels, stride, width, height, x, c-x, valEmpty);
-			}
-		}
-		for (int x=1;x<cornerSize; x++) {
-			AllFour(pixels, stride, width, height, x, cornerSize-x, valOutline);
-		}
-
-		// Draw with alpha
-		gdk_draw_pixbuf(drawable, gc, pixalpha,
-			0,0, rc.left,rc.top, width,height, GDK_RGB_DITHER_NORMAL, 0, 0);
-
-		g_object_unref(pixalpha);
-	}
-}
-#endif
-
 void SurfaceImpl::Ellipse(PRectangle rc, ColourAllocated fore, ColourAllocated back) {
 	PenColour(back);
 	gdk_draw_arc(drawable, gc, 1,
@@ -1294,7 +1190,7 @@ void SurfaceImpl::DrawTextBase(PRectangle rc, Font &font_, int ybase, const char
 			int wclen;
 			if (et == UTF8) {
 				wclen = UCS2FromUTF8(s, len,
-					static_cast<wchar_t *>(static_cast<void *>(wctext)), maxLengthTextRun - 1);
+					reinterpret_cast<wchar_t *>(wctext), maxLengthTextRun - 1);
 			} else {	// dbcs, so convert using current locale
 				char sMeasure[maxLengthTextRun];
 				memcpy(sMeasure, s, len);
@@ -1469,7 +1365,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 			int wclen;
 			if (et == UTF8) {
 				wclen = UCS2FromUTF8(s, len,
-					static_cast<wchar_t *>(static_cast<void *>(wctext)), maxLengthTextRun - 1);
+					reinterpret_cast<wchar_t *>(wctext), maxLengthTextRun - 1);
 			} else {	// dbcsMode, so convert using current locale
 				char sDraw[maxLengthTextRun];
 				memcpy(sDraw, s, len);
@@ -1554,8 +1450,7 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
 #endif
 		if (et == UTF8) {
 			GdkWChar wctext[maxLengthTextRun];
-			size_t wclen = UCS2FromUTF8(s, len, static_cast<wchar_t *>(static_cast<void *>(wctext)),
-				sizeof(wctext) / sizeof(GdkWChar) - 1);
+			size_t wclen = UCS2FromUTF8(s, len, (wchar_t *)wctext, sizeof(wctext) / sizeof(GdkWChar) - 1);
 			wctext[wclen] = L'\0';
 			return gdk_text_width_wc(PFont(font_)->pfont, wctext, wclen);
 		} else {
@@ -1972,31 +1867,6 @@ static gboolean ButtonPress(GtkWidget *, GdkEventButton* ev, gpointer p) {
 	return FALSE;
 }
 
-#if GTK_MAJOR_VERSION >= 2
-/* Change the active color to the selected color so the listbox uses the color
-scheme that it would use if it had the focus. */
-static void StyleSet(GtkWidget *w, GtkStyle*, void*) {
-	GtkStyle* style;
-
-	g_return_if_fail(w != NULL);
-
-	/* Copy the selected color to active.  Note that the modify calls will cause
-	recursive calls to this function after the value is updated and w->style to
-	be set to a new object */
-	style = gtk_widget_get_style(w);
-	if (style == NULL)
-		return;
-	if (!gdk_color_equal(&style->base[GTK_STATE_SELECTED], &style->base[GTK_STATE_ACTIVE]))
-		gtk_widget_modify_base(w, GTK_STATE_ACTIVE, &style->base[GTK_STATE_SELECTED]);
-
-	style = gtk_widget_get_style(w);
-	if (style == NULL)
-		return;
-	if (!gdk_color_equal(&style->text[GTK_STATE_SELECTED], &style->text[GTK_STATE_ACTIVE]))
-		gtk_widget_modify_text(w, GTK_STATE_ACTIVE, &style->text[GTK_STATE_SELECTED]);
-}
-#endif
-
 void ListBoxX::Create(Window &, int, Point, int, bool) {
 	id = gtk_window_new(GTK_WINDOW_POPUP);
 
@@ -2015,26 +1885,23 @@ void ListBoxX::Create(Window &, int, Point, int, bool) {
 
 #if GTK_MAJOR_VERSION < 2
 	list = gtk_clist_new(1);
-	GtkWidget *wid = PWidget(list);	// No code inside the GTK_OBJECT macro
-	gtk_widget_show(wid);
-	gtk_container_add(GTK_CONTAINER(PWidget(scroller)), wid);
-	gtk_clist_set_column_auto_resize(GTK_CLIST(wid), 0, TRUE);
-	gtk_clist_set_selection_mode(GTK_CLIST(wid), GTK_SELECTION_BROWSE);
-	gtk_signal_connect(GTK_OBJECT(wid), "unselect_row",
+	gtk_widget_show(PWidget(list));
+	gtk_container_add(GTK_CONTAINER(PWidget(scroller)), PWidget(list));
+	gtk_clist_set_column_auto_resize(GTK_CLIST(PWidget(list)), 0, TRUE);
+	gtk_clist_set_selection_mode(GTK_CLIST(PWidget(list)), GTK_SELECTION_BROWSE);
+	gtk_signal_connect(GTK_OBJECT(PWidget(list)), "unselect_row",
 	                   GTK_SIGNAL_FUNC(UnselectionAC), &current);
-	gtk_signal_connect(GTK_OBJECT(wid), "select_row",
+	gtk_signal_connect(GTK_OBJECT(PWidget(list)), "select_row",
 	                   GTK_SIGNAL_FUNC(SelectionAC), &current);
-	gtk_signal_connect(GTK_OBJECT(wid), "button_press_event",
+	gtk_signal_connect(GTK_OBJECT(PWidget(list)), "button_press_event",
 	                   GTK_SIGNAL_FUNC(ButtonPress), this);
-	gtk_clist_set_shadow_type(GTK_CLIST(wid), GTK_SHADOW_NONE);
+	gtk_clist_set_shadow_type(GTK_CLIST(PWidget(list)), GTK_SHADOW_NONE);
 #else
 	/* Tree and its model */
 	GtkListStore *store =
 		gtk_list_store_new(N_COLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING);
 
 	list = gtk_tree_view_new_with_model(GTK_TREE_MODEL(store));
-	g_signal_connect(G_OBJECT(list), "style-set", G_CALLBACK(StyleSet), NULL);
-
 	GtkTreeSelection *selection =
 		gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
@@ -2043,7 +1910,7 @@ void ListBoxX::Create(Window &, int, Point, int, bool) {
 
 	/* Columns */
 	GtkTreeViewColumn *column = gtk_tree_view_column_new();
-	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
+	gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_AUTOSIZE);
 	gtk_tree_view_column_set_title(column, "Autocomplete");
 
 	GtkCellRenderer *renderer = gtk_cell_renderer_pixbuf_new();
@@ -2052,20 +1919,16 @@ void ListBoxX::Create(Window &, int, Point, int, bool) {
 										"pixbuf", PIXBUF_COLUMN);
 
 	renderer = gtk_cell_renderer_text_new();
-	gtk_cell_renderer_text_set_fixed_height_from_font(GTK_CELL_RENDERER_TEXT(renderer), 1);
 	gtk_tree_view_column_pack_start(column, renderer, TRUE);
 	gtk_tree_view_column_add_attribute(column, renderer,
 										"text", TEXT_COLUMN);
 
 	gtk_tree_view_append_column(GTK_TREE_VIEW(list), column);
-	if (g_object_class_find_property(G_OBJECT_GET_CLASS(list), "fixed-height-mode"))
-		g_object_set(G_OBJECT(list), "fixed-height-mode", TRUE, NULL);
+	gtk_container_add(GTK_CONTAINER(PWidget(scroller)), PWidget(list));
+	gtk_widget_show(PWidget(list));
 
-	GtkWidget *wid = PWidget(list);	// No code inside the G_OBJECT macro
-	gtk_container_add(GTK_CONTAINER(PWidget(scroller)), wid);
-	gtk_widget_show(wid);
-	g_signal_connect(G_OBJECT(wid), "button_press_event",
-	                   G_CALLBACK(ButtonPress), this);
+	gtk_signal_connect(GTK_OBJECT(PWidget(list)), "button_press_event",
+	                   GTK_SIGNAL_FUNC(ButtonPress), this);
 #endif
 	gtk_widget_realize(PWidget(id));
 }
@@ -2083,7 +1946,7 @@ void ListBoxX::SetFont(Font &scint_font) {
 	}
 #else
 	// Only do for Pango font as there have been crashes for GDK fonts
-	if (Created() && PFont(scint_font)->pfd) {
+	if (PFont(scint_font)->pfd) {
 		// Current font is Pango font
 		gtk_widget_modify_font(PWidget(list), PFont(scint_font)->pfd);
 	}
@@ -2485,11 +2348,7 @@ void Menu::CreatePopUp() {
 
 void Menu::Destroy() {
 	if (id)
-#if GTK_MAJOR_VERSION < 2
 		gtk_object_unref(GTK_OBJECT(id));
-#else
-		g_object_unref(G_OBJECT(id));
-#endif
 	id = 0;
 }
 
@@ -2508,7 +2367,7 @@ void Menu::Show(Point pt, Window &) {
 		pt.y = screenHeight - requisition.height;
 	}
 #if GTK_MAJOR_VERSION >= 2
-	gtk_item_factory_popup(factory, pt.x - 4, pt.y - 4, 3,
+	gtk_item_factory_popup(factory, pt.x - 4, pt.y - 4, 3, 
 		gtk_get_current_event_time());
 #else
 	gtk_item_factory_popup(factory, pt.x - 4, pt.y - 4, 3, 0);
@@ -2584,11 +2443,8 @@ const char *Platform::DefaultFont() {
 #ifdef G_OS_WIN32
 	return "Lucida Console";
 #else
-#ifdef USE_PANGO
-	return "!Sans";
-#else
+
 	return "lucidatypewriter";
-#endif
 #endif
 }
 
@@ -2596,6 +2452,7 @@ int Platform::DefaultFontSize() {
 #ifdef G_OS_WIN32
 	return 10;
 #else
+
 	return 12;
 #endif
 }

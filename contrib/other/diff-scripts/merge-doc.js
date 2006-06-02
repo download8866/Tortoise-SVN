@@ -46,10 +46,7 @@ baseDoc = word.Documents.Open(sTheirDoc);
 baseDoc.Merge(sMergedDoc);
 
 // Show the merge result
-if (Number(word.Version) < 12)
-{
-	word.ActiveDocument.Windows(1).Visible = 1;
-}
+word.ActiveDocument.Windows(1).Visible = 1;
 
 // Close the first document
 if (Number(word.Version) >= 10)

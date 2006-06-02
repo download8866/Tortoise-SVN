@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -79,7 +79,6 @@ void CFolderCrawler::AddDirectoryForUpdate(const CTSVNPath& path)
 	{
 		AutoLocker lock(m_critSec);
 		m_foldersToUpdate.push_back(path);
-		m_foldersToUpdate.back().SetCustomData(GetTickCount()+10);
 		ATLASSERT(path.IsDirectory() || !path.Exists());
 		// set this flag while we are sync'ed 
 		// with the worker thread
@@ -96,7 +95,6 @@ void CFolderCrawler::AddPathForUpdate(const CTSVNPath& path)
 	{
 		AutoLocker lock(m_critSec);
 		m_pathsToUpdate.push_back(path);
-		m_pathsToUpdate.back().SetCustomData(GetTickCount()+1000);
 		m_bPathsAddedSinceLastCrawl = true;
 	}
 	if (SetHoldoff())
@@ -115,8 +113,6 @@ void CFolderCrawler::WorkerThread()
 	hWaitHandles[0] = m_hTerminationEvent;	
 	hWaitHandles[1] = m_hWakeEvent;
 	CTSVNPath workingPath;
-	bool bFirstRunAfterWakeup = false;
-	DWORD currentTicks = 0;
 
 	for(;;)
 	{
@@ -137,7 +133,7 @@ void CFolderCrawler::WorkerThread()
 		// However, it's important that we don't do our crawling while
 		// the shell is still asking for items
 		// 
-		bFirstRunAfterWakeup = true;
+		
 		for(;;)
 		{
 			// Any locks today?
@@ -147,12 +143,6 @@ void CFolderCrawler::WorkerThread()
 				// We're in crawl hold-off 
 				ATLTRACE("Crawl hold-off\n");
 				Sleep(50);
-				continue;
-			}
-			if (bFirstRunAfterWakeup)
-			{
-				Sleep(500);
-				bFirstRunAfterWakeup = false;
 				continue;
 			}
 			if ((m_blockReleasesAt < GetTickCount())&&(!m_blockedPath.IsEmpty()))
@@ -166,7 +156,7 @@ void CFolderCrawler::WorkerThread()
 				// Nothing left to do 
 				break;
 			}
-			currentTicks = GetTickCount();
+			
 			if (!m_pathsToUpdate.empty())
 			{
 				{
@@ -180,18 +170,13 @@ void CFolderCrawler::WorkerThread()
 						m_pathsToUpdate.erase(std::unique(m_pathsToUpdate.begin(), m_pathsToUpdate.end(), &CTSVNPath::PredLeftSameWCPathAsRight), m_pathsToUpdate.end());
 						m_bPathsAddedSinceLastCrawl = false;
 					}
+
 					workingPath = m_pathsToUpdate.front();
-					if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
-						m_pathsToUpdate.pop_front();
-				}
-				if (DWORD(workingPath.GetCustomData()) >= currentTicks)
-				{
-					Sleep(50);
-					continue;
+					m_pathsToUpdate.pop_front();
 				}
 				if ((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath)))
 					continue;
-				// don't crawl paths that are excluded
+				// don't crawl paths that are exluded
 				if (!CSVNStatusCache::Instance().IsPathAllowed(workingPath))
 					continue;
 				// check if the changed path is inside an .svn folder
@@ -347,13 +332,7 @@ void CFolderCrawler::WorkerThread()
 					}
 
 					workingPath = m_foldersToUpdate.front();
-					if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
-						m_foldersToUpdate.pop_front();
-				}
-				if (DWORD(workingPath.GetCustomData()) >= currentTicks)
-				{
-					Sleep(50);
-					continue;
+					m_foldersToUpdate.pop_front();
 				}
 				if ((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath)))
 					continue;
