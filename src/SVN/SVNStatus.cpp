@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,21 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 
 #include "stdafx.h"
 #include "resource.h"
 #include "..\TortoiseShell\resource.h"
-#include "svn_config.h"
+
 #include "SVNStatus.h"
 #include "UnicodeUtils.h"
-#include "SVNGlobal.h"
 #ifdef _MFC_VER
 #	include "SVN.h"
 #	include "MessageBox.h"
 #	include "registry.h"
 #	include "TSVNPath.h"
-#	include "PathUtils.h"
+#	include "Utils.h"
 #endif
 
 SVNStatus::SVNStatus(bool * pbCanceled)
@@ -69,7 +67,7 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 	//set up the SVN_SSH param
 	CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
 	if (tsvn_ssh.IsEmpty())
-		tsvn_ssh = CPathUtils::GetAppDirectory() + _T("TortoisePlink.exe");
+		tsvn_ssh = CUtils::GetAppDirectory() + _T("TortoisePlink.exe");
 	tsvn_ssh.Replace('\\', '/');
 	if (!tsvn_ssh.IsEmpty())
 	{
@@ -77,13 +75,6 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 			APR_HASH_KEY_STRING);
 		svn_config_set(cfg, SVN_CONFIG_SECTION_TUNNELS, "ssh", CUnicodeUtils::GetUTF8(tsvn_ssh));
 	}
-#else
-	svn_config_ensure(NULL, m_pool);
-	svn_utf_initialize(m_pool);
-
-	// set up the configuration
-	m_err = svn_config_get_config (&(ctx->config), g_pConfigDir, m_pool);
-
 #endif
 }
 
@@ -335,7 +326,6 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 	struct hashbaton_t hashbaton;
 	hashbaton.hash = m_statushash;
 	hashbaton.pThis = this;
-	m_statushashindex = 0;
 	m_err = svn_client_status2 (&headrev,
 							path.GetSVNApiPath(),
 							&rev,
@@ -388,7 +378,7 @@ svn_wc_status2_t * SVNStatus::GetNextFileStatus(CTSVNPath& retPath)
 {
 	const sort_item*			item;
 
-	if ((m_statushashindex+1) >= apr_hash_count(m_statushash))
+	if ((m_statushashindex+1) == apr_hash_count(m_statushash))
 		return NULL;
 	m_statushashindex++;
 

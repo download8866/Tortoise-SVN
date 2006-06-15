@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,6 @@
 //
 #include "stdafx.h"
 #include "CmdLineParser.h"
-#include <locale>
-#include <algorithm>
 
 const TCHAR CCmdLineParser::m_sDelims[] = _T("-/");
 const TCHAR CCmdLineParser::m_sQuotes[] = _T("\"");
@@ -41,7 +39,7 @@ CCmdLineParser::~CCmdLineParser()
 
 BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine) 
 {
-	const stdstring sEmpty = _T("");			//use this as a value if no actual value is given in commandline
+	const CString sEmpty = _T("");			//use this as a value if no actual value is given in commandline
 	int nArgs = 0;
 
 	if(!sCmdLine) 
@@ -70,18 +68,18 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 		LPCTSTR sVal = _tcspbrk(sArg, m_sValueSep);
 		if(sVal == NULL) 
 		{ 
-			stdstring Key(sArg);
-			std::transform(Key.begin(), Key.end(), Key.begin(), ::tolower);
+			CString Key(sArg);
+			Key.MakeLower();
 			m_valueMap.insert(CValsMap::value_type(Key, sEmpty));
 			break;
 		} 
 		else if (sVal[0] == _T(' ') || _tcslen(sVal) == 1 ) 
 		{ 
 			// cmdline ends with /Key: or a key with no value 
-			stdstring Key(sArg, (int)(sVal - sArg));
-			if(!Key.empty()) 
+			CString Key(sArg, (int)(sVal - sArg));
+			if(!Key.IsEmpty()) 
 			{ 
-				std::transform(Key.begin(), Key.end(), Key.begin(), ::tolower);
+				Key.MakeLower();
 				m_valueMap.insert(CValsMap::value_type(Key, sEmpty));
 			}
 			sCurrent = _tcsinc(sVal);
@@ -90,8 +88,8 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 		else 
 		{ 
 			// key has value
-			stdstring Key(sArg, (int)(sVal - sArg));
-			std::transform(Key.begin(), Key.end(), Key.begin(), ::tolower);
+			CString Key(sArg, (int)(sVal - sArg));
+			Key.MakeLower();
 
 			sVal = _tcsinc(sVal);
 
@@ -111,8 +109,8 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 			if(sEndQuote == NULL) 
 			{ 
 				// no end quotes or terminating space, take the rest of the string to its end
-				stdstring csVal(sQuote);
-				if(!Key.empty()) 
+				CString csVal(sQuote);
+				if(!Key.IsEmpty()) 
 				{ 
 					m_valueMap.insert(CValsMap::value_type(Key, csVal));
 				}
@@ -121,9 +119,9 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 			else 
 			{ 
 				// end quote
-				if(!Key.empty()) 
+				if(!Key.IsEmpty()) 
 				{	
-					stdstring csVal(sQuote, (int)(sEndQuote - sQuote));
+					CString csVal(sQuote, (int)(sEndQuote - sQuote));
 					m_valueMap.insert(CValsMap::value_type(Key, csVal));
 				}
 				sCurrent = _tcsinc(sEndQuote);
@@ -137,8 +135,8 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 
 CCmdLineParser::CValsMap::const_iterator CCmdLineParser::findKey(LPCTSTR sKey) const 
 {
-	stdstring s(sKey);
-	std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+	CString s(sKey);
+	s.MakeLower();
 	return m_valueMap.find(s);
 }
 
@@ -156,7 +154,7 @@ BOOL CCmdLineParser::HasVal(LPCTSTR sKey) const
 	CValsMap::const_iterator it = findKey(sKey);
 	if(it == m_valueMap.end()) 
 		return false;
-	if(it->second.empty()) 
+	if(it->second.IsEmpty()) 
 		return false;
 	return true;
 }
@@ -166,7 +164,7 @@ LPCTSTR CCmdLineParser::GetVal(LPCTSTR sKey) const
 	CValsMap::const_iterator it = findKey(sKey);
 	if (it == m_valueMap.end()) 
 		return 0;
-	return it->second.c_str();
+	return LPCTSTR(it->second);
 }
 
 LONG CCmdLineParser::GetLongVal(LPCTSTR sKey) const
@@ -174,7 +172,7 @@ LONG CCmdLineParser::GetLongVal(LPCTSTR sKey) const
 	CValsMap::const_iterator it = findKey(sKey);
 	if (it == m_valueMap.end())
 		return 0;
-	return _tstol(it->second.c_str());
+	return _tstol(LPCTSTR(it->second));
 }
 
 
@@ -183,11 +181,11 @@ CCmdLineParser::ITERPOS CCmdLineParser::begin() const
 	return m_valueMap.begin();
 }
 
-CCmdLineParser::ITERPOS CCmdLineParser::getNext(ITERPOS& pos, stdstring& sKey, stdstring& sValue) const 
+CCmdLineParser::ITERPOS CCmdLineParser::getNext(ITERPOS& pos, CString& sKey, CString& sValue) const 
 {
 	if (m_valueMap.end() == pos)
 	{
-		sKey.clear();
+		sKey.Empty();
 		return pos;
 	} 
 	else 

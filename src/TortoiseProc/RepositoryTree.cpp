@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,8 +27,7 @@
 #include "SVN.h"
 #include ".\repositorytree.h"
 #include "InputDlg.h"
-#include "AppUtils.h"
-#include "StringUtils.h"
+#include "Utils.h"
 #include "DragDropImpl.h"
 #include "UnicodeUtils.h"
 #include "RenameDlg.h"
@@ -40,8 +39,7 @@ CRepositoryTree::CRepositoryTree(const CString& strUrl, BOOL bFile) :
 	m_strUrl(strUrl),
 	m_Revision(SVNRev::REV_HEAD),
 	m_bFile(bFile),
-	m_pProjectProperties(NULL),
-	m_bSortNumerical(false)
+	m_pProjectProperties(NULL)
 {
 	m_strUrl.TrimRight('/');
 	m_strNoItems.LoadString(IDS_REPOBROWSE_INITWAIT);
@@ -538,8 +536,6 @@ static INT CALLBACK SortCallback(INT iItem1, INT iSubItem1, INT iItem2, INT iSub
 		}
 		// fall through
 	case 3:
-		if (rctrl->m_bSortNumerical)
-			return CStringUtils::CompareNumerical(szText1, szText2);
 		return _tcsicmp(szText1, szText2);
 	case 2:
 	case 4:
@@ -776,9 +772,9 @@ void CRepositoryTree::EndEdit(BOOL bUpdate /* = TRUE */, LPNMRVITEMEDIT lpnmrvie
 	CWaitCursorEx wait_cursor;
 	CInputDlg input(this);
 	input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
-	CStringUtils::RemoveAccelerators(input.m_sHintText);
+	CUtils::RemoveAccelerators(input.m_sHintText);
 	input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
-	CStringUtils::RemoveAccelerators(input.m_sTitle);
+	CUtils::RemoveAccelerators(input.m_sTitle);
 	input.m_pProjectProperties = m_pProjectProperties;
 	input.m_sInputText.LoadString(IDS_INPUT_RENAMELOGMSG);
 	if (input.DoModal() == IDOK)
@@ -946,9 +942,9 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 					}
 					CInputDlg input(this);
 					input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
-					CStringUtils::RemoveAccelerators(input.m_sHintText);
+					CUtils::RemoveAccelerators(input.m_sHintText);
 					input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
-					CStringUtils::RemoveAccelerators(input.m_sTitle);
+					CUtils::RemoveAccelerators(input.m_sTitle);
 					input.m_pProjectProperties = m_pProjectProperties;
 					if (m_pProjectProperties->sLogTemplate.IsEmpty())
 						input.m_sInputText.LoadString(IDS_INPUT_COPYLOGMSG);
@@ -1005,9 +1001,9 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 					}
 					CInputDlg input(this);
 					input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
-					CStringUtils::RemoveAccelerators(input.m_sHintText);
+					CUtils::RemoveAccelerators(input.m_sHintText);
 					input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
-					CStringUtils::RemoveAccelerators(input.m_sTitle);
+					CUtils::RemoveAccelerators(input.m_sTitle);
 					input.m_pProjectProperties = m_pProjectProperties;
 					if (m_pProjectProperties->sLogTemplate.IsEmpty())
 						input.m_sInputText.LoadString(IDS_INPUT_MOVELOGMSG);

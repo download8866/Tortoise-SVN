@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,9 +33,8 @@
 
 #include <ShellAPI.h>
 
-#ifndef WIN64
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#endif
+#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
 
 CCrashReport crasher("crashreports@tortoisesvn.tigris.org", "Crash Report for TSVNCache : " STRPRODUCTVER, TRUE);// crash
 
@@ -47,7 +46,6 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 bool				bRun = true;
 NOTIFYICONDATA		niData; 
 HWND				hWnd;
-HWND				hTrayWnd;
 TCHAR				szCurrentCrawledPath[MAX_CRAWLEDPATHS][MAX_CRAWLEDPATHSLEN];
 int					nCurrentCrawledpathIndex = 0;
 CComAutoCriticalSection critSec;
@@ -124,12 +122,8 @@ void DebugOutputLastError()
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
 	CSecAttribs sa;
-#ifdef WIN64
-	HANDLE hReloadProtection = ::CreateMutex(&sa.sa, FALSE, _T("Global\\TSVNCacheReloadProtection64"));
-#else
 	HANDLE hReloadProtection = ::CreateMutex(&sa.sa, FALSE, _T("Global\\TSVNCacheReloadProtection"));
-#endif
-
+	
 	if (hReloadProtection == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
 	{
 		// An instance of TSVNCache is already running
@@ -148,7 +142,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	HANDLE hPipeThread; 
 	HANDLE hCommandWaitThread;
 	MSG msg;
-	TCHAR szWindowClass[] = {TSVN_CACHE_WINDOW_NAME};
+	TCHAR szWindowClass[] = {_T("TSVNCacheWindow")};
 
 	// create a hidden window to receive window messages.
 	WNDCLASSEX wcex;
@@ -165,10 +159,12 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= 0;
 	RegisterClassEx(&wcex);
-	hWnd = CreateWindow(TSVN_CACHE_WINDOW_NAME, TSVN_CACHE_WINDOW_NAME, WS_CAPTION, 0, 0, 800, 300, NULL, 0, hInstance, 0);
-	hTrayWnd = hWnd;
+	hWnd = CreateWindow(_T("TSVNCacheWindow"), _T("TSVNCacheWindow"), WS_CAPTION, 0, 0, 800, 300, NULL, 0, hInstance, 0);
+	
 	if (hWnd == NULL)
 	{
+		//OutputDebugStringA("TSVNCache: could not create window class\n");
+		//DebugOutputLastError();
 		return 0;
 	}
 	if (CRegStdWORD(_T("Software\\TortoiseSVN\\CacheTrayIcon"), FALSE)==TRUE)
@@ -277,20 +273,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 				ShowWindow(hWnd, SW_RESTORE);
 			break;
-		case WM_MOUSEMOVE:
-			{
-				CString sInfoTip;
-				NOTIFYICONDATA SystemTray;
-				sInfoTip.Format(_T("Cached Directories : %ld"), CSVNStatusCache::Instance().GetCacheSize());
-
-				SystemTray.cbSize = sizeof(NOTIFYICONDATA);
-				SystemTray.hWnd   = hTrayWnd;
-				SystemTray.uID    = TRAY_ID;
-				SystemTray.uFlags = NIF_TIP;
-				_tcscpy_s(SystemTray.szTip, sInfoTip);
-				Shell_NotifyIcon(NIM_MODIFY, &SystemTray);
-			}
-			break;
 		case WM_RBUTTONUP:
 		case WM_CONTEXTMENU:
 			{
@@ -335,7 +317,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			
 			SelectObject(hdc,oldbrush);
 			EndPaint(hWnd, &ps); 
-			DeleteObject(background);
 			return 0L; 
 		}
 		break;
@@ -451,7 +432,7 @@ VOID GetAnswerToRequest(const TSVNCacheRequest* pRequest, TSVNCacheResponse* pRe
 	}
 
 	CSVNStatusCache::Instance().WaitToRead();
-	CSVNStatusCache::Instance().GetStatusForPath(path, pRequest->flags, false).BuildCacheResponse(*pReply, *pResponseLength);
+	CSVNStatusCache::Instance().GetStatusForPath(path, pRequest->flags).BuildCacheResponse(*pReply, *pResponseLength);
 	CSVNStatusCache::Instance().Done();
 }
 
@@ -711,20 +692,13 @@ DWORD WINAPI CommandThread(LPVOID lpvParam)
 				ATLTRACE("Command thread exited\n");
 				return 0;
 			case TSVNCACHECOMMAND_CRAWL:
-				{
-					CTSVNPath changedpath;
-					changedpath.SetFromWin(CString(command.path), true);
-					// remove the path from our cache - that will 'invalidate' it.
-					CSVNStatusCache::Instance().WaitToWrite();
-					CSVNStatusCache::Instance().RemoveCacheForPath(changedpath);
-					CSVNStatusCache::Instance().Done();
-					CSVNStatusCache::Instance().AddFolderForCrawling(changedpath.GetDirectory());
-				}
-				break;
-			case TSVNCACHECOMMAND_REFRESHALL:
+				CTSVNPath changedpath;
+				changedpath.SetFromWin(CString(command.path), true);
+				// remove the path from our cache - that will 'invalidate' it.
 				CSVNStatusCache::Instance().WaitToWrite();
-				CSVNStatusCache::Instance().Refresh();
+				CSVNStatusCache::Instance().RemoveCacheForPath(changedpath);
 				CSVNStatusCache::Instance().Done();
+				CSVNStatusCache::Instance().AddFolderForCrawling(changedpath);
 				break;
 		}
 	} 

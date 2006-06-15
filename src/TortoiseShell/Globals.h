@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,8 +47,6 @@
 #define MENUREVISIONGRAPH	0x04000000
 #define MENULOCK			0x08000000
 #define MENUUNLOCK			0x10000000
-#define MENUPROPERTIES		0x20000000
-#define MENUURLDIFF			0x40000000
 
 /**
  * Since we need an own COM-object for every different

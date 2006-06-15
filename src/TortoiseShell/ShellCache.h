@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,19 +30,11 @@
 
 typedef CComCritSecLock<CComCriticalSection> Locker;
 
-
 class ShellCache
 {
 public:
-	enum CacheType
-	{
-		none,
-		exe,
-		dll
-	};
 	ShellCache()
 	{
-		cachetype = CRegStdWORD(_T("Software\\TortoiseSVN\\CacheType"), exe);
 		showrecursive = CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
 		folderoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
 		driveremote = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
@@ -54,20 +46,17 @@ public:
 		excludelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
 		includelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
 		simplecontext = CRegStdWORD(_T("Software\\TortoiseSVN\\SimpleContext"), TRUE);
-		unversionedasmodified = CRegStdWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
-		cachetypeticker = GetTickCount();
-		recursiveticker = cachetypeticker;
-		folderoverlayticker = cachetypeticker;
-		driveticker = cachetypeticker;
-		drivetypeticker = cachetypeticker;
-		langticker = cachetypeticker;
-		columnrevformatticker = cachetypeticker;
-		excludelistticker = cachetypeticker;
-		includelistticker = cachetypeticker;
-		simplecontextticker = cachetypeticker;
-		unversionedasmodifiedticker = cachetypeticker;
-		admindirticker = cachetypeticker;
-		columnseverywhereticker = cachetypeticker;
+		recursiveticker = GetTickCount();
+		folderoverlayticker = GetTickCount();
+		externalCacheTicker = recursiveticker;
+		driveticker = recursiveticker;
+		drivetypeticker = recursiveticker;
+		langticker = recursiveticker;
+		columnrevformatticker = recursiveticker;
+		excludelistticker = recursiveticker;
+		includelistticker = recursiveticker;
+		admindirticker = recursiveticker;
+		columnseverywhereticker = recursiveticker;
 		menulayout = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
 		langid = CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 		blockstatus = CRegStdWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
@@ -88,36 +77,9 @@ public:
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer));
 		columnrevformat.NegativeOrder = _ttoi(szBuffer);
 		sAdminDirCacheKey.reserve(MAX_PATH);		// MAX_PATH as buffer reservation ok.
+		bMenuInserted = false;
+		insertedmenu = NULL;
 		m_critSec.Init();
-	}
-	void ForceRefresh()
-	{
-		cachetype.read();
-		showrecursive.read();
-		folderoverlay.read();
-		driveremote.read();
-		drivefixed.read();
-		drivecdrom.read();
-		driveremove.read();
-		driveram.read();
-		driveunknown.read();
-		excludelist.read();
-		includelist.read();
-		simplecontext.read();
-		unversionedasmodified.read();
-		menulayout.read();
-		langid.read();
-		blockstatus.read();
-		columnseverywhere.read();
-	}
-	CacheType GetCacheType()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT) > cachetypeticker)
-		{
-			cachetypeticker = GetTickCount();
-			cachetype.read();
-		}
-		return CacheType(DWORD((cachetype)));
 	}
 	DWORD BlockStatus()
 	{
@@ -125,7 +87,7 @@ public:
 		{
 			blockstatusticker = GetTickCount();
 			blockstatus.read();
-		}
+		} // if ((GetTickCount() - REGISTRYTIMEOUT) > blockstatusticker)
 		return (blockstatus);
 	}
 	DWORD GetMenuLayout()
@@ -134,7 +96,7 @@ public:
 		{
 			layoutticker = GetTickCount();
 			menulayout.read();
-		}
+		} // if ((GetTickCount() - REGISTRYTIMEOUT) > layoutticker)
 		return (menulayout);
 	}
 	BOOL IsRecursive()
@@ -143,7 +105,7 @@ public:
 		{
 			recursiveticker = GetTickCount();
 			showrecursive.read();
-		}
+		} // if ((GetTickCount() - REGISTRYTIMEOUT)>recursiveticker)
 		return (showrecursive);
 	}
 	BOOL IsFolderOverlay()
@@ -152,7 +114,7 @@ public:
 		{
 			folderoverlayticker = GetTickCount();
 			folderoverlay.read();
-		}
+		} // if ((GetTickCount() - REGISTRYTIMEOUT)>recursiveticker) 
 		return (folderoverlay);
 	}
 	BOOL IsSimpleContext()
@@ -163,15 +125,6 @@ public:
 			simplecontext.read();
 		}
 		return (simplecontext==0);
-	}
-	BOOL IsUnversionedAsModified()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>unversionedasmodifiedticker)
-		{
-			unversionedasmodifiedticker = GetTickCount();
-			unversionedasmodified.read();
-		}
-		return (unversionedasmodified);
 	}
 	BOOL IsRemote()
 	{
@@ -235,8 +188,8 @@ public:
 				ATLTRACE2(_T("GetDriveType for %s, Drive %d\n"), pathbuf, drivenumber);
 				drivetype = GetDriveType(pathbuf);
 				drivetypecache[drivenumber] = drivetype;
-			}
-		}
+			} // if (drivetype == -1)
+		} // if ((drivenumber >=0)&&(drivenumber < 25)) 
 		else
 		{
 			TCHAR pathbuf[MAX_PATH+4];		// MAX_PATH ok here. PathIsUNCServer works with partial paths too.
@@ -293,7 +246,7 @@ public:
 		{
 			langticker = GetTickCount();
 			langid.read();
-		}
+		} // if ((GetTickCount() - REGISTRYTIMEOUT) > layoutticker)
 		return (langid);
 	}
 	NUMBERFMT * GetNumberFmt()
@@ -311,7 +264,7 @@ public:
 			columnrevformat.Grouping = _ttoi(szBuffer);
 			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer));
 			columnrevformat.NegativeOrder = _ttoi(szBuffer);
-		}
+		} // if ((GetTickCount() - NUMBERFMTTIMEOUT) > columnrevformatticker)
 		return &columnrevformat;
 	}
 	BOOL HasSVNAdminDir(LPCTSTR path, BOOL bIsDir)
@@ -343,6 +296,23 @@ public:
 		admindircache[buf] = hasAdminDir;
 		delete buf;
 		return hasAdminDir;
+	}
+	bool IsMenuInserted(HMENU hMenu)
+	{
+		if (hMenu != insertedmenu)
+			return false;
+		if ((GetTickCount() - MENUTIMEOUT)>menuinsertedticker)
+		{
+			menuinsertedticker = GetTickCount();
+			bMenuInserted = false;
+		}
+		return bMenuInserted;
+	}
+	void SetMenuInserted(HMENU hMenu, bool bVal)
+	{
+		bMenuInserted = bVal;
+		insertedmenu = hMenu;
+		menuinsertedticker = GetTickCount();
 	}
 	bool IsColumnsEveryWhere()
 	{
@@ -419,7 +389,6 @@ private:
 			includeliststr = (stdstring)includelist;
 		}
 	}
-	CRegStdWORD cachetype;
 	CRegStdWORD blockstatus;
 	CRegStdWORD langid;
 	CRegStdWORD showrecursive;
@@ -432,7 +401,6 @@ private:
 	CRegStdWORD driveunknown;
 	CRegStdWORD menulayout;
 	CRegStdWORD simplecontext;
-	CRegStdWORD unversionedasmodified;
 	CRegStdString excludelist;
 	CRegStdWORD columnseverywhere;
 	stdstring excludeliststr;
@@ -440,7 +408,7 @@ private:
 	CRegStdString includelist;
 	stdstring includeliststr;
 	std::vector<stdstring> invector;
-	DWORD cachetypeticker;
+	DWORD externalCacheTicker;
 	DWORD recursiveticker;
 	DWORD folderoverlayticker;
 	DWORD driveticker;
@@ -452,7 +420,6 @@ private:
 	DWORD excludelistticker;
 	DWORD includelistticker;
 	DWORD simplecontextticker;
-	DWORD unversionedasmodifiedticker;
 	DWORD columnseverywhereticker;
 	UINT  drivetypecache[27];
 	TCHAR drivetypepathcache[MAX_PATH];		// MAX_PATH ok.
@@ -462,5 +429,8 @@ private:
 	std::map<stdstring, BOOL> admindircache;
 	stdstring sAdminDirCacheKey;
 	DWORD admindirticker;
+	bool bMenuInserted;
+	DWORD menuinsertedticker;
+	HMENU insertedmenu;
 	CComCriticalSection m_critSec;
 };

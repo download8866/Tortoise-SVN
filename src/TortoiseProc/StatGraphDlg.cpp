@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "TortoiseProc.h"
 #include "StatGraphDlg.h"
 #include "UnicodeUtils.h"
-#include <locale>
 
 
 // CStatGraphDlg dialog
@@ -29,9 +28,6 @@ IMPLEMENT_DYNAMIC(CStatGraphDlg, CResizableStandAloneDialog)
 CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CStatGraphDlg::IDD, pParent)
 	, m_bStacked(FALSE)
-	, m_GraphType(MyGraph::Bar)
-	, m_bIgnoreAuthorCase(FALSE)
-	, m_weekcount(-1)
 {
 	m_parDates = NULL;
 	m_parFileChanges = NULL;
@@ -43,11 +39,6 @@ CStatGraphDlg::~CStatGraphDlg()
 	for (int j=0; j<m_graphDataArray.GetCount(); ++j)
 		delete ((MyGraphSeries *)m_graphDataArray.GetAt(j));
 	m_graphDataArray.RemoveAll();
-	DestroyIcon(m_hGraphBarIcon);
-	DestroyIcon(m_hGraphBarStackedIcon);
-	DestroyIcon(m_hGraphLineIcon);
-	DestroyIcon(m_hGraphLineStackedIcon);
-	DestroyIcon(m_hGraphPieIcon);
 }
 
 void CStatGraphDlg::DoDataExchange(CDataExchange* pDX)
@@ -56,25 +47,15 @@ void CStatGraphDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_GRAPH, m_graph);
 	DDX_Control(pDX, IDC_GRAPHCOMBO, m_cGraphType);
 	DDX_Control(pDX, IDC_SKIPPER, m_Skipper);
-	DDX_Check(pDX, IDC_IGNORECASE, m_bIgnoreAuthorCase);
-	DDX_Control(pDX, IDC_GRAPHBARBUTTON, m_btnGraphBar);
-	DDX_Control(pDX, IDC_GRAPHBARSTACKEDBUTTON, m_btnGraphBarStacked);
-	DDX_Control(pDX, IDC_GRAPHLINEBUTTON, m_btnGraphLine);
-	DDX_Control(pDX, IDC_GRAPHLINESTACKEDBUTTON, m_btnGraphLineStacked);
-	DDX_Control(pDX, IDC_GRAPHPIEBUTTON, m_btnGraphPie);
+	DDX_Check(pDX, IDC_STACKED, m_bStacked);
 }
 
 
 BEGIN_MESSAGE_MAP(CStatGraphDlg, CResizableStandAloneDialog)
 	ON_CBN_SELCHANGE(IDC_GRAPHCOMBO, OnCbnSelchangeGraphcombo)
 	ON_WM_HSCROLL()
+	ON_BN_CLICKED(IDC_STACKED, &CStatGraphDlg::OnBnClickedStacked)
 	ON_NOTIFY(TTN_NEEDTEXT, NULL, OnNeedText)
-	ON_BN_CLICKED(IDC_IGNORECASE, &CStatGraphDlg::RedrawGraph)
-	ON_BN_CLICKED(IDC_GRAPHBARBUTTON, &CStatGraphDlg::OnBnClickedGraphbarbutton)
-	ON_BN_CLICKED(IDC_GRAPHBARSTACKEDBUTTON, &CStatGraphDlg::OnBnClickedGraphbarstackedbutton)
-	ON_BN_CLICKED(IDC_GRAPHLINEBUTTON, &CStatGraphDlg::OnBnClickedGraphlinebutton)
-	ON_BN_CLICKED(IDC_GRAPHLINESTACKEDBUTTON, &CStatGraphDlg::OnBnClickedGraphlinestackedbutton)
-	ON_BN_CLICKED(IDC_GRAPHPIEBUTTON, &CStatGraphDlg::OnBnClickedGraphpiebutton)
 END_MESSAGE_MAP()
 
 
@@ -100,23 +81,6 @@ BOOL CStatGraphDlg::OnInitDialog()
 	m_Skipper.SetRange(0, 100);
 	m_Skipper.SetPos(10);
 	m_Skipper.SetPageSize(5);
-
-	m_hGraphBarIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBAR), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-	m_hGraphBarStackedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBARSTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-	m_hGraphLineIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHLINE), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-	m_hGraphLineStackedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHLINESTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-	m_hGraphPieIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHPIE), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
-
-	m_btnGraphBar.SetIcon(m_hGraphBarIcon);
-	m_btnGraphBar.SetButtonStyle(WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON);
-	m_btnGraphBarStacked.SetIcon(m_hGraphBarStackedIcon);
-	m_btnGraphBarStacked.SetButtonStyle(WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON);
-	m_btnGraphLine.SetIcon(m_hGraphLineIcon);
-	m_btnGraphLine.SetButtonStyle(WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON);
-	m_btnGraphLineStacked.SetIcon(m_hGraphLineStackedIcon);
-	m_btnGraphLineStacked.SetButtonStyle(WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON);
-	m_btnGraphPie.SetIcon(m_hGraphPieIcon);
-	m_btnGraphPie.SetButtonStyle(WS_CHILD|WS_VISIBLE|BS_PUSHBUTTON);
 
 	AddAnchor(IDC_GRAPHTYPELABEL, TOP_LEFT);
 	AddAnchor(IDC_GRAPH, TOP_LEFT, BOTTOM_RIGHT);
@@ -152,14 +116,7 @@ BOOL CStatGraphDlg::OnInitDialog()
 	AddAnchor(IDC_FILECHANGESEACHWEEKAVG, TOP_RIGHT);
 	AddAnchor(IDC_FILECHANGESEACHWEEKMIN, TOP_RIGHT);
 	AddAnchor(IDC_FILECHANGESEACHWEEKMAX, TOP_RIGHT);
-
-	AddAnchor(IDC_GRAPHBARBUTTON, BOTTOM_RIGHT);
-	AddAnchor(IDC_GRAPHBARSTACKEDBUTTON, BOTTOM_RIGHT);
-	AddAnchor(IDC_GRAPHLINEBUTTON, BOTTOM_RIGHT);
-	AddAnchor(IDC_GRAPHLINESTACKEDBUTTON, BOTTOM_RIGHT);
-	AddAnchor(IDC_GRAPHPIEBUTTON, BOTTOM_RIGHT);
-
-	AddAnchor(IDC_IGNORECASE, BOTTOM_LEFT);
+	AddAnchor(IDC_STACKED, BOTTOM_LEFT);
 	AddAnchor(IDC_SKIPPER, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SKIPPERLABEL, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -210,11 +167,7 @@ void CStatGraphDlg::ShowLabels(BOOL bShow)
 
 	GetDlgItem(IDC_SKIPPER)->ShowWindow(bShow ? SW_HIDE : SW_SHOW);
 	GetDlgItem(IDC_SKIPPERLABEL)->ShowWindow(bShow ? SW_HIDE : SW_SHOW);
-	m_btnGraphBar.ShowWindow(bShow ? SW_HIDE : SW_SHOW);
-	m_btnGraphBarStacked.ShowWindow(bShow ? SW_HIDE : SW_SHOW);
-	m_btnGraphLine.ShowWindow(bShow ? SW_HIDE : SW_SHOW);
-	m_btnGraphLineStacked.ShowWindow(bShow ? SW_HIDE : SW_SHOW);
-	m_btnGraphPie.ShowWindow(bShow ? SW_HIDE : SW_SHOW);
+	GetDlgItem(IDC_STACKED)->ShowWindow(bShow ? SW_HIDE : SW_SHOW);
 }
 
 void CStatGraphDlg::ShowCommitsByAuthor()
@@ -233,7 +186,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
 	//Set up the graph.
 	CString temp;
 	UpdateData();
-	m_graph.SetGraphType(m_GraphType, m_bStacked);
+	m_graph.SetGraphType(MyGraph::Bar, !!m_bStacked);
 	temp.LoadString(IDS_STATGRAPH_COMMITSBYAUTHORY);
 	m_graph.SetYAxisLabel(temp);
 	temp.LoadString(IDS_STATGRAPH_COMMITSBYAUTHORX);
@@ -242,18 +195,15 @@ void CStatGraphDlg::ShowCommitsByAuthor()
 	m_graph.SetGraphTitle(temp);
 
 	std::map<stdstring, LONG> authorcommits;
-	LONG nTotalCommits = 0;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
-		std::map<stdstring, LONG>::iterator it = authorcommits.lower_bound(author);
-		if (it == authorcommits.end() || it->first != author)
-			it = authorcommits.insert(it, std::make_pair(author, 0));
-		it->second++;
-		nTotalCommits++;
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
+		if (authorcommits.find(author) != authorcommits.end())
+		{
+			authorcommits[author] += 1;
+		}
+		else
+			authorcommits[author] = 1;
 	}
 
 	int nGroup(-1);
@@ -265,7 +215,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
 	int nOthersCount = 0;
 	while (iter != authorcommits.end())
 	{
-		if (iter->second < (nTotalCommits * m_Skipper.GetPos() / 200))
+		if (iter->second < (m_parAuthors->GetCount() * m_Skipper.GetPos() / 200))
 		{
 			nOthers += iter->second;
 			nOthersCount++;
@@ -305,7 +255,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 	//Set up the graph.
 	CString temp;
 	UpdateData();
-	m_graph.SetGraphType(m_GraphType, m_bStacked);
+	m_graph.SetGraphType(MyGraph::Line, !!m_bStacked);
 	temp.LoadString(IDS_STATGRAPH_COMMITSBYDATEY);
 	m_graph.SetYAxisLabel(temp);
 	temp.LoadString(IDS_STATGRAPH_COMMITSBYDATEX);
@@ -315,18 +265,15 @@ void CStatGraphDlg::ShowCommitsByDate()
 
 	// Find how many commits each author has done
 	std::map<stdstring, LONG> author_commits;
-	LONG nTotalCommits = 0;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
-		std::map<stdstring, LONG>::iterator it = author_commits.lower_bound(author);
-		if (it == author_commits.end() || it->first != author)
-			it = author_commits.insert(it, std::make_pair(author, 0));
-		it->second++;
-		nTotalCommits++;
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
+		if (author_commits.find(author) != author_commits.end())
+		{
+			author_commits[author] += 1;
+		}
+		else
+			author_commits[author] = 1;
 	}
 
 	// Append each author to the graph
@@ -336,7 +283,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 	iter = author_commits.begin();
 	while (iter != author_commits.end())
 	{
-		if (author_commits[iter->first] < (nTotalCommits * m_Skipper.GetPos() / 200))
+		if (author_commits[iter->first] < (m_parAuthors->GetCount() * m_Skipper.GetPos() / 200))
 			nOthersCount++;
 		else
 			authors[iter->first] = m_graph.AppendGroup(iter->first.c_str());
@@ -349,10 +296,19 @@ void CStatGraphDlg::ShowCommitsByDate()
 		authors[wide_string((LPCWSTR)sOthers)] = m_graph.AppendGroup(wide_string((LPCWSTR)sOthers).c_str());
 	}
 
-	// how many weeks do we cover here?
-	int numweeks = GetWeeksCount();
-
 	int week = 0;
+	int numweeks = 0;
+	// how many weeks do we cover here?
+	for (int weekindex = 0; weekindex<m_parDates->GetCount(); ++weekindex)
+	{
+		if (week != GetWeek(CTime((__time64_t)m_parDates->GetAt(weekindex))))
+		{
+			week = GetWeek(CTime((__time64_t)m_parDates->GetAt(weekindex)));
+			numweeks++;
+		}
+	}
+
+	week = 0;
 	int weekcount = 0;
 
 	std::map<stdstring, LONG> authorcommits;
@@ -374,9 +330,8 @@ void CStatGraphDlg::ShowCommitsByDate()
 			iter = authors.begin();
 			while (iter != authors.end())
 			{
-				std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
-				if (ac_it != authorcommits.end() && ac_it->first == iter->first)
-					graphData->SetData(iter->second, ac_it->second);
+				if (authorcommits.find(iter->first) != authorcommits.end())
+					graphData->SetData(iter->second, authorcommits[iter->first]);
 				else
 					graphData->SetData(iter->second, 0);
 				iter++;
@@ -414,27 +369,35 @@ void CStatGraphDlg::ShowCommitsByDate()
 			authorcommits.clear();
 		}
 		lasttime = time;
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
-		if (authors.find(author) == authors.end())
-			author = stdstring((LPCTSTR)sOthers);
-		std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(author);
-		if (ac_it == authorcommits.end() || ac_it->first != author)
-			ac_it = authorcommits.insert(ac_it, std::make_pair(author, 0));
-		ac_it->second++;
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
+		if (authorcommits.find(author) != authorcommits.end())
+		{
+			if (authors.find(author) != authors.end())
+				authorcommits[author] += 1;
+			else
+				authorcommits[stdstring((LPCTSTR)sOthers)] += 1;
+		}
+		else
+		{
+			if (authors.find(author) != authors.end())
+				authorcommits[author] = 1;
+			else if (authorcommits.find(stdstring((LPCTSTR)sOthers)) == authorcommits.end())
+				authorcommits[stdstring((LPCTSTR)sOthers)] = 1;
+			else
+				authorcommits[stdstring((LPCTSTR)sOthers)] += 1;
+		}
 	}
 
 	MyGraphSeries * graphData = new MyGraphSeries();
 	iter = authors.begin();
 	while (iter != authors.end())
 	{
-		int val = 0;
-		std::map<stdstring, LONG>::const_iterator it = authorcommits.lower_bound(iter->first);
-		if (it != authorcommits.end() && it->first == iter->first)
-			val = it->second;
-		graphData->SetData(iter->second, val);
+		if (authorcommits.find(iter->first) != authorcommits.end())
+		{
+			graphData->SetData(iter->second, authorcommits[iter->first]);
+		}
+		else
+			graphData->SetData(iter->second, 0);
 		iter++;
 	}
 
@@ -466,14 +429,10 @@ void CStatGraphDlg::ShowStats()
 	std::map<stdstring, LONG> authors;
 	for (int i=0; i<m_parAuthors->GetCount(); ++i)
 	{
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
-		std::map<stdstring, LONG>::iterator it = authors.lower_bound(author);
-		if (it == authors.end() || it->first != author)
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
+		if (authors.find(author) == authors.end())
 		{
-			authors.insert(it, std::make_pair(author, m_graph.AppendGroup(author.c_str())));
+			authors[author] = m_graph.AppendGroup(author.c_str());
 			numAuthors++;
 		}
 	}
@@ -495,41 +454,36 @@ void CStatGraphDlg::ShowStats()
 		commits++;
 		filechanges += m_parFileChanges->GetAt(i);
 		weekover = FALSE;
-		CString sAuth = m_parAuthors->GetAt(i);
-		if (m_bIgnoreAuthorCase)
-			sAuth = sAuth.MakeLower();
-		stdstring author = stdstring(sAuth);
-		std::map<stdstring, LONG>::iterator it = authorcommits.lower_bound(author);
-		if (it == authorcommits.end() || it->first != author)
-			it = authorcommits.insert(it, std::make_pair(author, 0));
-		it->second++;
+		stdstring author = stdstring(m_parAuthors->GetAt(i));
+		if (authorcommits.find(author) != authorcommits.end())
+		{
+			authorcommits[author] += 1;
+		}
+		else
+		{
+			authorcommits[author] = 1;
+		}
 		if (nCurrentWeek != GetWeek(time))
 		{
 			std::map<stdstring, LONG>::iterator iter;
 			iter = authors.begin();
 			while (iter != authors.end())
 			{
-				std::map<stdstring, LONG>::iterator AC_it = AuthorCommits.lower_bound(iter->first);
-				if (AC_it == AuthorCommits.end() || AC_it->first != iter->first)
-					AC_it = AuthorCommits.insert(AC_it, std::make_pair(iter->first, 0));
+				if (AuthorCommits.find(iter->first) == AuthorCommits.end())
+					AuthorCommits[iter->first] = 0;
+				if (AuthorCommitsMin.find(iter->first) == AuthorCommitsMin.end())
+					AuthorCommitsMin[iter->first] = -1;
+				if (AuthorCommitsMax.find(iter->first) == AuthorCommitsMax.end())
+					AuthorCommitsMax[iter->first] = 0;
+				if (authorcommits.find(iter->first) == authorcommits.end())
+					authorcommits[iter->first] = 0;
 
-				std::map<stdstring, LONG>::iterator ACMIN_it = AuthorCommitsMin.lower_bound(iter->first);
-				if (ACMIN_it == AuthorCommitsMin.end() || ACMIN_it->first != iter->first)
-					ACMIN_it = AuthorCommitsMin.insert(ACMIN_it, std::make_pair(iter->first, -1));
-
-				std::map<stdstring, LONG>::iterator ACMAX_it = AuthorCommitsMax.lower_bound(iter->first);
-				if (ACMAX_it == AuthorCommitsMax.end() || ACMAX_it->first != iter->first)
-					ACMAX_it = AuthorCommitsMax.insert(ACMAX_it, std::make_pair(iter->first, 0));
-
-				std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
-				if (ac_it == authorcommits.end() || ac_it->first != iter->first)
-					ac_it = authorcommits.insert(ac_it, std::make_pair(iter->first, 0));
-
-				AC_it->second += ac_it->second;
-				if (ACMIN_it->second == -1 || ACMIN_it->second > ac_it->second)
-					ACMIN_it->second = ac_it->second;
-				if (ACMAX_it->second < ac_it->second)
-					ACMAX_it->second = ac_it->second;
+				long ac = authorcommits[iter->first];
+				AuthorCommits[iter->first] += ac;
+				if ((AuthorCommitsMin[iter->first] == -1)||(AuthorCommitsMin[iter->first] > ac))
+					AuthorCommitsMin[iter->first] = ac;
+				if (AuthorCommitsMax[iter->first] < ac)
+					AuthorCommitsMax[iter->first] = ac;
 				iter++;
 			}
 			authorcommits.clear();
@@ -557,28 +511,21 @@ void CStatGraphDlg::ShowStats()
 		iter = authors.begin();
 		while (iter != authors.end())
 		{
+			if (AuthorCommits.find(iter->first) == AuthorCommits.end())
+				AuthorCommits[iter->first] = 0;
+			if (AuthorCommitsMin.find(iter->first) == AuthorCommitsMin.end())
+				AuthorCommitsMin[iter->first] = -1;
+			if (AuthorCommitsMax.find(iter->first) == AuthorCommitsMax.end())
+				AuthorCommitsMax[iter->first] = 0;
+			if (authorcommits.find(iter->first) == authorcommits.end())
+				authorcommits[iter->first] = 0;
 
-			std::map<stdstring, LONG>::iterator AC_it = AuthorCommits.lower_bound(iter->first);
-			if (AC_it == AuthorCommits.end() || AC_it->first != iter->first)
-				AC_it = AuthorCommits.insert(AC_it, std::make_pair(iter->first, 0));
-
-			std::map<stdstring, LONG>::iterator ACMIN_it = AuthorCommitsMin.lower_bound(iter->first);
-			if (ACMIN_it == AuthorCommitsMin.end() || ACMIN_it->first != iter->first)
-				ACMIN_it = AuthorCommitsMin.insert(ACMIN_it, std::make_pair(iter->first, -1));
-
-			std::map<stdstring, LONG>::iterator ACMAX_it = AuthorCommitsMax.lower_bound(iter->first);
-			if (ACMAX_it == AuthorCommitsMax.end() || ACMAX_it->first != iter->first)
-				ACMAX_it = AuthorCommitsMax.insert(ACMAX_it, std::make_pair(iter->first, 0));
-
-			std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
-			if (ac_it == authorcommits.end() || ac_it->first != iter->first)
-				ac_it = authorcommits.insert(ac_it, std::make_pair(iter->first, 0));
-
-			AC_it->second += ac_it->second;
-			if (ACMIN_it->second == -1 || ACMIN_it->second > ac_it->second)
-				ACMIN_it->second = ac_it->second;
-			if (ACMAX_it->second < ac_it->second)
-				ACMAX_it->second = ac_it->second;
+			long ac = authorcommits[iter->first];
+			AuthorCommits[iter->first] += ac;
+			if ((AuthorCommitsMin[iter->first] == -1)||(AuthorCommitsMin[iter->first] > ac))
+				AuthorCommitsMin[iter->first] = ac;
+			if (AuthorCommitsMax[iter->first] < ac)
+				AuthorCommitsMax[iter->first] = ac;
 			iter++;
 		}
 		authorcommits.clear();
@@ -624,77 +571,57 @@ void CStatGraphDlg::ShowStats()
 	number.Format(_T("%ld"), nFileChangesMin);
 	GetDlgItem(IDC_FILECHANGESEACHWEEKMIN)->SetWindowText(number);
 
-	if (AuthorCommits.empty())
-	{
-		GetDlgItem(IDC_MOSTACTIVEAUTHORNAME)->SetWindowText(_T(""));
-		GetDlgItem(IDC_MOSTACTIVEAUTHORAVG)->SetWindowText(_T("0"));
-		GetDlgItem(IDC_MOSTACTIVEAUTHORMAX)->SetWindowText(_T("0"));
-		GetDlgItem(IDC_MOSTACTIVEAUTHORMIN)->SetWindowText(_T("0"));
-		GetDlgItem(IDC_LEASTACTIVEAUTHORNAME)->SetWindowText(_T(""));
-		GetDlgItem(IDC_LEASTACTIVEAUTHORAVG)->SetWindowText(_T("0"));
-		GetDlgItem(IDC_LEASTACTIVEAUTHORMAX)->SetWindowText(_T("0"));
-		GetDlgItem(IDC_LEASTACTIVEAUTHORMIN)->SetWindowText(_T("0"));
-	}
-	else // AuthorCommits isn't empty
-	{
-		std::map<stdstring, LONG>::const_iterator iter, most_it, least_it;
-		iter = most_it = least_it = AuthorCommits.begin();
-		while (iter != AuthorCommits.end())
-		{
-			if (most_it->second < iter->second)
-				most_it = iter;
-			if (least_it->second > iter->second)
-				least_it = iter;
-			iter++;
-		}
-		// assuming AuthorCommitsMax and AuthorCommitsMin aren't empty too
-		GetDlgItem(IDC_MOSTACTIVEAUTHORNAME)->SetWindowText(most_it->first.c_str());
-		number.Format(_T("%ld"), most_it->second / nWeeks);
-		GetDlgItem(IDC_MOSTACTIVEAUTHORAVG)->SetWindowText(number);
-		number.Format(_T("%ld"), AuthorCommitsMax[most_it->first]);
-		GetDlgItem(IDC_MOSTACTIVEAUTHORMAX)->SetWindowText(number);
-		number.Format(_T("%ld"), AuthorCommitsMin[most_it->first]);
-		GetDlgItem(IDC_MOSTACTIVEAUTHORMIN)->SetWindowText(number);
+	std::map<stdstring, LONG>::iterator iter;
+	iter = AuthorCommits.begin();
+	stdstring mostauthor;
+	stdstring leastauthor;
 
-		GetDlgItem(IDC_LEASTACTIVEAUTHORNAME)->SetWindowText(least_it->first.c_str());
-		number.Format(_T("%ld"), least_it->second / nWeeks);
-		GetDlgItem(IDC_LEASTACTIVEAUTHORAVG)->SetWindowText(number);
-		number.Format(_T("%ld"), AuthorCommitsMax[least_it->first]);
-		GetDlgItem(IDC_LEASTACTIVEAUTHORMAX)->SetWindowText(number);
-		number.Format(_T("%ld"), AuthorCommitsMin[least_it->first]);
-		GetDlgItem(IDC_LEASTACTIVEAUTHORMIN)->SetWindowText(number);
+	if (iter != AuthorCommits.end())
+	{
+		mostauthor = iter->first;
+		leastauthor = iter->first;
 	}
+	while (iter != AuthorCommits.end())
+	{
+		if (AuthorCommits[mostauthor] < iter->second)
+			mostauthor = iter->first;
+
+		if (AuthorCommits[leastauthor] > iter->second)
+			leastauthor = iter->first;
+
+		iter++;
+	}
+	GetDlgItem(IDC_MOSTACTIVEAUTHORNAME)->SetWindowText(mostauthor.c_str());
+	number.Format(_T("%ld"), AuthorCommits[mostauthor] / nWeeks);
+	GetDlgItem(IDC_MOSTACTIVEAUTHORAVG)->SetWindowText(number);
+	number.Format(_T("%ld"), AuthorCommitsMax[mostauthor]);
+	GetDlgItem(IDC_MOSTACTIVEAUTHORMAX)->SetWindowText(number);
+	number.Format(_T("%ld"), AuthorCommitsMin[mostauthor]);
+	GetDlgItem(IDC_MOSTACTIVEAUTHORMIN)->SetWindowText(number);
+
+	GetDlgItem(IDC_LEASTACTIVEAUTHORNAME)->SetWindowText(leastauthor.c_str());
+	number.Format(_T("%ld"), AuthorCommits[leastauthor] / nWeeks);
+	GetDlgItem(IDC_LEASTACTIVEAUTHORAVG)->SetWindowText(number);
+	number.Format(_T("%ld"), AuthorCommitsMax[leastauthor]);
+	GetDlgItem(IDC_LEASTACTIVEAUTHORMAX)->SetWindowText(number);
+	number.Format(_T("%ld"), AuthorCommitsMin[leastauthor]);
+	GetDlgItem(IDC_LEASTACTIVEAUTHORMIN)->SetWindowText(number);
 }
 
 void CStatGraphDlg::OnCbnSelchangeGraphcombo()
 {
-	UpdateData();
 	switch (m_cGraphType.GetItemData(m_cGraphType.GetCurSel()))
 	{
 	case 1:
-		// labels
-		// intended fall through
+		ShowStats();
+		break;
 	case 2:
-		// by date
-		m_btnGraphLine.EnableWindow(TRUE);
-		m_btnGraphLineStacked.EnableWindow(TRUE);
-		if (GetWeeksCount() > 10)
-		{
-			m_btnGraphPie.EnableWindow(FALSE);
-		}
-		m_GraphType = MyGraph::Line;
-		m_bStacked = true;
+		ShowCommitsByDate();
 		break;
 	case 3:
-		// by author
-		m_btnGraphLine.EnableWindow(FALSE);
-		m_btnGraphLineStacked.EnableWindow(FALSE);
-		m_btnGraphPie.EnableWindow(TRUE);
-		m_GraphType = MyGraph::Bar;
-		m_bStacked = false;
+		ShowCommitsByAuthor();
 		break;
 	}
-	RedrawGraph();
 }
 
 int CStatGraphDlg::GetWeek(const CTime& time)
@@ -825,31 +752,6 @@ int CStatGraphDlg::GetWeek(const CTime& time)
 	return iWeekOfYear;
 }
 
-int	CStatGraphDlg::GetWeeksCount()
-{
-	// Sanity check
-	if (!m_parDates)
-	{
-		return 0;
-	}
-	if (m_weekcount >= 0)
-		return m_weekcount;
-
-	// How many weeks does the time period cover?
-	int week = 0;
-	int numweeks = 0;
-	for (int weekindex = 0; weekindex<m_parDates->GetCount(); ++weekindex)
-	{
-		if (week != GetWeek(CTime((__time64_t)m_parDates->GetAt(weekindex))))
-		{
-			week = GetWeek(CTime((__time64_t)m_parDates->GetAt(weekindex)));
-			numweeks++;
-		}
-	}
-	m_weekcount = numweeks;
-	return numweeks;
-}
-
 void CStatGraphDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	if (nSBCode == TB_THUMBTRACK)
@@ -871,48 +773,8 @@ void CStatGraphDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	CDialog::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
-void CStatGraphDlg::OnNeedText(NMHDR *pnmh, LRESULT * /*pResult*/)
+void CStatGraphDlg::OnBnClickedStacked()
 {
-	TOOLTIPTEXT* pttt = (TOOLTIPTEXT*) pnmh;
-	if (pttt->hdr.idFrom == (UINT) m_Skipper.GetSafeHwnd())
-	{
-		CString string;
-		string.Format(_T("%d %%"), m_Skipper.GetPos()/2);
-		::lstrcpy(pttt->szText, (LPCTSTR) string);
-	}
-}
-
-void CStatGraphDlg::RedrawGraph()
-{
-	m_btnGraphBar.SetState(BST_UNCHECKED);
-	m_btnGraphBarStacked.SetState(BST_UNCHECKED);
-	m_btnGraphLine.SetState(BST_UNCHECKED);
-	m_btnGraphLineStacked.SetState(BST_UNCHECKED);
-	m_btnGraphPie.SetState(BST_UNCHECKED);
-
-	if ((m_GraphType == MyGraph::Bar)&&(m_bStacked))
-	{
-		m_btnGraphBarStacked.SetState(BST_CHECKED);
-	}
-	if ((m_GraphType == MyGraph::Bar)&&(!m_bStacked))
-	{
-		m_btnGraphBar.SetState(BST_CHECKED);
-	}
-	if ((m_GraphType == MyGraph::Line)&&(m_bStacked))
-	{
-		m_btnGraphLineStacked.SetState(BST_CHECKED);
-	}
-	if ((m_GraphType == MyGraph::Line)&&(!m_bStacked))
-	{
-		m_btnGraphLine.SetState(BST_CHECKED);
-	}
-	if (m_GraphType == MyGraph::PieChart)
-	{
-		m_btnGraphPie.SetState(BST_CHECKED);
-	}
-
-
-	UpdateData();
 	switch (m_cGraphType.GetItemData(m_cGraphType.GetCurSel()))
 	{
 	case 1:
@@ -926,37 +788,14 @@ void CStatGraphDlg::RedrawGraph()
 		break;
 	}
 }
-void CStatGraphDlg::OnBnClickedGraphbarbutton()
-{
-	m_GraphType = MyGraph::Bar;
-	m_bStacked = false;
-	RedrawGraph();
-}
 
-void CStatGraphDlg::OnBnClickedGraphbarstackedbutton()
+void CStatGraphDlg::OnNeedText(NMHDR *pnmh, LRESULT * /*pResult*/)
 {
-	m_GraphType = MyGraph::Bar;
-	m_bStacked = true;
-	RedrawGraph();
-}
-
-void CStatGraphDlg::OnBnClickedGraphlinebutton()
-{
-	m_GraphType = MyGraph::Line;
-	m_bStacked = false;
-	RedrawGraph();
-}
-
-void CStatGraphDlg::OnBnClickedGraphlinestackedbutton()
-{
-	m_GraphType = MyGraph::Line;
-	m_bStacked = true;
-	RedrawGraph();
-}
-
-void CStatGraphDlg::OnBnClickedGraphpiebutton()
-{
-	m_GraphType = MyGraph::PieChart;
-	m_bStacked = false;
-	RedrawGraph();
+	TOOLTIPTEXT* pttt = (TOOLTIPTEXT*) pnmh;
+	if (pttt->hdr.idFrom == (UINT) m_Skipper.GetSafeHwnd())
+	{
+		CString string;
+		string.Format(_T("%d %%"), m_Skipper.GetPos());
+		::lstrcpy(pttt->szText, (LPCTSTR) string);
+	}
 }

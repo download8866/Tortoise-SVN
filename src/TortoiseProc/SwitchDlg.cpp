@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,9 +27,9 @@
 
 // CSwitchDlg dialog
 
-IMPLEMENT_DYNAMIC(CSwitchDlg, CResizableStandAloneDialog)
+IMPLEMENT_DYNAMIC(CSwitchDlg, CStandAloneDialog)
 CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CSwitchDlg::IDD, pParent)
+	: CStandAloneDialog(CSwitchDlg::IDD, pParent)
 	, m_URL(_T(""))
 	, Revision(_T("HEAD"))
 {
@@ -41,34 +41,25 @@ CSwitchDlg::~CSwitchDlg()
 
 void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CResizableStandAloneDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Text(pDX, IDC_REVISION_NUM, m_rev);
 }
 
 
-BEGIN_MESSAGE_MAP(CSwitchDlg, CResizableStandAloneDialog)
+BEGIN_MESSAGE_MAP(CSwitchDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_EN_CHANGE(IDC_REVISION_NUM, &CSwitchDlg::OnEnChangeRevisionNum)
 END_MESSAGE_MAP()
 
-void CSwitchDlg::SetDialogTitle(const CString& sTitle)
-{
-	m_sTitle = sTitle;
-}
-
-void CSwitchDlg::SetUrlLabel(const CString& sLabel)
-{
-	m_sLabel = sLabel;
-}
 
 // CSwitchDlg message handlers
 
 
 BOOL CSwitchDlg::OnInitDialog()
 {
-	CResizableStandAloneDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	CTSVNPath svnPath(m_path);
 	m_bFolder = svnPath.IsDirectory();
@@ -85,26 +76,8 @@ BOOL CSwitchDlg::OnInitDialog()
 		m_URL = m_path;
 	}
 
-	if (m_sTitle.IsEmpty())
-		GetWindowText(m_sTitle);
-	SetWindowText(m_sTitle);
-	if (m_sLabel.IsEmpty())
-		GetDlgItem(IDC_URLLABEL)->GetWindowText(m_sLabel);
-	GetDlgItem(IDC_URLLABEL)->SetWindowText(m_sLabel);
-
 	// set head revision as default revision
 	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
-
-	AddAnchor(IDC_URLLABEL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_REVGROUP, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
-	AddAnchor(IDC_REVISION_N, TOP_LEFT);
-	AddAnchor(IDC_REVISION_NUM, TOP_LEFT);
-	AddAnchor(IDOK, BOTTOM_RIGHT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-	AddAnchor(IDHELP, BOTTOM_RIGHT);
 
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
@@ -149,7 +122,7 @@ void CSwitchDlg::OnBnClickedBrowse()
 	else if ((strUrl.Left(7) == _T("http://")
 		||(strUrl.Left(8) == _T("https://"))
 		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+		||(strUrl.Left(10) == _T("svn+ssh://"))) && strUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this, !m_bFolder);
@@ -182,7 +155,7 @@ void CSwitchDlg::OnOK()
 	m_URL = m_URLCombo.GetString();
 
 	UpdateData(FALSE);
-	CResizableStandAloneDialog::OnOK();
+	CStandAloneDialog::OnOK();
 }
 
 void CSwitchDlg::OnBnClickedHelp()

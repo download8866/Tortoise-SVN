@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,19 +37,18 @@ public:
 	CCachedDirectory();
 	CCachedDirectory(const CTSVNPath& directoryPath);
 	~CCachedDirectory(void);
-	CStatusCacheEntry GetStatusForMember(const CTSVNPath& path, bool bRecursive, bool bFetch = true);
+	CStatusCacheEntry GetStatusForMember(const CTSVNPath& path, bool bRecursive);
 	CStatusCacheEntry GetOwnStatus(bool bRecursive);
 	bool IsOwnStatusValid() const;
 	void Invalidate();
 	void RefreshStatus(bool bRecursive);
-	void RefreshMostImportant();
 	BOOL SaveToDisk(FILE * pFile);
 	BOOL LoadFromDisk(FILE * pFile);
 	/// Get the current full status of this folder
 	svn_wc_status_kind GetCurrentFullStatus() {return m_currentFullStatus;}
 private:
 	static void GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status);
-	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, DWORD validuntil = 0);
+	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus);
 	CString GetCacheKey(const CTSVNPath& path);
 	CString GetFullPathString(const CString& cacheKey);
 	CStatusCacheEntry LookForItemInCache(const CTSVNPath& path, bool &bFound);
@@ -64,10 +63,7 @@ private:
 
 private:
 	CComAutoCriticalSection m_critSec;
-	CComAutoCriticalSection m_critSecPath;
 
-	CTSVNPath	m_currentStatusFetchingPath;
-	DWORD		m_currentStatusFetchingPathTicks;
 	// The cache of files and directories within this directory
 	typedef std::map<CString, CStatusCacheEntry> CacheEntryMap; 
 	CacheEntryMap m_entryCache; 

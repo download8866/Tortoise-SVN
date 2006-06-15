@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,6 +26,25 @@
 /**
  * \ingroup TortoiseProc
  * A simple dialog box asking the user for a revision number.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 01-27-2003
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CRevisionDlg : public CDialog, public SVNRev
 {
@@ -38,7 +57,6 @@ public:
 // Dialog Data
 	enum { IDD = IDD_REVISION };
 	CString GetEnteredRevisionString() {return m_sRevision;}
-	void AllowWCRevs(bool bAllowWCRevs = true) {m_bAllowWCRevs = bAllowWCRevs;}
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
@@ -48,5 +66,4 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	CString m_sRevision;
-	bool	m_bAllowWCRevs;
 };

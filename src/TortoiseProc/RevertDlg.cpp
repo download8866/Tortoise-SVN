@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,7 @@ CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CRevertDlg::IDD, pParent)
 	, m_bSelectAll(TRUE)
 	, m_bThreadRunning(FALSE)
-	, m_bCancelled(false)
+	
 {
 }
 
@@ -53,7 +53,6 @@ BEGIN_MESSAGE_MAP(CRevertDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_WM_SETCURSOR()
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
 
@@ -62,10 +61,8 @@ BOOL CRevertDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_RevertList.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("RevertDlg"));
-	m_RevertList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
+	m_RevertList.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS);
 	m_RevertList.SetSelectButton(&m_SelectAll);
-	m_RevertList.SetCancelBool(&m_bCancelled);
 	
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -99,16 +96,14 @@ UINT CRevertDlg::RevertThread()
 	//and show the ones which have to be committed to the user
 	//in a listcontrol. 
 	GetDlgItem(IDOK)->EnableWindow(false);
-	m_bCancelled = false;
+	GetDlgItem(IDCANCEL)->EnableWindow(false);
 
-	if (!m_RevertList.GetStatus(m_pathList))
-	{
-		CMessageBox::Show(m_hWnd, m_RevertList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-	}
+	m_RevertList.GetStatus(m_pathList);
 	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES, 
 						SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES);
 
 	GetDlgItem(IDOK)->EnableWindow(true);
+	GetDlgItem(IDCANCEL)->EnableWindow(true);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	POINT pt;
@@ -142,7 +137,6 @@ void CRevertDlg::OnOK()
 
 void CRevertDlg::OnCancel()
 {
-	m_bCancelled = true;
 	if (m_bThreadRunning)
 		return;
 
@@ -218,13 +212,4 @@ BOOL CRevertDlg::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
-}
-
-LRESULT CRevertDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
-{
-	if (AfxBeginThread(RevertThreadEntry, this)==0)
-	{
-		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-	}
-	return 0;
 }

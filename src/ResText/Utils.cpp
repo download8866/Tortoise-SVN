@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,19 +29,6 @@ CUtils::~CUtils(void)
 void CUtils::StringExtend(LPTSTR str)
 {
 	TCHAR * cPos = str;
-	do
-	{
-		cPos = _tcschr(cPos, '\\');
-		if (cPos)
-		{
-			memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
-			*cPos = '\\';
-			*(cPos+1) = '\\';
-			cPos++;
-			cPos++;
-		}
-	} while (cPos != NULL);
-	cPos = str;
 	do
 	{
 		cPos = _tcschr(cPos, '\n');
@@ -117,12 +104,10 @@ void CUtils::StringCollapse(LPTSTR str)
 				*cPos = '"';
 				memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
 			}
-			else if (*(cPos+1) == '\\')
+			else
 			{
-				*cPos = '\\';
-				memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
+				cPos++;
 			}
-			cPos++;
 		}
 	} while (cPos != NULL);
 }

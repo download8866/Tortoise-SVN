@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Tim Kemp and Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ void SVNRev::Create(CString sRev)
 		SVNPool pool;
 		svn_boolean_t matched;
 		apr_time_t tm;
-
+//BUBGUG?  We don't bother testing for good pool creation anywhere else - should we bother here?
 		if ((apr_pool_t*)pool)
 		{
 			CStringA sRevA = CStringA(sRev);
@@ -54,7 +54,7 @@ void SVNRev::Create(CString sRev)
 				sDate = sRev;
 			}
 		}
-	}
+	} // if (sRev.Left(1).Compare(_T("{"))==0)
 	else if (sRev.CompareNoCase(_T("HEAD"))==0)
 	{
 		rev.kind = svn_opt_revision_head;
@@ -87,21 +87,12 @@ void SVNRev::Create(CString sRev)
 	}
 	else
 	{
-		bool bAllNumbers = true;
-		for (int i=0; i<sRev.GetLength(); ++i)
+		LONG nRev = _ttol(sRev);
+		if (nRev > 0)
 		{
-			if (!_istdigit(sRev[i]))
-				bAllNumbers = false;
-		}
-		if (bAllNumbers)
-		{
-			LONG nRev = _ttol(sRev);
-			if (nRev > 0)
-			{
-				rev.kind = svn_opt_revision_number;
-				rev.value.number = nRev;
-				m_bIsValid = TRUE;
-			}
+			rev.kind = svn_opt_revision_number;
+			rev.value.number = nRev;
+			m_bIsValid = TRUE;
 		}
 	}
 }

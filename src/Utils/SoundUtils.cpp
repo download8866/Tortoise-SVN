@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,8 +19,7 @@
 #include "StdAfx.h"
 #include "registry.h"
 #include "resource.h"
-#include "AppUtils.h"
-#include "PathUtils.h"
+#include "Utils.h"
 #include ".\soundutils.h"
 
 #pragma comment(lib, "Winmm")
@@ -46,7 +45,7 @@ void CSoundUtils::RegisterTSVNSounds()
 	CRegString appscheme = CRegString(_T("AppEvents\\Schemes\\Apps\\TortoiseProc\\"));
 	appscheme = _T("TortoiseSVN");
 
-	CString apppath = CPathUtils::GetAppDirectory();
+	CString apppath = CUtils::GetAppDirectory();
 	
 	CRegistryKey schemenamekey = CRegistryKey(_T("AppEvents\\Schemes\\Names"));
 	CStringList schemenames;

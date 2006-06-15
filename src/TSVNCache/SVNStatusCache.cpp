@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -220,13 +220,9 @@ CSVNStatusCache::~CSVNStatusCache(void)
 	}
 }
 
-void CSVNStatusCache::Refresh()
+void CSVNStatusCache::Clear()
 {
-	m_shellCache.ForceRefresh();
-	for (CCachedDirectory::CachedDirMap::iterator I = m_pInstance->m_directoryCache.begin(); I != m_pInstance->m_directoryCache.end(); ++I)
-	{
-		I->second->RefreshMostImportant();
-	}
+
 }
 
 bool CSVNStatusCache::IsPathGood(CTSVNPath path)
@@ -263,7 +259,6 @@ bool CSVNStatusCache::RemoveCacheForDirectory(CCachedDirectory * cdir)
 	m_directoryCache.erase(cdir->m_directoryPath);
 	ATLTRACE("removed path %ws from cache\n", cdir->m_directoryPath);
 	delete cdir;
-	cdir = NULL;
 	return true;
 }
 
@@ -307,7 +302,6 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 			m_directoryCache.erase(itMap);
 		// We don't know anything about this directory yet - lets add it to our cache
 		ATLTRACE("adding %ws to our cache\n", path.GetWinPath());
-		ATLASSERT(path.IsDirectory());
 		CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, new CCachedDirectory(path)))->second;
 		if (!path.IsEmpty())
 			watcher.AddPath(path);
@@ -331,7 +325,7 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntryNoCreate(const CTSVNPa
 	return NULL;
 }
 
-CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD flags,  bool bFetch /* = true */)
+CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD flags)
 {
 	bool bRecursive = !!(flags & TSVNCACHE_FLAGS_RECUSIVE_STATUS);
 
@@ -339,7 +333,7 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 	long now = (long)GetTickCount();
 	if(now-m_mostRecentExpiresAt < 0)
 	{
-		if(path.IsEquivalentTo(m_mostRecentPath))
+		if(path.IsEquivalentToWithCase(m_mostRecentPath))
 		{
 			return m_mostRecentStatus;
 		}
@@ -356,7 +350,7 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 		CCachedDirectory * cachedDir = GetDirectoryCacheEntry(path.GetContainingDirectory());
 		if (cachedDir != NULL)
 		{
-			m_mostRecentStatus = cachedDir->GetStatusForMember(path, bRecursive, bFetch);
+			m_mostRecentStatus = cachedDir->GetStatusForMember(path, bRecursive);
 			return m_mostRecentStatus;
 		}
 	}

@@ -285,14 +285,14 @@ bin\htpasswd passwd &lt;username&gt;
 				</listitem>
 			</orderedlist>
 		</para>
-		<indexterm>
-			<primary>SVNPath</primary>
-		</indexterm>
-		<indexterm>
-			<primary>SVNParentPath</primary>
-		</indexterm>
 		<para>
 			A short explanation of what you just entered:
+			<indexterm>
+				<primary>SVNPath</primary>
+			</indexterm>
+			<indexterm>
+				<primary>SVNParentPath</primary>
+			</indexterm>
 			<table id="tsvn-serversetup-apache-4-table">
 				<title>Apache httpd.conf Settings</title>
 				<tgroup cols="2">
@@ -393,7 +393,7 @@ Require valid-user
 						Using a <filename>passwd</filename> file limits and 
 						grants access to all of your repositories as a unit. 
 						If you want more control over which users have 
-						access to each folder inside a repository you can 
+						access each folder inside a repository you can 
 						uncomment the line
 <screen>
 #AuthzSVNAccessFile svnaccessfile
@@ -410,50 +410,84 @@ Require valid-user
 						particular repository, that access rule will apply to
 						all repositories under
 						<literal>SVNParentPath</literal>.
-						The format of the authorization-policy file used by
-						<literal>mod_authz_svn</literal> is described in
-						<xref linkend="tsvn-serversetup-mod_authz_svn"/>
+						An example file would look like this:
+<screen>
+[groups]
+admin = john, kate
+devteam1 = john, rachel, sally
+devteam2 = kate, peter, mark
+docs = bob, jane, mike
+training = zak
+# Default access rule for ALL repositories
+# Everyone can read, admins can write, Dan German is excluded.
+[/]
+* = r
+@admin = rw
+dangerman =
+# Allow developers complete access to their project repos
+[proj1:/]
+@devteam1 = rw
+[proj2:/]
+@devteam2 = rw
+[bigproj:/]
+@devteam1 = rw
+@devteam2 = rw
+trevor = rw
+# Give the doc people write access to all the docs folders
+[/trunk/doc]
+@docs = rw
+# Give trainees write access in the training repository only
+[TrainingRepos:/]
+@training = rw
+</screen>
 					</para>
 				</listitem>
 			</itemizedlist>
 		</para>
-	</sect2>
-	<sect2 id="tsvn-serversetup-apache-parent-path">
-		<title>Multiple Repositories</title>
-		<indexterm>
-			<primary>SVNParentPath</primary>
-		</indexterm>
-		<indexterm>
-			<primary>Index of projects</primary>
-		</indexterm>
-		<para>
-			If you used the SVNParentPath directive then you don't have to
-			change the Apache config file everytime you add a new Subversion
-			repository. Simply create the new repository under the same
-			location as the first repository and you're done! In my company
-			I have direct access to that specific folder on the server via
-			SMB (normal windows file access). So I just create a new folder
-			there, run the TortoiseSVN command
-			<menuchoice>
-				<guimenu>TortoiseSVN</guimenu>
-				<guimenuitem>Create repository here...</guimenuitem>
-			</menuchoice>
-			and a new project has a home...
-		</para>
-		<para>
-			If you are using Subversion 1.3 or later, you can use the
-			<literal>SVNListParentPath on</literal> directive to allow Apache
-			to produce a listing of all available projects if you point your
-			browser at the parent path rather than at a specific repository.
-		</para>
-		<para>
-			If your Subversion server is earlier than 1.3 you will just get
-			a nasty error page showing. To get a nice looking listing
-			of all available projects instead, you can use the following PHP
-			script which generates the index for you automatically.  (You 
-			will need to install PHP on your server in order to use the 
-			script shown below).
-		</para>
+		<tip>
+			<title>Use SVNParentPath</title>
+			<indexterm>
+				<primary>SVNParentPath</primary>
+			</indexterm>
+			<para>
+				If you used the SVNParentPath directive then you don't have to
+				change the Apache config file everytime you add a new Subversion
+				repository. Simply create the new repository under the same
+				location as the first repository and you're done! In my company
+				I have direct access to that specific folder on the server via
+				SMB (normal windows file access). So I just create a new folder
+				there, run the TortoiseSVN command
+				<menuchoice>
+					<guimenu>TortoiseSVN</guimenu>
+					<guimenuitem>Create repository here...</guimenuitem>
+				</menuchoice>
+				and a new project has a home...
+			</para>
+		</tip>
+		<tip>
+			<title>Index of projects under SVNParentPath</title>
+			<indexterm>
+				<primary>Index of projects</primary>
+			</indexterm>
+			<para>
+				The advantage of using the SVNParentPath directive is that
+				you don't have to change the Apache config each time you
+				create a new repository, but you also don't have an index
+				of all created and available projects. If you point your
+				browser to the path SVNParentPath points to, you will get
+				a nasty error page showing.
+			</para>
+			<para>
+				To avoid that ugly error page and have a nice looking listing
+				of all available projects instead, you can use the following PHP
+				script which generates the index for you automatically.  (You 
+				will need to install PHP on your server in order to use the 
+				below file).
+			</para>
+			<para>
+				For Subversion 1.3 and higher, just enable <quote>SVNListParentPath on</quote>.
+			</para>
+		</tip>
 		<sidebar>
 			<programlisting role="PHP"><![CDATA[
 <html>
@@ -530,68 +564,8 @@ Require valid-user
 			</para>
 		</sidebar>
 	</sect2>
-	<sect2 id="tsvn-serversetup-mod_authz_svn">
-		<title>Path-Based Authorization</title>
-		<indexterm>
-			<primary>Authorization</primary>
-		</indexterm>
-		<indexterm>
-			<primary>mod_authz_svn</primary>
-		</indexterm>
-		<para>
-			The mod_authz_svn module permits fine-grained control of access
-			permissions based on usernames and repository paths. This is
-			available with the Apache server, and as of Subversion 1.3
-			it is available with svnserve as well.
-		</para>
-		<para>
-			An example file would look like this:
-<screen>
-[groups]
-admin = john, kate
-devteam1 = john, rachel, sally
-devteam2 = kate, peter, mark
-docs = bob, jane, mike
-training = zak
-# Default access rule for ALL repositories
-# Everyone can read, admins can write, Dan German is excluded.
-[/]
-* = r
-@admin = rw
-dangerman =
-# Allow developers complete access to their project repos
-[proj1:/]
-@devteam1 = rw
-[proj2:/]
-@devteam2 = rw
-[bigproj:/]
-@devteam1 = rw
-@devteam2 = rw
-trevor = rw
-# Give the doc people write access to all the docs folders
-[/trunk/doc]
-@docs = rw
-# Give trainees write access in the training repository only
-[TrainingRepos:/]
-@training = rw
-</screen>
-		</para>
-		<para>
-			Note that checking every path can be an expensive operation,
-			particularly in the case of the revision log. The server
-			checks every changed path in each revision and checks it for
-			readability, which can be time-consuming on revisions which
-			affect large numbers of files.
-		</para>
-		<para>
-			Authentication and authorizarion are separate processes. If
-			a user wants to gain access to a repository path, she has to meet
-			<emphasis>both</emphasis>, the usual authentication requirements
-			and the authorization requirements of the access file.
-		</para>
-	</sect2>
 	<sect2 id="tsvn-serversetup-apache-5">
-		<title>Authentication With a Windows Domain</title>
+		<title>Authentication With A Windows Domain</title>
 		<indexterm>
 			<primary>Windows domain</primary>
 		</indexterm>
@@ -610,16 +584,19 @@ trevor = rw
 			accessing the repository from inside a LAN with a windows
 			domain controller: mod_auth_sspi!
 		</para>
-		<indexterm>
-			<primary>SSPI</primary>
-		</indexterm>
 		<para>
+			<indexterm>
+				<primary>SSPI</primary>
+			</indexterm>
 			The original SSPI module was offered by Syneapps including
-			sourcecode. But the development for it has been stopped. 
-			But don't despair, the community has picked it up and improved
-			it. It has a new home on 
-			<ulink url="http://sourceforge.net/projects/mod-auth-sspi/">
-				<citetitle>SourceForge</citetitle>
+			sourcecode. But the development for it has been stopped. You can
+			still find that module on the internet - just do a
+			google search for it. We also have a compiled version of it
+			on our website, supplied by Norbert Unterberg.
+			This one is mod_auth_sspi 1.0.3 which supports a
+			<literal>SSPIUsernameCase [upper|lower]</literal> directive.
+			<ulink url="http://tortoisesvn.tigris.org/mod_auth_sspi.zip">
+				<citetitle>Get the mod_auth_sspi module</citetitle>
 			</ulink>.
 		</para>
 		<itemizedlist>
@@ -896,19 +873,8 @@ bin\openssl req -config bin\openssl.cnf -new -out my-server.csr
 					You will be asked for a passphrase. Please don't use simple
 					words but whole sentences, e.g. a part of a poem. The
 					longer the phrase the better. Also you have to enter the
-					URL of your server. All other questions are optional but we
-					recommend you fill those in too.
-				</para>
-				<para>
-					Normally the <filename>privkey.pem</filename> file is created
-					automatically, but if it isn't you need to type this command
-					to generate it:
-<screen>
-bin\openssl genrsa -out privkey.pem 2048
-</screen>
-				</para>
-				<para>
-					Next type the commands
+					URL of you server. All other questions are optional but I
+					recommend to fill out those too. Next type the commands
 <screen>
 bin\openssl rsa -in privkey.pem -out my-server.key
 </screen>

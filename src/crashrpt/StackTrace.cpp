@@ -1,7 +1,14 @@
 /*----------------------------------------------------------------------
    John Robbins - Microsoft Systems Journal Bugslayer Column - Feb 99
 ----------------------------------------------------------------------*/
-#include <stdafx.h>
+#include <windows.h>
+#include <stdlib.h>
+#include <tchar.h>
+#include <stdio.h>
+
+// Force imagehlp in.
+#include <imagehlp.h>
+
 
 #include "StackTrace.h"
 #include "SymbolEngine.h"
@@ -25,10 +32,9 @@ static TSymbolEngineMap g_cSymMap;
 
 static CSymbolEngine & GetSymbolEngine()
 {
-	DWORD CurrProcessId = GetCurrentProcessId();
 	TSymbolEngineMap::iterator	iter;
-	iter = g_cSymMap.lower_bound(CurrProcessId);
-	if (iter == g_cSymMap.end() || iter->first != CurrProcessId) {
+	iter = g_cSymMap.find(GetCurrentProcessId());
+	if (iter == g_cSymMap.end()) {
 		CSymbolEngine	cSym;
 	    HANDLE hProcess = GetCurrentProcess ( ) ;
         DWORD dwOpts = SymGetOptions ( ) ;
@@ -36,8 +42,7 @@ static CSymbolEngine & GetSymbolEngine()
         // Turn on load lines.
         SymSetOptions ( dwOpts                |
 						SYMOPT_LOAD_LINES      ) ;
-		iter = g_cSymMap.insert(iter, std::make_pair(CurrProcessId, CSymbolEngine()));
-		if ( FALSE == iter->second.SymInitialize ( hProcess ,
+        if ( FALSE == g_cSymMap[GetCurrentProcessId()].SymInitialize ( hProcess ,
                                              NULL     ,
                                              TRUE     ) )
             {
@@ -49,10 +54,10 @@ static CSymbolEngine & GetSymbolEngine()
 #endif
             }
       }
-	return iter->second;
+	return g_cSymMap[GetCurrentProcessId()];
 }
 
-static DWORD_PTR __stdcall GetModBase ( HANDLE hProcess , DWORD_PTR dwAddr )
+static DWORD __stdcall GetModBase ( HANDLE hProcess , DWORD dwAddr )
 {
     // Check in the symbol engine first.
     IMAGEHLP_MODULE stIHM ;
@@ -118,15 +123,15 @@ static DWORD_PTR __stdcall GetModBase ( HANDLE hProcess , DWORD_PTR dwAddr )
     return ( 0 ) ;
 }
 
-static void PrintAddress (DWORD_PTR address, const char *ImageName,
-									  const char *FunctionName, DWORD_PTR functionDisp,
+static void PrintAddress (DWORD address, const char *ImageName,
+									  const char *FunctionName, DWORD functionDisp,
 									  const char *Filename, DWORD LineNumber, DWORD lineDisp,
 									  void * /* data, unused */ )
 {
     static char buffer [ MAX_PATH*2 + 512 ];
    LPTSTR pCurrPos = buffer ;
     // Always stick the address in first.
-    pCurrPos += _snprintf ( pCurrPos ,  sizeof buffer - (pCurrPos - buffer), addressFormat , address ) ;
+    pCurrPos += _snprintf ( pCurrPos ,  sizeof buffer - (pCurrPos - buffer), ( "0x%08X " ) , address ) ;
 
 	if (ImageName != NULL) {
 		LPCTSTR szName = strchr ( ImageName ,  ( '\\' ) ) ;
@@ -173,7 +178,7 @@ static void PrintAddress (DWORD_PTR address, const char *ImageName,
 }
 
 
-void AddressToSymbol(DWORD_PTR dwAddr, TraceCallbackFunction pFunction, LPVOID data)
+void AddressToSymbol(DWORD dwAddr, TraceCallbackFunction pFunction, LPVOID data)
 {
     char szTemp [ MAX_PATH + sizeof ( IMAGEHLP_SYMBOL ) ] ;
 
@@ -203,7 +208,7 @@ void AddressToSymbol(DWORD_PTR dwAddr, TraceCallbackFunction pFunction, LPVOID d
 	haveModule = (0 != cSym.SymGetModuleInfo ( dwAddr , &stIHM ));
 
     // Get the function.
-    DWORD_PTR dwFuncDisp=0 ;
+    DWORD dwFuncDisp=0 ;
 	DWORD dwLineDisp=0;
     if ( 0 != cSym.SymGetSymFromAddr ( dwAddr , &dwFuncDisp , pIHS ) )
       {
@@ -263,14 +268,6 @@ void DoStackTrace ( int numSkip, int depth, TraceCallbackFunction pFunction, CON
         stFrame.AddrStack.Offset = pContext->Esp    ;
         stFrame.AddrStack.Mode   = AddrModeFlat ;
         stFrame.AddrFrame.Offset = pContext->Ebp    ;
-        stFrame.AddrFrame.Mode   = AddrModeFlat ;
-
-#elif defined (_M_AMD64)
-        dwMachine                = IMAGE_FILE_MACHINE_AMD64 ;
-        stFrame.AddrPC.Offset    = pContext->Rip    ;
-        stFrame.AddrStack.Offset = pContext->Rsp    ;
-        stFrame.AddrStack.Mode   = AddrModeFlat ;
-        stFrame.AddrFrame.Offset = pContext->Rbp    ;
         stFrame.AddrFrame.Mode   = AddrModeFlat ;
 
 #elif defined (_M_ALPHA)

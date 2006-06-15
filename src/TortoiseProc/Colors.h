@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,13 +36,10 @@ public:
 		Merged,
 		Deleted,
 		Added,
-		LastCommit,
 		DeletedNode,
 		AddedNode,
 		ReplacedNode,
-		RenamedNode,
-		LastCommitNode,
-		PropertyChanged
+		RenamedNode
 	};
 	
 	COLORREF GetColor(Colors col, bool bDefault = false);
@@ -54,11 +51,8 @@ private:
 	CRegDWORD m_regMerged;
 	CRegDWORD m_regDeleted;
 	CRegDWORD m_regAdded;
-	CRegDWORD m_regLastCommit;
 	CRegDWORD m_regDeletedNode;
 	CRegDWORD m_regAddedNode;
 	CRegDWORD m_regReplacedNode;
 	CRegDWORD m_regRenamedNode;
-	CRegDWORD m_regLastCommitNode;
-	CRegDWORD m_regPropertyChanged;
 };

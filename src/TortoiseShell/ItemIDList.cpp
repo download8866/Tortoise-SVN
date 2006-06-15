@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,6 +30,10 @@ count_ (-1)
 
 ItemIDList::~ItemIDList()
 {
+	LPMALLOC pMalloc = NULL;
+	::SHGetMalloc(&pMalloc);
+
+	//  pMalloc->Free((void*)item_);
 }
 
 int ItemIDList::size() const
@@ -76,6 +80,7 @@ LPCSHITEMID ItemIDList::get(int index) const
 }
 stdstring ItemIDList::toString()
 {
+	LPMALLOC pMalloc = NULL;
 	IShellFolder *shellFolder = NULL;
 	IShellFolder *parentFolder = NULL;
 	STRRET name;
@@ -83,9 +88,8 @@ stdstring ItemIDList::toString()
 	stdstring ret;
 	HRESULT hr;
 
+	hr = ::SHGetMalloc(&pMalloc);
 	hr = ::SHGetDesktopFolder(&shellFolder);
-	if (!SUCCEEDED(hr))
-		return ret;
 	if (parent_)
 	{
 		hr = shellFolder->BindToObject(parent_, 0, IID_IShellFolder, (void**) &parentFolder);
@@ -100,16 +104,12 @@ stdstring ItemIDList::toString()
 	if ((parentFolder != 0)&&(item_ != 0))
 	{
 		hr = parentFolder->GetDisplayNameOf(item_, SHGDN_NORMAL | SHGDN_FORPARSING, &name);
-		if (!SUCCEEDED(hr))
-			return ret;
 		hr = StrRetToStr (&name, item_, &szDisplayName);
-		if (!SUCCEEDED(hr))
-			return ret;
-	}
+	} // if (parentFolder != 0)
 	if (szDisplayName == NULL)
 	{
 		CoTaskMemFree(szDisplayName);
-		return ret;			//to avoid a crash!
+		return _T("");			//to avoid a crash!
 	}
 	ret = szDisplayName;
 	CoTaskMemFree(szDisplayName);

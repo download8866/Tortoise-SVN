@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,13 +19,12 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SetMainPage.h"
-#include "AppUtils.h"
+#include "Utils.h"
 #include "DirFileEnum.h"
 #include "SVNProgressDlg.h"
 #include "..\version.h"
 #include ".\setdialogs.h"
 #include "SVN.h"
-#include "MessageBox.h"
 
 
 // CSetDialogs dialog
@@ -52,40 +51,21 @@ CSetDialogs::~CSetDialogs()
 {
 }
 
-int CSetDialogs::SaveData()
+void CSetDialogs::SaveData()
 {
 	if (m_bInitialized == FALSE)
-		return 0;
+		return;
 	m_regAutoClose = m_dwAutoClose;
-	if (m_regAutoClose.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regAutoClose.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regShortDateFormat = m_bShortDateFormat;
-	if (m_regShortDateFormat.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regShortDateFormat.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	long val = _ttol(m_sDefaultLogs);
 	if (val > 5)
-	{
 		m_regDefaultLogs = val;
-		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
-			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	}
 	else
-	{
 		m_regDefaultLogs = 100;
-		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
-			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	}
 
 	m_regFontName = m_sFontName;
-	if (m_regFontName.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regFontName.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regFontSize = m_dwFontSize;
-	if (m_regFontSize.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regFontSize.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regUseWCURL = m_bUseWCURL;
-	if (m_regUseWCURL.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regUseWCURL.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	return 0;
 }
 
 void CSetDialogs::DoDataExchange(CDataExchange* pDX)
@@ -137,8 +117,6 @@ BOOL CSetDialogs::OnInitDialog()
 	m_cAutoClose.SetItemData(ind, CLOSE_NOCONFLICTS);
 	ind = m_cAutoClose.AddString(CString(MAKEINTRESOURCE(IDS_PROGRS_CLOSE_NOERROR)));
 	m_cAutoClose.SetItemData(ind, CLOSE_NOERRORS);
-	ind = m_cAutoClose.AddString(CString(MAKEINTRESOURCE(IDS_PROGRS_CLOSE_LOCAL)));
-	m_cAutoClose.SetItemData(ind, CLOSE_LOCAL);
 
 	m_dwAutoClose = m_regAutoClose;
 	m_bShortDateFormat = m_regShortDateFormat;

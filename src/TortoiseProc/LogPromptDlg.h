@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,15 +25,32 @@
 #include "HistoryDlg.h"
 #include "Registry.h"
 #include "SciEdit.h"
-#include "SplitterControl.h"
 
 #define ENDDIALOGTIMER 100
-#define REFRESHTIMER   101
 
 
 /**
  * \ingroup TortoiseProc
  * Dialog to enter log messages used in a commit.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 10-25-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CLogPromptDlg : public CResizableStandAloneDialog, public CSciEditContextMenuInterface // CResizableStandAloneDialog
 {
@@ -50,7 +67,6 @@ public:
 private:
 	static UINT StatusThreadEntry(LPVOID pVoid);
 	UINT StatusThread();
-	void UpdateOKButton();
 
 // Dialog Data
 	enum { IDD = IDD_LOGPROMPT };
@@ -62,7 +78,6 @@ protected:
 	virtual void OnOK();
 	virtual void OnCancel();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedSelectall();
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnBnClickedShowunversioned();
@@ -71,42 +86,37 @@ protected:
 	afx_msg LRESULT OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
 	afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 	afx_msg LRESULT OnAutoListReady(WPARAM, LPARAM);
-	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnLvnItemchangedFilelist(NMHDR *pNMHDR, LRESULT *pResult);
 	void Refresh();
 	void GetAutocompletionList();
 	void ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags);
-	void DoSize(int delta);
-	void SetSplitterRange();
 
 	DECLARE_MESSAGE_MAP()
 
 
 public:
-	CTSVNPathList		m_pathList;
-	BOOL				m_bRecursive;
-	CSciEdit			m_cLogMessage;
-	CString				m_sLogMessage;
-	BOOL				m_bKeepLocks;
-	CString				m_sBugID;
+	CTSVNPathList	m_pathList;
+	BOOL			m_bRecursive;
+	CSciEdit		m_cLogMessage;
+	CString			m_sLogMessage;
+	BOOL			m_bKeepLocks;
 
 private:
-	CWinThread*			m_pThread;
-	CAutoCompletionList	m_autolist;
-	CSVNStatusListCtrl	m_ListCtrl;
-	BOOL				m_bShowUnversioned;
-	volatile LONG		m_bBlock;
-	volatile LONG		m_bThreadRunning;
-	volatile LONG		m_bRunThread;
-	CBalloon			m_tooltips;
-	CRegDWORD			m_regAddBeforeCommit;
-	ProjectProperties	m_ProjectProperties;
-	CButton				m_SelectAll;
-	CString				m_sWindowTitle;
-	static UINT			WM_AUTOLISTREADY;
-	int					m_nPopupPasteListCmd;
-	CHistoryDlg			m_HistoryDlg;
-	bool				m_bCancelled;
-	CSplitterControl	m_wndSplitter;
+	CWinThread*		m_pThread;
+	CAutoCompletionList		m_autolist;
+	CSVNStatusListCtrl		m_ListCtrl;
+	BOOL			m_bShowUnversioned;
+	volatile LONG	m_bBlock;
+	volatile LONG	m_bThreadRunning;
+	volatile LONG	m_bRunThread;
+	CBalloon		m_tooltips;
+	CRegDWORD		m_regAddBeforeCommit;
+	ProjectProperties		m_ProjectProperties;
+	CButton			m_SelectAll;
+	CString			m_sBugID;
+	CString			m_sWindowTitle;
+	static UINT		WM_AUTOLISTREADY;
+	int				m_nPopupPasteListCmd;
+	CHistoryDlg		m_HistoryDlg;
+	bool			m_bCancelled;
 };

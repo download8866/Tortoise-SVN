@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,11 +49,11 @@ public:
 	static bool SaveCache();
 
 public:
-	/// Refreshes the cache.
-	void Refresh();
+	/// Clear the entire cache
+	void Clear();
 
 	/// Get the status for a single path (main entry point, called from named-pipe code
-	CStatusCacheEntry GetStatusForPath(const CTSVNPath& path, DWORD flags,  bool bFetch = true);
+	CStatusCacheEntry GetStatusForPath(const CTSVNPath& path, DWORD flags);
 
 	/// Find a directory in the cache (a new entry will be created if there isn't an existing entry)
 	CCachedDirectory * GetDirectoryCacheEntry(const CTSVNPath& path);
@@ -75,8 +75,6 @@ public:
 	/// in the list of handled shell requests to avoid deadlocks.
 	void UpdateShell(const CTSVNPath& path);
 
-	size_t GetCacheSize() {return m_directoryCache.size();}
-
 	void Init();
 	void Stop();
 
@@ -87,7 +85,6 @@ public:
 	void Done() {m_rwSection.Done();}
 
 	bool IsPathAllowed(CTSVNPath path) {return !!m_shellCache.IsPathAllowed(path.GetWinPath());}
-	bool IsUnversionedAsModified() {return !!m_shellCache.IsUnversionedAsModified();}
 	bool IsPathGood(CTSVNPath path);
 private:
 	bool RemoveCacheForDirectory(CCachedDirectory * cdir);

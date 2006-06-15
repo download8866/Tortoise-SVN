@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,11 +62,7 @@ bool CHistoryDlg::AddString(const CString& sText)
 	for (int i=0; i<m_arEntries.GetCount(); ++i)
 	{
 		if (sText.Compare(m_arEntries[i])==0)
-		{
-			m_arEntries.RemoveAt(i);
-			m_arEntries.InsertAt(0, sText);
 			return false;
-		}
 	}
 	m_arEntries.InsertAt(0, sText);
 	return true;

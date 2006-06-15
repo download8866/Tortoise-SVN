@@ -1,21 +1,3 @@
-// TortoiseSVN - a Windows shell extension for easy version control
-
-// Copyright (C) 2003-2006 - Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
 #include "StdAfx.h"
 #include "Remotecachelink.h"
 #include "ShellExt.h"
@@ -50,12 +32,12 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 	}
 
 	m_hPipe = CreateFile(
-		TSVN_CACHE_PIPE_NAME,			// pipe name
+		_T("\\\\.\\pipe\\TSVNCache"),   // pipe name
 		GENERIC_READ |					// read and write access
 		GENERIC_WRITE,
 		0,								// no sharing
 		NULL,							// default security attributes
-		OPEN_EXISTING,					// opens existing pipe
+		OPEN_EXISTING,				// opens existing pipe
 		FILE_FLAG_OVERLAPPED,			// default attributes
 		NULL);							// no template file
 
@@ -64,15 +46,15 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 		// TSVNCache is running but is busy connecting a different client.
 		// Do not give up immediately but wait for a few milliseconds until
 		// the server has created the next pipe instance
-		if (WaitNamedPipe(TSVN_CACHE_PIPE_NAME, 50))
+		if (WaitNamedPipe(_T("\\\\.\\pipe\\TSVNCache"), 50))
 		{
 			m_hPipe = CreateFile(
-				TSVN_CACHE_PIPE_NAME,			// pipe name
+				_T("\\\\.\\pipe\\TSVNCache"),   // pipe name
 				GENERIC_READ |					// read and write access
 				GENERIC_WRITE,
 				0,								// no sharing
 				NULL,							// default security attributes
-				OPEN_EXISTING,					// opens existing pipe
+				OPEN_EXISTING,				// opens existing pipe
 				FILE_FLAG_OVERLAPPED,			// default attributes
 				NULL);							// no template file
 		}
@@ -217,7 +199,7 @@ bool CRemoteCacheLink::GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCache
 			// the cache didn't respond!
 			fSuccess = FALSE;
 			// send the cache a message to close
-			HWND hWnd = FindWindow(TSVN_CACHE_WINDOW_NAME, TSVN_CACHE_WINDOW_NAME);
+			HWND hWnd = FindWindow(_T("TSVNCacheWindow"), _T("TSVNCacheWindow"));
 			if (hWnd)
 			{
 				PostMessage(hWnd, WM_CLOSE, NULL, NULL);

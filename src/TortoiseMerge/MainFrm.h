@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 #include "XSplitter.h"
 #include "NewToolBar.h"
 #include "Patch.h"
-#include "FindDlg.h"
 
 class CLeftView;
 class CRightView;
@@ -80,8 +79,6 @@ protected:
 	afx_msg void	OnMoving(UINT fwSide, LPRECT pRect);
 	afx_msg void	OnViewSwitchleft();
 	afx_msg void	OnUpdateViewSwitchleft(CCmdUI *pCmdUI);
-	afx_msg void	OnUpdateViewShowfilelist(CCmdUI *pCmdUI);
-	afx_msg void	OnViewShowfilelist();
 
 	DECLARE_MESSAGE_MAP()
 protected:
@@ -112,10 +109,8 @@ protected:
 	int				m_nSearchIndex;
 	CString			m_sFindText;
 	BOOL			m_bMatchCase;
-	bool			m_bLimitToDiff;
 	static const UINT m_FindDialogMessage;
-	CFindDlg *		m_pFindDialog;
-	bool			m_bHasConflicts;
+	CFindReplaceDialog *m_pFindDialog;
 
 public:
 	CLeftView *		m_pwndLeftView;
@@ -125,7 +120,6 @@ public:
 	BOOL			m_bReversedPatch;
 	CDiffData		m_Data;
 	bool			m_bReadOnly;
-	bool			m_bBlame;
 };
 
 

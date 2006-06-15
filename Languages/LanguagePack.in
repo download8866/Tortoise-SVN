@@ -41,18 +41,19 @@ OutFile "..\bin\LanguagePack-${PRODUCT_VERSION_LONG}-${CountryCode}.exe"
 ShowInstDetails show
 
 Section "Hauptgruppe" SEC01
-  !insertmacro FindTSVNPath
-  StrCpy $0 $TSVNPATH
+  ReadRegStr $0 HKLM "software\TortoiseSVN" "Directory"
+  StrCmp $0 "" NotInstalled Installed
+Installed:
+  Goto Proceed
+NotInstalled:
+  MessageBox MB_OK "TortoiseSVN not installed!"
+  Abort
+Proceed:
 !ifdef LangHelp
   StrCpy $INSTDIR "$0bin"
   SetOutPath "$INSTDIR"
-!ifdef HelpFatal
   File "..\doc\output\TortoiseSVN_${CountryCode}.chm"
   File "..\doc\output\TortoiseMerge_${CountryCode}.chm"
-!else
-  File /nonfatal "..\doc\output\TortoiseSVN_${CountryCode}.chm"
-  File /nonfatal "..\doc\output\TortoiseMerge_${CountryCode}.chm"
-!endif
 !endif
   StrCpy $INSTDIR "$0Languages"
   SetOutPath "$INSTDIR"

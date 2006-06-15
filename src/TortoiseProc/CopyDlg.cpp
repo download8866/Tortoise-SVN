@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -77,8 +77,6 @@ BOOL CCopyDlg::OnInitDialog()
 	CStandAloneDialog::OnInitDialog();
 
 	CTSVNPath path(m_path);
-
-	m_HistoryDlg.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	if (m_CopyRev.IsHead())
 	{
@@ -159,7 +157,6 @@ void CCopyDlg::OnOK()
 		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
 		return;
 	}
-	m_sLogMessage = m_cLogMessage.GetText();
 	if ((m_ProjectProperties.bWarnIfNoIssue) && (id.IsEmpty() && !m_ProjectProperties.HasBugID(m_sLogMessage)))
 	{
 		if (CMessageBox::Show(this->m_hWnd, IDS_LOGPROMPT_NOISSUEWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
@@ -191,6 +188,7 @@ void CCopyDlg::OnOK()
 	}
 	m_URLCombo.SaveHistory();
 	m_URL = m_URLCombo.GetString();
+	m_sLogMessage = m_cLogMessage.GetText();
 	m_HistoryDlg.AddString(m_sLogMessage);
 	m_HistoryDlg.SaveHistory();
 
@@ -247,7 +245,7 @@ void CCopyDlg::OnBnClickedBrowse()
 	else if ((strUrl.Left(7) == _T("http://")
 		||(strUrl.Left(8) == _T("https://"))
 		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+		||(strUrl.Left(10) == _T("svn+ssh://"))) && strUrl.GetLength() > 6)
 	{
 		// browse repository - show repository browser
 		CRepositoryBrowser browser(strUrl, this, m_bFile);
@@ -303,7 +301,7 @@ void CCopyDlg::OnBnClickedBrowsefrom()
 		m_pLogDlg = new CLogDlg();
 		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
 		int limit = (int)(LONG)reg;
-		m_pLogDlg->SetParams(CTSVNPath(m_wcURL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE);
+		m_pLogDlg->SetParams(CTSVNPath(m_wcURL), SVNRev::REV_HEAD, 1, limit, TRUE);
 		m_pLogDlg->SetSelect(true);
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg->ShowWindow(SW_SHOW);

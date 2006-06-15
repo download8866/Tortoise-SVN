@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,33 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
+
 #pragma once
 
 #include "TSVNPath.h"
 #include "SVNRev.h"
 #include "Colors.h"
-#include "DragDropImpl.h"
 
 class SVNConfig;
 class SVNStatus;
-class CSVNStatusListCtrlDropTarget;
 
-#define SVNSLC_COLEXT			0x000000002
-#define SVNSLC_COLSTATUS		0x000000004
-#define SVNSLC_COLREMOTESTATUS	0x000000008
-#define SVNSLC_COLTEXTSTATUS	0x000000010
-#define SVNSLC_COLPROPSTATUS	0x000000020
-#define SVNSLC_COLREMOTETEXT	0x000000040
-#define SVNSLC_COLREMOTEPROP	0x000000080
-#define SVNSLC_COLURL			0x000000100
+#define SVNSLC_COLSTATUS		0x000000002
+#define SVNSLC_COLREMOTESTATUS	0x000000004
+#define SVNSLC_COLTEXTSTATUS	0x000000008
+#define SVNSLC_COLPROPSTATUS	0x000000010
+#define SVNSLC_COLREMOTETEXT	0x000000020
+#define SVNSLC_COLREMOTEPROP	0x000000040
+#define SVNSLC_COLURL			0x000000080
+#define SVNSLC_COLEXT			0x000000100
 #define SVNSLC_COLLOCK			0x000000200
 #define SVNSLC_COLLOCKCOMMENT	0x000000400
 #define SVNSLC_COLAUTHOR		0x000000800
 #define	SVNSLC_COLREVISION		0x000001000
 #define	SVNSLC_COLDATE			0x000002000
-#define SVNSLC_COLSVNNEEDSLOCK	0x000004000
-#define SVNSLC_NUMCOLUMNS		15
+
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
 #define SVNSLC_SHOWNORMAL		0x000000002
@@ -97,8 +94,6 @@ SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLE
 #define SVNSLC_POPUNLOCK				0x00002000
 #define SVNSLC_POPUNLOCKFORCE			0x00004000
 #define SVNSLC_POPEXPLORE				0x00008000
-#define SVNSLC_POPCOMMIT				0x00010000
-#define SVNSLC_POPPROPERTIES			0x00020000
 
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
@@ -113,6 +108,20 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
  * win98 or later\n
  * win2k or later\n
  * MFC\n
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 07-04-2004
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CSVNStatusListCtrl : public CListCtrl
 {
@@ -129,13 +138,6 @@ public:
 	 * a thread, this message is used to tell the parent to do exactly that.
 	 */
 	static const UINT SVNSLNM_NEEDSREFRESH;
-
-	/**
-	 * Sent to the parent window (using ::SendMessage) when the user drops
-	 * files on the control. The LPARAM is a pointer to a TCHAR string
-	 * containing the dropped path.
-	 */
-	static const UINT SVNSLNM_ADDFILE;
 
 	CSVNStatusListCtrl();
 	~CSVNStatusListCtrl();
@@ -158,7 +160,6 @@ public:
 			, remotetextstatus(svn_wc_status_unversioned)
 			, remotepropstatus(svn_wc_status_unversioned)
 			, copied(false)
-			, switched(false)
 			, checked(false)
 			, inunversionedfolder(false)
 			, inexternal(false)
@@ -167,7 +168,6 @@ public:
 			, isNested(false)
 			, Revision(0)
 			, isConflicted(false)
-			, present_props(_T(""))
 		{
 		}
 		const CTSVNPath& GetPath() const					
@@ -192,10 +192,6 @@ public:
 		{
 			return isfolder;
 		}
-		const bool IsInExternal() const
-		{
-			return inexternal;
-		}
 	public:
 		svn_wc_status_kind		status;					///< local status
 	private:
@@ -218,7 +214,6 @@ public:
 		svn_wc_status_kind		remotetextstatus;		///< remote text status
 		svn_wc_status_kind		remotepropstatus;		///< remote property status
 		bool					copied;					///< if the file/folder is added-with-history
-		bool					switched;				///< if the file/folder is switched to another url
 		bool					checked;				///< if the file is checked in the list control
 		bool					inunversionedfolder;	///< if the file is inside an unversioned folder
 		bool					inexternal;				///< if the item is in an external folder
@@ -227,23 +222,15 @@ public:
 		bool					isNested;				///< TRUE if the folder from a different repository and/or path
 		bool					isConflicted;			///> TRUE if a file entry is conflicted, i.e. if it has the conflicted paths set
 		svn_revnum_t			Revision;				///< the last committed revision
-		CString					present_props;			///< cacheable properties present in BASE
 		friend class CSVNStatusListCtrl;
 	};
 
 	/**
 	 * Initializes the control, sets up the columns.
 	 * \param dwColumns mask of columns to show. Use the SVNSLC_COLxxx defines.
-	 * \param sColumnInfoContainer Name of a registry key 
-	 *                             where the position and visibility of each column
-	 *                             is saved and used from. If the registry key
-	 *                             doesn't exist, the default order is used
-	 *                             and dwColumns tells which columns are visible.
-	 * \param dwContextMenus mask of context menus to be active, not all make sense for every use of this control.
-	 *                       Use the SVNSLC_POPxxx defines.
-	 * \param bHasCheckboxes TRUE if the control should show checkboxes on the left of each file entry.
+	 * \param bHasCheckboxes TRUE if the control should show checkboxes on the left of each file entry
 	 */
-	void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = (SVNSLC_POPALL ^ SVNSLC_POPCOMMIT), bool bHasCheckboxes = true);
+	void Init(DWORD dwColumns, DWORD dwContextMenus = SVNSLC_POPALL, bool bHasCheckboxes = true);
 
 	/**
 	 * Fetches the Subversion status of all files and stores the information
@@ -253,7 +240,7 @@ public:
 	 * \param bUpdate TRUE if the remote status is requested too.
 	 * \return TRUE on success.
 	 */
-	BOOL GetStatus(const CTSVNPathList& pathList, bool bUpdate = false, bool bShowIgnores = false);
+	BOOL GetStatus(const CTSVNPathList& pathList, bool bUpdate = false);
 
 	/**
 	 * Populates the list control with the previously (with GetStatus) gathered status information.
@@ -261,13 +248,6 @@ public:
 	 * \param dwCheck mask of file types to check. Use SVNLC_SHOWxxx defines. Default (0) means 'use the entry's stored check status'
 	 */
 	void Show(DWORD dwShow, DWORD dwCheck = 0, bool bShowFolders = true);
-
-	/**
-	 * Copies the selected entries in the control to the clipboard. The entries
-	 * are separated by newlines.
-	 * \param dwCols the columns to copy. Each column is separated by a tab.
-	 */
-	bool CopySelectedEntriesToClipboard(DWORD dwCols);
 
 	/**
 	 * If during the call to GetStatus() some svn:externals are found from different
@@ -284,7 +264,6 @@ public:
 	 * If unversioned files are found (but not necessarily shown) TRUE is returned.
 	 */
 	BOOL HasUnversionedItems() {return m_bHasUnversionedItems;}
-
 	/**
 	 * Returns the file entry data for the list control index.
 	 */
@@ -308,12 +287,6 @@ public:
 	 * if all files are checked, none are checked or some are checked.
 	 */
 	void SetSelectButton(CButton * pButton) {m_pSelectButton = pButton;}
-
-	/**
-	 * Set a button which is de-/activated automatically. The button is
-	 * only set active if at least one item is selected.
-	 */
-	void SetConfirmButton(CButton * pButton) {m_pConfirmButton = pButton;}
 
 	/**
 	 * Select/unselect all entries in the list control.
@@ -375,20 +348,6 @@ public:
 	 */
 	void SetUnversionedRecurse(bool bUnversionedRecurse) {m_bUnversionedRecurse = bUnversionedRecurse;}
 	
-	/**
-	 * Returns the number of selected items
-	 */
-	LONG GetSelected(){return m_nSelected;};
-
-	/**
-	 * Enables dropping of files on the control.
-	 */
-	bool EnableFileDrop();
-
-	/**
-	 * Checks if the path already exists in the list.
-	 */
-	bool HasPath(CTSVNPath path);
 public:
 	CString GetLastErrorMessage() {return m_sLastError;}
 
@@ -405,16 +364,17 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void SaveColumnWidths(bool bSaveToRegistry = false);
 	void Sort();	///< Sorts the control by columns
-	void AddEntry(FileEntry * entry, WORD langID, int listIndex);	///< add an entry to the control
+	void AddEntry(const FileEntry * entry, WORD langID, int listIndex);	///< add an entry to the control
 	void RemoveListEntry(int index);	///< removes an entry from the listcontrol and both arrays
-	bool BuildStatistics();	///< build the statistics and correct the case of files/folders
+	bool BuildStatistics();	///< build the statistics
 	void StartDiff(int fileindex);	///< start the external diff program
+	CTSVNPath BuildTargetFile();		///< builds a temporary files containing the paths of the selected entries
+	//static int __cdecl SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 	static bool CSVNStatusListCtrl::SortCompare(const FileEntry* entry1, const FileEntry* entry2);
 
 	/// Process one line of the command file supplied to GetStatus
-	bool FetchStatusForSingleTarget(SVNConfig& config, SVNStatus& status, const CTSVNPath& target, bool bFetchStatusFromRepository, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, bool bAllDirect, bool recurse = true, bool bShowIgnores = false); 
+	bool FetchStatusForSingleTarget(SVNConfig& config, SVNStatus& status, const CTSVNPath& target, bool bFetchStatusFromRepository, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, bool bAllDirect, bool recurse = true); 
 
 	/// Create 'status' data for each item in an unversioned folder
 	void AddUnversionedFolder(const CTSVNPath& strFolderName, const CTSVNPath& strBasePath, apr_array_header_t *pIgnorePatterns);
@@ -454,18 +414,11 @@ private:
 
 	int CellRectFromPoint(CPoint& point, RECT *cellrect, int *col) const;
 
-	bool StringToOrderArray(const CString& OrderString, int OrderArray[]);
-	CString OrderArrayToString(int OrderArray[]);
-	bool StringToWidthArray(const CString& WidthString, int WidthArray[]);
-	CString WidthArrayToString(int WidthArray[]);
-
 	virtual void PreSubclassWindow();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual INT_PTR OnToolHitTest(CPoint point, TOOLINFO* pTI) const;
-	afx_msg void OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg BOOL OnToolTipText(UINT id, NMHDR *pNMHDR, LRESULT *pResult);	
 	afx_msg void OnHdnItemclick(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg BOOL OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnGetInfoTip(NMHDR *pNMHDR, LRESULT *pResult);
@@ -475,14 +428,12 @@ private:
 	afx_msg void OnNMReturn(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnPaint();
-	afx_msg void OnHdnBegintrack(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnHdnItemchanging(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDestroy();
 
 private:
 	bool *						m_pbCanceled;
 	static bool					m_bAscending;		///< sort direction
 	static int					m_nSortedColumn;	///< which column to sort
+	static int					m_nSortedInternalColumn;
 	bool						m_bHasExternalsFromDifferentRepos;
 	bool						m_bHasExternals;
 	BOOL						m_bHasUnversionedItems;
@@ -505,8 +456,6 @@ private:
 	DWORD						m_dwColumns;
 	DWORD						m_dwShow;
 	bool						m_bShowFolders;
-	bool						m_bShowIgnores;
-	bool						m_bUpdate;
 	DWORD						m_dwContextMenus;
 	BOOL						m_bBlock;
 	bool						m_bBusy;
@@ -515,47 +464,10 @@ private:
 
 	CWnd *						m_pStatLabel;
 	CButton *					m_pSelectButton;
-	CButton *					m_pConfirmButton;
 	CColors						m_Colors;
 	
 	CString						m_sEmpty;
 	CString						m_sBusy;
 
 	bool						m_bUnversionedRecurse;
-	DWORD						m_ColumnShown[SVNSLC_NUMCOLUMNS];
-	CString						m_sColumnInfoContainer;
-	int							m_arColumnWidths[SVNSLC_NUMCOLUMNS];
-
-	CSVNStatusListCtrlDropTarget * m_pDropTarget;
-
-	std::map<CString,bool> m_mapFilenameToChecked; ///< Remember manually de-/selected items
-};
-
-class CSVNStatusListCtrlDropTarget : public CIDropTarget
-{
-public:
-	CSVNStatusListCtrlDropTarget(HWND hTargetWnd):CIDropTarget(hTargetWnd){}
-	virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD * /*pdwEffect*/)
-	{
-		if(pFmtEtc->cfFormat == CF_HDROP && medium.tymed == TYMED_HGLOBAL)
-		{
-			HDROP hDrop = (HDROP)GlobalLock(medium.hGlobal);
-			if(hDrop != NULL)
-			{
-				TCHAR szFileName[MAX_PATH];
-
-				UINT cFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); 
-				for(UINT i = 0; i < cFiles; ++i)
-				{
-					DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)); 
-					HWND hParentWnd = GetParent(m_hTargetWnd);
-					if (hParentWnd != NULL)
-						::SendMessage(hParentWnd, CSVNStatusListCtrl::SVNSLNM_ADDFILE, 0, (LPARAM)szFileName);
-				}  
-			}
-			GlobalUnlock(medium.hGlobal);
-		}
-		return true; //let base free the medium
-	}
-
 };

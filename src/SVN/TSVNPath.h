@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-//
+
 #pragma once
 
 #if defined(_MFC_VER)
@@ -137,6 +137,10 @@ public:
 	 */
 	bool IsEquivalentTo(const CTSVNPath& rhs) const;
 	bool operator==(const CTSVNPath& x) const {return IsEquivalentTo(x);}
+	/**
+	 * Checks if two paths are equal, also in case.
+	 */
+	bool IsEquivalentToWithCase(const CTSVNPath& rhs) const;
 	
 	/**
 	 * Checks if \c possibleDescendant is a child of this path.
@@ -146,6 +150,7 @@ public:
 	 * Get a string representing the file path, optionally with a base 
 	 * section stripped off the front
 	 * Returns a string with fwdslash paths 
+	 * \todo: Is this really what's wanted?
 	 */
 	CString GetDisplayString(const CTSVNPath* pOptionalBasePath = NULL) const;
 	/**
@@ -206,8 +211,6 @@ public:
 	 */
 	bool IsAdminDir() const;
 
-	void SetCustomData(LPARAM lp) {m_customData = lp;}
-	LPARAM GetCustomData() {return m_customData;}
 #if defined(_MFC_VER)
 	/**
 	 * Checks if the path or URL is valid on Windows.
@@ -263,7 +266,6 @@ private:
 	mutable bool m_bIsAdminDir;
 	mutable bool m_bExists;
 	mutable bool m_bExistsKnown;
-	mutable LPARAM m_customData;
 
 	friend bool operator<(const CTSVNPath& left, const CTSVNPath& right);
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 #include "svn_version.h"
 #include "..\version.h"
 #include "BDBVersion.h"
-#include "AppUtils.h"
+#include "Utils.h"
 
 // CAboutDlg dialog
 
@@ -142,5 +142,5 @@ void CAboutDlg::OnBnClickedUpdate()
 	GetModuleFileName(NULL, com, MAX_PATH);
 	_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck /visible"));
 
-	CAppUtils::LaunchApplication(com, 0, false);
+	CUtils::LaunchApplication(com, 0, false);
 }

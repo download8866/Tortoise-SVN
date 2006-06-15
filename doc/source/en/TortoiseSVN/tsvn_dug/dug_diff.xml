@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-diff">
+<sect1 id="tsvn-DUG-diff">
 	<title>Viewing Differences</title>
 	<indexterm>
 		<primary>diff</primary>
@@ -10,14 +10,10 @@
 		see what has changed. You might want to look at the differences
 		between two revisions of the same file, or the differences between
 		two separate files.
-		TortoiseSVN provides a builtin tool named 
-		<application>TortoiseMerge</application> for viewing differences of
-		text files. For viewing differences of image files, TortoiseSVN
-		also has a tool named <application>TortoiseIDiff</application>.
-		Of course, you can user your own favourite diff program if you
-		like.
+		TortoiseSVN provides some builtin tools for this, and also
+		allows you to use your own favourite diff program.
 	</para>
-	<sect2 id="tsvn-dug-diff-file">
+	<sect2 id="tsvn-DUG-diff-file">
 		<title>File Differences</title>
 		<variablelist>
 			<varlistentry>
@@ -31,24 +27,6 @@
 							<guimenu>TortoiseSVN</guimenu>
 							<guimenuitem>Diff</guimenuitem>
 						</menuchoice>.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Difference to another branch</term>
-				<listitem>
-					<para>
-						If you want to see what has changed on trunk (if you are
-						working on a branch) or on a specific branch (if you are
-						working on trunk), you can use the explorer context menu.
-						Just hold down the <keycap>Shift</keycap> key while you
-						right click on the file. Then select
-						<menuchoice>
-							<guimenu>TortoiseSVN</guimenu>
-							<guimenuitem>Diff with URL</guimenuitem>
-						</menuchoice>. In the following dialog, specify the URL in
-						the repository with which you want to compare your local
-						file to.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -108,36 +86,9 @@
 					</para>
 				</listitem>
 			</varlistentry>
-			<varlistentry>
-				<term>Difference between WC file and a URL</term>
-				<listitem>
-					<para>
-						If you want to see the differences between a file in your
-						working copy, and a file in any Subversion repository,
-						you can do that directly in explorer by selecting the
-						file then holding down the <keycap>Shift</keycap> key whilst
-						right clicking to obtain the context menu. Select
-						<menuchoice>
-							<guimenu>TortoiseSVN</guimenu>
-							<guimenuitem>Diff with URL</guimenuitem>
-						</menuchoice>.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Difference with blame information</term>
-				<listitem>
-					<para>
-						If you want to see not only the differences but also the author,
-						revision and date that changes were made, you can combine the
-						diff and blame reports from within the revision log dialog.
-						Read <xref linkend="tsvn-dug-blame-diffs"/> for more detail.
-					</para>
-				</listitem>
-			</varlistentry>
 		</variablelist>
 	</sect2>
-	<sect2 id="tsvn-dug-diff-dir">
+	<sect2 id="tsvn-DUG-diff-dir">
 		<title>Folder Differences</title>
 		<para>
 		The builtin tools supplied with TortoiseSVN do not support viewing
@@ -146,7 +97,7 @@
 		In the next section we tell you about some tools which we have used.
 	</para>
 	</sect2>
-	<sect2 id="tsvn-dug-diff-tools">
+	<sect2 id="tsvn-DUG-diff-tools">
 		<title>External Diff/Merge Tools</title>
 		<indexterm>
 			<primary>diff tools</primary>
@@ -268,9 +219,33 @@
 					</para>
 				</listitem>
 			</varlistentry>
+			<varlistentry>
+				<term>TkDiff</term>
+				<listitem>
+					<para>
+						A free diff/merge tool which uses TCL/TK.
+						Download it 
+						<ulink url="http://www.accurev.com/free/tkdiff/">
+							<citetitle>here</citetitle>
+						</ulink>.
+					</para>
+				</listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>CVSConflictEditor</term>
+				<listitem>
+					<para>
+						This open source merge tool is buggy, but has potential.
+						Download it 
+						<ulink url="http://sourceforge.net/projects/conflicteditor/">
+							<citetitle>here</citetitle>
+						</ulink>.
+					</para>
+				</listitem>
+			</varlistentry>
 		</variablelist>
 		<para>
-			Read <xref linkend="tsvn-dug-settings-progs"/> for information
+			Read <xref linkend="tsvn-DUG-settings-progs"/> for information
 			on how to set up TortoiseSVN to use these tools.
 		</para>
 	</sect2>

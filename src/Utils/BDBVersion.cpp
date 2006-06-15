@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@
 #include "BDBVersion.h"
 
 #ifdef _WIN64
-#include "..\..\ext\berkeley-db\db4.4-x64\include\db.h"
+#include "..\..\ext\berkeley-db\db4.3-win64\include\db.h"
 #else
-#include "..\..\ext\berkeley-db\db4.4-win32\include\db.h"
+#include "..\..\ext\berkeley-db\db4.3-win32\include\db.h"
 #endif
 
 const int g_iDB_VERSION_MAJOR = DB_VERSION_MAJOR;

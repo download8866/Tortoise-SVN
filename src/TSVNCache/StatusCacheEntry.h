@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,14 +30,13 @@ class CStatusCacheEntry
 {
 public:
 	CStatusCacheEntry();
-	CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool bReadOnly, DWORD validuntil = 0);
+	CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool bReadOnly);
 	bool HasExpired(long now) const;
 	void BuildCacheResponse(TSVNCacheResponse& response, DWORD& responseLength) const;
 	bool IsVersioned() const;
 	bool DoesFileTimeMatch(__int64 testTime) const;
 	bool ForceStatus(svn_wc_status_kind forcedStatus);
 	svn_wc_status_kind GetEffectiveStatus() const { return m_highestPriorityLocalStatus; }
-	bool IsKindKnown() const { return ((m_kind != svn_node_none)&&(m_kind != svn_node_unknown)); }
 	void SetStatus(const svn_wc_status2_t* pSVNStatus);
 	bool HasBeenSet() const;
 	void Invalidate();
@@ -61,7 +60,6 @@ private:
 	CStringA			m_sUrl;
 	CStringA			m_sOwner;
 	CStringA			m_sAuthor;
-	CStringA			m_sPresentProps;
 	svn_revnum_t		m_commitRevision;
 
 //	friend class CSVNStatusCache;

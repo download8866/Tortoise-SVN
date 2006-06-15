@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -134,12 +134,12 @@ public:
 		return TRUE;
 	}
 	
-	SVNRev GetCopyFromRev(CTSVNPath url, CString& copyfromURL, SVNRev pegrev)
+	SVNRev GetCopyFromRev(CTSVNPath url, CString& copyfromURL)
 	{
 		SVNRev rev;
 		m_reposroot = GetRepositoryRoot(url);
 		m_relativeurl = url.GetSVNPathString().Mid(m_reposroot.GetLength());
-		if (ReceiveLog(CTSVNPathList(url), pegrev, SVNRev::REV_HEAD, 1, 0, TRUE, TRUE))
+		if (ReceiveLog(CTSVNPathList(url), SVNRev::REV_HEAD, 1, 0, TRUE, TRUE))
 		{
 			rev = m_rev;
 			copyfromURL = m_copyfromurl;

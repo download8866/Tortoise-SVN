@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,16 +44,28 @@ protected:
 	afx_msg BOOL	OnEraseBkgnd(CDC* pDC);
 
 	virtual CSize	CalcFixedLayout(BOOL bStretch, BOOL bHorz);
+	//virtual CSize	CalcDynamicLayout(int nLength, DWORD nMode);
+
+	void DrawInlineDiff(CDC &dc, const CRect *upperrect, const CRect *lowerrect, int line);
 
 	CBitmap *		m_pCacheBitmap;
 
 	int				m_nLineIndex;
 	int				m_nLineHeight;
+	int				m_nIgnoreWS;
 
+	int				m_bBinaryDiff;
 
 	DECLARE_MESSAGE_MAP()
 public:
 	CMainFrame *	m_pMainFrm;
+
+private:
+	const TCHAR *Search(const TCHAR *haystack, size_t haystacklen, 
+						const TCHAR *needle, size_t needlelen, 
+						size_t *max);
+	void InLineDiff(CDWordArray & result, CString & base, CString & your);
+	static COLORREF m_BinDiffColors[];
 };
 
 

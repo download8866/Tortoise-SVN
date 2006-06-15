@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,8 +19,7 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ToolAssocDlg.h"
-#include "AppUtils.h"
-#include "StringUtils.h"
+#include "Utils.h"
 
 
 // CToolAssocDlg dialog
@@ -126,7 +125,7 @@ void CToolAssocDlg::OnBnClickedToolbrowse()
 	ofn.lpstrInitialDir = NULL;
 	CString temp;
 	temp.LoadString(IDS_SETTINGS_SELECTDIFF);
-	CStringUtils::RemoveAccelerators(temp);
+	CUtils::RemoveAccelerators(temp);
 	ofn.lpstrTitle = temp;
 	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
 

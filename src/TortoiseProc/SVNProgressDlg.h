@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "TSVNPath.h"
 #include "SVN.h"
 #include "Colors.h"
-#include "afxwin.h"
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
@@ -40,9 +39,7 @@ typedef enum
 	ProgOptKeeplocks = 0x10,
 	/// for locking this means steal the lock, for unlocking it means breaking the lock
 	ProgOptLockForce = 0x20,
-	ProgOptSwitchAfterCopy = 0x40,
-	ProgOptIncludeIgnored = 0x80,
-	ProgOptIgnoreAncestry = 0x100
+	ProgOptSwitchAfterCopy = 0x40
 } ProgressOptions;
 
 typedef enum
@@ -50,8 +47,7 @@ typedef enum
 	CLOSE_MANUAL = 0,
 	CLOSE_NOERRORS,
 	CLOSE_NOCONFLICTS,
-	CLOSE_NOMERGES,
-	CLOSE_LOCAL
+	CLOSE_NOMERGES
 } ProgressCloseOptions;
 
 /**
@@ -59,6 +55,25 @@ typedef enum
  * Handles different Subversion commands and shows the notify messages
  * in a listbox. Since several Subversion commands have similar notify
  * messages they are grouped together in this single class.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CSVNProgressDlg : public CResizableStandAloneDialog, SVN
 {
@@ -106,7 +121,6 @@ private:
 		// The text we put into the first column (the SVN action for normal items, just text for aux items)
 		CString					sActionColumnText;	
 		CTSVNPath				path;
-		CTSVNPath				basepath;
 
 		svn_wc_notify_action_t	action;
 		svn_node_kind_t			kind;
@@ -114,7 +128,7 @@ private:
 		svn_wc_notify_state_t	content_state;
 		svn_wc_notify_state_t	prop_state;
 		svn_wc_notify_lock_state_t lock_state;
-		svn_revnum_t			rev;
+		LONG					rev;
 		COLORREF				color;
 		CString					owner;						///< lock owner
 		bool					bConflictedActionItem;		// Is this item a conflict?
@@ -175,7 +189,6 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg LRESULT OnSVNProgress(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnEnSetfocusInfotext();
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
@@ -210,7 +223,6 @@ public:
 	SVNRev		m_RevisionEnd;
 
 private:
-	typedef std::map<CStringA, svn_revnum_t> StringRevMap;
 
 	typedef std::vector<NotificationData *> NotificationDataVect;
 	NotificationDataVect	m_arData;
@@ -225,10 +237,7 @@ private:
 	CString		m_sMessage;
 	SVNRev		m_Revision;
 	SVNRev		m_pegRev;
-	
-	CTSVNPath	m_basePath;
-	StringRevMap m_UpdateStartRevMap;
-	StringRevMap m_FinishedRevMap;
+	LONG		m_nUpdateStartRev;
 	BOOL		m_bCancelled;
 	volatile LONG m_bThreadRunning;
 	bool		m_bConflictsOccurred;
@@ -238,8 +247,6 @@ private:
 	BOOL		bSecondResized;
 	CString		m_sTotalBytesTransferred;
 	CColors		m_Colors;
-
-	bool		m_bLockWarning;
 
 private:
 	// In preparation for removing SVN as base class

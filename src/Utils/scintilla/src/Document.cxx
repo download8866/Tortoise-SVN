@@ -15,7 +15,6 @@
 #include "Scintilla.h"
 #include "SVector.h"
 #include "CellBuffer.h"
-#include "CharClassify.h"
 #include "Document.h"
 #include "RESearch.h"
 
@@ -51,6 +50,7 @@ Document::Document() {
 	stylingBits = 5;
 	stylingBitsMask = 0x1F;
 	stylingMask = 0;
+	SetDefaultCharClasses(true);
 	endStyled = 0;
 	styleClock = 0;
 	enteredCount = 0;
@@ -836,10 +836,10 @@ int Document::ParaDown(int pos) {
 		return LineEnd(line-1);
 }
 
-CharClassify::cc Document::WordCharClass(unsigned char ch) {
+Document::charClassification Document::WordCharClass(unsigned char ch) {
 	if ((SC_CP_UTF8 == dbcsCodePage) && (ch >= 0x80))
-		return CharClassify::ccWord;
-	return charClass.GetClass(ch);
+		return ccWord;
+	return charClass[ch];
 }
 
 /**
@@ -847,7 +847,7 @@ CharClassify::cc Document::WordCharClass(unsigned char ch) {
  * Finds the start of word at pos when delta < 0 or the end of the word when delta >= 0.
  */
 int Document::ExtendWordSelect(int pos, int delta, bool onlyWordCharacters) {
-	CharClassify::cc ccStart = CharClassify::ccWord;
+	charClassification ccStart = ccWord;
 	if (delta < 0) {
 		if (!onlyWordCharacters)
 			ccStart = WordCharClass(cb.CharAt(pos-1));
@@ -871,19 +871,19 @@ int Document::ExtendWordSelect(int pos, int delta, bool onlyWordCharacters) {
  */
 int Document::NextWordStart(int pos, int delta) {
 	if (delta < 0) {
-		while (pos > 0 && (WordCharClass(cb.CharAt(pos - 1)) == CharClassify::ccSpace))
+		while (pos > 0 && (WordCharClass(cb.CharAt(pos - 1)) == ccSpace))
 			pos--;
 		if (pos > 0) {
-			CharClassify::cc ccStart = WordCharClass(cb.CharAt(pos-1));
+			charClassification ccStart = WordCharClass(cb.CharAt(pos-1));
 			while (pos > 0 && (WordCharClass(cb.CharAt(pos - 1)) == ccStart)) {
 				pos--;
 			}
 		}
 	} else {
-		CharClassify::cc ccStart = WordCharClass(cb.CharAt(pos));
+		charClassification ccStart = WordCharClass(cb.CharAt(pos));
 		while (pos < (Length()) && (WordCharClass(cb.CharAt(pos)) == ccStart))
 			pos++;
-		while (pos < (Length()) && (WordCharClass(cb.CharAt(pos)) == CharClassify::ccSpace))
+		while (pos < (Length()) && (WordCharClass(cb.CharAt(pos)) == ccSpace))
 			pos++;
 	}
 	return pos;
@@ -899,22 +899,22 @@ int Document::NextWordStart(int pos, int delta) {
 int Document::NextWordEnd(int pos, int delta) {
 	if (delta < 0) {
 		if (pos > 0) {
-			CharClassify::cc ccStart = WordCharClass(cb.CharAt(pos-1));
-			if (ccStart != CharClassify::ccSpace) {
+			charClassification ccStart = WordCharClass(cb.CharAt(pos-1));
+			if (ccStart != ccSpace) {
 				while (pos > 0 && WordCharClass(cb.CharAt(pos - 1)) == ccStart) {
 					pos--;
 				}
 			}
-			while (pos > 0 && WordCharClass(cb.CharAt(pos - 1)) == CharClassify::ccSpace) {
+			while (pos > 0 && WordCharClass(cb.CharAt(pos - 1)) == ccSpace) {
 				pos--;
 			}
 		}
 	} else {
-		while (pos < Length() && WordCharClass(cb.CharAt(pos)) == CharClassify::ccSpace) {
+		while (pos < Length() && WordCharClass(cb.CharAt(pos)) == ccSpace) {
 			pos++;
 		}
 		if (pos < Length()) {
-			CharClassify::cc ccStart = WordCharClass(cb.CharAt(pos));
+			charClassification ccStart = WordCharClass(cb.CharAt(pos));
 			while (pos < Length() && WordCharClass(cb.CharAt(pos)) == ccStart) {
 				pos++;
 			}
@@ -929,8 +929,8 @@ int Document::NextWordEnd(int pos, int delta) {
  */
 bool Document::IsWordStartAt(int pos) {
 	if (pos > 0) {
-		CharClassify::cc ccPos = WordCharClass(CharAt(pos));
-		return (ccPos == CharClassify::ccWord || ccPos == CharClassify::ccPunctuation) &&
+		charClassification ccPos = WordCharClass(CharAt(pos));
+		return (ccPos == ccWord || ccPos == ccPunctuation) &&
 			(ccPos != WordCharClass(CharAt(pos - 1)));
 	}
 	return true;
@@ -942,8 +942,8 @@ bool Document::IsWordStartAt(int pos) {
  */
 bool Document::IsWordEndAt(int pos) {
 	if (pos < Length()) {
-		CharClassify::cc ccPrev = WordCharClass(CharAt(pos-1));
-		return (ccPrev == CharClassify::ccWord || ccPrev == CharClassify::ccPunctuation) &&
+		charClassification ccPrev = WordCharClass(CharAt(pos-1));
+		return (ccPrev == ccWord || ccPrev == ccPunctuation) &&
 			(ccPrev != WordCharClass(CharAt(pos)));
 	}
 	return true;
@@ -1004,7 +1004,7 @@ long Document::FindText(int minPos, int maxPos, const char *s,
                         int *length) {
 	if (regExp) {
 		if (!pre)
-			pre = new RESearch(&charClass);
+			pre = new RESearch();
 		if (!pre)
 			return -1;
 
@@ -1266,11 +1266,27 @@ void Document::ChangeCase(Range r, bool makeUpperCase) {
 }
 
 void Document::SetDefaultCharClasses(bool includeWordClass) {
-    charClass.SetDefaultCharClasses(includeWordClass);
+	// Initialize all char classes to default values
+	for (int ch = 0; ch < 256; ch++) {
+		if (ch == '\r' || ch == '\n')
+			charClass[ch] = ccNewLine;
+		else if (ch < 0x20 || ch == ' ')
+			charClass[ch] = ccSpace;
+		else if (includeWordClass && (ch >= 0x80 || isalnum(ch) || ch == '_'))
+			charClass[ch] = ccWord;
+		else
+			charClass[ch] = ccPunctuation;
+	}
 }
 
-void Document::SetCharClasses(const unsigned char *chars, CharClassify::cc newCharClass) {
-    charClass.SetCharClasses(chars, newCharClass);
+void Document::SetCharClasses(const unsigned char *chars, charClassification newCharClass) {
+	// Apply the newCharClass to the specifed chars
+	if (chars) {
+		while (*chars) {
+			charClass[*chars] = newCharClass;
+			chars++;
+		}
+	}
 }
 
 void Document::SetStylingBits(int bits) {
@@ -1414,7 +1430,7 @@ void Document::NotifyModified(DocModification mh) {
 }
 
 bool Document::IsWordPartSeparator(char ch) {
-	return (WordCharClass(ch) == CharClassify::ccWord) && IsPunctuation(ch);
+	return (WordCharClass(ch) == ccWord) && IsPunctuation(ch);
 }
 
 int Document::WordPartLeft(int pos) {

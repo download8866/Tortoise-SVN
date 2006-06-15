@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 
 #include "ColourPickerXP.h"
-#include "registry.h"
 
 // CSetColorPage dialog
 
@@ -52,13 +51,11 @@ protected:
 
 protected:
 	BOOL m_bInit;
-	CRegDWORD		m_regInlineAdded;
-	CRegDWORD		m_regInlineRemoved;
 	CColourPickerXP m_cBkNormal;
 	CColourPickerXP m_cBkRemoved;
 	CColourPickerXP m_cBkAdded;
-	CColourPickerXP m_cBkInlineAdded;
-	CColourPickerXP m_cBkInlineRemoved;
+	CColourPickerXP m_cBkWhitespaces;
+	CColourPickerXP m_cBkWhitespaceDiff;
 	CColourPickerXP m_cBkEmpty;
 	CColourPickerXP m_cBkConflict;
 };

@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,6 @@
 #include "TortoiseBlame.h"
 #include "registry.h"
 #define MAX_LOADSTRING 100
-
-#ifndef WIN64
-#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
-#endif
 
 #pragma warning(push)
 #pragma warning(disable:4127)		// conditional expression is constant
@@ -62,7 +58,6 @@ TortoiseBlame::TortoiseBlame()
 	m_selectedrevcolor = ::GetSysColor(COLOR_HIGHLIGHT);
 	m_selectedauthorcolor = InterColor(m_selectedrevcolor, m_texthighlightcolor, 35);
 
-	m_selectedrev = -1;
 	m_directPointer = 0;
 	m_directFunction = 0;
 }
@@ -281,43 +276,36 @@ void TortoiseBlame::StartSearch()
 {
 	if (currentDialog)
 		return;
-	bool bCase = false;
 	// Initialize FINDREPLACE
-	if (fr.Flags & FR_MATCHCASE)
-		bCase = true;
 	ZeroMemory(&fr, sizeof(fr));
 	fr.lStructSize = sizeof(fr);
 	fr.hwndOwner = wMain;
 	fr.lpstrFindWhat = szFindWhat;
 	fr.wFindWhatLen = 80;
 	fr.Flags = FR_HIDEUPDOWN | FR_HIDEWHOLEWORD;
-	fr.Flags |= bCase ? FR_MATCHCASE : 0;
 
 	currentDialog = FindText(&fr);
 }
 
 bool TortoiseBlame::DoSearch(LPSTR what, DWORD flags)
 {
-	TCHAR szWhat[80];
 	int pos = SendEditor(SCI_GETCURRENTPOS);
 	int line = SendEditor(SCI_LINEFROMPOSITION, pos);
 	bool bFound = false;
 	bool bCaseSensitive = !!(flags & FR_MATCHCASE);
 
-	strcpy_s(szWhat, sizeof(szWhat), what);
-
 	if(!bCaseSensitive)
 	{
 		char *p;
-		size_t len = strlen(szWhat);
-		for (p = szWhat; p < szWhat + len; p++)
+		size_t len = strlen(what);
+		for (p = what; p < what + len; p++)
 		{
 			if (isupper(*p)&&__isascii(*p))
 				*p = _tolower(*p);
 		}
 	}
 
-	std::string sWhat = std::string(szWhat);
+	std::string sWhat = std::string(what);
 	
 	char buf[20];
 	int i=0;
@@ -339,11 +327,11 @@ bool TortoiseBlame::DoSearch(LPSTR what, DWORD flags)
 		_stprintf_s(buf, 20, _T("%ld"), revs[i]);
 		if (authors[i].compare(sWhat)==0)
 			bFound = true;
-		else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), szWhat)==0))
+		else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), what)==0))
 			bFound = true;
-		else if (strcmp(buf, szWhat) == 0)
+		else if (strcmp(buf, what) == 0)
 			bFound = true;
-		else if (strstr(linebuf, szWhat))
+		else if (strstr(linebuf, what))
 			bFound = true;
 		delete [] linebuf;
 	}
@@ -367,11 +355,11 @@ bool TortoiseBlame::DoSearch(LPSTR what, DWORD flags)
 			_stprintf_s(buf, 20, _T("%ld"), revs[i]);
 			if (authors[i].compare(sWhat)==0)
 				bFound = true;
-			else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), szWhat)==0))
+			else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), what)==0))
 				bFound = true;
-			else if (strcmp(buf, szWhat) == 0)
+			else if (strcmp(buf, what) == 0)
 				bFound = true;
-			else if (strstr(linebuf, szWhat))
+			else if (strstr(linebuf, what))
 				bFound = true;
 			delete [] linebuf;
 		}
@@ -391,35 +379,6 @@ bool TortoiseBlame::DoSearch(LPSTR what, DWORD flags)
 		::MessageBox(wMain, searchstringnotfound, "TortoiseBlame", MB_ICONINFORMATION);
 	}
 	return true;
-}
-
-void TortoiseBlame::CopySelectedLogToClipboard()
-{
-	if (m_selectedrev <= 0)
-		return;
-	std::map<LONG, std::string>::iterator iter;
-	if ((iter = app.logmessages.find(m_selectedrev)) != app.logmessages.end())
-	{
-		std::string msg;
-		msg += m_selectedauthor;
-		msg += "  ";
-		msg += app.m_selecteddate;
-		msg += '\n';
-		msg += iter->second;
-		msg += _T("\n");
-		if (OpenClipboard(app.wBlame))
-		{
-			EmptyClipboard();
-			HGLOBAL hClipboardData;
-			hClipboardData = GlobalAlloc(GMEM_DDESHARE, msg.size()+1);
-			char * pchData;
-			pchData = (char*)GlobalLock(hClipboardData);
-			strcpy_s(pchData, msg.size()+1, msg.c_str());
-			GlobalUnlock(hClipboardData);
-			SetClipboardData(CF_TEXT,hClipboardData);
-			CloseClipboard();
-		}
-	}
 }
 
 void TortoiseBlame::Notify(SCNotification *notification) 
@@ -446,9 +405,6 @@ void TortoiseBlame::Command(int id)
 		break;
 	case ID_EDIT_FIND:
 		StartSearch();
-		break;
-	case ID_COPYTOCLIPBOARD:
-		CopySelectedLogToClipboard();
 		break;
 	default:
 		break;
@@ -1010,7 +966,6 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		EndPaint(app.wBlame, &ps);
 		break;
 	case WM_COMMAND:
-		app.Command(LOWORD(wParam));
 		break;
 	case WM_NOTIFY:
 		switch (((LPNMHDR)lParam)->code)
@@ -1124,10 +1079,6 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			}
 		}
 		break;
-	case WM_RBUTTONDOWN:
-		if (app.m_selectedrev >= 0)
-			break;
-		// fall through
 	case WM_LBUTTONDOWN:
 		{
 			int y = ((int)(short)HIWORD(lParam));
@@ -1140,12 +1091,10 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				{
 					app.m_selectedrev = app.revs[line];
 					app.m_selectedauthor = app.authors[line];
-					app.m_selecteddate = app.dates[line];
 				}
 				else
 				{
 					app.m_selectedauthor.clear();
-					app.m_selecteddate.clear();
 					app.m_selectedrev = -2;
 				}
 				::InvalidateRect(app.wBlame, NULL, FALSE);
@@ -1155,27 +1104,6 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	case WM_SETFOCUS:
 		::SetFocus(app.wBlame);
 		app.SendEditor(SCI_GRABFOCUS);
-		break;
-	case WM_CONTEXTMENU:
-		{
-			if (app.m_selectedrev <= 0)
-				break;;
-			int xPos = GET_X_LPARAM(lParam);
-			int yPos = GET_Y_LPARAM(lParam);
-			if ((xPos < 0)||(yPos < 0))
-			{
-				// requested from keyboard, not mouse pointer
-				// use the center of the window
-				RECT rect;
-				GetClientRect(app.wBlame, &rect);
-				xPos = rect.right-rect.left;
-				yPos = rect.bottom-rect.top;
-			}
-			HMENU hMenu = LoadMenu(app.hInstance, MAKEINTRESOURCE(IDR_BLAMEPOPUP));
-			HMENU hPopMenu = GetSubMenu(hMenu, 0);
-			TrackPopupMenu(hPopMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, xPos, yPos, 0, app.wBlame, NULL); 
-			DestroyMenu(hMenu);
-		}
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

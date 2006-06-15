@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,7 @@
 //
 #include "StdAfx.h"
 #include "Workingfile.h"
-#include "AppUtils.h"
-#include "PathUtils.h"
+#include "Utils.h"
 #include "resource.h"
 
 CWorkingFile::CWorkingFile(void)
@@ -81,7 +80,7 @@ CWorkingFile::GetWindowName() const
 	{
 		// We don't have a proper name - use the filename part of the path
 		// return the filename part of the path.
-		return CPathUtils::GetFileNameFromPath(m_sFilename) + _T(" ") + sErrMsg;
+		return CUtils::GetFileNameFromPath(m_sFilename) + _T(" ") + sErrMsg;
 	}
 	else if (sErrMsg.IsEmpty())
 	{

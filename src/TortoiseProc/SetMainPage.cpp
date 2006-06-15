@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,12 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SetMainPage.h"
-#include "AppUtils.h"
-#include "PathUtils.h"
+#include "Utils.h"
 #include "DirFileEnum.h"
 #include "SVNProgressDlg.h"
 #include "..\version.h"
 #include ".\setmainpage.h"
 #include "SVN.h"
-#include "MessageBox.h"
 
 
 // CSetMainPage dialog
@@ -37,64 +35,23 @@ CSetMainPage::CSetMainPage()
 	, m_sTempExtensions(_T(""))
 	, m_bCheckNewer(TRUE)
 	, m_bLastCommitTime(FALSE)
-	, m_bUseDotNetHack(FALSE)
 {
 	m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 	m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"));
 	m_regCheckNewer = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewer"), TRUE);
 	m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
-	if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
-		m_bUseDotNetHack = false;
-	else
-		m_bUseDotNetHack = true;
 }
 
 CSetMainPage::~CSetMainPage()
 {
 }
 
-int CSetMainPage::SaveData()
+void CSetMainPage::SaveData()
 {
-	int restart = 0;
 	m_regLanguage = m_dwLanguage;
-	if (m_regLanguage.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regLanguage.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regExtensions = m_sTempExtensions;
-	if (m_regExtensions.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regExtensions.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regCheckNewer = m_bCheckNewer;
-	if (m_regCheckNewer.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regCheckNewer.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	m_regLastCommitTime = (m_bLastCommitTime ? _T("yes") : _T("no"));
-	if (m_regLastCommitTime.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regLastCommitTime.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-
-	CRegString asphack_local(_T("System\\CurrentControlSet\\Control\\Session Manager\\Environment\\SVN_ASP_DOT_NET_HACK"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
-	CRegString asphack_user(_T("Environment\\SVN_ASP_DOT_NET_HACK"));
-	if (m_bUseDotNetHack)
-	{
-		asphack_local = _T("*");
-		if (asphack_local.LastError)
-			asphack_user = _T("*");
-		if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
-		{
-			restart = 1;
-		}
-		DWORD_PTR res = 0;
-		::SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0, SMTO_ABORTIFHUNG, 20, &res);
-	}
-	else
-	{
-		asphack_local.removeValue();
-		asphack_user.removeValue();
-		if (GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)!=0)
-		{
-			restart = 1;
-		}
-		DWORD_PTR res = 0;
-		::SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0, SMTO_ABORTIFHUNG, 20, &res);
-	}
-	return restart;
 }
 
 void CSetMainPage::DoDataExchange(CDataExchange* pDX)
@@ -105,19 +62,18 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_TEMPEXTENSIONS, m_sTempExtensions);
 	DDX_Check(pDX, IDC_CHECKNEWERVERSION, m_bCheckNewer);
 	DDX_Check(pDX, IDC_COMMITFILETIMES, m_bLastCommitTime);
-	DDX_Check(pDX, IDC_ASPDOTNETHACK, m_bUseDotNetHack);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
-	ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnModified)
-	ON_EN_CHANGE(IDC_TEMPEXTENSIONS, OnModified)
+	ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnCbnSelchangeLanguagecombo)
+	ON_EN_CHANGE(IDC_TEMPEXTENSIONS, OnEnChangeTempextensions)
 	ON_BN_CLICKED(IDC_EDITCONFIG, OnBnClickedEditconfig)
-	ON_BN_CLICKED(IDC_CHECKNEWERVERSION, OnModified)
+	ON_BN_CLICKED(IDC_CHECKNEWERVERSION, OnBnClickedChecknewerversion)
+	ON_BN_CLICKED(IDC_CLEARAUTH, OnBnClickedClearauth)
 	ON_BN_CLICKED(IDC_CHECKNEWERBUTTON, OnBnClickedChecknewerbutton)
-	ON_BN_CLICKED(IDC_COMMITFILETIMES, OnModified)
+	ON_BN_CLICKED(IDC_COMMITFILETIMES, OnBnClickedCommitfiletimes)
 	ON_BN_CLICKED(IDC_SOUNDS, OnBnClickedSounds)
-	ON_BN_CLICKED(IDC_ASPDOTNETHACK, OnASPHACK)
 END_MESSAGE_MAP()
 
 
@@ -141,14 +97,13 @@ BOOL CSetMainPage::OnInitDialog()
 	m_tooltips.AddTool(IDC_CHECKNEWERVERSION, IDS_SETTINGS_CHECKNEWER_TT);
 	m_tooltips.AddTool(IDC_CLEARAUTH, IDS_SETTINGS_CLEARAUTH_TT);
 	m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
-	m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
 
 	//set up the language selecting combobox
 	TCHAR buf[MAX_PATH];
 	GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
 	m_LanguageCombo.AddString(buf);
 	m_LanguageCombo.SetItemData(0, 1033);
-	CString path = CPathUtils::GetAppParentDirectory();
+	CString path = CUtils::GetAppParentDirectory();
 	path = path + _T("Languages\\");
 	CSimpleFileFind finder(path, _T("*.dll"));
 	int langcount = 1;
@@ -160,7 +115,7 @@ BOOL CSetMainPage::OnInitDialog()
 		{
 			CString sVer = _T(STRPRODUCTVER);
 			sVer = sVer.Left(sVer.ReverseFind(','));
-			CString sFileVer = CPathUtils::GetVersionFromFile(file);
+			CString sFileVer = CUtils::GetVersionFromFile(file);
 			sFileVer = sFileVer.Left(sFileVer.ReverseFind(','));
 			if (sFileVer.Compare(sVer)!=0)
 				continue;
@@ -188,23 +143,24 @@ BOOL CSetMainPage::PreTranslateMessage(MSG* pMsg)
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
-void CSetMainPage::OnModified()
+void CSetMainPage::OnCbnSelchangeLanguagecombo()
 {
 	SetModified();
 }
 
-void CSetMainPage::OnASPHACK()
+void CSetMainPage::OnEnChangeTempextensions()
 {
-	if (CMessageBox::Show(m_hWnd, IDS_SETTINGS_ASPHACKWARNING, IDS_APPNAME, MB_ICONWARNING|MB_YESNO) == IDYES)
-	{
-		SetModified();
-	}
-	else
-	{
-		UpdateData();
-		m_bUseDotNetHack = !m_bUseDotNetHack;
-		UpdateData(FALSE);
-	}
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedChecknewerversion()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedCommitfiletimes()
+{
+	SetModified();
 }
 
 BOOL CSetMainPage::OnApply()
@@ -222,7 +178,26 @@ void CSetMainPage::OnBnClickedEditconfig()
 	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
 	CString path = buf;
 	path += _T("\\Subversion\\config");
-	CAppUtils::StartTextViewer(path);
+	CUtils::StartTextViewer(path);
+}
+
+void CSetMainPage::OnBnClickedClearauth()
+{
+	CRegStdString auth = CRegStdString(_T("Software\\TortoiseSVN\\Auth\\"));
+	auth.removeKey();
+	TCHAR pathbuf[MAX_PATH] = {0};
+	if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, pathbuf)==S_OK)
+	{
+		_tcscat_s(pathbuf, MAX_PATH, _T("\\Subversion\\auth"));
+		SHFILEOPSTRUCT fileop;
+		fileop.hwnd = this->m_hWnd;
+		fileop.wFunc = FO_DELETE;
+		fileop.pFrom = pathbuf;
+		fileop.pTo = NULL;
+		fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_SILENT;
+		fileop.lpszProgressTitle = _T("deleting file");
+		SHFileOperation(&fileop);
+	}
 }
 
 void CSetMainPage::OnBnClickedChecknewerbutton()
@@ -231,12 +206,12 @@ void CSetMainPage::OnBnClickedChecknewerbutton()
 	GetModuleFileName(NULL, com, MAX_PATH);
 	_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck /visible"));
 
-	CAppUtils::LaunchApplication(com, 0, false);
+	CUtils::LaunchApplication(com, 0, false);
 }
 
 void CSetMainPage::OnBnClickedSounds()
 {
-	CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
+	CUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
 }
 
 

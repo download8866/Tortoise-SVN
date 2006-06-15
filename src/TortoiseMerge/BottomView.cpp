@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -43,6 +43,7 @@ BOOL CBottomView::ShallShowContextMenu(CDiffData::DiffStates state, int /*nLine*
 	//The bottom view is always "Merged" in three-way diff
 	switch (state)
 	{
+	case CDiffData::DIFFSTATE_WHITESPACE:
 	case CDiffData::DIFFSTATE_ADDED:
 	case CDiffData::DIFFSTATE_REMOVED:
 	case CDiffData::DIFFSTATE_CONFLICTED:

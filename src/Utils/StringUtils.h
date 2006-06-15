@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,38 +49,14 @@
 int strwildcmp(const char * wild, const char * string);
 int wcswildcmp(const wchar_t * wild, const wchar_t * string);
 
+#ifdef _MFC_VER
 
 class CStringUtils
 {
 public:
-#ifdef _MFC_VER
 	static BOOL WildCardMatch(const CString& wildcard, const CString& string);
 	static CString LinesWrap(const CString& longstring, int limit = 80, bool bCompactPaths = true);
 	static CString WordWrap(const CString& longstring, int limit = 80, bool bCompactPaths = true);
-
-	/**
-	 * Removes all '&' chars from a string.
-	 */
-	static void RemoveAccelerators(CString& text);
-
-	/**
-	 * Writes an ASCII CString to the clipboard in CF_TEXT format
-	 */
-	static bool WriteAsciiStringToClipboard(const CStringA& sClipdata, HWND hOwningWnd = NULL);
-
-#endif
-
-	/**
-	 * Compares strings while trying to parse numbers in it too.
-	 * This function can be used to sort numerically.
-	 * For example, strings would be sorted like this:
-	 * Version_1.0.3
-	 * Version_2.0.4
-	 * Version_10.0.2
-	 * If a normal text like comparison is used for sorting, the Version_10.0.2
-	 * would not be the last in the above example.
-	 */
-	static int CompareNumerical(LPCTSTR str1, LPCTSTR str2);
-
 };
 
+#endif

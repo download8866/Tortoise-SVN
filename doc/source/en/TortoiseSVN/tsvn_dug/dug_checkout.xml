@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
-<sect1 id="tsvn-dug-checkout">
+<sect1 id="tsvn-DUG-checkout">
 	<title>Checking Out A Working Copy</title>
 	<indexterm>
 		<primary>checkout</primary>
@@ -19,7 +19,7 @@
 			<guimenuitem>Checkout...</guimenuitem>
 		</menuchoice>,
 		which brings up the following dialog box:
-		<figure id="tsvn-dug-checkout-dia-1">
+		<figure id="tsvn-DUG-checkout-dia-1">
 			<title>The Checkout dialog</title>
 			<graphic fileref="../images/Checkout.png"/>
 		</figure>
@@ -70,11 +70,38 @@
 	</para>
 	<tip>
 		<title>Exporting</title>
+		<indexterm>
+			<primary>export</primary>
+		</indexterm>
 		<para>
-			Sometimes you may want to create a local copy without any of those
+			Sometimes you may want a copy without any of those
 			<filename>.svn</filename> directories, e.g. to create a zipped
-			tarball of your source.
-			Read <xref linkend="tsvn-dug-export"/> to find out how to do that.
+			tarball of your source. Instead of making a copy and then delete
+			all those <filename>.svn</filename> directories manually,
+			TortoiseSVN offers the command
+			<menuchoice>
+				<guimenu>TortoiseSVN</guimenu>
+				<guimenuitem>Export...</guimenuitem>
+			</menuchoice>.
+			If you execute this command
+			on your working copy you'll be asked for a place to save the
+			<literal>clean</literal> working copy without the
+			<filename>.svn</filename>
+			folders. Also, you can specify if you want to export 
+			<emphasis>all</emphasis> files or just the versioned files.
+		</para>
+		<para>
+			Another way to do an export is by right-dragging a working copy
+			folder to another location and choose
+			<menuchoice>
+				<guimenu>Context Menu</guimenu>
+				<guimenuitem>Subversion export here</guimenuitem>
+			</menuchoice>
+			or 
+			<menuchoice>
+				<guimenu>Context Menu</guimenu>
+				<guimenuitem>Subversion export all here</guimenuitem>
+			</menuchoice>
 		</para>
 	</tip>
 </sect1>

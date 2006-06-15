@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,7 +53,7 @@ BOOL CStdioFileK::ReadString(CStringA& rString)
 		if (lpszResult == NULL && !feof(m_pStream))
 		{
 			clearerr(m_pStream);
-			AfxThrowFileException(CFileException::genericException, _doserrno,
+			AfxThrowFileException(CFileException::generic, _doserrno,
 				m_strFileName);
 		}
 
@@ -284,6 +284,12 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 		return FALSE;
 	}
 
+	if (m_UnicodeType == CFileTextLines::UNICODE_LE)
+	{
+		m_sErrorString.Format(IDS_ERR_FILE_BINARY, sFilePath);
+		return FALSE;
+	}
+	
 	BOOL bRetval = TRUE;
 	CStringA sLine;
 	try
@@ -302,48 +308,26 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 		default:
 			break;
 		} // switch (m_UnicodeType) 
-		if (m_UnicodeType == CFileTextLines::UNICODE_LE)
+		while (file.ReadString(sLine))
 		{
-			CString sLineU;
-			bool bEmpty = false;
-			while (file.ReadString(sLineU))
+			switch (m_UnicodeType)
 			{
-				bEmpty = sLineU.IsEmpty();
-				Add(sLineU);
-			}
-			if (bEmpty)
-			{
-				// newline at end of file
-				Add(_T(""));
-			}
-		}
-		else
-		{
-			bool bEmpty = false;
-			while (file.ReadString(sLine))
-			{
-				bEmpty = sLine.IsEmpty();
-				switch (m_UnicodeType)
+			case CFileTextLines::ASCII:
+				Add(CString(sLine));
+				break;
+			case CFileTextLines::UNICODE_LE:
+				Add(CString(sLine));
+				break;
+			case CFileTextLines::UTF8BOM:
+			case CFileTextLines::UTF8:
 				{
-				case CFileTextLines::ASCII:
-					Add(CString(sLine));
-					break;
-				case CFileTextLines::UTF8BOM:
-				case CFileTextLines::UTF8:
-					{
-						Add(CUnicodeUtils::GetUnicode(sLine));
-					}
-					break;
-				default:
-					Add(CString(sLine));
+					Add(CUnicodeUtils::GetUnicode(CUnicodeUtils::ConvertWCHARStringToUTF8(CString(sLine))));
 				}
-			}
-			if (bEmpty)
-			{
-				// newline at end of file
-				Add(_T(""));
-			}
-		}
+				break;
+			default:
+				Add(CString(sLine));
+			} // switch (m_UnicodeType) 
+		} // while (file.ReadString(sLine)) 
 		file.Close();
 	}
 	catch (CException * e)
@@ -356,13 +340,8 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 	return bRetval;
 }
 
-void CFileTextLines::StripWhiteSpace(CString& sLine,DWORD dwIgnoreWhitespaces, bool blame)
+void CFileTextLines::StripWhiteSpace(CString& sLine,DWORD dwIgnoreWhitespaces/* =0 */)
 {
-	if (blame)
-	{
-		if (sLine.GetLength() > 66)
-			sLine = sLine.Mid(66);
-	}
 	switch (dwIgnoreWhitespaces)
 	{
 	case 0:
@@ -378,20 +357,11 @@ void CFileTextLines::StripWhiteSpace(CString& sLine,DWORD dwIgnoreWhitespaces, b
 		// Ignore leading whitespace
 		sLine.TrimLeft(_T(" \t"));
 		break;
-	case 3:
-		// Ignore ending whitespace
-		sLine.TrimRight(_T(" \t"));
-		break;
 	}
 }
 
-void CFileTextLines::StripAsciiWhiteSpace(CStringA& sLine,DWORD dwIgnoreWhitespaces, bool blame)
+void CFileTextLines::StripAsciiWhiteSpace(CStringA& sLine,DWORD dwIgnoreWhitespaces /* = 0 */)
 {
-	if (blame)
-	{
-		if (sLine.GetLength() > 66)
-			sLine = sLine.Mid(66);
-	}
 	switch (dwIgnoreWhitespaces)
 	{
 	case 0: // Compare whitespaces
@@ -404,10 +374,6 @@ void CFileTextLines::StripAsciiWhiteSpace(CStringA& sLine,DWORD dwIgnoreWhitespa
 	case 2:
 		// Ignore leading whitespace
 		sLine.TrimLeft(" \t");
-		break;
-	case 3:
-		// Ignore leading whitespace
-		sLine.TrimRight(" \t");
 		break;
 	}
 }
@@ -433,8 +399,10 @@ void CFileTextLines::StripAsciiWhiteSpace(CStringA& sLine)
 	sLine.ReleaseBuffer(outputLen);
 }
 
-BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIgnoreWhitespaces /*=0*/, BOOL bIgnoreCase /*= FALSE*/, bool bBlame /*= false*/)
+BOOL CFileTextLines::Save(const CString& sFilePath, DWORD dwIgnoreWhitespaces /*=0*/, BOOL bIgnoreLineendings /*= FALSE*/, BOOL bIgnoreCase /*= FALSE*/)
 {
+	if (bIgnoreLineendings)
+		m_LineEndings = AUTOLINE;
 	try
 	{
 		CString destPath = sFilePath;
@@ -455,8 +423,8 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 		{
 			m_sErrorString.Format(IDS_ERR_FILE_OPEN, sFilePath);
 			return FALSE;
-		}
-		if ((!bSaveAsUTF8)&&(m_UnicodeType == CFileTextLines::UNICODE_LE))
+		} // if (!file.Open(sSavePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary)) 
+		if (m_UnicodeType == CFileTextLines::UNICODE_LE)
 		{
 			//first write the BOM
 			UINT16 wBOM = 0xFEFF;
@@ -464,7 +432,7 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 			for (int i=0; i<GetCount(); i++)
 			{
 				CString sLine = GetAt(i);
-				StripWhiteSpace(sLine,dwIgnoreWhitespaces, bBlame);
+				StripWhiteSpace(sLine,dwIgnoreWhitespaces);
 				if (bIgnoreCase)
 					sLine = sLine.MakeLower();
 				file.Write((LPCTSTR)sLine, sLine.GetLength());
@@ -487,7 +455,7 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				file.Write((LPCTSTR)sLine, sLine.GetLength());
 			} // for (int i=0; i<arPatchLines.GetCount(); i++) 
 		} // if (CUtils::IsFileUnicode(sPath)) 
-		else if ((!bSaveAsUTF8)&&((m_UnicodeType == CFileTextLines::ASCII)||(m_UnicodeType == CFileTextLines::AUTOTYPE)))
+		else if ((m_UnicodeType == CFileTextLines::ASCII)||(m_UnicodeType == CFileTextLines::AUTOTYPE))
 		{
 			for (int i=0; i< GetCount(); i++)
 			{
@@ -495,7 +463,7 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				CString sLineT = GetAt(i);
 				CStringA sLine = CStringA(sLineT);
 
-				StripAsciiWhiteSpace(sLine,dwIgnoreWhitespaces, bBlame);
+				StripAsciiWhiteSpace(sLine,dwIgnoreWhitespaces);
 				if (bIgnoreCase)
 					sLine = sLine.MakeLower();
 				switch (m_LineEndings)
@@ -517,7 +485,7 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				file.Write((LPCSTR)sLine, sLine.GetLength());
 			} // for (int i=0; i<arPatchLines.GetCount(); i++) 
 		}
-		else if ((bSaveAsUTF8)||((m_UnicodeType == CFileTextLines::UTF8BOM)||(m_UnicodeType == CFileTextLines::UTF8)))
+		else if ((m_UnicodeType == CFileTextLines::UTF8BOM)||(m_UnicodeType == CFileTextLines::UTF8))
 		{
 			if (m_UnicodeType == CFileTextLines::UTF8BOM)
 			{
@@ -530,7 +498,7 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 			for (int i=0; i<GetCount(); i++)
 			{
 				CStringA sLine = CUnicodeUtils::GetUTF8(GetAt(i));
-				StripAsciiWhiteSpace(sLine,dwIgnoreWhitespaces, bBlame);
+				StripAsciiWhiteSpace(sLine,dwIgnoreWhitespaces);
 				if (bIgnoreCase)
 					sLine = sLine.MakeLower();
 

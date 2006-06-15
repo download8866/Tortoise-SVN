@@ -32,13 +32,11 @@
 					<token key="MAJOR" value="${NEON_MAJOR_VERSION}" />
 					<token key="MINOR" value="${NEON_MINOR_VERSION}" />
 				</replacetokens>
-				<!-- <replacestring from="#define HAVE_SSPI" to="" /> -->
+				<replacestring from="#define HAVE_SSPI" to="" />
 			</filterchain>
 		</loadfile>
 		<echo file="config.hw" message="${configfile}" unless="${file::exists('config.hw')}" />
 		<echo file="config.h" message="${configfile}" unless="${file::exists('config.h')}" />
-		<!-- patch neon to use our own default-ca file -->
-		<copy file="..\build\ne_openssl.c" tofile="src\ne_openssl.c" overwrite="true" />
 		<cl outputdir="${configuration}_${platform}">
 			<arg value="/O2" if="${configuration == 'release'}" />
 			<arg value="/Ob1" if="${configuration == 'release'}" />
@@ -89,11 +87,10 @@
 			<defines>
 				<define name="_CRT_NONSTDC_NO_DEPRECATE" />
 				<define name="_CRT_SECURE_NO_DEPRECATE" />
-				<define name="_USE_32BIT_TIME_T" if="${platform == 'win32'}" />
+				<define name="_USE_32BIT_TIME_T" />
 				<define name="HAVE_CONFIG_H" />
 				<define name="NE_HAVE_SSL" />
 				<define name="HAVE_OPENSSL" />
-				<define name="OPENSSL_STATIC" />
 				<define name="HAVE_EXPAT" />
 				<define name="HAVE_EXPAT_H" />
 				<define name="NE_HAVE_DAV" />
@@ -101,7 +98,6 @@
 				<define name="WIN32" />
 				<define name="_WINDOWS" />
 				<define name="_WIN32" />
-				<define name="WIN64" if="${platform == 'x64'}" />
 				<define name="NDEBUG" if="${configuration == 'release'}"/>
 				<define name="_DEBUG" if="${configuration != 'release'}"/>
 				<define name="WIN32_LEAN_AND_MEAN" />
@@ -111,22 +107,16 @@
 				<define name="NOCRYPT" />
 			</defines>
 		</cl>
-		<property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}" />
-		<property name="machineoption" value="/MACHINE:x64" if="${platform == 'x64'}" />
 		<lib 
 			output="${configuration}_${platform}\libneon.lib" 
-			options='/NOLOGO /SUBSYSTEM:WINDOWS ${machineoption}'>
+			options='/NOLOGO /SUBSYSTEM:WINDOWS /MACHINE:X86'>
 			<sources>
 				<include name="${configuration}_${platform}\*.obj" />
 				<include name="..\..\..\common\zlib\${configuration}_${platform}\zlibstat.lib" />
-				<include name="..\..\..\common\openssl\out32\libeay32.lib" />
-				<include name="..\..\..\common\openssl\out32\ssleay32.lib" />
+				<include name="..\..\..\common\openssl\out32dll\libeay32.lib" />
+				<include name="..\..\..\common\openssl\out32dll\ssleay32.lib" />
 			</sources>
 		</lib>
-		<exec program="svn" failonerror="false">
-			<arg value="revert" />
-			<arg value="src\ne_openssl.c" />
-		</exec>
 	</target>
 
 </project>

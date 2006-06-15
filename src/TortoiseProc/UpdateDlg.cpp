@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -101,13 +101,12 @@ void CUpdateDlg::OnBnClickedShowLog()
 		m_pLogDlg = new CLogDlg();
 		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
 		int limit = (int)(LONG)reg;
+		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_HEAD, 1, limit, TRUE);
 		m_pLogDlg->SetSelect(true);
-		m_pLogDlg->m_pNotifyWindow = this;
-		m_pLogDlg->m_wParam = 0;
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE);
-		m_pLogDlg->ContinuousSelection(true);
 		m_pLogDlg->ShowWindow(SW_SHOW);
+		m_pLogDlg->m_wParam = 0;
+		m_pLogDlg->m_pNotifyWindow = this;
 	}
 	AfxGetApp()->DoWaitCursor(-1);
 }

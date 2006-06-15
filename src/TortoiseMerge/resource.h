@@ -18,9 +18,6 @@
 #define IDB_BITMAP1                     137
 #define IDB_TTF_BMP                     137
 #define IDD_SETCOLORPAGE                138
-#define IDD_FIND                        139
-#define IDI_ICON1                       140
-#define IDI_WHITESPACELINE              140
 #define IDB_LOGOFLIPPED                 168
 #define IDS_SELECTFILE                  200
 #define IDC_BASEFILEEDIT                1000
@@ -51,16 +48,15 @@
 #define IDC_TABSIZE                     1017
 #define IDC_IGNORELF                    1018
 #define IDC_WSCOMPARE                   1019
-#define IDC_WSIGNOREALL                 1020
 #define IDS_ERR_PATCH_INVALIDPATCHFILE  1020
-#define IDC_WSIGNORECHANGED             1021
+#define IDC_WSIGNORELEADING             1020
 #define IDS_ERR_PATCH_FILENOTINPATCH    1021
+#define IDC_WSIGNOREALL                 1021
 #define IDS_ERR_PATCH_DOESNOTMATCH      1022
 #define IDC_DIFFGROUP                   1022
 #define IDS_ERR_PATCH_FILESAVE          1023
 #define IDC_MISCGROUP                   1023
 #define IDC_ONEPANE                     1024
-#define IDS_ERR_PATCH_FILEFOUNDTWICE    1024
 #define IDC_BKUNKNOWN                   1027
 #define IDC_FGUNKNOWN                   1028
 #define IDC_BKNORMAL                    1029
@@ -106,21 +102,16 @@
 #define IDC_LINENUMBERS                 1063
 #define IDC_CHECK1                      1064
 #define IDC_MAGNIFIER                   1064
-#define IDC_MATCHCASE                   1064
 #define IDC_CHECK2                      1065
 #define IDC_DIFFBAR                     1065
-#define IDC_LIMITTODIFFS                1065
 #define IDC_STRIKEOUT                   1066
 #define IDC_CHECK3                      1067
 #define IDC_RESOLVE                     1067
 #define IDC_CASEINSENSITIVE             1067
-#define ID_RESOLVE                      1067
 #define IDC_CHECK4                      1068
 #define IDC_USEBDIFF                    1068
-#define IDC_SEARCHTEXT                  1070
 #define IDC_VERSIONBOX                  1075
 #define IDS_ERR_DIFF_DIFF               1080
-#define IDS_ERR_DIFF_NEWLINES           1081
 #define IDC_WEBLINK                     1084
 #define IDC_SUPPORTLINK                 1085
 #define IDC_FONTSIZES                   1086
@@ -149,8 +140,6 @@
 #define IDS_VIEWCONTEXTMENU_USETHISFILE 4005
 #define IDS_VIEWCONTEXTMENU_USEOTHERBLOCK 4006
 #define IDS_VIEWCONTEXTMENU_USEOTHERFILE 4007
-#define IDS_VIEWCONTEXTMENU_USEBOTHTHISFIRST 4008
-#define IDS_VIEWCONTEXTMENU_USEBOTHTHISLAST 4009
 #define IDS_VIEWTITLE_THEIRS            4200
 #define IDS_VIEWTITLE_MERGED            4201
 #define IDS_VIEWTITLE_MINE              4202
@@ -168,8 +157,6 @@
 #define IDS_PATCH_ALL                   6000
 #define IDS_PATCH_TITLE                 6001
 #define IDS_DIFF_TITLE                  6002
-#define IDS_PATCH_SELECTED              6003
-#define IDS_PATCH_PREVIEW               6004
 #define IDS_COLOURPICKER_CUSTOMTEXT     7000
 #define IDS_COLOURPICKER_DEFAULTTEXT    7001
 #define ID_VIEW_WHITESPACES             32774
@@ -191,16 +178,14 @@
 #define ID_BUTTON32812                  32812
 #define ID_VIEW_LINELEFT                32813
 #define ID_VIEW_LINERIGHT               32814
-#define ID_BUTTON32816                  32816
-#define ID_VIEW_SHOWFILELIST            32817
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32818
-#define _APS_NEXT_CONTROL_VALUE         1071
+#define _APS_NEXT_RESOURCE_VALUE        139
+#define _APS_NEXT_COMMAND_VALUE         32816
+#define _APS_NEXT_CONTROL_VALUE         1070
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

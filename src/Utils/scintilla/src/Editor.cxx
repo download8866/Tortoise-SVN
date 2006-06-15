@@ -26,7 +26,6 @@
 #include "LineMarker.h"
 #include "Style.h"
 #include "ViewStyle.h"
-#include "CharClassify.h"
 #include "Document.h"
 #include "Editor.h"
 
@@ -285,7 +284,7 @@ LineLayout *LineLayoutCache::Retrieve(int lineNumber, int lineCaret, int maxChar
 	} else if (level == llcPage) {
 		if (lineNumber == lineCaret) {
 			pos = 0;
-		} else if (length > 1) {
+		} else {
 			pos = 1 + (lineNumber % (length - 1));
 		}
 	} else if (level == llcDocument) {
@@ -810,9 +809,6 @@ int Editor::PositionFromLocationClose(Point pt) {
 				        IsEOLChar(ll->chars[i])) {
 					return pdoc->MovePositionOutsideChar(i + posLineStart, 1);
 				}
-			}
-			if (pt.x < (ll->positions[lineEnd] - subLineStart)) {
-				return pdoc->MovePositionOutsideChar(lineEnd + posLineStart, 1);
 			}
 		}
 	}
@@ -1677,7 +1673,6 @@ void Editor::LinesSplit(int pixelWidth) {
 					targetEnd += static_cast<int>(strlen(eol));
 				}
 			}
-			lineEnd = pdoc->LineFromPosition(targetEnd);
 		}
 		pdoc->EndUndoAction();
 	}
@@ -2150,15 +2145,14 @@ void Editor::LayoutLine(int line, Surface *surface, ViewStyle &vstyle, LineLayou
 	}
 }
 
-ColourAllocated Editor::SelectionBackground(ViewStyle &vsDraw) {
-	return primarySelection ? vsDraw.selbackground.allocated : vsDraw.selbackground2.allocated;
-}
-
 ColourAllocated Editor::TextBackground(ViewStyle &vsDraw, bool overrideBackground,
                                        ColourAllocated background, bool inSelection, bool inHotspot, int styleMain, int i, LineLayout *ll) {
 	if (inSelection) {
-		if (vsDraw.selbackset && (vsDraw.selAlpha == SC_ALPHA_NOALPHA)) {
-			return SelectionBackground(vsDraw);
+		if (vsDraw.selbackset) {
+			if (primarySelection)
+				return vsDraw.selbackground.allocated;
+			else
+				return vsDraw.selbackground2.allocated;
 		}
 	} else {
 		if ((vsDraw.edgeState == EDGE_BACKGROUND) &&
@@ -2226,12 +2220,6 @@ void Editor::DrawWrapMarker(Surface *surface, PRectangle rcPlace,
 	                y - 2 * dy);
 }
 
-static void SimpleAlphaRectangle(Surface *surface, PRectangle rc, ColourAllocated fill, int alpha) {
-	if (alpha != SC_ALPHA_NOALPHA) {
-		surface->AlphaRectangle(rc, 0, fill, alpha, fill, alpha, 0);
-	}
-}
-
 void Editor::DrawEOL(Surface *surface, ViewStyle &vsDraw, PRectangle rcLine, LineLayout *ll,
                      int line, int lineEnd, int xStart, int subLine, int subLineStart,
                      bool overrideBackground, ColourAllocated background,
@@ -2248,17 +2236,15 @@ void Editor::DrawEOL(Surface *surface, ViewStyle &vsDraw, PRectangle rcLine, Lin
 	bool eolInSelection = (subLine == (ll->lines - 1)) &&
 	                      (posLineEnd > ll->selStart) && (posLineEnd <= ll->selEnd) && (ll->selStart != ll->selEnd);
 
-	if (eolInSelection && vsDraw.selbackset && (line < pdoc->LinesTotal() - 1) && (vsDraw.selAlpha == SC_ALPHA_NOALPHA)) {
-		surface->FillRectangle(rcSegment, SelectionBackground(vsDraw));
+	if (eolInSelection && vsDraw.selbackset && (line < pdoc->LinesTotal() - 1)) {
+		if (primarySelection)
+			surface->FillRectangle(rcSegment, vsDraw.selbackground.allocated);
+		else
+			surface->FillRectangle(rcSegment, vsDraw.selbackground2.allocated);
+	} else if (overrideBackground) {
+		surface->FillRectangle(rcSegment, background);
 	} else {
-		if (overrideBackground) {
-			surface->FillRectangle(rcSegment, background);
-		} else {
-			surface->FillRectangle(rcSegment, vsDraw.styles[ll->styles[ll->numCharsInLine] & styleMask].back.allocated);
-		}
-		if (eolInSelection && vsDraw.selbackset && (line < pdoc->LinesTotal() - 1) && (vsDraw.selAlpha != SC_ALPHA_NOALPHA)) {
-			SimpleAlphaRectangle(surface, rcSegment, SelectionBackground(vsDraw), vsDraw.selAlpha);
-		}
+		surface->FillRectangle(rcSegment, vsDraw.styles[ll->styles[ll->numCharsInLine] & styleMask].back.allocated);
 	}
 
 	rcSegment.left = xEol + vsDraw.aveCharWidth + xStart;
@@ -2304,15 +2290,14 @@ void Editor::DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVis
 	// the color for the highest numbered one is used.
 	bool overrideBackground = false;
 	ColourAllocated background;
-	if (caret.active && vsDraw.showCaretLineBackground && (vsDraw.caretLineAlpha == SC_ALPHA_NOALPHA) && ll->containsCaret) {
+	if (caret.active && vsDraw.showCaretLineBackground && ll->containsCaret) {
 		overrideBackground = true;
 		background = vsDraw.caretLineBackground.allocated;
 	}
 	if (!overrideBackground) {
 		int marks = pdoc->GetMark(line);
 		for (int markBit = 0; (markBit < 32) && marks; markBit++) {
-			if ((marks & 1) && (vsDraw.markers[markBit].markType == SC_MARK_BACKGROUND) &&
-				(vsDraw.markers[markBit].alpha == SC_ALPHA_NOALPHA)) {
+			if ((marks & 1) && vsDraw.markers[markBit].markType == SC_MARK_BACKGROUND) {
 				background = vsDraw.markers[markBit].back.allocated;
 				overrideBackground = true;
 			}
@@ -2321,15 +2306,14 @@ void Editor::DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVis
 	}
 	if (!overrideBackground) {
 		if (vsDraw.maskInLine) {
-			int marksMasked = pdoc->GetMark(line) & vsDraw.maskInLine;
-			if (marksMasked) {
-				for (int markBit = 0; (markBit < 32) && marksMasked; markBit++) {
-					if ((marksMasked & 1) && (vsDraw.markers[markBit].markType != SC_MARK_EMPTY) &&
-						(vsDraw.markers[markBit].alpha == SC_ALPHA_NOALPHA)) {
+			int marks = pdoc->GetMark(line) & vsDraw.maskInLine;
+			if (marks) {
+				for (int markBit = 0; (markBit < 32) && marks; markBit++) {
+					if ((marks & 1) && (vsDraw.markers[markBit].markType != SC_MARK_EMPTY)) {
 						overrideBackground = true;
 						background = vsDraw.markers[markBit].back.allocated;
 					}
-					marksMasked >>= 1;
+					marks >>= 1;
 				}
 			}
 		}
@@ -2657,46 +2641,12 @@ void Editor::DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVis
 		        xStart, subLine, subLineStart, overrideBackground, background,
 		        drawWrapMarkEnd, vsDraw.whitespaceForeground.allocated);
 	}
-	if ((vsDraw.selAlpha != SC_ALPHA_NOALPHA) && (ll->selStart >= 0) && (ll->selEnd >= 0)) {
-		int startPosSel = (ll->selStart < posLineStart) ? posLineStart : ll->selStart;
-		int endPosSel = (ll->selEnd < (lineEnd + posLineStart)) ? ll->selEnd : (lineEnd + posLineStart);
-		if (startPosSel < endPosSel) {
-			rcSegment.left = xStart + ll->positions[startPosSel - posLineStart] - subLineStart;
-			rcSegment.right = xStart + ll->positions[endPosSel - posLineStart] - subLineStart;
-			SimpleAlphaRectangle(surface, rcSegment, SelectionBackground(vsDraw), vsDraw.selAlpha);
-		}
-	}
 
 	if (vsDraw.edgeState == EDGE_LINE) {
 		int edgeX = theEdge * vsDraw.spaceWidth;
 		rcSegment.left = edgeX + xStart;
 		rcSegment.right = rcSegment.left + 1;
 		surface->FillRectangle(rcSegment, vsDraw.edgecolour.allocated);
-	}
-
-	// Draw any translucent whole line states
-	rcSegment.left = xStart;
-	rcSegment.right = rcLine.right - 1;
-	if (caret.active && vsDraw.showCaretLineBackground && ll->containsCaret) {
-		SimpleAlphaRectangle(surface, rcSegment, vsDraw.caretLineBackground.allocated, vsDraw.caretLineAlpha);
-	}
-	int marks = pdoc->GetMark(line);
-	for (int markBit = 0; (markBit < 32) && marks; markBit++) {
-		if ((marks & 1) && (vsDraw.markers[markBit].markType == SC_MARK_BACKGROUND)) {
-			SimpleAlphaRectangle(surface, rcSegment, vsDraw.markers[markBit].back.allocated, vsDraw.markers[markBit].alpha);
-		}
-		marks >>= 1;
-	}
-	if (vsDraw.maskInLine) {
-		int marksMasked = pdoc->GetMark(line) & vsDraw.maskInLine;
-		if (marksMasked) {
-			for (int markBit = 0; (markBit < 32) && marksMasked; markBit++) {
-				if ((marksMasked & 1) && (vsDraw.markers[markBit].markType != SC_MARK_EMPTY)) {
-					SimpleAlphaRectangle(surface, rcSegment, vsDraw.markers[markBit].back.allocated, vsDraw.markers[markBit].alpha);
-				}
-				marksMasked >>= 1;
-			}
-		}
 	}
 }
 
@@ -2771,6 +2721,7 @@ void Editor::Paint(Surface *surfaceWindow, PRectangle rcArea) {
 	//	paintingAllText, rcArea.left, rcArea.top, rcArea.right, rcArea.bottom);
 
 	RefreshStyleData();
+
 	RefreshPixMaps(surfaceWindow);
 
 	PRectangle rcClient = GetClientRectangle();
@@ -2801,8 +2752,6 @@ void Editor::Paint(Surface *surfaceWindow, PRectangle rcArea) {
 	if (needUpdateUI) {
 		NotifyUpdateUI();
 		needUpdateUI = false;
-		RefreshStyleData();
-		RefreshPixMaps(surfaceWindow);
 	}
 
 	// Call priority lines wrap on a window of lines which are likely
@@ -3127,7 +3076,6 @@ long Editor::FormatRange(bool draw, RangeToFormat *pfr) {
 	// Don't show the selection when printing
 	vsPrint.selbackset = false;
 	vsPrint.selforeset = false;
-	vsPrint.selAlpha = SC_ALPHA_NOALPHA;
 	vsPrint.whitespaceBackgroundSet = false;
 	vsPrint.whitespaceForegroundSet = false;
 	vsPrint.showCaretLineBackground = false;
@@ -4901,7 +4849,7 @@ void Editor::CopyRangeToClipboard(int start, int end) {
 
 void Editor::CopyText(int length, const char *text) {
 	SelectionText selectedText;
-	selectedText.Copy(text, length + 1,
+	selectedText.Copy(text, length,
 		pdoc->dbcsCodePage, vs.styles[STYLE_DEFAULT].characterSet, false);
 	CopyToClipboard(selectedText);
 }
@@ -6090,14 +6038,14 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 			pdoc->SetDefaultCharClasses(false);
 			if (lParam == 0)
 				return 0;
-			pdoc->SetCharClasses(reinterpret_cast<unsigned char *>(lParam), CharClassify::ccWord);
+			pdoc->SetCharClasses(reinterpret_cast<unsigned char *>(lParam), Document::ccWord);
 		}
 		break;
 
 	case SCI_SETWHITESPACECHARS: {
 			if (lParam == 0)
 				return 0;
-			pdoc->SetCharClasses(reinterpret_cast<unsigned char *>(lParam), CharClassify::ccSpace);
+			pdoc->SetCharClasses(reinterpret_cast<unsigned char *>(lParam), Document::ccSpace);
 		}
 		break;
 
@@ -6551,11 +6499,6 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		InvalidateStyleData();
 		RedrawSelMargin();
 		break;
-	case SCI_MARKERSETALPHA:
-		if (wParam <= MARKER_MAX)
-			vs.markers[wParam].alpha = lParam;
-		InvalidateStyleRedraw();
-		break;
 	case SCI_MARKERADD: {
 			int markerID = pdoc->AddMark(wParam, lParam);
 			return markerID;
@@ -6774,12 +6717,6 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		vs.caretLineBackground.desired = wParam;
 		InvalidateStyleRedraw();
 		break;
-	case SCI_GETCARETLINEBACKALPHA:
-		return vs.caretLineAlpha;
-	case SCI_SETCARETLINEBACKALPHA:
-		vs.caretLineAlpha = wParam;
-		InvalidateStyleRedraw();
-		break;
 
 		// Folding messages
 
@@ -6893,14 +6830,6 @@ sptr_t Editor::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) {
 		vs.selbackground.desired = ColourDesired(lParam);
 		InvalidateStyleRedraw();
 		break;
-
-	case SCI_SETSELALPHA:
-		vs.selAlpha = wParam;
-		InvalidateStyleRedraw();
-		break;
-
-	case SCI_GETSELALPHA:
-		return vs.selAlpha;
 
 	case SCI_SETWHITESPACEFORE:
 		vs.whitespaceForegroundSet = wParam != 0;

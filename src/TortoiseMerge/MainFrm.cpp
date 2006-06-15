@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,8 +23,7 @@
 #include "ProgressDlg.h"
 #include "Settings.h"
 #include "MessageBox.h"
-#include "AppUtils.h"
-#include "PathUtils.h"
+#include "Utils.h"
 #include "MainFrm.h"
 #include "LeftView.h"
 #include "RightView.h"
@@ -77,8 +76,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CNewFrameWnd)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_SWITCHLEFT, OnUpdateViewSwitchleft)
 	ON_COMMAND(ID_VIEW_LINELEFT, &CMainFrame::OnViewLineleft)
 	ON_COMMAND(ID_VIEW_LINERIGHT, &CMainFrame::OnViewLineright)
-	ON_UPDATE_COMMAND_UI(ID_VIEW_SHOWFILELIST, &CMainFrame::OnUpdateViewShowfilelist)
-	ON_COMMAND(ID_VIEW_SHOWFILELIST, &CMainFrame::OnViewShowfilelist)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -102,7 +99,6 @@ CMainFrame::CMainFrame()
 	m_bInitSplitter = FALSE;
 	m_bOneWay = (0 != ((DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\OnePane"))));
 	m_bReversedPatch = FALSE;
-	m_bHasConflicts = false;
 }
 
 CMainFrame::~CMainFrame()
@@ -287,7 +283,7 @@ BOOL CMainFrame::PatchFile(CString sFilePath, CString sVersion, BOOL bAutoPatch)
 		progDlg.SetTime(FALSE);
 		progDlg.ShowModeless(this);
 		CString sBaseFile = m_TempFiles.GetTempFilePath();
-		if (!CAppUtils::GetVersionedFile(sFilePath, sVersion, sBaseFile, &progDlg, this->m_hWnd))
+		if (!CUtils::GetVersionedFile(sFilePath, sVersion, sBaseFile, &progDlg, this->m_hWnd))
 		{
 			progDlg.Stop();
 			CString sErrMsg;
@@ -303,16 +299,16 @@ BOOL CMainFrame::PatchFile(CString sFilePath, CString sVersion, BOOL bAutoPatch)
 			return FALSE;
 		} // if (!m_Patch.PatchFile(sFilePath, sTempFile, sBaseFile)) 
 		CString temp;
-		temp.Format(_T("%s Revision %s"), CPathUtils::GetFileNameFromPath(sFilePath), sVersion);
+		temp.Format(_T("%s Revision %s"), CUtils::GetFileNameFromPath(sFilePath), sVersion);
 		this->m_Data.m_baseFile.SetFileName(sBaseFile);
 		this->m_Data.m_baseFile.SetDescriptiveName(temp);
-		temp.Format(_T("%s %s"), CPathUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchPatched);
+		temp.Format(_T("%s %s"), CUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchPatched);
 		this->m_Data.m_theirFile.SetFileName(sTempFile);
 		this->m_Data.m_theirFile.SetDescriptiveName(temp);
 		this->m_Data.m_yourFile.SetFileName(sFilePath);
-		this->m_Data.m_yourFile.SetDescriptiveName(CPathUtils::GetFileNameFromPath(sFilePath));
+		this->m_Data.m_yourFile.SetDescriptiveName(CUtils::GetFileNameFromPath(sFilePath));
 		this->m_Data.m_mergedFile.SetFileName(sFilePath);
-		this->m_Data.m_mergedFile.SetDescriptiveName(CPathUtils::GetFileNameFromPath(sFilePath));
+		this->m_Data.m_mergedFile.SetDescriptiveName(CUtils::GetFileNameFromPath(sFilePath));
 		TRACE(_T("comparing %s and %s\nagainst the base file %s\n"), (LPCTSTR)sTempFile, (LPCTSTR)sFilePath, (LPCTSTR)sBaseFile);
 	} // if (!m_Patch.PatchFile(sFilePath)) 
 	else
@@ -328,10 +324,10 @@ BOOL CMainFrame::PatchFile(CString sFilePath, CString sVersion, BOOL bAutoPatch)
 		{
 			this->m_Data.m_baseFile.SetFileName(sTempFile);
 			CString temp;
-			temp.Format(_T("%s %s"), CPathUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchPatched);
+			temp.Format(_T("%s %s"), CUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchPatched);
 			this->m_Data.m_baseFile.SetDescriptiveName(temp);
 			this->m_Data.m_yourFile.SetFileName(sFilePath);
-			temp.Format(_T("%s %s"), CPathUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchOriginal);
+			temp.Format(_T("%s %s"), CUtils::GetFileNameFromPath(sFilePath), m_Data.m_sPatchOriginal);
 			this->m_Data.m_yourFile.SetDescriptiveName(temp);
 			this->m_Data.m_theirFile.SetOutOfUse();
 			this->m_Data.m_mergedFile.SetOutOfUse();
@@ -348,11 +344,11 @@ BOOL CMainFrame::PatchFile(CString sFilePath, CString sVersion, BOOL bAutoPatch)
 				this->m_Data.m_baseFile.SetFileName(sFilePath);
 			}
 			CString sDescription;
-			sDescription.Format(_T("%s %s"), (LPCTSTR)CPathUtils::GetFileNameFromPath(sFilePath), (LPCTSTR)m_Data.m_sPatchOriginal);
+			sDescription.Format(_T("%s %s"), (LPCTSTR)CUtils::GetFileNameFromPath(sFilePath), (LPCTSTR)m_Data.m_sPatchOriginal);
 			this->m_Data.m_baseFile.SetDescriptiveName(sDescription);
 			this->m_Data.m_yourFile.SetFileName(sTempFile);
 			CString temp;
-			temp.Format(_T("%s %s"), (LPCTSTR)CPathUtils::GetFileNameFromPath(sFilePath), (LPCTSTR)m_Data.m_sPatchPatched);
+			temp.Format(_T("%s %s"), (LPCTSTR)CUtils::GetFileNameFromPath(sFilePath), (LPCTSTR)m_Data.m_sPatchPatched);
 			this->m_Data.m_yourFile.SetDescriptiveName(temp);
 			this->m_Data.m_theirFile.SetOutOfUse();
 			this->m_Data.m_mergedFile.SetFileName(sFilePath);
@@ -387,7 +383,7 @@ BOOL CMainFrame::DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString 
 	progDlg.SetTime(FALSE);
 	progDlg.SetProgress(1,100);
 	progDlg.ShowModeless(this);
-	if (!CAppUtils::GetVersionedFile(sURL1, sRev1, tempfile1, &progDlg, this->m_hWnd))
+	if (!CUtils::GetVersionedFile(sURL1, sRev1, tempfile1, &progDlg, this->m_hWnd))
 	{
 		progDlg.Stop();
 		CString sErrMsg;
@@ -399,7 +395,7 @@ BOOL CMainFrame::DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString 
 	progDlg.SetLine(1, sTemp, true);
 	progDlg.SetLine(2, sURL2, true);
 	progDlg.SetProgress(50, 100);
-	if (!CAppUtils::GetVersionedFile(sURL2, sRev2, tempfile2, &progDlg, this->m_hWnd))
+	if (!CUtils::GetVersionedFile(sURL2, sRev2, tempfile2, &progDlg, this->m_hWnd))
 	{
 		progDlg.Stop();
 		CString sErrMsg;
@@ -410,10 +406,10 @@ BOOL CMainFrame::DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString 
 	progDlg.SetProgress(100,100);
 	progDlg.Stop();
 	CString temp;
-	temp.Format(_T("%s Revision %s"), CPathUtils::GetFileNameFromPath(sURL1), sRev1);
+	temp.Format(_T("%s Revision %s"), CUtils::GetFileNameFromPath(sURL1), sRev1);
 	this->m_Data.m_baseFile.SetFileName(tempfile1);
 	this->m_Data.m_baseFile.SetDescriptiveName(temp);
-	temp.Format(_T("%s Revision %s"), CPathUtils::GetFileNameFromPath(sURL2), sRev2);
+	temp.Format(_T("%s Revision %s"), CUtils::GetFileNameFromPath(sURL2), sRev2);
 	this->m_Data.m_yourFile.SetFileName(tempfile2);
 	this->m_Data.m_yourFile.SetDescriptiveName(temp);
 
@@ -430,7 +426,6 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 	m_dlgFilePatches.ShowWindow(SW_HIDE);
-	m_dlgFilePatches.Init(NULL, NULL, CString(), NULL);
 	TRACE(_T("got the files:\n   %s\n   %s\n   %s\n   %s\n   %s\n"), (LPCTSTR)dlg.m_sBaseFile, (LPCTSTR)dlg.m_sTheirFile, (LPCTSTR)dlg.m_sYourFile, 
 		(LPCTSTR)dlg.m_sUnifiedDiffFile, (LPCTSTR)dlg.m_sPatchDirectory);
 	this->m_Data.m_baseFile.SetFileName(dlg.m_sBaseFile);
@@ -460,8 +455,6 @@ void CMainFrame::OnFileOpen()
 
 BOOL CMainFrame::LoadViews(BOOL bReload)
 {
-	m_Data.SetBlame(m_bBlame);
-	m_bHasConflicts = false;
 	if (bReload)
 	{
 		if (!this->m_Data.Load())
@@ -618,7 +611,6 @@ BOOL CMainFrame::LoadViews(BOOL bReload)
 	SetActiveView(m_pwndLeftView);
 	if (bGoFirstDiff)
 		m_pwndLeftView->GoToFirstDifference();
-	CheckResolved();
 	return TRUE;
 }
 
@@ -689,7 +681,6 @@ void CMainFrame::OnViewOnewaydiff()
 int CMainFrame::CheckResolved()
 {
 	//only in three way diffs can be conflicts!
-	m_bHasConflicts = true;
 	if (this->m_pwndBottomView->IsWindowVisible())
 	{
 		if (this->m_pwndBottomView->m_arLineStates)
@@ -698,10 +689,9 @@ int CMainFrame::CheckResolved()
 			{
 				if (CDiffData::DIFFSTATE_CONFLICTED == (CDiffData::DiffStates)this->m_pwndBottomView->m_arLineStates->GetAt(i))
 					return i;
-			}
-		}
-	}
-	m_bHasConflicts = false;
+			} // for (int i=0; i<this->m_pwndBottomView->m_arLineStates->GetCount(); i++) 
+		} // if (this->m_pwndBottomView->m_arLineStates) 
+	} // if (this->m_pwndBottomView->IsWindowVisible())
 	return -1;
 }
 
@@ -754,6 +744,9 @@ void CMainFrame::SaveFile(const CString& sFilePath)
 			case CDiffData::DIFFSTATE_THEIRSADDED:
 			case CDiffData::DIFFSTATE_UNKNOWN:
 			case CDiffData::DIFFSTATE_YOURSADDED:
+			case CDiffData::DIFFSTATE_ADDEDWHITESPACE:
+			case CDiffData::DIFFSTATE_WHITESPACE:
+			case CDiffData::DIFFSTATE_WHITESPACE_DIFF:
 				file.Add(arText->GetAt(i));
 				break;
 			case CDiffData::DIFFSTATE_CONFLICTED:
@@ -782,6 +775,7 @@ void CMainFrame::SaveFile(const CString& sFilePath)
 			case CDiffData::DIFFSTATE_CONFLICTEMPTY:
 			case CDiffData::DIFFSTATE_IDENTICALREMOVED:
 			case CDiffData::DIFFSTATE_REMOVED:
+			case CDiffData::DIFFSTATE_REMOVEDWHITESPACE:
 			case CDiffData::DIFFSTATE_THEIRSREMOVED:
 			case CDiffData::DIFFSTATE_YOURSREMOVED:
 				break;
@@ -789,7 +783,7 @@ void CMainFrame::SaveFile(const CString& sFilePath)
 				break;
 			} // switch (state) 
 		} // for (int i=0; i<arText->GetCount(); i++) 
-		if (!file.Save(sFilePath, false))
+		if (!file.Save(sFilePath))
 		{
 			CMessageBox::Show(m_hWnd, file.GetErrorString(), _T("TortoiseMerge"), MB_ICONERROR);
 			return;
@@ -1030,8 +1024,8 @@ void CMainFrame::OnEditFind()
 	}
 	else
 	{
-		m_pFindDialog = new CFindDlg();
-		m_pFindDialog->Create(this);
+		m_pFindDialog = new CFindReplaceDialog();
+		m_pFindDialog->Create(TRUE, NULL, NULL, FR_HIDEUPDOWN | FR_HIDEWHOLEWORD, this);									
 	}
 }
 
@@ -1051,7 +1045,6 @@ LRESULT CMainFrame::OnFindDialogMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
         //read data from dialog
         m_sFindText = m_pFindDialog->GetFindString();
         m_bMatchCase = (m_pFindDialog->MatchCase() == TRUE);
-		m_bLimitToDiff = m_pFindDialog->LimitToDiffs();
 	
 		OnEditFindnext();
     } // if(m_pFindDialog->FindNext()) 
@@ -1071,24 +1064,14 @@ void CMainFrame::OnEditFindnext()
 		CString left;
 		CString right;
 		CString bottom;
-		CDiffData::DiffStates leftstate = CDiffData::DIFFSTATE_NORMAL;
-		CDiffData::DiffStates rightstate = CDiffData::DIFFSTATE_NORMAL;
-		CDiffData::DiffStates bottomstate = CDiffData::DIFFSTATE_NORMAL;
 		int i = 0;
 		for (i=m_nSearchIndex; i<m_pwndLeftView->m_arDiffLines->GetCount(); i++)
 		{
 			left = m_pwndLeftView->m_arDiffLines->GetAt(i);
-			leftstate = (CDiffData::DiffStates)m_pwndLeftView->m_arLineStates->GetAt(i);
 			if ((m_pwndRightView)&&(m_pwndRightView->m_arDiffLines))
-			{
 				right = m_pwndRightView->m_arDiffLines->GetAt(i);
-				rightstate = (CDiffData::DiffStates)m_pwndRightView->m_arLineStates->GetAt(i);
-			}
 			if ((m_pwndBottomView)&&(m_pwndBottomView->m_arDiffLines))
-			{
 				bottom = m_pwndBottomView->m_arDiffLines->GetAt(i);
-				bottomstate = (CDiffData::DiffStates)m_pwndBottomView->m_arLineStates->GetAt(i);
-			}
 
 			if (!m_bMatchCase)
 			{
@@ -1096,32 +1079,23 @@ void CMainFrame::OnEditFindnext()
 				right = right.MakeLower();
 				bottom = bottom.MakeLower();
 				m_sFindText = m_sFindText.MakeLower();
-			}
+			} // if (!bMatchCase)
 			if (left.Find(m_sFindText) >= 0)
 			{
-				if ((!m_bLimitToDiff)||(leftstate != CDiffData::DIFFSTATE_NORMAL))
-				{
-					bFound = TRUE;
-					break;
-				}
-			} 
+				bFound = TRUE;
+				break;
+			} // if (m_arLogMessages.GetAt(i).Find(FindText) >= 0)
 			else if (right.Find(m_sFindText) >= 0)
 			{
-				if ((!m_bLimitToDiff)||(rightstate != CDiffData::DIFFSTATE_NORMAL))
-				{
-					bFound = TRUE;
-					break;
-				}
+				bFound = TRUE;
+				break;
 			} 
 			else if (bottom.Find(m_sFindText) >= 0)
 			{
-				if ((!m_bLimitToDiff)||(bottomstate != CDiffData::DIFFSTATE_NORMAL))
-				{
-					bFound = TRUE;
-					break;
-				}
+				bFound = TRUE;
+				break;
 			} 
-		} 
+		} // for (int i=this->m_nSearchIndex; i<m_LogList.GetItemCount(); i++) 
 		if (bFound)
 		{
 			m_nSearchIndex = i;
@@ -1374,12 +1348,12 @@ BOOL CMainFrame::MarkAsResolved()
 
 void CMainFrame::OnUpdateMergeNextconflict(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_bHasConflicts);
+	pCmdUI->Enable((m_pwndBottomView)&&(m_pwndBottomView->IsWindowVisible()));
 }
 
 void CMainFrame::OnUpdateMergePreviousconflict(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_bHasConflicts);
+	pCmdUI->Enable((m_pwndBottomView)&&(m_pwndBottomView->IsWindowVisible()));
 }
 
 void CMainFrame::OnMoving(UINT fwSide, LPRECT pRect)
@@ -1443,19 +1417,3 @@ void CMainFrame::OnUpdateViewSwitchleft(CCmdUI *pCmdUI)
 	pCmdUI->Enable(bEnable);
 }
 
-
-void CMainFrame::OnUpdateViewShowfilelist(CCmdUI *pCmdUI)
-{
-	if (m_dlgFilePatches.HasFiles())
-	{
-		pCmdUI->Enable(true);
-	}
-	else
-		pCmdUI->Enable(false);
-	pCmdUI->SetCheck(m_dlgFilePatches.IsWindowVisible());
-}
-
-void CMainFrame::OnViewShowfilelist()
-{
-	m_dlgFilePatches.ShowWindow(m_dlgFilePatches.IsWindowVisible() ? SW_HIDE : SW_SHOW);
-}

@@ -1,27 +1,10 @@
-// TortoiseSVN - a Windows shell extension for easy version control
-
-// Copyright (C) 2003-2006 - Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+// LockDlg.cpp : implementation file
 //
+
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "MessageBox.h"
 #include ".\lockdlg.h"
-#include "UnicodeStrings.h"
-#include "SVNProperties.h"
 
 
 // CLockDlg dialog
@@ -31,7 +14,6 @@ CLockDlg::CLockDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CLockDlg::IDD, pParent)
 	, m_bStealLocks(FALSE)
 	, m_pThread(NULL)
-	, m_bCancelled(false)
 {
 }
 
@@ -55,7 +37,6 @@ void CLockDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CLockDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_HELP, OnBnClickedHelp)
 	ON_EN_CHANGE(IDC_LOCKMESSAGE, OnEnChangeLockmessage)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
 
@@ -65,9 +46,7 @@ BOOL CLockDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK | SVNSLC_COLSVNNEEDSLOCK, _T("LockDlg"));
-	m_cFileList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
-	m_cFileList.SetCancelBool(&m_bCancelled);
+	m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK);
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
 	m_cEdit.Init(m_ProjectProperties);
 	m_cEdit.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
@@ -75,9 +54,6 @@ BOOL CLockDlg::OnInitDialog()
 	if (!m_sLockMessage.IsEmpty())
 		m_cEdit.SetText(m_sLockMessage);
 		
-	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_LOCKWARNING, IDS_WARN_SVNNEEDSLOCK);
-
 	AddAnchor(IDC_LOCKTITLELABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LOCKMESSAGE, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
@@ -85,11 +61,10 @@ BOOL CLockDlg::OnInitDialog()
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
-	AddAnchor(IDC_LOCKWARNING, TOP_RIGHT);
 
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	EnableSaveRestore(_T("LockDlg"));
+	EnableSaveRestore(_T("LogPromptDlg"));
 
 	//first start a thread to obtain the file list with the status without
 	//blocking the dialog
@@ -123,7 +98,6 @@ void CLockDlg::OnOK()
 
 void CLockDlg::OnCancel()
 {
-	m_bCancelled = true;
 	if (m_bBlock)
 		return;
 	CResizableStandAloneDialog::OnCancel();
@@ -140,60 +114,19 @@ UINT CLockDlg::StatusThread()
 	//and show the ones which have to be committed to the user
 	//in a listcontrol. 
 	m_bBlock = TRUE;
+	GetDlgItem(IDCANCEL)->EnableWindow(false);
 	GetDlgItem(IDOK)->EnableWindow(false);
-	m_bCancelled = false;
+
 	// Initialise the list control with the status of the files/folders below us
-	if (!m_cFileList.GetStatus(m_pathList))
-	{
-		CMessageBox::Show(m_hWnd, m_cFileList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-	}
+	m_cFileList.GetStatus(m_pathList);
 
 	DWORD dwShow = SVNSLC_SHOWNORMAL | SVNSLC_SHOWMODIFIED | SVNSLC_SHOWMERGED | SVNSLC_SHOWLOCKS;
 	m_cFileList.Show(dwShow, dwShow, false);
 
-	// Check if any file doesn't have svn:needs-lock set in BASE. If at least
-	// one file is found then show the warning that this property should by set.
-	BOOL bShowWarning = FALSE;
-	const int nCount = m_cFileList.GetItemCount();
-	for (int i=0; i<nCount;i++)
-	{
-		CSVNStatusListCtrl::FileEntry* entry = m_cFileList.GetListEntry(i);
-
-		BOOL bFound = FALSE;
-		SVNProperties propsbase(entry->GetPath(),SVNRev::REV_BASE);
-		for (int i=0; i<propsbase.GetCount(); i++)
-		{
-			if (propsbase.GetItemName(i).compare(_T("svn:needs-lock"))==0)
-			{
-				stdstring szBASE = MultibyteToWide((char *)propsbase.GetItemValue(i).c_str());
-				if ( !szBASE.empty() )
-				{
-					bFound = TRUE;
-					break;
-				}
-			}
-		}
-		if ( !bFound )
-		{
-			bShowWarning = TRUE;
-			break;
-		}
-	}
-
-	if ( bShowWarning )
-	{
-		GetDlgItem(IDC_LOCKWARNING)->ShowWindow(SW_SHOW);
-		GetDlgItem(IDC_LOCKWARNING)->EnableWindow();
-	}
-	else
-	{
-		GetDlgItem(IDC_LOCKWARNING)->ShowWindow(SW_HIDE);
-		GetDlgItem(IDC_LOCKWARNING)->EnableWindow(FALSE);
-	}
-
 	POINT pt;
 	GetCursorPos(&pt);
 	SetCursorPos(pt.x, pt.y);
+	GetDlgItem(IDCANCEL)->EnableWindow(true);
 	CString logmsg;
 	GetDlgItem(IDC_LOCKMESSAGE)->GetWindowText(logmsg);
 	if (m_ProjectProperties.nMinLockMsgSize > logmsg.GetLength())
@@ -210,9 +143,6 @@ UINT CLockDlg::StatusThread()
 
 BOOL CLockDlg::PreTranslateMessage(MSG* pMsg)
 {
-	if (!m_bBlock)
-		m_tooltips.RelayEvent(pMsg);
-	
 	if (pMsg->message == WM_KEYDOWN)
 	{
 		switch (pMsg->wParam)

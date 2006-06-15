@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,11 +46,11 @@
 #define DIFFSTATE_UNKNOWN_DEFAULT_BG				::GetSysColor(COLOR_WINDOW)
 #define DIFFSTATE_NORMAL_DEFAULT_BG					::GetSysColor(COLOR_WINDOW)
 #define DIFFSTATE_REMOVED_DEFAULT_BG				RGB(255,200,100)
-#define DIFFSTATE_REMOVEDWHITESPACE_DEFAULT_BG		DIFFSTATE_NORMAL_DEFAULT_BG
+#define DIFFSTATE_REMOVEDWHITESPACE_DEFAULT_BG		RGB(255,200,100)
 #define DIFFSTATE_ADDED_DEFAULT_BG					RGB(255,255,0)
-#define DIFFSTATE_ADDEDWHITESPACE_DEFAULT_BG		DIFFSTATE_NORMAL_DEFAULT_BG
-#define DIFFSTATE_WHITESPACE_DEFAULT_BG				DIFFSTATE_NORMAL_DEFAULT_BG
-#define DIFFSTATE_WHITESPACE_DIFF_DEFAULT_BG		DIFFSTATE_NORMAL_DEFAULT_BG
+#define DIFFSTATE_ADDEDWHITESPACE_DEFAULT_BG		RGB(255,255,0)
+#define DIFFSTATE_WHITESPACE_DEFAULT_BG				RGB(180,180,255)
+#define DIFFSTATE_WHITESPACE_DIFF_DEFAULT_BG		RGB(255,255,0)
 #define DIFFSTATE_EMPTY_DEFAULT_BG					RGB(200,200,200)
 #define DIFFSTATE_CONFLICTED_DEFAULT_BG				RGB(255,0,0)
 #define DIFFSTATE_CONFLICTADDED_DEFAULT_BG			RGB(255,0,0)
@@ -94,7 +94,6 @@ public:
 	} ;
 
 	BOOL						Load();
-	void						SetBlame(bool bBlame = true) {m_bBlame = bBlame;}
 	void						LoadRegistry();
 	int							GetLineCount();
 	int							GetLineActualLength(int index);
@@ -108,8 +107,8 @@ public:
 	bool	IsYourFileInUse() const		{ return m_yourFile.InUse(); }
 
 private:
-	bool DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool);
-	bool DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, apr_pool_t * pool);
+	bool DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, apr_pool_t * pool);
+	bool DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, apr_pool_t * pool);
 
 
 public:
@@ -152,15 +151,10 @@ public:
 	CStdDWORDArray				m_arStateDiff3;
 	CStdDWORDArray				m_arLinesDiff3;
 
-	CStdDWORDArray				m_arDiff3LinesBase;
-	CStdDWORDArray				m_arDiff3LinesYour;
-	CStdDWORDArray				m_arDiff3LinesTheir;
-
 	CString						m_sError;
 
 	static int					abort_on_pool_failure (int retcode);
 protected:
 	CRegDWORD					m_regForegroundColors[DIFFSTATE_END];
 	CRegDWORD					m_regBackgroundColors[DIFFSTATE_END];
-	bool						m_bBlame;
 };

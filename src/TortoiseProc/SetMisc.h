@@ -1,6 +1,11 @@
+#pragma once
+
+
+// CSetMisc dialog
+
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +22,7 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "Balloon.h"
+#include "..\\Utils\\Balloon.h"
 #include "Registry.h"
 
 class CSetMisc : public CPropertyPage
@@ -29,14 +34,13 @@ public:
 	virtual ~CSetMisc();
 	/**
 	  * Saves the changed settings to the registry.
-	  * returns 0 if no restart is needed for the changes to take effect
 	  * \remark If the dialog is closed/dismissed without calling
 	  * this method first then all settings the user made must be
 	  * discarded!
 	  */
-	int SaveData();
+	void SaveData();
 	
-	UINT GetIconID() {return IDI_DIALOGS;}
+	UINT GetIconID() {return IDI_MISC;}
 
 // Dialog Data
 	enum { IDD = IDD_SETTINGSMISC };
@@ -61,8 +65,4 @@ private:
 	BOOL			m_bSpell;
 	CRegDWORD		m_regCheckRepo;
 	BOOL			m_bCheckRepo;
-	CRegDWORD		m_regMaxHistory;
-	DWORD			m_dwMaxHistory;
-	CRegDWORD		m_regSortNumerical;
-	BOOL			m_bSortNumerical;
 };

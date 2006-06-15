@@ -53,7 +53,6 @@ public:
 	bool selbackset;
 	ColourPair selbackground;
 	ColourPair selbackground2;
-	int selAlpha;
 	bool whitespaceForegroundSet;
 	ColourPair whitespaceForeground;
 	bool whitespaceBackgroundSet;
@@ -71,7 +70,7 @@ public:
 	bool hotspotUnderline;
 	bool hotspotSingleLine;
 	/// Margins are ordered: Line Numbers, Selection Margin, Spacing Margin
-	enum { margins=5 };
+	enum { margins=3 };
 	int leftMarginWidth;	///< Spacing margin on left of text
 	int rightMarginWidth;	///< Spacing margin on left of text
 	bool symbolMargin;
@@ -86,7 +85,6 @@ public:
 	ColourPair caretcolour;
 	bool showCaretLineBackground;
 	ColourPair caretLineBackground;
-	int caretLineAlpha;
 	ColourPair edgecolour;
 	int edgeState;
 	int caretWidth;

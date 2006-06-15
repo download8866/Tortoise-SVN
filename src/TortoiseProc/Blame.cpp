@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,6 +22,7 @@
 #include "ProgressDlg.h"
 #include "TSVNPath.h"
 #include "Registry.h"
+#include "Utils.h"
 #include "UnicodeUtils.h"
 #include "TempFile.h"
 
@@ -64,7 +65,6 @@ CBlame::CBlame()
 	m_highestrev = -1;
 	m_nCounter = 0;
 	m_nHeadRev = -1;
-	m_bNoLineNo = false;
 }
 CBlame::~CBlame()
 {
@@ -84,10 +84,7 @@ BOOL CBlame::BlameCallback(LONG linenumber, LONG revision, const CString& author
 	CStringA dateA(date);
 	CStringA authorA(author);
 
-	if (m_bNoLineNo)
-		infolineA.Format("%6ld %30s %-30s ", revision, dateA, authorA);
-	else
-		infolineA.Format("%6ld %6ld %30s %-30s ", linenumber, revision, dateA, authorA);
+	infolineA.Format("%6ld %6ld %30s %-30s ", linenumber, revision, dateA, authorA);
 	fulllineA = line;
 	fulllineA.TrimRight("\r\n");
 	fulllineA += "\n";
@@ -126,7 +123,7 @@ BOOL CBlame::Cancel()
 	return m_bCancelled;
 }
 
-CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, BOOL showprogress /* = TRUE */)
+CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, CString& logfile, BOOL showprogress /* = TRUE */)
 {
 	BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
 	CString temp;
@@ -139,7 +136,6 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	if (!m_saveFile.Open(m_sSavePath, CFile::typeText | CFile::modeReadWrite | CFile::modeCreate))
 		return _T("");
 	CString headline;
-	m_bNoLineNo = false;
 	headline.Format(_T("%-6s %-6s %-30s %-30s %-s \n"), _T("line"), _T("rev"), _T("date"), _T("author"), _T("content"));
 	m_saveFile.WriteString(headline);
 	m_saveFile.WriteString(_T("\n"));
@@ -158,7 +154,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	if (m_nHeadRev < 0)
 		m_nHeadRev = GetHEADRevision(path);
 	m_progressDlg.SetProgress(0, m_nHeadRev);
-	if (!this->Blame(path, startrev, endrev, pegrev))
+	if (!this->Blame(path, startrev, endrev))
 	{
 		m_saveFile.Close();
 		DeleteFile(m_sSavePath);
@@ -174,11 +170,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 			logfile.Empty();
 			return m_sSavePath;
 		}
-		// workaround: the peg revision can't be svn_opt_revision_working because Subversion
-		// will error out. Bug in Subversion?
-		if (pegrev.IsWorking() && !path.IsUrl())
-			pegrev = SVNRev();
-		if (!this->ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, TRUE))
+		if (!this->ReceiveLog(CTSVNPathList(path), m_nHeadRev, m_lowestrev, 0, TRUE))
 		{
 			m_saveLog.Close();
 			DeleteFile(logfile);
@@ -203,22 +195,4 @@ BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/
 	return TRUE;
 }
 
-bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile)
-{
-	CString temp;
-	if (!m_saveFile.Open(tofile.GetWinPathString(), CFile::typeText | CFile::modeReadWrite | CFile::modeCreate))
-		return false;
-	m_bNoLineNo = true;
-	m_nHeadRev = endrev;
-	if (m_nHeadRev < 0)
-		m_nHeadRev = GetHEADRevision(path);
-	if (!this->Blame(path, startrev, endrev, peg))
-	{
-		m_saveFile.Close();
-		return false;
-	}
-	if (m_saveFile.m_hFile != INVALID_HANDLE_VALUE)
-		m_saveFile.Close();
 
-	return true;
-}

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006 - Stefan Kueng
+// Copyright (C) 2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -44,8 +44,7 @@ class CStdioFileK : public CStdioFile
 {
 public:
 	CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags);
-	BOOL ReadString(CStringA& rString);
-	BOOL ReadString(CString& rString) {return CStdioFile::ReadString(rString);}
+	BOOL ReadString( CStringA& rString);
 };
 
 /**
@@ -89,7 +88,7 @@ public:
 	 * the line endings detected at Load()
 	 * \param sFilePath the path to save the file to
 	 */
-	BOOL		Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIgnoreWhitespaces=0, BOOL bIgnoreCase = FALSE, bool bBlame = false);
+	BOOL		Save(const CString& sFilePath, DWORD dwIgnoreWhitespaces=0, BOOL bIgnoreLineendings = FALSE, BOOL bIgnoreCase = FALSE);
 	/**
 	 * Returns an error string of the last failed operation
 	 */
@@ -120,8 +119,8 @@ private:
 
 	void StripAsciiWhiteSpace(CStringA& sLine);
 
-	void StripWhiteSpace(CString& sLine,DWORD dwIgnoreWhitespaces, bool blame);
-	void StripAsciiWhiteSpace(CStringA& sLine,DWORD dwIgnoreWhitespaces, bool blame);
+	void StripWhiteSpace(CString& sLine,DWORD dwIgnoreWhitespaces );
+	void StripAsciiWhiteSpace(CStringA& sLine,DWORD dwIgnoreWhitespaces );
 
 
 private:

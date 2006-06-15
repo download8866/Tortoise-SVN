@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006 - Stefan Kueng
+// Copyright (C) 2003-2005 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #include "stdafx.h"
 #include "SysImageList.h"
+#include "Utils.h"
 #include "TSVNPath.h"
 
 
@@ -109,12 +110,13 @@ int CSysImageList::GetPathIconIndex(const CTSVNPath& filePath) const
 {
 	CString strExtension = filePath.GetFileExtension();
 	strExtension.MakeUpper();
-	IconIndexMap::iterator it = m_indexCache.lower_bound(strExtension);
-	if (it == m_indexCache.end() || strExtension < it->first)
+	IconIndexMap::const_iterator it = m_indexCache.find(strExtension);
+	if(it == m_indexCache.end())
 	{
 		// We don't have this extension in the map
 		int iconIndex = GetFileIconIndex(filePath.GetFilename());
-		it = m_indexCache.insert(it, std::make_pair(strExtension, iconIndex));
+		m_indexCache[strExtension] = iconIndex;
+		return iconIndex;
 	}
 	// We must have found it
 	return it->second;
