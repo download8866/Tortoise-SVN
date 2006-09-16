@@ -47,10 +47,6 @@ class SVNAdminDir
 public:
 	SVNAdminDir();
 	~SVNAdminDir();
-	/**
-	 * Initializes the global object. Call this after apr is initialized but
-	 * before using any other methods of this class.
-	 */
 	bool Init();
 	/**
 	 * Clears the memory pool. Call this before you clear *all* pools

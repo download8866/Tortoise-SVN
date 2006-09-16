@@ -35,13 +35,13 @@
  * \ingroup TortoiseProc
  * Dialog to enter log messages used in a commit.
  */
-class CCommitDlg : public CResizableStandAloneDialog, public CSciEditContextMenuInterface // CResizableStandAloneDialog
+class CLogPromptDlg : public CResizableStandAloneDialog, public CSciEditContextMenuInterface // CResizableStandAloneDialog
 {
-	DECLARE_DYNAMIC(CCommitDlg)
+	DECLARE_DYNAMIC(CLogPromptDlg)
 
 public:
-	CCommitDlg(CWnd* pParent = NULL);   // standard constructor
-	virtual ~CCommitDlg();
+	CLogPromptDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CLogPromptDlg();
 
 	// CSciEditContextMenuInterface
 	virtual void		InsertMenuItems(CMenu& mPopup, int& nCmd);
@@ -53,7 +53,7 @@ private:
 	void UpdateOKButton();
 
 // Dialog Data
-	enum { IDD = IDD_COMMITDLG };
+	enum { IDD = IDD_LOGPROMPT };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

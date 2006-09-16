@@ -26,12 +26,14 @@
 #include "TempFile.h"
 
 
+// CCheckForUpdatesDlg dialog
+
 IMPLEMENT_DYNAMIC(CCheckForUpdatesDlg, CStandAloneDialog)
 CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
-	, m_bShowInfo(FALSE)
-	, m_bVisible(FALSE)
 {
+	m_bShowInfo = FALSE;
+	m_bVisible = FALSE;
 	m_sUpdateDownloadLink = _T("http://tortoisesvn.tigris.org");
 }
 
@@ -68,7 +70,8 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 	}
 
 	SetTimer(100, 1000, NULL);
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CCheckForUpdatesDlg::OnOK()
@@ -187,7 +190,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
 
 void CCheckForUpdatesDlg::OnStnClickedCheckresult()
 {
-	// user clicked on the label, start the browser with our webpage
+	//user clicked on the label, start the browser with our webpage
 	HINSTANCE result = ShellExecute(NULL, _T("opennew"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
 	if ((UINT)result <= HINSTANCE_ERROR)
 	{

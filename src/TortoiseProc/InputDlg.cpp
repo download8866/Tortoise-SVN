@@ -22,6 +22,8 @@
 #include "Registry.h"
 
 
+// CInputDlg dialog
+
 IMPLEMENT_DYNAMIC(CInputDlg, CResizableStandAloneDialog)
 CInputDlg::CInputDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CInputDlg::IDD, pParent)
@@ -47,6 +49,9 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CInputDlg, CResizableStandAloneDialog)
 	ON_EN_CHANGE(IDC_INPUTTEXT, OnEnChangeLogmessage)
 END_MESSAGE_MAP()
+
+
+// CInputDlg message handlers
 
 BOOL CInputDlg::OnInitDialog()
 {
@@ -105,7 +110,8 @@ BOOL CInputDlg::OnInitDialog()
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	GetDlgItem(IDC_INPUTTEXT)->SetFocus();
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CInputDlg::OnOK()

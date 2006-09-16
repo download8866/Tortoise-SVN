@@ -20,10 +20,6 @@
 #include "Balloon.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Settings page to configure miscellaneous stuff. 
- */
 class CSetMisc : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetMisc)

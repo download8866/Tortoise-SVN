@@ -30,7 +30,6 @@
 #include "SettingsColors.h"
 #include "SetMisc.h"
 #include "SetSavedDataPage.h"
-#include "SetHooks.h"
 #include "TreePropSheet/TreePropSheet.h"
 
 using namespace TreePropSheet;
@@ -70,7 +69,6 @@ private:
 	CSettingsColors *		m_pColorsPage;
 	CSetMisc *				m_pMiscPage;
 	CSetSavedDataPage *		m_pSavedPage;
-	CSetHooks *				m_pHooksPage;
 
 	HICON					m_hIcon;
 public:
@@ -83,6 +81,7 @@ public:
 	void SaveData();
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();

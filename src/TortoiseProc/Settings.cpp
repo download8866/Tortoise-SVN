@@ -50,7 +50,6 @@ void CSettings::AddPropPages()
 	m_pMiscPage = new CSetMisc();
 	m_pColorsPage = new CSettingsColors();
 	m_pSavedPage = new CSetSavedDataPage();
-	m_pHooksPage = new CSetHooks();
 
 	SetPageIcon(m_pMainPage, m_pMainPage->GetIconID());
 	SetPageIcon(m_pOverlayPage, m_pOverlayPage->GetIconID());
@@ -64,7 +63,6 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
 	SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
 	SetPageIcon(m_pSavedPage, m_pSavedPage->GetIconID());
-	SetPageIcon(m_pHooksPage, m_pHooksPage->GetIconID());
 
 	AddPage(m_pMainPage);
 	AddPage(m_pOverlayPage);
@@ -78,7 +76,6 @@ void CSettings::AddPropPages()
 	AddPage(m_pMiscPage);
 	AddPage(m_pColorsPage);
 	AddPage(m_pSavedPage);
-	AddPage(m_pHooksPage);
 }
 
 void CSettings::RemovePropPages()
@@ -95,7 +92,6 @@ void CSettings::RemovePropPages()
 	delete m_pMiscPage;
 	delete m_pColorsPage;
 	delete m_pSavedPage;
-	delete m_pHooksPage;
 }
 
 void CSettings::SaveData()
@@ -113,7 +109,6 @@ void CSettings::SaveData()
 	restart |= m_pMiscPage->SaveData();
 	restart |= m_pColorsPage->SaveData();
 	restart |= m_pSavedPage->SaveData();
-	restart |= m_pHooksPage->SaveData();
 	if (restart)
 		CMessageBox::Show(NULL, IDS_SETTINGS_RESTARTSYSTEM, IDS_APPNAME, MB_ICONINFORMATION);
 }
@@ -122,6 +117,9 @@ BEGIN_MESSAGE_MAP(CSettings, CTreePropSheet)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_PAINT()
 END_MESSAGE_MAP()
+
+
+// CSettings message handlers
 
 BOOL CSettings::OnInitDialog()
 {

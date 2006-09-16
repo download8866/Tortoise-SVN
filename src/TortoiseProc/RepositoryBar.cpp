@@ -26,16 +26,19 @@
 #define IDC_URL_COMBO     10000
 #define IDC_REVISION_BTN  10001
 
+
+// CRepositoryBar
+
 IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 
 #pragma warning(push)
 #pragma warning(disable: 4355)	// 'this' used in base member initializer list
 
-CRepositoryBar::CRepositoryBar() : m_pRepositoryTree(0)
-	, m_cbxUrl(this)
+CRepositoryBar::CRepositoryBar() :
+	m_pRepositoryTree(0),
+	m_cbxUrl(this)
 {
 }
-
 #pragma warning(pop)
 
 CRepositoryBar::~CRepositoryBar()
@@ -47,6 +50,9 @@ BEGIN_MESSAGE_MAP(CRepositoryBar, CReBarCtrl)
 	ON_BN_CLICKED(IDC_REVISION_BTN, OnBnClicked)
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
+
+
+// CRepositoryBar public interface
 
 bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 {
@@ -62,6 +68,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 	if (in_dialog)
 	{
 		style |= CCS_NODIVIDER;
+		style_ex |= 0; //WS_EX_CONTROLPARENT;
 	}
 	else
 	{
@@ -204,6 +211,8 @@ bool CRepositoryBar::CRepositoryCombo::OnReturnKeyPressed()
 }
 
 
+// CRepositoryBar message handlers
+
 void CRepositoryBar::OnCbnSelEndOK()
 {
 	if (m_cbxUrl.GetDroppedState())
@@ -239,7 +248,9 @@ void CRepositoryBar::OnBnClicked()
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+
+// CRepositoryBarCnr control
 
 CRepositoryBarCnr::CRepositoryBarCnr(CRepositoryBar *repository_bar) :
 	m_pbarRepository(repository_bar)

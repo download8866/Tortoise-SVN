@@ -149,12 +149,10 @@ BEGIN
     PUSHBUTTON      "Br&owse...",IDC_THEIRFILEBROWSE,260,67,50,14
     EDITTEXT        IDC_YOURFILEEDIT,96,88,152,14,ES_AUTOHSCROLL
     PUSHBUTTON      "Brows&e...",IDC_YOURFILEBROWSE,260,89,50,14
-    CONTROL         "Use Unified Diff from clipboard",IDC_PATCHFROMCLIPBOARD,
-                    "Button",BS_AUTOCHECKBOX | WS_DISABLED | WS_TABSTOP,14,129,234,10
-    EDITTEXT        IDC_DIFFFILEEDIT,96,142,152,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "Bro&wse...",IDC_DIFFFILEBROWSE,260,142,50,14
-    EDITTEXT        IDC_DIRECTORYEDIT,96,162,152,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "&Browse...",IDC_DIRECTORYBROWSE,260,163,50,14
+    EDITTEXT        IDC_DIFFFILEEDIT,96,131,152,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Bro&wse...",IDC_DIFFFILEBROWSE,260,131,50,14
+    EDITTEXT        IDC_DIRECTORYEDIT,96,151,152,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Browse...",IDC_DIRECTORYBROWSE,260,152,50,14
     DEFPUSHBUTTON   "OK",IDOK,7,188,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,127,188,50,14
     PUSHBUTTON      "Help",IDC_HELPBUTTON,268,188,50,14
@@ -163,9 +161,9 @@ BEGIN
     LTEXT           "My file:",IDC_STATIC,14,91,82,8
     LTEXT           "",IDC_VERSIONSTRING,7,7,311,8,SS_CENTERIMAGE
     GROUPBOX        "Merging",IDC_STATIC,7,34,311,77
-    GROUPBOX        "Apply unified diff",IDC_STATIC,7,117,311,66
-    LTEXT           "Diff file:",IDC_STATIC,14,145,82,8
-    LTEXT           "Directory:",IDC_STATIC,14,164,82,8
+    GROUPBOX        "Apply unified diff",IDC_STATIC,7,117,311,59
+    LTEXT           "Diff file:",IDC_STATIC,14,134,82,8
+    LTEXT           "Directory:",IDC_STATIC,14,153,82,8
 END
 
 IDD_SETMAINPAGE DIALOGEX 0, 0, 265, 223
@@ -289,17 +287,12 @@ BEGIN
     BUTTON      ID_FILE_RELOAD
     BUTTON      ID_EDIT_UNDO
     SEPARATOR
-    BUTTON      ID_NAVIGATE_PREVIOUSDIFFERENCE
-    BUTTON      ID_NAVIGATE_NEXTDIFFERENCE
-    BUTTON      ID_NAVIGATE_PREVIOUSCONFLICT
-    BUTTON      ID_NAVIGATE_NEXTCONFLICT
+    BUTTON      ID_MERGE_PREVIOUSDIFFERENCE
+    BUTTON      ID_MERGE_NEXTDIFFERENCE
+    BUTTON      ID_MERGE_PREVIOUSCONFLICT
+    BUTTON      ID_MERGE_NEXTCONFLICT
     SEPARATOR
-    BUTTON      ID_EDIT_USETHEIRBLOCK
-    BUTTON      ID_EDIT_USEMYBLOCK
-    BUTTON      ID_EDIT_USETHEIRTHENMYBLOCK
-    BUTTON      ID_EDIT_USEMINETHENTHEIRBLOCK
-    SEPARATOR
-    BUTTON      ID_EDIT_MARKASRESOLVED
+    BUTTON      ID_MERGE_MARKASRESOLVED
     SEPARATOR
     BUTTON      ID_VIEW_WHITESPACES
     BUTTON      ID_VIEW_ONEWAYDIFF
@@ -332,24 +325,8 @@ BEGIN
     END
     POPUP "&Edit"
     BEGIN
-        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
-        MENUITEM SEPARATOR
         MENUITEM "&Copy",                       ID_EDIT_COPY
-        MENUITEM SEPARATOR
-        MENUITEM "Use text block from ""&Theirs""", ID_EDIT_USETHEIRBLOCK
-        MENUITEM "Use text block from ""&Mine""", ID_EDIT_USEMYBLOCK
-        MENUITEM "Use text block from ""T&heirs""before ""Mine""", ID_EDIT_USETHEIRTHENMYBLOCK
-        MENUITEM "Use text block from ""M&ine"" before ""Theirs""", ID_EDIT_USEMINETHENTHEIRBLOCK
-        MENUITEM SEPARATOR
         MENUITEM "&Find",                       ID_EDIT_FIND
-        MENUITEM "Mark as &resolved",           ID_EDIT_MARKASRESOLVED
-    END
-    POPUP "&Navigate"
-    BEGIN
-        MENUITEM "&Next Difference",            ID_NAVIGATE_NEXTDIFFERENCE
-        MENUITEM "&Previous Difference",        ID_NAVIGATE_PREVIOUSDIFFERENCE
-        MENUITEM "N&ext Conflict",              ID_NAVIGATE_NEXTCONFLICT
-        MENUITEM "P&revious Conflict",          ID_NAVIGATE_PREVIOUSCONFLICT
     END
     POPUP "&View"
     BEGIN
@@ -363,6 +340,17 @@ BEGIN
         MENUITEM "S&ettings",                   ID_VIEW_OPTIONS
         MENUITEM SEPARATOR
         MENUITEM "Show File List",              ID_VIEW_SHOWFILELIST
+    END
+    POPUP "&Merge"
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM SEPARATOR
+        MENUITEM "&Next Difference",            ID_MERGE_NEXTDIFFERENCE
+        MENUITEM "&Previous Difference",        ID_MERGE_PREVIOUSDIFFERENCE
+        MENUITEM "N&ext Conflict",              ID_MERGE_NEXTCONFLICT
+        MENUITEM "P&revious Conflict",          ID_MERGE_PREVIOUSCONFLICT
+        MENUITEM SEPARATOR
+        MENUITEM "&Mark as resolved",           ID_MERGE_MARKASRESOLVED
     END
     POPUP "&Help"
     BEGIN
@@ -380,43 +368,40 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
-    "D",            ID_VIEW_ONEWAYDIFF,     VIRTKEY, CONTROL, NOINVERT
-    "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "Q",            ID_APP_EXIT,            VIRTKEY, CONTROL, NOINVERT
+    VK_ESCAPE,      ID_APP_EXIT,            VIRTKEY, NOINVERT
+    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
+    VK_F3,          ID_EDIT_FINDNEXT,       VIRTKEY, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "R",            ID_FILE_RELOAD,         VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE_AS,        VIRTKEY, SHIFT, CONTROL, NOINVERT
-    "T",            ID_VIEW_WHITESPACES,    VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
-    VK_DOWN,        ID_VIEW_LINEDOWN,       VIRTKEY, NOINVERT
-    VK_DOWN,        ID_VIEW_LINEDOWN,       VIRTKEY, CONTROL, NOINVERT
-    VK_ESCAPE,      ID_APP_EXIT,            VIRTKEY, NOINVERT
     VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
-    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
-    VK_F10,         ID_EDIT_USEMYBLOCK,     VIRTKEY, CONTROL, NOINVERT
-    VK_F10,         ID_EDIT_USEMINETHENTHEIRBLOCK, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_F3,          ID_EDIT_FINDNEXT,       VIRTKEY, NOINVERT
-    VK_F3,          ID_EDIT_FINDPREV,       VIRTKEY, SHIFT, NOINVERT
+    VK_RIGHT,       ID_MERGE_NEXTCONFLICT,  VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_MERGE_NEXTDIFFERENCE, VIRTKEY, NOINVERT
+    VK_RIGHT,       ID_MERGE_NEXTDIFFERENCE, VIRTKEY, NOINVERT
+    VK_LEFT,        ID_MERGE_PREVIOUSCONFLICT, VIRTKEY, SHIFT, NOINVERT
+    VK_F7,          ID_MERGE_PREVIOUSDIFFERENCE, VIRTKEY, SHIFT, NOINVERT
+    VK_LEFT,        ID_MERGE_PREVIOUSDIFFERENCE, VIRTKEY, NOINVERT
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
-    VK_F7,          ID_NAVIGATE_NEXTDIFFERENCE, VIRTKEY, NOINVERT
-    VK_F7,          ID_NAVIGATE_PREVIOUSDIFFERENCE, VIRTKEY, SHIFT, NOINVERT
-    VK_F8,          ID_NAVIGATE_NEXTCONFLICT, VIRTKEY, NOINVERT
-    VK_F8,          ID_NAVIGATE_PREVIOUSCONFLICT, VIRTKEY, SHIFT, NOINVERT
-    VK_F9,          ID_EDIT_USETHEIRBLOCK,  VIRTKEY, CONTROL, NOINVERT
-    VK_F9,          ID_EDIT_USETHEIRTHENMYBLOCK, VIRTKEY, SHIFT, CONTROL, NOINVERT
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_DOWN,        ID_VIEW_LINEDOWN,       VIRTKEY, NOINVERT
+    VK_DOWN,        ID_VIEW_LINEDOWN,       VIRTKEY, CONTROL, NOINVERT
     VK_LEFT,        ID_VIEW_LINELEFT,       VIRTKEY, CONTROL, NOINVERT
     VK_RIGHT,       ID_VIEW_LINERIGHT,      VIRTKEY, CONTROL, NOINVERT
     VK_UP,          ID_VIEW_LINEUP,         VIRTKEY, NOINVERT
     VK_UP,          ID_VIEW_LINEUP,         VIRTKEY, CONTROL, NOINVERT
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
-    VK_RIGHT,       ID_NAVIGATE_NEXTDIFFERENCE, VIRTKEY, NOINVERT
-    VK_LEFT,        ID_NAVIGATE_PREVIOUSDIFFERENCE, VIRTKEY, NOINVERT
+    "D",            ID_VIEW_ONEWAYDIFF,     VIRTKEY, CONTROL, NOINVERT
+    "T",            ID_VIEW_WHITESPACES,    VIRTKEY, CONTROL, NOINVERT
+    VK_F8,          ID_MERGE_NEXTCONFLICT,  VIRTKEY, NOINVERT
+    VK_F8,          ID_MERGE_PREVIOUSCONFLICT, VIRTKEY, SHIFT, NOINVERT
 END
 
 
@@ -516,8 +501,8 @@ STRINGTABLE
 BEGIN
     ID_VIEW_WHITESPACES     "Show special characters for whitespaces\nShow Whitespaces"
     ID_VIEW_ONEWAYDIFF      "Switch between single and double pane view\nSwitch between single and double pane view"
-    ID_NAVIGATE_NEXTDIFFERENCE "Go to the next difference\nnext difference"
-    ID_NAVIGATE_PREVIOUSDIFFERENCE 
+    ID_MERGE_NEXTDIFFERENCE "Go to the next difference\nnext difference"
+    ID_MERGE_PREVIOUSDIFFERENCE 
                             "Go to the previous difference\nprevious difference"
     ID_VIEW_OPTIONS         "Adjust the settings\nSettings"
 END
@@ -655,22 +640,10 @@ END
 
 STRINGTABLE 
 BEGIN
-    ID_NAVIGATE_PREVIOUSCONFLICT 
-                            "Go to the previous conflict\nprevious conflict"
-    ID_NAVIGATE_NEXTCONFLICT "Go to the next conflict\nnext conflict"
-    ID_EDIT_MARKASRESOLVED  "Marks a file as resolved in Subversion\nMark as resolved"
+    ID_MERGE_PREVIOUSCONFLICT "Go to the previous conflict\nprevious conflict"
+    ID_MERGE_NEXTCONFLICT   "Go to the next conflict\nnext conflict"
+    ID_MERGE_MARKASRESOLVED "Marks a file as resolved in Subversion\nMark as resolved"
     ID_VIEW_SWITCHLEFT      "Switch the contents of the left and right view\nSwitch left and right view"
-END
-
-STRINGTABLE 
-BEGIN
-    ID_VIEW_SHOWFILELIST    "Hide/Show the patch file list\nHides or shows the patch file list"
-    ID_EDIT_USETHEIRBLOCK   "Use text block from ""Theirs""\nUse ""Their"" text block"
-    ID_EDIT_USEMYBLOCK      "Use text block from ""Mine""\nUse ""My"" text block"
-    ID_EDIT_USETHEIRTHENMYBLOCK 
-                            "Use text block from ""Theirs"" before ""Mine""\n""Their"" text block then ""Mine"""
-    ID_EDIT_USEMINETHENTHEIRBLOCK 
-                            "Use text block from ""Mine"" before ""Theirs""\n""My"" text block then ""Theirs"""
 END
 
 STRINGTABLE 
@@ -699,6 +672,11 @@ BEGIN
                             "The file %s\nwas found twice!?!\nThis usually happens if you applied a patchfile to the\nwrong folder!"
 END
 
+STRINGTABLE 
+BEGIN
+    ID_VIEW_SHOWFILELIST    "Hide/Show the patch file list\nHides or shows the patch file list"
+END
+
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -717,7 +695,7 @@ LANGUAGE LANG_GERMAN, SUBLANG_GERMAN_SWISS
 // Dialog
 //
 
-IDD_FIND DIALOGEX 0, 0, 311, 73
+IDD_FIND DIALOGEX 0, 0, 311, 58
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Find"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -729,7 +707,6 @@ BEGIN
     CONTROL         "Match &case",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,26,83,10
     CONTROL         "&Limit search to modified lines",IDC_LIMITTODIFFS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,41,144,10
-    CONTROL         "&Whole word",IDC_WHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,56,144,10
 END
 
 
@@ -750,7 +727,7 @@ BEGIN
         VERTGUIDE, 244
         VERTGUIDE, 248
         TOPMARGIN, 7
-        BOTTOMMARGIN, 66
+        BOTTOMMARGIN, 51
     END
 END
 #endif    // APSTUDIO_INVOKED

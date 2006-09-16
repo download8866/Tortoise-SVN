@@ -1,24 +1,3 @@
-- NEW: A warning is shown when a modified file is about to be deleted
-       in the various dialogs. See issue #274 for details. (Stefan)
-- NEW: External diff/merge programs can be specified by mime-type,
-       not just by extension. See issue #115 for details. (Stefan)
-- NEW: Search by "whole word" and wrap around at the bottom of
-       the files when the word isn't found. 
-       See issue #271 for details. (Jeremy Whitby)
-- NEW: Client-side hook scripts. See issue #137 for details. (Stefan)
-- NEW: Integration with repo viewers. See issue #201 for details. (Stefan)
-- NEW: Applying a patchfile from clipboard. 
-       See issue #270 for details. (Stefan)
-- NEW: The log dialog shows the number of revisions, start and end revision
-       and the number of selected revisions. 
-       See issue #276 for details. (Stefan)
-- CHG: The working copy is now the default in the branch/tag dialog
-       instead of HEAD. See issue #258 for details. (Stefan)
-- CHG: When copying selected lines to the clipboard, a newline is added
-       at the end of the last line. See issue #272 for details. (Stefan)
-- CHG: More accelerator keys and menu reorganization in TortoiseMerge.
-       See issue #284 for details. (Jeremy Whitby)
-
 Version 1.4.0
 - NEW: Allow changing the alpha value in overlapped mode in TortoiseIDiff
        to be changed with Ctrl+Shift+Wheel. (Stefan)

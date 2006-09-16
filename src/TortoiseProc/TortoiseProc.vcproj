@@ -520,14 +520,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\Hooks.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\Hooks.h"
-					>
-				</File>
-				<File
 					RelativePath="..\Utils\PathUtils.cpp"
 					>
 				</File>
@@ -585,14 +577,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\stdex_vector.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\StdioFileT.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\StdioFileT.h"
 					>
 				</File>
 				<File
@@ -1664,14 +1648,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\CommitDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CommitDlg.h"
-					>
-				</File>
-				<File
 					RelativePath="CopyDlg.cpp"
 					>
 				</File>
@@ -1717,6 +1693,14 @@
 				</File>
 				<File
 					RelativePath="LogDlg.h"
+					>
+				</File>
+				<File
+					RelativePath="LogPromptDlg.cpp"
+					>
+				</File>
+				<File
+					RelativePath="LogPromptDlg.h"
 					>
 				</File>
 				<File
@@ -1829,22 +1813,6 @@
 				</File>
 				<File
 					RelativePath=".\SetDialogs.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooks.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooks.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooksAdv.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooksAdv.h"
 					>
 				</File>
 				<File
@@ -2187,10 +2155,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\graph-pie.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\hook.ico"
 				>
 			</File>
 			<File

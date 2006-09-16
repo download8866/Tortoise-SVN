@@ -13,7 +13,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2006-09-12 19:32+0100\n"
+"PO-Revision-Date: 2006-09-13 21:57+0100\n"
 "Last-Translator: Jérémy Badier <jeremy.badier@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -526,7 +526,12 @@ msgstr "Vue en &liste"
 msgid "&Load..."
 msgstr "&Charger..."
 
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "&Marquer comme résolu"
+
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "&Fusionnner"
 
@@ -542,10 +547,6 @@ msgstr "&Fusion"
 #: Control-ID:1129
 msgid "&Native filesystem (FSFS)"
 msgstr "Système de fichier &natif (FSFS)"
-
-#: MenuEntry
-msgid "&Navigate"
-msgstr "&Naviguer"
 
 #: Control-ID:1049
 msgid "&Network drives"
@@ -775,11 +776,6 @@ msgstr "&Affichage"
 msgid "&Whitespaces"
 msgstr "&Espacements"
 
-# Control-ID:1066,
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "&Mot entier"
-
 #: Control-ID:1183
 msgid "&Working copy"
 msgstr "Copie de travai&l"
@@ -834,8 +830,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -1001,10 +995,6 @@ msgstr "Ajouter un programme de fusion selon l'extension"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "Ajouter à la liste des &ignorés"
-
-#: Control-ID:1279
-msgid "Add..."
-msgstr "Ajouter..."
 
 #: Dlg-ID:171
 msgid "Add/Edit Extension Specific Diff/Merge Program"
@@ -1634,15 +1624,6 @@ msgstr "Coloriser les changements de lignes de co&de "
 msgid "Colors"
 msgstr "Couleurs"
 
-#: ID:198
-msgid "Command Line"
-msgstr "Ligne de commande"
-
-# Control-ID:1336,
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "Ligne de commande à exécuter :"
-
 #: ID:3857
 msgid "Command failed."
 msgstr "Echec de la commande."
@@ -1709,11 +1690,6 @@ msgstr "Comparaison de %s à %s"
 #: ID:74
 msgid "Completed"
 msgstr "Terminé"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "Configurer les scripts hook"
 
 #: Control-ID:65535
 msgid "Configure the program used for comparing different revisions of files."
@@ -2215,10 +2191,6 @@ msgstr "Editer programme de fusion selon extension"
 msgid "Edit log message"
 msgstr "Editer un commentaire"
 
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "Éditer..."
-
 #: ID:79
 msgid "Either the name or IP of the proxy server"
 msgstr "Le nom ou l'adresse IP du serveur de proxy"
@@ -2363,12 +2335,12 @@ msgid "Extension"
 msgstr "Extension"
 
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "Extension ou type mime:"
+msgid "Extension specific programs"
+msgstr "Programme spécifique par extension"
 
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "Programme spécifique par extension / type mime"
+msgid "Extension:"
+msgstr "Extension :"
 
 #: ID:74
 msgid "External"
@@ -2647,11 +2619,6 @@ msgstr "Cacher les chem&ins changés sans relation"
 msgid "Help"
 msgstr "Aide"
 
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "Masquer le script pendant l'exécution"
-
 # ID:2052,
 #: ID:2052
 msgid ""
@@ -2663,21 +2630,6 @@ msgstr "Afficher/Cacher la liste des fichiers patchAffiche ou cache la liste des
 #: Control-ID:1127
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "Astuce : Pressez F5 pour rafraîchir le sous-arbre sélectionné et Ctrl-F5 pour charger tous les enfants aussi"
-
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "Scripts hook"
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr "Type de hook"
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "Type de hook :"
 
 #: ID:82
 #, c-format
@@ -3187,10 +3139,6 @@ msgstr "La DLL du système de mail n'est pas valide."
 msgid "Manage Subversion properties"
 msgstr "Gérér les propriétés Subversion"
 
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "Marquer comme &résolu"
-
 #: ID:282
 msgid "Mark as resolved"
 msgstr "Marquer comme résolu"
@@ -3215,7 +3163,7 @@ msgid "Max"
 msgstr "Max"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "Maximum d'éléments à garder dans les commentaires récents"
 
@@ -3599,7 +3547,6 @@ msgid "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 msgstr "Fichiers patch (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "Chemin"
 
@@ -3632,10 +3579,6 @@ msgstr "Veuillez entrer une date ou une heure."
 msgid "Please enter a date."
 msgstr "Veuillez entrer une date."
 
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "Veuillez entrer un script hook à exécuter."
-
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -3644,11 +3587,6 @@ msgstr "Veuillez entrer un chiffre entre %1 et %2."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "Veuillez entrer un chiffre."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "Veuillez entrer un chemin où appliquer le script hook."
 
 #: ID:3858
 msgid "Please enter a positive integer."
@@ -3697,10 +3635,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "Veuillez sélectionner un bouton."
 
-#: ID:83
-msgid "Please select a hook type"
-msgstr "Veuillez sélectionner un type de hook."
-
 #: ID:76
 msgid "Please specify the certificate type"
 msgstr "Veuillez spécifier le type de certificat"
@@ -3727,24 +3661,6 @@ msgstr "Veuillez patienter pendant la récupération des différences..."
 #: ID:211
 msgid "Please wait..."
 msgstr "Veuillez patienter..."
-
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "Hook post-livraison"
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "Hook post-mise à jour"
-
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "Hook pre-livraison"
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "Hook pre-mise à jour"
 
 # ID:376,
 #: ID:376
@@ -3946,10 +3862,6 @@ msgstr "Statut des propriétés textes distantes"
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Retirer de la liste des &ignorés"
-
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "Supprimer..."
 
 #: Control-ID:65535
 msgid "Removed"
@@ -4407,15 +4319,6 @@ msgstr ""
 "Sélectionnez le répertoire vers lequel réaliser l'exportation.\n"
 "Il est possible que vous deviez créer le répertoire avant d'effectuer cette exportation."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "Sélectionnez le répertoire où exécuter le script"
-
-#: ID:197
-msgid "Select hook script file"
-msgstr "Sélectionner le fichier du script hook..."
-
 #: ID:78
 msgid "Select merge application"
 msgstr "Sélectionner l'application de fusion"
@@ -4595,21 +4498,10 @@ msgstr "Afficher les fichiers non modifiés"
 msgid "Show unversioned files"
 msgstr "Afficher les fichiers non versionnés"
 
-# ID:198,
-#: ID:198
-msgid "Show/Hide"
-msgstr "Afficher/Masquer"
-
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Affiche %ld noeuds"
-
-# ID:238,
-#: ID:115
-#, c-format
-msgid "Showing %ld revisions, from revision %ld to revision %ld - %ld revisions selected."
-msgstr "Affiche %ld révisions, depuis la révision %ld à la révision %ld - %ld révisions sélectionnées"
 
 # ID:272,
 #: ID:272
@@ -4709,19 +4601,9 @@ msgstr "Graphique en barre empilé"
 msgid "Stacked Line Graph"
 msgstr "Graphique en ligne empilé"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "Hook de début de livraison"
-
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "Révision de début"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr "Hook de début de mise à jour"
 
 #: ID:245
 #: Dlg-ID:179
@@ -4992,16 +4874,6 @@ msgstr ""
 "%s\n"
 "'existe pas.\n"
 "Voulez-vous le créer d'abord?"
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"Le script hook a renvoyé une erreur :\n"
-"%s"
 
 # ID:7,
 #: ID:7
@@ -5655,11 +5527,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "Utiliser l'URL de la Cd&T par défaut pour l'URL \"Depuis :\""
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "Utiliser les Différences unifiées du presse-papiers"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -5682,14 +5549,6 @@ msgstr "Utiliser les deux blocs de texte (celui-ci en dernier)"
 msgid "Use stri&keout for deleted lines"
 msgstr "Barrer les li&gnes effacées"
 
-#: MenuEntry
-msgid "Use text block from \"&Mine\""
-msgstr "Utiliser le bloc de texte depuis \"le &mien\""
-
-#: MenuEntry
-msgid "Use text block from \"&Theirs\""
-msgstr "Utiliser le bloc de texte depuis \"le &leur\""
-
 #: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "Utiliser le bloc de texte depuis \"le &mien\""
@@ -5697,46 +5556,6 @@ msgstr "Utiliser le bloc de texte depuis \"le &mien\""
 #: ID:251
 msgid "Use text block from \"&theirs\""
 msgstr "Utiliser le bloc de texte depuis \"le &leur\""
-
-#: MenuEntry
-msgid "Use text block from \"M&ine\" before \"Theirs\""
-msgstr "Utiliser le bloc de texte du \"m&ien\" avant \"le leur\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"Mine\" before \"Theirs\"\n"
-"\"My\" text block then \"Theirs\""
-msgstr ""
-"Utiliser le bloc de texte du \"mien\" avant \"le leur\"\n"
-"\"Mon\" bloc de texte puis \"le leur\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"Mine\"\n"
-"Use \"My\" text block"
-msgstr ""
-"Utiliser le bloc de texte depuis \"le mien\"\n"
-"Utiliser \"Mon\" bloc de texte"
-
-#: MenuEntry
-msgid "Use text block from \"T&heirs\"before \"Mine\""
-msgstr "Utiliser le bloc de texte du \"&leur\" avant le \"mien\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"Theirs\" before \"Mine\"\n"
-"\"Their\" text block then \"Mine\""
-msgstr ""
-"Utiliser le bloc de texte du \"leur\" avant le \"mien\"\n"
-"\"Leur\" bloc de texte puis \"le mien\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"Theirs\"\n"
-"Use \"Their\" text block"
-msgstr ""
-"Utiliser le bloc de texte du \"leur\"\n"
-"Utiliser \"leur\" bloc de texte"
 
 #: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
@@ -5798,29 +5617,9 @@ msgstr "Valeur"
 msgid "Version"
 msgstr "Révision"
 
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "Voir la révision pour le chemin dans le visualisateur &web"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "Voir la révision dans le visualisateur &web"
-
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "Visitez notre site Web"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "Attendre"
-
-# Control-ID:1327,
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "Attendre que le script se termine"
 
 # ID:219,
 #: ID:88
@@ -5839,10 +5638,6 @@ msgstr "Avec l'URL :"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "Copie de travail"
-
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "Chemin de la copie de travail :"
 
 #: ID:80
 #, c-format
@@ -6456,32 +6251,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "les valeurs sont différentes"
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"URL pointant sur sur le visualisateur web pour le référentiel pour un fichier et une révision spécifiques.\n"
-"La chaîne %REVISION% dans l'URL est remplacée par le numéro de la révision,\n"
-"la chaîne %PATH% est remplacée par le chemin du fichier en fonction de la racine du référentiel."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"URL pointant sur le visualisateur web pour le référentiel pour une révision particulière.\n"
-"La chaîne %REVISION% dans l'URL est remplacée par le numéro de la révision."
 
 # ID:244,
 #: ID:245

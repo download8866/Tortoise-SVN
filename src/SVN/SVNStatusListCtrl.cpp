@@ -493,7 +493,7 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 			// could happen with nested layouts
 			if (SVNStatus::GetAllStatus(workingTarget) != svn_wc_status_unversioned)
 			{
-				return true;	// ignore nested layouts
+				return true;	//ignore nested layouts
 			}
 		}
 		if (status.IsExternal(svnPath))
@@ -505,7 +505,7 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 
 		if ((wcFileStatus == svn_wc_status_unversioned) && svnPath.IsDirectory())
 		{
-			// we have an unversioned folder -> get all files in it recursively!
+			//we have an unversioned folder -> get all files in it recursively!
 			AddUnversionedFolder(svnPath, workingTarget.GetContainingDirectory(), pIgnorePatterns);
 		}
 
@@ -787,7 +787,7 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 		{
 			if (entry->isfolder)
 			{
-				// we have an unversioned folder -> get all files in it recursively!
+				//we have an unversioned folder -> get all files in it recursively!
 				AddUnversionedFolder(svnPath, basePath, pIgnorePatterns);
 			}
 		}
@@ -1387,7 +1387,7 @@ bool CSVNStatusListCtrl::SortCompare(const FileEntry* entry1, const FileEntry* e
 				result = entry1->path.GetFileExtension().CompareNoCase(entry2->path.GetFileExtension());
 			}
 		}
-	case 0:		// path column
+	case 0:		//path column
 		{
 			if (result == 0)
 			{
@@ -1447,7 +1447,7 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
 	int nListItems = GetItemCount();
 
 	m_bBlock = TRUE;
-	// was the item checked?
+	//was the item checked?
 	if (GetCheck(pNMLV->iItem))
 	{
 		CheckEntry(pNMLV->iItem, nListItems);
@@ -1495,7 +1495,7 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 	// are unversioned, then check those too.
 	if (entry->status == svn_wc_status_unversioned)
 	{
-		// we need to check the parent folder too
+		//we need to check the parent folder too
 		const CTSVNPath& folderpath = entry->path;
 		for (int i=0; i< nListItems; ++i)
 		{
@@ -1538,7 +1538,7 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 					{
 						SetEntryCheck(testEntry,i,true);
 						m_nSelected++;
-						// now we need to check all children of this parent folder
+						//now we need to check all children of this parent folder
 						SetCheckOnAllDescendentsOf(testEntry, true);
 					}
 				}
@@ -1561,16 +1561,16 @@ void CSVNStatusListCtrl::UncheckEntry(int index, int nListItems)
 		return;
 	SetCheck(index, FALSE);
 	entry = GetListEntry(index);
-	// item was unchecked
+	//item was unchecked
 	if (entry->path.IsDirectory())
 	{
-		// disable all files within an unselected folder
+		//disable all files within an unselected folder
 		SetCheckOnAllDescendentsOf(entry, false);
 	}
 	else if (entry->status == svn_wc_status_deleted)
 	{
-		// a "deleted" file was unchecked, so uncheck all parent folders
-		// and all children of those parents
+		//a "deleted" file was unchecked, so uncheck all parent folders
+		//and all children of those parents
 		for (int i=0; i<nListItems; i++)
 		{
 			FileEntry * testEntry = GetListEntry(i);
@@ -1622,7 +1622,7 @@ bool CSVNStatusListCtrl::BuildStatistics()
 	// Also sort the unversioned section, to make the list look nice...
 	std::sort(itFirstUnversionedEntry, m_arStatusArray.end(), EntryPathCompareNoCase);
 
-	// now gather some statistics
+	//now gather some statistics
 	m_nUnversioned = 0;
 	m_nNormal = 0;
 	m_nModified = 0;
@@ -1746,7 +1746,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				return;
 			const CTSVNPath& filepath = entry->path;
 			svn_wc_status_kind wcStatus = entry->status;
-			// entry is selected, now show the popup menu
+			//entry is selected, now show the popup menu
 			CMenu popup;
 			if (popup.CreatePopupMenu())
 			{
@@ -2069,8 +2069,8 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 							}
 							else
 							{
-								// since the entries got reverted we need to remove
-								// them from the list too, if no remote changes are shown
+								//since the entries got reverted we need to remove
+								//them from the list too, if no remote changes are shown
 								POSITION pos;
 								while ((pos = GetFirstSelectedItemPosition())!=0)
 								{
@@ -2187,36 +2187,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						// *before* their parents
 						itemsToRemove.SortByPathname(true);
 
-						bool bSuccess = false;
-						if (svn.Remove(itemsToRemove, FALSE))
-						{
-							bSuccess = true;
-						}
-						else
-						{
-							if ((svn.Err->apr_err == SVN_ERR_UNVERSIONED_RESOURCE) ||
-								(svn.Err->apr_err == SVN_ERR_CLIENT_MODIFIED))
-							{
-								CString msg, yes, no, yestoall;
-								msg.Format(IDS_PROC_REMOVEFORCE, svn.GetLastErrorMessage());
-								yes.LoadString(IDS_MSGBOX_YES);
-								no.LoadString(IDS_MSGBOX_NO);
-								yestoall.LoadString(IDS_PROC_YESTOALL);
-								UINT ret = CMessageBox::Show(m_hWnd, msg, _T("TortoiseSVN"), 2, IDI_ERROR, yes, no, yestoall);
-								if ((ret == 1)||(ret==3))
-								{
-									if (!svn.Remove(itemsToRemove, TRUE))
-									{
-										CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-									}
-									else
-										bSuccess = true;
-								}
-							}
-							else
-								CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						}
-						if (bSuccess)
+						if (svn.Remove(itemsToRemove, TRUE))
 						{
 							// The remove went ok, but we now need to run through the selected items again
 							// and update their status
@@ -2229,6 +2200,10 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								e->status = svn_wc_status_deleted;
 								SetEntryCheck(e,index,true);
 							}
+						}
+						else
+						{
+							CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
 						SaveColumnWidths();
 						Show(m_dwShow, 0, m_bShowFolders);
@@ -2265,7 +2240,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						if (! fileop.fAnyOperationsAborted)
 						{
 							POSITION pos = NULL;
-							CTSVNPathList deletedlist;	// to store list of deleted folders
+							CTSVNPathList deletedlist;	//to store list of deleted folders
 							while ((pos = GetFirstSelectedItemPosition()) != 0)
 							{
 								int index = GetNextSelectedItem(pos);
@@ -2319,7 +2294,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -2467,7 +2442,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -2491,7 +2466,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								m_nSelected--;
 							m_nTotal--;
 
-							// now, if we ignored a folder, remove all its children
+							//now, if we ignored a folder, remove all its children
 							if (ignorelist[j].IsDirectory())
 							{
 								for (int i=0; i<(int)m_arListArray.size(); ++i)
@@ -2896,11 +2871,11 @@ void CSVNStatusListCtrl::StartDiff(int fileindex)
 	if (entry == NULL)
 		return;
 	if ((entry->status == svn_wc_status_normal)&&(entry->remotestatus <= svn_wc_status_normal))
-		return;		// normal files won't show anything interesting in a diff
+		return;		//normal files won't show anything interesting in a diff
 	if (entry->status == svn_wc_status_missing)
-		return;		// we don't compare a missing file (nothing) with something
+		return;		//we don't compare a missing file (nothing) with something
 	if (entry->status == svn_wc_status_unversioned)
-		return;		// we don't compare new files with nothing
+		return;		//we don't compare new files with nothing
 
 	SVNDiff diff(NULL, m_hWnd, true);
 	diff.DiffWCFile(entry->path, entry->textstatus, entry->propstatus, entry->remotetextstatus, entry->remotepropstatus);
@@ -2933,7 +2908,7 @@ CString CSVNStatusListCtrl::GetStatisticsString()
 		(LPCTSTR)sConflicted, m_nConflicted
 		);
 	CString sStats;
-	sStats.Format(IDS_COMMITDLG_STATISTICSFORMAT, m_nSelected, GetItemCount());
+	sStats.Format(IDS_LOGPROMPT_STATISTICSFORMAT, m_nSelected, GetItemCount());
 	if (m_pStatLabel)
 	{
 		m_pStatLabel->SetWindowText(sStats);

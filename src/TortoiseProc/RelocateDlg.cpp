@@ -21,7 +21,9 @@
 #include "RelocateDlg.h"
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
-#include "AppUtils.h"
+
+
+// CRelocateDlg dialog
 
 IMPLEMENT_DYNAMIC(CRelocateDlg, CStandAloneDialog)
 CRelocateDlg::CRelocateDlg(CWnd* pParent /*=NULL*/)
@@ -47,6 +49,9 @@ BEGIN_MESSAGE_MAP(CRelocateDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 END_MESSAGE_MAP()
 
+
+// CRelocateDlg message handlers
+
 BOOL CRelocateDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
@@ -58,12 +63,67 @@ BOOL CRelocateDlg::OnInitDialog()
 	m_URLCombo.SetWindowText(m_sFromUrl);
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CRelocateDlg::OnBnClickedBrowse()
 {
-	CAppUtils::BrowseRepository(m_URLCombo, this);
+	m_URLCombo.GetWindowText(m_sToUrl);
+	if (m_sToUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(m_sToUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(m_sToUrl, this);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), m_sToUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(m_sToUrl);
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(m_sToUrl);
+			}
+		}
+	}
+	else if ((m_sToUrl.Left(7) == _T("http://")
+		||(m_sToUrl.Left(8) == _T("https://"))
+		||(m_sToUrl.Left(6) == _T("svn://"))
+		||(m_sToUrl.Left(4) == _T("svn+"))) && m_sToUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(m_sToUrl, this);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), m_sToUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(m_sToUrl);
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(m_sToUrl);
+		}
+	}
 }
 
 void CRelocateDlg::OnOK()

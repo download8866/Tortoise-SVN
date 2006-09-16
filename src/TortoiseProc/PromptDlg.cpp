@@ -21,6 +21,8 @@
 #include "PromptDlg.h"
 
 
+// CPromtDlg dialog
+
 IMPLEMENT_DYNAMIC(CPromptDlg, CDialog)
 CPromptDlg::CPromptDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CPromptDlg::IDD, pParent)
@@ -72,7 +74,8 @@ BOOL CPromptDlg::OnInitDialog()
 	m_pass.SetFocus();
 	if ((m_hParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(m_hParentWnd));
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 

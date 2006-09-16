@@ -22,10 +22,14 @@
 #include "URLDlg.h"
 #include ".\urldlg.h"
 
+
+// CURLDlg dialog
+
 IMPLEMENT_DYNAMIC(CURLDlg, CResizableStandAloneDialog)
 CURLDlg::CURLDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CURLDlg::IDD, pParent)
 {
+	m_url = _T("");
 }
 
 CURLDlg::~CURLDlg()
@@ -60,7 +64,8 @@ BOOL CURLDlg::OnInitDialog()
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("URLDlg"));
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CURLDlg::OnOK()
@@ -70,7 +75,7 @@ void CURLDlg::OnOK()
 		m_URLCombo.SaveHistory();
 		m_url = m_URLCombo.GetString();
 		UpdateData();
-	}
+	} // if (m_URLCombo.IsWindowEnabled()) 
 
 	CResizableStandAloneDialog::OnOK();
 }
@@ -78,7 +83,7 @@ void CURLDlg::OnOK()
 
 void CURLDlg::OnSizing(UINT fwSide, LPRECT pRect)
 {
-	// don't allow the dialog to be changed in height
+	// don't allow the dialog to be changed in heigth
 	switch (fwSide)
 	{
 	case WMSZ_BOTTOM:

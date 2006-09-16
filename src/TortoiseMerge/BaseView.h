@@ -131,7 +131,6 @@ protected:
 	void			OnDoVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar, CBaseView * master);
 
 	void			SetupDiffBars(int start, int end);
-	void			SetupSelection(int start, int end);
 	void			ShowDiffLines(int nLine);
 	
 	int				GetTabSize() const {return m_nTabSize;}
@@ -155,7 +154,6 @@ protected:
 	CFont *			GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE, BOOL bStrikeOut = FALSE);
 	int				GetLineFromPoint(CPoint point);
 	int				GetMarginWidth();
-	void			RefreshViews();
 
 	virtual BOOL	ShallShowContextMenu(CDiffData::DiffStates state, int nLine);
 	virtual	void	OnContextMenu(CPoint point, int nLine);
@@ -214,5 +212,4 @@ protected:
 	static CBaseView * m_pwndRight;		///< Pointer to the right view. Must be set by the CRightView parent class.
 	static CBaseView * m_pwndBottom;	///< Pointer to the bottom view. Must be set by the CBottomView parent class.
 };
-
 

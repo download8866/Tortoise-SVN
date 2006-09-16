@@ -23,6 +23,8 @@
 #include ".\settingsprogsunidiff.h"
 
 
+// CSettingsProgsUniDiff dialog
+
 IMPLEMENT_DYNAMIC(CSettingsProgsUniDiff, CPropertyPage)
 CSettingsProgsUniDiff::CSettingsProgsUniDiff()
 	: CPropertyPage(CSettingsProgsUniDiff::IDD)
@@ -68,6 +70,9 @@ BEGIN_MESSAGE_MAP(CSettingsProgsUniDiff, CPropertyPage)
 	ON_EN_CHANGE(IDC_DIFFVIEWER, OnEnChangeDiffviewer)
 END_MESSAGE_MAP()
 
+
+// CSettingsProgsUniDiff message handlers
+
 void CSettingsProgsUniDiff::OnBnClickedDiffviewerOff()
 {
 	m_iDiffViewer = 0;
@@ -100,6 +105,7 @@ void CSettingsProgsUniDiff::OnBnClickedDiffviewerbrowse()
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
+	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -107,14 +113,14 @@ void CSettingsProgsUniDiff::OnBnClickedDiffviewerbrowse()
 	sFilter.LoadString(IDS_PROGRAMSFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{
 		if (*ptr == '|')
 			*ptr = '\0';
 		ptr--;
-	}
+	} // while (ptr != pszFilters) 
 	ofn.lpstrFilter = pszFilters;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -133,7 +139,7 @@ void CSettingsProgsUniDiff::OnBnClickedDiffviewerbrowse()
 		m_sDiffViewerPath = CString(ofn.lpstrFile);
 		UpdateData(FALSE);
 		SetModified();
-	}
+	} // if (GetOpenFileName(&ofn)==TRUE)
 	delete [] pszFilters;
 }
 

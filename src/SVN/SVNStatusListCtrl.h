@@ -110,8 +110,10 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
  * files with their Subversion status. The control also provides a context
  * menu to do some Subversion tasks on the selected files.
  *
- * This is the main control used in many dialogs to show a list of files to
- * work on.
+ * \par requirements
+ * win98 or later\n
+ * win2k or later\n
+ * MFC\n
  */
 class CSVNStatusListCtrl : public CListCtrl
 {

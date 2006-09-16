@@ -25,6 +25,8 @@
 #include "EditPropertyValueDlg.h"
 
 
+// CEditPropertyValueDlg dialog
+
 IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
 
 CEditPropertyValueDlg::CEditPropertyValueDlg(CWnd* pParent /*=NULL*/)
@@ -35,6 +37,7 @@ CEditPropertyValueDlg::CEditPropertyValueDlg(CWnd* pParent /*=NULL*/)
 	, m_bMultiple(false)
 	, m_bIsBinary(false)
 {
+
 }
 
 CEditPropertyValueDlg::~CEditPropertyValueDlg()
@@ -57,6 +60,9 @@ BEGIN_MESSAGE_MAP(CEditPropertyValueDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_LOADPROP, &CEditPropertyValueDlg::OnBnClickedLoadprop)
 	ON_EN_CHANGE(IDC_PROPVALUE, &CEditPropertyValueDlg::OnEnChangePropvalue)
 END_MESSAGE_MAP()
+
+
+// CEditPropertyValueDlg message handlers
 
 BOOL CEditPropertyValueDlg::OnInitDialog()
 {
@@ -94,9 +100,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 		m_PropNames.AddString(_T("tsvn:logminsize"));
 		m_PropNames.AddString(_T("tsvn:logfilelistenglish"));
 		m_PropNames.AddString(_T("tsvn:projectlanguage"));
-
-		m_PropNames.AddString(_T("webviewer:revision"));
-		m_PropNames.AddString(_T("webviewer:pathrevision"));
 	}
 	else
 		GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(FALSE);
@@ -141,7 +144,8 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("EditPropertyValueDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
@@ -247,21 +251,11 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_TT_TSVNLOGFILELISTENGLISH;
 		if (sName.Compare(_T("tsvn:projectlanguage"))==0)
 			nText = IDS_TT_TSVNPROJECTLANGUAGE;
-		if (sName.Compare(_T("webviewer:revision"))==0)
-			nText = IDS_TT_WEBVIEWERREVISION;
-		if (sName.Compare(_T("webviewer:pathrevision"))==0)
-			nText = IDS_TT_WEBVIEWERPATHREVISION;
 
 		if (nText)
 		{
 			m_tooltips.AddTool(IDC_PROPVALUE, nText);
 			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD), nText);
-		}
-		else
-		{
-			// if no match is found then remove the tool tip so that the last tooltip is not wrongly shown
-			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPVALUE));
-			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
 		}
 	}
 }

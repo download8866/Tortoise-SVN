@@ -107,12 +107,10 @@
 #define IDC_CHECK1                      1064
 #define IDC_MAGNIFIER                   1064
 #define IDC_MATCHCASE                   1064
-#define IDC_PATCHFROMCLIPBOARD          1064
 #define IDC_CHECK2                      1065
 #define IDC_DIFFBAR                     1065
 #define IDC_LIMITTODIFFS                1065
 #define IDC_STRIKEOUT                   1066
-#define IDC_WHOLEWORD                   1066
 #define IDC_CHECK3                      1067
 #define IDC_RESOLVE                     1067
 #define IDC_CASEINSENSITIVE             1067
@@ -176,8 +174,8 @@
 #define IDS_COLOURPICKER_DEFAULTTEXT    7001
 #define ID_VIEW_WHITESPACES             32774
 #define ID_VIEW_ONEWAYDIFF              32775
-#define ID_NAVIGATE_NEXTDIFFERENCE      32779
-#define ID_NAVIGATE_PREVIOUSDIFFERENCE  32780
+#define ID_MERGE_NEXTDIFFERENCE         32779
+#define ID_MERGE_PREVIOUSDIFFERENCE     32780
 #define ID_VIEW_                        32781
 #define ID_VIEW_OPTIONS                 32782
 #define ID_BUTTON32783                  32783
@@ -185,28 +183,23 @@
 #define ID_FILE_RELOAD                  32794
 #define ID_BUTTON32797                  32797
 #define ID_VIEW_LINEDOWN                32799
-#define ID_NAVIGATE_PREVIOUSCONFLICT    32802
-#define ID_NAVIGATE_NEXTCONFLICT        32804
+#define ID_MERGE_PREVIOUSCONFLICT       32802
+#define ID_MERGE_NEXTCONFLICT           32804
 #define ID_BUTTON32807                  32807
-#define ID_EDIT_MARKASRESOLVED          32808
+#define ID_MERGE_MARKASRESOLVED         32808
 #define ID_VIEW_SWITCHLEFT              32811
 #define ID_BUTTON32812                  32812
 #define ID_VIEW_LINELEFT                32813
 #define ID_VIEW_LINERIGHT               32814
 #define ID_BUTTON32816                  32816
 #define ID_VIEW_SHOWFILELIST            32817
-#define ID_EDIT_FINDPREV                32818
-#define ID_EDIT_USETHEIRBLOCK           32819
-#define ID_EDIT_USEMYBLOCK              32820
-#define ID_EDIT_USETHEIRTHENMYBLOCK     32821
-#define ID_EDIT_USEMINETHENTHEIRBLOCK   32822
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        141
-#define _APS_NEXT_COMMAND_VALUE         32823
+#define _APS_NEXT_COMMAND_VALUE         32818
 #define _APS_NEXT_CONTROL_VALUE         1071
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

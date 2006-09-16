@@ -33,6 +33,8 @@
 #include "UnicodeUtils.h"
 #include "RenameDlg.h"
 
+// CRepositoryTree
+
 IMPLEMENT_DYNAMIC(CRepositoryTree, CReportCtrl)
 CRepositoryTree::CRepositoryTree(const CString& strUrl, BOOL bFile) :
 	m_strUrl(strUrl),
@@ -55,6 +57,10 @@ BEGIN_MESSAGE_MAP(CRepositoryTree, CReportCtrl)
 	ON_NOTIFY_REFLECT(RVN_SELECTIONCHANGED, OnRvnItemSelected)
 	ON_NOTIFY_REFLECT(TVN_GETINFOTIP, OnTvnGetInfoTip)
 END_MESSAGE_MAP()
+
+
+
+// CRepositoryTree public interface
 
 void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 {
@@ -90,6 +96,8 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 	if (hItem != 0)
 		SetSelection(hItem);
 }
+
+
 
 // CRepositoryTree low level update functions
 
@@ -183,6 +191,8 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force)
 			hParentItem = FindUrl(parent_folder);
 			if (hParentItem == 0)
 			{
+				//if (!force)
+				//	return NULL;
 				hParentItem = AddFolder(parent_folder, force);
 			}
 		}
@@ -663,7 +673,7 @@ CString CRepositoryTree::MakeUrl(HTREEITEM hItem)
 			strUrl.Insert(0, GetItemText(GetItemIndex(hParent), 0) + _T("/"));
 		}
 		hParent = GetNextItem(hParent, RVGN_PARENT);
-	}
+	} // while (hParent != NULL)
 	
 	// since we *know* that '%' chars which we get here aren't used
 	// as escaping chars, we must escape them here.

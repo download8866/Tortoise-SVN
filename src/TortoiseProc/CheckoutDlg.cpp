@@ -23,8 +23,10 @@
 #include "Messagebox.h"
 #include "PathUtils.h"
 #include "BrowseFolder.h"
-#include "AppUtils.h"
+#include ".\checkoutdlg.h"
 
+
+// CCheckoutDlg dialog
 
 IMPLEMENT_DYNAMIC(CCheckoutDlg, CStandAloneDialog)
 CCheckoutDlg::CCheckoutDlg(CWnd* pParent /*=NULL*/)
@@ -75,8 +77,7 @@ BOOL CCheckoutDlg::OnInitDialog()
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
 	m_URLCombo.SetCurSel(0);
-
-	// set radio buttons according to the revision
+	// set head revision as default revision
 	if (Revision.IsHead())
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
 	else
@@ -94,6 +95,8 @@ BOOL CCheckoutDlg::OnInitDialog()
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_CHECKOUTDIRECTORY, IDS_CHECKOUT_TT_DIR);
+	//m_tooltips.SetEffectBk(CBalloon::BALLOON_EFFECT_HGRADIENT);
+	//m_tooltips.SetGradientColors(0x80ffff, 0x000000, 0xffff80);
 
 	SHAutoComplete(GetDlgItem(IDC_CHECKOUTDIRECTORY)->m_hWnd, SHACF_FILESYSTEM);
 	if (IsExport)
@@ -104,7 +107,7 @@ BOOL CCheckoutDlg::OnInitDialog()
 		temp.LoadString(IDS_CHECKOUT_EXPORTDIR);
 		GetDlgItem(IDC_EXPORT_CHECKOUTDIR)->SetWindowText(temp);
 		GetDlgItem(IDC_NON_RECURSIVE)->ShowWindow(SW_HIDE);
-	} 
+	} // if (IsExport)
 
 	if (!Revision.IsHead())
 	{
@@ -116,7 +119,8 @@ BOOL CCheckoutDlg::OnInitDialog()
 
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CCheckoutDlg::OnOK()
@@ -132,6 +136,7 @@ void CCheckoutDlg::OnOK()
 		return;
 	}
 
+	// if head revision, set revision as -1
 	if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
 	{
 		Revision = SVNRev(_T("HEAD"));
@@ -163,8 +168,6 @@ void CCheckoutDlg::OnOK()
 		if (GetDriveType(temp)==DRIVE_REMOTE)
 		{
 			if (SVN::IsBDBRepository(m_URL))
-				// It's a network share, and the user tries to create a berkeley db on it.
-				// Show a warning telling the user about the risks of doing so.
 				if (CMessageBox::Show(this->m_hWnd, IDS_WARN_SHAREFILEACCESS, IDS_APPNAME, MB_ICONWARNING | MB_YESNO)==IDNO)
 					return;
 		}
@@ -198,7 +201,64 @@ void CCheckoutDlg::OnOK()
 
 void CCheckoutDlg::OnBnClickedBrowse()
 {
-	CAppUtils::BrowseRepository(m_URLCombo, this);
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+			}
+		}
+	} // if (strUrl.Left(7) == _T("file://")) 
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(strUrl);
+		}
+	}
 }
 
 void CCheckoutDlg::OnBnClickedCheckoutdirectoryBrowse()

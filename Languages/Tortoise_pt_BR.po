@@ -15,7 +15,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2006-09-11 09:49-0300\n"
+"PO-Revision-Date: 2006-09-11 09:40-0300\n"
 "Last-Translator: Humberto Osório <humberto@vdl.ufc.br>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -571,7 +571,7 @@ msgstr "&Ignorar %d itens"
 # Control-ID:1067,
 #: Control-ID:1021
 msgid "&Ignore whitespace changes"
-msgstr "&Ignorar alterações de espaços em branco"
+msgstr "&Ignorar diferenças de espaços em branco"
 
 #: MenuEntry
 msgid "&Image Info"
@@ -598,7 +598,6 @@ msgid "&Limit search to modified lines"
 msgstr "&Limitar busca para linhas modificadas"
 
 #: MenuEntry
-#, fuzzy
 msgid "&Link images together"
 msgstr "&Associar imagens"
 
@@ -921,12 +920,6 @@ msgstr "&Exibir"
 msgid "&Whitespaces"
 msgstr "&Espaços em branco"
 
-# Control-ID:1066,
-#: Control-ID:1066
-#, fuzzy
-msgid "&Whole word"
-msgstr "&Palavra inteira"
-
 # ID:151,
 #: Control-ID:1183
 msgid "&Working copy"
@@ -985,8 +978,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -1186,11 +1177,6 @@ msgstr "Adicionar de programa de combinação para extensão específica"
 msgid "Add to &ignore list"
 msgstr "Adicionar à lista de &ignorados"
 
-# Control-ID:1098,
-#: Control-ID:1279
-msgid "Add..."
-msgstr "Adicionar..."
-
 # Dlg-ID:171,
 #: Dlg-ID:171
 msgid "Add/Edit Extension Specific Diff/Merge Program"
@@ -1349,7 +1335,7 @@ msgstr ""
 "%merged\to arquivo em conflito, onde salvar\n"
 "%theirs\t\to arquivo como está no repositório\n"
 "%mine\t\tseu próprio arquivo, com suas modificações\n"
-"%base\t\to arquivo original sem suas modificações"
+"%base\t\to arquivo original sem suas alterações"
 
 # ID:3843,#:
 # ID:3843,
@@ -1753,7 +1739,7 @@ msgstr "Arquivos Alterados: %d"
 # Control-ID:1242,
 #: Control-ID:1242
 msgid "Changes made (double-click on file for diff):"
-msgstr "Alterações feitas (duplo clique no arquivo para comparar):"
+msgstr "Alterações feitas (duplo-clique no arquivo para comparar):"
 
 # ID:8,
 #: ID:8
@@ -1931,24 +1917,12 @@ msgstr "Fecha a janela ativa e pede para salvar os documentos"
 # Control-ID:1163,
 #: Control-ID:1068
 msgid "Color co&de in-line changes"
-msgstr "Código de c&or das mudanças in-line"
+msgstr "Código de c&or das alterações in-line"
 
 # Dlg-ID:138,
 #: Dlg-ID:138
 msgid "Colors"
 msgstr "Cores"
-
-# ID:3857,#:
-# ID:3857,
-#: ID:198
-msgid "Command Line"
-msgstr "Linha de Comando"
-
-# Control-ID:1336,
-#: Control-ID:1336
-#, fuzzy
-msgid "Command Line To Execute:"
-msgstr "Linha de Comando para Executar:"
 
 # ID:3857,#:
 # ID:3857,
@@ -2032,11 +2006,6 @@ msgstr "Comparando %s to %s"
 #: ID:74
 msgid "Completed"
 msgstr "Concluído"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr ""
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2626,11 +2595,6 @@ msgstr "Atribuir programa de combinação para extensões específicas"
 msgid "Edit log message"
 msgstr "Editar mensagem de log"
 
-# Control-ID:1099,
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "Editar..."
-
 # ID:79,
 #: ID:79
 msgid "Either the name or IP of the proxy server"
@@ -2801,13 +2765,13 @@ msgstr "Extensão"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "Extensão ou tipo-mime:"
+msgid "Extension specific programs"
+msgstr "Programas para extensões específicas"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "Programa para extensão/tipo-mime específico"
+msgid "Extension:"
+msgstr "Extensão:"
 
 # ID:74,
 #: ID:74
@@ -3124,11 +3088,6 @@ msgstr "Ocultar cam&inhos alterados não relacionados"
 msgid "Help"
 msgstr "Ajuda"
 
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "Ocultar scrip durante execução"
-
 # ID:2052,
 #: ID:2052
 msgid ""
@@ -3142,21 +3101,6 @@ msgstr ""
 #: Control-ID:1127
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "Dica: Pressione F5 para atualizar a sub-árvore selecionada e Ctrl-F5 para carregar também todos os filhos"
-
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr ""
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr ""
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr ""
 
 # ID:82,
 #: ID:82
@@ -3743,7 +3687,7 @@ msgid "Max"
 msgstr "Máx"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "Máximo de ítens no histórico de mensagens de log "
 
@@ -4209,7 +4153,6 @@ msgstr "Arquivos de Correção (*.diff, *.patch)|*.diff;*.patch|Todos (*.*)|*.*|
 
 # ID:77,
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "Caminho"
 
@@ -4254,12 +4197,6 @@ msgstr "Por favor, insira uma data."
 
 # ID:3858,#:
 # ID:3858,
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr ""
-
-# ID:3858,#:
-# ID:3858,
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -4270,11 +4207,6 @@ msgstr "Por favor, insira um número entre %1 e %2."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "Por favor, insira um número."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr ""
 
 # ID:3858,#:
 # ID:3858,
@@ -4338,12 +4270,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "Por favor, selecione um botão."
 
-# ID:3858,#:
-# ID:3858,
-#: ID:83
-msgid "Please select a hook type"
-msgstr ""
-
 # ID:76,
 #: ID:76
 msgid "Please specify the certificate type"
@@ -4375,26 +4301,6 @@ msgstr "Por favor aguarde enquanto pegamos as diferenças..."
 #: ID:211
 msgid "Please wait..."
 msgstr "Por favor, aguarde..."
-
-# Control-ID:1110,
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr ""
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr ""
-
-# Control-ID:1110,
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr ""
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr ""
 
 # ID:376,
 #: ID:376
@@ -4636,11 +4542,6 @@ msgstr "Status remoto do texto"
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Remover da lista de &ignorados"
-
-# ID:8,
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "Remover..."
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -5199,16 +5100,6 @@ msgstr ""
 "Selecionar pasta para a qual exportar.\n"
 "Você pode precisar criar uma nova pasta antes de exportar."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "Selecionar pasta para execução do script"
-
-# ID:313,
-#: ID:197
-msgid "Select hook script file"
-msgstr ""
-
 # ID:78,
 #: ID:78
 msgid "Select merge application"
@@ -5425,12 +5316,6 @@ msgstr "Mostrar arquivos não modificados"
 msgid "Show unversioned files"
 msgstr "Mostrar arquivos sem controle de versão"
 
-# ID:198,
-#: ID:198
-#, fuzzy
-msgid "Show/Hide"
-msgstr "Mostrar/Ocultar"
-
 # Control-ID:1073,
 #: ID:272
 #, c-format
@@ -5543,20 +5428,10 @@ msgstr "Barra de Gráfico em Pilha"
 msgid "Stacked Line Graph"
 msgstr "Barra de Gráfico em Linha"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr ""
-
 # ID:11,
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "Começar Revisão"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr ""
 
 # ID:74,#:
 # ID:77,
@@ -5863,14 +5738,6 @@ msgstr ""
 "%s\n"
 "não existe.\n"
 "Gostaria de criá-la antes?"
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
 
 # ID:7,
 #: ID:7
@@ -6620,11 +6487,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "Usa a URL da Cópia de &Trabalho como a URL \"De:\" padrão"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "Usar Comparação Unificada a partir da área de transferência"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -6730,32 +6592,11 @@ msgstr "Valor"
 msgid "Version"
 msgstr "Versão"
 
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "Visualizar revisão do caminho no &webviewer"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "Visualizar revisão no &webviewer"
-
 # Control-ID:1084,#:
 # Control-ID:1084,
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "Visite nosso website"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "Aguarde"
-
-# Control-ID:1327,
-#: Control-ID:1327
-#, fuzzy
-msgid "Wait for the script to finish"
-msgstr "Aguardar encerramento do script"
 
 # ID:219,
 #: ID:88
@@ -6777,11 +6618,6 @@ msgstr "Com URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "Cópia de trabalho"
-
-# ID:151,
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "Caminho da Cópia de Trabalho:"
 
 # ID:80,
 #: ID:80
@@ -7445,29 +7281,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "valores diferentes"
-
-# ID:17,
-#: ID:17
-#, fuzzy, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"URL apontando para web viewer do repositório para um arquivo e revisão específicos.\n"
-"A string %REVISION% na URL é substituída pelo número da revisão,\n"
-"a string %PATH% é substituída pelo caminho do arquivo, relativo à raiz do repostório."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
 
 # ID:244,
 #: ID:245

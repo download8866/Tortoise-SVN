@@ -25,7 +25,7 @@
 #include "MessageBox.h"
 #include "registry.h"
 #include "SVNDiff.h"
-#include "AppUtils.h"
+#include ".\mergedlg.h"
 
 IMPLEMENT_DYNAMIC(CMergeDlg, CStandAloneDialog)
 CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
@@ -37,10 +37,10 @@ CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
 	, m_bUseFromURL(TRUE)
 	, m_bDryRun(FALSE)
 	, m_bIgnoreAncestry(FALSE)
-	, m_pLogDlg(NULL)
-	, m_pLogDlg2(NULL)
-	, bRepeating(FALSE)
 {
+	m_pLogDlg = NULL;
+	m_pLogDlg2 = NULL;
+	bRepeating = FALSE;
 }
 
 CMergeDlg::~CMergeDlg()
@@ -61,6 +61,7 @@ void CMergeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_USEFROMURL, m_bUseFromURL);
 	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
 }
+
 
 BEGIN_MESSAGE_MAP(CMergeDlg, CStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
@@ -153,7 +154,8 @@ BOOL CMergeDlg::OnInitDialog()
 	OnBnClickedUsefromurl();
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 BOOL CMergeDlg::CheckData()
@@ -163,6 +165,7 @@ BOOL CMergeDlg::CheckData()
 
 	StartRev = SVNRev(m_sStartRev);
 	EndRev = SVNRev(m_sEndRev);
+	// if head revision, set revision as -1
 	if (GetCheckedRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1) == IDC_REVISION_HEAD1)
 	{
 		StartRev = SVNRev(_T("HEAD"));
@@ -256,21 +259,146 @@ void CMergeDlg::OnBnClickedUidiffbutton()
 
 void CMergeDlg::OnBnClickedBrowse()
 {
-	if (CAppUtils::BrowseRepository(m_URLCombo, this, !!m_bFile))
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
 	{
-		if (m_bUseFromURL)
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
 		{
-			CString strUrl;
-			m_URLCombo.GetWindowText(strUrl);
-			m_URLCombo2.SetCurSel(-1);
-			m_URLCombo2.SetWindowText(strUrl);
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this, m_bFile);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+				if (m_bUseFromURL)
+				{
+					m_URLCombo2.SetCurSel(-1);
+					m_URLCombo2.SetWindowText(browser.GetPath());
+				}
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+				if (m_bUseFromURL)
+				{
+					m_URLCombo2.SetCurSel(-1);
+					m_URLCombo2.SetWindowText(strUrl);
+				}
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this, m_bFile);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+			if (m_bUseFromURL)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(browser.GetPath());
+			}
+		}
+	} 
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(strUrl);
+			if (m_bUseFromURL)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(strUrl);
+			}
 		}
 	}
 }
 
 void CMergeDlg::OnBnClickedBrowse2()
 {
-	CAppUtils::BrowseRepository(m_URLCombo2, this, !!m_bFile);
+	CString strUrl;
+	m_URLCombo2.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this, m_bFile);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(strUrl);
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this, m_bFile);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo2.SetCurSel(-1);
+			m_URLCombo2.SetWindowText(browser.GetPath());
+		}
+	} 
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo2.SetCurSel(-1);
+			m_URLCombo2.SetWindowText(strUrl);
+		}
+	}
 }
 
 void CMergeDlg::OnBnClickedFindbranchstart()

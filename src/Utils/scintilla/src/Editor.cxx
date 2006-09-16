@@ -3612,11 +3612,9 @@ void Editor::NotifyModifyAttempt() {
 	NotifyParent(scn);
 }
 
-void Editor::NotifyDoubleClick(Point pt, bool) {
+void Editor::NotifyDoubleClick(Point, bool) {
 	SCNotification scn = {0};
 	scn.nmhdr.code = SCN_DOUBLECLICK;
-	scn.line = LineFromLocation(pt);
-	scn.position = PositionFromLocationClose(pt);
 	NotifyParent(scn);
 }
 

@@ -21,6 +21,9 @@
 #include "SettingsColors.h"
 #include ".\settingscolors.h"
 
+
+// CSettingsColors dialog
+
 IMPLEMENT_DYNAMIC(CSettingsColors, CPropertyPage)
 CSettingsColors::CSettingsColors()
 	: CPropertyPage(CSettingsColors::IDD)

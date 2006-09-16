@@ -20,6 +20,9 @@
 #include "TortoiseProc.h"
 #include "RepoCreateDlg.h"
 
+
+// CRepoCreateDlg dialog
+
 IMPLEMENT_DYNAMIC(CRepoCreateDlg, CStandAloneDialog)
 CRepoCreateDlg::CRepoCreateDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CRepoCreateDlg::IDD, pParent)
@@ -47,7 +50,8 @@ BOOL CRepoCreateDlg::OnInitDialog()
 
 	CheckRadioButton(IDC_RADIOBDB, IDC_RADIOFSFS, IDC_RADIOFSFS);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CRepoCreateDlg::OnOK()

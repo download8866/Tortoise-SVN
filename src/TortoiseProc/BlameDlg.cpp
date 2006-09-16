@@ -22,6 +22,8 @@
 #include "Balloon.h"
 #include "Registry.h"
 
+// CBlameDlg dialog
+
 IMPLEMENT_DYNAMIC(CBlameDlg, CStandAloneDialog)
 CBlameDlg::CBlameDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CBlameDlg::IDD, pParent)
@@ -70,7 +72,8 @@ BOOL CBlameDlg::OnInitDialog()
 	}
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CBlameDlg::OnOK()

@@ -21,10 +21,6 @@
 #include "Balloon.h"
 
 
-/**
- * \ingroup TortoiseProc
- * Setting page to clear various saved/cached data.
- */
 class CSetSavedDataPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetSavedDataPage)

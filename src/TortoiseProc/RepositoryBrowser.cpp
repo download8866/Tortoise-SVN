@@ -62,6 +62,8 @@
 #define ID_POPURLTOCLIPBOARD 20
 #define ID_BREAKLOCK		21
 
+// CRepositoryBrowser dialog
+
 IMPLEMENT_DYNAMIC(CRepositoryBrowser, CResizableStandAloneDialog)
 
 CRepositoryBrowser::CRepositoryBrowser(const SVNUrl& svn_url, BOOL bFile)
@@ -94,6 +96,7 @@ void CRepositoryBrowser::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_REPOS_TREE, m_treeRepository);
 }
 
+
 BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_FILESDROPPED, OnFilesDropped)
 	ON_NOTIFY(RVN_ITEMRCLICK, IDC_REPOS_TREE, OnRVNItemRClickReposTree)
@@ -104,6 +107,10 @@ BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
 	ON_WM_SETCURSOR()
 	ON_REGISTERED_MESSAGE(WM_AFTERINIT, OnAfterInitDialog) 
 END_MESSAGE_MAP()
+
+
+
+// CRepositoryBrowser public interface
 
 SVNUrl CRepositoryBrowser::GetURL() const
 {
@@ -157,21 +164,20 @@ BOOL CRepositoryBrowser::OnInitDialog()
 		m_bThreadRunning = false;
 		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
+//this is the thread function which calls the subversion function
 UINT CRepositoryBrowser::InitThreadEntry(LPVOID pVoid)
 {
 	return ((CRepositoryBrowser*)pVoid)->InitThread();
 }
 
+
 //this is the thread function which calls the subversion function
 UINT CRepositoryBrowser::InitThread()
 {
-	// In this thread, we try to find out the repository root.
-	// Since this is a remote operation, it can take a while, that's
-	// Why we do this inside a thread.
-
 	// force the cursor to change
 	POINT pt;
 	GetCursorPos(&pt);
@@ -206,7 +212,7 @@ LRESULT CRepositoryBrowser::OnAfterInitDialog(WPARAM /*wParam*/, LPARAM /*lParam
 
 void CRepositoryBrowser::OnRVNItemRClickReposTree(NMHDR * /* pNMHDR */, LRESULT *pResult)
 {
-	*pResult = 0;	// Force standard behavior
+	*pResult = 0;	// Force standard behaviour
 }
 
 void CRepositoryBrowser::OnContextMenu(CWnd* /* pWnd */, CPoint point)
@@ -329,22 +335,6 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					temp.LoadString(IDS_MENUBLAME);
 					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPBLAME, temp);		// "Blame..."
 				}
-				if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
-				{
-					temp.LoadString(IDS_LOG_POPUP_VIEWREV);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWREV, temp);
-				}
-				if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
-				{
-					temp.LoadString(IDS_LOG_POPUP_VIEWPATHREV);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWPATHREV, temp);
-				}
-				if ((!m_ProjectProperties.sWebViewerPathRev.IsEmpty())||
-					(!m_ProjectProperties.sWebViewerRev.IsEmpty()))
-				{
-					popup.AppendMenu(MF_SEPARATOR, NULL);
-				}
-
 				if (bFolder)
 				{
 					temp.LoadString(IDS_MENUEXPORT);
@@ -483,6 +473,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						// Initialize OPENFILENAME
 						ZeroMemory(&ofn, sizeof(OPENFILENAME));
 						ofn.lStructSize = sizeof(OPENFILENAME);
+						//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 						ofn.hwndOwner = this->m_hWnd;
 						ofn.lpstrFile = szFile;
 						ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -499,14 +490,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						sFilter.LoadString(IDS_COMMONFILEFILTER);
 						TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 						_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-						// Replace '|' delimiters with '\0's
+						// Replace '|' delimeters with '\0's
 						TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 						while (ptr != pszFilters)
 						{
 							if (*ptr == '|')
 								*ptr = '\0';
 							ptr--;
-						}
+						} // while (ptr != pszFilters) 
 						ofn.lpstrFilter = pszFilters;
 						ofn.nFilterIndex = 1;
 						// Display the Open dialog box. 
@@ -630,25 +621,6 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 
 						CAppUtils::LaunchApplication(sCmd, NULL, false);
 					}
-				}
-				break;
-			case ID_VIEWREV:
-				{
-					CString url = m_ProjectProperties.sWebViewerRev;
-					url.Replace(_T("%REVISION%"), GetRevision().ToString());
-					if (!url.IsEmpty())
-						ShellExecute(this->m_hWnd, _T("open"), url, NULL, NULL, SW_SHOWDEFAULT);					
-				}
-				break;
-			case ID_VIEWPATHREV:
-				{
-					CString relurl = url;
-					relurl = relurl.Mid(m_treeRepository.m_strReposRoot.GetLength());
-					CString weburl = m_ProjectProperties.sWebViewerPathRev;
-					weburl.Replace(_T("%REVISION%"), GetRevision().ToString());
-					weburl.Replace(_T("%PATH%"), relurl);
-					if (!weburl.IsEmpty())
-						ShellExecute(this->m_hWnd, _T("open"), weburl, NULL, NULL, SW_SHOWDEFAULT);					
 				}
 				break;
 			case ID_POPCHECKOUT:
@@ -799,7 +771,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							svn.SetAndClearProgressInfo((HWND)NULL);
 							m_treeRepository.AddFolder(url+_T("/")+filename);
 						}
-					}
+					} // if (GetOpenFileName(&ofn)==TRUE) 
 				}
 				break;
 			case ID_POPIMPORT:
@@ -810,6 +782,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					// Initialize OPENFILENAME
 					ZeroMemory(&ofn, sizeof(OPENFILENAME));
 					ofn.lStructSize = sizeof(OPENFILENAME);
+					//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 					ofn.hwndOwner = this->m_hWnd;
 					ofn.lpstrFile = szFile;
 					ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -817,14 +790,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					sFilter.LoadString(IDS_COMMONFILEFILTER);
 					TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 					_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-					// Replace '|' delimiters with '\0's
+					// Replace '|' delimeters with '\0's
 					TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 					while (ptr != pszFilters)
 					{
 						if (*ptr == '|')
 							*ptr = '\0';
 						ptr--;
-					}
+					} // while (ptr != pszFilters) 
 					ofn.lpstrFilter = pszFilters;
 					ofn.nFilterIndex = 1;
 					ofn.lpstrFileTitle = NULL;
@@ -871,7 +844,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							svn.SetAndClearProgressInfo((HWND)NULL);
 							m_treeRepository.AddFile(url+_T("/")+filename);
 						}
-					}
+					} // if (GetOpenFileName(&ofn)==TRUE) 
 					delete [] pszFilters;
 				}
 				break;
@@ -910,8 +883,8 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 								else
 									m_treeRepository.AddFile(dlg.m_name);
 							}
-						}
-					}
+						} // if (input.DoModal() == IDOK) 
+					} // if (dlg.DoModal() == IDOK) 
 				}
 				break;
 			case ID_POPCOPYTOWC:
@@ -928,6 +901,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						// Initialize OPENFILENAME
 						ZeroMemory(&ofn, sizeof(OPENFILENAME));
 						ofn.lStructSize = sizeof(OPENFILENAME);
+						//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 						ofn.hwndOwner = this->m_hWnd;
 						ofn.lpstrFile = szFile;
 						ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -944,14 +918,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						sFilter.LoadString(IDS_COMMONFILEFILTER);
 						TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 						_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-						// Replace '|' delimiters with '\0's
+						// Replace '|' delimeters with '\0's
 						TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 						while (ptr != pszFilters)
 						{
 							if (*ptr == '|')
 								*ptr = '\0';
 							ptr--;
-						}
+						} // while (ptr != pszFilters) 
 						ofn.lpstrFilter = pszFilters;
 						ofn.nFilterIndex = 1;
 						// Display the Open dialog box. 
@@ -1012,7 +986,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							si = m_treeRepository.GetNextSelectedItem(si);
 						} while (si != RVI_INVALID);
 						progDlg.Stop();
-					}
+					} // if (GetSaveFileName(&ofn)==TRUE) 
 				}
 				break;
 			case ID_POPMKDIR:
@@ -1037,10 +1011,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 								wait_cursor.Hide();
 								CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 								return;
-							}
+							} // if (!svn.MakeDir(url+_T("/")+dlg.m_name, _T("created directory remotely"))) 
 							m_treeRepository.AddFolder(url+_T("/")+dlg.m_name);
-						}
-					}
+						} // if (input.DoModal() == IDOK) 
+					} // if (dlg.DoModal() == IDOK) 
 				}
 				break;
 			case ID_POPREFRESH:
@@ -1092,12 +1066,12 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 									break;
 								}
 							}
-						}
+						} // if (!tempfile.IsEmpty()) 
 						else
 						{
 							CMessageBox::Show(this->m_hWnd, blame.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
-					}
+					} // if (dlg.DoModal() == IDOK) 
 					
 				}
 			default:
@@ -1207,7 +1181,7 @@ void CRepositoryBrowser::DeleteSelectedEntries()
 			wait_cursor.Hide();
 			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			return;
-		}
+		} // if (!svn.Remove(url, TRUE)) 
 		for(int nItem = 0; nItem < itemsToRemove.GetCount(); nItem++)
 		{
 			m_treeRepository.DeleteUrl(itemsToRemove[nItem].GetSVNPathString());

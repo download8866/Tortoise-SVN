@@ -30,7 +30,7 @@ class CSetLookAndFeelPage : public CPropertyPage
 	DECLARE_DYNAMIC(CSetLookAndFeelPage)
 
 public:
-	CSetLookAndFeelPage();
+	CSetLookAndFeelPage();   // standard constructor
 	virtual ~CSetLookAndFeelPage();
 	/**
 	 * Saves the changed settings to the registry.
@@ -52,7 +52,8 @@ protected:
 	virtual BOOL OnApply();
 	afx_msg void OnBnClickedOnlyexplorer();
 	afx_msg void OnLvnItemchangedMenulist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnChange();
+	afx_msg void OnBnClickedSimplecontext();
+	afx_msg void OnBnClickedOwnerdrawn();
 
 	DECLARE_MESSAGE_MAP()
 public:

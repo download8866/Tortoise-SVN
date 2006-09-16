@@ -47,7 +47,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 09:49+0200\n"
-"PO-Revision-Date: 2006-08-04 15:32+0200\n"
+"PO-Revision-Date: 2006-09-14 12:18+0200\n"
 "Last-Translator: Milen A. Radev <milen@radev.net>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -720,7 +720,7 @@ msgstr "&Парола:"
 # ID:376,
 #: ID:376
 msgid "&Paste"
-msgstr "&Вмъкване"
+msgstr "&Поставяне"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -762,7 +762,7 @@ msgstr "&Показване на диалоговия прозорец за по
 # ID:13,
 #: ID:13
 msgid "&Repo-browser"
-msgstr "&Браузър на хранилища"
+msgstr "&Разглеждане на хранилища"
 
 # ID:113,
 #: ID:113
@@ -1769,8 +1769,8 @@ msgstr "Променени файлове: %d"
 
 # Control-ID:1242,
 #: Control-ID:1242
-msgid "Changes made (double-click for details):"
-msgstr "Промени (щракнете двойно за подробности):"
+msgid "Changes made (double-click on file for diff):"
+msgstr "Промени (щракнете двойно върху файла за сравнение):"
 
 # ID:8,
 #: ID:8
@@ -3332,7 +3332,7 @@ msgid ""
 "Paste"
 msgstr ""
 "Вмъква съдържанието на системния буфер\n"
-"Вмъкване"
+"Поставяне"
 
 # ID:3857,#:
 # ID:3857,
@@ -4157,7 +4157,7 @@ msgstr "Парола:"
 # Dlg-ID:158,
 #: ID:172
 msgid "Paste filename list"
-msgstr "Вмъкване на списъка с файлове"
+msgstr "Поставяне на списъка с файлове"
 
 # ID:376,
 #: ID:376

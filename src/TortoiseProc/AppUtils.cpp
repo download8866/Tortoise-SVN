@@ -20,14 +20,10 @@
 #include "resource.h"
 #include "PathUtils.h"
 #include "AppUtils.h"
-#include "SVNProperties.h"
 #include "StringUtils.h"
 #include "MessageBox.h"
 #include "Registry.h"
 #include "TSVNPath.h"
-#include "SVN.h"
-#include "RepositoryBrowser.h"
-#include "BrowseFolder.h"
 
 
 CAppUtils::CAppUtils(void)
@@ -44,49 +40,9 @@ BOOL CAppUtils::StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirf
 
 	CRegString regCom = CRegString(_T("Software\\TortoiseSVN\\Merge"));
 	CString ext = mergedfile.GetFileExtension();
-	CString mimetype;
 	CString com = regCom;
 	bool bInternal = false;
-	SVNProperties props(yourfile);
-	for (int i=0; i<props.GetCount(); ++i)
-	{
-		if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
-		{
-			mimetype = props.GetItemValue(i).c_str();
-		}
-	}
-	if (mimetype.IsEmpty())
-	{
-		SVNProperties props2(theirfile);
-		for (int i=0; i<props2.GetCount(); ++i)
-		{
-			if (props2.GetItemName(i).compare(_T("svn:mime-type"))==0)
-			{
-				mimetype = props2.GetItemValue(i).c_str();
-			}
-		}
-	}
-	if (mimetype.IsEmpty())
-	{
-		SVNProperties props3(basefile);
-		for (int i=0; i<props.GetCount(); ++i)
-		{
-			if (props3.GetItemName(i).compare(_T("svn:mime-type"))==0)
-			{
-				mimetype = props3.GetItemValue(i).c_str();
-			}
-		}
-	}
-	if (mimetype != "")
-	{
-		// is there an extension specific merge tool?
-		CRegString mergetool(_T("Software\\TortoiseSVN\\MergeTools\\") + mimetype);
-		if (CString(mergetool) != "")
-		{
-			com = mergetool;
-		}
-	}
-	else if (ext != "")
+	if (ext != "")
 	{
 		// is there an extension specific merge tool?
 		CRegString mergetool(_T("Software\\TortoiseSVN\\MergeTools\\") + ext.MakeLower());
@@ -241,40 +197,10 @@ BOOL CAppUtils::StartExtPatch(const CTSVNPath& patchfile, const CTSVNPath& dir, 
 BOOL CAppUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait, BOOL bBlame)
 {
 	CString viewer;
-	CString mimetype;
 	CRegString diffexe(_T("Software\\TortoiseSVN\\Diff"));
 	CRegDWORD blamediff(_T("Software\\TortoiseSVN\\DiffBlamesWithTortoiseMerge"), FALSE);
 	bool bUseTMerge = !!(DWORD)blamediff;
 	viewer = diffexe;
-
-	SVNProperties props(file1);
-	for (int i=0; i<props.GetCount(); ++i)
-	{
-		if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
-		{
-			mimetype = props.GetItemValue(i).c_str();
-		}
-	}
-	if (mimetype.IsEmpty())
-	{
-		SVNProperties props2(file2);
-		for (int i=0; i<props2.GetCount(); ++i)
-		{
-			if (props2.GetItemName(i).compare(_T("svn:mime-type"))==0)
-			{
-				mimetype = props2.GetItemValue(i).c_str();
-			}
-		}
-	}
-	if (mimetype != "")
-	{
-		// is there an extension specific merge tool?
-		CRegString difftool(_T("Software\\TortoiseSVN\\DiffTools\\") + mimetype);
-		if (CString(difftool) != "")
-		{
-			viewer = difftool;
-		}
-	}
 	if (!file2.GetFileExtension().IsEmpty())
 	{
 		// is there an extension specific diff tool?
@@ -418,6 +344,7 @@ BOOL CAppUtils::StartTextViewer(CString file)
 		// Initialize OPENFILENAME
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
+		//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 		ofn.hwndOwner = NULL;
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -425,14 +352,14 @@ BOOL CAppUtils::StartTextViewer(CString file)
 		sFilter.LoadString(IDS_PROGRAMSFILEFILTER);
 		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		// Replace '|' delimiters with '\0's
+		// Replace '|' delimeters with '\0's
 		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 		while (ptr != pszFilters)
 		{
 			if (*ptr == '|')
 				*ptr = '\0';
 			ptr--;
-		}
+		} // while (ptr != pszFilters) 
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFileTitle = NULL;
@@ -717,71 +644,4 @@ bool CAppUtils::FindStyleChars(const CString& sText, TCHAR stylechar, int& start
 		i++;
 	}
 	return bFoundMarker;
-}
-
-bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, bool bFile /* = true */ )
-{
-	CString strUrl;
-	combo.GetWindowText(strUrl);
-	if (strUrl.Left(7) == _T("file://"))
-	{
-		CString strFile(strUrl);
-		SVN::UrlToPath(strFile);
-
-		SVN svn;
-		if (svn.IsRepository(strFile))
-		{
-			// browse repository - show repository browser
-			CRepositoryBrowser browser(strUrl, pParent, bFile);
-			if (browser.DoModal() == IDOK)
-			{
-				combo.SetCurSel(-1);
-				combo.SetWindowText(browser.GetPath());
-				return true;
-			}
-		}
-		else
-		{
-			// browse local directories
-			CBrowseFolder folderBrowser;
-			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-			if (folderBrowser.Show(pParent->GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
-			{
-				SVN::PathToUrl(strUrl);
-
-				combo.SetCurSel(-1);
-				combo.SetWindowText(strUrl);
-				return true;
-			}
-		}
-	} // if (strUrl.Left(7) == _T("file://")) 
-	else if ((strUrl.Left(7) == _T("http://")
-		||(strUrl.Left(8) == _T("https://"))
-		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
-	{
-		// browse repository - show repository browser
-		CRepositoryBrowser browser(strUrl, pParent, bFile);
-		if (browser.DoModal() == IDOK)
-		{
-			combo.SetCurSel(-1);
-			combo.SetWindowText(browser.GetPath());
-			return true;
-		}
-	}
-	else
-	{
-		// browse local directories
-		CBrowseFolder folderBrowser;
-		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-		if (folderBrowser.Show(pParent->GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
-		{
-			SVN::PathToUrl(strUrl);
-
-			combo.SetCurSel(-1);
-			combo.SetWindowText(strUrl);
-			return true;
-		}
-	}
-	return false;
 }

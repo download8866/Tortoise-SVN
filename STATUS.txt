@@ -1,0 +1,83 @@
+This file tracks the status of releases in the 1.4.x line.
+
+Status of 1.4.x:
+================
+
+Soak period:
+  05-08-2006 - Soak period started with RC1 release
+
+Merged changes:
+
+7198							: Remove Win64 property to work with latest WiX
+7200, 7201						: Italian translation
+7202, 7203, 7207				: doc updates and translation
+7204							: wrong charset for Blame headers
+7205							: default to revision instead of HEAD in merge dialog
+7206							: enable/disable 'floppy' checkbox on dialog init
+7209							: version string in changelog.
+7211, 7213, 7216, 7217			: GUI translations
+7218							: Russian GUI translation
+7220							: set empty flag unconditionally
+7223							: toolbar button state in revision graph
+7225							: glitch in german translation
+7231							: better text (resource change!)
+7233							: graph not stacked by default.
+7238							: reverting switched files
+7240							: fonts with non-ascii names
+7242							: switched files only in cfm dialog
+7243							: Ctrl+Shift+Wheel and alpha value in TortoiseIDiff
+7244							: fix debug build
+7245							: UI friendly file titles
+7250							: deleting ignored files from CSVNStatusListCtrl
+7252							: Cache check for successful memory allocation
+7254							: reverting added files resets all flags
+7259							: regex problems
+7261							: "user cancelled" error message
+7264							: theme fix
+7268							: ctrl-C/ctrl-A in filediff dialog
+7272							: Russian GUI translation
+7274							: UTF-16 files and CR at the end of lines
+7278							: respect global ignores when importing a folder in the repobrowser
+7282							: right-drag 'apply patch'
+7292							: crash with long paths in cache
+7293							: help button in lock dialog
+7294							: attribute checking in CTSVNPath
+7297							: tooltip on label
+7299							: block UI when thread is running
+7302							: fix crash with library CrashRpt.dll
+7306							: soring arrows
+7308							: case-insensitive sorting in log dialog
+7311							: rubberband in revision graph
+7316							: The FileDiff dialog now remembers its size and position.
+7327							: crash in report control
+7334							: wrong encoding
+7336							: GPF when searching in one-pane view
+7346							: TortoiseMerge caused a GPF when passing two filenames.
+7348							: issue #283
+7351							: little doc update about renaming case-only
+7357							: German GUI translation
+7365							: (Shift)-F8 accelerators in TMerge
+7364							: Reverting to a revision in the log dialog actually restored to one revision below the expected revision.
+7368							: The hot key Ctrl-Return confirmed dialogs despite the ok-button being disabled.
+7378							: update vertical scrollbar after resolving conflict
+7384							: Update French translations
+7374,7380						: Fix to German GUI translation, use MIME-Typ everywhere
+7412							: Bulgarian GUI translation updated to r7232 of the template
+7408,7409,7414					: Doc & French & German translation updates
+7419							: toolbar button state in revision graph
+7424							: disable statistics button in log dialog
+7427 							: Polish GUI translation update
+7433							: no notifications for empty paths
+7437, 7438						: explorer flickering
+7448, 7461						: Beautify status report & manually merged part of the Chinese GUI translation
+7286, 7468						: Slovak GUI translation>>>>>>> .r7474
+7473							: prop diff info from log dialog to TMerge
+7474							: changed-files context menu entries condition
+7476							: deselect all entries in log dialog
+7478							: log msg from history with bugtraq:append set to false
+7483, 7487						: 24x24 icons for the TortoiseIDiff toolbar
+7488							: Several more dialogs now remember their size and position.
+7492							: The tooltip for bugtraq:logregex was missing in the edit properties dialog
+7495,7496						: Swap two IDiff Icons, updated screenshots for docs>>>>>>> .r7498
+7498							: SVN_LIBSVN_FS_LINKS_FS_BASE=1
+7500							: check entry in lock dialog thread

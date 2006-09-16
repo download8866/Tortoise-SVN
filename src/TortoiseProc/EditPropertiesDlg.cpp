@@ -28,6 +28,8 @@
 #include "ProgressDlg.h"
 
 
+// CEditPropertiesDlg dialog
+
 IMPLEMENT_DYNAMIC(CEditPropertiesDlg, CResizableStandAloneDialog)
 
 CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
@@ -35,6 +37,7 @@ CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
 	, m_bRecursive(FALSE)
 	, m_bChanged(false)
 {
+
 }
 
 CEditPropertiesDlg::~CEditPropertiesDlg()
@@ -58,6 +61,9 @@ BEGIN_MESSAGE_MAP(CEditPropertiesDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SAVEPROP, &CEditPropertiesDlg::OnBnClickedSaveprop)
 	ON_BN_CLICKED(IDC_ADDPROPS, &CEditPropertiesDlg::OnBnClickedAddprops)
 END_MESSAGE_MAP()
+
+
+// CEditPropertiesDlg message handlers
 
 void CEditPropertiesDlg::OnBnClickedHelp()
 {

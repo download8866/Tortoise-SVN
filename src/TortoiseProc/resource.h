@@ -4,7 +4,6 @@
 //
 #define IDR_MAINFRAME                   1
 #define IDD_SETTINGSPROXY               102
-#define IDD_SETTINGSHOOKS               103
 #define IDD_SETTINGSOVERLAY             106
 #define IDD_SETTINGSSAVEDDATA           108
 #define IDD_ABOUT                       129
@@ -12,7 +11,7 @@
 #define IDD_PROMPT                      131
 #define IDD_CHECKOUT                    133
 #define IDD_SVNPROGRESS                 134
-#define IDD_COMMITDLG                   135
+#define IDD_LOGPROMPT                   135
 #define IDD_IMPORT                      139
 #define IDD_SWITCH                      140
 #define IDD_MERGE                       141
@@ -97,8 +96,6 @@
 #define IDI_GRAPHPIE                    233
 #define IDI_SWITCHLEFTRIGHT             234
 #define IDR_STATGRAPH                   235
-#define IDD_SETTINGSHOOKCONFIG          236
-#define IDI_HOOK                        237
 #define IDS_CHSTAT_FILECOL              1000
 #define IDS_CHSTAT_WCCOL                1001
 #define IDS_CHSTAT_REPOCOL              1002
@@ -361,12 +358,12 @@
 #define IDS_LOG_POPUP_UPDATE            1215
 #define IDC_CHECKNEWERBUTTON            1215
 #define IDS_LOG_POPUP_COPY              1216
-#define IDS_COMMITDLG_FILE              1217
+#define IDS_LOGPROMPT_FILE              1217
 #define IDC_SIMPLECONTEXT               1217
-#define IDS_COMMITDLG_STATUS            1218
+#define IDS_LOGPROMPT_STATUS            1218
 #define IDC_FILTERCANCEL                1218
-#define IDS_COMMITDLG_ASKADD            1219
-#define IDS_COMMITDLG_NOTHINGTOCOMMIT   1220
+#define IDS_LOGPROMPT_ASKADD            1219
+#define IDS_LOGPROMPT_NOTHINGTOCOMMIT   1220
 #define IDC_REALM                       1220
 #define IDS_PROGRS_ATREV                1221
 #define IDC_AUTOCOMPLETIONTIMEOUT       1221
@@ -478,7 +475,6 @@
 #define IDS_SETTINGS_SHORTDATEFORMAT_TT 1279
 #define IDC_BUTTON4                     1279
 #define IDC_AUTHHISTCLEAR               1279
-#define IDC_HOOKADDBUTTON               1279
 #define IDS_ERR_THREADSTARTFAILED       1281
 #define IDC_EDITPROPLIST                1281
 #define IDS_ERR_EXTDIFFSTART            1282
@@ -549,24 +545,6 @@
 #define IDS_ERR_MERGEIDENTICALREVISIONS 1316
 #define IDC_REOPENCOMMIT                1316
 #define IDC_MAXHISTORYLABEL             1317
-#define IDS_ERR_NOHOOKTYPESPECIFIED     1317
-#define IDS_ERR_NOHOOKPATHSPECIFIED     1318
-#define IDS_ERR_NOHOOKCOMMANDPECIFIED   1319
-#define IDS_ERR_HOOKFAILED              1320
-#define IDC_HOOKPATH                    1323
-#define IDC_HOOKBROWSE                  1324
-#define IDC_HOOKCOMMANDLINE             1325
-#define IDC_HIDECHECK                   1326
-#define IDC_WAITCHECK                   1327
-#define IDC_HOOKTYPECOMBO               1329
-#define IDC_HOOKLIST                    1330
-#define IDC_HOOKEDITBUTTON              1331
-#define IDC_HOOKREMOVEBUTTON            1332
-#define IDC_HOOKCOMMANDBROWSE           1333
-#define IDC_HOOKTYPELABEL               1334
-#define IDC_HOOKWCPATHLABEL             1335
-#define IDC_HOOKCMLABEL                 1336
-#define IDC_LOGINFO                     1337
 #define IDS_WARN_FOLDERNOTEXIST         1400
 #define IDS_WARN_SHAREFILEACCESS        1401
 #define IDS_WARN_RELOCATEREALLY         1402
@@ -640,14 +618,11 @@
 #define IDS_LOG_POPUP_BLAMECOMPARE      1811
 #define IDS_LOG_POPUP_BLAMEREVS         1812
 #define IDS_LOG_POPUP_BLAMEDIFF         1813
-#define IDS_LOG_POPUP_VIEWREV           1814
-#define IDS_LOG_POPUP_VIEWPATHREV       1815
 #define IDS_LOG_COPY_SUCCESS            1830
 #define IDS_LOG_MESSAGEEDITTITLE        1831
 #define IDS_LOG_AUTHOREDITTITLE         1832
 #define IDS_LOG_SHOWALL                 1833
 #define IDS_LOG_SHOWRANGE               1834
-#define IDS_LOG_LOGINFOSTRING           1835
 #define IDS_LOG_BUGIDS                  1840
 #define IDS_LOG_FILTER_ALL              1850
 #define IDS_LOG_FILTER_PATHS            1851
@@ -722,14 +697,14 @@
 #define IDS_PATCHFILEFILTER             2503
 #define IDS_PICTUREFILEFILTER           2504
 #define IDS_CHECKUPDATE_SUMMARY         2600
-#define IDS_COMMITDLG_EXTERNALS         2700
-#define IDS_COMMITDLG_STATISTICSFORMAT  2701
-#define IDS_COMMITDLG_ONLYNUMBERS       2702
-#define IDS_COMMITDLG_NOISSUEWARNING    2703
-#define IDS_COMMITDLG_NOTHINGTOCOMMITUNVERSIONED 2704
-#define IDS_COMMITDLG_HISTORY_TT        2705
-#define IDS_COMMITDLG_HISTORYHINT_TT    2706
-#define IDS_COMMITDLG_POPUP_PASTEFILELIST 2750
+#define IDS_LOGPROMPT_EXTERNALS         2700
+#define IDS_LOGPROMPT_STATISTICSFORMAT  2701
+#define IDS_LOGPROMPT_ONLYNUMBERS       2702
+#define IDS_LOGPROMPT_NOISSUEWARNING    2703
+#define IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED 2704
+#define IDS_LOGPROMPT_HISTORY_TT        2705
+#define IDS_LOGPROMPT_HISTORYHINT_TT    2706
+#define IDS_LOGPROMPT_POPUP_PASTEFILELIST 2750
 #define IDS_SPELLEDIT_THESAURUS         3000
 #define IDS_SPELLEDIT_CORRECTIONS       3001
 #define IDS_SPELLEDIT_NOCORRECTIONS     3002
@@ -768,13 +743,6 @@
 #define IDS_SETTINGS_ASPHACKWARNING     3132
 #define IDS_SETTINGS_UNVERSIONEDASMODIFIED_TT 3133
 #define IDS_SETTINGS_COMMITREOPEN_TT    3134
-#define IDS_SETTINGS_HOOKS_SELECTFOLDERPATH 3150
-#define IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE 3151
-#define IDS_SETTINGS_HOOKS_TYPECOL      3152
-#define IDS_SETTINGS_HOOKS_PATHCOL      3153
-#define IDS_SETTINGS_HOOKS_COMMANDLINECOL 3154
-#define IDS_SETTINGS_HOOKS_WAITCOL      3155
-#define IDS_SETTINGS_HOOKS_SHOWCOL      3156
 #define IDS_CHECKNEWER_YOURVERSION      3200
 #define IDS_CHECKNEWER_CURRENTVERSION   3201
 #define IDS_CHECKNEWER_YOURUPTODATE     3202
@@ -935,12 +903,6 @@
 #define IDS_EDITPROPS_ADDTITLE          9007
 #define IDS_EDITPROPS_EDITTITLE         9008
 #define IDS_EDITPROPS_BINVALUE          9020
-#define IDS_HOOKTYPE_STARTCOMMIT        9100
-#define IDS_HOOKTYPE_PRECOMMIT          9101
-#define IDS_HOOKTYPE_POSTCOMMIT         9102
-#define IDS_HOOKTYPE_STARTUPDATE        9103
-#define IDS_HOOKTYPE_PREUPDATE          9104
-#define IDS_HOOKTYPE_POSTUPDATE         9105
 #define ID_FILE_SAVEGRAPHAS             32771
 #define ID_VIEW_ZOOMIN                  32772
 #define ID_VIEW_ZOOMOUT                 32773
@@ -962,9 +924,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        238
+#define _APS_NEXT_RESOURCE_VALUE        236
 #define _APS_NEXT_COMMAND_VALUE         32807
-#define _APS_NEXT_CONTROL_VALUE         1338
+#define _APS_NEXT_CONTROL_VALUE         1318
 #define _APS_NEXT_SYMED_VALUE           195
 #endif
 #endif

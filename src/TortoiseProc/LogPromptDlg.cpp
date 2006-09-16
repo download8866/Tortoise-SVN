@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "CommitDlg.h"
+#include "LogPromptDlg.h"
 #include "DirFileEnum.h"
 #include "SVNConfig.h"
 #include "SVNProperties.h"
@@ -28,6 +28,7 @@
 #include "SVN.h"
 #include "Registry.h"
 #include "SVNStatus.h"
+#include ".\logpromptdlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -35,12 +36,14 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-UINT CCommitDlg::WM_AUTOLISTREADY = RegisterWindowMessage(_T("TORTOISESVN_AUTOLISTREADY_MSG"));
+// CLogPromptDlg dialog
+
+UINT CLogPromptDlg::WM_AUTOLISTREADY = RegisterWindowMessage(_T("TORTOISESVN_AUTOLISTREADY_MSG"));
 
 
-IMPLEMENT_DYNAMIC(CCommitDlg, CResizableStandAloneDialog)
-CCommitDlg::CCommitDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CCommitDlg::IDD, pParent)
+IMPLEMENT_DYNAMIC(CLogPromptDlg, CResizableStandAloneDialog)
+CLogPromptDlg::CLogPromptDlg(CWnd* pParent /*=NULL*/)
+	: CResizableStandAloneDialog(CLogPromptDlg::IDD, pParent)
 	, m_bRecursive(FALSE)
 	, m_bShowUnversioned(FALSE)
 	, m_bBlock(FALSE)
@@ -51,7 +54,7 @@ CCommitDlg::CCommitDlg(CWnd* pParent /*=NULL*/)
 {
 }
 
-CCommitDlg::~CCommitDlg()
+CLogPromptDlg::~CLogPromptDlg()
 {
 	if(m_pThread != NULL)
 	{
@@ -59,7 +62,7 @@ CCommitDlg::~CCommitDlg()
 	}
 }
 
-void CCommitDlg::DoDataExchange(CDataExchange* pDX)
+void CLogPromptDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_FILELIST, m_ListCtrl);
@@ -72,7 +75,7 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
+BEGIN_MESSAGE_MAP(CLogPromptDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
@@ -83,10 +86,12 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
 	ON_WM_TIMER()
-	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, &CCommitDlg::OnLvnItemchangedFilelist)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_FILELIST, &CLogPromptDlg::OnLvnItemchangedFilelist)
 END_MESSAGE_MAP()
 
-BOOL CCommitDlg::OnInitDialog()
+// CLogPromptDlg message handlers
+
+BOOL CLogPromptDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 	
@@ -103,7 +108,7 @@ BOOL CCommitDlg::OnInitDialog()
 	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ListCtrl.SetCancelBool(&m_bCancelled);
-	m_ListCtrl.SetEmptyString(IDS_COMMITDLG_NOTHINGTOCOMMIT);
+	m_ListCtrl.SetEmptyString(IDS_LOGPROMPT_NOTHINGTOCOMMIT);
 	m_ListCtrl.EnableFileDrop();
 	
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
@@ -112,8 +117,8 @@ BOOL CCommitDlg::OnInitDialog()
 	m_cLogMessage.RegisterContextMenuHandler(this);
 
 	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_EXTERNALWARNING, IDS_COMMITDLG_EXTERNALS);
-	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
+	m_tooltips.AddTool(IDC_EXTERNALWARNING, IDS_LOGPROMPT_EXTERNALS);
+	m_tooltips.AddTool(IDC_HISTORY, IDS_LOGPROMPT_HISTORY_TT);
 	
 	m_SelectAll.SetCheck(BST_INDETERMINATE);
 	
@@ -158,7 +163,7 @@ BOOL CCommitDlg::OnInitDialog()
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	EnableSaveRestore(_T("CommitDlg"));
+	EnableSaveRestore(_T("LogPromptDlg"));
 
 	//first start a thread to obtain the file list with the status without
 	//blocking the dialog
@@ -178,7 +183,7 @@ BOOL CCommitDlg::OnInitDialog()
 	if ((((DWORD)err)!=FALSE)&&((((DWORD)historyhint)==FALSE)))
 	{
 		historyhint = TRUE;
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_HISTORY), IDS_COMMITDLG_HISTORYHINT_TT, TRUE, IDI_INFORMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_HISTORY), IDS_LOGPROMPT_HISTORYHINT_TT, TRUE, IDI_INFORMATION);
 	}
 	err = FALSE;
 
@@ -187,7 +192,7 @@ BOOL CCommitDlg::OnInitDialog()
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-void CCommitDlg::OnOK()
+void CLogPromptDlg::OnOK()
 {
 	if (m_bBlock)
 		return;
@@ -208,13 +213,13 @@ void CCommitDlg::OnOK()
 	GetDlgItem(IDC_BUGID)->GetWindowText(id);
 	if (!m_ProjectProperties.CheckBugID(id))
 	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_COMMITDLG_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_BUGID), IDS_LOGPROMPT_ONLYNUMBERS, TRUE, IDI_EXCLAMATION);
 		return;
 	}
 	m_sLogMessage = m_cLogMessage.GetText();
 	if ((m_ProjectProperties.bWarnIfNoIssue) && (id.IsEmpty() && !m_ProjectProperties.HasBugID(m_sLogMessage)))
 	{
-		if (CMessageBox::Show(this->m_hWnd, IDS_COMMITDLG_NOISSUEWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
+		if (CMessageBox::Show(this->m_hWnd, IDS_LOGPROMPT_NOISSUEWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
 			return;
 	}
 	InterlockedExchange(&m_bBlock, TRUE);
@@ -349,12 +354,12 @@ void CCommitDlg::OnOK()
 	CResizableStandAloneDialog::OnOK();
 }
 
-UINT CCommitDlg::StatusThreadEntry(LPVOID pVoid)
+UINT CLogPromptDlg::StatusThreadEntry(LPVOID pVoid)
 {
-	return ((CCommitDlg*)pVoid)->StatusThread();
+	return ((CLogPromptDlg*)pVoid)->StatusThread();
 }
 
-UINT CCommitDlg::StatusThread()
+UINT CLogPromptDlg::StatusThread()
 {
 	//get the status of all selected file/folders recursively
 	//and show the ones which have to be committed to the user
@@ -401,7 +406,7 @@ UINT CCommitDlg::StatusThread()
 	}
 	if ((m_ListCtrl.GetItemCount()==0)&&(m_ListCtrl.HasUnversionedItems()))
 	{
-		if (CMessageBox::Show(m_hWnd, IDS_COMMITDLG_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
+		if (CMessageBox::Show(m_hWnd, IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
 		{
 			m_bShowUnversioned = TRUE;
 			GetDlgItem(IDC_SHOWUNVERSIONED)->SendMessage(BM_SETCHECK, BST_CHECKED);
@@ -438,7 +443,7 @@ UINT CCommitDlg::StatusThread()
 	return 0;
 }
 
-void CCommitDlg::OnCancel()
+void CLogPromptDlg::OnCancel()
 {
 	m_bCancelled = true;
 	if (m_bBlock)
@@ -474,7 +479,7 @@ void CCommitDlg::OnCancel()
 	CResizableStandAloneDialog::OnCancel();
 }
 
-void CCommitDlg::OnBnClickedSelectall()
+void CLogPromptDlg::OnBnClickedSelectall()
 {
 	UINT state = (m_SelectAll.GetState() & 0x0003);
 	if (state == BST_INDETERMINATE)
@@ -487,7 +492,7 @@ void CCommitDlg::OnBnClickedSelectall()
 	m_ListCtrl.SelectAll(state == BST_CHECKED);
 }
 
-BOOL CCommitDlg::PreTranslateMessage(MSG* pMsg)
+BOOL CLogPromptDlg::PreTranslateMessage(MSG* pMsg)
 {
 	if (!m_bBlock)
 		m_tooltips.RelayEvent(pMsg);
@@ -520,7 +525,7 @@ BOOL CCommitDlg::PreTranslateMessage(MSG* pMsg)
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }
 
-void CCommitDlg::Refresh()
+void CLogPromptDlg::Refresh()
 {
 	InterlockedExchange(&m_bBlock, TRUE);
 	if (AfxBeginThread(StatusThreadEntry, this)==NULL)
@@ -529,12 +534,12 @@ void CCommitDlg::Refresh()
 	}
 }
 
-void CCommitDlg::OnBnClickedHelp()
+void CLogPromptDlg::OnBnClickedHelp()
 {
 	OnHelp();
 }
 
-void CCommitDlg::OnBnClickedShowunversioned()
+void CLogPromptDlg::OnBnClickedShowunversioned()
 {
 	UpdateData();
 	m_regAddBeforeCommit = m_bShowUnversioned;
@@ -546,16 +551,16 @@ void CCommitDlg::OnBnClickedShowunversioned()
 	}
 }
 
-void CCommitDlg::OnEnChangeLogmessage()
+void CLogPromptDlg::OnEnChangeLogmessage()
 {
 	UpdateOKButton();
 }
 
-LRESULT CCommitDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
+LRESULT CLogPromptDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 {
 	if ((m_ListCtrl.GetItemCount()==0)&&(!m_ListCtrl.HasUnversionedItems()))
 	{
-		CMessageBox::Show(*this, IDS_COMMITDLG_NOTHINGTOCOMMIT, IDS_APPNAME, MB_ICONINFORMATION);
+		CMessageBox::Show(*this, IDS_LOGPROMPT_NOTHINGTOCOMMIT, IDS_APPNAME, MB_ICONINFORMATION);
 		DialogEnableWindow(IDCANCEL, true);
 		SetTimer(ENDDIALOGTIMER, 100, NULL);
 	}
@@ -563,7 +568,7 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 	{
 		if (m_ListCtrl.GetItemCount()==0)
 		{
-			if (CMessageBox::Show(*this, IDS_COMMITDLG_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
+			if (CMessageBox::Show(*this, IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
 			{
 				m_bShowUnversioned = TRUE;
 				DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWLOCKS;
@@ -580,13 +585,13 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 	return 0;
 }
 
-LRESULT CCommitDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
+LRESULT CLogPromptDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	Refresh();
 	return 0;
 }
 
-LRESULT CCommitDlg::OnFileDropped(WPARAM, LPARAM lParam)
+LRESULT CLogPromptDlg::OnFileDropped(WPARAM, LPARAM lParam)
 {
 	// if multiple files/folders are dropped
 	// this handler is called for every single item
@@ -611,7 +616,7 @@ LRESULT CCommitDlg::OnFileDropped(WPARAM, LPARAM lParam)
 	return 0;
 }
 
-LRESULT CCommitDlg::OnAutoListReady(WPARAM, LPARAM)
+LRESULT CLogPromptDlg::OnAutoListReady(WPARAM, LPARAM)
 {
 	m_cLogMessage.SetAutoCompletionList(m_autolist, '*');
 	return 0;
@@ -621,7 +626,7 @@ LRESULT CCommitDlg::OnAutoListReady(WPARAM, LPARAM)
 // functions which run in the status thread
 //////////////////////////////////////////////////////////////////////////
 
-void CCommitDlg::GetAutocompletionList()
+void CLogPromptDlg::GetAutocompletionList()
 {
 	// the autocompletion list is made of strings from each selected files.
 	// the strings used are extracted from the files with regexes found
@@ -751,7 +756,7 @@ void CCommitDlg::GetAutocompletionList()
 	}
 }
 
-void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags)
+void CLogPromptDlg::ScanFile(const CString& sFilePath, const CString& sRegex, REGEX_FLAGS rflags)
 {
 	CString sFileContent;
 	HANDLE hFile = CreateFile(sFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
@@ -822,14 +827,14 @@ void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, REGEX
 }
 
 // CSciEditContextMenuInterface
-void CCommitDlg::InsertMenuItems(CMenu& mPopup, int& nCmd)
+void CLogPromptDlg::InsertMenuItems(CMenu& mPopup, int& nCmd)
 {
-	CString sMenuItemText(MAKEINTRESOURCE(IDS_COMMITDLG_POPUP_PASTEFILELIST));
+	CString sMenuItemText(MAKEINTRESOURCE(IDS_LOGPROMPT_POPUP_PASTEFILELIST));
 	m_nPopupPasteListCmd = nCmd++;
 	mPopup.AppendMenu(MF_STRING | MF_ENABLED, m_nPopupPasteListCmd, sMenuItemText);
 }
 
-bool CCommitDlg::HandleMenuItemClick(int cmd, CSciEdit * pSciEdit)
+bool CLogPromptDlg::HandleMenuItemClick(int cmd, CSciEdit * pSciEdit)
 {
 	if (m_bBlock)
 		return false;
@@ -863,7 +868,7 @@ bool CCommitDlg::HandleMenuItemClick(int cmd, CSciEdit * pSciEdit)
 	return false;
 }
 
-void CCommitDlg::OnTimer(UINT_PTR nIDEvent)
+void CLogPromptDlg::OnTimer(UINT_PTR nIDEvent)
 {
 	switch (nIDEvent)
 	{
@@ -888,7 +893,7 @@ void CCommitDlg::OnTimer(UINT_PTR nIDEvent)
 	__super::OnTimer(nIDEvent);
 }
 
-void CCommitDlg::OnBnClickedHistory()
+void CLogPromptDlg::OnBnClickedHistory()
 {
 	if (m_pathList.GetCount() == 0)
 		return;
@@ -917,14 +922,14 @@ void CCommitDlg::OnBnClickedHistory()
 	}
 	
 }
-void CCommitDlg::OnLvnItemchangedFilelist(NMHDR* /*pNMHDR*/, LRESULT *pResult)
+void CLogPromptDlg::OnLvnItemchangedFilelist(NMHDR* /*pNMHDR*/, LRESULT *pResult)
 {
 	UpdateOKButton();
 	
 	*pResult = 0;
 }
 
-void CCommitDlg::UpdateOKButton()
+void CLogPromptDlg::UpdateOKButton()
 {
 	BOOL bValidLogSize;
 
@@ -945,7 +950,7 @@ void CCommitDlg::UpdateOKButton()
 }
 
 
-LRESULT CCommitDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CLogPromptDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message) {
 	case WM_NOTIFY:
@@ -979,7 +984,7 @@ LRESULT CCommitDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 	return __super::DefWindowProc(message, wParam, lParam);
 }
 
-void CCommitDlg::SetSplitterRange()
+void CLogPromptDlg::SetSplitterRange()
 {
 	if ((m_ListCtrl)&&(m_cLogMessage))
 	{
@@ -993,7 +998,7 @@ void CCommitDlg::SetSplitterRange()
 	}
 }
 
-void CCommitDlg::DoSize(int delta)
+void CLogPromptDlg::DoSize(int delta)
 {
 	RemoveAnchor(IDC_MESSAGEGROUP);
 	RemoveAnchor(IDC_LOGMESSAGE);

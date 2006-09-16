@@ -66,7 +66,6 @@ IDI_GRAPHLINE           ICON                    "graph-line.ico"
 IDI_GRAPHLINESTACKED    ICON                    "graph-line-stacked.ico"
 IDI_GRAPHPIE            ICON                    "graph-pie.ico"
 IDI_SWITCHLEFTRIGHT     ICON                    "switch.ico"
-IDI_HOOK                ICON                    "hook.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -270,9 +269,9 @@ BEGIN
     CONTROL         "",IDC_FILTERICON,"Button",BS_OWNERDRAW | BS_ICON | BS_FLAT | WS_TABSTOP,405,0,14,14,WS_EX_TRANSPARENT
     CONTROL         "",IDC_LOGLIST,"SysListView32",LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,24,405,57
     CONTROL         "",IDC_SPLITTERTOP,"Static",SS_BLACKFRAME,7,81,405,5
-    CONTROL         "",IDC_MSGVIEW,"RichEdit20A",ES_MULTILINE | ES_READONLY | ES_WANTRETURN | WS_BORDER | WS_VSCROLL | WS_TABSTOP,7,86,405,96
+    CONTROL         "",IDC_MSGVIEW,"RichEdit20W",WS_BORDER | WS_VSCROLL | WS_TABSTOP | 0x1804,7,86,405,96
     CONTROL         "",IDC_SPLITTERBOTTOM,"Static",SS_BLACKFRAME,7,182,405,4
-    CONTROL         "",IDC_LOGMSG,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,186,405,59
+    CONTROL         "",IDC_LOGMSG,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | LVS_OWNERDATA | WS_BORDER | WS_TABSTOP,7,186,405,67
     CONTROL         "H&ide unrelated changed paths",IDC_HIDEPATHS,"Button",BS_AUTO3STATE | WS_TABSTOP,7,259,293,10
     CONTROL         "",IDC_PROGRESS,"msctls_progress32",NOT WS_VISIBLE | WS_BORDER,7,277,349,9
     PUSHBUTTON      "Show &All",IDC_GETALL,7,296,77,14
@@ -282,10 +281,9 @@ BEGIN
     PUSHBUTTON      "S&tatistics",IDC_STATBUTTON,362,257,50,14,WS_DISABLED
     PUSHBUTTON      "&Help",IDHELP,362,276,50,14
     PUSHBUTTON      "&Cancel",IDCANCEL,362,296,50,14
-    LTEXT           "",IDC_LOGINFO,7,248,349,8
 END
 
-IDD_COMMITDLG DIALOGEX 0, 0, 300, 280
+IDD_LOGPROMPT DIALOGEX 0, 0, 300, 280
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "Enter Log Message"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -575,7 +573,7 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "Advanced Diff/Merge Settings"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "Extension/mime-type specific programs",IDC_STATIC,7,7,305,179
+    GROUPBOX        "Extension specific programs",IDC_STATIC,7,7,305,179
     CONTROL         "",IDC_TOOLLISTCTRL,"SysListView32",LVS_REPORT | LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_SORTASCENDING | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,13,20,291,139
     PUSHBUTTON      "&Add...",IDC_ADDTOOL,14,165,51,14
     PUSHBUTTON      "&Edit...",IDC_EDITTOOL,68,165,51,14
@@ -600,10 +598,10 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_SETFOREGROUND | DS_FIXEDSYS | WS_POPUP | W
 CAPTION "Add/Edit Extension Specific Diff/Merge Program"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    LTEXT           "Extension or mime-type:",IDC_STATIC,7,10,117,8
-    EDITTEXT        IDC_EXTEDIT,124,7,87,14,ES_LOWERCASE | ES_AUTOHSCROLL
+    LTEXT           "Extension:",IDC_STATIC,7,10,69,8
+    EDITTEXT        IDC_EXTEDIT,76,7,87,14,ES_LOWERCASE | ES_AUTOHSCROLL
     LTEXT           "External Program:",IDC_STATIC,7,30,59,8
-    EDITTEXT        IDC_TOOLEDIT,124,27,228,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_TOOLEDIT,76,27,279,14,ES_AUTOHSCROLL
     PUSHBUTTON      "...",IDC_TOOLBROWSE,362,27,14,14
     DEFPUSHBUTTON   "&OK",IDOK,272,58,50,14
     PUSHBUTTON      "&Cancel",IDCANCEL,326,58,50,14
@@ -1001,36 +999,6 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,146,125,50,14
 END
 
-IDD_SETTINGSHOOKS DIALOGEX 0, 0, 300, 217
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
-CAPTION "Hook Scripts"
-FONT 8, "MS Shell Dlg", 0, 0, 0x0
-BEGIN
-    CONTROL         "",IDC_HOOKLIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,286,180
-    PUSHBUTTON      "Remove...",IDC_HOOKREMOVEBUTTON,129,195,50,14,WS_DISABLED
-    PUSHBUTTON      "Edit...",IDC_HOOKEDITBUTTON,187,195,50,14,WS_DISABLED
-    PUSHBUTTON      "Add...",IDC_HOOKADDBUTTON,243,195,50,14
-END
-
-IDD_SETTINGSHOOKCONFIG DIALOGEX 0, 0, 346, 121
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Configure Hook Scripts"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    LTEXT           "Hook Type:",IDC_HOOKTYPELABEL,7,10,200,8
-    COMBOBOX        IDC_HOOKTYPECOMBO,216,7,123,107,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    LTEXT           "Working Copy Path:",IDC_HOOKWCPATHLABEL,7,25,332,8
-    EDITTEXT        IDC_HOOKPATH,7,36,303,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "...",IDC_HOOKBROWSE,315,36,24,14
-    LTEXT           "Command Line To Execute:",IDC_HOOKCMLABEL,7,59,332,8
-    EDITTEXT        IDC_HOOKCOMMANDLINE,7,72,303,14,ES_AUTOHSCROLL
-    CONTROL         "Wait for the script to finish",IDC_WAITCHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,90,209,10
-    CONTROL         "Hide the script while running",IDC_HIDECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,103,209,10
-    DEFPUSHBUTTON   "OK",IDOK,232,100,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,289,100,50,14
-    PUSHBUTTON      "...",IDC_HOOKCOMMANDBROWSE,315,72,24,14
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1117,7 +1085,7 @@ BEGIN
         BOTTOMMARGIN, 311
     END
 
-    IDD_COMMITDLG, DIALOG
+    IDD_LOGPROMPT, DIALOG
     BEGIN
         LEFTMARGIN, 6
         RIGHTMARGIN, 293
@@ -1303,7 +1271,7 @@ BEGIN
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 376
-        VERTGUIDE, 124
+        VERTGUIDE, 76
         TOPMARGIN, 7
         BOTTOMMARGIN, 72
     END
@@ -1534,25 +1502,6 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 139
     END
-
-    IDD_SETTINGSHOOKS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 293
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 209
-    END
-
-    IDD_SETTINGSHOOKCONFIG, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 339
-        VERTGUIDE, 216
-        VERTGUIDE, 310
-        VERTGUIDE, 315
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 114
-    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -1690,10 +1639,10 @@ END
 STRINGTABLE 
 BEGIN
     IDS_LOG_POPUP_COPY      "C&reate tag from revision"
-    IDS_COMMITDLG_FILE      "File"
-    IDS_COMMITDLG_STATUS    "Status"
-    IDS_COMMITDLG_ASKADD    "You selected an unversioned file.\nThe file will be added to version control when you commit."
-    IDS_COMMITDLG_NOTHINGTOCOMMIT 
+    IDS_LOGPROMPT_FILE      "File"
+    IDS_LOGPROMPT_STATUS    "Status"
+    IDS_LOGPROMPT_ASKADD    "You selected an unversioned file.\nThe file will be added to version control when you commit."
+    IDS_LOGPROMPT_NOTHINGTOCOMMIT 
                             "No files were changed or added since\nthe last commit. There's nothing\nfor TortoiseSVN to do here..."
     IDS_PROGRS_ATREV        "At revision: %d"
     IDS_PROGRS_ACTION       "Action"
@@ -1881,7 +1830,6 @@ BEGIN
     IDS_LOG_AUTHOREDITTITLE "Edit author name"
     IDS_LOG_SHOWALL         "Show &All"
     IDS_LOG_SHOWRANGE       "Show &Range..."
-    IDS_LOG_LOGINFOSTRING   "Showing %ld revisions, from revision %ld to revision %ld - %ld revisions selected."
 END
 
 STRINGTABLE 
@@ -1919,11 +1867,6 @@ BEGIN
     IDS_ERR_INVALIDREVNOWC  "Invalid revision number! Valid revisions are:\nHEAD\npositive decimal numbers,\ndates in one of the following example forms:\n{2002-02-17}\n{15:30}\n{15:30:00.200000}\n{""2002-02-17 15:30""}\n{""2002-02-17 15:30 +0230""}\n{2002-02-17T15:30}\n{2002-02-17T15:30Z}\n{2002-02-17T15:30-04:00}\n{20020217T1530}\n{20020217T1530Z}\n{20020217T1530-0500}"
     IDS_ERR_MERGEIDENTICALREVISIONS 
                             "Merging requires different revisions or different URLs in 'From:' and 'To:'"
-    IDS_ERR_NOHOOKTYPESPECIFIED "Please select a hook type"
-    IDS_ERR_NOHOOKPATHSPECIFIED 
-                            "Please enter a path where to apply the hook script to."
-    IDS_ERR_NOHOOKCOMMANDPECIFIED "Please enter a hook script to execute."
-    IDS_ERR_HOOKFAILED      "The hook script returned an error:\n%s"
 END
 
 STRINGTABLE 
@@ -2018,11 +1961,11 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_COMMITDLG_EXTERNALS "There are changes inside one or more directories which you have included with svn:externals.\nThose files are <b>not</b> listed for commit. You need to commit those files separately."
-    IDS_COMMITDLG_STATISTICSFORMAT "%d files selected, %d files total"
-    IDS_COMMITDLG_ONLYNUMBERS 
+    IDS_LOGPROMPT_EXTERNALS "There are changes inside one or more directories which you have included with svn:externals.\nThose files are <b>not</b> listed for commit. You need to commit those files separately."
+    IDS_LOGPROMPT_STATISTICSFORMAT "%d files selected, %d files total"
+    IDS_LOGPROMPT_ONLYNUMBERS 
                             "Only numbers (optionally separated by commas)\nare allowed!"
-    IDS_COMMITDLG_NOISSUEWARNING 
+    IDS_LOGPROMPT_NOISSUEWARNING 
                             "You haven't entered an issue number!\nAre you sure you want to commit without an issue number?"
 END
 
@@ -2247,10 +2190,10 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_COMMITDLG_NOTHINGTOCOMMITUNVERSIONED 
+    IDS_LOGPROMPT_NOTHINGTOCOMMITUNVERSIONED 
                             "No files were changed or added since\nthe last commit. There's nothing\nfor TortoiseSVN to do here...\nDo you want to see the unversioned files?"
-    IDS_COMMITDLG_HISTORY_TT "Click here to select a recently typed message"
-    IDS_COMMITDLG_HISTORYHINT_TT 
+    IDS_LOGPROMPT_HISTORY_TT "Click here to select a recently typed message"
+    IDS_LOGPROMPT_HISTORYHINT_TT 
                             "Your previously entered log messages have been saved.\nClick here to read and insert them again."
 END
 
@@ -2292,7 +2235,7 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_COMMITDLG_POPUP_PASTEFILELIST "Paste filename list"
+    IDS_LOGPROMPT_POPUP_PASTEFILELIST "Paste filename list"
 END
 
 STRINGTABLE 
@@ -2343,8 +2286,6 @@ BEGIN
     IDS_LOG_POPUP_BLAMECOMPARE "Compare and &blame with working BASE"
     IDS_LOG_POPUP_BLAMEREVS "&Blame revisions"
     IDS_LOG_POPUP_BLAMEDIFF "&Blame differences"
-    IDS_LOG_POPUP_VIEWREV   "View revision in &webviewer"
-    IDS_LOG_POPUP_VIEWPATHREV "View revision for path in &webviewer"
 END
 
 STRINGTABLE 
@@ -2579,35 +2520,6 @@ END
 STRINGTABLE 
 BEGIN
     IDS_FILEDIFF_POPEXPORT  "&Export selection to..."
-END
-
-STRINGTABLE 
-BEGIN
-    IDS_HOOKTYPE_STARTCOMMIT "Start Commit Hook"
-    IDS_HOOKTYPE_PRECOMMIT  "Pre-Commit Hook"
-    IDS_HOOKTYPE_POSTCOMMIT "Post-Commit Hook"
-    IDS_HOOKTYPE_STARTUPDATE "Start Update Hook"
-END
-
-STRINGTABLE 
-BEGIN
-    IDS_HOOKTYPE_PREUPDATE  "Pre-Update Hook"
-    IDS_HOOKTYPE_POSTUPDATE "Post-Update Hook"
-END
-
-STRINGTABLE 
-BEGIN
-    IDS_SETTINGS_HOOKS_SELECTFOLDERPATH "Select folder to run script for"
-    IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE "Select hook script file"
-END
-
-STRINGTABLE 
-BEGIN
-    IDS_SETTINGS_HOOKS_TYPECOL "Hook Type"
-    IDS_SETTINGS_HOOKS_PATHCOL "Path"
-    IDS_SETTINGS_HOOKS_COMMANDLINECOL "Command Line"
-    IDS_SETTINGS_HOOKS_WAITCOL "Wait"
-    IDS_SETTINGS_HOOKS_SHOWCOL "Show/Hide"
 END
 
 #endif    // English (U.S.) resources

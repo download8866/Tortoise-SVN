@@ -32,7 +32,7 @@
 #include "ImportDlg.h"
 #include "CheckoutDlg.h"
 #include "UpdateDlg.h"
-#include "CommitDlg.h"
+#include "LogPromptDlg.h"
 #include "AddDlg.h"
 #include "ResolveDlg.h"
 #include "RevertDlg.h"
@@ -67,7 +67,6 @@
 #include "SVNDiff.h"
 #include "CreatePatch.h"
 #include "SVNAdminDir.h"
-#include "Hooks.h"
 
 #include "..\version.h"
 
@@ -205,7 +204,6 @@ CTortoiseProcApp::CTortoiseProcApp()
 	const char* const * argv = NULL;
 	apr_app_initialize(&argc, &argv, NULL);
 	SYS_IMAGE_LIST();
-	CHooks::Create();
 	g_SVNAdminDir.Init();
 }
 
@@ -215,7 +213,6 @@ CTortoiseProcApp::~CTortoiseProcApp()
 	// destroyed, we tell it to destroy the memory pools and terminate apr
 	// *now* instead of later when the object itself is destroyed.
 	g_SVNAdminDir.Close();
-	CHooks::Destroy();
 	SYS_IMAGE_LIST().Cleanup();
 	apr_terminate();
 }
@@ -671,18 +668,6 @@ BOOL CTortoiseProcApp::InitInstance()
 		{
 			SVNRev rev = SVNRev(_T("HEAD"));
 			int options = ProgOptRecursive;
-			DWORD exitcode = 0;
-			CString error;
-			if (CHooks::Instance().StartUpdate(pathList, exitcode, error))
-			{
-				if (exitcode)
-				{
-					CString temp;
-					temp.Format(IDS_ERR_HOOKFAILED, error);
-					CMessageBox::Show(EXPLORERHWND, temp, _T("TortoiseSVN"), MB_ICONERROR);
-					return FALSE;
-				}
-			}
 			if (parser.HasKey(_T("rev")))
 			{
 				CUpdateDlg dlg;
@@ -716,22 +701,10 @@ BOOL CTortoiseProcApp::InitInstance()
 			bool bFailed = true;
 			CTSVNPathList selectedList;
 			CString sLogMsg;
-			DWORD exitcode = 0;
-			CString error;
-			if (CHooks::Instance().StartCommit(pathList, exitcode, error))
-			{
-				if (exitcode)
-				{
-					CString temp;
-					temp.Format(IDS_ERR_HOOKFAILED, error);
-					CMessageBox::Show(EXPLORERHWND, temp, _T("TortoiseSVN"), MB_ICONERROR);
-					return FALSE;
-				}
-			}
 			while (bFailed)
 			{
 				bFailed = false;
-				CCommitDlg dlg;
+				CLogPromptDlg dlg;
 				if (parser.HasKey(_T("logmsg")))
 				{
 					dlg.m_sLogMessage = parser.GetVal(_T("logmsg"));
@@ -2129,6 +2102,7 @@ BOOL CTortoiseProcApp::CreatePatch(const CTSVNPath& root, const CTSVNPathList& p
 		// Initialize OPENFILENAME
 		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
+		//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 		ofn.hwndOwner = (EXPLORERHWND);
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -2148,14 +2122,14 @@ BOOL CTortoiseProcApp::CreatePatch(const CTSVNPath& root, const CTSVNPathList& p
 		sFilter.LoadString(IDS_PATCHFILEFILTER);
 		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		// Replace '|' delimiters with '\0's
+		// Replace '|' delimeters with '\0's
 		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 		while (ptr != pszFilters)
 		{
 			if (*ptr == '|')
 				*ptr = '\0';
 			ptr--;
-		}
+		} // while (ptr != pszFilters) 
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		// Display the Open dialog box. 
@@ -2253,7 +2227,6 @@ BOOL CTortoiseProcApp::CreatePatch(const CTSVNPath& root, const CTSVNPathList& p
 			fclose(inFile);
 
 			CStringUtils::WriteAsciiStringToClipboard(sClipdata);
-			CStringUtils::WriteDiffToClipboard(sClipdata);
 
 		}
 	}

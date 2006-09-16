@@ -19,18 +19,18 @@
 #pragma once
 #include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog, asking for a new name.
- */
+
+// CRenameDlg dialog
+
 class CRenameDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CRenameDlg)
 
 public:
-	CRenameDlg(CWnd* pParent = NULL);
+	CRenameDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CRenameDlg();
 
+// Dialog Data
 	enum { IDD = IDD_RENAME };
 
 protected:
@@ -44,4 +44,5 @@ public:
 	CString m_name;
 	CString m_windowtitle;
 	CString m_label;
+protected:
 };
