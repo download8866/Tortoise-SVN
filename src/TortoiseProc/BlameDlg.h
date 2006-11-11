@@ -21,11 +21,8 @@
 #include "Registry.h"
 #include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * Show the blame dialog where the user can select the revision to blame
- * and whether to use TortoiseBlame or the default text editor to view the blame.
- */
+// CBlameDlg dialog
+
 class CBlameDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CBlameDlg)

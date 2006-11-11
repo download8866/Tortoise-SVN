@@ -27,6 +27,8 @@
 #include "MessageBox.h"
 
 
+// CSetOverlayPage dialog
+
 IMPLEMENT_DYNAMIC(CSetOverlayPage, CPropertyPage)
 CSetOverlayPage::CSetOverlayPage()
 	: CPropertyPage(CSetOverlayPage::IDD)
@@ -92,6 +94,7 @@ void CSetOverlayPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_FLOPPY, m_bFloppy);
 }
 
+
 BEGIN_MESSAGE_MAP(CSetOverlayPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_REMOVABLE, OnChange)
 	ON_BN_CLICKED(IDC_FLOPPY, &CSetOverlayPage::OnChange)
@@ -108,6 +111,7 @@ BEGIN_MESSAGE_MAP(CSetOverlayPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_CACHENONE, &CSetOverlayPage::OnChange)
 	ON_BN_CLICKED(IDC_UNVERSIONEDASMODIFIED, &CSetOverlayPage::OnChange)
 END_MESSAGE_MAP()
+
 
 int CSetOverlayPage::SaveData()
 {
@@ -163,7 +167,7 @@ int CSetOverlayPage::SaveData()
 				::PostMessage(hWnd, WM_CLOSE, NULL, NULL);
 			}
 		}
-		if (m_dwCacheType==1)
+		if ((m_dwCacheType==1)&&((DWORD)m_regUnversionedAsModified != (DWORD)m_bUnversionedAsModified))
 		{
 			// tell the cache to refresh everything
 			HANDLE hPipe = CreateFile( 

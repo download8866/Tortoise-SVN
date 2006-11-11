@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 09:49+0200\n"
-"PO-Revision-Date: 2006-11-07 09:29+0800\n"
+"PO-Revision-Date: 2006-08-15 14:28+0800\n"
 "Last-Translator: Cecil Sheng <zcecil@csie.org>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -442,7 +442,7 @@ msgstr "啟用 Proxy 伺服器(&E)"
 
 # Control-ID:1213,
 #: Control-ID:1213
-msgid "&Enter a message describing why you are locking the file(s)."
+msgid "&Enter a message describing why you lock the file(s)."
 msgstr "請輸入鎖定檔案的原因(&E)."
 
 # Control-ID:1031,
@@ -607,7 +607,12 @@ msgstr "清單檢視(&L)"
 msgid "&Load..."
 msgstr "載入(&L)..."
 
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "標記為已解決(&M)"
+
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "合併(&M)"
 
@@ -625,10 +630,6 @@ msgstr "合併(&M)"
 #: Control-ID:1129
 msgid "&Native filesystem (FSFS)"
 msgstr "原生檔案系統(FSFS)(&N)"
-
-#: MenuEntry
-msgid "&Navigate"
-msgstr "導覽(&N)"
 
 # Control-ID:1049,
 #: Control-ID:1049
@@ -690,11 +691,6 @@ msgstr "埠(&P):"
 #: MenuEntry
 msgid "&Previous Difference"
 msgstr "前一筆差異(&P)"
-
-# Control-ID:65535,
-#: Control-ID:11021
-msgid "&Properties..."
-msgstr "性質(&P)..."
 
 # Dlg-ID:130,
 #: Control-ID:1246
@@ -920,11 +916,6 @@ msgstr "檢視(&V)"
 msgid "&Whitespaces"
 msgstr "空白字元(&W)"
 
-# Control-ID:1066,
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "符合全字(&W)"
-
 # ID:151,
 #: Control-ID:1183
 msgid "&Working copy"
@@ -983,8 +974,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -1183,11 +1172,6 @@ msgstr "根據副檔名加入合併程式"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "加入忽略列表(&I)"
-
-# Control-ID:1098,
-#: Control-ID:1279
-msgid "Add..."
-msgstr "加入..."
 
 # Dlg-ID:171,
 #: Dlg-ID:171
@@ -1505,11 +1489,6 @@ msgstr "作者欄有大小寫之分"
 msgid "Authors:"
 msgstr "作者"
 
-# Dlg-ID:151,
-#: ID:99
-msgid "Auto Rename"
-msgstr "自動重新命名"
-
 # ID:222,
 #: ID:222
 msgid "Auto-close for local operations"
@@ -1674,7 +1653,6 @@ msgstr ""
 # ID:73,#:
 # Control-ID:2,
 #: ID:73
-#: ID:99
 #: ID:563
 #: Control-ID:2
 msgid "Cancel"
@@ -1811,8 +1789,8 @@ msgstr "請檢查你輸入的路徑或 URL."
 
 # Control-ID:65535,
 #: ID:194
-msgid "Check those menu entries you want to appear in the top context menu instead of the TortoiseSVN submenu"
-msgstr "勾選你希望出現在第一層選單, 而不是子選單中的選單項目"
+msgid "Check those menu entries you want to appear in the submenu instead of the top context menu"
+msgstr "勾選你希望出現在子選單, 而不是第一層快選功能表中的選單項目"
 
 # ID:80,
 #: ID:80
@@ -1937,17 +1915,6 @@ msgstr "色彩"
 
 # ID:3857,#:
 # ID:3857,
-#: ID:198
-msgid "Command Line"
-msgstr "命令列"
-
-# Control-ID:1336,
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "要執行的命令列:"
-
-# ID:3857,#:
-# ID:3857,
 #: ID:3857
 msgid "Command failed."
 msgstr "命令失敗."
@@ -1999,11 +1966,6 @@ msgid "Compare and &blame with working BASE"
 msgstr "與工作基礎版本比對並譴責(&B)"
 
 # ID:76,
-#: ID:114
-msgid "Compare and blame with previous revision"
-msgstr "與前一個版本比對並譴責"
-
-# ID:76,
 #: ID:76
 msgid "Compare with &working copy"
 msgstr "與工作複本比對(&W)"
@@ -2012,11 +1974,6 @@ msgstr "與工作複本比對(&W)"
 #: ID:138
 msgid "Compare with b&ase"
 msgstr "與基礎檔比對(&A)"
-
-# ID:76,
-#: ID:114
-msgid "Compare with previous revision"
-msgstr "與前一個版本比對"
 
 # ID:12,
 #: ID:12
@@ -2038,11 +1995,6 @@ msgstr "正在比對 %s 與 %s"
 #: ID:74
 msgid "Completed"
 msgstr "完畢"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "設定掛勾指令檔"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2632,11 +2584,6 @@ msgstr "編輯根據副檔名的合併程式"
 msgid "Edit log message"
 msgstr "編輯紀錄訊息"
 
-# Control-ID:1099,
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "編輯..."
-
 # ID:79,
 #: ID:79
 msgid "Either the name or IP of the proxy server"
@@ -2806,13 +2753,13 @@ msgstr "副檔名"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "副檔名或 mime-類型:"
+msgid "Extension specific programs"
+msgstr "根據副檔名的程式"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "根據副檔名或mime-類型的程式"
+msgid "Extension:"
+msgstr "副檔名:"
 
 # ID:74,
 #: ID:74
@@ -3129,11 +3076,6 @@ msgstr "隱藏無關的異動路徑(&H)"
 msgid "Help"
 msgstr "說明"
 
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "隱藏執行中的指令檔"
-
 # ID:2052,
 #: ID:2052
 msgid ""
@@ -3147,21 +3089,6 @@ msgstr ""
 #: Control-ID:1127
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "小提示: 按下 F5 可以重新整理選擇的子樹, 而 Ctrl-F5 可以重新載入全部子樹"
-
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "掛勾指令檔"
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr "掛勾類型"
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "掛勾類型:"
 
 # ID:82,
 #: ID:82
@@ -3184,11 +3111,6 @@ msgstr "圖示 / 設計 / 程式:     Luebbe Onken"
 #: ID:194
 msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr "勾選此選項時, 在\"另存新檔\"或是\"開啟\"的對話盒中不顯示圖示覆蓋."
-
-# ID:198,
-#: ID:198
-msgid "If activated, the menu entry \"Get Lock\" is shown in the top level menu if the selected file has the svn:needs-lock property is set"
-msgstr "勾選此選項時, 如果選擇的檔案有設定 svn:needs-lock 性質, 「取得鎖定」選項會出現在最上層選單中."
 
 # ID:95,
 #: ID:95
@@ -3554,12 +3476,6 @@ msgstr "直線圖"
 msgid "Line:"
 msgstr "行:"
 
-# Dlg-ID:143,
-#: ID:269
-#, c-format
-msgid "Line: %*ld"
-msgstr "行: %*ld"
-
 # ID:3605,
 #: ID:3605
 msgid ""
@@ -3731,10 +3647,6 @@ msgstr "郵件系統 DLL 錯誤."
 msgid "Manage Subversion properties"
 msgstr "管理 Subversion 性質"
 
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "標記為已解決(&R)"
-
 #: ID:282
 msgid "Mark as resolved"
 msgstr "標記為已解決"
@@ -3759,7 +3671,7 @@ msgid "Max"
 msgstr "最大"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "訊息紀錄最大保留筆數"
 
@@ -4181,11 +4093,6 @@ msgstr "對方的"
 msgid "Out of memory."
 msgstr "記憶體不足."
 
-# ID:99,
-#: ID:99
-msgid "Overwrite"
-msgstr "覆寫"
-
 # ID:12,
 #: MenuEntry
 msgid "P&revious Conflict"
@@ -4229,7 +4136,6 @@ msgstr "補綴檔(*.diff, *.patch)|*.diff;*.patch|所有檔案(*.*)|*.*||"
 
 # ID:77,
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "路徑"
 
@@ -4274,12 +4180,6 @@ msgstr "請輸入日期."
 
 # ID:3858,#:
 # ID:3858,
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "請輸入要指定的掛勾指令檔"
-
-# ID:3858,#:
-# ID:3858,
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -4290,11 +4190,6 @@ msgstr "請輸入介於 %1 與 %2 之間的數字."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "請輸入數字."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "請輸入要套用這個掛勾指令檔的路徑"
 
 # ID:3858,#:
 # ID:3858,
@@ -4358,12 +4253,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "請選擇按鈕."
 
-# ID:3858,#:
-# ID:3858,
-#: ID:83
-msgid "Please select a hook type"
-msgstr "請選擇掛勾類型"
-
 # ID:76,
 #: ID:76
 msgid "Please specify the certificate type"
@@ -4379,15 +4268,15 @@ msgstr "請稍候 - 可能需要數分鐘, 真的!"
 msgid "Please wait while cancelling..."
 msgstr "正在取消, 請稍候..."
 
-# ID:13,
-#: ID:319
-msgid "Please wait while differences are obtained..."
-msgstr "正在比對差異, 請稍候..."
-
 # ID:104,
 #: ID:104
 msgid "Please wait while the repository browser is initialized..."
 msgstr "請稍候, 檔案庫瀏覽器正在初始化..."
+
+# ID:13,
+#: ID:319
+msgid "Please wait while we get the differences..."
+msgstr "正在比對差異, 請稍候..."
 
 # ID:119,
 #: ID:119
@@ -4395,26 +4284,6 @@ msgstr "請稍候, 檔案庫瀏覽器正在初始化..."
 #: ID:211
 msgid "Please wait..."
 msgstr "請稍候..."
-
-# Control-ID:1110,
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "送交後掛勾"
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "更新後掛勾"
-
-# Control-ID:1110,
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "送交前掛勾"
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "更新前掛勾"
 
 # ID:376,
 #: ID:376
@@ -4457,6 +4326,7 @@ msgstr "性質:"
 
 # Control-ID:65535,
 #: ID:209
+#: Control-ID:11021
 msgid "Properties..."
 msgstr "性質..."
 
@@ -4499,11 +4369,6 @@ msgstr "Proxy 逾時設定(秒)(&T):"
 #: Control-ID:1080
 msgid "Proxy Settings"
 msgstr "Proxy 設定"
-
-# Control-ID:1338,
-#: Control-ID:1338
-msgid "Put \"Get Lock\" on top menu when svn:needs-lock is set"
-msgstr "有設定 svn:needs-lock 性質時, 將「取得鎖定」放在上層選單"
 
 # ID:246,
 #: ID:246
@@ -4661,11 +4526,6 @@ msgstr "遠端文字狀態"
 msgid "Remove from &ignore list"
 msgstr "自忽略列表移除(&I)"
 
-# ID:8,
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "移除..."
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Removed"
@@ -4718,12 +4578,6 @@ msgstr "遠端重新命名完成"
 #: ID:11
 msgid "Renames files / folders inside version control"
 msgstr "重新命名版本控制樹中的檔案/資料夾"
-
-# Control-ID:1013,#:
-# Control-ID:1100,
-#: ID:209
-msgid "Repair move"
-msgstr "修復移動"
 
 # ID:3603,
 #: ID:3603
@@ -5228,21 +5082,6 @@ msgstr ""
 "選擇要匯出至的資料夾.\n"
 "你可能需要在進行匯出之前先建立新資料夾."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "請選擇要執行指令檔的目錄"
-
-# ID:197,
-#: ID:119
-msgid "Select folder to save the selected files to"
-msgstr "請選擇要儲存檔案的目錄"
-
-# ID:313,
-#: ID:197
-msgid "Select hook script file"
-msgstr "請選擇掛勾指令檔"
-
 # ID:78,
 #: ID:78
 msgid "Select merge application"
@@ -5458,22 +5297,11 @@ msgstr "顯示無異動的檔案"
 msgid "Show unversioned files"
 msgstr "顯示無版本控制的檔案"
 
-# ID:198,
-#: ID:198
-msgid "Show/Hide"
-msgstr "顯示/隱藏"
-
 # Control-ID:1073,
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "顯示 %ld 個節點"
-
-# ID:238,
-#: ID:115
-#, c-format
-msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
-msgstr "顯示 %ld 個版本, 從版本: %ld 到版本: %ld - 選擇了 %ld 個版本."
 
 # ID:272,
 #: ID:272
@@ -5581,20 +5409,10 @@ msgstr "堆疊長條圖"
 msgid "Stacked Line Graph"
 msgstr "堆疊直線圖"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "開始送交掛勾"
-
 # ID:11,
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "開始版本"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr "開始更新掛勾"
 
 # ID:74,#:
 # ID:77,
@@ -5901,28 +5719,6 @@ msgstr ""
 "%s\n"
 " 不存在.\n"
 "是否要先建立?"
-
-# ID:102,
-#: ID:99
-#, c-format
-msgid ""
-"The folder\n"
-"%s\n"
-"already exists!"
-msgstr ""
-"目的資料夾\n"
-"%s\n"
-"已經存在!"
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"掛勾指令檔傳回錯誤:\n"
-"%s"
 
 # ID:7,
 #: ID:7
@@ -6672,11 +6468,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "使用工作複本的URL做為預設的來源URL(&W)"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "使用剪貼簿中的單一差異檔"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -6703,58 +6494,24 @@ msgid "Use stri&keout for deleted lines"
 msgstr "用雙刪除線表示已刪除行(&K)"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "使用本地(&mime)的文字區塊"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&theirs\""
 msgstr "使用遠端(&theirs)的文字區塊"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
 msgstr "優先使用本地(m&ine)的而非遠端(theirs)的文字區塊"
 
 # ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\" before \"theirs\"\n"
-"Use \"mine\" text block then \"theirs\""
-msgstr ""
-"先套用本地再套用遠端的文字區塊\n"
-"先本地後遠端"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\"\n"
-"Use \"mine\" text block"
-msgstr ""
-"套用本地的文字區塊\n"
-"套用本地文字區塊"
-
-# ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"t&heirs\" before \"mine\""
 msgstr "優先使用遠端(t&heirs)的而非本地(mine)的文字區塊"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\" before \"mine\"\n"
-"Use \"theirs\" text block then \"mine\""
-msgstr ""
-"先套用遠端再套用本地的文字區塊\n"
-"先遠端後本地"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\"\n"
-"Use \"theirs\" text block"
-msgstr "先套用遠端再套用本地的文字區塊(&H)"
 
 # ID:251,
 #: ID:251
@@ -6816,31 +6573,11 @@ msgstr "值"
 msgid "Version"
 msgstr "版本"
 
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "以網頁瀏覽器檢視路徑的版本(&W)"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "以網頁瀏覽器檢視版本(&W)"
-
 # Control-ID:1084,#:
 # Control-ID:1084,
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "瀏覽我們的網站"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "等待"
-
-# Control-ID:1327,
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "等待指令檔完成"
 
 # ID:219,
 #: ID:88
@@ -6862,11 +6599,6 @@ msgstr "以 URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "工作複本"
-
-# ID:151,
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "工作複本路徑:"
 
 # ID:80,
 #: ID:80
@@ -7512,28 +7244,6 @@ msgstr ""
 "設定撰寫紀錄訊息時要使用的語系編號.\n"
 "TortoiseSVN會根據這個設定載入適當的拼字檢查模組.(如果有)."
 
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfileproperties\n"
-"Newline separated list of user defined properties for files which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfileproperties\n"
-"由使用者自行定義的性質, 以換行分隔.\n"
-"這些性質會出現在性質視窗中可供選擇."
-
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfolderproperties\n"
-"Newline separated list of user defined properties for folders which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfolderproperties\n"
-"由使用者自行定義的性質, 以換行分隔.\n"
-"這些性質會出現在性質視窗中可供選擇."
-
 # ID:15,
 #: ID:15
 msgid ""
@@ -7547,32 +7257,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "不同的值"
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"代表檔案庫中特定檔案及版本的URL, 供網頁瀏覽器使用.\n"
-"URL 中的 %REVISION% 會以版號取代, \n"
-"而 %PATH% 則會以檔案庫根目錄的相對路徑取代."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"代表檔案庫中特定版本的 URL, 供網頁瀏覽器使用.\n"
-"字串中的 %REVISION% 會以版本號碼取代."
 
 # ID:244,
 #: ID:245

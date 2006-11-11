@@ -295,7 +295,7 @@ public:
 public:
 	void AddPath(const CTSVNPath& newPath);
 	bool LoadFromTemporaryFile(const CTSVNPath& filename);
-	bool WriteToTemporaryFile(const CString& sFilename, bool bANSI = false) const;
+	bool WriteToTemporaryFile(const CString& sFilename) const;
 
 	/**
 	 * Load from the path argument string, when the 'notempfile' flag is used

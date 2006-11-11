@@ -63,12 +63,6 @@
 #define ID_BLAMEDIFF    31
 #define ID_CONFLICTRESOLVE 32
 
-#define ID_VIEWREV      33
-#define ID_VIEWPATHREV  34
-#define ID_EXPORT		35
-#define ID_COMPAREWITHPREVIOUS 36
-#define ID_BLAMEWITHPREVIOUS 37
-
 #define LOGFILTER_ALL      1
 #define LOGFILTER_MESSAGES 2
 #define LOGFILTER_PATHS    3
@@ -107,15 +101,15 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedGetall();
-	afx_msg void OnNMDblclkChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangedLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnEnLinkMsgview(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedStatbutton();
 	afx_msg void OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnGetdispinfoChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnGetdispinfoLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnStnClickedFiltericon();
 	afx_msg void OnBnClickedFiltercancel();
 	afx_msg void OnEnChangeSearchedit();
@@ -123,7 +117,7 @@ protected:
 	afx_msg void OnDtnDatetimechangeDateto(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDtnDatetimechangeDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnColumnclick(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnColumnclickChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnColumnclickLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedNexthundred();
 	afx_msg void OnBnClickedHidepaths();
 	afx_msg void OnBnClickedCheckStoponcopy();
@@ -151,7 +145,6 @@ private:
 	UINT LogThread();
 	void Refresh();
 	BOOL DiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
-	BOOL Open(bool bOpenWith, CString changedpath, long rev);
 	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
@@ -166,7 +159,6 @@ private:
 	bool IsSelectionContinuous();
 	void EnableOKButton();
 	void GetAll(bool bForceAll = false);
-	void UpdateLogInfoLabel();
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
@@ -181,7 +173,7 @@ private:
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CListCtrl			m_LogList;
-	CListCtrl			m_ChangedFileListCtrl;
+	CListCtrl			m_LogMsgCtrl;
 	CProgressCtrl		m_LogProgress;
 	CMenuButton			m_btnShow;
 	CTSVNPath			m_path;
@@ -230,8 +222,7 @@ private:
 	CString				m_sTitle;
 	bool				m_bSelect;
 	bool				m_bShowBugtraqColumn;
-	CString				m_sLogInfo;
-
+	
 	CTime				m_timFrom;
 	CTime				m_timTo;
 	CColors				m_Colors;

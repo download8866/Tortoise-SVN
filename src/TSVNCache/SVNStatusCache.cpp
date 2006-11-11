@@ -230,13 +230,7 @@ void CSVNStatusCache::Refresh()
 	m_shellCache.ForceRefresh();
 	for (CCachedDirectory::CachedDirMap::iterator I = m_pInstance->m_directoryCache.begin(); I != m_pInstance->m_directoryCache.end(); ++I)
 	{
-		if (m_shellCache.IsPathAllowed(I->first.GetWinPath()))
-			I->second->RefreshMostImportant();
-		else
-		{
-			CSVNStatusCache::Instance().RemoveCacheForPath(I->first);
-			I = m_pInstance->m_directoryCache.begin();
-		}
+		I->second->RefreshMostImportant();
 	}
 }
 

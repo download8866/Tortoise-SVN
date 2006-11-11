@@ -753,31 +753,17 @@ bool CTSVNPathList::LoadFromTemporaryFile(const CTSVNPath& filename)
 	return true;
 }
 
-bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename, bool bANSI /* = false */) const
+bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename) const
 {
 	try
 	{
-		if (bANSI)
+		CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
+		PathVector::const_iterator it;
+		for(it = m_paths.begin(); it != m_paths.end(); ++it)
 		{
-			CStdioFile file(sFilename, CFile::typeText | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				CStringA line = CStringA(it->GetSVNPathString()) + '\n';
-				file.Write(line, line.GetLength());
-			} 
-			file.Close();
-		}
-		else
-		{
-			CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				file.WriteString(it->GetSVNPathString()+_T("\n"));
-			} 
-			file.Close();
-		}
+			file.WriteString(it->GetSVNPathString()+_T("\n"));
+		} 
+		file.Close();
 	}
 	catch (CFileException* pE)
 	{

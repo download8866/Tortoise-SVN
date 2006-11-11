@@ -466,6 +466,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Utils\MiscUI\ProgressDlg.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\Registry.cpp"
 				>
 			</File>
@@ -559,6 +563,10 @@
 			</File>
 			<File
 				RelativePath="..\Svn\TSVNPath.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UnicodeStrings.cpp"
 				>
 			</File>
 			<File
@@ -656,6 +664,10 @@
 			</File>
 			<File
 				RelativePath="..\Svn\TSVNPath.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UnicodeStrings.h"
 				>
 			</File>
 			<File

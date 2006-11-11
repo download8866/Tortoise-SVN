@@ -29,12 +29,6 @@
 #include "Balloon.h"
 #include "afxwin.h"
 
-/**
- * \ingroup TortoiseProc
- * Dialog which fetches and shows the difference between two urls in the
- * repository. It shows a list of files/folders which were changed in those
- * two revisions.
- */
 class CFileDiffDlg : public CResizableStandAloneDialog, public SVN
 {
 	DECLARE_DYNAMIC(CFileDiffDlg)
@@ -48,7 +42,7 @@ public:
 		svn_node_kind_t node;
 	};
 public:
-	CFileDiffDlg(CWnd* pParent = NULL);
+	CFileDiffDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFileDiffDlg();
 
 	void SetDiff(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, bool recurse, bool ignoreancestry);
@@ -56,6 +50,7 @@ public:
 
 	void	DoBlame(bool blame = true) {m_bBlame = blame;}
 
+// Dialog Data
 	enum { IDD = IDD_DIFFFILES };
 
 protected:
@@ -71,8 +66,7 @@ protected:
 	afx_msg void OnEnSetfocusSecondurl();
 	afx_msg void OnEnSetfocusFirsturl();
 	afx_msg void OnBnClickedSwitchleftright();
-	afx_msg void OnHdnItemclickFilelist(NMHDR *pNMHDR, LRESULT *pResult);
-
+	
 	DECLARE_MESSAGE_MAP()
 
 	virtual svn_error_t* DiffSummarizeCallback(const CTSVNPath& path, 
@@ -80,10 +74,10 @@ protected:
 											bool propchanged, 
 											svn_node_kind_t node);
 
-	int					AddEntry(FileDiff * fd);
-	void				DoDiff(int selIndex, bool blame);
-	void				DiffProps(int selIndex);
-	void				SetURLLabels();
+	int AddEntry(FileDiff * fd);
+	void DoDiff(int selIndex, bool blame);
+	void DiffProps(int selIndex);
+	void SetURLLabels();
 private:
 	static UINT			DiffThreadEntry(LPVOID pVoid);
 	UINT				DiffThread();
@@ -100,7 +94,7 @@ private:
 	CHintListCtrl		m_cFileList;
 	bool				m_bBlame;
 	CBlame				m_blamer;
-	std::vector<FileDiff> m_arFileList;
+	CArray<FileDiff, FileDiff> m_arFileList;
 	CArray<FileDiff, FileDiff> m_arSelectedFileList;
 
 	CString				m_strExportDir;
@@ -119,13 +113,5 @@ private:
 	volatile LONG		m_bThreadRunning;
 
 	bool				m_bCancelled;
-
-	void				Sort();
-	static bool			SortCompare(const FileDiff& Data1, const FileDiff& Data2);
-
-	static BOOL			m_bAscending;
-	static int			m_nSortedColumn;
-
 protected:
-public:
 };

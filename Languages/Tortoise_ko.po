@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 09:49+0200\n"
-"PO-Revision-Date: 2006-10-27 17:23+0900\n"
+"PO-Revision-Date: 2006-08-29 18:34+0900\n"
 "Last-Translator: Hojin Choi <hojin.choi@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -603,7 +603,12 @@ msgstr "리스트 뷰(&L)"
 msgid "&Load..."
 msgstr "읽기(&L)..."
 
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "충돌해결상태로 표시(&M)"
+
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "병합(&M)"
 
@@ -621,10 +626,6 @@ msgstr "병합(&M)"
 #: Control-ID:1129
 msgid "&Native filesystem (FSFS)"
 msgstr "고유의 파일시스템 (&Native FS, FSFS)"
-
-#: MenuEntry
-msgid "&Navigate"
-msgstr "둘러보기(&N)"
 
 # Control-ID:1049,
 #: Control-ID:1049
@@ -684,12 +685,6 @@ msgstr "포트(&P):"
 #: MenuEntry
 msgid "&Previous Difference"
 msgstr "이전 차이점(&P)"
-
-# Control-ID:65535,#:
-# Dlg-ID:177,
-#: Control-ID:11021
-msgid "&Properties..."
-msgstr "속성(&P)..."
 
 # Dlg-ID:130,
 #: Control-ID:1246
@@ -912,11 +907,6 @@ msgstr "보기(&V)"
 msgid "&Whitespaces"
 msgstr "공백(&W)"
 
-# Control-ID:1066,
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "전체 단어(&W)"
-
 # ID:151,
 #: Control-ID:1183
 msgid "&Working copy"
@@ -975,8 +965,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -1176,11 +1164,6 @@ msgstr "확장자에 따른 병합 프로그램 등록"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "무시 목록에 추가(&I)"
-
-# Control-ID:1098,
-#: Control-ID:1279
-msgid "Add..."
-msgstr "추가..."
 
 # Dlg-ID:171,
 #: Dlg-ID:171
@@ -1497,11 +1480,6 @@ msgstr "작성자 대소문자 구별 안함"
 msgid "Authors:"
 msgstr "작성자:"
 
-# Dlg-ID:151,
-#: ID:99
-msgid "Auto Rename"
-msgstr "자동으로 이름 바꾸기"
-
 # ID:222,
 #: ID:222
 msgid "Auto-close for local operations"
@@ -1668,7 +1646,6 @@ msgstr ""
 # Control-ID:2,#:
 # Control-ID:2,
 #: ID:73
-#: ID:99
 #: ID:563
 #: Control-ID:2
 msgid "Cancel"
@@ -1805,8 +1782,8 @@ msgstr "입력한 경로나 URL을 확인하십시오."
 
 # ID:194,
 #: ID:194
-msgid "Check those menu entries you want to appear in the top context menu instead of the TortoiseSVN submenu"
-msgstr "TortoiseSVN 하위 메뉴에 나타내지 않고 컨텍스트 메뉴에 바로 나타낼 것을 선택하십시오."
+msgid "Check those menu entries you want to appear in the submenu instead of the top context menu"
+msgstr "컨텍스트 메뉴에 나타내지 않고 하위메뉴에 바로 나타낼 것을 선택하십시오."
 
 # ID:80,
 #: ID:80
@@ -1931,17 +1908,6 @@ msgstr "색상"
 
 # ID:3857,#:
 # ID:3857,
-#: ID:198
-msgid "Command Line"
-msgstr "명령 행"
-
-# Control-ID:1336,
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "실행할 명령:"
-
-# ID:3857,#:
-# ID:3857,
 #: ID:3857
 msgid "Command failed."
 msgstr "명령 오류."
@@ -2022,11 +1988,6 @@ msgstr "비교 중 %s : %s"
 #: ID:74
 msgid "Completed"
 msgstr "완료"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "훅 스크립트 구성"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2614,11 +2575,6 @@ msgstr "확장자별 병합 프로그램 편집"
 msgid "Edit log message"
 msgstr "로그 메시지 수정"
 
-# Control-ID:1099,
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "편집..."
-
 # ID:79,
 #: ID:79
 msgid "Either the name or IP of the proxy server"
@@ -2788,13 +2744,13 @@ msgstr "확장자"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "확장자 혹은 mime-type:"
+msgid "Extension specific programs"
+msgstr "확장자별 프로그램 정의"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "확장자/mime-type 별 프로그램 정의"
+msgid "Extension:"
+msgstr "확장자:"
 
 # ID:74,
 #: ID:74
@@ -3112,11 +3068,6 @@ msgstr "관련없는 변경된 경로를 숨기기(&I)"
 msgid "Help"
 msgstr "도움말"
 
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "스크립트 수행중 숨김"
-
 # ID:2052,
 #: ID:2052
 msgid ""
@@ -3130,21 +3081,6 @@ msgstr ""
 #: Control-ID:1127
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "힌트: 선택된 디렉토리를 새로 고치려면, F5를 누르시고, 모든 하위까지 고치려면 Ctrl+F5를 누르세요."
-
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "훅 스크립트"
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr "훅 종류"
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "훅 종류:"
 
 # ID:82,
 #: ID:82
@@ -3167,11 +3103,6 @@ msgstr "아이콘/설계/코딩:     Luebbe Onken"
 #: ID:194
 msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr "\"다른 이름으로 저장\" 혹은 \"열기\" 대화 상자에서는 오버레이 아이콘을 사용하지 않습니다."
-
-# ID:198,
-#: ID:198
-msgid "If activated, the menu entry \"Get Lock\" is shown in the top level menu if the selected file has the svn:needs-lock property is set"
-msgstr "svn:needs-lock 속성이 있는 파일을 선택하면 컨텍스트 메뉴에 \"잠그기\"를 추가합니다."
 
 # ID:95,
 #: ID:95
@@ -3535,12 +3466,6 @@ msgstr "꺽은선 그래프"
 msgid "Line:"
 msgstr "행:"
 
-# Dlg-ID:143,
-#: ID:269
-#, c-format
-msgid "Line: %*ld"
-msgstr "행: %*ld"
-
 # ID:3605,
 #: ID:3605
 msgid ""
@@ -3710,10 +3635,6 @@ msgstr "메일 시스템 DLL이 유효하지 않습니다."
 msgid "Manage Subversion properties"
 msgstr "Subversion 속성 관리"
 
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "충돌해결상태로 표시(&R)"
-
 #: ID:282
 msgid "Mark as resolved"
 msgstr "충돌해결상태로 표시"
@@ -3738,7 +3659,7 @@ msgid "Max"
 msgstr "최대"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "사용되었던 로그 저장 개수"
 
@@ -4159,11 +4080,6 @@ msgstr "기타"
 msgid "Out of memory."
 msgstr "메모리 부족."
 
-# ID:99,
-#: ID:99
-msgid "Overwrite"
-msgstr "덮어 쓰기"
-
 # ID:12,
 #: MenuEntry
 msgid "P&revious Conflict"
@@ -4207,7 +4123,6 @@ msgstr "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 
 # ID:77,
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "경로"
 
@@ -4252,12 +4167,6 @@ msgstr "날짜를 입력하십시오."
 
 # ID:3858,#:
 # ID:3858,
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "실행할 훅 스크립트를 넣으세요"
-
-# ID:3858,#:
-# ID:3858,
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -4268,11 +4177,6 @@ msgstr "%1 ~ %2사이의 값을 입력하십시오."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "숫자를 입력하십시오."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "훅 스크립트가 적용될 경로를 입력하세요"
 
 # ID:3858,#:
 # ID:3858,
@@ -4336,12 +4240,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "버튼을 선택하십시오."
 
-# ID:3858,#:
-# ID:3858,
-#: ID:83
-msgid "Please select a hook type"
-msgstr "훅 종류를 선택하십시오."
-
 # ID:76,
 #: ID:76
 msgid "Please specify the certificate type"
@@ -4357,15 +4255,15 @@ msgstr "잠시 기다려주십시오. 몇분 걸리는 작업을 수행중입니
 msgid "Please wait while cancelling..."
 msgstr "취소중입니다. 잠시 기다려주십시오..."
 
-# ID:13,
-#: ID:319
-msgid "Please wait while differences are obtained..."
-msgstr "차이를 구하는 동안 잠시 기다려주십시오..."
-
 # ID:104,
 #: ID:104
 msgid "Please wait while the repository browser is initialized..."
 msgstr "저장소 브라우저가 초기화되는 동안 기다리십시오..."
+
+# ID:13,
+#: ID:319
+msgid "Please wait while we get the differences..."
+msgstr "차이를 구하는 동안 잠시 기다려주십시오..."
 
 # ID:119,
 #: ID:119
@@ -4373,26 +4271,6 @@ msgstr "저장소 브라우저가 초기화되는 동안 기다리십시오..."
 #: ID:211
 msgid "Please wait..."
 msgstr "잠시 기다려주십시오..."
-
-# Control-ID:1110,
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "커밋 후 확인 훅"
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "업데이트 후 확인 훅"
-
-# Control-ID:1110,
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "커밋 전 확인 훅"
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "업데이트 전 확인 훅"
 
 # ID:376,
 #: ID:376
@@ -4438,6 +4316,7 @@ msgstr "속성"
 # Control-ID:65535,#:
 # Dlg-ID:177,
 #: ID:209
+#: Control-ID:11021
 msgid "Properties..."
 msgstr "속성..."
 
@@ -4480,11 +4359,6 @@ msgstr "프록시 만료시간(단위: 초)(&T)"
 #: Control-ID:1080
 msgid "Proxy Settings"
 msgstr "프록시 설정"
-
-# Control-ID:1338,
-#: Control-ID:1338
-msgid "Put \"Get Lock\" on top menu when svn:needs-lock is set"
-msgstr "svn:needs-lock이 속성이 설정되면 \"잠그기\"를 메뉴에 넣습니다."
 
 # ID:246,
 #: ID:246
@@ -4642,11 +4516,6 @@ msgstr "원격 상태"
 msgid "Remove from &ignore list"
 msgstr "무시 목록에서 제거(&I)"
 
-# ID:8,
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "삭제..."
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Removed"
@@ -4699,12 +4568,6 @@ msgstr "원격지의 파일이름 수정됨"
 #: ID:11
 msgid "Renames files / folders inside version control"
 msgstr "버전 컨트롤안의 파일 폴더의 이름 바꾸기"
-
-# Control-ID:1013,#:
-# Control-ID:1100,
-#: ID:209
-msgid "Repair move"
-msgstr "관계 복원후 이동"
 
 # ID:3603,
 #: ID:3603
@@ -5208,16 +5071,6 @@ msgstr ""
 "익스포트할 폴더 선택.\n"
 "익스포트하기 전에 폴더를 새로 만들어야 할 수도 있습니다."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "스크립트를 수행할 폴더를 선택하세요"
-
-# ID:313,
-#: ID:197
-msgid "Select hook script file"
-msgstr "훅 스크립트를 선택하세요"
-
 # ID:78,
 #: ID:78
 msgid "Select merge application"
@@ -5435,22 +5288,11 @@ msgstr "수정되지 않은 파일 보기"
 msgid "Show unversioned files"
 msgstr "버전관리 대상이 아닌 파일 보기"
 
-# ID:198,
-#: ID:198
-msgid "Show/Hide"
-msgstr "보이기/숨기기"
-
 # Control-ID:1073,
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "%ld개 노드 출력"
-
-# ID:238,
-#: ID:115
-#, c-format
-msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
-msgstr "%ld 개의 리비전이 출력됨, (리비전 %ld에서 %ld까지) - %ld 개의 리비전이 선택됨."
 
 # ID:272,
 #: ID:272
@@ -5557,20 +5399,10 @@ msgstr "누적 막대 그래프"
 msgid "Stacked Line Graph"
 msgstr "누적 꺽은선 그래프"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "커밋 훅 시작"
-
 # ID:11,
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "시작 리비전"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr "업데이트 훅 시작"
 
 # ID:74,#:
 # ID:77,#:
@@ -5877,28 +5709,6 @@ msgid ""
 msgstr ""
 "존재하지 않는 폴더:\n"
 "%s 만드시겠습니까?"
-
-# ID:102,
-#: ID:99
-#, c-format
-msgid ""
-"The folder\n"
-"%s\n"
-"already exists!"
-msgstr ""
-"폴더\n"
-"%s\n"
-"이(가) 이미 존재합니다."
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"훅 스크립트가 오류를 반환하였습니다:\n"
-"%s"
 
 # ID:7,
 #: ID:7
@@ -6646,11 +6456,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "작업 사본의 URL을 원본의 디폴트 URL로 사용합니다.(&W)"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "클립보드와 Unified diff를 사용"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -6677,60 +6482,24 @@ msgid "Use stri&keout for deleted lines"
 msgstr "지워진 행에는 줄 긋기(&K)"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "작업 사본의 텍스트 블럭 사용(&m)"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&theirs\""
-msgstr "\"저장소\"의 텍스트 블럭 사용(&T)"
+msgstr "저장소의 텍스트 사용(&t)"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
-msgstr "\"저장소\" 텍스트를 사용하기 전 \"작업사본\"의 텍스트 블럭 사용(&i)"
+msgstr "저장소 텍스트를 사용하기 전 작업사본의 텍스트 블럭 사용(&i)"
 
 # ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\" before \"theirs\"\n"
-"Use \"mine\" text block then \"theirs\""
-msgstr ""
-"\"저장소\"의 텍스트를 사용하기 전 \"작업사본\"의 텍스트 블럭 사용\n"
-"\"작업사본\"의 텍스트 사용후 \"저장소\"의 텍스트를 사용"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\"\n"
-"Use \"mine\" text block"
-msgstr ""
-"\"작업 사본\"의 텍스트 블럭 사용\n"
-"\"작업 사본\"의 텍스트 블럭 사용"
-
-# ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"t&heirs\" before \"mine\""
-msgstr "\"작업사본\" 텍스트를 사용하기 전 \"저장소\"의 텍스트 블럭을 사용(&h)"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\" before \"mine\"\n"
-"Use \"theirs\" text block then \"mine\""
-msgstr ""
-"\"작업사본\" 텍스트를 사용하기 전 \"저장소\"의 텍스트 블럭 사용\n"
-"\"저장소\"의 텍스트 블럭을 사용후 \"작업 사본\"의 텍스트를 사용"
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\"\n"
-"Use \"theirs\" text block"
-msgstr ""
-"\"저장소\"의 텍스트 블럭 사용\n"
-"\"저장소\"의 텍스트 블럭 사용"
+msgstr "작업사본 텍스트를 사용하기 전 저장소의 텍스트 블럭을 사용(&h)"
 
 # ID:251,
 #: ID:251
@@ -6792,31 +6561,11 @@ msgstr "값"
 msgid "Version"
 msgstr "버전"
 
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "웹 브라우저에서 해당 경로의 리비전 보기(&W)"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "웹 브라우저에서 리비전 보기(&W)"
-
 # Control-ID:1084,#:
 # Control-ID:1084,
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "웹 사이트 방문"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "대기"
-
-# Control-ID:1327,
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "스크립트가 종료할 때까지 대기하세요"
 
 # ID:219,
 #: ID:88
@@ -6838,11 +6587,6 @@ msgstr "대상 URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "작업 사본"
-
-# ID:151,
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "작업 사본 경로:"
 
 # ID:80,
 #: ID:80
@@ -7502,32 +7246,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "값들이 다릅니다"
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"특정 파일과 리비전에 대한 저장소를 볼 수 있는 웹 뷰어를 지시하는 URL.\n"
-"URL 안의 %REVISION% 문자열은 해당 리비전 번호로 치환 됩니다.\n"
-"URL 안의 %PATH% 문자열은 저장소 루트에 대해 상대적인 경로로 치환 됩니다."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"특정 리비전에 대한 저장소를 볼 수 있는 웹 뷰어를 지시하는 URL.\n"
-"URL 안의 %REVISION% 문자열은 해당 리비전 번호로 치환 됩니다."
 
 # ID:244,
 #: ID:245

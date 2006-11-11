@@ -17,40 +17,31 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "Hooks.h"
-#include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * helper dialog to configure client side hook scripts.
- */
-class CSetHooksAdv : public CResizableStandAloneDialog
-{
-	DECLARE_DYNAMIC(CSetHooksAdv)
+#pragma warning (push,1)
+typedef std::wstring wide_string;
+#ifndef stdstring
+#	ifdef UNICODE
+#		define stdstring wide_string
+#	else
+#		define stdstring std::string
+#	endif
+#endif
+#pragma warning (pop)
+// String resource helpers
 
-public:
-	CSetHooksAdv(CWnd* pParent = NULL);   // standard constructor
-	virtual ~CSetHooksAdv();
 
-// Dialog Data
-	enum { IDD = IDD_SETTINGSHOOKCONFIG };
+std::string WideToMultibyte(const wide_string& wide);
+std::string WideToUTF8(const wide_string& wide);
+wide_string MultibyteToWide(const std::string& multibyte);
+wide_string UTF8ToWide(const std::string& multibyte);
 
-	hookkey key;
-	hookcmd cmd;
+#ifdef UNICODE
+stdstring UTF8ToString(const std::string& string); 
+std::string StringToUTF8(const stdstring& string); 
+#else
+stdstring UTF8ToString(const std::string& string); 
+std::string StringToUTF8(const stdstring& string);
+#endif
 
-protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual BOOL OnInitDialog();
-	virtual void OnOK();
-	afx_msg void OnBnClickedHookbrowse();
-	afx_msg void OnBnClickedHookcommandbrowse();
-
-	DECLARE_MESSAGE_MAP()
-
-protected:
-	CString			m_sPath;
-	CString			m_sCommandLine;
-	BOOL			m_bWait;
-	BOOL			m_bHide;
-	CComboBox		m_cHookTypeCombo;
-};
+int LoadStringEx(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int nBufferMax, WORD wLanguage);

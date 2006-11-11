@@ -79,7 +79,6 @@ const UINT CSVNStatusListCtrl::SVNSLNM_ADDFILE
 #define IDSVNLC_PROPERTIES		23
 #define IDSVNLC_COPY			24
 #define IDSVNLC_COPYEXT			25
-#define IDSVNLC_REPAIRMOVE		26
 
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
@@ -501,7 +500,7 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 			// could happen with nested layouts
 			if (SVNStatus::GetAllStatus(workingTarget) != svn_wc_status_unversioned)
 			{
-				return true;	// ignore nested layouts
+				return true;	//ignore nested layouts
 			}
 		}
 		if (status.IsExternal(svnPath))
@@ -513,7 +512,7 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 
 		if ((wcFileStatus == svn_wc_status_unversioned) && svnPath.IsDirectory())
 		{
-			// we have an unversioned folder -> get all files in it recursively!
+			//we have an unversioned folder -> get all files in it recursively!
 			AddUnversionedFolder(svnPath, workingTarget.GetContainingDirectory(), pIgnorePatterns);
 		}
 
@@ -692,7 +691,7 @@ void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 					AddUnversionedFolder(entry->path, basePath, pIgnorePatterns);
 			}
 		}
-	}
+	} // while (filefinder.NextFile(filename,&bIsDirectory))
 }
 
 
@@ -763,7 +762,7 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 					}
 				}
 			}
-		}
+		} // if (s->entry)
 		if (status.IsExternal(svnPath))
 		{
 			arExtPaths.AddPath(svnPath);
@@ -795,11 +794,11 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 		{
 			if (entry->isfolder)
 			{
-				// we have an unversioned folder -> get all files in it recursively!
+				//we have an unversioned folder -> get all files in it recursively!
 				AddUnversionedFolder(svnPath, basePath, pIgnorePatterns);
 			}
 		}
-	} // while ((s = status.GetNextFileStatus(svnPath)) != NULL) 
+	} // while ((s = status.GetNextFileStatus(&pSVNItemPath)) != NULL)
 }
 
 // Get the show-flags bitmap value which corresponds to a particular SVN status
@@ -1393,7 +1392,7 @@ bool CSVNStatusListCtrl::SortCompare(const FileEntry* entry1, const FileEntry* e
 				result = entry1->path.GetFileExtension().CompareNoCase(entry2->path.GetFileExtension());
 			}
 		}
-	case 0:		// path column
+	case 0:		//path column
 		{
 			if (result == 0)
 			{
@@ -1453,7 +1452,7 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
 	int nListItems = GetItemCount();
 
 	m_bBlock = TRUE;
-	// was the item checked?
+	//was the item checked?
 	if (GetCheck(pNMLV->iItem))
 	{
 		CheckEntry(pNMLV->iItem, nListItems);
@@ -1501,7 +1500,7 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 	// are unversioned, then check those too.
 	if (entry->status == svn_wc_status_unversioned)
 	{
-		// we need to check the parent folder too
+		//we need to check the parent folder too
 		const CTSVNPath& folderpath = entry->path;
 		for (int i=0; i< nListItems; ++i)
 		{
@@ -1544,13 +1543,13 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 					{
 						SetEntryCheck(testEntry,i,true);
 						m_nSelected++;
-						// now we need to check all children of this parent folder
+						//now we need to check all children of this parent folder
 						SetCheckOnAllDescendentsOf(testEntry, true);
 					}
 				}
-			}
-		}
-	}
+			} // if (!GetCheck(i))
+		} // for (int i=0; i<GetItemCount(); ++i)
+	} // if (entry->status == svn_wc_status_deleted)
 
 	if ( !entry->checked )
 	{
@@ -1567,16 +1566,16 @@ void CSVNStatusListCtrl::UncheckEntry(int index, int nListItems)
 		return;
 	SetCheck(index, FALSE);
 	entry = GetListEntry(index);
-	// item was unchecked
+	//item was unchecked
 	if (entry->path.IsDirectory())
 	{
-		// disable all files within an unselected folder
+		//disable all files within an unselected folder
 		SetCheckOnAllDescendentsOf(entry, false);
 	}
 	else if (entry->status == svn_wc_status_deleted)
 	{
-		// a "deleted" file was unchecked, so uncheck all parent folders
-		// and all children of those parents
+		//a "deleted" file was unchecked, so uncheck all parent folders
+		//and all children of those parents
 		for (int i=0; i<nListItems; i++)
 		{
 			FileEntry * testEntry = GetListEntry(i);
@@ -1596,8 +1595,8 @@ void CSVNStatusListCtrl::UncheckEntry(int index, int nListItems)
 					}
 				}
 			}
-		}
-	}
+		} // for (int i=0; i<GetItemCount(); i++)
+	} // else if (entry->status == svn_wc_status_deleted)
 
 	if ( entry->checked )
 	{
@@ -1628,7 +1627,7 @@ bool CSVNStatusListCtrl::BuildStatistics()
 	// Also sort the unversioned section, to make the list look nice...
 	std::sort(itFirstUnversionedEntry, m_arStatusArray.end(), EntryPathCompareNoCase);
 
-	// now gather some statistics
+	//now gather some statistics
 	m_nUnversioned = 0;
 	m_nNormal = 0;
 	m_nModified = 0;
@@ -1752,7 +1751,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				return;
 			const CTSVNPath& filepath = entry->path;
 			svn_wc_status_kind wcStatus = entry->status;
-			// entry is selected, now show the popup menu
+			//entry is selected, now show the popup menu
 			CMenu popup;
 			if (popup.CreatePopupMenu())
 			{
@@ -1760,13 +1759,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				if ((wcStatus >= svn_wc_status_normal)
 					&&(wcStatus != svn_wc_status_missing))
 				{
-					if (m_dwContextMenus & SVNSLC_POPCOMPAREWITHBASE)
-					{
-						temp.LoadString(IDS_LOG_COMPAREWITHBASE);
-						popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COMPARE, temp);
-						popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
-					}
-								
 					if (GetSelectedCount() == 1)
 					{
 						bool bEntryAdded = false;
@@ -1774,6 +1766,13 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						{
 							if (wcStatus > svn_wc_status_normal)
 							{
+								if (m_dwContextMenus & SVNSLC_POPCOMPAREWITHBASE)
+								{
+									temp.LoadString(IDS_LOG_COMPAREWITHBASE);
+									popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COMPARE, temp);
+									popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
+									bEntryAdded = true;
+								}
 								if ((m_dwContextMenus & SVNSLC_POPGNUDIFF)&&(wcStatus != svn_wc_status_deleted))
 								{
 									temp.LoadString(IDS_LOG_POPUP_GNUDIFF);
@@ -1823,32 +1822,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				}
 				if (GetSelectedCount() > 0)
 				{
-					if ((GetSelectedCount() == 2)&&(m_dwContextMenus & SVNSLC_POPREPAIRMOVE))
-					{
-						POSITION pos = GetFirstSelectedItemPosition();
-						int index = GetNextSelectedItem(pos);
-						if (index >= 0)
-						{
-							FileEntry * entry = GetListEntry(index);
-							svn_wc_status_kind status1 = svn_wc_status_none;
-							svn_wc_status_kind status2 = svn_wc_status_none;
-							if (entry)
-								status1 = entry->status;
-							index = GetNextSelectedItem(pos);
-							if (index >= 0)
-							{
-								entry = GetListEntry(index);
-								if (entry)
-									status2 = entry->status;
-								if ((status1 == svn_wc_status_missing && status2 == svn_wc_status_unversioned) ||
-									(status2 == svn_wc_status_missing && status1 == svn_wc_status_unversioned))
-								{
-									temp.LoadString(IDS_STATUSLIST_CONTEXT_REPAIRMOVE);
-									popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_REPAIRMOVE, temp);
-								}
-							}
-						}
-					}
 					if (wcStatus > svn_wc_status_normal)
 					{
 						if (m_dwContextMenus & SVNSLC_POPREVERT)
@@ -2101,8 +2074,8 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 							}
 							else
 							{
-								// since the entries got reverted we need to remove
-								// them from the list too, if no remote changes are shown
+								//since the entries got reverted we need to remove
+								//them from the list too, if no remote changes are shown
 								POSITION pos;
 								while ((pos = GetFirstSelectedItemPosition())!=0)
 								{
@@ -2155,12 +2128,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					break;
 				case IDSVNLC_COMPARE:
 					{
-						POSITION pos = GetFirstSelectedItemPosition();
-						while ( pos )
-						{
-							int index = GetNextSelectedItem(pos);
-							StartDiff(index);
-						}
+						StartDiff(selIndex);
 					}
 					break;
 				case IDSVNLC_GNUDIFF1:
@@ -2224,36 +2192,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						// *before* their parents
 						itemsToRemove.SortByPathname(true);
 
-						bool bSuccess = false;
-						if (svn.Remove(itemsToRemove, FALSE))
-						{
-							bSuccess = true;
-						}
-						else
-						{
-							if ((svn.Err->apr_err == SVN_ERR_UNVERSIONED_RESOURCE) ||
-								(svn.Err->apr_err == SVN_ERR_CLIENT_MODIFIED))
-							{
-								CString msg, yes, no, yestoall;
-								msg.Format(IDS_PROC_REMOVEFORCE, svn.GetLastErrorMessage());
-								yes.LoadString(IDS_MSGBOX_YES);
-								no.LoadString(IDS_MSGBOX_NO);
-								yestoall.LoadString(IDS_PROC_YESTOALL);
-								UINT ret = CMessageBox::Show(m_hWnd, msg, _T("TortoiseSVN"), 2, IDI_ERROR, yes, no, yestoall);
-								if ((ret == 1)||(ret==3))
-								{
-									if (!svn.Remove(itemsToRemove, TRUE))
-									{
-										CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-									}
-									else
-										bSuccess = true;
-								}
-							}
-							else
-								CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						}
-						if (bSuccess)
+						if (svn.Remove(itemsToRemove, TRUE))
 						{
 							// The remove went ok, but we now need to run through the selected items again
 							// and update their status
@@ -2266,6 +2205,10 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								e->status = svn_wc_status_deleted;
 								SetEntryCheck(e,index,true);
 							}
+						}
+						else
+						{
+							CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
 						SaveColumnWidths();
 						Show(m_dwShow, 0, m_bShowFolders);
@@ -2302,7 +2245,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						if (! fileop.fAnyOperationsAborted)
 						{
 							POSITION pos = NULL;
-							CTSVNPathList deletedlist;	// to store list of deleted folders
+							CTSVNPathList deletedlist;	//to store list of deleted folders
 							while ((pos = GetFirstSelectedItemPosition()) != 0)
 							{
 								int index = GetNextSelectedItem(pos);
@@ -2356,7 +2299,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -2504,7 +2447,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -2528,7 +2471,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								m_nSelected--;
 							m_nTotal--;
 
-							// now, if we ignored a folder, remove all its children
+							//now, if we ignored a folder, remove all its children
 							if (ignorelist[j].IsDirectory())
 							{
 								for (int i=0; i<(int)m_arListArray.size(); ++i)
@@ -2813,80 +2756,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					}
 				}
 				break;
-				case IDSVNLC_REPAIRMOVE:
-				{
-					POSITION pos = GetFirstSelectedItemPosition();
-					int index = GetNextSelectedItem(pos);
-					FileEntry * entry1 = NULL;
-					FileEntry * entry2 = NULL;
-					if (index >= 0)
-					{
-						entry1 = GetListEntry(index);
-						svn_wc_status_kind status1 = svn_wc_status_none;
-						svn_wc_status_kind status2 = svn_wc_status_none;
-						if (entry1)
-						{
-							status1 = entry1->status;
-							index = GetNextSelectedItem(pos);
-							if (index >= 0)
-							{
-								entry2 = GetListEntry(index);
-								if (entry2)
-								{
-									status2 = entry2->status;
-									if (status2 == svn_wc_status_missing && status1 == svn_wc_status_unversioned)
-									{
-										FileEntry * tempentry = entry1;
-										entry1 = entry2;
-										entry2 = tempentry;
-									}
-									// entry1 was renamed to entry2 but outside of Subversion
-									// fix this by moving entry2 back to entry1 first,
-									// then do an svn-move from entry1 to entry2
-									if (MoveFile(entry2->GetPath().GetWinPath(), entry1->GetPath().GetWinPath()))
-									{
-										SVN svn;
-										if (!svn.Move(entry1->GetPath(), entry2->GetPath(), TRUE))
-										{
-											CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-										}
-										else
-										{
-											// check the previously unversioned item
-											entry1->checked = true;
-											// fixing the move was successful. We have to adjust the new status of the
-											// files.
-											// Since we don't know if the moved/renamed file had local modifications or not,
-											// we can't guess the new status. That means we have to refresh...
-											CWnd* pParent = GetParent();
-											if (NULL != pParent && NULL != pParent->GetSafeHwnd())
-											{
-												pParent->SendMessage(SVNSLNM_NEEDSREFRESH);
-											}
-										}
-									}
-									else
-									{
-										LPVOID lpMsgBuf;
-										FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-											FORMAT_MESSAGE_FROM_SYSTEM | 
-											FORMAT_MESSAGE_IGNORE_INSERTS,
-											NULL,
-											GetLastError(),
-											MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-											(LPTSTR) &lpMsgBuf,
-											0,
-											NULL 
-											);
-										MessageBox((LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
-										LocalFree( lpMsgBuf );
-									}
-								}
-							}
-						}
-					}
-				}
-				break;
 				default:
 					m_bBlock = FALSE;
 					break;
@@ -3078,11 +2947,11 @@ void CSVNStatusListCtrl::StartDiff(int fileindex)
 	if (entry == NULL)
 		return;
 	if ((entry->status == svn_wc_status_normal)&&(entry->remotestatus <= svn_wc_status_normal))
-		return;		// normal files won't show anything interesting in a diff
+		return;		//normal files won't show anything interesting in a diff
 	if (entry->status == svn_wc_status_missing)
-		return;		// we don't compare a missing file (nothing) with something
+		return;		//we don't compare a missing file (nothing) with something
 	if (entry->status == svn_wc_status_unversioned)
-		return;		// we don't compare new files with nothing
+		return;		//we don't compare new files with nothing
 
 	SVNDiff diff(NULL, m_hWnd, true);
 	diff.DiffWCFile(entry->path, entry->textstatus, entry->propstatus, entry->remotetextstatus, entry->remotepropstatus);
@@ -3115,7 +2984,7 @@ CString CSVNStatusListCtrl::GetStatisticsString()
 		(LPCTSTR)sConflicted, m_nConflicted
 		);
 	CString sStats;
-	sStats.Format(IDS_COMMITDLG_STATISTICSFORMAT, m_nSelected, GetItemCount());
+	sStats.Format(IDS_LOGPROMPT_STATISTICSFORMAT, m_nSelected, GetItemCount());
 	if (m_pStatLabel)
 	{
 		m_pStatLabel->SetWindowText(sStats);

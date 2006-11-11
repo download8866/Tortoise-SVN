@@ -20,10 +20,8 @@
 
 #include "Balloon.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog to configure diff/merge tools according to file type.
- */
+// CToolAssocDlg dialog
+
 class CToolAssocDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CToolAssocDlg)
@@ -32,6 +30,7 @@ public:
 	CToolAssocDlg(const CString& type, bool add, CWnd* pParent = NULL);
 	virtual ~CToolAssocDlg();
 
+// Dialog Data
 	enum { IDD = IDD_TOOLASSOC };
 
 protected:

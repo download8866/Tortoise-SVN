@@ -48,7 +48,7 @@ public:
 		, bOverlap(false)
 		, bShowInfo(true)
 		, bVertical(false)
-		, bLinked(true)
+		, bLinked(false)
 	{ 
 		SetWindowTitle((LPCTSTR)ResString(hResource, IDS_APP_TITLE));
 	};

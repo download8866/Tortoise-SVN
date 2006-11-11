@@ -20,11 +20,9 @@
 #include "StandAloneDlg.h"
 #include "SVNStatusListCtrl.h"
 
-/**
- * \ingroup TortoiseProc
- * Shows the patch dialog where the user can select the files/folders to be
- * included in the resulting patch (unified diff) file.
- */
+
+// CCreatePatch dialog
+
 class CCreatePatch : public CResizableStandAloneDialog //CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCreatePatch)
@@ -33,6 +31,7 @@ public:
 	CCreatePatch(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CCreatePatch();
 
+// Dialog Data
 	enum { IDD = IDD_CREATEPATCH };
 
 protected:
@@ -57,13 +56,6 @@ private:
 	CButton				m_SelectAll;
 	bool				m_bCancelled;
 public:
-	/// the list of files to include in the patch
 	CTSVNPathList		m_pathList;
-	/**
-	 * The files which have to be reverted after the patch was created.
-	 * That's necessary if the user selected an unversioned file - such files
-	 * are added automatically to version control so they can be included in
-	 * the patch, but then must be reverted later.
-	 */
 	CTSVNPathList		m_filesToRevert;
 };

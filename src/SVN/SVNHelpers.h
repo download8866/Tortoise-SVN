@@ -19,11 +19,23 @@
 #pragma once
 
 /**
- * \ingroup SVN
- * This class encapsulates an apr_pool taking care of destroying it at end of scope
- * Use this class in preference to doing svn_pool_create and then trying to remember all 
- * the svn_pool_destroys which might be needed.
- */
+* \ingroup SVN
+* This class encapsulates an apr_pool taking care of destroying it at end of scope
+* Use this class in preference to doing svn_pool_create and then trying to remember all 
+* the svn_pool_destroys which might be needed.
+*
+* \par requirements
+* win95 or later
+* winNT4 or later
+*
+* \version 1.0
+* first version
+*
+* \date JAN-2005
+*
+* \author Will Dean
+*
+*/
 class SVNPool
 {
 public:

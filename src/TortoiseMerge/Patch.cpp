@@ -51,7 +51,7 @@ void CPatch::FreeMemory()
 		}
 		chunks->chunks.RemoveAll();
 		delete chunks;
-	}
+	} // iffs.GetCount(); i++) 
 	m_arFileDiffs.RemoveAll();
 }
 
@@ -67,7 +67,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 	{
 		m_sErrorMessage = PatchLines.GetErrorString();
 		return FALSE;
-	}
+	} // if (!PatchLines.Load(filename)) 
 	m_UnicodeType = PatchLines.GetUnicodeType();
 	FreeMemory();
 	nLineCount = PatchLines.GetCount();
@@ -88,15 +88,15 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 				sLine.Replace(_T("="), _T(""));
 				if (sLine.IsEmpty())
 					break;
-			}
-		}
-	}
+			} // if ((nIndex+1)<m_PatchLines.GetCount()) 
+		} // if (sLine.Left(7).Compare(_T("Index: "))==0) 
+	} // for (nIndex=0; nIndex<m_PatchLines.GetCount(); nIndex++) 
 	if ((PatchLines.GetCount()-nIndex) < 2)
 	{
 		//no file entry found.
 		m_sErrorMessage.LoadString(IDS_ERR_PATCH_NOINDEX);
 		return FALSE;
-	}
+	} // if ((m_PatchLines.GetCount()-nIndex) < 2)
 
 	//from this point on we have the real unified diff data
 	int state = 0;
@@ -105,28 +105,11 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 	int nAddLineCount = 0;
 	int nRemoveLineCount = 0;
 	int nContextLineCount = 0;
-	CString sLine1;
 	for ( ;nIndex<PatchLines.GetCount(); nIndex++)
 	{
-		if (!sLine1.IsEmpty())
-		{
-			sLine = sLine1;
-			sLine1.Empty();
-		}
-		else
-			sLine = PatchLines.GetAt(nIndex);
-		int cr = sLine.Find('\r');
-		if (cr >= 0)
-		{
-			sLine1 = sLine.Left(cr);
-			if (sLine.GetLength() > cr)
-				sLine = sLine.Mid(cr+1);
-			else
-				sLine.Empty();
-			CString temp = sLine;
-			sLine = sLine1;
-			sLine1 = temp;
-		}
+		sLine = PatchLines.GetAt(nIndex);
+		if (sLine.IsEmpty())
+			continue;
 		switch (state)
 		{
 		case 0:	//Index: <filepath>
@@ -138,7 +121,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 						//this is a new filediff, so add the last one to 
 						//our array.
 						m_arFileDiffs.Add(chunks);
-					}
+					} // if (chunks) 
 					chunks = new Chunks();
 					chunks->sFilePath = sLine.Mid(7).Trim();
 					if (chunks->sFilePath.Right(9).Compare(_T("(deleted)"))==0)
@@ -146,7 +129,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 					if (chunks->sFilePath.Right(7).Compare(_T("(added)"))==0)
 						chunks->sFilePath.Left(chunks->sFilePath.GetLength()-7).TrimRight();
 					state++;
-				}
+				} // if (sLine.Left(7).Compare(_T("Index: "))==0)
 				else
 				{
 					if (nIndex > 0)
@@ -194,7 +177,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 						chunks = NULL;
 					}
 					break;
-				}
+				} // if (sLine.Left(3).Compare(_T("---"))!=0)
 				sLine = sLine.Mid(3);	//remove the "---"
 				sLine =sLine.Trim();
 				//at the end of the filepath there's a revision number...
@@ -218,7 +201,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 					//no starting "+++" found
 					m_sErrorMessage.Format(IDS_ERR_PATCH_NOADDFILELINE, nIndex);
 					goto errorcleanup;
-				}
+				} // if (sLine.Left(3).Compare(_T("---"))!=0)
 				sLine = sLine.Mid(3);	//remove the "---"
 				sLine =sLine.Trim();
 				//at the end of the filepath there's a revision number...
@@ -256,10 +239,12 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 							chunks->chunks.RemoveAll();
 							delete chunks;
 							chunks = NULL;
-						}
-					}
+						} // if (chunks)
+					} // if (chunk) 
 					break;		//skip the garbage
-				}
+					//m_sErrorMessage.Format(IDS_ERR_PATCH_CHUNKSTARTNOTFOUND, nIndex);
+					//goto errorcleanup;
+				} // if (sLine.Left(2).Compare(_T("@@"))!=0) 
 				sLine = sLine.Mid(2);
 				sLine = sLine.Trim();
 				chunk = new Chunk();
@@ -270,7 +255,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 				{
 					sRemove = sRemove.Mid(sRemove.Find(',')+1);
 					chunk->lRemoveLength = _ttol(sRemove);
-				}
+				} // if (sRemove.Find(',')>=0)
 				else
 				{
 					chunk->lRemoveStart = 0;
@@ -281,7 +266,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 				{
 					sAdd = sAdd.Mid(sAdd.Find(',')+1);
 					chunk->lAddLength = _ttol(sAdd);
-				}
+				} // if (sAdd.Find(',')>=0)
 				else
 				{
 					chunk->lAddStart = 1;
@@ -309,7 +294,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 					chunk->arLines.Add(sLine.Mid(1));
 					chunk->arLinesStates.Add(PATCHSTATE_CONTEXT);
 					nContextLineCount++;
-				}
+				} // if (type == ' ')
 				else if (type == '\\')
 				{
 					//it's a context line (sort of): 
@@ -360,7 +345,7 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 	{
 		m_sErrorMessage.LoadString(IDS_ERR_PATCH_CHUNKMISMATCH);
 		goto errorcleanup;
-	}
+	} // if (chunk)
 	if (chunks)
 		m_arFileDiffs.Add(chunks);
 	return TRUE;
@@ -375,7 +360,7 @@ errorcleanup:
 		}
 		chunks->chunks.RemoveAll();
 		delete chunks;
-	}
+	} // if (chunks)
 	FreeMemory();
 	return FALSE;
 }
@@ -573,7 +558,7 @@ BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CSt
 	if (!sSavePath.IsEmpty())
 	{
 		PatchLines.Save(sSavePath, false);
-	}
+	} // if (!sSavePath.IsEmpty())
 	return TRUE;
 }
 

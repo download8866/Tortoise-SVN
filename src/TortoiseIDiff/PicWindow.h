@@ -54,7 +54,7 @@ public:
 		, nCurrentFrame(1)
 		, bPlaying(false)
 		, pTheOtherPic(NULL)
-		, bLinked(true)
+		, bLinked(false)
 		, hwndAlphaSlider(NULL)
 	{ 
 		SetWindowTitle(_T("Picture Window"));

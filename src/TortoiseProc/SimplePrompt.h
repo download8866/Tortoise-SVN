@@ -21,22 +21,22 @@
 #include "StandAloneDlg.h"
 #include "resource.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog to ask the user for authentication data.
- */
+// CSimplePrompt dialog
+
 class CSimplePrompt : public CDialog
 {
 	DECLARE_DYNAMIC(CSimplePrompt)
 
 public:
-	CSimplePrompt(CWnd* pParent = NULL);
+	CSimplePrompt(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CSimplePrompt();
 
+// Dialog Data
 	enum { IDD = IDD_SIMPLEPROMPT };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
 	virtual BOOL OnInitDialog();
 
 	DECLARE_MESSAGE_MAP()

@@ -19,9 +19,62 @@
 #include "StdAfx.h"
 #include "Resource.h"
 #include "UnicodeUtils.h"
-#include "StdioFileT.h"
 #include ".\filetextlines.h"
 
+CStdioFileK::CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags)
+{
+	ASSERT(lpszFileName != NULL);
+	ASSERT(AfxIsValidString(lpszFileName));
+
+	CFileException e;
+	if (!Open(lpszFileName, nOpenFlags, &e))
+		AfxThrowFileException(e.m_cause, e.m_lOsError, e.m_strFileName);
+}
+
+BOOL CStdioFileK::ReadString(CStringA& rString)
+{
+	ASSERT_VALID(this);
+
+#ifndef afxChNil
+	static TCHAR afxChNil = '\0';
+#endif
+
+	rString = &afxChNil;    // empty string without deallocating
+	const int nMaxSize = 128;
+	LPSTR lpsz = rString.GetBuffer(nMaxSize);
+	LPSTR lpszResult;
+	int nLen = 0;
+	for (;;)
+	{
+		lpszResult = fgets(lpsz, nMaxSize+1, m_pStream);
+		rString.ReleaseBuffer();
+
+		// handle error/eof case
+		if (lpszResult == NULL && !feof(m_pStream))
+		{
+			clearerr(m_pStream);
+			AfxThrowFileException(CFileException::genericException, _doserrno,
+				m_strFileName);
+		}
+
+		// if string is read completely or EOF
+		if (lpszResult == NULL ||
+			(nLen = strlen(lpsz)) < nMaxSize ||
+			lpsz[nLen-1] == '\n')
+			break;
+
+		nLen = rString.GetLength();
+		lpsz = rString.GetBuffer(nMaxSize + nLen) + nLen;
+	}
+
+	// remove '\n' from end of string if present
+	lpsz = rString.GetBuffer(0);
+	nLen = rString.GetLength();
+	if (nLen != 0 && lpsz[nLen-1] == '\n')
+		rString.GetBufferSetLength(nLen-1);
+
+	return lpszResult != NULL;
+}
 
 CFileTextLines::CFileTextLines(void)
 {
@@ -124,23 +177,23 @@ CFileTextLines::LineEndings CFileTextLines::CheckLineEndings(LPVOID pBuffer, int
 						{
 							retval = LFCR;
 							break;
-						}
+						} // if (buf[i+2] == 0x0d) 
 						else
 						{
 							retval = LF;
 							break;
 						}
-					}
-				}
+					} // if ((i+2)<cb) 
+				} // if (buf[i+1] == 0) 
 				else if (buf[i+1] == 0x0d)
 				{
 					retval = LFCR;
 					break;
 				}
-			}
+			} // if ((i+1)<cb) 
 			retval = LF;
 			break;
-		}
+		} // if (buf[i] == 0x0a) 
 		else if (buf[i] == 0x0d)
 		{
 			if ((i+1)<cb)
@@ -154,24 +207,24 @@ CFileTextLines::LineEndings CFileTextLines::CheckLineEndings(LPVOID pBuffer, int
 						{
 							retval = CRLF;
 							break;
-						}
+						} // if (buf[i+2] == 0x0a) 
 						else
 						{
 							retval = CR;
 							break;
 						}
-					}
-				}
+					} // if ((i+2)<cb) 
+				} // if (buf[i+1] == 0) 
 				else if (buf[i+1] == 0x0a)
 				{
 					retval = CRLF;
 					break;
 				}
-			}
+			} // if ((i+1)<cb) 
 			retval = CR;
 			break;
 		}
-	} 
+	} // for (int i=0; i<cb; i++) 
 	return retval;	
 }
 
@@ -235,7 +288,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 	CStringA sLine;
 	try
 	{
-		CStdioFileT file(sFilePath, (m_UnicodeType == CFileTextLines::UNICODE_LE ? CFile::typeBinary : CFile::typeText)
+		CStdioFileK file(sFilePath, (m_UnicodeType == CFileTextLines::UNICODE_LE ? CFile::typeBinary : CFile::typeText)
 			| CFile::modeRead | CFile::shareDenyNone);
 
 		switch (m_UnicodeType)
@@ -248,7 +301,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 			break;
 		default:
 			break;
-		}
+		} // switch (m_UnicodeType) 
 		if (m_UnicodeType == CFileTextLines::UNICODE_LE)
 		{
 			CString sLineU;
@@ -454,15 +507,15 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				case LFCR:
 					sLine = _T("\x0a\x0d");
 					break;
-				}
+				} // switch (endings)
 				file.Write((LPCTSTR)sLine, sLine.GetLength()*sizeof(TCHAR));
-			}
-		}
+			} // for (int i=0; i<arPatchLines.GetCount(); i++) 
+		} // if (CUtils::IsFileUnicode(sPath)) 
 		else if ((!bSaveAsUTF8)&&((m_UnicodeType == CFileTextLines::ASCII)||(m_UnicodeType == CFileTextLines::AUTOTYPE)))
 		{
 			for (int i=0; i< GetCount(); i++)
 			{
-				// Copy CString to 8 bit without conversion
+				// Copy CString to 8 bit wihout conversion
 				CString sLineT = GetAt(i);
 				CStringA sLine = CStringA(sLineT);
 
@@ -484,9 +537,9 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				case LFCR:
 					sLine.Append("\x0a\x0d", 2);
 					break;
-				}
+				} // switch (endings)
 				file.Write((LPCSTR)sLine, sLine.GetLength());
-			}
+			} // for (int i=0; i<arPatchLines.GetCount(); i++) 
 		}
 		else if ((bSaveAsUTF8)||((m_UnicodeType == CFileTextLines::UTF8BOM)||(m_UnicodeType == CFileTextLines::UTF8)))
 		{
@@ -520,9 +573,9 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 				case LFCR:
 					sLine.Append("\x0a\x0d",2);
 					break;
-				}
+				} // switch (endings)
 				file.Write((LPCSTR)sLine, sLine.GetLength());
-			}
+			} // for (int i=0; i<arPatchLines.GetCount(); i++) 
 		}
 		file.Close();
 	}

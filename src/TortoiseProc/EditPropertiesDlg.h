@@ -20,10 +20,8 @@
 #include "StandAloneDlg.h"
 #include "afxcmn.h"
 
-/**
- * \ingroup TortoiseProc
- * dialog showing a list of properties of the files/folders specified with SetPathList().
- */
+// CEditPropertiesDlg dialog
+
 class CEditPropertiesDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CEditPropertiesDlg)
@@ -52,7 +50,6 @@ protected:
 	afx_msg void OnLvnItemchangedEditproplist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnNMDblclkEditproplist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedSaveprop();
-	afx_msg void OnBnClickedAddprops();
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -78,4 +75,6 @@ protected:
 	bool			m_bChanged;
 	volatile LONG	m_bThreadRunning;
 	std::map<stdstring, PropValue>	m_properties;
+public:
+	afx_msg void OnBnClickedAddprops();
 };

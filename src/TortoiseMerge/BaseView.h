@@ -19,8 +19,6 @@
 #pragma once
 #include "DiffData.h"
 #include "SVNLineDiff.h"
-#include "ScrollTool.h"
-#include "Undo.h"
 
 class CMainFrame;
 class CLocatorBar;
@@ -66,7 +64,6 @@ public:
 	inline BOOL		IsModified() const  {return m_bModified;}
 	void			SetModified(BOOL bModified = TRUE) {m_bModified = bModified;}
 	BOOL			HasSelection() {return (!((m_nSelBlockEnd < 0)||(m_nSelBlockStart < 0)||(m_nSelBlockStart > m_nSelBlockEnd)));}
-	BOOL			GetSelection(int& start, int& end) {start=m_nSelBlockStart; end=m_nSelBlockEnd; return HasSelection();}
 
 	CStdCStringArray* m_arDiffLines;	///< Array of Strings containing all lines of the text file
 	CStdCStringArray* m_arDiffDiffLines;///< Array of Strings containing all lines of the 'other' text file
@@ -75,8 +72,6 @@ public:
 	CStdDWORDArray*	m_arLineLines;		///< Array of line numbers
 	CString			m_sWindowName;		///< The name of the view which is shown as a window title to the user
 	CString			m_sFullFilePath;	///< The full path of the file shown
-	CFileTextLines::UnicodeType texttype;	///< the text encoding this view uses
-	CFileTextLines::LineEndings lineendings; ///< the line endings the view uses
 
 	BOOL			m_bViewWhitespace;	///< If TRUE, then SPACE and TAB are shown as special characters
 	BOOL			m_bShowInlineDiff;	///< If TRUE, diffs in lines are marked colored
@@ -137,7 +132,6 @@ protected:
 	void			OnDoVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar, CBaseView * master);
 
 	void			SetupDiffBars(int start, int end);
-	void			SetupSelection(int start, int end);
 	void			ShowDiffLines(int nLine);
 	
 	int				GetTabSize() const {return m_nTabSize;}
@@ -161,7 +155,6 @@ protected:
 	CFont *			GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE, BOOL bStrikeOut = FALSE);
 	int				GetLineFromPoint(CPoint point);
 	int				GetMarginWidth();
-	void			RefreshViews();
 
 	virtual BOOL	ShallShowContextMenu(CDiffData::DiffStates state, int nLine);
 	virtual	void	OnContextMenu(CPoint point, int nLine);
@@ -207,7 +200,6 @@ protected:
 	CBitmap *		m_pCacheBitmap;
 	CDC *			m_pDC;
 	CToolTipCtrl	m_ToolTips;
-	CScrollTool		m_ScrollTool;
 	
 	char			m_szTip[MAX_PATH+1];
 	wchar_t			m_wszTip[MAX_PATH+1];
@@ -221,5 +213,4 @@ protected:
 	static CBaseView * m_pwndRight;		///< Pointer to the right view. Must be set by the CRightView parent class.
 	static CBaseView * m_pwndBottom;	///< Pointer to the bottom view. Must be set by the CBottomView parent class.
 };
-
 
