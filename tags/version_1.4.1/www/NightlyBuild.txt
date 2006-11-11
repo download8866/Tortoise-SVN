@@ -1,0 +1,42 @@
+Installing the Nightly Build
+----------------------------
+
+The nightly build site now contains several builds.
+
+The 'Latest/' folder contains files which are built daily from the HEAD
+revision of TSVN trunk code, which is useful for testing the latest changes.
+These are not official released files, so any new features may not have
+been extensively tested.
+
+As of version 1.4.x we support both win32 and x64 versions of Windows.
+Be sure to select the correct one for your operating system.
+
+All interaction with the repository is handled by subversion itself,
+and usually only official subversion releases, or release candidates are used.
+This greatly reduces your risk exposure when using this Beta code. However,
+we do sometimes build from Subversion trunk just before a major release,
+so check on the mailing list if this is a concern.
+
+We also have a stable branch, eg. 1.3.x which contains the latest release
+plus any recent bugfixes. This build is not updated very often,
+only when the developers have added some bugfixes which need testing
+before a new bugfix release.
+
+To install the latest version, you need to download the .msi file,
+and use the Windows Installer to load it. Normally you can just
+double-click on the file after you have downloaded it.
+
+When installation is complete, reboot your PC, as recommended by the installer.
+This ensures that all updated files get copied to their final destination.
+If you are feeling lucky you can just log off and log on, but you will need
+to check the version of TortoiseSVN.dll to make sure it has been updated.
+
+You can check the revision number of the nightly build by looking at
+Updates.txt which shows the repository revision that was used for the build.
+
+The update and build starts at 2300GMT and the upload starts as soon as
+the build is complete, so should normally be completed by 0000GMT.
+The mapcar.org server shows timestamps in Eastern time (US and Canada),
+ie. GMT -0500.
+
+* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

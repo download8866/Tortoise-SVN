@@ -1,0 +1,234 @@
+<?php
+// $Id: tortoisesvn.module,v 1.132 2005/02/08 19:44:39 dries Exp $
+
+/**
+ * @file
+ * TortoiseSVN specific module that creates download and translation information pages.
+ */
+
+//include("/home/groups/t/to/tortoisesvn/htdocs/includes/trans_data.inc");
+//include("/home/groups/t/to/tortoisesvn/htdocs/includes/trans_countries.inc");
+
+//include("/home/groups/t/to/tortoisesvn/htdocs/modules/tortoisesvn/trans_data.inc");
+//include("/home/groups/t/to/tortoisesvn/htdocs/modules/tortoisesvn/trans_countries.inc");
+
+/**
+ * Implementation of hook_help().
+ */
+function tortoisesvn_help($section) {
+  switch ($section) {
+    case 'admin/modules#description':
+      return t('TortoiseSVN specific module that creates download and translation information pages.');
+    case 'admin/settings/tortoisesvn':
+      return t('The settings on this page define the parameters for the latest official release. These change with every release of TortoiseSVN.<br /> In the bottom section some general parameters for sourceforge are requested. These parameters change rarely.<br/>Both sets of settings are used to create information pages and download urls.');
+  }
+}
+
+/**
+ * Implementation of hook_settings().
+ */
+
+function tortoisesvn_settings() {
+
+  $group = form_textfield(t('Version'), 'tsvn_version', variable_get('tsvn_version', ''), 20, 10, 
+           t('The version number of the latest official TortoiseSVN release (e.g. 1.3.0).'));
+  $group.= form_textfield(t('Release date'), 'tsvn_date', variable_get('tsvn_date', '01-01-1970'), 20, 20,
+	   t('The date on which the above version of TortoiseSVN was released.'));
+  $group.= form_textfield(t('Build number (w32)'), 'tsvn_build', variable_get('tsvn_build', '') , 20, 5,
+	   t('The TortoiseSVN build number for 32 bit processors.'));
+  $group.= form_textfield(t('Build number (x64)'), 'tsvn_build_x64', variable_get('tsvn_build_x64', '') , 20, 5,
+	   t('The TortoiseSVN build number for 64 bit processors.'));
+  $group.= form_textfield(t('Subversion library version'), 'tsvn_svnlib', variable_get('tsvn_svnlib', ''), 20, 5,
+	   t('The version number of the Subversion libraries against which TortoiseSVN is linked.'));
+  $group.= form_textfield(t('Sourceforge binaries release ID'), 'tsvn_sf_release_binary', variable_get('tsvn_sf_release_binary', ''), 20, 6,
+	   t('The Sourceforge release id for the binaries.'));
+  $group.= form_textfield(t('Sourceforge language pack release ID'), 'tsvn_sf_release_language', variable_get('tsvn_sf_release_language', ''), 20, 6,
+	   t('The Sourceforge release id for the language packs .'));
+
+  $output = form_group(t('TortoiseSVN release information'), $group);
+
+  $group = form_textfield(t('Sourceforge project ID'), 'tsvn_sf_project', variable_get('tsvn_sf_project', '') , 20, 6,
+	   t('The Sourceforge project ID of TortoiseSVN.'));
+  $group.= form_textfield(t('Prefix of download url'), 'tsvn_sf_prefix', variable_get('tsvn_sf_prefix', ''), 100, 100, 
+           t('The part of the Sourceforge download URL that is placed <b>before</b> the filename.'));
+  $group.= form_textfield(t('Appendix of download url'), 'tsvn_sf_append', variable_get('tsvn_sf_append', ''), 100, 100, 
+           t('The part of the Sourceforge download URL that is placed <b>after</b> the filename.'));
+
+  $output .= form_group(t('Sourceforge download settings information'), $group);
+
+  return $output;
+}
+
+
+/**
+ * functions which are used to print the Doc & GUI translation statistics
+ */
+
+function print_footer($vars)
+{
+?>
+<p>
+<img src="siteicons/translated.png" alt="translated" title="translated" width="32" height="16"/> Translated <img src="siteicons/missingaccelerator.png" alt="missing accelerator keys" title="missing accelerator keys" width="32" height="16"/> Missing accelerator keys <img src="siteicons/fuzzy.png" alt="fuzzy" title="fuzzy" width="32" height="16"/> Fuzzy <img src="siteicons/untranslated.png" alt="untranslated" title="untranslated" width="32" height="16" /> Untranslated
+</p>
+<p>
+Translations were made by many people, you find them on the <a href="translator_credits">translator credits page</a>.
+</p>
+
+</div>
+
+<?php
+}
+
+function print_table_header($name, $summary, $postat, $vars)
+{
+?>
+<h2><?php echo $summary ?></h2>
+<div class="table">
+<table class="translations" summary="<?php echo $summary ?>">
+<tr>
+<th class="lang">Nr.</th>
+<th class="lang">Download Win32 Installer (<?php echo $vars['release'] ?>)</th>
+<th class="lang">ISO code</th>
+<th colspan="2" class="trans">(<?php echo $postat[1] ?>) Complete</th>
+<th class="graph">Graph</th>
+<th class="download">Download .po file</th>
+<th colspan="2" class="download">Last update</th>
+</tr>
+<?php
+}
+
+function print_table_footer()
+{
+?>
+</table>
+</div>
+<div style="clear:both">&nbsp;<br/></div>
+<?php
+}
+
+function print_blank_stat($i, $postat, $vars)
+{
+  $tl = $postat[1];
+  $reposurl = $vars['reposurl'].$postat[6];
+  $fdate=date("Y-m-d",$postat[7]);
+  $flagimg=$vars['flagpath']."$postat[10].png";
+
+  echo "<td>$i</td>";
+  echo "<td class=\"lang\"><a href=\"$dlfile\"><img src=\"$flagimg\" height=\"12\" width=\"18\" />&nbsp;$postat[11]</a></td>";
+  echo "<td class=\"lang\">&nbsp;</td>";
+  echo "<td class=\"trans\">$tl</td>";
+  echo "<td class=\"trans\">0.0%</td>";
+if ($postat[0] > 0) {
+  echo "<td class=\"graph\">Error in po file</td>";
+} else {
+  echo "<td class=\"graph\">&nbsp;</td>";
+}
+  echo "<td class=\"download\"><a href=\"$reposurl\">$postat[6]</a></td>";
+  echo "<td class=\"lang\">$fdate</td>";
+}
+
+function print_content_stat($i, $postat, $vars)
+{
+  $release=$vars['release'];
+  $build=$vars['build'];
+  $wc=$vars['wc'];
+
+  $total=$postat[1];
+  $tra=$postat[2];
+  $fuz=$postat[3];
+//  $unt=abs($postat[1]-$postat[2]-$postat[3]);
+  $unt=$postat[4];
+  $acc=$postat[5];
+  $reposfile=$postat[6].'.po';
+  $reposurl=$vars['reposurl'].$reposfile;
+  $fdate=$postat[7];
+  $age=(strtotime("now") - strtotime($postat[7])) / 86400;
+  $lang=$postat[10];
+
+  $dlfile=$vars['downloadurl1']."LanguagePack-".$release.".".$build."-win32-".$lang.".exe".$vars['downloadurl2'];
+  $flagimg=$vars['flagpath']."$lang.png";
+
+
+  // Calculate width of bars
+  $wa=round($wc*$acc/$total);
+  $wf=round($wc*$fuz/$total);
+  $wu=round($wc*$unt/$total);
+
+  // Calculate width. Do this before adjustments!
+  $wt = $wc-$wa-$wf-$wu;
+
+  // Calculate percentage done. 
+  $pt=number_format(100*$wt/$wc, 1)."%";
+  
+  // Adjustments
+  // make sure that each bar is at least 1px wide if it's value is > 0
+  if (($wa<2) && ($acc>0)) $wa=2;
+  if (($wf<2) && ($fuz>0)) $wf=2;
+  if (($wu<2) && ($unt>0)) $wu=2;
+
+  // Adjust total width accordingly
+  $wt = $wc-$wa-$wf-$wu;
+
+  // if completeness was rounded up to 100% and 
+  // anything is missing, set completeness down to 99.9%
+  if ( ($pt=="100.0%") && ($wa+$wf+$wu>0) )
+    $pt="99.9%";
+
+  if ($pt=="100.0%") {
+    $title="Perfect :-)";
+  } else {
+    $title="tr:$tra&nbsp;fu:$fuz&nbsp;ut:$unt;&nbsp;$acc&nbsp;missing&nbsp;hotkeys";
+  }
+
+  // count fuzzies as translated, only for the display
+  $tra=$tra+$fuz;
+
+  echo "<td>$i</td>";
+  echo "<td class=\"lang\"><a href=\"$dlfile\"><img src=\"$flagimg\" height=\"12\" width=\"18\" />&nbsp;$postat[11]</a></td>";
+  echo "<td class=\"lang\">$lang</td>";
+  echo "<td class=\"trans\">$tra</td>";
+  echo "<td class=\"trans\">$pt</td>";
+  echo "<td class=\"graph\">";
+  echo "<img src=\"siteicons/translated.png\" alt=\"tr\" title=\"$title\" width=\"$wt\" height=\"16\"/>";
+  echo "<img src=\"siteicons/missingaccelerator.png\" alt=\"mh\" title=\"$title\" width=\"$wa\" height=\"16\"/>";
+  echo "<img src=\"siteicons/fuzzy.png\" alt=\"fu\" title=\"$title\" width=\"$wf\" height=\"16\"/>";
+  echo "<img src=\"siteicons/untranslated.png\" alt=\"un\" title=\"$title\" width=\"$wu\" height=\"16\" />";
+  echo "</td>";
+  echo "<td class=\"download\"><a href=\"$reposurl\">$reposfile</a></td>";
+  echo "<td class=\"lang\">$fdate</td>";
+  if ($age>90) {
+    $title = "Old translation. Last update on: ".$fdate." We need a maintainer!!";
+    echo "<td><img src=\"siteicons/exclamation.png\" alt=\"!!OLD!!\" title=\"$title\" width=\"16\" height=\"16\"/></td>";
+  } else {
+    echo "<td>&nbsp;</td>";
+  }
+}
+
+function print_single_stat($i, $postat, $vars)
+{
+  if ($postat[0] > 0){
+    echo "<tr class=\"error\">\n";
+    print_blank_stat($i, $postat, $vars);
+  }
+  else if ($postat[8] == 1) {
+    echo "<tr class=\"ok\">\n";
+    print_blank_stat($i, $postat, $vars);
+  }
+  else {
+    echo "<tr class=\"ok\">\n";
+    print_content_stat($i, $postat, $vars);
+  }
+  echo "</tr>\n";
+}
+
+function print_all_stats($data, $vars)
+{
+  $i=0;
+  foreach ($data as $key => $postat)
+  {
+      $i++;
+      print_single_stat($i, $postat, $vars);
+  }
+}
+
+?>
