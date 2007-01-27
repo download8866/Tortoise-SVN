@@ -21,7 +21,7 @@
 #include "guids.h"
 #include "PreserveChdir.h"
 #include "SVNProperties.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "SVNStatus.h"
 #include "..\TSVNCache\CacheInterface.h"
 
@@ -408,7 +408,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		{
 			*ptr = '\0';
 			itemshorturl = urlComponents.lpszUrlPath;
-		}
+		} // if (ptr)
 		else 
 			itemshorturl = _T(" ");
 	}

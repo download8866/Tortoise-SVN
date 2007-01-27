@@ -1,6 +1,6 @@
 #
 # Dutch translation for TortoiseSVN
-# Copyright (C) 2004-2007 the TortoiseSVN team
+# Copyright (C) 2004-2006 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Note: Lines starting with #: are required, they are the link to the resource IDs
@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2000-01-01 00:00+0000\n"
-"PO-Revision-Date: 2007-01-12 21:33+0100\n"
+"PO-Revision-Date: 2006-08-09 23:03+0100\n"
 "Last-Translator: J-M. van Leerdam <translator@bemy.demon.nl>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -373,8 +373,8 @@ msgid "&Enable Proxy Server"
 msgstr "Activ&eer Proxy Server"
 
 #: Control-ID:1213
-msgid "&Enter a message describing why you are locking the file(s)."
-msgstr "&Geef een reden voor het blokkeren van bestand(en)."
+msgid "&Enter a message describing why you lock the file(s)."
+msgstr "&Geef een reden voor het blokkeren van het bestand of de bestanden."
 
 #: MenuEntry
 msgid "&Exit"
@@ -392,10 +392,6 @@ msgstr "&Extern"
 #: MenuEntry
 msgid "&File"
 msgstr "&Bestand"
-
-#: MenuEntry
-msgid "&Filter"
-msgstr "&Filter"
 
 #: MenuEntry
 msgid "&Find"
@@ -511,7 +507,12 @@ msgstr "&Lijstweergave"
 msgid "&Load..."
 msgstr "&Laden..."
 
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "&Markeer als opgelost"
+
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "&Samenvoegen"
 
@@ -527,10 +528,6 @@ msgstr "&Samenvoegen"
 msgid "&Native filesystem (FSFS)"
 msgstr "B&estandsysteem (FSFS)"
 
-#: MenuEntry
-msgid "&Navigate"
-msgstr "&Navigeer"
-
 #: Control-ID:1049
 msgid "&Network drives"
 msgstr "&Netwerkstations"
@@ -540,8 +537,8 @@ msgid "&New "
 msgstr "&Nieuw"
 
 #: Control-ID:1208
-msgid "&Next %ld"
-msgstr "&Volgende %ld"
+msgid "&Next 100"
+msgstr "&Volgende 100"
 
 #: MenuEntry
 msgid "&Next Difference"
@@ -578,10 +575,6 @@ msgstr "&Poort:"
 #: MenuEntry
 msgid "&Previous Difference"
 msgstr "V&orig verschil"
-
-#: Control-ID:11021
-msgid "&Properties..."
-msgstr "&Eigenschappen..."
 
 #: Control-ID:1246
 msgid "&Recent messages"
@@ -753,10 +746,6 @@ msgstr "B&eeld"
 msgid "&Whitespaces"
 msgstr "&Spaties en lege regels"
 
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "&Heel woord"
-
 #: Control-ID:1183
 msgid "&Working copy"
 msgstr "&Werkkopie"
@@ -799,9 +788,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1362
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -962,10 +948,6 @@ msgstr "Voeg een extensie-specifiek merge-programma toe"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "Voeg toe aan &negeerlijst"
-
-#: Control-ID:1279
-msgid "Add..."
-msgstr "Toevoegen..."
 
 #: Dlg-ID:171
 msgid "Add/Edit Extension Specific Diff/Merge Program"
@@ -1220,10 +1202,6 @@ msgstr "Hoofd-/kleine letters negeren bij auteurs"
 msgid "Authors:"
 msgstr "Auteurs:"
 
-#: ID:99
-msgid "Auto Rename"
-msgstr "Automatisch hernoemen"
-
 #: ID:222
 msgid "Auto-close for local operations"
 msgstr "Automatisch sluiten bij lokale handelingen"
@@ -1328,13 +1306,13 @@ msgstr "Bug-ID / Issue-Nr:"
 msgid "C&heck now"
 msgstr "Nu &controleren"
 
-#: ID:77
-msgid "C&reate branch/tag from revision"
-msgstr "&Maak tak/label van revisie"
-
 #: ID:101
 msgid "C&reate folder..."
 msgstr "&Map maken..."
+
+#: ID:77
+msgid "C&reate tag from revision"
+msgstr "&Maak label van revisie"
 
 #: ID:3697
 msgid "CAP"
@@ -1353,7 +1331,6 @@ msgstr ""
 "%s"
 
 #: ID:73
-#: ID:99
 #: ID:563
 #: Control-ID:2
 msgid "Cancel"
@@ -1464,8 +1441,8 @@ msgid "Check the path and/or URL you've entered."
 msgstr "Controleer het pad en/of de URL die u heeft ingevoerd."
 
 #: ID:194
-msgid "Check those menu entries you want to appear in the top context menu instead of the TortoiseSVN submenu"
-msgstr "Selecteer de menuopties die in het contextmenu moeten verschijnen in plaats van het TortoiseSVN submenu"
+msgid "Check those menu entries you want to appear in the submenu instead of the top context menu"
+msgstr "Selecteer de menuopties die in het submenu moeten verschijnen in plaats van het contextmenu"
 
 #: ID:80
 msgid "Check to use a less verbose date and time format in log messages"
@@ -1480,7 +1457,6 @@ msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Controle of een nieuwe versie van TortoiseSVN beschikbaar is..."
 
 #: Dlg-ID:133
-#: Control-ID:65535
 msgid "Checkout"
 msgstr "Ophalen"
 
@@ -1567,14 +1543,6 @@ msgstr "&Kleurcoderen van in-line wijzigingen"
 msgid "Colors"
 msgstr "Kleuren"
 
-#: ID:198
-msgid "Command Line"
-msgstr "Commandoregel"
-
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "Uit te voeren commando:"
-
 #: ID:3857
 msgid "Command failed."
 msgstr "Opdracht mislukt."
@@ -1616,10 +1584,6 @@ msgstr "Vergelijk &HEAD revisies"
 msgid "Compare and &blame with working BASE"
 msgstr "Vergelijk en &verklaar met werkkopie (BASE)"
 
-#: ID:114
-msgid "Compare and blame with previous revision"
-msgstr "Vergelijk en verklaar met vorige revisie"
-
 #: ID:76
 msgid "Compare with &working copy"
 msgstr "Vergelijk met &werkkopie"
@@ -1627,10 +1591,6 @@ msgstr "Vergelijk met &werkkopie"
 #: ID:138
 msgid "Compare with b&ase"
 msgstr "Vergelijk met &basis"
-
-#: ID:114
-msgid "Compare with previous revision"
-msgstr "Vergelijk met vorige revisie"
 
 #: ID:12
 msgid "Compares the file with the last committed revision to show you the changes you made"
@@ -1648,10 +1608,6 @@ msgstr "%s vergelijken met %s"
 #: ID:74
 msgid "Completed"
 msgstr "Gereed"
-
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "Hook-scripts configureren"
 
 #: Control-ID:65535
 msgid "Configure the program used for comparing different revisions of files."
@@ -1687,36 +1643,14 @@ msgstr "&Kopiëren"
 msgid "Copied"
 msgstr "Gekopieerd"
 
-#: ID:208
-msgid "Copied from URL"
-msgstr "Gekopiëerd van URL"
-
 #: ID:126
 msgid "Copied remotely"
 msgstr "Op afstand gekopiëerd"
-
-#: ID:127
-#, c-format
-msgid ""
-"Copy %ld items to\r\n"
-"%s"
-msgstr ""
-"Kopiëer %ld zaken naar\r\n"
-"%s"
 
 #: ID:103
 #, c-format
 msgid "Copy %s"
 msgstr "Kopieer %s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Copy %s\r\n"
-"to %s"
-msgstr ""
-"Kopiëer %s\r\n"
-"naar %s"
 
 #: Dlg-ID:142
 msgid "Copy (Branch / Tag)"
@@ -1898,15 +1832,6 @@ msgstr "Maak archief"
 msgid "Create copy in the repository from:"
 msgstr "Maak een kopie in het archief van:"
 
-#: ID:126
-#, c-format
-msgid ""
-"Create new directory:\r\n"
-"%s"
-msgstr ""
-"Maak nieuwe map:\r\n"
-"%s"
-
 #: ID:8
 msgid "Create repositor&y here..."
 msgstr "Maak hier een &archief..."
@@ -1965,22 +1890,6 @@ msgstr "Datum"
 #: Control-ID:65535
 msgid "Default &number of log messages"
 msgstr "&Standaard aantal logboek-boodschappen"
-
-#: Control-ID:65535
-msgid "Default URL:"
-msgstr "Standaard URL:"
-
-#: Control-ID:65535
-msgid "Default path:"
-msgstr "Standaard pad:"
-
-#: Dlg-ID:240
-msgid "Delete Unversioned Items"
-msgstr "Verwijder  bestanden zonder versiebeheer"
-
-#: ID:17
-msgid "Delete unversioned items..."
-msgstr "Verwijder bestanden zonder versiebeheer..."
 
 #: ID:73
 #: ID:264
@@ -2113,6 +2022,14 @@ msgstr ""
 "Wilt u de bestanden herladen om de gewijzigde instellingen te gebruiken?\n"
 "Let op: alle gemaakte wijzigingen gaan verloren!"
 
+#: ID:313
+msgid ""
+"Do you want to reload the documents?\n"
+"You will lose all changes you've made!"
+msgstr ""
+"Wilt u de bestanden opnieuw laden?\n"
+"Alle gemaakte wijzigingen gaan verloren!"
+
 #: ID:563
 #, c-format
 msgid "Do you want to remove the property %s recursively?"
@@ -2179,10 +2096,6 @@ msgstr "Wijzig extensie-specifiek merge-programma"
 msgid "Edit log message"
 msgstr "Logboek boodschap wijzigen"
 
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "Wijzigen..."
-
 #: ID:79
 msgid "Either the name or IP of the proxy server"
 msgstr "De naam of het IP-adres van de proxyserver"
@@ -2228,7 +2141,6 @@ msgid "Enlarge the window to full size"
 msgstr "Maximaliseer het venster"
 
 #: Dlg-ID:135
-#: Dlg-ID:241
 msgid "Enter Log Message"
 msgstr "Geef logboodschap"
 
@@ -2298,14 +2210,6 @@ msgstr "Te negeren paden:"
 msgid "Explore to"
 msgstr "Verkennen naar"
 
-#: Dlg-ID:238
-msgid "Export"
-msgstr "Exporteer"
-
-#: Control-ID:1074
-msgid "Export &directory:"
-msgstr "Export&map:"
-
 #: ID:94
 msgid "Export directory:"
 msgstr "Export-map:"
@@ -2313,11 +2217,6 @@ msgstr "Export-map:"
 #: ID:79
 msgid "Export unversioned files too"
 msgstr "Exporteer ook bestanden zonder versiebeheer"
-
-#: ID:284
-#, c-format
-msgid "Exporting %s"
-msgstr "Exporteer %s"
 
 #: ID:79
 msgid "Exporting..."
@@ -2333,12 +2232,12 @@ msgid "Extension"
 msgstr "Extensie"
 
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "Extensie of mime-type:"
+msgid "Extension specific programs"
+msgstr "Extensie-specifieke programma's"
 
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "Extensie- of mime-type-specifieke programma's"
+msgid "Extension:"
+msgstr "Extensie:"
 
 #: ID:74
 msgid "External"
@@ -2379,10 +2278,6 @@ msgstr "Openen van document mislukt."
 #: ID:3857
 msgid "Failed to save document."
 msgstr "Opslaan van document mislukt."
-
-#: ID:220
-msgid "Failed!"
-msgstr "Mislukt!"
 
 #: Control-ID:1217
 msgid "Fetch &status for context menu"
@@ -2441,10 +2336,6 @@ msgstr ""
 "Kleurdiepte:\t\t%d bit\n"
 "Zoom:\t\t\t%d%%"
 
-#: Control-ID:65535
-msgid "Filter out the following paths (separate multiple paths with the '*' char):"
-msgstr "Filter de volgende paden (paden scheiden met het '*' teken):"
-
 #: Dlg-ID:139
 msgid "Find"
 msgstr "Zoeken"
@@ -2458,7 +2349,6 @@ msgstr ""
 "Zoeken"
 
 #: ID:77
-#: ID:219
 msgid "Finished!"
 msgstr "Gereed!"
 
@@ -2475,7 +2365,6 @@ msgid "For complete history deselect \"Stop on copy/rename\""
 msgstr "Deactiveer \"Stoppen bij kopie/hernoemd bestand\" voor de volledige historie"
 
 #: Control-ID:1200
-#: Control-ID:65535
 msgid "From:"
 msgstr "Van:"
 
@@ -2501,12 +2390,9 @@ msgstr ""
 "U kunt GDI+ ophalen bij\n"
 "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en</a></u>"
 
-#: ID:284
-msgid "Gathering information. Please wait..."
-msgstr "Informatie ophalen..."
-
 #: Dlg-ID:143
 #: Dlg-ID:107
+#: Control-ID:65535
 msgid "General"
 msgstr "Algemeen"
 
@@ -2608,18 +2494,9 @@ msgstr "Soort grafiek:"
 msgid "H&ide unrelated changed paths"
 msgstr "&Verberg ongerelateerde wijzigingspaden"
 
-#: Control-ID:1353
-#: Control-ID:1354
-msgid "HEAD"
-msgstr "HEAD"
-
 #: Control-ID:1004
 msgid "Help"
 msgstr "Help"
-
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "Verberg script bij uitvoeren"
 
 #: ID:2052
 msgid ""
@@ -2633,225 +2510,10 @@ msgstr ""
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "Hint: Druk F5 om de geselecteerde tak te verversen"
 
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "Hook-scripts"
-
-#: ID:198
-msgid "Hook Type"
-msgstr "Soort hook"
-
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "Soort hook:"
-
 #: ID:82
 #, c-format
 msgid "Hostname mismatch (%s)"
 msgstr "Verschil in hostnamen (%s)"
-
-#. Accelerator Entry for Menu ID:32771; '&Find...'
-#: Corresponding
-#: Menu
-#: ID:32771
-#: ;
-#: '&Find...'
-msgid "ID:32771:V C +F"
-msgstr "ID:32771:V C +F"
-
-#. Accelerator Entry for Menu ID:32772; '&Overlap images'
-#: Corresponding
-#: Menu
-#: ID:32772
-#: ;
-#: '&Overlap
-#: images'
-msgid "ID:32772:V   +O"
-msgstr "ID:32772:V   +O"
-
-#. Accelerator Entry for Menu ID:32773; '&Open'
-#: Corresponding
-#: Menu
-#: ID:32773
-#: ;
-#: '&Open'
-msgid "ID:32773:V C +O"
-msgstr "ID:32773:V C +O"
-
-#. Accelerator Entry for Menu ID:32774; '&Whitespaces'
-#: Corresponding
-#: Menu
-#: ID:32774
-#: ;
-#: '&Whitespaces'
-msgid "ID:32774:V C +T"
-msgstr "ID:32774:V C +T"
-
-#. Accelerator Entry for Menu ID:32775; 'Two-way &Diff'
-#: Corresponding
-#: Menu
-#: ID:32775
-#: ;
-#: 'Two-way
-#: &Diff'
-msgid "ID:32775:V C +D"
-msgstr "ID:32775:V C +D"
-
-#. Accelerator Entry for Menu ID:32778; '&Fit Images in window'
-#: Corresponding
-#: Menu
-#: ID:32778
-#: ;
-#: '&Fit
-#: Images
-#: in
-#: window'
-msgid "ID:32778:V   +F"
-msgstr "ID:32778:V   +F"
-
-#. Accelerator Entry for Menu ID:32779; 'Ori&ginal size'
-#: Corresponding
-#: Menu
-#: ID:32779
-#: ;
-#: 'Ori&ginal
-#: size'
-msgid "ID:32779:V   +S"
-msgstr "ID:32779:V   +S"
-
-#. Accelerator Entry for Menu ID:32779; '&Go To Line...'
-#: Corresponding
-#: Menu
-#: ID:32779
-#: ;
-#: '&Go
-#: To
-#: Line...'
-msgid "ID:32779:V C +G"
-msgstr "ID:32779:V C +G"
-
-#. Accelerator Entry for Menu ID:32793; 'Arrange &Vertical'
-#: Corresponding
-#: Menu
-#: ID:32793
-#: ;
-#: 'Arrange
-#: &Vertical'
-msgid "ID:32793:V C +V"
-msgstr "ID:32793:V C +V"
-
-#. Accelerator Entry for Menu ID:32794; 'Reload'
-#: Corresponding
-#: Menu
-#: ID:32794
-#: ;
-#: 'Reload'
-msgid "ID:32794:V C +R"
-msgstr "ID:32794:V C +R"
-
-#. Accelerator Entry for Menu ID:32796; 'Show &all revisions'
-#: Corresponding
-#: Menu
-#: ID:32796
-#: ;
-#: 'Show
-#: &all
-#: revisions'
-msgid "ID:32796:V C +A"
-msgstr "ID:32796:V C +A"
-
-#. Accelerator Entry for Menu ID:32809; '&Filter'
-#: Corresponding
-#: Menu
-#: ID:32809
-#: ;
-#: '&Filter'
-msgid "ID:32809:V C +F"
-msgstr "ID:32809:V C +F"
-
-#. Accelerator Entry for Menu ID:57601; '&Open Ctrl-O'
-#: Corresponding
-#: Menu
-#: ID:57601
-#: ;
-#: '&Open
-#: Ctrl-O'
-msgid "ID:57601:V C +O"
-msgstr "ID:57601:V C +O"
-
-#. Accelerator Entry for Menu ID:57603; '&Save Ctrl-S'
-#: Corresponding
-#: Menu
-#: ID:57603
-#: ;
-#: '&Save
-#: Ctrl-S'
-msgid "ID:57603:V C +S"
-msgstr "ID:57603:V C +S"
-
-#. Accelerator Entry for Menu ID:57604; 'Save &As...'
-#: Corresponding
-#: Menu
-#: ID:57604
-#: ;
-#: 'Save
-#: &As...'
-msgid "ID:57604:V CS+S"
-msgstr "ID:57604:V CS+S"
-
-#. Accelerator Entry for Menu ID:57634; '&Copy'
-#: Corresponding
-#: Menu
-#: ID:57634
-#: ;
-#: '&Copy'
-msgid "ID:57634:V C +C"
-msgstr "ID:57634:V C +C"
-
-#. Accelerator Entry for Menu ID:57635; ''
-#: Corresponding
-#: Menu
-#: ID:57635
-#: ;
-#: ''
-msgid "ID:57635:V C +X"
-msgstr "ID:57635:V C +X"
-
-#. Accelerator Entry for Menu ID:57636; '&Find'
-#: Corresponding
-#: Menu
-#: ID:57636
-#: ;
-#: '&Find'
-msgid "ID:57636:V C +F"
-msgstr "ID:57636:V C +F"
-
-#. Accelerator Entry for Menu ID:57637; ''
-#: Corresponding
-#: Menu
-#: ID:57637
-#: ;
-#: ''
-msgid "ID:57637:V C +V"
-msgstr "ID:57637:V C +V"
-
-#. Accelerator Entry for Menu ID:57643; '&Undo\tCtrl+Z'
-#: Corresponding
-#: Menu
-#: ID:57643
-#: ;
-#: '&Undo\tCtrl+Z'
-msgid "ID:57643:V C +Z"
-msgstr "ID:57643:V C +Z"
-
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-#: Corresponding
-#: Menu
-#: ID:57665
-#: ;
-#: 'E&xit'
-msgid "ID:57665:V C +Q"
-msgstr "ID:57665:V C +Q"
 
 #: Control-ID:65535
 msgid "Icon Overlays / Status Columns"
@@ -2862,16 +2524,8 @@ msgid "Icons/Design/Code:     Luebbe Onken"
 msgstr "Iconen/Ontw./Code: Luebbe Onken"
 
 #: ID:194
-msgid "If activated, prevents the overlays from showing in \"save as...\" or \"open\" dialogs"
+msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr "Activeer deze optie om geen overlays te tonen in de \"Opslaan als...\" en \"Open...\" dialogen"
-
-#: ID:198
-msgid ""
-"If activated, the menu entry \"Get Lock\" is always shown in the top level menu\n"
-"if the selected file has the svn:needs-lock property set"
-msgstr ""
-"Activeer deze optie om het \"Plaats blokkade\" commando in het contextmenu te tonen\n"
-"als het geselecteerde bestand de svn:needs-lock eigenschap heeft"
 
 #: ID:95
 msgid ""
@@ -2882,12 +2536,8 @@ msgstr ""
 "Anders gaat de import direct naar de opgegeven URL."
 
 #: ID:79
-msgid ""
-"If checked, TortoiseSVN creates a temporary file of the BASE to do the diff\n"
-"with the keywords expanded and the line endings adjusted."
-msgstr ""
-"Met deze optie maakt TortoiseSVN een tijdelijk bestand van BASE om de Diff\n"
-"uit te voeren met keyword-expansie en aangepaste regeleinden."
+msgid "If checked, TortoiseSVN creates a temporary file of the BASE to do the diff with the keywords expanded and the line endings adjusted."
+msgstr "Met deze optie maakt TortoiseSVN een tijdelijk bestand van BASE om de Diff uit te voeren met keyword-expansie en aangepaste regeleinden."
 
 #: ID:196
 msgid ""
@@ -2991,41 +2641,9 @@ msgstr "Negeer &regeleinden (aanbevolen)"
 msgid "Import"
 msgstr "Importeren"
 
-#: ID:127
-#, c-format
-msgid "Import %ld items"
-msgstr "%ld zaken importeren"
-
 #: Control-ID:1056
 msgid "Import &message"
 msgstr "&Boodschap importeren"
-
-#: ID:127
-#, c-format
-msgid ""
-"Import file %s\r\n"
-"to %s"
-msgstr ""
-"Bestand %s\r\n"
-"importeren in %s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Import file to\r\n"
-"%s"
-msgstr ""
-"Bestand importeren in\r\n"
-"%s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Import folder %s\r\n"
-"to %s"
-msgstr ""
-"Map %s\r\n"
-"importeren in %s"
 
 #: ID:120
 #, c-format
@@ -3041,10 +2659,6 @@ msgid "Include ignored files"
 msgstr "Genegeerde bestanden meenemen"
 
 #: Control-ID:65535
-msgid "Include only the following revision range:"
-msgstr "Alleen het volgende revisiebereik gebruiken:"
-
-#: Control-ID:65535
 msgid "Include paths:"
 msgstr "Op te nemen paden:"
 
@@ -3053,8 +2667,8 @@ msgid "Initial import"
 msgstr "Initiële import"
 
 #: Control-ID:65535
-msgid "Inline differences"
-msgstr "Verschillen binnen een regel"
+msgid "Inline diff"
+msgstr "Diff binnen een regel"
 
 #: Dlg-ID:161
 msgid "Input"
@@ -3226,17 +2840,8 @@ msgid "Line Graph"
 msgstr "Lijndiagram"
 
 #: Control-ID:65535
-msgid "Line differences"
-msgstr "Regelverschillen"
-
-#: Control-ID:65535
 msgid "Line:"
 msgstr "Regel:"
-
-#: ID:269
-#, c-format
-msgid "Line: %*ld"
-msgstr "Regel: %*ld"
 
 #: ID:3605
 msgid ""
@@ -3360,13 +2965,13 @@ msgstr "Beeld en Gedrag::Iconen set"
 
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
-msgstr "Laagste getoonde revisie: %ld - Hoogste getoonde revisie: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld"
+msgstr "Laagste revisie: %ld - Hoogste revisie: %ld"
 
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
-msgstr "Laagste getoonde revisie: %ld - Hoogste getoonde revisie: %ld - HEAD revisie: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld - HEAD revision: %ld"
+msgstr "Laagste revisie: %ld - Hoogste revisie: %ld - HEAD revisie: %ld"
 
 #: ID:3866
 msgid "Mail system DLL is invalid."
@@ -3375,10 +2980,6 @@ msgstr "De DLL van het mailsysteem is ongeldig."
 #: ID:17
 msgid "Manage Subversion properties"
 msgstr "Subversion eigenschappen beheren"
-
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "Markeer als &opgelost"
 
 #: ID:282
 msgid "Mark as resolved"
@@ -3400,7 +3001,7 @@ msgstr "Gelijke &hoofd-/kleine letters"
 msgid "Max"
 msgstr "Max"
 
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "Maximum aantal boodschappen in de geschiedenis van logboek-boodschappen"
 
@@ -3426,7 +3027,6 @@ msgid "Merging requires different revisions or different URLs in 'From:' and 'To
 msgstr "Voor samenvoegen zijn verschillende revisies of URLs nodig in 'Van:' en 'Tot:'"
 
 #: ID:76
-#: Control-ID:1359
 msgid "Message"
 msgstr "Boodschap"
 
@@ -3464,7 +3064,6 @@ msgstr "Gemengd"
 
 #: ID:74
 #: ID:264
-#: Control-ID:65535
 msgid "Modified"
 msgstr "Gewijzigd"
 
@@ -3475,24 +3074,6 @@ msgstr "Meer kleuren..."
 #: Control-ID:1136
 msgid "Most active author:"
 msgstr "Meest actieve auteur:"
-
-#: ID:127
-#, c-format
-msgid ""
-"Move %ld items to\r\n"
-"%s"
-msgstr ""
-"Verplaats %ld zaken naar\r\n"
-"%s"
-
-#: ID:127
-#, c-format
-msgid ""
-"Move %s\r\n"
-"to %s"
-msgstr ""
-"Verplaats %s\r\n"
-"naar %s"
 
 #: ID:98
 #, c-format
@@ -3720,10 +3301,6 @@ msgstr "Open certificaatbestand"
 msgid "Open file"
 msgstr "Open bestand"
 
-#: Control-ID:1132
-msgid "Open from clipboard"
-msgstr "Openen vanaf klembord"
-
 #: ID:7
 msgid "Open image file..."
 msgstr "Open afbeelding..."
@@ -3760,18 +3337,6 @@ msgstr "Anderen"
 msgid "Out of memory."
 msgstr "Geen geheugen beschikbaar."
 
-#: ID:95
-msgid ""
-"Override the svn:eol-style property setting.\n"
-"Files which don't have this property set are not affected."
-msgstr ""
-"Overrule de svn:eol-style eigenschap.\n"
-"Bestanden zonder deze eigenschap worden niet geraakt."
-
-#: ID:99
-msgid "Overwrite"
-msgstr "Overschrijven"
-
 #: MenuEntry
 msgid "P&revious Conflict"
 msgstr "V&orig conflict"
@@ -3805,7 +3370,6 @@ msgid "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 msgstr "Patchbestanden (*.diff, *.patch)|*.diff;*.patch|Alle bestanden(*.*)|*.*||"
 
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "Pad"
 
@@ -3837,10 +3401,6 @@ msgstr "Geef een datum en/of tijd."
 msgid "Please enter a date."
 msgstr "Geef een datum."
 
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "Geef een hook-script om uit te voeren."
-
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -3849,10 +3409,6 @@ msgstr "Geef een getal tussen %1 en %2."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "Geef een getal."
-
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "Geef een pad op om het hook-script op toe te passen."
 
 #: ID:3858
 msgid "Please enter a positive integer."
@@ -3900,10 +3456,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "Druk op een knop."
 
-#: ID:83
-msgid "Please select a hook type"
-msgstr "Selecteer een hook-script"
-
 #: ID:76
 msgid "Please specify the certificate type"
 msgstr "Geef het soort certificaat"
@@ -3916,35 +3468,19 @@ msgstr "Even geduld - dit kan enkele minuten duren. Echt waar!"
 msgid "Please wait while cancelling..."
 msgstr "Even geduld terwijl er wordt afgebroken..."
 
-#: ID:319
-msgid "Please wait while differences are obtained..."
-msgstr "Even geduld terwijl de verschillen worden opgehaald..."
-
 #: ID:104
 msgid "Please wait while the repository browser is initialized..."
 msgstr "Even geduld a.u.b. De archief-verkenner wordt geïnitialiseerd..."
+
+#: ID:319
+msgid "Please wait while we get the differences..."
+msgstr "Even geduld terwijl de verschillen worden opgehaald..."
 
 #: ID:119
 #: ID:146
 #: ID:211
 msgid "Please wait..."
 msgstr "Even geduld..."
-
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "Post-Vastleggen hook:"
-
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "Post-Ververs Hook"
-
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "Pre-Vastleggen hook:"
-
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "Pre-Ververs Hook"
 
 #: ID:376
 msgid "Preview patched file"
@@ -3979,6 +3515,7 @@ msgid "Properties for"
 msgstr "Eigenschappen voor"
 
 #: ID:209
+#: Control-ID:11021
 msgid "Properties..."
 msgstr "Eigenschappen..."
 
@@ -4013,10 +3550,6 @@ msgstr "Proxy &timeout in seconden:"
 #: Control-ID:1080
 msgid "Proxy Settings"
 msgstr "Proxy Instellingen"
-
-#: Control-ID:1338
-msgid "Put \"Get Lock\" on top menu when svn:needs-lock is set"
-msgstr "Toon \"Plaats blokkade\" in het contextmenu als svn:needs-lock gezet is"
 
 #: ID:246
 #, c-format
@@ -4141,23 +3674,9 @@ msgstr "Remote status"
 msgid "Remote text status"
 msgstr "Remote tekst status"
 
-#: ID:126
-#, c-format
-msgid "Remove %ld items"
-msgstr "Verwijder %ld zaken"
-
-#: ID:126
-#, c-format
-msgid "Remove %s"
-msgstr "Verwijder %s"
-
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Verwijder uit &negeerlijst"
-
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "Verwijder..."
 
 #: Control-ID:65535
 msgid "Removed"
@@ -4178,10 +3697,6 @@ msgstr ""
 "%s\n"
 "verwijderd uit de negeerlijst."
 
-#: ID:17
-msgid "Removes all unversioned and ignored items"
-msgstr "Verwijdert alle bestanden die niet onder versiebeheer zijn"
-
 #: ID:15
 msgid "Removes the file or filemask from the list of ignored items"
 msgstr "Verwijdert bestand(en) of het bestandspatroon uit de negeerlijst"
@@ -4195,15 +3710,6 @@ msgstr "Hernoemen"
 msgid "Rename %s"
 msgstr "Hernoem %s"
 
-#: ID:127
-#, c-format
-msgid ""
-"Rename item from %s\r\n"
-"to %s"
-msgstr ""
-"Hernoem van %s\r\n"
-"naar %s"
-
 #: Control-ID:65535
 msgid "Renamed node"
 msgstr "Knoop hernoemd"
@@ -4215,10 +3721,6 @@ msgstr "Op afstand hernoemd"
 #: ID:11
 msgid "Renames files / folders inside version control"
 msgstr "Hernoemt bestanden/mappen binnen versiebeheer"
-
-#: ID:209
-msgid "Repair move"
-msgstr "Repareer verplaatsing"
 
 #: ID:3603
 msgid ""
@@ -4363,10 +3865,6 @@ msgstr "Revisie / Auteur:"
 #: Dlg-ID:182
 msgid "Revision Graph"
 msgstr "Revisie schema"
-
-#: Dlg-ID:239
-msgid "Revision Graph Filter"
-msgstr "Revisie schema filter"
 
 #: Dlg-ID:228
 msgid "Revision Range"
@@ -4622,18 +4120,6 @@ msgstr ""
 "Kies de map om naartoe te exporteren.\n"
 "Maak eventueel eerst een map aan voordat u exporteert."
 
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "Selecteer map om script op toe te passen"
-
-#: ID:119
-msgid "Select folder to save the selected files to"
-msgstr "Selecteer map om de geselecteerde bestanden in op te slaan"
-
-#: ID:197
-msgid "Select hook script file"
-msgstr "Selecteer hook-script bestand"
-
 #: ID:78
 msgid "Select merge application"
 msgstr "Selecteer een samenvoeg-applicatie"
@@ -4739,9 +4225,9 @@ msgstr "Toon vers&chillen"
 #: ID:101
 #: Control-ID:1016
 #: Control-ID:1228
-#: Control-ID:1132
 #: Control-ID:1031
 #: Control-ID:1034
+#: Control-ID:1132
 msgid "Show &log"
 msgstr "Toon &logboek"
 
@@ -4809,19 +4295,10 @@ msgstr "Toon ongewijzigde bestanden"
 msgid "Show unversioned files"
 msgstr "Toon bestanden zonder versiebeheer"
 
-#: ID:198
-msgid "Show/Hide"
-msgstr "Toon/verberg"
-
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "%ld knopen worden getoond"
-
-#: ID:115
-#, c-format
-msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
-msgstr "%ld revisie(s) worden getoond, van %ld tot %ld - %ld revisie(s) geselecteerd."
 
 #: ID:272
 #, c-format
@@ -4876,10 +4353,6 @@ msgstr "Sorteer onderdelen numeriek"
 msgid "Sort numerical"
 msgstr "Sorteer numeriek"
 
-#: ID:197
-msgid "Sorts items numerical instead of alphabetical"
-msgstr "Sorteer onderdelen numeriek in plaats van alfabetisch"
-
 #: ID:196
 msgid "Specifies how many items you want to keep in the most recent log messages dialog."
 msgstr "Geeft aan hoeveel boodschappen bewaard worden in de geschiedenis van logboek-boodschappen."
@@ -4914,17 +4387,9 @@ msgstr "Gestapeld staafdiagram"
 msgid "Stacked Line Graph"
 msgstr "Gestapeld lijndiagram"
 
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "Start Vastleggen Hook-script"
-
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "Eerste Revisie"
-
-#: ID:569
-msgid "Start Update Hook"
-msgstr "Start Ververs Hook-script"
 
 #: ID:245
 #: Dlg-ID:179
@@ -5116,14 +4581,6 @@ msgstr "De afmeting van het brokstuk komt niet overeen met het aantal toegevoegd
 msgid "The chunk start \"@@\" was expected in line %d !"
 msgstr "Het begin van een brokstuk '@@' niet aangetroffen op regel %d !"
 
-#: ID:196
-msgid "The default path to checkout to if nothing else is specified"
-msgstr "Standaard pad om naartoe op te halen indien niets anders is opgegeven"
-
-#: ID:197
-msgid "The default url to checkout from if nothing else is specified"
-msgstr "Standaard URL om vandaan op te halen als niets anders is opgegeven"
-
 #: ID:68
 #, c-format
 msgid ""
@@ -5194,26 +4651,6 @@ msgstr ""
 "bestaat niet.\n"
 "Wilt u de map eerst aanmaken?"
 
-#: ID:99
-#, c-format
-msgid ""
-"The folder\n"
-"%s\n"
-"already exists!"
-msgstr ""
-"De map\n"
-"%s\n"
-"bestaat al!"
-
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"Het hook-script gaf een foutmelding:\n"
-"%s"
-
 #: ID:7
 msgid "The image can not be shown."
 msgstr "Het bestand kan niet worden getoond."
@@ -5252,10 +4689,6 @@ msgid ""
 msgstr ""
 "Het oude bestand komt niet overeen met het nieuwe.\n"
 "Hernoemen van bestanden wordt (nog) niet ondersteund!"
-
-#: ID:220
-msgid "The operation failed."
-msgstr "Opdracht mislukt."
 
 #: ID:64
 #, c-format
@@ -5413,21 +4846,9 @@ msgstr ""
 "Wilt u het bestand opslaan inclusief de conflicten?\n"
 "Als u op Ja klikt dan dient u de conflicten handmatig op te lossen in een ander programma!"
 
-#: ID:313
-msgid ""
-"There are unsaved modifications!\n"
-"Do you want to save your changes?"
-msgstr ""
-"Wijzigingen zijn nog niet opgeslagen!\n"
-"Wilt u de wijzigingen opslaan?"
-
 #: ID:82
 msgid "There is nothing to add. All the files and folders are either under version control or have been ignored using the svn:ignore property or the global ignore configuration setting."
 msgstr "Er is niets toe te voegen. Alle bestanden en mappen vallen al onder versiebeheer of worden genegeerd via de svn:ignore instelling of de globale negeer-instellingen."
-
-#: ID:83
-msgid "There's nothing to unlock. No file has a lock in this working copy."
-msgstr "Er zijn geen blokkades op te heffen. Geen enkel bestand in deze werkkopie heeft een blokkade."
 
 #: ID:188
 msgid "Thesaurus"
@@ -5493,7 +4914,6 @@ msgstr ""
 "doen en daarbij is het verwijderen van mappen niet toegestaan."
 
 #: Control-ID:1201
-#: Control-ID:65535
 msgid "To:"
 msgstr "Tot:"
 
@@ -5777,7 +5197,6 @@ msgstr ""
 "  Onderscheidende naam: %s"
 
 #: ID:221
-#: Dlg-ID:242
 msgid "Unlock"
 msgstr "Blokkade opheffen"
 
@@ -5854,10 +5273,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "Gebruik URL van &werkkopie als standaard \"Van:\" URL"
 
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "Gebruik unified-diff van klembord"
-
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
 msgstr "Gebruik \"Van:\" URL (het revisiebereik kan in de bovenliggende dialoog gekozen worden)"
@@ -5878,53 +5293,21 @@ msgstr "Gebruik beide tekstgedeeltes (deze laatst)"
 msgid "Use stri&keout for deleted lines"
 msgstr "Gebruik &doorhalen voor verwijderde regels"
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "Gebruik tekstgedeelte uit \"&mijn\""
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&theirs\""
 msgstr "Gebruik tekstgedeelte van \"h&un\""
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
 msgstr "Gebruik tekstgedeelte uit \"m&ijn\" vóór \"hun\""
 
-#: ID:2052
-msgid ""
-"Use text block from \"mine\" before \"theirs\"\n"
-"Use \"mine\" text block then \"theirs\""
-msgstr ""
-"Gebruik tekstgedeelte uit \"mijn\" vóór \"hun\"\n"
-"Gebruik \"mijn\" tekstgedeelte en dan \"hun\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"mine\"\n"
-"Use \"mine\" text block"
-msgstr ""
-"Gebruik tekstgedeelte uit \"mijn\"\n"
-"Gebruik \"mijn\" tekstgedeelte"
-
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"t&heirs\" before \"mine\""
 msgstr "Gebruik tekstgedeelte uit \"&hun\" vóór  \"mijn\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\" before \"mine\"\n"
-"Use \"theirs\" text block then \"mine\""
-msgstr ""
-"Gebruik tekstgedeelte uit \"hun\" vóór  \"mijn\"\n"
-"Gebruik \"hun\" tekstgedeelte en dan \"mijn\""
-
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\"\n"
-"Use \"theirs\" text block"
-msgstr ""
-"Gebruik tekstgedeelte uit \"hun\"\n"
-"Gebruik \"hun\" tekstgedeelte"
 
 #: ID:251
 msgid "Use th&is text block"
@@ -5976,25 +5359,9 @@ msgstr "Waarde"
 msgid "Version"
 msgstr "Versie"
 
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "Bekijk revisie voor dit pad in &webviewer"
-
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "Toon revisie in &webviewer"
-
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "Bezoek onze website"
-
-#: ID:198
-msgid "Wait"
-msgstr "Wacht"
-
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "Wacht op het beëindigen van het script"
 
 #: ID:88
 msgid "Warning"
@@ -6011,10 +5378,6 @@ msgstr "Met URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "Werkkopie"
-
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "Werkkopie pad:"
 
 #: ID:80
 #, c-format
@@ -6060,16 +5423,6 @@ msgstr ""
 "file:/// te benaderen.\n"
 "Dit kan leiden tot ernstige beschadiging van het archief!\n"
 "Wilt u dit echt doen?"
-
-#: ID:105
-msgid ""
-"You are trying to move the trunk folder!\n"
-"Are you absolutely sure that you want to move\n"
-"the trunk folder?"
-msgstr ""
-"U probeert de basislijn te verplaatsen!\n"
-"Weet u echt zeker dat u de basislijn wilt\n"
-"verplaatsen?"
 
 #: ID:16
 msgid ""
@@ -6355,10 +5708,6 @@ msgstr ""
 msgid "deleted"
 msgstr "verwijderd"
 
-#: Control-ID:1342
-msgid "eol style"
-msgstr "eol style"
-
 #: ID:79
 #, c-format
 msgid ""
@@ -6544,7 +5893,6 @@ msgstr ""
 
 #: ID:80
 #: ID:103
-#: ID:284
 #, c-format
 msgid "to %s"
 msgstr "naar %s"
@@ -6597,28 +5945,6 @@ msgstr ""
 "Stel deze eigenschap in met het gewenste taalnummer voor de logboekboodschappen.\n"
 "TortoiseSVN gebruikt dan de juiste module voor spellingscontrole (indien beschikbaar)."
 
-#: ID:17
-msgid ""
-"tsvn:userfileproperties\n"
-"Newline separated list of user defined properties for files which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfileproperties\n"
-"Lijst van zelfgedefinieerde eigenschappen voor bestanden die\n"
-"getoond wordt in de eigenschappen-dialoog (gescheiden door\n"
-"regelovergangen)."
-
-#: ID:17
-msgid ""
-"tsvn:userfolderproperties\n"
-"Newline separated list of user defined properties for folders which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfolderproperties\n"
-"Lijst van zelfgedefinieerde eigenschappen voor mappen die\n"
-"getoond wordt in de eigenschappen-dialoog (gescheiden door\n"
-"regelovergangen)."
-
 #: ID:15
 msgid ""
 "tsvn:warnifnoissue\n"
@@ -6631,30 +5957,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "waarden verschillen"
-
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"URL naar de webviewer van het archief voor een specifiek bestand en revisie.\n"
-"De tekst %REVISION% in de URL wordt vervangen door het revisienummer,\n"
-"de tekst %PATH% wordt vervangen door het pad naar het bestand (t.o.v. de root van het archief)."
-
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"URL naar de webviewer van het archief voor een specifieke revisie.\n"
-"De tekst %REVISION% in de URL wordt vervangen door het revisienummer."
 
 #: ID:245
 msgid "week"

@@ -1,6 +1,6 @@
 #
 # Catalan translation for TortoiseSVN
-# Copyright (C) 2004-2007 the TortoiseSVN team
+# Copyright (C) 2004-2006 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Author:
@@ -21,7 +21,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 1996-09-28 18:51+0600\n"
-"PO-Revision-Date: 2007-01-26 12:04+0100\n"
+"PO-Revision-Date: 2006-11-06 18:13+0100\n"
 "Last-Translator: Arnau Perello <aperello@gmail.com>\n"
 "Language-Team: CATALAN <aperello@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -67,7 +67,7 @@ msgstr "%1 conté un esquema incorrecte."
 #: ID:3867
 #, c-format
 msgid "%1 contains an invalid path."
-msgstr "%1 conté un path no vàlid."
+msgstr "%1 conté un camí no vàlid."
 
 # ID:3867,#:
 # ID:3867,
@@ -126,7 +126,7 @@ msgid ""
 msgstr ""
 "%1\n"
 "No es troba el fitxer.\n"
-"Si us plau verifiqueu que el path i el nom són correctes."
+"Si us plau verifiqueu que el camí i el nom són correctes."
 
 # ID:357,
 #: ID:357
@@ -156,7 +156,7 @@ msgstr "%ld de %ld"
 #: ID:563
 #, c-format
 msgid "%ld paths"
-msgstr "%ld paths"
+msgstr "%ld camins"
 
 # ID:226,
 #: ID:226
@@ -476,11 +476,6 @@ msgstr "&Extern"
 msgid "&File"
 msgstr "&Fitxer"
 
-# MenuEntry#:
-#: MenuEntry
-msgid "&Filter"
-msgstr "&Filtre"
-
 #: MenuEntry
 msgid "&Find"
 msgstr "&Troba"
@@ -659,8 +654,8 @@ msgstr "&Nou"
 
 # Control-ID:1208,
 #: Control-ID:1208
-msgid "&Next %ld"
-msgstr "&Propers %ld"
+msgid "&Next 100"
+msgstr "&Propers 100"
 
 #: MenuEntry
 msgid "&Next Difference"
@@ -905,7 +900,7 @@ msgstr "&Actualitza a revisió..."
 # Control-ID:1184,
 #: Control-ID:1184
 msgid "&Use autocompletion of filepaths and keywords"
-msgstr "&Autocompleta paths de fitxers i paraules clau"
+msgstr "&Autocompleta camins de fitxers i paraules clau"
 
 # Control-ID:65535,#:
 # Control-ID:1005,#:
@@ -951,11 +946,6 @@ msgstr "(simulació)"
 msgid "(multiple targets selected)"
 msgstr "(vàries destinacions seleccionades)"
 
-# ID:213,
-#: ID:213
-msgid "(no changelist)"
-msgstr "(sense changelist)"
-
 # ID:314,
 #: ID:314
 msgid "(not found)"
@@ -996,7 +986,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1362
 #: Control-ID:1324
 #: Control-ID:1333
 #: Control-ID:1002
@@ -1035,11 +1024,6 @@ msgstr ""
 "per tal de fer apareixer el  menú contextual on trobaràs totes les comandes del <b>TortoiseSVN</b>.\n"
 "I <u>llegeix el manual!</u>"
 
-# ID:209,
-#: ID:209
-msgid "<new changelist>"
-msgstr "<nova changelist>"
-
 # ID:3867,#:
 # ID:3867,
 #: ID:3867
@@ -1065,8 +1049,8 @@ msgid ""
 "A newline separated list of paths for which icon overlays are shown.\n"
 "If you add an \"*\" char at the end of a path, then all files and subdirs inside that path are included too."
 msgstr ""
-"Una llista de paths per la qual es mostren icones sobreposades .\n"
-"Afegint un caracter \"*\" al final del path tots els fitxers i subdirectoris dins d'aquest són també inclosos."
+"Una llista de camins per la qual es mostren icones sobreposades .\n"
+"Afegint un caracter \"*\" al final del camí tots els fitxers i subdirectoris dins d'aquest són també inclosos."
 
 # ID:194,
 #: ID:194
@@ -1075,8 +1059,8 @@ msgid ""
 "If you add an \"*\" char at the end of a path, then all files and subdirs inside that path are excluded too.\n"
 "An empty list will allow overlays on all paths."
 msgstr ""
-"Una llista de paths per la qual no es mostren icones sobreposades .\n"
-"Afegint un caracter \"*\" al final del path, tots els fitxers i subdirectoris dins d'aquest són també inclosos. Una llista buida permetrà sobreposicions en tots els paths."
+"Una llista de camins per la qual no es mostren icones sobreposades .\n"
+"Afegint un caracter \"*\" al final del camí, tots els fitxers i subdirectoris dins d'aquest són també inclosos. Una llista buida permetrà sobreposicions en tots els camins."
 
 # ID:3843,#:
 # ID:3843,
@@ -1342,7 +1326,7 @@ msgstr ""
 "Un programa extern utilitzat\n"
 "per comparar diferents revisions de fitxers\n"
 "<hr=100%>\n"
-"Podeu especificar els següents paràmetres al path:\n"
+"Podeu especificar els següents paràmetres al camí:\n"
 "%base\tfitxer base\n"
 "%mine\tfitxer modificat"
 
@@ -1362,7 +1346,7 @@ msgstr ""
 "Un programa extern utilitzat\n"
 "per comparar diferents revisions de fitxers\n"
 "<hr=100%>\n"
-"Pots especificar els següents paràmetres al path:\n"
+"Pots especificar els següents paràmetres al camí:\n"
 "%merged\tfitxer amb conflicte, lloc on desar\n"
 "%theirs\t\tfitxer tal com és al repositori\n"
 "%mine\t\tel teu fitxer, amb els canvis que has fet\n"
@@ -1473,12 +1457,12 @@ msgstr "Disposició &Vertical"
 
 #: MenuEntry
 msgid "Arranged by &path"
-msgstr "Arranjats per &path"
+msgstr "Arranjats per &camí"
 
 # ID:2050,
 #: ID:2050
 msgid "Arranges the nodes sorted by path"
-msgstr "Arranja els nodes ordenats per path"
+msgstr "Arranja els nodes ordenats per camí"
 
 # ID:77,
 #: ID:77
@@ -1662,15 +1646,15 @@ msgstr "ID Bug / Núm Incidència:"
 msgid "C&heck now"
 msgstr "C&omprova ara"
 
-# ID:77,
-#: ID:77
-msgid "C&reate branch/tag from revision"
-msgstr "C&rear branca/etiqueta des de la revisió"
-
 # ID:101,
 #: ID:101
 msgid "C&reate folder..."
 msgstr "C&rea carpeta..."
+
+# ID:77,
+#: ID:77
+msgid "C&reate tag from revision"
+msgstr "C&rear etiqueta des de la revisió"
 
 # ID:3697,
 #: ID:3697
@@ -1797,11 +1781,6 @@ msgstr "Busca actualitzacions"
 msgid "Check For Updates..."
 msgstr "Busca actualitzacions..."
 
-# Dlg-ID:133,
-#: ID:213
-msgid "Check Group"
-msgstr "Comprova grup"
-
 # ID:13,
 #: ID:13
 msgid "Check for modi&fications"
@@ -1834,7 +1813,7 @@ msgstr ""
 # ID:251,
 #: ID:251
 msgid "Check the path and/or URL you've entered."
-msgstr "Comprova el  path i/o la URL que has introduit."
+msgstr "Comprova el  camí i/o la URL que has introduit."
 
 # ID:194,
 #: ID:194
@@ -1858,7 +1837,6 @@ msgstr "Comprovant si una nova versió de TortoiseSVN és disponible..."
 
 # Dlg-ID:133,
 #: Dlg-ID:133
-#: Control-ID:65535
 msgid "Checkout"
 msgstr "Obté"
 
@@ -2116,41 +2094,16 @@ msgstr "Co&pia"
 msgid "Copied"
 msgstr "Copiat(s)"
 
-# ID:76,
-#: ID:208
-msgid "Copied from URL"
-msgstr "Copiat des d'una URL"
-
 # ID:126,
 #: ID:126
 msgid "Copied remotely"
 msgstr "Copiat(s) remotament"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Copy %ld items to\r\n"
-"%s"
-msgstr ""
-"Copia %ld items a\r\n"
-"%s"
 
 # ID:103,
 #: ID:103
 #, c-format
 msgid "Copy %s"
 msgstr "Copia %s"
-
-# ID:82,
-#: ID:126
-#, c-format
-msgid ""
-"Copy %s\r\n"
-"to %s"
-msgstr ""
-"Copia %s\r\n"
-"a %s"
 
 # Dlg-ID:142,
 #: Dlg-ID:142
@@ -2175,12 +2128,12 @@ msgstr "Copia el missatge d'error al portapapers"
 # ID:76,
 #: ID:76
 msgid "Copy from path"
-msgstr "Còpia del path"
+msgstr "Copia del camí"
 
 # ID:209,
 #: ID:209
 msgid "Copy paths to clipboard"
-msgstr "Copia paths al portapapers"
+msgstr "Copia camins al portapapers"
 
 # ID:3603,
 #: ID:3603
@@ -2351,11 +2304,6 @@ msgid "Create &patch..."
 msgstr "Crea &pedaç..."
 
 # Dlg-ID:208,
-#: Dlg-ID:243
-msgid "Create Changelist"
-msgstr "Crea Changelist"
-
-# Dlg-ID:208,
 #: Dlg-ID:208
 msgid "Create Patch"
 msgstr "Crea Pedaç"
@@ -2369,16 +2317,6 @@ msgstr "Crea Repositori"
 #: Control-ID:65535
 msgid "Create copy in the repository from:"
 msgstr "Crea còpia al repositori des de:"
-
-# Control-ID:1074,
-#: ID:126
-#, c-format
-msgid ""
-"Create new directory:\r\n"
-"%s"
-msgstr ""
-"Crea un nou directori:\r\n"
-"%s"
 
 # ID:8,
 #: ID:8
@@ -2453,28 +2391,6 @@ msgstr "Data"
 #: Control-ID:65535
 msgid "Default &number of log messages"
 msgstr "&Número per defecte de missatges de log"
-
-# Control-ID:1269,#:
-# Control-ID:1096,
-#: Control-ID:65535
-msgid "Default URL:"
-msgstr "URL per defecte:"
-
-# Control-ID:1269,#:
-# Control-ID:1096,
-#: Control-ID:65535
-msgid "Default path:"
-msgstr "Path per defecte:"
-
-# Control-ID:65535,
-#: Dlg-ID:240
-msgid "Delete Unversioned Items"
-msgstr "Suprimeix items sense versionar"
-
-# Control-ID:1073,
-#: ID:17
-msgid "Delete unversioned items..."
-msgstr "Suprimeix items sense versionar"
 
 # ID:73,#:
 # ID:264,
@@ -2634,6 +2550,15 @@ msgstr ""
 "Vols recarregar els documents per reflectir els canvis en la configuració?\n"
 "Nota: Perdràs tots els canvis que hagis fet!"
 
+# ID:313,
+#: ID:313
+msgid ""
+"Do you want to reload the documents?\n"
+"You will lose all changes you've made!"
+msgstr ""
+"Vols recarregar els documents?\n"
+"Perdràs tots els canvis que hagis fet!"
+
 # ID:563,
 #: ID:563
 #, c-format
@@ -2774,7 +2699,6 @@ msgstr "Engrandeix la finestra al tamany màxim"
 
 # Dlg-ID:135,
 #: Dlg-ID:135
-#: Dlg-ID:241
 msgid "Enter Log Message"
 msgstr "Introdueix Texte del Log"
 
@@ -2787,11 +2711,6 @@ msgstr "Introdueix URL"
 #: ID:313
 msgid "Enter a lock message (optional):"
 msgstr "Introdueix un missatge pel bloqueig (opcional)"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Enter a name for the changelist:"
-msgstr "Entreu un nom per a  la Changelist:"
 
 # Control-ID:1065,
 #: Control-ID:1065
@@ -2855,22 +2774,12 @@ msgstr "Excepcions:"
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Exclude paths:"
-msgstr "No incloguis aquests paths:"
+msgstr "No incloguis aquests camins:"
 
 # ID:209,
 #: ID:209
 msgid "Explore to"
 msgstr "Explora a"
-
-# ID:9,
-#: Dlg-ID:238
-msgid "Export"
-msgstr "Exporta"
-
-# ID:94,
-#: Control-ID:1074
-msgid "Export &directory:"
-msgstr "Exporta &directory:"
 
 # ID:94,
 #: ID:94
@@ -2881,12 +2790,6 @@ msgstr "Exporta directori:"
 #: ID:79
 msgid "Export unversioned files too"
 msgstr "Exporta fitxers sense versionar també"
-
-# ID:79,
-#: ID:284
-#, c-format
-msgid "Exporting %s"
-msgstr "Exportant %s"
 
 # ID:79,
 #: ID:79
@@ -2969,15 +2872,6 @@ msgstr "No ha pogut obrir document."
 msgid "Failed to save document."
 msgstr "No ha pogut gravar document."
 
-# ID:63,#:
-# ID:74,#:
-# ID:77,#:
-# ID:207,#:
-# ID:319,
-#: ID:220
-msgid "Failed!"
-msgstr "Ha fallat!"
-
 # Control-ID:1217,
 #: Control-ID:1217
 msgid "Fetch &status for context menu"
@@ -3018,7 +2912,7 @@ msgid "File diffs"
 msgstr "Diferències dels fitxers"
 
 # ID:211,
-#: ID:213
+#: ID:211
 msgid "File list is empty"
 msgstr "Llista de fitxers buida"
 
@@ -3049,11 +2943,6 @@ msgstr ""
 "Profunditat:\t\t\t%d bit\n"
 "Zoom:\t\t\t%d%%"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Filter out the following paths (separate multiple paths with the '*' char):"
-msgstr "Filtra els següents paths (separeu els múltiples paths amb el caràcter '*'):"
-
 # Dlg-ID:139,
 #: Dlg-ID:139
 msgid "Find"
@@ -3070,7 +2959,6 @@ msgstr ""
 
 # ID:77,
 #: ID:77
-#: ID:219
 msgid "Finished!"
 msgstr "Finalitzat!"
 
@@ -3091,7 +2979,6 @@ msgstr "Per a un històric complet deseleccioneu \"Atura còpia/canvi de nom\""
 
 # Control-ID:1200,
 #: Control-ID:1200
-#: Control-ID:65535
 msgid "From:"
 msgstr "De:"
 
@@ -3121,16 +3008,12 @@ msgstr ""
 "Podeu obtenir GDI+ a\n"
 "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en</a></u>"
 
-# ID:120,
-#: ID:284
-msgid "Gathering information. Please wait..."
-msgstr "Obtenint informació. Su us plau espereu..."
-
 # Dlg-ID:143,#:
 # Dlg-ID:107,#:
 # Control-ID:65535,
 #: Dlg-ID:143
 #: Dlg-ID:107
+#: Control-ID:65535
 msgid "General"
 msgstr "General"
 
@@ -3248,14 +3131,7 @@ msgstr "Tipus de gràfic:"
 # Control-ID:1229,
 #: Control-ID:1229
 msgid "H&ide unrelated changed paths"
-msgstr "A&maga paths modificats no relacionats"
-
-# Control-ID:1353,#:
-# Control-ID:1354,
-#: Control-ID:1353
-#: Control-ID:1354
-msgid "HEAD"
-msgstr "HEAD"
+msgstr "A&maga camins modificats no relacionats"
 
 # Control-ID:1004,
 #: Control-ID:1004
@@ -3302,132 +3178,6 @@ msgstr "Tipus de Hook:"
 msgid "Hostname mismatch (%s)"
 msgstr "No coincideixen els noms de host (%s)"
 
-#. Accelerator Entry for Menu ID:32771; '&Find...'
-#: Corresponding Menu ID:32771
-#: ; '&Find...'
-msgid "ID:32771:V C +F"
-msgstr "ID:32771:V C +F"
-
-#. Accelerator Entry for Menu ID:32772; '&Overlap images'
-#: Corresponding Menu ID:32772
-#: ; '&Overlap images'
-msgid "ID:32772:V   +O"
-msgstr "ID:32772:V   +O"
-
-#. Accelerator Entry for Menu ID:32773; '&Open'
-#: Corresponding Menu ID:32773
-#: ; '&Open'
-msgid "ID:32773:V C +O"
-msgstr "ID:32773:V C +O"
-
-#. Accelerator Entry for Menu ID:32774; '&Whitespaces'
-#: Corresponding Menu ID:32774
-#: ; '&Whitespaces'
-msgid "ID:32774:V C +T"
-msgstr "ID:32774:V C +T"
-
-#. Accelerator Entry for Menu ID:32775; 'Two-way &Diff'
-#: Corresponding Menu ID:32775
-#: ; 'Two-way &Diff'
-msgid "ID:32775:V C +D"
-msgstr "ID:32775:V C +D"
-
-#. Accelerator Entry for Menu ID:32778; '&Fit Images in window'
-#: Corresponding Menu ID:32778
-#: ; '&Fit Images in window'
-msgid "ID:32778:V   +F"
-msgstr "ID:32778:V   +F"
-
-#. Accelerator Entry for Menu ID:32779; 'Ori&ginal size'
-#: Corresponding Menu ID:32779
-#: ; 'Ori&ginal size'
-msgid "ID:32779:V   +S"
-msgstr "ID:32779:V   +S"
-
-#. Accelerator Entry for Menu ID:32779; '&Go To Line...'
-#: Corresponding Menu ID:32779
-#: ; '&Go To Line...'
-msgid "ID:32779:V C +G"
-msgstr "ID:32779:V C +G"
-
-#. Accelerator Entry for Menu ID:32793; 'Arrange &Vertical'
-#: Corresponding Menu ID:32793
-#: ; 'Arrange &Vertical'
-msgid "ID:32793:V C +V"
-msgstr "ID:32793:V C +V"
-
-#. Accelerator Entry for Menu ID:32794; 'Reload'
-#: Corresponding Menu ID:32794
-#: ; 'Reload'
-msgid "ID:32794:V C +R"
-msgstr "ID:32794:V C +R"
-
-#. Accelerator Entry for Menu ID:32796; 'Show &all revisions'
-#: Corresponding Menu ID:32796
-#: ; 'Show &all revisions'
-msgid "ID:32796:V C +A"
-msgstr "ID:32796:V C +A"
-
-#. Accelerator Entry for Menu ID:32809; '&Filter'
-#: Corresponding Menu ID:32809
-#: ; '&Filter'
-msgid "ID:32809:V C +F"
-msgstr "ID:32809:V C +F"
-
-#. Accelerator Entry for Menu ID:57601; '&Open Ctrl-O'
-#: Corresponding Menu ID:57601
-#: ; '&Open Ctrl-O'
-msgid "ID:57601:V C +O"
-msgstr "ID:57601:V C +O"
-
-#. Accelerator Entry for Menu ID:57603; '&Save Ctrl-S'
-#: Corresponding Menu ID:57603
-#: ; '&Save Ctrl-S'
-msgid "ID:57603:V C +S"
-msgstr "ID:57603:V C +S"
-
-#. Accelerator Entry for Menu ID:57604; 'Save &As...'
-#: Corresponding Menu ID:57604
-#: ; 'Save &As...'
-msgid "ID:57604:V CS+S"
-msgstr "ID:57604:V CS+S"
-
-#. Accelerator Entry for Menu ID:57634; '&Copy'
-#: Corresponding Menu ID:57634
-#: ; '&Copy'
-msgid "ID:57634:V C +C"
-msgstr "ID:57634:V C +C"
-
-#. Accelerator Entry for Menu ID:57635; ''
-#: Corresponding Menu ID:57635
-#: ; ''
-msgid "ID:57635:V C +X"
-msgstr "ID:57635:V C +X"
-
-#. Accelerator Entry for Menu ID:57636; '&Find'
-#: Corresponding Menu ID:57636
-#: ; '&Find'
-msgid "ID:57636:V C +F"
-msgstr "ID:57636:V C +F"
-
-#. Accelerator Entry for Menu ID:57637; ''
-#: Corresponding Menu ID:57637
-#: ; ''
-msgid "ID:57637:V C +V"
-msgstr "ID:57637:V C +V"
-
-#. Accelerator Entry for Menu ID:57643; '&Undo\tCtrl+Z'
-#: Corresponding Menu ID:57643
-#: ; '&Undo\tCtrl+Z'
-msgid "ID:57643:V C +Z"
-msgstr "ID:57643:V C +Z"
-
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-#: Corresponding Menu ID:57665
-#: ; 'E&xit'
-msgid "ID:57665:V C +Q"
-msgstr "ID:57665:V C +Q"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Icon Overlays / Status Columns"
@@ -3440,17 +3190,13 @@ msgstr "Icones/Disseny/Codi:     Luebbe Onken"
 
 # ID:194,
 #: ID:194
-msgid "If activated, prevents the overlays from showing in \"save as...\" or \"open\" dialogs"
+msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr "Si està activat, evita sobreposicions als diàlegs  \"anomena i desa..\" o \"obre\" "
 
 # ID:198,
 #: ID:198
-msgid ""
-"If activated, the menu entry \"Get Lock\" is always shown in the top level menu\n"
-"if the selected file has the svn:needs-lock property set"
-msgstr ""
-"Si és activat, la opció \"Obté Bloqueig\" del menú es mostra al menú superior\n"
-"si el fitxer seleccionat té la propietat svn:needs-lock establerta."
+msgid "If activated, the menu entry \"Get Lock\" is shown in the top level menu if the selected file has the svn:needs-lock property is set"
+msgstr "Si és activat,la opció \"Obté Bloqueig\" del menú es mostraal menú superiorsi el fitxer seleccionat té la propietat svn:needs-lock establerta."
 
 # ID:95,
 #: ID:95
@@ -3463,12 +3209,8 @@ msgstr ""
 
 # ID:79,
 #: ID:79
-msgid ""
-"If checked, TortoiseSVN creates a temporary file of the BASE to do the diff\n"
-"with the keywords expanded and the line endings adjusted."
-msgstr ""
-"Si està seleccionat, TortoiseSVN crea un fitxer temporal de la BASE per fer la\n"
-"comparació amb les paraules clau exteses i els finals de línea ajustats."
+msgid "If checked, TortoiseSVN creates a temporary file of the BASE to do the diff with the keywords expanded and the line endings adjusted."
+msgstr "Si està seleccionat, TortoiseSVN crea unfitxer temporalde la BASE per fer la comparació amb les paraules clau exteses i els finals de línea ajustats."
 
 # ID:196,
 #: ID:196
@@ -3588,46 +3330,10 @@ msgstr "Ignora &finals de línea (recomanat)"
 msgid "Import"
 msgstr "Importa"
 
-# ID:15,
-#: ID:127
-#, c-format
-msgid "Import %ld items"
-msgstr "Importa %ld items"
-
 # Control-ID:1056,
 #: Control-ID:1056
 msgid "Import &message"
 msgstr "Importa &missatge"
-
-# ID:120,
-#: ID:127
-#, c-format
-msgid ""
-"Import file %s\r\n"
-"to %s"
-msgstr ""
-"Importa fitxer %s\r\n"
-"a %s"
-
-# ID:120,
-#: ID:126
-#, c-format
-msgid ""
-"Import file to\r\n"
-"%s"
-msgstr ""
-"Importa fitxer a\r\n"
-"%s"
-
-# ID:120,
-#: ID:126
-#, c-format
-msgid ""
-"Import folder %s\r\n"
-"to %s"
-msgstr ""
-"Importa carpeta %s\r\n"
-"a %s"
 
 # ID:120,
 #: ID:120
@@ -3647,23 +3353,18 @@ msgstr "Inclou fitxers ignorats"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Include only the following revision range:"
-msgstr "Inclou només el següent rang de revisions:"
-
-# Control-ID:65535,
-#: Control-ID:65535
 msgid "Include paths:"
-msgstr "Inclou els paths:"
+msgstr "Inclou els camins:"
 
 # ID:76,
 #: ID:76
 msgid "Initial import"
 msgstr "Importació Inicial"
 
-# ID:114,
+# Control-ID:65535,
 #: Control-ID:65535
-msgid "Inline differences"
-msgstr "Diferències a la línea"
+msgid "Inline diff"
+msgstr "Diff dins de la línea"
 
 # Dlg-ID:161,
 #: Dlg-ID:161
@@ -3797,13 +3498,13 @@ msgid ""
 "If you are not sure what to do, please refer to our docs on <i>relocate</i>.\n"
 "Do you really want to relocate?"
 msgstr ""
-"Sembla que estàs intentant  <b>tornar a situar</b> la teva còpia de treball a un path diferent dins del mateix repositori.\n"
+"Sembla que estàs intentant  <b>tornar a situar</b> la teva còpia de treball a un camí diferent dins del mateix repositori.\n"
 "\n"
 "De: %s\n"
 "Cap a: %s\n"
 "\n"
-"És necessari tornar a situar només si el path <b>cap a</b> un repositori ha canviat.\n"
-"Per canviar el  path <b>dins</b> d'un repositori executa la instrucció Canvia.\n"
+"És necessari tornar a situar només si el camí <b>cap a</b> un repositori ha canviat.\n"
+"Per canviar el  camí <b>dins</b> d'un repositori executa la instrucció Canvia.\n"
 "\n"
 "Si fas la operació de Tornar a Situar incorrectament <b>corromprà la teva copia de treball!</b>\n"
 "Si no estàs segur sobre el que cal fer mira la part de la documentació que fa referència a,  <i>tornar a situar</i> (relocate).\n"
@@ -3813,11 +3514,6 @@ msgstr ""
 #: Control-ID:1203
 msgid "Keep &locks"
 msgstr "Manté &bloqueigs"
-
-# Control-ID:1126,
-#: Control-ID:1126
-msgid "Keep changelist"
-msgstr "Mantenir Changelist"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3858,11 +3554,6 @@ msgstr "Línea"
 #: ID:246
 msgid "Line Graph"
 msgstr "Gràfic de línies"
-
-# ID:114,
-#: Control-ID:65535
-msgid "Line differences"
-msgstr "Diferències de línea"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3916,7 +3607,7 @@ msgid "Lock Files"
 msgstr "Bloqueja Fixers"
 
 # ID:209,
-#: ID:213
+#: ID:209
 msgid "Lock broken!"
 msgstr "Bloqueig eliminat!"
 
@@ -3941,7 +3632,7 @@ msgid "Lock owner:"
 msgstr "Propietari del Bloqueig:"
 
 # ID:209,
-#: ID:213
+#: ID:209
 #, c-format
 msgid "Lock stolen by %s"
 msgstr "Bloqueig tret per %s"
@@ -4026,14 +3717,14 @@ msgstr "Look and Feel::Col·lecció d'icones"
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
-msgstr "Revisió més baixa mostrada: %ld - Revisió més alta mostrada: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld"
+msgstr "Revisió més baixa: %ld - Revisió més alta: %ld"
 
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
-msgstr "Revisió més baixa mostrada: %ld - Revisió més alta mostrada: %ld - Revisió HEAD: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld - HEAD revision: %ld"
+msgstr "Revisió més baixa: %ld - Revisió més alta: %ld - Revisió HEAD: %ld"
 
 # ID:3866,#:
 # ID:3866,
@@ -4109,7 +3800,6 @@ msgstr "Fusionar requereix diferents revisions o diferents URLs a 'De:' i 'Cap a
 
 # ID:76,
 #: ID:76
-#: Control-ID:1359
 msgid "Message"
 msgstr "Missatge"
 
@@ -4126,7 +3816,7 @@ msgstr "Missatges"
 # ID:116,
 #: ID:116
 msgid "Messages, authors and paths"
-msgstr "Missatges, autors i paths"
+msgstr "Missatges, autors i camins"
 
 # ID:78,
 #: ID:78
@@ -4158,7 +3848,6 @@ msgstr "Barrejat"
 # ID:264,
 #: ID:74
 #: ID:264
-#: Control-ID:65535
 msgid "Modified"
 msgstr "Modificat"
 
@@ -4172,31 +3861,6 @@ msgstr "Més colors..."
 #: Control-ID:1136
 msgid "Most active author:"
 msgstr "Autor més actiu:"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %ld items to\r\n"
-"%s"
-msgstr ""
-"Mou %ld items a\r\n"
-"%s"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %s\r\n"
-"to %s"
-msgstr ""
-"Mou %s\r\n"
-"a %s"
-
-# ID:209,
-#: ID:209
-msgid "Move to changelist"
-msgstr "Mou a la Changelist"
 
 # ID:98,
 #: ID:98
@@ -4240,7 +3904,7 @@ msgid "Needs lock"
 msgstr "Necessita Bloqueig"
 
 # ID:210,
-#: ID:213
+#: ID:210
 msgid "Nested"
 msgstr "Aniuat"
 
@@ -4483,11 +4147,6 @@ msgstr "Obre fitxer del certificat del client"
 msgid "Open file"
 msgstr "Obre fitxer"
 
-# ID:114,
-#: Control-ID:1132
-msgid "Open from clipboard"
-msgstr "Obrirl del portapapers"
-
 # ID:7,
 #: ID:7
 msgid "Open image file..."
@@ -4531,15 +4190,6 @@ msgstr "Altres"
 #: ID:3843
 msgid "Out of memory."
 msgstr "Out of memory."
-
-# ID:95,
-#: ID:95
-msgid ""
-"Override the svn:eol-style property setting.\n"
-"Files which don't have this property set are not affected."
-msgstr ""
-"Canvia la propietat svn:eol-style.\n"
-"Els fitxers que no tinguin questa propietat no queden afectats."
 
 # ID:99,
 #: ID:99
@@ -4591,12 +4241,12 @@ msgstr "Fitxers Pedaç (*.diff, *.patch)|*.diff;*.patch|Tots (*.*)|*.*||"
 #: ID:77
 #: ID:198
 msgid "Path"
-msgstr "Path"
+msgstr "Camí"
 
 # ID:116,
 #: ID:116
 msgid "Paths"
-msgstr "Paths"
+msgstr "Camins"
 
 # ID:157,
 #: ID:157
@@ -4653,7 +4303,7 @@ msgstr "Introdueix un número."
 # ID:83,
 #: ID:83
 msgid "Please enter a path where to apply the hook script to."
-msgstr "Introdueix un path a on aplicar el script de hook."
+msgstr "Introdueix un camí a on aplicar el script de hook."
 
 # ID:3858,#:
 # ID:3858,
@@ -4707,9 +4357,9 @@ msgid ""
 "to that copy path. Use the Switch command to do that."
 msgstr ""
 "Atenció:\n"
-"La teva còpia de treball segueix en el path anterior. Si vols que els teus següents canvis\n"
+"La teva còpia de treball segueix en el camí anterior. Si vols que els teus següents canvis\n"
 "estiguin en la còpia acabada de crear has d'executar Canviar\n"
-"al path de la còpia. Utilitza el comandament Canvia per fer-ho."
+"al camí de la còpia. Utilitza el comandament Canvia per fer-ho."
 
 # ID:3858,#:
 # ID:3858,
@@ -4752,7 +4402,7 @@ msgstr "Espereu mentre el navegador del repositori s'inicialitza..."
 # ID:211,
 #: ID:119
 #: ID:146
-#: ID:213
+#: ID:211
 msgid "Please wait..."
 msgstr "Espereu un moment..."
 
@@ -5021,26 +4671,9 @@ msgid "Remote text status"
 msgstr "Estat remot del text"
 
 # ID:15,
-#: ID:126
-#, c-format
-msgid "Remove %ld items"
-msgstr "Suprimeix %ld items"
-
-# ID:97,
-#: ID:126
-#, c-format
-msgid "Remove %s"
-msgstr "Suprimeix %s"
-
-# ID:15,
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Treu de la llista d'&ignorats"
-
-# ID:15,
-#: ID:209
-msgid "Remove from changelist"
-msgstr "Treu de la Changelist"
 
 # Control-ID:1332,
 #: Control-ID:1332
@@ -5070,11 +4703,6 @@ msgstr ""
 "%s\n"
 "de la llista d'gnorats."
 
-# ID:17,
-#: ID:17
-msgid "Removes all unversioned and ignored items"
-msgstr "Suprimeix tots els items sense versionar i ignorats"
-
 # ID:15,
 #: ID:15
 msgid "Removes the file or filemask from the list of ignored items"
@@ -5090,16 +4718,6 @@ msgstr "Canvia el nom"
 #, c-format
 msgid "Rename %s"
 msgstr "Canvia el nom %s"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Rename item from %s\r\n"
-"to %s"
-msgstr ""
-"Canvia el nom de l'item de %s\r\n"
-"a %s"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -5304,11 +4922,6 @@ msgstr "Revisió / Autor:"
 msgid "Revision Graph"
 msgstr " Gràfic de revisions"
 
-# Dlg-ID:182,
-#: Dlg-ID:239
-msgid "Revision Graph Filter"
-msgstr "Filtre del Gràfic de Revisions"
-
 # Dlg-ID:228,
 #: Dlg-ID:228
 msgid "Revision Range"
@@ -5490,7 +5103,7 @@ msgstr "Desa canvis a %1?"
 # ID:232,
 #: ID:232
 msgid "Save client certificate path"
-msgstr "Desa path del certificat del client"
+msgstr "Desa camí del certificat del client"
 
 # ID:76,
 #: ID:76
@@ -5778,9 +5391,9 @@ msgstr "Mostra &diferències"
 #: ID:101
 #: Control-ID:1016
 #: Control-ID:1228
-#: Control-ID:1132
 #: Control-ID:1031
 #: Control-ID:1034
+#: Control-ID:1132
 msgid "Show &log"
 msgstr "Mostra &log"
 
@@ -5942,11 +5555,6 @@ msgstr "Ordena items numèricament"
 #: ID:101
 msgid "Sort numerical"
 msgstr "Ordena numericament"
-
-# Control-ID:1300,
-#: ID:197
-msgid "Sorts items numerical instead of alphabetical"
-msgstr "Ordena items numèricament en comptes d'alfabèticament"
 
 # ID:196,
 #: ID:196
@@ -6234,16 +5842,6 @@ msgstr "El tamany del troç no correspon al nombre de línies afegides/esborrade
 msgid "The chunk start \"@@\" was expected in line %d !"
 msgstr "L'inici del troç \"@@\" s'esperava a la línea %d !"
 
-# ID:196,
-#: ID:196
-msgid "The default path to checkout to if nothing else is specified"
-msgstr "El path per defecte d'on obtenir si no s'especifica res més"
-
-# ID:197,
-#: ID:197
-msgid "The default url to checkout from if nothing else is specified"
-msgstr "La URL per defecte d'on obtenir  si no s'especifica res més"
-
 # ID:68,
 #: ID:68
 #, c-format
@@ -6390,12 +5988,6 @@ msgstr ""
 "El fitxer antic no concorda amb el nou.\n"
 "L'anomenament de fitxers no és suportat (encara)!"
 
-# ID:3857,#:
-# ID:3857,
-#: ID:220
-msgid "The operation failed."
-msgstr "L'operació ha fallat."
-
 # ID:64,
 #: ID:64
 #, c-format
@@ -6421,10 +6013,10 @@ msgid ""
 "A valid path on windows must not contain '<>|\"?*:' or one of the following device names:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 msgstr ""
-"El path/URL introduit sembla que no és acceptat pel Windows!\n"
+"El camí/URL introduit sembla que no és acceptat pel Windows!\n"
 "Podeu provar-lo igualment, però pot donar un error més endevant.\n"
 "\n"
-"Un path vàlid al Windows no ha de tenir '<>|\"?*:' ni cap dels següents noms de dispositu:\n"
+"Un pedaç vàlid al Windows no ha de tenir '<>|\"?*:' ni cap dels següents noms de dispositu:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 
 # ID:314,
@@ -6438,12 +6030,12 @@ msgid ""
 "<i>%s</i>\n"
 "matches it better. Do you want to use the suggested path instead?"
 msgstr ""
-"El path\n"
+"El camí\n"
 "<i>%s</i>\n"
-"sembla que no es correspon amb el path del fitxer de pedaç.\n"
-"Però TortoiseMerge ha trobat que el path\n"
+"sembla que no es correspon amb el camí del fitxer de pedaç.\n"
+"Però TortoiseMerge ha trobat que el camí\n"
 "<i>%s</i>\n"
-"és millor. Voleu utilitzar el path sugerit?"
+"és millor. Voleu utilitzar el camí sugerit?"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -6569,24 +6161,10 @@ msgstr ""
 "Voleu desar el fitxer amb conflictes?\n"
 "Si cliqueu SÍ, llavors heu de resoldre els conflictes manualment en un altre editor!"
 
-# ID:313,
-#: ID:313
-msgid ""
-"There are unsaved modifications!\n"
-"Do you want to save your changes?"
-msgstr ""
-"Hi ha modificacions sense desar!\n"
-"Voleu desar els canvis?"
-
 # ID:82,
 #: ID:82
 msgid "There is nothing to add. All the files and folders are either under version control or have been ignored using the svn:ignore property or the global ignore configuration setting."
 msgstr "No hi ha res a afegir. Tots els fitxers i carpetes són sota control de versions o bé s'han ignorat utilitzant la propietat svn:ignore o el paràmetre d'ignoració global que hi ha a la configuració."
-
-# ID:83,
-#: ID:83
-msgid "There's nothing to unlock. No file has a lock in this working copy."
-msgstr "No hi ha res a desbloquejar. Cap fitxer té un lock en aquesta còpia de treball."
 
 # ID:188,
 #: ID:188
@@ -6609,8 +6187,8 @@ msgid ""
 "A valid path must not contain '<>|\"?*:' or one of the following device names:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 msgstr ""
-"Això no és un path vàlid!\n"
-"Un path vàlid no pot contenir '<>|\"?*:' ni cap dels següents noms:\n"
+"Això no és un camí vàlid!\n"
+"Un camí vàlid no pot contenir '<>|\"?*:' ni cap dels següents noms:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 
 # Control-ID:65535,
@@ -6664,7 +6242,6 @@ msgstr ""
 
 # Control-ID:1201,
 #: Control-ID:1201
-#: Control-ID:65535
 msgid "To:"
 msgstr "A:"
 
@@ -6706,9 +6283,9 @@ msgstr ""
 "TortoiseIDiff: El visor de diferències gràfic per a TortoiseSVN\n"
 "\n"
 "Els comandaments disponibles són:\n"
-"/left:\"path de la imatge esquerra\"\n"
+"/left:\"camí de la imatge esquerra\"\n"
 "/lefttitle:\"títol per mostrar a la imatge esquerra\"\n"
-"/right:\"path de la imatge de la dreta\"\n"
+"/right:\"camí de la imatge de la dreta\"\n"
 "/righttitle:\"títol per mostrar a la imatge dreta\""
 
 # ID:7,#:
@@ -6950,7 +6527,7 @@ msgid ""
 "Please start the log dialog on this specific file alone and then revert the changes\n"
 "from the top pane in the log dialog."
 msgstr ""
-"No s'ha pogut reconstruir el path de la còpia de treball!\n"
+"No s'ha pogut reconstruir el camí de la còpia de treball!\n"
 "Això pot passar si el fitxer ha sigut canviat de nom.\n"
 "Inicieu el diàleg de log només amb aquest fitxer concret i revertiu els canvis\n"
 "des del panell superior del diàleg de log."
@@ -6973,12 +6550,6 @@ msgstr "No es possible escriure a %1, es de només lectura o és oberta per alg�
 #: ID:3887
 msgid "Uncheck"
 msgstr "Treu la marca"
-
-# ID:3887,#:
-# ID:3887,
-#: ID:213
-msgid "Uncheck Group"
-msgstr "Treu la marca al Grup"
 
 # ID:3603,
 #: ID:3603
@@ -7013,7 +6584,6 @@ msgstr ""
 
 # ID:221,
 #: ID:221
-#: Dlg-ID:242
 msgid "Unlock"
 msgstr "Desbloqueja"
 
@@ -7132,8 +6702,8 @@ msgstr "Utilitza els dos blocs de texte (aquest el darrer)"
 
 # Control-ID:1066,
 #: Control-ID:1066
-msgid "Use stri&keout for removed lines"
-msgstr "Utilitza &tatxat  per a les línies esborrades"
+msgid "Use stri&keout for deleted lines"
+msgstr "Utilitza tat&xat  per a les línies esborrades"
 
 #: MenuEntry
 msgid "Use text block from \"&mine\""
@@ -7229,12 +6799,12 @@ msgid ""
 "/patchpath:<path to folder>"
 msgstr ""
 "Les comandes vàlides són:\n"
-"/base:<path del fitxer base>\n"
-"/theirs:<path del seu fitxer>\n"
-"/mine:<path del meu fitxer>\n"
-"/merged:<path del fitxer fusionat resultant>\n"
-"/diff:<path del fitxer diff unificat>\n"
-"/patchpath:<path de la carpeta>"
+"/base:<camí del fitxer base>\n"
+"/theirs:<camí del seu fitxer>\n"
+"/mine:<camí del meu fitxer>\n"
+"/merged:<camí del fitxer fusionat resultant>\n"
+"/diff:<camí del fitxer diff unificat>\n"
+"/patchpath:<camí de la carpeta>"
 
 # ID:11,
 #: ID:11
@@ -7250,7 +6820,7 @@ msgstr "Versió"
 # ID:114,
 #: ID:114
 msgid "View revision for path in &webviewer"
-msgstr "Visualitza revisió pel path al visor &web"
+msgstr "Visualitza revisió pel camí al visor &web"
 
 # ID:114,
 #: ID:114
@@ -7296,7 +6866,7 @@ msgstr "Còpia de Treball"
 # Control-ID:1335,
 #: Control-ID:1335
 msgid "Working Copy Path:"
-msgstr "Path de la còpia de Treball"
+msgstr "Camí de la còpia de Treball"
 
 # ID:80,
 #: ID:80
@@ -7348,17 +6918,6 @@ msgstr ""
 "una unitat de xarxa compartida.\n"
 "Això podria provocar una corrupció greu del repositori!\n"
 "Esteu segur de que voleu fer això?"
-
-# ID:105,
-#: ID:105
-msgid ""
-"You are trying to move the trunk folder!\n"
-"Are you absolutely sure that you want to move\n"
-"the trunk folder?"
-msgstr ""
-"Esteu intentant moure la carpeta tronc!\n"
-"Teniu la seguretat de voler moure\n"
-"la carpeta tronc?"
 
 # ID:16,
 #: ID:16
@@ -7499,8 +7058,8 @@ msgid ""
 "\n"
 "Do you want to commit anyway?"
 msgstr ""
-"La còpia de treball sembla que es troba a un path d'etiquetes!\n"
-"S'ha de canviar a una branca o al tronc principal abans de fer una entrega.\n"
+"La còpia de treball sembla que es troba a un camí d'etiquetes!\n"
+"S'ha de Canviar a una branca o al tronc principal abans de fer una entrega.\n"
 "\n"
 "Voleu entregar de totes maneres?"
 
@@ -7684,11 +7243,6 @@ msgstr ""
 msgid "deleted"
 msgstr "suprimit"
 
-# ID:17,
-#: Control-ID:1342
-msgid "eol style"
-msgstr "estil eol"
-
 # ID:79,
 #: ID:79
 #, c-format
@@ -7834,7 +7388,7 @@ msgid ""
 "foo/bar -r 1234\thttp://example.com/repos/zag"
 msgstr ""
 "svn:externals\n"
-"Una llista d'especificadors de mòdul separada per retorns de línea, consistent cadascuna en un path relatiu del directori, flags opcionals de revisió, i una URL. Per exemple\n"
+"Una llista d'especificadors de mòdul separada per retorns de línea, consistent cadascuna en un camí relatiu del directori, flags opcionals de revisió, i una URL. Per exemple\n"
 "foo\t\thttp://exemple.com/repos/zig\n"
 "foo/bar -r 1234\thttp://exemple.com/repos/zag"
 
@@ -7909,7 +7463,6 @@ msgstr ""
 # ID:103,
 #: ID:80
 #: ID:103
-#: ID:284
 #, c-format
 msgid "to %s"
 msgstr "a %s"
@@ -8043,4 +7596,5 @@ msgstr "que apunta al repositori que es troba a la URL:"
 #: ID:245
 msgid "year"
 msgstr "any"
+
 

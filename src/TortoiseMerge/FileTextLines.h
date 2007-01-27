@@ -40,6 +40,14 @@ private:
 typedef CStdArray<CString> CStdCStringArray;
 typedef CStdArray<DWORD> CStdDWORDArray;
 
+class CStdioFileK : public CStdioFile
+{
+public:
+	CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags);
+	BOOL ReadString(CStringA& rString);
+	BOOL ReadString(CString& rString) {return CStdioFile::ReadString(rString);}
+};
+
 /**
  * \ingroup TortoiseMerge
  *
@@ -93,7 +101,6 @@ public:
 	void		CopySettings(CFileTextLines * pFileToCopySettingsTo);
 
 	CFileTextLines::UnicodeType GetUnicodeType() const  {return m_UnicodeType;}
-	CFileTextLines::LineEndings GetLineEndings() const {return m_LineEndings;}
 
 private:
 	/**

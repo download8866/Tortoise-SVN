@@ -1,24 +1,24 @@
 #
 # German translation for TortoiseSVN
-# Copyright (C) 2004-2007 the TortoiseSVN team
+# Copyright (C) 2004-2006 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Authors:
-# Lübbe Onken luebbe@tigris.org>, 2004-2007.
+# Lübbe Onken luebbe@tigris.org>, 2004.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: 2004-06-28 14:09+0200\n"
-"PO-Revision-Date: 2007-01-26 08:56+0100\n"
-"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
+"PO-Revision-Date: 2006-08-30 11:19+0100\n"
+"Last-Translator: Lübbe Onken <luebbe@tigris.org>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
-"X-Poedit-Language: German\n"
 
 # Ein einzelnes Leerzeichen
 #: ID:10
@@ -375,7 +375,7 @@ msgid "&Enable Proxy Server"
 msgstr "Aktiviere &Proxy Server"
 
 #: Control-ID:1213
-msgid "&Enter a message describing why you are locking the file(s)."
+msgid "&Enter a message describing why you lock the file(s)."
 msgstr "Geben Sie eine &Meldung ein, in der Sie beschreiben, warum Sie die Datei(en) sperren."
 
 #: MenuEntry
@@ -394,10 +394,6 @@ msgstr "&Extern"
 #: MenuEntry
 msgid "&File"
 msgstr "&Datei"
-
-#: MenuEntry
-msgid "&Filter"
-msgstr "&Filter"
 
 #: MenuEntry
 msgid "&Find"
@@ -479,7 +475,7 @@ msgstr "&Ignoriere %d Objekte"
 
 #: Control-ID:1021
 msgid "&Ignore whitespace changes"
-msgstr "&Ignoriere Änderungen in der Anzahl von Leerzeichen"
+msgstr "&Ignoriere Änderungen in Leerzeichen"
 
 #: MenuEntry
 msgid "&Image Info"
@@ -514,7 +510,12 @@ msgstr "&Listenansicht"
 msgid "&Load..."
 msgstr "&Laden..."
 
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "Als aufgelöst &markieren"
+
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "&Zusammenführen"
 
@@ -530,10 +531,6 @@ msgstr "&Zusammenführen"
 msgid "&Native filesystem (FSFS)"
 msgstr "&Eigenes Dateisystem (FSFS)"
 
-#: MenuEntry
-msgid "&Navigate"
-msgstr "&Navigation"
-
 #: Control-ID:1049
 msgid "&Network drives"
 msgstr "&Netzlaufwerke"
@@ -543,8 +540,8 @@ msgid "&New "
 msgstr "&Neu"
 
 #: Control-ID:1208
-msgid "&Next %ld"
-msgstr "&Nächste %ld"
+msgid "&Next 100"
+msgstr "&Nächste 100"
 
 #: MenuEntry
 msgid "&Next Difference"
@@ -581,10 +578,6 @@ msgstr "&Port:"
 #: MenuEntry
 msgid "&Previous Difference"
 msgstr "&Vorheriger Unterschied"
-
-#: Control-ID:11021
-msgid "&Properties..."
-msgstr "&Eigenschaften..."
 
 #: Control-ID:1246
 msgid "&Recent messages"
@@ -758,11 +751,6 @@ msgstr "&Ansicht"
 msgid "&Whitespaces"
 msgstr "&Leerzeichen"
 
-# Control-ID:1066,
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "Ganzes &Wort"
-
 #: Control-ID:1183
 msgid "&Working copy"
 msgstr "&Arbeitskopie"
@@ -781,11 +769,6 @@ msgstr "(Trockenlauf)"
 #: ID:208
 msgid "(multiple targets selected)"
 msgstr "(mehrere Ziele gewählt)"
-
-# ID:213,
-#: ID:213
-msgid "(no changelist)"
-msgstr "(keine Änderungsliste)"
 
 #: ID:314
 msgid "(not found)"
@@ -812,9 +795,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1362
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -847,11 +827,6 @@ msgstr ""
 "Sie einen Rechts-Klick, damit das Kontextmenü angezeigt wird.\n"
 "Dort finden Sie sämtliche <b>TortoiseSVN</b> Befehle.\n"
 "Und <u>lesen Sie das Handbuch!</u>"
-
-# ID:213,
-#: ID:209
-msgid "<new changelist>"
-msgstr "<neue Änderungsliste>"
 
 #: ID:3867
 #, c-format
@@ -983,10 +958,6 @@ msgstr "Konflikteditor für bestimmte Dateitypen hinzufügen"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "&Ignorieren"
-
-#: Control-ID:1279
-msgid "Add..."
-msgstr "Hinzufügen..."
 
 #: Dlg-ID:171
 msgid "Add/Edit Extension Specific Diff/Merge Program"
@@ -1246,10 +1217,6 @@ msgstr "Groß- / Kleinschreibung bei Autoren ignorieren"
 msgid "Authors:"
 msgstr "Autoren:"
 
-#: ID:99
-msgid "Auto Rename"
-msgstr "Automatisch Umbenennen"
-
 #: ID:222
 msgid "Auto-close for local operations"
 msgstr "Für lokale Operationen"
@@ -1358,13 +1325,13 @@ msgstr "Bug-ID:"
 msgid "C&heck now"
 msgstr "&Jetzt prüfen"
 
-#: ID:77
-msgid "C&reate branch/tag from revision"
-msgstr "E&rstelle Verzweigung/Markierung von Revision"
-
 #: ID:101
 msgid "C&reate folder..."
 msgstr "Ordner &anlegen..."
+
+#: ID:77
+msgid "C&reate tag from revision"
+msgstr "E&rstelle Markierung von Revision"
 
 #: ID:3697
 msgid "CAP"
@@ -1385,7 +1352,6 @@ msgstr ""
 " kopieren!"
 
 #: ID:73
-#: ID:99
 #: ID:563
 #: Control-ID:2
 msgid "Cancel"
@@ -1470,10 +1436,6 @@ msgstr "Auf Aktualisierungen prüfen"
 msgid "Check For Updates..."
 msgstr "Auf Aktualisierungen prüfen..."
 
-#: ID:213
-msgid "Check Group"
-msgstr "Gruppe auswählen"
-
 #: ID:13
 msgid "Check for modi&fications"
 msgstr "&Prüfe auf Änderungen"
@@ -1503,8 +1465,8 @@ msgid "Check the path and/or URL you've entered."
 msgstr "Überprüfen Sie den eingegebenen Pfad und/oder die URL."
 
 #: ID:194
-msgid "Check those menu entries you want to appear in the top context menu instead of the TortoiseSVN submenu"
-msgstr "Markieren Sie die Einträge, die im Windows Kontextmenü anstatt im TortoiseSVN Untermenü erscheinen sollen."
+msgid "Check those menu entries you want to appear in the submenu instead of the top context menu"
+msgstr "Markieren Sie die Einträge, die im TortoiseSVN Untermenü anstatt im Windows Kontextmenü erscheinen sollen."
 
 #: ID:80
 msgid "Check to use a less verbose date and time format in log messages"
@@ -1519,7 +1481,6 @@ msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Überprüfe, ob eine neue Version von TortoiseSVN zur Verfügung steht..."
 
 #: Dlg-ID:133
-#: Control-ID:65535
 msgid "Checkout"
 msgstr "Auschecken"
 
@@ -1611,15 +1572,6 @@ msgstr "Änderungen in Zeile &farbig hervorheben"
 msgid "Colors"
 msgstr "Farben"
 
-#: ID:198
-msgid "Command Line"
-msgstr "Befehlszeile"
-
-# Control-ID:1336,
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "Befehlszeile:"
-
 #: ID:3857
 msgid "Command failed."
 msgstr "Befehl konnte nicht ausgeführt werden."
@@ -1631,7 +1583,7 @@ msgstr "Übertragen"
 
 #: Control-ID:1262
 msgid "Commit threshold:"
-msgstr "Übertragungen zusammenfassen:"
+msgstr "Anzahl Übertragungen:"
 
 #: Control-ID:1110
 msgid "Commit to:"
@@ -1661,10 +1613,6 @@ msgstr "&HEAD Revisionen vergleichen"
 msgid "Compare and &blame with working BASE"
 msgstr "Vergleiche und &Annotiere mit Arbeitskopie BASE"
 
-#: ID:114
-msgid "Compare and blame with previous revision"
-msgstr "Vergleiche und Annotiere mit vorheriger Revision"
-
 #: ID:76
 msgid "Compare with &working copy"
 msgstr "Vergleiche mit &Arbeitskopie"
@@ -1672,10 +1620,6 @@ msgstr "Vergleiche mit &Arbeitskopie"
 #: ID:138
 msgid "Compare with b&ase"
 msgstr "Vergleiche mit B&asis"
-
-#: ID:114
-msgid "Compare with previous revision"
-msgstr "Vergleiche mit vorheriger Revision"
 
 #: ID:12
 msgid "Compares the file with the last committed revision to show you the changes you made"
@@ -1693,11 +1637,6 @@ msgstr "Vergleiche %s mit %s"
 #: ID:74
 msgid "Completed"
 msgstr "Fertig"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "Aktionsskripte konfigurieren"
 
 #: Control-ID:65535
 msgid "Configure the program used for comparing different revisions of files."
@@ -1733,37 +1672,14 @@ msgstr "&Kopieren"
 msgid "Copied"
 msgstr "Kopiert"
 
-#: ID:208
-msgid "Copied from URL"
-msgstr "Kopiert von URL"
-
 #: ID:126
 msgid "Copied remotely"
 msgstr "Datei im Projektarchiv kopiert"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Copy %ld items to\r\n"
-"%s"
-msgstr ""
-"Kopiere %ld Objekte nach\r\n"
-"%s"
 
 #: ID:103
 #, c-format
 msgid "Copy %s"
 msgstr "Kopiere %s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Copy %s\r\n"
-"to %s"
-msgstr ""
-"Kopiere %s\r\n"
-"nach %s"
 
 #: Dlg-ID:142
 msgid "Copy (Branch / Tag)"
@@ -1934,10 +1850,6 @@ msgstr "Thread konnte nicht gestartet werden!"
 msgid "Create &patch..."
 msgstr "Erzeuge &Patch..."
 
-#: Dlg-ID:243
-msgid "Create Changelist"
-msgstr "Erzeuge Änderungsliste"
-
 #: Dlg-ID:208
 msgid "Create Patch"
 msgstr "Erzeuge Patch"
@@ -1949,15 +1861,6 @@ msgstr "Projektarchiv hier erstellen"
 #: Control-ID:65535
 msgid "Create copy in the repository from:"
 msgstr "Erstelle Kopie im Projektarchiv aus:"
-
-#: ID:126
-#, c-format
-msgid ""
-"Create new directory:\r\n"
-"%s"
-msgstr ""
-"Erzeuge neues Verzeichnis:\r\n"
-"%s"
 
 #: ID:8
 msgid "Create repositor&y here..."
@@ -2017,22 +1920,6 @@ msgstr "Datum"
 #: Control-ID:65535
 msgid "Default &number of log messages"
 msgstr "A&nzahl der angezeigten Meldungen"
-
-#: Control-ID:65535
-msgid "Default URL:"
-msgstr "Standard-URL:"
-
-#: Control-ID:65535
-msgid "Default path:"
-msgstr "Standardpfad:"
-
-#: Dlg-ID:240
-msgid "Delete Unversioned Items"
-msgstr "Nicht versionierte Objekte löschen"
-
-#: ID:17
-msgid "Delete unversioned items..."
-msgstr "Nicht versionierte Objekte löschen..."
 
 #: ID:73
 #: ID:264
@@ -2168,6 +2055,14 @@ msgstr ""
 "Wollen Sie die Dokumente neu laden, damit die geänderten Einstellungen wirksam werden?\n"
 "Hinweis: Sie werden alle Ihre Änderungen verlieren!"
 
+#: ID:313
+msgid ""
+"Do you want to reload the documents?\n"
+"You will lose all changes you've made!"
+msgstr ""
+"Wollen Sie die Dokumente neu laden?\n"
+"Sie werden alle Ihre Änderungen verlieren!"
+
 #: ID:563
 #, c-format
 msgid "Do you want to remove the property %s recursively?"
@@ -2232,10 +2127,6 @@ msgstr "Konflikteditor für bestimmte Dateitypen einrichten"
 msgid "Edit log message"
 msgstr "Logmeldung bearbeiten"
 
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "Bearbeiten..."
-
 #: ID:79
 msgid "Either the name or IP of the proxy server"
 msgstr "Entweder der Name oder die IP Adresse des Proxy Servers"
@@ -2284,7 +2175,6 @@ msgid "Enlarge the window to full size"
 msgstr "Vergrößert das Fenster auf Bildschirmgröße"
 
 #: Dlg-ID:135
-#: Dlg-ID:241
 msgid "Enter Log Message"
 msgstr "Logmeldung eingeben"
 
@@ -2295,11 +2185,6 @@ msgstr "URL eingeben"
 #: ID:313
 msgid "Enter a lock message (optional):"
 msgstr "Geben Sie eine optionale Sperrmeldung ein:"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Enter a name for the changelist:"
-msgstr "Geben Sie einen Namen für die Änderungsliste ein:"
 
 #: Control-ID:1065
 msgid "Enter log &message:"
@@ -2361,14 +2246,6 @@ msgstr "Pfade &ausschließen:"
 msgid "Explore to"
 msgstr "Explorer öffnen"
 
-#: Dlg-ID:238
-msgid "Export"
-msgstr "Export"
-
-#: Control-ID:1074
-msgid "Export &directory:"
-msgstr "Export&verzeichnis:"
-
 #: ID:94
 msgid "Export directory:"
 msgstr "Exportverzeichnis:"
@@ -2376,11 +2253,6 @@ msgstr "Exportverzeichnis:"
 #: ID:79
 msgid "Export unversioned files too"
 msgstr "Exportiere alle Dateien"
-
-#: ID:284
-#, c-format
-msgid "Exporting %s"
-msgstr "Exportiere %s"
 
 #: ID:79
 msgid "Exporting..."
@@ -2396,12 +2268,12 @@ msgid "Extension"
 msgstr "Erweiterung"
 
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "Erweiterung oder MIME-Typ:"
+msgid "Extension specific programs"
+msgstr "Programme für Dateitypen"
 
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "Erweiterung/MIME-Typ spezifische Programme"
+msgid "Extension:"
+msgstr "Erweiterung:"
 
 #: ID:74
 msgid "External"
@@ -2443,10 +2315,6 @@ msgstr "Konnte Dokument nicht öffnen."
 msgid "Failed to save document."
 msgstr "Konnte Dokument nicht speichern."
 
-#: ID:220
-msgid "Failed!"
-msgstr "Fehlgeschlagen!"
-
 #: Control-ID:1217
 msgid "Fetch &status for context menu"
 msgstr "&Kontextmenü abhängig von gewählter Datei / Ordner"
@@ -2477,7 +2345,7 @@ msgid "File diffs"
 msgstr "Dateiunterschiede"
 
 # ID:211,
-#: ID:213
+#: ID:211
 msgid "File list is empty"
 msgstr "Leere Dateiliste"
 
@@ -2506,11 +2374,6 @@ msgstr ""
 "Tiefe:\t\t\t%d bit\n"
 "Zoom:\t\t\t%d%%"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Filter out the following paths (separate multiple paths with the '*' char):"
-msgstr "Die folgenden Pfade ausfiltern (mehrfache Pfade durch '*' trennen):"
-
 #: Dlg-ID:139
 msgid "Find"
 msgstr "Suchen"
@@ -2524,7 +2387,6 @@ msgstr ""
 "Suchen"
 
 #: ID:77
-#: ID:219
 msgid "Finished!"
 msgstr "Fertig!"
 
@@ -2544,7 +2406,6 @@ msgid "For complete history deselect \"Stop on copy/rename\""
 msgstr "Wählen Sie \"Bei Kopien/Umbenennen anhalten\" ab, um eine vollständige Historie zu erhalten."
 
 #: Control-ID:1200
-#: Control-ID:65535
 msgid "From:"
 msgstr "Von:"
 
@@ -2571,12 +2432,9 @@ msgstr ""
 "Sie können GDI+ hier erhalten\n"
 "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en</a></u>"
 
-#: ID:284
-msgid "Gathering information. Please wait..."
-msgstr "Sammle Informationen. Bitte warten..."
-
 #: Dlg-ID:143
 #: Dlg-ID:107
+#: Control-ID:65535
 msgid "General"
 msgstr "Allgemein"
 
@@ -2681,21 +2539,9 @@ msgstr "Diagrammtyp:"
 msgid "H&ide unrelated changed paths"
 msgstr "&Geänderte Pfade ohne Bezug ausblenden"
 
-# Control-ID:1353,#:
-# Control-ID:1354,
-#: Control-ID:1353
-#: Control-ID:1354
-msgid "HEAD"
-msgstr "HEAD"
-
 #: Control-ID:1004
 msgid "Help"
 msgstr "Hilfe"
-
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "Skript beim Ablauf verbergen"
 
 # ID:2052,
 #: ID:2052
@@ -2710,151 +2556,10 @@ msgstr ""
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "Hinweis: Drücken Sie F5, um den gewählten Teilbaum zu aktualisieren. Strg-F5, um alle Zweige zu aktualisieren"
 
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "Aktionsskript"
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr "Aktionstyp"
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "Aktionstyp:"
-
 #: ID:82
 #, c-format
 msgid "Hostname mismatch (%s)"
 msgstr "Servernamen stimmen nicht überein (%s)"
-
-#. Accelerator Entry for Menu ID:32771; '&Find...'
-#: Corresponding Menu ID:32771
-#: ; '&Find...'
-msgid "ID:32771:V C +F"
-msgstr "ID:32771:V C +F"
-
-#. Accelerator Entry for Menu ID:32772; '&Overlap images'
-#: Corresponding Menu ID:32772
-#: ; '&Overlap images'
-msgid "ID:32772:V   +O"
-msgstr "ID:32772:V   +B"
-
-#. Accelerator Entry for Menu ID:32773; '&Open'
-#: Corresponding Menu ID:32773
-#: ; '&Open'
-msgid "ID:32773:V C +O"
-msgstr "ID:32773:V C +O"
-
-#. Accelerator Entry for Menu ID:32774; '&Whitespaces'
-#: Corresponding Menu ID:32774
-#: ; '&Whitespaces'
-msgid "ID:32774:V C +T"
-msgstr "ID:32774:V C +L"
-
-#. Accelerator Entry for Menu ID:32775; 'Two-way &Diff'
-#: Corresponding Menu ID:32775
-#: ; 'Two-way &Diff'
-msgid "ID:32775:V C +D"
-msgstr "ID:32775:V C +D"
-
-#. Accelerator Entry for Menu ID:32778; '&Fit Images in window'
-#: Corresponding Menu ID:32778
-#: ; '&Fit Images in window'
-msgid "ID:32778:V   +F"
-msgstr "ID:32778:V   +F"
-
-#. Accelerator Entry for Menu ID:32779; 'Ori&ginal size'
-#: Corresponding Menu ID:32779
-#: ; 'Ori&ginal size'
-msgid "ID:32779:V   +S"
-msgstr "ID:32779:V   +O"
-
-#. Accelerator Entry for Menu ID:32779; '&Go To Line...'
-#: Corresponding Menu ID:32779
-#: ; '&Go To Line...'
-msgid "ID:32779:V C +G"
-msgstr "ID:32779:V C +G"
-
-#. Accelerator Entry for Menu ID:32793; 'Arrange &Vertical'
-#: Corresponding Menu ID:32793
-#: ; 'Arrange &Vertical'
-msgid "ID:32793:V C +V"
-msgstr "ID:32793:V C +V"
-
-#. Accelerator Entry for Menu ID:32794; 'Reload'
-#: Corresponding Menu ID:32794
-#: ; 'Reload'
-msgid "ID:32794:V C +R"
-msgstr "ID:32794:V C +R"
-
-#. Accelerator Entry for Menu ID:32796; 'Show &all revisions'
-#: Corresponding Menu ID:32796
-#: ; 'Show &all revisions'
-msgid "ID:32796:V C +A"
-msgstr "ID:32796:V C +A"
-
-#. Accelerator Entry for Menu ID:32809; '&Filter'
-#: Corresponding Menu ID:32809
-#: ; '&Filter'
-msgid "ID:32809:V C +F"
-msgstr "ID:32809:V C +F"
-
-#. Accelerator Entry for Menu ID:57601; '&Open Ctrl-O'
-#: Corresponding Menu ID:57601
-#: ; '&Open Ctrl-O'
-msgid "ID:57601:V C +O"
-msgstr "ID:57601:V C +O"
-
-#. Accelerator Entry for Menu ID:57603; '&Save Ctrl-S'
-#: Corresponding Menu ID:57603
-#: ; '&Save Ctrl-S'
-msgid "ID:57603:V C +S"
-msgstr "ID:57603:V C +S"
-
-#. Accelerator Entry for Menu ID:57604; 'Save &As...'
-#: Corresponding Menu ID:57604
-#: ; 'Save &As...'
-msgid "ID:57604:V CS+S"
-msgstr "ID:57604:V CS+S"
-
-#. Accelerator Entry for Menu ID:57634; '&Copy'
-#: Corresponding Menu ID:57634
-#: ; '&Copy'
-msgid "ID:57634:V C +C"
-msgstr "ID:57634:V C +C"
-
-#. Accelerator Entry for Menu ID:57635; ''
-#: Corresponding Menu ID:57635
-#: ; ''
-msgid "ID:57635:V C +X"
-msgstr "ID:57635:V C +X"
-
-#. Accelerator Entry for Menu ID:57636; '&Find'
-#: Corresponding Menu ID:57636
-#: ; '&Find'
-msgid "ID:57636:V C +F"
-msgstr "ID:57636:V C +F"
-
-#. Accelerator Entry for Menu ID:57637; ''
-#: Corresponding Menu ID:57637
-#: ; ''
-msgid "ID:57637:V C +V"
-msgstr "ID:57637:V C +V"
-
-#. Accelerator Entry for Menu ID:57643; '&Undo\tCtrl+Z'
-#: Corresponding Menu ID:57643
-#: ; '&Undo\tCtrl+Z'
-msgid "ID:57643:V C +Z"
-msgstr "ID:57643:V C +Z"
-
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-#: Corresponding Menu ID:57665
-#: ; 'E&xit'
-msgid "ID:57665:V C +Q"
-msgstr "ID:57665:V C +Q"
 
 #: Control-ID:65535
 msgid "Icon Overlays / Status Columns"
@@ -2865,19 +2570,10 @@ msgid "Icons/Design/Code:     Luebbe Onken"
 msgstr "Icons/Design/Code:     Lübbe Onken"
 
 #: ID:194
-msgid "If activated, prevents the overlays from showing in \"save as...\" or \"open\" dialogs"
+msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr ""
 "Aktivieren Sie diese Option, damit die überlagerten Symbole in\n"
-"<b>Speichern unter...</b> und <b>Öffnen</b> Dialogen nicht angezeigt werden."
-
-# ID:198,
-#: ID:198
-msgid ""
-"If activated, the menu entry \"Get Lock\" is always shown in the top level menu\n"
-"if the selected file has the svn:needs-lock property set"
-msgstr ""
-"Aktivieren Sie diese Option, damit die Funktion \"Sperre holen\" im obersten\n"
-"Menü angezeigt wird, falls die svn:needs-lock Eigenschaft der Datei gesetzt ist."
+"<b>Speichern unter...</b> und <b>Öffnen</b> Dialogen nicht angezeigt werden"
 
 #: ID:95
 msgid ""
@@ -2888,9 +2584,7 @@ msgstr ""
 "Import erstellt wird. Andernfalls wird direkt zur angegebenen URL importiert."
 
 #: ID:79
-msgid ""
-"If checked, TortoiseSVN creates a temporary file of the BASE to do the diff\n"
-"with the keywords expanded and the line endings adjusted."
+msgid "If checked, TortoiseSVN creates a temporary file of the BASE to do the diff with the keywords expanded and the line endings adjusted."
 msgstr ""
 "Aktivieren Sie diese Option, damit TortoiseSVN für den Vergleich\n"
 "eine temporäre BASE Datei erzeugt, in der die Schlüsselwörter\n"
@@ -3011,41 +2705,9 @@ msgstr "Ignoriere &Zeilenenden (empfohlen)"
 msgid "Import"
 msgstr "Importieren"
 
-#: ID:127
-#, c-format
-msgid "Import %ld items"
-msgstr "Importiere %ld Objekte"
-
 #: Control-ID:1056
 msgid "Import &message"
 msgstr "Import &Meldung"
-
-#: ID:127
-#, c-format
-msgid ""
-"Import file %s\r\n"
-"to %s"
-msgstr ""
-"Importiere Datei %s\r\n"
-"nach %s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Import file to\r\n"
-"%s"
-msgstr ""
-"Importiere Datei nac\r\n"
-"%s"
-
-#: ID:126
-#, c-format
-msgid ""
-"Import folder %s\r\n"
-"to %s"
-msgstr ""
-"Importiere Ordner %s\r\n"
-"nach %s"
 
 #: ID:120
 #, c-format
@@ -3060,11 +2722,6 @@ msgstr "Importiert eine Arbeitskopie in ein Projektarchiv"
 msgid "Include ignored files"
 msgstr "Ignorierte Dateien einschließen"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Include only the following revision range:"
-msgstr "Nur den folgenden Revisionsbereich einschließen:"
-
 #: Control-ID:65535
 msgid "Include paths:"
 msgstr "Pfade &einschließen:"
@@ -3074,8 +2731,8 @@ msgid "Initial import"
 msgstr "Erster Import"
 
 #: Control-ID:65535
-msgid "Inline differences"
-msgstr "Unterschiede innerhalb von Zeilen"
+msgid "Inline diff"
+msgstr "Unterschiede innerhalb einer Zeile"
 
 # Dlg-ID:161,
 #: Dlg-ID:161
@@ -3218,11 +2875,6 @@ msgstr ""
 msgid "Keep &locks"
 msgstr "Sperren &behalten"
 
-# ID:213,
-#: Control-ID:1126
-msgid "Keep changelist"
-msgstr "Änderungsliste beibehalten"
-
 #: Control-ID:65535
 msgid "Last commit revision:"
 msgstr "Letzte übertragene Revision:"
@@ -3256,17 +2908,8 @@ msgid "Line Graph"
 msgstr "Liniendiagramm"
 
 #: Control-ID:65535
-msgid "Line differences"
-msgstr "Unterschiede zwischen Zeilen"
-
-#: Control-ID:65535
 msgid "Line:"
 msgstr "Zeile:"
-
-#: ID:269
-#, c-format
-msgid "Line: %*ld"
-msgstr "Zeile: %*ld"
 
 #: ID:3605
 msgid ""
@@ -3301,7 +2944,7 @@ msgstr "Sperre"
 msgid "Lock Files"
 msgstr "Dateien sperren"
 
-#: ID:213
+#: ID:209
 msgid "Lock broken!"
 msgstr "Sperre aufgebrochen!"
 
@@ -3321,7 +2964,7 @@ msgstr "Sperren fehlgeschlagen"
 msgid "Lock owner:"
 msgstr "Eigner der Sperre:"
 
-#: ID:213
+#: ID:209
 #, c-format
 msgid "Lock stolen by %s"
 msgstr "Sperre von %s gestohlen "
@@ -3391,13 +3034,13 @@ msgstr "Anzeige::Symbolauswahl"
 
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
-msgstr "Kleinste angezeigte Revision: %ld - Größte angezeigte Revision: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld"
+msgstr "Kleinste Revision: %ld - Größte Revision: %ld"
 
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
-msgstr "Kleinste angezeigte Revision: %ld - Größte angezeigte Revision: %ld - HEAD Revision: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld - HEAD revision: %ld"
+msgstr "Kleinste Revision: %ld - Größte Revision: %ld - HEAD Revision: %ld"
 
 #: ID:3866
 msgid "Mail system DLL is invalid."
@@ -3406,10 +3049,6 @@ msgstr "Mail System DLL ist ungültig."
 #: ID:17
 msgid "Manage Subversion properties"
 msgstr "Subversion-Eigenschaften bearbeiten"
-
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "Als &aufgelöst markieren"
 
 #: ID:282
 msgid "Mark as resolved"
@@ -3433,7 +3072,7 @@ msgid "Max"
 msgstr "Maximum"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "Maximale Anzahl der zu merkenden Log-Einträge"
 
@@ -3460,7 +3099,6 @@ msgid "Merging requires different revisions or different URLs in 'From:' and 'To
 msgstr "Zusammenführen erfordert unterschiedliche Revisionen oder URLs in 'Von:' und 'Bis:'"
 
 #: ID:76
-#: Control-ID:1359
 msgid "Message"
 msgstr "Meldung"
 
@@ -3498,7 +3136,6 @@ msgstr "Gemischt"
 
 #: ID:74
 #: ID:264
-#: Control-ID:65535
 msgid "Modified"
 msgstr "Verändert"
 
@@ -3511,30 +3148,6 @@ msgstr "Weitere Farben..."
 #: Control-ID:1136
 msgid "Most active author:"
 msgstr "Die meisten Übertragungen:"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %ld items to\r\n"
-"%s"
-msgstr ""
-"Verschiebe %ld Objekte nach\r\n"
-"%s"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %s\r\n"
-"to %s"
-msgstr ""
-"Verschiebe %s\r\n"
-"nach %s"
-
-#: ID:209
-msgid "Move to changelist"
-msgstr "Verschiebe in Änderungsliste"
 
 #: ID:98
 #, c-format
@@ -3570,7 +3183,7 @@ msgstr "NUM"
 msgid "Needs lock"
 msgstr "Benötigt Sperre"
 
-#: ID:213
+#: ID:210
 msgid "Nested"
 msgstr "Verschachtelt"
 
@@ -3767,10 +3380,6 @@ msgstr "Öffne Client Zertifikatsdatei"
 msgid "Open file"
 msgstr "Datei öffnen"
 
-#: Control-ID:1132
-msgid "Open from clipboard"
-msgstr "Aus Zwischenablage öffnen"
-
 #: ID:7
 msgid "Open image file..."
 msgstr "Öffne Bilddatei..."
@@ -3807,20 +3416,6 @@ msgstr "Andere"
 msgid "Out of memory."
 msgstr "Zu wenig Speicher."
 
-# ID:95,
-#: ID:95
-msgid ""
-"Override the svn:eol-style property setting.\n"
-"Files which don't have this property set are not affected."
-msgstr ""
-"Überschreibt die svn:eol-style Eigenschaft.\n"
-"Dateien, bei denen diese Eigenschaft nicht gesetzt ist, werden nicht beeinflusst."
-
-# ID:99,
-#: ID:99
-msgid "Overwrite"
-msgstr "Überschreiben"
-
 #: MenuEntry
 msgid "P&revious Conflict"
 msgstr "V&orheriger Konflikt"
@@ -3854,7 +3449,6 @@ msgid "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 msgstr "Patchdateien (*.diff, *.patch)|*.diff;*.patch|Alle (*.*)|*.*||"
 
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "Pfad"
 
@@ -3886,10 +3480,6 @@ msgstr "Bitte geben Sie ein Datum und/oder eine Zeit ein."
 msgid "Please enter a date."
 msgstr "Bitte geben Sie ein Datum ein."
 
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "Bitte wählen Sie das auszuführende Skript aus."
-
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -3898,11 +3488,6 @@ msgstr "Bitte eine Zahl zwischen %1 und %2 eingeben."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "Bitte eine Zahl eingeben."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "Bitte geben Sie einen Pfad an auf den das Skript angewendet wird."
 
 #: ID:3858
 msgid "Please enter a positive integer."
@@ -3950,10 +3535,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "Bitte wählen Sie eine Schaltfläche."
 
-#: ID:83
-msgid "Please select a hook type"
-msgstr "Bitte wählen Sie einen Aktionstyp"
-
 #: ID:76
 msgid "Please specify the certificate type"
 msgstr "Bitte geben Sie den Zertifikatstyp an"
@@ -3966,37 +3547,19 @@ msgstr "Bitte etwas Geduld - Dieser Vorgang kann lange dauern!"
 msgid "Please wait while cancelling..."
 msgstr "Bitte warten Sie auf den Abbruch..."
 
-#: ID:319
-msgid "Please wait while differences are obtained..."
-msgstr "Bitte warten Sie während die Unterschiede ermittelt werden..."
-
 #: ID:104
 msgid "Please wait while the repository browser is initialized..."
 msgstr "Bitte warten Sie, während der Projektarchiv-Betrachter initialisiert wird..."
 
+#: ID:319
+msgid "Please wait while we get the differences..."
+msgstr "Bitte warten Sie während wir die Unterschiede holen..."
+
 #: ID:119
 #: ID:146
-#: ID:213
+#: ID:211
 msgid "Please wait..."
 msgstr "Bitte warten..."
-
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "Nach Übertragung"
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "Nach Aktualisierung"
-
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "Vor Übertragung"
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "Vor Aktualisierung"
 
 # ID:376,
 #: ID:376
@@ -4032,6 +3595,7 @@ msgid "Properties for"
 msgstr "Eigenschaften für"
 
 #: ID:209
+#: Control-ID:11021
 msgid "Properties..."
 msgstr "Eigenschaften..."
 
@@ -4066,11 +3630,6 @@ msgstr "Proxy &Wartezeit in Sekunden:"
 #: Control-ID:1080
 msgid "Proxy Settings"
 msgstr "Proxy Einstellungen"
-
-# Control-ID:1338,
-#: Control-ID:1338
-msgid "Put \"Get Lock\" on top menu when svn:needs-lock is set"
-msgstr "Zeige \"Sperre holen\" im obersten Menü an, wenn svn:needs-lock gesetzt ist"
 
 # ID:246,
 #: ID:246
@@ -4196,27 +3755,9 @@ msgstr "Status Projektarchiv"
 msgid "Remote text status"
 msgstr "Inhalt Projektarchiv"
 
-#: ID:126
-#, c-format
-msgid "Remove %ld items"
-msgstr "Lösche %ld Objekte"
-
-#: ID:126
-#, c-format
-msgid "Remove %s"
-msgstr "Löschen %s"
-
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Aus &Ignorieren Liste entfernen"
-
-#: ID:209
-msgid "Remove from changelist"
-msgstr "Lösche aus Änderungsliste"
-
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "Entfernen..."
 
 #: Control-ID:65535
 msgid "Removed"
@@ -4237,11 +3778,6 @@ msgstr ""
 "%s\n"
 "wurden aus der 'Ignorieren' Liste entfernt."
 
-# ID:17,
-#: ID:17
-msgid "Removes all unversioned and ignored items"
-msgstr "Entfernt alle nicht versionierten und ignorierten Objekte"
-
 #: ID:15
 msgid "Removes the file or filemask from the list of ignored items"
 msgstr "Entfernt die gewählte(n) Datei(en) oder Dateimasken aus der 'Ignorieren' Liste"
@@ -4255,16 +3791,6 @@ msgstr "Umbenennen"
 msgid "Rename %s"
 msgstr "%s Umbenennen"
 
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Rename item from %s\r\n"
-"to %s"
-msgstr ""
-"Objekt von %s\r\n"
-"in %s umbenennen"
-
 #: Control-ID:65535
 msgid "Renamed node"
 msgstr "Knoten umbenannt"
@@ -4276,10 +3802,6 @@ msgstr "Im Projektarchiv umbenannt"
 #: ID:11
 msgid "Renames files / folders inside version control"
 msgstr "Benennt Dateien / Ordner unter Versionskontrolle um"
-
-#: ID:209
-msgid "Repair move"
-msgstr "Umbenennen reparieren"
 
 #: ID:3603
 msgid ""
@@ -4424,10 +3946,6 @@ msgstr "Revision / Autor:"
 #: Dlg-ID:182
 msgid "Revision Graph"
 msgstr "Revisionsgraph"
-
-#: Dlg-ID:239
-msgid "Revision Graph Filter"
-msgstr "Revisionsgraph filtern"
 
 #: Dlg-ID:228
 msgid "Revision Range"
@@ -4688,20 +4206,6 @@ msgstr ""
 "Wähle Zielordner für Export.\n"
 "Vielleicht müssen Sie einen neuen Ordner erstellen."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "Wählen Sie den Ordner, in dem das Skript ausgeführt wird"
-
-# ID:197,
-#: ID:119
-msgid "Select folder to save the selected files to"
-msgstr "Wählen Sie den Ordner, in dem die gewählten Dateien gespeichert werden sollen"
-
-#: ID:197
-msgid "Select hook script file"
-msgstr "Skriptdatei auswählen"
-
 #: ID:78
 msgid "Select merge application"
 msgstr "Konflikteditor auswählen"
@@ -4809,9 +4313,9 @@ msgstr "Zeige &Unterschiede"
 #: ID:101
 #: Control-ID:1016
 #: Control-ID:1228
-#: Control-ID:1132
 #: Control-ID:1031
 #: Control-ID:1034
+#: Control-ID:1132
 msgid "Show &log"
 msgstr "Zeige &Log"
 
@@ -4879,20 +4383,10 @@ msgstr "Zeige unmodifizierte Dateien"
 msgid "Show unversioned files"
 msgstr "Zeige nicht versionierte Dateien"
 
-# ID:198,
-#: ID:198
-msgid "Show/Hide"
-msgstr "Anzeigen/Verbergen"
-
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Zeige %ld Knoten"
-
-#: ID:115
-#, c-format
-msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
-msgstr "Zeige %ld Revision(en) des gewählten Pfades. Von Revision %ld bis %ld - %ld Revisionen gewählt."
 
 # ID:272,
 #: ID:272
@@ -4952,11 +4446,6 @@ msgstr "Numerisch sortieren"
 msgid "Sort numerical"
 msgstr "Numerisch sortieren"
 
-# Control-ID:1300,
-#: ID:197
-msgid "Sorts items numerical instead of alphabetical"
-msgstr "Sortiert Einträge numerisch anstatt alphabetisch"
-
 # ID:196,
 #: ID:196
 msgid "Specifies how many items you want to keep in the most recent log messages dialog."
@@ -4995,19 +4484,9 @@ msgstr "Gestapelte Balken"
 msgid "Stacked Line Graph"
 msgstr "Gestapelte Linien"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "Start Übertragung"
-
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "Startrevision"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr "Start Aktualisierung"
 
 #: ID:245
 #: Dlg-ID:179
@@ -5206,16 +4685,6 @@ msgstr "Die Stück-Größe stimmt nicht mit der Anzahl hinzugefügter/gelöschte
 msgid "The chunk start \"@@\" was expected in line %d !"
 msgstr "Die Start-Zeichen '@@' wurden in Zeile %d erwartet!"
 
-# ID:196,
-#: ID:196
-msgid "The default path to checkout to if nothing else is specified"
-msgstr "Der Standardpfad in den ausgecheckt wird, wenn nichts anderes angegeben wird"
-
-# ID:197,
-#: ID:197
-msgid "The default url to checkout from if nothing else is specified"
-msgstr "Die Standard-URL von der ausgecheckt wird, wenn nichts anderes angegeben wird"
-
 #: ID:68
 #, c-format
 msgid ""
@@ -5286,28 +4755,6 @@ msgstr ""
 "%s\n"
 "existiert nicht. Möchten Sie ihn erstellen?"
 
-# ID:102,
-#: ID:99
-#, c-format
-msgid ""
-"The folder\n"
-"%s\n"
-"already exists!"
-msgstr ""
-"Der Ordner\n"
-"%s\n"
-"existiert bereits!"
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"Das Aktionsskript gab eine Fehlermeldung zurück:\n"
-"%s"
-
 # ID:7,
 #: ID:7
 msgid "The image can not be shown."
@@ -5347,10 +4794,6 @@ msgid ""
 msgstr ""
 "Die alte Datei stimmt nicht mit der neuen Datei überein.\n"
 "Umbenennen von Dateien wird (noch) nicht unterstützt!"
-
-#: ID:220
-msgid "The operation failed."
-msgstr "Die Operation ist fehlgeschlagen."
 
 #: ID:64
 #, c-format
@@ -5512,23 +4955,10 @@ msgstr ""
 "Wollen Sie die Datei mitsamt den Konflikten speichern?\n"
 "Wenn Sie JA wählen, müssen Sie die Konflikte von Hand in einem anderen Editor auflösen!"
 
-#: ID:313
-msgid ""
-"There are unsaved modifications!\n"
-"Do you want to save your changes?"
-msgstr ""
-"Die Änderungen sind noch nicht gespeichert!\n"
-"Wollen Sie Ihre Änderungen speichern?"
-
 # ID:82,
 #: ID:82
 msgid "There is nothing to add. All the files and folders are either under version control or have been ignored using the svn:ignore property or the global ignore configuration setting."
 msgstr "Es gibt nichts hinzuzufügen. Alle Dateien und Ordner befinden sich entweder bereits unter Versionskontrolle oder sie werden aufgrund der svn:ignore Eigenschaft beziehungsweise der globalen Ausschlussmuster ignoriert."
-
-# ID:83,
-#: ID:83
-msgid "There's nothing to unlock. No file has a lock in this working copy."
-msgstr "Es gibt nichts zu entsperren. Keine Datei in dieser Arbeitskopie ist gesperrt."
 
 #: ID:188
 msgid "Thesaurus"
@@ -5595,7 +5025,6 @@ msgstr ""
 "Dabei ist das Löschen von Verzeichnissen nicht erlaubt."
 
 #: Control-ID:1201
-#: Control-ID:65535
 msgid "To:"
 msgstr "Bis:"
 
@@ -5855,10 +5284,6 @@ msgstr "Konnte auf %1 nicht schreiben, es ist entweder schreibgeschützt oder vo
 msgid "Uncheck"
 msgstr "Abwählen"
 
-#: ID:213
-msgid "Uncheck Group"
-msgstr "Gruppe abwählen"
-
 #: ID:3603
 msgid ""
 "Undo the last action\n"
@@ -5887,7 +5312,6 @@ msgstr ""
 "  Ermittelter Name: %s"
 
 #: ID:221
-#: Dlg-ID:242
 msgid "Unlock"
 msgstr "Entsperren"
 
@@ -5965,11 +5389,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "Nutze die URL der &Arbeitskopie als 'Von:' URL"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "Standard Diff aus de Zwischenablage verwenden"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -5989,56 +5408,24 @@ msgid "Use both text blocks (this one last)"
 msgstr "Verwende beide Blöcke (Diesen zuletzt)"
 
 #: Control-ID:1066
-msgid "Use stri&keout for removed lines"
+msgid "Use stri&keout for deleted lines"
 msgstr "Gelöschte Zeilen &durchstreichen"
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "Verwende '&Meinen' Textblock"
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&theirs\""
 msgstr "Verwende '&Deren' Textblock"
 
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
 msgstr "Verwende 'M&einen' Textblock vor 'Deren'"
 
-#: ID:2052
-msgid ""
-"Use text block from \"mine\" before \"theirs\"\n"
-"Use \"mine\" text block then \"theirs\""
-msgstr ""
-"Verwende Textblock aus 'Meine' vor 'Deren'\n"
-"Erst 'Mein' Textblock, danach 'Deren'"
-
-#: ID:2052
-msgid ""
-"Use text block from \"mine\"\n"
-"Use \"mine\" text block"
-msgstr ""
-"Verwende Textblock aus 'Meine'\n"
-"Verwende 'Meinen' Textblock"
-
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"t&heirs\" before \"mine\""
 msgstr "Verwende 'De&ren' Textblock vor 'Meinem'"
-
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\" before \"mine\"\n"
-"Use \"theirs\" text block then \"mine\""
-msgstr ""
-"Verwende Textblock aus 'Deren' vor 'Meine'\n"
-"Erst 'Deren' Textblock, danach 'Meiner'"
-
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\"\n"
-"Use \"theirs\" text block"
-msgstr ""
-"Verwende Textblock aus 'Deren'\n"
-"Verwende 'Deren' Textblock"
 
 #: ID:251
 msgid "Use th&is text block"
@@ -6090,29 +5477,9 @@ msgstr "Wert"
 msgid "Version"
 msgstr "Version"
 
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "Betrachte Revision eines Pfades im &Web"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "Betrachte Revision im &Web"
-
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "Besuchen Sie unsere Webseite"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "Warten"
-
-# Control-ID:1327,
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "Warte auf Beendigung des Skripts"
 
 #: ID:88
 msgid "Warning"
@@ -6129,10 +5496,6 @@ msgstr "Mit URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "Arbeitskopie"
-
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "Pfad der Arbeitskopie:"
 
 #: ID:80
 #, c-format
@@ -6177,16 +5540,6 @@ msgstr ""
 "Sie versuchen mittels file:/// auf ein Projektarchiv zuzugreifen, das auf einer Netzwerkfreigabe liegt.\n"
 "<b>Dies kann zur Zerstörung des Projektarchivs führen!</b>\n"
 "Möchten Sie dies wirklich tun?"
-
-# ID:105,
-#: ID:105
-msgid ""
-"You are trying to move the trunk folder!\n"
-"Are you absolutely sure that you want to move\n"
-"the trunk folder?"
-msgstr ""
-"Sie sind dabei, den 'trunk' Ordner zu verschieben!\n"
-"Sind Sie sich absolut sicher, dass Sie das tun wollen?"
 
 # ID:16,
 #: ID:16
@@ -6487,10 +5840,6 @@ msgstr ""
 msgid "deleted"
 msgstr "Gelöscht"
 
-#: Control-ID:1342
-msgid "eol style"
-msgstr "eol style"
-
 #: ID:79
 #, c-format
 msgid ""
@@ -6682,7 +6031,6 @@ msgstr ""
 
 #: ID:80
 #: ID:103
-#: ID:284
 #, c-format
 msgid "to %s"
 msgstr "nach %s"
@@ -6736,28 +6084,6 @@ msgstr ""
 "der die Logmeldungen geschrieben werden sollen. TortoiseSVN lädt dann\n"
 "die entsprechende Rechtschreibprüfung, falls sie installiert ist."
 
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfileproperties\n"
-"Newline separated list of user defined properties for files which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfileproperties\n"
-"Eine durch Zeilenumbrüche getrennte Liste von Eigenschaften für\n"
-"Dateien, die als Auswahl im Eigenschaftsdialog angezeigt wird."
-
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfolderproperties\n"
-"Newline separated list of user defined properties for folders which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfolderproperties\n"
-"Eine durch Zeilenumbrüche getrennte Liste von Eigenschaften für\n"
-"Ordner, die als Auswahl im Eigenschaftsdialog angezeigt wird."
-
 #: ID:15
 msgid ""
 "tsvn:warnifnoissue\n"
@@ -6771,32 +6097,6 @@ msgstr ""
 msgid "values are different"
 msgstr "Werte sind unterschiedlich"
 
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:pathrevision\n"
-"URL eines Webbetrachter die auf eine Datei des Projektarchivs in einer spezifischen Revision zeigt.\n"
-"Der Platzhalter %REVISION% in der URL is wird durch die Revisionsnummer ersetzt.\n"
-"Der Platzhalter %PATH% wird durch den Pfad relativ zur Basis des Projektarchivs ersetzt."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"URL eines Webbetrachter die auf das Projektarchiv in einer spezifischen Revision zeigt.\n"
-"Der Platzhalter %REVISION% in der URL is wird durch die Revisionsnummer ersetzt."
-
 #: ID:245
 msgid "week"
 msgstr "Woche"
@@ -6808,4 +6108,5 @@ msgstr "die auf folgendes Projektarchiv zeigt:"
 #: ID:245
 msgid "year"
 msgstr "Jahr"
+
 

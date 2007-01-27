@@ -122,7 +122,7 @@ void LoadLangDll()
 						dwBufferSize,
 						pBuffer))
 					{
-						// Query the current language
+						// Abfragen der aktuellen Sprache
 						if (VerQueryValue(	pBuffer,
 							_T("\\VarFileInfo\\Translation"),
 							&lpFixedPointer,
@@ -162,7 +162,7 @@ void LoadLangDll()
 				if (g_hResInst != g_hmodThisDll)
 					FreeLibrary(g_hResInst);
 				g_hResInst = hInst;
-			}
+			} // if (hInst != NULL) 
 			else
 			{
 				DWORD lid = SUBLANGID(langId);
@@ -302,7 +302,7 @@ void Unescape(char * psz)
 					nValue = (char) (((pszHigh - szHex) << 4) +
 						(pszLow - szHex));
 				}
-			}
+			} // if (pszHigh != NULL) 
 			*pszDest++ = nValue;
 		} 
 		else

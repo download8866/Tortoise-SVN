@@ -26,13 +26,15 @@
 #include "TSVNPath.h"
 #include "SVN.h"
 #include ".\repositorytree.h"
-#include "InputLogDlg.h"
+#include "InputDlg.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
 #include "DragDropImpl.h"
 #include "UnicodeUtils.h"
 #include "RenameDlg.h"
+
+// CRepositoryTree
 
 IMPLEMENT_DYNAMIC(CRepositoryTree, CReportCtrl)
 CRepositoryTree::CRepositoryTree(const CString& strUrl, BOOL bFile) :
@@ -57,6 +59,10 @@ BEGIN_MESSAGE_MAP(CRepositoryTree, CReportCtrl)
 	ON_NOTIFY_REFLECT(TVN_GETINFOTIP, OnTvnGetInfoTip)
 END_MESSAGE_MAP()
 
+
+
+// CRepositoryTree public interface
+
 void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 {
 	m_strUrl = svn_url.GetPath();
@@ -73,7 +79,7 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 	if (m_strReposRoot.IsEmpty())
 	{
 		SVN svn;
-		m_strReposRoot = svn.GetRepositoryRootAndUUID(CTSVNPath(m_strUrl), m_sUUID);
+		m_strReposRoot = svn.GetRepositoryRoot(CTSVNPath(m_strUrl));
 		m_strReposRoot = SVNUrl::Unescape(m_strReposRoot);
 		m_Revision = SVNRev::REV_HEAD;
 		if (m_pRepositoryBar)
@@ -92,9 +98,11 @@ void CRepositoryTree::ChangeToUrl(const SVNUrl& svn_url)
 		SetSelection(hItem);
 }
 
+
+
 // CRepositoryTree low level update functions
 
-HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool init, bool bAlreadyUnescaped, bool checkexisting, HTREEITEM insertafter)
+HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool init, bool bAlreadyUnescaped)
 {
 	CString folder_path;
 	if ((init)&&(!m_strReposRoot.IsEmpty()))
@@ -110,9 +118,7 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 	}
 	AfxExtractSubString(folder_path, SVNUrl(folder, bAlreadyUnescaped), 0, '\t');
 
-	HTREEITEM hItem = 0;
-	if (checkexisting)
-		hItem = FindUrl(folder_path);
+	HTREEITEM hItem = FindUrl(folder_path);
 	if (hItem == 0)
 	{
 		HTREEITEM hParentItem = RVTI_ROOT;
@@ -136,7 +142,7 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 			if (force && hParentItem != RVTI_ROOT)
 				Expand(hParentItem, RVE_EXPAND);
  
-			hItem = CReportCtrl::InsertItem(folder_name, m_nIconFolder, -1, -1, hParentItem, insertafter);
+			hItem = CReportCtrl::InsertItem(folder_name, m_nIconFolder, -1, -1, hParentItem, RVTI_SORT);
 
 			InsertDummyItem(hItem);
 			SetItemData(GetItemIndex(hItem), 0);
@@ -172,22 +178,13 @@ HTREEITEM CRepositoryTree::AddFolder(const CString& folder, bool force, bool ini
 	return hItem;
 }
 
-HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force, bool bAlreadyUnescaped, bool checkexisting, HTREEITEM insertafter)
+HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force, bool bAlreadyUnescaped)
 {
-	int pos = file.Find('\t');
-	CString file_path = pos >= 0 ? file.Left(pos) : file;
+	CString file_path;
+	AfxExtractSubString(file_path, SVNUrl(file, bAlreadyUnescaped), 0, '\t');
 
-	if (!bAlreadyUnescaped)
-	{
-		CStringA fpa = CUnicodeUtils::GetUTF8(file_path);
-		CPathUtils::Unescape(fpa.GetBuffer());
-		fpa.ReleaseBuffer();
-		file_path = CUnicodeUtils::GetUnicode(fpa);
-	}
-
-	HTREEITEM hItem = 0;
-	if (checkexisting)
-		hItem = FindUrl(file_path);
+	HTREEITEM hItem = FindUrl(file_path);
+	
 	if (hItem == 0)
 	{
 		HTREEITEM hParentItem = RVTI_ROOT;
@@ -198,7 +195,9 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force, bool bAlread
 			hParentItem = FindUrl(parent_folder);
 			if (hParentItem == 0)
 			{
-				hParentItem = AddFolder(parent_folder, force, false, true);
+				//if (!force)
+				//	return NULL;
+				hParentItem = AddFolder(parent_folder, force);
 			}
 		}
 
@@ -209,7 +208,7 @@ HTREEITEM CRepositoryTree::AddFile(const CString& file, bool force, bool bAlread
  
 		CString file_name = file_path.Mid(parent_folder.GetLength()).TrimLeft('/');
 		int icon_idx = SYS_IMAGE_LIST().GetFileIconIndex(file_name);
-		hItem = CReportCtrl::InsertItem(file_name, icon_idx, -1, -1, hParentItem, insertafter);
+		hItem = CReportCtrl::InsertItem(file_name, icon_idx, -1, -1, hParentItem, RVTI_SORT);
 
 		SetItemData(GetItemIndex(hItem), 0);
 	}
@@ -415,23 +414,6 @@ void CRepositoryTree::LoadChildItems(HTREEITEM hItem, BOOL recursive)
 				}
 			}
 		}
-		CString sFolder = folder.GetSVNPathString() + _T("/");
-		// to speed things up when inserting items,
-		// * we first sort the list of files we got reversed to the actual
-		// sorting currently set.
-		// * then we insert them unsorted
-		// * and last, we sort the whole tree again
-		//
-		// we do this because the 'sorting' algorithm of the tree control
-		// is one of the worst I've seen: it is O(N^2) if it's already sorted
-		BOOL bAscending;
-		if (m_wndHeader.GetSortColumn(&bAscending)<0)
-			bAscending = true;
-		// sort the items list before we start inserting the items
-		if (bAscending)
-			std::sort(entries.GetData(), entries.GetData() + entries.GetSize(), SortDescendingString);		
-		else
-			std::sort(entries.GetData(), entries.GetData() + entries.GetSize());
 		for (int i = 0; i < entries.GetCount(); ++i)
 		{
 			TCHAR type = entries[i].GetAt(0);
@@ -440,17 +422,13 @@ void CRepositoryTree::LoadChildItems(HTREEITEM hItem, BOOL recursive)
 			switch (type)
 			{
 			case 'd':
-				AddFolder(sFolder + entry, false, false, false, false, TVI_LAST);
+				AddFolder(folder.GetSVNPathString() + _T("/") + entry);
 				break;
 			case 'f':
-				AddFile(sFolder + entry, false, false, false, TVI_LAST);
+				AddFile(folder.GetSVNPathString() + _T("/") + entry);
 				break;
 			}
 		}
-		// now sort the whole tree in one step
-		if (m_wndHeader.GetSortColumn(&bAscending)<0)
-			m_wndHeader.SetSortColumn(0, true);
-		ResortItems();
 		// Mark item as "successfully read"
 		SetItemData(GetItemIndex(hItem), 1);
 	}
@@ -699,7 +677,7 @@ CString CRepositoryTree::MakeUrl(HTREEITEM hItem)
 			strUrl.Insert(0, GetItemText(GetItemIndex(hParent), 0) + _T("/"));
 		}
 		hParent = GetNextItem(hParent, RVGN_PARENT);
-	}
+	} // while (hParent != NULL)
 	
 	// since we *know* that '%' chars which we get here aren't used
 	// as escaping chars, we must escape them here.
@@ -738,7 +716,7 @@ HTREEITEM CRepositoryTree::ItemExists(HTREEITEM parent, CString item)
 		if (GetItemText(GetItemIndex(hCurrent), 0).CompareNoCase(item)==0)
 			return hCurrent;
 		hCurrent = GetNextItem(hCurrent, RVGN_NEXT);
-	}
+	} // while (hCurrent != NULL)
 	return NULL;
 }
 
@@ -800,14 +778,16 @@ void CRepositoryTree::EndEdit(BOOL bUpdate /* = TRUE */, LPNMRVITEMEDIT lpnmrvie
 	SVN svn;
 	svn.SetPromptApp(&theApp);
 	CWaitCursorEx wait_cursor;
-	CInputLogDlg input(this);
-	input.SetProjectProperties(m_pProjectProperties);
-	CString sHint;
-	sHint.Format(IDS_INPUT_RENAME, (LPCTSTR)sOldName, (LPCTSTR)sNewName);
-	input.SetActionText(sHint);
+	CInputDlg input(this);
+	input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
+	CStringUtils::RemoveAccelerators(input.m_sHintText);
+	input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
+	CStringUtils::RemoveAccelerators(input.m_sTitle);
+	input.m_pProjectProperties = m_pProjectProperties;
+	input.m_sInputText.LoadString(IDS_INPUT_RENAMELOGMSG);
 	if (input.DoModal() == IDOK)
 	{
-		if (!svn.Move(CTSVNPath(sOldUrl), CTSVNPath(sNewUrl), TRUE, input.GetLogMessage()))
+		if (!svn.Move(CTSVNPath(sOldUrl), CTSVNPath(sNewUrl), TRUE, input.m_sInputText))
 		{
 			wait_cursor.Hide();
 			CReportCtrl::EndEdit(FALSE, lpnmrvie);
@@ -875,10 +855,6 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 	ftetc.lindex = -1; 
 	ftetc.tymed = TYMED_HGLOBAL; 
 	ftetc.cfFormat=CF_HDROP;
-	
-	BringWindowToTop();
-	SetForegroundWindow();
-	SetActiveWindow();
 	
 	m_DroppedPaths.Clear();
 	
@@ -972,21 +948,21 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 							return;
 						}
 					}
-					CInputLogDlg input(this);
-					input.SetProjectProperties(m_pProjectProperties);
-					CString sHint;
-					if (urlList.GetCount() == 1)
-						sHint.Format(IDS_INPUT_COPY, (LPCTSTR)urlList[0].GetSVNPathString(), (LPCTSTR)(sDestUrl+_T("/")+destUrlList[0].GetFileOrDirectoryName()));
-					else
-						sHint.Format(IDS_INPUT_COPYMORE, urlList.GetCount(), (LPCTSTR)sDestUrl);
-					input.SetActionText(sHint);
+					CInputDlg input(this);
+					input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
+					CStringUtils::RemoveAccelerators(input.m_sHintText);
+					input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
+					CStringUtils::RemoveAccelerators(input.m_sTitle);
+					input.m_pProjectProperties = m_pProjectProperties;
+					if (m_pProjectProperties->sLogTemplate.IsEmpty())
+						input.m_sInputText.LoadString(IDS_INPUT_COPYLOGMSG);
 					if (input.DoModal() == IDOK)
 					{
 						for (int index=0; index<urlList.GetCount(); ++index)
 						{
 							if (!FindUrl(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()))
 							{
-								if (!svn.Copy(urlList[index], CTSVNPath(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()), m_Revision, input.GetLogMessage()))
+								if (!svn.Copy(urlList[index], CTSVNPath(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()), m_Revision, input.m_sInputText))
 								{
 									wait_cursor.Hide();
 									CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
@@ -997,10 +973,14 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 									HTREEITEM hItem = FindUrl(urlList[index].GetSVNPathString());
 									if (hItem)
 									{
+										CString sEscapedName = destUrlList[index].GetFileOrDirectoryName();
+										sEscapedName.Replace(_T("%"), _T("%25"));
+										sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
+
 										if (IsFolder(hItem))
-											AddFolder(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName(), false, false, true);
+											AddFolder(sDestUrl+_T("/")+sEscapedName);
 										else
-											AddFile(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName(), false, true);
+											AddFile(sDestUrl+_T("/")+sEscapedName);
 										Refresh(hItem);
 									}
 								}
@@ -1022,27 +1002,6 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 					SVN svn;
 					svn.SetPromptApp(&theApp);
 					CWaitCursorEx wait_cursor;
-					// check if the user moves the trunk folder
-					// we assume that this would only happen accidentally, and so we ask
-					// then the user if that's really, really what he wants to do
-					for (int checktrunkindex = 0; checktrunkindex < urlList.GetCount(); ++checktrunkindex)
-					{
-						if (urlList[checktrunkindex].GetSVNPathString().Right(5).CompareNoCase(_T("trunk"))==0)
-						{
-							if (CMessageBox::Show(m_hWnd, IDS_REPOBROWSE_MOVETRUNK, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
-							{
-								wait_cursor.Hide();
-								ReleaseStgMedium(&medium);
-								return;
-							}
-							else
-								break;
-						}
-					}
-					// moving multiple items at once can not be done in one single revision:
-					// every item moved creates a separate revision.
-					// since this can be done in one revision if done in the working copy,
-					// we ask the user if that's really what he wants or not
 					if (urlList.GetCount() > 1)
 					{
 						if (CMessageBox::Show(m_hWnd, IDS_REPOBROWSE_MULTIMOVE, IDS_APPNAME, MB_YESNO | MB_ICONQUESTION)!=IDYES)
@@ -1052,21 +1011,21 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 							return;
 						}
 					}
-					CInputLogDlg input(this);
-					input.SetProjectProperties(m_pProjectProperties);
-					CString sHint;
-					if (urlList.GetCount() == 1)
-						sHint.Format(IDS_INPUT_MOVE, (LPCTSTR)urlList[0].GetSVNPathString(), (LPCTSTR)(sDestUrl+_T("/")+destUrlList[0].GetFileOrDirectoryName()));
-					else
-						sHint.Format(IDS_INPUT_MOVEMORE, urlList.GetCount(), (LPCTSTR)sDestUrl);
-					input.SetActionText(sHint);
+					CInputDlg input(this);
+					input.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
+					CStringUtils::RemoveAccelerators(input.m_sHintText);
+					input.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
+					CStringUtils::RemoveAccelerators(input.m_sTitle);
+					input.m_pProjectProperties = m_pProjectProperties;
+					if (m_pProjectProperties->sLogTemplate.IsEmpty())
+						input.m_sInputText.LoadString(IDS_INPUT_MOVELOGMSG);
 					if (input.DoModal() == IDOK)
 					{
 						for (int index=0; index<urlList.GetCount(); ++index)
 						{
 							if (!FindUrl(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()))
 							{
-								if (!svn.Move(urlList[index], CTSVNPath(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()), m_Revision, input.GetLogMessage()))
+								if (!svn.Move(urlList[index], CTSVNPath(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName()), m_Revision, input.m_sInputText))
 								{
 									wait_cursor.Hide();
 									CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
@@ -1077,10 +1036,13 @@ void CRepositoryTree::OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DW
 									HTREEITEM hItem = FindUrl(urlList[index].GetSVNPathString());
 									if (hItem)
 									{
+										CString sEscapedName = destUrlList[index].GetFileOrDirectoryName();
+										sEscapedName.Replace(_T("%"), _T("%25"));
+										sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
 										if (IsFolder(hItem))
-											AddFolder(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName(), false, false, true);
+											AddFolder(sDestUrl+_T("/")+sEscapedName);
 										else
-											AddFile(sDestUrl+_T("/")+destUrlList[index].GetFileOrDirectoryName(), false, true);
+											AddFile(sDestUrl+_T("/")+sEscapedName);
 										Refresh(hItem);
 									}
 								}

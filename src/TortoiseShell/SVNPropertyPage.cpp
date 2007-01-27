@@ -20,6 +20,8 @@
 
 #include "ShellExt.h"
 #include "svnpropertypage.h"
+#include "ProgressDlg.h"
+#include "UnicodeStrings.h"
 #include "UnicodeUtils.h"
 #include "SVNStatus.h"
 
@@ -43,7 +45,7 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
 
 		if (svn.status->entry == NULL)
 			return NOERROR;
-	}
+	} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 
 	if (files_.size() == 0)
 		return NOERROR;
@@ -74,7 +76,7 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
             delete sheetpage;
             DestroyPropertySheetPage (hPage);
         }
-	}
+	} // if (hPage != NULL) 
 
     return NOERROR;
 }
@@ -98,7 +100,7 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
         sheetpage = (CSVNPropertyPage*) ((LPPROPSHEETPAGE) lParam)->lParam;
         SetWindowLongPtr (hwnd, GWLP_USERDATA, (LONG_PTR) sheetpage);
         sheetpage->SetHwnd(hwnd);
-    }
+    } // if (uMessage == WM_INITDIALOG) 
     else
     {
         sheetpage = (CSVNPropertyPage*) GetWindowLongPtr (hwnd, GWLP_USERDATA);
@@ -113,12 +115,12 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 UINT CALLBACK PropPageCallbackProc ( HWND /*hwnd*/, UINT uMsg, LPPROPSHEETPAGE ppsp )
 {
     // Delete the page before closing.
-    if (PSPCB_RELEASE == uMsg)
+    if ( PSPCB_RELEASE == uMsg )
     {
         CSVNPropertyPage* sheetpage = (CSVNPropertyPage*) ppsp->lParam;
         if (sheetpage != NULL)
             delete sheetpage;
-    }
+    } // if ( PSPCB_RELEASE == uMsg ) 
     return 1;
 }
 
@@ -234,6 +236,7 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 					break;
 			} // switch (HIWORD(wParam)) 
 	} // switch (uMessage) 
+	//CShellUpdater::Instance().Flush();
 	return FALSE;
 }
 void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf, size_t buflen)
@@ -284,6 +287,14 @@ void CSVNPropertyPage::InitWorkfileView()
 			if (svn.status->entry != NULL)
 			{
 				LoadLangDll();
+				if (svn.status->entry->kind == svn_node_file)
+				{
+					//disable the 'recursive' checkbox for files
+					HWND recursivewnd = GetDlgItem(m_hwnd, IDC_RECURSIVE);
+					if (GetFocus() == recursivewnd)
+						::SendMessage(m_hwnd, WM_NEXTDLGCTL, 0, FALSE);
+					::EnableWindow(recursivewnd, FALSE);					
+				}
 				if (svn.status->text_status == svn_wc_status_added)
 				{
 					// disable the "show log" button for added files
@@ -338,7 +349,7 @@ void CSVNPropertyPage::InitWorkfileView()
 				Time64ToTimeString(time, buf, MAX_STRING_LENGTH);
 				SetDlgItemText(m_hwnd, IDC_LOCKDATE, buf);
 			} // if (svn.status->entry != NULL)
-		} // if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+		} // if (svn.GetStatus(filename.c_str())>(-2)) 
 	} // if (filenames.size() == 1) 
 	else if (filenames.size() != 0)
 	{

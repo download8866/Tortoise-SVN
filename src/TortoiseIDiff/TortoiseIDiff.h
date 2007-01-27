@@ -22,5 +22,3 @@
 
 extern HINSTANCE hInst;
 extern HINSTANCE hResource;
-extern HCURSOR   curHand;
-extern HCURSOR   curHandDown;

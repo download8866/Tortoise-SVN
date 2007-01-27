@@ -39,7 +39,6 @@ En	De	Es	Fr	Ru	Filename
 -	-	-	-	?	Copy.png
 -	-	-	-	?	CreatePatch.png
 -	-	-	-	?	ExplorerFileMenu.png (File menu, select shortcut in versioned folder)
-#	#	#	#	?	ExportURL.png
 -	-	-	-	?	GetLock.png
 -	-	-	-	?	Import.png
 -	-	-	-	?	LogContextMenu1.png  (select 2 revision in top panel, capture for file, not folder)
@@ -48,12 +47,12 @@ En	De	Es	Fr	Ru	Filename
 -	-	-	-	?	LogMessages.png
 -	-	-	#	?	Merge.png
 -	-	-	-	?	MergeOnePane.png
--	-	-	-	-	MergeOpen.png
+-	-	-	-	?	MergeOpen.png
 -	-	-	-	?	MergePatchWindow.png (Show context menu)
--	-	-	-	-	mergeprinciple.png
+-	#	-	-	?	mergeprinciple.png
 -	-	-	-	-	MergeSettingsColors.png
 -	-	-	-	-	MergeSettingsGeneral.png
--	-	-	#	?	MergeThreePane.png
+-	#	-	#	?	MergeThreePane.png
 -	-	-	-	?	MergeTwoPane.png
 -	-	#	#	#	Properties.png
 -	-	-	#	?	PropertyAdd.png
@@ -68,8 +67,6 @@ En	De	Es	Fr	Ru	Filename
 -	-	-	-	?	SettingsContext.png
 -	-	-	-	?	SettingsDialog.png
 -	-	-	-	?	SettingsDialog2.png
--	#	#	#	#	SettingsHooks.png
--	#	#	#	#	SettingsHookEdit.png
 -	-	-	-	?	SettingsMain.png
 -	-	#	#	#	SettingsOverlay.png
 -	-	-	-	?	SettingsOverlayChooser.png
@@ -79,7 +76,7 @@ En	De	Es	Fr	Ru	Filename
 -	-	-	-	?	SettingsSavedData.png
 -	-	-	-	?	StatsByAuthor.png  (Use TSVN Languages)
 -	-	-	-	?	StatsByAuthPie.png (As above but pie chart)
-#	#	#	#	?	StatsByDate.png    (3-4 authors on graph)
+-	-	-	-	?	StatsByWeek.png    (3-4 authors on graph)
 -	-	-	-	?	Switch.png
 -	-	-	#	?	TortoiseBlame.png
 -	-	#	#	?	TortoiseIDiff.png
@@ -103,7 +100,6 @@ Pure graphics files (english only)
 -	link.png
 -	LockedIcon.png
 -	ModifiedIcon.png
--	MergeToolbar.png
 -	note.png
 -	Overlays.png
 -	ReadOnlyIcon.png

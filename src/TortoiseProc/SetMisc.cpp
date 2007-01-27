@@ -21,6 +21,9 @@
 #include "SetMisc.h"
 #include "MessageBox.h"
 
+
+// CSetMisc dialog
+
 IMPLEMENT_DYNAMIC(CSetMisc, CPropertyPage)
 
 CSetMisc::CSetMisc()
@@ -111,6 +114,9 @@ BEGIN_MESSAGE_MAP(CSetMisc, CPropertyPage)
 	ON_BN_CLICKED(IDC_REOPENCOMMIT, &CSetMisc::OnChanged)
 END_MESSAGE_MAP()
 
+
+// CSetMisc message handlers
+
 void CSetMisc::OnChanged()
 {
 	SetModified();
@@ -122,7 +128,6 @@ BOOL CSetMisc::OnInitDialog()
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_UNVERSIONEDRECURSE, IDS_SETTINGS_UNVERSIONEDRECURSE_TT);
-	m_tooltips.AddTool(IDC_AUTOCOMPLETION, IDS_SETTINGS_AUTOCOMPLETION_TT);
 	m_tooltips.AddTool(IDC_AUTOCOMPLETIONTIMEOUT, IDS_SETTINGS_AUTOCOMPLETIONTIMEOUT_TT);
 	m_tooltips.AddTool(IDC_AUTOCOMPLETIONTIMEOUTLABEL, IDS_SETTINGS_AUTOCOMPLETIONTIMEOUT_TT);
 	m_tooltips.AddTool(IDC_SPELL, IDS_SETTINGS_SPELLCHECKER_TT);
@@ -130,9 +135,9 @@ BOOL CSetMisc::OnInitDialog()
 	m_tooltips.AddTool(IDC_REPOCHECK, IDS_SETTINGS_REPOCHECK_TT);
 	m_tooltips.AddTool(IDC_MAXHISTORY, IDS_SETTINGS_MAXHISTORY_TT);
 	m_tooltips.AddTool(IDC_MAXHISTORYLABEL, IDS_SETTINGS_MAXHISTORY_TT);
-	m_tooltips.AddTool(IDC_SORTNUMERICAL, IDS_SETTINGS_SORTNUMERICAL_TT);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 BOOL CSetMisc::PreTranslateMessage(MSG* pMsg)

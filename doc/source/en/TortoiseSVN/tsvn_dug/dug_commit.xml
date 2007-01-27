@@ -5,7 +5,7 @@
 	<indexterm>
 		<primary>commit</primary>
 	</indexterm>
-	<?dbhh topicname="HIDD_COMMITDLG"?>
+	<?dbhh topicname="HIDD_LOGPROMPT"?>
 	<para>
 		Sending the changes you made to your working copy is known as
 		<firstterm>committing</firstterm> the changes. But before you
@@ -114,6 +114,10 @@
 		appears when you move the mouse over a column boundary. These
 		customizations are preserved, so you will see the same headings
 		next time.
+		Note that due to an implementation detail, you may see two different
+		drag icons, depending on exactly where you position the mouse over the
+		boundary. One has a solid vertical dividing line and the other has two
+		thin vertical lines. Only the solid drag pointer works.
 	</para>
 	<tip>
 		<title>Drag and Drop</title>
@@ -126,25 +130,6 @@
 			level folder (with a lengthy folder crawl to check for changes)
 			you can open the commit dialog for one folder and drag in items
 			from the other windows to include within the same atomic commit.
-		</para>
-		<para>
-			You can drag unversioned files which reside within a working copy
-			into the commit dialog, and they will be SVN added automatically.
-		</para>
-	</tip>
-	<tip>
-		<title>Repairing External Renames</title>
-		<para>
-			Sometimes files get renamed outside of Subversion, and they show up
-			in the file list as a missing file and an unversioned file. To avoid
-			losing the history you need to notify Subversion about the connection.
-			Simply select both the old name (missing) and the new name (unversioned)
-			and use
-			<menuchoice>
-				<guimenu>Context Menu</guimenu>
-				<guimenuitem>Repair Move</guimenuitem>
-			</menuchoice>
-			to pair the two files as a rename.
 		</para>
 	</tip>
 	<para>

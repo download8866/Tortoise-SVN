@@ -158,10 +158,7 @@ Don't touch these lines:
 								Updates the working copy in <option>/path</option> to
 								HEAD. If the option <option>/rev</option> is given
 								then a dialog is shown to ask the user to which
-								revision the update should go. To avoid the dialog
-								specify a revision number <option>/rev:1234</option>.
-								Other options are <option>/nonrecursive</option> and
-								<option>/ignoreexternals</option>.
+								revision the update should go.
 							</entry>
 						</row>
 						<row>
@@ -239,11 +236,6 @@ Don't touch these lines:
 							<entry>
 								Opens the merge dialog. The path specifies the
 								target directory.
-								Three additional options can be set:
-								<option>/mergefrom:xxx</option>, 
-								<option>/mergeto:xxx</option> and
-								<option>/fromurl:URL</option>.
-								These pre-fill the relevant fields in the merge dialog.
 							</entry>
 						</row>
 						<row>
@@ -393,13 +385,6 @@ Don't touch these lines:
 								of this (which can't be avoided) is that the icons
 								on the desktop get rearranged.
 								<option>/noquestion</option>
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">:properties</entry>
-							<entry>
-								Shows the properties dialog for the path given in
-								<option>/path</option>.
 							</entry>
 						</row>
 					</tbody>

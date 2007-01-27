@@ -26,11 +26,6 @@
 
 #define	MAX_TT_LENGTH			10000
 
-/**
- * \ingroup TortoiseProc
- * Helper class extending CToolBar, needed only to have the toolbar include
- * a combobox.
- */
 class CRevGraphToolBar : public CToolBar
 {
 public:
@@ -63,8 +58,6 @@ protected:
 	bool			m_bArrangeByPath;
 	char			m_szTip[MAX_TT_LENGTH+1];
 	wchar_t			m_wszTip[MAX_TT_LENGTH+1];
-
-	CString			m_sFilter;
 	
 	HACCEL			m_hAccel;
 
@@ -74,11 +67,12 @@ protected:
 	virtual void	OnOK();
 	virtual BOOL	PreTranslateMessage(MSG* pMsg);
 	afx_msg void	OnSize(UINT nType, int cx, int cy);
-	afx_msg void	OnViewFilter();
 	afx_msg void	OnViewZoomin();
 	afx_msg void	OnViewZoomout();
 	afx_msg void	OnViewZoom100();
 	afx_msg void	OnViewZoomAll();
+	afx_msg void	OnMenuexit();
+	afx_msg void	OnMenuhelp();
 	afx_msg void	OnViewCompareheadrevisions();
 	afx_msg void	OnViewComparerevisions();
 	afx_msg void	OnViewUnifieddiff();
@@ -86,8 +80,6 @@ protected:
 	afx_msg void	OnViewShowallrevisions();
 	afx_msg void	OnViewArrangedbypath();
 	afx_msg void	OnFileSavegraphas();
-	afx_msg void	OnMenuexit();
-	afx_msg void	OnMenuhelp();
 	afx_msg void	OnChangeZoom();
 	afx_msg BOOL	OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 

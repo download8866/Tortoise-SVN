@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
-#include "LogDlg.h"
 #include "SVNRev.h"
 
 /**
@@ -60,22 +59,16 @@ protected:
 	afx_msg void OnBnClickedBrowse();
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnEnChangeRevisionNum();
-	afx_msg void OnBnClickedLog();
-	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
-
-	void		SetRevision(const SVNRev& rev);
 
 	DECLARE_MESSAGE_MAP()
 
-	CString			m_rev;
-	CHistoryCombo	m_URLCombo;
-	BOOL			m_bFolder;
-	CString			m_sTitle;
-	CString			m_sLabel;
-	CLogDlg *		m_pLogDlg;
-
+	CString m_rev;
+	CHistoryCombo m_URLCombo;
+	BOOL	m_bFolder;
+	CString	m_sTitle;
+	CString m_sLabel;
 public:
-	CString			m_path;
-	CString			m_URL;
-	SVNRev			Revision;
+	CString m_path;
+	CString m_URL;
+	SVNRev	Revision;
 };

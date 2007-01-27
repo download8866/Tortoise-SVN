@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 
 #include "MessageBox.h"
-#include "InputLogDlg.h"
+#include "InputDlg.h"
 #include "LogDlg.h"
 #include "PropDlg.h"
 #include "Blame.h"
@@ -31,7 +31,6 @@
 #include "RenameDlg.h"
 #include "RevisionGraphDlg.h"
 #include "CheckoutDlg.h"
-#include "ExportDlg.h"
 #include "SVNProgressDlg.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
@@ -41,37 +40,29 @@
 #include "BrowseFolder.h"
 #include "SVNDiff.h"
 
+#define ID_POPSAVEAS		1
+#define ID_POPSHOWLOG		2
+#define	ID_POPOPEN			3
+#define ID_POPDELETE		4
+#define ID_POPIMPORT		5
+#define ID_POPRENAME		6
+#define ID_POPCOPYTO		7
+#define ID_POPMKDIR			8
+#define ID_POPGNUDIFF		9
+#define ID_POPDIFF			10
+#define ID_POPREFRESH		11
+#define ID_POPBLAME			12
+#define ID_POPCOPYTOWC		13
+#define ID_POPIMPORTFOLDER  14
+#define ID_REVGRAPH			15
+#define ID_POPEXPORT		16
+//#define ID_POPPROPS			17		commented out because already defined to 17 in LogDlg.h
+#define ID_POPCHECKOUT		18
+#define ID_POPOPENWITH		19
+#define ID_POPURLTOCLIPBOARD 20
+#define ID_BREAKLOCK		21
 
-enum RepoBrowserContextMenuCommands
-{
-	// needs to start with 1, since 0 is the return value if *nothing* is clicked on in the context menu
-	ID_OPEN = 1,
-	ID_OPENWITH,
-	ID_SHOWLOG,
-	ID_REVGRAPH,
-	ID_BLAME,
-	ID_VIEWREV,
-	ID_VIEWPATHREV,
-	ID_EXPORT,
-	ID_CHECKOUT,
-	ID_REFRESH,
-	ID_SAVEAS,
-	ID_MKDIR,
-	ID_IMPORT,
-	ID_IMPORTFOLDER,
-	ID_BREAKLOCK,
-	ID_DELETE,
-	ID_RENAME,
-	ID_COPYTOWC,
-	ID_COPYTO,
-	ID_URLTOCLIPBOARD,
-	ID_PROPS,
-	ID_GNUDIFF,
-	ID_DIFF,
-
-};
-
-
+// CRepositoryBrowser dialog
 
 IMPLEMENT_DYNAMIC(CRepositoryBrowser, CResizableStandAloneDialog)
 
@@ -105,6 +96,7 @@ void CRepositoryBrowser::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_REPOS_TREE, m_treeRepository);
 }
 
+
 BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_FILESDROPPED, OnFilesDropped)
 	ON_NOTIFY(RVN_ITEMRCLICK, IDC_REPOS_TREE, OnRVNItemRClickReposTree)
@@ -115,6 +107,10 @@ BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
 	ON_WM_SETCURSOR()
 	ON_REGISTERED_MESSAGE(WM_AFTERINIT, OnAfterInitDialog) 
 END_MESSAGE_MAP()
+
+
+
+// CRepositoryBrowser public interface
 
 SVNUrl CRepositoryBrowser::GetURL() const
 {
@@ -168,21 +164,20 @@ BOOL CRepositoryBrowser::OnInitDialog()
 		m_bThreadRunning = false;
 		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
+//this is the thread function which calls the subversion function
 UINT CRepositoryBrowser::InitThreadEntry(LPVOID pVoid)
 {
 	return ((CRepositoryBrowser*)pVoid)->InitThread();
 }
 
+
 //this is the thread function which calls the subversion function
 UINT CRepositoryBrowser::InitThread()
 {
-	// In this thread, we try to find out the repository root.
-	// Since this is a remote operation, it can take a while, that's
-	// Why we do this inside a thread.
-
 	// force the cursor to change
 	POINT pt;
 	GetCursorPos(&pt);
@@ -190,7 +185,7 @@ UINT CRepositoryBrowser::InitThread()
 
 	DialogEnableWindow(IDOK, FALSE);
 	DialogEnableWindow(IDCANCEL, FALSE);
-	m_treeRepository.m_strReposRoot = m_treeRepository.m_svn.GetRepositoryRootAndUUID(CTSVNPath(m_InitialSvnUrl.GetPath()), m_treeRepository.m_sUUID);
+	m_treeRepository.m_strReposRoot = m_treeRepository.m_svn.GetRepositoryRoot(CTSVNPath(m_InitialSvnUrl.GetPath()));
 	m_treeRepository.m_strReposRoot = SVNUrl::Unescape(m_treeRepository.m_strReposRoot);
 	PostMessage(WM_AFTERINIT);
 	DialogEnableWindow(IDOK, TRUE);
@@ -217,7 +212,7 @@ LRESULT CRepositoryBrowser::OnAfterInitDialog(WPARAM /*wParam*/, LPARAM /*lParam
 
 void CRepositoryBrowser::OnRVNItemRClickReposTree(NMHDR * /* pNMHDR */, LRESULT *pResult)
 {
-	*pResult = 0;	// Force standard behavior
+	*pResult = 0;	// Force standard behaviour
 }
 
 void CRepositoryBrowser::OnContextMenu(CWnd* /* pWnd */, CPoint point)
@@ -322,14 +317,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 				if (!bFolder)
 				{
 					temp.LoadString(IDS_REPOBROWSE_OPEN);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPEN, temp);			// "open"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPOPEN, temp);			// "open"
 					temp.LoadString(IDS_LOG_POPUP_OPENWITH);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPENWITH, temp);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPOPENWITH, temp);
 					popup.AppendMenu(MF_SEPARATOR, NULL);
 				}				
 
 				temp.LoadString(IDS_REPOBROWSE_SHOWLOG);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SHOWLOG, temp);			// "Show Log..."
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPSHOWLOG, temp);			// "Show Log..."
 				if (url.Compare(m_treeRepository.m_strReposRoot)!=0)
 				{
 					temp.LoadString(IDS_MENUREVISIONGRAPH);
@@ -338,46 +333,30 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 				if (!bFolder)
 				{
 					temp.LoadString(IDS_MENUBLAME);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAME, temp);		// "Blame..."
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPBLAME, temp);		// "Blame..."
 				}
-				if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
-				{
-					temp.LoadString(IDS_LOG_POPUP_VIEWREV);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWREV, temp);
-				}
-				if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
-				{
-					temp.LoadString(IDS_LOG_POPUP_VIEWPATHREV);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWPATHREV, temp);
-				}
-				if ((!m_ProjectProperties.sWebViewerPathRev.IsEmpty())||
-					(!m_ProjectProperties.sWebViewerRev.IsEmpty()))
-				{
-					popup.AppendMenu(MF_SEPARATOR, NULL);
-				}
-
 				if (bFolder)
 				{
 					temp.LoadString(IDS_MENUEXPORT);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EXPORT, temp);		// "Export"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPEXPORT, temp);		// "Export"
 				}
 			}
 			if (bFolder)
 			{
 				temp.LoadString(IDS_MENUCHECKOUT);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_CHECKOUT, temp);			// "Checkout.."
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPCHECKOUT, temp);			// "Checkout.."
 			}
 			if (uSelCount == 1)
 			{
 				if (bFolder)
 				{
 					temp.LoadString(IDS_REPOBROWSE_REFRESH);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REFRESH, temp);		// "Refresh"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPREFRESH, temp);		// "Refresh"
 				}
 				else
 				{
 					temp.LoadString(IDS_REPOBROWSE_SAVEAS);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);		// "Save as..."
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPSAVEAS, temp);		// "Save as..."
 				}
 				popup.AppendMenu(MF_SEPARATOR, NULL);				
 
@@ -386,13 +365,13 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					if (bFolder)
 					{
 						temp.LoadString(IDS_REPOBROWSE_MKDIR);
-						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_MKDIR, temp);	// "create directory"
+						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPMKDIR, temp);	// "create directory"
 
 						temp.LoadString(IDS_REPOBROWSE_IMPORT);
-						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_IMPORT, temp);	// "Add/Import File"
+						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPIMPORT, temp);	// "Add/Import File"
 
 						temp.LoadString(IDS_REPOBROWSE_IMPORTFOLDER);
-						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_IMPORTFOLDER, temp);	// "Add/Import Folder"
+						popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPIMPORTFOLDER, temp);	// "Add/Import Folder"
 
 						popup.AppendMenu(MF_SEPARATOR, NULL);
 					}
@@ -403,25 +382,25 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					}
 
 					temp.LoadString(IDS_REPOBROWSE_DELETE);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_DELETE, temp);		// "Remove"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPDELETE, temp);		// "Remove"
 
 					temp.LoadString(IDS_REPOBROWSE_RENAME);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_RENAME, temp);		// "Rename"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPRENAME, temp);		// "Rename"
 				} // if (GetRevision().IsHead()
 
 				temp.LoadString(IDS_REPOBROWSE_COPYTOWC);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COPYTOWC, temp);			// "Copy To Working Copy..."
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPCOPYTOWC, temp);			// "Copy To Working Copy..."
 
 				temp.LoadString(IDS_REPOBROWSE_COPY);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COPYTO, temp);			// "Copy To..."
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPCOPYTO, temp);			// "Copy To..."
 				
 				temp.LoadString(IDS_REPOBROWSE_URLTOCLIPBOARD);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_URLTOCLIPBOARD, temp);	// "Copy URL to clipboard"
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPURLTOCLIPBOARD, temp);	// "Copy URL to clipboard"
 
 				popup.AppendMenu(MF_SEPARATOR, NULL);
 				
 				temp.LoadString(IDS_REPOBROWSE_SHOWPROP);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_PROPS, temp);			// "Show Properties"
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPPROPS, temp);			// "Show Properties"
 			} // if (uSelCount == 1)
 			if (uSelCount == 2)
 			{
@@ -448,26 +427,26 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 				if (bFolder1 == bFolder2)
 				{
 					temp.LoadString(IDS_LOG_POPUP_GNUDIFF);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GNUDIFF, temp);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPGNUDIFF, temp);
 					temp.LoadString(IDS_LOG_POPUP_COMPARETWO);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_DIFF, temp);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPDIFF, temp);
 				}
 				temp.LoadString(IDS_MENULOG);
-				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SHOWLOG, temp);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPSHOWLOG, temp);
 			} // if (uSelCount == 2) 
 			if (uSelCount >= 2)
 			{
 				if (GetRevision().IsHead())
 				{
 					temp.LoadString(IDS_REPOBROWSE_DELETE);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_DELETE, temp);		// "Remove"
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPDELETE, temp);		// "Remove"
 				}
 				if (!hasFolders)
 				{
 					temp.LoadString(IDS_REPOBROWSE_SAVEAS);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);		// "Save as..."
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPSAVEAS, temp);		// "Save as..."
 					temp.LoadString(IDS_REPOBROWSE_COPYTOWC);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COPYTOWC, temp);		// "Copy To Working Copy..."
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPCOPYTOWC, temp);		// "Copy To Working Copy..."
 				}
 			}
 			int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, pt.x, pt.y, this, 0);
@@ -475,12 +454,12 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 			bool bOpenWith = false;
 			switch (cmd)
 			{
-			case ID_URLTOCLIPBOARD:
+			case ID_POPURLTOCLIPBOARD:
 				{
 					CStringUtils::WriteAsciiStringToClipboard(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(url)));
 				}
 				break;
-			case ID_SAVEAS:
+			case ID_POPSAVEAS:
 				{
 					bool bSavePathOK = false;
 					CTSVNPath tempfile;
@@ -494,6 +473,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						// Initialize OPENFILENAME
 						ZeroMemory(&ofn, sizeof(OPENFILENAME));
 						ofn.lStructSize = sizeof(OPENFILENAME);
+						//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 						ofn.hwndOwner = this->m_hWnd;
 						ofn.lpstrFile = szFile;
 						ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -510,14 +490,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						sFilter.LoadString(IDS_COMMONFILEFILTER);
 						TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 						_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-						// Replace '|' delimiters with '\0's
+						// Replace '|' delimeters with '\0's
 						TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 						while (ptr != pszFilters)
 						{
 							if (*ptr == '|')
 								*ptr = '\0';
 							ptr--;
-						}
+						} // while (ptr != pszFilters) 
 						ofn.lpstrFilter = pszFilters;
 						ofn.nFilterIndex = 1;
 						// Display the Open dialog box. 
@@ -577,10 +557,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						} while (si != RVI_INVALID);
 						progDlg.Stop();
 						svn.SetAndClearProgressInfo((HWND)NULL);
-					}
+					} // if (GetSaveFileName(&ofn)==TRUE) 
 				}
 				break;
-			case ID_SHOWLOG:
+			case ID_POPSHOWLOG:
 				{
 					if (uSelCount == 2)
 					{
@@ -643,26 +623,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					}
 				}
 				break;
-			case ID_VIEWREV:
-				{
-					CString url = m_ProjectProperties.sWebViewerRev;
-					url.Replace(_T("%REVISION%"), GetRevision().ToString());
-					if (!url.IsEmpty())
-						ShellExecute(this->m_hWnd, _T("open"), url, NULL, NULL, SW_SHOWDEFAULT);					
-				}
-				break;
-			case ID_VIEWPATHREV:
-				{
-					CString relurl = url;
-					relurl = relurl.Mid(m_treeRepository.m_strReposRoot.GetLength());
-					CString weburl = m_ProjectProperties.sWebViewerPathRev;
-					weburl.Replace(_T("%REVISION%"), GetRevision().ToString());
-					weburl.Replace(_T("%PATH%"), relurl);
-					if (!weburl.IsEmpty())
-						ShellExecute(this->m_hWnd, _T("open"), weburl, NULL, NULL, SW_SHOWDEFAULT);					
-				}
-				break;
-			case ID_CHECKOUT:
+			case ID_POPCHECKOUT:
 				{
 					int selItem = m_treeRepository.GetFirstSelectedItem();
 					CString itemsToCheckout;
@@ -679,27 +640,22 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					CAppUtils::LaunchApplication(sCmd, NULL, false);
 				}
 				break;
-			case ID_EXPORT:
+			case ID_POPEXPORT:
 				{
-					CExportDlg dlg;
+					CCheckoutDlg dlg;
+					dlg.IsExport = TRUE;
 					dlg.m_URL = url;
 					dlg.Revision = GetRevision();
 					if (dlg.DoModal()==IDOK)
 					{
-						CTSVNPath exportDirectory;
-						exportDirectory.SetFromWin(dlg.m_strExportDirectory, true);
+						CTSVNPath checkoutDirectory;
+						checkoutDirectory.SetFromWin(dlg.m_strCheckoutDirectory, true);
 
 						CSVNProgressDlg progDlg;
 						int opts = dlg.m_bNonRecursive ? ProgOptNonRecursive : ProgOptRecursive;
 						if (dlg.m_bNoExternals)
 							opts |= ProgOptIgnoreExternals;
-						if (dlg.m_eolStyle.CompareNoCase(_T("CRLF"))==0)
-							opts |= ProgOptEolCRLF;
-						if (dlg.m_eolStyle.CompareNoCase(_T("CR"))==0)
-							opts |= ProgOptEolCR;
-						if (dlg.m_eolStyle.CompareNoCase(_T("LF"))==0)
-							opts |= ProgOptEolLF;
-						progDlg.SetParams(CSVNProgressDlg::SVNProgress_Export, opts, CTSVNPathList(exportDirectory), dlg.m_URL, _T(""), dlg.Revision);
+						progDlg.SetParams(CSVNProgressDlg::Export, opts, CTSVNPathList(checkoutDirectory), dlg.m_URL, _T(""), dlg.Revision);
 						progDlg.DoModal();
 					}
 				}
@@ -711,9 +667,9 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					dlg.DoModal();
 				}
 				break;
-			case ID_OPENWITH:
+			case ID_POPOPENWITH:
 				bOpenWith = true;
-			case ID_OPEN:
+			case ID_POPOPEN:
 				{
 					if (GetRevision().IsHead() && (bOpenWith==false))
 					{
@@ -761,7 +717,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					}
 				}
 				break;
-			case ID_DELETE:
+			case ID_POPDELETE:
 				{
 					DeleteSelectedEntries();
 					*pResult = 1; // mark HTREEITEM as deleted
@@ -778,7 +734,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					m_treeRepository.SetItemText(m_treeRepository.GetItemIndex(hSelItem), 6, _T(""));
 				}
 				break;
-			case ID_IMPORTFOLDER:
+			case ID_POPIMPORTFOLDER:
 				{
 					CString path;
 					CBrowseFolder folderBrowser;
@@ -790,11 +746,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						CTSVNPath svnPath(path);
 						CWaitCursorEx wait_cursor;
 						CString filename = svnPath.GetFileOrDirectoryName();
-						CInputLogDlg input(this);
+						CInputDlg input(this);
 						SetupInputDlg(&input);
-						CString sHint;
-						sHint.Format(IDS_INPUT_IMPORTFOLDER, (LPCTSTR)svnPath.GetSVNPathString(), (LPCTSTR)(url+_T("/")+filename));
-						input.SetActionText(sHint);
+						if (m_ProjectProperties.sLogTemplate.IsEmpty())
+							input.m_sInputText.LoadString(IDS_INPUT_ADDFOLDERLOGMSG);
 						if (input.DoModal() == IDOK)
 						{
 							CProgressDlg progDlg;
@@ -804,7 +759,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							progDlg.SetLine(1, sInfoLine);
 							svn.SetAndClearProgressInfo(&progDlg);
 							progDlg.ShowModeless(m_hWnd);
-							if (!svn.Import(svnPath, CTSVNPath(url+_T("/")+filename), input.GetLogMessage(), FALSE, FALSE))
+							if (!svn.Import(svnPath, CTSVNPath(url+_T("/")+filename), input.m_sInputText, FALSE, FALSE))
 							{
 								progDlg.Stop();
 								svn.SetAndClearProgressInfo((HWND)NULL);
@@ -819,10 +774,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
 							m_treeRepository.AddFolder(url+_T("/")+sEscapedName);
 						}
-					}
+					} // if (GetOpenFileName(&ofn)==TRUE) 
 				}
 				break;
-			case ID_IMPORT:
+			case ID_POPIMPORT:
 				{
 					OPENFILENAME ofn;		// common dialog box structure
 					TCHAR szFile[MAX_PATH];  // buffer for file name
@@ -830,6 +785,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					// Initialize OPENFILENAME
 					ZeroMemory(&ofn, sizeof(OPENFILENAME));
 					ofn.lStructSize = sizeof(OPENFILENAME);
+					//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 					ofn.hwndOwner = this->m_hWnd;
 					ofn.lpstrFile = szFile;
 					ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -837,14 +793,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					sFilter.LoadString(IDS_COMMONFILEFILTER);
 					TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 					_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-					// Replace '|' delimiters with '\0's
+					// Replace '|' delimeters with '\0's
 					TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 					while (ptr != pszFilters)
 					{
 						if (*ptr == '|')
 							*ptr = '\0';
 						ptr--;
-					}
+					} // while (ptr != pszFilters) 
 					ofn.lpstrFilter = pszFilters;
 					ofn.nFilterIndex = 1;
 					ofn.lpstrFileTitle = NULL;
@@ -865,11 +821,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						svn.SetPromptApp(&theApp);
 						CWaitCursorEx wait_cursor;
 						CString filename = path.GetFileOrDirectoryName();
-						CInputLogDlg input(this);
+						CInputDlg input(this);
 						SetupInputDlg(&input);
-						CString sHint;
-						sHint.Format(IDS_INPUT_IMPORTFILEFULL, path.GetWinPath(), (LPCTSTR)(url+_T("/")+filename));
-						input.SetActionText(sHint);
+						if (m_ProjectProperties.sLogTemplate.IsEmpty())
+							input.m_sInputText.LoadString(IDS_INPUT_ADDLOGMSG);
 						if (input.DoModal() == IDOK)
 						{
 							CProgressDlg progDlg;
@@ -879,7 +834,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							progDlg.SetLine(1, sInfoLine);
 							svn.SetAndClearProgressInfo(&progDlg);
 							progDlg.ShowModeless(m_hWnd);
-							if (!svn.Import(path, CTSVNPath(url+_T("/")+filename), input.GetLogMessage(), FALSE, TRUE))
+							if (!svn.Import(path, CTSVNPath(url+_T("/")+filename), input.m_sInputText, FALSE, TRUE))
 							{
 								progDlg.Stop();
 								svn.SetAndClearProgressInfo((HWND)NULL);
@@ -890,18 +845,21 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							}
 							progDlg.Stop();
 							svn.SetAndClearProgressInfo((HWND)NULL);
-							m_treeRepository.AddFile(url+_T("/")+filename, false, true);
+							CString sEscapedName = filename;
+							sEscapedName.Replace(_T("%"), _T("%25"));
+							sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
+							m_treeRepository.AddFile(url+_T("/")+sEscapedName);
 						}
-					}
+					} // if (GetOpenFileName(&ofn)==TRUE) 
 					delete [] pszFilters;
 				}
 				break;
-			case ID_RENAME:
+			case ID_POPRENAME:
 				{
 					m_treeRepository.BeginEdit(m_treeRepository.GetItemRow(m_treeRepository.GetItemIndex(hSelItem)), 0, VK_LBUTTON);
 				}
 				break;
-			case ID_COPYTO:
+			case ID_POPCOPYTO:
 				{
 					CRenameDlg dlg;
 					dlg.m_name = url;
@@ -912,14 +870,13 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						SVN svn;
 						svn.SetPromptApp(&theApp);
 						CWaitCursorEx wait_cursor;
-						CInputLogDlg input(this);
+						CInputDlg input(this);
 						SetupInputDlg(&input);
-						CString sHint;
-						sHint.Format(IDS_INPUT_COPY, (LPCTSTR)url, (LPCTSTR)dlg.m_name);
-						input.SetActionText(sHint);
+						if (m_ProjectProperties.sLogTemplate.IsEmpty())
+							input.m_sInputText.LoadString(IDS_INPUT_COPYLOGMSG);
 						if (input.DoModal() == IDOK)
 						{
-							if (!svn.Copy(CTSVNPath(url), CTSVNPath(dlg.m_name), GetRevision(), input.GetLogMessage()))
+							if (!svn.Copy(CTSVNPath(url), CTSVNPath(dlg.m_name), GetRevision(), input.m_sInputText))
 							{
 								wait_cursor.Hide();
 								CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
@@ -932,11 +889,11 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 								else
 									m_treeRepository.AddFile(dlg.m_name, false, true);
 							}
-						}
-					}
+						} // if (input.DoModal() == IDOK) 
+					} // if (dlg.DoModal() == IDOK) 
 				}
 				break;
-			case ID_COPYTOWC:
+			case ID_POPCOPYTOWC:
 				{
 					bool bSavePathOK = false;
 					CTSVNPath tempfile;
@@ -950,6 +907,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						// Initialize OPENFILENAME
 						ZeroMemory(&ofn, sizeof(OPENFILENAME));
 						ofn.lStructSize = sizeof(OPENFILENAME);
+						//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 						ofn.hwndOwner = this->m_hWnd;
 						ofn.lpstrFile = szFile;
 						ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -966,14 +924,14 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						sFilter.LoadString(IDS_COMMONFILEFILTER);
 						TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 						_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-						// Replace '|' delimiters with '\0's
+						// Replace '|' delimeters with '\0's
 						TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 						while (ptr != pszFilters)
 						{
 							if (*ptr == '|')
 								*ptr = '\0';
 							ptr--;
-						}
+						} // while (ptr != pszFilters) 
 						ofn.lpstrFilter = pszFilters;
 						ofn.nFilterIndex = 1;
 						// Display the Open dialog box. 
@@ -1034,10 +992,10 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 							si = m_treeRepository.GetNextSelectedItem(si);
 						} while (si != RVI_INVALID);
 						progDlg.Stop();
-					}
+					} // if (GetSaveFileName(&ofn)==TRUE) 
 				}
 				break;
-			case ID_MKDIR:
+			case ID_POPMKDIR:
 				{
 					CRenameDlg dlg;
 					dlg.m_name = _T("");
@@ -1048,46 +1006,45 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 						SVN svn;
 						svn.SetPromptApp(&theApp);
 						CWaitCursorEx wait_cursor;
-						CInputLogDlg input(this);
+						CInputDlg input(this);
 						SetupInputDlg(&input);
-						CString sHint;
-						sHint.Format(IDS_INPUT_MKDIR, (LPCTSTR)(url+_T("/")+dlg.m_name.Trim()));
-						input.SetActionText(sHint);
+						if (m_ProjectProperties.sLogTemplate.IsEmpty())
+							input.m_sInputText.LoadString(IDS_INPUT_MKDIRLOGMSG);
 						if (input.DoModal() == IDOK)
 						{
 							// when creating the new folder, also trim any whitespace chars from it
-							if (!svn.MakeDir(CTSVNPathList(CTSVNPath(url+_T("/")+dlg.m_name.Trim())), input.GetLogMessage()))
+							if (!svn.MakeDir(CTSVNPathList(CTSVNPath(url+_T("/")+dlg.m_name.Trim())), input.m_sInputText))
 							{
 								wait_cursor.Hide();
 								CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 								return;
-							}
+							} // if (!svn.MakeDir(url+_T("/")+dlg.m_name, _T("created directory remotely"))) 
 							CString sEscapedName = dlg.m_name;
 							sEscapedName.Replace(_T("%"), _T("%25"));
 							sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
 							m_treeRepository.AddFolder(url+_T("/")+sEscapedName);
-						}
-					}
+						} // if (input.DoModal() == IDOK) 
+					} // if (dlg.DoModal() == IDOK) 
 				}
 				break;
-			case ID_REFRESH:
+			case ID_POPREFRESH:
 				{
 					m_treeRepository.RefreshMe(hSelItem);
 				}
 				break;
-			case ID_GNUDIFF:
+			case ID_POPGNUDIFF:
 				{
 					SVNDiff diff(NULL, this->m_hWnd, true);
 					diff.ShowUnifiedDiff(url1, GetRevision(), url2, GetRevision());
 				}
 				break;
-			case ID_DIFF:
+			case ID_POPDIFF:
 				{
 					SVNDiff diff(NULL, this->m_hWnd, true);
 					diff.ShowCompare(url1, GetRevision(), url2, GetRevision(), SVNRev(), true);
 				}
 				break;
-			case ID_PROPS:
+			case ID_POPPROPS:
 				{
 					CPropDlg dlg;
 					dlg.m_rev = GetRevision();
@@ -1095,7 +1052,7 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 					dlg.DoModal();
 				}
 				break;
-			case ID_BLAME:
+			case ID_POPBLAME:
 				{
 					CBlameDlg dlg;
 					dlg.EndRev = GetRevision();
@@ -1119,12 +1076,12 @@ void CRepositoryBrowser::ShowContextMenu(CPoint pt, LRESULT *pResult)
 									break;
 								}
 							}
-						}
+						} // if (!tempfile.IsEmpty()) 
 						else
 						{
 							CMessageBox::Show(this->m_hWnd, blame.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
-					}
+					} // if (dlg.DoModal() == IDOK) 
 					
 				}
 			default:
@@ -1211,32 +1168,30 @@ void CRepositoryBrowser::DeleteSelectedEntries()
 	SVN svn;
 	svn.SetPromptApp(&theApp);
 	CWaitCursorEx wait_cursor;
-
-	// create a list of items to remove from the selected items
-	int selItem = m_treeRepository.GetFirstSelectedItem();
-	CTSVNPathList itemsToRemove;
-	do
-	{
-		itemsToRemove.AddPath(CTSVNPath(m_treeRepository.MakeUrl(m_treeRepository.GetItemHandle(selItem))));
-		selItem = m_treeRepository.GetNextSelectedItem(selItem);
-	} while (selItem != RVI_INVALID);
-
-	CInputLogDlg dlg(this);
-	dlg.SetProjectProperties(&m_ProjectProperties);
-	CString sHint;
-	if (itemsToRemove.GetCount() == 1)
-		sHint.Format(IDS_INPUT_REMOVEONE, (LPCTSTR)itemsToRemove[0].GetSVNPathString());
-	else
-		sHint.Format(IDS_INPUT_REMOVEMORE, itemsToRemove.GetCount());
-	dlg.SetActionText(sHint);
+	CInputDlg dlg(this);
+	dlg.m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
+	CStringUtils::RemoveAccelerators(dlg.m_sHintText);
+	dlg.m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
+	CStringUtils::RemoveAccelerators(dlg.m_sTitle);
+	if (m_ProjectProperties.sLogTemplate.IsEmpty())
+		dlg.m_sInputText.LoadString(IDS_INPUT_REMOVELOGMSG);
+	CStringUtils::RemoveAccelerators(dlg.m_sInputText);
+	dlg.m_pProjectProperties = &m_ProjectProperties;
 	if (dlg.DoModal()==IDOK)
 	{
-		if (!svn.Remove(itemsToRemove, TRUE, dlg.GetLogMessage()))
+		int selItem = m_treeRepository.GetFirstSelectedItem();
+		CTSVNPathList itemsToRemove;
+		do
+		{
+			itemsToRemove.AddPath(CTSVNPath(m_treeRepository.MakeUrl(m_treeRepository.GetItemHandle(selItem))));
+			selItem = m_treeRepository.GetNextSelectedItem(selItem);
+		} while (selItem != RVI_INVALID);
+		if (!svn.Remove(itemsToRemove, TRUE, dlg.m_sInputText))
 		{
 			wait_cursor.Hide();
 			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			return;
-		}
+		} // if (!svn.Remove(url, TRUE)) 
 		for(int nItem = 0; nItem < itemsToRemove.GetCount(); nItem++)
 		{
 			m_treeRepository.DeleteUrl(itemsToRemove[nItem].GetSVNPathString());
@@ -1244,10 +1199,14 @@ void CRepositoryBrowser::DeleteSelectedEntries()
 	}
 }
 
-void CRepositoryBrowser::SetupInputDlg(CInputLogDlg * dlg)
+void CRepositoryBrowser::SetupInputDlg(CInputDlg * dlg)
 {
-	dlg->SetProjectProperties(&m_ProjectProperties);
-	dlg->SetUUID(m_treeRepository.GetUUID());
+	dlg->m_sHintText.LoadString(IDS_INPUT_ENTERLOG);
+	CStringUtils::RemoveAccelerators(dlg->m_sHintText);
+	dlg->m_sTitle.LoadString(IDS_INPUT_LOGTITLE);
+	CStringUtils::RemoveAccelerators(dlg->m_sTitle);
+	dlg->m_pProjectProperties = &m_ProjectProperties;
+	dlg->m_bUseLogWidth = true;
 }
 
 BOOL CRepositoryBrowser::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
@@ -1293,14 +1252,17 @@ void CRepositoryBrowser::OnFilesDropped(int iItem, int iSubItem, const CTSVNPath
 			return;
 	}
 
-	CInputLogDlg input(this);
+	CInputDlg input(this);
 	SetupInputDlg(&input);
-	CString sHint;
-	if (droppedPaths.GetCount() == 1)
-		sHint.Format(IDS_INPUT_IMPORTFILEFULL, droppedPaths[0].GetWinPath(), (LPCTSTR)(url + _T("/") + droppedPaths[0].GetFileOrDirectoryName()));
-	else
-		sHint.Format(IDS_INPUT_IMPORTFILES, droppedPaths.GetCount());
-	input.SetActionText(sHint);
+	if (m_ProjectProperties.sLogTemplate.IsEmpty())
+	{
+		input.m_sInputText.LoadString(IDS_INPUT_ADDFILEFOLDERMSG);
+		input.m_sInputText += _T("\r\n\r\n");
+		for (int i=0; i<droppedPaths.GetCount(); ++i)
+		{
+			input.m_sInputText += droppedPaths[i].GetWinPathString() + _T("\r\n");
+		}
+	}
 	
 	if (input.DoModal() == IDOK)
 	{
@@ -1310,15 +1272,18 @@ void CRepositoryBrowser::OnFilesDropped(int iItem, int iSubItem, const CTSVNPath
 			CString filename = droppedPaths[importindex].GetFileOrDirectoryName();
 			if (!svn.Import(droppedPaths[importindex], 
 				CTSVNPath(url+_T("/")+filename), 
-				input.GetLogMessage(), TRUE, TRUE))
+				input.m_sInputText, TRUE, TRUE))
 			{
 				CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 				return;
 			}
+			CString sEscapedName = filename;
+			sEscapedName.Replace(_T("%"), _T("%25"));
+			sEscapedName = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(sEscapedName)));
 			if (droppedPaths[importindex].IsDirectory())
-				m_treeRepository.AddFolder(url+_T("/")+filename, false, false, true);
+				m_treeRepository.AddFolder(url+_T("/")+sEscapedName);
 			else
-				m_treeRepository.AddFile(url+_T("/")+filename, false, true);				
+				m_treeRepository.AddFile(url+_T("/")+sEscapedName);				
 		}
 	}
 

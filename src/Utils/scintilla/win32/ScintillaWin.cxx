@@ -30,8 +30,6 @@
 #endif
 #include "ContractionState.h"
 #include "SVector.h"
-#include "SplitVector.h"
-#include "Partitioning.h"
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
@@ -398,9 +396,6 @@ static int KeyTranslate(int keyIn) {
 		case VK_ADD:		return SCK_ADD;
 		case VK_SUBTRACT:	return SCK_SUBTRACT;
 		case VK_DIVIDE:		return SCK_DIVIDE;
-		case VK_LWIN:		return SCK_WIN;
-		case VK_RWIN:		return SCK_RWIN;
-		case VK_APPS:		return SCK_MENU;
 		case VK_OEM_2:		return '/';
 		case VK_OEM_3:		return '`';
 		case VK_OEM_4:		return '[';
@@ -421,8 +416,7 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 
 	bool IsOcxCtrl = (wParam != 0); // if wParam != 0, it contains
 								   // a PAINSTRUCT* from the OCX
-	// Removed since this interferes with reporting other assertions as it occurs repeatedly
-	//PLATFORM_ASSERT(hRgnUpdate == NULL);
+	PLATFORM_ASSERT(hRgnUpdate == NULL);
 	hRgnUpdate = ::CreateRectRgn(0, 0, 0, 0);
 	if (IsOcxCtrl) {
 		pps = reinterpret_cast<PAINTSTRUCT*>(wParam);

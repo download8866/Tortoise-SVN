@@ -19,14 +19,9 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "Balloon.h"
-#include "ProjectProperties.h"
 
+// CEditPropertyValueDlg dialog
 #define	MAX_TT_LENGTH			10000
-
-/**
- * \ingroup TortoiseProc
- * Helper dialog to edit the Subversion properties.
- */
 
 class CEditPropertyValueDlg : public CResizableStandAloneDialog
 {
@@ -38,17 +33,16 @@ public:
 
 	enum { IDD = IDD_EDITPROPERTYVALUE };
 
-	void			SetPropertyName(const CString& sName) {m_sPropName = sName;}
-	void			SetPropertyValue(const std::string& sValue);
-	std::string		GetPropertyValue() {return m_PropValue;}
-	CString			GetPropertyName() {return m_sPropName;}
-	bool			GetRecursive() {return !!m_bRecursive;}
-	bool			IsBinary() {return m_bIsBinary;}
+	void SetPropertyName(const CString& sName) {m_sPropName = sName;}
+	void SetPropertyValue(const std::string& sValue);
+	std::string GetPropertyValue() {return m_PropValue;}
+	CString GetPropertyName() {return m_sPropName;}
+	bool GetRecursive() {return !!m_bRecursive;}
+	bool IsBinary() {return m_bIsBinary;}
 
-	void			SetFolder() {m_bFolder = true;}
-	void			SetMultiple() {m_bMultiple = true;}
-	void			SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
-	void			SetPathList(const CTSVNPathList& pathlist) {m_pathList = pathlist;}
+	void SetFolder() {m_bFolder = true;}
+	void SetMultiple() {m_bMultiple = true;}
+	void SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -74,6 +68,4 @@ protected:
 	bool		m_bFolder;
 	bool		m_bMultiple;
 	bool		m_bIsBinary;
-	CTSVNPathList		m_pathList;
-	ProjectProperties	m_ProjectProperties;
 };

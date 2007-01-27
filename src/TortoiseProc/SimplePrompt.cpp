@@ -20,6 +20,9 @@
 #include "TortoiseProc.h"
 #include "SimplePrompt.h"
 
+
+// CSimplePrompt dialog
+
 IMPLEMENT_DYNAMIC(CSimplePrompt, CDialog)
 CSimplePrompt::CSimplePrompt(CWnd* pParent /*=NULL*/)
 	: CDialog(CSimplePrompt::IDD, pParent)
@@ -47,6 +50,9 @@ void CSimplePrompt::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSimplePrompt, CDialog)
 END_MESSAGE_MAP()
 
+
+// CSimplePrompt message handlers
+
 BOOL CSimplePrompt::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -54,6 +60,7 @@ BOOL CSimplePrompt::OnInitDialog()
 	GetDlgItem(IDC_USEREDIT)->SetFocus();
 	if ((m_hParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(m_hParentWnd));
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 

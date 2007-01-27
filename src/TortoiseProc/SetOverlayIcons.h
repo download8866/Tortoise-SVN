@@ -20,16 +20,15 @@
 #include "StandAloneDlg.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Settings page to configure the overlay icon set to use.
- */
+
+// CSetOverlayIcons dialog
+
 class CSetOverlayIcons : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetOverlayIcons)
 
 public:
-	CSetOverlayIcons();
+	CSetOverlayIcons();   // standard constructor
 	virtual ~CSetOverlayIcons();
 
 	/**
@@ -49,7 +48,6 @@ public:
 protected:
 	virtual void			DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL			OnInitDialog();
-	virtual BOOL			OnApply();
 	afx_msg void			OnBnClickedListradio();
 	afx_msg void			OnBnClickedSymbolradio();
 	afx_msg void			OnCbnSelchangeIconsetcombo();
@@ -82,4 +80,6 @@ protected:
 	CRegString		m_regDeleted;
 	CRegString		m_regLocked;
 	CRegString		m_regAdded;
+public:
+	virtual BOOL OnApply();
 };

@@ -29,7 +29,30 @@
 /**
  * \ingroup TortoiseProc
  * Prompts the user for required information for a checkout command. The information
- * is the module name and the repository url.
+ * is the module name and the repository url. The Revision to check out is always the
+ * newest one - I don't think someone wants to check out old revisions. But if someone
+ * still wants to do that then the switch/merge commands provide that functionality.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.1
+ * added tooltips
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CCheckoutDlg : public CStandAloneDialog //CStandAloneDialog
 {
@@ -55,20 +78,16 @@ protected:
 	afx_msg void OnBnClickedShowlog();
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEnChangeRevisionNum();
-	afx_msg void OnCbnEditchangeUrlcombo();
 
 	DECLARE_MESSAGE_MAP()
-
-	void		SetRevision(const SVNRev& rev);
 protected:
 	CBalloon		m_tooltips;
 	CString			m_sRevision;
-	CString			m_sCheckoutDirOrig;
-	bool			m_bAutoCreateTargetName;
 public:
 	CHistoryCombo	m_URLCombo;
 	CString			m_URL;
 	SVNRev			Revision;
+	BOOL			IsExport;
 	BOOL			m_bNonRecursive;
 	BOOL			m_bNoExternals;
 	CButton			m_butBrowse;

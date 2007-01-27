@@ -42,7 +42,7 @@
 				those two views with the menu command
 				<menuchoice>
 					<guimenu>View</guimenu>
-					<guimenuitem>Two-way Diff</guimenuitem>
+					<guimenuitem>Oneway Diff</guimenuitem>
 				</menuchoice>
 			</para>
 			<figure id="tmerge-dug-dia-1pane">
@@ -200,6 +200,11 @@
 					<para>
 						<guibutton>Save</guibutton>
 						saves any changes you have made.
+						If you have selected
+						<guilabel>Resolve conflicted Subversion status on save</guilabel>
+						in the settings dialog, then Subversion's conflict
+						working files will be deleted automatically if all
+						conflicts were resolved.
 					</para>
 				</listitem>
 				<listitem>
@@ -212,8 +217,7 @@
 				<listitem>
 					<para>
 						<guibutton>Undo</guibutton>
-						implements a multi-level undo, allowing you to reverse
-						any changes you have made within TortoiseMerge.
+						This feature is not enabled yet.
 					</para>
 				</listitem>
 				<listitem>
@@ -247,7 +251,7 @@
 				</listitem>
 				<listitem>
 					<para>
-						<guibutton>Show Whitespaces</guibutton>
+						<guibutton>Show Spaces</guibutton>
 						toggles the option to display space and tab characters
 						as symbols so you can distinguish white space changes.
 					</para>
@@ -300,9 +304,6 @@
 			lines added and deleted in <literal>Theirs</literal> and
 			<literal>Mine</literal>, and the number of unresolved
 			conflicts remaining.
-			You can also see which line-ending style is in use, what
-			encoding (ASCII, UTF-8, etc) is assumed by TortoiseMerge, and whether
-			there is a byte-order-mark (BOM) present in UTF-8 files.
 			The left side of the status bar is used to display hints when you
 			hover the mouse over a control.
 		</para>
@@ -438,9 +439,6 @@
 				<guilabel>Colour code in-line changes</guilabel>
 				uses the same scheme as the line diff bar to show the detailed
 				in-line changes within the main display panes.
-				Lines which have been heavily modified will not be shown using this
-				method as the results are simply confusing. In this case the line
-				will be shown as replaced (old line deleted, new line added).
 			</para>
 			<para>
 				<guilabel>Compare whitespaces</guilabel>
@@ -479,33 +477,15 @@
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Added</term>
-					<listitem>
-						Lines which have been added.
-					</listitem>
-				</varlistentry>
-				<varlistentry>
 					<term>Removed</term>
 					<listitem>
 						Lines which have been deleted.
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Modified</term>
+					<term>Added</term>
 					<listitem>
-						Lines which have relatively small changes, and are shown using inline diff.
-						This colour is used for the <emphasis>unchanged</emphasis> portion of
-						the line content. Changed portions will be shown using the inline
-						added and deleted colours described below.
-						If <guilabel>Colour code in-line changes</guilabel> is not enabled,
-						this colour will not be used and changed lines will always be shown
-						as replacements.
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Conflicted</term>
-					<listitem>
-						Where the same line has been changed in both files.
+						Lines which have been added.
 					</listitem>
 				</varlistentry>
 				<varlistentry>
@@ -516,15 +496,25 @@
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Inline added text</term>
+					<term>Conflicted</term>
 					<listitem>
-						When inline diffs are shown, added text is shown in this colour.
+						Where the same line has been changed in both files.
 					</listitem>
 				</varlistentry>
 				<varlistentry>
-					<term>Inline removed text</term>
+					<term>Line with whitespace diff</term>
 					<listitem>
-						When inline diffs are shown, deleted text is shown in this colour.
+						Lines which contain whitespace differences other than
+						leading whitespace. Only appears when
+						<guilabel>Ignore leading whitespace</guilabel>
+						is selected.
+					</listitem>
+				</varlistentry>
+				<varlistentry>
+					<term>Whitespace diff</term>
+					<listitem>
+						In the case above, the actual whitespace difference is
+						highlighted using this color.
 					</listitem>
 				</varlistentry>
 			</variablelist>

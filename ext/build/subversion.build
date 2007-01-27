@@ -67,7 +67,6 @@
 					<arg value="/errorReport:prompt" />
 					<sources>
 						<include name="subversion\${fname}\**.c" />
-						<exclude name="subversion\libsvn_subr\win32_crash**.c" />
 					</sources>
 					<includedirs>
 						<include name="subversion" />
@@ -102,7 +101,6 @@
 					options='/NOLOGO /SUBSYSTEM:WINDOWS ${machineoption}'>
 					<sources>
 						<include name="${configuration}_${platform}\${fname}-nonet\**.obj" />
-                        <include name="..\..\..\common\zlib\${configuration}_${platform}\zlibstat.lib" if="${fname == 'libsvn_subr'}"/>
 					</sources>
 				</lib>
 			</do>
@@ -137,7 +135,6 @@
 					<arg value="/errorReport:prompt" />
 					<sources>
 						<include name="subversion\${fname}\**.c" />
-						<exclude name="subversion\libsvn_subr\win32_crash**.c" />
 					</sources>
 					<includedirs>
 						<include name="subversion" />
@@ -158,7 +155,6 @@
 						<define name="ENABLE_NLS" />
 						<define name="SVN_NEON_0_25=1" />
 						<define name="SVN_NEON_0_26=1" />
-						<define name="SVN_LIBSVN_CLIENT_LINKS_RA_DAV=1" />
 						<define name="alloca=_alloca" />
 						<define name="snprintf=_snprintf" />
 						<define name="WIN32" />
@@ -174,7 +170,6 @@
 					options='/NOLOGO /SUBSYSTEM:WINDOWS ${machineoption}'>
 					<sources>
 						<include name="${configuration}_${platform}\${fname}\**.obj" />
-                        <include name="..\..\..\common\zlib\${configuration}_${platform}\zlibstat.lib" if="${fname == 'libsvn_subr'}"/>
 					</sources>
 				</lib>
 			</do>
@@ -204,7 +199,6 @@
 			<arg value="/errorReport:prompt" />
 			<sources>
 				<include name="subversion\svn\*.c" />
-				<exclude name="subversion\libsvn_subr\win32_crash**.c" />
 			</sources>
 			<includedirs>
 				<include name="subversion" />

@@ -16,7 +16,7 @@ CFindDlg::CFindDlg(CWnd* pParent /*=NULL*/)
 	, m_bFindNext(false)
 	, m_bMatchCase(FALSE)
 	, m_bLimitToDiffs(FALSE)
-	, m_bWholeWord(FALSE)
+	, m_sFindText(_T(""))
 {
 }
 
@@ -29,13 +29,12 @@ void CFindDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Check(pDX, IDC_MATCHCASE, m_bMatchCase);
 	DDX_Check(pDX, IDC_LIMITTODIFFS, m_bLimitToDiffs);
-	DDX_Check(pDX, IDC_WHOLEWORD, m_bWholeWord);
-	DDX_Control(pDX, IDC_FINDCOMBO, m_FindCombo);
+	DDX_Text(pDX, IDC_SEARCHTEXT, m_sFindText);
 }
 
 
 BEGIN_MESSAGE_MAP(CFindDlg, CDialog)
-	ON_CBN_EDITCHANGE(IDC_FINDCOMBO, &CFindDlg::OnCbnEditchangeFindcombo)
+	ON_EN_CHANGE(IDC_SEARCHTEXT, &CFindDlg::OnEnChangeSearchtext)
 END_MESSAGE_MAP()
 
 
@@ -57,9 +56,7 @@ void CFindDlg::PostNcDestroy()
 void CFindDlg::OnOK()
 {
 	UpdateData();
-	m_FindCombo.SaveHistory();
-
-	if (m_FindCombo.GetString().IsEmpty())
+	if (m_sFindText.IsEmpty())
 		return;
 	m_bFindNext = true;
 	if (GetParent())
@@ -72,15 +69,12 @@ BOOL CFindDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 	m_FindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-	m_FindCombo.LoadHistory(_T("Software\\TortoiseMerge\\History\\Find"), _T("Search"));
-
-	m_FindCombo.SetFocus();
-
+	GetDlgItem(IDC_SEARCHTEXT)->SetFocus();
 	return FALSE;
 }
 
-void CFindDlg::OnCbnEditchangeFindcombo()
+void CFindDlg::OnEnChangeSearchtext()
 {
 	UpdateData();
-	GetDlgItem(IDOK)->EnableWindow(!m_FindCombo.GetString().IsEmpty());
+	GetDlgItem(IDOK)->EnableWindow(!m_sFindText.IsEmpty());
 }

@@ -19,11 +19,13 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SVNProperties.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "EditPropertyValueDlg.h"
 
+
+// CEditPropertyValueDlg dialog
 
 IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
 
@@ -35,6 +37,7 @@ CEditPropertyValueDlg::CEditPropertyValueDlg(CWnd* pParent /*=NULL*/)
 	, m_bMultiple(false)
 	, m_bIsBinary(false)
 {
+
 }
 
 CEditPropertyValueDlg::~CEditPropertyValueDlg()
@@ -58,14 +61,12 @@ BEGIN_MESSAGE_MAP(CEditPropertyValueDlg, CResizableStandAloneDialog)
 	ON_EN_CHANGE(IDC_PROPVALUE, &CEditPropertyValueDlg::OnEnChangePropvalue)
 END_MESSAGE_MAP()
 
+
+// CEditPropertyValueDlg message handlers
+
 BOOL CEditPropertyValueDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-	CString resToken;
-	int curPos = 0;
-
-	// get the property values for user defined property files
-	m_ProjectProperties.ReadPropsPathList(m_pathList);
 
 	// fill the combobox control with all the
 	// known properties
@@ -83,18 +84,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 		m_PropNames.AddString(_T("svn:needs-lock"));
 	if ((!m_bFolder)||(m_bMultiple))
 		m_PropNames.AddString(_T("svn:mime-type"));
-	if ((!m_bFolder)||(m_bMultiple))
-	{
-		if (!m_ProjectProperties.sFPPath.IsEmpty())
-		{
-			resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
-			while (resToken != "")
-			{
-				m_PropNames.AddString(resToken);
-				resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
-			}
-		}
-	}
 
 	if ((m_bFolder)||(m_bMultiple))
 	{
@@ -111,23 +100,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 		m_PropNames.AddString(_T("tsvn:logminsize"));
 		m_PropNames.AddString(_T("tsvn:logfilelistenglish"));
 		m_PropNames.AddString(_T("tsvn:projectlanguage"));
-		m_PropNames.AddString(_T("tsvn:userfileproperties"));
-		m_PropNames.AddString(_T("tsvn:userdirproperties"));
-
-		m_PropNames.AddString(_T("webviewer:revision"));
-		m_PropNames.AddString(_T("webviewer:pathrevision"));
-
-		if (!m_ProjectProperties.sDPPath.IsEmpty())
-		{
-			curPos = 0;
-			resToken = m_ProjectProperties.sDPPath.Tokenize(_T("\n"),curPos);
-
-			while (resToken != "")
-			{
-				m_PropNames.AddString(resToken);
-				resToken = m_ProjectProperties.sDPPath.Tokenize(_T("\n"),curPos);
-			}
-		}
 	}
 	else
 		GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(FALSE);
@@ -161,8 +133,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	if (!m_sTitle.IsEmpty())
 		SetWindowText(m_sTitle);
 
-	AdjustControlSize(IDC_PROPRECURSIVE);
-
 	AddAnchor(IDC_PROPNAME, TOP_LEFT, TOP_CENTER);
 	AddAnchor(IDC_PROPNAMECOMBO, TOP_CENTER, TOP_RIGHT);
 	AddAnchor(IDC_PROPVALUEGROUP, TOP_LEFT, BOTTOM_RIGHT);
@@ -173,7 +143,8 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("EditPropertyValueDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
@@ -279,23 +250,10 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_TT_TSVNLOGFILELISTENGLISH;
 		if (sName.Compare(_T("tsvn:projectlanguage"))==0)
 			nText = IDS_TT_TSVNPROJECTLANGUAGE;
-		if (sName.Compare(_T("tsvn:userfileproperties"))==0)
-			nText = IDS_TT_TSVNPROJECTLANGUAGE;
-		if (sName.Compare(_T("tsvn:userfolderproperties"))==0)
-			nText = IDS_TT_TSVNPROJECTLANGUAGE;
-		if (sName.Compare(_T("webviewer:revision"))==0)
-			nText = IDS_TT_WEBVIEWERREVISION;
-		if (sName.Compare(_T("webviewer:pathrevision"))==0)
-			nText = IDS_TT_WEBVIEWERPATHREVISION;
 
 		if (nText)
 		{
 			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD), nText);
-		}
-		else
-		{
-			// if no match is found then remove the tool tip so that the last tooltip is not wrongly shown
-			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
 		}
 	}
 }
@@ -388,6 +346,4 @@ void CEditPropertyValueDlg::OnEnChangePropvalue()
 		m_bIsBinary = false;
 	}
 }
-
-
 

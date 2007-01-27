@@ -30,6 +30,8 @@
 
 using namespace Gdiplus;
 
+// CStatGraphDlg dialog
+
 IMPLEMENT_DYNAMIC(CStatGraphDlg, CResizableStandAloneDialog)
 CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CStatGraphDlg::IDD, pParent)
@@ -85,6 +87,9 @@ BEGIN_MESSAGE_MAP(CStatGraphDlg, CResizableStandAloneDialog)
 	ON_COMMAND(ID_FILE_SAVESTATGRAPHAS, &CStatGraphDlg::OnFileSavestatgraphas)
 END_MESSAGE_MAP()
 
+
+// CStatGraphDlg message handlers
+
 BOOL CStatGraphDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
@@ -118,14 +123,6 @@ BOOL CStatGraphDlg::OnInitDialog()
 	m_Skipper.SetRange(0, 100);
 	m_Skipper.SetPos(10);
 	m_Skipper.SetPageSize(5);
-
-	// set the dialog title to "Statistics - path/to/whatever/we/show/the/statistics/for"
-	CString sTitle;
-	GetWindowText(sTitle);
-	if(m_path.IsDirectory())
-		SetWindowText(sTitle + _T(" - ") + m_path.GetWinPathString());
-	else
-		SetWindowText(sTitle + _T(" - ") + m_path.GetFilename());
 
 	m_hGraphBarIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBAR), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 	m_hGraphBarStackedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBARSTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
@@ -352,7 +349,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 
 	InitUnits();
 
-	// Set up the graph.
+	//Set up the graph.
 	CString temp;
 	UpdateData();
 	m_graph.SetGraphType(m_GraphType, m_bStacked);
@@ -442,13 +439,6 @@ void CStatGraphDlg::ShowCommitsByDate()
 			switch(GetUnitType())
 			{
 			case Weeks:
-				if ((unit == 1)&&(lasttime.GetMonth() == 12))
-					// in some locales, the last week of a year can actually be
-					// the first week-of-the-year of the next year.
-					temp.Format(_T("%d/%.2d"), unit, (lasttime.GetYear()+1)%100);
-				else
-					temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-				break;
 			case Months:
 				temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
 				break;
@@ -482,13 +472,6 @@ void CStatGraphDlg::ShowCommitsByDate()
 				switch(GetUnitType())
 				{
 				case Weeks:
-					if ((unit == 1)&&(lasttime.GetMonth() == 12))
-						// in some locales, the last week of a year can actually be
-						// the first week-of-the-year of the next year.
-						temp.Format(_T("%d/%.2d"), unit, (lasttime.GetYear()+1)%100);
-					else
-						temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-					break;
 				case Months:
 					temp.Format(_T("%d/%.2d"), unit, time.GetYear()%100);
 					break;
@@ -534,13 +517,6 @@ void CStatGraphDlg::ShowCommitsByDate()
 	switch(GetUnitType())
 	{
 	case Weeks:
-		if ((unit == 1)&&(lasttime.GetMonth() == 12))
-			// in some locales, the last week of a year can actually be
-			// the first week-of-the-year of the next year.
-			temp.Format(_T("%d/%.2d"), unit, (lasttime.GetYear()+1)%100);
-		else
-			temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-		break;
 	case Months:
 		temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
 		break;
@@ -1168,7 +1144,7 @@ void CStatGraphDlg::OnFileSavestatgraphas()
 	sFilter.LoadString(IDS_PICTUREFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{
@@ -1284,10 +1260,10 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
 				return;
 			}
 			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			// paint the whole graph
+			//paint the whole graph
 			RedrawGraph();
 			m_graph.DrawGraph(dc);
-			// now use GDI+ to save the picture
+			//now use GDI+ to save the picture
 			CLSID   encoderClsid;
 			GdiplusStartupInput gdiplusStartupInput;
 			ULONG_PTR           gdiplusToken;

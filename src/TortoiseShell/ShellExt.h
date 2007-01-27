@@ -58,6 +58,26 @@ typedef CComCritSecLock<CComCriticalSection> AutoLocker;
  * It contains all Interfaces we implement for the shell to use.
  * \remark The implementations of the different interfaces are
  * split into several *.cpp files to keep them in a reasonable size.
+ *
+ * \par requirements
+ * Version 4.00 or later of Shell32.dll (WinNT or later, Win95 or later)
+ * Internet Explorer Version 5.0 or higher
+ * Note: some functions are disabled and/or reduced for older systems.
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 10-12-2002
+ *
+ * \author Stefan Kueng, Tim Kemp
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
+ *
  */
 class CShellExt : public IContextMenu3,
 							IPersistFile,
@@ -75,63 +95,62 @@ protected:
 
 	enum SVNCommands
 	{
-		ShellSubMenu = 1,
-		ShellSubMenuFolder,
-		ShellSubMenuFile,
-		ShellSubMenuLink,
-		ShellSubMenuMultiple,
-		ShellMenuCheckout,
-		ShellMenuUpdate,
-		ShellMenuCommit,
-		ShellMenuAdd,
-		ShellMenuAddAsReplacement,
-		ShellMenuRevert,
-		ShellMenuCleanup,
-		ShellMenuResolve,
-		ShellMenuSwitch,
-		ShellMenuImport,
-		ShellMenuExport,
-		ShellMenuAbout,
-		ShellMenuCreateRepos,
-		ShellMenuCopy,
-		ShellMenuMerge,
-		ShellMenuSettings,
-		ShellMenuRemove,
-		ShellMenuRename,
-		ShellMenuUpdateExt,
-		ShellMenuDiff,
-		ShellMenuUrlDiff,
-		ShellMenuDropCopyAdd,
-		ShellMenuDropMoveAdd,
-		ShellMenuDropMove,
-		ShellMenuDropMoveRename,
-		ShellMenuDropCopy,
-		ShellMenuDropCopyRename,
-		ShellMenuDropExport,
-		ShellMenuDropExportExtended,
-		ShellMenuLog,
-		ShellMenuConflictEditor,
-		ShellMenuRelocate,
-		ShellMenuHelp,
-		ShellMenuShowChanged,
-		ShellMenuIgnoreSub,
-		ShellMenuIgnore,
-		ShellMenuIgnoreFile,
-		ShellMenuIgnoreCaseSensitive,
-		ShellMenuIgnoreCaseInsensitive,
-		ShellMenuRepoBrowse,
-		ShellMenuBlame,
-		ShellMenuApplyPatch,
-		ShellMenuCreatePatch,
-		ShellMenuRevisionGraph,
-		ShellMenuUnIgnoreSub,
-		ShellMenuUnIgnoreCaseSensitive,
-		ShellMenuUnIgnore,
-		ShellMenuLock,
-		ShellMenuUnlock,
-		ShellMenuUnlockForce,
-		ShellMenuProperties,
-		ShellMenuDelUnversioned
+		SubMenu = 1,
+		SubMenuFolder,
+		SubMenuFile,
+		SubMenuLink,
+		SubMenuMultiple,
+		Checkout,
+		Update,
+		Commit,
+		Add,
+		AddAsReplacement,
+		Revert,
+		Cleanup,
+		Resolve,
+		Switch,
+		Import,
+		Export,
+		About,
+		CreateRepos,
+		Copy,
+		Merge,
+		Settings,
+		Remove,
+		Rename,
+		UpdateExt,
+		Diff,
+		UrlDiff,
+		DropCopyAdd,
+		DropMoveAdd,
+		DropMove,
+		DropMoveRename,
+		DropCopy,
+		DropCopyRename,
+		DropExport,
+		DropExportExtended,
+		Log,
+		ConflictEditor,
+		Relocate,
+		Help,
+		ShowChanged,
+		IgnoreSub,
+		Ignore,
+		IgnoreFile,
+		IgnoreCaseSensitive,
+		IgnoreCaseInsensitive,
+		RepoBrowse,
+		Blame,
+		ApplyPatch,
+		CreatePatch,
+		RevisionGraph,
+		UnIgnoreSub,
+		UnIgnoreCaseSensitive,
+		UnIgnore,
+		Lock,
+		Unlock,
+		UnlockForce,
+		Properties
 	};
 
 	FileState m_State;
@@ -144,7 +163,6 @@ protected:
 	stdstring	folder_;
 	std::vector<stdstring> files_;
 	bool isOnlyOneItemSelected;
-	bool isExtended;
 	bool isInSVN;
 	bool isIgnored;
 	bool isConflicted;
@@ -157,8 +175,6 @@ protected:
 	bool isLocked;
 	bool isPatchFile;
 	bool isShortcut;
-	bool isNeedsLock;
-	bool isPatchFileInClipboard;
 	int space;
 	TCHAR stringtablebuffer[255];
 	stdstring columnfilepath;		///< holds the last file/dir path for the column provider
@@ -173,14 +189,12 @@ protected:
 #define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 //#define MAKESTRING(ID) LoadString(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer))
 private:
-	void			InsertSVNMenu(BOOL ownerdrawn, BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com);
-	stdstring		WriteFileListToTempFile();
-	LPCTSTR			GetMenuTextFromResource(int id);
-	void			GetColumnStatus(const TCHAR * path, BOOL bIsDir);
-	HBITMAP			IconToBitmap(UINT uIcon, COLORREF transparentColor);
-	int				GetInstalledOverlays();		///< returns the maximum number of overlays TSVN shall use
-	STDMETHODIMP	QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
-	bool			IsIllegalFolder(std::wstring folder, int * cslidarray);
+	void InsertSVNMenu(BOOL ownerdrawn, BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com);
+	stdstring WriteFileListToTempFile();
+	LPCTSTR GetMenuTextFromResource(int id);
+	void GetColumnStatus(const TCHAR * path, BOOL bIsDir);
+	HBITMAP IconToBitmap(UINT uIcon, COLORREF transparentColor);
+	int GetInstalledOverlays();		///< returns the maximum number of overlays TSVN shall use
 public:
 	CShellExt(FileState state);
 	virtual ~CShellExt();
@@ -231,12 +245,12 @@ public:
 	 * IPersistFile methods
 	 */
 	//@{
-    STDMETHODIMP	GetClassID(CLSID *pclsid);
-    STDMETHODIMP	Load(LPCOLESTR pszFileName, DWORD dwMode);
-    STDMETHODIMP	IsDirty(void) { return S_OK; };
-    STDMETHODIMP	Save(LPCOLESTR /*pszFileName*/, BOOL /*fRemember*/) { return S_OK; };
-    STDMETHODIMP	SaveCompleted(LPCOLESTR /*pszFileName*/) { return S_OK; };
-    STDMETHODIMP	GetCurFile(LPOLESTR * /*ppszFileName*/) { return S_OK; };
+    STDMETHODIMP GetClassID(CLSID *pclsid);
+    STDMETHODIMP Load(LPCOLESTR pszFileName, DWORD dwMode);
+    STDMETHODIMP IsDirty(void) { return S_OK; };
+    STDMETHODIMP Save(LPCOLESTR /*pszFileName*/, BOOL /*fRemember*/) { return S_OK; };
+    STDMETHODIMP SaveCompleted(LPCOLESTR /*pszFileName*/) { return S_OK; };
+    STDMETHODIMP GetCurFile(LPOLESTR * /*ppszFileName*/) { return S_OK; };
 	//@}
 
 	/** \name IShellIconOverlayIdentifier 

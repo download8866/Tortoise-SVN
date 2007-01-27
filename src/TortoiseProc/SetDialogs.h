@@ -72,18 +72,18 @@ private:
 	CComboBox		m_cAutoClose;
 	CRegDWORD		m_regUseWCURL;
 	BOOL			m_bUseWCURL;
-	CRegString		m_regDefaultCheckoutPath;
-	CString			m_sDefaultCheckoutPath;
-	CRegString		m_regDefaultCheckoutUrl;
-	CString			m_sDefaultCheckoutUrl;
 
 	BOOL			m_bInitialized;
 
 public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnCbnSelchangeLanguagecombo();
 	virtual BOOL OnApply();
-	afx_msg void OnChange();
+	afx_msg void OnEnChangeDefaultlog();
+	afx_msg void OnBnClickedShortdateformat();
+	afx_msg void OnCbnSelchangeFontsizes();
+	afx_msg void OnCbnSelchangeFontnames();
 	afx_msg void OnCbnSelchangeAutoclosecombo();
-	afx_msg void OnBnClickedBrowsecheckoutpath();
+	afx_msg void OnBnClickedWcurlfrom();
 };

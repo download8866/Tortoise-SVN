@@ -54,7 +54,6 @@ protected:
 	BOOL m_bInit;
 	CRegDWORD		m_regInlineAdded;
 	CRegDWORD		m_regInlineRemoved;
-	CRegDWORD		m_regModifiedBackground;
 	CColourPickerXP m_cBkNormal;
 	CColourPickerXP m_cBkRemoved;
 	CColourPickerXP m_cBkAdded;
@@ -62,5 +61,4 @@ protected:
 	CColourPickerXP m_cBkInlineRemoved;
 	CColourPickerXP m_cBkEmpty;
 	CColourPickerXP m_cBkConflict;
-	CColourPickerXP m_cBkModified;
 };

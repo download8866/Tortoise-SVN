@@ -26,11 +26,9 @@
 #include "SciEdit.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Dialog asking the user for a lock-message and a list control
- * where the user can select which files to lock.
- */
+
+// CLockDlg dialog
+
 class CLockDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CLockDlg)
@@ -56,6 +54,7 @@ private:
 
 	DECLARE_MESSAGE_MAP()
 
+// Dialog Data
 	enum { IDD = IDD_LOCK };
 public:
 	CString				m_sLockMessage;

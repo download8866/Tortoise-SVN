@@ -153,10 +153,6 @@ public:
 	 */
 	BOOL Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force = FALSE, BOOL no_ignore = FALSE);
 	/**
-	 * Assigns the files/folders in \c pathList to a \c changelist.
-	 */
-	BOOL SetChangeList(const CTSVNPathList& pathList, const CString& changelist);
-	/**
 	 * Update working tree path to revision.
 	 * \param pathList the files/directories to update
 	 * \param revision the revision the local copy should be updated to or -1 for HEAD
@@ -176,17 +172,11 @@ public:
 	 *
 	 * \param path the file/directory to commit
 	 * \param message a log message describing the changes you made
-	 * \param changelist If \c changelist is non-empty, then use it as a restrictive 
-	 *                   filter on items that are committed; that is, don't commit 
-	 *                   anything unless it's a member of changelist \c changelist. 
-	 * \param keepchangelist After the commit completes successfully, remove \c changelist 
-	 *                       associations from the targets, unless \c keepchangelist is set.
 	 * \param recurse 
 	 * \param keep_locks if TRUE, the locks are not removed on commit
 	 * \return the resulting revision number.
 	 */
-	svn_revnum_t Commit(const CTSVNPathList& pathlist, CString message, 
-		const CString& changelist, BOOL keepchangelist, BOOL recurse, BOOL keep_locks);
+	svn_revnum_t Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks);
 	/**
 	 * Copy srcPath to destPath.
 	 * 
@@ -271,9 +261,8 @@ public:
 	 * \param revision	the revision that should be exported, which is only used 
 	 *					when exporting from a repository.
 	 * \param force		TRUE if existing files should be overwritten
-	 * \param eol		"", "CR", "LF" or "CRLF" - "" being the default
 	 */
-	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, HWND hWnd = NULL, BOOL extended = FALSE, CString eol = CString());
+	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, HWND hWnd = NULL, BOOL extended = FALSE);
 	/**
 	 * Switch working tree path to URL at revision
 	 *
@@ -341,33 +330,6 @@ public:
 	 */
 	BOOL Merge(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, const CTSVNPath& localPath, BOOL force, BOOL recurse, BOOL ignoreanchestry = FALSE, BOOL dryrun = FALSE);
 
-	/**
-	 * Merge changes from source/revision1 to source/revision2 into the
-	 * working-copy path localPath.
-	 * 
-	 * The peg revision is used as an anchor where to look for \c source
-	 * since it may have been moved/renamed and does not exist anymore with the
-	 * name specified by \c source in \c revision1 or \c revision2.
-	 * 
-	 * By "merging", we mean:  apply file differences and schedule 
-	 * additions & deletions when appopriate.
-	 *
-	 * If recurse is true (and the paths are directories), apply changes
-	 * recursively; otherwise, only apply changes in the current
-	 * directory.
-	 *
-	 * If force is not set and the merge involves deleting locally modified or
-	 * unversioned items the operation will fail.  If force is set such items
-	 * will be deleted.
-	 *
-	 * \param source		url
-	 * \param revision1		first revision
-	 * \param revision2		second revision
-	 * \param pegrevision	the peg revision
-	 * \param localPath		destination path
-	 * \param force			see description
-	 * \param recurse 
-	 */
 	BOOL PegMerge(const CTSVNPath& source, SVNRev revision1, SVNRev revision2, SVNRev pegrevision, const CTSVNPath& destpath, BOOL force, BOOL recurse, BOOL ignoreancestry = FALSE, BOOL dryrun = FALSE);
 	/**
 	 * Produce diff output which describes the delta between \a path1/\a revision1 and \a path2/\a revision2
@@ -529,13 +491,6 @@ public:
 	 * \return The root url or an empty string
 	 */
 	CString GetRepositoryRoot(const CTSVNPath& url);
-	/**
-	 * Finds the repository root of a given url, and the UUID of the repository.
-	 * \param url [in] the url to get the root and UUID from
-	 * \param sUUID [out] the UUID of the repository
-	 * \return the root url or an empty string
-	 */
-	CString GetRepositoryRootAndUUID(const CTSVNPath& url, CString& sUUID);
 
 	/**
 	 * Checks if a file:/// url points to a BDB repository.
@@ -548,9 +503,6 @@ public:
 	 */
 	svn_revnum_t GetHEADRevision(const CTSVNPath& url);
 
-	/**
-	 * Returns the repository root and the HEAD revision of the repository.
-	 */
 	BOOL GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev);
 
 	/**
@@ -575,36 +527,12 @@ public:
 	 * the repository of the lock. It is \b not an absolute URL, the
 	 * repository root part is stripped off!
 	 */
-	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);
+	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);	
 
-	/**
-	 * get a summary of the working copy revisions
-	 * \param wcpath the path to the working copy to scan for
-	 * \param bCommitted if true, use the last-committed revisions, if false use the BASE revisions.
-	 * \param minrev the min revision of the working copy
-	 * \param maxrev the max revision of the working copy
-	 * \param switched true if one or more items in the working copy are switched
-	 * \param modified true if there are modified files in the working copy
-	 */
-	BOOL GetWCRevisionStatus(const CTSVNPath& wcpath, bool bCommitted, svn_revnum_t& minrev, svn_revnum_t& maxrev, bool& switched, bool& modified);
-
-	/**
-	 * Returns the URL associated with the \c path.
-	 */
 	CString GetURLFromPath(const CTSVNPath& path);
-	/**
-	 * Returns the URL associated with the \c path, unescaped.
-	 */
 	CString GetUIURLFromPath(const CTSVNPath& path);
-	/**
-	 * Returns the repository UUID for the \c path.
-	 */
 	CString GetUUIDFromPath(const CTSVNPath& path);
 
-	/**
-	 * Checks if the configuration file is present and valid.
-	 * \return the error message string, or an empty string if everything is ok.
-	 */
 	static CString CheckConfigFile();
 
 	/**
@@ -664,64 +592,27 @@ public:
 	*/
 	void SetPromptApp(CWinApp* pWinApp);
 
-	/**
-	 * Sets and clears the progress info which is shown during lengthy operations.
-	 * \param hWnd the window handle of the parent dialog/window
-	 */
 	void SetAndClearProgressInfo(HWND hWnd);
-	/**
-	 * Sets and clears the progress info which is shown during lengthy operations.
-	 * \param pProgressDlg the CProgressDlg object to show the progress info on.
-	 * \param bShowProgressBar set to true if the progress bar should be shown. Only makes
-	 * sense if the total amount of the progress is known beforehand. Otherwise the
-	 * progressbar is always "empty".
-	 */
 	void SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgressBar = false);
 	
-	/**
-	 * Returns the string representation of the summarize action.
-	 */
 	static CString GetSummarizeActionText(svn_client_diff_summarize_kind_t kind);
 
-	/**
-	 * Returns the string representation of the error object \c Err, wrapped
-	 * (if possible) at \c wrap chars.
-	 */
 	static CString GetErrorString(svn_error_t * Err, int wrap = 80);
-	/**
-	 * Converts an url or path in the Subversion format for urls/paths
-	 * (utf8 encoded, escaped, forward slashes)
-	 */
 	static CStringA MakeSVNUrlOrPath(const CString& UrlOrPath);
-	/**
-	 * Converts a Subversion url/path to an UI format (utf16 encoded, unescaped,
-	 * backslash for paths, forward slashes for urls).
-	 */
 	static CString MakeUIUrlOrPath(CStringA UrlOrPath);
-	/**
-	 * Returns a string in \c date_native[] representing the date in the OS local
-	 * format.
-	 */
 	static void formatDate(TCHAR date_native[], apr_time_t& date_svn, bool force_short_fmt = false);
 
-	/**
-	 * Reads the proxy settings from Internet Explorer and sets them for Subversion
-	 * to use. Doesn't work as reliable as hoped, that's why this method isn't
-	 * currently used.
-	 */
 	static void UseIEProxySettings(apr_hash_t * cfg);
-
 	svn_error_t *				Err;			///< Global error object struct
 private:
-	svn_client_ctx_t * 			m_pctx;			///< pointer to client context
-	apr_hash_t *				statushash;		///< holds the status
-	apr_array_header_t *		statusarray;	///< an array of all status
-	svn_wc_status_t *			status;			///< the status object
-	apr_pool_t *				parentpool;		///< the main memory pool
-	apr_pool_t *				pool;			///< 'root' memory pool
+	svn_client_ctx_t * 			m_pctx;
+	apr_hash_t *				statushash;
+	apr_array_header_t *		statusarray;
+	svn_wc_status_t *			status;
+	apr_pool_t *				parentpool;
+	apr_pool_t *				pool;			///< memory pool
 	svn_opt_revision_t			rev;			///< subversion revision. used by getRevision()
 	SVNPrompt					m_prompt;
-	CString						PostCommitErr;	///< error string from post commit hook script
 
 	svn_opt_revision_t *	getRevision (svn_revnum_t revNumber);
 	void * logMessage (const char * message, char * baseDirectory = NULL);

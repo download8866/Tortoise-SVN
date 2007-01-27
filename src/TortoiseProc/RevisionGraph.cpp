@@ -34,9 +34,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 
-CRevisionGraph::CRevisionGraph(void) :	m_bCancelled(FALSE)
-	, m_FilterMinRev(-1)
-	, m_FilterMaxRev(-1)
+CRevisionGraph::CRevisionGraph(void) :
+	m_bCancelled(FALSE)
 {
 	memset (&m_ctx, 0, sizeof (m_ctx));
 	parentpool = svn_pool_create(NULL);
@@ -56,7 +55,7 @@ CRevisionGraph::CRevisionGraph(void) :	m_bCancelled(FALSE)
 		svn_pool_destroy (graphpool);
 		svn_pool_destroy (parentpool);
 		exit(-1);
-	}
+	} // if (Err != 0) 
 
 	// set up authentication
 	m_prompt.Init(pool, &m_ctx);
@@ -91,32 +90,6 @@ CRevisionGraph::~CRevisionGraph(void)
 	}
 	m_mapEntryPtrs.clear();
 	m_arEntryPtrs.RemoveAll();
-}
-
-bool CRevisionGraph::SetFilter(svn_revnum_t minrev, svn_revnum_t maxrev, const CString& sPathFilter)
-{
-	m_FilterMinRev = minrev;
-	m_FilterMaxRev = maxrev;
-	m_filterpaths.clear();
-	// the filtered paths are separated by an '*' char, since that char is illegal in paths and urls
-	if (!sPathFilter.IsEmpty())
-	{
-		int pos = sPathFilter.Find('*');
-		if (pos)
-		{
-			CString sTemp = sPathFilter;
-			while (pos>=0)
-			{
-				m_filterpaths.insert(CUnicodeUtils::StdGetUTF8((LPCWSTR)sTemp.Left(pos)));
-				sTemp = sTemp.Mid(pos+1);
-				pos = sTemp.Find('*');
-			}
-			m_filterpaths.insert(CUnicodeUtils::StdGetUTF8((LPCWSTR)sTemp));
-		}
-		else
-			m_filterpaths.insert(CUnicodeUtils::StdGetUTF8((LPCWSTR)sPathFilter));
-	}
-	return true;
 }
 
 BOOL CRevisionGraph::ProgressCallback(CString /*text*/, CString /*text2*/, DWORD /*done*/, DWORD /*total*/) {return TRUE;}
@@ -767,48 +740,7 @@ bool CRevisionGraph::Cleanup(CStringA url, bool bArrangeByPath)
 			}
 		}
 		else
-		{
-			// remove entries which are filtered out
-			bool bAdd = true;
-			if (m_filterpaths.size() > 0)
-			{
-				for (std::set<std::string>::iterator fi = m_filterpaths.begin(); fi != m_filterpaths.end(); ++fi)
-				{
-					if (strstr(reventry->url, fi->c_str()))
-					{
-						bAdd = false;
-						break;
-					}
-				}
-			}
-			if ((m_FilterMinRev > 0)&&(m_FilterMaxRev > 0))
-			{
-				if ((reventry->revision < m_FilterMinRev)||(reventry->revision > m_FilterMaxRev))
-					bAdd = false;
-			}
-			if (!bAdd)
-			{
-				// delete unused entry
-				for (INT_PTR j=0; j<reventry->sourcearray.GetCount(); ++j)
-					delete (source_entry*)reventry->sourcearray[j];
-				delete reventry;
-				reventry = NULL;
-				if (it == m_mapEntryPtrs.begin())
-				{
-					m_mapEntryPtrs.erase(it);
-					it = m_mapEntryPtrs.begin();
-				}
-				else
-				{
-					EntryPtrsIterator it2 = it;
-					--it2;
-					m_mapEntryPtrs.erase(it);
-					it = it2;
-				}
-			}
-			else
-				++it;
-		}
+			++it;
 	}	
 	for (EntryPtrsIterator it = m_mapEntryPtrs.begin(); it != m_mapEntryPtrs.end(); ++it)
 	{

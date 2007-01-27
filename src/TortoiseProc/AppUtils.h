@@ -17,8 +17,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "HistoryCombo.h"
-#include "SVNRev.h"
 
 class CTSVNPath;
 
@@ -100,6 +98,4 @@ public:
 	 */
 	static bool FormatTextInRichEditControl(CWnd * pWnd);
 	static bool FindStyleChars(const CString& sText, TCHAR stylechar, int& start, int& end);
-
-	static bool BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& rev, bool bFile = true);
 };
