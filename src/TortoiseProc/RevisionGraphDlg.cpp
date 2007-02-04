@@ -30,7 +30,6 @@
 #include "TSVNPath.h"
 #include "SVNInfo.h"
 #include "SVNDiff.h"
-#include "RevGraphFilterDlg.h"
 #include ".\revisiongraphdlg.h"
 
 #ifdef _DEBUG
@@ -40,6 +39,8 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 using namespace Gdiplus;
+
+// CRevisionGraphDlg dialog
 
 IMPLEMENT_DYNAMIC(CRevisionGraphDlg, CStandAloneDialog)
 CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
@@ -81,8 +82,10 @@ BEGIN_MESSAGE_MAP(CRevisionGraphDlg, CStandAloneDialog)
 	ON_CBN_SELCHANGE(ID_REVGRAPH_ZOOMCOMBO, OnChangeZoom)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipNotify)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipNotify)
-	ON_COMMAND(ID_VIEW_FILTER, &CRevisionGraphDlg::OnViewFilter)
 END_MESSAGE_MAP()
+
+
+// CRevisionGraphDlg message handlers
 
 BOOL CRevisionGraphDlg::OnInitDialog()
 {
@@ -97,8 +100,8 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 	m_StatusBar.SetParts(2, strPartDim);
 
 	// set up the toolbar
-	// add the tool bar to the dialog
-	m_ToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_WRAPABLE | TBSTYLE_TRANSPARENT | CBRS_SIZE_DYNAMIC);
+	//add the tool bar to the dialog
+	m_ToolBar.CreateEx(this, TBSTYLE_FLAT | TBSTYLE_WRAPABLE| CBRS_SIZE_DYNAMIC);
 	m_ToolBar.LoadToolBar(IDR_REVGRAPHBAR);
 	m_ToolBar.ShowWindow(SW_SHOW);
 	m_ToolBar.SetBarStyle(CBRS_ALIGN_TOP | CBRS_TOOLTIPS | CBRS_FLYBY);
@@ -127,22 +130,22 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 	RepositionBars(AFX_IDW_CONTROLBAR_FIRST, AFX_IDW_CONTROLBAR_LAST, 0);
 
 #define SNAP_WIDTH 60 //the width of the combo box
-	// set up the ComboBox control as a snap mode select box
-	// First get the index of the placeholder's position in the toolbar
+	//set up the ComboBox control as a snap mode select box
+	//First get the index of the placeholder's position in the toolbar
 	int index = 0;
 	while (m_ToolBar.GetItemID(index) != ID_REVGRAPH_ZOOMCOMBO) index++;
 
-	// next convert that button to a seperator and get its position
+	//next convert that button to a seperator and get its position
 	m_ToolBar.SetButtonInfo(index, ID_REVGRAPH_ZOOMCOMBO, TBBS_SEPARATOR,
 		SNAP_WIDTH);
 	RECT rect;
 	m_ToolBar.GetItemRect(index, &rect);
 
-	// expand the rectangle to allow the combo box room to drop down
+	//expand the rectangle to allow the combo box room to drop down
 	rect.top+=3;
 	rect.bottom += 200;
 
-	// then create the combo box and show it
+	// then .Create the combo box and show it
 	if (!m_ToolBar.m_ZoomCombo.CreateEx(WS_EX_RIGHT, WS_CHILD|WS_VISIBLE|CBS_AUTOHSCROLL|CBS_DROPDOWN,
 		rect, &m_ToolBar, ID_REVGRAPH_ZOOMCOMBO))
 	{
@@ -158,7 +161,7 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 	while (m_ToolBar.GetItemID(index) != ID_VIEW_SHOWALLREVISIONS) index++;
 	m_ToolBar.SetButtonStyle(index, m_ToolBar.GetButtonStyle(index)|TBBS_CHECKBOX);
 
-	// fill the combo box
+	//fill the combo box
 	COMBOBOXEXITEM cbei;
 	ZeroMemory(&cbei, sizeof cbei);
 	cbei.mask = CBEIF_TEXT;
@@ -197,6 +200,9 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 
 UINT CRevisionGraphDlg::WorkerThread(LPVOID pVoid)
 {
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	CRevisionGraphDlg*	pDlg;
 	pDlg = (CRevisionGraphDlg*)pVoid;
 	InterlockedExchange(&pDlg->m_Graph.m_bThreadRunning, TRUE);
@@ -495,6 +501,7 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
+	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -510,14 +517,14 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 	sFilter.LoadString(IDS_PICTUREFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{
 		if (*ptr == '|')
 			*ptr = '\0';
 		ptr--;
-	}
+	} // while (ptr != pszFilters) 
 	ofn.lpstrFilter = pszFilters;
 	ofn.nFilterIndex = 1;
 	// Display the Open dialog box. 
@@ -540,7 +547,7 @@ void CRevisionGraphDlg::OnFileSavegraphas()
 			tempfile += extension;
 		}
 		m_Graph.SaveGraphAs(tempfile);
-	}
+	} // if (GetSaveFileName(&ofn)==TRUE)
 	delete [] pszFilters;
 }
 
@@ -635,27 +642,6 @@ BOOL CRevisionGraphDlg::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
 	::SetWindowPos(pNMHDR->hwndFrom, HWND_TOP, 0, 0, 0, 0,
 		SWP_NOACTIVATE|SWP_NOSIZE|SWP_NOMOVE|SWP_NOOWNERZORDER);
 	return TRUE;    // message was handled
-}
-
-void CRevisionGraphDlg::OnViewFilter()
-{
-	CRevGraphFilterDlg dlg;
-	dlg.SetMaxRevision(m_Graph.GetHeadRevision());
-	dlg.SetFilterString(m_sFilter);
-	if (dlg.DoModal()==IDOK)
-	{
-		// user pressed OK to dismiss the dialog, which means
-		// we have to accept the new filter settings and apply them
-		svn_revnum_t minrev, maxrev;
-		dlg.GetRevisionRange(minrev, maxrev);
-		m_sFilter = dlg.GetFilterString();
-		m_Graph.SetFilter(minrev, maxrev, m_sFilter);
-		InterlockedExchange(&m_Graph.m_bThreadRunning, TRUE);
-		if (AfxBeginThread(WorkerThread, this)==NULL)
-		{
-			CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-		}
-	}
 }
 
 

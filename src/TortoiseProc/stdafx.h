@@ -40,8 +40,6 @@
 #include <afxtempl.h>
 #include <afxmt.h>
 
-#include <atlbase.h>
-
 #ifndef LVS_EX_DOUBLEBUFFER
 #define LVS_EX_DOUBLEBUFFER     0x00010000
 #endif
@@ -90,4 +88,4 @@
 #include "..\..\..\common\zlib\zlib.h"
 #pragma warning(pop)
 
-#define HISTORYCOMBO_WITH_SYSIMAGELIST
+

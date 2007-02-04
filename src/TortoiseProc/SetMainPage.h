@@ -46,6 +46,7 @@ public:
 	
 	UINT GetIconID() {return IDI_GENERAL;}
 
+// Dialog Data
 	enum { IDD = IDD_SETTINGSMAIN };
 
 protected:
@@ -72,9 +73,9 @@ private:
 public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnApply();
 	afx_msg void OnModified();
 	afx_msg void OnASPHACK();
+	virtual BOOL OnApply();
 	afx_msg void OnBnClickedEditconfig();
 	afx_msg void OnBnClickedChecknewerbutton();
 	afx_msg void OnBnClickedSounds();

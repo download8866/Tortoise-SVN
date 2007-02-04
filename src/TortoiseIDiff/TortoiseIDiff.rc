@@ -45,15 +45,6 @@ IDI_START               ICON                    "player_start.ico"
 IDI_STOP                ICON                    "player_stop.ico"
 IDI_VERTICAL            ICON                    "vertical.ico"
 IDI_LINK                ICON                    "link.ico"
-IDI_ALPHATOGGLE         ICON                    "alphatoggle.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Cursor
-//
-
-IDC_PANCUR              CURSOR                  "pan.cur"
-IDC_PANDOWNCUR          CURSOR                  "pandown.cur"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +74,7 @@ BEGIN
     POPUP "&View"
     BEGIN
         MENUITEM "&Overlap images",             ID_VIEW_OVERLAPIMAGES
-        MENUITEM "&Link images together",       ID_VIEW_LINKIMAGESTOGETHER, CHECKED
+        MENUITEM "&Link images together",       ID_VIEW_LINKIMAGESTOGETHER
         MENUITEM "&Fit Images in window",       ID_VIEW_FITIMAGESINWINDOW
         MENUITEM "Ori&ginal size",              ID_VIEW_ORININALSIZE
         MENUITEM SEPARATOR
@@ -147,7 +138,6 @@ END
 IDR_TORTOISEIDIFF ACCELERATORS 
 BEGIN
     "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "V",            ID_VIEW_ARRANGEVERTICAL, VIRTKEY, CONTROL, NOINVERT
     "F",            ID_VIEW_FITIMAGESINWINDOW, VIRTKEY, NOINVERT
     "i",            ID_VIEW_IMAGEINFO,      ASCII,  NOINVERT
     "S",            ID_VIEW_ORININALSIZE,   VIRTKEY, NOINVERT
@@ -156,11 +146,7 @@ BEGIN
     VK_OEM_MINUS,   ID_VIEW_ZOOMOUT,        VIRTKEY, NOINVERT
     VK_SUBTRACT,    ID_VIEW_ZOOMOUT,        VIRTKEY, NOINVERT
     VK_ESCAPE,      IDM_EXIT,               VIRTKEY, NOINVERT
-    VK_UP,          ID_VIEW_ALPHA0,         VIRTKEY, NOINVERT
-    VK_DOWN,        ID_VIEW_ALPHA255,       VIRTKEY, NOINVERT
-    VK_LEFT,        ID_VIEW_ALPHA127,       VIRTKEY, NOINVERT
-    VK_RIGHT,       ID_VIEW_ALPHA127,       VIRTKEY, NOINVERT
-    VK_SPACE,       ID_VIEW_ALPHATOGGLE,    VIRTKEY, NOINVERT
+    "V",            ID_VIEW_ARRANGEVERTICAL, VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -217,7 +203,7 @@ END
 
 3 TEXTINCLUDE 
 BEGIN
-    "\r\0"
+    "\r\n"
 END
 
 #endif    // APSTUDIO_INVOKED

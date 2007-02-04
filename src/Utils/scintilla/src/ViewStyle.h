@@ -54,7 +54,6 @@ public:
 	ColourPair selbackground;
 	ColourPair selbackground2;
 	int selAlpha;
-	bool selEOLFilled;
 	bool whitespaceForegroundSet;
 	ColourPair whitespaceForeground;
 	bool whitespaceBackgroundSet;

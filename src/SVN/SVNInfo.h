@@ -61,6 +61,8 @@ public:
 /**
  * \ingroup SVN
  * Wrapper for the svn_client_info() API.
+ *
+ * \author Stefan Kueng
  */
 class SVNInfo
 {

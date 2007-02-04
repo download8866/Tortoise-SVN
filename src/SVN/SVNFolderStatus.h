@@ -19,6 +19,7 @@
 #pragma once
 
 #include "SVNStatus.h"
+#include "RemoteCacheLink.h"
 #include "TSVNPath.h"
 
 /**
@@ -143,5 +144,8 @@ private:
 	// The item we most recently supplied status for 
 	CTSVNPath		m_mostRecentPath;
 	const FileStatusCacheEntry* m_mostRecentStatus;
+
+public:
+	CRemoteCacheLink m_remoteCacheLink;
 };
 

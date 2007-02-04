@@ -40,15 +40,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace Gdiplus;
 
-enum RevisionGraphContextMenuCommands
-{
-	// needs to start with 1, since 0 is the return value if *nothing* is clicked on in the context menu
-	ID_SHOWLOG = 1,
-	ID_COMPAREREVS,
-	ID_COMPAREHEADS,
-	ID_UNIDIFFREVS,
-	ID_UNIDIFFHEADS
-};
+// CRevisionGraphWnd dialog
 
 CRevisionGraphWnd::CRevisionGraphWnd()
 	: CWnd()
@@ -142,6 +134,9 @@ BEGIN_MESSAGE_MAP(CRevisionGraphWnd, CWnd)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
+
+
+// CRevisionGraphWnd message handlers
 
 void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
 {
@@ -602,9 +597,9 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 				return;
 			}
 			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			// paint the whole graph
+			//paint the whole graph
 			DrawGraph(&dc, rect, 0, 0, false);
-			// now use GDI+ to save the picture
+			//now use GDI+ to save the picture
 			CLSID   encoderClsid;
 			GdiplusStartupInput gdiplusStartupInput;
 			ULONG_PTR           gdiplusToken;

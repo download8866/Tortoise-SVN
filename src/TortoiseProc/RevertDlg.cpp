@@ -24,6 +24,9 @@
 #include "Registry.h"
 #include ".\revertdlg.h"
 
+
+// CRevertDlg dialog
+
 IMPLEMENT_DYNAMIC(CRevertDlg, CResizableStandAloneDialog)
 CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CRevertDlg::IDD, pParent)
@@ -62,10 +65,7 @@ BOOL CRevertDlg::OnInitDialog()
 	m_RevertList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_RevertList.SetSelectButton(&m_SelectAll);
 	m_RevertList.SetCancelBool(&m_bCancelled);
-	m_RevertList.SetBackgroundImage(IDI_REVERT);
 	
-	AdjustControlSize(IDC_SELECTALL);
-
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -75,15 +75,16 @@ BOOL CRevertDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RevertDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if (AfxBeginThread(RevertThreadEntry, this)==0)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
@@ -93,9 +94,9 @@ UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
 
 UINT CRevertDlg::RevertThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which can be reverted to the user
-	// in a listcontrol. 
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;
 
@@ -103,9 +104,10 @@ UINT CRevertDlg::RevertThread()
 	{
 		CMessageBox::Show(m_hWnd, m_RevertList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES, 
-						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES);
+	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES, 
+						SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES);
+
+	DialogEnableWindow(IDOK, true);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	POINT pt;
@@ -119,7 +121,7 @@ void CRevertDlg::OnOK()
 {
 	if (m_bThreadRunning)
 		return;
-	// save only the files the user has selected into the temporary file
+	//save only the files the user has selected into the temporary file
 	m_bRecursive = TRUE;
 	for (int i=0; i<m_RevertList.GetItemCount(); ++i)
 	{

@@ -396,14 +396,6 @@
 			Name="Utils"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;h;hpp;hxx;hm;inl;inc"
 			>
-			<File
-				RelativePath=".\CreateChangelistDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\CreateChangelistDlg.h"
-				>
-			</File>
 			<Filter
 				Name="General"
 				>
@@ -528,14 +520,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\Hooks.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\Hooks.h"
-					>
-				</File>
-				<File
 					RelativePath="..\Utils\PathUtils.cpp"
 					>
 				</File>
@@ -596,14 +580,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\StdioFileT.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\StdioFileT.h"
-					>
-				</File>
-				<File
 					RelativePath="..\Utils\StringUtils.cpp"
 					>
 				</File>
@@ -633,6 +609,14 @@
 				</File>
 				<File
 					RelativePath="..\Svn\TSVNPath.h"
+					>
+				</File>
+				<File
+					RelativePath="..\TortoiseShell\UnicodeStrings.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\TortoiseShell\UnicodeStrings.h"
 					>
 				</File>
 				<File
@@ -837,6 +821,50 @@
 				</File>
 				<File
 					RelativePath="..\Utils\MiscUI\SciEdit.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Utils\MiscUI\ShellFileOp.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Debug|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\Utils\MiscUI\ShellFileOp.h"
 					>
 				</File>
 				<File
@@ -1620,14 +1648,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\CommitDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CommitDlg.h"
-					>
-				</File>
-				<File
 					RelativePath="CopyDlg.cpp"
 					>
 				</File>
@@ -1644,27 +1664,11 @@
 					>
 				</File>
 				<File
-					RelativePath=".\DeleteUnversionedDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\DeleteUnversionedDlg.h"
-					>
-				</File>
-				<File
 					RelativePath=".\EditPropertiesDlg.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\EditPropertiesDlg.h"
-					>
-				</File>
-				<File
-					RelativePath=".\ExportDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\ExportDlg.h"
 					>
 				</File>
 				<File
@@ -1689,6 +1693,14 @@
 				</File>
 				<File
 					RelativePath="LogDlg.h"
+					>
+				</File>
+				<File
+					RelativePath="LogPromptDlg.cpp"
+					>
+				</File>
+				<File
+					RelativePath="LogPromptDlg.h"
 					>
 				</File>
 				<File
@@ -1756,14 +1768,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\UnlockDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\UnlockDlg.h"
-					>
-				</File>
-				<File
 					RelativePath="UpdateDlg.cpp"
 					>
 				</File>
@@ -1809,22 +1813,6 @@
 				</File>
 				<File
 					RelativePath=".\SetDialogs.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooks.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooks.h"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooksAdv.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\SetHooksAdv.h"
 					>
 				</File>
 				<File
@@ -1992,14 +1980,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\InputLogDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\InputLogDlg.h"
-					>
-				</File>
-				<File
 					RelativePath="PromptDlg.cpp"
 					>
 				</File>
@@ -2013,14 +1993,6 @@
 				</File>
 				<File
 					RelativePath=".\PropDlg.h"
-					>
-				</File>
-				<File
-					RelativePath=".\RevGraphFilterDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RevGraphFilterDlg.h"
 					>
 				</File>
 				<File
@@ -2183,10 +2155,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\graph-pie.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\hook.ico"
 				>
 			</File>
 			<File

@@ -210,13 +210,9 @@ void CTSVNPath::SetFwdslashPath(const CString& sPath) const
 {
 	m_sFwdslashPath = sPath;
 	m_sFwdslashPath.Replace('\\', '/');
-
-	// We don't leave a trailing /
 	m_sFwdslashPath.TrimRight('/');	
 
-	// Subversion 1.5 fixed the problem with root paths, but now it expects a slash for root paths
-	if ((m_sFwdslashPath.GetLength() == 2)&&(m_sFwdslashPath[1] == ':'))
-		m_sFwdslashPath += _T("/");
+	// We don't leave a trailing / even on root dir paths, because SVN doesn't like it
 
 	//workaround for Subversions UNC-path bug
 	if (m_sFwdslashPath.Left(10).CompareNoCase(_T("file://///"))==0)
@@ -740,7 +736,7 @@ const CTSVNPath& CTSVNPathList::operator[](int index) const
 bool CTSVNPathList::AreAllPathsFiles() const
 {
 	// Look through the vector for any directories - if we find them, return false
-	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) == m_paths.end();
+	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) != m_paths.end();
 }
 
 
@@ -775,31 +771,17 @@ bool CTSVNPathList::LoadFromTemporaryFile(const CTSVNPath& filename)
 	return true;
 }
 
-bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename, bool bANSI /* = false */) const
+bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename) const
 {
 	try
 	{
-		if (bANSI)
+		CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
+		PathVector::const_iterator it;
+		for(it = m_paths.begin(); it != m_paths.end(); ++it)
 		{
-			CStdioFile file(sFilename, CFile::typeText | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				CStringA line = CStringA(it->GetSVNPathString()) + '\n';
-				file.Write(line, line.GetLength());
-			} 
-			file.Close();
-		}
-		else
-		{
-			CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				file.WriteString(it->GetSVNPathString()+_T("\n"));
-			} 
-			file.Close();
-		}
+			file.WriteString(it->GetSVNPathString()+_T("\n"));
+		} 
+		file.Close();
 	}
 	catch (CFileException* pE)
 	{

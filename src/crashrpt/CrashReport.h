@@ -54,6 +54,9 @@ typedef void (*AddEventLogEx)(LPVOID lpState, LPCSTR lpEventLog, LPCSTR lpDesc);
  * \endcode
  *
  *
+ * \par requirements
+ * WTL\n
+ *
  * \remark the dll is dynamically linked at runtime. So the main application
  * will still work even if the dll is not shipped. 
  *
@@ -70,15 +73,7 @@ public:
 	CCrashReport(LPCSTR lpTo = NULL, LPCSTR lpSubject = NULL, BOOL bUseUI = TRUE)
 	{
 		InstallEx pfnInstallEx;
-		TCHAR szFileName[_MAX_PATH];
-		GetModuleFileName(NULL, szFileName, _MAX_FNAME);
-
-		// C:\Programme\TortoiseSVN\bin\TortoiseProc.exe -> C:\Programme\TortoiseSVN\bin\CrashRpt.dll
-		CString strFilename = szFileName;
-		strFilename = strFilename.Left(strFilename.ReverseFind(_T('\\')) + 1);
-		strFilename += _T("CrashRpt.dll");
-
-		m_hDll = LoadLibrary(strFilename);
+		m_hDll = LoadLibrary(_T("CrashRpt.dll"));
 		if (m_hDll)
 		{
 			pfnInstallEx = (InstallEx)GetProcAddress(m_hDll, "InstallEx");

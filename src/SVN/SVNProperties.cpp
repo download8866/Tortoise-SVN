@@ -21,6 +21,7 @@
 #include "registry.h"  // Just provides stdstring def
 #include "SVNProperties.h"
 #include "SVNStatus.h"
+#include "UnicodeStrings.h"
 #include "SVNHelpers.h"
 
 #ifdef _MFC_VER
@@ -32,32 +33,6 @@
 #include "registry.h"
 extern	HINSTANCE			g_hResInst;
 #endif
-
-
-struct log_msg_baton3
-{
-	const char *message;  /* the message. */
-	const char *message_encoding; /* the locale/encoding of the message. */
-	const char *base_dir; /* the base directory for an external edit. UTF-8! */
-	const char *tmpfile_left; /* the tmpfile left by an external edit. UTF-8! */
-	apr_pool_t *pool; /* a pool. */
-};
-
-svn_error_t* svn_get_log_message(const char **log_msg,
-								 const char **tmp_file,
-								 const apr_array_header_t * /*commit_items*/,
-								 void *baton, 
-								 apr_pool_t * pool)
-{
-	log_msg_baton3 *lmb = (log_msg_baton3 *) baton;
-	*tmp_file = NULL;
-	if (lmb->message)
-	{
-		*log_msg = apr_pstrdup (pool, lmb->message);
-	}
-
-	return SVN_NO_ERROR;
-}
 
 svn_error_t*	SVNProperties::Refresh()
 {
@@ -140,11 +115,9 @@ SVNProperties::SVNProperties(const CTSVNPath& filepath)
 #ifdef _MFC_VER
 	m_prompt.Init(m_pool, &m_ctx);
 
-	m_ctx.log_msg_func3 = svn_get_log_message;
-
 	m_path = filepath;
 
-	// set up the SVN_SSH param
+	//set up the SVN_SSH param
 	CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
 	if (tsvn_ssh.IsEmpty())
 		tsvn_ssh = CPathUtils::GetAppDirectory() + _T("TortoisePlink.exe");
@@ -213,8 +186,8 @@ std::string SVNProperties::GetItem(int index, BOOL name)
 			propval = (svn_string_t *)val;
 			pname_utf8 = (char *)key;
 
-			// If this is a special Subversion property, it is stored as
-			// UTF8, so convert to the native format.
+			//If this is a special Subversion property, it is stored as
+			//UTF8, so convert to the native format.
 			if ((svn_prop_needs_translation (pname_utf8))||(strncmp(pname_utf8, "bugtraq:", 8)==0)||(strncmp(pname_utf8, "tsvn:", 5)==0))
 			{
 				m_error = svn_subst_detranslate_string (&propval, propval, FALSE, m_pool);
@@ -283,7 +256,7 @@ std::string SVNProperties::GetItemValue(int index)
 	return SVNProperties::GetItem(index, false);
 }
 
-BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, const TCHAR * message)
+BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse)
 {
 	svn_string_t*	pval;
 	std::string		pname_utf8;
@@ -302,7 +275,7 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, con
 	}
 	if ((!m_path.IsDirectory())&&(((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0))))
 	{
-		// bugtraq: and tsvn: properties are not allowed on files.
+		//bugtraq: and tsvn: properties are not allowed on files.
 #ifdef _MFC_VER
 		CString temp;
 		temp.LoadString(IDS_ERR_PROPNOTONFILE);
@@ -340,11 +313,11 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, con
 	}
 	if ((recurse)&&((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0)))
 	{
-		// The bugtraq and tsvn properties must only be set on folders.
+		//The bugtraq and tsvn properties must only be set on folders.
 		CTSVNPath path;
 		SVNStatus stat;
 		svn_wc_status2_t * status = NULL;
-		status = stat.GetFirstFileStatus(m_path, path, false, true, true, true);
+		status = stat.GetFirstFileStatus(m_path, path);
 		do 
 		{
 			if (status)
@@ -352,8 +325,7 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, con
 				if ((status->entry)&&(status->entry->kind == svn_node_dir))
 				{
 					// a versioned folder, so set the property!
-					svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-					m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, path.GetSVNApiPath(), false, false, m_rev, &m_ctx, subpool);
+					m_error = svn_client_propset2 (pname_utf8.c_str(), pval, path.GetSVNApiPath(), false, false, &m_ctx, subpool);
 				}
 			}
 			status = stat.GetNextFileStatus(path);
@@ -361,27 +333,14 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, con
 	}
 	else 
 	{
-		svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-		if (m_path.IsUrl())
-		{
-			CString msg = message ? message : _T("");
-			msg.Replace(_T("\r"), _T(""));
-			log_msg_baton3* baton = (log_msg_baton3 *) apr_palloc (subpool, sizeof (*baton));
-			baton->message = apr_pstrdup(subpool, CUnicodeUtils::GetUTF8(msg));
-			baton->base_dir = "";
-			baton->message_encoding = NULL;
-			baton->tmpfile_left = NULL;
-			baton->pool = subpool;
-			m_ctx.log_msg_baton3 = baton;
-		}
-		m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, m_path.GetSVNApiPath(), recurse, false, m_rev, &m_ctx, subpool);
+		m_error = svn_client_propset2 (pname_utf8.c_str(), pval, m_path.GetSVNApiPath(), recurse, false, &m_ctx, subpool);
 	}
 	if (m_error != NULL)
 	{
 		return FALSE;
 	}
 
-	// rebuild the property list
+	//rebuild the property list
 	m_error = SVNProperties::Refresh();
 	if (m_error != NULL)
 	{
@@ -390,37 +349,20 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, BOOL recurse, con
 	return TRUE;
 }
 
-BOOL SVNProperties::Remove(const TCHAR * Name, BOOL recurse, const TCHAR * message)
+BOOL SVNProperties::Remove(const TCHAR * Name, BOOL recurse)
 {
 	std::string		pname_utf8;
 	m_error = NULL;
 
-	SVNPool subpool(m_pool);
-
 	pname_utf8 = StringToUTF8(Name);
 
-	svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-	if (m_path.IsUrl())
-	{
-		CString msg = message ? message : _T("");
-		msg.Replace(_T("\r"), _T(""));
-		log_msg_baton3* baton = (log_msg_baton3 *) apr_palloc (subpool, sizeof (*baton));
-		baton->message = apr_pstrdup(subpool, CUnicodeUtils::GetUTF8(msg));
-		baton->base_dir = "";
-		baton->message_encoding = NULL;
-		baton->tmpfile_left = NULL;
-		baton->pool = subpool;
-		m_ctx.log_msg_baton3 = baton;
-	}
-
-	m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(), recurse, false, m_rev, &m_ctx, subpool);
-
+	m_error = svn_client_propset2 (pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(), recurse, false, &m_ctx, m_pool);
 	if (m_error != NULL)
 	{
 		return FALSE;
 	}
 
-	// rebuild the property list
+	//rebuild the property list
 	m_error = Refresh();
 	if (m_error != NULL)
 	{
@@ -499,4 +441,3 @@ stdstring SVNProperties::GetLastErrorMsg()
 	} 
 	return msg;
 }
-

@@ -161,11 +161,6 @@ SVNRev::operator svn_opt_revision_t * ()
 	return &rev;
 }
 
-SVNRev::operator const svn_opt_revision_t * () const
-{
-	return &rev;
-}
-
 CString SVNRev::ToString() const
 {
 	CString sRev;

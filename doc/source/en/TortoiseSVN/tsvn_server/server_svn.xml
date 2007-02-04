@@ -99,7 +99,7 @@ svn://localhost/repos/TestRepo
 			svnserve by using the --root switch to set the root
 			location and restrict access to a specified directory on the server:
 <screen>
-svnserve.exe --daemon --root drive:\path\to\repository\root
+svnserve.exe --daemon --root drive:\path\to\repository
 </screen>
 			Using the previous test as a guide, svnserve would now run as:
 <screen>
@@ -110,13 +110,8 @@ svnserve.exe --daemon --root c:\repos
 svn://localhost/TestRepo
 </screen>
 			Note that the --root switch is also needed if your repository is located 
-			on a different partition or drive than the location of svnserve 
+			on a different partition or drive than the location of svnserve
 			on your server.
-		</para>
-		<para>
-			Svnserve will service any number of repositories. Just locate them somewhere
-			below the root folder you just defined, and access them using a URL relative
-			to that root.
 		</para>
 		<warning>
 			<para>
@@ -136,8 +131,8 @@ svn://localhost/TestRepo
 			</indexterm>
 			<para>
 				If you are concerned about always having a user logged in on your 
-				server, or worried about someone shutting down svnserve or 
-				forgetting to restart it after a reboot, it is possible to run 
+				server, or worried about someone shutting down svnserve or
+				forgetting to restart it after a reboot, it is possible to run
 				svnserve as a windows service. Starting with Subversion 1.4,
 				svnserve can be installed as a native windows service, 
 				in previous versions it can be installed using a wrapper.
@@ -260,17 +255,17 @@ username = password
 		</para>
 		<tip>
 			<para>
-				If you maintain multiple repositories using the same password 
-				database, the use of an authentication realm will make life 
-				easier for users, as TortoiseSVN can cache your credentials 
-				so that you only have to enter them once.  More information 
+				If you maintain multiple repositories using the same password
+				database, the use of an authentication realm will make life
+				easier for users, as TortoiseSVN can cache your credentials
+				so that you only have to enter them once.  More information
 				can be found in the Subversion book, specifically in the 
 				sections
-				<ulink url="http://svnbook.red-bean.com/en/1.2/svn.serverconfig.svnserve.html">
-					<citetitle>Create a 'users' file and realm</citetitle> 
+				<ulink url="http://svnbook.red-bean.com/en/1.1/ch06s03.html#svn-ch-6-sect-3.2.1">
+					<citetitle>Create a 'users' file and realm</citetitle>
 				</ulink>
 				and 
-				<ulink url="http://svnbook.red-bean.com/en/1.2/svn.serverconfig.netmodel.html">
+				<ulink url="http://svnbook.red-bean.com/en/1.1/ch06s02.html#svn-ch-6-sect-2.2">
 					<citetitle>Client Credentials Caching</citetitle>
 				</ulink>
 			</para>
@@ -301,7 +296,7 @@ username = password
 		<para>
 			Further information about svnserve can be found in the
 			<ulink url="http://svnbook.red-bean.com">
-				<citetitle>Version Control with Subversion</citetitle>
+				<citetitle>SVN book</citetitle>
 			</ulink>.
 		</para>
 	</sect2>

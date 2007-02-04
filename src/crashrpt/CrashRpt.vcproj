@@ -246,10 +246,6 @@
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 			>
 			<File
-				RelativePath=".\BaseDialog.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\CrashHandler.cpp"
 				>
 			</File>
@@ -267,10 +263,6 @@
 			</File>
 			<File
 				RelativePath=".\MailMsg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDlg.cpp"
 				>
 			</File>
 			<File
@@ -327,10 +319,6 @@
 			Filter="h;hpp;hxx;hm;inl"
 			>
 			<File
-				RelativePath=".\BaseDialog.h"
-				>
-			</File>
-			<File
 				RelativePath=".\CrashHandler.h"
 				>
 			</File>
@@ -340,6 +328,14 @@
 			</File>
 			<File
 				RelativePath=".\CrashRpt.h"
+				>
+			</File>
+			<File
+				RelativePath=".\DeadLink.h"
+				>
+			</File>
+			<File
+				RelativePath=".\detaildlg.h"
 				>
 			</File>
 			<File

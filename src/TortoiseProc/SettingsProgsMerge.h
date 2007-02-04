@@ -20,10 +20,9 @@
 #include "SetProgsAdvDlg.h"
 #include "FileDropEdit.h"
 
-/**
- * \ingroup TortoiseProc
- * Setting page to configure the external merge tools.
- */
+
+// CSettingsProgsMerge dialog
+
 class CSettingsProgsMerge : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSettingsProgsMerge)

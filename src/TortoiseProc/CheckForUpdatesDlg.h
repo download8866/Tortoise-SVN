@@ -20,11 +20,7 @@
 
 #include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog class, which checks if there are updated version of TortoiseSVN
- * available.
- */
+
 class CCheckForUpdatesDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCheckForUpdatesDlg)
@@ -33,6 +29,7 @@ public:
 	CCheckForUpdatesDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CCheckForUpdatesDlg();
 
+// Dialog Data
 	enum { IDD = IDD_CHECKFORUPDATES };
 
 protected:
@@ -49,7 +46,7 @@ protected:
 
 private:
 	static UINT CheckThreadEntry(LPVOID pVoid);
-	UINT		CheckThread();
+	UINT CheckThread();
 
 public:
 	BOOL		m_bThreadRunning;

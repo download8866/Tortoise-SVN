@@ -41,8 +41,7 @@ class CSVNStatusListCtrlDropTarget;
 #define	SVNSLC_COLREVISION		0x000001000
 #define	SVNSLC_COLDATE			0x000002000
 #define SVNSLC_COLSVNNEEDSLOCK	0x000004000
-#define SVNSLC_COLCOPYFROM		0x000008000
-#define SVNSLC_NUMCOLUMNS		16
+#define SVNSLC_NUMCOLUMNS		15
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
 #define SVNSLC_SHOWNORMAL		0x000000002
@@ -69,21 +68,16 @@ class CSVNStatusListCtrlDropTarget;
 
 
 #define SVNSLC_SHOWVERSIONED (SVNSLC_SHOWNORMAL|SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
-SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
+SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|\
+SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
-#define SVNSLC_SHOWVERSIONEDBUTNORMAL (SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|\
-SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
-SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
+#define SVNSLC_SHOWVERSIONEDBUTNORMAL (SVNSLC_SHOWMODIFIED|\
+	SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|\
+	SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
 #define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS (SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
+	SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|\
+	SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 
 #define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS (SVNSLC_SHOWMODIFIED|\
 	SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
@@ -111,12 +105,9 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPEXPLORE				0x00008000
 #define SVNSLC_POPCOMMIT				0x00010000
 #define SVNSLC_POPPROPERTIES			0x00020000
-#define SVNSLC_POPREPAIRMOVE			0x00040000
-#define SVNSLC_POPCHANGELISTS			0x00080000
 
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
-typedef CComCritSecLock<CComCriticalSection> Locker;
 
 /**
  * \ingroup SVN
@@ -124,8 +115,10 @@ typedef CComCritSecLock<CComCriticalSection> Locker;
  * files with their Subversion status. The control also provides a context
  * menu to do some Subversion tasks on the selected files.
  *
- * This is the main control used in many dialogs to show a list of files to
- * work on.
+ * \par requirements
+ * win98 or later\n
+ * win2k or later\n
+ * MFC\n
  */
 class CSVNStatusListCtrl : public CListCtrl
 {
@@ -149,13 +142,6 @@ public:
 	 * containing the dropped path.
 	 */
 	static const UINT SVNSLNM_ADDFILE;
-
-	/**
-	 * Sent to the parent window (using ::SendMessage) when the user checks/unchecks
-	 * one or more items in the control. The WPARAM contains the number of
-	 * checked items in the control.
-	 */
-	static const UINT SVNSLNM_CHECKCHANGED;
 
 	CSVNStatusListCtrl();
 	~CSVNStatusListCtrl();
@@ -231,12 +217,8 @@ public:
 			else
 			{
 				// "Display name" must not be empty.
-				return path.GetFileOrDirectoryName();
+				return path.IsDirectory() ? CString(".") : path.GetFileOrDirectoryName();
 			}
-		}
-		CString GetChangeList() const
-		{
-			return changelist;
 		}
 	public:
 		svn_wc_status_kind		status;					///< local status
@@ -249,7 +231,6 @@ public:
 		CString					lock_remoteowner;		///< the username which owns the lock in the repository
 		CString					lock_remotetoken;		///< the unique URI in the repository of the lock
 		CString					lock_comment;			///< the message for the lock
-		CString					changelist;				///< the name of the changelist the item belongs to
 		CString					copyfrom_url;			///< the copied-from URL (if available, i.e. \a copied is true)
 		svn_revnum_t			copyfrom_rev;			///< the copied-from revision
 		CString					last_commit_author;		///< the author which last committed this item
@@ -270,7 +251,7 @@ public:
 		bool					isfolder;				///< TRUE if entry refers to a folder
 		bool					isNested;				///< TRUE if the folder from a different repository and/or path
 		bool					isConflicted;			///> TRUE if a file entry is conflicted, i.e. if it has the conflicted paths set
-		svn_revnum_t			Revision;				///< the base revision
+		svn_revnum_t			Revision;				///< the last committed revision
 		CString					present_props;			///< cacheable properties present in BASE
 		friend class CSVNStatusListCtrl;
 	};
@@ -289,23 +270,12 @@ public:
 	 */
 	void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = (SVNSLC_POPALL ^ SVNSLC_POPCOMMIT), bool bHasCheckboxes = true);
 	/**
-	 * Sets a background image for the list control.
-	 * The image is shown in the right bottom corner.
-	 * \param nID the resource ID of the bitmap to use as the background
-	 */
-	bool SetBackgroundImage(UINT nID);
-	/**
 	 * Makes the 'ignore' context menu only ignore the files and not add the
 	 * folder which gets the svn:ignore property changed to the list.
 	 * This is needed e.g. for the Add-dialog, where the modified folder
 	 * showing up would break the resulting "add" command.
 	 */
 	void SetIgnoreRemoveOnly(bool bRemoveOnly = true) {m_bIgnoreRemoveOnly = bRemoveOnly;}
-	/**
-	 * The unversioned items are by default shown after all other files in the list.
-	 * If that behavior should be changed, set this value to false.
-	 */
-	void PutUnversionedLast(bool bLast) {m_bUnversionedLast = bLast;}
 	/**
 	 * Fetches the Subversion status of all files and stores the information
 	 * about them in an internal array.
@@ -335,27 +305,17 @@ public:
 	 * If during the call to GetStatus() some svn:externals are found from different
 	 * repositories than the first one checked, then this method returns TRUE.
 	 */
-	BOOL HasExternalsFromDifferentRepos() const {return m_bHasExternalsFromDifferentRepos;}
+	BOOL HasExternalsFromDifferentRepos() {return m_bHasExternalsFromDifferentRepos;}
 
 	/**
 	 * If during the call to GetStatus() some svn:externals are found then this method returns TRUE.
 	 */
-	BOOL HasExternals() const {return m_bHasExternals;}
+	BOOL HasExternals() {return m_bHasExternals;}
 
 	/**
 	 * If unversioned files are found (but not necessarily shown) TRUE is returned.
 	 */
 	BOOL HasUnversionedItems() {return m_bHasUnversionedItems;}
-
-	/**
-	 * If there are any locks in the working copy, TRUE is returned
-	 */
-	BOOL HasLocks() const {return m_bHasLocks;}
-
-	/**
-	 * If there are any changelists defined in the working copy, TRUE is returned
-	 */
-	BOOL HasChangeLists() const {return m_bHasChangeLists;}
 
 	/**
 	 * Returns the file entry data for the list control index.
@@ -404,13 +364,8 @@ public:
 
 	/** fills in \a lMin and \a lMax with the lowest/highest revision of all
 	 * files/folders in the working copy.
-	 * \param bShownOnly if true, the min/max revisions are calculated only for shown items
-	 * \param bCheckedOnly if true, the min/max revisions are calculated only for items 
-	 *                   which are checked.
-	 * \remark Since an item can only be checked if it is visible/shown in the list control
-	 *         bShownOnly is automatically set to true if bCheckedOnly is true
 	 */
-	void GetMinMaxRevisions(svn_revnum_t& rMin, svn_revnum_t& rMax, bool bShownOnly, bool bCheckedOnly);
+	void GetMinMaxRevisions(svn_revnum_t& rMin, svn_revnum_t& rMax);
 
 	/**
 	 * Returns the parent directory of all entries in the control.
@@ -466,12 +421,6 @@ public:
 	 * Checks if the path already exists in the list.
 	 */
 	bool HasPath(CTSVNPath path);
-
-	/**
-	 * Forces the children to be checked when the parent folder is checked,
-	 * and the parent folder to be unchecked if one of its children is unchecked.
-	 */
-	void CheckChildrenWithParent(bool bCheck) {m_bCheckChildrenWithParent = bCheck;}
 public:
 	CString GetLastErrorMessage() {return m_sLastError;}
 
@@ -500,10 +449,10 @@ private:
 	bool FetchStatusForSingleTarget(SVNConfig& config, SVNStatus& status, const CTSVNPath& target, bool bFetchStatusFromRepository, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, bool bAllDirect, bool recurse = true, bool bShowIgnores = false);
 
 	/// Create 'status' data for each item in an unversioned folder
-	void AddUnversionedFolder(const CTSVNPath& strFolderName, const CTSVNPath& strBasePath, SVNConfig * config);
+	void AddUnversionedFolder(const CTSVNPath& strFolderName, const CTSVNPath& strBasePath, apr_array_header_t *pIgnorePatterns);
 
 	/// Read the all the other status items which result from a single GetFirstStatus call
-	void ReadRemainingItemsStatus(SVNStatus& status, const CTSVNPath& strBasePath, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, SVNConfig * config, bool bAllDirect);
+	void ReadRemainingItemsStatus(SVNStatus& status, const CTSVNPath& strBasePath, CStringA& strCurrentRepositoryUUID, CTSVNPathList& arExtPaths, apr_array_header_t *pIgnorePatterns, bool bAllDirect);
 
 	/// Clear the status vector (contains custodial pointers)
 	void ClearStatusArray();
@@ -533,23 +482,8 @@ private:
 	/// Build a path list of all the selected items in the list (NOTE - SELECTED, not CHECKED)
 	void FillListOfSelectedItemPaths(CTSVNPathList& pathList, bool bNoIgnored = false);
 
-	/// Enables/Disables group view and adds all groups to the list control.
-	/// If bForce is true, then groupview is enabled and the 'null' group is added.
-	bool PrepareGroups(bool bForce = false);
-	/// Returns the group number to which the group header belongs
-	/// If the point is not over a group header, -1 is returned
-	int GetGroupFromPoint(POINT * ppt);
-	/// Returns the number of changelists the selection has
-	int GetNumberOfChangelistsInSelection();
-
-	/// Puts the item to the corresponding group
-	bool SetItemGroup(int item, int groupindex);
-
 	void CheckEntry(int index, int nListItems);
 	void UncheckEntry(int index, int nListItems);
-
-	/// sends an SVNSLNM_CHECKCHANGED notification to the parent
-	void NotifyCheck();
 
 	int CellRectFromPoint(CPoint& point, RECT *cellrect, int *col) const;
 
@@ -585,16 +519,12 @@ private:
 	bool *						m_pbCanceled;
 	static bool					m_bAscending;		///< sort direction
 	static int					m_nSortedColumn;	///< which column to sort
-	bool						m_bUnversionedLast;
 	bool						m_bHasExternalsFromDifferentRepos;
 	bool						m_bHasExternals;
 	BOOL						m_bHasUnversionedItems;
-	bool						m_bHasLocks;
-	bool						m_bHasChangeLists;
 	typedef std::vector<FileEntry*> FileEntryVector;
 	FileEntryVector				m_arStatusArray;
 	std::vector<DWORD>			m_arListArray;
-	std::map<CString, int>		m_changelists;
 	CTSVNPathList				m_ConflictFileList;
 	CTSVNPathList				m_StatusFileList;
 	CString						m_sLastError;
@@ -634,11 +564,9 @@ private:
 	CString						m_sColumnInfoContainer;
 	int							m_arColumnWidths[SVNSLC_NUMCOLUMNS];
 
-	bool						m_bCheckChildrenWithParent;
 	CSVNStatusListCtrlDropTarget * m_pDropTarget;
 
-	std::map<CString,bool>		m_mapFilenameToChecked; ///< Remember manually de-/selected items
-	CComCriticalSection			m_critSec;
+	std::map<CString,bool> m_mapFilenameToChecked; ///< Remember manually de-/selected items
 };
 
 class CSVNStatusListCtrlDropTarget : public CIDropTarget

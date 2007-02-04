@@ -61,7 +61,7 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 
 		LPCTSTR sArg = _tcspbrk(sCurrent, m_sDelims);
 		if(!sArg) 
-			break; // no (more) delimiters found
+			break; // no (more) delimeters found
 		sArg =  _tcsinc(sArg);
 
 		if(_tcslen(sArg) == 0) 

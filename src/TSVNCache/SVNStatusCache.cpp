@@ -347,17 +347,17 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 		// but only if it exists!
 		if (path.Exists() && m_shellCache.IsPathAllowed(path.GetWinPath()) && !g_SVNAdminDir.IsAdminDirPath(path.GetWinPath()))
 		{
-			ATLTRACE("adding %ws to our cache\n", path.GetWinPath());
-			ATLASSERT(path.IsDirectory());
-			CCachedDirectory * newcdir = new CCachedDirectory(path);
-			if (newcdir)
-			{
-				CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, newcdir))->second;
-				if (!path.IsEmpty())
-					watcher.AddPath(path);
-				return cdir;		
-			}
-			m_bClearMemory = true;
+		ATLTRACE("adding %ws to our cache\n", path.GetWinPath());
+		ATLASSERT(path.IsDirectory());
+		CCachedDirectory * newcdir = new CCachedDirectory(path);
+		if (newcdir)
+		{
+			CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, newcdir))->second;
+			if (!path.IsEmpty())
+				watcher.AddPath(path);
+			return cdir;		
+		}
+		m_bClearMemory = true;
 		}
 		return NULL;
 	}

@@ -83,9 +83,8 @@ class MessageOutput:
                     self.comments[t] = comment
 
     def outputHeader(self, out):
-        from time import gmtime, strftime
-        tstamp = strftime("%Y-%m-%d %H:%M +0000", gmtime())
-        tmp = """msgid ""
+        import time
+        out.write("""msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\\n"
 "POT-Creation-Date: %s\\n"
@@ -96,9 +95,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\\n"
 "Content-Transfer-Encoding: 8bit\\n"
 
-""" % (tstamp)
-
-        out.write(tmp.encode('utf-8'))
+""" % (time.strftime("%Y-%m-%d %H:%M%z")))
 
     def outputAll(self, out):
         self.outputHeader(out)

@@ -51,6 +51,11 @@ enum NodeShape
 #define	MAX_TT_LENGTH			10000
 
 
+#define ID_COMPAREREVS 1
+#define ID_COMPAREHEADS 2
+#define ID_UNIDIFFREVS 3
+#define ID_UNIDIFFHEADS 4
+#define ID_SHOWLOG 5
 
 /**
  * \ingroup TortoiseProc
@@ -126,7 +131,6 @@ protected:
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void	OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void	OnLButtonUp(UINT nFlags, CPoint point);
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -157,4 +161,5 @@ private:
 	void			DoZoom(float nZoomFactor);
 	void			DrawRubberBand();
 friend class CRevisionGraphDlg;
+afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };

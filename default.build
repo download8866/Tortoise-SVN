@@ -69,7 +69,7 @@
 		</nant>
 	</target>
 
-	<target name="docs" depends="VSNET,env,VersionInfo">
+	<target name="docs" depends="VSNET,env">
 		<description>
 			Builds the docs in all languages and all formats.
 		</description>
@@ -127,17 +127,6 @@
 		<nant target="build">
 			<buildfiles>
 				<include name="ext\build\default.build" />
-			</buildfiles>
-		</nant>
-	</target>
-
-	<target name="SubversionOnly" depends="VSNET,env">
-		<description>
-			Builds only the Subversion libraries
-		</description>
-		<nant target="build">
-			<buildfiles>
-				<include name="ext\build\subversion.build" />
 			</buildfiles>
 		</nant>
 	</target>
@@ -296,5 +285,4 @@
 		<echo />
     </target>
 </project>
-
 

@@ -53,13 +53,10 @@ public:
 	 *
 	 * \param file   URL of the folder to be added
 	 * \param force  Force insertion even if the parent folder is not visible
-	 * \param bAlreadyUnescaped set to true if the 'file' is already unescaped
-	 * \param checkexisting set to false if the item doesn't exist already for sure
-	 * \param insertafter where to insert the item (RVTI_SORT, RVTI_LAST or RVTI_FIRST)
 	 * \return Returns the item handle of the folder created or NULL if
 	 *         creation failed
 	 */
-	HTREEITEM AddFolder(const CString& folder, bool force = false, bool init = false, bool bAlreadyUnescaped = false, bool checkexisting = true, HTREEITEM insertafter = RVTI_SORT);
+	HTREEITEM AddFolder(const CString& folder, bool force = false, bool init = false, bool bAlreadyUnescaped = false);
 
 	/**
 	 * Adds the given \a file to the tree control, if it is not already
@@ -68,13 +65,10 @@ public:
 	 *
 	 * \param file   URL of the file to be added
 	 * \param force  Force insertion even if the parent folder is not visible
-	 * \param bAlreadyUnescaped set to true if the 'file' is already unescaped
-	 * \param checkexisting set to false if the item doesn't exist already for sure
-	 * \param insertafter where to insert the item (RVTI_SORT, RVTI_LAST or RVTI_FIRST)
 	 * \return Returns the item handle of the file created or NULL if
 	 *         creation failed
 	 */
-	HTREEITEM AddFile(const CString& file, bool force = false, bool bAlreadyUnescaped = false, bool checkexisting = true, HTREEITEM insertafter = RVTI_SORT);
+	HTREEITEM AddFile(const CString& file, bool force = false, bool bAlreadyUnescaped = false);
 
 	/**
 	 * Updates the given \a url. It is assumed that the supplied string
@@ -101,11 +95,6 @@ public:
 	 */
 	HTREEITEM FindUrl(const CString& url);
 
-	/**
-	 * Returns the UUID of the repository
-	 */
-	CString GetUUID() {return m_sUUID;}
-
 	void SortNumerical(bool bNum) {m_bSortNumerical = bNum;}
 
 public:
@@ -120,7 +109,6 @@ public:
 	virtual void OnBeginDrag();
 	
 	CString		m_strReposRoot;
-	CString		m_sUUID;
 protected:
 	DECLARE_MESSAGE_MAP()
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -144,7 +132,6 @@ private:
 	virtual void OnDrop(int iItem, int iSubItem, IDataObject * pDataObj, DWORD grfKeyState);
 	
 	virtual void EndEdit(BOOL bUpdate = TRUE, LPNMRVITEMEDIT lpnmrvie = NULL);
-	static bool SortDescendingString(const CString& s1, const CString& s2) {return s1 > s2;}
 
 private:
 	friend class CRepositoryBar;

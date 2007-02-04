@@ -69,7 +69,6 @@ public:
 							svn_wc_notify_state_t content_state, 
 							svn_wc_notify_state_t prop_state, svn_revnum_t rev,
 							const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
-							const CString& changelistname,
 							svn_error_t * err, apr_pool_t * pool);
 	virtual BOOL Log(svn_revnum_t rev, const CString& author, const CString& date, const CString& message, LogChangedPathArray * cpaths, apr_time_t time, int filechanges, BOOL copies, DWORD actions);
 	virtual BOOL BlameCallback(LONG linenumber, svn_revnum_t revision, const CString& author, const CString& date, const CStringA& line);
@@ -109,18 +108,8 @@ public:
 	 * \param pegrev the peg revision to use
 	 * \param recurse TRUE if you want to check out all subdirs and files (recommended)
 	 * \param bIgnoreExternals if TRUE, do not check out externals
-	 * \param bAllow_unver_obstructions if true then the checkout tolerates
-	 * existing unversioned items that obstruct added paths from @a moduleName.  Only
-	 * obstructions of the same type (file or dir) as the added item are
-	 * tolerated.  The text of obstructing files is left as-is, effectively
-	 * treating it as a user modification after the checkout.  Working
-	 * properties of obstructing items are set equal to the base properties.
-	 * If @a bAllow_unver_obstructions is false then the checkout will abort
-	 * if there are any unversioned obstructing items.
 	 */
-	BOOL Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRev pegrev, 
-		SVNRev revision, BOOL recurse, BOOL bIgnoreExternals, 
-		BOOL bAllow_unver_obstructions = TRUE);
+	BOOL Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL recurse, BOOL bIgnoreExternals);
 	/**
 	 * If pathlist contains an URL, use the MESSAGE to immediately attempt 
 	 * to commit a deletion of the URL from the repository. 
@@ -138,10 +127,8 @@ public:
 	 * \param pathlist a list of files/directories to delete
 	 * \param force if TRUE, all files including those not versioned are deleted. If FALSE the operation
 	 * will fail if a directory contains unversioned files or if the file itself is not versioned.
-	 * \param if keeplocal is true, the file/dir is not removed from the working copy but only scheduled
-	 * for deletion in the repository. After the next commit, the file/dir will be unversioned.
 	 */
-	BOOL Remove(const CTSVNPathList& pathlist, BOOL force, BOOL keeplocal = TRUE, CString message = _T(""));
+	BOOL Remove(const CTSVNPathList& pathlist, BOOL force, CString message = _T(""));
 	/**
 	 * Reverts a list of files/directories to its pristine state. I.e. its reverted to the state where it
 	 * was last updated with the repository.
@@ -166,26 +153,13 @@ public:
 	 */
 	BOOL Add(const CTSVNPathList& pathList, BOOL recurse, BOOL force = FALSE, BOOL no_ignore = FALSE);
 	/**
-	 * Assigns the files/folders in \c pathList to a \c changelist.
-	 */
-	BOOL SetChangeList(const CTSVNPathList& pathList, const CString& changelist);
-	/**
 	 * Update working tree path to revision.
 	 * \param pathList the files/directories to update
 	 * \param revision the revision the local copy should be updated to or -1 for HEAD
 	 * \param recurse 
 	 * \param ignoreexternals if TRUE, don't update externals
-	 * \param bAllow_unver_obstructions if true then the update tolerates
-	 * existing unversioned items that obstruct added paths from @a pathList.  Only
-	 * obstructions of the same type (file or dir) as the added item are
-	 * tolerated.  The text of obstructing files is left as-is, effectively
-	 * treating it as a user modification after the update.  Working
-	 * properties of obstructing items are set equal to the base properties.
-	 * If @a bAllow_unver_obstructions is false then the update will abort
-	 * if there are any unversioned obstructing items.
 	 */
-	BOOL Update(const CTSVNPathList& pathList, SVNRev revision, BOOL recurse, 
-		BOOL ignoreexternals, BOOL bAllow_unver_obstructions = TRUE);
+	BOOL Update(const CTSVNPathList& pathList, SVNRev revision, BOOL recurse, BOOL ignoreexternals);
 	/**
 	 * Commit file or directory path into repository, using message as
 	 * the log message.
@@ -198,17 +172,11 @@ public:
 	 *
 	 * \param path the file/directory to commit
 	 * \param message a log message describing the changes you made
-	 * \param changelist If \c changelist is non-empty, then use it as a restrictive 
-	 *                   filter on items that are committed; that is, don't commit 
-	 *                   anything unless it's a member of changelist \c changelist. 
-	 * \param keepchangelist After the commit completes successfully, remove \c changelist 
-	 *                       associations from the targets, unless \c keepchangelist is set.
 	 * \param recurse 
 	 * \param keep_locks if TRUE, the locks are not removed on commit
 	 * \return the resulting revision number.
 	 */
-	svn_revnum_t Commit(const CTSVNPathList& pathlist, CString message, 
-		const CString& changelist, BOOL keepchangelist, BOOL recurse, BOOL keep_locks);
+	svn_revnum_t Commit(const CTSVNPathList& pathlist, CString message, BOOL recurse, BOOL keep_locks);
 	/**
 	 * Copy srcPath to destPath.
 	 * 
@@ -227,17 +195,11 @@ public:
 	 * until a commit occurs.  This scheduling can be removed with
 	 * Revert().
 	 *
-	 * \param srcPathList list of source paths to copy
+	 * \param srcPath source path
 	 * \param destPath destination path
-	 * \param revision the revision of the source items
-	 * \param pegrev the peg revision
-	 * \param logmsg the log message to use if the copy is URL->URL
-	 * \param copy_as_child set to \c true for copying the source
-	 *                      as a child of the \c destPath if the name of
-	 *                      srcPathList and destPath are the same.
 	 * \return the new revision number
 	 */
-	BOOL Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, SVNRev revision, SVNRev pegrev, CString logmsg = CString(), bool copy_as_child = false);
+	BOOL Copy(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev revision, CString logmsg = _T(""));
 	/**
 	 * Move srcPath to destPath.
 	 * 
@@ -254,15 +216,11 @@ public:
 	 * force is not set, the copy will fail. If force is set such items
 	 * will be removed.
 	 * 
-	 * \param srcPathList source path list
+	 * \param srcPath source path
 	 * \param destPath destination path
-	 * \param force if true, the move doesn't fail if the source is modified
-	 * \param message the log message to use if the move is on an url
-	 * \param move_as_child set to \c true for moving the source
-	 *                      as a child of the \c destPath if the name of
-	 *                      srcPathList and destPath are the same.
+	 * \param force 
 	 */
-	BOOL Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, BOOL force, CString message = _T(""), bool move_as_child = false);
+	BOOL Move(const CTSVNPath& srcPath, const CTSVNPath& destPath, BOOL force, CString message = _T(""));
 	/**
 	 * If path is a URL, use the message to immediately
 	 * attempt to commit the creation of the directory URL in the
@@ -303,9 +261,8 @@ public:
 	 * \param revision	the revision that should be exported, which is only used 
 	 *					when exporting from a repository.
 	 * \param force		TRUE if existing files should be overwritten
-	 * \param eol		"", "CR", "LF" or "CRLF" - "" being the default
 	 */
-	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, HWND hWnd = NULL, BOOL extended = FALSE, CString eol = CString());
+	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, SVNRev pegrev, SVNRev revision, BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, HWND hWnd = NULL, BOOL extended = FALSE);
 	/**
 	 * Switch working tree path to URL at revision
 	 *
@@ -317,17 +274,9 @@ public:
 	 * \param path the path of the working directory
 	 * \param url the url of the repository
 	 * \param revision the revision number to switch to
-	 * \param recurse if TRUE, switch recursively
-	 * \param allow_unver_obstruction if true then the switch tolerates
-	 * existing unversioned items that obstruct added paths from @a path.  Only
-	 * obstructions of the same type (file or dir) as the added item are
-	 * tolerated.  The text of obstructing files is left as-is, effectively
-	 * treating it as a user modification after the switch.  Working
-	 * properties of obstructing items are set equal to the base properties.
-	 * If @a allow_unver_obstructions is false then the switch will abort
-	 * if there are any unversioned obstructing items.
+	 * \param recurse 
 	 */
-	BOOL Switch(const CTSVNPath& path, const CTSVNPath& url, SVNRev revision, BOOL recurse, BOOL allow_unver_obstruction = TRUE);
+	BOOL Switch(const CTSVNPath& path, const CTSVNPath& url, SVNRev revision, BOOL recurse);
 	/**
 	 * Import file or directory path into repository directory url at
 	 * head and using LOG_MSG as the log message for the (implied)
@@ -381,33 +330,6 @@ public:
 	 */
 	BOOL Merge(const CTSVNPath& path1, SVNRev revision1, const CTSVNPath& path2, SVNRev revision2, const CTSVNPath& localPath, BOOL force, BOOL recurse, BOOL ignoreanchestry = FALSE, BOOL dryrun = FALSE);
 
-	/**
-	 * Merge changes from source/revision1 to source/revision2 into the
-	 * working-copy path localPath.
-	 * 
-	 * The peg revision is used as an anchor where to look for \c source
-	 * since it may have been moved/renamed and does not exist anymore with the
-	 * name specified by \c source in \c revision1 or \c revision2.
-	 * 
-	 * By "merging", we mean:  apply file differences and schedule 
-	 * additions & deletions when appopriate.
-	 *
-	 * If recurse is true (and the paths are directories), apply changes
-	 * recursively; otherwise, only apply changes in the current
-	 * directory.
-	 *
-	 * If force is not set and the merge involves deleting locally modified or
-	 * unversioned items the operation will fail.  If force is set such items
-	 * will be deleted.
-	 *
-	 * \param source		url
-	 * \param revision1		first revision
-	 * \param revision2		second revision
-	 * \param pegrevision	the peg revision
-	 * \param localPath		destination path
-	 * \param force			see description
-	 * \param recurse 
-	 */
 	BOOL PegMerge(const CTSVNPath& source, SVNRev revision1, SVNRev revision2, SVNRev pegrevision, const CTSVNPath& destpath, BOOL force, BOOL recurse, BOOL ignoreancestry = FALSE, BOOL dryrun = FALSE);
 	/**
 	 * Produce diff output which describes the delta between \a path1/\a revision1 and \a path2/\a revision2
@@ -569,13 +491,6 @@ public:
 	 * \return The root url or an empty string
 	 */
 	CString GetRepositoryRoot(const CTSVNPath& url);
-	/**
-	 * Finds the repository root of a given url, and the UUID of the repository.
-	 * \param url [in] the url to get the root and UUID from
-	 * \param sUUID [out] the UUID of the repository
-	 * \return the root url or an empty string
-	 */
-	CString GetRepositoryRootAndUUID(const CTSVNPath& url, CString& sUUID);
 
 	/**
 	 * Checks if a file:/// url points to a BDB repository.
@@ -588,9 +503,6 @@ public:
 	 */
 	svn_revnum_t GetHEADRevision(const CTSVNPath& url);
 
-	/**
-	 * Returns the repository root and the HEAD revision of the repository.
-	 */
 	BOOL GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev);
 
 	/**
@@ -615,36 +527,12 @@ public:
 	 * the repository of the lock. It is \b not an absolute URL, the
 	 * repository root part is stripped off!
 	 */
-	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);
+	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);	
 
-	/**
-	 * get a summary of the working copy revisions
-	 * \param wcpath the path to the working copy to scan for
-	 * \param bCommitted if true, use the last-committed revisions, if false use the BASE revisions.
-	 * \param minrev the min revision of the working copy
-	 * \param maxrev the max revision of the working copy
-	 * \param switched true if one or more items in the working copy are switched
-	 * \param modified true if there are modified files in the working copy
-	 */
-	BOOL GetWCRevisionStatus(const CTSVNPath& wcpath, bool bCommitted, svn_revnum_t& minrev, svn_revnum_t& maxrev, bool& switched, bool& modified);
-
-	/**
-	 * Returns the URL associated with the \c path.
-	 */
 	CString GetURLFromPath(const CTSVNPath& path);
-	/**
-	 * Returns the URL associated with the \c path, unescaped.
-	 */
 	CString GetUIURLFromPath(const CTSVNPath& path);
-	/**
-	 * Returns the repository UUID for the \c path.
-	 */
 	CString GetUUIDFromPath(const CTSVNPath& path);
 
-	/**
-	 * Checks if the configuration file is present and valid.
-	 * \return the error message string, or an empty string if everything is ok.
-	 */
 	static CString CheckConfigFile();
 
 	/**
@@ -704,72 +592,33 @@ public:
 	*/
 	void SetPromptApp(CWinApp* pWinApp);
 
-	/**
-	 * Sets and clears the progress info which is shown during lengthy operations.
-	 * \param hWnd the window handle of the parent dialog/window
-	 */
 	void SetAndClearProgressInfo(HWND hWnd);
-	/**
-	 * Sets and clears the progress info which is shown during lengthy operations.
-	 * \param pProgressDlg the CProgressDlg object to show the progress info on.
-	 * \param bShowProgressBar set to true if the progress bar should be shown. Only makes
-	 * sense if the total amount of the progress is known beforehand. Otherwise the
-	 * progressbar is always "empty".
-	 */
 	void SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgressBar = false);
 	
-	/**
-	 * Returns the string representation of the summarize action.
-	 */
 	static CString GetSummarizeActionText(svn_client_diff_summarize_kind_t kind);
 
-	/**
-	 * Returns the string representation of the error object \c Err, wrapped
-	 * (if possible) at \c wrap chars.
-	 */
 	static CString GetErrorString(svn_error_t * Err, int wrap = 80);
-	/**
-	 * Converts an url or path in the Subversion format for urls/paths
-	 * (utf8 encoded, escaped, forward slashes)
-	 */
 	static CStringA MakeSVNUrlOrPath(const CString& UrlOrPath);
-	/**
-	 * Converts a Subversion url/path to an UI format (utf16 encoded, unescaped,
-	 * backslash for paths, forward slashes for urls).
-	 */
 	static CString MakeUIUrlOrPath(CStringA UrlOrPath);
-	/**
-	 * Returns a string in \c date_native[] representing the date in the OS local
-	 * format.
-	 */
 	static void formatDate(TCHAR date_native[], apr_time_t& date_svn, bool force_short_fmt = false);
 
-	/**
-	 * Reads the proxy settings from Internet Explorer and sets them for Subversion
-	 * to use. Doesn't work as reliable as hoped, that's why this method isn't
-	 * currently used.
-	 */
 	static void UseIEProxySettings(apr_hash_t * cfg);
-
 	svn_error_t *				Err;			///< Global error object struct
 private:
-	svn_client_ctx_t * 			m_pctx;			///< pointer to client context
-	apr_hash_t *				statushash;		///< holds the status
-	apr_array_header_t *		statusarray;	///< an array of all status
-	svn_wc_status_t *			status;			///< the status object
-	apr_pool_t *				parentpool;		///< the main memory pool
-	apr_pool_t *				pool;			///< 'root' memory pool
+	svn_client_ctx_t * 			m_pctx;
+	apr_hash_t *				statushash;
+	apr_array_header_t *		statusarray;
+	svn_wc_status_t *			status;
+	apr_pool_t *				parentpool;
+	apr_pool_t *				pool;			///< memory pool
 	svn_opt_revision_t			rev;			///< subversion revision. used by getRevision()
 	SVNPrompt					m_prompt;
-	CString						PostCommitErr;	///< error string from post commit hook script
 
 	svn_opt_revision_t *	getRevision (svn_revnum_t revNumber);
 	void * logMessage (const char * message, char * baseDirectory = NULL);
 
-	/// Convert a TSVNPathList into an array of SVN paths
+	// Convert a TSVNPathList into an array of SVN paths
 	apr_array_header_t * MakePathArray(const CTSVNPathList& pathList);
-	/// Convert a TSVNPathList into an array of SVN copy paths
-	apr_array_header_t * MakeCopyArray(const CTSVNPathList& pathList, const SVNRev& rev, const SVNRev& pegrev);
 
 	svn_error_t * get_url_from_target (const char **URL, const char *target);
 	svn_error_t * get_uuid_from_target (const char **UUID, const char *target);

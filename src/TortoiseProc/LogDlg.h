@@ -29,6 +29,40 @@
 #include "afxwin.h"
 #include "afxdtctl.h"
 
+#define ID_COMPARE		1
+#define ID_SAVEAS		2
+#define ID_COMPARETWO	3
+#define ID_UPDATE		4
+#define ID_COPY			5
+#define ID_REVERTREV	6
+#define ID_GNUDIFF1		7
+#define ID_GNUDIFF2		8
+#define ID_FINDENTRY	9
+#define ID_REVERT	   10
+#define	ID_REFRESH	   11
+#define ID_OPEN		   12
+#define ID_REPOBROWSE  13
+#define ID_DELETE	   14
+#define ID_IGNORE	   15
+#define	ID_LOG		   16
+#define ID_POPPROPS	   17
+#define ID_EDITAUTHOR  18
+#define ID_EDITLOG     19
+
+#define ID_DIFF			20
+#define ID_EDITCONFLICT	21
+#define ID_OPENWITH		22
+#define ID_COPYCLIPBOARD 23
+#define ID_CHECKOUT		24
+#define ID_CONFLICTUSETHEIRS 25
+#define ID_CONFLICTUSEMINE 26
+#define ID_REVERTTOREV	27
+#define ID_EXPLORE		28
+#define ID_BLAMECOMPARE 29
+#define ID_BLAMETWO     30
+#define ID_BLAMEDIFF    31
+#define ID_CONFLICTRESOLVE 32
+
 #define LOGFILTER_ALL      1
 #define LOGFILTER_MESSAGES 2
 #define LOGFILTER_PATHS    3
@@ -67,15 +101,15 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedGetall();
-	afx_msg void OnNMDblclkChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangedLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnEnLinkMsgview(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedStatbutton();
 	afx_msg void OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnGetdispinfoChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnGetdispinfoLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnStnClickedFiltericon();
 	afx_msg void OnBnClickedFiltercancel();
 	afx_msg void OnEnChangeSearchedit();
@@ -83,15 +117,13 @@ protected:
 	afx_msg void OnDtnDatetimechangeDateto(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDtnDatetimechangeDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnColumnclick(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnColumnclickChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnColumnclickLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedNexthundred();
 	afx_msg void OnBnClickedHidepaths();
 	afx_msg void OnBnClickedCheckStoponcopy();
 	afx_msg void OnLvnOdfinditemLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDtnDropdownDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDtnDropdownDateto(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-virtual void OnCancel();
+	virtual void OnCancel();
 	virtual void OnOK();
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -114,7 +146,6 @@ private:
 	UINT LogThread();
 	void Refresh();
 	BOOL DiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
-	BOOL Open(bool bOpenWith, CString changedpath, long rev);
 	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
@@ -131,15 +162,12 @@ private:
 	bool IsSelectionContinuous();
 	void EnableOKButton();
 	void GetAll(bool bForceAll = false);
-	void UpdateLogInfoLabel();
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 
 	void ResizeAllListCtrlCols(CListCtrl &list);
 
-	void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
-	void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
 public:
 	CWnd *				m_pNotifyWindow;
 	ProjectProperties	m_ProjectProperties;
@@ -148,7 +176,7 @@ private:
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CListCtrl			m_LogList;
-	CListCtrl			m_ChangedFileListCtrl;
+	CListCtrl			m_LogMsgCtrl;
 	CProgressCtrl		m_LogProgress;
 	CMenuButton			m_btnShow;
 	CTSVNPath			m_path;
@@ -197,8 +225,7 @@ private:
 	CString				m_sTitle;
 	bool				m_bSelect;
 	bool				m_bShowBugtraqColumn;
-	CString				m_sLogInfo;
-
+	
 	CTime				m_timFrom;
 	CTime				m_timTo;
 	CColors				m_Colors;

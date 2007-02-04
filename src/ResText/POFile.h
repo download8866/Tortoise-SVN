@@ -22,7 +22,6 @@
 
 typedef struct tagResourceEntry
 {
-	WORD            menuID;
 	std::vector<std::wstring>	translatorcomments;
 	std::vector<std::wstring>	automaticcomments;
 	std::wstring	reference;

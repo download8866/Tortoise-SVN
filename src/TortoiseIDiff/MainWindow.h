@@ -22,7 +22,10 @@
 #include "commctrl.h"
 #include "TortoiseIDiff.h"
 
+#define SLIDER_HEIGHT 30
 #define SPLITTER_BORDER 2
+#define TRACKBAR_ID 101
+#define TIMER_ALPHASLIDER 100
 
 #define WINDOW_MINHEIGTH 200
 #define WINDOW_MINWIDTH 200
@@ -45,7 +48,7 @@ public:
 		, bOverlap(false)
 		, bShowInfo(true)
 		, bVertical(false)
-		, bLinked(true)
+		, bLinked(false)
 	{ 
 		SetWindowTitle((LPCTSTR)ResString(hResource, IDS_APP_TITLE));
 	};
@@ -72,6 +75,8 @@ protected:
 
 	/// Positions the child windows. Call this after the window sizes/positions have changed.
 	void				PositionChildren(RECT * clientrect = NULL);
+	/// Creates the trackbar (the alpha blending slider control)
+	HWND				CreateTrackbar(HWND hwndParent, UINT iMin, UINT iMax);
 	/// Shows the "Open images" dialog where the user can select the images to diff
 	bool				OpenDialog();
 	static BOOL CALLBACK OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam);
@@ -109,6 +114,7 @@ protected:
 
 	// one/two pane view
 	bool			bOverlap;
+	HWND			hTrackbar;
 	bool			bVertical;
 	bool			bLinked;
 

@@ -23,15 +23,14 @@
 
 /**
  * \ingroup TortoiseProc
- * Settings page to configure how the icon overlays and the cache should
- * behave.
+ * Settings page for the icon overlays.
  */
 class CSetOverlayPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetOverlayPage)
 
 public:
-	CSetOverlayPage();
+	CSetOverlayPage();   // standard constructor
 	virtual ~CSetOverlayPage();
 	/**
 	 * Saves the changed settings to the registry.

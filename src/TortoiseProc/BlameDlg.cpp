@@ -22,6 +22,8 @@
 #include "Balloon.h"
 #include "Registry.h"
 
+// CBlameDlg dialog
+
 IMPLEMENT_DYNAMIC(CBlameDlg, CStandAloneDialog)
 CBlameDlg::CBlameDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CBlameDlg::IDD, pParent)
@@ -43,7 +45,7 @@ void CBlameDlg::DoDataExchange(CDataExchange* pDX)
 	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_REVISON_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
-	DDX_Check(pDX, IDC_USETEXTVIEWER, m_bTextView);
+	DDX_Check(pDX, IDC_CHECK1, m_bTextView);
 }
 
 
@@ -58,8 +60,6 @@ BOOL CBlameDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	AdjustControlSize(IDC_USETEXTVIEWER);
-
 	m_bTextView = m_regTextView;
 	// set head revision as default revision
 	if (EndRev.IsHead())
@@ -72,7 +72,8 @@ BOOL CBlameDlg::OnInitDialog()
 	}
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CBlameDlg::OnOK()

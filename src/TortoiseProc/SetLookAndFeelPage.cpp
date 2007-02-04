@@ -25,14 +25,15 @@
 #include ".\setlookandfeelpage.h"
 #include "MessageBox.h"
 
+
+// CSetLookAndFeelPage dialog
+
 IMPLEMENT_DYNAMIC(CSetLookAndFeelPage, CPropertyPage)
 CSetLookAndFeelPage::CSetLookAndFeelPage()
 	: CPropertyPage(CSetLookAndFeelPage::IDD)
 	, m_bInitialized(FALSE)
 	, m_bSimpleContext(TRUE)
 	, m_OwnerDrawn(1)
-	, m_bGetLockTop(FALSE)
-	, m_bVista(false)
 {
 	m_regTopmenu = CRegDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
 	m_topmenu = m_regTopmenu;
@@ -44,8 +45,6 @@ CSetLookAndFeelPage::CSetLookAndFeelPage()
 		m_OwnerDrawn = 1;
 	else if (m_OwnerDrawn == 1)
 		m_OwnerDrawn = 0;
-	m_regGetLockTop = CRegDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
-	m_bGetLockTop = m_regGetLockTop;
 }
 
 CSetLookAndFeelPage::~CSetLookAndFeelPage()
@@ -58,14 +57,13 @@ void CSetLookAndFeelPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MENULIST, m_cMenuList);
 	DDX_Check(pDX, IDC_SIMPLECONTEXT, m_bSimpleContext);
 	DDX_Check(pDX, IDC_ENABLEACCELERATORS, m_OwnerDrawn);
-	DDX_Check(pDX, IDC_GETLOCKTOP, m_bGetLockTop);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetLookAndFeelPage, CPropertyPage)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_MENULIST, OnLvnItemchangedMenulist)
-	ON_BN_CLICKED(IDC_SIMPLECONTEXT, OnChange)
-	ON_BN_CLICKED(IDC_GETLOCKTOP, OnChange)
+	ON_BN_CLICKED(IDC_SIMPLECONTEXT, OnBnClickedSimplecontext)
+	ON_BN_CLICKED(IDC_ENABLEACCELERATORS, OnBnClickedOwnerdrawn)
 END_MESSAGE_MAP()
 
 
@@ -79,10 +77,7 @@ int CSetLookAndFeelPage::SaveData()
 		m_regSimpleContext = m_bSimpleContext;
 		if (m_regSimpleContext.LastError != ERROR_SUCCESS)
 			CMessageBox::Show(m_hWnd, m_regSimpleContext.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-		m_regGetLockTop = m_bGetLockTop;
-		if (m_regGetLockTop.LastError != ERROR_SUCCESS)
-			CMessageBox::Show(m_hWnd, m_regGetLockTop.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-		if ((m_OwnerDrawn == 1)||(m_bVista))
+		if (m_OwnerDrawn == 1)
 		{
 			m_regOwnerDrawn = 0;
 			if (m_regOwnerDrawn.LastError != ERROR_SUCCESS)
@@ -108,22 +103,10 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
 
-	OSVERSIONINFOEX inf;
-	ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	GetVersionEx((OSVERSIONINFO *)&inf);
-	WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-	if (fullver >= 0x0600)
-		m_bVista = true;
-
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_MENULIST, IDS_SETTINGS_MENULAYOUT_TT);
 	m_tooltips.AddTool(IDC_SIMPLECONTEXT, IDS_SETTINGS_SIMPLECONTEXT_TT);
-	if (!m_bVista)
-		m_tooltips.AddTool(IDC_ENABLEACCELERATORS, IDS_SETTINGS_OWNERDRAWN_TT);
-	else
-		GetDlgItem(IDC_ENABLEACCELERATORS)->ShowWindow(SW_HIDE);
-	m_tooltips.AddTool(IDC_GETLOCKTOP, IDS_SETTINGS_GETLOCKTOP_TT);
+	m_tooltips.AddTool(IDC_ENABLEACCELERATORS, IDS_SETTINGS_OWNERDRAWN_TT);
 
 	m_cMenuList.SetExtendedStyle(LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 
@@ -151,7 +134,6 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 	InsertItem(IDS_MENURENAME, IDI_RENAME, MENURENAME);
 	InsertItem(IDS_MENUREMOVE, IDI_DELETE, MENUREMOVE);
 	InsertItem(IDS_MENUREVERT, IDI_REVERT, MENUREVERT);
-	InsertItem(IDS_MENUDELUNVERSIONED, IDI_DELUNVERSIONED, MENUDELUNVERSIONED);
 	InsertItem(IDS_MENUCLEANUP, IDI_CLEANUP, MENUCLEANUP);
 	InsertItem(IDS_MENU_LOCK, IDI_LOCK, MENULOCK);
 	InsertItem(IDS_MENU_UNLOCK, IDI_UNLOCK, MENUUNLOCK);
@@ -183,7 +165,8 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 
 	UpdateData(FALSE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 BOOL CSetLookAndFeelPage::PreTranslateMessage(MSG* pMsg)
@@ -212,54 +195,57 @@ void CSetLookAndFeelPage::InsertItem(UINT nTextID, UINT nIconID, DWORD dwFlags)
 	int nIndex = m_cMenuList.GetItemCount();
 	m_cMenuList.InsertItem(nIndex, temp, nImage);
 	DWORD topmenu = CRegDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
-	m_cMenuList.SetCheck(nIndex, (topmenu & dwFlags));
+	m_cMenuList.SetCheck(nIndex, !(topmenu & dwFlags));
 }
 
 void CSetLookAndFeelPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 {
+	//LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	SetModified(TRUE);
 	if (m_cMenuList.GetItemCount() > 0)
 	{
 		int i=0;
 		m_topmenu = 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCHECKOUT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOMMIT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFF : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENULOG : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSHOWCHANGED : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREVISIONGRAPH : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREPOBROWSE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCONFLICTEDITOR : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURESOLVE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATEEXT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURENAME : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREMOVE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREVERT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDELUNVERSIONED : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCLEANUP : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENULOCK : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUNLOCK : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOPY : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSWITCH : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUMERGE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUEXPORT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURELOCATE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEREPOS : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUADD : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIMPORT : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUBLAME : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIGNORE : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEPATCH : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUAPPLYPATCH : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUPROPERTIES : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCHECKOUT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUPDATE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCOMMIT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUDIFF;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENULOG;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUSHOWCHANGED;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREVISIONGRAPH;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREPOBROWSE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCONFLICTEDITOR;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURESOLVE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUPDATEEXT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURENAME;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREMOVE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUREVERT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCLEANUP;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENULOCK;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUUNLOCK;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCOPY;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUSWITCH;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUMERGE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUEXPORT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENURELOCATE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCREATEREPOS;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUADD;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUIMPORT;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUBLAME;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUIGNORE;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUCREATEPATCH;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUAPPLYPATCH;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? 0 : MENUPROPERTIES;
 	}
 	*pResult = 0;
 }
 
-void CSetLookAndFeelPage::OnChange()
+void CSetLookAndFeelPage::OnBnClickedSimplecontext()
 {
 	SetModified();
 }
 
-
+void CSetLookAndFeelPage::OnBnClickedOwnerdrawn()
+{
+	SetModified();
+}

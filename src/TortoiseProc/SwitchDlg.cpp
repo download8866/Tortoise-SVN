@@ -23,21 +23,20 @@
 #include "BrowseFolder.h"
 #include "Balloon.h"
 #include "TSVNPath.h"
-#include "AppUtils.h"
+
+
+// CSwitchDlg dialog
 
 IMPLEMENT_DYNAMIC(CSwitchDlg, CResizableStandAloneDialog)
 CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CSwitchDlg::IDD, pParent)
 	, m_URL(_T(""))
 	, Revision(_T("HEAD"))
-	, m_pLogDlg(NULL)
 {
 }
 
 CSwitchDlg::~CSwitchDlg()
 {
-	if (m_pLogDlg)
-		delete m_pLogDlg;
 }
 
 void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
@@ -52,8 +51,6 @@ BEGIN_MESSAGE_MAP(CSwitchDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_EN_CHANGE(IDC_REVISION_NUM, &CSwitchDlg::OnEnChangeRevisionNum)
-	ON_BN_CLICKED(IDC_LOG, &CSwitchDlg::OnBnClickedLog)
-	ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CSwitchDlg::OnRevSelected)
 END_MESSAGE_MAP()
 
 void CSwitchDlg::SetDialogTitle(const CString& sTitle)
@@ -66,6 +63,9 @@ void CSwitchDlg::SetUrlLabel(const CString& sLabel)
 	m_sLabel = sLabel;
 }
 
+// CSwitchDlg message handlers
+
+
 BOOL CSwitchDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
@@ -77,8 +77,6 @@ BOOL CSwitchDlg::OnInitDialog()
 	CString sUUID = svn.GetUUIDFromPath(svnPath);
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
-	m_URLCombo.SetCurSel(0);
-
 	if (!url.IsEmpty())
 	{
 		m_path = url;
@@ -95,7 +93,7 @@ BOOL CSwitchDlg::OnInitDialog()
 	GetDlgItem(IDC_URLLABEL)->SetWindowText(m_sLabel);
 
 	// set head revision as default revision
-	SetRevision(SVNRev::REV_HEAD);
+	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
 
 	AddAnchor(IDC_URLLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
@@ -104,7 +102,6 @@ BOOL CSwitchDlg::OnInitDialog()
 	AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
 	AddAnchor(IDC_REVISION_N, TOP_LEFT);
 	AddAnchor(IDC_REVISION_NUM, TOP_LEFT);
-	AddAnchor(IDC_LOG, TOP_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -112,23 +109,57 @@ BOOL CSwitchDlg::OnInitDialog()
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("SwitchDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CSwitchDlg::OnBnClickedBrowse()
 {
-	UpdateData();
-	SVNRev rev;
-	if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
 	{
-		rev = SVNRev::REV_HEAD;
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this, !m_bFolder);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+			}
+		}
 	}
-	else
-		rev = SVNRev(m_rev);
-	if (!rev.IsValid())
-		rev = SVNRev::REV_HEAD;
-	CAppUtils::BrowseRepository(m_URLCombo, this, rev, !m_bFolder);
-	SetRevision(rev);
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this, !m_bFolder);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
 }
 
 void CSwitchDlg::OnOK()
@@ -167,47 +198,4 @@ void CSwitchDlg::OnEnChangeRevisionNum()
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
 	else
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-}
-
-void CSwitchDlg::SetRevision(const SVNRev& rev)
-{
-	if (rev.IsHead())
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-		m_rev = rev.ToString();
-		UpdateData(FALSE);
-	}
-}
-
-void CSwitchDlg::OnBnClickedLog()
-{
-	UpdateData(TRUE);
-	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
-		return;
-	if (!m_path.IsEmpty())
-	{
-		delete m_pLogDlg;
-		m_pLogDlg = new CLogDlg();
-		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
-		int limit = (int)(LONG)reg;
-		m_pLogDlg->SetSelect(true);
-		m_pLogDlg->m_pNotifyWindow = this;
-		m_pLogDlg->m_wParam = 0;
-		m_pLogDlg->SetParams(CTSVNPath(m_path), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE);
-		m_pLogDlg->ContinuousSelection(true);
-		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg->ShowWindow(SW_SHOW);
-	}
-	AfxGetApp()->DoWaitCursor(-1);
-}
-
-LPARAM CSwitchDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
-{
-	CString temp;
-	temp.Format(_T("%ld"), lParam);
-	GetDlgItem(IDC_REVISION_NUM)->SetWindowText(temp);
-	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-	return 0;
 }

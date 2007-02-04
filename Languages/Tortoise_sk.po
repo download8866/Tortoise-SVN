@@ -1,6 +1,6 @@
 #
 # Slovak translation for TortoiseSVN
-# Copyright (C) 2004-2007 the TortoiseSVN team
+# Copyright (C) 2004-2006 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Author:
@@ -17,8 +17,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2007-02-02 12:14+0100\n"
-"Last-Translator: Oto BREZINA <translate@e-posta.sk>\n"
+"PO-Revision-Date: 2006-11-08 12:29+0100\n"
+"Last-Translator: Oto BREZINA <otik@e-posta.sk>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -453,8 +453,8 @@ msgstr "&Povoliť Proxy Server"
 
 # Control-ID:1213,
 #: Control-ID:1213
-msgid "&Enter a message describing why you are locking the file(s)."
-msgstr "&Napíšte správu popisujúcu prečo zamykáte súbor(y)."
+msgid "&Enter a message describing why you lock the file(s)."
+msgstr "&Popíšte prečo zamykate súbor(y)."
 
 #: MenuEntry
 msgid "&Exit"
@@ -476,11 +476,6 @@ msgstr "&Externé"
 #: MenuEntry
 msgid "&File"
 msgstr "&Súbor"
-
-# MenuEntry#:
-#: MenuEntry
-msgid "&Filter"
-msgstr "&Filter"
 
 #: MenuEntry
 msgid "&Find"
@@ -626,8 +621,14 @@ msgstr "&Zoznam"
 msgid "&Load..."
 msgstr "&Načítaj..."
 
+# ID:282,
+#: MenuEntry
+msgid "&Mark as resolved"
+msgstr "Označiť ako &vyriešené"
+
 # Control-ID:1,#:
 #: Control-ID:1
+#: MenuEntry
 msgid "&Merge"
 msgstr "&Zlúčovanie"
 
@@ -646,10 +647,6 @@ msgstr "&Zlučovanie"
 msgid "&Native filesystem (FSFS)"
 msgstr "&Natívny súborový systém (FSFS)"
 
-#: MenuEntry
-msgid "&Navigate"
-msgstr "&Navigovať"
-
 # Control-ID:1049,
 #: Control-ID:1049
 msgid "&Network drives"
@@ -663,8 +660,8 @@ msgstr "&Nový"
 
 # Control-ID:1208,
 #: Control-ID:1208
-msgid "&Next %ld"
-msgstr "&Daľších %ld"
+msgid "&Next 100"
+msgstr "&Daľších 100"
 
 #: MenuEntry
 msgid "&Next Difference"
@@ -707,12 +704,6 @@ msgstr "&Triediť:"
 #: MenuEntry
 msgid "&Previous Difference"
 msgstr "&Predošlý rozdiel"
-
-# ID:209,#:
-# Control-ID:11021,
-#: Control-ID:11021
-msgid "&Properties..."
-msgstr "&Vlastnosti..."
 
 # Control-ID:1246,#:
 # Control-ID:1246,
@@ -884,7 +875,7 @@ msgstr "&Späť\tCtrl+Z"
 
 #: MenuEntry
 msgid "&Unified diff"
-msgstr "&Unif. porov."
+msgstr "&Unifikované porovnanie"
 
 # Control-ID:1061,
 #: Control-ID:1061
@@ -928,11 +919,6 @@ msgstr "&Zobraziť"
 msgid "&Whitespaces"
 msgstr "&Biele znaky"
 
-# Control-ID:1066,
-#: Control-ID:1066
-msgid "&Whole word"
-msgstr "Celé &slovo"
-
 # Control-ID:1183,
 #: Control-ID:1183
 msgid "&Working copy"
@@ -954,11 +940,6 @@ msgstr "(skušobný beh)"
 #: ID:208
 msgid "(multiple targets selected)"
 msgstr "(vybraných viacero cieĺov)"
-
-# ID:213,
-#: ID:213
-msgid "(no changelist)"
-msgstr "(žiaden zoznam zmien)"
 
 # ID:314,
 #: ID:314
@@ -998,9 +979,6 @@ msgstr "- %d"
 #: Control-ID:1021
 #: Control-ID:1022
 #: Control-ID:1089
-#: Control-ID:1362
-#: Control-ID:1324
-#: Control-ID:1333
 #: Control-ID:1002
 #: Control-ID:1003
 msgid "..."
@@ -1037,11 +1015,6 @@ msgstr ""
 "Aby ste použili <b>TortoiseSVN</b> otvorte prosím explorer a vyberte pravým tlačítkom myši adresár.\n"
 "V kontextovom menu nájdete všetky príkazy <b>TortoiseSVN</b>.\n"
 "A <u>prečítajte si manuál!</u>"
-
-# ID:213,
-#: ID:209
-msgid "<new changelist>"
-msgstr "<nový zoznam zmien>"
 
 # ID:3867,#:
 # ID:3867,
@@ -1206,13 +1179,6 @@ msgstr "Upraviť zlučovací program pre príponu"
 #: ID:13
 msgid "Add to &ignore list"
 msgstr "Pridaj do zoznamu &ignorovaných"
-
-# ID:8,#:
-# Control-ID:1098,#:
-# Control-ID:1310,
-#: Control-ID:1279
-msgid "Add..."
-msgstr "Pridať..."
 
 # Dlg-ID:171,
 #: Dlg-ID:171
@@ -1492,12 +1458,6 @@ msgstr "Usporiadané podľa &adresárov"
 msgid "Arranges the nodes sorted by path"
 msgstr "Usporiadať uzly podľa cesty"
 
-# ID:15,
-#: ID:264
-#, c-format
-msgid "Assigned to changelist \"%s\""
-msgstr "Prirarené k zoznamu zmien \"%s\""
-
 # ID:77,
 #: ID:77
 #, c-format
@@ -1544,11 +1504,6 @@ msgstr "Nerozlišovať veľkosť písmien v menách autorov"
 #: Control-ID:65535
 msgid "Authors:"
 msgstr "Autori:"
-
-# Dlg-ID:151,
-#: ID:99
-msgid "Auto Rename"
-msgstr "Automaticky premenovať"
 
 # ID:222,
 #: ID:222
@@ -1682,15 +1637,15 @@ msgstr "Chyba / Prípad:"
 msgid "C&heck now"
 msgstr "S&kontroluj teraz"
 
-# ID:77,
-#: ID:77
-msgid "C&reate branch/tag from revision"
-msgstr "Vytvo&r vetvu/značku z revízie"
-
 # ID:101,
 #: ID:101
 msgid "C&reate folder..."
 msgstr "Vytvo&r adresár..."
+
+# ID:77,
+#: ID:77
+msgid "C&reate tag from revision"
+msgstr "Vytvo&r značku z revízie"
 
 # ID:3697,
 #: ID:3697
@@ -1716,7 +1671,6 @@ msgstr ""
 # Control-ID:2,#:
 # Control-ID:2,
 #: ID:73
-#: ID:99
 #: ID:563
 #: Control-ID:2
 msgid "Cancel"
@@ -1818,11 +1772,6 @@ msgstr "Skontoluj aktualizácie"
 msgid "Check For Updates..."
 msgstr "Skontoluj aktualizácie..."
 
-# Dlg-ID:133,
-#: ID:213
-msgid "Check Group"
-msgstr "Skontrolovať skupinu"
-
 # ID:13,
 #: ID:13
 msgid "Check for modi&fications"
@@ -1859,8 +1808,8 @@ msgstr "Skontrolujte cestu a URL adresu, ktorú ste zadali."
 
 # ID:194,
 #: ID:194
-msgid "Check those menu entries you want to appear in the top context menu instead of the TortoiseSVN submenu"
-msgstr "Zaškrtnite tie položky, ktoré chcete aby sa zobrazovali vo vrchnom kontextovom menu namiesto v podmenu TortoiseSVN"
+msgid "Check those menu entries you want to appear in the submenu instead of the top context menu"
+msgstr "Zaškrtnite tie položky, ktoré chcete aby sa zobrazovali v podmenu namiesto vo vrchnom kontextovom menu TortoiseSVN"
 
 # ID:80,
 #: ID:80
@@ -1879,7 +1828,6 @@ msgstr "Kontrola prístupnosti novšej verzie TortoiseSVN..."
 
 # Dlg-ID:133,
 #: Dlg-ID:133
-#: Control-ID:65535
 msgid "Checkout"
 msgstr "Získať"
 
@@ -1991,17 +1939,6 @@ msgstr "Farby"
 
 # ID:3857,#:
 # ID:3857,
-#: ID:198
-msgid "Command Line"
-msgstr "Príkazový riadok"
-
-# Control-ID:1336,
-#: Control-ID:1336
-msgid "Command Line To Execute:"
-msgstr "Príkazový riadok na vykonanie:"
-
-# ID:3857,#:
-# ID:3857,
 #: ID:3857
 msgid "Command failed."
 msgstr "Príkaz zlihal."
@@ -2053,11 +1990,6 @@ msgstr "Porovnať \"&HEAD\" revízií"
 msgid "Compare and &blame with working BASE"
 msgstr "Porovnať a &obviniť s pracovným základom"
 
-# ID:114,
-#: ID:114
-msgid "Compare and blame with previous revision"
-msgstr "Porovnať a obviniť s predošlou revíziou"
-
 # Porovnať s &lokálnou kópiou
 # ID:76,
 #: ID:76
@@ -2068,10 +2000,6 @@ msgstr "Porovnať s &pracovnou kópiou"
 #: ID:138
 msgid "Compare with b&ase"
 msgstr "Porovnať so zákl&adom"
-
-#: ID:114
-msgid "Compare with previous revision"
-msgstr "Porovnať s predošlou revíziou"
 
 # ID:12,
 #: ID:12
@@ -2094,11 +2022,6 @@ msgstr "Porovnanie %s s %s"
 #: ID:74
 msgid "Completed"
 msgstr "Hotovo"
-
-# Dlg-ID:236,
-#: Dlg-ID:236
-msgid "Configure Hook Scripts"
-msgstr "Nastaviť pripnuté skripty"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -2143,42 +2066,16 @@ msgstr "&Kopíruj"
 msgid "Copied"
 msgstr "Skopírované"
 
-# Kopíruj z cesty
-# ID:76,
-#: ID:208
-msgid "Copied from URL"
-msgstr "Skópírovné z URL"
-
 # ID:126,
 #: ID:126
 msgid "Copied remotely"
 msgstr "Vzdialene skopírované"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Copy %ld items to\r\n"
-"%s"
-msgstr ""
-"Kopírovať %ld objektov do\r\n"
-"%s"
 
 # ID:103,
 #: ID:103
 #, c-format
 msgid "Copy %s"
 msgstr "Kopíruj %s"
-
-# ID:82,
-#: ID:126
-#, c-format
-msgid ""
-"Copy %s\r\n"
-"to %s"
-msgstr ""
-"Kopírovať %s\r\n"
-"do %s"
 
 # Dlg-ID:142,
 #: Dlg-ID:142
@@ -2380,11 +2277,6 @@ msgid "Create &patch..."
 msgstr "Vytvoriť zá&platu..."
 
 # Dlg-ID:208,
-#: Dlg-ID:243
-msgid "Create Changelist"
-msgstr "Vytvoriť zoznam zmien!"
-
-# Dlg-ID:208,
 #: Dlg-ID:208
 msgid "Create Patch"
 msgstr "Vytvoriť záplatu"
@@ -2398,16 +2290,6 @@ msgstr "Vytvoriť úložisko"
 #: Control-ID:65535
 msgid "Create copy in the repository from:"
 msgstr "Vytvoriť kópiu v úložisku z:"
-
-# Control-ID:1074,
-#: ID:126
-#, c-format
-msgid ""
-"Create new directory:\r\n"
-"%s"
-msgstr ""
-"Vytvoriť nový adresár:\r\n"
-"%s"
 
 # ID:8,
 #: ID:8
@@ -2482,28 +2364,6 @@ msgstr "Dátum"
 #: Control-ID:65535
 msgid "Default &number of log messages"
 msgstr "Prednastavený &počet správ denníka"
-
-# Control-ID:1269,#:
-# Control-ID:1096,
-#: Control-ID:65535
-msgid "Default URL:"
-msgstr "Predvolená URL:"
-
-# Control-ID:1269,#:
-# Control-ID:1096,
-#: Control-ID:65535
-msgid "Default path:"
-msgstr "Predvolená cesta:"
-
-# Control-ID:65535,
-#: Dlg-ID:240
-msgid "Delete Unversioned Items"
-msgstr "Vymazať neverziované objekty"
-
-# Control-ID:1073,
-#: ID:17
-msgid "Delete unversioned items..."
-msgstr "Vymazať neverziované objekty..."
 
 # ID:73,#:
 # ID:264,
@@ -2663,6 +2523,15 @@ msgstr ""
 "Chcete znova načítať dokumenty, aby sa prejavili zmeny nastavení?\n"
 "Poznámka: stratíte všetky zmeny, ktoré ste urobili!"
 
+# ID:313,
+#: ID:313
+msgid ""
+"Do you want to reload the documents?\n"
+"You will lose all changes you've made!"
+msgstr ""
+"Chcete znova načítať dokumenty?\n"
+"Stratíte vykonané zmeny!"
+
 # ID:563,
 #: ID:563
 #, c-format
@@ -2748,12 +2617,6 @@ msgstr "Upraviť zlučovací program pre príponu"
 msgid "Edit log message"
 msgstr "Uprav správu denníka"
 
-# Control-ID:1099,#:
-# Control-ID:1282,
-#: Control-ID:1331
-msgid "Edit..."
-msgstr "Upraviť..."
-
 # ID:79,
 #: ID:79
 msgid "Either the name or IP of the proxy server"
@@ -2811,7 +2674,6 @@ msgstr "Zväčšiť okno na plnú veľkosť"
 
 # Dlg-ID:135,
 #: Dlg-ID:135
-#: Dlg-ID:241
 msgid "Enter Log Message"
 msgstr "Zadaj správu denníka"
 
@@ -2824,11 +2686,6 @@ msgstr "Zadaj URL"
 #: ID:313
 msgid "Enter a lock message (optional):"
 msgstr "Zadaj správu k zámku (nepovinné):"
-
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Enter a name for the changelist:"
-msgstr "Zadajte meno zoznamu zmien"
 
 # Control-ID:1065,
 #: Control-ID:1065
@@ -2900,16 +2757,6 @@ msgstr "Vylúčené cesty:"
 msgid "Explore to"
 msgstr "Exportovať do"
 
-# ID:9,
-#: Dlg-ID:238
-msgid "Export"
-msgstr "Exportovať"
-
-# ID:94,
-#: Control-ID:1074
-msgid "Export &directory:"
-msgstr "Exportovať &adresár"
-
 # ID:94,
 #: ID:94
 msgid "Export directory:"
@@ -2919,12 +2766,6 @@ msgstr "Exportuj adresár:"
 #: ID:79
 msgid "Export unversioned files too"
 msgstr "Exportuj aj neverziované súbory"
-
-# ID:79,
-#: ID:284
-#, c-format
-msgid "Exporting %s"
-msgstr "Exportovanie %s"
 
 # ID:79,
 #: ID:79
@@ -2943,16 +2784,16 @@ msgstr "Exportuje úložisko do cistej pracovnej kópie bez adresárov správy s
 msgid "Extension"
 msgstr "Prípona"
 
-# Rozšírenie:
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Extension or mime-type:"
-msgstr "Prípona, typ MIME"
+msgid "Extension specific programs"
+msgstr "Program pre prípony"
 
-# Control-ID:65535,
+# ID:74,#:
+# ID:207,
 #: Control-ID:65535
-msgid "Extension/mime-type specific programs"
-msgstr "Program pre prípony/typ MIME"
+msgid "Extension:"
+msgstr "Prípona:"
 
 # ID:74,
 #: ID:74
@@ -3009,15 +2850,6 @@ msgstr "Otváranie dokumentu zlyhalo."
 msgid "Failed to save document."
 msgstr "Ukladanie dokumentu zlyhalo."
 
-# ID:63,#:
-# ID:74,#:
-# ID:77,#:
-# ID:207,#:
-# ID:319,
-#: ID:220
-msgid "Failed!"
-msgstr "Zlihanie!"
-
 # Control-ID:1217,
 #: Control-ID:1217
 msgid "Fetch &status for context menu"
@@ -3058,7 +2890,7 @@ msgid "File diffs"
 msgstr "Rozdiely súboru"
 
 # ID:211,
-#: ID:213
+#: ID:211
 msgid "File list is empty"
 msgstr "Súbor je prázdny"
 
@@ -3089,11 +2921,6 @@ msgstr ""
 "Farebná hĺbka:\t\t%d bit\n"
 "Zväčšenie:\t\t%d%%"
 
-# Control-ID:65535,
-#: Control-ID:65535
-msgid "Filter out the following paths (separate multiple paths with the '*' char):"
-msgstr "Odfiltrovať nasledovné cesty (oddeľte viacnásobné cesty pomocou znaku  '*'):"
-
 # Dlg-ID:139,
 #: Dlg-ID:139
 msgid "Find"
@@ -3110,7 +2937,6 @@ msgstr ""
 
 # ID:77,
 #: ID:77
-#: ID:219
 msgid "Finished!"
 msgstr "Ukončené!"
 
@@ -3131,14 +2957,13 @@ msgstr "Pre úplnú históriu vypnite \"Zastaviť na kopírovať/premenovať\""
 
 # Control-ID:1200,
 #: Control-ID:1200
-#: Control-ID:65535
 msgid "From:"
 msgstr "Od:"
 
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "From: (start URL and revision of the range to merge)"
-msgstr "Od: (prvá URL adresa, prvá revízia rozsahu k zlúčeniu)"
+msgstr "Z: (začiatočná URL adresa a revízia rozsahu k zlučeniu)"
 
 # ID:273,
 #: ID:273
@@ -3161,17 +2986,13 @@ msgstr ""
 "GDI+ môžete získať z\n"
 "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-be590feaa05a&DisplayLang=en</a></u>"
 
-# ID:120,
-#: ID:284
-msgid "Gathering information. Please wait..."
-msgstr "Získavanie informácí. Prosm čakajte..."
-
 # Všeobecné
 # Dlg-ID:143,#:
 # Dlg-ID:107,#:
 # Control-ID:65535,
 #: Dlg-ID:143
 #: Dlg-ID:107
+#: Control-ID:65535
 msgid "General"
 msgstr "Hlavné"
 
@@ -3207,8 +3028,8 @@ msgstr "Získavam súbor %s"
 # ID:120,
 #: ID:120
 #, c-format
-msgid "Getting file %s, revision %s"
-msgstr "Získavanie súboru %s revízie %s"
+msgid "Getting file %s, revision %ld"
+msgstr "Získavam súbor %s, revízie %ld"
 
 # ID:132,
 #: ID:132
@@ -3292,22 +3113,10 @@ msgstr "Typ grafu:"
 msgid "H&ide unrelated changed paths"
 msgstr "&Skry zmeny na neprislúchajúcich cestách"
 
-# Control-ID:1353,#:
-# Control-ID:1354,
-#: Control-ID:1353
-#: Control-ID:1354
-msgid "HEAD"
-msgstr "Hlavná revízia"
-
 # Control-ID:1004,
 #: Control-ID:1004
 msgid "Help"
 msgstr "Pomoc"
-
-# Control-ID:1326,
-#: Control-ID:1326
-msgid "Hide the script while running"
-msgstr "Stryť skript počas behu"
 
 # ID:2052,
 #: ID:2052
@@ -3323,152 +3132,11 @@ msgstr ""
 msgid "Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all children too"
 msgstr "Tip: F5 obnovuje vybraný podstrom a Ctrl-F5 načíta aj deti"
 
-# Dlg-ID:103,
-#: Dlg-ID:103
-msgid "Hook Scripts"
-msgstr "Pripnuté (hook)skripty"
-
-# ID:198,
-#: ID:198
-msgid "Hook Type"
-msgstr "Typ pripnutia"
-
-# Control-ID:1334,
-#: Control-ID:1334
-msgid "Hook Type:"
-msgstr "Typ pripnutia:"
-
 # ID:82,
 #: ID:82
 #, c-format
 msgid "Hostname mismatch (%s)"
 msgstr "Chybné meno servera (%s)"
-
-#. Accelerator Entry for Menu ID:32771; '&Find...'
-#: Corresponding Menu ID:32771
-#: ; '&Find...'
-msgid "ID:32771:V C +F"
-msgstr "ID:32771:V C +F"
-
-#. Accelerator Entry for Menu ID:32772; '&Overlap images'
-#: Corresponding Menu ID:32772
-#: ; '&Overlap images'
-msgid "ID:32772:V   +O"
-msgstr "ID:32772:V   +O"
-
-#. Accelerator Entry for Menu ID:32773; '&Open'
-#: Corresponding Menu ID:32773
-#: ; '&Open'
-msgid "ID:32773:V C +O"
-msgstr "ID:32773:V C +O"
-
-#. Accelerator Entry for Menu ID:32774; '&Whitespaces'
-#: Corresponding Menu ID:32774
-#: ; '&Whitespaces'
-msgid "ID:32774:V C +T"
-msgstr "ID:32774:V C +T"
-
-#. Accelerator Entry for Menu ID:32775; 'Two-way &Diff'
-#: Corresponding Menu ID:32775
-#: ; 'Two-way &Diff'
-msgid "ID:32775:V C +D"
-msgstr "ID:32775:V C +D"
-
-#. Accelerator Entry for Menu ID:32778; '&Fit Images in window'
-#: Corresponding Menu ID:32778
-#: ; '&Fit Images in window'
-msgid "ID:32778:V   +F"
-msgstr "ID:32778:V   +F"
-
-#. Accelerator Entry for Menu ID:32779; 'Ori&ginal size'
-#: Corresponding Menu ID:32779
-#: ; 'Ori&ginal size'
-msgid "ID:32779:V   +S"
-msgstr "ID:32779:V   +S"
-
-#. Accelerator Entry for Menu ID:32779; '&Go To Line...'
-#: Corresponding Menu ID:32779
-#: ; '&Go To Line...'
-msgid "ID:32779:V C +G"
-msgstr "ID:32779:V C +G"
-
-#. Accelerator Entry for Menu ID:32793; 'Arrange &Vertical'
-#: Corresponding Menu ID:32793
-#: ; 'Arrange &Vertical'
-msgid "ID:32793:V C +V"
-msgstr "ID:32793:V C +V"
-
-#. Accelerator Entry for Menu ID:32794; 'Reload'
-#: Corresponding Menu ID:32794
-#: ; 'Reload'
-msgid "ID:32794:V C +R"
-msgstr "ID:32794:V C +R"
-
-#. Accelerator Entry for Menu ID:32796; 'Show &all revisions'
-#: Corresponding Menu ID:32796
-#: ; 'Show &all revisions'
-msgid "ID:32796:V C +A"
-msgstr "ID:32796:V C +A"
-
-#. Accelerator Entry for Menu ID:32809; '&Filter'
-#: Corresponding Menu ID:32809
-#: ; '&Filter'
-msgid "ID:32809:V C +F"
-msgstr "ID:32809:V C +F"
-
-#. Accelerator Entry for Menu ID:57601; '&Open Ctrl-O'
-#: Corresponding Menu ID:57601
-#: ; '&Open Ctrl-O'
-msgid "ID:57601:V C +O"
-msgstr "ID:57601:V C +O"
-
-#. Accelerator Entry for Menu ID:57603; '&Save Ctrl-S'
-#: Corresponding Menu ID:57603
-#: ; '&Save Ctrl-S'
-msgid "ID:57603:V C +S"
-msgstr "ID:57603:V C +S"
-
-#. Accelerator Entry for Menu ID:57604; 'Save &As...'
-#: Corresponding Menu ID:57604
-#: ; 'Save &As...'
-msgid "ID:57604:V CS+S"
-msgstr "ID:57604:V CS+S"
-
-#. Accelerator Entry for Menu ID:57634; '&Copy'
-#: Corresponding Menu ID:57634
-#: ; '&Copy'
-msgid "ID:57634:V C +C"
-msgstr "ID:57634:V C +C"
-
-#. Accelerator Entry for Menu ID:57635; ''
-#: Corresponding Menu ID:57635
-#: ; ''
-msgid "ID:57635:V C +X"
-msgstr "ID:57635:V C +X"
-
-#. Accelerator Entry for Menu ID:57636; '&Find'
-#: Corresponding Menu ID:57636
-#: ; '&Find'
-msgid "ID:57636:V C +F"
-msgstr "ID:57636:V C +F"
-
-#. Accelerator Entry for Menu ID:57637; ''
-#: Corresponding Menu ID:57637
-#: ; ''
-msgid "ID:57637:V C +V"
-msgstr "ID:57637:V C +V"
-
-#. Accelerator Entry for Menu ID:57643; '&Undo\tCtrl+Z'
-#: Corresponding Menu ID:57643
-#: ; '&Undo\tCtrl+Z'
-msgid "ID:57643:V C +Z"
-msgstr "ID:57643:V C +Z"
-
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-#: Corresponding Menu ID:57665
-#: ; 'E&xit'
-msgid "ID:57665:V C +Q"
-msgstr "ID:57665:V C +Q"
 
 # Control-ID:65535,
 #: Control-ID:65535
@@ -3482,17 +3150,8 @@ msgstr "Ikony/Design/Kód:     Luebbe ONKEN"
 
 # ID:194,
 #: ID:194
-msgid "If activated, prevents the overlays from showing in \"save as...\" or \"open\" dialogs"
+msgid "If activated, prevents the overlays from showing in \"save as..\" or \"open\" dialogs"
 msgstr "Aktivované zabrání zobrazovaniu prekryvajúcich ikoniek v dialógových oknách \"uložiť ako...\" a \"otvoriť\"."
-
-# ID:198,
-#: ID:198
-msgid ""
-"If activated, the menu entry \"Get Lock\" is always shown in the top level menu\n"
-"if the selected file has the svn:needs-lock property set"
-msgstr ""
-"Keď je aktívne, položka \"Uzamknúť\" je vždy zobrazovaná na vrchu menu\n"
-"keď je vybraný súbor s nastavenou vlastnosťou svn:needs-lock"
 
 # ID:95,
 #: ID:95
@@ -3505,12 +3164,8 @@ msgstr ""
 
 # ID:79,
 #: ID:79
-msgid ""
-"If checked, TortoiseSVN creates a temporary file of the BASE to do the diff\n"
-"with the keywords expanded and the line endings adjusted."
-msgstr ""
-"Keď je označené, TortoiseSVN vytvorí dočasný súbor základu, aby urobil \n"
-"porovnanie s rozšírenými klúčovými slovami a upravenými koncami riadkov."
+msgid "If checked, TortoiseSVN creates a temporary file of the BASE to do the diff with the keywords expanded and the line endings adjusted."
+msgstr "Keď je označené, TortoiseSVN vytvorí dočasný súbor základu, aby urobil porovnanie s rozšírenými klúčovými slovami a upravenými koncami riadkov."
 
 # ID:196,
 #: ID:196
@@ -3630,47 +3285,10 @@ msgstr "Ignorovať &konce riadkov (doporučené)"
 msgid "Import"
 msgstr "Importovať"
 
-# &Ignoruj položky
-# ID:15,
-#: ID:127
-#, c-format
-msgid "Import %ld items"
-msgstr "Importovať %ld objektov"
-
 # Control-ID:1056,
 #: Control-ID:1056
 msgid "Import &message"
 msgstr "Importovať &správu"
-
-# ID:120,
-#: ID:127
-#, c-format
-msgid ""
-"Import file %s\r\n"
-"to %s"
-msgstr ""
-"Importovať súbor %s\r\n"
-"do %s"
-
-# ID:120,
-#: ID:126
-#, c-format
-msgid ""
-"Import file to\r\n"
-"%s"
-msgstr ""
-"Importovať súbor do\r\n"
-"%s"
-
-# ID:120,
-#: ID:126
-#, c-format
-msgid ""
-"Import folder %s\r\n"
-"to %s"
-msgstr ""
-"Importovať adresár %s\r\n"
-"do %s"
 
 # ID:120,
 #: ID:120
@@ -3690,11 +3308,6 @@ msgstr "Vrátane ignorovaných súborov"
 
 # Control-ID:65535,
 #: Control-ID:65535
-msgid "Include only the following revision range:"
-msgstr "Iba nasledovný rozsah revízií:"
-
-# Control-ID:65535,
-#: Control-ID:65535
 msgid "Include paths:"
 msgstr "Zaradené cesty:"
 
@@ -3703,10 +3316,10 @@ msgstr "Zaradené cesty:"
 msgid "Initial import"
 msgstr "Prvotný import"
 
-# ID:114,
+# Control-ID:65535,
 #: Control-ID:65535
-msgid "Inline differences"
-msgstr "Rozdiely v riadkoch"
+msgid "Inline diff"
+msgstr "Riadkové porovnanie"
 
 # Dlg-ID:161,
 #: Dlg-ID:161
@@ -3863,11 +3476,6 @@ msgstr ""
 msgid "Keep &locks"
 msgstr "Zachovať &zámky"
 
-# ID:213,
-#: Control-ID:1126
-msgid "Keep changelist"
-msgstr "Zachovať zoznam zmien"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Last commit revision:"
@@ -3908,21 +3516,10 @@ msgstr "Riadok"
 msgid "Line Graph"
 msgstr "Čiarový graf"
 
-# ID:114,
-#: Control-ID:65535
-msgid "Line differences"
-msgstr "Rozdiely riadkov"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Line:"
 msgstr "Riadok:"
-
-# Control-ID:65535,
-#: ID:269
-#, c-format
-msgid "Line: %*ld"
-msgstr "Riadok: %*ld"
 
 # ID:3605,
 #: ID:3605
@@ -3965,7 +3562,7 @@ msgid "Lock Files"
 msgstr "Zamknúť súbory"
 
 # ID:209,
-#: ID:213
+#: ID:209
 msgid "Lock broken!"
 msgstr "Zlomený zámok!"
 
@@ -3991,7 +3588,7 @@ msgid "Lock owner:"
 msgstr "Vlastník zámku:"
 
 # ID:209,
-#: ID:213
+#: ID:209
 #, c-format
 msgid "Lock stolen by %s"
 msgstr "%s ukradol zámok"
@@ -4077,14 +3674,14 @@ msgstr "Vzhlad a pocit::Sada ikon"
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
-msgstr "Najnižšia zobrazená revízia: %ld - Najvyššia zobrazená revízia: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld"
+msgstr "Najnižšia revízia: %ld - Najvyššia revízia: %ld"
 
 # ID:238,
 #: ID:238
 #, c-format
-msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
-msgstr "Najnižšia zobrazená revízia: %ld - Najvyššia zobrazená revízia: %ld - HEAD revízia: %ld"
+msgid "Lowest revision: %ld - Highest revision: %ld - HEAD revision: %ld"
+msgstr "Najnižšia revízia: %ld - Najvyššia revízia: %ld - HEAD revízia: %ld"
 
 # ID:3866,#:
 # ID:3866,
@@ -4096,11 +3693,6 @@ msgstr "Neplatná DLL knižnica pre emaily."
 #: ID:17
 msgid "Manage Subversion properties"
 msgstr "Spravovať vlastnosti Subversion"
-
-# ID:282,
-#: MenuEntry
-msgid "Mark as &resolved"
-msgstr "Označiť ako &vyriešené..."
 
 # ID:282,
 #: ID:282
@@ -4127,7 +3719,7 @@ msgid "Max"
 msgstr "Max"
 
 # Control-ID:65535,
-#: Control-ID:1317
+#: Control-ID:65535
 msgid "Max. items to keep in the log message history"
 msgstr "Maximálny počet záznamov, ktoré majú byť uchované v pamäti denníka"
 
@@ -4161,7 +3753,6 @@ msgstr "Zlučovanie vyžaduje rozdielne revízie, alebo rozdielne URL adresy v Z
 
 # ID:76,
 #: ID:76
-#: Control-ID:1359
 msgid "Message"
 msgstr "Správa"
 
@@ -4211,7 +3802,6 @@ msgstr "Zmiešané"
 # ID:264,
 #: ID:74
 #: ID:264
-#: Control-ID:65535
 msgid "Modified"
 msgstr "Zmenené"
 
@@ -4225,31 +3815,6 @@ msgstr "Viac farieb..."
 #: Control-ID:1136
 msgid "Most active author:"
 msgstr "Najaktívnejší autor:"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %ld items to\r\n"
-"%s"
-msgstr ""
-"Presunúť %ld objektov do\r\n"
-"%s"
-
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Move %s\r\n"
-"to %s"
-msgstr ""
-"Presunúť %s\r\n"
-"do %s"
-
-# ID:15,
-#: ID:209
-msgid "Move to changelist"
-msgstr "Presunúť do zoznamu zmien"
 
 # ID:98,
 #: ID:98
@@ -4293,7 +3858,7 @@ msgid "Needs lock"
 msgstr "Je nutný zámok"
 
 # ID:210,
-#: ID:213
+#: ID:210
 msgid "Nested"
 msgstr "Vnorené"
 
@@ -4537,11 +4102,6 @@ msgstr "Otvor autentifikačný súbor klienta"
 msgid "Open file"
 msgstr "Otvoriť súbor"
 
-# ID:114,
-#: Control-ID:1132
-msgid "Open from clipboard"
-msgstr "Otvoriť zo schránky"
-
 # ID:7,
 #: ID:7
 msgid "Open image file..."
@@ -4588,20 +4148,6 @@ msgstr "Ostatný"
 msgid "Out of memory."
 msgstr "Nedostatok pamäte."
 
-# ID:95,
-#: ID:95
-msgid ""
-"Override the svn:eol-style property setting.\n"
-"Files which don't have this property set are not affected."
-msgstr ""
-"Prepíše nastavnie vlastnosti svn:eol-style.\n"
-"Súbory, ktoré nemajú túto vlastnosť nastavenú, niesú dotknuté."
-
-# ID:99,
-#: ID:99
-msgid "Overwrite"
-msgstr "Prepísať"
-
 #: MenuEntry
 msgid "P&revious Conflict"
 msgstr "P&redošlí konflikt"
@@ -4644,7 +4190,6 @@ msgstr "Súbory záplat (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 
 # ID:77,
 #: ID:77
-#: ID:198
 msgid "Path"
 msgstr "Cesta"
 
@@ -4689,12 +4234,6 @@ msgstr "Prosím zadajte dátum."
 
 # ID:3858,#:
 # ID:3858,
-#: ID:83
-msgid "Please enter a hook script to execute."
-msgstr "Prosím zadajte Pripnutý (hook)skript na vykonanie."
-
-# ID:3858,#:
-# ID:3858,
 #: ID:3858
 #, c-format
 msgid "Please enter a number between %1 and %2."
@@ -4705,11 +4244,6 @@ msgstr "Prosím zadajte číslo medzi %1 a %2."
 #: ID:3858
 msgid "Please enter a number."
 msgstr "Prosím zadajte číslo."
-
-# ID:83,
-#: ID:83
-msgid "Please enter a path where to apply the hook script to."
-msgstr "Prosím zadajte cestu, pre ktorú sa má vykonať pripnutý (hook)skript."
 
 # ID:3858,#:
 # ID:3858,
@@ -4771,12 +4305,6 @@ msgstr ""
 msgid "Please select a button."
 msgstr "Vyberte si prosím tlačítko."
 
-# ID:3858,#:
-# ID:3858,
-#: ID:83
-msgid "Please select a hook type"
-msgstr "Prosím vyberte typ pripnutia"
-
 # ID:76,
 #: ID:76
 msgid "Please specify the certificate type"
@@ -4792,44 +4320,24 @@ msgstr "Prosím čakajte - toto može trvať nemalú chíľu. Vážne!"
 msgid "Please wait while cancelling..."
 msgstr "Prosím čakajte, prebieha stornovanie..."
 
-# ID:319,
-#: ID:319
-msgid "Please wait while differences are obtained..."
-msgstr "Prosím počkajte na získanie rozdielov..."
-
 # ID:104,
 #: ID:104
 msgid "Please wait while the repository browser is initialized..."
 msgstr "Prosím čakajte, prehliadač úložiska sa inicializuje..."
+
+# ID:319,
+#: ID:319
+msgid "Please wait while we get the differences..."
+msgstr "Prosím počkajte na získanie rozdielov..."
 
 # ID:119,#:
 # ID:146,#:
 # ID:211,
 #: ID:119
 #: ID:146
-#: ID:213
+#: ID:211
 msgid "Please wait..."
 msgstr "Prosím, čakajte..."
-
-# Control-ID:1110,
-#: ID:569
-msgid "Post-Commit Hook"
-msgstr "Poodovzdavací pripnutý (hook)skript"
-
-# ID:570,
-#: ID:570
-msgid "Post-Update Hook"
-msgstr "Poaktualizačný pripnutý (hook)skript"
-
-# Control-ID:1110,
-#: ID:569
-msgid "Pre-Commit Hook"
-msgstr "Predodovzdavací pripnutý (hook)skript"
-
-# ID:570,
-#: ID:570
-msgid "Pre-Update Hook"
-msgstr "Predaktulizačný pripnutý (hook)skript"
 
 # ID:376,
 #: ID:376
@@ -4876,6 +4384,7 @@ msgstr "Vlastnoti pre"
 # ID:209,#:
 # Control-ID:11021,
 #: ID:209
+#: Control-ID:11021
 msgid "Properties..."
 msgstr "Vlastnosti..."
 
@@ -4918,11 +4427,6 @@ msgstr "Proxy časový limi&t:"
 #: Control-ID:1080
 msgid "Proxy Settings"
 msgstr "Nastavenia Proxy"
-
-# Control-ID:1338,
-#: Control-ID:1338
-msgid "Put \"Get Lock\" on top menu when svn:needs-lock is set"
-msgstr "Umiestniť \"Uzam&knuť\" na vrch menu pri nastavenom svn:needs-lock"
 
 # ID:246,
 #: ID:246
@@ -5077,33 +4581,10 @@ msgstr "Vzdialený stav"
 msgid "Remote text status"
 msgstr "Stav vzdialeného textu"
 
-# &Ignoruj položky
-# ID:15,
-#: ID:126
-#, c-format
-msgid "Remove %ld items"
-msgstr "Odstrániť %ld objektov"
-
-# ID:97,
-#: ID:126
-#, c-format
-msgid "Remove %s"
-msgstr "Odstrániť %s"
-
 # ID:15,
 #: ID:15
 msgid "Remove from &ignore list"
 msgstr "Odstrániť zo zoznamu &ignorovaných"
-
-# ID:15,
-#: ID:209
-msgid "Remove from changelist"
-msgstr "Odstrániť zoznam zmien"
-
-# ID:8,
-#: Control-ID:1332
-msgid "Remove..."
-msgstr "Odstrániť..."
 
 # Control-ID:65535,#:
 # Control-ID:65535,
@@ -5116,11 +4597,6 @@ msgstr "Odstránené"
 msgid "Removed file/folder"
 msgstr "Odstránený súbor/adresár"
 
-# ID:15,
-#: ID:264
-msgid "Removed from changelist"
-msgstr "Ostrániť zo zoznamu zmien"
-
 # ID:145,
 #: ID:145
 #, c-format
@@ -5132,11 +4608,6 @@ msgstr ""
 "Odstránené vzory súbor\n"
 "%s\n"
 "zo zoznamu vylúčenia."
-
-# ID:17,
-#: ID:17
-msgid "Removes all unversioned and ignored items"
-msgstr "Vymazať všetky neverziované a ignorované objekty"
 
 # ID:15,
 #: ID:15
@@ -5154,16 +4625,6 @@ msgstr "Premenovanie"
 msgid "Rename %s"
 msgstr "Premenovat %s"
 
-# ID:127,
-#: ID:127
-#, c-format
-msgid ""
-"Rename item from %s\r\n"
-"to %s"
-msgstr ""
-"Premenovať objekt z %s\r\n"
-"na %s"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Renamed node"
@@ -5178,12 +4639,6 @@ msgstr "Vzdialene premenované"
 #: ID:11
 msgid "Renames files / folders inside version control"
 msgstr "Premenuje súbory/adresáre vo správe verzií"
-
-# Control-ID:1100,#:
-# Control-ID:1285,
-#: ID:209
-msgid "Repair move"
-msgstr "Opraviť presunutie"
 
 # ID:3603,
 #: ID:3603
@@ -5368,11 +4823,6 @@ msgstr "Revízia / Autor:"
 #: Dlg-ID:182
 msgid "Revision Graph"
 msgstr "Graf revízií"
-
-# Dlg-ID:182,
-#: Dlg-ID:239
-msgid "Revision Graph Filter"
-msgstr "Filter grafu revízií"
 
 # Dlg-ID:228,
 #: Dlg-ID:228
@@ -5692,21 +5142,6 @@ msgstr ""
 "Vybrať adresár kam sa má exportovať.\n"
 "Môžete potrebovať vytvoriť nový adresár pred exportovaním."
 
-# ID:197,
-#: ID:197
-msgid "Select folder to run script for"
-msgstr "Vyberte adresár, pre ktorý sa má vykonať skript"
-
-# ID:197,
-#: ID:119
-msgid "Select folder to save the selected files to"
-msgstr "Vyberte adresár, na uloženie vybraného súboru"
-
-# ID:313,
-#: ID:197
-msgid "Select hook script file"
-msgstr "Vybrať  súbor hookskriptu"
-
 # ID:78,
 #: ID:78
 msgid "Select merge application"
@@ -5845,9 +5280,9 @@ msgstr "Zobraziť &rozdiely"
 #: ID:101
 #: Control-ID:1016
 #: Control-ID:1228
-#: Control-ID:1132
 #: Control-ID:1031
 #: Control-ID:1034
+#: Control-ID:1132
 msgid "Show &log"
 msgstr "Zobraziť &denník"
 
@@ -5927,22 +5362,11 @@ msgstr "Zobraz nezmené súbory"
 msgid "Show unversioned files"
 msgstr "Zobraz neverziované súbory"
 
-# ID:198,
-#: ID:198
-msgid "Show/Hide"
-msgstr "Zobraziť/skryť"
-
 # ID:272,
 #: ID:272
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Zobrazujem %ld uzlov"
-
-# ID:238,
-#: ID:115
-#, c-format
-msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
-msgstr "Zobrazené revízie: %ld (od revízie %ld do revízie %ld) - Vybrané revízie: %ld"
 
 # ID:272,
 #: ID:272
@@ -6012,11 +5436,6 @@ msgstr "Usporiadať číselne"
 msgid "Sort numerical"
 msgstr "Číselné triedenie"
 
-# Control-ID:1300,
-#: ID:197
-msgid "Sorts items numerical instead of alphabetical"
-msgstr "Objekty usporiadať číselne namiesto podľa abecedy"
-
 # ID:196,
 #: ID:196
 msgid "Specifies how many items you want to keep in the most recent log messages dialog."
@@ -6057,20 +5476,10 @@ msgstr "Kumulovaný graf"
 msgid "Stacked Line Graph"
 msgstr "Stacked Line Graph"
 
-# ID:569,
-#: ID:569
-msgid "Start Commit Hook"
-msgstr "Spustiť odovzdavací hookskript"
-
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "Start Revision"
 msgstr "Začiatočná revízia"
-
-# ID:569,
-#: ID:569
-msgid "Start Update Hook"
-msgstr "Spustiť aktualizačný pripnutý (hook)skript"
 
 # ID:245,#:
 # Dlg-ID:179,
@@ -6304,16 +5713,6 @@ msgstr "Veľkosť bloku nezodpovedá počtu pridaných/vymazaných riadkov!"
 msgid "The chunk start \"@@\" was expected in line %d !"
 msgstr "Na riadku %d bol očakávaný začiatok dávky \"@@\"!"
 
-# ID:196,
-#: ID:196
-msgid "The default path to checkout to if nothing else is specified"
-msgstr "Predvolená cesta na získanie pokiaľ nie je určená iná"
-
-# ID:197,
-#: ID:197
-msgid "The default url to checkout from if nothing else is specified"
-msgstr "Predvolená URL na získanie pokiaľ nie je určená iná"
-
 # ID:68,
 #: ID:68
 #, c-format
@@ -6392,28 +5791,6 @@ msgstr ""
 "nexistuje.\n"
 "Chcete ho vytvoriť?"
 
-# ID:102,
-#: ID:99
-#, c-format
-msgid ""
-"The folder\n"
-"%s\n"
-"already exists!"
-msgstr ""
-"Adresár\n"
-"%s\n"
-"už existuje!"
-
-# ID:83,
-#: ID:83
-#, c-format
-msgid ""
-"The hook script returned an error:\n"
-"%s"
-msgstr ""
-"Pripnutý (Hook)skript vrátil chybu:\n"
-"%s"
-
 # Nemožno zobraziť (tento) obrázok.
 # ID:7,
 #: ID:7
@@ -6460,12 +5837,6 @@ msgid ""
 msgstr ""
 "Starý a nový súbor sa nezhodujú.\n"
 "Premenovanie súborov nie je (ešte) podporované!"
-
-# ID:3857,#:
-# ID:3857,
-#: ID:220
-msgid "The operation failed."
-msgstr "Úkon zlihal."
 
 # ID:64,
 #: ID:64
@@ -6640,24 +6011,10 @@ msgstr ""
 "Chcete uložiť súbor aj s kofliktom?\n"
 "Keď vyberiete ANO, potom budete musieť vyriešiť konflikty ručne v inom editore!"
 
-# ID:313,
-#: ID:313
-msgid ""
-"There are unsaved modifications!\n"
-"Do you want to save your changes?"
-msgstr ""
-"Sú neuložené zmeny\n"
-"Chcete vaše zmeny uložiť?"
-
 # ID:82,
 #: ID:82
 msgid "There is nothing to add. All the files and folders are either under version control or have been ignored using the svn:ignore property or the global ignore configuration setting."
 msgstr "Nieje čo pridať. Všetky súbory a adresáre sú už pod správou verzií, alebo sú ignorované na základe nastavenia svn:ignore, alebo globálneho nastavenia."
-
-# ID:83,
-#: ID:83
-msgid "There's nothing to unlock. No file has a lock in this working copy."
-msgstr "Nie je nič na odomknutie. Nie sú žiadné zamknuté súbory v pracovnej kópií."
 
 # ID:188,
 #: ID:188
@@ -6735,14 +6092,13 @@ msgstr ""
 
 # Control-ID:1201,
 #: Control-ID:1201
-#: Control-ID:65535
 msgid "To:"
 msgstr "Do:"
 
 # Control-ID:65535,
 #: Control-ID:65535
 msgid "To: (end URL and revision of the range to merge)"
-msgstr "Po: (posledná URL a adresa rozsahu zlučovania)"
+msgstr "Po: (záverešná URL a adresa rozsahu zlučovania)"
 
 # ID:7,
 #: ID:7
@@ -7048,13 +6404,6 @@ msgstr "Nemožno zapísať do %1, je len na čítanie, alebo otvorený niekym in
 msgid "Uncheck"
 msgstr "Odznačiť"
 
-# Odznač
-# ID:3887,#:
-# ID:3887,
-#: ID:213
-msgid "Uncheck Group"
-msgstr "Odznačiť skupinu"
-
 # ID:3603,
 #: ID:3603
 msgid ""
@@ -7089,7 +6438,6 @@ msgstr ""
 # Odomkni
 # ID:221,
 #: ID:221
-#: Dlg-ID:242
 msgid "Unlock"
 msgstr "Odomknúť"
 
@@ -7183,11 +6531,6 @@ msgstr ""
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr "Použiť URL adresu &pracovnej kópie ako predvolenú pre \"Z:\" URL"
 
-# Control-ID:1064,
-#: Control-ID:1064
-msgid "Use Unified Diff from clipboard"
-msgstr "Použiť záplatový súbor zo schránky"
-
 # Control-ID:1073,
 #: Control-ID:1073
 msgid "Use \"From:\" URL (revision range is selectable in the above log dialog)"
@@ -7210,64 +6553,28 @@ msgstr "Použiť oba bloky (tento posledný)"
 
 # Control-ID:1066,
 #: Control-ID:1066
-msgid "Use stri&keout for removed lines"
+msgid "Use stri&keout for deleted lines"
 msgstr "Použiť &preškrtávanie pre vymazané riadky"
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&mine\""
 msgstr "Použiť blok \"&Moje\""
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"&theirs\""
 msgstr "Použiť blok \"&Ich\""
 
 # ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"m&ine\" before \"theirs\""
 msgstr "Použiť blok \"M&oje\" pred \"Ich\""
 
 # ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\" before \"theirs\"\n"
-"Use \"mine\" text block then \"theirs\""
-msgstr ""
-"Použiť blok \"Moje\" pred \"Ich\"\n"
-"\"Moje\", potom \"Ich\""
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"mine\"\n"
-"Use \"mine\" text block"
-msgstr ""
-"Použiť blok z \"Moje\"\n"
-"Použiť \"Moje\""
-
-# ID:251,
-#: MenuEntry
+#: ID:251
 msgid "Use text block from \"t&heirs\" before \"mine\""
 msgstr "Použiť blok  \"I&ch\" pred \"Moje\""
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\" before \"mine\"\n"
-"Use \"theirs\" text block then \"mine\""
-msgstr ""
-"Použiť blok  \"Ich\" pred \"Moje\"\n"
-"\"Ich\", potom \"Moje\""
-
-# ID:251,
-#: ID:2052
-msgid ""
-"Use text block from \"theirs\"\n"
-"Use \"theirs\" text block"
-msgstr ""
-"Použiť blok z \"Ich\"\n"
-"Použiť \"Ich\""
 
 # ID:251,
 #: ID:251
@@ -7330,37 +6637,11 @@ msgstr "Hodnota"
 msgid "Version"
 msgstr "Verzia"
 
-# Control-ID:1075,#:
-# Control-ID:1075,
-#: ID:264
-msgid "Versioned"
-msgstr "Verziované"
-
-# ID:114,
-#: ID:114
-msgid "View revision for path in &webviewer"
-msgstr "Prezrieť revíziu cesty vo &internetovom prehliadači"
-
-# ID:114,
-#: ID:114
-msgid "View revision in &webviewer"
-msgstr "Prezrieť revíziu vo &internetovom prehliadači"
-
 # Control-ID:1084,#:
 # Control-ID:1084,
 #: Control-ID:1084
 msgid "Visit our website"
 msgstr "> Naša stránka <"
-
-# ID:198,
-#: ID:198
-msgid "Wait"
-msgstr "Čakať"
-
-# Control-ID:1327,
-#: Control-ID:1327
-msgid "Wait for the script to finish"
-msgstr "Čakajte na dokončenie skriptu"
 
 # ID:88,
 #: ID:88
@@ -7381,11 +6662,6 @@ msgstr "S URL:"
 #: Dlg-ID:158
 msgid "Working Copy"
 msgstr "Pracovná kópia"
-
-# Dlg-ID:158,
-#: Control-ID:1335
-msgid "Working Copy Path:"
-msgstr "Cesta pracovnej kópie:"
 
 # ID:80,
 #: ID:80
@@ -7437,17 +6713,6 @@ msgstr ""
 "Toto može viesť vážnemu poškodeniu úložiska!\n"
 "Naozaj to chcete?"
 
-# ID:105,
-#: ID:105
-msgid ""
-"You are trying to move the trunk folder!\n"
-"Are you absolutely sure that you want to move\n"
-"the trunk folder?"
-msgstr ""
-"Pokúšate sa presunúť kmeňový adresár!\n"
-"Ste si naozaj istý, že chcete presunúť\n"
-"kmeňový adresár?"
-
 # ID:16,
 #: ID:16
 msgid ""
@@ -7458,6 +6723,24 @@ msgstr ""
 "Túto vlastnosť nieje možné nastaviť na adresáre!\n"
 "Ak ju chcete použiť na všetky súbory v tom adresáry,\n"
 "musíte vybrať zaškrtávacie políčko 'rekurzívne'."
+
+# Skopírovali ste viac súborov, alebo adresárov.\n
+# Toto nieje možné vykonať v jednom kroku, TortoiseSVN skopíruje každý súbor/adresár\n
+# samostatne vytvoriac novú revíziu pre každý skopírovaný objekt.\n
+# ID:105,
+#: ID:105
+msgid ""
+"You copied more than one file or folder.\n"
+"It's not possible to do that in one step, so TortoiseSVN will copy each file/folder\n"
+"individually, creating a new revision for every copied item.\n"
+"\n"
+"Do you still want to do this?"
+msgstr ""
+"Skopírovali ste viac súborov, alebo adresárov.\n"
+"Nie to však možné urobiť v jednom kroku. Takže TortoiseSVN skopíruje každý\n"
+"súbor/adresár samostatne vytvoriac novú revíziu pre každý skopírovaný objekt.\n"
+"\n"
+"Ešte stále to chcete?"
 
 # ID:105,
 #: ID:105
@@ -7496,6 +6779,24 @@ msgid ""
 msgstr ""
 "Nezadali ste prípadové čislo!\n"
 "Chcete vykonať odovzdanie bez čísla prípadu?"
+
+# Presunuli ste viac súborov, alebo adresárov.\n
+# Nie to možné urobiť v jednom kroku, preto TortoiseSVN vytvorí novú revíziu\n
+# pre každý presunutý adresár, alebo súbor.\n
+# ID:105,
+#: ID:105
+msgid ""
+"You moved more than one file or folder.\n"
+"It's not possible to do that in one step, so TortoiseSVN will move each file/folder\n"
+"individually, creating a new revision for every moved item.\n"
+"\n"
+"Do you still want to do this?"
+msgstr ""
+"Presunuli ste viac súborov, alebo adresárov.\n"
+"Nie to však možné urobiť v jednom kroku, takže TortoiseSVN presunie každý\n"
+"súbor/adresár samostatne vytvoriac novú revíziu pre každý presunutý objekt.\n"
+"\n"
+"Ešte stále to chcete?"
 
 # ID:196,
 #: ID:196
@@ -7748,11 +7049,6 @@ msgstr ""
 msgid "deleted"
 msgstr "vymazané"
 
-# ID:17,
-#: Control-ID:1342
-msgid "eol style"
-msgstr "štýl ukončenia riadkov"
-
 # ID:79,
 #: ID:79
 #, c-format
@@ -7981,7 +7277,6 @@ msgstr ""
 # ID:103,
 #: ID:80
 #: ID:103
-#: ID:284
 #, c-format
 msgid "to %s"
 msgstr "na %s"
@@ -8039,28 +7334,6 @@ msgstr ""
 "Nastavte na číslo jazyka, v ktorom chcete písať záznamy denníka.\n"
 "TortoiseSVN načíta príslušnú kontrolu pravopisu - ak bude dostupná."
 
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfileproperties\n"
-"Newline separated list of user defined properties for files which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfileproperties\n"
-"Novými riadkami oddelený zoznam uživateľsky definovaných vlastností\n"
-"súborov, ktorý bude na výber v dialogovom okne vlastností."
-
-# ID:17,
-#: ID:17
-msgid ""
-"tsvn:userfolderproperties\n"
-"Newline separated list of user defined properties for folders which will\n"
-"be shown in the property dialog to choose from."
-msgstr ""
-"tsvn:userfolderproperties\n"
-"Novými riadkami oddelený zoznam uživateľsky definovaných vlastností\n"
-"adresára, ktorý bude na výber v dialogovom okne vlastností."
-
 # ID:15,
 #: ID:15
 msgid ""
@@ -8074,32 +7347,6 @@ msgstr ""
 #: ID:563
 msgid "values are different"
 msgstr "rozdielne hodnoty"
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:pathrevision\n"
-"URL pointing to the web viewer for the repository for a specific file and revision.\n"
-"The string %REVISION% in the URL is replaced with the revision number,\n"
-"the string %PATH% is replaced with the path to the file relative to the repository root."
-msgstr ""
-"webviewer:revision\n"
-"URL adresa odkazujúca na web stránku úložiska pre určený súbor a revíziu.\n"
-"Reťazec %REVISION% v URL adrese bude nahradený číslom revízie.\n"
-"Reťazec %PATH% bude nahradený cestou súboru relatívne od kmeňového adresára úložiska."
-
-# ID:17,
-#: ID:17
-#, c-format
-msgid ""
-"webviewer:revision\n"
-"URL pointing to the web viewer for the repository for a specific revision.\n"
-"The string %REVISION% in that URL is replaced with the revision number."
-msgstr ""
-"webviewer:revision\n"
-"URL odkazujúca na web stránku úložiska pre určenú revíziu.\n"
-"Reťazec %REVISION% v URL adrese bude nahradený číslom revízie."
 
 # ID:245,
 #: ID:245

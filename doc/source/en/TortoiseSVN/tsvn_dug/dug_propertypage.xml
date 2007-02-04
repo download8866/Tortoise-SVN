@@ -52,9 +52,9 @@
             special meaning in Subversion. These begin with <literal>svn:</literal>. 
             <literal>svn:externals</literal> is such a property; see how to handle
             externals in <xref linkend="tsvn-dug-import-4"/>.
-            For more information about properties in Subversion see the 
-            <ulink url="http://svnbook.red-bean.com/en/1.2/svn.advanced.props.html">
-                <citetitle>Special Properties</citetitle>
+            For more information about properties in Subversion see the  
+            <ulink url="http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3">
+                <citetitle>Subversion Manual</citetitle>
             </ulink>.
         </para>
         <para>
@@ -129,7 +129,7 @@
                 If there's a conflict on committing the changes, because another 
                 user has changed the same property, Subversion generates a 
                 <filename>.prej</filename> file. Delete this file after you 
-                have resolved the conflict.
+                have resolved the conflict. 
             </para>
         </tip>
         <tip>
@@ -137,7 +137,7 @@
             <para>
                 You can configure Subversion to set properties automatically 
                 on files and folders when they are added to the repository.
-                Read <xref linkend="tsvn-dug-settings"/> for further information.
+                Read <xref linkend="tsvn-dug-settings"/> for further information. 
             </para>
         </tip>
     </sect2>
@@ -199,7 +199,7 @@
                         <literal>tsvn:logfilelistenglish</literal> defines whether
                         the file status is inserted in english or in the localized
                         language. If the property is not set, the default is
-                        <literal>true</literal>.
+                        <literal>true</literal>. 
                     </para>
                 </listitem>
                 <listitem>
@@ -222,21 +222,6 @@
                         prefixed with <literal>0x</literal>.
                         For example English (US) can be entered as
                         <literal>0x0409</literal> or <literal>1033</literal>.
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
-						When you want to add a new property, you can either pick one from
-						the list in the combo box, or you can enter any property name
-						you like. If your project uses some custom properties,
-						and you want those properties to appear in the list in the combo
-						box (to avoid typos when you enter a property name), you can
-						create a list of your custom properties using
-                        <literal>tsvn:userfileproperties</literal> and
-                        <literal>tsvn:userdirproperties</literal>.
-                        Apply these properties to a folder. When you go to edit
-                        the properties of any child item, your custom properties will
-                        appear in the list of pre-defined property names.
                     </para>
                 </listitem>
             </itemizedlist>
@@ -273,11 +258,7 @@
         <para>
             TortoiseSVN can integrate with some bugtracking 
             tools. This uses properties, which start with <literal>bugtraq:</literal>.
-            Read <xref linkend="tsvn-dug-bugtracker"/> for further information.
-        </para>
-        <para>
-            It can also integrate with some web-based repository browsers.
-            Read <xref linkend="tsvn-dug-repoviewer"/> for further information.
+            Read <xref linkend="tsvn-dug-bugtracker"/> for further information. 
         </para>
     </sect2>
 </sect1>

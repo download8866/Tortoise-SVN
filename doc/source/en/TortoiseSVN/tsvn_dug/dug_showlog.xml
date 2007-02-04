@@ -99,6 +99,13 @@
 				</listitem>
 				<listitem>
 					<para>
+						Blame the selected revision, and the file in your working BASE
+						and compare the results using a visual diff tool.
+						Read <xref linkend="tsvn-dug-blame-diffs"/> for more detail.
+					</para>
+				</listitem>
+				<listitem>
+					<para>
 						View the changes made in the selected revision as a
 						Unified-Diff file (GNU patch format). This shows
 						only the differences with a few lines of context. It
@@ -108,37 +115,10 @@
 				</listitem>
 				<listitem>
 					<para>
-						Compare the selected revision with the previous revision.
-						This works in a similar manner to comparing with your
-						working copy.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Blame the selected revision, and the file in your working BASE
-						and compare the results using a visual diff tool.
-						Read <xref linkend="tsvn-dug-blame-diffs"/> for more detail.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Blame the selected revision, and the previous revision,
-						and compare the results using a visual diff tool.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
 						Save the selected revision to a file so you have an older
 						version of that file. This option is only available when
 						you access the log for a file, and it saves a version of
 						that one file only.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Open the selected file, either with the default viewer for
-						that file type, or with a program you choose. This option
-						is only available when you access the log for a file.
 					</para>
 				</listitem>
 				<listitem>
@@ -193,30 +173,9 @@
 				</listitem>
 				<listitem>
 					<para>
-						Make a fresh checkout of the selected folder at the selected
-						revision. This brings up a dialog for you to confirm the
-						URL and revision, and select a location for the checkout.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Export the selected file/folder at the selected
-						revision. This brings up a dialog for you to confirm the
-						URL and revision, and select a location for the export.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
 						Edit the log message or author attached to a previous commit.
 						Read <xref linkend="tsvn-dug-showlog-4"/> to find out
 						how this works.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Copy the log details of the selected revisions to the clipboard.
-						This will copy the revision number, author, date, log message
-						and the list of changed items for each revision.
 					</para>
 				</listitem>
 				<listitem>
@@ -266,7 +225,7 @@
 				</listitem>
 				<listitem>
 					<para>
-						Copy log messages to clipboard as described above.
+						Edit the log message or author as described above.
 					</para>
 				</listitem>
 				<listitem>
@@ -424,7 +383,7 @@
 			undone (those changes are not versioned) this feature is disabled
 			by default. To make this work, you must set up a pre-revprop-change
 			hook. Please refer to the chapter on
-			<ulink url="http://svnbook.red-bean.com/en/1.2/svn.reposadmin.create.html">
+			<ulink url="http://svnbook.red-bean.com/en/1.1/ch05s02.html#svn-ch-5-sect-2.1">
 				<citetitle>Hook Scripts</citetitle>
 			</ulink>
 			in the Subversion Book for details about how to do that.
@@ -520,11 +479,11 @@
             </para>
         </sect3>
 		<sect3 id="tsvn-dug-showlog-stats-3">
-            <title>Commits by date Page</title>
+            <title>Commits by Week Page</title>
             <para>
                 <figure id="tsvn-dug-showlog-stats-dia-4">
-                    <title>Commits-by-date Graph</title>
-                    <graphic fileref="../images/StatsByDate.png"/>
+                    <title>Commits-by-Week Graph</title>
+                    <graphic fileref="../images/StatsByWeek.png"/>
                 </figure>
                 This page gives you a graphical representation of project
                 activity in terms of number of commits <emphasis>and</emphasis>

@@ -42,12 +42,7 @@ typedef enum
 	ProgOptLockForce = 0x20,
 	ProgOptSwitchAfterCopy = 0x40,
 	ProgOptIncludeIgnored = 0x80,
-	ProgOptIgnoreAncestry = 0x100,
-	ProgOptEolDefault = 0x200,
-	ProgOptEolCRLF = 0x400,
-	ProgOptEolLF = 0x800,
-	ProgOptEolCR = 0x1000,
-	ProgOptSkipConflictCheck = 0x2000
+	ProgOptIgnoreAncestry = 0x100
 } ProgressOptions;
 
 typedef enum
@@ -68,23 +63,27 @@ typedef enum
 class CSVNProgressDlg : public CResizableStandAloneDialog, SVN
 {
 public:
+	// These names collide with functions in SVN
 	typedef enum
 	{
-		SVNProgress_Checkout = 1,
-		SVNProgress_Update = 2,
-		SVNProgress_Commit = 3,
-		SVNProgress_Add = 4,
-		SVNProgress_Revert = 5,
-		SVNProgress_Resolve = 6,
-		SVNProgress_Import = 7,
-		SVNProgress_Switch = 8,
-		SVNProgress_Export = 9,
-		SVNProgress_Merge = 10,
-		SVNProgress_Copy = 11,
-		SVNProgress_Relocate = 12,
-		SVNProgress_Rename = 13,
-		SVNProgress_Lock = 14,
-		SVNProgress_Unlock = 15
+		Checkout = 1,
+		Update = 2,
+		Enum_Update = 2,
+		Commit = 3,
+		Add = 4,
+		Revert = 5,
+		Enum_Revert = 5,
+		Resolve = 6,
+		Import = 7,
+		Switch = 8,
+		Export = 9,
+		Merge = 10,
+		Enum_Merge = 10,
+		Copy = 11,
+		Relocate = 12,
+		Rename = 13,
+		Lock = 14,
+		Unlock = 15
 	} Command;
 
 private:
@@ -108,7 +107,6 @@ private:
 		CString					sActionColumnText;	
 		CTSVNPath				path;
 		CTSVNPath				basepath;
-		CString					changelistname;
 
 		svn_wc_notify_action_t	action;
 		svn_node_kind_t			kind;
@@ -129,7 +127,7 @@ private:
 
 public:
 
-	CSVNProgressDlg(CWnd* pParent = NULL);
+	CSVNProgressDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CSVNProgressDlg();
 
 	virtual BOOL OnInitDialog();
@@ -144,13 +142,12 @@ public:
 	void SetParams(Command cmd, int options, const CTSVNPathList& pathList, const CString& url = CString(), const CString& message = CString(), SVNRev revision = -1); 
 
 	void SetPegRevision(SVNRev pegrev = SVNRev()) {m_pegRev = pegrev;}
-
-	void SetChangeList(const CString& changelist, bool keepchangelist) {m_changelist = changelist; m_keepchangelist = keepchangelist;}
 	
 	CString BuildInfoString();
 	
 	bool DidErrorsOccur() {return m_bErrorsOccurred;}
 
+// Dialog Data
 	enum { IDD = IDD_SVNPROGRESS };
 
 protected:
@@ -160,31 +157,28 @@ protected:
 		svn_wc_notify_state_t content_state, 
 		svn_wc_notify_state_t prop_state, LONG rev,
 		const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
-		const CString& changelistname,
 		svn_error_t * err, apr_pool_t * pool);
-	virtual BOOL	Cancel();
-	virtual void	OnCancel();
-	virtual BOOL	PreTranslateMessage(MSG* pMsg);
-	virtual void	DoDataExchange(CDataExchange* pDX);
+	virtual BOOL Cancel();
+	virtual void OnCancel();
 
-	afx_msg void	OnNMCustomdrawSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void	OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void	OnBnClickedLogbutton();
-	afx_msg void	OnBnClickedOk();
-	afx_msg void	OnHdnItemclickSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg BOOL	OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-	afx_msg void	OnClose();
-	afx_msg void	OnContextMenu(CWnd* pWnd, CPoint point);
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	void Sort();
+	static bool SortCompare(const NotificationData* pElem1, const NotificationData* pElem2);
+
+	afx_msg void OnNMCustomdrawSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnBnClickedLogbutton();
+	afx_msg void OnBnClickedOk();
+	afx_msg void OnHdnItemclickSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	afx_msg void OnClose();
+	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg LRESULT OnSVNProgress(WPARAM wParam, LPARAM lParam);
-	afx_msg void	OnTimer(UINT_PTR nIDEvent);
-	afx_msg void	OnEnSetfocusInfotext();
-	afx_msg void	OnLvnBegindragSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void	OnSize(UINT nType, int cx, int cy);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnEnSetfocusInfotext();
 
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	DECLARE_MESSAGE_MAP()
-
-	void			Sort();
-	static bool		SortCompare(const NotificationData* pElem1, const NotificationData* pElem2);
 
 	static BOOL	m_bAscending;
 	static int	m_nSortedColumn;
@@ -192,20 +186,20 @@ protected:
 
 private:
 	static UINT ProgressThreadEntry(LPVOID pVoid);
-	UINT		ProgressThread();
+	UINT ProgressThread();
 	virtual void OnOK();
-	void		ReportSVNError();
-	void		ReportError(const CString& sError);
-	void		ReportWarning(const CString& sWarning);
-	void		ReportNotification(const CString& sNotification);
-	void		ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
-	void		AddItemToList(const NotificationData* pData);
+	void ReportSVNError();
+	void ReportError(const CString& sError);
+	void ReportWarning(const CString& sWarning);
+	void ReportNotification(const CString& sNotification);
+	void ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
+	void AddItemToList(const NotificationData* pData);
 
 private:
 	/**
 	* Resizes the columns of the progress list so that the headings are visible.
 	*/
-	void		ResizeColumns();
+	void ResizeColumns();
 
 	// Predicate function to tell us if a notification data item is auxiliary or not
 	static bool NotificationDataIsAux(const NotificationData* pData);
@@ -231,9 +225,6 @@ private:
 	CString		m_sMessage;
 	SVNRev		m_Revision;
 	SVNRev		m_pegRev;
-
-	CString		m_changelist;
-	bool		m_keepchangelist;
 	
 	CTSVNPath	m_basePath;
 	StringRevMap m_UpdateStartRevMap;
@@ -249,8 +240,7 @@ private:
 	CColors		m_Colors;
 
 	bool		m_bLockWarning;
-	bool		m_bFinishedItemAdded;
-	bool		m_bLastVisible;
+
 private:
 	// In preparation for removing SVN as base class
 	// Currently needed to avoid ambiguities with the Command Enum

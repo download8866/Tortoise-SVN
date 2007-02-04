@@ -129,7 +129,6 @@ LEXOBJS=\
 	$(DIR_O)\LexCrontab.obj \
 	$(DIR_O)\LexCsound.obj \
 	$(DIR_O)\LexCSS.obj \
-	$(DIR_O)\LexD.obj \
 	$(DIR_O)\LexEiffel.obj \
 	$(DIR_O)\LexErlang.obj \
 	$(DIR_O)\LexEScript.obj \
@@ -316,8 +315,6 @@ $(DIR_O)\LexCrontab.obj: ..\src\LexCrontab.cxx $(LEX_HEADERS)
 $(DIR_O)\LexCsound.obj: ..\src\LexCsound.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCSS.obj: ..\src\LexCSS.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexD.obj: ..\src\LexD.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexEiffel.obj: ..\src\LexEiffel.cxx $(LEX_HEADERS)
 

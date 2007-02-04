@@ -20,9 +20,11 @@
 #include "TortoiseProc.h"
 #include "MessageBox.h"
 #include ".\lockdlg.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "SVNProperties.h"
 
+
+// CLockDlg dialog
 
 IMPLEMENT_DYNAMIC(CLockDlg, CResizableStandAloneDialog)
 CLockDlg::CLockDlg(CWnd* pParent /*=NULL*/)
@@ -56,6 +58,9 @@ BEGIN_MESSAGE_MAP(CLockDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
+
+// CLockDlg message handlers
+
 BOOL CLockDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
@@ -63,7 +68,6 @@ BOOL CLockDlg::OnInitDialog()
 	m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK | SVNSLC_COLSVNNEEDSLOCK, _T("LockDlg"));
 	m_cFileList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_cFileList.SetCancelBool(&m_bCancelled);
-	m_cFileList.SetBackgroundImage(IDI_LOCK);
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
 	m_cEdit.Init(m_ProjectProperties);
 	m_cEdit.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
@@ -73,8 +77,6 @@ BOOL CLockDlg::OnInitDialog()
 		
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_LOCKWARNING, IDS_WARN_SVNNEEDSLOCK);
-
-	AdjustControlSize(IDC_STEALLOCKS);
 
 	AddAnchor(IDC_LOCKTITLELABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LOCKMESSAGE, TOP_LEFT, TOP_RIGHT);
@@ -89,8 +91,8 @@ BOOL CLockDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("LockDlg"));
 
-	// start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
 	if (m_pThread==NULL)
 	{
@@ -134,9 +136,9 @@ UINT CLockDlg::StatusThreadEntry(LPVOID pVoid)
 
 UINT CLockDlg::StatusThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which can be locked to the user
-	// in a list control. 
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	m_bBlock = TRUE;
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;

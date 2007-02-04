@@ -17,7 +17,6 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "commctrl.h"
 #include "BaseWindow.h"
 #include "TortoiseIDiff.h"
 #include "Picture.h"
@@ -25,24 +24,12 @@
 #define HEADER_HEIGHT 30
 
 #define ID_ANIMATIONTIMER 100
-#define TIMER_ALPHASLIDER 101
 
-#define LEFTBUTTON_ID			101
-#define RIGHTBUTTON_ID			102
-#define PLAYBUTTON_ID			103
-#define ALPHATOGGLEBUTTON_ID	104
-
-#define TRACKBAR_ID 101
-#define SLIDER_HEIGHT 30
-#define SLIDER_WIDTH 30
+#define LEFTBUTTON_ID	101
+#define RIGHTBUTTON_ID	102
+#define PLAYBUTTON_ID	103
 
 
-#ifndef GET_X_LPARAM
-#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
-#endif
-#ifndef GET_Y_LPARAM
-#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
-#endif
 
 /**
  * The image view window.
@@ -59,8 +46,7 @@ public:
 		, nVScrollPos(0)
 		, picscale(1.0)
 		, pSecondPic(NULL)
-		, alphalive(0)
-		, alphalast(0)
+		, alpha(255)
 		, bShowInfo(true)
 		, nDimensions(0)
 		, nCurrentDimension(1)
@@ -68,7 +54,7 @@ public:
 		, nCurrentFrame(1)
 		, bPlaying(false)
 		, pTheOtherPic(NULL)
-		, bLinked(true)
+		, bLinked(false)
 		, hwndAlphaSlider(NULL)
 	{ 
 		SetWindowTitle(_T("Picture Window"));
@@ -92,21 +78,14 @@ public:
 
 	void StopTimer() {KillTimer(*this, ID_ANIMATIONTIMER);}
 	/// Returns the currently used alpha blending value (0-255)
-	BYTE GetSecondPicAlpha() {return alphalive;}
-	/// Returns the last alpha blending value (0-255)
-	BYTE GetSecondPicAlphaLast() {return alphalast;}
+	BYTE GetSecondPicAlpha() {return alpha;}
 	/// Sets the alpha blending value
-	void SetSecondPicAlpha(BYTE a, bool saveundo) 
+	void SetSecondPicAlpha(BYTE a) 
 	{
-		alphalive = a;
-		if (hwndAlphaSlider)
-			SendMessage(hwndAlphaSlider, TBM_SETPOS, (WPARAM)1, (LPARAM)a);
-		if (saveundo)
-		{
-			alphalast = a;
-		}
+		alpha = a; 
 		InvalidateRect(*this, NULL, FALSE);
 	}
+	void SetAlphaSlider(HWND hWnd) {hwndAlphaSlider = hWnd;}
 	/// Resizes the image to fit into the window. Small images are not enlarged.
 	void FitImageInWindow();
 	/// Sets the zoom factor of the image
@@ -146,17 +125,13 @@ protected:
 	/// Positions the buttons
 	void				PositionChildren();
 	/// Rounds a double to a given precision
-	double				RoundDouble(double doValue, int nPrecision);
+	double RoundDouble(double doValue, int nPrecision);
 	/// advance to the next image in the file
-	void				NextImage();
+	void NextImage();
 	/// go back to the previous image in the file
-	void				PrevImage();
+	void PrevImage();
 	/// starts/stops the animation
-	void				Animate(bool bStart);
-	/// Creates the trackbar (the alpha blending slider control)
-	HWND				CreateTrackbar(HWND hwndParent, UINT iMin, UINT iMax);
-	/// Moves the alpha slider trackbar to the correct position
-	void				PositionTrackBar();
+	void Animate(bool bStart);
 
 	stdstring			picpath;			///< the path to the image we show
 	stdstring			pictitle;			///< the string to show in the image view as a title
@@ -169,15 +144,11 @@ protected:
 	bool				bLinked;			///< if true, the two pic windows are linked together for scrolling/zooming/...
 	stdstring 			pictitle2;			///< the title of the second picture
 	stdstring 			picpath2;			///< the path of the second picture
-	BYTE				alphalive;			///< the alpha value for the transparency live-preview of the second picture
-	BYTE				alphalast;			///< the alpha value previously used for the transparency of the second picture that the user can undo to
+	BYTE				alpha;				///< the alpha value for the transparency of the second picture
 	bool				bShowInfo;			///< true if the info rectangle of the image should be shown
 	// scrollbar info
 	int					nVScrollPos;		///< vertical scroll position
 	int					nHScrollPos;		///< horizontal scroll position
-	POINT				ptPanStart;			///< the point of the last mouseclick
-	int					startVScrollPos;	///< the vertical scroll position when panning starts
-	int					startHScrollPos;	///< the horizontal scroll position when panning starts
 	// image frames/dimensions
 	UINT				nDimensions;
 	UINT				nCurrentDimension;
@@ -187,14 +158,10 @@ protected:
 	HWND				hwndRightBtn;
 	HWND				hwndPlayBtn;
 	HWND				hwndAlphaSlider;
-	HWND				hwndAlphaToggleBtn;
 	HICON				hLeft;
 	HICON				hRight;
 	HICON				hPlay;
 	HICON				hStop;
-	HICON				hAlphaToggle;
 	bool				bPlaying;
-	RECT				m_inforect;
 };
-
 
