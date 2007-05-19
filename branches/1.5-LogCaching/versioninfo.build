@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project name="VersionInfo" default="versioninfo">
+
+	<target name="versioninfo">
+		<!-- When cross-compiling, we need to use the current platform's (win32)
+		     native build -->
+		<property name="SubWCRevFileName" value="bin\${configuration}${bindirextension}\bin\SubWCRev.exe"/>
+		<property name="SubWCRevFileName" value="bin\${configuration}\bin\SubWCRev.exe" if="${crosscompile == 'yes'}"/>
+
+		<if test="${not file::exists(SubWCRevFileName)}">
+			<copy
+				file="src\version.none"
+				tofile="src\version.h"
+				overwrite="true"
+			/>
+			<exec program="devenv.com" workingdir="src" failonerror="false">
+				<arg value="TortoiseSVN.sln" />
+				<arg value="/rebuild" />
+				<arg value="${configuration}|${platform}" />
+				<arg value="/project" />
+				<arg value="SubWCRev" />
+			</exec>
+		</if>
+
+		<!-- Debug only builds might not have all the libs required to build
+		     SubWCRev! So only use it if it exists and replace the WCREV with
+		     0 if it doesn't -->
+		<if test="${file::exists(SubWCRevFileName)}">
+			<exec program="${SubWCRevFileName}">
+				<arg value="." />
+				<arg value="version.build.in" />
+				<arg value="version.build" />
+			</exec>
+		</if>
+		<if test="${not file::exists(SubWCRevFileName)}">
+			<loadfile file="version.build.in" property="versionbuildfile">
+				<filterchain>
+					<replacetokens begintoken="$" endtoken="$">
+						<token key="WCREV" value="0" />
+					</replacetokens>
+				</filterchain>
+			</loadfile>
+			<echo file="version.build" message="${versionbuildfile}" />
+			<echo message="Warning: SubWCRev does not exist! Using 0 as the WC-revision" />
+		</if>
+		
+		<nant target="setversioninfo">
+			<buildfiles>
+				<include name="version.build" />
+			</buildfiles>
+		</nant>
+	</target>
+
+</project>
