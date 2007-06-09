@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Resource.h"
@@ -52,7 +52,7 @@ BOOL CRightView::ShallShowContextMenu(CDiffData::DiffStates state, int /*nLine*/
 		return TRUE;
 	default:
 		return FALSE;
-	}
+	} // switch (state) 
 	//return FALSE;
 }
 
@@ -104,9 +104,6 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 		}
 
 		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
-		viewstate rightstate;
-		viewstate bottomstate;
-		viewstate leftstate;
 		switch (cmd)
 		{
 		case ID_USEFILE:
@@ -115,9 +112,7 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 				{
 					for (int i=0; i<GetLineCount(); i++)
 					{
-						bottomstate.difflines[i] = m_pwndBottom->m_arDiffLines->GetAt(i);
 						m_pwndBottom->m_arDiffLines->SetAt(i, m_arDiffLines->GetAt(i));
-						bottomstate.linestates[i] = m_pwndBottom->m_arLineStates->GetAt(i);
 						m_pwndBottom->m_arLineStates->SetAt(i, m_arLineStates->GetAt(i));
 					}
 					m_pwndBottom->SetModified();
@@ -126,7 +121,6 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 				{
 					for (int i=0; i<GetLineCount(); i++)
 					{
-						rightstate.difflines[i] = m_arDiffLines->GetAt(i);
 						m_arDiffLines->SetAt(i, m_pwndLeft->m_arDiffLines->GetAt(i));
 						CDiffData::DiffStates state = (CDiffData::DiffStates)m_pwndLeft->m_arLineStates->GetAt(i);
 						switch (state)
@@ -134,7 +128,6 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 						case CDiffData::DIFFSTATE_CONFLICTEMPTY:
 						case CDiffData::DIFFSTATE_UNKNOWN:
 						case CDiffData::DIFFSTATE_EMPTY:
-							rightstate.linestates[i] = m_arLineStates->GetAt(i);
 							m_arLineStates->SetAt(i, state);
 							break;
 						case CDiffData::DIFFSTATE_YOURSADDED:
@@ -148,7 +141,6 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 						case CDiffData::DIFFSTATE_REMOVED:
 						case CDiffData::DIFFSTATE_THEIRSREMOVED:
 						case CDiffData::DIFFSTATE_YOURSREMOVED:
-							rightstate.linestates[i] = CDiffData::DIFFSTATE_NORMAL;
 							m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_NORMAL);
 							m_pwndLeft->m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_NORMAL);
 							break;
@@ -168,18 +160,15 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 				{
 					for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
 					{
-						bottomstate.difflines[i] = m_pwndBottom->m_arDiffLines->GetAt(i);
 						m_pwndBottom->m_arDiffLines->SetAt(i, m_arDiffLines->GetAt(i));
-						bottomstate.linestates[i] = m_pwndBottom->m_arLineStates->GetAt(i);
 						m_pwndBottom->m_arLineStates->SetAt(i, m_arLineStates->GetAt(i));
 					}
 					m_pwndBottom->SetModified();
-				}
+				} // if (m_pwndBottom->IsWindowVisible()) 
 				else
 				{
 					for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
 					{
-						rightstate.difflines[i] = m_arDiffLines->GetAt(i);
 						m_arDiffLines->SetAt(i, m_pwndLeft->m_arDiffLines->GetAt(i));
 						CDiffData::DiffStates state = (CDiffData::DiffStates)m_pwndLeft->m_arLineStates->GetAt(i);
 						switch (state)
@@ -194,14 +183,12 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 						case CDiffData::DIFFSTATE_UNKNOWN:
 						case CDiffData::DIFFSTATE_YOURSADDED:
 						case CDiffData::DIFFSTATE_EMPTY:
-							rightstate.linestates[i] = m_arLineStates->GetAt(i);
 							m_arLineStates->SetAt(i, state);
 							break;
 						case CDiffData::DIFFSTATE_IDENTICALREMOVED:
 						case CDiffData::DIFFSTATE_REMOVED:
 						case CDiffData::DIFFSTATE_THEIRSREMOVED:
 						case CDiffData::DIFFSTATE_YOURSREMOVED:
-							rightstate.linestates[i] = m_arLineStates->GetAt(i);
 							m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_ADDED);
 							break;
 						default:
@@ -214,25 +201,143 @@ void CRightView::OnContextMenu(CPoint point, int /*nLine*/)
 		break;
 		case ID_USEYOURANDTHEIRBLOCK:
 			{
-				UseYourAndTheirBlock(rightstate, bottomstate, leftstate);
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndBottom->m_arDiffLines->SetAt(i, m_pwndRight->m_arDiffLines->GetAt(i));
+					m_pwndBottom->m_arLineStates->SetAt(i, m_pwndRight->m_arLineStates->GetAt(i));
+					m_pwndRight->m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_YOURSADDED);
+				}
+
+				// your block is done, now insert their block
+				int index = m_nSelBlockEnd+1;
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndBottom->m_arDiffLines->InsertAt(index, m_pwndLeft->m_arDiffLines->GetAt(i));
+					m_pwndBottom->m_arLineLines->InsertAt(index, m_pwndLeft->m_arLineLines->GetAt(i));
+					m_pwndBottom->m_arLineStates->InsertAt(index++, m_pwndLeft->m_arLineStates->GetAt(i));
+					m_pwndLeft->m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_THEIRSADDED);
+				}
+				// adjust line numbers
+				for (int i=m_nSelBlockEnd+1; i<GetLineCount(); ++i)
+				{
+					long oldline = (long)m_pwndBottom->m_arLineLines->GetAt(i);
+					if (oldline >= 0)
+						m_pwndBottom->m_arLineLines->SetAt(i, oldline+(index-m_nSelBlockEnd));
+				}
+
+				// now insert an empty block in both yours and theirs
+				m_pwndLeft->m_arDiffLines->InsertAt(m_nSelBlockStart, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineStates->InsertAt(m_nSelBlockStart, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineLines->InsertAt(m_nSelBlockStart, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arDiffLines->InsertAt(m_nSelBlockEnd+1, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arLineStates->InsertAt(m_nSelBlockEnd+1, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arLineLines->InsertAt(m_nSelBlockEnd+1, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				RecalcAllVertScrollBars();
+				m_pwndBottom->SetModified();
+				m_pwndLeft->SetModified();
+				m_pwndRight->SetModified();
 			}
 			break;
 		case ID_USETHEIRANDYOURBLOCK:
 			{
-				UseTheirAndYourBlock(rightstate, bottomstate, leftstate);
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndBottom->m_arDiffLines->SetAt(i, m_pwndLeft->m_arDiffLines->GetAt(i));
+					m_pwndBottom->m_arLineStates->SetAt(i, m_pwndLeft->m_arLineStates->GetAt(i));
+				}
+
+				// your block is done, now insert their block
+				int index = m_nSelBlockEnd+1;
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndBottom->m_arDiffLines->InsertAt(index, m_pwndRight->m_arDiffLines->GetAt(i));
+					m_pwndBottom->m_arLineLines->InsertAt(index, m_pwndLeft->m_arLineLines->GetAt(i));
+					m_pwndBottom->m_arLineStates->InsertAt(index++, m_pwndRight->m_arLineStates->GetAt(i));
+				}
+				// adjust line numbers
+				for (int i=m_nSelBlockEnd+1; i<GetLineCount(); ++i)
+				{
+					long oldline = (long)m_pwndBottom->m_arLineLines->GetAt(i);
+					if (oldline >= 0)
+						m_pwndBottom->m_arLineLines->SetAt(i, oldline+(index-m_nSelBlockEnd));
+				}
+
+				// now insert an empty block in both yours and theirs
+				m_pwndLeft->m_arDiffLines->InsertAt(m_nSelBlockStart, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineStates->InsertAt(m_nSelBlockStart, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineLines->InsertAt(m_nSelBlockStart, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arDiffLines->InsertAt(m_nSelBlockEnd+1, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arLineStates->InsertAt(m_nSelBlockEnd+1, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndRight->m_arLineLines->InsertAt(m_nSelBlockEnd+1, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				RecalcAllVertScrollBars();
+				m_pwndBottom->SetModified();
+				m_pwndLeft->SetModified();
+				m_pwndRight->SetModified();
 			}
 			break;
 		case ID_USEBOTHTHISFIRST:
 			{
-				UseBothRightFirst(rightstate, leftstate);
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndRight->m_arLineStates->SetAt(i, CDiffData::DIFFSTATE_YOURSADDED);
+				}
+
+				// your block is done, now insert their block
+				int index = m_nSelBlockEnd+1;
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndRight->m_arDiffLines->InsertAt(index, m_pwndLeft->m_arDiffLines->GetAt(i));
+					m_pwndRight->m_arLineLines->InsertAt(index, m_pwndRight->m_arLineLines->GetAt(i));
+					m_pwndRight->m_arLineStates->InsertAt(index++, CDiffData::DIFFSTATE_THEIRSADDED);
+				}
+				// adjust line numbers
+				index--;
+				for (int i=m_nSelBlockEnd+1; i<GetLineCount(); ++i)
+				{
+					long oldline = (long)m_pwndRight->m_arLineLines->GetAt(i);
+					if (oldline >= 0)
+						m_pwndRight->m_arLineLines->SetAt(i, oldline+(index-m_nSelBlockEnd));
+				}
+
+				// now insert an empty block in the left view
+				m_pwndLeft->m_arDiffLines->InsertAt(m_nSelBlockEnd+1, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineStates->InsertAt(m_nSelBlockEnd+1, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineLines->InsertAt(m_nSelBlockEnd+1, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				RecalcAllVertScrollBars();
+				m_pwndLeft->SetModified();
+				m_pwndRight->SetModified();
 			}
 			break;
 		case ID_USEBOTHTHISLAST:
 			{
-				UseBothLeftFirst(rightstate, leftstate);
+				// get line number from just before the block
+				long linenumber = 0;
+				if (m_nSelBlockStart > 0)
+					linenumber = m_pwndRight->m_arLineLines->GetAt(m_nSelBlockStart-1);
+				linenumber++;
+				for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+				{
+					m_pwndRight->m_arDiffLines->InsertAt(i, m_pwndLeft->m_arDiffLines->GetAt(i));
+					m_pwndRight->m_arLineStates->InsertAt(i, CDiffData::DIFFSTATE_THEIRSADDED);
+					m_pwndRight->m_arLineLines->InsertAt(i, linenumber++);
+				}
+				// adjust line numbers
+				for (int i=m_nSelBlockEnd+1; i<GetLineCount(); ++i)
+				{
+					long oldline = (long)m_pwndRight->m_arLineLines->GetAt(i);
+					if (oldline >= 0)
+						m_pwndRight->m_arLineLines->SetAt(i, oldline+(m_nSelBlockEnd-m_nSelBlockStart)+1);
+				}
+
+				// now insert an empty block in both yours and theirs
+				m_pwndLeft->m_arDiffLines->InsertAt(m_nSelBlockStart, _T(""), m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineStates->InsertAt(m_nSelBlockStart, CDiffData::DIFFSTATE_EMPTY, m_nSelBlockEnd-m_nSelBlockStart+1);
+				m_pwndLeft->m_arLineLines->InsertAt(m_nSelBlockStart, (DWORD)-1, m_nSelBlockEnd-m_nSelBlockStart+1);
+				RecalcAllVertScrollBars();
+				m_pwndLeft->SetModified();
+				m_pwndRight->SetModified();
 			}
 			break;
 		} // switch (cmd) 
-		CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate);
 	} // if (popup.CreatePopupMenu()) 
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,21 +13,15 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 #include "StandAloneDlg.h"
 #include "MyGraph.h"
 #include "XPImageButton.h"
-#include "TSVNPath.h"
-#include "UnicodeUtils.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper class for drawing and then saving the drawing to a metafile (wmf)
- */
 class CMyMetaFileDC : public CMetaFileDC
 {
 public:
@@ -36,24 +30,21 @@ public:
 		return (hObject != NULL) ? ::SelectObject(m_hDC, hObject) : NULL; 
 	}
 };
+// CStatGraphDlg dialog
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog showing statistics gathered from the log messages shown in the
- * log dialog.
- */
 class CStatGraphDlg : public CResizableStandAloneDialog//CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CStatGraphDlg)
 
 public:
-	CStatGraphDlg(CWnd* pParent = NULL);
+	CStatGraphDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CStatGraphDlg();
 
+// Dialog Data
 	enum { IDD = IDD_STATGRAPH };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnCbnSelchangeGraphcombo();
@@ -100,11 +91,6 @@ protected:
 
 	void		ShowLabels(BOOL bShow);
 	void		RedrawGraph();
-	void		CountCommits(std::map<stdstring, LONG> &authors, 
-								std::map<stdstring, LONG> &AuthorCommits, 
-								std::map<stdstring, LONG> &AuthorCommitsMin, 
-								std::map<stdstring, LONG> &AuthorCommitsMax, 
-								std::map<stdstring, LONG> &authorcommits);
 
 	enum UnitType
 	{
@@ -118,7 +104,6 @@ protected:
 	int			GetUnit(const CTime& time);
 	CStatGraphDlg::UnitType	GetUnitType();
 	CString		GetUnitString();
-	CString		GetUnitLabel(int unit, CTime &lasttime);
 
 	void		EnableDisableMenu();
 
@@ -130,5 +115,4 @@ public:
 	CDWordArray	*	m_parDates;
 	CDWordArray	*	m_parFileChanges;
 	CStringArray *	m_parAuthors;
-	CTSVNPath		m_path;
 };

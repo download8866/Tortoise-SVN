@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "diff.h"
@@ -78,6 +78,7 @@ CDiffData::CDiffData(void)
 	m_regBackgroundColors[DIFFSTATE_THEIRSADDED] = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorTheirsAddedB"), DIFFSTATE_THEIRSADDED_DEFAULT_BG);
 	m_regBackgroundColors[DIFFSTATE_YOURSREMOVED] = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorYoursRemovedB"), DIFFSTATE_YOURSREMOVED_DEFAULT_BG);
 	m_regBackgroundColors[DIFFSTATE_YOURSADDED] = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorYoursAddedB"), DIFFSTATE_YOURSADDED_DEFAULT_BG);
+
 	m_sPatchOriginal = _T(": original");
 	m_sPatchPatched = _T(": patched");
 }
@@ -504,8 +505,8 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 				}
 				baseline++;
 				yourline++;
-			}
-		}
+			} // for (int i=0; i<tempdiff->original_length; i++)
+		} // if (tempdiff->type == svn_diff__type_common)
 		if (tempdiff->type == svn_diff__type_diff_modified)
 		{
 			apr_off_t original_length = tempdiff->original_length;

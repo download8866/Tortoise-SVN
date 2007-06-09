@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "SysImageList.h"
@@ -73,20 +73,6 @@ int CSysImageList::GetDirIconIndex() const
 		FILE_ATTRIBUTE_DIRECTORY,
 		&sfi, sizeof sfi,
 		SHGFI_SYSICONINDEX | SHGFI_SMALLICON | SHGFI_USEFILEATTRIBUTES);
-
-	return sfi.iIcon;
-}
-
-int CSysImageList::GetDirOpenIconIndex() const
-{
-	SHFILEINFO sfi;
-	ZeroMemory(&sfi, sizeof sfi);
-
-	SHGetFileInfo(
-		_T("Doesn't matter"),
-		FILE_ATTRIBUTE_DIRECTORY,
-		&sfi, sizeof sfi,
-		SHGFI_SYSICONINDEX | SHGFI_SMALLICON | SHGFI_USEFILEATTRIBUTES | SHGFI_OPENICON);
 
 	return sfi.iIcon;
 }

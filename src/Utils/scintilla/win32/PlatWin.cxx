@@ -633,9 +633,7 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated 
 		::DeleteObject(hbmMem);
 		::DeleteObject(hMemDC);
 	} else {
-		BrushColor(outline);
-		RECT rcw = RectFromPRectangle(rc);
-		FrameRect(hdc, &rcw, brush);
+		RectangleDraw(rc, outline, fill);
 	}
 }
 
@@ -1055,7 +1053,7 @@ struct ListItemData {
 };
 
 #define _ROUND2(n,pow2) \
-	( ( (n) + (pow2) - 1) & ~((pow2) - 1) )
+        ( ( (n) + (pow2) - 1) & ~((pow2) - 1) )
 
 class LineToItem {
 	char *words;
@@ -1466,9 +1464,9 @@ void ListBoxX::AppendListItem(const char *startword, const char *numword) {
 	if (numword) {
 		int pixId = 0;
 		char ch;
-		while ((ch = *++numword) != '\0') {
-			pixId = 10 * pixId + (ch - '0');
-		}
+        while ( (ch = *++numword) != '\0' ) {
+            pixId = 10 * pixId + (ch - '0');
+        }
 		item->pixId = pixId;
 	} else {
 		item->pixId = -1;
@@ -2032,7 +2030,7 @@ public:
 };
 
 DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
-	return static_cast<DynamicLibrary *>(new DynamicLibraryImpl(modulePath));
+	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
 }
 
 ColourDesired Platform::Chrome() {
@@ -2163,8 +2161,6 @@ void Platform_Initialise(void *hInstance) {
 	onNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
 	::InitializeCriticalSection(&crPlatformLock);
 	hinstPlatformRes = reinterpret_cast<HINSTANCE>(hInstance);
-	// This may be called from DllMain, in which case the call to LoadLibrary
-	// is bad because it can upset the DLL load order.
 	if (!hDLLImage) {
 		hDLLImage = ::LoadLibrary(TEXT("Msimg32"));
 	}

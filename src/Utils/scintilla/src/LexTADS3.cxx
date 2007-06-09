@@ -2,12 +2,16 @@
 /** @file LexTADS3.cxx
  ** Lexer for TADS3.
  **/
-// Copyright 1998-2006 by Neil Hodgson <neilh@scintilla.org>
-// The License.txt file describes the conditions under which this software may be distributed.
+/* Copyright 2005 by Michael Cartmell
+ * Parts copyright 1998-2002 by Neil Hodgson <neilh@scintilla.org>
+ * In particular FoldTADS3Doc is derived from FoldCppDoc
+ * The License.txt file describes the conditions under which this software may
+ * be distributed.
+ */
 
 /*
  * TADS3 is a language designed by Michael J. Roberts for the writing of text
- * based games.	 TADS comes from Text Adventure Development System.  It has good
+ * based games.  TADS comes from Text Adventure Development System.  It has good
  * support for the processing and outputting of formatted text and much of a
  * TADS program listing consists of strings.
  *
@@ -48,41 +52,9 @@
 
 static const int T3_SINGLE_QUOTE = 1;
 static const int T3_INT_EXPRESSION = 2;
-static const int T3_INT_EXPRESSION_IN_TAG = 4;
-static const int T3_HTML_SQUOTE = 8;
 
 static inline bool IsEOL(const int ch, const int chNext) {
 	return (ch == '\r' && chNext != '\n') || (ch == '\n');
-}
-
-/*
- *   Test the current character to see if it's the START of an EOL sequence;
- *   if so, skip ahead to the last character of the sequence and return true,
- *   and if not just return false.  There are a few places where we want to
- *   check to see if a newline sequence occurs at a particular point, but
- *   where a caller expects a subroutine to stop only upon reaching the END
- *   of a newline sequence (in particular, CR-LF on Windows).  That's why
- *   IsEOL() above only returns true on CR if the CR isn't followed by an LF
- *   - it doesn't want to admit that there's a newline until reaching the END
- *   of the sequence.  We meet both needs by saying that there's a newline
- *   when we see the CR in a CR-LF, but skipping the CR before returning so
- *   that the caller's caller will see that we've stopped at the LF.  
- */
-static inline bool IsEOLSkip(StyleContext &sc)
-{
-    /* test for CR-LF */
-    if (sc.ch == '\r' && sc.chNext == '\n')
-    {
-	/* got CR-LF - skip the CR and indicate that we're at a newline */
-	sc.Forward();
-	return true;
-    }
-
-    /* 
-     *	 in other cases, we have at most a 1-character newline, so do the
-     *	 normal IsEOL test 
-     */
-    return IsEOL(sc.ch, sc.chNext);
 }
 
 static inline bool IsASpaceOrTab(const int ch) {
@@ -126,35 +98,29 @@ static inline bool IsANumberStart(StyleContext &sc) {
 
 inline static void ColouriseTADS3Operator(StyleContext &sc) {
 	int initState = sc.state;
-	int c = sc.ch;
-	sc.SetState(c == '{' || c == '}' ? SCE_T3_BRACE : SCE_T3_OPERATOR);
+	sc.SetState(SCE_T3_OPERATOR);
 	sc.ForwardSetState(initState);
 }
 
 static void ColouriseTADSHTMLString(StyleContext &sc, int &lineState) {
 	int endState = sc.state;
 	int chQuote = sc.ch;
-	int chString = (lineState & T3_SINGLE_QUOTE) ? '\'' : '"';
 	if (endState == SCE_T3_HTML_STRING) {
 		if (lineState&T3_SINGLE_QUOTE) {
 			endState = SCE_T3_S_STRING;
-			chString = '\'';
+			chQuote = '"';
 		} else if (lineState&T3_INT_EXPRESSION) {
 			endState = SCE_T3_X_STRING;
-			chString = '"';
+			chQuote = '\'';
 		} else {
-			endState = SCE_T3_HTML_DEFAULT;
-			chString = '"';
+			endState = SCE_T3_D_STRING;
+			chQuote = '\'';
 		}
-		chQuote = (lineState & T3_HTML_SQUOTE) ? '\'' : '"';
 	} else {
 		sc.SetState(SCE_T3_HTML_STRING);
 		sc.Forward();
 	}
-	if (chQuote == '"')
-		lineState &= ~T3_HTML_SQUOTE; 
-	else
-		lineState |= T3_HTML_SQUOTE;
+	int chString = chQuote == '"'? '\'': '"';
 
 	while (sc.More()) {
 		if (IsEOL(sc.ch, sc.chNext)) {
@@ -164,26 +130,12 @@ static void ColouriseTADSHTMLString(StyleContext &sc, int &lineState) {
 			sc.ForwardSetState(endState);
 			return;
 		}
-		if (sc.Match('\\', static_cast<char>(chQuote))) {
-			sc.Forward(2);
+		if (sc.ch == chString) {
 			sc.SetState(endState);
 			return;
 		}
-		if (sc.ch == chString) {
-			sc.SetState(SCE_T3_DEFAULT);
-			return;
-		}
-
-		if (sc.Match('<', '<')) {
-			lineState |= T3_INT_EXPRESSION | T3_INT_EXPRESSION_IN_TAG;
-			sc.SetState(SCE_T3_X_DEFAULT);
-			sc.Forward(2);
-			return;
-		}
-
 		if (sc.Match('\\', static_cast<char>(chQuote))
-			|| sc.Match('\\', static_cast<char>(chString))
-			|| sc.Match('\\', '\\')) {
+			|| sc.Match('\\', static_cast<char>(chString))) {
 			sc.Forward(2);
 		} else {
 			sc.Forward();
@@ -250,12 +202,7 @@ static void ColouriseTADS3HTMLTag(StyleContext &sc, int &lineState) {
 			sc.SetState(endState);
 			return;
 		}
-		if (sc.Match('\\', static_cast<char>(chQuote))) {
-			sc.Forward();
-			ColouriseTADSHTMLString(sc, lineState);
-			if (sc.state == SCE_T3_X_DEFAULT)
-			    break;
-		} else if (sc.ch == chString) {
+		if (sc.ch == chString) {
 			ColouriseTADSHTMLString(sc, lineState);
 		} else if (sc.ch == '=') {
 			ColouriseTADS3Operator(sc);
@@ -266,7 +213,7 @@ static void ColouriseTADS3HTMLTag(StyleContext &sc, int &lineState) {
 }
 
 static void ColouriseTADS3Keyword(StyleContext &sc,
-							WordList *keywordlists[],	unsigned int endPos) {
+							WordList *keywordlists[], 	unsigned int endPos) {
 	char s[250];
 	WordList &keywords = *keywordlists[0];
 	WordList &userwords1 = *keywordlists[1];
@@ -425,8 +372,7 @@ static void ColouriseTADS3String(StyleContext &sc, int &lineState) {
 			sc.Forward(2);
 			return;
 		}
-		if (sc.Match('\\', static_cast<char>(chQuote))
-		    || sc.Match('\\', '\\')) {
+		if (sc.Match('\\', static_cast<char>(chQuote))) {
 			sc.Forward(2);
 		} else if (sc.ch == '{') {
 			ColouriseTADS3MsgParam(sc, lineState);
@@ -434,8 +380,6 @@ static void ColouriseTADS3String(StyleContext &sc, int &lineState) {
 			ColouriseTADS3LibDirective(sc, lineState);
 		} else if (sc.ch == '<') {
 			ColouriseTADS3HTMLTag(sc, lineState);
-			if (sc.state == SCE_T3_X_DEFAULT)
-				return;
 		} else {
 			sc.Forward();
 		}
@@ -462,7 +406,7 @@ static void ColouriseToEndOfLine(StyleContext &sc, int initState, int endState) 
 	while (sc.More()) {
 		if (sc.ch == '\\') {
 			sc.Forward();
-			if (IsEOLSkip(sc)) {
+			if (IsEOL(sc.ch, sc.chNext)) {
 					return;
 			}
 		}
@@ -584,15 +528,12 @@ static void ColouriseTADS3Doc(unsigned int startPos, int length, int initStyle,
 						   && sc.Match('>', '>')) {
 					sc.Forward(2);
 					sc.SetState(SCE_T3_D_STRING);
-					if (lineState & T3_INT_EXPRESSION_IN_TAG)
-						sc.SetState(SCE_T3_HTML_STRING);
-					lineState &= ~(T3_SINGLE_QUOTE|T3_INT_EXPRESSION
-						       |T3_INT_EXPRESSION_IN_TAG);
+					lineState &= ~(T3_SINGLE_QUOTE|T3_INT_EXPRESSION);
 				} else if (IsATADS3Operator(sc.ch)) {
 					if (sc.state == SCE_T3_X_DEFAULT) {
 						if (sc.ch == '(') {
 							bracketLevel++;
-						} else if (sc.ch == ')' && bracketLevel > 0) {
+						} else if (sc.ch == ')') {
 							bracketLevel--;
 						}
 					}
@@ -661,7 +602,7 @@ static void ColouriseTADS3Doc(unsigned int startPos, int length, int initStyle,
  Just seen a punctuation character & now waiting for an identifier to start.
 
  expectingIdentifier == false && expectingIdentifier == truee
- We were in an identifier and have seen space.	Now waiting to see a punctuation
+ We were in an identifier and have seen space.  Now waiting to see a punctuation
  character
 
  Space, comments & preprocessor directives are always acceptable and are
@@ -693,10 +634,6 @@ static inline bool IsAnIdentifier(const int style) {
 		|| style == SCE_T3_USER3;
 }
 
-static inline bool IsAnOperator(const int style) {
-    return style == SCE_T3_OPERATOR || SCE_T3_BRACE;
-}
-
 static inline bool IsSpaceEquivalent(const int ch, const int style) {
 	return isspace(ch)
 		|| style == SCE_T3_BLOCK_COMMENT
@@ -726,7 +663,7 @@ static char peekAhead(unsigned int startPos, unsigned int endPos,
 }
 
 static void FoldTADS3Doc(unsigned int startPos, int length, int initStyle,
-			    WordList *[], Accessor &styler) {
+                            WordList *[], Accessor &styler) {
 	unsigned int endPos = startPos + length;
 	int lineCurrent = styler.GetLine(startPos);
 	int levelCurrent = SC_FOLDLEVELBASE;
@@ -818,7 +755,7 @@ static void FoldTADS3Doc(unsigned int startPos, int length, int initStyle,
 			}
 
 		} else if (levelNext == SC_FOLDLEVELBASE+1 && seenStart
-				   && ch == ';' && IsAnOperator(style)) {
+				   && ch == ';' && style == SCE_T3_OPERATOR ) {
 			levelNext--;
 			seenStart = 0;
 		} else if (style == SCE_T3_BLOCK_COMMENT) {
@@ -837,7 +774,7 @@ static void FoldTADS3Doc(unsigned int startPos, int length, int initStyle,
 			} else if (IsStringTransition(style, styleNext)) {
 				levelNext--;
 			}
-		} else if (IsAnOperator(style)) {
+		} else if (style == SCE_T3_OPERATOR) {
 			if (ch == '{' || ch == '[') {
 				// Measure the minimum before a '{' to allow
 				// folding on "} else {"

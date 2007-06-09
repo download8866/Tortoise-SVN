@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -55,7 +55,6 @@ BEGIN_MESSAGE_MAP(CChangedDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_BN_CLICKED(IDC_SHOWUNMODIFIED, OnBnClickedShowUnmodified)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 	ON_BN_CLICKED(IDC_SHOWIGNORED, &CChangedDlg::OnBnClickedShowignored)
 END_MESSAGE_MAP()
 
@@ -64,8 +63,6 @@ BOOL CChangedDlg::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 	
 	GetWindowText(m_sTitle);
-
-	m_tooltips.Create(this);
 
 	m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"), TRUE);
 	m_bShowUnversioned = m_regAddBeforeCommit;
@@ -78,18 +75,12 @@ BOOL CChangedDlg::OnInitDialog()
 						SVNSLC_COLREVISION | SVNSLC_COLDATE, _T("ChangedDlg"),
 						SVNSLC_POPALL, false);
 	m_FileListCtrl.SetCancelBool(&m_bCanceled);
-	m_FileListCtrl.SetBackgroundImage(IDI_SHOWCHANGED);
 	
-	AdjustControlSize(IDC_SHOWUNVERSIONED);
-	AdjustControlSize(IDC_SHOWUNMODIFIED);
-	AdjustControlSize(IDC_SHOWIGNORED);
-
 	AddAnchor(IDC_CHANGEDLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SUMMARYTEXT, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNMODIFIED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWIGNORED, BOTTOM_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_INFOLABEL, BOTTOM_RIGHT);
 	AddAnchor(IDC_CHECKREPO, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	SetPromptParentWindow(m_hWnd);
@@ -99,14 +90,15 @@ BOOL CChangedDlg::OnInitDialog()
 
 	m_bRemote = !!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\CheckRepo"), FALSE);
 	
-	// first start a thread to obtain the status without
-	// blocking the dialog
+	//first start a thread to obtain the status without
+	//blocking the dialog
 	if (AfxBeginThread(ChangedStatusThreadEntry, this)==NULL)
 	{
 		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 UINT CChangedDlg::ChangedStatusThreadEntry(LPVOID pVoid)
@@ -133,19 +125,29 @@ UINT CChangedDlg::ChangedStatusThread()
 	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
 	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
-	UpdateStatistics();
-
+	LONG lMin, lMax;
+	m_FileListCtrl.GetMinMaxRevisions(lMin, lMax);
+	if (LONG(m_FileListCtrl.m_HeadRev) >= 0)
+	{
+		temp.Format(IDS_REPOSTATUS_HEADREV, lMin, lMax, LONG(m_FileListCtrl.m_HeadRev));
+		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
+	}
+	else
+	{
+		temp.Format(IDS_REPOSTATUS_WCINFO, lMin, lMax);
+		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
+	}
 	CTSVNPath commonDir = m_FileListCtrl.GetCommonDirectory(false);
 	SetWindowText(m_sTitle + _T(" - ") + commonDir.GetWinPathString());
 	GetDlgItem(IDOK)->SetWindowText(CString(MAKEINTRESOURCE(IDS_MSGBOX_OK)));
+	POINT pt;
+	GetCursorPos(&pt);
+	SetCursorPos(pt.x, pt.y);
 	DialogEnableWindow(IDC_CHECKREPO, TRUE);
 	DialogEnableWindow(IDC_SHOWUNVERSIONED, TRUE);
 	DialogEnableWindow(IDC_SHOWUNMODIFIED, TRUE);
 	DialogEnableWindow(IDC_SHOWIGNORED, TRUE);
 	InterlockedExchange(&m_bBlock, FALSE);
-	POINT pt;
-	GetCursorPos(&pt);
-	SetCursorPos(pt.x, pt.y);
 	return 0;
 }
 
@@ -187,7 +189,6 @@ void CChangedDlg::OnBnClickedShowunversioned()
 	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
 	m_regAddBeforeCommit = m_bShowUnversioned;
-	UpdateStatistics();
 }
 
 void CChangedDlg::OnBnClickedShowUnmodified()
@@ -199,7 +200,6 @@ void CChangedDlg::OnBnClickedShowUnmodified()
 	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
 	m_FileListCtrl.Show(dwShow);
 	m_regAddBeforeCommit = m_bShowUnversioned;
-	UpdateStatistics();
 }
 
 void CChangedDlg::OnBnClickedShowignored()
@@ -220,15 +220,8 @@ LRESULT CChangedDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 	return 0;
 }
 
-LRESULT CChangedDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
-{
-	UpdateStatistics();
-	return 0;
-}
-
 BOOL CChangedDlg::PreTranslateMessage(MSG* pMsg)
 {
-	m_tooltips.RelayEvent(pMsg);
 	if (pMsg->message == WM_KEYDOWN)
 	{
 		switch (pMsg->wParam)
@@ -249,23 +242,4 @@ BOOL CChangedDlg::PreTranslateMessage(MSG* pMsg)
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }
 
-void CChangedDlg::UpdateStatistics()
-{
-	LONG lMin, lMax;
-	CString temp;
-	m_FileListCtrl.GetMinMaxRevisions(lMin, lMax, true, false);
-	if (LONG(m_FileListCtrl.m_HeadRev) >= 0)
-	{
-		temp.Format(IDS_REPOSTATUS_HEADREV, lMin, lMax, LONG(m_FileListCtrl.m_HeadRev));
-		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
-	}
-	else
-	{
-		temp.Format(IDS_REPOSTATUS_WCINFO, lMin, lMax);
-		GetDlgItem(IDC_SUMMARYTEXT)->SetWindowText(temp);
-	}
-	temp = m_FileListCtrl.GetStatisticsString();
-	temp.Replace(_T(" = "), _T("="));
-	temp.Replace(_T("\n"), _T(", "));
-	GetDlgItem(IDC_INFOLABEL)->SetWindowText(temp);
-}
+

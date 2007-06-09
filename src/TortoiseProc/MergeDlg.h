@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -42,14 +42,18 @@ public:
 	CMergeDlg(CWnd* pParent = NULL);   ///< standard constructor
 	virtual ~CMergeDlg();
 
+// Dialog Data
 	enum { IDD = IDD_MERGE };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedBrowse();
+	BOOL CheckData();
+	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedFindbranchstart();
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnBnClickedFindbranchend();
@@ -62,12 +66,7 @@ protected:
 	afx_msg void OnCbnEditchangeUrlcombo();
 	afx_msg void OnEnChangeRevisionEnd();
 	afx_msg void OnEnChangeRevisionStart();
-	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
-
-	BOOL CheckData(bool bShowErrors = true);
-	void SetStartRevision(const SVNRev& rev);
-	void SetEndRevision(const SVNRev& rev);
 
 	CLogDlg *	m_pLogDlg;
 	CLogDlg *	m_pLogDlg2;

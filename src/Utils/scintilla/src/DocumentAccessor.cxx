@@ -16,8 +16,6 @@
 #include "SVector.h"
 #include "Accessor.h"
 #include "DocumentAccessor.h"
-#include "SplitVector.h"
-#include "Partitioning.h"
 #include "CellBuffer.h"
 #include "Scintilla.h"
 #include "CharClassify.h"
@@ -105,9 +103,8 @@ void DocumentAccessor::StartSegment(unsigned int pos) {
 void DocumentAccessor::ColourTo(unsigned int pos, int chAttr) {
 	// Only perform styling if non empty range
 	if (pos != startSeg - 1) {
-		PLATFORM_ASSERT(pos >= startSeg);
 		if (pos < startSeg) {
-			return;
+			Platform::DebugPrintf("Bad colour positions %d - %d\n", startSeg, pos);
 		}
 
 		if (validLen + (pos - startSeg + 1) >= bufferSize)

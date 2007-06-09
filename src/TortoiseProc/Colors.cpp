@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include ".\colors.h"
 
-CColors::CColors(void) : m_regAdded(_T("Software\\TortoiseSVN\\Colors\\Added"), RGB(100, 0, 100))
-	, m_regCmd(_T("Software\\TortoiseSVN\\Colors\\Cmd"), ::GetSysColor(COLOR_GRAYTEXT))
+CColors::CColors(void) :
+	m_regAdded(_T("Software\\TortoiseSVN\\Colors\\Added"), RGB(100, 0, 100))
 	, m_regConflict(_T("Software\\TortoiseSVN\\Colors\\Conflict"), RGB(255, 0, 0))
 	, m_regModified(_T("Software\\TortoiseSVN\\Colors\\Modified"), RGB(0, 50, 160))
 	, m_regMerged(_T("Software\\TortoiseSVN\\Colors\\Merged"), RGB(0, 100, 0))
@@ -43,10 +43,6 @@ COLORREF CColors::GetColor(Colors col, bool bDefault /*=true*/)
 {
 	switch (col)
 	{
-	case Cmd:
-		if (bDefault)
-			return ::GetSysColor(COLOR_GRAYTEXT);
-		return (COLORREF)(DWORD)m_regCmd;
 	case Conflict:
 		if (bDefault)
 			return RGB(255, 0, 0);
@@ -103,9 +99,6 @@ void CColors::SetColor(Colors col, COLORREF cr)
 {
 	switch (col)
 	{
-	case Cmd:
-		m_regCmd = cr;
-		break;
 	case Conflict:
 		m_regConflict = cr;
 		break;

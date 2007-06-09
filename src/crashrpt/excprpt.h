@@ -8,8 +8,14 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#pragma once
+#ifndef _EXCPRPT_H_
+#define _EXCPRPT_H_
 
+#if _MSC_VER >= 1000
+#pragma once
+#endif // _MSC_VER >= 1000
+
+#include <atlmisc.h>
 #include <dbghelp.h>
 // STL generates various warnings.
 // 4100: unreferenced formal parameter
@@ -46,23 +52,23 @@ class CExceptionReport
 public:
 	CExceptionReport(PEXCEPTION_POINTERS ExceptionInfo, BSTR message);
 
-   string getSymbolFile(int index);
+   CString getSymbolFile(int index);
 	int getNumSymbolFiles();
-	string getCrashLog();
-	string getCrashFile();
-   string getModuleName() { return m_sModule; };
-   string getExceptionCode() { return m_sException; };
-   string getExceptionAddr() { return m_sAddress; };
+	CString getCrashLog();
+	CString getCrashFile();
+   CString getModuleName() { return m_sModule; };
+   CString getExceptionCode() { return m_sException; };
+   CString getExceptionAddr() { return m_sAddress; };
 
 private:
-   string m_sCommandLine;
-   string m_sModule;
-   string m_sException;
-   string m_sAddress;
+   CString m_sCommandLine;
+   CString m_sModule;
+   CString m_sException;
+   CString m_sAddress;
 
    PEXCEPTION_POINTERS m_excpInfo;
    BSTR           m_message;
-   vector<string> m_symFiles;
+   CSimpleArray<CString> m_symFiles;
 
    // used by stack wallback
    MSXML2::IXMLDOMElement* m_stack_element;
@@ -108,3 +114,4 @@ private:
                                          PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
 };
 
+#endif	// #ifndef _EXCPRPT_H_

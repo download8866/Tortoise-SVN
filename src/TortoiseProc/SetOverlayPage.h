@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -23,15 +23,14 @@
 
 /**
  * \ingroup TortoiseProc
- * Settings page to configure how the icon overlays and the cache should
- * behave.
+ * Settings page for the icon overlays.
  */
 class CSetOverlayPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetOverlayPage)
 
 public:
-	CSetOverlayPage();
+	CSetOverlayPage();   // standard constructor
 	virtual ~CSetOverlayPage();
 	/**
 	 * Saves the changed settings to the registry.
@@ -66,7 +65,6 @@ private:
 	BOOL			m_bRAM;
 	BOOL			m_bUnknown;
 	BOOL			m_bUnversionedAsModified;
-	BOOL			m_bShowExcludedAsNormal;
 	CRegDWORD		m_regOnlyExplorer;
 	CRegDWORD		m_regDriveMaskRemovable;
 	CRegDWORD		m_regDriveMaskFloppy;
@@ -76,7 +74,6 @@ private:
 	CRegDWORD		m_regDriveMaskRAM;
 	CRegDWORD		m_regDriveMaskUnknown;
 	CRegDWORD		m_regUnversionedAsModified;
-	CRegDWORD		m_regShowExcludedAsNormal;
 	CBalloon		m_tooltips;
 	BOOL			m_bInitialized;
 	CRegString		m_regExcludePaths;
@@ -87,5 +84,4 @@ private:
 	DWORD			m_dwCacheType;
 
 	BOOL			m_bModified;
-public:
 };

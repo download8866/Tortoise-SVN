@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -54,47 +54,6 @@ void CRevisionGraphWnd::InitView()
 	GetViewSize();
 	BuildConnections();
 	SetScrollbars(0,0,m_ViewRect.Width(),m_ViewRect.Height());
-}
-
-void CRevisionGraphWnd::BuildPreview()
-{
-	m_Preview.DeleteObject();
-	if (!m_bShowOverview)
-		return;
-
-	float origZoom = m_fZoomFactor;
-	// zoom the graph so that it is completely visible in the window
-	DoZoom(1.0);
-	GetViewSize();
-	float horzfact = float(m_GraphRect.Width())/float(REVGRAPH_PREVIEW_WIDTH);
-	float vertfact = float(m_GraphRect.Height())/float(REVGRAPH_PREVIEW_HEIGTH);
-	float fZoom = 1.0f/(max(horzfact, vertfact));
-	if (fZoom > 1.0f)
-		fZoom = 1.0f;
-	int trycounter = 0;
-	m_fZoomFactor = fZoom;
-	while ((trycounter < 5)&&((m_GraphRect.Width()>REVGRAPH_PREVIEW_WIDTH)||(m_GraphRect.Height()>REVGRAPH_PREVIEW_HEIGTH)))
-	{
-		m_fZoomFactor = fZoom;
-		DoZoom(m_fZoomFactor);
-		GetViewSize();
-		fZoom *= 0.95f;
-		trycounter++;
-	}
-
-	CClientDC ddc(this);
-	CDC dc;
-	if (!dc.CreateCompatibleDC(&ddc))
-		return;
-	m_Preview.CreateCompatibleBitmap(&ddc, REVGRAPH_PREVIEW_WIDTH, REVGRAPH_PREVIEW_HEIGTH);
-	HBITMAP oldbm = (HBITMAP)dc.SelectObject(m_Preview);
-	// paint the whole graph
-	DrawGraph(&dc, m_ViewRect, 0, 0, true);
-	// now we have a bitmap the size of the preview window
-	dc.SelectObject(oldbm);
-	dc.DeleteDC();
-
-	DoZoom(origZoom);
 }
 
 void CRevisionGraphWnd::SetScrollbars(int nVert, int nHorz, int oldwidth, int oldheight)
@@ -395,7 +354,7 @@ void CRevisionGraphWnd::BuildConnections()
 	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
 		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
-		float vertpos = (float)m_arVertPositions[i];
+		int vertpos = m_arVertPositions[i];
 		for (INT_PTR j=0; j<reventry->sourcearray.GetCount(); ++j)
 		{
 			source_entry * sentry = (source_entry*)reventry->sourcearray.GetAt(j);
@@ -417,27 +376,28 @@ void CRevisionGraphWnd::BuildConnections()
 					// 1--2
 					
 					// x-offset for line 2-3
-					int xoffset = int(float(reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/float(reventry->rightlines+1));
+					int xoffset = (reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/(reventry->rightlines+1);
 					// y-offset for line 3-4
-					int yoffset = int(float(reventry2->bottomlinesleft)*(m_node_space_top+m_node_space_bottom)/float(reventry2->bottomlines+1));
+					int yoffset = (reventry2->bottomlinesleft)*(m_node_space_top+m_node_space_bottom)/(reventry2->bottomlines+1);
 					
 					//Starting point: 1
-					pt[0].y = long(vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top +
-						(float(reventry->rightconnectionsleft)*(m_node_rect_heigth)/float(reventry->rightconnections+1)));	// top of rect
+					pt[0].y = vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top;	// top of rect
+					pt[0].y += (reventry->rightconnectionsleft)*(m_node_rect_heigth)/(reventry->rightconnections+1);
 					reventry->rightconnectionsleft--;
-					pt[0].x = long(float(reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left + m_node_rect_width);
+					pt[0].x = (reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left + m_node_rect_width;
 					//line to middle of nodes: 2
 					pt[1].y = pt[0].y;
 					pt[1].x = pt[0].x + xoffset;
 					//line up: 3
 					pt[2].x = pt[1].x;
-					pt[2].y = long((float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom)) + m_node_rect_heigth + m_node_space_top);
+					pt[2].y = ((m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom)) + m_node_rect_heigth + m_node_space_top;
 					pt[2].y += yoffset;
 					//line to middle of target rect: 4
 					pt[3].y = pt[2].y;
-					pt[3].x = long(float(reventry2->level-1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left + m_node_rect_width/2.0f);
+					pt[3].x = ((reventry2->level-1)*(m_node_rect_width+m_node_space_left+m_node_space_right));
+					pt[3].x += m_node_space_left + m_node_rect_width/2;
 					//line up to target rect: 5
-					pt[4].y = long((float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth) + m_node_space_top);
+					pt[4].y = (m_arVertPositions[index]*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth) + m_node_space_top;
 					pt[4].x = pt[3].x;
 				}
 				else
@@ -459,29 +419,29 @@ void CRevisionGraphWnd::BuildConnections()
 					//      2-----1
 
 					// x-offset for line 2-3
-					int xoffset = int(float(reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/float(reventry->rightlines+1));
+					int xoffset = (reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/(reventry->rightlines+1);
 					// y-offset for line 3-4
-					int yoffset = int(float(reventry2->bottomlinesleft)*(m_node_space_top+m_node_space_bottom)/float(reventry2->bottomlines+1));
+					int yoffset = (reventry2->bottomlinesleft)*(m_node_space_top+m_node_space_bottom)/(reventry2->bottomlines+1);
 
 					//Starting point: 1
-					pt[0].y = long((vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top) + 
-						float(reventry->leftconnectionsleft)*(m_node_rect_heigth)/float(reventry->leftconnections+1));
+					pt[0].y = (vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
+					pt[0].y += (reventry->leftconnectionsleft)*(m_node_rect_heigth)/(reventry->leftconnections+1);
 					reventry->leftconnectionsleft--;
-					pt[0].x = long(float(reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left);
+					pt[0].x = ((reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left);
 					//line to middle of nodes: 2
 					pt[1].y = pt[0].y;
 					pt[1].x = pt[0].x - xoffset;
 					//line up: 3
 					pt[2].x = pt[1].x;
-					pt[2].y = long((float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth + m_node_space_top + m_node_space_bottom));
+					pt[2].y = (m_arVertPositions[index]*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth + m_node_space_top + m_node_space_bottom);
 					pt[2].y += yoffset;
 					//line to middle of target rect: 4
 					pt[3].y = pt[2].y;
-					pt[3].x = long(float(reventry2->level-1)*(m_node_rect_width+m_node_space_left+m_node_space_right));
-					pt[3].x += long(m_node_space_left + m_node_rect_width/2.0f);
+					pt[3].x = ((reventry2->level-1)*(m_node_rect_width+m_node_space_left+m_node_space_right));
+					pt[3].x += m_node_space_left + m_node_rect_width/2;
 					//line up to target rect: 5
 					pt[4].x = pt[3].x;
-					pt[4].y = long(float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth + m_node_space_top);
+					pt[4].y = (m_arVertPositions[index]*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_rect_heigth + m_node_space_top);
 				}
 				else
 				{
@@ -515,26 +475,26 @@ void CRevisionGraphWnd::BuildConnections()
 					// 1----2
 
 					// x-offset for line 2-3
-					int xoffset = int(float(reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/float(reventry->rightlines+1));
+					int xoffset = (reventry->rightlinesleft)*(m_node_space_left+m_node_space_right)/(reventry->rightlines+1);
 					// y-offset for line 3-4
-					int yoffset = int(float(reventry2->rightconnectionsleft)*(m_node_rect_heigth)/float(reventry2->rightconnections+1));
+					int yoffset = (reventry2->rightconnectionsleft)*(m_node_rect_heigth)/(reventry2->rightconnections+1);
 					reventry2->rightconnectionsleft--;
 										
 					//Starting point: 1
-					pt[0].y = long((vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top) + 
-						float(reventry->rightconnectionsleft)*(m_node_rect_heigth)/float(reventry->rightconnections+1));
+					pt[0].y = (vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
+					pt[0].y += (reventry->rightconnectionsleft)*(m_node_rect_heigth)/(reventry->rightconnections+1);
 					reventry->rightconnectionsleft--;
-					pt[0].x = long((float(reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left) + m_node_rect_width);
+					pt[0].x = ((reventry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left) + m_node_rect_width;
 					//line to middle of nodes: 2
 					pt[1].y = pt[0].y;
 					pt[1].x = pt[0].x + xoffset;
 					//line down: 3
 					pt[2].x = pt[1].x;
-					pt[2].y = long(float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
+					pt[2].y = (m_arVertPositions[index]*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
 					pt[2].y += yoffset;
 					//line to target: 4
 					pt[3].y = pt[2].y;
-					pt[3].x = long((float(reventry2->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left) + m_node_rect_width);
+					pt[3].x = ((reventry2->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left) + m_node_rect_width;
 					pt[4].y = pt[3].y;
 					pt[4].x = pt[3].x;
 				}
@@ -546,11 +506,11 @@ void CRevisionGraphWnd::BuildConnections()
 						// |
 						// |
 						// 1
-						pt[0].y = long(vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
-						pt[0].x = long((float(reventry2->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left + m_node_rect_width/2.0f));
+						pt[0].y = (vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top);
+						pt[0].x = ((reventry2->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left + m_node_rect_width/2);
 						pt[1].y = pt[0].y;
 						pt[1].x = pt[0].x;
-						pt[2].y = long(float(m_arVertPositions[index])*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top + m_node_rect_heigth);
+						pt[2].y = (m_arVertPositions[index]*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top + m_node_rect_heigth);
 						pt[2].x = pt[0].x;
 						pt[3].y = pt[2].y;
 						pt[3].x = pt[2].x;
@@ -598,11 +558,11 @@ CRect * CRevisionGraphWnd::GetGraphSize()
 				m_numRevisions++;
 				lastrev = reventry->revision;
 			}
-			size_t len = reventry->url.GetLength();
+			size_t len = strlen(reventry->url);
 			if (m_maxurllength < len)
 			{
 				m_maxurllength = len;
-				m_maxurl = reventry->url;
+				m_maxurl = CUnicodeUtils::GetUnicode(reventry->url);
 			}
 		}
 	}
@@ -616,14 +576,14 @@ CRect * CRevisionGraphWnd::GetGraphSize()
 		CFont * pOldFont = pDC->SelectObject(GetFont(TRUE));
 		pDC->DrawText(m_maxurl, &r, DT_CALCRECT);
 		// keep the width inside reasonable values.
-		m_node_rect_width = min(500.0f * m_fZoomFactor, r.Width()+40.0f);
-		m_node_rect_width = max(NODE_RECT_WIDTH * m_fZoomFactor, m_node_rect_width);
+		m_node_rect_width = min(int(500 * m_fZoomFactor), r.Width()+40);
+		m_node_rect_width = max(int(NODE_RECT_WIDTH * m_fZoomFactor), m_node_rect_width);
 		pDC->SelectObject(pOldFont);
 	}
 	ReleaseDC(pDC);
 
-	m_GraphRect.right = long(float(m_maxlevel) * (m_node_rect_width + m_node_space_left + m_node_space_right));
-	m_GraphRect.bottom = long(float(m_numRevisions) * (m_node_rect_heigth + m_node_space_top + m_node_space_bottom));
+	m_GraphRect.right = m_maxlevel * (m_node_rect_width + m_node_space_left + m_node_space_right);
+	m_GraphRect.bottom = m_numRevisions * (m_node_rect_heigth + m_node_space_top + m_node_space_bottom);
 	return &m_GraphRect;
 }
 
@@ -694,8 +654,8 @@ void CRevisionGraphWnd::CompareRevs(bool bHead)
 
 	CTSVNPath url1;
 	CTSVNPath url2;
-	url1.SetFromSVN (sRepoRoot + m_SelectedEntry1->url);
-	url2.SetFromSVN (sRepoRoot + m_SelectedEntry2->url);
+	url1.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry1->url));
+	url2.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry2->url));
 
 	SVNRev peg = (SVNRev)(bHead ? m_SelectedEntry1->revision : SVNRev());
 
@@ -719,8 +679,8 @@ void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
 
 	CTSVNPath url1;
 	CTSVNPath url2;
-	url1.SetFromSVN (sRepoRoot + m_SelectedEntry1->url);
-	url2.SetFromSVN (sRepoRoot + m_SelectedEntry2->url);
+	url1.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry1->url));
+	url2.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry2->url));
 
 	SVNDiff diff(&svn, this->m_hWnd);
 	diff.ShowUnifiedDiff(url1, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry1->revision),
@@ -760,8 +720,8 @@ CTSVNPath CRevisionGraphWnd::DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIs
 
 	CTSVNPath url1;
 	CTSVNPath url2;
-	url1.SetFromSVN (sRepoRoot + m_SelectedEntry1->url);
-	url2.SetFromSVN (sRepoRoot + m_SelectedEntry2->url);
+	url1.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry1->url));
+	url2.SetFromSVN(sRepoRoot+CUnicodeUtils::GetUnicode(m_SelectedEntry2->url));
 	CTSVNPath url1_temp = url1;
 	CTSVNPath url2_temp = url2;
 	INT_PTR iMax = min(url1_temp.GetSVNPathString().GetLength(), url2_temp.GetSVNPathString().GetLength());
@@ -781,7 +741,7 @@ CTSVNPath CRevisionGraphWnd::DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIs
 		if (!svn.PegDiff(url1, SVNRev(m_SelectedEntry1->revision), 
 			bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry1->revision), 
 			bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry2->revision), 
-			svn_depth_infinity, TRUE, FALSE, FALSE, CString(), tempfile))
+			TRUE, TRUE, FALSE, FALSE, CString(), tempfile))
 		{
 			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			theApp.DoWaitCursor(-1);
@@ -792,7 +752,7 @@ CTSVNPath CRevisionGraphWnd::DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIs
 	{
 		if (!svn.Diff(url1, bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry1->revision), 
 			url2, bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry2->revision), 
-			svn_depth_infinity, TRUE, FALSE, FALSE, CString(), false, tempfile))
+			TRUE, TRUE, FALSE, FALSE, CString(), false, tempfile))
 		{
 			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);		
 			theApp.DoWaitCursor(-1);
@@ -806,13 +766,13 @@ CTSVNPath CRevisionGraphWnd::DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIs
 void CRevisionGraphWnd::DoZoom(float fZoomFactor)
 {
 	m_fZoomFactor = fZoomFactor;
-	m_node_space_left = NODE_SPACE_LEFT * fZoomFactor;
-	m_node_space_right = NODE_SPACE_RIGHT * fZoomFactor;
-	m_node_space_line = NODE_SPACE_LINE * fZoomFactor;
-	m_node_rect_heigth = NODE_RECT_HEIGTH * fZoomFactor;
-	m_node_space_top = NODE_SPACE_TOP * fZoomFactor;
-	m_node_space_bottom = NODE_SPACE_BOTTOM * fZoomFactor;
-	m_nFontSize = int(12.0f * fZoomFactor);
+	m_node_space_left = int(NODE_SPACE_LEFT * fZoomFactor);
+	m_node_space_right = max(int(NODE_SPACE_RIGHT * fZoomFactor),1);
+	m_node_space_line = int(NODE_SPACE_LINE * fZoomFactor);
+	m_node_rect_heigth = max(int(NODE_RECT_HEIGTH * fZoomFactor),1);
+	m_node_space_top = max(int(NODE_SPACE_TOP * fZoomFactor),1);
+	m_node_space_bottom = max(int(NODE_SPACE_BOTTOM * fZoomFactor),1);
+	m_nFontSize = int(12 * fZoomFactor);
 	m_RoundRectPt.x = int(ROUND_RECT * fZoomFactor);
 	m_RoundRectPt.y = int(ROUND_RECT * fZoomFactor);
 	m_nIconSize = int(32 * fZoomFactor);

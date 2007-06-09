@@ -13,23 +13,22 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "StandAloneDlg.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Settings page to configure the overlay icon set to use.
- */
+
+// CSetOverlayIcons dialog
+
 class CSetOverlayIcons : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetOverlayIcons)
 
 public:
-	CSetOverlayIcons();
+	CSetOverlayIcons();   // standard constructor
 	virtual ~CSetOverlayIcons();
 
 	/**
@@ -49,7 +48,6 @@ public:
 protected:
 	virtual void			DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL			OnInitDialog();
-	virtual BOOL			OnApply();
 	afx_msg void			OnBnClickedListradio();
 	afx_msg void			OnBnClickedSymbolradio();
 	afx_msg void			OnCbnSelchangeIconsetcombo();
@@ -82,4 +80,6 @@ protected:
 	CRegString		m_regDeleted;
 	CRegString		m_regLocked;
 	CRegString		m_regAdded;
+public:
+	virtual BOOL OnApply();
 };

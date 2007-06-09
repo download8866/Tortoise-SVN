@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -26,7 +26,9 @@
 #include ".\setdialogs.h"
 #include "SVN.h"
 #include "MessageBox.h"
-#include "BrowseFolder.h"
+
+
+// CSetDialogs dialog
 
 IMPLEMENT_DYNAMIC(CSetDialogs, CPropertyPage)
 CSetDialogs::CSetDialogs()
@@ -37,9 +39,6 @@ CSetDialogs::CSetDialogs()
 	, m_sFontName(_T(""))
 	, m_bInitialized(FALSE)
 	, m_bUseWCURL(FALSE)
-	, m_sDefaultCheckoutPath(_T(""))
-	, m_sDefaultCheckoutUrl(_T(""))
-	, m_bCacheLogs(FALSE)
 {
 	m_regAutoClose = CRegDWORD(_T("Software\\TortoiseSVN\\AutoClose"));
 	m_regDefaultLogs = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
@@ -47,9 +46,6 @@ CSetDialogs::CSetDialogs()
 	m_regFontName = CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New"));
 	m_regFontSize = CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8);
 	m_regUseWCURL = CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE);
-	m_regDefaultCheckoutPath = CRegString(_T("Software\\TortoiseSVN\\DefaultCheckoutPath"));
-	m_regDefaultCheckoutUrl = CRegString(_T("Software\\TortoiseSVN\\DefaultCheckoutUrl"));
-	m_regCacheLogs = CRegDWORD(_T("Software\\TortoiseSVN\\UseLogCache"), TRUE);
 }
 
 CSetDialogs::~CSetDialogs()
@@ -89,15 +85,6 @@ int CSetDialogs::SaveData()
 	m_regUseWCURL = m_bUseWCURL;
 	if (m_regUseWCURL.LastError != ERROR_SUCCESS)
 		CMessageBox::Show(m_hWnd, m_regUseWCURL.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	m_regDefaultCheckoutPath = m_sDefaultCheckoutPath;
-	if (m_regDefaultCheckoutPath.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutPath.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	m_regDefaultCheckoutUrl = m_sDefaultCheckoutUrl;
-	if (m_regDefaultCheckoutUrl.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutUrl.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-	m_regCacheLogs = m_bCacheLogs;
-	if (m_regCacheLogs.LastError != ERROR_SUCCESS)
-		CMessageBox::Show(m_hWnd, m_regCacheLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	return 0;
 }
 
@@ -117,23 +104,16 @@ void CSetDialogs::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_SHORTDATEFORMAT, m_bShortDateFormat);
 	DDX_Control(pDX, IDC_AUTOCLOSECOMBO, m_cAutoClose);
 	DDX_Check(pDX, IDC_WCURLFROM, m_bUseWCURL);
-	DDX_Text(pDX, IDC_CHECKOUTPATH, m_sDefaultCheckoutPath);
-	DDX_Text(pDX, IDC_CHECKOUTURL, m_sDefaultCheckoutUrl);
-	DDX_Check(pDX, IDC_CACHELOGS, m_bCacheLogs);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetDialogs, CPropertyPage)
-	ON_EN_CHANGE(IDC_DEFAULTLOG, OnChange)
-	ON_BN_CLICKED(IDC_SHORTDATEFORMAT, OnChange)
-	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnChange)
-	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnChange)
+	ON_EN_CHANGE(IDC_DEFAULTLOG, OnEnChangeDefaultlog)
+	ON_BN_CLICKED(IDC_SHORTDATEFORMAT, OnBnClickedShortdateformat)
+	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnCbnSelchangeFontsizes)
+	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnCbnSelchangeFontnames)
 	ON_CBN_SELCHANGE(IDC_AUTOCLOSECOMBO, OnCbnSelchangeAutoclosecombo)
-	ON_BN_CLICKED(IDC_WCURLFROM, OnChange)
-	ON_BN_CLICKED(IDC_BROWSECHECKOUTPATH, &CSetDialogs::OnBnClickedBrowsecheckoutpath)
-	ON_EN_CHANGE(IDC_CHECKOUTPATH, OnChange)
-	ON_EN_CHANGE(IDC_CHECKOUTURL, OnChange)
-	ON_BN_CLICKED(IDC_CACHELOGS, OnChange)
+	ON_BN_CLICKED(IDC_WCURLFROM, OnBnClickedWcurlfrom)
 END_MESSAGE_MAP()
 
 
@@ -165,12 +145,6 @@ BOOL CSetDialogs::OnInitDialog()
 	m_sFontName = m_regFontName;
 	m_dwFontSize = m_regFontSize;
 	m_bUseWCURL = m_regUseWCURL;
-	m_sDefaultCheckoutPath = m_regDefaultCheckoutPath;
-	m_sDefaultCheckoutUrl = m_regDefaultCheckoutUrl;
-	m_bCacheLogs = m_regCacheLogs;
-
-	SHAutoComplete(GetDlgItem(IDC_CHECKOUTPATH)->m_hWnd, SHACF_FILESYSTEM);
-	SHAutoComplete(GetDlgItem(IDC_CHECKOUTURL)->m_hWnd, SHACF_URLALL);
 
 	for (int i=0; i<m_cAutoClose.GetCount(); ++i)
 		if (m_cAutoClose.GetItemData(i)==m_dwAutoClose)
@@ -185,10 +159,7 @@ BOOL CSetDialogs::OnInitDialog()
 	m_tooltips.AddTool(IDC_AUTOCLOSECOMBO, IDS_SETTINGS_AUTOCLOSE_TT);
 	m_tooltips.AddTool(IDC_AUTOCOMPLETION, IDS_SETTINGS_AUTOCOMPLETION_TT);
 	m_tooltips.AddTool(IDC_WCURLFROM, IDS_SETTINGS_USEWCURL_TT);
-	m_tooltips.AddTool(IDC_CHECKOUTPATH, IDS_SETTINGS_CHECKOUTPATH_TT);
-	m_tooltips.AddTool(IDC_CHECKOUTURL, IDS_SETTINGS_CHECKOUTURL_TT);
-	m_tooltips.AddTool(IDC_CACHELOGS, IDS_SETTINGS_CACHELOGS_TT);
-
+	
 	int count = 0;
 	for (int i=6; i<32; i=i+2)
 	{
@@ -215,7 +186,8 @@ BOOL CSetDialogs::OnInitDialog()
 	m_bInitialized = TRUE;
 	
 	UpdateData(FALSE);
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 BOOL CSetDialogs::PreTranslateMessage(MSG* pMsg)
@@ -224,7 +196,27 @@ BOOL CSetDialogs::PreTranslateMessage(MSG* pMsg)
 	return CPropertyPage::PreTranslateMessage(pMsg);
 }
 
-void CSetDialogs::OnChange()
+void CSetDialogs::OnBnClickedShortdateformat()
+{
+	SetModified();
+}
+
+void CSetDialogs::OnEnChangeDefaultlog()
+{
+	SetModified();
+}
+
+void CSetDialogs::OnCbnSelchangeFontsizes()
+{
+	SetModified();
+}
+
+void CSetDialogs::OnCbnSelchangeFontnames()
+{
+	SetModified();
+}
+
+void CSetDialogs::OnBnClickedWcurlfrom()
 {
 	SetModified();
 }
@@ -245,21 +237,6 @@ void CSetDialogs::OnCbnSelchangeAutoclosecombo()
 	}
 	SetModified();
 }
-
-void CSetDialogs::OnBnClickedBrowsecheckoutpath()
-{
-	CBrowseFolder browser;
-	browser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-	CString strCheckoutDirectory;
-	if (browser.Show(GetSafeHwnd(), strCheckoutDirectory) == CBrowseFolder::OK) 
-	{
-		UpdateData(TRUE);
-		m_sDefaultCheckoutPath = strCheckoutDirectory;
-		UpdateData(FALSE);
-		SetModified();
-	}
-}
-
 
 
 

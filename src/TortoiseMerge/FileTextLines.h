@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -39,6 +39,14 @@ private:
 
 typedef CStdArray<CString> CStdCStringArray;
 typedef CStdArray<DWORD> CStdDWORDArray;
+
+class CStdioFileK : public CStdioFile
+{
+public:
+	CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags);
+	BOOL ReadString(CStringA& rString);
+	BOOL ReadString(CString& rString) {return CStdioFile::ReadString(rString);}
+};
 
 /**
  * \ingroup TortoiseMerge
@@ -93,7 +101,6 @@ public:
 	void		CopySettings(CFileTextLines * pFileToCopySettingsTo);
 
 	CFileTextLines::UnicodeType GetUnicodeType() const  {return m_UnicodeType;}
-	CFileTextLines::LineEndings GetLineEndings() const {return m_LineEndings;}
 
 private:
 	/**
@@ -121,5 +128,4 @@ private:
 	CString		m_sErrorString;
 	CFileTextLines::UnicodeType	m_UnicodeType;
 	CFileTextLines::LineEndings m_LineEndings;
-	bool		m_bReturnAtEnd;
 };

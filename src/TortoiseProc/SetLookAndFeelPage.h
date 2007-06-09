@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -30,7 +30,7 @@ class CSetLookAndFeelPage : public CPropertyPage
 	DECLARE_DYNAMIC(CSetLookAndFeelPage)
 
 public:
-	CSetLookAndFeelPage();
+	CSetLookAndFeelPage();   // standard constructor
 	virtual ~CSetLookAndFeelPage();
 	/**
 	 * Saves the changed settings to the registry.
@@ -52,7 +52,8 @@ protected:
 	virtual BOOL OnApply();
 	afx_msg void OnBnClickedOnlyexplorer();
 	afx_msg void OnLvnItemchangedMenulist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnChange();
+	afx_msg void OnBnClickedSimplecontext();
+	afx_msg void OnBnClickedOwnerdrawn();
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -70,6 +71,9 @@ private:
 	BOOL			m_bModified;
 	DWORD			m_topmenu;
 	
-	CRegDWORD		m_regGetLockTop;
-	BOOL			m_bGetLockTop;
+	CRegDWORD		m_regSimpleContext;
+	BOOL			m_bSimpleContext;
+	
+	CRegDWORD		m_regOwnerDrawn;
+	int				m_OwnerDrawn;
 };

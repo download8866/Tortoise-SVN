@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "TSVNPath.h"
@@ -210,13 +210,9 @@ void CTSVNPath::SetFwdslashPath(const CString& sPath) const
 {
 	m_sFwdslashPath = sPath;
 	m_sFwdslashPath.Replace('\\', '/');
-
-	// We don't leave a trailing /
 	m_sFwdslashPath.TrimRight('/');	
 
-	// Subversion 1.5 fixed the problem with root paths, but now it expects a slash for root paths
-	if ((m_sFwdslashPath.GetLength() == 2)&&(m_sFwdslashPath[1] == ':'))
-		m_sFwdslashPath += _T("/");
+	// We don't leave a trailing / even on root dir paths, because SVN doesn't like it
 
 	//workaround for Subversions UNC-path bug
 	if (m_sFwdslashPath.Left(10).CompareNoCase(_T("file://///"))==0)
@@ -740,13 +736,13 @@ const CTSVNPath& CTSVNPathList::operator[](int index) const
 bool CTSVNPathList::AreAllPathsFiles() const
 {
 	// Look through the vector for any directories - if we find them, return false
-	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) == m_paths.end();
+	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) != m_paths.end();
 }
 
 
 #if defined(_MFC_VER)
 
-bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
+bool CTSVNPathList::LoadFromTemporaryFile(const CTSVNPath& filename)
 {
 	Clear();
 	try
@@ -775,31 +771,17 @@ bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
 	return true;
 }
 
-bool CTSVNPathList::WriteToFile(const CString& sFilename, bool bANSI /* = false */) const
+bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename) const
 {
 	try
 	{
-		if (bANSI)
+		CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
+		PathVector::const_iterator it;
+		for(it = m_paths.begin(); it != m_paths.end(); ++it)
 		{
-			CStdioFile file(sFilename, CFile::typeText | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				CStringA line = CStringA(it->GetSVNPathString()) + '\n';
-				file.Write(line, line.GetLength());
-			} 
-			file.Close();
-		}
-		else
-		{
-			CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				file.WriteString(it->GetSVNPathString()+_T("\n"));
-			} 
-			file.Close();
-		}
+			file.WriteString(it->GetSVNPathString()+_T("\n"));
+		} 
+		file.Close();
 	}
 	catch (CFileException* pE)
 	{
@@ -826,18 +808,6 @@ void CTSVNPathList::LoadFromAsteriskSeparatedString(const CString& sPathString)
 	} 
 }
 
-CString CTSVNPathList::CreateAsteriskSeparatedString() const
-{
-	CString sRet;
-	PathVector::const_iterator it;
-	for(it = m_paths.begin(); it != m_paths.end(); ++it)
-	{
-		if (!sRet.IsEmpty())
-			sRet += _T("*");
-		sRet += it->GetWinPathString();
-	}
-	return sRet;
-}
 #endif // _MFC_VER
 
 bool 
@@ -989,33 +959,6 @@ void CTSVNPathList::RemoveChildren()
 {
 	SortByPathname();
 	m_paths.erase(std::unique(m_paths.begin(), m_paths.end(), &CTSVNPath::CheckChild), m_paths.end());
-}
-
-bool CTSVNPathList::IsEqual(const CTSVNPathList& list)
-{
-	if (list.GetCount() != GetCount())
-		return false;
-	for (int i=0; i<list.GetCount(); ++i)
-	{
-		if (!list[i].IsEquivalentTo(m_paths[i]))
-			return false;
-	}
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-apr_array_header_t * CTSVNPathList::MakePathArray (apr_pool_t *pool) const
-{
-	apr_array_header_t *targets = apr_array_make (pool, GetCount(), sizeof(const char *));
-
-	for(int nItem = 0; nItem < GetCount(); nItem++)
-	{
-		const char * target = svn_path_canonicalize(m_paths[nItem].GetSVNApiPath(), pool);
-		(*((const char **) apr_array_push (targets))) = target;
-	}
-
-	return targets;
 }
 
 //////////////////////////////////////////////////////////////////////////

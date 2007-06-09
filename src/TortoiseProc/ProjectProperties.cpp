@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "TortoiseProc.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "ProjectProperties.h"
 #include "SVNProperties.h"
 #include "TSVNPath.h"
@@ -68,11 +68,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundMinLockMsgSize = FALSE;
 	BOOL bFoundFileListEnglish = FALSE;
 	BOOL bFoundProjectLanguage = FALSE;
-	BOOL bFoundUserFileProps = FALSE;
-	BOOL bFoundUserDirProps = FALSE;
-	BOOL bFoundWebViewRev = FALSE;
-	BOOL bFoundWebViewPathRev = FALSE;
-	BOOL bFoundAutoProps = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
@@ -220,34 +215,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				}
 				bFoundProjectLanguage = TRUE;
 			}
-			if ((!bFoundUserFileProps)&&(sPropName.Compare(PROJECTPROPNAME_USERFILEPROPERTY)==0))
-			{
-				sFPPath = sPropVal;
-				sFPPath.Replace(_T("\r\n"), _T("\n"));
-				bFoundUserFileProps = TRUE;
-			}
-			if ((!bFoundUserDirProps)&&(sPropName.Compare(PROJECTPROPNAME_USERDIRPROPERTY)==0))
-			{
-				sDPPath = sPropVal;
-				sDPPath.Replace(_T("\r\n"), _T("\n"));
-				bFoundUserDirProps = TRUE;
-			}
-			if ((!bFoundAutoProps)&&(sPropName.Compare(PROJECTPROPNAME_AUTOPROPS)==0))
-			{
-				sAutoProps = sPropVal;
-				sAutoProps.Replace(_T("\r\n"), _T("\n"));
-				bFoundAutoProps = TRUE;
-			}
-			if ((!bFoundWebViewRev)&&(sPropName.Compare(PROJECTPROPNAME_WEBVIEWER_REV)==0))
-			{
-				sWebViewerRev = sPropVal;
-				bFoundWebViewRev = TRUE;
-			}
-			if ((!bFoundWebViewPathRev)&&(sPropName.Compare(PROJECTPROPNAME_WEBVIEWER_PATHREV)==0))
-			{
-				sWebViewerPathRev = sPropVal;
-				bFoundWebViewPathRev = TRUE;
-			}
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
@@ -256,9 +223,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		{
 			if (bFoundBugtraqLabel | bFoundBugtraqMessage | bFoundBugtraqNumber
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
-				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
-				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev)
+				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize)
 				return TRUE;
 			return FALSE;
 		}
@@ -769,40 +734,6 @@ BOOL ProjectProperties::HasBugID(const CString& sMessage)
 	return FALSE;
 }
 
-void ProjectProperties::InsertAutoProps(svn_config_t *cfg)
-{
-	// every line is an autoprop
-	CString sPropsData = sAutoProps;
-	bool bEnableAutoProps = false;
-	while (!sPropsData.IsEmpty())
-	{
-		int pos = sPropsData.Find('\n');
-		CString sLine = pos >= 0 ? sPropsData.Left(pos) : sPropsData;
-		sLine.Trim();
-		if (!sLine.IsEmpty())
-		{
-			// format is '*.something = property=value;property=value;....'
-			// find first '=' char
-			int equalpos = sLine.Find('=');
-			if ((equalpos >= 0)&&(sLine[0] != '#'))
-			{
-				CString key = sLine.Left(equalpos);
-				CString value = sLine.Mid(equalpos);
-				key.Trim(_T(" ="));
-				value.Trim(_T(" ="));
-				svn_config_set(cfg, SVN_CONFIG_SECTION_AUTO_PROPS, (LPCSTR)CUnicodeUtils::GetUTF8(key), (LPCSTR)CUnicodeUtils::GetUTF8(value));
-				bEnableAutoProps = true;
-			}
-		}
-		if (pos >= 0)
-			sPropsData = sPropsData.Mid(pos).Trim();
-		else
-			sPropsData.Empty();
-	}
-	if (bEnableAutoProps)
-		svn_config_set(cfg, SVN_CONFIG_SECTION_MISCELLANY, SVN_CONFIG_OPTION_ENABLE_AUTO_PROPS, "yes");
-}
-
 #ifdef DEBUG
 static class PropTest
 {
@@ -917,6 +848,5 @@ public:
 	}
 } PropTest;
 #endif
-
 
 

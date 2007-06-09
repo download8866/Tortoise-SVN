@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -40,15 +40,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace Gdiplus;
 
-enum RevisionGraphContextMenuCommands
-{
-	// needs to start with 1, since 0 is the return value if *nothing* is clicked on in the context menu
-	ID_SHOWLOG = 1,
-	ID_COMPAREREVS,
-	ID_COMPAREHEADS,
-	ID_UNIDIFFREVS,
-	ID_UNIDIFFHEADS
-};
+// CRevisionGraphWnd dialog
 
 CRevisionGraphWnd::CRevisionGraphWnd()
 	: CWnd()
@@ -73,7 +65,6 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 	, m_fZoomFactor(1.0)
 	, m_ptRubberEnd(0,0)
 	, m_ptRubberStart(0,0)
-	, m_bShowOverview(false)
 {
 	m_GraphRect.SetRectEmpty();
 	m_ViewRect.SetRectEmpty();
@@ -101,7 +92,6 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 
 		RegisterClass(&wndcls);
 	}
-	m_bShowOverview = (BOOL)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\ShowRevGraphOverview"), FALSE);
 }
 
 CRevisionGraphWnd::~CRevisionGraphWnd()
@@ -143,8 +133,10 @@ BEGIN_MESSAGE_MAP(CRevisionGraphWnd, CWnd)
 	ON_WM_CONTEXTMENU()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
-	ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
+
+
+// CRevisionGraphWnd message handlers
 
 void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
 {
@@ -316,44 +308,41 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 	SetFocus();
 	bool bHit = false;
 	bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
-	if (!m_OverviewRect.PtInRect(point))
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-		for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+		if (reventry->drawrect.PtInRect(point))
 		{
-			CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
-			if (reventry->drawrect.PtInRect(point))
+			if (bControl)
 			{
-				if (bControl)
+				if (m_SelectedEntry1 == reventry)
 				{
-					if (m_SelectedEntry1 == reventry)
+					if (m_SelectedEntry2)
 					{
-						if (m_SelectedEntry2)
-						{
-							m_SelectedEntry1 = m_SelectedEntry2;
-							m_SelectedEntry2 = NULL;
-						}
-						else
-							m_SelectedEntry1 = NULL;
-					}
-					else if (m_SelectedEntry2 == reventry)
+						m_SelectedEntry1 = m_SelectedEntry2;
 						m_SelectedEntry2 = NULL;
-					else if (m_SelectedEntry1)
-						m_SelectedEntry2 = reventry;
+					}
 					else
-						m_SelectedEntry1 = reventry;
-				}
-				else
-				{
-					if (m_SelectedEntry1 == reventry)
 						m_SelectedEntry1 = NULL;
-					else
-						m_SelectedEntry1 = reventry;
-					m_SelectedEntry2 = NULL;
 				}
-				bHit = true;
-				Invalidate();
-				break;
+				else if (m_SelectedEntry2 == reventry)
+					m_SelectedEntry2 = NULL;
+				else if (m_SelectedEntry1)
+					m_SelectedEntry2 = reventry;
+				else
+					m_SelectedEntry1 = reventry;
 			}
+			else
+			{
+				if (m_SelectedEntry1 == reventry)
+					m_SelectedEntry1 = NULL;
+				else
+					m_SelectedEntry1 = reventry;
+				m_SelectedEntry2 = NULL;
+			}
+			bHit = true;
+			Invalidate();
+			break;
 		}
 	}
 	if ((!bHit)&&(!bControl))
@@ -363,8 +352,6 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 		m_bIsRubberBand = true;
 		ATLTRACE("LButtonDown: x = %ld, y = %ld\n", point.x, point.y);
 		Invalidate();
-		if (m_OverviewRect.PtInRect(point))
-			m_bIsRubberBand = false;
 	}
 	m_ptRubberStart = point;
 	
@@ -489,10 +476,10 @@ BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
 			SVN::formatDate(date, rentry->date);
 			strTipText.Format(IDS_REVGRAPH_BOXTOOLTIP,
 							rentry->revision,
-							(LPCTSTR)rentry->realurl,
-							(LPCTSTR)rentry->author, 
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->realurl),
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->author), 
 							date,
-							(LPCTSTR)rentry->message);
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->message));
 		}
 	}
 	else
@@ -610,9 +597,9 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 				return;
 			}
 			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			// paint the whole graph
+			//paint the whole graph
 			DrawGraph(&dc, rect, 0, 0, false);
-			// now use GDI+ to save the picture
+			//now use GDI+ to save the picture
 			CLSID   encoderClsid;
 			GdiplusStartupInput gdiplusStartupInput;
 			ULONG_PTR           gdiplusToken;
@@ -732,7 +719,7 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		if ((m_SelectedEntry1->action == CRevisionEntry::deleted)||((m_SelectedEntry2)&&(m_SelectedEntry2->action == CRevisionEntry::deleted)))
 			return;	// we can't compare with deleted items
 
-		bool bSameURL = (m_SelectedEntry2 && (m_SelectedEntry1->url == m_SelectedEntry2->url));
+		bool bSameURL = (m_SelectedEntry2 && (strcmp(m_SelectedEntry1->url, m_SelectedEntry2->url)==0));
 		CString temp;
 		if (m_SelectedEntry1 && (m_SelectedEntry2 == NULL))
 		{
@@ -778,8 +765,8 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		case ID_SHOWLOG:
 			{
 				CString sCmd;
-				CString URL = GetReposRoot() + m_SelectedEntry1->url;
-				sCmd.Format(_T("\"%s\" /command:log /path:\"%s\" /startrev:%ld"), 
+				CString URL = GetReposRoot() + CUnicodeUtils::GetUnicode(m_SelectedEntry1->url);
+				sCmd.Format(_T("\"%s\" /command:log /path:\"%s\" /revstart:%ld"), 
 					CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe"), 
 					(LPCTSTR)URL,
 					m_SelectedEntry1->revision);
@@ -800,23 +787,9 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 
 void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (m_bThreadRunning)
+	if ((!m_bIsRubberBand)||(m_bThreadRunning))
 	{
 		return __super::OnMouseMove(nFlags, point);
-	}
-	if (!m_bIsRubberBand)
-	{
-		if ((!m_OverviewRect.IsRectEmpty())&&(m_OverviewRect.PtInRect(point))&&(nFlags & MK_LBUTTON))
-		{
-			// scrolling
-			int x = (point.x-m_OverviewRect.left - (m_OverviewPosRect.Width()/2)) * m_ViewRect.Width() / m_OverviewRect.Width();
-			int y = (point.y - (m_OverviewPosRect.Height()/2)) * m_ViewRect.Height() / m_OverviewRect.Height();
-			SetScrollbars(y, x);
-			Invalidate(FALSE);
-			return __super::OnMouseMove(nFlags, point);
-		}
-		else
-			return __super::OnMouseMove(nFlags, point);
 	}
 
 	if ((abs(m_ptRubberStart.x - point.x) < 2)&&(abs(m_ptRubberStart.y - point.y) < 2))
@@ -825,6 +798,7 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 	}
 
 	SetCapture();
+	ATLTRACE("OnMouseMove: x = %ld, y = %ld\n", point.x, point.y);
 
 	if ((m_ptRubberEnd.x != 0)||(m_ptRubberEnd.y != 0))
 		DrawRubberBand();
@@ -838,31 +812,6 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 	DrawRubberBand();
 
 	__super::OnMouseMove(nFlags, point);
-}
-
-BOOL CRevisionGraphWnd::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
-{
-	if ((nHitTest == HTCLIENT)&&(pWnd == this)&&(m_ViewRect.Width())&&(m_ViewRect.Height())&&(message))
-	{
-		POINT pt;
-		if (GetCursorPos(&pt))
-		{
-			ScreenToClient(&pt);
-			if (m_OverviewPosRect.PtInRect(pt))
-			{
-				HCURSOR hCur = NULL;
-				if (GetKeyState(VK_LBUTTON)&0x8000)
-					hCur = LoadCursor(AfxGetResourceHandle(), MAKEINTRESOURCE(IDC_PANCURDOWN));
-				else
-					hCur = LoadCursor(AfxGetResourceHandle(), MAKEINTRESOURCE(IDC_PANCUR));
-				SetCursor(hCur);
-				return TRUE;
-			}
-		}
-	}
-	HCURSOR hCur = LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW));
-	SetCursor(hCur);
-	return TRUE;
 }
 
 

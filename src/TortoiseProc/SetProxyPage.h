@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -55,8 +55,14 @@ protected:
 	virtual BOOL OnApply();
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnChange();
 	afx_msg void OnBnClickedEnable();
+	afx_msg void OnEnChangeServeraddress();
+	afx_msg void OnEnChangeServerport();
+	afx_msg void OnEnChangeUsername();
+	afx_msg void OnEnChangePassword();
+	afx_msg void OnEnChangeTimeout();
+	afx_msg void OnEnChangeExceptions();
+	afx_msg void OnEnChangeSshclient();
 	afx_msg void OnBnClickedSshbrowse();
 	afx_msg void OnBnClickedEditservers();
 

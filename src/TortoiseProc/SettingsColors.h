@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "afxwin.h"
@@ -38,13 +38,13 @@ public:
 
 	UINT GetIconID() {return IDI_LOOKANDFEEL;}
 
+// Dialog Data
 	enum { IDD = IDD_SETTINGSCOLORS };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	afx_msg LRESULT OnColorChanged(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnBnClickedRestore();
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -60,4 +60,6 @@ private:
 	CColors			m_Colors;
 	
 	bool bInit;
+public:
+	afx_msg void OnBnClickedRestore();
 };

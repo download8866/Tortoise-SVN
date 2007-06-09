@@ -97,8 +97,7 @@ private:
 	char stylingMask;
 	int endStyled;
 	int styleClock;
-	int enteredModification;
-	int enteredStyling;
+	int enteredCount;
 	int enteredReadOnlyCount;
 
 	WatcherWithUserData *watchers;
@@ -137,7 +136,7 @@ public:
 	// Gateways to modifying document
 	void ModifiedAt(int pos);
 	bool DeleteChars(int pos, int len);
-	bool InsertString(int position, const char *s, int insertLength);
+	bool InsertStyledString(int position, char *s, int insertLength);
 	int Undo();
 	int Redo();
 	bool CanUndo() { return cb.CanUndo(); }
@@ -164,7 +163,8 @@ public:
 	bool IsReadOnly() { return cb.IsReadOnly(); }
 
 	bool InsertChar(int pos, char ch);
-	bool InsertCString(int position, const char *s);
+	bool InsertString(int position, const char *s);
+	bool InsertString(int position, const char *s, size_t insertLength);
 	void ChangeChar(int pos, char ch);
 	void DelChar(int pos);
 	void DelCharBack(int pos);
@@ -197,7 +197,7 @@ public:
 	int NextWordStart(int pos, int delta);
 	int NextWordEnd(int pos, int delta);
 	int Length() { return cb.Length(); }
-	void Allocate(int newSize) { cb.Allocate(newSize); }
+	void Allocate(int newSize) { cb.Allocate(newSize*2); }
 	long FindText(int minPos, int maxPos, const char *s,
 		bool caseSensitive, bool word, bool wordStart, bool regExp, bool posix, int *length);
 	long FindText(int iMessage, unsigned long wParam, long lParam);
@@ -213,7 +213,7 @@ public:
 	bool SetStyleFor(int length, char style);
 	bool SetStyles(int length, char *styles);
 	int GetEndStyled() { return endStyled; }
-	void EnsureStyledTo(int pos);
+	bool EnsureStyledTo(int pos);
 	int GetStyleClock() { return styleClock; }
 	void IncrementStyleClock();
 

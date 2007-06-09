@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "BlameDlg.h"
 #include "Balloon.h"
 #include "Registry.h"
+
+// CBlameDlg dialog
 
 IMPLEMENT_DYNAMIC(CBlameDlg, CStandAloneDialog)
 CBlameDlg::CBlameDlg(CWnd* pParent /*=NULL*/)
@@ -43,7 +45,7 @@ void CBlameDlg::DoDataExchange(CDataExchange* pDX)
 	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_REVISON_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
-	DDX_Check(pDX, IDC_USETEXTVIEWER, m_bTextView);
+	DDX_Check(pDX, IDC_CHECK1, m_bTextView);
 }
 
 
@@ -58,8 +60,6 @@ BOOL CBlameDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	AdjustControlSize(IDC_USETEXTVIEWER);
-
 	m_bTextView = m_regTextView;
 	// set head revision as default revision
 	if (EndRev.IsHead())
@@ -72,7 +72,8 @@ BOOL CBlameDlg::OnInitDialog()
 	}
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CBlameDlg::OnOK()
@@ -98,9 +99,7 @@ void CBlameDlg::OnOK()
 		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_END), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return;
 	}
-	BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
-	if (extBlame)
-		m_bTextView = true;
+
 	UpdateData(FALSE);
 
 	CStandAloneDialog::OnOK();

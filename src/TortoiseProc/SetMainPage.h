@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "Balloon.h"
@@ -46,6 +46,7 @@ public:
 	
 	UINT GetIconID() {return IDI_GENERAL;}
 
+// Dialog Data
 	enum { IDD = IDD_SETTINGSMAIN };
 
 protected:
@@ -72,9 +73,9 @@ private:
 public:
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnApply();
 	afx_msg void OnModified();
 	afx_msg void OnASPHACK();
+	virtual BOOL OnApply();
 	afx_msg void OnBnClickedEditconfig();
 	afx_msg void OnBnClickedChecknewerbutton();
 	afx_msg void OnBnClickedSounds();

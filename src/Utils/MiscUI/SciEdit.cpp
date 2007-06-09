@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "resource.h"
@@ -67,11 +67,12 @@ struct loc_map enc2locale[] = {
 
 IMPLEMENT_DYNAMIC(CSciEdit, CWnd)
 
-CSciEdit::CSciEdit(void) : m_DirectFunction(NULL)
-	, m_DirectPointer(NULL)
-	, pChecker(NULL)
-	, pThesaur(NULL)
+CSciEdit::CSciEdit(void)
 {
+	m_DirectFunction = 0;
+	m_DirectPointer = 0;
+	pChecker = 0;
+	pThesaur = 0;
 	m_hModule = ::LoadLibrary(_T("SciLexer.DLL"));
 }
 
@@ -198,27 +199,27 @@ BOOL CSciEdit::LoadDictionaries(LONG lLanguageID)
 		if ((PathFileExists(sFolder + sFile + _T(".aff"))) &&
 			(PathFileExists(sFolder + sFile + _T(".dic"))))
 		{
-			pChecker = new Hunspell(CStringA(sFolder + sFile + _T(".aff")), CStringA(sFolder + sFile + _T(".dic")));
+			pChecker = new MySpell(CStringA(sFolder + sFile + _T(".aff")), CStringA(sFolder + sFile + _T(".dic")));
 		}
 		else if ((PathFileExists(sFolder + _T("dic\\") + sFile + _T(".aff"))) &&
 			(PathFileExists(sFolder + _T("dic\\") + sFile + _T(".dic"))))
 		{
-			pChecker = new Hunspell(CStringA(sFolder + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolder + _T("dic\\") + sFile + _T(".dic")));
+			pChecker = new MySpell(CStringA(sFolder + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolder + _T("dic\\") + sFile + _T(".dic")));
 		}
 		else if ((PathFileExists(sFolderUp + sFile + _T(".aff"))) &&
 			(PathFileExists(sFolderUp + sFile + _T(".dic"))))
 		{
-			pChecker = new Hunspell(CStringA(sFolderUp + sFile + _T(".aff")), CStringA(sFolderUp + sFile + _T(".dic")));
+			pChecker = new MySpell(CStringA(sFolderUp + sFile + _T(".aff")), CStringA(sFolderUp + sFile + _T(".dic")));
 		}
 		else if ((PathFileExists(sFolderUp + _T("dic\\") + sFile + _T(".aff"))) &&
 			(PathFileExists(sFolderUp + _T("dic\\") + sFile + _T(".dic"))))
 		{
-			pChecker = new Hunspell(CStringA(sFolderUp + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("dic\\") + sFile + _T(".dic")));
+			pChecker = new MySpell(CStringA(sFolderUp + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("dic\\") + sFile + _T(".dic")));
 		}
 		else if ((PathFileExists(sFolderUp + _T("Languages\\") + sFile + _T(".aff"))) &&
 			(PathFileExists(sFolderUp + _T("Languages\\") + sFile + _T(".dic"))))
 		{
-			pChecker = new Hunspell(CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".dic")));
+			pChecker = new MySpell(CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".dic")));
 		}
 	}
 #if THESAURUS
@@ -377,15 +378,16 @@ void CSciEdit::SetFont(CString sFontName, int iFontSizeInPoints)
 	Call(SCI_STYLESETUNDERLINE, STYLE_UNDERLINED, (LPARAM)TRUE);
 }
 
-void CSciEdit::SetAutoCompletionList(const std::set<CString>& list, const TCHAR separator)
+void CSciEdit::SetAutoCompletionList(const CAutoCompletionList& list, const TCHAR separator)
 {
 	//copy the autocompletion list.
 	
 	//SK: instead of creating a copy of that list, we could accept a pointer
 	//to the list and use that instead. But then the caller would have to make
 	//sure that the list persists over the lifetime of the control!
-	m_autolist.clear();
-	m_autolist = list;
+	m_autolist.RemoveAll();
+	for (INT_PTR i=0; i<list.GetCount(); ++i)
+		m_autolist.Add(list[i]);
 	m_separator = separator;
 }
 
@@ -434,7 +436,7 @@ void CSciEdit::CheckSpelling()
 			else
 				sWordA = CStringA(sWord);
 			// first check if the word is in our autocompletion list
-			if (((m_autolist.find(sWord) == m_autolist.end())&&(!pChecker->spell(sWordA)))&&
+			if (((m_autolist.Find(sWord)<0)&&(!pChecker->spell(sWordA)))&&
 				(!_istdigit(sWord.GetAt(0)))&&(!m_personalDict.FindWord(sWord)))
 			{
 				//mark word as misspelled
@@ -487,7 +489,7 @@ void CSciEdit::SuggestSpellingAlternatives()
 
 void CSciEdit::DoAutoCompletion()
 {
-	if (m_autolist.size()==0)
+	if (m_autolist.GetCount()==0)
 		return;
 	if (Call(SCI_AUTOCACTIVE))
 		return;
@@ -499,15 +501,14 @@ void CSciEdit::DoAutoCompletion()
 		return;	//don't autocomplete if we're not at the end of a word
 	CString sAutoCompleteList;
 	
-	for (std::set<CString>::const_iterator lowerit = m_autolist.lower_bound(word);
-		lowerit != m_autolist.end(); ++lowerit)
+	for (INT_PTR index = 0; index < m_autolist.GetCount(); ++index)
 	{
-		int compare = word.CompareNoCase(lowerit->Left(word.GetLength()));
+		int compare = word.CompareNoCase(m_autolist[index].Left(word.GetLength()));
 		if (compare>0)
 			continue;
 		else if (compare == 0)
 		{
-			sAutoCompleteList += *lowerit + m_separator;
+			sAutoCompleteList += m_autolist[index] + m_separator;
 		}
 		else
 		{
@@ -549,7 +550,6 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
 			CheckSpelling();
 			MarkEnteredBugID(startstylepos, endstylepos);
 			StyleEnteredText(startstylepos, endstylepos);
-			WrapLines(startstylepos, endstylepos);
 			return TRUE;
 			break;
 		}
@@ -636,60 +636,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		bool bCanPaste = !!Call(SCI_CANPASTE);
 		UINT uEnabledMenu = MF_STRING | MF_ENABLED;
 		UINT uDisabledMenu = MF_STRING | MF_GRAYED;
-
-		// find the word under the cursor
-		CString sWord;		
-		if (pointpos)
-		{
-			// setting the cursor clears the selection
-			Call(SCI_SETANCHOR, pointpos);
-			Call(SCI_SETCURRENTPOS, pointpos);
-			sWord = GetWordUnderCursor();
-			// restore the selection
-			Call(SCI_SETSELECTIONSTART, selstart);
-			Call(SCI_SETSELECTIONEND, selend);
-		}
-		else
-			sWord = GetWordUnderCursor();
-		CStringA worda = CStringA(sWord);
-
-		int nCorrections = 1;
-		bool bSpellAdded = false;
-		// check if the word under the cursor is spelled wrong
-		if ((pChecker)&&(!worda.IsEmpty()))
-		{
-			char ** wlst;
-			// get the spell suggestions
-			int ns = pChecker->suggest(&wlst,worda);
-			if (ns > 0)
-			{
-				// add the suggestions to the context menu
-				for (int i=0; i < ns; i++) 
-				{
-					bSpellAdded = true;
-					CString sug = CString(wlst[i]);
-					popup.InsertMenu((UINT)-1, 0, nCorrections++, sug);
-					free(wlst[i]);
-				} 
-				free(wlst);
-			}
-		}
-		// only add a separator if spelling correction suggestions were added
-		if (bSpellAdded)
-			popup.AppendMenu(MF_SEPARATOR);
-
-		// also allow the user to add the word to the custom dictionary so
-		// it won't show up as misspelled anymore
-		if ((sWord.GetLength()<PDICT_MAX_WORD_LENGTH)&&((pChecker)&&(m_autolist.find(sWord) == m_autolist.end())&&(!pChecker->spell(worda)))&&
-			(!_istdigit(sWord.GetAt(0)))&&(!m_personalDict.FindWord(sWord)))
-		{
-			sMenuItemText.Format(IDS_SCIEDIT_ADDWORD, sWord);
-			popup.AppendMenu(uEnabledMenu, SCI_ADDWORD, sMenuItemText);
-			// another separator
-			popup.AppendMenu(MF_SEPARATOR);
-		}
-
-		// add the 'default' entries
+		
 		sMenuItemText.LoadString(IDS_SCIEDIT_UNDO);
 		popup.AppendMenu(bCanUndo ? uEnabledMenu : uDisabledMenu, SCI_UNDO, sMenuItemText);
 		sMenuItemText.LoadString(IDS_SCIEDIT_REDO);
@@ -711,24 +658,76 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 
 		popup.AppendMenu(MF_SEPARATOR);
 
-		sMenuItemText.LoadString(IDS_SCIEDIT_SPLITLINES);
-		popup.AppendMenu(bHasSelection ? uEnabledMenu : uDisabledMenu, SCI_LINESSPLIT, sMenuItemText);
-
-		popup.AppendMenu(MF_SEPARATOR);
-
-		int nCustoms = nCorrections;
 		// now add any custom context menus
+		int nCustoms = 1;
 		for (INT_PTR handlerindex = 0; handlerindex < m_arContextHandlers.GetCount(); ++handlerindex)
 		{
 			CSciEditContextMenuInterface * pHandler = m_arContextHandlers.GetAt(handlerindex);
 			pHandler->InsertMenuItems(popup, nCustoms);
 		}
-		if (nCustoms > nCorrections)
+		if (nCustoms > 1)
 		{
 			// custom menu entries present, so add another separator
 			popup.AppendMenu(MF_SEPARATOR);
 		}
+		int menuid = nCustoms;
 
+		CString sWord;		
+		if (pointpos)
+		{
+			// setting the cursor clears the selection
+			Call(SCI_SETANCHOR, pointpos);
+			Call(SCI_SETCURRENTPOS, pointpos);
+			sWord = GetWordUnderCursor();
+			// restore the selection
+			Call(SCI_SETSELECTIONSTART, selstart);
+			Call(SCI_SETSELECTIONEND, selend);
+		}
+		else
+			sWord = GetWordUnderCursor();
+		CStringA worda = CStringA(sWord);
+		if ((sWord.GetLength()<PDICT_MAX_WORD_LENGTH)&&((pChecker)&&(m_autolist.Find(sWord)<0)&&(!pChecker->spell(worda)))&&
+			(!_istdigit(sWord.GetAt(0)))&&(!m_personalDict.FindWord(sWord)))
+		{
+			sMenuItemText.Format(IDS_SCIEDIT_ADDWORD, sWord);
+			popup.AppendMenu(uEnabledMenu, SCI_ADDWORD, sMenuItemText);
+		}
+
+		CMenu corrections;
+		corrections.CreatePopupMenu();
+		int nCorrections = nCustoms;
+		if ((pChecker)&&(!worda.IsEmpty()))
+		{
+			char ** wlst;
+			int ns = pChecker->suggest(&wlst,worda);
+			if (ns > 0)
+			{
+				for (int i=0; i < ns; i++) 
+				{
+					CString sug = CString(wlst[i]);
+					corrections.InsertMenu((UINT)-1, 0, menuid++, sug);
+					free(wlst[i]);
+				} 
+				free(wlst);
+			}
+
+			if ((ns > 0)&&(point.x >= 0))
+			{
+				sMenuItemText.LoadString(IDS_SPELLEDIT_CORRECTIONS);
+				popup.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)corrections.m_hMenu, sMenuItemText);
+				nCorrections = ns;
+			}
+			else
+			{
+				sMenuItemText.LoadString(IDS_SPELLEDIT_NOCORRECTIONS);
+				popup.AppendMenu(MF_DISABLED | MF_GRAYED | MF_STRING, 0, sMenuItemText);
+			}
+		}
+		else
+		{
+			sMenuItemText.LoadString(IDS_SPELLEDIT_NOCORRECTIONS);
+			popup.AppendMenu(MF_DISABLED | MF_GRAYED | MF_STRING, 0, sMenuItemText);
+		}
 #if THESAURUS
 		// add found thesauri to submenu's
 		CMenu thesaurs;
@@ -751,7 +750,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 					for (int j=0; j < pm->count; j++) 
 					{
 						CString sug = CString(pm->psyns[j]);
-						submenu->InsertMenu((UINT)-1, 0, nThesaurs++, sug);
+						submenu->InsertMenu((UINT)-1, 0, menuid++, sug);
 					}
 					thesaurs.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)(submenu->m_hMenu), CString(pm->defn));
 					pm++;
@@ -765,7 +764,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 #else
 				popup.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)thesaurs.m_hMenu, _T("Thesaurus"));
 #endif
-				nThesaurs = nCustoms;
+				nThesaurs = menuid;
 			}
 			else
 			{
@@ -800,29 +799,8 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			m_personalDict.AddWord(sWord);
 			CheckSpelling();
 			break;
-		case SCI_LINESSPLIT:
-			{
-				int marker = Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" ");
-				if (marker)
-				{
-					Call(SCI_TARGETFROMSELECTION);
-					Call(SCI_LINESJOIN);
-					Call(SCI_LINESSPLIT, marker);
-				}
-			}
-			break;
 		default:
-			if (cmd < nCorrections)
-			{
-				Call(SCI_SETANCHOR, pointpos);
-				Call(SCI_SETCURRENTPOS, pointpos);
-				GetWordUnderCursor(true);
-				CString temp;
-				popup.GetMenuString(cmd, temp, 0);
-				// setting the cursor clears the selection
-				Call(SCI_REPLACESEL, 0, (LPARAM)(LPCSTR)StringForControl(temp));
-			}
-			else if (cmd < (nCorrections+nCustoms))
+			if (cmd < nCustoms)
 			{
 				for (INT_PTR handlerindex = 0; handlerindex < m_arContextHandlers.GetCount(); ++handlerindex)
 				{
@@ -830,6 +808,16 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 					if (pHandler->HandleMenuItemClick(cmd, this))
 						break;
 				}		
+			}
+			else if (cmd <= (nCorrections+nCustoms))
+			{
+				Call(SCI_SETANCHOR, pointpos);
+				Call(SCI_SETCURRENTPOS, pointpos);
+				GetWordUnderCursor(true);
+				CString temp;
+				corrections.GetMenuString(cmd, temp, 0);
+				// setting the cursor clears the selection
+				Call(SCI_REPLACESEL, 0, (LPARAM)(LPCSTR)StringForControl(temp));
 			}
 #if THESAURUS
 			else if (cmd <= (nThesaurs+nCorrections+nCustoms))
@@ -901,19 +889,6 @@ bool CSciEdit::StyleEnteredText(int startstylepos, int endstylepos)
 		delete linebuffer;
 	}
 	return bStyled;
-}
-
-bool CSciEdit::WrapLines(int startpos, int endpos)
-{
-	int markerX = Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" ");
-	if (markerX)
-	{
-		Call(SCI_SETTARGETSTART, startpos);
-		Call(SCI_SETTARGETEND, endpos);
-		Call(SCI_LINESSPLIT, markerX);
-		return true;
-	}
-	return false;
 }
 
 void CSciEdit::AdvanceUTF8(const char * str, int& pos)
@@ -1151,4 +1126,52 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 	return FALSE;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
+void CAutoCompletionList::AddSorted(const CString& elem, bool bNoDuplicates /*= true*/)
+{
+	if (elem.IsEmpty())
+		return;
+	if (GetCount()==0)
+		return InsertAt(0, elem);
+	
+	int nMin = 0;
+	int nMax = GetUpperBound();
+	while (nMin <= nMax)
+	{
+		UINT nHit = (UINT)(nMin + nMax) >> 1; // fast divide by 2
+		int cmp = elem.CompareNoCase(GetAt(nHit));
+
+		if (cmp > 0)
+			nMin = nHit + 1;
+		else if (cmp < 0)
+			nMax = nHit - 1;
+		else if (bNoDuplicates)
+			return; // already in the array
+	}
+	return InsertAt(nMin, elem);
+}
+
+INT_PTR CAutoCompletionList::Find(const CString& elem)
+{
+	if (elem.IsEmpty())
+		return -1;
+	if (GetCount()==0)
+		return -1;
+
+	int nMin = 0;
+	int nMax = GetUpperBound();
+	while (nMin <= nMax)
+	{
+		UINT nHit = (UINT)(nMin + nMax) >> 1; // fast divide by 2
+		int cmp = elem.CompareNoCase(GetAt(nHit));
+
+		if (cmp > 0)
+			nMin = nHit + 1;
+		else if (cmp < 0)
+			nMax = nHit - 1;
+		else
+			return nMin;
+	}
+	return -1;
+}

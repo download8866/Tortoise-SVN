@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,17 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "Balloon.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Settings page to configure miscellaneous stuff. 
- */
 class CSetMisc : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetMisc)
@@ -50,7 +46,6 @@ protected:
 	afx_msg void OnChanged();
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual BOOL OnApply();
 
 	DECLARE_MESSAGE_MAP()
 private:
@@ -68,8 +63,8 @@ private:
 	BOOL			m_bCheckRepo;
 	CRegDWORD		m_regMaxHistory;
 	DWORD			m_dwMaxHistory;
+	CRegDWORD		m_regSortNumerical;
+	BOOL			m_bSortNumerical;
 	CRegDWORD		m_regCommitReopen;
 	BOOL			m_bCommitReopen;
-	CRegDWORD		m_regShowLockDlg;
-	BOOL			m_bShowLockDlg;
 };

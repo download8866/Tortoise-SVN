@@ -29,7 +29,7 @@
 			<primary>command line</primary>
 		</indexterm>
 		<para>
-			The TortoiseSVN GUI program is called <literal>TortoiseProc.exe</literal>.
+            The TortoiseSVN GUI program is called <literal>TortoiseProc.exe</literal>.
 			All commands are specified with the parameter <option>/command:abcd</option>
 			where <literal>abcd</literal> is the required command name. Most of these
 			commands need at least one path argument, which is given with 
@@ -43,10 +43,11 @@
 			several paths, separated by a <literal>*</literal> character.
 		</para>
 		<para>
-			TortoiseSVN uses temporary files to pass multiple arguments between
-			the shell extension and the main program. From TortoiseSVN 1.5.0 on and later,
-			<option>/notempfile</option> parameter is obsolete and there is no need
-			to add it anymore.
+			Since TortoiseSVN uses temporary files to pass multiple arguments between
+			the shell extension and the main program, you <emphasis>must</emphasis>
+			add the <option>/notempfile</option> parameter! If you don't, the command
+			won't work and the file you pass with the <option>/path</option> parameter
+			will be deleted!
 		</para>
 		<para>
 			The progress dialog which is used for commits, updates and many more commands
@@ -68,29 +69,23 @@
 			<itemizedlist>
 				<listitem>
 					<para>
-						<option>/closeonend:0</option> don't close the dialog automatically
-					</para>
+						<option>/closeonend:0</option> don't close the dialog automatically</para>
 				</listitem>
 				<listitem>
 					<para>
-						<option>/closeonend:1</option> auto close if no errors
-					</para>
+						<option>/closeonend:1</option> auto close if no errors</para>
 				</listitem>
 				<listitem>
 					<para>
-						<option>/closeonend:2</option> auto close if no errors and conflicts
-					</para>
+						<option>/closeonend:2</option> auto close if no errors and conflicts</para>
 				</listitem>
 				<listitem>
 					<para>
-						<option>/closeonend:3</option> auto close if no errors, conflicts and merges
-					</para>
+						<option>/closeonend:3</option> auto close if no errors, conflicts and merges</para>
 				</listitem>
 				<listitem>
 					<para>
-						<option>/closeonend:4</option> auto close if no errors, conflicts and merges
-						for local operations
-					</para>
+						<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations</para>
 				</listitem>
 			</itemizedlist>
 		</para>
@@ -137,8 +132,8 @@ Don't touch these lines:
 								Opens the log dialog. The path specifies the
 								file or folder for which the log should be shown.
 								Three additional options can be set:
-								<option>/startrev:xxx</option>, 
-								<option>/endrev:xxx</option> and
+								<option>/revstart:xxx</option>, 
+								<option>/revend:xxx</option> and
 								<option>/strict</option>
 							</entry>
 						</row>
@@ -163,10 +158,7 @@ Don't touch these lines:
 								Updates the working copy in <option>/path</option> to
 								HEAD. If the option <option>/rev</option> is given
 								then a dialog is shown to ask the user to which
-								revision the update should go. To avoid the dialog
-								specify a revision number <option>/rev:1234</option>.
-								Other options are <option>/nonrecursive</option> and
-								<option>/ignoreexternals</option>.
+								revision the update should go.
 							</entry>
 						</row>
 						<row>
@@ -244,11 +236,6 @@ Don't touch these lines:
 							<entry>
 								Opens the merge dialog. The path specifies the
 								target directory.
-								Three additional options can be set:
-								<option>/mergefrom:xxx</option>, 
-								<option>/mergeto:xxx</option> and
-								<option>/fromurl:URL</option>.
-								These pre-fill the relevant fields in the merge dialog.
 							</entry>
 						</row>
 						<row>
@@ -385,16 +372,8 @@ Don't touch these lines:
 						<row>
 							<entry condition="pot">:lock</entry>
 							<entry>
-								Locks a file or all files in a directory.
-								The 'lock' dialog is shown so the
+								Locks a file. The 'lock' dialog is shown so the
 								user can enter a comment for the lock.
-								<option>/path</option>
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">:unlock</entry>
-							<entry>
-								Unlocks a file or all files in a directory..
 								<option>/path</option>
 							</entry>
 						</row>
@@ -408,13 +387,6 @@ Don't touch these lines:
 								<option>/noquestion</option>
 							</entry>
 						</row>
-						<row>
-							<entry condition="pot">:properties</entry>
-							<entry>
-								Shows the properties dialog for the path given in
-								<option>/path</option>.
-							</entry>
-						</row>
 					</tbody>
 				</tgroup>
 			</table>
@@ -423,12 +395,12 @@ Don't touch these lines:
 			Examples (which should be entered on one line):
 <screen>
 TortoiseProc.exe /command:commit /path:"c:\svn_wc\file1.txt*c:\svn_wc\file2.txt"
-                 /logmsg:"test log message" /closeonend
+                 /logmsg:"test log message" /notempfile /closeonend
 
-TortoiseProc.exe /command:update /path:"c:\svn_wc\" /closeonend
+TortoiseProc.exe /command:update /path:"c:\svn_wc\" /notempfile /closeonend
 
 TortoiseProc.exe /command:log /path:"c:\svn_wc\file1.txt"
-                 /startrev:50 /endrev:60 /closeonend
+                 /revstart:50 /revend:60 /notempfile /closeonend
 </screen>
 		</para>
 	</sect1>

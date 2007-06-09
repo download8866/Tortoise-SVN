@@ -13,14 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "InputDlg.h"
 #include "Registry.h"
 
+
+// CInputDlg dialog
 
 IMPLEMENT_DYNAMIC(CInputDlg, CResizableStandAloneDialog)
 CInputDlg::CInputDlg(CWnd* pParent /*=NULL*/)
@@ -47,6 +49,9 @@ void CInputDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CInputDlg, CResizableStandAloneDialog)
 	ON_EN_CHANGE(IDC_INPUTTEXT, OnEnChangeLogmessage)
 END_MESSAGE_MAP()
+
+
+// CInputDlg message handlers
 
 BOOL CInputDlg::OnInitDialog()
 {
@@ -105,7 +110,8 @@ BOOL CInputDlg::OnInitDialog()
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	GetDlgItem(IDC_INPUTTEXT)->SetFocus();
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CInputDlg::OnOK()

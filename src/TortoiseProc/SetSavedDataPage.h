@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,18 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "afxwin.h"
 #include "Balloon.h"
 
 
-/**
- * \ingroup TortoiseProc
- * Setting page to clear various saved/cached data.
- */
 class CSetSavedDataPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetSavedDataPage)
@@ -55,7 +51,6 @@ protected:
 	afx_msg void OnBnClickedLoghistclear();
 	afx_msg void OnBnClickedResizablehistclear();
 	afx_msg void OnBnClickedAuthhistclear();
-	afx_msg void OnBnClickedRepologclear();
 
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -65,5 +60,4 @@ private:
 	CButton			m_btnLogHistClear;
 	CButton			m_btnResizableHistClear;
 	CButton			m_btnAuthHistClear;
-	CButton			m_btnRepoLogClear;
 };

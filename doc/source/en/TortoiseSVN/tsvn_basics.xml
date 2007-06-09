@@ -11,8 +11,7 @@
 	<simplesect>
 		<para>
 			This chapter is a slightly modified version of the same chapter
-			in the Subversion book. An online version of the Subversion book is 
-			available here:
+			in the Subversion book. You can read the Subversion book here:
 			<ulink url="http://svnbook.red-bean.com/">
 				<citetitle>http://svnbook.red-bean.com/</citetitle>
 			</ulink>.
@@ -430,7 +429,7 @@
 					<literal>X</literal> is the drive on which the repository
 					resides:
 				</para>
-<screen>
+				<screen>
 file:///X:/path/to/repos
 ...
 file:///X|/path/to/repos
@@ -566,7 +565,7 @@ file:///X|/path/to/repos
 				suppose you check out a working copy from a repository whose
 				most recent revision is 4:
 			</para>
-<screen>
+			<screen>
 calc/Makefile:4
      integer.c:4
      button.c:4
@@ -579,7 +578,7 @@ calc/Makefile:4
 				commit will create revision 5 of the repository, and your
 				working copy will now look like this:
 			</para>
-<screen>
+			<screen>
 calc/Makefile:4
      integer.c:4
      button.c:5
@@ -590,7 +589,7 @@ calc/Makefile:4
 				use <command>svn update</command> to bring your working copy
 				up to date, then it will look like this:
 			</para>
-<screen>
+			<screen>
 calc/Makefile:6
      integer.c:6
      button.c:6

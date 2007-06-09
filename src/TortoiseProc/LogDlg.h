@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -28,6 +28,40 @@
 #include "MenuButton.h"
 #include "afxwin.h"
 #include "afxdtctl.h"
+
+#define ID_COMPARE		1
+#define ID_SAVEAS		2
+#define ID_COMPARETWO	3
+#define ID_UPDATE		4
+#define ID_COPY			5
+#define ID_REVERTREV	6
+#define ID_GNUDIFF1		7
+#define ID_GNUDIFF2		8
+#define ID_FINDENTRY	9
+#define ID_REVERT	   10
+#define	ID_REFRESH	   11
+#define ID_OPEN		   12
+#define ID_REPOBROWSE  13
+#define ID_DELETE	   14
+#define ID_IGNORE	   15
+#define	ID_LOG		   16
+#define ID_POPPROPS	   17
+#define ID_EDITAUTHOR  18
+#define ID_EDITLOG     19
+
+#define ID_DIFF			20
+#define ID_EDITCONFLICT	21
+#define ID_OPENWITH		22
+#define ID_COPYCLIPBOARD 23
+#define ID_CHECKOUT		24
+#define ID_CONFLICTUSETHEIRS 25
+#define ID_CONFLICTUSEMINE 26
+#define ID_REVERTTOREV	27
+#define ID_EXPLORE		28
+#define ID_BLAMECOMPARE 29
+#define ID_BLAMETWO     30
+#define ID_BLAMEDIFF    31
+#define ID_CONFLICTRESOLVE 32
 
 #define LOGFILTER_ALL      1
 #define LOGFILTER_MESSAGES 2
@@ -47,8 +81,6 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 class CLogDlg : public CResizableStandAloneDialog, public SVN //CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CLogDlg)
-	
-	friend class CStoreSelection;
 
 public:
 	CLogDlg(CWnd* pParent = NULL);   // standard constructor
@@ -69,15 +101,15 @@ protected:
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedGetall();
-	afx_msg void OnNMDblclkChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMDblclkLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangedLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnEnLinkMsgview(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedStatbutton();
 	afx_msg void OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMCustomdrawChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdrawLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnGetdispinfoChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnGetdispinfoLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnStnClickedFiltericon();
 	afx_msg void OnBnClickedFiltercancel();
 	afx_msg void OnEnChangeSearchedit();
@@ -85,15 +117,13 @@ protected:
 	afx_msg void OnDtnDatetimechangeDateto(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnDtnDatetimechangeDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnColumnclick(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnLvnColumnclickChangedFileList(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnColumnclickLogmsg(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnBnClickedNexthundred();
 	afx_msg void OnBnClickedHidepaths();
 	afx_msg void OnBnClickedCheckStoponcopy();
 	afx_msg void OnLvnOdfinditemLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDtnDropdownDatefrom(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnDtnDropdownDateto(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-virtual void OnCancel();
+	virtual void OnCancel();
 	virtual void OnOK();
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -116,7 +146,6 @@ private:
 	UINT LogThread();
 	void Refresh();
 	BOOL DiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
-	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
 	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
@@ -133,16 +162,12 @@ private:
 	bool IsSelectionContinuous();
 	void EnableOKButton();
 	void GetAll(bool bForceAll = false);
-	void UpdateLogInfoLabel();
-	void SaveSplitterPos();
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 
 	void ResizeAllListCtrlCols(CListCtrl &list);
 
-	void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
-	void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
 public:
 	CWnd *				m_pNotifyWindow;
 	ProjectProperties	m_ProjectProperties;
@@ -151,7 +176,7 @@ private:
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CListCtrl			m_LogList;
-	CListCtrl			m_ChangedFileListCtrl;
+	CListCtrl			m_LogMsgCtrl;
 	CProgressCtrl		m_LogProgress;
 	CMenuButton			m_btnShow;
 	CTSVNPath			m_path;
@@ -200,8 +225,7 @@ private:
 	CString				m_sTitle;
 	bool				m_bSelect;
 	bool				m_bShowBugtraqColumn;
-	CString				m_sLogInfo;
-
+	
 	CTime				m_timFrom;
 	CTime				m_timTo;
 	CColors				m_Colors;
@@ -211,25 +235,12 @@ private:
 	HICON				m_hAddedIcon;
 	HICON				m_hDeletedIcon;
 
-private:
-	/**
-	 * Instances of CStoreSelection save the selection of the CLogDlg. When the instance
-	 * is deleted the destructor restores the selection.
-	 */
-	class CStoreSelection
-	{
-	public:
-		CStoreSelection(CLogDlg* dlg);
-		~CStoreSelection();
-	protected:
-		CLogDlg* m_logdlg;
-		std::set<LONG> m_SetSelectedRevisions;
-	};
-	CLogDlg::CStoreSelection* m_pStoreSelection;
+	CString sModifiedStatus, sReplacedStatus, sAddStatus, sDeleteStatus;
 
+private:
     typedef struct LogEntryData
     {   
-        svn_revnum_t Rev;
+        DWORD dwRev;
         __time64_t tmDate;
         CString sDate;
         CString sAuthor;
@@ -285,7 +296,7 @@ private:
         {
             bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
             {
-                return pStart->Rev < pEnd->Rev;
+                return pStart->dwRev < pEnd->dwRev;
             }
         };
         // Descending revision sorting.
@@ -293,7 +304,7 @@ private:
         {
             bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
             {
-				return pStart->Rev > pEnd->Rev;
+				return pStart->dwRev > pEnd->dwRev;
             }
         };
         // Ascending author sorting.
@@ -301,10 +312,7 @@ private:
         {
             bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
             {
-				int ret = pStart->sAuthor.CompareNoCase(pEnd->sAuthor);
-				if (ret == 0)
-					return pStart->Rev < pEnd->Rev;
-				return ret<0;
+                return pStart->sAuthor.CompareNoCase(pEnd->sAuthor)<0;
             }
         };
         // Descending author sorting.
@@ -312,10 +320,7 @@ private:
         {
             bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
             {
-				int ret = pStart->sAuthor.CompareNoCase(pEnd->sAuthor);
-				if (ret == 0)
-					return pStart->Rev > pEnd->Rev;
-				return ret>0;
+                return pStart->sAuthor.CompareNoCase(pEnd->sAuthor)>0;
             }
         };
         // Ascending message sorting.
@@ -339,8 +344,6 @@ private:
 		{
 			bool operator() (PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 			{
-				if (pStart->actions == pEnd->actions)
-					return pStart->Rev < pEnd->Rev;
 				return pStart->actions < pEnd->actions;
 			}
 		};
@@ -349,8 +352,6 @@ private:
 		{
 			bool operator() (PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 			{
-				if (pStart->actions == pEnd->actions)
-					return pStart->Rev > pEnd->Rev;
 				return pStart->actions > pEnd->actions;
 			}
 		};

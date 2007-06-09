@@ -353,11 +353,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\AlphaControl.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\BaseWindow.cpp"
+				RelativePath=".\BaseWindow.cpp"
 				>
 			</File>
 			<File
@@ -431,11 +427,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\AlphaControl.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\BaseWindow.h"
+				RelativePath=".\BaseWindow.h"
 				>
 			</File>
 			<File
@@ -485,10 +477,6 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\alphatoggle.ico"
-				>
-			</File>
-			<File
 				RelativePath=".\fitinwindow.ico"
 				>
 			</File>
@@ -506,22 +494,6 @@
 			</File>
 			<File
 				RelativePath=".\overlap.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\pan.cur"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\pan.cur"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\pandown.cur"
-				>
-			</File>
-			<File
-				RelativePath=".\pandown.cur"
 				>
 			</File>
 			<File
@@ -546,10 +518,6 @@
 			</File>
 			<File
 				RelativePath=".\TortoiseIDiff.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\uac.manifest"
 				>
 			</File>
 			<File

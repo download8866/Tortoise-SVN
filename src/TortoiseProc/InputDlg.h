@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -22,24 +22,23 @@
 #include "SciEdit.h"
 #include "ProjectProperties.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog to ask for various text inputs.
- */
+// CInputDlg dialog
+
 class CInputDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CInputDlg)
 
 public:
-	CInputDlg(CWnd* pParent = NULL);
+	CInputDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CInputDlg();
 
+// Dialog Data
 	enum { IDD = IDD_INPUTDLG };
 
 protected:
 	CFont			m_logFont;
 
-	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual void OnOK();

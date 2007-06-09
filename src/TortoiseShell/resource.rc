@@ -65,7 +65,6 @@ IDI_MENUFOLDER          ICON                    "..\\Resources\\tsvnmenufolder.i
 IDI_MENULINK            ICON                    "..\\Resources\\tsvnmenulink.ico"
 IDI_MENUMULTIPLE        ICON                    "..\\Resources\\tsvnmenumultiple.ico"
 IDI_PROPERTIES          ICON                    "..\\Resources\\menuproperties.ico"
-IDI_DELUNVERSIONED      ICON                    "..\\Resources\\menudelunversioned.ico"
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +108,7 @@ BEGIN
     LTEXT           "Lock creation date:",IDC_STATIC,4,78,76,8
     EDITTEXT        IDC_LOCKDATE,80,79,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
     PUSHBUTTON      "Show &log",IDC_SHOWLOG,120,96,123,14
-    PUSHBUTTON      "&Properties...",IDC_EDITPROPERTIES,4,96,107,14
+    PUSHBUTTON      "Properties...",IDC_EDITPROPERTIES,4,96,107,14
 END
 
 
@@ -324,31 +323,6 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_DROPMOVERENAMEMENU  "SVN Move and rename versioned files here"
-    IDS_MENUPROPERTIES      "Properties"
-    IDS_MENUDESCPROPERTIES  "Manage Subversion properties"
-    IDS_COLTITLEEOLSTYLE    "SVN eol-style"
-    IDS_COLDESCEOLSTYLE     "Shows the eol-style property value"
-    IDS_MENUURLDIFF         "&Diff with URL"
-    IDS_MENUDESCURLDIFF     "Compares the selected file with a file in the repository"
-    IDS_PROPBIN             "(binary value)"
-    IDS_TT_WEBVIEWERREVISION 
-                            "webviewer:revision\nURL pointing to the web viewer for the repository for a specific revision.\nThe string %REVISION% in that URL is replaced with the revision number."
-    IDS_TT_WEBVIEWERPATHREVISION 
-                            "webviewer:pathrevision\nURL pointing to the web viewer for the repository for a specific file and revision.\nThe string %REVISION% in the URL is replaced with the revision number,\nthe string %PATH% is replaced with the path to the file relative to the repository root."
-    IDS_TT_USERFILEPROPERTIES 
-                            "tsvn:userfileproperties\nNewline separated list of user defined properties for files which will\nbe shown in the property dialog to choose from."
-    IDS_TT_USERFOLDERPROPERTIES 
-                            "tsvn:userfolderproperties\nNewline separated list of user defined properties for folders which will\nbe shown in the property dialog to choose from."
-    IDS_MENUDELUNVERSIONED  "Delete unversioned items..."
-    IDS_MENUDESCDELUNVERSIONED "Removes all unversioned and ignored items"
-    IDS_TT_TSVNLOCKMSGMINSIZE 
-                            "tsvn:lockmsgminsize\nMinimum size in chars a lock message must have before a lock is allowed."
-    IDS_MENUREMOVEKEEP      "&Delete (keep local)"
-END
-
-STRINGTABLE 
-BEGIN
     IDS_MENU_LOCK           "Get loc&k..."
     IDS_MENU_UNLOCK         "Release loc&k"
     IDS_MENUDESC_LOCK       "Locks a file for other users and makes it editable by you."
@@ -370,8 +344,14 @@ END
 
 STRINGTABLE 
 BEGIN
-    IDS_MENUDESCREMOVEKEEP  "Deletes files / folders from version control but keeps the file"
-    IDS_TT_TSVNAUTOPROPS    "tsvn:autoprops\nA list of properties separated by newlines which get applied automatically when adding/importing files.\nFormat: <filemask> = property=value;property=value\nExample: *.xml = svn:eol-style=native;svn:mime-type=text/xml"
+    IDS_DROPMOVERENAMEMENU  "SVN Move and rename versioned files here"
+    IDS_MENUPROPERTIES      "Properties"
+    IDS_MENUDESCPROPERTIES  "Manage Subversion properties"
+    IDS_COLTITLEEOLSTYLE    "SVN eol-style"
+    IDS_COLDESCEOLSTYLE     "Shows the eol-style property value"
+    IDS_MENUURLDIFF         "&Diff with URL"
+    IDS_MENUDESCURLDIFF     "Compares the selected file with a file in the repository"
+    IDS_PROPBIN             "(binary value)"
 END
 
 #endif    // English (U.S.) resources

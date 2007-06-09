@@ -2,29 +2,25 @@
 
 // Copyright (C) 2003-2006 - Stefan Kueng
 
-// thisobject program is free software; you can redistribute it and/or
+// This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// thisobject program is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with thisobject program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include <iostream>
 #include <tchar.h>
 #include <windows.h>
 #include <shlwapi.h>
-#include <shellapi.h>
-#include <io.h>
-#include <fcntl.h>
-
 
 #include <apr_pools.h>
 #include "svn_error.h"
@@ -32,10 +28,6 @@
 #include "svn_path.h"
 #include "SubWCRev.h"
 #include "..\version.h"
-
-STDAPI DllUnregisterServer();
-STDAPI DllRegisterServer();
-
 
 // Define the help text as a multi-line macro
 // Every line except the last must be terminated with a backslash
@@ -56,7 +48,7 @@ DstVersionFile     :   path to save the resulting parsed file.\n\
 -f                 :   if given, then SubWCRev will include the\n\
                        last-committed revision of folders. Default is\n\
                        to use only files to get the revision numbers.\n\
-                       thisobject only affects $WCREV$ and $WCDATE$.\n\
+                       This only affects $WCREV$ and $WCDATE$.\n\
 -e                 :   if given, also include dirs which are included\n\
                        with svn:externals, but only if they're from the\n\
                        same repository.\n"
@@ -275,7 +267,7 @@ int InsertBoolean(char * def, char * pBuf, size_t & index, size_t & filelength, 
 	
 	// Look for the ':' dividing TrueText from FalseText
 	char *pSplit = pBuild + 1;
-	// thisobject loop is guaranteed to terminate due to test above.
+	// This loop is guaranteed to terminate due to test above.
 	while (*pSplit != ':' && *pSplit != '$')
 		pSplit++;
 
@@ -302,7 +294,7 @@ int InsertBoolean(char * def, char * pBuf, size_t & index, size_t & filelength, 
 		// Remove $WCxxx?TrueText:
 		memmove(pBuild, pSplit + 1, filelength - (pSplit + 1 - pBuf));
 		filelength -= (pSplit + 1 - pBuild);
-	}
+	} // if (isTrue)
 	return TRUE;
 }
 
@@ -315,13 +307,8 @@ int abort_on_pool_failure (int /*retcode*/)
 }
 #pragma warning(pop)
 
-int APIENTRY _tWinMain(HINSTANCE /*hInstance*/,
-					   HINSTANCE /*hPrevInstance*/,
-					   LPTSTR    /*lpCmdLine*/,
-					   int       /*nCmdShow*/)
+int _tmain(int argc, _TCHAR* argv[])
 {
-	int argc = 0;
-	LPWSTR * argv = CommandLineToArgvW(GetCommandLine(), &argc);
 	// we have three parameters
 	const TCHAR * src = NULL;
 	const TCHAR * dst = NULL;
@@ -335,21 +322,6 @@ int APIENTRY _tWinMain(HINSTANCE /*hInstance*/,
 	{
 		// WC path is always first argument.
 		wc = argv[1];
-		if (_tcscmp(argv[1], _T("/automation"))==0)
-		{
-			AutomationMain();
-			return 0;
-		}
-		else if (_tcscmp(argv[1], _T("unregserver"))==0)
-		{
-			DllUnregisterServer();
-			return 0;
-		}
-		else if (_tcscmp(argv[1], _T("regserver"))==0)
-		{
-			DllRegisterServer();
-			return 0;
-		}
 	}
 	if (argc == 4 || argc == 5)
 	{
@@ -402,67 +374,22 @@ int APIENTRY _tWinMain(HINSTANCE /*hInstance*/,
 	if (wc == NULL)
 	{
 		_tprintf(_T("SubWCRev %d.%d.%d, Build %d - %s\n\n"),
-			TSVN_VERMAJOR, TSVN_VERMINOR,
-			TSVN_VERMICRO, TSVN_VERBUILD,
-			_T(TSVN_PLATFORM));
+					TSVN_VERMAJOR, TSVN_VERMINOR,
+					TSVN_VERMICRO, TSVN_VERBUILD,
+					_T(TSVN_PLATFORM));
 		_putts(_T(HelpText1));
 		_putts(_T(HelpText2));
 		_putts(_T(HelpText3));
 		return ERR_SYNTAX;
 	}
 
-	// If we get here, that means we're used 'standalone', i.e., not in
-	// automation mode. And that again means we should try to get a
-	// console so we have something to output text to.
-	bool bCon = false;
-	typedef BOOL(__stdcall *PFNATTACHCONSOLE)(DWORD dwProcessId);
-	HMODULE hMod = LoadLibrary(_T("Kernel32.dll"));
-	if (hMod)
-	{
-		PFNATTACHCONSOLE pfnAttachConsole = (PFNATTACHCONSOLE)GetProcAddress(hMod, "AttachConsole");
-		if (pfnAttachConsole)
-		{
-			if ((pfnAttachConsole)(ATTACH_PARENT_PROCESS))
-				bCon = true;
-		}
-		FreeLibrary(hMod);
-	}
-	if (!bCon)
-		AllocConsole();
-
-	// now attach the std and c-runtime handles to the console
-	int nCRTIn= _open_osfhandle((long)GetStdHandle(STD_INPUT_HANDLE), _O_TEXT);
-	if (nCRTIn != -1)
-	{
-		FILE * fpCRTIn = _fdopen(nCRTIn, "r");
-
-		if (fpCRTIn)
-		{
-			*stdin = *fpCRTIn;
-			std::cin.clear();
-		}
-	}
-	int nCRTOut= _open_osfhandle((long)GetStdHandle(STD_OUTPUT_HANDLE),	_O_TEXT);
-	if (nCRTOut != -1)
-	{
-		FILE * fpCRTOut = _fdopen(nCRTOut, "w");
-
-		if (fpCRTOut)
-		{
-			*stdout = *fpCRTOut;
-			std::cout.clear();
-		}
-	}
-
-
-	AllocConsole();
 	if (!PathFileExists(wc))
 	{
 		_tprintf(_T("Directory or file '%s' does not exist\n"), wc);
-		if (_tcschr(wc, '\"') != NULL) // dir contains a quotation mark
+		if (_tcschr(wc, '\"') != NULL) // dir contains a quoation mark
 		{
 			_tprintf(_T("The WorkingCopyPath contains a quotation mark.\n"));
-			_tprintf(_T("thisobject indicates a problem when calling SubWCRev from an interpreter which treats\n"));
+			_tprintf(_T("This indicates a problem when calling SubWCRev from an interpreter which treats\n"));
 			_tprintf(_T("a backslash char specially.\n"));
 			_tprintf(_T("Try using double backslashes or insert a dot after the last backslash when\n"));
 			_tprintf(_T("calling SubWCRev\n"));
@@ -644,7 +571,7 @@ int APIENTRY _tWinMain(HINSTANCE /*hInstance*/,
 	}
 
 	// The file is only written if its contents would change.
-	// thisobject prevents the timestamp from changing.
+	// This prevents the timestamp from changing.
 	if (!sameFileContent)
 	{
 		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
@@ -667,4 +594,3 @@ int APIENTRY _tWinMain(HINSTANCE /*hInstance*/,
 		
 	return 0;
 }
-

@@ -13,14 +13,17 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ToolAssocDlg.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
+
+
+// CToolAssocDlg dialog
 
 IMPLEMENT_DYNAMIC(CToolAssocDlg, CDialog)
 CToolAssocDlg::CToolAssocDlg(const CString& type, bool add, CWnd* pParent /*=NULL*/)
@@ -45,12 +48,8 @@ void CToolAssocDlg::DoDataExchange(CDataExchange* pDX)
 
 	if (pDX->m_bSaveAndValidate)
 	{
-		if (m_sExtension.Find('/')<0)
-		{
-			m_sExtension.TrimLeft(_T("*"));
-			m_sExtension.TrimLeft(_T("."));
-			m_sExtension = _T(".") + m_sExtension;
-		}
+		m_sExtension.TrimLeft(_T("."));
+		m_sExtension = _T(".") + m_sExtension;
 	}
 }
 
@@ -58,6 +57,9 @@ void CToolAssocDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CToolAssocDlg, CDialog)
 	ON_BN_CLICKED(IDC_TOOLBROWSE, OnBnClickedToolbrowse)
 END_MESSAGE_MAP()
+
+
+// CToolAssocDlg message handlers
 
 BOOL CToolAssocDlg::OnInitDialog()
 {
@@ -101,6 +103,7 @@ void CToolAssocDlg::OnBnClickedToolbrowse()
 	// Initialize OPENFILENAME
 	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
+	//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 	ofn.hwndOwner = this->m_hWnd;
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -108,14 +111,14 @@ void CToolAssocDlg::OnBnClickedToolbrowse()
 	sFilter.LoadString(IDS_PROGRAMSFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{
 		if (*ptr == '|')
 			*ptr = '\0';
 		ptr--;
-	}
+	} // while (ptr != pszFilters) 
 	ofn.lpstrFilter = pszFilters;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -133,6 +136,6 @@ void CToolAssocDlg::OnBnClickedToolbrowse()
 	{
 		m_sTool = CString(ofn.lpstrFile);
 		UpdateData(FALSE);
-	}
+	} // if (GetOpenFileName(&ofn)==TRUE)
 	delete [] pszFilters;
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "resource.h"
@@ -31,6 +31,10 @@ SVNInfo::SVNInfo(void)
 {
 	m_pool = svn_pool_create (NULL);
 
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", m_pool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", m_pool);
+
 	svn_client_create_context(&m_pctx, m_pool);
 
 	svn_config_ensure(NULL, m_pool);
@@ -39,6 +43,8 @@ SVNInfo::SVNInfo(void)
 	m_prompt.Init(m_pool, m_pctx);
 	m_pctx->cancel_func = cancel;
 	m_pctx->cancel_baton = this;
+
+	svn_utf_initialize(m_pool);
 
 	// set up the configuration
 	m_err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);

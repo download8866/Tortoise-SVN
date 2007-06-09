@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,11 +13,10 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
-#include "UnicodeUtils.h"
 #include "stringutils.h"
 
 int strwildcmp(const char *wild, const char *string)
@@ -32,7 +31,7 @@ int strwildcmp(const char *wild, const char *string)
 		}
 		wild++; 
 		string++; 
-	}
+	} // while ((*string) && (*wild != '*')) 
 	while (*string) 
 	{
 		if (*wild == '*') 
@@ -43,7 +42,7 @@ int strwildcmp(const char *wild, const char *string)
 			} 
 			mp = wild; 
 			cp = string+1;
-		}
+		} // if (*wild == '*') 
 		else if ((*wild == *string) || (*wild == '?')) 
 		{
 			wild++;
@@ -54,7 +53,7 @@ int strwildcmp(const char *wild, const char *string)
 			wild = mp;
 			string = cp++;
 		}
-	}
+	} // while (*string)
 
 	while (*wild == '*') 
 	{
@@ -75,7 +74,7 @@ int wcswildcmp(const wchar_t *wild, const wchar_t *string)
 		}
 		wild++; 
 		string++; 
-	}
+	} // while ((*string) && (*wild != '*')) 
 	while (*string) 
 	{
 		if (*wild == '*') 
@@ -86,7 +85,7 @@ int wcswildcmp(const wchar_t *wild, const wchar_t *string)
 			} 
 			mp = wild; 
 			cp = string+1;
-		}
+		} // if (*wild == '*') 
 		else if ((*wild == *string) || (*wild == '?')) 
 		{
 			wild++;
@@ -97,7 +96,7 @@ int wcswildcmp(const wchar_t *wild, const wchar_t *string)
 			wild = mp;
 			string = cp++;
 		}
-	}
+	} // while (*string)
 
 	while (*wild == '*') 
 	{
@@ -253,89 +252,7 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, HWND h
 	return false;
 }
 
-bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningWnd)
-{
-	UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
-	if (cFormat == 0)
-		return false;
-	if (OpenClipboard(hOwningWnd))
-	{
-		EmptyClipboard();
-		HGLOBAL hClipboardData;
-		hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipdata.GetLength()+1);
-		if (hClipboardData)
-		{
-			char * pchData;
-			pchData = (char*)GlobalLock(hClipboardData);
-			if (pchData)
-			{
-				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-				if (GlobalUnlock(hClipboardData))
-				{
-					if (SetClipboardData(cFormat,hClipboardData)==NULL)
-					{
-						CloseClipboard();
-						return false;
-					}
-					if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
-					{
-						CloseClipboard();
-						return false;
-					}
-				}
-				else
-				{
-					CloseClipboard();
-					return false;
-				}
-			}
-			else
-			{
-				CloseClipboard();
-				return false;
-			}
-		}
-		else
-		{
-			CloseClipboard();
-			return false;
-		}
-		CloseClipboard();
-		return true;
-	}
-	return false;
-}
-
 #endif // #ifdef _MFC_VER
-
-bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
-{
-	DWORD dwWritten = 0;
-	HANDLE hFile = CreateFile(path.c_str(), GENERIC_WRITE, FILE_SHARE_DELETE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-
-	if (bUTF8)
-	{
-		std::string buf = CUnicodeUtils::StdGetUTF8(text);
-		if (!WriteFile(hFile, buf.c_str(), buf.length(), &dwWritten, NULL))
-		{
-			CloseHandle(hFile);
-			return false;
-		}
-	}
-	else
-	{
-		if (!WriteFile(hFile, text.c_str(), text.length(), &dwWritten, NULL))
-		{
-			CloseHandle(hFile);
-			return false;
-		}
-	}
-	CloseHandle(hFile);
-	return true;
-}
-
 
 
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))

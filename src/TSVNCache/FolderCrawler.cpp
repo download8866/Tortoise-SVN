@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "StdAfx.h"
@@ -41,7 +41,6 @@ CFolderCrawler::~CFolderCrawler(void)
 
 void CFolderCrawler::Stop()
 {
-	m_bRun = false;
 	if (m_hTerminationEvent != INVALID_HANDLE_VALUE)
 	{
 		SetEvent(m_hTerminationEvent);
@@ -60,15 +59,14 @@ void CFolderCrawler::Stop()
 
 void CFolderCrawler::Initialise()
 {
-	// Don't call Initialize more than once
+	// Don't call Initalise more than once
 	ATLASSERT(m_hThread == INVALID_HANDLE_VALUE);
 
 	// Just start the worker thread. 
-	// It will wait for event being signaled.
-	// If m_hWakeEvent is already signaled the worker thread 
+	// It will wait for event being signalled.
+	// If m_hWakeEvent is already signalled the worker thread 
 	// will behave properly (with normal priority at worst).
 
-	m_bRun = true;
 	unsigned int threadId;
 	m_hThread = (HANDLE)_beginthreadex(NULL,0,ThreadEntry,this,0,&threadId);
 	SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
@@ -129,7 +127,7 @@ void CFolderCrawler::WorkerThread()
 		// exit event/working loop if the first event (m_hTerminationEvent)
 		// has been signalled or if one of the events has been abandoned
 		// (i.e. ~CFolderCrawler() is being executed)
-		if(m_bRun == false || waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED_0 || waitResult == WAIT_ABANDONED_0+1)
+		if(waitResult == WAIT_OBJECT_0 || waitResult == WAIT_ABANDONED_0 || waitResult == WAIT_ABANDONED_0+1)
 		{
 			// Termination event
 			break;
@@ -142,8 +140,6 @@ void CFolderCrawler::WorkerThread()
 		bFirstRunAfterWakeup = true;
 		for(;;)
 		{
-			if (!m_bRun)
-				break;
 			// Any locks today?
 			if (CSVNStatusCache::Instance().m_bClearMemory)
 			{
@@ -186,6 +182,7 @@ void CFolderCrawler::WorkerThread()
 					{
 						// The queue has changed - it's worth sorting and de-duping
 						std::sort(m_pathsToUpdate.begin(), m_pathsToUpdate.end());
+						m_pathsToUpdate.erase(std::unique(m_pathsToUpdate.begin(), m_pathsToUpdate.end(), &CTSVNPath::PredLeftEquivalentToRight), m_pathsToUpdate.end());
 						m_pathsToUpdate.erase(std::unique(m_pathsToUpdate.begin(), m_pathsToUpdate.end(), &CTSVNPath::PredLeftSameWCPathAsRight), m_pathsToUpdate.end());
 						m_bPathsAddedSinceLastCrawl = false;
 					}

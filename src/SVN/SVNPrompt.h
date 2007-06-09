@@ -13,17 +13,11 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
-/**
- * \ingroup SVN
- * Handles the authentication callbacks from the Subversion library by showing
- * dialogs to ask the user for that data and passing that data back to the
- * Subversion library.
- */
 class SVNPrompt
 {
 public:
@@ -31,18 +25,8 @@ public:
 	virtual ~SVNPrompt();
 
 public:
-	/**
-	 * Sets the parent window to use for the authentication dialogs.
-	 */
 	void SetParentWindow(HWND hWnd)				{ m_hParentWnd = hWnd; }
-	/**
-	 * Sets the application object, used to e.g. change the cursor or get
-	 * information about paths/threads/...
-	 */
 	void SetApp(CWinApp* pApp)					{ m_app = pApp; }
-	/**
-	 * Initializes this object.
-	 */
 	void Init(apr_pool_t *pool, svn_client_ctx_t* ctx);
 
 private:

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,13 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "StatGraphDlg.h"
 #include "gdiplus.h"
+#include "UnicodeUtils.h"
 #include "StringUtils.h"
 #include "PathUtils.h"
 #include "MemDC.h"
@@ -28,6 +29,8 @@
 #include <locale>
 
 using namespace Gdiplus;
+
+// CStatGraphDlg dialog
 
 IMPLEMENT_DYNAMIC(CStatGraphDlg, CResizableStandAloneDialog)
 CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
@@ -84,6 +87,9 @@ BEGIN_MESSAGE_MAP(CStatGraphDlg, CResizableStandAloneDialog)
 	ON_COMMAND(ID_FILE_SAVESTATGRAPHAS, &CStatGraphDlg::OnFileSavestatgraphas)
 END_MESSAGE_MAP()
 
+
+// CStatGraphDlg message handlers
+
 BOOL CStatGraphDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
@@ -117,14 +123,6 @@ BOOL CStatGraphDlg::OnInitDialog()
 	m_Skipper.SetRange(0, 100);
 	m_Skipper.SetPos(10);
 	m_Skipper.SetPageSize(5);
-
-	// set the dialog title to "Statistics - path/to/whatever/we/show/the/statistics/for"
-	CString sTitle;
-	GetWindowText(sTitle);
-	if(m_path.IsDirectory())
-		SetWindowText(sTitle + _T(" - ") + m_path.GetWinPathString());
-	else
-		SetWindowText(sTitle + _T(" - ") + m_path.GetFilename());
 
 	m_hGraphBarIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBAR), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 	m_hGraphBarStackedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_GRAPHBARSTACKED), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
@@ -351,7 +349,7 @@ void CStatGraphDlg::ShowCommitsByDate()
 
 	InitUnits();
 
-	// Set up the graph.
+	//Set up the graph.
 	CString temp;
 	UpdateData();
 	m_graph.SetGraphType(m_GraphType, m_bStacked);
@@ -438,7 +436,19 @@ void CStatGraphDlg::ShowCommitsByDate()
 					graphData->SetData(iter->second, 0);
 				iter++;
 			}
-			temp = GetUnitLabel(unit, lasttime);
+			switch(GetUnitType())
+			{
+			case Weeks:
+			case Months:
+				temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
+				break;
+			case Quarters:
+				temp.Format(IDS_STATGRAPH_QUARTERLABEL, unit, lasttime.GetYear()%100);
+				break;
+			case Years:
+				temp.Format(_T("%d"), unit);
+				break;
+			}
 			graphData->SetLabel(temp);
 			m_graph.AddSeries(*graphData);
 			m_graphDataArray.Add(graphData);
@@ -459,7 +469,19 @@ void CStatGraphDlg::ShowCommitsByDate()
 					graphData->SetData(iter->second, 0);
 					iter++;
 				}
-				temp = GetUnitLabel(unit, lasttime);
+				switch(GetUnitType())
+				{
+				case Weeks:
+				case Months:
+					temp.Format(_T("%d/%.2d"), unit, time.GetYear()%100);
+					break;
+				case Quarters:
+					temp.Format(IDS_STATGRAPH_QUARTERLABEL, unit, time.GetYear()%100);
+					break;
+				case Years:
+					temp.Format(_T("%d"), unit);
+					break;
+				}
 				graphData->SetLabel(temp);
 				m_graph.AddSeries(*graphData);
 				m_graphDataArray.Add(graphData);
@@ -495,13 +517,6 @@ void CStatGraphDlg::ShowCommitsByDate()
 	switch(GetUnitType())
 	{
 	case Weeks:
-		if ((unit == 1)&&(lasttime.GetMonth() == 12))
-			// in some locales, the last week of a year can actually be
-			// the first week-of-the-year of the next year.
-			temp.Format(_T("%d/%.2d"), unit, (lasttime.GetYear()+1)%100);
-		else
-			temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-		break;
 	case Months:
 		temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
 		break;
@@ -520,42 +535,6 @@ void CStatGraphDlg::ShowCommitsByDate()
 
 	// Paint the graph now that we're through.
 	m_graph.Invalidate();
-}
-
-void CStatGraphDlg::CountCommits(std::map<stdstring, LONG> &authors, 
-								 std::map<stdstring, LONG> &AuthorCommits, 
-								 std::map<stdstring, LONG> &AuthorCommitsMin, 
-								 std::map<stdstring, LONG> &AuthorCommitsMax, 
-								 std::map<stdstring, LONG> &authorcommits)
-{
-	std::map<stdstring, LONG>::iterator iter;
-	iter = authors.begin();
-	while (iter != authors.end())
-	{
-		std::map<stdstring, LONG>::iterator AC_it = AuthorCommits.lower_bound(iter->first);
-		if (AC_it == AuthorCommits.end() || AC_it->first != iter->first)
-			AC_it = AuthorCommits.insert(AC_it, std::make_pair(iter->first, 0));
-
-		std::map<stdstring, LONG>::iterator ACMIN_it = AuthorCommitsMin.lower_bound(iter->first);
-		if (ACMIN_it == AuthorCommitsMin.end() || ACMIN_it->first != iter->first)
-			ACMIN_it = AuthorCommitsMin.insert(ACMIN_it, std::make_pair(iter->first, -1));
-
-		std::map<stdstring, LONG>::iterator ACMAX_it = AuthorCommitsMax.lower_bound(iter->first);
-		if (ACMAX_it == AuthorCommitsMax.end() || ACMAX_it->first != iter->first)
-			ACMAX_it = AuthorCommitsMax.insert(ACMAX_it, std::make_pair(iter->first, 0));
-
-		std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
-		if (ac_it == authorcommits.end() || ac_it->first != iter->first)
-			ac_it = authorcommits.insert(ac_it, std::make_pair(iter->first, 0));
-
-		AC_it->second += ac_it->second;
-		if (ACMIN_it->second == -1 || ACMIN_it->second > ac_it->second)
-			ACMIN_it->second = ac_it->second;
-		if (ACMAX_it->second < ac_it->second)
-			ACMAX_it->second = ac_it->second;
-		iter++;
-	}
-	authorcommits.clear();
 }
 
 void CStatGraphDlg::ShowStats()
@@ -614,7 +593,34 @@ void CStatGraphDlg::ShowStats()
 		it->second++;
 		if (nCurrentWeek != GetWeek(time))
 		{
-			CountCommits(authors, AuthorCommits, AuthorCommitsMin, AuthorCommitsMax, authorcommits);
+			std::map<stdstring, LONG>::iterator iter;
+			iter = authors.begin();
+			while (iter != authors.end())
+			{
+				std::map<stdstring, LONG>::iterator AC_it = AuthorCommits.lower_bound(iter->first);
+				if (AC_it == AuthorCommits.end() || AC_it->first != iter->first)
+					AC_it = AuthorCommits.insert(AC_it, std::make_pair(iter->first, 0));
+
+				std::map<stdstring, LONG>::iterator ACMIN_it = AuthorCommitsMin.lower_bound(iter->first);
+				if (ACMIN_it == AuthorCommitsMin.end() || ACMIN_it->first != iter->first)
+					ACMIN_it = AuthorCommitsMin.insert(ACMIN_it, std::make_pair(iter->first, -1));
+
+				std::map<stdstring, LONG>::iterator ACMAX_it = AuthorCommitsMax.lower_bound(iter->first);
+				if (ACMAX_it == AuthorCommitsMax.end() || ACMAX_it->first != iter->first)
+					ACMAX_it = AuthorCommitsMax.insert(ACMAX_it, std::make_pair(iter->first, 0));
+
+				std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
+				if (ac_it == authorcommits.end() || ac_it->first != iter->first)
+					ac_it = authorcommits.insert(ac_it, std::make_pair(iter->first, 0));
+
+				AC_it->second += ac_it->second;
+				if (ACMIN_it->second == -1 || ACMIN_it->second > ac_it->second)
+					ACMIN_it->second = ac_it->second;
+				if (ACMAX_it->second < ac_it->second)
+					ACMAX_it->second = ac_it->second;
+				iter++;
+			}
+			authorcommits.clear();
 
 			nWeeks++;
 			nCurrentWeek = GetWeek(time);
@@ -635,7 +641,35 @@ void CStatGraphDlg::ShowStats()
 	if (!weekover)
 	{
 		nWeeks++;
-		CountCommits(authors, AuthorCommits, AuthorCommitsMin, AuthorCommitsMax, authorcommits);
+		std::map<stdstring, LONG>::iterator iter;
+		iter = authors.begin();
+		while (iter != authors.end())
+		{
+
+			std::map<stdstring, LONG>::iterator AC_it = AuthorCommits.lower_bound(iter->first);
+			if (AC_it == AuthorCommits.end() || AC_it->first != iter->first)
+				AC_it = AuthorCommits.insert(AC_it, std::make_pair(iter->first, 0));
+
+			std::map<stdstring, LONG>::iterator ACMIN_it = AuthorCommitsMin.lower_bound(iter->first);
+			if (ACMIN_it == AuthorCommitsMin.end() || ACMIN_it->first != iter->first)
+				ACMIN_it = AuthorCommitsMin.insert(ACMIN_it, std::make_pair(iter->first, -1));
+
+			std::map<stdstring, LONG>::iterator ACMAX_it = AuthorCommitsMax.lower_bound(iter->first);
+			if (ACMAX_it == AuthorCommitsMax.end() || ACMAX_it->first != iter->first)
+				ACMAX_it = AuthorCommitsMax.insert(ACMAX_it, std::make_pair(iter->first, 0));
+
+			std::map<stdstring, LONG>::iterator ac_it = authorcommits.lower_bound(iter->first);
+			if (ac_it == authorcommits.end() || ac_it->first != iter->first)
+				ac_it = authorcommits.insert(ac_it, std::make_pair(iter->first, 0));
+
+			AC_it->second += ac_it->second;
+			if (ACMIN_it->second == -1 || ACMIN_it->second > ac_it->second)
+				ACMIN_it->second = ac_it->second;
+			if (ACMAX_it->second < ac_it->second)
+				ACMAX_it->second = ac_it->second;
+			iter++;
+		}
+		authorcommits.clear();
 
 		if ((nCommitsMin == -1)||(nCommitsMin > commits))
 			nCommitsMin = commits;
@@ -955,32 +989,6 @@ CString CStatGraphDlg::GetUnitString()
 	return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXYEAR));
 }
 
-CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
-{
-	CString temp;
-	switch (GetUnitType())
-	{
-	case Weeks:
-		if ((unit == 1)&&(lasttime.GetMonth() == 12))
-			// in some locales, the last week of a year can actually be
-			// the first week-of-the-year of the next year.
-			temp.Format(_T("%d/%.2d"), unit, (lasttime.GetYear()+1)%100);
-		else
-			temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-		break;
-	case Months:
-		temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
-		break;
-	case Quarters:
-		temp.Format(IDS_STATGRAPH_QUARTERLABEL, unit, lasttime.GetYear()%100);
-		break;
-	case Years:
-		temp.Format(_T("%d"), unit);
-		break;
-	}
-	return temp;
-}
-
 void CStatGraphDlg::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
 	if (nSBCode == TB_THUMBTRACK)
@@ -1136,7 +1144,7 @@ void CStatGraphDlg::OnFileSavestatgraphas()
 	sFilter.LoadString(IDS_PICTUREFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{
@@ -1252,10 +1260,10 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
 				return;
 			}
 			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			// paint the whole graph
+			//paint the whole graph
 			RedrawGraph();
 			m_graph.DrawGraph(dc);
-			// now use GDI+ to save the picture
+			//now use GDI+ to save the picture
 			CLSID   encoderClsid;
 			GdiplusStartupInput gdiplusStartupInput;
 			ULONG_PTR           gdiplusToken;

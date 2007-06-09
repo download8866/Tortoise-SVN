@@ -19,10 +19,9 @@
 #define IDB_TTF_BMP                     137
 #define IDD_SETCOLORPAGE                138
 #define IDD_FIND                        139
+#define IDI_ICON1                       140
 #define IDI_WHITESPACELINE              140
-#define IDI_EQUALLINE                   141
 #define IDB_LOGOFLIPPED                 168
-#define IDD_PATCH_FILE_OPEN_CUSTOM      180
 #define IDS_SELECTFILE                  200
 #define IDC_BASEFILEEDIT                1000
 #define IDS_ERR_PATCH_NOINDEX           1000
@@ -61,10 +60,10 @@
 #define IDS_ERR_PATCH_FILESAVE          1023
 #define IDC_MISCGROUP                   1023
 #define IDC_ONEPANE                     1024
+#define IDS_ERR_PATCH_FILEFOUNDTWICE    1024
 #define IDC_BKUNKNOWN                   1027
 #define IDC_FGUNKNOWN                   1028
 #define IDC_BKNORMAL                    1029
-#define IDC_FINDCOMBO                   1029
 #define IDC_FGNORMAL                    1030
 #define IDC_FONTNAMES                   1030
 #define IDC_BKREMOVED                   1031
@@ -108,12 +107,10 @@
 #define IDC_CHECK1                      1064
 #define IDC_MAGNIFIER                   1064
 #define IDC_MATCHCASE                   1064
-#define IDC_PATCHFROMCLIPBOARD          1064
 #define IDC_CHECK2                      1065
 #define IDC_DIFFBAR                     1065
 #define IDC_LIMITTODIFFS                1065
 #define IDC_STRIKEOUT                   1066
-#define IDC_WHOLEWORD                   1066
 #define IDC_CHECK3                      1067
 #define IDC_RESOLVE                     1067
 #define IDC_CASEINSENSITIVE             1067
@@ -121,8 +118,6 @@
 #define IDC_CHECK4                      1068
 #define IDC_USEBDIFF                    1068
 #define IDC_SEARCHTEXT                  1070
-#define IDC_BUTTON1                     1071
-#define IDC_BKMODIFIED                  1071
 #define IDC_VERSIONBOX                  1075
 #define IDS_ERR_DIFF_DIFF               1080
 #define IDS_ERR_DIFF_NEWLINES           1081
@@ -132,8 +127,6 @@
 #define IDS_ERR_FILE_OPEN               1100
 #define IDS_ERR_FILE_BINARY             1101
 #define IDS_ERR_FILE_NOTAFILE           1102
-#define IDS_ERR_FILE_TOOBIG             1103
-#define IDC_PATCH_TO_CLIPBOARD          1132
 #define IDS_ABOUTVERSION                1700
 #define IDS_ABOUTVERSIONBOX             1701
 #define IDS_SETTINGSTITLE               1702
@@ -161,7 +154,6 @@
 #define IDS_VIEWTITLE_THEIRS            4200
 #define IDS_VIEWTITLE_MERGED            4201
 #define IDS_VIEWTITLE_MINE              4202
-#define IDS_VIEWSCROLLTIPTEXT           4300
 #define IDS_SAVEASTITLE                 5000
 #define IDS_COMMANDLINEHELP             5001
 #define IDS_OPENDIFFFILETITLE           5002
@@ -173,8 +165,6 @@
 #define IDS_WARNMODIFIEDLOOSECHANGESOPTIONS 5007
 #define IDS_WARNBETTERPATCHPATHFOUND    5008
 #define IDS_NOTFOUNDVIEWTITLEINDICATOR  5009
-#define IDS_WARNABSOLUTEPATHFOUND       5010
-#define IDS_WARNABSOLUTEPATHNOTFOUND    5011
 #define IDS_PATCH_ALL                   6000
 #define IDS_PATCH_TITLE                 6001
 #define IDS_DIFF_TITLE                  6002
@@ -184,8 +174,8 @@
 #define IDS_COLOURPICKER_DEFAULTTEXT    7001
 #define ID_VIEW_WHITESPACES             32774
 #define ID_VIEW_ONEWAYDIFF              32775
-#define ID_NAVIGATE_NEXTDIFFERENCE      32779
-#define ID_NAVIGATE_PREVIOUSDIFFERENCE  32780
+#define ID_MERGE_NEXTDIFFERENCE         32779
+#define ID_MERGE_PREVIOUSDIFFERENCE     32780
 #define ID_VIEW_                        32781
 #define ID_VIEW_OPTIONS                 32782
 #define ID_BUTTON32783                  32783
@@ -193,29 +183,24 @@
 #define ID_FILE_RELOAD                  32794
 #define ID_BUTTON32797                  32797
 #define ID_VIEW_LINEDOWN                32799
-#define ID_NAVIGATE_PREVIOUSCONFLICT    32802
-#define ID_NAVIGATE_NEXTCONFLICT        32804
+#define ID_MERGE_PREVIOUSCONFLICT       32802
+#define ID_MERGE_NEXTCONFLICT           32804
 #define ID_BUTTON32807                  32807
-#define ID_EDIT_MARKASRESOLVED          32808
+#define ID_MERGE_MARKASRESOLVED         32808
 #define ID_VIEW_SWITCHLEFT              32811
 #define ID_BUTTON32812                  32812
 #define ID_VIEW_LINELEFT                32813
 #define ID_VIEW_LINERIGHT               32814
 #define ID_BUTTON32816                  32816
 #define ID_VIEW_SHOWFILELIST            32817
-#define ID_EDIT_FINDPREV                32818
-#define ID_EDIT_USETHEIRBLOCK           32819
-#define ID_EDIT_USEMYBLOCK              32820
-#define ID_EDIT_USETHEIRTHENMYBLOCK     32821
-#define ID_EDIT_USEMINETHENTHEIRBLOCK   32822
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        142
-#define _APS_NEXT_COMMAND_VALUE         32825
-#define _APS_NEXT_CONTROL_VALUE         1072
+#define _APS_NEXT_RESOURCE_VALUE        141
+#define _APS_NEXT_COMMAND_VALUE         32818
+#define _APS_NEXT_CONTROL_VALUE         1071
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

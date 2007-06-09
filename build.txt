@@ -3,14 +3,11 @@ First, you need to install the compiler package.
 A. You need VS.NET2005 (or at least Visual C++ .NET 2005) to allow
    building of the full TortoiseSVN package. This is the recommended
    option, but it is not free :-(
-   If you want to build the msi make sure the "Tools for Redistributing
-   Applications" are installed.
-   Also, make sure ServicePack 1 for VS.NET2005 is installed.
 
 B. If you do not have access to VS.NET you can download the free
-   Visual C++ 2005 Express Edition.
+   Visual C++ 2005 Express Edition (only free for a limited period).
    This will allow you to build the subversion libraries and the
-   SubWCRev,TortoiseBlame and TortoiseIDiff programs only.
+   SubWCRev and TortoiseBlame programs only.
    - Install Visual C++ 2005 Express Edition.
      Download it from http://msdn.microsoft.com/vstudio/express/visualc/
    - Install Microsoft Platform SDK for Windows Server 2003 SP1
@@ -28,58 +25,56 @@ C. If you plan to build 64 bit packages, install the package
      available in the VS.NET2005 Professional and higher. 
      This will provide you with a cross-compiler and a suitable 
      command shell. On XP64, there will also be a native compiler.
-   - Using the x64 SDK (available for free download in the Windows 
-     Server 2003 Platform SDK on http://www.microsoft.com/downloads)
+   - Using the x64 SDK (available for free download in the Windows® 
+     Server 2003 PPlatform SDK on http://www.microsoft.com/downloads) 
      may work as well but has not been tested.
 
-
 Next you need to install some utilities/programs:
-- Java runtime            : http://java.sun.com, http://java.sun.com/webapps/getjava/BrowserRedirect
-- Python 2.4(*)           : http://www.python.org/windows/
-- libxml2 python bindings : http://users.skynet.be/sbi/libxml-python/
-- Perl                    : http://www.activestate.com/Products/ActivePerl/
-- WiX(*)                  : http://wix.sourceforge.net
-- NAnt(*)                 : http://nant.sourceforge.net
-- gdiplus merge module(#) : http://www.installshield.com/downloads/modules.asp?prod=ISX&lan=english&xmlUse=y
+- Install the java runtime. Get it from http://java.sun.com
+  or from this direct link:
+  http://java.sun.com/webapps/getjava/BrowserRedirect
+- Install Python 2.4. You can get it from here:
+  http://www.python.org/windows/
+- Set the path where you installed python to the PATH environement variable.
+- To translate the docs, you will also need the libxml2 python bindings.
+  Get them from here: http://users.skynet.be/sbi/libxml-python/
+- Install Perl. Get it from http://www.activestate.com/Products/ActivePerl/
+- Get the WiX Core Toolset from http://wix.sourceforge.net and unzip
+  them. (*). Then add it to the PATH environment variable.
+- Get WiX Votive from http://wix.sourceforge.net and install it.
+- Get NSIS from http://nsis.sourceforge.net and install it.
+- Install the latest Nant release. Get it from http://nant.sourceforge.net
+  At the time of this writing, you need to get the at least version 0.85 RC4.
+- Add the Nant bin folder to the PATH environment variable.
 
-(*) Add the paths of the binaries to the PATH environment variable
-    You may have to logoff/logon to make the new environment variables take effect!
-(#) Copy/Move the gdiplus.msm file to the "%CommonProgramFiles%\Merge Modules" directory
+You may have to logoff/logon to make the new environment variables take effect!
 
-
-Next you need to download some more:
-- OpenSSL source          : http://www.openssl.org/source/
-- ZLib source             : http://www.gzip.org/zlib/
-- tools collection        : http://tortoisesvn.tigris.org/files/documents/406/37871/Tools.zip
-- dictionaries/thesauri   : http://lingucomponent.openoffice.org/
-
-
-Now you're almost ready. Only a few more steps to do:
 - create a new folder on your harddisk, e.g. SVN. Make sure you have at least
   1.5 GB of free space left!!!
 - create a new folder in SVN called 'common'
-- unzip the openssl sourcecode into 'common', and rename the folder to 'openssl'
-- unzip the zlib sourcecode into 'common' and rename the folder to 'zlib'
-- copy the dictionaries/thesauri to 'common\spell'.
-  note that the names of the files are important!
-  They have to be en_US.aff, en_US.dic, en_GB.aff and en_GB.dic (or whatever language you use).
-  Warning: only the thesaurus in the format for OO2 will work. Earlier versions will
-  crash TortoiseSVN!
+- Download the openssl source package from
+  http://www.openssl.org/source/ and unzip it to SVN\common, then rename
+  the folder from openssl-0.9.xx to openssl
+- Download the zlib source from 
+  http://www.gzip.org/zlib/ and unzip it to SVN\common\zlib
+- If you want to include the dictionary and thesaurus in the installer/languagepacks,
+  then you have to download those from http://lingucomponent.openoffice.org/
+  and put the files in SVN\common\Spell Note: the names of the files are important!
+  They have to be en_US.aff, en_US.dic, en_GB.aff and en_GB.dic.
+  Important: Only the thesaurus in the format for OO2 will work! Earlier versions
+  will crash TSVN!!
 - Checkout the TortoiseSVN sources from the Subversion repository into
   SVN\TortoiseSVN
-- unzip the file 'tools.zip' into a folder, we suggest SVN\TortoiseSVN\Tools.
-  Note: the path to the tools folder must not have special chars in it or spaces.
-  If you checked out the TortoiseSVN source to such a location, you can store
-  the tools folder somewhere else.
+- Download the tools to build the TSVN docs from 
+  http://tortoisesvn.tigris.org/files/documents/406/11147/Tools.zip and
+  unzip them into SVN\TortoiseSVN\Tools\
 - Make a copy of the file default.build.user.tmpl in the TSVN root folder and
-  rename that copy to default.build.user. Then simply adjust the paths as mentioned
+  rename that copy to default.build.user Then simply adjust the paths as mentioned
   in that file.
-- Make a copy of the file doc\doc.build.user.tmpl and rename that copy to 
-  doc\doc.build.user. Then adjust the paths in that file according to your
-  setup.
-- The docs for certain languages need special tweaking. If there is a 'userconfig.template.xml'
-  file in doc\xsl\languagecode\, copy that file to 'userconfig.xml' and adjust the
-  paths in that file to your OS setup.
+- To compile the crashrpt project for TortoiseSVN, you'll need the WTL.
+  You can get that library from here: http://wtl.sourceforge.net/
+  Unzip it and then add the path of the wtl 'include' folder 
+  to the VS.NET 2005 include path.
 
 
 Building 32 bit packages
@@ -89,9 +84,9 @@ Building 32 bit packages
   you can have the command shell call this file automatically:
   - Create a .reg file with the following code and merge it in your registry
     Windows Registry Editor Version 5.00
-
+  
     [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Command Processor]
-    "AutoRun"="\"C:\\Program Files\\Microsoft Visual Studio 8\\Common7\\Tools\\vsvars32.bat\""
+    "AutoRun"="\"C:\\Program Files\\Microsoft Visual Studio 8\\Common7\\Tools\\vsvars.bat\""
   Next time you start the command prompt, that file will be executed automatically.
 
   Note that for the Express edition you need to sort out the vars for the platform SDK
@@ -125,7 +120,7 @@ Building 32 bit packages
   > error C2065: 'SVN_FS_WANT_DB_MINOR' : undeclared identifier
   > error C2065: 'SVN_FS_WANT_DB_PATCH' : undeclared identifier
   This is expected and you don't have to worry about that. The reason for those
-  errors is that TortoiseSVN builds the Subversion library twice. Once with 
+  erros is that TortoiseSVN builds the Subversion library twice. Once with 
   all the ra-layers and all dbs, and once without those. The errors come
   from that 'raw' build, but from libraries which aren't used in that build
   anyway. Sure, the build script could just compile the libraries which
@@ -153,7 +148,7 @@ Building 32 bit packages
   Some error dialogs will come up, which you can ignore.
   Right click on SubWCRev and 'Build'.
 
-  You can also right click on TortoiseBlame and TortoiseIDiff and build those.
+  You can also right click on TortoiseBlame and build that.
 
 
 Building 64 bit packages on win32 (cross-compile)
@@ -186,3 +181,5 @@ Building 64 bit packages on x64
 	nant x64 release setup
 
   After the script finished, the packages can be found in .\bin .
+
+

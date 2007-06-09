@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include ".\cacheddirectory.h"
@@ -372,27 +372,23 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	}
 
 	{
+		AutoLocker pathlock(m_critSecPath);
+		if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
 		{
-			AutoLocker pathlock(m_critSecPath);
-			if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
+			if ((m_currentStatusFetchingPath.IsAncestorOf(path))&&((m_currentStatusFetchingPathTicks + 1000)<GetTickCount()))
 			{
-				if ((m_currentStatusFetchingPath.IsAncestorOf(path))&&((m_currentStatusFetchingPathTicks + 1000)<GetTickCount()))
-				{
-					ATLTRACE("returning empty status (status fetch in progress) for %ws\n", path.GetWinPath());
-					m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-					return CStatusCacheEntry();
-				}
+				ATLTRACE("returning empty status (status fetch in progress) for %ws\n", path.GetWinPath());
+				m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
+				return CStatusCacheEntry();
 			}
 		}
+		AutoLocker lock(m_critSec);
 		SVNPool subPool(CSVNStatusCache::Instance().m_svnHelp.Pool());
-		{
-			AutoLocker lock(m_critSec);
-			m_mostImportantFileStatus = svn_wc_status_none;
-			m_childDirectories.clear();
-			m_entryCache.clear();
-			m_ownStatus.SetStatus(NULL);
-			m_bRecursive = bRecursive;
-		}
+		m_mostImportantFileStatus = svn_wc_status_none;
+		m_childDirectories.clear();
+		m_entryCache.clear();
+		m_ownStatus.SetStatus(NULL);
+		m_bRecursive = bRecursive;
 		if(!bThisDirectoryIsUnversioned)
 		{
 			{
@@ -401,13 +397,13 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				m_currentStatusFetchingPathTicks = GetTickCount();
 			}
 			ATLTRACE(_T("svn_cli_stat for '%s' (req %s)\n"), m_directoryPath.GetWinPath(), path.GetWinPath());
-			svn_error_t* pErr = svn_client_status3 (
+			svn_error_t* pErr = svn_client_status2 (
 				NULL,
 				m_directoryPath.GetSVNApiPath(),
 				&revision,
 				GetStatusCallback,
 				this,
-				svn_depth_immediates,
+				FALSE,
 				TRUE,									//getall
 				FALSE,
 				TRUE,									//noignore
@@ -758,10 +754,10 @@ CStatusCacheEntry CCachedDirectory::GetOwnStatus(bool bRecursive)
 
 void CCachedDirectory::RefreshStatus(bool bRecursive)
 {
+	AutoLocker lock(m_critSec);
 	// Make sure that our own status is up-to-date
 	GetStatusForMember(m_directoryPath,bRecursive);
 
-	AutoLocker lock(m_critSec);
 	// We also need to check if all our file members have the right date on them
 	CacheEntryMap::iterator itMembers;
 	std::set<CTSVNPath> refreshedpaths;
@@ -780,14 +776,12 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 			{
 				if ((itMembers->second.HasExpired(now))||(!itMembers->second.DoesFileTimeMatch(filePath.GetLastWriteTime())))
 				{
-					lock.Unlock();
 					// We need to request this item as well
 					GetStatusForMember(filePath,bRecursive);
 					// GetStatusForMember now has recreated the m_entryCache map.
 					// So start the loop again, but add this path to the refreshedpaths set
 					// to make sure we don't refresh this path again. This is to make sure
 					// that we don't end up in an endless loop.
-					lock.Lock();
 					refreshedpaths.insert(refr_it, filePath);
 					itMembers = m_entryCache.begin();
 					if (m_entryCache.size()==0)
@@ -821,7 +815,7 @@ void CCachedDirectory::RefreshMostImportant()
 	}
 	if (newStatus != m_mostImportantFileStatus)
 	{
-		ATLTRACE(_T("status change of path %s\n"), m_directoryPath.GetWinPath());
+		ATLTRACE("status change of path %ws\n", m_directoryPath.GetWinPath());
 		CSVNStatusCache::Instance().UpdateShell(m_directoryPath);
 	}
 	m_mostImportantFileStatus = newStatus;

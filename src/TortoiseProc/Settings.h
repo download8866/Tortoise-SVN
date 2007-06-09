@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -30,8 +30,6 @@
 #include "SettingsColors.h"
 #include "SetMisc.h"
 #include "SetSavedDataPage.h"
-#include "SetHooks.h"
-#include "SettingsTBlame.h"
 #include "TreePropSheet/TreePropSheet.h"
 
 using namespace TreePropSheet;
@@ -71,8 +69,6 @@ private:
 	CSettingsColors *		m_pColorsPage;
 	CSetMisc *				m_pMiscPage;
 	CSetSavedDataPage *		m_pSavedPage;
-	CSetHooks *				m_pHooksPage;
-	CSettingsTBlame *		m_pTBlamePage;
 
 	HICON					m_hIcon;
 public:
@@ -85,6 +81,7 @@ public:
 	void SaveData();
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();

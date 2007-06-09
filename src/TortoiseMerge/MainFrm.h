@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -59,7 +59,6 @@ protected:
 	afx_msg void	OnClose();
 	afx_msg void	OnEditFind();
 	afx_msg void	OnEditFindnext();
-	afx_msg void	OnEditFindprev();
 	afx_msg void	OnViewWhitespaces();
 	afx_msg int		OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void	OnSize(UINT nType, int cx, int cy);
@@ -73,11 +72,6 @@ protected:
 	afx_msg void	OnViewLineup();
 	afx_msg void	OnViewLineleft();
 	afx_msg void	OnViewLineright();
-	afx_msg void	OnEditUseTheirs();
-	afx_msg void	OnEditUseMine();
-	afx_msg void	OnEditUseTheirsThenMine();
-	afx_msg void	OnEditUseMineThenTheirs();
-	afx_msg void	OnUpdateTextBlockSelection(CCmdUI *pCmdUI);
 	afx_msg void	OnUpdateMergeMarkasresolved(CCmdUI *pCmdUI);
 	afx_msg void	OnMergeMarkasresolved();
 	afx_msg void	OnUpdateMergeNextconflict(CCmdUI *pCmdUI);
@@ -101,16 +95,6 @@ protected:
 	BOOL			ReadWindowPlacement(WINDOWPLACEMENT * pwp);
 	bool			FileSave(bool bCheckResolved=true);
 	bool			FileSaveAs(bool bCheckResolved=true);
-	bool 			StringFound(const CString&)const;
-	enum SearchDirection{SearchNext=0, SearchPrevious=1};	
-	void 			Search(SearchDirection);
-	int				FindSearchStart(int nDefault);
-	/// checks if there are modifications and asks the user to save them first
-	/// IDCANCEL is returned if the user wants to cancel.
-	/// If the user wanted to save the modifications, this method does the saving
-	/// itself.
-	int				CheckForSave();
-
 protected: 
 	CStatusBar		m_wndStatusBar;
 	CNewToolBar		m_wndToolBar;
@@ -129,7 +113,6 @@ protected:
 	CString			m_sFindText;
 	BOOL			m_bMatchCase;
 	bool			m_bLimitToDiff;
-	bool			m_bWholeWord;
 	static const UINT m_FindDialogMessage;
 	CFindDlg *		m_pFindDialog;
 	bool			m_bHasConflicts;
@@ -143,14 +126,6 @@ public:
 	CDiffData		m_Data;
 	bool			m_bReadOnly;
 	bool			m_bBlame;
-public:
-	afx_msg void OnEditUndo();
-public:
-	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
 };
-
-
-
-
 
 

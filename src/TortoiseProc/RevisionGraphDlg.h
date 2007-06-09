@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "StandAloneDlg.h"
@@ -26,11 +26,6 @@
 
 #define	MAX_TT_LENGTH			10000
 
-/**
- * \ingroup TortoiseProc
- * Helper class extending CToolBar, needed only to have the toolbar include
- * a combobox.
- */
 class CRevGraphToolBar : public CToolBar
 {
 public:
@@ -45,7 +40,7 @@ public:
  * the drawing is done in the member class CRevisionGraphWnd
  * Here, we handle window messages.
  */
-class CRevisionGraphDlg : public CResizableStandAloneDialog
+class CRevisionGraphDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CRevisionGraphDlg)
 public:
@@ -63,8 +58,6 @@ protected:
 	bool			m_bArrangeByPath;
 	char			m_szTip[MAX_TT_LENGTH+1];
 	wchar_t			m_wszTip[MAX_TT_LENGTH+1];
-
-	CString			m_sFilter;
 	
 	HACCEL			m_hAccel;
 
@@ -74,21 +67,19 @@ protected:
 	virtual void	OnOK();
 	virtual BOOL	PreTranslateMessage(MSG* pMsg);
 	afx_msg void	OnSize(UINT nType, int cx, int cy);
-	afx_msg void	OnViewFilter();
 	afx_msg void	OnViewZoomin();
 	afx_msg void	OnViewZoomout();
 	afx_msg void	OnViewZoom100();
 	afx_msg void	OnViewZoomAll();
+	afx_msg void	OnMenuexit();
+	afx_msg void	OnMenuhelp();
 	afx_msg void	OnViewCompareheadrevisions();
 	afx_msg void	OnViewComparerevisions();
 	afx_msg void	OnViewUnifieddiff();
 	afx_msg void	OnViewUnifieddiffofheadrevisions();
 	afx_msg void	OnViewShowallrevisions();
 	afx_msg void	OnViewArrangedbypath();
-	afx_msg void	OnViewShowoverview();
 	afx_msg void	OnFileSavegraphas();
-	afx_msg void	OnMenuexit();
-	afx_msg void	OnMenuhelp();
 	afx_msg void	OnChangeZoom();
 	afx_msg BOOL	OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,15 +13,15 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "guids.h"
 #include "PreserveChdir.h"
 #include "SVNProperties.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "SVNStatus.h"
 #include "..\TSVNCache\CacheInterface.h"
 
@@ -326,13 +326,9 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 	columnfilepath = path;
 	const FileStatusCacheEntry * status = NULL;
 	TSVNCacheResponse itemStatus;
-	ShellCache::CacheType t = ShellCache::exe;
-	{
-		AutoLocker lock(g_csCacheGuard);
-		t = g_ShellCache.GetCacheType();
-	}
+	AutoLocker lock(g_csCacheGuard);
 
-	switch (t)
+	switch (g_ShellCache.GetCacheType())
 	{
 	case ShellCache::exe:
 		{
@@ -362,7 +358,6 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 	default:
 	case ShellCache::none:
 		{
-			AutoLocker lock(g_csCacheGuard);
 			if (g_ShellCache.HasSVNAdminDir(path, bIsDir))
 				filestatus = svn_wc_status_normal;
 			else
@@ -377,7 +372,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		break;
 	}
 
-	if (t == ShellCache::exe)
+	if (g_ShellCache.GetCacheType() == ShellCache::exe)
 	{
 		columnauthor = UTF8ToWide(itemStatus.m_author);
 		columnrev = itemStatus.m_entry.cmt_rev;
@@ -413,7 +408,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		{
 			*ptr = '\0';
 			itemshorturl = urlComponents.lpszUrlPath;
-		}
+		} // if (ptr)
 		else 
 			itemshorturl = _T(" ");
 	}
@@ -427,7 +422,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		Unescape(url);
 		itemurl = UTF8ToWide(url);
 	}
-	else if (t == ShellCache::exe)
+	else if (g_ShellCache.GetCacheType() == ShellCache::exe)
 	{
 		char url[INTERNET_MAX_URL_LENGTH];
 		strcpy_s(url, INTERNET_MAX_URL_LENGTH, itemStatus.m_url);

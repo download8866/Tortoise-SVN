@@ -13,18 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "SetProgsAdvDlg.h"
 #include "FileDropEdit.h"
 
 
-/**
- * \ingroup TortoiseProc
- * Settings page to configure the external diff tools.
- */
+// CSettingsProgsDiff dialog
+
 class CSettingsProgsDiff : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSettingsProgsDiff)
@@ -44,6 +42,7 @@ public:
 
 	UINT GetIconID() {return IDI_DIFF;}
 
+// Dialog Data
 	enum { IDD = IDD_SETTINGSPROGSDIFF };
 
 protected:
@@ -57,25 +56,17 @@ protected:
 	afx_msg void OnBnClickedExtdiffOff();
 	afx_msg void OnBnClickedExtdiffOn();
 	afx_msg void OnBnClickedExtdiffbrowse();
-	afx_msg void OnBnClickedExtdiffpropsOff();
-	afx_msg void OnBnClickedExtdiffpropsOn();
-	afx_msg void OnBnClickedExtdiffpropsbrowse();
 	afx_msg void OnBnClickedExtdiffadvanced();
 	afx_msg void OnBnClickedDontconvert();
 	afx_msg void OnEnChangeExtdiff();
-	afx_msg void OnEnChangeExtdiffprops();
 
 	bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
 	void CheckProgComment();
-	void CheckProgCommentProps();
 
 private:
 	CString			m_sDiffPath;
-	CString			m_sDiffPropsPath;
 	CRegString		m_regDiffPath;
-	CRegString		m_regDiffPropsPath;
 	int             m_iExtDiff;
-	int             m_iExtDiffProps;
 	CSetProgsAdvDlg m_dlgAdvDiff;
 	CBalloon		m_tooltips;
 	BOOL			m_bInitialized;
@@ -83,5 +74,4 @@ private:
 	BOOL			m_bConvertBase;		///< don't convert files when diffing agains BASE
 
 	CFileDropEdit	m_cDiffEdit;
-	CFileDropEdit	m_cDiffPropsEdit;
 };

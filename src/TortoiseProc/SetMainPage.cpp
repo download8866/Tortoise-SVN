@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -28,6 +28,8 @@
 #include "SVN.h"
 #include "MessageBox.h"
 
+
+// CSetMainPage dialog
 
 IMPLEMENT_DYNAMIC(CSetMainPage, CPropertyPage)
 CSetMainPage::CSetMainPage()
@@ -118,6 +120,8 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_ASPDOTNETHACK, OnASPHACK)
 END_MESSAGE_MAP()
 
+
+// CSetMainPage message handlers
 BOOL CSetMainPage::OnInitDialog()
 {
 	CPropertyPage::OnInitDialog();
@@ -139,7 +143,7 @@ BOOL CSetMainPage::OnInitDialog()
 	m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
 	m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
 
-	// set up the language selecting combobox
+	//set up the language selecting combobox
 	TCHAR buf[MAX_PATH];
 	GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
 	m_LanguageCombo.AddString(buf);
@@ -165,8 +169,8 @@ BOOL CSetMainPage::OnInitDialog()
 			GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
 			m_LanguageCombo.AddString(buf);
 			m_LanguageCombo.SetItemData(langcount++, loc);
-		}
-	}
+		} // if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0) 
+	} // while (finder.FindNextFileNoDirectories()) 
 	
 	for (int i=0; i<m_LanguageCombo.GetCount(); i++)
 	{

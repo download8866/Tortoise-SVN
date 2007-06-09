@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -22,6 +22,8 @@
 #include "Registry.h"
 #include ".\historydlg.h"
 
+
+// CHistoryDlg dialog
 
 IMPLEMENT_DYNAMIC(CHistoryDlg, CResizableStandAloneDialog)
 CHistoryDlg::CHistoryDlg(CWnd* pParent /*=NULL*/)
@@ -101,7 +103,7 @@ bool CHistoryDlg::SaveHistory()
 	if (m_sSection.IsEmpty())
 		return false;
 
-	// save history to registry
+	//save history to registry/inifile
 	int nMax = min(m_arEntries.GetCount(), m_nMaxHistoryItems + 1);
 	for (int n = 0; n < nMax; n++)
 	{
@@ -110,7 +112,7 @@ bool CHistoryDlg::SaveHistory()
 		CRegString regkey = CRegString(sKey);
 		regkey = m_arEntries.GetAt(n);
 	}
-	// remove items exceeding the max number of history items
+	//remove items exceeding the max number of history items
 	for (int n = nMax; ; n++)
 	{
 		CString sKey;
@@ -161,7 +163,8 @@ BOOL CHistoryDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("HistoryDlg"));
 	m_List.SetFocus();
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CHistoryDlg::OnLbnDblclkHistorylist()

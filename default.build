@@ -69,7 +69,7 @@
 		</nant>
 	</target>
 
-	<target name="docs" depends="VSNET,env,VersionInfo">
+	<target name="docs" depends="VSNET,env">
 		<description>
 			Builds the docs in all languages and all formats.
 		</description>
@@ -131,17 +131,6 @@
 		</nant>
 	</target>
 
-	<target name="SubversionOnly" depends="VSNET,env">
-		<description>
-			Builds only the Subversion libraries
-		</description>
-		<nant target="build">
-			<buildfiles>
-				<include name="ext\build\subversion.build" />
-			</buildfiles>
-		</nant>
-	</target>
-
 	<target name="TortoiseSVN" depends="VSNET,env">
 		<description>
 			Builds TortoiseSVN. The libraries must have been built
@@ -172,7 +161,7 @@
 		</nant>
 	</target>
 
-	<target name="LanguagePacks" depends="env,VersionInfo">
+	<target name="LanguagePacks" depends="VersionInfo">
 		<description>
 			Builds all the language pack installers.
 		</description>
@@ -238,6 +227,7 @@
 				<exclude name="doc/source/ja/**" />
 				<exclude name="doc/output/**" />
 				<exclude name="ext/apr/**" />
+				<exclude name="ext/apr-iconv/**" />
 				<exclude name="ext/apr-util/**" />
 				<exclude name="ext/neon/**" />
 				<exclude name="ext/Subversion/**" />
@@ -295,5 +285,4 @@
 		<echo />
     </target>
 </project>
-
 

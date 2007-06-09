@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "pathutils.h"
@@ -160,19 +160,6 @@ CString CPathUtils::GetAppParentDirectory()
 	return path;
 }
 
-CString CPathUtils::GetAppDataDirectory()
-{
-	TCHAR path[MAX_PATH];		//MAX_PATH ok here.
-	if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)!=S_OK)
-		return CString();
-
-	_tcscat_s(path, MAX_PATH, _T("\\TortoiseSVN"));
-	if (!PathIsDirectory(path))
-		CreateDirectory(path, NULL);
-
-	return CString (path) + _T('\\');
-}
-
 void CPathUtils::Unescape(char * psz)
 {
 	char * pszSource = psz;
@@ -215,7 +202,7 @@ void CPathUtils::Unescape(char * psz)
 					nValue = (char) (((pszHigh - szHex) << 4) +
 						(pszLow - szHex));
 				}
-			}
+			} // if (pszHigh != NULL) 
 			*pszDest++ = nValue;
 		} 
 		else

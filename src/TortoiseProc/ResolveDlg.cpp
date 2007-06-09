@@ -13,14 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "messagebox.h"
 #include "ResolveDlg.h"
 
+
+// CResolveDlg dialog
 
 IMPLEMENT_DYNAMIC(CResolveDlg, CResizableStandAloneDialog)
 CResolveDlg::CResolveDlg(CWnd* pParent /*=NULL*/)
@@ -48,17 +50,17 @@ BEGIN_MESSAGE_MAP(CResolveDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
+
+// CResolveDlg message handlers
 BOOL CResolveDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
+	//set the listcontrol to support checkboxes
 	m_resolveListCtrl.Init(0, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
 	m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_resolveListCtrl.SetSelectButton(&m_SelectAll);
 	m_resolveListCtrl.SetCancelBool(&m_bCancelled);
-	m_resolveListCtrl.SetBackgroundImage(IDI_RESOLVE);
-
-	AdjustControlSize(IDC_SELECTALL);
 
 	AddAnchor(IDC_RESOLVELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -69,15 +71,16 @@ BOOL CResolveDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("ResolveDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if(AfxBeginThread(ResolveThreadEntry, this) == NULL)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CResolveDlg::OnOK()
@@ -121,8 +124,9 @@ UINT CResolveDlg::ResolveThreadEntry(LPVOID pVoid)
 }
 UINT CResolveDlg::ResolveThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which are in conflict
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 
 	m_bCancelled = false;
@@ -131,8 +135,9 @@ UINT CResolveDlg::ResolveThread()
 	{
 		CMessageBox::Show(m_hWnd, m_resolveListCtrl.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, SVNSLC_SHOWCONFLICTED);
+	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED, SVNSLC_SHOWCONFLICTED);
 
+	DialogEnableWindow(IDOK, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }

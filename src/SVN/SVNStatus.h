@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #pragma once
@@ -38,7 +38,8 @@ typedef std::basic_string<wchar_t> wide_string;
 
 /**
  * \ingroup SVN
- * Handles Subversion status of working copies.
+ * Provides Subversion commands, some of them as static methods for easier and
+ * faster use.
  */
 class SVNStatus
 {
@@ -53,7 +54,7 @@ public:
 	 * If the status of the text and property part are different
 	 * then the more important status is returned.
 	 */
-	static svn_wc_status_kind GetAllStatus(const CTSVNPath& path, svn_depth_t depth = svn_depth_empty);
+	static svn_wc_status_kind GetAllStatus(const CTSVNPath& path, BOOL recursive = FALSE);
 
 	/**
 	 * Reads the Subversion status of the working copy entry and all its
@@ -111,7 +112,7 @@ public:
 	 * \param bNoExternals true to not fetch the status of included svn:externals
 	 * \return the status
 	 */
-	svn_wc_status2_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false, svn_depth_t depth = svn_depth_infinity, bool bNoIgnore = true, bool bNoExternals = false);
+	svn_wc_status2_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false, bool recurse = true, bool bNoIgnore = true, bool bNoExternals = false);
 	unsigned int GetFileCount() {return apr_hash_count(m_statushash);}
 	unsigned int GetVersionedCount();
 	/**

@@ -71,8 +71,4 @@
 			</listitem>
 		</orderedlist>
 	</para>
-	<para>
-		You can also add files within a working copy simply by left-dragging and
-		dropping them onto the commit dialog.
-	</para>
 </sect1>

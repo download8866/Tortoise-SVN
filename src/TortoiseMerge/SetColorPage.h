@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -54,7 +54,6 @@ protected:
 	BOOL m_bInit;
 	CRegDWORD		m_regInlineAdded;
 	CRegDWORD		m_regInlineRemoved;
-	CRegDWORD		m_regModifiedBackground;
 	CColourPickerXP m_cBkNormal;
 	CColourPickerXP m_cBkRemoved;
 	CColourPickerXP m_cBkAdded;
@@ -62,5 +61,4 @@ protected:
 	CColourPickerXP m_cBkInlineRemoved;
 	CColourPickerXP m_cBkEmpty;
 	CColourPickerXP m_cBkConflict;
-	CColourPickerXP m_cBkModified;
 };

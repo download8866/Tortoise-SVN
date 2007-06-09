@@ -28,8 +28,6 @@
 #endif
 #include "ContractionState.h"
 #include "SVector.h"
-#include "SplitVector.h"
-#include "Partitioning.h"
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
@@ -802,7 +800,7 @@ void ScintillaGTK::StartDrag() {
 }
 
 #ifdef USE_CONVERTER
-static char *ConvertText(int *lenResult, char *s, size_t len, const char *charSetDest,
+static char *ConvertText(int *lenResult, char *s, size_t len, const char *charSetDest, 
 	const char *charSetSource, bool transliterations) {
 	*lenResult = 0;
 	char *destForm = 0;
@@ -1152,16 +1150,10 @@ bool ScintillaGTK::ModifyScrollBars(int nMax, int nPage) {
 	if (horizEndPreferred < 0)
 		horizEndPreferred = 0;
 	unsigned int pageWidth = rcText.Width();
-	unsigned int pageIncrement = pageWidth / 3;
-	unsigned int charWidth = vs.styles[STYLE_DEFAULT].aveCharWidth;
 	if (GTK_ADJUSTMENT(adjustmenth)->upper != horizEndPreferred ||
-	        GTK_ADJUSTMENT(adjustmenth)->page_size != pageWidth ||
-	        GTK_ADJUSTMENT(adjustmenth)->page_increment != pageIncrement ||
-	        GTK_ADJUSTMENT(adjustmenth)->step_increment != charWidth) {
+	        GTK_ADJUSTMENT(adjustmenth)->page_size != pageWidth) {
 		GTK_ADJUSTMENT(adjustmenth)->upper = horizEndPreferred;
-		GTK_ADJUSTMENT(adjustmenth)->step_increment = charWidth;
 		GTK_ADJUSTMENT(adjustmenth)->page_size = pageWidth;
-		GTK_ADJUSTMENT(adjustmenth)->page_increment = pageIncrement;
 		gtk_adjustment_changed(GTK_ADJUSTMENT(adjustmenth));
 		modified = true;
 	}
@@ -1235,6 +1227,8 @@ int ScintillaGTK::KeyDefault(int key, int modifiers) {
 		if (key < 256) {
 			NotifyKey(key, modifiers);
 			return 0;
+			//~ AddChar(key);
+			//~ return 1;
 		} else {
 			// Pass up to container in case it is an accelerator
 			NotifyKey(key, modifiers);
@@ -1750,13 +1744,13 @@ gint ScintillaGTK::PressThis(GdkEventButton *event) {
 			return FALSE;
 		}
 	} else if (event->button == 4) {
-		// Wheel scrolling up (only GTK 1.x does it this way)
+		// Wheel scrolling up (only xwin gtk does it this way)
 		if (ctrl)
 			SetAdjustmentValue(adjustmenth, (xOffset / 2) - 6);
 		else
 			SetAdjustmentValue(adjustmentv, topLine - 3);
 	} else if (event->button == 5) {
-		// Wheel scrolling down (only GTK 1.x does it this way)
+		// Wheel scrolling down (only xwin gtk does it this way)
 		if (ctrl)
 			SetAdjustmentValue(adjustmenth, (xOffset / 2) + 6);
 		else
@@ -1796,8 +1790,8 @@ gint ScintillaGTK::MouseRelease(GtkWidget *widget, GdkEventButton *event) {
 	return FALSE;
 }
 
-// win32gtk and GTK >= 2 use SCROLL_* events instead of passing the
-// button4/5/6/7 events to the GTK app
+// win32gtk has a special wheel mouse event for whatever reason and doesn't
+// use the button4/5 trick used under X windows.
 #if PLAT_GTK_WIN32 || (GTK_MAJOR_VERSION >= 2)
 gint ScintillaGTK::ScrollEvent(GtkWidget *widget,
                                GdkEventScroll *event) {
@@ -1809,15 +1803,7 @@ gint ScintillaGTK::ScrollEvent(GtkWidget *widget,
 	// Compute amount and direction to scroll (even tho on win32 there is
 	// intensity of scrolling info in the native message, gtk doesn't
 	// support this so we simulate similarly adaptive scrolling)
-	// Note that this is disabled on OS X (Darwin) where the X11 server already has
-	// and adaptive scrolling algorithm that fights with this one
 	int cLineScroll;
-#if defined(__MWERKS__) || defined(__APPLE_CPP__) || defined(__APPLE_CC__)
-	cLineScroll = sciThis->linesPerScroll;
-	if (cLineScroll == 0)
-		cLineScroll = 4;
-	sciThis->wheelMouseIntensity = cLineScroll;
-#else
 	int timeDelta = 1000000;
 	GTimeVal curTime;
 	g_get_current_time(&curTime);
@@ -1835,8 +1821,7 @@ gint ScintillaGTK::ScrollEvent(GtkWidget *widget,
 			cLineScroll = 4;
 		sciThis->wheelMouseIntensity = cLineScroll;
 	}
-#endif
-	if (event->direction == GDK_SCROLL_UP || event->direction == GDK_SCROLL_LEFT) {
+	if (event->direction == GDK_SCROLL_UP) {
 		cLineScroll *= -1;
 	}
 	g_get_current_time(&sciThis->lastWheelMouseTime);
@@ -1852,23 +1837,21 @@ gint ScintillaGTK::ScrollEvent(GtkWidget *widget,
 		return FALSE;
 	}
 
-	// Horizontal scrolling
-	if (event->direction == GDK_SCROLL_LEFT || event->direction == GDK_SCROLL_RIGHT) {
-		sciThis->HorizontalScrollTo(sciThis->xOffset + cLineScroll);
-
 	// Text font size zoom
-	} else if (event->state & GDK_CONTROL_MASK) {
+	if (event->state & GDK_CONTROL_MASK) {
 		if (cLineScroll < 0) {
 			sciThis->KeyCommand(SCI_ZOOMIN);
+			return TRUE;
 		} else {
 			sciThis->KeyCommand(SCI_ZOOMOUT);
+			return TRUE;
 		}
 
 	// Regular scrolling
 	} else {
 		sciThis->ScrollTo(sciThis->topLine + cLineScroll);
+		return TRUE;
 	}
-	return TRUE;
 }
 #endif
 
@@ -1956,12 +1939,6 @@ static int KeyTranslate(int keyIn) {
 		return SCK_SUBTRACT;
 	case GDK_KP_Divide:
 		return SCK_DIVIDE;
-	case GDK_Super_L:
-		return SCK_WIN;
-	case GDK_Super_R:
-		return SCK_RWIN;
-	case GDK_Menu:
-		return SCK_MENU;
 	default:
 		return keyIn;
 	}
@@ -1991,8 +1968,10 @@ gboolean ScintillaGTK::KeyThis(GdkEventKey *event) {
 	// This will have to change for Unicode
 	else if (key >= 0xFE00)
 		key = KeyTranslate(key);
+	else if (IsUnicodeMode())
+		;	// No operation
 #if GTK_MAJOR_VERSION < 2
-	else if (!IsUnicodeMode() && (key >= 0x100) && (key < 0x1000))
+	else if ((key >= 0x100) && (key < 0x1000))
 		key &= 0xff;
 #endif
 
@@ -2003,7 +1982,7 @@ gboolean ScintillaGTK::KeyThis(GdkEventKey *event) {
 	//fprintf(stderr, "SK-key: %d %x %x\n",event->keyval, event->state, consumed);
 	if (event->keyval == 0xffffff && event->length > 0) {
 		ClearSelection();
-		if (pdoc->InsertCString(CurrentPosition(), event->string)) {
+		if (pdoc->InsertString(CurrentPosition(), event->string)) {
 			MovePositionTo(CurrentPosition() + event->length);
 		}
 	}
@@ -2340,17 +2319,14 @@ void ScintillaGTK::DragBegin(GtkWidget *, GdkDragContext *) {
 }
 
 gboolean ScintillaGTK::DragMotion(GtkWidget *widget, GdkDragContext *context,
-                                 gint x, gint y, guint dragtime) {
+                                  gint x, gint y, guint dragtime) {
 	ScintillaGTK *sciThis = ScintillaFromWidget(widget);
+	//Platform::DebugPrintf("DragMotion %d %d %x %x %x\n", x, y,
+	//	context->actions, context->suggested_action, sciThis);
 	Point npt(x, y);
 	sciThis->inDragDrop = true;
 	sciThis->SetDragPosition(sciThis->PositionFromLocation(npt));
-	GdkDragAction preferredAction = context->suggested_action;
-	if (context->actions == static_cast<GdkDragAction>
-		(GDK_ACTION_COPY | GDK_ACTION_MOVE)) {
-		preferredAction = GDK_ACTION_MOVE;
-	}
-	gdk_drag_status(context, preferredAction, dragtime);
+	gdk_drag_status(context, context->suggested_action, dragtime);
 	return FALSE;
 }
 

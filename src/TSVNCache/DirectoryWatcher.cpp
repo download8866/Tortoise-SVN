@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Dbt.h"
@@ -214,7 +214,7 @@ void CDirectoryWatcher::WorkerThread()
 	DWORD numBytes;
 	CDirWatchInfo * pdi = NULL;
 	LPOVERLAPPED lpOverlapped;
-	WCHAR buf[READ_DIR_CHANGE_BUFFER_SIZE] = {0};
+	WCHAR buf[MAX_PATH*4] = {0};
 	WCHAR * pFound = NULL;
 	while (m_bRunning)
 	{
@@ -330,24 +330,39 @@ void CDirectoryWatcher::WorkerThread()
 					do 
 					{
 						nOffset = pnotify->NextEntryOffset;
-						if (pnotify->FileNameLength >= READ_DIR_CHANGE_BUFFER_SIZE)
-							continue;
-						ZeroMemory(buf, READ_DIR_CHANGE_BUFFER_SIZE*sizeof(TCHAR));
-						_tcsncpy_s(buf, READ_DIR_CHANGE_BUFFER_SIZE, pdi->m_DirPath, READ_DIR_CHANGE_BUFFER_SIZE);
-						errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), pnotify->FileName, _TRUNCATE);
+						//switch (pnotify->Action)
+						//{
+						//case FILE_ACTION_RENAMED_OLD_NAME:
+						//	{
+						//		pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
+						//		if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
+						//			break;
+						//		continue;
+						//	}
+						//	break;
+						//}
+						ZeroMemory(buf, MAX_PATH*4*sizeof(TCHAR));
+						_tcsncpy_s(buf, MAX_PATH*4, pdi->m_DirPath, MAX_PATH*4);
+						errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), (MAX_PATH*4)-pdi->m_DirPath.GetLength(), pnotify->FileName, _TRUNCATE);
 						if (err == STRUNCATE)
 						{
 							pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
 							continue;
 						}
-						buf[READ_DIR_CHANGE_BUFFER_SIZE-1] = 0;
+						buf[min(MAX_PATH*4-1, pdi->m_DirPath.GetLength()+(pnotify->FileNameLength/sizeof(WCHAR)))] = 0;
 						pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
 						if (m_FolderCrawler)
 						{
 							if ((pFound = wcsstr(buf, L"\\tmp"))!=NULL)
 							{
 								pFound += 4;
-								if (((*pFound)=='\\')||((*pFound)=='\0'))
+								if ((*pFound)=='\\')
+								{
+									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
+										break;
+									continue;
+								}
+								if (size_t(pFound-buf) == _tcslen(buf))
 								{
 									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
 										break;
@@ -355,16 +370,6 @@ void CDirectoryWatcher::WorkerThread()
 								}
 							}
 							if ((pFound = wcsstr(buf, L":\\RECYCLER\\"))!=NULL)
-							{
-								if ((pFound-buf) < 5)
-								{
-									// a notification for the recycle bin - ignore it
-									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
-										break;
-									continue;
-								}
-							}
-							if ((pFound = wcsstr(buf, L":\\$Recycle.Bin\\"))!=NULL)
 							{
 								if ((pFound-buf) < 5)
 								{
@@ -406,7 +411,7 @@ continuewatching:
 						// wrong.
 						Sleep(200);
 					}
-				}
+				} // if (pdi)
 			}
 		}// if (watchedPaths.GetCount())
 		else

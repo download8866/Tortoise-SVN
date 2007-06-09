@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -24,6 +24,8 @@
 #include "..\version.h"
 #include "BDBVersion.h"
 #include "AppUtils.h"
+
+// CAboutDlg dialog
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
 CAboutDlg::CAboutDlg(CWnd* pParent /*=NULL*/)
@@ -52,7 +54,7 @@ BOOL CAboutDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	// set the version string
+	//set the version string
 	CString temp, boxtitle;
 	boxtitle.Format(IDS_ABOUTVERSIONBOX, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE));
 	GetDlgItem(IDC_VERSIONBOX)->SetWindowText(boxtitle);
@@ -61,6 +63,7 @@ BOOL CAboutDlg::OnInitDialog()
 	temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE), 
 		svnver->major, svnver->minor, svnver->patch, CString(svnver->tag), 
 		APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
+		API_MAJOR_VERSION, API_MINOR_VERSION, API_PATCH_VERSION,
 		APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
 		g_iDB_VERSION_MAJOR, g_iDB_VERSION_MINOR, g_iDB_VERSION_PATCH,
 		_T(NEON_VERSION),
@@ -78,12 +81,13 @@ BOOL CAboutDlg::OnInitDialog()
 	SetTimer(ID_EFFECTTIMER, 40, NULL);
 	SetTimer(ID_DROPTIMER, 300, NULL);
 
-	m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
+	m_cWebLink.SetURL(_T("http://www.tortoisesvn.org"));
 	m_cSupportLink.SetURL(_T("http://tortoisesvn.tigris.org/donate.html"));
 
 	CenterWindow(CWnd::FromHandle(hWndExplorer));
 	GetDlgItem(IDOK)->SetFocus();
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CAboutDlg::OnTimer(UINT_PTR nIDEvent)

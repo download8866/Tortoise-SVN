@@ -303,21 +303,10 @@
 			appears when you move the mouse over a column boundary. These
 			customizations are preserved, so you will see the same headings
 			next time.
-		</para>
-		<para>
-			If you are working on several unrelated tasks at once, you can also
-			group files together into changelists.
-			Read <xref linkend="tsvn-dug-commit-changelists"/> for more information.
-		</para>
-		<para>
-			At the bottom of the dialog you can see a summary of the range of repository
-			revisions in use in your working copy. These are the <literal>commit</literal>
-			revisions, not the <literal>update</literal> revisions; they represent the
-			range of revisions where these files were last committed, not the revisions
-			to which they have been updated. Note that the revision range shown applies
-			only to the items displayed, not to the entire working copy. If you want to
-			see that information for the whole working copy you must check the
-			<guilabel>Show unmodified files</guilabel> checkbox.
+			Note that due to an implementation detail, you may see two different
+			drag icons, depending on exactly where you position the mouse over the
+			boundary. One has a solid vertical dividing line and the other has two
+			thin vertical lines. Only the solid drag pointer works.
 		</para>
 		<tip>
 			<para>
@@ -327,21 +316,6 @@
 				easiest way to achieve that. Just check the
 				<guilabel>Show unmodified files</guilabel> checkbox to show
 				all files in your working copy.
-			</para>
-		</tip>
-		<tip>
-			<title>Repairing External Renames</title>
-			<para>
-				Sometimes files get renamed outside of Subversion, and they show up
-				in the file list as a missing file and an unversioned file. To avoid
-				losing the history you need to notify Subversion about the connection.
-				Simply select both the old name (missing) and the new name (unversioned)
-				and use
-				<menuchoice>
-					<guimenu>Context Menu</guimenu>
-					<guimenuitem>Repair Move</guimenuitem>
-				</menuchoice>
-				to pair the two files as a rename.
 			</para>
 		</tip>
 	</sect2>
@@ -373,70 +347,5 @@
 				one. 
 			</para>
 		</tip>
-	</sect2>
-	<sect2>
-		<title>Keyword Expansion</title>
-		<indexterm>
-			<primary>keywords</primary>
-		</indexterm>
-		<para>
-			Subversion supports CVS-like keyword expansion which can be
-			used to embed filename and revision information within the
-			file itself. Keywords currently supported are:
-			<variablelist>
-				<varlistentry>
-					<term>Date</term>
-					<listitem>
-						<para>
-							Date of last known commit. This is based on
-							information obtained when you update your working
-							copy. It does <emphasis>not</emphasis> check the
-							repository to find more recent changes.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Revision</term>
-					<listitem>
-						<para>
-							Revision of last known commit.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Author</term>
-					<listitem>
-						<para>
-							Author who made the last known commit.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>HeadURL</term>
-					<listitem>
-						<para>
-							The full URL of this file in the repository.
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term>Id</term>
-					<listitem>
-						<para>
-							A compressed combination of the previous
-							four keywords.
-						</para>
-					</listitem>
-				</varlistentry>
-			</variablelist>
-		</para>
-		<para>
-			To find out how to use these keywords, look at the
-			<ulink url="http://svnbook.red-bean.com/en/1.2/svn.advanced.props.html#svn.advanced.props.special.keywords">
-				<citetitle>svn:keywords section</citetitle>
-			</ulink>
-			in the Subversion book, which gives a full description of these
-			keywords and how to enable and use them.
-		</para>
 	</sect2>
 </sect1>

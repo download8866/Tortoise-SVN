@@ -319,7 +319,7 @@ static const char *CharacterSetName(int characterSet) {
 	case SC_CHARSET_VIETNAMESE:
 		return "*-*";
 	case SC_CHARSET_THAI:
-		return "iso8859-11";
+		return "*-1";
 	case SC_CHARSET_8859_15:
 		return "iso8859-15";
 	default:
@@ -745,7 +745,7 @@ const char *CharacterSetID(int characterSet) {
 	case SC_CHARSET_ANSI:
 		return "";
 	case SC_CHARSET_DEFAULT:
-		return "ISO-8859-1";
+		return "LATIN1";
 	case SC_CHARSET_BALTIC:
 		return "ISO-8859-13";
 	case SC_CHARSET_CHINESEBIG5:
@@ -781,7 +781,7 @@ const char *CharacterSetID(int characterSet) {
 	case SC_CHARSET_VIETNAMESE:
 		return "";
 	case SC_CHARSET_THAI:
-		return "ISO-8859-11";
+		return "ISO-8859-1";
 	case SC_CHARSET_8859_15:
 		return "ISO-8859-15";
 	default:
@@ -2283,7 +2283,7 @@ void ListBoxX::Select(int n) {
 		return;
 	}
 
-	bool valid = gtk_tree_model_iter_nth_child(model, &iter, NULL, n) != FALSE;
+	bool valid = gtk_tree_model_iter_nth_child(model, &iter, NULL, n);
 	if (valid) {
 		gtk_tree_selection_select_iter(selection, &iter);
 
@@ -2356,7 +2356,7 @@ int ListBoxX::Find(const char *prefix) {
 	GtkTreeIter iter;
 	GtkTreeModel *model =
 		gtk_tree_view_get_model(GTK_TREE_VIEW(list));
-	bool valid = gtk_tree_model_get_iter_first(model, &iter) != FALSE;
+	bool valid = gtk_tree_model_get_iter_first(model, &iter);
 	int i = 0;
 	while(valid) {
 		gchar *s;
@@ -2364,7 +2364,7 @@ int ListBoxX::Find(const char *prefix) {
 		if (s && (0 == strncmp(prefix, s, strlen(prefix)))) {
 			return i;
 		}
-		valid = gtk_tree_model_iter_next(model, &iter) != FALSE;
+		valid = gtk_tree_model_iter_next(model, &iter);
 		i++;
 	}
 #endif
@@ -2388,7 +2388,7 @@ void ListBoxX::GetValue(int n, char *value, int len) {
 #else
 	GtkTreeIter iter;
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(list));
-	bool valid = gtk_tree_model_iter_nth_child(model, &iter, NULL, n) != FALSE;
+	bool valid = gtk_tree_model_iter_nth_child(model, &iter, NULL, n);
 	if (valid) {
 		gtk_tree_model_get(model, &iter, TEXT_COLUMN, &text, -1);
 	}

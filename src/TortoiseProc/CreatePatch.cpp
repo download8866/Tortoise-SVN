@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -23,6 +23,9 @@
 #include "CreatePatch.h"
 #include "SVN.h"
 #include ".\createpatch.h"
+
+
+// CCreatePatch dialog
 
 IMPLEMENT_DYNAMIC(CCreatePatch, CResizableStandAloneDialog)
 CCreatePatch::CCreatePatch(CWnd* pParent /*=NULL*/)
@@ -50,16 +53,18 @@ BEGIN_MESSAGE_MAP(CCreatePatch, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 END_MESSAGE_MAP()
 
+
+// CCreatePatch message handlers
+
 BOOL CCreatePatch::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
+	//set the listcontrol to support checkboxes
 	m_PatchList.Init(0, _T("CreatePatchDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT));
 	m_PatchList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_PatchList.SetSelectButton(&m_SelectAll);
 	m_PatchList.SetCancelBool(&m_bCancelled);
-
-	AdjustControlSize(IDC_SELECTALL);
 
 	AddAnchor(IDC_PATCHLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -70,8 +75,8 @@ BOOL CCreatePatch::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("CreatePatchDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if(AfxBeginThread(PatchThreadEntry, this) == NULL)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
@@ -87,8 +92,9 @@ UINT CCreatePatch::PatchThreadEntry(LPVOID pVoid)
 }
 UINT CCreatePatch::PatchThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which can be included in a patch (i.e. the versioned and not-normal ones)
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;
 
@@ -100,6 +106,7 @@ UINT CCreatePatch::PatchThread()
 	m_PatchList.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS, 
 						SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS);
 
+	DialogEnableWindow(IDOK, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }
@@ -231,7 +238,7 @@ void CCreatePatch::OnOK()
 		// has been created! Since this dialog doesn't create the patch
 		// itself, the calling function is responsible to revert these files!
 		SVN svn;
-		svn.Add(m_filesToRevert, NULL, false);
+		svn.Add(m_filesToRevert, false);
 	}
 	
 	//save only the files the user has selected into the pathlist

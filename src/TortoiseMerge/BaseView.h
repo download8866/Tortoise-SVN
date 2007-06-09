@@ -13,14 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "DiffData.h"
 #include "SVNLineDiff.h"
-#include "ScrollTool.h"
-#include "Undo.h"
 #include "LocatorBar.h"
 
 /**
@@ -58,13 +56,11 @@ public:
 	void			GoToLine(int nNewLine, BOOL bAll = TRUE);
 
 	void			SelectLines(int nLine1, int nLine2 = -1);
-	void			HiglightLines(int start, int end = -1);
 	inline BOOL		IsHidden() const  {return m_bIsHidden;}
 	inline void		SetHidden(BOOL bHidden) {m_bIsHidden = bHidden;}
 	inline BOOL		IsModified() const  {return m_bModified;}
 	void			SetModified(BOOL bModified = TRUE) {m_bModified = bModified;}
 	BOOL			HasSelection() {return (!((m_nSelBlockEnd < 0)||(m_nSelBlockStart < 0)||(m_nSelBlockStart > m_nSelBlockEnd)));}
-	BOOL			GetSelection(int& start, int& end) {start=m_nSelBlockStart; end=m_nSelBlockEnd; return HasSelection();}
 
 	CStdCStringArray* m_arDiffLines;	///< Array of Strings containing all lines of the text file
 	CStdCStringArray* m_arDiffDiffLines;///< Array of Strings containing all lines of the 'other' text file
@@ -73,8 +69,6 @@ public:
 	CStdDWORDArray*	m_arLineLines;		///< Array of line numbers
 	CString			m_sWindowName;		///< The name of the view which is shown as a window title to the user
 	CString			m_sFullFilePath;	///< The full path of the file shown
-	CFileTextLines::UnicodeType texttype;	///< the text encoding this view uses
-	CFileTextLines::LineEndings lineendings; ///< the line endings the view uses
 
 	BOOL			m_bViewWhitespace;	///< If TRUE, then SPACE and TAB are shown as special characters
 	BOOL			m_bShowInlineDiff;	///< If TRUE, diffs in lines are marked colored
@@ -121,7 +115,7 @@ protected:
 	void			ExpandChars(LPCTSTR pszChars, int nOffset, int nCount, CString &line);
 
 	BOOL			IsLineRemoved(int nLineIndex);
-	bool			IsBlockWhitespaceOnly(int nLineIndex, bool& bIdentical);
+	bool			IsBlockWhitespaceOnly(int nLineIndex);
 
 	void			RecalcVertScrollBar(BOOL bPositionOnly = FALSE);
 	void			RecalcAllVertScrollBars(BOOL bPositionOnly = FALSE);
@@ -135,7 +129,6 @@ protected:
 	void			OnDoVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar, CBaseView * master);
 
 	void			SetupDiffBars(int start, int end);
-	void			SetupSelection(int start, int end);
 	void			ShowDiffLines(int nLine);
 	
 	int				GetTabSize() const {return m_nTabSize;}
@@ -159,8 +152,6 @@ protected:
 	CFont *			GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE, BOOL bStrikeOut = FALSE);
 	int				GetLineFromPoint(CPoint point);
 	int				GetMarginWidth();
-	void			RefreshViews();
-	COLORREF		IntenseColor(long scale, COLORREF col);
 
 	virtual BOOL	ShallShowContextMenu(CDiffData::DiffStates state, int nLine);
 	virtual	void	OnContextMenu(CPoint point, int nLine);
@@ -168,15 +159,9 @@ protected:
 	 * Updates the status bar pane. Call this if the document changed.
 	 */
 	void			UpdateStatusBar();
-
-	void			UseTheirAndYourBlock(viewstate &rightstate, viewstate &bottomstate, viewstate &leftstate);
-	void			UseYourAndTheirBlock(viewstate &rightstate, viewstate &bottomstate, viewstate &leftstate);
-	void			UseBothLeftFirst(viewstate &rightstate, viewstate &leftstate);
-	void			UseBothRightFirst(viewstate &rightstate, viewstate &leftstate);
 protected:
 	COLORREF		m_InlineRemovedBk;
 	COLORREF		m_InlineAddedBk;
-	COLORREF		m_ModifiedBk;
 	UINT			m_nStatusBarID;		///< The ID of the status bar pane used by this view. Must be set by the parent class.
 
 	SVNLineDiff		m_svnlinediff;
@@ -205,17 +190,16 @@ protected:
 	HICON			m_hRemovedIcon;
 	HICON			m_hConflictedIcon;
 	HICON			m_hWhitespaceBlockIcon;
-	HICON			m_hEqualIcon;
 
 	LOGFONT			m_lfBaseFont;
 	CFont *			m_apFonts[8];
 
 	CBitmap *		m_pCacheBitmap;
 	CDC *			m_pDC;
-	CScrollTool		m_ScrollTool;
+	CToolTipCtrl	m_ToolTips;
 	
-	char			m_szTip[MAX_PATH*2+1];
-	wchar_t			m_wszTip[MAX_PATH*2+1];
+	char			m_szTip[MAX_PATH+1];
+	wchar_t			m_wszTip[MAX_PATH+1];
 	// These three pointers lead to the three parent
 	// classes CLeftView, CRightView and CBottomView
 	// and are used for the communication between
@@ -226,5 +210,4 @@ protected:
 	static CBaseView * m_pwndRight;		///< Pointer to the right view. Must be set by the CRightView parent class.
 	static CBaseView * m_pwndBottom;	///< Pointer to the bottom view. Must be set by the CBottomView parent class.
 };
-
 

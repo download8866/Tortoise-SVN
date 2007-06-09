@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -282,17 +282,19 @@ void CRevisionGraphWnd::DrawNode(CDC * pDC, const CRect& rect,
 			pDC->GetOutputTextMetrics(&textMetric);
 			temp.Format(IDS_REVGRAPH_BOXREVISIONTITLE, rentry->revision);
 			pDC->DrawText(temp, &r, DT_CALCRECT);
-			pDC->ExtTextOut(textrect.left + ((rect.Width()-r.Width())/2), int(textrect.top + m_node_rect_heigth/4.0f), ETO_CLIPPED, NULL, temp, NULL);
+			pDC->ExtTextOut(textrect.left + ((rect.Width()-r.Width())/2), textrect.top + m_node_rect_heigth/4, ETO_CLIPPED, NULL, temp, NULL);
 
 			// draw the url
 			pDC->SelectObject(GetFont(TRUE));
-			temp = rentry->url;
+			temp = CUnicodeUtils::GetUnicode(rentry->url);
+			if (temp.IsEmpty())
+				temp = CUnicodeUtils::GetUnicode(rentry->realurl);
 			r = textrect;
 			temp.Replace('/','\\');
 			pDC->DrawText(temp.GetBuffer(temp.GetLength()), temp.GetLength(), &r, DT_CALCRECT | DT_PATH_ELLIPSIS | DT_MODIFYSTRING);
 			temp.ReleaseBuffer();
 			temp.Replace('\\','/');
-			pDC->ExtTextOut(textrect.left + 2 + ((textrect.Width()-4-r.Width())/2), int(textrect.top + m_node_rect_heigth/4.0f + m_node_rect_heigth/3.0f), ETO_CLIPPED, &textrect, temp, NULL);
+			pDC->ExtTextOut(textrect.left + 2 + ((textrect.Width()-4-r.Width())/2), textrect.top + m_node_rect_heigth/4 + m_node_rect_heigth/3, ETO_CLIPPED, &textrect, temp, NULL);
 		}
 
 		if (m_nIconSize)
@@ -366,7 +368,7 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 	}
 	if (vert>0)
 		vert--;
-	// vert is now the top vertical position of the first nodes to draw
+	// vert is now the top vertical postion of the first nodes to draw
 	while ((i<m_arEntryPtrs.GetCount())&&((int)m_arVertPositions[i] < vert))
 		++i;
 	end = i;
@@ -395,12 +397,12 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 	for ( ; ((i>=0)&&(i<end)); ++i)
 	{
 		CRevisionEntry * entry = (CRevisionEntry*)m_arEntryPtrs.GetAt(i);
-		float vertpos = (float)m_arVertPositions[i];
+		int vertpos = m_arVertPositions[i];
 		CRect noderect;
-		noderect.top = long(vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top - float(nVScrollPos));
-		noderect.bottom = long(noderect.top + m_node_rect_heigth);
-		noderect.left = long(float(entry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left - float(nHScrollPos));
-		noderect.right = long(noderect.left + m_node_rect_width);
+		noderect.top = vertpos*(m_node_rect_heigth+m_node_space_top+m_node_space_bottom) + m_node_space_top - nVScrollPos;
+		noderect.bottom = noderect.top + m_node_rect_heigth;
+		noderect.left = (entry->level - 1)*(m_node_rect_width+m_node_space_left+m_node_space_right) + m_node_space_left - nHScrollPos;
+		noderect.right = noderect.left + m_node_rect_width;
 		switch (entry->action)
 		{
 		case CRevisionEntry::deleted:
@@ -436,42 +438,6 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 	DestroyIcon(hLastCommitIcon);
 
 	DrawConnections(memDC, rect, nVScrollPos, nHScrollPos, start, end);
-
-	if ((!bDirectDraw)&&(m_Preview.GetSafeHandle())&&(m_bShowOverview))
-	{
-		// draw the overview image rectangle in the top right corner
-		CMemDC memDC2(memDC, true);
-		memDC2.SetWindowOrg(0, 0);
-		HBITMAP oldhbm = (HBITMAP)memDC2.SelectObject(&m_Preview);
-		memDC->BitBlt(rect.Width()-REVGRAPH_PREVIEW_WIDTH, 0, REVGRAPH_PREVIEW_WIDTH, REVGRAPH_PREVIEW_HEIGTH, 
-			&memDC2, 0, 0, SRCCOPY);
-		memDC2.SelectObject(oldhbm);
-		// draw the border for the overview rectangle
-		m_OverviewRect.left = rect.Width()-REVGRAPH_PREVIEW_WIDTH;
-		m_OverviewRect.top = 0;
-		m_OverviewRect.right = rect.Width();
-		m_OverviewRect.bottom = REVGRAPH_PREVIEW_HEIGTH;
-		memDC->DrawEdge(&m_OverviewRect, EDGE_BUMP, BF_RECT);
-		// now draw a rectangle where the current view is located in the overview
-		LONG width = REVGRAPH_PREVIEW_WIDTH * rect.Width() / m_ViewRect.Width();
-		LONG heigth = REVGRAPH_PREVIEW_HEIGTH * rect.Height() / m_ViewRect.Height();
-		LONG xpos = nHScrollPos * REVGRAPH_PREVIEW_WIDTH / m_ViewRect.Width();
-		LONG ypos = nVScrollPos * REVGRAPH_PREVIEW_HEIGTH / m_ViewRect.Height();
-		RECT tempRect;
-		tempRect.left = rect.Width()-REVGRAPH_PREVIEW_WIDTH+xpos;
-		tempRect.top = ypos;
-		tempRect.right = tempRect.left + width;
-		tempRect.bottom = tempRect.top + heigth;
-		// make sure the position rect is not bigger than the preview window itself
-		::IntersectRect(&m_OverviewPosRect, &m_OverviewRect, &tempRect);
-		memDC->SetROP2(R2_MASKPEN);
-		HGDIOBJ oldbrush = memDC->SelectObject(GetStockObject(GRAY_BRUSH));
-		memDC->Rectangle(&m_OverviewPosRect);
-		memDC->SetROP2(R2_NOT);
-		memDC->SelectObject(oldbrush);
-		memDC->DrawEdge(&m_OverviewPosRect, EDGE_BUMP, BF_RECT);
-	}
-
 	if (!bDirectDraw)
 		delete memDC;
 }

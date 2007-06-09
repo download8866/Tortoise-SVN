@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -23,6 +23,8 @@
 #include "RenameDlg.h"
 #include ".\renamedlg.h"
 
+
+// CRenameDlg dialog
 
 IMPLEMENT_DYNAMIC(CRenameDlg, CResizableStandAloneDialog)
 CRenameDlg::CRenameDlg(CWnd* pParent /*=NULL*/)
@@ -43,8 +45,10 @@ void CRenameDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CRenameDlg, CResizableStandAloneDialog)
-	ON_WM_SIZING()
 END_MESSAGE_MAP()
+
+
+// CRenameDlg message handlers
 
 BOOL CRenameDlg::OnInitDialog()
 {
@@ -63,7 +67,8 @@ BOOL CRenameDlg::OnInitDialog()
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RenameDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CRenameDlg::OnOK()
@@ -77,25 +82,4 @@ void CRenameDlg::OnOK()
 			return;
 	}
 	CResizableDialog::OnOK();
-}
-
-void CRenameDlg::OnSizing(UINT fwSide, LPRECT pRect)
-{
-	// don't allow the dialog to be changed in height
-	CRect rcWindowRect;
-	GetWindowRect(&rcWindowRect);
-	switch (fwSide)
-	{
-	case WMSZ_BOTTOM:
-	case WMSZ_BOTTOMLEFT:
-	case WMSZ_BOTTOMRIGHT:
-		pRect->bottom = pRect->top + rcWindowRect.Height();
-		break;
-	case WMSZ_TOP:
-	case WMSZ_TOPLEFT:
-	case WMSZ_TOPRIGHT:
-		pRect->top = pRect->bottom - rcWindowRect.Height();
-		break;
-	}
-	CResizableStandAloneDialog::OnSizing(fwSide, pRect);
 }

@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "ShellExt.h"
@@ -94,6 +94,11 @@ SVNFolderStatus::SVNFolderStatus(void)
 	sCacheKey.reserve(MAX_PATH);
 
 	rootpool = svn_pool_create (NULL);
+	svn_utf_initialize(rootpool);
+
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", rootpool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", rootpool);
 
 	m_hInvalidationEvent = CreateEvent(NULL, FALSE, FALSE, _T("TortoiseSVNCacheInvalidationEvent"));
 }
@@ -161,12 +166,12 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 			try
 			{
 				folderpath = filepath;
-				err = svn_client_status3 (&youngest,
+				err = svn_client_status2 (&youngest,
 					filepath.GetDirectory().GetSVNApiPath(),
 					&rev,
 					findfolderstatus,
 					this,
-					svn_depth_empty,//depth
+					FALSE,		//descend
 					TRUE,		//getall
 					FALSE,		//update
 					TRUE,		//noignore
@@ -190,7 +195,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 					dirstat.owner = owners.GetString(dirstatus->entry->lock_owner);
 				}
 				dirstat.status = SVNStatus::GetMoreImportant(dirstatus->text_status, dirstatus->prop_status);
-			}
+			} // if (status)
 			m_cache[filepath.GetWinPath()] = dirstat;
 			m_TimeStamp = GetTickCount();
 			svn_pool_destroy (pool);				//free allocated memory
@@ -211,12 +216,12 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	rev.kind = svn_opt_revision_unspecified;
 	try
 	{
-		err = svn_client_status3 (&youngest,
+		err = svn_client_status2 (&youngest,
 			filepath.GetDirectory().GetSVNApiPath(),
 			&rev,
 			fillstatusmap,
 			this,
-			svn_depth_immediates,		//depth
+			FALSE,		//descend
 			TRUE,		//getall
 			FALSE,		//update
 			TRUE,		//noignore

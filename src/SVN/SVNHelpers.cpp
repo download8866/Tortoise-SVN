@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "StdAfx.h"
 #include "SVNHelpers.h"
 
@@ -22,6 +22,7 @@
 SVNPool::SVNPool()
 {
 	m_pool = svn_pool_create(NULL);
+	svn_utf_initialize(m_pool);
 }
 
 SVNPool::SVNPool(apr_pool_t* parentPool)
@@ -47,6 +48,13 @@ SVNHelper::SVNHelper(void)
 	m_bCancelled = false;
 	m_pool = svn_pool_create (NULL);				// create the memory pool
 	
+	svn_utf_initialize(m_pool);
+
+	// Why do we do this?
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", m_pool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", m_pool);
+
 	svn_client_create_context(&m_ctx, m_pool);
 	m_ctx->cancel_func = cancelfunc;
 	m_ctx->cancel_baton = this;

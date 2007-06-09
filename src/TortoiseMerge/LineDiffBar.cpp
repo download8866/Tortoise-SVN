@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -40,7 +40,7 @@ CLineDiffBar::~CLineDiffBar()
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap) 
 }
 
 BEGIN_MESSAGE_MAP(CLineDiffBar, CDialogBar)
@@ -81,7 +81,7 @@ CSize CLineDiffBar::CalcFixedLayout(BOOL bStretch, BOOL bHorz)
 				size.cy = 0;
 			if ((m_pMainFrm->m_pwndBottomView)&&(!m_pMainFrm->m_pwndBottomView->IsHidden()))
 				size.cy = 0;
-		}
+		} // if (m_pMainFrm) 
 
 		if (size.cy > 0)
 		{
@@ -90,7 +90,7 @@ CSize CLineDiffBar::CalcFixedLayout(BOOL bStretch, BOOL bHorz)
 			AdjustWindowRectEx(&rc, GetStyle(), FALSE, GetExStyle());
 			size = rc.Size();
 		}
-	}
+	} // if (bStretch) // if not docked stretch to fit 
 	else
 	{
 		size = m_sizeDefault;
@@ -170,7 +170,7 @@ void CLineDiffBar::OnSize(UINT nType, int cx, int cy)
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap != NULL)
 	Invalidate();
 }
 

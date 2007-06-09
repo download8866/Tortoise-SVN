@@ -13,15 +13,10 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #include <vector>
-
-#include <apr_pools.h>
-#include "svn_error.h"
-#include "svn_client.h"
-#include "svn_path.h"
 
 #define URL_BUF	2048
 
@@ -37,8 +32,7 @@ typedef struct SubWCRev_t
 	BOOL bFolders;			// If TRUE, status of folders is included
 	BOOL bExternals;		// If TRUE, status of externals is included
 	char Url[URL_BUF];		// URL of working copy
-	char UUID[1024];		// The repository UUID of the working copy
-	char Author[URL_BUF];	// The author of the wcPath
+	char UUID[1024];	// The repository UUID of the working copy
 } SubWCRev_t;
 
 typedef struct SubWCRev_StatusBaton_t
@@ -54,7 +48,3 @@ svn_status (       const char *path,
                    svn_boolean_t no_ignore,
                    svn_client_ctx_t *ctx,
                    apr_pool_t *pool);
-
-char *Utf16ToUtf8(const WCHAR *pszUtf16, apr_pool_t *pool);
-
-void AutomationMain();

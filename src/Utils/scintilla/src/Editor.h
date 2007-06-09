@@ -431,13 +431,12 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	virtual void NotifyFocus(bool focus);
 	virtual int GetCtrlID() { return ctrlID; }
 	virtual void NotifyParent(SCNotification scn) = 0;
-	virtual void NotifyParent(SCNotification * scn) = 0;
 	virtual void NotifyStyleToNeeded(int endStyleNeeded);
 	void NotifyChar(int ch);
 	void NotifyMove(int position);
 	void NotifySavePoint(bool isSavePoint);
 	void NotifyModifyAttempt();
-	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
+	virtual void NotifyDoubleClick(Point pt, bool shift);
 	void NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt);
 	void NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, bool alt);
 	void NotifyUpdateUI();
@@ -528,7 +527,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int CodePage() const;
 	virtual bool ValidCodePage(int /* codePage */) const { return true; }
 	int WrapCount(int line);
-	void AddStyledText(char *buffer, int appendLength);
 
 	virtual sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) = 0;
 

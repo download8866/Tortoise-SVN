@@ -13,30 +13,30 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 #include "StandAloneDlg.h"
 #include "resource.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog to ask the user for authentication data.
- */
+// CSimplePrompt dialog
+
 class CSimplePrompt : public CDialog
 {
 	DECLARE_DYNAMIC(CSimplePrompt)
 
 public:
-	CSimplePrompt(CWnd* pParent = NULL);
+	CSimplePrompt(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CSimplePrompt();
 
+// Dialog Data
 	enum { IDD = IDD_SIMPLEPROMPT };
 
 protected:
-	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
 	virtual BOOL OnInitDialog();
 
 	DECLARE_MESSAGE_MAP()

@@ -8,7 +8,12 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef _MAILMSG_H_
+#define _MAILMSG_H_
+
+#if _MSC_VER >= 1000
 #pragma once
+#endif // _MSC_VER >= 1000
 
 #include <xcmc.h>          // CMC function defs
 #include <mapi.h>          // MAPI function defs
@@ -26,8 +31,9 @@
 #pragma warning(disable: 4245)
 #include <vector>
 #pragma warning(pop)
+#include <atlmisc.h>
 
-typedef std::pair<string,string> TStrStrPair;
+typedef std::pair<CString,CString> TStrStrPair;
 typedef std::vector<TStrStrPair> TStrStrVector;
 #endif // !defined TStrStrVector
 
@@ -80,8 +86,8 @@ public:
    //
    CMailMsg& 
    SetTo(
-      string sAddress, 
-      string sName = _T("")
+      CString sAddress, 
+      CString sName = _T("")
       );
 
    //-----------------------------------------------------------------------------
@@ -100,8 +106,8 @@ public:
    //
    CMailMsg& 
    SetCc(
-      string sAddress, 
-      string sName = _T("")
+      CString sAddress, 
+      CString sName = _T("")
       );
 
    //-----------------------------------------------------------------------------
@@ -120,8 +126,8 @@ public:
    //
    CMailMsg& 
    SetBc(
-      string sAddress, 
-      string sName = _T("")
+      CString sAddress, 
+      CString sName = _T("")
       );
 
    //-----------------------------------------------------------------------------
@@ -141,8 +147,8 @@ public:
    //
    CMailMsg& 
    SetFrom(
-      string sAddress, 
-      string sName = _T("")
+      CString sAddress, 
+      CString sName = _T("")
       );
 
    //-----------------------------------------------------------------------------
@@ -160,7 +166,7 @@ public:
    //
    CMailMsg& 
    SetSubject(
-      string sSubject
+      CString sSubject
       ) {m_sSubject = sSubject; return *this;};
 
    //-----------------------------------------------------------------------------
@@ -178,7 +184,7 @@ public:
    //
    CMailMsg& 
    SetMessage(
-      string sMessage
+      CString sMessage
       ) {m_sMessage = sMessage; return *this;};
 
    //-----------------------------------------------------------------------------
@@ -197,8 +203,8 @@ public:
    //
    CMailMsg& 
    AddAttachment(
-      string sAttachment, 
-      string sTitle = _T("")
+      CString sAttachment, 
+      CString sTitle = _T("")
       );
 
    //-----------------------------------------------------------------------------
@@ -302,8 +308,8 @@ protected:
    TStrStrVector  m_cc;                         // Cc <address,name>
    TStrStrVector  m_bcc;                        // Bcc <address,name>
    TStrStrVector  m_attachments;                // Attachment <file,title>
-   string        m_sSubject;                   // EMail subject
-   string        m_sMessage;                   // EMail message
+   CString        m_sSubject;                   // EMail subject
+   CString        m_sMessage;                   // EMail message
 
    HMODULE        m_hMapi;                      // Handle to MAPI32.DLL
    LPCMCQUERY     m_lpCmcQueryConfiguration;    // Cmc func pointer
@@ -318,3 +324,5 @@ protected:
    
    BOOL           m_bReady;                     // MAPI is loaded
 };
+
+#endif	// #ifndef _MAILMSG_H_

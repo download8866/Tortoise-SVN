@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "HyperLink.h"
@@ -263,7 +263,7 @@ void CHyperLink::SetDefaultCursor()
 		{
 			m_hLinkCursor = hHandCursor;
 			return;
-		}
+		} // if (hHandCursor)
 		// windows cursor not available, so try to load it from winhlp32.exe
         CString strWndDir;
         GetWindowsDirectory(strWndDir.GetBuffer(MAX_PATH), MAX_PATH);	// Explorer can't handle paths longer than MAX_PATH.

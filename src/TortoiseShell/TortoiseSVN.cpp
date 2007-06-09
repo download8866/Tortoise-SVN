@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "ShellExt.h"
@@ -27,11 +27,11 @@ int					g_cAprInit = 0;
 SVNFolderStatus *	g_pCachedStatus = NULL;			///< status cache
 ShellCache			g_ShellCache;					///< caching of registry entries, ...
 CRemoteCacheLink	g_remoteCacheLink;
+CRegStdWORD			g_regLang;
 DWORD				g_langid;
-DWORD				g_langTimeout = 0;
-HINSTANCE			g_hResInst = NULL;
+HINSTANCE			g_hResInst;
 stdstring			g_filepath;
-svn_wc_status_kind	g_filestatus = svn_wc_status_none;	///< holds the corresponding status to the file/dir above
+svn_wc_status_kind	g_filestatus;					///< holds the corresponding status to the file/dir above
 bool				g_readonlyoverlay = false;
 bool				g_lockedoverlay = false;
 
@@ -128,27 +128,27 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 {
     *ppvOut = NULL;
 	
-    FileState state = FileStateInvalid;
+    FileState state = Invalid;
     if (IsEqualIID(rclsid, CLSID_TortoiseSVN_UPTODATE))
-        state = FileStateVersioned;
+        state = Versioned;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_MODIFIED))
-        state = FileStateModified;
+        state = Modified;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_CONFLICTING))
-        state = FileStateConflict;
+        state = Conflict;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_UNCONTROLLED))
-        state = FileStateUncontrolled;
+        state = Uncontrolled;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DROPHANDLER))
-		state = FileStateDropHandler;
+		state = DropHandler;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DELETED))
-		state = FileStateDeleted;
+		state = Deleted;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_READONLY))
-		state = FileStateReadOnly;
+		state = ReadOnly;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_LOCKED))
-		state = FileStateLockedOverlay;
+		state = LockedOverlay;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_ADDED))
-		state = FileStateAddedOverlay;
+		state = AddedOverlay;
 	
-    if (state != FileStateInvalid)
+    if (state != Invalid)
     {
 		apr_initialize();
 		g_SVNAdminDir.Init();

@@ -13,22 +13,25 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #pragma once
 #include "SVN.h"
 #include "ProgressDlg.h"
 #include "SVNRev.h"
-#include "StdioFileT.h"
 
 class CTSVNPath;
 
-/**
- * \ingroup TortoiseProc
- * Helper class to get the blame information for a file.
- */
+
+class CStdioFileA : public CStdioFile
+{
+public:
+	void WriteString(LPCSTR lpsz);
+	void WriteString(LPCWSTR lpsz);
+};
+
 class CBlame : public SVN
 {
 public:
@@ -65,7 +68,7 @@ private:
 	bool		m_bNoLineNo;			///< if true, then the line number isn't written to the file
 
 	CString		m_sSavePath;			///< Where to save the blame data
-	CStdioFileT	m_saveFile;				///< The file object to write to
+	CStdioFileA	m_saveFile;				///< The file object to write to
 	CFile		m_saveLog;
 	CProgressDlg m_progressDlg;			///< The progress dialog shown during operation
 	LONG		m_lowestrev;

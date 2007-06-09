@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -23,6 +23,10 @@
 #include "AddDlg.h"
 #include "SVNConfig.h"
 #include "Registry.h"
+#include ".\adddlg.h"
+
+
+// CAddDlg dialog
 
 IMPLEMENT_DYNAMIC(CAddDlg, CResizableStandAloneDialog)
 CAddDlg::CAddDlg(CWnd* pParent /*=NULL*/)
@@ -54,19 +58,16 @@ BOOL CAddDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	// initialize the svn status list control
-	m_addListCtrl.Init(0, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCHANGELISTS)); // adding and committing is useless in the add dialog
-	m_addListCtrl.SetIgnoreRemoveOnly();	// when ignoring, don't add the parent folder since we're in the add dialog
-	m_addListCtrl.SetUnversionedRecurse(true);	// recurse into unversioned folders - user might want to add those too
+	//set the listcontrol to support checkboxes
+	m_addListCtrl.Init(0, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPADD|SVNSLC_POPCOMMIT));
+	m_addListCtrl.SetIgnoreRemoveOnly();
+	m_addListCtrl.SetUnversionedRecurse(true);
 	m_addListCtrl.SetSelectButton(&m_SelectAll);
 	m_addListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_addListCtrl.SetEmptyString(IDS_ERR_NOTHINGTOADD);
 	m_addListCtrl.SetCancelBool(&m_bCancelled);
-	m_addListCtrl.SetBackgroundImage(IDI_ADD);
 
-	AdjustControlSize(IDC_SELECTALL);
-
-	AddAnchor(IDC_ADDLIST, TOP_LEFT, BOTTOM_RIGHT);
+	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
@@ -83,7 +84,8 @@ BOOL CAddDlg::OnInitDialog()
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CAddDlg::OnOK()
@@ -91,7 +93,7 @@ void CAddDlg::OnOK()
 	if (m_bThreadRunning)
 		return;
 
-	// save only the files the user has selected into the pathlist
+	//save only the files the user has selected into the pathlist
 	m_addListCtrl.WriteCheckedNamesToPathList(m_pathList);
 
 	CResizableStandAloneDialog::OnOK();
@@ -125,11 +127,11 @@ UINT CAddDlg::AddThreadEntry(LPVOID pVoid)
 {
 	return ((CAddDlg*)pVoid)->AddThread();
 }
-
 UINT CAddDlg::AddThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which the user can add (i.e. the unversioned ones)
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;
 	if (!m_addListCtrl.GetStatus(m_pathList))
@@ -139,6 +141,7 @@ UINT CAddDlg::AddThread()
 	m_addListCtrl.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT, 
 						SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT);
 
+	DialogEnableWindow(IDOK, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }

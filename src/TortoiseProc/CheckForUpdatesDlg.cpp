@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -26,12 +26,14 @@
 #include "TempFile.h"
 
 
+// CCheckForUpdatesDlg dialog
+
 IMPLEMENT_DYNAMIC(CCheckForUpdatesDlg, CStandAloneDialog)
 CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
-	, m_bShowInfo(FALSE)
-	, m_bVisible(FALSE)
 {
+	m_bShowInfo = FALSE;
+	m_bVisible = FALSE;
 	m_sUpdateDownloadLink = _T("http://tortoisesvn.tigris.org");
 }
 
@@ -68,7 +70,8 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 	}
 
 	SetTimer(100, 1000, NULL);
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CCheckForUpdatesDlg::OnOK()
@@ -187,7 +190,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
 
 void CCheckForUpdatesDlg::OnStnClickedCheckresult()
 {
-	// user clicked on the label, start the browser with our webpage
+	//user clicked on the label, start the browser with our webpage
 	HINSTANCE result = ShellExecute(NULL, _T("opennew"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
 	if ((UINT)result <= HINSTANCE_ERROR)
 	{

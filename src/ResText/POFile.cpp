@@ -1,6 +1,6 @@
-﻿// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-200s - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "StdAfx.h"
 #include "shlwapi.h"
 #include <fstream>
@@ -39,7 +39,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting /* = TRUE */)
 		return FALSE;
 
 	if (!m_bQuiet)
-		_ftprintf(stdout, _T("parsing file %s...\n"), szPath);
+		_tcprintf(_T("parsing file %s...\n"), szPath);
 
 	int nEntries = 0;
 	int nDeleted = 0;
@@ -87,15 +87,6 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting /* = TRUE */)
 				{
 					//reference
 					resEntry.reference = I->c_str();
-					std::wstring temp = I->c_str();
-					int i_offsetID = temp.find(_T("ID:"));
-					int iID = 0;
-					if (i_offsetID > 0 && ((int)temp.length() >= (i_offsetID + 4))) 
-					{
-						temp = temp.substr(i_offsetID + 3, temp.length() - i_offsetID - 3);
-						_stscanf(temp.c_str(), _T("%d"), &iID);
-					}
-					resEntry.menuID = (WORD)iID;
 					type = 0;
 				}
 				if (_tcsncmp(I->c_str(), _T("#,"), 2)==0)
@@ -149,7 +140,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting /* = TRUE */)
 			else
 				nDeleted++;
 			msgid.clear();
-		}
+		} // if (line[0]=='\n')
 		else
 		{
 			entry.push_back(line);
@@ -160,7 +151,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting /* = TRUE */)
 	RESOURCEENTRY emptyentry;
 	(*this)[std::wstring(_T(""))] = emptyentry;
 	if (!m_bQuiet)
-		_ftprintf(stdout, _T("%d Entries found, %d were already translated and %d got deleted\n"), nEntries, nTranslated, nDeleted);
+		_tcprintf(_T("%d Entries found, %d were already translated and %d got deleted\n"), nEntries, nTranslated, nDeleted);
 	return TRUE;
 }
 
@@ -196,23 +187,6 @@ BOOL CPOFile::SaveFile(LPCTSTR szPath)
 	File << _T("\"MIME-Version: 1.0\\n\"\n");
 	File << _T("\"Content-Type: text/plain; charset=UTF-8\\n\"\n");
 	File << _T("\"Content-Transfer-Encoding: 8bit\\n\"\n\n");
-	File << _T("\n");
-	File << _T("# msgid/msgstr fields for Accelerator keys\n");
-	File << _T("# Format is: \"ID:xxxxxx:VACS+X\" where:\n");
-	File << _T("#    ID:xxxxx = the menu ID corresponding to the accelerator\n");
-	File << _T("#    V = Virtual key (or blank if not used) - nearly always set!\n");
-	File << _T("#    A = Alt key     (or blank if not used)\n");
-	File << _T("#    C = Ctrl key    (or blank if not used)\n");
-	File << _T("#    S = Shift key   (or blank if not used)\n");
-	File << _T("#    X = upper case character\n");
-	File << _T("# e.g. \"V CS+Q\" == Ctrl + Shift + 'Q'\n");
-	File << _T("\n");
-	File << _T("# ONLY Accelerator Keys with corresponding alphanumeric characters can be\n");
-	File << _T("# updated i.e. function keys (F2), special keys (Delete, HoMe) etc. will not.\n");
-	File << _T("\n");
-	File << _T("# ONLY change the msgstr field. Do NOT change any other.\n");
-	File << _T("# If you do not want to change an Accelerator Key, copy msgid to msgstr\n");
-	File << _T("\n");
 
 	for (std::map<std::wstring, RESOURCEENTRY>::iterator I = this->begin(); I != this->end(); ++I)
 	{
@@ -237,6 +211,6 @@ BOOL CPOFile::SaveFile(LPCTSTR szPath)
 	}
 	File.close();
 	if (!m_bQuiet)
-		_ftprintf(stdout, _T("File %s saved, containing %d entries\n"), szPath, nEntries);
+		_tcprintf(_T("File %s saved, containing %d entries\n"), szPath, nEntries);
 	return TRUE;
 }
