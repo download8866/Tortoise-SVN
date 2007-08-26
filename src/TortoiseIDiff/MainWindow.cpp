@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006 - 2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,15 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "commctrl.h"
 #include "Commdlg.h"
 #include "TortoiseIDiff.h"
 #include "MainWindow.h"
-#include "AboutDlg.h"
 
 #pragma comment(lib, "comctl32.lib")
 
@@ -72,7 +71,8 @@ void CMainWindow::PositionChildren(RECT * clientrect /* = NULL */)
 	HDWP hdwp = BeginDeferWindowPos(2);
 	if (bOverlap)
 	{
-		SetWindowPos(picWindow1, NULL, clientrect->left, clientrect->top+tbHeight, clientrect->right-clientrect->left, clientrect->bottom-clientrect->top-tbHeight, SWP_SHOWWINDOW);
+		if (hdwp) hdwp = DeferWindowPos(hdwp, picWindow1, NULL, clientrect->left, clientrect->top+SLIDER_HEIGHT+tbHeight, clientrect->right-clientrect->left, clientrect->bottom-clientrect->top-SLIDER_HEIGHT-tbHeight, SWP_SHOWWINDOW);
+		if (hdwp) hdwp = DeferWindowPos(hdwp, hTrackbar, NULL, clientrect->left, clientrect->top+tbHeight, clientrect->right-clientrect->left, SLIDER_HEIGHT, SWP_SHOWWINDOW);
 	}
 	else
 	{
@@ -102,10 +102,6 @@ void CMainWindow::PositionChildren(RECT * clientrect /* = NULL */)
 		}
 	}
 	if (hdwp) EndDeferWindowPos(hdwp);
-	picWindow1.SetupScrollBars();
-	picWindow2.SetupScrollBars();
-	picWindow1.SetBackColor(backColor);
-	picWindow2.SetBackColor(backColor);
 	InvalidateRect(*this, NULL, FALSE);
 }
 
@@ -127,15 +123,37 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 			RECT rect;
 			GetClientRect(hwnd, &rect);
 			nSplitterPos = (rect.right-rect.left)/2;
+			// create a slider control
+			hTrackbar = CreateTrackbar(*this, 0, 255);
+			ShowWindow(hTrackbar, SW_HIDE);
+			picWindow1.SetAlphaSlider(hTrackbar);
 			CreateToolbar();
-			PositionChildren(&rect);
-			picWindow1.FitImageInWindow();
-			picWindow2.FitImageInWindow();
 		}
 		break;
 	case WM_COMMAND:
 		{
 			return DoCommand(LOWORD(wParam));
+		}
+		break;
+	case WM_HSCROLL:
+		{
+			if (bOverlap)
+			{
+				if (LOWORD(wParam) == TB_THUMBTRACK)
+				{
+					// while tracking, only redraw after 50 milliseconds
+					::SetTimer(*this, TIMER_ALPHASLIDER, 50, NULL);
+				}
+				else
+					picWindow1.SetSecondPicAlpha((BYTE)SendMessage(hTrackbar, TBM_GETPOS, 0, 0));
+			}
+		}
+		break;
+	case WM_TIMER:
+		{
+			if ((wParam == TIMER_ALPHASLIDER)&&(bOverlap))
+				picWindow1.SetSecondPicAlpha((BYTE)SendMessage(hTrackbar, TBM_GETPOS, 0, 0));
+			KillTimer(*this, TIMER_ALPHASLIDER);
 		}
 		break;
 	case WM_PAINT:
@@ -151,12 +169,52 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 			EndPaint(hwnd, &ps);
 		}
 		break;
-    case WM_GETMINMAXINFO:
+	case WM_SIZING:
 		{
-			MINMAXINFO * mmi = (MINMAXINFO*)lParam;
-			mmi->ptMinTrackSize.x = WINDOW_MINWIDTH;
-			mmi->ptMinTrackSize.y = WINDOW_MINHEIGHT;
-			return 0;
+			RECT * pRect = (RECT *)lParam;
+			switch (wParam)
+			{
+			case WMSZ_BOTTOM:
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->bottom = pRect->top+WINDOW_MINHEIGTH;
+				break;
+			case WMSZ_BOTTOMLEFT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->left = pRect->right-WINDOW_MINWIDTH;
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->bottom = pRect->top+WINDOW_MINHEIGTH;
+				break;
+			case WMSZ_BOTTOMRIGHT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->right = pRect->left+WINDOW_MINWIDTH;
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->bottom = pRect->top+WINDOW_MINHEIGTH;
+				break;
+			case WMSZ_LEFT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->left = pRect->right-WINDOW_MINWIDTH;
+				break;
+			case WMSZ_RIGHT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->right = pRect->left+WINDOW_MINWIDTH;
+				break;
+			case WMSZ_TOP:
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->top = pRect->bottom-WINDOW_MINHEIGTH;
+				break;
+			case WMSZ_TOPLEFT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->left = pRect->right-WINDOW_MINWIDTH;
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->top = pRect->bottom-WINDOW_MINHEIGTH;
+				break;
+			case WMSZ_TOPRIGHT:
+				if ((pRect->right-pRect->left)<WINDOW_MINWIDTH)
+					pRect->right = pRect->left+WINDOW_MINWIDTH;
+				if ((pRect->bottom-pRect->top)<WINDOW_MINHEIGTH)
+					pRect->top = pRect->bottom-WINDOW_MINHEIGTH;
+				break;
+			}
 		}
 		break;
 	case WM_SIZE:
@@ -211,21 +269,37 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 			LPNMHDR pNMHDR = (LPNMHDR)lParam;
 			if (pNMHDR->code == TTN_GETDISPINFO)
 			{
-				LPTOOLTIPTEXT lpttt; 
+				if ((HWND)wParam == hTrackbar)
+				{
+					LPTOOLTIPTEXT lpttt; 
 
-				lpttt = (LPTOOLTIPTEXT) lParam; 
-				lpttt->hinst = hResource; 
+					lpttt = (LPTOOLTIPTEXT) lParam; 
+					lpttt->hinst = hResource; 
 
-				// Specify the resource identifier of the descriptive 
-				// text for the given button. 
-				TCHAR stringbuf[MAX_PATH] = {0};
-				MENUITEMINFO mii;
-				mii.cbSize = sizeof(MENUITEMINFO);
-				mii.fMask = MIIM_TYPE;
-				mii.dwTypeData = stringbuf;
-				mii.cch = sizeof(stringbuf)/sizeof(TCHAR);
-				GetMenuItemInfo(GetMenu(*this), lpttt->hdr.idFrom, FALSE, &mii);
-				lpttt->lpszText = stringbuf;
+					// Specify the resource identifier of the descriptive 
+					// text for the given button. 
+					TCHAR stringbuf[MAX_PATH] = {0};
+					_stprintf_s(stringbuf, MAX_PATH, _T("%ld alpha"), (BYTE)SendMessage(hTrackbar, TBM_GETPOS, 0, 0));
+					lpttt->lpszText = stringbuf;
+				}
+				else
+				{
+					LPTOOLTIPTEXT lpttt; 
+
+					lpttt = (LPTOOLTIPTEXT) lParam; 
+					lpttt->hinst = hResource; 
+
+					// Specify the resource identifier of the descriptive 
+					// text for the given button. 
+					TCHAR stringbuf[MAX_PATH] = {0};
+					MENUITEMINFO mii;
+					mii.cbSize = sizeof(MENUITEMINFO);
+					mii.fMask = MIIM_TYPE;
+					mii.dwTypeData = stringbuf;
+					mii.cch = sizeof(stringbuf)/sizeof(TCHAR);
+					GetMenuItemInfo(GetMenu(*this), lpttt->hdr.idFrom, FALSE, &mii);
+					lpttt->lpszText = stringbuf;
+				}
 			}
 		}
 		break;
@@ -253,7 +327,9 @@ LRESULT CMainWindow::DoCommand(int id)
 			if (OpenDialog())
 			{
 				picWindow1.SetPic(leftpicpath, _T(""));
+				picWindow1.FitImageInWindow();
 				picWindow2.SetPic(rightpicpath, _T(""));
+				picWindow2.FitImageInWindow();
 				if (bOverlap)
 				{
 					picWindow1.SetSecondPic(picWindow2.GetPic(), rightpictitle, rightpicpath);
@@ -265,8 +341,6 @@ LRESULT CMainWindow::DoCommand(int id)
 				RECT rect;
 				GetClientRect(*this, &rect);
 				PositionChildren(&rect);
-				picWindow1.FitImageInWindow();
-				picWindow2.FitImageInWindow();
 			}
 		}
 		break;
@@ -298,13 +372,14 @@ LRESULT CMainWindow::DoCommand(int id)
 			CheckMenuItem(hMenu, ID_VIEW_OVERLAPIMAGES, uCheck);
 
 			ShowWindow(picWindow2, bOverlap ? SW_HIDE : SW_SHOW);
+			ShowWindow(hTrackbar, bOverlap ? SW_SHOW : SW_HIDE);
 			if (bOverlap)
 			{
 				picWindow1.StopTimer();
 				picWindow2.StopTimer();
 				picWindow1.SetSecondPic(picWindow2.GetPic(), rightpictitle, rightpicpath);
-				picWindow1.SetSecondPicAlpha(m_BlendType, 127);
-				picWindow1.SetZoom2(picWindow2.GetZoom());
+				picWindow1.SetSecondPicAlpha(127);
+				SendMessage(hTrackbar, TBM_SETPOS, (WPARAM)1, (LPARAM)127);
 			}
 			else
 			{
@@ -318,88 +393,10 @@ LRESULT CMainWindow::DoCommand(int id)
 			tbi.fsState = bOverlap ? TBSTATE_CHECKED | TBSTATE_ENABLED : TBSTATE_ENABLED;
 			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_OVERLAPIMAGES, (LPARAM)&tbi);
 
-			tbi.fsState = (m_BlendType == CPicWindow::BLEND_ALPHA) ? TBSTATE_CHECKED : 0;
-			if (bOverlap)
-				tbi.fsState |= TBSTATE_ENABLED;
-			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_BLENDALPHA, (LPARAM)&tbi);
-
 			RECT rect;
 			GetClientRect(*this, &rect);
 			PositionChildren(&rect);
-			if (bOverlap)
-            {
-				picWindow1.FitImageInWindow();
-            }
-            else
-            {
-                picWindow1.FitImageInWindow();
-                picWindow2.FitImageInWindow();
-            }
-            return 0;
-		}
-		break;
-	case ID_VIEW_BLENDALPHA:
-		{
-			if (m_BlendType == CPicWindow::BLEND_ALPHA)
-				m_BlendType = CPicWindow::BLEND_XOR;
-			else
-				m_BlendType = CPicWindow::BLEND_ALPHA;
-
-			HMENU hMenu = GetMenu(*this);
-			UINT uCheck = MF_BYCOMMAND;
-			uCheck |= (m_BlendType == CPicWindow::BLEND_ALPHA) ? MF_CHECKED : MF_UNCHECKED;
-			CheckMenuItem(hMenu, ID_VIEW_BLENDALPHA, uCheck);
-
-			// change the state of the toolbar button
-			TBBUTTONINFO tbi;
-			tbi.cbSize = sizeof(TBBUTTONINFO);
-			tbi.dwMask = TBIF_STATE;
-			tbi.fsState = (m_BlendType == CPicWindow::BLEND_ALPHA) ? TBSTATE_CHECKED | TBSTATE_ENABLED : TBSTATE_ENABLED;
-			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_BLENDALPHA, (LPARAM)&tbi);
-			picWindow1.SetSecondPicAlpha(m_BlendType, picWindow1.GetSecondPicAlpha());
-		}
-		break;
-	case ID_VIEW_BACKGROUNDCOLOR:
-		{
-			static COLORREF customColors[16] = {0};
-			CHOOSECOLOR ccDlg;
-			memset(&ccDlg, 0, sizeof(ccDlg));
-			ccDlg.lStructSize = sizeof(ccDlg);
-			ccDlg.hwndOwner = m_hwnd;
-			ccDlg.rgbResult = backColor;
-			ccDlg.lpCustColors = customColors;
-			ccDlg.Flags = CC_RGBINIT | CC_FULLOPEN;
-			if(ChooseColor(&ccDlg))
-			{
-				backColor = ccDlg.rgbResult;
-				picWindow1.SetBackColor(backColor);
-				picWindow2.SetBackColor(backColor);
-				// The color picker takes the focus and we don't get it back.
-				::SetFocus(picWindow1);
-			}
-		}
-		break;
-	case ID_VIEW_FITTOGETHER:
-		{
-			bFitTogether = !bFitTogether;
-			picWindow1.FitTogether(bFitTogether);
-			picWindow2.FitTogether(bFitTogether);
-			if (!bFitTogether)
-			{
-				picWindow1.SetZoom2(picWindow1.GetZoom());
-			}
-
-			HMENU hMenu = GetMenu(*this);
-			UINT uCheck = MF_BYCOMMAND;
-			uCheck |= bFitTogether ? MF_CHECKED : MF_UNCHECKED;
-			CheckMenuItem(hMenu, ID_VIEW_FITTOGETHER, uCheck);
-
-			// change the state of the toolbar button
-			TBBUTTONINFO tbi;
-			tbi.cbSize = sizeof(TBBUTTONINFO);
-			tbi.dwMask = TBIF_STATE;
-			tbi.fsState = bFitTogether ? TBSTATE_CHECKED | TBSTATE_ENABLED : TBSTATE_ENABLED;
-			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_FITTOGETHER, (LPARAM)&tbi);
+			return 0;
 		}
 		break;
 	case ID_VIEW_LINKIMAGESTOGETHER:
@@ -421,18 +418,6 @@ LRESULT CMainWindow::DoCommand(int id)
 			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_LINKIMAGESTOGETHER, (LPARAM)&tbi);
 		}
 		break;
-	case ID_VIEW_ALPHA0:
-		picWindow1.SetSecondPicAlpha(m_BlendType, 0);
-		break;
-	case ID_VIEW_ALPHA255:
-		picWindow1.SetSecondPicAlpha(m_BlendType, 255);
-		break;
-	case ID_VIEW_ALPHA127:
-		picWindow1.SetSecondPicAlpha(m_BlendType, 127);
-		break;
-	case ID_VIEW_ALPHATOGGLE:
-		picWindow1.ToggleAlpha();
-		break;
 	case ID_VIEW_FITIMAGESINWINDOW:
 		{
 			picWindow1.FitImageInWindow();
@@ -441,20 +426,20 @@ LRESULT CMainWindow::DoCommand(int id)
 		break;
 	case ID_VIEW_ORININALSIZE:
 		{
-			picWindow1.SetZoom(1.0, false);
-			picWindow2.SetZoom(1.0, false);
+			picWindow1.SetZoom(1.0);
+			picWindow2.SetZoom(1.0);
 		}
 		break;
 	case ID_VIEW_ZOOMIN:
 		{
-			picWindow1.Zoom(true, false);
-			picWindow2.Zoom(true, false);
+			picWindow1.Zoom(true);
+			picWindow2.Zoom(true);
 		}
 		break;
 	case ID_VIEW_ZOOMOUT:
 		{
-			picWindow1.Zoom(false, false);
-			picWindow2.Zoom(false, false);
+			picWindow1.Zoom(false);
+			picWindow2.Zoom(false);
 		}
 		break;
 	case ID_VIEW_ARRANGEVERTICAL:
@@ -482,12 +467,6 @@ LRESULT CMainWindow::DoCommand(int id)
 			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_ARRANGEVERTICAL, (LPARAM)&tbi);
 
 			PositionChildren(&rect);
-		}
-		break;
-	case ID_ABOUT:
-		{
-			CAboutDlg dlg(*this);
-			dlg.DoModal(hInst, IDD_ABOUT, *this);
 		}
 		break;
 	case IDM_EXIT:
@@ -706,6 +685,31 @@ LRESULT CMainWindow::Splitter_OnMouseMove(HWND hwnd, UINT iMsg, WPARAM wParam, L
 	return 0;
 }
 
+HWND CMainWindow::CreateTrackbar(HWND hwndParent, UINT iMin, UINT iMax)
+{ 
+	HWND hwndTrack = CreateWindowEx( 
+		0,									// no extended styles 
+		TRACKBAR_CLASS,						// class name 
+		_T("Trackbar Control"),				// title (caption) 
+		WS_CHILD | WS_VISIBLE | TBS_HORZ | TBS_TOOLTIPS,	// style 
+		10, 10,								// position 
+		200, 30,							// size 
+		hwndParent,							// parent window 
+		(HMENU)TRACKBAR_ID,					// control identifier 
+		hResource,							// instance 
+		NULL								// no WM_CREATE parameter 
+		); 
+
+	SendMessage(hwndTrack, TBM_SETRANGE, 
+		(WPARAM) TRUE,						// redraw flag 
+		(LPARAM) MAKELONG(iMin, iMax));		// min. & max. positions 
+	SendMessage(hwndTrack, TBM_SETTIPSIDE, 
+		(WPARAM) TBTS_TOP,						// redraw flag 
+		(LPARAM) 0);		// min. & max. positions 
+
+	return hwndTrack; 
+}
+
 bool CMainWindow::OpenDialog()
 {
 	return (DialogBox(hResource, MAKEINTRESOURCE(IDD_OPEN), *this, (DLGPROC)OpenDlgProc)==IDOK);
@@ -772,8 +776,9 @@ BOOL CALLBACK CMainWindow::OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam
 
 bool CMainWindow::AskForFile(HWND owner, TCHAR * path)
 {
-	OPENFILENAME ofn = {0};			// common dialog box structure
+	OPENFILENAME ofn;		// common dialog box structure
 	// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = owner;
 	ofn.lpstrFile = path;
@@ -814,9 +819,9 @@ bool CMainWindow::CreateToolbar()
 
 	SendMessage(hwndTB, TB_BUTTONSTRUCTSIZE, (WPARAM) sizeof(TBBUTTON), 0);
 
-	TBBUTTON tbb[12];
+	TBBUTTON tbb[10];
 	// create an imagelist containing the icons for the toolbar
-	hToolbarImgList = ImageList_Create(24, 24, ILC_COLOR32 | ILC_MASK, 12, 4);
+	hToolbarImgList = ImageList_Create(24, 24, ILC_COLOR32 | ILC_MASK, 10, 4);
 	if (hToolbarImgList == NULL)
 		return false;
 	int index = 0;
@@ -828,18 +833,10 @@ bool CMainWindow::CreateToolbar()
 	tbb[index].dwData = 0; 
 	tbb[index++].iString = 0; 
 
-	hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_BLEND));
-	tbb[index].iBitmap = ImageList_AddIcon(hToolbarImgList, hIcon); 
-	tbb[index].idCommand = ID_VIEW_BLENDALPHA; 
-	tbb[index].fsState = 0; 
-	tbb[index].fsStyle = BTNS_BUTTON; 
-	tbb[index].dwData = 0; 
-	tbb[index++].iString = 0; 
-
 	hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_LINK));
 	tbb[index].iBitmap = ImageList_AddIcon(hToolbarImgList, hIcon); 
 	tbb[index].idCommand = ID_VIEW_LINKIMAGESTOGETHER; 
-	tbb[index].fsState = TBSTATE_ENABLED | TBSTATE_CHECKED; 
+	tbb[index].fsState = TBSTATE_ENABLED; 
 	tbb[index].fsStyle = BTNS_BUTTON; 
 	tbb[index].dwData = 0; 
 	tbb[index++].iString = 0; 
@@ -862,14 +859,6 @@ bool CMainWindow::CreateToolbar()
 	hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_FITINWINDOW));
 	tbb[index].iBitmap = ImageList_AddIcon(hToolbarImgList, hIcon); 
 	tbb[index].idCommand = ID_VIEW_FITIMAGESINWINDOW; 
-	tbb[index].fsState = TBSTATE_ENABLED; 
-	tbb[index].fsStyle = BTNS_BUTTON; 
-	tbb[index].dwData = 0; 
-	tbb[index++].iString = 0; 
-
-	hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_FITTOGETHER));
-	tbb[index].iBitmap = ImageList_AddIcon(hToolbarImgList, hIcon); 
-	tbb[index].idCommand = ID_VIEW_FITTOGETHER; 
 	tbb[index].fsState = TBSTATE_ENABLED; 
 	tbb[index].fsStyle = BTNS_BUTTON; 
 	tbb[index].dwData = 0; 
@@ -909,7 +898,7 @@ bool CMainWindow::CreateToolbar()
 	hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_IMGINFO));
 	tbb[index].iBitmap = ImageList_AddIcon(hToolbarImgList, hIcon); 
 	tbb[index].idCommand = ID_VIEW_IMAGEINFO; 
-	tbb[index].fsState = TBSTATE_ENABLED; 
+	tbb[index].fsState = TBSTATE_ENABLED | TBSTATE_CHECKED; 
 	tbb[index].fsStyle = BTNS_BUTTON; 
 	tbb[index].dwData = 0; 
 	tbb[index++].iString = 0; 

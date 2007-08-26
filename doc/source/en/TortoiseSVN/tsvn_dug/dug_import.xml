@@ -26,7 +26,7 @@
 			tag copies. If a repository holds only one project, then
 			often people create these top-level directories:
 		</para>
-<screen>
+		<screen>
 /trunk
 /branches
 /tags
@@ -35,7 +35,7 @@
 			If a repository contains multiple projects, people often
 			index their layout by branch:
 		</para>
-<screen>
+		<screen>
 /trunk/paint
 /trunk/calc
 /branches/paint
@@ -46,7 +46,7 @@
 		<para>
 			...or by project:
 		</para>
-<screen>
+		<screen>
 /paint/trunk
 /paint/branches
 /paint/tags
@@ -164,7 +164,7 @@ C:\Temp\New\tags
 				<listitem>
 					<para>
 						Organize the files in folders and
-						sub-folders. Although it is possible to rename/move
+						subfolders. Although it is possible to rename/move
 						files later it is highly recommended to get your project's
 						structure straight before importing!
 					</para>
@@ -210,57 +210,6 @@ C:\Temp\New\tags
 			under version control! To get a version-controlled
 			<firstterm>working copy</firstterm>
 			you need to do a Checkout of the version you just imported.
-			Or read on to find out how to import a folder in place.
-		</para>
-	</sect2>
-	<sect2 id="tsvn-dug-import-in-place">
-		<title>Import in Place</title>
-		<indexterm>
-			<primary>import in place</primary>
-		</indexterm>
-		<para>
-			The Subversion import command has limited functionality - you cannot easily
-			pick items for import. Also, the folder you are importing does not
-			become a Subversion working copy - you have to do a separate checkout.
-			But don't worry, there is another way of working which overcomes both
-			these shortcomings :-)
-		</para>
-		<para>
-			Assuming you already have a repository, and you want to add a new folder
-			structure to it, just follow these steps:
-			<orderedlist>
-				<listitem>
-					<para>
-						Use the repository browser to create a new
-						project folder directly in the repository.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Checkout the new folder over the top of the folder you want to import.
-						You will get a warning that the local folder is not empty.
-						Now you have a versioned top level folder with unversioned content.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Use
-						<menuchoice>
-							<guimenu>TortoiseSVN</guimenu>
-							<guimenuitem>Add...</guimenuitem>
-						</menuchoice>
-						on this versioned folder to add some or all of the content.
-						You can add and remove files, set <literal>svn:ignore</literal>
-						properties on folders and make any other changes you need to.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						Commit the top level folder, and you have a new versioned tree,
-						and a local working copy, created from your existing folder.
-					</para>
-				</listitem>
-			</orderedlist>
 		</para>
 	</sect2>
 	<sect2 id="tsvn-dug-import-3">
@@ -276,7 +225,7 @@ C:\Temp\New\tags
 			time to the repository.
 		</para>
 		<para>
-			In such cases we suggest to use <emphasis>template</emphasis> files.
+			In such cases we suggest to use <literal>template</literal> files.
 			You create a file which contains all the data your developers
 			will need, add that file to version control and let the developers
 			check this file out. Then, each developer has to <emphasis>make a copy</emphasis>
@@ -330,9 +279,9 @@ C:\Temp\New\tags
 			</menuchoice>
 			from the context menu. 
 			The Properties Dialog comes up. Then go to the Subversion tab.
-			There, you can set properties. Click <guibutton>Add...</guibutton>.
-			Select the <literal>svn:externals</literal> property from the
-			combobox and write in the edit box the repository URL in the format
+			There, you can set properties. Select the
+			<literal>svn:externals</literal> property from the combobox and
+			write in the edit box the repository url in the format
 			<literal>name url</literal>
 			or if you want to specify a particular revision,
 			<literal>name -rREV url</literal>
@@ -340,7 +289,7 @@ C:\Temp\New\tags
 			Note that URLs must be properly escaped or they will
 			not work properly. For example you must replace each space with
 			<literal>%20</literal>. Note that it is not possible to use
-			folder names with spaces in them.
+			foldernames with spaces in them.
 			Suppose that you have set these properties on
 			<filename>D:\dev\project1</filename>:
 <screen>
@@ -350,33 +299,13 @@ skins/toolkit -r21 http://svn.red-bean.com/repos/skin-maker
 </screen>
 			Now click <guibutton>Set</guibutton> and commit your changes.
 			When you (or any other user) update your working copy, Subversion
-			will create a sub-folder 
+			will create a subfolder 
 			<filename>D:\dev\project1\sounds</filename> and checkout the sounds
-			project, another sub-folder <filename>D:\dev\project1\quick graphs</filename>
-			containing the graphics project, and finally a nested sub-folder
+			project, another subfolder <filename>D:\dev\project1\quick graphs</filename>
+			containing the graphics project, and finally a nested subfolder
 			<filename>D:\dev\project1\skins\toolkit</filename> containing
 			revision 21 of the skin-maker project.
 		</para>
-		<tip>
-			<para>
-				You should strongly consider using explicit revision numbers
-				in all of your externals definitions, as described above.
-				Doing so means
-				that you get to decide when to pull down a different snapshot
-				of external information, and exactly which snapshot to pull.
-				Besides the common sense aspect of not being surprised by
-				changes to third-party repositories that you might not have
-				any control over, using explicit revision numbers also means
-				that as you backdate your working copy to a previous
-				revision, your externals definitions will also revert to the
-				way they looked in that previous revision, which in turn means
-				that the external working copies will be updated to match they
-				way <emphasis>they</emphasis> looked back when your repository was
-				at that previous revision.  For software projects, this could
-				be the difference between a successful and a failed build of
-				an older snapshot of your complex code base.
-			</para>
-		</tip>
 		<para>
 			If the external project is in the same repository, any changes
 			you make there there will be included in the commit list when
@@ -392,12 +321,31 @@ skins/toolkit -r21 http://svn.red-bean.com/repos/skin-maker
 			Note that if you change the URL in an <literal>svn:externals</literal>
 			property, then next time you update your working copy Subversion will
 			delete the old external folder and make a fresh checkout, so you
-			will see files being <emphasis>Added</emphasis>, rather than being
-			<emphasis>Updated</emphasis> as you might have expected. This
+			will see files being <literal>Added</literal>, rather than being
+			<literal>Updated</literal> as you might have expected. This
 			situation might occur if you reference a tag from another
 			project. When a new version of that project is released, you
 			change your external reference to point to the new tag.
 		</para>
+		<tip>
+			<para>
+			You should strongly consider using explicit revision numbers
+			in all of your externals definitions.  Doing so means
+			that you get to decide when to pull down a different snapshot
+			of external information, and exactly which snapshot to pull.
+			Besides the common sense aspect of not being surprised by
+			changes to third-party repositories that you might not have
+			any control over, using explicit revision numbers also means
+			that as you backdate your working copy to a previous
+			revision, your externals definitions will also revert to the
+			way they looked in that previous revision, which in turn means
+			that the external working copies will be updated to match they
+			way <emphasis>they</emphasis> looked back when your repository was
+			at that previous revision.  For software projects, this could
+			be the difference between a successful and a failed build of
+			an older snapshot of your complex codebase.
+		</para>
+		</tip>
 		<para>
 			URLs in <literal>svn:externals</literal> definitions are absolute.
 			You cannot use relative URLs. If you relocate your working copy,

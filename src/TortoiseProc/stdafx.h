@@ -40,8 +40,6 @@
 #include <afxtempl.h>
 #include <afxmt.h>
 
-#include <atlbase.h>
-
 #ifndef LVS_EX_DOUBLEBUFFER
 #define LVS_EX_DOUBLEBUFFER     0x00010000
 #endif
@@ -77,12 +75,12 @@
 #include <tmschema.h>
 #include <dlgs.h>
 #include <wininet.h>
-#include <assert.h>
 #pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4005)	// macro redefinition
 #include "..\..\ext\apr\include\apr_version.h"
+#include "..\..\ext\apr-iconv\include\api_version.h"
 #include "..\..\ext\apr-util\include\apu_version.h"
 //#include "..\..\ext\berkeley-db\db4.3-win32\include\db.h"
 #include "..\..\ext\neon\config.h"
@@ -90,4 +88,4 @@
 #include "..\..\..\common\zlib\zlib.h"
 #pragma warning(pop)
 
-#define HISTORYCOMBO_WITH_SYSIMAGELIST
+

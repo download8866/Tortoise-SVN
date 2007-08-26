@@ -9,7 +9,46 @@
 
 #include "putty.h"
 #include "ssh.h"
-#include "tree234.h"
+
+#define GET_32BIT_LSB_FIRST(cp) \
+  (((unsigned long)(unsigned char)(cp)[0]) | \
+  ((unsigned long)(unsigned char)(cp)[1] << 8) | \
+  ((unsigned long)(unsigned char)(cp)[2] << 16) | \
+  ((unsigned long)(unsigned char)(cp)[3] << 24))
+
+#define PUT_32BIT_LSB_FIRST(cp, value) ( \
+  (cp)[0] = (char)(value), \
+  (cp)[1] = (char)((value) >> 8), \
+  (cp)[2] = (char)((value) >> 16), \
+  (cp)[3] = (char)((value) >> 24) )
+
+#define GET_16BIT_LSB_FIRST(cp) \
+  (((unsigned long)(unsigned char)(cp)[0]) | \
+  ((unsigned long)(unsigned char)(cp)[1] << 8))
+
+#define PUT_16BIT_LSB_FIRST(cp, value) ( \
+  (cp)[0] = (char)(value), \
+  (cp)[1] = (char)((value) >> 8) )
+
+#define GET_32BIT_MSB_FIRST(cp) \
+  (((unsigned long)(unsigned char)(cp)[0] << 24) | \
+  ((unsigned long)(unsigned char)(cp)[1] << 16) | \
+  ((unsigned long)(unsigned char)(cp)[2] << 8) | \
+  ((unsigned long)(unsigned char)(cp)[3]))
+
+#define PUT_32BIT_MSB_FIRST(cp, value) ( \
+  (cp)[0] = (char)((value) >> 24), \
+  (cp)[1] = (char)((value) >> 16), \
+  (cp)[2] = (char)((value) >> 8), \
+  (cp)[3] = (char)(value) )
+
+#define GET_16BIT_MSB_FIRST(cp) \
+  (((unsigned long)(unsigned char)(cp)[0] << 8) | \
+  ((unsigned long)(unsigned char)(cp)[1]))
+
+#define PUT_16BIT_MSB_FIRST(cp, value) ( \
+  (cp)[0] = (char)((value) >> 8), \
+  (cp)[1] = (char)(value) )
 
 #define GET_16BIT(endian, cp) \
   (endian=='B' ? GET_16BIT_MSB_FIRST(cp) : GET_16BIT_LSB_FIRST(cp))
@@ -21,16 +60,10 @@ const char *const x11_authnames[] = {
     "", "MIT-MAGIC-COOKIE-1", "XDM-AUTHORIZATION-1"
 };
 
-struct XDMSeen {
-    unsigned int time;
-    unsigned char clientid[6];
-};
-
 struct X11Auth {
     unsigned char fakedata[64], realdata[64];
     int fakeproto, realproto;
     int fakelen, reallen;
-    tree234 *xdmseen;
 };
 
 struct X11Private {
@@ -49,14 +82,6 @@ struct X11Private {
     Socket s;
 };
 
-static int xdmseen_cmp(void *a, void *b)
-{
-    struct XDMSeen *sa = a, *sb = b;
-    return sa->time > sb->time ? 1 :
-	   sa->time < sb->time ? -1 :
-           memcmp(sa->clientid, sb->clientid, sizeof(sa->clientid));
-}
-
 void *x11_invent_auth(char *proto, int protomaxlen,
 		      char *data, int datamaxlen, int proto_id)
 {
@@ -71,7 +96,6 @@ void *x11_invent_auth(char *proto, int protomaxlen,
 	auth->fakelen = 16;
 	for (i = 0; i < 16; i++)
 	    auth->fakedata[i] = random_byte();
-	auth->xdmseen = NULL;
     } else {
 	assert(proto_id == X11_XDM);
 	auth->fakeproto = X11_XDM;
@@ -80,7 +104,6 @@ void *x11_invent_auth(char *proto, int protomaxlen,
 	auth->fakelen = 16;
 	for (i = 0; i < 16; i++)
 	    auth->fakedata[i] = (i == 8 ? 0 : random_byte());
-	auth->xdmseen = newtree234(xdmseen_cmp);
     }
 
     /* Now format for the recipient. */
@@ -93,16 +116,9 @@ void *x11_invent_auth(char *proto, int protomaxlen,
     return auth;
 }
 
-void x11_free_auth(void *authv)
+void x11_free_auth(void *auth)
 {
-    struct X11Auth *auth = (struct X11Auth *)authv;
-    struct XDMSeen *seen;
 
-    if (auth->xdmseen != NULL) {
-	while ((seen = delpos234(auth->xdmseen, 0)) != NULL)
-	    sfree(seen);
-	freetree234(auth->xdmseen);
-    }
     sfree(auth);
 }
 
@@ -122,8 +138,6 @@ void x11_get_real_auth(void *authv, char *display)
                           auth->realdata, &auth->reallen);
 }
 
-#define XDM_MAXSKEW 20*60      /* 20 minute clock skew should be OK */
-
 static char *x11_verify(unsigned long peer_ip, int peer_port,
 			struct X11Auth *auth, char *proto,
 			unsigned char *data, int dlen)
@@ -140,7 +154,6 @@ static char *x11_verify(unsigned long peer_ip, int peer_port,
 	unsigned long t;
 	time_t tim;
 	int i;
-	struct XDMSeen *seen, *ret;
 
         if (dlen != 24)
             return "XDM-AUTHORIZATION-1 data was wrong length";
@@ -158,34 +171,11 @@ static char *x11_verify(unsigned long peer_ip, int peer_port,
 	    if (data[i] != 0)	       /* zero padding wrong */
 		return "XDM-AUTHORIZATION-1 data failed check";
 	tim = time(NULL);
-	if (abs(t - tim) > XDM_MAXSKEW)
+	if (abs(t - tim) > 20*60)      /* 20 minute clock skew should be OK */
 	    return "XDM-AUTHORIZATION-1 time stamp was too far out";
-	seen = snew(struct XDMSeen);
-	seen->time = t;
-	memcpy(seen->clientid, data+8, 6);
-	assert(auth->xdmseen != NULL);
-	ret = add234(auth->xdmseen, seen);
-	if (ret != seen) {
-	    sfree(seen);
-	    return "XDM-AUTHORIZATION-1 data replayed";
-	}
-	/* While we're here, purge entries too old to be replayed. */
-	for (;;) {
-	    seen = index234(auth->xdmseen, 0);
-	    assert(seen != NULL);
-	    if (t - seen->time <= XDM_MAXSKEW)
-		break;
-	    sfree(delpos234(auth->xdmseen, 0));
-	}
     }
     /* implement other protocols here if ever required */
     return NULL;
-}
-
-static void x11_log(Plug p, int type, SockAddr addr, int port,
-		    const char *error_msg, int error_code)
-{
-    /* We have no interface to the logging module here, so we drop these. */
 }
 
 static int x11_closing(Plug plug, const char *error_msg, int error_code,
@@ -245,7 +235,7 @@ char *x11_display(const char *display) {
     char *ret;
     if(!display || !*display) {
 	/* try to find platform-specific local display */
-	if((ret = platform_get_x_display())==0 || !*ret)
+	if(!(ret = platform_get_x_display()))
 	    /* plausible default for all platforms */
 	    ret = dupstr(":0");
     } else
@@ -269,7 +259,6 @@ const char *x11_init(Socket * s, char *display, void *c, void *auth,
 		     const char *peeraddr, int peerport, const Config *cfg)
 {
     static const struct plug_function_table fn_table = {
-	x11_log,
 	x11_closing,
 	x11_receive,
 	x11_sent,
@@ -312,7 +301,7 @@ const char *x11_init(Socket * s, char *display, void *c, void *auth,
 	/*
 	 * Try to find host.
 	 */
-	addr = name_lookup(host, port, &dummy_realhost, cfg, ADDRTYPE_UNSPEC);
+	addr = name_lookup(host, port, &dummy_realhost, cfg);
 	if ((err = sk_addr_error(addr)) != NULL) {
 	    sk_addr_free(addr);
 	    return err;
@@ -485,9 +474,9 @@ int x11_send(Socket s, char *data, int len)
             char realauthdata[64];
             int realauthlen = 0;
             int authstrlen = strlen(x11_authnames[pr->auth->realproto]);
-	    int buflen = 0;	       /* initialise to placate optimiser */
+	    unsigned long ip;
+	    int port;
             static const char zeroes[4] = { 0,0,0,0 };
-	    void *buf;
 
             if (pr->auth->realproto == X11_MIT) {
                 assert(pr->auth->reallen <= lenof(realauthdata));
@@ -495,19 +484,17 @@ int x11_send(Socket s, char *data, int len)
                 memcpy(realauthdata, pr->auth->realdata, realauthlen);
             } else if (pr->auth->realproto == X11_XDM &&
 		       pr->auth->reallen == 16 &&
-		       ((buf = sk_getxdmdata(s, &buflen))!=0)) {
+		       sk_getxdmdata(s, &ip, &port)) {
 		time_t t;
-                realauthlen = (buflen+12+7) & ~7;
-		assert(realauthlen <= lenof(realauthdata));
-		memset(realauthdata, 0, realauthlen);
+                realauthlen = 24;
+		memset(realauthdata, 0, 24);
 		memcpy(realauthdata, pr->auth->realdata, 8);
-		memcpy(realauthdata+8, buf, buflen);
+		PUT_32BIT_MSB_FIRST(realauthdata+8, ip);
+		PUT_16BIT_MSB_FIRST(realauthdata+12, port);
 		t = time(NULL);
-		PUT_32BIT_MSB_FIRST(realauthdata+8+buflen, t);
+		PUT_32BIT_MSB_FIRST(realauthdata+14, t);
 		des_encrypt_xdmauth(pr->auth->realdata+9,
-				    (unsigned char *)realauthdata,
-				    realauthlen);
-		sfree(buf);
+				    (unsigned char *)realauthdata, 24);
 	    }
             /* implement other auth methods here if required */
 

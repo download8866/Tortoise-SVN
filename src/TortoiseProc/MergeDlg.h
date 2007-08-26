@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -22,7 +22,6 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 #include "Balloon.h"
-#include "afxwin.h"
 
 #define MERGE_REVSELECTSTART	 1
 #define MERGE_REVSELECTEND       2
@@ -43,14 +42,18 @@ public:
 	CMergeDlg(CWnd* pParent = NULL);   ///< standard constructor
 	virtual ~CMergeDlg();
 
+// Dialog Data
 	enum { IDD = IDD_MERGE };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnBnClickedBrowse();
+	BOOL CheckData();
+	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedFindbranchstart();
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnBnClickedFindbranchend();
@@ -63,12 +66,7 @@ protected:
 	afx_msg void OnCbnEditchangeUrlcombo();
 	afx_msg void OnEnChangeRevisionEnd();
 	afx_msg void OnEnChangeRevisionStart();
-	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	DECLARE_MESSAGE_MAP()
-
-	BOOL CheckData(bool bShowErrors = true);
-	void SetStartRevision(const SVNRev& rev);
-	void SetEndRevision(const SVNRev& rev);
 
 	CLogDlg *	m_pLogDlg;
 	CLogDlg *	m_pLogDlg2;
@@ -77,10 +75,8 @@ protected:
 	BOOL		m_bFile;
 	CHistoryCombo m_URLCombo;
 	CHistoryCombo m_URLCombo2;
-	CComboBox	m_depthCombo;
 	BOOL		m_bUseFromURL;
 	CBalloon	m_tooltips;
-	CMenuButton	m_mergeButton;
 public:
 	CTSVNPath	m_wcPath;
 	CString		m_URLFrom;
@@ -90,8 +86,4 @@ public:
 	BOOL		m_bDryRun;
 	BOOL		bRepeating;
 	BOOL		m_bIgnoreAncestry;
-	BOOL		m_bRecordOnly;
-	svn_depth_t	m_depth;
-	BOOL		m_bIgnoreEOL;
-	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
 };

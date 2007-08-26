@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,16 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "HistoryCombo.h"
-#include "registry.h"
-
-#ifdef HISTORYCOMBO_WITH_SYSIMAGELIST
 #include "SysImageList.h"
-#endif
+#include "registry.h"
 
 #define MAX_HISTORY_ITEMS 25
 
@@ -50,16 +47,9 @@ BOOL CHistoryCombo::PreTranslateMessage(MSG* pMsg)
 {
 	if (pMsg->message == WM_KEYDOWN)
 	{
-		bool bShift = !!(GetKeyState(VK_SHIFT) & 0x8000);
 		int nVirtKey = (int) pMsg->wParam;
-		
 		if (nVirtKey == VK_RETURN)
 			return OnReturnKeyPressed();
-		else if (nVirtKey == VK_DELETE && bShift && GetDroppedState() )
-		{
-			RemoveSelectedItem();
-			return TRUE;
-		}
 	}
 
 	return CComboBoxEx::PreTranslateMessage(pMsg);
@@ -91,7 +81,6 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
 	combostring.Replace('\n', ' ');
 	cbei.pszText = const_cast<LPTSTR>(combostring.GetString());
 
-#ifdef HISTORYCOMBO_WITH_SYSIMAGELIST
 	if (m_bURLHistory)
 	{
 		cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(str);
@@ -121,7 +110,6 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
 		cbei.iSelectedImage = cbei.iImage;
 		cbei.mask |= CBEIF_IMAGE | CBEIF_SELECTEDIMAGE;
 	}
-#endif
 	int nRet = InsertItem(&cbei);
 	if (nRet >= 0)
 		m_arEntries.InsertAt(nRet, str);
@@ -250,14 +238,12 @@ void CHistoryCombo::SetURLHistory(BOOL bURLHistory)
 			{
 				hwndEdit = pWnd->GetSafeHwnd();
 			}
-		}
+		} // if (NULL == hwndEdit) 
 		if (hwndEdit)
 			SHAutoComplete(hwndEdit, SHACF_URLALL);
-	}
+	} // if (bUseShellURLHistory) 
 
-#ifdef HISTORYCOMBO_WITH_SYSIMAGELIST
 	SetImageList(&SYS_IMAGE_LIST());
-#endif
 }
 
 void CHistoryCombo::SetPathHistory(BOOL bPathHistory)
@@ -279,15 +265,13 @@ void CHistoryCombo::SetPathHistory(BOOL bPathHistory)
 				{
 					hwndEdit = pWnd->GetSafeHwnd();
 				}
-			}
-		}
+			} // if(hwndEdit==NULL) 
+		} // if (NULL == hwndEdit) 
 		if (hwndEdit)
 			SHAutoComplete(hwndEdit, SHACF_FILESYSTEM);
-	}
+	} // if (bUseShellURLHistory) 
 
-#ifdef HISTORYCOMBO_WITH_SYSIMAGELIST
 	SetImageList(&SYS_IMAGE_LIST());
-#endif
 }
 
 void CHistoryCombo::SetMaxHistoryItems(int nMaxItems)
@@ -321,53 +305,6 @@ CString CHistoryCombo::GetString() const
 	return m_arEntries.GetAt(sel);
 }
 
-BOOL CHistoryCombo::RemoveSelectedItem()
-{
-	int nIndex = GetCurSel();
-	if (nIndex == CB_ERR)
-	{
-		return FALSE;
-	}
 
-	DeleteItem(nIndex);
-	m_arEntries.RemoveAt(nIndex);
 
-	if ( nIndex < GetCount() )
-	{
-		// index stays the same to select the
-		// next item after the item which has
-		// just been deleted
-	}
-	else
-	{
-		// the end of the list has been reached
-		// so we select the previous item
-		nIndex--;
-	}
 
-	if ( nIndex == -1 )
-	{
-		// The one and only item has just been
-		// deleted -> reset window text since
-		// there is no item to select
-		SetWindowText(_T(""));
-	}
-	else
-	{
-		SetCurSel(nIndex);
-	}
-
-	// Since the dialog might be cancelled we
-	// should now save the history. Before that
-	// set the selection to the first item so that
-	// the items will not be reordered and restore
-	// the selection after saving.
-	SetCurSel(0);
-	SaveHistory();
-	if ( nIndex != -1 )
-	{
-		SetCurSel(nIndex);
-	}
-
-	return TRUE;
-}

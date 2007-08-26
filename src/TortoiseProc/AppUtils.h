@@ -13,12 +13,10 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "HistoryCombo.h"
-#include "SVNRev.h"
 
 class CTSVNPath;
 
@@ -50,21 +48,13 @@ public:
 	 * Starts the external unified diff viewer (the app associated with *.diff or *.patch files).
 	 * If no app is associated with those filetypes, the default text editor is used.
 	 */
-	static BOOL StartUnifiedDiffViewer(const CTSVNPath& patchfile, const CString& title, BOOL bWait = FALSE);
+	static BOOL StartUnifiedDiffViewer(const CTSVNPath& patchfile, BOOL bWait = FALSE);
 
 	/**
 	 * Starts the external diff application
 	 */
 	static BOOL StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, 
-			const CString& sName1 = CString(), const CString& sName2 = CString(), 
-			BOOL bWait = FALSE, BOOL bBlame = FALSE, BOOL bReadOnly = FALSE);
-
-	/**
-	 * Starts the external diff application for properties
-	 */
-	static BOOL StartExtDiffProps(const CTSVNPath& file1, const CTSVNPath& file2, 
-			const CString& sName1 = CString(), const CString& sName2 = CString(), 
-			BOOL bWait = FALSE, BOOL bReadOnly = FALSE);
+			const CString& sName1 = CString(), const CString& sName2 = CString(), BOOL bWait = FALSE, BOOL bBlame = FALSE);
 
 	/**
 	 * Launches the standard text viewer/editor application which is associated
@@ -108,6 +98,4 @@ public:
 	 */
 	static bool FormatTextInRichEditControl(CWnd * pWnd);
 	static bool FindStyleChars(const CString& sText, TCHAR stylechar, int& start, int& end);
-
-	static bool BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& rev);
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 
@@ -22,10 +22,14 @@
 #include "URLDlg.h"
 #include ".\urldlg.h"
 
+
+// CURLDlg dialog
+
 IMPLEMENT_DYNAMIC(CURLDlg, CResizableStandAloneDialog)
 CURLDlg::CURLDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CURLDlg::IDD, pParent)
 {
+	m_url = _T("");
 }
 
 CURLDlg::~CURLDlg()
@@ -50,18 +54,18 @@ BOOL CURLDlg::OnInitDialog()
 
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
-	m_URLCombo.SetCurSel(0);
 	m_URLCombo.SetFocus();
 
 	RECT rect;
 	GetWindowRect(&rect);
-	m_height = rect.bottom - rect.top;
+	m_heigth = rect.bottom - rect.top;
 	AddAnchor(IDC_LABEL, TOP_LEFT);
 	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("URLDlg"));
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CURLDlg::OnOK()
@@ -71,7 +75,7 @@ void CURLDlg::OnOK()
 		m_URLCombo.SaveHistory();
 		m_url = m_URLCombo.GetString();
 		UpdateData();
-	}
+	} // if (m_URLCombo.IsWindowEnabled()) 
 
 	CResizableStandAloneDialog::OnOK();
 }
@@ -79,18 +83,18 @@ void CURLDlg::OnOK()
 
 void CURLDlg::OnSizing(UINT fwSide, LPRECT pRect)
 {
-	// don't allow the dialog to be changed in height
+	// don't allow the dialog to be changed in heigth
 	switch (fwSide)
 	{
 	case WMSZ_BOTTOM:
 	case WMSZ_BOTTOMLEFT:
 	case WMSZ_BOTTOMRIGHT:
-		pRect->bottom = pRect->top + m_height;
+		pRect->bottom = pRect->top + m_heigth;
 		break;
 	case WMSZ_TOP:
 	case WMSZ_TOPLEFT:
 	case WMSZ_TOPRIGHT:
-		pRect->top = pRect->bottom - m_height;
+		pRect->top = pRect->bottom - m_heigth;
 		break;
 	}
 	CResizableStandAloneDialog::OnSizing(fwSide, pRect);	

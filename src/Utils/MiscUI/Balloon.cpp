@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "balloon.h"
@@ -701,32 +701,17 @@ void CBalloon::CalculateInfoBoxRect(CPoint * pt, CRect * rect)
 
 	CPoint ptEnd;
 	m_nLastDirection = m_pToolInfo.nDirection;
-	BOOL horzAdjusted = TestHorizDirection(pt->x, rect->Width(), monitorRect, m_nLastDirection, rect);
-	if (!horzAdjusted)
+	if (!TestHorizDirection(pt->x, rect->Width(), monitorRect, m_nLastDirection, rect))
 	{
 		m_nLastDirection = GetNextHorizDirection(m_nLastDirection);
-		horzAdjusted = TestHorizDirection(pt->x, rect->Width(), monitorRect, m_nLastDirection, rect);
+		TestHorizDirection(pt->x, rect->Width(), monitorRect, m_nLastDirection, rect);
 	}
-	BOOL vertAdjusted = TestVertDirection(pt->y, rect->Height(), monitorRect, m_nLastDirection, rect);
-	if (!vertAdjusted)
+	if (!TestVertDirection(pt->y, rect->Height(), monitorRect, m_nLastDirection, rect))
 	{
 		m_nLastDirection = GetNextVertDirection(m_nLastDirection);
-		vertAdjusted = TestVertDirection(pt->y, rect->Height(), monitorRect, m_nLastDirection, rect);
+		TestVertDirection(pt->y, rect->Height(), monitorRect, m_nLastDirection, rect);
 	}
-	// in case the rectangle wasn't adjusted which can happen if the tooltip is
-	// larger than half the monitor size, we center the tooltip around the mouse pointer
-	if (!horzAdjusted)
-	{
-		int cx = rect->Width() / 2;
-		rect->right = pt->x + cx;
-		rect->left = pt->x - cx;
-	}
-	if (!vertAdjusted)
-	{
-		int cy = rect->Height() / 2;
-		rect->bottom = pt->y + cy;
-		rect->top = pt->y - cy;
-	}
+
 	if ((m_pToolInfo.nStyles & BALLOON_SHADOW) && 
 		((m_nLastDirection == BALLOON_LEFT_TOP) || (m_nLastDirection == BALLOON_LEFT_BOTTOM)))
 		rect->OffsetRect(m_nSizes[XBLSZ_SHADOW_CX], m_nSizes[XBLSZ_SHADOW_CY]);

@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -90,10 +90,8 @@ public:
 	void Done() {m_rwSection.Done();}
 	bool IsWriter() {return m_rwSection.IsWriter();}
 #if defined (DEBUG) || defined (_DEBUG)
-	void AssertLock() {m_rwSection.AssertLock();}
 	void AssertWriting() {m_rwSection.AssertWriting();}
 #else
-	void AssertLock() {;}
 	void AssertWriting() {;}
 #endif
 	bool IsPathAllowed(CTSVNPath path) {return !!m_shellCache.IsPathAllowed(path.GetWinPath());}

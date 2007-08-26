@@ -12,7 +12,7 @@
   <?define PackageDescription="Subversion Client" ?>
   <?define PackageComments="Windows Shell Integration For SubVersion Source Control, v$(var.VersionNumberUserVisible)" ?>
   <?define PackageManufacturer="Stefan Kueng" ?>
-  <?define TortoiseSvnOrg="http://tortoisesvn.net/"?>
+  <?define TortoiseSvnOrg="http://www.tortoisesvn.org/"?>
 
   <!-- Platform specifics ........................................................... -->
 
@@ -47,9 +47,6 @@
   <?define GuidReadonly="3035134B-7B7D-4FCC-81B4-1E394CA267EB"?>
   <?define GuidModified="30351347-7B7D-4FCC-81B4-1E394CA267EB"?>
   <?define GuidConflicted="30351348-7B7D-4FCC-81B4-1E394CA267EB"?>
-  <?define GuidSubWCRev="F26E2640-0CFF-43DC-8325-575A3261D885"?>
-  <?define GuidSubWCRevTypeLib="40ACF49D-74FF-4165-94E9-0E002C448520"?>
-  <?define GuidSubWCRevInterface="2F5EA5B0-4DE7-4f96-8E6B-FC0C37D9C0D6"?>
 
   <!-- Target specific component GUIDs ............................................. -->
 
@@ -66,7 +63,6 @@
   <?define GuidLibSSL="3FFA593A-DA04-438b-8B47-0680FF7B1DDA"?>
   <?define GuidBerkeleyDB="2FAE99BD-7289-477a-BA4C-8AFA9B069AF6"?>
   <?define GuidAPR="416DD323-6B7C-4c0d-BD2F-2D1E1ADF3663"?>
-  <?define GuidSASL="04709DD2-C17C-474c-94CD-0174C99539F1"?>
   <?define GuidGettext="A2D9C7F2-B4B5-42e6-83EB-450D70D40092"?>
   <?define GuidCrashRpt="B9F4D4E1-83BE-4224-A000-FBC637AD6058"?>
   
@@ -80,10 +76,8 @@
   <?define GuidTortoiseBlame="2277EF11-7D34-453f-9D83-531F4AE349ED"?>
   <?define GuidTortoiseIDiff="75D19614-B4D4-4661-A7EB-683CEE849CF3"?>
   <?define GuidTortoiseIDiffShortcuts="423FB20D-5691-4123-9EC6-86B9B87F62E6"?>
-  <?define GuidTortoiseUDiff="58D894C4-029F-4bc2-B61D-F9BE5BB71277"?>
-  <?define GuidPlainSettingsShortcuts="F8A9F712-5239-4510-852D-224F9F7FD196"?>
-  <?define GuidPlatformSettingsShortcuts="737F9B77-C40B-4770-9585-BC541BBA5716"?>
-
+  
+  <?define GuidIconv="B20E3BCE-7A5D-42c7-8E98-665AC0375FD2"?>
   <?define GuidDictionaryENGB="1CC29BB2-023E-4d59-82DD-8C26E59F4280"?>
   <?define GuidDictionaryENUS="46A24184-E5C0-4f6e-BD24-9EA6BDCD6DE2"?>
 
@@ -110,7 +104,6 @@
   <?define GuidLibSSL="53F3D18C-528D-4B08-AB1A-8644BFD3D5F2"?>
   <?define GuidBerkeleyDB="F2DA533E-F774-4488-91EF-120E03BB6E3A"?>
   <?define GuidAPR="414A5BE1-9F3E-41cc-91AA-70C390055302"?>
-  <?define GuidSASL="D606E81F-771A-496a-9B35-F93308275E68"?>
   <?define GuidGettext="A0CCA4FD-553C-465f-8E73-1BE7B3AFB83D"?>
   <?define GuidCrashRpt="70404BC2-A712-431f-A4C7-EA7938834A18"?>
 
@@ -124,10 +117,8 @@
   <?define GuidTortoiseBlame="1B00F2A6-4D6B-4DBE-8B69-C8B493B4BBE5"?>
   <?define GuidTortoiseIDiff="42740041-0AD3-4265-BB92-E6035F85F2A9"?>
   <?define GuidTortoiseIDiffShortcuts="8669A999-BFCA-4933-B7E4-54B09D4C7652"?>
-  <?define GuidTortoiseUDiff="7164436F-2076-4031-9A11-751AF342C1E9"?>
-  <?define GuidPlainSettingsShortcuts="3794CC38-A044-4879-A33B-417419E3524B"?>
-  <?define GuidPlatformSettingsShortcuts="676E1787-196E-498a-81B7-DE5C99E107D2"?>
 
+  <?define GuidIconv="582E4865-CC41-4689-BC77-20AD85017BBC"?>
   <?define GuidDictionaryENGB="3B8C81C0-CC2A-42FB-A619-BA3656113736"?>
   <?define GuidDictionaryENUS="EC574EC2-AD1F-4FA4-9F49-E66C11D38BDF"?>
 

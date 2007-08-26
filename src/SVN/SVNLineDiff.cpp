@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "SVNLineDiff.h"
@@ -39,38 +39,11 @@ svn_error_t * SVNLineDiff::datasource_open(void * baton, svn_diff_datasource_e d
 		{
 		case svn_diff_datasource_original:
 			{
-				int chartype = SVNLINEDIFF_CHARTYPE_NONE;
 				for (unsigned long i=0; i<linediff->m_line1length; ++i)
 				{
 					if (IsCharAlphaNumeric(linediff->m_line1[i]))
 					{
-						if ((chartype == SVNLINEDIFF_CHARTYPE_ALPHANUMERIC)||
-							(chartype == SVNLINEDIFF_CHARTYPE_NONE))
-						{
-							token += linediff->m_line1[i];
-						}
-						else
-						{
-							if (!token.empty())
-								linediff->m_line1tokens.push_back(token);
-							token = linediff->m_line1[i];
-						}
-						chartype = SVNLINEDIFF_CHARTYPE_ALPHANUMERIC;
-					}
-					else if (IsCharWhiteSpace(linediff->m_line1[i]))
-					{
-						if ((chartype == SVNLINEDIFF_CHARTYPE_SPACE)||
-							(chartype == SVNLINEDIFF_CHARTYPE_NONE))
-						{
-							token += linediff->m_line1[i];
-						}
-						else
-						{
-							if (!token.empty())
-								linediff->m_line1tokens.push_back(token);
-							token = linediff->m_line1[i];
-						}
-						chartype = SVNLINEDIFF_CHARTYPE_SPACE;
+						token += linediff->m_line1[i];
 					}
 					else
 					{
@@ -79,7 +52,6 @@ svn_error_t * SVNLineDiff::datasource_open(void * baton, svn_diff_datasource_e d
 						token = linediff->m_line1[i];
 						linediff->m_line1tokens.push_back(token);
 						token.clear();
-						chartype = SVNLINEDIFF_CHARTYPE_OTHER;
 					}
 				}
 				if (!token.empty())
@@ -87,43 +59,16 @@ svn_error_t * SVNLineDiff::datasource_open(void * baton, svn_diff_datasource_e d
 					linediff->m_line1tokens.push_back(token);
 					token.clear();
 				}
+				//for (int i=0; i<linediff->m_line1tokens.size(); ++i)
+				//	ATLTRACE("token %ld is = \"%ws\"\n", i, linediff->m_line1tokens[i].c_str());
 			}
 			break;
 		case svn_diff_datasource_modified:
 			{
-				int chartype = SVNLINEDIFF_CHARTYPE_NONE;
 				for (unsigned long i=0; i<linediff->m_line2length; ++i)
 				{
 					if (IsCharAlphaNumeric(linediff->m_line2[i]))
-					{
-						if ((chartype == SVNLINEDIFF_CHARTYPE_ALPHANUMERIC)||
-							(chartype == SVNLINEDIFF_CHARTYPE_NONE))
-						{
-							token += linediff->m_line2[i];
-						}
-						else
-						{
-							if (!token.empty())
-								linediff->m_line2tokens.push_back(token);
-							token = linediff->m_line2[i];
-						}
-						chartype = SVNLINEDIFF_CHARTYPE_ALPHANUMERIC;
-					}
-					else if (IsCharWhiteSpace(linediff->m_line2[i]))
-					{
-						if ((chartype == SVNLINEDIFF_CHARTYPE_SPACE)||
-							(chartype == SVNLINEDIFF_CHARTYPE_NONE))
-						{
-							token += linediff->m_line2[i];
-						}
-						else
-						{
-							if (!token.empty())
-								linediff->m_line2tokens.push_back(token);
-							token = linediff->m_line2[i];
-						}
-						chartype = SVNLINEDIFF_CHARTYPE_SPACE;
-					}
+						token += linediff->m_line2[i];
 					else
 					{
 						if (!token.empty())
@@ -131,39 +76,12 @@ svn_error_t * SVNLineDiff::datasource_open(void * baton, svn_diff_datasource_e d
 						token = linediff->m_line2[i];
 						linediff->m_line2tokens.push_back(token);
 						token.clear();
-						chartype = SVNLINEDIFF_CHARTYPE_OTHER;
 					}
 				}
-
 				if (!token.empty())
 				{
 					linediff->m_line2tokens.push_back(token);
 					token.clear();
-				}
-			}
-			break;
-		}
-	}
-	else
-	{
-		std::wstring token;
-		switch (datasource)
-		{
-		case svn_diff_datasource_original:
-			{
-				for (unsigned long i=0; i<linediff->m_line1length; ++i)
-				{
-					token = linediff->m_line1[i];
-					linediff->m_line1tokens.push_back(token);
-				}
-			}
-			break;
-		case svn_diff_datasource_modified:
-			{
-				for (unsigned long i=0; i<linediff->m_line2length; ++i)
-				{
-					token = linediff->m_line2[i];
-					linediff->m_line2tokens.push_back(token);
 				}
 			}
 			break;
@@ -304,7 +222,6 @@ bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, int len1, LPCTSTR line2
 	svn_error_t * err = svn_diff_diff(diff, this, &SVNLineDiff_vtable, m_subpool);
 	if (err)
 	{
-		svn_error_clear(err);
 		svn_pool_clear(m_subpool);
 		return false;
 	}
@@ -347,11 +264,4 @@ apr_uint32_t SVNLineDiff::Adler32(apr_uint32_t checksum, const WCHAR *data, apr_
 	}
 
 	return ((s2 % ADLER_MOD_BASE) << 16) | (s1 % ADLER_MOD_BASE);
-}
-
-bool SVNLineDiff::IsCharWhiteSpace(TCHAR c)
-{
-	if ((c == ' ')||(c == '\t'))
-		return true;
-	return false;
 }

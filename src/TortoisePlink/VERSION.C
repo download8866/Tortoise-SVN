@@ -7,16 +7,8 @@
 
 #if defined SNAPSHOT
 
-#if defined SVN_REV
-#define SNAPSHOT_TEXT STR(SNAPSHOT) ":r" STR(SVN_REV)
-#else
-#define SNAPSHOT_TEXT STR(SNAPSHOT)
-#endif
-
-char ver[] = "Development snapshot " SNAPSHOT_TEXT;
-char sshver[] = "PuTTY-Snapshot-" SNAPSHOT_TEXT;
-
-#undef SNAPSHOT_TEXT
+char ver[] = "Development snapshot " STR(SNAPSHOT);
+char sshver[] = "PuTTY-Snapshot-" STR(SNAPSHOT);
 
 #elif defined RELEASE
 

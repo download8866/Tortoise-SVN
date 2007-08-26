@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,12 +13,10 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-
-#include "apr_tables.h"
 
 #if defined(_MFC_VER)
 // CSTRING is always available in an MFC build
@@ -71,7 +69,7 @@ public:
 	 * Returns the path completely prepared to be fed the the SVN APIs
 	 * It will be in UTF8, with URLs escaped, if necessary
 	 */
-	const char* GetSVNApiPath(apr_pool_t *pool) const;
+	const char* GetSVNApiPath() const;
 	/**
 	 * Returns the path for showing in an UI.
 	 *
@@ -101,8 +99,8 @@ public:
 	*/
 	CTSVNPath GetContainingDirectory() const;
 	/**
-	 * Get the 'root path' (e.g. "c:\") - Used to pass to GetDriveType 
-	 */
+	* Get the 'root path' (e.g. "c:\") - Used to pass to GetDriveType 
+	*/
 	CString GetRootPathString() const;
 	/**
 	 * Returns the filename part of the full path.
@@ -176,9 +174,9 @@ public:
 	void AppendPathString(const CString& sAppend);
 
 	/**
-	 * Get the file modification time - returns zero for files which don't exist
-	 * Returns a FILETIME structure cast to an __int64, for easy comparisons
-	 */
+	* Get the file modification time - returns zero for files which don't exist
+	* Returns a FILETIME structure cast to an __int64, for easy comparisons
+	*/
 	__int64 GetLastWriteTime() const;
 	
 	bool IsReadOnly() const;
@@ -188,12 +186,6 @@ public:
 	 */
 	bool Exists() const;
 	
-	/**
-	 * Deletes the file/folder
-	 * \param bTrash if true, uses the Windows trashbin when deleting.
-	 */
-	bool Delete(bool bTrash) const;
-
 	/**
 	 * Checks if a Subversion admin directory is present. For files, the check
 	 * is done in the same directory. For folders, it checks if the folder itself
@@ -233,9 +225,9 @@ private:
 	void EnsureBackslashPathSet() const;
 	void EnsureFwdslashPathSet() const;
 	/**
-	 * Checks if two path strings are equal. No conversion of slashes is done!
-	 * \remark for slash-independent comparison, use IsEquivalentTo()
-	 */
+	* Checks if two path strings are equal. No conversion of slashes is done!
+	* \remark for slash-independent comparison, use IsEquivalentTo()
+	*/
 	static bool ArePathStringsEqual(const CString& sP1, const CString& sP2);
 	static bool ArePathStringsEqualWithCase(const CString& sP1, const CString& sP2);
 	
@@ -269,18 +261,31 @@ private:
 };
 
 /**
- * Compares two paths and return true if left is earlier in sort order than right
- * (Uses CTSVNPath::Compare logic, but is suitable for std::sort and similar)
- */
+* Compares two paths and return true if left is earlier in sort order than right
+* (Uses CTSVNPath::Compare logic, but is suitable for std::sort and similar)
+*/
 bool operator<(const CTSVNPath& left, const CTSVNPath& right);
 
 
 //////////////////////////////////////////////////////////////////////////
 
 /**
- * \ingroup Utils
- * This class represents a list of paths
- */
+* \ingroup Utils
+* This class represents a list of paths
+*
+* \par requirements
+* win95 or later
+* winNT4 or later
+* MFC
+*
+* \version 1.0
+* first version
+*
+* \date DEC-2004
+*
+* \author Will Dean
+*
+*/
 class CTSVNPathList 
 {
 public:
@@ -290,15 +295,14 @@ public:
 
 public:
 	void AddPath(const CTSVNPath& newPath);
-	bool LoadFromFile(const CTSVNPath& filename);
-	bool WriteToFile(const CString& sFilename, bool bANSI = false) const;
+	bool LoadFromTemporaryFile(const CTSVNPath& filename);
+	bool WriteToTemporaryFile(const CString& sFilename) const;
 
 	/**
-	 * Load from the path argument string, when the 'path' parameter is used
+	 * Load from the path argument string, when the 'notempfile' flag is used
 	 * This is a list of paths, with '*' between them
 	 */
 	void LoadFromAsteriskSeparatedString(const CString& sPathString);
-	CString CreateAsteriskSeparatedString() const;
 
 	int GetCount() const;
 	void Clear();
@@ -308,11 +312,9 @@ public:
 	CTSVNPath GetCommonDirectory() const;
 	CTSVNPath GetCommonRoot() const;
 	void SortByPathname(bool bReverse = false);
-	/** 
-	 * Delete all the files in the list, then clear the list.
-	 * \param bTrash if true, the items are deleted using the Windows trash bin
+	/** Delete all the files in the list, then clear the list
 	 */
-	void DeleteAllFiles(bool bTrash);
+	void DeleteAllFiles();
 	/** Remove duplicate entries from the list (sorts the list as a side-effect */
 	void RemoveDuplicates();
 	/** Removes all paths which are on or in a Subversion admin directory */
@@ -324,12 +326,6 @@ public:
 	 * child files and folders don't have to be deleted anymore)
 	 */
 	void RemoveChildren();
-
-	/** Checks if two CTSVNPathLists are the same */
-	bool IsEqual(const CTSVNPathList& list);
-
-	/** Convert into the SVN API parameter format */
-	apr_array_header_t * MakePathArray (apr_pool_t *pool) const;
 
 private:
 	typedef std::vector<CTSVNPath> PathVector;

@@ -1,40 +1,33 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
-// thisobject program is free software; you can redistribute it and/or
+// This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
 // as published by the Free Software Foundation; either version 2
 // of the License, or (at your option) any later version.
 
-// thisobject program is distributed in the hope that it will be useful,
+// This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with thisobject program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include <iostream>
 #include <tchar.h>
 #include <windows.h>
 #include <shlwapi.h>
-#include <shellapi.h>
-#include <io.h>
-#include <fcntl.h>
-
 
 #include <apr_pools.h>
 #include "svn_error.h"
 #include "svn_client.h"
 #include "svn_path.h"
 #include "SubWCRev.h"
-#include "UnicodeUtils.h"
 #include "..\version.h"
-#include "svn_dso.h"
-
 
 // Define the help text as a multi-line macro
 // Every line except the last must be terminated with a backslash
@@ -55,7 +48,7 @@ DstVersionFile     :   path to save the resulting parsed file.\n\
 -f                 :   if given, then SubWCRev will include the\n\
                        last-committed revision of folders. Default is\n\
                        to use only files to get the revision numbers.\n\
-                       thisobject only affects $WCREV$ and $WCDATE$.\n\
+                       This only affects $WCREV$ and $WCDATE$.\n\
 -e                 :   if given, also include dirs which are included\n\
                        with svn:externals, but only if they're from the\n\
                        same repository.\n"
@@ -70,31 +63,24 @@ are replaced with information about the working copy as follows:\n\
 \n\
 $WCREV$      Highest committed revision number\n\
 $WCDATE$     Date of highest committed revision\n\
-$WCDATE=$    Like $WCDATE$ with an added strftime format after the =\n\
 $WCRANGE$    Update revision range\n\
 $WCURL$      Repository URL of the working copy\n\
 $WCNOW$      Current system date & time\n\
-$WCNOW=$     Like $WCNOW$ with an added strftime format after the =\n\
 \n\
 Placeholders of the form \"$WCxxx?TrueText:FalseText$\" are replaced with\n\
 TrueText if the tested condition is true, and FalseText if false.\n\
 \n\
 $WCMODS$     True if local modifications found\n\
-$WCMIXED$    True if mixed update revisions found\n\
-\n\
-The strftime format strings for $WCDATE=$ & $WCNOW=$ must not be longer\n\
-than 64 characters, and must not produce output greater than 128 characters.\n"
+$WCMIXED$    True if mixed update revisions found\n"
 // End of multi-line help text.
 
 #define VERDEF		"$WCREV$"
 #define DATEDEF		"$WCDATE$"
-#define DATEWFMTDEF	"$WCDATE="
 #define MODDEF		"$WCMODS?"
 #define RANGEDEF	"$WCRANGE$"
 #define MIXEDDEF	"$WCMIXED?"
 #define URLDEF		"$WCURL$"
 #define NOWDEF		"$WCNOW$"
-#define NOWWFMTDEF	"$WCNOW="
 
 // Internal error codes
 #define ERR_SYNTAX		1	// Syntax error
@@ -112,6 +98,29 @@ than 64 characters, and must not produce output greater than 128 characters.\n"
 #define USE_TIME_NOW	-2	// 0 and -1 might already be significant.
 
 
+char *AnsiToUtf8(const char * pszAnsi, apr_pool_t *pool)
+{
+	// convert ANSI --> UTF16
+	int utf16_count = MultiByteToWideChar(CP_ACP, 0, pszAnsi, -1, NULL, 0);
+	WCHAR * pwc = new WCHAR[utf16_count];
+	MultiByteToWideChar(CP_ACP, 0, pszAnsi, -1, pwc, utf16_count);
+
+	// and now from URF16 --> UTF-8
+	int utf8_count = WideCharToMultiByte(CP_UTF8, 0, pwc, utf16_count, NULL, 0, NULL, NULL);
+	char * pch = (char*) apr_palloc(pool, utf8_count);
+	WideCharToMultiByte(CP_UTF8, 0, pwc, utf16_count, pch, utf8_count, NULL, NULL);
+	delete[] pwc;
+	return pch;
+}
+
+char *Utf16ToUtf8(const WCHAR *pszUtf16, apr_pool_t *pool)
+{
+	// from URF16 --> UTF-8
+	int utf8_count = WideCharToMultiByte(CP_UTF8, 0, pszUtf16, -1, NULL, 0, NULL, NULL);
+	char * pch = (char*) apr_palloc(pool, utf8_count);
+	WideCharToMultiByte(CP_UTF8, 0, pszUtf16, -1, pch, utf8_count, NULL, NULL);
+	return pch;
+}
 
 int FindPlaceholder(char *def, char *pBuf, size_t & index, size_t filelength)
 {
@@ -183,47 +192,18 @@ int InsertDate(char * def, char * pBuf, size_t & index,
 	struct tm newtime;
 	if (_localtime64_s(&newtime, &ttime))
 		return FALSE;
-	char destbuf[128];
-	char * pBuild = pBuf + index;
-	ptrdiff_t Expansion;
-	if ((strcmp(def,DATEWFMTDEF) == 0) || (strcmp(def,NOWWFMTDEF) == 0))
-	{
-		// Format the date/time according to the supplied strftime format string
-		char format[65];
-		char * pStart = pBuf + index + strlen(def);
-		char * pEnd = pStart + 1;
-
-		while (*pEnd != '$')
-		{
-			pEnd++;
-			if (pEnd - pBuf >= (__int64)filelength)
-				return FALSE;	// No terminator - malformed so give up.
-		}
-		if ((pEnd - pStart) > 64)
-		{
-			return FALSE; // Format specifier too big
-		}
-		memset(format,0,65);
-		memcpy(format,pStart,pEnd - pStart);
-
-		strftime(destbuf,128,format,&newtime);
-
-		Expansion = strlen(destbuf) - (strlen(def) + pEnd - pStart + 1);
-	}
-	else
-	{
-		// Format the date/time in international format as yyyy/mm/dd hh:mm:ss
-		sprintf_s(destbuf, 128, "%04d/%02d/%02d %02d:%02d:%02d",
+	// Format the date/time in international format as yyyy/mm/dd hh:mm:ss
+	char destbuf[32];
+	sprintf_s(destbuf, 32, "%04d/%02d/%02d %02d:%02d:%02d",
 			newtime.tm_year + 1900,
 			newtime.tm_mon + 1,
 			newtime.tm_mday,
 			newtime.tm_hour,
 			newtime.tm_min,
 			newtime.tm_sec);
-
-		Expansion = strlen(destbuf) - strlen(def);
-	}
-	// Replace the def string with the actual commit date
+	// Replace the $WCDATE$ string with the actual commit date
+	char * pBuild = pBuf + index;
+	ptrdiff_t Expansion = strlen(destbuf) - strlen(def);
 	if (Expansion < 0)
 	{
 		memmove(pBuild, pBuild - Expansion, filelength - ((pBuild - Expansion) - pBuf));
@@ -287,7 +267,7 @@ int InsertBoolean(char * def, char * pBuf, size_t & index, size_t & filelength, 
 	
 	// Look for the ':' dividing TrueText from FalseText
 	char *pSplit = pBuild + 1;
-	// thisobject loop is guaranteed to terminate due to test above.
+	// This loop is guaranteed to terminate due to test above.
 	while (*pSplit != ':' && *pSplit != '$')
 		pSplit++;
 
@@ -314,7 +294,7 @@ int InsertBoolean(char * def, char * pBuf, size_t & index, size_t & filelength, 
 		// Remove $WCxxx?TrueText:
 		memmove(pBuild, pSplit + 1, filelength - (pSplit + 1 - pBuf));
 		filelength -= (pSplit + 1 - pBuild);
-	}
+	} // if (isTrue)
 	return TRUE;
 }
 
@@ -326,7 +306,6 @@ int abort_on_pool_failure (int /*retcode*/)
 	return -1;
 }
 #pragma warning(pop)
-
 
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -392,13 +371,12 @@ int _tmain(int argc, _TCHAR* argv[])
 			wc = NULL;
 		}
 	}
-
 	if (wc == NULL)
 	{
 		_tprintf(_T("SubWCRev %d.%d.%d, Build %d - %s\n\n"),
-			TSVN_VERMAJOR, TSVN_VERMINOR,
-			TSVN_VERMICRO, TSVN_VERBUILD,
-			_T(TSVN_PLATFORM));
+					TSVN_VERMAJOR, TSVN_VERMINOR,
+					TSVN_VERMICRO, TSVN_VERBUILD,
+					_T(TSVN_PLATFORM));
 		_putts(_T(HelpText1));
 		_putts(_T(HelpText2));
 		_putts(_T(HelpText3));
@@ -408,10 +386,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	if (!PathFileExists(wc))
 	{
 		_tprintf(_T("Directory or file '%s' does not exist\n"), wc);
-		if (_tcschr(wc, '\"') != NULL) // dir contains a quotation mark
+		if (_tcschr(wc, '\"') != NULL) // dir contains a quoation mark
 		{
 			_tprintf(_T("The WorkingCopyPath contains a quotation mark.\n"));
-			_tprintf(_T("thisobject indicates a problem when calling SubWCRev from an interpreter which treats\n"));
+			_tprintf(_T("This indicates a problem when calling SubWCRev from an interpreter which treats\n"));
 			_tprintf(_T("a backslash char specially.\n"));
 			_tprintf(_T("Try using double backslashes or insert a dot after the last backslash when\n"));
 			_tprintf(_T("calling SubWCRev\n"));
@@ -470,7 +448,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	const char * internalpath;
 
 	apr_initialize();
-	svn_dso_initialize();
 	apr_pool_create_ex (&pool, NULL, abort_on_pool_failure, NULL);
 	memset (&ctx, 0, sizeof (ctx));
 
@@ -493,7 +470,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (svnerr)
 	{
-		svn_handle_error2(svnerr, stdout, FALSE, "SubWCRev : ");
+		svn_handle_error2(svnerr, stderr, FALSE, "SubWCRev : ");
 	}
 	TCHAR wcfullpath[MAX_PATH];
 	LPTSTR dummy;
@@ -555,14 +532,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	while (InsertDate(DATEDEF, pBuf, index, filelength, maxlength, SubStat.CmtDate));
 	
 	index = 0;
-	while (InsertDate(DATEWFMTDEF, pBuf, index, filelength, maxlength, SubStat.CmtDate));
-
-	index = 0;
 	while (InsertDate(NOWDEF, pBuf, index, filelength, maxlength, USE_TIME_NOW));
 	
-	index = 0;
-	while (InsertDate(NOWWFMTDEF, pBuf, index, filelength, maxlength, USE_TIME_NOW));
-
 	index = 0;
 	while (InsertBoolean(MODDEF, pBuf, index, filelength, SubStat.HasMods));
 	
@@ -600,7 +571,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	// The file is only written if its contents would change.
-	// this object prevents the timestamp from changing.
+	// This prevents the timestamp from changing.
 	if (!sameFileContent)
 	{
 		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
@@ -623,4 +594,3 @@ int _tmain(int argc, _TCHAR* argv[])
 		
 	return 0;
 }
-

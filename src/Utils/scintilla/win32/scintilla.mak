@@ -92,17 +92,14 @@ SOBJS=\
 	$(DIR_O)\CellBuffer.obj \
 	$(DIR_O)\CharClassify.obj \
 	$(DIR_O)\ContractionState.obj \
-	$(DIR_O)\Decoration.obj \
 	$(DIR_O)\Document.obj \
 	$(DIR_O)\Editor.obj \
 	$(DIR_O)\Indicator.obj \
 	$(DIR_O)\KeyMap.obj \
 	$(DIR_O)\LineMarker.obj \
 	$(DIR_O)\PlatWin.obj \
-	$(DIR_O)\PositionCache.obj \
 	$(DIR_O)\PropSet.obj \
 	$(DIR_O)\RESearch.obj \
-	$(DIR_O)\RunStyles.obj \
 	$(DIR_O)\ScintillaBase.obj \
 	$(DIR_O)\ScintillaWin.obj \
 	$(DIR_O)\Style.obj \
@@ -125,20 +122,17 @@ LEXOBJS=\
 	$(DIR_O)\LexBullant.obj \
 	$(DIR_O)\LexCaml.obj \
 	$(DIR_O)\LexCLW.obj \
-	$(DIR_O)\LexCmake.obj \
 	$(DIR_O)\LexConf.obj \
 	$(DIR_O)\LexCPP.obj \
 	$(DIR_O)\LexCrontab.obj \
 	$(DIR_O)\LexCsound.obj \
 	$(DIR_O)\LexCSS.obj \
-	$(DIR_O)\LexD.obj \
 	$(DIR_O)\LexEiffel.obj \
 	$(DIR_O)\LexErlang.obj \
 	$(DIR_O)\LexEScript.obj \
 	$(DIR_O)\LexFlagship.obj \
 	$(DIR_O)\LexForth.obj \
 	$(DIR_O)\LexFortran.obj \
-	$(DIR_O)\LexGAP.obj \
 	$(DIR_O)\LexGui4Cli.obj \
 	$(DIR_O)\LexHaskell.obj \
 	$(DIR_O)\LexHTML.obj \
@@ -158,9 +152,7 @@ LEXOBJS=\
 	$(DIR_O)\LexPascal.obj \
 	$(DIR_O)\LexPB.obj \
 	$(DIR_O)\LexPerl.obj \
-	$(DIR_O)\LexPLM.obj \
 	$(DIR_O)\LexPOV.obj \
-	$(DIR_O)\LexProgress.obj \
 	$(DIR_O)\LexPS.obj \
 	$(DIR_O)\LexPython.obj \
 	$(DIR_O)\LexRebol.obj \
@@ -186,7 +178,6 @@ LOBJS=\
 	$(DIR_O)\CellBuffer.obj \
 	$(DIR_O)\CharClassify.obj \
 	$(DIR_O)\ContractionState.obj \
-	$(DIR_O)\Decoration.obj \
 	$(DIR_O)\Document.obj \
 	$(DIR_O)\DocumentAccessor.obj \
 	$(DIR_O)\Editor.obj \
@@ -196,10 +187,8 @@ LOBJS=\
 	$(DIR_O)\KeyWords.obj \
 	$(DIR_O)\LineMarker.obj \
 	$(DIR_O)\PlatWin.obj \
-	$(DIR_O)\PositionCache.obj \
-	$(DIR_O)\PropSet.obj \
 	$(DIR_O)\RESearch.obj \
-	$(DIR_O)\RunStyles.obj \
+	$(DIR_O)\PropSet.obj \
 	$(DIR_O)\ScintillaBaseL.obj \
 	$(DIR_O)\ScintillaWinL.obj \
 	$(DIR_O)\Style.obj \
@@ -256,46 +245,37 @@ LEX_HEADERS=..\include\Platform.h ..\include\PropSet.h \
  ..\include\Scintilla.h ..\include\SciLexer.h ..\src\StyleContext.h
 
 $(DIR_O)\AutoComplete.obj: ../src/AutoComplete.cxx ../include/Platform.h \
-  ../include/PropSet.h ../include/SString.h ../src/AutoComplete.h
+ ../include/PropSet.h ../include/SString.h ../src/AutoComplete.h
 $(DIR_O)\CallTip.obj: ../src/CallTip.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/CallTip.h
+ ../include/Scintilla.h ../src/CallTip.h
 $(DIR_O)\CellBuffer.obj: ../src/CellBuffer.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/CellBuffer.h
+ ../include/Scintilla.h ../src/SVector.h ../src/CellBuffer.h
 $(DIR_O)\CharClassify.obj: ../src/CharClassify.cxx ../src/CharClassify.h
 $(DIR_O)\ContractionState.obj: ../src/ContractionState.cxx ../include/Platform.h \
-  ../src/ContractionState.h
-$(DIR_O)\Decoration.obj: ../src/Decoration.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h ../src/Decoration.h
+ ../src/ContractionState.h
 $(DIR_O)\Document.obj: ../src/Document.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/RunStyles.h ../src/CellBuffer.h \
-  ../src/CharClassify.h ../src/Decoration.h ../src/Document.h \
-  ../src/RESearch.h
+ ../include/Scintilla.h ../src/SVector.h ../src/CellBuffer.h \
+  ../src/CharClassify.h ../src/Document.h ../src/RESearch.h
 $(DIR_O)\DocumentAccessor.obj: ../src/DocumentAccessor.cxx ../include/Platform.h \
-  ../include/PropSet.h ../include/SString.h ../src/SVector.h \
-  ../include/Accessor.h ../src/DocumentAccessor.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/RunStyles.h ../src/CellBuffer.h \
-  ../include/Scintilla.h ../src/CharClassify.h ../src/Decoration.h \
-  ../src/Document.h
-$(DIR_O)\Editor.obj: ../src/Editor.cxx ../include/Platform.h ../include/Scintilla.h \
-  ../src/ContractionState.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/CellBuffer.h ../src/KeyMap.h \
-  ../src/RunStyles.h ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h \
-  ../src/Style.h ../src/ViewStyle.h ../src/CharClassify.h \
-  ../src/Decoration.h ../src/Document.h ../src/Editor.h ../src/PositionCache.h
+ ../include/PropSet.h ../include/SString.h ../src/SVector.h \
+ ../include/Accessor.h ../src/DocumentAccessor.h ../src/CellBuffer.h \
+ ../include/Scintilla.h ../src/CharClassify.h ../src/Document.h
+$(DIR_O)\Editor.obj: ../src/Editor.cxx ../include/Platform.h \
+ ../include/Scintilla.h ../src/ContractionState.h ../src/SVector.h \
+ ../src/CellBuffer.h ../src/KeyMap.h ../src/Indicator.h \
+ ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
+ ../src/CharClassify.h ../src/Document.h ../src/Editor.h ../src/XPM.h
 $(DIR_O)\ExternalLexer.obj: ../src/ExternalLexer.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/SciLexer.h ../include/PropSet.h \
-  ../include/SString.h ../include/Accessor.h ../src/DocumentAccessor.h \
-  ../include/KeyWords.h ../src/ExternalLexer.h
+ ../include/SciLexer.h ../include/PropSet.h ../include/SString.h \
+ ../include/Accessor.h ../src/DocumentAccessor.h ../include/KeyWords.h \
+ ../src/ExternalLexer.h
 $(DIR_O)\Indicator.obj: ../src/Indicator.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/Indicator.h
-$(DIR_O)\KeyMap.obj: ../src/KeyMap.cxx ../include/Platform.h ../include/Scintilla.h \
-  ../src/KeyMap.h
+ ../include/Scintilla.h ../src/Indicator.h
+$(DIR_O)\KeyMap.obj: ../src/KeyMap.cxx ../include/Platform.h \
+ ../include/Scintilla.h ../src/KeyMap.h
 $(DIR_O)\KeyWords.obj: ../src/KeyWords.cxx ../include/Platform.h \
-  ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
-  ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
+ ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
+ ../include/KeyWords.h ../include/Scintilla.h ../include/SciLexer.h
 
 #++Autogenerated -- run src/LexGen.py to regenerate
 #**\n\($(DIR_O)\\\*.obj: ..\\src\\\*.cxx $(LEX_HEADERS)\n\n\)
@@ -324,8 +304,6 @@ $(DIR_O)\LexCaml.obj: ..\src\LexCaml.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCLW.obj: ..\src\LexCLW.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexCmake.obj: ..\src\LexCmake.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexConf.obj: ..\src\LexConf.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCPP.obj: ..\src\LexCPP.cxx $(LEX_HEADERS)
@@ -335,8 +313,6 @@ $(DIR_O)\LexCrontab.obj: ..\src\LexCrontab.cxx $(LEX_HEADERS)
 $(DIR_O)\LexCsound.obj: ..\src\LexCsound.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCSS.obj: ..\src\LexCSS.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexD.obj: ..\src\LexD.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexEiffel.obj: ..\src\LexEiffel.cxx $(LEX_HEADERS)
 
@@ -349,8 +325,6 @@ $(DIR_O)\LexFlagship.obj: ..\src\LexFlagship.cxx $(LEX_HEADERS)
 $(DIR_O)\LexForth.obj: ..\src\LexForth.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexFortran.obj: ..\src\LexFortran.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexGAP.obj: ..\src\LexGAP.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexGui4Cli.obj: ..\src\LexGui4Cli.cxx $(LEX_HEADERS)
 
@@ -390,11 +364,7 @@ $(DIR_O)\LexPB.obj: ..\src\LexPB.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPerl.obj: ..\src\LexPerl.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexPLM.obj: ..\src\LexPLM.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexPOV.obj: ..\src\LexPOV.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexProgress.obj: ..\src\LexProgress.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPS.obj: ..\src\LexPS.cxx $(LEX_HEADERS)
 
@@ -432,72 +402,52 @@ $(DIR_O)\LexYAML.obj: ..\src\LexYAML.cxx $(LEX_HEADERS)
 #--Autogenerated -- end of automatically generated section
 
 $(DIR_O)\LineMarker.obj: ../src/LineMarker.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/XPM.h ../src/LineMarker.h
+ ../include/Scintilla.h ../src/LineMarker.h ../src/XPM.h
 $(DIR_O)\PlatWin.obj: PlatWin.cxx ../include/Platform.h PlatformRes.h \
-  ../src/UniConversion.h ../src/XPM.h
-$(DIR_O)\PositionCache.obj: ../src/Editor.cxx ../include/Platform.h ../include/Scintilla.h \
-  ../src/ContractionState.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/CellBuffer.h ../src/KeyMap.h \
-  ../src/RunStyles.h ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h \
-  ../src/Style.h ../src/ViewStyle.h ../src/CharClassify.h \
-  ../src/Decoration.h ../src/Document.h ../src/Editor.h ../src/PositionCache.h
-$(DIR_O)\PropSet.obj: ../src/PropSet.cxx ../include/Platform.h ../include/PropSet.h \
-  ../include/SString.h
-$(DIR_O)\RESearch.obj: ../src/RESearch.cxx ../src/CharClassify.h ../src/RESearch.h
-$(DIR_O)\RunStyles.obj: ../src/RunStyles.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h
+ ../src/UniConversion.h  ../src/XPM.h
+$(DIR_O)\PropSet.obj: ../src/PropSet.cxx ../include/Platform.h \
+ ../include/PropSet.h ../include/SString.h
+$(DIR_O)\RESearch.obj: ../src/RESearch.cxx ../src/RESearch.h
 $(DIR_O)\ScintillaBase.obj: ../src/ScintillaBase.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/PropSet.h ../include/SString.h \
-  ../src/ContractionState.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/RunStyles.h ../src/CellBuffer.h \
-  ../src/CallTip.h ../src/KeyMap.h ../src/Indicator.h ../src/XPM.h \
-  ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
-  ../src/AutoComplete.h ../src/CharClassify.h ../src/Decoration.h \
-  ../src/Document.h ../src/Editor.h ../src/ScintillaBase.h
-$(DIR_O)\ScintillaBaseL.obj: ../src/ScintillaBase.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/PropSet.h ../include/SString.h \
-  ../src/ContractionState.h ../src/SVector.h ../src/SplitVector.h \
-  ../src/Partitioning.h ../src/RunStyles.h ../src/CellBuffer.h \
-  ../src/CallTip.h ../src/KeyMap.h ../src/Indicator.h ../src/XPM.h \
-  ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
-  ../src/AutoComplete.h ../src/CharClassify.h ../src/Decoration.h \
-  ../src/Document.h ../src/Editor.h ../src/ScintillaBase.h
+ ../include/Scintilla.h ../include/PropSet.h ../include/SString.h \
+ ../src/ContractionState.h ../src/SVector.h ../src/CellBuffer.h \
+ ../src/CallTip.h ../src/KeyMap.h ../src/Indicator.h \
+ ../src/LineMarker.h ../src/Style.h ../src/ViewStyle.h \
+ ../src/AutoComplete.h ../src/CharClassify.h ../src/Document.h ../src/Editor.h \
+ ../src/ScintillaBase.h ../src/XPM.h
+$(DIR_O)\ScintillaBaseL.obj: ..\src\ScintillaBase.cxx ..\include\Platform.h ..\include\Scintilla.h ..\include\SciLexer.h \
+ ..\src\ContractionState.h ..\src\CellBuffer.h ..\src\CallTip.h ..\src\KeyMap.h ..\src\Indicator.h \
+ ..\src\LineMarker.h ..\src\Style.h ..\src\AutoComplete.h ..\src\ViewStyle.h ../src/CharClassify.h \
+ ..\src\Document.h ..\src\Editor.h \
+ ..\src\ScintillaBase.h ..\include\PropSet.h ..\include\SString.h ..\include\Accessor.h \
+ ..\src\DocumentAccessor.h ..\include\KeyWords.h ../src/XPM.h
 $(DIR_O)\ScintillaWin.obj: ScintillaWin.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/SString.h ../src/ContractionState.h \
-  ../src/SVector.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h ../src/CellBuffer.h ../src/CallTip.h ../src/KeyMap.h \
-  ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h ../src/Style.h \
-  ../src/AutoComplete.h ../src/ViewStyle.h ../src/CharClassify.h \
-  ../src/Decoration.h ../src/Document.h ../src/Editor.h \
-  ../src/ScintillaBase.h ../src/UniConversion.h
-$(DIR_O)\ScintillaWinS.obj: ScintillaWin.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/SString.h ../src/ContractionState.h \
-  ../src/SVector.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h ../src/CellBuffer.h ../src/CallTip.h ../src/KeyMap.h \
-  ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h ../src/Style.h \
-  ../src/AutoComplete.h ../src/ViewStyle.h ../src/CharClassify.h \
-  ../src/Decoration.h ../src/Document.h ../src/Editor.h \
-  ../src/ScintillaBase.h ../src/UniConversion.h
-$(DIR_O)\ScintillaWinL.obj: ScintillaWin.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../include/SString.h ../src/ContractionState.h \
-  ../src/SVector.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h ../src/CellBuffer.h ../src/CallTip.h ../src/KeyMap.h \
-  ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h ../src/Style.h \
-  ../src/AutoComplete.h ../src/ViewStyle.h ../src/CharClassify.h \
-  ../src/Decoration.h ../src/Document.h ../src/Editor.h \
-  ../src/ScintillaBase.h ../src/UniConversion.h
+ ../include/Scintilla.h ../include/SString.h ../src/ContractionState.h \
+ ../src/SVector.h ../src/CellBuffer.h ../src/CallTip.h ../src/KeyMap.h \
+ ../src/Indicator.h ../src/LineMarker.h ../src/Style.h \
+ ../src/AutoComplete.h ../src/ViewStyle.h ../src/CharClassify.h ../src/Document.h \
+ ../src/Editor.h ../src/ScintillaBase.h ../src/UniConversion.h ../src/XPM.h
+$(DIR_O)\ScintillaWinL.obj: ScintillaWin.cxx ..\include\Platform.h ..\include\Scintilla.h ..\include\SciLexer.h \
+ ..\src\ContractionState.h ..\src\CellBuffer.h ..\src\CallTip.h ..\src\KeyMap.h ..\src\Indicator.h \
+ ..\src\LineMarker.h ..\src\Style.h ..\src\AutoComplete.h ..\src\ViewStyle.h ../src/CharClassify.h \
+ ..\src\Document.h ..\src\Editor.h \
+ ..\src\ScintillaBase.h ..\include\PropSet.h \
+ ..\include\SString.h ..\include\Accessor.h ..\include\KeyWords.h ..\src\UniConversion.h ../src/XPM.h
+$(DIR_O)\ScintillaWinS.obj: ScintillaWin.cxx ..\include\Platform.h ..\include\Scintilla.h \
+ ..\src\ContractionState.h ..\src\CellBuffer.h ..\src\CallTip.h ..\src\KeyMap.h ..\src\Indicator.h \
+ ..\src\LineMarker.h ..\src\Style.h ..\src\AutoComplete.h ..\src\ViewStyle.h ../src/CharClassify.h \
+ ..\src\Document.h ..\src\Editor.h \
+ ..\src\ScintillaBase.h ..\src\UniConversion.h
 $(DIR_O)\Style.obj: ../src/Style.cxx ../include/Platform.h ../include/Scintilla.h \
-  ../src/Style.h
+ ../src/Style.h
 $(DIR_O)\StyleContext.obj: ../src/StyleContext.cxx ../include/Platform.h \
-  ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
-  ../src/StyleContext.h
+ ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
+ ../src/StyleContext.h
 $(DIR_O)\UniConversion.obj: ../src/UniConversion.cxx ../src/UniConversion.h
 $(DIR_O)\ViewStyle.obj: ../src/ViewStyle.cxx ../include/Platform.h \
-  ../include/Scintilla.h ../src/SplitVector.h ../src/Partitioning.h \
-  ../src/RunStyles.h ../src/Indicator.h ../src/XPM.h ../src/LineMarker.h \
-  ../src/Style.h ../src/ViewStyle.h
+ ../include/Scintilla.h ../src/Indicator.h ../src/LineMarker.h \
+ ../src/Style.h ../src/ViewStyle.h ../src/XPM.h
 $(DIR_O)\WindowAccessor.obj: ../src/WindowAccessor.cxx ../include/Platform.h \
-  ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
-  ../include/WindowAccessor.h ../include/Scintilla.h
+ ../include/PropSet.h ../include/SString.h ../include/Accessor.h \
+ ../include/WindowAccessor.h ../include/Scintilla.h
 $(DIR_O)\XPM.obj: ../src/XPM.cxx ../include/Platform.h ../src/XPM.h

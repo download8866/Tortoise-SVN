@@ -13,17 +13,29 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
 /**
- * \ingroup SVN
- * This class encapsulates an apr_pool taking care of destroying it at end of scope
- * Use this class in preference to doing svn_pool_create and then trying to remember all 
- * the svn_pool_destroys which might be needed.
- */
+* \ingroup SVN
+* This class encapsulates an apr_pool taking care of destroying it at end of scope
+* Use this class in preference to doing svn_pool_create and then trying to remember all 
+* the svn_pool_destroys which might be needed.
+*
+* \par requirements
+* win95 or later
+* winNT4 or later
+*
+* \version 1.0
+* first version
+*
+* \date JAN-2005
+*
+* \author Will Dean
+*
+*/
 class SVNPool
 {
 public:

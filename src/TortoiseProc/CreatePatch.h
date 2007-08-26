@@ -13,18 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "StandAloneDlg.h"
 #include "SVNStatusListCtrl.h"
 
-/**
- * \ingroup TortoiseProc
- * Shows the patch dialog where the user can select the files/folders to be
- * included in the resulting patch (unified diff) file.
- */
+
+// CCreatePatch dialog
+
 class CCreatePatch : public CResizableStandAloneDialog //CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCreatePatch)
@@ -33,6 +31,7 @@ public:
 	CCreatePatch(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CCreatePatch();
 
+// Dialog Data
 	enum { IDD = IDD_CREATEPATCH };
 
 protected:
@@ -57,13 +56,6 @@ private:
 	CButton				m_SelectAll;
 	bool				m_bCancelled;
 public:
-	/// the list of files to include in the patch
 	CTSVNPathList		m_pathList;
-	/**
-	 * The files which have to be reverted after the patch was created.
-	 * That's necessary if the user selected an unversioned file - such files
-	 * are added automatically to version control so they can be included in
-	 * the patch, but then must be reverted later.
-	 */
 	CTSVNPathList		m_filesToRevert;
 };

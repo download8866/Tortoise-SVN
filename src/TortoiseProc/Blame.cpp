@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -24,6 +24,38 @@
 #include "Registry.h"
 #include "UnicodeUtils.h"
 #include "TempFile.h"
+
+
+void CStdioFileA::WriteString(LPCSTR lpsz)
+{
+	ASSERT(lpsz != NULL);
+	ASSERT(m_pStream != NULL);
+	
+	if (lpsz == NULL)
+	{
+		AfxThrowInvalidArgException();
+	}
+
+	if (fputs(lpsz, m_pStream) == EOF)
+		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+}
+
+
+void CStdioFileA::WriteString(LPCWSTR lpsz)
+{
+	ASSERT(lpsz != NULL);
+	ASSERT(m_pStream != NULL);
+	
+	if (lpsz == NULL)
+	{
+		AfxThrowInvalidArgException();
+	}
+
+	if (fputws(lpsz, m_pStream) == EOF)
+		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+}
+
+
 
 CBlame::CBlame()
 {
@@ -94,13 +126,9 @@ BOOL CBlame::Cancel()
 	return m_bCancelled;
 }
 
-CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, const CString& options, BOOL showprogress /* = TRUE */)
+CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, BOOL showprogress /* = TRUE */)
 {
-	// if the user specified to use another tool to show the blames, there's no
-	// need to fetch the log later: only TortoiseBlame uses those logs to give 
-	// the user additional information for the blame.
 	BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
-
 	CString temp;
 	m_sSavePath = CTempFiles::Instance().GetTempFilePath(false).GetWinPathString();
 	if (m_sSavePath.IsEmpty())
@@ -116,7 +144,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	m_saveFile.WriteString(headline);
 	m_saveFile.WriteString(_T("\n"));
 	m_progressDlg.SetTitle(IDS_BLAME_PROGRESSTITLE);
-	m_progressDlg.SetAnimation(IDR_DOWNLOAD);
+	m_progressDlg.SetAnimation(IDR_SEARCH);
 	m_progressDlg.SetShowProgressBar(TRUE);
 	if (showprogress)
 	{
@@ -130,18 +158,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	if (m_nHeadRev < 0)
 		m_nHeadRev = GetHEADRevision(path);
 	m_progressDlg.SetProgress(0, m_nHeadRev);
-
-	BOOL bBlameSuccesful = this->Blame(path, startrev, endrev, pegrev, options);
-	if ( !bBlameSuccesful && !pegrev.IsValid() )
-	{
-		// retry with the endrev as pegrev
-		if ( this->Blame(path, startrev, endrev, endrev, options) )
-		{
-			bBlameSuccesful = TRUE;
-			pegrev = endrev;
-		}
-	}
-	if (!bBlameSuccesful)
+	if (!this->Blame(path, startrev, endrev, pegrev))
 	{
 		m_saveFile.Close();
 		DeleteFile(m_sSavePath);
@@ -161,15 +178,11 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 		// will error out. Bug in Subversion?
 		if (pegrev.IsWorking() && !path.IsUrl())
 			pegrev = SVNRev();
-		if (!this->ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, FALSE))
+		if (!this->ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, TRUE))
 		{
 			m_saveLog.Close();
 			DeleteFile(logfile);
 			logfile.Empty();
-		}
-		else
-		{
-			m_saveLog.Close();
 		}
 	}
 	m_progressDlg.Stop();
@@ -190,7 +203,7 @@ BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/
 	return TRUE;
 }
 
-bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile, const CString& options)
+bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile)
 {
 	CString temp;
 	if (!m_saveFile.Open(tofile.GetWinPathString(), CFile::typeText | CFile::modeReadWrite | CFile::modeCreate))
@@ -199,24 +212,11 @@ bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, 
 	m_nHeadRev = endrev;
 	if (m_nHeadRev < 0)
 		m_nHeadRev = GetHEADRevision(path);
-
-	BOOL bBlameSuccesful = this->Blame(path, startrev, endrev, peg, options);
-	if ( !bBlameSuccesful && !peg.IsValid() )
-	{
-		// retry with the endrev as pegrev
-		if ( this->Blame(path, startrev, endrev, endrev, options) )
-		{
-			bBlameSuccesful = TRUE;
-			peg = endrev;
-		}
-	}
-
-	if (!bBlameSuccesful)
+	if (!this->Blame(path, startrev, endrev, peg))
 	{
 		m_saveFile.Close();
 		return false;
 	}
-
 	if (m_saveFile.m_hFile != INVALID_HANDLE_VALUE)
 		m_saveFile.Close();
 

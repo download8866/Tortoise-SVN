@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,13 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 // A template class to make an array which looks like a CStringArray or CDWORDArray but
-// is in fact based on a STL array, which is much faster at large sizes
+// is infact based on a STL array, which is much faster at large sizes
 template <typename T> class CStdArray
 {
 public:
@@ -40,11 +40,19 @@ private:
 typedef CStdArray<CString> CStdCStringArray;
 typedef CStdArray<DWORD> CStdDWORDArray;
 
+class CStdioFileK : public CStdioFile
+{
+public:
+	CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags);
+	BOOL ReadString(CStringA& rString);
+	BOOL ReadString(CString& rString) {return CStdioFile::ReadString(rString);}
+};
+
 /**
  * \ingroup TortoiseMerge
  *
  * Represents an array of text lines which are read from a file.
- * This class is also responsible for determining the encoding of
+ * This class is also responsible for determing the encoding of
  * the file (e.g. UNICODE, UTF8, ASCII, ...).
  */
 class CFileTextLines  : public CStdCStringArray
@@ -60,7 +68,6 @@ public:
 		CRLF,
 		LFCR,
 		CR,
-		NOENDING,
 	};
 	enum UnicodeType
 	{
@@ -94,9 +101,7 @@ public:
 	void		CopySettings(CFileTextLines * pFileToCopySettingsTo);
 
 	CFileTextLines::UnicodeType GetUnicodeType() const  {return m_UnicodeType;}
-	CFileTextLines::LineEndings GetLineEndings() const {return m_LineEndings;}
 
-	std::vector<CFileTextLines::LineEndings>	m_endings;
 private:
 	/**
 	 * Checks the line endings in a text buffer
@@ -105,7 +110,7 @@ private:
 	 */
 	CFileTextLines::LineEndings CheckLineEndings(LPVOID pBuffer, int cb); 
 	/**
-	 * Checks the Unicode type in a text buffer
+	 * Checks the unicode type in a text buffer
 	 * \param pBuffer pointer to the buffer containing text
 	 * \param cd size of the text buffer in bytes
 	 */
@@ -120,8 +125,7 @@ private:
 
 
 private:
-	CString										m_sErrorString;
-	CFileTextLines::UnicodeType					m_UnicodeType;
-	CFileTextLines::LineEndings					m_LineEndings;
-	bool										m_bReturnAtEnd;
+	CString		m_sErrorString;
+	CFileTextLines::UnicodeType	m_UnicodeType;
+	CFileTextLines::LineEndings m_LineEndings;
 };

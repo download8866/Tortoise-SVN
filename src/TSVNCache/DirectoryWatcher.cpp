@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Dbt.h"
@@ -188,14 +188,14 @@ bool CDirectoryWatcher::AddPath(const CTSVNPath& path)
 	}
 	if (!newroot.IsEmpty())
 	{
-		ATLTRACE(_T("add path to watch %s\n"), newroot.GetWinPath());
+		ATLTRACE("add path to watch %ws\n", newroot.GetWinPath());
 		watchedPaths.AddPath(newroot);
 		watchedPaths.RemoveChildren();
 		CloseInfoMap();
 		m_hCompPort = INVALID_HANDLE_VALUE;
 		return true;
 	}
-	ATLTRACE(_T("add path to watch %s\n"), path.GetWinPath());
+	ATLTRACE("add path to watch %ws\n", path.GetWinPath());
 	watchedPaths.AddPath(path);
 	CloseInfoMap();
 	m_hCompPort = INVALID_HANDLE_VALUE;
@@ -214,7 +214,7 @@ void CDirectoryWatcher::WorkerThread()
 	DWORD numBytes;
 	CDirWatchInfo * pdi = NULL;
 	LPOVERLAPPED lpOverlapped;
-	WCHAR buf[READ_DIR_CHANGE_BUFFER_SIZE] = {0};
+	WCHAR buf[MAX_PATH*4] = {0};
 	WCHAR * pFound = NULL;
 	while (m_bRunning)
 	{
@@ -257,7 +257,7 @@ void CDirectoryWatcher::WorkerThread()
 					if (hDir == INVALID_HANDLE_VALUE)
 					{
 						// this could happen if a watched folder has been removed/renamed
-						ATLTRACE(_T("CDirectoryWatcher: CreateFile failed. Can't watch directory %s\n"), watchedPaths[i].GetWinPath());
+						ATLTRACE("CDirectoryWatcher: CreateFile failed. Can't watch directory %ws\n", watchedPaths[i].GetWinPath());
 						CloseHandle(m_hCompPort);
 						m_hCompPort = INVALID_HANDLE_VALUE;
 						AutoLocker lock(m_critSec);
@@ -278,7 +278,7 @@ void CDirectoryWatcher::WorkerThread()
 					m_hCompPort = CreateIoCompletionPort(hDir, m_hCompPort, (ULONG_PTR)pDirInfo, 0);
 					if (m_hCompPort == NULL)
 					{
-						ATLTRACE(_T("CDirectoryWatcher: CreateIoCompletionPort failed. Can't watch directory %s\n"), watchedPaths[i].GetWinPath());
+						ATLTRACE("CDirectoryWatcher: CreateIoCompletionPort failed. Can't watch directory %ws\n", watchedPaths[i].GetWinPath());
 						AutoLocker lock(m_critSec);
 						ClearInfoMap();
 						delete pDirInfo;
@@ -296,7 +296,7 @@ void CDirectoryWatcher::WorkerThread()
 												&pDirInfo->m_Overlapped,
 												NULL))	//no completion routine!
 					{
-						ATLTRACE(_T("CDirectoryWatcher: ReadDirectoryChangesW failed. Can't watch directory %s\n"), watchedPaths[i].GetWinPath());
+						ATLTRACE("CDirectoryWatcher: ReadDirectoryChangesW failed. Can't watch directory %ws\n", watchedPaths[i].GetWinPath());
 						AutoLocker lock(m_critSec);
 						ClearInfoMap();
 						delete pDirInfo;
@@ -307,7 +307,7 @@ void CDirectoryWatcher::WorkerThread()
 					}
 					AutoLocker lock(m_critSec);
 					watchInfoMap[pDirInfo->m_hDir] = pDirInfo;
-					ATLTRACE(_T("watching path %s\n"), pDirInfo->m_DirName.GetWinPath());
+					ATLTRACE("watching path %ws\n", pDirInfo->m_DirName.GetWinPath());
 				}
 			}
 			else
@@ -330,24 +330,39 @@ void CDirectoryWatcher::WorkerThread()
 					do 
 					{
 						nOffset = pnotify->NextEntryOffset;
-						if (pnotify->FileNameLength >= READ_DIR_CHANGE_BUFFER_SIZE)
-							continue;
-						ZeroMemory(buf, READ_DIR_CHANGE_BUFFER_SIZE*sizeof(TCHAR));
-						_tcsncpy_s(buf, READ_DIR_CHANGE_BUFFER_SIZE, pdi->m_DirPath, READ_DIR_CHANGE_BUFFER_SIZE);
-						errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), pnotify->FileName, _TRUNCATE);
+						//switch (pnotify->Action)
+						//{
+						//case FILE_ACTION_RENAMED_OLD_NAME:
+						//	{
+						//		pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
+						//		if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
+						//			break;
+						//		continue;
+						//	}
+						//	break;
+						//}
+						ZeroMemory(buf, MAX_PATH*4*sizeof(TCHAR));
+						_tcsncpy_s(buf, MAX_PATH*4, pdi->m_DirPath, MAX_PATH*4);
+						errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), (MAX_PATH*4)-pdi->m_DirPath.GetLength(), pnotify->FileName, _TRUNCATE);
 						if (err == STRUNCATE)
 						{
 							pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
 							continue;
 						}
-						buf[READ_DIR_CHANGE_BUFFER_SIZE-1] = 0;
+						buf[min(MAX_PATH*4-1, pdi->m_DirPath.GetLength()+(pnotify->FileNameLength/sizeof(WCHAR)))] = 0;
 						pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
 						if (m_FolderCrawler)
 						{
 							if ((pFound = wcsstr(buf, L"\\tmp"))!=NULL)
 							{
 								pFound += 4;
-								if (((*pFound)=='\\')||((*pFound)=='\0'))
+								if ((*pFound)=='\\')
+								{
+									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
+										break;
+									continue;
+								}
+								if (size_t(pFound-buf) == _tcslen(buf))
 								{
 									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
 										break;
@@ -355,16 +370,6 @@ void CDirectoryWatcher::WorkerThread()
 								}
 							}
 							if ((pFound = wcsstr(buf, L":\\RECYCLER\\"))!=NULL)
-							{
-								if ((pFound-buf) < 5)
-								{
-									// a notification for the recycle bin - ignore it
-									if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
-										break;
-									continue;
-								}
-							}
-							if ((pFound = wcsstr(buf, L":\\$Recycle.Bin\\"))!=NULL)
 							{
 								if ((pFound-buf) < 5)
 								{
@@ -382,7 +387,7 @@ void CDirectoryWatcher::WorkerThread()
 									break;
 								continue;
 							}
-							ATLTRACE(_T("change notification: %s\n"), buf);
+							ATLTRACE("change notification: %ws\n", buf);
 							m_FolderCrawler->AddPathForUpdate(CTSVNPath(buf));
 						}
 						if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
@@ -406,7 +411,7 @@ continuewatching:
 						// wrong.
 						Sleep(200);
 					}
-				}
+				} // if (pdi)
 			}
 		}// if (watchedPaths.GetCount())
 		else

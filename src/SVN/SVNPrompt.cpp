@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "SVNPrompt.h"
@@ -45,7 +45,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 	svn_auth_provider_object_t *provider;
 
 	/* The whole list of registered providers */
-	apr_array_header_t *providers = apr_array_make (pool, 12, sizeof (svn_auth_provider_object_t *));
+	apr_array_header_t *providers = apr_array_make (pool, 11, sizeof (svn_auth_provider_object_t *));
 
 	/* The main disk-caching auth providers, for both
 	'username/password' creds and 'username' creds.  */
@@ -57,8 +57,6 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
 	/* The server-cert, client-cert, and client-cert-password providers. */
-	svn_auth_get_windows_ssl_server_trust_provider(&provider, pool); 
-	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
 	svn_auth_get_ssl_server_trust_file_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	svn_auth_get_ssl_client_cert_file_provider (&provider, pool);
@@ -289,9 +287,11 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
 	const char *cert_file = NULL;
 
 	CString filename;
-	OPENFILENAME ofn = {0};				// common dialog box structure
-	TCHAR szFile[MAX_PATH] = {0};		// buffer for file name
+	OPENFILENAME ofn;		// common dialog box structure
+	TCHAR szFile[MAX_PATH];  // buffer for file name
+	ZeroMemory(szFile, sizeof(szFile));
 	// Initialize OPENFILENAME
+	ZeroMemory(&ofn, sizeof(OPENFILENAME));
 	ofn.lStructSize = sizeof(OPENFILENAME);
 	ofn.hwndOwner = svn->m_hParentWnd;
 	ofn.lpstrFile = szFile;
@@ -300,7 +300,7 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
 	sFilter.LoadString(IDS_CERTIFICATESFILEFILTER);
 	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
+	// Replace '|' delimeters with '\0's
 	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 	while (ptr != pszFilters)
 	{

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Workingfile.h"
@@ -30,31 +30,24 @@ CWorkingFile::~CWorkingFile(void)
 {
 }
 
-void CWorkingFile::SetFileName(const CString& newFilename)
+void 
+CWorkingFile::SetFileName(const CString& newFilename)
 {
 	m_sFilename = newFilename;
 	m_sFilename.Replace('/', '\\');
 	m_sDescriptiveName.Empty();
 }
 
-void CWorkingFile::SetDescriptiveName(const CString& newDescName)
+void 
+CWorkingFile::SetDescriptiveName(const CString& newDescName)
 {
 	m_sDescriptiveName = newDescName;
 }
 
-CString CWorkingFile::GetDescriptiveName()
-{
-	if (m_sDescriptiveName.IsEmpty())
-	{
-		CString sDescriptiveName = CPathUtils::GetFileNameFromPath(m_sFilename);
-		if (sDescriptiveName.GetLength() < 20)
-			return sDescriptiveName;
-	}
-	return m_sDescriptiveName;
-}
 //
 // Make an empty file with this name
-void CWorkingFile::CreateEmptyFile()
+void 
+CWorkingFile::CreateEmptyFile()
 {
 	HANDLE hFile = CreateFile(m_sFilename, GENERIC_WRITE, NULL, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	CloseHandle(hFile);
@@ -62,7 +55,8 @@ void CWorkingFile::CreateEmptyFile()
 
 // Move the details of the specified file to the current one, and then mark the specified file
 // as out of use
-void CWorkingFile::TransferDetailsFrom(CWorkingFile& rightHandFile)
+void 
+CWorkingFile::TransferDetailsFrom(CWorkingFile& rightHandFile)
 {
 	// We don't do this to files which are already in use
 	ASSERT(!InUse());
@@ -72,7 +66,8 @@ void CWorkingFile::TransferDetailsFrom(CWorkingFile& rightHandFile)
 	rightHandFile.SetOutOfUse();
 }
 
-CString CWorkingFile::GetWindowName() const
+CString 
+CWorkingFile::GetWindowName() const
 {
 	CString sErrMsg = _T("");
 	// TortoiseMerge allows non-existing files to be used in a merge
@@ -95,7 +90,8 @@ CString CWorkingFile::GetWindowName() const
 	return m_sDescriptiveName + _T(" ") + sErrMsg;
 }
 
-bool CWorkingFile::Exists() const
+bool
+CWorkingFile::Exists() const
 {
 	return (!!PathFileExists(m_sFilename));
 }

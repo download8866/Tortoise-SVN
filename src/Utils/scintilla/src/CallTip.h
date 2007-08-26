@@ -8,10 +8,6 @@
 #ifndef CALLTIP_H
 #define CALLTIP_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  */
 class CallTip {
@@ -79,9 +75,5 @@ public:
 	// Modify foreground and background colours
 	void SetForeBack(const ColourPair &fore, const ColourPair &back);
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

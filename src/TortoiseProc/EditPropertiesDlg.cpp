@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "SVNProperties.h"
@@ -22,12 +22,13 @@
 #include "TortoiseProc.h"
 #include "EditPropertiesDlg.h"
 #include "EditPropertyValueDlg.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "ProgressDlg.h"
-#include "InputLogDlg.h"
 
+
+// CEditPropertiesDlg dialog
 
 IMPLEMENT_DYNAMIC(CEditPropertiesDlg, CResizableStandAloneDialog)
 
@@ -35,8 +36,8 @@ CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CEditPropertiesDlg::IDD, pParent)
 	, m_bRecursive(FALSE)
 	, m_bChanged(false)
-	, m_revision(SVNRev::REV_WC)
 {
+
 }
 
 CEditPropertiesDlg::~CEditPropertiesDlg()
@@ -61,6 +62,9 @@ BEGIN_MESSAGE_MAP(CEditPropertiesDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_ADDPROPS, &CEditPropertiesDlg::OnBnClickedAddprops)
 END_MESSAGE_MAP()
 
+
+// CEditPropertiesDlg message handlers
+
 void CEditPropertiesDlg::OnBnClickedHelp()
 {
 	OnHelp();
@@ -73,13 +77,13 @@ BOOL CEditPropertiesDlg::OnInitDialog()
 	// fill in the path edit control
 	if (m_pathlist.GetCount() == 1)
 	{
-		SetDlgItemText(IDC_PROPPATH, m_pathlist[0].GetWinPathString());
+		GetDlgItem(IDC_PROPPATH)->SetWindowText(m_pathlist[0].GetWinPathString());
 	}
 	else
 	{
 		CString sTemp;
 		sTemp.Format(IDS_EDITPROPS_NUMPATHS, m_pathlist.GetCount());
-		SetDlgItemText(IDC_PROPPATH, sTemp);
+		GetDlgItem(IDC_PROPPATH)->SetWindowText(sTemp);
 	}
 
 	// initialize the property list control
@@ -146,7 +150,7 @@ UINT CEditPropertiesDlg::PropsThread()
 	m_properties.clear();
 	for (int i=0; i<m_pathlist.GetCount(); ++i)
 	{
-		SVNProperties props(m_pathlist[i], m_revision);
+		SVNProperties props(m_pathlist[i]);
 		for (int p=0; p<props.GetCount(); ++p)
 		{
 			wide_string prop_str = props.GetItemName(p);
@@ -318,21 +322,17 @@ void CEditPropertiesDlg::OnBnClickedRemoveProps()
 		prog.SetCancelMsg(sTemp);
 		prog.SetTime(TRUE);
 		prog.SetShowProgressBar(TRUE);
-		prog.ShowModeless(m_hWnd);
+		prog.ShowModal(m_hWnd);
 		for (int i=0; i<m_pathlist.GetCount(); ++i)
 		{
 			prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
-			SVNProperties props(m_pathlist[i], m_revision);
+			SVNProperties props(m_pathlist[i]);
 			if (!props.Remove(sName, bRecurse))
 			{
 				CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
 			}
 			else
-			{
 				m_bChanged = true;
-				if (m_revision.IsNumber())
-					m_revision = LONG(m_revision)+1;
-			}
 		}
 		prog.Stop();
 	}
@@ -363,8 +363,7 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 
 	CEditPropertyValueDlg dlg;
 	CString sName;
-
-	if ((!bAdd)&&(selIndex >= 0)&&(m_propList.GetSelectedCount()))
+	if ((bAdd==false)&&(selIndex >= 0)&&(m_propList.GetSelectedCount()))
 	{
 		sName = m_propList.GetItemText(selIndex, 0);
 		PropValue& prop = m_properties[stdstring(sName)];
@@ -374,10 +373,8 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 		dlg.SetDialogTitle(CString(MAKEINTRESOURCE(IDS_EDITPROPS_EDITTITLE)));
 	}
 	else
-	{
-		dlg.SetPathList(m_pathlist);  // this is the problem
 		dlg.SetDialogTitle(CString(MAKEINTRESOURCE(IDS_EDITPROPS_ADDTITLE)));
-	}
+
 
 	if (m_pathlist.GetCount() > 1)
 		dlg.SetMultiple();
@@ -392,48 +389,28 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 		sName = dlg.GetPropertyName();
 		if (!sName.IsEmpty())
 		{
-			CString sMsg;
-			bool bDoIt = true;
-			if ((m_pathlist.GetCount())&&(m_pathlist[0].IsUrl()))
+			CProgressDlg prog;
+			CString sTemp;
+			sTemp.LoadString(IDS_SETPROPTITLE);
+			prog.SetTitle(sTemp);
+			sTemp.LoadString(IDS_PROPWAITCANCEL);
+			prog.SetCancelMsg(sTemp);
+			prog.SetTime(TRUE);
+			prog.SetShowProgressBar(TRUE);
+			prog.ShowModal(m_hWnd);
+			for (int i=0; i<m_pathlist.GetCount(); ++i)
 			{
-				CInputLogDlg input(this);
-				if (input.DoModal() == IDOK)
+				prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
+				SVNProperties props(m_pathlist[i]);
+				if (!props.Add(sName, dlg.IsBinary() ? dlg.GetPropertyValue() : dlg.GetPropertyValue().c_str(), dlg.GetRecursive()))
 				{
-					sMsg = input.GetLogMessage();
+					CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
 				}
 				else
-					bDoIt = false;
+					m_bChanged = true;
 			}
-			if (bDoIt)
-			{
-				CProgressDlg prog;
-				CString sTemp;
-				sTemp.LoadString(IDS_SETPROPTITLE);
-				prog.SetTitle(sTemp);
-				sTemp.LoadString(IDS_PROPWAITCANCEL);
-				prog.SetCancelMsg(sTemp);
-				prog.SetTime(TRUE);
-				prog.SetShowProgressBar(TRUE);
-				prog.ShowModeless(m_hWnd);
-				for (int i=0; i<m_pathlist.GetCount(); ++i)
-				{
-					prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
-					SVNProperties props(m_pathlist[i], m_revision);
-					if (!props.Add(sName, dlg.IsBinary() ? dlg.GetPropertyValue() : dlg.GetPropertyValue().c_str(), dlg.GetRecursive(), sMsg))
-					{
-						CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
-					}
-					else
-					{
-						m_bChanged = true;
-						// bump the revision number since we just did a commit
-						if (m_revision.IsNumber())
-							m_revision = LONG(m_revision)+1;
-					}
-				}
-				prog.Stop();
-				Refresh();
-			}
+			prog.Stop();
+			Refresh();
 		}
 	}
 }
@@ -498,11 +475,13 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
 		if (prop.allthesamevalue)
 		{
 			// now save the property value
-			OPENFILENAME ofn = {0};				// common dialog box structure
-			TCHAR szFile[MAX_PATH] = {0};		// buffer for file name
+			OPENFILENAME ofn;		// common dialog box structure
+			TCHAR szFile[MAX_PATH];  // buffer for file name
 			_tcscpy_s(szFile, (LPCTSTR)sName);
 			CString temp;
+			ZeroMemory(szFile, sizeof(szFile));
 			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(OPENFILENAME));
 			ofn.lStructSize = sizeof(OPENFILENAME);
 			ofn.hwndOwner = m_hWnd;
 			ofn.lpstrFile = szFile;
@@ -536,5 +515,4 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
 		}
 	}
 }
-
 

@@ -8,10 +8,6 @@
 #ifndef VIEWSTYLE_H
 #define VIEWSTYLE_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  */
 class MarginStyle {
@@ -27,8 +23,7 @@ public:
  */
 class FontNames {
 private:
-	char **names;
-	int size;
+	char *names[STYLE_MAX + 1];
 	int max;
 
 public:
@@ -59,7 +54,6 @@ public:
 	ColourPair selbackground;
 	ColourPair selbackground2;
 	int selAlpha;
-	bool selEOLFilled;
 	bool whitespaceForegroundSet;
 	ColourPair whitespaceForeground;
 	bool whitespaceBackgroundSet;
@@ -95,7 +89,6 @@ public:
 	int caretLineAlpha;
 	ColourPair edgecolour;
 	int edgeState;
-	int caretStyle;
 	int caretWidth;
 	bool someStylesProtected;
 	bool extraFontFlag;
@@ -111,9 +104,5 @@ public:
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

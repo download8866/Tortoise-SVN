@@ -23,9 +23,9 @@
 						The Apache based Subversion server uses the
 						WebDAV protocol which is supported by many other
 						programs as well. You could e.g. mount such
-						a repository as a "Web folder" in the Windows
+						a repository as a "Webfolder" in the Windows
 						explorer and then access it like any other
-						folder in the file system.
+						folder in the filesystem
 					</para>
 				</listitem>
 			</varlistentry>
@@ -66,10 +66,10 @@
 		<title>Installing Apache</title>
 		<para>
 			The first thing you need before installing Apache is a computer
-			with Windows 2000, Windows XP+SP1 or Windows 2003.
+			with either Windows2000 / WinXP+SP1 or Windows2003.
 			<warning>
 				<para>
-					Please note that Windows XP without the service pack 1
+					Please note that Windows XP without the servicepack 1
 					will lead to bogus network data and could therefore
 					corrupt your repository!
 				</para>
@@ -78,7 +78,7 @@
 				<listitem>
 					<para>
 						Download the latest version of the Apache
-						web server from
+						webserver from
 						<ulink url="http://httpd.apache.org/download.cgi">
 							<citetitle>http://httpd.apache.org/download.cgi</citetitle>
 						</ulink>.
@@ -91,12 +91,12 @@
 				<listitem>
 					<para>
 						Once you have the Apache2 installer you
-						can double click on it and it will guide you through
+						can doubleclick on it and it will guide you through
 						the installation process. Make sure that you enter
-						the server-URL correctly (if you don't have a DNS name
-						for your server just enter the IP-address). I recommend
-						to install Apache
-						<emphasis>for All Users, on Port 80, as a Service</emphasis>.
+						the server-URL correctly (if you don't have a dns name
+						for your server just enter the ip-address). I recommend
+						to install apache
+						<literal>for All Users, on Port 80, as a Service</literal>.
 						Note: if you already have IIS or any other
 						program running which listens on port 80 the
 						installation might fail. If that happens, go to the
@@ -112,8 +112,8 @@
 				</listitem>
 				<listitem>
 					<para>
-						Now test if the Apache web server is running
-						correctly by pointing your web browser to
+						Now test if the Apache-webserver is running
+						correctly by pointing your webbrowser to
 						<systemitem class="url">http://localhost/</systemitem>
 						- a preconfigured Website should show up.
 					</para>
@@ -183,10 +183,9 @@
 				</listitem>
 				<listitem>
 					<para>
-						Copy the file <filename>/bin/libdb*.dll</filename>
-						and <filename>/bin/intl3_svn.dll</filename> from
+						Copy the file <filename>/bin/libdb43.dll</filename> from
 						the Subversion installation directory to the Apache
-						bin directory.
+						modules directory.
 					</para>
 				</listitem>
 				<listitem>
@@ -199,10 +198,8 @@
 					<para>
 						Uncomment (remove the '<literal>#</literal>' mark) the
 						following lines:
-<screen>
-#LoadModule dav_fs_module modules/mod_dav_fs.so
-#LoadModule dav_module modules/mod_dav.so
-</screen>
+<screen>#LoadModule dav_fs_module modules/mod_dav_fs.so</screen>
+						<screen>#LoadModule dav_module modules/mod_dav.so</screen>
 						Add the following two lines to the end of the
 						<literal>LoadModule</literal> section.
 <screen>
@@ -219,21 +216,20 @@ LoadModule authz_svn_module modules/mod_authz_svn.so
 		<para>
 			Now you have set up Apache and Subversion, but Apache doesn't
 			know how to handle Subversion clients like TortoiseSVN yet.
-			To get Apache to know which URL will be used for Subversion
-			repositories you have to edit the Apache configuration file (usually
+			To get Apache to know which URL shall be used for Subversion
+			repositories you have to edit the Apache config file (usually
 			located in
 			<filename>c:\program files\apache group\apache2\conf\httpd.conf</filename>)
 			with any text editor you like (e.g. Notepad):
 		<orderedlist>
 				<listitem>
 					<para>
-						At the end of the config file add the following lines:
+						At the end of the Config file add the following lines:
 <screen>
 &lt;Location /svn&gt;
 DAV svn
 SVNListParentPath on
 SVNParentPath D:\SVN
-#SVNIndexXSLT "/svnindex.xsl"
 AuthType Basic
 AuthName "Subversion repositories"
 AuthUserFile passwd
@@ -256,14 +252,14 @@ Require valid-user
 					<para>
 						To create the <filename>passwd</filename>
 						file, open the command prompt (DOS-Box) again,
-						change to the <filename>apache2</filename> folder (usually
+						change to the apache2 folder (usually
 						<filename>c:\program files\apache
 						group\apache2</filename>)
 						and create the file by entering
 <screen>
 bin\htpasswd -c passwd &lt;username&gt;
 </screen>
-						This will create a file with the name <filename>passwd</filename> which is
+						This will create a file with the name passwd which is
 						used for authentication. Additional users can be added
 						with
 <screen>
@@ -298,7 +294,7 @@ bin\htpasswd passwd &lt;username&gt;
 		<para>
 			A short explanation of what you just entered:
 			<table id="tsvn-serversetup-apache-4-table">
-				<title>Apache <filename>httpd.conf</filename> Settings</title>
+				<title>Apache httpd.conf Settings</title>
 				<tgroup cols="2">
 					<colspec colnum="1" colwidth="1.5*"/>
 					<colspec colnum="2" colwidth="3*"/>
@@ -310,70 +306,62 @@ bin\htpasswd passwd &lt;username&gt;
 					</thead>
 					<tbody>
 						<row>
-							<entry condition="pot">&lt;Location /svn&gt;</entry>
+							<entry>&lt;Location /svn&gt;</entry>
 							<entry>
 								means that the Subversion repositories are available from the URL
 								<systemitem class="url">http://MyServer/svn/</systemitem>
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">DAV svn</entry>
+							<entry>DAV svn</entry>
 							<entry>
 								tells Apache which module will be responsible to serve
 								that URL - in this case the Subversion module.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">SVNListParentPath on</entry>
+							<entry>SVNListParentPath on</entry>
 							<entry>
 								For Subversion version 1.3 and higher, this directive enables
-								listing all the available repositories under
-								<literal>SVNParentPath</literal>.
+								listing all the available repositories under SVNParentPath.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">SVNParentPath D:\SVN</entry>
+							<entry>SVNParentPath D:\SVN</entry>
 							<entry>
 								tells Subversion to look for repositories below
 								<filename>D:\SVN</filename>
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">SVNIndexXSLT "/svnindex.xsl"</entry>
-							<entry>
-								Used to make the browsing with a web browser
-								prettier.
-							</entry>
-						</row>						
-						<row>
-							<entry condition="pot">AuthType Basic</entry>
+							<entry>AuthType Basic</entry>
 							<entry>
 								is to activate basic authentication, i.e.
 								Username/password
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">AuthName "Subversion repositories"</entry>
+							<entry>AuthName "Subversion repositories"</entry>
 							<entry>
 								is used as an information whenever an authentication
 								dialog pops up to tell the user what the authentication is for
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">AuthUserFile passwd</entry>
+							<entry>AuthUserFile passwd</entry>
 							<entry>
 								specifies which password file to use for authentication
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">AuthzSVNAccessFile</entry>
+							<entry>AuthzSVNAccessFile</entry>
 							<entry>
 								Location of the Access file for paths inside a
 								Subversion repository
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">Require valid-user</entry>
+							<entry>Require valid-user</entry>
 							<entry>
 								specifies that only users who entered a correct
 								username/password are allowed to access the URL
@@ -383,7 +371,7 @@ bin\htpasswd passwd &lt;username&gt;
 				</tgroup>
 			</table>
 			But that's just an example. There are many, many more
-			possibilities of what you can do with the Apache web server.
+			possibilities of what you can do with the Apache webserver.
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -413,7 +401,7 @@ Require valid-user
 						and create a Subversion access file. Apache will 
 						make sure that only valid users are able to access 
 						your <filename>/svn</filename> location, and will then 
-						pass the username to Subversion's <literal>AuthzSVNAccessFile</literal> 
+						pass the username to Subversion's AuthzSVNAccessFile 
 						module so that it can enforce more granular access 
 						based upon rules listed in the Subversion access file.
 						Note that paths are specified either as
@@ -425,37 +413,6 @@ Require valid-user
 						The format of the authorization-policy file used by
 						<literal>mod_authz_svn</literal> is described in
 						<xref linkend="tsvn-serversetup-mod_authz_svn"/>
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						To make browsing the repository with a web browser
-						'prettier', uncomment the line
-<screen>
-#SVNIndexXSLT "/svnindex.xsl"
-</screen>
-						and put the files <filename>svnindex.xsl</filename>,
-						<filename>svnindex.css</filename> and 
-						<filename>menucheckout.ico</filename> in your document
-						root directory (usually <filename>C:/Program Files/Apache Group/Apache2/htdocs</filename>).
-						The directory is set with the <literal>DocumentRoot</literal> directive
-						in your Apache config file.
-					</para>
-					<para>
-						You can get those three files directly from our source repository
-						at
-						<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex">
-							<citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex</citetitle>
-						</ulink>. If you're asked for authentication for this link,
-						enter <literal>guest</literal> as username and leave the password
-						empty.
-					</para>
-					<para>
-						The XSL file from the TortoiseSVN repository has a nice
-						gimmick: if you browse the repository with your web browser, then
-						every folder in your repository has an icon on the right shown.
-						If you click on that icon, the TortoiseSVN checkout dialog
-						is started for this URL.
 					</para>
 				</listitem>
 			</itemizedlist>
@@ -470,8 +427,8 @@ Require valid-user
 			<primary>Index of projects</primary>
 		</indexterm>
 		<para>
-			If you used the <literal>SVNParentPath</literal> directive then you don't have to
-			change the Apache config file every time you add a new Subversion
+			If you used the SVNParentPath directive then you don't have to
+			change the Apache config file everytime you add a new Subversion
 			repository. Simply create the new repository under the same
 			location as the first repository and you're done! In my company
 			I have direct access to that specific folder on the server via
@@ -559,7 +516,7 @@ Require valid-user
 					</listitem>
 					<listitem>
 						<para>
-						Add the following lines just below your <literal>&lt;Location&gt;</literal>
+						Add the following lines just below your &lt;Location&gt;
 						block where you define your Subversion stuff:
 <screen>
     RewriteEngine on
@@ -582,8 +539,8 @@ Require valid-user
 			<primary>mod_authz_svn</primary>
 		</indexterm>
 		<para>
-			The <literal>mod_authz_svn</literal> module permits fine-grained control of access
-			permissions based on user names and repository paths. This is
+			The mod_authz_svn module permits fine-grained control of access
+			permissions based on usernames and repository paths. This is
 			available with the Apache server, and as of Subversion 1.3
 			it is available with svnserve as well.
 		</para>
@@ -627,7 +584,7 @@ trevor = rw
 			affect large numbers of files.
 		</para>
 		<para>
-			Authentication and authorization are separate processes. If
+			Authentication and authorizarion are separate processes. If
 			a user wants to gain access to a repository path, she has to meet
 			<emphasis>both</emphasis>, the usual authentication requirements
 			and the authorization requirements of the access file.
@@ -651,14 +608,14 @@ trevor = rw
 		<para>
 			But there's a solution for that problem - at least if you're
 			accessing the repository from inside a LAN with a windows
-			domain controller: <literal>mod_auth_sspi</literal>!
+			domain controller: mod_auth_sspi!
 		</para>
 		<indexterm>
 			<primary>SSPI</primary>
 		</indexterm>
 		<para>
 			The original SSPI module was offered by Syneapps including
-			source code. But the development for it has been stopped. 
+			sourcecode. But the development for it has been stopped. 
 			But don't despair, the community has picked it up and improved
 			it. It has a new home on 
 			<ulink url="http://sourceforge.net/projects/mod-auth-sspi/">
@@ -679,8 +636,8 @@ trevor = rw
 <screen>
 LoadModule sspi_auth_module modules/mod_auth_sspi.so
 </screen>
-					to the <literal>LoadModule</literal> section. Make sure you
-					insert this line <emphasis>before</emphasis> the line
+					to the LoadModule's section. Make sure you insert this
+					line <emphasis>before</emphasis> the line
 <screen>
 LoadModule auth_module modules/mod_auth.so
 </screen>
@@ -702,20 +659,17 @@ AuthType SSPI
 SSPIAuth On
 SSPIAuthoritative On
 SSPIDomain &lt;domaincontroller&gt;
-SSPIOmitDomain on
-SSPIUsernameCase lower
-SSPIPerRequestAuth on
 SSPIOfferBasic On
 </screen>
-					within the <literal>&lt;Location /svn&gt;</literal> block.
-					If you don't have a domain controller, leave the name of
-					the domain control as <literal>&lt;domaincontroller&gt;</literal>.
+					within the &lt;Location /svn&gt; block.
+					If you don't have a domain controller, leave the
+					name of the domain control as &lt;domaincontroller&gt;.
 				</para>
 			</listitem>
 		</itemizedlist>
 		<para>
 			Note that if you are authenticating using SSPI, then you don't
-			need the <literal>AuthUserFile</literal> line to define a
+			need the <filename>AuthUserFile</filename> line to define a
 			password file any more. Apache authenticates your username and
 			password against your windows domain instead.  You will need to 
 			update the users list in your <filename>svnaccessfile</filename> 
@@ -724,14 +678,13 @@ SSPIOfferBasic On
 		</para>
 		<tip>
 			<para>
-				Subversion <filename>AuthzSVNAccessFile</filename> files are
-				case sensitive in regard to user names (<literal>JUser</literal>
-				is different from <literal>juser</literal>). 
+				Subversion AuthzSVNAccessFile files are case sensitive in 
+				regard to user names ("JUser" is different from "juser"). 
 			</para>
 			<para>
-				In Microsoft's world, Windows domains and user names are not
+				In Microsoft's world, Windows domains and usernames are not
 				case sensitive.  Even so, some network administrators like 
-				to create user accounts in CamelCase (e.g. <literal>JUser</literal>).
+				to create user accounts in CamelCase (e.g. "JUser").
 			</para>
 			<para>
 				This difference can bite you when using SSPI authentication 
@@ -743,7 +696,7 @@ SSPIOfferBasic On
 			</para>
 			<para>
 				The end result is that you may need at least two entries in your
-				<literal>AuthzSVNAccessFile</literal> for each user -- a lowercase entry and an 
+				AuthzSVNAccessFile for each user -- a lowercase entry and an 
 				entry in the same case that Internet Explorer passes to Apache.  
 				You will also need to train your users to also type in their 
 				credentials	using lower case when accessing repositories via
@@ -753,16 +706,15 @@ SSPIOfferBasic On
 				Apache's Error and Access logs are your best friend in 
 				deciphering problems such as these as they will help you 
 				determine the username string passed onto Subversion's 
-				<literal>AuthzSVNAccessFile</literal> module. You may need to
-				experiment with the exact format of the user string in the
-				<literal>svnaccessfile</literal>
+				AuthzSVNAccessFile module. You may need to experiment with
+				the exact format of the user string in the svnaccessfile
 				(e.g. <literal>DOMAIN\user</literal> vs. 
 				<literal>DOMAIN//user</literal>) in order to get 
 				everything working.
 			</para>
 		</tip>
 		<important>
-			<title>SSL and Internet Explorer</title>
+			<title>SSL and InternetExplorer</title>
 			<para>
 				If you're securing your server with SSL and use authentication
 				against a windows domain you will encounter that browsing
@@ -778,8 +730,8 @@ SSPIOfferBasic On
 				<itemizedlist>
 					<listitem>
 						<para>
-							define a separate <literal>&lt;Location /path&gt;</literal>
-							directive in the Apache config file, and add the
+							define a separate &lt;Location /path&gt;
+							directive in the apache config file, and add the
 							<literal>SSPIBasicPreferred On</literal>.
 							This will allow IE to authenticate again, but
 							other browsers and Subversion won't be able to
@@ -796,8 +748,8 @@ SSPIOfferBasic On
 					</listitem>
 					<listitem>
 						<para>
-						In the SSL "standard" setup there's often the 
-						following statement in Apache's virtual SSL host:
+						In the ssl "standard" setup there's often the 
+						following statement in apache's virtual ssl host:
 <screen>
 SetEnvIf User-Agent ".*MSIE.*" \
              nokeepalive ssl-unclean-shutdown \
@@ -808,13 +760,13 @@ SetEnvIf User-Agent ".*MSIE.*" \
 						<ulink url="http://www.modssl.org/docs/2.8/ssl_faq.html#ToC49">
 								<citetitle>http://www.modssl.org/docs/2.8/ssl_faq.html#ToC49</citetitle>
 							</ulink>
-						But if you want NTLM authentication you have to use <literal>keepalive:</literal>
+						But if you want ntlm authentication you have to use keepalive:
 						<ulink url="http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/qos_enablekeepalives.asp">
 								<citetitle>http://www.microsoft.com/resources/documentation/WindowsServ/2003/standard/proddocs/en-us/qos_enablekeepalives.asp</citetitle>
 							</ulink>
-						If You uncomment the whole <literal>SetEnvIf</literal> you should be able to
+						If You uncomment the whole "SetEnvIf" You should be able to
 						authenticate IE with windows authentication over SSL against 
-						the Apache on Win32 with included <literal>mod_auth_sspi</literal>.
+						the apache on Win32 with included mod_auth_sspi.
 						</para>
 					</listitem>
 				</itemizedlist>
@@ -840,11 +792,11 @@ SetEnvIf User-Agent ".*MSIE.*" \
 		<itemizedlist>
 			<listitem>
 				<para>
-					To enable both Windows domain and <filename>passwd</filename>
-					file authentication, add the following entries within the 
+					To enable both Windows domain and passwd file authentication,
+					add the following entries within the 
 					<literal>&lt;Location&gt;</literal> block of your Apache config file:
 <screen>
-AuthAuthoritative Off
+AuthAthoritative Off
 SSPIAuthoritative Off
 </screen>
 				</para>
@@ -852,7 +804,7 @@ SSPIAuthoritative Off
 		</itemizedlist>
 		<para>
 			Here is an example of the full Apache configuration for combined Windows 
-			domain and <literal>passwd</literal> file authentication:
+			domain &amp; <literal>passwd</literal> file authentication:
 <screen>
 &lt;Location /svn&gt;
 DAV svn
@@ -865,7 +817,7 @@ AuthzSVNAccessFile svnaccessfile.txt
 # NT Domain Logins.
 AuthType SSPI
 SSPIAuth On
-SSPIAuthoritative Off
+SSPIAuthoritative On
 SSPIDomain &lt;domaincontroller&gt;
 SSPIOfferBasic On
 
@@ -885,7 +837,7 @@ Require valid-user
 			<primary>SSL</primary>
 		</indexterm>
 		<para>
-			The Apache server doesn't have SSL support installed by default
+			The apache server doesn't have SSL support installed by default
 			due to US-export restrictions. But you can easily download the
 			required module from somewhere else and install it yourself.
 		</para>
@@ -910,7 +862,7 @@ Require valid-user
 				<para>
 					Open the file
 					<filename>ssl.conf</filename>
-					in the Apache <filename>conf</filename> folder with a text editor.
+					in the Apache conf folder with a text editor.
 				</para>
 			</listitem>
 			<listitem>
@@ -968,19 +920,6 @@ SSLMutex  default
 			</listitem>
 			<listitem>
 				<para>
-					If you want that all the Apache modules are aware of the
-					SSL ability, change the registry key
-					<filename>HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Services\Apache2\ImagePath</filename>
-					from <filename>"C:\Program Files\Apache Group\Apache2\bin\Apache.exe" -k runservice</filename>
-					to <filename>"C:\Program Files\Apache Group\Apache2\bin\Apache.exe" -D SSL -k runservice</filename>.
-				</para>
-				<para>
-					This will set an internal flag which Apache modules can 
-					read the next time you start the Apache service.
-				</para>
-			</listitem>
-			<listitem>
-				<para>
 					Open the Apache config file
 					(<filename>httpd.conf</filename>) and uncomment the line
 <screen>
@@ -990,7 +929,7 @@ SSLMutex  default
 			</listitem>
 			<listitem>
 				<para>
-					OpenSSL needs a config file. You can download
+					Openssl needs a config file. You can download
 					a working one from
 					<ulink url="http://tud.at/programm/openssl.cnf">
 						<citetitle>http://tud.at/programm/openssl.cnf</citetitle>
@@ -1006,7 +945,7 @@ SSLMutex  default
 				<para>
 					Next you need to create an SSL certificate.
 					To do that open a command prompt (DOS-Box) and change to
-					the Apache folder (e.g.
+					the apache folder (e.g.
 					<filename>C:\program files\apache group\apache2</filename>)
 					and type the following command:
 <screen>
@@ -1056,7 +995,7 @@ bin\openssl x509 -in my-server.cert -out my-server.der.crt -outform DER
 			</listitem>
 			<listitem>
 				<para>
-					Restart the Apache service.
+					Restart the apache service.
 				</para>
 			</listitem>
 			<listitem>
@@ -1071,13 +1010,13 @@ bin\openssl x509 -in my-server.cert -out my-server.der.crt -outform DER
 			<title>Forcing SSL access</title>
 			<para>
 				When you've set up SSL to make your repository more secure, you
-				might want to disable the normal access via non-SSL (http) and
+				might want to disable the normal access via non-ssl (http) and
 				only allow https access.
 				To do this, you have to add another directive to the Subversion
-				<literal>&lt;Location&gt;</literal> block: <literal>SSLRequireSSL</literal>.
+				&lt;Location&gt; block: <literal>SSLRequireSSL</literal>.
 			</para>
 			<para>
-					An example <literal>&lt;Location&gt;</literal> block would look like this:
+					An example &lt;Location&gt; block would look like this:
 <screen>
 &lt;Location /svn&gt;
 DAV svn

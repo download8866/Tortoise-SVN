@@ -13,24 +13,28 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ImportDlg.h"
 #include "RepositoryBrowser.h"
-#include "AppUtils.h"
+#include ".\importdlg.h"
 #include "DirFileEnum.h"
 #include "MessageBox.h"
 #include "BrowseFolder.h"
 #include "Registry.h"
+
+
+// CImportDlg dialog
 
 IMPLEMENT_DYNAMIC(CImportDlg, CResizableStandAloneDialog)
 CImportDlg::CImportDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CImportDlg::IDD, pParent)
 	, m_bIncludeIgnored(FALSE)
 {
+	m_url = _T("");
 }
 
 CImportDlg::~CImportDlg()
@@ -45,6 +49,7 @@ void CImportDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_MESSAGE, m_cMessage);
 	DDX_Check(pDX, IDC_IMPORTIGNORED, m_bIncludeIgnored);
 }
+
 
 BEGIN_MESSAGE_MAP(CImportDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
@@ -71,17 +76,14 @@ BOOL CImportDlg::OnInitDialog()
 			SendMessage(WM_NEXTDLGCTL, 0, FALSE);
 		m_URLCombo.EnableWindow(FALSE);
 	}
-	m_URLCombo.SetCurSel(0);
 
 	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
+	m_tooltips.AddTool(IDC_HISTORY, IDS_LOGPROMPT_HISTORY_TT);
 	
 	m_HistoryDlg.LoadHistory(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
 	m_ProjectProperties.ReadProps(m_path);
 	m_cMessage.Init(m_ProjectProperties);
 	m_cMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
-
-	AdjustControlSize(IDC_IMPORTIGNORED);
 
 	AddAnchor(IDC_STATIC1, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_STATIC4, TOP_LEFT);
@@ -134,8 +136,63 @@ void CImportDlg::OnOK()
 
 void CImportDlg::OnBnClickedBrowse()
 {
-	SVNRev rev(SVNRev::REV_HEAD);
-	CAppUtils::BrowseRepository(m_URLCombo, this, rev);
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo.SetWindowText(strUrl);
+		}
+	}
 }
 
 BOOL CImportDlg::PreTranslateMessage(MSG* pMsg)

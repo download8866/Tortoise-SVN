@@ -8,10 +8,6 @@
 #ifndef DOCUMENT_H
 #define DOCUMENT_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  * A Position is a position within a document between two characters or at the beginning or end.
  * Sometimes used as a character index where it identifies the character after the position.
@@ -101,8 +97,7 @@ private:
 	char stylingMask;
 	int endStyled;
 	int styleClock;
-	int enteredModification;
-	int enteredStyling;
+	int enteredCount;
 	int enteredReadOnlyCount;
 
 	WatcherWithUserData *watchers;
@@ -126,8 +121,6 @@ public:
 	bool tabIndents;
 	bool backspaceUnindents;
 
-	DecorationList decorations;
-
 	Document();
 	virtual ~Document();
 
@@ -143,7 +136,7 @@ public:
 	// Gateways to modifying document
 	void ModifiedAt(int pos);
 	bool DeleteChars(int pos, int len);
-	bool InsertString(int position, const char *s, int insertLength);
+	bool InsertStyledString(int position, char *s, int insertLength);
 	int Undo();
 	int Redo();
 	bool CanUndo() { return cb.CanUndo(); }
@@ -170,7 +163,8 @@ public:
 	bool IsReadOnly() { return cb.IsReadOnly(); }
 
 	bool InsertChar(int pos, char ch);
-	bool InsertCString(int position, const char *s);
+	bool InsertString(int position, const char *s);
+	bool InsertString(int position, const char *s, size_t insertLength);
 	void ChangeChar(int pos, char ch);
 	void DelChar(int pos);
 	void DelCharBack(int pos);
@@ -203,7 +197,7 @@ public:
 	int NextWordStart(int pos, int delta);
 	int NextWordEnd(int pos, int delta);
 	int Length() { return cb.Length(); }
-	void Allocate(int newSize) { cb.Allocate(newSize); }
+	void Allocate(int newSize) { cb.Allocate(newSize*2); }
 	long FindText(int minPos, int maxPos, const char *s,
 		bool caseSensitive, bool word, bool wordStart, bool regExp, bool posix, int *length);
 	long FindText(int iMessage, unsigned long wParam, long lParam);
@@ -219,10 +213,9 @@ public:
 	bool SetStyleFor(int length, char style);
 	bool SetStyles(int length, char *styles);
 	int GetEndStyled() { return endStyled; }
-	void EnsureStyledTo(int pos);
+	bool EnsureStyledTo(int pos);
 	int GetStyleClock() { return styleClock; }
 	void IncrementStyleClock();
-	void DecorationFillRange(int position, int value, int fillLength);
 
 	int SetLineState(int line, int state) { return cb.SetLineState(line, state); }
 	int GetLineState(int line) { return cb.GetLineState(line); }
@@ -308,9 +301,5 @@ public:
 	virtual void NotifyDeleted(Document *doc, void *userData) = 0;
 	virtual void NotifyStyleNeeded(Document *doc, void *userData, int endPos) = 0;
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

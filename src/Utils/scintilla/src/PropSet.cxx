@@ -15,10 +15,6 @@
 
 #include "PropSet.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 // The comparison and case changing functions here assume ASCII
 // or extended ASCII such as the normal Windows code page.
 
@@ -829,12 +825,12 @@ void WordList::SetFromAllocated() {
 	memcpy(wordsNoCase, words, (len + 1) * sizeof (*words));
 }
 
-extern "C" int cmpString(const void *a1, const void *a2) {
+int cmpString(const void *a1, const void *a2) {
 	// Can't work out the correct incantation to use modern casts here
 	return strcmp(*(char**)(a1), *(char**)(a2));
 }
 
-extern "C" int cmpStringNoCase(const void *a1, const void *a2) {
+int cmpStringNoCase(const void *a1, const void *a2) {
 	// Can't work out the correct incantation to use modern casts here
 	return CompareCaseInsensitive(*(char**)(a1), *(char**)(a2));
 }
@@ -1060,13 +1056,10 @@ const char *WordList::GetNearestWord(const char *wordStart, int searchLen, bool 
  * counted in the length.
  */
 static unsigned int LengthWord(const char *word, char otherSeparator) {
-	const char *endWord = 0;
-	// Find an otherSeparator
-	if (otherSeparator)
-		endWord = strchr(word, otherSeparator);
 	// Find a '('. If that fails go to the end of the string.
-	if (!endWord)
-		endWord = strchr(word, '(');
+	const char *endWord = strchr(word, '(');
+	if (!endWord && otherSeparator)
+		endWord = strchr(word, otherSeparator);
 	if (!endWord)
 		endWord = word + strlen(word);
 	// Last case always succeeds so endWord != 0

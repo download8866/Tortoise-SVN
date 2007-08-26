@@ -13,24 +13,24 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog, asking for a new name.
- */
+
+// CRenameDlg dialog
+
 class CRenameDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CRenameDlg)
 
 public:
-	CRenameDlg(CWnd* pParent = NULL);
+	CRenameDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CRenameDlg();
 
+// Dialog Data
 	enum { IDD = IDD_RENAME };
 
 protected:
@@ -44,7 +44,5 @@ public:
 	CString m_name;
 	CString m_windowtitle;
 	CString m_label;
-public:
-	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
-	afx_msg void OnEnChangeName();
+protected:
 };

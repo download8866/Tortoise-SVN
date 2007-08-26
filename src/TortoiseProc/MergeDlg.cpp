@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -39,12 +39,10 @@ CMergeDlg::CMergeDlg(CWnd* pParent /*=NULL*/)
 	, m_bUseFromURL(TRUE)
 	, m_bDryRun(FALSE)
 	, m_bIgnoreAncestry(FALSE)
-	, m_pLogDlg(NULL)
-	, m_pLogDlg2(NULL)
-	, bRepeating(FALSE)
-	, m_bRecordOnly(FALSE)
-	, m_bIgnoreEOL(FALSE)
 {
+	m_pLogDlg = NULL;
+	m_pLogDlg2 = NULL;
+	bRepeating = FALSE;
 }
 
 CMergeDlg::~CMergeDlg()
@@ -64,10 +62,8 @@ void CMergeDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
 	DDX_Check(pDX, IDC_USEFROMURL, m_bUseFromURL);
 	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
-	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
-	DDX_Control(pDX, IDOK, m_mergeButton);
-	DDX_Check(pDX, IDC_IGNOREEOL, m_bIgnoreEOL);
 }
+
 
 BEGIN_MESSAGE_MAP(CMergeDlg, CStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
@@ -95,20 +91,6 @@ BOOL CMergeDlg::OnInitDialog()
 
 	m_tooltips.Create(this);
 
-	AdjustControlSize(IDC_REVISION_HEAD1);
-	AdjustControlSize(IDC_REVISION_N1);
-	AdjustControlSize(IDC_USEFROMURL);
-	AdjustControlSize(IDC_REVISION_HEAD);
-	AdjustControlSize(IDC_REVISION_N);
-
-	AdjustControlSize(IDC_IGNOREANCESTRY);
-	AdjustControlSize(IDC_IGNOREEOL);
-	AdjustControlSize(IDC_COMPAREWHITESPACES);
-	AdjustControlSize(IDC_IGNOREWHITESPACECHANGES);
-	AdjustControlSize(IDC_IGNOREALLWHITESPACES);
-
-	CheckRadioButton(IDC_COMPAREWHITESPACES, IDC_IGNOREALLWHITESPACES, IDC_COMPAREWHITESPACES);
-
 	m_bFile = !PathIsDirectory(m_URLFrom);
 	SVN svn;
 	CString url = svn.GetURLFromPath(CTSVNPath(m_wcPath));
@@ -123,18 +105,20 @@ BOOL CMergeDlg::OnInitDialog()
 	}
 	else
 	{
-		CString urlunescaped = CPathUtils::PathUnescape(url);
 		if (!bRepeating)
 		{
 			// unescape the url, it's shown to the user: unescaped url look better
+			CStringA urla = CUnicodeUtils::GetUTF8(url);
+			CPathUtils::Unescape(urla.GetBuffer());
+			urla.ReleaseBuffer();
 			// do not overwrite the "from" url if set on the commandline
 			if (m_URLFrom.IsEmpty())
-				m_URLFrom = urlunescaped;
-			m_URLTo = urlunescaped;
+				m_URLFrom = CUnicodeUtils::GetUnicode(urla);
+			m_URLTo = CUnicodeUtils::GetUnicode(urla);
 		}
-		SetDlgItemText(IDC_WCURL, urlunescaped);
+		GetDlgItem(IDC_WCURL)->SetWindowText(url);
 		m_tooltips.AddTool(IDC_WCURL, url);
-		SetDlgItemText(IDC_WCPATH, m_wcPath.GetWinPath());
+		GetDlgItem(IDC_WCPATH)->SetWindowText(m_wcPath.GetWinPath());
 		m_tooltips.AddTool(IDC_WCPATH, m_wcPath.GetWinPathString());
 	}
 
@@ -142,10 +126,7 @@ BOOL CMergeDlg::OnInitDialog()
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
-	// Only set the "From" Url if there is no url history available, if we're repeating and want
-	// to set the previous string, or if the URL was set via commandline (and is different than
-	// the wc path URL).
-	if ((m_URLCombo.GetString().IsEmpty())||bRepeating||(m_URLFrom.Compare(url)))
+	if ((m_URLCombo.GetString().IsEmpty())||bRepeating)
 		m_URLCombo.SetWindowText(m_URLFrom);
 	m_URLCombo2.SetURLHistory(TRUE);
 	m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
@@ -153,21 +134,23 @@ BOOL CMergeDlg::OnInitDialog()
 	if ((m_URLCombo2.GetString().IsEmpty())||bRepeating)
 		m_URLCombo2.SetWindowText(m_URLTo);
 
-	// if StartRev and/or EndRev are not HEAD, then they're set from the command
-	// line and we have to fill in the edit boxes for them and of course set the
-	// correct radio button
-	if ((bRepeating)||(!StartRev.IsHead() || !EndRev.IsHead()))
+	if (bRepeating)
 	{
-		SetStartRevision(StartRev);
-		SetEndRevision(EndRev);
+		if (StartRev.IsHead())
+			CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_HEAD1);
+		else
+			CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
+		if (EndRev.IsHead())
+			CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
+		else
+			CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
 		if (m_bUseFromURL)
 			DialogEnableWindow(IDC_URLCOMBO2, FALSE);
 		else
 		{
 			DialogEnableWindow(IDC_URLCOMBO2, TRUE);
-			SetDlgItemText(IDC_URLCOMBO2, m_URLTo);
+			GetDlgItem(IDC_URLCOMBO2)->SetWindowText(m_URLTo);
 		}
-		UpdateData(FALSE);
 	}
 	else
 	{
@@ -177,42 +160,27 @@ BOOL CMergeDlg::OnInitDialog()
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 	}
 	OnBnClickedUsefromurl();
-
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_WORKING)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_IMMEDIATE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_FILES)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_EMPTY)));
-	m_depthCombo.SetCurSel(0);
-
-	// set the choices for the "Show All" button
-	CString temp;
-	temp.LoadString(IDS_MERGE_MERGE);
-	m_mergeButton.AddEntry(temp);
-	temp.LoadString(IDS_MERGE_RECORDONLY);
-	m_mergeButton.AddEntry(temp);
-	m_mergeButton.SetCurrentEntry(0);
-
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
-BOOL CMergeDlg::CheckData(bool bShowErrors /* = true */)
+BOOL CMergeDlg::CheckData()
 {
 	if (!UpdateData(TRUE))
 		return FALSE;
 
 	StartRev = SVNRev(m_sStartRev);
 	EndRev = SVNRev(m_sEndRev);
+	// if head revision, set revision as -1
 	if (GetCheckedRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1) == IDC_REVISION_HEAD1)
 	{
 		StartRev = SVNRev(_T("HEAD"));
 	}
 	if (!StartRev.IsValid())
 	{
-		if (bShowErrors)
-			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_START), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_START), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return FALSE;
 	}
 
@@ -223,8 +191,7 @@ BOOL CMergeDlg::CheckData(bool bShowErrors /* = true */)
 	}
 	if (!EndRev.IsValid())
 	{
-		if (bShowErrors)
-			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_END), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_END), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return FALSE;
 	}
 
@@ -240,51 +207,9 @@ BOOL CMergeDlg::CheckData(bool bShowErrors /* = true */)
 
 	if ( (LONG)StartRev == (LONG)EndRev && m_URLFrom==m_URLTo)
 	{
-		if (bShowErrors)
-			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_HEAD1), IDS_ERR_MERGEIDENTICALREVISIONS, TRUE, IDI_EXCLAMATION);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVISION_HEAD1), IDS_ERR_MERGEIDENTICALREVISIONS, TRUE, IDI_EXCLAMATION);
 		return FALSE;
 	}
-
-	switch (m_depthCombo.GetCurSel())
-	{
-	case 0:
-		m_depth = svn_depth_unknown;
-		break;
-	case 1:
-		m_depth = svn_depth_infinity;
-		break;
-	case 2:
-		m_depth = svn_depth_immediates;
-		break;
-	case 3:
-		m_depth = svn_depth_files;
-		break;
-	case 4:
-		m_depth = svn_depth_empty;
-		break;
-	default:
-		m_depth = svn_depth_empty;
-		break;
-	}
-
-	int rb = GetCheckedRadioButton(IDC_COMPAREWHITESPACES, IDC_IGNOREALLWHITESPACES);
-	switch (rb)
-	{
-	case IDC_IGNOREWHITESPACECHANGES:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_change;
-		break;
-	case IDC_IGNOREALLWHITESPACES:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_all;
-		break;
-	case IDC_COMPAREWHITESPACES:
-	default:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_none;
-		break;
-	}
-
-	INT_PTR entry = m_mergeButton.GetCurrentEntry();
-	if (entry == 1)
-		m_bRecordOnly = TRUE;
 
 	UpdateData(FALSE);
 	return TRUE;
@@ -342,38 +267,151 @@ void CMergeDlg::OnBnClickedUidiffbutton()
 
 void CMergeDlg::OnBnClickedBrowse()
 {
-	CheckData(false);
-	if ((!StartRev.IsValid())||(StartRev == 0))
-		StartRev = SVNRev::REV_HEAD;
-	if (CAppUtils::BrowseRepository(m_URLCombo, this, StartRev))
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
 	{
-		SetStartRevision(StartRev);
-		if (m_bUseFromURL)
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
 		{
-			CString strUrl;
-			m_URLCombo.GetWindowText(strUrl);
-			m_URLCombo2.SetCurSel(-1);
-			m_URLCombo2.SetWindowText(strUrl);
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this, m_bFile);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+				if (m_bUseFromURL)
+				{
+					m_URLCombo2.SetCurSel(-1);
+					m_URLCombo2.SetWindowText(browser.GetPath());
+				}
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+				if (m_bUseFromURL)
+				{
+					m_URLCombo2.SetCurSel(-1);
+					m_URLCombo2.SetWindowText(strUrl);
+				}
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this, m_bFile);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+			if (m_bUseFromURL)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(browser.GetPath());
+			}
+		}
+	} 
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(strUrl);
+			if (m_bUseFromURL)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(strUrl);
+			}
 		}
 	}
 }
 
 void CMergeDlg::OnBnClickedBrowse2()
 {
-	CheckData(false);
+	CString strUrl;
+	m_URLCombo2.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
 
-	if ((!EndRev.IsValid())||(EndRev == 0))
-		EndRev = SVNRev::REV_HEAD;
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this, m_bFile);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
 
-	CAppUtils::BrowseRepository(m_URLCombo2, this, EndRev);
-	SetEndRevision(EndRev);
+				m_URLCombo2.SetCurSel(-1);
+				m_URLCombo2.SetWindowText(strUrl);
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this, m_bFile);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo2.SetCurSel(-1);
+			m_URLCombo2.SetWindowText(browser.GetPath());
+		}
+	} 
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo2.SetCurSel(-1);
+			m_URLCombo2.SetWindowText(strUrl);
+		}
+	}
 }
 
 void CMergeDlg::OnBnClickedFindbranchstart()
 {
-	CheckData(false);
-	if ((!StartRev.IsValid())||(StartRev == 0))
-		StartRev = SVNRev::REV_HEAD;
+	UpdateData(TRUE);
 	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
 		return;
 	CString url;
@@ -393,10 +431,9 @@ void CMergeDlg::OnBnClickedFindbranchstart()
 			m_pLogDlg->SetDialogTitle(CString(MAKEINTRESOURCE(IDS_MERGE_SELECTSTARTREVISION)));
 		m_pLogDlg->SetSelect(true);
 		m_pLogDlg->m_pNotifyWindow = this;
-		m_pLogDlg->SetParams(CTSVNPath(url), StartRev, StartRev, 1, limit, TRUE, FALSE);
-		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
+		m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
 		m_pLogDlg->ContinuousSelection(true);
-		m_pLogDlg->SetMergePath(m_wcPath);
+		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);
@@ -404,10 +441,7 @@ void CMergeDlg::OnBnClickedFindbranchstart()
 
 void CMergeDlg::OnBnClickedFindbranchend()
 {
-	CheckData(false);
-
-	if ((!EndRev.IsValid())||(EndRev == 0))
-		EndRev = SVNRev::REV_HEAD;
+	UpdateData(TRUE);
 	if (::IsWindow(m_pLogDlg2->GetSafeHwnd())&&(m_pLogDlg2->IsWindowVisible()))
 		return;
 	CString url;
@@ -430,10 +464,9 @@ void CMergeDlg::OnBnClickedFindbranchend()
 			m_pLogDlg2->SetDialogTitle(CString(MAKEINTRESOURCE(IDS_MERGE_SELECTENDREVISION)));
 		m_pLogDlg2->SetSelect(true);
 		m_pLogDlg2->m_pNotifyWindow = this;
-		m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
-		m_pLogDlg2->SetParams(CTSVNPath(url), EndRev, EndRev, 1, limit, TRUE, FALSE);
+		m_pLogDlg2->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, limit, TRUE, FALSE);
 		m_pLogDlg2->ContinuousSelection(true);
-		m_pLogDlg2->SetMergePath(m_wcPath);
+		m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
 		m_pLogDlg2->ShowWindow(SW_SHOW);
 	}
 	AfxGetApp()->DoWaitCursor(-1);
@@ -448,14 +481,14 @@ LPARAM CMergeDlg::OnRevSelected(WPARAM wParam, LPARAM lParam)
 		if (wParam & MERGE_REVSELECTMINUSONE)
 			lParam--;
 		temp.Format(_T("%ld"), lParam);
-		SetDlgItemText(IDC_REVISION_START, temp);
+		GetDlgItem(IDC_REVISION_START)->SetWindowText(temp);
 		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 		DialogEnableWindow(IDC_REVISION_START, TRUE);
 	}
 	if (wParam & MERGE_REVSELECTEND)
 	{
 		temp.Format(_T("%ld"), lParam);
-		SetDlgItemText(IDC_REVISION_END, temp);
+		GetDlgItem(IDC_REVISION_END)->SetWindowText(temp);
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
 		DialogEnableWindow(IDC_REVISION_END, TRUE);
 	}
@@ -499,10 +532,10 @@ void CMergeDlg::OnBnClickedWCLog()
 	{
 		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
-		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_WC, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100), TRUE, FALSE);
 		m_pLogDlg->Create(IDD_LOGMESSAGE, this);
+		m_pLogDlg->SetParams(m_wcPath, SVNRev::REV_WC, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100), TRUE, FALSE);
 		m_pLogDlg->ShowWindow(SW_SHOW);
-	}
+	} // if (!url.IsEmpty()) 
 	AfxGetApp()->DoWaitCursor(-1);
 }
 
@@ -541,26 +574,3 @@ BOOL CMergeDlg::PreTranslateMessage(MSG* pMsg)
 	return CStandAloneDialogTmpl<CDialog>::PreTranslateMessage(pMsg);
 }
 
-void CMergeDlg::SetStartRevision(const SVNRev& rev)
-{
-	if (rev.IsHead())
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_HEAD1);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
-		m_sStartRev = rev.ToString();
-		UpdateData(FALSE);
-	}
-}
-
-void CMergeDlg::SetEndRevision(const SVNRev& rev)
-{
-	if (rev.IsHead())
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-		m_sEndRev = rev.ToString();
-		UpdateData(FALSE);
-	}
-}

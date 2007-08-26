@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,18 +13,21 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 
 #include "ShellExt.h"
 #include "svnpropertypage.h"
+#include "ProgressDlg.h"
+#include "UnicodeStrings.h"
 #include "UnicodeUtils.h"
-#include "PathUtils.h"
 #include "SVNStatus.h"
 
 #define MAX_STRING_LENGTH		4096			//should be big enough
+
+extern void Unescape(char * psz);
 
 // Nonmember function prototypes
 BOOL CALLBACK PageProc (HWND, UINT, WPARAM, LPARAM);
@@ -42,7 +45,7 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
 
 		if (svn.status->entry == NULL)
 			return NOERROR;
-	}
+	} // for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 
 	if (files_.size() == 0)
 		return NOERROR;
@@ -73,7 +76,7 @@ STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
             delete sheetpage;
             DestroyPropertySheetPage (hPage);
         }
-	}
+	} // if (hPage != NULL) 
 
     return NOERROR;
 }
@@ -97,7 +100,7 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
         sheetpage = (CSVNPropertyPage*) ((LPPROPSHEETPAGE) lParam)->lParam;
         SetWindowLongPtr (hwnd, GWLP_USERDATA, (LONG_PTR) sheetpage);
         sheetpage->SetHwnd(hwnd);
-    }
+    } // if (uMessage == WM_INITDIALOG) 
     else
     {
         sheetpage = (CSVNPropertyPage*) GetWindowLongPtr (hwnd, GWLP_USERDATA);
@@ -112,12 +115,12 @@ BOOL CALLBACK PageProc (HWND hwnd, UINT uMessage, WPARAM wParam, LPARAM lParam)
 UINT CALLBACK PropPageCallbackProc ( HWND /*hwnd*/, UINT uMsg, LPPROPSHEETPAGE ppsp )
 {
     // Delete the page before closing.
-    if (PSPCB_RELEASE == uMsg)
+    if ( PSPCB_RELEASE == uMsg )
     {
         CSVNPropertyPage* sheetpage = (CSVNPropertyPage*) ppsp->lParam;
         if (sheetpage != NULL)
             delete sheetpage;
-    }
+    } // if ( PSPCB_RELEASE == uMsg ) 
     return 1;
 }
 
@@ -221,10 +224,8 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 							memset(&process, 0, sizeof(process));
 							CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 							stdstring svnCmd = _T(" /command:");
-							svnCmd += _T("properties /pathfile:\"");
+							svnCmd += _T("properties /path:\"");
 							svnCmd += retFilePath.c_str();
-							svnCmd += _T("\"");
-							svnCmd += _T(" /deletepathfile");
 							if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 							{
 								CloseHandle(process.hThread);
@@ -235,6 +236,7 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 					break;
 			} // switch (HIWORD(wParam)) 
 	} // switch (uMessage) 
+	//CShellUpdater::Instance().Flush();
 	return FALSE;
 }
 void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf, size_t buflen)
@@ -285,6 +287,14 @@ void CSVNPropertyPage::InitWorkfileView()
 			if (svn.status->entry != NULL)
 			{
 				LoadLangDll();
+				if (svn.status->entry->kind == svn_node_file)
+				{
+					//disable the 'recursive' checkbox for files
+					HWND recursivewnd = GetDlgItem(m_hwnd, IDC_RECURSIVE);
+					if (GetFocus() == recursivewnd)
+						::SendMessage(m_hwnd, WM_NEXTDLGCTL, 0, FALSE);
+					::EnableWindow(recursivewnd, FALSE);					
+				}
 				if (svn.status->text_status == svn_wc_status_added)
 				{
 					// disable the "show log" button for added files
@@ -300,28 +310,9 @@ void CSVNPropertyPage::InitWorkfileView()
 				}
 				if (svn.status->entry->url)
 				{
-					size_t len = strlen(svn.status->entry->url);
-					char * unescapedurl = new char[len+1];
-					strcpy_s(unescapedurl, len+1, svn.status->entry->url);
-					CPathUtils::Unescape(unescapedurl);
-					SetDlgItemText(m_hwnd, IDC_REPOURL, UTF8ToWide(unescapedurl).c_str());
-					if (strcmp(unescapedurl, svn.status->entry->url))
-					{
-						ShowWindow(GetDlgItem(m_hwnd, IDC_ESCAPEDURLLABEL), SW_SHOW);
-						ShowWindow(GetDlgItem(m_hwnd, IDC_REPOURLUNESCAPED), SW_SHOW);
-						SetDlgItemText(m_hwnd, IDC_REPOURLUNESCAPED, UTF8ToWide(svn.status->entry->url).c_str());
-					}
-					else
-					{
-						ShowWindow(GetDlgItem(m_hwnd, IDC_ESCAPEDURLLABEL), SW_HIDE);
-						ShowWindow(GetDlgItem(m_hwnd, IDC_REPOURLUNESCAPED), SW_HIDE);
-					}
-					delete [] unescapedurl;
-				}
-				else
-				{
-					ShowWindow(GetDlgItem(m_hwnd, IDC_ESCAPEDURLLABEL), SW_HIDE);
-					ShowWindow(GetDlgItem(m_hwnd, IDC_REPOURLUNESCAPED), SW_HIDE);
+					Unescape((char*)svn.status->entry->url);
+					_tcsncpy_s(tbuf, MAX_STRING_LENGTH, UTF8ToWide(svn.status->entry->url).c_str(), 4095);
+					SetDlgItemText(m_hwnd, IDC_REPOURL, tbuf);
 				}
 				if (svn.status->text_status != svn_wc_status_added)
 				{
@@ -343,42 +334,22 @@ void CSVNPropertyPage::InitWorkfileView()
 				time = (__time64_t)svn.status->entry->prop_time/1000000L;
 				Time64ToTimeString(time, buf, MAX_STRING_LENGTH);
 				SetDlgItemText(m_hwnd, IDC_PROPDATE, buf);
-
+				if (svn.status->locked)
+				{
+					MAKESTRING(IDS_PROPLOCKED);
+					SetDlgItemText(m_hwnd, IDC_LOCKED, stringtablebuffer);
+				}
+				else
+				{
+					SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
+				}
 				if (svn.status->entry->lock_owner)
 					SetDlgItemText(m_hwnd, IDC_LOCKOWNER, UTF8ToWide(svn.status->entry->lock_owner).c_str());
 				time = (__time64_t)svn.status->entry->lock_creation_date/1000000L;
 				Time64ToTimeString(time, buf, MAX_STRING_LENGTH);
 				SetDlgItemText(m_hwnd, IDC_LOCKDATE, buf);
-	
-				if (svn.status->entry->uuid)
-					SetDlgItemText(m_hwnd, IDC_REPOUUID, UTF8ToWide(svn.status->entry->uuid).c_str());
-				if (svn.status->entry->changelist)
-					SetDlgItemText(m_hwnd, IDC_REPOUUID, UTF8ToWide(svn.status->entry->changelist).c_str());
-				SVNStatus::GetDepthString(g_hResInst, svn.status->entry->depth, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-				SetDlgItemText(m_hwnd, IDC_DEPTHEDIT, buf);
-
-				if (svn.status->entry->checksum)
-					SetDlgItemText(m_hwnd, IDC_CHECKSUM, UTF8ToWide(svn.status->entry->checksum).c_str());
-
-				if (svn.status->locked)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_LOCKED, stringtablebuffer);
-
-				if (svn.status->copied)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_COPIED, stringtablebuffer);
-
-				if (svn.status->switched)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_SWITCHED, stringtablebuffer);
 			} // if (svn.status->entry != NULL)
-		} // if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+		} // if (svn.GetStatus(filename.c_str())>(-2)) 
 	} // if (filenames.size() == 1) 
 	else if (filenames.size() != 0)
 	{
@@ -395,7 +366,7 @@ void CSVNPropertyPage::InitWorkfileView()
 				LoadLangDll();
 				if (svn.status->entry->url)
 				{
-					CPathUtils::Unescape((char*)svn.status->entry->url);
+					Unescape((char*)svn.status->entry->url);
 					_tcsncpy_s(tbuf, MAX_STRING_LENGTH, UTF8ToWide(svn.status->entry->url).c_str(), 4095);
 					TCHAR * ptr = _tcsrchr(tbuf, '/');
 					if (ptr != 0)
@@ -405,15 +376,6 @@ void CSVNPropertyPage::InitWorkfileView()
 					SetDlgItemText(m_hwnd, IDC_REPOURL, tbuf);
 				}
 				SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
-				SetDlgItemText(m_hwnd, IDC_COPIED, _T(""));
-				SetDlgItemText(m_hwnd, IDC_SWITCHED, _T(""));
-
-				SetDlgItemText(m_hwnd, IDC_DEPTHEDIT, _T(""));
-				SetDlgItemText(m_hwnd, IDC_CHECKSUM, _T(""));
-				SetDlgItemText(m_hwnd, IDC_REPOUUID, _T(""));
-
-				ShowWindow(GetDlgItem(m_hwnd, IDC_ESCAPEDURLLABEL), SW_HIDE);
-				ShowWindow(GetDlgItem(m_hwnd, IDC_REPOURLUNESCAPED), SW_HIDE);
 			}
 		}
 	} 

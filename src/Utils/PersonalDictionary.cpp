@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "StdAfx.h"
 #include <fstream>
 #include "PersonalDictionary.h"
-#include "PathUtils.h"
 
 CPersonalDictionary::CPersonalDictionary(LONG lLanguage /* = 0*/) :
 	m_bLoaded(false)
@@ -40,13 +39,18 @@ bool CPersonalDictionary::Load()
 	if (m_bLoaded)
 		return true;
 	TCHAR path[MAX_PATH];		//MAX_PATH ok here.
-	_tcscpy_s (path, CPathUtils::GetAppDataDirectory());
+	TCHAR sLang[10];
+	if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)!=S_OK)
+		return false;
+	_tcscat_s(path, MAX_PATH, _T("\\TortoiseSVN"));
+
+	if (!PathIsDirectory(path))
+		CreateDirectory(path, NULL);
 
 	if (m_lLanguage==0)
 		m_lLanguage = GetUserDefaultLCID();
 
-	TCHAR sLang[10];
-	_stprintf_s(sLang, 10, _T("%ld"), m_lLanguage);
+	_stprintf_s(sLang, 10, _T("\\%ld"), m_lLanguage);
 	_tcscat_s(path, MAX_PATH, sLang);
 	_tcscat_s(path, MAX_PATH, _T(".dic"));
 
@@ -98,13 +102,18 @@ bool CPersonalDictionary::Save()
 	if (!m_bLoaded)
 		return false;
 	TCHAR path[MAX_PATH];		//MAX_PATH ok here.
-	_tcscpy_s (path, CPathUtils::GetAppDataDirectory());
+	TCHAR sLang[10];
+	if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)!=S_OK)
+		return false;
+	_tcscat_s(path, MAX_PATH, _T("\\TortoiseSVN"));
+
+	if (!PathIsDirectory(path))
+		CreateDirectory(path, NULL);
 
 	if (m_lLanguage==0)
 		m_lLanguage = GetUserDefaultLCID();
 
-	TCHAR sLang[10];
-	_stprintf_s(sLang, 10, _T("%ld"), m_lLanguage);
+	_stprintf_s(sLang, 10, _T("\\%ld"), m_lLanguage);
 	_tcscat_s(path, MAX_PATH, sLang);
 	_tcscat_s(path, MAX_PATH, _T(".dic"));
 

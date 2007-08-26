@@ -20,10 +20,6 @@
 #include "SciLexer.h"
 #include "SString.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 static int GetLotLineState(SString &line) {
 	if (line.length()) {
 		// Most of the time the first non-blank character in line determines that line's type

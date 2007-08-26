@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -61,6 +61,7 @@
 #define DIFFSTATE_THEIRSADDED_DEFAULT_BG			RGB(120,255,180)
 #define DIFFSTATE_YOURSREMOVED_DEFAULT_BG			RGB(255,200,255)
 #define DIFFSTATE_YOURSADDED_DEFAULT_BG				RGB(180,255,120)
+
 
 #define DIFF_EMPTYLINENUMBER						((DWORD)-1)
 class CDiffData
@@ -130,15 +131,12 @@ public:
 	CStdCStringArray			m_arDiffYourBaseBoth;
 	CStdDWORDArray				m_arStateYourBaseBoth;
 	CStdDWORDArray				m_arLinesYourBaseBoth;
-	CStdDWORDArray				m_endingsYourBaseBoth;
 	CStdCStringArray			m_arDiffYourBaseLeft;
 	CStdDWORDArray				m_arStateYourBaseLeft;
 	CStdDWORDArray				m_arLinesYourBaseLeft;
-	CStdDWORDArray				m_endingsYourBaseLeft;
 	CStdCStringArray			m_arDiffYourBaseRight;
 	CStdDWORDArray				m_arStateYourBaseRight;
 	CStdDWORDArray				m_arLinesYourBaseRight;
-	CStdDWORDArray				m_endingsYourBaseRight;
 
 	CStdCStringArray			m_arDiffTheirBaseBoth;
 	CStdDWORDArray				m_arStateTheirBaseBoth;

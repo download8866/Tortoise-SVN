@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "StdAfx.h"
@@ -44,8 +44,7 @@ void SVNRev::Create(CString sRev)
 		{
 			CStringA sRevA = CStringA(sRev);
 			sRevA = sRevA.Mid(1, sRevA.GetLength()-2);
-			svn_error_t * err = svn_parse_date(&matched, &tm, sRevA, apr_time_now(), pool);
-			if (err == NULL)
+			if (svn_parse_date(&matched, &tm, sRevA, apr_time_now(), pool) == NULL)
 			{
 				if (!matched)
 					return;
@@ -54,7 +53,6 @@ void SVNRev::Create(CString sRev)
 				m_bIsValid = TRUE;
 				sDate = sRev;
 			}
-			svn_error_clear(err);
 		}
 	}
 	else if (sRev.CompareNoCase(_T("HEAD"))==0)
@@ -159,11 +157,6 @@ SVNRev::operator LONG() const
 }
 
 SVNRev::operator svn_opt_revision_t * ()
-{
-	return &rev;
-}
-
-SVNRev::operator const svn_opt_revision_t * () const
 {
 	return &rev;
 }

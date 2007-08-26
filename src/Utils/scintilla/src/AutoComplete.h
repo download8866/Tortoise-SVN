@@ -8,10 +8,6 @@
 #ifndef AUTOCOMPLETE_H
 #define AUTOCOMPLETE_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  */
 class AutoComplete {
@@ -70,9 +66,5 @@ public:
 	/// Select a list element that starts with word as the current element
 	void Select(const char *word);
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

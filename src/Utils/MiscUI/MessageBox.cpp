@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "resource.h"			//if you defined some IDS_MSGBOX_xxxx this include is needed!
@@ -205,44 +205,26 @@ UINT CMessageBox::ShowCheck(HWND hWnd, LPCTSTR lpMessage, LPCTSTR lpCaption, UIN
 	return box.GoModal(CWnd::FromHandle(hWnd), lpCaption, lpMessage, box.FillBoxStandard(uType));
 }
 
-UINT CMessageBox::Show(HWND hWnd, UINT nMessage, UINT nCaption, UINT uType, LPCTSTR sHelpPath)
+UINT CMessageBox::Show(HWND hWnd, UINT nMessage, UINT nCaption, UINT uType)
 {
 	CString sMessage;
 	CString sCaption;
 	sMessage.LoadString(nMessage);
 	sCaption.LoadString(nCaption);
-	return CMessageBox::Show(hWnd, sMessage, sCaption, uType, sHelpPath);
+	return CMessageBox::Show(hWnd, sMessage, sCaption, uType);
 }
 
-UINT CMessageBox::Show(HWND hWnd, LPCTSTR lpMessage, LPCTSTR lpCaption, UINT uType, LPCTSTR sHelpPath)
+UINT CMessageBox::Show(HWND hWnd, LPCTSTR lpMessage, LPCTSTR lpCaption, UINT uType)
 {
 	CMessageBox box;
 	
 	if (!IsWindow(hWnd))
 		hWnd = NULL;
-	if (sHelpPath)
-		box.SetHelpPath(sHelpPath);
 	return box.GoModal(CWnd::FromHandle(hWnd), lpCaption, lpMessage, box.FillBoxStandard(uType));
-}
-
-UINT CMessageBox::Show(HWND hWnd, UINT nMessage, UINT nCaption, UINT uType, UINT nHelpID)
-{
-	CMessageBox box;
-	CString sMessage;
-	CString sCaption;
-	sMessage.LoadString(nMessage);
-	sCaption.LoadString(nCaption);
-
-	if (!IsWindow(hWnd))
-		hWnd = NULL;
-	box.SetHelpID(nHelpID);
-
-	return box.GoModal(CWnd::FromHandle(hWnd), sCaption, sMessage, box.FillBoxStandard(uType));
 }
 
 int CMessageBox::FillBoxStandard(UINT uType)
 {
-	int ret = 1;
 	m_uType = uType;
 	m_uCancelRet = IDCANCEL;
 	//load the icons according to uType
@@ -398,34 +380,13 @@ int CMessageBox::FillBoxStandard(UINT uType)
 	switch (uType & 0xf00)
 	{
 	case MB_DEFBUTTON2:
-		ret = 2;
+		return 2;
 		break;
 	case MB_DEFBUTTON3:
-		ret = 3;
+		return 3;
 		break;
 	}
-	// do we need to add a help button?
-	if (uType & MB_HELP)
-	{
-		CString sHelpText;
-#ifndef IDS_MSGBOX_HELP
-		sHelpText = _T("Help");
-#else
-		m_i18l.LoadString(IDS_MSGBOX_HELP);
-		sHelpText = m_i18l;
-#endif
-		if (m_sButton2.IsEmpty())
-		{
-			m_sButton2 = sHelpText;
-			m_uButton2Ret = IDHELP;
-		}
-		else if (m_sButton3.IsEmpty())
-		{
-			m_sButton3 = sHelpText;
-			m_uButton3Ret = IDHELP;
-		}
-	}
-	return ret;
+	return 1;
 }
 
 UINT CMessageBox::GoModal(CWnd * pWnd, const CString& title, const CString& msg, int nDefaultButton)
@@ -679,54 +640,14 @@ void CMessageBox::OnButton2()
 {
 	if (GetDlgItem(IDC_MESSAGEBOX_CHECKBOX)->SendMessage(BM_GETCHECK, 0, 0)==BST_CHECKED)
 		SetRegistryValue(m_sRegistryValue, m_uButton2Ret);
-	if ((m_uButton2Ret == IDHELP)&&(!m_sHelpPath.IsEmpty()))
-	{
-		typedef HWND (WINAPI* FPHH)(HWND, LPCWSTR, UINT, DWORD);
-		FPHH pHtmlHelp=NULL; // Function pointer
-		HINSTANCE hInstHtmlHelp = LoadLibrary(_T("HHCtrl.ocx"));
-		HWND hHelp = NULL;
-		if (hInstHtmlHelp != NULL)
-		{
-			(FARPROC&)pHtmlHelp = GetProcAddress(hInstHtmlHelp, "HtmlHelpW");
-			if (pHtmlHelp)
-				hHelp = pHtmlHelp(m_hWnd, (LPCTSTR)m_sHelpPath, HH_DISPLAY_TOPIC, NULL);
-		}
-		if (hHelp == NULL)
-			::MessageBox(m_hWnd, _T("could not show help file"), _T("Help"), MB_ICONERROR);
-	}
-	else if (m_uButton2Ret == IDHELP)
-	{
-		OnHelp();
-	}
-	else
-		EndDialog(m_uButton2Ret);
+	EndDialog(m_uButton2Ret);
 }
 
 void CMessageBox::OnButton3()
 {
 	if (GetDlgItem(IDC_MESSAGEBOX_CHECKBOX)->SendMessage(BM_GETCHECK, 0, 0)==BST_CHECKED)
 		SetRegistryValue(m_sRegistryValue, m_uButton3Ret);
-	if ((m_uButton3Ret == IDHELP)&&(!m_sHelpPath.IsEmpty()))
-	{
-		typedef HWND (WINAPI* FPHH)(HWND, LPCWSTR, UINT, DWORD);
-		FPHH pHtmlHelp=NULL; // Function pointer
-		HINSTANCE hInstHtmlHelp = LoadLibrary(_T("HHCtrl.ocx"));
-		HWND hHelp = NULL;
-		if (hInstHtmlHelp != NULL)
-		{
-			(FARPROC&)pHtmlHelp = GetProcAddress(hInstHtmlHelp, "HtmlHelpW");
-			if (pHtmlHelp)
-				hHelp = pHtmlHelp(m_hWnd, (LPCTSTR)m_sHelpPath, HH_DISPLAY_TOPIC, NULL);
-		}
-		if (hHelp == NULL)
-			::MessageBox(m_hWnd, _T("could not show help file"), _T("Help"), MB_ICONERROR);
-	}
-	else if (m_uButton3Ret == IDHELP)
-	{
-		OnHelp();
-	}
-	else
-		EndDialog(m_uButton3Ret);
+	EndDialog(m_uButton3Ret);
 }
 
 void CMessageBox::OnCancel()

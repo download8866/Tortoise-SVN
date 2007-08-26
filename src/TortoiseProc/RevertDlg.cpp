@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -23,6 +23,9 @@
 #include "SVN.h"
 #include "Registry.h"
 #include ".\revertdlg.h"
+
+
+// CRevertDlg dialog
 
 IMPLEMENT_DYNAMIC(CRevertDlg, CResizableStandAloneDialog)
 CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
@@ -62,12 +65,7 @@ BOOL CRevertDlg::OnInitDialog()
 	m_RevertList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_RevertList.SetSelectButton(&m_SelectAll);
 	m_RevertList.SetCancelBool(&m_bCancelled);
-	m_RevertList.SetBackgroundImage(IDI_REVERT_BKG);
-
-	GetWindowText(m_sWindowTitle);
 	
-	AdjustControlSize(IDC_SELECTALL);
-
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -77,15 +75,16 @@ BOOL CRevertDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RevertDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if (AfxBeginThread(RevertThreadEntry, this)==0)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
@@ -95,9 +94,9 @@ UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
 
 UINT CRevertDlg::RevertThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which can be reverted to the user
-	// in a listcontrol. 
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;
 
@@ -105,12 +104,10 @@ UINT CRevertDlg::RevertThread()
 	{
 		CMessageBox::Show(m_hWnd, m_RevertList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES, 
-						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES);
+	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES, 
+						SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES);
 
-	CTSVNPath commonDir = m_RevertList.GetCommonDirectory(false);
-	SetWindowText(m_sWindowTitle + _T(" - ") + commonDir.GetWinPathString());
+	DialogEnableWindow(IDOK, true);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	POINT pt;
@@ -124,7 +121,7 @@ void CRevertDlg::OnOK()
 {
 	if (m_bThreadRunning)
 		return;
-	// save only the files the user has selected into the temporary file
+	//save only the files the user has selected into the temporary file
 	m_bRecursive = TRUE;
 	for (int i=0; i<m_RevertList.GetItemCount(); ++i)
 	{
@@ -133,14 +130,11 @@ void CRevertDlg::OnOK()
 			m_bRecursive = FALSE;
 			break;
 		}
-		else if (m_RevertList.GetListEntry(i)->IsInExternal())
-			m_bRecursive = FALSE;
 	}
 	if (!m_bRecursive)
 	{
 		m_RevertList.WriteCheckedNamesToPathList(m_pathList);
 	}
-	m_RevertList.WriteCheckedNamesToPathList(m_selectedPathList);
 
 	CResizableStandAloneDialog::OnOK();
 }

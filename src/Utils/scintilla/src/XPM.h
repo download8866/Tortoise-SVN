@@ -8,10 +8,6 @@
 #ifndef XPM_H
 #define XPM_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  * Hold a pixmap in XPM format.
  */
@@ -72,9 +68,5 @@ public:
 	/// Give the largest width of the set.
 	int GetWidth();
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif
