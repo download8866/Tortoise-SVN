@@ -1,0 +1,2 @@
+checkinterval = 120
+disallowautodiff
