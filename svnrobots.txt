@@ -1,2 +1,2 @@
-checkinterval = 120
+checkinterval = 150
 disallowautodiff
