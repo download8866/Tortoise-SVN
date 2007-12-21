@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "afxcmn.h"
@@ -26,17 +26,9 @@
 #include "HintListCtrl.h"
 #include "Colors.h"
 #include "XPImageButton.h"
-#include "FilterEdit.h"
+#include "Balloon.h"
+#include "afxwin.h"
 
-
-#define IDT_FILTER		101
-
-/**
- * \ingroup TortoiseProc
- * Dialog which fetches and shows the difference between two urls in the
- * repository. It shows a list of files/folders which were changed in those
- * two revisions.
- */
 class CFileDiffDlg : public CResizableStandAloneDialog, public SVN
 {
 	DECLARE_DYNAMIC(CFileDiffDlg)
@@ -50,14 +42,15 @@ public:
 		svn_node_kind_t node;
 	};
 public:
-	CFileDiffDlg(CWnd* pParent = NULL);
+	CFileDiffDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CFileDiffDlg();
 
-	void SetDiff(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, svn_depth_t depth, bool ignoreancestry);
-	void SetDiff(const CTSVNPath& path, SVNRev peg, SVNRev rev1, SVNRev rev2, svn_depth_t depth, bool ignoreancestry);
+	void SetDiff(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, bool recurse, bool ignoreancestry);
+	void SetDiff(const CTSVNPath& path, SVNRev peg, SVNRev rev1, SVNRev rev2, bool recurse, bool ignoreancestry);
 
 	void	DoBlame(bool blame = true) {m_bBlame = blame;}
 
+// Dialog Data
 	enum { IDD = IDD_DIFFFILES };
 
 protected:
@@ -73,13 +66,7 @@ protected:
 	afx_msg void OnEnSetfocusSecondurl();
 	afx_msg void OnEnSetfocusFirsturl();
 	afx_msg void OnBnClickedSwitchleftright();
-	afx_msg void OnHdnItemclickFilelist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnBnClickedRev1btn();
-	afx_msg void OnBnClickedRev2btn();
-	afx_msg LRESULT OnClickedCancelFilter(WPARAM wParam, LPARAM lParam);
-	afx_msg void OnEnChangeFilter();
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-
+	
 	DECLARE_MESSAGE_MAP()
 
 	virtual svn_error_t* DiffSummarizeCallback(const CTSVNPath& path, 
@@ -87,11 +74,10 @@ protected:
 											bool propchanged, 
 											svn_node_kind_t node);
 
-	int					AddEntry(const FileDiff * fd);
-	void				DoDiff(int selIndex, bool blame);
-	void				DiffProps(int selIndex);
-	void				SetURLLabels();
-	void				Filter(CString sFilterText);
+	int AddEntry(FileDiff * fd);
+	void DoDiff(int selIndex, bool blame);
+	void DiffProps(int selIndex);
+	void SetURLLabels();
 private:
 	static UINT			DiffThreadEntry(LPVOID pVoid);
 	UINT				DiffThread();
@@ -102,18 +88,13 @@ private:
 
 	CBalloon			m_tooltips;
 
-	CButton				m_cRev1Btn;
-	CButton				m_cRev2Btn;
-	CFilterEdit			m_cFilter;
-
 	CXPImageButton		m_SwitchButton;
 	HICON				m_hSwitchIcon;
 	CColors				m_colors;
 	CHintListCtrl		m_cFileList;
 	bool				m_bBlame;
 	CBlame				m_blamer;
-	std::vector<FileDiff> m_arFileList;
-	std::vector<FileDiff> m_arFilteredList;
+	CArray<FileDiff, FileDiff> m_arFileList;
 	CArray<FileDiff, FileDiff> m_arSelectedFileList;
 
 	CString				m_strExportDir;
@@ -126,16 +107,11 @@ private:
 	SVNRev				m_rev1;
 	CTSVNPath			m_path2;
 	SVNRev				m_rev2;
-	svn_depth_t			m_depth;
+	bool				m_bRecurse;
 	bool				m_bIgnoreancestry;
 	bool				m_bDoPegDiff;
 	volatile LONG		m_bThreadRunning;
 
 	bool				m_bCancelled;
-
-	void				Sort();
-	static bool			SortCompare(const FileDiff& Data1, const FileDiff& Data2);
-
-	static BOOL			m_bAscending;
-	static int			m_nSortedColumn;
+protected:
 };

@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "MenuButton.h"
@@ -84,7 +84,6 @@ BEGIN_MESSAGE_MAP(CMenuButton, _Inherited)
 	ON_WM_CREATE()
 	ON_WM_MOUSEMOVE()
 	ON_MESSAGE(WM_MOUSELEAVE, OnMouseLeave)
-	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -335,11 +334,4 @@ BOOL CMenuButton::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return _Inherited::PreTranslateMessage(pMsg);
-}
-
-void CMenuButton::OnDestroy()
-{
-	m_sEntries.RemoveAll();
-
-	_Inherited::OnDestroy();
 }

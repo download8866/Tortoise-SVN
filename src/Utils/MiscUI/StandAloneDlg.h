@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 #include "ResizableDialog.h"
-#include "Balloon.h"
 
 /**
  * \ingroup TortoiseProc
@@ -29,7 +28,7 @@
  * Just provides the boiler-plate code for dealing with application icons
  * 
  * \remark Replace all references to CDialog or CResizableDialog in your dialog class with 
- * either CResizableStandAloneDialog, CStandAloneDialog or CStateStandAloneDialog, as appropriate
+ * either CResizableStandaloneDialog, CStandalongDialog or CStateStandAloneDialog, as appropriate
  */
 template <typename BaseType> class CStandAloneDialogTmpl : public BaseType
 {
@@ -50,6 +49,7 @@ protected:
 		return FALSE;
 	}
 
+protected:
 	afx_msg void OnPaint()
 	{
 		if (IsIconic())
@@ -92,74 +92,15 @@ protected:
 		}
 		return pwndDlgItem->EnableWindow(bEnable);
 	}
-
-	/**
-	 * Adjusts the size of a checkbox or radio button control.
-	 * Since we always make the size of those bigger than 'necessary'
-	 * for making sure that translated strings can fit in those too,
-	 * this method can reduce the size of those controls again to only
-	 * fit the text.
-	 */
-	void AdjustControlSize(UINT nID)
-	{
-		CWnd * pwndDlgItem = GetDlgItem(nID);
-		// adjust the size of the control to fit its content
-		CString sControlText;
-		pwndDlgItem->GetWindowText(sControlText);
-		// next step: find the rectangle the control text needs to
-		// be displayed
-
-		CDC * pDC = pwndDlgItem->GetWindowDC();
-		RECT controlrect;
-		RECT controlrectorig;
-		pwndDlgItem->GetWindowRect(&controlrect);
-		::MapWindowPoints(NULL, GetSafeHwnd(), (LPPOINT)&controlrect, 2);
-		controlrectorig = controlrect;
-		if (pDC)
-		{
-			CFont * font = pwndDlgItem->GetFont();
-			CFont * pOldFont = pDC->SelectObject(font);
-			if (pDC->DrawText(sControlText, -1, &controlrect, DT_WORDBREAK | DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
-			{
-				// now we have the rectangle the control really needs
-				if ((controlrectorig.right - controlrectorig.left) > (controlrect.right - controlrect.left))
-				{
-					// we're dealing with radio buttons and checkboxes,
-					// which means we have to add a little space for the checkbox
-					controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left) + 20;
-					pwndDlgItem->MoveWindow(&controlrectorig);
-				}
-			}
-			pDC->SelectObject(pOldFont);
-			ReleaseDC(pDC);
-		}
-	}
-
-	/**
-	 * Display a balloon with close button, anchored at a given control on this dialog.
-	 */
-	void ShowBalloon(UINT nIdControl, UINT nIdText, LPCTSTR szIcon = IDI_EXCLAMATION)
-	{
-		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, nIdControl), nIdText, TRUE, szIcon);
-	}
-
-	/**
-	 * Refreshes the cursor by forcing a WM_SETCURSOR message.
-	 */
-	void RefreshCursor()
-	{
-		POINT pt;
-		GetCursorPos(&pt);
-		SetCursorPos(pt.x, pt.y);
-	}
 private:
 	HCURSOR OnQueryDragIcon()
 	{
 		return static_cast<HCURSOR>(m_hIcon);
 	}
 
+private:
 	DECLARE_MESSAGE_MAP()
-
+private:
 	HICON m_hIcon;
 };
 
@@ -237,27 +178,6 @@ protected:
 	//END_MESSAGE_MAP();
 
 };
-
-class CResizableStandAloneDialog : public CStandAloneDialogTmpl<CResizableDialog>
-{
-public:
-	CResizableStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);
-
-private:
-	DECLARE_DYNAMIC(CResizableStandAloneDialog)
-
-protected:
-	afx_msg void	OnSize(UINT nType, int cx, int cy);
-	afx_msg void	OnNcMButtonUp(UINT nHitTest, CPoint point);
-	afx_msg void	OnNcRButtonUp(UINT nHitTest, CPoint point);
-
-	DECLARE_MESSAGE_MAP()
-
-private:
-	bool		m_bVertical;
-	bool		m_bHorizontal;
-	CRect		m_rcOrgWindowRect;
-};
-
+typedef CStandAloneDialogTmpl<CResizableDialog> CResizableStandAloneDialog;
 typedef CStandAloneDialogTmpl<CDialog> CStandAloneDialog;
 typedef CStandAloneDialogTmpl<CStateDialog> CStateStandAloneDialog;

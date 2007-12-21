@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,11 +13,10 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
-#include <dlgs.h>
 #include "TortoiseMerge.h"
 #include "MainFrm.h"
 #include "AboutDlg.h"
@@ -31,7 +30,14 @@
 #define new DEBUG_NEW
 #endif
 
-#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef WIN64
+#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#	ifdef _DEBUG
+#		pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.VC80.CRT' version='8.0.50608.0' processorArchitecture='X86' publicKeyToken='1fc8b3b9a1e18e3b' language='*'\"")
+#	endif
+#else
+#	pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
+#endif
 
 BEGIN_MESSAGE_MAP(CTortoiseMergeApp, CWinApp)
 	ON_COMMAND(ID_APP_ABOUT, OnAppAbout)
@@ -51,7 +57,7 @@ CCrashReport g_crasher("crashreports@tortoisesvn.tigris.org", "Crashreport for T
 BOOL CTortoiseMergeApp::InitInstance()
 {
 	//set the resource dll for the required language
-	CRegDWORD loc = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
+	CRegDWORD loc = CRegDWORD(_T("Software\\TortoiseMerge\\LanguageID"), 1033);
 	long langId = loc;
 	CString langDll;
 	HINSTANCE hInst = NULL;
@@ -92,7 +98,6 @@ BOOL CTortoiseMergeApp::InitInstance()
 	sHelppath.Replace(_T(".chm"), _T("_en.chm"));
 	free((void*)m_pszHelpFilePath);
 	m_pszHelpFilePath=_tcsdup(sHelppath);
-	sHelppath = CPathUtils::GetAppParentDirectory() + _T("Languages\\TortoiseMerge_en.chm");
 	do
 	{
 		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf));
@@ -193,8 +198,6 @@ BOOL CTortoiseMergeApp::InitInstance()
 	pFrame->m_Data.m_sDiffFile.Replace('/', '\\');
 	if (parser.HasKey(_T("oneway")))
         pFrame->m_bOneWay = TRUE;
-	if (parser.HasKey(_T("diff")))
-		pFrame->m_bOneWay = FALSE;
 	if (parser.HasKey(_T("reversedpatch")))
 		pFrame->m_bReversedPatch = TRUE;
 	if (pFrame->m_Data.IsBaseFileInUse() && !pFrame->m_Data.IsYourFileInUse() && pFrame->m_Data.IsTheirFileInUse())
@@ -224,10 +227,13 @@ BOOL CTortoiseMergeApp::InitInstance()
 		// the patchfile itself was not.
 		// So ask the user for that patchfile
 
-		OPENFILENAME ofn = {0};			// common dialog box structure
-		TCHAR szFile[MAX_PATH] = {0};	// buffer for file name
+		OPENFILENAME ofn;		// common dialog box structure
+		TCHAR szFile[MAX_PATH];  // buffer for file name
+		ZeroMemory(szFile, sizeof(szFile));
 		// Initialize OPENFILENAME
+		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
+		//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 		ofn.hwndOwner = pFrame->m_hWnd;
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -237,43 +243,19 @@ BOOL CTortoiseMergeApp::InitInstance()
 			ofn.lpstrTitle = NULL;
 		else
 			ofn.lpstrTitle = temp;
-
-		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
-		// check if there's a patchfile in the clipboard
-		UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
-		if (cFormat)
-		{
-			if (OpenClipboard(NULL))
-			{
-				UINT enumFormat = 0;
-				do 
-				{
-					if (enumFormat == cFormat)
-					{
-						// yes, there's a patchfile in the clipboard
-						ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK | OFN_EXPLORER;
-
-						ofn.hInstance = AfxGetResourceHandle();
-						ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
-						ofn.lpfnHook = CreatePatchFileOpenHook;
-					}
-				} while((enumFormat = EnumClipboardFormats(enumFormat))!=0);
-				CloseClipboard();
-			}
-		}
-
+		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
 		CString sFilter;
 		sFilter.LoadString(IDS_PATCHFILEFILTER);
 		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		// Replace '|' delimiters with '\0's
+		// Replace '|' delimeters with '\0's
 		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 		while (ptr != pszFilters)
 		{
 			if (*ptr == '|')
 				*ptr = '\0';
 			ptr--;
-		}
+		} // while (ptr != pszFilters) 
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 
@@ -283,10 +265,10 @@ BOOL CTortoiseMergeApp::InitInstance()
 		{
 			delete [] pszFilters;
 			return FALSE;
-		}
+		} // if (GetOpenFileName(&ofn)==FALSE)
 		delete [] pszFilters;
 		pFrame->m_Data.m_sDiffFile = ofn.lpstrFile;
-	}
+	} // if ((parser.HasKey(_T("patchpath")))&&(!parser.HasVal(_T("diff")))) 
 
 	if ( pFrame->m_Data.m_baseFile.GetFilename().IsEmpty() && pFrame->m_Data.m_yourFile.GetFilename().IsEmpty() )
 	{
@@ -327,96 +309,13 @@ BOOL CTortoiseMergeApp::InitInstance()
 	}
 
 	pFrame->m_bReadOnly = !!parser.HasKey(_T("readonly"));
-	if (GetFileAttributes(pFrame->m_Data.m_yourFile.GetFilename()) & FILE_ATTRIBUTE_READONLY)
+	DWORD fAttribs = GetFileAttributes(pFrame->m_Data.m_yourFile.GetFilename());
+	if ((fAttribs != INVALID_FILE_ATTRIBUTES)&&(fAttribs & FILE_ATTRIBUTE_READONLY))
 		pFrame->m_bReadOnly = true;
 	pFrame->m_bBlame = !!parser.HasKey(_T("blame"));
 	// diffing a blame means no editing!
 	if (pFrame->m_bBlame)
 		pFrame->m_bReadOnly = true;
-
-	// try to find a suitable window title
-	CString sYour = pFrame->m_Data.m_yourFile.GetDescriptiveName();
-	if (sYour.Find(_T(" - "))>=0)
-		sYour = sYour.Left(sYour.Find(_T(" - ")));
-	if (sYour.Find(_T(" : "))>=0)
-		sYour = sYour.Left(sYour.Find(_T(" : ")));
-	CString sTheir = pFrame->m_Data.m_theirFile.GetDescriptiveName();
-	if (sTheir.Find(_T(" - "))>=0)
-		sTheir = sTheir.Left(sTheir.Find(_T(" - ")));
-	if (sTheir.Find(_T(" : "))>=0)
-		sTheir = sTheir.Left(sTheir.Find(_T(" : ")));
-
-	if (!sYour.IsEmpty() && !sTheir.IsEmpty())
-	{
-		if (sYour.CompareNoCase(sTheir)==0)
-			pFrame->SetWindowText(sYour + _T(" - TortoiseMerge"));
-		else if ((sYour.GetLength() < 10) &&
-				(sTheir.GetLength() < 10))
-			pFrame->SetWindowText(sYour + _T(" - ") + sTheir + _T(" - TortoiseMerge"));
-		else
-		{
-			// we have two very long descriptive texts here, which
-			// means we have to find a way to use them as a window 
-			// title in a shorter way.
-			// for simplicity, we just use the one from "yourfile"
-			pFrame->SetWindowText(sYour + _T(" - TortoiseMerge"));
-		}
-	}
-	else if (!sYour.IsEmpty())
-		pFrame->SetWindowText(sYour + _T(" - TortoiseMerge"));
-	else if (!sTheir.IsEmpty())
-		pFrame->SetWindowText(sTheir + _T(" - TortoiseMerge"));
-
-	if (parser.HasKey(_T("createunifieddiff")))
-	{
-		// user requested to create a unified diff file
-		CString origFile = parser.GetVal(_T("origfile"));
-		CString modifiedFile = parser.GetVal(_T("modifiedfile"));
-		if (!origFile.IsEmpty() && !modifiedFile.IsEmpty())
-		{
-			CString outfile = parser.GetVal(_T("outfile"));
-			if (outfile.IsEmpty())
-			{
-				OPENFILENAME ofn = {0};			// common dialog box structure
-				TCHAR szFile[MAX_PATH] = {0};	// buffer for file name
-				ofn.lStructSize = sizeof(OPENFILENAME);
-				ofn.lpstrFile = szFile;
-				ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-				CString temp;
-				temp.LoadString(IDS_SAVEASTITLE);
-				if (!temp.IsEmpty())
-					ofn.lpstrTitle = temp;
-				ofn.Flags = OFN_OVERWRITEPROMPT;
-				CString sFilter;
-				sFilter.LoadString(IDS_COMMONFILEFILTER);
-				TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
-				_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-				// Replace '|' delimiters with '\0's
-				TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
-				while (ptr != pszFilters)
-				{
-					if (*ptr == '|')
-						*ptr = '\0';
-					ptr--;
-				}
-				ofn.lpstrFilter = pszFilters;
-				ofn.nFilterIndex = 1;
-
-				// Display the Save dialog box. 
-				CString sFile;
-				if (GetSaveFileName(&ofn)==TRUE)
-				{
-					outfile = CString(ofn.lpstrFile);
-				}
-				delete [] pszFilters;
-			}
-			if (!outfile.IsEmpty())
-			{
-				CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outfile);
-				return FALSE;
-			}
-		}
-	}
 	// The one and only window has been initialized, so show and update it
 	pFrame->ActivateFrame();
 	pFrame->ShowWindow(SW_SHOW);
@@ -435,48 +334,4 @@ void CTortoiseMergeApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
-}
-
-UINT_PTR CALLBACK 
-CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM /*lParam*/)
-{
-	if(uiMsg ==	WM_COMMAND && LOWORD(wParam) == IDC_PATCH_TO_CLIPBOARD)
-	{
-		HWND hFileDialog = GetParent(hDlg);
-
-		// if there's a patchfile in the clipboard, we save it
-		// to a temporary file and tell TortoiseMerge to use that one
-		UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
-		if ((cFormat)&&(OpenClipboard(NULL)))
-		{ 
-			HGLOBAL hglb = GetClipboardData(cFormat); 
-			LPCSTR lpstr = (LPCSTR)GlobalLock(hglb); 
-
-			DWORD len = GetTempPath(0, NULL);
-			TCHAR * path = new TCHAR[len+1];
-			TCHAR * tempF = new TCHAR[len+100];
-			GetTempPath (len+1, path);
-			GetTempFileName (path, TEXT("tsm"), 0, tempF);
-			std::wstring sTempFile = std::wstring(tempF);
-			delete path;
-			delete tempF;
-
-			FILE * outFile;
-			size_t patchlen = strlen(lpstr);
-			_tfopen_s(&outFile, sTempFile.c_str(), _T("wb"));
-			if(outFile)
-			{
-				size_t size = fwrite(lpstr, sizeof(char), patchlen, outFile);
-				if (size == patchlen)
-				{
-					CommDlg_OpenSave_SetControlText(hFileDialog, edt1, sTempFile.c_str());   
-					PostMessage(hFileDialog, WM_COMMAND, MAKEWPARAM(IDOK, BM_CLICK), (LPARAM)(GetDlgItem(hDlg, IDOK)));
-				}
-				fclose(outFile);
-			}
-			GlobalUnlock(hglb); 
-			CloseClipboard(); 
-		} 
-	}
-	return 0;
 }

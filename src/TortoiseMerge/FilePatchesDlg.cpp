@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -52,8 +52,8 @@ BOOL CFilePatchesDlg::SetFileStatusAsPatched(CString sPath)
 			m_arFileStates.SetAt(i, FPDLG_FILESTATE_PATCHED);
 			Invalidate();
 			return TRUE;
-		}
-	}
+		} // if (sPath.CompareNoCase(GetFullPath(i))==0) 
+	} // for (int i=0; i<m_arFileStates.GetCount(); i++) 
 	return FALSE;
 }
 
@@ -135,7 +135,7 @@ BOOL CFilePatchesDlg::Init(CPatch * pPatch, CPatchFilesDlgCallBack * pCallBack, 
 			SHGFI_ICON | SHGFI_SMALLICON | SHGFI_USEFILEATTRIBUTES);
 		m_cFileList.InsertItem(i, sFile, m_ImgList.Add(sfi.hIcon));
 
-	}
+	} // for(int i=0; i<m_pPatch->GetNumberOfFiles(); i++) 
 	int mincol = 0;
 	int maxcol = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
 	int col;
@@ -264,7 +264,7 @@ void CFilePatchesDlg::OnNMCustomdrawFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 			}
 			// Store the color back in the NMLVCUSTOMDRAW struct.
 			pLVCD->clrText = crText;
-		}
+		} // if (m_arFileStates.GetCount() > (INT_PTR)pLVCD->nmcd.dwItemSpec) 
 
 		// Tell Windows to paint the control itself.
 		*pResult = CDRF_DODEFAULT;
@@ -319,8 +319,8 @@ void CFilePatchesDlg::OnNMRclickFilelist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 					{
 						if (m_arFileStates.GetAt(i)!= FPDLG_FILESTATE_PATCHED)
 							m_pCallBack->PatchFile(GetFullPath(i), m_pPatch->GetRevision(i), TRUE);
-					}
-				}
+					} // for (int i=0; i<m_arFileStates.GetCount(); i++) 
+				} // if ((m_pCallBack)&&(!temp.IsEmpty())) 
 			} 
 			break;
 		case ID_PATCHSELECTED:
@@ -337,13 +337,13 @@ void CFilePatchesDlg::OnNMRclickFilelist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 						if (m_arFileStates.GetAt(index)!= FPDLG_FILESTATE_PATCHED)
 							m_pCallBack->PatchFile(GetFullPath(index), m_pPatch->GetRevision(index), TRUE);
 					}
-				}
+				} // if (m_pCallBack) 
 			} 
 			break;
 		default:
 			break;
-		}
-	}
+		} // switch (cmd) 
+	} // if (popup.CreatePopupMenu()) 
 }
 
 void CFilePatchesDlg::OnNcLButtonDblClk(UINT nHitTest, CPoint point)

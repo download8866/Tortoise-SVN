@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE sect1 SYSTEM "../../../dtd/dblite.dtd">
 <sect1 id="tsvn-dug-bugtracker">
-	<title>Integration with Bug Tracking Systems / Issue Trackers</title>
+	<title>Integration with Bugtracking Systems / Issue trackers</title>
 	<indexterm>
-		<primary>bug tracking</primary>
+		<primary>bugtracking</primary>
 	</indexterm>
 	<indexterm>
-		<primary>bug tracker</primary>
+		<primary>bugtracker</primary>
 	</indexterm>
 	<indexterm>
-		<primary>issue tracker</primary>
+		<primary>issuetracker</primary>
 	</indexterm>
 	<para>
 		It is very common in Software Development for changes to be related to a specific
@@ -46,43 +46,43 @@
 		</orderedlist>
 	</para>
 	<para>
-		You can integrate a bug tracking tool of your choice in
+		You can integrate a Bugtracking Tool of your choice in
 		TortoiseSVN. To do this, you have to define
 		some properties, which start with <literal>bugtraq:</literal>.
 		They must be set on Folders: (<xref linkend="tsvn-dug-propertypage"/>)
 	</para>
 	<para>
 		There are two ways to integrate TortoiseSVN with issue trackers. One is
-		based on simple strings, the other is based on <emphasis>regular expressions</emphasis>.
+		based on simple strings, the other is based on <literal>regular expressions</literal>.
 		The properties used by both approaches are:
 		<variablelist>
 			<varlistentry>
-				<term condition="pot">bugtraq:url</term>
+				<term>bugtraq:url</term>
 				<listitem>
 					<para>
-						Set this property to the URL of your bug tracking tool.
+						Set this property to the url of your bugtracking tool.
 						It must be properly URI encoded and it has to contain
 						<literal>%BUGID%</literal>.
-						<literal>%BUGID%</literal> is replaced with the Issue number
+						<literal>%BUGID%</literal> is replaced with the Issuenumber
 						you entered. This allows TortoiseSVN
 						to display a link in the log dialog, so when you are looking
 						at the revision log you can jump directly to your
-						bug tracking tool.
+						bugtracking tool.
 						You do not have to provide this property, but then
 						TortoiseSVN shows only the
-						issue number and not the link to it.
+						issuenumber and not the link to it.
 						e.g the TortoiseSVN project is using
 						<literal>http://issues.tortoisesvn.net/?do=details&amp;id=%BUGID%</literal>
 					</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term condition="pot">bugtraq:warnifnoissue</term>
+				<term>bugtraq:warnifnoissue</term>
 				<listitem>
 					<para>
 						Set this to <literal>true</literal>, if you want
 						TortoiseSVN to warn you
-						because of an empty issue-number text field. Valid values 
+						because of an empty issuenumber textfield. Valid values 
 						are <literal>true/false</literal>.
 						<emphasis>
 							If not defined, <literal>false</literal> is assumed.
@@ -98,20 +98,22 @@
 		is appended/prepended to the log message the user entered.
 		<variablelist>
 			<varlistentry>
-				<term condition="pot">bugtraq:message</term>
+				<term>bugtraq:message</term>
 				<listitem>
 					<para>
-						This property activates the bug tracking system
-						in <emphasis>Input field</emphasis> mode.
+						<emphasis>
+							This property activates the Bugtracking System
+							in <literal>Input field</literal> mode.
+						</emphasis>
 						If this property is set, then TortoiseSVN
 						will prompt you to enter an issue number when you commit
 						your changes. It's used to add a line at the end of the
-						log message. It must contain
+						logmessage. It must contain
 						<literal>%BUGID%</literal>, which is replaced with the
-						issue number on commit. This ensures that your commit log
-						contains a reference to the issue number which is always
+						issuenumber on commit. This ensures that your commit log
+						contains a reference to the issuenumber which is always
 						in a consistent format and can be parsed by your
-						bug tracking tool to associate the issue number with a
+						Bugtracking tool to associate the issuenumber with a
 						particular commit. e.g the TortoiseSVN project is using
 						<literal>Issue : %BUGID%</literal>, 
 						but this depends on your Tool.
@@ -119,7 +121,7 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term condition="pot">bugtraq:append</term>
+				<term>bugtraq:append</term>
 				<listitem>
 					<para>
 						This property defines if the bug-ID is appended (true)
@@ -134,12 +136,12 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term condition="pot">bugtraq:label</term>
+				<term>bugtraq:label</term>
 				<listitem>
 					<para>
 						This text is shown by TortoiseSVN
 						on the commit dialog to label the edit box where you enter
-						the issue number. If it's not set,
+						the issuenumber. If it's not set,
 						<literal>Bug-ID / Issue-Nr:</literal> will be displayed.
 						Keep in mind though that the window will not be resized
 						to fit this label, so keep the size of the label below
@@ -148,11 +150,11 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term condition="pot">bugtraq:number</term>
+				<term>bugtraq:number</term>
 				<listitem>
 					<para>
 						If set to <literal>true</literal> only numbers are allowed
-						in the issue-number text field.
+						in the issuenumber textfield.
 						An exception is the comma, so you can comma separate several
 						numbers. Valid values are <literal>true/false</literal>. 
 						<emphasis>
@@ -164,7 +166,7 @@
 		</variablelist>
 	</para>
 	<para>
-		In the approach with <emphasis>regular expressions</emphasis>, TortoiseSVN
+		In the approach with <literal>regular expressions</literal>, TortoiseSVN
 		doesn't show a separate input field but marks the part of the log message the user
 		enters which is recognized by the issue tracker. This is done while the user
 		writes the log message. This also means that the bug ID can be anywhere inside a log
@@ -172,17 +174,17 @@
 		This method is much more flexible, and is the one used by the TortoiseSVN project itself.
 		<variablelist>
 			<varlistentry>
-				<term condition="pot">bugtraq:logregex</term>
+				<term>bugtraq:logregex</term>
 				<listitem>
 					<para>
 						<emphasis>
-							This property activates the bug tracking system
+							This property activates the Bugtracking System
 							in <literal>Regex</literal> mode.
 						</emphasis>
 						It contains one or two regular expressions, separated by a newline.
 					</para>
 					<para>
-						If only one expression is set, then the bare bug IDs must be matched
+						If only one expression is set, then the bare bug ID's must be matched
 						in the groups of the regex string. Example:
 						<literal>[Ii]ssue(?:s)? #?(\d+)</literal>
 					</para>
@@ -202,11 +204,7 @@
 					</para>
 					<para>
 						If you are unfamiliar with regular expressions, take a look at
-						the introduction at
-						<ulink url="http://en.wikipedia.org/wiki/Regular_expression">
-							<citetitle>http://en.wikipedia.org/wiki/Regular_expression</citetitle>
-						</ulink>,
-						and the online documentation and tutorial at
+						the online documentation and tutorial at
 						<ulink url="http://www.regular-expressions.info/">
 							<citetitle>http://www.regular-expressions.info/</citetitle>
 						</ulink>.
@@ -228,7 +226,7 @@
 	</tip>
 	<para>
 		Some <literal>tsvn:</literal> properties require a
-		<literal>true/false</literal> value. TortoiseSVN also understands
+		<literal>true/false</literal> value. TSVN also understands
 		<literal>yes</literal> as a synonym for <literal>true</literal> and
 		<literal>no</literal> as a synonym for <literal>false</literal>.
 	</para>
@@ -241,17 +239,17 @@
 			through the folder tree to find them until it comes to an unversioned
 			folder, or the tree root (eg. <literal>C:\</literal>) is found.
 			If you can be sure that each user checks out only from e.g
-			<filename>trunk/</filename> and not some sub-folder, then it's enough if
+			<filename>trunk/</filename> and not some subfolder, then it's enough if
 			you set the properties on <filename>trunk/</filename>.
 			If you can't be sure, you should set the properties recursively
-			on each sub-folder.
+			on each subfolder.
 			A property setting deeper in the project hierarchy overrides settings on
 			higher levels (closer to <filename>trunk/</filename>).
 		</para>
 		<para>
 			For <literal>tsvn:</literal> properties <emphasis>only</emphasis>
 			you can use the <guilabel>Recursive</guilabel> checkbox to set
-			the property to all sub-folders in the hierarchy, without also
+			the property to all subfolders in the hierarchy, without also
 			setting it on all files.
 		</para>
 	</important>
@@ -259,7 +257,7 @@
 		This issue tracker integration is not restricted to TortoiseSVN; it can be used
 		with any Subversion client. For more information, read the full
 		<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/doc/issuetrackers.txt">
-			<citetitle>Issue Tracker Integration Specification</citetitle>
+			<citetitle>Issuetracker Integration Specification</citetitle>
 		</ulink>.
 	</para>
 </sect1>

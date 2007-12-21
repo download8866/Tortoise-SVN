@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "stdafx.h"
 #include "resource.h"
@@ -27,34 +27,24 @@
 #include "TSVNPath.h"
 #include "PathUtils.h"
 
-SVNInfoData::SVNInfoData()
-    : kind(svn_node_none)
-    , lastchangedtime(0)
-    , lock_davcomment(false)
-    , lock_createtime(0)
-    , lock_expirationtime(0)
-    , size(0)
-    , hasWCInfo(false)
-    , schedule(svn_wc_schedule_normal)
-    , texttime(0)
-    , proptime(0)
-    , depth(svn_depth_unknown)
-    , working_size(0)
-{
-}
-
 SVNInfo::SVNInfo(void)
 {
 	m_pool = svn_pool_create (NULL);
 
-	svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", m_pool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", m_pool);
 
-	svn_error_clear(svn_config_ensure(NULL, m_pool));
+	svn_client_create_context(&m_pctx, m_pool);
+
+	svn_config_ensure(NULL, m_pool);
 	
 	// set up authentication
 	m_prompt.Init(m_pool, m_pctx);
 	m_pctx->cancel_func = cancel;
 	m_pctx->cancel_baton = this;
+
+	svn_utf_initialize(m_pool);
 
 	// set up the configuration
 	m_err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);
@@ -62,7 +52,6 @@ SVNInfo::SVNInfo(void)
 	if (m_err)
 	{
 		::MessageBox(NULL, this->GetLastErrorMsg(), _T("TortoiseSVN"), MB_ICONERROR);
-		svn_error_clear(m_err);
 		svn_pool_destroy (m_pool);					// free the allocated memory
 		exit(-1);
 	}
@@ -82,7 +71,6 @@ SVNInfo::SVNInfo(void)
 
 SVNInfo::~SVNInfo(void)
 {
-	svn_error_clear(m_err);
 	svn_pool_destroy (m_pool);					// free the allocated memory
 }
 
@@ -108,10 +96,9 @@ CString SVNInfo::GetLastErrorMsg()
 
 const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, bool recurse /* = false */)
 {
-	svn_error_clear(m_err);
 	m_arInfo.clear();
 	m_pos = 0;
-	m_err = svn_client_info(path.GetSVNApiPath(m_pool), pegrev, revision, infoReceiver, this, recurse, m_pctx, m_pool);
+	m_err = svn_client_info(path.GetSVNApiPath(), pegrev, revision, infoReceiver, this, recurse, m_pctx, m_pool);
 	if (m_err != NULL)
 		return NULL;
 	if (m_arInfo.size() == 0)
@@ -147,9 +134,7 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_in
 	data.lastchangedtime = info->last_changed_date/1000000L;
 	if (info->last_changed_author)
 		data.author = CUnicodeUtils::GetUnicode(info->last_changed_author);
-	data.depth = info->depth;
-	data.size = info->size;
-
+	
 	if (info->lock)
 	{
 		if (info->lock->path)
@@ -184,9 +169,6 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_in
 			data.conflict_wrk = CUnicodeUtils::GetUnicode(info->conflict_wrk);
 		if (info->prejfile)
 			data.prejfile = CUnicodeUtils::GetUnicode(info->prejfile);
-		if (info->changelist)
-			data.changelist = CUnicodeUtils::GetUnicode(info->changelist);
-		data.working_size = info->working_size;
 	}
 	pThis->m_arInfo.push_back(data);
 	pThis->Receiver(&data);

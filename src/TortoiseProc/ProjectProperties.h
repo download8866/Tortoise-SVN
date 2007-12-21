@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include <iostream>
 #include <string>
 #include "regexpr2.h"
-#include "TSVNPath.h"
 using namespace std;
 using namespace regex;
 
@@ -37,21 +36,13 @@ using namespace regex;
 #define PROJECTPROPNAME_LOGMINSIZE		  _T("tsvn:logminsize")
 #define PROJECTPROPNAME_LOCKMSGMINSIZE	  _T("tsvn:lockmsgminsize")
 #define PROJECTPROPNAME_LOGFILELISTLANG	  _T("tsvn:logfilelistenglish")
-#define PROJECTPROPNAME_LOGSUMMARY		  _T("tsvn:logsummary")
 #define PROJECTPROPNAME_PROJECTLANGUAGE   _T("tsvn:projectlanguage")
-#define PROJECTPROPNAME_USERFILEPROPERTY  _T("tsvn:userfileproperties")
-#define PROJECTPROPNAME_USERDIRPROPERTY   _T("tsvn:userdirproperties")
-#define PROJECTPROPNAME_AUTOPROPS		  _T("tsvn:autoprops")
-
-#define PROJECTPROPNAME_WEBVIEWER_REV     _T("webviewer:revision")
-#define PROJECTPROPNAME_WEBVIEWER_PATHREV _T("webviewer:pathrevision")
 
 class CTSVNPathList;
-struct svn_config_t;
 
 /**
  * \ingroup TortoiseProc
- * Provides methods for retrieving information about bug/issue trackers
+ * Provides methods for retrieving information about bug/issuetrackers
  * associated with a Subversion repository/working copy and other project
  * related properties.
  */
@@ -110,24 +101,6 @@ public:
 	 */
 	CString GetBugIDUrl(const CString& sBugID);
 
-	/**
-	 * Inserts the tsvn:autoprops into the Subversion config section.
-	 * Call this before an import or an add operation.
-	 */
-	void InsertAutoProps(svn_config_t *cfg);
-
-	/**
-	 * Adds all the project properties to the specified entry
-	 */
-	bool AddAutoProps(const CTSVNPath& path);
-
-	/**
-	 * Returns the log message summary if the tsvn:logsummaryregex property is
-	 * set and there are actually some matches.
-	 * Otherwise, an empty string is returned.
-	 */
-	CString GetLogSummary(const CString& sMessage);
-
 public:
 	/** The label to show in the commit dialog where the issue number/bug id
 	 * is entered. Example: "Bug-ID: " or "Issue-No.:". Default is "Bug-ID :" */
@@ -180,28 +153,9 @@ public:
 	
 	/** The language identifier this project uses for log messages. */
 	LONG		lProjectLanguage;
-
-	/** holds user defined properties for files. */
-	CString		sFPPath;
-
-	/** holds user defined properties for directories. */
-	CString		sDPPath;
-
-	/** The url pointing to the web viewer. The string %REVISION% is replaced
-	 *  with the revision number, "HEAD", or a date */
-	CString		sWebViewerRev;
-
-	/** The url pointing to the web viewer. The string %REVISION% is replaced
-	 *  with the revision number, "HEAD", or a date. The string %PATH% is replaced
-	 *  with the path relative to the repository root, e.g. "/trunk/src/file" */
-	CString		sWebViewerPathRev;
-
 private:
 	rpattern	patCheckRe;
 	rpattern	patBugIDRe;
-	CString		sAutoProps;
-	rpattern	patLogSummary;
-	bool		bHasLogSummaryPattern;
 #ifdef DEBUG
 	friend class PropTest;
 #endif

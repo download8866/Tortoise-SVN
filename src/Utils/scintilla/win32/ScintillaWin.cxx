@@ -30,9 +30,6 @@
 #endif
 #include "ContractionState.h"
 #include "SVector.h"
-#include "SplitVector.h"
-#include "Partitioning.h"
-#include "RunStyles.h"
 #include "CellBuffer.h"
 #include "CallTip.h"
 #include "KeyMap.h"
@@ -43,9 +40,7 @@
 #include "AutoComplete.h"
 #include "ViewStyle.h"
 #include "CharClassify.h"
-#include "Decoration.h"
 #include "Document.h"
-#include "PositionCache.h"
 #include "Editor.h"
 #include "ScintillaBase.h"
 #include "UniConversion.h"
@@ -159,7 +154,6 @@ class ScintillaWin :
 
 	CLIPFORMAT cfColumnSelect;
 
-	HRESULT hrOle;
 	DropSource ds;
 	DataObject dob;
 	DropTarget dt;
@@ -184,7 +178,6 @@ class ScintillaWin :
 
 	enum { invalidTimerID, standardTimerID, idleTimerID };
 
-	virtual bool DragThreshold(Point ptStart, Point ptNow);
 	virtual void StartDrag();
 	sptr_t WndPaint(uptr_t wParam);
 	sptr_t HandleComposition(uptr_t wParam, sptr_t lParam);
@@ -204,8 +197,7 @@ class ScintillaWin :
 	virtual void NotifyFocus(bool focus);
 	virtual int GetCtrlID();
 	virtual void NotifyParent(SCNotification scn);
-	virtual void NotifyParent(SCNotification * scn);
-	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
+	virtual void NotifyDoubleClick(Point pt, bool shift);
 	virtual void Copy();
 	virtual bool CanPaste();
 	virtual void Paste();
@@ -227,7 +219,6 @@ class ScintillaWin :
 	void FullPaint();
 	void FullPaintDC(HDC dc);
 	bool IsCompatibleDC(HDC dc);
-	DWORD EffectFromState(DWORD grfKeyState);
 
 	virtual int SetScrollInfo(int nBar, LPCSCROLLINFO lpsi, BOOL bRedraw);
 	virtual bool GetScrollInfo(int nBar, LPSCROLLINFO lpsi);
@@ -300,8 +291,6 @@ ScintillaWin::ScintillaWin(HWND hwnd) {
 	cfColumnSelect = static_cast<CLIPFORMAT>(
 		::RegisterClipboardFormat(TEXT("MSDEVColumnSelect")));
 
-	hrOle = E_FAIL;
-
 	wMain = hwnd;
 
 	dob.sci = this;
@@ -321,7 +310,7 @@ void ScintillaWin::Initialise() {
 	// Initialize COM.  If the app has already done this it will have
 	// no effect.  If the app hasnt, we really shouldnt ask them to call
 	// it just so this internal feature works.
-	hrOle = ::OleInitialize(NULL);
+	::OleInitialize(NULL);
 }
 
 void ScintillaWin::Finalise() {
@@ -330,24 +319,14 @@ void ScintillaWin::Finalise() {
 	SetIdle(false);
 	DestroySystemCaret();
 	::RevokeDragDrop(MainHWND());
-	if (SUCCEEDED(hrOle)) {
-		::OleUninitialize();
-	}
+	::OleUninitialize();
 }
 
 HWND ScintillaWin::MainHWND() {
 	return reinterpret_cast<HWND>(wMain.GetID());
 }
 
-bool ScintillaWin::DragThreshold(Point ptStart, Point ptNow) {
-	int xMove = abs(ptStart.x - ptNow.x);
-	int yMove = abs(ptStart.y - ptNow.y);
-	return (xMove > ::GetSystemMetrics(SM_CXDRAG)) ||
-		(yMove > ::GetSystemMetrics(SM_CYDRAG));
-}
-
 void ScintillaWin::StartDrag() {
-	inDragDrop = ddDragging;
 	DWORD dwEffect = 0;
 	dropWentOutside = true;
 	IDataObject *pDataObject = reinterpret_cast<IDataObject *>(&dob);
@@ -364,7 +343,7 @@ void ScintillaWin::StartDrag() {
 			ClearSelection();
 		}
 	}
-	inDragDrop = ddNone;
+	inDragDrop = false;
 	SetDragPosition(invalidPosition);
 }
 
@@ -381,7 +360,7 @@ static int InputCodePage() {
 	HKL inputLocale = ::GetKeyboardLayout(0);
 	LANGID inputLang = LOWORD(inputLocale);
 	char sCodePage[10];
-	int res = ::GetLocaleInfoA(MAKELCID(inputLang, SORT_DEFAULT),
+	int res = ::GetLocaleInfo(MAKELCID(inputLang, SORT_DEFAULT),
 	  LOCALE_IDEFAULTANSICODEPAGE, sCodePage, sizeof(sCodePage));
 	if (!res)
 		return 0;
@@ -417,9 +396,6 @@ static int KeyTranslate(int keyIn) {
 		case VK_ADD:		return SCK_ADD;
 		case VK_SUBTRACT:	return SCK_SUBTRACT;
 		case VK_DIVIDE:		return SCK_DIVIDE;
-		case VK_LWIN:		return SCK_WIN;
-		case VK_RWIN:		return SCK_RWIN;
-		case VK_APPS:		return SCK_MENU;
 		case VK_OEM_2:		return '/';
 		case VK_OEM_3:		return '`';
 		case VK_OEM_4:		return '[';
@@ -440,8 +416,7 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 
 	bool IsOcxCtrl = (wParam != 0); // if wParam != 0, it contains
 								   // a PAINSTRUCT* from the OCX
-	// Removed since this interferes with reporting other assertions as it occurs repeatedly
-	//PLATFORM_ASSERT(hRgnUpdate == NULL);
+	PLATFORM_ASSERT(hRgnUpdate == NULL);
 	hRgnUpdate = ::CreateRectRgn(0, 0, 0, 0);
 	if (IsOcxCtrl) {
 		pps = reinterpret_cast<PAINTSTRUCT*>(wParam);
@@ -499,7 +474,7 @@ sptr_t ScintillaWin::HandleComposition(uptr_t wParam, sptr_t lParam) {
 			if (IsUnicodeMode()) {
 				char utfval[maxLenInputIME * 3];
 				unsigned int len = UTF8Length(wcs, wides);
-				UTF8FromUTF16(wcs, wides, utfval, len);
+				UTF8FromUCS2(wcs, wides, utfval, len);
 				utfval[len] = '\0';
 				AddCharUTF(utfval, len);
 			} else {
@@ -708,7 +683,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 
 	case WM_SETCURSOR:
 		if (LoWord(lParam) == HTCLIENT) {
-			if (inDragDrop == ddDragging) {
+			if (inDragDrop) {
 				DisplayCursor(Window::cursorUp);
 			} else {
 				// Display regular (drag) cursor over selection
@@ -737,7 +712,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 				//char utfval[4];
 				//wchar_t wcs[2] = {wParam, 0};
 				//unsigned int len = UTF8Length(wcs, 1);
-				//UTF8FromUTF16(wcs, 1, utfval, len);
+				//UTF8FromUCS2(wcs, 1, utfval, len);
 				//AddCharUTF(utfval, len);
 				AddCharBytes('\0', LOBYTE(wParam));
 			} else {
@@ -754,9 +729,9 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 		} else {
 			if (IsUnicodeMode()) {
 				char utfval[4];
-				wchar_t wcs[2] = {static_cast<wchar_t>(wParam), 0};
+				wchar_t wcs[2] = {wParam, 0};
 				unsigned int len = UTF8Length(wcs, 1);
-				UTF8FromUTF16(wcs, 1, utfval, len);
+				UTF8FromUCS2(wcs, 1, utfval, len);
 				AddCharUTF(utfval, len);
 				return 1;
 			} else {
@@ -880,8 +855,8 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 		capturedMouse = false;
 		return 0;
 
-	// These are not handled in Scintilla and its faster to dispatch them here.
-	// Also moves time out to here so profile doesn't count lots of empty message calls.
+        // These are not handled in Scintilla and its faster to dispatch them here.
+        // Also moves time out to here so profile doesn't count lots of empty message calls.
 
 	case WM_MOVE:
 	case WM_MOUSEACTIVATE:
@@ -1187,16 +1162,9 @@ void ScintillaWin::NotifyParent(SCNotification scn) {
 	              GetCtrlID(), reinterpret_cast<LPARAM>(&scn));
 }
 
-void ScintillaWin::NotifyParent(SCNotification * scn) {
-	scn->nmhdr.hwndFrom = MainHWND();
-	scn->nmhdr.idFrom = GetCtrlID();
-	::SendMessage(::GetParent(MainHWND()), WM_NOTIFY,
-		GetCtrlID(), reinterpret_cast<LPARAM>(scn));
-}
-
-void ScintillaWin::NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt) {
+void ScintillaWin::NotifyDoubleClick(Point pt, bool shift) {
 	//Platform::DebugPrintf("ScintillaWin Double click 0\n");
-	ScintillaBase::NotifyDoubleClick(pt, shift, ctrl, alt);
+	ScintillaBase::NotifyDoubleClick(pt, shift);
 	// Send myself a WM_LBUTTONDBLCLK, so the container can handle it too.
 	::SendMessage(MainHWND(),
 			  WM_LBUTTONDBLCLK,
@@ -1320,7 +1288,7 @@ void ScintillaWin::Paste() {
 				len = UTF8Length(uptr, bytes / 2);
 				putf = new char[len + 1];
 				if (putf) {
-					UTF8FromUTF16(uptr, bytes / 2, putf, len);
+					UTF8FromUCS2(uptr, bytes / 2, putf, len);
 				}
 			} else {
 				// CF_UNICODETEXT available, but not in Unicode mode
@@ -1365,8 +1333,8 @@ void ScintillaWin::Paste() {
 					unsigned int mlen = UTF8Length(uptr, ulen);
 					char *putf = new char[mlen + 1];
 					if (putf) {
-						// CP_UTF8 not available on Windows 95, so use UTF8FromUTF16()
-						UTF8FromUTF16(uptr, ulen, putf, mlen);
+						// CP_UTF8 not available on Windows 95, so use UTF8FromUCS2()
+						UTF8FromUCS2(uptr, ulen, putf, mlen);
 					}
 
 					delete []uptr;
@@ -1405,11 +1373,11 @@ void ScintillaWin::AddToPopUp(const char *label, int cmd, bool enabled) {
 #ifdef TOTAL_CONTROL
 	HMENU hmenuPopup = reinterpret_cast<HMENU>(popup.GetID());
 	if (!label[0])
-		::AppendMenuA(hmenuPopup, MF_SEPARATOR, 0, "");
+		::AppendMenu(hmenuPopup, MF_SEPARATOR, 0, "");
 	else if (enabled)
-		::AppendMenuA(hmenuPopup, MF_STRING, cmd, label);
+		::AppendMenu(hmenuPopup, MF_STRING, cmd, label);
 	else
-		::AppendMenuA(hmenuPopup, MF_STRING | MF_DISABLED | MF_GRAYED, cmd, label);
+		::AppendMenu(hmenuPopup, MF_STRING | MF_DISABLED | MF_GRAYED, cmd, label);
 #endif
 }
 
@@ -1744,7 +1712,7 @@ void ScintillaWin::ImeStartComposition() {
 			// Since the style creation code has been made platform independent,
 			// The logfont for the IME is recreated here.
 			int styleHere = (pdoc->StyleAt(currentPos)) & 31;
-			LOGFONTA lf = {0,0,0,0,0,0,0,0,0,0,0,0,0, ""};
+			LOGFONT lf = {0,0,0,0,0,0,0,0,0,0,0,0,0,TEXT("")};
 			int sizeZoomed = vs.styles[styleHere].size + vs.zoomLevel;
 			if (sizeZoomed <= 2)	// Hangs if sizeZoomed <= 1
 				sizeZoomed = 2;
@@ -1762,7 +1730,7 @@ void ScintillaWin::ImeStartComposition() {
 			if (vs.styles[styleHere].fontName)
 				strcpy(lf.lfFaceName, vs.styles[styleHere].fontName);
 
-			::ImmSetCompositionFontA(hIMC, &lf);
+			::ImmSetCompositionFont(hIMC, &lf);
 		}
 		::ImmReleaseContext(MainHWND(), hIMC);
 		// Caret is displayed in IME window. So, caret in Scintilla is useless.
@@ -1794,7 +1762,7 @@ void ScintillaWin::AddCharBytes(char b0, char b1) {
 			::MultiByteToWideChar(inputCodePage, 0, ansiChars, 1, wcs, 1);
 		}
 		unsigned int len = UTF8Length(wcs, 1);
-		UTF8FromUTF16(wcs, 1, utfval, len);
+		UTF8FromUCS2(wcs, 1, utfval, len);
 		utfval[len] = '\0';
 		AddCharUTF(utfval, len ? len : 1);
 	} else if (b0) {
@@ -1822,10 +1790,10 @@ void ScintillaWin::CopyToClipboard(const SelectionText &selectedText) {
 
 	// Default Scintilla behaviour in Unicode mode
 	if (IsUnicodeMode()) {
-		int uchars = UTF16Length(selectedText.s, selectedText.len);
+		int uchars = UCS2Length(selectedText.s, selectedText.len);
 		uniText.Allocate(2 * uchars);
 		if (uniText) {
-			UTF16FromUTF8(selectedText.s, selectedText.len, static_cast<wchar_t *>(uniText.ptr), uchars);
+			UCS2FromUTF8(selectedText.s, selectedText.len, static_cast<wchar_t *>(uniText.ptr), uchars);
 		}
 	} else {
 		// Not Unicode mode
@@ -1997,20 +1965,6 @@ bool ScintillaWin::IsCompatibleDC(HDC hOtherDC) {
 	return isCompatible;
 }
 
-DWORD ScintillaWin::EffectFromState(DWORD grfKeyState) {
-	// These are the Wordpad semantics.
-	DWORD dwEffect;
-	if (inDragDrop == ddDragging)	// Internal defaults to move
-		dwEffect = DROPEFFECT_MOVE;
-	else
-		dwEffect = DROPEFFECT_COPY;
-	if (grfKeyState & MK_ALT)
-		dwEffect = DROPEFFECT_MOVE;
-	if (grfKeyState & MK_CONTROL)
-		dwEffect = DROPEFFECT_COPY;
-	return dwEffect;
-}
-
 /// Implement IUnknown
 STDMETHODIMP ScintillaWin::QueryInterface(REFIID riid, PVOID *ppv) {
 	*ppv = NULL;
@@ -2040,9 +1994,11 @@ STDMETHODIMP ScintillaWin::DragEnter(LPDATAOBJECT pIDataSource, DWORD grfKeyStat
                                      POINTL, PDWORD pdwEffect) {
 	if (pIDataSource == NULL)
 		return E_POINTER;
-	FORMATETC fmtu = {CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-	HRESULT hrHasUText = pIDataSource->QueryGetData(&fmtu);
-	hasOKText = (hrHasUText == S_OK);
+	if (IsUnicodeMode()) {
+		FORMATETC fmtu = {CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+		HRESULT hrHasUText = pIDataSource->QueryGetData(&fmtu);
+		hasOKText = (hrHasUText == S_OK);
+	}
 	if (!hasOKText) {
 		FORMATETC fmte = {CF_TEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 		HRESULT hrHasText = pIDataSource->QueryGetData(&fmte);
@@ -2053,7 +2009,14 @@ STDMETHODIMP ScintillaWin::DragEnter(LPDATAOBJECT pIDataSource, DWORD grfKeyStat
 		return S_OK;
 	}
 
-	*pdwEffect = EffectFromState(grfKeyState);
+	if (inDragDrop)	// Internal defaults to move
+		*pdwEffect = DROPEFFECT_MOVE;
+	else
+		*pdwEffect = DROPEFFECT_COPY;
+	if (grfKeyState & MK_ALT)
+		*pdwEffect = DROPEFFECT_MOVE;
+	if (grfKeyState & MK_CONTROL)
+		*pdwEffect = DROPEFFECT_COPY;
 	return S_OK;
 }
 
@@ -2063,8 +2026,15 @@ STDMETHODIMP ScintillaWin::DragOver(DWORD grfKeyState, POINTL pt, PDWORD pdwEffe
 		return S_OK;
 	}
 
-	*pdwEffect = EffectFromState(grfKeyState);
-
+	// These are the Wordpad semantics.
+	if (inDragDrop)	// Internal defaults to move
+		*pdwEffect = DROPEFFECT_MOVE;
+	else
+		*pdwEffect = DROPEFFECT_COPY;
+	if (grfKeyState & MK_ALT)
+		*pdwEffect = DROPEFFECT_MOVE;
+	if (grfKeyState & MK_CONTROL)
+		*pdwEffect = DROPEFFECT_COPY;
 	// Update the cursor.
 	POINT rpt = {pt.x, pt.y};
 	::ScreenToClient(MainHWND(), &rpt);
@@ -2080,7 +2050,14 @@ STDMETHODIMP ScintillaWin::DragLeave() {
 
 STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState,
                                 POINTL pt, PDWORD pdwEffect) {
-	*pdwEffect = EffectFromState(grfKeyState);
+	if (inDragDrop)	// Internal defaults to move
+		*pdwEffect = DROPEFFECT_MOVE;
+	else
+		*pdwEffect = DROPEFFECT_COPY;
+	if (grfKeyState & MK_ALT)
+		*pdwEffect = DROPEFFECT_MOVE;
+	if (grfKeyState & MK_CONTROL)
+		*pdwEffect = DROPEFFECT_COPY;
 
 	if (pIDataSource == NULL)
 		return E_POINTER;
@@ -2088,38 +2065,22 @@ STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState,
 	SetDragPosition(invalidPosition);
 
 	STGMEDIUM medium={0,{0},0};
+	HRESULT hr = S_OK;
 
 	char *data = 0;
 	bool dataAllocated = false;
 
-	FORMATETC fmtu = {CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-	HRESULT hr = pIDataSource->GetData(&fmtu, &medium);
-	if (SUCCEEDED(hr) && medium.hGlobal) {
-		wchar_t *udata = static_cast<wchar_t *>(::GlobalLock(medium.hGlobal));
-		if (IsUnicodeMode()) {
+	if (IsUnicodeMode()) {
+		FORMATETC fmtu = {CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+		hr = pIDataSource->GetData(&fmtu, &medium);
+		if (SUCCEEDED(hr) && medium.hGlobal) {
+			wchar_t *udata = static_cast<wchar_t *>(::GlobalLock(medium.hGlobal));
 			int tlen = ::GlobalSize(medium.hGlobal);
-			// Convert UTF-16 to UTF-8
+			// Convert UCS-2 to UTF-8
 			int dataLen = UTF8Length(udata, tlen/2);
 			data = new char[dataLen+1];
 			if (data) {
-				UTF8FromUTF16(udata, tlen/2, data, dataLen);
-				dataAllocated = true;
-			}
-		} else {
-			// Convert UTF-16 to ANSI
-			//
-			// Default Scintilla behavior in Unicode mode
-			// CF_UNICODETEXT available, but not in Unicode mode
-			// Convert from Unicode to current Scintilla code page
-			UINT cpDest = CodePageFromCharSet(
-				vs.styles[STYLE_DEFAULT].characterSet, pdoc->dbcsCodePage);
-			int tlen = ::WideCharToMultiByte(cpDest, 0, udata, -1,
-				NULL, 0, NULL, NULL) - 1; // subtract 0 terminator
-			data = new char[tlen + 1];
-			if (data) {
-				memset(data, 0, (tlen+1));
-				::WideCharToMultiByte(cpDest, 0, udata, -1,
-						data, tlen + 1, NULL, NULL);
+				UTF8FromUCS2(udata, tlen/2, data, dataLen);
 				dataAllocated = true;
 			}
 		}
@@ -2179,10 +2140,10 @@ STDMETHODIMP ScintillaWin::GetData(FORMATETC *pFEIn, STGMEDIUM *pSTM) {
 
 	GlobalMemory text;
 	if (pFEIn->cfFormat == CF_UNICODETEXT) {
-		int uchars = UTF16Length(drag.s, drag.len);
+		int uchars = UCS2Length(drag.s, drag.len);
 		text.Allocate(2 * uchars);
 		if (text) {
-			UTF16FromUTF8(drag.s, drag.len, static_cast<wchar_t *>(text.ptr), uchars);
+			UCS2FromUTF8(drag.s, drag.len, static_cast<wchar_t *>(text.ptr), uchars);
 		}
 	} else {
 		text.Allocate(drag.len);

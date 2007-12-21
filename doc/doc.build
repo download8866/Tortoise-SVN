@@ -18,9 +18,6 @@ All user/site specific configuration is stored in doc.build.user.
 		Builds the Documentation in all languages and all output formats
 	</description>
 	
-	<!-- default: we don't clean first -->
-	<property name="cleanup" value="" overwrite="false" />
-
 	<include buildfile="doc.build.include"/>
 
 <!-- ====================================================================== -->
@@ -55,11 +52,6 @@ All user/site specific configuration is stored in doc.build.user.
 			<echo message="Creating '${doc.target.name}' documentation"/>
 
 			<call target="translate" unless="${lang.base==lang.target}"/>
-
-			<!-- update version info in version.xml -->
-			<call target="UpdateVersionInfo"/>
-
-			<call target="spellcheck" if="${property::exists('spellcheck') and spellcheck=='true'}"/>
 			<call target="copyimages"/>
 
 			<property name="xslt.source" value="${doc.target.source}"/>
@@ -73,18 +65,15 @@ All user/site specific configuration is stored in doc.build.user.
 <!-- ====================================================================== -->
 
 	<target name="clean" description="remove all generated files">
-		<if test="${cleanup == 'yes'}">
-			<delete dir="output" failonerror="false"/>
-		</if>
+		<delete dir="output" failonerror="false"/>
 	</target>
 	
 <!-- ====================================================================== -->
 <!-- ====================================================================== -->
 
-	<target name="prepare" description="Create directories" depends="clean">
+	<target name="prepare" description="Create directories">
 		<mkdir dir="output"/>
 		<call target="prepare.custom" if="${target::exists('prepare.custom')}"/>
-
 		<!-- find the path to the fonts -->
 		<script language="C#">			
 			<code>
@@ -99,19 +88,6 @@ All user/site specific configuration is stored in doc.build.user.
 				]]>
 			</code>
 		</script>
-
-		<!-- ensure "Version" translation invariant -->
-		<copy file="source\${lang.base}\version.in" tofile="source\${lang.base}\version.xml" overwrite="true"/>
-
-		<!-- tune path to xsltproc.exe in aspell.bat -->
-		<copy file="Aspell/aspell.in" tofile="Aspell/aspell.bat" overwrite="true">
-			<filterchain>
-				<replacetokens begintoken="$" endtoken="$">
-					<token key="XSLTProcPath" value="${path.bin}" />
-				</replacetokens>
-			</filterchain>
-		</copy>
-
 	</target>
 
 <!-- ====================================================================== -->
@@ -126,7 +102,7 @@ All user/site specific configuration is stored in doc.build.user.
 			</fileset>
 		</copy>
 
-		<copy todir="${doc.target.work}/images" unless="${lang.base==lang.target}" overwrite="true">
+		<copy todir="${doc.target.work}/images" unless="${lang.base==lang.target}">
 			<fileset basedir="images/${lang.target}">
 				<include name="*"/>
 			</fileset>
@@ -137,7 +113,6 @@ All user/site specific configuration is stored in doc.build.user.
 <!-- ====================================================================== -->
 
 	<target name="uptodate" description="Check whether the given target is up to date">
-
 		<echo message="Checking if '${file.target}' is up to date"/>
 		<uptodate property="file.target.uptodate">
 			<sourcefiles>
@@ -145,7 +120,7 @@ All user/site specific configuration is stored in doc.build.user.
 				<include name="source/${lang.target}/pubdate.xml"/>
 				<include name="source/${lang.target}/glossary.xml"/>
 				<include name="source/${lang.target}/wishlist.xml"/>
-				<include name="source/${lang.target}/version.in"/>
+				<exclude name="source/${lang.target}/version.xml"/>
 			</sourcefiles>
 			<targetfiles>
 				<include name="${file.target}"/>
@@ -209,9 +184,6 @@ All user/site specific configuration is stored in doc.build.user.
 	<target name="potfile" description="Create po template from sources">
 		<property name="lang.target" value="${lang.base}"/>
 		
-		<!-- ensure "Version" translation invariant -->
-		<copy file="source\${lang.base}\version.in" tofile="source\${lang.base}\version.xml" overwrite="true"/>
-
 		<foreach item="String" in="${potemplates}" delim="," property="app">
 
 			<property name="potfile" value="po/${app}.pot" />
@@ -226,17 +198,9 @@ All user/site specific configuration is stored in doc.build.user.
 			<if test="${not file::up-to-date(file.target, potfile)}">
 				<echo message="Creating po template from sources"/>
 				<exec program="python"
-							commandline="xml2po.py -e -o ${potfile}.tmp ${file.target}"
+							commandline="xml2po.py -e -o ${potfile} ${file.target}"
 							verbose="false"/>
-
-				<!-- Adjust path to source file -->
-				<move file="${potfile}.tmp" tofile="${potfile}" overwrite="true">
-					<filterchain>
-						<replacestring from="#: ${file.target}" to="#: ../${file.target}" />
-					</filterchain>
-				</move>
 			</if>
-
 			<echo message="" />
 		</foreach>
 	</target>
@@ -248,7 +212,7 @@ All user/site specific configuration is stored in doc.build.user.
 	<target name="translate" description="Create translated source file">
 		<property name="lang.pofile" value="po/${app}_${lang.target}.po"/>
 
-		<echo message="Translating: '${app} ${lang.target}' This may take a few minutes"/>
+		<echo message="Translating: '${lang.target}' This may take a few minutes"/>
 		
 		<exec program="msgfmt"
 					commandline="${lang.pofile} -o ${lang.target}.mo"
@@ -262,7 +226,7 @@ All user/site specific configuration is stored in doc.build.user.
 					<include name="source/${lang.base}/pubdate.xml"/>
 					<include name="source/${lang.base}/glossary.xml"/>
 					<include name="source/${lang.base}/wishlist.xml"/>
-					<include name="source/${lang.base}/version.in"/>
+					<include name="source/${lang.base}/version.xml"/>
 				</items>
 			</in>
 			<do>
@@ -279,15 +243,13 @@ All user/site specific configuration is stored in doc.build.user.
 				</uptodate>
 
 				<if test="${not file.target.uptodate}">
-
-					<echo message="Translating: ${path::get-file-name(file.target)}"/>
+					<echo message="${file.target}"/>
 					<property name="dir.target" value="${path::get-directory-name(file.target)}"/>
 					<mkdir dir="${dir.target}" unless="${directory::exists(dir.target)}"/>
 					<exec program="python"
-								commandline='xml2po.py -t "${lang.target}.mo" -o "${file.target}" "${file.base}"'
+								commandline="xml2po.py -t ${lang.target}.mo -o ${file.target} ${file.base}"
 								verbose="false"/>
 				</if>
-
 			</do>
 		</foreach>
 
@@ -304,85 +266,6 @@ All user/site specific configuration is stored in doc.build.user.
 -->
 
 		<delete file="${lang.target}.mo"/>
-	</target>
-
-<!-- ====================================================================== -->
-<!-- Try to update version info in the version file                         -->
-<!-- ====================================================================== -->
-
-	<target name="UpdateVersionInfo" description="Updates the version file with version info">
-
-		<copy
-			file="source\${lang.target}\version.in" 
-			tofile="source\${lang.target}\version.xml"
-			overwrite="true">
-
-			<filterchain>
-				<replacetokens begintoken="$" endtoken="$">
-					<token key="MajorVersion" value="${environment::get-variable('MajorVersion')}"/>
-					<token key="MinorVersion" value="${environment::get-variable('MinorVersion')}"/>
-					<token key="MicroVersion" value="${environment::get-variable('Microversion')}"/>
-<!--
-					<token key="WCREV" value="${environment::get-variable('WCREV')}"/>
--->
-				</replacetokens>
-			</filterchain>
-		</copy>
-
-	</target>
-
-<!-- ====================================================================== -->
-<!-- Run spellchecker on files                                              -->
-<!-- ====================================================================== -->
-
-	<target name="spellcheck" description="Run spellchecker on files">
-		<echo message="Spellchecking: '${app} ${lang.target}' This may take a few minutes"/>
-		<property name="spellcheck.log" value="ASpell/${app}_${lang.target}.log"/>
-		
-		<echo message="--- Spellchecking: '${lang.target}'"
-			file="${spellcheck.log}"
-			failonerror="false"/>
-
-		<copy file="Aspell/TortoiseSVN.tmpl.pws" tofile="Aspell/Temp.pws" overwrite="true">
-			<filterchain>
-				<replacetokens begintoken="$" endtoken="$">
-					<token key="LANG" value="${lang.target}" />
-				</replacetokens>
-			</filterchain>
-		</copy>
-
-		<foreach item="File" property="file.base">
-			<in>
-				<items>
-					<include name="source/${lang.base}/${app}/**/*.xml"/>
-					<include name="source/${lang.base}/glossary.xml"/>
-					<include name="source/${lang.base}/wishlist.xml"/>
-				</items>
-			</in>
-			<do>
-				<property name="file.target" value="${string::replace(file.base,'\'+lang.base+'\','\'+lang.target+'\')}"/>
-
-<!--
-				<uptodate property="file.target.uptodate">
-					<sourcefiles>
-						<include name="${file.target}"/>
-					</sourcefiles>
-					<targetfiles>
-						<include name="${spellcheck.log}"/>
-					</targetfiles>
-				</uptodate>
-
-				<if test="${not file.target.uptodate}">
--->
-					<echo message="Checking: ${path::get-file-name(file.target)}"/>
-					<exec program="Aspell/aspell.bat"
-						commandline="${path.spellcheck} ${lang.target} ${file.target} ${spellcheck.log}"
-						failonerror="false"/>
-<!--
-				</if>
--->
-			</do>
-		</foreach>
 	</target>
 	
 <!-- ====================================================================== -->
@@ -538,5 +421,4 @@ All user/site specific configuration is stored in doc.build.user.
 	</target>
 
 </project>
-
 

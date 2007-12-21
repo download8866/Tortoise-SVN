@@ -1,22 +1,27 @@
 /**
  * \mainpage TortoiseSVN
  * \section introduction Introduction
+ * \image html charlie.gif "Logo"
  * TortoiseSVN is a windows shell integration for the Subversion
- * source versioning system. Subversion is the successor
+ * source versioning system. Subversion aims to be the successor
  * of the famous CVS. See http://subversion.tigris.org for
  * more information on Subversion.
- *
  * TortoiseSVN was inspired by the similar program TortoiseCVS.
+ * Much of the source of TortoiseCVS was used as a starting
+ * point for this project. See http://www.tortoisecvs.org for
+ * details of this free product.
  * 
  * With TortoiseSVN you can use Subversion directly from the
  * Windows Explorer. The Subversion status of your project
- * files are clearly visible and all commands Subversion
- * provides are accessible directly from the Explorer Context-Menu
+ * files are clearly visible and most commands Subversion
+ * provides are directly accessible from the Explorer Context-Menu
  * (right-click).
  *
  * \section Requirements Requirements
- * TortoiseSVN runs under Win2k and later.
+ * TortoiseSVN runs under Win95, Win98, WinME, WinNT4 (SP6), Win2k and WinXP.
  * You also need at least Internet Explorer Version 5 or higher.
+ * Please note that some functions like the Subversion Columns need Win2k or higher
+ * to work and are disabled in other systems. But TortoiseSVN will still work.
  *
  * \section Installation Installation
  * TortoiseSVN comes with an installer. Just run the installer and follow
@@ -26,24 +31,13 @@
  * the TortoiseSVN menus are there.
  *
  * \section Sourcecode Sourcecode
- * The full sourcecode of TortoiseSVN is available at http://tortoisesvn.net.
- * 
- * For information on how to build TortoiseSVN from the source code see \ref build
+ * The full sourcecode of TortoiseSVN is available at http://tortoisesvn.tigris.org.
+ * Right now it is under CVS version control and you therefore need a CVS client
+ * to get the source. For a really superior CVS client go to http://www.tortoisecvs.org.
+ * Please read the instructions on the website on server/login.
+ * As soon as we can we will put the source under Subversion control and then you
+ * can use TortoiseSVN itself to get the source.
  *
- * \section Internals Internals
- * TortoiseSVN is a shell extension. All commands and dialogs are started by
- * using the shell context menu on files and folders.
- *
- * The shell extension part is separate from the main application to reduce
- * the memory use in the shell. The shell extension only does what's absolutely
- * necessary and then creates a new process of the main application to do the
- * real work. The main application is TortoiseProc. The shell passes all the
- * information to TortoiseProc via command line switches and temporary files.
- *
- * To avoid loading the whole TortoiseShell dll if it isn't really wanted (e.g.,
- * in applications other than the explorer itself), there's a stub dll which
- * is registered in the shell as the extension. That stub dll then loads the
- * TortoiseShell dll if required.
  */
 
 /**
@@ -105,7 +99,7 @@
  * \n
  * Copyright (C) 1989, 1991 Free Software Foundation, Inc.  
  * \n
- * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA
  * \n
  * Everyone is permitted to copy and distribute verbatim copies
  * of this license document, but changing it is not allowed.
@@ -356,32 +350,6 @@
 /**
  * \defgroup TortoiseMerge TortoiseMerge
  * A separate Diff/Merge program, shipped with TortoiseSVN.
- */
-
-/**
- * \defgroup TortoiseBlame TortoiseBlame
- * A viewer for Subversion blame information.
- */
-
-/**
- * \defgroup TortoiseIDiff TortoiseIDiff
- * An image diff viewer.
- */
-
-/**
- * \defgroup TortoiseUDiff TortoiseUDiff
- * An unified diff viewer.
- */
-
-/**
- * \defgroup ResText ResText
- * An utility to extract resource strings from executable files and apply
- * translated strings back to them. Used for translating.
- */
-
-/**
- * \defgroup SubWCRev SubWCRev
- * A tool to get information about a Subversion working copy.
  */
 
 /**

@@ -20,10 +20,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 // Some char test functions
 static bool isAsn1Number(int ch)
 {

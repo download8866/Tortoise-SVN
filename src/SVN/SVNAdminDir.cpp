@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "StdAfx.h"
 #include "UnicodeUtils.h"
 #include "SVNAdminDir.h"
@@ -42,7 +42,7 @@ bool SVNAdminDir::Init()
 		getenv_s(&ret, NULL, 0, "SVN_ASP_DOT_NET_HACK");
 		if (ret)
 		{
-			svn_error_clear(svn_wc_set_adm_dir("_svn", m_pool));
+			svn_wc_set_adm_dir("_svn", m_pool);
 			m_bVSNETHack = true;
 		}
 	}
@@ -95,40 +95,43 @@ bool SVNAdminDir::IsAdminDirPath(const CString& path)
 	lowerpath.MakeLower();
 	int ind = -1;
 	int ind1 = 0;
-	while ((ind1 = lowerpath.Find(_T("\\.svn"), ind1))>=0)
-	{
+	while ((ind1 = lowerpath.Find(_T(".svn"), ind1))>=0)
 		ind = ind1++;
-		if (ind == (lowerpath.GetLength() - 5))
+	if (ind >= 0)
+	{
+		if (ind == (lowerpath.GetLength() - 4))
 		{
-			bIsAdminDir = true;
-			break;
+			if ((ind == 0)||(lowerpath.GetAt(ind-1) == '\\'))
+				bIsAdminDir = true;
 		}
-		else if (lowerpath.Find(_T("\\.svn\\"), ind)>=0)
+		else if (lowerpath.Find(_T(".svn\\"), ind)>=0)
 		{
-			bIsAdminDir = true;
-			break;
+			if ((ind == 0)||(lowerpath.GetAt(ind-1) == '\\'))
+				bIsAdminDir = true;
 		}
 	}
 	if (!bIsAdminDir && m_bVSNETHack)
 	{
 		ind = -1;
 		ind1 = 0;
-		while ((ind1 = lowerpath.Find(_T("\\_svn"), ind1))>=0)
-		{
+		while ((ind1 = lowerpath.Find(_T("_svn"), ind1))>=0)
 			ind = ind1++;
-			if (ind == (lowerpath.GetLength() - 5))
+		if (ind >= 0)
+		{
+			if (ind == (lowerpath.GetLength() - 4))
 			{
-				bIsAdminDir = true;
-				break;
+				if ((ind == 0)||(lowerpath.GetAt(ind-1) == '\\'))
+					bIsAdminDir = true;
 			}
-			else if (lowerpath.Find(_T("\\_svn\\"), ind)>=0)
+			else if (lowerpath.Find(_T("_svn\\"), ind)>=0)
 			{
-				bIsAdminDir = true;
-				break;
+				if ((ind == 0)||(lowerpath.GetAt(ind-1) == '\\'))
+					bIsAdminDir = true;
 			}
 		}
 	}
 	return bIsAdminDir;
 }
+
 
 

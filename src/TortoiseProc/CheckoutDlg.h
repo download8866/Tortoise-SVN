@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,12 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "SVNRev.h"
 #include "StandAloneDlg.h"
+#include "StandAloneDlg.h"
+#include "Balloon.h"
 #include "HistoryCombo.h"
 #include "FileDropEdit.h"
 #include "LogDlg.h"
@@ -27,9 +29,32 @@
 /**
  * \ingroup TortoiseProc
  * Prompts the user for required information for a checkout command. The information
- * is the module name and the repository url.
+ * is the module name and the repository url. The Revision to check out is always the
+ * newest one - I don't think someone wants to check out old revisions. But if someone
+ * still wants to do that then the switch/merge commands provide that functionality.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.1
+ * added tooltips
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
-class CCheckoutDlg : public CResizableStandAloneDialog //CResizableStandAloneDialog
+class CCheckoutDlg : public CStandAloneDialog //CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCheckoutDlg)
 
@@ -53,26 +78,21 @@ protected:
 	afx_msg void OnBnClickedShowlog();
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEnChangeRevisionNum();
-	afx_msg void OnCbnEditchangeUrlcombo();
 
 	DECLARE_MESSAGE_MAP()
-
-	void		SetRevision(const SVNRev& rev);
 protected:
 	CBalloon		m_tooltips;
 	CString			m_sRevision;
-	CString			m_sCheckoutDirOrig;
-	bool			m_bAutoCreateTargetName;
-	CComboBox		m_depthCombo;
 public:
 	CHistoryCombo	m_URLCombo;
 	CString			m_URL;
 	SVNRev			Revision;
+	BOOL			IsExport;
+	BOOL			m_bNonRecursive;
 	BOOL			m_bNoExternals;
 	CButton			m_butBrowse;
 	CEdit			m_editRevision;
 	CString			m_strCheckoutDirectory;
 	CFileDropEdit	m_cCheckoutEdit;
 	CLogDlg	*		m_pLogDlg;
-	svn_depth_t		m_depth;
 };

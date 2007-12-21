@@ -15,9 +15,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
 
 static int classifyWordBullant(unsigned int start, unsigned int end, WordList &keywords, Accessor &styler) {
 	char s[100];

@@ -1,0 +1,268 @@
+This file tracks the status of releases in the 1.4.x line.
+
+Status of 1.4.x:
+================
+
+Soak period:
+  27-08-2007 - 1.4.5 released, starting soak period for 1.4.6
+  10-06-2007 - 1.4.4 released, starting soak period for 1.4.5
+  04-02-2007 - 1.4.3 released, starting soak period for 1.4.4
+  27-01-2007 - 1.4.2 released, starting soak period for 1.4.3
+  11-11-2006 - 1.4.1 released, starting soak period for 1.4.2
+  16-09-2006 - 1.4.0 released, starting soak period for 1.4.1
+  05-08-2006 - Soak period started with RC1 release
+
+Merged changes:
+
+version 1.4.6
+10437							: MFC/CRT upgrade in installer
+10442							: include path patterns with trailing backslash
+10468							: crit sect in cache
+10608							: Sorting in the commit dialog sometimes lost the check marks
+10667							: memory leak in context menu handler
+10678							: check for admin dir path
+10681							: Pressing the tabulator deleted the contents of the log message in the commit dialog
+
+version 1.4.5
+8712							: Make sure the OK button is enabled *after* checking for the svn:needs-lock property.
+9340							: "export to" from the file diff dialog
+9734							: "unversioned files mark parent folder as modified": ignored files don't force the parent folder to 'modified'
+9958							: version check in installer
+9755, 9812						: The commit dialog wrongly showed added files in external folders.; An item can only be from a different external folder if we actually had one of those already processed.
+9983							: include the "to:" date in log dialog
+10065							: crash with wrong regexes
+10113							: neon
+10208							: global ignore pattern in the status cache
+10245							: excel diff script
+10399							: handle leak in the cache pipe
+10401, 10402					: cache fixes
+
+version 1.4.4
+8697							: When refreshing the status list control missing files lost their check mark.
+8726							: Remove readonly flag from odt files correctly
+8747							: cache crash
+8750							: reverting added items makes them unversioned
+8765							: cache: path type
+8768							: cache: better handling of corrupt cache file
+8776, 8777						: cache: crawling and handling of non-existing folders.
+8794							: revision range selection in log dialog
+8814							: reduce disk access in cache
+8862, 8958						: saving readonly files in TMerge
+8865							: modified state of views after unsuccessful save
+8901, 8908						: don't follow 'lastcommit' nodes in the revision graph
+8938							: dragging splitter in commit dialog
+8957							: doc diff script
+8967							: "file found twice" error in TMerge
+8973							: "create patch..." for multiple files
+8975							: "use other file" in TMerge and saving it
+8980							: "resolve conflict using mine" command for binary files
+9003							: "sort items numerically" didn't enable the "apply" button
+9026, 9043						: avoid cache stuffing
+9033, 9035						: EULA copyright year
+9040, 9046						: doc build script
+9083							: unversioned items mark parent folder as modified
+9094							: diff in merge dialog
+9158							: check state during commit status thread
+9182							: double click on changed file in log dialog
+9233, 9392, 9553				: excel diff script
+9264							: When committing added directories, the log message wasn't always saved in the history.
+9317							: copyright year bump
+9377							: shell when called with unknown/wrong command verbs
+9432							: minor redraw glitches in the statistics dialog
+9551							: If deleting unversioned files fails then they are now not removed from the SVNStatusListCtrl anymore.
+9571							: block path from being monitored after a 'drive eject'
+9670							: exception when applying a patch
+9673							: CAtlException for TSVNCache
+
+version 1.4.3
+8588							: explorer crashes on Vista
+8591, 8592						: cache crashes
+8633, 8634						: cache and shell
+8636							: "show log" button and initializing
+8640							: Accelerator keys in TortoiseIDiff
+8668							: Added missing tsvn:lockmsgminsize property
+
+version 1.4.2
+8018							: Use last committed revision of Tortoise.pot for the status report
+8044, 8045, 8046				: cache
+8053							: issue #290
+8056							: Russian TortoiseMerge doc translation completed
+8086							: "SVN Author" column
+8089							: unescape urls in merge dialog
+8091							: odt diff script
+8094							: dialogs2 settings help
+8103							: issue 324
+8122							: revert externals
+8124							: restore selected items after a failed commit
+8129							: msi repair does not clean the registry anymore
+8139							: adding folders in cache
+8148, 8150						: case-insensitive cache
+8164							: issue #325.
+8165							: checked state after sorting
+8185							: save revision as file name
+8234							: workaround for subversion issue #2507
+8331							: log info in blame when start-revision is > 1
+8410							: repobrowser, trailing slash, emtpy-named dir
+8432							: shortcut url
+8436							: stats-by-date messed up
+8438							: "next 100" and sorting
+8470							: read-only flag when comparing in OO
+8480							: log dialog resizing and splitter
+8482							: bugtraq:url left empty and bug-id column in log dialog
+8492							: wrong export from file-diff dialog
+8516							: COM leak
+8543							: doc diff script
+8545							: infinite recursion
+8577							: wrong sort order of revisions before showing statistics
+
+version 1.4.1
+7516							: bugtraq:message with only %BUGID% and bugtraq:number as true
+7531							: catch error when saving properties over locked file
+7537							: close file handle
+7539							: issue 293
+7547							: issue 295 (regex parsing)
+7523,7524,7527					: tsvn_server Doc update by SI(mon)
+7553							: diff with copyfrom revision
+7556							: bug IDs showing multiple times
+7558							: bug ID column if url is empty
+7560							: log dialog regex crash
+7561							: cancel in CSVNStatusListCtrl
+7572							: CR lineendings
+7587							: prepend current dir in progress dialog
+7608-7611						: issue #302
+7617-7621						: Documentation updates
+7626							: workaround WC and BASE peg revisions for log
+7636							: Added Indonesian GUI translation
+7641							: "copy to working copy" for non-HEAD revs
+7664							: call Show() only if GetStatus() was successful
+7665							: Color code in-line changes
+7668							: updating multiple targets
+7670							: verbose error message
+7672							: changelog fix
+7675							: all props
+7681							: prop value encoding in CPropDlg
+7684							: 'next 100' from existing rev, not the next
+7688 							: Correct spelling of Indonesian in Indonesian ;-)
+7692							: Correct the descriptions of TMerge settings
+7694							: utf-16 saving
+7696							: InternetCrackurl
+7698							: remove debug line
+7700							: Doc update for some 1.4.0 features
+7705							: conflicted warning shown twice
+7708, 7709						: Issue #310.
+7711							: Issue #311.
+7720							: SVN eol-style column
+7737							: issue 312
+7745							: rename multiple bug
+7749							: Doc update for some 1.4.0 features
+7758							: properties menu setting
+7760							: /line:XXX to Blame, improve issue #214
+7764							: document /line:XXX to Blame
+7767, 7769, 7871				: Issue 314
+7774							: Include version number in PDF doc file names
+7777							: crash in "diff with wc" in progress dialog
+7789							: show log for deleted item
+7843							: merge-doc.js
+7814, 7845						: added Catalan translation, fix output of LanguagePack.build
+7850							: reverting with non-ascii urls
+7852							: re-enable reverting deleted items
+7860, 7862, 7869				: export folders
+7873							: SVN::UrlToPath()
+7880							: array bounds checks
+7882							: cache: status none instead of normal in case of error
+7897							: select all in scintilla control
+7907							: coloring in file diff dialog
+7908							: label size
+7919							: create new folder in repobrowser
+7922							: neon 0.26.2
+7927							: changelog fix
+7945							: assure dirs are added for crawling, not files
+7957							: block recrawling paths for 2 seconds
+7xxx							: Selectively copied those GUI translations that improved the 1.4.1 status report
+								: A normal merge would have resulted in tons of conflicts
+7575,7701,7753-7757,7914		: Merge Slovak doc translation from trunk
+7786,7840,7960					: Merge Indonesian doc translation from trunk
+7970							: diff-doc.js
+7972							: The log dialog used wrong revision numbers when calling "Show differences" on multiple selected revisions.
+7980							: Fetch status with ignored files
+7990							: "." instead of empty string in CSVNStatusListCtrl
+
+version 1.4.0
+7198							: Remove Win64 property to work with latest WiX
+7200, 7201						: Italian translation
+7202, 7203, 7207				: doc updates and translation
+7204							: wrong charset for Blame headers
+7205							: default to revision instead of HEAD in merge dialog
+7206							: enable/disable 'floppy' checkbox on dialog init
+7209							: version string in changelog.
+7211, 7213, 7216, 7217			: GUI translations
+7218							: Russian GUI translation
+7220							: set empty flag unconditionally
+7223							: toolbar button state in revision graph
+7225							: glitch in german translation
+7231							: better text (resource change!)
+7233							: graph not stacked by default.
+7238							: reverting switched files
+7240							: fonts with non-ascii names
+7242							: switched files only in cfm dialog
+7243							: Ctrl+Shift+Wheel and alpha value in TortoiseIDiff
+7244							: fix debug build
+7245							: UI friendly file titles
+7250							: deleting ignored files from CSVNStatusListCtrl
+7252							: Cache check for successful memory allocation
+7254							: reverting added files resets all flags
+7259							: regex problems
+7261							: "user cancelled" error message
+7264							: theme fix
+7268							: ctrl-C/ctrl-A in filediff dialog
+7272							: Russian GUI translation
+7274							: UTF-16 files and CR at the end of lines
+7278							: respect global ignores when importing a folder in the repobrowser
+7282							: right-drag 'apply patch'
+7292							: crash with long paths in cache
+7293							: help button in lock dialog
+7294							: attribute checking in CTSVNPath
+7297							: tooltip on label
+7299							: block UI when thread is running
+7302							: fix crash with library CrashRpt.dll
+7306							: soring arrows
+7308							: case-insensitive sorting in log dialog
+7311							: rubberband in revision graph
+7316							: The FileDiff dialog now remembers its size and position.
+7327							: crash in report control
+7334							: wrong encoding
+7336							: GPF when searching in one-pane view
+7346							: TortoiseMerge caused a GPF when passing two filenames.
+7348							: issue #283
+7351							: little doc update about renaming case-only
+7357							: German GUI translation
+7365							: (Shift)-F8 accelerators in TMerge
+7364							: Reverting to a revision in the log dialog actually restored to one revision below the expected revision.
+7368							: The hot key Ctrl-Return confirmed dialogs despite the ok-button being disabled.
+7378							: update vertical scrollbar after resolving conflict
+7384							: Update French translations
+7374,7380						: Fix to German GUI translation, use MIME-Typ everywhere
+7412							: Bulgarian GUI translation updated to r7232 of the template
+7408,7409,7414					: Doc & French & German translation updates
+7419							: toolbar button state in revision graph
+7424							: disable statistics button in log dialog
+7427 							: Polish GUI translation update
+7433							: no notifications for empty paths
+7437, 7438						: explorer flickering
+7448, 7461						: Beautify status report & manually merged part of the Chinese GUI translation
+7286, 7468						: Slovak GUI translation>>>>>>> .r7474
+7473							: prop diff info from log dialog to TMerge
+7474							: changed-files context menu entries condition
+7476							: deselect all entries in log dialog
+7478							: log msg from history with bugtraq:append set to false
+7483, 7487						: 24x24 icons for the TortoiseIDiff toolbar
+7488							: Several more dialogs now remember their size and position.
+7492							: The tooltip for bugtraq:logregex was missing in the edit properties dialog
+7495,7496						: Swap two IDiff Icons, updated screenshots for docs>>>>>>> .r7498
+7498							: SVN_LIBSVN_FS_LINKS_FS_BASE=1
+7500							: check entry in lock dialog thread
+7522							: The property value doesn't have a tool tip anymore.
+7585							: Fonts overlapped in the TSVNCacheWindow when larger than 15 points
+7645							: A failing commit didn't restore manually added targets.
+7646							: Fix typo "workign" in Changelog.txt
+7819							: Added vertical and horizontal scrollbars

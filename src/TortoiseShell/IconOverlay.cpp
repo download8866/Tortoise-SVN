@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "Guids.h"
 #include "PreserveChdir.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "SVNStatus.h"
 #include "..\TSVNCache\CacheInterface.h"
 
@@ -39,12 +39,49 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
     {
         return S_FALSE;
     }
+    // Under NT (and 95?), file open dialog crashes apps upon shutdown,
+    // so we disable our icon overlays unless we are in Explorer process
+    // space.
+    bool bAllowOverlayInFileDialogs = osv.dwMajorVersion > 4 || // allow anything major > 4
+        (osv.dwPlatformId == VER_PLATFORM_WIN32_WINDOWS &&
+        osv.dwMajorVersion == 4 && osv.dwMinorVersion > 0); // plus Windows 98/Me
 	
+	// There is also a user-option to suppress this
+	if(bAllowOverlayInFileDialogs && CRegStdWORD(_T("Software\\TortoiseSVN\\OverlaysOnlyInExplorer"), FALSE))
+	{
+		bAllowOverlayInFileDialogs = false;
+	}
+
+	if(!bAllowOverlayInFileDialogs)
+	{
+		// Test if we are in Explorer
+		DWORD modpathlen = 0;
+		TCHAR * buf = NULL;
+		DWORD pathLength = 0;
+		do 
+		{
+			modpathlen += MAX_PATH;		// MAX_PATH is not the limit here!
+			if (buf)
+				delete buf;
+			buf = new TCHAR[modpathlen];
+			pathLength = GetModuleFileName(NULL, buf, modpathlen);
+		} while (pathLength == modpathlen);
+		if(pathLength >= 13)
+		{
+			if ((_tcsicmp(&buf[pathLength-13], _T("\\explorer.exe"))) != 0)
+			{
+				delete buf;
+				return S_FALSE;
+			}
+		}
+		delete buf;
+	}
+
 	int nInstalledOverlays = GetInstalledOverlays();
 	
-	if ((m_State == FileStateAddedOverlay)&&(nInstalledOverlays > 12))
+	if ((m_State == AddedOverlay)&&(nInstalledOverlays > 12))
 		return S_FALSE;		// don't use the 'added' overlay
-	if ((m_State == FileStateLockedOverlay)&&(nInstalledOverlays > 13))
+	if ((m_State == LockedOverlay)&&(nInstalledOverlays > 13))
 		return S_FALSE;		// don't show the 'locked' overlay
 
     // Get folder icons from registry
@@ -59,13 +96,13 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 	HKEY hkeys [] = { HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE };
 	switch (m_State)
 	{
-		case FileStateVersioned		: iconName = _T("InSubversionIcon"); break;
-		case FileStateModified		: iconName = _T("ModifiedIcon"); break;
-		case FileStateConflict		: iconName = _T("ConflictIcon"); break;
-		case FileStateDeleted		: iconName = _T("DeletedIcon"); break;
-		case FileStateReadOnly		: iconName = _T("ReadOnlyIcon"); break;
-		case FileStateLockedOverlay	: iconName = _T("LockedIcon"); break;
-		case FileStateAddedOverlay	: iconName = _T("AddedIcon"); break;
+		case Versioned		: iconName = _T("InSubversionIcon"); break;
+		case Modified		: iconName = _T("ModifiedIcon"); break;
+		case Conflict		: iconName = _T("ConflictIcon"); break;
+		case Deleted		: iconName = _T("DeletedIcon"); break;
+		case ReadOnly		: iconName = _T("ReadOnlyIcon"); break;
+		case LockedOverlay	: iconName = _T("LockedIcon"); break;
+		case AddedOverlay	: iconName = _T("AddedIcon"); break;
 	}
 
 	for (int i = 0; i < 2; ++i)
@@ -104,13 +141,13 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 	// loaded, so we can later check if some are missing
 	switch (m_State)
 	{
-		case FileStateVersioned		: g_normalovlloaded = true; break;
-		case FileStateModified		: g_modifiedovlloaded = true; break;
-		case FileStateConflict		: g_conflictedovlloaded = true; break;
-		case FileStateDeleted		: g_deletedovlloaded = true; break;
-		case FileStateReadOnly		: g_readonlyovlloaded = true; break;
-		case FileStateLockedOverlay	: g_lockedovlloaded = true; break;
-		case FileStateAddedOverlay	: g_addedovlloaded = true; break;
+		case Versioned		: g_normalovlloaded = true; break;
+		case Modified		: g_modifiedovlloaded = true; break;
+		case Conflict		: g_conflictedovlloaded = true; break;
+		case Deleted		: g_deletedovlloaded = true; break;
+		case ReadOnly		: g_readonlyovlloaded = true; break;
+		case LockedOverlay	: g_lockedovlloaded = true; break;
+		case AddedOverlay	: g_addedovlloaded = true; break;
 	}
 
 	ATLTRACE2(_T("Icon loaded : %s\n"), icon.c_str());
@@ -123,25 +160,25 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 {
 	switch (m_State)
 	{
-		case FileStateConflict:
+		case Conflict:
 			*pPriority = 0;
 			break;
-		case FileStateModified:
+		case Modified:
 			*pPriority = 1;
 			break;
-		case FileStateDeleted:
+		case Deleted:
 			*pPriority = 2;
 			break;
-		case FileStateReadOnly:
+		case ReadOnly:
 			*pPriority = 3;
 			break;
-		case FileStateLockedOverlay:
+		case LockedOverlay:
 			*pPriority = 4;
 			break;
-		case FileStateAddedOverlay:
+		case AddedOverlay:
 			*pPriority = 5;
 			break;
-		case FileStateVersioned:
+		case Versioned:
 			*pPriority = 6;
 			break;
 		default:
@@ -175,8 +212,6 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 	// since the shell calls each and every overlay handler with the same filepath
 	// we use a small 'fast' cache of just one path here.
 	// To make sure that cache expires, clear it as soon as one handler is used.
-
-	AutoLocker lock(g_csGlobalCOMGuard);
 	if (_tcscmp(pPath, g_filepath.c_str())==0)
 	{
 		status = g_filestatus;
@@ -187,13 +222,6 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 	{
 		if (!g_ShellCache.IsPathAllowed(pPath))
 		{
-			int drivenumber = -1;
-			if ((m_State == FileStateVersioned) && g_ShellCache.ShowExcludedAsNormal() && 
-				((drivenumber=PathGetDriveNumber(pPath))!=0)&&(drivenumber!=1) &&
-				PathIsDirectory(pPath) && g_ShellCache.HasSVNAdminDir(pPath, true))
-			{
-				return S_OK;
-			}
 			return S_FALSE;
 		}
 
@@ -203,7 +231,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			{
 				TSVNCacheResponse itemStatus;
 				ZeroMemory(&itemStatus, sizeof(itemStatus));
-				if (m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(pPath), &itemStatus, true))
+				if (g_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(pPath), &itemStatus, true))
 				{
 					status = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
 					if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)||(itemStatus.m_readonly)))
@@ -215,8 +243,10 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			break;
 		case ShellCache::dll:
 			{
+				AutoLocker lock(g_csCacheGuard);
+
 				// Look in our caches for this item 
-				const FileStatusCacheEntry * s = m_CachedStatus.GetCachedItem(CTSVNPath(pPath));
+				const FileStatusCacheEntry * s = g_pCachedStatus->GetCachedItem(CTSVNPath(pPath));
 				if (s)
 				{
 					status = s->status;
@@ -238,7 +268,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 							}
 							else
 							{
-								const FileStatusCacheEntry * s = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), TRUE);
+								const FileStatusCacheEntry * s = g_pCachedStatus->GetFullStatus(CTSVNPath(pPath), TRUE);
 								status = s->status;
 								status = SVNStatus::GetMoreImportant(svn_wc_status_normal, status);
 							}
@@ -250,7 +280,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 					}
 					else
 					{
-						const FileStatusCacheEntry * s = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), FALSE);
+						const FileStatusCacheEntry * s = g_pCachedStatus->GetFullStatus(CTSVNPath(pPath), FALSE);
 						status = s->status;
 					}
 				}
@@ -266,6 +296,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			{
 				// no cache means we only show a 'versioned' overlay on folders
 				// with an admin directory
+				AutoLocker lock(g_csCacheGuard);
 				if (PathIsDirectory(pPath))
 				{
 					if (g_ShellCache.HasSVNAdminDir(pPath, TRUE))
@@ -284,7 +315,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			}
 			break;
 		}
-		ATLTRACE(_T("Status %d for file %s\n"), status, pwszPath);
+		ATLTRACE("Status %d for file %ws\n", status, pwszPath);
 	}
 	g_filepath.clear();
 	g_filepath = pPath;
@@ -310,7 +341,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_incomplete:
 			if ((readonlyoverlay)&&(g_readonlyovlloaded))
 			{
-				if (m_State == FileStateReadOnly)
+				if (m_State == ReadOnly)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -320,7 +351,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			}
 			else if ((lockedoverlay)&&(g_lockedovlloaded))
 			{
-				if (m_State == FileStateLockedOverlay)
+				if (m_State == LockedOverlay)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -328,7 +359,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 				else
 					return S_FALSE;
 			}
-			else if (m_State == FileStateVersioned)
+			else if (m_State == Versioned)
 			{
 				g_filepath.clear();
 				return S_OK;
@@ -339,7 +370,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_deleted:
 			if (g_deletedovlloaded)
 			{
-				if (m_State == FileStateDeleted)
+				if (m_State == Deleted)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -351,7 +382,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			{
 				// the 'deleted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == FileStateModified)
+				if (m_State == Modified)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -362,7 +393,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_replaced:
 		case svn_wc_status_modified:
 		case svn_wc_status_merged:
-			if (m_State == FileStateModified)
+			if (m_State == Modified)
 			{
 				g_filepath.clear();
 				return S_OK;
@@ -372,7 +403,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_added:
 			if (g_addedovlloaded)
 			{
-				if (m_State== FileStateAddedOverlay)
+				if (m_State== AddedOverlay)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -384,7 +415,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			{
 				// the 'added' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == FileStateModified)
+				if (m_State == Modified)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -396,7 +427,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		case svn_wc_status_obstructed:
 			if (g_conflictedovlloaded)
 			{
-				if (m_State == FileStateConflict)
+				if (m_State == Conflict)
 				{
 					g_filepath.clear();
 					return S_OK;
@@ -408,7 +439,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			{
 				// the 'conflicted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State == FileStateModified)
+				if (m_State == Modified)
 				{
 					g_filepath.clear();
 					return S_OK;

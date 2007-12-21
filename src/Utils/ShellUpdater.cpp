@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Shellupdater.h"
@@ -91,7 +91,7 @@ void CShellUpdater::UpdateShell()
 	// if we use the external cache, we tell the cache directly that something
 	// has changed, without the detour via the shell.
 	HANDLE hPipe = CreateFile( 
-		GetCacheCommandPipeName(),		// pipe name 
+		TSVN_CACHE_COMMANDPIPE_NAME,	// pipe name 
 		GENERIC_READ |					// read and write access 
 		GENERIC_WRITE, 
 		0,								// no sharing 
@@ -115,7 +115,7 @@ void CShellUpdater::UpdateShell()
 		{
 			for(int nPath = 0; nPath < m_pathsForUpdating.GetCount(); nPath++)
 			{
-				ATLTRACE(_T("Cache Item Update for %s (%d)\n"), m_pathsForUpdating[nPath].GetDirectory().GetWinPathString(), GetTickCount());
+				ATLTRACE("Cache Item Update for %ws (%d)\n", m_pathsForUpdating[nPath].GetDirectory().GetWinPathString(), GetTickCount());
 				if (!m_pathsForUpdating[nPath].IsDirectory())
 				{
 					// send notifications to the shell for changed files - folders are updated by the cache itself.

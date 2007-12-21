@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -22,10 +22,8 @@
 #include "registry.h"
 #include "FontPreviewCombo.h"
 
-/**
- * \ingroup TortoiseMerge
- * Main settings page.
- */
+// CSetMainPage dialog
+
 class CSetMainPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetMainPage)
@@ -52,6 +50,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
+	DWORD			m_dwLanguage;
+	CRegDWORD		m_regLanguage;
 	BOOL			m_bBackup;
 	CRegDWORD		m_regBackup;
 	BOOL			m_bFirstDiffOnLoad;
@@ -82,9 +82,11 @@ protected:
 	CRegString		m_regFontName;
 	CString			m_sFontName;
 
+	CComboBox		m_LanguageCombo;
 	CFontPreviewCombo m_cFontNames;
 	CComboBox		m_cFontSizes;
 protected:
+	afx_msg void OnCbnSelchangeLanguagecombo();
 	afx_msg void OnBnClickedBackup();
 	afx_msg void OnBnClickedIgnorelf();
 	afx_msg void OnBnClickedOnepane();

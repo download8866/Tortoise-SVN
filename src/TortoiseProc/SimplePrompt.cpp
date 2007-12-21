@@ -13,12 +13,15 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SimplePrompt.h"
+
+
+// CSimplePrompt dialog
 
 IMPLEMENT_DYNAMIC(CSimplePrompt, CDialog)
 CSimplePrompt::CSimplePrompt(CWnd* pParent /*=NULL*/)
@@ -47,6 +50,9 @@ void CSimplePrompt::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CSimplePrompt, CDialog)
 END_MESSAGE_MAP()
 
+
+// CSimplePrompt message handlers
+
 BOOL CSimplePrompt::OnInitDialog()
 {
 	CDialog::OnInitDialog();
@@ -54,6 +60,7 @@ BOOL CSimplePrompt::OnInitDialog()
 	GetDlgItem(IDC_USEREDIT)->SetFocus();
 	if ((m_hParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(m_hParentWnd));
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 

@@ -20,12 +20,7 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 enum kwType { kwOther, kwClass, kwDef, kwImport };
-static const int indicatorWhitespace = 1;
 
 static bool IsPyComment(Accessor &styler, int pos, int len) {
 	return len > 0 && styler[pos] == '#';
@@ -128,29 +123,26 @@ static void ColourisePyDoc(unsigned int startPos, int length, int initStyle,
 	styler.IndentAmount(lineCurrent, &spaceFlags, IsPyComment);
 	bool hexadecimal = false;
 
-	StyleContext sc(startPos, endPos - startPos, initStyle, styler);
-
-	bool indentGood = true;
-	int startIndicator = sc.currentPos;
+	// Python uses a different mask because bad indentation is marked by oring with 32
+	StyleContext sc(startPos, endPos - startPos, initStyle, styler, 0x7f);
 
 	for (; sc.More(); sc.Forward()) {
 
 		if (sc.atLineStart) {
-			styler.IndentAmount(lineCurrent, &spaceFlags, IsPyComment);
-			indentGood = true;
+			const char chBad = static_cast<char>(64);
+			const char chGood = static_cast<char>(0);
+			char chFlags = chGood;
 			if (whingeLevel == 1) {
-				indentGood = (spaceFlags & wsInconsistent) == 0;
+				chFlags = (spaceFlags & wsInconsistent) ? chBad : chGood;
 			} else if (whingeLevel == 2) {
-				indentGood = (spaceFlags & wsSpaceTab) == 0;
+				chFlags = (spaceFlags & wsSpaceTab) ? chBad : chGood;
 			} else if (whingeLevel == 3) {
-				indentGood = (spaceFlags & wsSpace) == 0;
+				chFlags = (spaceFlags & wsSpace) ? chBad : chGood;
 			} else if (whingeLevel == 4) {
-				indentGood = (spaceFlags & wsTab) == 0;
+				chFlags = (spaceFlags & wsTab) ? chBad : chGood;
 			}
-			if (!indentGood) {
-				styler.IndicatorFill(startIndicator, sc.currentPos, indicatorWhitespace, 0);
-				startIndicator = sc.currentPos;
-			}
+			sc.SetState(sc.state);
+			styler.SetFlags(chFlags, static_cast<char>(sc.state));
 		}
 
 		if (sc.atLineEnd) {
@@ -162,6 +154,7 @@ static void ColourisePyDoc(unsigned int startPos, int length, int initStyle,
 				sc.SetState(sc.state);
 			}
 			lineCurrent++;
+			styler.IndentAmount(lineCurrent, &spaceFlags, IsPyComment);
 			if ((sc.state == SCE_P_STRING) || (sc.state == SCE_P_CHARACTER)) {
 				sc.ChangeState(SCE_P_STRINGEOL);
 				sc.ForwardSetState(SCE_P_DEFAULT);
@@ -255,12 +248,6 @@ static void ColourisePyDoc(unsigned int startPos, int length, int initStyle,
 			}
 		}
 
-		if (!indentGood && !IsASpaceOrTab(sc.ch)) {
-			styler.IndicatorFill(startIndicator, sc.currentPos, indicatorWhitespace, 1);
-			startIndicator = sc.currentPos;
-			indentGood = true;
-		}
-
 		// State exit code may have moved on to end of line
 		if (needEOLCheck && sc.atLineEnd) {
 			lineCurrent++;
@@ -295,7 +282,6 @@ static void ColourisePyDoc(unsigned int startPos, int length, int initStyle,
 			}
 		}
 	}
-	styler.IndicatorFill(startIndicator, sc.currentPos, indicatorWhitespace, 0);
 	sc.Complete();
 }
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,21 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "RevisionGraph.h"
 #include "ProgressDlg.h"
 #include "Colors.h"
 
-#define REVGRAPH_PREVIEW_WIDTH 100
-#define REVGRAPH_PREVIEW_HEIGHT 200
-
-/**
- * \ingroup TortoiseProc
- * node shapes for the revision graph
- */
 enum NodeShape
 {
 	TSVNRectangle,
@@ -46,18 +39,23 @@ enum NodeShape
 #define RGB_DEF_BRANCH			RGB(0, 0, 255)
 #define RGB_DEF_NODE			RGB(0, 0, 255)
 
-#define NODE_RECT_WIDTH			200.0f
-#define NODE_SPACE_LEFT			12.0f
-#define NODE_SPACE_RIGHT		100.0f
-#define NODE_SPACE_LINE			20.0f
-#define NODE_RECT_HEIGHT		60.0f
-#define NODE_SPACE_TOP			20.0f
-#define NODE_SPACE_BOTTOM		20.0f
+#define NODE_RECT_WIDTH			200
+#define NODE_SPACE_LEFT			12
+#define NODE_SPACE_RIGHT		100
+#define NODE_SPACE_LINE			20
+#define NODE_RECT_HEIGTH		60
+#define NODE_SPACE_TOP			20
+#define NODE_SPACE_BOTTOM		20
 
 #define MAXFONTS				4
-#define	MAX_TT_LENGTH			1000
+#define	MAX_TT_LENGTH			10000
 
 
+#define ID_COMPAREREVS 1
+#define ID_COMPAREHEADS 2
+#define ID_UNIDIFFREVS 3
+#define ID_UNIDIFFHEADS 4
+#define ID_SHOWLOG 5
 
 /**
  * \ingroup TortoiseProc
@@ -86,10 +84,12 @@ protected:
 	DWORD			m_dwTicks;
 	CRect			m_ViewRect;
 	CRect			m_GraphRect;
-	CRect			m_OverviewPosRect;
-	CRect			m_OverviewRect;
 	CPtrArray		m_arConnections;
-	BOOL			m_bShowOverview;
+	CDWordArray		m_arVertPositions;
+	
+	std::multimap<source_entry*, CRevisionEntry*>		m_targetsbottom;
+	std::multimap<source_entry*, CRevisionEntry*>		m_targetsright;
+
 	
 	CRevisionEntry * m_SelectedEntry1;
 	CRevisionEntry * m_SelectedEntry2;
@@ -100,25 +100,23 @@ protected:
 	char			m_szTip[MAX_TT_LENGTH+1];
 	wchar_t			m_wszTip[MAX_TT_LENGTH+1];
 
-	float			m_node_rect_width;
-	float			m_node_space_left;
-	float			m_node_space_right;
-	float			m_node_space_line;
-	float			m_node_rect_height;
-	float			m_node_space_top;
-	float			m_node_space_bottom;
+	int				m_node_rect_width;
+	int				m_node_space_left;
+	int				m_node_space_right;
+	int				m_node_space_line;
+	int				m_node_rect_heigth;
+	int				m_node_space_top;
+	int				m_node_space_bottom;
 	int				m_nIconSize;
 	CPoint			m_RoundRectPt;
 	float			m_fZoomFactor;
 	CColors			m_Colors;
 	bool			m_bFetchLogs;
+	bool			m_bShowAll;
+	bool			m_bArrangeByPath;
 	bool			m_bIsRubberBand;
 	CPoint			m_ptRubberStart;
 	CPoint			m_ptRubberEnd;
-
-	CBitmap			m_Preview;
-	int				m_previewWidth;
-	int				m_previewHeight;
 	
 	virtual BOOL	ProgressCallback(CString text, CString text2, DWORD done, DWORD total);
 	virtual void	DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -133,20 +131,19 @@ protected:
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void	OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void	OnLButtonUp(UINT nFlags, CPoint point);
-	afx_msg BOOL	OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	DECLARE_MESSAGE_MAP()
 private:
 	void			CompareRevs(bool bHead);
 	void			UnifiedDiffRevs(bool bHead);
 	CTSVNPath		DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIsFolder);
+	CRevisionEntry* GetRevisionEntry(LONG rev) const;
+	CRevisionEntry* GetRevisionEntry(source_entry * sentry) const;
+	INT_PTR			GetIndexOfRevision(source_entry * sentry);
 	void			SetScrollbars(int nVert = 0, int nHorz = 0, int oldwidth = 0, int oldheight = 0);
 	CRect *			GetViewSize();
 	CRect *			GetGraphSize();
 	CFont*			GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE);
-
-    CRevisionEntry* GetHitNode (CPoint point) const;
 
 	void			DrawOctangle(CDC * pDC, const CRect& rect);
 	void			DrawNode(CDC * pDC, const CRect& rect,
@@ -155,11 +152,14 @@ private:
 	void			DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos, bool bDirectDraw);
 
 	void			BuildConnections();
-	void			DrawConnections(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos);
+	void			ClearEntryConnections();
+	void			CountEntryConnections();
+	void			MarkSpaceLines(source_entry * entry, int level, svn_revnum_t startrev, svn_revnum_t endrev);
+	void			DecrementSpaceLines(source_entry * reventry);
+	void			DrawConnections(CDC* pDC, const CRect& rect, int nVScrollPos, int nHScrollPos, INT_PTR start, INT_PTR end);
 	int				GetEncoderClsid(const WCHAR* format, CLSID* pClsid);
 	void			DoZoom(float nZoomFactor);
 	void			DrawRubberBand();
-
-	void			BuildPreview();
 friend class CRevisionGraphDlg;
+afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };

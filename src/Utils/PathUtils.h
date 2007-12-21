@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,24 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
-/**
- * \ingroup Utils
- * helper class to handle path strings.
- */
 class CPathUtils
 {
 public:
 	static BOOL			MakeSureDirectoryPathExists(LPCTSTR path);
 	static void			ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len);
-	/**
-	 * Replaces escaped sequences with the corresponding characters in a string.
-	 */
-	static void Unescape(char * psz);
 
 #ifdef _MFC_VER
 	/**
@@ -78,10 +70,9 @@ public:
 	static CString GetAppParentDirectory();
 
 	/**
-	 * Returns the path to the application data folder, in our case the %APPDATA%TortoiseSVN folder.
-	 * \remark the path returned has a trailing backslash
+	 * Replaces escaped sequences with the corresponding characters in a string.
 	 */
-	static CString GetAppDataDirectory();
+	static void Unescape(char * psz);
 
 	/**
 	 * Replaces non-URI chars with the corresponding escape sequences.
@@ -89,26 +80,13 @@ public:
 	static CStringA PathEscape(const CStringA& path);
 
 	/**
-	 * Replaces escaped sequences with the corresponding characters in a string.
-	 */
-	static CStringA PathUnescape(const CStringA& path);
-	static CStringW PathUnescape(const CStringW& path);
-
-	/**
-	* Escapes regexp-specific chars.
-	*/
-	static CString PathPatternEscape(const CString& path);
-	/**
-	 * Unescapes regexp-specific chars.
-	 */
-	static CString PathPatternUnEscape(const CString& path);
-
-	/**
 	 * Returns the version string from the VERSION resource of a dll or exe.
 	 * \param p_strDateiname path to the dll or exe
 	 * \return the version string
 	 */
 	static CString GetVersionFromFile(const CString & p_strDateiname);
+
+
 
 
 #endif

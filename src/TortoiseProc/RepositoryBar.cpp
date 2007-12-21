@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,30 +13,32 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "RepositoryBar.h"
+#include "RepositoryTree.h"
 #include "RevisionDlg.h"
-#include "SVNInfo.h"
-#include "SVN.h"
-#include "WaitCursorEx.h"
+#include ".\repositorybar.h"
 
 #define IDC_URL_COMBO     10000
 #define IDC_REVISION_BTN  10001
+
+
+// CRepositoryBar
 
 IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 
 #pragma warning(push)
 #pragma warning(disable: 4355)	// 'this' used in base member initializer list
 
-CRepositoryBar::CRepositoryBar() : m_cbxUrl(this)
-	, m_pRepo(NULL)
+CRepositoryBar::CRepositoryBar() :
+	m_pRepositoryTree(0),
+	m_cbxUrl(this)
 {
 }
-
 #pragma warning(pop)
 
 CRepositoryBar::~CRepositoryBar()
@@ -44,10 +46,13 @@ CRepositoryBar::~CRepositoryBar()
 }
 
 BEGIN_MESSAGE_MAP(CRepositoryBar, CReBarCtrl)
-	ON_CBN_SELCHANGE(IDC_URL_COMBO, OnCbnSelChange)
+	ON_CBN_SELENDOK(IDC_URL_COMBO, OnCbnSelEndOK)
 	ON_BN_CLICKED(IDC_REVISION_BTN, OnBnClicked)
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
+
+
+// CRepositoryBar public interface
 
 bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 {
@@ -63,6 +68,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 	if (in_dialog)
 	{
 		style |= CCS_NODIVIDER;
+		style_ex |= 0; //WS_EX_CONTROLPARENT;
 	}
 	else
 	{
@@ -95,7 +101,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 			rbbi.fMask |= RBBS_CHILDEDGE;
 
 		// Create the "URL" combo box control to be added
-		rect = CRect(0, 0, 100, 400);
+		rect = CRect(0, 0, 100, 200);
 		m_cbxUrl.Create(WS_CHILD | WS_TABSTOP | CBS_DROPDOWN, rect, this, IDC_URL_COMBO);
 		m_cbxUrl.SetURLHistory(true);
 		m_cbxUrl.SetFont(font);
@@ -132,130 +138,61 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
 		MaximizeBand(0);
 
-		m_tooltips.Create(this);
-
 		return true;
 	}
 
 	return false;
 }
 
-void CRepositoryBar::ShowUrl(const CString& url, SVNRev rev)
+void CRepositoryBar::AssocTree(CRepositoryTree *repo_tree)
 {
-	if (url.Find('?')>=0)
-	{
-		m_url = url.Left(url.Find('?'));
-		m_rev = SVNRev(url.Mid(url.Find('?')+1));
-	}
-	else
-	{
-		m_url = url;
-		m_rev = rev;
-	}
-	m_cbxUrl.SetWindowText(m_url);
-	m_btnRevision.SetWindowText(m_rev.ToString());
-	if (m_headRev.IsValid())
-	{
-		CString sTTText;
-		sTTText.Format(IDS_REPOBROWSE_TT_HEADREV, m_headRev.ToString());
-		m_tooltips.AddTool(&m_btnRevision, sTTText);
-	}
-	else
-		m_tooltips.RemoveTool(&m_btnRevision);
+	if (m_pRepositoryTree != 0)
+		m_pRepositoryTree->m_pRepositoryBar = 0;
+
+	m_pRepositoryTree = repo_tree;
+
+	if (m_pRepositoryTree != 0)
+		m_pRepositoryTree->m_pRepositoryBar = this;
 }
 
-void CRepositoryBar::GotoUrl(const CString& url, SVNRev rev, bool bAlreadyChecked /* = false */)
+void CRepositoryBar::ShowUrl(const SVNUrl& svn_url)
 {
-	CString new_url = url;
-	SVNRev new_rev = rev;
-	CWaitCursorEx wait;
+	m_SvnUrl = svn_url;
+	m_cbxUrl.SetWindowText(svn_url.GetPath());
+	m_btnRevision.SetWindowText(svn_url.GetRevisionText());
+}
 
-	new_url.TrimRight('/');
+void CRepositoryBar::GotoUrl(const SVNUrl& svn_url)
+{
+	SVNUrl new_url = svn_url;
+
 	if (new_url.IsEmpty())
-	{
 		new_url = GetCurrentUrl();
-		new_rev = GetCurrentRev();
-		new_url.TrimRight('/');
-	}
-	if (new_url.Find('?')>=0)
-	{
-		new_rev = SVNRev(new_url.Mid(new_url.Find('?')+1));
-		new_url = new_url.Left(new_url.Find('?'));
-	}
-	if (!bAlreadyChecked)
-	{
-		// check if the entered url is valid
-		SVNInfo info;
-		const SVNInfoData * data = NULL;
-		CString orig_url = new_url;
-		do 
-		{
-			data = info.GetFirstFileInfo(CTSVNPath(new_url),new_rev, new_rev);
-			if (data && new_rev.IsHead())
-			{
-				m_headRev = data->rev;
-			}
-			if ((data == NULL)||(data->kind != svn_node_dir))
-			{
-				// in case the url is not a valid directory, try the parent dir
-				// until there's no more parent dir
-				new_url = new_url.Left(new_url.ReverseFind('/'));
-			}
-		} while(!new_url.IsEmpty() && ((data == NULL) || (data->kind != svn_node_dir)));
-		if (new_url.IsEmpty())
-			new_url = orig_url;
-	}
 
-	if ((!m_headRev.IsValid())||(!bAlreadyChecked))
-	{
-		SVN svn;
-		m_headRev = svn.GetHEADRevision(CTSVNPath(new_url));
-	}
-	ShowUrl(new_url, new_rev);
-	if (m_pRepo)
-		m_pRepo->ChangeToUrl(new_url, new_rev);
+	if (m_pRepositoryTree != 0)
+		m_pRepositoryTree->ChangeToUrl(new_url);
+
+	ShowUrl(new_url);
 }
 
 void CRepositoryBar::SetRevision(SVNRev rev)
 {
-	m_btnRevision.SetWindowText(rev.ToString());
-	if (m_headRev.IsValid())
-	{
-		CString sTTText;
-		sTTText.Format(IDS_REPOBROWSE_TT_HEADREV, m_headRev.ToString());
-		m_tooltips.AddTool(&m_btnRevision, sTTText);
-	}
-	else
-		m_tooltips.RemoveTool(&m_btnRevision);
+	m_btnRevision.SetWindowText(SVNUrl::GetTextFromRev(rev));
+	m_SvnUrl = SVNUrl(m_SvnUrl.GetPath(), rev);
 }
 
-CString CRepositoryBar::GetCurrentUrl() const
+SVNUrl CRepositoryBar::GetCurrentUrl() const
 {
 	if (m_cbxUrl.m_hWnd != 0)
 	{
 		CString path, revision;
 		m_cbxUrl.GetWindowText(path);
 		m_btnRevision.GetWindowText(revision);
-		return path;
+		return SVNUrl(path, revision);
 	}
 	else
 	{
-		return m_url;
-	}
-}
-
-SVNRev CRepositoryBar::GetCurrentRev() const
-{
-	if (m_cbxUrl.m_hWnd != 0)
-	{
-		CString path, revision;
-		m_cbxUrl.GetWindowText(path);
-		m_btnRevision.GetWindowText(revision);
-		return SVNRev(revision);
-	}
-	else
-	{
-		return m_rev;
+		return m_SvnUrl;
 	}
 }
 
@@ -274,17 +211,23 @@ bool CRepositoryBar::CRepositoryCombo::OnReturnKeyPressed()
 }
 
 
-void CRepositoryBar::OnCbnSelChange()
+// CRepositoryBar message handlers
+
+void CRepositoryBar::OnCbnSelEndOK()
 {
-	int idx = m_cbxUrl.GetCurSel();
-	if (idx >= 0)
+	if (m_cbxUrl.GetDroppedState())
 	{
-		CString path, revision;
-		m_cbxUrl.GetLBText(idx, path);
-		m_btnRevision.GetWindowText(revision);
-		m_url = path;
-		m_rev = revision;
-		GotoUrl(m_url, m_rev);
+		int idx = m_cbxUrl.GetCurSel();
+		if (idx >= 0)
+		{
+			CString path, revision;
+			m_cbxUrl.GetLBText(idx, path);
+			m_btnRevision.GetWindowText(revision);
+			m_SvnUrl = SVNUrl(path, revision);
+
+			if (m_pRepositoryTree != 0)
+				m_pRepositoryTree->ChangeToUrl(m_SvnUrl);
+		}
 	}
 }
 
@@ -300,39 +243,14 @@ void CRepositoryBar::OnBnClicked()
 	if (dlg.DoModal() == IDOK)
 	{
 		revision = dlg.GetEnteredRevisionString();
-		m_rev = SVNRev(revision);
-		m_btnRevision.SetWindowText(SVNRev(revision).ToString());
+		m_btnRevision.SetWindowText(SVNUrl::GetTextFromRev(SVNRev(revision)));
 		GotoUrl();
 	}
 }
 
-void CRepositoryBar::SetFocusToURL()
-{
-	m_cbxUrl.GetEditCtrl()->SetFocus();
-}
-
-void CRepositoryBar::OnDestroy()
-{
-	int idx = m_cbxUrl.GetCurSel();
-	if (idx >= 0)
-	{
-		CString path, revision;
-		m_cbxUrl.GetLBText(idx, path);
-		m_btnRevision.GetWindowText(revision);
-		m_url = path;
-		m_rev = revision;
-	}
-	CReBarCtrl::OnDestroy();
-}
 
 
-BOOL CRepositoryBar::PreTranslateMessage(MSG* pMsg)
-{
-	m_tooltips.RelayEvent(pMsg);
-	return CReBarCtrl::PreTranslateMessage(pMsg);
-}
-
-////////////////////////////////////////////////////////////////////////////////
+// CRepositoryBarCnr control
 
 CRepositoryBarCnr::CRepositoryBarCnr(CRepositoryBar *repository_bar) :
 	m_pbarRepository(repository_bar)
@@ -385,5 +303,18 @@ void CRepositoryBarCnr::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	CStatic::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CRepositoryBar::OnDestroy()
+{
+	int idx = m_cbxUrl.GetCurSel();
+	if (idx >= 0)
+	{
+		CString path, revision;
+		m_cbxUrl.GetLBText(idx, path);
+		m_btnRevision.GetWindowText(revision);
+		m_SvnUrl = SVNUrl(path, revision, true);
+	}
+	CReBarCtrl::OnDestroy();
 }
 

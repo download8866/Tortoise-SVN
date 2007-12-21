@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -24,7 +24,8 @@
 #include "Registry.h"
 #include ".\revertdlg.h"
 
-#define REFRESHTIMER   100
+
+// CRevertDlg dialog
 
 IMPLEMENT_DYNAMIC(CRevertDlg, CResizableStandAloneDialog)
 CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
@@ -52,8 +53,6 @@ BEGIN_MESSAGE_MAP(CRevertDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
-	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -66,15 +65,9 @@ BOOL CRevertDlg::OnInitDialog()
 	m_RevertList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_RevertList.SetSelectButton(&m_SelectAll);
 	m_RevertList.SetCancelBool(&m_bCancelled);
-	m_RevertList.SetBackgroundImage(IDI_REVERT_BKG);
-	m_RevertList.EnableFileDrop();
-
-	GetWindowText(m_sWindowTitle);
 	
-	AdjustControlSize(IDC_SELECTALL);
-
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
+	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -82,15 +75,16 @@ BOOL CRevertDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RevertDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if (AfxBeginThread(RevertThreadEntry, this)==0)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
@@ -100,9 +94,9 @@ UINT CRevertDlg::RevertThreadEntry(LPVOID pVoid)
 
 UINT CRevertDlg::RevertThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which can be reverted to the user
-	// in a listcontrol. 
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 	m_bCancelled = false;
 
@@ -110,15 +104,15 @@ UINT CRevertDlg::RevertThread()
 	{
 		CMessageBox::Show(m_hWnd, m_RevertList.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES, 
-						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES);
+	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES, 
+						SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWDIRECTFILES);
 
-	CTSVNPath commonDir = m_RevertList.GetCommonDirectory(false);
-	SetWindowText(m_sWindowTitle + _T(" - ") + commonDir.GetWinPathString());
+	DialogEnableWindow(IDOK, true);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
-	RefreshCursor();
+	POINT pt;
+	GetCursorPos(&pt);
+	SetCursorPos(pt.x, pt.y);
 
 	return 0;
 }
@@ -127,36 +121,20 @@ void CRevertDlg::OnOK()
 {
 	if (m_bThreadRunning)
 		return;
-	// save only the files the user has selected into the temporary file
+	//save only the files the user has selected into the temporary file
 	m_bRecursive = TRUE;
 	for (int i=0; i<m_RevertList.GetItemCount(); ++i)
 	{
 		if (!m_RevertList.GetCheck(i))
 		{
 			m_bRecursive = FALSE;
-		}
-		else 
-		{
-			CSVNStatusListCtrl::FileEntry * entry = m_RevertList.GetListEntry(i);
-			// add all selected entries to the list, except the ones with 'added'
-			// status: we later *delete* all the entries in the list before
-			// the actual revert is done (so the user has the reverted files
-			// still in the trashbin to recover from), but it's not good to
-			// delete added files because they're not restored by the revert.
-			if (entry->status != svn_wc_status_added)
-				m_selectedPathList.AddPath(entry->GetPath());
-			// if an entry inside an external is selected, we can't revert
-			// recursively anymore because the recursive revert stops at the
-			// external boundaries.
-			if (entry->IsInExternal())
-				m_bRecursive = FALSE;
+			break;
 		}
 	}
 	if (!m_bRecursive)
 	{
 		m_RevertList.WriteCheckedNamesToPathList(m_pathList);
 	}
-	m_selectedPathList.SortByPathname();
 
 	CResizableStandAloneDialog::OnOK();
 }
@@ -234,78 +212,4 @@ LRESULT CRevertDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
-}
-
-LRESULT CRevertDlg::OnFileDropped(WPARAM, LPARAM lParam)
-{
-	BringWindowToTop();
-	SetForegroundWindow();
-	SetActiveWindow();
-	// if multiple files/folders are dropped
-	// this handler is called for every single item
-	// separately.
-	// To avoid creating multiple refresh threads and
-	// causing crashes, we only add the items to the
-	// list control and start a timer.
-	// When the timer expires, we start the refresh thread,
-	// but only if it isn't already running - otherwise we
-	// restart the timer.
-	CTSVNPath path;
-	path.SetFromWin((LPCTSTR)lParam);
-
-	if (!m_RevertList.HasPath(path))
-	{
-		if (m_pathList.AreAllPathsFiles())
-		{
-			m_pathList.AddPath(path);
-			m_pathList.RemoveDuplicates();
-		}
-		else
-		{
-			// if the path list contains folders, we have to check whether
-			// our just (maybe) added path is a child of one of those. If it is
-			// a child of a folder already in the list, we must not add it. Otherwise
-			// that path could show up twice in the list.
-			bool bHasParentInList = false;
-			for (int i=0; i<m_pathList.GetCount(); ++i)
-			{
-				if (m_pathList[i].IsAncestorOf(path))
-				{
-					bHasParentInList = true;
-					break;
-				}
-			}
-			if (!bHasParentInList)
-			{
-				m_pathList.AddPath(path);
-				m_pathList.RemoveDuplicates();
-			}
-		}
-	}
-
-	// Always start the timer, since the status of an existing item might have changed
-	SetTimer(REFRESHTIMER, 200, NULL);
-	ATLTRACE(_T("Item %s dropped, timer started\n"), path.GetWinPath());
-	return 0;
-}
-
-void CRevertDlg::OnTimer(UINT_PTR nIDEvent)
-{
-	switch (nIDEvent)
-	{
-	case REFRESHTIMER:
-		if (m_bThreadRunning)
-		{
-			SetTimer(REFRESHTIMER, 200, NULL);
-			ATLTRACE("Wait some more before refreshing\n");
-		}
-		else
-		{
-			KillTimer(REFRESHTIMER);
-			ATLTRACE("Refreshing after items dropped\n");
-			OnSVNStatusListCtrlNeedsRefresh(0, 0);
-		}
-		break;
-	}
-	__super::OnTimer(nIDEvent);
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,26 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
-#include "SVNRev.h"
+#include "SVNUrl.h"
 #include "HistoryCombo.h"
-#include "Balloon.h"
 
 class CRepositoryTree;
 
-/**
- * \ingroup TortoiseProc
- * Interface definition
- */
-class IRepo
-{
-public:
-	virtual bool ChangeToUrl(const CString& url, const SVNRev& rev) = 0;
-};
 
 /**
  * \ingroup TortoiseProc
@@ -41,6 +31,25 @@ public:
  * tree control, call AssocTree() once after both objects are created. As
  * long as they are associated, the bar and the tree form a "team" of
  * controls that work together.
+ *
+ * \par requirements
+ * win98 or later, win95 with IE4
+ * win2K or later, NT4 with IE4
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date MAR-2004
+ *
+ * \author Thomas Epting
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CRepositoryBar : public CReBarCtrl
 {
@@ -59,9 +68,15 @@ public:
 	bool Create(CWnd* parent, UINT id, bool in_dialog = true);
 
 	/**
+	 * Associates a repository tree with this bar. If another tree was
+	 * previously associated, this connection is terminated.
+	 */
+	void AssocTree(CRepositoryTree *repo_tree);
+
+	/**
 	 * Show the given \a svn_url in the URL combo and the revision button.
 	 */
-	void ShowUrl(const CString& url, SVNRev rev);
+	void ShowUrl(const SVNUrl& svn_url);
 
 	/**
 	 * Show the given \a svn_url in the URL combo and the revision button,
@@ -69,59 +84,39 @@ public:
 	 * is given, the current values are used (which effectively refreshes
 	 * the tree).
 	 */
-	void GotoUrl(const CString& url = CString(), SVNRev rev = SVNRev(), bool bAlreadyChecked = false);
+	void GotoUrl(const SVNUrl& svn_url = SVNUrl());
 
 	/**
 	 * Returns the current URL.
 	 */
-	CString GetCurrentUrl() const;
-
-	/**
-	 * Returns the current revision
-	 */
-	SVNRev GetCurrentRev() const;
+	SVNUrl GetCurrentUrl() const;
 
 	/**
 	 * Saves the URL history of the HistoryCombo.
 	 */
 	void SaveHistory();
 	
-	/**
-	 * Set the revision
-	 */
 	void SetRevision(SVNRev rev);
 
-	void SetFocusToURL();
-
-	void SetIRepo(IRepo * pRepo) {m_pRepo = pRepo;}
-
-	void SetHeadRevision(const SVNRev& rev) {m_headRev = rev;}
 protected:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg void OnCbnSelChange();
+	afx_msg void OnCbnSelEndOK();
 	afx_msg void OnBnClicked();
 	afx_msg void OnDestroy();
 
 	DECLARE_MESSAGE_MAP()
 
 private:
-	CString m_url;
-	SVNRev m_rev;
+	CRepositoryTree	*m_pRepositoryTree;
+	SVNUrl m_SvnUrl;
 
-	IRepo * m_pRepo;
-
-	class CRepositoryCombo : public CHistoryCombo 
-	{
+	class CRepositoryCombo : public CHistoryCombo {
 		CRepositoryBar *m_bar;
 	public:
-		CRepositoryCombo(CRepositoryBar *bar) : m_bar(bar) {}
+		CRepositoryCombo(CRepositoryBar *bar) : m_bar(bar) { }
 		virtual bool OnReturnKeyPressed();
 	} m_cbxUrl;
 
 	CButton m_btnRevision;
-
-	SVNRev	m_headRev;
-	CBalloon m_tooltips;
 };
 
 
@@ -130,6 +125,25 @@ private:
  * Implements a visual container for a CRepositoryBar which may be added to a
  * dialog. A CRepositoryBarCnr is not needed if the CRepositoryBar is attached
  * to a frame window.
+ *
+ * \par requirements
+ * win98 or later, win95 with IE4
+ * win2K or later, NT4 with IE4
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date MAR-2004
+ *
+ * \author Thomas Epting
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CRepositoryBarCnr : public CStatic
 {

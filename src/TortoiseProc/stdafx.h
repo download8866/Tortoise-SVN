@@ -23,7 +23,6 @@
 #define _WIN32_IE 0x0501
 #endif
 
-
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 
 // turns off MFC's hiding of some common and often safely ignored warning messages
@@ -31,9 +30,6 @@
 
 #include <afxwin.h>         // MFC core and standard components
 #include <afxext.h>         // MFC extensions
-#include <WinSock2.h>
-#include <Ws2tcpip.h>
-#include <Wspiapi.h>
 
 #include <afxdtctl.h>		// MFC support for Internet Explorer 4 Common Controls
 #ifndef _AFX_NO_AFXCMN_SUPPORT
@@ -43,9 +39,6 @@
 #include <afxctl.h>
 #include <afxtempl.h>
 #include <afxmt.h>
-
-
-#include <atlbase.h>
 
 #ifndef LVS_EX_DOUBLEBUFFER
 #define LVS_EX_DOUBLEBUFFER     0x00010000
@@ -82,12 +75,12 @@
 #include <tmschema.h>
 #include <dlgs.h>
 #include <wininet.h>
-#include <assert.h>
 #pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4005)	// macro redefinition
 #include "..\..\ext\apr\include\apr_version.h"
+#include "..\..\ext\apr-iconv\include\api_version.h"
 #include "..\..\ext\apr-util\include\apu_version.h"
 //#include "..\..\ext\berkeley-db\db4.3-win32\include\db.h"
 #include "..\..\ext\neon\config.h"
@@ -95,5 +88,4 @@
 #include "..\..\..\common\zlib\zlib.h"
 #pragma warning(pop)
 
-#define USE_GDI_GRADIENT
-#define HISTORYCOMBO_WITH_SYSIMAGELIST
+

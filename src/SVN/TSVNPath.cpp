@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "TSVNPath.h"
@@ -37,16 +37,12 @@ CTSVNPath::CTSVNPath(void) :
 	m_bIsURL(false),
 	m_bURLKnown(false),
 	m_bHasAdminDirKnown(false),
-	m_bHasAdminDir(false),
 	m_bIsValidOnWindowsKnown(false),
 	m_bIsReadOnly(false),
 	m_bIsAdminDirKnown(false),
 	m_bIsAdminDir(false),
 	m_bExists(false),
-	m_bExistsKnown(false),
-	m_bLastWriteTimeKnown(0),
-	m_lastWriteTime(0),
-	m_customData(NULL)
+	m_bExistsKnown(false)
 {
 }
 
@@ -60,16 +56,12 @@ CTSVNPath::CTSVNPath(const CString& sUnknownPath) :
 	m_bIsURL(false),
 	m_bURLKnown(false),
 	m_bHasAdminDirKnown(false),
-	m_bHasAdminDir(false),
 	m_bIsValidOnWindowsKnown(false),
 	m_bIsReadOnly(false),
 	m_bIsAdminDirKnown(false),
 	m_bIsAdminDir(false),
 	m_bExists(false),
-	m_bExistsKnown(false),
-	m_bLastWriteTimeKnown(0),
-	m_lastWriteTime(0),
-	m_customData(NULL)
+	m_bExistsKnown(false)
 {
 	SetFromUnknown(sUnknownPath);
 }
@@ -106,22 +98,12 @@ void CTSVNPath::SetFromWin(LPCTSTR pPath)
 {
 	Reset();
 	m_sBackslashPath = pPath;
-	// Make sure that root directories look like 'C:\' rather than 'C:'
-	if(m_sBackslashPath.GetLength() == 2 && m_sBackslashPath[1] == ':')
-	{
-		m_sBackslashPath += '\\';
-	}
 	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath)
 {
 	Reset();
 	m_sBackslashPath = sPath;
-	// Make sure that root directories look like 'C:\' rather than 'C:'
-	if(m_sBackslashPath.GetLength() == 2 && m_sBackslashPath[1] == ':')
-	{
-		m_sBackslashPath += '\\';
-	}
 	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
@@ -130,11 +112,6 @@ void CTSVNPath::SetFromWin(const CString& sPath, bool bIsDirectory)
 	m_sBackslashPath = sPath;
 	m_bIsDirectory = bIsDirectory;
 	m_bDirectoryKnown = true;
-	// Make sure that root directories look like 'C:\' rather than 'C:'
-	if(m_sBackslashPath.GetLength() == 2 && m_sBackslashPath[1] == ':')
-	{
-		m_sBackslashPath += '\\';
-	}
 	ATLASSERT(m_sBackslashPath.Find('/')<0);
 }
 void CTSVNPath::SetFromUnknown(const CString& sPath)
@@ -177,7 +154,7 @@ const CString& CTSVNPath::GetSVNPathString() const
 }
 
 
-const char* CTSVNPath::GetSVNApiPath(apr_pool_t *pool) const
+const char* CTSVNPath::GetSVNApiPath() const
 {
 	// This funny-looking 'if' is to avoid a subtle problem with empty paths, whereby
 	// each call to GetSVNApiPath returns a different pointer value.
@@ -201,12 +178,9 @@ const char* CTSVNPath::GetSVNApiPath(apr_pool_t *pool) const
 	if (svn_path_is_url(m_sUTF8FwdslashPath))
 	{
 		m_sUTF8FwdslashPathEscaped = CPathUtils::PathEscape(m_sUTF8FwdslashPath);
-		m_sUTF8FwdslashPath = svn_path_canonicalize(m_sUTF8FwdslashPath, pool);
 		return m_sUTF8FwdslashPathEscaped;
 	}
 #endif // _MFC_VER
-	m_sUTF8FwdslashPath = svn_path_canonicalize(m_sUTF8FwdslashPath, pool);
-
 	return m_sUTF8FwdslashPath;
 }
 
@@ -218,7 +192,10 @@ const CString& CTSVNPath::GetUIPathString() const
 		//BUGBUG HORRIBLE!!! - CPathUtils::IsEscaped doesn't need to be MFC-only
 		if (IsUrl())
 		{
-			m_sUIPath = CPathUtils::PathUnescape(GetSVNPathString());
+			CStringA sUIPathA = GetSVNApiPath();
+			CPathUtils::Unescape(sUIPathA.GetBuffer());
+			sUIPathA.ReleaseBuffer();
+			m_sUIPath = CUnicodeUtils::GetUnicode(sUIPathA);
 		}
 		else
 #endif 
@@ -233,13 +210,9 @@ void CTSVNPath::SetFwdslashPath(const CString& sPath) const
 {
 	m_sFwdslashPath = sPath;
 	m_sFwdslashPath.Replace('\\', '/');
-
-	// We don't leave a trailing /
 	m_sFwdslashPath.TrimRight('/');	
 
-	// Subversion 1.5 fixed the problem with root paths, but now it expects a slash for root paths
-	if ((m_sFwdslashPath.GetLength() == 2)&&(m_sFwdslashPath[1] == ':'))
-		m_sFwdslashPath += _T("/");
+	// We don't leave a trailing / even on root dir paths, because SVN doesn't like it
 
 	//workaround for Subversions UNC-path bug
 	if (m_sFwdslashPath.Left(10).CompareNoCase(_T("file://///"))==0)
@@ -305,38 +278,6 @@ bool CTSVNPath::Exists() const
 	return m_bExists;
 }
 
-bool CTSVNPath::Delete(bool bTrash) const
-{
-	EnsureBackslashPathSet();
-	::SetFileAttributes(m_sBackslashPath, FILE_ATTRIBUTE_NORMAL);
-	bool bRet = false;
-	if (Exists())
-	{
-		if ((bTrash)||(IsDirectory()))
-		{
-			TCHAR * buf = new TCHAR[m_sBackslashPath.GetLength()+2];
-			_tcscpy_s(buf, m_sBackslashPath.GetLength()+2, m_sBackslashPath);
-			buf[m_sBackslashPath.GetLength()] = 0;
-			buf[m_sBackslashPath.GetLength()+1] = 0;
-			SHFILEOPSTRUCT shop = {0};
-			shop.wFunc = FO_DELETE;
-			shop.pFrom = buf;
-			shop.fFlags = FOF_NOCONFIRMATION|FOF_NOERRORUI|FOF_SILENT;
-			if (bTrash)
-				shop.fFlags |= FOF_ALLOWUNDO;
-			bRet = (SHFileOperation(&shop) == 0);
-			delete [] buf;
-		}
-		else
-		{
-			bRet = !!::DeleteFile(m_sBackslashPath);
-		}
-	}
-	m_bExists = false;
-	m_bExistsKnown = true;
-	return bRet;
-}
-
 __int64  CTSVNPath::GetLastWriteTime() const
 {
 	if(!m_bLastWriteTimeKnown)
@@ -369,7 +310,7 @@ void CTSVNPath::UpdateAttributes() const
 	else
 	{
 		DWORD err = GetLastError();
-		if ((err == ERROR_FILE_NOT_FOUND)||(err == ERROR_PATH_NOT_FOUND)||(err == ERROR_INVALID_NAME))
+		if ((err == ERROR_FILE_NOT_FOUND)||(err == ERROR_PATH_NOT_FOUND))
 		{
 			m_bIsDirectory = false;
 			m_lastWriteTime = 0;
@@ -795,19 +736,19 @@ const CTSVNPath& CTSVNPathList::operator[](int index) const
 bool CTSVNPathList::AreAllPathsFiles() const
 {
 	// Look through the vector for any directories - if we find them, return false
-	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) == m_paths.end();
+	return std::find_if(m_paths.begin(), m_paths.end(), std::mem_fun_ref(&CTSVNPath::IsDirectory)) != m_paths.end();
 }
 
 
 #if defined(_MFC_VER)
 
-bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
+bool CTSVNPathList::LoadFromTemporaryFile(const CTSVNPath& filename)
 {
 	Clear();
 	try
 	{
 		CString strLine;
-		CStdioFile file(filename.GetWinPath(), CFile::typeBinary | CFile::modeRead | CFile::shareDenyWrite);
+		CStdioFile file(filename.GetWinPath(), CFile::typeBinary | CFile::modeRead);
 
 		// for every selected file/folder
 		CTSVNPath path;
@@ -830,31 +771,17 @@ bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
 	return true;
 }
 
-bool CTSVNPathList::WriteToFile(const CString& sFilename, bool bANSI /* = false */) const
+bool CTSVNPathList::WriteToTemporaryFile(const CString& sFilename) const
 {
 	try
 	{
-		if (bANSI)
+		CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
+		PathVector::const_iterator it;
+		for(it = m_paths.begin(); it != m_paths.end(); ++it)
 		{
-			CStdioFile file(sFilename, CFile::typeText | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				CStringA line = CStringA(it->GetSVNPathString()) + '\n';
-				file.Write(line, line.GetLength());
-			} 
-			file.Close();
-		}
-		else
-		{
-			CStdioFile file(sFilename, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
-			PathVector::const_iterator it;
-			for(it = m_paths.begin(); it != m_paths.end(); ++it)
-			{
-				file.WriteString(it->GetSVNPathString()+_T("\n"));
-			} 
-			file.Close();
-		}
+			file.WriteString(it->GetSVNPathString()+_T("\n"));
+		} 
+		file.Close();
 	}
 	catch (CFileException* pE)
 	{
@@ -881,18 +808,6 @@ void CTSVNPathList::LoadFromAsteriskSeparatedString(const CString& sPathString)
 	} 
 }
 
-CString CTSVNPathList::CreateAsteriskSeparatedString() const
-{
-	CString sRet;
-	PathVector::const_iterator it;
-	for(it = m_paths.begin(); it != m_paths.end(); ++it)
-	{
-		if (!sRet.IsEmpty())
-			sRet += _T("*");
-		sRet += it->GetWinPathString();
-	}
-	return sRet;
-}
 #endif // _MFC_VER
 
 bool 
@@ -992,40 +907,14 @@ void CTSVNPathList::SortByPathname(bool bReverse /*= false*/)
 		std::reverse(m_paths.begin(), m_paths.end());
 }
 
-void CTSVNPathList::DeleteAllFiles(bool bTrash)
+void CTSVNPathList::DeleteAllFiles()
 {
 	PathVector::const_iterator it;
-	if (bTrash)
+	for(it = m_paths.begin(); it != m_paths.end(); ++it)
 	{
-		SortByPathname();
-		CString sPaths;
-		for (it = m_paths.begin(); it != m_paths.end(); ++it)
-		{
-			if ((it->Exists())&&(!it->IsDirectory()))
-			{
-				::SetFileAttributes(it->GetWinPath(), FILE_ATTRIBUTE_NORMAL);
-				sPaths += it->GetWinPath();
-				sPaths += '\0';
-			}
-		}
-		sPaths += '\0';
-		sPaths += '\0';
-		SHFILEOPSTRUCT shop = {0};
-		shop.wFunc = FO_DELETE;
-		shop.pFrom = (LPCTSTR)sPaths;
-		shop.fFlags = FOF_ALLOWUNDO|FOF_NOCONFIRMATION|FOF_NOERRORUI|FOF_SILENT;
-		SHFileOperation(&shop);
-	}
-	else
-	{
-		for (it = m_paths.begin(); it != m_paths.end(); ++it)
-		{
-			if (!it->IsDirectory())
-			{
-				::SetFileAttributes(it->GetWinPath(), FILE_ATTRIBUTE_NORMAL);
-				::DeleteFile(it->GetWinPath());
-			}
-		}
+		ATLASSERT(!it->IsDirectory());
+		::SetFileAttributes(it->GetWinPath(), FILE_ATTRIBUTE_NORMAL);
+		::DeleteFile(it->GetWinPath());
 	}
 	Clear();
 }
@@ -1072,45 +961,16 @@ void CTSVNPathList::RemoveChildren()
 	m_paths.erase(std::unique(m_paths.begin(), m_paths.end(), &CTSVNPath::CheckChild), m_paths.end());
 }
 
-bool CTSVNPathList::IsEqual(const CTSVNPathList& list)
-{
-	if (list.GetCount() != GetCount())
-		return false;
-	for (int i=0; i<list.GetCount(); ++i)
-	{
-		if (!list[i].IsEquivalentTo(m_paths[i]))
-			return false;
-	}
-	return true;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-apr_array_header_t * CTSVNPathList::MakePathArray (apr_pool_t *pool) const
-{
-	apr_array_header_t *targets = apr_array_make (pool, GetCount(), sizeof(const char *));
-
-	for(int nItem = 0; nItem < GetCount(); nItem++)
-	{
-		const char * target = m_paths[nItem].GetSVNApiPath(pool);
-		(*((const char **) apr_array_push (targets))) = target;
-	}
-
-	return targets;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(_MFC_VER)
 // Some test cases for these classes
-static class CTSVNPathTests
+static class CPathTests
 {
 public:
-	CTSVNPathTests()
+	CPathTests()
 	{
-		apr_initialize();
-		pool = svn_pool_create(NULL);
 		GetDirectoryTest();
 		AdminDirTest();
 		SortTest();
@@ -1126,11 +986,9 @@ public:
 		ValidPathAndUrlTest();
 		ListLoadingTest();
 #endif
-		apr_terminate();
 	}
 
 private:
-	apr_pool_t * pool;
 	void GetDirectoryTest()
 	{
 		// Bit tricky, this test, because we need to know something about the file
@@ -1342,18 +1200,18 @@ private:
 	{
 		CTSVNPath testPath;
 		testPath.SetFromWin(_T("c:\\a\\b\\c\\d\\e"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "c:/a/b/c/d/e") == 0);
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "c:/a/b/c/d/e") == 0);
 		testPath.SetFromUnknown(_T("http://testing/"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing") == 0);
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing") == 0);
 		testPath.SetFromSVN(NULL);
-		ATLASSERT(strlen(testPath.GetSVNApiPath(pool))==0);
+		ATLASSERT(strlen(testPath.GetSVNApiPath())==0);
 #if defined(_MFC_VER)
 		testPath.SetFromUnknown(_T("http://testing again"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20again") == 0);
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing%20again"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20again") == 0);
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing special chars \344\366\374"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20special%20chars%20%C3%A4%C3%B6%C3%BC") == 0);		
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(), "http://testing%20special%20chars%20%C3%A4%C3%B6%C3%BC") == 0);		
 #endif
 	}
 
@@ -1410,6 +1268,8 @@ private:
 		ATLASSERT(testPath.IsValidOnWindows());
 
 		// now the negative tests
+		testPath.SetFromWin(_T("c:"));
+		ATLASSERT(!testPath.IsValidOnWindows());
 		testPath.SetFromWin(_T("c:\\test:folder"));
 		ATLASSERT(!testPath.IsValidOnWindows());
 		testPath.SetFromWin(_T("c:\\file<name"));
@@ -1462,6 +1322,6 @@ private:
 	}
 #endif
 
-} TSVNPathTestobject;
+} TSVNPathTests;
 #endif
 

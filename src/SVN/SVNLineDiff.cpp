@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "SVNLineDiff.h"
@@ -29,64 +29,63 @@ const svn_diff_fns_t SVNLineDiff::SVNLineDiff_vtable =
 	SVNLineDiff::discard_all_token
 };
 
-#define SVNLINEDIFF_CHARTYPE_NONE			0
-#define SVNLINEDIFF_CHARTYPE_ALPHANUMERIC	1
-#define SVNLINEDIFF_CHARTYPE_SPACE			2
-#define SVNLINEDIFF_CHARTYPE_OTHER			3
-
-typedef void (*LineParser)(LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens);
-
-void SVNLineDiff::ParseLineWords(
-	LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens)
-{
-	std::wstring token;
-	int prevCharType = SVNLINEDIFF_CHARTYPE_NONE;
-	for (unsigned long i = 0; i < lineLength; ++i)
-	{
-		int charType = 
-			IsCharAlphaNumeric(line[i]) ? SVNLINEDIFF_CHARTYPE_ALPHANUMERIC :
-			IsCharWhiteSpace(line[i]) ? SVNLINEDIFF_CHARTYPE_SPACE :
-			SVNLINEDIFF_CHARTYPE_OTHER;
-
-		// Token is a sequence of either alphanumeric or whitespace characters.
-		// Treat all other characters as a separate tokens.
-		if (charType == prevCharType && charType != SVNLINEDIFF_CHARTYPE_OTHER)
-			token += line[i];
-		else
-		{
-			if (!token.empty())
-				tokens.push_back(token);
-			token = line[i];
-		}
-		prevCharType = charType;
-	}
-	if (!token.empty())
-		tokens.push_back(token);
-}
-
-void SVNLineDiff::ParseLineChars(
-	LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens)
-{
-	std::wstring token;
-	for (unsigned long i = 0; i < lineLength; ++i)
-	{
-		token = line[i];
-		tokens.push_back(token);
-	}
-}
-
 svn_error_t * SVNLineDiff::datasource_open(void * baton, svn_diff_datasource_e datasource)
 {
 	SVNLineDiff * linediff = (SVNLineDiff *)baton;
-	LineParser parser = linediff->m_bWordDiff ? ParseLineWords : ParseLineChars;
-	switch (datasource)
+	if (linediff->m_bWordDiff)
 	{
+		std::wstring token;
+		switch (datasource)
+		{
 		case svn_diff_datasource_original:
-			parser(linediff->m_line1, linediff->m_line1length, linediff->m_line1tokens);
+			{
+				for (unsigned long i=0; i<linediff->m_line1length; ++i)
+				{
+					if (IsCharAlphaNumeric(linediff->m_line1[i]))
+					{
+						token += linediff->m_line1[i];
+					}
+					else
+					{
+						if (!token.empty())
+							linediff->m_line1tokens.push_back(token);
+						token = linediff->m_line1[i];
+						linediff->m_line1tokens.push_back(token);
+						token.clear();
+					}
+				}
+				if (!token.empty())
+				{
+					linediff->m_line1tokens.push_back(token);
+					token.clear();
+				}
+				//for (int i=0; i<linediff->m_line1tokens.size(); ++i)
+				//	ATLTRACE("token %ld is = \"%ws\"\n", i, linediff->m_line1tokens[i].c_str());
+			}
 			break;
 		case svn_diff_datasource_modified:
-			parser(linediff->m_line2, linediff->m_line2length, linediff->m_line2tokens);
+			{
+				for (unsigned long i=0; i<linediff->m_line2length; ++i)
+				{
+					if (IsCharAlphaNumeric(linediff->m_line2[i]))
+						token += linediff->m_line2[i];
+					else
+					{
+						if (!token.empty())
+							linediff->m_line2tokens.push_back(token);
+						token = linediff->m_line2[i];
+						linediff->m_line2tokens.push_back(token);
+						token.clear();
+					}
+				}
+				if (!token.empty())
+				{
+					linediff->m_line2tokens.push_back(token);
+					token.clear();
+				}
+			}
 			break;
+		}
 	}
 	return SVN_NO_ERROR;
 }
@@ -96,30 +95,7 @@ svn_error_t * SVNLineDiff::datasource_close(void * /*baton*/, svn_diff_datasourc
 	return SVN_NO_ERROR;
 }
 
-void SVNLineDiff::NextTokenWords(
-	apr_uint32_t* hash, void** token, unsigned long& linePos, const std::vector<std::wstring>& tokens)
-{
-	if (linePos < tokens.size())
-	{
-		*token = (void*)tokens[linePos].c_str();
-		*hash = SVNLineDiff::Adler32(0, tokens[linePos].c_str(), tokens[linePos].size());
-		linePos++;
-	}
-}
-
-void SVNLineDiff::NextTokenChars(
-	apr_uint32_t* hash, void** token, unsigned long& linePos, LPCTSTR line, unsigned long lineLength)
-{
-	if (linePos < lineLength)
-	{
-		*token = (void*)&line[linePos];
-		*hash = line[linePos];
-		linePos++;
-	}
-}
-
-svn_error_t * SVNLineDiff::next_token(
-	apr_uint32_t * hash, void ** token, void * baton, svn_diff_datasource_e datasource)
+svn_error_t * SVNLineDiff::next_token(apr_uint32_t * hash, void ** token, void * baton, svn_diff_datasource_e datasource)
 {
 	SVNLineDiff * linediff = (SVNLineDiff *)baton;
 	*token = NULL;
@@ -127,15 +103,43 @@ svn_error_t * SVNLineDiff::next_token(
 	{
 	case svn_diff_datasource_original:
 		if (linediff->m_bWordDiff)
-			NextTokenWords(hash, token, linediff->m_line1pos, linediff->m_line1tokens);
+		{
+			if (linediff->m_line1pos < linediff->m_line1tokens.size())
+			{
+				*token = (void *)linediff->m_line1tokens[linediff->m_line1pos].c_str();
+				*hash = linediff->Adler32(0, linediff->m_line1tokens[linediff->m_line1pos].c_str(), linediff->m_line1tokens[linediff->m_line1pos].size());
+				linediff->m_line1pos++;
+			}
+		}
 		else
-			NextTokenChars(hash, token, linediff->m_line1pos, linediff->m_line1, linediff->m_line1length);
+		{
+			if (linediff->m_line1pos < linediff->m_line1length)
+			{
+				*token = (void *)&linediff->m_line1[linediff->m_line1pos];
+				*hash = linediff->m_line1[linediff->m_line1pos];
+				linediff->m_line1pos++;
+			}
+		}
 		break;
 	case svn_diff_datasource_modified:
 		if (linediff->m_bWordDiff)
-			NextTokenWords(hash, token, linediff->m_line2pos, linediff->m_line2tokens);
+		{
+			if (linediff->m_line2pos < linediff->m_line2tokens.size())
+			{
+				*token = (void *)linediff->m_line2tokens[linediff->m_line2pos].c_str();
+				*hash = linediff->Adler32(0, linediff->m_line2tokens[linediff->m_line2pos].c_str(), linediff->m_line2tokens[linediff->m_line2pos].size());
+				linediff->m_line2pos++;
+			}
+		}
 		else
-			NextTokenChars(hash, token, linediff->m_line2pos, linediff->m_line2, linediff->m_line2length);
+		{
+			if (linediff->m_line2pos < linediff->m_line2length)
+			{
+				*token = (void *)&linediff->m_line2[linediff->m_line2pos];
+				*hash = linediff->m_line2[linediff->m_line2pos];
+				linediff->m_line2pos++;
+			}
+		}
 		break;
 	}
 	return SVN_NO_ERROR;
@@ -178,7 +182,8 @@ void SVNLineDiff::discard_all_token(void * /*baton*/)
 {
 }
 
-SVNLineDiff::SVNLineDiff(): m_pool(NULL), m_subpool(NULL)
+SVNLineDiff::SVNLineDiff() : m_pool(NULL)
+	, m_subpool(NULL)
 {
 	m_pool = svn_pool_create(NULL);
 }
@@ -201,8 +206,14 @@ bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, int len1, LPCTSTR line2
 	m_bWordDiff = bWordDiff;
 	m_line1 = line1;
 	m_line2 = line2;
-	m_line1length = len1 ? len1 : _tcslen(m_line1);
-	m_line2length = len2 ? len2 : _tcslen(m_line2);
+	if (len1)
+		m_line1length = len1;
+	else
+		m_line1length = _tcslen(m_line1);
+	if (len2)
+		m_line2length = len2;
+	else
+		m_line2length = _tcslen(m_line2);
 
 	m_line1pos = 0;
 	m_line2pos = 0;
@@ -211,7 +222,6 @@ bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, int len1, LPCTSTR line2
 	svn_error_t * err = svn_diff_diff(diff, this, &SVNLineDiff_vtable, m_subpool);
 	if (err)
 	{
-		svn_error_clear(err);
 		svn_pool_clear(m_subpool);
 		return false;
 	}
@@ -254,34 +264,4 @@ apr_uint32_t SVNLineDiff::Adler32(apr_uint32_t checksum, const WCHAR *data, apr_
 	}
 
 	return ((s2 % ADLER_MOD_BASE) << 16) | (s1 % ADLER_MOD_BASE);
-}
-
-bool SVNLineDiff::IsCharWhiteSpace(TCHAR c)
-{
-	return (c == ' ') || (c == '\t');
-}
-
-bool SVNLineDiff::ShowInlineDiff(svn_diff_t* diff)
-{
-	svn_diff_t* tempdiff = diff;
-	int diffcounts = 0;
-	int origcounts = 0;
-	apr_off_t origsize = 0;
-	apr_off_t diffsize = 0;
-	while (tempdiff)
-	{
-		if (tempdiff->type == svn_diff__type_common)
-		{
-			origcounts++;
-			origsize += tempdiff->original_length;
-		}
-		else
-		{
-			diffcounts++;
-			diffsize += tempdiff->original_length;
-			diffsize += tempdiff->modified_length;
-		}
-		tempdiff = tempdiff->next;
-	}
-	return (origcounts >= diffcounts) && (origsize > diffsize);
 }

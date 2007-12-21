@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -24,6 +24,8 @@
 #include "Propdlg.h"
 #include "Registry.h"
 
+
+// CPropDlg dialog
 
 IMPLEMENT_DYNAMIC(CPropDlg, CResizableStandAloneDialog)
 CPropDlg::CPropDlg(CWnd* pParent /*=NULL*/)
@@ -46,6 +48,9 @@ void CPropDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CPropDlg, CResizableStandAloneDialog)
 	ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
+
+
+// CPropDlg message handlers
 
 BOOL CPropDlg::OnInitDialog()
 {
@@ -81,7 +86,8 @@ BOOL CPropDlg::OnInitDialog()
 	AddAnchor(IDC_PROPERTYLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_CENTER);
 	EnableSaveRestore(_T("PropDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CPropDlg::OnCancel()

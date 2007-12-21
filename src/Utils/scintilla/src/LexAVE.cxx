@@ -22,9 +22,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
 
 
 static inline bool IsAWordChar(const int ch) {

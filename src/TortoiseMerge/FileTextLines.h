@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,14 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
-#include "EOL.h"
 
 // A template class to make an array which looks like a CStringArray or CDWORDArray but
-// is in fact based on a STL array, which is much faster at large sizes
+// is infact based on a STL array, which is much faster at large sizes
 template <typename T> class CStdArray
 {
 public:
@@ -41,11 +40,19 @@ private:
 typedef CStdArray<CString> CStdCStringArray;
 typedef CStdArray<DWORD> CStdDWORDArray;
 
+class CStdioFileK : public CStdioFile
+{
+public:
+	CStdioFileK(LPCTSTR lpszFileName, UINT nOpenFlags);
+	BOOL ReadString(CStringA& rString);
+	BOOL ReadString(CString& rString) {return CStdioFile::ReadString(rString);}
+};
+
 /**
  * \ingroup TortoiseMerge
  *
  * Represents an array of text lines which are read from a file.
- * This class is also responsible for determining the encoding of
+ * This class is also responsible for determing the encoding of
  * the file (e.g. UNICODE, UTF8, ASCII, ...).
  */
 class CFileTextLines  : public CStdCStringArray
@@ -54,6 +61,14 @@ public:
 	CFileTextLines(void);
 	~CFileTextLines(void);
 
+	enum LineEndings
+	{
+		AUTOLINE,
+		LF,
+		CRLF,
+		LFCR,
+		CR,
+	};
 	enum UnicodeType
 	{
 		AUTOTYPE,
@@ -86,25 +101,16 @@ public:
 	void		CopySettings(CFileTextLines * pFileToCopySettingsTo);
 
 	CFileTextLines::UnicodeType GetUnicodeType() const  {return m_UnicodeType;}
-	EOL GetLineEndings() const {return m_LineEndings;}
 
-	void		Add(const CString& sLine, EOL ending) {CStdCStringArray::Add(sLine); m_endings.push_back(ending);}
-	void		RemoveAt(int index)	{CStdCStringArray::RemoveAt(index); m_endings.erase(m_endings.begin()+index);}
-	void		InsertAt(int index, const CString& strVal, EOL ending) {CStdCStringArray::InsertAt(index, strVal); m_endings.insert(m_endings.begin()+index, ending);}
-
-	EOL			GetLineEnding(int index) {return m_endings[index];}
-	void		SetLineEnding(int index, EOL ending) {m_endings[index] = ending;}
-	
-	void		RemoveAll() {CStdCStringArray::RemoveAll(); m_endings.clear();}
 private:
 	/**
 	 * Checks the line endings in a text buffer
 	 * \param pBuffer pointer to the buffer containing text
 	 * \param cd size of the text buffer in bytes
 	 */
-	EOL CheckLineEndings(LPVOID pBuffer, int cb); 
+	CFileTextLines::LineEndings CheckLineEndings(LPVOID pBuffer, int cb); 
 	/**
-	 * Checks the Unicode type in a text buffer
+	 * Checks the unicode type in a text buffer
 	 * \param pBuffer pointer to the buffer containing text
 	 * \param cd size of the text buffer in bytes
 	 */
@@ -119,9 +125,7 @@ private:
 
 
 private:
-	std::vector<EOL>							m_endings;
-	CString										m_sErrorString;
-	CFileTextLines::UnicodeType					m_UnicodeType;
-	EOL											m_LineEndings;
-	bool										m_bReturnAtEnd;
+	CString		m_sErrorString;
+	CFileTextLines::UnicodeType	m_UnicodeType;
+	CFileTextLines::LineEndings m_LineEndings;
 };

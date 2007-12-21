@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 #include <vector>
 #include <string>
@@ -63,20 +63,7 @@ typedef struct tagDialogInfo
 	LPCTSTR faceName;
 	BOOL    dialogEx;
 } DIALOGINFO, * LPDIALOGINFO;
-// MENU resource
-typedef struct tagMenuEntry
-{
-	WORD            wID;
-	std::wstring	reference;
-	std::wstring	msgstr;
-} MENUENTRY, * LPMENUENTRY;
 
-/**
- * \ingroup ResText
- * Class to handle a resource module (*.exe or *.dll file).
- *
- * Provides methods to extract and apply resource strings.
- */
 class CResModule
 {
 public:
@@ -88,7 +75,6 @@ public:
 	BOOL	CreateTranslatedResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR lpszDestLangDllPath, LPCTSTR lpszPOFilePath);
 	void	SetQuiet(BOOL bQuiet = TRUE) {m_bQuiet = bQuiet; m_StringEntries.SetQuiet(bQuiet);}
 	void	SetLanguage(WORD wLangID) {m_wTargetLang = wLangID;}
-	void	SetRTL(bool bRTL = true) {m_bRTL = bRTL;}
 
 private:
 	static  BOOL CALLBACK EnumResNameCallback(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam);
@@ -100,8 +86,6 @@ private:
 	BOOL	ReplaceString(UINT nID, WORD wLanguage);
 	BOOL	ReplaceDialog(UINT nID, WORD wLanguage);
 	BOOL	ReplaceMenu(UINT nID, WORD wLanguage);
-	BOOL	ExtractAccelerator(UINT nID);
-	BOOL	ReplaceAccelerator(UINT nID, WORD wLanguage);
 
 	const WORD*	ParseMenuResource(const WORD * res);
 	const WORD*	CountMemReplaceMenuResource(const WORD * res, size_t * wordcount, WORD * newMenu);
@@ -115,12 +99,8 @@ private:
 	HMODULE			m_hResDll;
 	HANDLE			m_hUpdateRes;
 	CPOFile			m_StringEntries;
-	std::map<WORD, MENUENTRY> m_MenuEntries;
-	std::map<WORD, MENUENTRY>::iterator pME_iter;
 	std::wstring	sDestFile;
 	BOOL			m_bQuiet;
-
-	bool			m_bRTL;
 
 	int				m_bTranslatedStrings;
 	int				m_bDefaultStrings;
@@ -128,8 +108,6 @@ private:
 	int				m_bDefaultDialogStrings;
 	int				m_bTranslatedMenuStrings;
 	int				m_bDefaultMenuStrings;
-	int				m_bTranslatedAcceleratorStrings;
-	int				m_bDefaultAcceleratorStrings;
-
+	
 	WORD			m_wTargetLang;
 };

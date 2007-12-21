@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,24 +13,22 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "afxcmn.h"
 #include "sciedit.h"
 #include "StandAloneDlg.h"
+#include "Balloon.h"
 #include "SVNStatusListCtrl.h"
 #include "ProjectProperties.h"
-#include "RegHistory.h"
 #include "SciEdit.h"
 #include "Registry.h"
 
-/**
- * \ingroup TortoiseProc
- * Dialog asking the user for a lock-message and a list control
- * where the user can select which files to lock.
- */
+
+// CLockDlg dialog
+
 class CLockDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CLockDlg)
@@ -39,7 +37,7 @@ public:
 	CLockDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CLockDlg();
 
-	void	SetProjectProperties(ProjectProperties * pProps) {m_ProjectProperties = pProps;}
+
 private:
 	static UINT StatusThreadEntry(LPVOID pVoid);
 	UINT StatusThread();
@@ -52,14 +50,11 @@ private:
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnEnChangeLockmessage();
 	afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
-	afx_msg void OnBnClickedSelectall();
-	afx_msg void OnBnClickedHistory();
-	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	void Refresh();
 
 	DECLARE_MESSAGE_MAP()
 
+// Dialog Data
 	enum { IDD = IDD_LOCK };
 public:
 	CString				m_sLockMessage;
@@ -71,9 +66,7 @@ private:
 	BOOL				m_bBlock;
 	CSVNStatusListCtrl	m_cFileList;
 	CSciEdit			m_cEdit;
-	ProjectProperties *	m_ProjectProperties;
+	ProjectProperties	m_ProjectProperties;
 	bool				m_bCancelled;
 	CBalloon			m_tooltips;
-	CButton				m_SelectAll;
-	CRegHistory			m_History;
 };

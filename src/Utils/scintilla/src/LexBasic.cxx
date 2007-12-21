@@ -31,10 +31,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 /* Bits:
  * 1  - whitespace
  * 2  - operator

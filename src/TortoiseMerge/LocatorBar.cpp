@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - Stefan Kueng
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -23,7 +23,6 @@
 #include "LeftView.h"
 #include "RightView.h"
 #include "BottomView.h"
-#include "DiffColors.h"
 
 
 IMPLEMENT_DYNAMIC(CLocatorBar, CDialogBar)
@@ -42,7 +41,7 @@ CLocatorBar::~CLocatorBar()
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap) 
 }
 
 BEGIN_MESSAGE_MAP(CLocatorBar, CDialogBar)
@@ -61,75 +60,75 @@ void CLocatorBar::DocumentUpdated()
 	m_arLeft.RemoveAll();
 	m_arRight.RemoveAll();
 	m_arBottom.RemoveAll();
-	DiffStates state = DIFFSTATE_UNKNOWN;
+	DWORD state = 0;
 	int identcount = 1;
 	m_nLines = 0;
-	if (m_pMainFrm->m_pwndLeftView->m_pViewData)
+	if (m_pMainFrm->m_pwndLeftView->m_arLineStates)
 	{
-		if (m_pMainFrm->m_pwndLeftView->m_pViewData->GetCount())
-			state = m_pMainFrm->m_pwndLeftView->m_pViewData->GetState(0);
-		for (int i=0; i<m_pMainFrm->m_pwndLeftView->m_pViewData->GetCount(); i++)
+		if (m_pMainFrm->m_pwndLeftView->m_arLineStates->GetCount())
+			state = m_pMainFrm->m_pwndLeftView->m_arLineStates->GetAt(0);
+		for (int i=0; i<m_pMainFrm->m_pwndLeftView->m_arLineStates->GetCount(); i++)
 		{
-			if (state == m_pMainFrm->m_pwndLeftView->m_pViewData->GetState(i))
+			if (state == m_pMainFrm->m_pwndLeftView->m_arLineStates->GetAt(i))
 			{
 				identcount++;
 			}
 			else
 			{
 				m_arLeft.Add(MAKELONG(identcount, state));
-				state = m_pMainFrm->m_pwndLeftView->m_pViewData->GetState(i);
+				state = m_pMainFrm->m_pwndLeftView->m_arLineStates->GetAt(i);
 				identcount = 1;
 			} 
-		}
+		} // for (int i=0; i<m_pMainFrm->m_pwndLeftView->m_arLineStates->GetCount(); i++) 
 		m_arLeft.Add(MAKELONG(identcount, state));
 	}
 
-	if (m_pMainFrm->m_pwndRightView->m_pViewData)
+	if (m_pMainFrm->m_pwndRightView->m_arLineStates)
 	{
-		if (m_pMainFrm->m_pwndRightView->m_pViewData->GetCount())
-			state = m_pMainFrm->m_pwndRightView->m_pViewData->GetState(0);
+		if (m_pMainFrm->m_pwndRightView->m_arLineStates->GetCount())
+			state = m_pMainFrm->m_pwndRightView->m_arLineStates->GetAt(0);
 		identcount = 1;
-		for (int i=0; i<m_pMainFrm->m_pwndRightView->m_pViewData->GetCount(); i++)
+		for (int i=0; i<m_pMainFrm->m_pwndRightView->m_arLineStates->GetCount(); i++)
 		{
-			if (state == m_pMainFrm->m_pwndRightView->m_pViewData->GetState(i))
+			if (state == m_pMainFrm->m_pwndRightView->m_arLineStates->GetAt(i))
 			{
 				identcount++;
 			}
 			else
 			{
 				m_arRight.Add(MAKELONG(identcount, state));
-				state = m_pMainFrm->m_pwndRightView->m_pViewData->GetState(i);
+				state = m_pMainFrm->m_pwndRightView->m_arLineStates->GetAt(i);
 				identcount = 1;
 			}
-		}
+		} // for (int i=0; i<m_pMainFrm->m_pwndRightView->m_arLineStates->GetCount(); i++) 
 		m_arRight.Add(MAKELONG(identcount, state));
 	}
 
-	if ((m_pMainFrm->m_pwndBottomView->m_pViewData)&&(m_pMainFrm->m_pwndBottomView->m_pViewData->GetCount()))
+	if ((m_pMainFrm->m_pwndBottomView->m_arLineStates)&&(m_pMainFrm->m_pwndBottomView->m_arLineStates->GetCount()))
 	{
-		state = m_pMainFrm->m_pwndBottomView->m_pViewData->GetState(0);
+		state = m_pMainFrm->m_pwndBottomView->m_arLineStates->GetAt(0);
 		identcount = 1;
-		for (int i=0; i<m_pMainFrm->m_pwndBottomView->m_pViewData->GetCount(); i++)
+		for (int i=0; i<m_pMainFrm->m_pwndBottomView->m_arLineStates->GetCount(); i++)
 		{
-			if (state == m_pMainFrm->m_pwndBottomView->m_pViewData->GetState(i))
+			if (state == m_pMainFrm->m_pwndBottomView->m_arLineStates->GetAt(i))
 			{
 				identcount++;
 			}
 			else
 			{
 				m_arBottom.Add(MAKELONG(identcount, state));
-				state = m_pMainFrm->m_pwndBottomView->m_pViewData->GetState(i);
+				state = m_pMainFrm->m_pwndBottomView->m_arLineStates->GetAt(i);
 				identcount = 1;
 			}
-		}
+		} // for (int i=0; i<m_pMainFrm->m_pwndBottomView->m_arLineStates->GetCount(); i++) 
 		m_arBottom.Add(MAKELONG(identcount, state));
-		m_nLines = (int)max(m_pMainFrm->m_pwndBottomView->m_pViewData->GetCount(), m_pMainFrm->m_pwndRightView->m_pViewData->GetCount());
-	}
-	else if (m_pMainFrm->m_pwndRightView->m_pViewData)
-		m_nLines = (int)max(0, m_pMainFrm->m_pwndRightView->m_pViewData->GetCount());
+		m_nLines = (int)max(m_pMainFrm->m_pwndBottomView->m_arLineStates->GetCount(), m_pMainFrm->m_pwndRightView->m_arLineStates->GetCount());
+	} // if ((m_pMainFrm->m_pwndBottomView->m_arLineStates)&&(m_pMainFrm->m_pwndBottomView->m_arLineStates->GetCount()))
+	else if (m_pMainFrm->m_pwndRightView->m_arLineStates)
+		m_nLines = (int)max(0, m_pMainFrm->m_pwndRightView->m_arLineStates->GetCount());
 
-	if (m_pMainFrm->m_pwndLeftView->m_pViewData)
-		m_nLines = (int)max(m_nLines, m_pMainFrm->m_pwndLeftView->m_pViewData->GetCount());
+	if (m_pMainFrm->m_pwndLeftView->m_arLineStates)
+		m_nLines = (int)max(m_nLines, m_pMainFrm->m_pwndLeftView->m_arLineStates->GetCount());
 	else
 		m_nLines = 0;
 	m_nLines++;
@@ -163,7 +162,7 @@ void CLocatorBar::OnPaint()
 
 	COLORREF color, color2;
 	
-	CDiffColors::GetInstance().GetColors(DIFFSTATE_UNKNOWN, color, color2);
+	m_pMainFrm->m_Data.GetColors(CDiffData::DIFFSTATE_UNKNOWN, color, color2);
 	cacheDC.FillSolidRect(rect, color);
 	
 	int barwidth = (width/3);
@@ -181,13 +180,13 @@ void CLocatorBar::OnPaint()
 			identcount = LOWORD(m_arLeft.GetAt(i));
 			state = HIWORD(m_arLeft.GetAt(i));
 			COLORREF color, color2;
-			CDiffColors::GetInstance().GetColors((DiffStates)state, color, color2);
-			if ((DiffStates)state != DIFFSTATE_NORMAL)
+			m_pMainFrm->m_Data.GetColors((CDiffData::DiffStates)state, color, color2);
+			if ((CDiffData::DiffStates)state != CDiffData::DIFFSTATE_NORMAL)
 				cacheDC.FillSolidRect(rect.left, height*linecount/m_nLines, 
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
-		}
-	}
+		} // for (int i=0; i<m_arLeft.GetCount(); i++) 
+	} // if (m_pMainFrm->m_pwndLeftView->IsWindowVisible()) 
 	state = 0;
 	identcount = 0;
 	linecount = 0;
@@ -199,13 +198,13 @@ void CLocatorBar::OnPaint()
 			identcount = LOWORD(m_arRight.GetAt(i));
 			state = HIWORD(m_arRight.GetAt(i));
 			COLORREF color, color2;
-			CDiffColors::GetInstance().GetColors((DiffStates)state, color, color2);
-			if ((DiffStates)state != DIFFSTATE_NORMAL)
+			m_pMainFrm->m_Data.GetColors((CDiffData::DiffStates)state, color, color2);
+			if ((CDiffData::DiffStates)state != CDiffData::DIFFSTATE_NORMAL)
 				cacheDC.FillSolidRect(rect.left + (width*2/3), height*linecount/m_nLines, 
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
-		}
-	}
+		} // for (int i=0; i<m_arLeft.GetCount(); i++) 
+	} // if (m_pMainFrm->m_pwndRightView->IsWindowVisible()) 
 	state = 0;
 	identcount = 0;
 	linecount = 0;
@@ -216,13 +215,13 @@ void CLocatorBar::OnPaint()
 			identcount = LOWORD(m_arBottom.GetAt(i));
 			state = HIWORD(m_arBottom.GetAt(i));
 			COLORREF color, color2;
-			CDiffColors::GetInstance().GetColors((DiffStates)state, color, color2);
-			if ((DiffStates)state != DIFFSTATE_NORMAL)
+			m_pMainFrm->m_Data.GetColors((CDiffData::DiffStates)state, color, color2);
+			if ((CDiffData::DiffStates)state != CDiffData::DIFFSTATE_NORMAL)
 				cacheDC.FillSolidRect(rect.left + (width/3), height*linecount/m_nLines, 
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
-		}
-	}
+		} // for (int i=0; i<m_arLeft.GetCount(); i++) 
+	} // if (m_pMainFrm->m_pwndBottomView->IsWindowVisible()) 
 
 	if (m_nLines == 0)
 		m_nLines = 1;
@@ -255,9 +254,9 @@ void CLocatorBar::OnPaint()
 				g = max(GetGValue(color)-20, 0);
 				b = max(GetBValue(color)-20, 0);
 				cacheDC.SetPixel(i, j, RGB(r,g,b));
-			}
-		}
-	}
+			} // for (int j=fishstart; j<fishstart+fishheight; j++) 
+		} // for (int i=rect.left; i<(width - rect.left); i++) 
+	} // if (m_bMouseWithin)  
 	VERIFY(dc.BitBlt(rect.left, rect.top, width, height, &cacheDC, 0, 0, SRCCOPY));
 	
 	cacheDC.SelectObject(pOldBitmap);
@@ -273,7 +272,7 @@ void CLocatorBar::OnSize(UINT nType, int cx, int cy)
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap != NULL)
 	Invalidate();
 }
 
@@ -311,7 +310,7 @@ void CLocatorBar::OnMouseMove(UINT nFlags, CPoint point)
 		tme.dwFlags = TME_LEAVE;
 		tme.hwndTrack = m_hWnd;
 		_TrackMouseEvent(&tme);
-	}
+	} // if (!m_bMouseWithin) 
 
 	if (nFlags & MK_LBUTTON)
 	{
@@ -327,7 +326,7 @@ void CLocatorBar::OnMouseMove(UINT nFlags, CPoint point)
 			m_pMainFrm->m_pwndLeftView->GoToLine(nLine, FALSE);
 		if ((m_pMainFrm)&&(m_pMainFrm->m_pwndRightView))
 			m_pMainFrm->m_pwndRightView->GoToLine(nLine, FALSE);
-	}
+	} // if (nFlags & MK_LBUTTON)
 	Invalidate();
 }
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -25,7 +25,6 @@
 #endif
 
 /**
- * \ingroup Utils
  * Performs a wildcard compare of two strings.
  * \param wild the wildcard string
  * \param string the string to compare the wildcard to
@@ -51,10 +50,6 @@ int strwildcmp(const char * wild, const char * string);
 int wcswildcmp(const wchar_t * wild, const wchar_t * string);
 
 
-/**
- * \ingroup Utils
- * string helper functions
- */
 class CStringUtils
 {
 public:
@@ -71,25 +66,9 @@ public:
 	/**
 	 * Writes an ASCII CString to the clipboard in CF_TEXT format
 	 */
-	static bool WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID lcid, HWND hOwningWnd = NULL);
-	/**
-	 * Writes a String to the clipboard in both CF_UNICODETEXT and CF_TEXT format
-	 */
-	static bool WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND hOwningWnd = NULL);
-
-	/**
-	* Writes an ASCII CString to the clipboard in TSVN_UNIFIEDDIFF format, which is basically the patchfile
-	* as a ASCII string.
-	*/
-	static bool WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningWnd = NULL);
+	static bool WriteAsciiStringToClipboard(const CStringA& sClipdata, HWND hOwningWnd = NULL);
 
 #endif
-
-	/**
-	 * Writes the string \text to the file \path, either in utf16 or utf8 encoding,
-	 * depending on the \c bUTF8 param.
-	 */
-	static bool WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 = true);
 
 	/**
 	 * Compares strings while trying to parse numbers in it too.

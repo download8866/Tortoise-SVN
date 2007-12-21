@@ -13,19 +13,32 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "scintilla.h"
 #include "SciLexer.h"
-#include "hunspell\\hunspell.hxx"
-#include "hunspell\\mythes.hxx"
+#include "myspell\\myspell.hxx"
+#include "myspell\\mythes.hxx"
 #include "ProjectProperties.h"
 #include "PersonalDictionary.h"
 
 //forward declaration
 class CSciEdit;
+
+/**
+ * \ingroup Utils
+ * Helper class which extends the MFC CStringArray class. The only method added
+ * to that class is AddSorted() which adds a new element in a sorted order.
+ * That way the array is kept sorted.
+ */
+class CAutoCompletionList : public CStringArray
+{
+public:
+	void		AddSorted(const CString& elem, bool bNoDuplicates = true);
+	INT_PTR		Find(const CString& elem);
+};
 
 /**
  * \ingroup Utils
@@ -88,7 +101,7 @@ public:
 	 */
 	void		InsertText(const CString& sText, bool bNewLine = false);
 	/**
-	 * Retrieves the text in the scintilla control.
+	 * Retreives the text in the scintilla control.
 	 */
 	CString		GetText(void);
 	/**
@@ -98,7 +111,7 @@ public:
 	/**
 	 * Adds a list of words for use in autocompletion.
 	 */
-	void		SetAutoCompletionList(const std::set<CString>& list, const TCHAR separator = ';');
+	void		SetAutoCompletionList(const CAutoCompletionList& list, const TCHAR separator = ';');
 	/**
 	 * Returns the word located under the cursor.
 	 */
@@ -113,36 +126,28 @@ private:
 	HMODULE		m_hModule;
 	LRESULT		m_DirectFunction;
 	LRESULT		m_DirectPointer;
-	Hunspell *	pChecker;
+	MySpell *	pChecker;
 	MyThes *	pThesaur;
 	UINT		m_spellcodepage;
-	std::set<CString> m_autolist;
+	CAutoCompletionList m_autolist;
 	TCHAR		m_separator;
 	CString		m_sCommand;
 	CString		m_sBugID;
-	CString		m_sUrl;
 	rpattern	m_patCommand;
 	rpattern	m_patBugID;
 	CArray<CSciEditContextMenuInterface *, CSciEditContextMenuInterface *> m_arContextHandlers;
 	CPersonalDictionary m_personalDict;
-	static bool IsValidURLChar(wchar_t ch);
 protected:
 	virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	void		CheckSpelling(void);
 	void		SuggestSpellingAlternatives(void);
-	void		DoAutoCompletion(int nMinPrefixLength);
+	void		DoAutoCompletion(void);
 	BOOL		LoadDictionaries(LONG lLanguageID);
 	BOOL		MarkEnteredBugID(int startstylepos, int endstylepos);
 	bool		StyleEnteredText(int startstylepos, int endstylepos);
-	void		StyleURLs(int startstylepos, int endstylepos);
-	bool		WrapLines(int startpos, int endpos);
 	bool		FindStyleChars(const char * line, char styler, int& start, int& end);
 	void		AdvanceUTF8(const char * str, int& pos);
-	BOOL		IsMisspelled(const CString& sWord);
-	DWORD		GetStyleAt(int pos) { return Call(SCI_GETSTYLEAT, pos) & 0x1f; }
-	bool		IsUrl(const CString& sText);
-
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	DECLARE_MESSAGE_MAP()

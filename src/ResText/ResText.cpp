@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "ResModule.h"
 
@@ -35,7 +35,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	bool bShowHelp = true;
 	bool bQuiet = false;
 	bool bNoUpdate = false;
-	bool bRTL = false;
 	//parse the command line
 	std::vector<stdstring> arguments;
 	std::vector<stdstring> switches;
@@ -63,8 +62,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			bQuiet = true;
 		if (_tcscmp(I->c_str(), _T("noupdate"))==0)
 			bNoUpdate = true;
-		if (_tcscmp(I->c_str(), _T("rtl"))==0)
-			bRTL = true;
 	}
 	std::vector<stdstring>::iterator arg = arguments.begin();
 
@@ -117,7 +114,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			CResModule module;
 			module.SetQuiet(bQuiet);
 			module.SetLanguage(wLang);
-			module.SetRTL(bRTL);
 			if (!module.CreateTranslatedResources(sSrcDllFile.c_str(), sDstDllFile.c_str(), sPoFile.c_str()))
 				return -1;
 			bShowHelp = false;
@@ -126,18 +122,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	if (bShowHelp)
 	{
-		_ftprintf(stdout, _T("usage:\n"));
-		_ftprintf(stdout, _T("\n"));
-		_ftprintf(stdout, _T("ResText extract <resource.dll> [<resource.dll> ...] <po-file> [-quiet] [-noupdate]\n"));
-		_ftprintf(stdout, _T("Extracts all strings from the resource dll and writes them to the po-file\n"));
-		_ftprintf(stdout, _T("-quiet: don't print progress messages\n"));
-		_ftprintf(stdout, _T("-noupdate: overwrite the po-file\n"));
-		_ftprintf(stdout, _T("\n"));
-		_ftprintf(stdout, _T("ResText apply <src resource.dll> <dst resource.dll> <po-file> [langID] [-quiet][-rtl]\n"));
-		_ftprintf(stdout, _T("Replaces all strings in the dst resource.dll with the po-file translations\n"));
-		_ftprintf(stdout, _T("-quiet: don't print progress messages\n"));
-		_ftprintf(stdout, _T("-rtl  : change the controls to RTL reading\n"));
-		_ftprintf(stdout, _T("\n"));
+		_tcprintf(_T("usage:\n"));
+		_tcprintf(_T("\n"));
+		_tcprintf(_T("ResText extract <resource.dll> [<resource.dll> ...] <po-file> [-quiet] [-noupdate]\n"));
+		_tcprintf(_T("Extracts all strings from the resource dll and writes them to the po-file\n"));
+		_tcprintf(_T("-quiet: don't print progress messages\n"));
+		_tcprintf(_T("-noupdate: overwrite the po-file\n"));
+		_tcprintf(_T("\n"));
+		_tcprintf(_T("ResText apply <src resource.dll> <dst resource.dll> <po-file> [langID] [-quiet]\n"));
+		_tcprintf(_T("Replaces all strings in the dst resource.dll with the po-file translations\n"));
+		_tcprintf(_T("-quiet: don't print progress messages\n"));
+		_tcprintf(_T("\n"));
 	}
 
 	return 0;

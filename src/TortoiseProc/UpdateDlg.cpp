@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,23 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
+#include "Balloon.h"
 #include "registry.h"
 
+
+// CUpdateDlg dialog
 
 IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CUpdateDlg::IDD, pParent)
 	, Revision(_T("HEAD"))
+	, m_bNonRecursive(FALSE)
 	, m_bNoExternals(FALSE)
 	, m_pLogDlg(NULL)
 {
@@ -41,8 +45,8 @@ void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_REVNUM, m_sRevision);
+	DDX_Check(pDX, IDC_NON_RECURSIVE, m_bNonRecursive);
 	DDX_Check(pDX, IDC_NOEXTERNALS, m_bNoExternals);
-	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
 }
 
 
@@ -56,22 +60,12 @@ BOOL CUpdateDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	AdjustControlSize(IDC_NEWEST);
-	AdjustControlSize(IDC_REVISION_N);
-	AdjustControlSize(IDC_NOEXTERNALS);
-
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_WORKING)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_IMMEDIATE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_FILES)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_EMPTY)));
-	m_depthCombo.SetCurSel(0);
-
 	CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
 	GetDlgItem(IDC_REVNUM)->SetFocus();
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	return FALSE;  
+	return FALSE;  // return TRUE unless you set the focus to a control
+	               // EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CUpdateDlg::OnOK()
@@ -80,35 +74,15 @@ void CUpdateDlg::OnOK()
 		return; // don't dismiss dialog (error message already shown by MFC framework)
 
 	Revision = SVNRev(m_sRevision);
+	// if head revision, set revision as -1
 	if (GetCheckedRadioButton(IDC_NEWEST, IDC_REVISION_N) == IDC_NEWEST)
 	{
 		Revision = SVNRev(_T("HEAD"));
 	}
 	if (!Revision.IsValid())
 	{
-		ShowBalloon(IDC_REVNUM, IDS_ERR_INVALIDREV);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this,IDC_REVNUM), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return;
-	}
-	switch (m_depthCombo.GetCurSel())
-	{
-	case 0:
-		m_depth = svn_depth_unknown;
-		break;
-	case 1:
-		m_depth = svn_depth_infinity;
-		break;
-	case 2:
-		m_depth = svn_depth_immediates;
-		break;
-	case 3:
-		m_depth = svn_depth_files;
-		break;
-	case 4:
-		m_depth = svn_depth_empty;
-		break;
-	default:
-		m_depth = svn_depth_empty;
-		break;
 	}
 
 	UpdateData(FALSE);
@@ -142,7 +116,7 @@ LPARAM CUpdateDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
 	CString temp;
 	temp.Format(_T("%ld"), lParam);
-	SetDlgItemText(IDC_REVNUM, temp);
+	GetDlgItem(IDC_REVNUM)->SetWindowText(temp);
 	CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
 	return 0;
 }

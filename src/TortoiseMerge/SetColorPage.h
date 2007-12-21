@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 #include "ColourPickerXP.h"
 #include "registry.h"
 
+// CSetColorPage dialog
 
-/**
- * \ingroup TortoiseMerge
- * Color settings page
- */
 class CSetColorPage : public CPropertyPage
 {
 	DECLARE_DYNAMIC(CSetColorPage)
@@ -57,7 +54,6 @@ protected:
 	BOOL m_bInit;
 	CRegDWORD		m_regInlineAdded;
 	CRegDWORD		m_regInlineRemoved;
-	CRegDWORD		m_regModifiedBackground;
 	CColourPickerXP m_cBkNormal;
 	CColourPickerXP m_cBkRemoved;
 	CColourPickerXP m_cBkAdded;
@@ -65,6 +61,4 @@ protected:
 	CColourPickerXP m_cBkInlineRemoved;
 	CColourPickerXP m_cBkEmpty;
 	CColourPickerXP m_cBkConflict;
-	CColourPickerXP m_cBkConflictResolved;
-	CColourPickerXP m_cBkModified;
 };

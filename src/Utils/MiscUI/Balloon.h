@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -45,7 +45,6 @@
 #define BALLOON_MASK_BEHAVIOUR			0x0010  //The behaviour for the tooltip gets from the structures
 
 /**
- * \ingroup Utils
  * BALLOON_INFO structure.
  */
 typedef struct tagBALLOON_INFO
@@ -60,12 +59,9 @@ typedef struct tagBALLOON_INFO
 	COLORREF	crBegin;		///<Begin Color
 	COLORREF    crMid;			///<Mid Color
 	COLORREF	crEnd;			///<End Color
-
-    tagBALLOON_INFO();          ///<proper initialization of all members
 } BALLOON_INFO;
 
 /**
- * \ingroup Utils
  * This structure is sent to with the notify messages.
  */
 typedef struct tagNM_BALLOON_DISPLAY {
@@ -254,17 +250,27 @@ public:
 	 * \param crMid the middle color for three colored gradients
 	 * \param crEnd the end color for gradients
 	 */
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton = TRUE, HICON hIcon = NULL, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
 	/**
 	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, UINT nIdIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
 	 */
-	static void ShowBalloon(
-		CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, HICON hIcon,
-		UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID,
-		COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, UINT nIdIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
 	/**
-	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon);
+	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, UINT nIdIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
 	 */
-	static void ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon);
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton = TRUE, HICON hIcon = NULL, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	/**
+	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton = TRUE, HICON hIcon = NULL, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	 */
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, UINT nIdIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	/**
+	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, UINT nIdIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	 */
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	/**
+	 * \overload ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseButton, LPCTSTR szIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
+	 */
+	static CBalloon *	ShowBalloon(CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, LPCTSTR szIcon, UINT nDirection = BALLOON_RIGHT_TOP, UINT nEffect = BALLOON_EFFECT_SOLID, COLORREF crStart = NULL, COLORREF crMid = NULL, COLORREF crEnd = NULL);
 	//@}
 
 	/** 
@@ -499,11 +505,6 @@ public:
 	 */
 	void	RelayEvent(MSG* pMsg);
 	
-	/**
-	 * Hide tooltip immediately.
-	 */
-	void	Pop();
-
 	// Generated message map functions
 protected:
 	void	SetSize(int nSizeIndex, UINT nValue);
@@ -516,7 +517,8 @@ protected:
 	void	DisplayToolTip(CPoint * pt = NULL);
 	void	DisplayToolTip(CPoint * pt, CRect * rect);
 	
-	void	SetNewToolTip(CWnd * pWnd);
+	void	SetNewToolTip(CWnd * pWnd, CPoint * pt = NULL);
+	void	Pop();
 	void	GetMonitorWorkArea(const CPoint& sourcePoint, CRect& monitorRect);
 
 	/**

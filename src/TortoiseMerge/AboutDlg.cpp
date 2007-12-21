@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -22,6 +22,7 @@
 #include "svn_version.h"
 #include "svn_diff.h"
 #include "..\..\\apr\include\apr_version.h"
+#include "..\..\apr-iconv\include\api_version.h"
 #include "..\..\apr-util\include\apu_version.h"
 #include "..\version.h"
 
@@ -97,13 +98,14 @@ BOOL CAboutDlg::OnInitDialog()
 	//set the version string
 	CString temp, boxtitle;
 	boxtitle.Format(IDS_ABOUTVERSIONBOX, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE));
-	SetDlgItemText(IDC_VERSIONBOX, boxtitle);
+	GetDlgItem(IDC_VERSIONBOX)->SetWindowText(boxtitle);
 	const svn_version_t * diffver = svn_diff_version();
 	temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE),
 		diffver->major, diffver->minor, diffver->patch, CString(diffver->tag), 
 		APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
+		API_MAJOR_VERSION, API_MINOR_VERSION, API_PATCH_VERSION,
 		APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION);
-	SetDlgItemText(IDC_VERSIONABOUT, temp);
+	GetDlgItem(IDC_VERSIONABOUT)->SetWindowText(temp);
 	this->SetWindowText(_T("TortoiseMerge"));
 
 	CPictureHolder tmpPic;
@@ -115,7 +117,7 @@ BOOL CAboutDlg::OnInitDialog()
 	SetTimer(ID_EFFECTTIMER, 40, NULL);
 	SetTimer(ID_DROPTIMER, 300, NULL);
 
-	m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
+	m_cWebLink.SetURL(_T("http://www.tortoisesvn.org"));
 	m_cSupportLink.SetURL(_T("http://tortoisesvn.tigris.org/contributors.html"));
 
 	return TRUE;  // return TRUE unless you set the focus to a control
