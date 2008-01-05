@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 #include <string>
@@ -29,7 +29,7 @@ using namespace Gdiplus;
 #endif
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * Class for showing picture files. 
  * Use this class to show pictures of different file formats: BMP, DIB, EMF, GIF, ICO, JPG, WMF
  * If Gdi+ is installed (default on XP and later, optional on Win2k), other image formats can
@@ -105,7 +105,7 @@ public:
 	 */
 	float GetVerticalResolution() {return pBitmap ? pBitmap->GetVerticalResolution() : 0.0f;}
 	/**
-	 * Returns the picture height in pixels.
+	 * Returns the picture heigth in pixels.
 	 * \remark this only works if gdi+ is installed.
 	 */
 	UINT GetHeight();
@@ -158,7 +158,7 @@ public:
 	long SetActiveFrame(UINT frame);
 
 	DWORD GetFileSize() {return m_nSize;}
-	stdstring GetFileSizeAsText(bool bAbbrev = true);
+	stdstring GetFileSizeAsText() {return m_FileSize;}
 	CPicture();
 	virtual ~CPicture();
 
@@ -172,6 +172,7 @@ public:
 	BYTE		m_ColorDepth;///< the color depth
 	LONG		m_Weight;	///< Size Of The Image Object In Bytes (File OR Resource)
 	stdstring	m_Name;		///< The FileName of the Picture as used in Load()
+	stdstring	m_FileSize;	///< The file size of the picture as a string (as used in Load())
 
 protected:
 	/**

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -26,10 +26,10 @@
 #include "CrashReport.h"
 
 
-/**
- * \ingroup TortoiseMerge
- * The application class of TortoiseMerge.
- */
+// CTortoiseMergeApp:
+// See TortoiseMerge.cpp for the implementation of this class
+//
+
 class CTortoiseMergeApp : public CWinApp
 {
 public:
@@ -42,12 +42,9 @@ public:
 
 // Implementation
 
-protected:
+public:
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
-private:
-	static UINT_PTR CALLBACK CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
-
 };
 
 extern CTortoiseMergeApp theApp;

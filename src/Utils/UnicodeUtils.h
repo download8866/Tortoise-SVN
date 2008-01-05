@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,28 +13,21 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
-#include <string>
 
 #pragma warning (push,1)
-#ifndef stdstring
-	typedef std::wstring wide_string;
-#	ifdef UNICODE
-#		define stdstring wide_string
-#	else
-#		define stdstring std::string
-#	endif
+typedef std::basic_string<wchar_t> wide_string;
+#ifdef UNICODE
+#define stdstring wide_string
+#else
+#define stdstring std::string
 #endif
 #pragma warning (pop)
 
-/**
- * \ingroup Utils
- * Class to convert strings from/to UTF8 and UTF16.
- */
 class CUnicodeUtils
 {
 public:
@@ -54,18 +47,3 @@ public:
 	static std::string StdGetUnicode(std::string multibyte) {return multibyte;}
 #endif
 };
-
-std::string WideToMultibyte(const wide_string& wide);
-std::string WideToUTF8(const wide_string& wide);
-wide_string MultibyteToWide(const std::string& multibyte);
-wide_string UTF8ToWide(const std::string& multibyte);
-
-#ifdef UNICODE
-	stdstring UTF8ToString(const std::string& string); 
-	std::string StringToUTF8(const stdstring& string); 
-#else
-	stdstring UTF8ToString(const std::string& string); 
-	std::string StringToUTF8(const stdstring& string);
-#endif
-
-int LoadStringEx(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int nBufferMax, WORD wLanguage);

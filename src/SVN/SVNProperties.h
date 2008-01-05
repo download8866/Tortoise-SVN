@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,24 +13,24 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
 #ifdef _MFC_VER
+#	include "SVNRev.h"
 #	include "SVNPrompt.h"
 #	include "ShellUpdater.h"
 #endif
 
-#include "SVNRev.h"
 #include "UnicodeUtils.h"
 #include "TSVNPath.h"
 
 /**
  * \ingroup SVN
  * Subversion Properties.
- * Use this class to retrieve, add and remove Subversion properties
+ * Use this class to retreive, add and remove Subversion properties
  * for files and directories.
  *
  * A property value is represented in std::string. If a property is a
@@ -93,7 +93,7 @@ public:
 	 * \param recurse TRUE if the property should be added to subdirectories/files as well
 	 * \return TRUE if the property is added successfully
 	 */
-	BOOL Add(const TCHAR * Name, std::string Value, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
+	BOOL Add(const TCHAR * Name, std::string Value, BOOL recurse = false);
 	/**
 	 * Removes an existing property from the file/directory specified in the constructor.
 	 * \remark After using this method the indexes of the properties may change!
@@ -101,7 +101,7 @@ public:
 	 * \param recurse TRUE if the property should be deleted from subdirectories/files as well
 	 * \return TRUE if the property is removed successfully
 	 */
-	BOOL Remove(const TCHAR * Name, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
+	BOOL Remove(const TCHAR * Name, BOOL recurse = false);
 
 	/**
 	 * Checks if the property value is binary or text.
@@ -130,16 +130,15 @@ private:		//methods
 private:		//members
 	apr_pool_t *				m_pool;				///< memory pool baton
 	CTSVNPath					m_path;				///< the path to the file/directory this properties object acts upon
-	std::map<std::string, apr_hash_t*>		m_props;			
+	apr_array_header_t *		m_props;			
 	int							m_propCount;		///< number of properties found
 	svn_error_t *				m_error;
-	SVNRev						m_rev;
 #ifdef _MFC_VER
+	SVNRev						m_rev;
 	SVNPrompt					m_prompt;
 #endif
-	svn_client_ctx_t * 			m_pctx;
+	svn_client_ctx_t 			m_ctx;
 
-private:
-	static svn_error_t *		proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_pool_t *pool);
+
 
 };

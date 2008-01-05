@@ -49,15 +49,10 @@
 						<filename>C:\Program Files\Subversion</filename>) and in the
 						<filename>bin</filename> directory, find the files
 						<filename>svnserve.exe</filename>,
-						<filename>intl3_svn.dll</filename>,
-						<filename>libapr.dll</filename>,
-						<filename>libapriconv.dll</filename>,
-						<filename>libapriutil.dll</filename>,
-						<filename>libdb*.dll</filename>,
+						<filename>libdb44.dll</filename>,
 						<filename>libeay32.dll</filename> and
 						<filename>ssleay32.dll</filename>
-						- copy these files, or just copy all of the <filename>bin</filename>
-						directory, into a directory on your server e.g.
+						- copy these files into a directory on your server e.g.
 						<filename>c:\svnserve</filename>
 					</para>
 				</listitem>
@@ -100,28 +95,23 @@ svn://localhost/repos/TestRepo
 			when prompted by the repo browser.
 		</para>
 		<para>
-			You can also increase security and save time entering URLs with
+			You can also increase security and save time entering Url's with
 			svnserve by using the --root switch to set the root
 			location and restrict access to a specified directory on the server:
 <screen>
-svnserve.exe --daemon --root drive:\path\to\repository\root
+svnserve.exe --daemon --root drive:\path\to\repository
 </screen>
 			Using the previous test as a guide, svnserve would now run as:
 <screen>
 svnserve.exe --daemon --root c:\repos
 </screen>
-			And in TortoiseSVN our repo-browser URL is now shortened to:
+			And in TortoiseSVN our repo-browser Url is now shortened to:
 <screen>
 svn://localhost/TestRepo
 </screen>
 			Note that the --root switch is also needed if your repository is located 
-			on a different partition or drive than the location of svnserve 
+			on a different partition or drive than the location of svnserve
 			on your server.
-		</para>
-		<para>
-			Svnserve will service any number of repositories. Just locate them somewhere
-			below the root folder you just defined, and access them using a URL relative
-			to that root.
 		</para>
 		<warning>
 			<para>
@@ -137,14 +127,15 @@ svn://localhost/TestRepo
 		<sect3 id="tsvn-serversetup-svnservice">
 			<title>Run svnserve as a Service</title>
 			<indexterm>
-				<primary>svnserve</primary>
+				<primary>svnservice</primary>
 			</indexterm>
 			<para>
-				Running svnserve as a user is usually not the best way.
-				It means always having a user logged in on your server,
-				and remembering to restart it after a reboot. A better way is to run 
+				If you are concerned about always having a user logged in on your 
+				server, or worried about someone shutting down svnserve or
+				forgetting to restart it after a reboot, it is possible to run
 				svnserve as a windows service. Starting with Subversion 1.4,
-				svnserve can be installed as a native windows service.
+				svnserve can be installed as a native windows service, 
+				in previous versions it can be installed using a wrapper.
 			</para>
 			<para>
 				To install svnserve as a native windows service, execute the following
@@ -152,25 +143,8 @@ svn://localhost/TestRepo
 				started when windows starts.
 <screen>
 sc create svnserve binpath= "c:\svnserve\svnserve.exe --service 
-    --root c:\repos" displayname= "Subversion" depend= tcpip start= auto
+	--root c:\repos" displayname= "Subversion" depend= tcpip start= auto
 </screen>
-				If any of the paths include spaces, you have to use (escaped) quotes
-				around the path, like this:
-<screen>
-sc create svnserve binpath= "\"C:\Program Files\Subversion\bin\svnserve.exe\"
-    --service --root c:\repos" displayname= "Subversion" depend= tcpip start= auto
-</screen>
-				You can also add a description after creating the service. This
-				will show up in the Windows Services Manager.
-<screen>
-sc description svnserve "Subversion server (svnserve)"
-</screen>
-			</para>
-			<para>
-				Note the rather unusual command line format used by <literal>sc</literal>.
-				In the <literal>key= value</literal> pairs there must be no space between
-				the key and the <literal>=</literal> but there must be a space before the
-				value.
 			</para>
 			<tip>
 				<para>
@@ -188,31 +162,42 @@ obj= "NT AUTHORITY\LocalService"
 					Note that you would have to give the Local Service account
 					appropriate rights to both Subversion and your repositories,
 					as well as any applications which are used by hook scripts.
-					The built-in group for this is called "LOCAL SERVICE".
 				</para>
 			</tip>
 			<para>
-				Once you have installed the service, you need to go to the services
-				manager to start it (this time only; it will start automatically when
-				the server reboots).
-			</para>
-			<para>
-				For more detailed information, refer to
-				<ulink 
-					url="http://svn.collab.net/repos/svn/trunk/notes/windows-service.txt">
-					<citetitle>Windows Service Support for Svnserve</citetitle>
+				To install svnserve using a wrapper, one written specifically for
+				svnserve is <literal>SvnService</literal>. Magnus Norddahl adapted
+				some skeleton code from Microsoft, and further improvements have
+				been made by Daniel Thompson.
+				Daniel's version is available for download from
+				<ulink url="http://tortoisesvn.tigris.org/files/documents/406/29202/SVNServiceDT.zip">
+					<citetitle>tigris.org</citetitle>
 				</ulink>.
 			</para>
 			<para>
-				If you installed an earlier version of svnserve using the
-				<literal>SVNService</literal> wrapper, and you now want to use
-				the native support instead, you will need to unregister the wrapper
-				as a service (remember to stop the service first!).
-				Simply use the command
-<screen>
-svnservice -remove
-</screen>
-				to remove the service registry entry.
+				More generic tools like
+				<ulink url="http://www.firedaemon.com/">
+					<citetitle>firedaemon</citetitle>
+				</ulink>
+				will also work. Note that you will still need to run
+				svnserve with the --daemon switch.
+			</para>
+			<para>
+				Finally, if you have access to the Windows 2000/XP/2003
+				resource kit you can use
+				<ulink url="http://support.microsoft.com/kb/q137890/">
+					<citetitle>SrvAny</citetitle>
+				</ulink>
+				from Microsoft.
+				This is the official Microsoft way of running programs as services,
+				but it is a bit messy (requires registry editing) and if you stop
+				the service it will kill svnserve immediately without letting it
+				clean up.
+				If you don't want to install the entire reskit, you can
+				download <emphasis>just</emphasis> the SrvAny components from
+				<ulink url="http://www.petri.co.il/software/srvany.zip">
+					<citetitle>Daniel Petri</citetitle>
+				</ulink>.
 			</para>
 		</sect3>
 	</sect2>
@@ -220,7 +205,7 @@ svnservice -remove
 		<title>Authentication with svnserve</title>
 		<para>
 			The default svnserve setup provides anonymous read-only access.
-			This means that you can use an <filename>svn://</filename> URL
+			This means that you can use an <filename>svn://</filename> Url
 			to checkout and update, or use the repo-browser in TortoiseSVN
 			to view the repository, but you won't be able to commit any changes.
 		</para>
@@ -249,9 +234,9 @@ anon-access = none
 auth-access = write
 password-db = userfile
 </screen>
-			Where <filename>userfile</filename> is a file which exists in
+			Where <literal>userfile</literal> is a file which exists in
 			the same directory as <filename>svnserve.conf</filename>.  This
-			file can live elsewhere in your file system (useful for when you
+			file can live elsewhere in your filesytem (useful for when you
 			have multiple repositories which require the same access rights)
 			and may be referenced using an absolute path, or a path
 			relative to the <filename>conf</filename> directory.
@@ -270,17 +255,17 @@ username = password
 		</para>
 		<tip>
 			<para>
-				If you maintain multiple repositories using the same password 
-				database, the use of an authentication realm will make life 
-				easier for users, as TortoiseSVN can cache your credentials 
-				so that you only have to enter them once.  More information 
+				If you maintain multiple repositories using the same password
+				database, the use of an authentication realm will make life
+				easier for users, as TortoiseSVN can cache your credentials
+				so that you only have to enter them once.  More information
 				can be found in the Subversion book, specifically in the 
 				sections
-				<ulink url="http://svnbook.red-bean.com/en/1.4/svn.serverconfig.svnserve.html#svn.serverconfig.svnserve.auth.users">
-					<citetitle>Create a 'users' file and realm</citetitle> 
+				<ulink url="http://svnbook.red-bean.com/en/1.1/ch06s03.html#svn-ch-6-sect-3.2.1">
+					<citetitle>Create a 'users' file and realm</citetitle>
 				</ulink>
 				and 
-				<ulink url="http://svnbook.red-bean.com/en/1.4/svn.serverconfig.netmodel.html#svn.serverconfig.netmodel.credcache">
+				<ulink url="http://svnbook.red-bean.com/en/1.1/ch06s02.html#svn-ch-6-sect-2.2">
 					<citetitle>Client Credentials Caching</citetitle>
 				</ulink>
 			</para>
@@ -303,16 +288,15 @@ username = password
 			It is beyond the scope of this documentation to detail the
 			installation and setup of a secure shell, however you can
 			find further information in the
-			<ulink url="http://tortoisesvn.net/ssh_howto">
-				<citetitle>TortoiseSVN FAQ, SSH How-To</citetitle>
+			<ulink url="http://tortoisesvn.net/faq">
+				<citetitle>TortoiseSVN FAQ</citetitle>
 			</ulink>.
-			You can find other SSH topics within the FAQ by searching
-			for <quote>SSH</quote>.
+			Search for <quote>SSH</quote>.
 		</para>
 		<para>
 			Further information about svnserve can be found in the
 			<ulink url="http://svnbook.red-bean.com">
-				<citetitle>Version Control with Subversion</citetitle>
+				<citetitle>SVN book</citetitle>
 			</ulink>.
 		</para>
 	</sect2>
@@ -333,18 +317,6 @@ authz-db = authz
 			repository, or you can use the same file for several repositories.
 			Read <xref linkend="tsvn-serversetup-mod_authz_svn"/>
 			for a description of the file format.
-		</para>
-	</sect2>
-	<sect2 id="tsvn-serversetup-svnserve-sasl">
-		<title>Cyrus SASL Support</title>
-		<para>
-			Starting with Subversion 1.5.0, svnserve and TortoiseSVN support
-			Cyrus SASL (Simple Authentication and Security Layer) for the
-			<filename>svn://</filename> protocol.
-			You can find further information in this subversion app note:
-			<ulink url="http://svn.collab.net/repos/svn/trunk/notes/sasl.txt">
-				<citetitle>Using Cyrus SASL Authentication with Subversion</citetitle>
-			</ulink>.
 		</para>
 	</sect2>
 </sect1>

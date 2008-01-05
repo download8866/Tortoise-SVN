@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 
@@ -26,12 +26,7 @@
 #include "shlwapi.h"
 #pragma comment(lib, "shlwapi")
 
-#ifdef WIN64
-#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow64")
-#else
-#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow")
-#endif
-
+#include "..\..\TSVNCache\CacheInterface.h"
 
 BOOL APIENTRY DllMain( HANDLE hModule, 
                        DWORD  ul_reason_for_call, 
@@ -76,7 +71,7 @@ UINT __stdcall TerminateCache(MSIHANDLE hModule)
 
 UINT __stdcall ClearRegistry(MSIHANDLE hModule)
 {
-	TCHAR entries[36][255] = {	_T("Software\\Classes\\Drive\\shellex\\ContextMenuHandlers\\TortoiseSVN"),
+	TCHAR entries[37][255] = {	_T("Software\\Classes\\Drive\\shellex\\ContextMenuHandlers\\TortoiseSVN"),
 		_T("Software\\Classes\\Directory\\shellex\\ContextMenuHandlers\\TortoiseSVN"),
 		_T("Software\\Classes\\Directory\\Background\\shellex\\ContextMenuHandlers\\TortoiseSVN"),
 		_T("Software\\Classes\\Folder\\shellex\\ContextMenuHandlers\\TortoiseSVN"),
@@ -92,6 +87,8 @@ UINT __stdcall ClearRegistry(MSIHANDLE hModule)
 		_T("Software\\Classes\\Folder\\shellex\\DragDropHandlers\\TortoiseSVN"),
 
 		_T("Software\\Classes\\Folder\\shellex\\ColumnHandlers\\{30351349-7B7D-4FCC-81B4-1E394CA267EB}"),
+
+		_T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers\\2TortoiseSVN"),
 
 		_T("Software\\Classes\\CLSID\\{30351349-7B7D-4FCC-81B4-1E394CA267EB}"),
 		_T("Software\\Classes\\CLSID\\{3035134A-7B7D-4FCC-81B4-1E394CA267EB}"),
@@ -119,7 +116,7 @@ UINT __stdcall ClearRegistry(MSIHANDLE hModule)
 		_T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers\\TortoiseSVN7")
 	};
 
-	for (int i=0; i<36; ++i)
+	for (int i=0; i<37; ++i)
 	{
 		HKEY hKey;
 		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, entries[i], 0, KEY_WRITE, &hKey)==ERROR_SUCCESS)
@@ -127,7 +124,7 @@ UINT __stdcall ClearRegistry(MSIHANDLE hModule)
 			SHDeleteKey(HKEY_LOCAL_MACHINE, (LPCTSTR)entries[i]);
 		}
 	}
-	for (int i=0; i<36; ++i)
+	for (int i=0; i<37; ++i)
 	{
 		HKEY hKey;
 		if (RegOpenKeyEx(HKEY_CURRENT_USER, entries[i], 0, KEY_WRITE, &hKey)==ERROR_SUCCESS)

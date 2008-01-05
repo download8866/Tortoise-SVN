@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 
@@ -25,22 +25,15 @@
 #include "Guids.h"
 
 #include "ShellExt.h"
-#include "..\version.h"
+#include "..\\version.h"
 #include "libintl.h"
 #undef swprintf
 
 std::set<CShellExt *> g_exts;
 
-
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
 {
-	OSVERSIONINFOEX inf;
-	ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	GetVersionEx((OSVERSIONINFO *)&inf);
-	fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-
     m_State = state;
 
     m_cRef = 0L;
@@ -54,13 +47,6 @@ CShellExt::CShellExt(FileState state)
     };
     InitCommonControlsEx(&used);
 	LoadLangDll();
-
-	m_gdipToken = NULL;
-	if(fullver >= 0x600)
-	{
-		GdiplusStartupInput gdiplusStartupInput;
-		GdiplusStartup(&m_gdipToken, &gdiplusStartupInput, NULL);
-	}
 }
 
 CShellExt::~CShellExt()
@@ -73,14 +59,11 @@ CShellExt::~CShellExt()
 	bitmaps.clear();
 	g_cRefThisDll--;
 	g_exts.erase(this);
-
-	if(m_gdipToken)
-		GdiplusShutdown(m_gdipToken);
 }
 
 void LoadLangDll()
 {
-	if ((g_langid != g_ShellCache.GetLangID())&&((g_langTimeout == 0)||(g_langTimeout < GetTickCount())))
+	if (g_langid != g_ShellCache.GetLangID())
 	{
 		g_langid = g_ShellCache.GetLangID();
 		DWORD langId = g_langid;
@@ -139,7 +122,7 @@ void LoadLangDll()
 						dwBufferSize,
 						pBuffer))
 					{
-						// Query the current language
+						// Abfragen der aktuellen Sprache
 						if (VerQueryValue(	pBuffer,
 							_T("\\VarFileInfo\\Translation"),
 							&lpFixedPointer,
@@ -179,7 +162,7 @@ void LoadLangDll()
 				if (g_hResInst != g_hmodThisDll)
 					FreeLibrary(g_hResInst);
 				g_hResInst = hInst;
-			}
+			} // if (hInst != NULL) 
 			else
 			{
 				DWORD lid = SUBLANGID(langId);
@@ -194,20 +177,13 @@ void LoadLangDll()
 		} while ((hInst == NULL) && (langId != 0));
 		if (hInst == NULL)
 		{
-			// either the dll for the selected language is not present, or
-			// it is the wrong version.
-			// fall back to English and set a timeout so we don't retry
-			// to load the language dll too often
 			if (g_hResInst != g_hmodThisDll)
 				FreeLibrary(g_hResInst);
 			g_hResInst = g_hmodThisDll;
+			CRegStdWORD lid(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
+			lid.removeValue();
 			g_langid = 1033;
-			// set a timeout of 10 seconds
-			if (g_ShellCache.GetLangID() != 1033)
-				g_langTimeout = GetTickCount() + 10000;
 		}
-		else
-			g_langTimeout = 0;
 	} // if (g_langid != g_ShellCache.GetLangID()) 
 }
 
@@ -282,3 +258,58 @@ STDMETHODIMP CShellExt::Load(LPCOLESTR /*pszFileName*/, DWORD /*dwMode*/)
     return S_OK;
 }
 
+void Unescape(char * psz)
+{
+	char * pszSource = psz;
+	char * pszDest = psz;
+
+	// under VS.NET2k5 strchr() wants this to be a non-const array :/
+
+	static char szHex[] = "0123456789ABCDEF";
+
+	// Unescape special characters. The number of characters
+	// in the *pszDest is assumed to be <= the number of characters
+	// in pszSource (they are both the same string anyway)
+
+	while (*pszSource != '\0' && *pszDest != '\0')
+	{
+		if (*pszSource == '%')
+		{
+			// The next two chars following '%' should be digits
+			if ( *(pszSource + 1) == '\0' ||
+				*(pszSource + 2) == '\0' )
+			{
+				// nothing left to do
+				break;
+			}
+
+			char nValue = '?';
+			char * pszLow = NULL;
+			char * pszHigh = NULL;
+			pszSource++;
+
+			*pszSource = (char) toupper(*pszSource);
+			pszHigh = strchr(szHex, *pszSource);
+
+			if (pszHigh != NULL)
+			{
+				pszSource++;
+				*pszSource = (char) toupper(*pszSource);
+				pszLow = strchr(szHex, *pszSource);
+
+				if (pszLow != NULL)
+				{
+					nValue = (char) (((pszHigh - szHex) << 4) +
+						(pszLow - szHex));
+				}
+			} // if (pszHigh != NULL) 
+			*pszDest++ = nValue;
+		} 
+		else
+			*pszDest++ = *pszSource;
+
+		pszSource++;
+	}
+
+	*pszDest = '\0';
+}

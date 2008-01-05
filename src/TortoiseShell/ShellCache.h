@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "registry.h"
@@ -30,11 +30,7 @@
 
 typedef CComCritSecLock<CComCriticalSection> Locker;
 
-/**
- * \ingroup TortoiseShell
- * Helper class which caches access to the registry. Also provides helper methods
- * for checks against the settings stored in the registry.
- */
+
 class ShellCache
 {
 public:
@@ -46,7 +42,7 @@ public:
 	};
 	ShellCache()
 	{
-		cachetype = CRegStdWORD(_T("Software\\TortoiseSVN\\CacheType"), GetSystemMetrics(SM_REMOTESESSION) ? dll : exe);
+		cachetype = CRegStdWORD(_T("Software\\TortoiseSVN\\CacheType"), exe);
 		showrecursive = CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
 		folderoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
 		driveremote = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
@@ -58,11 +54,8 @@ public:
 		driveunknown = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskUnknown"));
 		excludelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
 		includelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
+		simplecontext = CRegStdWORD(_T("Software\\TortoiseSVN\\SimpleContext"), TRUE);
 		unversionedasmodified = CRegStdWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
-		showunversionedoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowUnversionedOverlay"), FALSE);
-		showignoredoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowIgnoredOverlay"), FALSE);
-		getlocktop = CRegStdWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
-		excludedasnormal = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowExcludedAsNormal"), TRUE);
 		cachetypeticker = GetTickCount();
 		recursiveticker = cachetypeticker;
 		folderoverlayticker = cachetypeticker;
@@ -72,19 +65,11 @@ public:
 		columnrevformatticker = cachetypeticker;
 		excludelistticker = cachetypeticker;
 		includelistticker = cachetypeticker;
+		simplecontextticker = cachetypeticker;
 		unversionedasmodifiedticker = cachetypeticker;
-		showunversionedoverlayticker = cachetypeticker;
-		showignoredoverlayticker = cachetypeticker;
 		admindirticker = cachetypeticker;
 		columnseverywhereticker = cachetypeticker;
-		getlocktopticker = cachetypeticker;
-		excludedasnormalticker = cachetypeticker;
-		menulayoutlow = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
-		menulayouthigh = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
-		menumasklow_lm = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0, FALSE, HKEY_LOCAL_MACHINE);
-		menumaskhigh_lm = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0, FALSE, HKEY_LOCAL_MACHINE);
-		menumasklow_cu = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0);
-		menumaskhigh_cu = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0);
+		menulayout = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
 		langid = CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 		blockstatus = CRegStdWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
 		columnseverywhere = CRegStdWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
@@ -92,9 +77,6 @@ public:
 		{
 			drivetypecache[i] = (UINT)-1;
 		}
-		// A: and B: are floppy disks
-		drivetypecache[0] = DRIVE_REMOVABLE;
-		drivetypecache[1] = DRIVE_REMOVABLE;
 		TCHAR szBuffer[5];
 		columnrevformatticker = GetTickCount();
 		ZeroMemory(&columnrevformat, sizeof(NUMBERFMT));
@@ -123,20 +105,12 @@ public:
 		driveunknown.read();
 		excludelist.read();
 		includelist.read();
+		simplecontext.read();
 		unversionedasmodified.read();
-		showunversionedoverlay.read();
-		showignoredoverlay.read();
-		excludedasnormal.read();
-		menulayoutlow.read();
-		menulayouthigh.read();
+		menulayout.read();
 		langid.read();
 		blockstatus.read();
 		columnseverywhere.read();
-		getlocktop.read();
-		menumasklow_lm.read();
-		menumaskhigh_lm.read();
-		menumasklow_cu.read();
-		menumaskhigh_cu.read();
 	}
 	CacheType GetCacheType()
 	{
@@ -156,33 +130,14 @@ public:
 		}
 		return (blockstatus);
 	}
-	unsigned __int64 GetMenuLayout()
+	DWORD GetMenuLayout()
 	{
 		if ((GetTickCount() - REGISTRYTIMEOUT) > layoutticker)
 		{
 			layoutticker = GetTickCount();
-			menulayoutlow.read();
-			menulayouthigh.read();
+			menulayout.read();
 		}
-		unsigned __int64 temp = unsigned __int64(DWORD(menulayouthigh))<<32;
-		temp |= unsigned __int64(DWORD(menulayoutlow));
-		return temp;
-	}
-	unsigned __int64 GetMenuMask()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT) > menumaskticker)
-		{
-			menumaskticker = GetTickCount();
-			menumasklow_lm.read();
-			menumaskhigh_lm.read();
-			menumasklow_cu.read();
-			menumaskhigh_cu.read();
-		}
-		DWORD low = (DWORD)menumasklow_lm | (DWORD)menumasklow_cu;
-		DWORD high = (DWORD)menumaskhigh_lm | (DWORD)menumaskhigh_cu;
-		unsigned __int64 temp = unsigned __int64(high)<<32;
-		temp |= unsigned __int64(low);
-		return temp;
+		return (menulayout);
 	}
 	BOOL IsRecursive()
 	{
@@ -202,6 +157,15 @@ public:
 		}
 		return (folderoverlay);
 	}
+	BOOL IsSimpleContext()
+	{
+		if ((GetTickCount() - REGISTRYTIMEOUT)>simplecontextticker)
+		{
+			simplecontextticker = GetTickCount();
+			simplecontext.read();
+		}
+		return (simplecontext==0);
+	}
 	BOOL IsUnversionedAsModified()
 	{
 		if ((GetTickCount() - REGISTRYTIMEOUT)>unversionedasmodifiedticker)
@@ -210,42 +174,6 @@ public:
 			unversionedasmodified.read();
 		}
 		return (unversionedasmodified);
-	}
-	BOOL ShowUnversionedOverlay()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>showunversionedoverlayticker)
-		{
-			showunversionedoverlayticker = GetTickCount();
-			showunversionedoverlay.read();
-		}
-		return (showunversionedoverlay);
-	}
-	BOOL ShowIgnoredOverlay()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>showignoredoverlayticker)
-		{
-			showignoredoverlayticker = GetTickCount();
-			showignoredoverlay.read();
-		}
-		return (showignoredoverlay);
-	}
-	BOOL IsGetLockTop()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>getlocktopticker)
-		{
-			getlocktopticker = GetTickCount();
-			getlocktop.read();
-		}
-		return (getlocktop);
-	}
-	BOOL ShowExcludedAsNormal()
-	{
-		if ((GetTickCount() - REGISTRYTIMEOUT)>excludedasnormalticker)
-		{
-			excludedasnormalticker = GetTickCount();
-			excludedasnormal.read();
-		}
-		return (excludedasnormal);
 	}
 	BOOL IsRemote()
 	{
@@ -295,8 +223,7 @@ public:
 			}
 			else if (_tcsicmp(I->c_str(), path)==0)
 				return TRUE;
-			else if ((I->at(I->size()-1) == '\\') && 
-				((_tcsnicmp(I->c_str(), path, I->size())==0) || (_tcsicmp(I->c_str(), path)==0)) )
+			else if (I->size() && (I->at(I->size()-1) == '\\') && (_tcsnicmp(I->c_str(), path, I->size()-1)==0))
 				return TRUE;
 
 		}
@@ -307,19 +234,14 @@ public:
 			drivetype = drivetypecache[drivenumber];
 			if ((drivetype == -1)||((GetTickCount() - DRIVETYPETIMEOUT)>drivetypeticker))
 			{
-				if ((drivenumber == 0)||(drivenumber == 1))
-					drivetypecache[drivenumber] = DRIVE_REMOVABLE;
-				else
-				{
-					drivetypeticker = GetTickCount();
-					TCHAR pathbuf[MAX_PATH+4];		// MAX_PATH ok here. PathStripToRoot works with partial paths too.
-					_tcsncpy_s(pathbuf, MAX_PATH+4, path, MAX_PATH+3);
-					PathStripToRoot(pathbuf);
-					PathAddBackslash(pathbuf);
-					ATLTRACE2(_T("GetDriveType for %s, Drive %d\n"), pathbuf, drivenumber);
-					drivetype = GetDriveType(pathbuf);
-					drivetypecache[drivenumber] = drivetype;
-				}
+				drivetypeticker = GetTickCount();
+				TCHAR pathbuf[MAX_PATH+4];		// MAX_PATH ok here. PathStripToRoot works with partial paths too.
+				_tcsncpy_s(pathbuf, MAX_PATH+4, path, MAX_PATH+3);
+				PathStripToRoot(pathbuf);
+				PathAddBackslash(pathbuf);
+				ATLTRACE2(_T("GetDriveType for %s, Drive %d\n"), pathbuf, drivenumber);
+				drivetype = GetDriveType(pathbuf);
+				drivetypecache[drivenumber] = drivetype;
 			}
 		}
 		else
@@ -512,7 +434,6 @@ private:
 	CRegStdWORD langid;
 	CRegStdWORD showrecursive;
 	CRegStdWORD folderoverlay;
-	CRegStdWORD getlocktop;
 	CRegStdWORD driveremote;
 	CRegStdWORD drivefixed;
 	CRegStdWORD drivecdrom;
@@ -520,16 +441,9 @@ private:
 	CRegStdWORD drivefloppy;
 	CRegStdWORD driveram;
 	CRegStdWORD driveunknown;
-	CRegStdWORD menulayoutlow;
-	CRegStdWORD menulayouthigh;
-	CRegStdWORD menumasklow_lm;
-	CRegStdWORD menumaskhigh_lm;
-	CRegStdWORD menumasklow_cu;
-	CRegStdWORD menumaskhigh_cu;
+	CRegStdWORD menulayout;
+	CRegStdWORD simplecontext;
 	CRegStdWORD unversionedasmodified;
-	CRegStdWORD showunversionedoverlay;
-	CRegStdWORD showignoredoverlay;
-	CRegStdWORD excludedasnormal;
 	CRegStdString excludelist;
 	CRegStdWORD columnseverywhere;
 	stdstring excludeliststr;
@@ -540,20 +454,16 @@ private:
 	DWORD cachetypeticker;
 	DWORD recursiveticker;
 	DWORD folderoverlayticker;
-	DWORD getlocktopticker;
 	DWORD driveticker;
 	DWORD drivetypeticker;
 	DWORD layoutticker;
-	DWORD menumaskticker;
 	DWORD langticker;
 	DWORD blockstatusticker;
 	DWORD columnrevformatticker;
 	DWORD excludelistticker;
 	DWORD includelistticker;
+	DWORD simplecontextticker;
 	DWORD unversionedasmodifiedticker;
-	DWORD showunversionedoverlayticker;
-	DWORD showignoredoverlayticker;
-	DWORD excludedasnormalticker;
 	DWORD columnseverywhereticker;
 	UINT  drivetypecache[27];
 	TCHAR drivetypepathcache[MAX_PATH];		// MAX_PATH ok.

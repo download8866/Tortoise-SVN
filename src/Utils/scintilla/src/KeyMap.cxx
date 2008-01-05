@@ -11,10 +11,6 @@
 
 #include "KeyMap.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 KeyMap::KeyMap() : kmap(0), len(0), alloc(0) {
 	for (int i = 0; MapDefault[i].key; i++) {
 		AssignCmdKey(MapDefault[i].key,

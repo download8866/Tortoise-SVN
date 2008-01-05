@@ -13,14 +13,15 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 
 // For base class
 #include "SVNRev.h"
+#include "StandAloneDlg.h"
 
 /**
  * \ingroup TortoiseProc
@@ -31,13 +32,13 @@ class CRevisionDlg : public CDialog, public SVNRev
 	DECLARE_DYNAMIC(CRevisionDlg)
 
 public:
-	CRevisionDlg(CWnd* pParent = NULL);
+	CRevisionDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CRevisionDlg();
 
+// Dialog Data
 	enum { IDD = IDD_REVISION };
-
 	CString GetEnteredRevisionString() {return m_sRevision;}
-	void	AllowWCRevs(bool bAllowWCRevs = true) {m_bAllowWCRevs = bAllowWCRevs;}
+	void AllowWCRevs(bool bAllowWCRevs = true) {m_bAllowWCRevs = bAllowWCRevs;}
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();

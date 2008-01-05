@@ -31,10 +31,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 #ifdef BUILD_AS_EXTERNAL_LEXER
 
 #include "ExternalLexer.h"

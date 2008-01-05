@@ -13,21 +13,39 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
 #include "LogDlg.h"
-#include "afxwin.h"
 
 
 /**
  * \ingroup TortoiseProc
  * A simple dialog box asking the user for a revision number
  * to update to.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 01-27-2003
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CUpdateDlg : public CStandAloneDialog
 {
@@ -52,10 +70,9 @@ protected:
 
 	CLogDlg *	m_pLogDlg;
 	CString		m_sRevision;
-	CComboBox	m_depthCombo;
 public:
 	SVNRev		Revision;
 	CTSVNPath	m_wcPath;
+	BOOL		m_bNonRecursive;
 	BOOL		m_bNoExternals;
-	svn_depth_t	m_depth;
 };

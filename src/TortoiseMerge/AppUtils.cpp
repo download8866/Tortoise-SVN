@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,13 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Registry.h"
 #include "AppUtils.h"
-#include "UnicodeUtils.h"
 #include "ProgressDlg.h"
-
-#include "svn_pools.h"
-#include "svn_io.h"
-#include "svn_path.h"
-#include "svn_diff.h"
 
 CAppUtils::CAppUtils(void)
 {
@@ -51,7 +45,7 @@ BOOL CAppUtils::GetVersionedFile(CString sPath, CString sVersion, CString sSaveP
 			sSCMPath += _T("\\TortoiseProc.exe");
 		}
 		sSCMPath += _T(" /command:cat /path:\"%1\" /revision:%2 /savepath:\"%3\" /hwnd:%4");
-	}
+	} // if (sSCMPath.IsEmpty()) 
 	CString sTemp;
 	sTemp.Format(_T("%d"), hWnd);
 	sSCMPath.Replace(_T("%1"), sPath);
@@ -97,62 +91,8 @@ BOOL CAppUtils::GetVersionedFile(CString sPath, CString sVersion, CString sSaveP
 	return TRUE;
 }
 
-bool CAppUtils::CreateUnifiedDiff(const CString& orig, const CString& modified, const CString& output)
-{
-	apr_file_t * outfile = NULL;
-	apr_pool_t * pool = svn_pool_create(NULL);
 
-	svn_error_t * err = svn_io_file_open (&outfile, svn_path_canonicalize(CUnicodeUtils::GetUTF8(output), pool),
-		APR_WRITE | APR_CREATE | APR_BINARY | APR_TRUNCATE,
-		APR_OS_DEFAULT, pool);
-	if (err == NULL)
-	{
-		svn_stream_t * stream = svn_stream_from_aprfile2(outfile, false, pool);
-		if (stream)
-		{
-			svn_diff_t * diff = NULL;
-			svn_diff_file_options_t * opts = svn_diff_file_options_create(pool);
-			opts->ignore_eol_style = false;
-			opts->ignore_space = svn_diff_file_ignore_space_none;
-			err = svn_diff_file_diff_2(&diff, svn_path_canonicalize(CUnicodeUtils::GetUTF8(orig), pool), 
-				svn_path_canonicalize(CUnicodeUtils::GetUTF8(modified), pool), opts, pool);
-			if (err == NULL)
-			{
-				err = svn_diff_file_output_unified(stream, diff, svn_path_canonicalize(CUnicodeUtils::GetUTF8(orig), pool), 
-					svn_path_canonicalize(CUnicodeUtils::GetUTF8(modified), pool),
-					NULL, NULL, pool);
-				svn_stream_close(stream);
-			}
-		}
-		apr_file_close(outfile);
-	}
-	if (err)
-	{
-		svn_error_clear(err);
-		svn_pool_destroy(pool);
-		return false;
-	}
-	svn_pool_destroy(pool);
-	return true;
-}
 
-bool CAppUtils::HasClipboardFormat(UINT format)
-{
-	if (OpenClipboard(NULL))
-	{
-		UINT enumFormat = 0;
-		do 
-		{
-			if (enumFormat == format)
-			{
-				CloseClipboard();
-				return true;
-			}
-		} while((enumFormat = EnumClipboardFormats(enumFormat))!=0);
-		CloseClipboard();
-	}
-	return false;
-}
 
 
 

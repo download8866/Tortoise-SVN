@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,25 +13,28 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ImportDlg.h"
 #include "RepositoryBrowser.h"
-#include "AppUtils.h"
+#include ".\importdlg.h"
 #include "DirFileEnum.h"
 #include "MessageBox.h"
 #include "BrowseFolder.h"
 #include "Registry.h"
-#include "HistoryDlg.h"
+
+
+// CImportDlg dialog
 
 IMPLEMENT_DYNAMIC(CImportDlg, CResizableStandAloneDialog)
 CImportDlg::CImportDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CImportDlg::IDD, pParent)
 	, m_bIncludeIgnored(FALSE)
 {
+	m_url = _T("");
 }
 
 CImportDlg::~CImportDlg()
@@ -47,6 +50,7 @@ void CImportDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_IMPORTIGNORED, m_bIncludeIgnored);
 }
 
+
 BEGIN_MESSAGE_MAP(CImportDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
@@ -58,7 +62,7 @@ BOOL CImportDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
+	m_HistoryDlg.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	if (m_url.IsEmpty())
 	{
@@ -72,17 +76,14 @@ BOOL CImportDlg::OnInitDialog()
 			SendMessage(WM_NEXTDLGCTL, 0, FALSE);
 		m_URLCombo.EnableWindow(FALSE);
 	}
-	m_URLCombo.SetCurSel(0);
 
 	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
+	m_tooltips.AddTool(IDC_HISTORY, IDS_LOGPROMPT_HISTORY_TT);
 	
-	m_History.Load(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
+	m_HistoryDlg.LoadHistory(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
 	m_ProjectProperties.ReadProps(m_path);
 	m_cMessage.Init(m_ProjectProperties);
 	m_cMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
-
-	AdjustControlSize(IDC_IMPORTIGNORED);
 
 	AddAnchor(IDC_STATIC1, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_STATIC4, TOP_LEFT);
@@ -91,7 +92,7 @@ BOOL CImportDlg::OnInitDialog()
 	AddAnchor(IDC_STATIC2, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_MESSAGE, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
-	AddAnchor(IDC_IMPORTIGNORED, BOTTOM_LEFT);
+	AddAnchor(IDC_IMPORTIGNORED, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -127,16 +128,71 @@ void CImportDlg::OnOK()
 	}
 	UpdateData();
 	m_sMessage = m_cMessage.GetText();
-	m_History.AddEntry(m_sMessage);
-	m_History.Save();
+	m_HistoryDlg.AddString(m_sMessage);
+	m_HistoryDlg.SaveHistory();
 
 	CResizableStandAloneDialog::OnOK();
 }
 
 void CImportDlg::OnBnClickedBrowse()
 {
-	SVNRev rev(SVNRev::REV_HEAD);
-	CAppUtils::BrowseRepository(m_URLCombo, this, rev);
+	CString strUrl;
+	m_URLCombo.GetWindowText(strUrl);
+	if (strUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(strUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(strUrl, this);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(strUrl);
+
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(strUrl);
+			}
+		}
+	}
+	else if ((strUrl.Left(7) == _T("http://")
+		||(strUrl.Left(8) == _T("https://"))
+		||(strUrl.Left(6) == _T("svn://"))
+		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(strUrl, this);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			m_URLCombo.SetWindowText(strUrl);
+		}
+	}
 }
 
 BOOL CImportDlg::PreTranslateMessage(MSG* pMsg)
@@ -177,24 +233,25 @@ void CImportDlg::OnEnChangeLogmessage()
 void CImportDlg::OnCancel()
 {
 	UpdateData();
-	m_History.AddEntry(m_cMessage.GetText());
-	m_History.Save();
+	m_HistoryDlg.AddString(m_cMessage.GetText());
+	m_HistoryDlg.SaveHistory();
 	CResizableStandAloneDialog::OnCancel();
 }
 
 void CImportDlg::OnBnClickedHistory()
 {
 	SVN svn;
-	CHistoryDlg historyDlg;
-	historyDlg.SetHistory(m_History);
-	if (historyDlg.DoModal()==IDOK)
+	CString reg;
+	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), svn.GetUUIDFromPath(m_path));
+	m_HistoryDlg.LoadHistory(reg, _T("logmsgs"));
+	if (m_HistoryDlg.DoModal()==IDOK)
 	{
-		if (historyDlg.GetSelectedText().Compare(m_cMessage.GetText().Left(historyDlg.GetSelectedText().GetLength()))!=0)
+		if (m_HistoryDlg.GetSelectedText().Compare(m_cMessage.GetText().Left(m_HistoryDlg.GetSelectedText().GetLength()))!=0)
 		{
 			if (m_ProjectProperties.sLogTemplate.Compare(m_cMessage.GetText())!=0)
-				m_cMessage.InsertText(historyDlg.GetSelectedText(), !m_cMessage.GetText().IsEmpty());
+				m_cMessage.InsertText(m_HistoryDlg.GetSelectedText(), !m_cMessage.GetText().IsEmpty());
 			else
-				m_cMessage.SetText(historyDlg.GetSelectedText());
+				m_cMessage.SetText(m_HistoryDlg.GetSelectedText());
 		}
 		DialogEnableWindow(IDOK, m_ProjectProperties.nMinLogSize <= m_cMessage.GetText().GetLength());
 	}

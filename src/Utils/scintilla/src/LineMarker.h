@@ -8,10 +8,6 @@
 #ifndef LINEMARKER_H
 #define LINEMARKER_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  */
 class LineMarker {
@@ -54,9 +50,5 @@ public:
 	void SetXPM(const char * const *linesForm);
 	void Draw(Surface *surface, PRectangle &rc, Font &fontForCharacter);
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

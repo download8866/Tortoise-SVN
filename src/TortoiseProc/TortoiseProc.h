@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -41,6 +41,25 @@ class CTSVNPathList;
  * themselves then execute a specific function.\n\n
  * Many commands are executed using the CSVNProgressDlg which
  * just displays the common notify callbacks of the Subversion commands.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 
 
@@ -54,12 +73,13 @@ public:
 public:
 	virtual BOOL InitInstance();
 
+	void CrashProgram();
 	void CheckUpgrade();
-	void EnableCrashHandler();
-
 // Implementation
 
 private:
+	static UINT_PTR CALLBACK CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM lParam);
+	BOOL CreatePatch(const CTSVNPath& root, const CTSVNPathList& path, const CTSVNPath& savepath);
 
 
 	DECLARE_MESSAGE_MAP()

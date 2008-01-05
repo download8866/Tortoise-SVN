@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -31,10 +31,6 @@
 #include "SVNInfo.h"
 #include "SVNDiff.h"
 #include "RevisionGraphDlg.h"
-#include "CachedLogInfo.h"
-#include "RevisionIndex.h"
-#include "BrowseFolder.h"
-#include "SVNProgressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,16 +40,7 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace Gdiplus;
 
-enum RevisionGraphContextMenuCommands
-{
-	// needs to start with 1, since 0 is the return value if *nothing* is clicked on in the context menu
-	ID_SHOWLOG = 1,
-	ID_COMPAREREVS,
-	ID_COMPAREHEADS,
-	ID_UNIDIFFREVS,
-	ID_UNIDIFFHEADS,
-	ID_MERGETO
-};
+// CRevisionGraphWnd dialog
 
 CRevisionGraphWnd::CRevisionGraphWnd()
 	: CWnd()
@@ -67,16 +54,17 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 	, m_node_space_left(NODE_SPACE_LEFT)
 	, m_node_space_right(NODE_SPACE_RIGHT)
 	, m_node_space_line(NODE_SPACE_LINE)
-	, m_node_rect_height(NODE_RECT_HEIGHT)
+	, m_node_rect_heigth(NODE_RECT_HEIGTH)
 	, m_node_space_top(NODE_SPACE_TOP)
 	, m_node_space_bottom(NODE_SPACE_BOTTOM)
 	, m_nIconSize(32)
 	, m_RoundRectPt(ROUND_RECT, ROUND_RECT)
 	, m_bFetchLogs(true)
+	, m_bShowAll(false)
+	, m_bArrangeByPath(false)
 	, m_fZoomFactor(1.0)
 	, m_ptRubberEnd(0,0)
 	, m_ptRubberStart(0,0)
-	, m_bShowOverview(false)
 {
 	m_GraphRect.SetRectEmpty();
 	m_ViewRect.SetRectEmpty();
@@ -104,13 +92,15 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 
 		RegisterClass(&wndcls);
 	}
-	m_bShowOverview = (BOOL)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\ShowRevGraphOverview"), FALSE);
 }
 
 CRevisionGraphWnd::~CRevisionGraphWnd()
 {
-	m_arConnections.clear();
-
+	for (INT_PTR i=0; i<m_arConnections.GetCount(); ++i)
+	{
+		delete [] (CPoint*)m_arConnections.GetAt(i);
+	}
+	m_arConnections.RemoveAll();
 	for (int i=0; i<MAXFONTS; i++)
 	{
 		if (m_apFonts[i] != NULL)
@@ -143,8 +133,10 @@ BEGIN_MESSAGE_MAP(CRevisionGraphWnd, CWnd)
 	ON_WM_CONTEXTMENU()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
-	ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
+
+
+// CRevisionGraphWnd message handlers
 
 void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
 {
@@ -201,46 +193,6 @@ BOOL CRevisionGraphWnd::ProgressCallback(CString text, CString text2, DWORD done
 			return FALSE;
 	}
 	return TRUE;
-}
-
-CRevisionEntry * CRevisionGraphWnd::GetHitNode (CPoint point) const
-{
-    // translate point into row, column coordinates
-
-    float columnSpacing = m_node_rect_width + m_node_space_left + m_node_space_right;
-    float rowSpacing = m_node_rect_height + m_node_space_top + m_node_space_bottom;
-
-    int nVScrollPos = GetScrollPos(SB_VERT);
-    int nHScrollPos = GetScrollPos(SB_HORZ);
-
-    int row = (int)((point.y - m_node_space_top + nVScrollPos) / rowSpacing + 1);
-    int column = (int)((point.x - m_node_space_left + nHScrollPos) / columnSpacing + 1);
-
-    // the node rectangle at that position (maybe unused)
-
-    CRect noderect;
-    noderect.left = (long)((column - 1) * columnSpacing + m_node_space_left - nHScrollPos);
-    noderect.top = (long)((row - 1) * rowSpacing + m_node_space_top - nVScrollPos);
-    noderect.right = (long)(noderect.left + m_node_rect_width);
-    noderect.bottom = (long)(noderect.top + m_node_rect_height);
-
-    // hit the (potential) node position and not the space in between nodes?
-
-    if (!noderect.PtInRect(point))
-        return NULL;
-
-    // search the nodes for one at that grid position
-
-    for (size_t i = 0, count = m_entryPtrs.size(); i < count; ++i)
-    {
-	    CRevisionEntry * reventry = m_entryPtrs[i];
-	    if ((reventry->row == row) && (reventry->column == column))
-            return reventry;
-    }
-
-    // there is no node at that grid position
-		    
-    return NULL;
 }
 
 void CRevisionGraphWnd::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -356,52 +308,50 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 	SetFocus();
 	bool bHit = false;
 	bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
-	if (!m_OverviewRect.PtInRect(point))
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 	{
-        CRevisionEntry * reventry = GetHitNode (point);
-	    if (reventry != NULL)
-	    {
-		    if (bControl)
-		    {
-			    if (m_SelectedEntry1 == reventry)
-			    {
-				    if (m_SelectedEntry2)
-				    {
-					    m_SelectedEntry1 = m_SelectedEntry2;
-					    m_SelectedEntry2 = NULL;
-				    }
-				    else
-					    m_SelectedEntry1 = NULL;
-			    }
-			    else if (m_SelectedEntry2 == reventry)
-				    m_SelectedEntry2 = NULL;
-			    else if (m_SelectedEntry1)
-				    m_SelectedEntry2 = reventry;
-			    else
-				    m_SelectedEntry1 = reventry;
-		    }
-		    else
-		    {
-			    if (m_SelectedEntry1 == reventry)
-				    m_SelectedEntry1 = NULL;
-			    else
-				    m_SelectedEntry1 = reventry;
-			    m_SelectedEntry2 = NULL;
-		    }
-		    bHit = true;
-		    Invalidate();
-	    }
-    }
-
-    if ((!bHit)&&(!bControl))
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+		if (reventry->drawrect.PtInRect(point))
+		{
+			if (bControl)
+			{
+				if (m_SelectedEntry1 == reventry)
+				{
+					if (m_SelectedEntry2)
+					{
+						m_SelectedEntry1 = m_SelectedEntry2;
+						m_SelectedEntry2 = NULL;
+					}
+					else
+						m_SelectedEntry1 = NULL;
+				}
+				else if (m_SelectedEntry2 == reventry)
+					m_SelectedEntry2 = NULL;
+				else if (m_SelectedEntry1)
+					m_SelectedEntry2 = reventry;
+				else
+					m_SelectedEntry1 = reventry;
+			}
+			else
+			{
+				if (m_SelectedEntry1 == reventry)
+					m_SelectedEntry1 = NULL;
+				else
+					m_SelectedEntry1 = reventry;
+				m_SelectedEntry2 = NULL;
+			}
+			bHit = true;
+			Invalidate();
+			break;
+		}
+	}
+	if ((!bHit)&&(!bControl))
 	{
 		m_SelectedEntry1 = NULL;
 		m_SelectedEntry2 = NULL;
 		m_bIsRubberBand = true;
 		ATLTRACE("LButtonDown: x = %ld, y = %ld\n", point.x, point.y);
 		Invalidate();
-		if (m_OverviewRect.PtInRect(point))
-			m_bIsRubberBand = false;
 	}
 	m_ptRubberStart = point;
 	
@@ -449,8 +399,8 @@ void CRevisionGraphWnd::OnLButtonUp(UINT nFlags, CPoint point)
 	float fact = max(yfact, xfact);
 
 	// find out where to scroll to
-	x = min(m_ptRubberStart.x, point.x) + GetScrollPos(SB_HORZ);
-	y = min(m_ptRubberStart.y, point.y) + GetScrollPos(SB_VERT);
+	x = m_ptRubberStart.x + GetScrollPos(SB_HORZ);
+	y = m_ptRubberStart.y + GetScrollPos(SB_VERT);
 
 	float fZoomfactor = m_fZoomFactor*fact;
 	if (fZoomfactor > 20.0)
@@ -483,18 +433,20 @@ INT_PTR CRevisionGraphWnd::OnToolHitTest(CPoint point, TOOLINFO* pTI) const
 {
 	if (m_bThreadRunning)
 		return -1;
-
-	CRevisionEntry * reventry = GetHitNode (point);
-    if (reventry == NULL)
-        return -1;
-
-	pTI->hwnd = this->m_hWnd;
-	this->GetClientRect(&pTI->rect);
-	pTI->uFlags  |= TTF_ALWAYSTIP | TTF_IDISHWND;
-	pTI->uId = (UINT)m_hWnd;
-	pTI->lpszText = LPSTR_TEXTCALLBACK;
-
-    return 1;
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
+	{
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+		if (reventry->drawrect.PtInRect(point))
+		{
+			pTI->hwnd = this->m_hWnd;
+			this->GetClientRect(&pTI->rect);
+			pTI->uFlags  |= TTF_ALWAYSTIP | TTF_IDISHWND;
+			pTI->uId = (UINT)m_hWnd;
+			pTI->lpszText = LPSTR_TEXTCALLBACK;
+			return 1;
+		}
+	}
+	return -1;
 }
 
 BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pResult)
@@ -510,60 +462,24 @@ BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
 	ScreenToClient(&point);
 	if (pNMHDR->idFrom == (UINT)m_hWnd)
 	{
-        rentry = GetHitNode (point);
-        if (rentry)
+		for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
 		{
-			const CCachedLogInfo* cache = query->GetCache();
-			const CRevisionIndex& revisions = cache->GetRevisions();
-			const CRevisionInfoContainer& revisionInfo = cache->GetLogInfo();
-
-			index_t index = revisions[rentry->revision];
-
+			CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+			if (reventry->drawrect.PtInRect(point))
+			{
+				rentry = reventry;
+			}
+		}
+		if (rentry)
+		{
 			TCHAR date[SVN_DATE_BUFFER];
-			apr_time_t timeStamp = revisionInfo.GetTimeStamp(index);
-			SVN::formatDate(date, timeStamp);
-
-            if (rentry->tags.empty())
-            {
-			    strTipText.Format(IDS_REVGRAPH_BOXTOOLTIP,
-							    rentry->revision,
-							    CUnicodeUtils::StdGetUnicode(rentry->realPath.GetPath()).c_str(),
-								CUnicodeUtils::StdGetUnicode(revisionInfo.GetAuthor(index)).c_str(), 
-							    date,
-								CUnicodeUtils::StdGetUnicode(revisionInfo.GetComment(index)).c_str());
-            }
-            else
-            {
-                CString tags;
-                for (size_t i = 0; i < rentry->tags.size(); ++i)
-                {
-                    const CRevisionEntry::SFoldedTag& tag = rentry->tags[i];
-
-                    UINT format = tag.isAlias
-                                ? tag.isDeleted
-                                    ? IDS_REVGRAPH_TAGALIASDELETED
-                                    : IDS_REVGRAPH_TAGALIAS
-                                : tag.isDeleted
-                                    ? IDS_REVGRAPH_TAGDELETED
-                                    : IDS_REVGRAPH_TAG;
-
-                    CString tagInfo;
-                    tagInfo.Format ( format
-                                   , CUnicodeUtils::StdGetUnicode (tag.tag.GetPath()).c_str());
-
-                    tags +=   _T("\r\n")
-                            + CString (' ', tag.depth * 6) 
-                            + tagInfo;
-                }
-
-			    strTipText.Format(IDS_REVGRAPH_BOXTOOLTIP_TAGGED,
-							    rentry->revision,
-							    CUnicodeUtils::StdGetUnicode(rentry->realPath.GetPath()).c_str(),
-							    CUnicodeUtils::StdGetUnicode(revisionInfo.GetAuthor(index)).c_str(), 
-							    date,
-                                (LPCTSTR)tags,
-							    CUnicodeUtils::StdGetUnicode(revisionInfo.GetComment(index)).c_str());
-            }
+			SVN::formatDate(date, rentry->date);
+			strTipText.Format(IDS_REVGRAPH_BOXTOOLTIP,
+							rentry->revision,
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->realurl),
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->author), 
+							date,
+							(LPCTSTR)CUnicodeUtils::GetUnicode(rentry->message));
 		}
 	}
 	else
@@ -574,9 +490,7 @@ BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
 		return TRUE;
 		
 	if (strTipText.GetLength() >= MAX_TT_LENGTH)
-    {
-		strTipText = strTipText.Left(MAX_TT_LENGTH-4) + _T(" ...");
-    }
+		strTipText = strTipText.Left(MAX_TT_LENGTH);
 
 	if (pNMHDR->code == TTN_NEEDTEXTA)
 	{
@@ -683,9 +597,9 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 				return;
 			}
 			HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
-			// paint the whole graph
+			//paint the whole graph
 			DrawGraph(&dc, rect, 0, 0, false);
-			// now use GDI+ to save the picture
+			//now use GDI+ to save the picture
 			CLSID   encoderClsid;
 			GdiplusStartupInput gdiplusStartupInput;
 			ULONG_PTR           gdiplusToken;
@@ -767,14 +681,21 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 	if (m_bThreadRunning)
 		return;
 
+	CRevisionEntry * clickedentry = NULL;
 	CPoint clientpoint = point;
 	this->ScreenToClient(&clientpoint);
 	ATLTRACE("right clicked on x=%d y=%d\n", clientpoint.x, clientpoint.y);
-
-	CRevisionEntry * clickedentry = GetHitNode (clientpoint);
+	for (INT_PTR i=0; i<m_arEntryPtrs.GetCount(); ++i)
+	{
+		CRevisionEntry * reventry = (CRevisionEntry*)m_arEntryPtrs[i];
+		if (reventry->drawrect.PtInRect(clientpoint))
+		{
+			clickedentry = reventry;
+			break;
+		}
+	}
 	if ((m_SelectedEntry1 == NULL)&&(clickedentry == NULL))
 		return;
-
 	if (m_SelectedEntry1 == NULL)
 	{
 		m_SelectedEntry1 = clickedentry;
@@ -795,30 +716,25 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 	CMenu popup;
 	if (popup.CreatePopupMenu())
 	{
-        bool bothPresent =  (m_SelectedEntry1 != NULL)
-                         && (m_SelectedEntry1->action != CRevisionEntry::deleted)
-                         && (m_SelectedEntry2 != NULL)
-                         && (m_SelectedEntry2->action != CRevisionEntry::deleted);
+		if ((m_SelectedEntry1->action == CRevisionEntry::deleted)||((m_SelectedEntry2)&&(m_SelectedEntry2->action == CRevisionEntry::deleted)))
+			return;	// we can't compare with deleted items
 
-		bool bSameURL = (m_SelectedEntry2 && (m_SelectedEntry1->path == m_SelectedEntry2->path));
+		bool bSameURL = (m_SelectedEntry2 && (strcmp(m_SelectedEntry1->url, m_SelectedEntry2->url)==0));
 		CString temp;
 		if (m_SelectedEntry1 && (m_SelectedEntry2 == NULL))
 		{
 			temp.LoadString(IDS_REPOBROWSE_SHOWLOG);
 			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SHOWLOG, temp);
-			popup.AppendMenu(MF_SEPARATOR, NULL);
-			temp.LoadString(IDS_LOG_POPUP_MERGEREV);
-			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_MERGETO, temp);
 		}
-		if (bothPresent)
+		if (m_SelectedEntry1 && m_SelectedEntry2)
 		{
 			temp.LoadString(IDS_REVGRAPH_POPUP_COMPAREREVS);
-    		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREREVS, temp);
-		    if (!bSameURL)
-		    {
-			    temp.LoadString(IDS_REVGRAPH_POPUP_COMPAREHEADS);
-			    popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREHEADS, temp);
-		    }
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREREVS, temp);
+			if (!bSameURL)
+			{
+				temp.LoadString(IDS_REVGRAPH_POPUP_COMPAREHEADS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREHEADS, temp);
+			}
 
 			temp.LoadString(IDS_REVGRAPH_POPUP_UNIDIFFREVS);
 			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_UNIDIFFREVS, temp);
@@ -849,8 +765,8 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		case ID_SHOWLOG:
 			{
 				CString sCmd;
-				CString URL = GetReposRoot() + CUnicodeUtils::GetUnicode (m_SelectedEntry1->path.GetPath().c_str());
-				sCmd.Format(_T("\"%s\" /command:log /path:\"%s\" /startrev:%ld"), 
+				CString URL = GetReposRoot() + CUnicodeUtils::GetUnicode(m_SelectedEntry1->url);
+				sCmd.Format(_T("\"%s\" /command:log /path:\"%s\" /revstart:%ld"), 
 					CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe"), 
 					(LPCTSTR)URL,
 					m_SelectedEntry1->revision);
@@ -865,50 +781,15 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 				CAppUtils::LaunchApplication(sCmd, NULL, false);
 			}
 			break;
-		case ID_MERGETO:
-			{
-				CString URL = GetReposRoot() + CUnicodeUtils::GetUnicode (m_SelectedEntry1->path.GetPath().c_str());
-
-				CString path = m_sPath;
-				CBrowseFolder folderBrowser;
-				folderBrowser.SetInfo(CString(MAKEINTRESOURCE(IDS_LOG_MERGETO)));
-				if (folderBrowser.Show(GetSafeHwnd(), path, path) == CBrowseFolder::OK)
-				{
-					CSVNProgressDlg dlg;
-					dlg.SetCommand(CSVNProgressDlg::SVNProgress_Merge);
-					dlg.SetPathList(CTSVNPathList(CTSVNPath(path)));
-					dlg.SetUrl(URL);
-					dlg.SetSecondUrl(URL);
-					SVNRevRangeArray revarray;
-					revarray.AddRevRange(m_SelectedEntry1->revision, svn_revnum_t(m_SelectedEntry1->revision)-1);
-					dlg.SetRevisionRanges(revarray);
-					dlg.DoModal();
-				}
-			}
-			break;
 		}
 	}
 }
 
 void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (m_bThreadRunning)
+	if ((!m_bIsRubberBand)||(m_bThreadRunning))
 	{
 		return __super::OnMouseMove(nFlags, point);
-	}
-	if (!m_bIsRubberBand)
-	{
-		if ((!m_OverviewRect.IsRectEmpty())&&(m_OverviewRect.PtInRect(point))&&(nFlags & MK_LBUTTON))
-		{
-			// scrolling
-			int x = (point.x-m_OverviewRect.left - (m_OverviewPosRect.Width()/2)) * m_ViewRect.Width() / m_previewWidth;
-			int y = (point.y - (m_OverviewPosRect.Height()/2)) * m_ViewRect.Height() / m_previewHeight;
-			SetScrollbars(y, x);
-			Invalidate(FALSE);
-			return __super::OnMouseMove(nFlags, point);
-		}
-		else
-			return __super::OnMouseMove(nFlags, point);
 	}
 
 	if ((abs(m_ptRubberStart.x - point.x) < 2)&&(abs(m_ptRubberStart.y - point.y) < 2))
@@ -917,6 +798,7 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 	}
 
 	SetCapture();
+	ATLTRACE("OnMouseMove: x = %ld, y = %ld\n", point.x, point.y);
 
 	if ((m_ptRubberEnd.x != 0)||(m_ptRubberEnd.y != 0))
 		DrawRubberBand();
@@ -932,28 +814,18 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 	__super::OnMouseMove(nFlags, point);
 }
 
-BOOL CRevisionGraphWnd::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
-{
-	if ((nHitTest == HTCLIENT)&&(pWnd == this)&&(m_ViewRect.Width())&&(m_ViewRect.Height())&&(message))
-	{
-		POINT pt;
-		if (GetCursorPos(&pt))
-		{
-			ScreenToClient(&pt);
-			if (m_OverviewPosRect.PtInRect(pt))
-			{
-				HCURSOR hCur = NULL;
-				if (GetKeyState(VK_LBUTTON)&0x8000)
-					hCur = LoadCursor(AfxGetResourceHandle(), MAKEINTRESOURCE(IDC_PANCURDOWN));
-				else
-					hCur = LoadCursor(AfxGetResourceHandle(), MAKEINTRESOURCE(IDC_PANCUR));
-				SetCursor(hCur);
-				return TRUE;
-			}
-		}
-	}
-	HCURSOR hCur = LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW));
-	SetCursor(hCur);
-	return TRUE;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

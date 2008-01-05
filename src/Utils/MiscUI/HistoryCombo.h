@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoioseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -52,17 +52,13 @@ public:
 	 */
 	int AddString(CString str, INT_PTR pos = -1);
 
-protected:
-	DECLARE_MESSAGE_MAP()
+// Overrides
+	// ClassWizard generated virtual function overrides
+	//{{AFX_VIRTUAL(CHistoryCombo)
+	protected:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	virtual void PreSubclassWindow();
-
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-
-	void CreateToolTip();
+	//}}AFX_VIRTUAL
 
 // Implementation
 public:
@@ -121,24 +117,16 @@ protected:
 	 */
 	virtual bool OnReturnKeyPressed() { return false; }
 
-	/**
-	 * Removes the selected item from the combo box and updates
-	 * the registry settings. Returns TRUE if successfull.
-	 */
-	BOOL RemoveSelectedItem();
-
 protected:
-	CStringArray	m_arEntries;
-	CString			m_sSection;
-	CString			m_sKeyPrefix;
-	int				m_nMaxHistoryItems;
-	BOOL			m_bAllowSortStyle;
-	BOOL			m_bURLHistory;
-	BOOL			m_bPathHistory;
-	HWND			m_hWndToolTip;
-	TOOLINFO		m_ToolInfo;
-	BOOL			m_ttShown;
-	BOOL			m_bDyn;
+	CStringArray m_arEntries;
+	CString m_sSection;
+	CString m_sKeyPrefix;
+	int m_nMaxHistoryItems;
+	BOOL m_bAllowSortStyle;
+	BOOL m_bURLHistory;
+	BOOL m_bPathHistory;
+
+	DECLARE_MESSAGE_MAP()
 };
 
 

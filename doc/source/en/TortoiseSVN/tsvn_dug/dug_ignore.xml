@@ -14,7 +14,7 @@
 		In most projects you will have files and folders that should not be subject
 		to version control. These might include files created by the compiler,
 		<filename>*.obj, *.lst</filename>, maybe an output folder used to store
-		the executable. Whenever you commit changes, TortoiseSVN shows your unversioned
+		the executable. Whenever you commit changes, TSVN shows your unversioned
 		files, which fills up the file list in the commit dialog. Of course you
 		can turn off this display, but then you might forget to add a new source
 		file.
@@ -48,8 +48,7 @@
 		property directly. That allows you to specify more general
 		patterns using filename globbing, described in the section below.
 		Read <xref linkend="tsvn-dug-propertypage"/> for more information
-		on setting properties directly. Please be aware that each ignore pattern 
-		has to be placed on a separate line. Separating them by spaces does not work.
+		on setting properties directly.
 	</para>
 	<tip>
 		<title>The Global Ignore List</title>
@@ -75,12 +74,9 @@
 		</para>
 	</tip>
 	<sect2 id="tsvn-dug-ignore-glob">
-		<title>Pattern Matching in Ignore Lists</title>
+		<title>Filename Globbing in Ignore Lists</title>
 		<indexterm>
 			<primary>globbing</primary>
-		</indexterm>
-		<indexterm>
-			<primary>pattern matching</primary>
 		</indexterm>
 		<para>
 			Subversion's ignore patterns make use of filename globbing,
@@ -123,10 +119,8 @@
 			</variablelist>
 		</para>
 		<para>
-			Subversion uses the <literal>/</literal> as the path delimiter in all
-			internal pathnames, and all pattern matching is done against this style of
-			path names. If you want to use a path delimiter in your ignore pattern,
-			be sure to use <literal>/</literal>, and not the Windows backslash.
+			The globbing is done by Subversion, so the path delimiter
+			is always <literal>/</literal>, not the Windows backslash.
 		</para>
 		<para>
 			Pattern matching is case sensitive, which can cause problems
@@ -136,26 +130,12 @@
 			<literal>*.[Tt][Mm][Pp]</literal>.
 		</para>
 		<para>
-			Subversion uses this pattern matching against every path presented
-			to it for action. These paths are generally relative to the directory
-			being acted upon for import, add, commit, etc. The matching pattern
-			therefore has to take account of the fact that there may or may not be
-			path components before the filename.
-		</para>
-		<para>
-			If directory names are present in a path, the matching algorithm will
-			not trim them off, so pattern <literal>Fred.*</literal> will match
+			If directory names are present in a path, they are included
+			in the matching, so pattern <literal>Fred.*</literal> will match
 			<literal>Fred.c</literal> but not <literal>subdir/Fred.c</literal>.
-			This is significant if you add a folder which contains some files
+			This is significant if you add a folder containing some files
 			that you want to be ignored, because those filenames will be
-			preceded with the folder name when Subversion compares them with
-			the ignore pattern.
-		</para>
-		<para>
-			The <literal>/</literal> character is not treated in any special way
-			for pattern matching purposes, so the pattern <literal>abc*xyz</literal>
-			would match <literal>abcdxyz</literal> but also
-			<literal>abcdir/subdir/anything/morexyz</literal>.
+			preceded with the folder name.
 		</para>
 		<para>
 			To ignore all <literal>CVS</literal> folders you should either
@@ -164,7 +144,7 @@
 			also exclude something called <literal>ThisIsNotCVS</literal>.
 			Using <literal>*/CVS</literal> alone will not work on an
 			immediate child <literal>CVS</literal> folder, and
-			<literal>CVS</literal> alone will not work on sub-folders.
+			<literal>CVS</literal> alone will not work on subfolders.
 		</para>
 		<para>
 			If you want an official definition for globbing, you can find

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -26,12 +26,14 @@
 #include "TempFile.h"
 
 
+// CCheckForUpdatesDlg dialog
+
 IMPLEMENT_DYNAMIC(CCheckForUpdatesDlg, CStandAloneDialog)
 CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
 	: CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
-	, m_bShowInfo(FALSE)
-	, m_bVisible(FALSE)
 {
+	m_bShowInfo = FALSE;
+	m_bVisible = FALSE;
 	m_sUpdateDownloadLink = _T("http://tortoisesvn.tigris.org");
 }
 
@@ -58,7 +60,7 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 
 	CString temp;
 	temp.Format(IDS_CHECKNEWER_YOURVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
-	SetDlgItemText(IDC_YOURVERSION, temp);
+	GetDlgItem(IDC_YOURVERSION)->SetWindowText(temp);
 
 	DialogEnableWindow(IDOK, FALSE);
 
@@ -68,7 +70,8 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 	}
 
 	SetTimer(100, 1000, NULL);
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CCheckForUpdatesDlg::OnOK()
@@ -111,7 +114,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
 	{
 		try
 		{
-			CStdioFile file(tempfile, CFile::modeRead | CFile::shareDenyWrite);
+			CStdioFile file(tempfile, CFile::modeRead);
 			CString ver;
 			if (file.ReadString(ver))
 			{
@@ -136,14 +139,14 @@ UINT CCheckForUpdatesDlg::CheckThread()
 				if (_ttoi(ver)!=0)
 				{
 					temp.Format(IDS_CHECKNEWER_CURRENTVERSION, (LPCTSTR)ver);
-					SetDlgItemText(IDC_CURRENTVERSION, temp);
+					GetDlgItem(IDC_CURRENTVERSION)->SetWindowText(temp);
 					temp.Format(_T("%d.%d.%d.%d"), TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
 				}
 
 				if (_ttoi(ver)==0)
 				{
 					temp.LoadString(IDS_CHECKNEWER_NETERROR);
-					SetDlgItemText(IDC_CHECKRESULT, temp);
+					GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 				}
 				else if (bNewer)
 				{
@@ -157,13 +160,13 @@ UINT CCheckForUpdatesDlg::CheckThread()
 					else{
 						temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
 					}
-					SetDlgItemText(IDC_CHECKRESULT, temp);
+					GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 					m_bShowInfo = TRUE;
 				}
 				else
 				{
 					temp.LoadString(IDS_CHECKNEWER_YOURUPTODATE);
-					SetDlgItemText(IDC_CHECKRESULT, temp);
+					GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 				}
 			}
 		}
@@ -171,13 +174,13 @@ UINT CCheckForUpdatesDlg::CheckThread()
 		{
 			e->Delete();
 			temp.LoadString(IDS_CHECKNEWER_NETERROR);
-			SetDlgItemText(IDC_CHECKRESULT, temp);
+			GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 		}
 	}
 	else
 	{
 		temp.LoadString(IDS_CHECKNEWER_NETERROR);
-		SetDlgItemText(IDC_CHECKRESULT, temp);
+		GetDlgItem(IDC_CHECKRESULT)->SetWindowText(temp);
 	}
 	DeleteFile(tempfile);
 	m_bThreadRunning = FALSE;
@@ -187,15 +190,11 @@ UINT CCheckForUpdatesDlg::CheckThread()
 
 void CCheckForUpdatesDlg::OnStnClickedCheckresult()
 {
-	// user clicked on the label, start the browser with our webpage
+	//user clicked on the label, start the browser with our webpage
 	HINSTANCE result = ShellExecute(NULL, _T("opennew"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
 	if ((UINT)result <= HINSTANCE_ERROR)
 	{
 		result = ShellExecute(NULL, _T("open"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
-	}
-	if ((UINT)result > HINSTANCE_ERROR)
-	{
-		EndDialog(0);
 	}
 }
 

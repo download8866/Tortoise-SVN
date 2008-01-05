@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Remotecachelink.h"
@@ -49,7 +49,7 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 	}
 
 	m_hPipe = CreateFile(
-		GetCachePipeName(),				// pipe name
+		TSVN_CACHE_PIPE_NAME,			// pipe name
 		GENERIC_READ |					// read and write access
 		GENERIC_WRITE,
 		0,								// no sharing
@@ -63,10 +63,10 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 		// TSVNCache is running but is busy connecting a different client.
 		// Do not give up immediately but wait for a few milliseconds until
 		// the server has created the next pipe instance
-		if (WaitNamedPipe(GetCachePipeName(), 50))
+		if (WaitNamedPipe(TSVN_CACHE_PIPE_NAME, 50))
 		{
 			m_hPipe = CreateFile(
-				GetCachePipeName(),				// pipe name
+				TSVN_CACHE_PIPE_NAME,			// pipe name
 				GENERIC_READ |					// read and write access
 				GENERIC_WRITE,
 				0,								// no sharing

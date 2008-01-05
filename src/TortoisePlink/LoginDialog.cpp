@@ -26,9 +26,9 @@ HWND g_hwndMain;
 class LoginDialog
 {
 public:
-   LoginDialog(const std::string& prompt);
+   LoginDialog(const std::string& prompt, bool is_pw);
    
-   static bool DoLoginDialog(std::string& password, const std::string& prompt);
+   static bool DoLoginDialog(std::string& password, const std::string& prompt, bool is_pw);
 
 private:
    bool myOK;
@@ -36,6 +36,7 @@ private:
 
    std::string  myPassword;
    std::string  myPrompt;
+   bool         myIsPW;
    
    void CreateModule(void);
    void RetrieveValues();
@@ -46,12 +47,12 @@ private:
 };
 
 
-BOOL DoLoginDialog(char* password, int maxlen, const char* prompt)
+BOOL DoLoginDialog(char* password, int maxlen, const char* prompt, BOOL is_pw)
 {
    g_hmodThisDll = GetModuleHandle(0);
    g_hwndMain = GetParentHwnd();
    std::string passwordstr;
-   BOOL res = LoginDialog::DoLoginDialog(passwordstr, prompt);
+   BOOL res = LoginDialog::DoLoginDialog(passwordstr, prompt, is_pw ? true : false);
    if (res)
       strncpy(password, passwordstr.c_str(), maxlen);
    return res;
@@ -95,9 +96,10 @@ BOOL CALLBACK LoginDialogProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lPa
    return 0;
 }
 
-LoginDialog::LoginDialog(const std::string& prompt)
+LoginDialog::LoginDialog(const std::string& prompt, bool is_pw)
 {
    myPrompt = prompt;
+   myIsPW = is_pw;
 }
 
 void LoginDialog::CreateModule(void)
@@ -107,9 +109,9 @@ void LoginDialog::CreateModule(void)
 }
 
 
-bool LoginDialog::DoLoginDialog(std::string& password, const std::string& prompt)
+bool LoginDialog::DoLoginDialog(std::string& password, const std::string& prompt, bool is_pw)
 {
-   LoginDialog *pDlg = new LoginDialog(prompt);
+   LoginDialog *pDlg = new LoginDialog(prompt, is_pw);
 
    pDlg->CreateModule();
 

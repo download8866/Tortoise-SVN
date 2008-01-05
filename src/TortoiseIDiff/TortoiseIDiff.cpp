@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006 - 2007 - Stefan Kueng
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "MainWindow.h"
@@ -22,15 +22,16 @@
 #include "registry.h"
 #include "LangDll.h"
 #include "TortoiseIDiff.h"
-#include "AlphaControl.h"
 
-#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef WIN64
+#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#else
+#	pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
+#endif
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
 HINSTANCE hResource;							// the resource dll
-HCURSOR   curHand;
-HCURSOR   curHandDown;
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
                      HINSTANCE hPrevInstance,
@@ -66,38 +67,22 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	INITCOMMONCONTROLSEX used = {
 		sizeof(INITCOMMONCONTROLSEX),
-		ICC_STANDARD_CLASSES | ICC_BAR_CLASSES | ICC_WIN95_CLASSES
+		ICC_STANDARD_CLASSES | ICC_BAR_CLASSES
 	};
 	InitCommonControlsEx(&used);
-	CAlphaControl::RegisterCustomControl();
-
-	// load the cursors we need
-	curHand = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_PANCUR), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
-	curHandDown = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_PANDOWNCUR), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
 	CMainWindow mainWindow(hResource);
 
 
 	mainWindow.SetLeft(parser.HasVal(_T("left")) ? parser.GetVal(_T("left")) : _T(""), parser.HasVal(_T("lefttitle")) ? parser.GetVal(_T("lefttitle")) : _T(""));
 	mainWindow.SetRight(parser.HasVal(_T("right")) ? parser.GetVal(_T("right")) : _T(""), parser.HasVal(_T("righttitle")) ? parser.GetVal(_T("righttitle")) : _T(""));
+
 	if (mainWindow.RegisterAndCreateWindow())
 	{
 		hAccelTable = LoadAccelerators(hResource, MAKEINTRESOURCE(IDR_TORTOISEIDIFF));
 		if (!parser.HasVal(_T("left")))
 		{
 			PostMessage(mainWindow, WM_COMMAND, ID_FILE_OPEN, 0);
-		}
-		if (parser.HasKey(_T("overlay")))
-		{
-			PostMessage(mainWindow, WM_COMMAND, ID_VIEW_OVERLAPIMAGES, 0);
-		}
-		if (parser.HasKey(_T("fit")))
-		{
-			PostMessage(mainWindow, WM_COMMAND, ID_VIEW_FITTOGETHER, 0);
-		}
-		if (parser.HasKey(_T("showinfo")))
-		{
-			PostMessage(mainWindow, WM_COMMAND, ID_VIEW_IMAGEINFO, 0);
 		}
 		// Main message loop:
 		while (GetMessage(&msg, NULL, 0, 0))
@@ -111,12 +96,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return (int) msg.wParam;
 	}
 	langDLL.Close();
-	DestroyCursor(curHand);
-	DestroyCursor(curHandDown);
 	return 1;
 }
-
-
 
 
 

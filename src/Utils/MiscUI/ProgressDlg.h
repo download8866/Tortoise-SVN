@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,16 +13,21 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
 /**
- * \ingroup Utils
+ * \ingroup TortoiseProc
  * A wrapper class for the IProgressDialog interface. Thats
  * the dialog used by the shell/IE to show progress in e.g.
  * copying, downloading, ...
+ *
+ * \par requirements 
+ * Version 5.0 or later of Shell32.dll (Win2k or later)
+ * Note: it seems as if that interface is already available
+ * on older systems.
  *
  * \remark you need to call AfxOleInit() before using this class, preferably in
  * your app's InitInistance() method.
@@ -159,14 +164,8 @@ public:
 	 */
     bool IsValid() const { return m_bValid; }
 
-	/**
-	 * After a call to Stop() to hide the progress dialog,
-	 * call EnsureValid() to recreate the dialog and fill in the
-	 * data again.
-	 */
-	bool EnsureValid();
-
 protected:
+	bool EnsureValid();
     IProgressDialog* m_pIDlg;
     bool      m_bValid;
     bool      m_isVisible;

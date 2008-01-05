@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "SVNRev.h"
 #include "Registry.h"
 #include "StandAloneDlg.h"
 
-/**
- * \ingroup TortoiseProc
- * Show the blame dialog where the user can select the revision to blame
- * and whether to use TortoiseBlame or the default text editor to view the blame.
- */
+// CBlameDlg dialog
+
 class CBlameDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CBlameDlg)
@@ -49,13 +46,10 @@ protected:
 protected:
 	CString m_sStartRev;
 	CString m_sEndRev;
+	BOOL	m_bTextView;
 	CRegDWORD m_regTextView;
 
 public:
 	SVNRev	StartRev;
 	SVNRev	EndRev;
-	BOOL	m_bForce;
-	BOOL	m_bTextView;
-	BOOL	m_bIgnoreEOL;
-	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
 };

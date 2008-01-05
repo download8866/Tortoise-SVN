@@ -12,8 +12,6 @@ typedef LPVOID (*InstallEx)(LPGETLOGFILE pfn, LPCSTR lpcszTo, LPCSTR lpcszSubjec
 typedef void (*UninstallEx)(LPVOID lpState);
 typedef void (*EnableUI)(void);
 typedef void (*DisableUI)(void);
-typedef void (*EnableHandler)(void);
-typedef void (*DisableHandler)(void);
 typedef void (*AddFileEx)(LPVOID lpState, LPCSTR lpFile, LPCSTR lpDesc);
 typedef void (*AddRegistryEx)(LPVOID lpState, LPCSTR lpRegistry, LPCSTR lpDesc);
 typedef void (*AddEventLogEx)(LPVOID lpState, LPCSTR lpEventLog, LPCSTR lpDesc);
@@ -56,6 +54,9 @@ typedef void (*AddEventLogEx)(LPVOID lpState, LPCSTR lpEventLog, LPCSTR lpDesc);
  * \endcode
  *
  *
+ * \par requirements
+ * WTL\n
+ *
  * \remark the dll is dynamically linked at runtime. So the main application
  * will still work even if the dll is not shipped. 
  *
@@ -72,15 +73,7 @@ public:
 	CCrashReport(LPCSTR lpTo = NULL, LPCSTR lpSubject = NULL, BOOL bUseUI = TRUE)
 	{
 		InstallEx pfnInstallEx;
-		TCHAR szFileName[_MAX_PATH];
-		GetModuleFileName(NULL, szFileName, _MAX_FNAME);
-
-		// C:\Programme\TortoiseSVN\bin\TortoiseProc.exe -> C:\Programme\TortoiseSVN\bin\CrashRpt.dll
-		CString strFilename = szFileName;
-		strFilename = strFilename.Left(strFilename.ReverseFind(_T('\\')) + 1);
-		strFilename += _T("CrashRpt.dll");
-
-		m_hDll = LoadLibrary(strFilename);
+		m_hDll = LoadLibrary(_T("CrashRpt.dll"));
 		if (m_hDll)
 		{
 			pfnInstallEx = (InstallEx)GetProcAddress(m_hDll, "InstallEx");
@@ -144,28 +137,7 @@ public:
 		}
 	}
 
-
-	void Enable(BOOL bEnable)
-	{
-		EnableHandler pfnEnableHandler;
-		DisableHandler pfnDisableHandler;
-		if ((m_hDll)&&(m_lpvState))
-		{
-			if (bEnable)
-			{
-				pfnEnableHandler = (EnableHandler)GetProcAddress(m_hDll, "EnableHandlerEx");
-				(pfnEnableHandler)();
-			}
-			else
-			{
-				OutputDebugString(_T("Calling DisableHandlerEx\n"));
-
-				pfnDisableHandler = (DisableHandler)GetProcAddress(m_hDll, "DisableHandlerEx");
-				(pfnDisableHandler)();
-			}
-		}
-	}
-
+	
 private:
 	HMODULE			m_hDll;
 	LPVOID			m_lpvState;
