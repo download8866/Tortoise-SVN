@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,21 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "RelocateDlg.h"
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
-#include "AppUtils.h"
 
-IMPLEMENT_DYNAMIC(CRelocateDlg, CResizableStandAloneDialog)
+
+// CRelocateDlg dialog
+
+IMPLEMENT_DYNAMIC(CRelocateDlg, CStandAloneDialog)
 CRelocateDlg::CRelocateDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CRelocateDlg::IDD, pParent)
+	: CStandAloneDialog(CRelocateDlg::IDD, pParent)
 	, m_sToUrl(_T(""))
 	, m_sFromUrl(_T(""))
 {
@@ -37,42 +39,91 @@ CRelocateDlg::~CRelocateDlg()
 
 void CRelocateDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CResizableStandAloneDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TOURL, m_URLCombo);
 }
 
 
-BEGIN_MESSAGE_MAP(CRelocateDlg, CResizableStandAloneDialog)
+BEGIN_MESSAGE_MAP(CRelocateDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 END_MESSAGE_MAP()
 
+
+// CRelocateDlg message handlers
+
 BOOL CRelocateDlg::OnInitDialog()
 {
-	CResizableStandAloneDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
-	m_URLCombo.SetCurSel(0);
 
-	AddAnchor(IDC_TOURL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDOK, BOTTOM_RIGHT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-	AddAnchor(IDHELP, BOTTOM_RIGHT);
-
-	SetDlgItemText(IDC_FROMURL, m_sFromUrl);
+	GetDlgItem(IDC_FROMURL)->SetWindowText(m_sFromUrl);
 	m_URLCombo.SetWindowText(m_sFromUrl);
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-	EnableSaveRestore(_T("RelocateDlg"));
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CRelocateDlg::OnBnClickedBrowse()
 {
-	SVNRev rev(SVNRev::REV_HEAD);
-	CAppUtils::BrowseRepository(m_URLCombo, this, rev);
+	m_URLCombo.GetWindowText(m_sToUrl);
+	if (m_sToUrl.Left(7) == _T("file://"))
+	{
+		CString strFile(m_sToUrl);
+		SVN::UrlToPath(strFile);
+
+		SVN svn;
+		if (svn.IsRepository(strFile))
+		{
+			// browse repository - show repository browser
+			CRepositoryBrowser browser(m_sToUrl, this);
+			if (browser.DoModal() == IDOK)
+			{
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(browser.GetPath());
+			}
+		}
+		else
+		{
+			// browse local directories
+			CBrowseFolder folderBrowser;
+			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+			if (folderBrowser.Show(GetSafeHwnd(), m_sToUrl) == CBrowseFolder::OK)
+			{
+				SVN::PathToUrl(m_sToUrl);
+				m_URLCombo.SetCurSel(-1);
+				m_URLCombo.SetWindowText(m_sToUrl);
+			}
+		}
+	}
+	else if ((m_sToUrl.Left(7) == _T("http://")
+		||(m_sToUrl.Left(8) == _T("https://"))
+		||(m_sToUrl.Left(6) == _T("svn://"))
+		||(m_sToUrl.Left(4) == _T("svn+"))) && m_sToUrl.GetLength() > 6)
+	{
+		// browse repository - show repository browser
+		CRepositoryBrowser browser(m_sToUrl, this);
+		if (browser.DoModal() == IDOK)
+		{
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(browser.GetPath());
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(GetSafeHwnd(), m_sToUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(m_sToUrl);
+			m_URLCombo.SetCurSel(-1);
+			m_URLCombo.SetWindowText(m_sToUrl);
+		}
+	}
 }
 
 void CRelocateDlg::OnOK()
@@ -82,7 +133,7 @@ void CRelocateDlg::OnOK()
 	m_sToUrl = m_URLCombo.GetString();
 	UpdateData(FALSE);
 
-	CResizableStandAloneDialog::OnOK();
+	CStandAloneDialog::OnOK();
 }
 
 void CRelocateDlg::OnBnClickedHelp()

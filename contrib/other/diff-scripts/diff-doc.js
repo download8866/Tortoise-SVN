@@ -40,80 +40,22 @@ if ( ! objScript.FileExists(sNewDoc))
     WScript.Quit(1);
 }
 
+objScript = null;
+
 try
 {
    word = WScript.CreateObject("Word.Application");
 }
 catch(e)
 {
-	// before giving up, try with OpenOffice
-	try
-	{
-		var OO;
-		OO = WScript.CreateObject("com.sun.star.ServiceManager");
-	}
-	catch(e)
-	{
-		WScript.Echo("You must have Microsoft Word or OpenOffice installed to perform this operation.");
-		WScript.Quit(1);
-	}
-	// yes, OO is installed - do the diff with that one instead
-	var objFile = objScript.GetFile(sNewDoc);
-	if ((objFile.Attributes & 1)==1)
-	{
-		// reset the readonly attribute
-		objFile.Attributes = objFile.Attributes & (~1);
-	}
-	//Create the DesktopSet 
-	var objDesktop = OO.createInstance("com.sun.star.frame.Desktop");
-	var objUriTranslator = OO.createInstance("com.sun.star.uri.ExternalUriReferenceTranslator");
-	//Adjust the paths for OO
-	sBaseDoc = sBaseDoc.replace(/\\/g, "/");
-	sBaseDoc = sBaseDoc.replace(/:/g, "|");
-	sBaseDoc = sBaseDoc.replace(/ /g, "%20");
-	sBaseDoc="file:///" + sBaseDoc;
-	sBaseDoc=objUriTranslator.translateToInternal(sBaseDoc);
-	sNewDoc = sNewDoc.replace(/\\/g, "/");
-	sNewDoc = sNewDoc.replace(/:/g, "|");
-	sNewDoc = sNewDoc.replace(/ /g, "%20");
-	sNewDoc="file:///" + sNewDoc;
-	sNewDoc=objUriTranslator.translateToInternal(sNewDoc);
-
-	//Open the %base document
-	var oPropertyValue = new Array();
-	oPropertyValue[0] = OO.Bridge_GetStruct("com.sun.star.beans.PropertyValue");
-	oPropertyValue[0].Name = "ShowTrackedChanges";
-	oPropertyValue[0].Value = true;
-	var objDocument=objDesktop.loadComponentFromURL(sNewDoc,"_blank", 0, oPropertyValue);
-	
-	//Set the frame
-	var Frame = objDesktop.getCurrentFrame();
-	
-	var dispatcher=OO.CreateInstance("com.sun.star.frame.DispatchHelper");
-	
-	//Execute the comparison
-	dispatcher.executeDispatch(Frame, ".uno:ShowTrackedChanges", "", 0, oPropertyValue);
-	oPropertyValue[0].Name = "URL";
-	oPropertyValue[0].Value = sBaseDoc;
-	dispatcher.executeDispatch(Frame, ".uno:CompareDocuments", "", 0, oPropertyValue);
-	WScript.Quit(0);
+   WScript.Echo("You must have Microsoft Word installed to perform this operation.");
+   WScript.Quit(1);
 }
-
-objScript = null;
 
 word.visible = true;
 
 // Open the new document
-try
-{
-    destination = word.Documents.Open(sNewDoc, true, true);
-}
-catch(e)
-{
-    WScript.Echo("Error opening " + sNewDoc);
-    // Quit
-    WScript.Quit(1);
-}
+destination = word.Documents.Open(sNewDoc);
 
 // If the Type property returns either wdOutlineView or wdMasterView and the Count property returns zero, the current document is an outline.
 if (((destination.ActiveWindow.View.Type == wdOutlineView) || (destination.ActiveWindow.View.Type == wdMasterView)) && (destination.Subdocuments.Count == 0))
@@ -126,31 +68,12 @@ if (((destination.ActiveWindow.View.Type == wdOutlineView) || (destination.Activ
 if (Number(word.Version) <= vOffice2000)
 {
     // Compare for Office 2000 and earlier
-    try
-    {
-        destination.Compare(sBaseDoc);
-    }
-    catch(e)
-    {
-        WScript.Echo("Error comparing " + sBaseDoc + " and " + sNewDoc);
-        // Quit
-        WScript.Quit(1);
-    }
+    destination.Compare(sBaseDoc);
 }
 else
 {
     // Compare for Office XP (2002) and later
-    try
-    {
-        destination.Compare(sBaseDoc, "Comparison", wdCompareTargetNew, true, true);
-    }
-    catch(e)
-    {
-        WScript.Echo("Error comparing " + sBaseDoc + " and " + sNewDoc);
-        // Close the first document and quit
-        destination.Close(wdDoNotSaveChanges);
-        WScript.Quit(1);
-    }
+    destination.Compare(sBaseDoc, "Comparison", wdCompareTargetNew, true, true);
 }
     
 // Show the comparison result

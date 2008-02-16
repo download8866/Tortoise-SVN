@@ -48,10 +48,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 static inline bool IsTypeCharacter(const int ch)
 {
     return ch == '%' || ch == '&' || ch == '@' || ch == '!' || ch == '#' || ch == '$' || ch == '?';

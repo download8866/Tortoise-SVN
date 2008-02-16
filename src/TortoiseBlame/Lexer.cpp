@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 #include "TortoiseBlame.h"
 
@@ -168,20 +168,6 @@ return short static super switch synchronized this throw throws \
 transient try typeof var void volatile while with"));
 			SetupCppLexer();
 		}
-		if ((_tcscmp(line, _T("pas"))==0)||
-			(_tcscmp(line, _T("dpr"))==0)||
-			(_tcscmp(line, _T("pp"))==0))
-		{
-			SendEditor(SCI_SETLEXER, SCLEX_PASCAL);
-			SendEditor(SCI_SETKEYWORDS, 0, (LPARAM)_T("and array as begin case class const constructor \
-destructor div do downto else end except file finally \
-for function goto if implementation in inherited \
-interface is mod not object of on or packed \
-procedure program property raise record repeat \
-set shl shr then threadvar to try type unit \
-until uses var while with xor"));
-			SetupCppLexer();
-		}
 		if ((_tcscmp(line, _T("as"))==0)||
 			(_tcscmp(line, _T("asc"))==0)||
 			(_tcscmp(line, _T("jsfl"))==0))
@@ -214,14 +200,6 @@ targetPath tellTarget toggleHighQuality trace unescape unloadMovie unLoadMovieNu
 			(_tcscmp(line, _T("xml"))==0)||
 			(_tcscmp(line, _T("asp"))==0)||
 			(_tcscmp(line, _T("xsl"))==0)||
-			(_tcscmp(line, _T("php"))==0)||
-			(_tcscmp(line, _T("xhtml"))==0)||
-			(_tcscmp(line, _T("phtml"))==0)||
-			(_tcscmp(line, _T("cfm"))==0)||
-			(_tcscmp(line, _T("tpl"))==0)||
-			(_tcscmp(line, _T("dtd"))==0)||
-			(_tcscmp(line, _T("hta"))==0)||
-			(_tcscmp(line, _T("htd"))==0)||
 			(_tcscmp(line, _T("wxs"))==0))
 		{
 			SendEditor(SCI_SETLEXER, SCLEX_HTML);
@@ -294,7 +272,6 @@ xor virtual while __file__ __line__ __sleep __wakeup"));
 
 			SetAStyle(SCE_H_TAGEND, darkBlue);
 			SetAStyle(SCE_H_XMLSTART, darkBlue);	// <?
-			SetAStyle(SCE_H_QUESTION, darkBlue);	// <?
 			SetAStyle(SCE_H_XMLEND, darkBlue);		// ?>
 			SetAStyle(SCE_H_SCRIPT, darkBlue);		// <script
 			SetAStyle(SCE_H_ASP, RGB(0x4F, 0x4F, 0), RGB(0xFF, 0xFF, 0));	// <% ... %>
@@ -312,14 +289,14 @@ xor virtual while __file__ __line__ __sleep __wakeup"));
 			// Show the whole section of VBScript with light blue background
 			for (int bstyle=SCE_HB_DEFAULT; bstyle<=SCE_HB_STRINGEOL; bstyle++) {
 				SendEditor(SCI_STYLESETFONT, bstyle, 
-					reinterpret_cast<LPARAM>("Lucida Console"));
+					reinterpret_cast<LPARAM>("Georgia"));
 				SendEditor(SCI_STYLESETBACK, bstyle, lightBlue);
 				// This call extends the backround colour of the last style on the line to the edge of the window
 				SendEditor(SCI_STYLESETEOLFILLED, bstyle, 1);
 			}
 			SendEditor(SCI_STYLESETBACK, SCE_HB_STRINGEOL, RGB(0x7F,0x7F,0xFF));
 			SendEditor(SCI_STYLESETFONT, SCE_HB_COMMENTLINE, 
-				reinterpret_cast<LPARAM>("Lucida Console"));
+				reinterpret_cast<LPARAM>("Comic Sans MS"));
 
 			SetAStyle(SCE_HBA_DEFAULT, black);
 			SetAStyle(SCE_HBA_COMMENTLINE, darkGreen);
@@ -332,14 +309,14 @@ xor virtual while __file__ __line__ __sleep __wakeup"));
 			// Show the whole section of ASP VBScript with bright yellow background
 			for (int bastyle=SCE_HBA_DEFAULT; bastyle<=SCE_HBA_STRINGEOL; bastyle++) {
 				SendEditor(SCI_STYLESETFONT, bastyle, 
-					reinterpret_cast<LPARAM>("Lucida Console"));
+					reinterpret_cast<LPARAM>("Georgia"));
 				SendEditor(SCI_STYLESETBACK, bastyle, RGB(0xFF, 0xFF, 0));
 				// This call extends the backround colour of the last style on the line to the edge of the window
 				SendEditor(SCI_STYLESETEOLFILLED, bastyle, 1);
 			}
 			SendEditor(SCI_STYLESETBACK, SCE_HBA_STRINGEOL, RGB(0xCF,0xCF,0x7F));
 			SendEditor(SCI_STYLESETFONT, SCE_HBA_COMMENTLINE, 
-				reinterpret_cast<LPARAM>("Lucida Console"));
+				reinterpret_cast<LPARAM>("Comic Sans MS"));
 
 			// If there is no need to support embedded Javascript, the following code can be dropped.
 			// Javascript will still be correctly processed but will be displayed in just the default style.
@@ -368,22 +345,10 @@ xor virtual while __file__ __line__ __sleep __wakeup"));
 			SetAStyle(SCE_HJA_SINGLESTRING, RGB(0x80,0,0x80));
 			SetAStyle(SCE_HJA_SYMBOLS, black);
 
-			SetAStyle(SCE_HPHP_DEFAULT, black);
-			SetAStyle(SCE_HPHP_HSTRING,  RGB(0x80,0,0x80));
-			SetAStyle(SCE_HPHP_SIMPLESTRING,  RGB(0x80,0,0x80));
-			SetAStyle(SCE_HPHP_WORD, darkBlue);
-			SetAStyle(SCE_HPHP_NUMBER, RGB(0,0x80,0x80));
-			SetAStyle(SCE_HPHP_VARIABLE, red);
-			SetAStyle(SCE_HPHP_HSTRING_VARIABLE, red);
-			SetAStyle(SCE_HPHP_COMPLEX_VARIABLE, red);
-			SetAStyle(SCE_HPHP_COMMENT, darkGreen);
-			SetAStyle(SCE_HPHP_COMMENTLINE, darkGreen);
-			SetAStyle(SCE_HPHP_OPERATOR, darkBlue);
-
 			// Show the whole section of Javascript with off white background
 			for (int jstyle=SCE_HJ_DEFAULT; jstyle<=SCE_HJ_SYMBOLS; jstyle++) {
 				SendEditor(SCI_STYLESETFONT, jstyle, 
-					reinterpret_cast<LPARAM>("Lucida Console"));
+					reinterpret_cast<LPARAM>("Lucida Sans Unicode"));
 				SendEditor(SCI_STYLESETBACK, jstyle, offWhite);
 				SendEditor(SCI_STYLESETEOLFILLED, jstyle, 1);
 			}
@@ -393,7 +358,7 @@ xor virtual while __file__ __line__ __sleep __wakeup"));
 			// Show the whole section of Javascript with brown background
 			for (int jastyle=SCE_HJA_DEFAULT; jastyle<=SCE_HJA_SYMBOLS; jastyle++) {
 				SendEditor(SCI_STYLESETFONT, jastyle, 
-					reinterpret_cast<LPARAM>("Lucida Console"));
+					reinterpret_cast<LPARAM>("Lucida Sans Unicode"));
 				SendEditor(SCI_STYLESETBACK, jastyle, RGB(0xDF, 0xDF, 0x7F));
 				SendEditor(SCI_STYLESETEOLFILLED, jastyle, 1);
 			}

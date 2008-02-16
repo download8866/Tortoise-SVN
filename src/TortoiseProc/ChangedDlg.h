@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -24,10 +24,8 @@
 #include "Registry.h"
 
 
-/**
- * \ingroup TortoiseProc
- * Shows the "check for modifications" dialog.
- */
+// CChangedDlg dialog
+
 class CChangedDlg : public CResizableStandAloneDialog, public SVN
 {
 	DECLARE_DYNAMIC(CChangedDlg)
@@ -41,37 +39,35 @@ public:
 
 protected:
 	virtual void			DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual BOOL			OnInitDialog();
-	virtual void			OnOK();
-	virtual void			OnCancel();
-	virtual BOOL			PreTranslateMessage(MSG* pMsg);
 	afx_msg void			OnBnClickedCheckrepo();
 	afx_msg void			OnBnClickedShowunversioned();
 	afx_msg void			OnBnClickedShowUnmodified();
 	afx_msg void			OnBnClickedShowignored();
+	virtual BOOL			OnInitDialog();
+	virtual void			OnOK();
+	virtual void			OnCancel();
+
 	afx_msg LRESULT			OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
-	afx_msg LRESULT			OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
+	virtual BOOL			PreTranslateMessage(MSG* pMsg);
 
 	DECLARE_MESSAGE_MAP()
 
 private:
-	static UINT				ChangedStatusThreadEntry(LPVOID pVoid);
-	UINT					ChangedStatusThread();
-	void					UpdateStatistics();
+	static UINT ChangedStatusThreadEntry(LPVOID pVoid);
+	UINT ChangedStatusThread();
 
 public: 
-	CTSVNPathList			m_pathList;
+	CTSVNPathList	m_pathList;
 
 private:
-	CRegDWORD				m_regAddBeforeCommit;
-	CSVNStatusListCtrl		m_FileListCtrl;
-	bool					m_bRemote;
-	BOOL					m_bShowUnversioned;
-	int						m_iShowUnmodified;
-	volatile LONG			m_bBlock;
-	CString					m_sTitle;
-	bool					m_bCanceled;
-	BOOL					m_bShowIgnored;
-	CBalloon				m_tooltips;
+	CRegDWORD		m_regAddBeforeCommit;
+	CSVNStatusListCtrl	m_FileListCtrl;
+	bool			m_bRemote;
+	BOOL			m_bShowUnversioned;
+	int				m_iShowUnmodified;
+	volatile LONG	m_bBlock;
+	CString			m_sTitle;
+	bool			m_bCanceled;
+	BOOL			m_bShowIgnored;
 };
 

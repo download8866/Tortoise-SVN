@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,21 +13,17 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "resource.h"
 #include "PathUtils.h"
 #include "AppUtils.h"
-#include "SVNProperties.h"
 #include "StringUtils.h"
 #include "MessageBox.h"
 #include "Registry.h"
 #include "TSVNPath.h"
-#include "SVN.h"
-#include "RepositoryBrowser.h"
-#include "BrowseFolder.h"
 
 
 CAppUtils::CAppUtils(void)
@@ -38,42 +34,15 @@ CAppUtils::~CAppUtils(void)
 {
 }
 
-bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype)
-{
-	SVNProperties props(file, SVNRev::REV_WC, false);
-	for (int i = 0; i < props.GetCount(); ++i)
-	{
-		if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
-		{
-			mimetype = props.GetItemValue(i).c_str();
-			return true;
-		}
-	}
-	return false;
-}
-
-BOOL CAppUtils::StartExtMerge(
-	const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-	const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname, bool bReadOnly)
+BOOL CAppUtils::StartExtMerge(const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
+						   		const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname, bool bReadOnly)
 {
 
 	CRegString regCom = CRegString(_T("Software\\TortoiseSVN\\Merge"));
 	CString ext = mergedfile.GetFileExtension();
 	CString com = regCom;
 	bool bInternal = false;
-
-	CString mimetype;
-	if (
-		GetMimeType(yourfile, mimetype) || GetMimeType(theirfile, mimetype) || GetMimeType(basefile, mimetype))
-	{
-		// is there a mimetype specific merge tool?
-		CRegString mergetool(_T("Software\\TortoiseSVN\\MergeTools\\") + mimetype);
-		if (CString(mergetool) != "")
-		{
-			com = mergetool;
-		}
-	}
-	else if (ext != "")
+	if (ext != "")
 	{
 		// is there an extension specific merge tool?
 		CRegString mergetool(_T("Software\\TortoiseSVN\\MergeTools\\") + ext.MakeLower());
@@ -225,72 +194,50 @@ BOOL CAppUtils::StartExtPatch(const CTSVNPath& patchfile, const CTSVNPath& dir, 
 	return TRUE;
 }
 
-CString CAppUtils::PickDiffTool(const CTSVNPath& file1, const CTSVNPath& file2)
-{
-	// Is there a mimetype specific diff tool?
-	CString mimetype;
-	if (GetMimeType(file1, mimetype) ||  GetMimeType(file2, mimetype))
-	{
-		CString difftool = CRegString(_T("Software\\TortoiseSVN\\DiffTools\\") + mimetype);
-		if (!difftool.IsEmpty())
-			return difftool;
-	}
-	
-	// Is there an extension specific diff tool?
-	CString ext = file2.GetFileExtension().MakeLower();
-	if (!ext.IsEmpty())
-	{
-		CString difftool = CRegString(_T("Software\\TortoiseSVN\\DiffTools\\") + ext);
-		if (!difftool.IsEmpty())
-			return difftool;
-		// Maybe we should use TortoiseIDiff?
-		if ((ext == _T(".jpg")) || (ext == _T(".jpeg")) ||
-			(ext == _T(".bmp")) || (ext == _T(".gif"))  ||
-			(ext == _T(".png")) || (ext == _T(".ico"))  ||
-			(ext == _T(".dib")) || (ext == _T(".emf")))
-		{
-			return
-				_T("\"") + CPathUtils::GetAppDirectory() + _T("TortoiseIDiff.exe") + _T("\"") +
-				_T(" /left:%base /right:%mine /lefttitle:%bname /righttitle:%yname");
-		}
-	}
-	
-	// Finally, pick a generic external diff tool
-	CString difftool = CRegString(_T("Software\\TortoiseSVN\\Diff"));
-	return difftool;
-}
-
-bool CAppUtils::StartExtDiff(
-	const CTSVNPath& file1, const CTSVNPath& file2,
-	const CString& sName1, const CString& sName2, const DiffFlags& flags)
+BOOL CAppUtils::StartExtDiff(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait, BOOL bBlame)
 {
 	CString viewer;
-
+	CRegString diffexe(_T("Software\\TortoiseSVN\\Diff"));
 	CRegDWORD blamediff(_T("Software\\TortoiseSVN\\DiffBlamesWithTortoiseMerge"), FALSE);
-	if (!flags.bBlame || !(DWORD)blamediff)
+	bool bUseTMerge = !!(DWORD)blamediff;
+	viewer = diffexe;
+	if (!file2.GetFileExtension().IsEmpty())
 	{
-		viewer = PickDiffTool(file1, file2);
-		// If registry entry for a diff program is commented out, use TortoiseMerge.
-		bool bCommentedOut = viewer.Left(1) == _T("#");
-		if (flags.bAlternativeTool)
+		// is there an extension specific diff tool?
+		CRegString difftool(_T("Software\\TortoiseSVN\\DiffTools\\") + file2.GetFileExtension().MakeLower());
+		if (CString(difftool) != "")
 		{
-			// Invert external vs. internal diff tool selection.
-			if (bCommentedOut)
-				viewer.Delete(0); // uncomment
-			else
-				viewer = "";
+			viewer = difftool;
 		}
-		else if (bCommentedOut)
-			viewer = "";
+		else
+		{
+			// check if we maybe should use TortoiseIDiff
+			CString sExtension = file2.GetFileExtension();
+			if ((sExtension.CompareNoCase(_T(".jpg"))==0)||
+				(sExtension.CompareNoCase(_T(".jpeg"))==0)||
+				(sExtension.CompareNoCase(_T(".bmp"))==0)||
+				(sExtension.CompareNoCase(_T(".gif"))==0)||
+				(sExtension.CompareNoCase(_T(".png"))==0)||
+				(sExtension.CompareNoCase(_T(".ico"))==0)||
+				(sExtension.CompareNoCase(_T(".dib"))==0)||
+				(sExtension.CompareNoCase(_T(".emf"))==0))
+			{
+				viewer = CPathUtils::GetAppDirectory();
+				viewer += _T("TortoiseIDiff.exe");
+				viewer = _T("\"") + viewer + _T("\"");
+				viewer = viewer + _T(" /left:%base /right:%mine /lefttitle:%bname /righttitle:%yname");
+			}
+		}
 	}
-
-	bool bInternal = viewer.IsEmpty();
-	if (bInternal)
+	if (bUseTMerge||viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
 	{
-		viewer =
-			_T("\"") + CPathUtils::GetAppDirectory() + _T("TortoiseMerge.exe") + _T("\"") +
-			_T(" /base:%base /mine:%mine /basename:%bname /minename:%yname");
-		if (flags.bBlame)
+		//no registry entry (or commented out) for a diff program
+		//use TortoiseMerge
+		viewer = CPathUtils::GetAppDirectory();
+		viewer += _T("TortoiseMerge.exe");
+		viewer = _T("\"") + viewer + _T("\"");
+		viewer = viewer + _T(" /base:%base /mine:%mine /basename:%bname /minename:%yname");
+		if (bBlame)
 			viewer += _T(" /blame");
 	}
 	// check if the params are set. If not, just add the files to the command line
@@ -318,55 +265,6 @@ bool CAppUtils::StartExtDiff(
 	else
 		viewer.Replace(_T("%yname"), _T("\"") + sName2 + _T("\""));
 
-	if (flags.bReadOnly && bInternal)
-		viewer += _T(" /readonly");
-
-	return LaunchApplication(viewer, IDS_ERR_EXTDIFFSTART, flags.bWait);
-}
-
-BOOL CAppUtils::StartExtDiffProps(const CTSVNPath& file1, const CTSVNPath& file2, const CString& sName1, const CString& sName2, BOOL bWait, BOOL bReadOnly)
-{
-	CRegString diffpropsexe(_T("Software\\TortoiseSVN\\DiffProps"));
-	CString viewer = diffpropsexe;
-	bool bInternal = false;
-	if (viewer.IsEmpty()||(viewer.Left(1).Compare(_T("#"))==0))
-	{
-		//no registry entry (or commented out) for a diff program
-		//use TortoiseMerge
-		bInternal = true;
-		viewer = CPathUtils::GetAppDirectory();
-		viewer += _T("TortoiseMerge.exe");
-		viewer = _T("\"") + viewer + _T("\"");
-		viewer = viewer + _T(" /base:%base /mine:%mine /basename:%bname /minename:%yname");
-	}
-	// check if the params are set. If not, just add the files to the command line
-	if ((viewer.Find(_T("%base"))<0)&&(viewer.Find(_T("%mine"))<0))
-	{
-		viewer += _T(" \"")+file1.GetWinPathString()+_T("\"");
-		viewer += _T(" \"")+file2.GetWinPathString()+_T("\"");
-	}
-	if (viewer.Find(_T("%base")) >= 0)
-	{
-		viewer.Replace(_T("%base"),  _T("\"")+file1.GetWinPathString()+_T("\""));
-	}
-	if (viewer.Find(_T("%mine")) >= 0)
-	{
-		viewer.Replace(_T("%mine"),  _T("\"")+file2.GetWinPathString()+_T("\""));
-	}
-
-	if (sName1.IsEmpty())
-		viewer.Replace(_T("%bname"), _T("\"") + file1.GetUIFileOrDirectoryName() + _T("\""));
-	else
-		viewer.Replace(_T("%bname"), _T("\"") + sName1 + _T("\""));
-
-	if (sName2.IsEmpty())
-		viewer.Replace(_T("%yname"), _T("\"") + file2.GetUIFileOrDirectoryName() + _T("\""));
-	else
-		viewer.Replace(_T("%yname"), _T("\"") + sName2 + _T("\""));
-
-	if ((bReadOnly)&&(bInternal))
-		viewer += _T(" /readonly");
-
 	if(!LaunchApplication(viewer, IDS_ERR_EXTDIFFSTART, !!bWait))
 	{
 		return FALSE;
@@ -374,21 +272,32 @@ BOOL CAppUtils::StartExtDiffProps(const CTSVNPath& file1, const CTSVNPath& file2
 	return TRUE;
 }
 
-BOOL CAppUtils::StartUnifiedDiffViewer(const CTSVNPath& patchfile, const CString& title, BOOL bWait)
+BOOL CAppUtils::StartUnifiedDiffViewer(const CTSVNPath& patchfile, BOOL bWait)
 {
 	CString viewer;
 	CRegString v = CRegString(_T("Software\\TortoiseSVN\\DiffViewer"));
 	viewer = v;
 	if (viewer.IsEmpty() || (viewer.Left(1).Compare(_T("#"))==0))
 	{
-		// use TortoiseUDiff
-		viewer = CPathUtils::GetAppDirectory();
-		viewer += _T("TortoiseUDiff.exe");
-		// enquote the path to TortoiseUDiff
-		viewer = _T("\"") + viewer + _T("\"");
-		// add the params
-		viewer = viewer + _T(" /patchfile:%1 /title:\"%title\"");
-
+		//first try the default app which is associated with diff files
+		CRegString diff = CRegString(_T(".diff\\"), _T(""), FALSE, HKEY_CLASSES_ROOT);
+		viewer = diff;
+		viewer = viewer + _T("\\Shell\\Open\\Command\\");
+		CRegString diffexe = CRegString(viewer, _T(""), FALSE, HKEY_CLASSES_ROOT);
+		viewer = diffexe;
+		if (viewer.IsEmpty())
+		{
+			CRegString txt = CRegString(_T(".txt\\"), _T(""), FALSE, HKEY_CLASSES_ROOT);
+			viewer = txt;
+			viewer = viewer + _T("\\Shell\\Open\\Command\\");
+			CRegString txtexe = CRegString(viewer, _T(""), FALSE, HKEY_CLASSES_ROOT);
+			viewer = txtexe;
+		}
+		DWORD len = ExpandEnvironmentStrings(viewer, NULL, 0);
+		TCHAR * buf = new TCHAR[len+1];
+		ExpandEnvironmentStrings(viewer, buf, len);
+		viewer = buf;
+		delete buf;
 	}
 	if (viewer.Find(_T("%1"))>=0)
 	{
@@ -399,10 +308,6 @@ BOOL CAppUtils::StartUnifiedDiffViewer(const CTSVNPath& patchfile, const CString
 	}
 	else
 		viewer += _T(" \"") + patchfile.GetWinPathString() + _T("\"");
-	if (viewer.Find(_T("%title")) >= 0)
-	{
-		viewer.Replace(_T("%title"), title);
-	}
 
 	if(!LaunchApplication(viewer, IDS_ERR_DIFFVIEWSTART, !!bWait))
 	{
@@ -433,10 +338,13 @@ BOOL CAppUtils::StartTextViewer(CString file)
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
-		OPENFILENAME ofn = {0};				// common dialog box structure
-		TCHAR szFile[MAX_PATH] = {0};		// buffer for file name. Explorer can't handle paths longer than MAX_PATH.
+		OPENFILENAME ofn;		// common dialog box structure
+		TCHAR szFile[MAX_PATH];  // buffer for file name. Explorer can't handle paths longer than MAX_PATH.
+		ZeroMemory(szFile, sizeof(szFile));
 		// Initialize OPENFILENAME
+		ZeroMemory(&ofn, sizeof(OPENFILENAME));
 		ofn.lStructSize = sizeof(OPENFILENAME);
+		//ofn.lStructSize = OPENFILENAME_SIZE_VERSION_400;		//to stay compatible with NT4
 		ofn.hwndOwner = NULL;
 		ofn.lpstrFile = szFile;
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
@@ -444,14 +352,14 @@ BOOL CAppUtils::StartTextViewer(CString file)
 		sFilter.LoadString(IDS_PROGRAMSFILEFILTER);
 		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		// Replace '|' delimiters with '\0's
+		// Replace '|' delimeters with '\0's
 		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
 		while (ptr != pszFilters)
 		{
 			if (*ptr == '|')
 				*ptr = '\0';
 			ptr--;
-		}
+		} // while (ptr != pszFilters) 
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFileTitle = NULL;
@@ -469,7 +377,7 @@ BOOL CAppUtils::StartTextViewer(CString file)
 		{
 			delete [] pszFilters;
 			viewer = CString(ofn.lpstrFile);
-		}
+		} // if (GetOpenFileName(&ofn)==TRUE)
 		else
 		{
 			delete [] pszFilters;
@@ -737,204 +645,4 @@ bool CAppUtils::FindStyleChars(const CString& sText, TCHAR stylechar, int& start
 		i++;
 	}
 	return bFoundMarker;
-}
-
-bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& rev)
-{
-	CString strUrl;
-	combo.GetWindowText(strUrl);
-	strUrl.Replace(_T("%"), _T("%25"));
-	strUrl = CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(strUrl)));
-	if (strUrl.Left(7) == _T("file://"))
-	{
-		CString strFile(strUrl);
-		SVN::UrlToPath(strFile);
-
-		SVN svn;
-		if (svn.IsRepository(strFile))
-		{
-			// browse repository - show repository browser
-			CRepositoryBrowser browser(strUrl, rev, pParent);
-			if (browser.DoModal() == IDOK)
-			{
-				combo.SetCurSel(-1);
-				combo.SetWindowText(browser.GetPath());
-				rev = browser.GetRevision();
-				return true;
-			}
-		}
-		else
-		{
-			// browse local directories
-			CBrowseFolder folderBrowser;
-			folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-			// remove the 'file:///' so the shell can recognize the local path
-			strUrl = strUrl.Mid(8);
-			strUrl.Replace('/', '\\');
-			if (folderBrowser.Show(pParent->GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
-			{
-				SVN::PathToUrl(strUrl);
-
-				combo.SetCurSel(-1);
-				combo.SetWindowText(strUrl);
-				return true;
-			}
-		}
-	}
-	else if ((strUrl.Left(7) == _T("http://")
-		||(strUrl.Left(8) == _T("https://"))
-		||(strUrl.Left(6) == _T("svn://"))
-		||(strUrl.Left(4) == _T("svn+"))) && strUrl.GetLength() > 6)
-	{
-		// browse repository - show repository browser
-		CRepositoryBrowser browser(strUrl, rev, pParent);
-		if (browser.DoModal() == IDOK)
-		{
-			combo.SetCurSel(-1);
-			combo.SetWindowText(browser.GetPath());
-			rev = browser.GetRevision();
-			return true;
-		}
-	}
-	else
-	{
-		// browse local directories
-		CBrowseFolder folderBrowser;
-		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
-		if (folderBrowser.Show(pParent->GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
-		{
-			SVN::PathToUrl(strUrl);
-
-			combo.SetCurSel(-1);
-			combo.SetWindowText(strUrl);
-			return true;
-		}
-	}
-	return false;
-}
-
-bool CAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title, UINT filter, bool bOpen, HWND hwndOwner)
-{
-	OPENFILENAME ofn = {0};				// common dialog box structure
-	TCHAR szFile[MAX_PATH] = {0};		// buffer for file name. Explorer can't handle paths longer than MAX_PATH.
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = hwndOwner;
-	_tcscpy_s(szFile, MAX_PATH, (LPCTSTR)path);
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-	CString sFilter;
-	TCHAR * pszFilters = NULL;
-	if (filter)
-	{
-		sFilter.LoadString(filter);
-		pszFilters = new TCHAR[sFilter.GetLength()+4];
-		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		// Replace '|' delimiters with '\0's
-		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
-		while (ptr != pszFilters)
-		{
-			if (*ptr == '|')
-				*ptr = '\0';
-			ptr--;
-		}
-		ofn.lpstrFilter = pszFilters;
-	}
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	CString temp;
-	if (title)
-	{
-		temp.LoadString(title);
-		CStringUtils::RemoveAccelerators(temp);
-	}
-	ofn.lpstrTitle = temp;
-	if (bOpen)
-		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
-	else
-		ofn.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER;
-
-
-	// Display the Open dialog box. 
-	bool bRet = false;
-	if (bOpen)
-	{
-		bRet = !!GetOpenFileName(&ofn);
-	}
-	else
-	{
-		bRet = !!GetSaveFileName(&ofn);
-	}
-	if (bRet)
-	{
-		if (pszFilters)
-			delete [] pszFilters;
-		path = CString(ofn.lpstrFile);
-		if (filterindex)
-			*filterindex = ofn.nFilterIndex;
-		return true;
-	}
-	if (pszFilters)
-		delete [] pszFilters;
-	return false;
-}
-
-bool CAppUtils::SetListCtrlBackgroundImage(HWND hListCtrl, UINT nID, int width /* = 128 */, int height /* = 128 */)
-{
-	ListView_SetTextBkColor(hListCtrl, CLR_NONE);
-	COLORREF bkColor = ListView_GetBkColor(hListCtrl);
-	// create a bitmap from the icon
-	HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(nID), IMAGE_ICON, width, height, LR_DEFAULTCOLOR);
-	if (!hIcon)
-		return false;
-
-	RECT rect = {0};
-	rect.right = width;
-	rect.bottom = height;
-	HBITMAP bmp = NULL;
-
-	HWND desktop = ::GetDesktopWindow();
-	if (desktop)
-	{
-		HDC screen_dev = ::GetDC(desktop);
-		if (screen_dev)
-		{
-			// Create a compatible DC
-			HDC dst_hdc = ::CreateCompatibleDC(screen_dev);
-			if (dst_hdc)
-			{
-				// Create a new bitmap of icon size
-				bmp = ::CreateCompatibleBitmap(screen_dev, rect.right, rect.bottom);
-				if (bmp)
-				{
-					// Select it into the compatible DC
-					HBITMAP old_dst_bmp = (HBITMAP)::SelectObject(dst_hdc, bmp);
-					// Fill the background of the compatible DC with the given colour
-					::SetBkColor(dst_hdc, bkColor);
-					::ExtTextOut(dst_hdc, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
-
-					// Draw the icon into the compatible DC
-					::DrawIconEx(dst_hdc, 0, 0, hIcon, rect.right, rect.bottom, 0, NULL, DI_NORMAL);
-					::SelectObject(dst_hdc, old_dst_bmp);
-				}
-				::DeleteDC(dst_hdc);
-			}
-		}
-		::ReleaseDC(desktop, screen_dev); 
-	}
-
-	// Restore settings
-	DestroyIcon(hIcon);
-
-	if (bmp == NULL)
-		return false;
-
-	LVBKIMAGE lv;
-	lv.ulFlags = LVBKIF_TYPE_WATERMARK;
-	lv.hbm = bmp;
-	lv.xOffsetPercent = 100;
-	lv.yOffsetPercent = 100;
-	ListView_SetBkImage(hListCtrl, &lv);
-	return true;
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,19 +13,22 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "Registry.h"
-#include "HistoryDlg.h"
+#include ".\historydlg.h"
 
+
+// CHistoryDlg dialog
 
 IMPLEMENT_DYNAMIC(CHistoryDlg, CResizableStandAloneDialog)
 CHistoryDlg::CHistoryDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CHistoryDlg::IDD, pParent)
+	: CResizableStandAloneDialog(CHistoryDlg::IDD, pParent),
+	m_nMaxHistoryItems(25)
 {
 }
 
@@ -43,16 +46,92 @@ void CHistoryDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CHistoryDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDOK, OnBnClickedOk)
 	ON_LBN_DBLCLK(IDC_HISTORYLIST, OnLbnDblclkHistorylist)
-	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
+bool CHistoryDlg::AddString(const CString& sText)
+{
+	if (sText.IsEmpty())
+		return false;
+
+	if ((!m_sSection.IsEmpty())&&(!m_sKeyPrefix.IsEmpty()))
+	{
+		// refresh the history from the registry
+		LoadHistory(m_sSection, m_sKeyPrefix);
+	}
+
+	for (int i=0; i<m_arEntries.GetCount(); ++i)
+	{
+		if (sText.Compare(m_arEntries[i])==0)
+		{
+			m_arEntries.RemoveAt(i);
+			m_arEntries.InsertAt(0, sText);
+			return false;
+		}
+	}
+	m_arEntries.InsertAt(0, sText);
+	return true;
+}
+
+int CHistoryDlg::LoadHistory(LPCTSTR lpszSection, LPCTSTR lpszKeyPrefix)
+{
+	if (lpszSection == NULL || lpszKeyPrefix == NULL || *lpszSection == '\0')
+		return -1;
+
+	m_arEntries.RemoveAll();
+
+	m_sSection = lpszSection;
+	m_sKeyPrefix = lpszKeyPrefix;
+
+	int n = 0;
+	CString sText;
+	do
+	{
+		//keys are of form <lpszKeyPrefix><entrynumber>
+		CString sKey;
+		sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n++);
+		sText = CRegString(sKey);
+		if (!sText.IsEmpty())
+		{
+			m_arEntries.Add(sText);
+		}
+	} while (!sText.IsEmpty() && n < m_nMaxHistoryItems);
+	return m_arEntries.GetCount();
+}
+
+bool CHistoryDlg::SaveHistory()
+{
+	if (m_sSection.IsEmpty())
+		return false;
+
+	//save history to registry/inifile
+	int nMax = min(m_arEntries.GetCount(), m_nMaxHistoryItems + 1);
+	for (int n = 0; n < nMax; n++)
+	{
+		CString sKey;
+		sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
+		CRegString regkey = CRegString(sKey);
+		regkey = m_arEntries.GetAt(n);
+	}
+	//remove items exceeding the max number of history items
+	for (int n = nMax; ; n++)
+	{
+		CString sKey;
+		sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
+		CRegString regkey = CRegString(sKey);
+		CString sText = regkey;
+		if (sText.IsEmpty())
+			break;
+		regkey.removeValue(); // remove entry
+	}
+	return true;
+}
 
 void CHistoryDlg::OnBnClickedOk()
 {
 	int pos = m_List.GetCurSel();
 	if (pos != LB_ERR)
 	{
-		m_SelectedText = m_history->GetEntry(pos);
+		m_SelectedText = m_arEntries[pos];
 	}
 	else
 		m_SelectedText.Empty();
@@ -67,14 +146,14 @@ BOOL CHistoryDlg::OnInitDialog()
 	CDC* pDC=m_List.GetDC();
 	CSize itemExtent;
 	int horizExtent = 1;
-	for (size_t i = 0; i < m_history->GetCount(); ++i)
+	for (int i=0; i<m_arEntries.GetCount(); ++i)
 	{
-		CString sEntry = m_history->GetEntry(i);
+		CString sEntry = m_arEntries[i];
 		sEntry.Replace(_T("\r"), _T(""));
 		sEntry.Replace('\n', ' ');
 		m_List.AddString(sEntry);
-		itemExtent = pDC->GetTextExtent(sEntry);
-		horizExtent = max(horizExtent, itemExtent.cx+5);
+		itemExtent=pDC->GetTextExtent(sEntry);
+		horizExtent=max(horizExtent, itemExtent.cx+5);
 	}
 	m_List.SetHorizontalExtent(horizExtent);
 	ReleaseDC(pDC); 
@@ -84,7 +163,8 @@ BOOL CHistoryDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("HistoryDlg"));
 	m_List.SetFocus();
-	return FALSE;
+	return FALSE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CHistoryDlg::OnLbnDblclkHistorylist()
@@ -92,27 +172,9 @@ void CHistoryDlg::OnLbnDblclkHistorylist()
 	int pos = m_List.GetCurSel();
 	if (pos != LB_ERR)
 	{
-		m_SelectedText = m_history->GetEntry(pos);
+		m_SelectedText = m_arEntries[pos];
 		OnOK();
 	}
 	else
 		m_SelectedText.Empty();
-}
-
-BOOL CHistoryDlg::PreTranslateMessage(MSG* pMsg)
-{
-	if ((pMsg->message == WM_KEYDOWN) && (pMsg->wParam == VK_DELETE))
-	{
-		int pos = m_List.GetCurSel();
-		if (pos != LB_ERR)
-		{
-			m_List.DeleteString(pos);
-			m_List.SetCurSel(min(pos, m_List.GetCount() - 1));
-			m_history->RemoveEntry(pos);
-			m_history->Save();
-			return TRUE;
-		}
-	}
-
-	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }

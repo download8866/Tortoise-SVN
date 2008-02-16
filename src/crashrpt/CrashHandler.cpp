@@ -15,20 +15,16 @@
 #include "maindlg.h"
 #include "mailmsg.h"
 #include "WriteRegistry.h"
-#include "resource.h"
 
 #include <windows.h>
-#include <shlwapi.h>
-#include <commctrl.h>
-#pragma comment(lib, "shlwapi")
-#pragma comment(lib, "comctl32")
 
 #include <algorithm>
 
-BOOL g_bNoCrashHandler;// don't use the crashhandler but let the system handle it
+// global app module
+CAppModule _Module;
 
 // maps crash objects to processes
-map<DWORD, CCrashHandler*> _crashStateMap;
+CSimpleMap<DWORD, CCrashHandler*> _crashStateMap;
 
 // unhandled exception callback set with SetUnhandledExceptionFilter()
 LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
@@ -40,14 +36,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	   return EXCEPTION_CONTINUE_SEARCH;
    }
 
-   if (g_bNoCrashHandler)
-   {
-	   return EXCEPTION_CONTINUE_SEARCH;
-   }
-
-   BOOL result = false;
-   if (_crashStateMap.find(GetCurrentProcessId()) != _crashStateMap.end())
-	result = _crashStateMap[GetCurrentProcessId()]->GenerateErrorReport(pExInfo, NULL);
+   BOOL result = _crashStateMap.Lookup(GetCurrentProcessId())->GenerateErrorReport(pExInfo, NULL);
 
    // If we're in a debugger, return EXCEPTION_CONTINUE_SEARCH to cause the debugger to stop;
    // or if GenerateErrorReport returned FALSE (i.e. drop into debugger).
@@ -56,9 +45,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 
 CCrashHandler * CCrashHandler::GetInstance()
 {
-	CCrashHandler *instance = NULL;
-	if (_crashStateMap.find(GetCurrentProcessId()) != _crashStateMap.end())
-		instance = _crashStateMap[GetCurrentProcessId()];
+	CCrashHandler *instance;
+	instance = _crashStateMap.Lookup(GetCurrentProcessId());
 	if (instance == NULL) {
 		// will register
 		instance = new CCrashHandler();
@@ -70,18 +58,19 @@ CCrashHandler::CCrashHandler():
 	m_oldFilter(NULL),
 	m_lpfnCallback(NULL),
 	m_pid(GetCurrentProcessId()),
+	m_sTo(_T("")),
+	m_sSubject(_T("")),
 	m_ipc_event(NULL),
 	m_rpt(NULL),
 	m_installed(false),
-	m_hModule(NULL),
-	m_bUseUI(TRUE)
+	m_hModule(NULL)
 {
    // wtl initialization stuff...
 	HRESULT hRes = ::CoInitialize(NULL);
 	if (hRes != S_OK)
 		m_pid = 0;
 	else
-		_crashStateMap[m_pid] = this;
+		_crashStateMap.Add(m_pid, this);
 }
 
 void CCrashHandler::Install(LPGETLOGFILE lpfn, LPCTSTR lpcszTo, LPCTSTR lpcszSubject, BOOL bUseUI)
@@ -124,22 +113,12 @@ void CCrashHandler::DisableUI()
 	m_bUseUI = FALSE;
 }
 
-void CCrashHandler::DisableHandler()
-{
-	g_bNoCrashHandler = TRUE;
-}
-
-void CCrashHandler::EnableHandler()
-{
-	g_bNoCrashHandler = FALSE;
-}
-
 CCrashHandler::~CCrashHandler()
 {
 
 	Uninstall();
 
-	_crashStateMap.erase(m_pid);
+   _crashStateMap.Remove(m_pid);
 
 	::CoUninitialize();
 
@@ -222,11 +201,11 @@ DWORD WINAPI CCrashHandler::DialogThreadExecute(LPVOID pParam)
    // New thread. This will display the dialog and handle the result.
    CCrashHandler * self = reinterpret_cast<CCrashHandler *>(pParam);
    CMainDlg          mainDlg;
-   string			 sTempFileName = CUtility::getTempFileName();
+   CString sTempFileName = CUtility::getTempFileName();
    CZLib             zlib;
 
    // delete existing copy, if any
-   DeleteFile(sTempFileName.c_str());
+   DeleteFile(sTempFileName);
 
    // zip the report
    if (!zlib.Open(sTempFileName))
@@ -235,30 +214,30 @@ DWORD WINAPI CCrashHandler::DialogThreadExecute(LPVOID pParam)
    // add report files to zip
    TStrStrVector::iterator cur = self->m_files.begin();
    for (cur = self->m_files.begin(); cur != self->m_files.end(); cur++)
-     if (PathFileExists((*cur).first.c_str()))
+     if (PathFileExists((*cur).first))
       zlib.AddFile((*cur).first);
 
    zlib.Close();
 
+   // display main dialog
+   // initialize WTL
+   HRESULT hRes = _Module.Init(NULL, GetModuleHandle("CrashRpt.dll"));
+   ATLASSERT(SUCCEEDED(hRes));
+
+	::DefWindowProc(NULL, 0, 0, 0L);
+
    mainDlg.m_pUDFiles = &self->m_files;
-   mainDlg.m_sendButton = !self->m_sTo.empty();
-
-   INITCOMMONCONTROLSEX used = {
-	   sizeof(INITCOMMONCONTROLSEX),
-	   ICC_LISTVIEW_CLASSES | ICC_WIN95_CLASSES | ICC_BAR_CLASSES | ICC_USEREX_CLASSES
-   };
-   InitCommonControlsEx(&used);
-
-   INT_PTR status = mainDlg.DoModal(GetModuleHandle("CrashRpt.dll"), IDD_MAINDLG, GetDesktopWindow());
+   mainDlg.m_sendButton = !self->m_sTo.IsEmpty();
+   INT_PTR status = mainDlg.DoModal();
    if (IDOK == status || IDC_SAVE == status)
    {
-      if (IDC_SAVE == status || self->m_sTo.empty() || 
-          !self->MailReport(*self->m_rpt, sTempFileName.c_str(), mainDlg.m_sEmail.c_str(), mainDlg.m_sDescription.c_str()))
+      if (IDC_SAVE == status || self->m_sTo.IsEmpty() || 
+          !self->MailReport(*self->m_rpt, sTempFileName, mainDlg.m_sEmail, mainDlg.m_sDescription))
       {
 		  // write user data to file if to be supplied
-		  if (!self->m_userDataFile.empty()) {
+		  if (!self->m_userDataFile.IsEmpty()) {
 			   HANDLE hFile = ::CreateFile(
-								 self->m_userDataFile.c_str(),
+								 self->m_userDataFile,
 								 GENERIC_READ | GENERIC_WRITE,
 								 FILE_SHARE_READ | FILE_SHARE_WRITE,
 								 NULL,
@@ -272,14 +251,14 @@ DWORD WINAPI CCrashHandler::DialogThreadExecute(LPVOID pParam)
 				   static const char description[] = "\r\n\r\nDescription:";
 				   DWORD writtenBytes;
 				   ::WriteFile(hFile, e_mail, sizeof(e_mail) - 1, &writtenBytes, NULL);
-				   ::WriteFile(hFile, mainDlg.m_sEmail.c_str(), mainDlg.m_sEmail.size(), &writtenBytes, NULL);
+				   ::WriteFile(hFile, mainDlg.m_sEmail, mainDlg.m_sEmail.GetLength(), &writtenBytes, NULL);
 				   ::WriteFile(hFile, description, sizeof(description) - 1, &writtenBytes, NULL);
-				   ::WriteFile(hFile, mainDlg.m_sDescription.c_str(), mainDlg.m_sDescription.size(), &writtenBytes, NULL);
+				   ::WriteFile(hFile, mainDlg.m_sDescription, mainDlg.m_sDescription.GetLength(), &writtenBytes, NULL);
 				   ::WriteFile(hFile, newline, sizeof(newline) - 1, &writtenBytes, NULL);
 				   ::CloseHandle(hFile);
 				  // redo zip file to add user data
 				   // delete existing copy, if any
-				   DeleteFile(sTempFileName.c_str());
+				   DeleteFile(sTempFileName);
 
 				   // zip the report
 				   if (!zlib.Open(sTempFileName))
@@ -288,17 +267,19 @@ DWORD WINAPI CCrashHandler::DialogThreadExecute(LPVOID pParam)
 				   // add report files to zip
 				   TStrStrVector::iterator cur = self->m_files.begin();
 				   for (cur = self->m_files.begin(); cur != self->m_files.end(); cur++)
-					   if (PathFileExists((*cur).first.c_str()))
+					   if (PathFileExists((*cur).first))
 						zlib.AddFile((*cur).first);
 
 				   zlib.Close();
 			   }
 		  }
-         self->SaveReport(*self->m_rpt, sTempFileName.c_str());
+         self->SaveReport(*self->m_rpt, sTempFileName);
       }
    }
+   // uninitialize
+   _Module.Term();
 
-   DeleteFile(sTempFileName.c_str());
+   DeleteFile(sTempFileName);
 
    self->m_wantDebug = IDC_DEBUG == status;
    // signal main thread to resume
@@ -330,10 +311,10 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
 
    // if no e-mail address, add file to contain user data
    m_userDataFile = "";
-   if (m_sTo.empty()) {
-	   m_userDataFile = temp + string("\\") + CUtility::getAppName() + "_UserInfo.txt";
+   if (m_sTo.IsEmpty()) {
+	   m_userDataFile = temp + CString("\\") + CUtility::getAppName() + "_UserInfo.txt";
 	   HANDLE hFile = ::CreateFile(
-						 m_userDataFile.c_str(),
+						 m_userDataFile,
 						 GENERIC_READ | GENERIC_WRITE,
 						 FILE_SHARE_READ | FILE_SHARE_WRITE,
 						 NULL,
@@ -355,29 +336,27 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
 
 
    // add crash files to report
-   string crashFile = rpt.getCrashFile();
-   string crashLog = rpt.getCrashLog();
+   CString crashFile = rpt.getCrashFile();
+   CString crashLog = rpt.getCrashLog();
    m_files.push_back(TStrStrPair(crashFile, LoadResourceString(IDS_CRASH_DUMP)));
    m_files.push_back(TStrStrPair(crashLog, LoadResourceString(IDS_CRASH_LOG)));
 
    // Export registry hives and add to report
-   std::vector<string> extraFiles;
-   string file;
-   string number;
+   std::vector<CString> extraFiles;
+   CString file;
+   CString number;
    TStrStrVector::iterator iter;
    int n = 0;
 
    for (iter = m_registryHives.begin(); iter != m_registryHives.end(); iter++) {
 	   ++n;
-	   TCHAR buf[MAX_PATH] = {0};
-	   _tprintf_s(buf, "%d", n);
-	   number = buf;
-	   file = temp + string("\\") + CUtility::getAppName() + "_registry" + number + ".reg";
-	   ::DeleteFile(file.c_str());
+	   number.Format("%d", n);
+	   file = temp + CString("\\") + CUtility::getAppName() + "_registry" + number + ".reg";
+	   ::DeleteFile(file);
 
 	   // we want to export in a readable format. Unfortunately, RegSaveKey saves in a binary
 	   // form, so let's use our own function.
-	   if (WriteRegistryTreeToFile((*iter).first.c_str(), file.c_str())) {
+	   if (WriteRegistryTreeToFile((*iter).first, file)) {
 		   extraFiles.push_back(file);
 		   m_files.push_back(TStrStrPair(file, (*iter).second));
 	   } else {
@@ -390,14 +369,14 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
    for (iter = m_eventLogs.begin(); iter != m_eventLogs.end(); iter++) {
 		HANDLE h;
 		h = OpenEventLog( NULL,    // use local computer
-				 (*iter).first.c_str());   // source name
+				 (*iter).first);   // source name
 		if (h != NULL) {
 
-			file = temp + string("\\") + CUtility::getAppName() +  "_" + (*iter).first + ".evt";
+			file = temp + CString("\\") + CUtility::getAppName() +  "_" + (*iter).first + ".evt";
 
-			DeleteFile(file.c_str());
+			DeleteFile(file);
 
-			if (BackupEventLog(h, file.c_str())) {
+			if (BackupEventLog(h, file)) {
 				m_files.push_back(TStrStrPair(file, (*iter).second));
 			   extraFiles.push_back(file);
 			} else {
@@ -412,8 +391,8 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
 
    // add symbol files to report
    for (i = 0; i < (UINT)rpt.getNumSymbolFiles(); i++)
-      m_files.push_back(TStrStrPair(rpt.getSymbolFile(i).c_str(), 
-      string("Symbol File")));
+      m_files.push_back(TStrStrPair((LPCTSTR)rpt.getSymbolFile(i), 
+      CString((LPCTSTR)IDS_SYMBOL_FILE)));
  
    //remove the crashhandler, just in case the dialog crashes...
    Uninstall();
@@ -433,12 +412,12 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
    }
    else
    {
-	   string sTempFileName = CUtility::getTempFileName();
+	   CString sTempFileName = CUtility::getTempFileName();
 	   CZLib             zlib;
 
 	   sTempFileName += _T(".zip");
 	   // delete existing copy, if any
-	   DeleteFile(sTempFileName.c_str());
+	   DeleteFile(sTempFileName);
 
 	   // zip the report
 	   if (!zlib.Open(sTempFileName))
@@ -447,29 +426,29 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
 	   // add report files to zip
 	   TStrStrVector::iterator cur = m_files.begin();
 	   for (cur = m_files.begin(); cur != m_files.end(); cur++)
-		   if (PathFileExists((*cur).first.c_str()))
+		   if (PathFileExists((*cur).first))
 			   zlib.AddFile((*cur).first);
 	   zlib.Close();
 	   fprintf(stderr, "a zipped crashreport has been saved to\n");
-	   _ftprintf(stderr, sTempFileName.c_str());
+	   _ftprintf(stderr, sTempFileName);
 	   fprintf(stderr, "\n");
-	   if (!m_sTo.empty())
+	   if (!m_sTo.IsEmpty())
 	   {
 		 fprintf(stderr, "please send the report to ");
-		 _ftprintf(stderr, m_sTo.c_str());
+		 _ftprintf(stderr, (LPCTSTR)m_sTo);
 		 fprintf(stderr, "\n");
 	   }
    }
    // clean up - delete files we created
-   ::DeleteFile(crashFile.c_str());
-   ::DeleteFile(crashLog.c_str());
-   if (!m_userDataFile.empty()) {
-	   ::DeleteFile(m_userDataFile.c_str());
+   ::DeleteFile(crashFile);
+   ::DeleteFile(crashLog);
+   if (!m_userDataFile.IsEmpty()) {
+	   ::DeleteFile(m_userDataFile);
    }
 
-   std::vector<string>::iterator file_iter;
+   std::vector<CString>::iterator file_iter;
    for (file_iter = extraFiles.begin(); file_iter != extraFiles.end(); file_iter++) {
-	   ::DeleteFile(file_iter->c_str());
+	   ::DeleteFile(*file_iter);
    }
 
    // restore state of file list
@@ -483,7 +462,7 @@ BOOL CCrashHandler::GenerateErrorReport(PEXCEPTION_POINTERS pExInfo, BSTR messag
 BOOL CCrashHandler::SaveReport(CExceptionReport&, LPCTSTR lpcszFile)
 {
    // let user more zipped report
-   return (CopyFile(lpcszFile, CUtility::getSaveFileName().c_str(), TRUE));
+   return (CopyFile(lpcszFile, CUtility::getSaveFileName(), TRUE));
 }
 
 BOOL CCrashHandler::MailReport(CExceptionReport&, LPCTSTR lpcszFile,
@@ -493,14 +472,14 @@ BOOL CCrashHandler::MailReport(CExceptionReport&, LPCTSTR lpcszFile,
    msg
       .SetTo(m_sTo)
       .SetFrom(lpcszEmail)
-      .SetSubject(m_sSubject.empty()?_T("Incident Report"):m_sSubject)
+      .SetSubject(m_sSubject.IsEmpty()?_T("Incident Report"):m_sSubject)
       .SetMessage(lpcszDesc)
       .AddAttachment(lpcszFile, CUtility::getAppName() + _T(".zip"));
 
    return (msg.Send());
 }
 
-string CCrashHandler::LoadResourceString(UINT id)
+CString CCrashHandler::LoadResourceString(UINT id)
 {
 	static int address;
 	char buffer[512];

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "FileTextLines.h"
@@ -29,6 +29,10 @@
  *
  * Handles unified diff files, parses them and also is able to
  * apply those diff files.
+ *
+ * \todo enhance the parser to work with other diff files than
+ * those created by subversion clients.
+ * \todo rewrite the parser to use regular expressions
  */
 class CPatch
 {
@@ -45,22 +49,11 @@ public:
 	CString		GetRevision2(int nIndex);
 	CString		GetErrorMessage() const  {return m_sErrorMessage;}
 	CString		CheckPatchPath(const CString& path);
-
-	/**
-	 * Returns TRUE if stripping prefixes from the paths in the patchfile
-	 * allows the patchfile to being applied. The variable m_nStrip is then set appropriately.
-	 * Returns FALSE if stripping prefixes doesn't help. The variable m_nStrip is set to 0.
-	 */
-	BOOL		StripPrefixes(const CString& path);
 protected:
 	void		FreeMemory();
 	BOOL		HasExpandedKeyWords(const CString& line);
 	int			CountMatches(const CString& path);
 	int			CountDirMatches(const CString& path);
-	/**
-	 * Strips the filename by removing m_nStrip prefixes.
-	 */
-	CString		Strip(const CString& filename);
 	struct Chunk
 	{
 		LONG					lRemoveStart;
@@ -69,7 +62,6 @@ protected:
 		LONG					lAddLength;
 		CStdCStringArray		arLines;
 		CStdDWORDArray			arLinesStates;
-		std::vector<EOL>		arEOLs;
 	};
 
 	struct Chunks
@@ -84,13 +76,4 @@ protected:
 	CStdArray<Chunks*>			m_arFileDiffs;
 	CString						m_sErrorMessage;
 	CFileTextLines::UnicodeType m_UnicodeType;
-
-	/**
-	 * Defines how many prefixes are removed from the paths in the
-	 * patch file. This allows applying patches which contain absolute
-	 * paths or a prefix which differs in the patch and the working copy.
-	 * Example: A filename like "/home/ts/my-working-copy/dir/file.txt"
-	 * stripped by 4 prefixes is interpreted as "dir/file.txt"
-	 */
-	int							m_nStrip;
 };

@@ -1,7 +1,3 @@
-/*
- * "Raw" backend.
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,22 +29,6 @@ static void c_write(Raw raw, char *buf, int len)
     sk_set_frozen(raw->s, backlog > RAW_MAX_BACKLOG);
 }
 
-static void raw_log(Plug plug, int type, SockAddr addr, int port,
-		    const char *error_msg, int error_code)
-{
-    Raw raw = (Raw) plug;
-    char addrbuf[256], *msg;
-
-    sk_getaddr(addr, addrbuf, lenof(addrbuf));
-
-    if (type == 0)
-	msg = dupprintf("Connecting to %s port %d", addrbuf, port);
-    else
-	msg = dupprintf("Failed to connect to %s: %s", addrbuf, error_msg);
-
-    logevent(raw->frontend, msg);
-}
-
 static int raw_closing(Plug plug, const char *error_msg, int error_code,
 		       int calling_back)
 {
@@ -57,7 +37,6 @@ static int raw_closing(Plug plug, const char *error_msg, int error_code,
     if (raw->s) {
         sk_close(raw->s);
         raw->s = NULL;
-	notify_remote_exit(raw->frontend);
     }
     if (error_msg) {
 	/* A socket error has occurred. */
@@ -94,7 +73,6 @@ static const char *raw_init(void *frontend_handle, void **backend_handle,
 			    int keepalive)
 {
     static const struct plug_function_table fn_table = {
-	raw_log,
 	raw_closing,
 	raw_receive,
 	raw_sent
@@ -115,14 +93,11 @@ static const char *raw_init(void *frontend_handle, void **backend_handle,
      */
     {
 	char *buf;
-	buf = dupprintf("Looking up host \"%s\"%s", host,
-			(cfg->addressfamily == ADDRTYPE_IPV4 ? " (IPv4)" :
-			 (cfg->addressfamily == ADDRTYPE_IPV6 ? " (IPv6)" :
-			  "")));
+	buf = dupprintf("Looking up host \"%s\"", host);
 	logevent(raw->frontend, buf);
 	sfree(buf);
     }
-    addr = name_lookup(host, port, realhost, cfg, cfg->addressfamily);
+    addr = name_lookup(host, port, realhost, cfg);
     if ((err = sk_addr_error(addr)) != NULL) {
 	sk_addr_free(addr);
 	return err;
@@ -134,6 +109,13 @@ static const char *raw_init(void *frontend_handle, void **backend_handle,
     /*
      * Open socket.
      */
+    {
+	char *buf, addrbuf[100];
+	sk_getaddr(addr, addrbuf, 100);
+	buf = dupprintf("Connecting to %s port %d", addrbuf, port);
+	logevent(raw->frontend, buf);
+	sfree(buf);
+    }
     raw->s = new_connection(addr, *realhost, port, 0, 1, nodelay, keepalive,
 			    (Plug) raw, cfg);
     if ((err = sk_socket_error(raw->s)) != NULL)
@@ -209,10 +191,10 @@ static const struct telnet_special *raw_get_specials(void *handle)
     return NULL;
 }
 
-static int raw_connected(void *handle)
+static Socket raw_socket(void *handle)
 {
     Raw raw = (Raw) handle;
-    return raw->s != NULL;
+    return raw->s;
 }
 
 static int raw_sendok(void *handle)
@@ -253,14 +235,6 @@ static int raw_exitcode(void *handle)
         return 0;
 }
 
-/*
- * cfg_info for Raw does nothing at all.
- */
-static int raw_cfg_info(void *handle)
-{
-    return 0;
-}
-
 Backend raw_backend = {
     raw_init,
     raw_free,
@@ -270,15 +244,12 @@ Backend raw_backend = {
     raw_size,
     raw_special,
     raw_get_specials,
-    raw_connected,
+    raw_socket,
     raw_exitcode,
     raw_sendok,
     raw_ldisc,
     raw_provide_ldisc,
     raw_provide_logctx,
     raw_unthrottle,
-    raw_cfg_info,
-    "raw",
-    PROT_RAW,
-    0
+    1
 };

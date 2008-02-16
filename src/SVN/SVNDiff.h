@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 #include "SVNPrompt.h"
@@ -34,25 +34,19 @@ public:
 	SVNDiff(SVN * pSVN = NULL, HWND hWnd = NULL, bool bRemoveTempFiles = false);
 	~SVNDiff(void);
 
-	void SetAlternativeTool(bool bAlternativeTool) { m_bAlternativeTool = bAlternativeTool; }
 	/**
 	 * Do the conflict-resolving 3-way merge on the specified file
 	 */
 	static bool StartConflictEditor(const CTSVNPath& conflictedFilePath);
 	/**
 	 * Diff a single file against its text-base
-	 * \param filePath The file to diff
-	 * \param bAlternativeTool If true, invert selection of TortoiseMerge vs. external diff tool.
+	 *\param filePath The file to diff
 	 */
-	bool DiffFileAgainstBase(
-		const CTSVNPath& filePath,
-		svn_wc_status_kind text_status = svn_wc_status_none, 
-		svn_wc_status_kind prop_status = svn_wc_status_none);
+	bool DiffFileAgainstBase(const CTSVNPath& filePath, 
+							svn_wc_status_kind text_status = svn_wc_status_none, 
+							svn_wc_status_kind prop_status = svn_wc_status_none);
 
-	/**
-	 * Shows a diff of a file in the working copy with its BASE.
-	 */
-	bool DiffWCFile(const CTSVNPath& filePath,
+	bool DiffWCFile(const CTSVNPath& filePath, 
 					svn_wc_status_kind text_status = svn_wc_status_none, 
 					svn_wc_status_kind prop_status = svn_wc_status_none,
 					svn_wc_status_kind remotetext_status = svn_wc_status_none, 
@@ -98,15 +92,12 @@ public:
 
 	bool DiffProps(const CTSVNPath& filePath, SVNRev rev1, SVNRev rev2);
 	
-	/**
-	 * Sets the Peg revision to use instead of HEAD.
-	 */
 	void SetHEADPeg(SVNRev headpeg) {m_headPeg = headpeg;}
+protected:
 private:
 	SVN *			m_pSVN;
 	bool			m_bDeleteSVN;
 	HWND			m_hWnd;
 	bool			m_bRemoveTempFiles;
 	SVNRev			m_headPeg;
-	bool			m_bAlternativeTool;
 };

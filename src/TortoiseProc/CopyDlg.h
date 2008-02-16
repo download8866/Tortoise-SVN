@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,28 +13,46 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "ProjectProperties.h"
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
-#include "RegHistory.h"
+#include "HistoryDlg.h"
 #include "SciEdit.h"
 #include "TSVNPath.h"
 #include "SVNRev.h"
 #include "LogDlg.h"
-
-#define WM_TSVN_MAXREVFOUND			(WM_APP + 1)
+#include "Balloon.h"
 
 /**
  * \ingroup TortoiseProc
  * Prompts the user for the required information needed for a copy command.
  * The required information is a single URL to copy the current URL of the 
  * working copy to.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 11-21-2002
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
-class CCopyDlg : public CResizableStandAloneDialog, public SVN
+class CCopyDlg : public CStandAloneDialog
 {
 	DECLARE_DYNAMIC(CCopyDlg)
 
@@ -52,7 +70,6 @@ protected:
 	virtual void OnOK();
 	virtual void OnCancel();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	afx_msg LRESULT OnRevFound(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnBnClickedBrowse();
 	afx_msg void OnBnClickedHelp();
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
@@ -64,36 +81,22 @@ protected:
 	afx_msg void OnEnChangeLogmessage();
 	DECLARE_MESSAGE_MAP()
 
-	virtual BOOL Cancel() {return m_bCancelled;}
-	void		SetRevision(const SVNRev& rev);
 public:
-	CString			m_URL;
-	CTSVNPath		m_path;
-	CString			m_sLogMessage;
-	SVNRev			m_CopyRev;
-	BOOL			m_bDoSwitch;
-
+	CString	m_URL;
+	CTSVNPath m_path;
+	CString m_sLogMessage;
+	SVNRev m_CopyRev;
+	BOOL m_bDoSwitch;
 private:
-	CLogDlg *		m_pLogDlg;
-	CSciEdit		m_cLogMessage;
-	CFont			m_logFont;
-	BOOL			m_bFile;
+	CLogDlg *	m_pLogDlg;
+	CSciEdit	m_cLogMessage;
+	CFont		m_logFont;
+	BOOL		m_bFile;
 	ProjectProperties	m_ProjectProperties;
-	CString			m_sBugID;
-	CHistoryCombo	m_URLCombo;
-	CString			m_wcURL;
-	CButton			m_butBrowse;
-	CRegHistory		m_History;
-	CBalloon		m_tooltips;
-
-	svn_revnum_t	m_minrev;
-	svn_revnum_t	m_maxrev;
-	bool			m_bswitched;
-	bool			m_bmodified;
-	bool			m_bSparse;
-	bool			m_bSettingChanged;
-	static UINT		FindRevThreadEntry(LPVOID pVoid);
-	UINT			FindRevThread();
-	CWinThread *	m_pThread;
-	bool			m_bCancelled;
+	CString		m_sBugID;
+	CHistoryCombo m_URLCombo;
+	CString m_wcURL;
+	CButton m_butBrowse;
+	CHistoryDlg m_HistoryDlg;
+	CBalloon	m_tooltips;
 };

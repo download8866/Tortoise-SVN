@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,15 +13,14 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #pragma once
 
 #include "resource.h"
 #include "Commdlg.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
-#include "registry.h"
 
 const COLORREF black = RGB(0,0,0);
 const COLORREF white = RGB(0xff,0xff,0xff);
@@ -33,8 +32,7 @@ const COLORREF lightBlue = RGB(0xA6, 0xCA, 0xF0);
 const int blockSize = 128 * 1024;
 
 #define BLAMESPACE 20
-#define HEADER_HEIGHT 18
-#define LOCATOR_WIDTH 20
+#define HEADER_HEIGHT 20
 
 #define MAX_LOG_LENGTH 2000
 
@@ -46,11 +44,7 @@ const int blockSize = 128 * 1024;
 #define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
 #endif
 
-/**
- * \ingroup TortoiseBlame
- * Main class for TortoiseBlame.
- * Handles all child windows, loads the blame files, ...
- */
+
 class TortoiseBlame
 {
 public:
@@ -64,12 +58,7 @@ public:
 	HWND wEditor;
 	HWND wBlame;
 	HWND wHeader;
-	HWND wLocator;
 	HWND hwndTT;
-
-	BOOL bIgnoreEOL;
-	BOOL bIgnoreSpaces;
-	BOOL bIgnoreAllSpaces;
 
 	LRESULT SendEditor(UINT Msg, WPARAM wParam=0, LPARAM lParam=0);
 
@@ -82,25 +71,17 @@ public:
 	void Command(int id);
 	void Notify(SCNotification *notification);
 
-	void SetAStyle(int style, COLORREF fore, COLORREF back=::GetSysColor(COLOR_WINDOW), int size=-1, const char *face=0);
+	void SetAStyle(int style, COLORREF fore, COLORREF back=white, int size=-1, const char *face=0);
 	void InitialiseEditor();
-    void InitSize();
 	LONG GetBlameWidth();
 	void DrawBlame(HDC hDC);
 	void DrawHeader(HDC hDC);
-	void DrawLocatorBar(HDC hDC);
 	void StartSearch();
 	void CopySelectedLogToClipboard();
-	void BlamePreviousRevision();
-	void DiffPreviousRevision();
-	void ShowLog();
 	bool DoSearch(LPSTR what, DWORD flags);
 	bool GotoLine(long line);
-	bool ScrollToLine(long line);
 	void GotoLineDlg();
 	static INT_PTR CALLBACK GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-	void SetSelectedLine(LONG line) { m_SelectedLine=line;};
 
 	LONG						m_mouserev;
 	std::string					m_mouseauthor;
@@ -108,18 +89,13 @@ public:
 	std::string					m_selectedauthor;
 	std::string					m_selecteddate;
 	static long					m_gotoline;
-	long						m_lowestrev;
-	long						m_highestrev;
-	bool						m_colorage;
 
-	std::vector<bool>			mergelines;
 	std::vector<LONG>			revs;
 	std::vector<std::string>	dates;
 	std::vector<std::string>	authors;
-	std::vector<std::string>	paths;
 	std::map<LONG, std::string>	logmessages;
-	char						m_szTip[MAX_LOG_LENGTH*2+6];
-	wchar_t						m_wszTip[MAX_LOG_LENGTH*2+6];
+	char						m_szTip[MAX_LOG_LENGTH*2+5];
+	wchar_t						m_wszTip[MAX_LOG_LENGTH*2+5];
 	void StringExpand(LPSTR str);
 	void StringExpand(LPWSTR str);
 	BOOL						ttVisible;
@@ -130,14 +106,12 @@ protected:
 	COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
 	std::vector<COLORREF>		colors;
 	HFONT						m_font;
-	HFONT						m_italicfont;
 	LONG						m_blamewidth;
 	LONG						m_revwidth;
 	LONG						m_datewidth;
 	LONG						m_authorwidth;
-	LONG						m_pathwidth;
 	LONG						m_linewidth;
-	LONG						m_SelectedLine; ///< zero-based
+	LONG						m_SelectedLine;
 
 	COLORREF					m_mouserevcolor;
 	COLORREF					m_mouseauthorcolor;
@@ -151,7 +125,4 @@ protected:
 	LRESULT						m_directPointer;
 	FINDREPLACE					fr;
 	TCHAR						szFindWhat[80];
-
-	CRegStdWORD					m_regOldLinesColor;
-	CRegStdWORD					m_regNewLinesColor;
 };

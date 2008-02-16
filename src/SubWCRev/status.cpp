@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "stdafx.h"
 
 #include <apr_pools.h>
@@ -27,78 +27,15 @@
 #pragma warning(push)
 #pragma warning(disable:4127)	//conditional expression is constant (cause of SVN_ERR)
 
-// Copy the URL from src to dest, unescaping on the fly.
-void UnescapeCopy(char * src, char * dest, int buf_len)
-{
-	char * pszSource = src;
-	char * pszDest = dest;
-	int len = 0;
-
-	// under VS.NET2k5 strchr() wants this to be a non-const array :/
-
-	static char szHex[] = "0123456789ABCDEF";
-
-	// Unescape special characters. The number of characters
-	// in the *pszDest is assumed to be <= the number of characters
-	// in pszSource (they are both the same string anyway)
-
-	while ((*pszSource != '\0') && (++len < buf_len))
-	{
-		if (*pszSource == '%')
-		{
-			// The next two chars following '%' should be digits
-			if ( *(pszSource + 1) == '\0' ||
-				*(pszSource + 2) == '\0' )
-			{
-				// nothing left to do
-				break;
-			}
-
-			char nValue = '?';
-			char * pszLow = NULL;
-			char * pszHigh = NULL;
-			pszSource++;
-
-			*pszSource = (char) toupper(*pszSource);
-			pszHigh = strchr(szHex, *pszSource);
-			
-			if (pszHigh != NULL)
-			{
-				pszSource++;
-				*pszSource = (char) toupper(*pszSource);
-				pszLow = strchr(szHex, *pszSource);
-
-				if (pszLow != NULL)
-				{
-					nValue = (char) (((pszHigh - szHex) << 4) +
-						(pszLow - szHex));
-				}
-			}
-			*pszDest++ = nValue;
-		} 
-		else
-			*pszDest++ = *pszSource;
-
-		pszSource++;
-	}
-
-	*pszDest = '\0';
-}
-
 void getallstatus(void * baton, const char * path, svn_wc_status2_t * status)
 {
 	SubWCRev_StatusBaton_t * sb = (SubWCRev_StatusBaton_t *) baton;
-	if((NULL == status) || (NULL == sb) || (NULL == sb->SubStat))
-	{
-		return;
-	}
-
-	if ((sb->SubStat->bExternals)&&(status->text_status == svn_wc_status_external) && (NULL != sb->extarray))
+	if ((status)&&(sb->SubStat->bExternals)&&(status->text_status == svn_wc_status_external))
 	{
 		const char * copypath = apr_pstrdup(sb->pool, path);
 		sb->extarray->push_back(copypath);
 	}
-	if ((status->entry)&&(status->entry->uuid))
+	if ((status)&&(status->entry)&&(status->entry->uuid))
 	{
 		if (sb->SubStat->UUID[0] == 0)
 		{
@@ -107,19 +44,7 @@ void getallstatus(void * baton, const char * path, svn_wc_status2_t * status)
 		if (strncmp(sb->SubStat->UUID, status->entry->uuid, MAX_PATH) != 0)
 			return;
 	}
-	if ((status->entry)&&(status->entry->cmt_author))
-	{
-		if ((sb->SubStat->Author[0] == 0)&&(status->url)&&(status->entry->url))
-		{
-			char EntryUrl[URL_BUF];
-			UnescapeCopy((char *)status->entry->url,EntryUrl, URL_BUF);
-			if (strncmp(sb->SubStat->Url, EntryUrl, URL_BUF) == 0)
-			{
-				strncpy_s(sb->SubStat->Author, URL_BUF, status->entry->cmt_author, URL_BUF);
-			}
-		}
-	}
-	if (status->entry)
+	if ((status)&&(status->entry))
 	{
 		if ((status->entry->kind == svn_node_file)||(sb->SubStat->bFolders))
 		{
@@ -138,71 +63,93 @@ void getallstatus(void * baton, const char * path, svn_wc_status2_t * status)
 			sb->SubStat->MinRev = status->entry->revision;
 		}
 	}
-	
-	sb->SubStat->bIsSvnItem = false; 
-	switch (status->text_status)
+	if (status)
 	{
-	case svn_wc_status_none:
-	case svn_wc_status_unversioned:
-	case svn_wc_status_ignored:
-		break;
-	case svn_wc_status_external:
-	case svn_wc_status_incomplete:
-	case svn_wc_status_normal:
-		sb->SubStat->bIsSvnItem = true; 
-		break;
-	default:
-		sb->SubStat->bIsSvnItem = true; 
-		sb->SubStat->HasMods = TRUE;
-		break;			
-	}
-
-	switch (status->prop_status)
-	{
-	case svn_wc_status_none:
-	case svn_wc_status_unversioned:
-	case svn_wc_status_ignored:
-		break;
-	case svn_wc_status_external:
-	case svn_wc_status_incomplete:
-	case svn_wc_status_normal:
-		sb->SubStat->bIsSvnItem = true; 
-		break;
-	default:
-		sb->SubStat->bIsSvnItem = true; 
-		sb->SubStat->HasMods = TRUE;
-		break;	
-	}
-	
-	// Assign the values for the lock information
-	sb->SubStat->LockData.NeedsLocks = false;
-	sb->SubStat->LockData.IsLocked = false;
-	strcpy_s(sb->SubStat->LockData.Owner, OWNER_BUF, "");
-	strcpy_s(sb->SubStat->LockData.Comment, COMMENT_BUF, "");
-	sb->SubStat->LockData.CreationDate = 0;
-	if (status->entry)
-	{
-		if(status->entry->present_props)
+		switch (status->text_status)
 		{
-			if (strstr(status->entry->present_props, "svn:needs-lock"))
-			{
-				sb->SubStat->LockData.NeedsLocks = true;
-				
-				if(status->entry->lock_token)
-				{
-					if((status->entry->lock_token[0] != 0))
-					{
-						sb->SubStat->LockData.IsLocked = true;
-						if(NULL != status->entry->lock_owner)
-							strncpy_s(sb->SubStat->LockData.Owner, OWNER_BUF, status->entry->lock_owner, OWNER_BUF);
-						if(NULL != status->entry->lock_comment)
-							strncpy_s(sb->SubStat->LockData.Comment, COMMENT_BUF, status->entry->lock_comment, COMMENT_BUF);	
-						sb->SubStat->LockData.CreationDate = status->entry->lock_creation_date;
-					}
-				}
-			}
+		case svn_wc_status_external:
+		case svn_wc_status_none:
+		case svn_wc_status_unversioned:
+		case svn_wc_status_ignored:
+		case svn_wc_status_incomplete:
+		case svn_wc_status_normal:
+			break;
+		default:
+			sb->SubStat->HasMods = TRUE;
+			break;			
+		}
+		switch (status->prop_status)
+		{
+		case svn_wc_status_none:
+		case svn_wc_status_unversioned:
+		case svn_wc_status_ignored:
+		case svn_wc_status_external:
+		case svn_wc_status_incomplete:
+		case svn_wc_status_normal:
+			break;
+		default:
+			sb->SubStat->HasMods = TRUE;
+			break;			
 		}
 	}
+}
+
+// Copy the URL from src to dest, unescaping on the fly.
+void UnescapeCopy(char * src, char * dest, int buf_len)
+{
+	char * pszSource = src;
+	char * pszDest = dest;
+	int len = 0;
+
+	// under VS.NET2k5 strchr() wants this to be a non-const array :/
+
+	static char szHex[] = "0123456789ABCDEF";
+
+	// Unescape special characters. The number of characters
+	// in the *pszDest is assumed to be <= the number of characters
+	// in pszSource (they are both the same string anyway)
+
+	while (*pszSource != '\0' && ++len < buf_len)
+	{
+		if (*pszSource == '%')
+		{
+			// The next two chars following '%' should be digits
+			if ( *(pszSource + 1) == '\0' ||
+				 *(pszSource + 2) == '\0' )
+			{
+				// nothing left to do
+				break;
+			}
+
+			char nValue = '?';
+			char * pszLow = NULL;
+			char * pszHigh = NULL;
+			pszSource++;
+
+			*pszSource = (char) toupper(*pszSource);
+			pszHigh = strchr(szHex, *pszSource);
+
+			if (pszHigh != NULL)
+			{
+				pszSource++;
+				*pszSource = (char) toupper(*pszSource);
+				pszLow = strchr(szHex, *pszSource);
+
+				if (pszLow != NULL)
+				{
+					nValue = (char) (((pszHigh - szHex) << 4) +
+									(pszLow - szHex));
+				}
+			} // if (pszHigh != NULL) 
+			*pszDest++ = nValue;
+		} 
+		else
+			*pszDest++ = *pszSource;
+			
+		pszSource++;
+	}
+
+	*pszDest = '\0';
 }
 
 svn_error_t *
@@ -224,6 +171,7 @@ svn_status (	const char *path,
 	sb.SubStat = (SubWCRev_t *)status_baton;
 	sb.extarray = extarray;
 	sb.pool = pool;
+	svn_utf_initialize(pool);
 
   	// Need to lock the tree as even a non-recursive status requires the
 	// immediate directories to be locked.

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "Remotecachelink.h"
@@ -22,9 +22,8 @@
 #include "..\TSVNCache\CacheInterface.h"
 #include "TSVNPath.h"
 
-CRemoteCacheLink::CRemoteCacheLink(void) 
-	: m_hPipe(INVALID_HANDLE_VALUE)
-	, m_hCommandPipe(INVALID_HANDLE_VALUE)
+CRemoteCacheLink::CRemoteCacheLink(void) :
+	m_hPipe(INVALID_HANDLE_VALUE)
 {
 	ZeroMemory(&m_dummyStatus, sizeof(m_dummyStatus));
 	m_dummyStatus.text_status = svn_wc_status_none;
@@ -38,7 +37,6 @@ CRemoteCacheLink::CRemoteCacheLink(void)
 CRemoteCacheLink::~CRemoteCacheLink(void)
 {
 	ClosePipe();
-	CloseCommandPipe();
 	m_critSec.Term();
 }
 
@@ -51,7 +49,7 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 	}
 
 	m_hPipe = CreateFile(
-		GetCachePipeName(),				// pipe name
+		TSVN_CACHE_PIPE_NAME,			// pipe name
 		GENERIC_READ |					// read and write access
 		GENERIC_WRITE,
 		0,								// no sharing
@@ -65,10 +63,10 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 		// TSVNCache is running but is busy connecting a different client.
 		// Do not give up immediately but wait for a few milliseconds until
 		// the server has created the next pipe instance
-		if (WaitNamedPipe(GetCachePipeName(), 50))
+		if (WaitNamedPipe(TSVN_CACHE_PIPE_NAME, 50))
 		{
 			m_hPipe = CreateFile(
-				GetCachePipeName(),				// pipe name
+				TSVN_CACHE_PIPE_NAME,			// pipe name
 				GENERIC_READ |					// read and write access
 				GENERIC_WRITE,
 				0,								// no sharing
@@ -109,66 +107,6 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 	return false;
 }
 
-bool CRemoteCacheLink::EnsureCommandPipeOpen()
-{
-	AutoLocker lock(m_critSec);
-	if(m_hCommandPipe != INVALID_HANDLE_VALUE)
-	{
-		return true;
-	}
-
-	m_hCommandPipe = CreateFile(
-		GetCacheCommandPipeName(),		// pipe name
-		GENERIC_READ |					// read and write access
-		GENERIC_WRITE,
-		0,								// no sharing
-		NULL,							// default security attributes
-		OPEN_EXISTING,					// opens existing pipe
-		FILE_FLAG_OVERLAPPED,			// default attributes
-		NULL);							// no template file
-
-	if (m_hCommandPipe == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY)
-	{
-		// TSVNCache is running but is busy connecting a different client.
-		// Do not give up immediately but wait for a few milliseconds until
-		// the server has created the next pipe instance
-		if (WaitNamedPipe(GetCacheCommandPipeName(), 50))
-		{
-			m_hCommandPipe = CreateFile(
-				GetCacheCommandPipeName(),		// pipe name
-				GENERIC_READ |					// read and write access
-				GENERIC_WRITE,
-				0,								// no sharing
-				NULL,							// default security attributes
-				OPEN_EXISTING,					// opens existing pipe
-				FILE_FLAG_OVERLAPPED,			// default attributes
-				NULL);							// no template file
-		}
-	}
-
-
-	if (m_hCommandPipe != INVALID_HANDLE_VALUE)
-	{
-		// The pipe connected; change to message-read mode.
-		DWORD dwMode;
-
-		dwMode = PIPE_READMODE_MESSAGE;
-		if(!SetNamedPipeHandleState(
-			m_hCommandPipe,    // pipe handle
-			&dwMode,  // new pipe mode
-			NULL,     // don't set maximum bytes
-			NULL))    // don't set maximum time
-		{
-			ATLTRACE("SetNamedPipeHandleState failed");
-			CloseHandle(m_hCommandPipe);
-			m_hCommandPipe = INVALID_HANDLE_VALUE;
-			return false;
-		}
-		return true;
-	}
-
-	return false;
-}
 
 void CRemoteCacheLink::ClosePipe()
 {
@@ -180,17 +118,6 @@ void CRemoteCacheLink::ClosePipe()
 		CloseHandle(m_hEvent);
 		m_hPipe = INVALID_HANDLE_VALUE;
 		m_hEvent = INVALID_HANDLE_VALUE;
-	}
-}
-
-void CRemoteCacheLink::CloseCommandPipe()
-{
-	AutoLocker lock(m_critSec);
-
-	if(m_hCommandPipe != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(m_hCommandPipe);
-		m_hCommandPipe = INVALID_HANDLE_VALUE;
 	}
 }
 
@@ -306,46 +233,7 @@ bool CRemoteCacheLink::GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCache
 
 		return true;
 	}
+	//OutputDebugStringA("TortoiseShell: WaitForSingleObject failed - Pipe timeout\n");
 	ClosePipe();
-	return false;
-}
-
-bool CRemoteCacheLink::ReleaseLockForPath(const CTSVNPath& path)
-{
-	if (EnsureCommandPipeOpen())
-	{
-
-	}
-	HANDLE hPipe = CreateFile( 
-		GetCacheCommandPipeName(),		// pipe name 
-		GENERIC_READ |					// read and write access 
-		GENERIC_WRITE, 
-		0,								// no sharing 
-		NULL,							// default security attributes
-		OPEN_EXISTING,					// opens existing pipe 
-		FILE_FLAG_OVERLAPPED,			// default attributes 
-		NULL);							// no template file 
-
-
-	if (hPipe != INVALID_HANDLE_VALUE) 
-	{
-		DWORD cbWritten; 
-		TSVNCacheCommand cmd;
-		ZeroMemory(&cmd, sizeof(TSVNCacheCommand));
-		cmd.command = TSVNCACHECOMMAND_RELEASE;
-		wcsncpy_s(cmd.path, MAX_PATH+1, path.GetDirectory().GetWinPath(), MAX_PATH);
-		BOOL fSuccess = WriteFile( 
-			m_hCommandPipe,	// handle to pipe 
-			&cmd,			// buffer to write from 
-			sizeof(cmd),	// number of bytes to write 
-			&cbWritten,		// number of bytes written 
-			NULL);			// not overlapped I/O 
-		if (! fSuccess || sizeof(cmd) != cbWritten)
-		{
-			CloseCommandPipe();
-			return false;
-		}
-		return true;
-	}
 	return false;
 }

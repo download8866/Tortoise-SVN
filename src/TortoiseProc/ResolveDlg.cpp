@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,15 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "messagebox.h"
 #include "ResolveDlg.h"
 
-#define REFRESHTIMER   100
+
+// CResolveDlg dialog
 
 IMPLEMENT_DYNAMIC(CResolveDlg, CResizableStandAloneDialog)
 CResolveDlg::CResolveDlg(CWnd* pParent /*=NULL*/)
@@ -47,25 +48,22 @@ BEGIN_MESSAGE_MAP(CResolveDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
-	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
+
+// CResolveDlg message handlers
 BOOL CResolveDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
+	//set the listcontrol to support checkboxes
+	m_resolveListCtrl.Init(0, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
 	m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_resolveListCtrl.SetSelectButton(&m_SelectAll);
 	m_resolveListCtrl.SetCancelBool(&m_bCancelled);
-	m_resolveListCtrl.SetBackgroundImage(IDI_RESOLVE_BKG);
-	m_resolveListCtrl.EnableFileDrop();
-
-	AdjustControlSize(IDC_SELECTALL);
 
 	AddAnchor(IDC_RESOLVELIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
+	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -73,15 +71,16 @@ BOOL CResolveDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("ResolveDlg"));
 
-	// first start a thread to obtain the file list with the status without
-	// blocking the dialog
+	//first start a thread to obtain the file list with the status without
+	//blocking the dialog
 	if(AfxBeginThread(ResolveThreadEntry, this) == NULL)
 	{
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
-	return TRUE;
+	return TRUE;  // return TRUE unless you set the focus to a control
+	// EXCEPTION: OCX Property Pages should return FALSE
 }
 
 void CResolveDlg::OnOK()
@@ -125,8 +124,9 @@ UINT CResolveDlg::ResolveThreadEntry(LPVOID pVoid)
 }
 UINT CResolveDlg::ResolveThread()
 {
-	// get the status of all selected file/folders recursively
-	// and show the ones which are in conflict
+	//get the status of all selected file/folders recursively
+	//and show the ones which have to be committed to the user
+	//in a listcontrol. 
 	DialogEnableWindow(IDOK, false);
 
 	m_bCancelled = false;
@@ -135,8 +135,9 @@ UINT CResolveDlg::ResolveThread()
 	{
 		CMessageBox::Show(m_hWnd, m_resolveListCtrl.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 	}
-	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, SVNSLC_SHOWCONFLICTED);
+	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED, SVNSLC_SHOWCONFLICTED);
 
+	DialogEnableWindow(IDOK, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
 }
@@ -190,78 +191,4 @@ LRESULT CResolveDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
-}
-
-LRESULT CResolveDlg::OnFileDropped(WPARAM, LPARAM lParam)
-{
-	BringWindowToTop();
-	SetForegroundWindow();
-	SetActiveWindow();
-	// if multiple files/folders are dropped
-	// this handler is called for every single item
-	// separately.
-	// To avoid creating multiple refresh threads and
-	// causing crashes, we only add the items to the
-	// list control and start a timer.
-	// When the timer expires, we start the refresh thread,
-	// but only if it isn't already running - otherwise we
-	// restart the timer.
-	CTSVNPath path;
-	path.SetFromWin((LPCTSTR)lParam);
-
-	if (!m_resolveListCtrl.HasPath(path))
-	{
-		if (m_pathList.AreAllPathsFiles())
-		{
-			m_pathList.AddPath(path);
-			m_pathList.RemoveDuplicates();
-		}
-		else
-		{
-			// if the path list contains folders, we have to check whether
-			// our just (maybe) added path is a child of one of those. If it is
-			// a child of a folder already in the list, we must not add it. Otherwise
-			// that path could show up twice in the list.
-			bool bHasParentInList = false;
-			for (int i=0; i<m_pathList.GetCount(); ++i)
-			{
-				if (m_pathList[i].IsAncestorOf(path))
-				{
-					bHasParentInList = true;
-					break;
-				}
-			}
-			if (!bHasParentInList)
-			{
-				m_pathList.AddPath(path);
-				m_pathList.RemoveDuplicates();
-			}
-		}
-	}
-
-	// Always start the timer, since the status of an existing item might have changed
-	SetTimer(REFRESHTIMER, 200, NULL);
-	ATLTRACE(_T("Item %s dropped, timer started\n"), path.GetWinPath());
-	return 0;
-}
-
-void CResolveDlg::OnTimer(UINT_PTR nIDEvent)
-{
-	switch (nIDEvent)
-	{
-	case REFRESHTIMER:
-		if (m_bThreadRunning)
-		{
-			SetTimer(REFRESHTIMER, 200, NULL);
-			ATLTRACE("Wait some more before refreshing\n");
-		}
-		else
-		{
-			KillTimer(REFRESHTIMER);
-			ATLTRACE("Refreshing after items dropped\n");
-			OnSVNStatusListCtrlNeedsRefresh(0, 0);
-		}
-		break;
-	}
-	__super::OnTimer(nIDEvent);
 }

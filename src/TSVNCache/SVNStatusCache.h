@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -79,30 +79,24 @@ public:
 	void UpdateShell(const CTSVNPath& path);
 
 	size_t GetCacheSize() {return m_directoryCache.size();}
-	int GetNumberOfWatchedPaths() {return watcher.GetNumberOfWatchedPaths();}
 
 	void Init();
 	void Stop();
 
 	void CloseWatcherHandles(HDEVNOTIFY hdev);
-	void CSVNStatusCache::CloseWatcherHandles(const CTSVNPath& path);
 
 	void WaitToRead() {m_rwSection.WaitToRead();}
 	void WaitToWrite() {m_rwSection.WaitToWrite();}
 	void Done() {m_rwSection.Done();}
 	bool IsWriter() {return m_rwSection.IsWriter();}
 #if defined (DEBUG) || defined (_DEBUG)
-	void AssertLock() {m_rwSection.AssertLock();}
 	void AssertWriting() {m_rwSection.AssertWriting();}
 #else
-	void AssertLock() {;}
 	void AssertWriting() {;}
 #endif
-	bool IsPathAllowed(const CTSVNPath& path) {return !!m_shellCache.IsPathAllowed(path.GetWinPath());}
+	bool IsPathAllowed(CTSVNPath path) {return !!m_shellCache.IsPathAllowed(path.GetWinPath());}
 	bool IsUnversionedAsModified() {return !!m_shellCache.IsUnversionedAsModified();}
-	bool IsPathGood(const CTSVNPath& path);
-	bool IsPathWatched(const CTSVNPath& path) {return watcher.IsPathWatched(path);}
-	bool AddPathToWatch(const CTSVNPath& path) {return watcher.AddPath(path);}
+	bool IsPathGood(CTSVNPath path);
 
 	bool m_bClearMemory;
 private:

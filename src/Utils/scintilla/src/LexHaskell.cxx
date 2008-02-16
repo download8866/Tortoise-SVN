@@ -31,10 +31,6 @@
 #include "Scintilla.h"
 #include "SciLexer.h"
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 #ifdef BUILD_AS_EXTERNAL_LEXER
 
 #include "ExternalLexer.h"
@@ -89,16 +85,12 @@ static void ColorizeHaskellDoc(unsigned int startPos, int length, int initStyle,
       else if (sc.state == SCE_HA_STRING) {
          if (sc.ch == '\"') {
             sc.ForwardSetState(SCE_HA_DEFAULT);
-         } else if (sc.ch == '\\') {
-            sc.Forward();
          }
       }
          // Char
       else if (sc.state == SCE_HA_CHARACTER) {
          if (sc.ch == '\'') {
             sc.ForwardSetState(SCE_HA_DEFAULT);
-         } else if (sc.ch == '\\') {
-            sc.Forward();
          }
       }
          // Number
@@ -193,7 +185,7 @@ static void ColorizeHaskellDoc(unsigned int startPos, int length, int initStyle,
             sc.SetState(SCE_HA_STRING);
          }
          // Character
-         else if (sc.Match('\'')) {
+         else if (sc.Match('\'') && IsWhitespace(sc.GetRelative(-1)) ) {
             sc.SetState(SCE_HA_CHARACTER);
          }
          // Stringstart

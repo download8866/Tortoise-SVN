@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,21 +13,21 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "guids.h"
 #include "PreserveChdir.h"
 #include "SVNProperties.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "SVNStatus.h"
-#include "PathUtils.h"
 #include "..\TSVNCache\CacheInterface.h"
 
 
 const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
+extern void Unescape(char * psz);
 
 // Defines that revision numbers occupy at most MAX_REV_STRING_LEN characters.
 // There are Perforce repositories out there that have several 100,000 revs.
@@ -236,7 +236,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 					return S_FALSE;
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props = SVNProperties(CTSVNPath(path), false);
+					SVNProperties props = SVNProperties(CTSVNPath(path));
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
@@ -255,7 +255,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 					return S_FALSE;
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props = SVNProperties(CTSVNPath(path), false);
+					SVNProperties props = SVNProperties(CTSVNPath(path));
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:eol-style"))==0)
@@ -326,16 +326,14 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 	columnfilepath = path;
 	const FileStatusCacheEntry * status = NULL;
 	TSVNCacheResponse itemStatus;
-	ShellCache::CacheType t = ShellCache::exe;
-	AutoLocker lock(g_csGlobalCOMGuard);
-	t = g_ShellCache.GetCacheType();
+	AutoLocker lock(g_csCacheGuard);
 
-	switch (t)
+	switch (g_ShellCache.GetCacheType())
 	{
 	case ShellCache::exe:
 		{
 			ZeroMemory(&itemStatus, sizeof(itemStatus));
-			if(m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(path), &itemStatus, true))
+			if(g_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(path), &itemStatus, true))
 			{
 				filestatus = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
 			}
@@ -353,7 +351,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		break;
 	case ShellCache::dll:
 		{
-			status = m_CachedStatus.GetFullStatus(CTSVNPath(path), bIsDir, TRUE);
+			status = g_pCachedStatus->GetFullStatus(CTSVNPath(path), bIsDir, TRUE);
 			filestatus = status->status;
 		}
 		break;
@@ -374,7 +372,7 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		break;
 	}
 
-	if (t == ShellCache::exe)
+	if (g_ShellCache.GetCacheType() == ShellCache::exe)
 	{
 		columnauthor = UTF8ToWide(itemStatus.m_author);
 		columnrev = itemStatus.m_entry.cmt_rev;
@@ -409,34 +407,8 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 		if (ptr)
 		{
 			*ptr = '\0';
-			// to shorten the url even more, we check for 'trunk', 'branches' and 'tags'
-			// and simply assume that these are the folders attached to the repository
-			// root. If we find those, we strip the whole path before those folders too.
-			// Note: this will strip too much if such a folder is *below* the repository
-			// root - but it's called 'short url' and we're free to shorten it the way we
-			// like :)
-			ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/trunk"));
-			if (ptr == NULL)
-				ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\trunk"));
-			if ((ptr == NULL)||((*(ptr+6) != 0)&&(*(ptr+6) != '/')&&(*(ptr+6) != '\\')))
-			{
-				ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/branches"));
-				if (ptr == NULL)
-					ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\branches"));
-				if ((ptr == NULL)||((*(ptr+9) != 0)&&(*(ptr+9) != '/')&&(*(ptr+9) != '\\')))
-				{
-					ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/tags"));
-					if (ptr == NULL)
-						ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\tags"));
-					if ((ptr)&&(*(ptr+5) != 0)&&(*(ptr+5) != '/')&&(*(ptr+5) != '\\'))
-						ptr = NULL;
-				}
-			}
-			if (ptr)
-				itemshorturl = ptr;
-			else
-				itemshorturl = urlComponents.lpszUrlPath;
-		}
+			itemshorturl = urlComponents.lpszUrlPath;
+		} // if (ptr)
 		else 
 			itemshorturl = _T(" ");
 	}
@@ -447,14 +419,14 @@ void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 	{
 		char url[INTERNET_MAX_URL_LENGTH];
 		strcpy_s(url, INTERNET_MAX_URL_LENGTH, status->url);
-		CPathUtils::Unescape(url);
+		Unescape(url);
 		itemurl = UTF8ToWide(url);
 	}
-	else if (t == ShellCache::exe)
+	else if (g_ShellCache.GetCacheType() == ShellCache::exe)
 	{
 		char url[INTERNET_MAX_URL_LENGTH];
 		strcpy_s(url, INTERNET_MAX_URL_LENGTH, itemStatus.m_url);
-		CPathUtils::Unescape(url);
+		Unescape(url);
 		itemurl = UTF8ToWide(url);
 	}
 }

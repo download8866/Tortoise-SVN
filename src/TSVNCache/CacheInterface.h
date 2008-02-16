@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #pragma once
@@ -31,13 +31,8 @@
 #define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow")
 #endif
 
-CString GetCachePipeName();
-CString GetCacheCommandPipeName();
 
-/**
- * \ingroup TSVNCache
- * A structure passed as a request from the shell (or other client) to the external cache
- */ 
+// A structure passed as a request from the shell (or other client) to the external cache
 struct TSVNCacheRequest
 {
 	DWORD flags;
@@ -48,10 +43,7 @@ struct TSVNCacheRequest
 
 #ifdef SVN_WC_H
 
-/**
- * \ingroup TSVNCache
- * The structure returned as a response
- */
+// The structure returned as a response
 struct TSVNCacheResponse
 {
 	svn_wc_status2_t m_status;
@@ -66,20 +58,15 @@ struct TSVNCacheResponse
 
 #endif // SVN_WC_H
 
-/**
- * \ingroup TSVNCache
- * a cache command
- */
 struct TSVNCacheCommand
 {
-	BYTE command;				///< the command to execute
+	BYTE command;		///< the command to execute
 	WCHAR path[MAX_PATH+1];		///< path to do the command for
 };
 
 #define		TSVNCACHECOMMAND_END		0		///< ends the thread handling the pipe communication
 #define		TSVNCACHECOMMAND_CRAWL		1		///< start crawling the specified path for changes
 #define		TSVNCACHECOMMAND_REFRESHALL	2		///< Refreshes the whole cache, usually necessary after the "treat unversiond files as modified" option changed.
-#define		TSVNCACHECOMMAND_RELEASE	3		///< Releases all open handles for the specified path and all paths below
 
 
 /// Set this flag if you already know whether or not the item is a folder

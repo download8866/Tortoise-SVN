@@ -19,7 +19,7 @@
 		</loadfile>
 		<echo file="VersionNumberInclude.wxi" message="${versionwixfile}" />
 		<property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
-		<property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.5.0dev" />
+		<property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.4.6" />
 	</target>
 
 	<target name="setup" depends="versioninfo">
@@ -98,17 +98,11 @@
 			  </fileset>
 		  </delete>
   		
-		<if test="${devrelease == ''}">
-		  <exec program="gpg.exe" workingdir="..\..\bin">
-			  <arg value="-sba" />
-			  <arg value="--yes" />
-			  <arg value="--batch" />
-			  <arg value="--passphrase" />
-			  <arg value="${gpgpassphrase}" />
+		  <exec program="md5" workingdir="..\..\bin">
+			  <arg value="-o${msifilename}.md5" />
 			  <arg value="${msifilename}.msi" />
 		  </exec>
-        </if>
-	  </if>
+		</if>
 	</target>
 
 </project>

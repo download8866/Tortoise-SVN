@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -40,7 +40,7 @@ CLineDiffBar::~CLineDiffBar()
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap) 
 }
 
 BEGIN_MESSAGE_MAP(CLineDiffBar, CDialogBar)
@@ -81,7 +81,7 @@ CSize CLineDiffBar::CalcFixedLayout(BOOL bStretch, BOOL bHorz)
 				size.cy = 0;
 			if ((m_pMainFrm->m_pwndBottomView)&&(!m_pMainFrm->m_pwndBottomView->IsHidden()))
 				size.cy = 0;
-		}
+		} // if (m_pMainFrm) 
 
 		if (size.cy > 0)
 		{
@@ -90,7 +90,7 @@ CSize CLineDiffBar::CalcFixedLayout(BOOL bStretch, BOOL bHorz)
 			AdjustWindowRectEx(&rc, GetStyle(), FALSE, GetExStyle());
 			size = rc.Size();
 		}
-	}
+	} // if (bStretch) // if not docked stretch to fit 
 	else
 	{
 		size = m_sizeDefault;
@@ -131,24 +131,27 @@ void CLineDiffBar::OnPaint()
 		{
 			BOOL bViewWhiteSpace = m_pMainFrm->m_pwndLeftView->m_bViewWhitespace;
 			BOOL bInlineDiffs = m_pMainFrm->m_pwndLeftView->m_bShowInlineDiff;
-			
+			int nDiffBlockStart = m_pMainFrm->m_pwndLeftView->m_nDiffBlockStart;
+			int nDiffBlockEnd = m_pMainFrm->m_pwndLeftView->m_nDiffBlockEnd;
 			m_pMainFrm->m_pwndLeftView->m_bViewWhitespace = TRUE;
 			m_pMainFrm->m_pwndLeftView->m_bShowInlineDiff = TRUE;
-			m_pMainFrm->m_pwndLeftView->m_bShowSelection = false;
 			m_pMainFrm->m_pwndRightView->m_bViewWhitespace = TRUE;
 			m_pMainFrm->m_pwndRightView->m_bShowInlineDiff = TRUE;
-			m_pMainFrm->m_pwndRightView->m_bShowSelection = false;
-
+			m_pMainFrm->m_pwndLeftView->m_nDiffBlockStart = -1;
+			m_pMainFrm->m_pwndLeftView->m_nDiffBlockEnd = -1;
+			m_pMainFrm->m_pwndRightView->m_nDiffBlockStart = -1;
+			m_pMainFrm->m_pwndRightView->m_nDiffBlockEnd = -1;
 			// Use left and right view to display lines next to each other
 			m_pMainFrm->m_pwndLeftView->DrawSingleLine(&cacheDC, &upperrect, m_nLineIndex);
 			m_pMainFrm->m_pwndRightView->DrawSingleLine(&cacheDC, &lowerrect, m_nLineIndex);
-
 			m_pMainFrm->m_pwndLeftView->m_bViewWhitespace = bViewWhiteSpace;
 			m_pMainFrm->m_pwndLeftView->m_bShowInlineDiff = bInlineDiffs;
-			m_pMainFrm->m_pwndLeftView->m_bShowSelection = true;
 			m_pMainFrm->m_pwndRightView->m_bViewWhitespace = bViewWhiteSpace;
 			m_pMainFrm->m_pwndRightView->m_bShowInlineDiff = bInlineDiffs;
-			m_pMainFrm->m_pwndRightView->m_bShowSelection = true;
+			m_pMainFrm->m_pwndLeftView->m_nDiffBlockStart = nDiffBlockStart;
+			m_pMainFrm->m_pwndLeftView->m_nDiffBlockEnd = nDiffBlockEnd;
+			m_pMainFrm->m_pwndRightView->m_nDiffBlockStart = nDiffBlockStart;
+			m_pMainFrm->m_pwndRightView->m_nDiffBlockEnd = nDiffBlockEnd;
 		}
 	} 
 
@@ -167,7 +170,7 @@ void CLineDiffBar::OnSize(UINT nType, int cx, int cy)
 		m_pCacheBitmap->DeleteObject();
 		delete m_pCacheBitmap;
 		m_pCacheBitmap = NULL;
-	}
+	} // if (m_pCacheBitmap != NULL)
 	Invalidate();
 }
 

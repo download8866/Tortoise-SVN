@@ -4,37 +4,23 @@
 //
 //    Desc: See Utility.h
 //
-// Copyright (c) 2007 TortoiseSVN
 // Copyright (c) 2003 Michael Carruth
 //
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
 #include "Utility.h"
+#include "atldlgs.h"
 #include "resource.h"
 
 namespace CUtility {
 
-BSTR CUtility::AllocSysString(string s)
-{
-#if defined(_UNICODE) || defined(OLE2ANSI)
-	BSTR bstr = ::SysAllocStringLen(s.c_str(), s.size());
-#else
-	int nLen = MultiByteToWideChar(CP_ACP, 0, s.c_str(),
-		s.size(), NULL, NULL);
-	BSTR bstr = ::SysAllocStringLen(NULL, nLen);
-	if(bstr != NULL)
-		MultiByteToWideChar(CP_ACP, 0, s.c_str(), s.size(), bstr, nLen);
-#endif
-	return bstr;
-}
-
-FILETIME CUtility::getLastWriteFileTime(string sFile)
+FILETIME CUtility::getLastWriteFileTime(CString sFile)
 {
    FILETIME          ftLocal = {0};
    HANDLE            hFind;
    WIN32_FIND_DATA   ff32;
-   hFind = FindFirstFile(sFile.c_str(), &ff32);
+   hFind = FindFirstFile(sFile, &ff32);
    if (INVALID_HANDLE_VALUE != hFind)
    {
       FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
@@ -43,67 +29,52 @@ FILETIME CUtility::getLastWriteFileTime(string sFile)
    return ftLocal;
 }
 
-FILETIME CUtility::getLastWriteFileTime(WCHAR * wszFile)
-{
-	FILETIME          ftLocal = {0};
-	HANDLE            hFind;
-	WIN32_FIND_DATAW  ff32;
-	hFind = FindFirstFileW(wszFile, &ff32);
-	if (INVALID_HANDLE_VALUE != hFind)
-	{
-		FileTimeToLocalFileTime(&(ff32.ftLastWriteTime), &ftLocal);
-		FindClose(hFind);        
-	}
-	return ftLocal;
-}
 
-string CUtility::getAppName()
+CString CUtility::getAppName()
 {
    TCHAR szFileName[_MAX_PATH];
    GetModuleFileName(NULL, szFileName, _MAX_FNAME);
 
-   string sAppName; // Extract from last '\' to '.'
-
-   *_tcsrchr(szFileName, '.') = '\0';
-   sAppName = (_tcsrchr(szFileName, '\\')+1);
+   CString sAppName; // Extract from last '\' to '.'
+   sAppName = szFileName;
+   sAppName = sAppName.Mid(sAppName.ReverseFind(_T('\\')) + 1)
+                      .SpanExcluding(_T("."));
 
    return sAppName;
 }
 
 
-string CUtility::getTempFileName()
+CString CUtility::getTempFileName()
 {
    static int counter = 0;
    TCHAR szTempDir[MAX_PATH - 14]   = _T("");
    TCHAR szTempFile[MAX_PATH]       = _T("");
 
    if (GetTempPath(MAX_PATH - 14, szTempDir))
-      GetTempFileName(szTempDir, getAppName().c_str(), ++counter, szTempFile);
+      GetTempFileName(szTempDir, getAppName(), ++counter, szTempFile);
 
    return szTempFile;
 }
 
 
-string CUtility::getSaveFileName()
+CString CUtility::getSaveFileName()
 {
-   string sFilter = _T("Zip Files (*.zip)");
+   CString sFilter((LPCTSTR)IDS_ZIP_FILTER);
 
-   OPENFILENAME ofn = {0};			// common dialog box structure
-   TCHAR szFile[MAX_PATH] = {0};	// buffer for file name
-   // Initialize OPENFILENAME
-   ofn.lStructSize = sizeof(OPENFILENAME);
-   ofn.hwndOwner = NULL;
-   ofn.lpstrFile = szFile;
-   ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-   ofn.Flags = OFN_OVERWRITEPROMPT;
+   CFileDialog fd(
+      FALSE, 
+      _T("zip"), 
+      getAppName(), 
+      OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, 
+      sFilter);
 
-   ofn.lpstrFilter = sFilter.c_str();
-   ofn.nFilterIndex = 1;
-   // Display the Open dialog box. 
-   bool bTargetSelected = !!GetSaveFileName(&ofn);
+	if (IDOK == fd.DoModal())
+   {
+      DeleteFile(fd.m_szFileName);  // Just in-case it already exist
+      return fd.m_szFileName;
+   }
 
-   DeleteFile(ofn.lpstrFile);  // Just in-case it already exist
-   return ofn.lpstrFile;
+   return _T("");
 }
 
 };

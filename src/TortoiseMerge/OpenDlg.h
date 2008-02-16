@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "FileDropEdit.h"
@@ -37,8 +37,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	BOOL BrowseForFile(CString& filepath, CString title, UINT nFileFilter = IDS_COMMONFILEFILTER);
 	void GroupRadio(UINT nID);
-	bool CheckAndEnableClipboardChecker();
-	BOOL DialogEnableWindow(UINT nID, BOOL bEnable);
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_sBaseFile;
@@ -62,17 +60,6 @@ protected:
 	afx_msg void OnBnClickedDirectorybrowse();
 	afx_msg void OnBnClickedMergeradio();
 	afx_msg void OnBnClickedApplyradio();
-
-	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
-	afx_msg void OnDrawClipboard();
-	afx_msg void OnDestroy();
-
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-
-	BOOL	m_bFromClipboard;
-	UINT	m_cFormat;
-	HWND	m_nextViewer;
-public:
-	afx_msg void OnBnClickedPatchfromclipboard();
 };

@@ -6,14 +6,10 @@
 #pragma once
 
 #define _WIN32_IE 0x600
-#define _WIN32_WINNT 0x0600
+#define _WIN32_WINNT 0x0501
 
 #include <tchar.h>
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
-
-#include <WinSock2.h>
-#include <Ws2tcpip.h>
-#include <Wspiapi.h>
 
 #include <atlbase.h>
 #include <atlstr.h>
@@ -42,14 +38,3 @@ using namespace ATL;
 
 
 typedef CComCritSecLock<CComAutoCriticalSection> AutoLocker;
-
-// Temporary fix for people not using the latest SDK
-#ifndef PROCESS_MODE_BACKGROUND_BEGIN
-#define PROCESS_MODE_BACKGROUND_BEGIN 0x00100000
-#endif
-#ifndef THREAD_MODE_BACKGROUND_BEGIN
-#define THREAD_MODE_BACKGROUND_BEGIN 0x00010000
-#endif
-#ifndef THREAD_MODE_BACKGROUND_END
-#define THREAD_MODE_BACKGROUND_END 0x00020000
-#endif

@@ -8,10 +8,6 @@
 #ifndef VIEWSTYLE_H
 #define VIEWSTYLE_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /**
  */
 class MarginStyle {
@@ -27,8 +23,7 @@ public:
  */
 class FontNames {
 private:
-	char **names;
-	int size;
+	char *names[STYLE_MAX + 1];
 	int max;
 
 public:
@@ -38,8 +33,6 @@ public:
 	const char *Save(const char *name);
 };
 
-enum IndentView {ivNone, ivReal, ivLookForward, ivLookBoth};
-
 enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2};
 
 /**
@@ -47,8 +40,7 @@ enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterInden
 class ViewStyle {
 public:
 	FontNames fontNames;
-	size_t stylesSize;
-	Style *styles;
+	Style styles[STYLE_MAX + 1];
 	LineMarker markers[MARKER_MAX + 1];
 	Indicator indicators[INDIC_MAX + 1];
 	int lineHeight;
@@ -62,7 +54,6 @@ public:
 	ColourPair selbackground;
 	ColourPair selbackground2;
 	int selAlpha;
-	bool selEOLFilled;
 	bool whitespaceForegroundSet;
 	ColourPair whitespaceForeground;
 	bool whitespaceBackgroundSet;
@@ -89,7 +80,7 @@ public:
 	int fixedColumnWidth;
 	int zoomLevel;
 	WhiteSpaceVisibility viewWhitespace;
-	IndentView viewIndentationGuides;
+	bool viewIndentationGuides;
 	bool viewEOL;
 	bool showMarkedLines;
 	ColourPair caretcolour;
@@ -98,7 +89,6 @@ public:
 	int caretLineAlpha;
 	ColourPair edgecolour;
 	int edgeState;
-	int caretStyle;
 	int caretWidth;
 	bool someStylesProtected;
 	bool extraFontFlag;
@@ -106,19 +96,13 @@ public:
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
 	~ViewStyle();
-	void Init(size_t stylesSize_=64);
+	void Init();
 	void RefreshColourPalette(Palette &pal, bool want);
 	void Refresh(Surface &surface);
-	void AllocStyles(size_t sizeNew);
-	void EnsureStyle(size_t index);
 	void ResetDefaultStyle();
 	void ClearStyles();
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
 };
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

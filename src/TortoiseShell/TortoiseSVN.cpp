@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,24 +13,25 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
-#include "svn_dso.h"
 
 UINT				g_cRefThisDll = 0;				///< reference count of this DLL.
 HINSTANCE			g_hmodThisDll = NULL;			///< handle to this DLL itself.
 int					g_cAprInit = 0;
+SVNFolderStatus *	g_pCachedStatus = NULL;			///< status cache
 ShellCache			g_ShellCache;					///< caching of registry entries, ...
+CRemoteCacheLink	g_remoteCacheLink;
+CRegStdWORD			g_regLang;
 DWORD				g_langid;
-DWORD				g_langTimeout = 0;
-HINSTANCE			g_hResInst = NULL;
+HINSTANCE			g_hResInst;
 stdstring			g_filepath;
-svn_wc_status_kind	g_filestatus = svn_wc_status_none;	///< holds the corresponding status to the file/dir above
+svn_wc_status_kind	g_filestatus;					///< holds the corresponding status to the file/dir above
 bool				g_readonlyoverlay = false;
 bool				g_lockedoverlay = false;
 
@@ -41,14 +42,16 @@ bool				g_readonlyovlloaded = false;
 bool				g_deletedovlloaded = false;
 bool				g_lockedovlloaded = false;
 bool				g_addedovlloaded = false;
-bool				g_ignoredovlloaded = false;
-bool				g_unversionedovlloaded = false;
-CComCriticalSection	g_csGlobalCOMGuard;
+CComCriticalSection	g_csCacheGuard;
 
 LPCTSTR				g_MenuIDString = _T("TortoiseSVN");
 extern std::set<CShellExt *> g_exts;
 
-#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef WIN64
+#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#else
+#	pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"") 
+#endif
 
 extern "C" int APIENTRY
 DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
@@ -64,10 +67,6 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 	if(pathLength >= 14)
 	{
 		if ((_tcsicmp(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
-		{
-			bInShellTest = true;
-		}
-		if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
 		{
 			bInShellTest = true;
 		}
@@ -88,7 +87,7 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
     {
 		if (g_hmodThisDll == NULL)
 		{
-			g_csGlobalCOMGuard.Init();
+			g_csCacheGuard.Init();
 		}
 
         // Extension DLL one-time initialization
@@ -101,19 +100,21 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 		// in that case, we do it ourselves
 		if (g_cRefThisDll > 0)
 		{
+			if (g_pCachedStatus)
+				delete g_pCachedStatus;
+			while (g_cAprInit--)
+			{
+				g_SVNAdminDir.Close();
+				apr_terminate();
+			}
 			std::set<CShellExt *>::iterator it = g_exts.begin();
 			while (it != g_exts.end())
 			{
 				delete *it;
 				it = g_exts.begin();
 			}
-			while (g_cAprInit--)
-			{
-				g_SVNAdminDir.Close();
-				apr_terminate();
-			}
 		}
-		g_csGlobalCOMGuard.Term();
+		g_csCacheGuard.Term();
     }
     return 1;   // ok
 }
@@ -127,36 +128,33 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 {
     *ppvOut = NULL;
 	
-    FileState state = FileStateInvalid;
+    FileState state = Invalid;
     if (IsEqualIID(rclsid, CLSID_TortoiseSVN_UPTODATE))
-        state = FileStateVersioned;
+        state = Versioned;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_MODIFIED))
-        state = FileStateModified;
+        state = Modified;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_CONFLICTING))
-        state = FileStateConflict;
+        state = Conflict;
     else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_UNCONTROLLED))
-        state = FileStateUncontrolled;
+        state = Uncontrolled;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DROPHANDLER))
-		state = FileStateDropHandler;
+		state = DropHandler;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_DELETED))
-		state = FileStateDeleted;
+		state = Deleted;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_READONLY))
-		state = FileStateReadOnly;
+		state = ReadOnly;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_LOCKED))
-		state = FileStateLockedOverlay;
+		state = LockedOverlay;
 	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_ADDED))
-		state = FileStateAddedOverlay;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_IGNORED))
-		state = FileStateIgnoredOverlay;
-	else if (IsEqualIID(rclsid, CLSID_TortoiseSVN_UNVERSIONED))
-		state = FileStateUnversionedOverlay;
+		state = AddedOverlay;
 	
-    if (state != FileStateInvalid)
+    if (state != Invalid)
     {
 		apr_initialize();
-		svn_dso_initialize();
 		g_SVNAdminDir.Init();
 		g_cAprInit++;
+		if (g_pCachedStatus == NULL)
+			g_pCachedStatus = new SVNFolderStatus();
 		
 		CShellExtClassFactory *pcf = new CShellExtClassFactory(state);
 		return pcf->QueryInterface(riid, ppvOut);

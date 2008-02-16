@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -32,6 +32,25 @@
  * Class for showing an About box of TortoiseSVN. Contains a Picture
  * with the TortoiseSVN logo with a nice water effect. See CWaterEffect
  * for the implementation.
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date 10-20-2002
+ *
+ * \author kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class CAboutDlg : public CStandAloneDialog
 {
@@ -41,17 +60,16 @@ public:
 	CAboutDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CAboutDlg();
 
+// Dialog Data
 	enum { IDD = IDD_ABOUT };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+
 	virtual BOOL OnInitDialog();
 
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnBnClickedUpdate();
-
 	DECLARE_MESSAGE_MAP()
+public:
 
 private:
 	CWaterEffect m_waterEffect;
@@ -59,4 +77,8 @@ private:
 	CDib m_renderDest;
 	CHyperLink m_cWebLink;
 	CHyperLink m_cSupportLink;
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedUpdate();
 };

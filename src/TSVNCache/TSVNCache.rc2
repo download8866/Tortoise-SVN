@@ -31,11 +31,11 @@ BEGIN
     BEGIN
         BLOCK "040004e4"
         BEGIN
-            VALUE "CompanyName", "http://tortoisesvn.net"
+            VALUE "CompanyName", "www.tortoisesvn.org"
             VALUE "FileDescription", "TortoiseSVN status cache"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "TSVNCache.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2008"
+            VALUE "LegalCopyright", "Copyright (C) 2003"
             VALUE "OriginalFilename", "TSVNCache.exe"
             VALUE "ProductName", "TortoiseSVN"
             VALUE "ProductVersion", STRPRODUCTVER

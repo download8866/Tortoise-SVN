@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,18 +13,16 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include "StandAloneDlg.h"
 #include "SVNStatusListCtrl.h"
 
 
-/**
- * \ingroup TortoiseProc
- * Helper dialog, showing a list of conflicted files of the working copy.
- */
+// CResolveDlg dialog
+
 class CResolveDlg : public CResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CResolveDlg)
@@ -40,8 +38,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	afx_msg void OnBnClickedSelectall();
 	afx_msg void OnBnClickedHelp();
-	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();

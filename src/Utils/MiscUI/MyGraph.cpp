@@ -3,9 +3,7 @@
 #include "stdafx.h"
 #include "MyGraph.h"
 
-#include <cmath>
-#include <memory>
-using namespace std;
+#include "math.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -32,24 +30,26 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // Constants.
 
-#define TICK_PIXELS								  4			// Size of tick marks.
-#define GAP_PIXELS								  6			// Better if an even value.
-#define LEGEND_COLOR_BAR_WIDTH_PIXELS			 50			// Width of color bar.
-#define LEGEND_COLOR_BAR_GAP_PIXELS				  1			// Space between color bars.
-#define Y_AXIS_MAX_TICK_COUNT					  5			// How many ticks on y axis.
-#define MIN_FONT_SIZE							 70			// The minimum font-size in pt*10.
+#define TICK_PIXELS								 4			// Size of tick marks.
+#define GAP_PIXELS								 6			// Better if an even value.
+#define LEGEND_COLOR_BAR_WIDTH_PIXELS		50			// Width of color bar.
+#define LEGEND_COLOR_BAR_GAP_PIXELS			 1			// Space between color bars.
+#define Y_AXIS_MAX_TICK_COUNT					 5			// How many ticks on y axis.
+#define MIN_FONT_SIZE							70			// The minimum font-size in pt*10.
 #define LEGEND_VISIBILITY_THRESHOLD				300			// The width of the graph in pixels when the legend gets hidden.
 
-#define INTERSERIES_PERCENT_USED				0.85		// How much of the graph is 
-															// used for bars/pies (the 
-															// rest is for inter-series
-															// spacing).
+#define INTERSERIES_PERCENT_USED           0.85		// How much of the graph is 
+																	// used for bars/pies (the 
+																	// rest is for inter-series
+																	// spacing).
 
 #define TITLE_DIVISOR							 5			// Scale font to graph width.
-#define LEGEND_DIVISOR							 8			// Scale font to graph height.
-#define Y_AXIS_LABEL_DIVISOR					 6			// Scale font to graph height.
+#define LEGEND_DIVISOR							 8			// Scale font to graph width.
+#define X_AXIS_LABEL_DIVISOR					10			// Scale font to graph width.
+#define Y_AXIS_LABEL_DIVISOR					 6			// Scale font to graph width.
 
-const double PI = 3.1415926535897932384626433832795;
+#define PI											 3.1415926535897932384626433832795
+
 
 /////////////////////////////////////////////////////////////////////////////
 // MyGraphSeries
@@ -662,7 +662,6 @@ void MyGraph::DrawGraph(CDC& dc)
 		CBrush br;
 		VERIFY(br.CreateSolidBrush(::GetSysColor(COLOR_WINDOW)));
 		dc.FillRect(rcWnd, &br);
-		br.DeleteObject();
 
 		// Draw graph title.
 		DrawTitle(dc);
@@ -719,7 +718,6 @@ void MyGraph::DrawTitle(CDC& dc)
 		DT_TOP);
 
 	VERIFY(dc.SelectObject(pFontOld));
-	fontTitle.DeleteObject();
 }
 
 // Set the axes and origin values.
@@ -738,33 +736,15 @@ void MyGraph::SetupAxes(CDC& dc)
 	}
 	else {
 		// Bar and Line graphs.
-
-		// Need to find out how wide the biggest Y-axis tick label is
-
-		// Get and store height of axis label font.
-		m_nAxisLabelHeight = max(m_rcGraph.Height() / Y_AXIS_LABEL_DIVISOR, MIN_FONT_SIZE);
-		// Get and store height of tick label font.
-		m_nAxisTickLabelHeight = max(int(m_nAxisLabelHeight*0.8), MIN_FONT_SIZE);
-
-		CFont fontTickLabels;
-		VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, _T("Arial"), &dc));
-		// Select font and store the old.
-		CFont* pFontOld = dc.SelectObject(&fontTickLabels);
-		ASSERT_VALID(pFontOld);
-
-		// Obtain tick label dimensions.
 		CString sTickLabel;
 		sTickLabel.Format(_T("%d"), GetMaxDataValue());
 		CSize sizTickLabel(dc.GetTextExtent(sTickLabel));
 
-		// Set old font object again and delete temporary font object.
-		VERIFY(dc.SelectObject(pFontOld));
-		fontTickLabels.DeleteObject();		
-
-		// Determine axis specifications.
-		m_ptOrigin.x = m_rcGraph.left + m_nAxisLabelHeight/10 + 2*GAP_PIXELS 
-			+ sizTickLabel.cx + GAP_PIXELS + TICK_PIXELS;
-		m_ptOrigin.y = m_rcGraph.bottom - m_nAxisLabelHeight/10 - 2*GAP_PIXELS - 
+		// Determine axis specifications.  Assume tick label and axes label 
+		// fonts are about the same size.
+		m_ptOrigin.x = GAP_PIXELS + sizTickLabel.cx + GAP_PIXELS + 
+			sizTickLabel.cy + GAP_PIXELS + TICK_PIXELS;
+		m_ptOrigin.y = m_rcGraph.Height() - sizTickLabel.cy - GAP_PIXELS - 
 			sizTickLabel.cy - GAP_PIXELS - TICK_PIXELS;
 		m_nYAxisHeight = m_ptOrigin.y - m_rcTitle.bottom - (2 * GAP_PIXELS);
 		m_nXAxisWidth = (m_rcGraph.Width() - GAP_PIXELS) - m_ptOrigin.x;
@@ -779,8 +759,10 @@ void MyGraph::DrawLegend(CDC& dc)
 
 	// Create the legend font.
 	CFont fontLegend;
-	int pointFontHeight = max(m_rcGraph.Height() / LEGEND_DIVISOR, MIN_FONT_SIZE);
-	VERIFY(fontLegend.CreatePointFont(pointFontHeight, _T("Arial"), &dc));
+	VERIFY(fontLegend.CreatePointFont(max(m_rcGraph.Height() / LEGEND_DIVISOR, MIN_FONT_SIZE), 
+		_T("Arial"), &dc));
+	CFont* pFontOld = dc.SelectObject(&fontLegend);
+	ASSERT_VALID(pFontOld);
 
 	// Get the height of each label.
 	LOGFONT lf;
@@ -788,105 +770,56 @@ void MyGraph::DrawLegend(CDC& dc)
 	VERIFY(fontLegend.GetLogFont(&lf));
 	int nLabelHeight(abs(lf.lfHeight));
 
-	// Get number of legend entries
-	int nLegendEntries = max(1, GetMaxSeriesSize());
-
-	// Calculate optimal label height = AvailableLegendHeight/AllAuthors
-	// Use a buffer of (GAP_PIXELS / 2) on each side inside the legend, and in addition the same
-	// gab above and below the legend frame, so in total 2*GAP_PIXELS
-	double optimalLabelHeight = double(m_rcGraph.Height() - 2*GAP_PIXELS)/nLegendEntries;
-
-	// Now relate the LabelHeight to the PointFontHeight
-	int optimalPointFontHeight = int(pointFontHeight*optimalLabelHeight/nLabelHeight);
-
-	// Limit the optimal PointFontHeight to the available range
-	optimalPointFontHeight = min( max(optimalPointFontHeight, MIN_FONT_SIZE), pointFontHeight);
-
-	// If the optimalPointFontHeight is different from the initial one, create a new legend font
-	if (optimalPointFontHeight != pointFontHeight) {
-		fontLegend.DeleteObject();
-		VERIFY(fontLegend.CreatePointFont(optimalPointFontHeight, _T("Arial"), &dc));
-		VERIFY(fontLegend.GetLogFont(&lf));
-		nLabelHeight = abs(lf.lfHeight);
-	}
-
-	// Calculate maximum number of authors that can be shown with the current label height
-	int nShownAuthors = (m_rcGraph.Height() - 2*GAP_PIXELS)/nLabelHeight - 1;
-	// Fix rounding errors.
-	if (nShownAuthors+1 == GetMaxSeriesSize()) 
-		++nShownAuthors;
-
-	// Get number of authors to be shown.
-	nShownAuthors = min(nShownAuthors, GetMaxSeriesSize());
-	// nShownAuthors contains now the number of authors
-
-	CFont* pFontOld = dc.SelectObject(&fontLegend);
-	ASSERT_VALID(pFontOld);
-
-	// Determine actual size of legend.  A buffer of (GAP_PIXELS / 2) on each side, 
+	// Determine size of legend.  A buffer of (GAP_PIXELS / 2) on each side, 
 	// plus the height of each label based on the pint size of the font.
-	int nLegendHeight = (GAP_PIXELS / 2) + (nShownAuthors * nLabelHeight) + (GAP_PIXELS / 2);
+	int nLegendHeight((GAP_PIXELS / 2) + (GetMaxSeriesSize() * nLabelHeight) +
+		(GAP_PIXELS / 2));
+	if (nLegendHeight > m_rcGraph.Height())
+	{
+		VERIFY(dc.SelectObject(pFontOld));
+		return;
+	}
 	// Draw the legend border.  Allow LEGEND_COLOR_BAR_PIXELS pixels for
 	// display of label bars.
-	m_rcLegend.top = (m_rcGraph.Height() - nLegendHeight) / 2;
+	m_rcLegend.top = (m_rcGraph.Height() / 2) - (nLegendHeight / 2);
 	m_rcLegend.bottom = m_rcLegend.top + nLegendHeight;
 	m_rcLegend.right = m_rcGraph.Width() - GAP_PIXELS;
 	m_rcLegend.left = m_rcLegend.right - GetMaxLegendLabelLength(dc) - 
 		LEGEND_COLOR_BAR_WIDTH_PIXELS;
 	VERIFY(dc.Rectangle(m_rcLegend));
 
-	int skipped_row = -1; // if != -1, this is the row that we show the ... in
-	if (nShownAuthors < GetMaxSeriesSize())
-		skipped_row = nShownAuthors-2;
 	// Draw each group's label and bar.
-	for (int nGroup = 0; nGroup < nShownAuthors; ++nGroup) {
+	for (int nGroup = 0; nGroup < GetMaxSeriesSize(); ++nGroup) {
 
 		int nLabelTop(m_rcLegend.top + (nGroup * nLabelHeight) +
 			(GAP_PIXELS / 2));
 
-		int nShownGroup = nGroup; // introduce helper variable to avoid code duplication
-
-		// Do we have a skipped row?
-		if (skipped_row != -1) 
-		{
-			if (nGroup == skipped_row) {
-				// draw the dots
-				VERIFY(dc.TextOut(m_rcLegend.left + GAP_PIXELS, nLabelTop, _T("...") ));
-				continue;
-			}
-			if (nGroup == nShownAuthors-1) {
-				// we show the last group instead of the scheduled group
-				nShownGroup = GetMaxSeriesSize()-1;
-			}
-		}
 		// Draw the label.
 		VERIFY(dc.TextOut(m_rcLegend.left + GAP_PIXELS, nLabelTop,
-			m_saLegendLabels.GetAt(nShownGroup)));
+			m_saLegendLabels.GetAt(nGroup)));
 
 		// Determine the bar.
 		CRect rcBar;
-		rcBar.left = m_rcLegend.left + GAP_PIXELS + GetMaxLegendLabelLength(dc) + GAP_PIXELS;
+		rcBar.left = m_rcLegend.left + GAP_PIXELS + GetMaxLegendLabelLength(dc) +
+			GAP_PIXELS;
 		rcBar.top = nLabelTop + LEGEND_COLOR_BAR_GAP_PIXELS;
 		rcBar.right = m_rcLegend.right - GAP_PIXELS;
 		rcBar.bottom = rcBar.top + nLabelHeight - LEGEND_COLOR_BAR_GAP_PIXELS;
 		VERIFY(dc.Rectangle(rcBar));
 
 		// Draw bar for group.
-		COLORREF crBar(m_dwaColors.GetAt(nShownGroup));
+		COLORREF crBar(m_dwaColors.GetAt(nGroup));
 		CBrush br(crBar);
 
 		CBrush* pBrushOld = dc.SelectObject(&br);
 		ASSERT_VALID(pBrushOld);
 
+		dc.SelectObject(pBrushOld);
 		rcBar.DeflateRect(LEGEND_COLOR_BAR_GAP_PIXELS, LEGEND_COLOR_BAR_GAP_PIXELS);
 		dc.FillRect(rcBar, &br);
-
-		dc.SelectObject(pBrushOld);
-		br.DeleteObject();
 	}
 
 	VERIFY(dc.SelectObject(pFontOld));
-	fontLegend.DeleteObject();
 }
 
 //
@@ -915,57 +848,36 @@ void MyGraph::DrawAxes(CDC& dc) const
 		VERIFY(dc.LineTo(m_ptOrigin.x + m_nXAxisWidth, m_ptOrigin.y));
 	}
 
-	// Note: m_nAxisLabelHeight and m_nAxisTickLabelHeight have been calculated in SetupAxis()
+	// Create the y-axis label font and draw it.
+	CFont fontYAxes;
 
-	// Create the x-axis label font.
-	CFont fontXAxis;
-	VERIFY(fontXAxis.CreatePointFont(m_nAxisLabelHeight, _T("Arial"), &dc));
+	VERIFY(fontYAxes.CreateFont( 
+		/* nHeight */ max(m_rcGraph.Width() / 10 / Y_AXIS_LABEL_DIVISOR, MIN_FONT_SIZE / 7),
+		/* nWidth */ 0, /* nEscapement */ 90 * 10, /* nOrientation */ 0,
+		/* nWeight */ FW_DONTCARE,	/* bItalic */ false, /* bUnderline */ false,
+		/* cStrikeOut */ 0, ANSI_CHARSET, OUT_DEFAULT_PRECIS,
+		CLIP_DEFAULT_PRECIS, PROOF_QUALITY, VARIABLE_PITCH | FF_DONTCARE, 
+		_T("Arial")));
 
-	// Obtain the height of the font in device coordinates.
-	LOGFONT pLF;
-	VERIFY(fontXAxis.GetLogFont(&pLF));
-	int fontHeightDC = pLF.lfHeight;
-
-	// Create the y-axis label font.
-	CFont fontYAxis;
-	VERIFY(fontYAxis.CreateFont( 
-		/* nHeight */ fontHeightDC,
-		/* nWidth */ 0, 
-		/* nEscapement */ 90 * 10, 
-		/* nOrientation */ 0,
-		/* nWeight */ FW_DONTCARE,	
-		/* bItalic */ false, 
-		/* bUnderline */ false,
-		/* cStrikeOut */ 0, 
-		ANSI_CHARSET, 
-		OUT_DEFAULT_PRECIS,
-		CLIP_DEFAULT_PRECIS, 
-		PROOF_QUALITY, 
-		VARIABLE_PITCH | FF_DONTCARE, 
-		_T("Arial"))
-	);
-
-	// Set the y-axis label font and draw the label.
-	CFont* pFontOld = dc.SelectObject(&fontYAxis);
+	CFont* pFontOld = dc.SelectObject(&fontYAxes);
 	ASSERT_VALID(pFontOld);
 	CSize sizYLabel(dc.GetTextExtent(m_sYAxisLabel));
 	VERIFY(dc.TextOut(GAP_PIXELS, (m_rcGraph.Height() - sizYLabel.cy) / 2,
 		m_sYAxisLabel));
 
-	// Set the x-axis label font and draw the label.
-	VERIFY(dc.SelectObject(&fontXAxis));
+	// Create the x-axis label font and draw it.
+	CFont fontXAxes;
+	VERIFY(fontXAxes.CreatePointFont(max(m_rcGraph.Width() / X_AXIS_LABEL_DIVISOR, MIN_FONT_SIZE),
+		_T("Arial"), &dc));
+	VERIFY(dc.SelectObject(&fontXAxes));
 	CSize sizXLabel(dc.GetTextExtent(m_sXAxisLabel));
+
 	VERIFY(dc.TextOut(m_ptOrigin.x + (m_nXAxisWidth - sizXLabel.cx) / 2,
-		m_rcGraph.bottom - GAP_PIXELS - sizXLabel.cy, m_sXAxisLabel));
+		m_rcGraph.Height() - GAP_PIXELS - sizXLabel.cy, m_sXAxisLabel));
 
 	// We hardwire TITLE_DIVISOR y-axis ticks here for simplicity.
 	int nTickCount(min(Y_AXIS_MAX_TICK_COUNT, GetMaxDataValue()));
 	int nTickSpace(m_nYAxisHeight / nTickCount);
-
-	// create tick label font and set it in the device context
-	CFont fontTickLabels;
-	VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, _T("Arial"), &dc));
-	VERIFY(dc.SelectObject(&fontTickLabels));
 
 	for (int nTick = 0; nTick < nTickCount; ++nTick) {
 		int nTickYLocation(m_ptOrigin.y - (nTickSpace * (nTick + 1)));
@@ -978,7 +890,7 @@ void MyGraph::DrawAxes(CDC& dc) const
 		CSize sizTickLabel(dc.GetTextExtent(sTickLabel));
 		
 		VERIFY(dc.TextOut(m_ptOrigin.x - GAP_PIXELS - sizTickLabel.cx - TICK_PIXELS,
-			nTickYLocation - sizTickLabel.cy/2, sTickLabel));
+			nTickYLocation - sizTickLabel.cy, sTickLabel));
 	}
 
 	// Draw X axis tick marks.
@@ -1021,16 +933,13 @@ void MyGraph::DrawAxes(CDC& dc) const
 			CSize sizTickLabel(dc.GetTextExtent(sTickLabel));
 
 			VERIFY(dc.TextOut(nTickXLocation - (sizTickLabel.cx / 2),
-				m_ptOrigin.y + TICK_PIXELS + GAP_PIXELS, sTickLabel));
+				m_ptOrigin.y + sizTickLabel.cy, sTickLabel));
 
 			++nSeries;
 		}
 	}
 
 	VERIFY(dc.SelectObject(pFontOld));
-	fontXAxis.DeleteObject();
-	fontYAxis.DeleteObject();
-	fontTickLabels.DeleteObject();
 }
 
 //
@@ -1113,7 +1022,6 @@ void MyGraph::DrawSeriesBar(CDC& dc) const
 
 					VERIFY(dc.Rectangle(rcBar));
 					dc.SelectObject(pBrushOld);
-					br.DeleteObject();
 
 					if(!m_bStackedGraph){
 						nRunningLeft += nBarWidth;
@@ -1205,7 +1113,7 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
 
 			// Now draw ellipse.
 			CRect rcEllipse(ptLoc.x - 3, ptLoc.y - 3, ptLoc.x + 3, ptLoc.y + 3);
-			if(pSeries->GetData(nGroup)!=0){
+			if(!m_bStackedGraph || pSeries->GetData(nGroup)!=0){
 				VERIFY(dc.Ellipse(rcEllipse));
 			}
 			if (m_olMyGraphSeries.GetCount() < 40)
@@ -1218,8 +1126,8 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
 			dataLastLoc = pSeries->GetData(nGroup);
 		}
 		VERIFY(dc.SelectObject(pPenOld));
+		dc.SelectObject(pBrushOld);
 		penLine.DeleteObject();
-		VERIFY(dc.SelectObject(pBrushOld));
 		br.DeleteObject();
 	}
 }
@@ -1332,13 +1240,12 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
 						VERIFY(dc.BeginPath());
 						VERIFY(dc.Pie(rcPie, ptStart, ptEnd));
 						VERIFY(dc.EndPath());
-						CRgn * prgnWedge = new CRgn;
+						CRgn* prgnWedge = new CRgn;
 						VERIFY(prgnWedge->CreateFromPath(&dc));
 						pSeries->SetTipRegion(nGroup, prgnWedge);
 
 						// Cleanup.
 						dc.SelectObject(pBrushOld);
-						br.DeleteObject();
 						ptStart = ptEnd;
 					}
 				}

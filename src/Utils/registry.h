@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 #include <string>
@@ -22,7 +22,7 @@
 #ifdef _MFC_VER
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * Base class for the registry classes.
  *
  * \par requirements 
@@ -56,8 +56,7 @@ public:	//methods
 
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
+			FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL,
 			LastError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -81,7 +80,7 @@ public:	//members
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * DWORD value in registry. with this class you can use DWORD values in registry
  * like normal DWORD variables in your program.
  * Usage:
@@ -161,7 +160,7 @@ protected:
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * CString value in registry. with this class you can use CString values in registry
  * almost like normal CString variables in your program.
  * Usage:
@@ -236,7 +235,7 @@ protected:
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * CRect value in registry. with this class you can use CRect values in registry
  * almost like normal CRect variables in your program.
  * Usage:
@@ -322,7 +321,7 @@ protected:
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * CPoint value in registry. with this class you can use CPoint values in registry
  * almost like normal CPoint variables in your program.
  * Usage:
@@ -399,7 +398,7 @@ protected:
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * Manages a registry key (not a value). Provides methods to create and remove the
  * key and to query the list of values and subkeys.
  */
@@ -470,8 +469,7 @@ public:	//methods
 
 		FormatMessage(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-			FORMAT_MESSAGE_FROM_SYSTEM |
-			FORMAT_MESSAGE_IGNORE_INSERTS,
+			FORMAT_MESSAGE_FROM_SYSTEM,
 			NULL,
 			LastError,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
@@ -488,7 +486,7 @@ public:	//members
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * std::string value in registry. with this class you can use std::string values in registry
  * almost like normal std::string variables in your program.
  * Usage:
@@ -550,7 +548,7 @@ protected:
 };
 
 /**
- * \ingroup Utils
+ * \ingroup CommonClasses
  * DWORD value in registry. with this class you can use DWORD values in registry
  * like normal DWORD variables in your program.
  * Usage:

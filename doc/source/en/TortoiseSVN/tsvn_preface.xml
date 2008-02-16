@@ -176,16 +176,8 @@
 				<term>Lübbe Onken</term>
 				<listitem>
 					<para>
-						for the beautiful icons, logo, bug hunting, translating and
-						managing the translations
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Simon Large</term>
-				<listitem>
-					<para>
-						for helping with the documentation and bug hunting
+						for the beautiful icons, logo, bughunting and taking care
+						of the documentation
 					</para>
 				</listitem>
 			</varlistentry>
@@ -258,7 +250,7 @@
 		</para>
 		<para>
 			User Actions are indicated using a bold font.
-			<keycap>ALT+A</keycap>: press the
+			<action>ALT+A</action>: press the
 			<keycap>ALT</keycap>-Key on your keyboard and while holding it down
 			press the <keycap>A</keycap>-Key as well.
 			<action>Right-drag</action>: press the right mouse button and while

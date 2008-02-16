@@ -1,21 +1,6 @@
-// TortoiseMerge - a Diff/Patch program
-
-// Copyright (C) 2006 - Stefan Kueng
-
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// FindDlg.cpp : implementation file
 //
+
 #include "stdafx.h"
 #include "TortoiseMerge.h"
 #include "FindDlg.h"
@@ -31,7 +16,7 @@ CFindDlg::CFindDlg(CWnd* pParent /*=NULL*/)
 	, m_bFindNext(false)
 	, m_bMatchCase(FALSE)
 	, m_bLimitToDiffs(FALSE)
-	, m_bWholeWord(FALSE)
+	, m_sFindText(_T(""))
 {
 }
 
@@ -44,13 +29,12 @@ void CFindDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	DDX_Check(pDX, IDC_MATCHCASE, m_bMatchCase);
 	DDX_Check(pDX, IDC_LIMITTODIFFS, m_bLimitToDiffs);
-	DDX_Check(pDX, IDC_WHOLEWORD, m_bWholeWord);
-	DDX_Control(pDX, IDC_FINDCOMBO, m_FindCombo);
+	DDX_Text(pDX, IDC_SEARCHTEXT, m_sFindText);
 }
 
 
 BEGIN_MESSAGE_MAP(CFindDlg, CDialog)
-	ON_CBN_EDITCHANGE(IDC_FINDCOMBO, &CFindDlg::OnCbnEditchangeFindcombo)
+	ON_EN_CHANGE(IDC_SEARCHTEXT, &CFindDlg::OnEnChangeSearchtext)
 END_MESSAGE_MAP()
 
 
@@ -72,9 +56,7 @@ void CFindDlg::PostNcDestroy()
 void CFindDlg::OnOK()
 {
 	UpdateData();
-	m_FindCombo.SaveHistory();
-
-	if (m_FindCombo.GetString().IsEmpty())
+	if (m_sFindText.IsEmpty())
 		return;
 	m_bFindNext = true;
 	if (GetParent())
@@ -87,15 +69,12 @@ BOOL CFindDlg::OnInitDialog()
 	CDialog::OnInitDialog();
 	m_FindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-	m_FindCombo.LoadHistory(_T("Software\\TortoiseMerge\\History\\Find"), _T("Search"));
-
-	m_FindCombo.SetFocus();
-
+	GetDlgItem(IDC_SEARCHTEXT)->SetFocus();
 	return FALSE;
 }
 
-void CFindDlg::OnCbnEditchangeFindcombo()
+void CFindDlg::OnEnChangeSearchtext()
 {
 	UpdateData();
-	GetDlgItem(IDOK)->EnableWindow(!m_FindCombo.GetString().IsEmpty());
+	GetDlgItem(IDOK)->EnableWindow(!m_sFindText.IsEmpty());
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
@@ -24,6 +24,38 @@
 #include "Registry.h"
 #include "UnicodeUtils.h"
 #include "TempFile.h"
+
+
+void CStdioFileA::WriteString(LPCSTR lpsz)
+{
+	ASSERT(lpsz != NULL);
+	ASSERT(m_pStream != NULL);
+	
+	if (lpsz == NULL)
+	{
+		AfxThrowInvalidArgException();
+	}
+
+	if (fputs(lpsz, m_pStream) == EOF)
+		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+}
+
+
+void CStdioFileA::WriteString(LPCWSTR lpsz)
+{
+	ASSERT(lpsz != NULL);
+	ASSERT(m_pStream != NULL);
+	
+	if (lpsz == NULL)
+	{
+		AfxThrowInvalidArgException();
+	}
+
+	if (fputws(lpsz, m_pStream) == EOF)
+		AfxThrowFileException(CFileException::diskFull, _doserrno, m_strFileName);
+}
+
+
 
 CBlame::CBlame()
 {
@@ -39,9 +71,7 @@ CBlame::~CBlame()
 	m_progressDlg.Stop();
 }
 
-BOOL CBlame::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString& author, const CString& date,
-						   svn_revnum_t merged_revision, const CString& merged_author, const CString& merged_date, const CString& merged_path,
-						   const CStringA& line)
+BOOL CBlame::BlameCallback(LONG linenumber, LONG revision, const CString& author, const CString& date, const CStringA& line)
 {
 	CStringA infolineA;
 	CStringA fulllineA;
@@ -53,23 +83,14 @@ BOOL CBlame::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString
 
 	CStringA dateA(date);
 	CStringA authorA(author);
-	CStringA pathA(merged_path);
-	TCHAR c = ' ';
-	if (!merged_author.IsEmpty() && (merged_revision < revision))
-	{
-		dateA = CStringA(merged_date);
-		authorA = CStringA(merged_author);
-		revision = merged_revision;
-		c = 'G';
-		m_bHasMerges = true;
-	}
 
 	if (authorA.GetLength() > 30 )
 		authorA = authorA.Left(30);
+
 	if (m_bNoLineNo)
-		infolineA.Format("%c %6ld %-30s %-60s %-30s ", c, revision, dateA, pathA, authorA);
+		infolineA.Format("%6ld %30s %-30s ", revision, dateA, authorA);
 	else
-		infolineA.Format("%c %6ld %6ld %-30s %-60s %-30s ", c, linenumber, revision, dateA, pathA, authorA);
+		infolineA.Format("%6ld %6ld %30s %-30s ", linenumber, revision, dateA, authorA);
 	fulllineA = line;
 	fulllineA.TrimRight("\r\n");
 	fulllineA += "\n";
@@ -83,7 +104,7 @@ BOOL CBlame::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString
 	return TRUE;
 }
 
-BOOL CBlame::Log(svn_revnum_t revision, const CString& /*author*/, const CString& /*date*/, const CString& message, LogChangedPathArray * /*cpaths*/, apr_time_t /*time*/, int /*filechanges*/, BOOL /*copies*/, DWORD /*actions*/, BOOL /*children*/)
+BOOL CBlame::Log(svn_revnum_t revision, const CString& /*author*/, const CString& /*date*/, const CString& message, LogChangedPathArray * cpaths, apr_time_t /*time*/, int /*filechanges*/, BOOL /*copies*/, DWORD /*actions*/)
 {
 	m_progressDlg.SetProgress(m_highestrev - revision, m_highestrev);
 	if (m_saveLog.m_hFile != INVALID_HANDLE_VALUE)
@@ -94,6 +115,10 @@ BOOL CBlame::Log(svn_revnum_t revision, const CString& /*author*/, const CString
 		m_saveLog.Write(&length, sizeof(int));
 		m_saveLog.Write((LPCSTR)msgutf8, length);
 	}
+	for (INT_PTR i=0; i<cpaths->GetCount(); ++i)
+		delete cpaths->GetAt(i);
+	cpaths->RemoveAll();
+	delete cpaths;
 	return TRUE;
 }
 
@@ -104,13 +129,9 @@ BOOL CBlame::Cancel()
 	return m_bCancelled;
 }
 
-CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, const CString& options, BOOL showprogress /* = TRUE */, BOOL ignoremimetype /* = FALSE */)
+CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev, CString& logfile, BOOL showprogress /* = TRUE */)
 {
-	// if the user specified to use another tool to show the blames, there's no
-	// need to fetch the log later: only TortoiseBlame uses those logs to give 
-	// the user additional information for the blame.
 	BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
-
 	CString temp;
 	m_sSavePath = CTempFiles::Instance().GetTempFilePath(false).GetWinPathString();
 	if (m_sSavePath.IsEmpty())
@@ -122,11 +143,11 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 		return _T("");
 	CString headline;
 	m_bNoLineNo = false;
-	headline.Format(_T("%c %-6s %-6s %-30s %-60s %-30s %-s \n"), ' ', _T("line"), _T("rev"), _T("date"), _T("path"), _T("author"), _T("content"));
+	headline.Format(_T("%-6s %-6s %-30s %-30s %-s \n"), _T("line"), _T("rev"), _T("date"), _T("author"), _T("content"));
 	m_saveFile.WriteString(headline);
 	m_saveFile.WriteString(_T("\n"));
 	m_progressDlg.SetTitle(IDS_BLAME_PROGRESSTITLE);
-	m_progressDlg.SetAnimation(IDR_DOWNLOAD);
+	m_progressDlg.SetAnimation(IDR_SEARCH);
 	m_progressDlg.SetShowProgressBar(TRUE);
 	if (showprogress)
 	{
@@ -140,19 +161,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 	if (m_nHeadRev < 0)
 		m_nHeadRev = GetHEADRevision(path);
 	m_progressDlg.SetProgress(0, m_nHeadRev);
-
-	m_bHasMerges = false;
-	BOOL bBlameSuccesful = this->Blame(path, startrev, endrev, pegrev, options, !!ignoremimetype);
-	if ( !bBlameSuccesful && !pegrev.IsValid() )
-	{
-		// retry with the endrev as pegrev
-		if ( this->Blame(path, startrev, endrev, endrev, options, !!ignoremimetype) )
-		{
-			bBlameSuccesful = TRUE;
-			pegrev = endrev;
-		}
-	}
-	if (!bBlameSuccesful)
+	if (!this->Blame(path, startrev, endrev, pegrev))
 	{
 		m_saveFile.Close();
 		DeleteFile(m_sSavePath);
@@ -168,16 +177,15 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 			logfile.Empty();
 			return m_sSavePath;
 		}
-		BOOL bRet = ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, FALSE, m_bHasMerges);
-		if (!bRet)
+		// workaround: the peg revision can't be svn_opt_revision_working because Subversion
+		// will error out. Bug in Subversion?
+		if (pegrev.IsWorking() && !path.IsUrl())
+			pegrev = SVNRev();
+		if (!this->ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, TRUE))
 		{
 			m_saveLog.Close();
 			DeleteFile(logfile);
 			logfile.Empty();
-		}
-		else
-		{
-			m_saveLog.Close();
 		}
 	}
 	m_progressDlg.Stop();
@@ -198,7 +206,7 @@ BOOL CBlame::Notify(const CTSVNPath& /*path*/, svn_wc_notify_action_t /*action*/
 	return TRUE;
 }
 
-bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile, const CString& options, BOOL ignoremimetype)
+bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg, const CTSVNPath& tofile)
 {
 	CString temp;
 	if (!m_saveFile.Open(tofile.GetWinPathString(), CFile::typeText | CFile::modeReadWrite | CFile::modeCreate))
@@ -207,24 +215,11 @@ bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, 
 	m_nHeadRev = endrev;
 	if (m_nHeadRev < 0)
 		m_nHeadRev = GetHEADRevision(path);
-
-	BOOL bBlameSuccesful = this->Blame(path, startrev, endrev, peg, options, !!ignoremimetype);
-	if ( !bBlameSuccesful && !peg.IsValid() )
-	{
-		// retry with the endrev as pegrev
-		if ( this->Blame(path, startrev, endrev, endrev, options, !!ignoremimetype) )
-		{
-			bBlameSuccesful = TRUE;
-			peg = endrev;
-		}
-	}
-
-	if (!bBlameSuccesful)
+	if (!this->Blame(path, startrev, endrev, peg))
 	{
 		m_saveFile.Close();
 		return false;
 	}
-
 	if (m_saveFile.m_hFile != INVALID_HANDLE_VALUE)
 		m_saveFile.Close();
 

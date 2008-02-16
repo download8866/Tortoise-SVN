@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="8.00"
 	Name="TortoiseShell"
 	ProjectGUID="{E873DD32-5A31-4DE1-8341-A56A2A5489EA}"
 	RootNamespace="TortoiseShell"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -23,6 +22,7 @@
 			OutputDirectory="..\..\bin\Debug\bin"
 			IntermediateDirectory="..\..\obj\TortoiseShell\Debug"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -52,7 +52,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SVN_DEBUG;APU_HAVE_DB=1"
 				BasicRuntimeChecks="1"
 				RuntimeLibrary="3"
@@ -82,19 +82,15 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_ra-nonet.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib"
+				AdditionalDependencies="shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_ra-nonet.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/apr-iconv\debug_win32\libapriconv_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib ../../ext/svn-win32-libintl/lib/intl3_svn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="LIBC"
 				ModuleDefinitionFile=".\ShellExt.def"
-				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TortoiseSVN.pdb"
-				BaseAddress="0x5960000"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				ImportLibrary="..\..\obj\TortoiseShell\Debug/TortoiseSVN.lib"
 				TargetMachine="1"
 			/>
@@ -117,6 +113,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -125,6 +124,7 @@
 			OutputDirectory="..\..\bin\Debug64\bin"
 			IntermediateDirectory="..\..\obj\TortoiseShell\Debug64"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -154,7 +154,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\libintl3-x64\inc&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\svn-x64-libintl\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;_DEBUG;_WINDOWS;_USRDLL;SVN_DEBUG;APU_HAVE_DB=1"
 				BasicRuntimeChecks="1"
 				RuntimeLibrary="3"
@@ -183,19 +183,15 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_ra-nonet.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib"
+				AdditionalDependencies="shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_ra-nonet.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/apr-iconv\debug_x64\libapriconv_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib ../../ext/svn-x64-libintl/lib/intl3_svn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
 				IgnoreAllDefaultLibraries="false"
 				IgnoreDefaultLibraryNames="LIBC"
 				ModuleDefinitionFile=".\ShellExt.def"
-				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TortoiseSVN.pdb"
-				BaseAddress="0x5960000"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				ImportLibrary="..\..\obj\TortoiseShell\Debug64/TortoiseSVN.lib"
 				TargetMachine="17"
 			/>
@@ -218,6 +214,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -226,6 +225,7 @@
 			OutputDirectory="..\..\bin\Release\bin"
 			IntermediateDirectory="..\..\obj\TortoiseShell\Release"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -258,7 +258,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\svn-win32-libintl\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;APU_HAVE_DB=1"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -288,22 +288,17 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/Subversion\release_win32\\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/Subversion\release_win32\libsvn_ra-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib"
+				AdditionalDependencies="shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/Subversion\release_win32\\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/Subversion\release_win32\libsvn_ra-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/apr-iconv\release_win32\libapriconv_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib ../../ext/svn-win32-libintl/lib/intl3_svn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="libcd, libc, shell32"
 				ModuleDefinitionFile=".\ShellExt.def"
-				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TortoiseShell.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				BaseAddress="0x5960000"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				ImportLibrary="..\..\obj\TortoiseShell\Release/TortoiseSVN.lib"
 				TargetMachine="1"
 			/>
@@ -326,6 +321,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -334,6 +332,7 @@
 			OutputDirectory="..\..\bin\Release64\bin"
 			IntermediateDirectory="..\..\obj\TortoiseShell\Release64"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
 			UseOfATL="1"
 			ATLMinimizesCRunTimeLibraryUsage="false"
@@ -366,7 +365,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\libintl3-x64\inc&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\svn-x64-libintl\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;NDEBUG;_WINDOWS;_USRDLL;APU_HAVE_DB=1"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -395,22 +394,17 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/Subversion\release_x64\\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/Subversion\release_x64\libsvn_ra-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib"
+				AdditionalDependencies="shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/Subversion\release_x64\\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/Subversion\release_x64\libsvn_ra-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/apr-iconv\release_x64\libapriconv_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib ../../ext/svn-x64-libintl/lib/intl3_svn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="libcd, libc, shell32"
 				ModuleDefinitionFile=".\ShellExt.def"
-				DelayLoadDLLs="gdiplus.dll"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/TortoiseShell.pdb"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				OptimizeForWindows98="1"
-				BaseAddress="0x5960000"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
 				ImportLibrary="..\..\obj\TortoiseShell\Release64/TortoiseSVN.lib"
 				TargetMachine="17"
 			/>
@@ -433,6 +427,9 @@
 				Name="VCAppVerifierTool"
 			/>
 			<Tool
+				Name="VCWebDeploymentTool"
+			/>
+			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -444,10 +441,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm"
 			>
-			<File
-				RelativePath="..\TSVNCache\CacheInterface.cpp"
-				>
-			</File>
 			<File
 				RelativePath="ColumnProvider.cpp"
 				>
@@ -465,15 +458,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\PathUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PIDL.cpp"
 				>
 			</File>
 			<File
 				RelativePath="PreserveChdir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Utils\MiscUI\ProgressDlg.cpp"
 				>
 			</File>
 			<File
@@ -494,6 +487,10 @@
 			</File>
 			<File
 				RelativePath=".\ShellExtClassFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\Utils\ShellUpdater.cpp"
 				>
 			</File>
 			<File
@@ -557,10 +554,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\SVN\SVNRev.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\SVN\SVNStatus.cpp"
 				>
 			</File>
@@ -570,6 +563,10 @@
 			</File>
 			<File
 				RelativePath="..\Svn\TSVNPath.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\UnicodeStrings.cpp"
 				>
 			</File>
 			<File
@@ -591,10 +588,6 @@
 			</File>
 			<File
 				RelativePath=".\ItemIDList.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\PathUtils.h"
 				>
 			</File>
 			<File
@@ -634,6 +627,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Utils\ShellUpdater.h"
+				>
+			</File>
+			<File
 				RelativePath="stdafx.h"
 				>
 			</File>
@@ -662,15 +659,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\SVN\SVNRev.h"
-				>
-			</File>
-			<File
 				RelativePath="..\SVN\SVNStatus.h"
 				>
 			</File>
 			<File
 				RelativePath="..\Svn\TSVNPath.h"
+				>
+			</File>
+			<File
+				RelativePath=".\UnicodeStrings.h"
 				>
 			</File>
 			<File
@@ -724,10 +721,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\menudelete.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\menudelunversioned.ico"
 				>
 			</File>
 			<File

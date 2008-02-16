@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Tobias Schäfer
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #pragma once
 
@@ -25,7 +25,6 @@
 #include <afxcoll.h>
 
 /**
- * \ingroup Utils
  * Use this class to create the DROPFILES structure which is needed to
  * support drag and drop of file names to other applications.
  * Based on an example by Thomas Blenkers.
@@ -45,7 +44,7 @@ public:
 	/**
 	 * Returns the number of files which have been added
 	 */
-	INT_PTR GetCount();
+	int GetCount();
 
 	/**
 	 * Call this method when dragging begins. It will fill

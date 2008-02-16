@@ -2,6 +2,10 @@
 // TortoiseBlame.RC2 - resources Microsoft Visual C++ does not edit directly
 //
 
+#ifdef APSTUDIO_INVOKED
+#error this file is not editable by Microsoft Visual C++
+#endif //APSTUDIO_INVOKED
+
 
 /////////////////////////////////////////////////////////////////////////////
 // Add manually edited resources here...
@@ -27,11 +31,11 @@ BEGIN
     BEGIN
         BLOCK "040004e4"
         BEGIN
-            VALUE "CompanyName", "http://tortoisesvn.net"
+            VALUE "CompanyName", "www.tortoisesvn.org"
             VALUE "FileDescription", "TortoiseBlame"
             VALUE "FileVersion", STRFILEVER
             VALUE "InternalName", "TortoiseBlame.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2008"
+            VALUE "LegalCopyright", "Copyright (C) 2007"
             VALUE "OriginalFilename", "TortoiseBlame.exe"
             VALUE "ProductName", "TortoiseBlame"
             VALUE "ProductVersion", STRPRODUCTVER

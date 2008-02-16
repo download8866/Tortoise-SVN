@@ -70,33 +70,33 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 					</thead>
 					<tbody>
 						<row>
-							<entry condition="pot">-n</entry>
+							<entry>-n</entry>
 							<entry>
 								If this switch is given, SubWCRev will exit with
-								<literal>ERRORLEVEL 7</literal> if the working copy
-								contains local modifications. This may be used to
-								prevent building with uncommitted changes present.
+								ERRORLEVEL 7 if the working copy contains
+								local modifications. This may be used to prevent
+								building with uncommitted changes present.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">-m</entry>
+							<entry>-m</entry>
 							<entry>
 								If this switch is given, SubWCRev will exit with
-								<literal>ERRORLEVEL 8</literal> if the working copy
-								contains mixed revisions. This may be used to prevent
+								ERRORLEVEL 8 if the working copy contains
+								mixed revisions. This may be used to prevent
 								building with a partially updated working copy.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">-d</entry>
+							<entry>-d</entry>
 							<entry>
 								If this switch is given, SubWCRev will exit with
-								<literal>ERRORLEVEL 9</literal> if the destination file
-								already exists.
+								ERRORLEVEL 9 if the destination file already
+								exists.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">-f</entry>
+							<entry>-f</entry>
 							<entry>
 								If this switch is given, SubWCRev will include
 								the last-changed revision of folders. The default
@@ -105,28 +105,12 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">-e</entry>
+							<entry>-e</entry>
 							<entry>
 								If this switch is given, SubWCRev will examine
-								directories which are included with
-								<literal>svn:externals</literal>,
+								directories which are included with svn:externals,
 								but only if they are from the same repository.
 								The default behaviour is to ignore externals.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">-x</entry>
-							<entry>
-								If this switch is given, SubWCRev will 
-								output the revision numbers in HEX.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">-X</entry>
-							<entry>
-								If this switch is given, SubWCRev will 
-								output the revision numbers in HEX, with
-								'0X' prepended.
 							</entry>
 						</row>
 					</tbody>
@@ -155,39 +139,31 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 					</thead>
 					<tbody>
 						<row>
-							<entry condition="pot">$WCREV$</entry>
+							<entry>$WCREV$</entry>
 							<entry>
 								Replaced with the highest commit revision
 								in the working copy.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCDATE$</entry>
+							<entry>$WCDATE$</entry>
 							<entry>
 								Replaced with the commit date/time of the
-								highest commit revision. By default,
-								international format is used:
-								<literal>yyyy-mm-dd hh:mm:ss</literal>.
-								Alternatively, you can specify a custom format which
-								will be used with <literal>strftime()</literal>,
-								for example:
-								<literal>$WCDATE=%a %b %d %I:%M:%S %p$</literal>.
-								For a list of available formatting characters, look at the
-								<ulink url="http://www.cppreference.com/stddate/strftime.html">
-									<citetitle>online reference</citetitle>
-								</ulink>.
+								highest commit revision. To avoid confusion,
+								international format is used, ie.
+								<literal>yyyy-mm-dd hh:mm:ss</literal>
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCNOW$</entry>
+							<entry>$WCNOW$</entry>
 							<entry>
 								Replaced with the current system date/time.
 								This can be used to indicate the build time.
-								Time formatting is as described above.
+								International format is used as described above.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCRANGE$</entry>
+							<entry>$WCRANGE$</entry>
 							<entry>
 								Replaced with the update revision range in
 								the working copy. If the working copy is in a
@@ -199,80 +175,24 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCMIXED$</entry>
+							<entry>$WCMIXED?TText:FText$</entry>
 							<entry>
-								<literal>$WCMIXED?TText:FText$</literal> is
-								replaced with <literal>TText</literal> if there are mixed update
-								revisions, or <literal>FText</literal> if not.
+								Replaced with TText if there are mixed update
+								revisions, or FText if not.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCMODS$</entry>
+							<entry>$WCMODS?TText:FText$</entry>
 							<entry>
-								<literal>$WCMODS?TText:FText$</literal> is
-								replaced with <literal>TText</literal> if there are local
-								modifications, or <literal>FText</literal> if not.
+								Replaced with TText if there are local
+								modifications, or FText if not.
 							</entry>
 						</row>
 						<row>
-							<entry condition="pot">$WCURL$</entry>
+							<entry>$WCURL$</entry>
 							<entry>
 								Replaced with the repository URL of the working
 								copy path passed to SubWCRev.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCNOW$</entry>
-							<entry>
-								Replaced with the current time and date
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCNOW=</entry>
-							<entry>
-								Replaced with the current time and date in standard format
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCINSVN$</entry>
-							<entry>
-								<literal>$WCINSVN?TText:FText$</literal> is
-								replaced with <literal>TText</literal> if the entry is versioned,
-								or <literal>FText</literal> if not.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCNEEDSLOCK$</entry>
-							<entry>
-								<literal>$WCNEEDSLOCK?TText:FText$</literal> is
-								replaced with <literal>TText</literal> if the entry has the svn:needs-lock
-								property set, or <literal>FText</literal> if not.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCISLOCKED$</entry>
-							<entry>
-								<literal>$WCISLOCKED?TText:FText$</literal> is
-								replaced with <literal>TText</literal> if the entry is locked,
-								or <literal>FText</literal> if not.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCLOCKDATE$</entry>
-							<entry>
-								Replaced with the lock date
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCLOCKOWNER$</entry>
-							<entry>
-								Replaced with the name of the lock owner
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">$WCLOCKCOMMENT$</entry>
-							<entry>
-								Replaced with the comment of the lock
 							</entry>
 						</row>
 					</tbody>
@@ -289,13 +209,13 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 			The example below shows how keywords in a template file are
 			substituted in the output file.
 		</para>
-<screen>
-// Test file for SubWCRev: testfile.tmpl
+		<screen>
+// Test file for SubWCRev
 
 char *Revision = "$WCREV$";
 char *Modified = "$WCMODS?Modified:Not modified$";
 char *Date     = "$WCDATE$";
-char *Range    = "$WCRANGE$";
+char *RevRange = "$WCRANGE$";
 char *Mixed    = "$WCMIXED?Mixed revision WC:Not mixed$";
 char *URL      = "$WCURL$";
 
@@ -303,19 +223,18 @@ char *URL      = "$WCURL$";
 #error Source is modified
 #endif
 
-// End of file
+// EndOfFile
 </screen>
 		<para>
-			After running <literal>SubWCRev.exe path\to\workingcopy testfile.tmpl testfile.txt</literal>, 
-			the output file <literal>testfile.txt</literal> would looks like this:
+			After running SubWCRev.exe, the output file looks like this:
 		</para>
-<screen>
-// Test file for SubWCRev: testfile.txt
+		<screen>
+// Test file for SubWCRev
 
 char *Revision = "3701";
 char *Modified = "Modified";
 char *Date     = "2005/06/15 11:15:12";
-char *Range    = "3699:3701";
+char *RevRange = "3699:3701";
 char *Mixed    = "Mixed revision WC";
 char *URL      = "http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/SubWCRev";
 
@@ -323,142 +242,12 @@ char *URL      = "http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/SubWCR
 #error Source is modified
 #endif
 
-// End of file
+// EndOfFile
 </screen>
-		<tip>
-			<para>
-				A file like this will be included in the build so you would expect it
-				to be versioned. Be sure to version the template file, not the
-				generated file, otherwise each time you regenerate the version file
-				you need to commit the change, which in turn means the version file
-				needs to be updated.
-			</para>
-		</tip>
-	</sect1>
-	<!-- ================================================================= -->
-	<!-- ======================== SECTION 4 ============================== -->
-	<!-- ================================================================= -->
-	<sect1 id="tsvn-subwcrev-com-interface">
-		<title>COM interface</title>
-		<para>
-			If you need to access Subversion revision information from other
-			programs, you can use the COM interface of SubWCRev. The object to
-			create is <literal>SubWCRev.object</literal>, and the following
-			methods are supported:
-			<table id="tsvn-subwcrev-COM-table">
-				<title>COM/automation methods supported</title>
-				<tgroup cols="2">
-					<colspec colnum="1" colwidth="1*"/>
-					<colspec colnum="2" colwidth="4*"/>
-					<thead>
-						<row>
-							<entry>Method</entry>
-							<entry>Description</entry>
-						</row>
-					</thead>
-					<tbody>
-						<row>
-							<entry condition="pot">.GetWCInfo</entry>
-							<entry>
-								This method traverses the working copy gathering the
-								revision information. Naturally you must call this before
-								you can access the information using the remaining methods.
-								The first parameter is the path.
-								The second parameter should be true if you want to include
-								folder revisions. Equivalent to the <literal>-f</literal>
-								command line switch.
-								The third parameter should be true if you want to include
-								svn:externals. Equivalent to the <literal>-e</literal>
-								command line switch.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.Revision</entry>
-							<entry>
-								The highest commit revision in the working copy.
-								Equivalent to <literal>$WCREV$</literal>
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.Date</entry>
-							<entry>
-								The commit date/time of the highest commit revision.
-								Equivalent to <literal>$WCDATE$</literal>
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.Author</entry>
-							<entry>
-								The author of the highest commit revision, that is, the
-								last person to commit changes to the working copy.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.MinRev</entry>
-							<entry>The minimum update revision, as shown in <literal>$WCRANGE$</literal></entry>
-						</row>
-						<row>
-							<entry condition="pot">.MaxRev</entry>
-							<entry>The maximum update revision, as shown in <literal>$WCRANGE$</literal></entry>
-						</row>
-						<row>
-							<entry condition="pot">.HasModifications</entry>
-							<entry>True if there are local modifications</entry>
-						</row>
-						<row>
-							<entry condition="pot">.Url</entry>
-							<entry>
-								Replaced with the repository URL of the working
-								copy path used in <literal>GetWCInfo</literal>.
-								Equivalent to <literal>$WCURL$</literal>
-							</entry>
-						</row>
-					</tbody>
-				</tgroup>
-			</table>
-		</para>
-		<para>
-			The following example shows how the interface might be used.
-<programlisting>
-// testCOM.js - javascript file
-// test script for the SubWCRev COM/Automation-object
-
-filesystem = new ActiveXObject("Scripting.FileSystemObject");
-
-SubWCRev1 = new ActiveXObject("SubWCRev.object");
-SubWCRev2 = new ActiveXObject("SubWCRev.object");
-SubWCRev3 = new ActiveXObject("SubWCRev.object");
-
-SubWCRev1.GetWCInfo(filesystem.GetAbsolutePathName("."), 0, 0);
-SubWCRev2.GetWCInfo(filesystem.GetAbsolutePathName(".."), 1, 1);
-SubWCRev3.GetWCInfo(filesystem.GetAbsolutePathName("SubWCRev.cpp"), 0, 0);
-
-sInfo1 = "Revision = " + SubWCRev1.Revision + 
-         "\nMin Revision = " + SubWCRev1.MinRev +
-         "\nMax Revision = " + SubWCRev1.MaxRev +
-         "\nDate = " + SubWCRev1.Date +
-         "\nURL = " + SubWCRev1.Url +
-         "\nAuthor = " + SubWCRev1.Author +
-         "\nHasMods = " + SubWCRev1.HasModifications;
-sInfo2 = "Revision = " + SubWCRev2.Revision +
-         "\nMin Revision = " + SubWCRev2.MinRev +
-         "\nMax Revision = " + SubWCRev2.MaxRev +
-         "\nDate = " + SubWCRev2.Date +
-         "\nURL = " + SubWCRev2.Url +
-         "\nAuthor = " + SubWCRev2.Author +
-         "\nHasMods = " + SubWCRev2.HasModifications;
-sInfo3 = "Revision = " + SubWCRev3.Revision +
-         "\nMin Revision = " + SubWCRev3.MinRev +
-         "\nMax Revision = " + SubWCRev3.MaxRev +
-         "\nDate = " + SubWCRev3.Date +
-         "\nURL = " + SubWCRev3.Url +
-         "\nAuthor = " + SubWCRev3.Author +
-         "\nHasMods = " + SubWCRev3.HasModifications;
-
-WScript.Echo(sInfo1);
-WScript.Echo(sInfo2);
-WScript.Echo(sInfo3);
-</programlisting>
-		</para>
 	</sect1>
 </chapter>
+<!--
+local variables:
+sgml-parent-document: ("book.xml" "chapter")
+end:
+-->

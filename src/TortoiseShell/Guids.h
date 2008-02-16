@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 
-// The class IDs of these Shell extension class.
+// The class IDs of these Shell extension classs.
 //
 // class ids: 
 //
@@ -48,7 +48,6 @@ DEFINE_GUID(CLSID_TortoiseSVN_READONLY,0x3035134b, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0
 DEFINE_GUID(CLSID_TortoiseSVN_DELETED,0x3035134c, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
 DEFINE_GUID(CLSID_TortoiseSVN_LOCKED,0x3035134d, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
 DEFINE_GUID(CLSID_TortoiseSVN_ADDED,0x3035134e, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
-DEFINE_GUID(CLSID_TortoiseSVN_IGNORED,0x3035134f, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
-DEFINE_GUID(CLSID_TortoiseSVN_UNVERSIONED,0x30351350, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
+//DEFINE_GUID(CLSID_TortoiseSVN_9,0x3035134f, 0x7b7d, 0x4fcc, 0x81, 0xb4, 0x1e, 0x39, 0x4c, 0xa2, 0x67, 0xeb);
 
 

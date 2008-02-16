@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "TortoiseMerge.h"
@@ -44,8 +44,9 @@ CSetMainPage::CSetMainPage()
 	, m_bDisplayBinDiff(TRUE)
 	, m_bCaseInsensitive(FALSE)
 {
+	m_regLanguage = CRegDWORD(_T("Software\\TortoiseMerge\\LanguageID"), 1033);
 	m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
-	m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE);
+	m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"));
 	m_regTabSize = CRegDWORD(_T("Software\\TortoiseMerge\\TabSize"), 4);
 	m_regIgnoreEOL = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreEOL"), TRUE);	
 	m_regOnePane = CRegDWORD(_T("Software\\TortoiseMerge\\OnePane"));
@@ -59,6 +60,7 @@ CSetMainPage::CSetMainPage()
 	m_regDisplayBinDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
 	m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
 
+	m_dwLanguage = m_regLanguage;
 	m_bBackup = m_regBackup;
 	m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
 	m_nTabSize = m_regTabSize;
@@ -86,8 +88,10 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDV_MinMaxInt(pDX, m_nTabSize, 1, 1000);
 	DDX_Check(pDX, IDC_IGNORELF, m_bIgnoreEOL);
 	DDX_Check(pDX, IDC_ONEPANE, m_bOnePane);
+	DDX_Control(pDX, IDC_LANGUAGECOMBO, m_LanguageCombo);
 	DDX_Control(pDX, IDC_FONTSIZES, m_cFontSizes);
 	DDX_FontPreviewCombo (pDX, IDC_FONTNAMES, m_sFontName);
+	m_dwLanguage = (DWORD)m_LanguageCombo.GetItemData(m_LanguageCombo.GetCurSel());
 	m_dwFontSize = (DWORD)m_cFontSizes.GetItemData(m_cFontSizes.GetCurSel());
 	if ((m_dwFontSize==0)||(m_dwFontSize == -1))
 	{
@@ -105,6 +109,7 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 
 void CSetMainPage::SaveData()
 {
+	m_regLanguage = m_dwLanguage;
 	m_regBackup = m_bBackup;
 	m_regFirstDiffOnLoad = m_bFirstDiffOnLoad;
 	m_regTabSize = m_nTabSize;
@@ -138,6 +143,7 @@ BOOL CSetMainPage::OnInitDialog()
 
 	CPropertyPage::OnInitDialog();
 
+	m_dwLanguage = m_regLanguage;
 	m_bBackup = m_regBackup;
 	m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
 	m_nTabSize = m_regTabSize;
@@ -171,6 +177,43 @@ BOOL CSetMainPage::OnInitDialog()
 
 	CheckRadioButton(IDC_WSCOMPARE, IDC_WSIGNORECHANGED, uRadio);
 
+	//set up the language selecting combobox
+	m_LanguageCombo.AddString(_T("English"));
+	m_LanguageCombo.SetItemData(0, 1033);
+	TCHAR procpathbuf[MAX_PATH];
+	GetModuleFileName(NULL, procpathbuf, MAX_PATH);
+	CString path = procpathbuf;
+	path = path.Left(path.ReverseFind('\\'));
+	path = path.Left(path.ReverseFind('\\')+1);
+	path = path + _T("Languages\\");
+	CSimpleFileFind finder(path, _T("*.dll"));
+	int langcount = 1;
+	while (finder.FindNextFileNoDirectories())
+	{
+		CString file = finder.GetFilePath();
+		CString filename = finder.GetFileName();
+		if (filename.Left(13).CompareNoCase(_T("TortoiseMerge"))==0)
+		{
+			CString sVer = _T(STRPRODUCTVER);
+			sVer = sVer.Left(sVer.ReverseFind(','));
+			CString sFileVer = CPathUtils::GetVersionFromFile(file);
+			sFileVer = sFileVer.Left(sFileVer.ReverseFind(','));
+			if (sFileVer.Compare(sVer)!=0)
+				continue;
+			DWORD loc = _tstoi(filename.Mid(13));
+			TCHAR buf[MAX_PATH];
+			GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
+			m_LanguageCombo.AddString(buf);
+			m_LanguageCombo.SetItemData(langcount++, loc);
+		} // if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0) 
+	} // while (finder.FindNextFileNoDirectories())
+	
+	for (int i=0; i<m_LanguageCombo.GetCount(); i++)
+	{
+		if (m_LanguageCombo.GetItemData(i) == m_dwLanguage)
+			m_LanguageCombo.SetCurSel(i);
+	} // for (int i=0; i<m_LanguageCombo.GetCount(); i++) 
+
 	CString temp;
 	int count = 0;
 	for (int i=6; i<32; i=i+2)
@@ -178,7 +221,7 @@ BOOL CSetMainPage::OnInitDialog()
 		temp.Format(_T("%d"), i);
 		m_cFontSizes.AddString(temp);
 		m_cFontSizes.SetItemData(count++, i);
-	}
+	} // for (int i=6; i<20; i=i+2) 
 	BOOL foundfont = FALSE;
 	for (int i=0; i<m_cFontSizes.GetCount(); i++)
 	{
@@ -213,6 +256,7 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_DIFFBAR, OnBnClickedDiffbar)
 	ON_BN_CLICKED(IDC_STRIKEOUT, OnBnClickedStrikeout)
 	ON_EN_CHANGE(IDC_TABSIZE, OnEnChangeTabsize)
+	ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnCbnSelchangeLanguagecombo)
 	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnCbnSelchangeFontsizes)
 	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnCbnSelchangeFontnames)
 	ON_BN_CLICKED(IDC_USEBDIFF, OnBnClickedUsebdiff)
@@ -221,6 +265,11 @@ END_MESSAGE_MAP()
 
 
 // CSetMainPage message handlers
+
+void CSetMainPage::OnCbnSelchangeLanguagecombo()
+{
+	SetModified();
+}
 
 void CSetMainPage::OnBnClickedBackup()
 {

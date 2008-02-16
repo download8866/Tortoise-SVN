@@ -175,7 +175,7 @@ void Palette::Allocate(Window &) {
 	}
 }
 
-static void SetLogFont(LOGFONTA &lf, const char *faceName, int characterSet, int size, bool bold, bool italic) {
+static void SetLogFont(LOGFONT &lf, const char *faceName, int characterSet, int size, bool bold, bool italic) {
 	memset(&lf, 0, sizeof(lf));
 	// The negative is to allow for leading
 	lf.lfHeight = -(abs(size));
@@ -202,7 +202,7 @@ static int HashFont(const char *faceName, int characterSet, int size, bool bold,
 class FontCached : Font {
 	FontCached *next;
 	int usage;
-	LOGFONTA lf;
+	LOGFONT lf;
 	int hash;
 	FontCached(const char *faceName_, int characterSet_, int size_, bool bold_, bool italic_);
 	~FontCached() {}
@@ -221,7 +221,7 @@ FontCached::FontCached(const char *faceName_, int characterSet_, int size_, bool
 	next(0), usage(0), hash(0) {
 	::SetLogFont(lf, faceName_, characterSet_, size_, bold_, italic_);
 	hash = HashFont(faceName_, characterSet_, size_, bold_, italic_);
-	id = ::CreateFontIndirectA(&lf);
+	id = ::CreateFontIndirect(&lf);
 	usage = 1;
 }
 
@@ -581,7 +581,7 @@ static void AllFour(DWORD *pixels, int width, int height, int x, int y, DWORD va
 
 void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated fill, int alphaFill,
 		ColourAllocated outline, int alphaOutline, int /* flags*/ ) {
-	if (AlphaBlendFn && rc.Width() > 0) {
+	if (AlphaBlendFn) {
 		HDC hMemDC = ::CreateCompatibleDC(reinterpret_cast<HDC>(hdc));
 		int width = rc.Width();
 		int height = rc.Height();
@@ -631,11 +631,9 @@ void SurfaceImpl::AlphaRectangle(PRectangle rc, int cornerSize, ColourAllocated 
 
 		SelectBitmap(hMemDC, hbmOld);
 		::DeleteObject(hbmMem);
-		::DeleteDC(hMemDC);
+		::DeleteObject(hMemDC);
 	} else {
-		BrushColor(outline);
-		RECT rcw = RectFromPRectangle(rc);
-		FrameRect(hdc, &rcw, brush);
+		RectangleDraw(rc, outline, fill);
 	}
 }
 
@@ -684,7 +682,7 @@ void SurfaceImpl::DrawTextCommon(PRectangle rc, Font &font_, int ybase, const ch
 		wchar_t tbuf[MAX_US_LEN];
 		int tlen;
 		if (unicodeMode) {
-			tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
+			tlen = UCS2FromUTF8(s, len, tbuf, MAX_US_LEN);
 		} else {
 			// Support Asian string display in 9x English
 			tlen = ::MultiByteToWideChar(codePage, 0, s, len, NULL, 0);
@@ -740,7 +738,7 @@ int SurfaceImpl::WidthText(Font &font_, const char *s, int len) {
 	SIZE sz={0,0};
 	if (unicodeMode) {
 		wchar_t tbuf[MAX_US_LEN];
-		int tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
+		int tlen = UCS2FromUTF8(s, len, tbuf, MAX_US_LEN);
 		::GetTextExtentPoint32W(hdc, tbuf, tlen, &sz);
 	} else if (IsNT() || (codePage==0) || win9xACPSame) {
 		::GetTextExtentPoint32A(hdc, s, Platform::Minimum(len, maxLenText), &sz);
@@ -760,7 +758,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 	int fit = 0;
 	if (unicodeMode) {
 		wchar_t tbuf[MAX_US_LEN];
-		int tlen = UTF16FromUTF8(s, len, tbuf, MAX_US_LEN);
+		int tlen = UCS2FromUTF8(s, len, tbuf, MAX_US_LEN);
 		int poses[MAX_US_LEN];
 		fit = tlen;
 		if (!::GetTextExtentExPointW(hdc, tbuf, tlen, maxWidthMeasure, &fit, poses, &sz)) {
@@ -778,17 +776,14 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 		int i=0;
 		while (ui<fit) {
 			unsigned char uch = us[i];
-			unsigned int lenChar = 1;
-			if (uch >= (0x80 + 0x40 + 0x20 + 0x10)) {
-				lenChar = 4;
-				ui++;
-			} else if (uch >= (0x80 + 0x40 + 0x20)) {
-				lenChar = 3;
-			} else if (uch >= (0x80)) {
-				lenChar = 2;
-			}
-			for (unsigned int bytePos=0; (bytePos<lenChar) && (i<len); bytePos++) {
-				positions[i++] = poses[ui];
+			positions[i++] = poses[ui];
+			if (uch >= 0x80) {
+				if (uch < (0x80 + 0x40 + 0x20)) {
+					positions[i++] = poses[ui];
+				} else {
+					positions[i++] = poses[ui];
+					positions[i++] = poses[ui];
+				}
 			}
 			ui++;
 		}
@@ -799,7 +794,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 			positions[i++] = lastPos;
 		}
 	} else if (IsNT() || (codePage==0) || win9xACPSame) {
-		if (!::GetTextExtentExPointA(hdc, s, Platform::Minimum(len, maxLenText),
+		if (!::GetTextExtentExPoint(hdc, s, Platform::Minimum(len, maxLenText),
 			maxWidthMeasure, &fit, positions, &sz)) {
 			// Eeek - a NULL DC or other foolishness could cause this.
 			// The least we can do is set the positions to zero!
@@ -841,7 +836,7 @@ void SurfaceImpl::MeasureWidths(Font &font_, const char *s, int len, int *positi
 int SurfaceImpl::WidthChar(Font &font_, char ch) {
 	SetFont(font_);
 	SIZE sz;
-	::GetTextExtentPoint32A(hdc, &ch, 1, &sz);
+	::GetTextExtentPoint32(hdc, &ch, 1, &sz);
 	return sz.cx;
 }
 
@@ -1049,36 +1044,8 @@ void Window::SetCursor(Cursor curs) {
 }
 
 void Window::SetTitle(const char *s) {
-	::SetWindowTextA(reinterpret_cast<HWND>(id), s);
+	::SetWindowText(reinterpret_cast<HWND>(id), s);
 }
-
-/* Returns rectangle of monitor pt is on, both rect and pt are in Window's
-   coordinates */
-#ifdef MULTIPLE_MONITOR_SUPPORT
-PRectangle Window::GetMonitorRect(Point pt) {
-	// MonitorFromPoint and GetMonitorInfo are not available on Windows 95 so are not used.
-	// There could be conditional code and dynamic loading in a future version
-	// so this would work on those platforms where they are available.
-	PRectangle rcPosition = GetPosition();
-	POINT ptDesktop = {pt.x + rcPosition.left, pt.y + rcPosition.top};
-	HMONITOR hMonitor = ::MonitorFromPoint(ptDesktop, MONITOR_DEFAULTTONEAREST);
-	MONITORINFOEX mi;
-	memset(&mi, 0, sizeof(mi));
-	mi.cbSize = sizeof(mi);
-	if (::GetMonitorInfo(hMonitor, &mi)) {
-		PRectangle rcMonitor(
-			mi.rcWork.left - rcPosition.left,
-			mi.rcWork.top - rcPosition.top,
-			mi.rcWork.right - rcPosition.left,
-			mi.rcWork.bottom - rcPosition.top);
-		return rcMonitor;
-	}
-}
-#else
-PRectangle Window::GetMonitorRect(Point) {
-	return PRectangle();
-}
-#endif
 
 struct ListItemData {
 	const char *text;
@@ -1086,7 +1053,7 @@ struct ListItemData {
 };
 
 #define _ROUND2(n,pow2) \
-	( ( (n) + (pow2) - 1) & ~((pow2) - 1) )
+        ( ( (n) + (pow2) - 1) & ~((pow2) - 1) )
 
 class LineToItem {
 	char *words;
@@ -1343,11 +1310,11 @@ PRectangle ListBoxX::GetDesiredRect() {
 	int len = widestItem ? strlen(widestItem) : 0;
 	if (unicodeMode) {
 		wchar_t tbuf[MAX_US_LEN];
-		len = UTF16FromUTF8(widestItem, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
+		len = UCS2FromUTF8(widestItem, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
 		tbuf[len] = L'\0';
 		::GetTextExtentPoint32W(hdc, tbuf, len, &textSize);
 	} else {
-		::GetTextExtentPoint32A(hdc, widestItem, len, &textSize);
+		::GetTextExtentPoint32(hdc, widestItem, len, &textSize);
 	}
 	TEXTMETRIC tm;
 	::GetTextMetrics(hdc, &tm);
@@ -1462,11 +1429,11 @@ void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
 
 		if (unicodeMode) {
 			wchar_t tbuf[MAX_US_LEN];
-			int tlen = UTF16FromUTF8(text, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
+			int tlen = UCS2FromUTF8(text, len, tbuf, sizeof(tbuf)/sizeof(wchar_t)-1);
 			tbuf[tlen] = L'\0';
 			::DrawTextW(pDrawItem->hDC, tbuf, tlen, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
 		} else {
-			::DrawTextA(pDrawItem->hDC, text, len, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
+			::DrawText(pDrawItem->hDC, text, len, &rcText, DT_NOPREFIX|DT_END_ELLIPSIS|DT_SINGLELINE|DT_NOCLIP);
 		}
 		if (pDrawItem->itemState & ODS_SELECTED) {
 			::DrawFocusRect(pDrawItem->hDC, &rcBox);
@@ -1497,9 +1464,9 @@ void ListBoxX::AppendListItem(const char *startword, const char *numword) {
 	if (numword) {
 		int pixId = 0;
 		char ch;
-		while ((ch = *++numword) != '\0') {
-			pixId = 10 * pixId + (ch - '0');
-		}
+        while ( (ch = *++numword) != '\0' ) {
+            pixId = 10 * pixId + (ch - '0');
+        }
 		item->pixId = pixId;
 	} else {
 		item->pixId = -1;
@@ -2040,7 +2007,7 @@ protected:
 	HMODULE h;
 public:
 	DynamicLibraryImpl(const char *modulePath) {
-		h = ::LoadLibraryA(modulePath);
+		h = ::LoadLibrary(modulePath);
 	}
 
 	virtual ~DynamicLibraryImpl() {
@@ -2063,7 +2030,7 @@ public:
 };
 
 DynamicLibrary *DynamicLibrary::Load(const char *modulePath) {
-	return static_cast<DynamicLibrary *>(new DynamicLibraryImpl(modulePath));
+	return static_cast<DynamicLibrary *>( new DynamicLibraryImpl(modulePath) );
 }
 
 ColourDesired Platform::Chrome() {
@@ -2091,7 +2058,7 @@ bool Platform::MouseButtonBounce() {
 }
 
 void Platform::DebugDisplay(const char *s) {
-	::OutputDebugStringA(s);
+	::OutputDebugString(s);
 }
 
 bool Platform::IsKeyDown(int key) {
@@ -2163,7 +2130,7 @@ void Platform::Assert(const char *c, const char *file, int line) {
 	char buffer[2000];
 	sprintf(buffer, "Assertion [%s] failed at %s %d", c, file, line);
 	if (assertionPopUps) {
-		int idButton = ::MessageBoxA(0, buffer, "Assertion failure",
+		int idButton = ::MessageBox(0, buffer, "Assertion failure",
 			MB_ABORTRETRYIGNORE|MB_ICONHAND|MB_SETFOREGROUND|MB_TASKMODAL);
 		if (idButton == IDRETRY) {
 			::DebugBreak();
@@ -2194,8 +2161,6 @@ void Platform_Initialise(void *hInstance) {
 	onNT = osv.dwPlatformId == VER_PLATFORM_WIN32_NT;
 	::InitializeCriticalSection(&crPlatformLock);
 	hinstPlatformRes = reinterpret_cast<HINSTANCE>(hInstance);
-	// This may be called from DllMain, in which case the call to LoadLibrary
-	// is bad because it can upset the DLL load order.
 	if (!hDLLImage) {
 		hDLLImage = ::LoadLibrary(TEXT("Msimg32"));
 	}

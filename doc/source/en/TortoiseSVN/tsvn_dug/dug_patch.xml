@@ -65,13 +65,6 @@
 			<filename>.diff</filename> extension.
 			You are now ready to submit your patch file.
 		</para>
-		<para>
-			You can also save the patch to the clipboard instead of to a file.
-			You might want to do this so that you can paste it into an email for
-			review by others. Or if you have two working copies on one machine and
-			you want to transfer changes from one to the other, a patch on the
-			clipboard is a convenient way of doing this.
-		</para>
 	</sect2>
 	<sect2 id="tsvn-dug-patch-2">
 		<title>Applying a Patch File</title>
@@ -81,12 +74,12 @@
 			If you are not sure what this is, just look at the first line of
 			the patch file. For example, if the first file being worked on was
 			<filename>doc/source/english/chapter1.xml</filename>
-			and the first line in the patch file is
+			and the first line in the patchfile is
 			<filename>Index: english/chapter1.xml</filename>
 			then you need to apply the patch to the
-			<filename>doc/source/</filename> folder.
+			<filename>english</filename> folder.
 			However, provided you are in the correct working copy, if you
-			pick the wrong folder level, TortoiseSVN will notice and suggest the
+			pick the wrong folder level, TSVN will notice and suggest the
 			correct level.
 		</para>
 		<para>
@@ -105,10 +98,7 @@
 			This will bring up a file open dialog allowing you to select the
 			patch file to apply. By default only <filename>.patch</filename>
 			or <filename>.diff</filename>
-			files are shown, but you can opt for <quote>All files</quote>.
-			If you previously saved a patch to the clipboard, you can use
-			<guibutton>Open from clipboard...</guibutton> in the file
-			open dialog.
+			files are shown, but you can opt for "All files".
 		</para>
 		<para>
 			Alternatively, if the patch file has a <filename>.patch</filename>

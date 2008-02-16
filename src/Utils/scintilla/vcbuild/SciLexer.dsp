@@ -114,10 +114,6 @@ SOURCE=..\src\ContractionState.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\Decoration.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\Document.cxx
 # End Source File
 # Begin Source File
@@ -146,10 +142,6 @@ SOURCE=..\src\KeyWords.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\LexAbaqus.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\LexAda.cxx
 # End Source File
 # Begin Source File
@@ -163,10 +155,6 @@ SOURCE=..\src\LexAsm.cxx
 # Begin Source File
 
 SOURCE=..\src\LexAsn1.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexASY.cxx
 # End Source File
 # Begin Source File
 
@@ -202,10 +190,6 @@ SOURCE=..\src\LexCLW.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\LexCmake.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\LexConf.cxx
 # End Source File
 # Begin Source File
@@ -223,10 +207,6 @@ SOURCE=..\src\LexCsound.cxx
 # Begin Source File
 
 SOURCE=..\src\LexCSS.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexD.cxx
 # End Source File
 # Begin Source File
 
@@ -251,10 +231,6 @@ SOURCE=..\src\LexForth.cxx
 # Begin Source File
 
 SOURCE=..\src\LexFortran.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexGAP.cxx
 # End Source File
 # Begin Source File
 
@@ -334,15 +310,7 @@ SOURCE=..\src\LexPerl.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\LexPLM.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\LexPOV.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexProgress.cxx
 # End Source File
 # Begin Source File
 
@@ -351,10 +319,6 @@ SOURCE=..\src\LexPS.cxx
 # Begin Source File
 
 SOURCE=..\src\LexPython.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\LexR.cxx
 # End Source File
 # Begin Source File
 
@@ -422,19 +386,11 @@ SOURCE=..\win32\PlatWin.cxx
 # End Source File
 # Begin Source File
 
-SOURCE=..\src\PositionCache.cxx
-# End Source File
-# Begin Source File
-
 SOURCE=..\src\PropSet.cxx
 # End Source File
 # Begin Source File
 
 SOURCE=..\src\RESearch.cxx
-# End Source File
-# Begin Source File
-
-SOURCE=..\src\RunStyles.cxx
 # End Source File
 # Begin Source File
 

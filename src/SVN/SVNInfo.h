@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
@@ -22,14 +22,10 @@
 #include "TSVNPath.h"
 #include "SVNRev.h"
 
-/**
- * \ingroup SVN
- * data object which holds all information returned from an svn_client_info() call.
- */
 class SVNInfoData
 {
 public:
-	SVNInfoData();
+	SVNInfoData(){}
 
 	CString				url;
 	SVNRev				rev;
@@ -47,7 +43,6 @@ public:
 	bool				lock_davcomment;
 	__time64_t			lock_createtime;
 	__time64_t			lock_expirationtime;
-	apr_size_t			size;
 
 	bool				hasWCInfo;
 	svn_wc_schedule_t	schedule;
@@ -60,20 +55,14 @@ public:
 	CString				conflict_new;
 	CString				conflict_wrk;
 	CString				prejfile;
-
-	CString				changelist;
-	svn_depth_t			depth;
-	apr_size_t			working_size;
-
-	// convenience methods:
-
-	bool IsValid() {return rev.IsValid() != FALSE;}
 };
 
 
 /**
  * \ingroup SVN
  * Wrapper for the svn_client_info() API.
+ *
+ * \author Stefan Kueng
  */
 class SVNInfo
 {
@@ -89,7 +78,7 @@ public:
 	 * \param recurse if TRUE, then GetNextFileInfo() returns the info also
 	 * for all children of \a path.
 	 */
-	const SVNInfoData * GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, svn_depth_t depth = svn_depth_empty);
+	const SVNInfoData * GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, bool recurse = false);
 	size_t GetFileCount() {return m_arInfo.size();}
 	/**
 	 * Returns the info of the next file in the filelist. If no more files are in the list then NULL is returned.
@@ -102,7 +91,6 @@ friend class SVN;	// So that SVN can get to our m_err
 	 * Returns the last error message as a CString object.
 	 */
 	CString GetLastErrorMsg();
-	svn_error_t * GetError() { return m_err; }
 
 	virtual BOOL Cancel();
 	virtual void Receiver(SVNInfoData * data);

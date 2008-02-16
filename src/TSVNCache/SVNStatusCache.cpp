@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "StdAfx.h"
@@ -101,9 +101,7 @@ void CSVNStatusCache::Create()
 						if (m_pInstance->IsPathAllowed(KeyPath))
 						{
 							m_pInstance->m_directoryCache[KeyPath] = cacheddir;
-							// only add the path to the watch list if it is versioned
-							if ((cacheddir->GetCurrentFullStatus() != svn_wc_status_unversioned)&&(cacheddir->GetCurrentFullStatus() != svn_wc_status_none))
-								m_pInstance->watcher.AddPath(KeyPath);
+							m_pInstance->watcher.AddPath(KeyPath);
 							// do *not* add the paths for crawling!
 							// because crawled paths will trigger a shell
 							// notification, which makes the desktop flash constantly
@@ -181,7 +179,7 @@ bool CSVNStatusCache::SaveCache()
 			fclose(pFile);
 		}
 	}
-	ATLTRACE(_T("cache saved to disk at %s\n"), path);
+	ATLTRACE("cache saved to disk at %ws\n", path);
 	return true;
 error:
 	fclose(pFile);
@@ -268,7 +266,7 @@ void CSVNStatusCache::Refresh()
 	}
 }
 
-bool CSVNStatusCache::IsPathGood(const CTSVNPath& path)
+bool CSVNStatusCache::IsPathGood(CTSVNPath path)
 {
 	for (std::set<CTSVNPath>::iterator it = m_NoWatchPaths.begin(); it != m_NoWatchPaths.end(); ++it)
 	{
@@ -354,7 +352,6 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 		// that means that path got invalidated and needs to be treated
 		// as if it never was in our cache. So we remove the last remains
 		// from the cache and start from scratch.
-		AssertLock();
 		if (!IsWriter())
 		{
 			// upgrading our state to writer
@@ -364,35 +361,23 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 			WaitToWrite();
 			ATLTRACE("Got \"Writer\" state now\n");
 		}
-		// Since above there's a small chance that before we can upgrade to
-		// writer state some other thread gained writer state and changed
-		// the data, we have to recreate the iterator here again.
-		itMap = m_directoryCache.find(path);
 		if (itMap!=m_directoryCache.end())
 			m_directoryCache.erase(itMap);
 		// We don't know anything about this directory yet - lets add it to our cache
 		// but only if it exists!
 		if (path.Exists() && m_shellCache.IsPathAllowed(path.GetWinPath()) && !g_SVNAdminDir.IsAdminDirPath(path.GetWinPath()))
 		{
-			// some notifications are for files which got removed/moved around.
-			// In such cases, the CTSVNPath::IsDirectory() will return true (it assumes a directory if
-			// the path doesn't exist). Which means we can get here with a path to a file
-			// instead of a directory.
-			// Since we're here most likely called from the crawler thread, the file could exist
-			// again. If that's the case, just do nothing
-			if (path.IsDirectory()||(!path.Exists()))
-			{
-				ATLTRACE(_T("adding %s to our cache\n"), path.GetWinPath());
-				CCachedDirectory * newcdir = new CCachedDirectory(path);
-				if (newcdir)
-				{
-					CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, newcdir))->second;
-					if ((!path.IsEmpty())&&(path.HasAdminDir()))
-						watcher.AddPath(path);
-					return cdir;		
-				}
-				m_bClearMemory = true;
-			}
+		ATLTRACE("adding %ws to our cache\n", path.GetWinPath());
+		ATLASSERT(path.IsDirectory()||(!path.Exists()));
+		CCachedDirectory * newcdir = new CCachedDirectory(path);
+		if (newcdir)
+		{
+			CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, newcdir))->second;
+			if (!path.IsEmpty())
+				watcher.AddPath(path);
+			return cdir;		
+		}
+		m_bClearMemory = true;
 		}
 		return NULL;
 	}
@@ -435,8 +420,8 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 		CCrawlInhibitor crawlInhibit(&m_folderCrawler);
 
 		CTSVNPath dirpath = path.GetContainingDirectory();
-		if ((dirpath.IsEmpty()) || (!m_shellCache.IsPathAllowed(dirpath.GetWinPath())))
-			dirpath = path.GetDirectory();
+		if (dirpath.IsEmpty())
+			dirpath = path;
 		CCachedDirectory * cachedDir = GetDirectoryCacheEntry(dirpath);
 		if (cachedDir != NULL)
 		{
@@ -444,12 +429,8 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 			return m_mostRecentStatus;
 		}
 	}
-	ATLTRACE(_T("ignored no good path %s\n"), path.GetWinPath());
+	ATLTRACE("ignored no good path %ws\n", path.GetWinPath());
 	m_mostRecentStatus = CStatusCacheEntry();
-	if (m_shellCache.ShowExcludedAsNormal() && path.IsDirectory() && m_shellCache.HasSVNAdminDir(path.GetWinPath(), true))
-	{
-		m_mostRecentStatus.ForceStatus(svn_wc_status_normal);
-	}
 	return m_mostRecentStatus;
 }
 
@@ -464,8 +445,26 @@ void CSVNStatusCache::CloseWatcherHandles(HDEVNOTIFY hdev)
 	m_folderCrawler.BlockPath(path);
 }
 
-void CSVNStatusCache::CloseWatcherHandles(const CTSVNPath& path)
+//////////////////////////////////////////////////////////////////////////
+#ifdef _DEBUG
+static class StatusCacheTests
 {
-	watcher.CloseHandlesForPath(path);
-	m_folderCrawler.BlockPath(path);
-}
+public:
+	StatusCacheTests()
+	{
+		//apr_initialize();
+		//CSVNStatusCache::Create();
+		//{
+		//	CSVNStatusCache& cache = CSVNStatusCache::Instance();
+
+		//	cache.GetStatusForPath(CTSVNPath(_T("D:/Development/SVN/TortoiseSVN")), TSVNCACHE_FLAGS_RECUSIVE_STATUS);
+		//	cache.GetStatusForPath(CTSVNPath(_T("D:/Development/SVN/Subversion")), TSVNCACHE_FLAGS_RECUSIVE_STATUS);
+		//}
+
+		//CSVNStatusCache::Destroy();
+		//apr_terminate();
+	}
+
+} StatusCacheTests;
+
+#endif

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -29,12 +29,10 @@ CHintListCtrl::~CHintListCtrl()
 {
 }
 
-void CHintListCtrl::ShowText(const CString& sText, bool forceupdate /* = false*/)
+void CHintListCtrl::ShowText(const CString& sText)
 {
 	m_sText = sText;
 	Invalidate();
-	if (forceupdate)
-		UpdateWindow();
 }
 
 void CHintListCtrl::ClearText()
@@ -77,7 +75,7 @@ void CHintListCtrl::OnPaint()
 			memDC.SetBkColor(clrTextBk);
 			memDC.FillSolidRect(rc, clrTextBk);
 			rc.top += 10;
-			CGdiObject * oldfont = memDC.SelectStockObject(DEFAULT_GUI_FONT);
+			CGdiObject * oldfont = memDC.SelectStockObject(ANSI_VAR_FONT);
 			memDC.DrawText(m_sText, rc, DT_CENTER | DT_VCENTER |
 				DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 			memDC.SelectObject(oldfont);

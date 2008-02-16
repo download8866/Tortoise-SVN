@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "stdafx.h"
 #include "SVNProperties.h"
@@ -22,13 +22,13 @@
 #include "TortoiseProc.h"
 #include "EditPropertiesDlg.h"
 #include "EditPropertyValueDlg.h"
-#include "UnicodeUtils.h"
-#include "PathUtils.h"
+#include "UnicodeStrings.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "ProgressDlg.h"
-#include "InputLogDlg.h"
 
+
+// CEditPropertiesDlg dialog
 
 IMPLEMENT_DYNAMIC(CEditPropertiesDlg, CResizableStandAloneDialog)
 
@@ -36,9 +36,8 @@ CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CEditPropertiesDlg::IDD, pParent)
 	, m_bRecursive(FALSE)
 	, m_bChanged(false)
-	, m_revision(SVNRev::REV_WC)
-	, m_bRevProps(false)
 {
+
 }
 
 CEditPropertiesDlg::~CEditPropertiesDlg()
@@ -61,9 +60,10 @@ BEGIN_MESSAGE_MAP(CEditPropertiesDlg, CResizableStandAloneDialog)
 	ON_NOTIFY(NM_DBLCLK, IDC_EDITPROPLIST, &CEditPropertiesDlg::OnNMDblclkEditproplist)
 	ON_BN_CLICKED(IDC_SAVEPROP, &CEditPropertiesDlg::OnBnClickedSaveprop)
 	ON_BN_CLICKED(IDC_ADDPROPS, &CEditPropertiesDlg::OnBnClickedAddprops)
-	ON_BN_CLICKED(IDC_EXPORT, &CEditPropertiesDlg::OnBnClickedExport)
-	ON_BN_CLICKED(IDC_IMPORT, &CEditPropertiesDlg::OnBnClickedImport)
 END_MESSAGE_MAP()
+
+
+// CEditPropertiesDlg message handlers
 
 void CEditPropertiesDlg::OnBnClickedHelp()
 {
@@ -77,13 +77,13 @@ BOOL CEditPropertiesDlg::OnInitDialog()
 	// fill in the path edit control
 	if (m_pathlist.GetCount() == 1)
 	{
-		SetDlgItemText(IDC_PROPPATH, m_pathlist[0].GetWinPathString());
+		GetDlgItem(IDC_PROPPATH)->SetWindowText(m_pathlist[0].GetWinPathString());
 	}
 	else
 	{
 		CString sTemp;
 		sTemp.Format(IDS_EDITPROPS_NUMPATHS, m_pathlist.GetCount());
-		SetDlgItemText(IDC_PROPPATH, sTemp);
+		GetDlgItem(IDC_PROPPATH)->SetWindowText(sTemp);
 	}
 
 	// initialize the property list control
@@ -100,25 +100,11 @@ BOOL CEditPropertiesDlg::OnInitDialog()
 	m_propList.InsertColumn(1, temp);
 	m_propList.SetRedraw(false);
 
-	if (m_bRevProps)
-	{
-		GetDlgItem(IDC_IMPORT)->ShowWindow(SW_HIDE);
-		GetDlgItem(IDC_EXPORT)->ShowWindow(SW_HIDE);
-	}
 
-	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_IMPORT, IDS_PROP_TT_IMPORT);
-	m_tooltips.AddTool(IDC_EXPORT,  IDS_PROP_TT_EXPORT);
-	m_tooltips.AddTool(IDC_SAVEPROP,  IDS_PROP_TT_SAVE);
-	m_tooltips.AddTool(IDC_REMOVEPROPS,  IDS_PROP_TT_REMOVE);
-	m_tooltips.AddTool(IDC_EDITPROPS,  IDS_PROP_TT_EDIT);
-	m_tooltips.AddTool(IDC_ADDPROPS,  IDS_PROP_TT_ADD);
 
 	AddAnchor(IDC_GROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_PROPPATH, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_EDITPROPLIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_IMPORT, BOTTOM_RIGHT);
-	AddAnchor(IDC_EXPORT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SAVEPROP, BOTTOM_RIGHT);
 	AddAnchor(IDC_REMOVEPROPS, BOTTOM_RIGHT);
 	AddAnchor(IDC_EDITPROPS, BOTTOM_RIGHT);
@@ -164,7 +150,7 @@ UINT CEditPropertiesDlg::PropsThread()
 	m_properties.clear();
 	for (int i=0; i<m_pathlist.GetCount(); ++i)
 	{
-		SVNProperties props(m_pathlist[i], m_revision, m_bRevProps);
+		SVNProperties props(m_pathlist[i]);
 		for (int p=0; p<props.GetCount(); ++p)
 		{
 			wide_string prop_str = props.GetItemName(p);
@@ -281,18 +267,29 @@ void CEditPropertiesDlg::OnLvnItemchangedEditproplist(NMHDR * /*pNMHDR*/, LRESUL
 	*pResult = 0;
 	// disable the "remove" button if nothing
 	// is selected, enable it otherwise
-	int selCount = m_propList.GetSelectedCount();
-	DialogEnableWindow(IDC_EXPORT, selCount >= 1);
-	DialogEnableWindow(IDC_REMOVEPROPS, selCount >= 1);
-	DialogEnableWindow(IDC_SAVEPROP, selCount == 1);
-	DialogEnableWindow(IDC_EDITPROPS, selCount == 1);
-
+	int selIndex = m_propList.GetSelectionMark();
+	if (selIndex < 0)
+	{
+		DialogEnableWindow(IDC_REMOVEPROPS, FALSE);
+		DialogEnableWindow(IDC_SAVEPROP, FALSE);
+		DialogEnableWindow(IDC_EDITPROPS, FALSE);
+		return;
+	}
+	else if (m_propList.GetSelectedCount()==0)
+	{
+		DialogEnableWindow(IDC_REMOVEPROPS, FALSE);
+		DialogEnableWindow(IDC_SAVEPROP, FALSE);
+		DialogEnableWindow(IDC_EDITPROPS, FALSE);
+		return;
+	}
+	DialogEnableWindow(IDC_REMOVEPROPS, TRUE);
+	DialogEnableWindow(IDC_SAVEPROP, TRUE);
+	DialogEnableWindow(IDC_EDITPROPS, TRUE);
 	*pResult = 0;
 }
 
 void CEditPropertiesDlg::OnBnClickedRemoveProps()
 {
-	CString sLogMsg;
 	POSITION pos = m_propList.GetFirstSelectedItemPosition();
 	while ( pos )
 	{
@@ -300,18 +297,6 @@ void CEditPropertiesDlg::OnBnClickedRemoveProps()
 
 		bool bRecurse = false;
 		CString sName = m_propList.GetItemText(selIndex, 0);
-		if (m_pathlist[0].IsUrl())
-		{
-			CInputLogDlg input(this);
-			input.SetUUID(m_sUUID);
-			input.SetProjectProperties(m_pProjectProperties);
-			CString sHint;
-			sHint.Format(IDS_INPUT_REMOVEPROP, (LPCTSTR)sName, (LPCTSTR)(m_pathlist[0].GetSVNPathString()));
-			input.SetActionText(sHint);
-			if (input.DoModal() != IDOK)
-				return;
-			sLogMsg = input.GetLogMessage();
-		}
 		CString sQuestion;
 		sQuestion.Format(IDS_EDITPROPS_RECURSIVEREMOVEQUESTION, sName);
 		CString sRecursive(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVE));
@@ -337,21 +322,17 @@ void CEditPropertiesDlg::OnBnClickedRemoveProps()
 		prog.SetCancelMsg(sTemp);
 		prog.SetTime(TRUE);
 		prog.SetShowProgressBar(TRUE);
-		prog.ShowModeless(m_hWnd);
+		prog.ShowModal(m_hWnd);
 		for (int i=0; i<m_pathlist.GetCount(); ++i)
 		{
 			prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
-			SVNProperties props(m_pathlist[i], m_revision, m_bRevProps);
-			if (!props.Remove(sName, bRecurse ? svn_depth_infinity : svn_depth_empty, (LPCTSTR)sLogMsg))
+			SVNProperties props(m_pathlist[i]);
+			if (!props.Remove(sName, bRecurse))
 			{
 				CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
 			}
 			else
-			{
 				m_bChanged = true;
-				if (m_revision.IsNumber())
-					m_revision = LONG(m_revision)+1;
-			}
 		}
 		prog.Stop();
 	}
@@ -362,9 +343,7 @@ void CEditPropertiesDlg::OnBnClickedRemoveProps()
 
 void CEditPropertiesDlg::OnNMDblclkEditproplist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 {
-	if (m_propList.GetSelectedCount() == 1)
-		EditProps();
-
+	EditProps();
 	*pResult = 0;
 }
 
@@ -384,8 +363,7 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 
 	CEditPropertyValueDlg dlg;
 	CString sName;
-
-	if ((!bAdd)&&(selIndex >= 0)&&(m_propList.GetSelectedCount()))
+	if ((bAdd==false)&&(selIndex >= 0)&&(m_propList.GetSelectedCount()))
 	{
 		sName = m_propList.GetItemText(selIndex, 0);
 		PropValue& prop = m_properties[stdstring(sName)];
@@ -395,10 +373,8 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 		dlg.SetDialogTitle(CString(MAKEINTRESOURCE(IDS_EDITPROPS_EDITTITLE)));
 	}
 	else
-	{
-		dlg.SetPathList(m_pathlist);  // this is the problem
 		dlg.SetDialogTitle(CString(MAKEINTRESOURCE(IDS_EDITPROPS_ADDTITLE)));
-	}
+
 
 	if (m_pathlist.GetCount() > 1)
 		dlg.SetMultiple();
@@ -408,60 +384,33 @@ void CEditPropertiesDlg::EditProps(bool bAdd /* = false*/)
 			dlg.SetFolder();
 	}
 
-	dlg.RevProps(m_bRevProps);
 	if ( dlg.DoModal()==IDOK )
 	{
 		sName = dlg.GetPropertyName();
 		if (!sName.IsEmpty())
 		{
-			CString sMsg;
-			bool bDoIt = true;
-			if (!m_bRevProps&&(m_pathlist.GetCount())&&(m_pathlist[0].IsUrl()))
+			CProgressDlg prog;
+			CString sTemp;
+			sTemp.LoadString(IDS_SETPROPTITLE);
+			prog.SetTitle(sTemp);
+			sTemp.LoadString(IDS_PROPWAITCANCEL);
+			prog.SetCancelMsg(sTemp);
+			prog.SetTime(TRUE);
+			prog.SetShowProgressBar(TRUE);
+			prog.ShowModal(m_hWnd);
+			for (int i=0; i<m_pathlist.GetCount(); ++i)
 			{
-				CInputLogDlg input(this);
-				input.SetUUID(m_sUUID);
-				input.SetProjectProperties(m_pProjectProperties);
-				CString sHint;
-				sHint.Format(IDS_INPUT_EDITPROP, (LPCTSTR)sName, (LPCTSTR)(m_pathlist[0].GetSVNPathString()));
-				input.SetActionText(sHint);
-				if (input.DoModal() == IDOK)
+				prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
+				SVNProperties props(m_pathlist[i]);
+				if (!props.Add(sName, dlg.IsBinary() ? dlg.GetPropertyValue() : dlg.GetPropertyValue().c_str(), dlg.GetRecursive()))
 				{
-					sMsg = input.GetLogMessage();
+					CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
 				}
 				else
-					bDoIt = false;
+					m_bChanged = true;
 			}
-			if (bDoIt)
-			{
-				CProgressDlg prog;
-				CString sTemp;
-				sTemp.LoadString(IDS_SETPROPTITLE);
-				prog.SetTitle(sTemp);
-				sTemp.LoadString(IDS_PROPWAITCANCEL);
-				prog.SetCancelMsg(sTemp);
-				prog.SetTime(TRUE);
-				prog.SetShowProgressBar(TRUE);
-				prog.ShowModeless(m_hWnd);
-				for (int i=0; i<m_pathlist.GetCount(); ++i)
-				{
-					prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
-					SVNProperties props(m_pathlist[i], m_revision, m_bRevProps);
-					if (!props.Add(sName, dlg.IsBinary() ? dlg.GetPropertyValue() : dlg.GetPropertyValue().c_str(), 
-						dlg.GetRecursive() ? svn_depth_infinity : svn_depth_empty, sMsg))
-					{
-						CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
-					}
-					else
-					{
-						m_bChanged = true;
-						// bump the revision number since we just did a commit
-						if (!m_bRevProps && m_revision.IsNumber())
-							m_revision = LONG(m_revision)+1;
-					}
-				}
-				prog.Stop();
-				Refresh();
-			}
+			prog.Stop();
+			Refresh();
 		}
 	}
 }
@@ -482,8 +431,6 @@ void CEditPropertiesDlg::OnCancel()
 
 BOOL CEditPropertiesDlg::PreTranslateMessage(MSG* pMsg)
 {
-	m_tooltips.RelayEvent(pMsg);
-
 	if (pMsg->message == WM_KEYDOWN)
 	{
 		switch (pMsg->wParam)
@@ -527,13 +474,34 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
 		sValue = prop.value.c_str();
 		if (prop.allthesamevalue)
 		{
-			CString savePath;
-			if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, 0, false, m_hWnd))
-				return;
+			// now save the property value
+			OPENFILENAME ofn;		// common dialog box structure
+			TCHAR szFile[MAX_PATH];  // buffer for file name
+			_tcscpy_s(szFile, (LPCTSTR)sName);
+			CString temp;
+			ZeroMemory(szFile, sizeof(szFile));
+			// Initialize OPENFILENAME
+			ZeroMemory(&ofn, sizeof(OPENFILENAME));
+			ofn.lStructSize = sizeof(OPENFILENAME);
+			ofn.hwndOwner = m_hWnd;
+			ofn.lpstrFile = szFile;
+			ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
+			temp.LoadString(IDS_REPOBROWSE_SAVEAS);
+			CStringUtils::RemoveAccelerators(temp);
+			if (temp.IsEmpty())
+				ofn.lpstrTitle = NULL;
+			else
+				ofn.lpstrTitle = temp;
+			ofn.Flags = OFN_OVERWRITEPROMPT | OFN_EXPLORER;
 
+			// Display the Open dialog box. 
+			if (GetSaveFileName(&ofn)==FALSE)
+			{
+				return;
+			}
 			FILE * stream;
 			errno_t err = 0;
-			if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, _T("wbS")))==0)
+			if ((err = _tfopen_s(&stream, ofn.lpstrFile, _T("wbS")))==0)
 			{
 				fwrite(prop.value.c_str(), sizeof(char), prop.value.size(), stream);
 				fclose(stream);
@@ -548,174 +516,3 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
 	}
 }
 
-void CEditPropertiesDlg::OnBnClickedExport()
-{
-	if (m_propList.GetSelectedCount() == 0)
-		return;
-
-	CString savePath;
-	if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_PROPSFILEFILTER, false, m_hWnd))
-		return;
-
-	if (CPathUtils::GetFileExtFromPath(savePath).Compare(_T(".svnprops")))
-	{
-		// append the default ".svnprops" extension since the user did not specify it himself
-		savePath += _T(".svnprops");
-	}
-	// we save the list of selected properties not in a text file but in our own
-	// binary format. That's because properties can be binary themselves, a text
-	// or xml file just won't do it properly.
-	CString sName;
-	CString sValue;
-	FILE * stream;
-	errno_t err = 0;
-
-	if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, _T("wbS")))==0)
-	{
-		POSITION pos = m_propList.GetFirstSelectedItemPosition();
-		int len = m_propList.GetSelectedCount();
-		fwrite(&len, sizeof(int), 1, stream);										// number of properties
-		while (pos)
-		{
-			int index = m_propList.GetNextSelectedItem(pos);
-			sName = m_propList.GetItemText(index, 0);
-			PropValue& prop = m_properties[stdstring(sName)];
-			sValue = prop.value.c_str();
-			int len = sName.GetLength()*sizeof(TCHAR);
-			fwrite(&len, sizeof(int), 1, stream);									// length of property name in bytes
-			fwrite(sName, sizeof(TCHAR), sName.GetLength(), stream);				// property name
-			len = prop.value.size();
-			fwrite(&len, sizeof(int), 1, stream);									// length of property value in bytes
-			fwrite(prop.value.c_str(), sizeof(char), prop.value.size(), stream);	// property value
-		}
-		fclose(stream);
-	}
-	else
-	{
-		TCHAR strErr[4096] = {0};
-		_tcserror_s(strErr, 4096, err);
-		CMessageBox::Show(m_hWnd, strErr, _T("TortoiseSVN"), MB_ICONERROR);
-	}
-}
-
-void CEditPropertiesDlg::OnBnClickedImport()
-{
-	CString openPath;
-	if (!CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_OPEN, IDS_PROPSFILEFILTER, true, m_hWnd))
-	{
-		return;
-	}
-	// first check the size of the file
-	FILE * stream;
-	_tfopen_s(&stream, openPath, _T("rbS"));
-	int nProperties = 0;
-	if (fread(&nProperties, sizeof(int), 1, stream) == 1)
-	{
-		bool bFailed = false;
-		if ((nProperties < 0)||(nProperties > 4096))
-		{
-			CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-			bFailed = true;
-		}
-		CProgressDlg prog;
-		CString sTemp;
-		sTemp.LoadString(IDS_SETPROPTITLE);
-		prog.SetTitle(sTemp);
-		sTemp.LoadString(IDS_PROPWAITCANCEL);
-		prog.SetCancelMsg(sTemp);
-		prog.SetTime(TRUE);
-		prog.SetShowProgressBar(TRUE);
-		prog.ShowModeless(m_hWnd);
-		while ((nProperties-- > 0)&&(!bFailed))
-		{
-			int nNameBytes = 0;
-			if ((nNameBytes < 0)||(nNameBytes > 4096))
-			{
-				prog.Stop();
-				CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-				bFailed = true;
-			}
-			if (fread(&nNameBytes, sizeof(int), 1, stream) == 1)
-			{
-				TCHAR * pNameBuf = new TCHAR[nNameBytes/sizeof(TCHAR)];
-				if (fread(pNameBuf, 1, nNameBytes, stream) == (size_t)nNameBytes)
-				{
-					CString sName = CString(pNameBuf, nNameBytes/sizeof(TCHAR));
-					int nValueBytes = 0;
-					if (fread(&nValueBytes, sizeof(int), 1, stream) == 1)
-					{
-						BYTE * pValueBuf = new BYTE[nValueBytes];
-						if (fread(pValueBuf, sizeof(char), nValueBytes, stream) == (size_t)nValueBytes)
-						{
-							std::string propertyvalue;
-							propertyvalue.assign((const char*)pValueBuf, nValueBytes);
-							CString sMsg;
-							if (m_pathlist[0].IsUrl())
-							{
-								CInputLogDlg input(this);
-								input.SetUUID(m_sUUID);
-								input.SetProjectProperties(m_pProjectProperties);
-								CString sHint;
-								sHint.Format(IDS_INPUT_SETPROP, (LPCTSTR)sName, (LPCTSTR)(m_pathlist[0].GetSVNPathString()));
-								input.SetActionText(sHint);
-								if (input.DoModal() == IDOK)
-								{
-									sMsg = input.GetLogMessage();
-								}
-								else
-									bFailed = true;
-							}
-
-							for (int i=0; i<m_pathlist.GetCount() && !bFailed; ++i)
-							{
-								prog.SetLine(1, m_pathlist[i].GetWinPath(), true);
-								SVNProperties props(m_pathlist[i], m_revision, m_bRevProps);
-								if (!props.Add(sName, propertyvalue, svn_depth_empty, (LPCTSTR)sMsg))
-								{
-									prog.Stop();
-									CMessageBox::Show(m_hWnd, props.GetLastErrorMsg().c_str(), _T("TortoiseSVN"), MB_ICONERROR);
-									bFailed = true;
-								}
-								else
-								{
-									if (m_revision.IsNumber())
-										m_revision = (LONG)m_revision + 1;
-								}
-							}
-						}
-						else
-						{
-							prog.Stop();
-							CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-							bFailed = true;
-						}
-						delete [] pValueBuf;
-					}
-					else
-					{
-						prog.Stop();
-						CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-						bFailed = true;
-					}
-				}
-				else
-				{
-					prog.Stop();
-					CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-					bFailed = true;
-				}
-				delete [] pNameBuf;
-			}
-			else
-			{
-				prog.Stop();
-				CMessageBox::Show(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
-				bFailed = true;
-			}
-		}
-		prog.Stop();
-		fclose(stream);
-	}
-
-	Refresh();
-}

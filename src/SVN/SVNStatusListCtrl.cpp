@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -45,9 +45,7 @@
 #include "SVNAdminDir.h"
 #include ".\svnstatuslistctrl.h"
 #include "DropFiles.h"
-#include "AddDlg.h"
 #include "EditPropertiesDlg.h"
-#include "CreateChangelistDlg.h"
 
 const UINT CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED
 					= ::RegisterWindowMessage(_T("SVNSLNM_ITEMCOUNTCHANGED"));
@@ -55,8 +53,6 @@ const UINT CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH
 					= ::RegisterWindowMessage(_T("SVNSLNM_NEEDSREFRESH"));
 const UINT CSVNStatusListCtrl::SVNSLNM_ADDFILE
 					= ::RegisterWindowMessage(_T("SVNSLNM_ADDFILE"));
-const UINT CSVNStatusListCtrl::SVNSLNM_CHECKCHANGED
-					= ::RegisterWindowMessage(_T("SVNSLNM_CHECKCHANGED"));
 
 #define IDSVNLC_REVERT			 1
 #define IDSVNLC_COMPARE			 2
@@ -83,16 +79,6 @@ const UINT CSVNStatusListCtrl::SVNSLNM_CHECKCHANGED
 #define IDSVNLC_PROPERTIES		23
 #define IDSVNLC_COPY			24
 #define IDSVNLC_COPYEXT			25
-#define IDSVNLC_REPAIRMOVE		26
-#define IDSVNLC_REMOVEFROMCS	27
-#define IDSVNLC_CREATECS		28
-#define IDSVNLC_CREATEIGNORECS	29
-#define IDSVNLC_CHECKGROUP		30
-#define IDSVNLC_UNCHECKGROUP	31
-#define IDSVNLC_ADD_RECURSIVE   32
-// the IDSVNLC_MOVETOCS *must* be the last index, because it contains a dynamic submenu where 
-// the submenu items get command ID's sequent to this number
-#define IDSVNLC_MOVETOCS		33
 
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
@@ -135,16 +121,10 @@ CSVNStatusListCtrl::CSVNStatusListCtrl() : CListCtrl()
 	, m_bShowIgnores(false)
 	, m_pDropTarget(NULL)
 	, m_bIgnoreRemoveOnly(false)
-	, m_bCheckChildrenWithParent(false)
-	, m_bUnversionedLast(true)
-	, m_bHasChangeLists(false)
-	, m_bHasLocks(false)
 	, m_bBlock(false)
 	, m_bBlockUI(false)
-	, m_bHasCheckboxes(false)
 {
 	ZeroMemory(m_arColumnWidths, sizeof(m_arColumnWidths));
-	m_critSec.Init();
 }
 
 CSVNStatusListCtrl::~CSVNStatusListCtrl()
@@ -156,7 +136,6 @@ CSVNStatusListCtrl::~CSVNStatusListCtrl()
 
 void CSVNStatusListCtrl::ClearStatusArray()
 {
-	Locker lock(m_critSec);
 	for (size_t i=0; i < m_arStatusArray.size(); i++)
 	{
 		delete m_arStatusArray[i];
@@ -164,70 +143,32 @@ void CSVNStatusListCtrl::ClearStatusArray()
 	m_arStatusArray.clear();
 }
 
-CSVNStatusListCtrl::FileEntry * CSVNStatusListCtrl::GetListEntry(UINT_PTR index)
+
+CSVNStatusListCtrl::FileEntry * CSVNStatusListCtrl::GetListEntry(int index)
 {
-	if (index >= (UINT_PTR)m_arListArray.size())
+	if (index < 0)
 		return NULL;
-	if (m_arListArray[index] >= m_arStatusArray.size())
+	if (index >= (int)m_arListArray.size())
+		return NULL;
+	if ((INT_PTR)m_arListArray[index] >= m_arStatusArray.size())
 		return NULL;
 	return m_arStatusArray[m_arListArray[index]];
 }
 
-CSVNStatusListCtrl::FileEntry * CSVNStatusListCtrl::GetVisibleListEntry(const CTSVNPath& path)
-{
-	int itemCount = GetItemCount();
-	for (int i=0; i < itemCount; i++)
-	{
-		FileEntry * entry = GetListEntry(i);
-		if (entry->GetPath().IsEquivalentTo(path))
-			return entry;
-	}
-	return NULL;
-}
-
-CSVNStatusListCtrl::FileEntry * CSVNStatusListCtrl::GetListEntry(const CTSVNPath& path)
-{
-	for (size_t i=0; i < m_arStatusArray.size(); i++)
-	{
-		FileEntry * entry = m_arStatusArray[i];
-		if (entry->GetPath().IsEquivalentTo(path))
-			return entry;
-	}
-	return NULL;
-}
-
 void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus /* = SVNSLC_POPALL */, bool bHasCheckboxes /* = true */)
 {
-	Locker lock(m_critSec);
 	m_sColumnInfoContainer = sColumnInfoContainer;
-	bool bUseSavedColumnData = true;
-	CRegDWORD regColVersion(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer+_T("Version"), 0);
-	if (DWORD(regColVersion) != 1)
-	{
-		bUseSavedColumnData = false;
-		regColVersion = 1;
-	}
-	m_dwColumns = dwColumns;
-	if (bUseSavedColumnData)
-	{
-		CRegDWORD regColInfo(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer, dwColumns);
-		m_dwColumns = regColInfo;
-	}
+	CRegDWORD regColInfo(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer, dwColumns);
+	m_dwColumns = regColInfo;
 	m_dwContextMenus = dwContextMenus;
-	m_bHasCheckboxes = bHasCheckboxes;
 	// set the extended style of the listcontrol
-	// the style LVS_EX_FULLROWSELECT interferes with the background watermark image but it's more important to be able to select in the whole row.
-	CRegDWORD regFullRowSelect(_T("Software\\TortoiseSVN\\FullRowSelect"), TRUE);
-	DWORD exStyle = LVS_EX_HEADERDRAGDROP | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_SUBITEMIMAGES;
-	if (DWORD(regFullRowSelect))
-		exStyle |= LVS_EX_FULLROWSELECT;
+	DWORD exStyle = LVS_EX_HEADERDRAGDROP | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_SUBITEMIMAGES;
 	exStyle |= (bHasCheckboxes ? LVS_EX_CHECKBOXES : 0);
 	SetRedraw(false);
 	SetExtendedStyle(exStyle);
 
 	m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
 	SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
-
 	// clear all previously set header columns
 	DeleteAllItems();
 	int c = ((CHeaderCtrl*)(GetDlgItem(0)))->GetItemCount()-1;
@@ -241,10 +182,6 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
 	temp.LoadString(IDS_STATUSLIST_COLFILE);
 	m_ColumnShown[nCol] = true;
 	InsertColumn(nCol++, temp);
-	temp.LoadString(IDS_STATUSLIST_COLFILENAME);
-	m_ColumnShown[nCol] = m_dwColumns & SVNSLC_COLFILENAME;
-	InsertColumn(nCol, temp, LVCFMT_LEFT, m_ColumnShown[nCol] ? -1 : 0);
-	nCol++;
 	temp.LoadString(IDS_STATUSLIST_COLEXT);
 	m_ColumnShown[nCol] = m_dwColumns & SVNSLC_COLEXT;
 	InsertColumn(nCol, temp, LVCFMT_LEFT, m_ColumnShown[nCol] ? -1 : 0);
@@ -300,29 +237,18 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
 	temp.LoadString(IDS_STATUSLIST_COLSVNLOCK);
 	m_ColumnShown[nCol] = m_dwColumns & SVNSLC_COLSVNNEEDSLOCK;
 	InsertColumn(nCol, temp, LVCFMT_LEFT, m_ColumnShown[nCol] ? -1 : 0);
-	nCol++;
-	temp.LoadString(IDS_STATUSLIST_COLCOPYFROM);
-	m_ColumnShown[nCol] = m_dwColumns & SVNSLC_COLCOPYFROM;
-	InsertColumn(nCol, temp, LVCFMT_LEFT, m_ColumnShown[nCol] ? -1 : 0);
-	nCol++;
-	temp.LoadString(IDS_STATUSLIST_COLMODIFICATIONDATE);
-	m_ColumnShown[nCol] = m_dwColumns & SVNSLC_COLMODIFICATIONDATE;
-	InsertColumn(nCol, temp, LVCFMT_LEFT, m_ColumnShown[nCol] ? -1 : 0);
 
-	if (bUseSavedColumnData)
+	CRegString regColOrder(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer+_T("_Order"));
+	CRegString regColWidths(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer+_T("_Width"));
+	int arr[SVNSLC_NUMCOLUMNS];
+	if (!CString(regColOrder).IsEmpty())
 	{
-		CRegString regColOrder(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer+_T("_Order"));
-		CRegString regColWidths(_T("Software\\TortoiseSVN\\StatusColumns\\")+sColumnInfoContainer+_T("_Width"));
-		int arr[SVNSLC_NUMCOLUMNS];
-		if (!CString(regColOrder).IsEmpty())
-		{
-			StringToOrderArray(regColOrder, arr);
-			SetColumnOrderArray(SVNSLC_NUMCOLUMNS, arr);
-		}
-		if (!CString(regColWidths).IsEmpty())
-		{
-			StringToWidthArray(regColWidths, m_arColumnWidths);
-		}
+		StringToOrderArray(regColOrder, arr);
+		SetColumnOrderArray(SVNSLC_NUMCOLUMNS, arr);
+	}
+	if (!CString(regColWidths).IsEmpty())
+	{
+		StringToWidthArray(regColWidths, m_arColumnWidths);
 	}
 	int maxcol = ((CHeaderCtrl*)(GetDlgItem(0)))->GetItemCount()-1;
 	int col;
@@ -340,14 +266,8 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
 	m_bUnversionedRecurse = !!((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\UnversionedRecurse"), TRUE));
 }
 
-bool CSVNStatusListCtrl::SetBackgroundImage(UINT nID)
-{
-	return CAppUtils::SetListCtrlBackgroundImage(GetSafeHwnd(), nID);
-}
-
 BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /* = FALSE */, bool bShowIgnores /* = false */)
 {
-	Locker lock(m_critSec);
 	int refetchcounter = 0;
 	BOOL bRet = TRUE;
 	Invalidate();
@@ -357,7 +277,6 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 	SetCursorPos(pt.x, pt.y);
 
 	m_mapFilenameToChecked.clear();
-	m_changelists.clear();
 	for (size_t i=0; i < m_arStatusArray.size(); i++)
 	{
 		FileEntry * entry = m_arStatusArray[i];
@@ -377,10 +296,6 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 		}
 	}
 
-	// use a sorted path list to make sure we fetch the status of
-	// parent items first, *then* the child items (if any)
-	CTSVNPathList sortedPathList = pathList;
-	sortedPathList.SortByPathname();
 	do
 	{
 		bRet = TRUE;
@@ -388,8 +303,6 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 		m_bHasExternalsFromDifferentRepos = FALSE;
 		m_bHasExternals = FALSE;
 		m_bHasUnversionedItems = FALSE;
-		m_bHasLocks = false;
-		m_bHasChangeLists = false;
 		m_bShowIgnores = bShowIgnores;
 		m_nSortedColumn = 0;
 		m_bBlock = TRUE;
@@ -401,7 +314,7 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 		// previous GetStatus() calls
 		ClearStatusArray();
 
-		m_StatusFileList = sortedPathList;
+		m_StatusFileList = pathList;
 
 		// Since svn_client_status() returns all files, even those in
 		// folders included with svn:externals we need to check if all
@@ -423,34 +336,34 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 
 		m_sURL.Empty();
 
-		m_nTargetCount = sortedPathList.GetCount();
+		m_nTargetCount = pathList.GetCount();
 
 		SVNStatus status(m_pbCanceled);
-		if(m_nTargetCount > 1 && sortedPathList.AreAllPathsFilesInOneDirectory())
+		if(m_nTargetCount > 1 && pathList.AreAllPathsFilesInOneDirectory())
 		{
 			// This is a special case, where we've been given a list of files
 			// all from one folder
 			// We handle them by setting a status filter, then requesting the SVN status of
 			// all the files in the directory, filtering for the ones we're interested in
-			status.SetFilter(sortedPathList);
+			status.SetFilter(pathList);
 
 			// if all selected entries are files, we don't do a recursive status
 			// fetching. But if only one is a directory, we have to recurse.
-			svn_depth_t depth = svn_depth_files;
+			bool recurse = false;
 			// We have set a filter. If all selected items were files or we fetch
 			// the status not recursively, then we have to include
 			// ignored items too - the user has selected them
 			bool bShowIgnoresRight = true;
-			for (int fcindex=0; fcindex<sortedPathList.GetCount(); ++fcindex)
+			for (int fcindex=0; fcindex<pathList.GetCount(); ++fcindex)
 			{
-				if (sortedPathList[fcindex].IsDirectory())
+				if (pathList[fcindex].IsDirectory())
 				{
-					depth = svn_depth_infinity;
+					recurse = true;
 					bShowIgnoresRight = false;
 					break;
 				}
 			}
-			if(!FetchStatusForSingleTarget(config, status, sortedPathList.GetCommonDirectory(), bUpdate, sUUID, arExtPaths, true, depth, bShowIgnoresRight))
+			if(!FetchStatusForSingleTarget(config, status, pathList.GetCommonDirectory(), bUpdate, sUUID, arExtPaths, true, recurse, bShowIgnoresRight))
 			{
 				bRet = FALSE;
 			}
@@ -459,16 +372,13 @@ BOOL CSVNStatusListCtrl::GetStatus(const CTSVNPathList& pathList, bool bUpdate /
 		{
 			for(int nTarget = 0; nTarget < m_nTargetCount; nTarget++)
 			{
-				// check whether the path we want the status for is already fetched due to status-fetching
-				// of a parent path.
-				// this check is only done for file paths, because folder paths could be included already
-				// but not recursively
-				if (sortedPathList[nTarget].IsDirectory() || GetListEntry(sortedPathList[nTarget]) == NULL)
+				// note:
+				// if a target specified multiple times (either directly or included
+				// in the status of a parent item) it will also show up multiple
+				// times in the list!
+				if(!FetchStatusForSingleTarget(config, status, pathList[nTarget], bUpdate, sUUID, arExtPaths, false, true, bShowIgnores))
 				{
-					if(!FetchStatusForSingleTarget(config, status, sortedPathList[nTarget], bUpdate, sUUID, arExtPaths, false, svn_depth_infinity, bShowIgnores))
-					{
-						bRet = FALSE;
-					}
+					bRet = FALSE;
 				}
 			}
 		}
@@ -508,17 +418,19 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 							CStringA& strCurrentRepositoryUUID,
 							CTSVNPathList& arExtPaths,
 							bool bAllDirect,
-							svn_depth_t depth,
+							bool recurse,
 							bool bShowIgnores
 							)
 {
-	config.GetDefaultIgnores();
+	apr_array_header_t* pIgnorePatterns = NULL;
+	//BUGBUG - Some error handling needed here
+	config.GetDefaultIgnores(&pIgnorePatterns);
 
 	CTSVNPath workingTarget(target);
 
 	svn_wc_status2_t * s;
 	CTSVNPath svnPath;
-	s = status.GetFirstFileStatus(workingTarget, svnPath, bFetchStatusFromRepository, depth, bShowIgnores);
+	s = status.GetFirstFileStatus(workingTarget, svnPath, bFetchStatusFromRepository, recurse, bShowIgnores);
 
 	m_HeadRev = SVNRev(status.headrev);
 	if (s!=0)
@@ -580,7 +492,7 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 			{
 				CTSVNPath svnParentPath;
 				SVNStatus tempstatus;
-				sparent = tempstatus.GetFirstFileStatus(path.GetContainingDirectory(), svnParentPath, false, svn_depth_empty, false);
+				sparent = tempstatus.GetFirstFileStatus(path.GetContainingDirectory(), svnParentPath, false, false, false);
 				path = svnParentPath;
 			} while ( (sparent) && (sparent->entry) && (!sparent->entry->uuid) && (sparent->text_status==svn_wc_status_added) );
 			if (sparent && sparent->entry && sparent->entry->uuid)
@@ -594,10 +506,9 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 		{
 			// check if the unversioned folder is maybe versioned. This
 			// could happen with nested layouts
-			svn_wc_status_kind st = SVNStatus::GetAllStatus(workingTarget);
-			if ((st != svn_wc_status_unversioned)&&(st != svn_wc_status_none))
+			if (SVNStatus::GetAllStatus(workingTarget) != svn_wc_status_unversioned)
 			{
-				return true;	// ignore nested layouts
+				return true;	//ignore nested layouts
 			}
 		}
 		if (status.IsExternal(svnPath))
@@ -607,16 +518,16 @@ bool CSVNStatusListCtrl::FetchStatusForSingleTarget(
 
 		AddNewFileEntry(s, svnPath, workingTarget, true, m_bHasExternals, bEntryFromDifferentRepo);
 
-		if (((wcFileStatus == svn_wc_status_unversioned)||(wcFileStatus == svn_wc_status_none)||((wcFileStatus == svn_wc_status_ignored)&&(m_bShowIgnores))) && svnPath.IsDirectory())
+		if ((wcFileStatus == svn_wc_status_unversioned) && svnPath.IsDirectory())
 		{
-			// we have an unversioned folder -> get all files in it recursively!
-			AddUnversionedFolder(svnPath, workingTarget.GetContainingDirectory(), &config);
+			//we have an unversioned folder -> get all files in it recursively!
+			AddUnversionedFolder(svnPath, workingTarget.GetContainingDirectory(), pIgnorePatterns);
 		}
 
 		// for folders, get all statuses inside it too
 		if(workingTarget.IsDirectory())
 		{
-			ReadRemainingItemsStatus(status, workingTarget, strCurrentRepositoryUUID, arExtPaths, &config, bAllDirect);
+			ReadRemainingItemsStatus(status, workingTarget, strCurrentRepositoryUUID, arExtPaths, pIgnorePatterns, bAllDirect);
 		}
 
 	} // if (s!=0)
@@ -666,7 +577,7 @@ CSVNStatusListCtrl::AddNewFileEntry(
 		entry->last_commit_author = CUnicodeUtils::GetUnicode(pSVNStatus->entry->cmt_author);
 
 	if (pSVNStatus->entry)
-		entry->isConflicted = (pSVNStatus->entry->conflict_wrk && PathFileExists(CUnicodeUtils::GetUnicode(pSVNStatus->entry->conflict_wrk))) ? true : false;
+		entry->isConflicted = pSVNStatus->entry->conflict_wrk ? true : false;
 
 	if ((entry->status == svn_wc_status_conflicted)||(entry->isConflicted))
 	{
@@ -705,17 +616,16 @@ CSVNStatusListCtrl::AddNewFileEntry(
 	{
 		entry->isfolder = (pSVNStatus->entry->kind == svn_node_dir);
 		entry->Revision = pSVNStatus->entry->revision;
-		entry->keeplocal = !!pSVNStatus->entry->keep_local;
-		entry->working_size = pSVNStatus->entry->working_size;
-		entry->depth = pSVNStatus->entry->depth;
 
 		if (pSVNStatus->entry->url)
 		{
-			entry->url = CUnicodeUtils::GetUnicode(CPathUtils::PathUnescape(pSVNStatus->entry->url));
+			CPathUtils::Unescape((char *)pSVNStatus->entry->url);
+			entry->url = CUnicodeUtils::GetUnicode(pSVNStatus->entry->url);
 		}
 		if (pSVNStatus->entry->copyfrom_url)
 		{
-			entry->copyfrom_url = CUnicodeUtils::GetUnicode(CPathUtils::PathUnescape(pSVNStatus->entry->copyfrom_url));
+			CPathUtils::Unescape((char *)pSVNStatus->entry->copyfrom_url);
+			entry->copyfrom_url = CUnicodeUtils::GetUnicode(pSVNStatus->entry->copyfrom_url);
 			entry->copyfrom_rev = pSVNStatus->entry->copyfrom_rev;
 		}
 		else
@@ -731,10 +641,7 @@ CSVNStatusListCtrl::AddNewFileEntry(
 		if (pSVNStatus->entry->lock_owner)
 			entry->lock_owner = CUnicodeUtils::GetUnicode(pSVNStatus->entry->lock_owner);
 		if (pSVNStatus->entry->lock_token)
-		{
 			entry->lock_token = CUnicodeUtils::GetUnicode(pSVNStatus->entry->lock_token);
-			m_bHasLocks = true;
-		}
 		if (pSVNStatus->entry->lock_comment)
 			entry->lock_comment = CUnicodeUtils::GetUnicode(pSVNStatus->entry->lock_comment);
 
@@ -742,14 +649,6 @@ CSVNStatusListCtrl::AddNewFileEntry(
 		{
 			entry->present_props = pSVNStatus->entry->present_props;
 		}
-
-		if (pSVNStatus->entry->changelist)
-		{
-			entry->changelist = CUnicodeUtils::GetUnicode(pSVNStatus->entry->changelist);
-			m_changelists[entry->changelist] = -1;
-			m_bHasChangeLists = true;
-		}
-		entry->needslock = (pSVNStatus->entry->present_props && (strstr(pSVNStatus->entry->present_props, "svn:needs-lock")!=NULL) );
 	}
 	else
 	{
@@ -773,7 +672,7 @@ CSVNStatusListCtrl::AddNewFileEntry(
 
 void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 												const CTSVNPath& basePath,
-												SVNConfig * config)
+												apr_array_header_t *pIgnorePatterns)
 {
 	if (!m_bUnversionedRecurse)
 		return;
@@ -784,10 +683,8 @@ void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 	while (filefinder.FindNextFileNoDots())
 	{
 		filename.SetFromWin(filefinder.GetFilePath(), filefinder.IsDirectory());
-
-		bool bMatchIgnore = !!config->MatchIgnorePattern(filename.GetFileOrDirectoryName());
-		bMatchIgnore = bMatchIgnore || config->MatchIgnorePattern(filename.GetSVNPathString());
-		if (((bMatchIgnore)&&(m_bShowIgnores))||(!bMatchIgnore))
+		if ((!SVNConfig::MatchIgnorePattern(filename.GetFileOrDirectoryName(),pIgnorePatterns))&&
+			(!SVNConfig::MatchIgnorePattern(filename.GetSVNPathString(),pIgnorePatterns)))
 		{
 			FileEntry * entry = new FileEntry();
 			entry->path = filename;
@@ -799,16 +696,16 @@ void CSVNStatusListCtrl::AddUnversionedFolder(const CTSVNPath& folderName,
 			if (entry->isfolder)
 			{
 				if (!g_SVNAdminDir.HasAdminDir(entry->path.GetWinPathString(), true))
-					AddUnversionedFolder(entry->path, basePath, config);
+					AddUnversionedFolder(entry->path, basePath, pIgnorePatterns);
 			}
 		}
-	}
+	} // while (filefinder.NextFile(filename,&bIsDirectory))
 }
 
 
 void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVNPath& basePath,
 										  CStringA& strCurrentRepositoryUUID,
-										  CTSVNPathList& arExtPaths, SVNConfig * config, bool bAllDirect)
+										  CTSVNPathList& arExtPaths, apr_array_header_t *pIgnorePatterns, bool bAllDirect)
 {
 	svn_wc_status2_t * s;
 
@@ -821,8 +718,7 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 		{
 			// check if the unversioned folder is maybe versioned. This
 			// could happen with nested layouts
-			svn_wc_status_kind st = SVNStatus::GetAllStatus(svnPath);
-			if ((st != svn_wc_status_unversioned)&&(st != svn_wc_status_none))
+			if (SVNStatus::GetAllStatus(svnPath) != svn_wc_status_unversioned)
 			{
 				FileEntry * entry = new FileEntry();
 				entry->path = svnPath;
@@ -874,30 +770,11 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 					}
 				}
 			}
-		}
+		} // if (s->entry)
 		if (status.IsExternal(svnPath))
 		{
 			arExtPaths.AddPath(svnPath);
 			m_bHasExternals = TRUE;
-		}
-		if ((!bEntryfromDifferentRepo)&&(status.IsInExternal(svnPath)))
-		{
-			// if the externals are inside an unversioned folder (this happens if
-			// the externals are specified with e.g. "ext\folder url" instead of just
-			// "folder url"), then a commit won't succeed.
-			// therefore, we treat those as if the externals come from a different
-			// repository
-			CTSVNPath extpath = svnPath;
-			while (basePath.IsAncestorOf(extpath))
-			{
-				if (!extpath.HasAdminDir())
-				{
-					bEntryfromDifferentRepo = true;
-					break;
-				}
-				extpath = extpath.GetContainingDirectory();
-			}
-
 		}
 		// Do we have any external paths?
 		if(arExtPaths.GetCount() > 0)
@@ -919,19 +796,17 @@ void CSVNStatusListCtrl::ReadRemainingItemsStatus(SVNStatus& status, const CTSVN
 
 		const FileEntry* entry = AddNewFileEntry(s, svnPath, basePath, bAllDirect, bDirectoryIsExternal, bEntryfromDifferentRepo);
 
-		bool bMatchIgnore = !!config->MatchIgnorePattern(entry->path.GetFileOrDirectoryName());
-		bMatchIgnore = bMatchIgnore || config->MatchIgnorePattern(entry->path.GetSVNPathString());
-		if ((((wcFileStatus == svn_wc_status_unversioned)||(wcFileStatus == svn_wc_status_none))&&(!bMatchIgnore))||
-			((wcFileStatus == svn_wc_status_ignored)&&(m_bShowIgnores))||
-			(((wcFileStatus == svn_wc_status_unversioned)||(wcFileStatus == svn_wc_status_none))&&(bMatchIgnore)&&(m_bShowIgnores)))
+		if ((wcFileStatus == svn_wc_status_unversioned)&&
+			(!SVNConfig::MatchIgnorePattern(entry->path.GetFileOrDirectoryName(),pIgnorePatterns))&&
+			(!SVNConfig::MatchIgnorePattern(entry->path.GetSVNPathString(),pIgnorePatterns)))
 		{
 			if (entry->isfolder)
 			{
-				// we have an unversioned folder -> get all files in it recursively!
-				AddUnversionedFolder(svnPath, basePath, config);
+				//we have an unversioned folder -> get all files in it recursively!
+				AddUnversionedFolder(svnPath, basePath, pIgnorePatterns);
 			}
 		}
-	} // while ((s = status.GetNextFileStatus(svnPath)) != NULL) 
+	} // while ((s = status.GetNextFileStatus(&pSVNItemPath)) != NULL)
 }
 
 // Get the show-flags bitmap value which corresponds to a particular SVN status
@@ -978,7 +853,6 @@ DWORD CSVNStatusListCtrl::GetShowFlagsFromSVNStatus(svn_wc_status_kind status)
 
 void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFolders /* = true */)
 {
-	Locker lock(m_critSec);
 	WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
 
 	CWinApp * pApp = AfxGetApp();
@@ -994,8 +868,6 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFold
 		nSelectedEntry = GetNextSelectedItem(posSelectedEntry);
 	SetRedraw(FALSE);
 	DeleteAllItems();
-
-	PrepareGroups();
 
 	m_arListArray.clear();
 
@@ -1029,8 +901,7 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFold
 					m_arListArray.push_back(i);
 					if ((dwCheck & SVNSLC_SHOWREMOVEDANDPRESENT)||((dwCheck & SVNSLC_SHOWDIRECTS)&&(entry->direct)))
 					{
-						if (entry->changelist.Compare(SVNSLC_IGNORECHANGELIST) != 0)
-							entry->checked = true;
+						entry->checked = true;
 					}
 					AddEntry(entry, langID, listIndex++);
 				}
@@ -1040,8 +911,7 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFold
 				m_arListArray.push_back(i);
 				if ((dwCheck & showFlags)||((dwCheck & SVNSLC_SHOWDIRECTS)&&(entry->direct)))
 				{
-					if (entry->changelist.Compare(SVNSLC_IGNORECHANGELIST) != 0)
-						entry->checked = true;
+					entry->checked = true;
 				}
 				AddEntry(entry, langID, listIndex++);
 			}
@@ -1050,8 +920,7 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFold
 				m_arListArray.push_back(i);
 				if ((dwCheck & showFlags)||((dwCheck & SVNSLC_SHOWDIRECTS)&&(entry->direct)))
 				{
-					if (entry->changelist.Compare(SVNSLC_IGNORECHANGELIST) != 0)
-						entry->checked = true;
+					entry->checked = true;
 				}
 				AddEntry(entry, langID, listIndex++);
 			}
@@ -1114,7 +983,6 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, DWORD dwCheck /*=0*/, bool bShowFold
 
 void CSVNStatusListCtrl::Show(DWORD dwShow, const CTSVNPathList& checkedList, bool bShowFolders /* = true */)
 {
-	Locker lock(m_critSec);
 	WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
 
 	CWinApp * pApp = AfxGetApp();
@@ -1130,8 +998,6 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, const CTSVNPathList& checkedList, bo
 		nSelectedEntry = GetNextSelectedItem(posSelectedEntry);
 	SetRedraw(FALSE);
 	DeleteAllItems();
-
-	PrepareGroups();
 
 	m_arListArray.clear();
 
@@ -1158,10 +1024,9 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, const CTSVNPathList& checkedList, bo
 		{
 			for (int npath = 0; npath < checkedList.GetCount(); ++npath)
 			{
-				if (entry->GetPath().IsEquivalentTo(checkedList[npath]))
+				if (checkedList[npath].IsAncestorOf(entry->GetPath()))
 				{
-					if (entry->changelist.Compare(SVNSLC_IGNORECHANGELIST) != 0)
-						entry->checked = true;
+					entry->checked = true;
 					break;
 				}
 			}
@@ -1272,8 +1137,6 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, WORD langID, int listIndex)
 	}
 	// relative path
 	InsertItem(index, entryname, icon_idx);
-	// SVNSLC_COLFILENAME
-	SetItemText(index, nCol++, entry->path.GetFileOrDirectoryName());
 	// SVNSLC_COLEXT
 	SetItemText(index, nCol++, entry->path.GetFileExtension());
 	// SVNSLC_COLSTATUS
@@ -1426,54 +1289,15 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, WORD langID, int listIndex)
 	BOOL bFoundSVNNeedsLock = (entry->present_props.Find(_T("svn:needs-lock"))!=-1);
 	CString strSVNNeedsLock = (bFoundSVNNeedsLock) ? _T("*") : _T("");
 	SetItemText(index, nCol++, strSVNNeedsLock);
-	// SVNSLC_COLCOPYFROM
-	if (m_sURL.Compare(entry->copyfrom_url.Left(m_sURL.GetLength()))==0)
-		temp = entry->copyfrom_url.Mid(m_sURL.GetLength());
-	else
-		temp = entry->copyfrom_url;
-	SetItemText(index, nCol++, temp);
-	// SVNSLC_COLMODIFICATIONDATE
-	__int64 filetime = entry->GetPath().GetLastWriteTime();
-	if ( (filetime) && (entry->status!=svn_wc_status_deleted) )
-	{
-		FILETIME* f = (FILETIME*)(__int64*)&filetime;
-		TCHAR datebuf[SVN_DATE_BUFFER];
-		SVN::formatDate(datebuf,*f,true);
-		SetItemText(index, nCol++, datebuf);
-	}
-	else
-	{
-		SetItemText(index, nCol++, _T(""));
-	}
 
 	SetCheck(index, entry->checked);
 	if (entry->checked)
 		m_nSelected++;
-	if (m_changelists.find(entry->changelist) != m_changelists.end())
-		SetItemGroup(index, m_changelists[entry->changelist]);
-	else
-		SetItemGroup(index, 0);
 	m_bBlock = FALSE;
-}
-
-bool CSVNStatusListCtrl::SetItemGroup(int item, int groupindex)
-{
-	if ((m_dwContextMenus & SVNSLC_POPCHANGELISTS) == NULL)
-		return false;
-	if (groupindex < 0)
-		return false;
-	LVITEM i = {0};
-	i.mask = LVIF_GROUPID;
-	i.iItem = item;
-	i.iSubItem = 0;
-	i.iGroupId = groupindex;
-
-	return !!SetItem(&i);
 }
 
 void CSVNStatusListCtrl::Sort()
 {
-	Locker lock(m_critSec);
 	std::sort(m_arStatusArray.begin(), m_arStatusArray.end(), SortCompare);
 	SaveColumnWidths();
 	Show(m_dwShow, 0, m_bShowFolders);
@@ -1481,137 +1305,102 @@ void CSVNStatusListCtrl::Sort()
 
 bool CSVNStatusListCtrl::SortCompare(const FileEntry* entry1, const FileEntry* entry2)
 {
-	#define SGN(x) ((x)==0?0:((x)>0?1:-1))
-
 	int result = 0;
 	switch (m_nSortedColumn)
 	{
-	case 17:
-		{
-			if (result == 0)
-			{
-				__int64 writetime1 = entry1->GetPath().GetLastWriteTime();
-				__int64 writetime2 = entry2->GetPath().GetLastWriteTime();
-
-				FILETIME* filetime1 = (FILETIME*)(__int64*)&writetime1;
-				FILETIME* filetime2 = (FILETIME*)(__int64*)&writetime2;
-	
-				result = CompareFileTime(filetime1,filetime2);
-			}
-		}
-	case 16:
-		{
-			if (result == 0)
-			{
-				result = entry1->copyfrom_url.CompareNoCase(entry2->copyfrom_url);
-			}
-		}
-	case 15:
-		{
-			if (result == 0)
-			{
-				result = SGN(entry1->needslock - entry2->needslock);
-			}
-		}
-	case 14:
-		{
-			if (result == 0)
-			{
-				result = SGN(entry1->last_commit_date - entry2->last_commit_date);
-			}
-		}
 	case 13:
 		{
 			if (result == 0)
 			{
-				result = entry1->last_commit_rev - entry2->last_commit_rev;
+				#define SGN(x) ((x)==0?0:((x)>0?1:-1))
+				result = SGN(entry1->last_commit_date - entry2->last_commit_date);
 			}
 		}
 	case 12:
 		{
 			if (result == 0)
 			{
-				result = entry1->last_commit_author.CompareNoCase(entry2->last_commit_author);
+				result = entry1->last_commit_rev - entry2->last_commit_rev;
 			}
 		}
 	case 11:
 		{
 			if (result == 0)
 			{
-				result = entry1->lock_comment.CompareNoCase(entry2->lock_comment);
+				result = entry1->last_commit_author.CompareNoCase(entry2->last_commit_author);
 			}
 		}
 	case 10:
 		{
 			if (result == 0)
 			{
-				result = entry1->lock_owner.CompareNoCase(entry2->lock_owner);
+				result = entry1->lock_comment.CompareNoCase(entry2->lock_comment);
 			}
 		}
 	case 9:
 		{
 			if (result == 0)
 			{
-				result = entry1->url.CompareNoCase(entry2->url);
+				result = entry1->lock_owner.CompareNoCase(entry2->lock_owner);
 			}
 		}
 	case 8:
 		{
 			if (result == 0)
 			{
-				result = entry1->remotepropstatus - entry2->remotepropstatus;
+				result = entry1->url.CompareNoCase(entry2->url);
 			}
 		}
 	case 7:
 		{
 			if (result == 0)
 			{
-				result = entry1->remotetextstatus - entry2->remotetextstatus;
+				result = entry1->remotepropstatus - entry2->remotepropstatus;
 			}
 		}
 	case 6:
 		{
 			if (result == 0)
 			{
-				result = entry1->propstatus - entry2->propstatus;
+				result = entry1->remotetextstatus - entry2->remotetextstatus;
 			}
 		}
 	case 5:
 		{
 			if (result == 0)
 			{
-				result = entry1->textstatus - entry2->textstatus;
+				result = entry1->propstatus - entry2->propstatus;
 			}
 		}
 	case 4:
 		{
 			if (result == 0)
 			{
-				result = entry1->remotestatus - entry2->remotestatus;
+				result = entry1->textstatus - entry2->textstatus;
 			}
 		}
 	case 3:
 		{
 			if (result == 0)
 			{
-				result = entry1->status - entry2->status;
+				result = entry1->remotestatus - entry2->remotestatus;
 			}
 		}
 	case 2:
 		{
 			if (result == 0)
 			{
-				result = entry1->path.GetFileExtension().CompareNoCase(entry2->path.GetFileExtension());
+				result = entry1->status - entry2->status;
 			}
 		}
 	case 1:
 		{
 			if (result == 0)
 			{
-				result = entry1->path.GetFileOrDirectoryName().CompareNoCase(entry2->path.GetFileOrDirectoryName());
+				result = entry1->path.GetFileExtension().CompareNoCase(entry2->path.GetFileExtension());
 			}
 		}
-	case 0:		// path column
+	case 0:		//path column
 		{
 			if (result == 0)
 			{
@@ -1695,7 +1484,7 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
 	int nListItems = GetItemCount();
 
 	m_bBlock = TRUE;
-	// was the item checked?
+	//was the item checked?
 	if (GetCheck(pNMLV->iItem))
 	{
 		CheckEntry(pNMLV->iItem, nListItems);
@@ -1726,14 +1515,12 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 	GetStatisticsString();
 	m_bBlock = FALSE;
-	NotifyCheck();
 
 	return FALSE;
 }
 
 void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 {
-	Locker lock(m_critSec);
 	FileEntry * entry = GetListEntry(index);
 	ASSERT(entry != NULL);
 	if (entry == NULL)
@@ -1745,7 +1532,7 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 	// are unversioned, then check those too.
 	if (entry->status == svn_wc_status_unversioned)
 	{
-		// we need to check the parent folder too
+		//we need to check the parent folder too
 		const CTSVNPath& folderpath = entry->path;
 		for (int i=0; i< nListItems; ++i)
 		{
@@ -1763,8 +1550,7 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 			}
 		}
 	}
-	bool bShift = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
-	if ( (entry->status == svn_wc_status_deleted) || (m_bCheckChildrenWithParent) || (bShift) )
+	if (entry->status == svn_wc_status_deleted)
 	{
 		// if a deleted folder gets checked, we have to check all
 		// children of that folder too.
@@ -1785,17 +1571,17 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 			{
 				if (testEntry->path.IsAncestorOf(entry->path) && (!testEntry->path.IsEquivalentTo(entry->path)))
 				{
-					if ((testEntry->status == svn_wc_status_deleted)||(m_bCheckChildrenWithParent))
+					if (testEntry->status == svn_wc_status_deleted)
 					{
 						SetEntryCheck(testEntry,i,true);
 						m_nSelected++;
-						// now we need to check all children of this parent folder
+						//now we need to check all children of this parent folder
 						SetCheckOnAllDescendentsOf(testEntry, true);
 					}
 				}
-			}
-		}
-	}
+			} // if (!GetCheck(i))
+		} // for (int i=0; i<GetItemCount(); ++i)
+	} // if (entry->status == svn_wc_status_deleted)
 
 	if ( !entry->checked )
 	{
@@ -1806,27 +1592,22 @@ void CSVNStatusListCtrl::CheckEntry(int index, int nListItems)
 
 void CSVNStatusListCtrl::UncheckEntry(int index, int nListItems)
 {
-	Locker lock(m_critSec);
 	FileEntry * entry = GetListEntry(index);
 	ASSERT(entry != NULL);
 	if (entry == NULL)
 		return;
 	SetCheck(index, FALSE);
 	entry = GetListEntry(index);
-	// item was unchecked
+	//item was unchecked
 	if (entry->path.IsDirectory())
 	{
-		// disable all files within an unselected folder, except when unchecking a folder with property changes
-		bool bShift = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
-		if ( (entry->status != svn_wc_status_modified) || (bShift) )
-		{
-			SetCheckOnAllDescendentsOf(entry, false);
-		}
+		//disable all files within an unselected folder
+		SetCheckOnAllDescendentsOf(entry, false);
 	}
 	else if (entry->status == svn_wc_status_deleted)
 	{
-		// a "deleted" file was unchecked, so uncheck all parent folders
-		// and all children of those parents
+		//a "deleted" file was unchecked, so uncheck all parent folders
+		//and all children of those parents
 		for (int i=0; i<nListItems; i++)
 		{
 			FileEntry * testEntry = GetListEntry(i);
@@ -1846,8 +1627,8 @@ void CSVNStatusListCtrl::UncheckEntry(int index, int nListItems)
 					}
 				}
 			}
-		}
-	}
+		} // for (int i=0; i<GetItemCount(); i++)
+	} // else if (entry->status == svn_wc_status_deleted)
 
 	if ( entry->checked )
 	{
@@ -1869,19 +1650,16 @@ bool CSVNStatusListCtrl::IsEntryVersioned(const FileEntry* pEntry1)
 bool CSVNStatusListCtrl::BuildStatistics()
 {
 	bool bRefetchStatus = false;
+	// We partition the list of items so that it's arrange with all the versioned items first
+	// then all the unversioned items afterwards.
+	// Then we sort the versioned part of this, so that we can do quick look-ups in it
 	FileEntryVector::iterator itFirstUnversionedEntry;
 	itFirstUnversionedEntry = std::partition(m_arStatusArray.begin(), m_arStatusArray.end(), IsEntryVersioned);
-	if (m_bUnversionedLast)
-	{
-		// We partition the list of items so that it's arrange with all the versioned items first
-		// then all the unversioned items afterwards.
-		// Then we sort the versioned part of this, so that we can do quick look-ups in it
-		std::sort(m_arStatusArray.begin(), itFirstUnversionedEntry, EntryPathCompareNoCase);
-		// Also sort the unversioned section, to make the list look nice...
-		std::sort(itFirstUnversionedEntry, m_arStatusArray.end(), EntryPathCompareNoCase);
-	}
+	std::sort(m_arStatusArray.begin(), itFirstUnversionedEntry, EntryPathCompareNoCase);
+	// Also sort the unversioned section, to make the list look nice...
+	std::sort(itFirstUnversionedEntry, m_arStatusArray.end(), EntryPathCompareNoCase);
 
-	// now gather some statistics
+	//now gather some statistics
 	m_nUnversioned = 0;
 	m_nNormal = 0;
 	m_nModified = 0;
@@ -1924,12 +1702,7 @@ bool CSVNStatusListCtrl::BuildStatistics()
 					if (SVNStatus::IsImportant(entry->remotestatus))
 						break;
 					m_nUnversioned++;
-					// If an entry is in an unversioned folder, we don't have to do an expensive array search
-					// to find out if it got case-renamed: an unversioned folder can't have versioned files
-					// But nested folders are also considered to be in unversioned folders, we have to do the
-					// check in that case too, otherwise we would miss case-renamed folders - they show up
-					// as nested folders.
-					if (((!entry->inunversionedfolder)||(entry->isNested))&&(m_bUnversionedLast))
+					if (!entry->inunversionedfolder)
 					{
 						// check if the unversioned item is just
 						// a file differing in case but still versioned
@@ -1970,124 +1743,27 @@ bool CSVNStatusListCtrl::BuildStatistics()
 	return !bRefetchStatus;
 }
 
-void CSVNStatusListCtrl::GetMinMaxRevisions(svn_revnum_t& rMin, svn_revnum_t& rMax, bool bShownOnly, bool bCheckedOnly)
+void CSVNStatusListCtrl::GetMinMaxRevisions(svn_revnum_t& rMin, svn_revnum_t& rMax)
 {
-	Locker lock(m_critSec);
 	rMin = LONG_MAX;
 	rMax = 0;
-
-	if ((bShownOnly)||(bCheckedOnly))
+	for (int i=0; i < (int)m_arStatusArray.size(); ++i)
 	{
-		for (int i=0; i<GetItemCount(); ++i)
-		{
-			const FileEntry * entry = GetListEntry(i);
+		const FileEntry * entry = m_arStatusArray[i];
 
-			if ((entry)&&(entry->last_commit_rev))
-			{
-				if ((!bCheckedOnly)||(entry->IsChecked()))
-				{
-					if (entry->last_commit_rev >= 0)
-					{
-						rMin = min(rMin, entry->last_commit_rev);
-						rMax = max(rMax, entry->last_commit_rev);
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for (int i=0; i < (int)m_arStatusArray.size(); ++i)
+		if ((entry)&&(entry->Revision))
 		{
-			const FileEntry * entry = m_arStatusArray[i];
-			if ((entry)&&(entry->last_commit_rev))
-			{
-				if (entry->last_commit_rev >= 0)
-				{
-					rMin = min(rMin, entry->last_commit_rev);
-					rMax = max(rMax, entry->last_commit_rev);
-				}
-			}
+			rMin = min(rMin, entry->Revision);
+			rMax = max(rMax, entry->Revision);
 		}
 	}
 	if (rMin == LONG_MAX)
 		rMin = 0;
 }
 
-int CSVNStatusListCtrl::GetGroupFromPoint(POINT * ppt)
-{
-	// the point must be relative to the upper left corner of the control
-
-	if (ppt == NULL)
-		return -1;
-	if (!IsGroupViewEnabled())
-		return -1;
-
-	POINT pt = *ppt;
-	pt.x = 10;
-	UINT flags = 0;
-	int nItem = -1;
-	while ((flags & LVHT_BELOW) == 0)
-	{
-		nItem = HitTest(pt, &flags);
-		if (flags & LVHT_ONITEM)
-		{
-			// the first item below the point
-
-			// check if the point is too much right (i.e. if the point
-			// is farther to the right than the width of the item)
-			RECT r;
-			GetItemRect(nItem, &r, LVIR_LABEL);
-			if (ppt->x > r.right)
-				return -1;
-
-			LVITEM lv = {0};
-			lv.mask = LVIF_GROUPID;
-			lv.iItem = nItem;
-			GetItem(&lv);
-			int groupID = lv.iGroupId;
-			// now we search upwards and check if the item above this one
-			// belongs to another group. If it belongs to the same group,
-			// we're not over a group header
-			while (pt.y >= 0)
-			{
-				pt.y -= 2;
-				nItem = HitTest(pt, &flags);
-				if ((flags & LVHT_ONITEM)&&(nItem >= 0))
-				{
-					// the first item below the point
-					LVITEM lv = {0};
-					lv.mask = LVIF_GROUPID;
-					lv.iItem = nItem;
-					GetItem(&lv);
-					if (lv.iGroupId != groupID)
-						return groupID;
-					else
-						return -1;
-				}
-			}
-			if (pt.y < 0)
-				return groupID;
-			return -1;
-		}
-		pt.y += 2;
-	};
-	return -1;
-}
-
 void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	WORD langID = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
-
-	bool XPorLater = false;
-	OSVERSIONINFOEX inf;
-	ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	GetVersionEx((OSVERSIONINFO *)&inf);
-	WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-	if (fullver >= 0x0501)
-		XPorLater = true;
-	bool bShift = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
 
 	if (pWnd == this)
 	{
@@ -2099,69 +1775,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			ClientToScreen(&rect);
 			point = rect.CenterPoint();
 		}
-		if ((GetSelectedCount() == 0)&&(XPorLater)&&(m_bHasCheckboxes))
-		{
-			// nothing selected could mean the context menu is requested for
-			// a group header
-			POINT clientpoint = point;
-			ScreenToClient(&clientpoint);
-			if ((IsGroupViewEnabled())&&(GetGroupFromPoint(&clientpoint) >= 0))
-			{
-				CMenu popup;
-				if (popup.CreatePopupMenu())
-				{
-					CString temp;
-					temp.LoadString(IDS_STATUSLIST_CHECKGROUP);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_CHECKGROUP, temp);
-					temp.LoadString(IDS_STATUSLIST_UNCHECKGROUP);
-					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_UNCHECKGROUP, temp);
-					int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
-					bool bCheck = false;
-					switch (cmd)
-					{
-					case IDSVNLC_CHECKGROUP:
-						bCheck = true;
-						// fall through here
-					case IDSVNLC_UNCHECKGROUP:
-						{
-							int group = GetGroupFromPoint(&clientpoint);
-							// go through all items and check/uncheck those assigned to the group
-							// but block the OnLvnItemChanged handler
-							m_bBlock = true;
-							LVITEM lv;
-							for (int i=0; i<GetItemCount(); ++i)
-							{
-								ZeroMemory(&lv, sizeof(LVITEM));
-								lv.mask = LVIF_GROUPID;
-								lv.iItem = i;
-								GetItem(&lv);
-								if (lv.iGroupId == group)
-								{
-									FileEntry * entry = GetListEntry(i);
-									if (entry)
-									{
-										bool bOldCheck = !!GetCheck(i);
-										SetEntryCheck(entry, i, bCheck);
-										if (bCheck != bOldCheck)
-										{
-											if (bCheck)
-												m_nSelected++;
-											else
-												m_nSelected--;
-										}
-									}
-								}
-							}
-							GetStatisticsString();
-							NotifyCheck();
-							m_bBlock = false;
-						}
-						break;
-					}
-				}
-			}
-		}
-		else if (selIndex >= 0)
+		if (selIndex >= 0)
 		{
 			FileEntry * entry = GetListEntry(selIndex);
 			ASSERT(entry != NULL);
@@ -2169,22 +1783,14 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				return;
 			const CTSVNPath& filepath = entry->path;
 			svn_wc_status_kind wcStatus = entry->status;
-			// entry is selected, now show the popup menu
-			Locker lock(m_critSec);
+			//entry is selected, now show the popup menu
 			CMenu popup;
-			CMenu changelistSubMenu;
 			if (popup.CreatePopupMenu())
 			{
 				CString temp;
-				if (wcStatus >= svn_wc_status_normal)
+				if ((wcStatus >= svn_wc_status_normal)
+					&&(wcStatus != svn_wc_status_missing))
 				{
-					if (m_dwContextMenus & SVNSLC_POPCOMPAREWITHBASE)
-					{
-						temp.LoadString(IDS_LOG_COMPAREWITHBASE);
-						popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COMPARE, temp);
-						popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
-					}
-								
 					if (GetSelectedCount() == 1)
 					{
 						bool bEntryAdded = false;
@@ -2192,7 +1798,14 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						{
 							if (wcStatus > svn_wc_status_normal)
 							{
-								if ((m_dwContextMenus & SVNSLC_POPGNUDIFF)&&(wcStatus != svn_wc_status_deleted)&&(wcStatus != svn_wc_status_missing))
+								if (m_dwContextMenus & SVNSLC_POPCOMPAREWITHBASE)
+								{
+									temp.LoadString(IDS_LOG_COMPAREWITHBASE);
+									popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COMPARE, temp);
+									popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
+									bEntryAdded = true;
+								}
+								if ((m_dwContextMenus & SVNSLC_POPGNUDIFF)&&(wcStatus != svn_wc_status_deleted))
 								{
 									temp.LoadString(IDS_LOG_POPUP_GNUDIFF);
 									popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_GNUDIFF1, temp);
@@ -2241,32 +1854,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 				}
 				if (GetSelectedCount() > 0)
 				{
-					if ((GetSelectedCount() == 2)&&(m_dwContextMenus & SVNSLC_POPREPAIRMOVE))
-					{
-						POSITION pos = GetFirstSelectedItemPosition();
-						int index = GetNextSelectedItem(pos);
-						if (index >= 0)
-						{
-							FileEntry * entry = GetListEntry(index);
-							svn_wc_status_kind status1 = svn_wc_status_none;
-							svn_wc_status_kind status2 = svn_wc_status_none;
-							if (entry)
-								status1 = entry->status;
-							index = GetNextSelectedItem(pos);
-							if (index >= 0)
-							{
-								entry = GetListEntry(index);
-								if (entry)
-									status2 = entry->status;
-								if ((status1 == svn_wc_status_missing && status2 == svn_wc_status_unversioned) ||
-									(status2 == svn_wc_status_missing && status1 == svn_wc_status_unversioned))
-								{
-									temp.LoadString(IDS_STATUSLIST_CONTEXT_REPAIRMOVE);
-									popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_REPAIRMOVE, temp);
-								}
-							}
-						}
-					}
 					if (wcStatus > svn_wc_status_normal)
 					{
 						if (m_dwContextMenus & SVNSLC_POPREVERT)
@@ -2289,7 +1876,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					}
 				}
 				if ((GetSelectedCount() == 1)&&(wcStatus >= svn_wc_status_normal)
-					&&(wcStatus != svn_wc_status_ignored))
+					&&(wcStatus != svn_wc_status_missing)&&(wcStatus != svn_wc_status_ignored))
 				{
 					if (m_dwContextMenus & SVNSLC_POPSHOWLOG)
 					{
@@ -2319,31 +1906,20 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						temp.LoadString(IDS_MENUREMOVE);
 						popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_DELETE, temp);
 					}
-					if ((wcStatus != svn_wc_status_unversioned)&&(wcStatus != svn_wc_status_ignored)&&(wcStatus != svn_wc_status_deleted)&&(wcStatus != svn_wc_status_added)&&(m_dwContextMenus & SVNSLC_POPDELETE))
+					if ((wcStatus != svn_wc_status_unversioned)&&(wcStatus != svn_wc_status_ignored)&&(wcStatus != svn_wc_status_deleted)&&(m_dwContextMenus & SVNSLC_POPDELETE))
 					{
-						if (bShift)
-							temp.LoadString(IDS_MENUREMOVEKEEP);
-						else
-							temp.LoadString(IDS_MENUREMOVE);
+						temp.LoadString(IDS_MENUREMOVE);
 						popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_REMOVE, temp);
 					}
 					if ((wcStatus == svn_wc_status_unversioned)||(wcStatus == svn_wc_status_deleted))
 					{
 						if (m_dwContextMenus & SVNSLC_POPADD)
 						{
-							if ( entry->IsFolder() )
-							{
-								temp.LoadString(IDS_STATUSLIST_CONTEXT_ADD_RECURSIVE);
-								popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_ADD_RECURSIVE, temp);
-							}
-							else
-							{
-								temp.LoadString(IDS_STATUSLIST_CONTEXT_ADD);
-								popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_ADD, temp);
-							}
+							temp.LoadString(IDS_STATUSLIST_CONTEXT_ADD);
+							popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_ADD, temp);
 						}
 					}
-					if ( (wcStatus == svn_wc_status_unversioned) || (wcStatus == svn_wc_status_deleted) )
+					if ((wcStatus == svn_wc_status_unversioned))
 					{
 						if (m_dwContextMenus & SVNSLC_POPIGNORE)
 						{
@@ -2447,7 +2023,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						}
 					}
 
-					if (wcStatus != svn_wc_status_missing && wcStatus != svn_wc_status_deleted &&wcStatus!=svn_wc_status_unversioned)
+					if (wcStatus != svn_wc_status_deleted && wcStatus!=svn_wc_status_unversioned)
 					{
 						popup.AppendMenu(MF_SEPARATOR);
 						temp.LoadString(IDS_STATUSLIST_CONTEXT_PROPERTIES);
@@ -2458,54 +2034,11 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COPY, temp);
 					temp.LoadString(IDS_STATUSLIST_CONTEXT_COPYEXT);
 					popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_COPYEXT, temp);
-					if ((m_dwContextMenus & SVNSLC_POPCHANGELISTS)&&(XPorLater)
-						&&(wcStatus != svn_wc_status_unversioned)&&(wcStatus != svn_wc_status_none))
-					{
-						popup.AppendMenu(MF_SEPARATOR);
-						// changelist commands
-						size_t numChangelists = GetNumberOfChangelistsInSelection();
-						if (numChangelists > 0)
-						{
-							temp.LoadString(IDS_STATUSLIST_CONTEXT_REMOVEFROMCS);
-							popup.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_REMOVEFROMCS, temp);
-						}
-						if ((!entry->IsFolder())&&(changelistSubMenu.CreateMenu()))
-						{
-							temp.LoadString(IDS_STATUSLIST_CONTEXT_CREATECS);
-							changelistSubMenu.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_CREATECS, temp);
 
-							if (entry->changelist.Compare(SVNSLC_IGNORECHANGELIST))
-							{
-								changelistSubMenu.AppendMenu(MF_SEPARATOR);
-								changelistSubMenu.AppendMenu(MF_STRING | MF_ENABLED, IDSVNLC_CREATEIGNORECS, SVNSLC_IGNORECHANGELIST);
-							}
-
-							if (m_changelists.size() > 0)
-							{
-								// find the changelist names
-								bool bNeedSeparator = true;
-								int cmdID = IDSVNLC_MOVETOCS;
-								for (std::map<CString, LONG_PTR>::const_iterator it = m_changelists.begin(); it != m_changelists.end(); ++it)
-								{
-									if ((entry->changelist.Compare(it->first))&&(it->first.Compare(SVNSLC_IGNORECHANGELIST)))
-									{
-										if (bNeedSeparator)
-										{
-											changelistSubMenu.AppendMenu(MF_SEPARATOR);
-											bNeedSeparator = false;
-										}
-										changelistSubMenu.AppendMenu(MF_STRING | MF_ENABLED, cmdID, it->first);
-										cmdID++;
-									}
-								}
-							}
-							temp.LoadString(IDS_STATUSLIST_CONTEXT_MOVETOCS);
-							popup.AppendMenu(MF_POPUP|MF_STRING, (UINT_PTR)changelistSubMenu.GetSafeHmenu(), temp);
-						}
-					}
 				}
 
 				int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
+				bool bShift = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
 				m_bBlock = TRUE;
 				AfxGetApp()->DoWaitCursor(1);
 				int iItemCountBeforeMenuCmd = GetItemCount();
@@ -2544,36 +2077,20 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						CTSVNPathList targetList;
 						FillListOfSelectedItemPaths(targetList);
 						CTSVNPath tempFile = CTempFiles::Instance().GetTempFilePath(false);
-						VERIFY(targetList.WriteToFile(tempFile.GetWinPathString()));
+						VERIFY(targetList.WriteToTemporaryFile(tempFile.GetWinPathString()));
 						CString commandline = CPathUtils::GetAppDirectory();
-						commandline += _T("TortoiseProc.exe /command:commit /pathfile:\"");
+						commandline += _T("TortoiseProc.exe /command:commit /path:\"");
 						commandline += tempFile.GetWinPathString();
 						commandline += _T("\"");
-						commandline += _T(" /deletepathfile");
 						CAppUtils::LaunchApplication(commandline, NULL, false);
 					}
 					break;
 				case IDSVNLC_REVERT:
 					{
-						// If at least one item is not in the status "added"
-						// we ask for a confirmation
-						BOOL bConfirm = FALSE;
-						POSITION pos = GetFirstSelectedItemPosition();
-						int index;
-						while ((index = GetNextSelectedItem(pos)) >= 0)
-						{
-							FileEntry * fentry = GetListEntry(index);
-							if (fentry->textstatus != svn_wc_status_added)
-							{
-								bConfirm = TRUE;
-								break;
-							}
-						}	
-
 						CString str;
 						str.Format(IDS_PROC_WARNREVERT,GetSelectedCount());
 
-						if (!bConfirm || CMessageBox::Show(this->m_hWnd, str, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION)==IDYES)
+						if (CMessageBox::Show(this->m_hWnd, str, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION)==IDYES)
 						{
 							CTSVNPathList targetList;
 							FillListOfSelectedItemPaths(targetList);
@@ -2583,28 +2100,14 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 							targetList.SortByPathname(true);
 
 							SVN svn;
-
-							// put all reverted files in the trashbin, except the ones with 'added'
-							// status because they are not restored by the revert.
-							CTSVNPathList delList;
-							POSITION pos = GetFirstSelectedItemPosition();
-							int index;
-							while ((index = GetNextSelectedItem(pos)) >= 0)
-							{
-								FileEntry * entry = GetListEntry(index);
-								if (entry->status != svn_wc_status_added)
-									delList.AddPath(entry->GetPath());
-							}
-							delList.DeleteAllFiles(true);
-
-							if (!svn.Revert(targetList, CStringArray(), FALSE))
+							if (!svn.Revert(targetList, FALSE))
 							{
 								CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 							}
 							else
 							{
-								// since the entries got reverted we need to remove
-								// them from the list too, if no remote changes are shown
+								//since the entries got reverted we need to remove
+								//them from the list too, if no remote changes are shown
 								// and if the unmodified files are not shown
 								POSITION pos;
 								while ((pos = GetFirstSelectedItemPosition())!=0)
@@ -2612,17 +2115,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 									int index;
 									index = GetNextSelectedItem(pos);
 									FileEntry * fentry = m_arStatusArray[m_arListArray[index]];
-									if ( fentry->IsFolder() )
-									{
-										// refresh!
-										CWnd* pParent = GetParent();
-										if (NULL != pParent && NULL != pParent->GetSafeHwnd())
-										{
-											pParent->SendMessage(SVNSLNM_NEEDSREFRESH);
-										}
-										break;
-									}
-
 									BOOL bAdded = (fentry->textstatus == svn_wc_status_added);
 									fentry->status = svn_wc_status_normal;
 									fentry->propstatus = svn_wc_status_normal;
@@ -2662,19 +2154,13 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								}
 								SaveColumnWidths();
 								Show(m_dwShow, 0, m_bShowFolders);
-								NotifyCheck();
 							}
 						}
 					}
 					break;
 				case IDSVNLC_COMPARE:
 					{
-						POSITION pos = GetFirstSelectedItemPosition();
-						while ( pos )
-						{
-							int index = GetNextSelectedItem(pos);
-							StartDiff(index);
-						}
+						StartDiff(selIndex);
 					}
 					break;
 				case IDSVNLC_GNUDIFF1:
@@ -2692,26 +2178,17 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						CTSVNPathList targetList;
 						FillListOfSelectedItemPaths(targetList);
 						CSVNProgressDlg dlg;
-						dlg.SetCommand(CSVNProgressDlg::SVNProgress_Update);
-						dlg.SetPathList(targetList);
-						dlg.SetRevision(SVNRev::REV_HEAD);
+						dlg.SetParams(CSVNProgressDlg::Enum_Update, 0, targetList);
 						dlg.DoModal();
 					}
 					break;
 				case IDSVNLC_LOG:
 					{
-						CString sCmd;
-						sCmd.Format(_T("\"%s\" /command:log /path:\"%s\""),
-							CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe"), filepath);
-
-						if (!filepath.IsUrl())
-						{
-							sCmd += _T(" /propspath:\"");
-							sCmd += filepath.GetWinPathString();
-							sCmd += _T("\"");
-						}	
-
-						CAppUtils::LaunchApplication(sCmd, NULL, false);
+						CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
+						int limit = (int)(LONG)reg;
+						CLogDlg dlg;
+						dlg.SetParams(filepath, SVNRev(), SVNRev::REV_HEAD, 1, limit);
+						dlg.DoModal();
 					}
 					break;
 				case IDSVNLC_OPEN:
@@ -2747,36 +2224,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						// *before* their parents
 						itemsToRemove.SortByPathname(true);
 
-						bool bSuccess = false;
-						if (svn.Remove(itemsToRemove, FALSE, bShift))
-						{
-							bSuccess = true;
-						}
-						else
-						{
-							if ((svn.Err->apr_err == SVN_ERR_UNVERSIONED_RESOURCE) ||
-								(svn.Err->apr_err == SVN_ERR_CLIENT_MODIFIED))
-							{
-								CString msg, yes, no, yestoall;
-								msg.Format(IDS_PROC_REMOVEFORCE, svn.GetLastErrorMessage());
-								yes.LoadString(IDS_MSGBOX_YES);
-								no.LoadString(IDS_MSGBOX_NO);
-								yestoall.LoadString(IDS_PROC_YESTOALL);
-								UINT ret = CMessageBox::Show(m_hWnd, msg, _T("TortoiseSVN"), 2, IDI_ERROR, yes, no, yestoall);
-								if ((ret == 1)||(ret==3))
-								{
-									if (!svn.Remove(itemsToRemove, TRUE, bShift))
-									{
-										CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-									}
-									else
-										bSuccess = true;
-								}
-							}
-							else
-								CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						}
-						if (bSuccess)
+						if (svn.Remove(itemsToRemove, TRUE))
 						{
 							// The remove went ok, but we now need to run through the selected items again
 							// and update their status
@@ -2785,27 +2233,17 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 							while ((index = GetNextSelectedItem(pos)) >= 0)
 							{
 								FileEntry * e = GetListEntry(index);
-								if (!bShift &&
-									((e->textstatus == svn_wc_status_unversioned)||
-									(e->textstatus == svn_wc_status_none)||
-									(e->textstatus == svn_wc_status_ignored)))
-								{
-									if (GetCheck(index))
-										m_nSelected--;
-									m_nTotal--;
-									RemoveListEntry(index);
-								}
-								else
-								{
-									e->textstatus = svn_wc_status_deleted;
-									e->status = svn_wc_status_deleted;
-									SetEntryCheck(e,index,true);
-								}
+								e->textstatus = svn_wc_status_deleted;
+								e->status = svn_wc_status_deleted;
+								SetEntryCheck(e,index,true);
 							}
+						}
+						else
+						{
+							CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
 						SaveColumnWidths();
 						Show(m_dwShow, 0, m_bShowFolders);
-						NotifyCheck();
 					}
 					break;
 				case IDSVNLC_DELETE:
@@ -2839,7 +2277,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						if ( (result==0) && (!fileop.fAnyOperationsAborted) )
 						{
 							POSITION pos = NULL;
-							CTSVNPathList deletedlist;	// to store list of deleted folders
+							CTSVNPathList deletedlist;	//to store list of deleted folders
 							while ((pos = GetFirstSelectedItemPosition()) != 0)
 							{
 								int index = GetNextSelectedItem(pos);
@@ -2847,7 +2285,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 									m_nSelected--;
 								m_nTotal--;
 								FileEntry * fentry = GetListEntry(index);
-								if ((fentry)&&(fentry->isfolder))
+								if (fentry->isfolder)
 									deletedlist.AddPath(fentry->path);
 								RemoveListEntry(index);
 							}
@@ -2885,7 +2323,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						for (it = parentlist.begin(); it != parentlist.end(); ++it)
 						{
 							CTSVNPath parentFolder = (*it).GetDirectory();
-							SVNProperties props(parentFolder, SVNRev::REV_WC, false);
+							SVNProperties props(parentFolder);
 							CStringA value;
 							for (int i=0; i<props.GetCount(); i++)
 							{
@@ -2893,7 +2331,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -2949,7 +2387,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 									SVNStatus status;
 									svn_wc_status2_t * s;
 									CTSVNPath svnPath;
-									s = status.GetFirstFileStatus(parentFolder, svnPath, false, svn_depth_empty);
+									s = status.GetFirstFileStatus(parentFolder, svnPath, false, false);
 									if (s!=0)
 									{
 										// first check if the folder isn't already present in the list
@@ -2985,7 +2423,8 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 											{
 												if (s->entry->url)
 												{
-													entry->url = CUnicodeUtils::GetUnicode(CPathUtils::PathUnescape(s->entry->url));
+													CPathUtils::Unescape((char *)s->entry->url);
+													entry->url = CUnicodeUtils::GetUnicode(s->entry->url);
 												}
 											}
 											if (s->entry && s->entry->present_props)
@@ -3030,9 +2469,9 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 									break;
 								}
 							}
-							CString name = CPathUtils::PathPatternEscape(ignorelist[j].GetFileOrDirectoryName());
+							CString name = ignorelist[j].GetFileOrDirectoryName();
 							CTSVNPath parentfolder = ignorelist[j].GetContainingDirectory();
-							SVNProperties props(parentfolder, SVNRev::REV_WC, false);
+							SVNProperties props(parentfolder);
 							CStringA value;
 							for (int i=0; i<props.GetCount(); i++)
 							{
@@ -3040,7 +2479,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								if (propname.CompareNoCase(_T("svn:ignore"))==0)
 								{
 									stdstring stemp;
-									// treat values as normal text even if they're not
+									//treat values as normal text even if they're not
 									value = (char *)props.GetItemValue(i).c_str();
 								}
 							}
@@ -3064,7 +2503,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								m_nSelected--;
 							m_nTotal--;
 
-							// now, if we ignored a folder, remove all its children
+							//now, if we ignored a folder, remove all its children
 							if (ignorelist[j].IsDirectory())
 							{
 								for (int i=0; i<(int)m_arListArray.size(); ++i)
@@ -3085,17 +2524,13 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 							}
 
 							CTSVNPath basepath = m_arStatusArray[m_arListArray[selIndex]]->basepath;
-							
-							FileEntry * entry = m_arStatusArray[m_arListArray[selIndex]];
-							if ( entry->status == svn_wc_status_unversioned ) // keep "deleted" items
-								toremove.push_back(entry->GetPath().GetSVNPathString());
-							
+							toremove.push_back(m_arStatusArray[m_arListArray[selIndex]]->GetPath().GetSVNPathString());
 							if (!m_bIgnoreRemoveOnly)
 							{
 								SVNStatus status;
 								svn_wc_status2_t * s;
 								CTSVNPath svnPath;
-								s = status.GetFirstFileStatus(parentfolder, svnPath, false, svn_depth_empty);
+								s = status.GetFirstFileStatus(parentfolder, svnPath, false, false);
 								// first check if the folder isn't already present in the list
 								bool bFound = false;
 								nListboxEntries = GetItemCount();
@@ -3132,7 +2567,8 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 										{
 											if (s->entry->url)
 											{
-												entry->url = CUnicodeUtils::GetUnicode(CPathUtils::PathUnescape(s->entry->url));
+												CPathUtils::Unescape((char *)s->entry->url);
+												entry->url = CUnicodeUtils::GetUnicode(s->entry->url);
 											}
 										}
 										if (s->entry && s->entry->present_props)
@@ -3164,22 +2600,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					SVNDiff::StartConflictEditor(filepath);
 					break;
 				case IDSVNLC_RESOLVECONFLICT:
-				case IDSVNLC_RESOLVEMINE:
-				case IDSVNLC_RESOLVETHEIRS:
 					{
-						svn_wc_conflict_choice_t result = svn_wc_conflict_choose_merged;
-						switch (cmd)
-						{
-						case IDSVNLC_RESOLVETHEIRS:
-							result = svn_wc_conflict_choose_theirs;
-							break;
-						case IDSVNLC_RESOLVEMINE:
-							result = svn_wc_conflict_choose_mine;
-							break;
-						case IDSVNLC_RESOLVECONFLICT:
-							result = svn_wc_conflict_choose_merged;
-							break;
-						}
 						if (CMessageBox::Show(m_hWnd, IDS_PROC_RESOLVE, IDS_APPNAME, MB_ICONQUESTION | MB_YESNO)==IDYES)
 						{
 							SVN svn;
@@ -3189,7 +2610,105 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 								int index;
 								index = GetNextSelectedItem(pos);
 								FileEntry * fentry = m_arStatusArray[m_arListArray[index]];
-								if (!svn.Resolve(fentry->GetPath(), result, FALSE))
+								if (!svn.Resolve(fentry->GetPath(), FALSE))
+								{
+									CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+								}
+								else
+								{
+									fentry->status = svn_wc_status_modified;
+									fentry->textstatus = svn_wc_status_modified;
+									fentry->isConflicted = false;
+								}
+							}
+							Show(m_dwShow, 0, m_bShowFolders);
+						}
+					}
+					break;
+				case IDSVNLC_RESOLVETHEIRS:
+					{
+						if (CMessageBox::Show(m_hWnd, IDS_PROC_RESOLVE, IDS_APPNAME, MB_ICONQUESTION | MB_YESNO)==IDYES)
+						{
+							SVN svn;
+							POSITION pos = GetFirstSelectedItemPosition();
+							while (pos != 0)
+							{
+								int index;
+								index = GetNextSelectedItem(pos);
+								FileEntry * fentry = m_arStatusArray[m_arListArray[index]];
+								CTSVNPath theirs(fentry->GetPath().GetDirectory());
+								SVNStatus stat;
+								stat.GetStatus(fentry->GetPath());
+								if (stat.status)
+								{
+									if ((stat.status->entry)&&(stat.status->entry->conflict_new))
+									{
+										theirs.AppendPathString(CUnicodeUtils::GetUnicode(stat.status->entry->conflict_new));
+									}
+									else break;
+								}
+								else
+								{
+									CMessageBox::Show(m_hWnd, stat.GetLastErrorMsg(), _T("TortoiseSVN"), MB_ICONERROR);
+									break;
+								}
+								CopyFile(theirs.GetWinPath(), fentry->GetPath().GetWinPath(), FALSE);
+								if (!svn.Resolve(fentry->GetPath(), FALSE))
+								{
+									CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+								}
+								else
+								{
+									fentry->status = svn_wc_status_modified;
+									fentry->textstatus = svn_wc_status_modified;
+									fentry->isConflicted = false;
+								}
+							}
+							Show(m_dwShow, 0, m_bShowFolders);
+						}
+					}
+					break;
+				case IDSVNLC_RESOLVEMINE:
+					{
+						if (CMessageBox::Show(m_hWnd, IDS_PROC_RESOLVE, IDS_APPNAME, MB_ICONQUESTION | MB_YESNO)==IDYES)
+						{
+							SVN svn;
+							POSITION pos = GetFirstSelectedItemPosition();
+							while (pos != 0)
+							{
+								int index;
+								index = GetNextSelectedItem(pos);
+								FileEntry * fentry = m_arStatusArray[m_arListArray[index]];
+								CTSVNPath mine(fentry->GetPath().GetDirectory());
+								SVNStatus stat;
+								stat.GetStatus(fentry->GetPath());
+								if (stat.status)
+								{
+									if (stat.status->entry)
+									{
+										if (stat.status->entry->conflict_wrk)
+										{
+											mine.AppendPathString(CUnicodeUtils::GetUnicode(stat.status->entry->conflict_wrk));
+										}
+										else if (stat.status->entry->conflict_old)
+										{
+											// if the conflict_wrk entry is empty, that means the file is binary
+											// and there is no 'merged' file with the conflict markers in it which would
+											// have replaced the original file. In that case, the original file is left
+											// untouched, and we need to use that untouched file as 'mine'.
+											mine.AppendPathString(CUnicodeUtils::GetUnicode(stat.status->entry->name));
+										}
+										else
+											break;
+									}
+								}
+								else
+								{
+									CMessageBox::Show(m_hWnd, stat.GetLastErrorMsg(), _T("TortoiseSVN"), MB_ICONERROR);
+									break;
+								}
+								CopyFile(mine.GetWinPath(), fentry->GetPath().GetWinPath(), FALSE);
+								if (!svn.Resolve(fentry->GetPath(), FALSE))
 								{
 									CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 								}
@@ -3214,9 +2733,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						// *before* any of their children
 						itemsToAdd.SortByPathname();
 
-						ProjectProperties props;
-						props.ReadPropsPathList(itemsToAdd);
-						if (svn.Add(itemsToAdd, &props, svn_depth_empty, TRUE, TRUE, TRUE))
+						if (svn.Add(itemsToAdd, FALSE, TRUE, TRUE))
 						{
 							// The add went ok, but we now need to run through the selected items again
 							// and update their status
@@ -3237,36 +2754,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 						}
 						SaveColumnWidths();
 						Show(m_dwShow, 0, m_bShowFolders);
-						NotifyCheck();
-					}
-					break;
-				case IDSVNLC_ADD_RECURSIVE:
-					{
-						CTSVNPathList itemsToAdd;
-						FillListOfSelectedItemPaths(itemsToAdd);
-
-						CAddDlg dlg;
-						dlg.m_pathList = itemsToAdd;
-						if (dlg.DoModal() == IDOK)
-						{
-							if (dlg.m_pathList.GetCount() == 0)
-								break;
-							CSVNProgressDlg progDlg;
-							progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
-							progDlg.SetPathList(dlg.m_pathList);
-							ProjectProperties props;
-							props.ReadPropsPathList(dlg.m_pathList);
-							progDlg.SetProjectProperties(props);
-							progDlg.SetItemCount(dlg.m_pathList.GetCount());
-							progDlg.DoModal();
-
-							// refresh!
-							CWnd* pParent = GetParent();
-							if (NULL != pParent && NULL != pParent->GetSafeHwnd())
-							{
-								pParent->SendMessage(SVNSLNM_NEEDSREFRESH);
-							}
-						}
 					}
 					break;
 				case IDSVNLC_LOCK:
@@ -3285,10 +2772,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					if (inpDlg.DoModal()==IDOK)
 					{
 						CSVNProgressDlg progDlg;
-						progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Lock);
-						progDlg.SetOptions(inpDlg.m_iCheck ? ProgOptLockForce : ProgOptNone);
-						progDlg.SetPathList(itemsToLock);
-						progDlg.SetCommitMessage(inpDlg.m_sInputText);
+						progDlg.SetParams(CSVNProgressDlg::Lock, inpDlg.m_iCheck ? ProgOptLockForce : 0, itemsToLock, CString(), inpDlg.m_sInputText);
 						progDlg.DoModal();
 						// refresh!
 						CWnd* pParent = GetParent();
@@ -3306,9 +2790,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					CTSVNPathList itemsToUnlock;
 					FillListOfSelectedItemPaths(itemsToUnlock);
 					CSVNProgressDlg progDlg;
-					progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Unlock);
-					progDlg.SetOptions(bForce ? ProgOptLockForce : ProgOptNone);
-					progDlg.SetPathList(itemsToUnlock);
+					progDlg.SetParams(CSVNProgressDlg::Unlock, bForce ? ProgOptLockForce : 0, itemsToUnlock);
 					progDlg.DoModal();
 					// refresh!
 					CWnd* pParent = GetParent();
@@ -3318,167 +2800,8 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					}
 				}
 				break;
-				case IDSVNLC_REPAIRMOVE:
-				{
-					POSITION pos = GetFirstSelectedItemPosition();
-					int index = GetNextSelectedItem(pos);
-					FileEntry * entry1 = NULL;
-					FileEntry * entry2 = NULL;
-					if (index >= 0)
-					{
-						entry1 = GetListEntry(index);
-						svn_wc_status_kind status1 = svn_wc_status_none;
-						svn_wc_status_kind status2 = svn_wc_status_none;
-						if (entry1)
-						{
-							status1 = entry1->status;
-							index = GetNextSelectedItem(pos);
-							if (index >= 0)
-							{
-								entry2 = GetListEntry(index);
-								if (entry2)
-								{
-									status2 = entry2->status;
-									if (status2 == svn_wc_status_missing && status1 == svn_wc_status_unversioned)
-									{
-										FileEntry * tempentry = entry1;
-										entry1 = entry2;
-										entry2 = tempentry;
-									}
-									// entry1 was renamed to entry2 but outside of Subversion
-									// fix this by moving entry2 back to entry1 first,
-									// then do an svn-move from entry1 to entry2
-									if (MoveFile(entry2->GetPath().GetWinPath(), entry1->GetPath().GetWinPath()))
-									{
-										SVN svn;
-										if (!svn.Move(CTSVNPathList(entry1->GetPath()), entry2->GetPath(), TRUE))
-										{
-											CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-										}
-										else
-										{
-											// check the previously unversioned item
-											entry1->checked = true;
-											// fixing the move was successful. We have to adjust the new status of the
-											// files.
-											// Since we don't know if the moved/renamed file had local modifications or not,
-											// we can't guess the new status. That means we have to refresh...
-											CWnd* pParent = GetParent();
-											if (NULL != pParent && NULL != pParent->GetSafeHwnd())
-											{
-												pParent->SendMessage(SVNSLNM_NEEDSREFRESH);
-											}
-										}
-									}
-									else
-									{
-										LPVOID lpMsgBuf;
-										FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
-											FORMAT_MESSAGE_FROM_SYSTEM | 
-											FORMAT_MESSAGE_IGNORE_INSERTS,
-											NULL,
-											GetLastError(),
-											MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-											(LPTSTR) &lpMsgBuf,
-											0,
-											NULL 
-											);
-										MessageBox((LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
-										LocalFree( lpMsgBuf );
-									}
-								}
-							}
-						}
-					}
-				}
-				break;
-				case IDSVNLC_REMOVEFROMCS:
-					{
-						CTSVNPathList changelistItems;
-						FillListOfSelectedItemPaths(changelistItems);
-						SVN svn;
-						if (svn.RemoveFromChangeList(changelistItems, CStringArray(), svn_depth_empty))
-						{
-							// The changelists were removed, but we now need to run through the selected items again
-							// and update their changelist
-							POSITION pos = GetFirstSelectedItemPosition();
-							int index;
-							while ((index = GetNextSelectedItem(pos)) >= 0)
-							{
-								FileEntry * e = GetListEntry(index);
-								e->changelist.Empty();
-								SetItemGroup(index, 0);
-							}
-							// TODO: Should we go through all entries here and check if we also could
-							// remove the changelist from m_changelists ?
-						}
-						else
-						{
-							CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						}
-					}
-					break;
-				case IDSVNLC_CREATEIGNORECS:
-					CreateChangeList(SVNSLC_IGNORECHANGELIST);
-					break;
-				case IDSVNLC_CREATECS:
-					{
-						CCreateChangelistDlg dlg;
-						if (dlg.DoModal() == IDOK)
-						{
-							CreateChangeList(dlg.m_sName);
-						}
-					}
-					break;
 				default:
-					{
-						if (cmd < IDSVNLC_MOVETOCS)
-							break;
-						CTSVNPathList changelistItems;
-						FillListOfSelectedItemPaths(changelistItems);
-
-						// find the changelist name
-						CString sChangelist;
-						int cmdID = IDSVNLC_MOVETOCS;
-						for (std::map<CString, LONG_PTR>::const_iterator it = m_changelists.begin(); it != m_changelists.end(); ++it)
-						{
-							if ((it->first.Compare(SVNSLC_IGNORECHANGELIST))&&(entry->changelist.Compare(it->first)))
-							{
-								if (cmd == cmdID)
-								{
-									sChangelist = it->first;
-								}
-								cmdID++;
-							}
-						}
-						if (!sChangelist.IsEmpty())
-						{
-							SVN svn;
-							if (svn.AddToChangeList(changelistItems, sChangelist, svn_depth_empty))
-							{
-								// The changelists were moved, but we now need to run through the selected items again
-								// and update their changelist
-								POSITION pos = GetFirstSelectedItemPosition();
-								int index;
-								while ((index = GetNextSelectedItem(pos)) >= 0)
-								{
-									FileEntry * e = GetListEntry(index);
-									e->changelist = sChangelist;
-									if (!e->IsFolder())
-									{
-										if (m_changelists.find(e->changelist)!=m_changelists.end())
-											SetItemGroup(index, m_changelists[e->changelist]);
-										else
-											SetItemGroup(index, 0);
-									}
-								}
-							}
-							else
-							{
-								CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-							}
-						}
-					}
+					m_bBlock = FALSE;
 					break;
 				} // switch (cmd)
 				m_bBlock = FALSE;
@@ -3506,7 +2829,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			ClientToScreen(&rect);
 			point = rect.CenterPoint();
 		}
-		Locker lock(m_critSec);
 		CMenu popup;
 		if (popup.CreatePopupMenu())
 		{
@@ -3514,14 +2836,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			int nCol = 1;
 			UINT uCheckedFlags = MF_STRING | MF_ENABLED | MF_CHECKED;
 			UINT uUnCheckedFlags = MF_STRING | MF_ENABLED;
-			if (XPorLater)
-			{
-				temp.LoadString(IDS_STATUSLIST_SHOWGROUPS);
-				popup.AppendMenu(IsGroupViewEnabled() ? uCheckedFlags : uUnCheckedFlags, SVNSLC_NUMCOLUMNS, temp);
-				popup.AppendMenu(MF_SEPARATOR);
-			}
-			temp.LoadString(IDS_STATUSLIST_COLFILENAME);
-			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
 			temp.LoadString(IDS_STATUSLIST_COLEXT);
 			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
 			temp.LoadString(IDS_STATUSLIST_COLSTATUS);
@@ -3550,10 +2864,6 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
 			temp.LoadString(IDS_STATUSLIST_COLSVNLOCK);
 			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
-			temp.LoadString(IDS_STATUSLIST_COLCOPYFROM);
-			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
-			temp.LoadString(IDS_STATUSLIST_COLMODIFICATIONDATE);
-			popup.AppendMenu(m_ColumnShown[nCol] ? uCheckedFlags : uUnCheckedFlags, nCol++, temp);
 
 			int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 			if ((cmd >= 1)&&(cmd < SVNSLC_NUMCOLUMNS))
@@ -3567,62 +2877,7 @@ void CSVNStatusListCtrl::OnContextMenu(CWnd* pWnd, CPoint point)
 					ShowColumn(cmd);
 				}
 			}
-			if (cmd == SVNSLC_NUMCOLUMNS)
-			{
-				EnableGroupView(!IsGroupViewEnabled());
-			}
 		}
-	}
-}
-
-void CSVNStatusListCtrl::CreateChangeList(const CString& name)
-{
-	CTSVNPathList changelistItems;
-	FillListOfSelectedItemPaths(changelistItems);
-	SVN svn;
-	if (svn.AddToChangeList(changelistItems, name, svn_depth_empty))
-	{
-		// The changelists were removed, but we now need to run through the selected items again
-		// and update their changelist
-		PrepareGroups(true);
-		if (m_changelists.size() == 0)
-		{
-			// there are no groups defined yet.
-			// before we can add our new group, we must assign all entries
-			// to the null-group (not assigned to a changelist)
-			for (int ii = 0; ii < GetItemCount(); ++ii)
-				SetItemGroup(ii, 0);
-		}
-		TCHAR groupname[1024];
-		LVGROUP grp = {0};
-		grp.cbSize = sizeof(LVGROUP);
-		grp.mask = LVGF_ALIGN | LVGF_GROUPID | LVGF_HEADER;
-		_tcsncpy_s(groupname, 1024, name, 1023);
-		grp.pszHeader = groupname;
-		grp.iGroupId = (int)m_changelists.size()+1;
-		grp.uAlign = LVGA_HEADER_LEFT;
-		m_changelists[name] = InsertGroup(-1, &grp);
-
-		POSITION pos = GetFirstSelectedItemPosition();
-		int index;
-		while ((index = GetNextSelectedItem(pos)) >= 0)
-		{
-			FileEntry * e = GetListEntry(index);
-			e->changelist = name;
-		}
-
-		for (index = 0; index < GetItemCount(); ++index)
-		{
-			FileEntry * e = GetListEntry(index);
-			if (m_changelists.find(e->changelist)!=m_changelists.end())
-				SetItemGroup(index, m_changelists[e->changelist]);
-			else
-				SetItemGroup(index, 0);
-		}
-	}
-	else
-	{
-		CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 	}
 }
 
@@ -3632,8 +2887,8 @@ void CSVNStatusListCtrl::ShowColumn(int col)
 	SetColumnWidth(col, LVSCW_AUTOSIZE_USEHEADER);
 
 	// restore position
-	int arr[SVNSLC_NUMCOLUMNS] = {0};
-	int arr2[SVNSLC_NUMCOLUMNS] = {0};
+	int arr[SVNSLC_NUMCOLUMNS];
+	int arr2[SVNSLC_NUMCOLUMNS];
 	GetColumnOrderArray(arr, SVNSLC_NUMCOLUMNS);
 	int arrIndex = 0;
 	for (int i = 0; i < SVNSLC_NUMCOLUMNS; i++) 
@@ -3657,10 +2912,6 @@ void CSVNStatusListCtrl::ShowColumn(int col)
 				arr2[arrIndex++] = arr[i];
 		}
 	}
-	if ( !bInserted )
-	{
-		arr2[arrIndex++] = col;
-	}
 
 	SetColumnOrderArray(SVNSLC_NUMCOLUMNS, arr2);
 
@@ -3679,8 +2930,8 @@ void CSVNStatusListCtrl::HideColumn(int col)
 	SetColumnWidth(col,0);
 	m_ColumnShown[col] = 0;
 	// move to front of list
-	int arr[SVNSLC_NUMCOLUMNS] = {0};
-	int arr2[SVNSLC_NUMCOLUMNS] = {0};
+	int arr[SVNSLC_NUMCOLUMNS];
+	int arr2[SVNSLC_NUMCOLUMNS];
 	GetColumnOrderArray(arr, SVNSLC_NUMCOLUMNS);
 	int arrIndex = 0;
 	for (int i = 0; i < SVNSLC_NUMCOLUMNS; i++) 
@@ -3711,60 +2962,12 @@ void CSVNStatusListCtrl::HideColumn(int col)
 
 void CSVNStatusListCtrl::OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	Locker lock(m_critSec);
 	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
 	*pResult = 0;
 	if (m_bBlock)
 		return;
 	if (pNMLV->iItem < 0)
-	{
-		if (!IsGroupViewEnabled())
-			return;
-		POINT pt;
-		GetCursorPos(&pt);
-		ScreenToClient(&pt);
-		int group = GetGroupFromPoint(&pt);
-		if (group < 0)
-			return;
-		// check/uncheck the whole group depending on the check-state 
-		// of the first item in the group
-		m_bBlock = true;
-		bool bCheck = false;
-		bool bFirst = false;
-		LVITEM lv;
-		for (int i=0; i<GetItemCount(); ++i)
-		{
-			ZeroMemory(&lv, sizeof(LVITEM));
-			lv.mask = LVIF_GROUPID;
-			lv.iItem = i;
-			GetItem(&lv);
-			if (lv.iGroupId == group)
-			{
-				FileEntry * entry = GetListEntry(i);
-				if (!bFirst)
-				{
-					bCheck = !GetCheck(i);
-					bFirst = true;
-				}
-				if (entry)
-				{
-					bool bOldCheck = !!GetCheck(i);
-					SetEntryCheck(entry, i, bCheck);
-					if (bCheck != bOldCheck)
-					{
-						if (bCheck)
-							m_nSelected++;
-						else
-							m_nSelected--;
-					}
-				}
-			}
-		}
-		GetStatisticsString();
-		m_bBlock = false;
-		NotifyCheck();
 		return;
-	}
 	FileEntry * entry = GetListEntry(pNMLV->iItem);
 	if (entry)
 	{
@@ -3787,24 +2990,15 @@ void CSVNStatusListCtrl::StartDiff(int fileindex)
 	ASSERT(entry != NULL);
 	if (entry == NULL)
 		return;
-	if (((entry->status == svn_wc_status_normal)&&(entry->remotestatus <= svn_wc_status_normal))||
-		(entry->status == svn_wc_status_unversioned)||(entry->status == svn_wc_status_none))
-	{
-		int ret = (int)ShellExecute(this->m_hWnd, NULL, entry->path.GetWinPath(), NULL, NULL, SW_SHOW);
-		if (ret <= HINSTANCE_ERROR)
-		{
-			CString cmd = _T("RUNDLL32 Shell32,OpenAs_RunDLL ");
-			cmd += entry->path.GetWinPathString();
-			CAppUtils::LaunchApplication(cmd, NULL, false);
-		}
-		return;
-	}
+	if ((entry->status == svn_wc_status_normal)&&(entry->remotestatus <= svn_wc_status_normal))
+		return;		//normal files won't show anything interesting in a diff
+	if (entry->status == svn_wc_status_missing)
+		return;		//we don't compare a missing file (nothing) with something
+	if (entry->status == svn_wc_status_unversioned)
+		return;		//we don't compare new files with nothing
 
 	SVNDiff diff(NULL, m_hWnd, true);
-	diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
-	diff.DiffWCFile(
-		entry->path, entry->textstatus, entry->propstatus,
-		entry->remotetextstatus, entry->remotepropstatus);
+	diff.DiffWCFile(entry->path, entry->textstatus, entry->propstatus, entry->remotetextstatus, entry->remotepropstatus);
 }
 
 CString CSVNStatusListCtrl::GetStatisticsString()
@@ -3834,7 +3028,7 @@ CString CSVNStatusListCtrl::GetStatisticsString()
 		(LPCTSTR)sConflicted, m_nConflicted
 		);
 	CString sStats;
-	sStats.Format(IDS_COMMITDLG_STATISTICSFORMAT, m_nSelected, GetItemCount());
+	sStats.Format(IDS_LOGPROMPT_STATISTICSFORMAT, m_nSelected, GetItemCount());
 	if (m_pStatLabel)
 	{
 		m_pStatLabel->SetWindowText(sStats);
@@ -3888,7 +3082,7 @@ CTSVNPath CSVNStatusListCtrl::GetCommonDirectory(bool bStrict)
 	return commonBaseDirectory;
 }
 
-void CSVNStatusListCtrl::SelectAll(bool bSelect, bool bIncludeNoCommits)
+void CSVNStatusListCtrl::SelectAll(bool bSelect)
 {
 	CWaitCursor waitCursor;
 	// block here so the LVN_ITEMCHANGED messages
@@ -3907,14 +3101,12 @@ void CSVNStatusListCtrl::SelectAll(bool bSelect, bool bIncludeNoCommits)
 		ASSERT(entry != NULL);
 		if (entry == NULL)
 			continue;
-		if ((bIncludeNoCommits)||(entry->GetChangeList().Compare(SVNSLC_IGNORECHANGELIST)))
-			SetEntryCheck(entry,i,bSelect);
+		SetEntryCheck(entry,i,bSelect);
 	}
 	// unblock before redrawing
 	m_bBlock = FALSE;
 	SetRedraw(TRUE);
 	GetStatisticsString();
-	NotifyCheck();
 }
 
 void CSVNStatusListCtrl::OnLvnGetInfoTip(NMHDR *pNMHDR, LRESULT *pResult)
@@ -3961,7 +3153,7 @@ void CSVNStatusListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 
 			COLORREF crText = GetSysColor(COLOR_WINDOWTEXT);
 
-			if (m_arListArray.size() > (DWORD_PTR)pLVCD->nmcd.dwItemSpec)
+			if (m_arListArray.size() > (INT_PTR)pLVCD->nmcd.dwItemSpec)
 			{
 				FileEntry * entry = GetListEntry((int)pLVCD->nmcd.dwItemSpec);
 				if (entry == NULL)
@@ -4045,7 +3237,6 @@ BOOL CSVNStatusListCtrl::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 
 void CSVNStatusListCtrl::RemoveListEntry(int index)
 {
-	Locker lock(m_critSec);
 	DeleteItem(index);
 	delete m_arStatusArray[m_arListArray[index]];
 	m_arStatusArray.erase(m_arStatusArray.begin()+m_arListArray[index]);
@@ -4249,26 +3440,20 @@ BOOL CSVNStatusListCtrl::OnToolTipText(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRes
 {
 	TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
 	CString strTipText;
-	UINT_PTR nID = pNMHDR->idFrom;
+	UINT nID = pNMHDR->idFrom;
 
 	if (nID == 0)
 		return FALSE;
 
-	UINT_PTR row = ((nID-1) >> 10) & 0x3fffff;
-	UINT_PTR col = (nID-1) & 0x3ff;
+	int row = ((nID-1) >> 10) & 0x3fffff;
+	int col = (nID-1) & 0x3ff;
 
 	if (col == 0)
 		return FALSE;	// no custom tooltip for the path, we use the infotip there!
 
 	// get the internal column from the visible columns
-	UINT_PTR internalcol = 0;
-	UINT_PTR currentcol = 0;
-	if (currentcol != col)
-	{
-		internalcol++;
-		if (m_dwColumns & SVNSLC_COLFILENAME)
-			currentcol++;
-	}
+	int internalcol = 0;
+	int currentcol = 0;
 	if (currentcol != col)
 	{
 		internalcol++;
@@ -4335,12 +3520,6 @@ BOOL CSVNStatusListCtrl::OnToolTipText(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRes
 		if (m_dwColumns & SVNSLC_COLSVNNEEDSLOCK)
 			currentcol++;
 	}
-	if (currentcol != col)
-	{
-		internalcol++;
-		if (m_dwColumns & SVNSLC_COLMODIFICATIONDATE)
-			currentcol++;
-	}
 
 	AFX_MODULE_THREAD_STATE* pModuleThreadState = AfxGetModuleThreadState();
 	CToolTipCtrl* pToolTip = pModuleThreadState->m_pToolTip;
@@ -4354,21 +3533,22 @@ BOOL CSVNStatusListCtrl::OnToolTipText(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRes
 		{
 			if (fentry->copied)
 			{
-				CString url;
-				url.Format(IDS_STATUSLIST_COPYFROM, (LPCTSTR)CPathUtils::PathUnescape(fentry->copyfrom_url), (LONG)fentry->copyfrom_rev);
-				lstrcpyn(pTTTW->szText, url, 80);
+				CStringA url;
+				url.Format(IDS_STATUSLIST_COPYFROM, CUnicodeUtils::GetUTF8(fentry->copyfrom_url), fentry->copyfrom_rev);
+				CPathUtils::Unescape(url.GetBuffer());
+				url.ReleaseBuffer();
+				CString urlW = CUnicodeUtils::GetUnicode(url);
+				lstrcpyn(pTTTW->szText, urlW, 80);
 				return TRUE;
 			}
 			if (fentry->switched)
 			{
-				CString url;
-				url.Format(IDS_STATUSLIST_SWITCHEDTO, CPathUtils::PathUnescape(fentry->url));
-				lstrcpyn(pTTTW->szText, url, 80);
-				return TRUE;
-			}
-			if (fentry->keeplocal)
-			{
-				lstrcpyn(pTTTW->szText, CString(MAKEINTRESOURCE(IDS_STATUSLIST_KEEPLOCAL)), 80);
+				CStringA url;
+				url.Format(IDS_STATUSLIST_SWITCHEDTO, CUnicodeUtils::GetUTF8(fentry->url));
+				CPathUtils::Unescape(url.GetBuffer());
+				url.ReleaseBuffer();
+				CString urlW = CUnicodeUtils::GetUnicode(url);
+				lstrcpyn(pTTTW->szText, urlW, 80);
 				return TRUE;
 			}
 		}
@@ -4422,7 +3602,7 @@ void CSVNStatusListCtrl::OnPaint()
 			memDC.SetBkColor(clrTextBk);
 			memDC.FillSolidRect(rc, clrTextBk);
 			rc.top += 10;
-			CGdiObject * oldfont = memDC.SelectStockObject(DEFAULT_GUI_FONT);
+			CGdiObject * oldfont = memDC.SelectStockObject(ANSI_VAR_FONT);
 			memDC.DrawText(str, rc, DT_CENTER | DT_VCENTER |
 				DT_WORDBREAK | DT_NOPREFIX | DT_NOCLIP);
 			memDC.SelectObject(oldfont);
@@ -4454,16 +3634,6 @@ void CSVNStatusListCtrl::OnHdnItemchanging(NMHDR *pNMHDR, LRESULT *pResult)
 		return;
 	if (m_ColumnShown[phdr->iItem])
 	{
-		// check whether the horizontal scrollbar should be shown
-		int maxcol = ((CHeaderCtrl*)(GetDlgItem(0)))->GetItemCount()-1;
-		int colwidth = 0;
-		for (int col = 0; col <= maxcol; col++)
-		{
-			colwidth += GetColumnWidth(col);
-		}
-		CRect rc;
-		GetClientRect(rc);
-		ShowScrollBar(SB_HORZ, colwidth >= rc.Width());
 		return;
 	}
 	*pResult = 1;
@@ -4479,10 +3649,7 @@ bool CSVNStatusListCtrl::StringToOrderArray(const CString& OrderString, int Orde
 		{
 			// This case only occurs when upgrading from an older
 			// TSVN version in which there were fewer columns.
-			// In this case, we revert back to the default ordering
-			for (int j=0; j<SVNSLC_NUMCOLUMNS; ++j)
-				OrderArray[j] = j;
-			return true;
+			OrderArray[i] = i;
 		}
 		else
 		{
@@ -4514,9 +3681,7 @@ bool CSVNStatusListCtrl::StringToWidthArray(const CString& WidthString, int Widt
 		{
 			// This case only occurs when upgrading from an older
 			// TSVN version in which there were fewer columns.
-			for (int j=0; j<SVNSLC_NUMCOLUMNS; ++j)
-				WidthArray[j] = 0;
-			return true;
+			WidthArray[i] = 0;
 		}
 		else
 		{
@@ -4546,7 +3711,6 @@ void CSVNStatusListCtrl::OnDestroy()
 
 void CSVNStatusListCtrl::OnBeginDrag(NMHDR* /*pNMHDR*/, LRESULT* pResult)
 {
-	Locker lock(m_critSec);
 	CDropFiles dropFiles; // class for creating DROPFILES struct
 
 	int index;
@@ -4609,23 +3773,11 @@ bool CSVNStatusListCtrl::EnableFileDrop()
 	return true;
 }
 
-bool CSVNStatusListCtrl::HasPath(const CTSVNPath& path)
+bool CSVNStatusListCtrl::HasPath(CTSVNPath path)
 {
 	for (size_t i=0; i < m_arStatusArray.size(); i++)
 	{
 		FileEntry * entry = m_arStatusArray[i];
-		if (entry->GetPath().IsEquivalentTo(path))
-			return true;
-	}
-	return false;
-}
-
-bool CSVNStatusListCtrl::IsPathShown(const CTSVNPath& path)
-{
-	int itemCount = GetItemCount();
-	for (int i=0; i < itemCount; i++)
-	{
-		FileEntry * entry = GetListEntry(i);
 		if (entry->GetPath().IsEquivalentTo(path))
 			return true;
 	}
@@ -4684,11 +3836,6 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 	// first add the column titles as the first line
 	temp.LoadString(IDS_STATUSLIST_COLFILE);
 	sClipboard = temp;
-	if (dwCols & SVNSLC_COLFILENAME)
-	{
-		temp.LoadString(IDS_STATUSLIST_COLFILENAME);
-		sClipboard += _T("\t")+temp;
-	}
 	if (dwCols & SVNSLC_COLEXT)
 	{
 		temp.LoadString(IDS_STATUSLIST_COLEXT);
@@ -4754,11 +3901,6 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 		temp.LoadString(IDS_STATUSLIST_COLDATE);
 		sClipboard += _T("\t")+temp;
 	}
-	if (dwCols & SVNSLC_COLCOPYFROM)
-	{
-		temp.LoadString(IDS_STATUSLIST_COLCOPYFROM);
-		sClipboard += _T("\t")+temp;
-	}
 	sClipboard += _T("\r\n");
 
 	POSITION pos = GetFirstSelectedItemPosition();
@@ -4767,10 +3909,6 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 	{
 		FileEntry * entry = GetListEntry(index);
 		sClipboard += entry->GetDisplayName();
-		if (dwCols & SVNSLC_COLFILENAME)
-		{
-			sClipboard += _T("\t")+entry->path.GetFileOrDirectoryName();
-		}
 		if (dwCols & SVNSLC_COLEXT)
 		{
 			sClipboard += _T("\t")+entry->path.GetFileExtension();
@@ -4940,76 +4078,8 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 				temp.Empty();
 			sClipboard += _T("\t")+temp;
 		}
-		if (dwCols & SVNSLC_COLCOPYFROM)
-		{
-			if (m_sURL.Compare(entry->copyfrom_url.Left(m_sURL.GetLength()))==0)
-				temp = entry->copyfrom_url.Mid(m_sURL.GetLength());
-			else
-				temp = entry->copyfrom_url;
-			sClipboard += _T("\t")+temp;
-		}
 		sClipboard += _T("\r\n");
 	}
 
-	return CStringUtils::WriteAsciiStringToClipboard(sClipboard);
-}
-
-size_t CSVNStatusListCtrl::GetNumberOfChangelistsInSelection()
-{
-	std::set<CString> changelists;
-	POSITION pos = GetFirstSelectedItemPosition();
-	int index;
-	while ((index = GetNextSelectedItem(pos)) >= 0)
-	{
-		FileEntry * entry = GetListEntry(index);
-		if (!entry->changelist.IsEmpty())
-			changelists.insert(entry->changelist);
-	}
-	return changelists.size();
-}
-
-bool CSVNStatusListCtrl::PrepareGroups(bool bForce /* = false */)
-{
-	if ((m_dwContextMenus & SVNSLC_POPCHANGELISTS) == NULL)
-		return false;	// don't show groups
-
-	bool bHasGroups = (m_changelists.size() > 0)||(bForce);
-	RemoveAllGroups();
-	EnableGroupView(bHasGroups);
-
-	TCHAR groupname[1024];
-
-	LVGROUP grp = {0};
-	grp.cbSize = sizeof(LVGROUP);
-	grp.mask = LVGF_ALIGN | LVGF_GROUPID | LVGF_HEADER;
-	CString sUnassignedName(MAKEINTRESOURCE(IDS_STATUSLIST_UNASSIGNED_CHANGESET));
-	_tcsncpy_s(groupname, 1024, (LPCTSTR)sUnassignedName, 1023);
-	grp.pszHeader = groupname;
-	grp.iGroupId = 0;
-	grp.uAlign = LVGA_HEADER_LEFT;
-	InsertGroup(0, &grp);
-
-	// add a new group for each changelist
-	int groupindex = 1;
-	for (std::map<CString,LONG_PTR>::iterator it = m_changelists.begin(); it != m_changelists.end(); ++it)
-	{
-		LVGROUP grp = {0};
-		grp.cbSize = sizeof(LVGROUP);
-		grp.mask = LVGF_ALIGN | LVGF_GROUPID | LVGF_HEADER;
-		_tcsncpy_s(groupname, 1024, it->first, 1023);
-		grp.pszHeader = groupname;
-		grp.iGroupId = groupindex;
-		grp.uAlign = LVGA_HEADER_LEFT;
-		it->second = InsertGroup(groupindex++, &grp);
-	}
-	return bHasGroups;
-}
-
-void CSVNStatusListCtrl::NotifyCheck()
-{
-	CWnd* pParent = GetParent();
-	if (NULL != pParent && NULL != pParent->GetSafeHwnd())
-	{
-		pParent->SendMessage(SVNSLNM_CHECKCHANGED, m_nSelected);
-	}
+	return CStringUtils::WriteAsciiStringToClipboard(CStringA(sClipboard));
 }

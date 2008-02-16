@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,13 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #pragma once
 #include "svn_opt.h"
-#include <vector>
 
 
 /**
@@ -34,6 +33,30 @@
  *
  * For convenience, this class also accepts the string "WC" as a
  * keyword for the working copy revision.
+ *
+ * Right now, this class also accepts those "special" revisions
+ * as a normal revision number. This is just for convenience to stay
+ * compatible with the current implementation in TortoiseSVN, but
+ * will be removed soon!
+ *
+ * \par requirements
+ * win95 or later
+ * winNT4 or later
+ * MFC
+ *
+ * \version 1.0
+ * first version
+ *
+ * \date MAR-2004
+ *
+ * \author Stefan Kueng
+ *
+ * \par license
+ * This code is absolutely free to use and modify. The code is provided "as is" with
+ * no expressed or implied warranty. The author accepts no liability if it causes
+ * any damage to your computer, causes your pet to fall ill, increases baldness
+ * or makes your car start emitting strange noises when you start it up.
+ * This code has no bugs, just undocumented features!
  */
 class SVNRev
 {
@@ -44,38 +67,20 @@ public:
 	SVNRev(){rev.kind = svn_opt_revision_unspecified;m_bIsValid = FALSE;}
 	~SVNRev();
 
-	/// returns TRUE if the revision is valid (i.e. not unspecified)
 	BOOL IsValid() const {return m_bIsValid;}
-	/// returns TRUE if the revision is HEAD
 	BOOL IsHead() const {return (rev.kind == svn_opt_revision_head);}
-	/// returns TRUE if the revision is BASE
 	BOOL IsBase() const {return (rev.kind == svn_opt_revision_base);}
-	/// returns TRUE if the revision is WORKING
 	BOOL IsWorking() const {return (rev.kind == svn_opt_revision_working);}
-	/// returns TRUE if the revision is PREV
 	BOOL IsPrev() const {return (rev.kind == svn_opt_revision_previous);}
-	/// returns TRUE if the revision is COMMITTED
 	BOOL IsCommitted() const {return (rev.kind == svn_opt_revision_committed);}
-	/// returns TRUE if the revision is a date
 	BOOL IsDate() const {return (rev.kind == svn_opt_revision_date);}
-	/// returns TRUE if the revision is a number
 	BOOL IsNumber() const {return (rev.kind == svn_opt_revision_number);}
 
-	// Returns the kind of revision representation (number, HEAD, BASE, etc.)
-	svn_opt_revision_kind GetKind() const {return rev.kind;}
-
-	/// Returns a string representing the date of a DATE revision, otherwise an empty string.
 	CString GetDateString() const {return sDate;}
-	/// Returns the date if the revision is of type svn_opt_revision_date
-	apr_time_t GetDate() const {ATLASSERT(IsDate()); return rev.value.date;}
-	/// Converts the revision into a string representation.
 	CString ToString() const;
-	/// checks wether two SVNRev objects are the same
-	bool IsEqual(const SVNRev& revision);
-	
+
 	operator LONG () const;
 	operator svn_opt_revision_t * ();
-	operator const svn_opt_revision_t * () const;
 	enum
 	{
 		REV_HEAD = -1,			///< head revision
@@ -91,56 +96,3 @@ private:
 	BOOL m_bIsValid;
 	CString sDate;
 };
-
-/**
- * \ingroup SVN
- * represents a revision range.
- */
-class SVNRevRange
-{
-public:
-	SVNRevRange()
-	{
-		ZeroMemory(&revrange, sizeof(svn_opt_revision_range_t));
-	}
-	SVNRevRange(const SVNRev& start, const SVNRev& end) 
-	{
-		ZeroMemory(&revrange, sizeof(svn_opt_revision_range_t));
-		revrange.start = *(const svn_opt_revision_t*)start;
-		revrange.end = *(const svn_opt_revision_t*)end;
-	}
-
-	void		SetRange(const SVNRev& rev1, const SVNRev& rev2) {revrange.start = *(const svn_opt_revision_t*)rev1; revrange.end = *(const svn_opt_revision_t*)rev2;}
-	SVNRev		GetStartRevision() {return SVNRev(revrange.start);}
-	SVNRev		GetEndRevision() {return SVNRev(revrange.end);}
-
-	operator svn_opt_revision_range_t * () {return &revrange;}
-
-private:
-	svn_opt_revision_range_t revrange;
-};
-
-
-class SVNRevRangeArray
-{
-public:
-	SVNRevRangeArray() {}
-	~SVNRevRangeArray() {}
-
-	int					AddRevision(const SVNRev& revision);
-	int					AddRevRange(const SVNRevRange& revrange);
-	int					AddRevRange(const SVNRev& start, const SVNRev& end);
-	int					GetCount() const;
-	void				Clear();
-	void				AdjustForMerge(bool bReverse = false);
-
-	const apr_array_header_t* GetAprArray(apr_pool_t * pool);
-
-	const SVNRevRange&	operator[](int index) const;
-
-	bool				FromListString(const CString& string);
-	CString				ToListString();
-private:
-	std::vector<SVNRevRange>	m_array;
-};
-

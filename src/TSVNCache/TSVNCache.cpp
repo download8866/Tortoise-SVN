@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -25,16 +25,18 @@
 #include "Resource.h"
 #include "registry.h"
 #include "..\crashrpt\CrashReport.h"
+#include "SecAttribs.h"
 #include "SVNAdminDir.h"
 #include "Dbt.h"
 #include <initguid.h>
 #include "ioevent.h"
 #include "..\version.h"
-#include "svn_dso.h"
 
 #include <ShellAPI.h>
 
-#pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#ifndef WIN64
+#	pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='X86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 
 CCrashReport crasher("crashreports@tortoisesvn.tigris.org", "Crash Report for TSVNCache : " STRPRODUCTVER, TRUE);// crash
 
@@ -122,10 +124,11 @@ void DebugOutputLastError()
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
+	CSecAttribs sa;
 #ifdef WIN64
-	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection64"));
+	HANDLE hReloadProtection = ::CreateMutex(&sa.sa, FALSE, _T("Global\\TSVNCacheReloadProtection64"));
 #else
-	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection"));
+	HANDLE hReloadProtection = ::CreateMutex(&sa.sa, FALSE, _T("Global\\TSVNCacheReloadProtection"));
 #endif
 
 	if (hReloadProtection == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
@@ -136,7 +139,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	}
 
 	apr_initialize();
-	svn_dso_initialize();
 	g_SVNAdminDir.Init();
 	CSVNStatusCache::Create();
 	CSVNStatusCache::Instance().Init();
@@ -280,9 +282,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				CString sInfoTip;
 				NOTIFYICONDATA SystemTray;
-				sInfoTip.Format(_T("Cached Directories : %ld\nWatched paths : %ld"), 
-					CSVNStatusCache::Instance().GetCacheSize(),
-					CSVNStatusCache::Instance().GetNumberOfWatchedPaths());
+				sInfoTip.Format(_T("Cached Directories : %ld"), CSVNStatusCache::Instance().GetCacheSize());
 
 				SystemTray.cbSize = sizeof(NOTIFYICONDATA);
 				SystemTray.hWnd   = hTrayWnd;
@@ -488,10 +488,11 @@ DWORD WINAPI PipeThread(LPVOID lpvParam)
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
 	HANDLE hInstanceThread = INVALID_HANDLE_VALUE;
 
+	CSecAttribs sa;
 	while (*bRun) 
 	{ 
 		hPipe = CreateNamedPipe( 
-			GetCachePipeName(),
+			TSVN_CACHE_PIPE_NAME,
 			PIPE_ACCESS_DUPLEX,       // read/write access 
 			PIPE_TYPE_MESSAGE |       // message type pipe 
 			PIPE_READMODE_MESSAGE |   // message-read mode 
@@ -500,14 +501,12 @@ DWORD WINAPI PipeThread(LPVOID lpvParam)
 			BUFSIZE,                  // output buffer size 
 			BUFSIZE,                  // input buffer size 
 			NMPWAIT_USE_DEFAULT_WAIT, // client time-out 
-			NULL);					  // NULL DACL
+			&sa.sa);                  // NULL DACL
 
 		if (hPipe == INVALID_HANDLE_VALUE) 
 		{
 			//OutputDebugStringA("TSVNCache: CreatePipe failed\n");
 			//DebugOutputLastError();
-			if (*bRun)
-				Sleep(200);
 			continue; // never leave the thread!
 		}
 
@@ -546,8 +545,6 @@ DWORD WINAPI PipeThread(LPVOID lpvParam)
 			//OutputDebugStringA("TSVNCache: ConnectNamedPipe failed\n");
 			//DebugOutputLastError();
 			CloseHandle(hPipe); 
-			if (*bRun)
-				Sleep(200);
 			continue;	// don't end the thread!
 		}
 	}
@@ -568,10 +565,11 @@ DWORD WINAPI CommandWaitThread(LPVOID lpvParam)
 	HANDLE hPipe = INVALID_HANDLE_VALUE;
 	HANDLE hCommandThread = INVALID_HANDLE_VALUE;
 
+	CSecAttribs sa;
 	while (*bRun) 
 	{ 
 		hPipe = CreateNamedPipe( 
-			GetCacheCommandPipeName(),
+			TSVN_CACHE_COMMANDPIPE_NAME,
 			PIPE_ACCESS_DUPLEX,       // read/write access 
 			PIPE_TYPE_MESSAGE |       // message type pipe 
 			PIPE_READMODE_MESSAGE |   // message-read mode 
@@ -580,16 +578,15 @@ DWORD WINAPI CommandWaitThread(LPVOID lpvParam)
 			BUFSIZE,                  // output buffer size 
 			BUFSIZE,                  // input buffer size 
 			NMPWAIT_USE_DEFAULT_WAIT, // client time-out 
-			NULL);                // NULL DACL
+			&sa.sa);                  // NULL DACL
 
 		if (hPipe == INVALID_HANDLE_VALUE) 
 		{
 			//OutputDebugStringA("TSVNCache: CreatePipe failed\n");
 			//DebugOutputLastError();
-			if (*bRun)
-				Sleep(200);
 			continue; // never leave the thread!
 		}
+		SetSecurityInfo(hPipe, SE_KERNEL_OBJECT, DACL_SECURITY_INFORMATION, 0, 0, 0, 0);
 
 		// Wait for the client to connect; if it succeeds, 
 		// the function returns a nonzero value. If the function returns 
@@ -626,8 +623,6 @@ DWORD WINAPI CommandWaitThread(LPVOID lpvParam)
 			//OutputDebugStringA("TSVNCache: ConnectNamedPipe failed\n");
 			//DebugOutputLastError();
 			CloseHandle(hPipe); 
-			if (*bRun)
-				Sleep(200);
 			continue;	// don't end the thread!
 		}
 	}
@@ -751,17 +746,6 @@ DWORD WINAPI CommandThread(LPVOID lpvParam)
 				CSVNStatusCache::Instance().Refresh();
 				CSVNStatusCache::Instance().Done();
 				break;
-			case TSVNCACHECOMMAND_RELEASE:
-				{
-					CTSVNPath changedpath;
-					changedpath.SetFromWin(CString(command.path), true);
-					ATLTRACE(_T("release handle for path %s\n"), changedpath.GetWinPath());
-					CSVNStatusCache::Instance().WaitToWrite();
-					CSVNStatusCache::Instance().CloseWatcherHandles(changedpath);
-					CSVNStatusCache::Instance().Done();
-				}
-				break;
-
 		}
 	} 
 

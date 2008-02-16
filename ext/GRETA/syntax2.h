@@ -658,9 +658,6 @@ public:
             }
             break;
         case REGEX_CHAR(CharT,'['):
-			if (iend == icur + 1)
-				break;
-
             if( REGEX_CHAR(CharT,':') == *( ++icur )-- )
             {
                 for( size_t i=0; !tok && i < detail::g_cposix_charsets; ++i )

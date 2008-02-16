@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,8 +13,8 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
 #include "stdafx.h"
@@ -24,7 +24,6 @@
 #include "SVNStatus.h"
 #include "UnicodeUtils.h"
 #include "SVNGlobal.h"
-#include "SVNHelpers.h"
 #ifdef _MFC_VER
 #	include "SVN.h"
 #	include "MessageBox.h"
@@ -36,8 +35,12 @@
 SVNStatus::SVNStatus(bool * pbCanceled)
 {
 	m_pool = svn_pool_create (NULL);
+
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", m_pool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", m_pool);
 	
-	svn_error_clear(svn_client_create_context(&ctx, m_pool));
+	svn_client_create_context(&ctx, m_pool);
 	
 	if (pbCanceled)
 	{
@@ -46,10 +49,12 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 	}
 
 #ifdef _MFC_VER
-	svn_error_clear(svn_config_ensure(NULL, m_pool));
+	svn_config_ensure(NULL, m_pool);
 	
 	// set up authentication
 	m_prompt.Init(m_pool, ctx);
+
+	svn_utf_initialize(m_pool);
 
 	// set up the configuration
 	m_err = svn_config_get_config (&(ctx->config), g_pConfigDir, m_pool);
@@ -57,12 +62,11 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 	if (m_err)
 	{
 		::MessageBox(NULL, this->GetLastErrorMsg(), _T("TortoiseSVN"), MB_ICONERROR);
-		svn_error_clear(m_err);
 		svn_pool_destroy (m_pool);					// free the allocated memory
 		exit(-1);
-	}
+	} // if (m_err) 
 
-	// set up the SVN_SSH param
+	//set up the SVN_SSH param
 	CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
 	if (tsvn_ssh.IsEmpty())
 		tsvn_ssh = CPathUtils::GetAppDirectory() + _T("TortoisePlink.exe");
@@ -74,7 +78,8 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 		svn_config_set(cfg, SVN_CONFIG_SECTION_TUNNELS, "ssh", CUnicodeUtils::GetUTF8(tsvn_ssh));
 	}
 #else
-	svn_error_clear(svn_config_ensure(NULL, m_pool));
+	svn_config_ensure(NULL, m_pool);
+	svn_utf_initialize(m_pool);
 
 	// set up the configuration
 	m_err = svn_config_get_config (&(ctx->config), g_pConfigDir, m_pool);
@@ -84,7 +89,6 @@ SVNStatus::SVNStatus(bool * pbCanceled)
 
 SVNStatus::~SVNStatus(void)
 {
-	svn_error_clear(m_err);
 	svn_pool_destroy (m_pool);					// free the allocated memory
 }
 
@@ -175,8 +179,8 @@ stdstring SVNStatus::GetLastErrorMsg()
 }
 #endif
 
-// static method
-svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t depth)
+//static method
+svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, BOOL recursive)
 {
 	svn_client_ctx_t * 			ctx;
 	svn_wc_status_kind			statuskind;
@@ -186,56 +190,59 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
 
 	isDir = path.IsDirectory();
 	if (!path.HasAdminDir())
-		return svn_wc_status_none;
+		return svn_wc_status_unversioned;
 
 	pool = svn_pool_create (NULL);				// create the memory pool
+	svn_utf_initialize(pool);
 
-	svn_error_clear(svn_client_create_context(&ctx, pool));
+	const char * deststr = NULL;
+	svn_utf_cstring_to_utf8(&deststr, "dummy", pool);
+	svn_utf_cstring_from_utf8(&deststr, "dummy", pool);
+
+	svn_client_create_context(&ctx, pool);
 
 	svn_revnum_t youngest = SVN_INVALID_REVNUM;
 	svn_opt_revision_t rev;
 	rev.kind = svn_opt_revision_unspecified;
 	statuskind = svn_wc_status_none;
-	err = svn_client_status3 (&youngest,
-							path.GetSVNApiPath(pool),
+	err = svn_client_status2 (&youngest,
+							path.GetSVNApiPath(),
 							&rev,
 							getallstatus,
 							&statuskind,
-							depth,
+							recursive,	//descend
 							TRUE,		//getall
 							FALSE,		//update
 							TRUE,		//noignore
 							FALSE,		//ignore externals
-							NULL,
 							ctx,
 							pool);
 
 	// Error present
 	if (err != NULL)
 	{
-		svn_error_clear(err);
 		svn_pool_destroy (pool);				//free allocated memory
-		return svn_wc_status_none;	
+		return svn_wc_status_unversioned;	
 	}
 
 	svn_pool_destroy (pool);				//free allocated memory
 	return statuskind;
 }
 
-// static method
+//static method
 svn_wc_status_kind SVNStatus::GetAllStatusRecursive(const CTSVNPath& path)
 {
-	return GetAllStatus(path, svn_depth_infinity);
+	return GetAllStatus(path, TRUE);
 }
 
-// static method
+//static method
 svn_wc_status_kind SVNStatus::GetMoreImportant(svn_wc_status_kind status1, svn_wc_status_kind status2)
 {
 	if (GetStatusRanking(status1) >= GetStatusRanking(status2))
 		return status1;
 	return status2;
 }
-// static private method
+//static private method
 int SVNStatus::GetStatusRanking(svn_wc_status_kind status)
 {
 	switch (status)
@@ -267,7 +274,7 @@ int SVNStatus::GetStatusRanking(svn_wc_status_kind status)
 			return 12;
 		case svn_wc_status_obstructed:
 			return 13;
-	}
+	} // switch (status)
 	return 0;
 }
 
@@ -278,7 +285,6 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	apr_array_header_t *		statusarray;
 	const sort_item*			item;
 	
-	svn_error_clear(m_err);
 	statushash = apr_hash_make(m_pool);
 	exthash = apr_hash_make(m_pool);
 	svn_revnum_t youngest = SVN_INVALID_REVNUM;
@@ -288,17 +294,16 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	hashbaton.hash = statushash;
 	hashbaton.exthash = exthash;
 	hashbaton.pThis = this;
-	m_err = svn_client_status3 (&youngest,
-							path.GetSVNApiPath(m_pool),
+	m_err = svn_client_status2 (&youngest,
+							path.GetSVNApiPath(),
 							&rev,
 							getstatushash,
 							&hashbaton,
-							svn_depth_empty,		//depth
+							FALSE,		//descend
 							TRUE,		//getall
 							update,		//update
 							noignore,		//noignore
 							noexternals,
-							NULL,
 							ctx,
 							m_pool);
 
@@ -315,18 +320,17 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 							  sort_compare_items_as_paths,
 							  m_pool);
 
-	// only the first entry is needed (no recurse)
+	//only the first entry is needed (no recurse)
 	item = &APR_ARRAY_IDX (statusarray, 0, const sort_item);
 	
 	status = (svn_wc_status2_t *) item->value;
 	
 	return youngest;
 }
-svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update, svn_depth_t depth, bool bNoIgnore /* = true */, bool bNoExternals /* = false */)
+svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update, bool recurse, bool bNoIgnore /* = true */, bool bNoExternals /* = false */)
 {
 	const sort_item*			item;
 
-	svn_error_clear(m_err);
 	m_statushash = apr_hash_make(m_pool);
 	m_externalhash = apr_hash_make(m_pool);
 	headrev = SVN_INVALID_REVNUM;
@@ -337,17 +341,16 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 	hashbaton.exthash = m_externalhash;
 	hashbaton.pThis = this;
 	m_statushashindex = 0;
-	m_err = svn_client_status3 (&headrev,
-							path.GetSVNApiPath(m_pool),
+	m_err = svn_client_status2 (&headrev,
+							path.GetSVNApiPath(),
 							&rev,
 							getstatushash,
 							&hashbaton,
-							depth,
+							recurse,	//descend
 							TRUE,		//getall
 							update,		//update
 							bNoIgnore,	//noignore
 							bNoExternals,		//noexternals
-							NULL,
 							ctx,
 							m_pool);
 
@@ -363,7 +366,7 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 								sort_compare_items_as_paths,
 								m_pool);
 
-	// only the first entry is needed (no recurse)
+	//only the first entry is needed (no recurse)
 	m_statushashindex = 0;
 	item = &APR_ARRAY_IDX (m_statusarray, m_statushashindex, const sort_item);
 	retPath.SetFromSVN((const char*)item->key);
@@ -401,31 +404,10 @@ svn_wc_status2_t * SVNStatus::GetNextFileStatus(CTSVNPath& retPath)
 
 bool SVNStatus::IsExternal(const CTSVNPath& path)
 {
-	if (apr_hash_get(m_externalhash, path.GetSVNApiPath(m_pool), APR_HASH_KEY_STRING))
+	if (apr_hash_get(m_externalhash, path.GetSVNApiPath(), APR_HASH_KEY_STRING))
 		return true;
 	return false;
 }
-
-bool SVNStatus::IsInExternal(const CTSVNPath& path)
-{
-	if (apr_hash_count(m_statushash) == 0)
-		return false;
-
-	SVNPool localpool(m_pool);
-	apr_hash_index_t *hi;
-	const char* key;
-	for (hi = apr_hash_first(localpool, m_externalhash); hi; hi = apr_hash_next(hi)) 
-	{
-		apr_hash_this(hi, (const void**)&key, NULL, NULL);
-		if (key)
-		{
-			if (CTSVNPath(CUnicodeUtils::GetUnicode(key)).IsAncestorOf(path))
-				return true;
-		}
-	}
-	return false;
-}
-
 
 void SVNStatus::GetStatusString(svn_wc_status_kind status, size_t buflen, TCHAR * string)
 {
@@ -477,7 +459,7 @@ void SVNStatus::GetStatusString(svn_wc_status_kind status, size_t buflen, TCHAR 
 		default:
 			buf = _T("\0");
 			break;
-	}
+	} // switch (status) 
 	_stprintf_s(string, buflen, _T("%s"), buf);
 }
 
@@ -530,57 +512,8 @@ void SVNStatus::GetStatusString(HINSTANCE hInst, svn_wc_status_kind status, TCHA
 		default:
 			LoadStringEx(hInst, IDS_STATUSNONE, string, size, lang);
 			break;
-	}
+	} // switch (status) 
 }
-
-#ifdef _MFC_VER
-CString SVNStatus::GetDepthString(svn_depth_t depth)
-{
-	CString sDepth;
-	switch (depth)
-	{
-	case svn_depth_unknown:
-		sDepth.LoadString(IDS_SVN_DEPTH_UNKNOWN);
-		break;
-	case svn_depth_empty:
-		sDepth.LoadString(IDS_SVN_DEPTH_EMPTY);
-		break;
-	case svn_depth_files:
-		sDepth.LoadString(IDS_SVN_DEPTH_FILES);
-		break;
-	case svn_depth_immediates:
-		sDepth.LoadString(IDS_SVN_DEPTH_IMMEDIATE);
-		break;
-	case svn_depth_infinity:
-		sDepth.LoadString(IDS_SVN_DEPTH_INFINITE);
-		break;
-	}
-	return sDepth;
-}
-#endif
-
-void SVNStatus::GetDepthString(HINSTANCE hInst, svn_depth_t depth, TCHAR * string, int size, WORD lang)
-{
-	switch (depth)
-	{
-	case svn_depth_unknown:
-		LoadStringEx(hInst, IDS_SVN_DEPTH_UNKNOWN, string, size, lang);
-		break;
-	case svn_depth_empty:
-		LoadStringEx(hInst, IDS_SVN_DEPTH_EMPTY, string, size, lang);
-		break;
-	case svn_depth_files:
-		LoadStringEx(hInst, IDS_SVN_DEPTH_FILES, string, size, lang);
-		break;
-	case svn_depth_immediates:
-		LoadStringEx(hInst, IDS_SVN_DEPTH_IMMEDIATE, string, size, lang);
-		break;
-	case svn_depth_infinity:
-		LoadStringEx(hInst, IDS_SVN_DEPTH_INFINITE, string, size, lang);
-		break;
-	}
-}
-
 
 int SVNStatus::LoadStringEx(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int nBufferMax, WORD wLanguage)
 {
@@ -594,7 +527,7 @@ int SVNStatus::LoadStringEx(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int 
 	HRSRC hResource =  FindResourceEx(hInstance, RT_STRING, MAKEINTRESOURCE(((uID>>4)+1)), wLanguage);
 	if (!hResource)
 	{
-		// try the default language before giving up!
+		//try the default language before giving up!
 		hResource = FindResource(hInstance, MAKEINTRESOURCE(((uID>>4)+1)), RT_STRING);
 		if (!hResource)
 			return 0;
@@ -718,7 +651,7 @@ void SVNStatus::SetFilter(const CTSVNPathList& fileList)
 	m_filterFileList.clear();
 	for(int fileIndex = 0; fileIndex < fileList.GetCount(); fileIndex++)
 	{
-		m_filterFileList.push_back(fileList[fileIndex].GetSVNApiPath(m_pool));
+		m_filterFileList.push_back(fileList[fileIndex].GetSVNApiPath());
 	}
 	// Sort the list so that we can do binary searches
 	std::sort(m_filterFileList.begin(), m_filterFileList.end());

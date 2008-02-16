@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -13,12 +13,12 @@
 // GNU General Public License for more details.
 
 // You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software Foundation,
-// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 #include "StdAfx.h"
 #include "TortoiseProc.h"
-#include "UnicodeUtils.h"
+#include "UnicodeStrings.h"
 #include "ProjectProperties.h"
 #include "SVNProperties.h"
 #include "TSVNPath.h"
@@ -34,7 +34,6 @@ ProjectProperties::ProjectProperties(void)
 	bFileListInEnglish = TRUE;
 	bAppend = TRUE;
 	lProjectLanguage = 0;
-	bHasLogSummaryPattern = false;
 }
 
 ProjectProperties::~ProjectProperties(void)
@@ -69,19 +68,13 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundMinLockMsgSize = FALSE;
 	BOOL bFoundFileListEnglish = FALSE;
 	BOOL bFoundProjectLanguage = FALSE;
-	BOOL bFoundUserFileProps = FALSE;
-	BOOL bFoundUserDirProps = FALSE;
-	BOOL bFoundWebViewRev = FALSE;
-	BOOL bFoundWebViewPathRev = FALSE;
-	BOOL bFoundAutoProps = FALSE;
-	BOOL bFoundLogSummary = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
 		
 	for (;;)
 	{
-		SVNProperties props(path, SVNRev::REV_WC, false);
+		SVNProperties props(path);
 		for (int i=0; i<props.GetCount(); ++i)
 		{
 			CString sPropName = props.GetItemName(i).c_str();
@@ -222,45 +215,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				}
 				bFoundProjectLanguage = TRUE;
 			}
-			if ((!bFoundUserFileProps)&&(sPropName.Compare(PROJECTPROPNAME_USERFILEPROPERTY)==0))
-			{
-				sFPPath = sPropVal;
-				sFPPath.Replace(_T("\r\n"), _T("\n"));
-				bFoundUserFileProps = TRUE;
-			}
-			if ((!bFoundUserDirProps)&&(sPropName.Compare(PROJECTPROPNAME_USERDIRPROPERTY)==0))
-			{
-				sDPPath = sPropVal;
-				sDPPath.Replace(_T("\r\n"), _T("\n"));
-				bFoundUserDirProps = TRUE;
-			}
-			if ((!bFoundAutoProps)&&(sPropName.Compare(PROJECTPROPNAME_AUTOPROPS)==0))
-			{
-				sAutoProps = sPropVal;
-				sAutoProps.Replace(_T("\r\n"), _T("\n"));
-				bFoundAutoProps = TRUE;
-			}
-			if ((!bFoundWebViewRev)&&(sPropName.Compare(PROJECTPROPNAME_WEBVIEWER_REV)==0))
-			{
-				sWebViewerRev = sPropVal;
-				bFoundWebViewRev = TRUE;
-			}
-			if ((!bFoundWebViewPathRev)&&(sPropName.Compare(PROJECTPROPNAME_WEBVIEWER_PATHREV)==0))
-			{
-				sWebViewerPathRev = sPropVal;
-				bFoundWebViewPathRev = TRUE;
-			}
-			if ((!bFoundLogSummary)&&(sPropName.Compare(PROJECTPROPNAME_LOGSUMMARY)==0))
-			{
-				try
-				{
-					patLogSummary.init((LPCTSTR)sPropVal, MULTILINE);
-					bFoundLogSummary = TRUE;
-					bHasLogSummaryPattern = true;
-				}
-				catch (bad_alloc){}
-				catch (bad_regexpr){}
-			}
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
@@ -269,9 +223,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		{
 			if (bFoundBugtraqLabel | bFoundBugtraqMessage | bFoundBugtraqNumber
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
-				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
-				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary)
+				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize)
 				return TRUE;
 			return FALSE;
 		}
@@ -376,7 +328,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					{
 						offset1 += results.rstart(0);
 						offset2 = offset1 + results.rlength(0);
-						ATLTRACE(_T("matched %s\n"), results.backref(0).str().c_str());
+						ATLTRACE("matched %ws\n", results.backref(0).str().c_str());
 						// now we have a full match. To create the links we need to extract the
 						// bare bug ID's first.
 						{
@@ -391,7 +343,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 								{
 									idoffset1 += idresults.rstart(0);
 									idoffset2 = idoffset1 + idresults.rlength(0);
-									ATLTRACE(_T("matched id : %s\n"), idresults.backref(0).str().c_str());
+									ATLTRACE("matched id : %ws\n", idresults.backref(0).str().c_str());
 									CHARRANGE range = {(LONG)idoffset1, (LONG)idoffset2};
 									pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
 									CHARFORMAT2 format;
@@ -425,13 +377,13 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					if( br.matched ) 
 					{
 						// clear the styles up to the match position
-						ATLTRACE(_T("matched string : %s\n"), results.backref(0).str().c_str());
+						ATLTRACE("matched string : %ws\n", results.backref(0).str().c_str());
 						offset1 += results.rstart(0);
 						{
 							ATLTRACE("matched results : %ld\n", results.cbackrefs());
 							for (size_t test=0; test<results.cbackrefs(); ++test)
 							{
-								ATLTRACE(_T("matched (%d): %s\n"), test, results.backref(test).str().c_str());
+								ATLTRACE("matched (%d): %ws\n", test, results.backref(test).str().c_str());
 							}
 							// we define group 1 as the whole issue text
 							// and group 2 as the issue number
@@ -573,7 +525,7 @@ CString ProjectProperties::FindBugID(const CString& msg)
 					{
 						offset1 += results.rstart(0);
 						offset2 = offset1 + results.rlength(0);
-						ATLTRACE(_T("matched %s\n"), results.backref(0).str().c_str());
+						ATLTRACE("matched %ws\n", results.backref(0).str().c_str());
 						// now we have a full match. To create the links we need to extract the
 						// bare bug ID's first.
 						{
@@ -588,7 +540,7 @@ CString ProjectProperties::FindBugID(const CString& msg)
 								{
 									idoffset1 += idresults.rstart(0);
 									idoffset2 = idoffset1 + idresults.rlength(0);
-									ATLTRACE(_T("matched id : %s\n"), idresults.backref(0).str().c_str());
+									ATLTRACE("matched id : %ws\n", idresults.backref(0).str().c_str());
 									bugIDs.insert(CString(idresults.backref(0).str().c_str()));
 									idoffset1 = idoffset2;
 									bFound = true;
@@ -615,13 +567,13 @@ CString ProjectProperties::FindBugID(const CString& msg)
 					if( br.matched ) 
 					{
 						// clear the styles up to the match position
-						ATLTRACE(_T("matched string : %s\n"), results.backref(0).str().c_str());
+						ATLTRACE("matched string : %ws\n", results.backref(0).str().c_str());
 						offset1 += results.rstart(0);
 						{
 							ATLTRACE("matched results : %ld\n", results.cbackrefs());
 							for (size_t test=0; test<results.cbackrefs(); ++test)
 							{
-								ATLTRACE(_T("matched (%d): %s\n"), test, results.backref(test).str().c_str());
+								ATLTRACE("matched (%d): %ws\n", test, results.backref(test).str().c_str());
 							}
 							// we define group 1 as the whole issue text
 							// and group 2 as the issue number
@@ -782,127 +734,6 @@ BOOL ProjectProperties::HasBugID(const CString& sMessage)
 	return FALSE;
 }
 
-void ProjectProperties::InsertAutoProps(svn_config_t *cfg)
-{
-	// every line is an autoprop
-	CString sPropsData = sAutoProps;
-	bool bEnableAutoProps = false;
-	while (!sPropsData.IsEmpty())
-	{
-		int pos = sPropsData.Find('\n');
-		CString sLine = pos >= 0 ? sPropsData.Left(pos) : sPropsData;
-		sLine.Trim();
-		if (!sLine.IsEmpty())
-		{
-			// format is '*.something = property=value;property=value;....'
-			// find first '=' char
-			int equalpos = sLine.Find('=');
-			if ((equalpos >= 0)&&(sLine[0] != '#'))
-			{
-				CString key = sLine.Left(equalpos);
-				CString value = sLine.Mid(equalpos);
-				key.Trim(_T(" ="));
-				value.Trim(_T(" ="));
-				svn_config_set(cfg, SVN_CONFIG_SECTION_AUTO_PROPS, (LPCSTR)CUnicodeUtils::GetUTF8(key), (LPCSTR)CUnicodeUtils::GetUTF8(value));
-				bEnableAutoProps = true;
-			}
-		}
-		if (pos >= 0)
-			sPropsData = sPropsData.Mid(pos).Trim();
-		else
-			sPropsData.Empty();
-	}
-	if (bEnableAutoProps)
-		svn_config_set(cfg, SVN_CONFIG_SECTION_MISCELLANY, SVN_CONFIG_OPTION_ENABLE_AUTO_PROPS, "yes");
-}
-
-bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
-{
-	if (!path.IsDirectory())
-		return true;	// no error, but nothing to do
-
-	bool bRet = true;
-
-	char buf[1024] = {0};
-	SVNProperties props(path, SVNRev::REV_WC, false);
-	if (!sLabel.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_LABEL, CUnicodeUtils::StdGetUTF8((LPCTSTR)sLabel)) && bRet;
-	if (!sMessage.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_MESSAGE, CUnicodeUtils::StdGetUTF8((LPCTSTR)sMessage)) && bRet;
-	if (!bNumber)
-		bRet = props.Add(BUGTRAQPROPNAME_NUMBER, "false") && bRet;
-	if (!sCheckRe.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_LOGREGEX, CUnicodeUtils::StdGetUTF8((LPCTSTR)(sCheckRe + _T("\n") + sBugIDRe))) && bRet;
-	if (!sUrl.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_URL, CUnicodeUtils::StdGetUTF8((LPCTSTR)sUrl)) && bRet;
-	if (bWarnIfNoIssue)
-		bRet = props.Add(BUGTRAQPROPNAME_WARNIFNOISSUE, "true") && bRet;
-	if (!bAppend)
-		bRet = props.Add(BUGTRAQPROPNAME_APPEND, "false") && bRet;
-	if (nLogWidthMarker)
-	{
-		sprintf_s(buf, sizeof(buf), "%ld", nLogWidthMarker);
-		bRet = props.Add(PROJECTPROPNAME_LOGWIDTHLINE, buf) && bRet;
-	}
-	if (!sLogTemplate.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_LOGTEMPLATE, CUnicodeUtils::StdGetUTF8((LPCTSTR)sLogTemplate)) && bRet;
-	if (nMinLogSize)
-	{
-		sprintf_s(buf, sizeof(buf), "%ld", nMinLogSize);
-		bRet = props.Add(PROJECTPROPNAME_LOGMINSIZE, buf) && bRet;
-	}
-	if (nMinLockMsgSize)
-	{
-		sprintf_s(buf, sizeof(buf), "%ld", nMinLockMsgSize);
-		bRet = props.Add(PROJECTPROPNAME_LOCKMSGMINSIZE, buf) && bRet;
-	}
-	if (!bFileListInEnglish)
-		bRet = props.Add(PROJECTPROPNAME_LOGFILELISTLANG, "false") && bRet;
-	if (lProjectLanguage)
-	{
-		sprintf_s(buf, sizeof(buf), "%ld", lProjectLanguage);
-		bRet = props.Add(PROJECTPROPNAME_PROJECTLANGUAGE, buf) && bRet;
-	}
-	if (!sFPPath.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_USERFILEPROPERTY, CUnicodeUtils::StdGetUTF8((LPCTSTR)sFPPath)) && bRet;
-	if (!sDPPath.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_USERDIRPROPERTY, CUnicodeUtils::StdGetUTF8((LPCTSTR)sDPPath)) && bRet;
-	if (!sWebViewerRev.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_REV, CUnicodeUtils::StdGetUTF8((LPCTSTR)sWebViewerRev)) && bRet;
-	if (!sWebViewerPathRev.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_PATHREV, CUnicodeUtils::StdGetUTF8((LPCTSTR)sWebViewerPathRev)) && bRet;
-	if (!sAutoProps.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_AUTOPROPS, CUnicodeUtils::StdGetUTF8((LPCTSTR)sAutoProps)) && bRet;
-	return bRet;
-}
-
-CString ProjectProperties::GetLogSummary(const CString& sMessage)
-{
-	restring reMsg = restring(sMessage);
-	CString sRet;
-	if (bHasLogSummaryPattern)
-	{
-		try
-		{
-			match_results results;
-			match_results::backref_type br;
-			br = patLogSummary.match( reMsg, results, 0 );
-			if( br.matched ) 
-			{
-				if (results.cbackrefs() > 0)
-				{
-					ATLTRACE(_T("matched id : %s\n"), results.backref(1).str().c_str());
-					sRet = results.backref(1).str().c_str();
-					sRet.Trim();
-				}
-			}
-		}
-		catch (bad_alloc) {}
-		catch (bad_regexpr){}
-	}
-	return sRet;
-}
-
 #ifdef DEBUG
 static class PropTest
 {
@@ -929,7 +760,7 @@ public:
 			{
 				offset1 += results.rstart(0);
 				offset2 = offset1 + results.rlength(0);
-				ATLTRACE(_T("matched : %s\n"), results.backref(0).str().c_str());
+				ATLTRACE("matched : %ws\n", results.backref(0).str().c_str());
 				{
 					size_t idoffset1=offset1;
 					match_results idresults;
@@ -942,7 +773,7 @@ public:
 						{
 							idoffset1 += idresults.rstart(0);
 							idoffset1 += idresults.rlength(0);
-							ATLTRACE(_T("matched id : %s\n"), idresults.backref(0).str().c_str());
+							ATLTRACE("matched id : %ws\n", idresults.backref(0).str().c_str());
 						}
 					} while(idbr.matched);
 				}
@@ -965,12 +796,12 @@ public:
 				rpattern pat( (LPCTSTR)sCheckRe, MULTILINE ); 
 
 				br = pat.match( reMsg, results, offset1);
-				ATLTRACE(_T("matched : %s\n"), results.backref(0).str().c_str());
+				ATLTRACE("matched : %ws\n", results.backref(0).str().c_str());
 				if( br.matched ) 
 				{
 					for (size_t i=1; i<results.cbackrefs(); ++i)
 					{
-						ATLTRACE(_T("matched id : %s\n"), results.backref(i).str().c_str());
+						ATLTRACE("matched id : %ws\n", results.backref(i).str().c_str());
 					}
 				}
 				if (br.matched)
@@ -1017,6 +848,5 @@ public:
 	}
 } PropTest;
 #endif
-
 
 
