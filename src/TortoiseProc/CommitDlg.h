@@ -27,7 +27,6 @@
 #include "SplitterControl.h"
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
-#include "Tooltip.h"
 
 #include <regex>
 using namespace std;
@@ -116,7 +115,7 @@ private:
 	volatile LONG		m_bBlock;
 	volatile LONG		m_bThreadRunning;
 	volatile LONG		m_bRunThread;
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 	CRegDWORD			m_regAddBeforeCommit;
 	CRegDWORD			m_regKeepChangelists;
 	ProjectProperties	m_ProjectProperties;

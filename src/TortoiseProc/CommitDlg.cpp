@@ -790,7 +790,9 @@ void CCommitDlg::OnBnClickedShowunversioned()
 
 void CCommitDlg::OnStnClickedExternalwarning()
 {
-	m_tooltips.Popup();
+	CPoint pt;
+	GetCursorPos(&pt);
+	m_tooltips.DisplayToolTip(&pt);
 }
 
 void CCommitDlg::OnEnChangeLogmessage()

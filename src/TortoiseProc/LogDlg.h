@@ -30,8 +30,6 @@
 #include "LogDlgHelper.h"
 #include "FilterEdit.h"
 #include "SVNRev.h"
-#include "Tooltip.h"
-#include "HintListCtrl.h"
 
 #include <regex>
 using namespace std;
@@ -195,7 +193,7 @@ private:
 	CString				m_sRepositoryRoot;
 	CString				m_sSelfRelativeURL;
 	CString				m_sURL;
-	CHintListCtrl		m_LogList;
+	CListCtrl			m_LogList;
 	CListCtrl			m_ChangedFileListCtrl;
 	CFilterEdit			m_cFilter;
 	CProgressCtrl		m_LogProgress;
@@ -256,7 +254,7 @@ private:
 	CString				m_sLogInfo;
 	std::set<svn_revnum_t> m_mergedRevs;
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 
 	CTime				m_timFrom;
 	CTime				m_timTo;

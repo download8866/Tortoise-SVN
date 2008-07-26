@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2008-07-25 12:10+0100\n"
+"PO-Revision-Date: 2008-07-25 12:11+0100\n"
 "Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -2159,6 +2159,10 @@ msgstr "Livrer - TortoiseSVN"
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Livrer vers :"
+
+#. Resource IDs: (209)
+msgid "Commit..."
+msgstr "Livrer..."
 
 #. Resource IDs: (244)
 msgid "Commits by author"
@@ -4733,10 +4737,6 @@ msgstr "Fusionner une plage de révisions"
 msgid "Merge all"
 msgstr "Tout fusionner"
 
-#. Resource IDs: (14)
-msgid "Merge all..."
-msgstr "Tout fusionner..."
-
 #. Resource IDs: (65535)
 msgid "Merge depth:"
 msgstr "Profondeur de fusion:"
@@ -4748,6 +4748,10 @@ msgstr "Fusionner non-itéractifs"
 #. Resource IDs: (595, 65535)
 msgid "Merge options"
 msgstr "Fusionner les options"
+
+#. Resource IDs: (14)
+msgid "Merge reintegrate..."
+msgstr "Fusioner Réintégrer..."
 
 #. Resource IDs: (595)
 msgid "Merge revision range"
@@ -9437,6 +9441,8 @@ msgstr "oui"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
+#~ msgid "Merge all..."
+#~ msgstr "Tout fusionner..."
 #~ msgid "Bro&wse..."
 #~ msgstr "Par&courir..."
 #~ msgid "Brows&e..."
