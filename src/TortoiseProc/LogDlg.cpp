@@ -510,9 +510,11 @@ void CLogDlg::CheckRegexpTooltip()
 	if (m_bFilterWithRegex)
 	{
 		m_tooltips.AddTool(pWnd, IDS_LOG_FILTER_REGEX_TT);
+		// Anchor may overlap input box, obstructing user's view, so disable it.
+		m_tooltips.ModifyStyles(0, BALLOON_ANCHOR, pWnd);
 	}
 	else
-		m_tooltips.DelTool(pWnd);
+		m_tooltips.RemoveTool(pWnd);
 }
 
 void CLogDlg::EnableOKButton()
@@ -1026,11 +1028,9 @@ UINT CLogDlg::LogThread()
 	DialogEnableWindow(IDC_STATBUTTON, FALSE);
 	DialogEnableWindow(IDC_REFRESH, FALSE);
 	
-	CString temp;
-	temp.LoadString(IDS_PROGRESSWAIT);
-	m_LogList.ShowText(temp, true);
 	// change the text of the close button to "Cancel" since now the thread
 	// is running, and simply closing the dialog doesn't work.
+	CString temp;
 	if (!GetDlgItem(IDOK)->IsWindowVisible())
 	{
 		temp.LoadString(IDS_MSGBOX_CANCEL);
@@ -1143,11 +1143,9 @@ UINT CLogDlg::LogThread()
 	        succeeded = ReceiveLog(CTSVNPathList(m_path), SVNRev(), SVNRev::REV_WC, m_endrev, m_limit, m_bStrict, m_bIncludeMerges, refresh);
         }
     }
-	m_LogList.ClearText();
     if (succeeded == FALSE)
-	{
-		m_LogList.ShowText(GetLastErrorMessage(), true);
-	}
+	    CMessageBox::Show(m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+
     if (m_bStrict && (m_lowestRev>1) && ((m_limit>0) ? ((startcount + m_limit)>m_logEntries.size()) : (m_endrev<m_lowestRev)))
 		m_bStrictStopped = true;
 	m_LogList.SetItemCountEx(ShownCountWithStopped());

@@ -304,14 +304,12 @@ void CEditPropertyValueDlg::CheckRecursive()
 
 		if (nText)
 		{
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO), nText);
 			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD), nText);
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPVALUE), nText);
 		}
 		else
 		{
 			// if no match is found then remove the tool tip so that the last tooltip is not wrongly shown
-			m_tooltips.DelTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
+			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
 		}
 	}
 }

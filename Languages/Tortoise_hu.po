@@ -17,7 +17,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2008-07-21 14:54+0100\n"
+"PO-Revision-Date: 2008-07-21 15:06+0100\n"
 "Last-Translator: Halász Gábor <k@elitonline.hu>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -2188,6 +2188,10 @@ msgstr "Beküldés - TortoiseSVN"
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Beküldés ide:"
+
+#. Resource IDs: (209)
+msgid "Commit..."
+msgstr "Beküldés..."
 
 #. Resource IDs: (244)
 msgid "Commits by author"
@@ -4847,10 +4851,6 @@ msgstr "Több verzió egyesítése"
 msgid "Merge all"
 msgstr "Összes egyesítése"
 
-#. Resource IDs: (14)
-msgid "Merge all..."
-msgstr "Összes egyesítése..."
-
 #. Resource IDs: (65535)
 msgid "Merge depth:"
 msgstr "Egyesítés mélysége:"
@@ -4862,6 +4862,11 @@ msgstr "Nem interaktív mód"
 #. Resource IDs: (595, 65535)
 msgid "Merge options"
 msgstr "Az egyesítés beállításai"
+
+#. Resource IDs: (14)
+#, fuzzy
+msgid "Merge reintegrate..."
+msgstr "Visszaintegrálás"
 
 #. Resource IDs: (595)
 msgid "Merge revision range"
@@ -9637,6 +9642,8 @@ msgstr "igen"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
+#~ msgid "Merge all..."
+#~ msgstr "Összes egyesítése..."
 #~ msgid "Bro&wse..."
 #~ msgstr "&Tallózás..."
 #~ msgid "Brows&e..."

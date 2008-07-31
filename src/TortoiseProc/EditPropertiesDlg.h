@@ -20,7 +20,7 @@
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
 #include "ProjectProperties.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 
 /**
  * \ingroup TortoiseProc
@@ -89,7 +89,7 @@ protected:
 	volatile LONG	m_bThreadRunning;
 	std::map<stdstring, PropValue>	m_properties;
 	SVNRev			m_revision;
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 
 	CString			m_sUUID;
 	ProjectProperties *	m_pProjectProperties;

@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2008-07-24 12:10+0100\n"
+"PO-Revision-Date: 2008-07-22 11:40+0100\n"
 "Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -2160,6 +2160,10 @@ msgstr "Übertragen - TortoiseSVN"
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Übertragen nach:"
+
+#. Resource IDs: (209)
+msgid "Commit..."
+msgstr "Übertragen..."
 
 #. Resource IDs: (244)
 msgid "Commits by author"
@@ -4747,10 +4751,6 @@ msgstr "Einen Revisionsbereich"
 msgid "Merge all"
 msgstr "Alle zusammenführen"
 
-#. Resource IDs: (14)
-msgid "Merge all..."
-msgstr "Alle zusammenführen..."
-
 #. Resource IDs: (65535)
 msgid "Merge depth:"
 msgstr "Rekursionstiefe:"
@@ -4761,7 +4761,11 @@ msgstr "Nicht interaktiv zusammenführen"
 
 #. Resource IDs: (595, 65535)
 msgid "Merge options"
-msgstr "Einstellungen"
+msgstr "Optionen"
+
+#. Resource IDs: (14)
+msgid "Merge reintegrate..."
+msgstr "Erneut zusammenführen..."
 
 #. Resource IDs: (595)
 msgid "Merge revision range"
@@ -5344,7 +5348,7 @@ msgstr "Einmalig auf den Log-Puffer zurückgreifen"
 
 #. Resource IDs: (16137)
 msgid "Options"
-msgstr "Einstellungen"
+msgstr "Optionen"
 
 #. Resource IDs: (32779)
 msgid "Ori&ginal size"
@@ -8164,7 +8168,7 @@ msgstr "Aktualisieren - TortoiseSVN"
 
 #. Resource IDs: (1377)
 msgid "Update Depth"
-msgstr "Aktualisierungstiefe"
+msgstr "Aktualisierungstiefer"
 
 #. Resource IDs: (74)
 msgid "Updated"
@@ -9469,6 +9473,8 @@ msgstr "ja"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
+#~ msgid "Merge all..."
+#~ msgstr "Alle zusammenführen"
 #~ msgid "Bro&wse..."
 #~ msgstr "Suc&hen..."
 #~ msgid "Brows&e..."

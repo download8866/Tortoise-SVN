@@ -1,17 +1,3 @@
-- NEW: Ignoring of multiple selected items by their extension. See
-       issue #423 for details. (Stefan)
-- CHG: The right-drag context menu now only shows "Export" if a versioned
-       folder is dragged (for files, the windows 'copy' does the same). (Stefan)
-- CHG: The right-drag context menu checks whether source and target are
-       from the same repository and shows the "SVN move" and "SVN copy"
-       commands only if they are. (Stefan)
-- CHG: When only files are selected for "Add", the Add-dialog is not
-       shown anymore but the files are added immediately. (Stefan)
-- CHG: file:// access to BDB based repositories is no longer supported. (Stefan)
-- CHG: the log dialog now shows a possible error message when fetching the
-       log as a text in the top list control instead of showing a popup
-       message box. (Stefan)
-
 Version 1.5.2
 - BUG: the "SVN Copy and Add" right-drag menu was not shown. (Stefan)
 - BUG: Editing a conflict during a merge resulted in a crash.

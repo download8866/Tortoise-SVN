@@ -178,7 +178,6 @@ BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
 	ON_COMMAND(ID_EDIT_COPY, &CRepositoryBrowser::OnCopy)
 	ON_COMMAND(ID_INLINEEDIT, &CRepositoryBrowser::OnInlineedit)
 	ON_COMMAND(ID_REFRESHBROWSER, &CRepositoryBrowser::OnRefresh)
-	ON_COMMAND(ID_DELETEBROWSERITEM, &CRepositoryBrowser::OnDelete)
 	ON_NOTIFY(TVN_BEGINDRAG, IDC_REPOTREE, &CRepositoryBrowser::OnTvnBegindragRepotree)
 	ON_NOTIFY(TVN_BEGINRDRAG, IDC_REPOTREE, &CRepositoryBrowser::OnTvnBeginrdragRepotree)
 END_MESSAGE_MAP()
@@ -209,7 +208,7 @@ BOOL CRepositoryBrowser::OnInitDialog()
 	RegisterDragDrop(m_RepoTree.GetSafeHwnd(), m_pTreeDropTarget);
 	// create the supported formats:
 	FORMATETC ftetc={0}; 
-	ftetc.cfFormat = CF_SVNURL; 
+	ftetc.cfFormat = CF_UNICODETEXT; 
 	ftetc.dwAspect = DVASPECT_CONTENT; 
 	ftetc.lindex = -1; 
 	ftetc.tymed = TYMED_HGLOBAL; 
@@ -220,7 +219,7 @@ BOOL CRepositoryBrowser::OnInitDialog()
 	m_pListDropTarget = new CListDropTarget(this);
 	RegisterDragDrop(m_RepoList.GetSafeHwnd(), m_pListDropTarget);
 	// create the supported formats:
-	ftetc.cfFormat = CF_SVNURL; 
+	ftetc.cfFormat = CF_UNICODETEXT; 
 	m_pListDropTarget->AddSuportedFormat(ftetc); 
 	ftetc.cfFormat=CF_HDROP; 
 	m_pListDropTarget->AddSuportedFormat(ftetc);
@@ -1089,60 +1088,6 @@ BOOL CRepositoryBrowser::PreTranslateMessage(MSG* pMsg)
 	return __super::PreTranslateMessage(pMsg);
 }
 
-void CRepositoryBrowser::OnDelete()
-{
-	CTSVNPathList urlList;
-	bool bTreeItem = false;
-
-	POSITION pos = m_RepoList.GetFirstSelectedItemPosition();
-	int index = -1;
-	while ((index = m_RepoList.GetNextSelectedItem(pos))>=0)
-	{
-		CItem * pItem = (CItem *)m_RepoList.GetItemData(index);
-		CString absPath = pItem->absolutepath;
-		absPath.Replace(_T("\\"), _T("%5C"));
-		urlList.AddPath(CTSVNPath(absPath));
-	}
-	if ((urlList.GetCount() == 0))
-	{
-		HTREEITEM hItem = m_RepoTree.GetSelectedItem();
-		CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData(hItem);
-		if (pTreeItem)
-		{
-			urlList.AddPath(CTSVNPath(pTreeItem->url));
-			bTreeItem = true;
-		}
-	}
-
-	if (urlList.GetCount() == 0)
-		return;
-
-
-	CWaitCursorEx wait_cursor;
-	CInputLogDlg input(this);
-	input.SetUUID(m_sUUID);
-	input.SetProjectProperties(&m_ProjectProperties);
-	CString hint;
-	if (urlList.GetCount() == 1)
-		hint.Format(IDS_INPUT_REMOVEONE, urlList[0].GetFileOrDirectoryName());
-	else
-		hint.Format(IDS_INPUT_REMOVEMORE, urlList.GetCount());
-	input.SetActionText(hint);
-	if (input.DoModal() == IDOK)
-	{
-		if (!Remove(urlList, true, false, input.GetLogMessage()))
-		{
-			wait_cursor.Hide();
-			CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-			return;
-		}
-		if (bTreeItem)
-			RefreshNode(m_RepoTree.GetParentItem(m_RepoTree.GetSelectedItem()), true);
-		else
-			RefreshNode(m_RepoTree.GetSelectedItem(), true);
-	}
-}
-
 void CRepositoryBrowser::OnUrlFocus()
 {
 	m_barRepository.SetFocusToURL();
@@ -1602,9 +1547,9 @@ void CRepositoryBrowser::OnBeginDragTree(NMHDR *pNMHDR)
 }
 
 
-bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, const SVNRev& srcRev, DWORD dwEffect, POINTL /*pt*/)
+bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, DWORD dwEffect, POINTL /*pt*/)
 {
-	ATLTRACE(_T("dropped %ld items on %s, source revision is %s, dwEffect is %ld\n"), pathlist.GetCount(), (LPCTSTR)target.GetSVNPathString(), srcRev.ToString(), dwEffect);
+	ATLTRACE(_T("dropped %ld items on %s, dwEffect is %ld\n"), pathlist.GetCount(), (LPCTSTR)target.GetSVNPathString(), dwEffect);
 	if (pathlist.GetCount() == 0)
 		return false;
 
@@ -1740,9 +1685,9 @@ bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CTSVNPathList& pa
 			BOOL bRet = FALSE;
 			if (dwEffect == DROPEFFECT_COPY)
 				if (pathlist.GetCount() == 1)
-					bRet = Copy(pathlist, CTSVNPath(target.GetSVNPathString() + _T("/") + targetName), srcRev, srcRev, input.GetLogMessage(), false);
+					bRet = Copy(pathlist, CTSVNPath(target.GetSVNPathString() + _T("/") + targetName), GetRevision(), GetRevision(), input.GetLogMessage(), false);
 				else
-					bRet = Copy(pathlist, target, srcRev, srcRev, input.GetLogMessage(), true);
+					bRet = Copy(pathlist, target, GetRevision(), GetRevision(), input.GetLogMessage(), true);
 			else
 				if (pathlist.GetCount() == 1)
 					bRet = Move(pathlist, CTSVNPath(target.GetSVNPathString() + _T("/") + targetName), TRUE, input.GetLogMessage(), false);
@@ -2859,7 +2804,7 @@ bool CRepositoryBrowser::AskForSavePath(const CTSVNPathList& urlList, CTSVNPath 
 	bool bSavePathOK = false;
 	if ((!bFolder)&&(urlList.GetCount() == 1))
 	{
-		CString savePath = urlList[0].GetFilename();
+		CString savePath;
 		bSavePathOK = CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_COMMONFILEFILTER, false, m_hWnd);
 		if (bSavePathOK)
 			tempfile.SetFromWin(savePath);
