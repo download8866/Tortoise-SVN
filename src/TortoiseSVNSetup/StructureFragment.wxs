@@ -44,6 +44,7 @@
 						<File Id="F__tortoisesvnlicense" Name="LICENSE.TXT" LongName="TortoiseSVN License.txt" DiskId="1" src="..\gpl.txt" />
 						<File Id="F__openssllicense" Name="OSSL_LIC.TXT" LongName="OpenSSL License.txt" DiskId="1" src="include\OpenSSL_License.txt" />
 						<File Id="F__aprlicense" Name="APR_LIC.TXT" LongName="apr License.txt" DiskId="1" src="..\..\ext\apr\LICENSE" />
+						<File Id="F__bdblicense" Name="BDB_LIC.TXT" LongName="BerkeleyDB License.txt" DiskId="1" src="include\BDB_License.txt" />
 						<File Id="F__sasllicense" Name="CYRUSSAS.TXT" LongName="CyrusSASL License.txt" DiskId="1" src="include\CyrusSASL_License.txt" />
 					</Component>
 
@@ -189,6 +190,10 @@
 					</Component>
 
 					<Directory Id="D__Bin" Name="BIN" LongName="bin" >
+
+						<Component Id="C__berkeleydb" Guid="$(var.GuidBerkeleyDB)" Win64="$(var.Win64YesNo)">
+							<File Id="F__libdb44" Name="LIBDB44.DLL" LongName="libdb44.dll" DiskId="1" src="..\..\ext\berkeley-db\db4.4-$(var.PlatformPathExtension)\bin\libdb44.dll" KeyPath="yes" />
+						</Component>
 
 						<Component Id="C__apr" Guid="$(var.GuidAPR)" Win64="$(var.Win64YesNo)">
 							<File Id="F__libapr" Name="LIBAPR.DLL" LongName="libapr_tsvn.dll" DiskId="1" src="..\..\ext\apr\release_$(var.PlatformPathExtension)\libapr_tsvn.dll" KeyPath="yes" />
@@ -359,6 +364,7 @@
 							<File Id="F__diffxls" Name="diff-xls.vbs" LongName="diff-xls.vbs" src="..\..\contrib\other\diff-scripts\diff-xls.vbs" DiskId="1" KeyPath="yes"/>
 							<File Id="F__diffxlsx" Name="diffxlsx.vbs" LongName="diff-xlsx.vbs" src="..\..\contrib\other\diff-scripts\diff-xlsx.vbs" DiskId="1" />
 							<File Id="F__diffppt" Name="diff-ppt.js" LongName="diff-ppt.js" src="..\..\contrib\other\diff-scripts\diff-ppt.js" DiskId="1" />
+							<File Id="F__diffpptx" Name="diffpptx.js" LongName="diff-pptx.js" src="..\..\contrib\other\diff-scripts\diff-pptx.js" DiskId="1" />
 							<File Id="F__diffdoc" Name="diff-doc.js" LongName="diff-doc.js" src="..\..\contrib\other\diff-scripts\diff-doc.js" DiskId="1" />
 							<File Id="F__diffdocx" Name="diffdocx.js" LongName="diff-docx.js" src="..\..\contrib\other\diff-scripts\diff-docx.js" DiskId="1" />
 							<File Id="F__mergedoc" Name="mergedoc.js" LongName="merge-doc.js" src="..\..\contrib\other\diff-scripts\merge-doc.js" DiskId="1" />
@@ -369,7 +375,6 @@
 							<File Id="F__diffodt" Name="diff-odt.vbs" LongName="diff-odt.vbs" src="..\..\contrib\other\diff-scripts\diff-odt.vbs" DiskId="1" />
 							<File Id="F__mergeods" Name="mergeods.vbs" LongName="merge-ods.vbs" src="..\..\contrib\other\diff-scripts\merge-ods.vbs" DiskId="1" />
 							<File Id="F__mergeodt" Name="mergeodt.vbs" LongName="merge-odt.vbs" src="..\..\contrib\other\diff-scripts\merge-odt.vbs" DiskId="1" />
-							<File Id="F__diffnb" Name="diff-nb.vbs" LongName="diff-nb.vbs" src="..\..\contrib\other\diff-scripts\diff-nb.vbs" DiskId="1" />
 						</Component>
 
 					</Directory>

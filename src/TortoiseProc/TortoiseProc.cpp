@@ -250,8 +250,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	else
 	{
 		CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("path")));
-		int asterisk = sPathArgument.Find('*');
-		cmdLinePath.SetFromUnknown(asterisk >= 0 ? sPathArgument.Left(asterisk) : sPathArgument);
+		cmdLinePath.SetFromUnknown(sPathArgument);
 		pathList.LoadFromAsteriskSeparatedString(sPathArgument);
 	}
 	

@@ -304,6 +304,7 @@ CString SVN::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
 			temp.LoadString(IDS_SVNERR_RUNCLEANUP);
 			break;
 		case SVN_ERR_WC_NOT_UP_TO_DATE:
+		case SVN_ERR_RA_OUT_OF_DATE:
 		case SVN_ERR_FS_TXN_OUT_OF_DATE:
 			// do an update first
 			temp.LoadString(IDS_SVNERR_UPDATEFIRST);
@@ -2249,22 +2250,17 @@ BOOL SVN::GetWCRevisionStatus(const CTSVNPath& wcpath, bool bCommitted, svn_revn
 	return TRUE;
 }
 
-svn_revnum_t SVN::RevPropertySet(CString sName, CString sValue, CString sOldValue, CString sURL, SVNRev rev)
+svn_revnum_t SVN::RevPropertySet(CString sName, CString sValue, CString sURL, SVNRev rev)
 {
 	svn_revnum_t set_rev;
-	svn_string_t*	pval = NULL;
-	svn_string_t*	pval2 = NULL;
+	svn_string_t*	pval;
 	svn_error_clear(Err);
 	Err = NULL;
 
 	sValue.Replace(_T("\r"), _T(""));
 	pval = svn_string_create (CUnicodeUtils::GetUTF8(sValue), pool);
-	if (!sOldValue.IsEmpty())
-		pval2 = svn_string_create (CUnicodeUtils::GetUTF8(sOldValue), pool);
-
-	Err = svn_client_revprop_set2(MakeSVNUrlOrPath(sName), 
+	Err = svn_client_revprop_set(MakeSVNUrlOrPath(sName), 
 									pval, 
-									pval2,
 									MakeSVNUrlOrPath(sURL), 
 									rev, 
 									&set_rev, 

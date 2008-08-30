@@ -122,7 +122,6 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowedAll(false)
 	, m_bSelect(false)
 	, m_regLastStrict(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE)
-	, m_regMaxBugIDColWidth(_T("Software\\TortoiseSVN\\MaxBugIDColWidth"), 200)
 	, m_bSelectionMustBeContinuous(false)
 	, m_bShowBugtraqColumn(false)
 	, m_lowestRev(-1)
@@ -142,14 +141,6 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
 	, m_bVista(false)
 {
 	m_bFilterWithRegex = !!CRegDWORD(_T("Software\\TortoiseSVN\\UseRegexFilter"), TRUE);
-	// use the default GUI font, create a copy of it and
-	// change the copy to BOLD (leave the rest of the font
-	// the same)
-	HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	LOGFONT lf = {0};
-	GetObject(hFont, sizeof(LOGFONT), &lf);
-	lf.lfWeight = FW_BOLD;
-	m_boldFont = CreateFontIndirect(&lf);
 }
 
 CLogDlg::~CLogDlg()
@@ -166,8 +157,6 @@ CLogDlg::~CLogDlg()
 		delete m_pStoreSelection;
 		m_pStoreSelection = NULL;
 	}
-	if (m_boldFont)
-		DeleteObject(m_boldFont);
 }
 
 void CLogDlg::DoDataExchange(CDataExchange* pDX)
@@ -521,9 +510,11 @@ void CLogDlg::CheckRegexpTooltip()
 	if (m_bFilterWithRegex)
 	{
 		m_tooltips.AddTool(pWnd, IDS_LOG_FILTER_REGEX_TT);
+		// Anchor may overlap input box, obstructing user's view, so disable it.
+		m_tooltips.ModifyStyles(0, BALLOON_ANCHOR, pWnd);
 	}
 	else
-		m_tooltips.DelTool(pWnd);
+		m_tooltips.RemoveTool(pWnd);
 }
 
 void CLogDlg::EnableOKButton()
@@ -1037,11 +1028,9 @@ UINT CLogDlg::LogThread()
 	DialogEnableWindow(IDC_STATBUTTON, FALSE);
 	DialogEnableWindow(IDC_REFRESH, FALSE);
 	
-	CString temp;
-	temp.LoadString(IDS_PROGRESSWAIT);
-	m_LogList.ShowText(temp, true);
 	// change the text of the close button to "Cancel" since now the thread
 	// is running, and simply closing the dialog doesn't work.
+	CString temp;
 	if (!GetDlgItem(IDOK)->IsWindowVisible())
 	{
 		temp.LoadString(IDS_MSGBOX_CANCEL);
@@ -1154,39 +1143,9 @@ UINT CLogDlg::LogThread()
 	        succeeded = ReceiveLog(CTSVNPathList(m_path), SVNRev(), SVNRev::REV_WC, m_endrev, m_limit, m_bStrict, m_bIncludeMerges, refresh);
         }
     }
-	m_LogList.ClearText();
     if (!succeeded)
-	{
-		m_LogList.ShowText(GetLastErrorMessage(), true);
-	}
-	else
-	{
-		if (!m_wcRev.IsValid())
-		{
-			// fetch the revision the wc path is on so we can mark it
-			CTSVNPath revWCPath = m_ProjectProperties.GetPropsPath();
-			if (!m_path.IsUrl())
-				revWCPath = m_path;
-			if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RecursiveLogRev"), FALSE)))
-			{
-				svn_revnum_t minrev, maxrev;
-				bool switched, modified, sparse;
-				GetWCRevisionStatus(revWCPath, true, minrev, maxrev, switched, modified, sparse);
-				if (maxrev)
-					m_wcRev = maxrev;
-			}
-			else
-			{
-				SVNInfo info;
-				const SVNInfoData * data = info.GetFirstFileInfo(m_path, SVNRev::REV_WC, SVNRev::REV_WC);
-				if (data)
-				{
-					if (data->rev)
-						m_wcRev = data->rev;
-				}
-			}
-		}
-	}
+	    CMessageBox::Show(m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+
     if (m_bStrict && (m_lowestRev>1) && ((m_limit>0) ? ((startcount + m_limit)>m_logEntries.size()) : (m_endrev<m_lowestRev)))
 		m_bStrictStopped = true;
 	m_LogList.SetItemCountEx(ShownCountWithStopped());
@@ -2046,7 +2005,6 @@ void CLogDlg::EditAuthor(int index)
 	PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(index));
 	m_bCancelled = FALSE;
 	CString value = RevPropertyGet(name, url, pLogEntry->Rev);
-	CString sOldValue = value;
 	value.Replace(_T("\n"), _T("\r\n"));
 	CInputDlg dlg(this);
 	dlg.m_sHintText.LoadString(IDS_LOG_AUTHOR);
@@ -2057,7 +2015,7 @@ void CLogDlg::EditAuthor(int index)
 	if (dlg.DoModal() == IDOK)
 	{
 		dlg.m_sInputText.Replace(_T("\r"), _T(""));
-		if (!RevPropertySet(name, dlg.m_sInputText, sOldValue, url, pLogEntry->Rev))
+		if (!RevPropertySet(name, dlg.m_sInputText, url, pLogEntry->Rev))
 		{
 			CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		}
@@ -2107,7 +2065,6 @@ void CLogDlg::EditLogMessage(int index)
 	PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(index));
 	m_bCancelled = FALSE;
 	CString value = RevPropertyGet(name, url, pLogEntry->Rev);
-	CString sOldValue = value;
 	value.Replace(_T("\n"), _T("\r\n"));
 	CInputDlg dlg(this);
 	dlg.m_sHintText.LoadString(IDS_LOG_MESSAGE);
@@ -2118,7 +2075,7 @@ void CLogDlg::EditLogMessage(int index)
 	if (dlg.DoModal() == IDOK)
 	{
 		dlg.m_sInputText.Replace(_T("\r"), _T(""));
-		if (!RevPropertySet(name, dlg.m_sInputText, sOldValue, url, pLogEntry->Rev))
+		if (!RevPropertySet(name, dlg.m_sInputText, url, pLogEntry->Rev))
 		{
 			CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		}
@@ -2361,13 +2318,6 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 						crText = m_Colors.GetColor(CColors::Modified);
 					if ((data->childStackDepth)||(m_mergedRevs.find(data->Rev) != m_mergedRevs.end()))
 						crText = GetSysColor(COLOR_GRAYTEXT);
-					if (data->Rev == m_wcRev)
-					{
-						SelectObject(pLVCD->nmcd.hdc, m_boldFont);
-						// We changed the font, so we're returning CDRF_NEWFONT. This
-						// tells the control to recalculate the extent of the text.
-						*pResult = CDRF_NOTIFYSUBITEMDRAW | CDRF_NEWFONT;
-					}
 				}
 			}
 			if (m_arShownList.GetCount() == (INT_PTR)pLVCD->nmcd.dwItemSpec)
@@ -2665,8 +2615,6 @@ LRESULT CLogDlg::OnClickedInfoIcon(WPARAM /*wParam*/, LPARAM lParam)
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_AUTHORS), LOGFILTER_AUTHORS, temp);
 		temp.LoadString(IDS_LOG_FILTER_REVS);
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_REVS), LOGFILTER_REVS, temp);
-		temp.LoadString(IDS_LOG_FILTER_BUGIDS);
-		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_BUGID), LOGFILTER_BUGID, temp);
 		
 		popup.AppendMenu(MF_SEPARATOR, NULL);
 
@@ -2991,15 +2939,6 @@ void CLogDlg::RecalculateShownList(CPtrArray * pShownlist)
 	{
 		if ((bRegex)&&(m_bFilterWithRegex))
 		{
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_BUGID))
-			{
-				ATLTRACE(_T("bugID = \"%s\"\n"), (LPCTSTR)m_logEntries[i]->sBugIDs);
-				if (regex_search(wstring((LPCTSTR)m_logEntries[i]->sBugIDs), pat, flags)&&IsEntryInDateRange(i))
-				{
-					pShownlist->Add(m_logEntries[i]);
-					continue;
-				}
-			}
 			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				ATLTRACE(_T("messge = \"%s\"\n"), (LPCTSTR)m_logEntries[i]->sMessage);
@@ -3061,17 +3000,6 @@ void CLogDlg::RecalculateShownList(CPtrArray * pShownlist)
 		{
 			CString find = m_sFilterText;
 			find.MakeLower();
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_BUGID))
-			{
-				CString sBugIDs = m_logEntries[i]->sBugIDs;
-
-				sBugIDs = sBugIDs.MakeLower();
-				if ((sBugIDs.Find(find) >= 0)&&(IsEntryInDateRange(i)))
-				{
-					pShownlist->Add(m_logEntries[i]);
-					continue;
-				}
-			}
 			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				CString msg = m_logEntries[i]->sMessage;
@@ -3469,17 +3397,6 @@ void CLogDlg::ResizeAllListCtrlCols(CListCtrl& list)
 	{
 		list.SetColumnWidth(1,nMinimumWidth);
 	}
-
-	// keep the bug id column small
-	if (m_bShowBugtraqColumn)
-	{
-		int nBugIDWidth = list.GetColumnWidth(4);
-		if (nBugIDWidth > (int)(DWORD)m_regMaxBugIDColWidth)
-		{
-			list.SetColumnWidth(4, (int)(DWORD)m_regMaxBugIDColWidth);
-		}
-
-	}
 }
 
 void CLogDlg::OnBnClickedHidepaths()
@@ -3758,13 +3675,10 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		else if (m_LogList.GetSelectedCount() >= 2)
 		{
 			bool bAddSeparator = false;
-			if (IsSelectionContinuous() || (m_LogList.GetSelectedCount() == 2))
+			if (m_LogList.GetSelectedCount() == 2)
 			{
 				temp.LoadString(IDS_LOG_POPUP_COMPARETWO);
 				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARETWO, temp);
-			}
-			if (m_LogList.GetSelectedCount() == 2)
-			{
 				temp.LoadString(IDS_LOG_POPUP_BLAMEREVS);
 				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMETWO, temp);
 				temp.LoadString(IDS_LOG_POPUP_GNUDIFF);
@@ -3970,23 +3884,16 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case ID_COMPARETWO:
 			{
-				SVNRev r1 = revSelected;
-				SVNRev r2 = revSelected2;
-				if (m_LogList.GetSelectedCount() > 2)
-				{
-					r1 = revHighest;
-					r2 = revLowest;
-				}
 				//user clicked on the menu item "compare revisions"
 				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, m_hWnd, true);
 					diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 					diff.SetHEADPeg(m_LogRevision);
-					diff.ShowCompare(CTSVNPath(pathURL), r2, CTSVNPath(pathURL), r1);
+					diff.ShowCompare(CTSVNPath(pathURL), revSelected2, CTSVNPath(pathURL), revSelected);
 				}
 				else
-					CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pathURL), r2, CTSVNPath(pathURL), r1, SVNRev(), m_LogRevision, !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+					CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pathURL), revSelected2, CTSVNPath(pathURL), revSelected, SVNRev(), m_LogRevision, !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 			}
 			break;
 		case ID_COMPAREWITHPREVIOUS:
@@ -4138,7 +4045,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 					CBlame blame;
 					CString tempfile;
 					CString logfile;
-					tempfile = blame.BlameToTempFile(m_path, dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), dlg.m_bIncludeMerge, TRUE, TRUE);
+					tempfile = blame.BlameToTempFile(m_path, dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), TRUE, TRUE);
 					if (!tempfile.IsEmpty())
 					{
 						if (dlg.m_bTextView)
@@ -4734,7 +4641,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 					CBlame blame;
 					CString tempfile;
 					CString logfile;
-					tempfile = blame.BlameToTempFile(CTSVNPath(filepath), dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), dlg.m_bIncludeMerge, TRUE, TRUE);
+					tempfile = blame.BlameToTempFile(CTSVNPath(filepath), dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), TRUE, TRUE);
 					if (!tempfile.IsEmpty())
 					{
 						if (dlg.m_bTextView)

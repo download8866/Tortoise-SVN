@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 #include "afxwin.h"
 
@@ -48,7 +48,7 @@ protected:
 	CString GetVersionFromFile(const CString & p_strDateiname);
 
 private:
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 	BOOL			m_bShortDateFormat;
 	CRegDWORD		m_regShortDateFormat;
 	BOOL			m_bUseSystemLocaleForDates;

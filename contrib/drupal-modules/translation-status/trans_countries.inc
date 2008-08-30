@@ -1,17 +1,4 @@
 <?php
-//
-// List of countries for the Drupal status pages
-//
-// Copyright (C) 2004-2008 the TortoiseSVN team
-// This file is distributed under the same license as TortoiseSVN
-//
-// $Author$
-// $Date$
-// $Rev$
-//
-// Author: Lübbe Onken 2004-2008
-//
-
 // Meaning of the columns:
 // 1: Tag with multiple function
 //    po/pot file (pot == 0, po <> 0)
@@ -60,12 +47,10 @@ $countries = array(
 "ru"    => array("1","111","ru","Russian","Dzmitry Lazerka, Dimitry Mardiyan, Shura Zam, Alexander Leschinsky, Stanislav Petrakov"),
 "sk"    => array("1","111","sk","Slovak","Oto Brezina"),
 "sl"    => array("1","111","sl","Slovenian","Goran Kavrecic, Martin Srebotnjak, Matjaz Cepon"),
-"sr_spc"=> array("1","000","sr","Serbian cyrillic","Milorad Popović"),
-"sr_spl"=> array("1","000","sr","Serbian latin","Milorad Popović"),
 "sv"    => array("1","001","sv","Swedish","Johan Stenqvist, Johan Appelgren"),
 "tr"    => array("1","000","tr","Turkish","Aydogan Yolacan"),
 "zh_CN" => array("1","110","zh_CN","Chinese, simplified","Dongsheng Song, Cecil Sheng, Ken Chew, Cobra Net, Xingyu Wang, Lixinfeng"),
 "zh_TW" => array("1","000","zh_TW","Chinese, traditional","Cecil Sheng"),
-"zzz"   => array("0","111","gb","Empty Catalog (English)","Stefan Küng, Simon Large, Lübbe Onken")
+"zzz"   => array("0","000","gb","Empty Catalog (English)","Stefan Küng, Simon Large, Lübbe Onken")
 );
 ?>

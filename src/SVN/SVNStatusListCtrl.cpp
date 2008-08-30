@@ -668,8 +668,8 @@ CSVNStatusListCtrl::AddNewFileEntry(
 	entry->last_commit_date = pSVNStatus->ood_last_cmt_date;
 	if ((entry->last_commit_date == NULL)&&(pSVNStatus->entry))
 		entry->last_commit_date = pSVNStatus->entry->cmt_date;
-	entry->remoterev = pSVNStatus->ood_last_cmt_rev;
-	if (pSVNStatus->entry)
+	entry->last_commit_rev = pSVNStatus->ood_last_cmt_rev;
+	if ((entry->last_commit_rev == -1)&&(pSVNStatus->entry))
 		entry->last_commit_rev = pSVNStatus->entry->cmt_rev;
 	if (pSVNStatus->ood_last_cmt_author)
 		entry->last_commit_author = CUnicodeUtils::GetUnicode(pSVNStatus->ood_last_cmt_author);
@@ -1434,12 +1434,6 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, WORD langID, int listIndex)
 	CString temp;
 	temp.Format(_T("%ld"), entry->last_commit_rev);
 	if (entry->last_commit_rev > 0)
-		SetItemText(index, nCol++, temp);
-	else
-		SetItemText(index, nCol++, _T(""));
-	// SVNSLC_COLREMOTEREVISION
-	temp.Format(_T("%ld"), entry->remoterev);
-	if (entry->remoterev > 0)
 		SetItemText(index, nCol++, temp);
 	else
 		SetItemText(index, nCol++, _T(""));
@@ -2975,7 +2969,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
 										entry->isfolder = true;
 										entry->last_commit_date = 0;
 										entry->last_commit_rev = 0;
-										entry->remoterev = 0;
 										if (s->entry)
 										{
 											if (s->entry->url)
@@ -3125,7 +3118,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
 									entry->isfolder = true;
 									entry->last_commit_date = 0;
 									entry->last_commit_rev = 0;
-									entry->remoterev = 0;
 									if (s->entry)
 									{
 										if (s->entry->url)
@@ -4474,7 +4466,6 @@ BOOL CSVNStatusListCtrl::PreTranslateMessage(MSG* pMsg)
 			}
 			break;
 		case 'C':
-		case VK_INSERT:
 			{
 				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
 				{
@@ -4686,13 +4677,6 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 		{
 			temp.Format(_T("%ld"), entry->last_commit_rev);
 			if (entry->last_commit_rev == 0)
-				temp.Empty();
-			sClipboard += _T("\t")+temp;
-		}
-		if (selection & SVNSLC_COLREMOTEREVISION)
-		{
-			temp.Format(_T("%ld"), entry->remoterev);
-			if (entry->remoterev == 0)
 				temp.Empty();
 			sClipboard += _T("\t")+temp;
 		}

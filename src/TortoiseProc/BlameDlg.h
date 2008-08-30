@@ -56,6 +56,5 @@ public:
 	SVNRev	EndRev;
 	BOOL	m_bTextView;
 	BOOL	m_bIgnoreEOL;
-	BOOL	m_bIncludeMerge;
 	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 
 /**
@@ -54,7 +54,7 @@ public:
 private:
 	void InsertItem(UINT nTextID, UINT nIconID, unsigned __int64 dwFlags);
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 	CRegDWORD			m_regTopmenu;
 	CRegDWORD			m_regTopmenuhigh;
 

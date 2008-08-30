@@ -87,7 +87,7 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 	ITEMIS_INSVN, ITEMIS_NORMAL|ITEMIS_ADDED, ITEMIS_FOLDERINSVN, ITEMIS_ADDED, 0, 0, 0, 0 },
 
 	{ ShellMenuRevert,						MENUREVERT,			IDI_REVERT,				IDS_MENUUNDOADD,			IDS_MENUDESCUNDOADD,
-	ITEMIS_ADDED, ITEMIS_NORMAL, ITEMIS_FOLDERINSVN|ITEMIS_ADDED, 0, 0, 0, 0, 0 },
+	ITEMIS_ADDED|ITEMIS_ONLYONE, ITEMIS_NORMAL, ITEMIS_FOLDERINSVN|ITEMIS_ADDED, 0, 0, 0, 0, 0 },
 
 	{ ShellMenuDelUnversioned,				MENUDELUNVERSIONED,	IDI_DELUNVERSIONED,		IDS_MENUDELUNVERSIONED,		IDS_MENUDESCDELUNVERSIONED,
 	ITEMIS_FOLDER|ITEMIS_INSVN|ITEMIS_EXTENDED, 0, ITEMIS_FOLDER|ITEMIS_FOLDERINSVN|ITEMIS_EXTENDED, 0, 0, 0, 0, 0 },
@@ -1614,7 +1614,7 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 						0,
 						NULL 
 						);
-					MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseMerge launch failed"), MB_OK | MB_ICONINFORMATION );
+					MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
 					LocalFree( lpMsgBuf );
 				}
 				CloseHandle(process.hThread);
@@ -1682,7 +1682,7 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 					0,
 					NULL 
 					);
-				MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseProc Launch failed"), MB_OK | MB_ICONINFORMATION );
+				MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
 				LocalFree( lpMsgBuf );
 			}
 			CloseHandle(process.hThread);
@@ -2073,17 +2073,6 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst, HMENU hMenu, 
 			myVerbsIDMap[idCmd] = verb;
 			myIDMap[idCmd - idCmdFirst] = ShellMenuIgnore;
 			myIDMap[idCmd++] = ShellMenuIgnore;
-
-			MAKESTRING(IDS_MENUIGNOREMULTIPLEMASK);
-			_stprintf_s(ignorepath, MAX_PATH, stringtablebuffer, files_.size());
-			InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
-			verb = stdstring(ignorepath);
-			myVerbsMap[verb] = idCmd - idCmdFirst;
-			myVerbsMap[verb] = idCmd;
-			myVerbsIDMap[idCmd - idCmdFirst] = verb;
-			myVerbsIDMap[idCmd] = verb;
-			myIDMap[idCmd - idCmdFirst] = ShellMenuIgnoreCaseSensitive;
-			myIDMap[idCmd++] = ShellMenuIgnoreCaseSensitive;
 		}
 	}
 
