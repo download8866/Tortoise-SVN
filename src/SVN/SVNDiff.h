@@ -68,7 +68,7 @@ public:
 	 *
 	 * \remark the peg revision is only used if \a url1 is the same as \a url2
 	 */
-	bool ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, SVNRev peg = SVNRev(), bool bIgnoreAncestry = false, bool /*blame*/ = false);
+	bool ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, const SVNRev& peg = SVNRev(), bool bIgnoreAncestry = false);
 
 	/**
 	 * See ShowUnifiedDiff().
@@ -96,12 +96,12 @@ public:
 					 bool ignoreancestry = false,
 					 bool blame = false);
 
-	bool DiffProps(const CTSVNPath& filePath, const SVNRev& rev1, const SVNRev& rev2);
+	bool DiffProps(const CTSVNPath& filePath, SVNRev rev1, SVNRev rev2);
 	
 	/**
 	 * Sets the Peg revision to use instead of HEAD.
 	 */
-	void SetHEADPeg(const SVNRev& headpeg) {m_headPeg = headpeg;}
+	void SetHEADPeg(SVNRev headpeg) {m_headPeg = headpeg;}
 private:
 	SVN *			m_pSVN;
 	bool			m_bDeleteSVN;

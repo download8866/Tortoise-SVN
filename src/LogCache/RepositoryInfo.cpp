@@ -35,11 +35,6 @@
 namespace LogCache
 {
 
-// share the repository info pool thoughout this application
-// (it is unique per computer anyway)
-
-CRepositoryInfo::TData CRepositoryInfo::data;
-
 // construct the dump file name
 
 CString CRepositoryInfo::GetFileName() const
@@ -58,9 +53,7 @@ void CRepositoryInfo::Load()
 	if (GetFileAttributes (GetFileName()) == INVALID_FILE_ATTRIBUTES)
         return;
 
-	CFile file;
-	if (!file.Open(GetFileName(), CFile::modeRead | CFile::shareDenyWrite))
-		return;
+	CFile file (GetFileName(), CFile::modeRead | CFile::shareDenyWrite);
     CArchive stream (&file, CArchive::load);
 
     // format ID
@@ -201,7 +194,7 @@ CRepositoryInfo::CRepositoryInfo (SVN& svn, const CString& cacheFolderPath)
 {
     // load the list only if the URL->UUID,head etc. mapping cache shall be used
 
-    if (data.empty() && IsPermanent())
+    if (IsPermanent())
         Load();
 }
 
@@ -537,10 +530,10 @@ void CRepositoryInfo::Flush()
 
 		modified = false;
 	}
-	catch (CFileException* /*e*/)
+	catch (CFileException* e)
 	{
 	}
-	catch (CException* /*e*/)
+	catch (CException* e)
 	{
 	}
 }

@@ -2016,7 +2016,7 @@ void CMainFrame::OnEditCreateunifieddifffile()
 		if (GetSaveFileName(&ofn)==TRUE)
 		{
 			outputFile = CString(ofn.lpstrFile);
-			CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile, true);
+			CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile);
 		}
 		delete [] pszFilters;
 	}

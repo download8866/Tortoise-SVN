@@ -62,16 +62,11 @@ private:
 	/// cache per repository (UUID)
 
 	typedef std::map<CString, CCachedLogInfo*> TCaches;
-	static TCaches caches;
-    static long instanceCount;
+	TCaches caches;
 
 	/// utility
 
 	static bool FileExists (const std::wstring& filePath);
-
-	/// minimize memory usage
-
-	void Clear();
 
 public:
 
@@ -111,6 +106,10 @@ public:
 	/// write all changes to disk
 
 	void Flush();
+
+	/// minimize memory usage
+
+	void Clear();
 
     /// has log caching been enabled?
 

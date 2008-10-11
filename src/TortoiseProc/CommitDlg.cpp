@@ -293,7 +293,7 @@ void CCommitDlg::OnOK()
 		}
 	}
 	CString id;
-	GetDlgItemText(IDC_BUGID, id);
+	GetDlgItem(IDC_BUGID)->GetWindowText(id);
 	if (!m_ProjectProperties.CheckBugID(id))
 	{
 		ShowBalloon(IDC_BUGID, IDS_COMMITDLG_ONLYNUMBERS, IDI_EXCLAMATION);
@@ -568,7 +568,7 @@ UINT CCommitDlg::StatusThread()
 	if (m_History.GetCount()==0)
 	{
 		CString reg;
-		if (m_ListCtrl.m_sUUID.IsEmpty() && m_pathList.GetCount()>0)
+		if (m_ListCtrl.m_sUUID.IsEmpty())
 		{
 			SVN svn;
 			reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)svn.GetUUIDFromPath(m_pathList[0]));
@@ -604,7 +604,7 @@ UINT CCommitDlg::StatusThread()
 		m_tooltips.AddTool(GetDlgItem(IDC_STATISTICS), m_ListCtrl.GetStatisticsString());
 	}
 	CString logmsg;
-	GetDlgItemText(IDC_LOGMESSAGE, logmsg);
+	GetDlgItem(IDC_LOGMESSAGE)->GetWindowText(logmsg);
 	DialogEnableWindow(IDOK, logmsg.GetLength() >= m_ProjectProperties.nMinLogSize);
 	if (!success)
 	{
@@ -788,7 +788,9 @@ void CCommitDlg::OnBnClickedShowunversioned()
 
 void CCommitDlg::OnStnClickedExternalwarning()
 {
-	m_tooltips.Popup();
+	CPoint pt;
+	GetCursorPos(&pt);
+	m_tooltips.DisplayToolTip(&pt);
 }
 
 void CCommitDlg::OnEnChangeLogmessage()

@@ -757,7 +757,7 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 		SVN::UrlToPath(strFile);
 
 		SVN svn;
-		if (svn.IsRepository(CTSVNPath(strFile)))
+		if (svn.IsRepository(strFile))
 		{
 			// browse repository - show repository browser
 			SVN::preparePath(strUrl);
@@ -973,7 +973,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1, 
 									 const CTSVNPath& url2, const SVNRev& rev2, 
 									 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */,  
-									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool /* blame = false */)
+									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */)
 {
 	CString sCmd;
 	sCmd.Format(_T("%s /command:showcompare /unified"),

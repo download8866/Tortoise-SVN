@@ -236,7 +236,7 @@ bool SVNDiff::DiffFileAgainstBase(
 bool SVNDiff::UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, const SVNRev& peg /* = SVNRev() */, bool bIgnoreAncestry /* = false */)
 {
 	tempfile = CTempFiles::Instance().GetTempFilePath(m_bRemoveTempFiles, CTSVNPath(_T("Test.diff")));
-	bool bIsUrl = !!SVN::PathIsURL(url1);
+	bool bIsUrl = !!SVN::PathIsURL(url1.GetSVNPathString());
 	
 	CProgressDlg progDlg;
 	progDlg.SetTitle(IDS_APPNAME);
@@ -280,11 +280,7 @@ bool SVNDiff::UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNR
 	return true;
 }
 
-bool SVNDiff::ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, 
-                              const CTSVNPath& url2, const SVNRev& rev2, 
-                              SVNRev peg /* = SVNRev() */, 
-                              bool bIgnoreAncestry /* = false */, 
-                              bool /*blame*/)
+bool SVNDiff::ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, const SVNRev& peg /* = SVNRev() */, bool bIgnoreAncestry /* = false */)
 {
 	CTSVNPath tempfile;
 	if (UnifiedDiff(tempfile, url1, rev1, url2, rev2, peg, bIgnoreAncestry))
@@ -323,7 +319,7 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 	CAppUtils::DiffFlags diffFlags;
 	diffFlags.ReadOnly().AlternativeTool(m_bAlternativeTool);
 
-	if ((m_pSVN->PathIsURL(url1))||(!rev1.IsWorking())||(!url1.IsEquivalentTo(url2)))
+	if ((m_pSVN->PathIsURL(url1.GetSVNPathString()))||(!rev1.IsWorking())||(!url1.IsEquivalentTo(url2)))
 	{
 		// no working copy path!
 		progDlg.ShowModeless(m_hWnd);
@@ -406,11 +402,11 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 			CBlame blamer;
 			if (blame)
 			{
-				if (!blamer.BlameToFile(url1, 1, rev1, peg.IsValid() ? peg : rev1, tempfile1, _T(""), TRUE, TRUE))
+				if (!blamer.BlameToFile(url1, 1, rev1, peg.IsValid() ? peg : rev1, tempfile1, _T(""), TRUE))
 				{
 					if ((peg.IsValid())&&(blamer.Err->apr_err != SVN_ERR_CLIENT_IS_BINARY_FILE))
 					{
-						if (!blamer.BlameToFile(url1, 1, rev1, rev1, tempfile1, _T(""), TRUE, TRUE))
+						if (!blamer.BlameToFile(url1, 1, rev1, rev1, tempfile1, _T(""), TRUE))
 						{
 							progDlg.Stop();
 							m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -435,7 +431,7 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 			}
 			if (!blame)
 			{
-				bool tryWorking = (!m_pSVN->PathIsURL(url1) && rev1.IsWorking() && PathFileExists(url1.GetWinPath()));
+				bool tryWorking = (!m_pSVN->PathIsURL(url1.GetWinPathString()) && rev1.IsWorking() && PathFileExists(url1.GetWinPath()));
 				if (!m_pSVN->Cat(url1, peg.IsValid() && !tryWorking ? peg : rev1, rev1, tempfile1))
 				{
 					if (peg.IsValid())
@@ -462,11 +458,11 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 			progDlg.FormatPathLine(1, IDS_PROGRESSGETFILEREVISION, (LPCTSTR)url2.GetUIPathString(), (LPCTSTR)rev2.ToString());
 			if (blame)
 			{
-				if (!blamer.BlameToFile(url2, 1, rev2, peg.IsValid() ? peg : rev2, tempfile2, _T(""), TRUE, TRUE))
+				if (!blamer.BlameToFile(url2, 1, rev2, peg.IsValid() ? peg : rev2, tempfile2, _T(""), TRUE))
 				{
 					if (peg.IsValid())
 					{
-						if (!blamer.BlameToFile(url2, 1, rev2, rev2, tempfile2, _T(""), TRUE, TRUE))
+						if (!blamer.BlameToFile(url2, 1, rev2, rev2, tempfile2, _T(""), TRUE))
 						{
 							progDlg.Stop();
 							m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -566,11 +562,11 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 			if (blame)
 			{
 				CBlame blamer;
-				if (!blamer.BlameToFile(url1, 1, rev2, (peg.IsValid() ? peg : SVNRev::REV_WC), tempfile, _T(""), TRUE, TRUE))
+				if (!blamer.BlameToFile(url1, 1, rev2, (peg.IsValid() ? peg : SVNRev::REV_WC), tempfile, _T(""), TRUE))
 				{
 					if (peg.IsValid())
 					{
-						if (!blamer.BlameToFile(url1, 1, rev2, SVNRev::REV_WC, tempfile, _T(""), TRUE, TRUE))
+						if (!blamer.BlameToFile(url1, 1, rev2, SVNRev::REV_WC, tempfile, _T(""), TRUE))
 						{
 							progDlg.Stop();
 							m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -592,7 +588,7 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 					m_pSVN->SetAndClearProgressInfo((HWND)NULL);
 					SetFileAttributes(tempfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
 					CTSVNPath tempfile2 = CTempFiles::Instance().GetTempFilePath(false, url1);
-					if (!blamer.BlameToFile(url1, 1, SVNRev::REV_WC, SVNRev::REV_WC, tempfile2, _T(""), TRUE, TRUE))
+					if (!blamer.BlameToFile(url1, 1, SVNRev::REV_WC, SVNRev::REV_WC, tempfile2, _T(""), TRUE))
 					{
 						progDlg.Stop();
 						m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -646,7 +642,7 @@ bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
 	return false;
 }
 
-bool SVNDiff::DiffProps(const CTSVNPath& filePath, const SVNRev& rev1, const SVNRev& rev2)
+bool SVNDiff::DiffProps(const CTSVNPath& filePath, SVNRev rev1, SVNRev rev2)
 {
 	bool retvalue = false;
 	// diff the properties

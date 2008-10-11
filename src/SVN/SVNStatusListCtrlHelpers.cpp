@@ -21,7 +21,7 @@
 #include "resource.h"
 #include "..\\TortoiseShell\\resource.h"
 #include "SVNStatusListCtrl.h"
-#include <iterator>
+
 // assign property list
 
 CSVNStatusListCtrl::PropertyList& 
@@ -276,7 +276,6 @@ CString CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 		  , IDS_STATUSLIST_COLAUTHOR
 
 		  , IDS_STATUSLIST_COLREVISION
-		  , IDS_STATUSLIST_COLREMOTEREVISION
 		  , IDS_STATUSLIST_COLDATE
 		  , IDS_STATUSLIST_COLSVNLOCK
 
@@ -497,7 +496,6 @@ void CSVNStatusListCtrl::ColumnManager::UpdateUserPropList
 
         int result = control->InsertColumn (pos, *iter, LVCFMT_LEFT, GetVisibleWidth(pos, false));
         assert (result != -1);
-		UNREFERENCED_PARAMETER(result);
     }
 
     // update column order
@@ -799,7 +797,7 @@ void CSVNStatusListCtrl::ColumnManager::ApplyColumnOrder()
     SecureZeroMemory (order, sizeof (order));
 
     std::vector<int> gridColumnOrder = GetGridColumnOrder();
-	std::copy (gridColumnOrder.begin(), gridColumnOrder.end(), stdext::checked_array_iterator<int*>(&order[0], sizeof(order)));
+    std::copy (gridColumnOrder.begin(), gridColumnOrder.end(), &order[0]);
 
     // we must have placed all columns or something is really fishy ..
 
@@ -909,7 +907,7 @@ bool CSVNStatusListCtrl::CSorter::operator()
 	int result = 0;
 	switch (sortedColumn)
 	{
-	case 18:
+	case 17:
 		{
 			if (result == 0)
 			{
@@ -922,32 +920,25 @@ bool CSVNStatusListCtrl::CSorter::operator()
 				result = CompareFileTime(filetime1,filetime2);
 			}
 		}
-	case 17:
+	case 16:
 		{
 			if (result == 0)
 			{
 				result = entry1->copyfrom_url.CompareNoCase(entry2->copyfrom_url);
 			}
 		}
-	case 16:
+	case 15:
 		{
 			if (result == 0)
 			{
 				result = SGN(entry1->needslock - entry2->needslock);
 			}
 		}
-	case 15:
-		{
-			if (result == 0)
-			{
-				result = SGN(entry1->last_commit_date - entry2->last_commit_date);
-			}
-		}
 	case 14:
 		{
 			if (result == 0)
 			{
-				result = entry1->remoterev - entry2->remoterev;
+				result = SGN(entry1->last_commit_date - entry2->last_commit_date);
 			}
 		}
 	case 13:

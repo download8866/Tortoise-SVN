@@ -24,12 +24,11 @@
 
 bool UrlDiffCommand::Execute()
 {
-	bool bRet = false;
 	CUrlDiffDlg dlg;
 	if (dlg.DoModal() == IDOK)
 	{
 		SVNDiff diff(NULL, hWndExplorer);
-		bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, CTSVNPath(dlg.m_URL), dlg.Revision);
+		diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, CTSVNPath(dlg.m_URL), dlg.Revision);
 	}
-	return false;
+	return true;
 }

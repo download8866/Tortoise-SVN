@@ -94,7 +94,7 @@ BOOL CCopyDlg::OnInitDialog()
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
 	
-	if (SVN::PathIsURL(path))
+	if (SVN::PathIsURL(path.GetSVNPathString()))
 	{
 		DialogEnableWindow(IDC_COPYWC, FALSE);
 		DialogEnableWindow(IDC_DOSWITCH, FALSE);
@@ -214,9 +214,9 @@ void CCopyDlg::OnOK()
 	}
 
 	CString id;
-	GetDlgItemText(IDC_BUGID, id);
+	GetDlgItem(IDC_BUGID)->GetWindowText(id);
 	CString sRevText;
-	GetDlgItemText(IDC_COPYREVTEXT, sRevText);
+	GetDlgItem(IDC_COPYREVTEXT)->GetWindowText(sRevText);
 	if (!m_ProjectProperties.CheckBugID(id))
 	{
 		ShowBalloon(IDC_BUGID, IDS_COMMITDLG_ONLYNUMBERS);

@@ -36,7 +36,6 @@
 #include "TempFile.h"
 #include "SVNInfo.h"
 #include "SVNDiff.h"
-#include "IconMenu.h"
 #include "RevisionRangeDlg.h"
 #include "BrowseFolder.h"
 #include "BlameDlg.h"
@@ -123,7 +122,6 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowedAll(false)
 	, m_bSelect(false)
 	, m_regLastStrict(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE)
-	, m_regMaxBugIDColWidth(_T("Software\\TortoiseSVN\\MaxBugIDColWidth"), 200)
 	, m_bSelectionMustBeContinuous(false)
 	, m_bShowBugtraqColumn(false)
 	, m_lowestRev(-1)
@@ -143,14 +141,6 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
 	, m_bVista(false)
 {
 	m_bFilterWithRegex = !!CRegDWORD(_T("Software\\TortoiseSVN\\UseRegexFilter"), TRUE);
-	// use the default GUI font, create a copy of it and
-	// change the copy to BOLD (leave the rest of the font
-	// the same)
-	HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
-	LOGFONT lf = {0};
-	GetObject(hFont, sizeof(LOGFONT), &lf);
-	lf.lfWeight = FW_BOLD;
-	m_boldFont = CreateFontIndirect(&lf);
 }
 
 CLogDlg::~CLogDlg()
@@ -167,8 +157,6 @@ CLogDlg::~CLogDlg()
 		delete m_pStoreSelection;
 		m_pStoreSelection = NULL;
 	}
-	if (m_boldFont)
-		DeleteObject(m_boldFont);
 }
 
 void CLogDlg::DoDataExchange(CDataExchange* pDX)
@@ -458,7 +446,7 @@ BOOL CLogDlg::OnInitDialog()
 	else
 	{
 		// the dialog is used to just view log messages
-		GetDlgItemText(IDOK, temp);
+		GetDlgItem(IDOK)->GetWindowText(temp);
 		SetDlgItemText(IDCANCEL, temp);
 		GetDlgItem(IDOK)->ShowWindow(SW_HIDE);
 	}
@@ -522,9 +510,11 @@ void CLogDlg::CheckRegexpTooltip()
 	if (m_bFilterWithRegex)
 	{
 		m_tooltips.AddTool(pWnd, IDS_LOG_FILTER_REGEX_TT);
+		// Anchor may overlap input box, obstructing user's view, so disable it.
+		m_tooltips.ModifyStyles(0, BALLOON_ANCHOR, pWnd);
 	}
 	else
-		m_tooltips.DelTool(pWnd);
+		m_tooltips.RemoveTool(pWnd);
 }
 
 void CLogDlg::EnableOKButton()
@@ -875,7 +865,7 @@ void CLogDlg::OnCancel()
 	// But canceling can also mean just to close the dialog, depending on the
 	// text shown on the cancel button (it could simply read "OK").
 	CString temp, temp2;
-	GetDlgItemText(IDOK, temp);
+	GetDlgItem(IDOK)->GetWindowText(temp);
 	temp2.LoadString(IDS_MSGBOX_CANCEL);
 	if ((temp.Compare(temp2)==0)||(m_bThreadRunning))
 	{
@@ -1038,11 +1028,9 @@ UINT CLogDlg::LogThread()
 	DialogEnableWindow(IDC_STATBUTTON, FALSE);
 	DialogEnableWindow(IDC_REFRESH, FALSE);
 	
-	CString temp;
-	temp.LoadString(IDS_PROGRESSWAIT);
-	m_LogList.ShowText(temp, true);
 	// change the text of the close button to "Cancel" since now the thread
 	// is running, and simply closing the dialog doesn't work.
+	CString temp;
 	if (!GetDlgItem(IDOK)->IsWindowVisible())
 	{
 		temp.LoadString(IDS_MSGBOX_CANCEL);
@@ -1155,39 +1143,9 @@ UINT CLogDlg::LogThread()
 	        succeeded = ReceiveLog(CTSVNPathList(m_path), SVNRev(), SVNRev::REV_WC, m_endrev, m_limit, m_bStrict, m_bIncludeMerges, refresh);
         }
     }
-	m_LogList.ClearText();
     if (!succeeded)
-	{
-		m_LogList.ShowText(GetLastErrorMessage(), true);
-	}
-	else
-	{
-		if (!m_wcRev.IsValid())
-		{
-			// fetch the revision the wc path is on so we can mark it
-			CTSVNPath revWCPath = m_ProjectProperties.GetPropsPath();
-			if (!m_path.IsUrl())
-				revWCPath = m_path;
-			if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RecursiveLogRev"), FALSE)))
-			{
-				svn_revnum_t minrev, maxrev;
-				bool switched, modified, sparse;
-				GetWCRevisionStatus(revWCPath, true, minrev, maxrev, switched, modified, sparse);
-				if (maxrev)
-					m_wcRev = maxrev;
-			}
-			else
-			{
-				SVNInfo info;
-				const SVNInfoData * data = info.GetFirstFileInfo(m_path, SVNRev::REV_WC, SVNRev::REV_WC);
-				if (data)
-				{
-					if (data->rev)
-						m_wcRev = data->rev;
-				}
-			}
-		}
-	}
+	    CMessageBox::Show(m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+
     if (m_bStrict && (m_lowestRev>1) && ((m_limit>0) ? ((startcount + m_limit)>m_logEntries.size()) : (m_endrev<m_lowestRev)))
 		m_bStrictStopped = true;
 	m_LogList.SetItemCountEx(ShownCountWithStopped());
@@ -1602,7 +1560,7 @@ void CLogDlg::OnOK()
 
 	CString temp;
 	CString buttontext;
-	GetDlgItemText(IDOK, buttontext);
+	GetDlgItem(IDOK)->GetWindowText(buttontext);
 	temp.LoadString(IDS_MSGBOX_CANCEL);
 	if (temp.Compare(buttontext) != 0)
 		__super::OnOK();	// only exit if the button text matches, and that will match only if the thread isn't running anymore
@@ -1871,7 +1829,7 @@ void CLogDlg::DiffSelectedRevWithPrevious()
 	SetPromptApp(&theApp);
 	theApp.DoWaitCursor(1);
 
-	if (PromptShown())
+	if (m_prompt.PromptShown())
 	{
 		SVNDiff diff(this, m_hWnd, true);
 		diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
@@ -1894,7 +1852,7 @@ void CLogDlg::DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t re
 	theApp.DoWaitCursor(1);
 	//get the filename
 	CString filepath;
-	if (SVN::PathIsURL(m_path))
+	if (SVN::PathIsURL(m_path.GetSVNPathString()))
 	{
 		filepath = m_path.GetSVNPathString();
 	}
@@ -1944,7 +1902,7 @@ void CLogDlg::DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t re
 	diff.SetHEADPeg(m_LogRevision);
 	if (unified)
 	{
-		if (PromptShown())
+		if (m_prompt.PromptShown())
 			diff.ShowUnifiedDiff(CTSVNPath(secondfile), rev2, CTSVNPath(firstfile), rev1);
 		else
 			CAppUtils::StartShowUnifiedDiff(m_hWnd, CTSVNPath(secondfile), rev2, CTSVNPath(firstfile), rev1, SVNRev(), m_LogRevision);
@@ -1967,7 +1925,7 @@ BOOL CLogDlg::Open(bool bOpenWith,CString changedpath, svn_revnum_t rev)
 	SetPromptApp(&theApp);
 	theApp.DoWaitCursor(1);
 	CString filepath;
-	if (SVN::PathIsURL(m_path))
+	if (SVN::PathIsURL(m_path.GetSVNPathString()))
 	{
 		filepath = m_path.GetSVNPathString();
 	}
@@ -2029,16 +1987,14 @@ BOOL CLogDlg::Open(bool bOpenWith,CString changedpath, svn_revnum_t rev)
 	return TRUE;
 }
 
-void CLogDlg::EditAuthor(const CLogDataVector& logs)
+void CLogDlg::EditAuthor(int index)
 {
 	CString url;
 	CString name;
-	if (logs.size() == 0)
-		return;
 	DialogEnableWindow(IDOK, FALSE);
 	SetPromptApp(&theApp);
 	theApp.DoWaitCursor(1);
-	if (SVN::PathIsURL(m_path))
+	if (SVN::PathIsURL(m_path.GetSVNPathString()))
 		url = m_path.GetSVNPathString();
 	else
 	{
@@ -2046,8 +2002,9 @@ void CLogDlg::EditAuthor(const CLogDataVector& logs)
 	}
 	name = SVN_PROP_REVISION_AUTHOR;
 
-	CString value = RevPropertyGet(name, CTSVNPath(url), logs[0]->Rev);
-	CString sOldValue = value;
+	PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(index));
+	m_bCancelled = FALSE;
+	CString value = RevPropertyGet(name, url, pLogEntry->Rev);
 	value.Replace(_T("\n"), _T("\r\n"));
 	CInputDlg dlg(this);
 	dlg.m_sHintText.LoadString(IDS_LOG_AUTHOR);
@@ -2058,49 +2015,33 @@ void CLogDlg::EditAuthor(const CLogDataVector& logs)
 	if (dlg.DoModal() == IDOK)
 	{
 		dlg.m_sInputText.Replace(_T("\r"), _T(""));
-
-		LogCache::CCachedLogInfo* toUpdate 
-			= GetLogCache (CTSVNPath (m_sRepositoryRoot));
-
-		CProgressDlg progDlg;
-		progDlg.SetTitle(IDS_APPNAME);
-		progDlg.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROGRESSWAIT)));
-		progDlg.SetTime(true);
-		progDlg.SetShowProgressBar(true);
-		progDlg.ShowModeless(m_hWnd);
-		for (DWORD i=0; i<logs.size(); ++i)
+		if (!RevPropertySet(name, dlg.m_sInputText, url, pLogEntry->Rev))
 		{
-			if (!RevPropertySet(name, dlg.m_sInputText, sOldValue, CTSVNPath(url), logs[i]->Rev))
-			{
-				progDlg.Stop();
-				CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-				break;
-			}
-			else
-			{
-
-				logs[i]->sAuthor = dlg.m_sInputText;
-				m_LogList.Invalidate();
-
-				// update the log cache 
-
-				if (toUpdate != NULL)
-				{
-					// log caching is active
-
-					LogCache::CCachedLogInfo newInfo;
-					newInfo.Insert ( logs[i]->Rev
-						, (const char*) CUnicodeUtils::GetUTF8 (logs[i]->sAuthor)
-						, ""
-						, 0
-						, LogCache::CRevisionInfoContainer::HAS_AUTHOR);
-
-					toUpdate->Update (newInfo);
-				}
-			}
-			progDlg.SetProgress64(i, logs.size());
+			CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		}
-		progDlg.Stop();
+		else
+		{
+			pLogEntry->sAuthor = dlg.m_sInputText;
+			m_LogList.Invalidate();
+
+            // update the log cache 
+
+            LogCache::CCachedLogInfo* toUpdate 
+                = GetLogCache (CTSVNPath (m_sRepositoryRoot));
+            if (toUpdate != NULL)
+            {
+                // log caching is active
+
+                LogCache::CCachedLogInfo newInfo;
+                newInfo.Insert ( pLogEntry->Rev
+                               , (const char*) CUnicodeUtils::GetUTF8 (pLogEntry->sAuthor)
+                               , ""
+                               , 0
+                               , LogCache::CRevisionInfoContainer::HAS_AUTHOR);
+
+                toUpdate->Update (newInfo);
+            }
+		}
 	}
 	theApp.DoWaitCursor(-1);
 	EnableOKButton();
@@ -2113,7 +2054,7 @@ void CLogDlg::EditLogMessage(int index)
 	DialogEnableWindow(IDOK, FALSE);
 	SetPromptApp(&theApp);
 	theApp.DoWaitCursor(1);
-	if (SVN::PathIsURL(m_path))
+	if (SVN::PathIsURL(m_path.GetSVNPathString()))
 		url = m_path.GetSVNPathString();
 	else
 	{
@@ -2123,8 +2064,7 @@ void CLogDlg::EditLogMessage(int index)
 
 	PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(index));
 	m_bCancelled = FALSE;
-	CString value = RevPropertyGet(name, CTSVNPath(url), pLogEntry->Rev);
-	CString sOldValue = value;
+	CString value = RevPropertyGet(name, url, pLogEntry->Rev);
 	value.Replace(_T("\n"), _T("\r\n"));
 	CInputDlg dlg(this);
 	dlg.m_sHintText.LoadString(IDS_LOG_MESSAGE);
@@ -2135,7 +2075,7 @@ void CLogDlg::EditLogMessage(int index)
 	if (dlg.DoModal() == IDOK)
 	{
 		dlg.m_sInputText.Replace(_T("\r"), _T(""));
-		if (!RevPropertySet(name, dlg.m_sInputText, sOldValue, CTSVNPath(url), pLogEntry->Rev))
+		if (!RevPropertySet(name, dlg.m_sInputText, url, pLogEntry->Rev))
 		{
 			CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		}
@@ -2289,7 +2229,7 @@ void CLogDlg::OnEnLinkMsgview(NMHDR *pNMHDR, LRESULT *pResult)
 	if (pEnLink->msg == WM_LBUTTONUP)
 	{
 		CString url, msg;
-		GetDlgItemText(IDC_MSGVIEW, msg);
+		GetDlgItem(IDC_MSGVIEW)->GetWindowText(msg);
 		msg.Replace(_T("\r\n"), _T("\n"));
 		url = msg.Mid(pEnLink->chrg.cpMin, pEnLink->chrg.cpMax-pEnLink->chrg.cpMin);
 		if (!::PathIsURL(url))
@@ -2373,22 +2313,11 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 				if (data)
 				{
 					if (data->bCopiedSelf)
-					{
-						// only change the background color if the item is not 'hot' (on vista with themes enabled)
-						if (!theme.IsAppThemed() || !m_bVista || ((pLVCD->nmcd.uItemState & CDIS_HOT)==0))
-							pLVCD->clrTextBk = GetSysColor(COLOR_MENU);
-					}
+						pLVCD->clrTextBk = GetSysColor(COLOR_MENU);
 					if (data->bCopies)
 						crText = m_Colors.GetColor(CColors::Modified);
 					if ((data->childStackDepth)||(m_mergedRevs.find(data->Rev) != m_mergedRevs.end()))
 						crText = GetSysColor(COLOR_GRAYTEXT);
-					if (data->Rev == m_wcRev)
-					{
-						SelectObject(pLVCD->nmcd.hdc, m_boldFont);
-						// We changed the font, so we're returning CDRF_NEWFONT. This
-						// tells the control to recalculate the extent of the text.
-						*pResult = CDRF_NOTIFYSUBITEMDRAW | CDRF_NEWFONT;
-					}
 				}
 			}
 			if (m_arShownList.GetCount() == (INT_PTR)pLVCD->nmcd.dwItemSpec)
@@ -2447,21 +2376,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 					else
 					{
 						if (pLogEntry->bCopiedSelf)
-						{
-							// unfortunately, the pLVCD->nmcd.uItemState does not contain valid
-							// information at this drawing stage. But we can check the whether the
-							// previous stage changed the background color of the item
-							if (pLVCD->clrTextBk == GetSysColor(COLOR_MENU))
-							{
-								HBRUSH brush;
-								brush = ::CreateSolidBrush(::GetSysColor(COLOR_MENU));
-								if (brush)
-								{
-									::FillRect(pLVCD->nmcd.hdc, &rect, brush);
-									::DeleteObject(brush);
-								}
-							}
-						}
+							state |= LISS_HOT;
 					}
 
 					if (theme.IsBackgroundPartiallyTransparent(LVP_LISTDETAIL, state))
@@ -2700,8 +2615,6 @@ LRESULT CLogDlg::OnClickedInfoIcon(WPARAM /*wParam*/, LPARAM lParam)
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_AUTHORS), LOGFILTER_AUTHORS, temp);
 		temp.LoadString(IDS_LOG_FILTER_REVS);
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_REVS), LOGFILTER_REVS, temp);
-		temp.LoadString(IDS_LOG_FILTER_BUGIDS);
-		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_BUGID), LOGFILTER_BUGID, temp);
 		
 		popup.AppendMenu(MF_SEPARATOR, NULL);
 
@@ -3026,15 +2939,6 @@ void CLogDlg::RecalculateShownList(CPtrArray * pShownlist)
 	{
 		if ((bRegex)&&(m_bFilterWithRegex))
 		{
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_BUGID))
-			{
-				ATLTRACE(_T("bugID = \"%s\"\n"), (LPCTSTR)m_logEntries[i]->sBugIDs);
-				if (regex_search(wstring((LPCTSTR)m_logEntries[i]->sBugIDs), pat, flags)&&IsEntryInDateRange(i))
-				{
-					pShownlist->Add(m_logEntries[i]);
-					continue;
-				}
-			}
 			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				ATLTRACE(_T("messge = \"%s\"\n"), (LPCTSTR)m_logEntries[i]->sMessage);
@@ -3096,17 +3000,6 @@ void CLogDlg::RecalculateShownList(CPtrArray * pShownlist)
 		{
 			CString find = m_sFilterText;
 			find.MakeLower();
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_BUGID))
-			{
-				CString sBugIDs = m_logEntries[i]->sBugIDs;
-
-				sBugIDs = sBugIDs.MakeLower();
-				if ((sBugIDs.Find(find) >= 0)&&(IsEntryInDateRange(i)))
-				{
-					pShownlist->Add(m_logEntries[i]);
-					continue;
-				}
-			}
 			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				CString msg = m_logEntries[i]->sMessage;
@@ -3504,17 +3397,6 @@ void CLogDlg::ResizeAllListCtrlCols(CListCtrl& list)
 	{
 		list.SetColumnWidth(1,nMinimumWidth);
 	}
-
-	// keep the bug id column small
-	if (m_bShowBugtraqColumn)
-	{
-		int nBugIDWidth = list.GetColumnWidth(4);
-		if (nBugIDWidth > (int)(DWORD)m_regMaxBugIDColWidth)
-		{
-			list.SetColumnWidth(4, (int)(DWORD)m_regMaxBugIDColWidth);
-		}
-
-	}
 }
 
 void CLogDlg::OnBnClickedHidepaths()
@@ -3679,26 +3561,18 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(m_LogList.GetNextSelectedItem(pos)));
 		revSelected2 = pLogEntry->Rev;
 	}
-	bool bAllFromTheSameAuthor = true;
-	CString firstAuthor;
-	CLogDataVector selEntries;
 	SVNRev revLowest, revHighest;
 	SVNRevRangeArray revisionRanges;
 	{
 		POSITION pos = m_LogList.GetFirstSelectedItemPosition();
 		PLOGENTRYDATA pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(m_LogList.GetNextSelectedItem(pos)));
 		revisionRanges.AddRevision(pLogEntry->Rev);
-		selEntries.push_back(pLogEntry);
-		firstAuthor = pLogEntry->sAuthor;
 		revLowest = pLogEntry->Rev;
 		revHighest = pLogEntry->Rev;
 		while (pos)
 		{
 			pLogEntry = reinterpret_cast<PLOGENTRYDATA>(m_arShownList.GetAt(m_LogList.GetNextSelectedItem(pos)));
 			revisionRanges.AddRevision(pLogEntry->Rev);
-			selEntries.push_back(pLogEntry);
-			if (firstAuthor.Compare(pLogEntry->sAuthor))
-				bAllFromTheSameAuthor = false;
 			revLowest = (svn_revnum_t(pLogEntry->Rev) > svn_revnum_t(revLowest) ? revLowest : pLogEntry->Rev);
 			revHighest = (svn_revnum_t(pLogEntry->Rev) < svn_revnum_t(revHighest) ? revHighest : pLogEntry->Rev);
 		}
@@ -3707,52 +3581,68 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 
 
 	//entry is selected, now show the popup menu
-	CIconMenu popup;
+	CMenu popup;
 	if (popup.CreatePopupMenu())
 	{
+		CString temp;
 		if (m_LogList.GetSelectedCount() == 1)
 		{
 			if (!m_path.IsDirectory())
 			{
 				if (m_hasWC)
 				{
-					popup.AppendMenuIcon(ID_COMPARE, IDS_LOG_POPUP_COMPARE, IDI_DIFF);
-					popup.AppendMenuIcon(ID_BLAMECOMPARE, IDS_LOG_POPUP_BLAMECOMPARE, IDI_BLAME);
+					temp.LoadString(IDS_LOG_POPUP_COMPARE);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARE, temp);
+					temp.LoadString(IDS_LOG_POPUP_BLAMECOMPARE);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMECOMPARE, temp);
 				}
-				popup.AppendMenuIcon(ID_GNUDIFF1, IDS_LOG_POPUP_GNUDIFF_CH, IDI_DIFF);
-				popup.AppendMenuIcon(ID_COMPAREWITHPREVIOUS, IDS_LOG_POPUP_COMPAREWITHPREVIOUS, IDI_DIFF);
+				temp.LoadString(IDS_LOG_POPUP_GNUDIFF_CH);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GNUDIFF1, temp);
+				temp.LoadString(IDS_LOG_POPUP_COMPAREWITHPREVIOUS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREWITHPREVIOUS, temp);
 				popup.AppendMenu(MF_SEPARATOR, NULL);
-				popup.AppendMenuIcon(ID_SAVEAS, IDS_LOG_POPUP_SAVE, IDI_SAVEAS);
-				popup.AppendMenuIcon(ID_OPEN, IDS_LOG_POPUP_OPEN, IDI_OPEN);
-				popup.AppendMenuIcon(ID_OPENWITH, IDS_LOG_POPUP_OPENWITH, IDI_OPEN);
-				popup.AppendMenuIcon(ID_BLAME, IDS_LOG_POPUP_BLAME, IDI_BLAME);
+				temp.LoadString(IDS_LOG_POPUP_SAVE);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);
+				temp.LoadString(IDS_LOG_POPUP_OPEN);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPEN, temp);
+				temp.LoadString(IDS_LOG_POPUP_OPENWITH);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPENWITH, temp);
+				temp.LoadString(IDS_LOG_POPUP_BLAME);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAME, temp);
 				popup.AppendMenu(MF_SEPARATOR, NULL);
 			}
 			else
 			{
 				if (m_hasWC)
 				{
-					popup.AppendMenuIcon(ID_COMPARE, IDS_LOG_POPUP_COMPARE, IDI_DIFF);
+					temp.LoadString(IDS_LOG_POPUP_COMPARE);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARE, temp);
 					// TODO:
 					// TortoiseMerge could be improved to take a /blame switch
 					// and then not 'cat' the files from a unified diff but
 					// blame then.
 					// But until that's implemented, the context menu entry for
 					// this feature is commented out.
-					//popup.AppendMenu(ID_BLAMECOMPARE, IDS_LOG_POPUP_BLAMECOMPARE, IDI_BLAME);
+					//temp.LoadString(IDS_LOG_POPUP_BLAMECOMPARE);
+					//popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMECOMPARE, temp);
 				}
-				popup.AppendMenuIcon(ID_GNUDIFF1, IDS_LOG_POPUP_GNUDIFF_CH, IDI_DIFF);
-				popup.AppendMenuIcon(ID_COMPAREWITHPREVIOUS, IDS_LOG_POPUP_COMPAREWITHPREVIOUS, IDI_DIFF);
-				popup.AppendMenuIcon(ID_BLAMEWITHPREVIOUS, IDS_LOG_POPUP_BLAMEWITHPREVIOUS, IDI_BLAME);
+				temp.LoadString(IDS_LOG_POPUP_GNUDIFF_CH);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GNUDIFF1, temp);
+				temp.LoadString(IDS_LOG_POPUP_COMPAREWITHPREVIOUS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPAREWITHPREVIOUS, temp);
+				temp.LoadString(IDS_LOG_POPUP_BLAMEWITHPREVIOUS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMEWITHPREVIOUS, temp);
 				popup.AppendMenu(MF_SEPARATOR, NULL);
 			}
 			if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
 			{
-				popup.AppendMenuIcon(ID_VIEWREV, IDS_LOG_POPUP_VIEWREV);
+				temp.LoadString(IDS_LOG_POPUP_VIEWREV);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWREV, temp);
 			}
 			if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
 			{
-				popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_VIEWPATHREV);
+				temp.LoadString(IDS_LOG_POPUP_VIEWPATHREV);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWPATHREV, temp);
 			}
 			if ((!m_ProjectProperties.sWebViewerPathRev.IsEmpty())||
 				(!m_ProjectProperties.sWebViewerRev.IsEmpty()))
@@ -3760,59 +3650,71 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 				popup.AppendMenu(MF_SEPARATOR, NULL);
 			}
 
-			popup.AppendMenuIcon(ID_REPOBROWSE, IDS_LOG_BROWSEREPO, IDI_REPOBROWSE);
-			popup.AppendMenuIcon(ID_COPY, IDS_LOG_POPUP_COPY);
+			temp.LoadString(IDS_LOG_BROWSEREPO);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REPOBROWSE, temp);
+			temp.LoadString(IDS_LOG_POPUP_COPY);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COPY, temp);
+			temp.LoadString(IDS_LOG_POPUP_UPDATE);
 			if (m_hasWC)
-				popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATE, IDI_UPDATE);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_UPDATE, temp);
+			temp.LoadString(IDS_LOG_POPUP_REVERTTOREV);
 			if (m_hasWC)
-				popup.AppendMenuIcon(ID_REVERTTOREV, IDS_LOG_POPUP_REVERTTOREV, IDI_REVERT);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVERTTOREV, temp);					
+			temp.LoadString(IDS_LOG_POPUP_REVERTREV);
 			if (m_hasWC)
-				popup.AppendMenuIcon(ID_REVERTREV, IDS_LOG_POPUP_REVERTREV, IDI_REVERT);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVERTREV, temp);					
+			temp.LoadString(IDS_LOG_POPUP_MERGEREV);
 			if (m_hasWC)
-				popup.AppendMenuIcon(ID_MERGEREV, IDS_LOG_POPUP_MERGEREV, IDI_MERGE);
-			popup.AppendMenuIcon(ID_CHECKOUT, IDS_MENUCHECKOUT, IDI_CHECKOUT);
-			popup.AppendMenuIcon(ID_EXPORT, IDS_MENUEXPORT, IDI_EXPORT);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_MERGEREV, temp);					
+			temp.LoadString(IDS_MENUCHECKOUT);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_CHECKOUT, temp);
+			temp.LoadString(IDS_MENUEXPORT);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EXPORT, temp);
 			popup.AppendMenu(MF_SEPARATOR, NULL);
 		}
 		else if (m_LogList.GetSelectedCount() >= 2)
 		{
 			bool bAddSeparator = false;
-			if (IsSelectionContinuous() || (m_LogList.GetSelectedCount() == 2))
-			{
-				popup.AppendMenuIcon(ID_COMPARETWO, IDS_LOG_POPUP_COMPARETWO, IDI_DIFF);
-			}
 			if (m_LogList.GetSelectedCount() == 2)
 			{
-				popup.AppendMenuIcon(ID_BLAMETWO, IDS_LOG_POPUP_BLAMEREVS, IDI_BLAME);
-				popup.AppendMenuIcon(ID_GNUDIFF2, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);
+				temp.LoadString(IDS_LOG_POPUP_COMPARETWO);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARETWO, temp);
+				temp.LoadString(IDS_LOG_POPUP_BLAMEREVS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMETWO, temp);
+				temp.LoadString(IDS_LOG_POPUP_GNUDIFF);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GNUDIFF2, temp);
 				bAddSeparator = true;
 			}
+			temp.LoadString(IDS_LOG_POPUP_REVERTREVS);
 			if (m_hasWC)
 			{
-				popup.AppendMenuIcon(ID_REVERTREV, IDS_LOG_POPUP_REVERTREVS, IDI_REVERT);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVERTREV, temp);
+				temp.LoadString(IDS_LOG_POPUP_MERGEREVS);
 				if (m_hasWC)
-					popup.AppendMenuIcon(ID_MERGEREV, IDS_LOG_POPUP_MERGEREVS, IDI_MERGE);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_MERGEREV, temp);					
 				bAddSeparator = true;
 			}
 			if (bAddSeparator)
 				popup.AppendMenu(MF_SEPARATOR, NULL);
 		}
 
-		if ((selEntries.size() > 0)&&(bAllFromTheSameAuthor))
-		{
-			popup.AppendMenuIcon(ID_EDITAUTHOR, IDS_LOG_POPUP_EDITAUTHOR);
-		}
 		if (m_LogList.GetSelectedCount() == 1)
 		{
-			popup.AppendMenuIcon(ID_EDITLOG, IDS_LOG_POPUP_EDITLOG);
-			popup.AppendMenuIcon(ID_REVPROPS, IDS_REPOBROWSE_SHOWREVPROP, IDI_PROPERTIES); // "Show Revision Properties"
+			temp.LoadString(IDS_LOG_POPUP_EDITAUTHOR);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EDITAUTHOR, temp);
+			temp.LoadString(IDS_LOG_POPUP_EDITLOG);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EDITLOG, temp);
+			temp.LoadString(IDS_REPOBROWSE_SHOWREVPROP);					// "Show Revision Properties"
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVPROPS, temp);
 			popup.AppendMenu(MF_SEPARATOR, NULL);
 		}
 		if (m_LogList.GetSelectedCount() != 0)
 		{
-			popup.AppendMenuIcon(ID_COPYCLIPBOARD, IDS_LOG_POPUP_COPYTOCLIPBOARD);
+			temp.LoadString(IDS_LOG_POPUP_COPYTOCLIPBOARD);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COPYCLIPBOARD, temp);
 		}
-		popup.AppendMenuIcon(ID_FINDENTRY, IDS_LOG_POPUP_FIND);
+		temp.LoadString(IDS_LOG_POPUP_FIND);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_FINDENTRY, temp);
 
 		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 		DialogEnableWindow(IDOK, FALSE);
@@ -3823,7 +3725,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		{
 		case ID_GNUDIFF1:
 			{
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, this->m_hWnd, true);
 					diff.SetHEADPeg(m_LogRevision);
@@ -3835,7 +3737,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case ID_GNUDIFF2:
 			{
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, this->m_hWnd, true);
 					diff.SetHEADPeg(m_LogRevision);
@@ -3969,7 +3871,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		case ID_COMPARE:
 			{
 				//user clicked on the menu item "compare with working copy"
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, m_hWnd, true);
 					diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
@@ -3982,28 +3884,21 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case ID_COMPARETWO:
 			{
-				SVNRev r1 = revSelected;
-				SVNRev r2 = revSelected2;
-				if (m_LogList.GetSelectedCount() > 2)
-				{
-					r1 = revHighest;
-					r2 = revLowest;
-				}
 				//user clicked on the menu item "compare revisions"
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, m_hWnd, true);
 					diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 					diff.SetHEADPeg(m_LogRevision);
-					diff.ShowCompare(CTSVNPath(pathURL), r2, CTSVNPath(pathURL), r1);
+					diff.ShowCompare(CTSVNPath(pathURL), revSelected2, CTSVNPath(pathURL), revSelected);
 				}
 				else
-					CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pathURL), r2, CTSVNPath(pathURL), r1, SVNRev(), m_LogRevision, !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+					CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pathURL), revSelected2, CTSVNPath(pathURL), revSelected, SVNRev(), m_LogRevision, !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 			}
 			break;
 		case ID_COMPAREWITHPREVIOUS:
 			{
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, m_hWnd, true);
 					diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
@@ -4018,7 +3913,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			{
 				//user clicked on the menu item "compare with working copy"
 				//now first get the revision which is selected
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, this->m_hWnd, true);
 					diff.SetHEADPeg(m_LogRevision);
@@ -4031,7 +3926,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		case ID_BLAMETWO:
 			{
 				//user clicked on the menu item "compare and blame revisions"
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, this->m_hWnd, true);
 					diff.SetHEADPeg(m_LogRevision);
@@ -4044,7 +3939,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 		case ID_BLAMEWITHPREVIOUS:
 			{
 				//user clicked on the menu item "Compare and Blame with previous revision"
-				if (PromptShown())
+				if (m_prompt.PromptShown())
 				{
 					SVNDiff diff(this, this->m_hWnd, true);
 					diff.SetHEADPeg(m_LogRevision);
@@ -4150,7 +4045,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 					CBlame blame;
 					CString tempfile;
 					CString logfile;
-					tempfile = blame.BlameToTempFile(m_path, dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), dlg.m_bIncludeMerge, TRUE, TRUE);
+					tempfile = blame.BlameToTempFile(m_path, dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), TRUE, TRUE);
 					if (!tempfile.IsEmpty())
 					{
 						if (dlg.m_bTextView)
@@ -4176,12 +4071,23 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case ID_UPDATE:
 			{
-				CString sCmd;
-				CString url = _T("tsvn:")+pathURL;
-				sCmd.Format(_T("%s /command:update /path:\"%s\" /rev:%ld"),
-					(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")),
-					(LPCTSTR)m_path.GetWinPath(), (LONG)revSelected);
-				CAppUtils::LaunchApplication(sCmd, NULL, false);
+				//now first get the revision which is selected
+				CProgressDlg progDlg;
+				progDlg.SetTitle(IDS_APPNAME);
+				progDlg.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROGRESSWAIT)));
+				progDlg.SetTime(false);
+				SetAndClearProgressInfo(&progDlg);
+				progDlg.ShowModeless(m_hWnd);
+				if (!Update(CTSVNPathList(m_path), revSelected, svn_depth_unknown, FALSE, FALSE))
+				{
+					progDlg.Stop();
+					SetAndClearProgressInfo((HWND)NULL);
+					CMessageBox::Show(this->m_hWnd, GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+					EnableOKButton();
+					break;
+				}
+				progDlg.Stop();
+				SetAndClearProgressInfo((HWND)NULL);
 			}
 			break;
 		case ID_FINDENTRY:
@@ -4217,7 +4123,7 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case ID_EDITAUTHOR:
 			{
-				EditAuthor(selEntries);
+				EditAuthor(selIndex);
 			}
 			break;
 		case ID_REVPROPS:
@@ -4388,39 +4294,52 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 	}
 
 	//entry is selected, now show the popup menu
-	CIconMenu popup;
+	CMenu popup;
 	if (popup.CreatePopupMenu())
 	{
+		CString temp;
 		bool bEntryAdded = false;
 		if (m_ChangedFileListCtrl.GetSelectedCount() == 1)
 		{
 			if ((!bOneRev)||(IsDiffPossible(changedlogpaths[0], rev1)))
 			{
-				popup.AppendMenuIcon(ID_DIFF, IDS_LOG_POPUP_DIFF, IDI_DIFF);
-				popup.AppendMenuIcon(ID_BLAMEDIFF, IDS_LOG_POPUP_BLAMEDIFF, IDI_BLAME);
+				temp.LoadString(IDS_LOG_POPUP_DIFF);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_DIFF, temp);
+				temp.LoadString(IDS_LOG_POPUP_BLAMEDIFF);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAMEDIFF, temp);
 				popup.SetDefaultItem(ID_DIFF, FALSE);
-				popup.AppendMenuIcon(ID_GNUDIFF1, IDS_LOG_POPUP_GNUDIFF_CH, IDI_DIFF);
+				temp.LoadString(IDS_LOG_POPUP_GNUDIFF_CH);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GNUDIFF1, temp);
 				bEntryAdded = true;
 			}
 			if (rev2 == rev1-1)
 			{
 				if (bEntryAdded)
 					popup.AppendMenu(MF_SEPARATOR, NULL);
-				popup.AppendMenuIcon(ID_OPEN, IDS_LOG_POPUP_OPEN, IDI_OPEN);
-				popup.AppendMenuIcon(ID_OPENWITH, IDS_LOG_POPUP_OPENWITH, IDI_OPEN);
-				popup.AppendMenuIcon(ID_BLAME, IDS_LOG_POPUP_BLAME, IDI_BLAME);
+				temp.LoadString(IDS_LOG_POPUP_OPEN);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPEN, temp);
+				temp.LoadString(IDS_LOG_POPUP_OPENWITH);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_OPENWITH, temp);
+				temp.LoadString(IDS_LOG_POPUP_BLAME);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAME, temp);
 				popup.AppendMenu(MF_SEPARATOR, NULL);
+				temp.LoadString(IDS_LOG_POPUP_REVERTREV);
 				if (m_hasWC)
-					popup.AppendMenuIcon(ID_REVERTREV, IDS_LOG_POPUP_REVERTREV, IDI_REVERT);
-				popup.AppendMenuIcon(ID_POPPROPS, IDS_REPOBROWSE_SHOWPROP, IDI_PROPERTIES);			// "Show Properties"
-				popup.AppendMenuIcon(ID_LOG, IDS_MENULOG, IDI_LOG);						// "Show Log"				
-				popup.AppendMenuIcon(ID_GETMERGELOGS, IDS_LOG_POPUP_GETMERGELOGS, IDI_LOG);		// "Show merge log"
-				popup.AppendMenuIcon(ID_SAVEAS, IDS_LOG_POPUP_SAVE, IDI_SAVEAS);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_REVERTREV, temp);
+				temp.LoadString(IDS_REPOBROWSE_SHOWPROP);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_POPPROPS, temp);			// "Show Properties"
+				temp.LoadString(IDS_MENULOG);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_LOG, temp);					// "Show Log"				
+				temp.LoadString(IDS_LOG_POPUP_GETMERGELOGS);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_GETMERGELOGS, temp);		// "Show merge log"
+				temp.LoadString(IDS_LOG_POPUP_SAVE);
+				popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);
 				bEntryAdded = true;
 				if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
 				{
 					popup.AppendMenu(MF_SEPARATOR, NULL);
-					popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_VIEWPATHREV);
+					temp.LoadString(IDS_LOG_POPUP_VIEWPATHREV);
+					popup.AppendMenu(MF_STRING | MF_ENABLED, ID_VIEWPATHREV, temp);
 				}
 				if (popup.GetDefaultItem(0,FALSE)==-1)
 					popup.SetDefaultItem(ID_OPEN, FALSE);
@@ -4429,7 +4348,8 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 		else if (changedlogpaths.size())
 		{
 			// more than one entry is selected
-			popup.AppendMenuIcon(ID_SAVEAS, IDS_LOG_POPUP_SAVE);
+			temp.LoadString(IDS_LOG_POPUP_SAVE);
+			popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);
 			bEntryAdded = true;
 		}
 
@@ -4461,7 +4381,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 				SetPromptApp(&theApp);
 				theApp.DoWaitCursor(1);
 				CString sUrl;
-				if (SVN::PathIsURL(m_path))
+				if (SVN::PathIsURL(m_path.GetSVNPathString()))
 				{
 					sUrl = m_path.GetSVNPathString();
 				}
@@ -4540,7 +4460,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 				SetPromptApp(&theApp);
 				theApp.DoWaitCursor(1);
 				CString filepath;
-				if (SVN::PathIsURL(m_path))
+				if (SVN::PathIsURL(m_path.GetSVNPathString()))
 				{
 					filepath = m_path.GetSVNPathString();
 				}
@@ -4574,7 +4494,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 				SetPromptApp(&theApp);
 				theApp.DoWaitCursor(1);
 				CString filepath;
-				if (SVN::PathIsURL(m_path))
+				if (SVN::PathIsURL(m_path.GetSVNPathString()))
 				{
 					filepath = m_path.GetSVNPathString();
 				}
@@ -4614,7 +4534,6 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 				{
 					// Display the Open dialog box. 
 					CString revFilename;
-					CString temp;
 					temp = CPathUtils::GetFileNameFromPath(changedpaths[0]);
 					int rfind = temp.ReverseFind('.');
 					if (rfind > 0)
@@ -4623,7 +4542,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 						revFilename.Format(_T("%s-%ld"), (LPCTSTR)temp, rev1);
 					bTargetSelected = CAppUtils::FileOpenSave(revFilename, NULL, IDS_LOG_POPUP_SAVE, IDS_COMMONFILEFILTER, false, m_hWnd);
 					TargetPath.SetFromWin(revFilename);
-				}
+					}
 				if (bTargetSelected)
 				{
 					CProgressDlg progDlg;
@@ -4695,7 +4614,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 		case ID_BLAME:
 			{
 				CString filepath;
-				if (SVN::PathIsURL(m_path))
+				if (SVN::PathIsURL(m_path.GetSVNPathString()))
 				{
 					filepath = m_path.GetSVNPathString();
 				}
@@ -4722,7 +4641,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 					CBlame blame;
 					CString tempfile;
 					CString logfile;
-					tempfile = blame.BlameToTempFile(CTSVNPath(filepath), dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), dlg.m_bIncludeMerge, TRUE, TRUE);
+					tempfile = blame.BlameToTempFile(CTSVNPath(filepath), dlg.StartRev, dlg.EndRev, dlg.EndRev, logfile, _T(""), TRUE, TRUE);
 					if (!tempfile.IsEmpty())
 					{
 						if (dlg.m_bTextView)
@@ -4755,7 +4674,7 @@ void CLogDlg::ShowContextMenuForChangedpaths(CWnd* /*pWnd*/, CPoint point)
 				SetPromptApp(&theApp);
 				theApp.DoWaitCursor(1);
 				CString filepath;
-				if (SVN::PathIsURL(m_path))
+				if (SVN::PathIsURL(m_path.GetSVNPathString()))
 				{
 					filepath = m_path.GetSVNPathString();
 				}

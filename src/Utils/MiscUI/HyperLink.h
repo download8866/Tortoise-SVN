@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,14 +38,14 @@ public:
 
 public:
     void		SetURL(CString strURL);
-    CString		GetURL() const;
+    CString		GetURL();
 
     void		SetColors(COLORREF crLinkColor, COLORREF crHoverColor = -1);
-    COLORREF	GetLinkColor() const;
-    COLORREF	GetHoverColor() const;
+    COLORREF	GetLinkColor();
+    COLORREF	GetHoverColor();
 
     void		SetUnderline(int nUnderline = ulHover);
-    int			GetUnderline() const;
+    int			GetUnderline();
 
 public:
     virtual BOOL PreTranslateMessage(MSG* pMsg);

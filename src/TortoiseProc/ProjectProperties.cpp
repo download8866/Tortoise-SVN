@@ -245,7 +245,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
-		propsPath = path;
 		path = path.GetContainingDirectory();
 		if ((!path.HasAdminDir())||(path.IsEmpty()))
 		{
@@ -254,10 +253,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
 				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary)
-			{
 				return TRUE;
-			}
-			propsPath.Reset();
 			return FALSE;
 		}
 	}

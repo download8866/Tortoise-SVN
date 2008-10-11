@@ -29,7 +29,6 @@
 
 bool CleanupCommand::Execute()
 {
-	bool bRet = false;
 	CProgressDlg progress;
 	progress.SetTitle(IDS_PROC_CLEANUP);
 	progress.SetAnimation(IDR_CLEANUPANI);
@@ -84,7 +83,6 @@ bool CleanupCommand::Execute()
 		CString tmp;
 		tmp.Format(IDS_PROC_CLEANUPFINISHED, (LPCTSTR)strSuccessfullPaths);
 		strMessage += tmp;
-		bRet = true;
 	}
 	if ( !strFailedPaths.IsEmpty() )
 	{
@@ -93,9 +91,8 @@ bool CleanupCommand::Execute()
 		CString tmp;
 		tmp.Format(IDS_PROC_CLEANUPFINISHED_FAILED, (LPCTSTR)strFailedPaths);
 		strMessage += tmp;
-		bRet = false;
 	}
 	CMessageBox::Show(hwndExplorer, strMessage, _T("TortoiseSVN"), MB_OK | (strFailedPaths.IsEmpty()?MB_ICONINFORMATION:MB_ICONERROR));
 
-	return bRet;
+	return true;
 }

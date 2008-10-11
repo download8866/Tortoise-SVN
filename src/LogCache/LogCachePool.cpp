@@ -37,12 +37,6 @@
 namespace LogCache
 {
 
-// use the same caches throughout this application
-// (they are unique per computer anyway)
-
-CLogCachePool::TCaches CLogCachePool::caches;
-long CLogCachePool::instanceCount = 0;
-
 // utility
 
 bool CLogCachePool::FileExists (const std::wstring& filePath)
@@ -57,7 +51,6 @@ CLogCachePool::CLogCachePool (SVN& svn, const CString& cacheFolderPath)
 	: cacheFolderPath (cacheFolderPath)
     , repositoryInfo (new CRepositoryInfo (svn, cacheFolderPath))
 {
-    ++instanceCount;
 }
 
 CLogCachePool::~CLogCachePool()
@@ -65,8 +58,7 @@ CLogCachePool::~CLogCachePool()
     delete repositoryInfo;
     repositoryInfo = NULL;
 
-    if (--instanceCount == 0)
-        Clear();
+    Clear();
 }
 
 // auto-create and return cache for given repository

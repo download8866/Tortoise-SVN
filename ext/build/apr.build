@@ -20,7 +20,10 @@
 		</if>
 	</target>
 
-	<target name="build" depends="clean">		
+	<target name="build" depends="clean">
+		<!-- patch apr\file_io\win32\open.c to fix directory creation with long paths -->
+		<copy file="..\build\apr_open.c" tofile="file_io\win32\open.c" overwrite="true" />
+		
 		<mkdir dir="${configuration}${static}_${platform}" />
 		<loadfile file="include\apr.hw" property="configfile">
 			<filterchain>
@@ -99,6 +102,7 @@
 				<include name="include\arch\win32" />
 			</includedirs>
 			<defines>
+				<define name="_USE_32BIT_TIME_T" if="${platform == 'win32'}" />
 				<define name="APR_DECLARE_EXPORT" if="${static != 'static'}"/>
 				<define name="APR_DECLARE_STATIC" if="${static == 'static'}"/>
 				<define name="WIN32" />

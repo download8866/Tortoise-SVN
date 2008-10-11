@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2008-07-11 23:46 +0000\n"
-"PO-Revision-Date: 2008-09-25 16:20+0100\n"
+"POT-Creation-Date: 2008-07-20 22:21 +0000\n"
+"PO-Revision-Date: 2008-09-25 10:32+0100\n"
 "Last-Translator: Grokwik <grokwik@free.fr>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -122,7 +122,7 @@ msgstr "TortoiseMerge est un projet Open Source. Cela signifie que vous avez un 
 #. (title)
 #: ../source/TortoiseMerge_en.xml:90
 msgid "Donate!"
-msgstr "Faites une donation !"
+msgstr "Faites une donation!"
 
 #. (para)
 #: ../source/TortoiseMerge_en.xml:91

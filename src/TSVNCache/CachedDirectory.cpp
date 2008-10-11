@@ -394,7 +394,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				m_currentStatusFetchingPathTicks = GetTickCount();
 			}
 			ATLTRACE(_T("svn_cli_stat for '%s' (req %s)\n"), m_directoryPath.GetWinPath(), path.GetWinPath());
-			svn_error_t* pErr = svn_client_status4 (
+			svn_error_t* pErr = svn_client_status3 (
 				NULL,
 				m_directoryPath.GetSVNApiPath(subPool),
 				&revision,
@@ -538,12 +538,12 @@ CCachedDirectory::GetFullPathString(const CString& cacheKey)
 	return m_directoryPath.GetWinPathString() + _T("\\") + cacheKey;
 }
 
-svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t * /*pool*/)
+void CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status)
 {
 	CCachedDirectory* pThis = (CCachedDirectory*)baton;
 
 	if (path == NULL)
-		return SVN_NO_ERROR;
+		return;
 		
 	CTSVNPath svnPath;
 
@@ -659,8 +659,6 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 	}
 
 	pThis->AddEntry(svnPath, status);
-
-	return SVN_NO_ERROR;
 }
 
 bool 

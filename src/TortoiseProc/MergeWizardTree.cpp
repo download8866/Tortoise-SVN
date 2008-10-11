@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -88,44 +88,25 @@ BOOL CMergeWizardTree::OnInitDialog()
 {
 	CMergeWizardBasePage::OnInitDialog();
 
-	CMergeWizard * pWizard = (CMergeWizard*)GetParent();
-	CString sUUID = pWizard->sUUID;
+	CString sUUID = ((CMergeWizard*)GetParent())->sUUID;
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
 	// Only set the "From" Url if there is no url history available
 	if (m_URLCombo.GetString().IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
+		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(((CMergeWizard*)GetParent())->url));
 	m_URLCombo2.SetURLHistory(TRUE);
 	m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	m_URLCombo2.SetCurSel(0);
 	if (m_URLCombo2.GetString().IsEmpty())
-		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	if (!pWizard->URL1.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
-	if (!pWizard->URL2.IsEmpty())
-		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(pWizard->URL2));
+		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(((CMergeWizard*)GetParent())->url));
 
 	SetDlgItemText(IDC_WCEDIT, ((CMergeWizard*)GetParent())->wcPath.GetWinPath());
 
 	// set head revision as default revision
-	if (pWizard->startRev.IsHead())
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_HEAD1);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
-		m_sStartRev = pWizard->startRev.ToString();
-		SetDlgItemText(IDC_REVISION_START, m_sStartRev);
-	}
-	if (pWizard->endRev.IsHead())
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-		m_sEndRev = pWizard->endRev.ToString();
-		SetDlgItemText(IDC_REVISION_END, m_sEndRev);
-	}
+	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
+	CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 
 	AdjustControlSize(IDC_REVISION_HEAD1);
 	AdjustControlSize(IDC_REVISION_N1);

@@ -42,7 +42,6 @@ CString CommitCommand::LoadLogMessage()
 
 bool CommitCommand::Execute()
 {
-	bool bRet = false;
 	bool bFailed = true;
 	CTSVNPathList selectedList;
 	if (parser.HasKey(_T("logmsg")) && (parser.HasKey(_T("logmsgfile"))))
@@ -107,11 +106,10 @@ bool CommitCommand::Execute()
 			CRegDWORD err = CRegDWORD(_T("Software\\TortoiseSVN\\ErrorOccurred"), FALSE);
 			err = (DWORD)progDlg.DidErrorsOccur();
 			bFailed = progDlg.DidErrorsOccur();
-			bRet = progDlg.DidErrorsOccur();
 			CRegDWORD bFailRepeat = CRegDWORD(_T("Software\\TortoiseSVN\\CommitReopen"), FALSE);
 			if (DWORD(bFailRepeat)==0)
 				bFailed = false;		// do not repeat if the user chose not to in the settings.
 		}
 	}
-	return bRet;
+	return true;
 }

@@ -51,24 +51,10 @@ bool IgnoreCommand::Execute()
 			value = name;
 		else
 		{
-			// make sure we don't have duplicate entries
-			std::set<CStringA> ignoreItems;
-			ignoreItems.insert(CUnicodeUtils::GetUTF8(name));
-			CStringA token;
-			int curPos = 0;
-			token= value.Tokenize("\n",curPos);
-			while (token != _T(""))
-			{
-				token.Trim();
-				ignoreItems.insert(token);
-				token = value.Tokenize("\n", curPos);
-			};
-			value.Empty();
-			for (std::set<CStringA>::iterator it = ignoreItems.begin(); it != ignoreItems.end(); ++it)
-			{
-				value += *it;
-				value += "\n";
-			}
+			value = value.Trim("\n\r");
+			value += "\n";
+			value += name;
+			value.Remove('\r');
 		}
 		if (!props.Add(_T("svn:ignore"), (LPCSTR)value))
 		{
@@ -86,7 +72,6 @@ bool IgnoreCommand::Execute()
 		CString temp;
 		temp.Format(IDS_PROC_IGNORESUCCESS, (LPCTSTR)filelist);
 		CMessageBox::Show(hwndExplorer, temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
-		return true;
 	}
-	return false;
+	return true;
 }
