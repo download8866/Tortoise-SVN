@@ -348,7 +348,7 @@ CString CSciEdit::GetWordUnderCursor(bool bSelectWord)
 		Call(SCI_SETSEL, textrange.chrg.cpMin, textrange.chrg.cpMax);
 	}
 	CString sRet = StringFromControl(textbuffer);
-	delete [] textbuffer;
+	delete textbuffer;
 	return sRet;
 }
 
@@ -658,7 +658,7 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
 					url = m_sUrl;
 					url.Replace(_T("%BUGID%"), StringFromControl(textbuffer));
 				}
-				delete [] textbuffer;
+				delete textbuffer;
 				if (!url.IsEmpty())
 					ShellExecute(GetParent()->GetSafeHwnd(), _T("open"), url, NULL, NULL, SW_SHOWDEFAULT);
 			}
@@ -1021,7 +1021,7 @@ bool CSciEdit::StyleEnteredText(int startstylepos, int endstylepos)
 			bStyled = true;
 			start = end;
 		}
-		delete [] linebuffer;
+		delete linebuffer;
 	}
 	return bStyled;
 }
@@ -1138,7 +1138,8 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 	textrange.chrg.cpMin = start_pos;
 	textrange.chrg.cpMax = end_pos;
 	Call(SCI_GETTEXTRANGE, 0, (LPARAM)&textrange);
-	CStringA msg = CStringA(textbuffer);
+	CString msg = CString(textbuffer);
+	delete textbuffer;
 
 	Call(SCI_STARTSTYLING, start_pos, STYLE_MASK);
 
@@ -1147,20 +1148,20 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 		// match with two regex strings (without grouping!)
 		try
 		{
-			const tr1::regex regCheck(m_sCommand);
-			const tr1::regex regBugID(m_sBugID);
-			const tr1::sregex_iterator end;
-			string s = msg;
+			const tr1::wregex regCheck(m_sCommand);
+			const tr1::wregex regBugID(m_sBugID);
+			const tr1::wsregex_iterator end;
+			wstring s = msg;
 			LONG pos = 0;
-			for (tr1::sregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
+			for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
 			{
 				// clear the styles up to the match position
 				Call(SCI_SETSTYLING, it->position(0)-pos, STYLE_DEFAULT);
 				pos = it->position(0);
 
 				// (*it)[0] is the matched string
-				string matchedString = (*it)[0];
-				for (tr1::sregex_iterator it2(matchedString.begin(), matchedString.end(), regBugID); it2 != end; ++it2)
+				wstring matchedString = (*it)[0];
+				for (tr1::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regBugID); it2 != end; ++it2)
 				{
 					ATLTRACE(_T("matched id : %s\n"), (*it2)[0].str().c_str());
 
@@ -1184,32 +1185,30 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 	{
 		try
 		{
-			const tr1::regex regCheck(m_sCommand);
-			const tr1::sregex_iterator end;
-			string s = msg;
+			const tr1::wregex regCheck(m_sCommand);
+			const tr1::wsregex_iterator end;
+			wstring s = msg;
 			LONG pos = 0;
-			for (tr1::sregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
+			for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
 			{
 				// clear the styles up to the match position
 				Call(SCI_SETSTYLING, it->position(0)-pos, STYLE_DEFAULT);
 				pos = it->position(0);
 
-				const tr1::smatch match = *it;
+				const tr1::wsmatch match = *it;
 				// we define group 1 as the whole issue text and
 				// group 2 as the bug ID
 				if (match.size() >= 2)
 				{
-					ATLTRACE(_T("matched id : %s\n"), string(match[1]).c_str());
+					ATLTRACE(_T("matched id : %s\n"), wstring(match[1]).c_str());
 					Call(SCI_SETSTYLING, match[1].first-s.begin()-pos, STYLE_ISSUEBOLD);
-					Call(SCI_SETSTYLING, string(match[1]).size(), STYLE_ISSUEBOLDITALIC);
+					Call(SCI_SETSTYLING, wstring(match[1]).size(), STYLE_ISSUEBOLDITALIC);
 					pos = match[1].second-s.begin();
 				}
 			}
 		}
 		catch (exception) {}
 	}
-	delete [] textbuffer;
-
 	return FALSE;
 }
 
@@ -1236,7 +1235,7 @@ void CSciEdit::StyleURLs(int startstylepos, int endstylepos)
 	// not necessarily one byte/wchar_t
 	// that's why we use CStringA to still get a correct char index
     CStringA msg = textbuffer;
-	delete [] textbuffer;
+	delete textbuffer;
 
 	int starturl = -1;
 	for(int i = 0; i <= msg.GetLength(); )

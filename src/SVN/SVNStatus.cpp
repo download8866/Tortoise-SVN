@@ -34,7 +34,6 @@
 #endif
 
 SVNStatus::SVNStatus(bool * pbCanceled)
-	: status(NULL)
 {
 	m_pool = svn_pool_create (NULL);
 	
@@ -95,12 +94,12 @@ void SVNStatus::ClearPool()
 }
 
 #ifdef _MFC_VER
-CString SVNStatus::GetLastErrorMsg() const
+CString SVNStatus::GetLastErrorMsg()
 {
 	return SVN::GetErrorString(m_err);
 }
 #else
-stdstring SVNStatus::GetLastErrorMsg() const
+stdstring SVNStatus::GetLastErrorMsg()
 {
 	stdstring msg;
 	char errbuf[256];
@@ -197,7 +196,7 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
 	svn_opt_revision_t rev;
 	rev.kind = svn_opt_revision_unspecified;
 	statuskind = svn_wc_status_none;
-	err = svn_client_status4 (&youngest,
+	err = svn_client_status3 (&youngest,
 							path.GetSVNApiPath(pool),
 							&rev,
 							getallstatus,
@@ -289,7 +288,7 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	hashbaton.hash = statushash;
 	hashbaton.exthash = exthash;
 	hashbaton.pThis = this;
-	m_err = svn_client_status4 (&youngest,
+	m_err = svn_client_status3 (&youngest,
 							path.GetSVNApiPath(m_pool),
 							&rev,
 							getstatushash,
@@ -338,7 +337,7 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 	hashbaton.exthash = m_externalhash;
 	hashbaton.pThis = this;
 	m_statushashindex = 0;
-	m_err = svn_client_status4 (&headrev,
+	m_err = svn_client_status3 (&headrev,
 							path.GetSVNApiPath(m_pool),
 							&rev,
 							getstatushash,
@@ -371,7 +370,7 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 	return (svn_wc_status2_t *) item->value;
 }
 
-unsigned int SVNStatus::GetVersionedCount() const
+unsigned int SVNStatus::GetVersionedCount()
 {
 	unsigned int count = 0;
 	const sort_item* item;
@@ -400,14 +399,14 @@ svn_wc_status2_t * SVNStatus::GetNextFileStatus(CTSVNPath& retPath)
 	return (svn_wc_status2_t *) item->value;
 }
 
-bool SVNStatus::IsExternal(const CTSVNPath& path) const
+bool SVNStatus::IsExternal(const CTSVNPath& path)
 {
 	if (apr_hash_get(m_externalhash, path.GetSVNApiPath(m_pool), APR_HASH_KEY_STRING))
 		return true;
 	return false;
 }
 
-bool SVNStatus::IsInExternal(const CTSVNPath& path) const
+bool SVNStatus::IsInExternal(const CTSVNPath& path)
 {
 	if (apr_hash_count(m_statushash) == 0)
 		return false;
@@ -635,22 +634,21 @@ int SVNStatus::LoadStringEx(HINSTANCE hInstance, UINT uID, LPTSTR lpBuffer, int 
 	return ret;
 }
 
-svn_error_t * SVNStatus::getallstatus(void * baton, const char * /*path*/, svn_wc_status2_t * status, apr_pool_t * /*pool*/)
+void SVNStatus::getallstatus(void * baton, const char * /*path*/, svn_wc_status2_t * status)
 {
 	svn_wc_status_kind * s = (svn_wc_status_kind *)baton;
 	*s = SVNStatus::GetMoreImportant(*s, status->text_status);
 	*s = SVNStatus::GetMoreImportant(*s, status->prop_status);
-	return SVN_NO_ERROR;
 }
 
-svn_error_t * SVNStatus::getstatushash(void * baton, const char * path, svn_wc_status2_t * status, apr_pool_t * /*pool*/)
+void SVNStatus::getstatushash(void * baton, const char * path, svn_wc_status2_t * status)
 {
 	hashbaton_t * hash = (hashbaton_t *)baton;
 	const StdStrAVector& filterList = hash->pThis->m_filterFileList;
 	if (status->text_status == svn_wc_status_external)
 	{
 		apr_hash_set (hash->exthash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, (const void*)1);
-		return SVN_NO_ERROR;
+		return;
 	}
 	if(filterList.size() > 0)
 	{
@@ -659,12 +657,11 @@ svn_error_t * SVNStatus::getstatushash(void * baton, const char * path, svn_wc_s
 		if(!binary_search(filterList.begin(), filterList.end(), path))
 		{
 			// This item is not in the filter - don't store it
-			return SVN_NO_ERROR;
+			return;
 		}
 	}
 	svn_wc_status2_t * statuscopy = svn_wc_dup_status2 (status, hash->pThis->m_pool);
 	apr_hash_set (hash->hash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, statuscopy);
-	return SVN_NO_ERROR;
 }
 
 apr_array_header_t * SVNStatus::sort_hash (apr_hash_t *ht,

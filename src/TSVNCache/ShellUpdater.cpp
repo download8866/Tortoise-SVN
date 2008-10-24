@@ -27,7 +27,6 @@ CShellUpdater::CShellUpdater(void)
 	m_hTerminationEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	m_hThread = INVALID_HANDLE_VALUE;
 	m_bRunning = FALSE;
-	m_bItemsAddedSinceLastUpdate = false;
 }
 
 CShellUpdater::~CShellUpdater(void)

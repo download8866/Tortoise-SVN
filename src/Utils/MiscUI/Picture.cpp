@@ -76,11 +76,11 @@ void CPicture::FreePictureData()
 				DestroyIcon(hIcons[i]);
 			}
 		}
-		delete [] hIcons;
+		delete hIcons;
 		hIcons = NULL;
 	}
 	if (lpIcons)
-		delete [] lpIcons;
+		delete lpIcons;
 }
 
 // Util function to ease loading of FreeImage library
@@ -204,14 +204,14 @@ bool CPicture::Load(stdstring sFilePathName)
 						}
 						else
 						{
-							delete [] lpIcons;
+							delete lpIcons;
 							lpIcons = NULL;
 							bResult = false;
 						}
 					}
 					else
 					{
-						delete [] lpIcons;
+						delete lpIcons;
 						lpIcons = NULL;
 						CloseHandle(hFile);
 					}
@@ -365,7 +365,7 @@ bool CPicture::Load(stdstring sFilePathName)
 						bResult = true;
 					}
 				}
-				delete [] buffer;
+				delete buffer;
 			}
 			CloseHandle(hFile);
 		}

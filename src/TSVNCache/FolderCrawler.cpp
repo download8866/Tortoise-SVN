@@ -32,9 +32,6 @@ CFolderCrawler::CFolderCrawler(void)
 	m_hThread = INVALID_HANDLE_VALUE;
 	m_lCrawlInhibitSet = 0;
 	m_crawlHoldoffReleasesAt = (long)GetTickCount();
-	m_bRun = false;
-	m_bPathsAddedSinceLastCrawl = false;
-	m_bItemsAddedSinceLastCrawl = false;
 }
 
 CFolderCrawler::~CFolderCrawler(void)

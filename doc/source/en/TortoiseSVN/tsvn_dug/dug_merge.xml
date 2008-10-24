@@ -15,7 +15,7 @@
 		It is important to understand how branching and merging works in
 		Subversion before you start using it, as it can become quite complex.
 		It is highly recommended that you read the chapter
-		<ulink url="http://svnbook.red-bean.com/en/1.5/svn.branchmerge.html">
+		<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.html">
 			<citetitle>Branching and Merging</citetitle>
 		</ulink>
 		in the Subversion book, which gives a full description and many 
@@ -45,15 +45,6 @@
 		The first page of the merge wizard asks you to select the method
 		you need.
 	</para>
-	<important>
-		<para>
-			Unlike the command line client, the merge dialog merges all
-			revisions of a range. For example, if you want to merge
-			revisions 5-7, you have to specify "5-7" or "5,6,7".
-			With the command line client, you would have to specify "4-7"
-			to include revision 5 in the merge.
-		</para>
-	</important>
 	<variablelist>
 		<varlistentry>
 			<term>Merge a range of revisions</term>
@@ -117,7 +108,7 @@
 					Another use case occurs when you are using vendor branches
 					and you need to merge the changes following a new vendor drop
 					into your trunk code. For more information read the chapter on
-					<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.vendorbr.html">
+					<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.vendorbr.html">
 						<citetitle>vendor branches</citetitle>
 					</ulink>
 					in the Subversion Book.
@@ -305,7 +296,7 @@
 			differences rather than history-based differences, check the
 			<guilabel>Ignore ancestry</guilabel> box. Read more about this 
 			topic in the Subversion book,
-			<ulink url="http://svnbook.red-bean.com/en/1.5/svn.branchmerge.advanced.html#svn.branchmerge.advanced.ancestry">
+			<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html#svn.branchmerge.copychanges.bestprac.ancestry">
 				<citetitle>Noticing or Ignoring Ancestry</citetitle>
 			</ulink>
 		</para>
@@ -362,9 +353,6 @@
 			If you want to apply another merge at a later time you will need to
 			know what you have already merged, as you do not want to port a
 			change more than once. For more information about this, refer to
-			<!-- NOTE this reference to the 1.4 book is deliberate. This is the
-			     pre-mergetracking stuff which is not covered in version 1.5
-			-->
 			<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html#svn.branchmerge.copychanges.bestprac">
 				<citetitle>Best Practices for Merging</citetitle>
 			</ulink>
@@ -526,36 +514,6 @@
 			This dialog is very easy. All you have to do is set the options for
 			the merge, as described in <xref linkend="tsvn-dug-merge-options"/>.
 			The rest is done by TortoiseSVN automatically using merge tracking.
-		</para>
-	</sect2>
-	<sect2 id="tsvn-dug-merge-maintenance">
-		<title>Feature Branch Maintenance</title>
-		<para>
-			When you develop a new feature on a separate branch it is a good
-			idea to work out a policy for re-integration when the feature is
-			complete. If other work is going on in <literal>trunk</literal>
-			at the same time you may find that the differences become significant
-			over time, and merging back becomes a nightmare.
-		</para>
-		<para>
-			If the feature is relatively simple and development will not take
-			long then you can adopt a simple approach, which is to keep
-			the branch entirely separate until the feature is complete,
-			then merge the branch changes back into trunk. In the merge wizard
-			this would be a simple <guilabel>Merge a range of revisions</guilabel>,
-			with the revision range being the revision span of the branch.
-		</para>
-		<para>
-			If the feature is going to take longer and you need to account
-			for changes in <literal>trunk</literal>, then you need to keep
-			the branch synchronised. This simply means that periodically
-			you merge trunk changes into the branch, so that the branch
-			contains all the trunk changes <emphasis>plus</emphasis> the
-			new feature. The synchronisation process uses
-			<guilabel>Merge a range of revisions</guilabel>. When the feature
-			is complete then you can merge it back to <literal>trunk</literal>
-			using either <guilabel>Reintegrate a branch</guilabel> or
-			<guilabel>Merge two different trees</guilabel>.
 		</para>
 	</sect2>
 </sect1>

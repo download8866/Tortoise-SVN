@@ -145,9 +145,11 @@ BOOL CSetDialogs::OnInitDialog()
 	m_tooltips.AddTool(IDC_SHORTDATEFORMAT, IDS_SETTINGS_SHORTDATEFORMAT_TT);
 	m_tooltips.AddTool(IDC_SYSTEMLOCALEFORDATES, IDS_SETTINGS_USESYSTEMLOCALEFORDATES_TT);
 	m_tooltips.AddTool(IDC_AUTOCLOSECOMBO, IDS_SETTINGS_AUTOCLOSE_TT);
+	m_tooltips.AddTool(IDC_AUTOCOMPLETION, IDS_SETTINGS_AUTOCOMPLETION_TT);
 	m_tooltips.AddTool(IDC_WCURLFROM, IDS_SETTINGS_USEWCURL_TT);
 	m_tooltips.AddTool(IDC_CHECKOUTPATH, IDS_SETTINGS_CHECKOUTPATH_TT);
 	m_tooltips.AddTool(IDC_CHECKOUTURL, IDS_SETTINGS_CHECKOUTURL_TT);
+	m_tooltips.AddTool(IDC_CACHELOGS, IDS_SETTINGS_CACHELOGS_TT);
 	m_tooltips.AddTool(IDC_DIFFBYDOUBLECLICK, IDS_SETTINGS_DIFFBYDOUBLECLICK_TT);
 	m_tooltips.AddTool(IDC_USERECYCLEBIN, IDS_SETTINGS_USERECYCLEBIN_TT);
 
@@ -198,23 +200,51 @@ BOOL CSetDialogs::OnApply()
 		m_sFontName = m_cFontNames.GetSelFont()->m_strName;
 	else
 		m_sFontName = m_regFontName;
+	m_regAutoClose = m_dwAutoClose;
+	if (m_regAutoClose.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regAutoClose.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regShortDateFormat = m_bShortDateFormat;
+	if (m_regShortDateFormat.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regShortDateFormat.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseSystemLocaleForDates = m_bUseSystemLocaleForDates;
+	if (m_regUseSystemLocaleForDates.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseSystemLocaleForDates.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	long val = _ttol(m_sDefaultLogs);
+	if (val > 0)
+	{
+		m_regDefaultLogs = val;
+		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	}
+	else
+	{
+		m_regDefaultLogs = 100;
+		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	}
 
-    Store (m_dwAutoClose, m_regAutoClose);
-	Store (m_bShortDateFormat, m_regShortDateFormat);
-    Store (m_bUseSystemLocaleForDates, m_regUseSystemLocaleForDates);
-
-    long val = _ttol(m_sDefaultLogs);
-    Store (val > 0 ? val : 100, m_regDefaultLogs);
-
-    Store (m_sFontName, m_regFontName);
-    Store (m_dwFontSize, m_regFontSize);
-	Store (m_bUseWCURL, m_regUseWCURL);
-	Store (m_sDefaultCheckoutPath, m_regDefaultCheckoutPath);
-	Store (m_sDefaultCheckoutUrl, m_regDefaultCheckoutUrl);
-	Store (m_bDiffByDoubleClick, m_regDiffByDoubleClick);
-	Store (m_bUseRecycleBin, m_regUseRecycleBin);
-
-    SetModified(FALSE);
+	m_regFontName = m_sFontName;
+	if (m_regFontName.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regFontName.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regFontSize = m_dwFontSize;
+	if (m_regFontSize.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regFontSize.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseWCURL = m_bUseWCURL;
+	if (m_regUseWCURL.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseWCURL.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDefaultCheckoutPath = m_sDefaultCheckoutPath;
+	if (m_regDefaultCheckoutPath.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutPath.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDefaultCheckoutUrl = m_sDefaultCheckoutUrl;
+	if (m_regDefaultCheckoutUrl.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutUrl.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDiffByDoubleClick = m_bDiffByDoubleClick;
+	if (m_regDiffByDoubleClick.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDiffByDoubleClick.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseRecycleBin = m_bUseRecycleBin;
+	if (m_regUseRecycleBin.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseRecycleBin.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	SetModified(FALSE);
 	return ISettingsPropPage::OnApply();
 }
 

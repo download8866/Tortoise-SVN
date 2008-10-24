@@ -30,8 +30,6 @@
 #include "LogDlgHelper.h"
 #include "FilterEdit.h"
 #include "SVNRev.h"
-#include "Tooltip.h"
-#include "HintListCtrl.h"
 
 #include <regex>
 using namespace std;
@@ -48,7 +46,6 @@ using namespace std;
 #define LOGFILTER_AUTHORS  4
 #define LOGFILTER_REVS	   5
 #define LOGFILTER_REGEX	   6
-#define LOGFILTER_BUGID    7
 
 
 #define LOGFILTER_TIMER		101
@@ -145,7 +142,7 @@ private:
 	void Refresh (bool autoGoOnline = false);
 	BOOL IsDiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
 	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
-	void EditAuthor(const CLogDataVector& logs);
+	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
 	void DoSizeV2(int delta);
@@ -192,12 +189,11 @@ public:
 	ProjectProperties	m_ProjectProperties;
 	WORD				m_wParam;
 private:
-	HFONT				m_boldFont;
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CString				m_sSelfRelativeURL;
 	CString				m_sURL;
-	CHintListCtrl		m_LogList;
+	CListCtrl			m_LogList;
 	CListCtrl			m_ChangedFileListCtrl;
 	CFilterEdit			m_cFilter;
 	CProgressCtrl		m_LogProgress;
@@ -208,7 +204,6 @@ private:
 	SVNRev				m_startrev;
 	SVNRev				m_LogRevision;
 	SVNRev				m_endrev;
-	SVNRev				m_wcRev;
 	SVNRevRangeArray	m_selectedRevs;
 	SVNRevRangeArray	m_selectedRevsOneRange;
 	bool				m_bSelectionMustBeContinuous;
@@ -251,7 +246,6 @@ private:
 	static int			m_nSortColumnPathList;
 	static bool			m_bAscendingPathList;
 	CRegDWORD			m_regLastStrict;
-	CRegDWORD			m_regMaxBugIDColWidth;
 	CButton				m_cHidePaths;
 	bool				m_bShowedAll;
 	CString				m_sTitle;
@@ -260,7 +254,7 @@ private:
 	CString				m_sLogInfo;
 	std::set<svn_revnum_t> m_mergedRevs;
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 
 	CTime				m_timFrom;
 	CTime				m_timTo;

@@ -19,8 +19,10 @@
 #include "StdAfx.h"
 #include ".\stringdictonary.h"
 
-#include "./Streams/BLOBInStream.h"
-#include "./Streams/BLOBOutStream.h"
+#include "BLOBInStream.h"
+#include "BLOBOutStream.h"
+#include "DiffIntegerInStream.h"
+#include "DiffIntegerOutStream.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache

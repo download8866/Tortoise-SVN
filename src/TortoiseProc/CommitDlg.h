@@ -27,8 +27,6 @@
 #include "SplitterControl.h"
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
-#include "Tooltip.h"
-#include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 
 #include <regex>
 using namespace std;
@@ -108,7 +106,6 @@ public:
 	BOOL				m_bKeepChangeList;
 	INT_PTR				m_itemsCount;
 	bool				m_bSelectFilesForCommit;
-	CComPtr<IBugTraqProvider> m_BugTraqProvider;
 
 private:
 	CWinThread*			m_pThread;
@@ -118,7 +115,7 @@ private:
 	volatile LONG		m_bBlock;
 	volatile LONG		m_bThreadRunning;
 	volatile LONG		m_bRunThread;
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 	CRegDWORD			m_regAddBeforeCommit;
 	CRegDWORD			m_regKeepChangelists;
 	ProjectProperties	m_ProjectProperties;
@@ -134,5 +131,4 @@ private:
 	CPathWatcher		m_pathwatcher;
 
 	CBugTraqAssociation m_bugtraq_association;
-
 };

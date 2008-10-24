@@ -55,13 +55,11 @@ CShellExt::CShellExt(FileState state)
     InitCommonControlsEx(&used);
 	LoadLangDll();
 
-	if (fullver >= 0x0600)
+	m_gdipToken = NULL;
+	if(fullver >= 0x600)
 	{
-		HMODULE hUxTheme = ::GetModuleHandle (_T("UXTHEME.DLL"));
-
-		pfnGetBufferedPaintBits = (FN_GetBufferedPaintBits)::GetProcAddress(hUxTheme, "GetBufferedPaintBits");
-		pfnBeginBufferedPaint = (FN_BeginBufferedPaint)::GetProcAddress(hUxTheme, "BeginBufferedPaint");
-		pfnEndBufferedPaint = (FN_EndBufferedPaint)::GetProcAddress(hUxTheme, "EndBufferedPaint");
+		GdiplusStartupInput gdiplusStartupInput;
+		GdiplusStartup(&m_gdipToken, &gdiplusStartupInput, NULL);
 	}
 }
 
@@ -75,6 +73,9 @@ CShellExt::~CShellExt()
 	bitmaps.clear();
 	g_cRefThisDll--;
 	g_exts.erase(this);
+
+	if(m_gdipToken)
+		GdiplusShutdown(m_gdipToken);
 }
 
 void LoadLangDll()

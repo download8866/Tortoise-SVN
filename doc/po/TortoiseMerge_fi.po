@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2008-07-11 23:46 +0000\n"
-"PO-Revision-Date: 2008-07-29 03:51+0200\n"
+"POT-Creation-Date: 2008-07-20 22:21 +0000\n"
+"PO-Revision-Date: 2008-07-29 04:14+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1294,7 +1294,7 @@ msgstr "Haara"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1402
 msgid "A term frequently used in revision control systems to describe what happens when development forks at a particular point and follows 2 separate paths. You can create a branch off the main development line so as to develop a new feature without rendering the main line unstable. Or you can branch a stable release to which you make only bug fixes, while new developments take place on the unstable trunk. In Subversion a branch is implemented as a <quote>cheap copy</quote>."
-msgstr "Versionhallintajärjestelmissä usein käytetty termi, joka kuvaa, mitä tapahtuu, kun kehitystyö haarautuu kahteen erilliseen polkuun. Pääkehityshaara joudutaan haaroittamaan esimerkiksi silloin, kun tarvitaan uusi ominaisuus, jota voidaan kehittää ajan kanssa tekemättä päähaarasta epävakaata. Toinen vaihtoehto on tehdä päähaarasta julkaisua varten haara, johon tehdään vain virhekorjauksia, ja samaan aikaan uusia toimintoja kehitetään epävakaaseen päähaaraan.  Subversion toteuttaa haarat <quote>halpoina kopioina</quote>."
+msgstr "Versionhallintajärjestelmissä usein käytetty termi, jolla kuvataan, mitä tapahtuu kun kehitystyö haarautuu kahteen eri polkuun. Pääkehityshaara kannattaa haaroittaa, kun tarvitaan uusi ominaisuus, jota on kehitettävä ajan kanssa tekemättä päähaarasta epävakaata. Toinen vaihtoehto on tehdä päähaarasta julkaisua varten oma haara, johon tehdään vain virhekorjauksia samalla, kun uusia toimintoja kehitetään epävakaaseen päähaaraan.  Subversion toteuttaa haarat <quote>halpoina kopioina</quote>. "
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1415
@@ -1354,7 +1354,7 @@ msgstr "Poisto"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1477
 msgid "When you delete a versioned item (and commit the change) the item no longer exists in the repository after the committed revision. But of course it still exists in earlier repository revisions, so you can still access it. If necessary, you can copy a deleted item and <quote>resurrect</quote> it complete with history."
-msgstr "Kun poistat versioidun tiedoston tai hakemiston (ja toimitat muutokset arkistoon), sitä ei enää löydy arkistosta toimitusta seuraavissa versioissa.  Se on tietysti kuitenkin yhä olemassa aiemmissa versioissa, joten voit edelleen päästä siihen käsiksi. Mikäli tarpeen, voit kopioida poistetun tiedoston ja <quote>herättää sen henkiin</quote>, muutoshistoria mukaan lukien."
+msgstr "Kun poistat versioidun tiedoston tai hakemiston (ja toimitat muutokset arkistoon), sitä ei ole enää arkistossa toimitusta seuraavissa versioissa.  Se on kuitenkin yhä olemassa ja saatavilla aiemmissa versioissa. Mikäli tarpeen, voit kopioida poistetun tiedoston ja <quote>herättää sen henkiin</quote> muutoshistoria mukaan lukien."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1487
@@ -1384,7 +1384,7 @@ msgstr "FSFS"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1508
 msgid "A proprietary Subversion filesystem backend for repositories. Can be used on network shares. Default for 1.2 and newer repositories."
-msgstr "Subversion-ohjelman tarpeisiin kehitetty tiedostojärjestelmä arkistojen toteutukseen. Voidaan käyttää verkkojakojen (file://) kanssa.  Oletusarvoinen arkistojen toteutustapa Subversion-versiosta 1.2 lähtien."
+msgstr "Tiedostojärjestelmä Subversion-arkistojen toteutukseen. Voidaan käyttää verkkojakojen (file://) kanssa.  Oletusarvoinen arkistojen toteutustapa Subversion-versiosta 1.2 lähtien."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1515

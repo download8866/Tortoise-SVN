@@ -23,11 +23,9 @@
 #include "ProgressDlg.h"
 #include "SVN.h"
 #include "InputLogDlg.h"
-#include "ShellUpdater.h"
 
 bool RemoveCommand::Execute()
 {
-	bool bRet = false;
 	// removing items from a working copy is done item-by-item so we
 	// have a chance to show a progress bar
 	//
@@ -35,7 +33,7 @@ bool RemoveCommand::Execute()
 	// ask the user for a log message.
 	BOOL bForce = FALSE;
 	SVN svn;
-	if ((pathList.GetCount())&&(SVN::PathIsURL(pathList[0])))
+	if ((pathList.GetCount())&&(SVN::PathIsURL(pathList[0].GetSVNPathString())))
 	{
 		// Delete using URL's, not wc paths
 		svn.SetPromptApp(&theApp);
@@ -56,7 +54,6 @@ bool RemoveCommand::Execute()
 				CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 				return FALSE;
 			}
-			return true;
 		}
 		return FALSE;
 	}
@@ -103,8 +100,6 @@ bool RemoveCommand::Execute()
 						{
 							CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
-						else
-							bRet = true;
 					}
 				}
 				else
@@ -112,7 +107,5 @@ bool RemoveCommand::Execute()
 			}
 		}
 	}
-	if (bRet)
-		CShellUpdater::Instance().AddPathsForUpdate(pathList);
-	return bRet;
+	return true;
 }

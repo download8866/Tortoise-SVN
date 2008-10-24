@@ -57,21 +57,6 @@ private:
 
 	std::vector<std::string> relPathElements;
 
-#ifdef _DEBUG
-    /// the path expanded into a string - for easier debugging only
-
-    std::string _path;
-
-    /// debug-only extension: update the _path member as well
-    /// (the base class will not take relPathElements into account)
-
-    void SetIndex (index_t newIndex) 
-	{
-        inherited::SetIndex (newIndex);
-        _path = GetPath();
-	}
-#endif
-
 public:
 
 	// construction / destruction
@@ -83,9 +68,6 @@ public:
 
 	explicit CDictionaryBasedTempPath (const CDictionaryBasedPath& path)
 		: inherited (path)
-    #ifdef _DEBUG
-        , _path (GetPath())
-    #endif
 	{
 	}
 
@@ -129,12 +111,6 @@ public:
 	{
 		return inherited::IsRoot() && relPathElements.empty();
 	}
-
-    index_t GetDepth() const
-    {
-        return inherited::GetDepth() 
-             + static_cast<index_t>(relPathElements.size());
-    }
 
 	CDictionaryBasedTempPath GetCommonRoot 
 		(const CDictionaryBasedTempPath& rhs) const;

@@ -42,12 +42,11 @@ class CSVNStatusListCtrlDropTarget;
 #define SVNSLC_COLLOCKCOMMENT		0x000000800
 #define SVNSLC_COLAUTHOR			0x000001000
 #define	SVNSLC_COLREVISION			0x000002000
-#define	SVNSLC_COLREMOTEREVISION	0x000004000
-#define	SVNSLC_COLDATE				0x000009000
-#define SVNSLC_COLSVNNEEDSLOCK		0x000010000
-#define SVNSLC_COLCOPYFROM			0x000020000
-#define	SVNSLC_COLMODIFICATIONDATE	0x000040000
-#define SVNSLC_NUMCOLUMNS		19
+#define	SVNSLC_COLDATE				0x000004000
+#define SVNSLC_COLSVNNEEDSLOCK		0x000008000
+#define SVNSLC_COLCOPYFROM			0x000010000
+#define	SVNSLC_COLMODIFICATIONDATE	0x000020000
+#define SVNSLC_NUMCOLUMNS		18
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
 #define SVNSLC_SHOWNORMAL		0x000000002
@@ -119,7 +118,6 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPPROPERTIES			0x00020000
 #define SVNSLC_POPREPAIRMOVE			0x00040000
 #define SVNSLC_POPCHANGELISTS			0x00080000
-#define SVNSLC_POPBLAME					0x00100000
 
 #define SVNSLC_IGNORECHANGELIST			_T("ignore-on-commit")
 
@@ -248,7 +246,6 @@ public:
 			, copyfrom_rev(0)
 			, last_commit_date(0)
 			, last_commit_rev(0)
-			, remoterev(0)
 			, textstatus(svn_wc_status_unversioned)
 			, propstatus(svn_wc_status_unversioned)
 			, remotestatus(svn_wc_status_unversioned)
@@ -327,10 +324,6 @@ public:
 		{
 			return changelist;
 		}
-		CString GetURL() const
-		{
-			return url;
-		}
 	public:
 		svn_wc_status_kind		status;					///< local status
 		svn_wc_status_kind		textstatus;				///< local text status
@@ -353,7 +346,6 @@ public:
 		CString					last_commit_author;		///< the author which last committed this item
 		apr_time_t				last_commit_date;		///< the date when this item was last committed
 		svn_revnum_t			last_commit_rev;		///< the revision where this item was last committed
-		svn_revnum_t			remoterev;				///< the revision in HEAD of the repository
 		bool					copied;					///< if the file/folder is added-with-history
 		bool					switched;				///< if the file/folder is switched to another url
 		bool					checked;				///< if the file is checked in the list control
@@ -695,13 +687,6 @@ public:
 	CTSVNPath GetCommonDirectory(bool bStrict);
 
 	/**
-	 * Returns the parent url of all entries in the control.
-	 * if \a bStrict is set to false, then the paths passed to the control
-	 * to fetch the status (in GetStatus()) are used if possible.
-	 */
-	CTSVNPath GetCommonURL(bool bStrict);
-
-	/**
 	 * Sets a pointer to a boolean variable which is checked periodically
 	 * during the status fetching. As soon as the variable changes to true,
 	 * the operations stops.
@@ -898,7 +883,6 @@ private:
 	bool						m_bHasIgnoreGroup;
 	CTSVNPathList				m_ConflictFileList;
 	CTSVNPathList				m_StatusFileList;
-	CTSVNPathList				m_StatusUrlList;
 	CString						m_sLastError;
 
 	LONG						m_nUnversioned;

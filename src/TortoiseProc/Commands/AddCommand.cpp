@@ -21,51 +21,36 @@
 
 #include "AddDlg.h"
 #include "SVNProgressDlg.h"
-#include "ShellUpdater.h"
 
 bool AddCommand::Execute()
 {
-	bool bRet = false;
 	if (parser.HasKey(_T("noui")))
 	{
 		SVN svn;
 		ProjectProperties props;
 		props.ReadPropsPathList(pathList);
-		bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
-		CShellUpdater::Instance().AddPathsForUpdate(pathList);
+		svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 	}
 	else
 	{
-		if (pathList.AreAllPathsFiles())
+		CAddDlg dlg;
+		dlg.m_pathList = pathList;
+		if (dlg.DoModal() == IDOK)
 		{
-			SVN svn;
+			if (dlg.m_pathList.GetCount() == 0)
+				return FALSE;
+			CSVNProgressDlg progDlg;
+			theApp.m_pMainWnd = &progDlg;
+			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
+			if (parser.HasVal(_T("closeonend")))
+				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
+			progDlg.SetPathList(dlg.m_pathList);
 			ProjectProperties props;
-			props.ReadPropsPathList(pathList);
-			bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
-			CShellUpdater::Instance().AddPathsForUpdate(pathList);
-		}
-		else
-		{
-			CAddDlg dlg;
-			dlg.m_pathList = pathList;
-			if (dlg.DoModal() == IDOK)
-			{
-				if (dlg.m_pathList.GetCount() == 0)
-					return FALSE;
-				CSVNProgressDlg progDlg;
-				theApp.m_pMainWnd = &progDlg;
-				progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
-				if (parser.HasVal(_T("closeonend")))
-					progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-				progDlg.SetPathList(dlg.m_pathList);
-				ProjectProperties props;
-				props.ReadPropsPathList(dlg.m_pathList);
-				progDlg.SetProjectProperties(props);
-				progDlg.SetItemCount(dlg.m_pathList.GetCount());
-				progDlg.DoModal();
-				bRet = !progDlg.DidErrorsOccur();
-			}
+			props.ReadPropsPathList(dlg.m_pathList);
+			progDlg.SetProjectProperties(props);
+			progDlg.SetItemCount(dlg.m_pathList.GetCount());
+			progDlg.DoModal();
 		}
 	}
-	return bRet;
+	return true;
 }

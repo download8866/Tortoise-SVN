@@ -239,7 +239,6 @@ protected:
 	BOOL			m_bViewLinenumbers;
 	BOOL			m_bIsHidden;
 	BOOL			m_bMouseWithin;
-	BOOL			m_bIconLFs;
 	int				m_nLineHeight;
 	int				m_nCharWidth;
 	int				m_nMaxLineLength;

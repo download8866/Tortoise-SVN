@@ -41,7 +41,6 @@ bool RevertCommand::Execute()
 		progDlg.SetItemCount(dlg.m_selectedPathList.GetCount());
 		progDlg.SetSelectedList(dlg.m_selectedPathList);
 		progDlg.DoModal();
-		return !progDlg.DidErrorsOccur();
 	}
-	return false;
+	return true;
 }

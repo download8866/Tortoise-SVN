@@ -87,7 +87,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		for (int i=0; i<props.GetCount(); ++i)
 		{
 			CString sPropName = props.GetItemName(i).c_str();
-			CString sPropVal = CUnicodeUtils::GetUnicode(((char *)props.GetItemValue(i).c_str()));
+			CString sPropVal = CString(((char *)props.GetItemValue(i).c_str()));
 			if ((!bFoundBugtraqLabel)&&(sPropName.Compare(BUGTRAQPROPNAME_LABEL)==0))
 			{
 				sLabel = sPropVal;
@@ -245,7 +245,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
-		propsPath = path;
 		path = path.GetContainingDirectory();
 		if ((!path.HasAdminDir())||(path.IsEmpty()))
 		{
@@ -254,10 +253,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
 				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary)
-			{
 				return TRUE;
-			}
-			propsPath.Reset();
 			return FALSE;
 		}
 	}

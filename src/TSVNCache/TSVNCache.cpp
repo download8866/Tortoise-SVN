@@ -51,8 +51,6 @@ TCHAR				szCurrentCrawledPath[MAX_CRAWLEDPATHS][MAX_CRAWLEDPATHSLEN];
 int					nCurrentCrawledpathIndex = 0;
 CComAutoCriticalSection critSec;
 
-volatile LONG		nThreadCount = 0;
-
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName)
 {
@@ -124,7 +122,11 @@ void DebugOutputLastError()
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
-	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, GetCacheMutexName());
+#ifdef WIN64
+	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection64"));
+#else
+	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection"));
+#endif
 
 	if (hReloadProtection == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
 	{
@@ -134,7 +136,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	}
 
 	apr_initialize();
-	svn_dso_initialize2();
+	svn_dso_initialize();
 	g_SVNAdminDir.Init();
 	CSVNStatusCache::Create();
 	CSVNStatusCache::Instance().Init();
@@ -652,7 +654,7 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 	// The thread's parameter is a handle to a pipe instance. 
 
 	hPipe = (HANDLE) lpvParam; 
-	InterlockedIncrement(&nThreadCount);
+
 	while (bRun) 
 	{ 
 		// Read client requests from the pipe. 
@@ -669,9 +671,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 			DisconnectNamedPipe(hPipe); 
 			CloseHandle(hPipe); 
 			ATLTRACE("Instance thread exited\n");
-			InterlockedDecrement(&nThreadCount);
-			if (nThreadCount == 0)
-				PostMessage(hWnd, WM_CLOSE, 0, 0);
 			return 1;
 		}
 
@@ -691,9 +690,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 			DisconnectNamedPipe(hPipe); 
 			CloseHandle(hPipe); 
 			ATLTRACE("Instance thread exited\n");
-			InterlockedDecrement(&nThreadCount);
-			if (nThreadCount == 0)
-				PostMessage(hWnd, WM_CLOSE, 0, 0);
 			return 1;
 		}
 	} 
@@ -706,9 +702,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 	DisconnectNamedPipe(hPipe); 
 	CloseHandle(hPipe); 
 	ATLTRACE("Instance thread exited\n");
-	InterlockedDecrement(&nThreadCount);
-	if (nThreadCount == 0)
-		PostMessage(hWnd, WM_CLOSE, 0, 0);
 	return 0;
 }
 

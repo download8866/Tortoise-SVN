@@ -30,7 +30,6 @@ CCachedDirectory::CCachedDirectory(void)
 	m_currentStatusFetchingPathTicks = 0;
 	m_bCurrentFullStatusValid = false;
 	m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-	m_bRecursive = true;
 }
 
 CCachedDirectory::~CCachedDirectory(void)
@@ -47,7 +46,6 @@ CCachedDirectory::CCachedDirectory(const CTSVNPath& directoryPath)
 	m_currentStatusFetchingPathTicks = 0;
 	m_bCurrentFullStatusValid = false;
 	m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-	m_bRecursive = true;
 }
 
 BOOL CCachedDirectory::SaveToDisk(FILE * pFile)
@@ -396,7 +394,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				m_currentStatusFetchingPathTicks = GetTickCount();
 			}
 			ATLTRACE(_T("svn_cli_stat for '%s' (req %s)\n"), m_directoryPath.GetWinPath(), path.GetWinPath());
-			svn_error_t* pErr = svn_client_status4 (
+			svn_error_t* pErr = svn_client_status3 (
 				NULL,
 				m_directoryPath.GetSVNApiPath(subPool),
 				&revision,
@@ -540,12 +538,12 @@ CCachedDirectory::GetFullPathString(const CString& cacheKey)
 	return m_directoryPath.GetWinPathString() + _T("\\") + cacheKey;
 }
 
-svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t * /*pool*/)
+void CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status)
 {
 	CCachedDirectory* pThis = (CCachedDirectory*)baton;
 
 	if (path == NULL)
-		return SVN_NO_ERROR;
+		return;
 		
 	CTSVNPath svnPath;
 
@@ -600,8 +598,7 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 				&&(CSVNStatusCache::Instance().IsUnversionedAsModified()))
 			{
 				// treat unversioned files as modified
-				if (pThis->m_mostImportantFileStatus != svn_wc_status_added)
-					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
+				pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
 			}
 		}
 	}
@@ -656,15 +653,12 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 			{
 				// make this unversioned item change the most important status of this
 				// folder to modified if it doesn't already have another status
-				if (pThis->m_mostImportantFileStatus != svn_wc_status_added)
-					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
+				pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
 			}
 		}
 	}
 
 	pThis->AddEntry(svnPath, status);
-
-	return SVN_NO_ERROR;
 }
 
 bool 
@@ -840,8 +834,7 @@ void CCachedDirectory::RefreshMostImportant()
 			&&(CSVNStatusCache::Instance().IsUnversionedAsModified()))
 		{
 			// treat unversioned files as modified
-			if (newStatus != svn_wc_status_added)
-				newStatus = SVNStatus::GetMoreImportant(newStatus, svn_wc_status_modified);
+			newStatus = SVNStatus::GetMoreImportant(newStatus, svn_wc_status_modified);
 		}
 	}
 	if (newStatus != m_mostImportantFileStatus)

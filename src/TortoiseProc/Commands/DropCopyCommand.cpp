@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #include "MessageBox.h"
 #include "RenameDlg.h"
 #include "SVN.h"
-#include "ShellUpdater.h"
 
 bool DropCopyCommand::Execute()
 {
@@ -41,7 +40,6 @@ bool DropCopyCommand::Execute()
 		do 
 		{
 			CRenameDlg renDlg;
-			renDlg.m_windowtitle.LoadString(IDS_PROC_COPYRENAME);
 			renDlg.m_name = pathList[0].GetFileOrDirectoryName();
 			if (renDlg.DoModal() != IDOK)
 			{
@@ -51,10 +49,13 @@ bool DropCopyCommand::Execute()
 		} while(sNewName.IsEmpty() || PathFileExists(sDroppath+_T("\\")+sNewName));
 	}
 	CProgressDlg progress;
-	progress.SetTitle(IDS_PROC_COPYING);
-	progress.SetAnimation(IDR_MOVEANI);
-	progress.SetTime(true);
-	progress.ShowModeless(CWnd::FromHandle(hwndExplorer));
+	if (progress.IsValid())
+	{
+		progress.SetTitle(IDS_PROC_COPYING);
+		progress.SetAnimation(IDR_MOVEANI);
+		progress.SetTime(true);
+		progress.ShowModeless(CWnd::FromHandle(hwndExplorer));
+	}
 	for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 	{
 		const CTSVNPath& sourcePath = pathList[nPath];
@@ -93,8 +94,6 @@ bool DropCopyCommand::Execute()
 			CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			return FALSE;		//get out of here
 		}
-		else
-			CShellUpdater::Instance().AddPathForUpdate(fullDropPath);
 		count++;
 		if (progress.IsValid())
 		{

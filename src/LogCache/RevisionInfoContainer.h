@@ -304,7 +304,7 @@ public:
 		/// data access (raw change: don't mask out HAS_COPY_FROM)
 
 		CRevisionInfoContainer::TChangeAction GetAction() const;
-		int GetRawChange() const;
+		CRevisionInfoContainer::TChangeAction GetRawChange() const;
 		CDictionaryBasedPath GetPath() const;
         index_t GetPathID() const;
 
@@ -580,7 +580,7 @@ CRevisionInfoContainer::CChangesIterator::GetAction() const
 	return (CRevisionInfoContainer::TChangeAction)(action);
 }
 
-inline int 
+inline CRevisionInfoContainer::TChangeAction 
 CRevisionInfoContainer::CChangesIterator::GetRawChange() const
 {
 	assert (IsValid());

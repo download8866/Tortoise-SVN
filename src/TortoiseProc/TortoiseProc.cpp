@@ -65,13 +65,12 @@ CTortoiseProcApp::CTortoiseProcApp()
 	int argc = 0;
 	const char* const * argv = NULL;
 	apr_app_initialize(&argc, &argv, NULL);
-	svn_dso_initialize2();
+	svn_dso_initialize();
 	SYS_IMAGE_LIST();
 	CHooks::Create();
 	g_SVNAdminDir.Init();
 	m_bLoadUserToolbars = FALSE;
 	m_bSaveState = FALSE;
-	retSuccess = false;
 }
 
 CTortoiseProcApp::~CTortoiseProcApp()
@@ -251,8 +250,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	else
 	{
 		CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("path")));
-		int asterisk = sPathArgument.Find('*');
-		cmdLinePath.SetFromUnknown(asterisk >= 0 ? sPathArgument.Left(asterisk) : sPathArgument);
+		cmdLinePath.SetFromUnknown(sPathArgument);
 		pathList.LoadFromAsteriskSeparatedString(sPathArgument);
 	}
 	
@@ -363,7 +361,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		cmd->SetExplorerHwnd(hWndExplorer);
 		cmd->SetParser(parser);
 		cmd->SetPaths(pathList, cmdLinePath);
-		retSuccess = cmd->Execute();
+		cmd->Execute();
 		delete cmd;
 	}
 
@@ -553,12 +551,4 @@ void CTortoiseProcApp::EnableCrashHandler()
 	{
 		crasher.Enable(FALSE);
 	}
-}
-
-int CTortoiseProcApp::ExitInstance()
-{
-	CWinAppEx::ExitInstance();
-	if (retSuccess)
-		return 0;
-	return -1;
 }

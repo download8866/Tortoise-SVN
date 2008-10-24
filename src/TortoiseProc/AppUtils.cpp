@@ -424,12 +424,12 @@ BOOL CAppUtils::StartTextViewer(CString file)
 	TCHAR * buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(viewer, buf, len);
 	viewer = buf;
-	delete [] buf;
+	delete buf;
 	len = ExpandEnvironmentStrings(file, NULL, 0);
 	buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(file, buf, len);
 	file = buf;
-	delete [] buf;
+	delete buf;
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
@@ -757,7 +757,7 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 		SVN::UrlToPath(strFile);
 
 		SVN svn;
-		if (svn.IsRepository(CTSVNPath(strFile)))
+		if (svn.IsRepository(strFile))
 		{
 			// browse repository - show repository browser
 			SVN::preparePath(strUrl);
@@ -973,7 +973,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1, 
 									 const CTSVNPath& url2, const SVNRev& rev2, 
 									 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */,  
-									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool /* blame = false */)
+									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */)
 {
 	CString sCmd;
 	sCmd.Format(_T("%s /command:showcompare /unified"),

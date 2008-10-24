@@ -21,12 +21,7 @@ class CDlgTemplate
 
 public:
 
-	CDlgTemplate()
-	{
-		usedBufferLength = 0;
-		totalBufferLength = 0;
-		dialogTemplate = 0;
-	};
+	CDlgTemplate(){};
     CDlgTemplate(LPCTSTR caption, DWORD style, short x, short y, short w, short h,
         LPCTSTR font = NULL, LONG fontSize = 8)
     {

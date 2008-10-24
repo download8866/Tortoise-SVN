@@ -87,7 +87,7 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 	ITEMIS_INSVN, ITEMIS_NORMAL|ITEMIS_ADDED, ITEMIS_FOLDERINSVN, ITEMIS_ADDED, 0, 0, 0, 0 },
 
 	{ ShellMenuRevert,						MENUREVERT,			IDI_REVERT,				IDS_MENUUNDOADD,			IDS_MENUDESCUNDOADD,
-	ITEMIS_ADDED, ITEMIS_NORMAL, ITEMIS_FOLDERINSVN|ITEMIS_ADDED, 0, 0, 0, 0, 0 },
+	ITEMIS_ADDED|ITEMIS_ONLYONE, ITEMIS_NORMAL, ITEMIS_FOLDERINSVN|ITEMIS_ADDED, 0, 0, 0, 0, 0 },
 
 	{ ShellMenuDelUnversioned,				MENUDELUNVERSIONED,	IDI_DELUNVERSIONED,		IDS_MENUDELUNVERSIONED,		IDS_MENUDESCDELUNVERSIONED,
 	ITEMIS_FOLDER|ITEMIS_INSVN|ITEMIS_EXTENDED, 0, ITEMIS_FOLDER|ITEMIS_FOLDERINSVN|ITEMIS_EXTENDED, 0, 0, 0, 0, 0 },
@@ -156,10 +156,6 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 
 	{ ShellMenuProperties,					MENUPROPERTIES,		IDI_PROPERTIES,			IDS_MENUPROPERTIES,			IDS_MENUDESCPROPERTIES,
 	ITEMIS_INSVN, 0, ITEMIS_FOLDERINSVN, 0, 0, 0, 0, 0 },
-
-	{ ShellSeparator, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ ShellMenuClipPaste,					MENUCLIPPASTE,		IDI_CLIPPASTE,			IDS_MENUCLIPPASTE,			IDS_MENUDESCCLIPPASTE,
-	ITEMIS_INSVN|ITEMIS_FOLDER|ITEMIS_PATHINCLIPBOARD, 0, 0, 0, 0, 0, 0, 0 },
 
 	{ ShellSeparator, 0, 0, 0, 0, 0, 0, 0, 0},
 
@@ -246,12 +242,12 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					TCHAR * szFileName = new TCHAR[len+1];
 					if (0 == DragQueryFile(drop, i, szFileName, len+1))
 					{
-						delete [] szFileName;
+						delete szFileName;
 						continue;
 					}
 					stdstring str = stdstring(szFileName);
-					delete [] szFileName;
-					if ((str.empty() == false)&&(g_ShellCache.IsContextPathAllowed(szFileName)))
+					delete szFileName;
+					if (str.empty() == false)
 					{
 						if (itemStates & ITEMIS_ONLYONE)
 						{
@@ -335,7 +331,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				{
 					ItemIDList child (GetPIDLItem (cida, i), &parent);
 					stdstring str = child.toString();
-					if ((str.empty() == false)&&(g_ShellCache.IsContextPathAllowed(str.c_str())))
+					if (str.empty() == false)
 					{
 						//check if our menu is requested for a subversion admin directory
 						if (g_SVNAdminDir.IsAdminDirPath(str.c_str()))
@@ -360,11 +356,10 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 								try
 								{
 									SVNStatus stat;
-									if (strpath.HasAdminDir())
-										stat.GetStatus(strpath, false, true, true);
-									statuspath = str;
+									stat.GetStatus(CTSVNPath(strpath), false, true, true);
 									if (stat.status)
 									{
+										statuspath = str;
 										status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
 										fetchedstatus = status;
 										if ((stat.status->entry)&&(stat.status->entry->lock_token))
@@ -391,10 +386,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 										// in that case, we have to check if the working copy is versioned
 										// anyway to show the 'correct' context menu
 										if (strpath.HasAdminDir())
-										{
 											status = svn_wc_status_normal;
-											fetchedstatus = status;
-										}
 									}
 									statfetched = TRUE;
 								}
@@ -442,14 +434,24 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 
 				// if the item is a versioned folder, check if there's a patch file
 				// in the clipboard to be used in "Apply Patch"
-				UINT cFormatDiff = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
-				if (cFormatDiff)
+				UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
+				if (cFormat)
 				{
-					if (IsClipboardFormatAvailable(cFormatDiff)) 
-						itemStates |= ITEMIS_PATCHINCLIPBOARD;
+					if (OpenClipboard(NULL))
+					{
+						UINT enumFormat = 0;
+						do 
+						{
+							if (enumFormat == cFormat)
+							{
+								// yes, there's a patch file in the clipboard
+								itemStates |= ITEMIS_PATCHINCLIPBOARD;
+								break;
+							}
+						} while((enumFormat = EnumClipboardFormats(enumFormat))!=0);
+						CloseClipboard();
+					}
 				}
-				if (IsClipboardFormatAvailable(CF_HDROP)) 
-					itemStates |= ITEMIS_PATHINCLIPBOARD;
 			}
 
 			ReleaseStgMedium ( &medium );
@@ -467,9 +469,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 		ItemIDList list(pIDFolder);
 		folder_ = list.toString();
 		svn_wc_status_kind status = svn_wc_status_none;
-		if (IsClipboardFormatAvailable(CF_HDROP)) 
-			itemStatesFolder |= ITEMIS_PATHINCLIPBOARD;
-		if ((folder_.compare(statuspath)!=0)&&(g_ShellCache.IsContextPathAllowed(folder_.c_str())))
+		if (folder_.compare(statuspath)!=0)
 		{
 			CTSVNPath askedpath;
 			askedpath.SetFromWin(folder_.c_str());
@@ -532,7 +532,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 	}
 	if (files_.size() == 2)
 		itemStates |= ITEMIS_TWO;
-	if ((files_.size() == 1)&&(g_ShellCache.IsContextPathAllowed(files_.front().c_str())))
+	if (files_.size() == 1)
 	{
 		itemStates |= ITEMIS_ONLYONE;
 		if (m_State != FileStateDropHandler)
@@ -727,63 +727,6 @@ HBITMAP CShellExt::IconToBitmap(UINT uIcon)
 	return bmp;
 }
 
-bool CShellExt::WriteClipboardPathsToTempFile(stdstring& tempfile)
-{
-	bool bRet = true;
-	tempfile = stdstring();
-	//write all selected files and paths to a temporary file
-	//for TortoiseProc.exe to read out again.
-	DWORD written = 0;
-	DWORD pathlength = GetTempPath(0, NULL);
-	TCHAR * path = new TCHAR[pathlength+1];
-	TCHAR * tempFile = new TCHAR[pathlength + 100];
-	GetTempPath (pathlength+1, path);
-	GetTempFileName (path, _T("svn"), 0, tempFile);
-	tempfile = stdstring(tempFile);
-
-	HANDLE file = ::CreateFile (tempFile,
-		GENERIC_WRITE, 
-		FILE_SHARE_READ, 
-		0, 
-		CREATE_ALWAYS, 
-		FILE_ATTRIBUTE_TEMPORARY,
-		0);
-
-	delete [] path;
-	delete [] tempFile;
-	if (file == INVALID_HANDLE_VALUE)
-		return false;
-
-	if (!IsClipboardFormatAvailable(CF_HDROP))
-		return false;
-	if (!OpenClipboard(NULL))
-		return false;
-
-	stdstring sClipboardText;
-	HGLOBAL hglb = GetClipboardData(CF_HDROP);
-	HDROP hDrop = (HDROP)GlobalLock(hglb);
-	if(hDrop != NULL)
-	{
-		TCHAR szFileName[MAX_PATH];
-		UINT cFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); 
-		for(UINT i = 0; i < cFiles; ++i)
-		{
-			DragQueryFile(hDrop, i, szFileName, sizeof(szFileName));
-			stdstring filename = szFileName;
-			::WriteFile (file, filename.c_str(), filename.size()*sizeof(TCHAR), &written, 0);
-			::WriteFile (file, _T("\n"), 2, &written, 0);
-		}
-		GlobalUnlock(hDrop);
-	}
-	else bRet = false;
-	GlobalUnlock(hglb);
-
-	CloseClipboard();
-	::CloseHandle(file);
-
-	return bRet;
-}
-
 stdstring CShellExt::WriteFileListToTempFile()
 {
 	//write all selected files and paths to a temporary file
@@ -803,8 +746,8 @@ stdstring CShellExt::WriteFileListToTempFile()
 								FILE_ATTRIBUTE_TEMPORARY,
 								0);
 
-	delete [] path;
-	delete [] tempFile;
+	delete path;
+	delete tempFile;
 	if (file == INVALID_HANDLE_VALUE)
 		return stdstring();
 		
@@ -826,8 +769,8 @@ stdstring CShellExt::WriteFileListToTempFile()
 
 STDMETHODIMP CShellExt::QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu)
 {
-	PreserveChdir preserveChdir;
 	LoadLangDll();
+	PreserveChdir preserveChdir;
 
 	if ((uFlags & CMF_DEFAULTONLY)!=0)
 		return NOERROR;					//we don't change the default action
@@ -1606,8 +1549,8 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 						GetTempPath (len+1, path);
 						GetTempFileName (path, TEXT("svn"), 0, tempF);
 						std::wstring sTempFile = std::wstring(tempF);
-						delete [] path;
-						delete [] tempF;
+						delete path;
+						delete tempF;
 
 						FILE * outFile;
 						size_t patchlen = strlen(lpstr);
@@ -1671,7 +1614,7 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 						0,
 						NULL 
 						);
-					MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseMerge launch failed"), MB_OK | MB_ICONINFORMATION );
+					MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
 					LocalFree( lpMsgBuf );
 				}
 				CloseHandle(process.hThread);
@@ -1715,40 +1658,6 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 				svnCmd += _T("\"");
 				svnCmd += _T(" /deletepathfile");
 				break;
-			case ShellMenuClipPaste:
-				if (WriteClipboardPathsToTempFile(tempfile))
-				{
-					bool bCopy = true;
-					UINT cPrefDropFormat = RegisterClipboardFormat(_T("Preferred DropEffect"));
-					if (cPrefDropFormat)
-					{
-						if (OpenClipboard(lpcmi->hwnd))
-						{
-							HGLOBAL hglb = GetClipboardData(cPrefDropFormat);
-							if (hglb)
-							{
-								DWORD* effect = (DWORD*) GlobalLock(hglb);
-								if (*effect == DROPEFFECT_MOVE)
-									bCopy = false;
-								GlobalUnlock(hglb);
-							}
-							CloseClipboard();
-						}
-					}
-
-					if (bCopy)
-						svnCmd += _T("pastecopy /pathfile:\"");
-					else
-						svnCmd += _T("pastemove /pathfile:\"");
-					svnCmd += tempfile;
-					svnCmd += _T("\"");
-					svnCmd += _T(" /deletepathfile");
-					svnCmd += _T(" /droptarget:\"");
-					svnCmd += folder_;
-					svnCmd += _T("\"");
-				}
-				else return NOERROR;
-				break;
 			default:
 				break;
 				//#endregion
@@ -1773,7 +1682,7 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 					0,
 					NULL 
 					);
-				MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseProc Launch failed"), MB_OK | MB_ICONINFORMATION );
+				MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
 				LocalFree( lpMsgBuf );
 			}
 			CloseHandle(process.hThread);
@@ -1792,7 +1701,6 @@ STDMETHODIMP CShellExt::GetCommandString(UINT_PTR idCmd,
                                          LPSTR pszName,
                                          UINT cchMax)
 {
-	PreserveChdir preserveChdir;
 	//do we know the id?
 	std::map<UINT_PTR, UINT_PTR>::const_iterator id_it = myIDMap.lower_bound(idCmd);
 	if (id_it == myIDMap.end() || id_it->first != idCmd)
@@ -2165,17 +2073,6 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst, HMENU hMenu, 
 			myVerbsIDMap[idCmd] = verb;
 			myIDMap[idCmd - idCmdFirst] = ShellMenuIgnore;
 			myIDMap[idCmd++] = ShellMenuIgnore;
-
-			MAKESTRING(IDS_MENUIGNOREMULTIPLEMASK);
-			_stprintf_s(ignorepath, MAX_PATH, stringtablebuffer, files_.size());
-			InsertMenu(ignoresubmenu, indexignoresub++, MF_BYPOSITION | MF_STRING , idCmd, ignorepath);
-			verb = stdstring(ignorepath);
-			myVerbsMap[verb] = idCmd - idCmdFirst;
-			myVerbsMap[verb] = idCmd;
-			myVerbsIDMap[idCmd - idCmdFirst] = verb;
-			myVerbsIDMap[idCmd] = verb;
-			myIDMap[idCmd - idCmdFirst] = ShellMenuIgnoreCaseSensitive;
-			myIDMap[idCmd++] = ShellMenuIgnoreCaseSensitive;
 		}
 	}
 
@@ -2220,184 +2117,20 @@ HBITMAP CShellExt::IconToBitmapPARGB32(UINT uIcon)
 	std::map<UINT, HBITMAP>::iterator bitmap_it = bitmaps.lower_bound(uIcon);
 	if (bitmap_it != bitmaps.end() && bitmap_it->first == uIcon)
 		return bitmap_it->second;
-
+	if (!m_gdipToken)
+		return NULL;
 	HICON hIcon = (HICON)LoadImage(g_hResInst, MAKEINTRESOURCE(uIcon), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 	if (!hIcon)
 		return NULL;
-
-	if (pfnBeginBufferedPaint == NULL || pfnEndBufferedPaint == NULL || pfnGetBufferedPaintBits == NULL)
-		return NULL;
-
-	SIZE sizIcon;
-	sizIcon.cx = GetSystemMetrics(SM_CXSMICON);
-	sizIcon.cy = GetSystemMetrics(SM_CYSMICON);
-
-	RECT rcIcon;
-	SetRect(&rcIcon, 0, 0, sizIcon.cx, sizIcon.cy);
-	HBITMAP hBmp = NULL;
-
-	HDC hdcDest = CreateCompatibleDC(NULL);
-	if (hdcDest)
-	{
-		if (SUCCEEDED(Create32BitHBITMAP(hdcDest, &sizIcon, NULL, &hBmp)))
-		{
-			HBITMAP hbmpOld = (HBITMAP)SelectObject(hdcDest, hBmp);
-			if (hbmpOld)
-			{
-				BLENDFUNCTION bfAlpha = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
-				BP_PAINTPARAMS paintParams = {0};
-				paintParams.cbSize = sizeof(paintParams);
-				paintParams.dwFlags = BPPF_ERASE;
-				paintParams.pBlendFunction = &bfAlpha;
-
-				HDC hdcBuffer;
-				HPAINTBUFFER hPaintBuffer = pfnBeginBufferedPaint(hdcDest, &rcIcon, BPBF_DIB, &paintParams, &hdcBuffer);
-				if (hPaintBuffer)
-				{
-					if (DrawIconEx(hdcBuffer, 0, 0, hIcon, sizIcon.cx, sizIcon.cy, 0, NULL, DI_NORMAL))
-					{
-						// If icon did not have an alpha channel we need to convert buffer to PARGB
-						ConvertBufferToPARGB32(hPaintBuffer, hdcDest, hIcon, sizIcon);
-					}
-
-					// This will write the buffer contents to the destination bitmap
-					pfnEndBufferedPaint(hPaintBuffer, TRUE);
-				}
-
-				SelectObject(hdcDest, hbmpOld);
-			}
-		}
-
-		DeleteDC(hdcDest);
-	}
-
+	Bitmap icon(hIcon);
+	Bitmap bmp(16, 16, PixelFormat32bppPARGB);
+	Graphics g(&bmp);
+	g.DrawImage(&icon, 0, 0, 16, 16);
 	DestroyIcon(hIcon);
+	HBITMAP hBmp = NULL;
+	bmp.GetHBITMAP(Color(255, 0, 0, 0), &hBmp);
 
 	if(hBmp)
 		bitmaps.insert(bitmap_it, std::make_pair(uIcon, hBmp));
 	return hBmp;
 }
-
-HRESULT CShellExt::Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp)
-{
-	*phBmp = NULL;
-
-	BITMAPINFO bmi;
-	ZeroMemory(&bmi, sizeof(bmi));
-	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biCompression = BI_RGB;
-
-	bmi.bmiHeader.biWidth = psize->cx;
-	bmi.bmiHeader.biHeight = psize->cy;
-	bmi.bmiHeader.biBitCount = 32;
-
-	HDC hdcUsed = hdc ? hdc : GetDC(NULL);
-	if (hdcUsed)
-	{
-		*phBmp = CreateDIBSection(hdcUsed, &bmi, DIB_RGB_COLORS, ppvBits, NULL, 0);
-		if (hdc != hdcUsed)
-		{
-			ReleaseDC(NULL, hdcUsed);
-		}
-	}
-	return (NULL == *phBmp) ? E_OUTOFMEMORY : S_OK;
-}
-
-HRESULT CShellExt::ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC hdc, HICON hicon, SIZE& sizIcon)
-{
-	RGBQUAD *prgbQuad;
-	int cxRow;
-	HRESULT hr = pfnGetBufferedPaintBits(hPaintBuffer, &prgbQuad, &cxRow);
-	if (SUCCEEDED(hr))
-	{
-		ARGB *pargb = reinterpret_cast<ARGB *>(prgbQuad);
-		if (!HasAlpha(pargb, sizIcon, cxRow))
-		{
-			ICONINFO info;
-			if (GetIconInfo(hicon, &info))
-			{
-				if (info.hbmMask)
-				{
-					hr = ConvertToPARGB32(hdc, pargb, info.hbmMask, sizIcon, cxRow);
-				}
-
-				DeleteObject(info.hbmColor);
-				DeleteObject(info.hbmMask);
-			}
-		}
-	}
-
-	return hr;
-}
-
-bool CShellExt::HasAlpha(__in ARGB *pargb, SIZE& sizImage, int cxRow)
-{
-	ULONG cxDelta = cxRow - sizImage.cx;
-	for (ULONG y = sizImage.cy; y; --y)
-	{
-		for (ULONG x = sizImage.cx; x; --x)
-		{
-			if (*pargb++ & 0xFF000000)
-			{
-				return true;
-			}
-		}
-
-		pargb += cxDelta;
-	}
-
-	return false;
-}
-
-HRESULT CShellExt::ConvertToPARGB32(HDC hdc, __inout ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow)
-{
-	BITMAPINFO bmi;
-	ZeroMemory(&bmi, sizeof(bmi));
-	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biCompression = BI_RGB;
-
-	bmi.bmiHeader.biWidth = sizImage.cx;
-	bmi.bmiHeader.biHeight = sizImage.cy;
-	bmi.bmiHeader.biBitCount = 32;
-
-	HRESULT hr = E_OUTOFMEMORY;
-	HANDLE hHeap = GetProcessHeap();
-	void *pvBits = HeapAlloc(hHeap, 0, bmi.bmiHeader.biWidth * 4 * bmi.bmiHeader.biHeight);
-	if (pvBits)
-	{
-		hr = E_UNEXPECTED;
-		if (GetDIBits(hdc, hbmp, 0, bmi.bmiHeader.biHeight, pvBits, &bmi, DIB_RGB_COLORS) == bmi.bmiHeader.biHeight)
-		{
-			ULONG cxDelta = cxRow - bmi.bmiHeader.biWidth;
-			ARGB *pargbMask = static_cast<ARGB *>(pvBits);
-
-			for (ULONG y = bmi.bmiHeader.biHeight; y; --y)
-			{
-				for (ULONG x = bmi.bmiHeader.biWidth; x; --x)
-				{
-					if (*pargbMask++)
-					{
-						// transparent pixel
-						*pargb++ = 0;
-					}
-					else
-					{
-						// opaque pixel
-						*pargb++ |= 0xFF000000;
-					}
-				}
-
-				pargb += cxDelta;
-			}
-
-			hr = S_OK;
-		}
-
-		HeapFree(hHeap, 0, pvBits);
-	}
-
-	return hr;
-}
-

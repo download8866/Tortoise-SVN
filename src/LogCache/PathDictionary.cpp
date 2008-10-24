@@ -19,6 +19,9 @@
 #include "StdAfx.h"
 #include ".\pathdictionary.h"
 
+#include "HierachicalInStreamBase.h"
+#include "HierachicalOutStreamBase.h"
+
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
 ///////////////////////////////////////////////////////////////
@@ -192,7 +195,7 @@ void CDictionaryBasedPath::ParsePath ( const std::string& path
 								     , CPathDictionary* writableDictionary
 									 , std::vector<std::string>* relPath)
 {
-    if (!path.empty())
+	if (!path.empty())
 	{
 		std::string temp (path);
 		assert (path[0] == '/');
@@ -246,10 +249,6 @@ void CDictionaryBasedPath::ParsePath ( const std::string& path
 			currentIndex = nextIndex;
 		}
 	}
-
-#ifdef _DEBUG
-    _path = GetPath();
-#endif
 }
 
 // construction: lookup (stop at last known parent, if necessary)
@@ -269,20 +268,6 @@ CDictionaryBasedPath::CDictionaryBasedPath ( CPathDictionary* aDictionary
 	, index (0)
 {
 	ParsePath (path, nextParent ? NULL : aDictionary);
-}
-
-index_t CDictionaryBasedPath::GetDepth() const
-{
-    if (IsValid())
-    {
-        index_t result = 0;
-        for (index_t i = index; i != 0; i = dictionary->GetParent (i))
-            ++result;
-
-        return result;
-    }
-    else
-        return static_cast<index_t>(NO_INDEX);
 }
 
 bool CDictionaryBasedPath::IsSameOrParentOf ( index_t lhsIndex
@@ -310,17 +295,6 @@ bool CDictionaryBasedPath::IsSameOrParentOf ( index_t lhsIndex
 
 std::string CDictionaryBasedPath::GetPath() const
 {
-#ifdef _DEBUG
-    // only used to set _path to a proper value
-
-    if (index == NO_INDEX)
-    {
-        static const std::string noPath ("<INVALID_PATH>");
-        return noPath;
-    }
-
-#endif
-
 	// fetch all path elements bottom-up except the root
 
 	std::vector<const char*> pathElements;

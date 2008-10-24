@@ -70,6 +70,7 @@ public:
 	BOOL							m_bIgnoreEOL;
 	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
 	
+	bool		AutoSetMode();
 	void		SaveMode();
 	LRESULT		GetSecondPage();
 

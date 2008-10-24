@@ -193,7 +193,6 @@ class CDragSourceHelper
 public:
 	CDragSourceHelper()
 	{
-		pDragSourceHelper = NULL;
 		if(FAILED(CoCreateInstance(CLSID_DragDropHelper,
                         NULL,
                         CLSCTX_INPROC_SERVER,
