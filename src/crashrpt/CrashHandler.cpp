@@ -74,8 +74,7 @@ CCrashHandler::CCrashHandler():
 	m_rpt(NULL),
 	m_installed(false),
 	m_hModule(NULL),
-	m_bUseUI(TRUE),
-	m_wantDebug(false)
+	m_bUseUI(TRUE)
 {
    // wtl initialization stuff...
 	HRESULT hRes = ::CoInitialize(NULL);

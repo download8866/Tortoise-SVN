@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,9 @@
 //
 #include "StdAfx.h"
 #include ".\pathdictionary.h"
+
+#include "HierachicalInStreamBase.h"
+#include "HierachicalOutStreamBase.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -70,11 +73,6 @@ index_t CPathDictionary::GetParent (index_t index) const
 const char* CPathDictionary::GetPathElement (index_t index) const
 {
 	return pathElements [paths [index].second];
-}
-
-index_t CPathDictionary::GetPathElementSize (index_t index) const
-{
-    return pathElements.GetLength (paths [index].second);
 }
 
 index_t CPathDictionary::GetPathElementID (index_t index) const
@@ -197,7 +195,7 @@ void CDictionaryBasedPath::ParsePath ( const std::string& path
 								     , CPathDictionary* writableDictionary
 									 , std::vector<std::string>* relPath)
 {
-    if (!path.empty())
+	if (!path.empty())
 	{
 		std::string temp (path);
 		assert (path[0] == '/');
@@ -251,22 +249,6 @@ void CDictionaryBasedPath::ParsePath ( const std::string& path
 			currentIndex = nextIndex;
 		}
 	}
-
-#ifdef _DEBUG
-    _path = GetPath();
-#endif
-}
-
-// element access
-
-std::string CDictionaryBasedPath::ReverseAt (size_t reverseIndex) const
-{
-    index_t elementIndex = index;
-    for (; reverseIndex > 0; --reverseIndex)
-        elementIndex = dictionary->GetParent (elementIndex);
-
-    return std::string ( dictionary->GetPathElement (elementIndex)
-                       , dictionary->GetPathElementSize (elementIndex));
 }
 
 // construction: lookup (stop at last known parent, if necessary)
@@ -286,20 +268,6 @@ CDictionaryBasedPath::CDictionaryBasedPath ( CPathDictionary* aDictionary
 	, index (0)
 {
 	ParsePath (path, nextParent ? NULL : aDictionary);
-}
-
-index_t CDictionaryBasedPath::GetDepth() const
-{
-    if (IsValid())
-    {
-        index_t result = 0;
-        for (index_t i = index; i != 0; i = dictionary->GetParent (i))
-            ++result;
-
-        return result;
-    }
-    else
-        return static_cast<index_t>(NO_INDEX);
 }
 
 bool CDictionaryBasedPath::IsSameOrParentOf ( index_t lhsIndex
@@ -327,50 +295,39 @@ bool CDictionaryBasedPath::IsSameOrParentOf ( index_t lhsIndex
 
 std::string CDictionaryBasedPath::GetPath() const
 {
-    if (index == NO_INDEX)
-    {
-#ifdef _DEBUG
-        // only used to set _path to a proper value
-
-        assert (_path.empty());
-
-        static const std::string noPath ("<INVALID_PATH>");
-        return noPath;
-#else
-        // an assertion is of little use here ...
-
-        throw std::exception ("Access to invalid path object");
-#endif
-    }
-
 	// fetch all path elements bottom-up except the root
-	// and calculate the total string length
 
-	const char* pathElements [MAX_PATH];
-	index_t sizes[MAX_PATH];
-    size_t depth = 0;
+	std::vector<const char*> pathElements;
+	pathElements.reserve (15);
 
-	size_t size = 0;
 	for ( index_t currentIndex = index
-		; (currentIndex != 0) && (depth < MAX_PATH)
+		; currentIndex != 0
 		; currentIndex = dictionary->GetParent (currentIndex))
 	{
-		pathElements[depth] = dictionary->GetPathElement (currentIndex);
-        sizes[depth] = dictionary->GetPathElementSize (currentIndex);
-        size += sizes[depth] + 1;
-        ++depth;
+		pathElements.push_back (dictionary->GetPathElement (currentIndex));
 	}
+
+	// calculate the total string length
+
+	size_t size = pathElements.size();
+	for (size_t i = 0, count = pathElements.size(); i < count; ++i)
+		size += strlen (pathElements[i]);
 
 	// build result
 
-	std::string result (max (1, size), '/');
-    char* target = &result[0];
+	std::string result;
+	result.reserve (size);
 
-	for (size_t i = depth; i > 0; --i)
+	for (size_t i = pathElements.size(); i > 0; --i)
 	{
-        memcpy (++target, pathElements[i-1], sizes[i-1]);
-        target += sizes[i-1];
+		result.push_back ('/');
+		result.append (pathElements[i-1]);
 	}
+
+	// special case: the root
+
+	if (result.empty())
+		result.push_back ('/');
 
 	// ready
 

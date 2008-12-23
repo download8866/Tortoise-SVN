@@ -43,11 +43,6 @@ private:
 	bool					m_bFiles;
 	DWORD					m_dwHoverStartTicks;
 	HTREEITEM				hLastItem;
-
-	CString sNoDrop;
-	CString sImportDrop;
-	CString sCopyDrop;
-	CString sMoveDrop;
 };
 
 /**
@@ -67,9 +62,4 @@ public:
 private:
 	CRepositoryBrowser * m_pRepoBrowser;
 	bool m_bFiles;
-
-	CString sNoDrop;
-	CString sImportDrop;
-	CString sCopyDrop;
-	CString sMoveDrop;
 };

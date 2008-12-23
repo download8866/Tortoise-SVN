@@ -5,9 +5,9 @@
 // Copyright (C) 2004-2008 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
-// $Author$
-// $Date$
-// $Rev$
+// $Author: luebbe $
+// $Date: 2008-12-03 09:39:35 +0100 (Mi, 03. Dez 2008) $
+// $Rev: 14758 $
 //
 // Author: Lübbe Onken 2004-2008
 //
@@ -55,13 +55,11 @@ $countries = array(
 "nl"    => array("1","101","nl","Dutch","Jean-Marc van Leerdam, Yves Reynhout, Bob Hulst"),
 "pl"    => array("1","001","pl","Polish","Michal Mielniczuk, Andrzej Rusin, Piotr Kontek, Krzysztof Kotowicz"),
 "pt_BR" => array("1","001","pt_BR","Portuguese, Brazil","CRAb Group, Humberto Osório, Emanuele Santos, Guilherme Cantisano, Juliano Ravasi Ferraz, Victor Westmann, Conrado Quilles Gomes, Tiago Deliberali Santos, Leandro Herrera"),
-"pt_PT" => array("1","000","pt_PT","Portuguese, Portugal","Manuel Menezes de Sequeira"),
+// "pt_PT" => array("1","000","pt_PT","Portuguese, Portugal","Manuel Menezes de Sequeira"),
 "ro"    => array("1","000","ro","Romanian","Seby Rusu, Ben Felt"),
 "ru"    => array("1","111","ru","Russian","Dzmitry Lazerka, Dimitry Mardiyan, Shura Zam, Alexander Leschinsky, Stanislav Petrakov"),
 "sk"    => array("1","111","sk","Slovak","Oto Brezina"),
 "sl"    => array("1","111","sl","Slovenian","Goran Kavrecic, Martin Srebotnjak, Matjaz Cepon"),
-"sr_spc"=> array("1","110","sr_spc","Serbian cyrillic","Milorad Popović"),
-"sr_spl"=> array("1","110","sr_spl","Serbian latin","Milorad Popović"),
 "sv"    => array("1","001","sv","Swedish","Johan Stenqvist, Johan Appelgren"),
 "tr"    => array("1","000","tr","Turkish","Aydogan Yolacan, Ali Karaoglu"),
 "uk"    => array("1","000","uk","Ukrainian","Vadim Mikhnevych"),

@@ -1,6 +1,6 @@
 namespace ExampleCsPlugin
 {
-    public class TicketItem
+    internal class TicketItem
     {
         private readonly int _ticketNumber;
         private readonly string _ticketSummary;

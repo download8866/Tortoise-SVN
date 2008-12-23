@@ -23,7 +23,6 @@
 #include "registry.h"
 #include "TSVNCache.h"
 #include "shlobj.h"
-#include "SysInfo.h"
 
 
 CFolderCrawler::CFolderCrawler(void)
@@ -33,9 +32,6 @@ CFolderCrawler::CFolderCrawler(void)
 	m_hThread = INVALID_HANDLE_VALUE;
 	m_lCrawlInhibitSet = 0;
 	m_crawlHoldoffReleasesAt = (long)GetTickCount();
-	m_bRun = false;
-	m_bPathsAddedSinceLastCrawl = false;
-	m_bItemsAddedSinceLastCrawl = false;
 }
 
 CFolderCrawler::~CFolderCrawler(void)
@@ -73,7 +69,7 @@ void CFolderCrawler::Initialise()
 	// will behave properly (with normal priority at worst).
 
 	m_bRun = true;
-	unsigned int threadId = 0;
+	unsigned int threadId;
 	m_hThread = (HANDLE)_beginthreadex(NULL,0,ThreadEntry,this,0,&threadId);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
 }
@@ -135,7 +131,7 @@ void CFolderCrawler::WorkerThread()
 	{
 		bool bRecursive = !!(DWORD)CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
 
-		if (SysInfo::Instance().IsVistaOrLater())
+		if (fullver >= 0x0600)
 		{
 			SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 		}
@@ -150,7 +146,7 @@ void CFolderCrawler::WorkerThread()
 			break;
 		}
 
-		if (SysInfo::Instance().IsVistaOrLater())
+		if (fullver >= 0x0600)
 		{
 			SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 		}

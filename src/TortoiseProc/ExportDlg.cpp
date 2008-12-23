@@ -168,7 +168,6 @@ void CExportDlg::OnOK()
 	{
 		ExportDirectory = CTSVNPath(sOrigCWD);
 		ExportDirectory.AppendPathString(_T("\\") + m_strExportDirectory);
-		m_strExportDirectory = ExportDirectory.GetWinPathString();
 	}
 	else
 		ExportDirectory = CTSVNPath(m_strExportDirectory);
@@ -197,7 +196,7 @@ void CExportDlg::OnOK()
 	m_URL = m_URLCombo.GetString();
 
 	// we need an url to export from - local paths won't work
-	if (!SVN::PathIsURL(CTSVNPath(m_URL)))
+	if (!SVN::PathIsURL(m_URL))
 	{
 		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDI_ERROR);
 		m_bAutoCreateTargetName = bAutoCreateTargetName;
@@ -214,7 +213,17 @@ void CExportDlg::OnOK()
 	// We ask if the directory should be created...
 	if (!PathFileExists(m_strExportDirectory))
 	{
-		CPathUtils::MakeSureDirectoryPathExists(m_strExportDirectory);
+		CString temp;
+		temp.Format(IDS_WARN_FOLDERNOTEXIST, (LPCTSTR)m_strExportDirectory);
+		if (CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			CPathUtils::MakeSureDirectoryPathExists(m_strExportDirectory);
+		}
+		else
+		{
+			m_bAutoCreateTargetName = bAutoCreateTargetName;
+			return;
+		}
 	}
 
 	// if the directory we should export to is not empty, show a warning:
@@ -325,7 +334,7 @@ void CExportDlg::OnBnClickedShowlog()
 	//now show the log dialog for working copy
 	if (!m_URL.IsEmpty())
 	{
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
 		m_pLogDlg->SetParams(CTSVNPath(m_URL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100));
 		m_pLogDlg->m_wParam = 1;

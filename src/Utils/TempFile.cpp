@@ -51,26 +51,17 @@ CTSVNPath CTempFiles::GetTempFilePath(bool bRemoveAtEnd, const CTSVNPath& path /
 	else
 	{
 		int i=0;
-		// use the UI path, which does unescaping for urls
-		CString filename = path.GetUIFileOrDirectoryName();
 		do
 		{
-			// the inner loop assures that the resulting path is < MAX_PATH
-			// if that's not possible without reducing the 'filename' to less than 5 chars, use a path
-			// that's longer than MAX_PATH (in that case, we can't really do much to avoid longer paths)
-			do 
+			if (revision.IsValid())
 			{
-				if (revision.IsValid())
-				{
-					possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
-				}
-				else
-				{
-					possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
-				}
-				tempfile.SetFromWin(possibletempfile);
-				filename = filename.Left(filename.GetLength()-1);
-			} while ((filename.GetLength() > 4) && (tempfile.GetWinPathString().GetLength() >= MAX_PATH));
+				possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)path.GetFileOrDirectoryName(), (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
+			}
+			else
+			{
+				possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)path.GetFileOrDirectoryName(), i, (LPCTSTR)path.GetFileExtension());
+			}
+			tempfile.SetFromWin(possibletempfile);
 			i++;
 		} while (PathFileExists(tempfile.GetWinPath()));
 	}
@@ -78,10 +69,9 @@ CTSVNPath CTempFiles::GetTempFilePath(bool bRemoveAtEnd, const CTSVNPath& path /
 	//different filenames.
 	HANDLE hFile = CreateFile(tempfile.GetWinPath(), GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
 	CloseHandle(hFile);
-	delete [] temppath;
-	delete [] tempF;
+	delete temppath;
+	delete tempF;
 	if (bRemoveAtEnd)
 		m_TempFileList.AddPath(tempfile);
 	return tempfile;
 }
-

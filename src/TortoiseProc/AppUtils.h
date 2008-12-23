@@ -112,8 +112,7 @@ public:
 	* Launch the external blame viewer
 	*/
 	static bool LaunchTortoiseBlame(
-		const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams = CString(), 
-		const SVNRev& startrev = SVNRev(), const SVNRev& endrev = SVNRev());
+		const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams = CString());
 	
 	/**
 	 * Resizes all columns in a list control. Considers also icons in columns
@@ -148,8 +147,7 @@ public:
 									const CTSVNPath& url2, const SVNRev& rev2, 
 									const SVNRev& peg = SVNRev(), const SVNRev& headpeg = SVNRev(),
 									bool bAlternateDiff = false,
-									bool bIgnoreAncestry = false,
-                                    bool /* blame */ = false);
+									bool bIgnoreAncestry = false);
 
 	/**
 	 * Replacement for SVNDiff::ShowCompare(), but started as a separate process.

@@ -174,12 +174,12 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 						memset(&startup, 0, sizeof(startup));
 						startup.cb = sizeof(startup);
 						memset(&process, 0, sizeof(process));
-						stdstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
+						CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 						stdstring svnCmd = _T(" /command:");
 						svnCmd += _T("log /path:\"");
 						svnCmd += filenames.front().c_str();
 						svnCmd += _T("\"");
-						if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+						if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 						{
 							CloseHandle(process.hThread);
 							CloseHandle(process.hProcess);
@@ -202,8 +202,8 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 							FILE_ATTRIBUTE_TEMPORARY,
 							0);
 
-						delete [] path;
-						delete [] tempFile;
+						delete path;
+						delete tempFile;
 						if (file != INVALID_HANDLE_VALUE)
 						{
 							DWORD written = 0;
@@ -219,13 +219,13 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 							memset(&startup, 0, sizeof(startup));
 							startup.cb = sizeof(startup);
 							memset(&process, 0, sizeof(process));
-							stdstring tortoiseProcPath = stdstring((LPCTSTR)(CPathUtils::GetAppDirectory() + _T("TortoiseProc.exe")));
+							CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 							stdstring svnCmd = _T(" /command:");
 							svnCmd += _T("properties /pathfile:\"");
 							svnCmd += retFilePath.c_str();
 							svnCmd += _T("\"");
 							svnCmd += _T(" /deletepathfile");
-							if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+							if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 							{
 								CloseHandle(process.hThread);
 								CloseHandle(process.hProcess);
@@ -377,21 +377,9 @@ void CSVNPropertyPage::InitWorkfileView()
 				else
 					MAKESTRING(IDS_NO);
 				SetDlgItemText(m_hwnd, IDC_SWITCHED, stringtablebuffer);
-
-				if (svn.status->file_external)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_FILEEXTERNAL, stringtablebuffer);
-
-				if (svn.status->tree_conflict)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_TREECONFLICT, stringtablebuffer);
-			}
-		}
-	}
+			} // if (svn.status->entry != NULL)
+		} // if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+	} // if (filenames.size() == 1) 
 	else if (filenames.size() != 0)
 	{
 		//deactivate the show log button
@@ -419,8 +407,6 @@ void CSVNPropertyPage::InitWorkfileView()
 				SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
 				SetDlgItemText(m_hwnd, IDC_COPIED, _T(""));
 				SetDlgItemText(m_hwnd, IDC_SWITCHED, _T(""));
-				SetDlgItemText(m_hwnd, IDC_FILEEXTERNAL, _T(""));
-				SetDlgItemText(m_hwnd, IDC_TREECONFLICT, _T(""));
 
 				SetDlgItemText(m_hwnd, IDC_DEPTHEDIT, _T(""));
 				SetDlgItemText(m_hwnd, IDC_CHECKSUM, _T(""));

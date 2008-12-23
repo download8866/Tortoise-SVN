@@ -227,16 +227,10 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID l
 					if (SetClipboardData(CF_TEXT, hClipboardData)==NULL)
 					{
 						HANDLE hlocmem = GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, sizeof(LCID));
-						if (hlocmem)
-						{
-							PLCID plcid = (PLCID)GlobalLock(hlocmem);
-							if (plcid)
-							{
-								*plcid = lcid;
-								SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
-							}
-							GlobalUnlock(hlocmem);
-						}
+						PLCID plcid = (PLCID)GlobalLock(hlocmem);
+						*plcid = lcid;
+						GlobalUnlock(hlocmem);
+						SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
 						CloseClipboard();
 						return true;
 					}

@@ -25,24 +25,23 @@
 
 bool PrevDiffCommand::Execute()
 {
-	bool bRet = false;
 	bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
 	if (cmdLinePath.IsDirectory())
 	{
 		CChangedDlg dlg;
 		dlg.m_pathList = CTSVNPathList(cmdLinePath);
 		dlg.DoModal();
-		bRet = true;
 	}
 	else
 	{
-		SVNDiff diff(NULL, hWndExplorer);
+		SVNDiff diff;
 		diff.SetAlternativeTool(bAlternativeTool);
 		SVNStatus st;
 		st.GetStatus(cmdLinePath);
 		if (st.status && st.status->entry && st.status->entry->cmt_rev)
 		{
-			bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->entry->cmt_rev - 1, st.status->entry->cmt_rev);
+			SVNDiff diff(NULL, hWndExplorer);
+			diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->entry->cmt_rev - 1);
 		}
 		else
 		{
@@ -56,5 +55,5 @@ bool PrevDiffCommand::Execute()
 			}
 		}
 	}
-	return bRet;
+	return true;
 }

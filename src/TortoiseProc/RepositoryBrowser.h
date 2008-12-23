@@ -144,9 +144,7 @@ public:
 
 	/// switches to the \c url at \c rev. If the url is valid and exists,
 	/// the repository browser will show the content of that url.
-	bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked);
-
-	CString GetRepoRoot() { return m_strReposRoot; }
+	bool ChangeToUrl(const CString& url, const SVNRev& rev);
 
 	enum { IDD = IDD_REPOSITORY_BROWSER };
 
@@ -185,8 +183,6 @@ protected:
 	afx_msg void OnCopy();
 	afx_msg void OnInlineedit();
 	afx_msg void OnRefresh();
-	afx_msg void OnDelete();
-	afx_msg void OnGoUp();
 
 	DECLARE_MESSAGE_MAP()
 
@@ -228,7 +224,7 @@ protected:
 	void OnBeginDrag(NMHDR *pNMHDR);
 	void OnBeginDragTree(NMHDR *pNMHDR);
 	/// called when a drag-n-drop operation ends and the user dropped something on us.
-	bool OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, const SVNRev& srcRev, DWORD dwEffect, POINTL pt);
+	bool OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, DWORD dwEffect, POINTL pt);
 	/**
 	 * Since all urls we store and use are not properly escaped but "UI friendly", this
 	 * method converts those urls to a properly escaped url which we can use in

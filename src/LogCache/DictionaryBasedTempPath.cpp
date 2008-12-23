@@ -32,19 +32,8 @@ CDictionaryBasedTempPath::CDictionaryBasedTempPath
 	( const CPathDictionary* aDictionary
 	, const std::string& path)
 	: inherited (aDictionary, std::string())
-#ifdef _DEBUG
-    , _path (path)
-#endif
 {
 	ParsePath (path, NULL, &relPathElements);
-}
-
-std::string CDictionaryBasedTempPath::operator[](size_t index) const
-{
-    size_t parentDepth = inherited::GetDepth();
-    return index < parentDepth 
-        ? ReverseAt (parentDepth - index - 1)
-        : relPathElements [index - parentDepth];
 }
 
 CDictionaryBasedTempPath CDictionaryBasedTempPath::GetCommonRoot 
@@ -75,12 +64,6 @@ CDictionaryBasedTempPath CDictionaryBasedTempPath::GetCommonRoot
 
 	CDictionaryBasedTempPath result (GetBasePath());
 	result.relPathElements.insert (result.relPathElements.begin(), begin, iter);
-
-    // update the debug-only _path member
-
-#ifdef _DEBUG
-    result._path = result.GetPath();
-#endif
 
 	return result;
 }
@@ -196,36 +179,6 @@ std::string CDictionaryBasedTempPath::GetPath() const
 	}
 
 	return result;
-}
-
-// standard operator used by STL containers
-// Note: This is not lexicographical order!
-
-bool operator< ( const CDictionaryBasedTempPath& lhs
-               , const CDictionaryBasedTempPath& rhs)
-{
-    // both elements should be from the same container
-    // (otherwise, some shortcuts may not be justified)
-
-    assert (lhs.GetDictionary() == rhs.GetDictionary());
-
-    // quick compare: indices and counters
-
-    ptrdiff_t diff = lhs.GetBasePath().GetIndex() - rhs.GetBasePath().GetIndex();
-    if (diff < 0)
-        return true;
-    if (diff > 0)
-        return false;
-
-    diff = lhs.GetRelPathElements().size() - rhs.GetRelPathElements().size();
-    if (diff < 0)
-        return true;
-    if (diff > 0)
-        return false;
-
-    // long and boring comparison
-
-    return lhs.GetRelPathElements() < rhs.GetRelPathElements();
 }
 
 ///////////////////////////////////////////////////////////////

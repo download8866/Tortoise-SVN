@@ -23,6 +23,11 @@
 #include ".\PathDictionary.h"
 #include ".\RevisionInfoContainer.h"
 
+#include ".\PackedDWORDInStream.h"
+#include ".\PackedDWORDOutStream.h"
+#include ".\DiffIntegerInStream.h"
+#include ".\DiffIntegerOutStream.h"
+
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
 ///////////////////////////////////////////////////////////////
@@ -659,8 +664,8 @@ IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
 
 	for (CIT dataIter = begin, dataEnd = end; dataIter < dataEnd; ++dataIter)
 		for ( CSkipRevisionInfo::IT iter = (*dataIter)->ranges.begin()
-			, endlocal = (*dataIter)->ranges.end()
-			; iter != endlocal
+			, end = (*dataIter)->ranges.end()
+			; iter != end
 			; ++iter)
 		{
 			revisionsStream->Add (iter->first);
@@ -675,8 +680,8 @@ IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
 
 	for (CIT dataIter = begin, dataEnd = end; dataIter < dataEnd; ++dataIter)
 		for ( CSkipRevisionInfo::IT iter = (*dataIter)->ranges.begin()
-			, endlocal = (*dataIter)->ranges.end()
-			; iter != endlocal
+			, end = (*dataIter)->ranges.end()
+			; iter != end
 			; ++iter)
 		{
 			sizesStream->Add (iter->second);

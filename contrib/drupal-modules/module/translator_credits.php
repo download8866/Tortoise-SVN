@@ -1,24 +1,23 @@
 <!--break-->
 <?php
+// index.php
 //
-// Drupal translator credits page
-// loaded into "http://tortoisesvn.net/translator_credits"
-//
-// Copyright (C) 2004-2008 the TortoiseSVN team
-// This file is distributed under the same license as TortoiseSVN
-//
-// $Author$
-// $Date$
-// $Rev$
-//
-// Author: Lübbe Onken 2004-2008
-//
+// Main page.  Lists all the translations
 
 include("/var/www/vhosts/default/htdocs/modules/tortoisesvn/trans_data_trunk.inc");
 include("/var/www/vhosts/default/htdocs/modules/tortoisesvn/trans_countries.inc");
-include("/var/www/vhosts/default/htdocs/modules/tortoisesvn/tortoisevars.inc");
 
-function t_print_header($tsvn_var)
+$vars['release']=variable_get('tsvn_version', '');
+$vars['build']=variable_get('tsvn_build', '');
+$vars['downloadurl1']=variable_get('tsvn_sf_prefix', '');
+$vars['downloadurl2']=variable_get('tsvn_sf_append', '');
+$vars['reposurl']=variable_get('tsvn_repos_trunk', '').'Languages/';
+$vars['flagpath']="/flags/world.small/";
+
+$basename="Tortoise";
+$template=$basename.".pot";
+
+function t_print_header($vars)
 {
 ?>
 
@@ -30,7 +29,7 @@ On this page we want to give credit to everyone who has contributed to the many 
 <?php
 }
 
-function t_print_footer($tsvn_var)
+function t_print_footer($vars)
 {
 ?>
 
@@ -39,7 +38,7 @@ function t_print_footer($tsvn_var)
 <?php
 }
 
-function t_print_table_header($name, $summary, $tsvn_var)
+function t_print_table_header($name, $summary, $vars)
 {
 ?>
 <h2><?php echo $summary ?></h2>
@@ -62,14 +61,14 @@ function t_print_table_footer()
 <?php
 }
 
-function t_print_content_stat($i, $postat, $poinfo, $tsvn_var)
+function t_print_content_stat($i, $postat, $poinfo, $vars)
 {
-  $release=$tsvn_var['release'];
-  $build=$tsvn_var['build'];
-  $dlfile=$tsvn_var['url1']."LanguagePack_".$release.".".$build."-win32-".$poinfo[2].".msi".$tsvn_var['url2'];
+  $release=$vars['release'];
+  $build=$vars['build'];
+  $dlfile=$vars['downloadurl1']."LanguagePack-".$release.".".$build."-win32-".$poinfo[2].".exe".$vars['downloadurl2'];
 
   if ($poinfo[0] != '') {
-    $flagimg=$tsvn_var['flagpath']."$poinfo[2].png";
+    $flagimg=$vars['flagpath']."$poinfo[2].png";
 
     echo "<td>$i</td>";
     echo "<td class=\"lang\"><img src=\"$flagimg\" height=\"12\" width=\"18\" />&nbsp;<a href=\"$dlfile\">$poinfo[3]</a></td>";
@@ -77,16 +76,16 @@ function t_print_content_stat($i, $postat, $poinfo, $tsvn_var)
   }
 }
 
-function t_print_all_stats($data, $countries, $tsvn_var)
+function t_print_all_stats($data, $countries, $vars)
 {
   $i=0;
   foreach ($data as $key => $postat)
-    if ($postat[0] == 0) {
+  {
       $i++;
       echo "<tr>";
-      t_print_content_stat($i, $postat, $countries[$key], $tsvn_var);
+      t_print_content_stat($i, $postat, $countries[$key], $vars);
       echo "</tr>";
-    }
+  }
 }
 
 //------------------------------------
@@ -94,12 +93,12 @@ function t_print_all_stats($data, $countries, $tsvn_var)
 // The program starts here
 //
 
-t_print_header($tsvn_var);
+t_print_header($vars);
 
 // Print Alphabetical statistics
-t_print_table_header('alpha', 'Translator credits', $tsvn_var);
-t_print_all_stats($TortoiseGUI, $countries, $tsvn_var);
+t_print_table_header('alpha', 'Translator credits', $vars);
+t_print_all_stats($TortoiseGUI, $countries, $vars);
 t_print_table_footer();
 
-t_print_footer($tsvn_var);
+t_print_footer($vars);
 ?>

@@ -18,7 +18,6 @@
 //
 #include "stdafx.h"
 #include "Balloon.h"
-#include "SysInfo.h"
 
 tagBALLOON_INFO::tagBALLOON_INFO()
     : hIcon(NULL),			
@@ -308,7 +307,7 @@ void CBalloon::OnDrawBackground(CDC * pDC, CRect * pRect)
 	}
 }
 
-CRect CBalloon::GetWindowRegion(CRgn * rgn, CSize sz, CPoint pt) const
+CRect CBalloon::GetWindowRegion(CRgn * rgn, CSize sz, CPoint pt)
 {
 	CRect rect;
 	rect.SetRect(0, 0, sz.cx, sz.cy);
@@ -411,10 +410,10 @@ void CBalloon::RelayEvent(MSG* pMsg)
 					if ((behaviour & BALLOON_TRACK_MOUSE)&&(!(behaviour & BALLOON_DIALOG)))
 					{
 						//mouse moved, so move the tooltip too
-						CRect rect2;
-						GetWindowRect(rect2);
-						CalculateInfoBoxRect(&m_ptOriginal, &rect2);
-						SetWindowPos(NULL, rect2.left, rect2.top, 0, 0, SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
+						CRect rect;
+						GetWindowRect(rect);
+						CalculateInfoBoxRect(&m_ptOriginal, &rect);
+						SetWindowPos(NULL, rect.left, rect.top, 0, 0, SWP_SHOWWINDOW|SWP_NOSIZE|SWP_NOZORDER|SWP_NOACTIVATE);
 					}
 					else
 						return;
@@ -634,7 +633,7 @@ void CBalloon::Pop()
 	m_bButtonPushed = FALSE;
 }
 
-CSize CBalloon::GetTooltipSize(const CString& str)
+CSize CBalloon::GetTooltipSize(CString str)
 {
 	CRect rect;
 	GetWindowRect(&rect);
@@ -721,7 +720,7 @@ void CBalloon::CalculateInfoBoxRect(CPoint * pt, CRect * rect)
 }
 
 
-int CBalloon::GetNextHorizDirection(int nDirection) const
+int CBalloon::GetNextHorizDirection(int nDirection)
 {
 	switch (nDirection)
 	{
@@ -741,7 +740,7 @@ int CBalloon::GetNextHorizDirection(int nDirection) const
 	return nDirection;
 }
 
-int CBalloon::GetNextVertDirection(int nDirection) const
+int CBalloon::GetNextVertDirection(int nDirection)
 {
 	switch (nDirection)
 	{
@@ -868,7 +867,7 @@ void CBalloon::ModifyStyles(DWORD nAddStyles, DWORD nRemoveStyles, CWnd * pWnd /
 	}
 } 
 
-DWORD CBalloon::GetStyles(CWnd * pWnd /* = NULL */) const
+DWORD CBalloon::GetStyles(CWnd * pWnd /* = NULL */)
 {
 	if (pWnd)
 	{
@@ -895,7 +894,7 @@ void CBalloon::SetColor(int nIndex, COLORREF crColor)
 	m_crColor [nIndex] = crColor;
 }
 
-COLORREF CBalloon::GetColor(int nIndex) const
+COLORREF CBalloon::GetColor(int nIndex)
 {
 	if (nIndex >= BALLOON_MAX_COLORS)
 		nIndex = BALLOON_COLOR_FG;
@@ -935,7 +934,7 @@ void CBalloon::SetGradientColors(COLORREF crBegin, COLORREF crMid, COLORREF crEn
 	}
 }
 
-void CBalloon::GetGradientColors(COLORREF & crBegin, COLORREF & crMid, COLORREF & crEnd, CWnd * pWnd /* = NULL */) const
+void CBalloon::GetGradientColors(COLORREF & crBegin, COLORREF & crMid, COLORREF & crEnd, CWnd * pWnd /* = NULL */)
 {
 	if (pWnd)
 	{
@@ -965,7 +964,7 @@ void CBalloon::ShowBalloon(CWnd * pWnd, CPoint pt, UINT nIdText, BOOL showCloseB
 }
 
 void CBalloon::ShowBalloon(
-	CWnd * pWnd, CPoint pt, const CString& sText, BOOL showCloseButton, HICON hIcon, 
+	CWnd * pWnd, CPoint pt, CString sText, BOOL showCloseButton, HICON hIcon, 
 	UINT nDirection, UINT nEffect, COLORREF crStart, COLORREF crMid, COLORREF crEnd)
 {
 	BALLOON_INFO Info;
@@ -1006,11 +1005,11 @@ void CBalloon::AddTool(int nIdWnd, UINT nIdText, UINT nIdIcon)
 {
 	AddTool(m_pParentWnd->GetDlgItem(nIdWnd), nIdText, nIdIcon);
 }
-void CBalloon::AddTool(int nIdWnd, const CString& sBalloonTipText, HICON hIcon/* = NULL*/)
+void CBalloon::AddTool(int nIdWnd, CString sBalloonTipText, HICON hIcon/* = NULL*/)
 {
 	AddTool(m_pParentWnd->GetDlgItem(nIdWnd), sBalloonTipText, hIcon);
 }
-void CBalloon::AddTool(int nIdWnd, const CString& sBalloonTipText, UINT nIdIcon)
+void CBalloon::AddTool(int nIdWnd, CString sBalloonTipText, UINT nIdIcon)
 {
 	AddTool(m_pParentWnd->GetDlgItem(nIdWnd), sBalloonTipText, nIdIcon);
 }
@@ -1029,7 +1028,7 @@ void CBalloon::AddTool(CWnd * pWnd, UINT nIdText, UINT nIdIcon)
 	AddTool(pWnd, str, nIdIcon);
 } 
 
-void CBalloon::AddTool(CWnd * pWnd, const CString& sBalloonTipText, UINT nIdIcon)
+void CBalloon::AddTool(CWnd * pWnd, CString sBalloonTipText, UINT nIdIcon)
 {
 	HICON hIcon	= NULL;
 	HINSTANCE hInstResource	= NULL;
@@ -1044,7 +1043,7 @@ void CBalloon::AddTool(CWnd * pWnd, const CString& sBalloonTipText, UINT nIdIcon
 	AddTool(pWnd, sBalloonTipText, hIcon);
 } 
 
-void CBalloon::AddTool(CWnd * pWnd, const CString& sBalloonTipText, HICON hIcon /* = NULL */)
+void CBalloon::AddTool(CWnd * pWnd, CString sBalloonTipText, HICON hIcon /* = NULL */)
 {
 	//store the tool information
 	BALLOON_INFO Info;
@@ -1063,7 +1062,7 @@ void CBalloon::AddTool(CWnd * pWnd, BALLOON_INFO & bi)
 		m_ToolMap.SetAt(NULL, bi);
 } 
 
-BOOL CBalloon::GetTool(CWnd * pWnd, CString & sBalloonTipText, HICON & hIcon) const
+BOOL CBalloon::GetTool(CWnd * pWnd, CString & sBalloonTipText, HICON & hIcon)
 {
 	BALLOON_INFO bi;
 	BOOL bFound = GetTool(pWnd, bi);
@@ -1076,7 +1075,7 @@ BOOL CBalloon::GetTool(CWnd * pWnd, CString & sBalloonTipText, HICON & hIcon) co
 	return bFound;
 }
 
-BOOL CBalloon::GetTool(CWnd * pWnd, BALLOON_INFO & bi) const
+BOOL CBalloon::GetTool(CWnd * pWnd, BALLOON_INFO & bi)
 {
 	if (pWnd)
 		return m_ToolMap.Lookup(pWnd->m_hWnd, bi);
@@ -1113,7 +1112,7 @@ void CBalloon::ModifyMaskTool(CWnd * pWnd, UINT nAddMask, UINT nRemoveMask)
 	}
 }
 
-UINT CBalloon::GetMaskTool(CWnd * pWnd) const
+UINT CBalloon::GetMaskTool(CWnd * pWnd)
 {
 	ASSERT(pWnd);
 
@@ -1142,7 +1141,7 @@ void CBalloon::SetEffectBk(UINT nEffect, CWnd * pWnd /* = NULL */)
 	}
 }
 
-UINT CBalloon::GetEffectBk(CWnd * pWnd /* = NULL */) const
+UINT CBalloon::GetEffectBk(CWnd * pWnd /* = NULL */)
 {
 	if (pWnd)
 	{
@@ -1173,7 +1172,7 @@ void CBalloon::SetNotify(HWND hWnd)
 	m_hNotifyWnd = hWnd;
 }
 
-BOOL CBalloon::GetNotify() const
+BOOL CBalloon::GetNotify()
 {
 	return (m_hNotifyWnd != NULL);
 } 
@@ -1215,7 +1214,7 @@ void CBalloon::SetSize(int nSizeIndex, UINT nValue)
 	m_nSizes [nSizeIndex] = nValue;
 }
 
-UINT CBalloon::GetSize(int nSizeIndex) const
+UINT CBalloon::GetSize(int nSizeIndex)
 {
 	if (nSizeIndex >= XBLSZ_MAX_SIZES)
 		return 0;
@@ -1261,7 +1260,7 @@ void CBalloon::SetDirection(UINT nDirection /* = BALLOON_RIGHT_TOP */, CWnd * pW
 	}
 }
 
-UINT CBalloon::GetDirection(CWnd * pWnd /* = NULL */) const
+UINT CBalloon::GetDirection(CWnd * pWnd /* = NULL */)
 {
 	if (pWnd)
 	{
@@ -1293,7 +1292,7 @@ void CBalloon::SetBehaviour(UINT nBehaviour /* = 0 */, CWnd * pWnd /* = NULL */)
 	}
 }
 
-UINT CBalloon::GetBehaviour(CWnd * pWnd /* = NULL */) const
+UINT CBalloon::GetBehaviour(CWnd * pWnd /* = NULL */)
 {
 	if (pWnd)
 	{
@@ -1350,12 +1349,12 @@ void CBalloon::SetDefaultFont()
 	SetFont(lpSysFont);
 } 
 
-void CBalloon::GetFont(CFont & font) const
+void CBalloon::GetFont(CFont & font)
 {
 	font.CreateFontIndirect(&m_LogFont);
 }
 
-void CBalloon::GetFont(LPLOGFONT lf) const
+void CBalloon::GetFont(LPLOGFONT lf)
 {
 	memcpy(lf, &m_LogFont, sizeof(LOGFONT));
 }
@@ -1433,14 +1432,20 @@ void CBalloon::PostNcDestroy()
 	}
 }
 
-void CBalloon::GetMonitorWorkArea(const CPoint& sourcePoint, CRect& monitorRect) const
+void CBalloon::GetMonitorWorkArea(const CPoint& sourcePoint, CRect& monitorRect)
 {
 	// identify the monitor that contains the sourcePoint
 	// and return the work area (the portion of the screen 
 	// not obscured by the system task bar or by application 
 	// desktop tool bars) of that monitor
+	OSVERSIONINFOEX VersionInformation;
+	SecureZeroMemory(&VersionInformation, sizeof(OSVERSIONINFOEX));
+	VersionInformation.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO *)&VersionInformation);
+
+	::GetWindowRect(GetDesktopWindow()->m_hWnd, &monitorRect);
 	
-	if (SysInfo::Instance().IsWin2kOrLater())
+	if (VersionInformation.dwMajorVersion >= 5)
 	{
 		MONITORINFO mi;
 
@@ -1459,6 +1464,7 @@ void CBalloon::GetMonitorWorkArea(const CPoint& sourcePoint, CRect& monitorRect)
 				::GetProcAddress (hUser32, "GetMonitorInfoW");
 			if (pfnMonitorFromPoint != NULL && pfnGetMonitorInfo != NULL)
 			{
+				MONITORINFO mi;
 				HMONITOR hMonitor = pfnMonitorFromPoint (sourcePoint, 
 					MONITOR_DEFAULTTONEAREST);
 				mi.cbSize = sizeof (mi);

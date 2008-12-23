@@ -200,13 +200,13 @@ HRESULT CProgressDlg::ShowModeless(HWND hWndParent)
 			// if its parent is blocked.
 			// This process finds the hwnd for the progress window and gives it a kick...
 			IOleWindow *pOleWindow;
-			HRESULT hr2 = m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
-			if(SUCCEEDED(hr2))
+			HRESULT hr=m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
+			if(SUCCEEDED(hr))
 			{
 				HWND hDlgWnd;
 
-				hr2 = pOleWindow->GetWindow(&hDlgWnd);
-				if(SUCCEEDED(hr2))
+				hr=pOleWindow->GetWindow(&hDlgWnd);
+				if(SUCCEEDED(hr))
 				{
 					ShowWindow(hDlgWnd, SW_NORMAL);
 				}

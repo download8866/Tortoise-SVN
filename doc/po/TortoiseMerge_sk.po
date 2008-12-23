@@ -21,8 +21,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2008-11-17 00:14 +0000\n"
-"PO-Revision-Date: 2008-12-17 21:57+0100\n"
+"POT-Creation-Date: 2008-07-20 22:21 +0000\n"
+"PO-Revision-Date: 2008-07-25 12:03+0100\n"
 "Last-Translator: Oto BREZINA <translator@e-posta.sk>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -126,8 +126,8 @@ msgstr "TortoiseMerge je zadarmo. Nemusíte za neho platiť a môžete ho využi
 
 #. (para)
 #: ../source/TortoiseMerge_en.xml:71
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
-msgstr "TortoiseMerge je projekt s uvolneným kódom (\"Open Source\"). To znamená, že máte plný prístup ku zdrojovým kódom tohoto programu. Môžete ho prehliadať na tejto linke <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. (Uživateľ:guest, a prázdne heslo) Najaktuálnejšia verzia, (na ktorej práve pracuejeme, ) je umiestnená pod <filename>/trunk/</filename> vydané verzie sú umiestnené pod <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. (Username:guest, for password hit enter) The most recent version (where we're currently working) is located under <filename>/trunk/</filename> the released versions are located under <filename>/tags/</filename>."
+msgstr "TortoiseMerge je projekt s uvolneným kódom (\"Open Source\"). To znamená, že máte plný prístup ku zdrojovým kódom tohoto programu. Môžete ho prehliadať na tejto linke <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. (Uživateľ:guest, a prázdne heslo) Najaktuálnejšia verzia, ( na ktorej práve pracuejeme, ) je umiestnená pod <filename>/trunk/</filename> vydané verzie sú umiestnené pod <filename>/tags/</filename>."
 
 #. (title)
 #: ../source/TortoiseMerge_en.xml:90
@@ -1200,8 +1200,8 @@ msgstr "Zlúčené"
 # merged
 #. (entry)
 #: ../source/TortoiseMerge_en.xml:1262
-msgid "Specifies the resulting <placeholder-1/> file used in three way diffs. This is the file path where the result of the merge/conflict resolving is saved. If this is not set, then TortoiseMerge will ask the user where to save the result."
-msgstr "Udáva výsledný <placeholder-1/> súbor pre trojcestné porovnanie. Toto je cesta k súboru kde bude uložený výsledok zlučovania/riešenia konfliktov. Ak nie je udané, TortoiseMerge sa pri ukladaní súboru opýta uživaľa kam výsledok uložiť."
+msgid "Specifies the resulting <placeholder-1/> file used in three way diffs. This is the filepath where the result of the merge/conflict resolving is saved. If this is not set, then TortoiseMerge will ask the user where to save the result."
+msgstr "Udáva výsledný <placeholder-1/> súbor pre trojcestné porovnanie. Toto je cesta k súboru kde bude uložený výsledok zlučovania/riešenia konfliktov. Ak nieje udané, TortoiseMerge sa pri ukladaní súboru opýta uživaľa kam výsledok uložiť."
 
 # merged
 #. (entry)
@@ -1344,7 +1344,7 @@ msgstr "Vetva"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1402
 msgid "A term frequently used in revision control systems to describe what happens when development forks at a particular point and follows 2 separate paths. You can create a branch off the main development line so as to develop a new feature without rendering the main line unstable. Or you can branch a stable release to which you make only bug fixes, while new developments take place on the unstable trunk. In Subversion a branch is implemented as a <quote>cheap copy</quote>."
-msgstr "Výraz sa často používa pri správe verzií na popísanie čo sa stene keď sa v niektorom bode vývoj rozdelí na dve samostatné cesty. Môžete vytvoriť vetvu hlavnej vývojovej línie, takže vývoj novej funkcie bez toho aby ste spravili hlavnú líniu nestabilnú. Alebo môžete vetviť stabilné vydania, v ktorých budete robiť len opravy chýb, kým vyvoj sa bude diať v nestabinlnom kmeni. Vo Subversion je vetvenie implementované ako  <quote>lácná kópia</quote>."
+msgstr "Často používaný výraz pri správe verzií na popísanie, čo sa stane, keď sa v niektorom bode vývoj rozdelí na dve samostatné cesty. Môžete vytvoriť vetvu hlavnej vývojovej línie, takže vývoj novej funkcie bez toho aby ste spravili hlavnú líniu nestabilnú. Alebo môžete vetviť stabilné vydania, v ktorých budete robiť len opravy chýb, kým vyvoj sa bude diať v nestabinlnom kmeni. Vo Subversion je vetvenie implementované ako <quote>lácná kópia</quote>."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1415
@@ -1410,7 +1410,7 @@ msgstr "Vymazať"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1477
 msgid "When you delete a versioned item (and commit the change) the item no longer exists in the repository after the committed revision. But of course it still exists in earlier repository revisions, so you can still access it. If necessary, you can copy a deleted item and <quote>resurrect</quote> it complete with history."
-msgstr "Po vymazaní verziovaného súboru (a odovzdaní zmien) objekt už viacej nexistuje v úložisku v nasledových revíziách. Samozrejme však existuje v predchádzajúcich revíziach úložiska, takže k nemu môžete stále pristúpiť. Keď je nutné, môžete vytvoriť kópiu vymazeného objektu a <quote>vzkriesiť</quote> ho aj s jeho históriou."
+msgstr "Po vymazaní verziovaného súboru (a odovzdaní zmien) objekt už viacej nexistuje v úložisku v nasledových revíziách. Samozrejme však existuje v predchádzajúcich revíziach úložiska, takže k nemu môžete stále pristúpiť. Keď je nutné, môžete vytvoriť kópiu vymazeného objektu a <quote>vzkriesiť</quote> ho aj s jeho celou históriou."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1487

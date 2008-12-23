@@ -19,6 +19,12 @@
 #include "StdAfx.h"
 #include ".\tokenizedstringcontainer.h"
 
+#include "PackedIntegerInStream.h"
+#include "PackedIntegerOutStream.h"
+#include "DiffIntegerInStream.h"
+#include "DiffIntegerOutStream.h"
+#include "CompositeOutStream.h"
+
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
 ///////////////////////////////////////////////////////////////

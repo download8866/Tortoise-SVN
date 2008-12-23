@@ -71,25 +71,9 @@ HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage(
     /* [in] */ BSTR originalMessage,
     /* [retval][out] */ BSTR *newMessage)
 {
-	return GetCommitMessage2(hParentWnd, parameters, NULL, commonRoot, pathList, originalMessage, newMessage);
-}
+	// TODO: Error checking.
 
-HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage2( 
-	/* [in] */ HWND hParentWnd,
-	/* [in] */ BSTR parameters,
-	/* [in] */ BSTR commonURL,
-	/* [in] */ BSTR commonRoot,
-	/* [in] */ SAFEARRAY * pathList,
-	/* [in] */ BSTR originalMessage,
-	/* [retval][out] */ BSTR *newMessage)
-{
 	USES_CONVERSION;
-
-	if (commonURL)
-	{
-		// do something with the common root url
-		// if necessary
-	}
 
 	parameters_t params = ParseParameters(parameters);
 	CString commandLine = params[CString("CommandLine")];
@@ -159,39 +143,4 @@ HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage2(
 
 	*newMessage = message.AllocSysString();
 	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CProvider::OnCommitFinished (
-	/* [in] */ HWND hParentWnd,
-	/* [in] */ BSTR commonRoot,
-	/* [in] */ SAFEARRAY * pathList,
-	/* [in] */ BSTR logMessage,
-	/* [in] */ ULONG revision,
-	/* [out, retval] */ BSTR * error)
-{
-	CString err = _T("Test error string");
-	*error = err.AllocSysString();
-	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CProvider::HasOptions(
-				   /* [out, retval] */ VARIANT_BOOL *ret)
-{
-	MessageBox(NULL, _T("test"), _T("test"), MB_ICONERROR);
-	*ret = VARIANT_FALSE;
-	MessageBox(NULL, _T("test2"), _T("test2"), MB_ICONERROR);
-	return S_OK;
-}
-
-// this method is called if HasOptions() returned true before.
-// Use this to show a custom dialog so the user doesn't have to
-// create the parameters string manually
-HRESULT STDMETHODCALLTYPE CProvider::ShowOptionsDialog(
-						  /* [in] */ HWND hParentWnd,
-						  /* [in] */ BSTR parameters,
-						  /* [out, retval] */ BSTR * newparameters
-						  )
-{
-	// we don't show an options dialog
-	return E_NOTIMPL;
 }

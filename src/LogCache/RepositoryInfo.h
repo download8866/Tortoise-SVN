@@ -99,10 +99,6 @@ private:
 
         CString uuid;
 
-        /// cached repository file
-
-        CString fileName;
-
         /// path we used to ask SVN for the head revision
 
         CString headURL;
@@ -120,79 +116,21 @@ private:
         ConnectionState connectionState;
     };
 
-    class CData
+    /**
+     * File version identifiers.
+     **/
+
+    enum
     {
-    private:
-        
-        /// per-repository properties
-
-        typedef std::vector<SPerRepositoryInfo*> TData;
-        TData data;
-
-        /// several indices for faster access
-
-        typedef std::multimap<CString, SPerRepositoryInfo*> TPartialIndex;
-        TPartialIndex uuidIndex;
-        TPartialIndex urlIndex;
-
-        typedef std::map<std::pair<CString, CString>, SPerRepositoryInfo*> TFullIndex;
-        TFullIndex fullIndex;
-
-        /**
-         * File version identifiers.
-         **/
-
-        enum
-        {
-            VERSION = 20081023,
-            MIN_FILENAME_VERSION = VERSION,
-            MIN_COMPATIBLE_VERSION = 20071023
-        };
-
-        // a lookup utility that scans an index range
-
-        CString FindRoot 
-            ( TPartialIndex::const_iterator begin
-            , TPartialIndex::const_iterator end
-            , const CString& url) const;
-
-    public:
-
-        /// construction / destruction
-
-        CData();
-        ~CData();
-
-        /// lookup (using current rules setting);
-        /// pass empty strings for unknown values.
-
-        CString FindRoot (const CString& uuid, const CString& url) const;
-        SPerRepositoryInfo* Lookup (const CString& uuid, const CString& root) const;
-
-        /// modification
-
-        void Add (const SPerRepositoryInfo& info);
-        void Remove (SPerRepositoryInfo* info);
-
-        /// read / write file
-
-        void Load (const CString& fileName);
-        void Save (const CString& fileName) const;
-        void Clear();
-
-        /// status info
-
-        bool empty() const;
-
-        /// data access
-
-        const SPerRepositoryInfo* const * begin() const;
-        const SPerRepositoryInfo* const * end() const;
+        VERSION = 20071023,
+        MIN_COMPATIBLE_VERSION = VERSION
     };
 
     /// cached repository properties
+	/// map URL -> PerRepoInfo
 
-    static CData data;
+    typedef std::map<CString, SPerRepositoryInfo> TData;
+    TData data;
 
     /// has the data been modified
 
@@ -210,13 +148,18 @@ private:
 
     void Load();
 
+    /// find cache entry (or data::end())
+
+    TData::iterator Lookup (const CString& url);
+    TData::iterator Lookup (const CTSVNPath& url);
+
     /// does the user want to be this repository off-line?
 
-    bool IsOffline (SPerRepositoryInfo* info);
+    bool IsOffline (SPerRepositoryInfo& info);
 
     /// try to get the HEAD revision from the log cache
 
-    void SetHeadFromCache (SPerRepositoryInfo* iter);
+    void SetHeadFromCache (SPerRepositoryInfo& iter);
 
 public:
 
@@ -230,28 +173,39 @@ public:
 
 	CString GetRepositoryRoot (const CTSVNPath& url);
 	CString GetRepositoryUUID (const CTSVNPath& url);
-	CString GetRepositoryRootAndUUID (const CTSVNPath& url, CString& uuid);
+	CString GetRepositoryRootAndUUID (const CTSVNPath& url, CString& sUUID);
 
-    revision_t GetHeadRevision (CString uuid, const CTSVNPath& url);
+    revision_t GetHeadRevision (const CTSVNPath& url);
 
     /// make sure, we will ask the repository for the HEAD
 
-    void ResetHeadRevision (const CString& uuid, const CString& root);
+    void ResetHeadRevision (const CTSVNPath& url);
+
+    /// find the root folder to a given UUID (e.g. URL for given cache file).
+    /// Returns an empty string, if no suitable entry has been found.
+
+    CString GetRootFromUUID (const CString& sUUID) const;
+
+    /// do multiple URLs use this UUID?
+
+    bool HasMultipleURLs (const CString& uuid) const;
+
+    // get one of the possibly many URLs that for the repository given by the UUID
+
+    CString GetFirstURL (const CString& uuid) const;
 
     /// is the repository offline? 
 	/// Don't modify the state if autoSet is false.
 
-    bool IsOffline (const CString& uuid, const CString& url, bool autoSet);
+    bool IsOffline (const CString& url, bool autoSet);
 
     /// get the connection state (uninterpreted)
 
-    ConnectionState GetConnectionState (const CString& uuid, const CString& url);
+    ConnectionState GetConnectionState (const CString& uuid);
 
-    /// remove a specific entry.
-    /// Parameters must be copied because they may stem from the
-    /// info object being deleted.
+    /// remove a specific entry
 
-    void DropEntry (CString uuid, CString url);
+    void DropEntry (const CString& sUUID);
 
 	/// write all changes to disk
 
@@ -273,10 +227,13 @@ public:
 
     CString GetFileName() const;
 
+    /// is this only temporary data?
+
+    bool IsPermanent() const;
+
     /// for statistics
 
 	friend class CLogCacheStatistics;
-	friend class CLogCachePool;
 };
 
 ///////////////////////////////////////////////////////////////

@@ -94,7 +94,6 @@ public:
 
 	index_t GetParent (index_t index) const;
 	const char* GetPathElement (index_t index) const;
-    index_t GetPathElementSize (index_t index) const;
 	index_t GetPathElementID (index_t index) const;
 
 	index_t Find (index_t parent, const char* pathElement) const;
@@ -145,12 +144,6 @@ private:
 	const CPathDictionary* dictionary;
 	index_t index;
 
-#ifdef _DEBUG
-    /// the path expanded into a string - for easier debugging only
-
-    std::string _path;
-#endif
-
 protected:
 
 	/// index manipulation
@@ -158,9 +151,6 @@ protected:
 	void SetIndex (index_t newIndex) 
 	{
 		index = newIndex;
-    #ifdef _DEBUG
-        _path = GetPath();
-    #endif
 	}
 
 	/// construction utility: lookup and optionally auto-insert
@@ -180,9 +170,6 @@ protected:
 			: IsSameOrParentOf (rhsIndex, lhsIndex);
 	}
 
-    /// element access
-
-    std::string ReverseAt (size_t reverseIndex) const;
 
 public:
 
@@ -192,9 +179,6 @@ public:
 		: dictionary (aDictionary)
 		, index (anIndex)
 	{
-    #ifdef _DEBUG
-        _path = GetPath();
-    #endif
 	}
 
 	CDictionaryBasedPath ( const CPathDictionary* aDictionary
@@ -226,13 +210,6 @@ public:
 	{
 		return index == 0;
 	}
-
-    index_t GetDepth() const;
-
-    std::string operator[](size_t index) const
-    {
-        return ReverseAt (GetDepth() - index - 1);
-    }
 
 	bool IsValid() const
 	{
@@ -301,17 +278,6 @@ public:
 
 	std::string GetPath() const;
 };
-
-/// standard operator used by STL containers
-/// Note: This is not lexicographical order!
-
-inline bool operator< ( const CDictionaryBasedPath& lhs
-                      , const CDictionaryBasedPath& rhs)
-{
-    // quick compare: indices and counters
-
-    return lhs.GetIndex() < rhs.GetIndex();
-}
 
 ///////////////////////////////////////////////////////////////
 // end namespace LogCache

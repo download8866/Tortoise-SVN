@@ -81,7 +81,6 @@ typedef struct FileStatusCacheEntry
 	svn_revnum_t			rev;
 	int						askedcounter;
 	svn_lock_t *			lock;
-	bool					tree_conflict;
 } FileStatusCacheEntry;
 
 #define SVNFOLDERSTATUS_CACHETIMES				10
@@ -115,8 +114,8 @@ public:
 private:
 	const FileStatusCacheEntry * BuildCache(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bDirectFolder = FALSE);
 	DWORD				GetTimeoutValue();
-	static svn_error_t*	fillstatusmap (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
-	static svn_error_t*	findfolderstatus (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
+	static void			fillstatusmap (void *baton, const char *path, svn_wc_status2_t *status);
+	static void			findfolderstatus (void *baton, const char *path, svn_wc_status2_t *status);
 	static CTSVNPath	folderpath;
 	void				ClearCache();
 	

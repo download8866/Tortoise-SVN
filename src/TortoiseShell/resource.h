@@ -128,13 +128,6 @@
 #define IDS_COLDESCMIMETYPE             217
 #define IDS_DROPEXPORTMENU              218
 #define IDS_DROPEXPORTEXTENDEDMENU      219
-#define IDS_MENUIGNOREMULTIPLEMASK      220
-#define IDS_MENUDELETEIGNOREMULTIPLE    221
-#define IDS_MENUDELETEIGNOREMULTIPLEMASK 222
-#define IDS_MENUDELETEIGNORE            223
-#define IDS_MENUDESCDELETEIGNORE        224
-#define IDS_MENUCLIPPASTE               225
-#define IDS_MENUDESCCLIPPASTE           226
 #define IDS_ERR_PROPNOTONFILE           230
 #define IDS_MENUIGNOREMULTIPLE          231
 #define IDS_ERR_PROPNOMULTILINE         232
@@ -193,9 +186,7 @@
 #define IDC_ADDBUTTON                   1012
 #define IDC_COPIED                      1012
 #define IDC_REMOVEBUTTON                1013
-#define IDC_FILEEXTERNAL                1013
 #define IDC_EDITNAME                    1014
-#define IDC_TREECONFLICT                1014
 #define IDC_EDITVALUE                   1015
 #define IDC_SHOWLOG                     1016
 #define IDC_RECURSIVE                   1018
@@ -214,7 +205,6 @@
 #define IDI_PROPERTIES                  5158
 #define IDI_DELUNVERSIONED              5159
 #define IDI_APPSMALL                    5160
-#define IDI_CLIPPASTE                   5164
 #define IDC_LOCKOWNER                   11019
 #define IDC_LOCKDATE                    11020
 #define IDC_EDITPROPERTIES              11021
@@ -229,7 +219,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        5165
+#define _APS_NEXT_RESOURCE_VALUE        5161
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         11026
 #define _APS_NEXT_SYMED_VALUE           5101

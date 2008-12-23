@@ -161,16 +161,15 @@ void CCheckoutDlg::OnOK()
 	if (!UpdateData(TRUE))
 		return; // don't dismiss dialog (error message already shown by MFC framework)
 
-	CTSVNPath checkoutDirectory;
+	CTSVNPath m_CheckoutDirectory;
 	if (::PathIsRelative(m_strCheckoutDirectory))
 	{
-		checkoutDirectory = CTSVNPath(sOrigCWD);
-		checkoutDirectory.AppendPathString(_T("\\") + m_strCheckoutDirectory);
-		m_strCheckoutDirectory = checkoutDirectory.GetWinPathString();
+		m_CheckoutDirectory = CTSVNPath(sOrigCWD);
+		m_CheckoutDirectory.AppendPathString(_T("\\") + m_strCheckoutDirectory);
 	}
 	else
-		checkoutDirectory = CTSVNPath(m_strCheckoutDirectory);
-	if (!checkoutDirectory.IsValidOnWindows())
+		m_CheckoutDirectory = CTSVNPath(m_strCheckoutDirectory);
+	if (!m_CheckoutDirectory.IsValidOnWindows())
 	{
 		ShowBalloon(IDC_CHECKOUTDIRECTORY, IDS_ERR_NOVALIDPATH);
 		return;
@@ -193,11 +192,31 @@ void CCheckoutDlg::OnOK()
 	m_URLCombo.SaveHistory();
 	m_URL = m_URLCombo.GetString();
 
-	if (!SVN::PathIsURL(CTSVNPath(m_URL)))
+	if (!SVN::PathIsURL(m_URL))
 	{
 		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDI_ERROR);
 		m_bAutoCreateTargetName = bAutoCreateTargetName;
 		return;
+	}
+
+	if (m_URL.Left(7).CompareNoCase(_T("file://"))==0)
+	{
+		//check if the url is on a network share
+		CString temp = m_URL.Mid(7);
+		temp = temp.TrimLeft('/');
+		temp.Replace('/', '\\');
+		temp = temp.Left(3);
+		if (GetDriveType(temp)==DRIVE_REMOTE)
+		{
+			if (SVN::IsBDBRepository(m_URL))
+				// It's a network share, and the user tries to create a Berkeley db on it.
+				// Show a warning telling the user about the risks of doing so.
+				if (CMessageBox::Show(this->m_hWnd, IDS_WARN_SHAREFILEACCESS, IDS_APPNAME, MB_ICONWARNING | MB_YESNO)==IDNO)
+				{
+					m_bAutoCreateTargetName = bAutoCreateTargetName;
+					return;
+				}
+		}
 	}
 
 	if (m_strCheckoutDirectory.IsEmpty())
@@ -206,7 +225,17 @@ void CCheckoutDlg::OnOK()
 	}
 	if (!PathFileExists(m_strCheckoutDirectory))
 	{
-		CPathUtils::MakeSureDirectoryPathExists(m_strCheckoutDirectory);
+		CString temp;
+		temp.Format(IDS_WARN_FOLDERNOTEXIST, (LPCTSTR)m_strCheckoutDirectory);
+		if (CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			CPathUtils::MakeSureDirectoryPathExists(m_strCheckoutDirectory);
+		}
+		else
+		{
+			m_bAutoCreateTargetName = bAutoCreateTargetName;
+			return;		//don't dismiss the dialog
+		}
 	}
 	if (!PathIsDirectoryEmpty(m_strCheckoutDirectory))
 	{
@@ -338,7 +367,7 @@ void CCheckoutDlg::OnBnClickedShowlog()
 	//now show the log dialog for working copy
 	if (!m_URL.IsEmpty())
 	{
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
 		m_pLogDlg->SetParams(CTSVNPath(m_URL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100));
 		m_pLogDlg->m_wParam = 1;

@@ -172,13 +172,13 @@ LexerLibrary::~LexerLibrary() {
 void LexerLibrary::Release() {
 	//TODO maintain a list of lexers created, and delete them!
 	LexerMinder *lm;
-	LexerMinder *lmNext;
+	LexerMinder *next;
 	lm = first;
 	while (NULL != lm) {
-		lmNext = lm->next;
+		next = lm->next;
 		delete lm->self;
 		delete lm;
-		lm = lmNext;
+		lm = next;
 	}
 
 	first = NULL;

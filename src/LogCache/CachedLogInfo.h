@@ -78,11 +78,6 @@ private:
     {
     private:
 
-        /// only this value means "no crash" because "0" means
-        /// TSVN didn't crash *before* the .lock file was set.
-
-        enum {NO_FAILURE = -1};
-
         /// if we own the file, we will keep it open
 
         HANDLE fileHandle;
@@ -91,20 +86,11 @@ private:
 
 	    std::wstring fileName;
 
-        /// number of times this cache was not released propertly
-
-        int failureCount;
-
         /// "in use" (hidden flag) file flag handling
 
         bool IsMarked (const std::wstring& name) const;
         void SetMark (const std::wstring& name);
         void ResetMark();
-
-        /// allow for multiple failures 
-
-        bool ShouldDrop (const std::wstring& name);
-        void UpdateMark (const std::wstring& name);
 
         /// copying is not supported
 

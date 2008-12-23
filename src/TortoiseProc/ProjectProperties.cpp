@@ -77,8 +77,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundWebViewPathRev = FALSE;
 	BOOL bFoundAutoProps = FALSE;
 	BOOL bFoundLogSummary = FALSE;
-	BOOL bFoundBugtraqProviderUuid = FALSE;
-	BOOL bFoundBugtraqProviderParams = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
@@ -89,7 +87,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		for (int i=0; i<props.GetCount(); ++i)
 		{
 			CString sPropName = props.GetItemName(i).c_str();
-			CString sPropVal = CUnicodeUtils::GetUnicode(((char *)props.GetItemValue(i).c_str()));
+			CString sPropVal = CString(((char *)props.GetItemValue(i).c_str()));
 			if ((!bFoundBugtraqLabel)&&(sPropName.Compare(BUGTRAQPROPNAME_LABEL)==0))
 			{
 				sLabel = sPropVal;
@@ -151,16 +149,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				else
 					bAppend = FALSE;
 				bFoundBugtraqAppend = TRUE;
-			}
-			if ((!bFoundBugtraqProviderUuid)&&(sPropName.Compare(BUGTRAQPROPNAME_PROVIDERUUID)==0))
-			{
-				sProviderUuid = sPropVal;
-				bFoundBugtraqProviderUuid = TRUE;
-			}
-			if ((!bFoundBugtraqProviderParams)&&(sPropName.Compare(BUGTRAQPROPNAME_PROVIDERPARAMS)==0))
-			{
-				sProviderParams = sPropVal;
-				bFoundBugtraqProviderParams = TRUE;
 			}
 			if ((!bFoundLogWidth)&&(sPropName.Compare(PROJECTPROPNAME_LOGWIDTHLINE)==0))
 			{
@@ -257,7 +245,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
-		propsPath = path;
 		path = path.GetContainingDirectory();
 		if ((!path.HasAdminDir())||(path.IsEmpty()))
 		{
@@ -265,12 +252,8 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary
-				| bFoundBugtraqProviderUuid | bFoundBugtraqProviderParams)
-			{
+				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary)
 				return TRUE;
-			}
-			propsPath.Reset();
 			return FALSE;
 		}
 	}
@@ -321,10 +304,6 @@ CString ProjectProperties::GetBugIDFromLog(CString& msg)
 			}
 			else
 				sBugLine = msg;
-		}
-		if (sBugLine.IsEmpty() && (msg.ReverseFind('\n') < 0))
-		{
-			sBugLine = msg.Mid(msg.ReverseFind('\n')+1);
 		}
 		if (sBugLine.Left(sFirstPart.GetLength()).Compare(sFirstPart)!=0)
 			sBugLine.Empty();

@@ -28,7 +28,6 @@
 
 bool BlameCommand::Execute()
 {
-	bool bRet = false;
 	bool bShowDialog = true;
 	CBlameDlg dlg;
 	CString options;
@@ -50,16 +49,15 @@ bool BlameCommand::Execute()
 		CString logfile;
 		if (bShowDialog)
 			options = SVN::GetOptionsString(dlg.m_bIgnoreEOL, dlg.m_IgnoreSpaces);
-		
 		tempfile = blame.BlameToTempFile(cmdLinePath, dlg.StartRev, dlg.EndRev, 
 			cmdLinePath.IsUrl() ? SVNRev() : SVNRev::REV_WC, logfile, 
-			options, dlg.m_bIncludeMerge, TRUE, TRUE);
+			options, TRUE, TRUE);
 		if (!tempfile.IsEmpty())
 		{
 			if (dlg.m_bTextView)
 			{
 				//open the default text editor for the result file
-				bRet = !!CAppUtils::StartTextViewer(tempfile);
+				CAppUtils::StartTextViewer(tempfile);
 			}
 			else
 			{
@@ -94,7 +92,7 @@ bool BlameCommand::Execute()
 						sVal += _T("/ignoreallspaces ");
 				}
 
-				bRet = CAppUtils::LaunchTortoiseBlame(tempfile, logfile, cmdLinePath.GetFileOrDirectoryName(), sVal, dlg.StartRev, dlg.EndRev);
+				CAppUtils::LaunchTortoiseBlame(tempfile, logfile, cmdLinePath.GetFileOrDirectoryName(), sVal);
 			}
 		}
 		else
@@ -102,5 +100,5 @@ bool BlameCommand::Execute()
 			CMessageBox::Show(hwndExplorer, blame.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		}
 	}
-	return bRet;
+	return true;
 }

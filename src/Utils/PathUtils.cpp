@@ -18,7 +18,6 @@
 //
 #include "StdAfx.h"
 #include "PathUtils.h"
-#include "shlobj.h"
 
 BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
@@ -237,32 +236,6 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
 
 	return ret;
 }
-#ifdef CSTRING_AVAILABLE
-CString CPathUtils::GetAppDirectory(HMODULE hMod /* = NULL */)
-{
-	CString path;
-	DWORD len = 0;
-	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
-	path.GetBuffer(bufferlen);
-	do 
-	{
-		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		path.ReleaseBuffer(0);
-		len = GetModuleFileName(hMod, path.GetBuffer(bufferlen+1), bufferlen);				
-	} while(len == bufferlen);
-	path.ReleaseBuffer();
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
-}
-
-CString CPathUtils::GetAppParentDirectory(HMODULE hMod /* = NULL */)
-{
-	CString path = GetAppDirectory(hMod);
-	path = path.Left(path.ReverseFind('\\'));
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
-}
-#endif
 
 #ifdef _MFC_VER
 CString CPathUtils::GetFileNameFromPath(CString sPath)
@@ -350,6 +323,31 @@ CString CPathUtils::ParsePathInString(const CString& Str)
 	}
 	sToken.Empty();
 	return sToken;
+}
+
+CString CPathUtils::GetAppDirectory()
+{
+	CString path;
+	DWORD len = 0;
+	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
+	path.GetBuffer(bufferlen);
+	do 
+	{
+		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
+		path.ReleaseBuffer(0);
+		len = GetModuleFileName(NULL, path.GetBuffer(bufferlen+1), bufferlen);				
+	} while(len == bufferlen);
+	path.ReleaseBuffer();
+	path = path.Left(path.ReverseFind('\\')+1);
+	return path;
+}
+
+CString CPathUtils::GetAppParentDirectory()
+{
+	CString path = GetAppDirectory();
+	path = path.Left(path.ReverseFind('\\'));
+	path = path.Left(path.ReverseFind('\\')+1);
+	return path;
 }
 
 CString CPathUtils::GetAppDataDirectory()
@@ -494,8 +492,6 @@ private:
 		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
 		CStringA test3 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test3.Compare("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%%20NewTest") == 0);
-		CStringA test4 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS 1.0/Trunk/name with spaces/NewTest % NewTest");
-		ATLASSERT(test4.Compare("file:///d:/REpos1/uCOS%201.0/Trunk/name%20with%20spaces/NewTest%20%%20NewTest") == 0);
 	}
 	void ExtTest()
 	{

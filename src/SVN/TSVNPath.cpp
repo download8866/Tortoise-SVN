@@ -21,7 +21,6 @@
 #include "UnicodeUtils.h"
 #include "SVNAdminDir.h"
 #include "PathUtils.h"
-#include "svn_dirent_uri.h"
 #include <regex>
 
 #if defined(_MFC_VER)
@@ -191,11 +190,10 @@ const char* CTSVNPath::GetSVNApiPath(apr_pool_t *pool) const
 	{
 		m_sUTF8FwdslashPathEscaped = CPathUtils::PathEscape(m_sUTF8FwdslashPath);
 		m_sUTF8FwdslashPathEscaped.Replace("file:////", "file:///\\");
-		m_sUTF8FwdslashPathEscaped = svn_uri_canonicalize(m_sUTF8FwdslashPathEscaped, pool);
+		m_sUTF8FwdslashPathEscaped = svn_path_canonicalize(m_sUTF8FwdslashPathEscaped, pool);
 		return m_sUTF8FwdslashPathEscaped;
 	}
-	else
-		m_sUTF8FwdslashPath = svn_dirent_canonicalize(m_sUTF8FwdslashPath, pool);
+	m_sUTF8FwdslashPath = svn_path_canonicalize(m_sUTF8FwdslashPath, pool);
 
 	return m_sUTF8FwdslashPath;
 }
@@ -409,7 +407,6 @@ void CTSVNPath::Reset()
 	m_sBackslashPath.Empty();
 	m_sFwdslashPath.Empty();
 	m_sUTF8FwdslashPath.Empty();
-	m_sUIPath.Empty();
 	ATLASSERT(IsEmpty());
 }
 
@@ -473,9 +470,7 @@ CString CTSVNPath::GetFileOrDirectoryName() const
 CString CTSVNPath::GetUIFileOrDirectoryName() const
 {
 	GetUIPathString();
-	CString sUIPath = m_sUIPath;
-	sUIPath.Replace('\\', '/');
-	return sUIPath.Mid(sUIPath.ReverseFind('/')+1);
+	return m_sUIPath.Mid(m_sUIPath.ReverseFind('\\')+1);
 }
 
 CString CTSVNPath::GetFileExtension() const
@@ -547,7 +542,7 @@ bool CTSVNPath::IsEmpty() const
 }
 
 // Test if both paths refer to the same item
-// Ignores slash direction
+// Ignores case and slash direction
 bool CTSVNPath::IsEquivalentTo(const CTSVNPath& rhs) const
 {
 	// Try and find a slash direction which avoids having to convert
@@ -566,8 +561,6 @@ bool CTSVNPath::IsEquivalentTo(const CTSVNPath& rhs) const
 	}
 }
 
-// Test if both paths refer to the same item
-// Ignores case and slash direction
 bool CTSVNPath::IsEquivalentToWithoutCase(const CTSVNPath& rhs) const
 {
 	// Try and find a slash direction which avoids having to convert
@@ -1206,14 +1199,6 @@ private:
 		// Try a root UNC path
 		testPath.SetFromUnknown(_T("\\MYSTATION"));
 		ATLASSERT(testPath.GetContainingDirectory().IsEmpty());
-
-		// test the UI path methods
-		testPath.SetFromUnknown(_T("c:\\testing%20test"));
-		ATLASSERT(testPath.GetUIFileOrDirectoryName().CompareNoCase(_T("testing%20test")) == 0);
-#ifdef _MFC_VER
-		testPath.SetFromUnknown(_T("http://server.com/testing%20special%20chars%20%c3%a4%c3%b6%c3%bc"));
-		ATLASSERT(testPath.GetUIFileOrDirectoryName().CompareNoCase(_T("testing special chars \344\366\374")) == 0);
-#endif
 	}
 
 	void AdminDirTest()
@@ -1399,25 +1384,19 @@ private:
 	void SubversionPathTest()
 	{
 		CTSVNPath testPath;
-		testPath.SetFromWin(_T("c:\\"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "c:/") == 0);
-		testPath.SetFromWin(_T("c:\\folder"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "c:/folder") == 0);
 		testPath.SetFromWin(_T("c:\\a\\b\\c\\d\\e"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "c:/a/b/c/d/e") == 0);
 		testPath.SetFromUnknown(_T("http://testing/"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing") == 0);
 		testPath.SetFromSVN(NULL);
 		ATLASSERT(strlen(testPath.GetSVNApiPath(pool))==0);
-		testPath.SetFromWin(_T("\\\\a\\b\\c\\d\\e"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "//a/b/c/d/e") == 0);
 #if defined(_MFC_VER)
 		testPath.SetFromUnknown(_T("http://testing again"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing%20again"));
 		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20again") == 0);
 		testPath.SetFromUnknown(_T("http://testing special chars \344\366\374"));
-		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20special%20chars%20%c3%a4%c3%b6%c3%bc") == 0);		
+		ATLASSERT(strcmp(testPath.GetSVNApiPath(pool), "http://testing%20special%20chars%20%C3%A4%C3%B6%C3%BC") == 0);		
 #endif
 	}
 

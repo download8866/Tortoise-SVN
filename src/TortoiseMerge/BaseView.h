@@ -125,7 +125,6 @@ protected:
 	afx_msg void	OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void	OnEditCopy();
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void	OnTimer(UINT_PTR nIDEvent);
 	afx_msg void	OnMouseLeave();
 	afx_msg void	OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void	OnCaretDown();
@@ -212,7 +211,7 @@ protected:
 	void			DrawText(CDC * pDC, const CRect &rc, LPCTSTR text, int textlength, int nLineIndex, POINT coords, bool bModified, bool bInlineDiff);
 	void			ClearCurrentSelection();
 	void			AdjustSelection();
-	void			SelectNextBlock(int nDirection, bool bConflict, bool bSkipEndOfCurrentBlock = true);
+	void            SelectNextBlock(int nDirection, bool bConflict);
 
 	void			RemoveLine(int nLineIndex);
 	void			RemoveSelectedText();
@@ -240,7 +239,6 @@ protected:
 	BOOL			m_bViewLinenumbers;
 	BOOL			m_bIsHidden;
 	BOOL			m_bMouseWithin;
-	BOOL			m_bIconLFs;
 	int				m_nLineHeight;
 	int				m_nCharWidth;
 	int				m_nMaxLineLength;

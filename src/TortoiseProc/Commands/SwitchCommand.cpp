@@ -39,7 +39,6 @@ bool SwitchCommand::Execute()
 		progDlg.SetUrl(dlg.m_URL);
 		progDlg.SetRevision(dlg.Revision);
 		progDlg.DoModal();
-		return !progDlg.DidErrorsOccur();
 	}
-	return false;
+	return true;
 }

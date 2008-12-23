@@ -31,12 +31,10 @@
 #include "SettingsColors.h"
 #include "SetMisc.h"
 #include "SetLogCache.h"
-#include "SettingsLogCaches.h"
 #include "SetSavedDataPage.h"
 #include "SetHooks.h"
 #include "SetBugTraq.h"
 #include "SettingsTBlame.h"
-#include "SettingsRevisionGraph.h"
 #include "TreePropSheet/TreePropSheet.h"
 
 using namespace TreePropSheet;
@@ -73,11 +71,9 @@ private:
 	CSettingsProgsUniDiff * m_pProgsUniDiffPage;
 	CSetLookAndFeelPage *	m_pLookAndFeelPage;
 	CSetDialogs *			m_pDialogsPage;
-    CSettingsRevisionGraph* m_pRevisionGraphPage;
 	CSettingsColors *		m_pColorsPage;
 	CSetMisc *				m_pMiscPage;
 	CSetLogCache *			m_pLogCachePage;
-    CSettingsLogCaches*     m_pLogCacheListPage;
 	CSetSavedDataPage *		m_pSavedPage;
 	CSetHooks *				m_pHooksPage;
 	CSetBugTraq *			m_pBugTraqPage;

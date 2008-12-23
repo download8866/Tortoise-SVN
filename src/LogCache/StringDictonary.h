@@ -112,10 +112,6 @@ private:
 	std::vector<char> packedStrings;
 	std::vector<index_t> offsets;
 
-    /// equivalent to &packedStrings.at(0)
-
-    char* packedStringsStart;
-
 	/// the string index
 
 	quick_hash<CHashFunction> hashIndex;

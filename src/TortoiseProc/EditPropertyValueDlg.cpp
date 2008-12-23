@@ -104,8 +104,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 			m_PropNames.AddString(_T("bugtraq:number"));
 			m_PropNames.AddString(_T("bugtraq:warnifnoissue"));
 			m_PropNames.AddString(_T("bugtraq:append"));
-			m_PropNames.AddString(_T("bugtraq:provideruuid"));
-			m_PropNames.AddString(_T("bugtraq:providerparams"));
 
 			m_PropNames.AddString(_T("tsvn:logtemplate"));
 			m_PropNames.AddString(_T("tsvn:logwidthmarker"));
@@ -277,10 +275,6 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_PROP_TT_BQWARNNOISSUE;
 		if (sName.Compare(_T("bugtraq:append"))==0)
 			nText = IDS_PROP_TT_BQAPPEND;
-		if (sName.Compare(_T("bugtraq:provideruuid"))==0)
-			nText = IDS_PROP_TT_BQPROVIDERUUID;
-		if (sName.Compare(_T("bugtraq:providerparams"))==0)
-			nText = IDS_PROP_TT_BQPROVIDERPARAMS;
 
 		if (sName.Compare(_T("tsvn:logtemplate"))==0)
 			nText = IDS_PROP_TT_TSVNLOGTEMPLATE;
@@ -310,14 +304,12 @@ void CEditPropertyValueDlg::CheckRecursive()
 
 		if (nText)
 		{
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO), nText);
 			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD), nText);
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPVALUE), nText);
 		}
 		else
 		{
 			// if no match is found then remove the tool tip so that the last tooltip is not wrongly shown
-			m_tooltips.DelTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
+			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
 		}
 	}
 }

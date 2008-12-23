@@ -21,7 +21,6 @@
 #include "TortoiseBlame.h"
 #include "registry.h"
 #include "LangDll.h"
-
 #define MAX_LOADSTRING 1000
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
@@ -88,24 +87,6 @@ TortoiseBlame::~TortoiseBlame()
 		DeleteObject(m_font);
 	if (m_italicfont)
 		DeleteObject(m_italicfont);
-}
-
-std::string TortoiseBlame::GetAppDirectory()
-{
-	std::string path;
-	DWORD len = 0;
-	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
-	do 
-	{
-		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		TCHAR * pBuf = new TCHAR[bufferlen];
-		len = GetModuleFileName(NULL, pBuf, bufferlen);	
-		path = std::string(pBuf, len);
-		delete [] pBuf;
-	} while(len == bufferlen);
-	path = path.substr(0, path.rfind('\\') + 1);
-
-	return path;
 }
 
 // Return a color which is interpolated between c1 and c2.
@@ -209,10 +190,10 @@ BOOL TortoiseBlame::OpenLogFile(const char *fileName)
 			fseek(File, reallength-MAX_LOG_LENGTH, SEEK_CUR);
 			msg = msg + _T("\n...");
 		}
-		int len2 = ::MultiByteToWideChar(CP_UTF8, NULL, msg.c_str(), min(msg.size(), MAX_LOG_LENGTH+5), wbuf, MAX_LOG_LENGTH+5);
-		wbuf[len2] = 0;
-		len2 = ::WideCharToMultiByte(CP_ACP, NULL, wbuf, len2, logmsgbuf, MAX_LOG_LENGTH+5, NULL, NULL);
-		logmsgbuf[len2] = 0;
+		int len = ::MultiByteToWideChar(CP_UTF8, NULL, msg.c_str(), min(msg.size(), MAX_LOG_LENGTH+5), wbuf, MAX_LOG_LENGTH+5);
+		wbuf[len] = 0;
+		len = ::WideCharToMultiByte(CP_ACP, NULL, wbuf, len, logmsgbuf, MAX_LOG_LENGTH+5, NULL, NULL);
+		logmsgbuf[len] = 0;
 		msg = std::string(logmsgbuf);
 		logmessages[rev] = msg;
 	}
@@ -381,7 +362,6 @@ BOOL TortoiseBlame::OpenFile(const char *fileName)
 	SendEditor(EM_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
 	SendEditor(SCI_GOTOPOS, 0);
-	SendEditor(SCI_SETSCROLLWIDTHTRACKING, TRUE);
 	SendEditor(SCI_SETREADONLY, TRUE);
 
 	//check which lexer to use, depending on the filetype
@@ -672,7 +652,7 @@ void TortoiseBlame::BlamePreviousRevision()
 	memset(&startup, 0, sizeof(startup));
 	startup.cb = sizeof(startup);
 	memset(&process, 0, sizeof(process));
-	stdstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
+	CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 	stdstring svnCmd = _T(" /command:blame ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -689,7 +669,7 @@ void TortoiseBlame::BlamePreviousRevision()
 		svnCmd += _T(" /ignorespaces");
 	if (bIgnoreAllSpaces)
 		svnCmd += _T(" /ignoreallspaces");
-    if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 	{
 		CloseHandle(process.hThread);
 		CloseHandle(process.hProcess);
@@ -717,7 +697,7 @@ void TortoiseBlame::DiffPreviousRevision()
 	memset(&startup, 0, sizeof(startup));
 	startup.cb = sizeof(startup);
 	memset(&process, 0, sizeof(process));
-	stdstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
+	CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 	stdstring svnCmd = _T(" /command:diff ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -726,7 +706,7 @@ void TortoiseBlame::DiffPreviousRevision()
 	svnCmd += bufStartRev;
 	svnCmd += _T(" /endrev:");
 	svnCmd += bufEndRev;
-	if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 	{
 		CloseHandle(process.hThread);
 		CloseHandle(process.hProcess);
@@ -743,7 +723,7 @@ void TortoiseBlame::ShowLog()
 	memset(&startup, 0, sizeof(startup));
 	startup.cb = sizeof(startup);
 	memset(&process, 0, sizeof(process));
-	stdstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
+	CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
 	stdstring svnCmd = _T(" /command:log ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -752,7 +732,7 @@ void TortoiseBlame::ShowLog()
 	svnCmd += bufRev;
 	svnCmd += _T(" /pegrev:");
 	svnCmd += bufRev;
-	if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 	{
 		CloseHandle(process.hThread);
 		CloseHandle(process.hProcess);
@@ -1039,8 +1019,8 @@ void TortoiseBlame::DrawBlame(HDC hDC)
 		else
 		{
 			::SetBkColor(hDC, m_windowcolor);
-			for (int j=0; j< MAX_PATH; ++j)
-				buf[j]=' ';
+			for (int i=0; i< MAX_PATH; ++i)
+				buf[i]=' ';
 			::ExtTextOut(hDC, 0, Y, ETO_CLIPPED, &rc, buf, MAX_PATH-1, 0);
 			Y += height;
 		}
@@ -1230,12 +1210,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	if (__argc > 3)
 	{
 		_tcscpy_s(szViewtitle, MAX_PATH, __argv[3]);
-		if (parser.HasVal(_T("revrange")))
-		{
-			_tcscat_s(szViewtitle, MAX_PATH, _T(" : "));
-			_tcscat_s(szViewtitle, MAX_PATH, parser.GetVal(_T("revrange")));
-		}
 	}
+
 	if ((_tcslen(blamefile)==0) || parser.HasKey(_T("?")) || parser.HasKey(_T("help")))
 	{
 		TCHAR szInfo[MAX_LOADSTRING];
@@ -1648,9 +1624,7 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				NMTTDISPINFOA* pTTTA = (NMTTDISPINFOA*)pNMHDR;
 				NMTTDISPINFOW* pTTTW = (NMTTDISPINFOW*)pNMHDR;
 				POINT point;
-				DWORD ptW = GetMessagePos();
-				point.x = GET_X_LPARAM(ptW);
-				point.y = GET_Y_LPARAM(ptW);
+				::GetCursorPos(&point);
 				::ScreenToClient(app.wBlame, &point);
 				LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
 				LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);

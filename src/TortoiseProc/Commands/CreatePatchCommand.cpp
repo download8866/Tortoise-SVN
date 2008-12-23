@@ -32,7 +32,6 @@
 
 bool CreatePatchCommand::Execute()
 {
-	bool bRet = false;
 	CString savepath = CPathUtils::GetLongPathname(parser.GetVal(_T("savepath")));
 	CCreatePatch dlg;
 	dlg.m_pathList = pathList;
@@ -42,11 +41,11 @@ bool CreatePatchCommand::Execute()
 		{
 			cmdLinePath = pathList.GetCommonRoot();
 		}
-		bRet = CreatePatch(cmdLinePath.GetDirectory(), dlg.m_pathList, CTSVNPath(savepath));
+		CreatePatch(cmdLinePath.GetDirectory(), dlg.m_pathList, CTSVNPath(savepath));
 		SVN svn;
 		svn.Revert(dlg.m_filesToRevert, CStringArray(), false);
 	}
-	return bRet;
+	return true;
 }
 
 UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM /*lParam*/)

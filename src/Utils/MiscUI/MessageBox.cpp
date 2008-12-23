@@ -857,7 +857,6 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case 'C':
-		case VK_INSERT:
 			{
 				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
 				{
@@ -869,8 +868,7 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 						hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipboard.GetLength()+1);
 						char * pchData;
 						pchData = (char*)GlobalLock(hClipboardData);
-						if (pchData)
-							strcpy_s(pchData, sClipboard.GetLength()+1, (LPCSTR)sClipboard);
+						strcpy_s(pchData, sClipboard.GetLength()+1, (LPCSTR)sClipboard);
 						GlobalUnlock(hClipboardData);
 						SetClipboardData(CF_TEXT,hClipboardData);
 						CloseClipboard();

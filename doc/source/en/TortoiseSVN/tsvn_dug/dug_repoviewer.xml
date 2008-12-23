@@ -9,10 +9,7 @@
 		<primary>repo viewer</primary>
 	</indexterm>
 	<indexterm>
-		<primary>ViewVC</primary>
-	</indexterm>
-	<indexterm>
-		<primary>WebSVN</primary>
+		<primary>ViewCS</primary>
 	</indexterm>
 	<para>
 		There are several web-based repository viewers available for use with

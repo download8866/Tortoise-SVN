@@ -67,8 +67,8 @@ svn_error_t*	SVNProperties::Refresh()
 
 	m_propCount = 0;
 #ifdef _MFC_VER
-	rev.kind = ((const svn_opt_revision_t *)m_rev)->kind;
-	rev.value = ((const svn_opt_revision_t *)m_rev)->value;
+	rev.kind = ((svn_opt_revision_t *)m_rev)->kind;
+	rev.value = ((svn_opt_revision_t *)m_rev)->value;
 #else
 	rev.kind = svn_opt_revision_unspecified;
 	rev.value.number = -1;
@@ -169,18 +169,18 @@ SVNProperties::~SVNProperties(void)
 	svn_pool_destroy (m_pool);					// free the allocated memory
 }
 
-int SVNProperties::GetCount() const
+int SVNProperties::GetCount()
 {
 	return m_propCount;
 }
 
-std::string SVNProperties::GetItem(int index, BOOL name) const
+std::string SVNProperties::GetItem(int index, BOOL name)
 {
 	const void *key;
 	void *val;
 	svn_string_t *propval = NULL;
 	const char *pname_utf8 = "";
-	svn_error_t * err = NULL;
+	m_error = NULL;
 
 	if (m_props.size() == 0)
 	{
@@ -193,7 +193,7 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 
 	long ind = 0;
 
-	for (std::map<std::string, apr_hash_t *>::const_iterator it = m_props.begin(); it != m_props.end(); ++it)
+	for (std::map<std::string, apr_hash_t *>::iterator it = m_props.begin(); it != m_props.end(); ++it)
 	{
 		apr_hash_index_t *hi;
 
@@ -210,8 +210,8 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 			// UTF8, so convert to the native format.
 			if (m_bRevProps||(svn_prop_needs_translation (pname_utf8))||(strncmp(pname_utf8, "bugtraq:", 8)==0)||(strncmp(pname_utf8, "tsvn:", 5)==0))
 			{
-				err = svn_subst_detranslate_string (&propval, propval, FALSE, m_pool);
-				if (err != NULL)
+				m_error = svn_subst_detranslate_string (&propval, propval, FALSE, m_pool);
+				if (m_error != NULL)
 					return "";
 			}
 		}
@@ -225,7 +225,7 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 		return "";
 }
 
-BOOL SVNProperties::IsSVNProperty(int index) const
+BOOL SVNProperties::IsSVNProperty(int index)
 {
 	const char *pname_utf8;
 	const char *name = SVNProperties::GetItem(index, true).c_str();
@@ -236,13 +236,13 @@ BOOL SVNProperties::IsSVNProperty(int index) const
 	return is_svn_prop;
 }
 
-bool SVNProperties::IsBinary(int index) const
+bool SVNProperties::IsBinary(int index)
 {
 	std::string value = GetItem(index, false);
 	return IsBinary(value);
 }
 
-bool SVNProperties::IsBinary(const std::string& value)
+bool SVNProperties::IsBinary(std::string value)
 {
 	const char * pvalue = (const char *)value.c_str();
 	// check if there are any null bytes in the string
@@ -266,12 +266,12 @@ bool SVNProperties::IsBinary(const std::string& value)
 	return false;
 }
 
-stdstring SVNProperties::GetItemName(int index) const
+stdstring SVNProperties::GetItemName(int index)
 {
 	return UTF8ToString(SVNProperties::GetItem(index, true));
 }
 
-std::string SVNProperties::GetItemValue(int index) const
+std::string SVNProperties::GetItemValue(int index)
 {
 	return SVNProperties::GetItem(index, false);
 }
@@ -371,7 +371,7 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 		if (m_bRevProps)
 		{
 			svn_revnum_t rev_set;
-			m_error = svn_client_revprop_set2(pname_utf8.c_str(), pval, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
+			m_error = svn_client_revprop_set(pname_utf8.c_str(), pval, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 		}
 		else
 		{
@@ -419,7 +419,7 @@ BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * 
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
-		m_error = svn_client_revprop_set2(pname_utf8.c_str(), NULL, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
+		m_error = svn_client_revprop_set(pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 	}
 	else
 	{
@@ -440,7 +440,7 @@ BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * 
 	return TRUE;
 }
 
-stdstring SVNProperties::GetLastErrorMsg() const
+stdstring SVNProperties::GetLastErrorMsg()
 {
 	stdstring msg;
 	char errbuf[256];

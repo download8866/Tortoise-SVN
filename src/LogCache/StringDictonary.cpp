@@ -19,8 +19,10 @@
 #include "StdAfx.h"
 #include ".\stringdictonary.h"
 
-#include "./Streams/BLOBInStream.h"
-#include "./Streams/BLOBOutStream.h"
+#include "BLOBInStream.h"
+#include "BLOBOutStream.h"
+#include "DiffIntegerInStream.h"
+#include "DiffIntegerOutStream.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -71,7 +73,7 @@ CStringDictionary::CHashFunction::value
 	assert (dictionary->offsets.size() > index+1);
 	assert (dictionary->offsets[index] != NO_INDEX);
 
-	return dictionary->packedStringsStart + dictionary->offsets[index];
+	return &dictionary->packedStrings.at(0) + dictionary->offsets[index];
 }
 
 // lookup and comparison
@@ -88,7 +90,7 @@ CStringDictionary::CHashFunction::equal
 
 	// ordinary string comparison
 
-	const char* rhs = dictionary->packedStringsStart 
+	const char* rhs = &dictionary->packedStrings.at(0) 
 					+ dictionary->offsets[index];
 	return strcmp (value, rhs) == 0;
 }
@@ -103,6 +105,7 @@ void CStringDictionary::RebuildIndexes()
 {
     // start of the string & offset arrays
 
+	const char* stringBase = &packedStrings.at(0);
     std::vector<index_t>::iterator begin = offsets.begin();
 
     // current position in string data (i.e. first char of the current string)
@@ -117,9 +120,9 @@ void CStringDictionary::RebuildIndexes()
 	for (index_t i = 0, count = (index_t)offsets.size()-1; i < count; ++i)
     {
         *(begin+i) = offset;
-		hashIndex.insert (packedStringsStart + offset, i);
+		hashIndex.insert (stringBase + offset, i);
 
-        offset += static_cast<index_t>(strlen (packedStringsStart + offset) +1);
+        offset += static_cast<index_t>(strlen (stringBase + offset) +1);
     }
 
     // "end of table" entry
@@ -134,7 +137,6 @@ void CStringDictionary::Initialize()
 	// insert the empty string at index 0
 
 	packedStrings.push_back (0);
-    packedStringsStart = &packedStrings.at(0);
 	offsets.push_back (0);
 	offsets.push_back (1);
 	hashIndex.insert ("", 0);
@@ -144,7 +146,6 @@ void CStringDictionary::Initialize()
 
 CStringDictionary::CStringDictionary(void)
 	: hashIndex (CHashFunction (this))
-    , packedStringsStart (NULL)
 {
 	Initialize();
 }
@@ -158,7 +159,6 @@ CStringDictionary::~CStringDictionary(void)
 void CStringDictionary::swap (CStringDictionary& rhs)
 {
     packedStrings.swap (rhs.packedStrings);
-    std::swap (packedStringsStart, rhs.packedStringsStart);
 	offsets.swap (rhs.offsets);
     hashIndex.swap (rhs.hashIndex);
 }
@@ -175,7 +175,7 @@ const char* CStringDictionary::operator[](index_t index) const
 		throw std::exception ("dictionary string index out of range");
 #endif
 
-	return packedStringsStart + offsets[index];
+	return &packedStrings.at(0) + offsets[index];
 }
 
 index_t CStringDictionary::GetLength (index_t index) const
@@ -202,7 +202,6 @@ index_t CStringDictionary::Insert (const char* string)
 		throw std::exception ("dictionary overflow");
 
 	packedStrings.insert (packedStrings.end(), string, string + size);
-    packedStringsStart = &packedStrings.at(0);
 
 	// update indices
 
@@ -268,6 +267,7 @@ void CStringDictionary::Reorder (const std::vector<index_t>& sourceIndices)
 
     // start of the string & offset arrays
 
+	const char* sourceBase = &packedStrings.at(0);
 	char* targetString = &target.at(0);
 
     // copy string by string
@@ -279,7 +279,7 @@ void CStringDictionary::Reorder (const std::vector<index_t>& sourceIndices)
 		index_t sourceOffset = offsets[sourceIndex];
 		index_t length = offsets[sourceIndex+1] - sourceOffset;
 
-		memcpy (targetString, packedStringsStart + sourceOffset, length);
+		memcpy (targetString, sourceBase + sourceOffset, length);
         targetString += length;
     }
 
@@ -307,8 +307,7 @@ IHierarchicalInStream& operator>> ( IHierarchicalInStream& stream
 		throw std::exception ("data stream to large");
 
 	dictionary.packedStrings.resize (packedStringStream->GetSize());
-    dictionary.packedStringsStart = &dictionary.packedStrings.at(0);
-	memcpy ( dictionary.packedStringsStart
+	memcpy ( &dictionary.packedStrings.at(0)
 		   , packedStringStream->GetData()
 		   , dictionary.packedStrings.size());
 

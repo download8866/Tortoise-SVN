@@ -30,8 +30,6 @@
 #include "LogDlgHelper.h"
 #include "FilterEdit.h"
 #include "SVNRev.h"
-#include "Tooltip.h"
-#include "HintListCtrl.h"
 
 #include <regex>
 using namespace std;
@@ -48,7 +46,6 @@ using namespace std;
 #define LOGFILTER_AUTHORS  4
 #define LOGFILTER_REVS	   5
 #define LOGFILTER_REGEX	   6
-#define LOGFILTER_BUGID    7
 
 
 #define LOGFILTER_TIMER		101
@@ -59,7 +56,7 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
  * \ingroup TortoiseProc
  * Shows log messages of a single file or folder in a listbox. 
  */
-class CLogDlg : public CResizableStandAloneDialog, public SVN, IFilterEditValidator, IListCtrlTooltipProvider
+class CLogDlg : public CResizableStandAloneDialog, public SVN, IFilterEditValidator
 {
 	DECLARE_DYNAMIC(CLogDlg)
 	
@@ -128,8 +125,6 @@ protected:
 	afx_msg void OnFind();
 	afx_msg void OnFocusFilter();
 	afx_msg void OnEditCopy();
-	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 
 	virtual void OnCancel();
 	virtual void OnOK();
@@ -147,7 +142,7 @@ private:
 	void Refresh (bool autoGoOnline = false);
 	BOOL IsDiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
 	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
-	void EditAuthor(const CLogDataVector& logs);
+	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
 	void DoSizeV2(int delta);
@@ -174,7 +169,6 @@ private:
 	void DiffSelectedRevWithPrevious();
 	void SetDlgTitle(bool bOffline);
 	CString GetAbsoluteUrlFromRelativeUrl(const CString& url);
-	void ToggleCheckbox(int item);
 
 	/**
 	 * Extracts part of commit message suitable for displaying in revision list.
@@ -186,25 +180,20 @@ private:
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 
-	void ResizeAllListCtrlCols();
+	void ResizeAllListCtrlCols(CListCtrl &list);
 
 	void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
 	void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
-
-	virtual CString GetToolTipText(int nItem, int nSubItem);
-
 public:
 	CWnd *				m_pNotifyWindow;
 	ProjectProperties	m_ProjectProperties;
 	WORD				m_wParam;
 private:
-	HFONT				m_boldFont;
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CString				m_sSelfRelativeURL;
 	CString				m_sURL;
-	CString				m_sUUID;    ///< empty if the log cache is not used
-	CHintListCtrl		m_LogList;
+	CListCtrl			m_LogList;
 	CListCtrl			m_ChangedFileListCtrl;
 	CFilterEdit			m_cFilter;
 	CProgressCtrl		m_LogProgress;
@@ -215,7 +204,6 @@ private:
 	SVNRev				m_startrev;
 	SVNRev				m_LogRevision;
 	SVNRev				m_endrev;
-	SVNRev				m_wcRev;
 	SVNRevRangeArray	m_selectedRevs;
 	SVNRevRangeArray	m_selectedRevsOneRange;
 	bool				m_bSelectionMustBeContinuous;
@@ -258,7 +246,6 @@ private:
 	static int			m_nSortColumnPathList;
 	static bool			m_bAscendingPathList;
 	CRegDWORD			m_regLastStrict;
-	CRegDWORD			m_regMaxBugIDColWidth;
 	CButton				m_cHidePaths;
 	bool				m_bShowedAll;
 	CString				m_sTitle;
@@ -267,7 +254,7 @@ private:
 	CString				m_sLogInfo;
 	std::set<svn_revnum_t> m_mergedRevs;
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 
 	CTime				m_timFrom;
 	CTime				m_timTo;
@@ -286,6 +273,7 @@ private:
     CLogDataVector		m_logEntries;
 	
 	CXPTheme			theme;
+	bool				m_bVista;
 };
 static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
 static UINT WM_REVLIST = RegisterWindowMessage(_T("TORTOISESVN_REVLIST_MSG"));

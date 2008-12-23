@@ -87,7 +87,8 @@ BOOL CAppUtils::StartExtMerge(
 	{
 		// use TortoiseMerge
 		bInternal = true;
-		com = CPathUtils::GetAppDirectory() + _T("TortoiseMerge.exe");
+		CRegString tortoiseMergePath(_T("Software\\TortoiseSVN\\TMergePath"), _T(""), false, HKEY_LOCAL_MACHINE);
+		com = tortoiseMergePath;
 		if (com.IsEmpty())
 		{
 			com = CPathUtils::GetAppDirectory();
@@ -423,12 +424,12 @@ BOOL CAppUtils::StartTextViewer(CString file)
 	TCHAR * buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(viewer, buf, len);
 	viewer = buf;
-	delete [] buf;
+	delete buf;
 	len = ExpandEnvironmentStrings(file, NULL, 0);
 	buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(file, buf, len);
 	file = buf;
-	delete [] buf;
+	delete buf;
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
@@ -578,7 +579,7 @@ bool CAppUtils::LaunchApplication(const CString& sCommandLine, UINT idErrMessage
 /**
 * Launch the external blame viewer
 */
-bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams, const SVNRev& startrev, const SVNRev& endrev)
+bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams)
 {
 	CString viewer = CPathUtils::GetAppDirectory();
 	viewer += _T("TortoiseBlame.exe");
@@ -586,8 +587,6 @@ bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sL
 	viewer += _T(" \"") + sLogFile + _T("\"");
 	viewer += _T(" \"") + sOriginalFile + _T("\"");
 	viewer += _T(" ")+sParams;
-	if (startrev.IsValid() && endrev.IsValid())
-		viewer += _T(" /revrange:\"") + startrev.ToString() + _T("-") + endrev.ToString() + _T("\"");
 	
 	return LaunchApplication(viewer, IDS_ERR_EXTDIFFSTART, false);
 }
@@ -758,7 +757,7 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 		SVN::UrlToPath(strFile);
 
 		SVN svn;
-		if (svn.IsRepository(CTSVNPath(strFile)))
+		if (svn.IsRepository(strFile))
 		{
 			// browse repository - show repository browser
 			SVN::preparePath(strUrl);
@@ -974,7 +973,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1, 
 									 const CTSVNPath& url2, const SVNRev& rev2, 
 									 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */,  
-									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool /* blame = false */)
+									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */)
 {
 	CString sCmd;
 	sCmd.Format(_T("%s /command:showcompare /unified"),
