@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "TSVNPath.h"
-#include "ResizableSheetEx.h"
+
 #include "MergeWizardStart.h"
 #include "MergeWizardTree.h"
 #include "MergeWizardRevRange.h"
@@ -29,7 +29,7 @@
 #define MERGEWIZARD_TREE		1
 #define MERGEWIZARD_REINTEGRATE	2
 
-class CMergeWizard : public CResizableSheetEx
+class CMergeWizard : public CPropertySheet
 {
 	DECLARE_DYNAMIC(CMergeWizard)
 
@@ -70,6 +70,7 @@ public:
 	BOOL							m_bIgnoreEOL;
 	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
 	
+	bool		AutoSetMode();
 	void		SaveMode();
 	LRESULT		GetSecondPage();
 

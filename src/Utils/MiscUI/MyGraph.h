@@ -88,7 +88,6 @@ private:
 	void	DrawLegend(CDC& dc);
 	void	DrawSeriesBar(CDC& dc) const;
 	void	DrawSeriesLine(CDC& dc) const;
-	void	DrawSeriesLineStacked(CDC& dc) const;
 	void	DrawSeriesPie(CDC& dc) const;
 
 	int		GetMaxLegendLabelLength(CDC& dc) const;
@@ -101,8 +100,8 @@ private:
 
 	INT_PTR	OnToolHitTest(CPoint point, TOOLINFO* pTI) const;
 
-	CPoint	WedgeEndFromDegrees(double degrees, const CPoint& ptCenter,
-					double radius) const;
+	CPoint	WedgeEndFromDegrees(int nDegrees, const CPoint& ptCenter,
+					int nRadius) const;
 
 	static UINT			SpinTheMessageLoop(bool bNoDrawing = false,
 								bool bOnlyDrawing = false,

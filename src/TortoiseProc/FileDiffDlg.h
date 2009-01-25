@@ -27,7 +27,6 @@
 #include "Colors.h"
 #include "XPImageButton.h"
 #include "FilterEdit.h"
-#include "Tooltip.h"
 
 
 #define IDT_FILTER		101
@@ -102,7 +101,7 @@ private:
 
 	virtual BOOL		Cancel() {return m_bCancelled;}
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 
 	CButton				m_cRev1Btn;
 	CButton				m_cRev2Btn;

@@ -179,9 +179,35 @@ private:
 		}
 	}
 
+	DECLARE_MESSAGE_MAP()
 
 	HICON m_hIcon;
 };
+
+// manually expand the MESSAGE_MAP macros here so we can use templates
+
+template<typename BaseType>
+const AFX_MSGMAP* CStandAloneDialogTmpl<BaseType>::GetMessageMap() const 
+	{ return GetThisMessageMap(); } 
+
+template<typename BaseType>
+const AFX_MSGMAP* PASCAL CStandAloneDialogTmpl<BaseType>::GetThisMessageMap() 
+{ 
+	typedef CStandAloneDialogTmpl<BaseType> ThisClass;						   
+	typedef BaseType TheBaseClass;					   
+	static const AFX_MSGMAP_ENTRY _messageEntries[] =  
+	{
+		ON_WM_PAINT()
+		ON_WM_QUERYDRAGICON()
+
+		{0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } 
+	}; 
+
+	static const AFX_MSGMAP messageMap = 
+	{ &TheBaseClass::GetThisMessageMap, &_messageEntries[0] }; 
+
+	return &messageMap; 
+}								  
 
 class CStateDialog : public CDialog, public CResizableWndState
 {
@@ -227,6 +253,10 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
+	//BEGIN_MESSAGE_MAP(CStateDialog, CDialog)
+	//	ON_WM_DESTROY()
+	//END_MESSAGE_MAP();
+
 };
 
 class CResizableStandAloneDialog : public CStandAloneDialogTmpl<CResizableDialog>
@@ -238,8 +268,7 @@ private:
 	DECLARE_DYNAMIC(CResizableStandAloneDialog)
 
 protected:
-	afx_msg void	OnSizing(UINT fwSide, LPRECT pRect);
-	afx_msg void	OnMoving(UINT fwSide, LPRECT pRect);
+	afx_msg void	OnSize(UINT nType, int cx, int cy);
 	afx_msg void	OnNcMButtonUp(UINT nHitTest, CPoint point);
 	afx_msg void	OnNcRButtonUp(UINT nHitTest, CPoint point);
 

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "BrowseFolder.h"
-#include "DirFileEnum.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -98,7 +97,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 	sHelppath = CPathUtils::GetAppParentDirectory() + _T("Languages\\TortoiseMerge_en.chm");
 	do
 	{
-		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
+		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf));
 		CString sLang = _T("_");
 		sLang += buf;
 		sHelppath.Replace(_T("_en"), sLang);
@@ -109,7 +108,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 			break;
 		}
 		sHelppath.Replace(sLang, _T("_en"));
-		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)/sizeof(TCHAR));
+		GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf));
 		sLang += _T("_");
 		sLang += buf;
 		sHelppath.Replace(_T("_en"), sLang);
@@ -131,10 +130,6 @@ BOOL CTortoiseMergeApp::InitInstance()
 			langId = 0;
 	} while (langId);
 	setlocale(LC_ALL, ""); 
-	// We need to explicitly set the thread locale to the system default one to avoid possible problems with saving files in its original codepage
-	// The problems occures when the language of OS differs from the regional settings
-	// See the details here: http://connect.microsoft.com/VisualStudio/feedback/ViewFeedback.aspx?FeedbackID=100887
-	SetThreadLocale(LOCALE_SYSTEM_DEFAULT);
 
 	// InitCommonControls() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
@@ -423,7 +418,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 			}
 			if (!outfile.IsEmpty())
 			{
-				CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outfile, false);
+				CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outfile);
 				return FALSE;
 			}
 		}
@@ -469,10 +464,10 @@ CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam,
 			TCHAR * path = new TCHAR[len+1];
 			TCHAR * tempF = new TCHAR[len+100];
 			GetTempPath (len+1, path);
-			GetTempFileName (path, TEXT("tsm"), 0, tempF);
+			GetTempFileName (path, TEXT("svn"), 0, tempF);
 			std::wstring sTempFile = std::wstring(tempF);
-			delete [] path;
-			delete [] tempF;
+			delete path;
+			delete tempF;
 
 			FILE * outFile;
 			size_t patchlen = strlen(lpstr);
@@ -492,44 +487,4 @@ CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam,
 		} 
 	}
 	return 0;
-}
-
-int CTortoiseMergeApp::ExitInstance()
-{
-	// Look for temporary files left around by TortoiseMerge and
-	// remove them. But only delete 'old' files 
-	DWORD len = ::GetTempPath(0, NULL);
-	TCHAR * path = new TCHAR[len + 100];
-	len = ::GetTempPath (len+100, path);
-	if (len != 0)
-	{
-		CSimpleFileFind finder = CSimpleFileFind(path, _T("*tsm*.*"));
-		FILETIME systime_;
-		::GetSystemTimeAsFileTime(&systime_);
-		__int64 systime = (((_int64)systime_.dwHighDateTime)<<32) | ((__int64)systime_.dwLowDateTime);
-		while (finder.FindNextFileNoDirectories())
-		{
-			CString filepath = finder.GetFilePath();
-			HANDLE hFile = ::CreateFile(filepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-			if (hFile != INVALID_HANDLE_VALUE)
-			{
-				FILETIME createtime_;
-				if (::GetFileTime(hFile, &createtime_, NULL, NULL))
-				{
-					::CloseHandle(hFile);
-					__int64 createtime = (((_int64)createtime_.dwHighDateTime)<<32) | ((__int64)createtime_.dwLowDateTime);
-					if ((createtime + 864000000000) < systime)		//only delete files older than a day
-					{
-						::SetFileAttributes(filepath, FILE_ATTRIBUTE_NORMAL);
-						::DeleteFile(filepath);
-					}
-				}
-				else
-					::CloseHandle(hFile);
-			}
-		}
-	}	
-	delete[] path;		
-
-	return CWinAppEx::ExitInstance();
 }

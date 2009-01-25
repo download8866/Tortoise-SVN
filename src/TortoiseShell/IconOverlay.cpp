@@ -146,8 +146,6 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 						readonlyoverlay = true;
 					if (itemStatus.m_owner[0]!=0)
 						lockedoverlay = true;
-					if (itemStatus.m_tree_conflict)
-						status = SVNStatus::GetMoreImportant(status, svn_wc_status_conflicted);
 				}
 			}
 			break;
@@ -158,8 +156,6 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 				if (s)
 				{
 					status = s->status;
-					if (s->tree_conflict)
-						status = svn_wc_status_conflicted;
 				}
 				else
 				{
@@ -178,10 +174,8 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 							}
 							else
 							{
-								const FileStatusCacheEntry * se = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), TRUE);
-								status = se->status;
-								if (se->tree_conflict)
-									status = svn_wc_status_conflicted;
+								const FileStatusCacheEntry * s = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), TRUE);
+								status = s->status;
 								status = SVNStatus::GetMoreImportant(svn_wc_status_normal, status);
 							}
 						}
@@ -192,10 +186,8 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 					}
 					else
 					{
-						const FileStatusCacheEntry * se = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), FALSE);
-						status = se->status;
-						if (se->tree_conflict)
-							status = svn_wc_status_conflicted;
+						const FileStatusCacheEntry * s = m_CachedStatus.GetFullStatus(CTSVNPath(pPath), FALSE);
+						status = s->status;
 					}
 				}
 				if ((s)&&(status == svn_wc_status_normal)&&(s->needslock)&&(s->owner[0]==0))

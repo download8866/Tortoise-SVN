@@ -41,7 +41,7 @@ bool MergeAllCommand::Execute()
 		progDlg.SetRevisionRanges(tempRevArray);
 
 		progDlg.DoModal();
-		return !progDlg.DidErrorsOccur();
+		return true;
 	}
 
 	return false;

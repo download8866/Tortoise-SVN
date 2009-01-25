@@ -19,13 +19,13 @@
 #include "StdAfx.h"
 #include "RevisionGraphCommand.h"
 
-#include "RevisionGraph\RevisionGraphDlg.h"
+#include "RevisionGraphDlg.h"
+
 
 bool RevisionGraphCommand::Execute()
 {
 	CRevisionGraphDlg dlg;
 	dlg.SetPath(cmdLinePath.GetWinPathString());
 	dlg.DoModal();
-
 	return true;
 }

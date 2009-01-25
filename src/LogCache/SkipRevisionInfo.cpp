@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,8 +20,13 @@
 #include ".\skiprevisioninfo.h"
 
 #include ".\RevisionIndex.h"
-#include ".\Containers\PathDictionary.h"
+#include ".\PathDictionary.h"
 #include ".\RevisionInfoContainer.h"
+
+#include ".\PackedDWORDInStream.h"
+#include ".\PackedDWORDOutStream.h"
+#include ".\DiffIntegerInStream.h"
+#include ".\DiffIntegerOutStream.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -43,14 +48,15 @@ revision_t CSkipRevisionInfo::SPerPathRanges::FindNext (revision_t revision) con
 	if (ranges.empty())
 		return (revision_t)NO_REVISION;
 
-	// look for the last range not starting behind revision
+	// look for the first range *behind* revision
 
 	TRanges::const_iterator iter = ranges.upper_bound (revision);
-	if (iter == ranges.end())
+	if (iter == ranges.begin())
 		return (revision_t)NO_REVISION;
 
-	// return end of that range, if revision is within this range
+	// return end of previous range, if revision is within this range
 
+	--iter;
 	revision_t next = iter->first + iter->second;
 	return next <= revision 
 		? NO_REVISION
@@ -435,9 +441,8 @@ revision_t CSkipRevisionInfo::GetNextRevision ( const CDictionaryBasedPath& path
 
 		if (ranges != NULL)
 		{
-			revision_t next = ranges->FindNext (revision);
-			if (next != (revision_t)NO_REVISION)
-				revision = next;
+			if (parentNext != (revision_t)NO_REVISION)
+				revision = parentNext;
 		}
 	}
 	while (revision > result);
@@ -659,8 +664,8 @@ IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
 
 	for (CIT dataIter = begin, dataEnd = end; dataIter < dataEnd; ++dataIter)
 		for ( CSkipRevisionInfo::IT iter = (*dataIter)->ranges.begin()
-			, endlocal = (*dataIter)->ranges.end()
-			; iter != endlocal
+			, end = (*dataIter)->ranges.end()
+			; iter != end
 			; ++iter)
 		{
 			revisionsStream->Add (iter->first);
@@ -675,8 +680,8 @@ IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
 
 	for (CIT dataIter = begin, dataEnd = end; dataIter < dataEnd; ++dataIter)
 		for ( CSkipRevisionInfo::IT iter = (*dataIter)->ranges.begin()
-			, endlocal = (*dataIter)->ranges.end()
-			; iter != endlocal
+			, end = (*dataIter)->ranges.end()
+			; iter != end
 			; ++iter)
 		{
 			sizesStream->Add (iter->second);

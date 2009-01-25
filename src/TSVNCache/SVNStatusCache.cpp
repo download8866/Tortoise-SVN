@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008 - TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #include "shlobj.h"
 
 //////////////////////////////////////////////////////////////////////////
-#define CACHEDISKVERSION 2
 
 CSVNStatusCache* CSVNStatusCache::m_pInstance;
 
@@ -73,7 +72,7 @@ void CSVNStatusCache::Create()
 			try
 			{
 				LOADVALUEFROMFILE(value);
-				if (value != CACHEDISKVERSION)
+				if (value != 2)
 				{
 					goto error;
 				}
@@ -97,10 +96,7 @@ void CSVNStatusCache::Create()
 						if (cacheddir == NULL)
 							goto error;
 						if (!cacheddir->LoadFromDisk(pFile))
-						{
-							delete cacheddir;
 							goto error;
-						}
 						CTSVNPath KeyPath = CTSVNPath(sKey);
 						if (m_pInstance->IsPathAllowed(KeyPath))
 						{
@@ -114,8 +110,6 @@ void CSVNStatusCache::Create()
 							// until the whole first time crawling is over
 							// m_pInstance->AddFolderForCrawling(KeyPath);
 						}
-						else
-							delete cacheddir;
 					}
 				}
 			}
@@ -161,7 +155,7 @@ bool CSVNStatusCache::SaveCache()
 		_tfopen_s(&pFile, path, _T("wb"));
 		if (pFile)
 		{
-			value = CACHEDISKVERSION;		// 'version'
+			value = 2;		// 'version'
 			WRITEVALUETOFILE(value);
 			value = (int)m_pInstance->m_directoryCache.size();
 			WRITEVALUETOFILE(value);
@@ -241,7 +235,6 @@ CSVNStatusCache::CSVNStatusCache(void)
 	SHGetFolderPath(NULL, CSIDL_WINDOWS, NULL, 0, path);
 	m_NoWatchPaths.insert(CTSVNPath(CString(path)));
 	m_bClearMemory = false;
-	m_mostRecentExpiresAt = 0;
 }
 
 CSVNStatusCache::~CSVNStatusCache(void)
@@ -320,24 +313,6 @@ bool CSVNStatusCache::RemoveCacheForDirectory(CCachedDirectory * cdir)
 	}
 	cdir->m_childDirectories.clear();
 	m_directoryCache.erase(cdir->m_directoryPath);
-
-	// we could have entries versioned and/or stored in our cache which are
-	// children of the specified directory, but not in the m_childDirectories
-	// member: this can happen for nested layouts or if we fetched the status
-	// while e.g., an update/checkout was in progress
-	CCachedDirectory::ItDir itMap = m_directoryCache.lower_bound(cdir->m_directoryPath);
-	do 
-	{
-		if (itMap != m_directoryCache.end())
-		{
-			if (cdir->m_directoryPath.IsAncestorOf(itMap->first))
-			{
-				RemoveCacheForDirectory(itMap->second);
-			}
-		}
-		itMap = m_directoryCache.lower_bound(cdir->m_directoryPath);
-	} while (itMap != m_directoryCache.end() && cdir->m_directoryPath.IsAncestorOf(itMap->first));
-
 	ATLTRACE(_T("removed path %s from cache\n"), cdir->m_directoryPath);
 	delete cdir;
 	cdir = NULL;
@@ -394,10 +369,7 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 		// the data, we have to recreate the iterator here again.
 		itMap = m_directoryCache.find(path);
 		if (itMap!=m_directoryCache.end())
-		{
-			delete itMap->second;
 			m_directoryCache.erase(itMap);
-		}
 		// We don't know anything about this directory yet - lets add it to our cache
 		// but only if it exists!
 		if (path.Exists() && m_shellCache.IsPathAllowed(path.GetWinPath()) && !g_SVNAdminDir.IsAdminDirPath(path.GetWinPath()))

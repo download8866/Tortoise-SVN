@@ -217,7 +217,7 @@ protected:
 		if (!m_mapLayout.Lookup(hWnd, pos))
 			return FALSE;
 
-		UINT uTmpFlags = 0;
+		UINT uTmpFlags;
 		CalcNewChildPosition(m_listLayout.GetAt(pos), rectParent, rectChild,
 			(lpFlags != NULL) ? (*lpFlags) : uTmpFlags);
 		return TRUE;
@@ -288,7 +288,6 @@ public:
 	{
 		m_bNoRecursion = FALSE;
 		m_hOldClipRgn = ::CreateRectRgn(0,0,0,0);
-		m_nOldClipRgn = 0;
 	}
 
 	virtual ~CResizableLayout()

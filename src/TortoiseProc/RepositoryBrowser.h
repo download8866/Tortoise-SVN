@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -144,9 +144,7 @@ public:
 
 	/// switches to the \c url at \c rev. If the url is valid and exists,
 	/// the repository browser will show the content of that url.
-	bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked);
-
-	CString GetRepoRoot() { return m_strReposRoot; }
+	bool ChangeToUrl(const CString& url, const SVNRev& rev);
 
 	enum { IDD = IDD_REPOSITORY_BROWSER };
 
@@ -185,8 +183,6 @@ protected:
 	afx_msg void OnCopy();
 	afx_msg void OnInlineedit();
 	afx_msg void OnRefresh();
-	afx_msg void OnDelete();
-	afx_msg void OnGoUp();
 
 	DECLARE_MESSAGE_MAP()
 
@@ -228,7 +224,7 @@ protected:
 	void OnBeginDrag(NMHDR *pNMHDR);
 	void OnBeginDragTree(NMHDR *pNMHDR);
 	/// called when a drag-n-drop operation ends and the user dropped something on us.
-	bool OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, const SVNRev& srcRev, DWORD dwEffect, POINTL pt);
+	bool OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, DWORD dwEffect, POINTL pt);
 	/**
 	 * Since all urls we store and use are not properly escaped but "UI friendly", this
 	 * method converts those urls to a properly escaped url which we can use in
@@ -251,7 +247,6 @@ protected:
 	static UINT InitThreadEntry(LPVOID pVoid);
 	UINT InitThread();
 
-	static int CALLBACK TreeSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
 	static int CALLBACK ListSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
 
 protected:

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -78,11 +78,6 @@ private:
     {
     private:
 
-        /// only this value means "no crash" because "0" means
-        /// TSVN didn't crash *before* the .lock file was set.
-
-        enum {NO_FAILURE = -1};
-
         /// if we own the file, we will keep it open
 
         HANDLE fileHandle;
@@ -91,20 +86,11 @@ private:
 
 	    std::wstring fileName;
 
-        /// number of times this cache was not released propertly
-
-        int failureCount;
-
         /// "in use" (hidden flag) file flag handling
 
         bool IsMarked (const std::wstring& name) const;
         void SetMark (const std::wstring& name);
         void ResetMark();
-
-        /// allow for multiple failures 
-
-        bool ShouldDrop (const std::wstring& name);
-        void UpdateMark (const std::wstring& name);
 
         /// copying is not supported
 
@@ -191,10 +177,6 @@ public:
 	const CRevisionIndex& GetRevisions() const;
 	const CRevisionInfoContainer& GetLogInfo() const;
 	const CSkipRevisionInfo& GetSkippedRevisions() const;
-
-    /// find the highest revision not exceeding the given timestamp
-
-    revision_t FindRevisionByDate (__time64_t maxTimeStamp) const;
 
 	/// data modification 
 	/// (mirrors CRevisionInfoContainer and CSkipRevisionInfo)

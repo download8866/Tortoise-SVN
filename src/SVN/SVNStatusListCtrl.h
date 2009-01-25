@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,15 +40,13 @@ class CSVNStatusListCtrlDropTarget;
 #define SVNSLC_COLURL				0x000000200
 #define SVNSLC_COLLOCK				0x000000400
 #define SVNSLC_COLLOCKCOMMENT		0x000000800
-#define SVNSLC_COLLOCKDATE			0x000001000
-#define SVNSLC_COLAUTHOR			0x000002000
-#define	SVNSLC_COLREVISION			0x000004000
-#define	SVNSLC_COLREMOTEREVISION	0x000008000
-#define	SVNSLC_COLDATE				0x000010000
-#define SVNSLC_COLSVNNEEDSLOCK		0x000020000
-#define SVNSLC_COLCOPYFROM			0x000040000
-#define	SVNSLC_COLMODIFICATIONDATE	0x000080000
-#define SVNSLC_NUMCOLUMNS		20
+#define SVNSLC_COLAUTHOR			0x000001000
+#define	SVNSLC_COLREVISION			0x000002000
+#define	SVNSLC_COLDATE				0x000004000
+#define SVNSLC_COLSVNNEEDSLOCK		0x000008000
+#define SVNSLC_COLCOPYFROM			0x000010000
+#define	SVNSLC_COLMODIFICATIONDATE	0x000020000
+#define SVNSLC_NUMCOLUMNS		18
 
 #define SVNSLC_SHOWUNVERSIONED	0x000000001
 #define SVNSLC_SHOWNORMAL		0x000000002
@@ -71,8 +69,6 @@ class CSVNStatusListCtrlDropTarget;
 #define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x000040000
 #define SVNSLC_SHOWSWITCHED		0x000080000
 #define SVNSLC_SHOWINCHANGELIST 0x000100000
-#define SVNSLC_SHOWEXTDISABLED	0x000200000
-#define SVNSLC_SHOWNESTED		0x000400000
 
 #define SVNSLC_SHOWDIRECTS		(SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWDIRECTFOLDER)
 
@@ -122,9 +118,6 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPPROPERTIES			0x00020000
 #define SVNSLC_POPREPAIRMOVE			0x00040000
 #define SVNSLC_POPCHANGELISTS			0x00080000
-#define SVNSLC_POPBLAME					0x00100000
-#define SVNSLC_POPCREATEPATCH			0x00200000
-#define SVNSLC_POPCHECKFORMODS			0x00400000
 
 #define SVNSLC_IGNORECHANGELIST			_T("ignore-on-commit")
 
@@ -253,8 +246,6 @@ public:
 			, copyfrom_rev(0)
 			, last_commit_date(0)
 			, last_commit_rev(0)
-			, lock_date(0)
-			, remoterev(0)
 			, textstatus(svn_wc_status_unversioned)
 			, propstatus(svn_wc_status_unversioned)
 			, remotestatus(svn_wc_status_unversioned)
@@ -265,7 +256,6 @@ public:
 			, checked(false)
 			, inunversionedfolder(false)
 			, inexternal(false)
-			, file_external(false)
 			, differentrepo(false)
 			, direct(false)
 			, isfolder(false)
@@ -277,7 +267,6 @@ public:
 			, working_size(SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN)
 			, keeplocal(false)
 			, depth(svn_depth_unknown)
-			, tree_conflicted(false)
 		{
 		}
 		const CTSVNPath& GetPath() const
@@ -335,10 +324,6 @@ public:
 		{
 			return changelist;
 		}
-		CString GetURL() const
-		{
-			return url;
-		}
 	public:
 		svn_wc_status_kind		status;					///< local status
 		svn_wc_status_kind		textstatus;				///< local text status
@@ -355,14 +340,12 @@ public:
 		CString					lock_remoteowner;		///< the username which owns the lock in the repository
 		CString					lock_remotetoken;		///< the unique URI in the repository of the lock
 		CString					lock_comment;			///< the message for the lock
-		apr_time_t				lock_date;				///< the date when this item was locked
 		CString					changelist;				///< the name of the changelist the item belongs to
 		CString					copyfrom_url;			///< the copied-from URL (if available, i.e. \a copied is true)
 		svn_revnum_t			copyfrom_rev;			///< the copied-from revision
 		CString					last_commit_author;		///< the author which last committed this item
 		apr_time_t				last_commit_date;		///< the date when this item was last committed
 		svn_revnum_t			last_commit_rev;		///< the revision where this item was last committed
-		svn_revnum_t			remoterev;				///< the revision in HEAD of the repository
 		bool					copied;					///< if the file/folder is added-with-history
 		bool					switched;				///< if the file/folder is switched to another url
 		bool					checked;				///< if the file is checked in the list control
@@ -379,8 +362,6 @@ public:
 		apr_off_t				working_size;			///< Size of the file after being translated into local representation or SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN
 		bool					keeplocal;				///< Whether a local copy of this entry should be kept in the working copy after a deletion has been committed
 		svn_depth_t				depth;					///< the depth of this entry
-		bool					file_external;			///< if the item is a file that was added to the working copy with an svn:externals; if file_external is TRUE, then switched is always FALSE.
-		bool					tree_conflicted;		///< True if the entry is the victim of a tree conflict.
 		friend class CSVNStatusListCtrl;
 		friend class CSVNStatusListCtrlDropTarget;
         friend class CSorter;
@@ -706,13 +687,6 @@ public:
 	CTSVNPath GetCommonDirectory(bool bStrict);
 
 	/**
-	 * Returns the parent url of all entries in the control.
-	 * if \a bStrict is set to false, then the paths passed to the control
-	 * to fetch the status (in GetStatus()) are used if possible.
-	 */
-	CTSVNPath GetCommonURL(bool bStrict);
-
-	/**
 	 * Sets a pointer to a boolean variable which is checked periodically
 	 * during the status fetching. As soon as the variable changes to true,
 	 * the operations stops.
@@ -791,7 +765,6 @@ public:
 
 	CString						m_sUUID;			///< the UUID of the associated repository
 
-	CString						m_sRepositoryRoot;	///< The repository root of the first item which has one, or an empty string
 	DECLARE_MESSAGE_MAP()
 
 private:
@@ -903,7 +876,6 @@ private:
 	BOOL						m_bHasUnversionedItems;
 	bool						m_bHasLocks;
 	bool						m_bHasChangeLists;
-	bool						m_bExternalsGroups;
 	typedef std::vector<FileEntry*> FileEntryVector;
 	FileEntryVector				m_arStatusArray;
 	std::vector<size_t>			m_arListArray;
@@ -911,7 +883,6 @@ private:
 	bool						m_bHasIgnoreGroup;
 	CTSVNPathList				m_ConflictFileList;
 	CTSVNPathList				m_StatusFileList;
-	CTSVNPathList				m_StatusUrlList;
 	CString						m_sLastError;
 
 	LONG						m_nUnversioned;
@@ -957,7 +928,6 @@ private:
     ColumnManager               m_ColumnManager;
 
 	std::map<CString,bool>		m_mapFilenameToChecked; ///< Remember manually de-/selected items
-	std::set<CTSVNPath>			m_externalSet;
 	CComCriticalSection			m_critSec;
 
 	friend class CSVNStatusListCtrlDropTarget;

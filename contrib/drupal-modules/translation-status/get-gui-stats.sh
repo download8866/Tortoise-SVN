@@ -3,14 +3,9 @@
 # Calculate po translation statistics of all po files inside $CATALOGS_DIR
 # and write the result to standard output
 #
-# Copyright (C) 2004-2008 the TortoiseSVN team
-# This file is distributed under the same license as TortoiseSVN
+# (C)2004-2006 Lübbe Onken
 #
-# $Author$
-# $Date$
-# $Rev$
 #
-# Author: Lübbe Onken 2004-2008
 #
 
 HOME_DIR=/var/svnwc/l10n
@@ -77,14 +72,14 @@ for i in ${CATALOGS_DIR}/*.po ; do
 		UT=$((TO-TR-FZ))
 	fi
    echo "\"$country\" => array($ER, $TO, $TR, $FZ, $UT, $AK, \"$catname\", \"$PRD\"),"
+#   echo "\"$country\" => array($ER, $TO, $TR, $FZ, $UT, $AK, \"$catname\", \"$filedate\"),"
 done
-
-# Separate line for the .pot file
 filedate=`stat -c "%Y" ${CATALOGS_DIR}/${APP}.pot`
-echo "\"zzz\" => array(-1, $TO, 0, 0, $TO, 0, \"${APP}.pot\",\"$filedate\")"
+echo "\"zzz\" => array(0, $TO, 0, 0, $TO, 0, \"${APP}.pot\",\"$filedate\")"
+#echo "\"zzz\" => array(0, $TO, 0, 0, $TO, 0, \"${APP}.pot\",\"$filedate\",\"\")"
 
 echo ');'
-echo '$tsvn_var = array('
+echo '$vars = array('
 echo "\"wcrev\" => \"$WCREV\","
 echo "\"update\" => \"$UPDATE\","
 echo ');'

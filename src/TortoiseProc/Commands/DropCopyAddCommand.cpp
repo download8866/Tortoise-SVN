@@ -24,7 +24,6 @@
 
 bool DropCopyAddCommand::Execute()
 {
-	bool bRet = false;
 	CString droppath = parser.GetVal(_T("droptarget"));
 	if (CTSVNPath(droppath).IsAdminDir())
 		return FALSE;
@@ -58,6 +57,7 @@ bool DropCopyAddCommand::Execute()
 							0,
 							NULL 
 							);
+						CString strMessage;
 						strMessage.Format(IDS_ERR_COPYFILES, (LPTSTR)lpMsgBuf);
 						CMessageBox::Show(hwndExplorer, strMessage, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION);
 						LocalFree( lpMsgBuf );
@@ -103,6 +103,5 @@ bool DropCopyAddCommand::Execute()
 	props.ReadPropsPathList(copiedFiles);
 	progDlg.SetProjectProperties(props);
 	progDlg.DoModal();
-	bRet = !progDlg.DidErrorsOccur();
-	return bRet;
+	return true;
 }

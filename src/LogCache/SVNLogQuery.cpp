@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,11 +21,9 @@
 #include "SVNLogQuery.h"
 #include "ILogReceiver.h"
 
-#pragma warning(push)
 #include "svn_time.h"
 #include "svn_sorts.h"
 #include "svn_compat.h"
-#pragma warning(pop)
 #include "UnicodeUtils.h"
 #include "SVN.h"
 #include "SVNError.h"
@@ -274,16 +272,6 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
                    , includeStandardRevProps
                    , includeUserRevProps};
 
-    // list of revision ranges to fetch 
-    // (as of now, there is only one such range)
-
-    svn_opt_revision_range_t revision_range = {*start, *end};
-
-    apr_array_header_t* revision_ranges 
-        = apr_array_make (localpool, 1, sizeof(apr_array_header_t*));
-    *(svn_opt_revision_range_t**)apr_array_push (revision_ranges) 
-        = &revision_range;
-
     // build list of revprops to fetch. Fetch all of them
     // if all user-revprops are requested but no std-revprops
     // (post-filter before them passing to the receiver)
@@ -332,18 +320,16 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
             AppendStrings (localpool, revprops, userRevProps);
         }
     }
-	svn_client_log_args_t * args = svn_client_log_args_create(localpool);
 
-	args->limit = limit;
-	args->discover_changed_paths = includeChanges;
-	args->strict_node_history = strictNodeHistory;
-	args->include_merged_revisions = includeMerges;
-
-	svn_error_t *result = svn_client_log5 ( targets.MakePathArray (localpool)
+	svn_error_t *result = svn_client_log4 ( targets.MakePathArray (localpool)
 										  , peg_revision
-                                          , revision_ranges
+										  , start
+										  , end
+										  , limit
+                                          , includeChanges ? TRUE : FALSE
+										  , strictNodeHistory ? TRUE : FALSE
+                                          , includeMerges ? TRUE : FALSE
                                           , revprops
-										  , args
 										  , LogReceiver
 										  , (void *)&baton
 										  , context

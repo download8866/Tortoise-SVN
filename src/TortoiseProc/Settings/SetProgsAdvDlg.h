@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #pragma once
 
+#include "Balloon.h"
 #include "Registry.h"
 
 /**
@@ -58,7 +59,6 @@ protected:
 	afx_msg void OnBnClickedRemovetool();
 	afx_msg void OnNMDblclkToollistctrl(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnItemchangedToollistctrl(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnBnClickedRestoredefaults();
 
 	DECLARE_MESSAGE_MAP()
 

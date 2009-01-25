@@ -45,14 +45,9 @@
 			</menuchoice>.
 		</para>
 		<para>
-			<mediaobject>
-				<videoobject>
-					<videodata fileref="images/svn_move.swf" format="SWF" contentwidth="590" contentdepth="290"/>
-				</videoobject>
-				<imageobject>
-					<imagedata fileref="images/svn_move.png"/>
-				</imageobject>
-			</mediaobject>
+			<videoobject>
+				<videodata fileref="images/svn_move.swf" format="SWF" contentwidth="590" contentdepth="290"/>
+			</videoobject>
 		</para>
 	</sect1>
 	<sect1 id="tsvn-howto-minlogmsgsize">
@@ -293,7 +288,7 @@
 				The only way to remove data from the repository is to use the
 				Subversion command line tool <literal>svnadmin</literal>.
 				You can find a description of how this works in the
-				<ulink url="http://svnbook.red-bean.com/en/1.5/svn.reposadmin.maint.html">
+				<ulink url="http://svnbook.red-bean.com/en/1.4/svn.reposadmin.maint.html">
 					<citetitle>Repository Maintenance</citetitle>
 				</ulink>.
 			</para>

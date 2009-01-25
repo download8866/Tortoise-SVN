@@ -32,7 +32,6 @@ CChangedDlg::CChangedDlg(CWnd* pParent /*=NULL*/)
 	, m_bBlock(FALSE)
 	, m_bCanceled(false)
 	, m_bShowIgnored(FALSE)
-	, m_bShowExternals(TRUE)
     , m_bShowUserProps(FALSE)
 {
 	m_bRemote = FALSE;
@@ -49,7 +48,6 @@ void CChangedDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_SHOWUNMODIFIED, m_iShowUnmodified);
 	DDX_Check(pDX, IDC_SHOWIGNORED, m_bShowIgnored);
-	DDX_Check(pDX, IDC_SHOWEXTERNALS, m_bShowExternals);
 	DDX_Check(pDX, IDC_SHOWUSERPROPS, m_bShowUserProps);
 }
 
@@ -63,7 +61,6 @@ BEGIN_MESSAGE_MAP(CChangedDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 	ON_BN_CLICKED(IDC_SHOWIGNORED, &CChangedDlg::OnBnClickedShowignored)
 	ON_BN_CLICKED(IDC_REFRESH, &CChangedDlg::OnBnClickedRefresh)
-	ON_BN_CLICKED(IDC_SHOWEXTERNALS, &CChangedDlg::OnBnClickedShowexternals)
 END_MESSAGE_MAP()
 
 BOOL CChangedDlg::OnInitDialog()
@@ -91,7 +88,6 @@ BOOL CChangedDlg::OnInitDialog()
 	AdjustControlSize(IDC_SHOWUNVERSIONED);
 	AdjustControlSize(IDC_SHOWUNMODIFIED);
 	AdjustControlSize(IDC_SHOWIGNORED);
-	AdjustControlSize(IDC_SHOWEXTERNALS);
     AdjustControlSize(IDC_SHOWUSERPROPS);
 
 	AddAnchor(IDC_CHANGEDLIST, TOP_LEFT, BOTTOM_RIGHT);
@@ -99,7 +95,6 @@ BOOL CChangedDlg::OnInitDialog()
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT);
 	AddAnchor(IDC_SHOWUNMODIFIED, BOTTOM_LEFT);
 	AddAnchor(IDC_SHOWIGNORED, BOTTOM_LEFT);
-	AddAnchor(IDC_SHOWEXTERNALS, BOTTOM_LEFT);
 	AddAnchor(IDC_SHOWUSERPROPS, BOTTOM_LEFT);
 	AddAnchor(IDC_INFOLABEL, BOTTOM_RIGHT);
 	AddAnchor(IDC_REFRESH, BOTTOM_RIGHT);
@@ -144,26 +139,21 @@ UINT CChangedDlg::ChangedStatusThread()
 		if (!m_FileListCtrl.GetLastErrorMessage().IsEmpty())
 			m_FileListCtrl.SetEmptyString(m_FileListCtrl.GetLastErrorMessage());
 	}
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWLOCKS | SVNSLC_SHOWSWITCHED | SVNSLC_SHOWINCHANGELIST | SVNSLC_SHOWNESTED;
+	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS | SVNSLC_SHOWSWITCHED | SVNSLC_SHOWINCHANGELIST;
 	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
 	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
 	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
-	dwShow |= m_bShowExternals ? SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO : 0;
 	m_FileListCtrl.Show(dwShow);
 	UpdateStatistics();
 
 	CTSVNPath commonDir = m_FileListCtrl.GetCommonDirectory(false);
-	bool bSingleFile = ((m_pathList.GetCount()==1)&&(!m_pathList[0].IsDirectory()));
-	if (bSingleFile)
-		SetWindowText(m_sTitle + _T(" - ") + m_pathList[0].GetWinPathString());
-	else
-		SetWindowText(m_sTitle + _T(" - ") + commonDir.GetWinPathString());
+	SetWindowText(m_sTitle + _T(" - ") + commonDir.GetWinPathString());
 	SetDlgItemText(IDOK, CString(MAKEINTRESOURCE(IDS_MSGBOX_OK)));
 	DialogEnableWindow(IDC_REFRESH, TRUE);
 	DialogEnableWindow(IDC_CHECKREPO, TRUE);
-	DialogEnableWindow(IDC_SHOWUNVERSIONED, !bSingleFile);
-	DialogEnableWindow(IDC_SHOWUNMODIFIED, !bSingleFile);
-	DialogEnableWindow(IDC_SHOWIGNORED, !bSingleFile);
+	DialogEnableWindow(IDC_SHOWUNVERSIONED, TRUE);
+	DialogEnableWindow(IDC_SHOWUNMODIFIED, TRUE);
+	DialogEnableWindow(IDC_SHOWIGNORED, TRUE);
     DialogEnableWindow(IDC_SHOWUSERPROPS, TRUE);
 	InterlockedExchange(&m_bBlock, FALSE);
 	// revert the remote flag back to the default
@@ -216,11 +206,6 @@ DWORD CChangedDlg::UpdateShowFlags()
 		dwShow |= SVNSLC_SHOWIGNORED;
 	else
 		dwShow &= ~SVNSLC_SHOWIGNORED;
-	if (m_bShowExternals)
-		dwShow |= SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO;
-	else
-		dwShow &= ~(SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO);
-
 	return dwShow;
 }
 
@@ -247,13 +232,6 @@ void CChangedDlg::OnBnClickedShowignored()
 	{
 		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
-}
-
-void CChangedDlg::OnBnClickedShowexternals()
-{
-	UpdateData();
-	m_FileListCtrl.Show(UpdateShowFlags());
-	UpdateStatistics();
 }
 
 void CChangedDlg::OnBnClickedShowUserProps()
@@ -334,5 +312,4 @@ void CChangedDlg::UpdateStatistics()
 	temp.Replace(_T("\n"), _T(", "));
 	SetDlgItemText(IDC_INFOLABEL, temp);
 }
-
 

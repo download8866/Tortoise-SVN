@@ -21,20 +21,7 @@
 
 CString GetCachePipeName()
 {
-	return TSVN_CACHE_PIPE_NAME + GetCacheID();
-}
-
-CString GetCacheCommandPipeName()
-{
-	return TSVN_CACHE_COMMANDPIPE_NAME + GetCacheID();
-}
-
-CString GetCacheMutexName()
-{
-	return TSVN_CACHE_MUTEX_NAME + GetCacheID();
-}
-CString GetCacheID()
-{
+	CString s = TSVN_CACHE_PIPE_NAME;
 	HANDLE token;
 	DWORD len;
 	BOOL result = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token);
@@ -48,7 +35,28 @@ CString GetCacheID()
 		CString t;
 		t.Format(_T("-%08x%08x"), uid.HighPart, uid.LowPart);
 		CloseHandle(token);
-		return t;
+		return s + t;
 	}
-	return _T("");
+	return s;
+}
+
+CString GetCacheCommandPipeName()
+{
+	CString s = TSVN_CACHE_COMMANDPIPE_NAME;
+	HANDLE token;
+	DWORD len;
+	BOOL result = OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token);
+	if(result)
+	{
+		GetTokenInformation(token, TokenStatistics, NULL, 0, &len);
+		LPBYTE data = new BYTE[len];
+		GetTokenInformation(token, TokenStatistics, data, len, &len);
+		LUID uid = ((PTOKEN_STATISTICS)data)->AuthenticationId;
+		delete [ ] data;
+		CString t;
+		t.Format(_T("-%08x%08x"), uid.HighPart, uid.LowPart);
+		CloseHandle(token);
+		return s + t;
+	}
+	return s;
 }
