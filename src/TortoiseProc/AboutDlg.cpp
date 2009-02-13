@@ -22,6 +22,7 @@
 #include "AboutDlg.h"
 #include "svn_version.h"
 #include "..\version.h"
+#include "BDBVersion.h"
 #include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
@@ -59,6 +60,7 @@ BOOL CAboutDlg::OnInitDialog()
 		svnver->major, svnver->minor, svnver->patch, CString(svnver->tag), 
 		APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
 		APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
+		g_iDB_VERSION_MAJOR, g_iDB_VERSION_MINOR, g_iDB_VERSION_PATCH,
 		_T(NEON_VERSION),
 		_T(OPENSSL_VERSION_TEXT),
 		_T(ZLIB_VERSION));
@@ -72,7 +74,7 @@ BOOL CAboutDlg::OnInitDialog()
 
 	m_waterEffect.Create(468,64);
 	SetTimer(ID_EFFECTTIMER, 40, NULL);
-	SetTimer(ID_DROPTIMER, 1500, NULL);
+	SetTimer(ID_DROPTIMER, 300, NULL);
 
 	m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
 	m_cSupportLink.SetURL(_T("http://tortoisesvn.tigris.org/donate.html"));

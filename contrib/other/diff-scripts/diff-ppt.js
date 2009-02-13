@@ -1,7 +1,7 @@
 //
 // TortoiseSVN Diff script for Powerpoint files
 //
-// Copyright (C) 2004-2009 the TortoiseSVN team
+// Copyright (C) 2004-2008 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -18,28 +18,6 @@ This script starts PowerPoint and compares the two given presentations.
 To better see the changes and get the highlighting feature of PowerPoint
 click on "Apply all changes to the presentation" on the reviewing toolbar.
 */
-
-function PptAppMajorVersion(PowerPoint)
-{
-    var pptVersion;
-    try
-    {
-        pptVersion = PowerPoint.Version.toString();
-        if (pptVersion.indexOf(".") > 0) 
-        {
-            pptVersion = pptVersion.substr(0, pptVersion.indexOf("."));
-        }
-        if (pptVersion == "")
-            return 0;
-        else
-            return parseInt(pptVersion);
-    }
-    catch(e)
-    {
-        return 0;
-    }    
-}
-
 var objArgs,num,sBasePpt,sNewPpt,objScript,powerpoint,source;
 
 objArgs = WScript.Arguments;
@@ -77,22 +55,14 @@ catch(e)
    WScript.Quit(1);
 }
 
-if (PptAppMajorVersion(powerpoint) >= 12) 
-{
-    WScript.Echo("Microsoft Powerpoint 2007 doesn't provide the DIFF features any more. Sorry!\r\nYou can try diffing with OpenOffice...");
-    WScript.Quit(1);
-}
-else 
-{
-    powerpoint.visible = true;
+powerpoint.visible = true;
 
-    // Open the original (base) document
-    source = powerpoint.Presentations.Open(sBasePpt);
-
-    // Merge the new document, to show the changes
-    source.Merge(sNewPpt);
-
-    // Mark the comparison presentation as saved to prevent the annoying
-    // "Save as" dialog from appearing.
-    powerpoint.ActivePresentation.Saved = 1;
-}
+// Open the original (base) document
+source = powerpoint.Presentations.Open(sBasePpt);
+    
+// Merge the new document, to show the changes
+source.Merge(sNewPpt);
+    
+// Mark the comparison presentation as saved to prevent the annoying
+// "Save as" dialog from appearing.
+powerpoint.ActivePresentation.Saved = 1;

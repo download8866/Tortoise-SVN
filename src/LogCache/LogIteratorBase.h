@@ -24,7 +24,7 @@
 
 #include "ILogIterator.h"
 
-#include "./Containers/DictionaryBasedTempPath.h"
+#include "DictionaryBasedTempPath.h"
 #include "CachedLogInfo.h"
 
 ///////////////////////////////////////////////////////////////

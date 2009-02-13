@@ -26,7 +26,6 @@
 
 bool CheckoutCommand::Execute()
 {
-	bool bRet = false;
 	// Get the directory supplied in the command line. If there isn't
 	// one then we should use first the default checkout path
 	// specified in the settings dialog, and fall back to the current 
@@ -37,9 +36,13 @@ bool CheckoutCommand::Execute()
 	{
 		if (CString(regDefCheckoutPath).IsEmpty())
 		{
-			checkoutDirectory.SetFromWin(sOrigCWD, true);
-			DWORD len = ::GetTempPath(0, NULL);
+			DWORD len = ::GetCurrentDirectory(0, NULL);
 			TCHAR * tszPath = new TCHAR[len];
+			::GetCurrentDirectory(len, tszPath);
+			checkoutDirectory.SetFromWin(tszPath, true);
+			delete [] tszPath;
+			len = ::GetTempPath(0, NULL);
+			tszPath = new TCHAR[len];
 			::GetTempPath(len, tszPath);
 			if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath, len-2 /* \\ and \0 */) == 0)
 			{
@@ -92,11 +95,6 @@ bool CheckoutCommand::Execute()
 	if (dlg.m_URL.Left(5).Compare(_T("tsvn:"))==0)
 	{
 		dlg.m_URL = dlg.m_URL.Mid(5);
-		if (dlg.m_URL.Find('?') >= 0)
-		{
-			dlg.Revision = SVNRev(dlg.m_URL.Mid(dlg.m_URL.Find('?')+1));
-			dlg.m_URL = dlg.m_URL.Left(dlg.m_URL.Find('?'));
-		}
 	}
 	if (parser.HasKey(_T("revision")))
 	{
@@ -126,7 +124,6 @@ bool CheckoutCommand::Execute()
 			progDlg.SetRevision(dlg.Revision);
 			progDlg.SetDepth(foldbrowse.m_bCheck ? svn_depth_empty : svn_depth_infinity);
 			progDlg.DoModal();
-			bRet = !progDlg.DidErrorsOccur();
 		}
 	}
 	else if (dlg.DoModal() == IDOK)
@@ -144,7 +141,6 @@ bool CheckoutCommand::Execute()
 		progDlg.SetRevision(dlg.Revision);
 		progDlg.SetDepth(dlg.m_depth);
 		progDlg.DoModal();
-		bRet = !progDlg.DidErrorsOccur();
 	}
-	return bRet;
+	return true;
 }

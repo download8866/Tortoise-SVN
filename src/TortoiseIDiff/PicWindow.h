@@ -21,7 +21,7 @@
 #include "BaseWindow.h"
 #include "TortoiseIDiff.h"
 #include "Picture.h"
-#include "NiceTrackbar.h"
+#include "AlphaControl.h"
 
 #define HEADER_HEIGHT 30
 
@@ -63,7 +63,7 @@ public:
 		, picscale(1.0)
 		, transparentColor(::GetSysColor(COLOR_WINDOW))
 		, pSecondPic(NULL)
-		, blendAlpha(0.5f)
+		, alphalive(0)
 		, bShowInfo(false)
 		, nDimensions(0)
 		, nCurrentDimension(1)
@@ -72,6 +72,7 @@ public:
 		, bPlaying(false)
 		, pTheOtherPic(NULL)
 		, bLinkedPositions(true)
+		, hwndAlphaSlider(NULL)
 		, bFitSizes(false)
 		, m_blend(BLEND_ALPHA)
 		, bMainPic(false)
@@ -105,26 +106,26 @@ public:
 	}
 
 	void StopTimer() {KillTimer(*this, ID_ANIMATIONTIMER);}
-	
-	/// Returns the currently used alpha blending value (0.0-1.0)
-	float GetBlendAlpha() const { return blendAlpha; }
+	/// Returns the currently used alpha blending value (0-255)
+	BYTE GetSecondPicAlpha() {return alphalive;}
 	/// Sets the alpha blending value
-	void SetBlendAlpha(BlendType type, float a) 
+	void SetSecondPicAlpha(BlendType type, BYTE a) 
 	{
 		m_blend = type;
-		blendAlpha = a;
-		if (m_AlphaSlider.IsValid())
-			SendMessage(m_AlphaSlider.GetWindow(), TBM_SETPOS, (WPARAM)1, (LPARAM)(a*16.0f));
+		alphalive = a;
+		if (hwndAlphaSlider)
+			SendMessage(hwndAlphaSlider, TBM_SETPOS, (WPARAM)1, (LPARAM)a);
 		PositionTrackBar();
 		InvalidateRect(*this, NULL, FALSE);
 	}
-	/// Toggle the alpha blending value
+	/// Toggle the alpha between the two markers in the alpha slider control
 	void ToggleAlpha()
 	{
-		if( 0.0f != GetBlendAlpha() )
-			SetBlendAlpha(m_blend, 0.0f);
+		UINT nLeft = (BYTE)SendMessage(hwndAlphaSlider, ALPHA_GETLEFTPOS, 0, 0);
+		if(nLeft != GetSecondPicAlpha())
+			SetSecondPicAlpha(m_blend, nLeft);
 		else
-			SetBlendAlpha(m_blend, 1.0f);
+			SetSecondPicAlpha(m_blend, (BYTE)SendMessage(hwndAlphaSlider, ALPHA_GETRIGHTPOS, 0, 0));
 	}
 
 	/// Set the color that this PicWindow will display behind transparent images.
@@ -188,7 +189,7 @@ protected:
 	/// starts/stops the animation
 	void				Animate(bool bStart);
 	/// Creates the trackbar (the alpha blending slider control)
-	void				CreateTrackbar(HWND hwndParent);
+	HWND				CreateTrackbar(HWND hwndParent);
 	/// Moves the alpha slider trackbar to the correct position
 	void				PositionTrackBar();
 	/// creates the info string used in the info box and the tooltips
@@ -209,7 +210,7 @@ protected:
 	BlendType			m_blend;			///< type of blending to use
 	stdstring 			pictitle2;			///< the title of the second picture
 	stdstring 			picpath2;			///< the path of the second picture
-	float				blendAlpha;			///<the alpha value for transparency blending
+	BYTE				alphalive;			///< the alpha value for the transparency live-preview of the second picture
 	bool				bShowInfo;			///< true if the info rectangle of the image should be shown
 	TCHAR				m_wszTip[8192];
 	char				m_szTip[8192];
@@ -230,12 +231,10 @@ protected:
 	UINT				nCurrentDimension;
 	UINT				nFrames;
 	UINT				nCurrentFrame;
-
-	// controls
 	HWND				hwndLeftBtn;
 	HWND				hwndRightBtn;
 	HWND				hwndPlayBtn;
-	CNiceTrackbar		m_AlphaSlider;
+	HWND				hwndAlphaSlider;
 	HWND				hwndAlphaToggleBtn;
 	HICON				hLeft;
 	HICON				hRight;

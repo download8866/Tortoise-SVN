@@ -35,7 +35,7 @@ CC=cl
 RC=rc
 LD=link
 
-CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1
+CXXFLAGS=-Zi -TP -W4 -Zc:forScope -Zc:wchar_t -D_CRT_SECURE_NO_DEPRECATE=1 -DMULTIPLE_MONITOR_SUPPORT
 # For something scary:-Wp64
 CXXDEBUG=-Od -MTd -DDEBUG
 CXXNDEBUG=-O1 -MT -DNDEBUG -GL
@@ -155,7 +155,6 @@ LEXOBJS=\
 	$(DIR_O)\LexMMIXAL.obj \
 	$(DIR_O)\LexMPT.obj \
 	$(DIR_O)\LexMSSQL.obj \
-	$(DIR_O)\LexMySQL.obj \
 	$(DIR_O)\LexNsis.obj \
 	$(DIR_O)\LexOpal.obj \
 	$(DIR_O)\LexOthers.obj \
@@ -389,8 +388,6 @@ $(DIR_O)\LexMMIXAL.obj: ..\src\LexMMIXAL.cxx $(LEX_HEADERS)
 $(DIR_O)\LexMPT.obj: ..\src\LexMPT.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexMSSQL.obj: ..\src\LexMSSQL.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexMySQL.obj: ..\src\LexMySQL.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexNsis.obj: ..\src\LexNsis.cxx $(LEX_HEADERS)
 

@@ -1,6 +1,6 @@
 #
 # Finnish translation for TortoiseMerge
-# Copyright (C) 2004-2009 the TortoiseSVN team
+# Copyright (C) 2004-2007 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2008-10-24 23:17 +0000\n"
-"PO-Revision-Date: 2009-02-03 21:30+0200\n"
+"POT-Creation-Date: 2008-07-20 22:21 +0000\n"
+"PO-Revision-Date: 2008-07-29 04:14+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -118,8 +118,8 @@ msgstr "TortoiseMerge on ilmainen. Sinun ei tarvitse maksaa siitä, ja voit käy
 
 #. (para)
 #: ../source/TortoiseMerge_en.xml:71
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
-msgstr "TortoiseMerge on avoimen lähdekoodin projekti.  Voit vapaasti tutkia ohjelman lähdekoodia, joka löytyy osoitteesta <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. Sinulta kysytään käyttäjätunnusta ja salasanaa. Käyttäjätunnus on <literal>guest</literal>, ja salasana jätetään tyhjäksi. Viimeisin versio (jonka parissa työskentelemme parasta aikaa) sijaitsee kansiossa <filename>/trunk</filename>; julkaistut versiot sijaitsevat kansiossa <filename>/tags</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. (Username:guest, for password hit enter) The most recent version (where we're currently working) is located under <filename>/trunk/</filename> the released versions are located under <filename>/tags/</filename>."
+msgstr "TortoiseMerge on avoimen lähdekoodin projekti.  Voit vapaasti tutkia ohjelman lähdekoodia, joka löytyy osoitteesta <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. (Käyttäjätunnus guest, tyhjä salasana). Viimeisin versio (jonka parissa työskentelemme parasta aikaa) sijaitsee kansiossa <filename>/trunk</filename>; julkaistut versiot sijaitsevat kansiossa <filename>/tags</filename>."
 
 #. (title)
 #: ../source/TortoiseMerge_en.xml:90
@@ -1157,8 +1157,8 @@ msgstr "yhdistetty"
 
 #. (entry)
 #: ../source/TortoiseMerge_en.xml:1262
-msgid "Specifies the resulting <placeholder-1/> file used in three way diffs. This is the file path where the result of the merge/conflict resolving is saved. If this is not set, then TortoiseMerge will ask the user where to save the result."
-msgstr "Määrittelee kolmiosaisissa vertailuissa käytetyn tulostiedoston <placeholder-1/> nimen. Yhdistämisen / ristiriitojen ratkonnan tulos talletetaan tähän tiedostoon. Mikäli polku on asettamatta, TortoiseMerge kysyy käyttäjältä, mihin tulos talletetaan."
+msgid "Specifies the resulting <placeholder-1/> file used in three way diffs. This is the filepath where the result of the merge/conflict resolving is saved. If this is not set, then TortoiseMerge will ask the user where to save the result."
+msgstr "Määrittelee kolmiosaisissa vertailuissa käytetyn tulostiedoston <placeholder-1/> nimen.  Tämä määrittää polun, jolle yhdistämisen / ristiriitojen ratkonnan tulos talletetaan. Mikäli asettamatta, TortoiseMerge kysyy tulosten talletuspaikkaa."
 
 #. (entry)
 #: ../source/TortoiseMerge_en.xml:1272
@@ -1294,7 +1294,7 @@ msgstr "Haara"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1402
 msgid "A term frequently used in revision control systems to describe what happens when development forks at a particular point and follows 2 separate paths. You can create a branch off the main development line so as to develop a new feature without rendering the main line unstable. Or you can branch a stable release to which you make only bug fixes, while new developments take place on the unstable trunk. In Subversion a branch is implemented as a <quote>cheap copy</quote>."
-msgstr "Versionhallintajärjestelmissä usein käytetty termi, joka kuvaa, mitä tapahtuu, kun kehitystyö haarautuu kahteen erilliseen polkuun. Pääkehityshaara joudutaan haaroittamaan esimerkiksi silloin, kun tarvitaan uusi ominaisuus, jota voidaan kehittää ajan kanssa tekemättä päähaarasta epävakaata. Toinen vaihtoehto on tehdä päähaarasta julkaisua varten haara, johon tehdään vain virhekorjauksia, ja samaan aikaan uusia toimintoja kehitetään epävakaaseen päähaaraan.  Subversion toteuttaa haarat <quote>halpoina kopioina</quote>."
+msgstr "Versionhallintajärjestelmissä usein käytetty termi, jolla kuvataan, mitä tapahtuu kun kehitystyö haarautuu kahteen eri polkuun. Pääkehityshaara kannattaa haaroittaa, kun tarvitaan uusi ominaisuus, jota on kehitettävä ajan kanssa tekemättä päähaarasta epävakaata. Toinen vaihtoehto on tehdä päähaarasta julkaisua varten oma haara, johon tehdään vain virhekorjauksia samalla, kun uusia toimintoja kehitetään epävakaaseen päähaaraan.  Subversion toteuttaa haarat <quote>halpoina kopioina</quote>. "
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1415
@@ -1344,7 +1344,7 @@ msgstr "Kopio"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1465
 msgid "In a Subversion repository you can create a copy of a single file or an entire tree. These are implemented as <quote>cheap copies</quote> which act a bit like a link to the original in that they take up almost no space. Making a copy preserves the history of the item in the copy, so you can trace changes made before the copy was made."
-msgstr "Subversion-arkistossa voit tehdä kopion yksittäisestä tiedostosta tai kokonaisesta hakemistopuusta. Kopiot on toteutettu <quote>halpoina kopioina</quote>, jotka toimivat ikään kuin linkkeinä alkuperäiseen.  Tämän ansiosta ne eivät vaadi lähes lainkaan tilaa. Kopion tekeminen säilyttää kohteen muutoshistorian, joten voit jäljittää muutoksia, jotka tapahtuivat ennen kopion tekoa."
+msgstr "Subversion-arkistossa voit tehdä kopion yksittäisestä tiedostosta tai kokonaisesta hakemistopuusta. Kopiot on toteutettu <quote>halpoina kopioina</quote>, jotka toimivat ikään kuin linkkeinä alkuperäiseen.  Tämän ansiosta ne eivät vaadi lähes lainkaan tilaa. Kopion tekeminen säilyttää tiedoston muutoshistorian, joten voit jäljittää muutoksia, jotka tapahtuivat ennen kopion tekoa."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1475
@@ -1354,7 +1354,7 @@ msgstr "Poisto"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1477
 msgid "When you delete a versioned item (and commit the change) the item no longer exists in the repository after the committed revision. But of course it still exists in earlier repository revisions, so you can still access it. If necessary, you can copy a deleted item and <quote>resurrect</quote> it complete with history."
-msgstr "Kun poistat versioidun tiedoston tai hakemiston (ja toimitat muutokset arkistoon), sitä ei enää löydy arkistosta toimitusta seuraavissa versioissa.  Se on tietysti kuitenkin yhä olemassa aiemmissa versioissa, joten voit edelleen päästä siihen käsiksi. Mikäli tarpeen, voit kopioida poistetun kohteen ja <quote>herättää sen henkiin</quote>, muutoshistoria mukaan lukien."
+msgstr "Kun poistat versioidun tiedoston tai hakemiston (ja toimitat muutokset arkistoon), sitä ei ole enää arkistossa toimitusta seuraavissa versioissa.  Se on kuitenkin yhä olemassa ja saatavilla aiemmissa versioissa. Mikäli tarpeen, voit kopioida poistetun tiedoston ja <quote>herättää sen henkiin</quote> muutoshistoria mukaan lukien."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1487
@@ -1384,7 +1384,7 @@ msgstr "FSFS"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1508
 msgid "A proprietary Subversion filesystem backend for repositories. Can be used on network shares. Default for 1.2 and newer repositories."
-msgstr "Subversion-ohjelman tarpeisiin kehitetty tiedostojärjestelmä arkistojen toteutukseen. Voidaan käyttää verkkojakojen (file://) kanssa.  Oletusarvoinen arkistojen toteutustapa Subversion-versiosta 1.2 lähtien."
+msgstr "Tiedostojärjestelmä Subversion-arkistojen toteutukseen. Voidaan käyttää verkkojakojen (file://) kanssa.  Oletusarvoinen arkistojen toteutustapa Subversion-versiosta 1.2 lähtien."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1515
@@ -1424,7 +1424,7 @@ msgstr "Lukitus"
 #. (para)
 #: ../source/TortoiseMerge_en.xml:1542
 msgid "When you take out a lock on a versioned item, you mark it in the repository as non-committable, except from the working copy where the lock was taken out."
-msgstr "Lukitessasi versioidun kohteen, sitä ei voi muuttaa arkistossa muualta kuin siitä työkopiosta, jossa lukitus tehtiin."
+msgstr "Lukitessasi versioidun tiedoston tai kansion sitä ei voi muuttaa arkistossa muualta kuin siitä työkopiosta, jossa lukitus tehtiin."
 
 #. (glossterm)
 #: ../source/TortoiseMerge_en.xml:1550

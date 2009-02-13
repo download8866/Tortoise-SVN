@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -198,7 +198,7 @@ public:
 	 * values.
 	 */
 	bool				PreCommit(const CTSVNPathList& pathList, svn_depth_t depth, 
-									CString& message, DWORD& exitcode, 
+									const CString& message, DWORD& exitcode, 
 									CString& error);
 	/**
 	 * Executes the Post-Commit-Hook that first matches one of the paths in
@@ -230,7 +230,7 @@ private:
 	 * \param bShow set to true if the process should be started visible.
 	 * \return the exit code of the process if \c bWait is true, zero otherwise.
 	 */
-	DWORD				RunScript(CString cmd, const CTSVNPathList& paths, CString& error, bool bWait, bool bShow);
+	DWORD				RunScript(CString cmd, LPCTSTR currentDir, CString& error, bool bWait, bool bShow);
 	/**
 	 * Find the hook script information for the hook type \c t which matches a
 	 * path in \c pathList.

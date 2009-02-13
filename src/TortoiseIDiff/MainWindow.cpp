@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006 - 2008 - TortoiseSVN
+// Copyright (C) 2006 - 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -214,9 +214,7 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 			// find out if the mouse cursor is over one of the views, and if
 			// it is, pass the mouse wheel message to that view
 			POINT pt;
-			DWORD ptW = GetMessagePos();
-			pt.x = GET_X_LPARAM(ptW);
-			pt.y = GET_Y_LPARAM(ptW);
+			GetCursorPos(&pt);
 			RECT rect;
 			GetWindowRect(picWindow1, &rect);
 			if (PtInRect(&rect, pt))
@@ -346,7 +344,7 @@ LRESULT CMainWindow::DoCommand(int id)
 				picWindow2.StopTimer();
 				picWindow1.SetSecondPic(picWindow2.GetPic(), rightpictitle, rightpicpath, 
 					picWindow2.GetHPos(), picWindow2.GetVPos());
-				picWindow1.SetBlendAlpha(m_BlendType, 0.5f);
+				picWindow1.SetSecondPicAlpha(m_BlendType, 127);
 			}
 			else
 			{
@@ -383,7 +381,7 @@ LRESULT CMainWindow::DoCommand(int id)
 			tbi.dwMask = TBIF_STATE;
 			tbi.fsState = (m_BlendType == CPicWindow::BLEND_ALPHA) ? TBSTATE_CHECKED | TBSTATE_ENABLED : TBSTATE_ENABLED;
 			SendMessage(hwndTB, TB_SETBUTTONINFO, ID_VIEW_BLENDALPHA, (LPARAM)&tbi);
-			picWindow1.SetBlendAlpha(m_BlendType, picWindow1.GetBlendAlpha());
+			picWindow1.SetSecondPicAlpha(m_BlendType, picWindow1.GetSecondPicAlpha());
 			PositionChildren();
 		}
 		break;
@@ -446,13 +444,13 @@ LRESULT CMainWindow::DoCommand(int id)
 		}
 		break;
 	case ID_VIEW_ALPHA0:
-		picWindow1.SetBlendAlpha(m_BlendType, 0.0f);
+		picWindow1.SetSecondPicAlpha(m_BlendType, 0);
 		break;
 	case ID_VIEW_ALPHA255:
-		picWindow1.SetBlendAlpha(m_BlendType, 1.0f);
+		picWindow1.SetSecondPicAlpha(m_BlendType, 255);
 		break;
 	case ID_VIEW_ALPHA127:
-		picWindow1.SetBlendAlpha(m_BlendType, 0.5f);
+		picWindow1.SetSecondPicAlpha(m_BlendType, 127);
 		break;
 	case ID_VIEW_ALPHATOGGLE:
 		picWindow1.ToggleAlpha();

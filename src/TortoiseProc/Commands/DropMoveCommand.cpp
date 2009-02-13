@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "MessageBox.h"
 #include "SVN.h"
 #include "RenameDlg.h"
-#include "ShellUpdater.h"
 
 bool DropMoveCommand::Execute()
 {
@@ -40,7 +39,6 @@ bool DropMoveCommand::Execute()
 		do 
 		{
 			CRenameDlg renDlg;
-			renDlg.m_windowtitle.LoadString(IDS_PROC_MOVERENAME);
 			renDlg.m_name = pathList[0].GetFileOrDirectoryName();
 			if (renDlg.DoModal() != IDOK)
 			{
@@ -96,26 +94,6 @@ bool DropMoveCommand::Execute()
 						CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						return FALSE;		//get out of here
 					}
-					CShellUpdater::Instance().AddPathForUpdate(destPath);
-				}
-			}
-			else if ((svn.Err && svn.Err->apr_err == SVN_ERR_ENTRY_EXISTS) && (destPath.Exists()))
-			{
-				// target file already exists. Ask user if he wants to replace the file
-				CString sReplace;
-				sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
-				if (CMessageBox::Show(hwndExplorer, sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO) == IDYES)
-				{
-					if (!svn.Remove(CTSVNPathList(destPath), TRUE, FALSE))
-					{
-						destPath.Delete(true);
-					}
-					if (!svn.Move(CTSVNPathList(pathList[nPath]), destPath, TRUE))
-					{
-						CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-						return FALSE;		//get out of here
-					}
-					CShellUpdater::Instance().AddPathForUpdate(destPath);
 				}
 			}
 			else
@@ -125,8 +103,6 @@ bool DropMoveCommand::Execute()
 				return FALSE;		//get out of here
 			}
 		} 
-		else
-			CShellUpdater::Instance().AddPathForUpdate(destPath);
 		count++;
 		if (progress.IsValid())
 		{

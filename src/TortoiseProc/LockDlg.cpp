@@ -148,8 +148,7 @@ void CLockDlg::OnCancel()
 	if (m_bBlock)
 		return;
 	UpdateData();
-	if ((m_ProjectProperties == 0)||(m_ProjectProperties->sLogTemplate.Compare(m_cEdit.GetText()) != 0))
-		m_sLockMessage = m_cEdit.GetText();
+	m_sLockMessage = m_cEdit.GetText();
 	m_History.AddEntry(m_sLockMessage);
 	m_History.Save();
 	CResizableStandAloneDialog::OnCancel();
@@ -206,7 +205,7 @@ UINT CLockDlg::StatusThread()
 
 	RefreshCursor();
 	CString logmsg;
-	GetDlgItemText(IDC_LOCKMESSAGE, logmsg);
+	GetDlgItem(IDC_LOCKMESSAGE)->GetWindowText(logmsg);
 	DialogEnableWindow(IDOK, m_ProjectProperties ? m_ProjectProperties->nMinLockMsgSize <= logmsg.GetLength() : TRUE);
 	m_bBlock = FALSE;
 	return 0;
@@ -263,7 +262,7 @@ void CLockDlg::OnBnClickedHelp()
 void CLockDlg::OnEnChangeLockmessage()
 {
 	CString sTemp;
-	GetDlgItemText(IDC_LOCKMESSAGE, sTemp);
+	GetDlgItem(IDC_LOCKMESSAGE)->GetWindowText(sTemp);
 	if ((m_ProjectProperties == NULL)||((m_ProjectProperties)&&(sTemp.GetLength() >= m_ProjectProperties->nMinLockMsgSize)))
 	{
 		if (!m_bBlock)

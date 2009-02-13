@@ -305,7 +305,7 @@ NAnt build script for the TortoiseSVN language pack installers
 				</items>
 			</in>
 			<do>
-				<property name="SpellCheckFiles" value="&lt;File Id='${path::get-file-name(filename)}' Name='${path::get-file-name(filename)}' DiskId='1' Source='${filename}' Vital='no'&gt;&lt;/File&gt;${SpellCheckFiles}" />
+				<property name="SpellCheckFiles" value="&lt;File Id='${path::get-file-name(filename)}' Name='${path::get-file-name(filename)}' LongName='${path::get-file-name(filename)}' DiskId='1' Source='${filename}' Vital='no'&gt;&lt;/File&gt;${SpellCheckFiles}" />
 				<echo message="${filename}" />
 			</do>
 		</foreach> 
@@ -365,21 +365,17 @@ NAnt build script for the TortoiseSVN language pack installers
 		</exec>
 		<exec program="light">
 			<arg value="-nologo" />
-			<arg value="-sw1008" />
-			<arg value="-sice:ICE82" />
-			<arg value="-sval" if="${platform == 'x64'}" />
 			<arg value="-out" />
 			<arg value="..\bin\LanguagePack_${verstring}${devrelease}-${platform}-${langISO}.msi" />
 			<arg value="..\bin\LanguagePack_${langISO}.wixobj" />
 			<arg value="..\bin\WixUI_LanguagePacks.wixobj" />
-			<arg value="-ext" />
-			<arg value="WixUIExtension" />
-			<arg value="-cultures:en-us" />
+			<arg value="${environment::get-variable('WIXUI')}\WixUI.wixlib" />
+			<arg value="-loc" />
+			<arg value="${environment::get-variable('WIXUI')}\WixUI_en-us.wxl" />
 		</exec>
 		<delete>
 			<fileset>
 				<include name="..\bin\*.wixobj" />
-				<include name="..\bin\*.wixpdb" />
 			</fileset>
 		</delete>
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,11 +17,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
-#include "./cachedloginfo.h"
-#include "./LogCacheSettings.h"
+#include ".\cachedloginfo.h"
 
-#include "./Streams/RootInStream.h"
-#include "./Streams/RootOutStream.h"
+#include "RootInStream.h"
+#include "RootOutStream.h"
 
 // begin namespace LogCache
 
@@ -53,92 +52,10 @@ void CCachedLogInfo::CCacheFileManager::ResetMark()
     SetFileAttributes (fileName.c_str(), attributes);
 }
 
-// allow for multiple failures 
-
-bool CCachedLogInfo::CCacheFileManager::ShouldDrop (const std::wstring& name)
-{
-    // no mark -> no crash -> no drop here
-
-    if (!IsMarked (name))
-    {
-        failureCount = NO_FAILURE;
-        return false;
-    }
-
-    // can we open it?
-    // If not, somebody else owns the lock -> don't touch it.
-
-    HANDLE tempHandle = CreateFile ( name.c_str()
-                                   , GENERIC_READ
-                                   , 0
-                                   , 0
-                                   , OPEN_ALWAYS
-                                   , FILE_ATTRIBUTE_NORMAL
-                                   , NULL);
-    if (tempHandle == INVALID_HANDLE_VALUE)
-        return false;
-
-	try
-	{
-        // any failure count so far?
-
-        CFile file (tempHandle);
-        if (file.GetLength() != 0)
-        {
-            CArchive stream (&file, CArchive::load);
-            stream >> failureCount;
-        }
-        else
-        {
-            failureCount = 0;
-        }
-
-        // to many of them?
-
-        CloseHandle (tempHandle);
-        return failureCount >= CSettings::GetMaxFailuresUntilDrop();
-	}
-	catch (CException* /*e*/)
-	{
-	}
-
-    // could not access the file or similar problem 
-    // -> remove it if it's no longer in use
-
-    CloseHandle (tempHandle);
-    return true;
-}
-
-void CCachedLogInfo::CCacheFileManager::UpdateMark (const std::wstring& name)
-{
-    assert (OwnsFile());
-
-    // mark as "in use"
-
-    SetMark (name);
-
-    // failed before?
-    // If so, keep track of the number of failures.
-
-    if (++failureCount > 0)
-    {
-	    try
-	    {
-            CFile file (fileHandle);
-            CArchive stream (&file, CArchive::store);
-            stream << failureCount;
-	    }
-	    catch (CException* /*e*/)
-	    {
-	    }
-    }
-}
-
 // default construction / destruction
 
 CCachedLogInfo::CCacheFileManager::CCacheFileManager()
     : fileHandle (INVALID_HANDLE_VALUE)
-    , failureCount (NO_FAILURE)
 {
 }
 
@@ -160,19 +77,16 @@ void CCachedLogInfo::CCacheFileManager::AutoAcquire (const std::wstring& fileNam
     // (DeleteFile() will fail for open files)
 
     std::wstring lockFileName = fileName + L".lock";
-    if (ShouldDrop (lockFileName))
+    if (IsMarked (lockFileName))
     {
         if (DeleteFile (lockFileName.c_str()) == TRUE)
-        {
             DeleteFile (fileName.c_str());
-            failureCount = NO_FAILURE;
-        }
     }
 
     // auto-create file and acquire lock
 
     fileHandle = CreateFile ( lockFileName.c_str()
-                            , GENERIC_READ | GENERIC_WRITE
+                            , GENERIC_READ
                             , 0
                             , 0
                             , OPEN_ALWAYS
@@ -181,10 +95,9 @@ void CCachedLogInfo::CCacheFileManager::AutoAcquire (const std::wstring& fileNam
     if (OwnsFile())
     {
         // we are the first to open that file -> we own it.
-        // Mark it as "in use" until being closed by AutoRelease().
-        // Also, increment failure counter.
+        // Mark it as "in use" until being closed by AutoRelease()
 
-        UpdateMark (lockFileName);
+        SetMark (lockFileName);
     }
 }
 
@@ -330,30 +243,6 @@ void CCachedLogInfo::Save (const std::wstring& newFileName)
     // the data is no longer "modified"
 
     modified = false;
-}
-
-// find the highest revision not exceeding the given timestamp
-
-revision_t CCachedLogInfo::FindRevisionByDate (__time64_t maxTimeStamp) const
-{
-    revision_t first = revisions.GetFirstCachedRevision();
-    revision_t last = revisions.GetLastCachedRevision();
-
-    revision_t result = (revision_t)NO_REVISION;
-    for (revision_t revision = first; revision != last; ++revision)
-    {
-        index_t index = revisions[revision];
-        if (index != NO_INDEX)
-        {
-            __time64_t revisionTime = logInfo.GetTimeStamp (index);
-            if (revisionTime > maxTimeStamp)
-                return result;
-
-            result = revision;
-        }
-    }
-
-    return result;
 }
 
 // data modification (mirrors CRevisionInfoContainer)

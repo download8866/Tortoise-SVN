@@ -2,13 +2,13 @@
 <!DOCTYPE appendix SYSTEM "../../dtd/dblite.dtd">
 <appendix id="tsvn-cli" xmlns:xi="http://www.w3.org/2001/XInclude">
 	<title>Command Line Interface Cross Reference</title>
+	<indexterm>
+		<primary>command line client</primary>
+	</indexterm>
+	<indexterm>
+		<primary>CLI</primary>
+	</indexterm>
 	<simplesect>
-		<indexterm>
-			<primary>command line client</primary>
-		</indexterm>
-		<indexterm>
-			<primary>CLI</primary>
-		</indexterm>
 		<para>
 			Sometimes this manual refers you to the main Subversion
 			documentation, which describes Subversion in terms of the
@@ -377,7 +377,7 @@ svn switch [-r rev] URL PATH
 svn merge [--dry-run] --force From_URL@revN To_URL@revM PATH
 </screen>
 			<para>
-				The <guibutton>Test Merge</guibutton> performs the same merge
+				The <guibutton>Dry run</guibutton> performs the same merge
 				with the <literal>--dry-run</literal> switch.
 			</para>
 <screen>
@@ -423,6 +423,8 @@ svn switch --relocate From_URL To_URL
 			<title>Create Repository Here</title>
 <screen>
 svnadmin create --fs-type fsfs PATH
+  or
+svnadmin create --fs-type bdb PATH
 </screen>
 		</sect2>
 		<sect2 id="tsvn-cli-add">

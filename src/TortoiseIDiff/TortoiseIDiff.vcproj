@@ -232,6 +232,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -683,6 +684,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AlphaControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\MiscUI\BaseDialog.cpp"
 				>
 			</File>
@@ -704,10 +709,6 @@
 			</File>
 			<File
 				RelativePath=".\MainWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\NiceTrackbar.cpp"
 				>
 			</File>
 			<File
@@ -805,6 +806,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AlphaControl.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\MiscUI\BaseDialog.h"
 				>
 			</File>
@@ -830,10 +835,6 @@
 			</File>
 			<File
 				RelativePath="..\Utils\MiscUI\MemDC.h"
-				>
-			</File>
-			<File
-				RelativePath=".\NiceTrackbar.h"
 				>
 			</File>
 			<File

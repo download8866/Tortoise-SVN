@@ -17,8 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
-#include "XMLLogWriter.h"
-#include "./Streams/BufferedOutFile.h"
+#include ".\XMLLogWriter.h"
+#include ".\BufferedOutFile.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache

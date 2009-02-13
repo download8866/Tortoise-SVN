@@ -24,14 +24,12 @@
 #include "RelocateDlg.h"
 #include "SVN.h"
 #include "MessageBox.h"
-#include "PathUtils.h"
 
 bool RelocateCommand::Execute()
 {
-	bool bRet = false;
 	SVN svn;
 	CRelocateDlg dlg;
-	dlg.m_sFromUrl = CPathUtils::PathUnescape(svn.GetURLFromPath(cmdLinePath));
+	dlg.m_sFromUrl = svn.GetUIURLFromPath(cmdLinePath);
 	dlg.m_sToUrl = dlg.m_sFromUrl;
 
 	if (dlg.DoModal() == IDOK)
@@ -130,9 +128,8 @@ bool RelocateCommand::Execute()
 				CString strMessage;
 				strMessage.Format(IDS_PROC_RELOCATEFINISHED, (LPCTSTR)dlg.m_sToUrl);
 				CMessageBox::Show(hwndExplorer, strMessage, _T("TortoiseSVN"), MB_ICONINFORMATION);
-				bRet = true;
 			}
 		}
 	}
-	return bRet;
+	return true;
 }

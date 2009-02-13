@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,9 +53,9 @@ bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype)
 	return false;
 }
 
-BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
+BOOL CAppUtils::StartExtMerge(
 	const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-	const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname)
+	const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname, bool bReadOnly)
 {
 
 	CRegString regCom = CRegString(_T("Software\\TortoiseSVN\\Merge"));
@@ -83,19 +83,12 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
 		}
 	}
 	
-	if ((flags.bAlternativeTool)&&(!com.IsEmpty()))
-	{
-		if (com.Left(1).Compare(_T("#"))==0)
-			com.Delete(0);
-		else
-			com.Empty();
-	}
-
 	if (com.IsEmpty()||(com.Left(1).Compare(_T("#"))==0))
 	{
 		// use TortoiseMerge
 		bInternal = true;
-		com = CPathUtils::GetAppDirectory() + _T("TortoiseMerge.exe");
+		CRegString tortoiseMergePath(_T("Software\\TortoiseSVN\\TMergePath"), _T(""), false, HKEY_LOCAL_MACHINE);
+		com = tortoiseMergePath;
 		if (com.IsEmpty())
 		{
 			com = CPathUtils::GetAppDirectory();
@@ -198,7 +191,7 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
 	else
 		com.Replace(_T("%mname"), _T("\"") + mergedname + _T("\""));
 
-	if ((flags.bReadOnly)&&(bInternal))
+	if ((bReadOnly)&&(bInternal))
 		com += _T(" /readonly");
 
 	if(!LaunchApplication(com, IDS_ERR_EXTMERGESTART, false))
@@ -431,12 +424,12 @@ BOOL CAppUtils::StartTextViewer(CString file)
 	TCHAR * buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(viewer, buf, len);
 	viewer = buf;
-	delete [] buf;
+	delete buf;
 	len = ExpandEnvironmentStrings(file, NULL, 0);
 	buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(file, buf, len);
 	file = buf;
-	delete [] buf;
+	delete buf;
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
@@ -586,7 +579,7 @@ bool CAppUtils::LaunchApplication(const CString& sCommandLine, UINT idErrMessage
 /**
 * Launch the external blame viewer
 */
-bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams, const SVNRev& startrev, const SVNRev& endrev)
+bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sLogFile, const CString& sOriginalFile, const CString& sParams)
 {
 	CString viewer = CPathUtils::GetAppDirectory();
 	viewer += _T("TortoiseBlame.exe");
@@ -594,8 +587,6 @@ bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile, const CString& sL
 	viewer += _T(" \"") + sLogFile + _T("\"");
 	viewer += _T(" \"") + sOriginalFile + _T("\"");
 	viewer += _T(" ")+sParams;
-	if (startrev.IsValid() && endrev.IsValid())
-		viewer += _T(" /revrange:\"") + startrev.ToString() + _T("-") + endrev.ToString() + _T("\"");
 	
 	return LaunchApplication(viewer, IDS_ERR_EXTDIFFSTART, false);
 }
@@ -766,7 +757,7 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 		SVN::UrlToPath(strFile);
 
 		SVN svn;
-		if (svn.IsRepository(CTSVNPath(strFile)))
+		if (svn.IsRepository(strFile))
 		{
 			// browse repository - show repository browser
 			SVN::preparePath(strUrl);
@@ -808,6 +799,20 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 			combo.SetCurSel(-1);
 			combo.SetWindowText(browser.GetPath());
 			rev = browser.GetRevision();
+			return true;
+		}
+	}
+	else
+	{
+		// browse local directories
+		CBrowseFolder folderBrowser;
+		folderBrowser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
+		if (folderBrowser.Show(pParent->GetSafeHwnd(), strUrl) == CBrowseFolder::OK)
+		{
+			SVN::PathToUrl(strUrl);
+
+			combo.SetCurSel(-1);
+			combo.SetWindowText(strUrl);
 			return true;
 		}
 	}
@@ -943,9 +948,9 @@ bool CAppUtils::SetListCtrlBackgroundImage(HWND hListCtrl, UINT nID, int width /
 CString CAppUtils::GetProjectNameFromURL(CString url)
 {
 	CString name;
-	while ((name.IsEmpty() || (name.CompareNoCase(_T("branches"))==0) ||
+	while (name.IsEmpty() || (name.CompareNoCase(_T("branches"))==0) ||
 		(name.CompareNoCase(_T("tags"))==0) ||
-		(name.CompareNoCase(_T("trunk"))==0))&&(!url.IsEmpty()))
+		(name.CompareNoCase(_T("trunk"))==0))
 	{
 		name = url.Mid(url.ReverseFind('/')+1);
 		url = url.Left(url.ReverseFind('/'));
@@ -968,7 +973,7 @@ CString CAppUtils::GetProjectNameFromURL(CString url)
 bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1, 
 									 const CTSVNPath& url2, const SVNRev& rev2, 
 									 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */,  
-									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool /* blame = false */)
+									 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */)
 {
 	CString sCmd;
 	sCmd.Format(_T("%s /command:showcompare /unified"),
@@ -994,7 +999,7 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
 	{
 		sCmd += _T(" /hwnd:");
 		TCHAR buf[30];
-		_stprintf_s(buf, 30, _T("%ld"), (DWORD)hWnd);
+		_stprintf_s(buf, 30, _T("%d"), hWnd);
 		sCmd += buf;
 	}
 
@@ -1004,12 +1009,11 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
 bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1, 
 								 const CTSVNPath& url2, const SVNRev& rev2, 
 								 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */, 
-								 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, 
-								 bool blame /* = false */, svn_node_kind_t nodekind /* = svn_node_unknown */)
+								 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, bool blame /* = false */)
 {
 	CString sCmd;
-	sCmd.Format(_T("%s /command:showcompare /nodekind:%d"),
-		(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")), nodekind);
+	sCmd.Format(_T("%s /command:showcompare"),
+		(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")));
 	sCmd += _T(" /url1:\"") + url1.GetSVNPathString() + _T("\"");
 	if (rev1.IsValid())
 		sCmd += _T(" /revision1:") + rev1.ToString();
@@ -1031,7 +1035,7 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
 	{
 		sCmd += _T(" /hwnd:");
 		TCHAR buf[30];
-		_stprintf_s(buf, 30, _T("%ld"), (DWORD)hWnd);
+		_stprintf_s(buf, 30, _T("%d"), hWnd);
 		sCmd += buf;
 	}
 
