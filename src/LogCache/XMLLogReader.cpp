@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,8 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
-#include "./XMLLogReader.h"
-#include "./Streams/MappedInFile.h"
+#include ".\XMLLogReader.h"
+#include ".\MappedInFile.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -265,7 +265,7 @@ void CXMLLogReader::ParseChanges ( const char* current
 			throw std::exception ("unknown action type");
 		}
 
-		target.AddChange (action, svn_node_unknown, path, fromPath, fromRevision);
+		target.AddChange (action, path, fromPath, fromRevision);
 	}
 }
 

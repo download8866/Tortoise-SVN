@@ -19,7 +19,7 @@
 		</loadfile>
 		<echo file="VersionNumberInclude.wxi" message="${versionwixfile}" />
 		<property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
-		<property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.6.0-dev" />
+		<property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.5.6" />
 	</target>
 
 	<target name="setup" depends="versioninfo">
@@ -85,11 +85,6 @@
 		  </exec>
 		  <exec program="light">
 			  <arg value="-nologo" />
-			  <arg value="-sw1055" />
-			  <arg value="-sice:ICE03" />
-			  <arg value="-sice:ICE82" />
-			  <arg value="-sice:ICE83" />
-			  <arg value="-sval" if="${platform == 'x64'}" />
 			  <arg value="-out" />
 			  <arg value="..\..\bin\${msifilename}.msi" />
 			  <arg value="..\..\bin\TortoiseSVN.wixobj" />
@@ -100,7 +95,6 @@
 		  <delete>
 			  <fileset>
 				  <include name="..\..\bin\*.wixobj" />
-				  <include name="..\..\bin\*.wixpdb" />
 			  </fileset>
 		  </delete>
   		

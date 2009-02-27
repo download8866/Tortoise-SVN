@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,12 +29,9 @@ CBlameDlg::CBlameDlg(CWnd* pParent /*=NULL*/)
 	, m_sStartRev(_T("1"))
 	, m_bTextView(FALSE)
 	, m_bIgnoreEOL(TRUE)
-	, m_bIncludeMerge(TRUE)
 {
 	m_regTextView = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
 	m_bTextView = m_regTextView;
-	m_regIncludeMerge = CRegDWORD(_T("Software\\TortoiseSVN\\BlameIncludeMerge"), FALSE);
-	m_bIncludeMerge = m_regIncludeMerge;
 }
 
 CBlameDlg::~CBlameDlg()
@@ -48,7 +45,6 @@ void CBlameDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Check(pDX, IDC_USETEXTVIEWER, m_bTextView);
 	DDX_Check(pDX, IDC_IGNOREEOL2, m_bIgnoreEOL);
-	DDX_Check(pDX, IDC_INCLUDEMERGEINFO, m_bIncludeMerge);
 }
 
 
@@ -68,10 +64,8 @@ BOOL CBlameDlg::OnInitDialog()
 	AdjustControlSize(IDC_COMPAREWHITESPACES);
 	AdjustControlSize(IDC_IGNOREWHITESPACECHANGES);
 	AdjustControlSize(IDC_IGNOREALLWHITESPACES);
-	AdjustControlSize(IDC_INCLUDEMERGEINFO);
 
 	m_bTextView = m_regTextView;
-	m_bIncludeMerge = m_regIncludeMerge;
 	// set head revision as default revision
 	if (EndRev.IsHead())
 		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
@@ -95,7 +89,6 @@ void CBlameDlg::OnOK()
 		return; // don't dismiss dialog (error message already shown by MFC framework)
 
 	m_regTextView = m_bTextView;
-	m_regIncludeMerge = m_bIncludeMerge;
 	StartRev = SVNRev(m_sStartRev);
 	EndRev = SVNRev(m_sEndRev);
 	if (!StartRev.IsValid())

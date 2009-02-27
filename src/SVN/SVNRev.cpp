@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@
 
 #include "StdAfx.h"
 #include "SVNRev.h"
-#pragma warning(push)
 #include "svn_time.h"
-#pragma warning(pop)
 #include "SVNHelpers.h"
 #include <algorithm>
 
@@ -145,7 +143,7 @@ void SVNRev::Create(svn_revnum_t nRev)
 	}
 }
 
-bool SVNRev::IsEqual(const SVNRev& revision) const
+bool SVNRev::IsEqual(const SVNRev& revision)
 {
 	if (rev.kind != revision.GetKind())
 		return false;
@@ -171,11 +169,15 @@ SVNRev::operator LONG() const
 	case svn_opt_revision_head:		return SVNRev::REV_HEAD;
 	case svn_opt_revision_base:		return SVNRev::REV_BASE;
 	case svn_opt_revision_working:	return SVNRev::REV_WC;
-	case svn_opt_revision_date:		return SVNRev::REV_DATE;
 	case svn_opt_revision_number:	return rev.value.number;
 	case svn_opt_revision_unspecified: return SVNRev::REV_UNSPECIFIED;
 	}
 	return SVNRev::REV_HEAD;
+}
+
+SVNRev::operator svn_opt_revision_t * ()
+{
+	return &rev;
 }
 
 SVNRev::operator const svn_opt_revision_t * () const
@@ -191,7 +193,7 @@ CString SVNRev::ToString() const
 	case svn_opt_revision_head:			return _T("HEAD");
 	case svn_opt_revision_base:			return _T("BASE");
 	case svn_opt_revision_working:		return _T("WC");
-	case svn_opt_revision_number:		sRev.Format(_T("%ld"), rev.value.number);return sRev;
+	case svn_opt_revision_number:		sRev.Format(_T("%ld"), rev.value);return sRev;
 	case svn_opt_revision_committed:	return _T("COMMITTED");
 	case svn_opt_revision_previous:		return _T("PREV");
 	case svn_opt_revision_unspecified:	return _T("UNSPECIFIED");
@@ -391,7 +393,7 @@ bool SVNRevRangeArray::FromListString(const CString& string)
 	return true;
 }
 
-CString SVNRevRangeArray::ToListString(bool bReverse /* = false */) const
+CString SVNRevRangeArray::ToListString(bool bReverse /* = false */)
 {
 	// Make a copy so that we don't modify the original array
 	std::vector<SVNRevRange> revrange((*this).m_array);
@@ -415,14 +417,14 @@ CString SVNRevRangeArray::ToListString(bool bReverse /* = false */) const
 	return sRet;
 }
 
-const apr_array_header_t * SVNRevRangeArray::GetAprArray(apr_pool_t * pool) const
+const apr_array_header_t * SVNRevRangeArray::GetAprArray(apr_pool_t * pool)
 {
 	apr_array_header_t * sources = apr_array_make(pool, GetCount(),
 		sizeof(svn_opt_revision_range_t *));
 
 	for (int nItem = 0; nItem < GetCount(); ++nItem)
 	{
-		APR_ARRAY_PUSH(sources, const svn_opt_revision_range_t *) = (const svn_opt_revision_range_t*)m_array[nItem];
+		APR_ARRAY_PUSH(sources, svn_opt_revision_range_t *) = (svn_opt_revision_range_t*)m_array[nItem];
 	}
 	return sources;
 }

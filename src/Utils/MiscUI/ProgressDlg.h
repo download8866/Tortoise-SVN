@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -115,20 +115,20 @@ public:
      */
     void ResetTimer();
 
-//	/**
-//	 * Shows the progress dialog box modal.
-//	 */
-//#ifdef _MFC_VER
-//    HRESULT ShowModal ( CWnd* pwndParent );
-//#endif
-//    HRESULT ShowModal ( HWND hWndParent );
+	/**
+	 * Shows the progress dialog box modal.
+	 */
+#ifdef _MFC_VER
+    HRESULT ShowModal ( CWnd* pwndParent );
+#endif
+    HRESULT ShowModal ( HWND hWndParent );
     /**
      * Shows the progress dialog box modeless.
      */
 #ifdef _MFC_VER
-    HRESULT ShowModeless ( CWnd* pwndParent, BOOL immediately = true );
+    HRESULT ShowModeless ( CWnd* pwndParent );
 #endif
-    HRESULT ShowModeless ( HWND hWndParent, BOOL immediately = true );
+    HRESULT ShowModeless ( HWND hWndParent );
 
 	/**
 	 * Stops the progress dialog box and removes it from the screen.
@@ -172,10 +172,9 @@ public:
 	bool EnsureValid();
 
 protected:
-    IProgressDialog*	m_pIDlg;
-    bool				m_bValid;
-    bool				m_isVisible;
-    DWORD				m_dwDlgFlags;
-	HWND				m_hWndProgDlg;
+    IProgressDialog* m_pIDlg;
+    bool      m_bValid;
+    bool      m_isVisible;
+    DWORD     m_dwDlgFlags;
 };
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,7 +46,6 @@ BEGIN_MESSAGE_MAP(CRelocateDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_WM_SIZING()
-	ON_CBN_EDITCHANGE(IDC_TOURL, &CRelocateDlg::OnCbnEditchangeTourl)
 END_MESSAGE_MAP()
 
 BOOL CRelocateDlg::OnInitDialog()
@@ -69,7 +68,6 @@ BOOL CRelocateDlg::OnInitDialog()
 
 	SetDlgItemText(IDC_FROMURL, m_sFromUrl);
 	m_URLCombo.SetWindowText(m_sFromUrl);
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 	if ((m_pParentWnd==NULL)&&(hWndExplorer))
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RelocateDlg"));
@@ -114,9 +112,4 @@ void CRelocateDlg::OnSizing(UINT fwSide, LPRECT pRect)
 		break;
 	}
 	CResizableStandAloneDialog::OnSizing(fwSide, pRect);
-}
-
-void CRelocateDlg::OnCbnEditchangeTourl()
-{
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 }

@@ -319,23 +319,12 @@
 				setting it on all files.
 			</para>
 		</important>
-		<tip>
-			<title>No Issue Tracker Information from Repository Browser</title>
-			<para>
-				Because the issue tracker integration depends upon accessing subversion
-				properties, you will only see the results when using a checked
-				out working copy. Fetching properties remotely is a slow operation,
-				so you will not see this feature in action from the repo browser.
-			</para>
-		</tip>
 		<para>
 			This issue tracker integration is not restricted to TortoiseSVN; it can be used
 			with any Subversion client. For more information, read the full
 			<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/doc/issuetrackers.txt">
 				<citetitle>Issue Tracker Integration Specification</citetitle>
-			</ulink>
-			in the TortoiseSVN source repository.
-			(<xref linkend="tsvn-preface-source"/> explains how to access the repository).
+			</ulink>.
 		</para>
 	</sect2>
 	<sect2 id="tsvn-dug-bugtracker-ref">
@@ -355,10 +344,10 @@
 			program is beyond the scope of this manual. The interface definition
 			and sample programs can be obtained from the <literal>contrib</literal>
 			folder in the
+			in the
 			<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/issue-tracker-plugins">
 				<citetitle>TortoiseSVN repository</citetitle>
 			</ulink>.
-			(<xref linkend="tsvn-preface-source"/> explains how to access the repository).
 		</para>
 		<para>
 			For illustration purposes, let's suppose that your system administrator
@@ -374,13 +363,6 @@
 			In this example you can select one or more open issues. The plugin
 			can then generate specially formatted text which it adds to your log
 			message.
-		</para>
-		<para>
-			If you work with the Google Code repository, you can use the ready-made
-			<ulink url="http://code.google.com/p/gurtle/">
-				<citetitle>Gurtle</citetitle>
-			</ulink>
-			plugin.
 		</para>
 	</sect2>
 </sect1>

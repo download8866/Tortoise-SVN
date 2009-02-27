@@ -130,7 +130,6 @@ protected:
 	void SetupLexer(LPCSTR filename);
 	void SetupCppLexer();
 	COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
-	std::string GetAppDirectory();
 	std::vector<COLORREF>		colors;
 	HFONT						m_font;
 	HFONT						m_italicfont;
@@ -155,6 +154,6 @@ protected:
 	FINDREPLACE					fr;
 	TCHAR						szFindWhat[80];
 
-	CRegStdDWORD					m_regOldLinesColor;
-	CRegStdDWORD					m_regNewLinesColor;
+	CRegStdWORD					m_regOldLinesColor;
+	CRegStdWORD					m_regNewLinesColor;
 };

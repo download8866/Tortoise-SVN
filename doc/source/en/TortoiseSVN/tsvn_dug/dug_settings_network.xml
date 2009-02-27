@@ -19,7 +19,7 @@
 		need to use the Subversion <filename>servers</filename> file to
 		configure this. Use <guibutton>Edit</guibutton> to get there
 		directly. Consult the
-		<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.confarea.html">
+		<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.confarea.html">
 			<citetitle>Runtime Configuration Area</citetitle>
 		</ulink>
 		for details on how to use this file.
@@ -36,11 +36,6 @@
 		You must specify the full path to the executable. For TortoisePlink.exe
 		this is the standard TortoiseSVN bin directory. Use the
 		<guibutton>Browse</guibutton> button to help locate it.
-		Note that if the path contains spaces, you must enclose it in quotes,
-		e.g.
-<screen>
-"C:\Program Files\TortoiseSVN\bin\TortoisePlink.exe"
-</screen>
 	</para>
 	<para>
 		One side-effect of not having a window is that there is

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2009 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ CStringA CUnicodeUtils::ConvertWCHARStringToUTF8(const CString& string)
 #endif //_MFC_VER
 
 #ifdef UNICODE
-std::string CUnicodeUtils::StdGetUTF8(const std::wstring& wide)
+std::string CUnicodeUtils::StdGetUTF8(const wide_string& wide)
 {
 	int len = (int)wide.size();
 	if (len==0)
@@ -103,26 +103,26 @@ std::string CUnicodeUtils::StdGetUTF8(const std::wstring& wide)
 	int ret = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, narrow, size-1, NULL, NULL);
 	narrow[ret] = 0;
 	std::string sRet = std::string(narrow);
-	delete [] narrow;
+	delete narrow;
 	return sRet;
 }
 
-std::wstring CUnicodeUtils::StdGetUnicode(const std::string& multibyte)
+wide_string CUnicodeUtils::StdGetUnicode(const std::string& multibyte)
 {
 	int len = (int)multibyte.size();
 	if (len==0)
-		return std::wstring();
+		return wide_string();
 	int size = len*4;
 	wchar_t * wide = new wchar_t[size];
 	int ret = MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), len, wide, size - 1);
 	wide[ret] = 0;
-	std::wstring sRet = std::wstring(wide);
-	delete [] wide;
+	wide_string sRet = wide_string(wide);
+	delete wide;
 	return sRet;
 }
 #endif
 
-std::string WideToMultibyte(const std::wstring& wide)
+std::string WideToMultibyte(const wide_string& wide)
 {
 	char * narrow = new char[wide.length()*3+2];
 	BOOL defaultCharUsed;
@@ -133,7 +133,7 @@ std::string WideToMultibyte(const std::wstring& wide)
 	return str;
 }
 
-std::string WideToUTF8(const std::wstring& wide)
+std::string WideToUTF8(const wide_string& wide)
 {
 	char * narrow = new char[wide.length()*3+2];
 	int ret = (int)WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), narrow, (int)wide.length()*3 - 1, NULL, NULL);
@@ -143,43 +143,43 @@ std::string WideToUTF8(const std::wstring& wide)
 	return str;
 }
 
-std::wstring MultibyteToWide(const std::string& multibyte)
+wide_string MultibyteToWide(const std::string& multibyte)
 {
 	size_t length = multibyte.length();
 	if (length == 0)
-		return std::wstring();
+		return wide_string();
 
 	wchar_t * wide = new wchar_t[multibyte.length()*2+2];
 	if (wide == NULL)
-		return std::wstring();
+		return wide_string();
 	int ret = (int)MultiByteToWideChar(CP_ACP, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
 	wide[ret] = 0;
-	std::wstring str = wide;
+	wide_string str = wide;
 	delete[] wide;
 	return str;
 }
 
-std::wstring UTF8ToWide(const std::string& multibyte)
+wide_string UTF8ToWide(const std::string& multibyte)
 {
 	size_t length = multibyte.length();
 	if (length == 0)
-		return std::wstring();
+		return wide_string();
 
 	wchar_t * wide = new wchar_t[length*2+2];
 	if (wide == NULL)
-		return std::wstring();
+		return wide_string();
 	int ret = (int)MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
 	wide[ret] = 0;
-	std::wstring str = wide;
+	wide_string str = wide;
 	delete[] wide;
 	return str;
 }
 #ifdef UNICODE
-tstring UTF8ToString(const std::string& string) {return UTF8ToWide(string);}
-std::string StringToUTF8(const tstring& string) {return WideToUTF8(string);}
+stdstring UTF8ToString(const std::string& string) {return UTF8ToWide(string);}
+std::string StringToUTF8(const stdstring& string) {return WideToUTF8(string);}
 #else
-tstring UTF8ToString(const std::string& string) {return WideToMultibyte(UTF8ToWide(string));}
-std::string StringToUTF8(const tstring& string) {return WideToUTF8(MultibyteToWide(string));}
+stdstring UTF8ToString(const std::string& string) {return WideToMultibyte(UTF8ToWide(string));}
+std::string StringToUTF8(const stdstring& string) {return WideToUTF8(MultibyteToWide(string));}
 #endif
 
 

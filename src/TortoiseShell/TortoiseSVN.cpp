@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ ShellCache			g_ShellCache;					///< caching of registry entries, ...
 DWORD				g_langid;
 DWORD				g_langTimeout = 0;
 HINSTANCE			g_hResInst = NULL;
-tstring			g_filepath;
+stdstring			g_filepath;
 svn_wc_status_kind	g_filestatus = svn_wc_status_none;	///< holds the corresponding status to the file/dir above
 bool				g_readonlyoverlay = false;
 bool				g_lockedoverlay = false;
@@ -154,7 +154,7 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
     if (state != FileStateInvalid)
     {
 		apr_initialize();
-		svn_dso_initialize2();
+		svn_dso_initialize();
 		g_SVNAdminDir.Init();
 		g_cAprInit++;
 		

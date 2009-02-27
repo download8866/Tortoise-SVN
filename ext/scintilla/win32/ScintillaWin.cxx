@@ -99,10 +99,6 @@ extern void Platform_Finalise();
 const TCHAR scintillaClassName[] = TEXT("Scintilla");
 const TCHAR callClassName[] = TEXT("CallTip");
 
-#ifdef SCI_NAMESPACE
-using namespace Scintilla;
-#endif
-
 class ScintillaWin; 	// Forward declaration for COM interface subobjects
 
 /**
@@ -284,7 +280,6 @@ private:
 	HBITMAP sysCaretBitmap;
 	int sysCaretWidth;
 	int sysCaretHeight;
-	bool keysAlwaysUnicode;
 };
 
 HINSTANCE ScintillaWin::hInstance = 0;
@@ -321,8 +316,6 @@ ScintillaWin::ScintillaWin(HWND hwnd) {
 	sysCaretBitmap = 0;
 	sysCaretWidth = 0;
 	sysCaretHeight = 0;
-
-	keysAlwaysUnicode = false;
 
 	Initialise();
 }
@@ -736,11 +729,6 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 			(wParam & MK_CONTROL) != 0);
 		break;
 
-	case WM_RBUTTONDOWN:
-		if (!PointInSelection(Point::FromLong(lParam)))
-			SetEmptySelection(PositionFromLocation(Point::FromLong(lParam)));
-		break;
-
 	case WM_SETCURSOR:
 		if (LoWord(lParam) == HTCLIENT) {
 			if (inDragDrop == ddDragging) {
@@ -767,7 +755,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 
 	case WM_CHAR:
 		if (((wParam >= 128) || !iscntrl(wParam)) || !lastKeyDownConsumed) {
-			if (::IsWindowUnicode(MainHWND()) || keysAlwaysUnicode) {
+			if (::IsWindowUnicode(MainHWND())) {
 				wchar_t wcs[2] = {wParam, 0};
 				if (IsUnicodeMode()) {
 					// For a wide character version of the window:
@@ -1014,13 +1002,6 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 	case SCI_GRABFOCUS:
 		::SetFocus(MainHWND());
 		break;
-
-	case SCI_SETKEYSUNICODE:
-		keysAlwaysUnicode = wParam != 0;
-		break;
-
-	case SCI_GETKEYSUNICODE:
-		return keysAlwaysUnicode;
 
 #ifdef SCI_LEXER
 	case SCI_LOADLEXERLIBRARY:
@@ -2269,7 +2250,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		WNDCLASSEXW wndclass;
 		wndclass.cbSize = sizeof(wndclass);
 		wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
-		wndclass.lpfnWndProc = ScintillaWin::SWndProc;
+		wndclass.lpfnWndProc = ::ScintillaWin::SWndProc;
 		wndclass.cbClsExtra = 0;
 		wndclass.cbWndExtra = sizeof(ScintillaWin *);
 		wndclass.hInstance = hInstance;
@@ -2286,7 +2267,7 @@ bool ScintillaWin::Register(HINSTANCE hInstance_) {
 		WNDCLASSEX wndclass;
 		wndclass.cbSize = sizeof(wndclass);
 		wndclass.style = CS_GLOBALCLASS | CS_HREDRAW | CS_VREDRAW;
-		wndclass.lpfnWndProc = ScintillaWin::SWndProc;
+		wndclass.lpfnWndProc = ::ScintillaWin::SWndProc;
 		wndclass.cbClsExtra = 0;
 		wndclass.cbWndExtra = sizeof(ScintillaWin *);
 		wndclass.hInstance = hInstance;
@@ -2448,11 +2429,7 @@ sptr_t ScintillaWin::DirectFunction(
 	return sci->WndProc(iMessage, wParam, lParam);
 }
 
-extern "C"
-#ifndef STATIC_BUILD
-__declspec(dllexport)
-#endif
-sptr_t __stdcall Scintilla_DirectFunction(
+extern "C" __declspec(dllexport) sptr_t __stdcall Scintilla_DirectFunction(
     ScintillaWin *sci, UINT iMessage, uptr_t wParam, sptr_t lParam) {
 	return sci->WndProc(iMessage, wParam, lParam);
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,8 +20,7 @@
 
 #include "SVNRev.h"
 #include "HistoryCombo.h"
-#include "Tooltip.h"
-#include "XPImageButton.h"
+#include "Balloon.h"
 
 class CRepositoryTree;
 
@@ -32,8 +31,7 @@ class CRepositoryTree;
 class IRepo
 {
 public:
-	virtual bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked) = 0;
-	virtual CString GetRepoRoot() = 0;
+	virtual bool ChangeToUrl(const CString& url, const SVNRev& rev) = 0;
 };
 
 /**
@@ -98,7 +96,6 @@ public:
 	void SetIRepo(IRepo * pRepo) {m_pRepo = pRepo;}
 
 	void SetHeadRevision(const SVNRev& rev) {m_headRev = rev;}
-	afx_msg void OnGoUp();
 protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnCbnSelChange();
@@ -122,11 +119,9 @@ private:
 	} m_cbxUrl;
 
 	CButton m_btnRevision;
-	CXPImageButton m_btnUp;
 
 	SVNRev	m_headRev;
-	CToolTips m_tooltips;
-	HICON	m_UpIcon;
+	CBalloon m_tooltips;
 };
 
 

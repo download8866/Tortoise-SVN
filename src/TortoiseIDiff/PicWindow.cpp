@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,17 +57,16 @@ void CPicWindow::PositionTrackBar()
 {
 	RECT rc;
 	GetClientRect(&rc);
-	HWND slider = m_AlphaSlider.GetWindow();
 	if ((pSecondPic)&&(m_blend == BLEND_ALPHA))
 	{
-		MoveWindow(slider, 0, rc.top-4+SLIDER_WIDTH, SLIDER_WIDTH, rc.bottom-rc.top-SLIDER_WIDTH+8, true);
-		ShowWindow(slider, SW_SHOW);
+		MoveWindow(hwndAlphaSlider, 0, rc.top-4+SLIDER_WIDTH, SLIDER_WIDTH, rc.bottom-rc.top-SLIDER_WIDTH+8, true);
+		ShowWindow(hwndAlphaSlider, SW_SHOW);
 		MoveWindow(hwndAlphaToggleBtn, 0, rc.top-4, SLIDER_WIDTH, SLIDER_WIDTH, true);
 		ShowWindow(hwndAlphaToggleBtn, SW_SHOW);
 	}
 	else
 	{
-		ShowWindow(slider, SW_HIDE);
+		ShowWindow(hwndAlphaSlider, SW_HIDE);
 		ShowWindow(hwndAlphaToggleBtn, SW_HIDE);
 	}
 }
@@ -80,8 +79,8 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 	case WM_CREATE:
 		{
 			// create a slider control
-			 CreateTrackbar(hwnd);
-			ShowWindow(m_AlphaSlider.GetWindow(), SW_HIDE);
+			hwndAlphaSlider = CreateTrackbar(hwnd);
+			ShowWindow(hwndAlphaSlider, SW_HIDE);
 			//Create the tooltips
 			TOOLINFO ti;
 			RECT rect;                  // for client area coordinates
@@ -143,7 +142,7 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 		SetupScrollBars();
 		break;
 	case WM_VSCROLL:
-		if ((pSecondPic)&&((HWND)lParam == m_AlphaSlider.GetWindow()))
+		if ((pSecondPic)&&((HWND)lParam == hwndAlphaSlider))
 		{
 			if (LOWORD(wParam) == TB_THUMBTRACK)
 			{
@@ -151,7 +150,7 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 				::SetTimer(*this, TIMER_ALPHASLIDER, 50, NULL);
 			}
 			else
-				SetBlendAlpha(m_blend, SendMessage(m_AlphaSlider.GetWindow(), TBM_GETPOS, 0, 0) / 16.0f);
+				SetSecondPicAlpha(m_blend, (BYTE)SendMessage(hwndAlphaSlider, TBM_GETPOS, 0, 0));
 		}
 		else
 		{
@@ -319,7 +318,7 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 			HDROP hDrop = (HDROP)wParam;		
 			TCHAR szFileName[MAX_PATH];
 			// we only use the first file dropped (if multiple files are dropped)
-			DragQueryFile(hDrop, 0, szFileName, sizeof(szFileName)/sizeof(TCHAR));
+			DragQueryFile(hDrop, 0, szFileName, sizeof(szFileName));
 			SetPic(szFileName, _T(""), bMainPic);
 			FitImageInWindow();
 			InvalidateRect(*this, NULL, TRUE);
@@ -356,20 +355,7 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 				break;
 			case ALPHATOGGLEBUTTON_ID:
 				{
-					WORD msg = HIWORD(wParam);
-					switch (msg)
-					{
-					case BN_DOUBLECLICKED:
-						{
-							SendMessage(hwndAlphaToggleBtn, BM_SETSTATE, 1, 0);
-							SetTimer(*this, ID_ALPHATOGGLETIMER, 1000, NULL);
-						}
-						break;
-					case BN_CLICKED:
-						KillTimer(*this, ID_ALPHATOGGLETIMER);
-						ToggleAlpha();
-						break;
-					}
+					ToggleAlpha();
 					return 0;
 				}
 				break;
@@ -407,13 +393,8 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 				break;
 			case TIMER_ALPHASLIDER:
 				{
-					SetBlendAlpha(m_blend, SendMessage(m_AlphaSlider.GetWindow(), TBM_GETPOS, 0, 0)/16.0f);
+					SetSecondPicAlpha(m_blend, (BYTE)SendMessage(hwndAlphaSlider, TBM_GETPOS, 0, 0));
 					KillTimer(*this, TIMER_ALPHASLIDER);
-				}
-				break;
-			case ID_ALPHATOGGLETIMER:
-				{
-					ToggleAlpha();
 				}
 				break;
 			}
@@ -424,14 +405,17 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 			LPNMHDR pNMHDR = (LPNMHDR)lParam;
 			if (pNMHDR->code == TTN_GETDISPINFO)
 			{
-				if ((HWND)wParam == m_AlphaSlider.GetWindow())
+				if ((HWND)wParam == hwndAlphaSlider)
 				{
 					LPTOOLTIPTEXT lpttt; 
 
 					lpttt = (LPTOOLTIPTEXT) lParam; 
 					lpttt->hinst = hResource; 
+
+					// Specify the resource identifier of the descriptive 
+					// text for the given button. 
 					TCHAR stringbuf[MAX_PATH] = {0};
-					_stprintf_s(stringbuf, MAX_PATH, _T("%i%% alpha"), (int)(SendMessage(m_AlphaSlider.GetWindow(),TBM_GETPOS,0,0)/16.0f*100.0f));
+					_stprintf_s(stringbuf, MAX_PATH, _T("%ld alpha"), (BYTE)SendMessage(hwndAlphaSlider, TBM_GETPOS, 0, 0));
 					lpttt->lpszText = stringbuf;
 				}
 				else
@@ -506,7 +490,7 @@ void CPicWindow::Animate(bool bStart)
 	}
 }
 
-void CPicWindow::SetPic(tstring path, tstring title, bool bFirst)
+void CPicWindow::SetPic(stdstring path, stdstring title, bool bFirst)
 {
 	bMainPic = bFirst;
 	picpath=path;pictitle=title;
@@ -551,10 +535,10 @@ void CPicWindow::DrawViewTitle(HDC hDC, RECT * rect)
 	SetTextColor(hDC, crFg);
 
 	// use the path if no title is set.
-	tstring * title = pictitle.empty() ? &picpath : &pictitle;
+	stdstring * title = pictitle.empty() ? &picpath : &pictitle;
 
-	tstring realtitle = *title;
-	tstring imgnumstring;
+	stdstring realtitle = *title;
+	stdstring imgnumstring;
 
 	if (HasMultipleImages())
 	{
@@ -811,13 +795,14 @@ void CPicWindow::OnMouseWheel(short fwKeys, short zDelta)
 	if ((fwKeys & MK_SHIFT)&&(fwKeys & MK_CONTROL)&&(pSecondPic))
 	{
 		// ctrl+shift+wheel: change the alpha channel
-		float a = blendAlpha;
-		a -= float(zDelta)/120.0f/4.0f;
-		if (a < 0.0f)
-			a = 0.0f;
-		else if (a > 1.0f)
-			a = 1.0f;
-		SetBlendAlpha(m_blend, a);
+		int overflow = alphalive;	// use an int to detect overflows
+		alphalive -= (zDelta / 12);
+		overflow -= (zDelta / 12);
+		if (overflow > 255)
+			alphalive = 255;
+		if (overflow < 0)
+			alphalive = 0;
+		SetSecondPicAlpha(m_blend, alphalive);
 	}
 	else if (fwKeys & MK_SHIFT)
 	{
@@ -860,24 +845,6 @@ void CPicWindow::GetClientRect(RECT * pRect)
 		pRect->left += SLIDER_WIDTH;
 }
 
-void CPicWindow::GetClientRectWithScrollbars(RECT * pRect)
-{
-	GetClientRect(pRect);
-	::GetWindowRect(*this, pRect);
-	pRect->right = pRect->right-pRect->left;
-	pRect->bottom = pRect->bottom-pRect->top;
-	pRect->top = 0;
-	pRect->left = 0;
-	pRect->top += HEADER_HEIGHT;
-	if (HasMultipleImages())
-	{
-		pRect->top += HEADER_HEIGHT;
-	}
-	if (pSecondPic)
-		pRect->left += SLIDER_WIDTH;
-};
-
-
 void CPicWindow::SetZoom(double dZoom, bool centermouse)
 {
 	// Set the interpolation mode depending on zoom
@@ -917,9 +884,7 @@ void CPicWindow::SetZoom(double dZoom, bool centermouse)
 	// mouse position: if possible, keep the pixel where the mouse pointer
 	// is at the same position after the zoom
 	POINT cpos;
-	DWORD ptW = GetMessagePos();
-	cpos.x = GET_X_LPARAM(ptW);
-	cpos.y = GET_Y_LPARAM(ptW);
+	GetCursorPos(&cpos);
 	ScreenToClient(*this, &cpos);
 	RECT clientrect;
 	GetClientRect(&clientrect);
@@ -1006,9 +971,7 @@ void CPicWindow::FitImageInWindow()
 {
 	RECT rect;
 	double dZoom = 1.0;
-
-	GetClientRectWithScrollbars(&rect);
-
+	GetClientRect(&rect);
 	if (rect.right-rect.left)
 	{
 		if (((rect.right - rect.left) > picture.m_Width+2)&&((rect.bottom - rect.top)> picture.m_Height+2))
@@ -1050,7 +1013,7 @@ void CPicWindow::FitImageInWindow()
 void CPicWindow::CenterImage()
 {
 	RECT rect;
-	GetClientRectWithScrollbars(&rect);
+	GetClientRect(&rect);
 	double width = (double(picture.m_Width)*picscale) + 2.0;
 	double height = (double(picture.m_Height)*picscale) + 2.0;
 	if (pSecondPic)
@@ -1173,7 +1136,7 @@ void CPicWindow::Paint(HWND hwnd)
 					blender.AlphaFormat = 0;
 					blender.BlendFlags = 0;
 					blender.BlendOp = AC_SRC_OVER;
-					blender.SourceConstantAlpha = (BYTE)(blendAlpha*255);
+					blender.SourceConstantAlpha = alphalive;
 					AlphaBlend(memDC, 
 						rect.left,
 						rect.top,
@@ -1322,7 +1285,7 @@ bool CPicWindow::CreateButtons()
 	hwndAlphaToggleBtn = CreateWindowEx(0, 
 								_T("BUTTON"), 
 								(LPCTSTR)NULL,
-								WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_ICON | BS_FLAT | BS_NOTIFY | BS_PUSHLIKE, 
+								WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON | BS_ICON | BS_FLAT, 
 								0, 0, 0, 0, 
 								(HWND)*this,
 								(HMENU)ALPHATOGGLEBUTTON_ID,
@@ -1363,29 +1326,22 @@ bool CPicWindow::HasMultipleImages()
 	return (((nDimensions > 1)||(nFrames > 1))&&(pSecondPic == NULL));
 }
 
-void CPicWindow::CreateTrackbar(HWND hwndParent)
+HWND CPicWindow::CreateTrackbar(HWND hwndParent)
 { 
 	HWND hwndTrack = CreateWindowEx( 
 		0,									// no extended styles 
-		TRACKBAR_CLASS,						// class name 
+		sCAlphaControl,						// class name 
 		_T("Trackbar Control"),				// title (caption) 
-		WS_CHILD | WS_VISIBLE | TBS_VERT | TBS_TOOLTIPS | TBS_AUTOTICKS,				// style 
+		WS_CHILD | WS_VISIBLE,				// style 
 		10, 10,								// position 
 		200, 30,							// size 
 		hwndParent,							// parent window 
 		(HMENU)TRACKBAR_ID,					// control identifier 
 		hInst,								// instance 
 		NULL								// no WM_CREATE parameter 
-		);
+		); 
 
-	SendMessage(hwndTrack, TBM_SETRANGE, 
-		(WPARAM) TRUE,					// redraw flag 
-		(LPARAM) MAKELONG(0, 16));		// min. & max. positions 
-	SendMessage(hwndTrack, TBM_SETTIPSIDE, 
-		(WPARAM) TBTS_TOP,
-		(LPARAM) 0);
-
-	m_AlphaSlider.ConvertTrackbarToNice(hwndTrack);
+	return hwndTrack; 
 }
 
 void CPicWindow::BuildInfoString(TCHAR * buf, int size, bool bTooltip)

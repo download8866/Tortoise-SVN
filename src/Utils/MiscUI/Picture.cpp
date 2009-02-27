@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -76,11 +76,11 @@ void CPicture::FreePictureData()
 				DestroyIcon(hIcons[i]);
 			}
 		}
-		delete [] hIcons;
+		delete hIcons;
 		hIcons = NULL;
 	}
 	if (lpIcons)
-		delete [] lpIcons;
+		delete lpIcons;
 }
 
 // Util function to ease loading of FreeImage library
@@ -99,7 +99,7 @@ static FARPROC s_GetProcAddressEx(HMODULE hDll, const char* procName, bool& vali
 	return proc;
 }
 
-tstring CPicture::GetFileSizeAsText(bool bAbbrev /* = true */)
+stdstring CPicture::GetFileSizeAsText(bool bAbbrev /* = true */)
 {
 	TCHAR buf[100] = {0};
 	if (bAbbrev)
@@ -107,10 +107,10 @@ tstring CPicture::GetFileSizeAsText(bool bAbbrev /* = true */)
 	else
 		_stprintf_s(buf, _T("%ld Bytes"), m_nSize);
 
-	return tstring(buf);
+	return stdstring(buf);
 }
 
-bool CPicture::Load(tstring sFilePathName)
+bool CPicture::Load(stdstring sFilePathName)
 {
 	bool bResult = false;
 	bIsIcon = false;
@@ -204,14 +204,14 @@ bool CPicture::Load(tstring sFilePathName)
 						}
 						else
 						{
-							delete [] lpIcons;
+							delete lpIcons;
 							lpIcons = NULL;
 							bResult = false;
 						}
 					}
 					else
 					{
-						delete [] lpIcons;
+						delete lpIcons;
 						lpIcons = NULL;
 						CloseHandle(hFile);
 					}
@@ -365,7 +365,7 @@ bool CPicture::Load(tstring sFilePathName)
 						bResult = true;
 					}
 				}
-				delete [] buffer;
+				delete buffer;
 			}
 			CloseHandle(hFile);
 		}
@@ -516,7 +516,7 @@ bool CPicture::UpdateSizeOnDC(HDC hDC)
 	return(true);
 }
 
-UINT CPicture::GetColorDepth() const
+UINT CPicture::GetColorDepth()
 {
 	if (bIsIcon && lpIcons)
 	{
@@ -628,7 +628,7 @@ long CPicture::SetActiveFrame(UINT frame)
 	return delay;
 }
 
-UINT CPicture::GetHeight() const
+UINT CPicture::GetHeight()
 {
 	if ((bIsIcon)&&(lpIcons))
 	{
@@ -638,7 +638,7 @@ UINT CPicture::GetHeight() const
 	return pBitmap ? pBitmap->GetHeight() : 0;
 }
 
-UINT CPicture::GetWidth() const
+UINT CPicture::GetWidth()
 {
 	if ((bIsIcon)&&(lpIcons))
 	{
@@ -648,7 +648,7 @@ UINT CPicture::GetWidth() const
 	return pBitmap ? pBitmap->GetWidth() : 0;
 }
 
-PixelFormat CPicture::GetPixelFormat() const
+PixelFormat CPicture::GetPixelFormat()
 {
 	if ((bIsIcon)&&(lpIcons))
 	{

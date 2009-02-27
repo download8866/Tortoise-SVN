@@ -23,8 +23,6 @@ These steps are required to generate the release:
 
 - Check the latest versions of openssl, zlib and of course
   download any newer versions available.
-- provided all available dictionaries and thesauri for 
-  supported languages in common\spell
 - increment the version number in version.build.in file
 - finish the changelog.txt file, i.e. add the version title
 - run the Nant build script
@@ -42,7 +40,6 @@ The last steps:
   indicate the new release
 - edit the file version.txt to match the exact version number of the release
 - copy the changelog file to the /www folder
-- Adjust the info in contrib\drupal-modules\translation-status\tortoisevars.inc
 - commit the web pages
 - Upload the new docs to sourceforge.net
 

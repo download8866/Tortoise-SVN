@@ -50,15 +50,16 @@ protected:
 private:
 	CMFCColorButton m_cNewLinesColor;
 	CMFCColorButton m_cOldLinesColor;
-	CRegDWORD		m_regNewLinesColor;
-	CRegDWORD		m_regOldLinesColor;
+	CRegStdWORD		m_regNewLinesColor;
+	CRegStdWORD		m_regOldLinesColor;
 
 	CMFCFontComboBox	m_cFontNames;
 	CComboBox		m_cFontSizes;
-	CRegDWORD		m_regFontSize;
+	CRegStdWORD		m_regFontSize;
 	DWORD			m_dwFontSize;
-	CRegString		m_regFontName;
+	CRegStdString	m_regFontName;
 	CString			m_sFontName;
 	DWORD			m_dwTabSize;
-	CRegDWORD		m_regTabSize;
+	CRegStdWORD		m_regTabSize;
+public:
 };

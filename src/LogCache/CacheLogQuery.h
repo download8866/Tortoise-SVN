@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 #include "ILogReceiver.h"
 
 #include "RevisionInfoContainer.h"
-#include "./Containers/DictionaryBasedTempPath.h"
+#include "DictionaryBasedTempPath.h"
 
 #include "QuickHashMap.h"
 
@@ -171,7 +171,6 @@ private:
         CCachedLogInfo* updateData;
 	    CRepositoryInfo* repositoryInfoCache;
 		CStringA URL;
-        CString uuid;
 
 		/// connection to the SVN repository
 		ILogQuery* svnQuery;
@@ -228,7 +227,6 @@ private:
 		/// return the last revision sent to the receiver
 		revision_t FillLog ( CCachedLogInfo* cache
 						   , const CStringA& URL
-                           , CString uuid
 						   , ILogQuery* svnQuery
 						   , revision_t startRevision
 						   , revision_t endRevision
@@ -276,8 +274,6 @@ private:
 	/// cache to use & update
 	CCachedLogInfo* cache;
 	CStringA URL;
-    CString root;
-    CString uuid;
 
 	/// used, if caches is NULL
 	CCachedLogInfo* tempCache;
@@ -363,8 +359,7 @@ private:
 	/// and will be used to cache these values.
 	revision_t DecodeRevision ( const CTSVNPath& path
 				  			  , const CTSVNPath& url
-				  			  , const SVNRev& revision
-                              , const SVNRev& peg) const;
+				  			  , const SVNRev& revision) const;
 
 	/// get the (exactly) one path from targets
 	/// throw an exception, if there are none or more than one

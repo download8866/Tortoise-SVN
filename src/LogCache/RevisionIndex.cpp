@@ -19,6 +19,9 @@
 #include "StdAfx.h"
 #include ".\revisionindex.h"
 
+#include "DiffIntegerInStream.h"
+#include "DiffIntegerOutStream.h"
+
 // begin namespace LogCache
 
 namespace LogCache

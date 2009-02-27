@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,8 +81,6 @@ BEGIN_MESSAGE_MAP(CMergeWizardTree, CMergeWizardBasePage)
 	ON_EN_CHANGE(IDC_REVISION_END, &CMergeWizardTree::OnEnChangeRevisionEnd)
 	ON_EN_CHANGE(IDC_REVISION_START, &CMergeWizardTree::OnEnChangeRevisionStart)
 	ON_BN_CLICKED(IDC_SHOWLOGWC, &CMergeWizardTree::OnBnClickedShowlogwc)
-	ON_CBN_EDITCHANGE(IDC_URLCOMBO, &CMergeWizardTree::OnCbnEditchangeUrlcombo)
-	ON_CBN_EDITCHANGE(IDC_URLCOMBO2, &CMergeWizardTree::OnCbnEditchangeUrlcombo2)
 END_MESSAGE_MAP()
 
 
@@ -90,69 +88,30 @@ BOOL CMergeWizardTree::OnInitDialog()
 {
 	CMergeWizardBasePage::OnInitDialog();
 
-	CMergeWizard * pWizard = (CMergeWizard*)GetParent();
-	CString sUUID = pWizard->sUUID;
+	CString sUUID = ((CMergeWizard*)GetParent())->sUUID;
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
 	// Only set the "From" Url if there is no url history available
 	if (m_URLCombo.GetString().IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
+		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(((CMergeWizard*)GetParent())->url));
 	m_URLCombo2.SetURLHistory(TRUE);
 	m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	m_URLCombo2.SetCurSel(0);
 	if (m_URLCombo2.GetString().IsEmpty())
-		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	if (!pWizard->URL1.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
-	if (!pWizard->URL2.IsEmpty())
-		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(pWizard->URL2));
-	GetDlgItem(IDC_BROWSE2)->EnableWindow(!m_URLCombo2.GetString().IsEmpty());
+		m_URLCombo2.SetWindowText(CPathUtils::PathUnescape(((CMergeWizard*)GetParent())->url));
 
 	SetDlgItemText(IDC_WCEDIT, ((CMergeWizard*)GetParent())->wcPath.GetWinPath());
 
 	// set head revision as default revision
-	if (pWizard->startRev.IsHead() || !pWizard->startRev.IsValid())
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_HEAD1);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
-		m_sStartRev = pWizard->startRev.ToString();
-		SetDlgItemText(IDC_REVISION_START, m_sStartRev);
-	}
-	if (pWizard->endRev.IsHead() || !pWizard->endRev.IsValid())
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
-	else
-	{
-		CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-		m_sEndRev = pWizard->endRev.ToString();
-		SetDlgItemText(IDC_REVISION_END, m_sEndRev);
-	}
+	CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
+	CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
 
 	AdjustControlSize(IDC_REVISION_HEAD1);
 	AdjustControlSize(IDC_REVISION_N1);
 	AdjustControlSize(IDC_REVISION_HEAD);
 	AdjustControlSize(IDC_REVISION_N);
-
-	AddAnchor(IDC_MERGETREEFROMGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_REVISION_HEAD1, TOP_LEFT);
-	AddAnchor(IDC_REVISION_N1, TOP_LEFT);
-	AddAnchor(IDC_REVISION_START, TOP_LEFT);
-	AddAnchor(IDC_FINDBRANCHSTART, TOP_LEFT);
-	AddAnchor(IDC_MERGETREETOGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_URLCOMBO2, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_BROWSE2, TOP_RIGHT);
-	AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
-	AddAnchor(IDC_REVISION_N, TOP_LEFT);
-	AddAnchor(IDC_REVISION_END, TOP_LEFT);
-	AddAnchor(IDC_FINDBRANCHEND, TOP_LEFT);
-	AddAnchor(IDC_MERGETREEWCGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
 
 	return TRUE;
 }
@@ -397,14 +356,4 @@ void CMergeWizardTree::OnBnClickedShowlogwc()
 	m_pLogDlg3->SetMergePath(wcPath);
 	m_pLogDlg3->Create(IDD_LOGMESSAGE, this);
 	m_pLogDlg3->ShowWindow(SW_SHOW);
-}
-
-void CMergeWizardTree::OnCbnEditchangeUrlcombo()
-{
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
-}
-
-void CMergeWizardTree::OnCbnEditchangeUrlcombo2()
-{
-	GetDlgItem(IDC_BROWSE2)->EnableWindow(!m_URLCombo2.GetString().IsEmpty());
 }

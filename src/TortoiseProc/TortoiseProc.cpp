@@ -65,13 +65,12 @@ CTortoiseProcApp::CTortoiseProcApp()
 	int argc = 0;
 	const char* const * argv = NULL;
 	apr_app_initialize(&argc, &argv, NULL);
-	svn_dso_initialize2();
+	svn_dso_initialize();
 	SYS_IMAGE_LIST();
 	CHooks::Create();
 	g_SVNAdminDir.Init();
 	m_bLoadUserToolbars = FALSE;
 	m_bSaveState = FALSE;
-	retSuccess = false;
 }
 
 CTortoiseProcApp::~CTortoiseProcApp()
@@ -106,7 +105,6 @@ CCrashReport crasher("tortoisesvn@gmail.com", "Crash Report for TortoiseSVN " AP
 BOOL CTortoiseProcApp::InitInstance()
 {
 	EnableCrashHandler();
-	svn_error_set_malfunction_handler(svn_error_handle_malfunction);
 	CheckUpgrade();
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 	CMFCButton::EnableWindowsTheming();
@@ -163,7 +161,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	do
 	{
 		CString sLang = _T("_");
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)/sizeof(TCHAR)))
+		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)))
 		{
 			sLang += buf;
 			sHelppath.Replace(_T("_en"), sLang);
@@ -175,7 +173,7 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 		}
 		sHelppath.Replace(sLang, _T("_en"));
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)/sizeof(TCHAR)))
+		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)))
 		{
 			sLang += _T("_");
 			sLang += buf;
@@ -252,8 +250,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	else
 	{
 		CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("path")));
-		int asterisk = sPathArgument.Find('*');
-		cmdLinePath.SetFromUnknown(asterisk >= 0 ? sPathArgument.Left(asterisk) : sPathArgument);
+		cmdLinePath.SetFromUnknown(sPathArgument);
 		pathList.LoadFromAsteriskSeparatedString(sPathArgument);
 	}
 	
@@ -346,9 +343,9 @@ BOOL CTortoiseProcApp::InitInstance()
 			if (CString(parser.GetVal(_T("command"))).Compare(_T("settings"))==0)
 			{
 				// just open the config file
-				TCHAR buf2[MAX_PATH];
-				SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf2);
-				CString path = buf2;
+				TCHAR buf[MAX_PATH];
+				SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
+				CString path = buf;
 				path += _T("\\Subversion\\config");
 				CAppUtils::StartTextViewer(path);
 				return FALSE;
@@ -364,7 +361,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		cmd->SetExplorerHwnd(hWndExplorer);
 		cmd->SetParser(parser);
 		cmd->SetPaths(pathList, cmdLinePath);
-		retSuccess = cmd->Execute();
+		cmd->Execute();
 		delete cmd;
 	}
 
@@ -471,7 +468,7 @@ void CTortoiseProcApp::CheckUpgrade()
 	}
 	if (lVersion <= 0x01040000)
 	{
-		CRegStdDWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus")).removeValue();
+		CRegStdWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus")).removeValue();
 	}
 	
 	// set the custom diff scripts for every user
@@ -554,12 +551,4 @@ void CTortoiseProcApp::EnableCrashHandler()
 	{
 		crasher.Enable(FALSE);
 	}
-}
-
-int CTortoiseProcApp::ExitInstance()
-{
-	CWinAppEx::ExitInstance();
-	if (retSuccess)
-		return 0;
-	return -1;
 }

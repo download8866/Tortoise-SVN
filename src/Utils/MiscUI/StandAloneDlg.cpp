@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,23 +29,18 @@ CResizableStandAloneDialog::CResizableStandAloneDialog(UINT nIDTemplate, CWnd* p
 }
 
 BEGIN_MESSAGE_MAP(CResizableStandAloneDialog, CStandAloneDialogTmpl<CResizableDialog>)
-	ON_WM_SIZING()
-	ON_WM_MOVING()
+	ON_WM_SIZE()
 	ON_WM_NCMBUTTONUP()
 	ON_WM_NCRBUTTONUP()
 END_MESSAGE_MAP()
 
-void CResizableStandAloneDialog::OnSizing(UINT fwSide, LPRECT pRect)
+void CResizableStandAloneDialog::OnSize(UINT nType, int cx, int cy)
 {
-	m_bVertical = m_bVertical && (fwSide == WMSZ_LEFT || fwSide == WMSZ_RIGHT);
-	m_bHorizontal = m_bHorizontal && (fwSide == WMSZ_TOP || fwSide == WMSZ_BOTTOM);
-	CStandAloneDialogTmpl<CResizableDialog>::OnSizing(fwSide, pRect);
-}
-
-void CResizableStandAloneDialog::OnMoving(UINT fwSide, LPRECT pRect)
-{
-	m_bVertical = m_bHorizontal = false;
-	CStandAloneDialogTmpl<CResizableDialog>::OnMoving(fwSide, pRect);
+	CStandAloneDialogTmpl<CResizableDialog>::OnSize(nType, cx, cy);
+	if (nType == SIZE_RESTORED)
+	{
+		m_bVertical = m_bHorizontal = false;
+	}
 }
 
 void CResizableStandAloneDialog::OnNcMButtonUp(UINT nHitTest, CPoint point) 
@@ -67,9 +62,11 @@ void CResizableStandAloneDialog::OnNcMButtonUp(UINT nHitTest, CPoint point)
 			rcWindowRect.top = rcWorkArea.top;
 			rcWindowRect.bottom = rcWorkArea.bottom;
 		}
-		m_bVertical = !m_bVertical;
-		m_bHorizontal = m_bHorizontal;
+		bool bVertical = !m_bVertical;
+		bool bHorizontal = m_bHorizontal;
 		MoveWindow(&rcWindowRect);
+		m_bVertical = bVertical;
+		m_bHorizontal = bHorizontal;
 	}
 	CStandAloneDialogTmpl<CResizableDialog>::OnNcMButtonUp(nHitTest, point);
 }
@@ -93,13 +90,11 @@ void CResizableStandAloneDialog::OnNcRButtonUp(UINT nHitTest, CPoint point)
 			rcWindowRect.left = rcWorkArea.left;
 			rcWindowRect.right = rcWorkArea.right;
 		}
-		m_bVertical = m_bVertical;
-		m_bHorizontal = !m_bHorizontal;
+		bool bVertical = m_bVertical;
+		bool bHorizontal = !m_bHorizontal;
 		MoveWindow(&rcWindowRect);
-		// WORKAROUND
-		// for some reasons, when the window is resized horizontally, its menu size is not get adjusted.
-		// so, we force it to happen.
-		SetMenu(GetMenu());
+		m_bVertical = bVertical;
+		m_bHorizontal = bHorizontal;
 	}
 	CStandAloneDialogTmpl<CResizableDialog>::OnNcRButtonUp(nHitTest, point);
 }

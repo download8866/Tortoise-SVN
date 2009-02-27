@@ -59,7 +59,7 @@ protected:
 	void	AdjustSize();
 
 private:
-	CRegStdDWORD			m_maxlines;
+	CRegStdWORD				m_maxlines;
 	CTSVNPath				m_logfile;
 	std::list<CString>		m_lines;
 };

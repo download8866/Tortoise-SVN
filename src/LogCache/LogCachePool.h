@@ -59,23 +59,14 @@ private:
 
     CRepositoryInfo* repositoryInfo;
 
-	/// cache per repository (file name)
+	/// cache per repository (UUID)
 
 	typedef std::map<CString, CCachedLogInfo*> TCaches;
-	static TCaches caches;
-    static long instanceCount;
+	TCaches caches;
 
 	/// utility
 
 	static bool FileExists (const std::wstring& filePath);
-
-	/// minimize memory usage
-
-	void Clear();
-
-    /// remove small, unused caches
-
-    void AutoRemoveUnused();
 
 public:
 
@@ -87,7 +78,7 @@ public:
 
 	/// auto-create and return cache for given repository
 
-	CCachedLogInfo* GetCache (const CString& uuid, const CString& root);
+	CCachedLogInfo* GetCache (const CString& uuid);
 
     /// cached repository info
 
@@ -96,11 +87,11 @@ public:
 	/// return the size of the repository cache file 
     /// (returns 0 for new files)
 
-	size_t FileSize (const CString& uuid, const CString& root);
+	size_t FileSize (const CString& uuid);
 
 	/// delete a cache along with all file(s)
 
-	void DropCache (const CString& uuid, const CString& root);
+	void DropCache (const CString& uuid);
 
 	/// other data access
 
@@ -108,13 +99,17 @@ public:
 
 	/// return as URL -> UUID map
 
-	std::multimap<CString, CString> GetRepositoryURLs() const;
+	std::map<CString, CString> GetRepositoryURLs() const;
 
     /// cache management
 	
 	/// write all changes to disk
 
 	void Flush();
+
+	/// minimize memory usage
+
+	void Clear();
 
     /// has log caching been enabled?
 

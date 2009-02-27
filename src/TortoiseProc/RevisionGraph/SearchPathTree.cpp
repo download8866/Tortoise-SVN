@@ -19,7 +19,6 @@
 
 #include "StdAfx.h"
 #include "SearchPathTree.h"
-#include "FullGraphNode.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -217,17 +216,36 @@ void CSearchPathTree::Remove()
 		node = node->parent;
 
 		delete temp;
+		temp = NULL;
 	}
 }
 
 // there is a new revision entry for this path
 
-void CSearchPathTree::ChainEntries (CFullGraphNode* entry)
+void CSearchPathTree::ChainEntries (CRevisionEntry* entry)
 {
 	assert (entry != NULL);
 
+	if (lastEntry != NULL)
+	{
+		// branch or chain?
+
+		if (entry->action == CRevisionEntry::addedwithhistory)
+		{
+			assert (entry->copySource == NULL);
+
+			lastEntry->copyTargets.push_back (entry);
+			entry->copySource = lastEntry;
+		}
+		else
+		{
+			lastEntry->next = entry;
+			entry->prev = lastEntry;
+		}
+	}
+
 	lastEntry = entry;
-	startRevision = max (startRevision, entry->GetRevision());
+	startRevision = max (startRevision, entry->revision);
 }
 
 // return true for active paths that don't have a revEntry for this revision
@@ -235,7 +253,7 @@ void CSearchPathTree::ChainEntries (CFullGraphNode* entry)
 bool CSearchPathTree::YetToCover (revision_t revision) const
 {
     return    IsActive() 
-           && ((lastEntry == NULL) || (lastEntry->GetRevision() < revision));
+           && ((lastEntry == NULL) || (lastEntry->revision < revision));
 }
 
 // return next node in pre-order

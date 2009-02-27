@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,24 +46,24 @@ public:
 	};
 	ShellCache()
 	{
-		cachetype = CRegStdDWORD(_T("Software\\TortoiseSVN\\CacheType"), GetSystemMetrics(SM_REMOTESESSION) ? dll : exe);
-		showrecursive = CRegStdDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
-		folderoverlay = CRegStdDWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
-		driveremote = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
-		drivefixed = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"), TRUE);
-		drivecdrom = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
-		driveremove = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
-		drivefloppy = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskFloppy"));
-		driveram = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskRAM"));
-		driveunknown = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskUnknown"));
+		cachetype = CRegStdWORD(_T("Software\\TortoiseSVN\\CacheType"), GetSystemMetrics(SM_REMOTESESSION) ? dll : exe);
+		showrecursive = CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
+		folderoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\FolderOverlay"), TRUE);
+		driveremote = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
+		drivefixed = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"), TRUE);
+		drivecdrom = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
+		driveremove = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
+		drivefloppy = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskFloppy"));
+		driveram = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskRAM"));
+		driveunknown = CRegStdWORD(_T("Software\\TortoiseSVN\\DriveMaskUnknown"));
 		excludelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
 		includelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
-		simplecontext = CRegStdDWORD(_T("Software\\TortoiseSVN\\SimpleContext"), FALSE);
-		unversionedasmodified = CRegStdDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
-		showunversionedoverlay = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowUnversionedOverlay"), TRUE);
-		showignoredoverlay = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowIgnoredOverlay"), TRUE);
-		getlocktop = CRegStdDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
-		excludedasnormal = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowExcludedAsNormal"), TRUE);
+		simplecontext = CRegStdWORD(_T("Software\\TortoiseSVN\\SimpleContext"), FALSE);
+		unversionedasmodified = CRegStdWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
+		showunversionedoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowUnversionedOverlay"), TRUE);
+		showignoredoverlay = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowIgnoredOverlay"), TRUE);
+		getlocktop = CRegStdWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
+		excludedasnormal = CRegStdWORD(_T("Software\\TortoiseSVN\\ShowExcludedAsNormal"), TRUE);
 		cachetypeticker = GetTickCount();
 		recursiveticker = cachetypeticker;
 		folderoverlayticker = cachetypeticker;
@@ -81,26 +81,22 @@ public:
 		columnseverywhereticker = cachetypeticker;
 		getlocktopticker = cachetypeticker;
 		excludedasnormalticker = cachetypeticker;
-		excontextticker = cachetypeticker;
-		menulayoutlow = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
-		menulayouthigh = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
-		menumasklow_lm = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0, FALSE, HKEY_LOCAL_MACHINE);
-		menumaskhigh_lm = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0, FALSE, HKEY_LOCAL_MACHINE);
-		menumasklow_cu = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0);
-		menumaskhigh_cu = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0);
-		langid = CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
-		blockstatus = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
-		columnseverywhere = CRegStdDWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
+		menulayoutlow = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
+		menulayouthigh = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
+		menumasklow_lm = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0, FALSE, HKEY_LOCAL_MACHINE);
+		menumaskhigh_lm = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0, FALSE, HKEY_LOCAL_MACHINE);
+		menumasklow_cu = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskLow"), 0);
+		menumaskhigh_cu = CRegStdWORD(_T("Software\\TortoiseSVN\\ContextMenuEntriesMaskHigh"), 0);
+		langid = CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
+		blockstatus = CRegStdWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
+		columnseverywhere = CRegStdWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
 		for (int i=0; i<27; i++)
 		{
 			drivetypecache[i] = (UINT)-1;
 		}
-		if (DWORD(drivefloppy) == 0)
-		{
-			// A: and B: are floppy disks
-			drivetypecache[0] = DRIVE_REMOVABLE;
-			drivetypecache[1] = DRIVE_REMOVABLE;
-		}
+		// A: and B: are floppy disks
+		drivetypecache[0] = DRIVE_REMOVABLE;
+		drivetypecache[1] = DRIVE_REMOVABLE;
 		TCHAR szBuffer[5];
 		columnrevformatticker = GetTickCount();
 		SecureZeroMemory(&columnrevformat, sizeof(NUMBERFMT));
@@ -108,12 +104,11 @@ public:
 		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, &szThousandsSep[0], sizeof(szThousandsSep));
 		columnrevformat.lpDecimalSep = szDecSep;
 		columnrevformat.lpThousandSep = szThousandsSep;
-		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, &szBuffer[0], sizeof(szBuffer)/sizeof(TCHAR));
+		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, &szBuffer[0], sizeof(szBuffer));
 		columnrevformat.Grouping = _ttoi(szBuffer);
-		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer)/sizeof(TCHAR));
+		GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer));
 		columnrevformat.NegativeOrder = _ttoi(szBuffer);
 		sAdminDirCacheKey.reserve(MAX_PATH);		// MAX_PATH as buffer reservation ok.
-		nocontextpaths = CRegStdString(_T("Software\\TortoiseSVN\\NoContextPaths"), _T(""));
 		m_critSec.Init();
 	}
 	void ForceRefresh()
@@ -145,7 +140,6 @@ public:
 		menumaskhigh_lm.read();
 		menumasklow_cu.read();
 		menumaskhigh_cu.read();
-		nocontextpaths.read();
 	}
 	CacheType GetCacheType()
 	{
@@ -295,36 +289,17 @@ public:
 		DriveValid();
 		return (driveunknown);
 	}
-	BOOL IsContextPathAllowed(LPCTSTR path)
-	{
-		Locker lock(m_critSec);
-		ExcludeContextValid();
-		for (std::vector<tstring>::iterator I = excontextvector.begin(); I != excontextvector.end(); ++I)
-		{
-			if (I->empty())
-				continue;
-			if (I->size() && I->at(I->size()-1)=='*')
-			{
-				tstring str = I->substr(0, I->size()-1);
-				if (_tcsnicmp(str.c_str(), path, str.size())==0)
-					return FALSE;
-			}
-			else if (_tcsicmp(I->c_str(), path)==0)
-				return FALSE;
-		}
-		return TRUE;
-	}
 	BOOL IsPathAllowed(LPCTSTR path)
 	{
 		Locker lock(m_critSec);
 		IncludeListValid();
-		for (std::vector<tstring>::iterator I = invector.begin(); I != invector.end(); ++I)
+		for (std::vector<stdstring>::iterator I = invector.begin(); I != invector.end(); ++I)
 		{
 			if (I->empty())
 				continue;
 			if (I->at(I->size()-1)=='*')
 			{
-				tstring str = I->substr(0, I->size()-1);
+				stdstring str = I->substr(0, I->size()-1);
 				if (_tcsnicmp(str.c_str(), path, str.size())==0)
 					return TRUE;
 				if (str.size() && (str.at(str.size()-1) == '\\') && (_tcsnicmp(str.c_str(), path, str.size()-1)==0))
@@ -337,21 +312,6 @@ public:
 				return TRUE;
 
 		}
-		ExcludeListValid();
-		for (std::vector<tstring>::iterator I = exvector.begin(); I != exvector.end(); ++I)
-		{
-			if (I->empty())
-				continue;
-			if (I->size() && I->at(I->size()-1)=='*')
-			{
-				tstring str = I->substr(0, I->size()-1);
-				if (_tcsnicmp(str.c_str(), path, str.size())==0)
-					return FALSE;
-			}
-			else if (_tcsicmp(I->c_str(), path)==0)
-				return FALSE;
-		}
-
 		UINT drivetype = 0;
 		int drivenumber = PathGetDriveNumber(path);
 		if ((drivenumber >=0)&&(drivenumber < 25))
@@ -359,7 +319,7 @@ public:
 			drivetype = drivetypecache[drivenumber];
 			if ((drivetype == -1)||((GetTickCount() - DRIVETYPETIMEOUT)>drivetypeticker))
 			{
-				if ((DWORD(drivefloppy) == 0)&&((drivenumber == 0)||(drivenumber == 1)))
+				if ((drivenumber == 0)||(drivenumber == 1))
 					drivetypecache[drivenumber] = DRIVE_REMOVABLE;
 				else
 				{
@@ -397,6 +357,8 @@ public:
 		}
 		if ((drivetype == DRIVE_REMOVABLE)&&(!IsRemovable()))
 			return FALSE;
+		if ((drivetype == DRIVE_REMOVABLE)&&(drivefloppy == 0)&&((drivenumber==0)||(drivenumber==1)))
+			return FALSE;
 		if ((drivetype == DRIVE_FIXED)&&(!IsFixed()))
 			return FALSE;
 		if (((drivetype == DRIVE_REMOTE)||(drivetype == DRIVE_NO_ROOT_DIR))&&(!IsRemote()))
@@ -408,6 +370,20 @@ public:
 		if ((drivetype == DRIVE_UNKNOWN)&&(IsUnknown()))
 			return FALSE;
 
+		ExcludeListValid();
+		for (std::vector<stdstring>::iterator I = exvector.begin(); I != exvector.end(); ++I)
+		{
+			if (I->empty())
+				continue;
+			if (I->size() && I->at(I->size()-1)=='*')
+			{
+				stdstring str = I->substr(0, I->size()-1);
+				if (_tcsnicmp(str.c_str(), path, str.size())==0)
+					return FALSE;
+			}
+			else if (_tcsicmp(I->c_str(), path)==0)
+				return FALSE;
+		}
 		return TRUE;
 	}
 	DWORD GetLangID()
@@ -430,9 +406,9 @@ public:
 			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_STHOUSAND, &szThousandsSep[0], sizeof(szThousandsSep));
 			columnrevformat.lpDecimalSep = szDecSep;
 			columnrevformat.lpThousandSep = szThousandsSep;
-			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, &szBuffer[0], sizeof(szBuffer)/sizeof(TCHAR));
+			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_SGROUPING, &szBuffer[0], sizeof(szBuffer));
 			columnrevformat.Grouping = _ttoi(szBuffer);
-			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer)/sizeof(TCHAR));
+			GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], sizeof(szBuffer));
 			columnrevformat.NegativeOrder = _ttoi(szBuffer);
 		}
 		return &columnrevformat;
@@ -452,11 +428,11 @@ public:
 		}
 		if ((GetTickCount() - ADMINDIRTIMEOUT) < admindirticker)
 		{
-			std::map<tstring, BOOL>::iterator iter;
+			std::map<stdstring, BOOL>::iterator iter;
 			sAdminDirCacheKey.assign(buf);
 			if ((iter = admindircache.find(sAdminDirCacheKey)) != admindircache.end())
 			{
-				delete [] buf;
+				delete buf;
 				return iter->second;
 			}
 		}
@@ -464,7 +440,7 @@ public:
 		admindirticker = GetTickCount();
 		Locker lock(m_critSec);
 		admindircache[buf] = hasAdminDir;
-		delete [] buf;
+		delete buf;
 		return hasAdminDir;
 	}
 	bool IsColumnsEveryWhere()
@@ -489,33 +465,6 @@ private:
 			drivefloppy.read();
 		}
 	}
-	void ExcludeContextValid()
-	{
-		if ((GetTickCount() - EXCLUDELISTTIMEOUT)>excontextticker)
-		{
-			Locker lock(m_critSec);
-			excontextticker = GetTickCount();
-			nocontextpaths.read();
-			if (excludecontextstr.compare((tstring)nocontextpaths)==0)
-				return;
-			excludecontextstr = (tstring)nocontextpaths;
-			excontextvector.clear();
-			size_t pos = 0, pos_ant = 0;
-			pos = excludecontextstr.find(_T("\n"), pos_ant);
-			while (pos != tstring::npos)
-			{
-				tstring token = excludecontextstr.substr(pos_ant, pos-pos_ant);
-				excontextvector.push_back(token);
-				pos_ant = pos+1;
-				pos = excludecontextstr.find(_T("\n"), pos_ant);
-			}
-			if (!excludecontextstr.empty())
-			{
-				excontextvector.push_back(excludecontextstr.substr(pos_ant, excludecontextstr.size()-1));
-			}
-			excludecontextstr = (tstring)nocontextpaths;
-		}
-	}
 	void ExcludeListValid()
 	{
 		if ((GetTickCount() - EXCLUDELISTTIMEOUT)>excludelistticker)
@@ -523,15 +472,15 @@ private:
 			Locker lock(m_critSec);
 			excludelistticker = GetTickCount();
 			excludelist.read();
-			if (excludeliststr.compare((tstring)excludelist)==0)
+			if (excludeliststr.compare((stdstring)excludelist)==0)
 				return;
-			excludeliststr = (tstring)excludelist;
+			excludeliststr = (stdstring)excludelist;
 			exvector.clear();
 			size_t pos = 0, pos_ant = 0;
 			pos = excludeliststr.find(_T("\n"), pos_ant);
-			while (pos != tstring::npos)
+			while (pos != stdstring::npos)
 			{
-				tstring token = excludeliststr.substr(pos_ant, pos-pos_ant);
+				stdstring token = excludeliststr.substr(pos_ant, pos-pos_ant);
 				exvector.push_back(token);
 				pos_ant = pos+1;
 				pos = excludeliststr.find(_T("\n"), pos_ant);
@@ -540,7 +489,7 @@ private:
 			{
 				exvector.push_back(excludeliststr.substr(pos_ant, excludeliststr.size()-1));
 			}
-			excludeliststr = (tstring)excludelist;
+			excludeliststr = (stdstring)excludelist;
 		}
 	}
 	void IncludeListValid()
@@ -550,15 +499,15 @@ private:
 			Locker lock(m_critSec);
 			includelistticker = GetTickCount();
 			includelist.read();
-			if (includeliststr.compare((tstring)includelist)==0)
+			if (includeliststr.compare((stdstring)includelist)==0)
 				return;
-			includeliststr = (tstring)includelist;
+			includeliststr = (stdstring)includelist;
 			invector.clear();
 			size_t pos = 0, pos_ant = 0;
 			pos = includeliststr.find(_T("\n"), pos_ant);
-			while (pos != tstring::npos)
+			while (pos != stdstring::npos)
 			{
-				tstring token = includeliststr.substr(pos_ant, pos-pos_ant);
+				stdstring token = includeliststr.substr(pos_ant, pos-pos_ant);
 				invector.push_back(token);
 				pos_ant = pos+1;
 				pos = includeliststr.find(_T("\n"), pos_ant);
@@ -567,40 +516,40 @@ private:
 			{
 				invector.push_back(includeliststr.substr(pos_ant, includeliststr.size()-1));
 			}
-			includeliststr = (tstring)includelist;
+			includeliststr = (stdstring)includelist;
 		}
 	}
-	CRegStdDWORD cachetype;
-	CRegStdDWORD blockstatus;
-	CRegStdDWORD langid;
-	CRegStdDWORD showrecursive;
-	CRegStdDWORD folderoverlay;
-	CRegStdDWORD getlocktop;
-	CRegStdDWORD driveremote;
-	CRegStdDWORD drivefixed;
-	CRegStdDWORD drivecdrom;
-	CRegStdDWORD driveremove;
-	CRegStdDWORD drivefloppy;
-	CRegStdDWORD driveram;
-	CRegStdDWORD driveunknown;
-	CRegStdDWORD menulayoutlow;
-	CRegStdDWORD menulayouthigh;
-	CRegStdDWORD simplecontext;
-	CRegStdDWORD menumasklow_lm;
-	CRegStdDWORD menumaskhigh_lm;
-	CRegStdDWORD menumasklow_cu;
-	CRegStdDWORD menumaskhigh_cu;
-	CRegStdDWORD unversionedasmodified;
-	CRegStdDWORD showunversionedoverlay;
-	CRegStdDWORD showignoredoverlay;
-	CRegStdDWORD excludedasnormal;
+	CRegStdWORD cachetype;
+	CRegStdWORD blockstatus;
+	CRegStdWORD langid;
+	CRegStdWORD showrecursive;
+	CRegStdWORD folderoverlay;
+	CRegStdWORD getlocktop;
+	CRegStdWORD driveremote;
+	CRegStdWORD drivefixed;
+	CRegStdWORD drivecdrom;
+	CRegStdWORD driveremove;
+	CRegStdWORD drivefloppy;
+	CRegStdWORD driveram;
+	CRegStdWORD driveunknown;
+	CRegStdWORD menulayoutlow;
+	CRegStdWORD menulayouthigh;
+	CRegStdWORD simplecontext;
+	CRegStdWORD menumasklow_lm;
+	CRegStdWORD menumaskhigh_lm;
+	CRegStdWORD menumasklow_cu;
+	CRegStdWORD menumaskhigh_cu;
+	CRegStdWORD unversionedasmodified;
+	CRegStdWORD showunversionedoverlay;
+	CRegStdWORD showignoredoverlay;
+	CRegStdWORD excludedasnormal;
 	CRegStdString excludelist;
-	CRegStdDWORD columnseverywhere;
-	tstring excludeliststr;
-	std::vector<tstring> exvector;
+	CRegStdWORD columnseverywhere;
+	stdstring excludeliststr;
+	std::vector<stdstring> exvector;
 	CRegStdString includelist;
-	tstring includeliststr;
-	std::vector<tstring> invector;
+	stdstring includeliststr;
+	std::vector<stdstring> invector;
 	DWORD cachetypeticker;
 	DWORD recursiveticker;
 	DWORD folderoverlayticker;
@@ -625,12 +574,8 @@ private:
 	NUMBERFMT columnrevformat;
 	TCHAR szDecSep[5];
 	TCHAR szThousandsSep[5];
-	std::map<tstring, BOOL> admindircache;
-	tstring sAdminDirCacheKey;
-	CRegStdString nocontextpaths;
-	tstring excludecontextstr;
-	std::vector<tstring> excontextvector;
-	DWORD excontextticker;
+	std::map<stdstring, BOOL> admindircache;
+	stdstring sAdminDirCacheKey;
 	DWORD admindirticker;
 	CComCriticalSection m_critSec;
 };

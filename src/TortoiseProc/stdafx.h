@@ -20,7 +20,7 @@
 
 
 #ifndef _WIN32_IE
-#define _WIN32_IE 0x0600
+#define _WIN32_IE 0x0501
 #endif
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
@@ -51,7 +51,6 @@
 #define LVS_EX_DOUBLEBUFFER     0x00010000
 #endif
 
-#pragma warning(push)
 #include "apr_general.h"
 #include "svn_pools.h"
 #include "svn_client.h"
@@ -63,7 +62,6 @@
 #include "svn_subst.h"
 #include "svn_repos.h"
 #include "svn_time.h"
-#pragma warning(pop)
 
 #pragma warning(push)
 #pragma warning(disable: 4702)	// Unreachable code warnings in xtree
@@ -85,8 +83,6 @@
 #include <dlgs.h>
 #include <wininet.h>
 #include <assert.h>
-#include <math.h>
-#include <gdiplus.h>
 #pragma warning(pop)
 
 #pragma warning(push)
@@ -112,7 +108,3 @@
 #else
 #	define APP_X64_STRING ""
 #endif
-
-#pragma warning(disable: 4512)	// assignment operator could not be generated
-#pragma warning(disable: 4355)	// used in base member initializer list
-

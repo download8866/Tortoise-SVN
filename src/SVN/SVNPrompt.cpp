@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,15 +27,12 @@
 #include "MessageBox.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
-#include "TSVNAuth.h"
-
 
 SVNPrompt::SVNPrompt()
 {
 	m_app = NULL;
 	m_hParentWnd = NULL;
 	m_bPromptShown = false;
-	auth_baton = NULL;
 }
 
 SVNPrompt::~SVNPrompt()
@@ -49,32 +46,25 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 	svn_auth_provider_object_t *provider;
 
 	/* The whole list of registered providers */
-	apr_array_header_t *providers = apr_array_make (pool, 13, sizeof (svn_auth_provider_object_t *));
+	apr_array_header_t *providers = apr_array_make (pool, 12, sizeof (svn_auth_provider_object_t *));
 
-	svn_config_t * cfg_config = (svn_config_t *)apr_hash_get(ctx->config, SVN_CONFIG_CATEGORY_CONFIG, APR_HASH_KEY_STRING);
-
-	/* Populate the registered providers with the platform-specific providers */
-	svn_auth_get_platform_specific_client_providers(&providers, cfg_config, pool);
-
-	svn_auth_get_tsvn_simple_provider (&provider, pool);
-	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	/* The main disk-caching auth providers, for both
 	'username/password' creds and 'username' creds.  */
-	svn_auth_get_simple_provider2 (&provider, svn_auth_plaintext_prompt, this, pool);
+	svn_auth_get_windows_simple_provider (&provider, pool);
+	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
+	svn_auth_get_simple_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	svn_auth_get_username_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
 	/* The server-cert, client-cert, and client-cert-password providers. */
-	/* The server-cert, client-cert, and client-cert-password providers. */
-	svn_auth_get_platform_specific_provider (&provider, "windows", "ssl_server_trust", pool);
-	if (provider)
-		APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
+	svn_auth_get_windows_ssl_server_trust_provider(&provider, pool); 
+	APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
 	svn_auth_get_ssl_server_trust_file_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 	svn_auth_get_ssl_client_cert_file_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-	svn_auth_get_ssl_client_cert_pw_file_provider2 (&provider, svn_auth_plaintext_passphrase_prompt, this, pool);
+	svn_auth_get_ssl_client_cert_pw_file_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
 	/* Two prompting providers, one for username/password, one for
@@ -174,7 +164,7 @@ BOOL SVNPrompt::SimplePrompt(CString& username, CString& password, const CString
 	return FALSE;
 }
 
-svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton, const char * realm, svn_boolean_t may_save, apr_pool_t *pool)
+svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton, const char * /*realm*/, svn_boolean_t may_save, apr_pool_t *pool)
 {
 	SVNPrompt * svn = (SVNPrompt *)baton;
 	svn_auth_cred_username_t *ret = (svn_auth_cred_username_t *)apr_pcalloc (pool, sizeof (*ret));
@@ -186,9 +176,6 @@ svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton,
 		ret->username = apr_pstrdup(pool, CUnicodeUtils::GetUTF8(username));
 		ret->may_save = may_save;
 		*cred = ret;
-		Creds c;
-		c.username = username;
-		tsvn_creds[realm] = c;
 	}
 	else
 		*cred = NULL;
@@ -210,10 +197,6 @@ svn_error_t* SVNPrompt::simpleprompt(svn_auth_cred_simple_t **cred, void *baton,
 		ret->password = apr_pstrdup(pool, CUnicodeUtils::GetUTF8(PassWord));
 		ret->may_save = may_save;
 		*cred = ret;
-		Creds c;
-		c.username = ret->username;
-		c.password = ret->password;
-		tsvn_creds[realm] = c;
 	}
 	else
 		*cred = NULL;
@@ -438,28 +421,6 @@ svn_error_t* SVNPrompt::sslpwprompt(svn_auth_cred_ssl_client_cert_pw_t **cred, v
 		*cred = NULL;
 	if (svn->m_app)
 		svn->m_app->DoWaitCursor(0);
-	return SVN_NO_ERROR;
-}
-
-svn_error_t* SVNPrompt::svn_auth_plaintext_prompt(svn_boolean_t *may_save_plaintext, const char * /*realmstring*/, void * /*baton*/, apr_pool_t * /*pool*/)
-{
-	// we allow saving plaintext passwords without asking the user. The reason is simple:
-	// TSVN requires at least Win2k, which means the password is always stored encrypted because
-	// the corresponding APIs are available.
-	// If for some unknown reason it wouldn't be possible to save the passwords encrypted,
-	// most users wouldn't know what to do anyway so asking them would just confuse them.
-	*may_save_plaintext = true;
-	return SVN_NO_ERROR;
-}
-
-svn_error_t* SVNPrompt::svn_auth_plaintext_passphrase_prompt(svn_boolean_t *may_save_plaintext, const char * /*realmstring*/, void * /*baton*/, apr_pool_t * /*pool*/)
-{
-	// we allow saving plaintext passwords without asking the user. The reason is simple:
-	// TSVN requires at least Win2k, which means the password is always stored encrypted because
-	// the corresponding APIs are available.
-	// If for some unknown reason it wouldn't be possible to save the passwords encrypted,
-	// most users wouldn't know what to do anyway so asking them would just confuse them.
-	*may_save_plaintext = true;
 	return SVN_NO_ERROR;
 }
 

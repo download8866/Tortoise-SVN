@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,9 +19,7 @@
 #pragma once
 
 #include "ILogQuery.h"
-#pragma warning(push)
 #include "svn_client.h"
-#pragma warning(pop)
 
 // forward declarations
 

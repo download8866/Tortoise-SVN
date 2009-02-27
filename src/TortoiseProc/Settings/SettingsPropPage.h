@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -54,22 +54,6 @@ public:
 	 * Returns the restart code
 	 */
 	virtual SettingsRestart GetRestart() {return m_restart;}
-
 protected:
-
 	SettingsRestart m_restart;
-
-    /**
-     * Utility method:
-     * Store the current value of a BOOL, DWORD or CString into the
-     * respective CRegDWORD etc. and check for success.
-     */
-
-    template<class T, class Reg>
-    void Store (const T& value, Reg& registryKey)
-    {
-    	registryKey = value;
-	    if (registryKey.GetLastError() != ERROR_SUCCESS)
-		    CMessageBox::Show (m_hWnd, registryKey.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
-    }
 };

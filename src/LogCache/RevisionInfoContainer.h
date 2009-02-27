@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,10 +22,9 @@
 // necessary includes
 ///////////////////////////////////////////////////////////////
 
-#include "svn_types.h"
-#include "./Containers/StringDictonary.h"
-#include "./Containers/PathDictionary.h"
-#include "./Containers/TokenizedStringContainer.h"
+#include "StringDictonary.h"
+#include "PathDictionary.h"
+#include "TokenizedStringContainer.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -122,7 +121,6 @@ private:
 
 	std::vector<unsigned char> changes;
 	std::vector<index_t> changedPaths;
-	std::vector<svn_node_kind_t> changedPathTypes;
 	std::vector<index_t> copyFromPaths;
 	std::vector<revision_t> copyFromRevisions;
 
@@ -177,10 +175,8 @@ private:
         USER_REVPROPS_NAME_STREAM_ID = 20,
         USER_REVPROPS_VALUE_STREAM_ID = 21,
 
-        DATA_PRESENCE_STREAM_ID = 22,
-
-        CHANGED_PATHS_TYPES_STREAM_ID = 23
-    };
+        DATA_PRESENCE_STREAM_ID = 22
+	};
 
 	/// index checking utility
 
@@ -308,10 +304,8 @@ public:
 		/// data access (raw change: don't mask out HAS_COPY_FROM)
 
 		CRevisionInfoContainer::TChangeAction GetAction() const;
-        int GetRawChange() const;
-
-        svn_node_kind_t GetPathType() const;
-        CDictionaryBasedPath GetPath() const;
+		CRevisionInfoContainer::TChangeAction GetRawChange() const;
+		CDictionaryBasedPath GetPath() const;
         index_t GetPathID() const;
 
 		bool HasFromPath() const;
@@ -470,7 +464,6 @@ public:
                    , char flags = HAS_STANDARD_INFO);
 
 	void AddChange ( TChangeAction action
-                   , svn_node_kind_t pathType
 				   , const std::string& path
 				   , const std::string& fromPath
 				   , revision_t fromRevision);
@@ -587,18 +580,12 @@ CRevisionInfoContainer::CChangesIterator::GetAction() const
 	return (CRevisionInfoContainer::TChangeAction)(action);
 }
 
-inline svn_node_kind_t 
-CRevisionInfoContainer::CChangesIterator::GetPathType() const
-{
-	assert (IsValid());
-	return container->changedPathTypes[changeOffset];
-}
-
-inline int 
+inline CRevisionInfoContainer::TChangeAction 
 CRevisionInfoContainer::CChangesIterator::GetRawChange() const
 {
 	assert (IsValid());
-	return container->changes[changeOffset];
+	int action = container->changes[changeOffset];
+	return (CRevisionInfoContainer::TChangeAction)(action);
 }
 
 inline bool 
