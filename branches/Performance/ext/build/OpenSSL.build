@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project name="OpenSSL" default="OpenSSL">
+	<target name="clean">
+		<if test="${cleanup == 'yes'}">
+			<!-- to prevent 'nmake clean' to choke on userinput questions, give it our own del command -->
+			<echo file="..\..\..\common\openssl\del.bat" message="del %1 %2 %3 %4 %5 %6 %7 %8 %9 /Q" />
+			<exec program="nmake" workingdir="..\..\..\common\openssl" failonerror="false">
+				<arg value="-f" />
+				<arg value="ms\nt.mak" />
+				<arg value="clean" />
+			</exec>
+		</if>
+	</target>
+	<target name="OpenSSL" depends="clean">
+		<delete file="..\..\..\common\openssl\del.bat" if="${file::exists('..\..\..\common\openssl\del.bat')}" />
+		<!-- OpenSSL links against bufferoverflowu.lib for x64 builds, but with VS2008, that library is no
+		     longer required: the functions are built in the c-runtime. To prevent a linker error (not finding
+		     the library) we patch the openssl configure script to omit that library if we're using VS2008 -->
+		<copy file="VC-32.pl" tofile="..\..\..\common\openssl\util\pl\VC-32.pl" overwrite="true" />
+		<if test="${platform == 'win32'}">
+			<exec program="perl" workingdir="..\..\..\common\openssl">
+				<arg value="Configure" />
+				<arg value="VC-WIN32" />
+			</exec>
+			<exec program="cmd" workingdir="..\..\..\common\openssl">
+				<arg value="/c" />
+				<arg value="ms\do_masm" />
+			</exec>
+			<exec program="nmake" workingdir="..\..\..\common\openssl">
+				<arg value="-f" />
+				<arg value="ms\nt.mak" />
+			</exec>
+		</if>
+		<if test="${platform == 'x64'}">
+			<exec program="perl" workingdir="..\..\..\common\openssl">
+				<arg value="Configure" />
+				<arg value="VC-WIN64A" />
+			</exec>
+			<exec program="cmd" workingdir="..\..\..\common\openssl">
+				<arg value="/c" />
+				<arg value="ms\do_win64a" />
+			</exec>
+			<exec program="nmake" workingdir="..\..\..\common\openssl">
+				<arg value="-f" />
+				<arg value="ms\nt.mak" />
+			</exec>
+		</if>
+	</target>
+
+</project>
