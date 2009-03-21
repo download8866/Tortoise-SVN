@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2009-03-20 20:37+0100\n"
+"PO-Revision-Date: 2009-03-15 22:38+0100\n"
 "Last-Translator: Mariska Hoogenboom <Mariska.Hoogenboom@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -451,12 +451,12 @@ msgstr "Gemakkelijke toegang tot Subversion commando's"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:447
 msgid "All Subversion commands are available from the explorer context menu. TortoiseSVN adds its own submenu there."
-msgstr "Alle Subversion commando's zijn beschikbaar via het context menu van de Verkenner. TortoiseSVN voegt zijn eigen submenu hierin."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:454
 msgid "Since TortoiseSVN is a Subversion client, we would also like to show you some of the features of Subversion itself:"
-msgstr "Aangezien TortoiseSVN een Subversion client is, willen we je ook een aantal kenmerken van Subversion zelf laten zien."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:460
@@ -466,7 +466,7 @@ msgstr "Map versiebeheer"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:462
 msgid "CVS only tracks the history of individual files, but Subversion implements a <quote>virtual</quote> versioned filesystem that tracks changes to whole directory trees over time. Files <emphasis>and</emphasis> directories are versioned. As a result, there are real client-side <command>move</command> and <command>copy</command> commands that operate on files and directories."
-msgstr "CVS houdt alleen de geschiedenis van individuele bestanden bij, maar Subversion implementeert een <quote>virtueel</quote> geversioneerd filesysteem, dat wijzigingen in de gehele folderstructuur bijhoudt. Bestanden <emphasis>en</emphasis> mappen staan beide onder versiebeheer. Het resultaat is dat er echte commando's zijn om bestanden en mappen te <command>verplaatsen</command> en te <command>kopiëren</command>."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:475
@@ -476,17 +476,17 @@ msgstr "Atomische commits"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:477
 msgid "A commit either goes into the repository completely, or not at all. This allows developers to construct and commit changes as logical chunks."
-msgstr "Een enkele vastleggen-actie gaat of helemaal, of helemaal niet in het archief. Hierdoor kunnen ontwikkelaars wijzigingen maken en vastleggen als logische brokken."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:485
 msgid "Versioned metadata"
-msgstr "geversioneerde metadata"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:487
 msgid "Each file and directory has an invisible set of <quote>properties</quote> attached. You can invent and store any arbitrary key/value pairs you wish. Properties are versioned over time, just like file contents."
-msgstr "Elk bestand en elke map hebben een onzichtbare set van <quote>properties</quote>. Je kunt elk willekeurig sleutel/waarde paar bedenken dat maar je wilt, en opslaan. Eigenschappen worden net als bestandinhoud in de tijd geversioneerd."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:497
@@ -496,7 +496,7 @@ msgstr "Keuze van netwerklagen"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:499
 msgid "Subversion has an abstracted notion of repository access, making it easy for people to implement new network mechanisms. Subversion's <quote>advanced</quote> network server is a module for the Apache web server, which speaks a variant of HTTP called WebDAV/DeltaV. This gives Subversion a big advantage in stability and interoperability, and provides various key features for free: authentication, authorization, wire compression, and repository browsing, for example. A smaller, standalone Subversion server process is also available. This server speaks a custom protocol which can be easily tunneled over ssh."
-msgstr "Subversion heeft een abstracte notie wat betreft toegang tot het archief, wat het gemakkelijk maakt voor mensen om een nieuw netwerkmechanisme te implementeren. Subversions <quote>geavanceerde</quote> netwerk server is een module voor een Apache webserver. die een afgeleide van HTTP genaamd WebDAV/DeltaV spreekt. Dit biedt Subversion een groot voordeel als het gaat om stabiliteit en interoperabiliteit, en voorziet in verschillende belangrijke eigenschappen, die ook nog eens gratis zijn: zoals onder andere authenticatie, authorisatie, netwerkdatacompressie, en bladeren in het archief. Een kleinere op zichzelfstaand Subversion serverproces is ook beschikbaar. Deze server gebruikt een eigen netwerkprotocol, die gemakkelijk over ssh getunneld kan worden."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:516
@@ -506,47 +506,47 @@ msgstr "Consistente data-afhandeling"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:518
 msgid "Subversion expresses file differences using a binary differencing algorithm, which works identically on both text (human-readable) and binary (human-unreadable) files. Both types of files are stored equally compressed in the repository, and differences are transmitted in both directions across the network."
-msgstr "Subversion drukt bestandsverschillen uit door middel van een binair verschilalgoritme, dat identiek werkt voor tekstbestanden (mens-leesbaar) en binaire bestanden (mens-onleesbaar). Beide typen bestanden worden op dezelfde gecomprimeerde manier in het archief opgeslagen en verschillen worden over het netwerk in beide richtingen gezonden."
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:529
 msgid "Efficient branching and tagging"
-msgstr "Efficiënt aftakken en labelen"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:531
 msgid "The cost of branching and tagging need not be proportional to the project size. Subversion creates branches and tags by simply copying the project, using a mechanism similar to a hard-link. Thus these operations take only a very small, constant amount of time, and very little space in the repository."
-msgstr "De kosten van aftakken en labelen"
+msgstr ""
 
 #. (term)
 #: ../source/TortoiseSVN_en.xml:542
 msgid "Hackability"
-msgstr "Kraakbestandheid"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:544
 msgid "Subversion has no historical baggage; it is implemented as a collection of shared C libraries with well-defined APIs. This makes Subversion extremely maintainable and usable by other applications and languages."
-msgstr "Subversion heeft geen historische bagage; het is geimplementeerd als een verzameling van shared C libraries met een goed gedefiniëerde API. Dit maakt Subversion zeer onderhoudbaar en bruikbaar door andere applicaties en talen."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:558
 msgid "Installing TortoiseSVN"
-msgstr "Installeren van TortoiseSVN"
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:560
 msgid "System requirements"
-msgstr "Systeemvereisten"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:561
 msgid "TortoiseSVN runs on Windows 2000 SP2, Windows XP or higher. Windows 98, Windows ME and Windows NT4 are no longer supported since TortoiseSVN 1.2.0, but you can still download the older versions if you really need them."
-msgstr "TortoiseSVN draait op Windows 2000 SP2, Windows XP of hoger. Windows 98, Windows ME en Windows NT4 worden vanaf TortoiseSVN 1.2.0 niet langer ondersteund, maar je kan nog steeds de oudere versies ophalen als je die echt nodig hebt."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:567
 msgid "If you encounter any problems during or after installing TortoiseSVN please refer to <xref linkend=\"tsvn-faq\"/> first."
-msgstr "Als je een probleem tijdens of na installatie van TortoiseSVN tegenkomt, raadpleeg dan eerst de <xref linkend=\"tsvn-faq\"/>."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:575
@@ -561,12 +561,12 @@ msgstr "installeer"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:579
 msgid "TortoiseSVN comes with an easy to use installer. Double click on the installer file and follow the instructions. The installer will take care of the rest."
-msgstr "TortoiseSVN wordt geleverd met een gemakkelijk te gebruiken installatieprogramma. Dubbelklik op het installatiebestand en volg de instructies op. Het installatieprogramma zorgt voor de rest."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:585
 msgid "You need Administrator privileges to install TortoiseSVN."
-msgstr "Je hebt Beheerdersrechten nodig om TortoiseSVN te mogen installeren."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:591
@@ -586,22 +586,22 @@ msgstr "vertalingen"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:598
 msgid "The TortoiseSVN user interface has been translated into many different languages, so you may be able to download a language pack to suit your needs. You can find the language packs on our <ulink url=\"http://tortoisesvn.net/translation_status\"><citetitle>translation status page</citetitle></ulink>. And if there is no language pack available yet, why not join the team and submit your own translation ;-)"
-msgstr "De TortoiseSVN gebruikers interface is vertaald in veel verschillende talen, je kunt dus waarschijnlijk je eigen gewenste taal kiezen om te installeren. Je kunt de beschikbare talenpakketen vinden op onze <ulink url=\"http://tortoisesvn.net/translation_status\"><citetitle>translation status page</citetitle></ulink>. En als jouw gewenste talenpakket nog niet beschikbaar is, ben je welkom om je bij ons team aan te sluiten en je eigen vertaling bij te voegen ;-)"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:609
 msgid "Each language pack is packaged as a <literal>.exe</literal> installer. Just run the install program and follow the instructions. Next time you restart, the translation will be available."
-msgstr "Elk talenpakket is als een <literal>.exe</literal> installatieprogramma samengesteld. Je hoeft enkel het installatieprogramma te starten en de instructies op te volgen. De volgende keer dat je herstart, zal de vertaling beschikbaar zijn. "
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:616
 msgid "Spellchecker"
-msgstr "Spellingscontroleur"
+msgstr ""
 
 #. (primary)
 #: ../source/TortoiseSVN_en.xml:618
 msgid "spellchecker"
-msgstr "spellingscontroleur"
+msgstr ""
 
 #. (primary)
 #: ../source/TortoiseSVN_en.xml:621
@@ -611,17 +611,17 @@ msgstr "woordenboek"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:623
 msgid "TortoiseSVN includes a spell checker which allows you to check your commit log messages. This is especially useful if the project language is not your native language. The spell checker uses the same dictionary files as <ulink url=\"http://openoffice.org\"><citetitle>OpenOffice</citetitle></ulink> and <ulink url=\"http://mozilla.org\"><citetitle>Mozilla</citetitle></ulink>."
-msgstr "TortoiseSVN bevat een spellingscontroleur, waarmee je je vastleg logmeldingen kunt controleren. Dit is vooral nuttig als de projecttaal niet jouw moedertaal is. De spellingcontroleur gebruikt dezelfde worodenboeken als <ulink url=\"http://openoffice.org\"><citetitle>OpenOffice</citetitle></ulink> en <ulink url=\"http://mozilla.org\"><citetitle>Mozilla</citetitle></ulink>."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:636
 msgid "The installer automatically adds the US and UK English dictionaries. If you want other languages, the easiest option is simply to install one of TortoiseSVN's language packs. This will install the appropriate dictionary files as well as the TortoiseSVN local user interface. Next time you restart, the dictionary will be available too."
-msgstr "Het installatieprogramma voegt automatisch de VS en VK Engelse woordenboeken toe. Als je andere talen wilt, is de simpelste optie om een van de TortoiseSVN talenpakketen te installeren. Dit installeert het gewenste woordenboeken als ook de TortoiseSVN lokale gebruikers interface. De volgende keer dat je herstart, zal het woordenboek beschikbaar zijn."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:644
 msgid "Or you can install the dictionaries yourself. If you have OpenOffice or Mozilla installed, you can copy those dictionaries, which are located in the installation folders for those applications. Otherwise, you need to download the required dictionary files from <ulink url=\"http://wiki.services.openoffice.org/wiki/Dictionaries\"><citetitle>http://wiki.services.openoffice.org/wiki/Dictionaries</citetitle></ulink>"
-msgstr "Of je kunt de woordenboeken zelf installeren. Als je OpenOffice of Mozilla hebt geïnstalleerd, dan kun je de woordenboeken, die in de installatiemappen van die applicaties zijn te vinden, kopiëren. Anders moet je de gewenste woordenboeken van <ulink url=\"http://wiki.services.openoffice.org/wiki/Dictionaries\"><citetitle>http://wiki.services.openoffice.org/wiki/Dictionaries</citetitle></ulink> kopiëren."
+msgstr ""
 
 #. (filename)
 #: ../source/TortoiseSVN_en.xml:661
@@ -636,37 +636,37 @@ msgstr "en_US.dic"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:653
 msgid "Once you have got the dictionary files, you probably need to rename them so that the filenames only have the locale chars in it. Example: <placeholder-1/> Then just copy them to the <filename>bin</filename> sub-folder of the TortoiseSVN installation folder. Normally this will be <filename>C:\\Program Files\\TortoiseSVN\\bin</filename>. If you don't want to litter the <filename>bin</filename> sub-folder, you can instead place your spell checker files in <filename>C:\\Program Files\\TortoiseSVN\\Languages</filename>. If that folder isn't there, you have to create it first. The next time you start TortoiseSVN, the spell checker will be available."
-msgstr "Als je de woordenboekbestanden hebt, moet je ze waarschijnlijk hernoemen zodat de bestandsnaam alleen lokale karakters bevat. Bijvoorbeeld: <placeholder-1/> Daarna kopiëer je ze naar de <filename>bin</filename> submap van de TortoiseSVN installatiemap. Normaliter is dit <filename>C:\\Program Files\\TortoiseSVN\\bin</filename>. Als je de <filename>bin</filename> submap niet wilt vervuilen, dan kun je in plaats daarvan de spellingscheckerbestanden in <filename>C:\\Program Files\\TortoiseSVN\\Languages</filename> plaatsen. Als die map niet bestaat, moet je hem eerst aanmaken. De volgende keer dat je TortoiseSVN start, zal de spellingschecker beschikbaar zijn."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:684
 msgid "Check the <literal>tsvn:projectlanguage</literal> setting. Refer to <xref linkend=\"tsvn-dug-propertypage\"/> for information about setting project properties."
-msgstr "Controleer de <literal>tsvn:projectlanguage</literal> instelling. Refereer naar <xref linkend=\"tsvn-dug-propertypage\"/> voor informatie over het instellen van projecteigenschappen."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:691
 msgid "If no project language is set, or that language is not installed, try the language corresponding to the Windows locale."
-msgstr "Als er geen projecttaal is ingesteld, of als die taal niet is geïnstalleerd, probeer dan de taal die hoort bij de Windows landinstelling."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:697
 msgid "If the exact Windows locale doesn't work, try the <quote>Base</quote> language, eg. <literal>de_CH</literal> (Swiss-German) falls back to <literal>de_DE</literal> (German)."
-msgstr "Als de exacte Windows landinstelling niet werkt, probeer dan de <quote>Basis</quote> taal, bv. <literal>de_CH</literal> (Zwitsers-Duits) wordt <literal>de_DE</literal> (Duits)."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:705
 msgid "If none of the above works, then the default language is English, which is included with the standard installation."
-msgstr "Als bovenstaande oplossingen niet werken, dan is de standaardtaal Engels, welke is opgenomen in de standaardinstallatie."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:679
 msgid "If you install multiple dictionaries, TortoiseSVN uses these rules to select which one to use. <placeholder-1/>"
-msgstr "Als je meerdere woordenboeken installeert, gebruikt TortoiseSVN deze regels om te selecteren welke te gebruiken. <placeholder-1/>"
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:722
 msgid "Basic Version-Control Concepts"
-msgstr "Basis Versie-Beheer Concepten"
+msgstr ""
 
 #. (primary)
 #: ../source/TortoiseSVN_en.xml:725
@@ -676,17 +676,17 @@ msgstr "Subversion boek"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:727
 msgid "This chapter is a slightly modified version of the same chapter in the Subversion book. An online version of the Subversion book is available here: <ulink url=\"http://svnbook.red-bean.com/\"><citetitle>http://svnbook.red-bean.com/</citetitle></ulink>."
-msgstr "Dit hoofdstuk is een iets gewijzigde versie van hetzelfde hoofdstuk uit het Subversion boek. Een online versie van het Subversion boek is beschikbaar op: <ulink url=\"http://svnbook.red-bean.com/\"><citetitle>http://svnbook.red-bean.com/</citetitle></ulink>."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:735
 msgid "This chapter is a short, casual introduction to Subversion. If you're new to version control, this chapter is definitely for you. We begin with a discussion of general version control concepts, work our way into the specific ideas behind Subversion, and show some simple examples of Subversion in use."
-msgstr "Dit hoofdstuk is een korte en informele introductie in Subversion. Als je nieuw bent op gebied van versiebeheer, dan is dit hoofdstuk echt iets voor jou. We beginnen met een uiteenzetting over algemene versiebeheer concepten, verdiepen ons in de specifieke gedachten achter Subversion, en tonen een aantal simpele voorbeelden van toepassingen van Subversion. "
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:743
 msgid "Even though the examples in this chapter show people sharing collections of program source code, keep in mind that Subversion can manage any sort of file collection - it's not limited to helping computer programmers."
-msgstr "Ook al gaan de voorbeelden in dit hoofdstuk over mensen die een verzameling programmabroncode delen, vergeet niet dat Subversion elke verzameling bestanden kan beheren - het is niet beperkt tot assisteren van computerprogrammeurs."
+msgstr ""
 
 #. (title)
 #. (title)
@@ -695,44 +695,44 @@ msgstr "Ook al gaan de voorbeelden in dit hoofdstuk over mensen die een verzamel
 #: ../source/TortoiseSVN_en.xml:1256
 #: ../source/TortoiseSVN_en.xml:1445
 msgid "The Repository"
-msgstr "Het Archief"
+msgstr ""
 
 #. (primary)
 #. (primary)
 #: ../source/TortoiseSVN_en.xml:753
 #: ../source/TortoiseSVN_en.xml:3742
 msgid "repository"
-msgstr "archief"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:755
 msgid "Subversion is a centralized system for sharing information. At its core is a <firstterm>repository</firstterm>, which is a central store of data. The repository stores information in the form of a <firstterm>filesystem tree</firstterm> - a typical hierarchy of files and directories. Any number of <firstterm>clients</firstterm> connect to the repository, and then read or write to these files. By writing data, a client makes the information available to others; by reading data, the client receives information from others."
-msgstr "Subversion is een centraal systeem voor het delen van informatie. De kern is een <firstterm>archief</firstterm>, dat een centrale opslagruimte van data is. Het archief slaat informatie op in de vorm van een <firstterm>bestandssysteemboom</firstterm> - een typische hiëarchie van bestanden en mappen. Een ongelimiteerd aantal <firstterm>clients</firstterm> kan op het archief aansluiten en deze bestanden lezen of schrijven. Door data te schrijven maakt een client informatie beschikbaar voor anderen; door het lezen van data ontvangt de client informatie van anderen."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:767
 msgid "A Typical Client/Server System"
-msgstr "Een typisch Client/Server Systeem"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:770
 msgid "So why is this interesting? So far, this sounds like the definition of a typical file server. And indeed, the repository <emphasis>is</emphasis> a kind of file server, but it's not your usual breed. What makes the Subversion repository special is that <emphasis>it remembers every change</emphasis> ever written to it: every change to every file, and even changes to the directory tree itself, such as the addition, deletion, and rearrangement of files and directories."
-msgstr "Waarom is dit nu zo interessant? Tot zoverre lijkt dit op de definitie van een typische bestandsserver. En inderdaad <emphasis>is</emphasis> het archief een soort van bestandsserver, maar niet de normale soort. Wat het Subversion archief zo bijzonder maakt, is dat <emphasis>het elke wijziging onthoudt</emphasis>, die ooit weggeschreven is: elke wijziging in elk bestand en zelfs wijzigingen in de mappenstructuur, zoals toevoegen, verwijderen en herschikken van bestanden en mappen."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:780
 msgid "When a client reads data from the repository, it normally sees only the latest version of the filesystem tree. But the client also has the ability to view <emphasis>previous</emphasis> states of the filesystem. For example, a client can ask historical questions like, <quote>what did this directory contain last Wednesday?</quote>, or <quote>who was the last person to change this file, and what changes did they make?</quote> These are the sorts of questions that are at the heart of any <firstterm>version control system</firstterm>: systems that are designed to record and track changes to data over time."
-msgstr "Wanneer een client data van het archief leest, ziet deze standaard alleen de laatste versie van het filesysteem. De client kan echter ook <emphasis>vorige</emphasis> versies van het filesysteem bekijken. Een client kan bijvoorbeeld historische vragen stellen, zoals <quote>wat zat er in deze map afgelopen woensdag?</quote>, of <quote>wie was de laatste persoon die dit bestand heeft gewijzigd en welke wijzigingen heeft hij gemaakt?</quote> Dit zijn het soort vragen, dat in het hart zit van elk <firstterm>versiebeheersysteem</firstterm>:  systemen die zijn ontworpen om wijzigingen in de data vast te leggen en te traceren in de tijd."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:795
 msgid "Versioning Models"
-msgstr "Versioneermodellen"
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:796
 msgid "All version control systems have to solve the same fundamental problem: how will the system allow users to share information, but prevent them from accidentally stepping on each other's feet? It's all too easy for users to accidentally overwrite each other's changes in the repository."
-msgstr "Alle versiebeheersystemen moeten hetzelfde fundamentele probleem oplossen: hoe zorgt een systeem ervoor dat gebruikers informatie kunnen delen, maar voorkomt dat ze per ongeluk op elkaars voeten gaan staan? Het is maar al te gemakkelijk voor gebruikers om per ongeluk elkaars wijzigingen te overschrijven in het archief."
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:805
@@ -742,7 +742,7 @@ msgstr "Het Probleem van Bestand Delen"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:806
 msgid "Consider this scenario: suppose we have two co-workers, Harry and Sally. They each decide to edit the same repository file at the same time. If Harry saves his changes to the repository first, then it's possible that (a few moments later) Sally could accidentally overwrite them with her own new version of the file. While Harry's version of the file won't be lost forever (because the system remembers every change), any changes Harry made <emphasis>won't</emphasis> be present in Sally's newer version of the file, because she never saw Harry's changes to begin with. Harry's work is still effectively lost - or at least missing from the latest version of the file - and probably by accident. This is definitely a situation we want to avoid!"
-msgstr "Beschouw het volgende scenario: stel we hebben twee collega's, Harry en Sally. Ze besluiten beide om hetzelfde archief te wijzigen op hetzelfde moment. Als Harry de wijzigingen als eerste in het archief opslaat, dan is het mogelijk dat Sally (enkele ogenblikken later) per ongeluk zijn wijzigingen overschrijft met haar nieuwe versie van het bestand. Alhoewel Harry's wijzigingen niet voor goed verloren zijn (omdat het systeem elke wijziging onthoudt), zijn de wijzigingen die Harry aanbracht <emphasis>niet</emphasis> zichtbaar in Sally's nieuwe versie van het bestand, omdat zij Harry's wijzigingen helemaal niet eens gezien heeft. Harry's werk is dus in feite verloren - of ontbreekt in elk geval in de laatste versie van het bestand - en waarschijnlijk ook nog per ongeluk. Dit is precies de situatie die we willen voorkomen!"
+msgstr ""
 
 #. (title)
 #: ../source/TortoiseSVN_en.xml:822
@@ -759,12 +759,12 @@ msgstr "De Vergrendel-Wijzig-Ontgrendel Oplossing"
 #. (para)
 #: ../source/TortoiseSVN_en.xml:828
 msgid "Many version control systems use a <firstterm>lock-modify-unlock</firstterm> model to address this problem, which is a very simple solution. In such a system, the repository allows only one person to change a file at a time. First Harry must <emphasis>lock</emphasis> the file before he can begin making changes to it. Locking a file is a lot like borrowing a book from the library; if Harry has locked a file, then Sally cannot make any changes to it. If she tries to lock the file, the repository will deny the request. All she can do is read the file, and wait for Harry to finish his changes and release his lock. After Harry unlocks the file, his turn is over, and now Sally can take her turn by locking and editing."
-msgstr "Veel versiebeheersystemen gebruiken een <firstterm>blokkeren-wijzigen-blokkade opheffen</firstterm> model om dit probleem te adresseren, hetgeen een zeer simpele oplossing is. In zo'n systeem staat het archief maar aan één persoon tegelijkertijd toe om een bestand te wijzigen op één bepaald moment. Eerst moet Harry het bestand <emphasis>blokkeren</emphasis>, voordat hij kan beginnen om het bestand te wijzigen. Blokkeren van een bestand lijkt op het lenen van een boek bij de bibliotheek; als Harry het bestand heeft geblokkeerd, kan Sally geen wijzigingen hierin aanbrengen. Als zij probeert het bestand te blokkeren, zal het archief dit verzoek weigeren. Ze kan alleen het bestand bekijken en wachten tot Harry klaar is met zijn wijzigingen en de blokkade opheft. Nadat Harry de blokkade op het bestand heeft opgeheven, is zijn beurt voorbij en is Sally aan de beurt om het bestand te blokkeren en te wijzigen."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:846
 msgid "The problem with the lock-modify-unlock model is that it's a bit restrictive, and often becomes a roadblock for users:"
-msgstr "Het probleem met \"blokkeren-wijzigen-blokkade opheffen\" is dat het erg beperkend is en vaak voor gebruikers een wegversperring wordt."
+msgstr ""
 
 #. (para)
 #: ../source/TortoiseSVN_en.xml:853
