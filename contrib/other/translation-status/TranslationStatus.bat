@@ -14,7 +14,7 @@ SETLOCAL ENABLEDELAYEDEXPANSION
 rem Trunk and branch location. 
 rem Without slash, because they're not only used for directories
 set Trunk=trunk
-set Brnch=branches\1.6.x
+set Brnch=branches\1.5.x
 
 rem Paths & working directories
 set ScriptPath=%~dp0

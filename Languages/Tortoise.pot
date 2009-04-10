@@ -1394,10 +1394,6 @@ msgstr ""
 msgid "Add extension specific merge program"
 msgstr ""
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr ""
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr ""
@@ -1528,10 +1524,6 @@ msgstr ""
 
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
-msgstr ""
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
 msgstr ""
 
 #. Resource IDs: (197)
@@ -1692,6 +1684,10 @@ msgstr ""
 
 #. Resource IDs: (99)
 msgid "Auto Rename"
+msgstr ""
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
 msgstr ""
 
 #. Resource IDs: (222)
@@ -5596,10 +5592,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr ""
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr ""
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -6302,10 +6294,6 @@ msgstr ""
 
 #. Resource IDs: (79)
 msgid "Select text editor application"
-msgstr ""
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
 msgstr ""
 
 #. Resource IDs: (595)

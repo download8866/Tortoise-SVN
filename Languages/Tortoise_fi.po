@@ -1660,10 +1660,6 @@ msgstr "Salli eri arkistojen käyttää samaa paikanninta, esim. http://localhos
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Salli eri arkistojen käyttää samaa UUID:ta, esim. kopioidut arkistot."
 
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Sulje ikkunat automaattisesti paikallisten toimintojen jälkeen"
-
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
 msgstr "Käytä aina Windowsin asetuksia aikojen ja päivämäärien esittämiseen"
@@ -1859,6 +1855,10 @@ msgstr "Piilota kaikki automaattisesti"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Nimeä uudestaan automaattisesti"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Sulje automaattisesti, jos paikallinen toiminto"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"

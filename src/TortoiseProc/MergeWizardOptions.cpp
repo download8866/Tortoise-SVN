@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -147,26 +147,7 @@ BOOL CMergeWizardOptions::OnSetActive()
 	CPropertySheet* psheet = (CPropertySheet*) GetParent();   
 	psheet->SetWizardButtons(PSWIZB_BACK|PSWIZB_FINISH);
 	SetButtonTexts();
-	CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
-	GetDlgItem(IDC_RECORDONLY)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
-	GetDlgItem(IDC_DEPTH)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
-
-	CString sTitle;
-	switch (pWizard->nRevRangeMerge)
-	{
-	case MERGEWIZARD_REVRANGE:
-		sTitle.LoadString(IDS_MERGEWIZARD_REVRANGETITLE);
-		break;
-	case MERGEWIZARD_TREE:
-		sTitle.LoadString(IDS_MERGEWIZARD_TREETITLE);
-		break;
-	case MERGEWIZARD_REINTEGRATE:
-		sTitle.LoadString(IDS_MERGEWIZARD_REINTEGRATETITLE);
-		break;
-	}
-	sTitle += _T(" : ") + CString(MAKEINTRESOURCE(IDS_MERGEWIZARD_OPTIONSTITLE));
-	SetDlgItemText(IDC_MERGEOPTIONSGROUP, sTitle);
-
+	GetDlgItem(IDC_RECORDONLY)->EnableWindow(((CMergeWizard*)GetParent())->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
 	return CMergeWizardBasePage::OnSetActive();
 }
 

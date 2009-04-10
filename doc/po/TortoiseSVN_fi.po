@@ -14,7 +14,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-04-04 14:46 +0000\n"
+"POT-Creation-Date: 2009-04-04 14:55 +0000\n"
 "PO-Revision-Date: 2009-04-07 00:40+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
@@ -10991,45 +10991,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"suodatusmerkkijono\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> suodata kaikesta"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> suodata viesteistä"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> suodata poluista"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> suodata tekijöistä"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> suodata versioista"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> suodata vikatunnuksista"
-
 #. (entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> (forces the filter to use text, not regex) and <placeholder-7/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
-msgstr "Avaa loki-ikkunan. Valitsin <placeholder-1/> määrittää tiedoston tai kansion, jolle loki näytetään. Lisäksi voidaan antaa kuusi eri lisävalitsinta: <placeholder-2/>, <placeholder-3/> ja <placeholder-4/> (pysäytä kopiointiin-valinta), <placeholder-5/> asettaa suodatustekstin, <placeholder-6/> (suodata teksti, ei säännöllistä lauseketta -valinta) ja <placeholder-7/> missä X on luku väliltä 1-7. Numeroiden merkitys on seuraava: <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr "Avaa loki-ikkunan. Valitsin <placeholder-1/> määrittää tiedoston tai kansion, jolle loki näytetään. Lisäksi voidaan antaa kolme lisävalitsinta: <placeholder-2/>, <placeholder-3/> ja <placeholder-4/>"
 
 #. (option)
 #. (option)

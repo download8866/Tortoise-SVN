@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2009 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,7 +62,6 @@ CComAutoCriticalSection critSec;
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName)
 {
-
 	HINSTANCE hinstDll;
 	DWORD dwVersion = 0;
 
@@ -132,9 +131,6 @@ void DebugOutputLastError()
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
 	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, GetCacheMutexName());
-
-    int temp = _CrtSetDbgFlag (_CRTDBG_REPORT_FLAG);
-    _CrtSetDbgFlag ((temp & 0xffff) | 0x10000);
 
 	if (hReloadProtection == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
 	{
@@ -692,23 +688,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 			return 1;
 		}
 
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // * Clear unknown flags
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (request.path[i-1] != 0); --i)
-            request.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (request.path);
-        SecureZeroMemory ( request.path + pathLength
-                         , sizeof (request.path) - pathLength * sizeof (TCHAR));
-
-        request.flags &= TSVNCACHE_FLAGS_MASK;
-
-        // process request
 		DWORD responseLength;
 		GetAnswerToRequest(&request, &response, &responseLength); 
 
@@ -770,20 +749,6 @@ DWORD WINAPI CommandThread(LPVOID lpvParam)
 			return 1;
 		}
 		
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (command.path[i-1] != 0); --i)
-            command.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (command.path);
-        SecureZeroMemory ( command.path + pathLength
-                         , sizeof (command.path) - pathLength * sizeof (TCHAR));
-
-        // process request
 		switch (command.command)
 		{
 			case TSVNCACHECOMMAND_END:
