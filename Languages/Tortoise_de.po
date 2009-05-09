@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-05-04 21:14+0100\n"
+"PO-Revision-Date: 2009-04-04 13:24+0100\n"
 "Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1454,10 +1454,6 @@ msgstr "Vergleichsprogramm für bestimmte Dateitypen hinzufügen"
 msgid "Add extension specific merge program"
 msgstr "Konflikteditor für bestimmte Dateitypen hinzufügen"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Neue Dateien automatisch zu SVN hinzufügen"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Das Objekt trotzdem hinzufügen"
@@ -1599,10 +1595,6 @@ msgstr "Erlaubt es, unterschiedlichen Projektarchive dieselbe URL zu verwenden, 
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Erlaubt es, verschiedenen Projektarchiven dieselbe UUID zu verwenden, z.B. kopierten Projektarchiven"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Dialoge nach lokalen Operationen immer schließen"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1801,6 +1793,10 @@ msgstr "Alle automatisch verbergen"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Automatisch Umbenennen"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Für lokale Operationen"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2212,9 +2208,8 @@ msgid "Cleaning up"
 msgstr "Beim Aufräumen"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Räume Verzeichnis '%s' auf"
+msgid "Cleaning up."
+msgstr "Beim Aufräumen."
 
 #. Resource IDs: (83)
 #, c-format
@@ -6416,10 +6411,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Zweig wieder Eingliedern"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Wiedereingliedern"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7201,10 +7192,6 @@ msgstr "Startrevision wählen"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Texteditor auswählen"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Wählen Sie die URLs zum Wiedereingliedern"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -10306,14 +10293,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Minimale Anzahl von Zeichen, die eine Logmeldung bei der Übertragung haben muss."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Ein regulärer Ausdruck zum Filtern von Revisionsnummern aus einer Logmeldung"
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10437,8 +10416,6 @@ msgstr "ja"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Beim Aufräumen."
 #~ msgid "General::Revision Graph"
 #~ msgstr "Allgemein::Revisionsgraph"
 #~ msgid "General::Revision Graph Colors"

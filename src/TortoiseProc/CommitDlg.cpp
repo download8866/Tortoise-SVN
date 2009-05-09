@@ -25,7 +25,6 @@
 #include "MessageBox.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "StringUtils.h"
 #include "SVN.h"
 #include "Registry.h"
 #include "SVNStatus.h"
@@ -127,8 +126,6 @@ BOOL CCommitDlg::OnInitDialog()
 	m_ListCtrl.SetBackgroundImage(IDI_COMMIT_BKG);
 	
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	m_cLogMessage.RegisterContextMenuHandler(this);
@@ -410,10 +407,6 @@ void CCommitDlg::OnOK()
 		{
 			if (changedList[i].IsAdminDir())
 			{
-				// TODO: refactor this into an SVN class since 'entries' and
-				// 'tmp' are referring to internal files/folders of the .svn dir
-				// and will have to change for the SQLite-based wc format
-
 				// something inside an admin dir was changed.
 				// if it's the entries file, then we have to fully refresh because
 				// files may have been added/removed from version control
@@ -660,39 +653,6 @@ UINT CCommitDlg::StatusThread()
 		}
 		SetDlgItemText(IDC_COMMIT_TO, m_ListCtrl.m_sURL);
 		m_tooltips.AddTool(GetDlgItem(IDC_STATISTICS), m_ListCtrl.GetStatisticsString());
-
-		{
-			// compare all url parts against the branches pattern and if it matches,
-			// change the background image of the list control to indicate 
-			// a commit to a branch
-			CRegString branchesPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\BranchPattern"), _T("branches"));
-			CString sBranches = branchesPattern;
-			int pos = 0;
-			CString temp;
-			bool bFound = false;
-			while (!bFound)
-			{
-				temp = sBranches.Tokenize(_T(";"), pos);
-				if (temp.IsEmpty())
-					break;
-
-				int urlpos = 0;
-				CString temp2;
-				for(;;)
-				{
-					temp2 = m_ListCtrl.m_sURL.Tokenize(_T("/"), urlpos);
-					if (temp2.IsEmpty())
-						break;
-
-					if (CStringUtils::WildCardMatch(temp, temp2))
-					{
-						m_ListCtrl.SetBackgroundImage(IDI_COMMITBRANCHES_BKG);
-						bFound = true;
-						break;
-					}
-				}
-			} 
-		}
 	}
 	CString logmsg;
 	GetDlgItemText(IDC_LOGMESSAGE, logmsg);
@@ -1029,8 +989,6 @@ void CCommitDlg::GetAutocompletionList()
 	CString sRegexFile = CPathUtils::GetAppDirectory();
 	CRegDWORD regtimeout = CRegDWORD(_T("Software\\TortoiseSVN\\AutocompleteParseTimeout"), 5);
 	DWORD timeoutvalue = regtimeout*1000;
-	if (timeoutvalue == 0)
-		return;
 	sRegexFile += _T("autolist.txt");
 	if (!m_bRunThread)
 		return;

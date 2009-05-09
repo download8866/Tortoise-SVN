@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -72,7 +72,6 @@ public:
 
 	void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev, int limit, 
 		BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE), BOOL bSaveStrict = TRUE);
-	void SetFilter(const CString& findstr, LONG findtype, bool findregex);
 	void SetIncludeMerge(bool bInclude = true) {m_bIncludeMerges = bInclude;}
 	void SetProjectPropertiesPath(const CTSVNPath& path) {m_ProjectProperties.ReadProps(path);}
 	bool IsThreadRunning() {return !!m_bThreadRunning;}
@@ -145,8 +144,6 @@ protected:
 private:
 	static UINT LogThreadEntry(LPVOID pVoid);
 	UINT LogThread();
-	static UINT StatusThreadEntry(LPVOID pVoid);
-	UINT StatusThread();
 	void Refresh (bool autoGoOnline = false);
 	BOOL IsDiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
 	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
@@ -162,7 +159,7 @@ private:
 	void CopyChangedSelectionToClipBoard();
 	CTSVNPathList GetChangedPathsFromSelectedRevisions(bool bRelativePaths = false, bool bUseFilter = true);
     void SortShownListArray();
-	void RecalculateShownList(CPtrArray * pShownlist, svn_revnum_t rev = -1);
+	void RecalculateShownList(CPtrArray * pShownlist);
     void SetSortArrow(CListCtrl * control, int nColumn, bool bAscending);
 	void SortByColumn(int nSortColumn, bool bAscending);
 	bool IsSelectionContinuous();
@@ -179,6 +176,10 @@ private:
 	CString GetAbsoluteUrlFromRelativeUrl(const CString& url);
 	void ToggleCheckbox(int item);
 
+	/**
+	 * Extracts part of commit message suitable for displaying in revision list.
+	 */
+	CString MakeShortMessage(const CString& message);
 	inline int ShownCountWithStopped() const { return (int)m_arShownList.GetCount() + (m_bStrictStopped ? 1 : 0); }
 
 
@@ -276,8 +277,6 @@ private:
 	HICON				m_hReplacedIcon;
 	HICON				m_hAddedIcon;
 	HICON				m_hDeletedIcon;
-	int					m_nIconFolder;
-
 
 	DWORD				m_childCounter;
 	DWORD				m_maxChild;

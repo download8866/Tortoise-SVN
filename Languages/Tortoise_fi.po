@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-04-28 19:34+0200\n"
+"PO-Revision-Date: 2009-04-07 00:12+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1518,10 +1518,6 @@ msgstr "Lisää päätekohtainen vertailuohjelma"
 msgid "Add extension specific merge program"
 msgstr "Lisää päätekohtainen yhdistämisohjelma"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Lisää uudet tiedostot automaattisesti versionhallintaan"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Lisää kohde joka tapauksessa"
@@ -1663,10 +1659,6 @@ msgstr "Salli eri arkistojen käyttää samaa paikanninta, esim. http://localhos
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Salli eri arkistojen käyttää samaa UUID:ta, esim. kopioidut arkistot."
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Sulje ikkunat automaattisesti paikallisten toimintojen jälkeen"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1863,6 +1855,10 @@ msgstr "Piilota kaikki automaattisesti"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Nimeä uudestaan automaattisesti"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Sulje automaattisesti, jos paikallinen toiminto"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -6453,10 +6449,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Yhdistä haara takaisin"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Takaisin yhdistäminen"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7240,10 +7232,6 @@ msgstr "Valitse alkuversio"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Valitse tekstieditoriohjelma"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Valitse paikannin, josta takaisin yhdistäminen suoritetaan"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -10320,14 +10308,6 @@ msgid ""
 msgstr ""
 "tsvn:logminsize\r\n"
 "Lokiviestin minimikoko merkkeinä. Toimitus arkistoon ei ole sallittu, mikäli tämä raja alittuu."
-
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Säännöllinen lauseke, jolla haetaan lokiviestissä olevia versionumeroita."
 
 #. Resource IDs: (578)
 msgid ""

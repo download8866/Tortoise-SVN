@@ -271,6 +271,8 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 						{
 							//get the Subversion status of the item
 							svn_wc_status_kind status = svn_wc_status_none;
+							CTSVNPath askedpath;
+							askedpath.SetFromWin(str.c_str());
 							try
 							{
 								SVNStatus stat;
@@ -307,7 +309,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 									// sometimes, svn_client_status() returns with an error.
 									// in that case, we have to check if the working copy is versioned
 									// anyway to show the 'correct' context menu
-									if (g_ShellCache.HasSVNAdminDir(str.c_str(), true))
+									if (askedpath.HasAdminDir())
 										status = svn_wc_status_normal;
 								}
 							}
@@ -362,7 +364,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 							svn_wc_status_kind status = svn_wc_status_none;
 							if ((g_ShellCache.IsSimpleContext())&&(strpath.IsDirectory()))
 							{
-								if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+								if (strpath.HasAdminDir())
 									status = svn_wc_status_normal;
 							}
 							else
@@ -370,7 +372,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 								try
 								{
 									SVNStatus stat;
-									if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+									if (strpath.HasAdminDir())
 										stat.GetStatus(strpath, false, true, true);
 									statuspath = str;
 									if (stat.status)
@@ -406,7 +408,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 										// sometimes, svn_client_status() returns with an error.
 										// in that case, we have to check if the working copy is versioned
 										// anyway to show the 'correct' context menu
-										if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+										if (strpath.HasAdminDir())
 										{
 											status = svn_wc_status_normal;
 											fetchedstatus = status;
@@ -487,11 +489,12 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 			itemStatesFolder |= ITEMIS_PATHINCLIPBOARD;
 		if ((folder_.compare(statuspath)!=0)&&(g_ShellCache.IsContextPathAllowed(folder_.c_str())))
 		{
+			CTSVNPath askedpath;
+			askedpath.SetFromWin(folder_.c_str());
 			try
 			{
 				SVNStatus stat;
-				if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
-					stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
+				stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
 				if (stat.status)
 				{
 					status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
@@ -524,7 +527,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					// sometimes, svn_client_status() returns with an error.
 					// in that case, we have to check if the working copy is versioned
 					// anyway to show the 'correct' context menu
-					if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
+					if (askedpath.HasAdminDir())
 						status = svn_wc_status_normal;
 				}
 			}
@@ -563,11 +566,12 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				svn_wc_status_kind status = svn_wc_status_none;
 				if (folder_.compare(statuspath)!=0)
 				{
+					CTSVNPath askedpath;
+					askedpath.SetFromWin(folder_.c_str());
 					try
 					{
 						SVNStatus stat;
-						if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
-							stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
+						stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
 						if (stat.status)
 						{
 							status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
@@ -999,7 +1003,7 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 		// It would only show the standard menu items
 		// which are already shown for the lnk-file.
 		CString path = files_.front().c_str();
-		if ( !g_ShellCache.HasSVNAdminDir(path, PathIsDirectory(path)) )
+		if ( !g_SVNAdminDir.HasAdminDir(path) )
 		{
 			return NOERROR;
 		}

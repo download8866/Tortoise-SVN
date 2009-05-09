@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-04-27 19:54+0100\n"
+"PO-Revision-Date: 2009-04-06 15:03+0100\n"
 "Last-Translator: Milorad Popović <MiloradSPopovic@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1661,10 +1661,6 @@ msgstr "Додај дифф програм завистан од екстенз�
 msgid "Add extension specific merge program"
 msgstr "Додај програм за стапање завистан од екстензије"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Додај нове фајлове аутоматски у СВН"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Додај ставку било где"
@@ -1806,10 +1802,6 @@ msgstr "Дозволи да различита спремишта употреб
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Дозволи да различита спремишта употребљавају исти УУИД, нпр. копирана спремишта"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Увек затвори дијалоге за локалне операције"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -2006,6 +1998,10 @@ msgstr "Аутоматско скривање свега"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Аутоматско преименовање"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Аутоматско затварање за локалне операције"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -4114,7 +4110,7 @@ msgstr ""
 
 #. Resource IDs: (77, 219)
 msgid "Finished!"
-msgstr "Завршено!"
+msgstr "Готов!"
 
 #. Resource IDs: (32804)
 msgid "Fit graph"
@@ -6190,7 +6186,7 @@ msgstr "Слика:"
 
 #. Resource IDs: (157)
 msgid "Pictures (*.wmf, *.jpg, *.png, *.bmp, *.gif)|*.wmf;*.jpg;*.jpeg;*.png;*.bmp;*.gif|All (*.*)|*.*||"
-msgstr "Слике (*.њмф, *.јпг, *.пнг, *.бмп, *.гиф)|*.wmf;*.jpg;*.jpeg;*.png;*.bmp;*.gif|Сви l (*.*)|*.*||"
+msgstr "Слике (*.њмф, *.јпг, *.пнг, *.бмп, *.гиф)|*.wmf;*.jpg;*.jpeg;*.png;*.bmp;*.gif|Сви (*.*)|*.*||"
 
 #. Resource IDs: (246)
 msgid "Pie Graph"
@@ -6603,10 +6599,6 @@ msgstr ""
 #. Resource IDs: (1469)
 msgid "Reintegrate a branch"
 msgstr "Реинтегриши грану"
-
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Реинтегрисање стапања"
 
 #. Resource IDs: (230)
 #, c-format
@@ -7389,10 +7381,6 @@ msgstr "Одаберите почетну ревизију"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Одаберите апликацију за обраду текста"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Одаберите УРЛове од којих реинтегришете"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -10481,14 +10469,6 @@ msgid ""
 msgstr ""
 "tsvn:logminsize\r\n"
 "Најмањи број знакова који порука дневника мора садржати пре но што се дозволи урезивање."
-
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Регуларни израз налази бројеве ревизија у дневнику порука"
 
 #. Resource IDs: (578)
 msgid ""

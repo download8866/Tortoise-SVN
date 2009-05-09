@@ -1461,10 +1461,6 @@ msgstr "Adaugă program de diferenţiere specific unei extensii"
 msgid "Add extension specific merge program"
 msgstr "Adaugă program de îmbinare specific unei extensii"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Adaugă automat fişiere noi la SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Adaugă elementul oricum"
@@ -1606,11 +1602,6 @@ msgstr "Permite depozite diferite să folosească acelaşi URL, ex. http://local
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Permite depozite diferite să folosească acelaşi UUID, ex. depozite copiate"
-
-#. Resource IDs: (1480)
-#, fuzzy
-msgid "Always close dialogs for local operations"
-msgstr "Închide automat pentru operaţiuni locale"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1807,6 +1798,10 @@ msgstr "Ascunde totul automat"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Redenumeşte automat"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Închide automat pentru operaţiuni locale"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -6772,8 +6767,9 @@ msgid "Revision Graph Filter"
 msgstr "Filtrul graficelor reviziei"
 
 #. Resource IDs: (299)
+#, fuzzy
 msgid "Revision Graph::Colors"
-msgstr "Graficul reviziei::Culori"
+msgstr "Graficul reviziei"
 
 #. Resource IDs: (228)
 msgid "Revision Range"

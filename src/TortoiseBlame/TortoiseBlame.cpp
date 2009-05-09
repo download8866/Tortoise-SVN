@@ -441,36 +441,6 @@ void TortoiseBlame::InitialiseEditor()
 	m_regNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameNewColor"), RGB(255, 230, 230));
 }
 
-void TortoiseBlame::SelectLine(int yPos, bool bAlwaysSelect)
-{
-	LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
-	LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);
-	line = line + (yPos/height);
-	if (line < (LONG)app.revs.size())
-	{
-		app.SetSelectedLine(line);
-		if ((bAlwaysSelect)||(app.revs[line] != app.m_selectedrev))
-		{
-			app.m_selectedrev = app.revs[line];
-			app.m_selectedorigrev = app.origrevs[line];
-			app.m_selectedauthor = app.authors[line];
-			app.m_selecteddate = app.dates[line];
-		}
-		else
-		{
-			app.m_selectedauthor.clear();
-			app.m_selecteddate.clear();
-			app.m_selectedrev = -2;
-			app.m_selectedorigrev = -2;
-		}
-		::InvalidateRect(app.wBlame, NULL, FALSE);
-	}
-	else
-	{
-		app.SetSelectedLine(-1);
-	}
-}
-
 void TortoiseBlame::StartSearch()
 {
 	if (currentDialog)
@@ -1700,9 +1670,8 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				if (line < 0)
 					break;
 				LONG rev = app.revs[line];
-				LONG origrev = -1;
-				if (line < (LONG)app.origrevs.size())
-					origrev = app.origrevs[line];
+				if (line >= (LONG)app.revs.size())
+					break;
 
 				SecureZeroMemory(app.m_szTip, sizeof(app.m_szTip));
 				SecureZeroMemory(app.m_wszTip, sizeof(app.m_wszTip));
@@ -1722,27 +1691,11 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 					if (!ShowAuthor || !ShowDate)
 						msg += '\n';
 					msg += iter->second;
-					if (rev != origrev)
-					{
-						// add the merged revision
-						std::map<LONG, std::string>::iterator iter2;
-						if ((iter2 = app.logmessages.find(origrev)) != app.logmessages.end())
-						{
-							if (!msg.empty())
-								msg += _T("\n------------------\n");
-							char revBuf[100];
-							_stprintf_s(revBuf, 100, "merged in r%ld:\n----\n", origrev);
-							msg += revBuf;
-							msg += iter2->second;
-						}
-					}
-
 					// an empty tooltip string will deactivate the tooltips,
 					// which means we must make sure that the tooltip won't
 					// be empty.
 					if (msg.empty())
 						msg = _T(" ");
-
 					if (pNMHDR->code == TTN_NEEDTEXTA)
 					{
 						lstrcpyn(app.m_szTip, msg.c_str(), MAX_LOG_LENGTH*2);
@@ -1811,10 +1764,37 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			}
 		}
 		break;
+	case WM_RBUTTONDOWN:
+		// fall through
 	case WM_LBUTTONDOWN:
 		{
 			int y = GET_Y_LPARAM(lParam);
-			app.SelectLine(y, false);
+			LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
+			LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);
+			line = line + (y/height);
+			if (line < (LONG)app.revs.size())
+			{
+				app.SetSelectedLine(line);
+				if (app.revs[line] != app.m_selectedrev)
+				{
+					app.m_selectedrev = app.revs[line];
+					app.m_selectedorigrev = app.origrevs[line];
+					app.m_selectedauthor = app.authors[line];
+					app.m_selecteddate = app.dates[line];
+				}
+				else
+				{
+					app.m_selectedauthor.clear();
+					app.m_selecteddate.clear();
+					app.m_selectedrev = -2;
+					app.m_selectedorigrev = -2;
+				}
+				::InvalidateRect(app.wBlame, NULL, FALSE);
+			}
+			else
+			{
+				app.SetSelectedLine(-1);
+			}
 		}
 		break;
 	case WM_SETFOCUS:
@@ -1823,6 +1803,8 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	case WM_CONTEXTMENU:
 		{
+			if (app.m_selectedrev <= 0)
+				break;;
 			int xPos = GET_X_LPARAM(lParam);
 			int yPos = GET_Y_LPARAM(lParam);
 			if ((xPos == -1)||(yPos == -1))
@@ -1834,12 +1816,6 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				xPos = rect.right-rect.left;
 				yPos = rect.bottom-rect.top;
 			}
-			POINT yPt = {0, yPos};
-			ScreenToClient(app.wBlame, &yPt);
-			app.SelectLine(yPt.y, true);
-			if (app.m_selectedrev <= 0)
-				break;;
-
 			HMENU hMenu = LoadMenu(app.hResource, MAKEINTRESOURCE(IDR_BLAMEPOPUP));
 			HMENU hPopMenu = GetSubMenu(hMenu, 0);
 

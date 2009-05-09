@@ -72,8 +72,6 @@ bool UpdateCommand::Execute()
 	progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Update);
 	if (parser.HasVal(_T("closeonend")))
 		progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-	if (parser.HasKey(_T("closeforlocal")))
-		progDlg.SetAutoCloseLocal(TRUE);
 	progDlg.SetOptions(options);
 	progDlg.SetPathList(pathList);
 	progDlg.SetRevision(rev);

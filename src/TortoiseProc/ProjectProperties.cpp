@@ -26,8 +26,6 @@
 
 using namespace std;
 
-#define LOG_REVISIONREGEX _T("\\b(r\\d+)|\\b(revisions?(\\(s\\))?\\s#?\\d+([, ]+(and\\s?)?\\d+)*)|\\b(revs?\\.?\\s?\\d+([, ]+(and\\s?)?\\d+)*)")
-
 
 ProjectProperties::ProjectProperties(void)
 {
@@ -81,7 +79,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundLogSummary = FALSE;
 	BOOL bFoundBugtraqProviderUuid = FALSE;
 	BOOL bFoundBugtraqProviderParams = FALSE;
-	BOOL bFoundLogRevRegex = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
@@ -257,11 +254,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				sLogSummaryRe = sPropVal;
 				bFoundLogSummary = TRUE;
 			}
-			if ((!bFoundLogRevRegex)&&(sPropName.Compare(PROJECTPROPNAME_LOGREVREGEX)==0))
-			{
-				sLogRevRegex = sPropVal;
-				bFoundLogRevRegex = TRUE;
-			}
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
@@ -273,11 +265,9 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary | bFoundLogRevRegex
+				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary
 				| bFoundBugtraqProviderUuid | bFoundBugtraqProviderParams)
 			{
-				if (!bFoundLogRevRegex)
-					sLogRevRegex = LOG_REVISIONREGEX;
 				return TRUE;
 			}
 			propsPath.Reset();
@@ -519,11 +509,14 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 	return FALSE;
 }
 
-std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
+CString ProjectProperties::FindBugID(const CString& msg)
 {
 	size_t offset1 = 0;
 	size_t offset2 = 0;
 	bool bFound = false;
+
+	CString sRet;
+
 	std::set<CString> bugIDs;
 
 	// first use the checkre string to find bug ID's in the message
@@ -580,7 +573,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CString sLastPart;
 		BOOL bTop = FALSE;
 		if (sMessage.Find(_T("%BUGID%"))<0)
-			return bugIDs;
+			goto finish;
 		sFirstPart = sMessage.Left(sMessage.Find(_T("%BUGID%")));
 		sLastPart = sMessage.Mid(sMessage.Find(_T("%BUGID%"))+7);
 		CString sMsg = msg;
@@ -612,10 +605,10 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 			bTop = TRUE;
 		}
 		if (sBugLine.IsEmpty())
-			return bugIDs;
+			goto finish;
 		CString sBugIDPart = sBugLine.Mid(sFirstPart.GetLength(), sBugLine.GetLength() - sFirstPart.GetLength() - sLastPart.GetLength());
 		if (sBugIDPart.IsEmpty())
-			return bugIDs;
+			goto finish;
 		//the bug id part can contain several bug id's, separated by commas
 		if (!bTop)
 			offset1 = sMsg.GetLength() - sBugLine.GetLength() + sFirstPart.GetLength();
@@ -634,16 +627,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CHARRANGE range = {(LONG)offset1, (LONG)offset2};
 		bugIDs.insert(msg.Mid(range.cpMin, range.cpMax-range.cpMin));
 	}
-
-	return bugIDs;
-}
-
-CString ProjectProperties::FindBugID(const CString& msg)
-{
-	CString sRet;
-
-	std::set<CString> bugIDs = FindBugIDs(msg);
-
+finish:
 	for (std::set<CString>::iterator it = bugIDs.begin(); it != bugIDs.end(); ++it)
 	{
 		sRet += *it;
@@ -832,32 +816,6 @@ CString ProjectProperties::GetLogSummary(const CString& sMessage)
 	sRet.Trim();
 
 	return sRet;
-}
-
-CString ProjectProperties::MakeShortMessage(const CString& message)
-{
-	bool bFoundShort = true;
-	CString sShortMessage = GetLogSummary(message);
-	if (sShortMessage.IsEmpty())
-	{
-		bFoundShort = false;
-		sShortMessage = message;
-	}
-	// Remove newlines and tabs 'cause those are not shown nicely in the list control
-	sShortMessage.Replace(_T("\r"), _T(""));
-	sShortMessage.Replace(_T("\t"), _T(" "));
-	
-	// Suppose the first empty line separates 'summary' from the rest of the message.
-	int found = sShortMessage.Find(_T("\n\n"));
-	// To avoid too short 'short' messages 
-	// (e.g. if the message looks something like "Bugfix:\n\n*done this\n*done that")
-	// only use the empty newline as a separator if it comes after at least 15 chars.
-	if ((!bFoundShort)&&(found >= 15))
-	{
-		sShortMessage = sShortMessage.Left(found);
-	}
-	sShortMessage.Replace('\n', ' ');
-	return sShortMessage;
 }
 
 #ifdef DEBUG

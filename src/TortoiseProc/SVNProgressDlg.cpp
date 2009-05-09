@@ -79,7 +79,6 @@ CSVNProgressDlg::CSVNProgressDlg(CWnd* pParent /*=NULL*/)
 	, m_pThread(NULL)
 	, m_options(ProgOptNone)
 	, m_dwCloseOnEnd((DWORD)-1)
-	, m_bCloseLocalOnEnd((DWORD)-1)
 	, m_bFinishedItemAdded(false)
 	, m_bLastVisible(false)
 	, m_depth(svn_depth_unknown)
@@ -985,30 +984,19 @@ UINT CSVNProgressDlg::ProgressThread()
 	RefreshCursor();
 
 	DWORD dwAutoClose = CRegStdDWORD(_T("Software\\TortoiseSVN\\AutoClose"));
-	BOOL bAutoCloseLocal = CRegStdDWORD(_T("Software\\TortoiseSVN\\AutoCloseLocal"), FALSE);
-	if ((m_options & ProgOptDryRun)||(!m_bLastVisible))
-	{
-		// don't autoclose for dry-runs or if the user scrolled the
-		// content of the list control
+	if (m_options & ProgOptDryRun)
+		dwAutoClose = 0;		// dry run means progress dialog doesn't auto close at all
+	if (!m_bLastVisible)
 		dwAutoClose = 0;
-		bAutoCloseLocal = FALSE;
-	}
 	if (m_dwCloseOnEnd != (DWORD)-1)
 		dwAutoClose = m_dwCloseOnEnd;		// command line value has priority over setting value
-	if (m_bCloseLocalOnEnd != (DWORD)-1)
-		bAutoCloseLocal = m_bCloseLocalOnEnd;
-
 	if ((dwAutoClose == CLOSE_NOERRORS)&&(!m_bErrorsOccurred))
 		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
 	if ((dwAutoClose == CLOSE_NOCONFLICTS)&&(!m_bErrorsOccurred)&&(m_nConflicts==0))
 		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
 	if ((dwAutoClose == CLOSE_NOMERGES)&&(!m_bErrorsOccurred)&&(m_nConflicts==0)&&(!m_bMergesAddsDeletesOccurred))
 		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
-	// kept for compatibility with pre 1.7 clients
 	if ((dwAutoClose == CLOSE_LOCAL)&&(!m_bErrorsOccurred)&&(m_nConflicts==0)&&(localoperation))
-		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
-
-	if ((bAutoCloseLocal)&&(!m_bErrorsOccurred)&&(m_nConflicts==0)&&(localoperation))
 		PostMessage(WM_COMMAND, 1, (LPARAM)GetDlgItem(IDOK)->m_hWnd);
 
 	//Don't do anything here which might cause messages to be sent to the window
@@ -1925,31 +1913,8 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
 			// only a warning is shown. This won't work if the tags
 			// are stored in a non-recommended place, but the check
 			// still helps those who do.
-			CRegString regTagsPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\TagsPattern"), _T("tags"));
-			CString sTags = regTagsPattern;
-			int pos = 0;
-			CString temp;
-			while (!isTag)
-			{
-				temp = sTags.Tokenize(_T(";"), pos);
-				if (temp.IsEmpty())
-					break;
-
-				int urlpos = 0;
-				CString temp2;
-				for(;;)
-				{
-					temp2 = urllower.Tokenize(_T("/"), urlpos);
-					if (temp2.IsEmpty())
-						break;
-
-					if (CStringUtils::WildCardMatch(temp, temp2))
-					{
-						isTag = TRUE;
-						break;
-					}
-				}
-			} 
+			if (urllower.Find(_T("/tags/"))>=0)
+				isTag = TRUE;
 			break;
 		}
 	}

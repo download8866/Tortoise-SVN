@@ -257,7 +257,7 @@ void CDirectoryWatcher::WorkerThread()
 	{
 		if (watchedPaths.GetCount())
 		{
-            // Any incoming notifications?
+            // Any incomming notifications?
 
             if (   (m_hCompPort == INVALID_HANDLE_VALUE)
                 || !GetQueuedCompletionStatus(m_hCompPort,

@@ -36,8 +36,6 @@ public:
 	bool ReleaseLockForPath(const CTSVNPath& path);
 
 private:
-    bool InternalEnsurePipeOpen ( HANDLE& hPipe, const CString& pipeName);
-
 	bool EnsurePipeOpen();
 	void ClosePipe();
 
