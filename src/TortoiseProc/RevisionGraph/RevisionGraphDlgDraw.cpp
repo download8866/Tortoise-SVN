@@ -942,7 +942,6 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
     Graphics* graphics = Graphics::FromHDC(*pDC);
     graphics->SetPageUnit (UnitPixel);
     graphics->SetInterpolationMode (InterpolationModeHighQualityBicubic);
-	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics->SetClip(RectF(Gdiplus::REAL(rect.left), Gdiplus::REAL(rect.top), Gdiplus::REAL(rect.Width()), Gdiplus::REAL(rect.Height())));
 
     if (options->GetOption<CShowTreeStripes>()->IsActive())

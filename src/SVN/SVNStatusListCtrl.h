@@ -52,36 +52,31 @@ class CSVNStatusListCtrlDropTarget;
 #define SVNSLC_COLSVNNEEDSLOCK		0x000040000
 #define SVNSLC_COLCOPYFROM			0x000080000
 #define	SVNSLC_COLMODIFICATIONDATE	0x000100000
-#define	SVNSLC_COLSIZE				0x000200000
-#define SVNSLC_NUMCOLUMNS		22
+#define SVNSLC_NUMCOLUMNS		21
 
-#define SVNSLC_SHOWUNVERSIONED	0x00000001
-#define SVNSLC_SHOWNORMAL		0x00000002
-#define SVNSLC_SHOWMODIFIED		0x00000004
-#define SVNSLC_SHOWADDED		0x00000008
-#define SVNSLC_SHOWREMOVED		0x00000010
-#define SVNSLC_SHOWCONFLICTED	0x00000020
-#define SVNSLC_SHOWMISSING		0x00000040
-#define SVNSLC_SHOWREPLACED		0x00000080
-#define SVNSLC_SHOWMERGED		0x00000100
-#define SVNSLC_SHOWIGNORED		0x00000200
-#define SVNSLC_SHOWOBSTRUCTED	0x00000400
-#define SVNSLC_SHOWEXTERNAL		0x00000800
-#define SVNSLC_SHOWINCOMPLETE	0x00001000
-#define SVNSLC_SHOWINEXTERNALS	0x00002000
-#define SVNSLC_SHOWREMOVEDANDPRESENT 0x00004000
-#define SVNSLC_SHOWLOCKS		0x00008000
-#define SVNSLC_SHOWDIRECTFILES	0x00010000
-#define SVNSLC_SHOWDIRECTFOLDER 0x00020000
-#define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x00040000
-#define SVNSLC_SHOWSWITCHED		0x00080000
-#define SVNSLC_SHOWINCHANGELIST 0x00100000
-#define SVNSLC_SHOWEXTDISABLED	0x00200000
-#define SVNSLC_SHOWNESTED		0x00400000
-#define SVNSLC_SHOWFILES		0x00800000
-#define SVNSLC_SHOWFOLDERS		0x01000000
-
-#define SVNSLC_SHOWEVERYTHING	0xFFFFFFFF
+#define SVNSLC_SHOWUNVERSIONED	0x000000001
+#define SVNSLC_SHOWNORMAL		0x000000002
+#define SVNSLC_SHOWMODIFIED		0x000000004
+#define SVNSLC_SHOWADDED		0x000000008
+#define SVNSLC_SHOWREMOVED		0x000000010
+#define SVNSLC_SHOWCONFLICTED	0x000000020
+#define SVNSLC_SHOWMISSING		0x000000040
+#define SVNSLC_SHOWREPLACED		0x000000080
+#define SVNSLC_SHOWMERGED		0x000000100
+#define SVNSLC_SHOWIGNORED		0x000000200
+#define SVNSLC_SHOWOBSTRUCTED	0x000000400
+#define SVNSLC_SHOWEXTERNAL		0x000000800
+#define SVNSLC_SHOWINCOMPLETE	0x000001000
+#define SVNSLC_SHOWINEXTERNALS	0x000002000
+#define SVNSLC_SHOWREMOVEDANDPRESENT 0x000004000
+#define SVNSLC_SHOWLOCKS		0x000008000
+#define SVNSLC_SHOWDIRECTFILES	0x000010000
+#define SVNSLC_SHOWDIRECTFOLDER 0x000020000
+#define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x000040000
+#define SVNSLC_SHOWSWITCHED		0x000080000
+#define SVNSLC_SHOWINCHANGELIST 0x000100000
+#define SVNSLC_SHOWEXTDISABLED	0x000200000
+#define SVNSLC_SHOWNESTED		0x000400000
 
 #define SVNSLC_SHOWDIRECTS		(SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWDIRECTFOLDER)
 
@@ -700,12 +695,6 @@ public:
 	 */
 	void SelectAll(bool bSelect, bool bIncludeNoCommits = false);
 
-	/**
-	 * Checks all specified items, removes the checks from the ones not specified
-	 * \param dwCheck SVNLC_SHOWxxx defines
-	 */
-	void Check(DWORD dwCheck, bool uncheckNonMatches);
-
 	/** Set a checkbox on an entry in the listbox
 	 * Keeps the listctrl checked state and the FileEntry's checked flag in sync
 	 */
@@ -811,20 +800,10 @@ public:
 	 * Returns the currently used show flags passed to the Show() method.
 	 */
 	DWORD GetShowFlags() {return m_dwShow;}
-
+public:
 	CString GetLastErrorMessage() {return m_sLastError;}
 
 	void Block(BOOL block, BOOL blockUI) {m_bBlock = block; m_bBlockUI = blockUI;}
-
-	LONG GetUnversionedCount() {return m_nShownUnversioned;}
-	LONG GetNormalCount() {return m_nShownNormal;}
-	LONG GetModifiedCount() {return m_nShownModified;}
-	LONG GetAddedCount() {return m_nShownAdded;}
-	LONG GetDeletedCount() {return m_nShownDeleted;}
-	LONG GetConflictedCount() {return m_nShownConflicted;}
-	LONG GetFileCount() {return m_nShownFiles;}
-	LONG GetFolderCount() {return m_nShownFolders;}
-
 
 	LONG						m_nTargetCount;		///< number of targets in the file passed to GetStatus()
 
@@ -965,15 +944,6 @@ private:
 	LONG						m_nConflicted;
 	LONG						m_nTotal;
 	LONG						m_nSelected;
-
-	LONG						m_nShownUnversioned;
-	LONG						m_nShownNormal;
-	LONG						m_nShownModified;
-	LONG						m_nShownAdded;
-	LONG						m_nShownDeleted;
-	LONG						m_nShownConflicted;
-	LONG						m_nShownFiles;
-	LONG						m_nShownFolders;
 
 	DWORD						m_dwDefaultColumns;
 	DWORD						m_dwShow;

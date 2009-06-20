@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-06-06 01:46+0300\n"
+"PO-Revision-Date: 2009-03-31 07:24+0300\n"
 "Last-Translator: Giasher <giasher@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -157,7 +157,7 @@ msgstr "%s - ვერსიაში: %d"
 #. Resource IDs: (151)
 #, c-format
 msgid "%s : Remote file"
-msgstr "%s : გარე ფაილი"
+msgstr "%s : დაშორებული ფაილი"
 
 #. Resource IDs: (151)
 #, c-format
@@ -1453,10 +1453,6 @@ msgstr "შედარების პროგრამის გაფარ�
 msgid "Add extension specific merge program"
 msgstr "შერწყმის პროგრამის გაფართოების დამატება"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "ახალი ფაილების თვითდამატება"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "ელემენტის მაინც დამატება"
@@ -1488,15 +1484,15 @@ msgstr "დაემატა"
 
 #. Resource IDs: (126)
 msgid "Added a file remotely"
-msgstr "დაემატა გარე ფაილად"
+msgstr "დაემატა შორეულ ფაილად"
 
 #. Resource IDs: (126)
 msgid "Added a folder remotely"
-msgstr "დაემატა გარე დასტად"
+msgstr "დაემატა შორეულ დასტად"
 
 #. Resource IDs: (126)
 msgid "Added items remotely"
-msgstr "ელემენტების გარედან დამატება"
+msgstr "ელემენტების დაშორებული დამატება"
 
 #. Resource IDs: (65535)
 msgid "Added node"
@@ -1557,10 +1553,6 @@ msgstr "ასაკი"
 msgid "Align trees on top"
 msgstr "განტოტვების ზედა კიდეზე განთავსება"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "ყველა"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "ყველა ბრძანება"
@@ -1602,10 +1594,6 @@ msgstr "სხვადასხვა საცავისთვის იგ�
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "სხვადასხვა საცავებისთვის იგივე მისამართით (UUID) სარგებლობის უფლება, მაგ., http://localhost/myrepos/"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "დიალოგების ყოველთვის დახურვა ლოკალური ოპერაციებისთვის"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1802,6 +1790,10 @@ msgstr "ყველას თვითდამალვა"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "თვითგადარქმევა"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "თვითდახურვა ლოკალური ოპერაციებისთვის"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2169,10 +2161,6 @@ msgstr "შეარჩიეთ, თუ დავთრის ჩანაწ�
 msgid "Check working copy for modifications"
 msgstr "სამუშაო ასლის შემოწმება ცვლილებებზე"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "შემოწმება:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "TortoiseSVN–ის ახალი ვერსიის შემოწმება..."
@@ -2215,9 +2203,8 @@ msgid "Cleaning up"
 msgstr "გასუფთავება"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "დასტის \"%s\" გასუფთავება"
+msgid "Cleaning up."
+msgstr "გასუფთავება."
 
 #. Resource IDs: (83)
 #, c-format
@@ -2556,7 +2543,7 @@ msgstr "პირველწყარო: %s@%ld\r\n"
 
 #. Resource IDs: (126)
 msgid "Copied remotely"
-msgstr "დაკოპირდა გარედან"
+msgstr "დაშორებული კოპირება"
 
 #. Resource IDs: (16991)
 msgid "Copy"
@@ -2882,7 +2869,7 @@ msgstr "შედარების უნიფიცირებული ფ�
 
 #. Resource IDs: (126)
 msgid "Created folder remotely"
-msgstr "გარე დასტის შექმნა"
+msgstr "დაშორებული დასტის შექმნა"
 
 #. Resource IDs: (10)
 msgid "Creates a 'cheap' copy inside the repository used for branches or tagging"
@@ -3110,10 +3097,6 @@ msgstr "შედარება"
 #. Resource IDs: (14)
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "ადარებს სამუშაო ასლის ფაილს მის წინა ვერსიას ფიქსაციამდე."
-
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "დასტები"
 
 #. Resource IDs: (65535)
 msgid "Directory:"
@@ -3884,10 +3867,6 @@ msgstr ""
 #. Resource IDs: (208)
 msgid "Filename"
 msgstr "ფაილის სახელი"
-
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "ფაილები"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -5477,7 +5456,7 @@ msgstr "გადატანა: %s - ახალი სახელი"
 
 #. Resource IDs: (126)
 msgid "Moved remotely"
-msgstr "გადატანილია გარედან"
+msgstr "დაშორებული გადატანა"
 
 #. Resource IDs: (197)
 msgid "Moves the modified files to the recycle bin first before reverting"
@@ -5598,10 +5577,10 @@ msgid ""
 "Check one or more settings below to see unversioned, ignored and/or unmodified files.\n"
 "To see remote changes, click on 'Check Repository'"
 msgstr ""
-"ფაილები ასახვისთვის ამ კრიტერიუმით ვერ მოიძებნა.\n"
+"ასახვისთვის ფაილები ამ პარამეტრებით არაა.\n"
 "შეცვალეთ ერთი ან რამდენიმე პარამეტრი არავერსიული, გამოტოვებული\n"
 "ანდა უცვლელი ფაილების საჩვენებლად.\n"
-"გარედან ცვლილებების საჩვენებლად დაწკაპეთ «საცავის შემოწმება»"
+"დაშორებული ცვლილებების საჩვენებლად დაწკაპეთ «საცავის შემოწმება»"
 
 #. Resource IDs: (77)
 msgid ""
@@ -6439,10 +6418,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "განშტოების რეინტეგრაცია"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "შემაჯამებელი შერწყმა"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -6494,7 +6469,7 @@ msgstr "გადაადგილება..."
 
 #. Resource IDs: (207)
 msgid "Remote property status"
-msgstr "გარე პარამეტრის სტატუსი"
+msgstr "დაშორებული პარამეტრის სტატუსი"
 
 #. Resource IDs: (208)
 msgid "Remote revision"
@@ -6502,11 +6477,11 @@ msgstr "გარე ვერსია"
 
 #. Resource IDs: (63, 207)
 msgid "Remote status"
-msgstr "გარე სტატუსი"
+msgstr "დაშორებული სტატუსი"
 
 #. Resource IDs: (207)
 msgid "Remote text status"
-msgstr "გარე ტექსტის სტატუსი"
+msgstr "დაშორებული ტექსტის სტატუსი"
 
 #. Resource IDs: (1332, 1470)
 msgid "Remove"
@@ -6626,7 +6601,7 @@ msgstr "გადარქმეული კვანძი"
 
 #. Resource IDs: (126)
 msgid "Renamed remotely"
-msgstr "გადარქმეულია გარედან"
+msgstr "გადარქმეულია დაშორებიდან"
 
 #. Resource IDs: (11)
 msgid "Renames files / folders inside version control"
@@ -7224,10 +7199,6 @@ msgstr "საწყისი ვერსიის არჩევა."
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "ტექსტური რედაქტორის პროგრამის არჩევა"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "საწყისი მისამართების შერჩევა შემაჯამებელი შერწყმისთვის"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -7948,10 +7919,6 @@ msgstr "ჭდეების კვანძები"
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "სამუშაო ასლის ჭდე შეიქმნა აქ - %s"
-
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "ამოცანები"
 
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
@@ -8984,10 +8951,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "ვერსიის მოხსნა"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "უვერსიო"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10323,14 +10286,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "სიმბოლოების მინიმალური რაოდენობა დავთრის ჩანაწერებში ფიქსაციამდე."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"დავთრებში ვერსიის ნომრების შესაბამისი მარტივი გამოსახულება "
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10453,8 +10408,6 @@ msgstr "დიახ"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "გასუფთავება."
 #~ msgid "%s, but the local file was already edited."
 #~ msgstr "%s, თუმცა ლოკალური ფაილი უკვე ჩასწორდა."
 #~ msgid "General::Revision Graph"

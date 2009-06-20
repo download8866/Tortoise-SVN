@@ -432,14 +432,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\CmdUrlParser.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\CmdUrlParser.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Colors.cpp"
 					>
 				</File>
@@ -505,14 +497,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\Hooks.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\JumpListHelpers.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\JumpListHelpers.h"
 					>
 				</File>
 				<File
@@ -655,14 +639,6 @@
 					RelativePath="..\Utils\UnicodeUtils.h"
 					>
 				</File>
-				<File
-					RelativePath="..\Utils\Win7.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\Win7.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="UI"
@@ -772,11 +748,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\MiscUI\LinkControl.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\LinkControl.h"
+					RelativePath="..\Utils\MiscUI\MemDC.h"
 					>
 				</File>
 				<File
@@ -900,7 +872,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -910,7 +882,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -948,7 +920,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -958,7 +930,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1004,7 +976,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1014,7 +986,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1052,7 +1024,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1062,7 +1034,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1100,7 +1072,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1110,7 +1082,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1152,7 +1124,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1162,7 +1134,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1208,7 +1180,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1218,7 +1190,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1256,7 +1228,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1266,7 +1238,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1304,7 +1276,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1314,7 +1286,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1534,6 +1506,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\AddedIcon.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\bin167.avi"
 				>
 			</File>
@@ -1551,6 +1527,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\CacheList.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\cancel-highlight.bmp"
 				>
 			</File>
 			<File
@@ -1578,7 +1558,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Resources\CommitBackgroundBranches.ico"
+				RelativePath="..\Resources\ConflictIcon.ico"
 				>
 			</File>
 			<File
@@ -1587,6 +1567,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\CopyBackground.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\DeletedIcon.ico"
 				>
 			</File>
 			<File
@@ -1630,6 +1614,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\extwarning.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\filteredit.ico"
 				>
 			</File>
@@ -1667,6 +1655,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\ImportBackground.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\InSubVersionIcon.ico"
 				>
 			</File>
 			<File
@@ -1818,6 +1810,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\ModifiedIcon.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\resources\nestedovl.ico"
 				>
 			</File>
@@ -1959,6 +1955,18 @@
 			</File>
 			<File
 				RelativePath="..\Resources\Tortoise.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise13by13.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise16by16.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise20by16.ico"
 				>
 			</File>
 			<File

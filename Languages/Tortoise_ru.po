@@ -16,14 +16,14 @@
 # Stanislav Petrakov <stannic@gmail.com>, 2005-2009
 #
 # Выполнено на основе перевода Alexander <brambo@inbox.ru> из версии: 2495
-# Версии 3826 - 16574: Stanislav Petrakov <stannic@gmail.com>
+# Версии 3826 - 15829: Stanislav Petrakov <stannic@gmail.com>
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-06-15 14:19+0300\n"
+"PO-Revision-Date: 2009-04-06 18:39+0300\n"
 "Last-Translator: Stanislav Petrakov <stannic@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -264,13 +264,13 @@ msgstr "%s, но этот элемент был мешающим в рабоче
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
-msgstr "%s\\%s - Экспорт"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Экспорт (%d) %s"
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
-msgstr "%s\\%s - Экспорт (%d)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Экспорт %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -1210,10 +1210,6 @@ msgstr "'Пропущенные диапазоны' используется д�
 msgid "(%s) %s"
 msgstr "(%s) %s"
 
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Двойной щелчок убирает сообщение об ошибке)"
-
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
 msgstr "(двоичное значение)"
@@ -1521,10 +1517,6 @@ msgstr "Добавить программу просмотра различий 
 msgid "Add extension specific merge program"
 msgstr "Добавить программу слияния для определённых расширений"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Добавлять новые файлы автоматически в SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Всё равно добавить элемент"
@@ -1625,10 +1617,6 @@ msgstr "Возраст"
 msgid "Align trees on top"
 msgstr "Выровнять деревья поверху"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Все"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Все команды"
@@ -1670,10 +1658,6 @@ msgstr "Разрешает различным хранилищам исполь�
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Разрешает различным хранилищам использовать один и тот же UUID, например, скопированным хранилищам"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Всегда закрывать диалоги при локальных операциях"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1874,6 +1858,10 @@ msgstr "Автоскрывать все"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Авто-переименовать"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Автозакрытие при локальных операциях"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2245,10 +2233,6 @@ msgstr "Отметьте для использования более корот
 msgid "Check working copy for modifications"
 msgstr "Проверка рабочей копии на наличие изменений"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Отметить:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Проверка на наличие новых версий TortoiseSVN..."
@@ -2293,9 +2277,8 @@ msgid "Cleaning up"
 msgstr "Производится очистка"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Выполняется очистка папки \"%s\""
+msgid "Cleaning up."
+msgstr "Производится очистка."
 
 #. Resource IDs: (83)
 #, c-format
@@ -3195,10 +3178,6 @@ msgstr "Сравнение"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Сравнивает файл в рабочей копии с его же версией перед последней фиксацией."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Папки"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Папка:"
@@ -3210,10 +3189,6 @@ msgid ""
 msgstr ""
 "Отключите эту опцию, если у вас действительно большие рабочие копии и происходит\r\n"
 "слишком интенсивное обращение к диску при обзоре рабочей копии."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Отказ от локальных изменений при входящих удалениях"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3981,10 +3956,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Имя файла"
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Файлы"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4064,14 +4035,6 @@ msgstr "Для справки нажмите F1. Для горизонтальн
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Для получения полного списка разотметьте 'Остановиться на копировании/переименовании'"
-
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Принудительно"
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
-msgstr "Принудительное слияние"
 
 #. Resource IDs: (1064)
 msgid "Forward"
@@ -5387,8 +5350,8 @@ msgstr "Слияние"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Слияние %s с %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Слияние %s с %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5396,8 +5359,8 @@ msgstr "Слияние различий между адресами URL из х�
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Слияние из %s, ревизии от %s до %s, ревизия %s в %s, %s%s%s"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Слияние из %s, ревизии от %s до %s, ревизия %s в %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
@@ -5415,8 +5378,8 @@ msgstr "Для слияния необходимы различные ревиз
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Слияние ревизий %s из %s в %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Слияние ревизий %s из %s в %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
@@ -6532,10 +6495,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Воссоединение с ответвлением"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Воссоединительное слияние"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7327,10 +7286,6 @@ msgid "Select text editor application"
 msgstr "Выберите текстовый редактор"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Выберите URL, из которого выполнять воссоединительное слияние"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Выберите адреса URL для слияния деревьев"
 
@@ -8053,10 +8008,6 @@ msgstr "Узлы меток"
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "Для рабочей копии назначена метка %s"
-
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "Задачи"
 
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
@@ -9100,10 +9051,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "Разверсировать"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "Неверсированные"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10458,14 +10405,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Минимально разрешённое количество символов в сообщении журнала."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Регулярное выражение для обнаружения номеров ревизий в сообщении журнала"
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10593,8 +10532,6 @@ msgstr "да"
 msgid "{BugTraq}"
 msgstr "{СОП}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Производится очистка."
 #~ msgid "%s, but the local file was already edited."
 #~ msgstr "%s, но локальный файл был уже отредактирован."
 #~ msgid "General::Revision Graph"

@@ -1467,11 +1467,6 @@ msgstr "Kiterjesztésfüggő diff program hozzáadáasa"
 msgid "Add extension specific merge program"
 msgstr "Kiterjesztésfüggő egyesítő program hozzáadáasa"
 
-#. Resource IDs: (1065)
-#, fuzzy
-msgid "Add new files automatically to SVN"
-msgstr "Elemek automatikus hozzáadása az SVN-hez"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr ""
@@ -1615,11 +1610,6 @@ msgstr "Ha be van jelölve, több tároló is használhatja ugyanazt az URL-t, p
 #, fuzzy
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Ha be van jelölve, több tároló is használhatja ugyanazt az UUID-t, pl. tükrözött tárolók esetében"
-
-#. Resource IDs: (1480)
-#, fuzzy
-msgid "Always close dialogs for local operations"
-msgstr "Helyi műveleteknél"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1818,6 +1808,10 @@ msgstr "Összes automatikus elrejtése"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Automatikus átnevezés"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Automatikus bezárás helyi műveleteknél"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -6492,10 +6486,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Mellékág visszaintegrálása"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Visszaintegrálás"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7290,11 +7280,6 @@ msgstr "Válaszd ki a kezdő verziót"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Válassz szövegszerkesztő programot"
-
-#. Resource IDs: (595)
-#, fuzzy
-msgid "Select the URL from which to reintegrate"
-msgstr "Add meg az URL-eket a fa-egyesítéshez"
 
 #. Resource IDs: (595)
 #, fuzzy
@@ -10514,6 +10499,16 @@ msgstr "igen"
 #. Resource IDs: (1382)
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
+
+#, fuzzy
+#~ msgid "Add new files automatically to SVN"
+#~ msgstr "Elemek automatikus hozzáadása az SVN-hez"
+#~ msgid "Reintegrate merge"
+#~ msgstr "Visszaintegrálás"
+
+#, fuzzy
+#~ msgid "Select the URL from which to reintegrate"
+#~ msgstr "Add meg az URL-eket a fa-egyesítéshez"
 
 #, fuzzy
 #~ msgid "General::Revision Graph"

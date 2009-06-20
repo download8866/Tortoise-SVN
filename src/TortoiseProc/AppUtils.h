@@ -140,8 +140,6 @@ public:
 	 * text in between _ chars is underlined
 	 */
 	static bool FormatTextInRichEditControl(CWnd * pWnd);
-	static bool UnderlineRegexMatches(CWnd * pWnd, const CString& matchstring, const CString& matchsubstring = _T(".*"));
-
 	static bool FindStyleChars(const CString& sText, TCHAR stylechar, int& start, int& end);
 
 	static bool BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& rev);

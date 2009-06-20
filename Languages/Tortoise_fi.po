@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-06-08 01:08+0200\n"
+"PO-Revision-Date: 2009-04-07 00:12+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -280,13 +280,13 @@ msgstr "%s, mutta se on estynyt työkopiossa."
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
-msgstr "%s\\%s - Vienti"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Vienti (%d) tiedostolle %s"
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
-msgstr "%s\\%s - Vienti (%d)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Vienti tiedostolle %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -1518,10 +1518,6 @@ msgstr "Lisää päätekohtainen vertailuohjelma"
 msgid "Add extension specific merge program"
 msgstr "Lisää päätekohtainen yhdistämisohjelma"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Lisää uudet tiedostot automaattisesti versionhallintaan"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Lisää kohde joka tapauksessa"
@@ -1622,10 +1618,6 @@ msgstr "Ikä"
 msgid "Align trees on top"
 msgstr "Tasaa puut ylhäältä"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Kaikki"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Kaikki komennot"
@@ -1667,10 +1659,6 @@ msgstr "Salli eri arkistojen käyttää samaa paikanninta, esim. http://localhos
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Salli eri arkistojen käyttää samaa UUID:ta, esim. kopioidut arkistot."
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Sulje ikkunat automaattisesti paikallisten toimintojen jälkeen"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1867,6 +1855,10 @@ msgstr "Piilota kaikki automaattisesti"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Nimeä uudestaan automaattisesti"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Sulje automaattisesti, jos paikallinen toiminto"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2232,10 +2224,6 @@ msgstr "Valitse käyttääksesi lyhyempää aika- ja päiväysmuotoa lokiviestei
 msgid "Check working copy for modifications"
 msgstr "Tarkista työkopion muutokset"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Tarkista:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Tarkistetaan onko ohjelmasta uudempaa versiota..."
@@ -2278,9 +2266,8 @@ msgid "Cleaning up"
 msgstr "Siivoamassa"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Siivotaan hakemistoa \"%s\""
+msgid "Cleaning up."
+msgstr "Siivoamassa."
 
 #. Resource IDs: (83)
 #, c-format
@@ -3172,10 +3159,6 @@ msgstr "Vertailu"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Vertaa työkopion tiedostoa sen viimeisimmän toimitetun tiedoston edeltäjän kanssa."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Hakemistot"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Hakemisto:"
@@ -3946,10 +3929,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Tiedostonimi"
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Tiedostot"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4029,10 +4008,6 @@ msgstr "Paina F1 saadaksesi ohjeen.  Vieritä vaakasuunnassa komennolla Ctrl+kie
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Poista valinta 'Pysähdy kopioon/uudelleennimentään' nähdäksesi täydellisen historian"
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
-msgstr "Pakotettu yhdistäminen"
 
 #. Resource IDs: (1064)
 msgid "Forward"
@@ -6474,10 +6449,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Yhdistä haara takaisin"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Takaisin yhdistäminen"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7263,10 +7234,6 @@ msgid "Select text editor application"
 msgstr "Valitse tekstieditoriohjelma"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Valitse paikannin, josta takaisin yhdistäminen suoritetaan"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Valitse paikantimet puuyhdistämiselle"
 
@@ -7985,10 +7952,6 @@ msgstr "Merkittyjen versioiden solmut"
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "Työkopiosta tehtiin merkitty versio %s"
-
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "Tehtävät"
 
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
@@ -9019,10 +8982,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "Poista versiointi"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "Versioimaton"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10350,14 +10309,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Lokiviestin minimikoko merkkeinä. Toimitus arkistoon ei ole sallittu, mikäli tämä raja alittuu."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Säännöllinen lauseke, jolla haetaan lokiviestissä olevia versionumeroita."
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10480,8 +10431,6 @@ msgstr "kyllä"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Siivoamassa."
 #~ msgid "%s, but the local file was already edited."
 #~ msgstr "%s, mutta sitä on muokattu paikallisesti."
 #~ msgid "General::Revision Graph"

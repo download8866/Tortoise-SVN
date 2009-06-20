@@ -15,8 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-06-07 23:34 +0000\n"
-"PO-Revision-Date: 2009-06-08 19:40+0100\n"
+"POT-Creation-Date: 2009-06-07 23:32 +0000\n"
+"PO-Revision-Date: 2009-06-08 20:00+0100\n"
 "Last-Translator: Milorad Popović <MiloradSPopovic@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -4597,8 +4597,8 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr "Zato što dnevnik dijalog prikazuje dnevnik od GLAVNE, ne od tekuće revizije radne kopije, to se često dešava tamo gde je dnevnik poruka prikazan za sadržaj koji još nije ažuriran u vašoj radnoj kopiji. Pomoć to čini jasnijim, poruka urezivanja koja odgovara reviziji koju imate u vašoj radnoj kopiji prikazana je masnim slovima."
 
 #. (para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
-msgstr "Kada prikazujete dnevnik imenika osvetljena revizija je najviša revizija nađena bilo gde unutar imenika, koja zahteva puzanje radne kopije. Puzanje se pokreće u okviru odvojene niti tako da ne kasni prikazivanje dnevnika, ali kao rezultat toga osvetljavanje imenika se ne pojavljuje trenutno."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
+msgstr "Kada prikazujete dnevnik imenika osvetljena revizija je najviša revizija nađena bilo gde unutar imenika, koja zahteva puzanje radne kopije. Ovo može biti spora operacija za velike radne kopije i dnevnik poruke nisu prikazane dok se puzanje ne završi. Ako želite da onemogućite ili ograničite ovu osobinu potrebno je da podesite registar ključ <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> kako je opisano u <xref linkend=\"tsvn-dug-settings-registry\"/>."
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -5902,18 +5902,6 @@ msgstr "Vrednost <literal>tsvn:logsummary</literal> osobine mora biti podešena 
 #. (para)
 msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everything after <quote>[SUMMARY]</quote> in the log message and use that as the summary."
 msgstr "Jedan primer: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Će uhvatiti sve posle <quote>[SUMMARY]</quote> u dnevnik poruka i koristi ga kao rezultat."
-
-#. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr "Osobina <literal>tsvn:logrevregex</literal> definiše regularni izraz koji nalazi reference u revizije u dnevniku poruka. Ovo se koristi u dijalogu dnevnika da okrene takve reference u veze na koje kada se klikne ili se skroluje u tu reviziju (ako je revizija već prikazana u dijalogu dnevnika, ili ako je dostupan iz keša dnevnika) ili otvara novi dijalog dnevnika koji prikazuje tu reviziju."
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr "Regularni izraz mora naći celu referencu, ne samo revizioni broj. Revizioni broj je izvučen iz nađenog referentnog teksta automatski."
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr "Ako ova osobona nije podešena, uobičajen regularni izraz se koristi da se povežu revizione reference."
 
 #. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
@@ -8097,10 +8085,6 @@ msgstr "Rekurzija u neverzionisanim imenicima "
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
 msgstr "Ovaj boks je čekiran (uobičajeno stanje), zatim kadgod je status neverzionisani imenik prikazan u <guilabel>Dodaj</guilabel>, <guilabel>Ureži</guilabel> ili <guilabel>Privera  Modifikacija</guilabel> dijalog, svaki potomački fajl i imenik je takođe prikazan. Ako otčekirate ovaj boks, samo neverzionisani predak je prikazan. Otčekivanje redukuje gužvu u ovim dijalozima. U ovom slučaju ako izaberete neverzionisani imenik za Dodaj, dodaje se rekurzivno."
 
-#. (para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
-msgstr "U dijalogu <guilabel>Provera izmena</guilabel> možete podesiti opciju da vidite zanemarene stavke. Ako je ovaj boks čekiran onda će uvek kada  se nađe zanemareni imenik biti prikazane sve zanemarene stavke. "
-
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
 msgstr "Koristi autokompletiranje fajl putanja i ključnih reči"
@@ -9402,8 +9386,8 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr "Tekuće revizijsko osvetljavanje za imenike u dnevnik dijalogu"
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
-msgstr "Dnevnik dijalog osvetljava tekuću  radnu kopiju revizije kada je prikazan dnevnik fajla. Da se uradi ista stvar za imenik zahteva se puzanje kroz radnu kopiju, što može biti spora operacija za velike radne kopije. Međutim puzanje je dato u izdvojenoj niti tako da ne zadržava prikazivanje poruka dnevnika. Za <emphasis>zaista</emphasis> velike radne kopije zujanje diska postaje dosadno tako da ako zaita želite da onemogućite ovu osobinu morate kreirati <literal>DWORD</literal> registar ključ u <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>.  Vrednost 0 onemogućava osobinu (nema osvetljavanja imenika)."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
+msgstr "Dnevnik dijalog osvetljava tekuću  radnu kopiju revizije kada je prikazan dnevnik fajla. Da se uradi ista stvar za imenik zahteva se puzanje kroz radnu kopiju, što može biti spora operacija za velike radne kopije. Ako želite da izmenite operaciju ove osobine morate kreirati <literal>DWORD</literal> registar ključ u <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. Vrednost 0 onemogućava osobinu (nema osvetljavanja imenika),  vrednost 1 (uobičajena) će naći status rekurzivno (nalazi najviši revizioni broj u stablu radne kopije), i vrednost 2 proverava reviziju samog izabranog imenika, ali neće proveriti bilo koju potomačku stavku."
 
 #. (term)
 msgid "Make checkout fail if an item of the same name exists"
@@ -10936,8 +10920,12 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:3</option>auto zatvaranje ako nema grešaka, konflikata i stapanja"
 
 #. (para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
-msgstr "Da bi se zatvorio progres dijalog na kraju komande bez korišćenja stalnog podešavanja treba da provučete  <option>/closeonend</option> parametar. <placeholder-1/> Da zatvorite dijalog napredovanja za lokalne operacije ako nema grešaka i konflikata, provučite <option>/closeforlocal</option> parametar."
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:4</option>auto zatvaranje ako nema grešaka, konflikata i stapanja za lokalne operacije"
+
+#. (para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
+msgstr "Da bi se zatvorio progres dijalog na kraju komande bez korišćenja stalnog podešavanja treba da provučete  <option>/closeonend</option> parametar. <placeholder-1/>"
 
 #. (para)
 msgid "The table below lists all the commands which can be accessed using the TortoiseProc.exe command line. As described above, these should be used in the form <literal>/command:abcd</literal>. In the table, the <literal>/command</literal> prefix is omitted to save space."
@@ -11006,45 +10994,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"filterstring\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> filtriranje pomoću svega"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> filtriranje pomoću poruke"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> filtriranje pomoću putanje"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> filtriranje pomoću atora"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> filtriranje pomoću revizije"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> filtriranje pomoću bag ID"
-
 #. (entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> (forces the filter to use text, not regex) and <placeholder-7/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
-msgstr "Otvara dnevnik dijalog. <placeholder-1/> specificira fajl ili imenik za koji dnevnik treba da bude prikazan. Šest dodatnih opcija treba da budu podešene: <placeholder-2/>, <placeholder-3/> i <placeholder-4/> (omogućava 'stani-na-kopiju' čekboks), <placeholder-5/> popunjava filter tekst, <placeholder-6/> (forsira filter da koriste tekst, ne regeks) i <placeholder-7/> sa X koje je broj između 1 i 7. Brojevi odgovaraju: <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr "Otvara dnevnik dijalog. <placeholder-1/> specificira fajl ili imenik za koji dnevnik treba da bude prikazan. Tri dodatne opcije treba da budu podeene: <placeholder-2/>, <placeholder-3/> i <placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -11215,17 +11167,9 @@ msgstr "Otvara dijalog relociranja. <placeholder-1/> specificira putanju radne k
 msgid "Opens the help file."
 msgstr "Otvara fajl pomoći."
 
-#. (option)
-msgid "/remote"
-msgstr "/daljinski"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "Provera spremišta"
-
 #. (entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
-msgstr "Otvara dijalog provera-izmena. <placeholder-1/> specificira  imenik radne kopije. Ako je  <placeholder-2/> specificiran, dijalog odmah pri startu kontaktira spremište, kao kad korisnik klikne na    <placeholder-3/> dugme."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
+msgstr "Otvara proveri-za-izmene dijalog. <placeholder-1/> specificira imenik radne kopije."
 
 #. (option)
 #. (option)

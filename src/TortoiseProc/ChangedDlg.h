@@ -36,7 +36,6 @@ class CChangedDlg : public CResizableStandAloneDialog, public SVN
 public:
 	CChangedDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CChangedDlg();
-	void ContactRepository(bool bContact) {m_bContactRepository = bContact;}
 
 // Dialog Data
 	enum { IDD = IDD_CHANGEDFILES };
@@ -82,6 +81,5 @@ private:
 	BOOL					m_bShowUserProps;
 	bool					m_bDepthInfinity;
 	CToolTips				m_tooltips;
-	bool					m_bContactRepository;
 };
 

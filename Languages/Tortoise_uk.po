@@ -14,7 +14,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-06-16 18:10+0300\n"
+"PO-Revision-Date: 2009-03-23 18:17+0300\n"
 "Last-Translator: Vadim Mikhnevych <vadim.mikhnevych@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -48,27 +48,27 @@ msgstr "%.2f кБайт/с"
 #. Resource IDs: (3868)
 #, c-format
 msgid "%1 contained an unexpected object."
-msgstr "%1 містив неочікуваний об'єкт."
+msgstr "%1 містив неочікуваний об'єкт"
 
 #. Resource IDs: (3867)
 #, c-format
 msgid "%1 contains an incorrect path."
-msgstr "%1 містить невірний шлях."
+msgstr "%1 містить невірний шлях"
 
 #. Resource IDs: (3868)
 #, c-format
 msgid "%1 contains an incorrect schema."
-msgstr "%1 містить невірну схему."
+msgstr "%1 містить невірну схему"
 
 #. Resource IDs: (3868)
 #, c-format
 msgid "%1 has a bad format."
-msgstr "У %1 поганий формат."
+msgstr "У %1 поганий формат"
 
 #. Resource IDs: (3867)
 #, c-format
 msgid "%1 was not found."
-msgstr "%1 не знайдено."
+msgstr "%1 не знайдено"
 
 #. Resource IDs: (3860)
 #, c-format
@@ -212,13 +212,13 @@ msgstr "%s, але це заважало у робочій копії."
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
-msgstr "%s\\%s - Експорт"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Експорт (%d) %s"
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
-msgstr "%s\\%s - Експорт (%d)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Експорт %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -1145,10 +1145,6 @@ msgstr "'пропустити діапазони' застосовуєтсья �
 msgid "(%s) %s"
 msgstr "(%s) %s"
 
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Клацніть двічі щоб прибрати повідомлення про помилку)"
-
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
 msgstr "(двійкове значення)"
@@ -1453,10 +1449,6 @@ msgstr "Додати характерну для розширення прогр
 msgid "Add extension specific merge program"
 msgstr "Додати характерну для розширення програму злиття"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr " Автоматично додавати нові файли до SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Так чи інакше, додати елемент"
@@ -1557,10 +1549,6 @@ msgstr "Вік"
 msgid "Align trees on top"
 msgstr "Вирівняти дерева по верхівкам"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Все"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Усі команди"
@@ -1602,10 +1590,6 @@ msgstr "Дозволити різним репозиторіям викорис�
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Дозволити різним репозиторіям використовувати однаковий UUID, наприклад копійованим репозиторіям"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Завжди закривати діалоги для локальних операцій"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1802,6 +1786,10 @@ msgstr "Автоматично все ховати"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Автоматичне перейменування"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Самозакривати для локальних операцій"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2169,10 +2157,6 @@ msgstr "Позначте щоб використовувати менш докл
 msgid "Check working copy for modifications"
 msgstr "Перевірити робочу копію на модифікування"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Перевірити:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Перевіряється наявність новішої версії TortoiseSVN..."
@@ -2215,9 +2199,8 @@ msgid "Cleaning up"
 msgstr "Очищується"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Очищується каталог \"%s\""
+msgid "Cleaning up."
+msgstr "Очищується."
 
 #. Resource IDs: (83)
 #, c-format
@@ -3108,10 +3091,6 @@ msgstr "Пошук відмінностей"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Знаходить відмінності файла робочої копії і його ж перед останньою фіксацією."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Каталоги"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Каталог:"
@@ -3123,10 +3102,6 @@ msgid ""
 msgstr ""
 "Унеможливіть цей параметр, якщо у вас дійсно великі робочі копії, і під час\r\n"
 "проглядання робочої копії буває надто багато звернень до диску."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr ""
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3886,10 +3861,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Ім'я файла"
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Файли"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -3969,14 +3940,6 @@ msgstr "Щоб отримати Довідку, натисніть F1. Гори�
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Для повної історії зніміть виділення зі 'Спинитися при копіюванні/перейменуванні'"
-
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Змусити"
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
-msgstr "Змусити злиття"
 
 #. Resource IDs: (1064)
 msgid "Forward"
@@ -5283,8 +5246,8 @@ msgstr "Зливається"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Зливається %s у %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Зливається %s у %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5292,8 +5255,8 @@ msgstr "Зливаються відмінності між URLами схови�
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Зливаються з %s, модифікації від %s до %s, модифікація %s у %s, %s%s%s"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Зливаються з %s, модифікації від %s до %s, модифікація %s у %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
@@ -5311,8 +5274,8 @@ msgstr "Злиття вимагає різних модифікацій або �
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Зливаються модифікації %s з %s у %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Зливаються модифікації %s з %s у %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
@@ -6421,10 +6384,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Переінтегрувати гілку"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr " Переінтегрувати злиття"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7208,10 +7167,6 @@ msgid "Select text editor application"
 msgstr "Вибрати програму для редагування тексту"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Вибрати URL, з якого переінтегрувати"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Вибрати URL-i для злиття дерева"
 
@@ -7930,10 +7885,6 @@ msgstr "Вузли зрізів"
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "Зріз робочої копії внесено до %s"
-
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "Завдання"
 
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
@@ -8965,10 +8916,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "Розверсіювати"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "Неверсійні"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10304,14 +10251,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Мінімальна кількість символів у логовому повідомленні, за якої дозволяється фіксація."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Регулярний вираз, що співпадає з номерами модифікацій у логовому повідомлення"
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10434,8 +10373,6 @@ msgstr "так"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Очищується."
 #~ msgid "%s, but the local file was already edited."
 #~ msgstr "%s, але локальний файл уже редагували."
 #~ msgid ""

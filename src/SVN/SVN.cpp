@@ -836,20 +836,23 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 		progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
 		progress.SetTime(true);
 		progress.ShowModeless(hWnd);
-		std::map<CTSVNPath, CTSVNPath> copyMap;
+		std::map<CString, CString> copyMap;
 		if (extended)
 		{
 
 			CString srcfile;
 			CDirFileEnum lister(srcPath.GetWinPathString());
-			copyMap[srcPath] = destPath;
+			copyMap[srcPath.GetWinPath()] = destPath.GetWinPath();
 			while (lister.NextFile(srcfile, NULL))
 			{
 				if (g_SVNAdminDir.IsAdminDirPath(srcfile))
 					continue;
-				CTSVNPath destination = destPath;
-				destination.AppendPathString(srcfile.Mid(srcPath.GetWinPathString().GetLength()));
-				copyMap[CTSVNPath(srcfile)] = destination;
+				CString destination = destPath.GetWinPathString() + _T("\\") + srcfile.Mid(srcPath.GetWinPathString().GetLength());
+				bool bNet = (destination.Left(2).Compare(_T("\\\\")) == 0);
+				destination.Replace(_T("\\\\"), _T("\\"));
+				if (bNet)
+					destination = _T("\\") + destination;
+				copyMap[srcfile] = destination;
 			}
 		}
 		else
@@ -861,9 +864,9 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 			{
 				if (SVNStatus::GetMoreImportant(s->text_status, svn_wc_status_unversioned)!=svn_wc_status_unversioned)
 				{
-					CTSVNPath destination = destPath;
-					destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
-					copyMap[statusPath] = destination;
+					CString src = statusPath.GetWinPathString();
+					CString destination = destPath.GetWinPathString() + _T("\\") + src.Mid(srcPath.GetWinPathString().GetLength());
+					copyMap[src] = destination;
 				}
 				while ((s = status.GetNextFileStatus(statusPath))!=0)
 				{
@@ -874,9 +877,9 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 						(s->text_status == svn_wc_status_deleted))
 						continue;
 					
-					CTSVNPath destination = destPath;
-					destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
-					copyMap[statusPath] = destination;
+					CString src = statusPath.GetWinPathString();
+					CString destination = destPath.GetWinPathString() + _T("\\") + src.Mid(srcPath.GetWinPathString().GetLength());
+					copyMap[src] = destination;
 				}
 			}
 			else
@@ -886,24 +889,24 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 			}
 		} // else from if (extended)
 		size_t count = 0;
-		for (std::map<CTSVNPath, CTSVNPath>::iterator it = copyMap.begin(); (it != copyMap.end()) && (!progress.HasUserCancelled()); ++it)
+		for (std::map<CString, CString>::iterator it = copyMap.begin(); (it != copyMap.end()) && (!progress.HasUserCancelled()); ++it)
 		{
-			progress.FormatPathLine(1, IDS_SVNPROGRESS_EXPORTING, it->first.GetWinPath());
-			progress.FormatPathLine(2, IDS_SVNPROGRESS_EXPORTINGTO, it->second.GetWinPath());
-			progress.SetProgress64(count, copyMap.size());
+			progress.FormatPathLine(1, IDS_SVNPROGRESS_EXPORTING, (LPCTSTR)it->first);
+			progress.FormatPathLine(2, IDS_SVNPROGRESS_EXPORTINGTO, (LPCTSTR)it->second);
+			progress.SetProgress(count, copyMap.size());
 			count++;
-			if (it->first.IsDirectory())
-				CPathUtils::MakeSureDirectoryPathExists(it->second.GetWinPath());
+			if (PathIsDirectory((LPCTSTR)it->first))
+				CPathUtils::MakeSureDirectoryPathExists((LPCTSTR)it->second);
 			else
 			{
-				if (!CopyFile(it->first.GetWinPath(), it->second.GetWinPath(), !force))
+				if (!CopyFile((LPCTSTR)it->first, (LPCTSTR)it->second, !force))
 				{
 					DWORD lastError = GetLastError();
 					if ((lastError == ERROR_ALREADY_EXISTS)||(lastError == ERROR_FILE_EXISTS))
 					{
 						lastError = 0;
 						CString sQuestion, yes, no, yestoall;
-						sQuestion.Format(IDS_PROC_OVERWRITE_CONFIRM, it->second.GetWinPath());
+						sQuestion.Format(IDS_PROC_OVERWRITE_CONFIRM, (LPCTSTR)it->second);
 						yes.LoadString(IDS_MSGBOX_YES);
 						no.LoadString(IDS_MSGBOX_NO);
 						yestoall.LoadString(IDS_PROC_YESTOALL);
@@ -912,11 +915,11 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 							force = true;
 						if ((ret == 1)||(ret == 3))
 						{
-							if (!CopyFile(it->first.GetWinPath(), it->second.GetWinPath(), FALSE))
+							if (!CopyFile((LPCTSTR)it->first, (LPCTSTR)it->second, FALSE))
 							{
 								lastError = GetLastError();
 							}
-							SetFileAttributes(it->second.GetWinPath(), FILE_ATTRIBUTE_NORMAL);
+							SetFileAttributes((LPCTSTR)it->second, FILE_ATTRIBUTE_NORMAL);
 						}
 					}
 					if (lastError)
@@ -940,7 +943,7 @@ BOOL SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
 						return FALSE;
 					}
 				}
-				SetFileAttributes(it->second.GetWinPath(), FILE_ATTRIBUTE_NORMAL);
+				SetFileAttributes((LPCTSTR)it->second, FILE_ATTRIBUTE_NORMAL);
 			}
 		}
 		if (progress.HasUserCancelled())
@@ -2604,7 +2607,7 @@ apr_array_header_t * SVN::MakeChangeListArray(const CStringArray& changelists, a
 	// if 'keep change lists is set to false.
 	// We therefore have to create an empty array instead of passing NULL, only then the
 	// change lists are removed properly.
-	int count = (int)changelists.GetCount();
+	int count = changelists.GetCount();
     // special case: the changelist array contains one empty string
     if ((changelists.GetCount() == 1)&&(changelists[0].IsEmpty()))
         count = 0;

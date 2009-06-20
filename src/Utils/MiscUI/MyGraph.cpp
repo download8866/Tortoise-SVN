@@ -194,7 +194,7 @@ int MyGraphSeries::GetDataTotal() const
 }
 
 // Returns which group (if any) the sent point lies within in this series.
-int MyGraphSeries::HitTest(const CPoint& pt, int searchStart = 0) const
+INT_PTR MyGraphSeries::HitTest(const CPoint& pt, int searchStart = 0) const
 {
 	VALIDATE;
 
@@ -385,7 +385,7 @@ CString MyGraph::GetTipText() const
 			MyGraphSeries* pSeries = m_olMyGraphSeries.GetNext(pos);
 			ASSERT_VALID(pSeries);
 
-			int nGroup(0);
+			INT_PTR nGroup(0);
 			do{
 				nGroup = pSeries->HitTest(pt,nGroup);
 
@@ -473,7 +473,7 @@ int MyGraph::GetMaxSeriesSize() const
 		MyGraphSeries* pSeries = m_olMyGraphSeries.GetNext(pos);
 		ASSERT_VALID(pSeries);
 
-		nMax = max(nMax, (int)pSeries->m_dwaValues.GetSize());
+		nMax = max(nMax, pSeries->m_dwaValues.GetSize());
 	}
 
 	return nMax;
@@ -593,7 +593,7 @@ int MyGraph::AppendGroup(const CString& sLabel)
 	VALIDATE;
 
 	// Add the group.
-	int nGroup((int)m_saLegendLabels.GetSize());
+	int nGroup(m_saLegendLabels.GetSize());
 	SetLegend(nGroup, sLabel);
 
 	// Make sure that all series have this element.
@@ -1019,11 +1019,11 @@ void MyGraph::DrawAxes(CDC& dc) const
 				nSeriesSpace =
 					(m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2)) /
 					(m_eGraphType == MyGraph::Bar ?
-					GetNonZeroSeriesCount() : (int)m_olMyGraphSeries.GetCount());
+					GetNonZeroSeriesCount() : m_olMyGraphSeries.GetCount());
 			}
 			else {
 				nSeriesSpace = m_nXAxisWidth / (m_eGraphType == MyGraph::Bar ?
-					GetNonZeroSeriesCount() : (int)m_olMyGraphSeries.GetCount());
+					GetNonZeroSeriesCount() : m_olMyGraphSeries.GetCount());
 			}
 
 			int nTickXLocation(m_ptOrigin.x + ((nSeries + 1) * nSeriesSpace) -
@@ -1162,10 +1162,10 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
 		if (m_saLegendLabels.GetSize()) {
 
 			nSeriesSpace = (m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2)) /
-				(int)m_olMyGraphSeries.GetCount();
+				m_olMyGraphSeries.GetCount();
 		}
 		else {
-			nSeriesSpace = m_nXAxisWidth / (int)m_olMyGraphSeries.GetCount();
+			nSeriesSpace = m_nXAxisWidth / m_olMyGraphSeries.GetCount();
 		}
 
 		// Determine width of bars.
@@ -1242,7 +1242,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
 	ASSERT_VALID(&dc);
 	_ASSERTE(m_bStackedGraph);
 
-	int nSeriesCount = (int)m_olMyGraphSeries.GetCount();
+	int nSeriesCount = m_olMyGraphSeries.GetCount();
 
 	CArray<int> stackAccumulator;
 	stackAccumulator.SetSize(nSeriesCount);
@@ -1322,7 +1322,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
 		}
 
 		// Draw polygon
-		VERIFY(dc.Polygon(polygon.GetData(), (int)polygon.GetSize()));
+		VERIFY(dc.Polygon(polygon.GetData(), polygon.GetSize()));
 
 		VERIFY(dc.SelectObject(pPenOld));
 		penLine.DeleteObject();

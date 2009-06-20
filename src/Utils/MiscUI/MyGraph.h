@@ -37,7 +37,7 @@ private:
 	int		GetDataTotal() const;
 	void	SetTipRegion(int nGroup, const CRect& rc);
 	void	SetTipRegion(int nGroup, CRgn* prgn);
-	int		HitTest(const CPoint& pt, int searchStart) const;
+	INT_PTR	HitTest(const CPoint& pt, int searchStart) const;
 	CString	GetTipText(int nGroup) const;
 
 // Data.

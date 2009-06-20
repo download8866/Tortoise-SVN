@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,11 +28,10 @@
 
 IMPLEMENT_DYNAMIC(CLocatorBar, CPaneDialog)
 CLocatorBar::CLocatorBar() : CPaneDialog()
-	, m_pMainFrm(NULL)
-	, m_pCacheBitmap(NULL)
-	, m_bMouseWithin(FALSE)
-	, m_regUseFishEye(_T("Software\\TortoiseMerge\\UseFishEye"), TRUE)
 {
+	m_pMainFrm = NULL;
+	m_pCacheBitmap = NULL;
+	m_bMouseWithin = FALSE;
 }
 
 CLocatorBar::~CLocatorBar()
@@ -241,7 +240,7 @@ void CLocatorBar::OnPaint()
 	cacheDC.FillSolidRect(rect.left + (width*2/3), rect.top, 1, height, RGB(0,0,0));
 
 	// draw the fish eye
-	if ((m_bMouseWithin)&&(DWORD(m_regUseFishEye)))
+	if (m_bMouseWithin)
 	{
 		int fishstart = m_MousePos.y - height/20;
 		int fishheight = height/10;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -142,7 +142,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 				if (m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(pPath), &itemStatus, true))
 				{
 					status = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
-					if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)))
+					if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)||(itemStatus.m_readonly)))
 						readonlyoverlay = true;
 					if (itemStatus.m_owner[0]!=0)
 						lockedoverlay = true;
@@ -247,97 +247,134 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		// at least the 'normal' and 'modified' overlay are available.
 		case svn_wc_status_none:
 			return S_FALSE;
-
 		case svn_wc_status_unversioned:
-			if (!g_ShellCache.ShowUnversionedOverlay() || !g_unversionedovlloaded || (m_State != FileStateUnversionedOverlay))
-    			return S_FALSE;
-            break;
-
+			if (g_ShellCache.ShowUnversionedOverlay() && g_unversionedovlloaded && (m_State == FileStateUnversionedOverlay))
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			return S_FALSE;
 		case svn_wc_status_ignored:
-			if (!g_ShellCache.ShowIgnoredOverlay() || !g_ignoredovlloaded || (m_State != FileStateIgnoredOverlay))
-    			return S_FALSE;
-            break;
-
+			if (g_ShellCache.ShowIgnoredOverlay() && g_ignoredovlloaded && (m_State == FileStateIgnoredOverlay))
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			return S_FALSE;
 		case svn_wc_status_normal:
 		case svn_wc_status_external:
 		case svn_wc_status_incomplete:
 			if ((readonlyoverlay)&&(g_readonlyovlloaded))
 			{
-				if (m_State != FileStateReadOnly)
+				if (m_State == FileStateReadOnly)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else if ((lockedoverlay)&&(g_lockedovlloaded))
 			{
-				if (m_State != FileStateLockedOverlay)
+				if (m_State == FileStateLockedOverlay)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-			else if (m_State != FileStateVersioned)
+			else if (m_State == FileStateVersioned)
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			else
 				return S_FALSE;
-            break;
-
 		case svn_wc_status_missing:
 		case svn_wc_status_deleted:
 			if (g_deletedovlloaded)
 			{
-				if (m_State != FileStateDeleted)
+				if (m_State == FileStateDeleted)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'deleted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-
-				if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-            break;
-
 		case svn_wc_status_replaced:
 		case svn_wc_status_modified:
 		case svn_wc_status_merged:
-			if (m_State != FileStateModified)
+			if (m_State == FileStateModified)
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			else
 				return S_FALSE;
-            break;
-
 		case svn_wc_status_added:
 			if (g_addedovlloaded)
 			{
-				if (m_State != FileStateAddedOverlay)
+				if (m_State== FileStateAddedOverlay)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'added' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-            break;
-
 		case svn_wc_status_conflicted:
 		case svn_wc_status_obstructed:
 			if (g_conflictedovlloaded)
 			{
-				if (m_State != FileStateConflict)
+				if (m_State == FileStateConflict)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'conflicted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-
-                if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-
 		default:
 			return S_FALSE;
 	} // switch (status)
     //return S_FALSE;
-
-    // we want to show the overlay icon specified in m_State
-
-	g_filepath.clear();
-	return S_OK;
 }
 
