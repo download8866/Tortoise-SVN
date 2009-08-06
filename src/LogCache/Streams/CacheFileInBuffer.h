@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,19 +64,19 @@ private:
 
 	// data access utility
 
-	const unsigned* GetDWORD (size_t offset) const
+	const DWORD* GetDWORD (size_t offset) const
 	{
 		// ranges should have been checked before
 
-		assert ((offset < GetSize()) && (offset + sizeof (unsigned) <= GetSize()));
-		return reinterpret_cast<const unsigned*>(GetBuffer() + offset);
+		assert ((offset < GetSize()) && (offset + sizeof (DWORD) <= GetSize()));
+		return reinterpret_cast<const DWORD*>(GetBuffer() + offset);
 	}
 
 public:
 
 	// construction / destruction: auto- open/close
 
-	CCacheFileInBuffer (const TFileName& fileName);
+	CCacheFileInBuffer (const std::wstring& fileName);
 	~CCacheFileInBuffer();
 
 	// access streams

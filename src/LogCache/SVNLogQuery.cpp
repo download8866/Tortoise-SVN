@@ -402,9 +402,9 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
 
     if (result != NULL)
 	{
-		SVNError up = SVNError (result);
+		SVNError e = SVNError (result);
 		svn_error_clear (result);
-		throw up;
+		throw e;
 	}
 }
 

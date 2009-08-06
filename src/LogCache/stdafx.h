@@ -52,7 +52,6 @@
 #define NOSOUND
 #define NOCOMM
 #define NORPC
-#define NOMINMAX
 
 // streamline APIs
 
@@ -65,7 +64,7 @@
 // include commonly used headers
 
 #include <afxwin.h>         // MFC core and standard components
-#include <afxtempl.h>       // CArray and friends
+#include <afxtempl.h>       // CArray and friend
 
 #include <assert.h>
 #include <time.h>
@@ -76,11 +75,7 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <iostream>
 #include <fstream>
-#include <memory>
-
-#include "tstring.h"
 
 // Commonly used log cache streams
 // (others may be included locally)
@@ -91,3 +86,6 @@
 #include "./Streams/PackedTime64OutStream.h"
 #include "./Streams/CompositeInStream.h"
 #include "./Streams/CompositeOutStream.h"
+
+
+

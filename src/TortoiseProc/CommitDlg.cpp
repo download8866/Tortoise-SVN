@@ -25,7 +25,6 @@
 #include "MessageBox.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "StringUtils.h"
 #include "SVN.h"
 #include "Registry.h"
 #include "SVNStatus.h"
@@ -72,6 +71,7 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_SHOWEXTERNALS, m_bShowExternals);
+	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Check(pDX, IDC_KEEPLOCK, m_bKeepLocks);
 	DDX_Control(pDX, IDC_SPLITTER, m_wndSplitter);
@@ -79,6 +79,7 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
+	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_BN_CLICKED(IDC_HISTORY, OnBnClickedHistory)
@@ -89,7 +90,6 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_CHECKCHANGED, &CCommitDlg::OnSVNStatusListCtrlCheckChanged)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_CHANGELISTCHANGED, &CCommitDlg::OnSVNStatusListCtrlChangelistChanged)
-	ON_REGISTERED_MESSAGE(CLinkControl::LK_LINKITEMCLICKED, &CCommitDlg::OnCheck)
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
 	ON_WM_TIMER()
     ON_WM_SIZE()
@@ -118,6 +118,7 @@ BOOL CCommitDlg::OnInitDialog()
 	UpdateData(FALSE);
 	
 	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"));
+	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ListCtrl.SetCancelBool(&m_bCancelled);
 	m_ListCtrl.SetEmptyString(IDS_COMMITDLG_NOTHINGTOCOMMIT);
@@ -125,8 +126,6 @@ BOOL CCommitDlg::OnInitDialog()
 	m_ListCtrl.SetBackgroundImage(IDI_COMMIT_BKG);
 	
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	m_cLogMessage.RegisterContextMenuHandler(this);
@@ -137,6 +136,7 @@ BOOL CCommitDlg::OnInitDialog()
 	m_tooltips.AddTool(IDC_EXTERNALWARNING, IDS_COMMITDLG_EXTERNALS);
 	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
 	
+	m_SelectAll.SetCheck(BST_INDETERMINATE);
 	
 	GetDlgItem(IDC_BUGTRAQBUTTON)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUGTRAQBUTTON)->EnableWindow(FALSE);
@@ -190,31 +190,8 @@ BOOL CCommitDlg::OnInitDialog()
 	GetWindowText(m_sWindowTitle);
 	
 	AdjustControlSize(IDC_SHOWUNVERSIONED);
+	AdjustControlSize(IDC_SELECTALL);
 	AdjustControlSize(IDC_KEEPLOCK);
-
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKALL);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKNONE);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKUNVERSIONED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKVERSIONED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKADDED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDELETED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKMODIFIED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKFILES);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDIRECTORIES);
-
-	// line up all controls and adjust their sizes.
-#define LINKSPACING 9
-	RECT rc = AdjustControlSize(IDC_SELECTLABEL);
-	rc.right -= 15;	// AdjustControlSize() adds 20 pixels for the checkbox/radio button bitmap, but this is a label...
-	rc = AdjustStaticSize(IDC_CHECKALL, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKNONE, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKUNVERSIONED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKVERSIONED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKADDED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKDELETED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKMODIFIED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKFILES, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKDIRECTORIES, rc, LINKSPACING);
 
 	GetClientRect(m_DlgOrigRect);
 	m_cLogMessage.GetClientRect(m_LogMsgOrigRect);
@@ -226,24 +203,13 @@ BOOL CCommitDlg::OnInitDialog()
 	AddAnchor(IDC_COMMIT_TO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
-
-	AddAnchor(IDC_SELECTLABEL, TOP_LEFT);
-	AddAnchor(IDC_CHECKALL, TOP_LEFT);
-	AddAnchor(IDC_CHECKNONE, TOP_LEFT);
-	AddAnchor(IDC_CHECKUNVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKADDED, TOP_LEFT);
-	AddAnchor(IDC_CHECKDELETED, TOP_LEFT);
-	AddAnchor(IDC_CHECKMODIFIED, TOP_LEFT);
-	AddAnchor(IDC_CHECKFILES, TOP_LEFT);
-	AddAnchor(IDC_CHECKDIRECTORIES, TOP_LEFT);
-
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
 	
 	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SPLITTER, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT);
+	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
 	AddAnchor(IDC_SHOWEXTERNALS, BOTTOM_LEFT);
 	AddAnchor(IDC_EXTERNALWARNING, BOTTOM_RIGHT);
 	AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -441,10 +407,6 @@ void CCommitDlg::OnOK()
 		{
 			if (changedList[i].IsAdminDir())
 			{
-				// TODO: refactor this into an SVN class since 'entries' and
-				// 'tmp' are referring to internal files/folders of the .svn dir
-				// and will have to change for the SQLite-based wc format
-
 				// something inside an admin dir was changed.
 				// if it's the entries file, then we have to fully refresh because
 				// files may have been added/removed from version control
@@ -645,18 +607,9 @@ UINT CCommitDlg::StatusThread()
 
 	DialogEnableWindow(IDOK, false);
 	DialogEnableWindow(IDC_SHOWUNVERSIONED, false);
+	DialogEnableWindow(IDC_SELECTALL, false);
 	GetDlgItem(IDC_EXTERNALWARNING)->ShowWindow(SW_HIDE);
 	DialogEnableWindow(IDC_EXTERNALWARNING, false);
-
-	DialogEnableWindow(IDC_CHECKALL, false);
-	DialogEnableWindow(IDC_CHECKNONE, false);
-	DialogEnableWindow(IDC_CHECKUNVERSIONED, false);
-	DialogEnableWindow(IDC_CHECKVERSIONED, false);
-	DialogEnableWindow(IDC_CHECKADDED, false);
-	DialogEnableWindow(IDC_CHECKDELETED, false);
-	DialogEnableWindow(IDC_CHECKMODIFIED, false);
-	DialogEnableWindow(IDC_CHECKFILES, false);
-	DialogEnableWindow(IDC_CHECKDIRECTORIES, false);
 
     // read the list of recent log entries before querying the WC for status
     // -> the user may select one and modify / update it while we are crawling the WC
@@ -688,7 +641,7 @@ UINT CCommitDlg::StatusThread()
 			m_ListCtrl.Show(dwShow, m_checkedPathList);
 		else
 		{
-			DWORD dwCheck = m_bSelectFilesForCommit ? SVNSLC_SHOWDIRECTS|SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWLOCKS : 0;
+			DWORD dwCheck = m_bSelectFilesForCommit ? SVNSLC_SHOWDIRECTS|SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWLOCKS : 0;
 			m_ListCtrl.Show(dwShow, CTSVNPathList(), dwCheck);
 			m_bSelectFilesForCommit = true;
 		}
@@ -700,39 +653,6 @@ UINT CCommitDlg::StatusThread()
 		}
 		SetDlgItemText(IDC_COMMIT_TO, m_ListCtrl.m_sURL);
 		m_tooltips.AddTool(GetDlgItem(IDC_STATISTICS), m_ListCtrl.GetStatisticsString());
-
-		{
-			// compare all url parts against the branches pattern and if it matches,
-			// change the background image of the list control to indicate 
-			// a commit to a branch
-			CRegString branchesPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\BranchPattern"), _T("branches"));
-			CString sBranches = branchesPattern;
-			int pos = 0;
-			CString temp;
-			bool bFound = false;
-			while (!bFound)
-			{
-				temp = sBranches.Tokenize(_T(";"), pos);
-				if (temp.IsEmpty())
-					break;
-
-				int urlpos = 0;
-				CString temp2;
-				for(;;)
-				{
-					temp2 = m_ListCtrl.m_sURL.Tokenize(_T("/"), urlpos);
-					if (temp2.IsEmpty())
-						break;
-
-					if (CStringUtils::WildCardMatch(temp, temp2))
-					{
-						m_ListCtrl.SetBackgroundImage(IDI_COMMITBRANCHES_BKG);
-						bFound = true;
-						break;
-					}
-				}
-			} 
-		}
 	}
 	CString logmsg;
 	GetDlgItemText(IDC_LOGMESSAGE, logmsg);
@@ -771,15 +691,13 @@ UINT CCommitDlg::StatusThread()
 	if (m_bRunThread)
 	{
 		DialogEnableWindow(IDC_SHOWUNVERSIONED, true);
+		DialogEnableWindow(IDC_SELECTALL, true);
 		if (m_ListCtrl.HasChangeLists())
 			DialogEnableWindow(IDC_KEEPLISTS, true);
 		if (m_ListCtrl.HasExternalsFromDifferentRepos())
 			DialogEnableWindow(IDC_SHOWEXTERNALS, true);
 		if (m_ListCtrl.HasLocks())
 			DialogEnableWindow(IDC_KEEPLOCK, true);
-
-		UpdateCheckLinks();
-
 		// we have the list, now signal the main thread about it
 		SendMessage(WM_AUTOLISTREADY);	// only send the message if the thread wasn't told to quit!
 	}
@@ -827,6 +745,20 @@ void CCommitDlg::OnCancel()
 	m_History.Save();
 	SaveSplitterPos();
 	CResizableStandAloneDialog::OnCancel();
+}
+
+void CCommitDlg::OnBnClickedSelectall()
+{
+	m_tooltips.Pop();	// hide the tooltips
+	UINT state = (m_SelectAll.GetState() & 0x0003);
+	if (state == BST_INDETERMINATE)
+	{
+		// It is not at all useful to manually place the checkbox into the indeterminate state...
+		// We will force this on to the unchecked state
+		state = BST_UNCHECKED;
+		m_SelectAll.SetCheck(state);
+	}
+	m_ListCtrl.SelectAll(state == BST_CHECKED);
 }
 
 BOOL CCommitDlg::PreTranslateMessage(MSG* pMsg)
@@ -906,7 +838,6 @@ void CCommitDlg::OnBnClickedShowunversioned()
 		else
 			dwShow &= ~SVNSLC_SHOWUNVERSIONED;
 		m_ListCtrl.Show(dwShow);
-		UpdateCheckLinks();
 	}
 }
 
@@ -929,7 +860,6 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 			m_bShowUnversioned = TRUE;
 			DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS | SVNSLC_SHOWINCHANGELIST | SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO | SVNSLC_SHOWEXTDISABLED | SVNSLC_SHOWUNVERSIONED;
 			m_ListCtrl.Show(dwShow);
-			UpdateCheckLinks();
 			UpdateData(FALSE);
 		}
 	}
@@ -1055,13 +985,10 @@ void CCommitDlg::GetAutocompletionList()
 	// .h, .hpp = (?<=class[\s])\b\w+\b|(\b\w+(?=[\s ]?\(\);))
 	// .cpp = (?<=[^\s]::)\b\w+\b
 	
-	m_autolist.clear();
 	std::map<CString, CString> mapRegex;
 	CString sRegexFile = CPathUtils::GetAppDirectory();
 	CRegDWORD regtimeout = CRegDWORD(_T("Software\\TortoiseSVN\\AutocompleteParseTimeout"), 5);
 	DWORD timeoutvalue = regtimeout*1000;
-	if (timeoutvalue == 0)
-		return;
 	sRegexFile += _T("autolist.txt");
 	if (!m_bRunThread)
 		return;
@@ -1427,31 +1354,6 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlChangelistChanged(WPARAM count, LPARAM)
 	return 0;
 }
 
-LRESULT CCommitDlg::OnCheck(WPARAM wnd, LPARAM)
-{
-	HWND hwnd = (HWND)wnd;
-	if (hwnd == GetDlgItem(IDC_CHECKALL)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWEVERYTHING, true);
-	else if (hwnd == GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd())
-		m_ListCtrl.Check(0, true);
-	else if (hwnd == GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWUNVERSIONED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWVERSIONED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWREMOVED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWMODIFIED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWFILES, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWFOLDERS, false);
-
-	return 0;
-}
-
 void CCommitDlg::UpdateOKButton()
 {
 	BOOL bValidLogSize = FALSE;
@@ -1501,45 +1403,15 @@ void CCommitDlg::DoSize(int delta)
 	RemoveAnchor(IDC_SPLITTER);
 	RemoveAnchor(IDC_LISTGROUP);
 	RemoveAnchor(IDC_FILELIST);
-	RemoveAnchor(IDC_SELECTLABEL);
-	RemoveAnchor(IDC_CHECKALL);
-	RemoveAnchor(IDC_CHECKNONE);
-	RemoveAnchor(IDC_CHECKUNVERSIONED);
-	RemoveAnchor(IDC_CHECKVERSIONED);
-	RemoveAnchor(IDC_CHECKADDED);
-	RemoveAnchor(IDC_CHECKDELETED);
-	RemoveAnchor(IDC_CHECKMODIFIED);
-	RemoveAnchor(IDC_CHECKFILES);
-	RemoveAnchor(IDC_CHECKDIRECTORIES);
 	CSplitterControl::ChangeHeight(&m_cLogMessage, delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(GetDlgItem(IDC_MESSAGEGROUP), delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(&m_ListCtrl, -delta, CW_BOTTOMALIGN);
 	CSplitterControl::ChangeHeight(GetDlgItem(IDC_LISTGROUP), -delta, CW_BOTTOMALIGN);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_SELECTLABEL), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKALL), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKNONE), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKUNVERSIONED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKVERSIONED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKADDED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKDELETED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKMODIFIED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKFILES), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKDIRECTORIES), 0, delta);
 	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SPLITTER, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SELECTLABEL, TOP_LEFT);
-	AddAnchor(IDC_CHECKALL, TOP_LEFT);
-	AddAnchor(IDC_CHECKNONE, TOP_LEFT);
-	AddAnchor(IDC_CHECKUNVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKADDED, TOP_LEFT);
-	AddAnchor(IDC_CHECKDELETED, TOP_LEFT);
-	AddAnchor(IDC_CHECKMODIFIED, TOP_LEFT);
-	AddAnchor(IDC_CHECKFILES, TOP_LEFT);
-	AddAnchor(IDC_CHECKDIRECTORIES, TOP_LEFT);
 	ArrangeLayout();
 	// adjust the minimum size of the dialog to prevent the resizing from
 	// moving the list control too far down.
@@ -1575,19 +1447,5 @@ void CCommitDlg::OnBnClickedShowexternals()
 		else
 			dwShow &= ~(SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO|SVNSLC_SHOWEXTDISABLED);
 		m_ListCtrl.Show(dwShow);
-		UpdateCheckLinks();
 	}
-}
-
-void CCommitDlg::UpdateCheckLinks()
-{
-	DialogEnableWindow(IDC_CHECKALL, true);
-	DialogEnableWindow(IDC_CHECKNONE, true);
-	DialogEnableWindow(IDC_CHECKUNVERSIONED, m_ListCtrl.GetUnversionedCount() > 0);
-	DialogEnableWindow(IDC_CHECKVERSIONED, m_ListCtrl.GetItemCount() > m_ListCtrl.GetUnversionedCount());
-	DialogEnableWindow(IDC_CHECKADDED, m_ListCtrl.GetAddedCount() > 0);
-	DialogEnableWindow(IDC_CHECKDELETED, m_ListCtrl.GetDeletedCount() > 0);
-	DialogEnableWindow(IDC_CHECKMODIFIED, m_ListCtrl.GetModifiedCount() > 0);
-	DialogEnableWindow(IDC_CHECKFILES, m_ListCtrl.GetFileCount() > 0);
-	DialogEnableWindow(IDC_CHECKDIRECTORIES, m_ListCtrl.GetFolderCount() > 0);
 }

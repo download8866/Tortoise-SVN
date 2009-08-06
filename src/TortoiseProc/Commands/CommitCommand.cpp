@@ -96,15 +96,13 @@ bool CommitCommand::Execute()
 			progDlg.SetChangeList(dlg.m_sChangeList, !!dlg.m_bKeepChangeList);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Commit);
 			progDlg.SetOptions(dlg.m_bKeepLocks ? ProgOptKeeplocks : ProgOptNone);
 			progDlg.SetPathList(dlg.m_pathList);
 			progDlg.SetCommitMessage(dlg.m_sLogMessage);
 			progDlg.SetDepth(dlg.m_bRecursive ? svn_depth_infinity : svn_depth_empty);
 			progDlg.SetSelectedList(dlg.m_selectedPathList);
-			progDlg.SetItemCount(static_cast<long>(dlg.m_itemsCount));
+			progDlg.SetItemCount(dlg.m_itemsCount);
 			progDlg.SetBugTraqProvider(dlg.m_BugTraqProvider);
 			progDlg.SetRevisionProperties(dlg.m_revProps);
 			progDlg.DoModal();

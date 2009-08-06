@@ -31,18 +31,14 @@
 #include "CachedLogInfo.h"
 #include "RepositoryInfo.h"
 #include "RevisionIndex.h"
-#include "Access/CopyFollowingLogIterator.h"
+#include "CopyFollowingLogIterator.h"
 #include "ProgressDlg.h"
-#include "AsyncCall.h"
-#include "Future.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #undef THIS_FILE
 static char THIS_FILE[] = __FILE__;
 #endif
-
-using namespace async;
 
 CFullHistory::CFullHistory(void) 
     : cancelled (false)
@@ -58,9 +54,6 @@ CFullHistory::CFullHistory(void)
     , copyFromRelation (NULL)
     , copyFromRelationEnd (NULL)
     , cache (NULL)
-    , diskIOScheduler (1, 0, true)  // one thread for crawling the disk
-    , cpuLoadScheduler (1, INT_MAX, true) // at least one thread for CPU intense ops
-                                    // plus as much as we got left from the shared pool
 {
 	memset (&ctx, 0, sizeof (ctx));
 	parentpool = svn_pool_create(NULL);
@@ -107,7 +100,7 @@ CFullHistory::~CFullHistory(void)
 	svn_pool_destroy (parentpool);
 }
 
-bool CFullHistory::ClearCopyInfo()
+void CFullHistory::ClearCopyInfo()
 {
 	delete copyToRelation;
 	delete copyFromRelation;
@@ -121,8 +114,6 @@ bool CFullHistory::ClearCopyInfo()
         copiesContainer[i]->Destroy (copyInfoPool);
 
     copiesContainer.clear();
-
-    return true;
 }
 
 svn_error_t* CFullHistory::cancel(void *baton)
@@ -192,15 +183,6 @@ bool CFullHistory::FetchRevisionData ( CString path
                                      , bool showWCModification
                                      , CProgressDlg* progress)
 {
-    // clear any previously existing SVN error info
-
-	svn_error_clear(Err);
-    Err = NULL;
-
-    // remove internal data from previous runs
-
-    CFuture<bool> clearJob (this, &CFullHistory::ClearCopyInfo, &cpuLoadScheduler);
-
 	// set some text on the progress dialog, before we wait
 	// for the log operation to start
     this->progress = progress;
@@ -234,9 +216,9 @@ bool CFullHistory::FetchRevisionData ( CString path
         pegRev = head;
 
     headRevision = head;
-    CString escapedRepoRoot = rootPath.GetSVNPathString();
-    relPath = CPathUtils::PathUnescape (url.Mid (escapedRepoRoot.GetLength()));
-    repoRoot = CPathUtils::PathUnescape (escapedRepoRoot);
+    repoRoot = rootPath.GetSVNPathString();
+    relPath = CPathUtils::PathUnescape (url.Mid (repoRoot.GetLength()));
+    repoRoot = CPathUtils::PathUnescape (repoRoot);
 
 	// fix issue #360: use WC revision as peg revision
 
@@ -260,7 +242,6 @@ bool CFullHistory::FetchRevisionData ( CString path
 
 		svnQuery.reset (new CSVNLogQuery (&ctx, pool));
 
-        bool cacheIsComplete = false;
         if (svn.GetLogCachePool()->IsEnabled())
         {
             CLogCachePool* pool = svn.GetLogCachePool();
@@ -270,8 +251,8 @@ bool CFullHistory::FetchRevisionData ( CString path
             // (in off-line mode, the query may not find the cache as 
             // it cannot contact the server to get the UUID)
 
-            uuid = pool->GetRepositoryInfo().GetRepositoryUUID (rootPath);
-            cache = pool->GetCache (uuid, escapedRepoRoot);
+            uuid = pool->GetRepositoryInfo().GetRepositoryUUID (svnPath);
+            cache = pool->GetCache (uuid, rootPath.GetSVNPathString());
 
             firstRevision = cache != NULL
                           ? cache->GetRevisions().GetFirstMissingRevision(1)
@@ -281,10 +262,7 @@ bool CFullHistory::FetchRevisionData ( CString path
 			// HEAD+1 - that revision does not exist and would throw an error later
 
 			if (firstRevision > headRevision)
-            {
-                cacheIsComplete = true;
 				firstRevision = headRevision;
-            }
         }
         else
         {
@@ -293,80 +271,73 @@ bool CFullHistory::FetchRevisionData ( CString path
             firstRevision = 0;
         }
 
+        // actually fetch the data
+
+		query->Log ( CTSVNPathList (rootPath)
+				   , headRevision
+				   , headRevision
+				   , firstRevision
+				   , 0
+				   , false		// strictNodeHistory
+				   , this
+                   , false		// includeChanges (log cache fetches them automatically)
+                   , false		// includeMerges
+                   , true		// includeStandardRevProps
+                   , false		// includeUserRevProps
+                   , TRevPropNames());
+
+        // store WC path
+
+        if (cache == NULL)
+	        cache = query->GetCache();
+
+	    const CPathDictionary* paths = &cache->GetLogInfo().GetPaths();
+        wcPath.reset (new CDictionaryBasedTempPath (paths, (const char*)relPath));
+        wcRevision = pegRev;
+
 	    // Find the revision the working copy is on, we mark that revision
 	    // later in the graph (handle option changes properly!).
         // For performance reasons, we only don't do it if we want to display it.
 
-        wcRevision = pegRev;
-        new CAsyncCall ( this
-                       , &CFullHistory::QueryWCRevision
-                       , showWCRev || showWCModification
-                       , path
-                       , &diskIOScheduler);
-
-        // actually fetch the data
-
-        if (!cacheIsComplete)
-		    query->Log ( CTSVNPathList (rootPath)
-				       , headRevision
-				       , headRevision
-				       , firstRevision
-				       , 0
-				       , false		// strictNodeHistory
-				       , this
-                       , false		// includeChanges (log cache fetches them automatically)
-                       , false		// includeMerges
-                       , true		// includeStandardRevProps
-                       , false		// includeUserRevProps
-                       , TRevPropNames());
-
-        // Store updated cache data
-
-        if (cache == NULL)
+        if (showWCRev || showWCModification)
         {
-	        cache = query->GetCache();
+            svn_revnum_t maxrev = wcRevision;
+            svn_revnum_t minrev = 0;
+	        bool switched, modified, sparse;
+			CTSVNPath tpath = CTSVNPath (path);
+			if (!tpath.IsUrl())
+			{
+                temp.LoadString (IDS_REVGRAPH_PROGREADINGWC);
+                progress->SetLine(2, temp);
+
+				if (svn.GetWCRevisionStatus ( CTSVNPath (path)
+											, true    // get the "commit" revision
+											, minrev
+											, maxrev
+											, switched
+											, modified
+											, sparse))
+				{
+					// we want to report the oldest revision as WC revision:
+					// If you commit at $WC/path/ and after that ask for the 
+					// rev graph at $WC/, we want to display the revision of
+					// the base path ($WC/ is now "older") instead of the
+					// newest one.
+
+					wcRevision = maxrev;
+					wcModified = modified;
+				}
+			}
         }
-        else
-        {
-            if (cache->IsModified())
-                new CAsyncCall ( cache
-                               , &LogCache::CCachedLogInfo::Save
-                               , &cpuLoadScheduler);
-        }
-
-        // store WC path
-
-	    const CPathDictionary* paths = &cache->GetLogInfo().GetPaths();
-        wcPath.reset (new CDictionaryBasedTempPath (paths, (const char*)relPath));
-
-        // wait for the cleanup jobs to finish before starting new ones
-        // that depend of them
-
-        clearJob.GetResult();
 
         // analyse the data
 
-        new CAsyncCall ( this
-                       , &CFullHistory::AnalyzeRevisionData
-                       , &cpuLoadScheduler);
+        AnalyzeRevisionData();
 
         // pre-process log data (invert copy-relationship)
 
-        new CAsyncCall ( this
-                       , &CFullHistory::BuildForwardCopies
-                       , &cpuLoadScheduler);
-
-	    // Wait for the jobs to finish
-
-        if (showWCRev || showWCModification)
-        {
-            temp.LoadString (IDS_REVGRAPH_PROGREADINGWC);
-            progress->SetLine(2, temp);
-        }
-
-        cpuLoadScheduler.WaitForEmptyQueue();
-        diskIOScheduler.WaitForEmptyQueue();
-    }
+    	BuildForwardCopies();
+	}
 	catch (SVNError& e)
 	{
 		Err = svn_error_create (e.GetCode(), NULL, e.GetMessage());
@@ -376,43 +347,13 @@ bool CFullHistory::FetchRevisionData ( CString path
 	return true;
 }
 
-void CFullHistory::QueryWCRevision (bool doQuery, CString path)
-{
-    // Find the revision the working copy is on, we mark that revision
-    // later in the graph (handle option changes properly!).
-    // For performance reasons, we only don't do it if we want to display it.
-
-    if (doQuery)
-    {
-        svn_revnum_t maxrev = wcRevision;
-        svn_revnum_t minrev = 0;
-        bool switched, modified, sparse;
-	    CTSVNPath tpath = CTSVNPath (path);
-	    if (!tpath.IsUrl())
-	    {
-		    if (svn.GetWCRevisionStatus ( CTSVNPath (path)
-									    , true    // get the "commit" revision
-									    , minrev
-									    , maxrev
-									    , switched
-									    , modified
-									    , sparse))
-		    {
-			    // we want to report the oldest revision as WC revision:
-			    // If you commit at $WC/path/ and after that ask for the 
-			    // rev graph at $WC/, we want to display the revision of
-			    // the base path ($WC/ is now "older") instead of the
-			    // newest one.
-
-			    wcRevision = maxrev;
-			    wcModified = modified;
-		    }
-	    }
-    }
-}
-
 void CFullHistory::AnalyzeRevisionData()
 {
+	svn_error_clear(Err);
+    Err = NULL;
+
+	ClearCopyInfo();
+
     // special case: empty log
 
     if (headRevision == NO_REVISION)

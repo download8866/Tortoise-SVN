@@ -115,7 +115,7 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev)
 CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev, CWnd* pParent)
 	: CResizableStandAloneDialog(CRepositoryBrowser::IDD, pParent)
 	, m_cnrRepositoryBar(&m_barRepository)
-	, m_bStandAlone(false)
+	, m_bStandAlone(true)
 	, m_InitialUrl(url)
 	, m_initialRev(rev)
 	, m_bInitDone(false)
@@ -436,27 +436,6 @@ void CRepositoryBrowser::OnOK()
 {
 	RevokeDragDrop(m_RepoList.GetSafeHwnd());
 	RevokeDragDrop(m_RepoTree.GetSafeHwnd());
-	if (m_blockEvents)
-		return;
-
-	if (GetFocus() == &m_RepoList)
-	{
-		// list control has focus: 'enter' the folder
-
-		if (m_RepoList.GetSelectedCount() != 1)
-			return;
-
-		POSITION pos = m_RepoList.GetFirstSelectedItemPosition();
-		int selIndex = m_RepoList.GetNextSelectedItem(pos);
-		if (selIndex < 0)
-			return;
-		CItem * pItem = (CItem*)m_RepoList.GetItemData(selIndex);
-		if ((pItem)&&(pItem->kind == svn_node_dir))
-		{
-			ChangeToUrl(pItem->absolutepath, m_initialRev, true);
-		}
-		return;
-	}
 
 	SaveColumnWidths(true);
 
@@ -2245,11 +2224,6 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
 					popup.AppendMenu(MF_SEPARATOR, NULL);
 					popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATE, IDI_UPDATE);		// "Update item to revision"
 				}
-			}
-			else
-			{
-				popup.AppendMenu(MF_SEPARATOR, NULL);
-				popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATE, IDI_UPDATE);		// "Update item to revision"
 			}
 		}
 		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);

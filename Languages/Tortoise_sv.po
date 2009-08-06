@@ -18,7 +18,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-07-24 12:02+0100\n"
+"PO-Revision-Date: 2009-04-16 20:27+0100\n"
 "Last-Translator: Johan Foglemark <johanfoglemark@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -221,13 +221,13 @@ msgstr "%s, men den var blockerad i arbetskopian."
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
-msgstr "%s\\%s - Export"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Export (%d) av %s"
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
-msgstr "%s\\%s - Export (%d)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Export av %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -1164,10 +1164,6 @@ msgstr "\"överhoppade interval\" används för att markera revisionsinterval so
 msgid "(%s) %s"
 msgstr "(%s) %s"
 
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Dubbel-klicka för att rensa felmeddelande)"
-
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
 msgstr "(binärt värde)"
@@ -1175,10 +1171,6 @@ msgstr "(binärt värde)"
 #. Resource IDs: (276)
 msgid "(copy)"
 msgstr "(kopiera)"
-
-#. Resource IDs: (277)
-msgid "(create branch)"
-msgstr "(skapa gren)"
 
 #. Resource IDs: (276)
 msgid "(created)"
@@ -1219,6 +1211,10 @@ msgstr "(inget värde)"
 #. Resource IDs: (314)
 msgid "(not found)"
 msgstr "(inte hittad)"
+
+#. Resource IDs: (276)
+msgid "(open branch)"
+msgstr "(öppna gren)"
 
 #. Resource IDs: (208)
 msgid "(property change only)"
@@ -1477,10 +1473,6 @@ msgstr "Lägg till filändelsespecifikt program för att visa skillnader"
 msgid "Add extension specific merge program"
 msgstr "Lägg till föreningsprogram för filändelse"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Lägg till nya objekt till källkodskontrollen automatiskt"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Lägg till objektet i alla fall"
@@ -1585,10 +1577,6 @@ msgstr "Ålder"
 msgid "Align trees on top"
 msgstr "Äldst överst"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Alla"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Alla kommandon"
@@ -1630,10 +1618,6 @@ msgstr "Tillåt olika arkiv att använda samma URL. Tex http://localhost/myrepos
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Tillåt olika arkiv att använda samma UUID. Tex http://localhost/myrepos/"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Stäng alltid dialogrutor för lokala operationer"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1829,6 +1813,10 @@ msgstr "Göm allt automatiskt"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Automatiskt namnbyte"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Stäng automatiskt för lokala operationer"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2195,10 +2183,6 @@ msgstr "Kryssa i för att använda ett mindre utförligt format för datum och t
 msgid "Check working copy for modifications"
 msgstr "Kontrollera ändringar i arbetskopian"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Markera:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Kontrollerar om det finns en nyare version av TortoiseSVN tillgänglig..."
@@ -2241,9 +2225,8 @@ msgid "Cleaning up"
 msgstr "Rensar"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Rensar katalog \"%s\""
+msgid "Cleaning up."
+msgstr "Rensar. "
 
 #. Resource IDs: (83)
 #, c-format
@@ -3146,10 +3129,6 @@ msgstr "Jämför"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Jämför filen i arbetskopian med den innan föregående arkivering."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Kataloger"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Mapp:"
@@ -3161,10 +3140,6 @@ msgid ""
 msgstr ""
 "Stäng av det här valet om du har riktigt stora arbetskopior och upplever\r\n"
 "för mycket diskanvändning när du utforskar arbetskopian."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Ta bort lokala ändringar vid inkommande radering"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3927,10 +3902,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Filnamn"
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Filer"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4011,14 +3982,6 @@ msgstr "Tryck F1 för hjälp. Rulla horisontellt med Ctrl+mushjul"
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Avmarkera \"Följ inte kopieringshistorik\" för att se all historik"
-
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Tvinga"
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
-msgstr "Tvinga förening"
 
 #. Resource IDs: (1064)
 msgid "Forward"
@@ -5333,8 +5296,8 @@ msgstr "Förenar"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Förenar %s till %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Förenar %s till %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5342,8 +5305,8 @@ msgstr "Förenar skillnader mellan arkiv URLerna"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Förenar från %s, revision %s till %s, revision %s till %s, %s%s%s"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Förenar från %s, revision %s till %s, revision %s till %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
@@ -5361,8 +5324,8 @@ msgstr "Förening kräver olika revisioner eller olika URLer i 'Från:' och 'Til
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Förenar revision %s av %s till %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Förenar revision %s av %s till %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
@@ -6473,10 +6436,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr "Återintegrera en gren"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Återintegrera förening"
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -7267,10 +7226,6 @@ msgid "Select text editor application"
 msgstr "Välj applikation för textredigering"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Välj URLerna du vill återintegrera ifrån"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Välj URLerna för träd förening"
 
@@ -7992,10 +7947,6 @@ msgstr "Märken noder"
 #, c-format
 msgid "Tagged the working copy to %s"
 msgstr "Arbetskopian märkt med %s"
-
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "Uppgifter"
 
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
@@ -9028,10 +8979,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "Koppla loss"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "Icke versionshanterad"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10369,14 +10316,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Minsta antalet tecken som ett loggmeddelande måste innehålla för att arkivering ska tillåtas."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Ett reguljärt utryck som matchar revisionsnumret i ett logmeddelande"
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10499,8 +10438,12 @@ msgstr "ja"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Rensar. "
+#~ msgid "Add new files automatically to SVN"
+#~ msgstr "Lägg till nya objekt till källkodskontrollen automatiskt"
+#~ msgid "Reintegrate merge"
+#~ msgstr "Återintegrera förening"
+#~ msgid "Select the URL from which to reintegrate"
+#~ msgstr "Välj URLerna du vill återintegrera ifrån"
 #~ msgid "Floppy drives (A: B:)"
 #~ msgstr "Diskenheter (A: B:)"
 #~ msgid ""

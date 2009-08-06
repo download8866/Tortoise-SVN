@@ -117,7 +117,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 			m_PropNames.AddString(_T("tsvn:userfileproperties"));
 			m_PropNames.AddString(_T("tsvn:userdirproperties"));
 			m_PropNames.AddString(_T("tsvn:autoprops"));
-			m_PropNames.AddString(_T("tsvn:logrevregex"));
 
 			m_PropNames.AddString(_T("webviewer:revision"));
 			m_PropNames.AddString(_T("webviewer:pathrevision"));
@@ -165,9 +164,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	if (!m_sTitle.IsEmpty())
 		SetWindowText(m_sTitle);
 
-	CAppUtils::CreateFontForLogs(m_valueFont);
-	GetDlgItem(IDC_PROPVALUE)->SetFont(&m_valueFont);
-
 	AdjustControlSize(IDC_PROPRECURSIVE);
 
 	GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
@@ -182,11 +178,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("EditPropertyValueDlg"));
-	if (!m_sPropValue.IsEmpty())
-	{
-		GetDlgItem(IDC_PROPVALUE)->SetFocus();
-		return FALSE;
-	}
 	return TRUE;
 }
 
@@ -314,8 +305,6 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_PROP_TT_TSVNUSERFOLDERPROPERTIES;
 		if (sName.Compare(_T("tsvn:autoprops"))==0)
 			nText = IDS_PROP_TT_TSVNAUTOPROPS;
-		if (sName.Compare(_T("tsvn:logrevregex"))==0)
-			nText = IDS_PROP_TT_TSVNLOGREVREGEX;
 
 		if (sName.Compare(_T("webviewer:revision"))==0)
 			nText = IDS_PROP_TT_WEBVIEWERREVISION;

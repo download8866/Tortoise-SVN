@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,9 +22,8 @@
 // necessary includes
 ///////////////////////////////////////////////////////////////
 
-#include "../../Utils/QuickHash.h"
+#include "QuickHash.h"
 #include "LogCacheGlobals.h"
-#include "ContainerException.h"
 
 ///////////////////////////////////////////////////////////////
 // forward declarations
@@ -82,11 +81,11 @@ private:
 
 		size_t operator() (const value_type& value) const
 		{
-#ifdef _64BITS
+#ifdef _WIN64
 			return reinterpret_cast<const size_t&>(value);
 #else
-			return //(((size_t)value.first) << 24) + (((size_t)value.first) >> 8)
-				   (((size_t)value.first) << 13) + (((size_t)value.first) >> 13)
+			return (((size_t)value.first) << 24) + (((size_t)value.first) >> 8)
+				 + (((size_t)value.first) << 16) + (((size_t)value.first) >> 16)
 				 + (size_t)value.second;
 #endif
 		}
@@ -144,7 +143,7 @@ public:
 	{
 	#if !defined (_SECURE_SCL)
 		if (index >= data.size())
-			throw CContainerException ("pair dictionary index out of range");
+			throw std::exception ("pair dictionary index out of range");
 	#endif
 
 		return data[index];
@@ -157,17 +156,12 @@ public:
 	void Clear();
 	void Swap (CIndexPairDictionary& rhs);
 
-    // return false if concurrent read accesses
-    // would potentially access invalid data.
-
-    bool CanInsertThreadSafely (index_t count) const;
-
 	/// stream I/O
-	
+
 	friend IHierarchicalInStream& operator>> ( IHierarchicalInStream& stream
-	                                         , CIndexPairDictionary& dictionary);
+											 , CIndexPairDictionary& dictionary);
 	friend IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
-	                                          , const CIndexPairDictionary& dictionary);
+											  , const CIndexPairDictionary& dictionary);
 
 	/// for statistics
 
@@ -177,9 +171,9 @@ public:
 /// stream I/O
 
 IHierarchicalInStream& operator>> ( IHierarchicalInStream& stream
-                                  , CIndexPairDictionary& dictionary);
+								  , CIndexPairDictionary& dictionary);
 IHierarchicalOutStream& operator<< ( IHierarchicalOutStream& stream
-                                   , const CIndexPairDictionary& dictionary);
+								   , const CIndexPairDictionary& dictionary);
 
 ///////////////////////////////////////////////////////////////
 // end namespace LogCache

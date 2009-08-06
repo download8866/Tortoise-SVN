@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "TokenizedStringContainer.h"
-#include "ContainerException.h"
+#include "StdAfx.h"
+#include ".\tokenizedstringcontainer.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -392,51 +391,27 @@ void CTokenizedStringContainer::Append (index_t token)
 	if (IsToken (token))
 	{
 		if (stringData.size() == NO_INDEX)
-			throw CContainerException ("string container overflow");
+			throw std::exception ("string container overflow");
 
 		stringData.push_back (token);
 	}
 }
 
-struct SDelimiterTable
-{
-    bool data[256];
-
-    bool operator[](size_t i) const
-        {return data[i];}
-
-    SDelimiterTable (const std::string& delimiters)
-    {
-        memset (data, false, sizeof (data));
-        for (size_t i = 0; i < delimiters.size(); ++i)
-            data[delimiters[i]] = true;
-    }
-};
-
 void CTokenizedStringContainer::Append (const std::string& s)
 {
-    static const std::string delimiters (" \t\n\\/()<>{}\"\'.:=-+*^");
-    static const SDelimiterTable delimiter (delimiters);
+	static const std::string delimiters (" \t\n\\/");
 
 	index_t lastToken = (index_t)EMPTY_TOKEN;
 	size_t nextPos = std::string::npos;
 
 	size_t stringStart = stringData.size();
-    bool inDelimiter = !s.empty() && delimiter[s[0]];
 	for (size_t pos = 0, length = s.length(); pos < length; pos = nextPos)
 	{
 		// extract the next word / token
 
-		for (nextPos = pos+1; nextPos < length; ++nextPos)
-            if (delimiter[s[nextPos]] != inDelimiter)
-                break;
-
-        inDelimiter = !inDelimiter;
-        if ((nextPos+1 < length) && (delimiter[s[nextPos+1]] != inDelimiter))
-        {
-            ++nextPos;
-            inDelimiter = !inDelimiter;
-        }
+		nextPos = s.find_first_of (delimiters, pos+1);
+		if (nextPos == std::string::npos)
+			nextPos = length;
 
 		std::string word = s.substr (pos, nextPos - pos);
 		index_t token = GetWordToken (words.AutoInsert (word.c_str()));
@@ -488,7 +463,7 @@ void CTokenizedStringContainer::CheckIndex (index_t index) const
 {
 #if !defined (_SECURE_SCL)
 	if (index >= offsets.size()-1)
-		throw CContainerException ("string container index out of range");
+		throw std::exception ("string container index out of range");
 #else
     UNREFERENCED_PARAMETER(index);
 #endif
@@ -719,22 +694,6 @@ void CTokenizedStringContainer::AutoCompress()
 
 	if (stringData.size() < ((size_t)1 << relation))
 		Compress();
-}
-
-// return false if concurrent read accesses
-// would potentially access invalid data.
-
-bool CTokenizedStringContainer::CanInsertThreadSafely 
-    (const std::string& s) const
-{
-    // behavior in non-trival cases is too hard to predict.
-    // So, do a gross worst-case overestimation.
-
-    size_t length = s.size();
-
-    return (offsets.size() + length + 1 < offsets.capacity())
-        && (stringData.size() + length + 1 < stringData.capacity())
-        && words.CanInsertThreadSafely ((index_t)length, length);
 }
 
 // reset content

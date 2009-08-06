@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-07-07 13:23 +0000\n"
-"PO-Revision-Date: 2009-07-16 22:47+0900\n"
+"POT-Creation-Date: 2009-06-07 23:32 +0000\n"
+"PO-Revision-Date: 2009-07-12 21:52+0900\n"
 "Last-Translator: KURASAWA Nozomu <nabetaro@caldron.jp>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -9021,14 +9021,19 @@ msgstr ""
 msgid ""
 "When you show the log for a folder the revision highlighted is the highest "
 "revision found anywhere within that folder, which requires a crawl of the "
-"working copy. The crawl takes place within a separate thread so as not to "
-"delay showing the log, but as a result highlighting for folders may not "
-"appear immediately."
+"working copy. This can be a slow operation for large working copies, and the "
+"log messages are not displayed until the crawl completes. If you want to "
+"disable or limit this feature you need to set a registry key <literal>HKCU"
+"\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref "
+"linkend=\"tsvn-dug-settings-registry\"/>."
 msgstr ""
-"フォルダのログを表示する際、強調されたリビジョンは、そのフォルダの近辺にある"
-"最大のリビジョンになります。これには作業コピーのクロールが必要です。クロール"
-"は別スレッドで実行するため、ログ表示に遅延は起こりませんが、フォルダの強調結"
-"果に特定のフォルダが現れないことがあります。"
+"フォルダのリビジョンを表示する際、強調されたリビジョンは、そのフォルダの近辺"
+"にある最大のリビジョンになります。これには作業コピーのクロールが必要です。こ"
+"れは大きな作業コピーでは、遅い処理になり、クロールが完了するまでログメッセー"
+"ジが表示されません。この機能を無効にしたり、制限したりしたい場合は、<xref "
+"linkend=\"tsvn-dug-settings-registry\"/> で説明するように、レジストリキー "
+"<literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> をセットして"
+"ください。"
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -11883,38 +11888,6 @@ msgid ""
 msgstr ""
 "例: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> は、ログメッセージ中の <quote>"
 "[SUMMARY]</quote> 以降をすべてサマリとして扱います。"
-
-#. (para)
-msgid ""
-"The property <literal>tsvn:logrevregex</literal> defines a regular "
-"expression which matches references to revisions in a log message. This is "
-"used in the log dialog to turn such references into links which when clicked "
-"will either scroll to that revision (if the revision is already shown in the "
-"log dialog, or if it's available from the log cache) or open a new log "
-"dialog showing that revision."
-msgstr ""
-"<literal>tsvn:logrevregex</literal> 属性には、ログメッセージにあるリビジョン"
-"の参照にマッチする正規表現を定義します。これはログダイアログで、リビジョンの"
-"参照をリンクにするのに使用します。このリンクをクリックすると、そのリビジョン"
-"までスクロール (リビジョンがログダイアログにあるか、ログキャッシュにある場"
-"合) したり、そのリビジョンを表示する、新しいログダイアログを開いたりします。"
-
-#. (para)
-msgid ""
-"The regular expression must match the whole reference, not just the revision "
-"number. The revision number is extracted from the matched reference string "
-"automatically."
-msgstr ""
-"正規表現は、リビジョン番号だけでなく参照全体にマッチしなければなりません。リ"
-"ビジョン番号はマッチした参照文字列から、自動的に抽出します。"
-
-#. (para)
-msgid ""
-"If this property is not set, a default regular expression is used to link "
-"revision references."
-msgstr ""
-"この属性が設定されていない場合、リビジョン参照をリンクにする、デフォルト正規"
-"表現を使用します。"
 
 #. (para)
 msgid ""
@@ -17083,16 +17056,6 @@ msgstr ""
 "れば、上記のダイアログを散らかさずにすみます。この場合、バージョン管理外の"
 "フォルダを追加するよう選択すると、再帰的に追加します。"
 
-#. (para)
-msgid ""
-"In the <guilabel>Check for Modifications</guilabel> dialog you can opt to "
-"see ignored items. If this box is checked then whenever an ignored folder is "
-"found, all child items will be shown as well."
-msgstr ""
-"<guilabel>変更をチェック</guilabel> ダイアログでは、無視される項目を表示する"
-"か選択できます。このチェックボックスにチェックして、無視されたフォルダを表示"
-"すると、その中にある項目も同様に見られるようになります。"
-
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
 msgstr "ファイルのパスやキーワードの自動補完を利用する"
@@ -19426,23 +19389,24 @@ msgstr "ログダイアログでフォルダの現在のバージョンも強調
 msgid ""
 "The log dialog highlights the current working copy revision when the log is "
 "shown for a file. To do the same thing for a folder requires a working copy "
-"crawl, which can be a slow operation for large working copies. However the "
-"crawling is done in a separate thread so it doesn't hold up the display of "
-"log messages. For <emphasis>really</emphasis> large working copies the disk "
-"chatter might be annoying, so if you really want to disable this you must "
+"crawl, which is the default action, but it can be a slow operation for large "
+"working copies. If you want to change the operation of this feature you must "
 "create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software"
-"\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature "
-"(no highlighting for folders)."
+"\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature "
+"(no highlighting for folders), a value of 1 (default) will fetch the status "
+"recursively (find the highest revision in the working copy tree), and a "
+"value of 2 will check the revision of the selected folder itself, but will "
+"not check any child items."
 msgstr ""
 "ログダイアログでは、ファイルのログを表示する際、現在の作業コピーのリビジョン"
 "を強調しています。フォルダに対して同じことをするには、作業コピーに対してク"
 "ロールしなければなりませんが、作業コピーが大きいと、この操作に時間がかかりま"
-"す。しかし、クロールは別スレッドで行われるため、ログメッセージの表示が固まっ"
-"てしまうことはありません。<emphasis>本当に</emphasis>大きい作業コピーでは、"
-"ディスクのカタカタ音がうっとうしいかもしれません。本当にこの機能を無効にする"
-"場合、<literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal> に "
-"<literal>DWORD</literal> のレジストリキーを作成してください。0 に設定するとこ"
-"の機能を無効にします (フォルダの強調なし)。"
+"す。この機能を有効にするには、<literal>HKCU\\Software\\TortoiseSVN"
+"\\RecursiveLogRev</literal> に <literal>DWORD</literal> のレジストリキーを、"
+"作成しなければなりません。0 に設定するとこの機能を無効にします (フォルダの強"
+"調なし)。1 (デフォルト) に設定すると、状態を再帰的に取得します (作業コピーツ"
+"リーの最新リビジョンを検索)。2 に設定すると、選択したフォルダ自体のリビジョン"
+"をチェックしますが、子項目のチェックはしません。"
 
 #. (term)
 msgid "Make checkout fail if an item of the same name exists"
@@ -21670,7 +21634,6 @@ msgstr "TortoiseSVN コマンド"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "自動化"
 
@@ -21763,16 +21726,20 @@ msgstr ""
 
 #. (para)
 msgid ""
+"<option>/closeonend:4</option> auto close if no errors, conflicts and merges "
+"for local operations"
+msgstr ""
+"<option>/closeonend:4</option> エラー、競合、マージが手元の操作で起きなければ"
+"自動で閉じます。"
+
+#. (para)
+msgid ""
 "To close the progress dialog at the end of a command automatically without "
 "using the permanent setting you can pass the <option>/closeonend</option> "
-"parameter. <placeholder-1/> To close the progress dialog for local "
-"operations if there were no errors or conflicts, pass the <option>/"
-"closeforlocal</option> parameter."
+"parameter. <placeholder-1/>"
 msgstr ""
 "永続的な設定を行わずに、コマンド終了時に進行ダイアログを自動で閉じるには、"
 "<option>/closeonend</option> パラメータを渡すことで行えます。<placeholder-1/>"
-"エラーや競合がない場合、ローカル操作の進行ダイアログを閉じるには、<option>/"
-"closeforlocal</option> パラメータを渡してください。"
 
 #. (para)
 msgid ""
@@ -21849,57 +21816,15 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"filterstring\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> すべてに対してフィルタ"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> メッセージでフィルタ"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> パスに対してフィルタ"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> 作者に対してフィルタ"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> リビジョンに対してフィルタ"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> バグ ID に対してフィルタ"
-
 #. (entry)
 msgid ""
 "Opens the log dialog. The <placeholder-1/> specifies the file or folder for "
-"which the log should be shown. Six additional options can be set: "
-"<placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-"
-"copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> "
-"(forces the filter to use text, not regex) and <placeholder-7/> with X being "
-"a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
+"which the log should be shown. Three additional options can be set: "
+"<placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
 msgstr ""
 "ログダイアログを開きます。<placeholder-1/> にはログを表示するファイルやフォル"
-"ダを指定します。以下の 6 種のオプションを設定できます。<placeholder-2/>, "
-"<placeholder-3/>, <placeholder-4/> (「コピーが発生したら停止」チェックボック"
-"スを有効化), <placeholder-5/> (フィルタ文字列を指定), <placeholder-6/> (フィ"
-"ルタを正規表現ではなく強制的に文字列とする), <placeholder-7/> (X は 1 から 7 "
-"の番号)です。番号は以下に該当します。<placeholder-8/>"
+"ダを指定します。以下の 3 種のオプションを設定できます。<placeholder-2/>, "
+"<placeholder-3/>, <placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -22198,24 +22123,13 @@ msgstr ""
 msgid "Opens the help file."
 msgstr "ヘルプファイルを開きます。"
 
-#. (option)
-msgid "/remote"
-msgstr "/remote"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "リポジトリをチェック"
-
 #. (entry)
 msgid ""
 "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the "
-"working copy directory. If <placeholder-2/> is specified, the dialog "
-"contacts the repository immediately on startup, as if the user clicked on "
-"the <placeholder-3/> button."
+"working copy directory."
 msgstr ""
-"変更をチェックダイアログを開きます。<placeholder-1/> には作業コピーディレクト"
-"リを指定します。<placeholder-2/> を指定すると、ユーザが <placeholder-3/> ボタ"
-"ンを押したときのように、直ちにリポジトリにアクセスを開始します。"
+"更新チェックダイアログを開きます。<placeholder-1/> には作業コピーディレクトリ"
+"を指定します。"
 
 #. (option)
 #. (option)
@@ -22366,77 +22280,6 @@ msgstr ""
 "TortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n"
 "                 /startrev:50 /endrev:60 /closeonend:0\n"
 "</screen>"
-
-#. (title)
-msgid "Tsvncmd URL handler"
-msgstr "Tsvncmd URL ハンドラ"
-
-#. (primary)
-msgid "URL handler"
-msgstr "URL ハンドラ"
-
-#. (para)
-msgid ""
-"Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr ""
-"特殊な URL を使用すると、web ページから TortoiseProc を呼び出すことができま"
-"す。"
-
-#. (para)
-msgid ""
-"TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can "
-"be used to create hyperlinks that execute TortoiseSVN commands. The commands "
-"and parameters are the same as when automating TortoiseSVN from the command "
-"line."
-msgstr ""
-"TortoiseSVN は、TortoiseSVN コマンドを実行するようなハイパーリンクを作成す"
-"る、<literal>tsvncmd:</literal> という新しいプロトコルを登録します。コマンド"
-"やパラメータは、コマンドラインから TortoiseSVN を自動化するのと同じです。"
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr "<literal>tsvncmd:</literal> URL の形式は以下のようになります。"
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-
-#. (para)
-msgid ""
-"with <literal>cmd</literal> being one of the allowed commands and with "
-"<literal>parameter</literal> being a parameter like <literal>path</literal> "
-"or <literal>revision</literal>, depending on the command used."
-msgstr ""
-"<literal>cmd</literal> には、利用できるコマンドを指定し、<literal>parameter</"
-"literal> には <literal>path</literal> や <literal>revision</literal> といっ"
-"た、コマンドで使用するパラメータを指定してください。"
-
-#. (para)
-msgid ""
-"The following commands are allowed with <literal>tsvncmd:</literal> URLs: "
-"<placeholder-1/>"
-msgstr ""
-"以下のコマンドを <literal>tsvncmd:</literal> URL に使用できます。"
-"<placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr "URL の例として、以下のようになります。<placeholder-1/>"
 
 #. (title)
 msgid "TortoiseIDiff Commands"
@@ -23617,20 +23460,6 @@ msgstr ""
 "\"><citetitle>www.logemann.org</citetitle></ulink> にあります) から来ていま"
 "す。Windows サーバに設定するさらなる情報は、Thorsten Müller が提供していま"
 "す。ありがとうございます!"
-
-#. (para)
-msgid ""
-"You can also watch a video tutorial created by Maximo Migliari which takes "
-"you through all the important steps. Watch it on <ulink url=\"http://www."
-"vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url="
-"\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</"
-"citetitle></ulink>."
-msgstr ""
-"また、重要な手順を一通り行っている、Maximo Migliari 作のビデオチュートリアル"
-"も見ることができます。<ulink url=\"http://www.vimeo.com/5378553"
-"\"><citetitle>Vimeo</citetitle></ulink> や <ulink url=\"http://www.youtube."
-"com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink> でご覧くださ"
-"い。"
 
 #. (title)
 msgid "Setting Up a Linux Server"
@@ -25201,20 +25030,6 @@ msgstr "倉澤 望 (鍋太郎) <nabetaro @ caldron.jp>"
 #. (None)
 msgid "translator-translation"
 msgstr "翻訳"
-
-#~ msgid ""
-#~ "<option>/closeonend:4</option> auto close if no errors, conflicts and "
-#~ "merges for local operations"
-#~ msgstr ""
-#~ "<option>/closeonend:4</option> エラー、競合、マージが手元の操作で起きなけ"
-#~ "れば自動で閉じます。"
-
-#~ msgid ""
-#~ "Opens the check-for-modifications dialog. The <placeholder-1/> specifies "
-#~ "the working copy directory."
-#~ msgstr ""
-#~ "更新チェックダイアログを開きます。<placeholder-1/> には作業コピーディレク"
-#~ "トリを指定します。"
 
 #~ msgid ""
 #~ "By default this only works for files. This is because the update revision "

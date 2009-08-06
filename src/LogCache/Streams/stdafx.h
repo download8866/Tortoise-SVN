@@ -45,7 +45,6 @@
 #define NOSOUND
 #define NOCOMM
 #define NORPC
-#define NOMINMAX
 
 // streamline APIs
 
@@ -63,4 +62,3 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <memory>

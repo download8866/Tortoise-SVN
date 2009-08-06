@@ -32,7 +32,7 @@ using namespace Scintilla;
 static inline bool isLispoperator(char ch) {
 	if (isascii(ch) && isalnum(ch))
 		return false;
-	if (ch == '\'' || ch == '`' || ch == '(' || ch == ')' || ch == '[' || ch == ']' || ch == '{' || ch == '}')
+	if (ch == '\'' || ch == '`' || ch == '(' || ch == ')' )
 		return true;
 	return false;
 }
@@ -100,9 +100,6 @@ static void ColouriseLispDoc(unsigned int startPos, int length, int initStyle, W
 				styler.ColourTo(i - 1, state);
 				radix = -1;
 				state = SCE_LISP_MACRO_DISPATCH;
-			} else if (ch == ':' && isLispwordstart(chNext)) {
-				styler.ColourTo(i - 1, state);
-				state = SCE_LISP_SYMBOL;
 			} else if (isLispwordstart(ch)) {
 				styler.ColourTo(i - 1, state);
 				state = SCE_LISP_IDENTIFIER;
@@ -246,9 +243,9 @@ static void FoldLispDoc(unsigned int startPos, int length, int /* initStyle */, 
 		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
 		if (style == SCE_LISP_OPERATOR) {
-			if (ch == '(' || ch == '[' || ch == '{') {
+			if (ch == '(') {
 				levelCurrent++;
-			} else if (ch == ')' || ch == ']' || ch == '}') {
+			} else if (ch == ')') {
 				levelCurrent--;
 			}
 		}

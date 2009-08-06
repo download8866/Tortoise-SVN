@@ -25,7 +25,6 @@
 #include "Registry.h"
 #include "SciEdit.h"
 #include "SplitterControl.h"
-#include "LinkControl.h"
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
 #include "Tooltip.h"
@@ -70,6 +69,7 @@ protected:
 	virtual void OnCancel();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
+	afx_msg void OnBnClickedSelectall();
 	afx_msg void OnBnClickedShowexternals();
 	afx_msg void OnBnClickedHelp();
 	afx_msg void OnBnClickedShowunversioned();
@@ -81,7 +81,6 @@ protected:
 	afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 	afx_msg LRESULT OnSVNStatusListCtrlCheckChanged(WPARAM, LPARAM);
 	afx_msg LRESULT OnSVNStatusListCtrlChangelistChanged(WPARAM count, LPARAM);
-	afx_msg LRESULT OnCheck(WPARAM count, LPARAM);
 	afx_msg LRESULT OnAutoListReady(WPARAM, LPARAM);
 	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
@@ -93,7 +92,6 @@ protected:
 	void SetSplitterRange();
 	void SaveSplitterPos();
 	void ParseRegexFile(const CString& sFile, std::map<CString, CString>& mapRegex);
-	void UpdateCheckLinks();
 
 	DECLARE_MESSAGE_MAP()
 
@@ -129,6 +127,7 @@ private:
 	CRegDWORD			m_regKeepChangelists;
 	CRegDWORD			m_regShowExternals;
 	ProjectProperties	m_ProjectProperties;
+	CButton				m_SelectAll;
 	CString				m_sWindowTitle;
 	static UINT			WM_AUTOLISTREADY;
 	int					m_nPopupPasteListCmd;
@@ -138,7 +137,6 @@ private:
 	CRect				m_DlgOrigRect;
 	CRect				m_LogMsgOrigRect;
 	CPathWatcher		m_pathwatcher;
-	CLinkControl		m_linkControl;
 
 	CBugTraqAssociation m_bugtraq_association;
 

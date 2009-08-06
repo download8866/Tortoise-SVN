@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,6 @@
 //
 #pragma once
 
-#include "FileName.h"
-
 /**
  * class that maps arbitrary files into memory.
  *
@@ -30,7 +28,6 @@ class CMappedInFile
 {
 private:
 
-#ifdef WIN32
 	// the file
 
 	HANDLE file;
@@ -38,13 +35,10 @@ private:
 	// the memory mapping
 
 	HANDLE mapping;
-#else
-    int file;
-#endif
 
 	// file content memory address
 
-	unsigned char* buffer;
+	const unsigned char* buffer;
 
 	// physical file size (== file size)
 
@@ -52,7 +46,7 @@ private:
 
 	// construction utilities
 
-	void MapToMemory (const TFileName& fileName);
+	void MapToMemory (const std::wstring& fileName);
 
 	// destruction / exception utility: close all handles
 
@@ -62,7 +56,7 @@ public:
 
 	// construction / destruction: auto- open/close
 
-	CMappedInFile (const TFileName& fileName);
+	CMappedInFile (const std::wstring& fileName);
 	virtual ~CMappedInFile();
 
 	// access streams

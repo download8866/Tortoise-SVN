@@ -23,8 +23,6 @@
 #include <intrin.h>
 #endif
 
-#include <fstream>
-
 #include "ProfilingInfo.h"
 
 #ifdef _DEBUG
@@ -106,22 +104,17 @@ CProfilingInfo::~CProfilingInfo(void)
 	{
 		// write profile to file
 
-#ifdef _WIN32
-        char buffer [MAX_PATH];
-		if (GetModuleFileNameExA (GetCurrentProcess(), NULL, buffer, MAX_PATH) > 0)
-#else
-        const char* buffer = "application";
-#endif
+		TCHAR buffer [MAX_PATH];
+		if (GetModuleFileNameEx (GetCurrentProcess(), NULL, buffer, MAX_PATH) > 0)
 			try
 			{
-				std::string fileName (buffer);
-				fileName += ".profile";
+				std::wstring fileName (buffer);
+				fileName += L".profile";
 
 				std::string report = GetInstance()->GetReport();
 
-                std::ofstream file;
-                file.open (fileName.c_str(), std::ios::binary | std::ios::out);
-                file.write (report.c_str(), report.size());
+				CFile file (fileName.c_str(), CFile::modeCreate | CFile::modeWrite );
+				file.Write (report.c_str(), (UINT)report.size());
 			}
 			catch (...)
 			{

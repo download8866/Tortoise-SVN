@@ -139,11 +139,6 @@ ViewStyle::ViewStyle(const ViewStyle &source) {
 	viewEOL = source.viewEOL;
 	showMarkedLines = source.showMarkedLines;
 	extraFontFlag = source.extraFontFlag;
-	extraAscent = source.extraAscent;
-	extraDescent = source.extraDescent;
-	marginStyleOffset = source.marginStyleOffset;
-	annotationVisible = source.annotationVisible;
-	annotationStyleOffset = source.annotationStyleOffset;
 }
 
 ViewStyle::~ViewStyle() {
@@ -238,11 +233,6 @@ void ViewStyle::Init(size_t stylesSize_) {
 	viewEOL = false;
 	showMarkedLines = true;
 	extraFontFlag = false;
-	extraAscent = 0;
-	extraDescent = 0;
-	marginStyleOffset = 0;
-	annotationVisible = ANNOTATION_HIDDEN;
-	annotationStyleOffset = 0;
 }
 
 void ViewStyle::RefreshColourPalette(Palette &pal, bool want) {
@@ -294,8 +284,6 @@ void ViewStyle::Refresh(Surface &surface) {
 			someStylesProtected = true;
 		}
 	}
-	maxAscent += extraAscent;
-	maxDescent += extraDescent;
 
 	lineHeight = maxAscent + maxDescent;
 	aveCharWidth = styles[STYLE_DEFAULT].aveCharWidth;
@@ -334,7 +322,7 @@ void ViewStyle::AllocStyles(size_t sizeNew) {
 void ViewStyle::EnsureStyle(size_t index) {
 	if (index >= stylesSize) {
 		size_t sizeNew = stylesSize * 2;
-		while (sizeNew <= index)
+		while (sizeNew < index)
 			sizeNew *= 2;
 		AllocStyles(sizeNew);
 	}
@@ -369,8 +357,3 @@ void ViewStyle::SetStyleFontName(int styleIndex, const char *name) {
 bool ViewStyle::ProtectionActive() const {
 	return someStylesProtected;
 }
-
-bool ViewStyle::ValidStyle(size_t styleIndex) const {
-	return styleIndex < stylesSize;
-}
-

@@ -69,7 +69,6 @@ private:
 	static UINT PropsThreadEntry(LPVOID pVoid);
 	UINT PropsThread();
 	void EditProps(bool bAdd = false);
-	void RemoveProps();
 
 protected:
 	class PropValue

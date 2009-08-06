@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +22,7 @@
 // necessary includes
 ///////////////////////////////////////////////////////////////
 
-#include "./Containers/LogCacheGlobals.h"
-#include "./ConnectionState.h"
+#include "./Containers/logCacheGlobals.h"
 
 ///////////////////////////////////////////////////////////////
 // forward declarations
@@ -60,11 +59,35 @@ namespace LogCache
 
 class CRepositoryInfo
 {
-private:
+public:
 
     /**
-     * Contains all "header" data for a repository.
+     * Per-repository server connectivity state: Default is 
+     * @a online, user can switch to one of the other states
+     * upon connection failure. Refreshing a view will always 
+     * reset to default.
      */
+
+    enum ConnectionState 
+    {
+        /// call the server whenever necessary (default)
+
+        online = 0,
+
+        /// don't call the server, except when HEAD info needs to be refreshed
+
+        tempOffline = 1,
+
+        /// don't contact the server for any reason whatsoever
+
+        offline = 2
+    };
+
+private:
+
+	/**
+	 * Contains all "header" data for a repository.
+	 */
 
     struct SPerRepositoryInfo
     {
@@ -230,17 +253,17 @@ public:
 
     void DropEntry (CString uuid, CString url);
 
-    /// write all changes to disk
+	/// write all changes to disk
 
-    void Flush();
+	void Flush();
 
     /// clear cache
 
     void Clear();
 
-    /// get the owning SVN instance
+	/// get the owning SVN instance
 
-    SVN& GetSVN() const;
+	SVN& GetSVN() const;
 
     /// access to the result of the last SVN operation
 
@@ -252,8 +275,8 @@ public:
 
     /// for statistics
 
-    friend class CLogCacheStatistics;
-    friend class CLogCachePool;
+	friend class CLogCacheStatistics;
+	friend class CLogCachePool;
 };
 
 ///////////////////////////////////////////////////////////////

@@ -46,7 +46,7 @@ CShellExt::MenuInfo CShellExt::menuInfo[] =
 	{ ShellSeparator, 0, 0, 0, 0, 0, 0, 0, 0},
 
 	{ ShellMenuDiff,						MENUDIFF,			IDI_DIFF,				IDS_MENUDIFF,				IDS_MENUDESCDIFF,
-	ITEMIS_INSVN|ITEMIS_ONLYONE, ITEMIS_FOLDER|ITEMIS_NORMAL, ITEMIS_TWO, 0, ITEMIS_PROPMODIFIED, 0, 0, 0 },
+	ITEMIS_INSVN|ITEMIS_ONLYONE, ITEMIS_FOLDER|ITEMIS_NORMAL, ITEMIS_TWO, 0, 0, 0, 0, 0 },
 
 	{ ShellMenuPrevDiff,					MENUPREVDIFF,			IDI_DIFF,				IDS_MENUPREVDIFF,			IDS_MENUDESCPREVDIFF,
 	ITEMIS_INSVN|ITEMIS_ONLYONE, ITEMIS_FOLDER|ITEMIS_ADDED, 0, 0, 0, 0, 0, 0 },
@@ -271,6 +271,8 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 						{
 							//get the Subversion status of the item
 							svn_wc_status_kind status = svn_wc_status_none;
+							CTSVNPath askedpath;
+							askedpath.SetFromWin(str.c_str());
 							try
 							{
 								SVNStatus stat;
@@ -279,7 +281,6 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 								{
 									statuspath = str;
 									status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
-									itemStates |= stat.status->prop_status > svn_wc_status_normal ? ITEMIS_PROPMODIFIED : 0;
 									fetchedstatus = status;
 									if ((stat.status->entry)&&(stat.status->entry->lock_token))
 										itemStates |= (stat.status->entry->lock_token[0] != 0) ? ITEMIS_LOCKED : 0;
@@ -308,7 +309,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 									// sometimes, svn_client_status() returns with an error.
 									// in that case, we have to check if the working copy is versioned
 									// anyway to show the 'correct' context menu
-									if (g_ShellCache.HasSVNAdminDir(str.c_str(), true))
+									if (askedpath.HasAdminDir())
 										status = svn_wc_status_normal;
 								}
 							}
@@ -363,7 +364,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 							svn_wc_status_kind status = svn_wc_status_none;
 							if ((g_ShellCache.IsSimpleContext())&&(strpath.IsDirectory()))
 							{
-								if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+								if (strpath.HasAdminDir())
 									status = svn_wc_status_normal;
 							}
 							else
@@ -371,13 +372,12 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 								try
 								{
 									SVNStatus stat;
-									if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+									if (strpath.HasAdminDir())
 										stat.GetStatus(strpath, false, true, true);
 									statuspath = str;
 									if (stat.status)
 									{
 										status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
-										itemStates |= stat.status->prop_status > svn_wc_status_normal ? ITEMIS_PROPMODIFIED : 0;
 										fetchedstatus = status;
 										if ((stat.status->entry)&&(stat.status->entry->lock_token))
 											itemStates |= (stat.status->entry->lock_token[0] != 0) ? ITEMIS_LOCKED : 0;
@@ -408,7 +408,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 										// sometimes, svn_client_status() returns with an error.
 										// in that case, we have to check if the working copy is versioned
 										// anyway to show the 'correct' context menu
-										if (g_ShellCache.HasSVNAdminDir(strpath.GetWinPath(), strpath.IsDirectory()))
+										if (strpath.HasAdminDir())
 										{
 											status = svn_wc_status_normal;
 											fetchedstatus = status;
@@ -489,15 +489,15 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 			itemStatesFolder |= ITEMIS_PATHINCLIPBOARD;
 		if ((folder_.compare(statuspath)!=0)&&(g_ShellCache.IsContextPathAllowed(folder_.c_str())))
 		{
+			CTSVNPath askedpath;
+			askedpath.SetFromWin(folder_.c_str());
 			try
 			{
 				SVNStatus stat;
-				if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
-					stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
+				stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
 				if (stat.status)
 				{
 					status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
-					itemStatesFolder |= stat.status->prop_status > svn_wc_status_normal ? ITEMIS_PROPMODIFIED : 0;
 					if ((stat.status->entry)&&(stat.status->entry->lock_token))
 						itemStatesFolder |= (stat.status->entry->lock_token[0] != 0) ? ITEMIS_LOCKED : 0;
 					if ((stat.status->entry)&&(stat.status->entry->present_props))
@@ -527,7 +527,7 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 					// sometimes, svn_client_status() returns with an error.
 					// in that case, we have to check if the working copy is versioned
 					// anyway to show the 'correct' context menu
-					if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
+					if (askedpath.HasAdminDir())
 						status = svn_wc_status_normal;
 				}
 			}
@@ -566,15 +566,15 @@ STDMETHODIMP CShellExt::Initialize(LPCITEMIDLIST pIDFolder,
 				svn_wc_status_kind status = svn_wc_status_none;
 				if (folder_.compare(statuspath)!=0)
 				{
+					CTSVNPath askedpath;
+					askedpath.SetFromWin(folder_.c_str());
 					try
 					{
 						SVNStatus stat;
-						if (g_ShellCache.HasSVNAdminDir(folder_.c_str(), true))
-							stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
+						stat.GetStatus(CTSVNPath(folder_.c_str()), false, true, true);
 						if (stat.status)
 						{
 							status = SVNStatus::GetMoreImportant(stat.status->text_status, stat.status->prop_status);
-							itemStates |= stat.status->prop_status > svn_wc_status_normal ? ITEMIS_PROPMODIFIED : 0;
 							if ((stat.status->entry)&&(stat.status->entry->lock_token))
 								itemStates |= (stat.status->entry->lock_token[0] != 0) ? ITEMIS_LOCKED : 0;
 							if ((stat.status->entry)&&(stat.status->entry->present_props))
@@ -647,7 +647,7 @@ void CShellExt::InsertSVNMenu(BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UIN
 		menuiteminfo.dwTypeData = menutextbuffer;
 		if (icon)
 			menuiteminfo.hbmpItem = (fullver >= 0x600) ? IconToBitmapPARGB32(icon) : HBMMENU_CALLBACK;
-		menuiteminfo.wID = (UINT)id;
+		menuiteminfo.wID = id;
 		InsertMenuItem(menu, pos, TRUE, &menuiteminfo);
 	}
 
@@ -795,7 +795,7 @@ bool CShellExt::WriteClipboardPathsToTempFile(tstring& tempfile)
 		{
 			DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)/sizeof(TCHAR));
 			tstring filename = szFileName;
-			::WriteFile (file, filename.c_str(), (DWORD)filename.size()*sizeof(TCHAR), &written, 0);
+			::WriteFile (file, filename.c_str(), filename.size()*sizeof(TCHAR), &written, 0);
 			::WriteFile (file, _T("\n"), 2, &written, 0);
 		}
 		GlobalUnlock(hDrop);
@@ -836,13 +836,13 @@ tstring CShellExt::WriteFileListToTempFile()
 	DWORD written = 0;
 	if (files_.empty())
 	{
-		::WriteFile (file, folder_.c_str(), (DWORD)folder_.size()*sizeof(TCHAR), &written, 0);
+		::WriteFile (file, folder_.c_str(), folder_.size()*sizeof(TCHAR), &written, 0);
 		::WriteFile (file, _T("\n"), 2, &written, 0);
 	}
 
 	for (std::vector<tstring>::iterator I = files_.begin(); I != files_.end(); ++I)
 	{
-		::WriteFile (file, I->c_str(), (DWORD)I->size()*sizeof(TCHAR), &written, 0);
+		::WriteFile (file, I->c_str(), I->size()*sizeof(TCHAR), &written, 0);
 		::WriteFile (file, _T("\n"), 2, &written, 0);
 	}
 	::CloseHandle(file);
@@ -987,11 +987,6 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 				return NOERROR;
 		}
 	}
-	else
-	{
-		if (_tcsncmp(folder_.c_str(), _T("::{"), 3)==0)
-			return NOERROR;
-	}
 
 	//check if our menu is requested for a subversion admin directory
 	if (g_SVNAdminDir.IsAdminDirPath(folder_.c_str()))
@@ -1008,7 +1003,7 @@ STDMETHODIMP CShellExt::QueryContextMenu(HMENU hMenu,
 		// It would only show the standard menu items
 		// which are already shown for the lnk-file.
 		CString path = files_.front().c_str();
-		if ( !g_ShellCache.HasSVNAdminDir(path, PathIsDirectory(path)) )
+		if ( !g_SVNAdminDir.HasAdminDir(path) )
 		{
 			return NOERROR;
 		}
@@ -1244,7 +1239,7 @@ STDMETHODIMP CShellExt::InvokeCommand(LPCMINVOKECOMMANDINFO lpcmi)
 
 	if ((files_.size() > 0)||(folder_.size() > 0))
 	{
-		UINT_PTR idCmd = LOWORD(lpcmi->lpVerb);
+		UINT idCmd = LOWORD(lpcmi->lpVerb);
 
 		if (HIWORD(lpcmi->lpVerb))
 		{
@@ -1961,7 +1956,7 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 			DRAWITEMSTRUCT* lpdis = (DRAWITEMSTRUCT*)lParam;
 			if ((lpdis==NULL)||(lpdis->CtlType != ODT_MENU))
 				return S_OK;		//not for a menu
-			resource = GetMenuTextFromResource((int)myIDMap[lpdis->itemID]);
+			resource = GetMenuTextFromResource(myIDMap[lpdis->itemID]);
 			if (resource == NULL)
 				return S_OK;
 			HICON hIcon = (HICON)LoadImage(g_hResInst, resource, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
@@ -1987,10 +1982,10 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 				nChar = tolower(nChar);
 			// we have the char the user pressed, now search that char in all our
 			// menu items
-			std::vector<UINT_PTR> accmenus;
+			std::vector<int> accmenus;
 			for (std::map<UINT_PTR, UINT_PTR>::iterator It = mySubMenuMap.begin(); It != mySubMenuMap.end(); ++It)
 			{
-				resource = GetMenuTextFromResource((int)mySubMenuMap[It->first]);
+				resource = GetMenuTextFromResource(mySubMenuMap[It->first]);
 				if (resource == NULL)
 					continue;
 				szItem = stringtablebuffer;
@@ -2028,9 +2023,9 @@ STDMETHODIMP CShellExt::HandleMenuMsg2(UINT uMsg, WPARAM wParam, LPARAM lParam, 
 				MENUITEMINFO mif;
 				mif.cbSize = sizeof(MENUITEMINFO);
 				mif.fMask = MIIM_STATE;
-				for (std::vector<UINT_PTR>::iterator it = accmenus.begin(); it != accmenus.end(); ++it)
+				for (std::vector<int>::iterator it = accmenus.begin(); it != accmenus.end(); ++it)
 				{
-					GetMenuItemInfo((HMENU)lParam, (UINT)*it, TRUE, &mif);
+					GetMenuItemInfo((HMENU)lParam, *it, TRUE, &mif);
 					if (mif.fState == MFS_HILITE)
 					{
 						// this is the selected item, so select the next one
@@ -2105,16 +2100,16 @@ LPCTSTR CShellExt::GetMenuTextFromResource(int id)
 	return NULL;
 }
 
-bool CShellExt::IsIllegalFolder(std::wstring folder, int * csidlarray)
+bool CShellExt::IsIllegalFolder(std::wstring folder, int * cslidarray)
 {
 	int i=0;
 	TCHAR buf[MAX_PATH];	//MAX_PATH ok, since SHGetSpecialFolderPath doesn't return the required buffer length!
 	LPITEMIDLIST pidl = NULL;
-	while (csidlarray[i])
+	while (cslidarray[i])
 	{
 		++i;
 		pidl = NULL;
-		if (SHGetFolderLocation(NULL, csidlarray[i-1], NULL, 0, &pidl)!=S_OK)
+		if (SHGetFolderLocation(NULL, cslidarray[i-1], NULL, 0, &pidl)!=S_OK)
 			continue;
 		if (!SHGetPathFromIDList(pidl, buf))
 		{

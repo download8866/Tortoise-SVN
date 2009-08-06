@@ -14,8 +14,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-07-07 13:23 +0000\n"
-"PO-Revision-Date: 2009-07-29 01:47+0200\n"
+"POT-Creation-Date: 2009-06-07 23:32 +0000\n"
+"PO-Revision-Date: 2009-07-28 02:19+0200\n"
 "Last-Translator: Kari Granö <kari.grano@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -4595,8 +4595,8 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr "Koska loki-ikkuna näyttää HEAD-version (eikä työkopion nykyversion) lokin, saattaa usein käydä niin, että näet lokiviestejä sisällölle, joka ei ole vielä mukana työkopiossa. Jotta tämä olisi selkeämpää, työkopiosi versiota vastaava toimitusviesti näytetään lihavoituna."
 
 #. (para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
-msgstr "Kun näytät loki-ikkunan kansiolle, sen sisältämä suurin versionumero korostetaan; tämä vaatii työkopion läpikäymisen. Läpikäynti tapahtuu erillisessä säikeessä jotta loki-ikkunan näyttäminen ei viivästyisi, mutta tästä syystä kansioiden korostus ei välttämättä näy heti."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
+msgstr "Kun näytät loki-ikkunan kansiolle, sen sisältämä suurin versionumero korostetaan; tämä vaatii työkopion läpikäymisen ja voi olla hidasta suurille työkopioille (lokiviestit näytetään vasta läpikäynnin päätyttyä.). Rajoittaaksesi operaatiota sinun on muutettava rekisteriavainta <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> luvussa <xref linkend=\"tsvn-dug-settings-registry\"/> kuvatulla tavalla."
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -5900,18 +5900,6 @@ msgstr "Ominaisuuden <literal>tsvn:logsummary</literal> arvoksi asetetaan yhden 
 #. (para)
 msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everything after <quote>[SUMMARY]</quote> in the log message and use that as the summary."
 msgstr "Esimerkki: Lauseke <literal>\\[SUMMARY\\]:\\s+(.*)</literal> ottaa lokiviestistä talteen kaiken <quote>[SUMMARY]</quote>-merkkijonon jälkeisen tekstin ja käyttää sitä yhteenvetona."
-
-#. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr "Ominaisuus <literal>tsvn:logrevregex</literal> määrittää säännöllisen lausekkeen, jolla täsmäytetään lokiviestissä olevia versioviittauksia. Tätä käytetään loki-ikkunassa muuttamaan versioviittaukset linkeiksi, joita napsauttamalla viitattu lokiviesti tuodaan näkyville joko ikkunaa vierittämällä tai avaamalla uusi loki-ikkuna."
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr "Säännöllisen lausekkeen on täsmättävä koko viite, ei pelkkää versionumeroa. Versionumero erotetaan täsmäytetystä viitteestä automaattisesti."
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr "Jos ominaisuutta ei ole asetettu, versioviittausten hakemiseen käytetään oletusarvoista säännöllistä lauseketta."
 
 #. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
@@ -8095,10 +8083,6 @@ msgstr "Siirry myös versioimattomiin kansioihin"
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
 msgstr "Jos tämä valinta on päällä (oletusarvo), niin aina, kun versioimattoman kansion tila näytetään <guilabel>Lisää</guilabel>, <guilabel>Toimita</guilabel> tai <guilabel>Tarkista muutokset</guilabel> -ikkunoissa, näytetään myös kaikki sen sisältämät tiedostot ja kansiot. Jos poistat valinnan, vain versiomaton juurikansio näytetään. Tämä vähentää 'turhien' lueteltujen tiedostojen määrää. Jos tällöin valitset versioimattoman kansion lisättäväksi, kaikki sen osat lisätään palautuvasti."
 
-#. (para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
-msgstr "<guilabel>Tarkista muutokset</guilabel> -ikkunassa voit näyttää ohitetut kohteet. Valinta saa aikaan myös ohitettujen kansioiden sisältämien kohteiden näyttämisen."
-
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
 msgstr "Käytä automaattista täydennystä tiedostopoluille ja avainsanoille"
@@ -9399,8 +9383,8 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr "Nykyisen version korostus loki-ikkunan kansioille"
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
-msgstr "Loki-ikkuna korostaa nykyisen työkopion version, kun lokia näytetään tiedostolle. Kansioille tämä vaatii työkopion läpikäymistä, mikä voi olla hidasta suurille työkopioille. Läpikäynti tapahtuu kuitenkin erillisessä säikeessä, joten se ei viivästytä lokiviestien näyttöä. Korostus voidaan estää luomalla <literal>DWORD</literal>-rekisteriavain <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal> ja asettamalla sen arvoksi 0. Arvo 0 poistaa toiminnon (ei korostusta kansioille). Tästä voi olla hyötyä <emphasis>todella</emphasis> suurille työkopioille."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
+msgstr "Loki-ikkuna korostaa nykyisen työkopion version, kun lokia näytetään tiedostolle. Kansioille tämä vaatii työkopion läpikäymistä, mikä voi olla hidasta suurille työkopioille. Jos haluat muuttaa tämän toiminnan, sinun on luotava <literal>DWORD</literal>-rekisteriavain <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. Arvo 0 poistaa toiminnon (ei korostusta kansioille), arvo 1 (oletus) hakee tilan palautuvasti (etsii suurimman versionumeron työkopiosta) ja arvo 2 tarkistaa itse kansion versionumeron, mutta ei tarkista sen alapuolista puuta."
 
 #. (term)
 msgid "Make checkout fail if an item of the same name exists"
@@ -10888,7 +10872,6 @@ msgstr "TortoiseSVN-komennot"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "automaatio"
 
@@ -10934,8 +10917,12 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:3</option> sulje ikkuna automaattisesti, jos komento päättyy ilman virheitä, ristiriitoja tai yhdistämisiä"
 
 #. (para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
-msgstr "Voit käyttää valitsinta <option>/closeonend</option> sulkeaksesi edistymisikkunan automaattisesti komennon päättyessä muuttamatta pysyvää asetusta. <placeholder-1/> Käytä valitsinta <option>/closeforlocal</option>  sulkeaksesi edistymisikkunan automaattisesti onnistuneiden paikallisten operaatioiden jälkeen."
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:4</option> sulje ikkuna automaattisesti, jos komento päättyy ilman virheitä, ristiriitoja ja yhdistämisiä paikallisille operaatioille"
+
+#. (para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
+msgstr "Sulkeaksesi edistymisikkunan komennon päättyessä automaattisesti muuttamatta pysyvää asetusta, voit antaa valitsimen <option>/closeonend</option>: <placeholder-1/>"
 
 #. (para)
 msgid "The table below lists all the commands which can be accessed using the TortoiseProc.exe command line. As described above, these should be used in the form <literal>/command:abcd</literal>. In the table, the <literal>/command</literal> prefix is omitted to save space."
@@ -11004,45 +10991,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"suodatusmerkkijono\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> suodata kaikesta"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> suodata viesteistä"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> suodata poluista"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> suodata tekijöistä"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> suodata versioista"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> suodata vikatunnuksista"
-
 #. (entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> (forces the filter to use text, not regex) and <placeholder-7/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
-msgstr "Avaa loki-ikkunan. Valitsin <placeholder-1/> määrittää tiedoston tai kansion, jolle loki näytetään. Lisäksi voidaan antaa kuusi eri lisävalitsinta: <placeholder-2/>, <placeholder-3/> ja <placeholder-4/> (pysäytä kopiointiin-valinta), <placeholder-5/> asettaa suodatustekstin, <placeholder-6/> (suodata teksti, ei säännöllistä lauseketta -valinta) ja <placeholder-7/> missä X on luku väliltä 1-7. Numeroiden merkitys on seuraava: <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr "Avaa loki-ikkunan. Valitsin <placeholder-1/> määrittää tiedoston tai kansion, jolle loki näytetään. Lisäksi voidaan antaa kolme lisävalitsinta: <placeholder-2/>, <placeholder-3/> ja <placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -11213,17 +11164,9 @@ msgstr "Avaa Sijoita uudelleen -ikkunan. Valitsin <placeholder-1/> määrittää
 msgid "Opens the help file."
 msgstr "Avaa käyttöohjeet."
 
-#. (option)
-msgid "/remote"
-msgstr "/remote"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "Tarkista arkisto"
-
 #. (entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
-msgstr "Avaa Tarkista muutokset -ikkunan. Valitsin <placeholder-1/> määrittää työkopion hakemiston. Jos valitsin <placeholder-2/> on annettu, ikkuna ottaa yhteyden arkistoon välittömästi käynnistyttyään (ikään kuin käyttäjä olisi napsauttanut painiketta <placeholder-3/>)."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
+msgstr "Avaa Tarkista muutokset -ikkunan. Valitsin <placeholder-1/> määrittää työkopiokansion."
 
 #. (option)
 #. (option)
@@ -11321,57 +11264,6 @@ msgstr ""
 "TortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n"
 "                 /startrev:50 /endrev:60 /closeonend:0\n"
 "</screen>"
-
-#. (title)
-msgid "Tsvncmd URL handler"
-msgstr "Tsvncmd-paikantimien käsittely"
-
-#. (primary)
-msgid "URL handler"
-msgstr "Paikantimien käsittelijä"
-
-#. (para)
-msgid "Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr "TortoiseProc-ohjelma voidaan käynnistää web-sivulta käyttämällä erityisiä paikantimia."
-
-#. (para)
-msgid "TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be used to create hyperlinks that execute TortoiseSVN commands. The commands and parameters are the same as when automating TortoiseSVN from the command line."
-msgstr "TortoiseSVN rekisteröi uuden<literal>tsvncmd:</literal>-yhteyskäytännön, jota voidaan käyttää luomaan hyperlinkkejä, jotka suorittavat TortoiseSVN-komentoja. Komennot ja parametrit ovat samoja kuin TortoiseSVN-komentoriviparametrit."
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr "<literal>tsvncmd:</literal>-paikantimen muoto on seuraava:"
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-
-#. (para)
-msgid "with <literal>cmd</literal> being one of the allowed commands and with <literal>parameter</literal> being a parameter like <literal>path</literal> or <literal>revision</literal>, depending on the command used."
-msgstr "missä <literal>cmd</literal> on jokin sallittu komento ja <literal>parameter</literal> on jokin parametri (esim. <literal>polku</literal> tai <literal>versio</literal>, riippuen käytetystä komennosta."
-
-#. (para)
-msgid "The following commands are allowed with <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-msgstr "Seuraavat komennot ovat sallittuja <literal>tsvncmd:</literal>-paikantimien yhteydessä: <placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr "Esimerkkipaikannin voisi näyttää seuraavalta: <placeholder-1/>"
 
 #. (title)
 msgid "TortoiseIDiff Commands"
@@ -12072,10 +11964,6 @@ msgstr "Oletamme, että olet jo asentanut Subversion-työkalut ja luonut arkisto
 #. (para)
 msgid "Much of the information here comes from a tutorial provided by Marc Logemann, which can be found at <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Additional information on setting up a Windows server was provided by Thorsten Müller. Thanks guys!"
 msgstr "Seuraava teksti on suurelta osin peräisin Marc Logemannin kirjoittamasta ohjeesta, joka löytyy sivustosta <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink>.  Windows-palvelimen määrittelyyn liittyvät ohjeet on kirjoittanut Thorsten Müller. Kiitos molemmille!"
-
-#. (para)
-msgid "You can also watch a video tutorial created by Maximo Migliari which takes you through all the important steps. Watch it on <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-msgstr "Voit myös katsoa Maximo Migliarin luoman opastusvideon, joka selvittää tärkeät kohdat. Videota voi katsella <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeon</citetitle></ulink> tai <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTuben</citetitle></ulink> kautta."
 
 #. (title)
 msgid "Setting Up a Linux Server"
@@ -12929,19 +12817,6 @@ msgstr "Käännös"
 #~ "toiminto on aktivoitava erikseen luomalla <literal>DWORD</literal>-"
 #~ "rekisteriavain <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</"
 #~ "literal> arvolla 1."
-#~ msgid ""
-#~ "Opens the check-for-modifications dialog. The <placeholder-1/> specifies "
-#~ "the working copy directory."
-#~ msgstr ""
-#~ "Avaa Tarkista muutokset -ikkunan. Valitsin <placeholder-1/> määrittää "
-#~ "työkopiokansion."
-#~ msgid ""
-#~ "<option>/closeonend:4</option> auto close if no errors, conflicts and "
-#~ "merges for local operations"
-#~ msgstr ""
-#~ "<option>/closeonend:4</option> sulje ikkuna automaattisesti, jos komento "
-#~ "päättyy ilman virheitä, ristiriitoja ja yhdistämisiä paikallisille "
-#~ "operaatioille"
 #~ msgid ""
 #~ "The path to the file external must be in a working copy that is already "
 #~ "checked out. While directory externals can place the external directory "

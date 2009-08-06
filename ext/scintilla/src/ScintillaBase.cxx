@@ -329,11 +329,6 @@ void ScintillaBase::AutoCompleteCharacterDeleted() {
 	} else {
 		AutoCompleteMoveToCurrentWord();
 	}
-	SCNotification scn = {0};
-	scn.nmhdr.code = SCN_AUTOCCHARDELETED;
-	scn.wParam = 0;
-	scn.listType = 0;
-	NotifyParent(scn);
 }
 
 void ScintillaBase::AutoCompleteCompleted() {
@@ -386,8 +381,6 @@ void ScintillaBase::AutoCompleteCompleted() {
 }
 
 int ScintillaBase::AutoCompleteGetCurrent() {
-	if (!ac.Active())
-		return -1;
 	return ac.lb->GetSelection();
 }
 

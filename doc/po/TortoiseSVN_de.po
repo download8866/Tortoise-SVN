@@ -15,8 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-07-07 13:23 +0000\n"
-"PO-Revision-Date: 2009-07-09 14:04+0100\n"
+"POT-Creation-Date: 2009-06-07 23:32 +0000\n"
+"PO-Revision-Date: 2009-06-08 11:30+0100\n"
 "Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -4631,8 +4631,8 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr "Da der Log-Dialog Ihnen die Logmeldungen ab der HEAD Revision zeigt, kann es vorkommen, dass Logmeldungen für Änderungen angezeigt werden, die sich noch nicht in Ihrer Arbeitskopie befinden. Um dies zu verdeutlichen, wird die Logmeldunge, die der aktuellen Revision der Arbeitskopie entspricht in Fettdruck hervorgehoben."
 
 #. (para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
-msgstr "Wenn Sie das Log für einen Ordner anzeigen, entspricht die hervorgehobene Revision der höchsten, innerhalb des Ordners gefundenen Revisionsnummer. Diese zu ermitteln erfordert ein rekursives Durchsuchen der Unterordner. Dieser Vorgang läuft in einem separaten Prozess ab, um die Anzeige der Logmeldungen nicht zu verzögern. Aus diesem Grund erscheint die Hervorhebung der Ordnerrevision unter Umständen verzögert."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
+msgstr "Wenn Sie das Log für einen Ordner anzeigen, entspricht die hervorgehobene Revision der höchsten, innerhalb des Ordners gefundenen Revisionsnummer. Diese zu ermitteln erfordert ein rekursives Durchsuchen der Unterordner. Dies kann für große Arbeitskopien eine langwierige Operation sein. Wenn Sie diese Funktion deaktivieren oder einschränken wollen, müssen Sie einen Registrierungsschlüssel in <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> entsprechend der Beschreibung in  <xref linkend=\"tsvn-dug-settings-registry\"/> anlegen."
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -5936,18 +5936,6 @@ msgstr "Die <literal>tsvn:logsummary</literal> Eigenschaft muss einen einzeilige
 #. (para)
 msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everything after <quote>[SUMMARY]</quote> in the log message and use that as the summary."
 msgstr "Ein Beispiel: <literal>\\[ZUSAMMENFASSUNG\\]:\\s+(.*)</literal> Dieser Ausdruck wird alles nach <quote>[ZUSAMMENFASSUNG]</quote> aus der Logmeldung ausschneiden und als Zusammenfassung verwenden."
-
-#. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr "Mit der Eigenschaft <literal>tsvn:logrevregex</literal> wird ein regulärer Ausdruck festgelegt, der Referenzen auf Revisionen in Logmeldungen sucht. Im Log-Dialog werden diese Referenzen als anklickbare Verweise angezeigt. Bei einem Mausklick auf einen solchen Verweis im Log-Dialog wird entweder im selben Fenster zu dieser Revision gesprungen, falls die Revision bereits geladen oder im Log-Puffer vorhanden ist oder es wird ein neuer Log-Dialog mit dieser Revision geöffnet."
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr "Der reguläre Ausdruck muss mit der gesamten Referenz und nicht nur mit der Revisionsnummer übereinstimmen. Die Revisionsnummer wird automatisch aus dem gefundenen Verweistext extrahiert."
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr "Falls diese Eigenschaft nicht gesetzt ist, wird ein Standardausdruck verwendet, um die Revisionsverweise anzuzeigen."
 
 #. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
@@ -8134,10 +8122,6 @@ msgstr "Rekursiv in nicht versionierte Verzeichnisse gehen"
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
 msgstr "Wenn diese Option aktiviert ist (Vorgabe), werden jedes Mal, wenn ein nicht versionierter Ordner im <quote>Hinzufügen</quote>-, <quote>Übertragen</quote>- oder <guilabel>Prüfe auf Änderungen</guilabel>-Dialog angezeigt wird, sämtliche Unterordner und Dateien dieses Ordners angezeigt. Sobald Sie die Option deaktivieren, wird nur der nicht versionierte Ordner angezeigt, was die Übersichtlichkeit in den Dialogen erhöht. Wenn Sie einen nicht versionierten Ordner zum Hinzufügen wählen, wird er in diesem Fall vollständig, rekursiv hinzugefügt."
 
-#. (para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
-msgstr "Im Dialog <guilabel>Auf Änderungen prüfen</guilabel> können Sie sich optional die ignorierten Objekte anzeigen lassen. Wenn diese Option aktiv ist, wird, sobald ein ignorierter Ordner gefunden wird, dieser mitsamt seiner Unterobjekte angezeigt."
-
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
 msgstr "Dateinamen und Schlüsselwörter automatisch Vervollständigen"
@@ -9437,8 +9421,8 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr "Aktuelle Revision von Ordnern im Log-Dialog hervorheben"
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
-msgstr "Der Log-Dialog hebt die aktuelle Revision einer Datei in der Arbeitskopie durch Fettdruck hervor. Um diese Anzeige auch für einen Ordner zu erhalten, muss die Arbeitskopie durchsucht werden, was bei großen Arbeitskopien viel Zeit in Anspruch nimmt. Dieser Vorgang findet jedoch in einem separaten Prozess statt, um die Anzeige der Logmeldungen nicht zu aufzuhalten. Für <emphasis>sehr</emphasis> große Arbeitskopien kann das Plattenrattern lästig sein. Um die Funktion abzuschalten, legen Sie einen <literal>DWORD</literal> Eintrag unter <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal> in der Registrierung an. Der Wert 0 deaktiviert die Funktion (keine Hervorhebung von Ordnern)."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
+msgstr "Der Log-Dialog hebt die aktuelle Revision einer Datei in der Arbeitskopie durch Fettdruck hervor. Um diese Anzeige auch für einen Ordner zu erhalten, muss die Arbeitskopie durchsucht werden, was Standard ist, aber bei großen Arbeitskopien viel Zeit in Anspruch nimmt. Wenn Sie diese Funktion ändern wollen, müssen Sie einen <literal>DWORD</literal> unter <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> in der Registrierung anlegen. Der Wert 0 deaktiviert die Funktion (keine Hervorhebung von Ordnern), der Wert 1 (Standard) holt den Status rekursiv (findet die höchste Revision in der Arbeitskopie) und der Wert 2 prüft die Revision des Ordners selbst, aber keine Unterobjekte."
 
 #. (term)
 msgid "Make checkout fail if an item of the same name exists"
@@ -10927,7 +10911,6 @@ msgstr "TortoiseSVN Befehle"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "Automatisierung"
 
@@ -10973,8 +10956,12 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:2</option> Schließen, wenn keine Fehler, Konflikte und Zusammenführungen aufgetreten sind."
 
 #. (para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
-msgstr "Um den Fortschrittsdialog am Ende einer Aktion automatisch zu schließen, ohne die Standardeinstellung zu berücksichtigen, können Sie den <option>/closeonend</option> Parameter übergeben. <placeholder-1/>. Um den Fortschrittsdialog für lokale Operationen zu schließen, wenn keine Fehler, Konflikte und Zusammenführungen aufgetreten sind, übergeben Sie den Parameter <option>/closeonlocal</option> "
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:2</option> Schließen, wenn keine Fehler, Konflikte und Zusammenführungen bei lokalen Operationen aufgetreten sind."
+
+#. (para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
+msgstr "Um den Fortschrittsdialog am Ende einer Aktion automatisch zu schließen, ohne die Standardeinstellung zu berücksichtigen, können Sie den <option>/closeonend</option> Parameter übergeben. <placeholder-1/>"
 
 #. (para)
 msgid "The table below lists all the commands which can be accessed using the TortoiseProc.exe command line. As described above, these should be used in the form <literal>/command:abcd</literal>. In the table, the <literal>/command</literal> prefix is omitted to save space."
@@ -11043,45 +11030,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"Filter String\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> Filtere nach allem"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> Filter nach Nachrichten"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> Filtere nach Pfaden"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> Filter nach Autoren"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> Filter nach Revisionen"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> Filter nach Fehler ID"
-
 #. (entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> (forces the filter to use text, not regex) and <placeholder-7/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
-msgstr "Öffnet den Log-Dialog. Der <placeholder-1/> definiert die Datei oder den Ordner, für den das Log angezeigt werden soll. Sechs weitere Optionen können angegeben werden: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (aktiviert die 'Bei Kopien anhalten' Option), <placeholder-5/> enthält den Filtertext, <placeholder-6/> (erzwingt Filterung nach Text anstatt RegEx) und <placeholder-7/> mit X als Zahl von 1 bis 7 Die Zahlen entsprechen <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr "Öffnet den Log-Dialog. Der <placeholder-1/> definiert die Datei oder den Ordner, für den das Log angezeigt werden soll. Drei weitere Optionen können angegeben werden: <placeholder-2/>, <placeholder-3/> und <placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -11252,17 +11203,9 @@ msgstr "Zeigt den <guilabel>Umplatzieren</guilabel>-Dialog. Der <placeholder-1/>
 msgid "Opens the help file."
 msgstr "Öffnet die Hilfedatei"
 
-#. (option)
-msgid "/remote"
-msgstr "/remote"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "Projektarchiv prüfen"
-
 #. (entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
-msgstr "Öffnet den <guilabel>Auf Änderungen prüfen</guilabel>-Dialog. <placeholder-1/> legt das die Arbeitskopie fest.  Falls <placeholder-2/> angegeben wird, kontaktiert der Dialog beim Start das Projektarchiv, als ob der Anwender auf <placeholder-3/> geklickt hätte."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
+msgstr "Öffnet den <guilabel>Prüfe auf Änderungen</guilabel>-Dialog. Der <placeholder-1/> bezeichnet die Arbeitskopie."
 
 #. (option)
 #. (option)
@@ -11360,57 +11303,6 @@ msgstr ""
 "TortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n"
 "                 /startrev:50 /endrev:60 /closeonend:0\n"
 "</screen>"
-
-#. (title)
-msgid "Tsvncmd URL handler"
-msgstr "Tsvncmd URL Behandlung"
-
-#. (primary)
-msgid "URL handler"
-msgstr "URL Behandlung"
-
-#. (para)
-msgid "Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr "Unter verwendung spezieller URLs ist es möglich, TortoiseProc von einer Webseite aus aufzurufen."
-
-#. (para)
-msgid "TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be used to create hyperlinks that execute TortoiseSVN commands. The commands and parameters are the same as when automating TortoiseSVN from the command line."
-msgstr "TortoiseSVN registriert ein neues Protokoll <literal>tsvncmd:</literal>, das zum Erstellen von Hyperlinks verwendet werden kann, welche TortoiseSVN Befehle aufrufen. Die Befehle und Parameter sind die selben wie bei der Automatisierung von TortoiseSVN über die Kommandozeile."
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr "Das Format der <literal>tsvncmd:</literal> URL sieht folgendermaßen aus:"
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-
-#. (para)
-msgid "with <literal>cmd</literal> being one of the allowed commands and with <literal>parameter</literal> being a parameter like <literal>path</literal> or <literal>revision</literal>, depending on the command used."
-msgstr "wobei <literal>cmd</literal> einer der zugelassenen Befehle ist und <literal>parameter</literal> ein Parameter wie <literal>path</literal> oder <literal>revision</literal>, in Abhängigkeit des verwendeten Befehls ist."
-
-#. (para)
-msgid "The following commands are allowed with <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-msgstr "Die folgenden Befehle sind mit <literal>tsvncmd:</literal> URLs zulässig: <placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr "Eine tsvncmd URL könnte zum Beispiel folgendermaßen aussehen: <placeholder-1/>"
 
 #. (title)
 msgid "TortoiseIDiff Commands"
@@ -12128,10 +12020,6 @@ msgstr "In diesem Anhang setzen wir voraus, dass Sie bereits Subversion installi
 #. (para)
 msgid "Much of the information here comes from a tutorial provided by Marc Logemann, which can be found at <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Additional information on setting up a Windows server was provided by Thorsten Müller. Thanks guys!"
 msgstr "Ein Großteil der folgenden Informationen stammt aus einer Anleitung von Marc Logemann, die sich unter <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> findet. Weitere Hinweise zum Einrichten eines Windows Servers stammen von Thorsten Müller. Danke Jungs!"
-
-#. (para)
-msgid "You can also watch a video tutorial created by Maximo Migliari which takes you through all the important steps. Watch it on <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-msgstr "Sie können sich auch eine Videoanleitung von Maximo Migliari anschauen, die Sie durch die wichtigen Schritte führt. Diese finden Sie bei <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink> oder <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
 
 #. (title)
 msgid "Setting Up a Linux Server"
@@ -12997,18 +12885,6 @@ msgstr "Übersetzung"
 #~ "über einen Registrierungsschlüssel vom Typ <literal>DWORD</literal> mit "
 #~ "dem Wert 1 in <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</"
 #~ "literal> aktivieren."
-#~ msgid ""
-#~ "Opens the check-for-modifications dialog. The <placeholder-1/> specifies "
-#~ "the working copy directory."
-#~ msgstr ""
-#~ "Öffnet den <guilabel>Prüfe auf Änderungen</guilabel>-Dialog. Der "
-#~ "<placeholder-1/> bezeichnet die Arbeitskopie."
-#~ msgid ""
-#~ "<option>/closeonend:4</option> auto close if no errors, conflicts and "
-#~ "merges for local operations"
-#~ msgstr ""
-#~ "<option>/closeonend:2</option> Schließen, wenn keine Fehler, Konflikte "
-#~ "und Zusammenführungen bei lokalen Operationen aufgetreten sind."
 #~ msgid ""
 #~ "Nodes classified as tags may be blended with this color. If you use tag "
 #~ "folding to save space, tags are marked on the copy source using a block "

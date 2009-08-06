@@ -125,9 +125,6 @@ BOOL CCopyDlg::OnInitDialog()
 	m_History.Load(reg, _T("logmsgs"));
 
 	m_ProjectProperties.ReadProps(m_path);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
-
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	if (m_ProjectProperties.sMessage.IsEmpty())
@@ -304,14 +301,7 @@ void CCopyDlg::OnCancel()
 	// check if the status thread has already finished
 	if (m_pThread)
 	{
-		WaitForSingleObject(m_pThread->m_hThread, 1000);
-		if (m_bThreadRunning)
-		{
-			// we gave the thread a chance to quit. Since the thread didn't
-			// listen to us we have to kill it.
-			TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-			InterlockedExchange(&m_bThreadRunning, FALSE);
-		}
+		WaitForSingleObject(m_pThread->m_hThread, INFINITE);
 	}
 	if (m_ProjectProperties.sLogTemplate.Compare(m_cLogMessage.GetText()) != 0)
 		m_History.AddEntry(m_cLogMessage.GetText());

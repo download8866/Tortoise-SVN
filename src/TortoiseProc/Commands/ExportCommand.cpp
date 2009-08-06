@@ -61,8 +61,6 @@ bool ExportCommand::Execute()
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Export);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			DWORD options = dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone;
 			if (dlg.m_eolStyle.CompareNoCase(_T("CRLF"))==0)
 				options |= ProgOptEolCRLF;
@@ -129,7 +127,7 @@ bool ExportCommand::Execute()
 					for (std::vector<CTSVNPath>::iterator it = removeVector.begin(); (it != removeVector.end()) && (!progress.HasUserCancelled()); ++it)
 					{
 						progress.FormatPathLine(1, IDS_SVNPROGRESS_UNVERSION, (LPCTSTR)it->GetWinPath());
-						progress.SetProgress64(count, removeVector.size());
+						progress.SetProgress(count, removeVector.size());
 						count++;
 						it->Delete(false);
 					}

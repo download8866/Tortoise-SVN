@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,6 @@ CSetMainPage::CSetMainPage()
 	, m_bDisplayBinDiff(TRUE)
 	, m_bCaseInsensitive(FALSE)
 	, m_bUTF8Default(FALSE)
-	, m_bAutoAdd(TRUE)
 {
 	m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
 	m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE);
@@ -57,7 +56,6 @@ CSetMainPage::CSetMainPage()
 	m_regDisplayBinDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
 	m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
 	m_regUTF8Default = CRegDWORD(_T("Software\\TortoiseMerge\\UseUTF8"), FALSE);
-	m_regAutoAdd = CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE);
 
 	m_bBackup = m_regBackup;
 	m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
@@ -70,7 +68,6 @@ CSetMainPage::CSetMainPage()
 	m_bDisplayBinDiff = m_regDisplayBinDiff;
 	m_bCaseInsensitive = m_regCaseInsensitive;
 	m_bUTF8Default = m_regUTF8Default;
-	m_bAutoAdd = m_regAutoAdd;
 }
 
 CSetMainPage::~CSetMainPage()
@@ -100,7 +97,6 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_USEBDIFF, m_bDisplayBinDiff);
 	DDX_Check(pDX, IDC_CASEINSENSITIVE, m_bCaseInsensitive);
 	DDX_Check(pDX, IDC_UTF8DEFAULT, m_bUTF8Default);
-	DDX_Check(pDX, IDC_AUTOADD, m_bAutoAdd);
 }
 
 void CSetMainPage::SaveData()
@@ -118,7 +114,6 @@ void CSetMainPage::SaveData()
 	m_regDisplayBinDiff = m_bDisplayBinDiff;
 	m_regCaseInsensitive = m_bCaseInsensitive;
 	m_regUTF8Default = m_bUTF8Default;
-	m_regAutoAdd = m_bAutoAdd;
 }
 
 BOOL CSetMainPage::OnApply()
@@ -152,7 +147,6 @@ BOOL CSetMainPage::OnInitDialog()
 	m_bStrikeout = m_regStrikeout;
 	m_bCaseInsensitive = m_regCaseInsensitive;
 	m_bUTF8Default = m_regUTF8Default;
-	m_bAutoAdd = m_regAutoAdd;
 
 	UINT uRadio = IDC_WSCOMPARE;
 	switch (m_nIgnoreWS)
@@ -218,7 +212,6 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
 	ON_BN_CLICKED(IDC_USEBDIFF, &CSetMainPage::OnModifiedWithReload)
 	ON_BN_CLICKED(IDC_CASEINSENSITIVE, &CSetMainPage::OnModified)
 	ON_BN_CLICKED(IDC_UTF8DEFAULT, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_AUTOADD, &CSetMainPage::OnModified)
 END_MESSAGE_MAP()
 
 
