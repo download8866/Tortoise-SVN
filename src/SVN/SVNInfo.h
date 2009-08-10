@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,7 +47,7 @@ public:
 	bool				lock_davcomment;
 	__time64_t			lock_createtime;
 	__time64_t			lock_expirationtime;
-	svn_filesize_t		size64;
+	apr_size_t			size;
 
 	bool				hasWCInfo;
 	svn_wc_schedule_t	schedule;
@@ -63,23 +63,7 @@ public:
 
 	CString				changelist;
 	svn_depth_t			depth;
-	svn_filesize_t		working_size64;
-
-	// tree conflict data
-	CString				treeconflict_path;
-	svn_node_kind_t		treeconflict_nodekind;
-	svn_wc_conflict_kind_t treeconflict_kind;
-	CString				treeconflict_propertyname;
-	bool				treeconflict_binary;
-	CString				treeconflict_mimetype;
-	svn_wc_conflict_action_t treeconflict_action;
-	svn_wc_conflict_reason_t treeconflict_reason;
-	CString				treeconflict_basefile;
-	CString				treeconflict_theirfile;
-	CString				treeconflict_myfile;
-	CString				treeconflict_mergedfile;
-	svn_wc_operation_t	treeconflict_operation;
-
+	apr_size_t			working_size;
 
 	// convenience methods:
 
@@ -93,9 +77,6 @@ public:
  */
 class SVNInfo
 {
-private:
-	SVNInfo(const SVNInfo&){}
-	SVNInfo& operator=(SVNInfo&){};
 public:
 	SVNInfo(void);
 	~SVNInfo(void);
@@ -109,7 +90,7 @@ public:
 	 * for all children of \a path.
 	 */
 	const SVNInfoData * GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, svn_depth_t depth = svn_depth_empty);
-	size_t GetFileCount() const {return m_arInfo.size();}
+	size_t GetFileCount() {return m_arInfo.size();}
 	/**
 	 * Returns the info of the next file in the file list. If no more files are in the list then NULL is returned.
 	 * See GetFirstFileInfo() for details.
@@ -121,7 +102,7 @@ friend class SVN;	// So that SVN can get to our m_err
 	 * Returns the last error message as a CString object.
 	 */
 	CString GetLastErrorMsg();
-	const svn_error_t * GetError() const { return m_err; }
+	svn_error_t * GetError() { return m_err; }
 
 	virtual BOOL Cancel();
 	virtual void Receiver(SVNInfoData * data);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 #include "ILogReceiver.h"
 
@@ -30,6 +30,7 @@ class CProgressDlg;
  */
 class CSetLogCache 
     : public ISettingsPropPage
+    , private ILogReceiver
 {
 	DECLARE_DYNAMIC(CSetLogCache)
 
@@ -39,31 +40,63 @@ public:
 	
 	UINT GetIconID() {return IDI_CACHE;}
 
+    // update cache list
+
+	virtual BOOL OnSetActive();
+
 // Dialog Data
 	enum { IDD = IDD_SETTINGSLOGCACHE };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	afx_msg void OnChanged();
-	afx_msg void OnStandardDefaults();
-	afx_msg void OnPowerDefaults();
 	virtual BOOL OnInitDialog();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	virtual BOOL OnApply();
 
+	afx_msg void OnBnClickedDetails();
+	afx_msg void OnBnClickedUpdate();
+	afx_msg void OnBnClickedExport();
+	afx_msg void OnBnClickedDelete();
+
+	afx_msg LRESULT OnRefeshRepositoryList (WPARAM wParam, LPARAM lParam);
+	afx_msg void OnNMDblclkRepositorylist(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLvnItemchangedRepositorylist(NMHDR *pNMHDR, LRESULT *pResult);
+
     DECLARE_MESSAGE_MAP()
 private:
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 
+	CRegDWORD		m_regEnableLogCaching;
 	BOOL			m_bEnableLogCaching;
+	CRegDWORD		m_regSupportAmbiguousURL;
 	BOOL			m_bSupportAmbiguousURL;
-	BOOL			m_bSupportAmbiguousUUID;
+    CRegDWORD		m_regDefaultConnectionState;
+    CRegDWORD		m_regMaxHeadAge;
+	DWORD			m_dwMaxHeadAge;
 
 	CComboBox       m_cDefaultConnectionState;
+	CListCtrl       m_cRepositoryList;
 
-	DWORD			m_dwMaxHeadAge;
-	DWORD			m_dwCacheDropAge;
-	DWORD			m_dwCacheDropMaxSize;
+    /// current repository list
 
-	DWORD			m_dwMaxFailuresUntilDrop;
+    typedef std::map<CString, CString> TURLs;
+    typedef TURLs::const_iterator IT;
+    TURLs           urls;
+
+    CString GetSelectedUUID();
+    void FillRepositoryList();
+
+    static UINT WorkerThread(LPVOID pVoid);
+
+    /// used by cache update
+
+    CProgressDlg*   progress;
+    svn_revnum_t    headRevision;
+
+    void ReceiveLog ( LogChangedPathArray* changes
+	                , svn_revnum_t rev
+                    , const StandardRevProps* stdRevProps
+                    , UserRevPropArray* userRevProps
+                    , bool mergesFollow);
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008-2009 - TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,13 +24,6 @@
 #include "shlobj.h"
 
 //////////////////////////////////////////////////////////////////////////
-#define CACHEDISKVERSION 2
-
-#ifdef WIN64
-#define STATUSCACHEFILENAME _T("\\cache64")
-#else
-#define STATUSCACHEFILENAME _T("\\cache")
-#endif
 
 CSVNStatusCache* CSVNStatusCache::m_pInstance;
 
@@ -43,9 +36,6 @@ CSVNStatusCache& CSVNStatusCache::Instance()
 void CSVNStatusCache::Create()
 {
 	ATLASSERT(m_pInstance == NULL);
-    if (m_pInstance != NULL)
-        return;
-
 	m_pInstance = new CSVNStatusCache;
 
 	m_pInstance->watcher.SetFolderCrawler(&m_pInstance->m_folderCrawler);
@@ -64,7 +54,7 @@ void CSVNStatusCache::Create()
 			if (CreateDirectory(path, NULL)==0)
 				goto error;
 		}
-		_tcscat_s(path, MAX_PATH, STATUSCACHEFILENAME);
+		_tcscat_s(path, MAX_PATH, _T("\\cache"));
 		// in case the cache file is corrupt, we could crash while
 		// reading it! To prevent crashing every time once that happens,
 		// we make a copy of the cache file and use that copy to read from.
@@ -82,7 +72,7 @@ void CSVNStatusCache::Create()
 			try
 			{
 				LOADVALUEFROMFILE(value);
-				if (value != CACHEDISKVERSION)
+				if (value != 2)
 				{
 					goto error;
 				}
@@ -102,22 +92,19 @@ void CSVNStatusCache::Create()
 							goto error;
 						}
 						sKey.ReleaseBuffer(value);
-                        std::auto_ptr<CCachedDirectory> cacheddir (new CCachedDirectory());
-						if (!cacheddir.get() || !cacheddir->LoadFromDisk(pFile))
-						{
-                            cacheddir.reset();
+						CCachedDirectory * cacheddir = new CCachedDirectory();
+						if (cacheddir == NULL)
 							goto error;
-						}
+						if (!cacheddir->LoadFromDisk(pFile))
+							goto error;
 						CTSVNPath KeyPath = CTSVNPath(sKey);
 						if (m_pInstance->IsPathAllowed(KeyPath))
 						{
+							m_pInstance->m_directoryCache[KeyPath] = cacheddir;
 							// only add the path to the watch list if it is versioned
 							if ((cacheddir->GetCurrentFullStatus() != svn_wc_status_unversioned)&&(cacheddir->GetCurrentFullStatus() != svn_wc_status_none))
-								m_pInstance->watcher.AddPath(KeyPath, false);
-
-                            m_pInstance->m_directoryCache[KeyPath] = cacheddir.release();
-
-                            // do *not* add the paths for crawling!
+								m_pInstance->watcher.AddPath(KeyPath);
+							// do *not* add the paths for crawling!
 							// because crawled paths will trigger a shell
 							// notification, which makes the desktop flash constantly
 							// until the whole first time crawling is over
@@ -136,13 +123,11 @@ exit:
 	if (pFile)
 		fclose(pFile);
 	DeleteFile(path2);
-	m_pInstance->watcher.ClearInfoMap();
 	ATLTRACE("cache loaded from disk successfully!\n");
 	return;
 error:
 	fclose(pFile);
 	DeleteFile(path2);
-	m_pInstance->watcher.ClearInfoMap();
 	if (m_pInstance)
 	{
 		m_pInstance->Stop();
@@ -166,11 +151,11 @@ bool CSVNStatusCache::SaveCache()
 		_tcscat_s(path, MAX_PATH, _T("\\TSVNCache"));
 		if (!PathIsDirectory(path))
 			CreateDirectory(path, NULL);
-		_tcscat_s(path, MAX_PATH, STATUSCACHEFILENAME);
+		_tcscat_s(path, MAX_PATH, _T("\\cache"));
 		_tfopen_s(&pFile, path, _T("wb"));
 		if (pFile)
 		{
-			value = CACHEDISKVERSION;		// 'version'
+			value = 2;		// 'version'
 			WRITEVALUETOFILE(value);
 			value = (int)m_pInstance->m_directoryCache.size();
 			WRITEVALUETOFILE(value);
@@ -250,12 +235,15 @@ CSVNStatusCache::CSVNStatusCache(void)
 	SHGetFolderPath(NULL, CSIDL_WINDOWS, NULL, 0, path);
 	m_NoWatchPaths.insert(CTSVNPath(CString(path)));
 	m_bClearMemory = false;
-	m_mostRecentExpiresAt = 0;
 }
 
 CSVNStatusCache::~CSVNStatusCache(void)
 {
-    ClearCache();
+	for (CCachedDirectory::CachedDirMap::iterator I = m_pInstance->m_directoryCache.begin(); I != m_pInstance->m_directoryCache.end(); ++I)
+	{
+		delete I->second;
+		I->second = NULL;
+	}
 }
 
 void CSVNStatusCache::Refresh()
@@ -325,24 +313,6 @@ bool CSVNStatusCache::RemoveCacheForDirectory(CCachedDirectory * cdir)
 	}
 	cdir->m_childDirectories.clear();
 	m_directoryCache.erase(cdir->m_directoryPath);
-
-	// we could have entries versioned and/or stored in our cache which are
-	// children of the specified directory, but not in the m_childDirectories
-	// member: this can happen for nested layouts or if we fetched the status
-	// while e.g., an update/checkout was in progress
-	CCachedDirectory::ItDir itMap = m_directoryCache.lower_bound(cdir->m_directoryPath);
-	do 
-	{
-		if (itMap != m_directoryCache.end())
-		{
-			if (cdir->m_directoryPath.IsAncestorOf(itMap->first))
-			{
-				RemoveCacheForDirectory(itMap->second);
-			}
-		}
-		itMap = m_directoryCache.lower_bound(cdir->m_directoryPath);
-	} while (itMap != m_directoryCache.end() && cdir->m_directoryPath.IsAncestorOf(itMap->first));
-
 	ATLTRACE(_T("removed path %s from cache\n"), cdir->m_directoryPath);
 	delete cdir;
 	cdir = NULL;
@@ -388,19 +358,18 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 		if (!IsWriter())
 		{
 			// upgrading our state to writer
+			ATLTRACE("trying to upgrade the state to \"Writer\"\n");
 			Done();
+			ATLTRACE("Returned \"Reader\" state\n");
 			WaitToWrite();
+			ATLTRACE("Got \"Writer\" state now\n");
 		}
 		// Since above there's a small chance that before we can upgrade to
 		// writer state some other thread gained writer state and changed
 		// the data, we have to recreate the iterator here again.
 		itMap = m_directoryCache.find(path);
 		if (itMap!=m_directoryCache.end())
-		{
-			delete itMap->second;
-			itMap->second = NULL;
 			m_directoryCache.erase(itMap);
-		}
 		// We don't know anything about this directory yet - lets add it to our cache
 		// but only if it exists!
 		if (path.Exists() && m_shellCache.IsPathAllowed(path.GetWinPath()) && !g_SVNAdminDir.IsAdminDirPath(path.GetWinPath()))
@@ -413,19 +382,14 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
 			// again. If that's the case, just do nothing
 			if (path.IsDirectory()||(!path.Exists()))
 			{
-                std::auto_ptr<CCachedDirectory> newcdir (new CCachedDirectory (path));
-                if (newcdir.get())
+				ATLTRACE(_T("adding %s to our cache\n"), path.GetWinPath());
+				CCachedDirectory * newcdir = new CCachedDirectory(path);
+				if (newcdir)
 				{
-                    itMap = m_directoryCache.lower_bound (path);
-                    ASSERT (   (itMap == m_directoryCache.end())
-                            || (itMap->path != path));
-
-                    itMap = m_directoryCache.insert 
-                        (itMap, std::make_pair (path, newcdir.release()));
-                    if (!path.IsEmpty() && path.HasAdminDir())
+					CCachedDirectory * cdir = m_directoryCache.insert(m_directoryCache.lower_bound(path), std::make_pair(path, newcdir))->second;
+					if ((!path.IsEmpty())&&(path.HasAdminDir()))
 						watcher.AddPath(path);
-
-					return itMap->second;		
+					return cdir;		
 				}
 				m_bClearMemory = true;
 			}
@@ -456,49 +420,31 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
 	long now = (long)GetTickCount();
 	if(now-m_mostRecentExpiresAt < 0)
 	{
-		if(path.IsEquivalentToWithoutCase(m_mostRecentAskedPath))
+		if(path.IsEquivalentToWithoutCase(m_mostRecentPath))
 		{
 			return m_mostRecentStatus;
 		}
 	}
-	{
-		AutoLocker lock(m_critSec);
-		m_mostRecentAskedPath = path;
-		m_mostRecentExpiresAt = now+1000;
-	}
+	m_mostRecentPath = path;
+	m_mostRecentExpiresAt = now+1000;
 
-	if (IsPathGood(path) && m_shellCache.IsPathAllowed(path.GetWinPath()))
+	if (IsPathGood(path))
 	{
 		// Stop the crawler starting on a new folder while we're doing this much more important task...
 		// Please note, that this may be a second "lock" used concurrently to the one in RemoveCacheForPath().
 		CCrawlInhibitor crawlInhibit(&m_folderCrawler);
 
 		CTSVNPath dirpath = path.GetContainingDirectory();
-		if (dirpath.IsEmpty())
+		if ((dirpath.IsEmpty()) || (!m_shellCache.IsPathAllowed(dirpath.GetWinPath())))
 			dirpath = path.GetDirectory();
 		CCachedDirectory * cachedDir = GetDirectoryCacheEntry(dirpath);
 		if (cachedDir != NULL)
 		{
-			CStatusCacheEntry entry = cachedDir->GetStatusForMember(path, bRecursive, bFetch);
-			{
-				AutoLocker lock(m_critSec);
-				m_mostRecentStatus = entry;
-				return m_mostRecentStatus;
-			}
+			m_mostRecentStatus = cachedDir->GetStatusForMember(path, bRecursive, bFetch);
+			return m_mostRecentStatus;
 		}
-		cachedDir = GetDirectoryCacheEntry(path.GetDirectory());
-		if (cachedDir != NULL)
-		{
-			CStatusCacheEntry entry = cachedDir->GetStatusForMember(path, bRecursive, bFetch);
-			{
-				AutoLocker lock(m_critSec);
-				m_mostRecentStatus = entry;
-				return m_mostRecentStatus;
-			}
-		}
-
 	}
-	AutoLocker lock(m_critSec);
+	ATLTRACE(_T("ignored no good path %s\n"), path.GetWinPath());
 	m_mostRecentStatus = CStatusCacheEntry();
 	if (m_shellCache.ShowExcludedAsNormal() && path.IsDirectory() && m_shellCache.HasSVNAdminDir(path.GetWinPath(), true))
 	{
@@ -514,14 +460,8 @@ void CSVNStatusCache::AddFolderForCrawling(const CTSVNPath& path)
 
 void CSVNStatusCache::CloseWatcherHandles(HDEVNOTIFY hdev)
 {
-	CTSVNPath path;
-	if (hdev == INVALID_HANDLE_VALUE)
-		watcher.ClearInfoMap();
-	else
-	{
-		path = watcher.CloseInfoMap(hdev);
-		m_folderCrawler.BlockPath(path);
-	}
+	CTSVNPath path = watcher.CloseInfoMap(hdev);
+	m_folderCrawler.BlockPath(path);
 }
 
 void CSVNStatusCache::CloseWatcherHandles(const CTSVNPath& path)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,20 +33,17 @@ SVNInfoData::SVNInfoData()
     , lock_davcomment(false)
     , lock_createtime(0)
     , lock_expirationtime(0)
-    , size64(0)
+    , size(0)
     , hasWCInfo(false)
     , schedule(svn_wc_schedule_normal)
     , texttime(0)
     , proptime(0)
     , depth(svn_depth_unknown)
-    , working_size64(0)
-	, treeconflict_binary(false)
+    , working_size(0)
 {
 }
 
 SVNInfo::SVNInfo(void)
-	: m_pctx(NULL)
-	, m_pos(0)
 {
 	m_pool = svn_pool_create (NULL);
 
@@ -54,14 +51,13 @@ SVNInfo::SVNInfo(void)
 
 	svn_error_clear(svn_config_ensure(NULL, m_pool));
 	
-	// set up the configuration
-	m_err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);
-
 	// set up authentication
 	m_prompt.Init(m_pool, m_pctx);
 	m_pctx->cancel_func = cancel;
 	m_pctx->cancel_baton = this;
 
+	// set up the configuration
+	m_err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);
 
 	if (m_err)
 	{
@@ -152,7 +148,7 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_in
 	if (info->last_changed_author)
 		data.author = CUnicodeUtils::GetUnicode(info->last_changed_author);
 	data.depth = info->depth;
-	data.size64 = info->size64;
+	data.size = info->size;
 
 	if (info->lock)
 	{
@@ -190,30 +186,7 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_in
 			data.prejfile = CUnicodeUtils::GetUnicode(info->prejfile);
 		if (info->changelist)
 			data.changelist = CUnicodeUtils::GetUnicode(info->changelist);
-		data.working_size64 = info->working_size64;
-	}
-	if (info->tree_conflict)
-	{
-		if (info->tree_conflict->path)
-			data.treeconflict_path = CUnicodeUtils::GetUnicode(info->tree_conflict->path);
-		data.treeconflict_nodekind = info->tree_conflict->node_kind;
-		data.treeconflict_kind = info->tree_conflict->kind;
-		if (info->tree_conflict->property_name)
-			data.treeconflict_propertyname = CUnicodeUtils::GetUnicode(info->tree_conflict->property_name);
-		data.treeconflict_binary = !!info->tree_conflict->is_binary;
-		if (info->tree_conflict->mime_type)
-			data.treeconflict_mimetype = CUnicodeUtils::GetUnicode(info->tree_conflict->mime_type);
-		data.treeconflict_action = info->tree_conflict->action;
-		data.treeconflict_reason = info->tree_conflict->reason;
-		data.treeconflict_operation = info->tree_conflict->operation;
-		if (info->tree_conflict->base_file)
-			data.treeconflict_basefile = CUnicodeUtils::GetUnicode(info->tree_conflict->base_file);
-		if (info->tree_conflict->their_file)
-			data.treeconflict_theirfile = CUnicodeUtils::GetUnicode(info->tree_conflict->their_file);
-		if (info->tree_conflict->my_file)
-			data.treeconflict_myfile = CUnicodeUtils::GetUnicode(info->tree_conflict->my_file);
-		if (info->tree_conflict->merged_file)
-			data.treeconflict_mergedfile = CUnicodeUtils::GetUnicode(info->tree_conflict->merged_file);
+		data.working_size = info->working_size;
 	}
 	pThis->m_arInfo.push_back(data);
 	pThis->Receiver(&data);

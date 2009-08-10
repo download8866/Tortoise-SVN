@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,8 +20,7 @@
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
 #include "ProjectProperties.h"
-#include "Tooltip.h"
-#include "tstring.h"
+#include "Balloon.h"
 
 /**
  * \ingroup TortoiseProc
@@ -69,7 +68,6 @@ private:
 	static UINT PropsThreadEntry(LPVOID pVoid);
 	UINT PropsThread();
 	void EditProps(bool bAdd = false);
-	void RemoveProps();
 
 protected:
 	class PropValue
@@ -78,7 +76,7 @@ protected:
 		PropValue(void) : count(0), allthesamevalue(true), isbinary(false) {};
 
 		std::string	value;
-		tstring		value_without_newlines;
+		stdstring	value_without_newlines;
 		int			count;
 		bool		allthesamevalue;
 		bool		isbinary;
@@ -89,9 +87,9 @@ protected:
 	bool			m_bChanged;
 	bool			m_bRevProps;
 	volatile LONG	m_bThreadRunning;
-	std::map<tstring, PropValue>	m_properties;
+	std::map<stdstring, PropValue>	m_properties;
 	SVNRev			m_revision;
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 
 	CString			m_sUUID;
 	ProjectProperties *	m_pProjectProperties;

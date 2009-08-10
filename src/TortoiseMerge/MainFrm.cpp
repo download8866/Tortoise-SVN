@@ -136,7 +136,6 @@ CMainFrame::CMainFrame()
 	m_bInlineWordDiff = true;
 	m_bLineDiff = true;
 	m_bLocatorBar = true;
-	m_nMoveMovesToIgnore = 0;
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
 }
 
@@ -588,13 +587,12 @@ bool CMainFrame::LoadViews(bool bRetainPosition)
 	m_Data.SetBlame(m_bBlame);
 	m_bHasConflicts = false;
 	CBaseView* pwndActiveView = m_pwndLeftView;
-	int nOldLine = m_pwndLeftView ? m_pwndLeftView->m_nTopLine : -1;
 	int nOldLineNumber =
 		m_pwndLeftView && m_pwndLeftView->m_pViewData ?
 		m_pwndLeftView->m_pViewData->GetLineNumber(m_pwndLeftView->m_nTopLine) : -1;
 	if (!m_Data.Load())
 	{
-		::MessageBox(m_hWnd, m_Data.GetError(), _T("TortoiseMerge"), MB_ICONERROR);
+		::MessageBox(NULL, m_Data.GetError(), _T("TortoiseMerge"), MB_ICONERROR);
 		m_Data.m_mergedFile.SetOutOfUse();
 		return false;
 	}
@@ -764,30 +762,22 @@ bool CMainFrame::LoadViews(bool bRetainPosition)
 	UpdateLayout();
 	SetActiveView(pwndActiveView);
 
-	if (bRetainPosition && m_pwndLeftView->m_pViewData)
+	if (bRetainPosition && pwndActiveView->m_pViewData && nOldLineNumber >= 0)
 	{
-		int n = nOldLineNumber;
-		if (n >= 0)
-			n = m_pwndLeftView->m_pViewData->FindLineNumber(n);
-		if (n < 0)
-			n = nOldLine;
-
-		m_pwndLeftView->ScrollAllToLine(n);
-		POINT p;
-		p.x = 0;
-		p.y = n;
-		m_pwndLeftView->SetCaretPosition(p);
+		if (int n = pwndActiveView->m_pViewData->FindLineNumber(nOldLineNumber))
+		{
+			pwndActiveView->ScrollAllToLine(n);
+			POINT p;
+			p.x = 0;
+			p.y = n;
+			pwndActiveView->SetCaretPosition(p);
+		}
 	}
 	else
 	{
 		bool bGoFirstDiff = (0 != (DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE));
-		if (bGoFirstDiff) {
+		if (bGoFirstDiff)
 			pwndActiveView->GoToFirstDifference();
-			// Ignore the first few Mouse Move messages, so that the line diff stays on
-			// the first diff line until the user actually moves the mouse
-			m_nMoveMovesToIgnore = 3; 
-		}
-
 	}
 	// Avoid incorrect rendering of active pane.
 	m_pwndBottomView->ScrollToChar(0);
@@ -803,7 +793,7 @@ void CMainFrame::UpdateLayout()
 	if (m_bInitSplitter)
 	{
 		CRect cr, rclocbar;
-		GetClientRect(&cr);
+		GetWindowRect(&cr);
 		int width = cr.Width();
 		if (::IsWindow(m_wndLocatorBar) && m_wndLocatorBar.IsWindowVisible())
 		{
@@ -823,11 +813,11 @@ void CMainFrame::UpdateLayout()
 
 void CMainFrame::OnSize(UINT nType, int cx, int cy)
 {
-	if (m_bInitSplitter && nType != SIZE_MINIMIZED)
-	{
+    if (m_bInitSplitter && nType != SIZE_MINIMIZED)
+    {
 		UpdateLayout();
-	}
-	CFrameWndEx::OnSize(nType, cx, cy);
+    }
+    CFrameWndEx::OnSize(nType, cx, cy);
 }
 
 void CMainFrame::OnViewWhitespaces()
@@ -1043,7 +1033,8 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 	}
 	if (((DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\Backup"))) != 0)
 	{
-		MoveFileEx(m_Data.m_mergedFile.GetFilename(), m_Data.m_mergedFile.GetFilename() + _T(".bak"), MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH);
+		DeleteFile(m_Data.m_mergedFile.GetFilename() + _T(".bak"));
+		MoveFile(m_Data.m_mergedFile.GetFilename(), m_Data.m_mergedFile.GetFilename() + _T(".bak"));
 	}
 	if (SaveFile(m_Data.m_mergedFile.GetFilename())==0)
 	{
@@ -1057,7 +1048,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 		}
 	}
 	
-	if ((bDoesNotExist)&&(DWORD(CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE))))
+	if (bDoesNotExist)
 	{
 		// call TortoiseProc to add the new file to version control
 		CString cmd = _T("\"") + CPathUtils::GetAppDirectory();
@@ -1072,7 +1063,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 		memset(&process, 0, sizeof(process));
 		if (CreateProcess(NULL, buf, NULL, NULL, FALSE, 0, 0, 0, &startup, &process)==0)
 		{
-			delete [] buf;
+			delete buf;
 			LPVOID lpMsgBuf;
 			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
 				FORMAT_MESSAGE_FROM_SYSTEM | 
@@ -1088,7 +1079,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 			LocalFree( lpMsgBuf );
 			return FALSE;
 		}
-		delete [] buf;
+		delete buf;
 		CloseHandle(process.hThread);
 		CloseHandle(process.hProcess);
 	}
@@ -2044,7 +2035,7 @@ void CMainFrame::OnEditCreateunifieddifffile()
 		if (GetSaveFileName(&ofn)==TRUE)
 		{
 			outputFile = CString(ofn.lpstrFile);
-			CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile, true);
+			CAppUtils::CreateUnifiedDiff(origFile, modifiedFile, outputFile);
 		}
 		delete [] pszFilters;
 	}

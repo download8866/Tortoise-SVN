@@ -49,9 +49,7 @@
 						Called before the commit dialog is shown.
 						You might want to use this if the hook modifies a versioned
 						file and affects the list of files that need to be committed
-						and/or commit message. However you should note that because
-						the hook is called at an early stage, the full list of objects
-						selected for commit is not available.
+						and/or commit message.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -61,7 +59,6 @@
 					<para>
 						Called after the user clicks <guibutton>OK</guibutton>
 						in the commit dialog, and before the actual commit begins.
-						This hook has a list of exactly what will be committed.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -112,7 +109,7 @@
 	</para>
 	<para>
 		The command line includes several parameters which get filled in
-		by TortoiseSVN. The parameters passed depend upon which hook is called.
+		by TortoiseSVN. The parameters available depend upon which hook is called.
 		Each hook has its own parameters which are passed in the following order:
 		<variablelist>
 			<varlistentry>
@@ -299,25 +296,12 @@
 		</variablelist>
 	</para>
 	<para>
-		Note that although we have given these parameters names for convenience,
-		you do not have to refer to those names in the hook settings.
-		All parameters listed for a particular hook are always passed,
-		whether you want them or not ;-)
-	</para>
-	<para>
 		If you want the Subversion operation to hold off until the hook has completed,
 		check <guilabel>Wait for the script to finish</guilabel>.
 	</para>
 	<para>
 		Normally you will want to hide ugly DOS boxes when the script runs,
 		so <guilabel>Hide the script while running</guilabel> is checked by default.
-	</para>
-	<para>
-		Sample client hook scripts can be found in the <literal>contrib</literal> folder in the
-		<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/hook-scripts">
-			<citetitle>TortoiseSVN repository</citetitle>
-		</ulink>.
-		(<xref linkend="tsvn-preface-source"/> explains how to access the repository).
 	</para>
 	<sect3 id="tsvn-dug-settings-hooks-issuetracker">
 		<title>Issue Tracker Integration</title>
@@ -343,42 +327,6 @@
 			The parameters will be specific to the plugin, but might include
 			your user name on the issue tracker so that the plugin can
 			query for issues which are assigned to you.
-		</para>
-		<para>
-			If you want all users to use the same COM plugin for your project, you
-			can specify the plugin also with the properties <literal>bugtraq:provideruuid</literal>
-			and <literal>bugtraq:providerparams</literal>.
-
-			<variablelist>
-				<varlistentry>
-					<term condition="pot">bugtraq:provideruuid</term>
-					<listitem>
-						<para>
-							This property specifies the COM UUID of the IBugtraqProvider,
-							for example <literal>{91974081-2DC7-4FB1-B3BE-0DE1C8D6CE4E}</literal>.
-							(this example is the UUID of the 
-							<ulink url="http://code.google.com/p/gurtle/">
-								<citetitle>Gurtle bugtraq provider</citetitle>
-							</ulink>,
-							which is a provider for the
-							<ulink url="http://code.google.com/hosting/">
-								<citetitle>Google Code</citetitle>
-							</ulink>
-							issue tracker).
-						</para>
-					</listitem>
-				</varlistentry>
-				<varlistentry>
-					<term condition="pot">bugtraq:providerparams</term>
-					<listitem>
-						<para>
-							This property specifies the parameters passed to the IBugtraqProvider.
-						</para>
-					</listitem>
-				</varlistentry>
-			</variablelist>
-			Please check the documentation of your IBugtraqProvider plugin to find out what
-			to specify in these two properties.
 		</para>
 	</sect3>
 </sect2>

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 
 bool CopyCommand::Execute()
 {
-	bool bRet = false;
 	CString msg;
 	if (parser.HasKey(_T("logmsg")))
 	{
@@ -61,10 +60,7 @@ bool CopyCommand::Execute()
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Copy);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
-			DWORD options = dlg.m_bDoSwitch ? ProgOptSwitchAfterCopy : ProgOptNone;
-			progDlg.SetOptions(options);
+			progDlg.SetOptions(dlg.m_bDoSwitch ? ProgOptSwitchAfterCopy : ProgOptNone);
 			progDlg.SetPathList(pathList);
 			progDlg.SetUrl(dlg.m_URL);
 			progDlg.SetCommitMessage(dlg.m_sLogMessage);
@@ -76,12 +72,11 @@ bool CopyCommand::Execute()
 			progDlg.DoModal();
 			CRegDWORD err = CRegDWORD(_T("Software\\TortoiseSVN\\ErrorOccurred"), FALSE);
 			err = (DWORD)progDlg.DidErrorsOccur();
-			bRet = !progDlg.DidErrorsOccur();
 			repeat = progDlg.DidErrorsOccur();
 			CRegDWORD bFailRepeat = CRegDWORD(_T("Software\\TortoiseSVN\\CommitReopen"), FALSE);
 			if (DWORD(bFailRepeat) == FALSE)
 				repeat = false;		// do not repeat if the user chose not to in the settings.
 		}
 	} while(repeat);
-	return bRet;
+	return true;
 }

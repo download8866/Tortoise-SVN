@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007,2009 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -70,13 +70,13 @@ size_t CRegHistory::Load(LPCTSTR lpszSection, LPCTSTR lpszKeyPrefix)
 	m_sKeyPrefix = lpszKeyPrefix;
 
 	int n = 0;
-	tstring sText;
+	std::wstring sText;
 	do
 	{
 		//keys are of form <lpszKeyPrefix><entrynumber>
 		TCHAR sKey[4096] = {0};
 		_stprintf_s(sKey, 4096, _T("%s\\%s%d"), lpszSection, lpszKeyPrefix, n++);
-		sText = CRegStdString(sKey);
+		sText = (LPCTSTR)CRegStdString(sKey);
 		if (!sText.empty())
 		{
 			m_arEntries.push_back(sText);
@@ -106,7 +106,7 @@ bool CRegHistory::Save() const
 		TCHAR sKey[4096] = {0};
 		_stprintf_s(sKey, 4096, _T("%s\\%s%d"), m_sSection.c_str(), m_sKeyPrefix.c_str(), n);
 		CRegStdString regkey = CRegStdString(sKey);
-        if (((tstring)regkey).empty())
+		if (_tcslen((LPCTSTR)regkey)==0)
 			break;
 		regkey.removeValue(); // remove entry
 	}

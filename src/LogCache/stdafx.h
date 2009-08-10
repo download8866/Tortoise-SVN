@@ -41,53 +41,30 @@
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
 
-// Exclude rarely-used stuff from Windows headers
-
-#define VC_EXTRALEAN       
-#define WIN32_LEAN_AND_MEAN        
-
-#define NOSERVICE
-#define NOMCX
-#define NOIME
-#define NOSOUND
-#define NOCOMM
-#define NORPC
-#define NOMINMAX
-
-// streamline APIs
-
-#ifdef _UNICODE
-#define UNICODE_ONLY
-#else
-#define ANSI_ONLY
-#endif
-
-// include commonly used headers
+#define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 
 #include <afxwin.h>         // MFC core and standard components
-#include <afxtempl.h>       // CArray and friends
+#include <afxext.h>         // MFC extensions
+#include <afxtempl.h>       // CArray and friend
 
+#include <shlwapi.h>        // required by path utils
+#include <shlobj.h>         // required by path utils
+
+#include <stdio.h>
+#include <tchar.h>
+
+#include <WinSock2.h>
+#include <Ws2tcpip.h>
+#include <Wspiapi.h>
+#include <windows.h>
 #include <assert.h>
 #include <time.h>
 
 #include <algorithm>
-
+#include <functional>
 #include <string>
 #include <map>
-#include <set>
 #include <vector>
-#include <iostream>
 #include <fstream>
-#include <memory>
 
-#include "tstring.h"
-
-// Commonly used log cache streams
-// (others may be included locally)
-
-#include "./Streams/DiffIntegerInStream.h"
-#include "./Streams/DiffIntegerOutStream.h"
-#include "./Streams/PackedTime64InStream.h"
-#include "./Streams/PackedTime64OutStream.h"
-#include "./Streams/CompositeInStream.h"
-#include "./Streams/CompositeOutStream.h"
+#include "profilingInfo.h"

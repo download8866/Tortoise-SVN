@@ -1,12 +1,9 @@
 personal_ws-1.1 $LANG$ 0
-API
 Araxis
-ATL
 autolist
 autoprops
 BDB
 BOM
-bugtraq
 CollabNet
 CR
 CVS
@@ -20,15 +17,12 @@ ExamDiff
 exe
 frontpage
 FSFS
-Google
 GPL
-Gurtle
 hostname
 html
 http
 httpd
 https
-IBugtraqProvider
 IIS
 IP
 KDiff
@@ -39,7 +33,6 @@ LF
 Lübbe
 Logemann
 MFC
-Migliari
 Mozilla
 MSDN
 msi
@@ -82,18 +75,14 @@ TortoiseProc
 TortoiseSVN
 trac
 TSVNCache
-tsvncmd
 UNC
 unicode
 USB
 UTF
-UUID
 ViewVC
-Vimeo
 WebDAV
 WebSVN
 WinMerge
 xml
 XSL
 XP
-YouTube

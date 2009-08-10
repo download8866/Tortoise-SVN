@@ -33,8 +33,6 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 	char *buffer = new char[length];
 	int bufferCount = 0;
 	bool isBOL, isEOL, isWS, isBOLWS = 0;
-	bool isCode = false;
-	bool isCStyleComment = false;
 
 	WordList &sectionKeywords = *keywordLists[0];
 	WordList &standardKeywords = *keywordLists[1];
@@ -65,7 +63,7 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 
 		switch(state) {
 			case SCE_INNO_DEFAULT:
-				if (!isCode && ch == ';' && isBOLWS) {
+				if (ch == ';' && isBOLWS) {
 					// Start of a comment
 					state = SCE_INNO_COMMENT;
 				} else if (ch == '[' && isBOLWS) {
@@ -75,17 +73,13 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 				} else if (ch == '#' && isBOLWS) {
 					// Start of a preprocessor directive
 					state = SCE_INNO_PREPROC;
-				} else if (!isCode && ch == '{' && chNext != '{' && chPrev != '{') {
-					// Start of an inline expansion
-					state = SCE_INNO_INLINE_EXPANSION;
-				} else if (isCode && (ch == '{' || (ch == '(' && chNext == '*'))) {
+				} else if (ch == '{' && chNext == '#') {
+					// Start of a preprocessor inline directive
+					state = SCE_INNO_PREPROC_INLINE;
+				} else if ((ch == '{' && (chNext == ' ' || chNext == '\t'))
+					   || (ch == '(' && chNext == '*')) {
 					// Start of a Pascal comment
 					state = SCE_INNO_COMMENT_PASCAL;
-					isCStyleComment = false;
-				} else if (isCode && ch == '/' && chNext == '/') {
-					// Apparently, C-style comments are legal, too
-					state = SCE_INNO_COMMENT_PASCAL;
-					isCStyleComment = true;
 				} else if (ch == '"') {
 					// Start of a double-quote string
 					state = SCE_INNO_STRING_DOUBLE;
@@ -118,13 +112,13 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 					buffer[bufferCount] = '\0';
 
 					// Check if the buffer contains a keyword
-					if (!isCode && standardKeywords.InList(buffer)) {
+					if (standardKeywords.InList(buffer)) {
 						styler.ColourTo(i-1,SCE_INNO_KEYWORD);
-					} else if (!isCode && parameterKeywords.InList(buffer)) {
+					} else if (parameterKeywords.InList(buffer)) {
 						styler.ColourTo(i-1,SCE_INNO_PARAMETER);
-					} else if (isCode && pascalKeywords.InList(buffer)) {
+					} else if (pascalKeywords.InList(buffer)) {
 						styler.ColourTo(i-1,SCE_INNO_KEYWORD_PASCAL);
-					} else if (!isCode && userKeywords.InList(buffer)) {
+					} else if (userKeywords.InList(buffer)) {
 						styler.ColourTo(i-1,SCE_INNO_KEYWORD_USER);
 					} else {
 						styler.ColourTo(i-1,SCE_INNO_DEFAULT);
@@ -144,7 +138,6 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 					// Check if the buffer contains a section name
 					if (sectionKeywords.InList(buffer)) {
 						styler.ColourTo(i,SCE_INNO_SECTION);
-						isCode = !CompareCaseInsensitive(buffer, "code");
 					} else {
 						styler.ColourTo(i,SCE_INNO_DEFAULT);
 					}
@@ -194,10 +187,10 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 				}
 				break;
 
-			case SCE_INNO_INLINE_EXPANSION:
+			case SCE_INNO_PREPROC_INLINE:
 				if (ch == '}') {
 					state = SCE_INNO_DEFAULT;
-					styler.ColourTo(i,SCE_INNO_INLINE_EXPANSION);
+					styler.ColourTo(i,SCE_INNO_PREPROC_INLINE);
 				} else if (isEOL) {
 					state = SCE_INNO_DEFAULT;
 					styler.ColourTo(i,SCE_INNO_DEFAULT);
@@ -205,19 +198,12 @@ static void ColouriseInnoDoc(unsigned int startPos, int length, int, WordList *k
 				break;
 
 			case SCE_INNO_COMMENT_PASCAL:
-				if (isCStyleComment) {
-					if (isEOL) {
-						state = SCE_INNO_DEFAULT;
-						styler.ColourTo(i,SCE_INNO_COMMENT_PASCAL);
-					}
-				} else {
-					if (ch == '}' || (ch == ')' && chPrev == '*')) {
-						state = SCE_INNO_DEFAULT;
-						styler.ColourTo(i,SCE_INNO_COMMENT_PASCAL);
-					} else if (isEOL) {
-						state = SCE_INNO_DEFAULT;
-						styler.ColourTo(i,SCE_INNO_DEFAULT);
-					}
+				if (ch == '}' || (ch == ')' && chPrev == '*')) {
+					state = SCE_INNO_DEFAULT;
+					styler.ColourTo(i,SCE_INNO_COMMENT_PASCAL);
+				} else if (isEOL) {
+					state = SCE_INNO_DEFAULT;
+					styler.ColourTo(i,SCE_INNO_DEFAULT);
 				}
 				break;
 
@@ -237,42 +223,72 @@ static const char * const innoWordListDesc[] = {
 };
 
 static void FoldInnoDoc(unsigned int startPos, int length, int, WordList *[], Accessor &styler) {
-	unsigned int endPos = startPos + length;
-	char chNext = styler[startPos];
+	bool foldCompact = styler.GetPropertyInt("fold.compact", 1) != 0;
 
+	unsigned int endPos = startPos + length;
+	int visibleChars = 0;
 	int lineCurrent = styler.GetLine(startPos);
 
-	bool sectionFlag = false;
-	int levelPrev = lineCurrent > 0 ? styler.LevelAt(lineCurrent - 1) : SC_FOLDLEVELBASE;
-	int level;
+	char chNext = styler[startPos];
+	int styleNext = styler.StyleAt(startPos);
+	bool headerPoint = false;
+	int lev;
 
 	for (unsigned int i = startPos; i < endPos; i++) {
 		char ch = chNext;
 		chNext = styler[i+1];
+
+		int style = styleNext;
+		styleNext = styler.StyleAt(i + 1);
 		bool atEOL = (ch == '\r' && chNext != '\n') || (ch == '\n');
-		int style = styler.StyleAt(i);
 
 		if (style == SCE_INNO_SECTION)
-			sectionFlag = true;
+			headerPoint = true;
 
-		if (atEOL || i == endPos - 1) {
-			if (sectionFlag) {
-				level = SC_FOLDLEVELBASE | SC_FOLDLEVELHEADERFLAG;
-				if (level == levelPrev)
-					styler.SetLevel(lineCurrent - 1, levelPrev & ~SC_FOLDLEVELHEADERFLAG);
-			} else {
-				level = levelPrev & SC_FOLDLEVELNUMBERMASK;
-				if (levelPrev & SC_FOLDLEVELHEADERFLAG)
-					level++;
+		if (atEOL) {
+			lev = SC_FOLDLEVELBASE;
+
+			if (lineCurrent > 0) {
+				int levelPrevious = styler.LevelAt(lineCurrent - 1);
+
+				if (levelPrevious & SC_FOLDLEVELHEADERFLAG)
+					lev = SC_FOLDLEVELBASE + 1;
+				else
+					lev = levelPrevious & SC_FOLDLEVELNUMBERMASK;
 			}
 
-			styler.SetLevel(lineCurrent, level);
+			if (headerPoint)
+				lev = SC_FOLDLEVELBASE;
 
-			levelPrev = level;
+			if (visibleChars == 0 && foldCompact)
+				lev |= SC_FOLDLEVELWHITEFLAG;
+
+			if (headerPoint)
+				lev |= SC_FOLDLEVELHEADERFLAG;
+
+			if (lev != styler.LevelAt(lineCurrent))
+				styler.SetLevel(lineCurrent, lev);
+
 			lineCurrent++;
-			sectionFlag = false;
+			visibleChars = 0;
+			headerPoint = false;
 		}
+		if (!isspacechar(ch))
+			visibleChars++;
 	}
+
+	if (lineCurrent > 0) {
+		int levelPrevious = styler.LevelAt(lineCurrent - 1);
+
+		if (levelPrevious & SC_FOLDLEVELHEADERFLAG)
+			lev = SC_FOLDLEVELBASE + 1;
+		else
+			lev = levelPrevious & SC_FOLDLEVELNUMBERMASK;
+	} else {
+		lev = SC_FOLDLEVELBASE;
+	}
+	int flagsNext = styler.LevelAt(lineCurrent);
+	styler.SetLevel(lineCurrent, lev | flagsNext & ~SC_FOLDLEVELNUMBERMASK);
 }
 
 LexerModule lmInno(SCLEX_INNOSETUP, ColouriseInnoDoc, "inno", FoldInnoDoc, innoWordListDesc);

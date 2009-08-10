@@ -153,7 +153,7 @@ public:
 		return pos;
 	}
 
-	int PartitionFromPosition(int pos) const {
+	int PartitionFromPosition(int pos) {
 		if (body->Length() <= 1)
 			return 0;
 		if (pos >= (PositionFromPartition(body->Length()-1)))

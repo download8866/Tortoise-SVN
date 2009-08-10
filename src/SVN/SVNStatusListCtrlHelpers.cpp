@@ -21,9 +21,6 @@
 #include "resource.h"
 #include "..\\TortoiseShell\\resource.h"
 #include "SVNStatusListCtrl.h"
-#include <iterator>
-
-#define SVNSLC_COL_VERSION 5
 
 // assign property list
 
@@ -124,8 +121,10 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
     registryPrefix 
         = _T("Software\\TortoiseSVN\\StatusColumns\\") + containerName;
 
-    // we accept only the current version
-	bool valid = (DWORD)CRegDWORD (registryPrefix + _T("Version"), 0xff) == SVNSLC_COL_VERSION;
+    // we accept settings version 2 only
+    // (version 1 used different placement of hidden columns)
+
+	bool valid = (DWORD)CRegDWORD (registryPrefix + _T("Version"), 0xff) == 2;
     if (valid)
     {
         // read (possibly different) column selection
@@ -187,7 +186,7 @@ void CSVNStatusListCtrl::ColumnManager::WriteSettings() const
     // we are version 2
 
 	CRegDWORD regVersion (registryPrefix + _T("Version"), 0, TRUE);
-    regVersion = SVNSLC_COL_VERSION;
+    regVersion = 2;
 
     // write (possibly different) column selection
 
@@ -270,22 +269,18 @@ CString CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 
 		  , IDS_STATUSLIST_COLREMOTETEXTSTATUS
 		  , IDS_STATUSLIST_COLREMOTEPROPSTATUS
-		  , IDS_STATUSLIST_COLDEPTH
 		  , IDS_STATUSLIST_COLURL
 
 		  , IDS_STATUSLIST_COLLOCK
 		  , IDS_STATUSLIST_COLLOCKCOMMENT
-		  , IDS_STATUSLIST_COLLOCKDATE
-
 		  , IDS_STATUSLIST_COLAUTHOR
+
 		  , IDS_STATUSLIST_COLREVISION
-		  , IDS_STATUSLIST_COLREMOTEREVISION
 		  , IDS_STATUSLIST_COLDATE
 		  , IDS_STATUSLIST_COLSVNLOCK
 
 		  , IDS_STATUSLIST_COLCOPYFROM
-          , IDS_STATUSLIST_COLMODIFICATIONDATE
-		  , IDS_STATUSLIST_COLSIZE};
+          , IDS_STATUSLIST_COLMODIFICATIONDATE};
 
     // standard columns
 
@@ -486,8 +481,8 @@ void CSVNStatusListCtrl::ColumnManager::UpdateUserPropList
         // find insertion position
 
         std::vector<ColumnInfo>::iterator columnIter = columns.begin();
-        std::vector<ColumnInfo>::iterator end2 = columns.end();
-        for (; (columnIter != end2) && columnIter->index < index; ++columnIter);
+        std::vector<ColumnInfo>::iterator end = columns.end();
+        for (; (columnIter != end) && columnIter->index < index; ++columnIter);
         int pos = static_cast<int>(columnIter - columns.begin());
 
         ColumnInfo column;
@@ -501,7 +496,6 @@ void CSVNStatusListCtrl::ColumnManager::UpdateUserPropList
 
         int result = control->InsertColumn (pos, *iter, LVCFMT_LEFT, GetVisibleWidth(pos, false));
         assert (result != -1);
-		UNREFERENCED_PARAMETER(result);
     }
 
     // update column order
@@ -708,12 +702,12 @@ void CSVNStatusListCtrl::ColumnManager::ParseWidths (const CString& widths)
 
             if (index < userProps.size())
             {
-                userProps[index].width = width;
+            userProps[index].width = width;
 
-                for (size_t k = 0, count2 = columns.size(); k < count2; ++k)
-                    if (columns[k].index == i)
-                        columns[k].width = width;
-            }
+            for (size_t k = 0, count = columns.size(); k < count; ++k)
+                if (columns[k].index == i)
+                    columns[k].width = width;
+        }
         }
         else
         {
@@ -808,7 +802,7 @@ void CSVNStatusListCtrl::ColumnManager::ApplyColumnOrder()
     SecureZeroMemory (order, sizeof (order));
 
     std::vector<int> gridColumnOrder = GetGridColumnOrder();
-	std::copy (gridColumnOrder.begin(), gridColumnOrder.end(), stdext::checked_array_iterator<int*>(&order[0], sizeof(order)));
+    std::copy (gridColumnOrder.begin(), gridColumnOrder.end(), &order[0]);
 
     // we must have placed all columns or something is really fishy ..
 
@@ -918,17 +912,7 @@ bool CSVNStatusListCtrl::CSorter::operator()
 	int result = 0;
 	switch (sortedColumn)
 	{
-	case 21:
-		{
-			if (result == 0)
-			{
-				__int64 fileSize1 = entry1->isfolder ? 0 : entry1->working_size != (-1) ? entry1->working_size : entry1->GetPath().GetFileSize();
-				__int64 fileSize2 = entry2->isfolder ? 0 : entry2->working_size != (-1) ? entry2->working_size : entry2->GetPath().GetFileSize();
-				
-				result = int(fileSize1 - fileSize2);
-			}
-		}
-	case 20:
+	case 17:
 		{
 			if (result == 0)
 			{
@@ -941,81 +925,60 @@ bool CSVNStatusListCtrl::CSorter::operator()
 				result = CompareFileTime(filetime1,filetime2);
 			}
 		}
-	case 19:
+	case 16:
 		{
 			if (result == 0)
 			{
 				result = entry1->copyfrom_url.CompareNoCase(entry2->copyfrom_url);
 			}
 		}
-	case 18:
+	case 15:
 		{
 			if (result == 0)
 			{
 				result = SGN(entry1->needslock - entry2->needslock);
 			}
 		}
-	case 17:
+	case 14:
 		{
 			if (result == 0)
 			{
 				result = SGN(entry1->last_commit_date - entry2->last_commit_date);
 			}
 		}
-	case 16:
-		{
-			if (result == 0)
-			{
-				result = entry1->remoterev - entry2->remoterev;
-			}
-		}
-	case 15:
+	case 13:
 		{
 			if (result == 0)
 			{
 				result = entry1->last_commit_rev - entry2->last_commit_rev;
 			}
 		}
-	case 14:
+	case 12:
 		{
 			if (result == 0)
 			{
 				result = entry1->last_commit_author.CompareNoCase(entry2->last_commit_author);
 			}
 		}
-	case 13:
-		{
-			if (result == 0)
-			{
-				result = (int)(entry1->lock_date - entry2->lock_date);
-			}
-		}
-	case 12:
+	case 11:
 		{
 			if (result == 0)
 			{
 				result = entry1->lock_comment.CompareNoCase(entry2->lock_comment);
 			}
 		}
-	case 11:
+	case 10:
 		{
 			if (result == 0)
 			{
 				result = entry1->lock_owner.CompareNoCase(entry2->lock_owner);
 			}
 		}
-	case 10:
-		{
-			if (result == 0)
-			{
-				result = entry1->url.CompareNoCase(entry2->url);
-			}
-		}
 	case 9:
 		{
 			if (result == 0)
 			{
-				result = entry1->depth - entry2->depth;
+				result = entry1->url.CompareNoCase(entry2->url);
 			}
 		}
 	case 8:

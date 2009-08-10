@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,10 +42,6 @@
  */
 class SVNProperties
 {
-private:
-	SVNProperties(const SVNProperties&){}
-	SVNProperties& operator=(SVNProperties&){};
-
 public:
 
 #ifdef _MFC_VER
@@ -61,24 +57,22 @@ public:
 #endif
 	~SVNProperties(void);
 
-public:
-
 	/**
 	 * Returns the number of properties the file/directory has.
 	 */
-	int GetCount() const;
+	int GetCount();
 	/**
 	 * Returns the name of the property.
 	 * \param index a zero based index
 	 * \return the name of the property
 	 */
-	tstring GetItemName(int index) const;
+	stdstring GetItemName(int index);
 	/**
 	 * Returns the value of the property.
 	 * \param index a zero based index
 	 * \return the value of the property
 	 */
-	std::string GetItemValue(int index) const;
+	std::string GetItemValue(int index);
 	/**
 	 * Checks if the property is an internal Subversion property. Internal
 	 * Subversion property names usually begin with 'svn:' and are used
@@ -90,7 +84,7 @@ public:
 	 * svn:executable	if the file is executable or not
 	 * \param index		a zero based index
 	 */
-	BOOL IsSVNProperty(int index) const;
+	BOOL IsSVNProperty(int index);
 	/**
 	 * Adds a new property to the file/directory specified in the constructor.
 	 * \remark After using this method the indexes of the properties may change!
@@ -113,13 +107,13 @@ public:
 	 * Checks if the property value is binary or text.
 	 * \return true if the property has a binary value.
 	 */
-	bool IsBinary(int index) const;
-	static bool IsBinary(const std::string& value);
+	bool IsBinary(int index);
+	static bool IsBinary(std::string value);
 
 	/**
 	 * Returns the last error message as a CString object.
 	 */
-	tstring GetLastErrorMsg() const;
+	stdstring GetLastErrorMsg();
 
 private:		//methods
 	/**
@@ -131,7 +125,7 @@ private:		//methods
 	/**
 	 * Returns either the property name (name == TRUE) or value (name == FALSE).
 	 */
-	std::string				GetItem(int index, BOOL name) const;
+	std::string				GetItem(int index, BOOL name);
 
 private:		//members
 	apr_pool_t *				m_pool;				///< memory pool baton

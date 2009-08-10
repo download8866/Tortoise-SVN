@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2009 - Stefan Kueng
+// Copyright (C) 2003-2006,2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,7 +81,6 @@ typedef struct FileStatusCacheEntry
 	svn_revnum_t			rev;
 	int						askedcounter;
 	svn_lock_t *			lock;
-	bool					tree_conflict;
 } FileStatusCacheEntry;
 
 #define SVNFOLDERSTATUS_CACHETIMES				10
@@ -115,13 +114,13 @@ public:
 private:
 	const FileStatusCacheEntry * BuildCache(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bDirectFolder = FALSE);
 	DWORD				GetTimeoutValue();
-	static svn_error_t*	fillstatusmap (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
-	static svn_error_t*	findfolderstatus (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
+	static void			fillstatusmap (void *baton, const char *path, svn_wc_status2_t *status);
+	static void			findfolderstatus (void *baton, const char *path, svn_wc_status2_t *status);
 	static CTSVNPath	folderpath;
 	void				ClearCache();
 	
 	int					m_nCounter;
-	typedef std::map<tstring, FileStatusCacheEntry> FileStatusMap;
+	typedef std::map<stdstring, FileStatusCacheEntry> FileStatusMap;
 	FileStatusMap			m_cache;
 	DWORD					m_TimeStamp;
 	FileStatusCacheEntry	dirstat;
@@ -137,7 +136,7 @@ private:
 	StringPool		owners;
 	char			emptyString[1];
 
-	tstring		sCacheKey;
+	stdstring		sCacheKey;
 
 	HANDLE			m_hInvalidationEvent;
 

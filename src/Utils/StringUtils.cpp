@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -226,16 +226,10 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID l
 					if (SetClipboardData(CF_TEXT, hClipboardData)==NULL)
 					{
 						HANDLE hlocmem = GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, sizeof(LCID));
-						if (hlocmem)
-						{
-							PLCID plcid = (PLCID)GlobalLock(hlocmem);
-							if (plcid)
-							{
-								*plcid = lcid;
-								SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
-							}
-							GlobalUnlock(hlocmem);
-						}
+						PLCID plcid = (PLCID)GlobalLock(hlocmem);
+						*plcid = lcid;
+						GlobalUnlock(hlocmem);
+						SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
 						CloseClipboard();
 						return true;
 					}
@@ -428,7 +422,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	if (bUTF8)
 	{
 		std::string buf = CUnicodeUtils::StdGetUTF8(text);
-		if (!WriteFile(hFile, buf.c_str(), (DWORD)buf.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, buf.c_str(), buf.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -436,7 +430,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	}
 	else
 	{
-		if (!WriteFile(hFile, text.c_str(), (DWORD)text.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, text.c_str(), text.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -447,6 +441,92 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 }
 
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
+
+int CStringUtils::CompareNumerical(LPCTSTR x_str, LPCTSTR y_str)
+{
+	LPCTSTR num_x_begin = x_str, num_y_begin = y_str;
+	DWORD num_x_cnt = 0, num_y_cnt = 0;
+	int cs_cmp_result = 2;
+
+	// skip same chars and remember last numeric part of strings
+	while ((*x_str || *y_str) && CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE | NORM_IGNOREWIDTH, x_str, 1, y_str, 1) == 2 /* equal */ )
+	{
+		if (IsCharNumeric(*x_str))
+		{
+			++num_x_cnt;
+			++num_y_cnt;
+		}
+		else
+		{
+			num_x_begin = CharNext(x_str);
+			num_y_begin = CharNext(y_str);
+			num_x_cnt = 0;
+			num_y_cnt = 0;
+			if (cs_cmp_result == 2)
+				cs_cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, x_str, 1, y_str, 1);
+		}
+		x_str = CharNext(x_str);
+		y_str = CharNext(y_str);
+	}
+
+	// parse numeric part of first arg
+	if (num_x_cnt || IsCharNumeric(*x_str))
+	{
+		LPCTSTR x_str_tmp = x_str;
+		while (IsCharNumeric(*x_str_tmp))
+		{
+			++num_x_cnt;
+			x_str_tmp = CharNext(x_str_tmp);
+		}
+
+		// parse numeric part of second arg
+		if (num_y_cnt || IsCharNumeric(*y_str))
+		{
+			LPCTSTR y_str_tmp = y_str;
+			while (IsCharNumeric(*y_str_tmp))
+			{
+				++num_y_cnt;
+				y_str_tmp = CharNext(y_str_tmp);
+			}
+
+			DWORD num_x_cnt_with_zeros = num_x_cnt, num_y_cnt_with_zeros = num_y_cnt;
+
+			while (num_x_cnt < num_y_cnt)
+			{
+				if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_y_begin, 1, TEXT("0"), 1) != 2 /* not equal to '0' */ )
+					return -1;
+				num_y_begin = CharNext(num_y_begin);
+				--num_y_cnt;
+			}
+
+			while (num_x_cnt > num_y_cnt)
+			{
+				if (CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_x_begin, 1, TEXT("0"), 1) != 2 /* not equal to '0' */ )
+					return 1;
+				num_x_begin = CharNext(num_x_begin);
+				--num_x_cnt;
+			}
+
+			// here num_x_cnt == num_y_cnt
+			int cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, num_x_begin, num_x_cnt, num_y_begin, num_y_cnt);
+
+			if (cmp_result != 2)
+				return cmp_result - 2;
+			if (num_x_cnt_with_zeros != num_y_cnt_with_zeros)
+				return num_x_cnt_with_zeros < num_y_cnt_with_zeros ? -1 : 1;
+			if (cs_cmp_result != 2)
+				return cs_cmp_result - 2;
+		}
+	}
+
+	// otherwise, compare literally
+	int cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNORECASE | NORM_IGNOREWIDTH, x_str, -1, y_str, -1);
+	if (cmp_result != 2)
+		return cmp_result - 2;
+	if (cs_cmp_result == 2)
+		cs_cmp_result = CompareString(LOCALE_USER_DEFAULT, NORM_IGNOREWIDTH, x_str, -1, y_str, -1);
+	return cs_cmp_result - 2;
+}
 
 
 #if defined(_DEBUG)

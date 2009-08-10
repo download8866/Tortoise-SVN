@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -126,9 +126,9 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 		break;
 	case WM_CLOSE:
 		{
-			CRegStdDWORD w = CRegStdDWORD(_T("Software\\TortoiseSVN\\UDiffViewerWidth"), (DWORD)CW_USEDEFAULT);
-			CRegStdDWORD h = CRegStdDWORD(_T("Software\\TortoiseSVN\\UDiffViewerHeight"), (DWORD)CW_USEDEFAULT);
-			CRegStdDWORD p = CRegStdDWORD(_T("Software\\TortoiseSVN\\UDiffViewerPos"), 0);
+			CRegStdWORD w = CRegStdWORD(_T("Software\\TortoiseSVN\\UDiffViewerWidth"), (DWORD)CW_USEDEFAULT);
+			CRegStdWORD h = CRegStdWORD(_T("Software\\TortoiseSVN\\UDiffViewerHeight"), (DWORD)CW_USEDEFAULT);
+			CRegStdWORD p = CRegStdWORD(_T("Software\\TortoiseSVN\\UDiffViewerPos"), 0);
 
 			RECT rect;
 			::GetWindowRect(*this, &rect);
@@ -188,78 +188,6 @@ LRESULT CMainWindow::DoCommand(int id)
 {
 	switch (id) 
 	{
-	case ID_FILE_OPEN:
-		{
-			OPENFILENAME ofn = {0};				// common dialog box structure
-			TCHAR szFile[MAX_PATH] = {0};		// buffer for file name
-			// Initialize OPENFILENAME
-			ofn.lStructSize = sizeof(OPENFILENAME);
-			ofn.hwndOwner = *this;
-			ofn.lpstrFile = szFile;
-			ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-			TCHAR filter[1024];
-			LoadString(hResource, IDS_PATCHFILEFILTER, filter, sizeof(filter)/sizeof(TCHAR));
-			TCHAR * pszFilters = filter;
-			// Replace '|' delimiters with '\0's
-			TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
-			while (ptr != pszFilters)
-			{
-				if (*ptr == '|')
-					*ptr = '\0';
-				ptr--;
-			}
-			ofn.lpstrFilter = pszFilters;
-			ofn.nFilterIndex = 1;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			TCHAR opentitle[1024];
-			LoadString(hResource, IDS_OPENPATCH, opentitle, sizeof(opentitle)/sizeof(TCHAR));
-			ofn.lpstrTitle = opentitle;
-			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ENABLESIZING | OFN_EXPLORER;
-			// Display the Open dialog box. 
-			if (GetOpenFileName(&ofn)==TRUE)
-			{
-				LoadFile(ofn.lpstrFile);
-			}
-		}
-		break;
-	case ID_FILE_SAVEAS:
-		{
-			OPENFILENAME ofn = {0};				// common dialog box structure
-			TCHAR szFile[MAX_PATH] = {0};		// buffer for file name
-			// Initialize OPENFILENAME
-			ofn.lStructSize = sizeof(OPENFILENAME);
-			ofn.hwndOwner = *this;
-			ofn.lpstrFile = szFile;
-			ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-			TCHAR filter[1024];
-			LoadString(hResource, IDS_PATCHFILEFILTER, filter, sizeof(filter)/sizeof(TCHAR));
-			TCHAR * pszFilters = filter;
-			// Replace '|' delimiters with '\0's
-			TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
-			while (ptr != pszFilters)
-			{
-				if (*ptr == '|')
-					*ptr = '\0';
-				ptr--;
-			}
-			ofn.lpstrFilter = pszFilters;
-			ofn.nFilterIndex = 1;
-			ofn.lpstrFileTitle = NULL;
-			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
-			TCHAR savetitle[1024];
-			LoadString(hResource, IDS_SAVEPATCH, savetitle, sizeof(savetitle)/sizeof(TCHAR));
-			ofn.lpstrTitle = savetitle;
-			ofn.Flags = OFN_OVERWRITEPROMPT | OFN_ENABLESIZING | OFN_EXPLORER;
-			// Display the Open dialog box. 
-			if (GetSaveFileName(&ofn)==TRUE)
-			{
-				SaveFile(ofn.lpstrFile);
-			}
-		}
-		break;
 	case ID_FILE_EXIT:
 		::PostQuitMessage(0);
 		return 0;
@@ -329,9 +257,9 @@ LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 
 bool CMainWindow::Initialize()
 {
-	CRegStdDWORD pos(_T("Software\\TortoiseSVN\\UDiffViewerPos"), 0);
-	CRegStdDWORD width(_T("Software\\TortoiseSVN\\UDiffViewerWidth"), (DWORD)640);
-	CRegStdDWORD height(_T("Software\\TortoiseSVN\\UDiffViewerHeight"), (DWORD)480);
+	CRegStdWORD pos(_T("Software\\TortoiseSVN\\UDiffViewerPos"), 0);
+	CRegStdWORD width(_T("Software\\TortoiseSVN\\UDiffViewerWidth"), (DWORD)640);
+	CRegStdWORD height(_T("Software\\TortoiseSVN\\UDiffViewerHeight"), (DWORD)480);
 	if (DWORD(pos) && DWORD(width) && DWORD(height))
 	{
 		RECT rc;
@@ -376,7 +304,7 @@ bool CMainWindow::Initialize()
 		// Reusing TortoiseBlame's setting which already have an user friendly
 		// pane in TortoiseSVN's Settings dialog, while there is no such
 		// pane for TortoiseUDiff.
-		CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10),
+		CRegStdWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10),
 		WideToMultibyte(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New"))).c_str());
 	SendEditor(SCI_SETTABWIDTH, 4);
 	SendEditor(SCI_SETREADONLY, TRUE);
@@ -409,7 +337,7 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 	{
 		//SetTitle();
 		char data[4096];
-		size_t lenFile = fread(data, 1, sizeof(data), fp);
+		int lenFile = fread(data, 1, sizeof(data), fp);
 		bool bUTF8 = IsUTF8(data, lenFile);
 		while (lenFile > 0) 
 		{
@@ -430,6 +358,7 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 	SendEditor(EM_EMPTYUNDOBUFFER);
 	SendEditor(SCI_SETSAVEPOINT);
 	SendEditor(SCI_GOTOPOS, 0);
+	SendEditor(SCI_SETREADONLY, TRUE);
 
 	SendEditor(SCI_CLEARDOCUMENTSTYLE, 0, 0);
 	SendEditor(SCI_SETSTYLEBITS, 5, 0);
@@ -450,31 +379,9 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 	return true;
 }
 
-bool CMainWindow::SaveFile(LPCTSTR filename)
-{
-	FILE *fp = NULL;
-	_tfopen_s(&fp, filename, _T("w+b"));
-	if (fp) 
-	{
-		LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-		char * data = new char[len+1];
-		SendEditor(SCI_GETTEXT, len, (LPARAM)data);
-		fwrite(data, sizeof(char), len-1, fp);
-		fclose(fp);
-	}
-	else 
-	{
-		return false;
-	}
-
-	SendEditor(SCI_SETSAVEPOINT);
-	::ShowWindow(m_hWndEdit, SW_SHOW);
-	return true;
-}
-
 void CMainWindow::SetTitle(LPCTSTR title)
 {
-	size_t len = _tcslen(title);
+	int len = _tcslen(title);
 	TCHAR * pBuf = new TCHAR[len+40];
 	_stprintf_s(pBuf, len+40, _T("%s - TortoiseUDiff"), title);
 	SetWindowTitle(std::wstring(pBuf));
@@ -491,72 +398,72 @@ void CMainWindow::SetAStyle(int style, COLORREF fore, COLORREF back, int size, c
 		SendEditor(SCI_STYLESETFONT, style, reinterpret_cast<LPARAM>(face));
 }
 
-bool CMainWindow::IsUTF8(LPVOID pBuffer, size_t cb)
+bool CMainWindow::IsUTF8(LPVOID pBuffer, int cb)
 {
 	if (cb < 2)
 		return true;
-	UINT16 * pVal16 = (UINT16 *)pBuffer;
-	UINT8 * pVal8 = (UINT8 *)(pVal16+1);
+	UINT16 * pVal = (UINT16 *)pBuffer;
+	UINT8 * pVal2 = (UINT8 *)(pVal+1);
 	// scan the whole buffer for a 0x0000 sequence
 	// if found, we assume a binary file
-	for (size_t i=0; i<(cb-2); i=i+2)
+	for (int i=0; i<(cb-2); i=i+2)
 	{
-		if (0x0000 == *pVal16++)
+		if (0x0000 == *pVal++)
 			return false;
 	}
-	pVal16 = (UINT16 *)pBuffer;
-	if (*pVal16 == 0xFEFF)
+	pVal = (UINT16 *)pBuffer;
+	if (*pVal == 0xFEFF)
 		return false;
 	if (cb < 3)
 		return false;
-	if (*pVal16 == 0xBBEF)
+	if (*pVal == 0xBBEF)
 	{
-		if (*pVal8 == 0xBF)
+		if (*pVal2 == 0xBF)
 			return true;
 	}
 	// check for illegal UTF8 chars
-	pVal8 = (UINT8 *)pBuffer;
-	for (size_t i=0; i<cb; ++i)
+	pVal2 = (UINT8 *)pBuffer;
+	for (int i=0; i<cb; ++i)
 	{
-		if ((*pVal8 == 0xC0)||(*pVal8 == 0xC1)||(*pVal8 >= 0xF5))
+		if ((*pVal2 == 0xC0)||(*pVal2 == 0xC1)||(*pVal2 >= 0xF5))
 			return false;
-		pVal8++;
+		pVal2++;
 	}
-	pVal8 = (UINT8 *)pBuffer;
+	pVal2 = (UINT8 *)pBuffer;
 	bool bUTF8 = false;
-	for (size_t i=0; i<(cb-3); ++i)
+	for (int i=0; i<(cb-3); ++i)
 	{
-		if ((*pVal8 & 0xE0)==0xC0)
+		if ((*pVal2 & 0xE0)==0xC0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
 			bUTF8 = true;
 		}
-		if ((*pVal8 & 0xF0)==0xE0)
+		if ((*pVal2 & 0xF0)==0xE0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
 			bUTF8 = true;
 		}
-		if ((*pVal8 & 0xF8)==0xF0)
+		if ((*pVal2 & 0xF8)==0xF0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return false;
 			bUTF8 = true;
 		}
-		pVal8++;
+		pVal2++;
 	}
 	if (bUTF8)
 		return true;

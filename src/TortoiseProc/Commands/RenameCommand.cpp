@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,11 +26,9 @@
 #include "InputLogDlg.h"
 #include "SVN.h"
 #include "DirFileEnum.h"
-#include "ShellUpdater.h"
 
 bool RenameCommand::Execute()
 {
-	bool bRet = false;
 	CString filename = cmdLinePath.GetFileOrDirectoryName();
 	CString basePath = cmdLinePath.GetContainingDirectory().GetWinPathString();
 	::SetCurrentDirectory(basePath);
@@ -65,7 +63,7 @@ bool RenameCommand::Execute()
 	else
 	{
 		CString sMsg;
-		if (SVN::PathIsURL(cmdLinePath))
+		if (SVN::PathIsURL(cmdLinePath.GetSVNPathString()))
 		{
 			// rename an URL.
 			// Ask for a commit message, then rename directly in
@@ -96,17 +94,15 @@ bool RenameCommand::Execute()
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Rename);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.SetPathList(pathList);
 			progDlg.SetUrl(destinationPath.GetWinPathString());
 			progDlg.SetCommitMessage(sMsg);
 			progDlg.SetRevision(SVNRev::REV_WC);
 			progDlg.DoModal();
-			bRet = !progDlg.DidErrorsOccur();
 		}
 		else
 		{
+			SVN svn;
 			CString sFilemask = cmdLinePath.GetFilename();
 			if (sFilemask.ReverseFind('.')>=0)
 			{
@@ -115,7 +111,7 @@ bool RenameCommand::Execute()
 			else
 				sFilemask.Empty();
 			CString sNewMask = sNewName;
-			if (sNewMask.ReverseFind('.')>=0)
+			if (sNewMask.ReverseFind('.'>=0))
 			{
 				sNewMask = sNewMask.Left(sNewMask.ReverseFind('.'));
 			}
@@ -125,8 +121,11 @@ bool RenameCommand::Execute()
 			if (((!sFilemask.IsEmpty()) && (parser.HasKey(_T("noquestion")))) ||
 				(cmdLinePath.GetFileExtension().Compare(destinationPath.GetFileExtension())!=0))
 			{
-				if (RenameWithReplace(hwndExplorer, CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
-					bRet = true;
+				if (!svn.Move(CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
+				{
+					TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
+					CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+				}
 			}
 			else
 			{
@@ -144,10 +143,10 @@ bool RenameCommand::Execute()
 				{
 					// we couldn't find any other matching files
 					// just do the default...
-					if (RenameWithReplace(hwndExplorer, CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
+					if (!svn.Move(CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
 					{
-						bRet = true;
-						CShellUpdater::Instance().AddPathForUpdate(destinationPath);
+						TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
+						CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 					}
 				}
 				else
@@ -179,11 +178,18 @@ bool RenameCommand::Execute()
 						{
 							progress.FormatPathLine(1, IDS_PROC_MOVINGPROG, (LPCTSTR)it->first);
 							progress.FormatPathLine(2, IDS_PROC_CPYMVPROG2, (LPCTSTR)it->second);
-							progress.SetProgress64(count, renmap.size());
-							if (RenameWithReplace(hwndExplorer, CTSVNPathList(CTSVNPath(it->first)), CTSVNPath(it->second), TRUE, sMsg))
+							progress.SetProgress(count, renmap.size());
+							if (!svn.Move(CTSVNPathList(CTSVNPath(it->first)), CTSVNPath(it->second), TRUE, sMsg))
 							{
-								bRet = true;
-								CShellUpdater::Instance().AddPathForUpdate(CTSVNPath(it->second));
+								if (svn.Err->apr_err == SVN_ERR_ENTRY_NOT_FOUND)
+								{
+									MoveFile(it->first, it->second);
+								}
+								else
+								{
+									TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
+									CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+								}
 							}
 						}
 						progress.Stop();
@@ -191,10 +197,10 @@ bool RenameCommand::Execute()
 					else if (idret == IDNO)
 					{
 						// no, user wants to just rename the file he selected
-						if (RenameWithReplace(hwndExplorer, CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
+						if (!svn.Move(CTSVNPathList(cmdLinePath), destinationPath, TRUE, sMsg))
 						{
-							bRet = true;
-							CShellUpdater::Instance().AddPathForUpdate(destinationPath);
+							TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
+							CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}
 					}
 					else if (idret == IDCANCEL)
@@ -203,47 +209,7 @@ bool RenameCommand::Execute()
 					}
 				}
 			}
-		}
-	}
-	return bRet;
-}
-
-bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathList, 
-									  const CTSVNPath &destPath, BOOL force, 
-									  const CString &message /* = L"" */, 
-									  bool move_as_child /* = false */, 
-									  bool make_parents /* = false */)
-{
-	SVN svn;
-	UINT idret = IDYES;
-	bool bRet = true;
-	if (destPath.Exists() && !destPath.IsDirectory())
-	{
-		CString sReplace;
-		sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
-		idret = CMessageBox::Show(hWnd, sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNOCANCEL);
-		if (idret == IDYES)
-		{
-			if (!svn.Remove(CTSVNPathList(destPath), TRUE, FALSE))
-			{
-				destPath.Delete(true);
-			}
-		}
-	}
-	if ((idret != IDCANCEL)&&(!svn.Move(srcPathList, destPath, force, message, move_as_child, make_parents)))
-	{
-		if (svn.Err->apr_err == SVN_ERR_ENTRY_NOT_FOUND)
-		{
-			bRet = !!MoveFile(srcPathList[0].GetWinPath(), destPath.GetWinPath());
-		}
-		else
-		{
-			TRACE(_T("%s\n"), (LPCTSTR)svn.GetLastErrorMessage());
-			CMessageBox::Show(hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-			bRet = false;
-		}
-	}
-	if (idret == IDCANCEL)
-		bRet = false;
-	return bRet;
+		} // else from if ((cmdLinePath.IsDirectory())||(pathList.GetCount() > 1))
+	} // else from if (cmdLinePath.GetWinPathString().CompareNoCase(destinationPath.GetWinPathString())==0)
+	return true;
 }

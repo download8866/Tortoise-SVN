@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2004-2009 - TortoiseSVN
+// Copyright (C) 2004-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,8 +60,8 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 {
 	CString sLine;
 	EOL ending = EOL_NOENDING;
-	int nIndex = 0;
-	int nLineCount = 0;
+	INT_PTR nIndex = 0;
+	INT_PTR nLineCount = 0;
 	g_crasher.AddFile((LPCSTR)(LPCTSTR)filename, (LPCSTR)(LPCTSTR)_T("unified diff file"));
 
 	CFileTextLines PatchLines;
@@ -609,8 +609,6 @@ BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CSt
 					{
 						if ((lAddLine < PatchLines.GetCount())&&(sPatchLine.Compare(PatchLines.GetAt(lAddLine))==0))
 							lAddLine++;
-						else if (((lAddLine + 1) < PatchLines.GetCount())&&(sPatchLine.Compare(PatchLines.GetAt(lAddLine+1))==0))
-							lAddLine += 2;
 						else if ((lRemoveLine < PatchLines.GetCount())&&(sPatchLine.Compare(PatchLines.GetAt(lRemoveLine))==0))
 							lRemoveLine++;
 						else

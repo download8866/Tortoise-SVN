@@ -24,8 +24,6 @@
  */
 class SVNConfig
 {
-private:
-	SVNConfig(const SVNConfig&){}
 public:
 	SVNConfig(void);
 	~SVNConfig(void);

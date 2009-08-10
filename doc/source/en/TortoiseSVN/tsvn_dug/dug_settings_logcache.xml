@@ -36,32 +36,6 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Allow ambiguous URLs</term>
-				<listitem>
-					<para>
-						Occasionally you may have to connect to a server which uses
-						the same URL for all repositories. Older versions of
-						<literal>svnbridge</literal> would do this. If you need to
-						access such repositories you will have to check this option.
-						If you don't, leave it unchecked to improve performance.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Allow ambiguous UUIDs</term>
-				<listitem>
-					<para>
-						Some hosting services give all their repositories the same
-						UUID. You may even have done this yourself by copying a
-						repository folder to create a new one. For all sorts of
-						reasons this is a bad idea - a UUID should be
-						<emphasis>unique</emphasis>. However, the log cache will
-						still work in this situation if you check this box.
-						If you don't need it, leave it unchecked to improve performance.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
 				<term>If the repository cannot be contacted</term>
 				<listitem>
 					<para>
@@ -94,68 +68,13 @@
 					</para>
 				</listitem>
 			</varlistentry>
-			<varlistentry>
-				<term>Days of inactivity until small caches get removed</term>
-				<listitem>
-					<para>
-						If you browse around a lot of repositories you will
-						accumulate a lot of log caches. If you're not actively
-						using them, the cache will not grow very big, so
-						TortoiseSVN purges them after a set time by default.
-						Use this item to control cache purging.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Maximum size of removed inactive caches</term>
-				<listitem>
-					<para>
-						Larger caches are more expensive to reacquire, so
-						TortoiseSVN only purges small caches. Fine tune the
-						threshold with this value.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Maximum number of tool failures before cache removal</term>
-				<listitem>
-					<para>
-						Occasionally something goes wrong with the caching and
-						causes a crash. If this happens the cache is normally
-						deleted automatically to prevent a recurrence of the problem.
-						If you use the less stable nightly build you may opt to
-						keep the cache anyway.
-					</para>
-				</listitem>
-			</varlistentry>
 		</variablelist>
 	</para>
-	<sect3 id="tsvn-dug-settings-logcache-repolist">
-		<?dbhh topicname="HIDD_SETTINGSLOGCACHELIST"?>
-		<title>Cached Repositories</title>
-		<para>
-			On this page you can see a list of the repositories that are
-			cached locally, and the space used for the cache. If you select one
-			of the repositories you can then use the buttons underneath.
-		</para>
-        <para>
-            Click on the <guibutton>Update</guibutton> to completely refresh the
-            cache and fill in any holes. For a large repository this could be
-            very time consuming, but useful if you are about to go offline
-            and want the best available cache.
-        </para>
-        <para>
-            Click on the <guibutton>Export</guibutton> button to export the entire
-            cache as a set of CSV files. This could be useful if you want to process
-            the log data using an external program, although it is mainly useful to
-            the developers.
-        </para>
-        <para>
-            Click on <guibutton>Delete</guibutton> to remove all cached data for
-            the selected repositories. This does not disable caching for the repository
-            so the next time you request log data, a new cache will be created.
-        </para>
-    </sect3>
+	<para>
+		Below the settings you can see a list of the repositories that are
+		cached locally, and the space used for the cache. If you select one
+		of the repositories you can then use the buttons underneath.
+	</para>
 	<sect3 id="tsvn-dug-settings-logcache-statistics">
 		<?dbhh topicname="HIDD_IDD_LOGCACHESTATISTICS"?>
 		<title>Log Cache Statistics</title>
@@ -260,4 +179,21 @@
 			</variablelist>
 		</para>
 	</sect3>
+	<para>
+		Click on the <guibutton>Update</guibutton> to completely refresh the
+		cache and fill in any holes. For a large repository this could be
+		very time consuming, but useful if you are about to go offline
+		and want the best available cache.
+	</para>
+	<para>
+		Click on the <guibutton>Export</guibutton> button to export the entire
+		cache as a set of CSV files. This could be useful if you want to process
+		the log data using an external program, although it is mainly useful to
+		the developers.
+	</para>
+	<para>
+		Click on <guibutton>Delete</guibutton> to remove all cached data for
+		the selected repositories. This does not disable caching for the repository
+		so the next time you request log data, a new cache will be created.
+	</para>
 </sect2>

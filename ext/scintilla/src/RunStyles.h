@@ -7,9 +7,6 @@
 /// Styling buffer using one element for each run rather than using
 /// a filled buffer.
 
-#ifndef RUNSTYLES_H
-#define RUNSTYLES_H
-
 #ifdef SCI_NAMESPACE
 namespace Scintilla {
 #endif
@@ -41,6 +38,4 @@ public:
 
 #ifdef SCI_NAMESPACE
 }
-#endif
-
 #endif

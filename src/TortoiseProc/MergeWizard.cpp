@@ -23,10 +23,10 @@
 
 // CMergeWizard
 
-IMPLEMENT_DYNAMIC(CMergeWizard, CResizableSheetEx)
+IMPLEMENT_DYNAMIC(CMergeWizard, CPropertySheet)
 
 CMergeWizard::CMergeWizard(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
-	:CResizableSheetEx(nIDCaption, pParentWnd, iSelectPage)
+	:CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
 	, bReverseMerge(FALSE)
 	, nRevRangeMerge(MERGEWIZARD_REVRANGE)
 	, m_bIgnoreAncestry(FALSE)
@@ -55,7 +55,7 @@ CMergeWizard::~CMergeWizard()
 }
 
 
-BEGIN_MESSAGE_MAP(CMergeWizard, CResizableSheetEx)
+BEGIN_MESSAGE_MAP(CMergeWizard, CPropertySheet)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 END_MESSAGE_MAP()
@@ -65,7 +65,7 @@ END_MESSAGE_MAP()
 
 BOOL CMergeWizard::OnInitDialog()
 {
-	BOOL bResult = CResizableSheetEx::OnInitDialog();
+	BOOL bResult = CPropertySheet::OnInitDialog();
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
@@ -77,27 +77,28 @@ BOOL CMergeWizard::OnInitDialog()
 	return bResult;
 }
 
+// Mode numbers coincide with wizard page indexes.
+
+bool CMergeWizard::AutoSetMode()
+{
+	if (!m_FirstPageActivation)
+		return false;
+	m_FirstPageActivation = false;
+	DWORD nMergeWizardMode =
+		(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWizardMode"), 0);
+	if ((nMergeWizardMode != IDD_MERGEWIZARD_TREE) && (nMergeWizardMode != IDD_MERGEWIZARD_REVRANGE) && (nMergeWizardMode != IDD_MERGEWIZARD_REINTEGRATE))
+		return false;
+	nRevRangeMerge = nMergeWizardMode;
+	SendMessage(PSM_SETCURSEL, nMergeWizardMode);
+	return true;
+}
 
 void CMergeWizard::SaveMode()
 {
 	CRegDWORD regMergeWizardMode(_T("Software\\TortoiseSVN\\MergeWizardMode"), 0);
 	if (DWORD(regMergeWizardMode))
 	{
-		switch (nRevRangeMerge)
-		{
-		case IDD_MERGEWIZARD_REVRANGE:
-			regMergeWizardMode = 2;
-			break;
-		case IDD_MERGEWIZARD_REINTEGRATE:
-			regMergeWizardMode = 3;
-			break;
-		case IDD_MERGEWIZARD_TREE:
-			regMergeWizardMode = 1;
-			break;
-		default:
-			regMergeWizardMode = 0;
-			break;
-		}
+		regMergeWizardMode = nRevRangeMerge;
 	}
 }
 
@@ -136,7 +137,7 @@ void CMergeWizard::OnPaint()
 	}
 	else
 	{
-		CResizableSheetEx::OnPaint();
+		CPropertySheet::OnPaint();
 	}
 }
 

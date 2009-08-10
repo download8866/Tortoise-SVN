@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -106,24 +106,13 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 {
 	CMergeWizardBasePage::OnInitDialog();
 
-	CMergeWizard * pWizard = (CMergeWizard*)GetParent();
-
-	CString sUUID = pWizard->sUUID;
+	CString sUUID = ((CMergeWizard*)GetParent())->sUUID;
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
-	else if (!pWizard->url.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
 	if (m_URLCombo.GetString().IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	if (!pWizard->URL1.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
-	if (pWizard->revRangeArray.GetCount())
-	{
-		m_sRevRange = pWizard->revRangeArray.ToListString();
-		SetDlgItemText(IDC_REVISION_RANGE, m_sRevRange);
-	}
+		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(((CMergeWizard*)GetParent())->url));
 
 	CString sLabel;
 	sLabel.LoadString(IDS_MERGEWIZARD_REVRANGESTRING);
@@ -133,18 +122,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 
 	AdjustControlSize(IDC_REVERSEMERGE);
 
-	AddAnchor(IDC_MERGEREVRANGEFROMGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_MERGEREVRANGERANGEGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_REVISION_RANGE, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_SELLOG, TOP_RIGHT);
-	AddAnchor(IDC_REVERSEMERGE, TOP_LEFT);
-	AddAnchor(IDC_REVRANGELABEL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_MERGEREVRANGEWCGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
-
 	return TRUE;
 }
 
@@ -152,9 +129,7 @@ void CMergeWizardRevRange::OnBnClickedShowlog()
 {
 	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
 		return;
-
-	CString url;
-	m_URLCombo.GetWindowText(url);
+	CString url = m_URLCombo.GetString();
 
 	if (!url.IsEmpty())
 	{

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,14 +30,13 @@
 
 bool ExportCommand::Execute()
 {
-	bool bRet = false;
 	// When the user clicked on a working copy, we know that the export should
 	// be done from that. We then have to ask where the export should go to.
 	// If however the user clicked on an unversioned folder, we assume that
 	// this is where the export should go to and have to ask from where
 	// the export should be done from.
 	TCHAR saveto[MAX_PATH];
-	bool bURL = !!SVN::PathIsURL(cmdLinePath);
+	bool bURL = !!SVN::PathIsURL(cmdLinePath.GetSVNPathString());
 	svn_wc_status_kind s = SVNStatus::GetAllStatus(cmdLinePath);
 	if ((bURL)||(s == svn_wc_status_unversioned)||(s == svn_wc_status_none))
 	{
@@ -61,8 +60,6 @@ bool ExportCommand::Execute()
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Export);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			DWORD options = dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone;
 			if (dlg.m_eolStyle.CompareNoCase(_T("CRLF"))==0)
 				options |= ProgOptEolCRLF;
@@ -76,7 +73,6 @@ bool ExportCommand::Execute()
 			progDlg.SetRevision(dlg.Revision);
 			progDlg.SetDepth(dlg.m_depth);
 			progDlg.DoModal();
-			bRet = !progDlg.DidErrorsOccur();
 		}
 	}
 	else
@@ -86,7 +82,7 @@ bool ExportCommand::Execute()
 		CString strTemp;
 		strTemp.LoadString(IDS_PROC_EXPORT_1);
 		folderBrowser.SetInfo(strTemp);
-		folderBrowser.m_style = BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS | BIF_VALIDATE | BIF_EDITBOX;
+		folderBrowser.m_style = BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS | BIF_VALIDATE;
 		strTemp.LoadString(IDS_PROC_EXPORT_2);
 		folderBrowser.SetCheckBoxText(strTemp);
 		strTemp.LoadString(IDS_PROC_OMMITEXTERNALS);
@@ -129,12 +125,11 @@ bool ExportCommand::Execute()
 					for (std::vector<CTSVNPath>::iterator it = removeVector.begin(); (it != removeVector.end()) && (!progress.HasUserCancelled()); ++it)
 					{
 						progress.FormatPathLine(1, IDS_SVNPROGRESS_UNVERSION, (LPCTSTR)it->GetWinPath());
-						progress.SetProgress64(count, removeVector.size());
+						progress.SetProgress(count, removeVector.size());
 						count++;
 						it->Delete(false);
 					}
 					progress.Stop();
-					bRet = true;
 				}
 				else
 					return false;
@@ -149,13 +144,10 @@ bool ExportCommand::Execute()
 					hwndExplorer, folderBrowser.m_bCheck))
 				{
 					CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-					bRet = false;
 				}
-				else
-					bRet = true;
 				regExtended = CBrowseFolder::m_bCheck;
 			}
 		}
 	}
-	return bRet;
+	return true;
 }

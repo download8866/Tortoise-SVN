@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -103,18 +103,14 @@ BOOL CExportDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 
-	// save the provided url since the url combo
-	// will change that below
-	CString origurl = m_URL;
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
 	m_URLCombo.SetCurSel(0);
 
-	if (!origurl.IsEmpty())
+	if (!m_URL.IsEmpty())
 	{
-		m_URLCombo.SetWindowText(origurl);
+		m_URLCombo.SetWindowText(m_URL);
 	}
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_IMMEDIATE)));
@@ -127,8 +123,8 @@ BOOL CExportDlg::OnInitDialog()
 
 	m_editRevision.SetWindowText(_T(""));
 
-	if (!origurl.IsEmpty())
-		m_URLCombo.SetWindowText(origurl);
+	if (!m_URL.IsEmpty())
+		m_URLCombo.SetWindowText(m_URL);
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_CHECKOUTDIRECTORY, IDS_CHECKOUT_TT_DIR);
@@ -172,7 +168,6 @@ void CExportDlg::OnOK()
 	{
 		ExportDirectory = CTSVNPath(sOrigCWD);
 		ExportDirectory.AppendPathString(_T("\\") + m_strExportDirectory);
-		m_strExportDirectory = ExportDirectory.GetWinPathString();
 	}
 	else
 		ExportDirectory = CTSVNPath(m_strExportDirectory);
@@ -201,7 +196,7 @@ void CExportDlg::OnOK()
 	m_URL = m_URLCombo.GetString();
 
 	// we need an url to export from - local paths won't work
-	if (!SVN::PathIsURL(CTSVNPath(m_URL)))
+	if (!SVN::PathIsURL(m_URL))
 	{
 		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDI_ERROR);
 		m_bAutoCreateTargetName = bAutoCreateTargetName;
@@ -218,7 +213,17 @@ void CExportDlg::OnOK()
 	// We ask if the directory should be created...
 	if (!PathFileExists(m_strExportDirectory))
 	{
-		CPathUtils::MakeSureDirectoryPathExists(m_strExportDirectory);
+		CString temp;
+		temp.Format(IDS_WARN_FOLDERNOTEXIST, (LPCTSTR)m_strExportDirectory);
+		if (CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			CPathUtils::MakeSureDirectoryPathExists(m_strExportDirectory);
+		}
+		else
+		{
+			m_bAutoCreateTargetName = bAutoCreateTargetName;
+			return;
+		}
 	}
 
 	// if the directory we should export to is not empty, show a warning:
@@ -329,7 +334,7 @@ void CExportDlg::OnBnClickedShowlog()
 	//now show the log dialog for working copy
 	if (!m_URL.IsEmpty())
 	{
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
 		m_pLogDlg->SetParams(CTSVNPath(m_URL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100));
 		m_pLogDlg->m_wParam = 1;
@@ -378,21 +383,16 @@ void CExportDlg::SetRevision(const SVNRev& rev)
 
 void CExportDlg::OnCbnEditchangeUrlcombo()
 {
-	// find out what to use as the checkout directory name
-	UpdateData();
-	m_URLCombo.GetWindowText(m_URL);
-	if (m_URL.IsEmpty())
-	{
-		DialogEnableWindow(IDC_BROWSE, FALSE);
-		return;
-	}
-	DialogEnableWindow(IDC_BROWSE, TRUE);
 	if (!m_bAutoCreateTargetName)
 		return;
 	if (m_sExportDirOrig.IsEmpty())
 		return;
+	// find out what to use as the checkout directory name
+	UpdateData();
+	m_URLCombo.GetWindowText(m_URL);
+	if (m_URL.IsEmpty())
+		return;
 	CString name = CAppUtils::GetProjectNameFromURL(m_URL);
 	m_strExportDirectory = m_sExportDirOrig+_T('\\')+name;
-	m_strExportDirectory.Replace(_T(":\\\\"), _T(":\\"));
 	UpdateData(FALSE);
 }

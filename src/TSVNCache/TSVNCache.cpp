@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2009 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,14 +34,6 @@
 
 #include <ShellAPI.h>
 
-#ifndef GET_X_LPARAM
-#define GET_X_LPARAM(lp)                        ((int)(short)LOWORD(lp))
-#endif
-#ifndef GET_Y_LPARAM
-#define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
-#endif
-
-
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 CCrashReport crasher("tortoisesvn@gmail.com", "Crash Report for TSVNCache " APP_X64_STRING " : " STRPRODUCTVER, TRUE);// crash
@@ -62,7 +54,6 @@ CComAutoCriticalSection critSec;
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName)
 {
-
 	HINSTANCE hinstDll;
 	DWORD dwVersion = 0;
 
@@ -129,37 +120,13 @@ void DebugOutputLastError()
 	LocalFree( lpMsgBuf );
 }
 
-svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
-										   const char *file, int line,
-										   const char *expr)
-{
-	// we get here every time Subversion encounters something very unexpected.
-	svn_error_t * err = svn_error_raise_on_malfunction(TRUE, file, line, expr);
-
-	if (err)
-	{
-		svn_error_t * errtemp = err;
-		do 
-		{
-			OutputDebugStringA(errtemp->message);
-			OutputDebugStringA("\n");
-		} while ((errtemp = errtemp->child) != NULL);
-		if (can_return)
-			return err;
-		if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
-			abort();	// ugly, ugly! But at least we showed a messagebox first
-	}
-	CStringA sFormatErr;
-	sFormatErr.Format("Subversion error in TSVNCache: file %s, line %ld, error %s\n", file, line, expr);
-	OutputDebugStringA(sFormatErr);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
-		abort();	// ugly, ugly! But at least we showed a messagebox first
-	return NULL;	// never reached, only to silence compiler warning
-}
-
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
-	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, GetCacheMutexName());
+#ifdef WIN64
+	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection64"));
+#else
+	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, _T("TSVNCacheReloadProtection"));
+#endif
 
 	if (hReloadProtection == 0 || GetLastError() == ERROR_ALREADY_EXISTS)
 	{
@@ -169,8 +136,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	}
 
 	apr_initialize();
-	svn_dso_initialize2();
-	svn_error_set_malfunction_handler(svn_error_handle_malfunction);
+	svn_dso_initialize();
 	g_SVNAdminDir.Init();
 	CSVNStatusCache::Create();
 	CSVNStatusCache::Instance().Init();
@@ -204,7 +170,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	{
 		return 0;
 	}
-	if (CRegStdDWORD(_T("Software\\TortoiseSVN\\CacheTrayIcon"), FALSE)==TRUE)
+	if (CRegStdWORD(_T("Software\\TortoiseSVN\\CacheTrayIcon"), FALSE)==TRUE)
 	{
 		SecureZeroMemory(&niData,sizeof(NOTIFYICONDATA));
 
@@ -444,9 +410,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			case DBT_DEVICEREMOVEPENDING:
-			case DBT_DEVICEQUERYREMOVE:
-			case DBT_DEVICEREMOVECOMPLETE:
-				ATLTRACE("WM_DEVICECHANGE with DBT_DEVICEREMOVEPENDING/QUERYREMOVE/REMOVECOMPLETE\n");
+				ATLTRACE("WM_DEVICECHANGE with DBT_DEVICEREMOVEPENDING\n");
 				if (phdr->dbch_devicetype == DBT_DEVTYP_HANDLE)
 				{
 					DEV_BROADCAST_HANDLE * phandle = (DEV_BROADCAST_HANDLE*)lParam;
@@ -454,20 +418,36 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					CSVNStatusCache::Instance().CloseWatcherHandles(phandle->dbch_hdevnotify);
 					CSVNStatusCache::Instance().Done();
 				}
-				else if (phdr->dbch_devicetype == DBT_DEVTYP_VOLUME)
+				else
 				{
-					DEV_BROADCAST_VOLUME * pVolume = (DEV_BROADCAST_VOLUME*)lParam;
 					CSVNStatusCache::Instance().WaitToWrite();
-					for (BYTE i = 0; i < 26; ++i)
-					{
-						if (pVolume->dbcv_unitmask & (1 << i))
-						{
-							TCHAR driveletter = 'A' + i;
-							CString drive = CString(driveletter);
-							drive += _T(":\\");
-							CSVNStatusCache::Instance().CloseWatcherHandles(CTSVNPath(drive));
-						}
-					}
+					CSVNStatusCache::Instance().CloseWatcherHandles(INVALID_HANDLE_VALUE);
+					CSVNStatusCache::Instance().Done();
+				}
+				break;
+			case DBT_DEVICEQUERYREMOVE:
+				ATLTRACE("WM_DEVICECHANGE with DBT_DEVICEQUERYREMOVE\n");
+				if (phdr->dbch_devicetype == DBT_DEVTYP_HANDLE)
+				{
+					DEV_BROADCAST_HANDLE * phandle = (DEV_BROADCAST_HANDLE*)lParam;
+					CSVNStatusCache::Instance().WaitToWrite();
+					CSVNStatusCache::Instance().CloseWatcherHandles(phandle->dbch_hdevnotify);
+					CSVNStatusCache::Instance().Done();
+				}
+				else
+				{
+					CSVNStatusCache::Instance().WaitToWrite();
+					CSVNStatusCache::Instance().CloseWatcherHandles(INVALID_HANDLE_VALUE);
+					CSVNStatusCache::Instance().Done();
+				}
+				break;
+			case DBT_DEVICEREMOVECOMPLETE:
+				ATLTRACE("WM_DEVICECHANGE with DBT_DEVICEREMOVECOMPLETE\n");
+				if (phdr->dbch_devicetype == DBT_DEVTYP_HANDLE)
+				{
+					DEV_BROADCAST_HANDLE * phandle = (DEV_BROADCAST_HANDLE*)lParam;
+					CSVNStatusCache::Instance().WaitToWrite();
+					CSVNStatusCache::Instance().CloseWatcherHandles(phandle->dbch_hdevnotify);
 					CSVNStatusCache::Instance().Done();
 				}
 				else
@@ -704,23 +684,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 			return 1;
 		}
 
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // * Clear unknown flags
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (request.path[i-1] != 0); --i)
-            request.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (request.path);
-        SecureZeroMemory ( request.path + pathLength
-                         , sizeof (request.path) - pathLength * sizeof (TCHAR));
-
-        request.flags &= TSVNCACHE_FLAGS_MASK;
-
-        // process request
 		DWORD responseLength;
 		GetAnswerToRequest(&request, &response, &responseLength); 
 
@@ -782,20 +745,6 @@ DWORD WINAPI CommandThread(LPVOID lpvParam)
 			return 1;
 		}
 		
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (command.path[i-1] != 0); --i)
-            command.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (command.path);
-        SecureZeroMemory ( command.path + pathLength
-                         , sizeof (command.path) - pathLength * sizeof (TCHAR));
-
-        // process request
 		switch (command.command)
 		{
 			case TSVNCACHECOMMAND_END:

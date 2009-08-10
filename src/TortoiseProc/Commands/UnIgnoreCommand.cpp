@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,29 +37,29 @@ bool UnIgnoreCommand::Execute()
 		filelist += name + _T("\n");
 		CTSVNPath parentfolder = pathList[nPath].GetContainingDirectory();
 		SVNProperties props(parentfolder, SVNRev::REV_WC, false);
-		CString value;
+		CStringA value;
 		for (int i=0; i<props.GetCount(); i++)
 		{
 			CString propname(props.GetItemName(i).c_str());
 			if (propname.CompareNoCase(_T("svn:ignore"))==0)
 			{
 				//treat values as normal text even if they're not
-				value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
+				value = (char *)props.GetItemValue(i).c_str();
 				break;
 			}
 		}
-		value = value.Trim(_T("\n\r"));
-		value += _T("\n");
+		value = value.Trim("\n\r");
+		value += "\n";
 		value.Remove('\r');
-		value.Replace(_T("\n\n"), _T("\n"));
+		value.Replace("\n\n", "\n");
 
 		// Delete all occurrences of 'name'
 		// "\n" is temporarily prepended to make the algorithm easier
-		value = _T("\n") + value;
-		value.Replace(_T("\n") + name + _T("\n"), _T("\n"));
+		value = "\n" + value;
+		value.Replace("\n" + CUnicodeUtils::GetUTF8(name) + "\n", "\n");
 		value = value.Mid(1);
 
-		CString sTrimmedvalue = value;
+		CStringA sTrimmedvalue = value;
 		sTrimmedvalue.Trim();
 		if (sTrimmedvalue.IsEmpty())
 		{
@@ -74,7 +74,7 @@ bool UnIgnoreCommand::Execute()
 		}
 		else
 		{
-			if (!props.Add(_T("svn:ignore"), (LPCSTR)CUnicodeUtils::GetUTF8(value)))
+			if (!props.Add(_T("svn:ignore"), (LPCSTR)value))
 			{
 				CString temp;
 				temp.Format(IDS_ERR_FAILEDUNIGNOREPROPERTY, (LPCTSTR)name);
@@ -89,7 +89,6 @@ bool UnIgnoreCommand::Execute()
 		CString temp;
 		temp.Format(IDS_PROC_UNIGNORESUCCESS, (LPCTSTR)filelist);
 		CMessageBox::Show(hwndExplorer, temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
-		return true;
 	}
-	return false;
+	return true;
 }

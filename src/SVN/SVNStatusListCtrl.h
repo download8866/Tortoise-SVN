@@ -17,10 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#pragma warning(push)
-#include "svn_wc.h"
-#pragma warning(pop)
 
+#include "svn_wc.h"
 #include "TSVNPath.h"
 #include "SVNRev.h"
 #include "Colors.h"
@@ -40,72 +38,61 @@ class CSVNStatusListCtrlDropTarget;
 #define SVNSLC_COLPROPSTATUS		0x000000040
 #define SVNSLC_COLREMOTETEXT		0x000000080
 #define SVNSLC_COLREMOTEPROP		0x000000100
-#define SVNSLC_COLDEPTH				0x000000200
-#define SVNSLC_COLURL				0x000000400
-#define SVNSLC_COLLOCK				0x000000800
-#define SVNSLC_COLLOCKCOMMENT		0x000001000
-#define SVNSLC_COLLOCKDATE			0x000002000
-#define SVNSLC_COLAUTHOR			0x000004000
-#define	SVNSLC_COLREVISION			0x000008000
-#define	SVNSLC_COLREMOTEREVISION	0x000010000
-#define	SVNSLC_COLDATE				0x000020000
-#define SVNSLC_COLSVNNEEDSLOCK		0x000040000
-#define SVNSLC_COLCOPYFROM			0x000080000
-#define	SVNSLC_COLMODIFICATIONDATE	0x000100000
-#define	SVNSLC_COLSIZE				0x000200000
-#define SVNSLC_NUMCOLUMNS		22
+#define SVNSLC_COLURL				0x000000200
+#define SVNSLC_COLLOCK				0x000000400
+#define SVNSLC_COLLOCKCOMMENT		0x000000800
+#define SVNSLC_COLAUTHOR			0x000001000
+#define	SVNSLC_COLREVISION			0x000002000
+#define	SVNSLC_COLDATE				0x000004000
+#define SVNSLC_COLSVNNEEDSLOCK		0x000008000
+#define SVNSLC_COLCOPYFROM			0x000010000
+#define	SVNSLC_COLMODIFICATIONDATE	0x000020000
+#define SVNSLC_NUMCOLUMNS		18
 
-#define SVNSLC_SHOWUNVERSIONED	0x00000001
-#define SVNSLC_SHOWNORMAL		0x00000002
-#define SVNSLC_SHOWMODIFIED		0x00000004
-#define SVNSLC_SHOWADDED		0x00000008
-#define SVNSLC_SHOWREMOVED		0x00000010
-#define SVNSLC_SHOWCONFLICTED	0x00000020
-#define SVNSLC_SHOWMISSING		0x00000040
-#define SVNSLC_SHOWREPLACED		0x00000080
-#define SVNSLC_SHOWMERGED		0x00000100
-#define SVNSLC_SHOWIGNORED		0x00000200
-#define SVNSLC_SHOWOBSTRUCTED	0x00000400
-#define SVNSLC_SHOWEXTERNAL		0x00000800
-#define SVNSLC_SHOWINCOMPLETE	0x00001000
-#define SVNSLC_SHOWINEXTERNALS	0x00002000
-#define SVNSLC_SHOWREMOVEDANDPRESENT 0x00004000
-#define SVNSLC_SHOWLOCKS		0x00008000
-#define SVNSLC_SHOWDIRECTFILES	0x00010000
-#define SVNSLC_SHOWDIRECTFOLDER 0x00020000
-#define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x00040000
-#define SVNSLC_SHOWSWITCHED		0x00080000
-#define SVNSLC_SHOWINCHANGELIST 0x00100000
-#define SVNSLC_SHOWEXTDISABLED	0x00200000
-#define SVNSLC_SHOWNESTED		0x00400000
-#define SVNSLC_SHOWFILES		0x00800000
-#define SVNSLC_SHOWFOLDERS		0x01000000
-#define SVNSLC_SHOWADDEDHISTORY 0x02000000
-
-#define SVNSLC_SHOWEVERYTHING	0xFFFFFFFF
+#define SVNSLC_SHOWUNVERSIONED	0x000000001
+#define SVNSLC_SHOWNORMAL		0x000000002
+#define SVNSLC_SHOWMODIFIED		0x000000004
+#define SVNSLC_SHOWADDED		0x000000008
+#define SVNSLC_SHOWREMOVED		0x000000010
+#define SVNSLC_SHOWCONFLICTED	0x000000020
+#define SVNSLC_SHOWMISSING		0x000000040
+#define SVNSLC_SHOWREPLACED		0x000000080
+#define SVNSLC_SHOWMERGED		0x000000100
+#define SVNSLC_SHOWIGNORED		0x000000200
+#define SVNSLC_SHOWOBSTRUCTED	0x000000400
+#define SVNSLC_SHOWEXTERNAL		0x000000800
+#define SVNSLC_SHOWINCOMPLETE	0x000001000
+#define SVNSLC_SHOWINEXTERNALS	0x000002000
+#define SVNSLC_SHOWREMOVEDANDPRESENT 0x000004000
+#define SVNSLC_SHOWLOCKS		0x000008000
+#define SVNSLC_SHOWDIRECTFILES	0x000010000
+#define SVNSLC_SHOWDIRECTFOLDER 0x000020000
+#define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x000040000
+#define SVNSLC_SHOWSWITCHED		0x000080000
+#define SVNSLC_SHOWINCHANGELIST 0x000100000
 
 #define SVNSLC_SHOWDIRECTS		(SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWDIRECTFOLDER)
 
 
 #define SVNSLC_SHOWVERSIONED (SVNSLC_SHOWNORMAL|SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
+SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
 SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
 SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
 SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
 #define SVNSLC_SHOWVERSIONEDBUTNORMAL (SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|\
-SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
+SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
 SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
 SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
 SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
 #define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS (SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
+SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
 SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
 SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 
 #define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS (SVNSLC_SHOWMODIFIED|\
-	SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
+	SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
 	SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
 	SVNSLC_SHOWINCOMPLETE)
 
@@ -132,10 +119,6 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPPROPERTIES			0x00020000
 #define SVNSLC_POPREPAIRMOVE			0x00040000
 #define SVNSLC_POPCHANGELISTS			0x00080000
-#define SVNSLC_POPBLAME					0x00100000
-#define SVNSLC_POPCREATEPATCH			0x00200000
-#define SVNSLC_POPCHECKFORMODS			0x00400000
-#define SVNSLC_POPREPAIRCOPY			0x00800000
 
 #define SVNSLC_IGNORECHANGELIST			_T("ignore-on-commit")
 
@@ -148,7 +131,7 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_USERPROPCOLLIMIT         0xff
 #define SVNSLC_MAXCOLUMNCOUNT           0xff
 
-// Supporting extremely long user props makes no sense here --
+// Supporting extreamly long user props makes no sense here --
 // especially for binary properties. CString uses a pool allocator
 // that works for up to 256 chars. Make sure we are well below that.
 
@@ -156,13 +139,6 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 typedef CComCritSecLock<CComCriticalSection> Locker;
-
-
-#define OVL_EXTERNAL		1
-#define OVL_NESTED			2
-#define OVL_DEPTHFILES		3
-#define OVL_DEPTHIMMEDIATES 4
-#define OVL_DEPTHEMPTY		5
 
 /**
  * \ingroup SVN
@@ -202,12 +178,6 @@ public:
 	 * checked items in the control.
 	 */
 	static const UINT SVNSLNM_CHECKCHANGED;
-
-	/**
-	 * Sent to the parent window (using ::SendMessage) when the number of
-	 * changelists change. The WPARAM contains the number of changelists.
-	 */
-	static const UINT SVNSLNM_CHANGELISTCHANGED;
 
 	CSVNStatusListCtrl();
 	~CSVNStatusListCtrl();
@@ -277,8 +247,6 @@ public:
 			, copyfrom_rev(0)
 			, last_commit_date(0)
 			, last_commit_rev(0)
-			, lock_date(0)
-			, remoterev(0)
 			, textstatus(svn_wc_status_unversioned)
 			, propstatus(svn_wc_status_unversioned)
 			, remotestatus(svn_wc_status_unversioned)
@@ -289,7 +257,6 @@ public:
 			, checked(false)
 			, inunversionedfolder(false)
 			, inexternal(false)
-			, file_external(false)
 			, differentrepo(false)
 			, direct(false)
 			, isfolder(false)
@@ -301,7 +268,6 @@ public:
 			, working_size(SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN)
 			, keeplocal(false)
 			, depth(svn_depth_unknown)
-			, tree_conflicted(false)
 		{
 		}
 		const CTSVNPath& GetPath() const
@@ -359,10 +325,6 @@ public:
 		{
 			return changelist;
 		}
-		CString GetURL() const
-		{
-			return url;
-		}
 	public:
 		svn_wc_status_kind		status;					///< local status
 		svn_wc_status_kind		textstatus;				///< local text status
@@ -379,14 +341,12 @@ public:
 		CString					lock_remoteowner;		///< the username which owns the lock in the repository
 		CString					lock_remotetoken;		///< the unique URI in the repository of the lock
 		CString					lock_comment;			///< the message for the lock
-		apr_time_t				lock_date;				///< the date when this item was locked
 		CString					changelist;				///< the name of the changelist the item belongs to
 		CString					copyfrom_url;			///< the copied-from URL (if available, i.e. \a copied is true)
 		svn_revnum_t			copyfrom_rev;			///< the copied-from revision
 		CString					last_commit_author;		///< the author which last committed this item
 		apr_time_t				last_commit_date;		///< the date when this item was last committed
 		svn_revnum_t			last_commit_rev;		///< the revision where this item was last committed
-		svn_revnum_t			remoterev;				///< the revision in HEAD of the repository
 		bool					copied;					///< if the file/folder is added-with-history
 		bool					switched;				///< if the file/folder is switched to another url
 		bool					checked;				///< if the file is checked in the list control
@@ -403,8 +363,6 @@ public:
 		apr_off_t				working_size;			///< Size of the file after being translated into local representation or SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN
 		bool					keeplocal;				///< Whether a local copy of this entry should be kept in the working copy after a deletion has been committed
 		svn_depth_t				depth;					///< the depth of this entry
-		bool					file_external;			///< if the item is a file that was added to the working copy with an svn:externals; if file_external is TRUE, then switched is always FALSE.
-		bool					tree_conflicted;		///< True if the entry is the victim of a tree conflict.
 		friend class CSVNStatusListCtrl;
 		friend class CSVNStatusListCtrlDropTarget;
         friend class CSorter;
@@ -614,7 +572,8 @@ public:
 	 * \param dwShow mask of file types to show. Use the SVNSLC_SHOWxxx defines.
 	 * \param dwCheck mask of file types to check. Use SVNLC_SHOWxxx defines. Default (0) means 'use the entry's stored check status'
 	 */
-	void Show(DWORD dwShow, const CTSVNPathList& checkedList = CTSVNPathList(), DWORD dwCheck = 0, bool bShowFolders = true);
+	void Show(DWORD dwShow, DWORD dwCheck = 0, bool bShowFolders = true);
+	void Show(DWORD dwShow, const CTSVNPathList& checkedList, bool bShowFolders = true);
 
 	/**
 	 * Copies the selected entries in the control to the clipboard. The entries
@@ -702,12 +661,6 @@ public:
 	 */
 	void SelectAll(bool bSelect, bool bIncludeNoCommits = false);
 
-	/**
-	 * Checks all specified items, removes the checks from the ones not specified
-	 * \param dwCheck SVNLC_SHOWxxx defines
-	 */
-	void Check(DWORD dwCheck, bool uncheckNonMatches);
-
 	/** Set a checkbox on an entry in the listbox
 	 * Keeps the listctrl checked state and the FileEntry's checked flag in sync
 	 */
@@ -733,13 +686,6 @@ public:
 	 * to fetch the status (in GetStatus()) are used if possible.
 	 */
 	CTSVNPath GetCommonDirectory(bool bStrict);
-
-	/**
-	 * Returns the parent url of all entries in the control.
-	 * if \a bStrict is set to false, then the paths passed to the control
-	 * to fetch the status (in GetStatus()) are used if possible.
-	 */
-	CTSVNPath GetCommonURL(bool bStrict);
 
 	/**
 	 * Sets a pointer to a boolean variable which is checked periodically
@@ -775,12 +721,6 @@ public:
 	void SetUnversionedRecurse(bool bUnversionedRecurse) {m_bUnversionedRecurse = bUnversionedRecurse;}
 
 	/**
-	 * If set to \c true, fetch the status with depth svn_depth_infinity, otherwise
-	 * (the default) fetch the status with the depth of the working copy.
-	 */
-	void SetDepthInfinity(bool bInfinity) {m_bDepthInfinity = bInfinity;}
-
-	/**
 	 * Returns the number of selected items
 	 */
 	LONG GetSelected(){return m_nSelected;};
@@ -813,20 +753,10 @@ public:
 	 * Returns the currently used show flags passed to the Show() method.
 	 */
 	DWORD GetShowFlags() {return m_dwShow;}
-
+public:
 	CString GetLastErrorMessage() {return m_sLastError;}
 
 	void Block(BOOL block, BOOL blockUI) {m_bBlock = block; m_bBlockUI = blockUI;}
-
-	LONG GetUnversionedCount() {return m_nShownUnversioned;}
-	LONG GetNormalCount() {return m_nShownNormal;}
-	LONG GetModifiedCount() {return m_nShownModified;}
-	LONG GetAddedCount() {return m_nShownAdded;}
-	LONG GetDeletedCount() {return m_nShownDeleted;}
-	LONG GetConflictedCount() {return m_nShownConflicted;}
-	LONG GetFileCount() {return m_nShownFiles;}
-	LONG GetFolderCount() {return m_nShownFolders;}
-
 
 	LONG						m_nTargetCount;		///< number of targets in the file passed to GetStatus()
 
@@ -836,7 +766,6 @@ public:
 
 	CString						m_sUUID;			///< the UUID of the associated repository
 
-	CString						m_sRepositoryRoot;	///< The repository root of the first item which has one, or an empty string
 	DECLARE_MESSAGE_MAP()
 
 private:
@@ -868,8 +797,8 @@ private:
 	/// Predicate used to build a list of only the versioned entries of the FileEntry array
 	static bool IsEntryVersioned(const FileEntry* pEntry1);
 
-	/// Look up the relevant show flags for a particular SVN status entry
-	DWORD GetShowFlagsFromFileEntry(const FileEntry* entry);
+	/// Look up the relevant show flags for a particular SVN status value
+	DWORD GetShowFlagsFromSVNStatus(svn_wc_status_kind status);
 
 	/// Build a FileEntry item and add it to the FileEntry array
 	const FileEntry* AddNewFileEntry(
@@ -892,7 +821,7 @@ private:
 	bool PrepareGroups(bool bForce = false);
 	/// Returns the group number to which the group header belongs
 	/// If the point is not over a group header, -1 is returned
-	int GetGroupFromPoint(POINT * ppt, bool bHeader = true);
+	int GetGroupFromPoint(POINT * ppt);
 	/// Returns the number of change lists the selection has
 	size_t GetNumberOfChangelistsInSelection();
 
@@ -948,7 +877,6 @@ private:
 	BOOL						m_bHasUnversionedItems;
 	bool						m_bHasLocks;
 	bool						m_bHasChangeLists;
-	bool						m_bExternalsGroups;
 	typedef std::vector<FileEntry*> FileEntryVector;
 	FileEntryVector				m_arStatusArray;
 	std::vector<size_t>			m_arListArray;
@@ -956,7 +884,6 @@ private:
 	bool						m_bHasIgnoreGroup;
 	CTSVNPathList				m_ConflictFileList;
 	CTSVNPathList				m_StatusFileList;
-	CTSVNPathList				m_StatusUrlList;
 	CString						m_sLastError;
 
 	LONG						m_nUnversioned;
@@ -967,15 +894,6 @@ private:
 	LONG						m_nConflicted;
 	LONG						m_nTotal;
 	LONG						m_nSelected;
-
-	LONG						m_nShownUnversioned;
-	LONG						m_nShownNormal;
-	LONG						m_nShownModified;
-	LONG						m_nShownAdded;
-	LONG						m_nShownDeleted;
-	LONG						m_nShownConflicted;
-	LONG						m_nShownFiles;
-	LONG						m_nShownFolders;
 
 	DWORD						m_dwDefaultColumns;
 	DWORD						m_dwShow;
@@ -991,14 +909,8 @@ private:
 	bool						m_bCheckIfGroupsExist;
 	bool						m_bFileDropsEnabled;
 	bool						m_bOwnDrag;
-	bool						m_bDepthInfinity;
 
 	int							m_nIconFolder;
-	int							m_nExternalOvl;
-	int							m_nNestedOvl;
-	int							m_nDepthFilesOvl;
-	int							m_nDepthImmediatesOvl;
-	int							m_nDepthEmptyOvl;
 
 	CWnd *						m_pStatLabel;
 	CButton *					m_pSelectButton;
@@ -1017,7 +929,6 @@ private:
     ColumnManager               m_ColumnManager;
 
 	std::map<CString,bool>		m_mapFilenameToChecked; ///< Remember manually de-/selected items
-	std::set<CTSVNPath>			m_externalSet;
 	CComCriticalSection			m_critSec;
 
 	friend class CSVNStatusListCtrlDropTarget;

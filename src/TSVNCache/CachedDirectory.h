@@ -48,8 +48,8 @@ public:
 	/// Get the current full status of this folder
 	svn_wc_status_kind GetCurrentFullStatus() {return m_currentFullStatus;}
 private:
-	static svn_error_t* GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
-	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, bool forceNormal);
+	static void GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status);
+	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, DWORD validuntil = 0);
 	CString GetCacheKey(const CTSVNPath& path);
 	CString GetFullPathString(const CString& cacheKey);
 	CStatusCacheEntry LookForItemInCache(const CTSVNPath& path, bool &bFound);
@@ -67,6 +67,7 @@ private:
 	CComAutoCriticalSection m_critSecPath;
 
 	CTSVNPath	m_currentStatusFetchingPath;
+	DWORD		m_currentStatusFetchingPathTicks;
 	// The cache of files and directories within this directory
 	typedef std::map<CString, CStatusCacheEntry> CacheEntryMap; 
 	CacheEntryMap m_entryCache; 

@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <project name="neon" default="build" basedir="..\neon">
 
-	<!-- ====================================================================== -->
-	<!-- Project targets														-->
-	<!-- ====================================================================== -->
+<!-- ====================================================================== -->
+<!-- Project targets														-->
+<!-- ====================================================================== -->
 	<target name="rebuild" depends="clean,build" />
-
+	
 	<target name="clean">
 		<description>
 			Cleans previous built files.
 		</description>
-
+		
 		<if test="${cleanup == 'yes'}">
 			<delete>
 				<fileset>
@@ -91,11 +91,11 @@
 				<include name="src" />
 				<include name="..\apr-util\xml\expat\lib" />
 				<include name="..\..\..\common\openssl\inc32" />
-				<include name="..\..\..\common\zlib" />
 			</includedirs>
 			<defines>
 				<define name="_CRT_NONSTDC_NO_DEPRECATE" />
 				<define name="_CRT_SECURE_NO_DEPRECATE" />
+				<define name="_USE_32BIT_TIME_T" if="${platform == 'win32'}" />
 				<define name="TCP_NODELAY" value="1" />
 				<define name="HAVE_CONFIG_H" />
 				<define name="NE_HAVE_SSL" />
@@ -104,7 +104,6 @@
 				<define name="HAVE_EXPAT" />
 				<define name="HAVE_EXPAT_H" />
 				<define name="NE_HAVE_DAV" />
-				<define name="NE_HAVE_ZLIB" />
 				<define name="WIN32" />
 				<define name="_WINDOWS" />
 				<define name="_WIN32" />
@@ -122,8 +121,8 @@
 		</cl>
 		<property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}" />
 		<property name="machineoption" value="/MACHINE:x64" if="${platform == 'x64'}" />
-		<lib
-			output="${configuration}${static}_${platform}\libneon.lib"
+		<lib 
+			output="${configuration}${static}_${platform}\libneon.lib" 
 			options='/NOLOGO /SUBSYSTEM:WINDOWS ${machineoption}'>
 			<sources>
 				<include name="${configuration}${static}_${platform}\*.obj" />

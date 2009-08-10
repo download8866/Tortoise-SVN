@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -91,9 +91,7 @@ SVNFolderStatus::SVNFolderStatus(void)
 	invalidstatus.rev = -1;
 	invalidstatus.owner = emptyString;
 	invalidstatus.needslock = false;
-	invalidstatus.tree_conflict = false;
 	m_nCounter = 0;
-	dirstatus = NULL;
 	sCacheKey.reserve(MAX_PATH);
 
 	rootpool = svn_pool_create (NULL);
@@ -160,7 +158,6 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 			dirstat.owner = owners.GetString(NULL);
 			dirstat.askedcounter = SVNFOLDERSTATUS_CACHETIMES;
 			dirstat.needslock = false;
-			dirstat.tree_conflict = false;
 
 			dirstatus = NULL;
 			statushash = apr_hash_make(pool);
@@ -170,16 +167,16 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 			try
 			{
 				folderpath = filepath;
-				err = svn_client_status4 (&youngest,
+				err = svn_client_status3 (&youngest,
 					filepath.GetDirectory().GetSVNApiPath(pool),
 					&rev,
 					findfolderstatus,
 					this,
-					svn_depth_empty,	// depth
-					TRUE,				// get all
-					FALSE,				// update
-					TRUE,				// no ignore
-					FALSE,				// ignore externals
+					svn_depth_empty,//depth
+					TRUE,		//getall
+					FALSE,		//update
+					TRUE,		//noignore
+					FALSE,		//ignore externals
 					NULL,
 					localctx,
 					pool);
@@ -200,7 +197,6 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 					dirstat.owner = owners.GetString(dirstatus->entry->lock_owner);
 				}
 				dirstat.status = SVNStatus::GetMoreImportant(dirstatus->text_status, dirstatus->prop_status);
-				dirstat.tree_conflict = dirstatus->tree_conflict != NULL;
 			}
 			m_cache[filepath.GetWinPath()] = dirstat;
 			m_TimeStamp = GetTickCount();
@@ -223,16 +219,16 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 	rev.kind = svn_opt_revision_unspecified;
 	try
 	{
-		err = svn_client_status4 (&youngest,
+		err = svn_client_status3 (&youngest,
 			filepath.GetDirectory().GetSVNApiPath(pool),
 			&rev,
 			fillstatusmap,
 			this,
-			svn_depth_immediates,		// depth
-			TRUE,						// get all
-			FALSE,						// update
-			TRUE,						// no ignore
-			FALSE,						// ignore externals
+			svn_depth_immediates,		//depth
+			TRUE,		//getall
+			FALSE,		//update
+			TRUE,		//noignore
+			FALSE,		//ignore externals
 			NULL,
 			localctx,
 			pool);
@@ -285,7 +281,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 DWORD SVNFolderStatus::GetTimeoutValue()
 {
 	DWORD timeout = SVNFOLDERSTATUS_CACHETIMEOUT;
-	DWORD factor = (DWORD)m_cache.size()/200;
+	DWORD factor = m_cache.size()/200;
 	if (factor==0)
 		factor = 1;
 	return factor*timeout;
@@ -374,13 +370,12 @@ const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& fil
 	return NULL;
 }
 
-svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn_wc_status2_t * status, apr_pool_t * /*pool*/)
+void SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn_wc_status2_t * status)
 {
 	SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
 	FileStatusMap * cache = &Stat->m_cache;
 	FileStatusCacheEntry s;
 	s.needslock = false;
-	s.tree_conflict = false;
 	if ((status)&&(status->entry))
 	{
 		s.author = Stat->authors.GetString(status->entry->cmt_author);
@@ -403,10 +398,9 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn
 		s.status = SVNStatus::GetMoreImportant(s.status, status->text_status);
 		s.status = SVNStatus::GetMoreImportant(s.status, status->prop_status);
 		s.lock = status->repos_lock;
-		s.tree_conflict = (status->tree_conflict != NULL);
 	}
 	s.askedcounter = SVNFOLDERSTATUS_CACHETIMES;
-	tstring str;
+	stdstring str;
 	if (path)
 	{
 		str = CUnicodeUtils::StdGetUnicode(path);
@@ -415,19 +409,15 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn
 	else
 		str = _T(" ");
 	(*cache)[str] = s;
-
-	return SVN_NO_ERROR;
 }
 
-svn_error_t* SVNFolderStatus::findfolderstatus(void * baton, const char * path, svn_wc_status2_t * status, apr_pool_t * /*pool*/)
+void SVNFolderStatus::findfolderstatus(void * baton, const char * path, svn_wc_status2_t * status)
 {
 	SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
 	if ((Stat)&&(Stat->folderpath.IsEquivalentTo(CTSVNPath(CString(path)))))
 	{
 		Stat->dirstatus = status;
 	}
-
-	return SVN_NO_ERROR;
 }
 
 void SVNFolderStatus::ClearCache()

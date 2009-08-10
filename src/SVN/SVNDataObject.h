@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "TSVNPath.h"
 #include "SVN.h"
 #include "SVNInfo.h"
-#include "DragDropImpl.h"
 #include <vector>
 
 using namespace std;
@@ -28,10 +27,9 @@ using namespace std;
 extern 	CLIPFORMAT	CF_FILECONTENTS;
 extern	CLIPFORMAT	CF_FILEDESCRIPTOR;
 extern	CLIPFORMAT	CF_PREFERREDDROPEFFECT;
-extern	CLIPFORMAT	CF_SVNURL;
 
 
-#define SVNDATAOBJECT_NUMFORMATS 6
+#define SVNDATAOBJECT_NUMFORMATS 5
 
 /**
  * \ingroup SVN
@@ -75,8 +73,6 @@ public:
 	virtual HRESULT STDMETHODCALLTYPE InOperation(BOOL* pfInAsyncOp);	
 	virtual HRESULT STDMETHODCALLTYPE EndOperation(HRESULT hResult, IBindCtx* pbcReserved, DWORD dwEffects);
 
-	HRESULT SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, LPCTSTR insert);
-
 private:
 	void CopyMedium(STGMEDIUM* pMedDest, STGMEDIUM* pMedSrc, FORMATETC* pFmtSrc);
 
@@ -108,8 +104,8 @@ private:
 class CSVNEnumFormatEtc : public IEnumFORMATETC
 {
 public:
-	CSVNEnumFormatEtc(const vector<FORMATETC*>& vec, bool localonly);
-	CSVNEnumFormatEtc(const vector<FORMATETC>& vec, bool localonly);
+	CSVNEnumFormatEtc(const vector<FORMATETC*>& vec);
+	CSVNEnumFormatEtc(const vector<FORMATETC>& vec);
 	//IUnknown members
 	STDMETHOD(QueryInterface)(REFIID, void**);
 	STDMETHOD_(ULONG, AddRef)(void);
@@ -121,12 +117,11 @@ public:
 	STDMETHOD(Reset)(void);
 	STDMETHOD(Clone)(IEnumFORMATETC**);
 private:
-	void						Init(bool localonly);
+	void						Init();
 private:
 	vector<FORMATETC>			m_vecFormatEtc;
 	FORMATETC					m_formats[SVNDATAOBJECT_NUMFORMATS];
 	ULONG						m_cRefCount;
 	size_t						m_iCur;
-	bool						m_localonly;
 };
 

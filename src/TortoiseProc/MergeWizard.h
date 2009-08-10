@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "TSVNPath.h"
-#include "ResizableSheetEx.h"
+
 #include "MergeWizardStart.h"
 #include "MergeWizardTree.h"
 #include "MergeWizardRevRange.h"
@@ -29,7 +29,7 @@
 #define MERGEWIZARD_TREE		1
 #define MERGEWIZARD_REINTEGRATE	2
 
-class CMergeWizard : public CResizableSheetEx
+class CMergeWizard : public CPropertySheet
 {
 	DECLARE_DYNAMIC(CMergeWizard)
 
@@ -69,8 +69,8 @@ public:
 	svn_depth_t						m_depth;
 	BOOL							m_bIgnoreEOL;
 	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
-	BOOL							m_bForce;
 	
+	bool		AutoSetMode();
 	void		SaveMode();
 	LRESULT		GetSecondPage();
 

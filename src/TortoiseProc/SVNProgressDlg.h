@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "ProjectProperties.h"
 #include "SVN.h"
 #include "Colors.h"
-#include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 #include "afxwin.h"
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
@@ -42,7 +41,7 @@ typedef enum
 	ProgOptIgnoreExternals = 0x08,
 	ProgOptKeeplocks = 0x10,
 	/// for locking this means steal the lock, for unlocking it means breaking the lock
-	ProgOptForce = 0x20,
+	ProgOptLockForce = 0x20,
 	ProgOptSwitchAfterCopy = 0x40,
 	ProgOptIncludeIgnored = 0x80,
 	ProgOptIgnoreAncestry = 0x100,
@@ -105,7 +104,6 @@ public:
 
 	void SetCommand(Command cmd) {m_Command = cmd;}
 	void SetAutoClose(DWORD ac) {m_dwCloseOnEnd = ac;}
-	void SetAutoCloseLocal(BOOL bCloseLocal) {m_bCloseLocalOnEnd = bCloseLocal;}
 	void SetOptions(DWORD opts) {m_options = opts;}
 	void SetPathList(const CTSVNPathList& pathList) {m_targetPathList = pathList;}
 	void SetUrl(const CString& url) {m_url.SetFromUnknown(url);}
@@ -122,14 +120,12 @@ public:
 	void SetChangeList(const CString& changelist, bool keepchangelist) {m_changelist = changelist; m_keepchangelist = keepchangelist;}
 	void SetSelectedList(const CTSVNPathList& selPaths);
 	void SetRevisionRanges(const SVNRevRangeArray& revArray) {m_revisionArray = revArray;}
-	void SetBugTraqProvider(const CComPtr<IBugTraqProvider> pBugtraqProvider) { m_BugTraqProvider = pBugtraqProvider;}
-	void SetRevisionProperties(const RevPropHash revProps) {m_revProps = revProps;}
 	/**
 	 * If the number of items for which the operation is done on is known
 	 * beforehand, that number can be set here. It is then used to show a more
 	 * accurate progress bar during the operation.
 	 */
-	void SetItemCount(INT_PTR count) {if(count) m_itemCountTotal = count;}
+	void SetItemCount(long count) {if(count) m_itemCountTotal = count;}
 	
 	bool SetBackgroundImage(UINT nID);
 
@@ -160,9 +156,7 @@ private:
 		CString					sActionColumnText;	
 		CTSVNPath				path;
 		CTSVNPath				basepath;
-		CTSVNPath				url;
 		CString					changelistname;
-		CString					propertyName;
 
 		svn_wc_notify_action_t	action;
 		svn_node_kind_t			kind;
@@ -174,20 +168,19 @@ private:
 		svn_revnum_t			rev;
 		COLORREF				color;
 		CString					owner;						///< lock owner
-		bool					bConflictedActionItem;		///< Is this item a conflict?
-		bool					bAuxItem;					///< Set if this item is not a true 'SVN action' 
+		bool					bConflictedActionItem;		// Is this item a conflict?
+		bool					bAuxItem;					// Set if this item is not a true 'SVN action' 
 		CString					sPathColumnText;	
 
 	};
 protected:
 	//implement the virtual methods from SVN base class
-	virtual BOOL Notify(const CTSVNPath& path, const CTSVNPath url, svn_wc_notify_action_t action, 
+	virtual BOOL Notify(const CTSVNPath& path, svn_wc_notify_action_t action, 
 		svn_node_kind_t kind, const CString& mime_type, 
 		svn_wc_notify_state_t content_state, 
 		svn_wc_notify_state_t prop_state, LONG rev,
 		const svn_lock_t * lock, svn_wc_notify_lock_state_t lock_state,
 		const CString& changelistname,
-		const CString& propertyName,
 		svn_merge_range_t * range,
 		svn_error_t * err, apr_pool_t * pool);
 	virtual svn_wc_conflict_choice_t	ConflictResolveCallback(const svn_wc_conflict_description_t *description, CString& mergedfile);
@@ -235,7 +228,6 @@ private:
 	void		ReportString(CString sMessage, const CString& sMsgKind, COLORREF color = ::GetSysColor(COLOR_WINDOWTEXT));
 	void		AddItemToList();
 	CString		BuildInfoString();
-	CString		GetPathFromColumnText(const CString& sColumnText);
 
 	/**
 	 * Resizes the columns of the progress list so that the headings are visible.
@@ -291,10 +283,8 @@ private:
 	SVNRevRangeArray		m_revisionArray;
 	CString					m_changelist;
 	bool					m_keepchangelist;
-	RevPropHash				m_revProps;
 
 	DWORD					m_dwCloseOnEnd;
-	DWORD					m_bCloseLocalOnEnd;
 
 	CTSVNPath				m_basePath;
 	StringRevMap			m_UpdateStartRevMap;
@@ -304,7 +294,6 @@ private:
 
 	BOOL					m_bCancelled;
 	int						m_nConflicts;
-	bool					m_bConflictWarningShown;
 	bool					m_bErrorsOccurred;
 	bool					m_bMergesAddsDeletesOccurred;
 
@@ -321,12 +310,10 @@ private:
 	bool					m_bFinishedItemAdded;
 	bool					m_bLastVisible;
 
-	INT_PTR					m_itemCount;
-	INT_PTR					m_itemCountTotal;
+	int						m_itemCount;
+	int						m_itemCountTotal;
 
 	bool					m_AlwaysConflicted;
-
-	CComPtr<IBugTraqProvider> m_BugTraqProvider;
 
 	// some strings different methods can use
 	CString					sIgnoredIncluded;
@@ -336,5 +323,4 @@ private:
 	CString					sRespectAncestry;
 	CString					sDryRun;
 	CString					sRecordOnly;
-	CString					sForce;
 };

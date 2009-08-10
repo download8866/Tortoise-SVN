@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2009 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -189,19 +189,31 @@ BOOL CSetProxyPage::OnApply()
 	if (m_isEnabled)
 	{
 		CString temp;
-		Store (m_serveraddress, m_regServeraddress);
+		m_regServeraddress = m_serveraddress;
+		if (m_regServeraddress.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regServeraddress.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regServeraddress_copy = m_serveraddress;
 		temp.Format(_T("%d"), m_serverport);
-		Store (temp, m_regServerport);
+		m_regServerport = temp;
+		if (m_regServerport.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regServerport.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regServerport_copy = temp;
-		Store (m_username, m_regUsername);
+		m_regUsername = m_username;
+		if (m_regUsername.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regUsername.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regUsername_copy = m_username;
-		Store (m_password, m_regPassword);
+		m_regPassword = m_password;
+		if (m_regPassword.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regPassword.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regPassword_copy = m_password;
 		temp.Format(_T("%d"), m_timeout);
-		Store (temp, m_regTimeout);
+		m_regTimeout = temp;
+		if (m_regTimeout.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regTimeout.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regTimeout_copy = temp;
-		Store (m_Exceptions, m_regExceptions);
+		m_regExceptions = m_Exceptions;
+		if (m_regExceptions.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regExceptions.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_regExceptions_copy = m_Exceptions;
 	}
 	else
@@ -235,8 +247,6 @@ void CSetProxyPage::OnBnClickedSshbrowse()
 	if (CAppUtils::FileOpenSave(openPath, NULL, IDS_SETTINGS_SELECTSSH, IDS_PROGRAMSFILEFILTER, true, m_hWnd))
 	{
 		UpdateData();
-		PathQuoteSpaces(openPath.GetBuffer(MAX_PATH));
-		openPath.ReleaseBuffer(-1);
 		m_SSHClient = openPath;
 		UpdateData(FALSE);
 		SetModified();

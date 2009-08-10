@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,10 @@
 #include "ShellCache.h"
 #include "RemoteCacheLink.h"
 #include "SVNFolderStatus.h"
-#include "uxtheme.h"
+
+// GdiPlus includes
+#include <GdiPlus.h>
+using namespace Gdiplus;
 
 extern	UINT				g_cRefThisDll;			// Reference count of this DLL.
 extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
@@ -32,7 +35,7 @@ extern	ShellCache			g_ShellCache;			// caching of registry entries, ...
 extern	DWORD				g_langid;
 extern	DWORD				g_langTimeout;
 extern	HINSTANCE			g_hResInst;
-extern	tstring			g_filepath;
+extern	stdstring			g_filepath;
 extern	svn_wc_status_kind	g_filestatus;			///< holds the corresponding status to the file/dir above
 extern  bool				g_readonlyoverlay;		///< whether to show the read only overlay or not
 extern	bool				g_lockedoverlay;		///< whether to show the locked overlay or not
@@ -49,15 +52,8 @@ extern bool					g_unversionedovlloaded;
 extern LPCTSTR				g_MenuIDString;
 
 extern	void				LoadLangDll();
-extern  tstring			GetAppDirectory();
 extern  CComCriticalSection	g_csGlobalCOMGuard;
 typedef CComCritSecLock<CComCriticalSection> AutoLocker;
-
-typedef DWORD ARGB;
-
-typedef HRESULT (WINAPI *FN_GetBufferedPaintBits) (HPAINTBUFFER hBufferedPaint, RGBQUAD **ppbBuffer, int *pcxRow);
-typedef HPAINTBUFFER (WINAPI *FN_BeginBufferedPaint) (HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
-typedef HRESULT (WINAPI *FN_EndBufferedPaint) (HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
 
 
 // The actual OLE Shell context menu handler
@@ -129,11 +125,10 @@ protected:
 		ShellMenuHelp,
 		ShellMenuShowChanged,
 		ShellMenuIgnoreSub,
-		ShellMenuDeleteIgnoreSub,
 		ShellMenuIgnore,
-		ShellMenuDeleteIgnore,
+		ShellMenuIgnoreFile,
 		ShellMenuIgnoreCaseSensitive,
-		ShellMenuDeleteIgnoreCaseSensitive,
+		ShellMenuIgnoreCaseInsensitive,
 		ShellMenuRepoBrowse,
 		ShellMenuBlame,
 		ShellMenuApplyPatch,
@@ -147,7 +142,6 @@ protected:
 		ShellMenuUnlockForce,
 		ShellMenuProperties,
 		ShellMenuDelUnversioned,
-		ShellMenuClipPaste,
 		ShellMenuLastEntry			// used to mark the menu array end
 	};
 
@@ -175,27 +169,28 @@ protected:
 
 	static MenuInfo menuInfo[];
 	WORD fullver;
+	ULONG_PTR m_gdipToken;
 	FileState m_State;
 	ULONG	m_cRef;
 	//std::map<int,std::string> verbMap;
 	std::map<UINT_PTR, UINT_PTR>	myIDMap;
 	std::map<UINT_PTR, UINT_PTR>	mySubMenuMap;
-	std::map<tstring, UINT_PTR> myVerbsMap;
-	std::map<UINT_PTR, tstring> myVerbsIDMap;
-	tstring	folder_;
-	std::vector<tstring> files_;
+	std::map<stdstring, UINT_PTR> myVerbsMap;
+	std::map<UINT_PTR, stdstring> myVerbsIDMap;
+	stdstring	folder_;
+	std::vector<stdstring> files_;
 	DWORD itemStates;				///< see the globals.h file for the ITEMIS_* defines
 	DWORD itemStatesFolder;			///< used for states of the folder_ (folder background and/or drop target folder)
-	tstring uuidSource;
-	tstring uuidTarget;
+	stdstring uuidSource;
+	stdstring uuidTarget;
 	int space;
 	TCHAR stringtablebuffer[255];
-	tstring columnfilepath;		///< holds the last file/dir path for the column provider
-	tstring columnauthor;			///< holds the corresponding author of the file/dir above
-	tstring itemurl;
-	tstring itemshorturl;
-	tstring ignoredprops;
-	tstring owner;
+	stdstring columnfilepath;		///< holds the last file/dir path for the column provider
+	stdstring columnauthor;			///< holds the corresponding author of the file/dir above
+	stdstring itemurl;
+	stdstring itemshorturl;
+	stdstring ignoredprops;
+	stdstring owner;
 	svn_revnum_t columnrev;			///< holds the corresponding revision to the file/dir above
 	svn_wc_status_kind	filestatus;
 	std::map<UINT, HBITMAP> bitmaps;
@@ -203,29 +198,17 @@ protected:
 	SVNFolderStatus		m_CachedStatus;		// status cache
 	CRemoteCacheLink	m_remoteCacheLink;
 
-	HMODULE hUxTheme;
-	FN_GetBufferedPaintBits pfnGetBufferedPaintBits;
-	FN_BeginBufferedPaint pfnBeginBufferedPaint;
-	FN_EndBufferedPaint pfnEndBufferedPaint;
-
-#define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
+#define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 private:
 	void			InsertSVNMenu(BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com, UINT uFlags);
 	void			InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst, HMENU hMenu, HMENU subMenu, UINT &indexMenu, int &indexSubMenu, unsigned __int64 topmenu, bool bShowIcons);
-	tstring		WriteFileListToTempFile();
-	bool			WriteClipboardPathsToTempFile(tstring& tempfile);
+	stdstring		WriteFileListToTempFile();
 	LPCTSTR			GetMenuTextFromResource(int id);
 	void			GetColumnStatus(const TCHAR * path, BOOL bIsDir);
 	HBITMAP			IconToBitmap(UINT uIcon);
-	STDMETHODIMP	QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
-	bool			IsIllegalFolder(std::wstring folder, int * csidlarray);
 	HBITMAP			IconToBitmapPARGB32(UINT uIcon);
-	HRESULT			Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp);
-	HRESULT			ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC hdc, HICON hicon, SIZE& sizIcon);
-	bool			HasAlpha(__in ARGB *pargb, SIZE& sizImage, int cxRow);
-	HRESULT			ConvertToPARGB32(HDC hdc, __inout ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow);
-
-
+	STDMETHODIMP	QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
+	bool			IsIllegalFolder(std::wstring folder, int * cslidarray);
 public:
 	CShellExt(FileState state);
 	virtual ~CShellExt();

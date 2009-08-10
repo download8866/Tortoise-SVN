@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,14 +29,11 @@
 
 bool CleanupCommand::Execute()
 {
-	bool bRet = false;
 	CProgressDlg progress;
-	CString tmp;
 	progress.SetTitle(IDS_PROC_CLEANUP);
 	progress.SetAnimation(IDR_CLEANUPANI);
 	progress.SetShowProgressBar(false);
-	tmp.Format(IDS_PROC_CLEANUP_INFO1, _T(""));
-	progress.SetLine(1, tmp);
+	progress.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROC_CLEANUP_INFO1)));
 	progress.SetLine(2, CString(MAKEINTRESOURCE(IDS_PROC_CLEANUP_INFO2)));
 	progress.ShowModeless(hwndExplorer);
 	
@@ -44,8 +41,6 @@ bool CleanupCommand::Execute()
 	for (int i=0; i<pathList.GetCount(); ++i)
 	{
 		SVN svn;
-		tmp.Format(IDS_PROC_CLEANUP_INFO1, (LPCTSTR)pathList[i].GetFileOrDirectoryName(), true);
-		progress.SetLine(1, tmp);
 		if (!svn.CleanUp(pathList[i]))
 		{
 			strFailedPaths += _T("- ") + pathList[i].GetWinPathString() + _T("\n");
@@ -73,10 +68,10 @@ bool CleanupCommand::Execute()
 			CShellUpdater::Instance().AddPathsForUpdate(updateList);
 			CShellUpdater::Instance().Flush();
 			updateList.SortByPathname(true);
-			for (INT_PTR j=0; j<updateList.GetCount(); ++j)
+			for (INT_PTR i=0; i<updateList.GetCount(); ++i)
 			{
-				SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, updateList[j].GetWinPath(), NULL);
-				ATLTRACE(_T("notify change for path %s\n"), updateList[j].GetWinPath());
+				SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, updateList[i].GetWinPath(), NULL);
+				ATLTRACE(_T("notify change for path %s\n"), updateList[i].GetWinPath());
 			}
 		}
 	}
@@ -85,19 +80,19 @@ bool CleanupCommand::Execute()
 	CString strMessage;
 	if ( !strSuccessfullPaths.IsEmpty() )
 	{
+		CString tmp;
 		tmp.Format(IDS_PROC_CLEANUPFINISHED, (LPCTSTR)strSuccessfullPaths);
 		strMessage += tmp;
-		bRet = true;
 	}
 	if ( !strFailedPaths.IsEmpty() )
 	{
 		if (!strMessage.IsEmpty())
 			strMessage += _T("\n");
+		CString tmp;
 		tmp.Format(IDS_PROC_CLEANUPFINISHED_FAILED, (LPCTSTR)strFailedPaths);
 		strMessage += tmp;
-		bRet = false;
 	}
 	CMessageBox::Show(hwndExplorer, strMessage, _T("TortoiseSVN"), MB_OK | (strFailedPaths.IsEmpty()?MB_ICONINFORMATION:MB_ICONERROR));
 
-	return bRet;
+	return true;
 }

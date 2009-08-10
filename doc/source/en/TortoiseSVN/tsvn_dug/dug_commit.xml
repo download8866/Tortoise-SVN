@@ -169,21 +169,6 @@
 				to pair the two files as a rename.
 			</para>
 		</tip>
-		<tip>
-			<title>Repairing External Copies</title>
-			<para>
-				If made a copy of a file but forgot to use the Subversion command
-				to do so, you can repair that copy so the new file doesn't loose
-				its history.
-				Simply select both the old name (normal or modified) and the new name (unversioned)
-				and use
-				<menuchoice>
-					<guimenu>Context Menu</guimenu>
-					<guimenuitem>Repair Copy</guimenuitem>
-				</menuchoice>
-				to pair the two files as a copy.
-			</para>
-		</tip>
 	</sect2>
 	<sect2 id="tsvn-dug-commit-changelists">
 		<title>Change Lists</title>
@@ -275,19 +260,6 @@
 			page of TortoiseSVN's settings, or you can clear individual messages from
 			within the <guilabel>Recent messages</guilabel> dialog using the
 			<keycap>Delete</keycap> key.
-		</para>
-		<para>
-			If you want to include the checked paths in your log message, you can use
-			the command
-			<menuchoice>
-				<guimenu>Context Menu</guimenu>
-				<guimenuitem>Paste filename list</guimenuitem>
-			</menuchoice>
-			in the edit control.
-		</para>
-		<para>
-			Another way to insert the paths into the log message is to simply
-			drag the files from the file list onto the edit control.
 		</para>
 		<tip>
 			<title>Special Folder Properties</title>

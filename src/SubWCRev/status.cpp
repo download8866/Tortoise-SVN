@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,13 +17,11 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "stdafx.h"
 
-#pragma warning(push)
 #include <apr_pools.h>
 #include "svn_client.h"
 #include "svn_wc.h"
 #include "svn_path.h"
 #include "svn_utf.h"
-#pragma warning(pop)
 #include "SubWCRev.h"
 
 #pragma warning(push)
@@ -87,12 +85,12 @@ void UnescapeCopy(char * src, char * dest, int buf_len)
 	*pszDest = '\0';
 }
 
-svn_error_t * getallstatus(void * baton, const char * path, svn_wc_status2_t * status, apr_pool_t * /*pool*/)
+void getallstatus(void * baton, const char * path, svn_wc_status2_t * status)
 {
 	SubWCRev_StatusBaton_t * sb = (SubWCRev_StatusBaton_t *) baton;
 	if((NULL == status) || (NULL == sb) || (NULL == sb->SubStat))
 	{
-		return SVN_NO_ERROR;
+		return;
 	}
 
 	if ((sb->SubStat->bExternals)&&(status->text_status == svn_wc_status_external) && (NULL != sb->extarray))
@@ -107,7 +105,7 @@ svn_error_t * getallstatus(void * baton, const char * path, svn_wc_status2_t * s
 			strncpy_s(sb->SubStat->UUID, 1024, status->entry->uuid, MAX_PATH);
 		}
 		if (strncmp(sb->SubStat->UUID, status->entry->uuid, MAX_PATH) != 0)
-			return SVN_NO_ERROR;
+			return;
 	}
 	if ((status->entry)&&(status->entry->cmt_author))
 	{
@@ -205,7 +203,6 @@ svn_error_t * getallstatus(void * baton, const char * path, svn_wc_status2_t * s
 			}
 		}
 	}
-	return SVN_NO_ERROR;
 }
 
 svn_error_t *
@@ -251,7 +248,7 @@ svn_status (	const char *path,
 	}
 
 	// Close up our ADM area.  We'll be re-opening soon.
-	SVN_ERR (svn_wc_adm_close2 (adm_access, pool));
+	SVN_ERR (svn_wc_adm_close (adm_access));
 
 	// Need to lock the tree as even a non-recursive status requires the
 	// immediate directories to be locked.
@@ -259,15 +256,15 @@ svn_status (	const char *path,
 
 	// Get the status edit, and use our wrapping status function/baton
 	// as the callback pair.
-	SVN_ERR (svn_wc_get_status_editor4 (&editor, &edit_baton, NULL, &edit_revision,
-									   adm_access, target, svn_depth_infinity, 
-									   TRUE, no_ignore, NULL, getallstatus, &sb,
+	SVN_ERR (svn_wc_get_status_editor2 (&editor, &edit_baton, NULL, &edit_revision,
+									   adm_access, target, ctx->config, TRUE,
+									   TRUE, no_ignore, getallstatus, &sb,
 									   ctx->cancel_func, ctx->cancel_baton,
 									   traversal_info, pool));
 
 	SVN_ERR (editor->close_edit (edit_baton, pool));
 
-	SVN_ERR (svn_wc_adm_close2 (adm_access, pool));
+	SVN_ERR (svn_wc_adm_close (adm_access));
 
 	// now crawl through all externals
 	for (std::vector<const char *>::iterator I = extarray->begin(); I != extarray->end(); ++I)

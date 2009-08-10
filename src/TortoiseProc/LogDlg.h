@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,9 +30,6 @@
 #include "LogDlgHelper.h"
 #include "FilterEdit.h"
 #include "SVNRev.h"
-#include "Tooltip.h"
-#include "HintListCtrl.h"
-#include "JobScheduler.h"
 
 #include <regex>
 using namespace std;
@@ -49,7 +46,6 @@ using namespace std;
 #define LOGFILTER_AUTHORS  4
 #define LOGFILTER_REVS	   5
 #define LOGFILTER_REGEX	   6
-#define LOGFILTER_BUGID    7
 
 
 #define LOGFILTER_TIMER		101
@@ -60,7 +56,7 @@ typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
  * \ingroup TortoiseProc
  * Shows log messages of a single file or folder in a listbox. 
  */
-class CLogDlg : public CResizableStandAloneDialog, public SVN, IFilterEditValidator, IListCtrlTooltipProvider
+class CLogDlg : public CResizableStandAloneDialog, public SVN, IFilterEditValidator
 {
 	DECLARE_DYNAMIC(CLogDlg)
 	
@@ -73,10 +69,9 @@ public:
 
 	void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev, int limit, 
 		BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE), BOOL bSaveStrict = TRUE);
-	void SetFilter(const CString& findstr, LONG findtype, bool findregex);
 	void SetIncludeMerge(bool bInclude = true) {m_bIncludeMerges = bInclude;}
 	void SetProjectPropertiesPath(const CTSVNPath& path) {m_ProjectProperties.ReadProps(path);}
-	bool IsThreadRunning() {return !!m_bLogThreadRunning;}
+	bool IsThreadRunning() {return !!m_bThreadRunning;}
 	void SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
 	void SetSelect(bool bSelect) {m_bSelect = bSelect;}
 	void ContinuousSelection(bool bCont = true) {m_bSelectionMustBeContinuous = bCont;}
@@ -130,8 +125,6 @@ protected:
 	afx_msg void OnFind();
 	afx_msg void OnFocusFilter();
 	afx_msg void OnEditCopy();
-	afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
 
 	virtual void OnCancel();
 	virtual void OnOK();
@@ -144,12 +137,12 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void LogThread();
-	void StatusThread();
+	static UINT LogThreadEntry(LPVOID pVoid);
+	UINT LogThread();
 	void Refresh (bool autoGoOnline = false);
 	BOOL IsDiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
 	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
-	void EditAuthor(const CLogDataVector& logs);
+	void EditAuthor(int index);
 	void EditLogMessage(int index);
 	void DoSizeV1(int delta);
 	void DoSizeV2(int delta);
@@ -161,7 +154,7 @@ private:
 	void CopyChangedSelectionToClipBoard();
 	CTSVNPathList GetChangedPathsFromSelectedRevisions(bool bRelativePaths = false, bool bUseFilter = true);
     void SortShownListArray();
-	void RecalculateShownList(CPtrArray * pShownlist, svn_revnum_t rev = -1);
+	void RecalculateShownList(CPtrArray * pShownlist);
     void SetSortArrow(CListCtrl * control, int nColumn, bool bAscending);
 	void SortByColumn(int nSortColumn, bool bAscending);
 	bool IsSelectionContinuous();
@@ -176,33 +169,31 @@ private:
 	void DiffSelectedRevWithPrevious();
 	void SetDlgTitle(bool bOffline);
 	CString GetAbsoluteUrlFromRelativeUrl(const CString& url);
-	void ToggleCheckbox(int item);
 
+	/**
+	 * Extracts part of commit message suitable for displaying in revision list.
+	 */
+	CString MakeShortMessage(const CString& message);
 	inline int ShownCountWithStopped() const { return (int)m_arShownList.GetCount() + (m_bStrictStopped ? 1 : 0); }
 
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 
-	void ResizeAllListCtrlCols();
+	void ResizeAllListCtrlCols(CListCtrl &list);
 
 	void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
 	void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
-
-	virtual CString GetToolTipText(int nItem, int nSubItem);
-
 public:
 	CWnd *				m_pNotifyWindow;
 	ProjectProperties	m_ProjectProperties;
 	WORD				m_wParam;
 private:
-	HFONT				m_boldFont;
 	CString				m_sRelativeRoot;
 	CString				m_sRepositoryRoot;
 	CString				m_sSelfRelativeURL;
 	CString				m_sURL;
-	CString				m_sUUID;    ///< empty if the log cache is not used
-	CHintListCtrl		m_LogList;
+	CListCtrl			m_LogList;
 	CListCtrl			m_ChangedFileListCtrl;
 	CFilterEdit			m_cFilter;
 	CProgressCtrl		m_LogProgress;
@@ -213,14 +204,12 @@ private:
 	SVNRev				m_startrev;
 	SVNRev				m_LogRevision;
 	SVNRev				m_endrev;
-	SVNRev				m_wcRev;
 	SVNRevRangeArray	m_selectedRevs;
 	SVNRevRangeArray	m_selectedRevsOneRange;
 	bool				m_bSelectionMustBeContinuous;
 	long				m_logcounter;
 	bool				m_bCancelled;
-	volatile LONG 		m_bLogThreadRunning;
-	volatile LONG 		m_bStatusThreadRunning;
+	volatile LONG 		m_bThreadRunning;
 	BOOL				m_bStrict;
 	bool				m_bStrictStopped;
 	BOOL				m_bIncludeMerges;
@@ -257,7 +246,6 @@ private:
 	static int			m_nSortColumnPathList;
 	static bool			m_bAscendingPathList;
 	CRegDWORD			m_regLastStrict;
-	CRegDWORD			m_regMaxBugIDColWidth;
 	CButton				m_cHidePaths;
 	bool				m_bShowedAll;
 	CString				m_sTitle;
@@ -266,7 +254,7 @@ private:
 	CString				m_sLogInfo;
 	std::set<svn_revnum_t> m_mergedRevs;
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 
 	CTime				m_timFrom;
 	CTime				m_timTo;
@@ -276,8 +264,6 @@ private:
 	HICON				m_hReplacedIcon;
 	HICON				m_hAddedIcon;
 	HICON				m_hDeletedIcon;
-	int					m_nIconFolder;
-
 
 	DWORD				m_childCounter;
 	DWORD				m_maxChild;
@@ -285,15 +271,9 @@ private:
 
 	CStoreSelection*	m_pStoreSelection;
     CLogDataVector		m_logEntries;
-
-    /// used temporarily when fetching logs with merge info:
-    /// contains the \ref m_childCounter parents of the current entry
-    CLogDataVector		m_logParents;   
 	
 	CXPTheme			theme;
-
-	async::CJobScheduler netScheduler;
-	async::CJobScheduler diskScheduler;
+	bool				m_bVista;
 };
 static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
 static UINT WM_REVLIST = RegisterWindowMessage(_T("TORTOISESVN_REVLIST_MSG"));

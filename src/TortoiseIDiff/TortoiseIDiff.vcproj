@@ -232,6 +232,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -683,6 +684,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AlphaControl.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\MiscUI\BaseDialog.cpp"
 				>
 			</File>
@@ -704,10 +709,6 @@
 			</File>
 			<File
 				RelativePath=".\MainWindow.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\NiceTrackbar.cpp"
 				>
 			</File>
 			<File
@@ -791,10 +792,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Utils\SysInfo.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseIDiff.cpp"
 				>
 			</File>
@@ -806,6 +803,10 @@
 			>
 			<File
 				RelativePath=".\AboutDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AlphaControl.h"
 				>
 			</File>
 			<File
@@ -837,10 +838,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\NiceTrackbar.h"
-				>
-			</File>
-			<File
 				RelativePath="..\Utils\MiscUI\Picture.h"
 				>
 			</File>
@@ -861,10 +858,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SysInfo.h"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseIDiff.h"
 				>
 			</File>
@@ -880,6 +873,14 @@
 			</File>
 			<File
 				RelativePath=".\blend.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\blendAlpha.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\blendXOR.ico"
 				>
 			</File>
 			<File
@@ -908,6 +909,14 @@
 			</File>
 			<File
 				RelativePath="..\Resources\pan.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\pan.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\pandown.cur"
 				>
 			</File>
 			<File

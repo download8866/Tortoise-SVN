@@ -26,7 +26,6 @@
 
 #define IDC_URL_COMBO     10000
 #define IDC_REVISION_BTN  10001
-#define IDC_UP_BTN        10002
 
 IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 
@@ -36,21 +35,17 @@ IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 CRepositoryBar::CRepositoryBar() : m_cbxUrl(this)
 	, m_pRepo(NULL)
 {
-	m_UpIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_UP), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR);
 }
 
 #pragma warning(pop)
 
 CRepositoryBar::~CRepositoryBar()
 {
-	if (m_UpIcon)
-		DestroyIcon(m_UpIcon);
 }
 
 BEGIN_MESSAGE_MAP(CRepositoryBar, CReBarCtrl)
 	ON_CBN_SELCHANGE(IDC_URL_COMBO, OnCbnSelChange)
 	ON_BN_CLICKED(IDC_REVISION_BTN, OnBnClicked)
-	ON_BN_CLICKED(IDC_UP_BTN, OnGoUp)
 	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
@@ -90,7 +85,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
 		REBARBANDINFO rbbi;
 		SecureZeroMemory(&rbbi, sizeof rbbi);
-		rbbi.cbSize = REBARBANDINFO_V6_SIZE;
+		rbbi.cbSize = sizeof rbbi;
 		rbbi.fMask  = RBBIM_TEXT | RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
 		rbbi.fStyle = RBBS_NOGRIPPER | RBBS_FIXEDBMP;
 
@@ -120,21 +115,6 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 		m_cbxUrl.GetWindowRect(rect);
 		m_cbxUrl.MoveWindow(rect.left, rect.top, rect.Width(), 300);
 
-		// Create the "Up" button control to be added
-		rect = CRect(0, 0, 24, m_cbxUrl.GetItemHeight(-1) + 8);
-		m_btnUp.Create(_T("UP"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_UP_BTN);
-		m_btnUp.SetIcon(m_UpIcon);
-		m_btnUp.SetWindowText(_T(""));
-		rbbi.lpText     = _T("");
-		rbbi.hwndChild  = m_btnUp.m_hWnd;
-		rbbi.clrFore	= ::GetSysColor(COLOR_WINDOWTEXT);
-		rbbi.clrBack	= ::GetSysColor(COLOR_BTNFACE);
-		rbbi.cx         = rect.right - rect.left;
-		rbbi.cxMinChild = rect.right - rect.left;
-		rbbi.cyMinChild = rect.bottom - rect.top;
-		if (!InsertBand(1, &rbbi))
-			return false;
-
 		// Create the "Revision" button control to be added
 		rect = CRect(0, 0, 60, m_cbxUrl.GetItemHeight(-1) + 8);
 		m_btnRevision.Create(_T("HEAD"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON, rect, this, IDC_REVISION_BTN);
@@ -147,13 +127,12 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 		rbbi.cx         = rect.right - rect.left;
 		rbbi.cxMinChild = rect.right - rect.left;
 		rbbi.cyMinChild = rect.bottom - rect.top;
-		if (!InsertBand(2, &rbbi))
+		if (!InsertBand(1, &rbbi))
 			return false;
 
 		MaximizeBand(0);
 
 		m_tooltips.Create(this);
-		m_tooltips.AddTool(&m_btnUp, IDS_REPOBROWSE_TT_UPFOLDER);
 
 		return true;
 	}
@@ -174,7 +153,6 @@ void CRepositoryBar::ShowUrl(const CString& url, SVNRev rev)
 		m_rev = rev;
 	}
 	m_cbxUrl.SetWindowText(m_url);
-	m_btnUp.EnableWindow(m_url.CompareNoCase(m_pRepo->GetRepoRoot()));
 	m_btnRevision.SetWindowText(m_rev.ToString());
 	if (m_headRev.IsValid())
 	{
@@ -183,7 +161,7 @@ void CRepositoryBar::ShowUrl(const CString& url, SVNRev rev)
 		m_tooltips.AddTool(&m_btnRevision, sTTText);
 	}
 	else
-		m_tooltips.DelTool(&m_btnRevision);
+		m_tooltips.RemoveTool(&m_btnRevision);
 }
 
 void CRepositoryBar::GotoUrl(const CString& url, SVNRev rev, bool bAlreadyChecked /* = false */)
@@ -204,21 +182,38 @@ void CRepositoryBar::GotoUrl(const CString& url, SVNRev rev, bool bAlreadyChecke
 		new_rev = SVNRev(new_url.Mid(new_url.Find('?')+1));
 		new_url = new_url.Left(new_url.Find('?'));
 	}
-
-	if (m_pRepo)
+	if (!bAlreadyChecked)
 	{
-		SVNRev r = new_rev;
-		m_headRev = SVNRev();
-		m_pRepo->ChangeToUrl(new_url, r, bAlreadyChecked);
-		if (new_rev.IsHead() && !r.IsHead())
-			m_headRev = r;
-		if (!m_headRev.IsValid())
+		// check if the entered url is valid
+		SVNInfo info;
+		const SVNInfoData * data = NULL;
+		CString orig_url = new_url;
+		do 
 		{
-			SVN svn;
-			m_headRev = svn.GetHEADRevision(CTSVNPath(new_url));
-		}
+			data = info.GetFirstFileInfo(CTSVNPath(new_url),new_rev, new_rev);
+			if (data && new_rev.IsHead())
+			{
+				m_headRev = data->rev;
+			}
+			if ((data == NULL)||(data->kind != svn_node_dir))
+			{
+				// in case the url is not a valid directory, try the parent dir
+				// until there's no more parent dir
+				new_url = new_url.Left(new_url.ReverseFind('/'));
+			}
+		} while(!new_url.IsEmpty() && ((data == NULL) || (data->kind != svn_node_dir)));
+		if (new_url.IsEmpty())
+			new_url = orig_url;
+	}
+
+	if ((!m_headRev.IsValid())||(!bAlreadyChecked))
+	{
+		SVN svn;
+		m_headRev = svn.GetHEADRevision(CTSVNPath(new_url));
 	}
 	ShowUrl(new_url, new_rev);
+	if (m_pRepo)
+		m_pRepo->ChangeToUrl(new_url, new_rev);
 }
 
 void CRepositoryBar::SetRevision(SVNRev rev)
@@ -231,7 +226,7 @@ void CRepositoryBar::SetRevision(SVNRev rev)
 		m_tooltips.AddTool(&m_btnRevision, sTTText);
 	}
 	else
-		m_tooltips.DelTool(&m_btnRevision);
+		m_tooltips.RemoveTool(&m_btnRevision);
 }
 
 CString CRepositoryBar::GetCurrentUrl() const
@@ -311,14 +306,6 @@ void CRepositoryBar::OnBnClicked()
 		m_btnRevision.SetWindowText(SVNRev(revision).ToString());
 		GotoUrl();
 	}
-}
-
-void CRepositoryBar::OnGoUp()
-{
-	CString sCurrentUrl = GetCurrentUrl();
-	CString sNewUrl = sCurrentUrl.Left(sCurrentUrl.ReverseFind('/'));
-	if (sNewUrl.GetLength() >= m_pRepo->GetRepoRoot().GetLength())
-		GotoUrl(sNewUrl, GetCurrentRev(), true);
 }
 
 void CRepositoryBar::SetFocusToURL()

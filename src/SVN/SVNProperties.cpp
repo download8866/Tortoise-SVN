@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,13 +18,10 @@
 
 #include "stdafx.h"
 #include "..\\TortoiseShell\\resource.h"
-#include "tstring.h"
+#include "registry.h"  // Just provides stdstring def
 #include "SVNProperties.h"
 #include "SVNStatus.h"
 #include "SVNHelpers.h"
-#pragma warning(push)
-#include "svn_props.h"
-#pragma warning(pop)
 
 #ifdef _MFC_VER
 #	include "SVN.h"
@@ -70,8 +67,8 @@ svn_error_t*	SVNProperties::Refresh()
 
 	m_propCount = 0;
 #ifdef _MFC_VER
-	rev.kind = ((const svn_opt_revision_t *)m_rev)->kind;
-	rev.value = ((const svn_opt_revision_t *)m_rev)->value;
+	rev.kind = ((svn_opt_revision_t *)m_rev)->kind;
+	rev.value = ((svn_opt_revision_t *)m_rev)->value;
 #else
 	rev.kind = svn_opt_revision_unspecified;
 	rev.value.number = -1;
@@ -172,17 +169,18 @@ SVNProperties::~SVNProperties(void)
 	svn_pool_destroy (m_pool);					// free the allocated memory
 }
 
-int SVNProperties::GetCount() const
+int SVNProperties::GetCount()
 {
 	return m_propCount;
 }
 
-std::string SVNProperties::GetItem(int index, BOOL name) const
+std::string SVNProperties::GetItem(int index, BOOL name)
 {
 	const void *key;
 	void *val;
 	svn_string_t *propval = NULL;
 	const char *pname_utf8 = "";
+	m_error = NULL;
 
 	if (m_props.size() == 0)
 	{
@@ -195,7 +193,7 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 
 	long ind = 0;
 
-	for (std::map<std::string, apr_hash_t *>::const_iterator it = m_props.begin(); it != m_props.end(); ++it)
+	for (std::map<std::string, apr_hash_t *>::iterator it = m_props.begin(); it != m_props.end(); ++it)
 	{
 		apr_hash_index_t *hi;
 
@@ -207,7 +205,15 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 			apr_hash_this(hi, &key, NULL, &val);
 			propval = (svn_string_t *)val;
 			pname_utf8 = (char *)key;
-			break;
+
+			// If this is a special Subversion property, it is stored as
+			// UTF8, so convert to the native format.
+			if (m_bRevProps||(svn_prop_needs_translation (pname_utf8))||(strncmp(pname_utf8, "bugtraq:", 8)==0)||(strncmp(pname_utf8, "tsvn:", 5)==0))
+			{
+				m_error = svn_subst_detranslate_string (&propval, propval, FALSE, m_pool);
+				if (m_error != NULL)
+					return "";
+			}
 		}
 	}
 
@@ -219,7 +225,7 @@ std::string SVNProperties::GetItem(int index, BOOL name) const
 		return "";
 }
 
-BOOL SVNProperties::IsSVNProperty(int index) const
+BOOL SVNProperties::IsSVNProperty(int index)
 {
 	const char *pname_utf8;
 	const char *name = SVNProperties::GetItem(index, true).c_str();
@@ -230,13 +236,13 @@ BOOL SVNProperties::IsSVNProperty(int index) const
 	return is_svn_prop;
 }
 
-bool SVNProperties::IsBinary(int index) const
+bool SVNProperties::IsBinary(int index)
 {
 	std::string value = GetItem(index, false);
 	return IsBinary(value);
 }
 
-bool SVNProperties::IsBinary(const std::string& value)
+bool SVNProperties::IsBinary(std::string value)
 {
 	const char * pvalue = (const char *)value.c_str();
 	// check if there are any null bytes in the string
@@ -260,12 +266,12 @@ bool SVNProperties::IsBinary(const std::string& value)
 	return false;
 }
 
-tstring SVNProperties::GetItemName(int index) const
+stdstring SVNProperties::GetItemName(int index)
 {
 	return UTF8ToString(SVNProperties::GetItem(index, true));
 }
 
-std::string SVNProperties::GetItemValue(int index) const
+std::string SVNProperties::GetItemValue(int index)
 {
 	return SVNProperties::GetItem(index, false);
 }
@@ -282,19 +288,24 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 	pval = svn_string_ncreate (Value.c_str(), Value.size(), subpool);
 
 	pname_utf8 = StringToUTF8(Name);
-
+	if (m_bRevProps||(svn_prop_needs_translation (pname_utf8.c_str()))||(strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0))
+	{
+		m_error = svn_subst_translate_string (&pval, pval, NULL, subpool);
+		if (m_error != NULL)
+			return FALSE;
+	}
 	if ((!m_bRevProps)&&((!m_path.IsDirectory() && !m_path.IsUrl())&&(((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0)||(strncmp(pname_utf8.c_str(), "webviewer:", 10)==0)))))
 	{
 		// bugtraq:, tsvn: and webviewer: properties are not allowed on files.
 #ifdef _MFC_VER
 		CString temp;
 		temp.LoadString(IDS_ERR_PROPNOTONFILE);
-		CStringA tempA = CUnicodeUtils::GetUTF8(temp);
+		CStringA tempA = CStringA(temp);
 		m_error = svn_error_create(NULL, NULL, tempA);
 #else
 		TCHAR string[1024];
-		LoadStringEx(g_hResInst, IDS_ERR_PROPNOTONFILE, string, 1024, (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-		std::string stringA = WideToUTF8(std::wstring(string));
+		LoadStringEx(g_hResInst, IDS_ERR_PROPNOTONFILE, string, 1024, (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+		std::string stringA = WideToMultibyte(wide_string(string));
 		m_error = svn_error_create(NULL, NULL, stringA.c_str());
 #endif
 		return FALSE;
@@ -309,12 +320,12 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 #ifdef _MFC_VER
 				CString temp;
 				temp.LoadString(IDS_ERR_PROPNOMULTILINE);
-				CStringA tempA = CUnicodeUtils::GetUTF8(temp);
+				CStringA tempA = CStringA(temp);
 				m_error = svn_error_create(NULL, NULL, tempA);
 #else
 				TCHAR string[1024];
-				LoadStringEx(g_hResInst, IDS_ERR_PROPNOMULTILINE, string, 1024, (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-				std::string stringA = WideToUTF8(std::wstring(string));
+				LoadStringEx(g_hResInst, IDS_ERR_PROPNOMULTILINE, string, 1024, (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				std::string stringA = WideToMultibyte(wide_string(string));
 				m_error = svn_error_create(NULL, NULL, stringA.c_str());
 #endif
 				return FALSE;
@@ -360,7 +371,7 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 		if (m_bRevProps)
 		{
 			svn_revnum_t rev_set;
-			m_error = svn_client_revprop_set2(pname_utf8.c_str(), pval, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
+			m_error = svn_client_revprop_set(pname_utf8.c_str(), pval, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 		}
 		else
 		{
@@ -408,7 +419,7 @@ BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * 
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
-		m_error = svn_client_revprop_set2(pname_utf8.c_str(), NULL, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
+		m_error = svn_client_revprop_set(pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 	}
 	else
 	{
@@ -429,9 +440,9 @@ BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * 
 	return TRUE;
 }
 
-tstring SVNProperties::GetLastErrorMsg() const
+stdstring SVNProperties::GetLastErrorMsg()
 {
-	tstring msg;
+	stdstring msg;
 	char errbuf[256];
 
 	if (m_error != NULL)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,7 +52,6 @@ BEGIN_MESSAGE_MAP(CImportDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_EN_CHANGE(IDC_MESSAGE, OnEnChangeLogmessage)
 	ON_BN_CLICKED(IDC_HISTORY, OnBnClickedHistory)
-	ON_CBN_EDITCHANGE(IDC_URLCOMBO, &CImportDlg::OnCbnEditchangeUrlcombo)
 END_MESSAGE_MAP()
 
 BOOL CImportDlg::OnInitDialog()
@@ -74,7 +73,6 @@ BOOL CImportDlg::OnInitDialog()
 		m_URLCombo.EnableWindow(FALSE);
 	}
 	m_URLCombo.SetCurSel(0);
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
@@ -113,6 +111,20 @@ void CImportDlg::OnOK()
 		UpdateData();
 	}
 
+	if (m_url.Left(7).CompareNoCase(_T("file://"))==0)
+	{
+		//check if the url is on a network share
+		CString temp = m_url.Mid(7);
+		temp = temp.TrimLeft('/');
+		temp.Replace('/', '\\');
+		temp = temp.Left(3);
+		if (GetDriveType(temp)==DRIVE_REMOTE)
+		{
+			if (SVN::IsBDBRepository(m_url))
+				if (CMessageBox::Show(this->m_hWnd, IDS_WARN_SHAREFILEACCESS, IDS_APPNAME, MB_ICONWARNING | MB_YESNO)==IDNO)
+					return;
+		}
+	}
 	UpdateData();
 	m_sMessage = m_cMessage.GetText();
 	m_History.AddEntry(m_sMessage);
@@ -165,8 +177,7 @@ void CImportDlg::OnEnChangeLogmessage()
 void CImportDlg::OnCancel()
 {
 	UpdateData();
-	if (m_ProjectProperties.sLogTemplate.Compare(m_cMessage.GetText()) != 0)
-		m_History.AddEntry(m_cMessage.GetText());
+	m_History.AddEntry(m_cMessage.GetText());
 	m_History.Save();
 	CResizableStandAloneDialog::OnCancel();
 }
@@ -189,9 +200,4 @@ void CImportDlg::OnBnClickedHistory()
 		DialogEnableWindow(IDOK, m_ProjectProperties.nMinLogSize <= m_cMessage.GetText().GetLength());
 	}
 
-}
-
-void CImportDlg::OnCbnEditchangeUrlcombo()
-{
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 }

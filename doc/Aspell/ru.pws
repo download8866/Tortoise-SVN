@@ -53,9 +53,11 @@ Explorer
 externals
 false
 FAQ
+Filesystem
 for
 Format
 freeware
+FS
 General
 GNU
 GPO
@@ -66,6 +68,7 @@ ID
 IDE
 IE
 IEEE
+ignore
 Import
 Interface
 Internet
@@ -80,6 +83,7 @@ limit
 Line
 Linux
 LOCAL
+lock
 login
 maker
 management
@@ -91,6 +95,7 @@ Merge
 Microsoft
 mime
 name
+needs
 NET
 ng
 Nigel
@@ -363,6 +368,8 @@ zipped
 установщика
 флэш
 ЧаВо
+шестнадцатиричном
+шестнадцатиричный
 электропочте
 электропочты
 юникодом

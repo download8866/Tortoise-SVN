@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 
 /**
@@ -46,7 +46,6 @@ protected:
 	afx_msg void OnBnClickedOnlyexplorer();
 	afx_msg void OnLvnItemchangedMenulist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnChange();
-	afx_msg void OnEnChangeNocontextpaths();
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -55,7 +54,7 @@ public:
 private:
 	void InsertItem(UINT nTextID, UINT nIconID, unsigned __int64 dwFlags);
 
-	CToolTips			m_tooltips;
+	CBalloon			m_tooltips;
 	CRegDWORD			m_regTopmenu;
 	CRegDWORD			m_regTopmenuhigh;
 
@@ -67,7 +66,4 @@ private:
 	
 	CRegDWORD			m_regGetLockTop;
 	BOOL				m_bGetLockTop;
-
-	CString				m_sNoContextPaths;
-	CRegString			m_regNoContextPaths;
 };

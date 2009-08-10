@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "Hooks.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "StringUtils.h"
 #include "UnicodeUtils.h"
 #include "MessageBox.h"
 #include "libintl.h"
@@ -38,14 +37,10 @@
 #include "svn_dso.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+
 #include "Commands\Command.h"
+
 #include "..\version.h"
-#include "JumpListHelpers.h"
-#include "CmdUrlParser.h"
-
-#define APPID (_T("TSVN.TSVN.1") _T(TSVN_PLATFORM))
-
-
 #define STRUCT_IOVEC_DEFINED
 #include "sasl.h"
 
@@ -70,13 +65,12 @@ CTortoiseProcApp::CTortoiseProcApp()
 	int argc = 0;
 	const char* const * argv = NULL;
 	apr_app_initialize(&argc, &argv, NULL);
-	svn_dso_initialize2();
+	svn_dso_initialize();
 	SYS_IMAGE_LIST();
 	CHooks::Create();
 	g_SVNAdminDir.Init();
 	m_bLoadUserToolbars = FALSE;
 	m_bSaveState = FALSE;
-	retSuccess = false;
 }
 
 CTortoiseProcApp::~CTortoiseProcApp()
@@ -111,8 +105,6 @@ CCrashReport crasher("tortoisesvn@gmail.com", "Crash Report for TortoiseSVN " AP
 BOOL CTortoiseProcApp::InitInstance()
 {
 	EnableCrashHandler();
-	InitializeJumpList();
-	svn_error_set_malfunction_handler(svn_error_handle_malfunction);
 	CheckUpgrade();
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 	CMFCButton::EnableWindowsTheming();
@@ -169,7 +161,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	do
 	{
 		CString sLang = _T("_");
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)/sizeof(TCHAR)))
+		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, sizeof(buf)))
 		{
 			sLang += buf;
 			sHelppath.Replace(_T("_en"), sLang);
@@ -181,7 +173,7 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 		}
 		sHelppath.Replace(sLang, _T("_en"));
-		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)/sizeof(TCHAR)))
+		if (GetLocaleInfo(MAKELCID(langId, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, sizeof(buf)))
 		{
 			sLang += _T("_");
 			sLang += buf;
@@ -232,18 +224,6 @@ BOOL CTortoiseProcApp::InitInstance()
 	if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==TRUE)
 		AfxMessageBox(AfxGetApp()->m_lpCmdLine, MB_OK | MB_ICONINFORMATION);
 
-	if ( parser.HasVal(_T("urlcmd")) )
-	{
-		CmdUrlParser p(parser.GetVal(_T("urlcmd")));
-		CString newCmdLine = p.GetCommandLine();
-		if (newCmdLine.IsEmpty())
-		{
-			CMessageBox::Show(NULL, IDS_ERR_INVALIDPATH, IDS_APPNAME, MB_ICONERROR);
-			return FALSE;
-		}
-		CCmdLineParser p2(newCmdLine);
-		parser = p2;
-	}
 	if ( parser.HasKey(_T("path")) && parser.HasKey(_T("pathfile")))
 	{
 		CMessageBox::Show(NULL, IDS_ERR_INVALIDPATH, IDS_APPNAME, MB_ICONERROR);
@@ -270,8 +250,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	else
 	{
 		CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("path")));
-		int asterisk = sPathArgument.Find('*');
-		cmdLinePath.SetFromUnknown(asterisk >= 0 ? sPathArgument.Left(asterisk) : sPathArgument);
+		cmdLinePath.SetFromUnknown(sPathArgument);
 		pathList.LoadFromAsteriskSeparatedString(sPathArgument);
 	}
 	
@@ -364,9 +343,9 @@ BOOL CTortoiseProcApp::InitInstance()
 			if (CString(parser.GetVal(_T("command"))).Compare(_T("settings"))==0)
 			{
 				// just open the config file
-				TCHAR buf2[MAX_PATH];
-				SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf2);
-				CString path = buf2;
+				TCHAR buf[MAX_PATH];
+				SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
+				CString path = buf;
 				path += _T("\\Subversion\\config");
 				CAppUtils::StartTextViewer(path);
 				return FALSE;
@@ -382,7 +361,7 @@ BOOL CTortoiseProcApp::InitInstance()
 		cmd->SetExplorerHwnd(hWndExplorer);
 		cmd->SetParser(parser);
 		cmd->SetPaths(pathList, cmdLinePath);
-		retSuccess = cmd->Execute();
+		cmd->Execute();
 		delete cmd;
 	}
 
@@ -489,7 +468,7 @@ void CTortoiseProcApp::CheckUpgrade()
 	}
 	if (lVersion <= 0x01040000)
 	{
-		CRegStdDWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus")).removeValue();
+		CRegStdWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus")).removeValue();
 	}
 	
 	// set the custom diff scripts for every user
@@ -572,73 +551,4 @@ void CTortoiseProcApp::EnableCrashHandler()
 	{
 		crasher.Enable(FALSE);
 	}
-}
-
-void CTortoiseProcApp::InitializeJumpList()
-{
-	// for Win7 : use a custom jump list
-	CoInitialize(NULL);
-
-	SetAppID(APPID);
-	DeleteJumpList(APPID);
-	ICustomDestinationList *pcdl;
-	HRESULT hr = CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pcdl));
-	if (SUCCEEDED(hr))
-	{
-		hr = pcdl->SetAppID(APPID);
-		if (SUCCEEDED(hr))
-		{
-			UINT uMaxSlots;
-			IObjectArray *poaRemoved;
-			hr = pcdl->BeginList(&uMaxSlots, IID_PPV_ARGS(&poaRemoved));
-			if (SUCCEEDED(hr))
-			{
-				IObjectCollection *poc;
-				hr = CoCreateInstance(CLSID_EnumerableObjectCollection, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&poc));
-				if (SUCCEEDED(hr))
-				{
-					IShellLink *psl;
-					CString sTemp = CString(MAKEINTRESOURCE(IDS_MENUSETTINGS));
-					CStringUtils::RemoveAccelerators(sTemp);
-					hr = CreateShellLink(_T("/command:settings"), (LPCTSTR)sTemp, 19, &psl);
-					if (SUCCEEDED(hr))
-					{
-						poc->AddObject(psl);
-						psl->Release();
-					}
-					sTemp = CString(MAKEINTRESOURCE(IDS_MENUHELP));
-					CStringUtils::RemoveAccelerators(sTemp);
-					hr = CreateShellLink(_T("/command:help"), (LPCTSTR)sTemp, 18, &psl);
-					if (SUCCEEDED(hr))
-					{
-						poc->AddObject(psl);
-						psl->Release();
-					}
-
-					IObjectArray *poa;
-					hr = poc->QueryInterface(IID_PPV_ARGS(&poa));
-					if (SUCCEEDED(hr))
-					{
-						pcdl->AppendCategory((LPCTSTR)CString(MAKEINTRESOURCE(IDS_PROC_TASKS)), poa);
-						poa->Release();
-					}
-					poc->Release();
-				}				
-				if (SUCCEEDED(hr))
-				{
-					pcdl->CommitList();
-				}
-				poaRemoved->Release();
-			}
-		}
-	}
-	CoUninitialize();
-}
-
-int CTortoiseProcApp::ExitInstance()
-{
-	CWinAppEx::ExitInstance();
-	if (retSuccess)
-		return 0;
-	return -1;
 }

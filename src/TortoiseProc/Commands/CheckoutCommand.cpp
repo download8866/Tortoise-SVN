@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 
 bool CheckoutCommand::Execute()
 {
-	bool bRet = false;
 	// Get the directory supplied in the command line. If there isn't
 	// one then we should use first the default checkout path
 	// specified in the settings dialog, and fall back to the current 
@@ -37,9 +36,13 @@ bool CheckoutCommand::Execute()
 	{
 		if (CString(regDefCheckoutPath).IsEmpty())
 		{
-			checkoutDirectory.SetFromWin(sOrigCWD, true);
-			DWORD len = ::GetTempPath(0, NULL);
+			DWORD len = ::GetCurrentDirectory(0, NULL);
 			TCHAR * tszPath = new TCHAR[len];
+			::GetCurrentDirectory(len, tszPath);
+			checkoutDirectory.SetFromWin(tszPath, true);
+			delete [] tszPath;
+			len = ::GetTempPath(0, NULL);
+			tszPath = new TCHAR[len];
 			::GetTempPath(len, tszPath);
 			if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath, len-2 /* \\ and \0 */) == 0)
 			{
@@ -92,11 +95,6 @@ bool CheckoutCommand::Execute()
 	if (dlg.m_URL.Left(5).Compare(_T("tsvn:"))==0)
 	{
 		dlg.m_URL = dlg.m_URL.Mid(5);
-		if (dlg.m_URL.Find('?') >= 0)
-		{
-			dlg.Revision = SVNRev(dlg.m_URL.Mid(dlg.m_URL.Find('?')+1));
-			dlg.m_URL = dlg.m_URL.Left(dlg.m_URL.Find('?'));
-		}
 	}
 	if (parser.HasKey(_T("revision")))
 	{
@@ -111,7 +109,7 @@ bool CheckoutCommand::Execute()
 		foldbrowse.SetInfo(CString(MAKEINTRESOURCE(IDS_PROC_CHECKOUTTO)));
 		foldbrowse.SetCheckBoxText(CString(MAKEINTRESOURCE(IDS_PROC_CHECKOUTTOPONLY)));
 		foldbrowse.SetCheckBoxText2(CString(MAKEINTRESOURCE(IDS_PROC_CHECKOUTNOEXTERNALS)));
-		foldbrowse.m_style = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS | BIF_USENEWUI | BIF_VALIDATE | BIF_EDITBOX;
+		foldbrowse.m_style = BIF_NEWDIALOGSTYLE | BIF_RETURNONLYFSDIRS | BIF_USENEWUI | BIF_VALIDATE;
 		TCHAR checkoutpath[MAX_PATH];
 		if (foldbrowse.Show(hwndExplorer, checkoutpath, MAX_PATH, CString(regDefCheckoutPath))==CBrowseFolder::OK)
 		{
@@ -119,8 +117,6 @@ bool CheckoutCommand::Execute()
 			theApp.m_pMainWnd = &progDlg;
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Checkout);
 			progDlg.SetOptions(foldbrowse.m_bCheck2 ? ProgOptIgnoreExternals : ProgOptNone);
 			progDlg.SetPathList(CTSVNPathList(CTSVNPath(CString(checkoutpath))));
@@ -128,7 +124,6 @@ bool CheckoutCommand::Execute()
 			progDlg.SetRevision(dlg.Revision);
 			progDlg.SetDepth(foldbrowse.m_bCheck ? svn_depth_empty : svn_depth_infinity);
 			progDlg.DoModal();
-			bRet = !progDlg.DidErrorsOccur();
 		}
 	}
 	else if (dlg.DoModal() == IDOK)
@@ -140,15 +135,12 @@ bool CheckoutCommand::Execute()
 		progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Checkout);
 		if (parser.HasVal(_T("closeonend")))
 			progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-		if (parser.HasKey(_T("closeforlocal")))
-			progDlg.SetAutoCloseLocal(TRUE);
 		progDlg.SetOptions(dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone);
 		progDlg.SetPathList(CTSVNPathList(checkoutDirectory));
 		progDlg.SetUrl(dlg.m_URL);
 		progDlg.SetRevision(dlg.Revision);
 		progDlg.SetDepth(dlg.m_depth);
 		progDlg.DoModal();
-		bRet = !progDlg.DidErrorsOccur();
 	}
-	return bRet;
+	return true;
 }

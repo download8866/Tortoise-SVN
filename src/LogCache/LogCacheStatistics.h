@@ -59,7 +59,7 @@ public:
 	size_t fileSize;
 	size_t ramSize;
 
-    ConnectionState connectionState;
+    CRepositoryInfo::ConnectionState connectionState;
 
 	__time64_t headTimeStamp; 
 	__time64_t lastWriteAccess;
@@ -126,7 +126,7 @@ private:
 
 	/// data collection
 
-	void CollectData (CLogCachePool& pool, const CString& uuid, const CString& root);
+	void CollectData (CLogCachePool& pool, const CString& uuid);
 	void CollectData (const CCachedLogInfo& source);
 
 public:
@@ -135,7 +135,7 @@ public:
 	/// collect data during construction
 
 	CLogCacheStatistics();
-	CLogCacheStatistics (CLogCachePool& pool, const CString& uuid, const CString& root);
+	CLogCacheStatistics (CLogCachePool& pool, const CString& uuid);
 	~CLogCacheStatistics();
 
 	/// all back to zero

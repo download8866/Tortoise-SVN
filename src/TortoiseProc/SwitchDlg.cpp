@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -54,7 +54,6 @@ BEGIN_MESSAGE_MAP(CSwitchDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_LOG, &CSwitchDlg::OnBnClickedLog)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CSwitchDlg::OnRevSelected)
 	ON_WM_SIZING()
-	ON_CBN_EDITCHANGE(IDC_URLCOMBO, &CSwitchDlg::OnCbnEditchangeUrlcombo)
 END_MESSAGE_MAP()
 
 void CSwitchDlg::SetDialogTitle(const CString& sTitle)
@@ -88,13 +87,12 @@ BOOL CSwitchDlg::OnInitDialog()
 		m_URLCombo.SelectString(-1, CTSVNPath(url).GetUIPathString());
 		m_URL = m_path;
 	}
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	if (m_sTitle.IsEmpty())
 		GetWindowText(m_sTitle);
 	SetWindowText(m_sTitle);
 	if (m_sLabel.IsEmpty())
-		GetDlgItemText(IDC_URLLABEL, m_sLabel);
+		GetDlgItem(IDC_URLLABEL)->GetWindowText(m_sLabel);
 	SetDlgItemText(IDC_URLLABEL, m_sLabel);
 
 	// set head revision as default revision
@@ -160,11 +158,6 @@ void CSwitchDlg::OnOK()
 	m_URLCombo.SaveHistory();
 	m_URL = m_URLCombo.GetString();
 
-	if (m_URL.IsEmpty())
-	{
-		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL);
-		return;
-	}
 	UpdateData(FALSE);
 	CResizableStandAloneDialog::OnOK();
 }
@@ -245,9 +238,4 @@ void CSwitchDlg::OnSizing(UINT fwSide, LPRECT pRect)
 		break;
 	}
 	CResizableStandAloneDialog::OnSizing(fwSide, pRect);
-}
-
-void CSwitchDlg::OnCbnEditchangeUrlcombo()
-{
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 }

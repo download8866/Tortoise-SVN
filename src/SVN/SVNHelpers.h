@@ -52,9 +52,6 @@ class SVNHelper
 public:
 	SVNHelper(void);
 	~SVNHelper(void);
-private:
-	SVNHelper(const SVNHelper&){}
-	SVNHelper& operator=(SVNHelper&){};
 
 public:
 	apr_pool_t*			Pool() const { return m_pool; }

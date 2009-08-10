@@ -164,7 +164,6 @@ protected:
 	bool			m_bInlineWordDiff;
 	bool			m_bLineDiff;
 	bool			m_bLocatorBar;
-
 public:
 	CLeftView *		m_pwndLeftView;
 	CRightView *	m_pwndRightView;
@@ -174,7 +173,6 @@ public:
 	CDiffData		m_Data;
 	bool			m_bReadOnly;
 	bool			m_bBlame;
-	int				m_nMoveMovesToIgnore;
 
 	void			ShowDiffBar(bool bShow);
 };

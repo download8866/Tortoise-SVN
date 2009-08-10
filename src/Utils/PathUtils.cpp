@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PathUtils.h"
-#include "shlobj.h"
 
 BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
@@ -34,8 +33,6 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 	attribs.bInheritHandle = FALSE;
 
 	ConvertToBackslash(internalpathbuf, path, len+10);
-	if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
-		pPath += 4;
 	do
 	{
 		SecureZeroMemory(buf, (len+10)*sizeof(TCHAR));
@@ -194,7 +191,6 @@ void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 			*p = '\\';
 }
 
-#ifdef CSTRING_AVAILABLE
 CStringA CPathUtils::PathEscape(const CStringA& path)
 {
 	CStringA ret2;
@@ -241,29 +237,24 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
 	return ret;
 }
 
-CString CPathUtils::GetAppDirectory(HMODULE hMod /* = NULL */)
+#ifdef _MFC_VER
+CString CPathUtils::GetFileNameFromPath(CString sPath)
 {
-	CString path;
-	DWORD len = 0;
-	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
-	path.GetBuffer(bufferlen);
-	do 
-	{
-		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		path.ReleaseBuffer(0);
-		len = GetModuleFileName(hMod, path.GetBuffer(bufferlen+1), bufferlen);				
-	} while(len == bufferlen);
-	path.ReleaseBuffer();
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
+	CString ret;
+	sPath.Replace(_T("/"), _T("\\"));
+	ret = sPath.Mid(sPath.ReverseFind('\\') + 1);
+	return ret;
 }
 
-CString CPathUtils::GetAppParentDirectory(HMODULE hMod /* = NULL */)
+CString CPathUtils::GetFileExtFromPath(const CString& sPath)
 {
-	CString path = GetAppDirectory(hMod);
-	path = path.Left(path.ReverseFind('\\'));
-	path = path.Left(path.ReverseFind('\\')+1);
-	return path;
+	int dotPos = sPath.ReverseFind('.');
+	int slashPos = sPath.ReverseFind('\\');
+	if (slashPos < 0)
+		slashPos = sPath.ReverseFind('/');
+	if (dotPos > slashPos)
+		return sPath.Mid(dotPos);
+	return CString();
 }
 
 CString CPathUtils::GetLongPathname(const CString& path)
@@ -307,25 +298,6 @@ CString CPathUtils::GetLongPathname(const CString& path)
 	return sRet;
 }
 
-CString CPathUtils::GetFileNameFromPath(CString sPath)
-{
-	CString ret;
-	sPath.Replace(_T("/"), _T("\\"));
-	ret = sPath.Mid(sPath.ReverseFind('\\') + 1);
-	return ret;
-}
-
-CString CPathUtils::GetFileExtFromPath(const CString& sPath)
-{
-	int dotPos = sPath.ReverseFind('.');
-	int slashPos = sPath.ReverseFind('\\');
-	if (slashPos < 0)
-		slashPos = sPath.ReverseFind('/');
-	if (dotPos > slashPos)
-		return sPath.Mid(dotPos);
-	return CString();
-}
-
 BOOL CPathUtils::FileCopy(CString srcPath, CString destPath, BOOL force)
 {
 	srcPath.Replace('/', '\\');
@@ -351,6 +323,31 @@ CString CPathUtils::ParsePathInString(const CString& Str)
 	}
 	sToken.Empty();
 	return sToken;
+}
+
+CString CPathUtils::GetAppDirectory()
+{
+	CString path;
+	DWORD len = 0;
+	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
+	path.GetBuffer(bufferlen);
+	do 
+	{
+		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
+		path.ReleaseBuffer(0);
+		len = GetModuleFileName(NULL, path.GetBuffer(bufferlen+1), bufferlen);				
+	} while(len == bufferlen);
+	path.ReleaseBuffer();
+	path = path.Left(path.ReverseFind('\\')+1);
+	return path;
+}
+
+CString CPathUtils::GetAppParentDirectory()
+{
+	CString path = GetAppDirectory();
+	path = path.Left(path.ReverseFind('\\'));
+	path = path.Left(path.ReverseFind('\\')+1);
+	return path;
 }
 
 CString CPathUtils::GetAppDataDirectory()
@@ -495,8 +492,6 @@ private:
 		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
 		CStringA test3 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test3.Compare("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%%20NewTest") == 0);
-		CStringA test4 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS 1.0/Trunk/name with spaces/NewTest % NewTest");
-		ATLASSERT(test4.Compare("file:///d:/REpos1/uCOS%201.0/Trunk/name%20with%20spaces/NewTest%20%%20NewTest") == 0);
 	}
 	void ExtTest()
 	{

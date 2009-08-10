@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -71,10 +71,6 @@ protected:
 	CRegDWORD		m_regDisplayBinDiff;
 	BOOL			m_bCaseInsensitive;
 	CRegDWORD		m_regCaseInsensitive;
-	BOOL			m_bUTF8Default;
-	CRegDWORD		m_regUTF8Default;
-	BOOL			m_bAutoAdd;
-	CRegDWORD		m_regAutoAdd;
 	
 	CRegDWORD		m_regFontSize;
 	DWORD			m_dwFontSize;
@@ -84,7 +80,16 @@ protected:
 	CMFCFontComboBox m_cFontNames;
 	CComboBox		m_cFontSizes;
 protected:
-	afx_msg void OnModified();
-	afx_msg void OnModifiedWithReload();
+	afx_msg void OnBnClickedBackup();
+	afx_msg void OnBnClickedIgnorelf();
+	afx_msg void OnBnClickedOnepane();
+	afx_msg void OnBnClickedFirstdiffonload();
 	afx_msg void OnBnClickedWhitespace();
+	afx_msg void OnEnChangeTabsize();
+	afx_msg void OnCbnSelchangeFontsizes();
+	afx_msg void OnCbnSelchangeFontnames();
+	afx_msg void OnBnClickedLinenumbers();
+	afx_msg void OnBnClickedStrikeout();
+	afx_msg void OnBnClickedUsebdiff();
+	afx_msg void OnBnClickedCaseinsensitive();
 };

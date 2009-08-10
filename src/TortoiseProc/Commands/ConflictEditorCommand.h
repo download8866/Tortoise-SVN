@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@
 #pragma once
 #include "Command.h"
 
+#include "SVNDiff.h"
+
 /**
  * \ingroup TortoiseProc
  * Starts the conflict editor tool.
@@ -29,7 +31,10 @@ public:
 	/**
 	 * Executes the command.
 	 */
-	virtual bool			Execute();
+	virtual bool			Execute()
+	{
+		return SVNDiff::StartConflictEditor(cmdLinePath);
+	}
 };
 
 

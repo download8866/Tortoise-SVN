@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2009 - TortoiseSVN
+// Copyright (C) 2003-2007 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,10 +19,19 @@
 #pragma once
 #include <map>
 #include <string>
-#include "tstring.h"
 
 using std::map;
 
+#pragma warning (push,1)
+typedef std::wstring wide_string;
+#ifndef stdstring
+#ifdef UNICODE
+#	define stdstring wide_string
+#else
+#	define stdstring std::string
+#endif
+#endif
+#pragma warning (pop)
 
 /**
  * \ingroup Utils
@@ -55,7 +64,7 @@ using std::map;
 class CCmdLineParser 
 {
 public:
-	typedef map<tstring, tstring> CValsMap;
+	typedef map<stdstring, stdstring> CValsMap;
 	typedef CValsMap::const_iterator ITERPOS;
 public:
 	/**
@@ -86,7 +95,7 @@ public:
 	 * \param sValue returns the value
 	 * \return the next position
 	 */
-	ITERPOS getNext(ITERPOS& pos, tstring& sKey, tstring& sValue) const;
+	ITERPOS getNext(ITERPOS& pos, stdstring& sKey, stdstring& sValue) const;
 		
 	/**
 	 * Checks if the position is the last or if there are more key/value pairs in the command line.
@@ -129,7 +138,7 @@ private:
 	CValsMap::const_iterator findKey(LPCTSTR sKey) const;
 	const CValsMap& getVals() const { return m_valueMap; }
 private:
-	tstring 	m_sCmdLine;
+	stdstring 	m_sCmdLine;
 	CValsMap	m_valueMap;
 
 	static const TCHAR m_sDelims[];

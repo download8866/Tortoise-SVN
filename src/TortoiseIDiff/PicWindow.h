@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,13 +21,12 @@
 #include "BaseWindow.h"
 #include "TortoiseIDiff.h"
 #include "Picture.h"
-#include "NiceTrackbar.h"
+#include "AlphaControl.h"
 
 #define HEADER_HEIGHT 30
 
 #define ID_ANIMATIONTIMER 100
 #define TIMER_ALPHASLIDER 101
-#define ID_ALPHATOGGLETIMER 102
 
 #define LEFTBUTTON_ID			101
 #define RIGHTBUTTON_ID			102
@@ -64,7 +63,7 @@ public:
 		, picscale(1.0)
 		, transparentColor(::GetSysColor(COLOR_WINDOW))
 		, pSecondPic(NULL)
-		, blendAlpha(0.5f)
+		, alphalive(0)
 		, bShowInfo(false)
 		, nDimensions(0)
 		, nCurrentDimension(1)
@@ -73,6 +72,7 @@ public:
 		, bPlaying(false)
 		, pTheOtherPic(NULL)
 		, bLinkedPositions(true)
+		, hwndAlphaSlider(NULL)
 		, bFitSizes(false)
 		, m_blend(BLEND_ALPHA)
 		, bMainPic(false)
@@ -91,12 +91,12 @@ public:
 	bool RegisterAndCreateWindow(HWND hParent);
 
 	/// Sets the image path and title to show
-	void SetPic(tstring path, tstring title, bool bFirst);
+	void SetPic(stdstring path, stdstring title, bool bFirst);
 	/// Returns the CPicture image object. Used to get an already loaded image
 	/// object without having to load it again.
 	CPicture * GetPic() {return &picture;}
 	/// Sets the path and title of the second image which is alpha blended over the original
-	void SetSecondPic(CPicture * pPicture = NULL, const tstring& sectit = _T(""), const tstring& secpath = _T(""), int hpos = 0, int vpos = 0)
+	void SetSecondPic(CPicture * pPicture = NULL, const stdstring& sectit = _T(""), const stdstring& secpath = _T(""), int hpos = 0, int vpos = 0)
 	{
 		pSecondPic = pPicture;
 		pictitle2 = sectit;
@@ -106,26 +106,26 @@ public:
 	}
 
 	void StopTimer() {KillTimer(*this, ID_ANIMATIONTIMER);}
-	
-	/// Returns the currently used alpha blending value (0.0-1.0)
-	float GetBlendAlpha() const { return blendAlpha; }
+	/// Returns the currently used alpha blending value (0-255)
+	BYTE GetSecondPicAlpha() {return alphalive;}
 	/// Sets the alpha blending value
-	void SetBlendAlpha(BlendType type, float a) 
+	void SetSecondPicAlpha(BlendType type, BYTE a) 
 	{
 		m_blend = type;
-		blendAlpha = a;
-		if (m_AlphaSlider.IsValid())
-			SendMessage(m_AlphaSlider.GetWindow(), TBM_SETPOS, (WPARAM)1, (LPARAM)(a*16.0f));
+		alphalive = a;
+		if (hwndAlphaSlider)
+			SendMessage(hwndAlphaSlider, TBM_SETPOS, (WPARAM)1, (LPARAM)a);
 		PositionTrackBar();
 		InvalidateRect(*this, NULL, FALSE);
 	}
-	/// Toggle the alpha blending value
+	/// Toggle the alpha between the two markers in the alpha slider control
 	void ToggleAlpha()
 	{
-		if( 0.0f != GetBlendAlpha() )
-			SetBlendAlpha(m_blend, 0.0f);
+		UINT nLeft = (BYTE)SendMessage(hwndAlphaSlider, ALPHA_GETLEFTPOS, 0, 0);
+		if(nLeft != GetSecondPicAlpha())
+			SetSecondPicAlpha(m_blend, nLeft);
 		else
-			SetBlendAlpha(m_blend, 1.0f);
+			SetSecondPicAlpha(m_blend, (BYTE)SendMessage(hwndAlphaSlider, ALPHA_GETRIGHTPOS, 0, 0));
 	}
 
 	/// Set the color that this PicWindow will display behind transparent images.
@@ -174,8 +174,6 @@ protected:
 	/// Returns the client rectangle, without the scrollbars and the view title.
 	/// Basically the rectangle the image can use.
 	void				GetClientRect(RECT * pRect);
-	/// Returns the client rectangle, without the view title but with the scrollbars
-	void				GetClientRectWithScrollbars(RECT * pRect);
 	/// the WM_PAINT function
 	void				Paint(HWND hwnd);
 	/// Draw pic to hdc, with a border, scaled by scale.
@@ -191,14 +189,14 @@ protected:
 	/// starts/stops the animation
 	void				Animate(bool bStart);
 	/// Creates the trackbar (the alpha blending slider control)
-	void				CreateTrackbar(HWND hwndParent);
+	HWND				CreateTrackbar(HWND hwndParent);
 	/// Moves the alpha slider trackbar to the correct position
 	void				PositionTrackBar();
 	/// creates the info string used in the info box and the tooltips
 	void				BuildInfoString(TCHAR * buf, int size, bool bTooltip);
 
-	tstring			picpath;			///< the path to the image we show
-	tstring			pictitle;			///< the string to show in the image view as a title
+	stdstring			picpath;			///< the path to the image we show
+	stdstring			pictitle;			///< the string to show in the image view as a title
 	CPicture			picture;			///< the picture object of the image
 	bool				bValid;				///< true if the picture object is valid, i.e. if the image could be loaded and can be shown
 	double				picscale;			///< the scale factor of the image
@@ -210,9 +208,9 @@ protected:
 	bool				bLinkedPositions;	///< if true, the two image windows are linked together for scrolling/zooming/...
 	bool				bFitSizes;		///< if true, the two image windows are always zoomed so they match their size
 	BlendType			m_blend;			///< type of blending to use
-	tstring 			pictitle2;			///< the title of the second picture
-	tstring 			picpath2;			///< the path of the second picture
-	float				blendAlpha;			///<the alpha value for transparency blending
+	stdstring 			pictitle2;			///< the title of the second picture
+	stdstring 			picpath2;			///< the path of the second picture
+	BYTE				alphalive;			///< the alpha value for the transparency live-preview of the second picture
 	bool				bShowInfo;			///< true if the info rectangle of the image should be shown
 	TCHAR				m_wszTip[8192];
 	char				m_szTip[8192];
@@ -233,12 +231,10 @@ protected:
 	UINT				nCurrentDimension;
 	UINT				nFrames;
 	UINT				nCurrentFrame;
-
-	// controls
 	HWND				hwndLeftBtn;
 	HWND				hwndRightBtn;
 	HWND				hwndPlayBtn;
-	CNiceTrackbar		m_AlphaSlider;
+	HWND				hwndAlphaSlider;
 	HWND				hwndAlphaToggleBtn;
 	HICON				hLeft;
 	HICON				hRight;

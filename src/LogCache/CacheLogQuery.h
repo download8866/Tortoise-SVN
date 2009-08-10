@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,8 +25,8 @@
 #include "ILogQuery.h"
 #include "ILogReceiver.h"
 
-#include "./Containers/RevisionInfoContainer.h"
-#include "./Containers/DictionaryBasedTempPath.h"
+#include "RevisionInfoContainer.h"
+#include "DictionaryBasedTempPath.h"
 
 #include "QuickHashMap.h"
 
@@ -171,7 +171,6 @@ private:
         CCachedLogInfo* updateData;
 	    CRepositoryInfo* repositoryInfoCache;
 		CStringA URL;
-        CString uuid;
 
 		/// connection to the SVN repository
 		ILogQuery* svnQuery;
@@ -228,7 +227,6 @@ private:
 		/// return the last revision sent to the receiver
 		revision_t FillLog ( CCachedLogInfo* cache
 						   , const CStringA& URL
-                           , CString uuid
 						   , ILogQuery* svnQuery
 						   , revision_t startRevision
 						   , revision_t endRevision
@@ -276,8 +274,6 @@ private:
 	/// cache to use & update
 	CCachedLogInfo* cache;
 	CStringA URL;
-    CString root;
-    CString uuid;
 
 	/// used, if caches is NULL
 	CCachedLogInfo* tempCache;
@@ -311,6 +307,11 @@ private:
 					   , int limit
 					   , const CLogOptions& options
                        , const CDataAvailable& dataAvailable);
+
+	/// fill the receiver's change list buffer 
+	void GetChanges ( LogChangedPathArray& result
+                    , CRevisionInfoContainer::CChangesIterator first
+		            , const CRevisionInfoContainer::CChangesIterator& last);
 
     /// fill the receiver's user rev-prop list buffer 
     void GetUserRevProps ( UserRevPropArray& result
@@ -358,8 +359,7 @@ private:
 	/// and will be used to cache these values.
 	revision_t DecodeRevision ( const CTSVNPath& path
 				  			  , const CTSVNPath& url
-				  			  , const SVNRev& revision
-                              , const SVNRev& peg) const;
+				  			  , const SVNRev& revision) const;
 
 	/// get the (exactly) one path from targets
 	/// throw an exception, if there are none or more than one
@@ -405,14 +405,6 @@ public:
     /// for tempCaches: write content to "real" cache files
     /// (no-op if this is does not use a temp. cache)
     void UpdateCache (CLogCachePool* caches);
-
-    /// utility function:
-	/// fill the receiver's change list buffer 
-	static void GetChanges ( LogChangedPathArray& result
-                           , TID2String& pathToStringMap
-                           , CRevisionInfoContainer::CChangesIterator first
-		                   , const CRevisionInfoContainer::CChangesIterator& last);
-
 };
 
 /// Log options inline implementations for data access

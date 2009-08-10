@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,21 +32,20 @@
 
 bool CreatePatchCommand::Execute()
 {
-	bool bRet = false;
 	CString savepath = CPathUtils::GetLongPathname(parser.GetVal(_T("savepath")));
 	CCreatePatch dlg;
 	dlg.m_pathList = pathList;
-	if (parser.HasKey(_T("noui"))||(dlg.DoModal()==IDOK))
+	if (dlg.DoModal()==IDOK)
 	{
 		if (cmdLinePath.IsEmpty())
 		{
 			cmdLinePath = pathList.GetCommonRoot();
 		}
-		bRet = CreatePatch(cmdLinePath.GetDirectory(), dlg.m_pathList, CTSVNPath(savepath));
+		CreatePatch(cmdLinePath.GetDirectory(), dlg.m_pathList, CTSVNPath(savepath));
 		SVN svn;
 		svn.Revert(dlg.m_filesToRevert, CStringArray(), false);
 	}
-	return bRet;
+	return true;
 }
 
 UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM /*lParam*/)
@@ -64,7 +63,7 @@ UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT ui
 	return 0;
 }
 
-bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, const CTSVNPath& cmdLineSavePath)
+bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& path, const CTSVNPath& cmdLineSavePath)
 {
 	OPENFILENAME ofn = {0};				// common dialog box structure
 	CString temp;
@@ -155,13 +154,13 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
 	CTSVNPath sDir = root;
 	if (sDir.IsEmpty())
-		sDir = paths.GetCommonRoot();
+		sDir = path.GetCommonRoot();
 
 	SVN svn;
-	for (int fileindex = 0; fileindex < paths.GetCount(); ++fileindex)
+	for (int fileindex = 0; fileindex < path.GetCount(); ++fileindex)
 	{
-		svn_depth_t depth = paths[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
-		if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
+		svn_depth_t depth = path[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
+		if (!svn.CreatePatch(path[fileindex], SVNRev::REV_BASE, path[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
 		{
 			progDlg.Stop();
 			::MessageBox(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);

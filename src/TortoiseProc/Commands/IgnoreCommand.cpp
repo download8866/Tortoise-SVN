@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,13 +22,11 @@
 #include "MessageBox.h"
 #include "PathUtils.h"
 #include "SVNProperties.h"
-#include "SVN.h"
 
 bool IgnoreCommand::Execute()
 {
 	CString filelist;
 	BOOL err = FALSE;
-
 	for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
 	{
 		CString name = CPathUtils::PathPatternEscape(pathList[nPath].GetFileOrDirectoryName());
@@ -39,40 +37,26 @@ bool IgnoreCommand::Execute()
 		filelist += name + _T("\n");
 		CTSVNPath parentfolder = pathList[nPath].GetContainingDirectory();
 		SVNProperties props(parentfolder, SVNRev::REV_WC, false);
-		CString value;
+		CStringA value;
 		for (int i=0; i<props.GetCount(); i++)
 		{
 			CString propname(props.GetItemName(i).c_str());
 			if (propname.CompareNoCase(_T("svn:ignore"))==0)
 			{
 				//treat values as normal text even if they're not
-				value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
+				value = (char *)props.GetItemValue(i).c_str();
 			}
 		}
 		if (value.IsEmpty())
 			value = name;
 		else
 		{
-			// make sure we don't have duplicate entries
-			std::set<CString> ignoreItems;
-			ignoreItems.insert(name);
-			CString token;
-			int curPos = 0;
-			token = value.Tokenize(_T("\n"),curPos);
-			while (token != _T(""))
-			{
-				token.Trim();
-				ignoreItems.insert(token);
-				token = value.Tokenize(_T("\n"), curPos);
-			};
-			value.Empty();
-			for (std::set<CString>::iterator it = ignoreItems.begin(); it != ignoreItems.end(); ++it)
-			{
-				value += *it;
-				value += _T("\n");
-			}
+			value = value.Trim("\n\r");
+			value += "\n";
+			value += name;
+			value.Remove('\r');
 		}
-		if (!props.Add(_T("svn:ignore"), (LPCSTR)CUnicodeUtils::GetUTF8(value)))
+		if (!props.Add(_T("svn:ignore"), (LPCSTR)value))
 		{
 			CString temp;
 			temp.Format(IDS_ERR_FAILEDIGNOREPROPERTY, (LPCTSTR)name);
@@ -83,21 +67,11 @@ bool IgnoreCommand::Execute()
 			break;
 		}
 	}
-	if ((err == FALSE)&&(parser.HasKey(_T("delete"))))
-	{
-		SVN svn;
-		if (!svn.Remove(pathList, TRUE))
-		{
-			CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-			err = TRUE;
-		}
-	}
 	if (err == FALSE)
 	{
 		CString temp;
 		temp.Format(IDS_PROC_IGNORESUCCESS, (LPCTSTR)filelist);
 		CMessageBox::Show(hwndExplorer, temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
-		return true;
 	}
-	return false;
+	return true;
 }

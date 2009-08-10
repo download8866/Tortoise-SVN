@@ -54,7 +54,7 @@
 			You can add your own properties, or some properties with a 
 			special meaning in Subversion. These begin with <literal>svn:</literal>. 
 			<literal>svn:externals</literal> is such a property; see how to handle
-			externals in <xref linkend="tsvn-dug-externals"/>.
+			externals in <xref linkend="tsvn-dug-import-4"/>.
 		</para>
 		<sect3 id="tsvn-dug-propertypage-props-keywords">
 			<title>svn:keywords</title>
@@ -117,7 +117,7 @@
 			</para>
 			<para>
 				To find out how to use these keywords, look at the
-				<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.props.special.keywords.html">
+				<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.props.special.keywords.html">
 					<citetitle>svn:keywords section</citetitle>
 				</ulink>
 				in the Subversion book, which gives a full description of these
@@ -127,7 +127,7 @@
 
 		<para>
 			For more information about properties in Subversion see the 
-			<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.props.html">
+			<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.props.html">
 				<citetitle>Special Properties</citetitle>
 			</ulink>.
 		</para>
@@ -177,7 +177,7 @@
 				The <literal>svn:externals</literal> property can be used to
 				pull in other projects from the same repository or a completely
 				different repository. For more information, read
-				<xref linkend="tsvn-dug-externals"/>.
+				<xref linkend="tsvn-dug-import-4"/>.
 			</para>
 		</sect3>
 		<sect3 id="tsvn-dug-propertypage-props-import">
@@ -426,26 +426,6 @@
 						<literal>\[SUMMARY\]:\s+(.*)</literal> 
 						Will catch everything after <quote>[SUMMARY]</quote> in the log message
 						and use that as the summary.
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						The property <literal>tsvn:logrevregex</literal> defines
-						a regular expression which matches references to revisions
-						in a log message. This is used in the log dialog to turn
-						such references into links which when clicked will either
-						scroll to that revision (if the revision is already shown
-						in the log dialog, or if it's available from the log cache)
-						or open a new log dialog showing that revision.
-					</para>
-					<para>
-						The regular expression must match the whole reference, not
-						just the revision number. The revision number is extracted
-						from the matched reference string automatically.
-					</para>
-					<para>
-						If this property is not set, a default regular expression
-						is used to link revision references.
 					</para>
 				</listitem>
 				<listitem>

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,13 +27,11 @@
 #include <Shellapi.h>
 #include <comutil.h>
 
-#pragma warning(push)
 #include <apr_pools.h>
 #include "svn_error.h"
 #include "svn_client.h"
 #include "svn_path.h"
 #include "svn_dso.h"
-#pragma warning(pop)
 #include "Register.h"
 #include "UnicodeUtils.h"
 
@@ -242,13 +240,13 @@ HRESULT __stdcall SubWCRev::get_Date(/*[out, retval]*/VARIANT* date)
 	date->vt = VT_BSTR;
 	
 	WCHAR destbuf[32];
-	HRESULT result = CopyDateToString(destbuf, 32, SubStat.CmtDate) ? S_OK : S_FALSE;
-	if(S_FALSE == result)
+	HRESULT result = CopyDateToString(destbuf, 32, SubStat.CmtDate);
+	if(FALSE == result)
 	{
 		_stprintf_s(destbuf, 2, _T(""));
 	}
 	
-	date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
+	date->bstrVal = SysAllocStringLen(destbuf, _tcslen(destbuf));
 	return result;
 }
 
@@ -257,10 +255,10 @@ HRESULT __stdcall SubWCRev::get_Url(/*[out, retval]*/VARIANT* url)
 	url->vt = VT_BSTR;
 
 	WCHAR * buf;
-	size_t len = strlen(SubStat.Url);
+	int len = strlen(SubStat.Url);
 	buf = new WCHAR[len*4 + 1];
 	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
-	MultiByteToWideChar(CP_UTF8, 0, SubStat.Url, -1, buf, (int)len*4);
+	MultiByteToWideChar(CP_UTF8, 0, SubStat.Url, -1, buf, len*4);
 	url->bstrVal = SysAllocString(buf);
 	delete [] buf;
 
@@ -272,10 +270,10 @@ HRESULT __stdcall SubWCRev::get_Author(/*[out, retval]*/VARIANT* author)
 	author->vt = VT_BSTR;
 
 	WCHAR * buf;
-	size_t len = strlen(SubStat.Author);
+	int len = strlen(SubStat.Author);
 	buf = new WCHAR[len*4 + 1];
 	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
-	MultiByteToWideChar(CP_UTF8, 0, SubStat.Author, -1, buf, (int)len*4);
+	MultiByteToWideChar(CP_UTF8, 0, SubStat.Author, -1, buf, len*4);
 	author->bstrVal = SysAllocString(buf);
 	delete [] buf;
 
@@ -342,14 +340,14 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
 	}
 	else
 	{
-		result = CopyDateToString(destbuf, 32, SubStat.LockData.CreationDate) ? S_OK : S_FALSE;
-		if(S_FALSE == result)
+		result = CopyDateToString(destbuf, 32, SubStat.LockData.CreationDate);
+		if(FALSE == result)
 		{
 			_stprintf_s(destbuf, 2, _T(""));
 		}
 	}
 	
-	date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
+	date->bstrVal = SysAllocStringLen(destbuf, _tcslen(destbuf));
 	return result;
 }
 
@@ -360,7 +358,7 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
 
 	HRESULT result;
 	WCHAR * buf;
-	size_t len;
+	int len;
 
 	if(FALSE == IsLockDataAvailable())
 	{
@@ -378,7 +376,7 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
 	
 	if(TRUE == SubStat.LockData.NeedsLocks)
 	{
-		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, (int)len*4);
+		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, len*4);
 	}
 
 	owner->bstrVal = SysAllocString(buf);
@@ -394,7 +392,7 @@ HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
 
 	HRESULT result;
 	WCHAR * buf;
-	size_t len;
+	int len;
 
 	if(FALSE == IsLockDataAvailable())
 	{
@@ -412,7 +410,7 @@ HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
 	
 	if(TRUE == SubStat.LockData.NeedsLocks)
 	{
-		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, (int)len*4);
+		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, len*4);
 	}
 
 	comment->bstrVal = SysAllocString(buf);

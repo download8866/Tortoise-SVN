@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,7 +52,6 @@
 #define MENUDELUNVERSIONED	0x0000000080000000
 #define MENUMERGEALL		0x0000000100000000
 #define MENUPREVDIFF		0x0000000200000000
-#define MENUCLIPPASTE		0x0000000400000000
 
 #define MENUSETTINGS		0x2000000000000000
 #define MENUHELP			0x4000000000000000
@@ -94,11 +93,8 @@ enum FileState
 #define ITEMIS_DELETED				0x00000400
 #define ITEMIS_LOCKED				0x00000800
 #define ITEMIS_PATCHFILE			0x00001000
-#define ITEMIS_PROPMODIFIED			0x00002000
+// #define ITEMIS_SHORTCUT			0x00002000 //unused
 #define ITEMIS_NEEDSLOCK			0x00004000
 #define ITEMIS_PATCHINCLIPBOARD		0x00008000
-#define ITEMIS_PATHINCLIPBOARD      0x00010000
-#define ITEMIS_TWO					0x00020000
-#define ITEMIS_FILEEXTERNAL			0x00040000
-#define ITEMIS_ADDEDWITHHISTORY		0x00080000
+#define ITEMIS_TWO					0x00010000
 

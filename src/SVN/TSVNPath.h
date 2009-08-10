@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -180,12 +180,6 @@ public:
 	 * Returns a FILETIME structure cast to an __int64, for easy comparisons
 	 */
 	__int64 GetLastWriteTime() const;
-
-	/**
-	 * Get the file size. Returns zero for directories or files that don't exist.
-	 */
-	__int64 GetFileSize() const;
-
 	
 	bool IsReadOnly() const;
 	
@@ -259,7 +253,6 @@ private:
 
 private:
 	mutable CString m_sBackslashPath;
-	mutable CString m_sLongBackslashPath;
 	mutable CString m_sFwdslashPath;
 	mutable CString m_sUIPath;
 	mutable	CStringA m_sUTF8FwdslashPath;
@@ -271,7 +264,6 @@ private:
 	mutable bool m_bURLKnown;
 	mutable bool m_bIsURL;
 	mutable __int64 m_lastWriteTime;
-	mutable __int64 m_fileSize;
 	mutable bool m_bIsReadOnly;
 	mutable bool m_bHasAdminDirKnown;
 	mutable bool m_bHasAdminDir;
@@ -310,10 +302,9 @@ public:
 
 public:
 	void AddPath(const CTSVNPath& newPath);
-#if defined(_MFC_VER)
 	bool LoadFromFile(const CTSVNPath& filename);
 	bool WriteToFile(const CString& sFilename, bool bANSI = false) const;
-#endif
+
 	/**
 	 * Load from the path argument string, when the 'path' parameter is used
 	 * This is a list of paths, with '*' between them

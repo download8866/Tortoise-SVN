@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,94 +21,36 @@
 
 #include "AddDlg.h"
 #include "SVNProgressDlg.h"
-#include "ShellUpdater.h"
-#include "SVNStatus.h"
-#include "MessageBox.h"
 
 bool AddCommand::Execute()
 {
-	bool bRet = false;
 	if (parser.HasKey(_T("noui")))
 	{
 		SVN svn;
 		ProjectProperties props;
 		props.ReadPropsPathList(pathList);
-		bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
-		CShellUpdater::Instance().AddPathsForUpdate(pathList);
+		svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 	}
 	else
 	{
-		if (pathList.AreAllPathsFiles())
+		CAddDlg dlg;
+		dlg.m_pathList = pathList;
+		if (dlg.DoModal() == IDOK)
 		{
-			SVNStatus status;
-			CTSVNPath retPath;
-			svn_wc_status2_t * s = NULL;
-
-			if ((s = status.GetFirstFileStatus(pathList.GetCommonDirectory(), retPath))!=0)
-			{
-				do
-				{
-					if (s->text_status == svn_wc_status_missing)
-					{
-						for (int i = 0; i < pathList.GetCount(); ++i)
-						{
-							if (pathList[i].IsEquivalentToWithoutCase(retPath))
-							{
-								CString sMessage;
-								sMessage.Format(IDS_WARN_ADDCASERENAMED, pathList[i].GetWinPath(), retPath.GetWinPath());
-								CString sTitle(MAKEINTRESOURCE(IDS_WARN_WARNING));
-								CString sFixRenaming(MAKEINTRESOURCE(IDS_WARN_ADDCASERENAMED_RENAME));
-								CString sAddAnyway(MAKEINTRESOURCE(IDS_WARN_ADDCASERENAMED_ADD));
-								CString sCancel(MAKEINTRESOURCE(IDS_MSGBOX_CANCEL));
-
-								UINT ret = CMessageBox::Show(hWndExplorer, sMessage, sTitle, 1, IDI_WARNING, sFixRenaming, sAddAnyway, sCancel);
-								if (ret == 1)
-								{
-									// fix case of filename
-									MoveFileEx(pathList[i].GetWinPath(), retPath.GetWinPath(), MOVEFILE_REPLACE_EXISTING);
-									// remove it from the list
-									pathList.RemovePath(pathList[i]);
-								}
-								else if (ret != 2)
-									return FALSE;
-								break;
-							}
-						}
-					}
-				} while ((s = status.GetNextFileStatus(retPath))!=0);
-
-			}
-
-			SVN svn;
+			if (dlg.m_pathList.GetCount() == 0)
+				return FALSE;
+			CSVNProgressDlg progDlg;
+			theApp.m_pMainWnd = &progDlg;
+			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
+			if (parser.HasVal(_T("closeonend")))
+				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
+			progDlg.SetPathList(dlg.m_pathList);
 			ProjectProperties props;
-			props.ReadPropsPathList(pathList);
-			bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
-			CShellUpdater::Instance().AddPathsForUpdate(pathList);
-		}
-		else
-		{
-			CAddDlg dlg;
-			dlg.m_pathList = pathList;
-			if (dlg.DoModal() == IDOK)
-			{
-				if (dlg.m_pathList.GetCount() == 0)
-					return FALSE;
-				CSVNProgressDlg progDlg;
-				theApp.m_pMainWnd = &progDlg;
-				progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
-				if (parser.HasVal(_T("closeonend")))
-					progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-				if (parser.HasKey(_T("closeforlocal")))
-					progDlg.SetAutoCloseLocal(TRUE);
-				progDlg.SetPathList(dlg.m_pathList);
-				ProjectProperties props;
-				props.ReadPropsPathList(dlg.m_pathList);
-				progDlg.SetProjectProperties(props);
-				progDlg.SetItemCount(dlg.m_pathList.GetCount());
-				progDlg.DoModal();
-				bRet = !progDlg.DidErrorsOccur();
-			}
+			props.ReadPropsPathList(dlg.m_pathList);
+			progDlg.SetProjectProperties(props);
+			progDlg.SetItemCount(dlg.m_pathList.GetCount());
+			progDlg.DoModal();
 		}
 	}
-	return bRet;
+	return true;
 }

@@ -49,10 +49,7 @@ void CSettings::AddPropPages()
 	m_pLookAndFeelPage = new CSetLookAndFeelPage();
 	m_pDialogsPage = new CSetDialogs();
 	m_pMiscPage = new CSetMisc();
-	m_pRevisionGraphPage = new CSettingsRevisionGraph();
-	m_pRevisionGraphColorsPage = new CSettingsRevisionGraphColors();
 	m_pLogCachePage = new CSetLogCache();
-	m_pLogCacheListPage = new CSettingsLogCaches();
 	m_pColorsPage = new CSettingsColors();
 	m_pSavedPage = new CSetSavedDataPage();
 	m_pHooksPage = new CSetHooks();
@@ -68,11 +65,8 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pProgsUniDiffPage, m_pProgsUniDiffPage->GetIconID());
 	SetPageIcon(m_pLookAndFeelPage, m_pLookAndFeelPage->GetIconID());
 	SetPageIcon(m_pDialogsPage, m_pDialogsPage->GetIconID());
-	SetPageIcon(m_pRevisionGraphPage, m_pRevisionGraphPage->GetIconID());
-	SetPageIcon(m_pRevisionGraphColorsPage, m_pRevisionGraphColorsPage->GetIconID());
 	SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
 	SetPageIcon(m_pLogCachePage, m_pLogCachePage->GetIconID());
-	SetPageIcon(m_pLogCacheListPage, m_pLogCacheListPage->GetIconID());
 	SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
 	SetPageIcon(m_pSavedPage, m_pSavedPage->GetIconID());
 	SetPageIcon(m_pHooksPage, m_pHooksPage->GetIconID());
@@ -80,8 +74,6 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pTBlamePage, m_pTBlamePage->GetIconID());
 
 	AddPage(m_pMainPage);
-	AddPage(m_pRevisionGraphPage);
-	AddPage(m_pRevisionGraphColorsPage);
 	AddPage(m_pOverlayPage);
 	AddPage(m_pOverlaysPage);
 	AddPage(m_pProxyPage);
@@ -94,7 +86,6 @@ void CSettings::AddPropPages()
 	AddPage(m_pColorsPage);
 	AddPage(m_pSavedPage);
 	AddPage(m_pLogCachePage);
-    AddPage(m_pLogCacheListPage);
 	AddPage(m_pHooksPage);
 	AddPage(m_pBugTraqPage);
 	AddPage(m_pTBlamePage);
@@ -111,11 +102,8 @@ void CSettings::RemovePropPages()
 	delete m_pProgsUniDiffPage;
 	delete m_pLookAndFeelPage;
 	delete m_pDialogsPage;
-    delete m_pRevisionGraphColorsPage;
-    delete m_pRevisionGraphPage;
 	delete m_pMiscPage;
 	delete m_pLogCachePage;
-	delete m_pLogCacheListPage;
 	delete m_pColorsPage;
 	delete m_pSavedPage;
 	delete m_pHooksPage;
@@ -135,10 +123,8 @@ void CSettings::HandleRestart()
 	restart |= m_pProgsUniDiffPage->GetRestart();
 	restart |= m_pLookAndFeelPage->GetRestart();
 	restart |= m_pDialogsPage->GetRestart();
-    restart |= m_pRevisionGraphPage->GetRestart();
 	restart |= m_pMiscPage->GetRestart();
 	restart |= m_pLogCachePage->GetRestart();
-	restart |= m_pLogCacheListPage->GetRestart();
 	restart |= m_pColorsPage->GetRestart();
 	restart |= m_pSavedPage->GetRestart();
 	restart |= m_pHooksPage->GetRestart();
@@ -198,6 +184,8 @@ void CSettings::HandleRestart()
 				if (hPipe != INVALID_HANDLE_VALUE)
 				{
 					// now tell the cache we don't need it's command thread anymore
+					DWORD cbWritten; 
+					TSVNCacheCommand cmd;
 					SecureZeroMemory(&cmd, sizeof(TSVNCacheCommand));
 					cmd.command = TSVNCACHECOMMAND_END;
 					WriteFile( 

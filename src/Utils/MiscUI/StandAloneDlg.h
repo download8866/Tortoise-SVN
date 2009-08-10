@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -102,7 +102,7 @@ protected:
 	 * this method can reduce the size of those controls again to only
 	 * fit the text.
 	 */
-	RECT AdjustControlSize(UINT nID)
+	void AdjustControlSize(UINT nID)
 	{
 		CWnd * pwndDlgItem = GetDlgItem(nID);
 		// adjust the size of the control to fit its content
@@ -135,53 +135,6 @@ protected:
 			pDC->SelectObject(pOldFont);
 			ReleaseDC(pDC);
 		}
-		return controlrectorig;
-	}
-
-	/**
-	* Adjusts the size of a static control.
-	* \param rc the position of the control where this control shall
-	*           be positioned next to on its right side.
-	* \param spacing number of pixels to add to rc.right
-	*/
-	RECT AdjustStaticSize(UINT nID, RECT rc, long spacing)
-	{
-		CWnd * pwndDlgItem = GetDlgItem(nID);
-		// adjust the size of the control to fit its content
-		CString sControlText;
-		pwndDlgItem->GetWindowText(sControlText);
-		// next step: find the rectangle the control text needs to
-		// be displayed
-
-		CDC * pDC = pwndDlgItem->GetWindowDC();
-		RECT controlrect;
-		RECT controlrectorig;
-		pwndDlgItem->GetWindowRect(&controlrect);
-		::MapWindowPoints(NULL, GetSafeHwnd(), (LPPOINT)&controlrect, 2);
-		controlrect.right += 200;	// in case the control needs to be bigger than it currently is (e.g., due to translations)
-		controlrectorig = controlrect;
-
-		long height = controlrectorig.bottom-controlrectorig.top;
-		long width = controlrectorig.right-controlrectorig.left;
-		controlrectorig.left = rc.right + spacing;
-		controlrectorig.right = controlrectorig.left + width;
-		controlrectorig.bottom = rc.bottom;
-		controlrectorig.top = controlrectorig.bottom - height;
-
-		if (pDC)
-		{
-			CFont * font = pwndDlgItem->GetFont();
-			CFont * pOldFont = pDC->SelectObject(font);
-			if (pDC->DrawText(sControlText, -1, &controlrect, DT_WORDBREAK | DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
-			{
-				// now we have the rectangle the control really needs
-				controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left);
-				pwndDlgItem->MoveWindow(&controlrectorig);
-			}
-			pDC->SelectObject(pOldFont);
-			ReleaseDC(pDC);
-		}
-		return controlrectorig;
 	}
 
 	/**
@@ -226,9 +179,35 @@ private:
 		}
 	}
 
+	DECLARE_MESSAGE_MAP()
 
 	HICON m_hIcon;
 };
+
+// manually expand the MESSAGE_MAP macros here so we can use templates
+
+template<typename BaseType>
+const AFX_MSGMAP* CStandAloneDialogTmpl<BaseType>::GetMessageMap() const 
+	{ return GetThisMessageMap(); } 
+
+template<typename BaseType>
+const AFX_MSGMAP* PASCAL CStandAloneDialogTmpl<BaseType>::GetThisMessageMap() 
+{ 
+	typedef CStandAloneDialogTmpl<BaseType> ThisClass;						   
+	typedef BaseType TheBaseClass;					   
+	static const AFX_MSGMAP_ENTRY _messageEntries[] =  
+	{
+		ON_WM_PAINT()
+		ON_WM_QUERYDRAGICON()
+
+		{0, 0, 0, 0, AfxSig_end, (AFX_PMSG)0 } 
+	}; 
+
+	static const AFX_MSGMAP messageMap = 
+	{ &TheBaseClass::GetThisMessageMap, &_messageEntries[0] }; 
+
+	return &messageMap; 
+}								  
 
 class CStateDialog : public CDialog, public CResizableWndState
 {
@@ -274,6 +253,10 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
+	//BEGIN_MESSAGE_MAP(CStateDialog, CDialog)
+	//	ON_WM_DESTROY()
+	//END_MESSAGE_MAP();
+
 };
 
 class CResizableStandAloneDialog : public CStandAloneDialogTmpl<CResizableDialog>
@@ -285,8 +268,7 @@ private:
 	DECLARE_DYNAMIC(CResizableStandAloneDialog)
 
 protected:
-	afx_msg void	OnSizing(UINT fwSide, LPRECT pRect);
-	afx_msg void	OnMoving(UINT fwSide, LPRECT pRect);
+	afx_msg void	OnSize(UINT nType, int cx, int cy);
 	afx_msg void	OnNcMButtonUp(UINT nHitTest, CPoint point);
 	afx_msg void	OnNcRButtonUp(UINT nHitTest, CPoint point);
 

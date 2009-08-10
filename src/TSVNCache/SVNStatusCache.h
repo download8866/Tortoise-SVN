@@ -85,7 +85,7 @@ public:
 	void Stop();
 
 	void CloseWatcherHandles(HDEVNOTIFY hdev);
-	void CloseWatcherHandles(const CTSVNPath& path);
+	void CSVNStatusCache::CloseWatcherHandles(const CTSVNPath& path);
 
 	bool WaitToRead(DWORD waitTime = INFINITE) {return m_rwSection.WaitToRead(waitTime);}
 	bool WaitToWrite(DWORD waitTime = INFINITE) {return m_rwSection.WaitToWrite(waitTime);}
@@ -119,8 +119,7 @@ private:
 	CFolderCrawler m_folderCrawler;
 	CShellUpdater m_shellUpdater;
 
-	CComAutoCriticalSection m_critSec;
-	CTSVNPath m_mostRecentAskedPath;
+	CTSVNPath m_mostRecentPath;
 	CStatusCacheEntry m_mostRecentStatus;
 	long m_mostRecentExpiresAt;
 

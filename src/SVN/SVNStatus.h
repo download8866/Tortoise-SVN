@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,8 +23,15 @@
 #	include "SVNPrompt.h"
 #endif
 #include "TSVNPath.h"
-#include <set>
-#include "tstring.h"
+
+#pragma warning (push,1)
+typedef std::basic_string<wchar_t> wide_string;
+#ifdef UNICODE
+#	define stdstring wide_string
+#else
+#	define stdstring std::string
+#endif
+#pragma warning (pop)
 
 #define MAX_STATUS_STRING_LENGTH		100
 
@@ -35,9 +42,6 @@
  */
 class SVNStatus
 {
-private:
-	SVNStatus(const SVNStatus&){}
-	SVNStatus& operator=(SVNStatus&){};
 public:
 	SVNStatus(bool * pbCanceled = NULL);
 	~SVNStatus(void);
@@ -116,8 +120,8 @@ public:
 	 * \return the status
 	 */
 	svn_wc_status2_t * GetFirstFileStatus(const CTSVNPath& path, CTSVNPath& retPath, bool update = false, svn_depth_t depth = svn_depth_infinity, bool bNoIgnore = true, bool bNoExternals = false);
-	unsigned int GetFileCount() const {return apr_hash_count(m_statushash);}
-	unsigned int GetVersionedCount() const;
+	unsigned int GetFileCount() {return apr_hash_count(m_statushash);}
+	unsigned int GetVersionedCount();
 	/**
 	 * Returns the status of the next file in the file list. If no more files are in the list then NULL is returned.
 	 * See GetFirstFileStatus() for details.
@@ -129,17 +133,11 @@ public:
 	 * and one with the 'real' status of that folder. GetFirstFileStatus() and GetNextFileStatus() only return the 'real'
 	 * status, so with this method it's possible to check if the status also is svn_wc_status_external.
 	 */
-	bool IsExternal(const CTSVNPath& path) const;
+	bool IsExternal(const CTSVNPath& path);
 	/**
 	 * Checks if a path is in an external folder.
 	 */
-	bool IsInExternal(const CTSVNPath& path) const;
-
-	/**
-	 * Fills the \c externals set with all external root paths.
-	 * \remark the set is not cleared first!
-	 */
-	void GetExternals(std::set<CTSVNPath>& externals) const;
+	bool IsInExternal(const CTSVNPath& path);
 
 	/**
 	 * Clears the memory pool.
@@ -159,7 +157,7 @@ friend class SVN;	// So that SVN can get to our m_err
 	/**
 	 * Returns the last error message as a CString object.
 	 */
-	CString GetLastErrorMsg() const;
+	CString GetLastErrorMsg();
 
 	/** 
 	 * Set a list of paths which will be considered when calling GetFirstFileStatus.
@@ -172,7 +170,7 @@ friend class SVN;	// So that SVN can get to our m_err
 	/**
 	 * Returns the last error message as a CString object.
 	 */
-	tstring GetLastErrorMsg() const;
+	stdstring GetLastErrorMsg();
 #endif
 
 
@@ -210,13 +208,13 @@ private:
 	/**
 	 * Callback function which collects the raw status from a svn_client_status() function call
 	 */
-	static svn_error_t * getallstatus (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
+	static void getallstatus (void *baton, const char *path, svn_wc_status2_t *status);
 
 	/**
 	 * Callback function which stores the raw status from a svn_client_status() function call
 	 * in a hash table.
 	 */
-	static svn_error_t * getstatushash (void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
+	static void getstatushash (void *baton, const char *path, svn_wc_status2_t *status);
 
 	/**
 	 * helper function to sort a hash to an array

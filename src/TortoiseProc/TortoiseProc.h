@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,11 +53,9 @@ public:
 // Overrides
 public:
 	virtual BOOL InitInstance();
-	virtual int ExitInstance();
 
 	void CheckUpgrade();
 	void EnableCrashHandler();
-	void InitializeJumpList();
 
 // Implementation
 
@@ -66,7 +64,7 @@ private:
 
 	DECLARE_MESSAGE_MAP()
 private:
-	bool	retSuccess;
+	HANDLE	m_mutex;
 };
 
 extern CTortoiseProcApp theApp;

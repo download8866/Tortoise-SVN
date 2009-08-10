@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -51,7 +51,7 @@ STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 
 	ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
 	LoadLangDll();
-	std::wstring ws;
+	wide_string ws;
 	switch (dwIndex)
 	{
 		case 0:	// SVN Status
@@ -200,7 +200,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 	ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
 	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 8) 
 	{
-		tstring szInfo;
+		stdstring szInfo;
 		const TCHAR * path = (TCHAR *)pscd->wszFile;
 
 		// reserve for the path + trailing \0
@@ -211,7 +211,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 		{
 			case 0:	// SVN Status
 				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-				SVNStatus::GetStatusString(g_hResInst, filestatus, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				SVNStatus::GetStatusString(g_hResInst, filestatus, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 				szInfo = buf;
 				break;
 			case 1:	// SVN Revision
@@ -236,12 +236,12 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 					return S_FALSE;
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props(CTSVNPath(path), false);
+					SVNProperties props = SVNProperties(CTSVNPath(path), false);
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
 						{
-							szInfo = UTF8ToWide((char *)props.GetItemValue(i).c_str());
+							szInfo = MultibyteToWide((char *)props.GetItemValue(i).c_str());
 						}
 					}
 				}
@@ -255,12 +255,12 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 					return S_FALSE;
 				if (g_ShellCache.IsPathAllowed(path))
 				{
-					SVNProperties props(CTSVNPath(path), false);
+					SVNProperties props = SVNProperties(CTSVNPath(path), false);
 					for (int i=0; i<props.GetCount(); i++)
 					{
 						if (props.GetItemName(i).compare(_T("svn:eol-style"))==0)
 						{
-							szInfo = UTF8ToWide((char *)props.GetItemValue(i).c_str());
+							szInfo = MultibyteToWide((char *)props.GetItemValue(i).c_str());
 						}
 					}
 				}
@@ -275,7 +275,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 	}
 	if ((pscid->fmtid == FMTID_SummaryInformation)||(pscid->pid == 8))
 	{
-		tstring szInfo;
+		stdstring szInfo;
 		const TCHAR * path = pscd->wszFile;
 
 		if (cachetype == ShellCache::none)
@@ -290,7 +290,7 @@ STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, V
 		default:
 			return S_FALSE;
 		}
-		std::wstring wsInfo = szInfo;
+		wide_string wsInfo = szInfo;
 		V_VT(pvarData) = VT_BSTR;
 		V_BSTR(pvarData) = SysAllocString(wsInfo.c_str());
 		return S_OK;

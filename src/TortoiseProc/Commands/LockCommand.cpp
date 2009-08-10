@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 
 bool LockCommand::Execute()
 {
-	bool bRet = false;
 	CLockDlg lockDlg;
 	lockDlg.m_pathList = pathList;
 	ProjectProperties props;
@@ -38,10 +37,7 @@ bool LockCommand::Execute()
 		progDlg.SetPathList(pathList);
 		if (parser.HasVal(_T("closeonend")))
 			progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-		if (parser.HasKey(_T("closeforlocal")))
-			progDlg.SetAutoCloseLocal(TRUE);
 		progDlg.DoModal();
-		bRet = !progDlg.DidErrorsOccur();
 	}
 	else if (lockDlg.DoModal()==IDOK)
 	{
@@ -49,16 +45,13 @@ bool LockCommand::Execute()
 		{
 			CSVNProgressDlg progDlg;
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Lock);
-			progDlg.SetOptions(lockDlg.m_bStealLocks ? ProgOptForce : ProgOptNone);
+			progDlg.SetOptions(lockDlg.m_bStealLocks ? ProgOptLockForce : ProgOptNone);
 			progDlg.SetPathList(lockDlg.m_pathList);
 			progDlg.SetCommitMessage(lockDlg.m_sLockMessage);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.DoModal();
-			bRet = !progDlg.DidErrorsOccur();
 		}
 	}
-	return bRet;
+	return true;
 }

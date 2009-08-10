@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,12 +21,9 @@
 #include "SVNLogQuery.h"
 #include "ILogReceiver.h"
 
-#pragma warning(push)
 #include "svn_time.h"
 #include "svn_sorts.h"
 #include "svn_compat.h"
-#include "svn_props.h"
-#pragma warning(pop)
 #include "UnicodeUtils.h"
 #include "SVN.h"
 #include "SVNError.h"
@@ -154,60 +151,7 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 	LogChangedPathArray changedPaths;
 	try
 	{
-		if (log_entry->changed_paths2 != NULL)
-		{
-			apr_array_header_t *sorted_paths 
-				= svn_sort__hash (log_entry->changed_paths2, svn_sort_compare_items_as_paths, pool);
-
-			for (int i = 0, count = sorted_paths->nelts; i < count; ++i)
-			{
-				// find the item in the hash
-
-				std::auto_ptr<LogChangedPath> changedPath (new LogChangedPath);
-				svn_sort__item_t *item = &(APR_ARRAY_IDX ( sorted_paths
-					, i
-					, svn_sort__item_t));
-
-				// extract the path name
-
-				const char *path = (const char *)item->key;
-				changedPath->sPath = SVN::MakeUIUrlOrPath (path);
-
-				// decode the action
-
-				svn_log_changed_path2_t *log_item 
-					= (svn_log_changed_path2_t *) apr_hash_get ( log_entry->changed_paths2
-					, item->key
-					, item->klen);
-				static const char actionKeys[5] = "AMRD";
-				const char* actionKey = strchr (actionKeys, log_item->action);
-
-				changedPath->action = actionKey == NULL 
-					? 0
-					: 1 << (actionKey - actionKeys);
-
-                // extract the node kind
-
-                changedPath->nodeKind = log_item->node_kind;
-
-				// decode copy-from info
-
-				if (   log_item->copyfrom_path 
-					&& SVN_IS_VALID_REVNUM (log_item->copyfrom_rev))
-				{
-					changedPath->lCopyFromRev = log_item->copyfrom_rev;
-					changedPath->sCopyFromPath 
-						= SVN::MakeUIUrlOrPath (log_item->copyfrom_path);
-				}
-				else
-				{
-					changedPath->lCopyFromRev = 0;
-				}
-				changedPath->nodeKind = log_item->node_kind;
-				changedPaths.Add (changedPath.release());
-			} 
-		} 
-        else if (log_entry->changed_paths != NULL)
+        if (log_entry->changed_paths != NULL)
 		{
 			apr_array_header_t *sorted_paths 
 				= svn_sort__hash (log_entry->changed_paths, svn_sort_compare_items_as_paths, pool);
@@ -252,7 +196,7 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 				{
 					changedPath->lCopyFromRev = 0;
 				}
-				changedPath->nodeKind = svn_node_unknown;
+
 				changedPaths.Add (changedPath.release());
 			} 
 		} 
@@ -328,16 +272,6 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
                    , includeStandardRevProps
                    , includeUserRevProps};
 
-    // list of revision ranges to fetch 
-    // (as of now, there is only one such range)
-
-    svn_opt_revision_range_t revision_range = {*start, *end};
-
-    apr_array_header_t* revision_ranges 
-        = apr_array_make (localpool, 1, sizeof(apr_array_header_t*));
-    *(svn_opt_revision_range_t**)apr_array_push (revision_ranges) 
-        = &revision_range;
-
     // build list of revprops to fetch. Fetch all of them
     // if all user-revprops are requested but no std-revprops
     // (post-filter before them passing to the receiver)
@@ -387,13 +321,14 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
         }
     }
 
-	svn_error_t *result = svn_client_log5 ( targets.MakePathArray (localpool)
+	svn_error_t *result = svn_client_log4 ( targets.MakePathArray (localpool)
 										  , peg_revision
-                                          , revision_ranges
+										  , start
+										  , end
 										  , limit
-										  , includeChanges
-										  , strictNodeHistory
-										  , includeMerges
+                                          , includeChanges ? TRUE : FALSE
+										  , strictNodeHistory ? TRUE : FALSE
+                                          , includeMerges ? TRUE : FALSE
                                           , revprops
 										  , LogReceiver
 										  , (void *)&baton
@@ -401,10 +336,6 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
 										  , localpool);
 
     if (result != NULL)
-	{
-		SVNError up = SVNError (result);
-		svn_error_clear (result);
-		throw up;
-	}
+		throw SVNError (result);
 }
 

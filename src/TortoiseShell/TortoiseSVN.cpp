@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "ShellExt.h"
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
-#include "ShellObjects.h"
 #include "svn_dso.h"
 
 UINT				g_cRefThisDll = 0;				///< reference count of this DLL.
@@ -30,7 +29,7 @@ ShellCache			g_ShellCache;					///< caching of registry entries, ...
 DWORD				g_langid;
 DWORD				g_langTimeout = 0;
 HINSTANCE			g_hResInst = NULL;
-tstring			g_filepath;
+stdstring			g_filepath;
 svn_wc_status_kind	g_filestatus = svn_wc_status_none;	///< holds the corresponding status to the file/dir above
 bool				g_readonlyoverlay = false;
 bool				g_lockedoverlay = false;
@@ -47,8 +46,7 @@ bool				g_unversionedovlloaded = false;
 CComCriticalSection	g_csGlobalCOMGuard;
 
 LPCTSTR				g_MenuIDString = _T("TortoiseSVN");
-
-ShellObjects		g_shellObjects;
+extern std::set<CShellExt *> g_exts;
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
@@ -103,7 +101,12 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 		// in that case, we do it ourselves
 		if (g_cRefThisDll > 0)
 		{
-			g_shellObjects.DeleteAll();
+			std::set<CShellExt *>::iterator it = g_exts.begin();
+			while (it != g_exts.end())
+			{
+				delete *it;
+				it = g_exts.begin();
+			}
 			while (g_cAprInit--)
 			{
 				g_SVNAdminDir.Close();
@@ -151,7 +154,7 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
     if (state != FileStateInvalid)
     {
 		apr_initialize();
-		svn_dso_initialize2();
+		svn_dso_initialize();
 		g_SVNAdminDir.Init();
 		g_cAprInit++;
 		

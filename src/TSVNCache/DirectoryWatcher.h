@@ -51,7 +51,7 @@ public:
 	 * watched recursively, then the new path is just ignored and the method
 	 * returns false.
 	 */
-	bool AddPath(const CTSVNPath& path, bool bCloseInfoMap = true);
+	bool AddPath(const CTSVNPath& path);
 	/**
 	 * Removes a path and all its children from the watched list.
 	 */
@@ -76,29 +76,16 @@ public:
 	 */
 	void Stop();
 
-	CTSVNPath CloseInfoMap(HDEVNOTIFY hdev);
-	void ClearInfoMap();
+	CTSVNPath CloseInfoMap(HDEVNOTIFY hdev = INVALID_HANDLE_VALUE);
 	bool CloseHandlesForPath(const CTSVNPath& path);
 
 private:
 	static unsigned int __stdcall ThreadEntry(void* pContext);
 	void WorkerThread();
 
-    void CloseWatchHandles();
+	void ClearInfoMap();
 
 	void BlockPath(const CTSVNPath& path);
-
-    // close handle (if open) and
-    // release all async I/O objects
-
-    void CloseCompletionPort();
-
-    // enqueue the info object for deletion as soon as the 
-    // completion port is no longer used
-
-    class CDirWatchInfo;
-    void ScheduleForDeletion (CDirWatchInfo* info);
-    void CleanupWatchInfo();
 
 private:
 	CComAutoCriticalSection	m_critSec;
@@ -139,12 +126,8 @@ private:
 		HDEVNOTIFY	m_hDevNotify;	///< Notification handle
 	};
 
-    typedef std::map<HANDLE, CDirWatchInfo *> TInfoMap;
-	TInfoMap watchInfoMap;
+	std::map<HANDLE, CDirWatchInfo *> watchInfoMap;
 	
 	HDEVNOTIFY		m_hdev;
 
-    // scheduled for deletion upon the next CleanupWatchInfo()
-
-    std::vector<CDirWatchInfo*> infoToDelete;
 };

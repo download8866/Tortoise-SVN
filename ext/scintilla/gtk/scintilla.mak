@@ -62,7 +62,7 @@ ALL_GTK_LIBS=$(GTK_TOP)/gtk+/gtk/gtk-1.3.lib \
 !ENDIF
 
 INCLUDEDIRS=-I ../include -I ../src $(GTK_INCLUDES)
-CXXFLAGS=/TP /W4 -EHsc -DGTK -D_CRT_SECURE_NO_DEPRECATE=1
+CXXFLAGS=/TP /W4 -DGTK -D_CRT_SECURE_NO_DEPRECATE=1
 CFLAGS=/W4 -DGTK
 # For something scary:/Wp64
 CXXDEBUG=/Zi /Od /MDd -DDEBUG
@@ -90,7 +90,7 @@ LD=ilink32
 
 INCLUDEDIRS=-I../include -I../src
 CXXFLAGS =  -v
-CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x
+CXXFLAGS=-P -tWM -w -w-prc -w-inl -RT- -x-
 # Above turns off warnings for clarfying parentheses and inlines with for not expanded
 CXXDEBUG=-v -DDEBUG
 CXXNDEBUG=-O1 -DNDEBUG
@@ -158,7 +158,6 @@ LEXOBJS=\
 	$(DIR_O)\LexCaml.obj \
 	$(DIR_O)\LexCLW.obj \
 	$(DIR_O)\LexCmake.obj \
-	$(DIR_O)\LexCOBOL.obj \
 	$(DIR_O)\LexConf.obj \
 	$(DIR_O)\LexCPP.obj \
 	$(DIR_O)\LexCrontab.obj \
@@ -186,8 +185,6 @@ LEXOBJS=\
 	$(DIR_O)\LexMMIXAL.obj \
 	$(DIR_O)\LexMPT.obj \
 	$(DIR_O)\LexMSSQL.obj \
-	$(DIR_O)\LexMySQL.obj \
-	$(DIR_O)\LexNimrod.obj \
 	$(DIR_O)\LexNsis.obj \
 	$(DIR_O)\LexOpal.obj \
 	$(DIR_O)\LexOthers.obj \
@@ -196,7 +193,6 @@ LEXOBJS=\
 	$(DIR_O)\LexPerl.obj \
 	$(DIR_O)\LexPLM.obj \
 	$(DIR_O)\LexPOV.obj \
-	$(DIR_O)\LexPowerPro.obj \
 	$(DIR_O)\LexPowerShell.obj \
 	$(DIR_O)\LexProgress.obj \
 	$(DIR_O)\LexPS.obj \
@@ -206,14 +202,10 @@ LEXOBJS=\
 	$(DIR_O)\LexRuby.obj \
 	$(DIR_O)\LexScriptol.obj \
 	$(DIR_O)\LexSmalltalk.obj \
-	$(DIR_O)\LexSML.obj \
-	$(DIR_O)\LexSorcus.obj \
 	$(DIR_O)\LexSpecman.obj \
 	$(DIR_O)\LexSpice.obj \
 	$(DIR_O)\LexSQL.obj \
-	$(DIR_O)\LexTACL.obj \
 	$(DIR_O)\LexTADS3.obj \
-	$(DIR_O)\LexTAL.obj \
 	$(DIR_O)\LexTCL.obj \
 	$(DIR_O)\LexTeX.obj \
 	$(DIR_O)\LexVB.obj \
@@ -392,8 +384,6 @@ $(DIR_O)\LexCLW.obj: ..\src\LexCLW.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCmake.obj: ..\src\LexCmake.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexCOBOL.obj: ..\src\LexCOBOL.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexConf.obj: ..\src\LexConf.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexCPP.obj: ..\src\LexCPP.cxx $(LEX_HEADERS)
@@ -448,10 +438,6 @@ $(DIR_O)\LexMPT.obj: ..\src\LexMPT.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexMSSQL.obj: ..\src\LexMSSQL.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexMySQL.obj: ..\src\LexMySQL.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexNimrod.obj: ..\src\LexNimrod.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexNsis.obj: ..\src\LexNsis.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexOpal.obj: ..\src\LexOpal.cxx $(LEX_HEADERS)
@@ -467,8 +453,6 @@ $(DIR_O)\LexPerl.obj: ..\src\LexPerl.cxx $(LEX_HEADERS)
 $(DIR_O)\LexPLM.obj: ..\src\LexPLM.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPOV.obj: ..\src\LexPOV.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexPowerPro.obj: ..\src\LexPowerPro.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexPowerShell.obj: ..\src\LexPowerShell.cxx $(LEX_HEADERS)
 
@@ -488,21 +472,13 @@ $(DIR_O)\LexScriptol.obj: ..\src\LexScriptol.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSmalltalk.obj: ..\src\LexSmalltalk.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexSML.obj: ..\src\LexSML.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexSorcus.obj: ..\src\LexSorcus.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexSpecman.obj: ..\src\LexSpecman.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSpice.obj: ..\src\LexSpice.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexSQL.obj: ..\src\LexSQL.cxx $(LEX_HEADERS)
 
-$(DIR_O)\LexTACL.obj: ..\src\LexTACL.cxx $(LEX_HEADERS)
-
 $(DIR_O)\LexTADS3.obj: ..\src\LexTADS3.cxx $(LEX_HEADERS)
-
-$(DIR_O)\LexTAL.obj: ..\src\LexTAL.cxx $(LEX_HEADERS)
 
 $(DIR_O)\LexTCL.obj: ..\src\LexTCL.cxx $(LEX_HEADERS)
 

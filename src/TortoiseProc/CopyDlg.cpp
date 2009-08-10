@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -94,7 +94,7 @@ BOOL CCopyDlg::OnInitDialog()
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
 	
-	if (SVN::PathIsURL(path))
+	if (SVN::PathIsURL(path.GetSVNPathString()))
 	{
 		DialogEnableWindow(IDC_COPYWC, FALSE);
 		DialogEnableWindow(IDC_DOSWITCH, FALSE);
@@ -118,16 +118,12 @@ BOOL CCopyDlg::OnInitDialog()
 	SetDlgItemText(IDC_FROMURL, m_wcURL);
 	if (!m_URL.IsEmpty())
 		m_URLCombo.SetWindowText(m_URL);
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	CString reg;
 	reg.Format(_T("Software\\TortoiseSVN\\History\\commit%s"), (LPCTSTR)sUUID);
 	m_History.Load(reg, _T("logmsgs"));
 
 	m_ProjectProperties.ReadProps(m_path);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
-
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	if (m_ProjectProperties.sMessage.IsEmpty())
@@ -218,9 +214,9 @@ void CCopyDlg::OnOK()
 	}
 
 	CString id;
-	GetDlgItemText(IDC_BUGID, id);
+	GetDlgItem(IDC_BUGID)->GetWindowText(id);
 	CString sRevText;
-	GetDlgItemText(IDC_COPYREVTEXT, sRevText);
+	GetDlgItem(IDC_COPYREVTEXT)->GetWindowText(sRevText);
 	if (!m_ProjectProperties.CheckBugID(id))
 	{
 		ShowBalloon(IDC_BUGID, IDS_COMMITDLG_ONLYNUMBERS);
@@ -304,17 +300,9 @@ void CCopyDlg::OnCancel()
 	// check if the status thread has already finished
 	if (m_pThread)
 	{
-		WaitForSingleObject(m_pThread->m_hThread, 1000);
-		if (m_bThreadRunning)
-		{
-			// we gave the thread a chance to quit. Since the thread didn't
-			// listen to us we have to kill it.
-			TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-			InterlockedExchange(&m_bThreadRunning, FALSE);
-		}
+		WaitForSingleObject(m_pThread->m_hThread, INFINITE);
 	}
-	if (m_ProjectProperties.sLogTemplate.Compare(m_cLogMessage.GetText()) != 0)
-		m_History.AddEntry(m_cLogMessage.GetText());
+	m_History.AddEntry(m_cLogMessage.GetText());
 	m_History.Save();
 	CResizableStandAloneDialog::OnCancel();
 }
@@ -481,5 +469,4 @@ void CCopyDlg::SetRevision(const SVNRev& rev)
 void CCopyDlg::OnCbnEditchangeUrlcombo()
 {
 	m_bSettingChanged = true;
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 }

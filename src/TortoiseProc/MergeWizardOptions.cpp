@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,7 +45,6 @@ void CMergeWizardOptions::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
 	DDX_Check(pDX, IDC_IGNOREEOL, ((CMergeWizard*)GetParent())->m_bIgnoreEOL);
 	DDX_Check(pDX, IDC_RECORDONLY, ((CMergeWizard*)GetParent())->m_bRecordOnly);
-	DDX_Check(pDX, IDC_FORCE, ((CMergeWizard*)GetParent())->m_bForce);
 }
 
 
@@ -87,7 +86,6 @@ BOOL CMergeWizardOptions::OnInitDialog()
 
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_RECORDONLY, IDS_MERGEWIZARD_OPTIONS_RECORDONLY_TT);
-	m_tooltips.AddTool(IDC_FORCE, IDS_MERGEWIZARD_OPTIONS_FORCE_TT);
 
 	CheckRadioButton(IDC_COMPAREWHITESPACES, IDC_IGNOREALLWHITESPACES, IDC_COMPAREWHITESPACES);
 
@@ -96,20 +94,7 @@ BOOL CMergeWizardOptions::OnInitDialog()
 	AdjustControlSize(IDC_COMPAREWHITESPACES);
 	AdjustControlSize(IDC_IGNOREWHITESPACECHANGES);
 	AdjustControlSize(IDC_IGNOREALLWHITESPACES);
-	AdjustControlSize(IDC_FORCE);
 	AdjustControlSize(IDC_RECORDONLY);
-
-	AddAnchor(IDC_MERGEOPTIONSGROUP, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_MERGEOPTIONSDEPTHLABEL, TOP_LEFT);
-	AddAnchor(IDC_DEPTH, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_IGNOREANCESTRY, TOP_LEFT);
-	AddAnchor(IDC_IGNOREEOL, TOP_LEFT);
-	AddAnchor(IDC_COMPAREWHITESPACES, TOP_LEFT);
-	AddAnchor(IDC_IGNOREWHITESPACECHANGES, TOP_LEFT);
-	AddAnchor(IDC_IGNOREALLWHITESPACES, TOP_LEFT);
-	AddAnchor(IDC_FORCE, TOP_LEFT);
-	AddAnchor(IDC_RECORDONLY, TOP_LEFT);
-	AddAnchor(IDC_DRYRUN, BOTTOM_RIGHT);
 
 	return TRUE;
 }
@@ -142,7 +127,6 @@ BOOL CMergeWizardOptions::OnWizardFinish()
 		((CMergeWizard*)GetParent())->m_depth = svn_depth_empty;
 		break;
 	}
-	((CMergeWizard*)GetParent())->m_IgnoreSpaces = GetIgnores();
 
 	return CMergeWizardBasePage::OnWizardFinish();
 }
@@ -152,27 +136,7 @@ BOOL CMergeWizardOptions::OnSetActive()
 	CPropertySheet* psheet = (CPropertySheet*) GetParent();   
 	psheet->SetWizardButtons(PSWIZB_BACK|PSWIZB_FINISH);
 	SetButtonTexts();
-	CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
-	GetDlgItem(IDC_RECORDONLY)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
-	GetDlgItem(IDC_DEPTH)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
-	GetDlgItem(IDC_FORCE)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
-
-	CString sTitle;
-	switch (pWizard->nRevRangeMerge)
-	{
-	case MERGEWIZARD_REVRANGE:
-		sTitle.LoadString(IDS_MERGEWIZARD_REVRANGETITLE);
-		break;
-	case MERGEWIZARD_TREE:
-		sTitle.LoadString(IDS_MERGEWIZARD_TREETITLE);
-		break;
-	case MERGEWIZARD_REINTEGRATE:
-		sTitle.LoadString(IDS_MERGEWIZARD_REINTEGRATETITLE);
-		break;
-	}
-	sTitle += _T(" : ") + CString(MAKEINTRESOURCE(IDS_MERGEWIZARD_OPTIONSTITLE));
-	SetDlgItemText(IDC_MERGEOPTIONSGROUP, sTitle);
-
+	GetDlgItem(IDC_RECORDONLY)->EnableWindow(((CMergeWizard*)GetParent())->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
 	return CMergeWizardBasePage::OnSetActive();
 }
 
@@ -185,7 +149,6 @@ void CMergeWizardOptions::OnBnClickedDryrun()
 	int options = ProgOptDryRun;
 	options |= pWizard->m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
 	options |= pWizard->m_bRecordOnly ? ProgOptRecordOnly : 0;
-	options |= pWizard->m_bForce ? ProgOptForce : 0;
 	progDlg.SetOptions(options);
 	progDlg.SetPathList(CTSVNPathList(pWizard->wcPath));
 	progDlg.SetUrl(pWizard->URL1);
@@ -230,7 +193,6 @@ void CMergeWizardOptions::OnBnClickedDryrun()
 	}
 
 	progDlg.SetDepth(pWizard->m_depth);
-	pWizard->m_IgnoreSpaces = GetIgnores();
 	progDlg.SetDiffOptions(SVN::GetOptionsString(pWizard->m_bIgnoreEOL, pWizard->m_IgnoreSpaces));
 	progDlg.DoModal();
 }
@@ -239,26 +201,4 @@ BOOL CMergeWizardOptions::PreTranslateMessage(MSG* pMsg)
 {
 	m_tooltips.RelayEvent(pMsg);
 	return CMergeWizardBasePage::PreTranslateMessage(pMsg);
-}
-
-svn_diff_file_ignore_space_t CMergeWizardOptions::GetIgnores()
-{
-	svn_diff_file_ignore_space_t ignores = svn_diff_file_ignore_space_none;
-
-	int rb = GetCheckedRadioButton(IDC_COMPAREWHITESPACES, IDC_IGNOREALLWHITESPACES);
-	switch (rb)
-	{
-	case IDC_IGNOREWHITESPACECHANGES:
-		ignores = svn_diff_file_ignore_space_change;
-		break;
-	case IDC_IGNOREALLWHITESPACES:
-		ignores = svn_diff_file_ignore_space_all;
-		break;
-	case IDC_COMPAREWHITESPACES:
-	default:
-		ignores = svn_diff_file_ignore_space_none;
-		break;
-	}
-
-	return ignores;
 }

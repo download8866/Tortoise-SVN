@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 
 
@@ -49,7 +49,7 @@ protected:
 private:
 	CRegString		m_regExtensions;
 	CString			m_sTempExtensions;
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 	CComboBox		m_LanguageCombo;
 	CRegDWORD		m_regLanguage;
 	DWORD			m_dwLanguage;

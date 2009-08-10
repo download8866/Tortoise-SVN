@@ -77,11 +77,15 @@
 			control, and how Subversion works.
 		</para>
 		<para>
+			Even most Subversion users will never have to set up a server themselves.
+			The next chapter deals with how to set up such a server, and is useful
+			for administrators.
+		</para>
+		<para>
 			The chapter on <xref linkend="tsvn-repository"/> explains how to set up
 			a local repository, which is useful for testing Subversion and TortoiseSVN
 			using a single PC. It also explains a bit about repository administration
 			which is also relevant to repositories located on a server.
-			There is also a section here on how to setup a server if you need one.
 		</para>
 		<para>
 			The <xref linkend="tsvn-dug"/> is the most important section as
@@ -121,16 +125,16 @@
 		</para>
 		<para>
 			TortoiseSVN is an Open Source project. That means you have full
-			read access to the source code of this program. You can browse it
+			access to the source code of this program. You can browse it
 			on this link
 			<ulink url="http://tortoisesvn.tigris.org/svn/tortoisesvn/">
 				<citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle>
 			</ulink>.
-			You will be prompted to enter username and password.
-			The username is <literal>guest</literal>, and the password must be left blank.
-			The most recent version (where we're currently working) is located under
-			<filename>/trunk/</filename>,
-			and the released versions are located under
+			(Username:guest, for password hit enter)
+			The most recent version (where we're currently working) is
+			located under
+			<filename>/trunk/</filename>
+			the released versions are located under
 			<filename>/tags/</filename>.
 		</para>
 	</sect1>
@@ -142,7 +146,7 @@
 		<para>
 			Both TortoiseSVN and Subversion are developed by a community of
 			people who are working on those projects. They come from different
-			countries all over the world and work together to create wonderful
+			countries all over the world and joined together to create wonderful
 			programs.
 		</para>
 	</sect1>

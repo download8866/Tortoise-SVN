@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@ UINT CALLBACK PropPageCallbackProc ( HWND hwnd, UINT uMsg, LPPROPSHEETPAGE ppsp 
 STDMETHODIMP CShellExt::AddPages (LPFNADDPROPSHEETPAGE lpfnAddPage,
                                   LPARAM lParam)
 {
-	for (std::vector<tstring>::iterator I = files_.begin(); I != files_.end(); ++I)
+	for (std::vector<stdstring>::iterator I = files_.begin(); I != files_.end(); ++I)
 	{
-		SVNStatus svn;
+		SVNStatus svn = SVNStatus();
 		if (svn.GetStatus(CTSVNPath(I->c_str())) == (-2))
 			return NOERROR;			// file/directory not under version control
 
@@ -123,7 +123,7 @@ UINT CALLBACK PropPageCallbackProc ( HWND /*hwnd*/, UINT uMsg, LPPROPSHEETPAGE p
 
 // *********************** CSVNPropertyPage *************************
 
-CSVNPropertyPage::CSVNPropertyPage(const std::vector<tstring> &newFilenames)
+CSVNPropertyPage::CSVNPropertyPage(const std::vector<stdstring> &newFilenames)
 	:filenames(newFilenames)
 {
 }
@@ -174,12 +174,12 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 						memset(&startup, 0, sizeof(startup));
 						startup.cb = sizeof(startup);
 						memset(&process, 0, sizeof(process));
-						tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
-						tstring svnCmd = _T(" /command:");
+						CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
+						stdstring svnCmd = _T(" /command:");
 						svnCmd += _T("log /path:\"");
 						svnCmd += filenames.front().c_str();
 						svnCmd += _T("\"");
-						if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+						if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 						{
 							CloseHandle(process.hThread);
 							CloseHandle(process.hProcess);
@@ -192,7 +192,7 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 						TCHAR * tempFile = new TCHAR[pathlength + 100];
 						GetTempPath (pathlength+1, path);
 						GetTempFileName (path, _T("svn"), 0, tempFile);
-						tstring retFilePath = tstring(tempFile);
+						stdstring retFilePath = stdstring(tempFile);
 
 						HANDLE file = ::CreateFile (tempFile,
 							GENERIC_WRITE, 
@@ -202,14 +202,14 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 							FILE_ATTRIBUTE_TEMPORARY,
 							0);
 
-						delete [] path;
-						delete [] tempFile;
+						delete path;
+						delete tempFile;
 						if (file != INVALID_HANDLE_VALUE)
 						{
 							DWORD written = 0;
-							for (std::vector<tstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
+							for (std::vector<stdstring>::iterator I = filenames.begin(); I != filenames.end(); ++I)
 							{
-								::WriteFile (file, I->c_str(), (DWORD)I->size()*sizeof(TCHAR), &written, 0);
+								::WriteFile (file, I->c_str(), I->size()*sizeof(TCHAR), &written, 0);
 								::WriteFile (file, _T("\n"), 2, &written, 0);
 							}
 							::CloseHandle(file);
@@ -219,13 +219,13 @@ BOOL CSVNPropertyPage::PageProc (HWND /*hwnd*/, UINT uMessage, WPARAM wParam, LP
 							memset(&startup, 0, sizeof(startup));
 							startup.cb = sizeof(startup);
 							memset(&process, 0, sizeof(process));
-							tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
-							tstring svnCmd = _T(" /command:");
+							CRegStdString tortoiseProcPath(_T("Software\\TortoiseSVN\\ProcPath"), _T("TortoiseProc.exe"), false, HKEY_LOCAL_MACHINE);
+							stdstring svnCmd = _T(" /command:");
 							svnCmd += _T("properties /pathfile:\"");
 							svnCmd += retFilePath.c_str();
 							svnCmd += _T("\"");
 							svnCmd += _T(" /deletepathfile");
-							if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+							if (CreateProcess(tortoiseProcPath, const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
 							{
 								CloseHandle(process.hThread);
 								CloseHandle(process.hProcess);
@@ -244,7 +244,7 @@ void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf, size_t b
 	TCHAR timebuf[MAX_STRING_LENGTH];
 	TCHAR datebuf[MAX_STRING_LENGTH];
 
-	LCID locale = (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT));
+	LCID locale = (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT));
 	locale = MAKELCID(locale, SORT_DEFAULT);
 
 	*buf = '\0';
@@ -260,7 +260,7 @@ void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf, size_t b
 		systime.wMonth = (WORD)newtime.tm_mon+1;
 		systime.wSecond = (WORD)newtime.tm_sec;
 		systime.wYear = (WORD)newtime.tm_year+1900;
-		if (CRegStdDWORD(_T("Software\\TortoiseSVN\\LogDateFormat")) == 1)
+		if (CRegStdWORD(_T("Software\\TortoiseSVN\\LogDateFormat")) == 1)
 			GetDateFormat(locale, DATE_SHORTDATE, &systime, NULL, datebuf, MAX_STRING_LENGTH);
 		else
 			GetDateFormat(locale, DATE_LONGDATE, &systime, NULL, datebuf, MAX_STRING_LENGTH);
@@ -274,7 +274,7 @@ void CSVNPropertyPage::Time64ToTimeString(__time64_t time, TCHAR * buf, size_t b
 
 void CSVNPropertyPage::InitWorkfileView()
 {
-	SVNStatus svn;
+	SVNStatus svn = SVNStatus();
 	TCHAR tbuf[MAX_STRING_LENGTH];
 	if (filenames.size() == 1)
 	{
@@ -333,9 +333,9 @@ void CSVNPropertyPage::InitWorkfileView()
 				}
 				if (svn.status->entry->cmt_author)
 					SetDlgItemText(m_hwnd, IDC_AUTHOR, UTF8ToWide(svn.status->entry->cmt_author).c_str());
-				SVNStatus::GetStatusString(g_hResInst, svn.status->text_status, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				SVNStatus::GetStatusString(g_hResInst, svn.status->text_status, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 				SetDlgItemText(m_hwnd, IDC_TEXTSTATUS, buf);
-				SVNStatus::GetStatusString(g_hResInst, svn.status->prop_status, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				SVNStatus::GetStatusString(g_hResInst, svn.status->prop_status, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 				SetDlgItemText(m_hwnd, IDC_PROPSTATUS, buf);
 				time = (__time64_t)svn.status->entry->text_time/1000000L;
 				Time64ToTimeString(time, buf, MAX_STRING_LENGTH);
@@ -354,7 +354,7 @@ void CSVNPropertyPage::InitWorkfileView()
 					SetDlgItemText(m_hwnd, IDC_REPOUUID, UTF8ToWide(svn.status->entry->uuid).c_str());
 				if (svn.status->entry->changelist)
 					SetDlgItemText(m_hwnd, IDC_CHANGELIST, UTF8ToWide(svn.status->entry->changelist).c_str());
-				SVNStatus::GetDepthString(g_hResInst, svn.status->entry->depth, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				SVNStatus::GetDepthString(g_hResInst, svn.status->entry->depth, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
 				SetDlgItemText(m_hwnd, IDC_DEPTHEDIT, buf);
 
 				if (svn.status->entry->checksum)
@@ -377,21 +377,9 @@ void CSVNPropertyPage::InitWorkfileView()
 				else
 					MAKESTRING(IDS_NO);
 				SetDlgItemText(m_hwnd, IDC_SWITCHED, stringtablebuffer);
-
-				if (svn.status->file_external)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_FILEEXTERNAL, stringtablebuffer);
-
-				if (svn.status->tree_conflict)
-					MAKESTRING(IDS_YES);
-				else
-					MAKESTRING(IDS_NO);
-				SetDlgItemText(m_hwnd, IDC_TREECONFLICT, stringtablebuffer);
-			}
-		}
-	}
+			} // if (svn.status->entry != NULL)
+		} // if (svn.GetStatus(CTSVNPath(filenames.front().c_str()))>(-2))
+	} // if (filenames.size() == 1) 
 	else if (filenames.size() != 0)
 	{
 		//deactivate the show log button
@@ -419,8 +407,6 @@ void CSVNPropertyPage::InitWorkfileView()
 				SetDlgItemText(m_hwnd, IDC_LOCKED, _T(""));
 				SetDlgItemText(m_hwnd, IDC_COPIED, _T(""));
 				SetDlgItemText(m_hwnd, IDC_SWITCHED, _T(""));
-				SetDlgItemText(m_hwnd, IDC_FILEEXTERNAL, _T(""));
-				SetDlgItemText(m_hwnd, IDC_TREECONFLICT, _T(""));
 
 				SetDlgItemText(m_hwnd, IDC_DEPTHEDIT, _T(""));
 				SetDlgItemText(m_hwnd, IDC_CHECKSUM, _T(""));

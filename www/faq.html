@@ -18,19 +18,6 @@
 
 <h1>TortoiseSVN FAQ</h1>
 
-<p>Translations: <a href="faq.zh.html">&#31616;&#20307;&#20013;&#25991;</a></p>
-
-<script type="text/javascript"><!--
-google_ad_client = "pub-0430507460695576";
-/* 300x250, tigris, main page */
-google_ad_slot = "0800347829";
-google_ad_width = 300;
-google_ad_height = 250;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
-</script>
 
 <div class="h2"><!-- no 'id' or 'title' attribute for TOC -->
 <h2>Table of Contents</h2>
@@ -55,12 +42,11 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <li><a href="#ovlsubst">Why are the overlay icons on SUBSTed drives messed up?</a></li>
 <li><a href="#ovlwrong">Why are the overlays showing the wrong status?</a></li>
 <li><a href="#ovlmessed">Why do the overlay icons sometimes change to random graphics?</a></li>
-<li><a href="#ovlremote">Why is there no overlay for 'update available' or 'locked by others'?</a></li>
 </ul>
 
 <h4>General questions:</h4>
 <ul>
-<li><a href="#hundredcpu">100% CPU, when I right-click on a file.</a></li>
+<li><a href="#100cpu">100% CPU, when I right-click on a file.</a></li>
 <li><a href="#repoonshare">Can I create a local repository on a network directory?</a></li>
 <li><a href="#reponoserver">Can I keep my repository on a network share instead of setting up a server?</a></li>
 <li><a href="#listparentpath">Can I get a list of all the repositories on my Server?</a></li>
@@ -71,19 +57,11 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <li><a href="#multiplemenus">I get multiple TortoiseSVN context menu entries when I right click on a link!</a></li>
 <li><a href="#sharedfiles">Is it possible to use 'Shared Files' like in Visual Source Safe?</a></li>
 <li><a href="#noserver">Is it possible to use TortoiseSVN without a server?</a></li>
-<li><a href="#username">Is there a way to send username &amp; password when using TortoiseProc?</a></li>
+<li><a href="#username">Is there a way to send username & password when using TortoiseProc?</a></li>
 <li><a href="#revisiongraph">How does the revision graph work?</a></li>
 <li><a href="#noauthor">Why is there no 'author' shown in the logs when I commit changes via svn+ssh?</a></li>
 <li><a href="#detectmodification">Why does TortoiseSVN not recognize that a file has been modified?</a></li>
 <li><a href="#commitremoved">When I remove a file it vanishes, how do I commit it?</a></li>
-<li><a href="#garbleddate">I get garbage text shown instead of dates, or a checkout/update even crashes!</a></li>
-<li><a href="#powerdesk">The explorer crashes on every right-click on a folder with PowerDesk installed.</a></li>
-<li><a href="#samba">Permission problems with working copies on a SAMBA share.</a></li>
-<li><a href="#slowbrowse">Browsing very slow in explorer and file/open dialog.</a></li>
-<li><a href="#bugtraq">The bugtraq: properties don't work for dialogs started from the repository browser.</a></li>
-<li><a href="#logcrash">Showing the log often crashes.</a></li>
-<li><a href="#incompleteupdate">When I update a working copy, new files are not added!</a></li>
-<li><a href="#releases">I was told that issue/bug X was fixed in rXXX, but the latest release still doesn't has this implemented/fixed?</a></li>
 </ul>
 
 <h4>How can I...</h4>
@@ -105,14 +83,13 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <li><a href="#cantmove">Can't copy / move 'XXX.svn-base' to 'XXX.tmp': The system cannot find the file specified.</a></li>
 <li><a href="#inuse">Can't open file 'XXX\nnn-n.txn\changes': The process cannot access the file because it is being used by another process</a></li>
 <li><a href="#alreadyexists">Failed to add 'XXX': object of the same name already already exists</a></li>
-<li><a href="#four01">OPTIONS of '&lt;path&gt;': 401 Authorization Required &lt;url&gt;</a></li>
+<li><a href="#401">OPTIONS of '&lt;path&gt;': 401 Authorization Required &lt;url&gt;</a></li>
 <li><a href="#clientold">This client is too old to work with working copy 'XXX'</a></li>
 <li><a href="#wcoutofdate">Working copy is out-of-date</a></li>
 <li><a href="#standardout">Unable to write to Standard output</a></li>
-<li><a href="#four00">400 Bad Request</a></li>
-<li><a href="#four03">403 Forbidden</a></li>
-<li><a href="#four05">405 HTTP Method Not Allowed</a></li>
-<li><a href="#sshclosed">SSH connection closed unexpectedly.</a></li>
+<li><a href="#400">400 Bad Request</a></li>
+<li><a href="#403">403 Forbidden</a></li>
+<li><a href="#405">405 HTTP Method Not Allowed</a></li>
 </ul>
 <hr/>
 
@@ -158,7 +135,7 @@ if your domain administrator disabled it.</p>
 
 <div class="h3" id="whymsi" title="whymsi">
 <h3>Why are you using MSI instead of an exe or no installer at all?</h3>
-<p>There are several reasons why we use MSI as our installer instead of something else:</p>
+<p>There are several reasons why we use MSI as our installer instead of something else:
 <ul>
 <li>It's open. Everybody can see what we're doing by using msi tools like Orca.</li>
 <li>It's easy to adjust an existing msi for your special needs if you like. There are tools with which you can edit an msi manually. You can't do that with an exe installer.</li>
@@ -169,11 +146,12 @@ if your domain administrator disabled it.</p>
 <li>msi takes care of reference counting of installed modules which prevents the so called <a href="http://en.wikipedia.org/wiki/DLL_hell">dll hell</a>.</li>
 <li>an installer is required since we have to <b>register</b> TortoiseSVN with the shell. A simple exe for you to run wouldn't work.</li>
 </ul>
+</p>
 </div>
 
 <div class="h3" id="installerror" title="installerror">
 <h3>The installer aborts with an error message</h3>
-<p>There are several reasons why the installation cannot succeed:</p>
+<p>There are several reasons why the installation cannot succeed:
 <ul>
 <li><em>&quot;This installation package is not supported by this processor type. Contact your product vendor.&quot;</em> This means you are trying to install the 64-bit version of TortoiseSVN on a normal 32-bit operating system. You need to download and use the correct msi file for your OS. For normal 32-bit OS, make sure the msi file does not have an <em>x64</em> in it.</li>
 <li><em>&quot;The installer was interrupted before TortoiseSVN could be installed. You need to restart the installer to try again&quot;</em>Then the user SYSTEM doesn't have read/execution rights in the folder where the installer msi is located. Either move the msi file to another location or give the user SYSTEM read and execution rights.</li>
@@ -183,7 +161,6 @@ if your domain administrator disabled it.</p>
 	<li>The installation does not have access to the Temp directory or if the default Temp directory of the machine is not clean or does not have enough space to run the setup.</li>
 	<li>The installation is being run over a terminal Server via a mapped network drive.</li>
 	<li>The installation is unable to create or write to the Installer directory in a Windows NT system environment.</li>
-	<li>The temp folder and/or the msi file is encrypted/compressed</li>
 	</ul>
 	To solve this problem, clear the temp folder, move the installer msi file to your local harddrive where the user SYSTEM has full access rights. The following knowledge base articles may help:
 	<ul>
@@ -191,11 +168,11 @@ if your domain administrator disabled it.</p>
 	<li><a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;217714">217714</a> OFF2000: Setup Appears to Stop Responding, Followed by Internal Error 2336 or 2755</li>
 	<li><a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;254841">254841</a> OFF2000: Internal Error 2755, When You Try to Install from a Remote Windows Terminal Server Client</li>
 	<li><a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;305640">305640</a> PRJ2000: Internal Error 2381 or Internal Error 2755 When You Install Microsoft Project</li>
-	<li><a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;318080">318080</a> "The system cannot open the device or file specified" error message occurs when you try to install the .NET Framework</li>
 	</ul>
 	</li>
 <li><em>&quot;This installation package cannot be installed by the Windows Installer service. You must install a Windows service pack that contains a newer version of the Windows Installer service.</em> You need at least <a href="http://support.microsoft.com/kb/893803/">version 3 of the msi installer</a>.</li>
 </ul>
+</p>
 </div>
 
 <div class="h3" id="nomenus" title="nomenus">
@@ -213,11 +190,12 @@ if your domain administrator disabled it.</p>
 
 <div class="h3" id="ovlnotshowing" title="ovlnotshowing">
 <h3>Why don't the icon overlays appear?</h3>
+<p>
 <ul>
 <li>You rebooted your PC of course after the installation? If you haven't please do so now. TortoiseSVN is a windows Explorer Shell extension and will be loaded together with Explorer.</li>
 <li>Go to the settings of TSVN and activate the icon overlays for at least the fixed drives. The installer does this automatically for the <em>current</em> user (can't do it for other users...) but since you are using TSVN as a different user than you installed it you need to set this manually.</li>
 </ul>
-</div>
+</p>
 
 <div class="h3" id="ovlnotall" title="ovlnotall">
 <h3>The overlay icons appear, but not all of them!</h3>
@@ -227,7 +205,7 @@ the number of overlays allowed by Windows is limited to 15. Windows uses 4 of
 those, and the remaining 11 can be used by other applications. If you are also 
 using TortoiseCVS, then there are not enough overlay slots available, so 
 TortoiseSVN tries to be a "Good Citizen (TM)"? and limits its use of overlays 
-to give other apps a chance.</p>
+to give other apps a chance.
 <ul>
 <li>Normal, Modified and Conflicted are always loaded and visible.</li>
 <li>Deleted is loaded if possible, but falls back to Modified if there are not enough slots.</li>
@@ -235,6 +213,7 @@ to give other apps a chance.</p>
 <li>Locked is only loaded if there are less than 13 overlays already loaded. It falls back to Normal if there are not enough slots.</li>
 <li>Added is only loaded if there are less than 14 overlays already loaded. It falls back to Modified if there are not enough slots.</li>
 </ul>
+</p>
 </div>
 
 <div class="h3" id="ovlonlylocal" title="ovlonlylocal">
@@ -254,7 +233,6 @@ are two status fetchings for the same working copy at the same time.</p>
 <p>There is an easy way to solve this: just exclude the original path from 
 showing overlays (settings->icon overlays->exclude paths).</p>
 <p>For example, if you have mapped \\station\folder\wc to g: then put "\\station\folder\wc*" as the exclude pattern.</p>
-<p>Another way to make the overlays work is to set the "Status cache" setting from "Default" to "Shell". </p>
 </div>
 
 <div class="h3" id="ovlwrong" title="ovlwrong">
@@ -289,29 +267,15 @@ few seconds for the treeview to update the overlay icons.</p>
 <div class="h3" id="ovlmessed" title="ovlmessed">
 <h3>Why do the overlay icons sometimes change to random graphics?</h3>
 <p>
-The Windows icon cache is a fairly buggy creature. You can solve this in one of the following ways:</p>
+The Windows icon cache is a fairly buggy creature. You can solve this in one of the following ways:
 <ul>
 <li>Install Microsoft's <a href='http://www.microsoft.com/ntworkstation/downloads/powertoys/networking/nttweakui.asp'>TweakUI</a> and run the option to rebuild icons.</li>
 <li>Or increase the icon cache size. Go to <code>HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer</code> and add a new String Value called <code>Max Cached Icons</code>. The default value is 500 - try increasing it to 2048 (see <a href='http://support.microsoft.com/support/kb/articles/Q132/6/68.asp'>Q132668</a> in the Microsoft knowledge base for more details). </li>
 <li>Or delete the file called ShellIconCache in your Windows directory. And reboot.</li>
 <li>With TortoiseSVN 1.3.0 and later, you can also rebuild the icon cache by calling TortoiseProc from the command line like this <code>TortoiseProc.exe /command:rebuildiconcache</code></li>
 </ul>
+</p>
 </div>
-
-<div class="h3" id="ovlremote" title="ovlremote">
-<h3>Why is there no overlay for 'update available' or 'locked by others'?</h3>
-<p>
-To show such an overlay, TortoiseSVN would have to contact the repository every time the overlay is shown. 
-That would make explorer impossibly slow. Servers often take several seconds to respond, 
-sometimes minutes - do you really want explorer to hang while that takes place, 
-every time you open a versioned folder?</p>
-<p>A fundamental design feature of TortoiseSVN is that the repository is never 
-contacted except when explicitly requested by one of the context menu items. 
-Even with that restriction, it is still hard work maintaining a fast response.</p>
-<p>If you want to see which users have files locked in their working copies or which files need updating, 
-use the Check for Modifications dialog and click on the Check repository button.</p>
-</div>
-
 
 </div>
 
@@ -319,7 +283,7 @@ use the Check for Modifications dialog and click on the Check repository button.
 <h2>Overlay icons</h2>
 <p/>
 
-<div class="h3" id="hundredcpu" title="hundredcpu">
+<div class="h3" id="100cpu" title="100cpu">
 <h3>100% CPU, when I right-click on a file.</h3>
 <p>Every time I right click on a file, the CPU goes to 100% (whilst the right click 
 menu is displayed.) If I select something from the menu, CPU goes back to normal. 
@@ -328,14 +292,13 @@ If I right click on 'nothing' then the CPU is OK. What is happening?</p>
 you access the context menu under certain configurations. This bug causes 
 file-copy operations to halt, network connections to slow, and streaming media 
 (e.g., audio, video) to become distorted. To work around this bug, you need to 
-disable the GUI's transition effects by performing the following steps:</p>
+disable the GUI's transition effects by performing the following steps:
 <ol>
 <li>Start the Control Panel Display applet.</li>
 <li>Select the Appearance tab.</li>
 <li>Click Effects, then clear the "Use the following transition effect for menus and tooltips" check box.</li>
 <li>Click OK to close all dialog boxes.</li>
 </ol>
-<p>
 Another solution that often works is to left-click the file or folder before right-clicking to display the context menu.
 </p>
 </div>
@@ -355,7 +318,7 @@ as you would use a local hard drive. The next FAQ item explains why sharing a re
 in this way is a Bad Idea (TM). Unless you have really pressing reasons to keep your 
 repository on a network share it is generally best to avoid doing so.</p>
 <p>If you <em>really</em> need to access an FSFS repository on a network share you
-should do one of the following:</p>
+should do one of the following:
 <ol>
 <li>Use drive mapping using the syntax below:
 <dl>
@@ -365,14 +328,15 @@ should do one of the following:</p>
 </li>
 <li>Specify a UNC path directly using the syntax below:
 <dl>
-<dt>Subversion &gt;= 1.2</dt>
+<dt>Subversion >= 1.2</dt>
 <dd><strong>file://server/shared/repos</strong> (2 leading slashes)</dd>
-<dt>Subversion &lt; 1.2 (strange syntax, we know)</dt>
+<dt>Subversion < 1.2 (strange syntax, we know)</dt>
 <dd><strong>file://///server/shared/repos</strong> (5 leading slashes)</dd>
 <dd><strong>file:///\server/shared/repos</strong> (3 slashes + backslash)</dd>
 </dl>
 </li>
 </ol>
+</p>
 <p>But don't say we didn't warn you ...</p>
 </div>
 
@@ -381,7 +345,7 @@ should do one of the following:</p>
 <p>If you need multiple computers to access the repository, you can in theory create 
 an FSFS repository (<strong>but not a BDB repository</strong>) on a network share 
 and access it using file:// protocol.
-In practice this is <strong>not</strong> recommended for four very good reasons:</p>
+In practice this is <strong>not</strong> recommended for three very good reasons:
 <ol>
 <li>You are giving direct write access to all users, so they could accidentally 
 delete or corrupt the repository file system.</li>
@@ -389,20 +353,13 @@ delete or corrupt the repository file system.</li>
 One day you will find your repository has been subtly corrupted.</li>
 <li>You have to set the access permissions in just the right way. 
 SAMBA is particularly difficult in this respect.</li>
-<li>If one person installs a newer version of the client which upgrades the repository
-format, then everyone else will be unable to access the repository until they also
-upgrade to the new client version.</li>
 </ol> 
+</p>
 <p>By far the best way is to set up a real server process (such as Apache or svnserve), 
 store the repository on a local filesystem which the server can access, and make the 
 repository server available over a network. It is easier than you might think. 
 <a title='Chapter 6. Server Configuration' href='http://svnbook.red-bean.com/en/1.4/svn.serverconfig.html'>Chapter 6, Server Configuration</a> 
-in the Subversion Book covers this process in detail. We also have a chapter on
-<a title='Setting up a server' href='http://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-serversetup.html'>setting up a server</a>
-in our own docs.</p>
-<p>You can find a user-friendly server installer as part of the
-<a title='CollabNet server download' href='http://www.collab.net/downloads/subversion/'>CollabNet server package</a>
-or you can download <a title='VisualSVN' href='http://www.visualsvn.com/server/'>VisualSVN</a>.</p>
+in the Subversion Book covers this process in detail.</p>
 </div>
 
 <div class="h3" id="listparentpath" title="listparentpath">
@@ -416,7 +373,7 @@ lesser degree, with the command-line 'svn' client. Doing a 'svn ls' or
 equivalent and being able to see what repositories and projects are hosted on a 
 specific versioning system would be very useful.</p>
 <p>Unfortunately, this is a limitation in the Subversion libraries that both the 
-command-line client and TortoiseSVN use. It does not have the capability to 
+command-line client and TortoiseSVN uses. It does not have the capability to 
 arbitrarily enumerate repositories on a server.</p>
 <p>Some might even argue that the lack of this feature is incitement for end 
 users to just jumble everything into one big repository, when it would be more 
@@ -433,7 +390,7 @@ clients is identical.</p>
 the Subversion library. The version of the Subversion library that TortoiseSVN uses
 is indicated in the filename of the installer, other clients have similar indications.
 You have to make sure that those versions match each other in the first two digits.
-For example, all clients using Subversion 1.6.x can be used together (the 'x' indicates
+For example, all clients using Subversion 1.5.x can be used together (the 'x' indicates
 that this number is not relevant for compatibility).</p>
 <p>You must also be sure that all the clients are built for the same OS. 
 Client compatibility is only guaranteed for a particular OS type and metadata 
@@ -443,7 +400,7 @@ network you must <em>not</em> use a Linux and a Windows client on the same worki
 copy.</p>
 </div>
 
-<div class="h3" id="eol" title="eol">
+<div class="eol" title="eol">
 <h3>Can TortoiseSVN convert line breaks in text files on the fly?</h3>
 <p>
 Check the subversion book about the svn:eol-style property <a title='svn:eol-style' href='http://svnbook.red-bean.com/en/1.4/svn.advanced.props.file-portability.html#svn.advanced.props.special.eol-style'>here</a>.
@@ -507,7 +464,7 @@ in the <a href="http://svnbook.red-bean.com/">Subversion Book</a>.
 </div>
 
 <div class="h3" id="username" title="username">
-<h3>Is there a way to send username &amp; password when using TortoiseProc?</h3>
+<h3>Is there a way to send username & password when using TortoiseProc?</h3>
 <p>TortoiseSVN is a GUI client, therefore it will ask you for username and 
 password in case it's needed. If you want to automate access to your repository 
 without user interaction (i.e. without having to enter username and password 
@@ -564,124 +521,29 @@ svn+ssh://username@server.com. You should do that when you check out your workin
 file has been modified, please first check whether the file really differs from 
 what you have in your working copy.</p>
 <p>If you know for sure that the file has modifications and it still does not 
-show up as modified in the commit dialog, make sure that</p>
+show up as modified in the commit dialog, make sure that
 <ul>
 <li>the file 'last modification' date has changed (some tools like hex editors like to reset that time)</li>
 <li>if the svn:eol-style property is set and the changes are only to newlines, the file won't show up as modified because for Subversion it hasn't changed</li>
 </ul>
-<p>Subversion determines whether a file has changed with the following approach:</p>
+Subversion determines whether a file has changed with the following approach:
 <ol>
 <li>has the 'last modification' date  and/or the file size changed?</li>
 <li>if not: file is not modified</li>
 <li>if yes: compare file content with the BASE file</li>
 <li>stop at the first byte that differs, mark the file as modified</li>
 <li>if no byte differs regarding to BASE, mark the file as not-modified</li>
-</ol>
+</ol></p>
 </div>
 
-<div class="h3" id="commitremoved" title="commitremoved">
+<div class="h3" it="commitremoved" title="commitremoved">
 <h3>When I remove a file it vanishes, how do I commit it?</h3>
 <p>Easy, you commit the whole directory! <cite>Right-click</cite> in the Explorer 
 window next to the file, and choose <cite>commit</cite>. The commit dialog will 
 show you every modification as well as added or deleted files.</p>
 </div>
 
-<div class="h3" id="garbleddate" title="garbleddate">
-<h3>I get garbage text shown instead of dates, or a checkout/update even crashes!</h3>
-<p>This usually happens after installing XP SP3. To fix this problem, do the following:</p>
-<ol>
-<li>Download tzedit.exe from <a href="http://support.microsoft.com/kb/914387">http://support.microsoft.com/kb/914387</a></li>
-<li>Start tzedit.exe</li>
-<li>Select your time zone from the list (Since all crash reports I got indicated they were from the "Jerusalem" time zone, I assume you'd have to select that)</li>
-<li>click "Edit"</li>
-<li>click "Ok"</li>
-</ol>
-<p>For more information, see <a href="http://tortoisesvn.net/node/330">here</a></p>
-</div>
 
-<div class="h3" id="powerdesk" title="powerdesk">
-<h3>The explorer crashes on every right-click on a folder with PowerDesk installed.</h3>
-<p>This is a bug in PowerDesk. You have to install a patch from their website to fix
-this issue. Go to 
-<a href="http://kb.avanquestusa.com/">http://kb.avanquestusa.com</a> and then search for
-the article named "PowerDesk crashes when right-clicking on some files and folders".
-</p>
-</div>
-
-<div class="h3" id="samba" title="samba">
-<h3>Permission problems with working copies on a SAMBA share.</h3>
-<p>After upgrading to TortoiseSVN 1.5.x or later, you get a lot of "Access denied" errors for most
-of the Subversion commands if your working copy is stored on a SAMBA share.</p>
-<p>Some users reported that the problem went away after they upgraded SAMBA to the latest version.
-If that does not help or you can't upgrade, allow readonly files to be deleted in the SAMBA config file:
-<pre>
-[global]
-<a href="http://us1.samba.org/samba/docs/man/manpages-3/smb.conf.5.html#DELETEREADONLY">delete readonly</a> = yes
-</pre>
-For older versions, try:
-<pre>
-[global]
-create mask = 0644
-<a href="http://us1.samba.org/samba/docs/man/manpages-3/smb.conf.5.html#FORCECREATEMODE">force create mode</a> = 0600
-security mask = 0555
-force security mode = 0600
-</pre>
-
-</p>
-</div>
-
-<div class="h3" id="slowbrowse" title="slowbrowse">
-<h3>Browsing very slow in explorer and file/open dialog.</h3>
-<p>If you have mapped network drives which are not resolved, either because the drive
-is inaccessible, or you have not logged in, file browsing may become unresponsive
-while Windows tries unsuccessfully to access the drive. Either unmap the drive or
-ensure that it can be accessed.</p>
-</div>
-
-<div class="h3" id="bugtraq" title="bugtraq">
-<h3>The bugtraq: properties don't work for dialogs started from the repository browser.</h3>
-<p>This is by design. The repository browser does not read the properties, because that is a
-very slow operation if done remotely. It's only fast enough when read from a local working copy.</p>
-<p>If TortoiseSVN would read those properties directly from the repository, it could take several seconds
-(even minutes!) to fetch them.</p>
-</div>
-
-<div class="h3" id="logcrash" title="logcrash">
-<h3>Showing the log often crashes.</h3>
-<p>The log cache relies on all repositories having different uuids. A detailed 
-explanation about why and what you can do about this is here:
-<a href="http://tortoisesvn.net/node/333">http://tortoisesvn.net/node/333</a>.</p>
-<p>We're aware that many Subversion hosting companies made the mistake of not
-creating new repositories for customers but simply copied a template repository.
-If you're using such a hoster, please tell <b>them</b> to fix this problem.</p>
-</div>
-
-
-<div class="h3" id="incompleteupdate" title="incompleteupdate">
-<h3>When I update a working copy, new files are not added!</h3>
-<p>Between TortoiseSVN 1.6.0 and 1.6.1, added folders were added with a depth
-of "Only this item". This lead to a so called "sparse checkout" of that part
-of your working copy.</p>
-<p>Please update to the latest version of TortoiseSVN to avoid such problems
-in the future.</p>
-<p>To fix your sparse working copy, instead of "Update", use the 
-"Update to revision..." command from the TortoiseSVN submenu (right-click in
-explorer), change the "Update depth" combobox to "Fully recursive".</p>
-</div>
-
-<div class="h3" id="releases" title="releases">
-<h3>I was told that issue/bug X was fixed in rXXX, but the latest release still doesn't has this implemented/fixed?</h3>
-<p>Our release policy is to never introduce new features or resource changes on the stable branch. We work on the trunk, 
-where we fix bugs, introduce new features or change the behavior of features. Only important bugfixes are merged back
-to the stable branch, and the stable branch is where we create our releases from.</p>
-<p>We have this policy to prevent getting new bugs into the stable branch. After all, it's called the <em>stable</em> branch.</p>
-<p>Your requested feature/reported bug, even though it is fixed/implemented on trunk was not merged back to
-the stable branch due to this policy. That's why you don't see the change in the latest release.</p>
-</div>
-
-
-
-</div>
 <div class="h2" id="how-can-i" title="how-can-i">
 <h2>How can I...</h2>
 <p/>
@@ -703,12 +565,12 @@ do not always run as you might expect. A case in point is renaming a file where
 only the case changes, e.g. renaming Makefile to MAKEFILE. You cannot do this 
 easily within your working copy as Subversion requires both names to exist 
 simultaneously for a short time, and Windows cannot support this.</p>
-<p>By far the easiest way is to rename directly using the repository browser:</p>
+<p>By far the easiest way is to rename directly using the repository browser:
 <ol>
 <li>Commit the changes in your working copy.</li>
 <li>Rename the file from UPPERcase to upperCASE directly in the repository using the repository browser.</li>
 <li>Update your working copy.</li>
-</ol>
+</ol></p>
 </div>
 
 <div class="h3" id="editlog" title="editlog">
@@ -723,9 +585,8 @@ rejects changes to author and log message.</p>
 
 <div class="h3" id="clearhistory" title="clearhistory">
 <h3>... clear the drop-down lists in TortoiseSVN?</h3>
-<p>You can clear all the stored data from the settings dialog of TortoiseSVN. 
+<p>>ou can clear all the stored data from the settings dialog of TortoiseSVN. 
 Just click on the corresponding button.</p>
-<p>Single items can be permanently removed from drop-down lists by pressing Shift-Delete.</p>
 </div>
 
 <div class="h3" id="removerepo" title="removerepo">
@@ -752,7 +613,7 @@ xml format, you can use the command line client for that.</p>
 additional tool to do that. You can find the tool <cite>SubWCRev.exe</cite> on 
 the download page on our website or in your TortoiseSVN Folder under <cite>bin</cite>.</p>
 <p>This tool traverses your whole working copy for the most recent revision. 
-Once that revision is found, it replaces all occurrences of the following strings:</p>
+Once that revision is found, it replaces all occurrences of the following strings:
 <dl>
 <dt>$WCREV$</dt>
 <dd>This string will be replaced by the revision number of your working copy.</dd>
@@ -762,7 +623,7 @@ Once that revision is found, it replaces all occurrences of the following string
 <dt>$WCDATE$</dt>
 <dd>Will be replaced by the date of the highest revision in your working copy.</dd>
 </dl>
-<p>As an example, have a look at the file <cite>version.in</cite> in the 
+As an example, have a look at the file <cite>version.in</cite> in the 
 <a href='http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/version.in'>TortoiseSVN source tree</a>.
 This file is used in TortoiseSVN and its resource files. The SubWCRev.exe tool 
 is called from the build script like this:
@@ -778,7 +639,7 @@ version information.</p>
 <p>Some people don't like the fact that Subversion merges changes from others 
 with their own local working copy changes automatically on update. Here's how to 
 force those files into a conflicted state so you can merge manually at your 
-convenience.</p>
+convenience.
 <ol>
 <li>In TortoiseSVN->Settings->Subversion configuration file, click on the edit button.</li>
 <li>Change the [helpers] section by adding
@@ -791,7 +652,7 @@ diff3-cmd = "C:\\false.bat"
 @exit 1 </pre>
 </li>
 </ol>
-<p>This effectively makes auto-merge fail every time, forcing the file into conflict.</p>
+This effectively makes auto-merge fail every time, forcing the file into conflict.</p>
 <p>The reason for the curious 'type %9' line is that the diff3-cmd sends the 
 merged output to stdout. Subversion then takes this and overwrites your local 
 file with the merge results. Adding this line avoids getting an empty local file.</p>
@@ -820,22 +681,23 @@ just abort this dialog.</p>
 
 <div class="h3" id="cantmove" title="cantmove">
 <h3>Can't copy / move 'XXX.svn-base' to 'XXX.tmp': The system cannot find the file specified.</h3>
-<p>This error message typically occurs when you try to update your working copy. The reason for this error is either:</p>
+<p>This error message typically occurs when you try to update your working copy. The reason for this error is either:
 <ul>
 <li>There are actually 2 different files in the repository whose names differ 
-only in case. This <em>cannot</em> work on a Windows checkout, 
+only in case. This <emphasis>cannot</emphasis> work on a Windows checkout, 
 because the Windows file system is not case-sensitive. It is likely that one of 
 the files got added by mistake, so you need to find out which one, make sure 
 there are no changes committed to the wrong file, then delete it.</li>
+or
 <li>There is a file with an illegal (illegal on Windows) filename. For example 
 names like "con", "lpr", "com", etc. are illegal on Windows because those are 
 device names. And of course names with "/\*?:|" and some other special chars 
 in them are also not possible on Windows (NTFS and FAT).</li>
 </ul>
-<p>And yes, we know the error message isn't really helpful in this case. But the 
+And yes, we know the error message isn't really helpful in this case. But the 
 error message comes from the Subversion library, which we can't change on our own.</p>
 <p>There are several ways to solve the problem and to prevent it from happening 
-again. Take a look at these <a href="#casechange">instructions</a>.</p>
+again. Take a look at these <a href="#casechange">instructions</a>. </p>
 </div>
 
 <div class="h3" id="inuse" title="inuse">
@@ -865,14 +727,14 @@ changes. When you update, you end up in a situation (1), where the modified
 local file appears as unversioned. Move it somewhere else, update, then sort 
 out the mess.</li>
 <li>There are actually 2 different files in the repository whose names differ 
-only in case. This <em>cannot</em> work on a Windows checkout, 
+only in case. This <emphasis>cannot</emphasis> work on a Windows checkout, 
 because the Windows file system is not case-sensitive. It is likely that one of 
 the files got added by mistake, so you need to find out which one, make sure 
 there are no changes committed to the wrong file, then delete it.</li>
 </ol>
 </div>
 
-<div class="h3" id="four01" title="four01">
+<div class="h3" id="401" title="401">
 <h3>OPTIONS of '&lt;path&gt;': 401 Authorization Required &lt;url&gt;</h3>
 <p>When upgrading to version 1.4.x, you suddenly can't access your repository 
 anymore. Every try is rejected with the error message: <em>OPTIONS of 'path': 401 Authorization Required 'url'</em></p>
@@ -906,7 +768,7 @@ for the repository access than you use for logging in to your workstations
 with a higher Subversion version, and then try to execute a command with a 
 Subversion client linked with an older version, e.g., you used an 1.4.x client 
 on your working copy, and now you try an svn 1.3.x client on the same working copy.</p>
-<p>The reason for this is that Subversion 1.4 and later upgrade the working copies 
+<p>The reason for this is that Subversion 1.4 and 1.5 upgrade the working copies 
 transparently on every command. But once the working copy format is upgraded, 
 older clients can't access the working copy anymore because they don't know the new format.</p>
 <p>The only solution to 'fix' this is to upgrade whatever client you use and 
@@ -964,7 +826,7 @@ this file (and most likely the other subversion binaries) globally accessible
 to this user.</p>
 </div>
 
-<div class="h3" id="four00" title="four00">
+<div class="h3" id="400" title="400">
 <h3>400 Bad Request</h3>
 <p>REPORT request failed on '...' REPORT of '...': 400 Bad Request (http://...)</p>
 <p>You're behind a firewall which blocks DAV requests. Most firewalls do that.
@@ -978,7 +840,7 @@ can't interfere with (if they don't block the SSL port completely).
 this error.</p>
 </div>
 
-<div class="h3" id="four03" title="four03">
+<div class="h3" id="403" title="403">
 <h3>403 Forbidden</h3>
 <p>PROPFIND request failed: 403 Forbidden</p>
 <p>It's probably because you've entered the parent path of your repository 
@@ -988,7 +850,7 @@ trailing '/' slash, after the repository name.</p>
 <p>For more information about the actual error, seek out the Apache error log.</p>
 </div>
 
-<div class="h3" id="four05" title="four05">
+<div class="h3" id="405" title="405>
 <h3>405 HTTP Method Not Allowed</h3>
 <p>PROPFIND Request Failed - Error 405 HTTP Method Not Allowed</p>
 <p>This message comes in different flavours. You might be seeing this error when:</p>
@@ -1007,35 +869,24 @@ You tried to lock a file in your working copy which no longer exists in the repo
 <p>For more information about what actually caused the error, seek out the Apache error log.</p>
 </div>
 
-<div class="h3" id="sshclosed" title="sshclosed">
-<h3>SVN+SSH: Connection closed unexpectedly</h3>
-<p>It has been reported that svn+ssh connections of the form svn+ssh://username@server.com
-which were previously working, stop working with TortoiseSVN 1.5. This seems to be related
-to plink, and occurs if you have a default hostname set in PuTTY.</p>
-<p>If this is the case you can fix it by using regedit or regedt32 to clear
-HKEY_CURRENT_USER/Software/SimonTatham/Putty/Sessions/Default%20Settings/HostName.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </div>
-
-</div>
-
-</div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>  <!-- h1 -->
-
-</div>	<!-- app -->
 </body>
 </html>

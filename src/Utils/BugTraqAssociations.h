@@ -59,16 +59,15 @@ class CBugTraqAssociations
 	inner_t m_inner;
 
 public:
-	CBugTraqAssociations();
 	~CBugTraqAssociations();
 
-	void Load(LPCTSTR uuid = NULL, LPCTSTR params = NULL);
+	void Load();
 	void Save() const;
 
 	void Add(const CBugTraqAssociation &assoc);
 	void RemoveByPath(const CTSVNPath &path);
 
-	bool FindProvider(const CTSVNPathList &pathList, CBugTraqAssociation *assoc);
+	bool FindProvider(const CTSVNPathList &pathList, CBugTraqAssociation *assoc) const;
 
 	typedef inner_t::const_iterator const_iterator;
 	const_iterator begin() const { return m_inner.begin(); }
@@ -93,7 +92,4 @@ private:
 			return (assoc->GetPath().IsEquivalentToWithoutCase(m_path));
 		}
 	};
-	CString			providerUUID;
-	CString			providerParams;
-	CBugTraqAssociation * pProjectProvider;
 };

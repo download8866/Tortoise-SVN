@@ -15,7 +15,7 @@
 		It is important to understand how branching and merging works in
 		Subversion before you start using it, as it can become quite complex.
 		It is highly recommended that you read the chapter
-		<ulink url="http://svnbook.red-bean.com/en/1.5/svn.branchmerge.html">
+		<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.html">
 			<citetitle>Branching and Merging</citetitle>
 		</ulink>
 		in the Subversion book, which gives a full description and many 
@@ -89,16 +89,6 @@
 					merged back into the main development line. The branch is now
 					redundant and can be deleted.
 				</para>
-				<para>
-					Once you have performed a reintegrate merge you should not
-					continue to use it for development. The reason for this is that
-					if you try to resynchronize your existing branch from trunk later on,
-					merge tracking will see your reintegration as a trunk change
-					that has not yet been merged into the branch, and will try to
-					merge the branch-to-trunk merge back into the branch!
-					The solution to this is simply to create a new branch from trunk
-					to continue the next phase of your development.
-				</para>
 			</listitem>
 		</varlistentry>
 		<varlistentry>
@@ -118,7 +108,7 @@
 					Another use case occurs when you are using vendor branches
 					and you need to merge the changes following a new vendor drop
 					into your trunk code. For more information read the chapter on
-					<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.vendorbr.html">
+					<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.vendorbr.html">
 						<citetitle>vendor branches</citetitle>
 					</ulink>
 					in the Subversion Book.
@@ -155,41 +145,6 @@
 			separated by commas, or a range of revisions separated by a
 			dash, or any combination of these.
 		</para>
-		<important>
-			<para>
-				There is an important difference in the way a revision
-				range is specified with TortoiseSVN compared to the
-				command line client. The easiest way to visualise it is
-				to think of a fence with posts and fence panels.
-			</para>
-			<para>
-				With the command line client you specify the changes
-				to merge using two <quote>fence post</quote> revisions
-				which specify the <emphasis>before</emphasis> and
-				<emphasis>after</emphasis> points.
-			</para>
-			<para>
-				With TortoiseSVN you specify the changeset to merge
-				using <quote>fence panels</quote>. The reason for this
-				becomes clear when you use the log dialog to specify
-				revisions to merge, where each revision appears as
-				a changeset.
-			</para>
-			<para>
-				If you are merging revisions in chunks, the method
-				shown in the subversion book will have you merge
-				100-200 this time and 200-300 next time. With
-				TortoiseSVN you would merge 100-200 this time and
-				201-300 next time.
-			</para>
-			<para>
-				This difference has generated a lot of heat on the
-				mailing lists. We acknowledge that there is a difference
-				from the command line client, but we believe that for the
-				majority of GUI users it is easier to understand the
-				method we have implemented.
-			</para>
-		</important>
 		<para>
 			The easiest way to select the range of revisions you need
 			is to click on <guibutton>Show Log</guibutton>, as this
@@ -212,9 +167,7 @@
 			hopefully you will have made a note of the last revision
 			merged in the log message when you committed the change.
 			In that case, you can use <guibutton>Show Log</guibutton>
-			for the Working Copy to trace that log message.
-			Remembering that we are thinking of revisions as
-			changesets, you should Use the revision after the
+			for the Working Copy to trace that log message. Use the
 			end point of the last merge as the start point for this
 			merge. For example, if you have merged revisions 37 to 39
 			last time, then the start point for this merge should be
@@ -343,7 +296,7 @@
 			differences rather than history-based differences, check the
 			<guilabel>Ignore ancestry</guilabel> box. Read more about this 
 			topic in the Subversion book,
-			<ulink url="http://svnbook.red-bean.com/en/1.5/svn.branchmerge.advanced.html#svn.branchmerge.advanced.ancestry">
+			<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html#svn.branchmerge.copychanges.bestprac.ancestry">
 				<citetitle>Noticing or Ignoring Ancestry</citetitle>
 			</ulink>
 		</para>
@@ -400,9 +353,6 @@
 			If you want to apply another merge at a later time you will need to
 			know what you have already merged, as you do not want to port a
 			change more than once. For more information about this, refer to
-			<!-- NOTE this reference to the 1.4 book is deliberate. This is the
-			     pre-mergetracking stuff which is not covered in version 1.5
-			-->
 			<ulink url="http://svnbook.red-bean.com/en/1.4/svn.branchmerge.copychanges.html#svn.branchmerge.copychanges.bestprac">
 				<citetitle>Best Practices for Merging</citetitle>
 			</ulink>
@@ -456,28 +406,16 @@
 						been merged, future merges which include that revision in the
 						range will skip over it.
 					</para>
-				</listitem>
-				<listitem>
 					<para>
 						When you merge a branch back into trunk, the log dialog
 						can show you the branch commits as part of the trunk
 						log, giving better traceability of changes.
 					</para>
-				</listitem>
-				<listitem>
-					<para>
-						When you show the log dialog from within the merge dialog,
-						revisions already merged are shown in grey.
-					</para>
-				</listitem>
-				<listitem>
 					<para>
 						When showing blame information for a file, you can choose
 						to show the original author of merged revisions, rather than
 						the person who did the merge.
 					</para>
-				</listitem>
-				<listitem>
 					<para>
 						You can mark revisions as <emphasis>do not merge</emphasis>
 						by including them in the list of merged revisions without
@@ -553,19 +491,6 @@
 				</listitem>
 			</orderedlist>
 		</para>
-		<para>
-			If you do not want to use this interactive callback, there is a
-			checkbox in the merge progress dialog <guilabel>Merge non-interactive</guilabel>.
-			If this is set for a merge and the merge would result in a conflict,
-			the file is marked as in conflict and the merge goes on. You will have
-			to resolve the conflicts after the whole merge is finished.
-			If it is not set, then before a file is marked as conflicted you get the
-			chance to resolve the conflict <emphasis>during</emphasis> the merge.
-			This has the advantage that if a file gets multiple merges (multiple
-			revisions apply a change to that file), subsequent merges might succeed
-			depending on which lines are affected. But of course you can't walk away
-			to get a coffee while the merge is running ;)
-		</para>
 	</sect2>
 	<sect2 id="tsvn-dug-merge-all">
 		<title>Merge a Completed Branch</title>
@@ -589,36 +514,6 @@
 			This dialog is very easy. All you have to do is set the options for
 			the merge, as described in <xref linkend="tsvn-dug-merge-options"/>.
 			The rest is done by TortoiseSVN automatically using merge tracking.
-		</para>
-	</sect2>
-	<sect2 id="tsvn-dug-merge-maintenance">
-		<title>Feature Branch Maintenance</title>
-		<para>
-			When you develop a new feature on a separate branch it is a good
-			idea to work out a policy for re-integration when the feature is
-			complete. If other work is going on in <literal>trunk</literal>
-			at the same time you may find that the differences become significant
-			over time, and merging back becomes a nightmare.
-		</para>
-		<para>
-			If the feature is relatively simple and development will not take
-			long then you can adopt a simple approach, which is to keep
-			the branch entirely separate until the feature is complete,
-			then merge the branch changes back into trunk. In the merge wizard
-			this would be a simple <guilabel>Merge a range of revisions</guilabel>,
-			with the revision range being the revision span of the branch.
-		</para>
-		<para>
-			If the feature is going to take longer and you need to account
-			for changes in <literal>trunk</literal>, then you need to keep
-			the branch synchronised. This simply means that periodically
-			you merge trunk changes into the branch, so that the branch
-			contains all the trunk changes <emphasis>plus</emphasis> the
-			new feature. The synchronisation process uses
-			<guilabel>Merge a range of revisions</guilabel>. When the feature
-			is complete then you can merge it back to <literal>trunk</literal>
-			using either <guilabel>Reintegrate a branch</guilabel> or
-			<guilabel>Merge two different trees</guilabel>.
 		</para>
 	</sect2>
 </sect1>

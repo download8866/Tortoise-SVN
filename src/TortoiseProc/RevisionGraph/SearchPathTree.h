@@ -18,11 +18,7 @@
 //
 #pragma once
 
-#include "./Containers/DictionaryBasedTempPath.h"
-
-using namespace LogCache;
-
-class CFullGraphNode;
+#include "RevisionEntry.h"
 
 /**
  * \ingroup TortoiseProc
@@ -40,7 +36,7 @@ private:
 
 	/// previous node for this path (or its copy source)
 
-	CFullGraphNode* lastEntry;
+	CRevisionEntry* lastEntry;
 
 	/// tree pointers
 
@@ -74,7 +70,7 @@ public:
 
 	/// there is a new revision entry for this path
 
-	void ChainEntries (CFullGraphNode* entry);
+	void ChainEntries (CRevisionEntry* entry);
 
 	/// property access
 
@@ -93,7 +89,7 @@ public:
 		startRevision = revision;
 	}
 
-	CFullGraphNode* GetLastEntry() const
+	CRevisionEntry* GetLastEntry() const
 	{
 		return lastEntry;
 	}

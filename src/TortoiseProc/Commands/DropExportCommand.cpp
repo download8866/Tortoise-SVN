@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 
 bool DropExportCommand::Execute()
 {
-	bool bRet = true;
 	CString droppath = parser.GetVal(_T("droptarget"));
 	if (CTSVNPath(droppath).IsAdminDir())
 		return false;
@@ -63,7 +62,7 @@ bool DropExportCommand::Execute()
 			for (std::vector<CTSVNPath>::iterator it = removeVector.begin(); (it != removeVector.end()) && (!progress.HasUserCancelled()); ++it)
 			{
 				progress.FormatPathLine(1, IDS_SVNPROGRESS_UNVERSION, (LPCTSTR)it->GetWinPath());
-				progress.SetProgress64(count, removeVector.size());
+				progress.SetProgress(count, removeVector.size());
 				count++;
 				it->Delete(false);
 			}
@@ -100,9 +99,8 @@ bool DropExportCommand::Execute()
 			if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, FALSE, FALSE, svn_depth_infinity, hwndExplorer, parser.HasKey(_T("extended"))))
 			{
 				CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
-				bRet = false;
 			}
 		}
 	}
-	return bRet;
+	return true;
 }

@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "ProjectProperties.h"
-#include "Tooltip.h"
 
 #define	MAX_TT_LENGTH			10000
 
@@ -65,9 +64,8 @@ protected:
 
 	void CheckRecursive();
 protected:
-	CToolTips	m_tooltips;
+	CBalloon	m_tooltips;
 	CComboBox	m_PropNames;
-	CFont		m_valueFont;
 	std::string m_PropValue;
 	CString		m_sPropValue;
 	CString		m_sPropName;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -129,12 +129,10 @@ bool CHooks::Save()
 		strhooks += (it->second.bShow ? _T("show") : _T("hide"));
 		strhooks += '\n';
 	}
-
-    CRegString reghooks = CRegString(_T("Software\\TortoiseSVN\\hooks"));
+	CRegString reghooks = CRegString(_T("Software\\TortoiseSVN\\hooks"));
 	reghooks = strhooks;
-    if (reghooks.GetLastError() != ERROR_SUCCESS)
+	if (reghooks.LastError)
 		return false;
-
 	return true;
 }
 
@@ -248,7 +246,7 @@ bool CHooks::StartCommit(const CTSVNPathList& pathList, CString& message, DWORD&
 	AddPathParam(sCmd, pathList);
 	CTSVNPath temppath = AddMessageFileParam(sCmd, message);
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
+	exitcode = RunScript(sCmd, pathList.GetCommonRoot().GetDirectory().GetWinPath(), error, it->second.bWait, it->second.bShow);
 	if (!exitcode && !temppath.IsEmpty())
 	{
 		CStringUtils::ReadStringFromTextFile(temppath.GetWinPathString(), message);
@@ -256,7 +254,7 @@ bool CHooks::StartCommit(const CTSVNPathList& pathList, CString& message, DWORD&
 	return true;
 }
 
-bool CHooks::PreCommit(const CTSVNPathList& pathList, svn_depth_t depth, CString& message, DWORD& exitcode, CString& error)
+bool CHooks::PreCommit(const CTSVNPathList& pathList, svn_depth_t depth, const CString& message, DWORD& exitcode, CString& error)
 {
 	hookiterator it = FindItem(pre_commit_hook, pathList);
 	if (it == end())
@@ -264,13 +262,9 @@ bool CHooks::PreCommit(const CTSVNPathList& pathList, svn_depth_t depth, CString
 	CString sCmd = it->second.commandline;
 	AddPathParam(sCmd, pathList);
 	AddDepthParam(sCmd, depth);
-	CTSVNPath temppath = AddMessageFileParam(sCmd, message);
+	AddMessageFileParam(sCmd, message);
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
-	if (!exitcode && !temppath.IsEmpty())
-	{
-		CStringUtils::ReadStringFromTextFile(temppath.GetWinPathString(), message);
-	}
+	exitcode = RunScript(sCmd, pathList.GetCommonRoot().GetDirectory().GetWinPath(), error, it->second.bWait, it->second.bShow);
 	return true;
 }
 
@@ -286,7 +280,12 @@ bool CHooks::PostCommit(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev
 	AddParam(sCmd, rev.ToString());
 	AddErrorParam(sCmd, error);
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
+	CTSVNPath curDir = pathList.GetCommonRoot().GetDirectory();
+	if (!curDir.Exists())
+		curDir = curDir.GetContainingDirectory();
+	if (!curDir.Exists())
+		curDir.Reset();
+	exitcode = RunScript(sCmd, curDir.GetWinPath(), error, it->second.bWait, it->second.bShow);
 	return true;
 }
 
@@ -298,7 +297,7 @@ bool CHooks::StartUpdate(const CTSVNPathList& pathList, DWORD& exitcode, CString
 	CString sCmd = it->second.commandline;
 	AddPathParam(sCmd, pathList);
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
+	exitcode = RunScript(sCmd, pathList.GetCommonRoot().GetDirectory().GetWinPath(), error, it->second.bWait, it->second.bShow);
 	return true;
 }
 
@@ -312,7 +311,7 @@ bool CHooks::PreUpdate(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev 
 	AddDepthParam(sCmd, depth);
 	AddParam(sCmd, rev.ToString());
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
+	exitcode = RunScript(sCmd, pathList.GetCommonRoot().GetDirectory().GetWinPath(), error, it->second.bWait, it->second.bShow);
 	return true;
 }
 
@@ -327,7 +326,7 @@ bool CHooks::PostUpdate(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev
 	AddParam(sCmd, rev.ToString());
 	AddErrorParam(sCmd, error);
 	AddCWDParam(sCmd, pathList);
-	exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
+	exitcode = RunScript(sCmd, pathList.GetCommonRoot().GetDirectory().GetWinPath(), error, it->second.bWait, it->second.bShow);
 	return true;
 }
 
@@ -361,19 +360,13 @@ hookiterator CHooks::FindItem(hooktype t, const CTSVNPathList& pathList)
 	return end();
 }
 
-DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error, bool bWait, bool bShow)
+DWORD CHooks::RunScript(CString cmd, LPCTSTR currentDir, CString& error, bool bWait, bool bShow)
 {
 	DWORD exitcode = 0;
 	SECURITY_ATTRIBUTES sa;
 	SecureZeroMemory(&sa, sizeof(sa));
 	sa.nLength = sizeof(sa);
 	sa.bInheritHandle = TRUE;
-
-	CTSVNPath curDir = paths.GetCommonRoot().GetDirectory();
-	if (!curDir.Exists())
-		curDir = curDir.GetContainingDirectory();
-	if (!curDir.Exists())
-		curDir.Reset();
 
 	HANDLE hOut   = INVALID_HANDLE_VALUE;
 	HANDLE hRedir = INVALID_HANDLE_VALUE;
@@ -435,7 +428,7 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
 
 	DWORD dwFlags = 0;
 
-	if (!CreateProcess(NULL, cmd.GetBuffer(), NULL, NULL, TRUE, dwFlags, NULL, curDir.GetWinPath(), &si, &pi)) 
+	if (!CreateProcess(NULL, cmd.GetBuffer(), NULL, NULL, TRUE, dwFlags, NULL, currentDir, &si, &pi)) 
 	{
 			int err = GetLastError();  // preserve the CreateProcess error
 			if (hErr != INVALID_HANDLE_VALUE) 
@@ -456,7 +449,7 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
 	if (bWait)
 	{
 		DWORD dw;
-		char buf[10*1024];
+		char buf[256];
 		do 
 		{
 			SecureZeroMemory(&buf,sizeof(buf));
@@ -467,7 +460,7 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
 				error += CString(CStringA(buf,dw));
 				SecureZeroMemory(&buf,sizeof(buf));
 			}
-		} while (WaitForSingleObject(pi.hProcess, 100) != WAIT_OBJECT_0);
+		} while (WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0);
 
 		// perform any final flushing
 		while (ReadFile(hRedir, &buf, sizeof(buf)-1, &dw, NULL)) 

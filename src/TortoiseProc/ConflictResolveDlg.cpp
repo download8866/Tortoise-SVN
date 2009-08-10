@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -164,13 +164,13 @@ BOOL CConflictResolveDlg::OnInitDialog()
 
 void CConflictResolveDlg::OnBnClickedUselocal()
 {
-	m_choice = 	m_pConflictDescription->is_binary ? svn_wc_conflict_choose_mine_full : svn_wc_conflict_choose_mine_conflict;
+	m_choice = svn_wc_conflict_choose_mine_full;
 	EndDialog(IDOK);
 }
 
 void CConflictResolveDlg::OnBnClickedUserepo()
 {
-	m_choice = 	m_pConflictDescription->is_binary ? svn_wc_conflict_choose_theirs_full : svn_wc_conflict_choose_theirs_conflict;
+	m_choice = svn_wc_conflict_choose_theirs_full;
 	EndDialog(IDOK);
 }
 
@@ -209,15 +209,11 @@ void CConflictResolveDlg::OnBnClickedEditconflict()
 			m_mergedfile = CUnicodeUtils::GetUnicode(m_pConflictDescription->merged_file);
 		else
 			m_mergedfile = CTempFiles::Instance().GetTempFilePath(false, CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->path))).GetWinPath();
-		CAppUtils::MergeFlags flags;
-		flags.bAlternativeTool = (GetKeyState(VK_SHIFT)&0x8000) != 0;
-		flags.bReadOnly = true;
-		CAppUtils::StartExtMerge(flags,
-								CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->base_file)),
+		CAppUtils::StartExtMerge(CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->base_file)),
 								CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->their_file)),
 								CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->my_file)),
 								CTSVNPath(m_mergedfile),
-								n2, n3, n1, CString());
+								n2, n3, n1, CString(), false);
 	}
 
 	GetDlgItem(IDC_RESOLVED)->EnableWindow(TRUE);

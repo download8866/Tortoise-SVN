@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "FileDropEdit.h"
 #include "LogDlg.h"
 #include "afxwin.h"
-#include "Tooltip.h"
 
 /**
  * \ingroup TortoiseProc
@@ -55,13 +54,12 @@ protected:
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEnChangeRevisionNum();
 	afx_msg void OnCbnEditchangeUrlcombo();
-	afx_msg void OnCbnSelchangeDepth();
 
 	DECLARE_MESSAGE_MAP()
 
 	void		SetRevision(const SVNRev& rev);
 protected:
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 	CString			m_sRevision;
 	CString			m_sCheckoutDirOrig;
 	bool			m_bAutoCreateTargetName;

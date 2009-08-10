@@ -80,11 +80,13 @@
 					patterns are also ignored by an import.
 					Ignore files or directories by typing in the names or extensions.
 					Patterns are separated by spaces e.g.
-					<literal>bin obj *.bak *.~?? *.jar *.[Tt]mp</literal>.
-					These patterns should not include any path separators. Note also
-					that there is no way to differentiate between files and directories.
-					Read <xref linkend="tsvn-dug-ignore-glob"/> for more information
-					on the pattern-matching syntax.
+					<literal>*/bin */obj *.bak *.~?? *.jar *.[Tt]mp</literal>.
+					Remember that these patterns may be used against paths which
+					include N levels of parent directory. Setting ignore patterns
+					for anything other than simple file extensions is not as trivial
+					as it first appears, so be sure to read
+					<xref linkend="tsvn-dug-ignore-glob"/> for more information
+					on the pattern-matching syntax, and how paths are checked.
 				</para>
 				<para>
 					Note that the ignore patterns you specify here will also
@@ -137,18 +139,18 @@
 					TortoiseSVN, and need to be set here instead.
 					For more information about the Subversion 
 					<filename>config</filename> file see the 
-					<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.confarea.html">
+					<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.confarea.html">
 						<citetitle>Runtime Configuration Area</citetitle>
 					</ulink>.
 					The section on 
-					<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.props.html#svn.advanced.props.auto">
+					<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.props.html#svn.advanced.props.auto">
 						<citetitle>Automatic Property Setting</citetitle>
 					</ulink>
 					is of particular interest, and that is configured here.
 					Note that Subversion can read configuration information
 					from several places, and you need to know which one
 					takes priority. Refer to 
-					<ulink url="http://svnbook.red-bean.com/en/1.5/svn.advanced.confarea.html#svn.advanced.confarea.windows-registry">
+					<ulink url="http://svnbook.red-bean.com/en/1.4/svn.advanced.confarea.html#svn.advanced.confarea.windows-registry">
 						<citetitle>Configuration and the Windows Registry</citetitle>
 					</ulink> to find out more.
 				</para>
@@ -201,11 +203,6 @@
 			the <literal>svn:needs-lock</literal> property set,
 			<guilabel>Get Lock</guilabel> will always appear at the top level.
 		</para>
-		<para>
-			If there are some paths on your computer where you just don't want
-			TortoiseSVN's context menu to appear at all, you can list them in
-			the box at the bottom.
-		</para>
 	</sect3>
 	<sect3 id="tsvn-dug-settings-dialogs">
 		<title>TortoiseSVN Dialog Settings 1</title>
@@ -256,19 +253,6 @@
 				</listitem>
 			</varlistentry>
 			<varlistentry>
-				<term>Can double-click in log list to compare with previous revision</term>
-				<listitem>
-					<para>
-						If you frequently find yourself comparing revisions in the top
-						pane of the log dialog, you can use this option to allow that
-						action on double-click. It is not enabled by default because
-						fetching the diff is often a long process, and many people
-						prefer to avoid the wait after an accidental double-click,
-						which is why this option is not enabled by default.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
 				<term>Progress Dialog</term>
 				<listitem>
 					<para>
@@ -313,18 +297,6 @@
 						to complete the task. For example, an update fails
 						because the server is inaccessible, or a commit fails
 						because the working copy is out-of-date.
-					</para>
-				</listitem>
-			</varlistentry>
-			<varlistentry>
-				<term>Use recycle bin when reverting</term>
-				<listitem>
-					<para>
-						When you revert local modifications, your changes are
-						discarded. TortoiseSVN gives you an extra safety net by
-						sending the modified file to the recycle bin before
-						bringing back the pristine copy. If you prefer to
-						skip the recycle bin, uncheck this option.
 					</para>
 				</listitem>
 			</varlistentry>
@@ -390,12 +362,6 @@
 						Unchecking reduces clutter in these dialogs. In that case if you
 						select an unversioned folder for Add, it is added recursively.
 					</para>
-					<para>
-						In the <guilabel>Check for Modifications</guilabel> dialog
-						you can opt to see ignored items. If this box is checked
-						then whenever an ignored folder is found, all child items
-						will be shown as well.
-					</para>
 				</listitem>
 			</varlistentry>
 			<varlistentry>
@@ -435,16 +401,10 @@
 				<term>Max. items to keep in the log message history</term>
 				<listitem>
 					<para>
-						When you type in a log message in the commit dialog, TortoiseSVN
-						stores it for possible re-use later. By default it will keep the
-						last 25 log messages for each repository, but you can customize
-						that number here.
+						TortoiseSVN stores the last 25 log messages you entered for
+						each repository. You can customize the number stored here.
 						If you have many different repositories, you may wish to
 						reduce this to avoid filling your registry.
-					</para>
-					<para>
-						Note that this setting applies only to messages that you type
-						in on this computer. It has nothing to do with the log cache.
 					</para>
 				</listitem>
 			</varlistentry>

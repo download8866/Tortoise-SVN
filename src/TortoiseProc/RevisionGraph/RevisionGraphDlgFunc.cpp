@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,17 +24,12 @@
 #include "SVN.h"
 #include "TempFile.h"
 #include "UnicodeUtils.h"
+#include "AppUtils.h"
 #include "TSVNPath.h"
 #include "SVNInfo.h"
+#include "SVNDiff.h"
 #include ".\revisiongraphwnd.h"
 #include "CachedLogInfo.h"
-#include "RevisionGraph/IRevisionGraphLayout.h"
-#include "RevisionGraph/FullGraphBuilder.h"
-#include "RevisionGraph/FullGraphFinalizer.h"
-#include "RevisionGraph/VisibleGraphBuilder.h"
-#include "RevisionGraph/StandardLayout.h"
-#include "RevisionGraph/ShowWC.h"
-#include "RevisionGraph/ShowWCModification.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,8 +42,12 @@ using namespace Gdiplus;
 void CRevisionGraphWnd::InitView()
 {
 	m_bIsRubberBand = false;
-
-	SetScrollbars();
+	m_arConnections.clear();
+	m_GraphRect.SetRectEmpty();
+	m_ViewRect.SetRectEmpty();
+	GetViewSize();
+	BuildConnections();
+	SetScrollbars(0,0,m_ViewRect.Width(),m_ViewRect.Height());
 }
 
 void CRevisionGraphWnd::BuildPreview()
@@ -59,101 +58,283 @@ void CRevisionGraphWnd::BuildPreview()
 
 	// is there a point in drawing this at all?
 
-    int nodeCount = m_state.GetNodeCount();
-	if ((nodeCount > REVGRAPH_PREVIEW_MAX_NODES) || (nodeCount == 0))
+	if (m_entryPtrs.size() > REVGRAPH_PREVIEW_MAX_NODES)
 		return;
 
 	float origZoom = m_fZoomFactor;
+	// zoom the graph so that it is completely visible in the window
+	DoZoom(1.0);
+	GetViewSize();
+	float horzfact = float(m_GraphRect.Width())/float(REVGRAPH_PREVIEW_WIDTH);
+	float vertfact = float(m_GraphRect.Height())/float(REVGRAPH_PREVIEW_HEIGHT);
+	float fZoom = 1.0f/(max(horzfact, vertfact));
+	if (fZoom > 1.0f)
+		fZoom = 1.0f;
+	int trycounter = 0;
+	m_fZoomFactor = fZoom;
 
-    CRect clientRect = GetClientRect();
-    CSize preViewSize (max (REVGRAPH_PREVIEW_WIDTH, clientRect.Width() / 4)
-                      ,max (REVGRAPH_PREVIEW_HEIGHT, clientRect.Height() / 4));
-
-    // zoom the graph so that it is completely visible in the window
-    CRect graphRect = GetGraphRect();
-	float horzfact = float(graphRect.Width())/float(preViewSize.cx);
-	float vertfact = float(graphRect.Height())/float(preViewSize.cy);
-	m_previewZoom = min (1.0f, 1.0f/(max(horzfact, vertfact)));
-
-    // make sure the preview window has a minimal size
-
-    m_previewWidth = (int)min (max (graphRect.Width() * m_previewZoom, 30), preViewSize.cx);
-	m_previewHeight = (int)min (max (graphRect.Height() * m_previewZoom, 30), preViewSize.cy);
+	while ((trycounter < 5)&&((m_GraphRect.Width()>REVGRAPH_PREVIEW_WIDTH)||(m_GraphRect.Height()>REVGRAPH_PREVIEW_HEIGHT)))
+	{
+		m_fZoomFactor = fZoom;
+		DoZoom(m_fZoomFactor);
+		GetViewSize();
+		fZoom *= 0.95f;
+		trycounter++;
+	}
+	// make sure the preview window has a minimal size
+	if ((m_GraphRect.Width()>10) && (m_GraphRect.Height()>10))
+	{
+		m_previewWidth = max(m_GraphRect.Width(), 30);
+		m_previewHeight = max(m_GraphRect.Height(), 30);
+	}
+	else
+	{
+		// if the preview window is too small (at least one side is zero)
+		// then don't show the preview at all.
+		m_previewHeight = 0;
+		m_previewWidth = 0;
+	}
 
 	CClientDC ddc(this);
 	CDC dc;
 	if (!dc.CreateCompatibleDC(&ddc))
 		return;
-
-	m_Preview.CreateCompatibleBitmap(&ddc, m_previewWidth, m_previewHeight);
-	HBITMAP oldbm = (HBITMAP)dc.SelectObject (m_Preview);
-
-    // paint the whole graph
-    DoZoom (m_previewZoom, false);
-    CRect rect (0, 0, m_previewWidth, m_previewHeight);
-	DrawGraph(&dc, rect, 0, 0, true);
-
+	m_Preview.CreateCompatibleBitmap(&ddc, REVGRAPH_PREVIEW_WIDTH, REVGRAPH_PREVIEW_HEIGHT);
+	HBITMAP oldbm = (HBITMAP)dc.SelectObject(m_Preview);
+	// paint the whole graph
+	DrawGraph(&dc, m_ViewRect, 0, 0, true);
 	// now we have a bitmap the size of the preview window
 	dc.SelectObject(oldbm);
 	dc.DeleteDC();
 
-	DoZoom (origZoom, false);
+	DoZoom(origZoom);
 }
 
-void CRevisionGraphWnd::SetScrollbar (int bar, int newPos, int clientMax, int graphMax)
+void CRevisionGraphWnd::SetScrollbars(int nVert, int nHorz, int oldwidth, int oldheight)
 {
-    SCROLLINFO ScrollInfo = {sizeof(SCROLLINFO), SIF_ALL};
-	GetScrollInfo (bar, &ScrollInfo);
-
-    int oldHeight = ScrollInfo.nMax <= 0 ? clientMax : ScrollInfo.nMax;
-    int newHeight = static_cast<int>(graphMax * m_fZoomFactor);
-    int maxPos = max (0, newHeight - clientMax);
-    int pos = min (maxPos, newPos >= 0
-                         ? newPos
-                         : ScrollInfo.nPos * newHeight / oldHeight);
-
-    ScrollInfo.nPos = pos;
-    ScrollInfo.nMin = 0;
-	ScrollInfo.nMax = newHeight;
-	ScrollInfo.nPage = clientMax;
-	ScrollInfo.nTrackPos = pos;
-
-    SetScrollInfo(bar, &ScrollInfo);
+	CRect clientrect;
+	GetClientRect(&clientrect);
+	CRect * pRect = GetGraphSize();
+	SCROLLINFO ScrollInfo;
+	ScrollInfo.cbSize = sizeof(SCROLLINFO);
+	ScrollInfo.fMask = SIF_ALL;
+	GetScrollInfo(SB_VERT, &ScrollInfo);
+	if ((nVert)||(oldheight==0))
+		ScrollInfo.nPos = nVert;
+	else
+		ScrollInfo.nPos = ScrollInfo.nPos * pRect->Height() / oldheight;
+	ScrollInfo.fMask = SIF_ALL;
+	ScrollInfo.nMin = 0;
+	ScrollInfo.nMax = pRect->bottom;
+	ScrollInfo.nPage = clientrect.Height();
+	ScrollInfo.nTrackPos = 0;
+	SetScrollInfo(SB_VERT, &ScrollInfo);
+	GetScrollInfo(SB_HORZ, &ScrollInfo);
+	if ((nHorz)||(oldwidth==0))
+		ScrollInfo.nPos = nHorz;
+	else
+		ScrollInfo.nPos = ScrollInfo.nPos * pRect->Width() / oldwidth;
+	ScrollInfo.nMax = pRect->right;
+	ScrollInfo.nPage = clientrect.Width();
+	SetScrollInfo(SB_HORZ, &ScrollInfo);
 }
 
-void CRevisionGraphWnd::SetScrollbars (int nVert, int nHorz)
+void CRevisionGraphWnd::BuildConnections()
 {
-	CRect clientrect = GetClientRect();
-	const CRect& pRect = GetGraphRect();
+	// delete all entries which we might have left
+	// in the array and free the memory they use.
+	m_arConnections.clear();
 
-    SetScrollbar (SB_VERT, nVert, clientrect.Height(), pRect.Height());
-    SetScrollbar (SB_HORZ, nHorz, clientrect.Width(), pRect.Width());
+	// for every node, there should be at most 1 connection
+
+	m_arConnections.reserve (m_entryPtrs.size());
+	
+	// the spacing of the row/col grid (left-top to next left-top)
+
+	float columnSpacing = m_node_rect_width + m_node_space_left + m_node_space_right;
+	float rowSpacing = m_node_rect_height + m_node_space_top + m_node_space_bottom;
+
+	for (size_t i = 0, count = m_entryPtrs.size(); i < count; ++i)
+	{
+		CRevisionEntry * sourceEntry = m_entryPtrs[i];
+
+		// reference coordinate for the connection source
+
+		CPoint sourceLeftTop;
+		sourceLeftTop.x = (long)((sourceEntry->column - 1) * columnSpacing + m_node_space_left);
+		sourceLeftTop.y = (long)((sourceEntry->row - 1) * rowSpacing + m_node_space_top);
+
+		for (size_t j = 0, count = sourceEntry->copyTargets.size()+1; j < count; ++j)
+		{
+			CRevisionEntry * targetEntry 
+				= j == 0
+				? sourceEntry->next
+				: sourceEntry->copyTargets[j-1];
+			if (targetEntry == NULL)
+				continue;
+
+			// reference coordinate for the connection target
+
+			CPoint targetLeftTop;
+			targetLeftTop.x = (long)((targetEntry->column - 1) * columnSpacing + m_node_space_left);
+			targetLeftTop.y = (long)((targetEntry->row - 1) * rowSpacing + m_node_space_top);
+
+			CPoint source;
+			CPoint target;
+
+			if (sourceEntry->column == targetEntry->column)
+			{
+				// straight vertical line
+
+				source.x = (long)(sourceLeftTop.x + m_node_rect_width / 2);
+				source.y = sourceLeftTop.y;
+
+				target.x = source.x;
+				target.y = targetLeftTop.y;
+
+				if (target.y < source.y)
+					target.y += (long)(m_node_rect_height);
+				else
+					source.y += (long)(m_node_rect_height);
+			}
+			else if (sourceEntry->row == targetEntry->row)
+			{
+				// straight horizontal line
+
+				source.x = sourceLeftTop.x;
+				source.y = (long)(sourceLeftTop.y + m_node_rect_height / 2);
+
+				target.x = targetLeftTop.x;
+				target.y = source.y;
+
+				if (target.x < source.x)
+					target.x += (long)(m_node_rect_width);
+				else
+					source.x += (long)(m_node_rect_width);
+			}
+			else
+			{
+				// curved line: source left / right -> target top / bottom
+
+				source.x = sourceLeftTop.x;
+				source.y = (long)(sourceLeftTop.y + m_node_rect_height / 2);
+
+				target.x = (long)(targetLeftTop.x + m_node_rect_width / 2);
+				target.y = targetLeftTop.y;
+
+				if (source.x < target.x)
+					source.x += (long)(m_node_rect_width);
+				if (source.y > target.y)
+					target.y += (long)(m_node_rect_height);
+			}
+
+			// bezier points
+
+			TConnectionPoints pt;
+			pt.points[0] = source;
+			pt.points[1].x = (source.x + target.x) / 2;		// first control point
+			pt.points[1].y = source.y;
+			pt.points[2].x = target.x;							// second control point
+			pt.points[2].y = source.y;
+			pt.points[3] = target;
+
+			// put it into the list
+
+			m_arConnections.push_back (pt);
+		}
+	}
 }
 
-CRect CRevisionGraphWnd::GetGraphRect()
+CRect * CRevisionGraphWnd::GetGraphSize()
 {
-    return m_state.GetGraphRect();
+	if (m_GraphRect.Height() != 0)
+		return &m_GraphRect;
+	m_GraphRect.top = 0;
+	m_GraphRect.left = 0;
+
+	if (   (   (m_maxColumn == 0) || (m_maxRow == 0) 
+			|| (m_maxurllength == 0) || m_maxurl.IsEmpty())
+		&& (!m_entryPtrs.empty()))
+	{
+		const LogCache::CPathDictionary& paths 
+			= query->GetCache()->GetLogInfo().GetPaths();
+
+		std::vector<bool> pathMeasured;
+		pathMeasured.insert (pathMeasured.begin(), paths.size(), false);
+
+		for (size_t i = m_entryPtrs.size(); i > 0; --i)
+		{
+			// graph boundaries 
+			// (start at the end of the array to hit maxColumn / maxRow asap)
+
+			CRevisionEntry * reventry = m_entryPtrs[i-1];
+			if (m_maxColumn < reventry->column)
+				m_maxColumn = reventry->column;
+			if (m_maxRow < reventry->row)
+				m_maxRow = reventry->row;
+
+			// don't check paths multiple times, if it can be avoided
+
+			index_t pathID = reventry->path.GetBasePath().GetIndex();
+			if (   reventry->path.IsFullyCachedPath()
+				&& pathMeasured[pathID])
+				continue;
+
+			// is this path a new record holder?
+
+			std::string path = reventry->path.GetPath();
+			size_t len = path.size();
+			if (m_maxurllength < len)
+			{
+				m_maxurllength = len;
+				m_maxurl = CUnicodeUtils::GetUnicode (path.c_str());
+			}
+
+			// we examined that path
+
+			if (reventry->path.IsFullyCachedPath())
+				pathMeasured[pathID] = true;
+		}
+	}
+
+	// calculate the width of the nodes by looking
+	// at the url lengths
+	CRect r;
+	CDC * pDC = this->GetDC();
+	if (pDC)
+	{
+		CFont * pOldFont = pDC->SelectObject(GetFont(TRUE));
+		pDC->DrawText(m_maxurl, &r, DT_CALCRECT);
+		// keep the width inside reasonable values.
+		m_node_rect_width = min(500.0f * m_fZoomFactor, r.Width()+40.0f);
+		m_node_rect_width = max(NODE_RECT_WIDTH * m_fZoomFactor, m_node_rect_width);
+		pDC->SelectObject(pOldFont);
+	}
+	ReleaseDC(pDC);
+
+	m_GraphRect.right = long(float(m_maxColumn) * (m_node_rect_width + m_node_space_left + m_node_space_right));
+	m_GraphRect.bottom = long(float(m_maxRow) * (m_node_rect_height + m_node_space_top + m_node_space_bottom));
+	return &m_GraphRect;
 }
 
-CRect CRevisionGraphWnd::GetClientRect()
+CRect * CRevisionGraphWnd::GetViewSize()
 {
-	CRect clientRect;
-    CWnd::GetClientRect (&clientRect);
-    return clientRect;
-}
-
-CRect CRevisionGraphWnd::GetWindowRect()
-{
-	CRect windowRect;
-    CWnd::GetWindowRect (&windowRect);
-    return windowRect;
-}
-
-CRect CRevisionGraphWnd::GetViewRect()
-{
-    CRect result;
-    result.UnionRect (GetClientRect(), GetGraphRect()); 
-    return result;
+	if (m_ViewRect.Height() != 0)
+		return &m_ViewRect;
+	m_ViewRect = GetGraphSize();
+	CRect rect;
+	GetClientRect(&rect);
+	if (m_ViewRect.Width() < rect.Width())
+	{
+		m_ViewRect.left = rect.left;
+		m_ViewRect.right = rect.right;
+	}
+	if (m_ViewRect.Height() < rect.Height())
+	{
+		m_ViewRect.top = rect.top;
+		m_ViewRect.bottom = rect.bottom;
+	}
+	return &m_ViewRect;
 }
 
 int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
@@ -189,163 +370,36 @@ int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 	return -1;  // Failure
 }
 
-bool CRevisionGraphWnd::FetchRevisionData 
-    ( const CString& path
-    , SVNRev pegRevision
-    , CProgressDlg* progress)
-{
-    // (re-)fetch the data
-
-    std::auto_ptr<CFullHistory> newFullHistory (new CFullHistory());
-
-    bool showWCRev 
-        = m_state.GetOptions()->GetOption<CShowWC>()->IsSelected();
-    bool showWCModification 
-        = m_state.GetOptions()->GetOption<CShowWCModification>()->IsSelected();
-	bool result = newFullHistory->FetchRevisionData ( path
-                                                    , pegRevision
-                                                    , showWCRev
-                                                    , showWCModification
-                                                    , progress);
-
-    m_state.SetLastErrorMessage (newFullHistory->GetLastErrorMessage());
-
-    if (result)
-    {
-        std::auto_ptr<CFullGraph> newFullGraph (new CFullGraph());
-
-        CFullGraphBuilder builder (*newFullHistory, *newFullGraph);
-        builder.Run();
-
-        CFullGraphFinalizer finalizer (*newFullHistory, *newFullGraph);
-        finalizer.Run();
-
-        m_state.SetQueryResult ( newFullHistory
-                               , newFullGraph
-                               , showWCRev || showWCModification);
-    }
-
-    return result;
-}
-
-bool CRevisionGraphWnd::AnalyzeRevisionData()
-{
-    CSyncPointer<const CFullGraph> fullGraph (m_state.GetFullGraph());
-    if ((fullGraph.get() != NULL) && (fullGraph->GetNodeCount() > 0))
-    {
-        // filter graph
-
-        CSyncPointer<CAllRevisionGraphOptions> options (m_state.GetOptions());
-        options->Prepare();
-
-        std::auto_ptr<CVisibleGraph> visibleGraph (new CVisibleGraph());
-        CVisibleGraphBuilder builder ( *fullGraph
-                                     , *visibleGraph
-                                     , options->GetCopyFilterOptions());
-        builder.Run();
-        options->GetModificationOptions().Apply (visibleGraph.get());
-
-        index_t index = 0;
-        for (size_t i = 0, count = visibleGraph->GetRootCount(); i < count; ++i)
-            index = visibleGraph->GetRoot (i)->InitIndex (index);
-
-        // layout nodes
-
-        std::auto_ptr<CStandardLayout> newLayout 
-            ( new CStandardLayout ( m_state.GetFullHistory()->GetCache()
-                                  , visibleGraph.get()));
-        options->GetLayoutOptions().Apply (newLayout.get());
-        newLayout->Finalize();
-
-        // switch state
-
-        m_state.SetAnalysisResult (visibleGraph, newLayout);
-    }
-
-    return m_state.GetNodes().get() != NULL;
-}
-
-bool CRevisionGraphWnd::IsUpdateJobRunning() const
-{
-    return (updateJob.get() != NULL) && !updateJob->IsDone();
-}
-
-bool CRevisionGraphWnd::GetShowOverview() const
-{
-    return m_bShowOverview;
-}
-
-void CRevisionGraphWnd::SetShowOverview (bool value)
-{
-    m_bShowOverview = value;
-	if (m_bShowOverview)
-		BuildPreview();
-}
-
-void CRevisionGraphWnd::GetSelected 
-    ( const CVisibleGraphNode* node
-    , bool head
-    , CTSVNPath& path
-    , SVNRev& rev
-    , SVNRev& peg)
-{
-	CString repoRoot = m_state.GetRepositoryRoot();
-
-    // get path and revision
-
-	path.SetFromSVN (repoRoot + CUnicodeUtils::GetUnicode (node->GetPath().GetPath().c_str()));
-	rev = head ? SVNRev::REV_HEAD : node->GetRevision();
-
-    // handle 'modified WC' node
-
-    if (node->GetClassification().Is (CNodeClassification::IS_MODIFIED_WC))
-    {
-        path.SetFromWin (m_sPath);
-        rev = SVNRev::REV_WC;
-
-        // don't set peg, if we aren't the first node 
-        // (i.e. would not be valid for node1)
-
-        if (node == m_SelectedEntry1)
-            peg = SVNRev::REV_WC;
-    }
-    else
-    {
-        // set head, if still necessary
-
-        if (head && !peg.IsValid())
-    	    peg = node->GetRevision();
-    }
-}
-
 void CRevisionGraphWnd::CompareRevs(bool bHead)
 {
 	ASSERT(m_SelectedEntry1 != NULL);
 	ASSERT(m_SelectedEntry2 != NULL);
 
-	CSyncPointer<SVN> svn (m_state.GetSVN());
+	CString sRepoRoot;
+	if (SVN::PathIsURL(m_sPath))
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(m_sPath));
+	else
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(svn.GetURLFromPath(CTSVNPath(m_sPath))));
 
 	CTSVNPath url1;
 	CTSVNPath url2;
-	SVNRev rev1;
-	SVNRev rev2;
-	SVNRev peg;
+	url1.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry1->path.GetPath().c_str()));
+	url2.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry2->path.GetPath().c_str()));
 
-    GetSelected (m_SelectedEntry1, bHead, url1, rev1, peg);
-    GetSelected (m_SelectedEntry2, bHead, url2, rev2, peg);
+	SVNRev peg = (SVNRev)(bHead ? m_SelectedEntry1->revision : SVNRev());
 
-    bool alternativeTool = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
-	if (m_state.PromptShown())
+	if (m_prompt.PromptShown())
 	{
-		SVNDiff diff (svn.get(), this->m_hWnd);
-		diff.SetAlternativeTool (alternativeTool);
-		diff.ShowCompare (url1, rev1, url2, rev2, peg);	
+		SVNDiff diff(&svn, this->m_hWnd);
+		diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+		diff.ShowCompare(url1, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry1->revision),
+			url2, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry2->revision),
+			peg);
 	}
 	else
-	{
-		CAppUtils::StartShowCompare (m_hWnd, url1, rev1,
-			url2, rev2, peg, SVNRev(), alternativeTool);
-	}
+		CAppUtils::StartShowCompare(m_hWnd, url1, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry1->revision),
+									url2, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry2->revision), peg, 
+									SVNRev(), !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 }
 
 void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
@@ -353,41 +407,116 @@ void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
 	ASSERT(m_SelectedEntry1 != NULL);
 	ASSERT(m_SelectedEntry2 != NULL);
 
-	CSyncPointer<SVN> svn (m_state.GetSVN());
+	CString sRepoRoot;
+	if (SVN::PathIsURL(m_sPath))
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(m_sPath));
+	else
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(svn.GetURLFromPath(CTSVNPath(m_sPath))));
 
 	CTSVNPath url1;
 	CTSVNPath url2;
-	SVNRev rev1;
-	SVNRev rev2;
-	SVNRev peg;
+	url1.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry1->path.GetPath().c_str()));
+	url2.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry2->path.GetPath().c_str()));
 
-    GetSelected (m_SelectedEntry1, bHead, url1, rev1, peg);
-    GetSelected (m_SelectedEntry2, bHead, url2, rev2, peg);
+	SVNDiff diff(&svn, this->m_hWnd);
+	if (m_prompt.PromptShown())
+		diff.ShowUnifiedDiff(url1, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry1->revision),
+						 url2, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry2->revision),
+						 m_SelectedEntry1->revision);
+	else
+		CAppUtils::StartShowUnifiedDiff(m_hWnd, url1, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry1->revision),
+						url2, (bHead ? SVNRev::REV_HEAD : m_SelectedEntry2->revision),
+						m_SelectedEntry1->revision);
+}
 
-    bool alternativeTool = !!(GetAsyncKeyState(VK_SHIFT) & 0x8000);
-	if (m_state.PromptShown())
+CTSVNPath CRevisionGraphWnd::DoUnifiedDiff(bool bHead, CString& sRoot, bool& bIsFolder)
+{
+	theApp.DoWaitCursor(1);
+	CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(false, CTSVNPath(_T("test.diff")));
+	// find selected objects
+	ASSERT(m_SelectedEntry1 != NULL);
+	ASSERT(m_SelectedEntry2 != NULL);
+	
+	// find out if m_sPath points to a file or a folder
+	if (SVN::PathIsURL(m_sPath))
 	{
-		SVNDiff diff (svn.get(), this->m_hWnd);
-		diff.SetAlternativeTool (alternativeTool);
-		diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg);
+		SVNInfo info;
+		const SVNInfoData * infodata = info.GetFirstFileInfo(CTSVNPath(m_sPath), SVNRev::REV_HEAD, SVNRev::REV_HEAD);
+		if (infodata)
+		{
+			bIsFolder = (infodata->kind == svn_node_dir);
+		}
 	}
 	else
 	{
-		CAppUtils::StartShowUnifiedDiff(m_hWnd, url1, rev1,
-			url2, rev2, peg, 
-			SVNRev(), alternativeTool);
+		bIsFolder = CTSVNPath(m_sPath).IsDirectory();
 	}
+	
+	CString sRepoRoot;
+	if (SVN::PathIsURL(m_sPath))
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(m_sPath));
+	else
+		sRepoRoot = svn.GetRepositoryRoot(CTSVNPath(svn.GetURLFromPath(CTSVNPath(m_sPath))));
+
+	CTSVNPath url1;
+	CTSVNPath url2;
+	url1.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry1->path.GetPath().c_str()));
+	url2.SetFromSVN (sRepoRoot + CUnicodeUtils::GetUnicode (m_SelectedEntry2->path.GetPath().c_str()));
+	CTSVNPath url1_temp = url1;
+	CTSVNPath url2_temp = url2;
+	int iMax = min(url1_temp.GetSVNPathString().GetLength(), url2_temp.GetSVNPathString().GetLength());
+	int i = 0;
+	for ( ; ((i<iMax) && (url1_temp.GetSVNPathString().GetAt(i)==url2_temp.GetSVNPathString().GetAt(i))); ++i)
+		;
+	while (url1_temp.GetSVNPathString().GetLength()>i)
+		url1_temp = url1_temp.GetContainingDirectory();
+
+	if (bIsFolder)
+		sRoot = url1_temp.GetSVNPathString();
+	else
+		sRoot = url1_temp.GetContainingDirectory().GetSVNPathString();
+	
+	if (url1.IsEquivalentTo(url2))
+	{
+		if (!svn.PegDiff(url1, SVNRev(m_SelectedEntry1->revision), 
+			bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry1->revision), 
+			bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry2->revision), 
+			CTSVNPath(), svn_depth_infinity, TRUE, FALSE, FALSE, CString(), tempfile))
+		{
+			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
+			theApp.DoWaitCursor(-1);
+			return CTSVNPath();
+		}
+	}
+	else
+	{
+		if (!svn.Diff(url1, bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry1->revision), 
+			url2, bHead ? SVNRev(SVNRev::REV_HEAD) : SVNRev(m_SelectedEntry2->revision), 
+			CTSVNPath(), svn_depth_infinity, TRUE, FALSE, FALSE, CString(), false, tempfile))
+		{
+			CMessageBox::Show(this->m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);		
+			theApp.DoWaitCursor(-1);
+			return CTSVNPath();
+		}
+	}
+	theApp.DoWaitCursor(-1);
+	return tempfile;
 }
 
-void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
+void CRevisionGraphWnd::DoZoom(float fZoomFactor)
 {
 	float oldzoom = m_fZoomFactor;
 	m_fZoomFactor = fZoomFactor;
-
-    m_nFontSize = max(1, int(12.0f * fZoomFactor));
-    if (m_nFontSize < 7)
-        m_nFontSize = min (7, int(15.0f * fZoomFactor));
-
+	m_node_space_left = NODE_SPACE_LEFT * fZoomFactor;
+	m_node_space_right = NODE_SPACE_RIGHT * fZoomFactor;
+	m_node_space_line = NODE_SPACE_LINE * fZoomFactor;
+	m_node_rect_height = NODE_RECT_HEIGHT * fZoomFactor;
+	m_node_space_top = NODE_SPACE_TOP * fZoomFactor;
+	m_node_space_bottom = NODE_SPACE_BOTTOM * fZoomFactor;
+	m_nFontSize = max(7, int(12.0f * fZoomFactor));
+	m_RoundRectPt.x = int(ROUND_RECT * fZoomFactor);
+	m_RoundRectPt.y = int(ROUND_RECT * fZoomFactor);
+	m_nIconSize = int(32 * fZoomFactor);
 	for (int i=0; i<MAXFONTS; i++)
 	{
 		if (m_apFonts[i] != NULL)
@@ -397,22 +526,17 @@ void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
 		}
 		m_apFonts[i] = NULL;
 	}
-
-    if (updateScrollbars)
-    {
-	    SCROLLINFO si1 = {sizeof(SCROLLINFO), SIF_ALL};
-	    GetScrollInfo(SB_VERT, &si1);
-	    SCROLLINFO si2 = {sizeof(SCROLLINFO), SIF_ALL};
-	    GetScrollInfo(SB_HORZ, &si2);
-
-	    InitView();
-
-	    si1.nPos = int(float(si1.nPos)*m_fZoomFactor/oldzoom);
-	    si2.nPos = int(float(si2.nPos)*m_fZoomFactor/oldzoom);
-	    SetScrollPos (SB_VERT, si1.nPos);
-	    SetScrollPos (SB_HORZ, si2.nPos);
-    }
-
-    Invalidate (FALSE);
+	SCROLLINFO si1 = {0};
+	si1.cbSize = sizeof(SCROLLINFO);
+	GetScrollInfo(SB_VERT, &si1);
+	SCROLLINFO si2 = {0};
+	si2.cbSize = sizeof(SCROLLINFO);
+	GetScrollInfo(SB_HORZ, &si2);
+	InitView();
+	si1.nPos = int(float(si1.nPos)*m_fZoomFactor/oldzoom);
+	si2.nPos = int(float(si2.nPos)*m_fZoomFactor/oldzoom);
+	SetScrollPos(SB_VERT, si1.nPos);
+	SetScrollPos(SB_HORZ, si2.nPos);
+	Invalidate();
 }
 

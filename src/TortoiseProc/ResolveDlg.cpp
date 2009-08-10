@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ BOOL CResolveDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
+	m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
 	m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_resolveListCtrl.SetSelectButton(&m_SelectAll);
 	m_resolveListCtrl.SetCancelBool(&m_bCancelled);
@@ -135,7 +135,7 @@ UINT CResolveDlg::ResolveThread()
 	{
 		m_resolveListCtrl.SetEmptyString(m_resolveListCtrl.GetLastErrorMessage());
 	}
-	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, CTSVNPathList(), SVNSLC_SHOWCONFLICTED);
+	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, SVNSLC_SHOWCONFLICTED);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;

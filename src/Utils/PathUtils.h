@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,6 @@
 //
 #pragma once
 
-#if defined(_MFC_VER)
-// CSTRING is always available in an MFC build
-#define CSTRING_AVAILABLE
-#endif
-
 /**
  * \ingroup Utils
  * helper class to handle path strings.
@@ -37,29 +32,13 @@ public:
 	 */
 	static void Unescape(char * psz);
 
-#ifdef CSTRING_AVAILABLE
 	/**
 	 * Replaces non-URI chars with the corresponding escape sequences.
 	 */
 	static CStringA PathEscape(const CStringA& path);
 
-	/**
-	 * Returns the path to the installation folder, in our case the TortoiseSVN/bin folder.
-	 * \remark the path returned has a trailing backslash
-	 */
-	static CString GetAppDirectory(HMODULE hMod = NULL);
 
-	/**
-	 * Returns the path to the installation parent folder, in our case the TortoiseSVN folder.
-	 * \remark the path returned has a trailing backslash
-	 */
-	static CString GetAppParentDirectory(HMODULE hMod = NULL);
-
-	/**
-	 * Returns the long pathname of a path which may be in 8.3 format.
-	 */
-	static CString GetLongPathname(const CString& path);
-
+#ifdef _MFC_VER
 	/**
 	 * returns the filename of a full path
 	 */
@@ -69,6 +48,11 @@ public:
 	 * returns the file extension from a full path
 	 */
 	static CString GetFileExtFromPath(const CString& sPath);
+
+	/**
+	 * Returns the long pathname of a path which may be in 8.3 format.
+	 */
+	static CString GetLongPathname(const CString& path);
 
 	/**
 	 * Copies a file or a folder from \a srcPath to \a destpath, creating
@@ -86,6 +70,18 @@ public:
 	 * the first one is returned.
 	 */
 	static CString ParsePathInString(const CString& Str);
+
+	/**
+	 * Returns the path to the installation folder, in our case the TortoiseSVN/bin folder.
+	 * \remark the path returned has a trailing backslash
+	 */
+	static CString GetAppDirectory();
+
+	/**
+	 * Returns the path to the installation parent folder, in our case the TortoiseSVN folder.
+	 * \remark the path returned has a trailing backslash
+	 */
+	static CString GetAppParentDirectory();
 
 	/**
 	 * Returns the path to the application data folder, in our case the %APPDATA%TortoiseSVN folder.

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -66,7 +66,6 @@ BEGIN_MESSAGE_MAP(CCheckoutDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SHOW_LOG, OnBnClickedShowlog)
 	ON_EN_CHANGE(IDC_REVISION_NUM, &CCheckoutDlg::OnEnChangeRevisionNum)
 	ON_CBN_EDITCHANGE(IDC_URLCOMBO, &CCheckoutDlg::OnCbnEditchangeUrlcombo)
-	ON_CBN_SELCHANGE(IDC_DEPTH, &CCheckoutDlg::OnCbnSelchangeDepth)
 END_MESSAGE_MAP()
 
 BOOL CCheckoutDlg::OnInitDialog()
@@ -85,7 +84,6 @@ BOOL CCheckoutDlg::OnInitDialog()
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
 	m_bAutoCreateTargetName = !PathIsDirectoryEmpty(m_sCheckoutDirOrig);
 	m_URLCombo.SetCurSel(0);
-	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_IMMEDIATE)));
@@ -163,16 +161,15 @@ void CCheckoutDlg::OnOK()
 	if (!UpdateData(TRUE))
 		return; // don't dismiss dialog (error message already shown by MFC framework)
 
-	CTSVNPath checkoutDirectory;
+	CTSVNPath m_CheckoutDirectory;
 	if (::PathIsRelative(m_strCheckoutDirectory))
 	{
-		checkoutDirectory = CTSVNPath(sOrigCWD);
-		checkoutDirectory.AppendPathString(_T("\\") + m_strCheckoutDirectory);
-		m_strCheckoutDirectory = checkoutDirectory.GetWinPathString();
+		m_CheckoutDirectory = CTSVNPath(sOrigCWD);
+		m_CheckoutDirectory.AppendPathString(_T("\\") + m_strCheckoutDirectory);
 	}
 	else
-		checkoutDirectory = CTSVNPath(m_strCheckoutDirectory);
-	if (!checkoutDirectory.IsValidOnWindows())
+		m_CheckoutDirectory = CTSVNPath(m_strCheckoutDirectory);
+	if (!m_CheckoutDirectory.IsValidOnWindows())
 	{
 		ShowBalloon(IDC_CHECKOUTDIRECTORY, IDS_ERR_NOVALIDPATH);
 		return;
@@ -195,11 +192,31 @@ void CCheckoutDlg::OnOK()
 	m_URLCombo.SaveHistory();
 	m_URL = m_URLCombo.GetString();
 
-	if (!SVN::PathIsURL(CTSVNPath(m_URL)))
+	if (!SVN::PathIsURL(m_URL))
 	{
 		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDI_ERROR);
 		m_bAutoCreateTargetName = bAutoCreateTargetName;
 		return;
+	}
+
+	if (m_URL.Left(7).CompareNoCase(_T("file://"))==0)
+	{
+		//check if the url is on a network share
+		CString temp = m_URL.Mid(7);
+		temp = temp.TrimLeft('/');
+		temp.Replace('/', '\\');
+		temp = temp.Left(3);
+		if (GetDriveType(temp)==DRIVE_REMOTE)
+		{
+			if (SVN::IsBDBRepository(m_URL))
+				// It's a network share, and the user tries to create a Berkeley db on it.
+				// Show a warning telling the user about the risks of doing so.
+				if (CMessageBox::Show(this->m_hWnd, IDS_WARN_SHAREFILEACCESS, IDS_APPNAME, MB_ICONWARNING | MB_YESNO)==IDNO)
+				{
+					m_bAutoCreateTargetName = bAutoCreateTargetName;
+					return;
+				}
+		}
 	}
 
 	if (m_strCheckoutDirectory.IsEmpty())
@@ -208,7 +225,17 @@ void CCheckoutDlg::OnOK()
 	}
 	if (!PathFileExists(m_strCheckoutDirectory))
 	{
-		CPathUtils::MakeSureDirectoryPathExists(m_strCheckoutDirectory);
+		CString temp;
+		temp.Format(IDS_WARN_FOLDERNOTEXIST, (LPCTSTR)m_strCheckoutDirectory);
+		if (CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+		{
+			CPathUtils::MakeSureDirectoryPathExists(m_strCheckoutDirectory);
+		}
+		else
+		{
+			m_bAutoCreateTargetName = bAutoCreateTargetName;
+			return;		//don't dismiss the dialog
+		}
 	}
 	if (!PathIsDirectoryEmpty(m_strCheckoutDirectory))
 	{
@@ -340,7 +367,7 @@ void CCheckoutDlg::OnBnClickedShowlog()
 	//now show the log dialog for working copy
 	if (!m_URL.IsEmpty())
 	{
-		delete m_pLogDlg;
+		delete [] m_pLogDlg;
 		m_pLogDlg = new CLogDlg();
 		m_pLogDlg->SetParams(CTSVNPath(m_URL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100));
 		m_pLogDlg->m_wParam = 1;
@@ -385,20 +412,15 @@ void CCheckoutDlg::SetRevision(const SVNRev& rev)
 
 void CCheckoutDlg::OnCbnEditchangeUrlcombo()
 {
-	// find out what to use as the checkout directory name
-	UpdateData();
-	m_URLCombo.GetWindowText(m_URL);
-	if (m_URL.IsEmpty())
-	{
-		GetDlgItem(IDC_BROWSE)->EnableWindow(FALSE);
-		return;
-	}
-	GetDlgItem(IDC_BROWSE)->EnableWindow(TRUE);
 	if (!m_bAutoCreateTargetName)
 		return;
 	if (m_sCheckoutDirOrig.IsEmpty())
 		return;
-
+	// find out what to use as the checkout directory name
+	UpdateData();
+	m_URLCombo.GetWindowText(m_URL);
+	if (m_URL.IsEmpty())
+		return;
 	CString tempURL = m_URL;
 	CString name = CAppUtils::GetProjectNameFromURL(m_URL);
 	if (CPathUtils::GetFileNameFromPath(m_strCheckoutDirectory).CompareNoCase(name))
@@ -410,27 +432,7 @@ void CCheckoutDlg::OnCbnEditchangeUrlcombo()
 		if (m_strCheckoutDirectory.GetLength() <= 2)
 			m_strCheckoutDirectory += _T("\\");
 	}
-	m_strCheckoutDirectory.Replace(_T(":\\\\"), _T(":\\"));
 	UpdateData(FALSE);
 	DialogEnableWindow(IDOK, !m_strCheckoutDirectory.IsEmpty());
 }
 
-
-void CCheckoutDlg::OnCbnSelchangeDepth()
-{
-	// http://subversion.tigris.org/issues/show_bug.cgi?id=3311
-	bool bOmitExternals = false;
-	switch (m_depthCombo.GetCurSel())
-	{
-	case 0:
-		//svn_depth_infinity
-		bOmitExternals = false;
-		break;
-	default:
-		bOmitExternals = true;
-		break;
-	}
-	m_bNoExternals = bOmitExternals;
-	UpdateData(FALSE);
-	GetDlgItem(IDC_NOEXTERNALS)->EnableWindow(!bOmitExternals);
-}

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "SettingsPropPage.h"
-#include "Tooltip.h"
+#include "Balloon.h"
 #include "Registry.h"
 #include "afxwin.h"
 
@@ -48,15 +48,13 @@ protected:
 	CString GetVersionFromFile(const CString & p_strDateiname);
 
 private:
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 	BOOL			m_bShortDateFormat;
 	CRegDWORD		m_regShortDateFormat;
 	BOOL			m_bUseSystemLocaleForDates;
 	CRegDWORD		m_regUseSystemLocaleForDates;
 	CRegDWORD		m_regAutoClose;
-	DWORD			m_dwAutoClose;
-	CRegDWORD		m_regAutoCloseLocal;
-	BOOL			m_bAutoCloseLocal;
+	DWORD_PTR		m_dwAutoClose;
 	CRegDWORD		m_regDefaultLogs;
 	CString			m_sDefaultLogs;
 	CMFCFontComboBox	m_cFontNames;

@@ -27,7 +27,6 @@ CShellUpdater::CShellUpdater(void)
 	m_hTerminationEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
 	m_hThread = INVALID_HANDLE_VALUE;
 	m_bRunning = FALSE;
-	m_bItemsAddedSinceLastUpdate = false;
 }
 
 CShellUpdater::~CShellUpdater(void)
@@ -65,7 +64,7 @@ void CShellUpdater::Initialise()
 	// will behave properly (with normal priority at worst).
 
 	InterlockedExchange(&m_bRunning, TRUE);
-	unsigned int threadId = 0;
+	unsigned int threadId;
 	m_hThread = (HANDLE)_beginthreadex(NULL,0,ThreadEntry,this,0,&threadId);
 	SetThreadPriority(m_hThread, THREAD_PRIORITY_LOWEST);
 }

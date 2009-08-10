@@ -41,13 +41,13 @@ bool RepositoryBrowserCommand::Execute()
 				cmdLinePath.SetFromSVN(cmdLinePath.GetSVNPathString().Mid(4));
 		}
 
-		url = svn.GetURLFromPath(cmdLinePath);
+		url = svn.GetUIURLFromPath(cmdLinePath);
 
 		if (url.IsEmpty())
 		{
-			if (SVN::PathIsURL(cmdLinePath))
+			if (SVN::PathIsURL(cmdLinePath.GetSVNPathString()))
 				url = cmdLinePath.GetSVNPathString();
-			else if (svn.IsRepository(cmdLinePath))
+			else if (svn.IsRepository(cmdLinePath.GetWinPathString()))
 			{
 				// The path points to a local repository.
 				// Add 'file:///' so the repository browser recognizes
@@ -56,7 +56,13 @@ bool RepositoryBrowserCommand::Execute()
 				{
 					CString p = cmdLinePath.GetWinPathString();
 					p.TrimLeft('\\');
-					url = _T("file://")+p;
+					if (CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(p)).Find('%') >= 0)
+					{
+						// the path has special chars which will get escaped!
+						url = _T("file:///\\")+p;
+					}
+					else
+						url = _T("file://")+p;
 				}
 				else
 					url = _T("file:///")+cmdLinePath.GetWinPathString();

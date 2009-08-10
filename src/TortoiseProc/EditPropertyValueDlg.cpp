@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -104,8 +104,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 			m_PropNames.AddString(_T("bugtraq:number"));
 			m_PropNames.AddString(_T("bugtraq:warnifnoissue"));
 			m_PropNames.AddString(_T("bugtraq:append"));
-			m_PropNames.AddString(_T("bugtraq:provideruuid"));
-			m_PropNames.AddString(_T("bugtraq:providerparams"));
 
 			m_PropNames.AddString(_T("tsvn:logtemplate"));
 			m_PropNames.AddString(_T("tsvn:logwidthmarker"));
@@ -117,7 +115,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 			m_PropNames.AddString(_T("tsvn:userfileproperties"));
 			m_PropNames.AddString(_T("tsvn:userdirproperties"));
 			m_PropNames.AddString(_T("tsvn:autoprops"));
-			m_PropNames.AddString(_T("tsvn:logrevregex"));
 
 			m_PropNames.AddString(_T("webviewer:revision"));
 			m_PropNames.AddString(_T("webviewer:pathrevision"));
@@ -165,9 +162,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	if (!m_sTitle.IsEmpty())
 		SetWindowText(m_sTitle);
 
-	CAppUtils::CreateFontForLogs(m_valueFont);
-	GetDlgItem(IDC_PROPVALUE)->SetFont(&m_valueFont);
-
 	AdjustControlSize(IDC_PROPRECURSIVE);
 
 	GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
@@ -182,11 +176,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("EditPropertyValueDlg"));
-	if (!m_sPropValue.IsEmpty())
-	{
-		GetDlgItem(IDC_PROPVALUE)->SetFocus();
-		return FALSE;
-	}
 	return TRUE;
 }
 
@@ -200,8 +189,7 @@ void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
 	else
 	{
 		m_bIsBinary = false;
-		m_sPropValue = UTF8ToWide(sValue.c_str()).c_str();
-		m_sPropValue.Replace(_T("\n"), _T("\r\n"));
+		m_sPropValue = MultibyteToWide(sValue.c_str()).c_str();
 	}
 }
 
@@ -221,9 +209,7 @@ void CEditPropertyValueDlg::OnOK()
 	UpdateData();
 	if (!m_bIsBinary)
 	{
-		m_sPropValue.Replace(_T("\r\n"), _T("\n"));
-		m_sPropValue.Replace(_T("\n\n"), _T("\n"));
-		m_PropValue = WideToUTF8((LPCTSTR)m_sPropValue);
+		m_PropValue = WideToMultibyte((LPCTSTR)m_sPropValue);
 	}
 	m_PropNames.GetWindowText(m_sPropName);
 	CDialog::OnOK();
@@ -289,10 +275,6 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_PROP_TT_BQWARNNOISSUE;
 		if (sName.Compare(_T("bugtraq:append"))==0)
 			nText = IDS_PROP_TT_BQAPPEND;
-		if (sName.Compare(_T("bugtraq:provideruuid"))==0)
-			nText = IDS_PROP_TT_BQPROVIDERUUID;
-		if (sName.Compare(_T("bugtraq:providerparams"))==0)
-			nText = IDS_PROP_TT_BQPROVIDERPARAMS;
 
 		if (sName.Compare(_T("tsvn:logtemplate"))==0)
 			nText = IDS_PROP_TT_TSVNLOGTEMPLATE;
@@ -314,8 +296,6 @@ void CEditPropertyValueDlg::CheckRecursive()
 			nText = IDS_PROP_TT_TSVNUSERFOLDERPROPERTIES;
 		if (sName.Compare(_T("tsvn:autoprops"))==0)
 			nText = IDS_PROP_TT_TSVNAUTOPROPS;
-		if (sName.Compare(_T("tsvn:logrevregex"))==0)
-			nText = IDS_PROP_TT_TSVNLOGREVREGEX;
 
 		if (sName.Compare(_T("webviewer:revision"))==0)
 			nText = IDS_PROP_TT_WEBVIEWERREVISION;
@@ -324,14 +304,12 @@ void CEditPropertyValueDlg::CheckRecursive()
 
 		if (nText)
 		{
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO), nText);
 			m_tooltips.AddTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD), nText);
-			m_tooltips.AddTool(GetDlgItem(IDC_PROPVALUE), nText);
 		}
 		else
 		{
 			// if no match is found then remove the tool tip so that the last tooltip is not wrongly shown
-			m_tooltips.DelTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
+			m_tooltips.RemoveTool(GetDlgItem(IDC_PROPNAMECOMBO)->GetWindow(GW_CHILD));
 		}
 	}
 }

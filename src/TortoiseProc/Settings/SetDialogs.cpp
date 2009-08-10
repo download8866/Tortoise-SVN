@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,10 +41,8 @@ CSetDialogs::CSetDialogs()
 	, m_bDiffByDoubleClick(FALSE)
 	, m_bUseSystemLocaleForDates(FALSE)
 	, m_bUseRecycleBin(TRUE)
-	, m_bAutoCloseLocal(FALSE)
 {
 	m_regAutoClose = CRegDWORD(_T("Software\\TortoiseSVN\\AutoClose"));
-	m_regAutoCloseLocal = CRegDWORD(_T("Software\\TortoiseSVN\\AutoCloseLocal"));
 	m_regDefaultLogs = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
 	m_regShortDateFormat = CRegDWORD(_T("Software\\TortoiseSVN\\LogDateFormat"), FALSE);
 	m_regUseSystemLocaleForDates = CRegDWORD(_T("Software\\TortoiseSVN\\UseSystemLocaleForDates"), TRUE);
@@ -76,7 +74,6 @@ void CSetDialogs::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_DEFAULTLOG, m_sDefaultLogs);
 	DDX_Check(pDX, IDC_SHORTDATEFORMAT, m_bShortDateFormat);
 	DDX_Control(pDX, IDC_AUTOCLOSECOMBO, m_cAutoClose);
-	DDX_Check(pDX, IDC_AUTOCLOSELOCAL, m_bAutoCloseLocal);
 	DDX_Check(pDX, IDC_WCURLFROM, m_bUseWCURL);
 	DDX_Text(pDX, IDC_CHECKOUTPATH, m_sDefaultCheckoutPath);
 	DDX_Text(pDX, IDC_CHECKOUTURL, m_sDefaultCheckoutUrl);
@@ -93,7 +90,6 @@ BEGIN_MESSAGE_MAP(CSetDialogs, ISettingsPropPage)
 	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnChange)
 	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnChange)
 	ON_CBN_SELCHANGE(IDC_AUTOCLOSECOMBO, OnCbnSelchangeAutoclosecombo)
-	ON_BN_CLICKED(IDC_AUTOCLOSELOCAL, OnChange)
 	ON_BN_CLICKED(IDC_WCURLFROM, OnChange)
 	ON_BN_CLICKED(IDC_BROWSECHECKOUTPATH, &CSetDialogs::OnBnClickedBrowsecheckoutpath)
 	ON_EN_CHANGE(IDC_CHECKOUTPATH, OnChange)
@@ -120,9 +116,10 @@ BOOL CSetDialogs::OnInitDialog()
 	m_cAutoClose.SetItemData(ind, CLOSE_NOCONFLICTS);
 	ind = m_cAutoClose.AddString(CString(MAKEINTRESOURCE(IDS_PROGRS_CLOSE_NOERROR)));
 	m_cAutoClose.SetItemData(ind, CLOSE_NOERRORS);
+	ind = m_cAutoClose.AddString(CString(MAKEINTRESOURCE(IDS_PROGRS_CLOSE_LOCAL)));
+	m_cAutoClose.SetItemData(ind, CLOSE_LOCAL);
 
 	m_dwAutoClose = m_regAutoClose;
-	m_bAutoCloseLocal = m_regAutoCloseLocal;
 	m_bShortDateFormat = m_regShortDateFormat;
 	m_bUseSystemLocaleForDates = m_regUseSystemLocaleForDates;
 	m_sFontName = m_regFontName;
@@ -148,9 +145,11 @@ BOOL CSetDialogs::OnInitDialog()
 	m_tooltips.AddTool(IDC_SHORTDATEFORMAT, IDS_SETTINGS_SHORTDATEFORMAT_TT);
 	m_tooltips.AddTool(IDC_SYSTEMLOCALEFORDATES, IDS_SETTINGS_USESYSTEMLOCALEFORDATES_TT);
 	m_tooltips.AddTool(IDC_AUTOCLOSECOMBO, IDS_SETTINGS_AUTOCLOSE_TT);
+	m_tooltips.AddTool(IDC_AUTOCOMPLETION, IDS_SETTINGS_AUTOCOMPLETION_TT);
 	m_tooltips.AddTool(IDC_WCURLFROM, IDS_SETTINGS_USEWCURL_TT);
 	m_tooltips.AddTool(IDC_CHECKOUTPATH, IDS_SETTINGS_CHECKOUTPATH_TT);
 	m_tooltips.AddTool(IDC_CHECKOUTURL, IDS_SETTINGS_CHECKOUTURL_TT);
+	m_tooltips.AddTool(IDC_CACHELOGS, IDS_SETTINGS_CACHELOGS_TT);
 	m_tooltips.AddTool(IDC_DIFFBYDOUBLECLICK, IDS_SETTINGS_DIFFBYDOUBLECLICK_TT);
 	m_tooltips.AddTool(IDC_USERECYCLEBIN, IDS_SETTINGS_USERECYCLEBIN_TT);
 
@@ -201,24 +200,51 @@ BOOL CSetDialogs::OnApply()
 		m_sFontName = m_cFontNames.GetSelFont()->m_strName;
 	else
 		m_sFontName = m_regFontName;
+	m_regAutoClose = m_dwAutoClose;
+	if (m_regAutoClose.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regAutoClose.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regShortDateFormat = m_bShortDateFormat;
+	if (m_regShortDateFormat.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regShortDateFormat.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseSystemLocaleForDates = m_bUseSystemLocaleForDates;
+	if (m_regUseSystemLocaleForDates.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseSystemLocaleForDates.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	long val = _ttol(m_sDefaultLogs);
+	if (val > 0)
+	{
+		m_regDefaultLogs = val;
+		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	}
+	else
+	{
+		m_regDefaultLogs = 100;
+		if (m_regDefaultLogs.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regDefaultLogs.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	}
 
-    Store (static_cast<DWORD>(m_dwAutoClose), m_regAutoClose);
-	Store (m_bShortDateFormat, m_regShortDateFormat);
-    Store (m_bUseSystemLocaleForDates, m_regUseSystemLocaleForDates);
-
-    long val = _ttol(m_sDefaultLogs);
-    Store (val > 0 ? val : 100, m_regDefaultLogs);
-
-    Store (m_sFontName, m_regFontName);
-    Store (m_dwFontSize, m_regFontSize);
-	Store (m_bUseWCURL, m_regUseWCURL);
-	Store (m_sDefaultCheckoutPath, m_regDefaultCheckoutPath);
-	Store (m_sDefaultCheckoutUrl, m_regDefaultCheckoutUrl);
-	Store (m_bDiffByDoubleClick, m_regDiffByDoubleClick);
-	Store (m_bUseRecycleBin, m_regUseRecycleBin);
-	Store (m_bAutoCloseLocal, m_regAutoCloseLocal);
-
-    SetModified(FALSE);
+	m_regFontName = m_sFontName;
+	if (m_regFontName.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regFontName.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regFontSize = m_dwFontSize;
+	if (m_regFontSize.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regFontSize.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseWCURL = m_bUseWCURL;
+	if (m_regUseWCURL.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseWCURL.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDefaultCheckoutPath = m_sDefaultCheckoutPath;
+	if (m_regDefaultCheckoutPath.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutPath.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDefaultCheckoutUrl = m_sDefaultCheckoutUrl;
+	if (m_regDefaultCheckoutUrl.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDefaultCheckoutUrl.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regDiffByDoubleClick = m_bDiffByDoubleClick;
+	if (m_regDiffByDoubleClick.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regDiffByDoubleClick.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regUseRecycleBin = m_bUseRecycleBin;
+	if (m_regUseRecycleBin.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regUseRecycleBin.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	SetModified(FALSE);
 	return ISettingsPropPage::OnApply();
 }
 
@@ -226,7 +252,7 @@ void CSetDialogs::OnCbnSelchangeAutoclosecombo()
 {
 	if (m_cAutoClose.GetCurSel() != CB_ERR)
 	{
-		m_dwAutoClose = (DWORD)m_cAutoClose.GetItemData(m_cAutoClose.GetCurSel());
+		m_dwAutoClose = m_cAutoClose.GetItemData(m_cAutoClose.GetCurSel());
 	}
 	SetModified();
 }

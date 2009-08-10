@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,8 +29,6 @@ using namespace std;
 #define BUGTRAQPROPNAME_URL               _T("bugtraq:url")
 #define BUGTRAQPROPNAME_WARNIFNOISSUE     _T("bugtraq:warnifnoissue")
 #define BUGTRAQPROPNAME_APPEND		      _T("bugtraq:append")
-#define BUGTRAQPROPNAME_PROVIDERUUID      _T("bugtraq:provideruuid")
-#define BUGTRAQPROPNAME_PROVIDERPARAMS    _T("bugtraq:providerparams")
 
 #define PROJECTPROPNAME_LOGTEMPLATE		  _T("tsvn:logtemplate")
 #define PROJECTPROPNAME_LOGWIDTHLINE	  _T("tsvn:logwidthmarker")
@@ -42,7 +40,6 @@ using namespace std;
 #define PROJECTPROPNAME_USERFILEPROPERTY  _T("tsvn:userfileproperties")
 #define PROJECTPROPNAME_USERDIRPROPERTY   _T("tsvn:userdirproperties")
 #define PROJECTPROPNAME_AUTOPROPS		  _T("tsvn:autoprops")
-#define PROJECTPROPNAME_LOGREVREGEX		  _T("tsvn:logrevregex")
 
 #define PROJECTPROPNAME_WEBVIEWER_REV     _T("webviewer:revision")
 #define PROJECTPROPNAME_WEBVIEWER_PATHREV _T("webviewer:pathrevision")
@@ -85,7 +82,6 @@ public:
 	BOOL FindBugID(const CString& msg, CWnd * pWnd);
 
 	CString FindBugID(const CString& msg);
-	std::set<CString> FindBugIDs(const CString& msg);
 	/**
 	 * Searches for the BugID inside a log message. If one is found,
 	 * that BugID is returned. If none is found, an empty string is returned.
@@ -130,16 +126,6 @@ public:
 	 */
 	CString GetLogSummary(const CString& sMessage);
 
-    /**
-     * Transform the log message using \ref GetLogSummary and post-process it
-     * to be suitable for 1-line controls.
-     */
-    CString MakeShortMessage(const CString& message);
-
-	/**
-	 * Returns the path from which the properties were read.
-	 */
-	CTSVNPath GetPropsPath() {return propsPath;}
 public:
 	/** The label to show in the commit dialog where the issue number/bug id
 	 * is entered. Example: "Bug-ID: " or "Issue-No.:". Default is "Bug-ID :" */
@@ -172,14 +158,6 @@ public:
 	/** If set to FALSE, then the bug tracking entry is inserted at the top of the
 	   log message instead of at the bottom. Default is TRUE */
 	BOOL		bAppend;
-
-	/** the COM uuid of the bugtraq provider which implements the IBugTraqProvider
-	   interface. */
-	CString		sProviderUuid;
-
-	/** the parameters passed to the COM bugtraq provider which implements the
-	    IBugTraqProvider interface */
-	CString		sProviderParams;
 
 	/** The number of chars the width marker should be shown at. If the property
 	 * is not set, then this value is 80 by default. */
@@ -221,14 +199,8 @@ public:
 	 * is the first matching regex group.
 	 */
 	CString		sLogSummaryRe;
-
-	/**
-	 * A regex string to extract revisions from a log message.
-	 */
-	CString		sLogRevRegex;
 private:
 	CString		sAutoProps;
-	CTSVNPath	propsPath;
 #ifdef DEBUG
 	friend class PropTest;
 #endif

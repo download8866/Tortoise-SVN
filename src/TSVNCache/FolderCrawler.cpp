@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2009 - TortoiseSVN
+// External Cache Copyright (C) 2005-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "registry.h"
 #include "TSVNCache.h"
 #include "shlobj.h"
-#include "SysInfo.h"
 
 
 CFolderCrawler::CFolderCrawler(void)
@@ -33,9 +32,6 @@ CFolderCrawler::CFolderCrawler(void)
 	m_hThread = INVALID_HANDLE_VALUE;
 	m_lCrawlInhibitSet = 0;
 	m_crawlHoldoffReleasesAt = (long)GetTickCount();
-	m_bRun = false;
-	m_bPathsAddedSinceLastCrawl = false;
-	m_bItemsAddedSinceLastCrawl = false;
 }
 
 CFolderCrawler::~CFolderCrawler(void)
@@ -73,7 +69,7 @@ void CFolderCrawler::Initialise()
 	// will behave properly (with normal priority at worst).
 
 	m_bRun = true;
-	unsigned int threadId = 0;
+	unsigned int threadId;
 	m_hThread = (HANDLE)_beginthreadex(NULL,0,ThreadEntry,this,0,&threadId);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
 }
@@ -124,11 +120,18 @@ void CFolderCrawler::WorkerThread()
 	bool bFirstRunAfterWakeup = false;
 	DWORD currentTicks = 0;
 
+	// Quick check if we're on Vista
+	OSVERSIONINFOEX inf;
+	SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO *)&inf);
+	WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+
 	for(;;)
 	{
-		bool bRecursive = !!(DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
+		bool bRecursive = !!(DWORD)CRegStdWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
 
-		if (SysInfo::Instance().IsVistaOrLater())
+		if (fullver >= 0x0600)
 		{
 			SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 		}
@@ -143,7 +146,7 @@ void CFolderCrawler::WorkerThread()
 			break;
 		}
 
-		if (SysInfo::Instance().IsVistaOrLater())
+		if (fullver >= 0x0600)
 		{
 			SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 		}
@@ -168,7 +171,8 @@ void CFolderCrawler::WorkerThread()
 			if(m_lCrawlInhibitSet > 0)
 			{
 				// We're in crawl hold-off 
-				Sleep(200);
+				ATLTRACE("Crawl hold-off\n");
+				Sleep(50);
 				continue;
 			}
 			if (bFirstRunAfterWakeup)
@@ -179,6 +183,7 @@ void CFolderCrawler::WorkerThread()
 			}
 			if ((m_blockReleasesAt < GetTickCount())&&(!m_blockedPath.IsEmpty()))
 			{
+				ATLTRACE(_T("stop blocking path %s\n"), m_blockedPath.GetWinPath());
 				m_blockedPath.Reset();
 			}
 	
@@ -195,22 +200,40 @@ void CFolderCrawler::WorkerThread()
 
 					if (m_bPathsAddedSinceLastCrawl)
 					{
-						// The queue has changed - remove duplicate entries
-						RemoveDuplicates(m_pathsToUpdate);
+						// The queue has changed - it's worth sorting and de-duping
+						std::sort(m_pathsToUpdate.begin(), m_pathsToUpdate.end());
+						m_pathsToUpdate.erase(std::unique(m_pathsToUpdate.begin(), m_pathsToUpdate.end(), &CTSVNPath::PredLeftSameWCPathAsRight), m_pathsToUpdate.end());
 						m_bPathsAddedSinceLastCrawl = false;
 					}
 					workingPath = m_pathsToUpdate.front();
-					m_pathsToUpdate.pop_front();
-					if ((DWORD(workingPath.GetCustomData()) >= currentTicks) ||
-						((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath))))
+					if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
+						m_pathsToUpdate.pop_front();
+					else
 					{
-						// move the path to the end of the list
-						m_pathsToUpdate.push_back(workingPath);
-						if (m_pathsToUpdate.size() < 3)
-							Sleep(200);
-						continue;
+						// since we always sort the whole list, we risk adding tons of new paths to m_pathsToUpdate
+						// until the last one in the sorted list finally times out.
+						// to avoid that, we go through the list again and crawl the first one which is valid
+						// to crawl. That way, we still reduce the size of the list.
+						if (m_pathsToUpdate.size() > 10)
+							ATLTRACE("attention: the list of paths to update is now %ld big!\n", m_pathsToUpdate.size());
+						for (std::deque<CTSVNPath>::iterator it = m_pathsToUpdate.begin(); it != m_pathsToUpdate.end(); ++it)
+						{
+							workingPath = *it;
+							if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
+							{
+								m_pathsToUpdate.erase(it);
+								break;
+							}
+						}
 					}
 				}
+				if (DWORD(workingPath.GetCustomData()) >= currentTicks)
+				{
+					Sleep(50);
+					continue;
+				}
+				if ((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath)))
+					continue;
 				// don't crawl paths that are excluded
 				if (!CSVNStatusCache::Instance().IsPathAllowed(workingPath))
 					continue;
@@ -255,6 +278,7 @@ void CFolderCrawler::WorkerThread()
 						workingPath = workingPath.GetContainingDirectory();	
 					} while(workingPath.IsAdminDir());
 
+					ATLTRACE(_T("Invalidating and refreshing folder: %s\n"), workingPath.GetWinPath());
 					{
 						AutoLocker print(critSec);
 						_stprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _T("Invalidating and refreshing folder: %s"), workingPath.GetWinPath());
@@ -281,6 +305,7 @@ void CFolderCrawler::WorkerThread()
 							if ((status != svn_wc_status_normal)&&(pCachedDir->GetCurrentFullStatus() != status))
 							{
 								CSVNStatusCache::Instance().UpdateShell(workingPath);
+								ATLTRACE(_T("shell update in crawler for %s\n"), workingPath.GetWinPath());
 							}
 						}
 						else
@@ -308,6 +333,7 @@ void CFolderCrawler::WorkerThread()
 					}
 					if (!workingPath.Exists())
 						continue;
+					ATLTRACE(_T("Updating path: %s\n"), workingPath.GetWinPath());
 					{
 						AutoLocker print(critSec);
 						_stprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _T("Updating path: %s"), workingPath.GetWinPath());
@@ -334,6 +360,7 @@ void CFolderCrawler::WorkerThread()
 					if (ce.GetEffectiveStatus() > svn_wc_status_unversioned)
 					{
 						CSVNStatusCache::Instance().UpdateShell(workingPath);
+						ATLTRACE(_T("shell update in folder crawler for %s\n"), workingPath.GetWinPath());
 					}
 					CSVNStatusCache::Instance().Done();
 					AutoLocker lock(m_critSec);
@@ -356,8 +383,9 @@ void CFolderCrawler::WorkerThread()
 
 					if (m_bItemsAddedSinceLastCrawl)
 					{
-						// The queue has changed - remove duplicate entries
-						RemoveDuplicates(m_foldersToUpdate);
+						// The queue has changed - it's worth sorting and de-duping
+						std::sort(m_foldersToUpdate.begin(), m_foldersToUpdate.end());
+						m_foldersToUpdate.erase(std::unique(m_foldersToUpdate.begin(), m_foldersToUpdate.end(), &CTSVNPath::PredLeftEquivalentToRight), m_foldersToUpdate.end());
 						m_bItemsAddedSinceLastCrawl = false;
 					}
 					// create a new CTSVNPath object to make sure the cached flags are requested again.
@@ -365,20 +393,38 @@ void CFolderCrawler::WorkerThread()
 					// now when crawling.
 					workingPath = CTSVNPath(m_foldersToUpdate.front().GetWinPath());
 					workingPath.SetCustomData(m_foldersToUpdate.front().GetCustomData());
-					m_foldersToUpdate.pop_front();
-					if ((DWORD(workingPath.GetCustomData()) >= currentTicks) ||
-						((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath))))
+					if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
+						m_foldersToUpdate.pop_front();
+					else
 					{
-						// move the path to the end of the list
-						m_foldersToUpdate.push_back(workingPath);
-						if (m_foldersToUpdate.size() < 3)
-							Sleep(200);
-						continue;
+						// since we always sort the whole list, we risk adding tons of new paths to m_pathsToUpdate
+						// until the last one in the sorted list finally times out.
+						// to avoid that, we go through the list again and crawl the first one which is valid
+						// to crawl. That way, we still reduce the size of the list.
+						if (m_foldersToUpdate.size() > 10)
+							ATLTRACE("attention: the list of folders to update is now %ld big!\n", m_foldersToUpdate.size());
+						for (std::deque<CTSVNPath>::iterator it = m_foldersToUpdate.begin(); it != m_foldersToUpdate.end(); ++it)
+						{
+							workingPath = *it;
+							if ((DWORD(workingPath.GetCustomData()) < currentTicks)||(DWORD(workingPath.GetCustomData()) > (currentTicks + 200000)))
+							{
+								m_foldersToUpdate.erase(it);
+								break;
+							}
+						}
 					}
 				}
+				if (DWORD(workingPath.GetCustomData()) >= currentTicks)
+				{
+					Sleep(50);
+					continue;
+				}
+				if ((!m_blockedPath.IsEmpty())&&(m_blockedPath.IsAncestorOf(workingPath)))
+					continue;
 				if (!CSVNStatusCache::Instance().IsPathAllowed(workingPath))
 					continue;
 
+				ATLTRACE(_T("Crawling folder: %s\n"), workingPath.GetWinPath());
 				{
 					AutoLocker print(critSec);
 					_stprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _T("Crawling folder: %s"), workingPath.GetWinPath());
@@ -407,7 +453,6 @@ void CFolderCrawler::WorkerThread()
 				}
 				if (cachedDir)
 					cachedDir->RefreshStatus(bRecursive);
-				CSVNStatusCache::Instance().Done();
 
 				// While refreshing the status, we could get another crawl request for the same folder.
 				// This can happen if the crawled folder has a lower status than one of the child folders
@@ -421,32 +466,14 @@ void CFolderCrawler::WorkerThread()
 						m_bItemsAddedSinceLastCrawl = false;
 					}
 				}
+				CSVNStatusCache::Instance().Done();
 			}
 		}
 	}
 	_endthread();
 }
 
-void CFolderCrawler::RemoveDuplicates(std::deque<CTSVNPath>& queue)
-{
-	std::set<CTSVNPath> dupSet;
-	std::deque<CTSVNPath>::iterator eraseIt = queue.begin();
-	while (eraseIt != queue.end())
-	{
-		if (dupSet.find(*eraseIt) != dupSet.end())
-		{
-			// this is either a duplicate or was just crawled recently, remove it
-			eraseIt = queue.erase(eraseIt);
-		}
-		else
-		{
-			dupSet.insert(*eraseIt);
-			++eraseIt;
-		}
-	}
-}
-
-bool CFolderCrawler::SetHoldoff(DWORD milliseconds /* = 500*/)
+bool CFolderCrawler::SetHoldoff(DWORD milliseconds /* = 100*/)
 {
 	long tick = (long)GetTickCount();
 	bool ret = ((tick - m_crawlHoldoffReleasesAt) > 0);
@@ -456,7 +483,7 @@ bool CFolderCrawler::SetHoldoff(DWORD milliseconds /* = 500*/)
 
 void CFolderCrawler::BlockPath(const CTSVNPath& path, DWORD ticks)
 {
-	AutoLocker lock(m_critSec);
+	ATLTRACE(_T("block path %s from being crawled\n"), path.GetWinPath());
 	m_blockedPath = path;
 	if (ticks == 0)
 		m_blockReleasesAt = GetTickCount()+10000;

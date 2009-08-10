@@ -45,14 +45,9 @@
 			</menuchoice>.
 		</para>
 		<para>
-			<mediaobject>
-				<videoobject>
-					<videodata fileref="images/svn_move.swf" format="SWF" contentwidth="590" contentdepth="290"/>
-				</videoobject>
-				<imageobject>
-					<imagedata fileref="images/svn_move.png"/>
-				</imageobject>
-			</mediaobject>
+			<videoobject>
+				<videodata fileref="images/svn_move.swf" format="SWF" contentwidth="590" contentdepth="290"/>
+			</videoobject>
 		</para>
 	</sect1>
 	<sect1 id="tsvn-howto-minlogmsgsize">
@@ -293,25 +288,22 @@
 				The only way to remove data from the repository is to use the
 				Subversion command line tool <literal>svnadmin</literal>.
 				You can find a description of how this works in the
-				<ulink url="http://svnbook.red-bean.com/en/1.5/svn.reposadmin.maint.html">
+				<ulink url="http://svnbook.red-bean.com/en/1.4/svn.reposadmin.maint.html">
 					<citetitle>Repository Maintenance</citetitle>
 				</ulink>.
 			</para>
 		</sect2>
 	</sect1>
 	<sect1 id="tsvn-howto-compare">
-		<title>Compare two revisions of a file or folder</title>
+		<title>Compare two revisions of a file</title>
 		<indexterm>
 			<primary>compare files</primary>
-		</indexterm>
-		<indexterm>
-			<primary>compare folders</primary>
 		</indexterm>
 		<indexterm>
 			<primary>changes</primary>
 		</indexterm>
 		<para>
-			If you want to compare two revisions in an item's history,
+			If you want to compare two revisions in a file's history,
 			for example revisions 100 and 200 of the same file, just use
 			<menuchoice>
 				<guimenu>TortoiseSVN</guimenu>
@@ -325,7 +317,7 @@
 			</menuchoice>.
 		</para>
 		<para>
-			If you want to compare the same item in two different trees,
+			If you want to compare the same file in two different trees,
 			for example the trunk and a branch, you can use the repository
 			browser to open up both trees, select the file in both places,
 			then use
@@ -348,9 +340,6 @@
 			</menuchoice>.
 			This will show a list of changed files, and you can then select
 			individual files to view the changes in detail.
-			You can also export a tree structure containing all the changed
-			files, or simply a list of all changed files.
-			Read <xref linkend="tsvn-dug-compare-revs"/> for more information.
 			Alternatively use
 			<menuchoice>
 				<guimenu>Context Menu</guimenu>
@@ -387,7 +376,7 @@
 				each line has the name of a sub-folder which you want to use
 				as the checkout folder for common code, and the repository URL
 				that you want to be checked out there. For full details
-				refer to <xref linkend="tsvn-dug-externals"/>.
+				refer to <xref linkend="tsvn-dug-import-4"/>.
 			</para>
 			<para>
 				Commit the new folder. Now when you update, Subversion

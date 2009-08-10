@@ -2,19 +2,19 @@
 <!DOCTYPE chapter SYSTEM "../../dtd/dblite.dtd">
 <chapter id="tsvn-subwcrev">
 	<title>The SubWCRev Program</title>
+	<indexterm>
+		<primary>version extraction</primary>
+	</indexterm>
+	<indexterm>
+		<primary>SubWCRev</primary>
+	</indexterm>
+	<indexterm>
+		<primary>COM</primary>
+	</indexterm>
+	<indexterm>
+		<primary>version number in files</primary>
+	</indexterm>
 	<simplesect>
-		<indexterm>
-			<primary>version extraction</primary>
-		</indexterm>
-		<indexterm>
-			<primary>SubWCRev</primary>
-		</indexterm>
-		<indexterm>
-			<primary>COM</primary>
-		</indexterm>
-		<indexterm>
-			<primary>version number in files</primary>
-		</indexterm>
 		<para>
 			SubWCRev is Windows console program which can be used to read
 			the status of a Subversion working copy and optionally perform
@@ -192,8 +192,7 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 							<entry>
 								Replaced with the current system date/time.
 								This can be used to indicate the build time.
-								Time formatting can be used as described for
-								<literal>$WCDATE$</literal>.
+								Time formatting is as described above.
 							</entry>
 						</row>
 						<row>
@@ -232,6 +231,18 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 							</entry>
 						</row>
 						<row>
+							<entry condition="pot">$WCNOW$</entry>
+							<entry>
+								Replaced with the current time and date
+							</entry>
+						</row>
+						<row>
+							<entry condition="pot">$WCNOW=</entry>
+							<entry>
+								Replaced with the current time and date in standard format
+							</entry>
+						</row>
+						<row>
 							<entry condition="pot">$WCINSVN$</entry>
 							<entry>
 								<literal>$WCINSVN?TText:FText$</literal> is
@@ -259,40 +270,25 @@ SubWCRev WorkingCopyPath [SrcVersionFile DstVersionFile] [-nmdfe]
 						<row>
 							<entry condition="pot">$WCLOCKDATE$</entry>
 							<entry>
-								Replaced with the lock date.
-								Time formatting can be used as described for
-								<literal>$WCDATE$</literal>.
+								Replaced with the lock date
 							</entry>
 						</row>
 						<row>
 							<entry condition="pot">$WCLOCKOWNER$</entry>
 							<entry>
-								Replaced with the name of the lock owner.
+								Replaced with the name of the lock owner
 							</entry>
 						</row>
 						<row>
 							<entry condition="pot">$WCLOCKCOMMENT$</entry>
 							<entry>
-								Replaced with the comment of the lock.
+								Replaced with the comment of the lock
 							</entry>
 						</row>
 					</tbody>
 				</tgroup>
 			</table>
 		</para>
-		<tip>
-			<para>
-				Some of these keywords apply to single files rather than to
-				an entire working copy, so it only makes sense to use these
-				when SubWCRev is called to scan a single file. This applies to
-				<literal>$WCINSVN$</literal>, 
-				<literal>$WCNEEDSLOCK$</literal>, 
-				<literal>$WCISLOCKED$</literal>, 
-				<literal>$WCLOCKDATE$</literal>, 
-				<literal>$WCLOCKOWNER$</literal> and 
-				<literal>$WCLOCKCOMMENT$</literal>.
-			</para>
-		</tip>
 	</sect1>
 	<!-- ================================================================= -->
 	<!-- ======================== SECTION 3 ============================== -->
@@ -331,7 +327,8 @@ char *Modified = "Modified";
 char *Date     = "2005/06/15 11:15:12";
 char *Range    = "3699:3701";
 char *Mixed    = "Mixed revision WC";
-char *URL      = "http://project.domain.org/svn/trunk/src";
+char *URL      = "http://tortoisesvn.tigris.org/svn/tortoisesvn/...
+trunk/src/SubWCRev";
 
 #if 1
 #error Source is modified
@@ -430,45 +427,6 @@ char *URL      = "http://project.domain.org/svn/trunk/src";
 								Equivalent to <literal>$WCURL$</literal>
 							</entry>
 						</row>
-						<row>
-							<entry condition="pot">.IsSvnItem</entry>
-							<entry>
-								True if the item is versioned.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.NeedsLocking</entry>
-							<entry>
-								True if the item has the <literal>svn:needs-lock</literal>
-								property set.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.IsLocked</entry>
-							<entry>
-								True if the item is locked.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.LockCreationDate</entry>
-							<entry>
-								String representing the date when the lock was
-								created, or an empty string if the item is not locked.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.LockOwner</entry>
-							<entry>
-								String representing the lock owner, or an empty
-								string if the item is not locked.
-							</entry>
-						</row>
-						<row>
-							<entry condition="pot">.LockComment</entry>
-							<entry>
-								The message entered when the lock was created.
-							</entry>
-						</row>
 					</tbody>
 				</tgroup>
 			</table>
@@ -481,78 +439,40 @@ char *URL      = "http://project.domain.org/svn/trunk/src";
 
 filesystem = new ActiveXObject("Scripting.FileSystemObject");
 
-revObject1 = new ActiveXObject("SubWCRev.object");
-revObject2 = new ActiveXObject("SubWCRev.object");
-revObject3 = new ActiveXObject("SubWCRev.object");
-revObject4 = new ActiveXObject("SubWCRev.object");
+SubWCRev1 = new ActiveXObject("SubWCRev.object");
+SubWCRev2 = new ActiveXObject("SubWCRev.object");
+SubWCRev3 = new ActiveXObject("SubWCRev.object");
 
-revObject1.GetWCInfo(
-    filesystem.GetAbsolutePathName("."), 1, 1);
-revObject2.GetWCInfo(
-    filesystem.GetAbsolutePathName(".."), 1, 1);
-revObject3.GetWCInfo(
-    filesystem.GetAbsolutePathName("SubWCRev.cpp"), 1, 1);
-revObject4.GetWCInfo(
-    filesystem.GetAbsolutePathName("..\\.."), 1, 1);
+SubWCRev1.GetWCInfo(filesystem.GetAbsolutePathName("."), 0, 0);
+SubWCRev2.GetWCInfo(filesystem.GetAbsolutePathName(".."), 1, 1);
+SubWCRev3.GetWCInfo(filesystem.GetAbsolutePathName("SubWCRev.cpp"), 
+                    0, 0);
 
-wcInfoString1 = "Revision = " + revObject1.Revision + 
-				"\nMin Revision = " + revObject1.MinRev + 
-				"\nMax Revision = " + revObject1.MaxRev + 
-				"\nDate = " + revObject1.Date + 
-				"\nURL = " + revObject1.Url + "\nAuthor = " + 
-				revObject1.Author + "\nHasMods = " + 
-				revObject1.HasModifications + "\nIsSvnItem = " + 
-				revObject1.IsSvnItem + "\nNeedsLocking = " + 
-				revObject1.NeedsLocking + "\nIsLocked = " + 
-				revObject1.IsLocked + "\nLockCreationDate = " + 
-				revObject1.LockCreationDate + "\nLockOwner = " + 
-				revObject1.LockOwner + "\nLockComment = " + 
-				revObject1.LockComment;
-wcInfoString2 = "Revision = " + revObject2.Revision + 
-				"\nMin Revision = " + revObject2.MinRev + 
-				"\nMax Revision = " + revObject2.MaxRev + 
-				"\nDate = " + revObject2.Date + 
-				"\nURL = " + revObject2.Url + "\nAuthor = " + 
-				revObject2.Author + "\nHasMods = " + 
-				revObject2.HasModifications + "\nIsSvnItem = " + 
-				revObject2.IsSvnItem + "\nNeedsLocking = " + 
-				revObject2.NeedsLocking + "\nIsLocked = " + 
-				revObject2.IsLocked + "\nLockCreationDate = " + 
-				revObject2.LockCreationDate + "\nLockOwner = " + 
-				revObject2.LockOwner + "\nLockComment = " + 
-				revObject2.LockComment;
-wcInfoString3 = "Revision = " + revObject3.Revision + 
-				"\nMin Revision = " + revObject3.MinRev + 
-				"\nMax Revision = " + revObject3.MaxRev + 
-				"\nDate = " + revObject3.Date + 
-				"\nURL = " + revObject3.Url + "\nAuthor = " + 
-				revObject3.Author + "\nHasMods = " + 
-				revObject3.HasModifications + "\nIsSvnItem = " + 
-				revObject3.IsSvnItem + "\nNeedsLocking = " + 
-				revObject3.NeedsLocking + "\nIsLocked = " + 
-				revObject3.IsLocked + "\nLockCreationDate = " + 
-				revObject3.LockCreationDate + "\nLockOwner = " + 
-				revObject3.LockOwner + "\nLockComment = " + 
-				revObject3.LockComment;
-wcInfoString4 = "Revision = " + revObject4.Revision + 
-				"\nMin Revision = " + revObject4.MinRev + 
-				"\nMax Revision = " + revObject4.MaxRev + 
-				"\nDate = " + revObject4.Date + 
-				"\nURL = " + revObject4.Url + "\nAuthor = " + 
-				revObject4.Author + "\nHasMods = " + 
-				revObject4.HasModifications + "\nIsSvnItem = " + 
-				revObject4.IsSvnItem + "\nNeedsLocking = " + 
-				revObject4.NeedsLocking + "\nIsLocked = " + 
-				revObject4.IsLocked + "\nLockCreationDate = " + 
-				revObject4.LockCreationDate + "\nLockOwner = " + 
-				revObject4.LockOwner + "\nLockComment = " + 
-				revObject4.LockComment;
+sInfo1 = "Revision = " + SubWCRev1.Revision + 
+         "\nMin Revision = " + SubWCRev1.MinRev +
+         "\nMax Revision = " + SubWCRev1.MaxRev +
+         "\nDate = " + SubWCRev1.Date +
+         "\nURL = " + SubWCRev1.Url +
+         "\nAuthor = " + SubWCRev1.Author +
+         "\nHasMods = " + SubWCRev1.HasModifications;
+sInfo2 = "Revision = " + SubWCRev2.Revision +
+         "\nMin Revision = " + SubWCRev2.MinRev +
+         "\nMax Revision = " + SubWCRev2.MaxRev +
+         "\nDate = " + SubWCRev2.Date +
+         "\nURL = " + SubWCRev2.Url +
+         "\nAuthor = " + SubWCRev2.Author +
+         "\nHasMods = " + SubWCRev2.HasModifications;
+sInfo3 = "Revision = " + SubWCRev3.Revision +
+         "\nMin Revision = " + SubWCRev3.MinRev +
+         "\nMax Revision = " + SubWCRev3.MaxRev +
+         "\nDate = " + SubWCRev3.Date +
+         "\nURL = " + SubWCRev3.Url +
+         "\nAuthor = " + SubWCRev3.Author +
+         "\nHasMods = " + SubWCRev3.HasModifications;
 
-WScript.Echo(wcInfoString1);
-WScript.Echo(wcInfoString2);
-WScript.Echo(wcInfoString3);
-WScript.Echo(wcInfoString4);
-
+WScript.Echo(sInfo1);
+WScript.Echo(sInfo2);
+WScript.Echo(sInfo3);
 </programlisting>
 		</para>
 	</sect1>

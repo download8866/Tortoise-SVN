@@ -71,33 +71,9 @@ HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage(
     /* [in] */ BSTR originalMessage,
     /* [retval][out] */ BSTR *newMessage)
 {
-	BSTR bugID = SysAllocString(_T(""));
-	BSTR * bugIDOut = NULL;
-	HRESULT hr = GetCommitMessage2(hParentWnd, parameters, NULL, commonRoot, pathList, originalMessage, bugID, bugIDOut, NULL, NULL, newMessage);
-	SysFreeString(bugID);
-	return hr;
-}
+	// TODO: Error checking.
 
-HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage2( 
-	/* [in] */ HWND hParentWnd,
-	/* [in] */ BSTR parameters,
-	/* [in] */ BSTR commonURL,
-	/* [in] */ BSTR commonRoot,
-	/* [in] */ SAFEARRAY * pathList,
-	/* [in] */ BSTR originalMessage,
-	/* [in] */ BSTR bugID,
-	/* [out]*/ BSTR * bugIDOut,
-	/* [out]*/ SAFEARRAY ** revPropNames,
-	/* [out]*/ SAFEARRAY ** revPropValues,
-	/* [retval][out] */ BSTR *newMessage)
-{
 	USES_CONVERSION;
-
-	if (commonURL)
-	{
-		// do something with the common root url
-		// if necessary
-	}
 
 	parameters_t params = ParseParameters(parameters);
 	CString commandLine = params[CString("CommandLine")];
@@ -160,93 +136,11 @@ HRESULT STDMETHODCALLTYPE CProvider::GetCommitMessage2(
 		CloseHandle(hOrig);
 
 		message = A2T((const char *)buffer);
-
-
-		CString propName1 = _T("bugtraq:issueIDs");
-		CString propName2 = _T("myownproperty");
-		CString propValue1 = _T("13, 16, 17");
-		CString propValue2 = _T("myownvalue");
-
-		{
-			SAFEARRAYBOUND bounds = {2, 0};
-			SAFEARRAY* psa = SafeArrayCreate(VT_BSTR, 1, &bounds);
-			BSTR* strArray;
-			SafeArrayAccessData(psa, reinterpret_cast<void**> (&strArray));
-			strArray[0] = propName1.AllocSysString();
-			strArray[1] = propName2.AllocSysString();
-			SafeArrayUnaccessData(psa);
-			*revPropNames = psa;
-		}
-		{
-			SAFEARRAYBOUND bounds = {2, 0};
-			SAFEARRAY* psa = SafeArrayCreate(VT_BSTR, 1, &bounds);
-			BSTR* strArray;
-			SafeArrayAccessData(psa, reinterpret_cast<void**> (&strArray));
-			strArray[0] = propValue1.AllocSysString();
-			strArray[1] = propValue2.AllocSysString();
-			SafeArrayUnaccessData(psa);
-			*revPropValues = psa;
-		}
-		
-
 	}
 
 	DeleteFile(szPathListTempFile);
 	DeleteFile(szOriginalMessageTempFile);
 
-	CString bugIDString = _T("12345,4567");
-	*bugIDOut = bugIDString.AllocSysString();
-
-
 	*newMessage = message.AllocSysString();
 	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CProvider::CheckCommit (
-	 /* [in] */ HWND hParentWnd,
-	 /* [in] */ BSTR parameters,
-	 /* [in] */ BSTR commonURL,
-	 /* [in] */ BSTR commonRoot,
-	 /* [in] */ SAFEARRAY * pathList,
-	 /* [in] */ BSTR commitMessage,
-	 /* [out, retval] */ BSTR * errorMessage)
-{
-	CString err = _T("Test error string");
-	*errorMessage = err.AllocSysString();
-	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CProvider::OnCommitFinished (
-	/* [in] */ HWND hParentWnd,
-	/* [in] */ BSTR commonRoot,
-	/* [in] */ SAFEARRAY * pathList,
-	/* [in] */ BSTR logMessage,
-	/* [in] */ ULONG revision,
-	/* [out, retval] */ BSTR * error)
-{
-	CString err = _T("Test error string");
-	*error = err.AllocSysString();
-	return S_OK;
-}
-
-HRESULT STDMETHODCALLTYPE CProvider::HasOptions(
-				   /* [out, retval] */ VARIANT_BOOL *ret)
-{
-	MessageBox(NULL, _T("test"), _T("test"), MB_ICONERROR);
-	*ret = VARIANT_FALSE;
-	MessageBox(NULL, _T("test2"), _T("test2"), MB_ICONERROR);
-	return S_OK;
-}
-
-// this method is called if HasOptions() returned true before.
-// Use this to show a custom dialog so the user doesn't have to
-// create the parameters string manually
-HRESULT STDMETHODCALLTYPE CProvider::ShowOptionsDialog(
-						  /* [in] */ HWND hParentWnd,
-						  /* [in] */ BSTR parameters,
-						  /* [out, retval] */ BSTR * newparameters
-						  )
-{
-	// we don't show an options dialog
-	return E_NOTIMPL;
 }

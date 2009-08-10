@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,6 @@ CString CommitCommand::LoadLogMessage()
 
 bool CommitCommand::Execute()
 {
-	bool bRet = false;
 	bool bFailed = true;
 	CTSVNPathList selectedList;
 	if (parser.HasKey(_T("logmsg")) && (parser.HasKey(_T("logmsgfile"))))
@@ -51,7 +50,7 @@ bool CommitCommand::Execute()
 		return false;
 	}
 	CString sLogMsg = LoadLogMessage();
-	bool bSelectFilesForCommit = !!DWORD(CRegStdDWORD(_T("Software\\TortoiseSVN\\SelectFilesForCommit"), TRUE));
+	bool bSelectFilesForCommit = !!DWORD(CRegStdWORD(_T("Software\\TortoiseSVN\\SelectFilesForCommit"), TRUE));
 	DWORD exitcode = 0;
 	CString error;
 	if (CHooks::Instance().StartCommit(pathList, sLogMsg, exitcode, error))
@@ -96,26 +95,21 @@ bool CommitCommand::Execute()
 			progDlg.SetChangeList(dlg.m_sChangeList, !!dlg.m_bKeepChangeList);
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Commit);
 			progDlg.SetOptions(dlg.m_bKeepLocks ? ProgOptKeeplocks : ProgOptNone);
 			progDlg.SetPathList(dlg.m_pathList);
 			progDlg.SetCommitMessage(dlg.m_sLogMessage);
 			progDlg.SetDepth(dlg.m_bRecursive ? svn_depth_infinity : svn_depth_empty);
 			progDlg.SetSelectedList(dlg.m_selectedPathList);
-			progDlg.SetItemCount(static_cast<long>(dlg.m_itemsCount));
-			progDlg.SetBugTraqProvider(dlg.m_BugTraqProvider);
-			progDlg.SetRevisionProperties(dlg.m_revProps);
+			progDlg.SetItemCount(dlg.m_itemsCount);
 			progDlg.DoModal();
 			CRegDWORD err = CRegDWORD(_T("Software\\TortoiseSVN\\ErrorOccurred"), FALSE);
 			err = (DWORD)progDlg.DidErrorsOccur();
 			bFailed = progDlg.DidErrorsOccur();
-			bRet = progDlg.DidErrorsOccur();
 			CRegDWORD bFailRepeat = CRegDWORD(_T("Software\\TortoiseSVN\\CommitReopen"), FALSE);
 			if (DWORD(bFailRepeat)==0)
 				bFailed = false;		// do not repeat if the user chose not to in the settings.
 		}
 	}
-	return bRet;
+	return true;
 }

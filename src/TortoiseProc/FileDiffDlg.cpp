@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,6 @@
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "RevisionDlg.h"
-#include "IconMenu.h"
 #include ".\filediffdlg.h"
 
 #define ID_COMPARE 1
@@ -37,7 +36,6 @@
 #define ID_SAVEAS 3
 #define ID_EXPORT 4
 #define ID_CLIPBOARD 5
-#define ID_UNIFIEDDIFF 6
 
 BOOL	CFileDiffDlg::m_bAscending = FALSE;
 int		CFileDiffDlg::m_nSortedColumn = -1;
@@ -80,10 +78,9 @@ BEGIN_MESSAGE_MAP(CFileDiffDlg, CResizableStandAloneDialog)
 	ON_NOTIFY(HDN_ITEMCLICK, 0, &CFileDiffDlg::OnHdnItemclickFilelist)
 	ON_BN_CLICKED(IDC_REV1BTN, &CFileDiffDlg::OnBnClickedRev1btn)
 	ON_BN_CLICKED(IDC_REV2BTN, &CFileDiffDlg::OnBnClickedRev2btn)
-	ON_REGISTERED_MESSAGE(CFilterEdit::WM_FILTEREDIT_CANCELCLICKED, OnClickedCancelFilter)
+	ON_MESSAGE(WM_FILTEREDIT_CANCELCLICKED, OnClickedCancelFilter)
 	ON_EN_CHANGE(IDC_FILTER, &CFileDiffDlg::OnEnChangeFilter)
 	ON_WM_TIMER()
-	ON_NOTIFY(LVN_GETDISPINFO, IDC_FILELIST, &CFileDiffDlg::OnLvnGetdispinfoFilelist)
 END_MESSAGE_MAP()
 
 
@@ -143,11 +140,14 @@ BOOL CFileDiffDlg::OnInitDialog()
 	temp.LoadString(IDS_FILEDIFF_ACTION);
 	m_cFileList.InsertColumn(1, temp);
 
-	CRect rect;
-	m_cFileList.GetClientRect(&rect);
-	m_cFileList.SetColumnWidth(0, rect.Width()-100);
-	m_cFileList.SetColumnWidth(1, 100);
-
+	int mincol = 0;
+	int maxcol = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
+	int col;
+	for (col = mincol; col <= maxcol; col++)
+	{
+		m_cFileList.SetColumnWidth(col,LVSCW_AUTOSIZE_USEHEADER);
+	}
+	
 	m_cFileList.SetRedraw(true);
 	
 	AddAnchor(IDC_DIFFSTATIC1, TOP_LEFT, TOP_RIGHT);
@@ -226,10 +226,13 @@ UINT CFileDiffDlg::DiffThread()
 		m_cFileList.SetItemState(0, LVIS_SELECTED, LVIS_SELECTED);
 	}
 
-	CRect rect;
-	m_cFileList.GetClientRect(&rect);
-	m_cFileList.SetColumnWidth(0, rect.Width()-100);
-	m_cFileList.SetColumnWidth(1, 100);
+	int mincol = 0;
+	int maxcol = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
+	int col;
+	for (col = mincol; col <= maxcol; col++)
+	{
+		m_cFileList.SetColumnWidth(col,LVSCW_AUTOSIZE_USEHEADER);
+	}
 
 	m_cFileList.ClearText();
 	m_cFileList.SetRedraw(true);
@@ -238,6 +241,27 @@ UINT CFileDiffDlg::DiffThread()
 	InvalidateRect(NULL);
 	RefreshCursor();
 	return 0;
+}
+
+int CFileDiffDlg::AddEntry(const FileDiff * fd)
+{
+	int ret = -1;
+	if (fd)
+	{
+		int index = m_cFileList.GetItemCount();
+
+		int icon_idx = 0;
+		if (fd->node == svn_node_dir)
+				icon_idx = m_nIconFolder;
+		else
+		{
+			icon_idx = SYS_IMAGE_LIST().GetPathIconIndex(fd->path);
+		}
+
+		ret = m_cFileList.InsertItem(index, fd->path.GetSVNPathString(), icon_idx);
+		m_cFileList.SetItemText(index, 1, GetSummarizeActionText(fd->kind));
+	}
+	return ret;
 }
 
 void CFileDiffDlg::DoDiff(int selIndex, bool blame)
@@ -249,9 +273,9 @@ void CFileDiffDlg::DoDiff(int selIndex, bool blame)
 
 	if (fd.kind == svn_client_diff_summarize_kind_deleted)
 	{
-		if (!PathIsURL(url1))
+		if (!PathIsURL(url1.GetWinPath()))
 			url1 = CTSVNPath(GetURLFromPath(m_path1) + _T("/") + fd.path.GetSVNPathString());
-		if (!PathIsURL(url2))
+		if (!PathIsURL(url2.GetWinPath()))
 			url2 = m_bDoPegDiff ? url1 : CTSVNPath(GetURLFromPath(m_path2) + _T("/") + fd.path.GetSVNPathString());
 	}
 
@@ -279,9 +303,9 @@ void CFileDiffDlg::DoDiff(int selIndex, bool blame)
 			return;
 		}
 	}
-	else if ((fd.kind != svn_client_diff_summarize_kind_added)&&(blame)&&(!m_blamer.BlameToFile(url1, 1, m_rev1, m_bDoPegDiff ? m_peg : m_rev1, tempfile, _T(""), TRUE, TRUE)))
+	else if ((fd.kind != svn_client_diff_summarize_kind_added)&&(blame)&&(!m_blamer.BlameToFile(url1, 1, m_rev1, m_bDoPegDiff ? m_peg : m_rev1, tempfile, _T(""), TRUE)))
 	{
-		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url1, 1, m_rev1, m_rev1, tempfile, _T(""), TRUE, TRUE)))
+		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url1, 1, m_rev1, m_rev1, tempfile, _T(""), TRUE)))
 		{
 			CMessageBox::Show(NULL, m_blamer.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			return;
@@ -300,9 +324,9 @@ void CFileDiffDlg::DoDiff(int selIndex, bool blame)
 			return;
 		}
 	}
-	else if ((fd.kind != svn_client_diff_summarize_kind_deleted)&&(blame)&&(!m_blamer.BlameToFile(url2, 1, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, tempfile2, _T(""), TRUE, TRUE)))
+	else if ((fd.kind != svn_client_diff_summarize_kind_deleted)&&(blame)&&(!m_blamer.BlameToFile(url2, 1, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, tempfile2, _T(""), TRUE)))
 	{
-		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url2, 1, m_rev2, m_rev2, tempfile2, _T(""), TRUE, TRUE)))
+		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url2, 1, m_rev2, m_rev2, tempfile2, _T(""), TRUE)))
 		{
 			CMessageBox::Show(NULL, m_blamer.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 			return;
@@ -341,10 +365,10 @@ void CFileDiffDlg::DiffProps(int selIndex)
 	SVNProperties propsurl2(url2, m_rev2, false);
 	
 	// collect the properties of both revisions in a set
-	std::set<tstring> properties;
+	std::set<stdstring> properties;
 	for (int wcindex = 0; wcindex < propsurl1.GetCount(); ++wcindex)
 	{
-		tstring urlname = propsurl1.GetItemName(wcindex);
+		stdstring urlname = propsurl1.GetItemName(wcindex);
 		if ( properties.find(urlname) == properties.end() )
 		{
 			properties.insert(urlname);
@@ -352,7 +376,7 @@ void CFileDiffDlg::DiffProps(int selIndex)
 	}
 	for (int wcindex = 0; wcindex < propsurl2.GetCount(); ++wcindex)
 	{
-		tstring urlname = propsurl2.GetItemName(wcindex);
+		stdstring urlname = propsurl2.GetItemName(wcindex);
 		if ( properties.find(urlname) == properties.end() )
 		{
 			properties.insert(urlname);
@@ -360,25 +384,25 @@ void CFileDiffDlg::DiffProps(int selIndex)
 	}
 
 	// iterate over all properties and diff the properties
-	for (std::set<tstring>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
+	for (std::set<stdstring>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
 	{
-		tstring url1name = *iter;
+		stdstring url1name = *iter;
 		
-		tstring url1value = _T(""); // CUnicodeUtils::StdGetUnicode((char *)propsurl1.GetItemValue(wcindex).c_str());
+		stdstring url1value = _T(""); // CUnicodeUtils::StdGetUnicode((char *)propsurl1.GetItemValue(wcindex).c_str());
 		for (int url1index = 0; url1index < propsurl1.GetCount(); ++url1index)
 		{
 			if (propsurl1.GetItemName(url1index).compare(url1name)==0)
 			{
-				url1value = CUnicodeUtils::GetUnicode(propsurl1.GetItemValue(url1index).c_str());
+				url1value = CString((char *)propsurl1.GetItemValue(url1index).c_str());
 			}
 		}		
 		
-		tstring url2value = _T("");
+		stdstring url2value = _T("");
 		for (int url2index = 0; url2index < propsurl2.GetCount(); ++url2index)
 		{
 			if (propsurl2.GetItemName(url2index).compare(url1name)==0)
 			{
-				url2value = CUnicodeUtils::GetUnicode(propsurl2.GetItemValue(url2index).c_str());
+				url2value = CString((char *)propsurl2.GetItemValue(url2index).c_str());
 			}
 		}
 
@@ -393,12 +417,12 @@ void CFileDiffDlg::DiffProps(int selIndex)
 			{
 				fputs(CUnicodeUtils::StdGetUTF8(url1value).c_str(), pFile);
 				fclose(pFile);
-				FILE * pFile2;
-				_tfopen_s(&pFile2, url2propfile.GetWinPath(), _T("wb"));
+				FILE * pFile;
+				_tfopen_s(&pFile, url2propfile.GetWinPath(), _T("wb"));
 				if (pFile)
 				{
-					fputs(CUnicodeUtils::StdGetUTF8(url2value).c_str(), pFile2);
-					fclose(pFile2);
+					fputs(CUnicodeUtils::StdGetUTF8(url2value).c_str(), pFile);
+					fclose(pFile);
 				}
 				else
 					return;
@@ -522,58 +546,6 @@ void CFileDiffDlg::OnNMCustomdrawFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 	}
 }
 
-void CFileDiffDlg::OnLvnGetdispinfoFilelist(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	NMLVDISPINFO *pDispInfo = reinterpret_cast<NMLVDISPINFO*>(pNMHDR);
-
-	if (pDispInfo)
-	{
-		if (pDispInfo->item.iItem < (int)m_arFilteredList.size())
-		{
-			const FileDiff * data = &m_arFilteredList[pDispInfo->item.iItem];
-			if (pDispInfo->item.mask & LVIF_TEXT)
-			{
-				switch (pDispInfo->item.iSubItem)
-				{
-				case 0:	// path
-					{
-						lstrcpyn(m_columnbuf, data->path.GetSVNPathString(), pDispInfo->item.cchTextMax);
-						int cWidth = m_cFileList.GetColumnWidth(0);
-						cWidth = max(28, cWidth-28);
-						CDC * pDC = m_cFileList.GetDC();
-						if (pDC != NULL)
-						{
-							CFont * pFont = pDC->SelectObject(m_cFileList.GetFont());
-							PathCompactPath(pDC->GetSafeHdc(), m_columnbuf, cWidth);
-							pDC->SelectObject(pFont);
-							ReleaseDC(pDC);
-						}
-					}
-					break;
-				case 1:	// action
-					lstrcpyn(m_columnbuf, GetSummarizeActionText(data->kind), pDispInfo->item.cchTextMax);
-					break;
-				default:
-					m_columnbuf[0] = 0;
-				}
-				pDispInfo->item.pszText = m_columnbuf;
-			}
-			if (pDispInfo->item.mask & LVIF_IMAGE)
-			{
-				int icon_idx = 0;
-				if (data->node == svn_node_dir)
-					icon_idx = m_nIconFolder;
-				else
-				{
-					icon_idx = SYS_IMAGE_LIST().GetPathIconIndex(data->path);
-				}
-				pDispInfo->item.iImage = icon_idx;
-			}
-		}
-	}
-	*pResult = 0;
-}
-
 void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	if ((pWnd==0)||(pWnd != &m_cFileList))
@@ -589,16 +561,21 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 		m_cFileList.ClientToScreen(&rect);
 		point = rect.CenterPoint();
 	}
-	CIconMenu popup;
+	CMenu popup;
 	if (popup.CreatePopupMenu())
 	{
-		popup.AppendMenuIcon(ID_COMPARE, IDS_LOG_POPUP_COMPARETWO, IDI_DIFF);
-		popup.AppendMenuIcon(ID_UNIFIEDDIFF, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);
-		popup.AppendMenuIcon(ID_BLAME, IDS_FILEDIFF_POPBLAME, IDI_BLAME);
+		CString temp;
+		temp.LoadString(IDS_LOG_POPUP_COMPARETWO);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_COMPARE, temp);
+		temp.LoadString(IDS_FILEDIFF_POPBLAME);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_BLAME, temp);
 		popup.AppendMenu(MF_SEPARATOR, NULL);
-		popup.AppendMenuIcon(ID_SAVEAS, IDS_FILEDIFF_POPSAVELIST, IDI_SAVEAS);
-		popup.AppendMenuIcon(ID_CLIPBOARD, IDS_FILEDIFF_POPCLIPBOARD, IDI_COPYCLIP);
-		popup.AppendMenuIcon(ID_EXPORT, IDS_FILEDIFF_POPEXPORT, IDI_EXPORT);
+		temp.LoadString(IDS_FILEDIFF_POPSAVELIST);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_SAVEAS, temp);
+		temp.LoadString(IDS_FILEDIFF_POPCLIPBOARD);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_CLIPBOARD, temp);
+		temp.LoadString(IDS_FILEDIFF_POPEXPORT);
+		popup.AppendMenu(MF_STRING | MF_ENABLED, ID_EXPORT, temp);
 		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
 		m_bCancelled = false;
 		switch (cmd)
@@ -611,29 +588,6 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 					int index = m_cFileList.GetNextSelectedItem(pos);
 					DoDiff(index, false);
 				}					
-			}
-			break;
-		case ID_UNIFIEDDIFF:
-			{
-				CTSVNPath diffFile = CTempFiles::Instance().GetTempFilePath(false);
-				POSITION pos = m_cFileList.GetFirstSelectedItemPosition();
-				while (pos)
-				{
-					int index = m_cFileList.GetNextSelectedItem(pos);
-					CFileDiffDlg::FileDiff fd = m_arFilteredList[index];
-					CTSVNPath url1 = CTSVNPath(m_path1.GetSVNPathString() + _T("/") + fd.path.GetSVNPathString());
-					CTSVNPath url2 = m_bDoPegDiff ? url1 : CTSVNPath(m_path2.GetSVNPathString() + _T("/") + fd.path.GetSVNPathString());
-					
-					if (m_bDoPegDiff)
-					{
-						PegDiff(url1, m_peg, m_rev1, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, CString(), true, diffFile);
-					}
-					else
-					{
-						Diff(url1, m_rev1, url2, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, CString(), true, diffFile);
-					}
-				}
-				CAppUtils::StartUnifiedDiffViewer(diffFile, CString(), false);
 			}
 			break;
 		case ID_BLAME:
@@ -650,6 +604,7 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 			{
 				if (m_cFileList.GetSelectedCount() > 0)
 				{
+					CString temp;
 					CTSVNPath savePath;
 					CString pathSave;
 					if (!CAppUtils::FileOpenSave(pathSave, NULL, IDS_REPOBROWSE_SAVEAS, IDS_COMMONFILEFILTER, false, m_hWnd))
@@ -662,7 +617,6 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 					try
 					{
 						CStdioFile file(savePath.GetWinPathString(), CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate);
-						CString temp;
 						temp.Format(IDS_FILEDIFF_CHANGEDLISTINTRO, (LPCTSTR)m_path1.GetSVNPathString(), (LPCTSTR)m_rev1.ToString(), (LPCTSTR)m_path2.GetSVNPathString(), (LPCTSTR)m_rev2.ToString());
 						file.WriteString(temp + _T("\n"));
 						POSITION pos = m_cFileList.GetFirstSelectedItemPosition();
@@ -883,15 +837,11 @@ BOOL CFileDiffDlg::PreTranslateMessage(MSG* pMsg)
 			}
 			break;
 		case 'C':
-		case VK_INSERT:
 			{
-				if (GetFocus() == &m_cFileList)
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
 				{
-					if (GetAsyncKeyState(VK_CONTROL)&0x8000)
-					{
-						CopySelectionToClipboard();
-						return TRUE;
-					}
+					CopySelectionToClipboard();
+					return TRUE;
 				}
 			}
 			break;
@@ -1098,7 +1048,10 @@ void CFileDiffDlg::Filter(CString sFilterText)
 			m_arFilteredList.push_back(*it);
 		}
 	}
-	m_cFileList.SetItemCount((int)m_arFilteredList.size());
+	for (std::vector<FileDiff>::const_iterator it = m_arFilteredList.begin(); it != m_arFilteredList.end(); ++it)
+	{
+		AddEntry(&(*it));
+	}
 }
 
 void CFileDiffDlg::CopySelectionToClipboard()
@@ -1116,5 +1069,4 @@ void CFileDiffDlg::CopySelectionToClipboard()
 	}
 	CStringUtils::WriteAsciiStringToClipboard(sTextForClipboard);
 }
-
 

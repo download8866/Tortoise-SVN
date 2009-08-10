@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "Tooltip.h"
+#include "Balloon.h"
 
 /**
  * \ingroup TortoiseProc
@@ -47,6 +47,6 @@ public:
 	bool        m_bAdd;
 	CString		m_sExtension;
 	CString		m_sTool;
-	CToolTips	m_tooltips;
+	CBalloon	m_tooltips;
 };
 

@@ -20,7 +20,6 @@
 #include "SettingsPropPage.h"
 #include "SetProgsAdvDlg.h"
 #include "FileDropEdit.h"
-#include "Tooltip.h"
 
 
 /**
@@ -70,7 +69,7 @@ private:
 	int             m_iExtDiff;
 	int             m_iExtDiffProps;
 	CSetProgsAdvDlg m_dlgAdvDiff;
-	CToolTips		m_tooltips;
+	CBalloon		m_tooltips;
 	CRegDWORD		m_regConvertBase;	///< registry value for the "Don't Convert" flag
 	BOOL			m_bConvertBase;		///< don't convert files when diffing against BASE
 

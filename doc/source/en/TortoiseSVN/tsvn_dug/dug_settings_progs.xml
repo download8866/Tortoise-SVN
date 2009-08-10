@@ -76,8 +76,7 @@
 		<para>
 			For example, with ExamDiff Pro:
 <screen>
-C:\Path-To\ExamDiff.exe %base %mine --left_display_name:%bname
-    --right_display_name:%yname
+C:\Path-To\ExamDiff.exe %base %mine
 </screen>
 			or with KDiff3:
 <screen>

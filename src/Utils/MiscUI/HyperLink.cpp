@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -197,7 +197,7 @@ void CHyperLink::SetURL(CString strURL)
     }
 }
 
-CString CHyperLink::GetURL() const
+CString CHyperLink::GetURL()
 { 
     return m_strURL;   
 }
@@ -215,12 +215,12 @@ void CHyperLink::SetColors(COLORREF crLinkColor, COLORREF crHoverColor)
         Invalidate(); 
 }
 
-COLORREF CHyperLink::GetLinkColor() const
+COLORREF CHyperLink::GetLinkColor()
 { 
     return m_crLinkColor; 
 }
 
-COLORREF CHyperLink::GetHoverColor() const
+COLORREF CHyperLink::GetHoverColor()
 {
     return m_crHoverColor;
 }
@@ -243,7 +243,7 @@ void CHyperLink::SetUnderline(int nUnderline /*=ulHover*/)
     m_nUnderline = nUnderline;
 }
 
-int CHyperLink::GetUnderline() const
+int CHyperLink::GetUnderline()
 { 
     return m_nUnderline; 
 }
@@ -273,9 +273,9 @@ void CHyperLink::SetDefaultCursor()
         // This retrieves cursor #106 from winhlp32.exe, which is a hand pointer
         HMODULE hModule = LoadLibrary(strWndDir);
         if (hModule) {
-            HCURSOR hHandCursor2 = (HCURSOR)::LoadImage(hModule, MAKEINTRESOURCE(106), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
-            if (hHandCursor2)
-                m_hLinkCursor = CopyCursor(hHandCursor2);
+            HCURSOR hHandCursor = (HCURSOR)::LoadImage(hModule, MAKEINTRESOURCE(106), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
+            if (hHandCursor)
+                m_hLinkCursor = CopyCursor(hHandCursor);
         }
         FreeLibrary(hModule);
     }

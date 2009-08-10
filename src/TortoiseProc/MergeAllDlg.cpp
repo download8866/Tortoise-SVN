@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,6 @@ CMergeAllDlg::CMergeAllDlg(CWnd* pParent /*=NULL*/)
 	, m_depth(svn_depth_unknown)
 	, m_bIgnoreEOL(FALSE)
 	, m_bIgnoreAncestry(FALSE)
-	, m_bForce(FALSE)
 {
 
 }
@@ -44,7 +43,6 @@ void CMergeAllDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
 	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
 	DDX_Check(pDX, IDC_IGNOREEOL, m_bIgnoreEOL);
-	DDX_Check(pDX, IDC_FORCE, m_bForce);
 }
 
 
@@ -119,21 +117,6 @@ void CMergeAllDlg::OnOK()
 		break;
 	default:
 		m_depth = svn_depth_empty;
-		break;
-	}
-
-	int rb = GetCheckedRadioButton(IDC_COMPAREWHITESPACES, IDC_IGNOREALLWHITESPACES);
-	switch (rb)
-	{
-	case IDC_IGNOREWHITESPACECHANGES:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_change;
-		break;
-	case IDC_IGNOREALLWHITESPACES:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_all;
-		break;
-	case IDC_COMPAREWHITESPACES:
-	default:
-		m_IgnoreSpaces = svn_diff_file_ignore_space_none;
 		break;
 	}
 

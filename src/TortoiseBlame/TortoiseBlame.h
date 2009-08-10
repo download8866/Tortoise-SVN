@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -98,7 +98,6 @@ public:
 	bool GotoLine(long line);
 	bool ScrollToLine(long line);
 	void GotoLineDlg();
-	void SelectLine(int yPos, bool bAlwaysSelect);
 	static INT_PTR CALLBACK GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void SetSelectedLine(LONG line) { m_SelectedLine=line;};
@@ -131,7 +130,6 @@ protected:
 	void SetupLexer(LPCSTR filename);
 	void SetupCppLexer();
 	COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
-	std::string GetAppDirectory();
 	std::vector<COLORREF>		colors;
 	HFONT						m_font;
 	HFONT						m_italicfont;
@@ -156,6 +154,6 @@ protected:
 	FINDREPLACE					fr;
 	TCHAR						szFindWhat[80];
 
-	CRegStdDWORD					m_regOldLinesColor;
-	CRegStdDWORD					m_regNewLinesColor;
+	CRegStdWORD					m_regOldLinesColor;
+	CRegStdWORD					m_regNewLinesColor;
 };

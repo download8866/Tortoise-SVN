@@ -19,7 +19,7 @@
 #include "StdAfx.h"
 #include "resource.h"			//if you defined some IDS_MSGBOX_xxxx this include is needed!
 #include "messagebox.h"
-#include "SysInfo.h"
+#include ".\messagebox.h"
 
 
 CMessageBox::CMessageBox(void)
@@ -432,10 +432,6 @@ UINT CMessageBox::GoModal(CWnd * pWnd, const CString& title, const CString& msg,
 {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof(NONCLIENTMETRICS);
-	if (!SysInfo::Instance().IsVistaOrLater())
-	{
-		ncm.cbSize -= sizeof(int);	// subtract the size of the iPaddedBorderWidth member which is not available on XP
-	}
 	VERIFY(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0));
     memcpy(&m_LogFont, &(ncm.lfMessageFont), sizeof(LOGFONT));
 
@@ -861,7 +857,6 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case 'C':
-		case VK_INSERT:
 			{
 				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
 				{
@@ -873,8 +868,7 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 						hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipboard.GetLength()+1);
 						char * pchData;
 						pchData = (char*)GlobalLock(hClipboardData);
-						if (pchData)
-							strcpy_s(pchData, sClipboard.GetLength()+1, (LPCSTR)sClipboard);
+						strcpy_s(pchData, sClipboard.GetLength()+1, (LPCSTR)sClipboard);
 						GlobalUnlock(hClipboardData);
 						SetClipboardData(CF_TEXT,hClipboardData);
 						CloseClipboard();

@@ -53,17 +53,14 @@ static inline bool CompareCI (char lhs, char rhs)
 bool CPathClassificator::CWildCardPattern::WildCardMatch 
     (const char* s, const char* pattern) const
 {
-#pragma warning(push)
-#pragma warning(disable: 4127)	// conditional expression is constant
     while (1)
-#pragma warning(pop)
     {
         // consume one pattern char per loop
 
         char c = *s;
         char p = *pattern;
 
-        ++pattern;
+        ++p;
         switch (p)
         {
         case '*':
@@ -93,6 +90,8 @@ bool CPathClassificator::CWildCardPattern::WildCardMatch
 
                 if (c == 0)
                     return false;
+                else
+                    ++s;
 
                 break;
             }
@@ -260,9 +259,9 @@ void CPathClassificator::ClassifyPathElements
 
     // one class at a time
 
-    ClassifyPathElements (elements, trunkPatterns, CNodeClassification::IS_TRUNK);
-    ClassifyPathElements (elements, branchesPatterns, CNodeClassification::IS_BRANCH);
-    ClassifyPathElements (elements, tagsPatterns, CNodeClassification::IS_TAG);
+    ClassifyPathElements (elements, trunkPatterns, IS_TRUNK);
+    ClassifyPathElements (elements, branchesPatterns, IS_BRANCH);
+    ClassifyPathElements (elements, tagsPatterns, IS_TAG);
 }
 
 void CPathClassificator::ClassifyPaths (const LogCache::CPathDictionary& paths)
@@ -297,7 +296,7 @@ void CPathClassificator::ClassifyPaths (const LogCache::CPathDictionary& paths)
         ; ++iter)
     {
         if (*iter == 0)
-            *iter = CNodeClassification::IS_OTHER;
+            *iter = IS_OTHER;
     }
 }
 
@@ -334,7 +333,7 @@ unsigned char CPathClassificator::GetClassification
 
     // let topmost classification win
 
-    if (result != CNodeClassification::IS_OTHER)
+    if (result != IS_OTHER)
         return result;
     else
         result = 0;
@@ -365,17 +364,15 @@ unsigned char CPathClassificator::GetClassification
         {
             size_t length = relPathElement.length();
             if (Matches (trunkPatterns.begin(), trunkPatterns.end(), element, length))
-                result |= CNodeClassification::IS_TRUNK;
+                result |= IS_TRUNK;
             if (Matches (branchesPatterns.begin(), branchesPatterns.end(), element, length))
-                result |= CNodeClassification::IS_BRANCH;
+                result |= IS_BRANCH;
             if (Matches (tagsPatterns.begin(), tagsPatterns.end(), element, length))
-                result |= CNodeClassification::IS_TAG;
+                result |= IS_TAG;
         }
     }
 
     // say "other" only if no classification was made
 
-    return result == 0 
-        ? (unsigned char)CNodeClassification::IS_OTHER 
-        : result;
+    return result == 0 ? (unsigned char)IS_OTHER : result;
 }

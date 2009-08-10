@@ -255,33 +255,16 @@
 			you to compare or blame them individually using context menu.
 		</para>
 		<para>
-			You can export a <emphasis>change tree</emphasis>, which is useful
-			if you need to send someone else your project tree structure, but
-			containing only the files which have changed.
+			You can also export the list of changed files to a text file,
+			or you can export the changed files themselves to a folder.
 			This operation works on the selected files only, so you need
-			to select the files of interest - usually that means all of them -
-			and then
-			<menuchoice>
-				<guimenu>Context menu</guimenu>
-				<guimenuitem>Export selection to...</guimenuitem>
-			</menuchoice>.
-			You will be prompted for a location to save the change tree.
-		</para>
-		<para>
-			You can also export the <emphasis>list</emphasis> of changed files
-			to a text file using
-			<menuchoice>
-				<guimenu>Context menu</guimenu>
-				<guimenuitem>Save list of selected files to...</guimenuitem>
-			</menuchoice>.
+			to select the files of interest - usually that means all of them.
 		</para>
 		<para>
 			If you want to export the list of files <emphasis>and</emphasis>
 			the actions (modified, added, deleted) as well, you can do that using
-			<menuchoice>
-				<guimenu>Context menu</guimenu>
-				<guimenuitem>Copy selection to clipboard</guimenuitem>
-			</menuchoice>.
+			the keyboard shortcuts <keycap>Ctrl-A</keycap> to select all entries
+			and <keycap>Ctrl-C</keycap> to copy the detailed list to the clipboard.
 		</para>
 		<para>
 			The button at the top allows you to change the direction of
@@ -355,10 +338,11 @@
 			<keycap>Ctrl+Shift</keycap>-<action>Wheel</action> to change the blend.
 		</para>
 		<para>
-			The button above the slider toggles between 0% and 100% blends, and
-			if you double click the button, the blend toggles automatically every
-			second until you click the button again. This can be useful when looking
-			for multiple small changes.
+			The button above the slider toggles between two preset blends, indicated
+			by the markers on either side of the blend slider. By default one is at
+			the top and the other at the bottom, so the toggle button just switches
+			between one image and the other. You can move the markers to choose
+			the two blend values that the toggle button will use.
 		</para>
 		<para>
 			Sometimes you want to see a difference rather than a blend. You might

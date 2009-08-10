@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008-2009 - TortoiseSVN
+// External Cache Copyright (C) 2005-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,19 +25,14 @@
 #define TSVN_CACHE_PIPE_NAME _T("\\\\.\\pipe\\TSVNCache64")
 #define TSVN_CACHE_COMMANDPIPE_NAME _T("\\\\.\\pipe\\TSVNCacheCommand64")
 #define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow64")
-#define TSVN_CACHE_MUTEX_NAME _T("TSVNCacheMutex64")
 #else
 #define TSVN_CACHE_PIPE_NAME _T("\\\\.\\pipe\\TSVNCache")
 #define TSVN_CACHE_COMMANDPIPE_NAME _T("\\\\.\\pipe\\TSVNCacheCommand")
 #define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow")
-#define TSVN_CACHE_MUTEX_NAME _T("TSVNCacheMutex")
 #endif
 
 CString GetCachePipeName();
 CString GetCacheCommandPipeName();
-CString GetCacheMutexName();
-
-CString GetCacheID();
 
 /**
  * \ingroup TSVNCache
@@ -65,8 +60,8 @@ struct TSVNCacheResponse
 	char m_url[INTERNET_MAX_URL_LENGTH+1];
 	char m_owner[255];		///< owner of the lock
 	char m_author[255];
+	bool m_readonly;		///< whether the file is write protected or not
 	bool m_needslock;		///< whether the file has the svn:needs-lock property set or not (only works with the new working copy version)
-	bool m_tree_conflict;	///< whether the item has a tree conflict
 };
 
 #endif // SVN_WC_H
@@ -95,5 +90,3 @@ struct TSVNCacheCommand
 #define TSVNCACHE_FLAGS_RECUSIVE_STATUS		0x04
 /// Set this flag if notifications to the shell are not allowed
 #define TSVNCACHE_FLAGS_NONOTIFICATIONS		0x08
-/// all of the above flags or-gated:
-#define TSVNCACHE_FLAGS_MASK            	0x0f

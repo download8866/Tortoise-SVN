@@ -85,20 +85,15 @@ BOOL CMergeWizardStart::OnInitDialog()
 	AdjustControlSize(IDC_MERGE_REINTEGRATE);
 	AdjustControlSize(IDC_MERGE_TREE);
 
-	AddAnchor(IDC_MERGETYPEGROUP, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_MERGE_REVRANGE, TOP_LEFT);
-	AddAnchor(IDC_MERGERANGELABEL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_MERGE_REINTEGRATE, TOP_LEFT);
-	AddAnchor(IDC_MERGEREINTEGRATELABEL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_MERGE_TREE, TOP_LEFT);
-	AddAnchor(IDC_TREELABEL, TOP_LEFT, TOP_RIGHT);
-
 	return TRUE;
 }
 
 BOOL CMergeWizardStart::OnSetActive()
 {
 	CMergeWizard* wiz = (CMergeWizard*)GetParent();
+
+	if (wiz->AutoSetMode())
+		return FALSE;
 
 	wiz->SetWizardButtons(PSWIZB_NEXT);
 	SetButtonTexts();

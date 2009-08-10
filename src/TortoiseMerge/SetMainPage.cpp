@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,8 +41,6 @@ CSetMainPage::CSetMainPage()
 	, m_bReloadNeeded(FALSE)
 	, m_bDisplayBinDiff(TRUE)
 	, m_bCaseInsensitive(FALSE)
-	, m_bUTF8Default(FALSE)
-	, m_bAutoAdd(TRUE)
 {
 	m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
 	m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE);
@@ -56,8 +54,6 @@ CSetMainPage::CSetMainPage()
 	m_regFontSize = CRegDWORD(_T("Software\\TortoiseMerge\\LogFontSize"), 10);
 	m_regDisplayBinDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
 	m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
-	m_regUTF8Default = CRegDWORD(_T("Software\\TortoiseMerge\\UseUTF8"), FALSE);
-	m_regAutoAdd = CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE);
 
 	m_bBackup = m_regBackup;
 	m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
@@ -69,8 +65,6 @@ CSetMainPage::CSetMainPage()
 	m_bStrikeout = m_regStrikeout;
 	m_bDisplayBinDiff = m_regDisplayBinDiff;
 	m_bCaseInsensitive = m_regCaseInsensitive;
-	m_bUTF8Default = m_regUTF8Default;
-	m_bAutoAdd = m_regAutoAdd;
 }
 
 CSetMainPage::~CSetMainPage()
@@ -99,8 +93,6 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_STRIKEOUT, m_bStrikeout);
 	DDX_Check(pDX, IDC_USEBDIFF, m_bDisplayBinDiff);
 	DDX_Check(pDX, IDC_CASEINSENSITIVE, m_bCaseInsensitive);
-	DDX_Check(pDX, IDC_UTF8DEFAULT, m_bUTF8Default);
-	DDX_Check(pDX, IDC_AUTOADD, m_bAutoAdd);
 }
 
 void CSetMainPage::SaveData()
@@ -117,8 +109,6 @@ void CSetMainPage::SaveData()
 	m_regStrikeout = m_bStrikeout;
 	m_regDisplayBinDiff = m_bDisplayBinDiff;
 	m_regCaseInsensitive = m_bCaseInsensitive;
-	m_regUTF8Default = m_bUTF8Default;
-	m_regAutoAdd = m_bAutoAdd;
 }
 
 BOOL CSetMainPage::OnApply()
@@ -150,9 +140,7 @@ BOOL CSetMainPage::OnInitDialog()
 	m_dwFontSize = m_regFontSize;
 	m_bViewLinenumbers = m_regViewLinenumbers;
 	m_bStrikeout = m_regStrikeout;
-	m_bCaseInsensitive = m_regCaseInsensitive;
-	m_bUTF8Default = m_regUTF8Default;
-	m_bAutoAdd = m_regAutoAdd;
+	m_bCaseInsensitive = m_bCaseInsensitive;
 
 	UINT uRadio = IDC_WSCOMPARE;
 	switch (m_nIgnoreWS)
@@ -203,35 +191,53 @@ BOOL CSetMainPage::OnInitDialog()
 }
 
 BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
-	ON_BN_CLICKED(IDC_BACKUP, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_IGNORELF, &CSetMainPage::OnModifiedWithReload)
-	ON_BN_CLICKED(IDC_ONEPANE, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_FIRSTDIFFONLOAD, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_WSCOMPARE, &CSetMainPage::OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_WSIGNORECHANGED, &CSetMainPage::OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_WSIGNOREALL, &CSetMainPage::OnBnClickedWhitespace)
-	ON_BN_CLICKED(IDC_LINENUMBERS, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_STRIKEOUT, &CSetMainPage::OnModified)
-	ON_EN_CHANGE(IDC_TABSIZE, &CSetMainPage::OnModified)
-	ON_CBN_SELCHANGE(IDC_FONTSIZES, &CSetMainPage::OnModified)
-	ON_CBN_SELCHANGE(IDC_FONTNAMES, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_USEBDIFF, &CSetMainPage::OnModifiedWithReload)
-	ON_BN_CLICKED(IDC_CASEINSENSITIVE, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_UTF8DEFAULT, &CSetMainPage::OnModified)
-	ON_BN_CLICKED(IDC_AUTOADD, &CSetMainPage::OnModified)
+	ON_BN_CLICKED(IDC_BACKUP, OnBnClickedBackup)
+	ON_BN_CLICKED(IDC_IGNORELF, OnBnClickedIgnorelf)
+	ON_BN_CLICKED(IDC_ONEPANE, OnBnClickedOnepane)
+	ON_BN_CLICKED(IDC_FIRSTDIFFONLOAD, OnBnClickedFirstdiffonload)
+	ON_BN_CLICKED(IDC_WSCOMPARE, OnBnClickedWhitespace)
+	ON_BN_CLICKED(IDC_WSIGNORECHANGED, OnBnClickedWhitespace)
+	ON_BN_CLICKED(IDC_WSIGNOREALL, OnBnClickedWhitespace)
+	ON_BN_CLICKED(IDC_LINENUMBERS, OnBnClickedLinenumbers)
+	ON_BN_CLICKED(IDC_STRIKEOUT, OnBnClickedStrikeout)
+	ON_EN_CHANGE(IDC_TABSIZE, OnEnChangeTabsize)
+	ON_CBN_SELCHANGE(IDC_FONTSIZES, OnCbnSelchangeFontsizes)
+	ON_CBN_SELCHANGE(IDC_FONTNAMES, OnCbnSelchangeFontnames)
+	ON_BN_CLICKED(IDC_USEBDIFF, OnBnClickedUsebdiff)
+	ON_BN_CLICKED(IDC_CASEINSENSITIVE, OnBnClickedCaseinsensitive)
 END_MESSAGE_MAP()
 
 
 // CSetMainPage message handlers
 
-void CSetMainPage::OnModified()
+void CSetMainPage::OnBnClickedBackup()
 {
 	SetModified();
 }
 
-void CSetMainPage::OnModifiedWithReload()
+void CSetMainPage::OnBnClickedIgnorelf()
 {
 	m_bReloadNeeded = TRUE;
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedOnepane()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedFirstdiffonload()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedLinenumbers()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedStrikeout()
+{
 	SetModified();
 }
 
@@ -256,3 +262,28 @@ void CSetMainPage::OnBnClickedWhitespace()
 	}
 }
 
+void CSetMainPage::OnEnChangeTabsize()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnCbnSelchangeFontsizes()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnCbnSelchangeFontnames()
+{
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedUsebdiff()
+{
+	m_bReloadNeeded = TRUE;
+	SetModified();
+}
+
+void CSetMainPage::OnBnClickedCaseinsensitive()
+{
+	SetModified();
+}

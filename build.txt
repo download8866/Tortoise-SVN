@@ -19,9 +19,8 @@ You only have to do this once.
 
 \subsection Requirements1 First, you need to install the compiler package.
 
--# You need VS2008 with SP1 (or at least Visual C++ 2008) to allow
-   building of the full TortoiseSVN package. 
-   If you don't have the SP1 installed for VS2008, you will also need the
+-# You need VS2008 (or at least Visual C++ 2008) to allow
+   building of the full TortoiseSVN package. You will also need the
    MFC feature pack for VS2008 which is available from here: 
    http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en
    This is the recommended option, but it is not free :-(
@@ -58,7 +57,7 @@ You only have to do this once.
 - Python 2.4(\b 1)            http://www.python.org/windows/
 - libxml2 python bindings     http://users.skynet.be/sbi/libxml-python/
 - Perl                        http://www.activestate.com/Products/ActivePerl/
-- WiX3(\b 1)                  http://wix.sourceforge.net
+- WiX(\b 1)                   http://wix.sourceforge.net
 - Votive(\b 2)                http://wix.sourceforge.net
 - NAnt(\b 1)                  http://nant.sourceforge.net
 .
@@ -67,11 +66,10 @@ You only have to do this once.
 
 (\b 2) Install Votive to be able to load .wixproj project files.
 
-(\b 3) This is only required for RELEASE builds which you want to sign with your GPG passphrase. In order to do that, install GPG and create a file called 'gpgpassphrase.txt' which has your GPG passphrase in it (plaintext). Then the build will automatically sign the msi file with your GPG signature.
 
 \subsection Requirements3 Next you need to download some more.
 - OpenSSL source              http://www.openssl.org/source/
-                              You will need version 0.9.8k
+                              You will need version 0.9.8i
 - ZLib source                 http://www.gzip.org/zlib/
 - tools collection            http://tortoisesvn.tigris.org/files/documents/406/42347/Tools-1.5.zip
 - dictionaries/thesauri(\b Optional) http://lingucomponent.openoffice.org/

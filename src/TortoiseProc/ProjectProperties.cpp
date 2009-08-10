@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,8 +25,6 @@
 #include <regex>
 
 using namespace std;
-
-#define LOG_REVISIONREGEX _T("\\b(r\\d+)|\\b(revisions?(\\(s\\))?\\s#?\\d+([, ]+(and\\s?)?\\d+)*)|\\b(revs?\\.?\\s?\\d+([, ]+(and\\s?)?\\d+)*)")
 
 
 ProjectProperties::ProjectProperties(void)
@@ -79,9 +77,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundWebViewPathRev = FALSE;
 	BOOL bFoundAutoProps = FALSE;
 	BOOL bFoundLogSummary = FALSE;
-	BOOL bFoundBugtraqProviderUuid = FALSE;
-	BOOL bFoundBugtraqProviderParams = FALSE;
-	BOOL bFoundLogRevRegex = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
@@ -92,7 +87,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 		for (int i=0; i<props.GetCount(); ++i)
 		{
 			CString sPropName = props.GetItemName(i).c_str();
-			CString sPropVal = CUnicodeUtils::GetUnicode(((char *)props.GetItemValue(i).c_str()));
+			CString sPropVal = CString(((char *)props.GetItemValue(i).c_str()));
 			if ((!bFoundBugtraqLabel)&&(sPropName.Compare(BUGTRAQPROPNAME_LABEL)==0))
 			{
 				sLabel = sPropVal;
@@ -154,16 +149,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				else
 					bAppend = FALSE;
 				bFoundBugtraqAppend = TRUE;
-			}
-			if ((!bFoundBugtraqProviderUuid)&&(sPropName.Compare(BUGTRAQPROPNAME_PROVIDERUUID)==0))
-			{
-				sProviderUuid = sPropVal;
-				bFoundBugtraqProviderUuid = TRUE;
-			}
-			if ((!bFoundBugtraqProviderParams)&&(sPropName.Compare(BUGTRAQPROPNAME_PROVIDERPARAMS)==0))
-			{
-				sProviderParams = sPropVal;
-				bFoundBugtraqProviderParams = TRUE;
 			}
 			if ((!bFoundLogWidth)&&(sPropName.Compare(PROJECTPROPNAME_LOGWIDTHLINE)==0))
 			{
@@ -257,15 +242,9 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				sLogSummaryRe = sPropVal;
 				bFoundLogSummary = TRUE;
 			}
-			if ((!bFoundLogRevRegex)&&(sPropName.Compare(PROJECTPROPNAME_LOGREVREGEX)==0))
-			{
-				sLogRevRegex = sPropVal;
-				bFoundLogRevRegex = TRUE;
-			}
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
-		propsPath = path;
 		path = path.GetContainingDirectory();
 		if ((!path.HasAdminDir())||(path.IsEmpty()))
 		{
@@ -273,14 +252,8 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary | bFoundLogRevRegex
-				| bFoundBugtraqProviderUuid | bFoundBugtraqProviderParams)
-			{
-				if (!bFoundLogRevRegex)
-					sLogRevRegex = LOG_REVISIONREGEX;
+				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary)
 				return TRUE;
-			}
-			propsPath.Reset();
 			return FALSE;
 		}
 	}
@@ -331,10 +304,6 @@ CString ProjectProperties::GetBugIDFromLog(CString& msg)
 			}
 			else
 				sBugLine = msg;
-		}
-		if (sBugLine.IsEmpty() && (msg.ReverseFind('\n') < 0))
-		{
-			sBugLine = msg.Mid(msg.ReverseFind('\n')+1);
 		}
 		if (sBugLine.Left(sFirstPart.GetLength()).Compare(sFirstPart)!=0)
 			sBugLine.Empty();
@@ -398,7 +367,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					{
 						ATLTRACE(_T("matched id : %s\n"), (*it2)[0].str().c_str());
 						ptrdiff_t matchposID = it2->position(0);
-						CHARRANGE range = {(LONG)(matchpos+matchposID), (LONG)(matchpos+matchposID+(*it2)[0].str().size())};
+						CHARRANGE range = {matchpos+matchposID, matchpos+matchposID+(*it2)[0].str().size()};
 						pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
 						CHARFORMAT2 format;
 						SecureZeroMemory(&format, sizeof(CHARFORMAT2));
@@ -427,7 +396,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					if (match.size() >= 2)
 					{
 						ATLTRACE(_T("matched id : %s\n"), wstring(match[1]).c_str());
-						CHARRANGE range = {(LONG)(match[1].first-s.begin()), (LONG)(match[1].second-s.begin())};
+						CHARRANGE range = {match[1].first-s.begin(), match[1].second-s.begin()};
 						pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
 						CHARFORMAT2 format;
 						SecureZeroMemory(&format, sizeof(CHARFORMAT2));
@@ -519,11 +488,14 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 	return FALSE;
 }
 
-std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
+CString ProjectProperties::FindBugID(const CString& msg)
 {
 	size_t offset1 = 0;
 	size_t offset2 = 0;
 	bool bFound = false;
+
+	CString sRet;
+
 	std::set<CString> bugIDs;
 
 	// first use the checkre string to find bug ID's in the message
@@ -580,7 +552,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CString sLastPart;
 		BOOL bTop = FALSE;
 		if (sMessage.Find(_T("%BUGID%"))<0)
-			return bugIDs;
+			goto finish;
 		sFirstPart = sMessage.Left(sMessage.Find(_T("%BUGID%")));
 		sLastPart = sMessage.Mid(sMessage.Find(_T("%BUGID%"))+7);
 		CString sMsg = msg;
@@ -612,10 +584,10 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 			bTop = TRUE;
 		}
 		if (sBugLine.IsEmpty())
-			return bugIDs;
+			goto finish;
 		CString sBugIDPart = sBugLine.Mid(sFirstPart.GetLength(), sBugLine.GetLength() - sFirstPart.GetLength() - sLastPart.GetLength());
 		if (sBugIDPart.IsEmpty())
-			return bugIDs;
+			goto finish;
 		//the bug id part can contain several bug id's, separated by commas
 		if (!bTop)
 			offset1 = sMsg.GetLength() - sBugLine.GetLength() + sFirstPart.GetLength();
@@ -634,16 +606,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CHARRANGE range = {(LONG)offset1, (LONG)offset2};
 		bugIDs.insert(msg.Mid(range.cpMin, range.cpMax-range.cpMin));
 	}
-
-	return bugIDs;
-}
-
-CString ProjectProperties::FindBugID(const CString& msg)
-{
-	CString sRet;
-
-	std::set<CString> bugIDs = FindBugIDs(msg);
-
+finish:
 	for (std::set<CString>::iterator it = bugIDs.begin(); it != bugIDs.end(); ++it)
 	{
 		sRet += *it;
@@ -755,15 +718,15 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
 	char buf[1024] = {0};
 	SVNProperties props(path, SVNRev::REV_WC, false);
 	if (!sLabel.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_LABEL, WideToUTF8((LPCTSTR)sLabel)) && bRet;
+		bRet = props.Add(BUGTRAQPROPNAME_LABEL, WideToMultibyte((LPCTSTR)sLabel)) && bRet;
 	if (!sMessage.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_MESSAGE, WideToUTF8((LPCTSTR)sMessage)) && bRet;
+		bRet = props.Add(BUGTRAQPROPNAME_MESSAGE, WideToMultibyte((LPCTSTR)sMessage)) && bRet;
 	if (!bNumber)
 		bRet = props.Add(BUGTRAQPROPNAME_NUMBER, "false") && bRet;
 	if (!sCheckRe.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_LOGREGEX, WideToUTF8((LPCTSTR)(sCheckRe + _T("\n") + sBugIDRe))) && bRet;
+		bRet = props.Add(BUGTRAQPROPNAME_LOGREGEX, WideToMultibyte((LPCTSTR)(sCheckRe + _T("\n") + sBugIDRe))) && bRet;
 	if (!sUrl.IsEmpty())
-		bRet = props.Add(BUGTRAQPROPNAME_URL, WideToUTF8((LPCTSTR)sUrl)) && bRet;
+		bRet = props.Add(BUGTRAQPROPNAME_URL, WideToMultibyte((LPCTSTR)sUrl)) && bRet;
 	if (bWarnIfNoIssue)
 		bRet = props.Add(BUGTRAQPROPNAME_WARNIFNOISSUE, "true") && bRet;
 	if (!bAppend)
@@ -774,7 +737,7 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
 		bRet = props.Add(PROJECTPROPNAME_LOGWIDTHLINE, buf) && bRet;
 	}
 	if (!sLogTemplate.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_LOGTEMPLATE, WideToUTF8((LPCTSTR)sLogTemplate)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_LOGTEMPLATE, WideToMultibyte((LPCTSTR)sLogTemplate)) && bRet;
 	if (nMinLogSize)
 	{
 		sprintf_s(buf, sizeof(buf), "%ld", nMinLogSize);
@@ -793,15 +756,15 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
 		bRet = props.Add(PROJECTPROPNAME_PROJECTLANGUAGE, buf) && bRet;
 	}
 	if (!sFPPath.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_USERFILEPROPERTY, WideToUTF8((LPCTSTR)sFPPath)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_USERFILEPROPERTY, WideToMultibyte((LPCTSTR)sFPPath)) && bRet;
 	if (!sDPPath.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_USERDIRPROPERTY, WideToUTF8((LPCTSTR)sDPPath)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_USERDIRPROPERTY, WideToMultibyte((LPCTSTR)sDPPath)) && bRet;
 	if (!sWebViewerRev.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_REV, WideToUTF8((LPCTSTR)sWebViewerRev)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_REV, WideToMultibyte((LPCTSTR)sWebViewerRev)) && bRet;
 	if (!sWebViewerPathRev.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_PATHREV, WideToUTF8((LPCTSTR)sWebViewerPathRev)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_WEBVIEWER_PATHREV, WideToMultibyte((LPCTSTR)sWebViewerPathRev)) && bRet;
 	if (!sAutoProps.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_AUTOPROPS, WideToUTF8((LPCTSTR)sAutoProps)) && bRet;
+		bRet = props.Add(PROJECTPROPNAME_AUTOPROPS, WideToMultibyte((LPCTSTR)sAutoProps)) && bRet;
 	return bRet;
 }
 
@@ -832,32 +795,6 @@ CString ProjectProperties::GetLogSummary(const CString& sMessage)
 	sRet.Trim();
 
 	return sRet;
-}
-
-CString ProjectProperties::MakeShortMessage(const CString& message)
-{
-	bool bFoundShort = true;
-	CString sShortMessage = GetLogSummary(message);
-	if (sShortMessage.IsEmpty())
-	{
-		bFoundShort = false;
-		sShortMessage = message;
-	}
-	// Remove newlines and tabs 'cause those are not shown nicely in the list control
-	sShortMessage.Replace(_T("\r"), _T(""));
-	sShortMessage.Replace(_T("\t"), _T(" "));
-	
-	// Suppose the first empty line separates 'summary' from the rest of the message.
-	int found = sShortMessage.Find(_T("\n\n"));
-	// To avoid too short 'short' messages 
-	// (e.g. if the message looks something like "Bugfix:\n\n*done this\n*done that")
-	// only use the empty newline as a separator if it comes after at least 15 chars.
-	if ((!bFoundShort)&&(found >= 15))
-	{
-		sShortMessage = sShortMessage.Left(found);
-	}
-	sShortMessage.Replace('\n', ' ');
-	return sShortMessage;
 }
 
 #ifdef DEBUG

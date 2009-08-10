@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@
 #include ".\setmainpage.h"
 #include "SVN.h"
 #include "MessageBox.h"
-#include "SysInfo.h"
 
 
 IMPLEMENT_DYNAMIC(CSetMainPage, ISettingsPropPage)
@@ -39,8 +38,7 @@ CSetMainPage::CSetMainPage()
 	, m_bUseDotNetHack(FALSE)
 {
 	m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
-	CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
-	m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"), temp);
+	m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"));
 	m_regCheckNewer = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewer"), TRUE);
 	m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
 	if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
@@ -93,6 +91,7 @@ BOOL CSetMainPage::OnInitDialog()
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_TEMPEXTENSIONS, IDS_SETTINGS_TEMPEXTENSIONS_TT);
 	m_tooltips.AddTool(IDC_CHECKNEWERVERSION, IDS_SETTINGS_CHECKNEWER_TT);
+	m_tooltips.AddTool(IDC_CLEARAUTH, IDS_SETTINGS_CLEARAUTH_TT);
 	m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
 	m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
 
@@ -118,6 +117,7 @@ BOOL CSetMainPage::OnInitDialog()
 			if (sFileVer.Compare(sVer)!=0)
 				continue;
 			DWORD loc = _tstoi(filename.Mid(12));
+			TCHAR buf[MAX_PATH];
 			GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
 			m_LanguageCombo.AddString(buf);
 			m_LanguageCombo.SetItemData(langcount++, loc);
@@ -162,21 +162,29 @@ void CSetMainPage::OnASPHACK()
 BOOL CSetMainPage::OnApply()
 {
 	UpdateData();
-	Store (m_dwLanguage, m_regLanguage);
+	m_regLanguage = m_dwLanguage;
+	if (m_regLanguage.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regLanguage.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	if (m_sTempExtensions.Compare(CString(m_regExtensions)))
 	{
-		Store (m_sTempExtensions, m_regExtensions);
+		m_regExtensions = m_sTempExtensions;
+		if (m_regExtensions.LastError != ERROR_SUCCESS)
+			CMessageBox::Show(m_hWnd, m_regExtensions.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 		m_restart = Restart_Cache;
 	}
-	Store (m_bCheckNewer, m_regCheckNewer);
-	Store ((m_bLastCommitTime ? _T("yes") : _T("no")), m_regLastCommitTime);
+	m_regCheckNewer = m_bCheckNewer;
+	if (m_regCheckNewer.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regCheckNewer.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regLastCommitTime = (m_bLastCommitTime ? _T("yes") : _T("no"));
+	if (m_regLastCommitTime.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regLastCommitTime.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 
 	CRegString asphack_local(_T("System\\CurrentControlSet\\Control\\Session Manager\\Environment\\SVN_ASP_DOT_NET_HACK"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
 	CRegString asphack_user(_T("Environment\\SVN_ASP_DOT_NET_HACK"));
 	if (m_bUseDotNetHack)
 	{
 		asphack_local = _T("*");
-        if (asphack_local.GetLastError() != ERROR_SUCCESS)
+		if (asphack_local.LastError)
 			asphack_user = _T("*");
 		if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
 		{
@@ -220,8 +228,14 @@ void CSetMainPage::OnBnClickedChecknewerbutton()
 }
 
 void CSetMainPage::OnBnClickedSounds()
-{	
-	if (SysInfo::Instance().IsVistaOrLater())
+{
+	OSVERSIONINFOEX inf;
+	SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO *)&inf);
+	WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+	
+	if (fullver >= 0x0600)
 		CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,2"), NULL, false);
 	else
 		CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);

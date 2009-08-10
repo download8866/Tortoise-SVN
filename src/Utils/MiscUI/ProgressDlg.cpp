@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2009 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,12 +19,11 @@
 #include "stdafx.h"
 #include "ProgressDlg.h"
 
-CProgressDlg::CProgressDlg() 
-	: m_pIDlg(NULL)
-	, m_bValid(false)		//not valid by default
-	, m_isVisible(false)
-	, m_dwDlgFlags(PROGDLG_NORMAL)
-	, m_hWndProgDlg(NULL)
+CProgressDlg::CProgressDlg() :
+			m_pIDlg(NULL),
+		    m_bValid(false),			//not valid by default
+            m_isVisible(false),
+		    m_dwDlgFlags(PROGDLG_NORMAL)
 {
 	EnsureValid();
 }
@@ -37,7 +36,6 @@ CProgressDlg::~CProgressDlg()
 	        m_pIDlg->StopProgressDialog();
 
     	m_pIDlg->Release();
-		m_hWndProgDlg = NULL;
     }
 }
 
@@ -127,16 +125,16 @@ void CProgressDlg::SetShowProgressBar(bool bShow /* = true */)
         m_dwDlgFlags |= PROGDLG_NOPROGRESSBAR;
 }
 #ifdef _MFC_VER
-//HRESULT CProgressDlg::ShowModal (CWnd* pwndParent)
-//{
-//	EnsureValid();
-//	return ShowModal(pwndParent->GetSafeHwnd());
-//}
-
-HRESULT CProgressDlg::ShowModeless(CWnd* pwndParent, BOOL immediately)
+HRESULT CProgressDlg::ShowModal (CWnd* pwndParent)
 {
 	EnsureValid();
-	return ShowModeless(pwndParent->GetSafeHwnd(), immediately);
+	return ShowModal(pwndParent->GetSafeHwnd());
+}
+
+HRESULT CProgressDlg::ShowModeless(CWnd* pwndParent)
+{
+	EnsureValid();
+	return ShowModeless(pwndParent->GetSafeHwnd());
 }
 
 void CProgressDlg::FormatPathLine ( DWORD dwLine, UINT idFormatText, ...)
@@ -164,32 +162,32 @@ void CProgressDlg::FormatNonPathLine(DWORD dwLine, UINT idFormatText, ...)
 }
 
 #endif
-//HRESULT CProgressDlg::ShowModal (HWND hWndParent)
-//{
-//	EnsureValid();
-//	HRESULT hr;
-//	if (m_bValid)
-//	{
-//
-//		hr = m_pIDlg->StartProgressDialog(hWndParent,
-//			NULL,
-//			m_dwDlgFlags | PROGDLG_MODAL,
-//			NULL);
-//
-//		if (SUCCEEDED(hr))
-//		{
-//			m_isVisible = true;
-//		}
-//		return hr;
-//	}
-//	return E_FAIL;
-//}
+HRESULT CProgressDlg::ShowModal (HWND hWndParent)
+{
+	EnsureValid();
+	HRESULT hr;
+	if (m_bValid)
+	{
 
-HRESULT CProgressDlg::ShowModeless(HWND hWndParent, BOOL immediately)
+		hr = m_pIDlg->StartProgressDialog(hWndParent,
+			NULL,
+			m_dwDlgFlags | PROGDLG_MODAL,
+			NULL);
+
+		if (SUCCEEDED(hr))
+		{
+			m_isVisible = true;
+		}
+		return hr;
+	}
+	return E_FAIL;
+}
+
+HRESULT CProgressDlg::ShowModeless(HWND hWndParent)
 {
 	EnsureValid();
 	HRESULT hr = E_FAIL;
-	m_hWndProgDlg = NULL;
+
 	if (m_bValid)
 	{
 		hr = m_pIDlg->StartProgressDialog(hWndParent, NULL, m_dwDlgFlags, NULL);
@@ -198,22 +196,21 @@ HRESULT CProgressDlg::ShowModeless(HWND hWndParent, BOOL immediately)
 		{
 			m_isVisible = true;
 
-			if (immediately)
+			// The progress window can be remarkably slow to display, particularly
+			// if its parent is blocked.
+			// This process finds the hwnd for the progress window and gives it a kick...
+			IOleWindow *pOleWindow;
+			HRESULT hr=m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
+			if(SUCCEEDED(hr))
 			{
-				// The progress window can be remarkably slow to display, particularly
-				// if its parent is blocked.
-				// This process finds the hwnd for the progress window and gives it a kick...
-				IOleWindow *pOleWindow;
-				HRESULT hr2 = m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
-				if(SUCCEEDED(hr2))
+				HWND hDlgWnd;
+
+				hr=pOleWindow->GetWindow(&hDlgWnd);
+				if(SUCCEEDED(hr))
 				{
-					hr2 = pOleWindow->GetWindow(&m_hWndProgDlg);
-					if(SUCCEEDED(hr2))
-					{
-						ShowWindow(m_hWndProgDlg, SW_NORMAL);
-					}
-					pOleWindow->Release();
+					ShowWindow(hDlgWnd, SW_NORMAL);
 				}
+				pOleWindow->Release();
 			}
 		}
 	}
@@ -252,17 +249,26 @@ void CProgressDlg::Stop()
     if ((m_isVisible)&&(m_bValid))
     {
         m_pIDlg->StopProgressDialog();
-		// Sometimes the progress dialog sticks around after stopping it,
-		// until the mouse pointer is moved over it or some other triggers.
-		// We hide the window here immediately.
-		if (m_hWndProgDlg)
+		//Sometimes the progress dialog sticks around after stopping it,
+		//until the mouse pointer is moved over it or some other triggers.
+		//This process finds the hwnd of the progress dialog and hides it
+		//immediately.
+		IOleWindow *pOleWindow;
+		HRESULT hr=m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
+		if(SUCCEEDED(hr))
 		{
-			ShowWindow(m_hWndProgDlg, SW_HIDE);
+			HWND hDlgWnd;
+
+			hr=pOleWindow->GetWindow(&hDlgWnd);
+			if(SUCCEEDED(hr))
+			{
+				ShowWindow(hDlgWnd, SW_HIDE);
+			}
+			pOleWindow->Release();
 		}
         m_isVisible = false;
 		m_pIDlg->Release();
 		m_bValid = false;
-		m_hWndProgDlg = NULL;
     }
 }
 

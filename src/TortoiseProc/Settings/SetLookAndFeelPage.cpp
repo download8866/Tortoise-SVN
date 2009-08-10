@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,10 +40,6 @@ CSetLookAndFeelPage::CSetLookAndFeelPage()
 
 	m_regGetLockTop = CRegDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
 	m_bGetLockTop = m_regGetLockTop;
-
-	m_regNoContextPaths = CRegString(_T("Software\\TortoiseSVN\\NoContextPaths"), _T(""));
-	m_sNoContextPaths = m_regNoContextPaths;
-	m_sNoContextPaths.Replace(_T("\n"), _T("\r\n"));
 }
 
 CSetLookAndFeelPage::~CSetLookAndFeelPage()
@@ -55,14 +51,12 @@ void CSetLookAndFeelPage::DoDataExchange(CDataExchange* pDX)
 	ISettingsPropPage::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_MENULIST, m_cMenuList);
 	DDX_Check(pDX, IDC_GETLOCKTOP, m_bGetLockTop);
-	DDX_Text(pDX, IDC_NOCONTEXTPATHS, m_sNoContextPaths);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetLookAndFeelPage, ISettingsPropPage)
 	ON_NOTIFY(LVN_ITEMCHANGED, IDC_MENULIST, OnLvnItemchangedMenulist)
 	ON_BN_CLICKED(IDC_GETLOCKTOP, OnChange)
-	ON_EN_CHANGE(IDC_NOCONTEXTPATHS, &CSetLookAndFeelPage::OnEnChangeNocontextpaths)
 END_MESSAGE_MAP()
 
 
@@ -73,7 +67,6 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_MENULIST, IDS_SETTINGS_MENULAYOUT_TT);
 	m_tooltips.AddTool(IDC_GETLOCKTOP, IDS_SETTINGS_GETLOCKTOP_TT);
-	m_tooltips.AddTool(IDC_NOCONTEXTPATHS, IDS_SETTINGS_EXCLUDECONTEXTLIST_TT);
 
 	m_cMenuList.SetExtendedStyle(LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 
@@ -96,11 +89,10 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 	InsertItem(IDS_MENUCOMMIT, IDI_COMMIT, MENUCOMMIT);
 	InsertItem(IDS_MENUDIFF, IDI_DIFF, MENUDIFF);
 	InsertItem(IDS_MENUPREVDIFF, IDI_DIFF, MENUPREVDIFF);
-	InsertItem(IDS_MENUURLDIFF, IDI_DIFF, MENUURLDIFF);
 	InsertItem(IDS_MENULOG, IDI_LOG, MENULOG);
-	InsertItem(IDS_MENUREPOBROWSE, IDI_REPOBROWSE, MENUREPOBROWSE);
 	InsertItem(IDS_MENUSHOWCHANGED, IDI_SHOWCHANGED, MENUSHOWCHANGED);
 	InsertItem(IDS_MENUREVISIONGRAPH, IDI_REVISIONGRAPH, MENUREVISIONGRAPH);
+	InsertItem(IDS_MENUREPOBROWSE, IDI_REPOBROWSE, MENUREPOBROWSE);
 	InsertItem(IDS_MENUCONFLICT, IDI_CONFLICT, MENUCONFLICTEDITOR);
 	InsertItem(IDS_MENURESOLVE, IDI_RESOLVE, MENURESOLVE);
 	InsertItem(IDS_MENUUPDATEEXT, IDI_UPDATE, MENUUPDATEEXT);
@@ -124,7 +116,7 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
 	InsertItem(IDS_MENUCREATEPATCH, IDI_CREATEPATCH, MENUCREATEPATCH);
 	InsertItem(IDS_MENUAPPLYPATCH, IDI_PATCH, MENUAPPLYPATCH);
 	InsertItem(IDS_MENUPROPERTIES, IDI_PROPERTIES, MENUPROPERTIES);
-	InsertItem(IDS_MENUCLIPPASTE, IDI_CLIPPASTE, MENUCLIPPASTE);
+	InsertItem(IDS_MENUURLDIFF, IDI_DIFF, MENUURLDIFF);
 	m_bBlock = false;
 
 	m_cMenuList.SetImageList(&m_imgList, LVSIL_SMALL);
@@ -151,17 +143,15 @@ BOOL CSetLookAndFeelPage::PreTranslateMessage(MSG* pMsg)
 BOOL CSetLookAndFeelPage::OnApply()
 {
 	UpdateData();
-    Store ((DWORD)(m_topmenu & 0xFFFFFFFF),	m_regTopmenu);
-    Store ((DWORD)(m_topmenu >> 32), m_regTopmenuhigh);
-    Store (m_bGetLockTop, m_regGetLockTop);
-
-	m_sNoContextPaths.Replace(_T("\r"), _T(""));
-	if (m_sNoContextPaths.Right(1).Compare(_T("\n"))!=0)
-		m_sNoContextPaths += _T("\n");
-
-	Store (m_sNoContextPaths, m_regNoContextPaths);
-
-	m_sNoContextPaths.Replace(_T("\n"), _T("\r\n"));
+	m_regTopmenu = (DWORD)(m_topmenu & 0xFFFFFFFF);
+	m_regTopmenuhigh = (DWORD)(m_topmenu >> 32);
+	if (m_regTopmenu.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regTopmenu.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	if (m_regTopmenuhigh.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regTopmenuhigh.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
+	m_regGetLockTop = m_bGetLockTop;
+	if (m_regGetLockTop.LastError != ERROR_SUCCESS)
+		CMessageBox::Show(m_hWnd, m_regGetLockTop.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
 	SetModified(FALSE);
 	return ISettingsPropPage::OnApply();
 }
@@ -194,11 +184,10 @@ void CSetLookAndFeelPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOMMIT : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFF : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUPREVDIFF : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUURLDIFF : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENULOG : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREPOBROWSE : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSHOWCHANGED : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREVISIONGRAPH : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUREPOBROWSE : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCONFLICTEDITOR : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURESOLVE : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATEEXT : 0;
@@ -222,7 +211,7 @@ void CSetLookAndFeelPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEPATCH : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUAPPLYPATCH : 0;
 		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUPROPERTIES : 0;
-		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCLIPPASTE : 0;
+		m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUURLDIFF : 0;
 	}
 	*pResult = 0;
 }
@@ -232,8 +221,4 @@ void CSetLookAndFeelPage::OnChange()
 	SetModified();
 }
 
-void CSetLookAndFeelPage::OnEnChangeNocontextpaths()
-{
-	SetModified();
-}
 

@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "StandAloneDlg.h"
-#include "RevisionGraph/AllGraphOptions.h"
+#include "RevisionGraph.h"
 #include "ProgressDlg.h"
 #include "Colors.h"
 #include "RevisionGraphWnd.h"
@@ -54,13 +54,11 @@ public:
 
 	void			SetPath(const CString& sPath) {m_Graph.m_sPath = sPath;}
     void			SetPegRevision(SVNRev revision) {m_Graph.m_pegRev = revision;}
-    void            DoZoom (float factor);
-
-    void            UpdateFullHistory();
-    void            StartWorkerThread();
-
+	void			UpdateZoomBox();
+	float			m_fZoomFactor;
 protected:
 	bool			m_bFetchLogs;
+    CRevisionGraph::SOptions m_options;
 	char			m_szTip[MAX_TT_LENGTH+1];
 	wchar_t			m_wszTip[MAX_TT_LENGTH+1];
 
@@ -80,41 +78,40 @@ protected:
 	afx_msg void	OnViewZoomin();
 	afx_msg void	OnViewZoomout();
 	afx_msg void	OnViewZoom100();
-    afx_msg void	OnViewZoomHeight();
-    afx_msg void	OnViewZoomWidth();
 	afx_msg void	OnViewZoomAll();
 	afx_msg void	OnViewCompareheadrevisions();
 	afx_msg void	OnViewComparerevisions();
 	afx_msg void	OnViewUnifieddiff();
 	afx_msg void	OnViewUnifieddiffofheadrevisions();
+	afx_msg void	OnViewShowallrevisions();
+	afx_msg void	OnViewArrangedbypath();
+	afx_msg void	OnViewTopDown();
+	afx_msg void    OnViewShowHEAD();
+	afx_msg void    OnViewExactCopySource();
+	afx_msg void    OnViewFoldTags();
+	afx_msg void    OnViewReduceCrosslines();
+    afx_msg void    OnViewRemoveDeletedOnes();
+    afx_msg void    OnViewShowWCRev();
 	afx_msg void	OnViewShowoverview();
 	afx_msg void	OnFileSavegraphas();
 	afx_msg void	OnMenuexit();
 	afx_msg void	OnMenuhelp();
 	afx_msg void	OnChangeZoom();
-    afx_msg BOOL    OnToggleOption (UINT controlID);
-    afx_msg BOOL    OnToggleReloadOption (UINT controlID);
-    afx_msg BOOL    OnToggleRedrawOption (UINT controlID);
-    afx_msg BOOL	OnToolTipNotify (UINT id, NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg BOOL	OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 
 	DECLARE_MESSAGE_MAP()
 
-    BOOL            ToggleOption (UINT controlID);
-	void			SetOption (UINT controlID);
+	void			SetOption(int controlID, bool option);
+    void            OnToggleOption(int controlID, bool& option);
 
-    CRect			GetGraphRect();
+    void			GetGraphRect(LPRECT rect);
 	void			UpdateStatusBar();
 
 private:
-	void			UpdateZoomBox();
-    void            UpdateOptionAvailability (UINT id, bool available);
-    void            UpdateOptionAvailability();
+    void            StartWorkerThread();
+	static UINT		WorkerThread(LPVOID pVoid);
 
-	bool		    UpdateData();
-
-	float			m_fZoomFactor;
 	CRevisionGraphWnd	m_Graph;
 	CStatusBarCtrl		m_StatusBar;
 	CRevGraphToolBar	m_ToolBar;
-    ULONG_PTR       m_gdiPlusToken;
 };

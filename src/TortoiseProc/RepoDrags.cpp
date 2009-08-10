@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,17 +19,11 @@
 #include "StdAfx.h"
 #include "RepoDrags.h"
 #include "RepositoryBrowser.h"
-#include "SVNDataObject.h"
-
 
 CTreeDropTarget::CTreeDropTarget(CRepositoryBrowser * pRepoBrowser) : CIDropTarget(pRepoBrowser->m_RepoTree.GetSafeHwnd())
 	, m_pRepoBrowser(pRepoBrowser)
 	, m_bFiles(false)
 {
-	sNoDrop.LoadString(IDS_DROPDESC_NODROP);
-	sImportDrop.LoadString(IDS_DROPDESC_IMPORT);
-	sCopyDrop.LoadString(IDS_DROPDESC_COPY);
-	sMoveDrop.LoadString(IDS_DROPDESC_MOVE);
 }
 
 bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt)
@@ -57,37 +51,7 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 		CTSVNPathList urlList;
 		urlList.LoadFromAsteriskSeparatedString(urls);
 
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
-	}
-
-	if (pFmtEtc->cfFormat == CF_SVNURL && medium.tymed == TYMED_HGLOBAL)
-	{
-		TCHAR* pStr = (TCHAR*)GlobalLock(medium.hGlobal);
-		CString urls;
-		if(pStr != NULL)
-		{
-			urls = pStr;
-		}
-		GlobalUnlock(medium.hGlobal);
-		urls.Replace(_T("\r\n"), _T("*"));
-		CTSVNPathList urlListRevs;
-		urlListRevs.LoadFromAsteriskSeparatedString(urls);
-		CTSVNPathList urlList;
-		SVNRev srcRev;
-		for (int i=0; i<urlListRevs.GetCount(); ++i)
-		{
-			int pos = urlListRevs[i].GetSVNPathString().Find('?');
-			if (pos > 0)
-			{
-				if (!srcRev.IsValid())
-					srcRev = SVNRev(urlListRevs[i].GetSVNPathString().Mid(pos+1));
-				urlList.AddPath(CTSVNPath(urlListRevs[i].GetSVNPathString().Left(pos)));
-			}
-			else
-				urlList.AddPath(urlListRevs[i]);
-		}
-
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, srcRev, *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, *pdwEffect, pt);
 	}
 
 	if(pFmtEtc->cfFormat == CF_HDROP && medium.tymed == TYMED_HGLOBAL)
@@ -101,10 +65,10 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 			UINT cFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); 
 			for(UINT i = 0; i < cFiles; ++i)
 			{
-				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)/sizeof(TCHAR));
+				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName));
 				urlList.AddPath(CTSVNPath(szFileName));
 			}
-			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, *pdwEffect, pt);
 		}
 		GlobalUnlock(medium.hGlobal);
 	}
@@ -114,7 +78,6 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 
 HRESULT CTreeDropTarget::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect)
 {
-	HRESULT hr = CIDropTarget::DragEnter(pDataObj, grfKeyState, pt, pdwEffect);
 	FORMATETC ftetc={0}; 
 	ftetc.dwAspect = DVASPECT_CONTENT; 
 	ftetc.lindex = -1; 
@@ -126,13 +89,11 @@ HRESULT CTreeDropTarget::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKey
 		m_bFiles = false;
 	m_dwHoverStartTicks = 0;
 	hLastItem = NULL;
-	SetDropDescription(DROPIMAGE_NONE, NULL, NULL);
-	return hr;
+	return CIDropTarget::DragEnter(pDataObj, grfKeyState, pt, pdwEffect);
 }
 
 HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect)
 {
-	TCHAR targetName[MAX_PATH] = {0};
 	TVHITTESTINFO hit;
 	hit.pt = (POINT&)pt;
 	ScreenToClient(m_hTargetWnd,&hit.pt);
@@ -142,16 +103,15 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
 		m_dwHoverStartTicks = 0;
 	hLastItem = hItem;
 
+	*pdwEffect = DROPEFFECT_MOVE;
+	if (grfKeyState & MK_CONTROL)
+		*pdwEffect = DROPEFFECT_COPY;
 
 	if (hItem != NULL)
 	{
+		if (m_bFiles)
+			*pdwEffect = DROPEFFECT_COPY;
 		TreeView_SelectDropTarget(m_hTargetWnd, hItem);
-		TVITEMEX tvItem = {0};
-		tvItem.mask = TVIF_TEXT;
-		tvItem.hItem = hItem;
-		tvItem.pszText = targetName;
-		tvItem.cchTextMax = MAX_PATH;
-		TreeView_GetItem(m_hTargetWnd, &tvItem);
 		if ((m_pRepoBrowser->m_RepoTree.GetItemState(hItem, TVIS_EXPANDED)&TVIS_EXPANDED) != TVIS_EXPANDED)
 		{
 			if (m_dwHoverStartTicks == 0)
@@ -175,22 +135,6 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
 		*pdwEffect = DROPEFFECT_NONE;
 		m_dwHoverStartTicks = 0;
 	}
-
-	*pdwEffect = DROPEFFECT_MOVE;
-	if (m_bFiles)
-	{
-		*pdwEffect = DROPEFFECT_COPY;
-		SetDropDescription(DROPIMAGE_COPY, sImportDrop, targetName);
-	}
-	else if (grfKeyState & MK_CONTROL)
-	{
-		*pdwEffect = DROPEFFECT_COPY;
-		SetDropDescription(DROPIMAGE_COPY, sCopyDrop, targetName);
-	}
-	else
-	{
-		SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
-	}
 	CRect rect;
 	m_pRepoBrowser->m_RepoTree.GetWindowRect(&rect);
 	if (rect.PtInRect((POINT&)pt))
@@ -213,7 +157,6 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
 HRESULT CTreeDropTarget::DragLeave(void)
 {
 	TreeView_SelectDropTarget(m_hTargetWnd, NULL);
-	SetDropDescription(DROPIMAGE_INVALID, NULL, NULL);
 	m_dwHoverStartTicks = 0;
 	return CIDropTarget::DragLeave();
 }
@@ -222,10 +165,6 @@ CListDropTarget::CListDropTarget(CRepositoryBrowser * pRepoBrowser):CIDropTarget
 	, m_pRepoBrowser(pRepoBrowser)
 	, m_bFiles(false)
 {
-	sNoDrop.LoadString(IDS_DROPDESC_NODROP);
-	sImportDrop.LoadString(IDS_DROPDESC_IMPORT);
-	sCopyDrop.LoadString(IDS_DROPDESC_COPY);
-	sMoveDrop.LoadString(IDS_DROPDESC_MOVE);
 }	
 
 bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt)
@@ -257,36 +196,7 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 		urls.Replace(_T("\r\n"), _T("*"));
 		CTSVNPathList urlList;
 		urlList.LoadFromAsteriskSeparatedString(urls);
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
-	}
-	if(pFmtEtc->cfFormat == CF_SVNURL && medium.tymed == TYMED_HGLOBAL)
-	{
-		TCHAR* pStr = (TCHAR*)GlobalLock(medium.hGlobal);
-		CString urls;
-		if(pStr != NULL)
-		{
-			urls = pStr;
-		}
-		GlobalUnlock(medium.hGlobal);
-		urls.Replace(_T("\r\n"), _T("*"));
-		CTSVNPathList urlListRevs;
-		urlListRevs.LoadFromAsteriskSeparatedString(urls);
-		CTSVNPathList urlList;
-		SVNRev srcRev;
-		for (int i=0; i<urlListRevs.GetCount(); ++i)
-		{
-			int pos = urlListRevs[i].GetSVNPathString().Find('?');
-			if (pos > 0)
-			{
-				if (!srcRev.IsValid())
-					srcRev = SVNRev(urlListRevs[i].GetSVNPathString().Mid(pos+1));
-				urlList.AddPath(CTSVNPath(urlListRevs[i].GetSVNPathString().Left(pos)));
-			}
-			else
-				urlList.AddPath(urlListRevs[i]);
-		}
-
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, srcRev, *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, *pdwEffect, pt);
 	}
 
 	if(pFmtEtc->cfFormat == CF_HDROP && medium.tymed == TYMED_HGLOBAL)
@@ -300,10 +210,10 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 			UINT cFiles = DragQueryFile(hDrop, 0xFFFFFFFF, NULL, 0); 
 			for(UINT i = 0; i < cFiles; ++i)
 			{
-				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)/sizeof(TCHAR));
+				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName));
 				urlList.AddPath(CTSVNPath(szFileName));
 			}
-			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, *pdwEffect, pt);
 		}
 		GlobalUnlock(medium.hGlobal);
 	}
@@ -313,7 +223,6 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 
 HRESULT CListDropTarget::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect)
 {
-	HRESULT hr = CIDropTarget::DragEnter(pDataObj, grfKeyState, pt, pdwEffect);
 	FORMATETC ftetc={0}; 
 	ftetc.dwAspect = DVASPECT_CONTENT; 
 	ftetc.lindex = -1; 
@@ -327,14 +236,12 @@ HRESULT CListDropTarget::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKey
 	{
 		m_bFiles = false;
 	}
-	SetDropDescription(DROPIMAGE_NONE, NULL, NULL);
-	return hr;
+	return CIDropTarget::DragEnter(pDataObj, grfKeyState, pt, pdwEffect);
 }
 
 
 HRESULT CListDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect)
 {
-	TCHAR targetName[MAX_PATH] = {0};
 	LVHITTESTINFO hit;
 	hit.pt = (POINT&)pt;
 	ScreenToClient(m_hTargetWnd,&hit.pt);
@@ -342,47 +249,31 @@ HRESULT CListDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
 	int iItem = ListView_HitTest(m_hTargetWnd,&hit);
 
 	*pdwEffect = DROPEFFECT_MOVE;
+	if (grfKeyState & MK_CONTROL)
+		*pdwEffect = DROPEFFECT_COPY;
 
 	if (iItem >= 0)
 	{
-		ListView_GetItemText(m_hTargetWnd, iItem, 0, targetName, MAX_PATH);
 		CItem * pItem = (CItem*)m_pRepoBrowser->m_RepoList.GetItemData(iItem);
 		if (pItem)
 		{
 			if (pItem->kind != svn_node_dir)
 			{
 				*pdwEffect = DROPEFFECT_NONE;
-				SetDropDescription(DROPIMAGE_NONE, sNoDrop, targetName);
 				ListView_SetItemState(m_hTargetWnd, -1, 0, LVIS_DROPHILITED);
 			}
 			else
 			{
 				if (m_bFiles)
-				{
 					*pdwEffect = DROPEFFECT_COPY;
-					SetDropDescription(DROPIMAGE_COPY, sImportDrop, targetName);
-				}
-				else if (grfKeyState & MK_CONTROL)
-				{
-					*pdwEffect = DROPEFFECT_COPY;
-					SetDropDescription(DROPIMAGE_COPY, sCopyDrop, targetName);
-				}
-				else
-				{
-					*pdwEffect = DROPEFFECT_MOVE;
-					SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
-				}
 				ListView_SetItemState(m_hTargetWnd, -1, 0, LVIS_DROPHILITED);
 				ListView_SetItemState(m_hTargetWnd, iItem, LVIS_DROPHILITED, LVIS_DROPHILITED);
 			}
 		}
-		else
-			SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
 	}
 	else
 	{
 		ListView_SetItemState(m_hTargetWnd, -1, 0, LVIS_DROPHILITED);
-		SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
 	}
 
 	CRect rect;
@@ -405,6 +296,5 @@ HRESULT CListDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
 HRESULT CListDropTarget::DragLeave(void)
 {
 	ListView_SetItemState(m_hTargetWnd, -1, 0, LVIS_DROPHILITED);
-	SetDropDescription(DROPIMAGE_INVALID, NULL, NULL);
 	return CIDropTarget::DragLeave();
 }
