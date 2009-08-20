@@ -43,16 +43,16 @@ CRemoteCacheLink::~CRemoteCacheLink(void)
 	m_critSec.Term();
 }
 
-bool CRemoteCacheLink::InternalEnsurePipeOpen ( HANDLE& hPipe
-                                              , const CString& pipeName)
+bool CRemoteCacheLink::EnsurePipeOpen()
 {
-	if (hPipe != INVALID_HANDLE_VALUE)
+	AutoLocker lock(m_critSec);
+	if(m_hPipe != INVALID_HANDLE_VALUE)
 	{
 		return true;
 	}
 
-	hPipe = CreateFile(
-		pipeName,				        // pipe name
+	m_hPipe = CreateFile(
+		GetCachePipeName(),				// pipe name
 		GENERIC_READ |					// read and write access
 		GENERIC_WRITE,
 		0,								// no sharing
@@ -61,15 +61,15 @@ bool CRemoteCacheLink::InternalEnsurePipeOpen ( HANDLE& hPipe
 		FILE_FLAG_OVERLAPPED,			// default attributes
 		NULL);							// no template file
 
-	if (hPipe == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY)
+	if (m_hPipe == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY)
 	{
 		// TSVNCache is running but is busy connecting a different client.
 		// Do not give up immediately but wait for a few milliseconds until
 		// the server has created the next pipe instance
-		if (WaitNamedPipe (pipeName, 50))
+		if (WaitNamedPipe(GetCachePipeName(), 50))
 		{
-			hPipe = CreateFile(
-				pipeName,				        // pipe name
+			m_hPipe = CreateFile(
+				GetCachePipeName(),				// pipe name
 				GENERIC_READ |					// read and write access
 				GENERIC_WRITE,
 				0,								// no sharing
@@ -80,43 +80,31 @@ bool CRemoteCacheLink::InternalEnsurePipeOpen ( HANDLE& hPipe
 		}
 	}
 
-	if (hPipe != INVALID_HANDLE_VALUE)
+
+	if (m_hPipe != INVALID_HANDLE_VALUE)
 	{
 		// The pipe connected; change to message-read mode.
 		DWORD dwMode;
 
 		dwMode = PIPE_READMODE_MESSAGE;
 		if(!SetNamedPipeHandleState(
-			hPipe,    // pipe handle
+			m_hPipe,    // pipe handle
 			&dwMode,  // new pipe mode
 			NULL,     // don't set maximum bytes
 			NULL))    // don't set maximum time
 		{
 			ATLTRACE("SetNamedPipeHandleState failed");
-			CloseHandle(hPipe);
-			hPipe = INVALID_HANDLE_VALUE;
+			CloseHandle(m_hPipe);
+			m_hPipe = INVALID_HANDLE_VALUE;
 			return false;
 		}
-
-		return true;
-	}
-
-	return false;
-}
-
-bool CRemoteCacheLink::EnsurePipeOpen()
-{
-	AutoLocker lock(m_critSec);
-
-    if (InternalEnsurePipeOpen (m_hPipe, GetCachePipeName()))
-	{
 		// create an unnamed (=local) manual reset event for use in the overlapped structure
 		m_hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
 		if (m_hEvent)
 			return true;
-
 		ATLTRACE("CreateEvent failed");
 		ClosePipe();
+		return false;
 	}
 
 	return false;
@@ -125,7 +113,62 @@ bool CRemoteCacheLink::EnsurePipeOpen()
 bool CRemoteCacheLink::EnsureCommandPipeOpen()
 {
 	AutoLocker lock(m_critSec);
-    return InternalEnsurePipeOpen (m_hCommandPipe, GetCacheCommandPipeName());
+	if(m_hCommandPipe != INVALID_HANDLE_VALUE)
+	{
+		return true;
+	}
+
+	m_hCommandPipe = CreateFile(
+		GetCacheCommandPipeName(),		// pipe name
+		GENERIC_READ |					// read and write access
+		GENERIC_WRITE,
+		0,								// no sharing
+		NULL,							// default security attributes
+		OPEN_EXISTING,					// opens existing pipe
+		FILE_FLAG_OVERLAPPED,			// default attributes
+		NULL);							// no template file
+
+	if (m_hCommandPipe == INVALID_HANDLE_VALUE && GetLastError() == ERROR_PIPE_BUSY)
+	{
+		// TSVNCache is running but is busy connecting a different client.
+		// Do not give up immediately but wait for a few milliseconds until
+		// the server has created the next pipe instance
+		if (WaitNamedPipe(GetCacheCommandPipeName(), 50))
+		{
+			m_hCommandPipe = CreateFile(
+				GetCacheCommandPipeName(),		// pipe name
+				GENERIC_READ |					// read and write access
+				GENERIC_WRITE,
+				0,								// no sharing
+				NULL,							// default security attributes
+				OPEN_EXISTING,					// opens existing pipe
+				FILE_FLAG_OVERLAPPED,			// default attributes
+				NULL);							// no template file
+		}
+	}
+
+
+	if (m_hCommandPipe != INVALID_HANDLE_VALUE)
+	{
+		// The pipe connected; change to message-read mode.
+		DWORD dwMode;
+
+		dwMode = PIPE_READMODE_MESSAGE;
+		if(!SetNamedPipeHandleState(
+			m_hCommandPipe,    // pipe handle
+			&dwMode,  // new pipe mode
+			NULL,     // don't set maximum bytes
+			NULL))    // don't set maximum time
+		{
+			ATLTRACE("SetNamedPipeHandleState failed");
+			CloseHandle(m_hCommandPipe);
+			m_hCommandPipe = INVALID_HANDLE_VALUE;
+			return false;
+		}
+		return true;
+	}
+
+	return false;
 }
 
 void CRemoteCacheLink::ClosePipe()
@@ -176,12 +219,6 @@ bool CRemoteCacheLink::GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCache
 		// missing registry key, corrupt exe, ...
 		if (((long)GetTickCount() - m_lastTimeout) < 0)
 			return false;
-		// if we're in protected mode, don't try to start the cache: since we're
-		// here, we know we can't access it anyway and starting a new process will
-		// trigger a warning dialog in IE7+ on Vista - we don't want that.
-		if (GetProcessIntegrityLevel() < SECURITY_MANDATORY_MEDIUM_RID)
-			return false;
-
 		STARTUPINFO startup;
 		PROCESS_INFORMATION process;
 		memset(&startup, 0, sizeof(startup));
@@ -309,46 +346,4 @@ bool CRemoteCacheLink::ReleaseLockForPath(const CTSVNPath& path)
 		return true;
 	}
 	return false;
-}
-
-DWORD CRemoteCacheLink::GetProcessIntegrityLevel()
-{
-	HANDLE hToken;
-	HANDLE hProcess;
-
-	DWORD dwLengthNeeded;
-	DWORD dwError = ERROR_SUCCESS;
-
-	PTOKEN_MANDATORY_LABEL pTIL = NULL;
-	DWORD dwIntegrityLevel = SECURITY_MANDATORY_MEDIUM_RID;
-
-	hProcess = GetCurrentProcess();
-	if (OpenProcessToken(hProcess, TOKEN_QUERY | 
-		TOKEN_QUERY_SOURCE, &hToken)) 
-	{
-		// Get the Integrity level.
-		if (!GetTokenInformation(hToken, TokenIntegrityLevel, 
-			NULL, 0, &dwLengthNeeded))
-		{
-			dwError = GetLastError();
-			if (dwError == ERROR_INSUFFICIENT_BUFFER)
-			{
-				pTIL = (PTOKEN_MANDATORY_LABEL)LocalAlloc(0, 
-					dwLengthNeeded);
-				if (pTIL != NULL)
-				{
-					if (GetTokenInformation(hToken, TokenIntegrityLevel, 
-						pTIL, dwLengthNeeded, &dwLengthNeeded))
-					{
-						dwIntegrityLevel = *GetSidSubAuthority(pTIL->Label.Sid, 
-							(DWORD)(UCHAR)(*GetSidSubAuthorityCount(pTIL->Label.Sid)-1));
-					}
-					LocalFree(pTIL);
-				}
-			}
-		}
-		CloseHandle(hToken);
-	}
-
-	return dwIntegrityLevel;
 }

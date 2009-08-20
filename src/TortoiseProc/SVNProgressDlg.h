@@ -42,7 +42,7 @@ typedef enum
 	ProgOptIgnoreExternals = 0x08,
 	ProgOptKeeplocks = 0x10,
 	/// for locking this means steal the lock, for unlocking it means breaking the lock
-	ProgOptForce = 0x20,
+	ProgOptLockForce = 0x20,
 	ProgOptSwitchAfterCopy = 0x40,
 	ProgOptIncludeIgnored = 0x80,
 	ProgOptIgnoreAncestry = 0x100,
@@ -105,7 +105,6 @@ public:
 
 	void SetCommand(Command cmd) {m_Command = cmd;}
 	void SetAutoClose(DWORD ac) {m_dwCloseOnEnd = ac;}
-	void SetAutoCloseLocal(BOOL bCloseLocal) {m_bCloseLocalOnEnd = bCloseLocal;}
 	void SetOptions(DWORD opts) {m_options = opts;}
 	void SetPathList(const CTSVNPathList& pathList) {m_targetPathList = pathList;}
 	void SetUrl(const CString& url) {m_url.SetFromUnknown(url);}
@@ -129,7 +128,7 @@ public:
 	 * beforehand, that number can be set here. It is then used to show a more
 	 * accurate progress bar during the operation.
 	 */
-	void SetItemCount(INT_PTR count) {if(count) m_itemCountTotal = count;}
+	void SetItemCount(long count) {if(count) m_itemCountTotal = count;}
 	
 	bool SetBackgroundImage(UINT nID);
 
@@ -294,7 +293,6 @@ private:
 	RevPropHash				m_revProps;
 
 	DWORD					m_dwCloseOnEnd;
-	DWORD					m_bCloseLocalOnEnd;
 
 	CTSVNPath				m_basePath;
 	StringRevMap			m_UpdateStartRevMap;
@@ -321,8 +319,8 @@ private:
 	bool					m_bFinishedItemAdded;
 	bool					m_bLastVisible;
 
-	INT_PTR					m_itemCount;
-	INT_PTR					m_itemCountTotal;
+	int						m_itemCount;
+	int						m_itemCountTotal;
 
 	bool					m_AlwaysConflicted;
 
@@ -336,5 +334,4 @@ private:
 	CString					sRespectAncestry;
 	CString					sDryRun;
 	CString					sRecordOnly;
-	CString					sForce;
 };

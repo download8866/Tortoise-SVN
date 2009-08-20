@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2009-06-26 13:47+0100\n"
+"PO-Revision-Date: 2009-03-17 23:30+0100\n"
 "Last-Translator: Krzysztof Kotowicz <koto@webworkers.pl>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -220,13 +220,13 @@ msgstr "%s, ale jest on niedostępny w kopii roboczej."
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
-msgstr "%s\\%s - Eksport"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Eksport (%d) %s"
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
-msgstr "%s\\%s - Eksport (%d)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Eksport %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -1162,10 +1162,6 @@ msgstr "'pomiń zakresy' używane jest, aby oznaczyć zakresy wersji, które jes
 msgid "(%s) %s"
 msgstr "(%s) %s"
 
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Kliknij dwukrotnie, aby wyczyścić komunikat błędu)"
-
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
 msgstr "(wartość binarna)"
@@ -1476,10 +1472,6 @@ msgstr "Dodaj program do porównywania plików (zależny od rozszerzenia pliku) 
 msgid "Add extension specific merge program"
 msgstr "Dodaj program do scalania plików (zależny od rozszerzenia pliku) "
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr " "
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Dodaj element mimo to"
@@ -1580,10 +1572,6 @@ msgstr "Wiek"
 msgid "Align trees on top"
 msgstr "Wyrównaj drzewa na górze"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Wszystkie"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Wszystkie polecenia"
@@ -1625,10 +1613,6 @@ msgstr "Zezwól na używanie tego samego adresu URL dla różnych repozytoriów,
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Zezwól na używanie tego samego UUID dla różnych repozytoriów, np. kopii"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Zawsze zamykaj okienka dla lokalnych operacji"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1827,6 +1811,10 @@ msgstr "Automatycznie ukryj"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Automatycznie zmień nazwę"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Automatyczne zamknięcie dla lokalnych operacji"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2195,10 +2183,6 @@ msgstr "Zaznacz, by użyć krótszego formatu daty i czasu w opisach zmian"
 msgid "Check working copy for modifications"
 msgstr "Sprawdź zmiany w kopii roboczej"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Sprawdź:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Sprawdzanie, czy jest dostępna nowsza wersja TortoiseSVN..."
@@ -2241,9 +2225,8 @@ msgid "Cleaning up"
 msgstr "Porządkowanie"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
-msgstr "Czyszczenie katalogu: \"%s\""
+msgid "Cleaning up."
+msgstr "Porządkowanie."
 
 #. Resource IDs: (83)
 #, c-format
@@ -3138,10 +3121,6 @@ msgstr "Porównywanie"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Porównuje plik w kopii roboczej z tym sprzed ostatniego zatwierdzenia zmian."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Katalogi"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Katalog:"
@@ -3153,10 +3132,6 @@ msgid ""
 msgstr ""
 "Wyłącz tą opcję, jeżeli posiadasz naprawdę duże kopie robocze i występuje\r\n"
 "zbyt dużo pracy dysku w trakcie przeglądania kopii roboczej."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Porzuć zmiany lokalne w elementach do usunięcia"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3918,10 +3893,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Nazwa pliku"
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Pliki"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4001,14 +3972,6 @@ msgstr "Naciśnij F1 aby uzyskać pomoc. Przewijaj poziomo trzymając Ctrl i uż
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Aby uzyskać kompletną historię, wyłącz opcję 'Zatrzymaj na kopii/zmianie nazwy'"
-
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Wymuś"
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
-msgstr "Wymuś scalanie"
 
 #. Resource IDs: (1064)
 msgid "Forward"
@@ -5306,8 +5269,8 @@ msgstr "Scalanie"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Scalanie %s do %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Scalanie %s do %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5315,8 +5278,8 @@ msgstr "Scalanie różnic pomiędzy URLami repozytorium"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Scalanie z %s, wersja %s do %s, wersja %s na %s, %s%s%s"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Łączenie zmian z %s, wersja %s do %s, wersja %s na %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
@@ -5326,7 +5289,7 @@ msgstr "Scalanie r%ld"
 #. Resource IDs: (264)
 #, c-format
 msgid "Merging r%ld through r%ld"
-msgstr "Scalanie od r%ld do r%ld"
+msgstr "Łączenie zmian od r%ld do r%ld"
 
 #. Resource IDs: (83)
 msgid "Merging requires different revisions or different URLs in 'From:' and 'To:'"
@@ -5334,8 +5297,8 @@ msgstr "Scalanie wymaga różnych wersji lub różnych URLi w 'Z:' i 'Do:'"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Scalanie wersji %s %s do %s,%s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Scalanie wersji %s %s do %s,%s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
@@ -5827,7 +5790,7 @@ msgstr "Można użyć wyłącznie liczb (ewentualnie oddzielonych przecinkami)!"
 
 #. Resource IDs: (1424)
 msgid "Only record the merge (block revisions from getting merged)"
-msgstr "Tylko zapisz fakt scalania (zablokuje te wersje przed powtórnym scalaniem)"
+msgstr "Tylko zapisz fakt połączenia (zablokuje te wersje przed powtórnym łączeniem)"
 
 #. Resource IDs: (19)
 msgid "Only this item"
@@ -6445,10 +6408,6 @@ msgstr ""
 #. Resource IDs: (1469)
 msgid "Reintegrate a branch"
 msgstr "Reintegruj gałąź"
-
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Scalanie reintegrowane"
 
 #. Resource IDs: (230)
 #, c-format
@@ -7235,10 +7194,6 @@ msgid "Select text editor application"
 msgstr "Wybierz edytor tekstowy"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Zaznacz URLe, z których chcesz reintegrować"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Zaznacz URLe do scalenia drzew"
 
@@ -7483,10 +7438,6 @@ msgstr "Pokaż &ignorowane pliki"
 #. Resource IDs: (1480)
 msgid "Show items in externals"
 msgstr "Pokaż elementy w zewnętrznych"
-
-#. Resource IDs: (1037)
-msgid "Show l&og"
-msgstr "Pokaż &log"
 
 #. Resource IDs: (1063)
 msgid "Show linenumber&s"
@@ -7957,10 +7908,6 @@ msgstr "Elementy-tagi"
 msgid "Tagged the working copy to %s"
 msgstr "Oznaczenie kopii roboczej jako %s"
 
-#. Resource IDs: (80)
-msgid "Tasks"
-msgstr "Zadania"
-
 #. Resource IDs: (1064)
 msgid "Tasks Pane"
 msgstr "Panel zadań"
@@ -8129,32 +8076,32 @@ msgstr "Element '%s' ma konflikty atrybutów:"
 #. Resource IDs: (608)
 #, c-format
 msgid "The last merge operation tried to add the directory '%s'"
-msgstr "Ostatnie scalanie próbowało dodać katalog '%s'"
+msgstr "Ostatnie łączenie próbowało dodać katalog '%s'"
 
 #. Resource IDs: (607)
 #, c-format
 msgid "The last merge operation tried to add the file '%s'"
-msgstr "Ostatnie scalanie próbowało dodać plik '%s'"
+msgstr "Ostatnie łączenie próbowało dodać plik '%s'"
 
 #. Resource IDs: (608)
 #, c-format
 msgid "The last merge operation tried to delete/move/rename the directory '%s'"
-msgstr "Ostatnie scalanie próbowało usunąć/zmienić nazwę/przenieść katalog '%s'"
+msgstr "Ostatnie łączenie próbowało usunąć/zmienić nazwę/przenieść katalog '%s'"
 
 #. Resource IDs: (607)
 #, c-format
 msgid "The last merge operation tried to delete/move/rename the file '%s'"
-msgstr "Ostatnie scalanie próbowało usunąć/zmienić nazwę/przenieść plik '%s'"
+msgstr "Ostatnie łączenie próbowało usunąć/zmienić nazwę/przenieść plik '%s'"
 
 #. Resource IDs: (608)
 #, c-format
 msgid "The last merge operation tried to modify the directory '%s'"
-msgstr "Ostatnie scalanie próbowało zmodyfikować katalog '%s'"
+msgstr "Ostatnie łączenie próbowało zmodyfikować katalog '%s'"
 
 #. Resource IDs: (607)
 #, c-format
 msgid "The last merge operation tried to modify the file '%s'"
-msgstr "Ostatnie scalanie próbowało zmodyfikować plik '%s'"
+msgstr "Ostatnie operacja łączenia próbowała zmodyfikować plik '%s'"
 
 #. Resource IDs: (608)
 #, c-format
@@ -8616,7 +8563,7 @@ msgstr "Do:"
 
 #. Resource IDs: (65535)
 msgid "To: (end URL and revision of the range to merge)"
-msgstr "Do: (końcowy adres URL oraz nr wersji do scalenia)"
+msgstr "Do: (końcowy adres URL oraz nr wersji dla operacji scalania)"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -8992,10 +8939,6 @@ msgstr ""
 #. Resource IDs: (146)
 msgid "Unversion"
 msgstr "Odwersjonuj"
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
-msgstr "Niewersjonowane"
 
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
@@ -10339,14 +10282,6 @@ msgstr ""
 "tsvn:logminsize\r\n"
 "Minimalna ilość znaków, jaką musi mieć opis zmian, by zatwierdzenie zmian było możliwe."
 
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Wyrażenie regularne pasujące do numerów wersji w opisach zmian"
-
 #. Resource IDs: (578)
 msgid ""
 "tsvn:logsummary\r\n"
@@ -10472,8 +10407,6 @@ msgstr "tak"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Cleaning up."
-#~ msgstr "Porządkowanie."
 #~ msgid "%s, but the local file was already edited."
 #~ msgstr "%s, ale taki lokalny plik był już edytowany."
 #~ msgid ""

@@ -22,7 +22,7 @@
 #include "CacheInterface.h"
 #include "registry.h"
 
-#define CACHEENTRYDISKVERSION 6
+#define CACHEENTRYDISKVERSION 5
 
 DWORD cachetimeout = (DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\Cachetimeout"), CACHETIMEOUT);
 
@@ -30,20 +30,26 @@ CStatusCacheEntry::CStatusCacheEntry()
 	: m_bSet(false)
 	, m_bSVNEntryFieldSet(false)
 	, m_kind(svn_node_unknown)
+	, m_bReadOnly(false)
 	, m_highestPriorityLocalStatus(svn_wc_status_none)
 {
 	SetAsUnversioned();
 }
 
-CStatusCacheEntry::CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool forceNormal)
+CStatusCacheEntry::CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool bReadOnly, DWORD validuntil /* = 0*/)
 	: m_bSet(false)
 	, m_bSVNEntryFieldSet(false)
 	, m_kind(svn_node_unknown)
+	, m_bReadOnly(false)
 	, m_highestPriorityLocalStatus(svn_wc_status_none)
 {
-	SetStatus(pSVNStatus, forceNormal);
+	SetStatus(pSVNStatus);
 	m_lastWriteTime = lastWriteTime;
-	m_discardAtTime = GetTickCount()+cachetimeout;
+	if (validuntil)
+		m_discardAtTime = validuntil;
+	else
+		m_discardAtTime = GetTickCount()+cachetimeout;
+	m_bReadOnly = bReadOnly;
 }
 
 bool CStatusCacheEntry::SaveToDisk(FILE * pFile)
@@ -62,6 +68,7 @@ bool CStatusCacheEntry::SaveToDisk(FILE * pFile)
 	WRITESTRINGTOFILE(m_sOwner);
 	WRITESTRINGTOFILE(m_sAuthor);
 	WRITEVALUETOFILE(m_kind);
+	WRITEVALUETOFILE(m_bReadOnly);
 	WRITESTRINGTOFILE(m_sPresentProps);
 
 	// now save the status struct (without the entry field, because we don't use that)
@@ -123,6 +130,7 @@ bool CStatusCacheEntry::LoadFromDisk(FILE * pFile)
 			m_sAuthor.ReleaseBuffer(value);
 		}
 		LOADVALUEFROMFILE(m_kind);
+		LOADVALUEFROMFILE(m_bReadOnly);
 		LOADVALUEFROMFILE(value);
 		if (value != 0)
 		{
@@ -152,7 +160,7 @@ bool CStatusCacheEntry::LoadFromDisk(FILE * pFile)
 	return true;
 }
 
-void CStatusCacheEntry::SetStatus(const svn_wc_status2_t* pSVNStatus, bool forceNormal)
+void CStatusCacheEntry::SetStatus(const svn_wc_status2_t* pSVNStatus)
 {
 	if(pSVNStatus == NULL)
 	{
@@ -160,12 +168,8 @@ void CStatusCacheEntry::SetStatus(const svn_wc_status2_t* pSVNStatus, bool force
 	}
 	else
 	{
+		m_highestPriorityLocalStatus = SVNStatus::GetMoreImportant(pSVNStatus->prop_status, pSVNStatus->text_status);
 		m_svnStatus = *pSVNStatus;
-
-		if (forceNormal)
-			m_svnStatus.text_status = svn_wc_status_normal;
-
-		m_highestPriorityLocalStatus = SVNStatus::GetMoreImportant(m_svnStatus.prop_status, m_svnStatus.text_status);
 
 		// Currently we don't deep-copy the whole entry value, but we do take a few members
         if(pSVNStatus->entry != NULL)
@@ -230,6 +234,7 @@ void CStatusCacheEntry::BuildCacheResponse(TSVNCacheResponse& response, DWORD& r
 		response.m_entry.url = NULL;
 
 		response.m_kind = m_kind;
+		response.m_readonly = m_bReadOnly;
 
 		if (m_sPresentProps.Find("svn:needs-lock")>=0)
 		{

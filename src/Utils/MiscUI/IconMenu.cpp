@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #include "StdAfx.h"
 #include "IconMenu.h"
 #include "SysInfo.h"
-#include "registry.h"
 
 CIconMenu::CIconMenu(void) : CMenu()
 	, pfnBeginBufferedPaint(NULL)
@@ -38,7 +37,6 @@ CIconMenu::CIconMenu(void) : CMenu()
 			pfnEndBufferedPaint = (FN_EndBufferedPaint)::GetProcAddress(hUxTheme, "EndBufferedPaint");
 		}
 	}
-	bShowIcons = !!DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\ShowAppContextMenuIcons"), TRUE));
 }
 
 CIconMenu::~CIconMenu(void)
@@ -56,14 +54,14 @@ BOOL CIconMenu::AppendMenuIcon(UINT_PTR nIDNewItem, LPCTSTR lpszNewItem, UINT uI
 	TCHAR menutextbuffer[255] = {0};
 	_tcscpy_s(menutextbuffer, 255, lpszNewItem);
 
-	if ((uIcon == 0)||(!bShowIcons))
+	if (uIcon == 0)
 		return CMenu::AppendMenu(MF_STRING | MF_ENABLED, nIDNewItem, menutextbuffer);
 
 	MENUITEMINFO info = {0};
 	info.cbSize = sizeof(info);
 	info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID;
 	info.fType = MFT_STRING;
-	info.wID = (UINT)nIDNewItem;
+	info.wID = nIDNewItem;
 	info.dwTypeData = menutextbuffer;
 	if (SysInfo::Instance().IsVistaOrLater())
 	{
@@ -76,13 +74,13 @@ BOOL CIconMenu::AppendMenuIcon(UINT_PTR nIDNewItem, LPCTSTR lpszNewItem, UINT uI
 		info.hbmpItem = HBMMENU_CALLBACK;
 	}
 	icons[nIDNewItem] = uIcon;
-	return InsertMenuItem((UINT)nIDNewItem, &info);
+	return InsertMenuItem(nIDNewItem, &info);
 }
 
 BOOL CIconMenu::AppendMenuIcon(UINT_PTR nIDNewItem, UINT_PTR nNewItem, UINT uIcon /* = 0 */)
 {
 	CString temp;
-	temp.LoadString((UINT)nNewItem);
+	temp.LoadString(nNewItem);
 
 	return AppendMenuIcon(nIDNewItem, temp, uIcon);
 }

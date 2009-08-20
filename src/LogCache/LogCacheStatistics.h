@@ -59,7 +59,7 @@ public:
 	size_t fileSize;
 	size_t ramSize;
 
-    ConnectionState connectionState;
+    CRepositoryInfo::ConnectionState connectionState;
 
 	__time64_t headTimeStamp; 
 	__time64_t lastWriteAccess;

@@ -16,10 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "HierachicalInStreamBase.h"
 #include "HuffmanDecoder.h"
-#include "StreamException.h"
 
 void CHierachicalInStreamBase::ReadSubStreams ( CCacheFileInBuffer* buffer
 											  , STREAM_INDEX index)
@@ -32,13 +31,13 @@ void CHierachicalInStreamBase::ReadSubStreams ( CCacheFileInBuffer* buffer
 
 	size_t size = last - first;
 	if (sizeof (DWORD) > size)
-		throw CStreamException ("stream too short");
+		throw std::exception ("stream too short");
 
 	const DWORD *source = reinterpret_cast<const DWORD*>(first);
 	DWORD subStreamCount = *source;
 	size_t directorySize = (subStreamCount + 1) * sizeof (DWORD);
 	if (directorySize > size)
-		throw CStreamException ("stream too short for sub-stream list");
+		throw std::exception ("stream too short for sub-stream list");
 
 	// read the sub-streams
 
@@ -65,9 +64,6 @@ void CHierachicalInStreamBase::DecodeThisStream()
 {
 	// allocate a sufficiently large buffer to receive the decoded data
 
-    packedLast = last;
-    packedFirst = first;
-
 	DWORD decodedSize = *(reinterpret_cast<const DWORD*>(last)-1);
 	BYTE* target = new BYTE [decodedSize];
 
@@ -87,8 +83,6 @@ void CHierachicalInStreamBase::DecodeThisStream()
 CHierachicalInStreamBase::CHierachicalInStreamBase()
 	: first (NULL)
 	, last (NULL)
-    , packedFirst (NULL)
-    , packedLast (NULL)
 {
 }
 
@@ -96,10 +90,9 @@ CHierachicalInStreamBase::CHierachicalInStreamBase ( CCacheFileInBuffer* buffer
 												   , STREAM_INDEX index)
 	: first (NULL)
 	, last (NULL)
-    , packedFirst (NULL)
-    , packedLast (NULL)
 {
 	ReadSubStreams (buffer, index);
+	DecodeThisStream();
 }
 
 CHierachicalInStreamBase::~CHierachicalInStreamBase()
@@ -110,44 +103,10 @@ CHierachicalInStreamBase::~CHierachicalInStreamBase()
 		; ++iter)
 		delete iter->second;
 
-	AutoClose();
+	delete[] first;
 }
 
 // implement IHierarchicalOutStream
-
-void CHierachicalInStreamBase::AutoOpen()
-{
-    if (packedFirst == NULL)
-        DecodeThisStream();
-}
-
-void CHierachicalInStreamBase::AutoClose()
-{
-    if (packedLast != NULL)
-    {
-        delete[] first;
-
-        first = packedFirst;
-        last = packedLast;
-
-        packedFirst = NULL;
-        packedLast = NULL;
-    }
-}
-
-void CHierachicalInStreamBase::Prefetch()
-{
-    // no-op, if already open
-
-    if (packedFirst == NULL)
-    {
-        // force all stream data to be read from disk
-
-        static volatile BYTE dummy = 0;
-        for (const BYTE* prefetch = first; prefetch < last; prefetch += 4096)
-            dummy += *prefetch;
-    }
-}
 
 bool 
 CHierachicalInStreamBase::HasSubStream (SUB_STREAM_ID subStreamID) const
@@ -156,15 +115,11 @@ CHierachicalInStreamBase::HasSubStream (SUB_STREAM_ID subStreamID) const
 }
 
 IHierarchicalInStream* 
-CHierachicalInStreamBase::GetSubStream ( SUB_STREAM_ID subStreamID
-                                       , bool autoOpen)
+CHierachicalInStreamBase::GetSubStream (SUB_STREAM_ID subStreamID)
 {
 	TSubStreams::const_iterator iter = subStreams.find (subStreamID);
 	if (iter == subStreams.end())
-		throw CStreamException ("no such sub-stream");
-
-    if (autoOpen)
-        iter->second->AutoOpen();
+		throw std::exception ("no such sub-stream");
 
 	return iter->second;
 }

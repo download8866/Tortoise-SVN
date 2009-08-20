@@ -136,9 +136,9 @@ public:
 	 * if there are any unversioned obstructing items.
 	 * \return TRUE if successful
 	 */
-	bool Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, const SVNRev& pegrev, 
-		const SVNRev& revision, svn_depth_t depth, bool bIgnoreExternals, 
-		bool bAllow_unver_obstructions);
+	BOOL Checkout(const CTSVNPath& moduleName, const CTSVNPath& destPath, const SVNRev& pegrev, 
+		const SVNRev& revision, svn_depth_t depth, BOOL bIgnoreExternals, 
+		BOOL bAllow_unver_obstructions);
 	/**
 	 * If path list contains an URL, use the MESSAGE to immediately attempt 
 	 * to commit a deletion of the URL from the repository. 
@@ -160,7 +160,7 @@ public:
 	 * for deletion in the repository. After the next commit, the file/dir will be unversioned.
 	 * \return TRUE if successful
 	 */
-	bool Remove(const CTSVNPathList& pathlist, bool force, bool keeplocal = true, const CString& message = _T(""), const RevPropHash revProps = RevPropHash());
+	BOOL Remove(const CTSVNPathList& pathlist, BOOL force, BOOL keeplocal = TRUE, const CString& message = _T(""), const RevPropHash revProps = RevPropHash());
 	/**
 	 * Reverts a list of files/directories to its pristine state. I.e. its reverted to the state where it
 	 * was last updated with the repository.
@@ -168,7 +168,7 @@ public:
 	 * \param recurse 
 	 * \return TRUE if successful
 	 */
-	bool Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, bool recurse);
+	BOOL Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, BOOL recurse);
 	/**
 	 * Schedule a working copy path for addition to the repository.
 	 * path's parent must be under revision control already, but path is
@@ -186,17 +186,17 @@ public:
 	 *                   If found, add all intermediate paths between it and path.
 	 * \return TRUE if successful
 	 */
-	bool Add(const CTSVNPathList& pathList, ProjectProperties * props, svn_depth_t depth, bool force, bool no_ignore, bool addparents);
+	BOOL Add(const CTSVNPathList& pathList, ProjectProperties * props, svn_depth_t depth, BOOL force, BOOL no_ignore, BOOL addparents);
 	/**
 	 * Assigns the files/folders in \c pathList to a \c changelist.
 	 * \return TRUE if successful
 	 */
-	bool AddToChangeList(const CTSVNPathList& pathList, const CString& changelist, svn_depth_t depth, const CStringArray& changelists = CStringArray());
+	BOOL AddToChangeList(const CTSVNPathList& pathList, const CString& changelist, svn_depth_t depth, const CStringArray& changelists = CStringArray());
 	/**
 	 * Removes the files/folders in \c pathList from the \c changelist.
 	 * \return TRUE if successful
 	 */
-	bool RemoveFromChangeList(const CTSVNPathList& pathList, const CStringArray& changelists, svn_depth_t depth);
+	BOOL RemoveFromChangeList(const CTSVNPathList& pathList, const CStringArray& changelists, svn_depth_t depth);
 	/**
 	 * Update working tree path to revision.
 	 * \param pathList the files/directories to update
@@ -213,8 +213,8 @@ public:
 	 * if there are any unversioned obstructing items.
 	 * \return TRUE if successful
 	 */
-	bool Update(const CTSVNPathList& pathList, const SVNRev& revision, svn_depth_t depth, 
-		bool depthIsSticky, bool ignoreexternals, bool bAllow_unver_obstructions);
+	BOOL Update(const CTSVNPathList& pathList, const SVNRev& revision, svn_depth_t depth, 
+		BOOL depthIsSticky, BOOL ignoreexternals, BOOL bAllow_unver_obstructions);
 	/**
 	 * Commit file or directory path into repository, using message as
 	 * the log message.
@@ -238,7 +238,7 @@ public:
 	 * \return the resulting revision number.
 	 */
 	svn_revnum_t Commit(const CTSVNPathList& pathlist, const CString& message, 
-		const CStringArray& changelists, bool keepchangelist, svn_depth_t depth, bool keep_locks, const RevPropHash revProps);
+		const CStringArray& changelists, BOOL keepchangelist, svn_depth_t depth, BOOL keep_locks, const RevPropHash revProps);
 	/**
 	 * Copy srcPath to destPath.
 	 * 
@@ -268,7 +268,7 @@ public:
 	 * \param make_parents if true, any non-existent parent dirs are also created
 	 * \return TRUE if successful
 	 */
-	bool Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, 
+	BOOL Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, 
 		const SVNRev& revision, const SVNRev& pegrev, const CString& logmsg = CString(), 
 		bool copy_as_child = false, bool make_parents = false, bool ignoreExternals = false,
 		const RevPropHash revProps = RevPropHash());
@@ -298,8 +298,8 @@ public:
 	 * \param make_parents if true, any non-existent parent dirs are also created
 	 * \return TRUE if successful
 	 */
-	bool Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, 
-				bool force, const CString& message = _T(""), bool move_as_child = false, 
+	BOOL Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath, 
+				BOOL force, const CString& message = _T(""), bool move_as_child = false, 
 				bool make_parents = false, const RevPropHash revProps = RevPropHash());
 	/**
 	 * If path is a URL, use the message to immediately
@@ -313,14 +313,14 @@ public:
 	 * \param makeParents create any non-existent parent directories also
 	 * \return TRUE if successful
 	 */
-	bool MakeDir(const CTSVNPathList& pathlist, const CString& message, bool makeParents, const RevPropHash revProps = RevPropHash());
+	BOOL MakeDir(const CTSVNPathList& pathlist, const CString& message, bool makeParents, const RevPropHash revProps = RevPropHash());
 	/**
 	 * Recursively cleanup a working copy directory DIR, finishing any
 	 * incomplete operations, removing lock files, etc.
 	 * \param path the file/directory to clean up
 	 * \return TRUE if successful
 	 */
-	bool CleanUp(const CTSVNPath& path);
+	BOOL CleanUp(const CTSVNPath& path);
 	/**
 	 * Remove the 'conflicted' state on a working copy PATH.  This will
 	 * not semantically resolve conflicts;  it just allows path to be
@@ -333,7 +333,7 @@ public:
 	 * \param recurse 
 	 * \return TRUE if successful
 	 */
-	bool Resolve(const CTSVNPath& path, svn_wc_conflict_choice_t result, bool recurse);
+	BOOL Resolve(const CTSVNPath& path, svn_wc_conflict_choice_t result, BOOL recurse);
 	/**
 	 * Export the contents of either a subversion repository or a subversion 
 	 * working copy into a 'clean' directory (meaning a directory with no 
@@ -348,9 +348,9 @@ public:
 	 * \param eol		"", "CR", "LF" or "CRLF" - "" being the default
 	 * \return TRUE if successful
 	 */
-	bool Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision, 
-		bool force = TRUE, bool bIgnoreExternals = FALSE, svn_depth_t depth = svn_depth_infinity, 
-		HWND hWnd = NULL, bool extended = FALSE, const CString& eol = CString());
+	BOOL Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision, 
+		BOOL force = TRUE, BOOL bIgnoreExternals = FALSE, svn_depth_t depth = svn_depth_infinity, 
+		HWND hWnd = NULL, BOOL extended = FALSE, const CString& eol = CString());
 	/**
 	 * Switch working tree path to URL at revision
 	 *
@@ -373,9 +373,9 @@ public:
 	 * if there are any unversioned obstructing items.
 	 * \return TRUE if successful
 	 */
-	bool Switch(const CTSVNPath& path, const CTSVNPath& url, const SVNRev& revision, 
-		const SVNRev& pegrev, svn_depth_t depth, bool depthIsSticky, 
-		bool ignore_externals, bool allow_unver_obstruction);
+	BOOL Switch(const CTSVNPath& path, const CTSVNPath& url, const SVNRev& revision, 
+		const SVNRev& pegrev, svn_depth_t depth, BOOL depthIsSticky, 
+		BOOL ignore_externals, BOOL allow_unver_obstruction);
 	/**
 	 * Import file or directory path into repository directory url at
 	 * head and using LOG_MSG as the log message for the (implied)
@@ -399,8 +399,8 @@ public:
 	 * \param no_ignore	If no_ignore is FALSE, don't add files or directories that match ignore patterns.
 	 * \return TRUE if successful
 	 */
-	bool Import(const CTSVNPath& path, const CTSVNPath& url, const CString& message, 
-		ProjectProperties * props, svn_depth_t depth, bool no_ignore, bool ignore_unknown, const RevPropHash revProps = RevPropHash());
+	BOOL Import(const CTSVNPath& path, const CTSVNPath& url, const CString& message, 
+		ProjectProperties * props, svn_depth_t depth, BOOL no_ignore, BOOL ignore_unknown, const RevPropHash revProps = RevPropHash());
 	/**
 	 * Merge changes from path1/revision1 to path2/revision2 into the
 	 * working-copy path localPath.  path1 and path2 can be either
@@ -434,9 +434,9 @@ public:
 	 *						committed back to the repository).
 	 * \return TRUE if successful
 	 */
-	bool Merge(const CTSVNPath& path1, const SVNRev& revision1, const CTSVNPath& path2, 
-		const SVNRev& revision2, const CTSVNPath& localPath, bool force, svn_depth_t depth, const CString& options,
-		bool ignoreanchestry = FALSE, bool dryrun = FALSE, bool record_only = FALSE);
+	BOOL Merge(const CTSVNPath& path1, const SVNRev& revision1, const CTSVNPath& path2, 
+		const SVNRev& revision2, const CTSVNPath& localPath, BOOL force, svn_depth_t depth, const CString& options,
+		BOOL ignoreanchestry = FALSE, BOOL dryrun = FALSE, BOOL record_only = FALSE);
 
 	/**
 	 * Merge changes from source/revision1 to source/revision2 into the
@@ -470,18 +470,18 @@ public:
 	 *						committed back to the repository).
 	 * \return TRUE if successful
 	 */
-	bool PegMerge(const CTSVNPath& source, const SVNRevRangeArray& revrangearray, const SVNRev& pegrevision, 
-		const CTSVNPath& destpath, bool force, svn_depth_t depth, const CString& options, 
-		bool ignoreancestry = FALSE, bool dryrun = FALSE, bool record_only = FALSE);
+	BOOL PegMerge(const CTSVNPath& source, const SVNRevRangeArray& revrangearray, const SVNRev& pegrevision, 
+		const CTSVNPath& destpath, BOOL force, svn_depth_t depth, const CString& options, 
+		BOOL ignoreancestry = FALSE, BOOL dryrun = FALSE, BOOL record_only = FALSE);
 	/**
 	 * Performs a reintegration merge of \c source into \c wcpath.
 	 */
-	bool MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, 
-		const CTSVNPath& wcpath, bool dryrun, const CString& options);
+	BOOL MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, 
+		const CTSVNPath& wcpath, BOOL dryrun, const CString& options);
 	/**
 	 * Returns a list of suggested source URLs for the given \c targetpath in \c revision.
 	 */
-	bool SuggestMergeSources(const CTSVNPath& targetpath, const SVNRev& revision, CTSVNPathList& sourceURLs);
+	BOOL SuggestMergeSources(const CTSVNPath& targetpath, const SVNRev& revision, CTSVNPathList& sourceURLs);
 	/**
 	 * Produce diff output which describes the delta between \a path1/\a revision1 and \a path2/\a revision2
 	 * Print the output of the diff to \a outputfile, and any errors to \a errorfile. \a path1 
@@ -507,20 +507,20 @@ public:
 	 * CTSVNPath constructor (and hence #include) being visible in this header file
 	 * \return TRUE if successful
 	 */
-	bool Diff(const CTSVNPath& path1, const SVNRev& revision1, 
+	BOOL Diff(const CTSVNPath& path1, const SVNRev& revision1, 
 		const CTSVNPath& path2, const SVNRev& revision2, 
 		const CTSVNPath& relativeToDir, svn_depth_t depth, 
-		bool ignoreancestry, bool nodiffdeleted, bool ignorecontenttype, 
+		BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype, 
 		const CString& options, bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
-	bool Diff(const CTSVNPath& path1, const SVNRev& revision1, 
+	BOOL Diff(const CTSVNPath& path1, const SVNRev& revision1, 
 		const CTSVNPath& path2, const SVNRev& revision2, 
-		const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry, 
-		bool nodiffdeleted, bool ignorecontenttype, const CString& options, 
+		const CTSVNPath& relativeToDir, svn_depth_t depth, BOOL ignoreancestry, 
+		BOOL nodiffdeleted, BOOL ignorecontenttype, const CString& options, 
 		bool bAppend, const CTSVNPath& outputfile);
-	bool CreatePatch(const CTSVNPath& path1, const SVNRev& revision1, 
+	BOOL CreatePatch(const CTSVNPath& path1, const SVNRev& revision1, 
 		const CTSVNPath& path2, const SVNRev& revision2, 
-		const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry, 
-		bool nodiffdeleted, bool ignorecontenttype, const CString& options, bool bAppend, const CTSVNPath& outputfile);
+		const CTSVNPath& relativeToDir, svn_depth_t depth, BOOL ignoreancestry, 
+		BOOL nodiffdeleted, BOOL ignorecontenttype, const CString& options, bool bAppend, const CTSVNPath& outputfile);
 
 	/**
 	 * Produce diff output which describes the delta between the file system object \a path in 
@@ -531,14 +531,13 @@ public:
 	 * All other options are handled identically to Diff().
 	 * \return TRUE if successful
 	 */
-	bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev, 
+	BOOL PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev, 
 		const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth, 
-		bool ignoreancestry, bool nodiffdeleted, bool ignorecontenttype,  const CString& options, 
-		bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
-	bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev, 
+		BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype,  const CString& options, 
+		const CTSVNPath& outputfile, const CTSVNPath& errorfile);
+	BOOL PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev, 
 		const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth, 
-		bool ignoreancestry, bool nodiffdeleted, bool ignorecontenttype,  const CString& options, 
-		bool bAppend, const CTSVNPath& outputfile);
+		BOOL ignoreancestry, BOOL nodiffdeleted, BOOL ignorecontenttype,  const CString& options, const CTSVNPath& outputfile);
 
 	/**
 	 * Finds out what files/folders have changed between two paths/revs,
@@ -589,8 +588,8 @@ public:
      *        Ignored if log caching has been disabled.
 	 * \return TRUE if successful
 	 */
-	bool ReceiveLog(const CTSVNPathList& pathlist, const SVNRev& revisionPeg, const SVNRev& revisionStart, 
-		const SVNRev& revisionEnd, int limit, bool strict, bool withMerges, bool refresh);
+	BOOL ReceiveLog(const CTSVNPathList& pathlist, const SVNRev& revisionPeg, const SVNRev& revisionStart, 
+		const SVNRev& revisionEnd, int limit, BOOL strict, BOOL withMerges, bool refresh);
 
 	/**
 	 * Checks out a file with \a revision to \a localpath.
@@ -598,7 +597,7 @@ public:
 	 * \param localpath the place to store the file
 	 * \return TRUE if successful
 	 */
-	bool Cat(const CTSVNPath& url, const SVNRev& pegrevision, const SVNRev& revision, const CTSVNPath& localpath);
+	BOOL Cat(const CTSVNPath& url, const SVNRev& pegrevision, const SVNRev& revision, const CTSVNPath& localpath);
 
 	/**
 	 * Report the directory entry, and possibly children, for \c url at \c revision.
@@ -612,7 +611,7 @@ public:
 	 * If \c fetchlocks is true, include locks when reporting directory entries.
 	 * \return TRUE if successful
 	 */
-	bool List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks);
+	BOOL List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks);
 
 	/**
 	 * Relocates a working copy to a new/changes repository URL. Use this function
@@ -623,7 +622,7 @@ public:
 	 * \param recurse TRUE if the operation should be recursive
 	 * \return TRUE if successful
 	 */
-	bool Relocate(const CTSVNPath& path, const CTSVNPath& from, const CTSVNPath& to, bool recurse);
+	BOOL Relocate(const CTSVNPath& path, const CTSVNPath& from, const CTSVNPath& to, BOOL recurse);
 
 	/**
 	 * Determine the author for each line in a file (blame the changes on someone).
@@ -640,7 +639,7 @@ public:
 
 	 * \return TRUE if successful
 	 */
-	bool Blame(const CTSVNPath& path, const SVNRev& startrev, const SVNRev& endrev, 
+	BOOL Blame(const CTSVNPath& path, const SVNRev& startrev, const SVNRev& endrev, 
 		const SVNRev& peg, const CString& diffoptions, bool ignoremimetype = false, bool includemerge = true);
 	
 	/**
@@ -652,7 +651,7 @@ public:
 	 * \param comment a comment to assign to the lock. Only used by svnserve!
 	 * \return TRUE if successful
 	 */
-	bool Lock(const CTSVNPathList& pathList, bool bStealLock, const CString& comment = CString());
+	BOOL Lock(const CTSVNPathList& pathList, BOOL bStealLock, const CString& comment = CString());
 	
 	/**
 	 * Removes existing locks from files.
@@ -661,12 +660,12 @@ public:
 	 * isn't the owner of the locks!
 	 * \return TRUE if successful
 	 */
-	bool Unlock(const CTSVNPathList& pathList, bool bBreakLock);
+	BOOL Unlock(const CTSVNPathList& pathList, BOOL bBreakLock);
 	
 	/**
 	 * Checks if a windows path is a local repository
 	 */
-	bool IsRepository(const CTSVNPath& path);
+	BOOL IsRepository(const CTSVNPath& path);
 
 	/**
 	 * Finds the repository root of a given url. 
@@ -690,7 +689,7 @@ public:
 	/**
 	 * Returns the repository root and the HEAD revision of the repository.
 	 */
-	bool GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev);
+	BOOL GetRootAndHead(const CTSVNPath& path, CTSVNPath& url, svn_revnum_t& rev);
 
 	/**
 	 * Set the revision property \a sName to the new value \a sValue.
@@ -716,7 +715,7 @@ public:
 	 * the repository of the lock. It is \b not an absolute URL, the
 	 * repository root part is stripped off!
 	 */
-	bool GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);
+	BOOL GetLocks(const CTSVNPath& url, std::map<CString, SVNLock> * locks);
 
 	/**
 	 * get a summary of the working copy revisions
@@ -728,7 +727,7 @@ public:
 	 * \param modified true if there are modified files in the working copy
 	 * \param sparse true if the entry is not of depth svn_depth_infinity
 	 */
-	bool GetWCRevisionStatus(const CTSVNPath& wcpath, bool bCommitted, svn_revnum_t& minrev, svn_revnum_t& maxrev, bool& switched, bool& modified, bool& sparse);
+	BOOL GetWCRevisionStatus(const CTSVNPath& wcpath, bool bCommitted, svn_revnum_t& minrev, svn_revnum_t& maxrev, bool& switched, bool& modified, bool& sparse);
 
 	/**
 	 * Returns the URL associated with the \c path.
@@ -750,7 +749,7 @@ public:
 	 * \param path where the repository should be created
 	 * \return TRUE if operation was successful
 	 */
-	static bool CreateRepository(const CTSVNPath& path, const CString& fstype = _T("fsfs"));
+	static BOOL CreateRepository(const CTSVNPath& path, const CString& fstype = _T("fsfs"));
 
 	/**
 	 * Convert Windows Path to Local Repository URL
@@ -776,7 +775,7 @@ public:
 	 * \param bForceRepair Repair any inconsistent line endings.
 	 * \return TRUE if a translation was needed and the file in sTranslatedFile needs deleting after use
 	 */
-	static bool GetTranslatedFile(CTSVNPath& sTranslatedFile, const CTSVNPath& sFile, bool bForceRepair = TRUE);
+	static BOOL GetTranslatedFile(CTSVNPath& sTranslatedFile, const CTSVNPath& sFile, BOOL bForceRepair = TRUE);
 
 	/**
 	 * convert path to a subversion path (replace '\' with '/')
@@ -786,12 +785,12 @@ public:
 	/**
 	 * Checks if a given path is a valid URL.
 	 */	 	 	 	
-	static bool PathIsURL(const CTSVNPath& path);
+	static BOOL PathIsURL(const CTSVNPath& path);
 
 	/**
 	 * Creates the Subversion config file if it doesn't already exist.
 	 */
-	static bool EnsureConfigFile();
+	static BOOL EnsureConfigFile();
 
     /**
      * Returns the status of the encapsulated \ref SVNPrompt instance.
@@ -858,8 +857,8 @@ public:
 	 * Returns a string which can be passed as the options string for the Merge()
 	 * methods and the Blame() method.
 	 */
-	static CString GetOptionsString(bool bIgnoreEOL, bool bIgnoreSpaces = FALSE, bool bIgnoreAllSpaces = FALSE);
-	static CString GetOptionsString(bool bIgnoreEOL, svn_diff_file_ignore_space_t space = svn_diff_file_ignore_space_none);
+	static CString GetOptionsString(BOOL bIgnoreEOL, BOOL bIgnoreSpaces = FALSE, BOOL bIgnoreAllSpaces = FALSE);
+	static CString GetOptionsString(BOOL bIgnoreEOL, svn_diff_file_ignore_space_t space = svn_diff_file_ignore_space_none);
 
 	/**
 	 * Returns the log cache pool singleton. You will need that to 

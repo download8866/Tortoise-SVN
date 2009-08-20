@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "CacheFileInBuffer.h"
-#include "StreamException.h"
 
 // construction utilities
 
@@ -27,7 +26,7 @@ void CCacheFileInBuffer::ReadStreamOffsets()
 	// minimum size: 3 DWORDs
 
 	if (GetSize() < 3 * sizeof (DWORD))
-		throw CStreamException ("log cache file too small");
+		throw std::exception ("log cache file too small");
 
 	// extract version numbers
 
@@ -37,16 +36,16 @@ void CCacheFileInBuffer::ReadStreamOffsets()
 	// check version number
 
 	if (creatorVersion < OLDEST_LOG_CACHE_FILE_VERSION)
-		throw CStreamException ("log cache file format too old");
+		throw std::exception ("log cache file format too old");
 
 	if (requiredVersion > NEWEST_LOG_CACHE_FILE_VERSION)
-		throw CStreamException ("log cache file format too new");
+		throw std::exception ("log cache file format too new");
 
     // number of streams in file
 
 	DWORD streamCount = *GetDWORD (GetSize() - sizeof (DWORD));
 	if (GetSize() < (3 + streamCount) * sizeof (DWORD))
-		throw CStreamException ("log cache file too small to hold stream directory");
+		throw std::exception ("log cache file too small to hold stream directory");
 
 	// read stream sizes and ranges list
 
@@ -56,9 +55,9 @@ void CCacheFileInBuffer::ReadStreamOffsets()
 	streamContents.push_back (lastStream);
 
 	size_t contentEnd = GetSize() - (streamCount+1) * sizeof (DWORD);
-	const unsigned* streamSizes = GetDWORD (contentEnd);
+	const DWORD* streamSizes = GetDWORD (contentEnd);
 
-	for (unsigned i = 0; i < streamCount; ++i)
+	for (DWORD i = 0; i < streamCount; ++i)
 	{
 		lastStream += streamSizes[i];
 		streamContents.push_back (lastStream);
@@ -67,13 +66,13 @@ void CCacheFileInBuffer::ReadStreamOffsets()
 	// consistency check
 
 	if ((size_t)(lastStream - GetBuffer()) != contentEnd)
-		throw CStreamException ("stream directory corrupted");
+		throw std::exception ("stream directory corrupted");
 }
 
 
 // construction / destruction: auto- open/close
 
-CCacheFileInBuffer::CCacheFileInBuffer (const TFileName& fileName)
+CCacheFileInBuffer::CCacheFileInBuffer (const std::wstring& fileName)
     : CMappedInFile (fileName)
 {
 	ReadStreamOffsets();
@@ -95,7 +94,7 @@ void CCacheFileInBuffer::GetStreamBuffer ( STREAM_INDEX index
 										 , const unsigned char* &last)
 {
 	if ((size_t)index >= streamContents.size()-1)
-		throw CStreamException ("invalid stream index");
+		throw std::exception ("invalid stream index");
 
 	first = streamContents[index];
 	last = streamContents[index+1];

@@ -37,7 +37,7 @@ static char THIS_FILE[] = __FILE__;
 #define GAP_PIXELS								  6			// Better if an even value.
 #define LEGEND_COLOR_BAR_WIDTH_PIXELS			 50			// Width of color bar.
 #define LEGEND_COLOR_BAR_GAP_PIXELS				  1			// Space between color bars.
-#define Y_AXIS_TICK_COUNT_TARGET		          5			// How many ticks should be there on the y axis.
+#define Y_AXIS_MAX_TICK_COUNT					  5			// How many ticks on y axis.
 #define MIN_FONT_SIZE							 70			// The minimum font-size in pt*10.
 #define LEGEND_VISIBILITY_THRESHOLD				300			// The width of the graph in pixels when the legend gets hidden.
 
@@ -194,7 +194,7 @@ int MyGraphSeries::GetDataTotal() const
 }
 
 // Returns which group (if any) the sent point lies within in this series.
-int MyGraphSeries::HitTest(const CPoint& pt, int searchStart = 0) const
+INT_PTR MyGraphSeries::HitTest(const CPoint& pt, int searchStart = 0) const
 {
 	VALIDATE;
 
@@ -385,7 +385,7 @@ CString MyGraph::GetTipText() const
 			MyGraphSeries* pSeries = m_olMyGraphSeries.GetNext(pos);
 			ASSERT_VALID(pSeries);
 
-			int nGroup(0);
+			INT_PTR nGroup(0);
 			do{
 				nGroup = pSeries->HitTest(pt,nGroup);
 
@@ -473,7 +473,7 @@ int MyGraph::GetMaxSeriesSize() const
 		MyGraphSeries* pSeries = m_olMyGraphSeries.GetNext(pos);
 		ASSERT_VALID(pSeries);
 
-		nMax = max(nMax, (int)pSeries->m_dwaValues.GetSize());
+		nMax = max(nMax, pSeries->m_dwaValues.GetSize());
 	}
 
 	return nMax;
@@ -593,7 +593,7 @@ int MyGraph::AppendGroup(const CString& sLabel)
 	VALIDATE;
 
 	// Add the group.
-	int nGroup((int)m_saLegendLabels.GetSize());
+	int nGroup(m_saLegendLabels.GetSize());
 	SetLegend(nGroup, sLabel);
 
 	// Make sure that all series have this element.
@@ -974,29 +974,19 @@ void MyGraph::DrawAxes(CDC& dc) const
 	VERIFY(dc.TextOut(m_ptOrigin.x + (m_nXAxisWidth - sizXLabel.cx) / 2,
 		m_rcGraph.bottom - GAP_PIXELS - sizXLabel.cy, m_sXAxisLabel));
 
-	// chose suitable tick step (1, 2, 5, 10, 20, 50, etc.)
-	int nMaxDataValue(GetMaxDataValue());
-    int nTickStep = 1;
-    while (10 * nTickStep * Y_AXIS_TICK_COUNT_TARGET <= nMaxDataValue)
-        nTickStep *= 10;
-
-    if (5 * nTickStep * Y_AXIS_TICK_COUNT_TARGET <= nMaxDataValue)
-        nTickStep *= 5;
-    if (2 * nTickStep * Y_AXIS_TICK_COUNT_TARGET <= nMaxDataValue)
-        nTickStep *= 2;
-    
 	// We hardwire TITLE_DIVISOR y-axis ticks here for simplicity.
+	int nMaxDataValue(GetMaxDataValue());
+	int nTickStep(nMaxDataValue / min(Y_AXIS_MAX_TICK_COUNT, nMaxDataValue));
 	int nTickCount(nMaxDataValue / nTickStep);
-	double tickSpace = (double)m_nYAxisHeight * nTickStep / (double)nMaxDataValue;
+	int nTickSpace(m_nYAxisHeight * nTickStep / nMaxDataValue);
 
 	// create tick label font and set it in the device context
 	CFont fontTickLabels;
 	VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, _T("Arial"), &dc));
 	VERIFY(dc.SelectObject(&fontTickLabels));
 
-	for (int nTick = 0; nTick < nTickCount; ++nTick) 
-    {
-		int nTickYLocation = static_cast<int>(m_ptOrigin.y - tickSpace * (nTick + 1) + 0.5);
+	for (int nTick = 0; nTick < nTickCount; ++nTick) {
+		int nTickYLocation(m_ptOrigin.y - (nTickSpace * (nTick + 1)));
 		dc.MoveTo(m_ptOrigin.x - TICK_PIXELS, nTickYLocation);
 		VERIFY(dc.LineTo(m_ptOrigin.x + TICK_PIXELS, nTickYLocation));
 
@@ -1031,11 +1021,11 @@ void MyGraph::DrawAxes(CDC& dc) const
 				nSeriesSpace =
 					(m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2)) /
 					(m_eGraphType == MyGraph::Bar ?
-					GetNonZeroSeriesCount() : (int)m_olMyGraphSeries.GetCount());
+					GetNonZeroSeriesCount() : m_olMyGraphSeries.GetCount());
 			}
 			else {
 				nSeriesSpace = m_nXAxisWidth / (m_eGraphType == MyGraph::Bar ?
-					GetNonZeroSeriesCount() : (int)m_olMyGraphSeries.GetCount());
+					GetNonZeroSeriesCount() : m_olMyGraphSeries.GetCount());
 			}
 
 			int nTickXLocation(m_ptOrigin.x + ((nSeries + 1) * nSeriesSpace) -
@@ -1174,10 +1164,10 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
 		if (m_saLegendLabels.GetSize()) {
 
 			nSeriesSpace = (m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2)) /
-				(int)m_olMyGraphSeries.GetCount();
+				m_olMyGraphSeries.GetCount();
 		}
 		else {
-			nSeriesSpace = m_nXAxisWidth / (int)m_olMyGraphSeries.GetCount();
+			nSeriesSpace = m_nXAxisWidth / m_olMyGraphSeries.GetCount();
 		}
 
 		// Determine width of bars.
@@ -1254,7 +1244,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
 	ASSERT_VALID(&dc);
 	_ASSERTE(m_bStackedGraph);
 
-	int nSeriesCount = (int)m_olMyGraphSeries.GetCount();
+	int nSeriesCount = m_olMyGraphSeries.GetCount();
 
 	CArray<int> stackAccumulator;
 	stackAccumulator.SetSize(nSeriesCount);
@@ -1334,7 +1324,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
 		}
 
 		// Draw polygon
-		VERIFY(dc.Polygon(polygon.GetData(), (int)polygon.GetSize()));
+		VERIFY(dc.Polygon(polygon.GetData(), polygon.GetSize()));
 
 		VERIFY(dc.SelectObject(pPenOld));
 		penLine.DeleteObject();

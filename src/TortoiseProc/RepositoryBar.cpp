@@ -90,7 +90,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
 		REBARBANDINFO rbbi;
 		SecureZeroMemory(&rbbi, sizeof rbbi);
-		rbbi.cbSize = REBARBANDINFO_V6_SIZE;
+		rbbi.cbSize = sizeof rbbi;
 		rbbi.fMask  = RBBIM_TEXT | RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
 		rbbi.fStyle = RBBS_NOGRIPPER | RBBS_FIXEDBMP;
 
@@ -238,8 +238,9 @@ CString CRepositoryBar::GetCurrentUrl() const
 {
 	if (m_cbxUrl.m_hWnd != 0)
 	{
-		CString path;
+		CString path, revision;
 		m_cbxUrl.GetWindowText(path);
+		m_btnRevision.GetWindowText(revision);
 		return path;
 	}
 	else
@@ -252,7 +253,8 @@ SVNRev CRepositoryBar::GetCurrentRev() const
 {
 	if (m_cbxUrl.m_hWnd != 0)
 	{
-		CString revision;
+		CString path, revision;
+		m_cbxUrl.GetWindowText(path);
 		m_btnRevision.GetWindowText(revision);
 		return SVNRev(revision);
 	}

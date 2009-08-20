@@ -20,9 +20,9 @@
 
 #include "CacheLogQuery.h"
 
-#include "Containers/CachedLogInfo.h"
-#include "Access/CopyFollowingLogIterator.h"
-#include "Access/StrictLogIterator.h"
+#include "CachedLogInfo.h"
+#include "CopyFollowingLogIterator.h"
+#include "StrictLogIterator.h"
 #include "LogCachePool.h"
 #include "RepositoryInfo.h"
 
@@ -237,8 +237,7 @@ void CCacheLogQuery::CLogFiller::WriteToCache
 {
     // If it is not yet in cache, add it to the cache directly.
     // Otherwise it is a modification of an existing revision
-    // -> collect them and update cache later in one go 
-    //    for maximum performance.
+    // -> collect them an update cache later for maximum performance.
 
     CCachedLogInfo* targetCache = cache->GetRevisions()[revision] == NO_INDEX
                                 ? cache
@@ -291,7 +290,7 @@ void CCacheLogQuery::CLogFiller::WriteToCache
 			    : static_cast<revision_t>(change->lCopyFromRev);
 
 		    targetCache->AddChange ( action
-                                   , static_cast<node_kind_t>(change->nodeKind)
+                                   , change->nodeKind
                                    , path
                                    , copyFromPath
                                    , copyFromRevision);
@@ -311,7 +310,7 @@ void CCacheLogQuery::CLogFiller::WriteToCache
             std::string value 
                 = (const char*)CUnicodeUtils::GetUTF8 (revprop->value);
 
-            targetCache->AddRevProp (name, value);
+            targetCache->AddUserRevProp (name, value);
 	    }
     }
 
@@ -349,53 +348,41 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 		WriteToCache (changes, rev, stdRevProps, userRevProps);
 
 		// maybe the revision was known before but we had no changes info
-		// -> we received it now
+		// -> we received them now
 		// -> update the cache in that case
-        // (if it was not known before, WriteToCache added it directly)
 
 		index_t index = cache->GetRevisions()[revision];
-		if ((  cache->GetLogInfo().GetPresenceFlags (index)
-             & CRevisionInfoContainer::HAS_CHANGEDPATHS) == 0)
+		if ((  cache->GetLogInfo().GetPresenceFlags (index) 
+			 & CRevisionInfoContainer::HAS_CHANGEDPATHS) == 0)
 		{
             MergeFromUpdateCache();
-
-            // repeated lookup should not be necessary as the updateCache
-            // should contain only revisions that are already known by cache
-
-            assert (index == cache->GetRevisions()[revision]);
 		}
 
 		// due to renames / copies, we may continue on a different path
 
-		if (  (cache->GetLogInfo().GetSumChanges (index)
-            & CRevisionInfoContainer::ACTION_ADDED) != 0)
-		{
-            // create the appropriate iterator to follow the potential path change
+        std::auto_ptr<CLogIteratorBase> iterator 
+            (  options.GetStrictNodeHistory()
+             ? static_cast<CLogIteratorBase*>
+                (new CStrictLogIterator (cache, revision, *currentPath))
+             : static_cast<CLogIteratorBase*>
+                (new CCopyFollowingLogIterator (cache, revision, *currentPath)));
 
-            std::auto_ptr<CLogIteratorBase> iterator 
-                (  options.GetStrictNodeHistory()
-                 ? static_cast<CLogIteratorBase*>
-                    (new CStrictLogIterator (cache, revision, *currentPath))
-                 : static_cast<CLogIteratorBase*>
-                    (new CCopyFollowingLogIterator (cache, revision, *currentPath)));
+        // now, iterate as usual
 
-            // now, iterate as usual
-
-		    iterator->Advance();
-            if (iterator->EndOfPath())
-                currentPath.reset();
-            else
-                *currentPath = iterator->GetPath();
-        }
+		iterator->Advance();
+        if (iterator->EndOfPath())
+            currentPath.reset();
+        else
+            *currentPath = iterator->GetPath();
 
 		// the first revision we may not have information about is the one
-		// immediately preceding the one we just received from the server
+		// immediately preceding the on we just received from the server
 
 		firstNARevision = revision-1;
 
 		// hand on to the original log receiver.
         // Even if there is no receiver, track the oldest revision
-        // we received so we can update the skip ranges properly.
+        // we received to update the skip ranges properly.
 
         oldestReported = min (oldestReported, revision);
 		if (options.GetReceiver() != NULL)
@@ -536,7 +523,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
         bool limitReached = (limit > 0) && (receiveCount >= limit);
         if ((receiveCount == 0) || !limitReached)
         {
-            AutoAddSkipRange (max (endRevision, (revision_t)1)-1);
+            AutoAddSkipRange (max (endRevision,1)-1);
         }
     }
 
@@ -771,7 +758,7 @@ revision_t CCacheLogQuery::FillLog ( revision_t startRevision
                         , uuid
 						, svnQuery
 						, startRevision
-						, max (min (startRevision, endRevision), (revision_t)0)
+						, max (min (startRevision, endRevision), 0)
 						, startPath
 						, limit
 						, options);
@@ -781,7 +768,6 @@ revision_t CCacheLogQuery::FillLog ( revision_t startRevision
 
 void CCacheLogQuery::GetChanges 
     ( LogChangedPathArray& result
-    , TID2String& pathToStringMap
     , CRevisionInfoContainer::CChangesIterator first
     , const CRevisionInfoContainer::CChangesIterator& last)
 {
@@ -808,8 +794,7 @@ void CCacheLogQuery::GetChanges
 
         // path type (aka node kind)
 
-        changedPath->nodeKind 
-            = static_cast<svn_node_kind_t>(first->GetPathType());
+        changedPath->nodeKind = first->GetPathType();
 
 		// decode the action
 
@@ -896,7 +881,6 @@ void CCacheLogQuery::SendToReceiver ( revision_t revision
     LogChangedPathArray changes;
     if (options.GetIncludeChanges())
         GetChanges ( changes
-                   , pathToStringMap
                    , logInfo.GetChangesBegin (logIndex)
                    , logInfo.GetChangesEnd (logIndex));
 
@@ -1205,10 +1189,8 @@ CDictionaryBasedTempPath CCacheLogQuery::GetRelativeRepositoryPath
 	// to avoid string length comparison faults, we adjust
 	// the repository root here to match the initial url
 
-	if (URL.Left(9).CompareNoCase("file:///\\") == 0)
-		URL.Delete (7, 2);
-	if (svnURLPath.Left(9).CompareNoCase("file:///\\") == 0)
-		svnURLPath.Delete (7, 2);
+    if (svnURLPath.Left(9).CompareNoCase("file:///\\") == 0)
+        svnURLPath.Delete (7, 2);
 
     CStringA relPath = svnURLPath.Mid (URL.GetLength());
 	relPath = CPathUtils::PathUnescape (relPath);

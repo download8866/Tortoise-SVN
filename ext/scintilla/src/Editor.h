@@ -125,6 +125,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool hasFocus;
 	bool hideSelection;
 	bool inOverstrike;
+	int errorStatus;
 	bool mouseDownCaptures;
 
 	/** In bufferedDraw mode, graphics operations are drawn to a pixmap and then copied to
@@ -235,8 +236,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int wrapVisualFlags;
 	int wrapVisualFlagsLocation;
 	int wrapVisualStartIndent;
-	int wrapAddIndent; // This will be added to initial indent of line
-	int wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
+	int actualWrapVisualStartIndent;
 
 	bool convertPastes;
 
@@ -261,7 +261,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int MaxScrollPos();
 	Point LocationFromPosition(int pos);
 	int XFromPosition(int pos);
-	int PositionFromLocation(Point pt, bool canReturnInvalid=false, bool charPosition=false);
+	int PositionFromLocation(Point pt);
+	int PositionFromLocationClose(Point pt);
 	int PositionFromLineX(int line, int x);
 	int LineFromLocation(Point pt);
 	void SetTopLine(int topLineNew);
@@ -284,7 +285,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void SetEmptySelection(int currentPos_);
 	bool RangeContainsProtected(int start, int end) const;
 	bool SelectionContainsProtected();
-	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true) const;
+	int MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd=true);
 	int MovePositionTo(int newPos, selTypes sel=noSel, bool ensureVisible=true);
 	int MovePositionSoVisible(int pos, int moveDir);
 	void SetLastXChosen();
@@ -321,14 +322,12 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 		bool drawWrapMark, ColourAllocated wrapColour);
 	void DrawIndicators(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
 		PRectangle rcLine, LineLayout *ll, int subLine, int lineEnd, bool under);
-	void DrawAnnotation(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
-        PRectangle rcLine, LineLayout *ll, int subLine);
 	void DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVisible, int xStart,
 		PRectangle rcLine, LineLayout *ll, int subLine=0);
 	void DrawBlockCaret(Surface *surface, ViewStyle &vsDraw, LineLayout *ll, int subLine, int xStart, int offset, int posCaret, PRectangle rcCaret);
 	void RefreshPixMaps(Surface *surfaceWindow);
 	void Paint(Surface *surfaceWindow, PRectangle rcArea);
-	long FormatRange(bool draw, Sci_RangeToFormat *pfr);
+	long FormatRange(bool draw, RangeToFormat *pfr);
 	int TextWidth(int style, const char *text);
 
 	virtual void SetVerticalScrollPos() = 0;
@@ -364,6 +363,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	virtual void NotifyParent(SCNotification * scn) = 0;
 	virtual void NotifyStyleToNeeded(int endStyleNeeded);
 	void NotifyChar(int ch);
+	void NotifyMove(int position);
 	void NotifySavePoint(bool isSavePoint);
 	void NotifyModifyAttempt();
 	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
@@ -444,10 +444,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void CheckForChangeOutsidePaint(Range r);
 	void SetBraceHighlight(Position pos0, Position pos1, int matchStyle);
 
-	void SetAnnotationHeights(int start, int end);
 	void SetDocPointer(Document *document);
-	
-	void SetAnnotationVisible(int visible);
 
 	void Expand(int &line, bool doExpand);
 	void ToggleContraction(int line);
@@ -477,8 +474,6 @@ public:
 	virtual sptr_t WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 	// Public so scintilla_set_id can use it.
 	int ctrlID;
-	// Public so COM methods for drag and drop can set it.
-	int errorStatus;
 	friend class AutoSurface;
 	friend class SelectionLineIterator;
 };

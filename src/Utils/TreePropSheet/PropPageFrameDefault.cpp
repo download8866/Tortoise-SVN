@@ -31,7 +31,7 @@ namespace TreePropSheet
 
 #ifdef XPSUPPORT
 #include <uxtheme.h>
-#include <vssym32.h>
+#include <tmschema.h>
 #endif
 
 #ifdef _DEBUG
@@ -317,7 +317,7 @@ void CPropPageFrameDefault::DrawCaption(CDC *pDc, CRect rect, LPCTSTR lpszCaptio
 
 	//pDc->DrawText(lpszCaption, rect, DT_LEFT|DT_VCENTER|DT_SINGLELINE|DT_END_ELLIPSIS);
 
-	TextOutTryFL(pDc->GetSafeHdc(), rect.left, rect.top, lpszCaption, (int)_tcslen(lpszCaption));
+	TextOutTryFL(pDc->GetSafeHdc(), rect.left, rect.top, lpszCaption, _tcslen(lpszCaption));
 
 	pDc->SetTextColor(clrPrev);
 	pDc->SetBkMode(nBkStyle);

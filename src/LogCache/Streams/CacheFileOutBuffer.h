@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,8 +38,8 @@ typedef int STREAM_INDEX;
 
 enum
 {
-	OUR_LOG_CACHE_FILE_VERSION = 0x20090623,
-	MIN_LOG_CACHE_FILE_VERSION = 0x20090623
+	OUR_LOG_CACHE_FILE_VERSION = 0x20070607,
+	MIN_LOG_CACHE_FILE_VERSION = 0x20070607
 };
 
 /**
@@ -61,7 +61,7 @@ enum
  * - our version ID (4 bytes. Current value: 0x20070607)
  * - min. version ID (4 bytes. Current value: 0x20070607)
  * - stream(s) (N BLOBs)
- * - stream size in bytes (N 4 byte integers)
+ * - stream size in (N 4 byte integers)
  * - N (4 bytes unsigned integer)
  */
 class CCacheFileOutBuffer : public CBufferedOutFile
@@ -80,11 +80,7 @@ public:
 
 	// construction / destruction: auto- open/close
 
-#ifdef WIN32
 	CCacheFileOutBuffer (const std::wstring& fileName);
-#else
-	CCacheFileOutBuffer (const std::string& fileName);
-#endif
 	virtual ~CCacheFileOutBuffer();
 
 	// write data to file

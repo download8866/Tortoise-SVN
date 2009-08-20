@@ -151,7 +151,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingtheirs()
 	if (m_bThreadRunning)
 		return;
 
-	int retVal = IDC_RESOLVEUSINGTHEIRS;
+	INT_PTR retVal = IDC_RESOLVEUSINGTHEIRS;
 	SVN svn;
 
 	if (conflict_reason == svn_wc_conflict_reason_deleted)
@@ -207,7 +207,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingtheirs()
 		{
 			if (m_path.Exists())
 			{
-				if (!svn.Remove(CTSVNPathList(m_path), true, false))
+				if (!svn.Remove(CTSVNPathList(m_path), TRUE, FALSE))
 				{
 					CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 					retVal = IDCANCEL;
@@ -223,7 +223,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingmine()
 	if (m_bThreadRunning)
 		return;
 
-	int retVal = IDC_RESOLVEUSINGMINE;
+	INT_PTR retVal = IDC_RESOLVEUSINGMINE;
 	SVN svn;
 	if (!svn.Resolve(m_path, svn_wc_conflict_choose_mine_full, false))
 	{
@@ -241,7 +241,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingmine()
 		{
 			if (m_path.Exists())
 			{
-				if (!svn.Remove(CTSVNPathList(m_path), true, false))
+				if (!svn.Remove(CTSVNPathList(m_path), TRUE, FALSE))
 				{
 					CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 					retVal = IDCANCEL;

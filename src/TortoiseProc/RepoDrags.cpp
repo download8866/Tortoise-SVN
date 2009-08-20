@@ -35,18 +35,14 @@ CTreeDropTarget::CTreeDropTarget(CRepositoryBrowser * pRepoBrowser) : CIDropTarg
 bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt)
 {
 	// find the target
-    CString root;
 	CString targetUrl;
-
 	HTREEITEM hDropTarget = m_pRepoBrowser->m_RepoTree.GetNextItem(TVI_ROOT, TVGN_DROPHILITE);
 	if (hDropTarget)
 	{
-		CTreeItem* pItem = (CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hDropTarget);
+		CTreeItem * pItem = (CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hDropTarget);
 		if (pItem == NULL)
 			return false;
-
-        targetUrl = pItem->url;
-        root = pItem->repository.root;
+		targetUrl = pItem->url;
 	}
 	if (pFmtEtc->cfFormat == CF_UNICODETEXT && medium.tymed == TYMED_HGLOBAL)
 	{
@@ -61,7 +57,7 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 		CTSVNPathList urlList;
 		urlList.LoadFromAsteriskSeparatedString(urls);
 
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
 	}
 
 	if (pFmtEtc->cfFormat == CF_SVNURL && medium.tymed == TYMED_HGLOBAL)
@@ -91,7 +87,7 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 				urlList.AddPath(urlListRevs[i]);
 		}
 
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, srcRev, *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, srcRev, *pdwEffect, pt);
 	}
 
 	if(pFmtEtc->cfFormat == CF_HDROP && medium.tymed == TYMED_HGLOBAL)
@@ -108,7 +104,7 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)/sizeof(TCHAR));
 				urlList.AddPath(CTSVNPath(szFileName));
 			}
-			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
 		}
 		GlobalUnlock(medium.hGlobal);
 	}
@@ -235,23 +231,18 @@ CListDropTarget::CListDropTarget(CRepositoryBrowser * pRepoBrowser):CIDropTarget
 bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt)
 {
 	// find the target url
-    CString root;
 	CString targetUrl;
 	int targetIndex = m_pRepoBrowser->m_RepoList.GetNextItem(-1, LVNI_DROPHILITED);
 	if (targetIndex >= 0)
 	{
-        CItem* item = (CItem*)m_pRepoBrowser->m_RepoList.GetItemData(targetIndex);
-		targetUrl = item->absolutepath;
-        root = item->repository.root;
+		targetUrl = ((CItem*)m_pRepoBrowser->m_RepoList.GetItemData(targetIndex))->absolutepath;
 	}
 	else
 	{
 		HTREEITEM hDropTarget = m_pRepoBrowser->m_RepoTree.GetSelectedItem();
 		if (hDropTarget)
 		{
-			CTreeItem* item = (CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hDropTarget);
-		    targetUrl = item->url;
-            root = item->repository.root;
+			targetUrl = ((CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hDropTarget))->url;
 		}
 	}
 	if(pFmtEtc->cfFormat == CF_UNICODETEXT && medium.tymed == TYMED_HGLOBAL)
@@ -266,7 +257,7 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 		urls.Replace(_T("\r\n"), _T("*"));
 		CTSVNPathList urlList;
 		urlList.LoadFromAsteriskSeparatedString(urls);
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
 	}
 	if(pFmtEtc->cfFormat == CF_SVNURL && medium.tymed == TYMED_HGLOBAL)
 	{
@@ -295,7 +286,7 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 				urlList.AddPath(urlListRevs[i]);
 		}
 
-		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, srcRev, *pdwEffect, pt);
+		m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, srcRev, *pdwEffect, pt);
 	}
 
 	if(pFmtEtc->cfFormat == CF_HDROP && medium.tymed == TYMED_HGLOBAL)
@@ -312,7 +303,7 @@ bool CListDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
 				DragQueryFile(hDrop, i, szFileName, sizeof(szFileName)/sizeof(TCHAR));
 				urlList.AddPath(CTSVNPath(szFileName));
 			}
-			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), root, urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
+			m_pRepoBrowser->OnDrop(CTSVNPath(targetUrl), urlList, m_pRepoBrowser->GetRevision(), *pdwEffect, pt);
 		}
 		GlobalUnlock(medium.hGlobal);
 	}

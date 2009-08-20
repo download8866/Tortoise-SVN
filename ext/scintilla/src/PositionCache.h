@@ -51,7 +51,6 @@ public:
 	// Wrapped line support
 	int widthLine;
 	int lines;
-	int wrapIndent; // In pixels
 
 	LineLayout(int maxLineLength_);
 	virtual ~LineLayout();

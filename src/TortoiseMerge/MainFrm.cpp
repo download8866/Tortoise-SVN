@@ -803,7 +803,7 @@ void CMainFrame::UpdateLayout()
 	if (m_bInitSplitter)
 	{
 		CRect cr, rclocbar;
-		GetClientRect(&cr);
+		GetWindowRect(&cr);
 		int width = cr.Width();
 		if (::IsWindow(m_wndLocatorBar) && m_wndLocatorBar.IsWindowVisible())
 		{
@@ -1057,7 +1057,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 		}
 	}
 	
-	if ((bDoesNotExist)&&(DWORD(CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE))))
+	if (bDoesNotExist)
 	{
 		// call TortoiseProc to add the new file to version control
 		CString cmd = _T("\"") + CPathUtils::GetAppDirectory();

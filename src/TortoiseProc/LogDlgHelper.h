@@ -18,8 +18,6 @@
 //
 #pragma once
 #include "SVN.h"
-#include "LogCacheGlobals.h"
-#include "QuickHashMap.h"
 
 class CLogDlg;
 
@@ -59,7 +57,6 @@ typedef struct LogEntryData
 	BOOL haschildren;
 	DWORD childStackDepth;
 	BOOL bChecked;
-    LogEntryData* parent;
 } LOGENTRYDATA, *PLOGENTRYDATA;
 
 /**
@@ -74,23 +71,39 @@ public:
 	void ClearAll();
 
 	/// Ascending date sorting.
-	struct DateSort
+	struct AscDateSort
 	{
 		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
 			return pStart->tmDate < pEnd->tmDate;
 		}
 	};
+	/// Descending date sorting.
+	struct DescDateSort
+	{
+		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			return pStart->tmDate > pEnd->tmDate;
+		}
+	};
 	/// Ascending revision sorting.
-	struct RevSort
+	struct AscRevSort
 	{
 		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
 			return pStart->Rev < pEnd->Rev;
 		}
 	};
+	/// Descending revision sorting.
+	struct DescRevSort
+	{
+		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			return pStart->Rev > pEnd->Rev;
+		}
+	};
 	/// Ascending author sorting.
-	struct AuthorSort
+	struct AscAuthorSort
 	{
 		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
@@ -100,8 +113,19 @@ public:
 			return ret<0;
 		}
 	};
+	/// Descending author sorting.
+	struct DescAuthorSort
+	{
+		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			int ret = pStart->sAuthor.CompareNoCase(pEnd->sAuthor);
+			if (ret == 0)
+				return pStart->Rev > pEnd->Rev;
+			return ret>0;
+		}
+	};
 	/// Ascending bugID sorting.
-	struct BugIDSort
+	struct AscBugIDSort
 	{
 		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
@@ -111,16 +135,35 @@ public:
 			return ret<0;
 		}
 	};
+	/// Descending bugID sorting.
+	struct DescBugIDSort
+	{
+		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			int ret = pStart->sBugIDs.CompareNoCase(pEnd->sBugIDs);
+			if (ret == 0)
+				return pStart->Rev > pEnd->Rev;
+			return ret>0;
+		}
+	};
 	/// Ascending message sorting.
-	struct MessageSort
+	struct AscMessageSort
 	{
 		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
 			return pStart->sShortMessage.CompareNoCase(pEnd->sShortMessage)<0;
 		}
 	};
+	/// Descending message sorting.
+	struct DescMessageSort
+	{
+		bool operator()(PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			return pStart->sShortMessage.CompareNoCase(pEnd->sShortMessage)>0;
+		}
+	};
 	/// Ascending action sorting
-	struct ActionSort
+	struct AscActionSort
 	{
 		bool operator() (PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
 		{
@@ -129,48 +172,14 @@ public:
 			return pStart->actions < pEnd->actions;
 		}
 	};
-};
-
-/**
- * \ingroup TortoiseProc
- * Helper class for the log dialog, provides some utility functions to
- * directly access arbitrary revisions w/o iterating.
- */
-class CLogCacheUtility
-{
-private:
-
-    /// access the info from this cache:
-
-    LogCache::CCachedLogInfo* cache;
-
-    /// optional: if NULL, sShortMessage and sBugIDs will not be set
-
-    ProjectProperties* projectProperties;
-
-    /// efficient map cached string / path -> CString
-
-    typedef quick_hash_map<LogCache::index_t, CString> TID2String;
-    TID2String pathToStringMap;
-
-public:
-
-    /// construction
-
-    CLogCacheUtility 
-        ( LogCache::CCachedLogInfo* cache
-        , ProjectProperties* projectProperties = NULL);
-
-    /// \returns @a false if standard revprops or changed paths are
-    /// missing for the specififed \ref revision.
-
-    bool IsCached (svn_revnum_t revision) const;
-
-    /// \returns NULL if \ref IsCached returns false for that \ref revision.
-    /// Otherwise, all cached log information for the respective revisin 
-    /// will be returned. 
-    /// The bCopiedSelf, bChecked and haschildren members will always be 
-    /// @a FALSE; childStackDepth will be 0.
-
-    PLOGENTRYDATA GetRevisionData (svn_revnum_t revision);
+	/// Descending action sorting
+	struct DescActionSort
+	{
+		bool operator() (PLOGENTRYDATA& pStart, PLOGENTRYDATA& pEnd)
+		{
+			if (pStart->actions == pEnd->actions)
+				return pStart->Rev > pEnd->Rev;
+			return pStart->actions > pEnd->actions;
+		}
+	};
 };

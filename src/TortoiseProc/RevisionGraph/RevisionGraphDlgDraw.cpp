@@ -81,7 +81,7 @@ void CRevisionGraphWnd::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 	CRect rect = GetClientRect();
-    if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 	{
 		dc.FillSolidRect(rect, ::GetSysColor(COLOR_APPWORKSPACE));
 		CWnd::OnPaint();
@@ -942,7 +942,6 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
     Graphics* graphics = Graphics::FromHDC(*pDC);
     graphics->SetPageUnit (UnitPixel);
     graphics->SetInterpolationMode (InterpolationModeHighQualityBicubic);
-	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics->SetClip(RectF(Gdiplus::REAL(rect.left), Gdiplus::REAL(rect.top), Gdiplus::REAL(rect.Width()), Gdiplus::REAL(rect.Height())));
 
     if (options->GetOption<CShowTreeStripes>()->IsActive())

@@ -16,9 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "LogCacheStatistics.h"
-#include "./Containers/CachedLogInfo.h"
+#include "CachedLogInfo.h"
 #include "RepositoryInfo.h"
 #include "LogCachePool.h"
 
@@ -334,7 +334,7 @@ void CLogCacheStatistics::Reset()
 	fileSize = 0;
 	ramSize = 0;
 
-    connectionState = online;
+    connectionState = CRepositoryInfo::online;
 
 	headTimeStamp = 0; 
 	lastWriteAccess = 0;

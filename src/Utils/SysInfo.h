@@ -29,12 +29,15 @@ private:
 	SysInfo(void);
 	~SysInfo(void);
 public:
-	static const SysInfo& Instance();
+	static SysInfo& Instance();
 	
-	DWORD			GetFullVersion() const {return MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);}
-	bool			IsXP() const {return (GetFullVersion() < 0x0600);} // cover Win5.1 and 5.2 alike
-	bool			IsVista() const {return (GetFullVersion() == 0x0600);}
-	bool			IsVistaOrLater() const {return (GetFullVersion() >= 0x0600);}
+	DWORD			GetFullVersion() {return MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);}
+	bool			IsWin2k() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0500);}
+	bool			IsWin2kOrLater() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0500);}
+	bool			IsXP() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0501);}
+	bool			IsXPorLater() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0501);}
+	bool			IsVista() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0600);}
+	bool			IsVistaOrLater() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0600);}
 private:
 	OSVERSIONINFOEX			inf;
 };

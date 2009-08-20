@@ -18,7 +18,6 @@
 //
 #pragma once
 #include "RevisionGraph/RevisionGraphState.h"
-#include "Future.h"
 #include "ProgressDlg.h"
 #include "Colors.h"
 #include "SVNDiff.h"
@@ -79,11 +78,6 @@ enum NodeShape
 
 class CRevisionGraphDlg;
 
-// simplify usage of classes from other namespaces
-
-using async::IJob;
-using async::CFuture;
-
 /**
  * \ingroup TortoiseProc
  * Window class showing a revision graph.
@@ -105,8 +99,9 @@ public:
 
 	CString			m_sPath;
     SVNRev          m_pegRev;
+	volatile LONG	m_bThreadRunning;
+	CProgressDlg* 	m_pProgress;
 
-    std::auto_ptr<CFuture<bool> > updateJob;
     CRevisionGraphState m_state;
 
 	void			InitView();
@@ -114,10 +109,8 @@ public:
 	void			SaveGraphAs(CString sSavePath);
 
     bool            FetchRevisionData ( const CString& path
-                                      , SVNRev pegRevision
-                                      , CProgressDlg* progress);
+                                      , SVNRev pegRevision);
     bool            AnalyzeRevisionData();
-    bool            IsUpdateJobRunning() const;
 
     bool            GetShowOverview() const;
     void            SetShowOverview (bool value);
@@ -185,7 +178,6 @@ protected:
 	afx_msg void	OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg BOOL	OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	afx_msg void	OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void	OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void	OnLButtonUp(UINT nFlags, CPoint point);

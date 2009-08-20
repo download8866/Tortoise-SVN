@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,18 +63,9 @@ bool LogCommand::Execute()
 	{
 		bStrict = TRUE;
 	}
-	CString findStr = parser.GetVal(_T("findstring"));
-	LONG findType = parser.GetLongVal(_T("findtype"));
-	bool findRegex = !!CRegDWORD(_T("Software\\TortoiseSVN\\UseRegexFilter"), FALSE);
-	if (parser.HasKey(_T("findtext")))
-		findRegex = false;
-	if (parser.HasKey(_T("findregex")))
-		findRegex = true;
-
 	CLogDlg dlg;
 	theApp.m_pMainWnd = &dlg;
 	dlg.SetParams(cmdLinePath, pegrev, revstart, revend, limit, bStrict);
-	dlg.SetFilter(findStr, findType, findRegex);
 	dlg.SetIncludeMerge(!!parser.HasKey(_T("merge")));
 	val = parser.GetVal(_T("propspath"));
 	if (!val.IsEmpty())

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "IndexPairDictionary.h"
+#include "StdAfx.h"
+#include ".\indexpairdictionary.h"
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -44,17 +44,10 @@ CIndexPairDictionary::CHashFunction::CHashFunction
 
 // construction / destruction
 
-#pragma warning (push)
-#pragma warning (disable:4355)
-
-// passing 'this' during construction is fine here
-
 CIndexPairDictionary::CIndexPairDictionary(void)
 	: hashIndex (CHashFunction (this))
 {
 }
-
-#pragma warning (pop)
 
 CIndexPairDictionary::~CIndexPairDictionary(void)
 {
@@ -78,7 +71,7 @@ index_t CIndexPairDictionary::Insert (const std::pair<index_t, index_t>& value)
 	assert (Find (value) == NO_INDEX);
 
 	index_t result = (index_t)data.size();
-	hashIndex.insert (value, result);
+	hashIndex.insert (value, (index_t)result);
 	data.push_back (value);
 
 	return result;
@@ -105,21 +98,12 @@ void CIndexPairDictionary::Swap (CIndexPairDictionary& rhs)
 	hashIndex.swap (rhs.hashIndex);
 }
 
-// return false if concurrent read accesses
-// would potentially access invalid data.
-
-bool CIndexPairDictionary::CanInsertThreadSafely (index_t count) const
-{
-    return (data.size() + count <= data.capacity())
-        && !hashIndex.may_cause_growth (count);
-}
-
 // stream I/O
 
 IHierarchicalInStream& operator>> ( IHierarchicalInStream& stream
 								  , CIndexPairDictionary& dictionary)
 {
-    // read the first elements of all pairs
+	// read the first elements of all pairs
 
 	CDiffIntegerInStream* firstStream 
 		= dynamic_cast<CDiffIntegerInStream*>
@@ -148,8 +132,10 @@ IHierarchicalInStream& operator>> ( IHierarchicalInStream& stream
 	dictionary.hashIndex 
 		= quick_hash<CIndexPairDictionary::CHashFunction>
 			(CIndexPairDictionary::CHashFunction (&dictionary));
+	dictionary.hashIndex.reserve (dictionary.data.size());
 
-    dictionary.hashIndex.insert (dataBegin, dataBegin + count, 0);
+	for (index_t i = 0; i < count; ++i)
+		dictionary.hashIndex.insert (*(dataBegin + i), i);
 
 	// ready
 

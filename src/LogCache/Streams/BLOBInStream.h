@@ -71,7 +71,7 @@ public:
 //
 ///////////////////////////////////////////////////////////////
 
-template class CInStreamImpl< CBLOBInStreamBase
-                            , BLOB_STREAM_TYPE_ID>;
+template CInStreamImpl< CBLOBInStreamBase
+					  , BLOB_STREAM_TYPE_ID>;
 typedef CInStreamImpl< CBLOBInStreamBase
-                     , BLOB_STREAM_TYPE_ID> CBLOBInStream;
+					 , BLOB_STREAM_TYPE_ID> CBLOBInStream;

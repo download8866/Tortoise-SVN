@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@
 #include "SVNRev.h"
 #include "Tooltip.h"
 #include "HintListCtrl.h"
-#include "JobScheduler.h"
 
 #include <regex>
 using namespace std;
@@ -73,10 +72,9 @@ public:
 
 	void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev, int limit, 
 		BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE), BOOL bSaveStrict = TRUE);
-	void SetFilter(const CString& findstr, LONG findtype, bool findregex);
 	void SetIncludeMerge(bool bInclude = true) {m_bIncludeMerges = bInclude;}
 	void SetProjectPropertiesPath(const CTSVNPath& path) {m_ProjectProperties.ReadProps(path);}
-	bool IsThreadRunning() {return !!m_bLogThreadRunning;}
+	bool IsThreadRunning() {return !!m_bThreadRunning;}
 	void SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
 	void SetSelect(bool bSelect) {m_bSelect = bSelect;}
 	void ContinuousSelection(bool bCont = true) {m_bSelectionMustBeContinuous = bCont;}
@@ -144,8 +142,8 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 private:
-	void LogThread();
-	void StatusThread();
+	static UINT LogThreadEntry(LPVOID pVoid);
+	UINT LogThread();
 	void Refresh (bool autoGoOnline = false);
 	BOOL IsDiffPossible(LogChangedPath * changedpath, svn_revnum_t rev);
 	BOOL Open(bool bOpenWith, CString changedpath, svn_revnum_t rev);
@@ -161,7 +159,7 @@ private:
 	void CopyChangedSelectionToClipBoard();
 	CTSVNPathList GetChangedPathsFromSelectedRevisions(bool bRelativePaths = false, bool bUseFilter = true);
     void SortShownListArray();
-	void RecalculateShownList(CPtrArray * pShownlist, svn_revnum_t rev = -1);
+	void RecalculateShownList(CPtrArray * pShownlist);
     void SetSortArrow(CListCtrl * control, int nColumn, bool bAscending);
 	void SortByColumn(int nSortColumn, bool bAscending);
 	bool IsSelectionContinuous();
@@ -170,8 +168,6 @@ private:
 	void UpdateLogInfoLabel();
 	void SaveSplitterPos();
 	bool ValidateRegexp(LPCTSTR regexp_str, tr1::wregex& pat, bool bMatchCase);
-	bool ValidateRegexp(LPCTSTR regexp_str, vector<tr1::wregex>& patterns);
-	bool MatchText(const vector<tr1::wregex>& patterns, const wstring& text);
 	void CheckRegexpTooltip();
 	void GetChangedPaths(std::vector<CString>& changedpaths, std::vector<LogChangedPath*>& changedlogpaths);
 	void DiffSelectedFile();
@@ -180,13 +176,17 @@ private:
 	CString GetAbsoluteUrlFromRelativeUrl(const CString& url);
 	void ToggleCheckbox(int item);
 
+	/**
+	 * Extracts part of commit message suitable for displaying in revision list.
+	 */
+	CString MakeShortMessage(const CString& message);
 	inline int ShownCountWithStopped() const { return (int)m_arShownList.GetCount() + (m_bStrictStopped ? 1 : 0); }
 
 
 	virtual LRESULT DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam);
 	static int __cdecl	SortCompare(const void * pElem1, const void * pElem2);	///< sort callback function
 
-	void ResizeAllListCtrlCols(bool bOnlyVisible);
+	void ResizeAllListCtrlCols();
 
 	void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
 	void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
@@ -221,8 +221,7 @@ private:
 	bool				m_bSelectionMustBeContinuous;
 	long				m_logcounter;
 	bool				m_bCancelled;
-	volatile LONG 		m_bLogThreadRunning;
-	volatile LONG 		m_bStatusThreadRunning;
+	volatile LONG 		m_bThreadRunning;
 	BOOL				m_bStrict;
 	bool				m_bStrictStopped;
 	BOOL				m_bIncludeMerges;
@@ -278,8 +277,6 @@ private:
 	HICON				m_hReplacedIcon;
 	HICON				m_hAddedIcon;
 	HICON				m_hDeletedIcon;
-	int					m_nIconFolder;
-
 
 	DWORD				m_childCounter;
 	DWORD				m_maxChild;
@@ -287,15 +284,8 @@ private:
 
 	CStoreSelection*	m_pStoreSelection;
     CLogDataVector		m_logEntries;
-
-    /// used temporarily when fetching logs with merge info:
-    /// contains the \ref m_childCounter parents of the current entry
-    CLogDataVector		m_logParents;   
 	
 	CXPTheme			theme;
-
-	async::CJobScheduler netScheduler;
-	async::CJobScheduler diskScheduler;
 };
 static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
 static UINT WM_REVLIST = RegisterWindowMessage(_T("TORTOISESVN_REVLIST_MSG"));

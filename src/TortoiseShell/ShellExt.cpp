@@ -25,12 +25,12 @@
 #include "Guids.h"
 
 #include "ShellExt.h"
-#include "ShellObjects.h"
 #include "..\version.h"
 #include "libintl.h"
 #undef swprintf
 
-extern ShellObjects g_shellObjects;
+std::set<CShellExt *> g_exts;
+
 
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
@@ -46,7 +46,7 @@ CShellExt::CShellExt(FileState state)
     m_cRef = 0L;
     g_cRefThisDll++;
 
-	g_shellObjects.Insert(this);
+	g_exts.insert(this);
 	
     INITCOMMONCONTROLSEX used = {
         sizeof(INITCOMMONCONTROLSEX),
@@ -78,7 +78,7 @@ CShellExt::~CShellExt()
 	}
 	bitmaps.clear();
 	g_cRefThisDll--;
-	g_shellObjects.Erase(this);
+	g_exts.erase(this);
 	if (hUxTheme)
 		FreeLibrary(hUxTheme);
 }

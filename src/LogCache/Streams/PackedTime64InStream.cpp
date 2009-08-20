@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PackedTime64InStream.h"
 
 ///////////////////////////////////////////////////////////////
@@ -70,20 +70,6 @@ __time64_t CPackedTime64InStreamBase::GetValue() throw()
 	// ready
 
 	return value;
-}
-
-// update members in this derived class as well
-
-void CPackedTime64InStreamBase::AutoOpen()
-{
-    CBinaryInStreamBase::AutoOpen();
-    lastValue = 0;
-}
-
-void CPackedTime64InStreamBase::AutoClose()
-{
-    lastValue = 0;
-    CBinaryInStreamBase::AutoClose();
 }
 
 ///////////////////////////////////////////////////////////////

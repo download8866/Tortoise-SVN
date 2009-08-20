@@ -35,8 +35,8 @@ CMergeWizardReintegrate::CMergeWizardReintegrate()
 	, m_pLogDlg2(NULL)
 {
 	m_psp.dwFlags |= PSP_DEFAULT|PSP_USEHEADERTITLE|PSP_USEHEADERSUBTITLE;
-	m_psp.pszHeaderTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_REINTEGRATETITLE);
-	m_psp.pszHeaderSubTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_REINTEGRATESUBTITLE);
+	m_psp.pszHeaderTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_TREETITLE);
+	m_psp.pszHeaderSubTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_TREESUBTITLE);
 }
 
 CMergeWizardReintegrate::~CMergeWizardReintegrate()
@@ -78,8 +78,6 @@ BOOL CMergeWizardReintegrate::OnInitDialog()
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
-	if (m_URLCombo.GetString().IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
 	if (!pWizard->URL1.IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
 	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());

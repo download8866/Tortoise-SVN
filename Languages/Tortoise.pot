@@ -98,11 +98,6 @@ msgstr ""
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d Bytes/s"
-msgstr ""
-
-#. Resource IDs: (357)
-#, c-format
 msgid "%I64d kBytes transferred"
 msgstr ""
 
@@ -114,6 +109,11 @@ msgstr ""
 #. Resource IDs: (246)
 #, c-format
 msgid "%d most active author(s) with at least %d commits each (%d %%)"
+msgstr ""
+
+#. Resource IDs: (357)
+#, c-format
+msgid "%ld Bytes/s"
 msgstr ""
 
 #. Resource IDs: (226)
@@ -213,12 +213,12 @@ msgstr ""
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export"
+msgid "%s\\Export (%d) of %s"
 msgstr ""
 
 #. Resource IDs: (145)
 #, c-format
-msgid "%s\\%s - Export (%d)"
+msgid "%s\\Export of %s"
 msgstr ""
 
 #. Resource IDs: (3850)
@@ -459,10 +459,6 @@ msgstr ""
 
 #. Resource IDs: (17)
 msgid "&Delete (keep local)"
-msgstr ""
-
-#. Resource IDs: (1514)
-msgid "&Delete unversioned items..."
 msgstr ""
 
 #. Resource IDs: (101)
@@ -1128,10 +1124,6 @@ msgstr ""
 msgid "(%s) %s"
 msgstr ""
 
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr ""
-
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
 msgstr ""
@@ -1140,20 +1132,12 @@ msgstr ""
 msgid "(copy)"
 msgstr ""
 
-#. Resource IDs: (277)
-msgid "(create branch)"
-msgstr ""
-
 #. Resource IDs: (276)
 msgid "(created)"
 msgstr ""
 
 #. Resource IDs: (276)
 msgid "(delete)"
-msgstr ""
-
-#. Resource IDs: (214)
-msgid "(externals)"
 msgstr ""
 
 #. Resource IDs: (276)
@@ -1186,6 +1170,10 @@ msgstr ""
 
 #. Resource IDs: (314)
 msgid "(not found)"
+msgstr ""
+
+#. Resource IDs: (276)
+msgid "(open branch)"
 msgstr ""
 
 #. Resource IDs: (208)
@@ -1406,10 +1394,6 @@ msgstr ""
 msgid "Add extension specific merge program"
 msgstr ""
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr ""
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr ""
@@ -1500,10 +1484,6 @@ msgstr ""
 msgid "Align trees on top"
 msgstr ""
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr ""
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr ""
@@ -1544,10 +1524,6 @@ msgstr ""
 
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
-msgstr ""
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
 msgstr ""
 
 #. Resource IDs: (197)
@@ -1708,6 +1684,10 @@ msgstr ""
 
 #. Resource IDs: (99)
 msgid "Auto Rename"
+msgstr ""
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
 msgstr ""
 
 #. Resource IDs: (222)
@@ -2052,10 +2032,6 @@ msgstr ""
 msgid "Check working copy for modifications"
 msgstr ""
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr ""
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr ""
@@ -2098,8 +2074,7 @@ msgid "Cleaning up"
 msgstr ""
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%s\""
+msgid "Cleaning up."
 msgstr ""
 
 #. Resource IDs: (83)
@@ -2668,10 +2643,6 @@ msgstr ""
 msgid "Create repositor&y here"
 msgstr ""
 
-#. Resource IDs: (102)
-msgid "Create shortcut"
-msgstr ""
-
 #. Resource IDs: (32828)
 msgid "Create unified diff file"
 msgstr ""
@@ -2895,20 +2866,12 @@ msgstr ""
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr ""
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr ""
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr ""
 
 #. Resource IDs: (195)
 msgid "Disable this option if you have really big working copies and experience\r\ntoo much disk access when browsing the working copy."
-msgstr ""
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
 msgstr ""
 
 #. Resource IDs: (3867)
@@ -3503,10 +3466,6 @@ msgstr ""
 msgid "Filename"
 msgstr ""
 
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr ""
-
 #. Resource IDs: (1057)
 msgid "Fill Tool\nFill"
 msgstr ""
@@ -3573,14 +3532,6 @@ msgstr ""
 
 #. Resource IDs: (119)
 msgid "For complete history deselect 'Stop on copy/rename'"
-msgstr ""
-
-#. Resource IDs: (279)
-msgid "Force"
-msgstr ""
-
-#. Resource IDs: (1480)
-msgid "Force the merge"
 msgstr ""
 
 #. Resource IDs: (1064)
@@ -4647,7 +4598,7 @@ msgstr ""
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
+msgid "Merging %s into %s, %s"
 msgstr ""
 
 #. Resource IDs: (264)
@@ -4656,7 +4607,7 @@ msgstr ""
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
 msgstr ""
 
 #. Resource IDs: (264)
@@ -4675,7 +4626,7 @@ msgstr ""
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
 msgstr ""
 
 #. Resource IDs: (76, 1359)
@@ -5641,10 +5592,6 @@ msgstr ""
 msgid "Reintegrate a branch"
 msgstr ""
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr ""
-
 #. Resource IDs: (230)
 #, c-format
 msgid "Reintegrate merge %s into %s"
@@ -5817,10 +5764,6 @@ msgid "Renames files / folders inside version control"
 msgstr ""
 
 #. Resource IDs: (209)
-msgid "Repair copy"
-msgstr ""
-
-#. Resource IDs: (209)
 msgid "Repair move"
 msgstr ""
 
@@ -5850,10 +5793,6 @@ msgstr ""
 
 #. Resource IDs: (65535)
 msgid "Repository UUID:"
-msgstr ""
-
-#. Resource IDs: (106)
-msgid "Request cancelled by TSVN"
 msgstr ""
 
 #. Resource IDs: (65535)
@@ -6355,10 +6294,6 @@ msgstr ""
 
 #. Resource IDs: (79)
 msgid "Select text editor application"
-msgstr ""
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
 msgstr ""
 
 #. Resource IDs: (595)
@@ -6983,10 +6918,6 @@ msgstr ""
 #. Resource IDs: (79)
 #, c-format
 msgid "Tagged the working copy to %s"
-msgstr ""
-
-#. Resource IDs: (80)
-msgid "Tasks"
 msgstr ""
 
 #. Resource IDs: (1064)
@@ -7681,10 +7612,6 @@ msgstr ""
 msgid "Unknown depth"
 msgstr ""
 
-#. Resource IDs: (106)
-msgid "Unknown failure in SVN::List"
-msgstr ""
-
 #. Resource IDs: (221, 230, 242)
 msgid "Unlock"
 msgstr ""
@@ -7711,10 +7638,6 @@ msgstr ""
 
 #. Resource IDs: (146)
 msgid "Unversion"
-msgstr ""
-
-#. Resource IDs: (1507)
-msgid "Unversioned"
 msgstr ""
 
 #. Resource IDs: (1313)
@@ -8684,10 +8607,6 @@ msgstr ""
 
 #. Resource IDs: (578)
 msgid "tsvn:logminsize\r\nMinimum size in chars a log message must have before a commit is allowed."
-msgstr ""
-
-#. Resource IDs: (579)
-msgid "tsvn:logrevregex\r\nA regular expression matching revision numbers in a log message"
 msgstr ""
 
 #. Resource IDs: (578)

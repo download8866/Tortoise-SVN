@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;SVN_DEBUG;ENABLE_NLS;THESAURUS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -136,7 +136,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
 				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;SVN_DEBUG;ENABLE_NLS;THESAURUS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -225,7 +225,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;THESAURUS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -321,7 +321,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/Subversion/subversion/libsvn_client;../../ext/apr/include;../../ext/boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\crashrpt;..\TortoiseShell;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;&quot;../../ext/cyrus-sasl/include&quot;;../../../common/openssl/inc32;.\RevisionGraph"
 				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;THESAURUS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -432,14 +432,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\CmdUrlParser.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\CmdUrlParser.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Colors.cpp"
 					>
 				</File>
@@ -508,14 +500,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\JumpListHelpers.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\JumpListHelpers.h"
-					>
-				</File>
-				<File
 					RelativePath=".\LogFile.cpp"
 					>
 				</File>
@@ -561,10 +545,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\QuickHashMap.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\QuickHashSet.h"
 					>
 				</File>
 				<File
@@ -657,14 +637,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\UnicodeUtils.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\Win7.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\Win7.h"
 					>
 				</File>
 			</Filter>
@@ -776,11 +748,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\Utils\MiscUI\LinkControl.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\LinkControl.h"
+					RelativePath="..\Utils\MiscUI\MemDC.h"
 					>
 				</File>
 				<File
@@ -904,7 +872,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -914,7 +882,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -952,7 +920,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -962,7 +930,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1008,7 +976,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1018,7 +986,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1056,7 +1024,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1066,7 +1034,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1104,7 +1072,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1114,7 +1082,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1156,7 +1124,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1166,7 +1134,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1212,7 +1180,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1222,7 +1190,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1260,7 +1228,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1270,7 +1238,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1308,7 +1276,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1318,7 +1286,7 @@
 								Name="VCCLCompilerTool"
 								PreprocessorDefinitions="_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 								UsePrecompiledHeader="0"
-								WarningLevel="0"
+								WarningLevel="3"
 							/>
 						</FileConfiguration>
 						<FileConfiguration
@@ -1538,6 +1506,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\AddedIcon.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\bin167.avi"
 				>
 			</File>
@@ -1555,6 +1527,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\CacheList.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\cancel-highlight.bmp"
 				>
 			</File>
 			<File
@@ -1582,7 +1558,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Resources\CommitBackgroundBranches.ico"
+				RelativePath="..\Resources\ConflictIcon.ico"
 				>
 			</File>
 			<File
@@ -1591,6 +1567,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\CopyBackground.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\DeletedIcon.ico"
 				>
 			</File>
 			<File
@@ -1634,6 +1614,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\extwarning.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\filteredit.ico"
 				>
 			</File>
@@ -1674,6 +1658,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\InSubVersionIcon.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\lineadded.ico"
 				>
 			</File>
@@ -1683,14 +1671,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\lineremoved.ico"
-				>
-			</File>
-			<File
-				RelativePath=".\link.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\link.ico"
 				>
 			</File>
 			<File
@@ -1827,6 +1807,10 @@
 			</File>
 			<File
 				RelativePath="..\Resources\misc.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\ModifiedIcon.ico"
 				>
 			</File>
 			<File
@@ -1971,6 +1955,18 @@
 			</File>
 			<File
 				RelativePath="..\Resources\Tortoise.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise13by13.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise16by16.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\Tortoise20by16.ico"
 				>
 			</File>
 			<File
@@ -2811,22 +2807,6 @@
 						RelativePath="RepositoryBrowser.h"
 						>
 					</File>
-					<File
-						RelativePath=".\RepositoryBrowserSelection.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\RepositoryBrowserSelection.h"
-						>
-					</File>
-					<File
-						RelativePath=".\RepositoryLister.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\RepositoryLister.h"
-						>
-					</File>
 				</Filter>
 			</Filter>
 			<Filter
@@ -3042,6 +3022,34 @@
 					<File
 						RelativePath=".\RevisionGraph\SearchPathTree.h"
 						>
+						<FileConfiguration
+							Name="Debug|Win32"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Debug|x64"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|Win32"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+							/>
+						</FileConfiguration>
+						<FileConfiguration
+							Name="Release|x64"
+							>
+							<Tool
+								Name="VCCustomBuildTool"
+							/>
+						</FileConfiguration>
 					</File>
 				</Filter>
 				<Filter

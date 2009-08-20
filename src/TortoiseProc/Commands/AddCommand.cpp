@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ bool AddCommand::Execute()
 		SVN svn;
 		ProjectProperties props;
 		props.ReadPropsPathList(pathList);
-		bRet = !!svn.Add(pathList, &props, svn_depth_empty, false, false, true);
+		bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 		CShellUpdater::Instance().AddPathsForUpdate(pathList);
 	}
 	else
@@ -70,7 +70,7 @@ bool AddCommand::Execute()
 									pathList.RemovePath(pathList[i]);
 								}
 								else if (ret != 2)
-									return false;
+									return FALSE;
 								break;
 							}
 						}
@@ -82,7 +82,7 @@ bool AddCommand::Execute()
 			SVN svn;
 			ProjectProperties props;
 			props.ReadPropsPathList(pathList);
-			bRet = !!svn.Add(pathList, &props, svn_depth_empty, false, false, true);
+			bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 			CShellUpdater::Instance().AddPathsForUpdate(pathList);
 		}
 		else
@@ -98,8 +98,6 @@ bool AddCommand::Execute()
 				progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
 				if (parser.HasVal(_T("closeonend")))
 					progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-				if (parser.HasKey(_T("closeforlocal")))
-					progDlg.SetAutoCloseLocal(TRUE);
 				progDlg.SetPathList(dlg.m_pathList);
 				ProjectProperties props;
 				props.ReadPropsPathList(dlg.m_pathList);

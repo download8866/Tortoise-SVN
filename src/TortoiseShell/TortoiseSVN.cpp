@@ -20,7 +20,6 @@
 #include "ShellExt.h"
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
-#include "ShellObjects.h"
 #include "svn_dso.h"
 
 UINT				g_cRefThisDll = 0;				///< reference count of this DLL.
@@ -47,8 +46,7 @@ bool				g_unversionedovlloaded = false;
 CComCriticalSection	g_csGlobalCOMGuard;
 
 LPCTSTR				g_MenuIDString = _T("TortoiseSVN");
-
-ShellObjects		g_shellObjects;
+extern std::set<CShellExt *> g_exts;
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
@@ -103,7 +101,12 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 		// in that case, we do it ourselves
 		if (g_cRefThisDll > 0)
 		{
-			g_shellObjects.DeleteAll();
+			std::set<CShellExt *>::iterator it = g_exts.begin();
+			while (it != g_exts.end())
+			{
+				delete *it;
+				it = g_exts.begin();
+			}
 			while (g_cAprInit--)
 			{
 				g_SVNAdminDir.Close();

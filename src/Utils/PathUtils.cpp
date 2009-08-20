@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PathUtils.h"
 #include "shlobj.h"
 
@@ -34,8 +34,6 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 	attribs.bInheritHandle = FALSE;
 
 	ConvertToBackslash(internalpathbuf, path, len+10);
-	if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
-		pPath += 4;
 	do
 	{
 		SecureZeroMemory(buf, (len+10)*sizeof(TCHAR));
@@ -194,7 +192,6 @@ void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 			*p = '\\';
 }
 
-#ifdef CSTRING_AVAILABLE
 CStringA CPathUtils::PathEscape(const CStringA& path)
 {
 	CStringA ret2;
@@ -240,7 +237,7 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
 
 	return ret;
 }
-
+#ifdef CSTRING_AVAILABLE
 CString CPathUtils::GetAppDirectory(HMODULE hMod /* = NULL */)
 {
 	CString path;

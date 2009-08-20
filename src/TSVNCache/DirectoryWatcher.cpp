@@ -257,7 +257,7 @@ void CDirectoryWatcher::WorkerThread()
 		CleanupWatchInfo();
 		if (watchedPaths.GetCount())
 		{
-            // Any incoming notifications?
+            // Any incomming notifications?
 
 			pdi = NULL;
 			numBytes = 0;

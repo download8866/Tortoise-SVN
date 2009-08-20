@@ -72,7 +72,6 @@ CTSVNPath::CTSVNPath(const CString& sUnknownPath) :
 	m_bExistsKnown(false),
 	m_bLastWriteTimeKnown(0),
 	m_lastWriteTime(0),
-	m_fileSize(0),
 	m_customData(NULL),
 	m_bIsSpecialDirectoryKnown(false),
 	m_bIsSpecialDirectory(false)
@@ -146,14 +145,10 @@ LPCTSTR CTSVNPath::GetWinPath() const
 	{
 		SetBackslashPath(m_sFwdslashPath);
 	}
-	if(m_sBackslashPath.GetLength() >= 248)
-	{
-		m_sLongBackslashPath = _T("\\\\?\\") + m_sBackslashPath;
-		return m_sLongBackslashPath;
-	}
 	return m_sBackslashPath;
 }
-
+// This is a temporary function, to be used during the migration to 
+// the path class.  Ultimately, functions consuming paths should take a CTSVNPath&, not a CString
 const CString& CTSVNPath::GetWinPathString() const
 {
 	if(m_sBackslashPath.IsEmpty())
@@ -345,15 +340,6 @@ __int64  CTSVNPath::GetLastWriteTime() const
 	return m_lastWriteTime;
 }
 
-__int64 CTSVNPath::GetFileSize() const
-{
-	if(!m_bDirectoryKnown)
-	{
-		UpdateAttributes();
-	}
-	return m_fileSize;
-}
-
 bool CTSVNPath::IsReadOnly() const
 {
 	if(!m_bLastWriteTimeKnown)
@@ -367,20 +353,10 @@ void CTSVNPath::UpdateAttributes() const
 {
 	EnsureBackslashPathSet();
 	WIN32_FILE_ATTRIBUTE_DATA attribs;
-	if (m_sBackslashPath.GetLength() >= 248)
-		m_sLongBackslashPath = _T("\\\\?\\") + m_sBackslashPath;
-	if(GetFileAttributesEx(m_sBackslashPath.GetLength() >= 248 ? m_sLongBackslashPath : m_sBackslashPath, GetFileExInfoStandard, &attribs))
+	if(GetFileAttributesEx(m_sBackslashPath, GetFileExInfoStandard, &attribs))
 	{
 		m_bIsDirectory = !!(attribs.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
 		m_lastWriteTime = *(__int64*)&attribs.ftLastWriteTime;
-		if (m_bIsDirectory)
-		{
-			m_fileSize = 0;
-		}
-		else
-		{
-			m_fileSize = ((INT64)( (DWORD)(attribs.nFileSizeLow) ) | ( (INT64)( (DWORD)(attribs.nFileSizeHigh) )<<32 ));
-		}
 		m_bIsReadOnly = !!(attribs.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
 		m_bExists = true;
 	}
@@ -391,14 +367,12 @@ void CTSVNPath::UpdateAttributes() const
 		{
 			m_bIsDirectory = false;
 			m_lastWriteTime = 0;
-			m_fileSize = 0;
 			m_bExists = false;
 		}
 		else
 		{
 			m_bIsDirectory = false;
 			m_lastWriteTime = 0;
-			m_fileSize = 0;
 			m_bExists = true;
 			return;
 		}
@@ -441,7 +415,6 @@ void CTSVNPath::Reset()
 	m_bIsSpecialDirectory = false;
 
 	m_sBackslashPath.Empty();
-	m_sLongBackslashPath.Empty();
 	m_sFwdslashPath.Empty();
 	m_sUTF8FwdslashPath.Empty();
 	m_sUIPath.Empty();
