@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,10 +49,6 @@ public:
 	 */
 	int				GetScreenLines();
 	/**
-	 * Returns the number of file lines which fit into the view, including the hidden lines.
-	 */
-	int				GetFullScreenLines();
-	/**
 	 * Scrolls the view to the given line.
 	 * \param nNewTopLine The new top line to scroll the view to
 	 * \param bTrackScrollBar If TRUE, then the scrollbars are affected too.
@@ -63,9 +59,8 @@ public:
 	void			GoToLine(int nNewLine, BOOL bAll = TRUE);
 	void			ScrollToChar(int nNewOffsetChar, BOOL bTrackScrollBar = TRUE);
 	void			UseCaret(bool bUse = true) {m_bCaretHidden = !bUse;}
-	bool			HasCaret() const {return !m_bCaretHidden;}
-	void			SetCaretPosition(const POINT& pt) {m_ptCaretPos = pt; m_nCaretGoalPos = pt.x; UpdateCaret();}
-	void			UpdateCaretPosition(const POINT& pt) {m_ptCaretPos = pt; UpdateCaret();}
+	bool			HasCaret() {return !m_bCaretHidden;}
+	void			SetCaretPosition(POINT pt) {m_ptCaretPos = pt ; m_nCaretGoalPos = pt.x; UpdateCaret();}
 	void			EnsureCaretVisible();
 	void			UpdateCaret();
 	void			ClearSelection();
@@ -81,15 +76,10 @@ public:
 	BOOL			HasTextSelection() {return ((m_ptSelectionStartPos.x != m_ptSelectionEndPos.x)||(m_ptSelectionStartPos.y != m_ptSelectionEndPos.y));}
 	BOOL			GetSelection(int& start, int& end) {start=m_nSelBlockStart; end=m_nSelBlockEnd; return HasSelection();}
 	void			SetInlineWordDiff(bool bWord) {m_bInlineWordDiff = bWord;}
-	void			SetMarkedWord(const CString& word) {m_sMarkedWord = word;}
 
 	BOOL			IsLineRemoved(int nLineIndex);
 	bool			IsBlockWhitespaceOnly(int nLineIndex, bool& bIdentical);
 	bool			IsLineConflicted(int nLineIndex);
-	bool			HasNextConflict();
-	bool			HasPrevConflict();
-	bool			HasNextDiff();
-	bool			HasPrevDiff();
 
 	CViewData *		m_pViewData;
 	CViewData *		m_pOtherViewData;
@@ -123,7 +113,6 @@ protected:
 	afx_msg void	OnDestroy();
 	afx_msg void	OnSize(UINT nType, int cx, int cy);
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	afx_msg void	OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg BOOL	OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 	afx_msg void	OnKillFocus(CWnd* pNewWnd);
 	afx_msg void	OnSetFocus(CWnd* pOldWnd);
@@ -134,7 +123,6 @@ protected:
 	afx_msg void	OnMergeNextconflict();
 	afx_msg void	OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void	OnLButtonDown(UINT nFlags, CPoint point);
-	afx_msg void	OnLButtonDblClk(UINT nFlags, CPoint point);
 	afx_msg void	OnEditCopy();
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void	OnTimer(UINT_PTR nIDEvent);
@@ -172,7 +160,6 @@ protected:
 	void			RecalcAllHorzScrollBars(BOOL bPositionOnly = FALSE);
 
 	void			OnDoMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	void			OnDoMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	void			OnDoHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar, CBaseView * master);
 	void			OnDoVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar, CBaseView * master);
 
@@ -180,7 +167,6 @@ protected:
 	void			ShowDiffLines(int nLine);
 	
 	int				GetTabSize() const {return m_nTabSize;}
-	void			DeleteFonts();
 
 	int				GetLineActualLength(int index) const;
 	int				GetLineCount() const;
@@ -226,7 +212,7 @@ protected:
 	void			DrawText(CDC * pDC, const CRect &rc, LPCTSTR text, int textlength, int nLineIndex, POINT coords, bool bModified, bool bInlineDiff);
 	void			ClearCurrentSelection();
 	void			AdjustSelection();
-	bool			SelectNextBlock(int nDirection, bool bConflict, bool bSkipEndOfCurrentBlock = true, bool dryrun = false);
+	void			SelectNextBlock(int nDirection, bool bConflict, bool bSkipEndOfCurrentBlock = true);
 
 	void			RemoveLine(int nLineIndex);
 	void			RemoveSelectedText();
@@ -235,13 +221,10 @@ protected:
 	
 	bool			MoveCaretLeft();
 	bool			MoveCaretRight();
-	void			OnCaretMove();
-	void			OnCaretMove(bool isShiftPressed);
 	void			UpdateGoalPos();
 
 	bool			IsWordSeparator(wchar_t ch) const;
 	bool			IsCaretAtWordBoundary() const;
-	void			UpdateViewsCaretPosition();
 
 protected:
 	COLORREF		m_InlineRemovedBk;
@@ -294,11 +277,9 @@ protected:
 	HICON			m_hLineEndingLF;
 
 	LOGFONT			m_lfBaseFont;
-	static const int fontsCount = 8;
-	CFont *			m_apFonts[fontsCount];
+	CFont *			m_apFonts[8];
 	CString			m_sConflictedText;
 	CString			m_sNoLineNr;
-	CString			m_sMarkedWord;
 
 	CBitmap *		m_pCacheBitmap;
 	CDC *			m_pDC;
@@ -316,45 +297,6 @@ protected:
 	static CBaseView * m_pwndLeft;		///< Pointer to the left view. Must be set by the CLeftView parent class.
 	static CBaseView * m_pwndRight;		///< Pointer to the right view. Must be set by the CRightView parent class.
 	static CBaseView * m_pwndBottom;	///< Pointer to the bottom view. Must be set by the CBottomView parent class.
-
-	UINT GetMenuFlags(DiffStates state) const;
-	void AddCutCopyAndPaste(CMenu& popup);
-	void CompensateForKeyboard(CPoint& point);
-	static HICON LoadIcon(WORD iconId);
-	void ReleaseBitmap();
-
-	typedef struct linecolors_t
-	{
-		COLORREF text;
-		COLORREF background;
-	};
-
-	class LineColors : public std::map<int, linecolors_t>
-	{
-	public:
-		void SetColor(int pos, COLORREF f, COLORREF b) 
-		{
-			linecolors_t c;
-			c.text = f;
-			c.background = b;
-			(*this)[pos] = c;
-		}
-
-		void SetColor(int pos)
-		{
-			int backpos = pos - 1;
-			std::map<int, linecolors_t>::const_iterator foundIt;
-			while ((backpos >= 0)&&((foundIt = this->find(backpos)) == this->end()))
-			{
-				backpos--;
-			}
-			backpos--;
-			while ((backpos >= 0)&&((foundIt = this->find(backpos)) == this->end()))
-			{
-				backpos--;
-			}
-			linecolors_t c = foundIt->second;
-			(*this)[pos] = c;
-		}
-	};
 };
+
+

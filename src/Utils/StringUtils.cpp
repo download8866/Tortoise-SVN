@@ -409,28 +409,11 @@ bool CStringUtils::ReadStringFromTextFile(const CString& path, CString& text)
 		text = CUnicodeUtils::GetUnicode(filecontent);
 		file.Close();
 	} 
-	catch (CFileException* pE)
+	catch (CFileException* /*pE*/)
 	{
 		text.Empty();
-		pE->Delete();
 	}
 	return true;
-}
-
-int CStringUtils::GetMatchingLength (const CString& lhs, const CString& rhs)
-{
-	int lhsLength = lhs.GetLength();
-	int rhsLength = rhs.GetLength();
-	int maxResult = min (lhsLength, rhsLength);
-
-	LPCTSTR pLhs = lhs;
-	LPCTSTR pRhs = rhs;
-
-	for (int i = 0; i < maxResult; ++i)
-		if (pLhs[i] != pRhs[i])
-			return i;
-
-	return maxResult;
 }
 
 #endif // #ifdef _MFC_VER
@@ -445,7 +428,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	if (bUTF8)
 	{
 		std::string buf = CUnicodeUtils::StdGetUTF8(text);
-		if (!WriteFile(hFile, buf.c_str(), (DWORD)buf.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, buf.c_str(), buf.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -453,7 +436,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	}
 	else
 	{
-		if (!WriteFile(hFile, text.c_str(), (DWORD)text.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, text.c_str(), text.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -463,22 +446,10 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	return true;
 }
 
-void CStringUtils::PipesToNulls(TCHAR* buffer, size_t length )
-{
-	TCHAR* ptr = buffer + length;
-	while (ptr != buffer)
-	{
-		if (*ptr == '|')
-			*ptr = '\0';
-		ptr--;
-	}
-}
-
-
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
 
 
-#if defined(_DEBUG) && defined(CSTRING_AVAILABLE)
+#if defined(_DEBUG)
 // Some test cases for these classes
 static class StringUtilsTest
 {

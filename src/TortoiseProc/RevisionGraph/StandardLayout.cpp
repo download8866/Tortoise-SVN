@@ -318,7 +318,7 @@ void CStandardLayout::CreateTexts()
             size_t visibleElementCount = info.node->GetPath().GetDepth() 
                                        - info.skipStartPathElements
                                        - info.skipTailPathElements;
-            for (index_t k = (index_t)visibleElementCount; k > 0; --k)
+            for (index_t k = visibleElementCount; k > 0; --k)
                 texts.push_back (STextInfo (i, k));
         }
     }
@@ -348,7 +348,8 @@ void CStandardLayout::CalculateTreeBoundingRects()
     // initialize with empty rect
 
     trees.resize (graph->GetRootCount());
-	std::fill_n (trees.begin(), graph->GetRootCount(), CRect(0, 0, 0, 0));
+    for (size_t i = 0, count = graph->GetRootCount(); i < count; ++i)
+        trees[i] = CRect (0, 0, 0, 0);
 
     for (size_t i = 0, count = nodes.size(); i < count; ++i)
     {

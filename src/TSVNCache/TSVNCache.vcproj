@@ -241,6 +241,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -323,6 +324,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -455,10 +457,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SVNTrace.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\Utils\SysInfo.cpp"
 				>
 			</File>
@@ -550,10 +548,6 @@
 			</File>
 			<File
 				RelativePath=".\SVNStatusCache.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\SVNTrace.h"
 				>
 			</File>
 			<File

@@ -206,7 +206,7 @@ S& operator<< (S& stream, const std::vector<V>& data)
 	// (don't use iterators here as they come with some index checking overhead)
 
 	if (count > 0)
-		for ( const V* iter = &data.front(), *end = iter + count
+		for ( const V* iter = &data.at(0), *end = iter + count
 			; iter != end
 			; ++iter)
 		{
@@ -220,33 +220,4 @@ S& operator<< (S& stream, const std::vector<V>& data)
 	stream.AutoClose();
 
 	return stream;
-}
-
-
-template<class S, class T, class V>
-S* WriteStream (S* stream, const std::vector<T>* data, V T::*member)
-{
-    // write total entry count and entries
-
-    size_t count = data->size();
-    stream->AddSizeValue (count);
-
-    // efficiently add all entries
-    // (don't use iterators here as they come with some index checking overhead)
-
-    if (count > 0)
-        for ( const T* iter = &data->front(), *end = iter + count
-            ; iter != end
-            ; ++iter)
-        {
-            stream->Add ((typename S::value_type)((*iter).*member));
-        }
-
-
-    // just close the stream 
-    // (i.e. flush to disk and empty internal buffers)
-
-    stream->AutoClose();
-
-    return stream;
 }

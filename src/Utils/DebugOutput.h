@@ -55,18 +55,16 @@ public:
     }
  
 private:
-	CTraceToOutputDebugString() 
+	CTraceToOutputDebugString()
 	{
-		m_LastTick = GetTickCount();
-		m_bActive = !!CRegStdDWORD(_T("Software\\TortoiseSVN\\DebugOutputString"), FALSE);
+		m_bActive = !!CRegStdDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE);
 	}
 	~CTraceToOutputDebugString()
 	{
 		delete m_pInstance;
 	}
 
-	DWORD m_LastTick;
-	bool	m_bActive;
+	bool m_bActive;
 	static CTraceToOutputDebugString * m_pInstance;
 
 	// Non Unicode output helper
@@ -85,18 +83,4 @@ private:
         _vsnwprintf_s(szBuffer, 1024, _countof(szBuffer), pszFormat, args);
         OutputDebugStringW(szBuffer);
     }
-
-	bool IsActive()
-	{
-#ifdef DEBUG
-		return true;
-#else
-		if (GetTickCount() - m_LastTick > 10000)
-		{
-			m_LastTick = GetTickCount();
-			m_bActive = !!CRegStdDWORD(_T("Software\\TortoiseSVN\\DebugOutputString"), FALSE);
-		}
-		return m_bActive;
-#endif
-	}
 };

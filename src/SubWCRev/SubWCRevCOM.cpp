@@ -36,7 +36,6 @@
 #pragma warning(pop)
 #include "Register.h"
 #include "UnicodeUtils.h"
-#include "auto_buffer.h"
 
 STDAPI DllRegisterServer();
 STDAPI DllUnregisterServer();
@@ -144,9 +143,6 @@ SubWCRev::~SubWCRev()
 //
 HRESULT __stdcall SubWCRev::QueryInterface(const IID& iid, void** ppv)
 {    
-	if(ppv == 0)
-		return E_POINTER;
-
 	if (iid == IID_IUnknown || iid == IID_ISubWCRev || iid == IID_IDispatch)
 	{
 		*ppv = static_cast<ISubWCRev*>(this) ; 
@@ -222,24 +218,27 @@ HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL
 
 HRESULT __stdcall SubWCRev::get_Revision(/*[out, retval]*/VARIANT* rev)
 {
-	return LongToVariant(SubStat.CmtRev, rev);
+	rev->vt = VT_I4;
+	rev->lVal = SubStat.CmtRev;
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_MinRev(/*[out, retval]*/VARIANT* rev)
 {
-	return LongToVariant(SubStat.MinRev, rev);
+	rev->vt = VT_I4;
+	rev->lVal = SubStat.MinRev;
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_MaxRev(/*[out, retval]*/VARIANT* rev)
 {
-	return LongToVariant(SubStat.MaxRev, rev);
+	rev->vt = VT_I4;
+	rev->lVal = SubStat.MaxRev;
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_Date(/*[out, retval]*/VARIANT* date)
 {
-	if(date == 0)
-		return E_POINTER;
-
 	date->vt = VT_BSTR;
 	
 	WCHAR destbuf[32];
@@ -249,77 +248,89 @@ HRESULT __stdcall SubWCRev::get_Date(/*[out, retval]*/VARIANT* date)
 		_stprintf_s(destbuf, 2, _T(""));
 	}
 	
-	date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
+	date->bstrVal = SysAllocStringLen(destbuf, _tcslen(destbuf));
 	return result;
 }
 
 HRESULT __stdcall SubWCRev::get_Url(/*[out, retval]*/VARIANT* url)
 {
-	return Utf8StringToVariant(SubStat.Url, url);
+	url->vt = VT_BSTR;
+
+	WCHAR * buf;
+	int len = strlen(SubStat.Url);
+	buf = new WCHAR[len*4 + 1];
+	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
+	MultiByteToWideChar(CP_UTF8, 0, SubStat.Url, -1, buf, len*4);
+	url->bstrVal = SysAllocString(buf);
+	delete [] buf;
+
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_Author(/*[out, retval]*/VARIANT* author)
 {
-	return Utf8StringToVariant(SubStat.Author, author);
-}
+	author->vt = VT_BSTR;
 
-HRESULT SubWCRev::Utf8StringToVariant(const char* string, VARIANT* result )
-{
-	if(result == 0)
-		return E_POINTER;
-
-	result->vt = VT_BSTR;
-	const size_t len = strlen(string);
-	auto_buffer<WCHAR> buf(len*4 + 1);
+	WCHAR * buf;
+	int len = strlen(SubStat.Author);
+	buf = new WCHAR[len*4 + 1];
 	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
-	MultiByteToWideChar(CP_UTF8, 0, string, -1, buf, (int)len*4);
-	result->bstrVal = SysAllocString(buf);
+	MultiByteToWideChar(CP_UTF8, 0, SubStat.Author, -1, buf, len*4);
+	author->bstrVal = SysAllocString(buf);
+	delete [] buf;
+
 	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_HasModifications(VARIANT_BOOL* modifications)
 {
-	return BoolToVariantBool(SubStat.HasMods, modifications);
+	if (SubStat.HasMods)
+		*modifications = VARIANT_TRUE;
+	else
+		*modifications = VARIANT_FALSE;
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_IsSvnItem(/*[out, retval]*/VARIANT_BOOL* svn_item)
 {
-	return BoolToVariantBool(SubStat.bIsSvnItem, svn_item);
+	if (SubStat.bIsSvnItem)
+		*svn_item = VARIANT_TRUE;
+	else
+		*svn_item = VARIANT_FALSE;
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_NeedsLocking(/*[out, retval]*/VARIANT_BOOL* needs_locking)
 {
-	return BoolToVariantBool(SubStat.LockData.NeedsLocks, needs_locking);
+	if(false == SubStat.LockData.NeedsLocks)
+	{
+		*needs_locking = VARIANT_FALSE;
+	}
+	else
+	{
+		*needs_locking = VARIANT_TRUE;
+	}
+	
+	return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_IsLocked(/*[out, retval]*/VARIANT_BOOL* locked)
 {
-	return BoolToVariantBool(SubStat.LockData.IsLocked, locked);
-}
-
-HRESULT SubWCRev::BoolToVariantBool(BOOL value, VARIANT_BOOL* result)
-{
-	if(result == 0)
-		return E_POINTER;
-	*result = (value == 0) ? VARIANT_FALSE : VARIANT_TRUE;
+	if(false == SubStat.LockData.IsLocked)
+	{
+		*locked = VARIANT_FALSE;
+	}
+	else
+	{
+		*locked = VARIANT_TRUE;
+	}
+	
 	return S_OK;
 }
 
-HRESULT SubWCRev::LongToVariant(LONG value, VARIANT* result)
-{
-	if(result == 0)
-		return E_POINTER;
-
-	result->vt = VT_I4;
-	result->lVal = value;
-	return S_OK;
-}
 	
 HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
 {
-	if(date == 0)
-		return E_POINTER;
-
 	date->vt = VT_BSTR;
 
 	WCHAR destbuf[32];
@@ -338,21 +349,18 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
 		}
 	}
 	
-	date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
+	date->bstrVal = SysAllocStringLen(destbuf, _tcslen(destbuf));
 	return result;
 }
 
 	
 HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
-{
-	if(owner == 0)
-		return E_POINTER;
-
+{	
 	owner->vt = VT_BSTR;
 
 	HRESULT result;
 	WCHAR * buf;
-	size_t len;
+	int len;
 
 	if(FALSE == IsLockDataAvailable())
 	{
@@ -370,7 +378,7 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
 	
 	if(TRUE == SubStat.LockData.NeedsLocks)
 	{
-		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, (int)len*4);
+		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, len*4);
 	}
 
 	owner->bstrVal = SysAllocString(buf);
@@ -382,13 +390,11 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
 
 HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
 {	
-	if(comment == 0)
-		return E_POINTER;
-
 	comment->vt = VT_BSTR;
 
 	HRESULT result;
-	size_t len;
+	WCHAR * buf;
+	int len;
 
 	if(FALSE == IsLockDataAvailable())
 	{
@@ -401,12 +407,12 @@ HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
 		result = S_OK;
 	}
 
-	WCHAR* buf = new WCHAR[len*4 + 1];
+	buf = new WCHAR[len*4 + 1];
 	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
 	
 	if(TRUE == SubStat.LockData.NeedsLocks)
 	{
-		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, (int)len*4);
+		MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, len*4);
 	}
 
 	comment->bstrVal = SysAllocString(buf);
@@ -449,19 +455,17 @@ BOOL SubWCRev::IsLockDataAvailable()
 	return bResult;
 }
 
+
 HRESULT SubWCRev::LoadTypeInfo(ITypeInfo ** pptinfo, const CLSID &libid, const CLSID &iid, LCID lcid)
 {
-	if(pptinfo == 0)
-		return E_POINTER;
-
-	
+	HRESULT hr;
 	LPTYPELIB ptlib = NULL;
 	LPTYPEINFO ptinfo = NULL;
 
 	*pptinfo = NULL;
 
 	// Load type library.
-	HRESULT hr = LoadRegTypeLib(libid, 1, 0, lcid, &ptlib);
+	hr = LoadRegTypeLib(libid, 1, 0, lcid, &ptlib);
 	if (FAILED(hr))
 		return hr;
 
@@ -475,23 +479,16 @@ HRESULT SubWCRev::LoadTypeInfo(ITypeInfo ** pptinfo, const CLSID &libid, const C
 
 	ptlib->Release();
 	*pptinfo = ptinfo;
-	return S_OK;
+	return NOERROR;
 }
 
 HRESULT __stdcall SubWCRev::GetTypeInfoCount(UINT* pctinfo)
 {
-	if(pctinfo == 0)
-		return E_POINTER;
-
 	*pctinfo = 1;
 	return S_OK;
 }
-
 HRESULT __stdcall SubWCRev::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo** pptinfo)
 {
-	if(pptinfo == 0)
-		return E_POINTER;
-
 	*pptinfo = NULL;
 
 	if(itinfo != 0)
@@ -501,7 +498,7 @@ HRESULT __stdcall SubWCRev::GetTypeInfo(UINT itinfo, LCID /*lcid*/, ITypeInfo** 
 	// typeinfo for this object.
 	*pptinfo = m_ptinfo;
 
-	return S_OK;
+	return NOERROR;
 }
 
 HRESULT __stdcall SubWCRev::GetIDsOfNames(REFIID /*riid*/, LPOLESTR* rgszNames, UINT cNames,
@@ -509,7 +506,6 @@ HRESULT __stdcall SubWCRev::GetIDsOfNames(REFIID /*riid*/, LPOLESTR* rgszNames, 
 {
 	return DispGetIDsOfNames(m_ptinfo, rgszNames, cNames, rgdispid);
 }
-
 HRESULT __stdcall SubWCRev::Invoke(DISPID dispidMember, REFIID /*riid*/,
 									  LCID /*lcid*/, WORD wFlags, DISPPARAMS* pdispparams, VARIANT* pvarResult,
 									  EXCEPINFO* pexcepinfo, UINT* puArgErr)
@@ -525,9 +521,6 @@ HRESULT __stdcall SubWCRev::Invoke(DISPID dispidMember, REFIID /*riid*/,
 //
 HRESULT __stdcall CFactory::QueryInterface(const IID& iid, void** ppv)
 {    
-	if(ppv == 0)
-		return E_POINTER;
-
 	if ((iid == IID_IUnknown) || (iid == IID_IClassFactory))
 	{
 		*ppv = static_cast<IClassFactory*>(this) ; 
@@ -598,6 +591,7 @@ HRESULT __stdcall CFactory::LockServer(BOOL bLock)
 	}
 	return S_OK ;
 }
+
 
 ///////////////////////////////////////////////////////////
 //
@@ -672,9 +666,10 @@ void CoEXEUninitialize(DWORD nToken)
 //
 STDAPI DllRegisterServer()
 {
+
 	g_hModule = ::GetModuleHandle(NULL);
 
-	HRESULT hr = RegisterServer(g_hModule, 
+	HRESULT hr= RegisterServer(g_hModule, 
 		CLSID_SubWCRev,
 		_T("SubWCRev Server Object"),
 		_T("SubWCRev.object"),
@@ -692,9 +687,10 @@ STDAPI DllRegisterServer()
 //
 STDAPI DllUnregisterServer()
 {
+
 	g_hModule = ::GetModuleHandle(NULL);
 
-	HRESULT hr = UnregisterServer(CLSID_SubWCRev,
+	HRESULT hr= UnregisterServer(CLSID_SubWCRev,
 		_T("SubWCRev.object"),
 		_T("SubWCRev.object.1"),
 		LIBID_LibSubWCRev) ;

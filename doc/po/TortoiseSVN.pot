@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2009-10-16 22:51 +0000\n"
+"POT-Creation-Date: 2009-08-30 23:10 +0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1225,14 +1225,6 @@ msgid "Sample hook scripts can be found in the <filename>hooks</filename> direct
 msgstr ""
 
 #.(title)
-msgid "Overriding Hooks"
-msgstr ""
-
-#.(para)
-msgid "If a hook script rejects your commit then its decision is final. But you can build an override mechanism into the script itself using the <emphasis>Magic Word</emphasis> technique. If the script wants to reject the operation it first scans the log message for a special pass phrase, either a fixed phrase or perhaps the filename with a prefix. If it finds the magic word then it allows the commit to proceed. If the phrase is not found then it can block the commit with a message like <quote>You didn't say the magic word</quote> :-)"
-msgstr ""
-
-#.(title)
 msgid "Checkout Links"
 msgstr ""
 
@@ -1926,7 +1918,7 @@ msgid "Normally the <filename>privkey.pem</filename> file is created automatical
 msgstr ""
 
 #.(para)
-msgid "Next type the commands <screen>\nbin\\openssl rsa -in conf\\privkey.pem -out conf\\server.key\n</screen> and (on one line) <screen>\nbin\\openssl req -new -key conf\\server.key -out conf\\server.csr \\\n-config conf\\openssl.cnf\n</screen> and then (on one line) <screen>\nbin\\openssl x509 -in conf\\server.csr -out conf\\server.cert\n                 -req -signkey conf\\server.key -days 4000\n</screen> This will create a certificate which will expire in 4000 days. And finally enter (on one line): <screen>\nbin\\openssl x509 -in conf\\server.cert -out conf\\server.der.crt\n                 -outform DER\n</screen> These commands created some files in the Apache <filename>conf</filename> folder (<filename>server.der.crt</filename>, <filename>server.csr</filename>, <filename>server.key</filename>, <filename>.rnd</filename>, <filename>privkey.pem</filename>, <filename>server.cert</filename>)."
+msgid "Next type the commands <screen>\nbin\\openssl rsa -in conf\\privkey.pem -out conf\\server.key\n</screen> and (on one line) <screen>\nbin\\openssl req -new -key conf\\server.key -out conf\\server.csr \\\n-config conf\\openssl.cnf\n</screen> and then (on one line) <screen>\nbin\\openssl x509 -in conf\\server.csr -out conf\\server.crt\n                 -req -signkey conf\\server.key -days 4000\n</screen> This will create a certificate which will expire in 4000 days. And finally enter (on one line): <screen>\nbin\\openssl x509 -in conf\\server.cert -out conf\\server.der.crt\n                 -outform DER\n</screen> These commands created some files in the Apache <filename>conf</filename> folder (<filename>server.der.crt</filename>, <filename>server.csr</filename>, <filename>server.key</filename>, <filename>.rnd</filename>, <filename>privkey.pem</filename>, <filename>server.cert</filename>)."
 msgstr ""
 
 #.(para)
@@ -2588,16 +2580,6 @@ msgstr ""
 #.(para)
 #.(para)
 msgid "Sometimes files get renamed outside of Subversion, and they show up in the file list as a missing file and an unversioned file. To avoid losing the history you need to notify Subversion about the connection. Simply select both the old name (missing) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Move</guimenuitem></menuchoice> to pair the two files as a rename."
-msgstr ""
-
-#.(title)
-#.(title)
-msgid "Repairing External Copies"
-msgstr ""
-
-#.(para)
-#.(para)
-msgid "If you made a copy of a file but forgot to use the Subversion command to do so, you can repair that copy so the new file doesn't lose its history. Simply select both the old name (normal or modified) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Copy</guimenuitem></menuchoice> to pair the two files as a copy."
 msgstr ""
 
 #.(title)
@@ -3929,7 +3911,7 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr ""
 
 #.(para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
 msgstr ""
 
 #.(title)
@@ -4006,10 +3988,6 @@ msgstr ""
 
 #.(para)
 msgid "Click on the search icon to select which information you want to search in, and to choose <emphasis>regex</emphasis> mode. Normally you will only need a simple text search, but if you need to more flexible search terms, you can use regular expressions. If you hover the mouse over the box, a tooltip will give hints on how to use the regex functions. You can also find online documentation and a tutorial at <ulink url=\"http://www.regular-expressions.info/\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink>. The filter works by checking whether your filter string matches the log entries, and then only those entries which <emphasis>match</emphasis> the filter string are shown."
-msgstr ""
-
-#.(para)
-msgid "If you don't use regex mode, you can enter several strings to search for, and only those log entries which match all of your filter words will be shown."
 msgstr ""
 
 #.(para)
@@ -4919,10 +4897,6 @@ msgstr ""
 msgid "undo"
 msgstr ""
 
-#.(primary)
-msgid "clean"
-msgstr ""
-
 #.(title)
 msgid "Revert dialog"
 msgstr ""
@@ -4942,10 +4916,6 @@ msgstr ""
 #.(para)
 #.(para)
 msgid "The columns in this dialog can be customized in the same way as the columns in the <guilabel>Check for modifications</guilabel> dialog. Read <xref linkend=\"tsvn-dug-wcstatus-2\"/> for further details."
-msgstr ""
-
-#.(para)
-msgid "Since revert is sometimes used to clean up a working copy, there is an extra button which allows you to delete unversioned items as well. When you click this button another dialog comes up listing all the unversioned items, which you can then select for deletion."
 msgstr ""
 
 #.(title)
@@ -5248,18 +5218,6 @@ msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everythi
 msgstr ""
 
 #.(para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr ""
-
-#.(para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr ""
-
-#.(para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr ""
-
-#.(para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
 msgstr ""
 
@@ -5289,9 +5247,7 @@ msgid "These special project properties must be set on <emphasis>folders</emphas
 msgstr ""
 
 #.(para)
-#.(para)
-#.(para)
-msgid "For project properties <emphasis>only</emphasis>, i.e. <literal>tsvn:</literal>, <literal>bugtraq:</literal> and <literal>webviewer:</literal> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgid "For project properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
 msgstr ""
 
 #.(para)
@@ -5568,7 +5524,7 @@ msgid "To be able to work with your freshly generated branch or tag you have sev
 msgstr ""
 
 #.(para)
-msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they are not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
+msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
 msgstr ""
 
 #.(para)
@@ -5793,10 +5749,6 @@ msgstr ""
 
 #.(para)
 msgid "You can specify the way that line ending and whitespace changes are handled. These options are described in <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/>. The default behaviour is to treat all whitespace and line-end differences as real changes to be merged."
-msgstr ""
-
-#.(para)
-msgid "The checkbox marked <guilabel>Force the merge</guilabel> is used to avoid a tree conflict where an incoming delete affects a file that is either modified locally or not versioned at all. If the file is deleted then there is no way to recover it, which is why that option is not checked by default."
 msgstr ""
 
 #.(para)
@@ -6148,7 +6100,7 @@ msgid "In order to apply a patch file to your working copy, you need to have at 
 msgstr ""
 
 #.(para)
-msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog. Note that this option only appears if you saved the patch to the clipboard using <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Create Patch...</guimenuitem></menuchoice>. Copying a patch to the clipboard from another app will not make the button appear."
+msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog."
 msgstr ""
 
 #.(para)
@@ -7052,12 +7004,17 @@ msgstr ""
 msgid "These properties must be set on folders for the system to work. When you commit a file or folder the properties are read from that folder. If the properties are not found there, TortoiseSVN will search upwards through the folder tree to find them until it comes to an unversioned folder, or the tree root (eg. <literal>C:\\</literal>) is found. If you can be sure that each user checks out only from e.g <filename>trunk/</filename> and not some sub-folder, then it's enough if you set the properties on <filename>trunk/</filename>. If you can't be sure, you should set the properties recursively on each sub-folder. A property setting deeper in the project hierarchy overrides settings on higher levels (closer to <filename>trunk/</filename>)."
 msgstr ""
 
+#.(para)
+#.(para)
+msgid "For <literal>tsvn:</literal> properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgstr ""
+
 #.(title)
 msgid "No Issue Tracker Information from Repository Browser"
 msgstr ""
 
 #.(para)
-msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
+msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
 msgstr ""
 
 #.(para)
@@ -7129,7 +7086,7 @@ msgid "No Repo Viewer Links from Repository Browser"
 msgstr ""
 
 #.(para)
-msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
+msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
 msgstr ""
 
 #.(title)
@@ -7390,10 +7347,6 @@ msgstr ""
 
 #.(para)
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
-msgstr ""
-
-#.(para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
 msgstr ""
 
 #.(term)
@@ -8629,7 +8582,7 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr ""
 
 #.(para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
 msgstr ""
 
 #.(term)
@@ -9062,15 +9015,6 @@ msgstr ""
 
 #.(para)
 msgid "The following example shows how the interface might be used. <placeholder-1/>"
-msgstr ""
-
-#.(programlisting)
-#, no-wrap
-msgid "\nusing LibSubWCRev;\nSubWCRev sub = new SubWCRev();\nsub.GetWCInfo(\"C:\\\\PathToMyFile\\\\MyFile.cc\", true, true);\nif (sub.IsSvnItem == true)\n{\n    MessageBox.Show(\"versioned\");\n}\nelse\n{\n    MessageBox.Show(\"not versioned\");\n}\n"
-msgstr ""
-
-#.(para)
-msgid "The following listing is an example on how to use the SubWCRev COM object from C#: <placeholder-1/>"
 msgstr ""
 
 #.(title)
@@ -9861,7 +9805,6 @@ msgstr ""
 
 #.(primary)
 #.(primary)
-#.(primary)
 msgid "automation"
 msgstr ""
 
@@ -9880,10 +9823,6 @@ msgstr ""
 
 #.(para)
 msgid "TortoiseSVN uses temporary files to pass multiple arguments between the shell extension and the main program. From TortoiseSVN 1.5.0 on and later, <option>/notempfile</option> parameter is obsolete and there is no need to add it anymore."
-msgstr ""
-
-#.(para)
-msgid "You can also specify a file which contains a list of paths, separated by newlines. The file must be in UTF-16 format. If you pass such a file, use <option>/pathfile</option> instead of <option>/path</option>. To have TortoiseProc delete that file after the command is finished, you can pass the parameter <option>/deletepathfile</option>."
 msgstr ""
 
 #.(para)
@@ -9911,7 +9850,11 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr ""
 
 #.(para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr ""
+
+#.(para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
 msgstr ""
 
 #.(para)
@@ -9981,48 +9924,8 @@ msgstr ""
 msgid "/strict"
 msgstr ""
 
-#.(option)
-msgid "/findstring:\"filterstring\""
-msgstr ""
-
-#.(option)
-msgid "/findtext"
-msgstr ""
-
-#.(option)
-msgid "/findregex"
-msgstr ""
-
-#.(option)
-msgid "/findtype:X"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr ""
-
-#.(para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr ""
-
 #.(entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> enables the 'stop-on-copy' checkbox, <placeholder-5/> fills in the filter text, <placeholder-6/> forces the filter to use text, not regex, or <placeholder-7/> forces the filter to use regex, not simple text search, and <placeholder-8/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-9/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
 msgstr ""
 
 #.(option)
@@ -10089,12 +9992,8 @@ msgstr ""
 msgid "Reverts local modifications of a working copy. The <placeholder-1/> tells which items to revert."
 msgstr ""
 
-#.(option)
-msgid "/noui"
-msgstr ""
-
 #.(entry)
-msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from popping up (either telling about the cleanup being finished or showing an error message)."
+msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>."
 msgstr ""
 
 #.(option)
@@ -10174,12 +10073,8 @@ msgstr ""
 msgid "/blame"
 msgstr ""
 
-#.(option)
-msgid "/line:xxx"
-msgstr ""
-
 #.(entry)
-msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-9/> specifies the line to jump to when the diff is shown."
+msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions."
 msgstr ""
 
 #.(para)
@@ -10202,16 +10097,8 @@ msgstr ""
 msgid "Opens the help file."
 msgstr ""
 
-#.(option)
-msgid "/remote"
-msgstr ""
-
-#.(guilabel)
-msgid "Check repository"
-msgstr ""
-
 #.(entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
 msgstr ""
 
 #.(option)
@@ -10289,47 +10176,6 @@ msgstr ""
 
 #.(para)
 msgid "Examples (which should be entered on one line): <screen>\nTortoiseProc.exe /command:commit\n                 /path:\"c:\\svn_wc\\file1.txt*c:\\svn_wc\\file2.txt\"\n                 /logmsg:\"test log message\" /closeonend:0\n\nTortoiseProc.exe /command:update /path:\"c:\\svn_wc\\\" /closeonend:0\n\nTortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n                 /startrev:50 /endrev:60 /closeonend:0\n</screen>"
-msgstr ""
-
-#.(title)
-msgid "Tsvncmd URL handler"
-msgstr ""
-
-#.(primary)
-msgid "URL handler"
-msgstr ""
-
-#.(para)
-msgid "Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr ""
-
-#.(para)
-msgid "TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be used to create hyperlinks that execute TortoiseSVN commands. The commands and parameters are the same as when automating TortoiseSVN from the command line."
-msgstr ""
-
-#.(para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr ""
-
-#.(literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr ""
-
-#.(para)
-msgid "with <literal>cmd</literal> being one of the allowed commands and with <literal>parameter</literal> being a parameter like <literal>path</literal> or <literal>revision</literal>, depending on the command used."
-msgstr ""
-
-#.(para)
-msgid "The following commands are allowed with <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-msgstr ""
-
-#.(programlisting)
-#, no-wrap
-msgid "\n&lt;a href=\"tsvncmd:command:showcompare?\nurl1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\nurl2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\nrevision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-
-#.(para)
-msgid "An example URL might look like this: <placeholder-1/>"
 msgstr ""
 
 #.(title)
@@ -10870,10 +10716,6 @@ msgstr ""
 
 #.(para)
 msgid "Much of the information here comes from a tutorial provided by Marc Logemann, which can be found at <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Additional information on setting up a Windows server was provided by Thorsten Müller. Thanks guys!"
-msgstr ""
-
-#.(para)
-msgid "You can also watch a video tutorial created by Maximo Migliari which takes you through all the important steps. Watch it on <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
 msgstr ""
 
 #.(title)

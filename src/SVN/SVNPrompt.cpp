@@ -28,8 +28,7 @@
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "TSVNAuth.h"
-#include "auto_buffer.h"
-#include "FormatMessageWrapper.h"
+
 
 SVNPrompt::SVNPrompt()
 {
@@ -66,6 +65,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
 	svn_auth_get_username_provider (&provider, pool);
 	APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
+	/* The server-cert, client-cert, and client-cert-password providers. */
 	/* The server-cert, client-cert, and client-cert-password providers. */
 	svn_auth_get_platform_specific_provider (&provider, "windows", "ssl_server_trust", pool);
 	if (provider)
@@ -117,7 +117,21 @@ BOOL SVNPrompt::Prompt(CString& info, BOOL hide, CString promptphrase, BOOL& may
 	if (nResponse == IDABORT)
 	{
 		//the prompt dialog box could not be shown!
-		ShowErrorMessage();
+		LPVOID lpMsgBuf;
+		FormatMessage( 
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM | 
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR) &lpMsgBuf,
+			0,
+			NULL 
+		);
+		MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION );
+		// Free the buffer.
+		LocalFree( lpMsgBuf );
 	}
 	return FALSE;
 }
@@ -141,15 +155,23 @@ BOOL SVNPrompt::SimplePrompt(CString& username, CString& password, const CString
 	if (nResponse == IDABORT)
 	{
 		//the prompt dialog box could not be shown!
-		ShowErrorMessage();
+		LPVOID lpMsgBuf;
+		FormatMessage( 
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM | 
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR) &lpMsgBuf,
+			0,
+			NULL 
+		);
+		MessageBox( NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION );
+		// Free the buffer.
+		LocalFree( lpMsgBuf );
 	}
 	return FALSE;
-}
-
-void SVNPrompt::ShowErrorMessage()
-{
-	CFormatMessageWrapper errorDetails;
-	MessageBox( NULL, errorDetails, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION );
 }
 
 svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton, const char * realm, svn_boolean_t may_save, apr_pool_t *pool)
@@ -299,9 +321,16 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
 	CString sFilter;
 	sFilter.LoadString(IDS_CERTIFICATESFILEFILTER);
-	auto_buffer<TCHAR> pszFilters(sFilter.GetLength()+4);
+	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+	// Replace '|' delimiters with '\0's
+	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+	while (ptr != pszFilters)
+	{
+		if (*ptr == '|')
+			*ptr = '\0';
+		ptr--;
+	}
 	ofn.lpstrFilter = pszFilters;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -350,6 +379,7 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
 	}
 	else
 		*cred = NULL;
+	delete [] pszFilters;
 	if (svn->m_app)
 		svn->m_app->DoWaitCursor(0);
 	return SVN_NO_ERROR;

@@ -22,7 +22,6 @@
 #include "SVNPrompt.h"
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
-#include "JobScheduler.h"
 
 class CFullGraphNode;
 
@@ -146,7 +145,7 @@ private:
 
 	bool						cancelled;
 
-    CCachedLogInfo*             cache;
+    const CCachedLogInfo*       cache;
 	std::auto_ptr<CSVNLogQuery> svnQuery;
 	std::auto_ptr<CCacheLogQuery> query;
 
@@ -164,26 +163,19 @@ private:
 	SCopyInfo**		            copyFromRelation;
 	SCopyInfo**		            copyFromRelationEnd;
 
-    /// asynchronuous execution queues
-    /// (one per independent resource)
-
-    async::CJobScheduler        diskIOScheduler;
-    async::CJobScheduler        cpuLoadScheduler;
-
     /// SVN callback
 
 	static svn_error_t*			cancel(void *baton);
 
     /// utility methods
 
-    bool                        ClearCopyInfo();
-    void                        QueryWCRevision (bool doQuery, CString path);
+    void                        ClearCopyInfo();
 	void						AnalyzeRevisionData();
 	void						BuildForwardCopies();
 	
 	/// implement ILogReceiver
 
-	void ReceiveLog ( TChangedPaths* changes
+	void ReceiveLog ( LogChangedPathArray* changes
 					, svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps

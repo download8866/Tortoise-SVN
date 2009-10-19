@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,24 +26,20 @@
 //
 ///////////////////////////////////////////////////////////////
 
-#if (defined (_WIN64) || (__WORDSIZE == 64)) && !defined(_64BITS)
-#define _64BITS
-#endif
-
 class CHuffmanBase
 {
 public:
 
 	// aliases for 8 and 64 bit chunks
 
-	typedef unsigned long long QWORD;
+	typedef unsigned __int64 QWORD;
 	typedef unsigned char BYTE;
 
 	// encoded data chunk type
 	// value counting chunk type
 	// plain text data chunk type
 
-#ifdef _64BITS
+#ifdef _WIN64
 	typedef QWORD key_type;
 	typedef QWORD count_block_type;
 	typedef DWORD encode_block_type;
@@ -81,11 +77,7 @@ public:
 		// mask to extract MAX_ENCODING_LENGTH bits from a 
 		// chunk of data.
 
-		MAX_KEY_VALUE = (1 << MAX_ENCODING_LENGTH) -1,
-
-        // minimum length of the header
-
-        MIN_HEADER_LENGTH = 2 * sizeof (DWORD) + sizeof (BYTE)
+		MAX_KEY_VALUE = (1 << MAX_ENCODING_LENGTH) -1
 	};
 
 	// utility function that reverses the bit order of a given key

@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
-#include "PathEdit.h"
 
 /**
  * \ingroup TortoiseProc
@@ -47,7 +46,7 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 	int				m_height;
-	CPathEdit		m_FromUrl;
+
 public:
 	CHistoryCombo m_URLCombo;
 	CString m_sToUrl;

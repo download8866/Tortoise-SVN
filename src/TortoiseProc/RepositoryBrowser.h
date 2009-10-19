@@ -18,13 +18,16 @@
 //
 #pragma once
 
+#include <map>
+#include <deque>
+
+#include "resource.h"
 #include "TSVNPath.h"
 #include "RepositoryBar.h"
 #include "StandAloneDlg.h"
 #include "ProjectProperties.h"
-#include "LogDialog\LogDlg.h"
+#include "LogDlg.h"
 #include "HintListCtrl.h"
-#include "RepositoryLister.h"
 
 #define REPOBROWSER_CTRL_MIN_WIDTH	20
 #define REPOBROWSER_FETCHTIMER		101
@@ -34,7 +37,72 @@ using namespace std;
 class CInputLogDlg;
 class CTreeDropTarget;
 class CListDropTarget;
-class CRepositoryBrowserSelection;
+
+/**
+ * \ingroup TortoiseProc
+ * helper class which holds all the information of an item (file or folder)
+ * in the repository. The information gets filled by the svn_client_list()
+ * callback.
+ */
+class CItem
+{
+public:
+	CItem() : kind(svn_node_none)
+		, size(0)
+		, has_props(false)
+		, created_rev(0)
+		, time(0)
+		, is_dav_comment(false)
+		, lock_creationdate(0)
+		, lock_expirationdate(0)
+	{
+	}
+	CItem(const CString& _path, 
+		svn_node_kind_t _kind,
+		svn_filesize_t _size,
+		bool _has_props,
+		svn_revnum_t _created_rev,
+		apr_time_t _time,
+		const CString& _author,
+		const CString& _locktoken,
+		const CString& _lockowner,
+		const CString& _lockcomment,
+		bool _is_dav_comment,
+		apr_time_t _lock_creationdate,
+		apr_time_t _lock_expirationdate,
+		const CString& _absolutepath)
+	{
+		path = _path;
+		kind = _kind;
+		size = _size;
+		has_props = _has_props;
+		created_rev = _created_rev;
+		time = _time;
+		author = _author;
+		locktoken = _locktoken;
+		lockowner = _lockowner;
+		lockcomment = _lockcomment;
+		is_dav_comment = _is_dav_comment;
+		lock_creationdate = _lock_creationdate;
+		lock_expirationdate = _lock_expirationdate;
+		absolutepath = _absolutepath;
+	}
+public:
+	CString				path;
+	svn_node_kind_t		kind;
+	svn_filesize_t		size;
+	bool				has_props;
+	svn_revnum_t		created_rev;
+	apr_time_t			time;
+	CString				author;
+	CString				locktoken;
+	CString				lockowner;
+	CString				lockcomment;
+	bool				is_dav_comment;
+	apr_time_t			lock_creationdate;
+	apr_time_t			lock_expirationdate;
+	CString				absolutepath;			///< unescaped url stripped of repository root
+};
 
 /**
  * \ingroup TortoiseProc
@@ -44,21 +112,13 @@ class CRepositoryBrowserSelection;
 class CTreeItem
 {
 public:
-	CTreeItem() 
-        : children_fetched(false)
-        , has_child_folders(false)
-        , is_external(false) 
-    {
-    }
+	CTreeItem() : children_fetched(false), has_child_folders(false) {}
 
 	CString			unescapedname;
-    SRepositoryInfo repository;
-    CString         url;                        ///< escaped URL
-    CString         logicalPath;                ///< concatenated unescapedname values
-	bool			is_external;                ///< if set, several operations may not be available
+	CString			url;						///< unescaped url
 	bool			children_fetched;			///< whether the contents of the folder are known/fetched or not
-	bool			has_child_folders;
 	deque<CItem>	children;
+	bool			has_child_folders;
 };
 
 
@@ -69,7 +129,6 @@ public:
 class CRepositoryBrowser : public CResizableStandAloneDialog, public SVN, public IRepo
 {
 	DECLARE_DYNAMIC(CRepositoryBrowser)
-friend class CBaseDropTarget;
 friend class CTreeDropTarget;
 friend class CListDropTarget;
 
@@ -87,7 +146,7 @@ public:
 	/// the repository browser will show the content of that url.
 	bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked);
 
-    CString GetRepoRoot() { return m_repository.root; }
+	CString GetRepoRoot() { return m_strReposRoot; }
 
 	enum { IDD = IDD_REPOSITORY_BROWSER };
 
@@ -101,6 +160,7 @@ protected:
 	virtual void OnOK();
 	virtual void OnCancel();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL Cancel() {return m_bCancelled;}
 
 	afx_msg void OnBnClickedHelp();
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
@@ -117,9 +177,7 @@ protected:
 	afx_msg void OnTvnBegindragRepotree(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnBeginrdragRepotree(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
-	afx_msg void OnLvnBeginlabeleditRepolist(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnLvnEndlabeleditRepolist(NMHDR *pNMHDR, LRESULT *pResult);
-	afx_msg void OnTvnBeginlabeleditRepotree(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnEndlabeleditRepotree(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 
@@ -136,48 +194,41 @@ protected:
 	LRESULT OnAfterInitDialog(WPARAM /*wParam*/, LPARAM /*lParam*/);
 	/// draws the bar when the tree and list control are resized
 	void DrawXorBar(CDC * pDC, int x1, int y1, int width, int height);
+	/// callback from the SVN::List() method which stores all the information
+	virtual BOOL ReportList(const CString& path, svn_node_kind_t kind, 
+		svn_filesize_t size, bool has_props, svn_revnum_t created_rev, 
+		apr_time_t time, const CString& author, const CString& locktoken, 
+		const CString& lockowner, const CString& lockcomment, 
+		bool is_dav_comment, apr_time_t lock_creationdate, 
+		apr_time_t lock_expirationdate, const CString& absolutepath);
 
 	/// recursively removes all items from \c hItem on downwards.
 	void RecursiveRemove(HTREEITEM hItem, bool bChildrenOnly = false);
-    /// remove all tree nodes and empty the list view
-    void ClearUI();
 	/// searches the tree item for the specified \c fullurl.
-	HTREEITEM FindUrl(const CString& fullurl);
+	HTREEITEM FindUrl(const CString& fullurl, bool create = true);
 	/// searches the tree item for the specified \c fullurl.
-	HTREEITEM FindUrl(const CString& fullurl, const CString& url, HTREEITEM hItem = TVI_ROOT);
-
-	/// Find and return the node that corresponds to the specified 
-    /// logical \ref path. Add such node (including parents) if it 
-    /// does not exist, yet.
-    HTREEITEM AutoInsert (const CString& path);
-	/// Find and return the sub-node to \ref hParent that follows
-    /// the spec in \ref item. Add such sub-node if it does not
-    /// exist, yet.
-    HTREEITEM AutoInsert (HTREEITEM hParent, const CItem& item);
-    /// Like the previous version but inserts more than one item.
-    void AutoInsert (HTREEITEM hParent, const std::deque<CItem>& items);
-    /// Actual sub-node creation
-    HTREEITEM Insert (HTREEITEM hParent, CTreeItem* parentTreeItem, const CItem& item);
-    /// Sort tree sub-nodes
-    void Sort (HTREEITEM parent);
-
-    void RefreshChildren(CTreeItem * pTreeItem);
-    /**
+	HTREEITEM FindUrl(const CString& fullurl, const CString& url, bool create = true, HTREEITEM hItem = TVI_ROOT);
+	/**
+	 * Refetches the information for \c url. If \c force is true, then the list
+	 * control is refilled again.
+	 * \param recursive if true, the information is fetched recursively.
+	 */
+	bool RefreshNode(const CString& url, bool force = false, bool recursive = false);
+	/**
 	 * Refetches the information for \c hNode. If \c force is true, then the list
 	 * control is refilled again.
+	 * \param recursive if true, the information is fetched recursively.
 	 */
-	bool RefreshNode(HTREEITEM hNode, bool force = false);
+	bool RefreshNode(HTREEITEM hNode, bool force = false, bool recursive = false);
 	/// Fills the list control with all the items in \c pItems.
 	void FillList(deque<CItem> * pItems);
-    /// Open / enter folder for entry number \ref item 
-    void OpenFromList (int item);
 	/// Sets the sort arrow in the list view header according to the currently used sorting.
 	void SetSortArrow();
 	/// called when a drag-n-drop operation starts
 	void OnBeginDrag(NMHDR *pNMHDR);
 	void OnBeginDragTree(NMHDR *pNMHDR);
 	/// called when a drag-n-drop operation ends and the user dropped something on us.
-	bool OnDrop(const CTSVNPath& target, const CString& root, const CTSVNPathList& pathlist, const SVNRev& srcRev, DWORD dwEffect, POINTL pt);
+	bool OnDrop(const CTSVNPath& target, const CTSVNPathList& pathlist, const SVNRev& srcRev, DWORD dwEffect, POINTL pt);
 	/**
 	 * Since all urls we store and use are not properly escaped but "UI friendly", this
 	 * method converts those urls to a properly escaped url which we can use in
@@ -187,7 +238,7 @@ protected:
 	/// Initializes the repository browser with a new root url
 	void InitRepo();
 	/// Helper function to show the "File Save" dialog
-	bool AskForSavePath (const CRepositoryBrowserSelection& selection, CTSVNPath &tempfile, bool bFolder);
+	bool AskForSavePath(const CTSVNPathList& urlList, CTSVNPath &tempfile, bool bFolder);
 
 	/// Saves the column widths
 	void SaveColumnWidths(bool bSaveToRegistry = false);
@@ -196,23 +247,12 @@ protected:
 	/// converts an array of column widths to a string
 	CString WidthArrayToString(int WidthArray[]);
 
-    /// remove items for the associated URL sub-tree
-    /// from the \ref m_lister cache.
-    void InvalidateData (HTREEITEM node);
-    void InvalidateData (HTREEITEM node, const SVNRev& revision);
-
-    /// assume that the selected urls may have become invalid
-    /// and reset the the cache accordingly
-    void InvalidateDataParents (const CRepositoryBrowserSelection& selection);
 
 	static UINT InitThreadEntry(LPVOID pVoid);
 	UINT InitThread();
 
 	static int CALLBACK TreeSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
 	static int CALLBACK ListSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
-
-	void BeginDrag(const CWnd& window, CRepositoryBrowserSelection& selection,
-		POINT& point, bool setAsyncMode);
 
 protected:
 	bool				m_bInitDone;
@@ -222,19 +262,25 @@ protected:
 	CTreeCtrl			m_RepoTree;
 	CHintListCtrl		m_RepoList;
 
-    SRepositoryInfo     m_repository;
+	CString				m_strReposRoot;
+	CString				m_sUUID;
 
 	HACCEL				m_hAccel;
+
+	// win2k doesn't have StrCmpLogicalW if not fully updated
+	HMODULE				hShlwapi;
+	typedef int (WINAPI *FN_StrCmpLogicalW) (LPCWSTR psz1, LPCWSTR psz2);
+	FN_StrCmpLogicalW	pfnStrCmpLogicalW;
 
 private:
 	bool				m_bStandAlone;
 	CString				m_InitialUrl;
+	SVNRev				m_initialRev;
 	bool				m_bThreadRunning;
 	static const UINT	m_AfterInitMessage;
 
 	int					m_nIconFolder;
 	int					m_nOpenIconFolder;
-	int					m_nExternalOvl;
 
 	volatile bool		m_blockEvents;
 
@@ -250,12 +296,12 @@ private:
 	int					oldy, oldx;
 	bool				bDragMode;
 
+	bool				m_bCancelled;
+
 	svn_node_kind_t		m_diffKind;
 	CTSVNPath			m_diffURL;
 
 	CString				m_origDlgTitle;
-
-    CRepositoryLister   m_lister;
 };
 
 static UINT WM_AFTERINIT = RegisterWindowMessage(_T("TORTOISESVN_AFTERINIT_MSG"));

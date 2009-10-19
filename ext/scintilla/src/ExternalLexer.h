@@ -68,7 +68,7 @@ public:
 	void Release();
 	
 	LexerLibrary	*next;
-	std::string			m_sModuleName;
+	SString			m_sModuleName;
 };
 
 /// LexerManager manages external lexers, contains LexerLibrarys.

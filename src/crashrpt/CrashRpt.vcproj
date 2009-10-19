@@ -55,7 +55,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories=".\zlib;.;..\Utils"
+				AdditionalIncludeDirectories=".\zlib;..\crashrpt"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="false"
 				ExceptionHandling="1"
@@ -99,6 +99,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
 				OptimizeReferences="2"
+				OptimizeForWindows98="0"
 				BaseAddress="0x2000000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -163,7 +164,7 @@
 				Optimization="1"
 				InlineFunctionExpansion="1"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories=".\zlib;.;..\Utils"
+				AdditionalIncludeDirectories=".\zlib;..\crashrpt"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="false"
 				ExceptionHandling="1"
@@ -207,6 +208,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=""
 				OptimizeReferences="2"
+				OptimizeForWindows98="1"
 				BaseAddress="0x2000000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -405,7 +407,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -426,7 +427,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -447,7 +447,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -468,7 +467,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -493,7 +491,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -514,7 +511,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -539,7 +535,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -564,7 +559,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -593,7 +587,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -614,7 +607,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -639,7 +631,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -664,7 +655,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -689,7 +679,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -714,7 +703,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -735,7 +723,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -764,7 +751,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -795,7 +781,6 @@
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -820,7 +805,6 @@
 					<Tool
 						Name="VCCLCompilerTool"
 						UsePrecompiledHeader="0"
-						WarningLevel="0"
 					/>
 				</FileConfiguration>
 			</File>
@@ -831,6 +815,10 @@
 		</Filter>
 		<File
 			RelativePath=".\chglog.txt"
+			>
+		</File>
+		<File
+			RelativePath=".\license.txt"
 			>
 		</File>
 	</Files>

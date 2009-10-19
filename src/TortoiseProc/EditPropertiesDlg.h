@@ -22,7 +22,6 @@
 #include "ProjectProperties.h"
 #include "Tooltip.h"
 #include "tstring.h"
-#include "PathEdit.h"
 
 /**
  * \ingroup TortoiseProc
@@ -70,7 +69,6 @@ private:
 	static UINT PropsThreadEntry(LPVOID pVoid);
 	UINT PropsThread();
 	void EditProps(bool bAdd = false);
-	void RemoveProps();
 
 protected:
 	class PropValue
@@ -93,7 +91,6 @@ protected:
 	std::map<tstring, PropValue>	m_properties;
 	SVNRev			m_revision;
 	CToolTips		m_tooltips;
-	CPathEdit		m_PropPath;
 
 	CString			m_sUUID;
 	ProjectProperties *	m_pProjectProperties;

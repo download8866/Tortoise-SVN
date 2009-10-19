@@ -250,8 +250,7 @@ private:
 
 	/// data access utility
 
-	void AppendToken (char*& target, index_t token) const;
-    size_t GetTokenLength (index_t token) const;
+	void AppendToken (std::string& target, index_t token) const;
 
 	/// insertion utilities
 
@@ -280,7 +279,6 @@ public:
 		return (index_t)offsets.size() -1;
 	}
 
-    void GetAt (index_t index, std::string& result) const;
 	std::string operator[] (index_t index) const;
 
     /// STL-like behavior
@@ -295,11 +293,6 @@ public:
 
 	void Compress();
 	void AutoCompress();
-
-    /// return false if concurrent read accesses
-    /// would potentially access invalid data.
-
-    bool CanInsertThreadSafely (const std::string& s) const;
 
 	/// reset content
 

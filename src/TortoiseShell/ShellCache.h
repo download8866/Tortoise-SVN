@@ -93,7 +93,10 @@ public:
 		langid = CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 		blockstatus = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
 		columnseverywhere = CRegStdDWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
-		std::fill_n(drivetypecache, 27, (UINT)-1);
+		for (int i=0; i<27; i++)
+		{
+			drivetypecache[i] = (UINT)-1;
+		}
 		if (DWORD(drivefloppy) == 0)
 		{
 			// A: and B: are floppy disks
@@ -438,25 +441,32 @@ public:
 	}
 	BOOL HasSVNAdminDir(LPCTSTR path, BOOL bIsDir)
 	{
-        tstring folder (path);
+		size_t len = _tcslen(path);
+		TCHAR * buf = new TCHAR[len+1];
+		_tcscpy_s(buf, len+1, path);
 		if (! bIsDir)
 		{
-            size_t pos = folder.rfind ('\\');
-            if (pos != tstring::npos)
-                folder.erase (pos);
+			TCHAR * ptr = _tcsrchr(buf, '\\');
+			if (ptr != 0)
+			{
+				*ptr = 0;
+			}
 		}
 		if ((GetTickCount() - admindirticker) < ADMINDIRTIMEOUT)
 		{
 			std::map<tstring, BOOL>::iterator iter;
-			sAdminDirCacheKey = folder;
+			sAdminDirCacheKey.assign(buf);
 			if ((iter = admindircache.find(sAdminDirCacheKey)) != admindircache.end())
+			{
+				delete [] buf;
 				return iter->second;
+			}
 		}
-
-        BOOL hasAdminDir = g_SVNAdminDir.HasAdminDir (folder.c_str(), true);
+		BOOL hasAdminDir = g_SVNAdminDir.HasAdminDir(buf, true);
 		admindirticker = GetTickCount();
 		Locker lock(m_critSec);
-		admindircache[folder] = hasAdminDir;
+		admindircache[buf] = hasAdminDir;
+		delete [] buf;
 		return hasAdminDir;
 	}
 	bool IsColumnsEveryWhere()

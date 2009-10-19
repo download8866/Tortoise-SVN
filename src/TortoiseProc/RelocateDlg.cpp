@@ -39,7 +39,6 @@ void CRelocateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TOURL, m_URLCombo);
-	DDX_Control(pDX, IDC_FROMURL, m_FromUrl);
 }
 
 

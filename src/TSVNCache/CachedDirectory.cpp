@@ -32,6 +32,7 @@ CCachedDirectory::CCachedDirectory(void)
 	m_lastFileTimeCheck = 0;
 	m_bCurrentFullStatusValid = false;
 	m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
+	m_bRecursive = true;
 }
 
 CCachedDirectory::~CCachedDirectory(void)
@@ -48,6 +49,7 @@ CCachedDirectory::CCachedDirectory(const CTSVNPath& directoryPath)
 	m_lastFileTimeCheck = 0;
 	m_bCurrentFullStatusValid = false;
 	m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
+	m_bRecursive = true;
 }
 
 BOOL CCachedDirectory::SaveToDisk(FILE * pFile)
@@ -202,8 +204,16 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	// Check if the entries file has been changed
 	CTSVNPath entriesFilePath(m_directoryPath);
 	CTSVNPath propsDirPath(m_directoryPath);
-	entriesFilePath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\entries"));
-	propsDirPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\dir-prop-base"));
+	if (g_SVNAdminDir.IsVSNETHackActive())
+	{
+		entriesFilePath.AppendPathString(g_SVNAdminDir.GetVSNETAdminDirName() + _T("\\entries"));
+		propsDirPath.AppendPathString(g_SVNAdminDir.GetVSNETAdminDirName() + _T("\\dir-prop-base"));
+	}
+	else
+	{
+		entriesFilePath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\entries"));
+		propsDirPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\dir-prop-base"));
+	}
 
 	bool entiesFileTimeChanged = false;
 	bool propsFileTimeChanged = false;
@@ -218,7 +228,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	}
 	else
 	{
-		CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: skipped file time check for for %s\n"), m_directoryPath.GetWinPath());
+		CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: skipped file tome check for for %s\n"), m_directoryPath.GetWinPath());
 	}
 
 	if ( !entiesFileTimeChanged && !propsFileTimeChanged )
@@ -227,7 +237,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 		{
 			// We are a folder which is not in a working copy
 			bThisDirectoryIsUnversioned = true;
-			m_ownStatus.SetStatus(NULL, false);
+			m_ownStatus.SetStatus(NULL);
 
 			// If a user removes the .svn directory, we get here with m_entryCache
 			// not being empty, but still us being unversioned
@@ -303,7 +313,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 				{
 					if (m_currentStatusFetchingPath.IsAncestorOf(path))
 					{
-						//ATLTRACE(_T("returning empty status (status fetch in progress) for %s\n"), path.GetWinPath());
+						ATLTRACE(_T("returning empty status (status fetch in progress) for %s\n"), path.GetWinPath());
 						m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
 						return CStatusCacheEntry();
 					}
@@ -364,6 +374,9 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 		strCacheKey = GetCacheKey(path);
 	}
 
+	svn_opt_revision_t revision;
+	revision.kind = svn_opt_revision_unspecified;
+
 	// We've not got this item in the cache - let's add it
 	// We never bother asking SVN for the status of just one file, always for its containing directory
 
@@ -375,29 +388,90 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 	}
 
 	{
-		AutoLocker pathlock(m_critSecPath);
-		if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
 		{
-			if (m_currentStatusFetchingPath.IsAncestorOf(path))
+			AutoLocker pathlock(m_critSecPath);
+			if ((!bFetch)&&(!m_currentStatusFetchingPath.IsEmpty()))
 			{
-				//ATLTRACE(_T("returning empty status (status fetch in progress) for %s\n"), path.GetWinPath());
-				m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-				return CStatusCacheEntry();
+				if (m_currentStatusFetchingPath.IsAncestorOf(path))
+				{
+					ATLTRACE(_T("returning empty status (status fetch in progress) for %s\n"), path.GetWinPath());
+					m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
+					return CStatusCacheEntry();
+				}
 			}
 		}
-	}
-
-	{
-		AutoLocker lock(m_critSec);
-		m_mostImportantFileStatus = svn_wc_status_none;
-		m_childDirectories.clear();
-		m_entryCache.clear();
-		m_ownStatus.SetStatus(NULL, false);
-	}
-	if(!bThisDirectoryIsUnversioned)
-	{
-		if (!SvnUpdateMembersStatus())
-			return CStatusCacheEntry();
+		SVNPool subPool(CSVNStatusCache::Instance().m_svnHelp.Pool());
+		{
+			AutoLocker lock(m_critSec);
+			m_mostImportantFileStatus = svn_wc_status_none;
+			m_childDirectories.clear();
+			m_entryCache.clear();
+			m_ownStatus.SetStatus(NULL);
+			m_bRecursive = bRecursive;
+		}
+		if(!bThisDirectoryIsUnversioned)
+		{
+			{
+				AutoLocker pathlock(m_critSecPath);
+				m_currentStatusFetchingPath = m_directoryPath;
+			}
+			CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: stat for %s\n"), m_directoryPath.GetWinPath());
+			svn_error_t* pErr = svn_client_status4 (
+				NULL,
+				m_directoryPath.GetSVNApiPath(subPool),
+				&revision,
+				GetStatusCallback,
+				this,
+				svn_depth_immediates,
+				TRUE,		// get all
+				FALSE,		// update
+				TRUE,		// no ignores
+				FALSE,		// ignore externals
+				NULL,									//changelists
+				CSVNStatusCache::Instance().m_svnHelp.ClientContext(),
+				subPool
+				);
+			{
+				AutoLocker pathlock(m_critSecPath);
+				m_currentStatusFetchingPath.Reset();
+			}
+			ATLTRACE(_T("svn_cli_stat finished for '%s'\n"), m_directoryPath.GetWinPath(), path.GetWinPath());
+			if(pErr)
+			{
+				// Handle an error
+				// The most likely error on a folder is that it's not part of a WC
+				// In most circumstances, this will have been caught earlier,
+				// but in some situations, we'll get this error.
+				// If we allow ourselves to fall on through, then folders will be asked
+				// for their own status, and will set themselves as unversioned, for the 
+				// benefit of future requests
+				CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: svn_cli_stat error '%s'\n"), pErr->message);
+				svn_error_clear(pErr);
+				// No assert here! Since we _can_ get here, an assertion is not an option!
+				// Reasons to get here: 
+				// - renaming a folder with many sub folders --> results in "not a working copy" if the revert
+				//   happens between our checks and the svn_client_status() call.
+				// - reverting a move/copy --> results in "not a working copy" (as above)
+				if (!m_directoryPath.HasAdminDir())
+				{
+					m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
+					return CStatusCacheEntry();
+				}
+				else
+				{
+					ATLTRACE("svn_cli_stat error, assume none status\n");
+					// Since we only assume a none status here due to svn_client_status()
+					// returning an error, make sure that this status times out soon.
+					CSVNStatusCache::Instance().m_folderCrawler.BlockPath(m_directoryPath, 2000);
+					CSVNStatusCache::Instance().AddFolderForCrawling(m_directoryPath);
+					return CStatusCacheEntry();
+				}
+			}
+		}
+		else
+		{
+			ATLTRACE("Skipped SVN status for unversioned folder\n");
+		}
 	}
 	// Now that we've refreshed our SVN status, we can see if it's 
 	// changed the 'most important' status value for this directory.
@@ -433,22 +507,21 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
 		}
 	}
 
-	AddEntry(path, NULL, false);
+	AddEntry(path, NULL);
 	return CStatusCacheEntry();
 }
 
 void 
-CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, bool forceNormal)
+CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, DWORD validuntil /* = 0*/)
 {
 	AutoLocker lock(m_critSec);
-	svn_wc_status_kind textstatus = forceNormal ? svn_wc_status_normal : (pSVNStatus ? pSVNStatus->text_status : svn_wc_status_none);
 	if(path.IsDirectory())
 	{
 		CCachedDirectory * childDir = CSVNStatusCache::Instance().GetDirectoryCacheEntry(path);
 		if (childDir)
 		{
-			if ((childDir->GetCurrentFullStatus() != svn_wc_status_ignored)||(pSVNStatus==NULL)||(textstatus != svn_wc_status_unversioned))
-				childDir->m_ownStatus.SetStatus(pSVNStatus, forceNormal);
+			if ((childDir->GetCurrentFullStatus() != svn_wc_status_ignored)||(pSVNStatus==NULL)||(pSVNStatus->text_status != svn_wc_status_unversioned))
+				childDir->m_ownStatus.SetStatus(pSVNStatus);
 			childDir->m_ownStatus.SetKind(svn_node_dir);
 		}
 	}
@@ -461,7 +534,7 @@ CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNSt
 			if (pSVNStatus)
 			{
 				if (entry_it->second.GetEffectiveStatus() > svn_wc_status_none &&
-					entry_it->second.GetEffectiveStatus() != SVNStatus::GetMoreImportant(pSVNStatus->prop_status, textstatus))
+					entry_it->second.GetEffectiveStatus() != SVNStatus::GetMoreImportant(pSVNStatus->prop_status, pSVNStatus->text_status))
 				{
 					CSVNStatusCache::Instance().UpdateShell(path);
 					CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: shell update for %s\n"), path.GetWinPath());
@@ -472,7 +545,7 @@ CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNSt
 		{
 			entry_it = m_entryCache.insert(entry_it, std::make_pair(cachekey, CStatusCacheEntry()));
 		}
-		entry_it->second = CStatusCacheEntry(pSVNStatus, path.GetLastWriteTime(), forceNormal);
+		entry_it->second = CStatusCacheEntry(pSVNStatus, path.GetLastWriteTime(), path.IsReadOnly(), validuntil);
 	}
 }
 
@@ -491,73 +564,6 @@ CCachedDirectory::GetFullPathString(const CString& cacheKey)
 	return m_directoryPath.GetWinPathString() + _T("\\") + cacheKey;
 }
 
-
-bool
-CCachedDirectory::SvnUpdateMembersStatus()
-{
-	svn_opt_revision_t revision;
-	revision.kind = svn_opt_revision_unspecified;
-
-	SVNPool subPool(CSVNStatusCache::Instance().m_svnHelp.Pool());
-	{
-		AutoLocker pathlock(m_critSecPath);
-		m_currentStatusFetchingPath = m_directoryPath;
-	}
-	CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: stat for %s\n"), m_directoryPath.GetWinPath());
-	svn_error_t* pErr = svn_client_status4 (
-		NULL,
-		m_directoryPath.GetSVNApiPath(subPool),
-		&revision,
-		GetStatusCallback,
-		this,
-		svn_depth_immediates,
-		TRUE,		// get all
-		FALSE,		// update
-		TRUE,		// no ignores
-		FALSE,		// ignore externals
-		NULL,		// changelists
-		CSVNStatusCache::Instance().m_svnHelp.ClientContext(),
-		subPool
-		);
-	{
-		AutoLocker pathlock(m_critSecPath);
-		m_currentStatusFetchingPath.Reset();
-	}
-	if(pErr)
-	{
-		// Handle an error
-		// The most likely error on a folder is that it's not part of a WC
-		// In most circumstances, this will have been caught earlier,
-		// but in some situations, we'll get this error.
-		// If we allow ourselves to fall on through, then folders will be asked
-		// for their own status, and will set themselves as unversioned, for the 
-		// benefit of future requests
-		CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: svn_cli_stat error '%s'\n"), pErr->message);
-		svn_error_clear(pErr);
-		// No assert here! Since we _can_ get here, an assertion is not an option!
-		// Reasons to get here: 
-		// - renaming a folder with many sub folders --> results in "not a working copy" if the revert
-		//   happens between our checks and the svn_client_status() call.
-		// - reverting a move/copy --> results in "not a working copy" (as above)
-		if (!m_directoryPath.HasAdminDir())
-		{
-			m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
-		}
-		else
-		{
-			// Since we only assume a none status here due to svn_client_status()
-			// returning an error, make sure that this status times out soon.
-			CSVNStatusCache::Instance().m_folderCrawler.BlockPath(m_directoryPath, 2000);
-			CSVNStatusCache::Instance().AddFolderForCrawling(m_directoryPath);
-		}
-
-		return false;
-	}
-
-	RefreshMostImportant(false);
-	return true;
-}
-
 svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t * /*pool*/)
 {
 	CCachedDirectory* pThis = (CCachedDirectory*)baton;
@@ -566,7 +572,6 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 		return SVN_NO_ERROR;
 		
 	CTSVNPath svnPath;
-	bool forceNormal = false;
 
 	if(status->entry)
 	{
@@ -604,6 +609,23 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 				}
 			}
 		}
+		else
+		{
+			// Keep track of the most important status of all the files in this directory
+			// Don't include subdirectories in this figure, because they need to provide their 
+			// own 'most important' value
+			pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, status->text_status);
+			pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, status->prop_status);
+			if (status->tree_conflict)
+				pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_conflicted);
+			if (((status->text_status == svn_wc_status_unversioned)||(status->text_status == svn_wc_status_none))
+				&&(CSVNStatusCache::Instance().IsUnversionedAsModified()))
+			{
+				// treat unversioned files as modified
+				if (pThis->m_mostImportantFileStatus != svn_wc_status_added)
+					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
+			}
+		}
 	}
 	else
 	{
@@ -626,7 +648,7 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 				// Make sure the entry is also in the cache
 				CSVNStatusCache::Instance().GetDirectoryCacheEntry(svnPath);
 				// also mark the status in the status object as normal
-				forceNormal = true;
+				status->text_status = svn_wc_status_normal;
 			}
 			else
 			{
@@ -634,6 +656,13 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 				{
 					AutoLocker lock(pThis->m_critSec);
 					pThis->m_childDirectories[svnPath] = SVNStatus::GetMoreImportant(status->text_status, status->prop_status);
+				}
+				else if ((CSVNStatusCache::Instance().IsUnversionedAsModified())&&(status->text_status != svn_wc_status_ignored))
+				{
+					// make this unversioned item change the most important status of this
+					// folder to modified if it doesn't already have another status
+					if (pThis->m_mostImportantFileStatus != svn_wc_status_added)
+						pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
 				}
 			}
 		}
@@ -654,7 +683,7 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 				// an entry in the cache.
 				CSVNStatusCache::Instance().GetDirectoryCacheEntry(svnPath);
 				// also mark the status in the status object as normal
-				forceNormal = true;
+				status->text_status = svn_wc_status_normal;
 			}
 		}
 		else
@@ -667,10 +696,24 @@ svn_error_t * CCachedDirectory::GetStatusCallback(void *baton, const char *path,
 					s = SVNStatus::GetMoreImportant(s, svn_wc_status_conflicted);
 				pThis->m_childDirectories[svnPath] = s;
 			}
+			else if ((CSVNStatusCache::Instance().IsUnversionedAsModified())&&(status->text_status != svn_wc_status_ignored))
+			{
+				// make this unversioned item change the most important status of this
+				// folder to modified if it doesn't already have another status
+				if (pThis->m_mostImportantFileStatus != svn_wc_status_added)
+					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_modified);
+				if (status->tree_conflict)
+					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_conflicted);
+			}
+			else
+			{
+				if (status->tree_conflict)
+					pThis->m_mostImportantFileStatus = SVNStatus::GetMoreImportant(pThis->m_mostImportantFileStatus, svn_wc_status_conflicted);
+			}
 		}
 	}
 
-	pThis->AddEntry(svnPath, status, forceNormal);
+	pThis->AddEntry(svnPath, status);
 
 	return SVN_NO_ERROR;
 }
@@ -807,6 +850,9 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 	{
 		AutoLocker lock(m_critSec);
 		// We also need to check if all our file members have the right date on them
+		if (m_entryCache.size() == 0)
+			return;
+
 		for (CacheEntryMap::iterator itMembers = m_entryCache.begin(); itMembers != m_entryCache.end(); ++itMembers)
 		{
 			if ((itMembers->first)&&(!itMembers->first.IsEmpty()))
@@ -816,25 +862,18 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 				std::set<CTSVNPath>::iterator refr_it;
 				if (!filePath.IsEquivalentToWithoutCase(m_directoryPath))
 				{
-					// we only have file members in our entry cache
-					ATLASSERT(!itMembers->second.IsDirectory());
-
 					if ((itMembers->second.HasExpired(now))||(!itMembers->second.DoesFileTimeMatch(filePath.GetLastWriteTime())))
 					{
 						// We need to request this item as well
 						updatePathList.AddPath(filePath);
 					}
+					else if ((bRecursive)&&(itMembers->second.IsDirectory()))
+					{
+						// crawl all sub folders too! Otherwise a change deep inside the
+						// tree which has changed won't get propagated up the tree.
+						crawlPathList.AddPath(filePath);
+					}
 				}
-			}
-		}
-
-		if (bRecursive)
-		{
-			// crawl all sub folders too! Otherwise a change deep inside the
-			// tree which has changed won't get propagated up the tree.
-			for(ChildDirStatus::const_iterator it = m_childDirectories.begin(); it != m_childDirectories.end(); ++it)
-			{
-				crawlPathList.AddPath(it->first);
 			}
 		}
 	}
@@ -846,7 +885,7 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 		CSVNStatusCache::Instance().AddFolderForCrawling(crawlPathList[i]);
 }
 
-void CCachedDirectory::RefreshMostImportant(bool bUpdateShell /* = true */)
+void CCachedDirectory::RefreshMostImportant()
 {
 	CacheEntryMap::iterator itMembers;
 	svn_wc_status_kind newStatus = m_ownStatus.GetEffectiveStatus();
@@ -861,7 +900,7 @@ void CCachedDirectory::RefreshMostImportant(bool bUpdateShell /* = true */)
 				newStatus = SVNStatus::GetMoreImportant(newStatus, svn_wc_status_modified);
 		}
 	}
-	if (bUpdateShell && newStatus != m_mostImportantFileStatus)
+	if (newStatus != m_mostImportantFileStatus)
 	{
 		CTraceToOutputDebugString::Instance()(_T("CachedDirectory.cpp: status change of path %s\n"), m_directoryPath.GetWinPath());
 		CSVNStatusCache::Instance().UpdateShell(m_directoryPath);

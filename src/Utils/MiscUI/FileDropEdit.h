@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,7 +39,7 @@ public:
 				char buff[BUF_SIZE+1];
 				ULONG cbRead=0;
 				HRESULT hr = medium.pstm->Read(buff, BUF_SIZE, &cbRead);
-				if (SUCCEEDED(hr) && (cbRead > 0) && (cbRead < BUF_SIZE))
+				if( SUCCEEDED(hr) && cbRead > 0 && cbRead < BUF_SIZE)
 				{
 					buff[cbRead]=0;
 					LRESULT nLen = ::SendMessage(m_hTargetWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -48,8 +48,7 @@ public:
 					::SendMessage(m_hTargetWnd, EM_REPLACESEL, TRUE, (LPARAM)str.c_str());
 				}
 				else
-				{
-					while( (hr==S_OK) && (cbRead >0) )
+					for(;(hr==S_OK && cbRead >0) && SUCCEEDED(hr) ;)
 					{
 						buff[cbRead]=0;
 						LRESULT nLen = ::SendMessage(m_hTargetWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -59,7 +58,6 @@ public:
 						cbRead=0;
 						hr = medium.pstm->Read(buff, BUF_SIZE, &cbRead);
 					}
-				}
 			}
 		}
 		if(pFmtEtc->cfFormat == CF_UNICODETEXT && medium.tymed == TYMED_ISTREAM)
@@ -70,7 +68,7 @@ public:
 				TCHAR buff[BUF_SIZE+1];
 				ULONG cbRead=0;
 				HRESULT hr = medium.pstm->Read(buff, BUF_SIZE, &cbRead);
-				if (SUCCEEDED(hr) && (cbRead > 0) && (cbRead < BUF_SIZE))
+				if( SUCCEEDED(hr) && cbRead > 0 && cbRead < BUF_SIZE)
 				{
 					buff[cbRead]=0;
 					LRESULT nLen = ::SendMessage(m_hTargetWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -78,8 +76,7 @@ public:
 					::SendMessage(m_hTargetWnd, EM_REPLACESEL, TRUE, (LPARAM)buff);
 				}
 				else
-				{
-					while( (hr==S_OK) && (cbRead >0) )
+					for(;(hr==S_OK && cbRead >0) && SUCCEEDED(hr) ;)
 					{
 						buff[cbRead]=0;
 						LRESULT nLen = ::SendMessage(m_hTargetWnd, WM_GETTEXTLENGTH, 0, 0);
@@ -88,7 +85,6 @@ public:
 						cbRead=0;
 						hr = medium.pstm->Read(buff, BUF_SIZE, &cbRead);
 					}
-				}
 			}
 		}
 		if(pFmtEtc->cfFormat == CF_TEXT && medium.tymed == TYMED_HGLOBAL)
@@ -153,7 +149,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 	
-    std::auto_ptr<CFileDropTarget> m_pDropTarget;
+	CFileDropTarget * m_pDropTarget;
 	virtual void PreSubclassWindow();
 };
 

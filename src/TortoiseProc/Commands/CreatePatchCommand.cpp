@@ -26,7 +26,6 @@
 #include "SVN.h"
 #include "TempFile.h"
 #include "ProgressDlg.h"
-#include "auto_buffer.h"
 
 #define PATCH_TO_CLIPBOARD_PSEUDO_FILENAME		_T(".TSVNPatchToClipboard")
 
@@ -65,7 +64,7 @@ UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT ui
 	return 0;
 }
 
-bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, const CTSVNPath& cmdLineSavePath)
+bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& path, const CTSVNPath& cmdLineSavePath)
 {
 	OPENFILENAME ofn = {0};				// common dialog box structure
 	CString temp;
@@ -95,16 +94,25 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
 		CString sFilter;
 		sFilter.LoadString(IDS_PATCHFILEFILTER);
-		auto_buffer<TCHAR> pszFilters(sFilter.GetLength()+4);
+		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		// Display the Open dialog box. 
 		if (GetSaveFileName(&ofn)==FALSE)
 		{
+			delete [] pszFilters;
 			return FALSE;
 		}
+		delete [] pszFilters;
 		savePath = CTSVNPath(ofn.lpstrFile);
 		if (ofn.nFilterIndex == 1)
 		{
@@ -147,13 +155,13 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
 	CTSVNPath sDir = root;
 	if (sDir.IsEmpty())
-		sDir = paths.GetCommonRoot();
+		sDir = path.GetCommonRoot();
 
 	SVN svn;
-	for (int fileindex = 0; fileindex < paths.GetCount(); ++fileindex)
+	for (int fileindex = 0; fileindex < path.GetCount(); ++fileindex)
 	{
-		svn_depth_t depth = paths[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
-		if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
+		svn_depth_t depth = path[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
+		if (!svn.CreatePatch(path[fileindex], SVNRev::REV_BASE, path[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
 		{
 			progDlg.Stop();
 			::MessageBox(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);

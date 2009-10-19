@@ -84,7 +84,7 @@ private:
     CProgressDlg*   progress;
     svn_revnum_t    headRevision;
 
-    void ReceiveLog ( TChangedPaths* changes
+    void ReceiveLog ( LogChangedPathArray* changes
 	                , svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps

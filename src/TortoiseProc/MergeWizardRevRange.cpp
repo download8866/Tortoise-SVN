@@ -22,7 +22,7 @@
 #include "MergeWizardRevRange.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardRevRange, CMergeWizardBasePage)
 
@@ -57,7 +57,6 @@ void CMergeWizardRevRange::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_RANGE, m_sRevRange);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Check(pDX, IDC_REVERSEMERGE, ((CMergeWizard*)GetParent())->bReverseMerge);
-	DDX_Control(pDX, IDC_WCEDIT, m_WC);
 }
 
 
@@ -115,8 +114,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
 	else if (!pWizard->url.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	if (m_URLCombo.GetString().IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
 	if (!pWizard->URL1.IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));

@@ -11,7 +11,7 @@
 
 #include "Platform.h"
 
-#include "CharClassify.h"
+#include "PropSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE

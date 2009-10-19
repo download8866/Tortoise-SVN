@@ -19,12 +19,7 @@
 #pragma once
 #include "MergeWizardBasePage.h"
 #include "HistoryCombo.h"
-#include "PathEdit.h"
-#include "SVNRev.h"
-
-/// forward declarations
-
-class CLogDlg;
+#include "LogDlg.h"
 
 /**
  * Page in the merge wizard for selecting two urls and revisions for
@@ -70,7 +65,6 @@ protected:
 	CHistoryCombo		m_URLCombo2;
 	CString				m_sStartRev;
 	CString				m_sEndRev;
-	CPathEdit			m_WC;
 public:
 	CString				m_URLFrom;
 	CString				m_URLTo;

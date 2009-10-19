@@ -26,7 +26,6 @@
 #include "registry.h"
 #include "TSVNPath.h"
 #include "PathUtils.h"
-#include "SVNTrace.h"
 
 SVNInfoData::SVNInfoData()
     : kind(svn_node_none)
@@ -116,12 +115,7 @@ const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegr
 	svn_error_clear(m_err);
 	m_arInfo.clear();
 	m_pos = 0;
-
-    const char* svnPath = path.GetSVNApiPath(m_pool);
-    SVNTRACE (
-	    m_err = svn_client_info2(svnPath, pegrev, revision, infoReceiver, this, depth, NULL, m_pctx, m_pool),
-        svnPath
-    )
+	m_err = svn_client_info2(path.GetSVNApiPath(m_pool), pegrev, revision, infoReceiver, this, depth, NULL, m_pctx, m_pool);
 	if (m_err != NULL)
 		return NULL;
 	if (m_arInfo.size() == 0)

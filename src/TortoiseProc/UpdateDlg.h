@@ -20,11 +20,9 @@
 
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
-#include "TSVNPath.h"
+#include "LogDlg.h"
+#include "afxwin.h"
 
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc

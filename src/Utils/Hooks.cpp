@@ -22,7 +22,7 @@
 #include "StringUtils.h"
 #include "TempFile.h"
 
-CHooks* CHooks::m_pInstance = NULL;
+CHooks* CHooks::m_pInstance;
 
 CHooks::CHooks()
 {
@@ -433,17 +433,19 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
 	PROCESS_INFORMATION pi;
 	SecureZeroMemory(&pi, sizeof(pi));
 
-	if (!CreateProcess(NULL, cmd.GetBuffer(), NULL, NULL, TRUE, 0, NULL, curDir.GetWinPath(), &si, &pi)) 
+	DWORD dwFlags = 0;
+
+	if (!CreateProcess(NULL, cmd.GetBuffer(), NULL, NULL, TRUE, dwFlags, NULL, curDir.GetWinPath(), &si, &pi)) 
 	{
-		const int err = GetLastError();  // preserve the CreateProcess error
-		if (hErr != INVALID_HANDLE_VALUE) 
-		{
-			CloseHandle(hErr);
-			CloseHandle(hRedir);
-		}
-		SetLastError(err);
-		cmd.ReleaseBuffer();
-		return (DWORD)-1;
+			int err = GetLastError();  // preserve the CreateProcess error
+			if (hErr != INVALID_HANDLE_VALUE) 
+			{
+				CloseHandle(hErr);
+				CloseHandle(hRedir);
+			}
+			SetLastError(err);
+			cmd.ReleaseBuffer();
+			return (DWORD)-1;
 	}
 	cmd.ReleaseBuffer();
 
@@ -488,3 +490,4 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
 
 	return exitcode;
 }
+

@@ -23,7 +23,7 @@
 #include "SVNStatusListCtrl.h"
 #include <iterator>
 
-#define SVNSLC_COL_VERSION 5
+#define SVNSLC_COL_VERSION 4
 
 // assign property list
 
@@ -284,8 +284,7 @@ CString CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 		  , IDS_STATUSLIST_COLSVNLOCK
 
 		  , IDS_STATUSLIST_COLCOPYFROM
-          , IDS_STATUSLIST_COLMODIFICATIONDATE
-		  , IDS_STATUSLIST_COLSIZE};
+          , IDS_STATUSLIST_COLMODIFICATIONDATE};
 
     // standard columns
 
@@ -918,16 +917,6 @@ bool CSVNStatusListCtrl::CSorter::operator()
 	int result = 0;
 	switch (sortedColumn)
 	{
-	case 21:
-		{
-			if (result == 0)
-			{
-				__int64 fileSize1 = entry1->isfolder ? 0 : entry1->working_size != (-1) ? entry1->working_size : entry1->GetPath().GetFileSize();
-				__int64 fileSize2 = entry2->isfolder ? 0 : entry2->working_size != (-1) ? entry2->working_size : entry2->GetPath().GetFileSize();
-				
-				result = int(fileSize1 - fileSize2);
-			}
-		}
 	case 20:
 		{
 			if (result == 0)
@@ -987,7 +976,7 @@ bool CSVNStatusListCtrl::CSorter::operator()
 		{
 			if (result == 0)
 			{
-				result = (int)(entry1->lock_date - entry2->lock_date);
+				result = entry1->lock_date - entry2->lock_date;
 			}
 		}
 	case 12:

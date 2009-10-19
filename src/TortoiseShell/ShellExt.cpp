@@ -25,23 +25,28 @@
 #include "Guids.h"
 
 #include "ShellExt.h"
-#include "ShellObjects.h"
 #include "..\version.h"
 #include "libintl.h"
-#include "auto_buffer.h"
 #undef swprintf
 
-extern ShellObjects g_shellObjects;
+std::set<CShellExt *> g_exts;
+
 
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
 {
+	OSVERSIONINFOEX inf;
+	SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+	GetVersionEx((OSVERSIONINFO *)&inf);
+	fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+
     m_State = state;
 
     m_cRef = 0L;
     g_cRefThisDll++;
 
-	g_shellObjects.Insert(this);
+	g_exts.insert(this);
 	
     INITCOMMONCONTROLSEX used = {
         sizeof(INITCOMMONCONTROLSEX),
@@ -49,12 +54,33 @@ CShellExt::CShellExt(FileState state)
     };
     InitCommonControlsEx(&used);
 	LoadLangDll();
+
+	hUxTheme = NULL;
+	if (fullver >= 0x0600)
+	{
+		hUxTheme = LoadLibrary(_T("UXTHEME.DLL"));
+
+		if (hUxTheme)
+		{
+			pfnGetBufferedPaintBits = (FN_GetBufferedPaintBits)::GetProcAddress(hUxTheme, "GetBufferedPaintBits");
+			pfnBeginBufferedPaint = (FN_BeginBufferedPaint)::GetProcAddress(hUxTheme, "BeginBufferedPaint");
+			pfnEndBufferedPaint = (FN_EndBufferedPaint)::GetProcAddress(hUxTheme, "EndBufferedPaint");
+		}
+	}
 }
 
 CShellExt::~CShellExt()
 {
+	std::map<UINT, HBITMAP>::iterator it;
+	for (it = bitmaps.begin(); it != bitmaps.end(); ++it)
+	{
+		::DeleteObject(it->second);
+	}
+	bitmaps.clear();
 	g_cRefThisDll--;
-	g_shellObjects.Erase(this);
+	g_exts.erase(this);
+	if (hUxTheme)
+		FreeLibrary(hUxTheme);
 }
 
 void LoadLangDll()
@@ -192,9 +218,10 @@ tstring GetAppDirectory()
 	do 
 	{
 		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		auto_buffer<TCHAR> pBuf(bufferlen);
+		TCHAR * pBuf = new TCHAR[bufferlen];
 		len = GetModuleFileName(g_hmodThisDll, pBuf, bufferlen);	
 		path = tstring(pBuf, len);
+		delete [] pBuf;
 	} while(len == bufferlen);
 	path = path.substr(0, path.rfind('\\') + 1);
 
@@ -244,7 +271,7 @@ STDMETHODIMP CShellExt::QueryInterface(REFIID riid, LPVOID FAR *ppv)
     {
         AddRef();
 		
-        return S_OK;
+        return NOERROR;
     }
 	
     return E_NOINTERFACE;
@@ -268,9 +295,7 @@ STDMETHODIMP_(ULONG) CShellExt::Release()
 // IPersistFile members
 STDMETHODIMP CShellExt::GetClassID(CLSID *pclsid) 
 {
-    if(pclsid == 0)
-		return E_POINTER;
-	*pclsid = CLSID_TortoiseSVN_UNCONTROLLED;
+    *pclsid = CLSID_TortoiseSVN_UNCONTROLLED;
     return S_OK;
 }
 

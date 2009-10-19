@@ -33,7 +33,7 @@ bool RemoveCommand::Execute()
 	//
 	// removing items from an URL in the repository requires that we
 	// ask the user for a log message.
-	bool bForce = false;
+	BOOL bForce = FALSE;
 	SVN svn;
 	if ((pathList.GetCount())&&(SVN::PathIsURL(pathList[0])))
 	{
@@ -51,14 +51,14 @@ bool RemoveCommand::Execute()
 		dlg.SetActionText(sHint);
 		if (dlg.DoModal()==IDOK)
 		{
-			if (!svn.Remove(pathList, true, !!parser.HasKey(_T("keep")), dlg.GetLogMessage()))
+			if (!svn.Remove(pathList, TRUE, parser.HasKey(_T("keep")), dlg.GetLogMessage()))
 			{
 				CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
-				return false;
+				return FALSE;
 			}
 			return true;
 		}
-		return false;
+		return FALSE;
 	}
 	else
 	{
@@ -85,7 +85,7 @@ bool RemoveCommand::Execute()
 				// to the original name, then let svn delete the folder - but
 				// that would just take too much time for bigger folders...
 			}
-			if (!svn.Remove(removePathList, bForce, !!parser.HasKey(_T("keep"))))
+			if (!svn.Remove(removePathList, bForce, parser.HasKey(_T("keep"))))
 			{
 				if ((svn.Err->apr_err == SVN_ERR_UNVERSIONED_RESOURCE) ||
 					(svn.Err->apr_err == SVN_ERR_CLIENT_MODIFIED))
@@ -104,7 +104,7 @@ bool RemoveCommand::Execute()
 					yestoall.LoadString(IDS_PROC_YESTOALL);
 					UINT ret = CMessageBox::Show(hwndExplorer, msg, _T("TortoiseSVN"), 2, IDI_ERROR, yes, no, yestoall);
 					if (ret == 3)
-						bForce = true;
+						bForce = TRUE;
 					if ((ret == 1)||(ret==3))
 					{
 						if (!parser.HasKey(_T("keep")))
@@ -114,7 +114,7 @@ bool RemoveCommand::Execute()
 								delPath.Delete(true);
 							// note: see comment for the delPath.Delete() above
 						}
-						if (!svn.Remove(removePathList, true, !!parser.HasKey(_T("keep"))))
+						if (!svn.Remove(removePathList, TRUE, parser.HasKey(_T("keep"))))
 						{
 							CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 						}

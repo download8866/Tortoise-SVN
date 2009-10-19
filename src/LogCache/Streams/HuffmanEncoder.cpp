@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "HuffmanEncoder.h"
-#include "StreamException.h"
-#include "auto_buffer.h"
 
 // Huffman encoding stages:
 
@@ -49,7 +47,7 @@ void CHuffmanEncoder::CountValues ( const unsigned char* source
 		++localCount[2][(block >> 16) & 0xff];
 		++localCount[3][(block >> 24) & 0xff];
 
-#ifdef _64BITS
+#ifdef _WIN64
 
 		++localCount[4][(block >> 32) & 0xff];
 		++localCount[5][(block >> 40) & 0xff];
@@ -192,7 +190,7 @@ DWORD CHuffmanEncoder::CalculatePackedSize()
 
 	// packed data will use full QWORDs, i.e. up to 63 unused bits
 
-	assert (bitCount < 0x800000000ull);
+	assert (bitCount < 0x800000000);
 	result += static_cast<DWORD>(bitCount / 8 + sizeof (QWORD));
 
 	// ready
@@ -236,7 +234,7 @@ void CHuffmanEncoder::WriteHuffmanEncoded ( const BYTE* source
 	key_type cachedCode = 0;
 	BYTE cachedBits = 0;
 
-#ifdef _64BITS
+#ifdef _WIN64
 
 	// main loop (22 1/3 clock ticks per 4 chars on K8) 
 
@@ -367,12 +365,12 @@ CHuffmanEncoder::CHuffmanEncoder()
 std::pair<CHuffmanEncoder::BYTE*, DWORD>
 CHuffmanEncoder::Encode (const BYTE* source, size_t byteCount)
 {
-	assert (sorted[0] == 0);
+	assert (sorted[0] == NULL);
 
 	// this may fail under x64
 
 	if (byteCount > (DWORD)(-1))
-		throw CStreamException ("BLOB to large for stream");
+		throw std::exception ("BLOB to large for stream");
 
 	// calculate static Huffman encoding
 
@@ -381,39 +379,19 @@ CHuffmanEncoder::Encode (const BYTE* source, size_t byteCount)
 
 	// create buffer
 
-	DWORD targetSize = std::min ( (DWORD)byteCount+MIN_HEADER_LENGTH
-                                , CalculatePackedSize());
-	auto_buffer<BYTE> buffer (targetSize);
+	DWORD targetSize = CalculatePackedSize();
+	std::auto_ptr<BYTE> buffer (new BYTE[targetSize]);
 
 	// fill it
 
-    BYTE* dest = buffer.get();
-    *reinterpret_cast<DWORD*>(dest) = static_cast<DWORD>(byteCount);
-    dest += sizeof (DWORD);
-    *reinterpret_cast<DWORD*>(dest) = targetSize;
-    dest += sizeof (DWORD);
+	BYTE* dest = buffer.get();
+	*reinterpret_cast<DWORD*>(dest) = static_cast<DWORD>(byteCount);
+	dest += sizeof (DWORD);
+	*reinterpret_cast<DWORD*>(dest) = targetSize;
+	dest += sizeof (DWORD);
 
-    // special case: no compression possible
-
-    if (byteCount + MIN_HEADER_LENGTH == targetSize)
-    {
-        // empty huffman table (to discern it from legacy files)
-
-        *dest = 0;
-        ++dest;
-
-        // copy plain content
-
-        memcpy (dest, source, byteCount);
-        dest += byteCount;
-    }
-    else
-    {
-        // write huffman-encoded data
-
-	    WriteHuffmanTable (dest);
-	    WriteHuffmanEncoded (source, source + byteCount, dest);
-    }
+	WriteHuffmanTable (dest);
+	WriteHuffmanEncoded (source, source + byteCount, dest);
 
 	return std::make_pair (buffer.release(), targetSize);
 }

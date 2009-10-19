@@ -20,6 +20,7 @@
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
 #include "registry.h"
+#include "afxwin.h"
 
 /**
  * \ingroup TortoiseProc

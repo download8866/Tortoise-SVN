@@ -102,9 +102,7 @@
 			higher levels (closer to <filename>trunk/</filename>).
 		</para>
 		<para>
-			For project properties <emphasis>only</emphasis>,
-			i.e. <literal>tsvn:</literal>, <literal>bugtraq:</literal>
-			and <literal>webviewer:</literal>
+			For <literal>tsvn:</literal> properties <emphasis>only</emphasis>
 			you can use the <guilabel>Recursive</guilabel> checkbox to set
 			the property to all sub-folders in the hierarchy, without also
 			setting it on all files.
@@ -116,10 +114,7 @@
 			Because the repo viewer integration depends upon accessing subversion
 			properties, you will only see the results when using a checked
 			out working copy. Fetching properties remotely is a slow operation,
-			so you will not see this feature in action from the repo browser
-			unless you started the repo browser from your working copy. If you
-			started the repo browser by entering the URL of the repository
-			you won't see this feature.
+			so you will not see this feature in action from the repo browser.
 		</para>
 	</tip>
 </sect1>

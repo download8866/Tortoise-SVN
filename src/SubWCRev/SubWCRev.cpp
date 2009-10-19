@@ -30,7 +30,7 @@
 #include <apr_pools.h>
 #include "svn_error.h"
 #include "svn_client.h"
-#include "svn_dirent_uri.h"
+#include "svn_path.h"
 #include "SubWCRev.h"
 #include "UnicodeUtils.h"
 #include "..\version.h"
@@ -529,7 +529,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			delete [] src;
 			return ERR_ALLOC;
 		}
-		if (!ReadFile(hFile, pBuf, (DWORD)filelength, &readlength, NULL))
+		if (!ReadFile(hFile, pBuf, filelength, &readlength, NULL))
 		{
 			_tprintf(_T("Could not read the file '%s'\n"), src);
 			delete [] pBuf;
@@ -572,7 +572,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	char *wc_utf8;
 	wc_utf8 = Utf16ToUtf8(wc, pool);
-	internalpath = svn_dirent_internal_style (wc_utf8, pool);
+	internalpath = svn_path_internal_style (wc_utf8, pool);
 
 	svnerr = svn_status(	internalpath,	//path
 							&SubStat,		//status_baton
@@ -735,7 +735,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		DWORD readlengthExisting = 0;
 		char * pBufExisting = new char[filelength];
-		if (!ReadFile(hFile, pBufExisting, (DWORD)filelengthExisting, &readlengthExisting, NULL))
+		if (!ReadFile(hFile, pBufExisting, filelengthExisting, &readlengthExisting, NULL))
 		{
 			_tprintf(_T("Could not read the file '%s'\n"), dst);
 			delete [] pBuf;
@@ -763,7 +763,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 
-		WriteFile(hFile, pBuf, (DWORD)filelength, &readlength, NULL);
+		WriteFile(hFile, pBuf, filelength, &readlength, NULL);
 		if (readlength != filelength)
 		{
 			_tprintf(_T("Could not write the file '%s' to the end!\n"), dst);

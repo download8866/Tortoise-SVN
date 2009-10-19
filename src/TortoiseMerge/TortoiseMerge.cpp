@@ -27,8 +27,6 @@
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "DirFileEnum.h"
-#include "auto_buffer.h"
-#include "StringUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -277,17 +275,27 @@ BOOL CTortoiseMergeApp::InitInstance()
 
 		CString sFilter;
 		sFilter.LoadString(IDS_PATCHFILEFILTER);
-		auto_buffer<TCHAR> pszFilters(sFilter.GetLength()+4);
+		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-		CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 
 		// Display the Open dialog box. 
+		CString tempfile;
 		if (GetOpenFileName(&ofn)==FALSE)
 		{
+			delete [] pszFilters;
 			return FALSE;
 		}
+		delete [] pszFilters;
 		pFrame->m_Data.m_sDiffFile = ofn.lpstrFile;
 	}
 
@@ -392,17 +400,26 @@ BOOL CTortoiseMergeApp::InitInstance()
 				ofn.Flags = OFN_OVERWRITEPROMPT;
 				CString sFilter;
 				sFilter.LoadString(IDS_COMMONFILEFILTER);
-				auto_buffer<TCHAR> pszFilters(sFilter.GetLength()+4);
+				TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 				_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-				CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+				// Replace '|' delimiters with '\0's
+				TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+				while (ptr != pszFilters)
+				{
+					if (*ptr == '|')
+						*ptr = '\0';
+					ptr--;
+				}
 				ofn.lpstrFilter = pszFilters;
 				ofn.nFilterIndex = 1;
 
 				// Display the Save dialog box. 
+				CString sFile;
 				if (GetSaveFileName(&ofn)==TRUE)
 				{
 					outfile = CString(ofn.lpstrFile);
 				}
+				delete [] pszFilters;
 			}
 			if (!outfile.IsEmpty())
 			{
@@ -422,14 +439,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 		return TRUE;
 	}
 
-	int line = -2;
-	if (parser.HasVal(_T("line")))
-	{
-		line = parser.GetLongVal(_T("line"));
-		line--;	// we need the index
-	}
-
-	return pFrame->LoadViews(line);
+	return pFrame->LoadViews();
 }
 
 // CTortoiseMergeApp message handlers
@@ -456,11 +466,13 @@ CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam,
 			LPCSTR lpstr = (LPCSTR)GlobalLock(hglb); 
 
 			DWORD len = GetTempPath(0, NULL);
-			auto_buffer<TCHAR> path(len+1);
-			auto_buffer<TCHAR> tempF(len+100);
+			TCHAR * path = new TCHAR[len+1];
+			TCHAR * tempF = new TCHAR[len+100];
 			GetTempPath (len+1, path);
 			GetTempFileName (path, TEXT("tsm"), 0, tempF);
 			std::wstring sTempFile = std::wstring(tempF);
+			delete [] path;
+			delete [] tempF;
 
 			FILE * outFile;
 			size_t patchlen = strlen(lpstr);
@@ -487,11 +499,11 @@ int CTortoiseMergeApp::ExitInstance()
 	// Look for temporary files left around by TortoiseMerge and
 	// remove them. But only delete 'old' files 
 	DWORD len = ::GetTempPath(0, NULL);
-	auto_buffer<TCHAR> path(len + 100);
+	TCHAR * path = new TCHAR[len + 100];
 	len = ::GetTempPath (len+100, path);
 	if (len != 0)
 	{
-		CSimpleFileFind finder = CSimpleFileFind(path.get(), _T("*tsm*.*"));
+		CSimpleFileFind finder = CSimpleFileFind(path, _T("*tsm*.*"));
 		FILETIME systime_;
 		::GetSystemTimeAsFileTime(&systime_);
 		__int64 systime = (((_int64)systime_.dwHighDateTime)<<32) | ((__int64)systime_.dwLowDateTime);
@@ -517,6 +529,7 @@ int CTortoiseMergeApp::ExitInstance()
 			}
 		}
 	}	
+	delete[] path;		
 
 	return CWinAppEx::ExitInstance();
 }

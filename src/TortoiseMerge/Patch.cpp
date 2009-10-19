@@ -24,7 +24,6 @@
 #include "svn_wc.h"
 #include "SVNAdminDir.h"
 #include "Patch.h"
-#include "ProgressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,8 +60,8 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 {
 	CString sLine;
 	EOL ending = EOL_NOENDING;
-	int nIndex = 0;
-	int nLineCount = 0;
+	INT_PTR nIndex = 0;
+	INT_PTR nLineCount = 0;
 	g_crasher.AddFile((LPCSTR)(LPCTSTR)filename, (LPCSTR)(LPCTSTR)_T("unified diff file"));
 
 	CFileTextLines PatchLines;
@@ -665,23 +664,11 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	//first check if the path already matches
 	if (CountMatches(path) > (GetNumberOfFiles()/3))
 		return path;
-
-	CProgressDlg progress;
-	CString tmp;
-	progress.SetTitle(IDS_PATCH_SEARCHPATHTITLE);
-	progress.SetShowProgressBar(false);
-	tmp.LoadString(IDS_PATCH_SEARCHPATHLINE1);
-	progress.SetLine(1, tmp);
-	progress.ShowModeless(AfxGetMainWnd());
-
 	//now go up the tree and try again
 	CString upperpath = path;
 	while (upperpath.ReverseFind('\\')>0)
 	{
 		upperpath = upperpath.Left(upperpath.ReverseFind('\\'));
-		progress.SetLine(2, upperpath, true);
-		if (progress.HasUserCancelled())
-			return path;
 		if (CountMatches(upperpath) > (GetNumberOfFiles()/3))
 			return upperpath;
 	}
@@ -693,9 +680,6 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	{
 		if (!isDir)
 			continue;
-		progress.SetLine(2, subpath, true);
-		if (progress.HasUserCancelled())
-			return path;
 		if (g_SVNAdminDir.IsAdminDirPath(subpath))
 			continue;
 		if (CountMatches(subpath) > (GetNumberOfFiles()/3))
@@ -710,9 +694,6 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	while (upperpath.ReverseFind('\\')>0)
 	{
 		upperpath = upperpath.Left(upperpath.ReverseFind('\\'));
-		progress.SetLine(2, upperpath, true);
-		if (progress.HasUserCancelled())
-			return path;
 		if (CountDirMatches(upperpath) > (GetNumberOfFiles()/3))
 			return upperpath;
 	}

@@ -37,8 +37,6 @@
 #include "ChangedDlg.h"
 #include "RevisionGraph/StandardLayout.h"
 #include "RevisionGraph/UpsideDownLayout.h"
-#include "SysInfo.h"
-#include "FormatMessageWrapper.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -47,11 +45,6 @@ static char THIS_FILE[] = __FILE__;
 #endif
 
 using namespace Gdiplus;
-
-#if (_WIN32_WINNT < 0x0600)
-#define WM_MOUSEHWHEEL                  0x020E
-#endif
-
 
 enum RevisionGraphContextMenuCommands
 {
@@ -82,6 +75,8 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 	: CWnd()
 	, m_SelectedEntry1(NULL)
 	, m_SelectedEntry2(NULL)
+	, m_bThreadRunning(TRUE)
+    , m_pProgress(NULL)
 	, m_pDlgTip(NULL)
 	, m_nFontSize(12)
     , m_bTweakTrunkColors(true)
@@ -97,7 +92,10 @@ CRevisionGraphWnd::CRevisionGraphWnd()
     , m_showHoverGlyphs (false)
 {
 	memset(&m_lfBaseFont, 0, sizeof(LOGFONT));	
-	std::fill_n(m_apFonts, MAXFONTS, (CFont*)NULL);
+	for (int i=0; i<MAXFONTS; i++)
+	{
+		m_apFonts[i] = NULL;
+	}
 
 	WNDCLASS wndcls;
 	HINSTANCE hInst = AfxGetInstanceHandle();
@@ -153,7 +151,6 @@ BEGIN_MESSAGE_MAP(CRevisionGraphWnd, CWnd)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, OnToolTipNotify)
 	ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTA, 0, 0xFFFF, OnToolTipNotify)
 	ON_WM_MOUSEWHEEL()
-	ON_WM_MOUSEHWHEEL()
 	ON_WM_CONTEXTMENU()
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
@@ -432,7 +429,7 @@ void CRevisionGraphWnd::OnSize(UINT nType, int cx, int cy)
 
 void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 {
-    if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 		return __super::OnLButtonDown(nFlags, point);
 
     CSyncPointer<const ILayoutNodeList> nodeList (m_state.GetNodes());
@@ -441,8 +438,7 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
 	SetFocus();
 	bool bHit = false;
 	bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
-    bool bOverview = m_bShowOverview && m_OverviewRect.PtInRect(point);
-	if (! bOverview)
+	if (!m_bShowOverview || !m_OverviewRect.PtInRect(point))
 	{
         const CRevisionGraphState::SVisibleGlyph* hitGlyph 
             = GetHitGlyph (point);
@@ -452,43 +448,46 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
             ToggleNodeFlag (hitGlyph->node, hitGlyph->state);
         	return __super::OnLButtonDown(nFlags, point);
         }
-		index_t nodeIndex = GetHitNode (point);
-		if (nodeIndex != NO_INDEX)
-		{
-			const CVisibleGraphNode* reventry = nodeList->GetNode (nodeIndex).node;
-			if (bControl)
-			{
-				if (m_SelectedEntry1 == reventry)
-				{
-					if (m_SelectedEntry2)
-					{
-						m_SelectedEntry1 = m_SelectedEntry2;
-						m_SelectedEntry2 = NULL;
-					}
-					else
-						m_SelectedEntry1 = NULL;
-				}
-				else if (m_SelectedEntry2 == reventry)
-					m_SelectedEntry2 = NULL;
-				else if (m_SelectedEntry1)
-					m_SelectedEntry2 = reventry;
-				else
-					m_SelectedEntry1 = reventry;
-			}
-			else
-			{
-				if (m_SelectedEntry1 == reventry)
-					m_SelectedEntry1 = NULL;
-				else
-					m_SelectedEntry1 = reventry;
-				m_SelectedEntry2 = NULL;
-			}
-			bHit = true;
-			Invalidate(FALSE);
+        else
+        {
+            index_t nodeIndex = GetHitNode (point);
+	        if (nodeIndex != NO_INDEX)
+	        {
+                const CVisibleGraphNode* reventry = nodeList->GetNode (nodeIndex).node;
+		        if (bControl)
+		        {
+			        if (m_SelectedEntry1 == reventry)
+			        {
+				        if (m_SelectedEntry2)
+				        {
+					        m_SelectedEntry1 = m_SelectedEntry2;
+					        m_SelectedEntry2 = NULL;
+				        }
+				        else
+					        m_SelectedEntry1 = NULL;
+			        }
+			        else if (m_SelectedEntry2 == reventry)
+				        m_SelectedEntry2 = NULL;
+			        else if (m_SelectedEntry1)
+				        m_SelectedEntry2 = reventry;
+			        else
+				        m_SelectedEntry1 = reventry;
+		        }
+		        else
+		        {
+			        if (m_SelectedEntry1 == reventry)
+				        m_SelectedEntry1 = NULL;
+			        else
+				        m_SelectedEntry1 = reventry;
+			        m_SelectedEntry2 = NULL;
+		        }
+		        bHit = true;
+		        Invalidate(FALSE);
+	        }
         }
     }
 
-    if ((!bHit)&&(!bControl)&&(!bOverview))
+    if ((!bHit)&&(!bControl))
 	{
 		m_SelectedEntry1 = NULL;
 		m_SelectedEntry2 = NULL;
@@ -521,9 +520,8 @@ void CRevisionGraphWnd::OnLButtonUp(UINT nFlags, CPoint point)
 
 	m_bIsRubberBand = false;
 	ReleaseCapture();
-	if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 		return __super::OnLButtonUp(nFlags, point);
-
 	// zooming is finished
 	m_ptRubberEnd = CPoint(0,0);
 	CRect rect = GetClientRect();
@@ -585,7 +583,7 @@ bool CRevisionGraphWnd::CancelMouseZoom()
 
 INT_PTR CRevisionGraphWnd::OnToolHitTest(CPoint point, TOOLINFO* pTI) const
 {
-	if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 		return -1;
 
     index_t nodeIndex = GetHitNode (point);
@@ -700,11 +698,7 @@ CString CRevisionGraphWnd::DisplayableText ( const CString& wholeText
 
     NONCLIENTMETRICS metrics;
     metrics.cbSize = sizeof (metrics);
-	if (!SysInfo::Instance().IsVistaOrLater())
-	{
-		metrics.cbSize -= sizeof(int);	// subtract the size of the iPaddedBorderWidth member which is not available on XP
-	}
-    SystemParametersInfo (SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, 0);
+    SystemParametersInfo (SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &metrics, 0);
 
     CFont font;
     font.CreateFontIndirect(&metrics.lfStatusFont);
@@ -736,7 +730,7 @@ CString CRevisionGraphWnd::DisplayableText ( const CString& wholeText
             if (nextPos2 < 0)
                 break;
 
-            line.Delete (nextPos2+1, line.GetLength() - pos-1);
+            line.Delete (pos+1, line.GetLength() - pos-1);
             size = dc->GetTextExtent (line);
         }
 
@@ -806,10 +800,22 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 			CDC dc;
 			if (!dc.CreateCompatibleDC(&ddc))
 			{
-				CFormatMessageWrapper errorDetails;
-				if( errorDetails )
-    				MessageBox( errorDetails, _T("Error"), MB_OK | MB_ICONINFORMATION );
-
+				LPVOID lpMsgBuf;
+				if (!FormatMessage( 
+					FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+					FORMAT_MESSAGE_FROM_SYSTEM | 
+					FORMAT_MESSAGE_IGNORE_INSERTS,
+					NULL,
+					GetLastError(),
+					MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+					(LPTSTR) &lpMsgBuf,
+					0,
+					NULL ))
+				{
+					return;
+				}
+				MessageBox( (LPCTSTR)lpMsgBuf, _T("Error"), MB_OK | MB_ICONINFORMATION );
+				LocalFree( lpMsgBuf );
 				return;
 			}
 			CRect rect;
@@ -840,7 +846,7 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 			// paint the whole graph
 			DrawGraph(&dc, rect, 0, 0, true);
 			// now use GDI+ to save the picture
-			CLSID encoderClsid;
+			CLSID   encoderClsid;
 			{
 				Bitmap bitmap(hbm, NULL);
 				if (bitmap.GetLastStatus()==Ok)
@@ -896,36 +902,14 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 
 BOOL CRevisionGraphWnd::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
-	if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 		return __super::OnMouseWheel(nFlags, zDelta, pt);
-
-	if (GetKeyState(VK_CONTROL)&0x8000)
-	{
-		DoZoom (max(0.1f, min (2.0f, m_fZoomFactor * (zDelta < 0 ? 0.9f : 1.1f))));
-	}
-	else
-	{
-		int orientation = GetKeyState(VK_SHIFT)&0x8000 ? SB_HORZ : SB_VERT;
-		int pos = GetScrollPos(orientation);
-		pos -= (zDelta);
-		SetScrollPos(orientation, pos);
-		Invalidate(FALSE);
-	}
-	return __super::OnMouseWheel(nFlags, zDelta, pt);
-}
-
-void CRevisionGraphWnd::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
-{
-	if (IsUpdateJobRunning())
-		return __super::OnMouseHWheel(nFlags, zDelta, pt);
-
-	int orientation = GetKeyState(VK_SHIFT)&0x8000 ? SB_VERT : SB_HORZ;
+	int orientation = GetKeyState(VK_CONTROL)&0x8000 ? SB_HORZ : SB_VERT;
 	int pos = GetScrollPos(orientation);
 	pos -= (zDelta);
 	SetScrollPos(orientation, pos);
 	Invalidate(FALSE);
-
-	return __super::OnMouseHWheel(nFlags, zDelta, pt);
+	return __super::OnMouseWheel(nFlags, zDelta, pt);
 }
 
 bool CRevisionGraphWnd::UpdateSelectedEntry (const CVisibleGraphNode * clickedentry)
@@ -1158,7 +1142,7 @@ void CRevisionGraphWnd::DoMergeTo()
 		dlg.SetUrl(URL);
 		dlg.SetSecondUrl(URL);
 		SVNRevRangeArray revarray;
-		revarray.AddRevRange (m_SelectedEntry1->GetRevision()-1, svn_revnum_t(m_SelectedEntry1->GetRevision()));
+		revarray.AddRevRange(m_SelectedEntry1->GetRevision(), svn_revnum_t(m_SelectedEntry1->GetRevision())-1);
 		dlg.SetRevisionRanges(revarray);
 		dlg.DoModal();
 	}
@@ -1235,7 +1219,7 @@ void CRevisionGraphWnd::ToggleNodeFlag (const CVisibleGraphNode *node, DWORD fla
 
 void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 		return;
 
     CSyncPointer<const ILayoutNodeList> nodeList (m_state.GetNodes());
@@ -1251,97 +1235,95 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         clickedentry = nodeList->GetNode (nodeIndex).node;
     }
 
-    if ( !UpdateSelectedEntry (clickedentry) 
+    if (   !UpdateSelectedEntry (clickedentry) 
         && !m_state.GetNodeStates()->GetCombinedFlags())
-	{
 		return;
-	}
 
     CMenu popup;
-	if (!popup.CreatePopupMenu())
-		return;
-
-	AddSVNOps (popup);
-	AddGraphOps (popup, clickedentry);
-
-	// if the context menu is invoked through the keyboard, we have to use
-	// a calculated position on where to anchor the menu on
-	if ((point.x == -1) && (point.y == -1))
+	if (popup.CreatePopupMenu())
 	{
-		CRect rect = GetWindowRect();
-		point = rect.CenterPoint();
-	}
+        AddSVNOps (popup);
+        AddGraphOps (popup, clickedentry);
 
-	int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
-	switch (cmd)
-	{
-	case ID_COMPAREREVS:
-    	if (m_SelectedEntry1 != NULL)
-	   		CompareRevs(false);
-		break;
-	case ID_COMPAREHEADS:
-    	if (m_SelectedEntry1 != NULL)
-    		CompareRevs(true);
-		break;
-	case ID_UNIDIFFREVS:
-    	if (m_SelectedEntry1 != NULL)
-    		UnifiedDiffRevs(false);
-		break;
-	case ID_UNIDIFFHEADS:
-    	if (m_SelectedEntry1 != NULL)
-    		UnifiedDiffRevs(true);
-		break;
-	case ID_SHOWLOG:
-		DoShowLog();
-		break;
-	case ID_CFM:
-		DoCheckForModification();
-		break;
-	case ID_MERGETO:
-		DoMergeTo();
-		break;
-	case ID_UPDATE:
-		DoUpdate();
-		break;
-	case ID_SWITCHTOHEAD:
-		DoSwitchToHead();
-		break;
-	case ID_SWITCH:
-		DoSwitch();
-		break;
-	case ID_BROWSEREPO:
-		DoBrowseRepo();
-		break;
-	case ID_EXPAND_ALL:
-		ResetNodeFlags (CGraphNodeStates::COLLAPSED_ALL);
-		break;
-	case ID_JOIN_ALL:
-		ResetNodeFlags (CGraphNodeStates::SPLIT_ALL);
-		break;
-	case ID_GRAPH_EXPANDCOLLAPSE_ABOVE:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_ABOVE);
-		break;
-	case ID_GRAPH_EXPANDCOLLAPSE_RIGHT:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_RIGHT);
-		break;
-	case ID_GRAPH_EXPANDCOLLAPSE_BELOW:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_BELOW);
-		break;
-	case ID_GRAPH_SPLITJOIN_ABOVE:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_ABOVE);
-		break;
-	case ID_GRAPH_SPLITJOIN_RIGHT:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_RIGHT);
-		break;
-	case ID_GRAPH_SPLITJOIN_BELOW:
-		ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_BELOW);
-		break;
+		// if the context menu is invoked through the keyboard, we have to use
+		// a calculated position on where to anchor the menu on
+		if ((point.x == -1) && (point.y == -1))
+		{
+			CRect rect = GetWindowRect();
+			point = rect.CenterPoint();
+		}
+
+		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
+		switch (cmd)
+		{
+		case ID_COMPAREREVS:
+    		if (m_SelectedEntry1 != NULL)
+	    		CompareRevs(false);
+			break;
+		case ID_COMPAREHEADS:
+    		if (m_SelectedEntry1 != NULL)
+    			CompareRevs(true);
+			break;
+		case ID_UNIDIFFREVS:
+    		if (m_SelectedEntry1 != NULL)
+    			UnifiedDiffRevs(false);
+			break;
+		case ID_UNIDIFFHEADS:
+    		if (m_SelectedEntry1 != NULL)
+    			UnifiedDiffRevs(true);
+			break;
+		case ID_SHOWLOG:
+			DoShowLog();
+			break;
+        case ID_CFM:
+            DoCheckForModification();
+            break;
+		case ID_MERGETO:
+            DoMergeTo();
+			break;
+        case ID_UPDATE:
+            DoUpdate();
+            break;
+        case ID_SWITCHTOHEAD:
+            DoSwitchToHead();
+            break;
+        case ID_SWITCH:
+            DoSwitch();
+            break;
+        case ID_BROWSEREPO:
+            DoBrowseRepo();
+            break;
+        case ID_EXPAND_ALL:
+            ResetNodeFlags (CGraphNodeStates::COLLAPSED_ALL);
+            break;
+        case ID_JOIN_ALL:
+            ResetNodeFlags (CGraphNodeStates::SPLIT_ALL);
+            break;
+        case ID_GRAPH_EXPANDCOLLAPSE_ABOVE:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_ABOVE);
+            break;
+        case ID_GRAPH_EXPANDCOLLAPSE_RIGHT:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_RIGHT);
+            break;
+        case ID_GRAPH_EXPANDCOLLAPSE_BELOW:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::COLLAPSED_BELOW);
+            break;
+        case ID_GRAPH_SPLITJOIN_ABOVE:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_ABOVE);
+            break;
+        case ID_GRAPH_SPLITJOIN_RIGHT:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_RIGHT);
+            break;
+        case ID_GRAPH_SPLITJOIN_BELOW:
+            ToggleNodeFlag (clickedentry, CGraphNodeStates::SPLIT_BELOW);
+            break;
+		}
 	}
 }
 
 void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 	{
 		return __super::OnMouseMove(nFlags, point);
 	}
@@ -1353,8 +1335,6 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
             CRect viewRect = GetViewRect();
 			int x = (int)((point.x-m_OverviewRect.left - (m_OverviewPosRect.Width()/2)) / m_previewZoom  * m_fZoomFactor);
 			int y = (int)((point.y - (m_OverviewPosRect.Height()/2)) / m_previewZoom  * m_fZoomFactor);
-			x = max(0, x);
-			y = max(0, y);
 			SetScrollbars(y, x);
 			Invalidate(FALSE);
 			return __super::OnMouseMove(nFlags, point);
@@ -1465,12 +1445,6 @@ void CRevisionGraphWnd::OnTimer (UINT_PTR nIDEvent)
 
 LRESULT CRevisionGraphWnd::OnWorkerThreadDone(WPARAM, LPARAM)
 {
-    // handle potential race condition between PostMessage and leaving job:
-    // the background job may not have exited, yet
-
-    if (updateJob.get())
-        updateJob->GetResult();
-
 	InitView();
 	BuildPreview();
     Invalidate(FALSE);

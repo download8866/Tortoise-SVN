@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,15 +39,15 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR /*pwszIconFile*/, int /*cchMax*/, 
 	// loaded, so we can later check if some are missing
 	switch (m_State)
 	{
-		case FileStateVersioned				: g_normalovlloaded = true; g_overlayCount++; break;
-		case FileStateModified				: g_modifiedovlloaded = true; g_overlayCount++; break;
-		case FileStateConflict				: g_conflictedovlloaded = true; g_overlayCount++; break;
-		case FileStateDeleted				: g_deletedovlloaded = true; g_overlayCount++; break;
-		case FileStateReadOnly				: g_readonlyovlloaded = true; g_overlayCount++; break;
-		case FileStateLockedOverlay			: g_lockedovlloaded = true; g_overlayCount++; break;
-		case FileStateAddedOverlay			: g_addedovlloaded = true; g_overlayCount++; break;
-		case FileStateIgnoredOverlay		: g_ignoredovlloaded = true; g_overlayCount++; break;
-		case FileStateUnversionedOverlay	: g_unversionedovlloaded = true; g_overlayCount++; break;
+		case FileStateVersioned				: g_normalovlloaded = true; break;
+		case FileStateModified				: g_modifiedovlloaded = true; break;
+		case FileStateConflict				: g_conflictedovlloaded = true; break;
+		case FileStateDeleted				: g_deletedovlloaded = true; break;
+		case FileStateReadOnly				: g_readonlyovlloaded = true; break;
+		case FileStateLockedOverlay			: g_lockedovlloaded = true; break;
+		case FileStateAddedOverlay			: g_addedovlloaded = true; break;
+		case FileStateIgnoredOverlay		: g_ignoredovlloaded = true; break;
+		case FileStateUnversionedOverlay	: g_unversionedovlloaded = true; break;
 	}
 
 	// we don't have to set the icon file and/or the index here:
@@ -96,12 +96,12 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 
 STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 {
-	if (pwszPath == NULL)
-		return E_INVALIDARG;
 	PreserveChdir preserveChdir;
 	svn_wc_status_kind status = svn_wc_status_none;
 	bool readonlyoverlay = false;
 	bool lockedoverlay = false;
+	if (pwszPath == NULL)
+		return S_FALSE;
 	const TCHAR* pPath = pwszPath;
 
 	// the shell sometimes asks overlays for invalid paths, e.g. for network
@@ -110,13 +110,11 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		return S_FALSE;
 	// since the shell calls each and every overlay handler with the same filepath
 	// we use a small 'fast' cache of just one path here.
-	// To make sure that cache expires, only allow it to be reused count of overlay handlers(-1) times.
+	// To make sure that cache expires, clear it as soon as one handler is used.
 
 	AutoLocker lock(g_csGlobalCOMGuard);
-
-	if (_tcscmp(pPath, g_filepath.c_str())==0 && g_filepathCacheCount > 0)
+	if (_tcscmp(pPath, g_filepath.c_str())==0)
 	{
-		g_filepathCacheCount--;
 		status = g_filestatus;
 		readonlyoverlay = g_readonlyoverlay;
 		lockedoverlay = g_lockedoverlay;
@@ -144,7 +142,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 				if (m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(pPath), &itemStatus, true))
 				{
 					status = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
-					if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)))
+					if ((itemStatus.m_kind == svn_node_file)&&(status == svn_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)||(itemStatus.m_readonly)))
 						readonlyoverlay = true;
 					if (itemStatus.m_owner[0]!=0)
 						lockedoverlay = true;
@@ -230,13 +228,8 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			}
 			break;
 		}
-
 		ATLTRACE(_T("Status %d for file %s\n"), status, pwszPath);
-		
-		// allow this path's status to be reused by the other handlers
-		g_filepathCacheCount = g_overlayCount-1;
 	}
-
 	g_filepath.clear();
 	g_filepath = pPath;
 	g_filestatus = status;
@@ -254,96 +247,134 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 		// at least the 'normal' and 'modified' overlay are available.
 		case svn_wc_status_none:
 			return S_FALSE;
-
 		case svn_wc_status_unversioned:
-			if (!g_ShellCache.ShowUnversionedOverlay() || !g_unversionedovlloaded || (m_State != FileStateUnversionedOverlay))
-    			return S_FALSE;
-            break;
-
+			if (g_ShellCache.ShowUnversionedOverlay() && g_unversionedovlloaded && (m_State == FileStateUnversionedOverlay))
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			return S_FALSE;
 		case svn_wc_status_ignored:
-			if (!g_ShellCache.ShowIgnoredOverlay() || !g_ignoredovlloaded || (m_State != FileStateIgnoredOverlay))
-    			return S_FALSE;
-            break;
-
+			if (g_ShellCache.ShowIgnoredOverlay() && g_ignoredovlloaded && (m_State == FileStateIgnoredOverlay))
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			return S_FALSE;
 		case svn_wc_status_normal:
 		case svn_wc_status_external:
 		case svn_wc_status_incomplete:
 			if ((readonlyoverlay)&&(g_readonlyovlloaded))
 			{
-				if (m_State != FileStateReadOnly)
+				if (m_State == FileStateReadOnly)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else if ((lockedoverlay)&&(g_lockedovlloaded))
 			{
-				if (m_State != FileStateLockedOverlay)
+				if (m_State == FileStateLockedOverlay)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-			else if (m_State != FileStateVersioned)
+			else if (m_State == FileStateVersioned)
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			else
 				return S_FALSE;
-            break;
-
 		case svn_wc_status_missing:
 		case svn_wc_status_deleted:
 			if (g_deletedovlloaded)
 			{
-				if (m_State != FileStateDeleted)
+				if (m_State == FileStateDeleted)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'deleted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-
-				if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-            break;
-
 		case svn_wc_status_replaced:
 		case svn_wc_status_modified:
 		case svn_wc_status_merged:
-			if (m_State != FileStateModified)
+			if (m_State == FileStateModified)
+			{
+				g_filepath.clear();
+				return S_OK;
+			}
+			else
 				return S_FALSE;
-            break;
-
 		case svn_wc_status_added:
 			if (g_addedovlloaded)
 			{
-				if (m_State != FileStateAddedOverlay)
+				if (m_State== FileStateAddedOverlay)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'added' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-				if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-            break;
-
 		case svn_wc_status_conflicted:
 		case svn_wc_status_obstructed:
 			if (g_conflictedovlloaded)
 			{
-				if (m_State != FileStateConflict)
+				if (m_State == FileStateConflict)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
 			else
 			{
 				// the 'conflicted' overlay isn't available (due to lack of enough
 				// overlay slots). So just show the 'modified' overlay instead.
-
-                if (m_State != FileStateModified)
+				if (m_State == FileStateModified)
+				{
+					g_filepath.clear();
+					return S_OK;
+				}
+				else
 					return S_FALSE;
 			}
-			break;
-
 		default:
 			return S_FALSE;
 	} // switch (status)
     //return S_FALSE;
-
-    // we want to show the overlay icon specified in m_State
-	return S_OK;
 }
 

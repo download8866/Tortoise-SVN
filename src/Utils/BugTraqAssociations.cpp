@@ -18,7 +18,6 @@
 //
 #include "stdafx.h"
 #include "BugTraqAssociations.h"
-#include "auto_buffer.h"
 
 #include <initguid.h>
 
@@ -78,10 +77,11 @@ void CBugTraqAssociations::Load(LPCTSTR uuid /* = NULL */, LPCTSTR params /* = N
 
 			DWORD cbParameters = 0;
 			RegQueryValueEx(hk2, _T("Parameters"), NULL, NULL, (LPBYTE)NULL, &cbParameters);
-            auto_buffer<TCHAR> szParameters (cbParameters+1);
-			RegQueryValueEx(hk2, _T("Parameters"), NULL, NULL, (LPBYTE)szParameters.get(), &cbParameters);
+			TCHAR * szParameters = new TCHAR[cbParameters+1];
+			RegQueryValueEx(hk2, _T("Parameters"), NULL, NULL, (LPBYTE)szParameters, &cbParameters);
 			szParameters[cbParameters] = 0;
 			m_inner.push_back(new CBugTraqAssociation(szWorkingCopy, provider_clsid, LookupProviderName(provider_clsid), szParameters));
+			delete [] szParameters;
 
 			RegCloseKey(hk2);
 		}
@@ -238,13 +238,13 @@ std::vector<CBugTraqProvider> CBugTraqAssociations::GetAvailableProviders()
 {
 	std::vector<CBugTraqProvider> results;
 
-	CComPtr<ICatInformation> pCatInformation;
-	HRESULT hr = pCatInformation.CoCreateInstance(CLSID_StdComponentCategoriesMgr, NULL, CLSCTX_ALL);
-	if (SUCCEEDED(hr))
+	ICatInformation *pCatInformation = NULL;
+
+	HRESULT hr;
+	if (SUCCEEDED(hr = CoCreateInstance(CLSID_StdComponentCategoriesMgr, NULL, CLSCTX_ALL, IID_ICatInformation, (void **)&pCatInformation)))
 	{
-		CComPtr<IEnumGUID> pEnum;
-		hr = pCatInformation->EnumClassesOfCategories(1, &CATID_BugTraqProvider, 0, NULL, &pEnum);
-		if (SUCCEEDED(hr))
+		IEnumGUID *pEnum = NULL;
+		if (SUCCEEDED(hr = pCatInformation->EnumClassesOfCategories(1, &CATID_BugTraqProvider, 0, NULL, &pEnum)))
 		{
 			HRESULT hrEnum;
 			do
@@ -265,6 +265,15 @@ std::vector<CBugTraqProvider> CBugTraqAssociations::GetAvailableProviders()
 				}
 			} while (hrEnum == S_OK);
 		}
+
+		if (pEnum)
+			pEnum->Release();
+		pEnum = NULL;
 	}
+
+	if (pCatInformation)
+		pCatInformation->Release();
+	pCatInformation = NULL;
+
 	return results;
 }

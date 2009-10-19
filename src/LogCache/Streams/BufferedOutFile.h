@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,12 +18,6 @@
 //
 #pragma once
 
-#ifndef WIN32
-#include <fstream>
-#endif
-
-#include "FileName.h"
-#include "auto_buffer.h"
 
 /**
  * class that provides a simple, buffered file write stream.
@@ -32,22 +26,16 @@ class CBufferedOutFile
 {
 private:
 
-#ifdef WIN32
 	// the file
 
 	HANDLE file;
-#else
-	// fallback: STL stream
-
-	std::ofstream stream;
-#endif
 
 	// our local buffer
 
 	enum {BUFFER_SIZE = 1024*1024};
 
-	auto_buffer<unsigned char> buffer;
-	unsigned used;
+	std::auto_ptr<unsigned char> buffer;
+	DWORD used;
 
 	// physical file size + used
 
@@ -63,14 +51,14 @@ public:
 
 	// construction / destruction: auto- open/close
 
-	CBufferedOutFile (const TFileName& fileName);
+	CBufferedOutFile (const std::wstring& fileName);
 	virtual ~CBufferedOutFile();
 
 	// write data to file
 
-	void Add (const unsigned char* data, unsigned bytes);
-	void Add (const char* data, unsigned bytes);
-	void Add (unsigned value);
+	void Add (const unsigned char* data, DWORD bytes);
+	void Add (const char* data, DWORD bytes);
+	void Add (DWORD value);
 
 	// file properties
 
@@ -82,12 +70,12 @@ public:
 // write data to file
 ///////////////////////////////////////////////////////////////
 
-inline void CBufferedOutFile::Add (const char* data, unsigned bytes)
+inline void CBufferedOutFile::Add (const char* data, DWORD bytes)
 {
 	Add (reinterpret_cast<const unsigned char*>(data), bytes);
 }
 
-inline void CBufferedOutFile::Add (unsigned value)
+inline void CBufferedOutFile::Add (DWORD value)
 {
 	Add ((unsigned char*)&value, sizeof (value));
 }
@@ -103,11 +91,7 @@ inline size_t CBufferedOutFile::GetFileSize() const
 
 inline bool CBufferedOutFile::IsOpen() const
 {
-#ifdef WIN32
 	return file != INVALID_HANDLE_VALUE;
-#else
-	return stream.is_open();
-#endif
 }
 
 ///////////////////////////////////////////////////////////////
@@ -118,12 +102,12 @@ CBufferedOutFile& operator<< (CBufferedOutFile& dest, int value);
 
 inline CBufferedOutFile& operator<< (CBufferedOutFile& dest, const char* value)
 {
-	dest.Add (value, (unsigned)strlen (value));
+	dest.Add (value, (DWORD)strlen (value));
 	return dest;
 }
 
 inline CBufferedOutFile& operator<< (CBufferedOutFile& dest, const std::string& value)
 {
-	dest.Add (value.c_str(), (unsigned)value.length());
+	dest.Add (value.c_str(), (DWORD)value.length());
 	return dest;
 }

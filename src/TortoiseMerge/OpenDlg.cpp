@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,9 +20,7 @@
 #include "TortoiseMerge.h"
 #include "BrowseFolder.h"
 #include ".\opendlg.h"
-#include "auto_buffer.h"
-#include "StringUtils.h"
-#include "registry.h"
+
 
 // COpenDlg dialog
 
@@ -79,11 +77,9 @@ BOOL COpenDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	CRegDWORD lastRadioButton(_T("Software\\TortoiseMerge\\OpenRadio"), IDC_MERGERADIO);
-	if (((DWORD)lastRadioButton != IDC_MERGERADIO)&&((DWORD)lastRadioButton != IDC_APPLYRADIO))
-		lastRadioButton = IDC_MERGERADIO;
-	GroupRadio((DWORD)lastRadioButton);
-	CheckRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO, (DWORD)lastRadioButton);
+	GroupRadio(IDC_MERGERADIO);
+
+	CheckRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO, IDC_MERGERADIO);
 
 	// turn on auto completion for the edit controls
 	HWND hwndEdit;
@@ -159,9 +155,16 @@ BOOL COpenDlg::BrowseForFile(CString& filepath, CString title, UINT nFileFilter)
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
 	CString sFilter;
 	sFilter.LoadString(nFileFilter);
-	auto_buffer<TCHAR> pszFilters(sFilter.GetLength()+4);
+	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
 	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+	// Replace '|' delimiters with '\0's
+	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+	while (ptr != pszFilters)
+	{
+		if (*ptr == '|')
+			*ptr = '\0';
+		ptr--;
+	}
 	ofn.lpstrFilter = pszFilters;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = NULL;
@@ -175,8 +178,10 @@ BOOL COpenDlg::BrowseForFile(CString& filepath, CString title, UINT nFileFilter)
 	if (GetOpenFileName(&ofn)==TRUE)
 	{
 		filepath = CString(ofn.lpstrFile);
+		delete [] pszFilters;
 		return TRUE;
 	}
+	delete [] pszFilters;
 	return FALSE;			//user canceled the dialog
 }
 
@@ -287,11 +292,13 @@ void COpenDlg::OnOK()
 			LPCSTR lpstr = (LPCSTR)GlobalLock(hglb); 
 
 			DWORD len = GetTempPath(0, NULL);
-			auto_buffer<TCHAR> path(len+1);
-			auto_buffer<TCHAR> tempF(len+100);
+			TCHAR * path = new TCHAR[len+1];
+			TCHAR * tempF = new TCHAR[len+100];
 			GetTempPath (len+1, path);
 			GetTempFileName (path, TEXT("tsm"), 0, tempF);
 			CString sTempFile = CString(tempF);
+			delete [] path;
+			delete [] tempF;
 
 			FILE * outFile;
 			size_t patchlen = strlen(lpstr);
@@ -322,8 +329,6 @@ void COpenDlg::OnOK()
 		MessageBox(sErr, NULL, MB_ICONERROR);
 		return;
 	}
-	CRegDWORD lastRadioButton(_T("Software\\TortoiseMerge\\OpenRadio"), IDC_MERGERADIO);
-	lastRadioButton = GetCheckedRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO);
 	CDialog::OnOK();
 }
 

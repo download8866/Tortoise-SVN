@@ -22,7 +22,6 @@
 #include "SVNProperties.h"
 #include "SVNStatus.h"
 #include "SVNHelpers.h"
-#include "SVNTrace.h"
 #pragma warning(push)
 #include "svn_props.h"
 #pragma warning(pop)
@@ -77,39 +76,29 @@ svn_error_t*	SVNProperties::Refresh()
 	rev.kind = svn_opt_revision_unspecified;
 	rev.value.number = -1;
 #endif
-
-    const char* svnPath = m_path.GetSVNApiPath(m_pool);
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
 		apr_hash_t * props;
-
-        SVNTRACE (
-		    m_error = svn_client_revprop_list(	&props, 
-											    svnPath,
-											    &rev,
-											    &rev_set,
-											    m_pctx,
-											    m_pool),
-            svnPath
-        )
-
+		m_error = svn_client_revprop_list(	&props, 
+											m_path.GetSVNApiPath(m_pool),
+											&rev,
+											&rev_set,
+											m_pctx,
+											m_pool);
 		m_props[std::string("")] = apr_hash_copy(m_pool, props);
 	}
 	else
 	{
-        SVNTRACE (
-		    m_error = svn_client_proplist3 (svnPath,
-										    &rev,
-										    &rev,
-										    svn_depth_empty,
-										    NULL,
-										    proplist_receiver,
-										    this,
-										    m_pctx,
-										    m_pool),
-            svnPath
-        )
+		m_error = svn_client_proplist3 (m_path.GetSVNApiPath(m_pool),
+										&rev,
+										&rev,
+										svn_depth_empty,
+										NULL,
+										proplist_receiver,
+										this,
+										m_pctx,
+										m_pool);
 	}
 	if(m_error != NULL)
 		return m_error;
@@ -332,7 +321,6 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 			}
 		}
 	}
-
 	if ((!m_bRevProps)&&((depth != svn_depth_empty)&&((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0)||(strncmp(pname_utf8.c_str(), "webviewer:", 10)==0))))
 	{
 		// The bugtraq and tsvn properties must only be set on folders.
@@ -348,11 +336,7 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 				{
 					// a versioned folder, so set the property!
 					svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-                    const char* svnPath = path.GetSVNApiPath(subpool);
-                    SVNTRACE (
-					    m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, svnPath, svn_depth_empty, false, m_rev, NULL, NULL, m_pctx, subpool),
-                        svnPath
-                    )
+					m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, path.GetSVNApiPath(subpool), svn_depth_empty, false, m_rev, NULL, NULL, m_pctx, subpool);
 				}
 			}
 			status = stat.GetNextFileStatus(path);
@@ -361,7 +345,6 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 	else 
 	{
 		svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-        const char* svnPath = m_path.GetSVNApiPath(subpool);
 		if (m_path.IsUrl())
 		{
 			CString msg = message ? message : _T("");
@@ -377,17 +360,11 @@ BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth
 		if (m_bRevProps)
 		{
 			svn_revnum_t rev_set;
-            SVNTRACE (
-			    m_error = svn_client_revprop_set2(pname_utf8.c_str(), pval, NULL, svnPath, m_rev, &rev_set, false, m_pctx, subpool),
-                svnPath
-            )
+			m_error = svn_client_revprop_set2(pname_utf8.c_str(), pval, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 		}
 		else
 		{
-            SVNTRACE (
-    			m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, svnPath, depth, false, m_rev, NULL, NULL, m_pctx, subpool),
-                svnPath
-            )
+			m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, m_path.GetSVNApiPath(subpool), depth, false, m_rev, NULL, NULL, m_pctx, subpool);
 		}
 	}
 	if (m_error != NULL)
@@ -428,21 +405,14 @@ BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * 
 		m_pctx->log_msg_baton3 = baton;
 	}
 
-    const char* svnPath = m_path.GetSVNApiPath(subpool);
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
-        SVNTRACE (
-		    m_error = svn_client_revprop_set2(pname_utf8.c_str(), NULL, NULL, svnPath, m_rev, &rev_set, false, m_pctx, subpool),
-            svnPath
-        )
+		m_error = svn_client_revprop_set2(pname_utf8.c_str(), NULL, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 	}
 	else
 	{
-        SVNTRACE (
-    		m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), NULL, svnPath, depth, false, m_rev, NULL, NULL, m_pctx, subpool),
-            svnPath
-        )
+		m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(subpool), depth, false, m_rev, NULL, NULL, m_pctx, subpool);
 	}
 
 	if (m_error != NULL)

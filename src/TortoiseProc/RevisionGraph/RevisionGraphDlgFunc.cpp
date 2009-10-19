@@ -105,7 +105,7 @@ void CRevisionGraphWnd::SetScrollbar (int bar, int newPos, int clientMax, int gr
     SCROLLINFO ScrollInfo = {sizeof(SCROLLINFO), SIF_ALL};
 	GetScrollInfo (bar, &ScrollInfo);
 
-    int oldHeight = ScrollInfo.nMax <= 0 ? clientMax : ScrollInfo.nMax;
+    int oldHeight = max(1, ScrollInfo.nMax);
     int newHeight = static_cast<int>(graphMax * m_fZoomFactor);
     int maxPos = max (0, newHeight - clientMax);
     int pos = min (maxPos, newPos >= 0
@@ -191,8 +191,7 @@ int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
 bool CRevisionGraphWnd::FetchRevisionData 
     ( const CString& path
-    , SVNRev pegRevision
-    , CProgressDlg* progress)
+    , SVNRev pegRevision)
 {
     // (re-)fetch the data
 
@@ -206,7 +205,7 @@ bool CRevisionGraphWnd::FetchRevisionData
                                                     , pegRevision
                                                     , showWCRev
                                                     , showWCModification
-                                                    , progress);
+                                                    , m_pProgress);
 
     m_state.SetLastErrorMessage (newFullHistory->GetLastErrorMessage());
 
@@ -263,11 +262,6 @@ bool CRevisionGraphWnd::AnalyzeRevisionData()
     }
 
     return m_state.GetNodes().get() != NULL;
-}
-
-bool CRevisionGraphWnd::IsUpdateJobRunning() const
-{
-    return (updateJob.get() != NULL) && !updateJob->IsDone();
 }
 
 bool CRevisionGraphWnd::GetShowOverview() const

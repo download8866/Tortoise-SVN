@@ -29,12 +29,7 @@
 #include "SVN.h"
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
-#include <intshcut.h>
-#include "auto_buffer.h"
-#include "StringUtils.h"
-#include "CreateProcessHelper.h"
-#include "FormatMessageWrapper.h"
-#include "DirFileEnum.h"
+
 
 CAppUtils::CAppUtils(void)
 {
@@ -274,7 +269,7 @@ CString CAppUtils::PickDiffTool(const CTSVNPath& file1, const CTSVNPath& file2)
 
 bool CAppUtils::StartExtDiff(
 	const CTSVNPath& file1, const CTSVNPath& file2,
-	const CString& sName1, const CString& sName2, const DiffFlags& flags, int line)
+	const CString& sName1, const CString& sName2, const DiffFlags& flags)
 {
 	CString viewer;
 
@@ -332,13 +327,6 @@ bool CAppUtils::StartExtDiff(
 
 	if (flags.bReadOnly && bInternal)
 		viewer += _T(" /readonly");
-	if (line > 0)
-	{
-		viewer += _T(" /line:");
-		CString temp;
-		temp.Format(_T("%ld"), line);
-		viewer += temp;
-	}
 
 	return LaunchApplication(viewer, IDS_ERR_EXTDIFFSTART, flags.bWait);
 }
@@ -440,13 +428,15 @@ BOOL CAppUtils::StartTextViewer(CString file)
 	viewer = txtexe;
 
 	DWORD len = ExpandEnvironmentStrings(viewer, NULL, 0);
-	auto_buffer<TCHAR> buf(len+1);
+	TCHAR * buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(viewer, buf, len);
 	viewer = buf;
+	delete [] buf;
 	len = ExpandEnvironmentStrings(file, NULL, 0);
-	buf.reset(len+1);
+	buf = new TCHAR[len+1];
 	ExpandEnvironmentStrings(file, buf, len);
 	file = buf;
+	delete [] buf;
 	file = _T("\"")+file+_T("\"");
 	if (viewer.IsEmpty())
 	{
@@ -459,10 +449,16 @@ BOOL CAppUtils::StartTextViewer(CString file)
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
 		CString sFilter;
 		sFilter.LoadString(IDS_PROGRAMSFILEFILTER);
-		const int filterLength = sFilter.GetLength()+4;
-		auto_buffer<TCHAR> pszFilters(filterLength);
-		_tcscpy_s (pszFilters, filterLength, sFilter);
-		CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
+		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
 		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		ofn.lpstrFileTitle = NULL;
@@ -478,10 +474,12 @@ BOOL CAppUtils::StartTextViewer(CString file)
 
 		if (GetOpenFileName(&ofn)==TRUE)
 		{
+			delete [] pszFilters;
 			viewer = CString(ofn.lpstrFile);
 		}
 		else
 		{
+			delete [] pszFilters;
 			return FALSE;
 		}
 	}
@@ -544,16 +542,33 @@ void CAppUtils::CreateFontForLogs(CFont& fontToCreate)
 
 bool CAppUtils::LaunchApplication(const CString& sCommandLine, UINT idErrMessageFormat, bool bWaitForStartup)
 {
+	STARTUPINFO startup;
 	PROCESS_INFORMATION process;
+	memset(&startup, 0, sizeof(startup));
+	startup.cb = sizeof(startup);
+	memset(&process, 0, sizeof(process));
+
 	CString cleanCommandLine(sCommandLine);
-	if (!CCreateProcessHelper::CreateProcess(NULL, const_cast<TCHAR*>((LPCTSTR)cleanCommandLine), sOrigCWD, &process))
+
+	if (CreateProcess(NULL, const_cast<TCHAR*>((LPCTSTR)cleanCommandLine), NULL, NULL, FALSE, 0, 0, sOrigCWD, &startup, &process)==0)
 	{
 		if(idErrMessageFormat != 0)
 		{
-			CFormatMessageWrapper errorDetails;
+			LPVOID lpMsgBuf;
+			FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+				FORMAT_MESSAGE_FROM_SYSTEM | 
+				FORMAT_MESSAGE_IGNORE_INSERTS,
+				NULL,
+				GetLastError(),
+				MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+				(LPTSTR) &lpMsgBuf,
+				0,
+				NULL 
+				);
 			CString temp;
-			temp.Format(idErrMessageFormat, errorDetails);
+			temp.Format(idErrMessageFormat, lpMsgBuf);
 			CMessageBox::Show(NULL, temp, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION);
+			LocalFree( lpMsgBuf );
 		}
 		return false;
 	}
@@ -696,49 +711,6 @@ bool CAppUtils::FormatTextInRichEditControl(CWnd * pWnd)
 	return bStyled;	
 }
 
-bool CAppUtils::UnderlineRegexMatches(CWnd * pWnd, const CString& matchstring, const CString& matchsubstring /* = _T(".*")*/)
-{
-	CString sText;
-	if (pWnd == NULL)
-		return false;
-	bool bFound = false;
-	pWnd->GetWindowText(sText);
-	// the rich edit control doesn't count the CR char!
-	// to be exact: CRLF is treated as one char.
-	sText.Replace(_T("\r"), _T(""));
-
-	try
-	{
-		const tr1::wregex regMatch(matchstring, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-		const tr1::wregex regSubMatch(matchsubstring, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-		const tr1::wsregex_iterator end;
-		wstring s = sText;
-		for (tr1::wsregex_iterator it(s.begin(), s.end(), regMatch); it != end; ++it)
-		{
-			// (*it)[0] is the matched string
-			wstring matchedString = (*it)[0];
-			ptrdiff_t matchpos = it->position(0);
-			for (tr1::wsregex_iterator it2(matchedString.begin(), matchedString.end(), regSubMatch); it2 != end; ++it2)
-			{
-				ATLTRACE(_T("matched id : %s\n"), (*it2)[0].str().c_str());
-				ptrdiff_t matchposID = it2->position(0);
-				CHARRANGE range = {(LONG)(matchpos+matchposID), (LONG)(matchpos+matchposID+(*it2)[0].str().size())};
-				pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
-				CHARFORMAT2 format;
-				SecureZeroMemory(&format, sizeof(CHARFORMAT2));
-				format.cbSize = sizeof(CHARFORMAT2);
-				format.dwMask = CFM_LINK;
-				format.dwEffects = CFE_LINK;
-				pWnd->SendMessage(EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&format);
-				bFound = true;
-			}
-		}
-	}
-	catch (exception) {}
-	return bFound;
-}
-
-
 bool CAppUtils::FindStyleChars(const CString& sText, TCHAR stylechar, int& start, int& end)
 {
 	int i=start;
@@ -852,14 +824,20 @@ bool CAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title, UINT 
 	ofn.lpstrFile = szFile;
 	ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
 	CString sFilter;
-	auto_buffer<TCHAR> pszFilters;
+	TCHAR * pszFilters = NULL;
 	if (filter)
 	{
 		sFilter.LoadString(filter);
-		const int filtersLength = sFilter.GetLength()+4;
-		pszFilters.reset(filtersLength);
-		_tcscpy_s (pszFilters, filtersLength, sFilter);
-		CStringUtils::PipesToNulls(pszFilters, _tcslen(pszFilters));
+		pszFilters = new TCHAR[sFilter.GetLength()+4];
+		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
 		ofn.lpstrFilter = pszFilters;
 	}
 	ofn.nFilterIndex = 1;
@@ -891,11 +869,15 @@ bool CAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title, UINT 
 	}
 	if (bRet)
 	{
+		if (pszFilters)
+			delete [] pszFilters;
 		path = CString(ofn.lpstrFile);
 		if (filterindex)
 			*filterindex = ofn.nFilterIndex;
 		return true;
 	}
+	if (pszFilters)
+		delete [] pszFilters;
 	return false;
 }
 
@@ -1023,8 +1005,7 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
 								 const CTSVNPath& url2, const SVNRev& rev2, 
 								 const SVNRev& peg /* = SVNRev */, const SVNRev& headpeg /* = SVNRev */, 
 								 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */, 
-								 bool blame /* = false */, svn_node_kind_t nodekind /* = svn_node_unknown */,
-								 int line /* = 0 */)
+								 bool blame /* = false */, svn_node_kind_t nodekind /* = svn_node_unknown */)
 {
 	CString sCmd;
 	sCmd.Format(_T("%s /command:showcompare /nodekind:%d"),
@@ -1054,173 +1035,5 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
 		sCmd += buf;
 	}
 
-	if (line > 0)
-	{
-		sCmd += _T(" /line:");
-		CString temp;
-		temp.Format(_T("%ld"), line);
-		sCmd += temp;
-	}
-
 	return CAppUtils::LaunchApplication(sCmd, NULL, false);
-}
-
-
-HRESULT CAppUtils::CreateShortCut(LPCTSTR pszTargetfile, LPCTSTR pszTargetargs,
-					   LPCTSTR pszLinkfile, LPCTSTR pszDescription, 
-					   int iShowmode, LPCTSTR pszCurdir, 
-					   LPCTSTR pszIconfile, int iIconindex)
-{
-	if ((pszTargetfile == NULL) || (_tcslen(pszTargetfile) == 0) ||
-		(pszLinkfile == NULL) || (_tcslen(pszLinkfile) == 0))
-	{
-		return E_INVALIDARG;
-	}
-	CComPtr<IShellLink> pShellLink;
-	HRESULT hRes = pShellLink.CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER);
-	if (FAILED(hRes))
-		return hRes;
-
-	hRes = pShellLink->SetPath(pszTargetfile);
-	hRes = pShellLink->SetArguments(pszTargetargs);
-	if (_tcslen(pszDescription) > 0)
-	{
-		hRes = pShellLink->SetDescription(pszDescription);
-	}
-	if (iShowmode > 0)
-	{
-		hRes = pShellLink->SetShowCmd(iShowmode);
-	}
-	if (_tcslen(pszCurdir) > 0)
-	{
-		hRes = pShellLink->SetWorkingDirectory(pszCurdir);
-	}
-	if (_tcslen(pszIconfile) > 0 && iIconindex >= 0)
-	{
-		hRes = pShellLink->SetIconLocation(pszIconfile, iIconindex);
-	}
-
-	// Use the IPersistFile object to save the shell link
-	CComPtr<IPersistFile> pPersistFile;
-	hRes = pShellLink.QueryInterface(&pPersistFile);
-	if (SUCCEEDED(hRes))
-	{
-		hRes = pPersistFile->Save(pszLinkfile, TRUE);
-	}
-	return (hRes);
-}
-
-HRESULT CAppUtils::CreateShortcutToURL(LPCTSTR pszURL, LPCTSTR pszLinkFile)
-{
-	CComPtr<IUniformResourceLocator> pURL;
-	// Create an IUniformResourceLocator object
-	HRESULT hRes = pURL.CoCreateInstance(CLSID_InternetShortcut, NULL, CLSCTX_INPROC_SERVER);
-	if(FAILED(hRes))
-		return hRes;
-
-	hRes = pURL->SetURL(pszURL, 0);
-	if(FAILED(hRes))
-		return hRes;
-
-	CComPtr<IPersistFile> pPF;
-	hRes = pURL.QueryInterface(&pPF);
-	if (SUCCEEDED(hRes))
-	{   
-		// Save the shortcut via the IPersistFile::Save member function.
-		hRes = pPF->Save(pszLinkFile, TRUE);
-	}
-	return hRes;
-}
-
-bool CAppUtils::SetupDiffScripts(bool force, const CString& type)
-{
-	CString scriptsdir = CPathUtils::GetAppParentDirectory();
-	scriptsdir += _T("Diff-Scripts");
-	CSimpleFileFind files(scriptsdir);
-	while (files.FindNextFileNoDirectories())
-	{
-		CString file = files.GetFilePath();
-		CString filename = files.GetFileName();
-		CString ext = file.Mid(file.ReverseFind('-')+1);
-		ext = _T(".")+ext.Left(ext.ReverseFind('.'));
-		std::set<CString> extensions;
-		extensions.insert(ext);
-		CString kind;
-		if (file.Right(3).CompareNoCase(_T("vbs"))==0)
-		{
-			kind = _T(" //E:vbscript");
-		}
-		if (file.Right(2).CompareNoCase(_T("js"))==0)
-		{
-			kind = _T(" //E:javascript");
-		}
-		// open the file, read the first line and find possible extensions
-		// this script can handle
-		try
-		{
-			CStdioFile f(file, CFile::modeRead | CFile::shareDenyNone);
-			CString extline;
-			if (f.ReadString(extline))
-			{
-				if ( (extline.GetLength() > 15 ) && 
-					((extline.Left(15).Compare(_T("// extensions: "))==0) ||
-					 (extline.Left(14).Compare(_T("' extensions: "))==0)) )
-				{
-					extline = extline.Mid(15);
-					CString sToken;
-					int curPos = 0;
-					sToken = extline.Tokenize(_T(";"), curPos);
-					while (!sToken.IsEmpty())
-					{
-						if (!sToken.IsEmpty())
-						{
-							if (sToken[0] != '.')
-								sToken = _T(".") + sToken;
-							extensions.insert(sToken);
-						}
-						sToken = extline.Tokenize(_T(";"), curPos);
-					}
-				}
-			}
-			f.Close();
-		}
-		catch (CFileException* e)
-		{
-			UNREFERENCED_PARAMETER(e);
-		}
-
-		for (std::set<CString>::const_iterator it = extensions.begin(); it != extensions.end(); ++it)
-		{
-			if (type.IsEmpty() || (type.Compare(_T("Diff"))==0))
-			{
-				if (filename.Left(5).CompareNoCase(_T("diff-"))==0)
-				{
-					CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\DiffTools\\")+*it);
-					CString diffregstring = diffreg;
-					if (force || (diffregstring.IsEmpty()) || (diffregstring.Find(filename)>=0))
-						diffreg = _T("wscript.exe \"") + file + _T("\" %base %mine") + kind;
-				}
-			}
-			if (type.IsEmpty() || (type.Compare(_T("Merge"))==0))
-			{
-				if (filename.Left(6).CompareNoCase(_T("merge-"))==0)
-				{
-					CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\MergeTools\\")+*it);
-					CString diffregstring = diffreg;
-					if (force || (diffregstring.IsEmpty()) || (diffregstring.Find(filename)>=0))
-						diffreg = _T("wscript.exe \"") + file + _T("\" %merged %theirs %mine %base") + kind;
-				}
-			}
-		}
-	}
-	// Initialize "Software\\TortoiseSVN\\DiffProps" once with the same value as "Software\\TortoiseSVN\\Diff"
-	CRegString regDiffPropsPath = CRegString(_T("Software\\TortoiseSVN\\DiffProps"),_T("non-existant"));
-	CString strDiffPropsPath = regDiffPropsPath;
-	if ( force || strDiffPropsPath==_T("non-existant") )
-	{
-		CString strDiffPath = CRegString(_T("Software\\TortoiseSVN\\Diff"));
-		regDiffPropsPath = strDiffPath;
-	}
-
-	return true;
 }

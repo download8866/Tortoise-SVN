@@ -42,19 +42,18 @@ public:
 	bool IsOwnStatusValid() const;
 	void Invalidate();
 	void RefreshStatus(bool bRecursive);
-	void RefreshMostImportant(bool bUpdateShell = true);
+	void RefreshMostImportant();
 	BOOL SaveToDisk(FILE * pFile);
 	BOOL LoadFromDisk(FILE * pFile);
 	/// Get the current full status of this folder
 	svn_wc_status_kind GetCurrentFullStatus() {return m_currentFullStatus;}
 private:
 	static svn_error_t* GetStatusCallback(void *baton, const char *path, svn_wc_status2_t *status, apr_pool_t *pool);
-	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, bool forceNormal);
+	void AddEntry(const CTSVNPath& path, const svn_wc_status2_t* pSVNStatus, DWORD validuntil = 0);
 	CString GetCacheKey(const CTSVNPath& path);
 	CString GetFullPathString(const CString& cacheKey);
 	CStatusCacheEntry LookForItemInCache(const CTSVNPath& path, bool &bFound);
 	void UpdateChildDirectoryStatus(const CTSVNPath& childDir, svn_wc_status_kind childStatus);
-	bool SvnUpdateMembersStatus();
 
 	// Calculate the complete, composite status from ourselves, our files, and our descendants
 	svn_wc_status_kind CalculateRecursiveStatus();
@@ -95,6 +94,7 @@ private:
 	// The most important status from all our file entries
 	svn_wc_status_kind m_mostImportantFileStatus;
 
+	bool m_bRecursive;		// used in the status callback
 	friend class CSVNStatusCache;		
 };
 

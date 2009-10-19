@@ -30,7 +30,7 @@ SysInfo::~SysInfo(void)
 {
 }
 
-const SysInfo& SysInfo::Instance()
+SysInfo& SysInfo::Instance()
 {
 	static SysInfo instance;
 	return instance;

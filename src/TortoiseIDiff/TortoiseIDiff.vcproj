@@ -312,6 +312,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -395,6 +396,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -475,6 +477,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -558,6 +561,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -638,6 +642,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -786,10 +791,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Utils\SysInfo.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseIDiff.cpp"
 				>
 			</File>
@@ -856,10 +857,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SysInfo.h"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseIDiff.h"
 				>
 			</File>
@@ -875,6 +872,14 @@
 			</File>
 			<File
 				RelativePath=".\blend.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\blendAlpha.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\blendXOR.ico"
 				>
 			</File>
 			<File
@@ -903,6 +908,14 @@
 			</File>
 			<File
 				RelativePath="..\Resources\pan.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\pan.cur"
+				>
+			</File>
+			<File
+				RelativePath=".\pandown.cur"
 				>
 			</File>
 			<File

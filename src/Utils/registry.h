@@ -21,7 +21,6 @@
 #include <memory>
 #include "shlwapi.h"
 #include "tstring.h"
-#include "auto_buffer.h"
 
 #ifndef ASSERT
 #define ASSERT(x)
@@ -59,7 +58,7 @@ public:	//methods
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegBaseCommon(const S& key, bool force, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegBaseCommon(const S& key, bool force, HKEY base = HKEY_CURRENT_USER);
 
 	/**
 	 * Removes the whole registry key including all values. So if you set the registry
@@ -114,7 +113,6 @@ protected:
 	S m_key;		    ///< the name of the value
 	S m_path;		    ///< the path to the key
 	LONG LastError;		///< the value of the last error occurred
-	REGSAM m_sam;		///< the security attributes to pass to the registry command
 
 	bool m_read;		///< indicates if the value has already been read from the registry
 	bool m_force;		///< indicates if no cache should be used, i.e. always read and write directly from registry
@@ -129,7 +127,6 @@ CRegBaseCommon<S>::CRegBaseCommon()
     , m_key()
     , m_path()
     , LastError (ERROR_SUCCESS)
-	, m_sam (0)
     , m_read (false)
     , m_force (false)
     , m_exists (false)
@@ -137,12 +134,11 @@ CRegBaseCommon<S>::CRegBaseCommon()
 }
 
 template<class S>
-CRegBaseCommon<S>::CRegBaseCommon (const S& key, bool force, HKEY base, REGSAM sam)
+CRegBaseCommon<S>::CRegBaseCommon (const S& key, bool force, HKEY base)
     : m_base (base)
 	, m_key (key)
     , m_path()
     , LastError (ERROR_SUCCESS)
-	, m_sam (sam)
     , m_read (false)
     , m_force (force)
     , m_exists (false)
@@ -156,7 +152,7 @@ DWORD CRegBaseCommon<S>::removeKey()
     m_read = true;
 
     HKEY hKey = NULL;
-    RegOpenKeyEx (m_base, GetPlainString (m_path), 0, KEY_WRITE|m_sam, &hKey); 
+    RegOpenKeyEx (m_base, GetPlainString (m_path), 0, KEY_WRITE, &hKey); 
     return SHDeleteKey(m_base, GetPlainString (m_path)); 
 }
 
@@ -167,7 +163,7 @@ LONG CRegBaseCommon<S>::removeValue()
     m_read = true;
 
     HKEY hKey = NULL;
-    RegOpenKeyEx(m_base, GetPlainString (m_path), 0, KEY_WRITE|m_sam, &hKey); 
+    RegOpenKeyEx(m_base, GetPlainString (m_path), 0, KEY_WRITE, &hKey); 
     return RegDeleteValue(hKey, GetPlainString (m_key)); 
 }
 
@@ -199,7 +195,7 @@ public:	//methods
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegBase(const CString& key, bool force, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegBase(const CString& key, bool force, HKEY base = HKEY_CURRENT_USER);
 
 	/**
 	 * Returns the string of the last error occurred.
@@ -247,7 +243,7 @@ public:	//methods
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegStdBase(const tstring& key, bool force, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegStdBase(const tstring& key, bool force, HKEY base = HKEY_CURRENT_USER);
 };
 
 /**
@@ -297,27 +293,6 @@ private:
 	T m_defaultvalue;			///< the default value to use
 
     /**
-     * time stamp of the last registry lookup, i.e \ref read() call 
-     */
-
-    DWORD lastRead;             
-
-    /**
-     * \ref read() will be called, if \ref lastRead differs from the
-     * current time stamp by more than this.
-     * (DWORD)(-1) -> no automatic refresh.
-     */
-
-    DWORD lookupInterval;       
-
-    /**
-     * Check time stamps etc. 
-     * If the current data is out-dated, reset the \ref m_read flag.
-     */
-
-    void HandleAutoRefresh();
-
-    /**
      * sub-classes must provide type-specific code to extract data from
      * and write data to an open registry key.
      */
@@ -334,7 +309,6 @@ public:
     typedef T ValueT;
 
     /**
-	 * Constructor.
      * We use this instead of a default constructor because not all 
      * data types may provide an adequate default constructor.
      */
@@ -347,17 +321,7 @@ public:
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-    CRegTypedBase(const typename Base::StringT& key, const T& def, bool force = FALSE, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
-
-	/**
-	 * Constructor.
-	 * \param updateInterval time in msec between registry lookups caused by operator const T&
-	 * \param key the path to the key, including the key. example: "Software\\Company\\SubKey\\MyValue"
-	 * \param def the default value used when the key does not exist or a read error occurred
-	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
-	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
-	 */
-    CRegTypedBase(DWORD updateInterval, const typename Base::StringT& key, const T& def, bool force = FALSE, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+    CRegTypedBase(const typename Base::StringT& key, const T& def, bool force = FALSE, HKEY base = HKEY_CURRENT_USER);
 
 	/**
 	 * reads the assigned value from the registry. Use this method only if you think the registry
@@ -381,45 +345,17 @@ public:
 // implement CRegTypedBase<> members
 
 template<class T, class Base>
-void CRegTypedBase<T, Base>::HandleAutoRefresh()
-{
-    if (m_read && (lookupInterval != (DWORD)(-1)))
-    {
-        DWORD currentTime = GetTickCount();
-        if (   (currentTime < lastRead)
-            || (currentTime > lastRead + lookupInterval))
-        {
-            m_read = false;
-        }
-    }
-}
-
-template<class T, class Base>
 CRegTypedBase<T, Base>::CRegTypedBase (const T& def)
     : m_value (def)
     , m_defaultvalue (def)
-    , lastRead (0)
-    , lookupInterval ((DWORD)-1)
 {
 }
 
 template<class T, class Base>
-CRegTypedBase<T, Base>::CRegTypedBase (const typename Base::StringT& key, const T& def, bool force, HKEY base, REGSAM sam)
-    : Base (key, force, base, sam)
+CRegTypedBase<T, Base>::CRegTypedBase (const typename Base::StringT& key, const T& def, bool force, HKEY base)
+    : Base (key, force, base)
     , m_value (def)
     , m_defaultvalue (def)
-    , lastRead (0)
-    , lookupInterval ((DWORD)-1)
-{
-}
-
-template<class T, class Base>
-CRegTypedBase<T, Base>::CRegTypedBase (DWORD lookupInterval, const typename Base::StringT& key, const T& def, bool force, HKEY base, REGSAM sam)
-    : Base (key, force, base, sam)
-    , m_value (def)
-    , m_defaultvalue (def)
-    , lastRead (0)
-    , lookupInterval (lookupInterval)
 {
 }
 
@@ -430,7 +366,7 @@ void CRegTypedBase<T, Base>::read()
     m_exists = false;
 
     HKEY hKey = NULL;
-	if ((LastError = RegOpenKeyEx (m_base, GetPlainString (m_path), 0, KEY_EXECUTE|m_sam, &hKey))==ERROR_SUCCESS)
+	if ((LastError = RegOpenKeyEx (m_base, GetPlainString (m_path), 0, KEY_EXECUTE, &hKey))==ERROR_SUCCESS)
 	{
 		m_read = true;
 
@@ -445,8 +381,6 @@ void CRegTypedBase<T, Base>::read()
 
         LastError = RegCloseKey(hKey);
 	}
-
-    lastRead = GetTickCount();
 }
 
 template<class T, class Base>
@@ -455,7 +389,7 @@ void CRegTypedBase<T, Base>::write()
     HKEY hKey = NULL;
 
     DWORD disp = 0;
-	if ((LastError = RegCreateKeyEx(m_base, GetPlainString (m_path), 0, _T(""), REG_OPTION_NON_VOLATILE, KEY_WRITE|m_sam, NULL, &hKey, &disp))!=ERROR_SUCCESS)
+	if ((LastError = RegCreateKeyEx(m_base, GetPlainString (m_path), 0, _T(""), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disp))!=ERROR_SUCCESS)
 	{
 		return;
 	}
@@ -467,8 +401,6 @@ void CRegTypedBase<T, Base>::write()
         m_exists = true;
 	}
 	LastError = RegCloseKey(hKey);
-
-    lastRead = GetTickCount();
 }
 
 template<class T, class Base>
@@ -489,7 +421,6 @@ const T& CRegTypedBase<T, Base>::defaultValue() const
 template<class T, class Base>
 CRegTypedBase<T, Base>::operator const T&()
 {
-    HandleAutoRefresh();
 	if ((m_read)&&(!m_force))
 	{
 		LastError = ERROR_SUCCESS;
@@ -576,8 +507,7 @@ public:
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-    CRegDWORDCommon(const typename Base::StringT& key, DWORD def = 0, bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
-    CRegDWORDCommon(DWORD lookupInterval, const typename Base::StringT& key, DWORD def = 0, bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+    CRegDWORDCommon(const typename Base::StringT& key, DWORD def = 0, bool force = false, HKEY base = HKEY_CURRENT_USER);
 
     CRegDWORDCommon& operator=(DWORD rhs) {CRegTypedBase<DWORD, Base>::operator =(rhs); return *this;}
 	CRegDWORDCommon& operator+=(DWORD d) { return *this = *this + d;}
@@ -601,14 +531,8 @@ CRegDWORDCommon<Base>::CRegDWORDCommon(void)
 }
 
 template<class Base>
-CRegDWORDCommon<Base>::CRegDWORDCommon(const typename Base::StringT& key, DWORD def, bool force, HKEY base, REGSAM sam)
-    : CRegTypedBase<DWORD, Base> (key, def, force, base, sam)
-{
-}
-
-template<class Base>
-CRegDWORDCommon<Base>::CRegDWORDCommon(DWORD lookupInterval, const typename Base::StringT& key, DWORD def, bool force, HKEY base, REGSAM sam)
-    : CRegTypedBase<DWORD, Base> (lookupInterval, key, def, force, base, sam)
+CRegDWORDCommon<Base>::CRegDWORDCommon(const typename Base::StringT& key, DWORD def, bool force, HKEY base)
+    : CRegTypedBase<DWORD, Base> (key, def, force, base)
 {
 }
 
@@ -696,8 +620,7 @@ public:
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-    CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def = _T(""), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
-    CRegStringCommon(DWORD lookupInterval, const typename Base::StringT& key, const typename Base::StringT& def = _T(""), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+    CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def = _T(""), bool force = false, HKEY base = HKEY_CURRENT_USER);
 	
     CRegStringCommon& operator=(const typename Base::StringT& rhs) {CRegTypedBase<StringT, Base>::operator =(rhs); return *this;}
 	CRegStringCommon& operator+=(const typename Base::StringT& s) { return *this = (typename Base::StringT)*this + s; }
@@ -712,14 +635,8 @@ CRegStringCommon<Base>::CRegStringCommon(void)
 }
 
 template<class Base>
-CRegStringCommon<Base>::CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def, bool force, HKEY base, REGSAM sam)
-    : CRegTypedBase<typename Base::StringT, Base> (key, def, force, base, sam)
-{
-}
-
-template<class Base>
-CRegStringCommon<Base>::CRegStringCommon(DWORD lookupInterval, const typename Base::StringT& key, const typename Base::StringT& def, bool force, HKEY base, REGSAM sam)
-    : CRegTypedBase<typename Base::StringT, Base> (lookupInterval, key, def, force, base, sam)
+CRegStringCommon<Base>::CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def, bool force, HKEY base)
+    : CRegTypedBase<typename Base::StringT, Base> (key, def, force, base)
 {
 }
 
@@ -730,7 +647,7 @@ void CRegStringCommon<Base>::InternalRead (HKEY hKey, typename Base::StringT& va
 	DWORD type = 0;
 	LastError = RegQueryValueEx(hKey, GetPlainString (m_key), NULL, &type, NULL, &size);
 
-    auto_buffer<TCHAR> pStr (size);
+    std::auto_ptr<TCHAR> pStr (new TCHAR[size]);
 	if ((LastError = RegQueryValueEx(hKey, GetPlainString (m_key), NULL, &type, (BYTE*) pStr.get(), &size))==ERROR_SUCCESS)
     {
         ASSERT(type==REG_SZ || type==REG_EXPAND_SZ);
@@ -813,7 +730,7 @@ public:
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegRect(const CString& key, const CRect& def = CRect(), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegRect(const CString& key, const CRect& def = CRect(), bool force = false, HKEY base = HKEY_CURRENT_USER);
 	~CRegRect(void);
 	
     CRegRect& operator=(const CRect& rhs) {CRegTypedBase<CRect, CRegBase>::operator =(rhs); return *this;}
@@ -899,7 +816,7 @@ public:
 	 * \param force set to TRUE if no cache should be used, i.e. always read and write directly from/to registry
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegPoint(const CString& key, const CPoint& def = CPoint(), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegPoint(const CString& key, const CPoint& def = CPoint(), bool force = false, HKEY base = HKEY_CURRENT_USER);
 	~CRegPoint(void);
 	
     CRegPoint& operator=(const CPoint& rhs) {CRegTypedBase<CPoint, CRegBase>::operator =(rhs); return *this;}
@@ -923,7 +840,7 @@ public:	//methods
 	 * \param key the path to the key, including the key. example: "Software\\Company\\SubKey"
 	 * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
 	 */
-	CRegistryKey(const CString& key, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+	CRegistryKey(const CString& key, HKEY base = HKEY_CURRENT_USER);
 	~CRegistryKey();
 
 	/**
@@ -945,7 +862,6 @@ public:	//methods
 public:	//members
 	HKEY m_base;		///< handle to the registry base
 	HKEY m_hKey;		///< handle to the open registry key
-	REGSAM m_sam;		///< the security attributes to pass to the registry command
 	CString m_path;		///< the path to the key
 };
 #endif
@@ -974,8 +890,8 @@ private:
 
     /// auto-insert
 
-    const typename T::ValueT& GetDefault (int index) const;
-    T& GetAt (int index) const;
+    const typename T::ValueT& GetDefault (size_t index) const;
+    T& GetAt (size_t index) const;
 
 public:
 
@@ -1003,12 +919,12 @@ public:
 
     /// data access
 
-    const T& operator[] (int index) const
+    const T& operator[] (size_t index) const
     {
         return GetAt (index);
     }
 
-    T& operator[] (int index)
+    T& operator[] (size_t index)
     {
         return GetAt (index);
     }
@@ -1032,14 +948,14 @@ public:
 /// auto-insert
 
 template<class T>
-const typename T::ValueT& CKeyList<T>::GetDefault (int index) const
+const typename T::ValueT& CKeyList<T>::GetDefault (size_t index) const
 {
     TDefaults::const_iterator iter = defaults.find (index);
     return iter == defaults.end() ? defaultValue : iter->second;
 }
 
 template<class T>
-T& CKeyList<T>::GetAt (int index) const
+T& CKeyList<T>::GetAt (size_t index) const
 {
     TElements::iterator iter = elements.find (index);
     if (iter == elements.end())

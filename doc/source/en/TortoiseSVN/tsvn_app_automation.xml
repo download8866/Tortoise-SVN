@@ -49,13 +49,6 @@
 			to add it anymore.
 		</para>
 		<para>
-			You can also specify a file which contains a list of paths, separated by
-			newlines. The file must be in UTF-16 format. If you pass such a file, use
-			<option>/pathfile</option> instead of <option>/path</option>. To have
-			TortoiseProc delete that file after the command is finished, you
-			can pass the parameter <option>/deletepathfile</option>.
-		</para>
-		<para>
 			The progress dialog which is used for commits, updates and many more commands
 			usually stays open after the command has finished until the user presses
 			the <guibutton>OK</guibutton> button. This can be changed by checking
@@ -93,9 +86,13 @@
 						<option>/closeonend:3</option> auto close if no errors, conflicts and merges
 					</para>
 				</listitem>
+				<listitem>
+					<para>
+						<option>/closeonend:4</option> auto close if no errors, conflicts and merges
+						for local operations
+					</para>
+				</listitem>
 			</itemizedlist>
-			To close the progress dialog for local operations if there were no
-			errors or conflicts, pass the <option>/closeforlocal</option> parameter.
 		</para>
 		<para>
 			The table below lists all the commands which can be accessed
@@ -139,47 +136,10 @@ Don't touch these lines:
 							<entry>
 								Opens the log dialog. The <option>/path</option> specifies the
 								file or folder for which the log should be shown.
-								Six additional options can be set:
+								Three additional options can be set:
 								<option>/startrev:xxx</option>, 
-								<option>/endrev:xxx</option>,
-								<option>/strict</option> enables the 'stop-on-copy' checkbox,
-								<option>/findstring:"filterstring"</option> fills in the filter text,
-								<option>/findtext</option> forces the filter to use text, not regex, or
-								<option>/findregex</option> forces the filter to use regex, not simple text search, and
-								<option>/findtype:X</option> with X being a number between 1 and 7. The numbers
-								correspond to:
-								<itemizedlist>
-									<listitem>
-										<para>
-											<option>/findtype:1</option> filter by everything
-										</para>
-									</listitem>
-									<listitem>
-										<para>
-											<option>/findtype:2</option> filter by messages
-										</para>
-									</listitem>
-									<listitem>
-										<para>
-											<option>/findtype:3</option> filter by path
-										</para>
-									</listitem>
-									<listitem>
-										<para>
-											<option>/findtype:4</option> filter by authors
-										</para>
-									</listitem>
-									<listitem>
-										<para>
-											<option>/findtype:5</option> filter by revisions
-										</para>
-									</listitem>
-									<listitem>
-										<para>
-											<option>/findtype:7</option> filter by bug ID
-										</para>
-									</listitem>
-								</itemizedlist>
+								<option>/endrev:xxx</option> and
+								<option>/strict</option>
 							</entry>
 						</row>
 						<row>
@@ -246,9 +206,6 @@ Don't touch these lines:
 							<entry>
 								Cleans up interrupted or aborted operations and
 								unlocks the working copy in <option>/path</option>.
-								Use <option>/noui</option> to prevent the result
-								dialog from popping up (either telling about
-								the cleanup being finished or showing an error message).
 							</entry>
 						</row>
 						<row>
@@ -361,8 +318,6 @@ Don't touch these lines:
 								If <option>/blame</option> is set and <option>/path2</option>
 								is not set, then the diff is done by first blaming 
 								the files with the given revisions.
-								The parameter <option>/line:xxx</option> specifies the
-								line to jump to when the diff is shown.
 							</entry>
 						</row>
 						<row>
@@ -409,9 +364,7 @@ Don't touch these lines:
 							<entry condition="pot">:repostatus</entry>
 							<entry>
 								Opens the check-for-modifications dialog. The <option>/path</option>
-								specifies the working copy directory. If <option>/remote</option> is
-								specified, the dialog contacts the repository immediately on startup,
-								as if the user clicked on the <guilabel>Check repository</guilabel> button.
+								specifies the working copy directory.
 							</entry>
 						</row>
 						<row>
@@ -539,64 +492,7 @@ TortoiseProc.exe /command:log /path:"c:\svn_wc\file1.txt"
 </screen>
 		</para>
 	</sect1>
-	<!-- ================================================================= -->
-	<!-- ======================== SECTION 1 ============================== -->
-	<!-- ================================================================= -->
-	<sect1 id="tsvn-automation-urlhandler">
-		<title>Tsvncmd URL handler</title>
-		<indexterm>
-			<primary>automation</primary>
-		</indexterm>
-		<indexterm>
-			<primary>URL handler</primary>
-		</indexterm>
-		<para>
-			Using special URLs, it is also possible to call TortoiseProc from
-			a web page.
-		</para>
-		<para>
-			TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which
-			can be used to create hyperlinks that execute TortoiseSVN commands.
-			The commands and parameters are the same as when automating TortoiseSVN
-			from the command line.
-		</para>
-		<para>
-			The format of the <literal>tsvncmd:</literal> URL is like this:
-		</para>
-		<para>
-			<literal>tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue</literal>
-		</para>
-		<para>
-			with <literal>cmd</literal> being one of the allowed commands and
-			with <literal>parameter</literal> being a parameter like <literal>path</literal>
-			or <literal>revision</literal>, depending on the command used.
-		</para>
-		<para>
-			The following commands are allowed with <literal>tsvncmd:</literal> URLs:
-			<itemizedlist>
-				<listitem><literal condition="pot">:update</literal></listitem>
-				<listitem><literal condition="pot">:commit</literal></listitem>
-				<listitem><literal condition="pot">:diff</literal></listitem>
-				<listitem><literal condition="pot">:repobrowser</literal></listitem>
-				<listitem><literal condition="pot">:checkout</literal></listitem>
-				<listitem><literal condition="pot">:export</literal></listitem>
-				<listitem><literal condition="pot">:blame</literal></listitem>
-				<listitem><literal condition="pot">:repostatus</literal></listitem>
-				<listitem><literal condition="pot">:revisiongraph</literal></listitem>
-				<listitem><literal condition="pot">:showcompare</literal></listitem>
-			</itemizedlist>
-		</para>
-		<para>
-			An example URL might look like this:
-<programlisting>
-&lt;a href="tsvncmd:command:showcompare?
-url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?
-url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?
-revision1:188?revision2:189"&gt;compare&lt;/a&gt;
-</programlisting>
-		</para>
 
-	</sect1>
 	<sect1 id="tsvn-automation-idiff">
 		<title>TortoiseIDiff Commands</title>
 		<indexterm>

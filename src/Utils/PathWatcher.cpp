@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2007 - 2009 - TortoiseSVN
+// External Cache Copyright (C) 2007 - 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -237,12 +237,14 @@ void CPathWatcher::WorkerThread()
 						break;
 					}
 					
-                    std::auto_ptr<CDirWatchInfo> pDirInfo (new CDirWatchInfo(hDir, watchedPaths[i]));
-                    m_hCompPort = CreateIoCompletionPort(hDir, m_hCompPort, (ULONG_PTR)pDirInfo.get(), 0);
+					CDirWatchInfo * pDirInfo = new CDirWatchInfo(hDir, watchedPaths[i]);
+					m_hCompPort = CreateIoCompletionPort(hDir, m_hCompPort, (ULONG_PTR)pDirInfo, 0);
 					if (m_hCompPort == NULL)
 					{
 						AutoLocker lock(m_critSec);
 						ClearInfoMap();
+						delete pDirInfo;
+						pDirInfo = NULL;
 						watchedPaths.RemovePath(watchedPaths[i]);
 						i--; if (i<0) i=0;
 						break;
@@ -258,14 +260,15 @@ void CPathWatcher::WorkerThread()
 					{
 						AutoLocker lock(m_critSec);
 						ClearInfoMap();
+						delete pDirInfo;
+						pDirInfo = NULL;
 						watchedPaths.RemovePath(watchedPaths[i]);
 						i--; if (i<0) i=0;
 						break;
 					}
 					AutoLocker lock(m_critSec);
+					watchInfoMap[pDirInfo->m_hDir] = pDirInfo;
 					ATLTRACE(_T("watching path %s\n"), pDirInfo->m_DirName.GetWinPath());
-                    watchInfoMap[pDirInfo->m_hDir] = pDirInfo.get();
-                    pDirInfo.release();
 				}
 			}
 			else

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2009 - Will Dean, Stefan Kueng
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,7 +62,6 @@ CComAutoCriticalSection critSec;
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
 DWORD GetDllVersion(LPCTSTR lpszDllName)
 {
-
 	HINSTANCE hinstDll;
 	DWORD dwVersion = 0;
 
@@ -103,34 +102,6 @@ DWORD GetDllVersion(LPCTSTR lpszDllName)
 	return dwVersion;
 }
 
-svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
-										   const char *file, int line,
-										   const char *expr)
-{
-	// we get here every time Subversion encounters something very unexpected.
-	svn_error_t * err = svn_error_raise_on_malfunction(TRUE, file, line, expr);
-
-	if (err)
-	{
-		svn_error_t * errtemp = err;
-		do 
-		{
-			OutputDebugStringA(errtemp->message);
-			OutputDebugStringA("\n");
-		} while ((errtemp = errtemp->child) != NULL);
-		if (can_return)
-			return err;
-		if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
-			abort();	// ugly, ugly! But at least we showed a messagebox first
-	}
-	CStringA sFormatErr;
-	sFormatErr.Format("Subversion error in TSVNCache: file %s, line %ld, error %s\n", file, line, expr);
-	OutputDebugStringA(sFormatErr);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
-		abort();	// ugly, ugly! But at least we showed a messagebox first
-	return NULL;	// never reached, only to silence compiler warning
-}
-
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
 	HANDLE hReloadProtection = ::CreateMutex(NULL, FALSE, GetCacheMutexName());
@@ -144,7 +115,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 
 	apr_initialize();
 	svn_dso_initialize2();
-	svn_error_set_malfunction_handler(svn_error_handle_malfunction);
 	g_SVNAdminDir.Init();
 	CSVNStatusCache::Create();
 	CSVNStatusCache::Instance().Init();
@@ -681,23 +651,6 @@ DWORD WINAPI InstanceThread(LPVOID lpvParam)
 			return 1;
 		}
 
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // * Clear unknown flags
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (request.path[i-1] != 0); --i)
-            request.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (request.path);
-        SecureZeroMemory ( request.path + pathLength
-                         , sizeof (request.path) - pathLength * sizeof (TCHAR));
-
-        request.flags &= TSVNCACHE_FLAGS_MASK;
-
-        // process request
 		DWORD responseLength;
 		GetAnswerToRequest(&request, &response, &responseLength); 
 
@@ -759,20 +712,6 @@ DWORD WINAPI CommandThread(LPVOID lpvParam)
 			return 1;
 		}
 		
-        // sanitize request: 
-        // * Make sure the string properly 0-terminated
-        //   by resetting overlong paths to the empty string
-        // * Set all trailing chars to 0.
-        // This is more or less paranoia code but maybe something
-        // is feeding garbage into our queue.
-        for (size_t i = MAX_PATH+1; (i > 0) && (command.path[i-1] != 0); --i)
-            command.path[i-1] = 0;
-
-        size_t pathLength = _tcslen (command.path);
-        SecureZeroMemory ( command.path + pathLength
-                         , sizeof (command.path) - pathLength * sizeof (TCHAR));
-
-        // process request
 		switch (command.command)
 		{
 			case TSVNCACHECOMMAND_END:

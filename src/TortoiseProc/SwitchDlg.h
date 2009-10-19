@@ -19,12 +19,8 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
+#include "LogDlg.h"
 #include "SVNRev.h"
-#include "PathEdit.h"
-
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -80,7 +76,6 @@ protected:
 	CString			m_sLabel;
 	CLogDlg *		m_pLogDlg;
 	int				m_height;
-	CPathEdit		m_SwitchPath;
 
 public:
 	CString			m_path;

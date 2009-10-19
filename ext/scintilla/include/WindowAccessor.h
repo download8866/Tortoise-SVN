@@ -12,14 +12,13 @@ namespace Scintilla {
 
 /**
  */
-
 class WindowAccessor : public Accessor {
 	// Private so WindowAccessor objects can not be copied
 	WindowAccessor(const WindowAccessor &source) : Accessor(), props(source.props) {}
 	WindowAccessor &operator=(const WindowAccessor &) { return *this; }
 protected:
 	WindowID id;
-	PropertyGet &props;
+	PropSet &props;
 	int lenDoc;
 
 	char styleBuf[bufferSize];
@@ -31,7 +30,7 @@ protected:
 	bool InternalIsLeadByte(char ch);
 	void Fill(int position);
 public:
-	WindowAccessor(WindowID id_, PropertyGet &props_) : 
+	WindowAccessor(WindowID id_, PropSet &props_) : 
 		Accessor(), id(id_), props(props_), 
 		lenDoc(-1), validLen(0), chFlags(0), chWhile(0) {
 	}

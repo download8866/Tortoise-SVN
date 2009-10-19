@@ -131,31 +131,41 @@ void CUndo::Undo(const viewstate& state, CBaseView * pView)
 	if (!pView)
 		return;
 
-	CViewData* viewData = pView->m_pViewData;
-	if (!viewData)
-		return;
-
 	for (std::list<int>::const_iterator it = state.addedlines.begin(); it != state.addedlines.end(); ++it)
 	{
-		viewData->RemoveData(*it);
+		if (pView->m_pViewData)
+			pView->m_pViewData->RemoveData(*it);
 	}
 	for (std::map<int, DWORD>::const_iterator it = state.linelines.begin(); it != state.linelines.end(); ++it)
 	{
-		viewData->SetLineNumber(it->first, it->second);
+		if (pView->m_pViewData)
+		{
+			pView->m_pViewData->SetLineNumber(it->first, it->second);
+		}
 	}
 	for (std::map<int, DWORD>::const_iterator it = state.linestates.begin(); it != state.linestates.end(); ++it)
 	{
-		viewData->SetState(it->first, (DiffStates)it->second);
+		if (pView->m_pViewData)
+		{
+			pView->m_pViewData->SetState(it->first, (DiffStates)it->second);
+		}
 	}
 	for (std::map<int, CString>::const_iterator it = state.difflines.begin(); it != state.difflines.end(); ++it)
 	{
-		viewData->SetLine(it->first, it->second);
+		if (pView->m_pViewData)
+		{
+			pView->m_pViewData->SetLine(it->first, it->second);
+		}
 	}
 	for (std::map<int, viewdata>::const_iterator it = state.removedlines.begin(); it != state.removedlines.end(); ++it)
 	{
-		viewData->InsertData(it->first, it->second.sLine, it->second.state, it->second.linenumber, it->second.ending, it->second.hidestate);
+		if (pView->m_pViewData)
+		{
+			pView->m_pViewData->InsertData(it->first, it->second.sLine, it->second.state, it->second.linenumber, it->second.ending);
+		}
 	}
 }
+
 
 void CUndo::Clear()
 {

@@ -27,7 +27,6 @@
 #include "UnicodeUtils.h"
 #include "SVNGlobal.h"
 #include "SVNHelpers.h"
-#include "SVNTrace.h"
 #ifdef _MFC_VER
 #	include "SVN.h"
 #	include "MessageBox.h"
@@ -200,24 +199,19 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
 	svn_opt_revision_t rev;
 	rev.kind = svn_opt_revision_unspecified;
 	statuskind = svn_wc_status_none;
-
-    const char* svnPath = path.GetSVNApiPath(pool);
-    SVNTRACE (
-	    err = svn_client_status4 (&youngest,
-							    svnPath,
-							    &rev,
-							    getallstatus,
-							    &statuskind,
-							    depth,
-							    TRUE,			// get all
-							    FALSE,			// update
-							    TRUE,			// no ignore
-							    FALSE,			// ignore externals
-							    NULL,
-							    ctx,
-							    pool),
-        svnPath
-    )
+	err = svn_client_status4 (&youngest,
+							path.GetSVNApiPath(pool),
+							&rev,
+							getallstatus,
+							&statuskind,
+							depth,
+							TRUE,			// get all
+							FALSE,			// update
+							TRUE,			// no ignore
+							FALSE,			// ignore externals
+							NULL,
+							ctx,
+							pool);
 
 	// Error present
 	if (err != NULL)
@@ -297,24 +291,20 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
 	hashbaton.hash = statushash;
 	hashbaton.exthash = exthash;
 	hashbaton.pThis = this;
+	m_err = svn_client_status4 (&youngest,
+							path.GetSVNApiPath(m_pool),
+							&rev,
+							getstatushash,
+							&hashbaton,
+							svn_depth_empty,		// depth
+							TRUE,					// get all
+							update,					// update
+							noignore,
+							noexternals,
+							NULL,
+							ctx,
+							m_pool);
 
-    const char* svnPath = path.GetSVNApiPath(m_pool);
-    SVNTRACE (
-        m_err = svn_client_status4 (&youngest,
-							    svnPath,
-							    &rev,
-							    getstatushash,
-							    &hashbaton,
-							    svn_depth_empty,		// depth
-							    TRUE,					// get all
-							    update,					// update
-							    noignore,
-							    noexternals,
-							    NULL,
-							    ctx,
-							    m_pool),
-        svnPath
-    );
 
 	// Error present if function is not under version control
 	if ((m_err != NULL) || (apr_hash_count(statushash) == 0))
@@ -350,24 +340,20 @@ svn_wc_status2_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVNPat
 	hashbaton.exthash = m_externalhash;
 	hashbaton.pThis = this;
 	m_statushashindex = 0;
+	m_err = svn_client_status4 (&headrev,
+							path.GetSVNApiPath(m_pool),
+							&rev,
+							getstatushash,
+							&hashbaton,
+							depth,
+							TRUE,			// get all
+							update,			// update
+							bNoIgnore,
+							bNoExternals,
+							NULL,
+							ctx,
+							m_pool);
 
-    const char* svnPath = path.GetSVNApiPath(m_pool);
-    SVNTRACE (
-        m_err = svn_client_status4 (&headrev,
-							    svnPath,
-							    &rev,
-							    getstatushash,
-							    &hashbaton,
-							    depth,
-							    TRUE,			// get all
-							    update,			// update
-							    bNoIgnore,
-							    bNoExternals,
-							    NULL,
-							    ctx,
-							    m_pool),
-        svnPath
-    )
 
 	// Error present if function is not under version control
 	if ((m_err != NULL) || (apr_hash_count(m_statushash) == 0))

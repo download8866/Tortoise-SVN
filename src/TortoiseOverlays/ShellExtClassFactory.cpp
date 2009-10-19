@@ -34,7 +34,7 @@ STDMETHODIMP CShellExtClassFactory::QueryInterface(REFIID riid,
 		
         AddRef();
 		
-        return S_OK;
+        return NOERROR;
     }
 	
     return E_NOINTERFACE;

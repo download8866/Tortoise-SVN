@@ -31,6 +31,7 @@ tstring	CMainWindow::leftpictitle;
 tstring	CMainWindow::rightpicpath;
 tstring	CMainWindow::rightpictitle;
 
+
 bool CMainWindow::RegisterAndCreateWindow()
 {
 	WNDCLASSEX wcx; 
@@ -52,6 +53,7 @@ bool CMainWindow::RegisterAndCreateWindow()
 	{
 		if (Create(WS_OVERLAPPEDWINDOW | WS_CLIPCHILDREN | WS_VISIBLE, NULL))
 		{
+			ShowWindow(m_hwnd, SW_SHOW);
 			UpdateWindow(m_hwnd);
 			return true;
 		}
@@ -231,30 +233,6 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 			}
 		}
 		break;
-	case WM_MOUSEHWHEEL:
-		{
-			// find out if the mouse cursor is over one of the views, and if
-			// it is, pass the mouse wheel message to that view
-			POINT pt;
-			DWORD ptW = GetMessagePos();
-			pt.x = GET_X_LPARAM(ptW);
-			pt.y = GET_Y_LPARAM(ptW);
-			RECT rect;
-			GetWindowRect(picWindow1, &rect);
-			if (PtInRect(&rect, pt))
-			{
-				picWindow1.OnMouseWheel(GET_KEYSTATE_WPARAM(wParam)|MK_SHIFT, GET_WHEEL_DELTA_WPARAM(wParam));
-			}
-			else
-			{
-				GetWindowRect(picWindow2, &rect);
-				if (PtInRect(&rect, pt))
-				{
-					picWindow2.OnMouseWheel(GET_KEYSTATE_WPARAM(wParam)|MK_SHIFT, GET_WHEEL_DELTA_WPARAM(wParam));
-				}
-			}
-		}
-		break;
 	case WM_NOTIFY:
 		{
 			LPNMHDR pNMHDR = (LPNMHDR)lParam;
@@ -273,7 +251,7 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 				mii.fMask = MIIM_TYPE;
 				mii.dwTypeData = stringbuf;
 				mii.cch = sizeof(stringbuf)/sizeof(TCHAR);
-				GetMenuItemInfo(GetMenu(*this), (UINT)lpttt->hdr.idFrom, FALSE, &mii);
+				GetMenuItemInfo(GetMenu(*this), lpttt->hdr.idFrom, FALSE, &mii);
 				lpttt->lpszText = stringbuf;
 			}
 		}

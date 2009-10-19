@@ -23,7 +23,6 @@
 #include "SVNProgressDlg.h"
 #include "BrowseFolder.h"
 #include "MessageBox.h"
-#include "auto_buffer.h"
 
 bool CheckoutCommand::Execute()
 {
@@ -40,7 +39,7 @@ bool CheckoutCommand::Execute()
 		{
 			checkoutDirectory.SetFromWin(sOrigCWD, true);
 			DWORD len = ::GetTempPath(0, NULL);
-			auto_buffer<TCHAR> tszPath(len);
+			TCHAR * tszPath = new TCHAR[len];
 			::GetTempPath(len, tszPath);
 			if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath, len-2 /* \\ and \0 */) == 0)
 			{
@@ -48,6 +47,7 @@ bool CheckoutCommand::Execute()
 				// we don't use that but leave it empty instead.
 				checkoutDirectory.Reset();
 			}
+			delete [] tszPath;
 		}
 		else
 		{
@@ -119,8 +119,6 @@ bool CheckoutCommand::Execute()
 			theApp.m_pMainWnd = &progDlg;
 			if (parser.HasVal(_T("closeonend")))
 				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-			if (parser.HasKey(_T("closeforlocal")))
-				progDlg.SetAutoCloseLocal(TRUE);
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Checkout);
 			progDlg.SetOptions(foldbrowse.m_bCheck2 ? ProgOptIgnoreExternals : ProgOptNone);
 			progDlg.SetPathList(CTSVNPathList(CTSVNPath(CString(checkoutpath))));
@@ -140,8 +138,6 @@ bool CheckoutCommand::Execute()
 		progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Checkout);
 		if (parser.HasVal(_T("closeonend")))
 			progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
-		if (parser.HasKey(_T("closeforlocal")))
-			progDlg.SetAutoCloseLocal(TRUE);
 		progDlg.SetOptions(dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone);
 		progDlg.SetPathList(CTSVNPathList(checkoutDirectory));
 		progDlg.SetUrl(dlg.m_URL);

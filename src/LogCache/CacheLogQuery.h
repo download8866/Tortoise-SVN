@@ -25,9 +25,10 @@
 #include "ILogQuery.h"
 #include "ILogReceiver.h"
 
-#include "./Containers/RevisionInfoContainer.h"
+#include "RevisionInfoContainer.h"
+#include "./Containers/DictionaryBasedTempPath.h"
 
-#include "PathToStringMap.h"
+#include "QuickHashMap.h"
 
 ///////////////////////////////////////////////////////////////
 // forward declarations
@@ -205,13 +206,13 @@ private:
 							   , revision_t count);
 
         /// cache data
-        void WriteToCache ( TChangedPaths* changes
+        void WriteToCache ( LogChangedPathArray* changes
                           , revision_t revision
                           , const StandardRevProps* stdRevProps
                           , UserRevPropArray* userRevProps);
 
 		/// implement ILogReceiver
-	    virtual void ReceiveLog ( TChangedPaths* changes
+	    virtual void ReceiveLog ( LogChangedPathArray* changes
 							    , svn_revnum_t rev
                                 , const StandardRevProps* stdRevProps
                                 , UserRevPropArray* userRevProps
@@ -254,7 +255,7 @@ private:
         CLogOptions options;
 
 		/// implement ILogReceiver
-	    virtual void ReceiveLog ( TChangedPaths* changes
+	    virtual void ReceiveLog ( LogChangedPathArray* changes
 							    , svn_revnum_t rev
                                 , const StandardRevProps* stdRevProps
                                 , UserRevPropArray* userRevProps
@@ -288,10 +289,7 @@ private:
     typedef quick_hash_map<index_t, CString> TID2String;
 
     TID2String authorToStringMap;
-    CPathToStringMap pathToStringMap;
-
-    /// used for temporary string objects to prevent frequent allocations
-    std::string scratch;
+    TID2String pathToStringMap;
 
 	/// Determine the revision range to pass to SVN.
 	revision_t NextAvailableRevision ( const CDictionaryBasedTempPath& path
@@ -313,6 +311,11 @@ private:
 					   , int limit
 					   , const CLogOptions& options
                        , const CDataAvailable& dataAvailable);
+
+	/// fill the receiver's change list buffer 
+	void GetChanges ( LogChangedPathArray& result
+                    , CRevisionInfoContainer::CChangesIterator first
+		            , const CRevisionInfoContainer::CChangesIterator& last);
 
     /// fill the receiver's user rev-prop list buffer 
     void GetUserRevProps ( UserRevPropArray& result
@@ -400,25 +403,13 @@ public:
 	/// (only valid after calling Log())
 	CCachedLogInfo* GetCache() const;
 
-	/// get the repository root URL
-	/// (only valid after calling Log())
-    const CStringA& GetRootURL() const;
-
     /// could we get at least some data?
     /// (such as an empty log but still UUID and HEAD info)
     bool GotAnyData() const;
 
     /// for tempCaches: write content to "real" cache files
-    /// (no-op if this does not use a temp. cache)
-    void UpdateCache (CCacheLogQuery* targetQuery);
-
-    /// utility function:
-	/// fill the receiver's change list buffer 
-	static void GetChanges ( TChangedPaths& result
-                           , CPathToStringMap& pathToStringMap
-                           , CRevisionInfoContainer::CChangesIterator first
-		                   , const CRevisionInfoContainer::CChangesIterator& last);
-
+    /// (no-op if this is does not use a temp. cache)
+    void UpdateCache (CLogCachePool* caches);
 };
 
 /// Log options inline implementations for data access

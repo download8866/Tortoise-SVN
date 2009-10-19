@@ -19,11 +19,10 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "messagebox.h"
+#include "Revertdlg.h"
 #include "SVN.h"
 #include "Registry.h"
-#include "PathUtils.h"
-#include "AppUtils.h"
-#include "Revertdlg.h"
+#include ".\revertdlg.h"
 
 #define REFRESHTIMER   100
 
@@ -55,7 +54,6 @@ BEGIN_MESSAGE_MAP(CRevertDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_DELUNVERSIONED, &CRevertDlg::OnBnClickedDelunversioned)
 END_MESSAGE_MAP()
 
 
@@ -78,7 +76,6 @@ BOOL CRevertDlg::OnInitDialog()
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
 	AddAnchor(IDC_UNVERSIONEDITEMS, BOTTOM_RIGHT);
-	AddAnchor(IDC_DELUNVERSIONED, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -117,7 +114,7 @@ UINT CRevertDlg::RevertThread()
 	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO | SVNSLC_SHOWNESTED, 
 						CTSVNPathList(),
 						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES|SVNSLC_SHOWADDED, true, true);
+						SVNSLC_SHOWDIRECTFILES|SVNSLC_SHOWADDED);
 
 	CTSVNPath commonDir = m_RevertList.GetCommonDirectory(false);
 	SetWindowText(m_sWindowTitle + _T(" - ") + commonDir.GetWinPathString());
@@ -325,14 +322,4 @@ void CRevertDlg::OnTimer(UINT_PTR nIDEvent)
 		break;
 	}
 	__super::OnTimer(nIDEvent);
-}
-
-void CRevertDlg::OnBnClickedDelunversioned()
-{
-	CString sCmd;
-
-	sCmd.Format(_T("%s /command:delunversioned /path:\"%s\""),
-		(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")),
-		(LPCTSTR)m_pathList.CreateAsteriskSeparatedString());
-	CAppUtils::LaunchApplication(sCmd, NULL, false);
 }

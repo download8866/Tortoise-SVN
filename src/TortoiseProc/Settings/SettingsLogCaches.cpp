@@ -28,7 +28,7 @@
 #include "ProgressDlg.h"
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
-#include "Access/CSVWriter.h"
+#include "CSVWriter.h"
 #include "XPTheme.h"
 
 using namespace LogCache;
@@ -216,7 +216,7 @@ void CSettingsLogCaches::FillRepositoryList()
 
 // implement ILogReceiver
 
-void CSettingsLogCaches::ReceiveLog ( TChangedPaths* 
+void CSettingsLogCaches::ReceiveLog ( LogChangedPathArray* 
 					                , svn_revnum_t rev
                                     , const StandardRevProps* 
                                     , UserRevPropArray* 

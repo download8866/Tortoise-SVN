@@ -85,12 +85,12 @@ tstring ItemIDList::toString()
 	HRESULT hr;
 
 	hr = ::SHGetDesktopFolder(&shellFolder);
-	if (FAILED(hr))
+	if (!SUCCEEDED(hr))
 		return ret;
 	if (parent_)
 	{
 		hr = shellFolder->BindToObject(parent_, 0, IID_IShellFolder, (void**) &parentFolder);
-		if (FAILED(hr))
+		if (!SUCCEEDED(hr))
 			parentFolder = shellFolder;
 	} 
 	else 
@@ -101,18 +101,19 @@ tstring ItemIDList::toString()
 	if ((parentFolder != 0)&&(item_ != 0))
 	{
 		hr = parentFolder->GetDisplayNameOf(item_, SHGDN_NORMAL | SHGDN_FORPARSING, &name);
-		if (FAILED(hr))
+		if (!SUCCEEDED(hr))
 		{
 			parentFolder->Release();
 			return ret;
 		}
 		hr = StrRetToStr (&name, item_, &szDisplayName);
-		if (FAILED(hr))
+		if (!SUCCEEDED(hr))
 			return ret;
 	}
 	parentFolder->Release();
 	if (szDisplayName == NULL)
 	{
+		CoTaskMemFree(szDisplayName);
 		return ret;			//to avoid a crash!
 	}
 	ret = szDisplayName;

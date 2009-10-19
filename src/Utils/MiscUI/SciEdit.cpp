@@ -120,7 +120,6 @@ void CSciEdit::Init(LONG lLanguage)
 	}
 	Call(SCI_SETWORDCHARS, 0, (LPARAM)(LPCSTR)sWordChars);
 	Call(SCI_SETWHITESPACECHARS, 0, (LPARAM)(LPCSTR)sWhiteSpace);
-	m_bDoStyle = ((DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\StyleCommitMessages"), TRUE))==TRUE;
 	// look for dictionary files and use them if found
 	long langId = GetUserDefaultLCID();
 
@@ -155,8 +154,8 @@ void CSciEdit::Init(LONG lLanguage)
 void CSciEdit::Init(const ProjectProperties& props)
 {
 	Init(props.lProjectLanguage);
-	m_sCommand = CStringA(CUnicodeUtils::GetUTF8(props.GetCheckRe()));
-	m_sBugID = CStringA(CUnicodeUtils::GetUTF8(props.GetBugIDRe()));
+	m_sCommand = CStringA(CUnicodeUtils::GetUTF8(props.sCheckRe));
+	m_sBugID = CStringA(CUnicodeUtils::GetUTF8(props.sBugIDRe));
 	m_sUrl = CStringA(CUnicodeUtils::GetUTF8(props.sUrl));
 	
 	if (props.nLogWidthMarker)
@@ -275,7 +274,7 @@ CString CSciEdit::StringFromControl(const CStringA& text)
 {
 	CString sText;
 #ifdef UNICODE
-	int codepage = (int)Call(SCI_GETCODEPAGE);
+	int codepage = Call(SCI_GETCODEPAGE);
 	int reslen = MultiByteToWideChar(codepage, 0, text, text.GetLength(), 0, 0);	
 	MultiByteToWideChar(codepage, 0, text, text.GetLength(), sText.GetBuffer(reslen+1), reslen+1);
 	sText.ReleaseBuffer(reslen);
@@ -289,7 +288,7 @@ CStringA CSciEdit::StringForControl(const CString& text)
 {
 	CStringA sTextA;
 #ifdef UNICODE
-	int codepage = (int)Call(SCI_GETCODEPAGE);
+	int codepage = Call(SCI_GETCODEPAGE);
 	int reslen = WideCharToMultiByte(codepage, 0, text, text.GetLength(), 0, 0, 0, 0);
 	WideCharToMultiByte(codepage, 0, text, text.GetLength(), sTextA.GetBuffer(reslen), reslen, 0, 0);
 	sTextA.ReleaseBuffer(reslen);
@@ -326,7 +325,7 @@ CString CSciEdit::GetText()
 {
 	LRESULT len = Call(SCI_GETTEXT, 0, 0);
 	CStringA sTextA;
-	Call(SCI_GETTEXT, (WPARAM)(len+1), (LPARAM)(LPCSTR)sTextA.GetBuffer((int)len+1));
+	Call(SCI_GETTEXT, len+1, (LPARAM)(LPCSTR)sTextA.GetBuffer(len+1));
 	sTextA.ReleaseBuffer();
 	return StringFromControl(sTextA);
 }
@@ -334,11 +333,11 @@ CString CSciEdit::GetText()
 CString CSciEdit::GetWordUnderCursor(bool bSelectWord)
 {
 	TEXTRANGEA textrange;
-	int pos = (int)Call(SCI_GETCURRENTPOS);
-	textrange.chrg.cpMin = (LONG)Call(SCI_WORDSTARTPOSITION, pos, TRUE);
+	int pos = Call(SCI_GETCURRENTPOS);
+	textrange.chrg.cpMin = Call(SCI_WORDSTARTPOSITION, pos, TRUE);
 	if ((pos == textrange.chrg.cpMin)||(textrange.chrg.cpMin < 0))
 		return CString();
-	textrange.chrg.cpMax = (LONG)Call(SCI_WORDENDPOSITION, textrange.chrg.cpMin, TRUE);
+	textrange.chrg.cpMax = Call(SCI_WORDENDPOSITION, textrange.chrg.cpMin, TRUE);
 	
 	char * textbuffer = new char[textrange.chrg.cpMax - textrange.chrg.cpMin + 1];
 
@@ -460,17 +459,17 @@ void CSciEdit::CheckSpelling()
 	
 	LRESULT firstline = Call(SCI_GETFIRSTVISIBLELINE);
 	LRESULT lastline = firstline + Call(SCI_LINESONSCREEN);
-	textrange.chrg.cpMin = (LONG)Call(SCI_POSITIONFROMLINE, firstline);
+	textrange.chrg.cpMin = Call(SCI_POSITIONFROMLINE, firstline);
 	textrange.chrg.cpMax = textrange.chrg.cpMin;
 	LRESULT lastpos = Call(SCI_POSITIONFROMLINE, lastline) + Call(SCI_LINELENGTH, lastline);
 	if (lastpos < 0)
 		lastpos = Call(SCI_GETLENGTH)-textrange.chrg.cpMin;
 	while (textrange.chrg.cpMax < lastpos)
 	{
-		textrange.chrg.cpMin = (LONG)Call(SCI_WORDSTARTPOSITION, textrange.chrg.cpMax+1, TRUE);
+		textrange.chrg.cpMin = Call(SCI_WORDSTARTPOSITION, textrange.chrg.cpMax+1, TRUE);
 		if (textrange.chrg.cpMin < textrange.chrg.cpMax)
 			break;
-		textrange.chrg.cpMax = (LONG)Call(SCI_WORDENDPOSITION, textrange.chrg.cpMin, TRUE);
+		textrange.chrg.cpMax = Call(SCI_WORDENDPOSITION, textrange.chrg.cpMin, TRUE);
 		if (textrange.chrg.cpMin == textrange.chrg.cpMax)
 		{
 			textrange.chrg.cpMax++;
@@ -482,12 +481,12 @@ void CSciEdit::CheckSpelling()
 		textrange.lpstrText = textbuffer;
 		textrange.chrg.cpMax++;
 		Call(SCI_GETTEXTRANGE, 0, (LPARAM)&textrange);
-		int len = (int)strlen(textrange.lpstrText);
+		int len = strlen(textrange.lpstrText);
 		if (len == 0)
 		{
 			textrange.chrg.cpMax--;
 			Call(SCI_GETTEXTRANGE, 0, (LPARAM)&textrange);
-			len = (int)strlen(textrange.lpstrText);
+			len = strlen(textrange.lpstrText);
 			textrange.chrg.cpMax++;
 			len++;
 		}
@@ -498,7 +497,7 @@ void CSciEdit::CheckSpelling()
 			// whether the combined string is present in auto list. 
 			TEXTRANGEA twoWords;
 			twoWords.chrg.cpMin = textrange.chrg.cpMin;
-			twoWords.chrg.cpMax = (LONG)Call(SCI_WORDENDPOSITION, textrange.chrg.cpMax + 1, TRUE);
+			twoWords.chrg.cpMax = Call(SCI_WORDENDPOSITION, textrange.chrg.cpMax + 1, TRUE);
 			twoWords.lpstrText = new char[twoWords.chrg.cpMax - twoWords.chrg.cpMin + 1];
 			SecureZeroMemory(twoWords.lpstrText, twoWords.chrg.cpMax - twoWords.chrg.cpMin + 1);
 			Call(SCI_GETTEXTRANGE, 0, (LPARAM)&twoWords);
@@ -575,7 +574,7 @@ void CSciEdit::DoAutoCompletion(int nMinPrefixLength)
 	CString word = GetWordUnderCursor();
 	if (word.GetLength() < nMinPrefixLength)
 		return;		//don't auto complete yet, word is too short
-	int pos = (int)Call(SCI_GETCURRENTPOS);
+	int pos = Call(SCI_GETCURRENTPOS);
 	if (pos != Call(SCI_WORDENDPOSITION, pos, TRUE))
 		return;	//don't auto complete if we're not at the end of a word
 	CString sAutoCompleteList;
@@ -649,11 +648,10 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
 			break;
 		case SCN_STYLENEEDED:
 			{
-				int startstylepos = (int)Call(SCI_GETENDSTYLED);
+				int startstylepos = Call(SCI_GETENDSTYLED);
 				int endstylepos = ((SCNotification *)lpnmhdr)->position;
 				MarkEnteredBugID(startstylepos, endstylepos);
-				if (m_bDoStyle)
-					StyleEnteredText(startstylepos, endstylepos);
+				StyleEnteredText(startstylepos, endstylepos);
 				StyleURLs(startstylepos, endstylepos);
 				CheckSpelling();
 				WrapLines(startstylepos, endstylepos);
@@ -782,10 +780,10 @@ BOOL CSciEdit::PreTranslateMessage(MSG* pMsg)
 
 void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 {
-	int anchor = (int)Call(SCI_GETANCHOR);
-	int currentpos = (int)Call(SCI_GETCURRENTPOS);
-	int selstart = (int)Call(SCI_GETSELECTIONSTART);
-	int selend = (int)Call(SCI_GETSELECTIONEND);
+	int anchor = Call(SCI_GETANCHOR);
+	int currentpos = Call(SCI_GETCURRENTPOS);
+	int selstart = Call(SCI_GETSELECTIONSTART);
+	int selend = Call(SCI_GETSELECTIONEND);
 	int pointpos = 0;
 	if ((point.x == -1) && (point.y == -1))
 	{
@@ -793,7 +791,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		GetClientRect(&rect);
 		ClientToScreen(&rect);
 		point = rect.CenterPoint();
-		pointpos = (int)Call(SCI_GETCURRENTPOS);
+		pointpos = Call(SCI_GETCURRENTPOS);
 	}
 	else
 	{
@@ -801,7 +799,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 		// right-clicked.
 		CPoint clientpoint = point;
 		ScreenToClient(&clientpoint);
-		pointpos = (int)Call(SCI_POSITIONFROMPOINT, clientpoint.x, clientpoint.y);
+		pointpos = Call(SCI_POSITIONFROMPOINT, clientpoint.x, clientpoint.y);
 	}
 	CString sMenuItemText;
 	CMenu popup;
@@ -980,7 +978,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 			break;
 		case SCI_LINESSPLIT:
 			{
-				int marker = (int)(Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" "));
+				int marker = Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" ");
 				if (marker)
 				{
 					Call(SCI_TARGETFROMSELECTION);
@@ -1040,12 +1038,12 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
 bool CSciEdit::StyleEnteredText(int startstylepos, int endstylepos)
 {
 	bool bStyled = false;
-	const int line = (int)Call(SCI_LINEFROMPOSITION, startstylepos);
-	const int line_number_end = (int)Call(SCI_LINEFROMPOSITION, endstylepos);
+	const int line = Call(SCI_LINEFROMPOSITION, startstylepos);
+	const int line_number_end = Call(SCI_LINEFROMPOSITION, endstylepos);
 	for (int line_number = line; line_number <= line_number_end; ++line_number)
 	{
-		int offset = (int)Call(SCI_POSITIONFROMLINE, line_number);
-		int line_len = (int)Call(SCI_LINELENGTH, line_number);
+		int offset = Call(SCI_POSITIONFROMLINE, line_number);
+		int line_len = Call(SCI_LINELENGTH, line_number);
 		char * linebuffer = new char[line_len+1];
 		Call(SCI_GETLINE, line_number, (LPARAM)linebuffer);
 		linebuffer[line_len] = 0;
@@ -1083,7 +1081,7 @@ bool CSciEdit::StyleEnteredText(int startstylepos, int endstylepos)
 
 bool CSciEdit::WrapLines(int startpos, int endpos)
 {
-	int markerX = (int)(Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" "));
+	int markerX = Call(SCI_GETEDGECOLUMN) * Call(SCI_TEXTWIDTH, 0, (LPARAM)" ");
 	if (markerX)
 	{
 		Call(SCI_SETTARGETSTART, startpos);
@@ -1174,8 +1172,8 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 	if (m_sCommand.IsEmpty())
 		return FALSE;
 	// get the text between the start and end position we have to style
-	const int line_number = (int)Call(SCI_LINEFROMPOSITION, startstylepos);
-	int start_pos = (int)Call(SCI_POSITIONFROMLINE, (WPARAM)line_number);
+	const int line_number = Call(SCI_LINEFROMPOSITION, startstylepos);
+	int start_pos = Call(SCI_POSITIONFROMLINE, (WPARAM)line_number);
 	int end_pos = endstylepos;
 
 	if (start_pos == end_pos)
@@ -1217,7 +1215,7 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 			{
 				// clear the styles up to the match position
 				Call(SCI_SETSTYLING, it->position(0)-pos, STYLE_DEFAULT);
-				pos = (LONG)it->position(0);
+				pos = it->position(0);
 
 				// (*it)[0] is the matched string
 				string matchedString = (*it)[0];
@@ -1233,13 +1231,13 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 					// bold and recursive style for the bug ID itself
 					if ((*it2)[0].str().size())
 						Call(SCI_SETSTYLING, (*it2)[0].str().size(), STYLE_ISSUEBOLDITALIC);
-					matchedpos = (LONG)(it2->position(0) + (*it2)[0].str().size());
+					matchedpos = it2->position(0) + (*it2)[0].str().size();
 				}
 				if ((matchedpos)&&(matchedpos < (LONG)matchedString.size()))
 				{
 					Call(SCI_SETSTYLING, matchedString.size() - matchedpos, STYLE_ISSUEBOLD);
 				}
-				pos = (LONG)(it->position(0) + matchedString.size());
+				pos = it->position(0) + matchedString.size();
 			}
 			// bold style for the rest of the string which isn't matched
 			if (s.size()-pos)
@@ -1259,7 +1257,7 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 			{
 				// clear the styles up to the match position
 				Call(SCI_SETSTYLING, it->position(0)-pos, STYLE_DEFAULT);
-				pos = (LONG)it->position(0);
+				pos = it->position(0);
 
 				const tr1::smatch match = *it;
 				// we define group 1 as the whole issue text and
@@ -1269,7 +1267,7 @@ BOOL CSciEdit::MarkEnteredBugID(int startstylepos, int endstylepos)
 					ATLTRACE(_T("matched id : %s\n"), string(match[1]).c_str());
 					Call(SCI_SETSTYLING, match[1].first-s.begin()-pos, STYLE_ISSUEBOLD);
 					Call(SCI_SETSTYLING, string(match[1]).size(), STYLE_ISSUEBOLDITALIC);
-					pos = (LONG)(match[1].second-s.begin());
+					pos = match[1].second-s.begin();
 				}
 			}
 		}
@@ -1289,8 +1287,8 @@ bool CSciEdit::IsValidURLChar(unsigned char ch)
 
 void CSciEdit::StyleURLs(int startstylepos, int endstylepos) 
 {
-	const int line_number = (int)Call(SCI_LINEFROMPOSITION, startstylepos);
-	startstylepos = (int)Call(SCI_POSITIONFROMLINE, (WPARAM)line_number);
+	const int line_number = Call(SCI_LINEFROMPOSITION, startstylepos);
+	startstylepos = Call(SCI_POSITIONFROMLINE, (WPARAM)line_number);
 
 	int len = endstylepos - startstylepos + 1;
 	char* textbuffer = new char[len + 1];

@@ -32,17 +32,25 @@
 
 #include "svn_types.h"
 
+
 /**
  * data structure to accommodate the change list.
  */
-
-struct SChangedPath
+struct LogChangedPath
 {
-	CString path;
-	CString copyFromPath;
-	svn_revnum_t copyFromRev;
+	CString sPath;
+	CString sCopyFromPath;
+	svn_revnum_t lCopyFromRev;
 	svn_node_kind_t nodeKind;
 	DWORD action;
+
+	/// returns the action as a string
+	const CString& GetAction() const;
+
+private:
+
+	/// cached return value of GetAction()
+	mutable CString actionAsString;
 };
 
 enum
@@ -53,92 +61,56 @@ enum
 	LOGACTIONS_DELETED	= 0x00000008
 };
 
-/**
- * Factory and container for LogChangedPath objects.
- * Provides just enough methods to read them.
- */
+/// auto-deleting extension of MFC Arrays for pointer arrays
 
-typedef std::vector<SChangedPath> TChangedPaths;
+template<class T>
+class CAutoArray : public CArray<T*,T*>
+{
+public:
+
+    // default and copy construction
+
+    CAutoArray() 
+    {
+    }
+
+    CAutoArray (const CAutoArray& rhs)
+    {
+        Copy (rhs);
+    }
+
+    // destruction deletes members
+
+    ~CAutoArray()
+    {
+	    for (INT_PTR i = 0, count = GetCount(); i < count; ++i)
+		    delete GetAt (i);
+    }
+};
+
+typedef CAutoArray<LogChangedPath> LogChangedPathArray;
 
 /**
  * standard revision properties
  */
 
-class StandardRevProps
+struct StandardRevProps
 {
-private:
-
     CString author;
-    CString message;
     apr_time_t timeStamp;
-
-public:
-
-    /// construction
-
-    StandardRevProps 
-        ( const CString& author
-        , const CString& message
-        , apr_time_t timeStamp);
-
-    /// r/o data access
-
-    const CString& GetAuthor() const {return author;}
-    const CString& GetMessage() const {return message;}
-    apr_time_t GetTimeStamp() const {return timeStamp;}
-
+    CString message;
 };
 
 /**
  * data structure to accommodate the list of user-defined revision properties.
  */
-
-class UserRevProp
+struct UserRevProp
 {
-private:
-
 	CString name;
 	CString value;
-
-    // construction is only allowed through the container
-
-    friend class UserRevPropArray;
-
-public:
-
-    /// r/o data access
-
-    const CString& GetName() const {return name;}
-    const CString& GetValue() const {return value;}
-
 };
 
-/**
- * Factory and container for UserRevProp objects.
- * Provides just enough methods to read them.
- */
-
-class UserRevPropArray : private std::vector<UserRevProp>
-{
-public:
-
-    /// construction
-
-    UserRevPropArray();
-    UserRevPropArray (size_t initialCapacity);
-
-    /// modification
-
-    void Add
-        ( const CString& name
-        , const CString& value);
-
-    /// data access
-
-    size_t GetCount() const {return size();}
-    const UserRevProp& GetAt (size_t index) const {return at (index);}
-    const UserRevProp& operator[] (size_t index) const {return at (index);}
-};
+typedef CAutoArray<UserRevProp> UserRevPropArray;
 
 
 /**
@@ -161,7 +133,7 @@ public:
 	///
 	/// may throw a SVNError to cancel the log
 
-	virtual void ReceiveLog ( TChangedPaths* changes
+	virtual void ReceiveLog ( LogChangedPathArray* changes
 							, svn_revnum_t rev
                             , const StandardRevProps* stdRevProps
                             , UserRevPropArray* userRevProps

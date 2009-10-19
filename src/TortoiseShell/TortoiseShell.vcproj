@@ -301,6 +301,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				BaseAddress="0x5960000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -408,6 +409,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				BaseAddress="0x5960000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -457,14 +459,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\DebugOutput.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\IconBitmapUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\IconOverlay.cpp"
 				>
 			</File>
@@ -502,10 +496,6 @@
 			</File>
 			<File
 				RelativePath=".\ShellExtClassFactory.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\ShellObjects.cpp"
 				>
 			</File>
 			<File
@@ -577,14 +567,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SVNTrace.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\SysInfo.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseSVN.cpp"
 				>
 			</File>
@@ -602,19 +584,11 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\Utils\DebugOutput.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Globals.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Guids.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\IconBitmapUtils.h"
 				>
 			</File>
 			<File
@@ -662,10 +636,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ShellObjects.h"
-				>
-			</File>
-			<File
 				RelativePath="stdafx.h"
 				>
 			</File>
@@ -702,14 +672,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SVNTrace.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\SysInfo.h"
-				>
-			</File>
-			<File
 				RelativePath="..\Svn\TSVNPath.h"
 				>
 			</File>
@@ -722,6 +684,14 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
+			<File
+				RelativePath="..\Resources\clipcopy.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\clipcut.ico"
+				>
+			</File>
 			<File
 				RelativePath="..\Resources\clippaste.ico"
 				>

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -828,15 +828,7 @@ LPLOGFONT CBalloon::GetSystemToolTipFont() const
 
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof(NONCLIENTMETRICS);
-
-#if (WINVER >= 0x600)
-	if (!SysInfo::Instance().IsVistaOrLater())
-	{
-		ncm.cbSize -= sizeof(int);	// subtract the size of the iPaddedBorderWidth member which is not available on XP
-	}
-#endif
-
-    if (!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0))
+    if (!SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0))
         return FALSE;
 
     memcpy(&LogFont, &(ncm.lfStatusFont), sizeof(LOGFONT));
@@ -981,11 +973,10 @@ void CBalloon::ShowBalloon(
 	Info.sBalloonTip = sText;
 	Info.nMask = 0;
 
+	CBalloon * pSB = new CBalloon();
 	if (pWnd == NULL)
 		pWnd = GetDesktopWindow();
-
-    CBalloon * pSB = new CBalloon();
-    pSB->Create(pWnd);
+	pSB->Create(pWnd);
 	pSB->AddTool(pWnd, Info);
 	pSB->m_hCurrentWnd = pWnd->GetSafeHwnd();
 	pSB->SetDirection(nDirection);
@@ -1449,16 +1440,34 @@ void CBalloon::GetMonitorWorkArea(const CPoint& sourcePoint, CRect& monitorRect)
 	// not obscured by the system task bar or by application 
 	// desktop tool bars) of that monitor
 	
-	MONITORINFO mi;
+	if (SysInfo::Instance().IsWin2kOrLater())
+	{
+		MONITORINFO mi;
 
-	//
-	// get the work area
-	//
-	mi.cbSize = sizeof(mi);
-	HMONITOR hMonitor = MonitorFromPoint (sourcePoint, MONITOR_DEFAULTTONEAREST);
-	mi.cbSize = sizeof (mi);
-	GetMonitorInfo (hMonitor, &mi);
-	monitorRect = mi.rcWork;
+		//
+		// get the work area
+		//
+		mi.cbSize = sizeof(mi);
+		HMODULE hUser32 = ::GetModuleHandle (_T("USER32.DLL"));
+		if (hUser32 != NULL)
+		{
+			typedef HMONITOR (WINAPI *FN_MonitorFromPoint) (POINT pt, DWORD dwFlags);
+			typedef BOOL (WINAPI *FN_GetMonitorInfo) (HMONITOR hMonitor, LPMONITORINFO lpmi);
+			FN_MonitorFromPoint pfnMonitorFromPoint = (FN_MonitorFromPoint)
+				::GetProcAddress (hUser32, "MonitorFromPoint");
+			FN_GetMonitorInfo pfnGetMonitorInfo = (FN_GetMonitorInfo)
+				::GetProcAddress (hUser32, "GetMonitorInfoW");
+			if (pfnMonitorFromPoint != NULL && pfnGetMonitorInfo != NULL)
+			{
+				HMONITOR hMonitor = pfnMonitorFromPoint (sourcePoint, 
+					MONITOR_DEFAULTTONEAREST);
+				mi.cbSize = sizeof (mi);
+				pfnGetMonitorInfo (hMonitor, &mi);
+				monitorRect = mi.rcWork;
+			}
+		}
+	}
+
 }
 
 CPoint 

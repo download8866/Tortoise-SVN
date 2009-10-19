@@ -15,8 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-10-16 22:51 +0000\n"
-"PO-Revision-Date: 2009-10-19 20:15+0100\n"
+"POT-Creation-Date: 2009-06-07 23:32 +0000\n"
+"PO-Revision-Date: 2009-06-08 20:00+0100\n"
 "Last-Translator: Milorad Popović <MiloradSPopovic@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1357,14 +1357,6 @@ msgstr ""
 "</screen> Primetimo sve poslato na stdout se odbacuje ako želite poruku da se pojavi u Ureži Odbaci dijalogu morate je poslati na stderr. U grupnom fajlu to se postiže korišćenjem <filename>&gt;&amp;2</filename>"
 
 #. (title)
-msgid "Overriding Hooks"
-msgstr "Prekrivanje zakačaljki"
-
-#. (para)
-msgid "If a hook script rejects your commit then its decision is final. But you can build an override mechanism into the script itself using the <emphasis>Magic Word</emphasis> technique. If the script wants to reject the operation it first scans the log message for a special pass phrase, either a fixed phrase or perhaps the filename with a prefix. If it finds the magic word then it allows the commit to proceed. If the phrase is not found then it can block the commit with a message like <quote>You didn't say the magic word</quote> :-)"
-msgstr "Ako zakačivi skript odbija vaše urezivanje onda je njegova odluka izvršna. Ali možete izgraditi mehanizam prekrivanja u samom skriptu koristeći  tehniku <emphasis>Magična reč</emphasis>. Ako skript želi da odbije operaciju on najpre skenira poruku dnevnikaza specijalnu prolaznu frazu,ili fiksnu frazu ili možda prefiks imena fajla. Ako nađe magičnu reč dozvoljava nastavak urezivanja. Ako faza nije nađena onda ona  možeurezivati sa porukama kao <quote>Niste rekli magičnu reč</quote> :-)"
-
-#. (title)
 msgid "Checkout Links"
 msgstr "Veze preuzimanja"
 
@@ -2475,7 +2467,7 @@ msgid ""
 "bin\\openssl req -new -key conf\\server.key -out conf\\server.csr \\\n"
 "-config conf\\openssl.cnf\n"
 "</screen> and then (on one line) <screen>\n"
-"bin\\openssl x509 -in conf\\server.csr -out conf\\server.cert\n"
+"bin\\openssl x509 -in conf\\server.csr -out conf\\server.crt\n"
 "                 -req -signkey conf\\server.key -days 4000\n"
 "</screen> This will create a certificate which will expire in 4000 days. And finally enter (on one line): <screen>\n"
 "bin\\openssl x509 -in conf\\server.cert -out conf\\server.der.crt\n"
@@ -2490,7 +2482,7 @@ msgstr ""
 "</screen> and then (on one line) <screen>\n"
 "bin\\openssl x509 -in conf\\server.csr -out conf\\server.crt\n"
 "                 -req -signkey conf\\server.key -days 4000\n"
-"</screen> Ovoće kreirati sertifikat koji ističe za 4000 dana. I krajni ulaz (najednu liniju): <screen>\n"
+"</screen> This will create a certificate which will expire in 4000 days. And finally enter (on one line): <screen>\n"
 "bin\\openssl x509 -in conf\\server.cert -out conf\\server.der.crt\n"
 "                 -outform DER\n"
 "</screen> Ove komande su kreirale neke fajlove u Apaš <filename>konf</filename> imenik (<filename>server.der.crt</filename>, <filename>server.csr</filename>, <filename>server.key</filename>, <filename>.rnd</filename>, <filename>privkey.pem</filename>, <filename>server.cert</filename>)."
@@ -3261,16 +3253,6 @@ msgstr "Popravka spoljašnjih preimenovanja"
 #. (para)
 msgid "Sometimes files get renamed outside of Subversion, and they show up in the file list as a missing file and an unversioned file. To avoid losing the history you need to notify Subversion about the connection. Simply select both the old name (missing) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Move</guimenuitem></menuchoice> to pair the two files as a rename."
 msgstr "Ponekad se fajlovi preimenuju van Subverzije, i oni su prikazani u listi fajlova kao fajl koji nedostaje ili neverzionisani fajl. Da bi izbegli gubljenje istorije potrebno je  notirati Subverziji o vezi. Jednostavno izaberite obe stavri, staro ime (nedostajuće) i novo ime (neverzionisano)  koristi <menuchoice><guimenu>Kontekst Meni</guimenu><guimenuitem>Popravi Pomeranje</guimenuitem></menuchoice> da se upare dva fajla kao preimenovanje."
-
-#. (title)
-#. (title)
-msgid "Repairing External Copies"
-msgstr "Popravka spoljašnjih kopija"
-
-#. (para)
-#. (para)
-msgid "If you made a copy of a file but forgot to use the Subversion command to do so, you can repair that copy so the new file doesn't lose its history. Simply select both the old name (normal or modified) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Copy</guimenuitem></menuchoice> to pair the two files as a copy."
-msgstr "Ako napravite kopiju fajla ali ste zaboravili da koristite Subverzionu komandu da to uradi, možete popraviti tu kopiju tako da novi fajl ne gubi svoju istoriju. Jednostavno izaberite i staro ime (normalno ili izmenjeno) i novo ime (neverzionisano) i koristite <menuchoice><guimenu>Kontekst Meni</guimenu><guimenuitem>Popravi Kopiju</guimenuitem></menuchoice> da sparite dva fajla kao kopiju."
 
 #. (title)
 #. (title)
@@ -4615,8 +4597,8 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr "Zato što dnevnik dijalog prikazuje dnevnik od GLAVNE, ne od tekuće revizije radne kopije, to se često dešava tamo gde je dnevnik poruka prikazan za sadržaj koji još nije ažuriran u vašoj radnoj kopiji. Pomoć to čini jasnijim, poruka urezivanja koja odgovara reviziji koju imate u vašoj radnoj kopiji prikazana je masnim slovima."
 
 #. (para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
-msgstr "Kada prikazujete dnevnik imenika osvetljena revizija je najviša revizija nađena bilo gde unutar imenika, koja zahteva puzanje radne kopije. Puzanje se pokreće u okviru odvojene niti tako da ne kasni prikazivanje dnevnika, ali kao rezultat toga osvetljavanje imenika se ne pojavljuje trenutno."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
+msgstr "Kada prikazujete dnevnik imenika osvetljena revizija je najviša revizija nađena bilo gde unutar imenika, koja zahteva puzanje radne kopije. Ovo može biti spora operacija za velike radne kopije i dnevnik poruke nisu prikazane dok se puzanje ne završi. Ako želite da onemogućite ili ograničite ovu osobinu potrebno je da podesite registar ključ <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> kako je opisano u <xref linkend=\"tsvn-dug-settings-registry\"/>."
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -4693,10 +4675,6 @@ msgstr "Ako želite da ograničite dnevnik poruke da prikazuju samo ono što vas
 #. (para)
 msgid "Click on the search icon to select which information you want to search in, and to choose <emphasis>regex</emphasis> mode. Normally you will only need a simple text search, but if you need to more flexible search terms, you can use regular expressions. If you hover the mouse over the box, a tooltip will give hints on how to use the regex functions. You can also find online documentation and a tutorial at <ulink url=\"http://www.regular-expressions.info/\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink>. The filter works by checking whether your filter string matches the log entries, and then only those entries which <emphasis>match</emphasis> the filter string are shown."
 msgstr "Kliknite na ikonu pretraživanja da izaberete koje informacije želite da tražite, i izaberite <emphasis>regex</emphasis> mod. Normalno je da vam samo treba jednostavno pretraživanje teksta, ali ako vam treba fleksibilnije pretraživanje možete koristiti regularne izraze. Ako lebdite mišem preko boksa, alatsavet će vam dati napomenu kako da koristite regeks funkcije. Možete takođe naći onlajn dokumentaciju i tutorijal na <ulink url=\"http://www.regular-expressions.info/\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink>. Filter radi tako što proveri dali vaš filter string nalazi dnevnik ulaze, i zatim samo one ulaze koji <emphasis>nalaze</emphasis>  filter string koji je prikazan."
-
-#. (para)
-msgid "If you don't use regex mode, you can enter several strings to search for, and only those log entries which match all of your filter words will be shown."
-msgstr "Ako ne koristite regeks mod, možete uneti više tekstova za pretraživanje, i samo  ove ulaze dnevnika koji nalaze sve vaše filter reči koje su prikazane."
 
 #. (para)
 msgid "To make the filter show all log entries that do <emphasis>not</emphasis> match the filter string, start the string with an exclamation mark ('!'). For example, a filter string <literal>!username</literal> will only show those entries which were not committed by <literal>username</literal>."
@@ -5605,10 +5583,6 @@ msgstr "vrati"
 msgid "undo"
 msgstr "poništi"
 
-#. (primary)
-msgid "clean"
-msgstr "čist"
-
 #. (title)
 msgid "Revert dialog"
 msgstr "Vrati dijalog"
@@ -5629,10 +5603,6 @@ msgstr "Ako želite poništiti dodavanje stavke to se pojavljuje u kontekst meni
 #. (para)
 msgid "The columns in this dialog can be customized in the same way as the columns in the <guilabel>Check for modifications</guilabel> dialog. Read <xref linkend=\"tsvn-dug-wcstatus-2\"/> for further details."
 msgstr "Kolone u ovom dijalogu mogu se podesiti na isti način kao kolone u <guilabel>Proveri za modifikaciju</guilabel> dijalogu. Pročitajte <xref linkend=\"tsvn-dug-wcstatus-2\"/> za više detalja."
-
-#. (para)
-msgid "Since revert is sometimes used to clean up a working copy, there is an extra button which allows you to delete unversioned items as well. When you click this button another dialog comes up listing all the unversioned items, which you can then select for deletion."
-msgstr "Kako se vraćanjeponekad koristi da obriše radnu kopiju postoji dodatno dugme koje omogućava da obrišete neverzionisane stavke. Kada kliknete na ovo dugme drugi dijalog se pojavljuje listajući neverzionisane stavke koje zatim možete izabrati za brisanje."
 
 #. (title)
 msgid "Undoing Changes which have been Committed"
@@ -5934,18 +5904,6 @@ msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everythi
 msgstr "Jedan primer: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Će uhvatiti sve posle <quote>[SUMMARY]</quote> u dnevnik poruka i koristi ga kao rezultat."
 
 #. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr "Osobina <literal>tsvn:logrevregex</literal> definiše regularni izraz koji nalazi reference u revizije u dnevniku poruka. Ovo se koristi u dijalogu dnevnika da okrene takve reference u veze na koje kada se klikne ili se skroluje u tu reviziju (ako je revizija već prikazana u dijalogu dnevnika, ili ako je dostupan iz keša dnevnika) ili otvara novi dijalog dnevnika koji prikazuje tu reviziju."
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr "Regularni izraz mora naći celu referencu, ne samo revizioni broj. Revizioni broj je izvučen iz nađenog referentnog teksta automatski."
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr "Ako ova osobona nije podešena, uobičajen regularni izraz se koristi da se povežu revizione reference."
-
-#. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
 msgstr "Kada želite da dodate novu osobinu vi možete ili uzeti jedan iz liste u kombo boksu ili možete uneti bilo koje ime osobine koje želite. Ako vaš projekat koristi neke uobičajene osobine i želite te osobine da se pojave na listi u kombo boksu ( da izbegnete greške kada unosite ime osobine), možete kreirati listu vaših uobičajenih osobina koristeći <literal>tsvn:userfileproperties</literal> i <literal>tsvn:userdirproperties</literal>. Primenite ove osobine na imenik. Kada uredite osobine bilo koje potomačke stavke, vaše uobičajene osobine će se pojaviti u listi pre-definisanih imena osobina."
 
@@ -5975,10 +5933,8 @@ msgid "These special project properties must be set on <emphasis>folders</emphas
 msgstr "Ove specijalne osobine projekta moraju biti podešene na <emphasis>imenike</emphasis> za sistem da rade. kada urezujete fajl ili imenik osobine se čitaju iz tog imenika. Ako se osobine ne nađu ovde TortoiseSVN će potražiti nagore kroz stblo imenika da ih nađe sve dok ne dođe do neverzionisanog imenika, ili koren stabla (npr. <literal>C:\\</literal>) se nađe. Ako možete biti sigurni da svaki korisnik preuzima samo iz npr. <filename>trunk/</filename> i ne isti sub-imenik, zatim je dovoljno da se podese osobine na <filename>trunk/</filename>. Ako niste sigurni, morate podesiti osobine rekurzivno na svakom sub-imeniku. Podešavanje osobine dublje u hijerarhiji projekta prebaci podešavanje na viši nivo (bliže <filename>trunk/</filename>)."
 
 #. (para)
-#. (para)
-#. (para)
-msgid "For project properties <emphasis>only</emphasis>, i.e. <literal>tsvn:</literal>, <literal>bugtraq:</literal> and <literal>webviewer:</literal> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
-msgstr "Za osobine projekta <emphasis>samo</emphasis>, tj <literal>tsvn:</literal>, <literal>bugtraq:</literal> i <literal>webviewer:</literal> možete koristiti <guilabel>Rekurziv</guilabel> čekboks da podesite osobine svih sub-imenika u hijerarhiji, takođe bez podešavanja na sve fajlove."
+msgid "For project properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgstr "Za osobine projekta <emphasis>samo</emphasis> možete koristiti <guilabel>Rekurziv</guilabel> čekboks da podesite osobine svih sub-imenika u hijerarhiji, takođe bez podešavanja na sve fajlove."
 
 #. (para)
 msgid "When you add new sub-folders using TortoiseSVN, any project properties present in the parent folder will automatically be added to the new child folder too."
@@ -6304,8 +6260,8 @@ msgid "To be able to work with your freshly generated branch or tag you have sev
 msgstr "Da bi bili sposobni da radite sa sveže generisanom granom ili znakom imate više načina da rukujete time. Možete: <placeholder-1/><placeholder-2/>"
 
 #. (para)
-msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they are not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
-msgstr "Značke se obično koriste da se kreira statička slika projekta u pojedinačnom stanju. Kao takvi se ne koriste normalno pri razvoju - to je zašto postoje grane, koji rezon mi preporučujemo <filename>/trunk /branches /tags</filename> strukturu spremišta na prvom mestu. Rad na znak revizijama <emphasis>nije dobra ideja</emphasis>, ali vaši lokalni fajlovi nisu zaštićeni od upisivanja pa nema ništa da vas zaustavi da to uradite greškom. Međutim, ako pokušate da urežete putanju u spremište koja sadrži <filename>/tags/</filename>, TortoiseSVN će vas upozoriti."
+msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
+msgstr "Značke se obično koriste da se kreira statička slika projekta u pojedinom stanju. Kao takvi se ne koriste normalno pri razvoju - to je zašto postoje grane, koji rezon mi preporučujemo <filename>/trunk /branches /tags</filename> strukturu spremišta na prvom mestu. Rad na znak revizijama <emphasis>nije dobra ideja</emphasis>, ali vaši lokalni fajlovi nisu zaštićeni od upisivanja pa nema ništa da vas zaustavi da to uradite greškom. Međutim, ako pokušate da urežete putanju u spremište koja sadrži <filename>/tags/</filename>, TortoiseSVN će vas upozoriti."
 
 #. (para)
 msgid "It may be that you need to make further changes to a release which you have already tagged. The correct way to handle this is to create a new branch from the tag first and commit the branch. Do your Changes on this branch and then create a new tag from this new branch, e.g. <filename>Version_1.0.1</filename>."
@@ -6530,10 +6486,6 @@ msgstr "Najviše vremena vi želite da stapanje uzme u obzir istoriju fajla, tak
 #. (para)
 msgid "You can specify the way that line ending and whitespace changes are handled. These options are described in <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/>. The default behaviour is to treat all whitespace and line-end differences as real changes to be merged."
 msgstr "Možete odrediti način rukovanja sa završetkom linija i izmenama razmaka. Ove opcije su opisane u <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/>.  Uobičajeno ponašanje je da se tretiraju sve razmake i kraj-linije razlike kao stvarne izmen koje se stapaju."
-
-#. (para)
-msgid "The checkbox marked <guilabel>Force the merge</guilabel> is used to avoid a tree conflict where an incoming delete affects a file that is either modified locally or not versioned at all. If the file is deleted then there is no way to recover it, which is why that option is not checked by default."
-msgstr "Čekboks označen <guilabel>Forsiraj stapanje</guilabel> se koristi da se izbegne konflikt stabla gde dolazeće brisanje utiče na fajl koji je izmenjen lokalno ili uopšte nije verzionisan. Ako je fajl obrisan onda nema načina da sevrati,zbog čega ova opcija nije čekirana uobičajeno."
 
 #. (para)
 msgid "If you are using merge tracking and you want to mark a revision as having been merged, without actually doing the merge here, check the <guilabel>Only record the merge</guilabel> checkbox. There are two possible reasons you might want to do this. It may be that the merge is too complicated for the merge algorithms, so you code the changes by hand, then mark the change as merged so that the merge tracking algorithm is aware of it. Or you might want to prevent a particular revision from being merged. Marking it as already merged will prevent the merge occurring with merge-tracking-aware clients."
@@ -6884,8 +6836,8 @@ msgid "In order to apply a patch file to your working copy, you need to have at 
 msgstr "Da bi primenili fajl zakrpe na vašu radnu kopiju potrebno vm je da imate najmanje pristup za čitanje spremišta. Razlog za ovo je da program stapanja mora da uporedi izmene nazad sa revizijom prema kojoj je urađen od udaljenog programera."
 
 #. (para)
-msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog. Note that this option only appears if you saved the patch to the clipboard using <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Create Patch...</guimenuitem></menuchoice>. Copying a patch to the clipboard from another app will not make the button appear."
-msgstr "Iz kontekst menija za taj imenik, kliknite na <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Primeni Zakrpu...</guimenuitem></menuchoice> Ovo će prikazati fajl otvori dijalog dozvoljavajući vam da izaberete fajl zakrpu za primenu. Uobičajeno samo <filename>.patch</filename> ili <filename>.diff</filename> fajlovi su prikazani, ali može se izabrati opcija za <quote>All files</quote>. Ako ste prethodno sačuvali zakrpu u klipbord možete koristiti <guibutton>Otvori iz klipborda...</guibutton> u fajl open dijalogu. Primetimo da se ova opcija pojavljuje ako zapamtite zakrpu na klipbord koristeći <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Kreiraj zakrpu...</guimenuitem></menuchoice>. Kopiranjem zakrpe na klipbordiz druge app ne čini da se dugme pojavi."
+msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog."
+msgstr "Iz kontekst menija za taj imenik, kliknite na <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Primeni Zakrpu...</guimenuitem></menuchoice> Ovo će prikazati fajl otvori dijalog dozvoljavajući vam da izaberete fajl zakrpu za primenu. Uobičajeno samo <filename>.patch</filename> ili <filename>.diff</filename> fajlovi su prikazani, ali može se izabrati opcija za <quote>All files</quote>. Ako ste prethodno sačuvali zakrpu u klipbord možete koristiti <guibutton>Otvori iz klipborda...</guibutton> u fajl open dijalogu."
 
 #. (para)
 msgid "Alternatively, if the patch file has a <filename>.patch</filename> or <filename>.diff</filename> extension, you can right click on it directly and select <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice>. In this case you will be prompted to enter a working copy location."
@@ -7788,13 +7740,18 @@ msgstr "Podešavabje osobina imenika"
 msgid "These properties must be set on folders for the system to work. When you commit a file or folder the properties are read from that folder. If the properties are not found there, TortoiseSVN will search upwards through the folder tree to find them until it comes to an unversioned folder, or the tree root (eg. <literal>C:\\</literal>) is found. If you can be sure that each user checks out only from e.g <filename>trunk/</filename> and not some sub-folder, then it's enough if you set the properties on <filename>trunk/</filename>. If you can't be sure, you should set the properties recursively on each sub-folder. A property setting deeper in the project hierarchy overrides settings on higher levels (closer to <filename>trunk/</filename>)."
 msgstr "Ove osobine moraju biti podešene na imeniku za sistem koji radi. Kada urezujete fajl ili imenik osobine su pročitane iz imenika. Ako osobine nisu nađene tamo, TortoiseSVN će pretraživati nagore kroz stablo imenika da ga nađete dok ne dođe neverzionisani imenik, ili koren stabla (npr. <literal>C:\\</literal>) nađen. Ako možete biti sigurni da svaki korisnik preuzima samo sa npr. <filename>trunk/</filename> a ne neke sub-imenike, zatim to je dovoljno ako podesite osobine  na <filename>trunk/</filename>. Ako možete biti sigurni, morate podesiti osobine rekurzivno na svakom sub-imeniku. osobine podešene dublje u hijerarhiji projekta koja prepisuje podešavanje na višim nivoima (bliže ka <filename>trunk/</filename>)."
 
+#. (para)
+#. (para)
+msgid "For <literal>tsvn:</literal> properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgstr "Za <literal>tsvn:</literal> osobine <emphasis>samo</emphasis> možete koristite  <guilabel>Rekurzivno</guilabel> čekboks da podesi osobine na sve sub-imenike u hierarhiji, bez podešavanje na sve fajlove takođe."
+
 #. (title)
 msgid "No Issue Tracker Information from Repository Browser"
 msgstr "Nema Problem Tragač Informacije iz Pretraživača Spremišta"
 
 #. (para)
-msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
-msgstr "Zato što problem tragač integracija zavisi od pristupa subverzionih osobina, vi ćete samo videti rezultate kada koristite preuzetu radnu kopiju. Danjinsko dobavljanje osobina  je spora operacija, tako ne možete videti ovu osobinu u akciji repo pretraživača ako ne započnete repo pretraživač iz vaše radne kopije. Ako započnete repo pretraživač unosom URL spremišta vi nećete moći da vidite ovu osobinu."
+msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
+msgstr "Zato što problem tragač integracija zavisi od pristupa subverzionih osobina, vi ćete samo videti rezultate kada koristite preuzetu radnu kopiju. Dobavljanje osobina daljinski je sporo, tako ne možete videti ovu osobinu u akciji repo pretraživača."
 
 #. (para)
 msgid "This issue tracker integration is not restricted to TortoiseSVN; it can be used with any Subversion client. For more information, read the full <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/doc/issuetrackers.txt\"><citetitle>Issue Tracker Integration Specification</citetitle></ulink> in the TortoiseSVN source repository. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
@@ -7865,8 +7822,8 @@ msgid "No Repo Viewer Links from Repository Browser"
 msgstr "Nema Repo Pregledač Veza iz Pretraživača Spremišta"
 
 #. (para)
-msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
-msgstr "Zato što problem tragač integracija zavisi od pristupa subverzionih osobina, vi ćete samo videti rezultate kada koristite preuzetu radnu kopiju. Danjinsko dobavljanje osobina je spora operacija, tako ne možete videti ovu osobinu u akciji repo pretraživača ako ne započnete repo pretraživač iz vaše radne kopije. Ako započnete repo pretraživač unosom URL spremišta nećete videti ovu osobinu."
+msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
+msgstr "Zato što problem tragač integracija zavisi od pristupa subverzionih osobina, vi ćete samo videti rezultate kada koristite preuzetu radnu kopiju. Dobavljanje osobina daljinski je sporo, tako ne možete videti ovu osobinu u akciji repo pretraživača."
 
 #. (title)
 msgid "TortoiseSVN's Settings"
@@ -8127,10 +8084,6 @@ msgstr "Rekurzija u neverzionisanim imenicima "
 #. (para)
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
 msgstr "Ovaj boks je čekiran (uobičajeno stanje), zatim kadgod je status neverzionisani imenik prikazan u <guilabel>Dodaj</guilabel>, <guilabel>Ureži</guilabel> ili <guilabel>Privera  Modifikacija</guilabel> dijalog, svaki potomački fajl i imenik je takođe prikazan. Ako otčekirate ovaj boks, samo neverzionisani predak je prikazan. Otčekivanje redukuje gužvu u ovim dijalozima. U ovom slučaju ako izaberete neverzionisani imenik za Dodaj, dodaje se rekurzivno."
-
-#. (para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
-msgstr "U dijalogu <guilabel>Provera izmena</guilabel> možete podesiti opciju da vidite zanemarene stavke. Ako je ovaj boks čekiran onda će uvek kada  se nađe zanemareni imenik biti prikazane sve zanemarene stavke. "
 
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
@@ -9433,8 +9386,8 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr "Tekuće revizijsko osvetljavanje za imenike u dnevnik dijalogu"
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
-msgstr "Dnevnik dijalog osvetljava tekuću  radnu kopiju revizije kada je prikazan dnevnik fajla. Da se uradi ista stvar za imenik zahteva se puzanje kroz radnu kopiju, što može biti spora operacija za velike radne kopije. Međutim puzanje je dato u izdvojenoj niti tako da ne zadržava prikazivanje poruka dnevnika. Za <emphasis>zaista</emphasis> velike radne kopije zujanje diska postaje dosadno tako da ako zaita želite da onemogućite ovu osobinu morate kreirati <literal>DWORD</literal> registar ključ u <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>.  Vrednost 0 onemogućava osobinu (nema osvetljavanja imenika)."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
+msgstr "Dnevnik dijalog osvetljava tekuću  radnu kopiju revizije kada je prikazan dnevnik fajla. Da se uradi ista stvar za imenik zahteva se puzanje kroz radnu kopiju, što može biti spora operacija za velike radne kopije. Ako želite da izmenite operaciju ove osobine morate kreirati <literal>DWORD</literal> registar ključ u <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. Vrednost 0 onemogućava osobinu (nema osvetljavanja imenika),  vrednost 1 (uobičajena) će naći status rekurzivno (nalazi najviši revizioni broj u stablu radne kopije), i vrednost 2 proverava reviziju samog izabranog imenika, ali neće proveriti bilo koju potomačku stavku."
 
 #. (term)
 msgid "Make checkout fail if an item of the same name exists"
@@ -10186,410 +10139,6 @@ msgstr ""
 msgid "The following example shows how the interface might be used. <placeholder-1/>"
 msgstr "Sledeći primer prikazuje kako interfejs može da se koristi. <placeholder-1/>"
 
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"using LibSubWCRev;\n"
-"SubWCRev sub = new SubWCRev();\n"
-"sub.GetWCInfo(\"C:\\\\PathToMyFile\\\\MyFile.cc\", true, true);\n"
-"if (sub.IsSvnItem == true)\n"
-"{\n"
-"    MessageBox.Show(\"versioned\");\n"
-"}\n"
-"else\n"
-"{\n"
-"    MessageBox.Show(\"not versioned\");\n"
-"}\n"
-msgstr ""
-"\n"
-"using LibSubWCRev;\n"
-"SubWCRev sub = new SubWCRev();\n"
-"sub.GetWCInfo(\"C:\\\\PathToMyFile\\\\MyFile.cc\", true, true);\n"
-"if (sub.IsSvnItem == true)\n"
-"{\n"
-"    MessageBox.Show(\"versioned\");\n"
-"}\n"
-"else\n"
-"{\n"
-"    MessageBox.Show(\"not versioned\");\n"
-"}\n"
-
-#. (para)
-msgid "The following listing is an example on how to use the SubWCRev COM object from C#: <placeholder-1/>"
-msgstr "Sledeći primer prikazuje kako interfejs može da se koristi SubVCRev COM objekat iz C#: <placeholder-1/>"
-
-#. (title)
-msgid "IBugtraqProvider interface"
-msgstr "IBagtragačSnabdevač interfejs"
-
-#. (primary)
-msgid "plugin"
-msgstr "plagin"
-
-#. (primary)
-msgid "IBugtraqProvider"
-msgstr "IBagtragačSnabdevač"
-
-#. (para)
-msgid "To get a tighter integration with issue trackers than by simply using the <literal>bugtraq:</literal> properties, TortoiseSVN can make use of COM plugins. With such plugins it is possible to fetch information directly from the issue tracker, interact with the user and provide information back to TortoiseSVN about open issues, verify log messages entered by the user and even run actions after a successful commit to e.g, close an issue."
-msgstr "Da bi dobili čvršću integraciju sa problem tragačem jednostavnim korišćenjem <literal>bugtraq:</literal> osobina, TortoiseSVN može učiniti korišćenje COM plagina. Sa takvim plaginom moguće je naći informaciju direktno iz problem tragača, interakcija sa korisnikom i obezbeđivanje informacioni povratak na TortoiseSVN o otvorenim problemima, verifikuje dnevnik poruke koje uneo korisnik i čak izvršne akcije posle uspešnog urezivanja npr. zatvaranje problema."
-
-#. (para)
-msgid "We can't provide information and tutorials on how you have to implement a COM object in your preferred programming language, but we have example plugins in C++/ATL and C# in our repository in the <filename>contrib/issue-tracker-plugins</filename> folder. In that folder you can also find the required include files you need to build your plugin. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
-msgstr "Ne možemo obezbediti informaciju i tutorijale o tome kako da primenite COM objekte u vašim izabranim programskim jezicima, ali imamo primere plagina u C++/ATL i C# u vašem spremištu u <filename>contrib/issue-tracker-plugins</filename>  imenik. U imeniku možete takođe naći željene fajlove za uključivanje koji su vam potrebni da napravite plagin. (<xref linkend=\"tsvn-preface-source\"/>  objašnjava kako pristupiti spremištu)."
-
-#. (title)
-msgid "The IBugtraqProvider interface"
-msgstr "IBagtragačSnabdevač interfejs"
-
-#. (para)
-msgid "TortoiseSVN 1.5 can use plugins which implement the IBugtraqProvider interface. The interface provides a few methods which plugins can use to interact with the issue tracker."
-msgstr "TortoiseSVN 1.5 može koristiti plagine koji implementiraju IBagtagačSnabdevač interfejs. Interfejs obezbeđuje nekoliko metoda čiji plagini se mogu koristiti da interaguju sa problem tragačem."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT ValidateParameters (\n"
-"  // Parent window for any UI that needs to be\n"
-"  // displayed during validation.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The parameter string that needs to be validated.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // Is the string valid?\n"
-"  [out, retval] VARIANT_BOOL *valid\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT ValidateParameters (\n"
-"            // Predački prozor za bilo koji UI koji ga zahteva da\n"
-"   //bude prikazan u toku vrednovanja.\n"
-"  [in] HWND hParentWnd, \n"
-"    \n"
-"           // Parametar string koji treba da bude vrednovan.\n"
-"  [in] BSTR parameters, \n"
-"\n"
-"  // Da li je string valjan?\n"
-"  [out, retval] VARIANT_BOOL *valid\n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog where the user can add and configure the plugin. The <literal>parameters</literal> string can be used by a plugin to get additional required information, e.g., the URL to the issue tracker, login information, etc. The plugin should verify the <literal>parameters</literal> string and show an error dialog if the string is not valid. The <literal>hParentWnd</literal> parameter should be used for any dialog the plugin shows as the parent window. The plugin must return TRUE if the validation of the <literal>parameters</literal> string is successful. If the plugin returns FALSE, the settings dialog won't allow the user to add the plugin to a working copy path."
-msgstr "<placeholder-1/> Ovaj metod je pozvan iz dijaloga podešavanja gde korisnik može dodati i konfigurisati plagin. String  <literal>parametri</literal>  se mogu koristiti plaginom da se dobije dodatna zahtevana informacija, npr. URL ka problem tragaču, dnevnik informacija, itd. Plagin treba da verifikuje string <literal>parametrima</literal> i prikazuje dijalog greške ako string nije valjan. Parametar <literal>hParentWnd</literal> treba da se koristi za svaki  dijalog plagin se prikazuje kao predački prozor. Plagin mora vratiti ISTINU ako vrednovanje  string <literal>parametara</literal> bude zadovoljavajuće. Ako plagin vrati LAŽ dijalog podešavanja ne može dopustiti korisniku da doda plagin u putanju radne kopije."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetLinkText (\n"
-"  // Parent window for any (error) UI that needs to be displayed.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The parameter string, just in case you need to talk to your\n"
-"  // web service (e.g.) to find out what the correct text is.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // What text do you want to display?\n"
-"  // Use the current thread locale.\n"
-"  [out, retval] BSTR *linkText\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT GetLinkText (\n"
-"     // Predački prozor za svaki (pogrešan) UI koji traži da bude prikazan.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-" // Parametar string, upravo u slučaju kada vam je potrebno\n"
-" // da se obratite vašem veb servisu (npr.) da nađete koji je korektan tekst.\n"
-" [in] BSTR parameters,\n"
-"   \n"
-" // Koji tekst želite da prikažete? \n"
-" //Koristite tekuću lokalnu nit.\n"
-"  [out, retval] BSTR *linkText \n"
-" );\n"
-
-#. (para)
-msgid "<placeholder-1/> The plugin can provide a string here which is used in the TortoiseSVN commit dialog for the button which invokes the plugin, e.g., \"Choose issue\" or \"Select ticket\". Make sure the string is not too long, otherwise it might not fit into the button. If the method returns an error (e.g., <literal>E_NOTIMPL</literal>), a default text is used for the button."
-msgstr "<placeholder-1/> Plagin može dati string koji se koristi u TortoiseSVN dijalogu urezivanja za dugmiće koji pozivaju plagine, npr. \"Izaberi problem\" ili \"Izaberi kartu\". Budite sigurni da string nije suviše dugačak, drugačije to ne može biti ubačeno u dugme. Ako metod vraća grešku (npr. <literal>E_NOTIMPL</literal>), uobičajeni tekst se koristi za dugme."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetCommitMessage (\n"
-"  // Parent window for your provider's UI.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  // Your provider should include this text in the new message,\n"
-"  // where appropriate.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-"  // The new text for the commit message.\n"
-"  // This replaces the original message.\n"
-"  [out, retval] BSTR *newMessage\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT GetCommitMessage (\n"
-"   // Predački prozor za UI snabdevača.\n"
-"  [in] HWND hParentWnd,\n"
-" \n"
-"    //Parametri za vašeg snabdevača.\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"  \n"
-"  // Tekst već prisutan u poruci urezivanja.\n"
-"  // Vaš snabdevač treba da uključi ovaj tekst u novu poruku,\n"
-"  // gde odgovara.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-"// Novi tekst za poruku urezivanja.\n"
-"// Ovo zamenjuje originalnu poruku.\n"
-"  [out, retval] BSTR *newMessage\n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This is the main method of the plugin. This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. The <literal>parameters</literal> string is the string the user has to enter in the settings dialog when he configures the plugin. Usually a plugin would use this to find the URL of the issue tracker and/or login information or more. The <literal>commonRoot</literal> string contains the parent path of all items selected to bring up the commit dialog. Note that this is <emphasis>not</emphasis> the root path of all items which the user has selected in the commit dialog. The <literal>pathList</literal> parameter contains an array of paths (as strings) which the user has selected for the commit. The <literal>originalMessage</literal> parameter contains the text entered in the log message box in the commit dialog. If the user has not yet entered any text, this string will be empty. The <literal>newMessage</literal> return string is copied into the log message edit box in the commit dialog, replacing whatever is already there. If a plugin does not modify the <literal>originalMessage</literal> string, it must return the same string again here, otherwise any text the user has entered will be lost."
-msgstr "<placeholder-1/> Ovo je glavni metod plagina. Ovaj metod se poziva iz TortoiseSVN dijaloga urezivanja kada korisnik klikne na dugme plagina. String <literal>parametara</literal> je string koji je korisnik uneo u dijalog podešavanja kada je konfigurisao plagin. Obično plagin ovo koristi da nađe URL problem tragača i/ili login informacije ili nešto više. String <literal>commonRoot</literal> sadrži predačku putanju svih stavki izabranih da prikaže dijalog urezivanja. Primetimo da ovo <emphasis>nije</emphasis>  korena putanja svih stavki koje je korisnik izabrao u dijalogu urezivanja. Parametar <literal>pathList</literal> sadrži skup putanji (kao stringove) koje je korisnik izabrao u dijalogu urezivanja. Parametar <literal>originalMessage</literal> sadrži tekst unet u boks poruke dnevnika u dijalogu urezivanja, zamenjujući sve što je već tamo. Ako korisnik još nije uneo bilo koji tekst, ovaj string će biti prazan. <literal>newMessage</literal> povratni string je kopiran u dnevnik poruka boks uređenja u dijalogu urezivanja, zamenjujući štogod je tamo. Ako plagin ne menja <literal>originalMessage</literal>  string, mora ovde vratiti isti string, inače će svaki tekst, koji korisnik unese,biti izgubljen."
-
-#. (title)
-msgid "The IBugtraqProvider2 interface"
-msgstr "IBagtragačSnabdevač2 interfejs"
-
-#. (para)
-msgid "In TortoiseSVN 1.6 a new interface was added which provides more functionality for plugins. This IBugtraqProvider2 interface inherits from IBugtraqProvider."
-msgstr "U TortoiseSVN 1.6 novi interfejs je dodat da omogući veću funkcionalnost plagina. Ovaj IBagtragačSnabdevač2 interfejs proizilazi iz IBagtragačSnabdevač."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetCommitMessage2 (\n"
-"  // Parent window for your provider's UI.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"  // The common URL of the commit\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  // Your provider should include this text in the new message,\n"
-"  // where appropriate.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-"  // You can assign custom revision properties to a commit\n"
-"  // by setting the next two params.\n"
-"  // note: Both safearrays must be of the same length.\n"
-"  //       For every property name there must be a property value!\n"
-"\n"
-"  // The content of the bugID field (if shown)\n"
-"  [in] BSTR bugID,\n"
-"\n"
-"  // Modified content of the bugID field\n"
-"  [out] BSTR * bugIDOut,\n"
-"\n"
-"  // The list of revision property names.\n"
-"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
-"\n"
-"  // The list of revision property values.\n"
-"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
-"\n"
-"  // The new text for the commit message.\n"
-"  // This replaces the original message\n"
-"  [out, retval] BSTR * newMessage\n"
-");\n"
-msgstr ""
-"\n"
-"\tHRESULT GetCommitMessage2 (\n"
-"  // Predački prozor za vaš UI snabdevač.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parametri za vašeg snabdevača.\n"
-"  [in] BSTR parameters,\n"
-"  // Zajednički URL urezivanjat\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-" // Tekst koji već postoji u poruci urezivanja.\n"
-" // Vaš snabdevač bi trebao da uključi ovaj tekst u novu poruku, \n"
-" // gde to odgovara.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-" // Možete označiti obične osobine revizije za urezivanje \n"
-" // podešavanjem sledeća dva parametra.\n"
-" // primedba: Obe sigurnosne oblasti moraju biti iste dužine.\n"
-" //           Za svako ime osobine mora biti vrednost osobine!\n"
-"\n"
-"   // sadržaj bagID polja (ako je prikazano)\n"
-"  [in] BSTR bugID,\n"
-"\n"
-"   // izmenjeni sadržaj bagID polja\n"
-"  [out] BSTR * bugIDOut,\n"
-"\n"
-" // Lista imena osobina revizije\n"
-"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
-"\n"
-" // Lista imena vrednosti revizije\n"
-"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
-"\n"
-"   //Novi tekst za poruku urezivanja.\n"
-"   // Ovo zamenjuje originalnu poruku.\n"
-"  [out, retval] BSTR * newMessage\n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. This method is called instead of <literal>GetCommitMessage()</literal>. Please refer to the documentation for <literal>GetCommitMessage</literal> for the parameters that are also used there. The parameter <literal>commonURL</literal> is the parent URL of all items selected to bring up the commit dialog. This is basically the URL of the <literal>commonRoot</literal> path. The parameter <literal>bugID</literal> contains the content of the bug-ID field (if it is shown, configured with the property <literal>bugtraq:message</literal>). The return parameter <literal>bugIDOut</literal> is used to fill the bug-ID field when the method returns. The <literal>revPropNames</literal> and <literal>revPropValues</literal> return parameters can contain name/value pairs for revision properties that the commit should set. A plugin must make sure that both arrays have the same size on return! Each property name in <literal>revPropNames</literal> must also have a corresponding value in <literal>revPropValues</literal>. If no revision properties are to be set, the plugin must return empty arrays."
-msgstr "<placeholder-1/> Ovaj metod se poziva iz TortoiseSVN dijaloga urezivanja kada korisnik klikne na plagin dugme. Metod je pozvan umesto <literal>GetCommitMessage()</literal>. Molim uporedite sa dokumentacijom za <literal>GetCommitMessage</literal> za parametre koji se takođe ovde koriste. Parametar <literal>commonURL</literal> je predak URL svih stavki izabranih da se pojavi dijalog urezivanja. Ovo je osnovni URL <literal>commonRoot</literal> putanje. Parametar <literal>bagID</literal>  sadrži sadržaj bag-ID polja kada metod vrati rezultat. Povratni parametri <literal>revPropNames</literal> i <literal>revPropValues</literal> mogu sadržati ime/vrednost par revizionih osobinakoje urezivanje treba da podesi. Plagin mora da osigura oba polja da imaju istu veličinu pri povratku! Svako ime osobine u <literal>revPropNames</literal> takođe mora da ima odgovarajuću vrednost u <literal>revPropValues</literal>. Ako nisu podešene revizione osobine plagin mora da vrati prazno polje."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT CheckCommit (\n"
-"  [in] HWND hParentWnd,\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"  [in] BSTR commitMessage,\n"
-"  [out, retval] BSTR * errorMessage\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT CheckCommit (\n"
-"  [in] HWND hParentWnd,\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"  [in] BSTR commitMessage,\n"
-"  [out, retval] BSTR * errorMessage\n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called right before the commit dialog is closed and the commit begins. A plugin can use this method to validate the selected files/folders for the commit and/or the commit message entered by the user. The parameters are the same as for <literal>GetCommitMessage2()</literal>, with the difference that <literal>commonURL</literal> is now the common URL of all <emphasis>checked</emphasis> items, and <literal>commonRoot</literal> the root path of all checked items. The return parameter <literal>errorMessage</literal> must either contain an error message which TortoiseSVN shows to the user or be empty for the commit to start. If an error message is returned, TortoiseSVN shows the error string in a dialog and keeps the commit dialog open so the user can correct whatever is wrong. A plugin should therefore return an error string which informs the user <emphasis>what</emphasis> is wrong and how to correct it."
-msgstr "<placeholder-1/> Ovaj metod se poziva tačno pre zatvaranja dijaloga urezivanja kada počinje urezivanje. Plagin može koristiti ovaj metod da proveri izabrane fajlove/imenike za urezivanje i/ili  poruke urezivanja koje je uneo korisnik. Parametri su isti za <literal>GetCommitMessage2()</literal>, sa razlikama što je taj <literal>commonURL</literal>  sada zajednički URL svih <emphasis>preuzetih</emphasis> stavki, i <literal>commonRoot</literal> korena putanja svih preuzetih stavki. Povratni parametar <literal>errorMessage</literal> mora da sadrži ili poruku o grešci koju je TortoiseSVN prikazao korisniku ili da bude prazan da bi urezivanje počelo. Ako je vraćena poruka o grešci, TortoiseSVN prikazuje string greške u dijalogu i drži dijalog urezivanja otvorenim dok korisnik ne ispravi što god je neispravno. Plagin bi zato trebalo da vrati string greške koji informiše korisnika <emphasijes>šta</emphasis> je neispravno i kako da se to koriguje."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT  OnCommitFinished (\n"
-"  // Parent window for any (error) UI that needs to be displayed.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The common root of all paths that got committed.\n"
-"  [in] BSTR commonRoot,\n"
-"\n"
-"  // All the paths that got committed.\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  [in] BSTR logMessage,\n"
-"\n"
-"  // The revision of the commit.\n"
-"  [in] ULONG revision,\n"
-"\n"
-"\n"
-"  // An error to show to the user if this function\n"
-"  // returns something else than S_OK\n"
-"  [out, retval] BSTR * error\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT\tOnCommitFinished (\n"
-"   // Predački prozor za svaki (pogrešan) UI koji\n"
-"   // treba da bude prikazan.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Zajednički koren svih putanja za urezivanje.\n"
-"  [in] BSTR commonRoot, \n"
-"\n"
-" // Sve putanje koje su urezane.\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"\n"
-"   // Tekst već prisutan pri urezivanju  poruka.\n"
-"  [in] BSTR logMessage, \n"
-"\n"
-"   // Revizija urezivanja.\n"
-"  [in] ULONG revision,\n"
-"\n"
-"\n"
-"  // Greška za prikazivanje korisniku ako \n"
-"  // funkcija vrati nešto osim  S_OK\n"
-"  [out, retval] BSTR * error \n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called after a successful commit. A plugin can use this method to e.g., close the selected issue or add information about the commit to the issue. The parameters are the same as for <literal>GetCommitMessage2</literal>."
-msgstr "<placeholder-1/> Ovaj metod se poziva posle uspešnog urezivanja. Plagin može koristiri ovaj metod da npr. zatvori izabranu stavku i doda informaciju o urezivanju uz stavku. Parametri su isti kao za <literal>GetCommitMessage2</literal>."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT HasOptions(\n"
-"  // Whether the provider provides options\n"
-"  [out, retval] VARIANT_BOOL *ret\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT HasOptions(\n"
-"  // Da li snabdevač omogućava opcije\n"
-"  [out, retval] VARIANT_BOOL *ret\n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog where the user can configure the plugins. If a plugin provides its own configuration dialog with <literal>ShowOptionsDialog</literal>, it must return TRUE here, otherwise it must return FALSE."
-msgstr "<placeholder-1/> Ovaj metod se poziva iz dijaloga podešavanja gde korisnik može da konfiguriše plagine. Ako sam plagin obezbeđuje sopstveni dijalog konfigurisanja sa <literal>ShowOptionsDialog</literal>, on mora ovde da vrati ISTINA, u drugom slučaju mora da vrati LAŽ."
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT ShowOptionsDialog(\n"
-"  // Parent window for the options dialog\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // The parameters string\n"
-"  [out, retval] BSTR * newparameters\n"
-");\n"
-msgstr ""
-"\n"
-"HRESULT ShowOptionsDialog(\n"
-"  // Predački prozor za dijalog opcija\n"
-"  [in] HWND hParentWnd, \n"
-"\n"
-"  // Parametri za vašeg snabdevača.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-" // String parametara\n"
-"  [out, retval] BSTR * newparameters \n"
-");\n"
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog when the user clicks on the \"Options\" button that is shown if <literal>HasOptions</literal> returns TRUE. A plugin can show an options dialog to make it easier for the user to configure the plugin. The <literal>parameters</literal> string contains the plugin parameters string that is already set/entered. The <literal>newparameters</literal> return parameter must contain the parameters string which the plugin constructed from the info it gathered in its options dialog. That <literal>paramameters</literal> string is passed to all other IBugtraqProvider and IBugtraqProvider2 methods."
-msgstr "<placeholder-1/>  Ovaj metod se poziva iz dijaloga podešavanja kada korisnik klikne na  dugme \"Opcije\"   koje je prikazano ako <literal>HasOptions</literal>  vrati ISTINA. Plagin može prikazati dijalog da olakša korisniku da konfiguriše plagin. String <literal>parametara</literal>  sadrži plagin string parametara koji je već podešen/unet. Povratni parametar <literal>newparameters</literal> mora da sadrži string parametara koje plagin konstruiše iz informacija sakupljenih u dijalogu opcija. String <literal>parametara</literal> se šalje svim drugim IBagtragačSnabdevačima i IBagtragačSnabdevač2 metodima."
-
 #. (title)
 msgid "Frequently Asked Questions (FAQ)"
 msgstr "Često postavljana pitanja (ČPP)"
@@ -11326,7 +10875,6 @@ msgstr "TortoiseSVN komande"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "utomatizovanje"
 
@@ -11346,10 +10894,6 @@ msgstr "Kako neke od komandi mogu uzeti listu ciljnih putanja (npr. urezivanje v
 #. (para)
 msgid "TortoiseSVN uses temporary files to pass multiple arguments between the shell extension and the main program. From TortoiseSVN 1.5.0 on and later, <option>/notempfile</option> parameter is obsolete and there is no need to add it anymore."
 msgstr "TortoiseSVN koristi privremene fajlove da provuče višestruke argumente između proširenja školjke i glavnog programa. Iz TortoiseSVN 1.5.0 i dalje, <option>/notempfile</option> parametar je napušten i nema potrebe da se više dodaje."
-
-#. (para)
-msgid "You can also specify a file which contains a list of paths, separated by newlines. The file must be in UTF-16 format. If you pass such a file, use <option>/pathfile</option> instead of <option>/path</option>. To have TortoiseProc delete that file after the command is finished, you can pass the parameter <option>/deletepathfile</option>."
-msgstr "Možete takođe specificirati fajl koji sadrži listu putanja, razdvojenih novim linijama. Fajl mora biti UTF-16 format. Ako vučete takav fajl koristite <option>/pathfile</option>umesto <option>/path</option>. Da TortoiseProc obriše taj fajl posle završetka komande, možete uključiti parametar  <option>/deletepathfile</option>."
 
 #. (para)
 msgid "The progress dialog which is used for commits, updates and many more commands usually stays open after the command has finished until the user presses the <guibutton>OK</guibutton> button. This can be changed by checking the corresponding option in the settings dialog. But using that setting will close the progress dialog, no matter if you start the command from your batch file or from the TortoiseSVN context menu."
@@ -11376,8 +10920,12 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:3</option>auto zatvaranje ako nema grešaka, konflikata i stapanja"
 
 #. (para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
-msgstr "Da bi se zatvorio progres dijalog na kraju komande bez korišćenja stalnog podešavanja treba da provučete  <option>/closeonend</option> parametar. <placeholder-1/> Da zatvorite dijalog napredovanja za lokalne operacije ako nema grešaka i konflikata, provučite <option>/closeforlocal</option> parametar."
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:4</option>auto zatvaranje ako nema grešaka, konflikata i stapanja za lokalne operacije"
+
+#. (para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
+msgstr "Da bi se zatvorio progres dijalog na kraju komande bez korišćenja stalnog podešavanja treba da provučete  <option>/closeonend</option> parametar. <placeholder-1/>"
 
 #. (para)
 msgid "The table below lists all the commands which can be accessed using the TortoiseProc.exe command line. As described above, these should be used in the form <literal>/command:abcd</literal>. In the table, the <literal>/command</literal> prefix is omitted to save space."
@@ -11446,49 +10994,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"filterstring\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findregex"
-msgstr "/findregex"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> filtriranje pomoću svega"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> filtriranje pomoću poruke"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> filtriranje pomoću putanje"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> filtriranje pomoću atora"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> filtriranje pomoću revizije"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> filtriranje pomoću bag ID"
-
 #. (entry)
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> enables the 'stop-on-copy' checkbox, <placeholder-5/> fills in the filter text, <placeholder-6/> forces the filter to use text, not regex, or <placeholder-7/> forces the filter to use regex, not simple text search, and <placeholder-8/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-9/>"
-msgstr "Otvara dnevnik dijalog. <placeholder-1/> specificira fajl ili imenik za koji dnevnik treba da bude prikazan. Šest dodatnih opcija treba da budu podešene: <placeholder-2/>, <placeholder-3/> i <placeholder-4/> omogućava 'stani-na-kopiju' čekboks, <placeholder-5/> popunjava filter tekst, <placeholder-6/> forsira filter da koriste tekst, ne regeks i <placeholder-7/> forsira filter da koristi regeks, ne jednostavno pretraživanje teksta, i<placeholder-8/> sa X koje je broj između 1 i 7. Brojevi odgovaraju: <placeholder-9/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr "Otvara dnevnik dijalog. <placeholder-1/> specificira fajl ili imenik za koji dnevnik treba da bude prikazan. Tri dodatne opcije treba da budu podeene: <placeholder-2/>, <placeholder-3/> i <placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -11554,13 +11062,9 @@ msgstr "Dodaje fajlove u <placeholder-1/> za kontrolu verzije."
 msgid "Reverts local modifications of a working copy. The <placeholder-1/> tells which items to revert."
 msgstr "Vraća lokalne izmene radne kopije. <placeholder-1/> kaže koje stavke vratiti."
 
-#. (option)
-msgid "/noui"
-msgstr "/noui"
-
 #. (entry)
-msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from popping up (either telling about the cleanup being finished or showing an error message)."
-msgstr "Čisti prekinute i zaustavljene operacije i otključava radnu kopiju u <placeholder-1/>. Koristite <placeholder-2/> da predupredite da se pojavi dijalog rezultata (objavivši da je završena ili prikazujući poruku greške)."
+msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>."
+msgstr "Čisti prekinute ili zaustavljene operacije i otključava radnu kopiju u <placeholder-1/>."
 
 #. (option)
 #. (option)
@@ -11639,13 +11143,9 @@ msgstr "/path2"
 msgid "/blame"
 msgstr "/krivac"
 
-#. (option)
-msgid "/line:xxx"
-msgstr "/linija:xxx"
-
 #. (entry)
-msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-9/> specifies the line to jump to when the diff is shown."
-msgstr "Pokreće spoljašnji diff program specificiran u TortoiseSVN podešavanju. <placeholder-1/>  specificira prvi fajl. Ako je opcija <placeholder-2/> podešena, onda diff program počinje sa ta dva fajla. Ako  je <placeholder-3/> izostavljen, onda diffovi između fajlova u <placeholder-4/> i njenu OSNOVU. Da se eksplicitno podesi broj revizije koristite <placeholder-5/> i <placeholder-6/>. Ako je <placeholder-7/>  podešen i <placeholder-8/> nije podešen, onda je diff urađen najpre okrivljavanjem fajlova sa datim revizijama.Parametar <placeholder-9/> specificira liniju na koju se skače kada je diff prikazan."
+msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions."
+msgstr "Pokreće spoljašnji diff program specificiran u TortoiseSVN podešavanju. <placeholder-1/>  specificira prvi fajl. Ako je opcija <placeholder-2/> podešena, onda diff program počinje sa ta dva fajla. Ako  je <placeholder-3/> izostavljen, onda diffovi između fajlova u <placeholder-4/> i njenu OSNOVU. Da se eksplicitno podesi broj revizije koristite <placeholder-5/> i <placeholder-6/>. Ako <placeholder-7/> je podešen i <placeholder-8/> nije podešen, onda je diff urađen najpre okrivljavanjem fajlova sa datim revizijama."
 
 #. (para)
 msgid "Depending on the URLs and revisions to compare, this either shows a unified diff (if the option <option>unified</option> is set), a dialog with a list of files that have changed or if the URLs point to files starts the diff viewer for those two files."
@@ -11667,17 +11167,9 @@ msgstr "Otvara dijalog relociranja. <placeholder-1/> specificira putanju radne k
 msgid "Opens the help file."
 msgstr "Otvara fajl pomoći."
 
-#. (option)
-msgid "/remote"
-msgstr "/daljinski"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "Provera spremišta"
-
 #. (entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
-msgstr "Otvara dijalog provera-izmena. <placeholder-1/> specificira  imenik radne kopije. Ako je  <placeholder-2/> specificiran, dijalog odmah pri startu kontaktira spremište, kao kad korisnik klikne na    <placeholder-3/> dugme."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
+msgstr "Otvara proveri-za-izmene dijalog. <placeholder-1/> specificira imenik radne kopije."
 
 #. (option)
 #. (option)
@@ -11775,57 +11267,6 @@ msgstr ""
 "TortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n"
 "                 /startrev:50 /endrev:60 /closeonend:0\n"
 "</screen>"
-
-#. (title)
-msgid "Tsvncmd URL handler"
-msgstr "Tsvncmd URL rukovalac"
-
-#. (primary)
-msgid "URL handler"
-msgstr "URL rukovalac"
-
-#. (para)
-msgid "Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr "Koristeći posebni URL, takođe je moguće pozvati TortoiseProc sa veb stranice."
-
-#. (para)
-msgid "TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be used to create hyperlinks that execute TortoiseSVN commands. The commands and parameters are the same as when automating TortoiseSVN from the command line."
-msgstr "TortoiseSVN registruje novi protokol <literal>tsvncmd:</literal> koji može biti korišćen da se kreira hiper veza koja izvršava TortoiseSVN komande. Komande i parametri su isti kao kada se automatizuje TortoiseSVN iz komandne linije."
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr "Format <literal>tsvncmd:</literal> URL je ovakav:"
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-
-#. (para)
-msgid "with <literal>cmd</literal> being one of the allowed commands and with <literal>parameter</literal> being a parameter like <literal>path</literal> or <literal>revision</literal>, depending on the command used."
-msgstr "sa <literal>cmd</literal> koje je jedna od dozvoljenih komandi sa <literal>parametar</literal> koji je parametar kao <literal>putanja</literal> ili <literal>revizija</literal>, u zavisnosti od korišćene komande."
-
-#. (para)
-msgid "The following commands are allowed with <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-msgstr "Sledeće komande su dozvoljene sa <literal>tsvncmd:</literal> URLovi: <placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr "Jedan primer za URL može izgledati kao: <placeholder-1/>"
 
 #. (title)
 msgid "TortoiseIDiff Commands"
@@ -12527,10 +11968,6 @@ msgstr "U ovom dodatku uzimamo da već imate subverzioni alat instaliran, i imat
 msgid "Much of the information here comes from a tutorial provided by Marc Logemann, which can be found at <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Additional information on setting up a Windows server was provided by Thorsten Müller. Thanks guys!"
 msgstr "Mnogo od informacija ovde dolazi od Mark Logemana, koje se mogu naći na <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Dodatne informacije o podešavanju Vindouz servera obezbedio je Torston Miler. Hvala ljudi!"
 
-#. (para)
-msgid "You can also watch a video tutorial created by Maximo Migliari which takes you through all the important steps. Watch it on <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-msgstr "Možete takođe pogledati video tutorijal koji je kreirao Maksimo Migliari koji vas vodi kroz važne korake. Pogledajte ga na <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. ili <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-
 #. (title)
 msgid "Setting Up a Linux Server"
 msgstr "Podešavanje Linuks servera"
@@ -12784,6 +12221,377 @@ msgid "If you use this last method, be sure you do not have a default username s
 msgstr "Ako koristite poslednji metod, budite sigurni da nemate podrazumevano ime korisnika podešeno u PuTTY. Imali smo izveštaje o bagu u PuTTY koji su uzrokovali zatvaranje konekcije u ovom slučaju. Da uklonite podrazumevanog korisnika, jednostavno očistite <filename>HKEY_CURRENT_USER\\Software\\SimonTatham\\Putty\\Sessions\\Default%20Settings\\HostName</filename>"
 
 #. (title)
+msgid "IBugtraqProvider interface"
+msgstr "IBagtragačSnabdevač interfejs"
+
+#. (primary)
+msgid "plugin"
+msgstr "plagin"
+
+#. (primary)
+msgid "IBugtraqProvider"
+msgstr "IBagtragačSnabdevač"
+
+#. (para)
+msgid "To get a tighter integration with issue trackers than by simply using the <literal>bugtraq:</literal> properties, TortoiseSVN can make use of COM plugins. With such plugins it is possible to fetch information directly from the issue tracker, interact with the user and provide information back to TortoiseSVN about open issues, verify log messages entered by the user and even run actions after a successful commit to e.g, close an issue."
+msgstr "Da bi dobili čvršću integraciju sa problem tragačem jednostavnim korišćenjem <literal>bugtraq:</literal> osobina, TortoiseSVN može učiniti korišćenje COM plagina. Sa takvim plaginom moguće je naći informaciju direktno iz problem tragača, interakcija sa korisnikom i obezbeđivanje informacioni povratak na TortoiseSVN o otvorenim problemima, verifikuje dnevnik poruke koje uneo korisnik i čak izvršne akcije posle uspešnog urezivanja npr. zatvaranje problema."
+
+#. (para)
+msgid "We can't provide information and tutorials on how you have to implement a COM object in your preferred programming language, but we have example plugins in C++/ATL and C# in our repository in the <filename>contrib/issue-tracker-plugins</filename> folder. In that folder you can also find the required include files you need to build your plugin. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
+msgstr "Ne možemo obezbediti informaciju i tutorijale o tome kako da primenite COM objekte u vašim izabranim programskim jezicima, ali imamo primere plagina u C++/ATL i C# u vašem spremištu u <filename>contrib/issue-tracker-plugins</filename>  imenik. U imeniku možete takođe naći željene fajlove za uključivanje koji su vam potrebni da napravite plagin. (<xref linkend=\"tsvn-preface-source\"/>  objašnjava kako pristupiti spremištu)."
+
+#. (title)
+msgid "The IBugtraqProvider interface"
+msgstr "IBagtragačSnabdevač interfejs"
+
+#. (para)
+msgid "TortoiseSVN 1.5 can use plugins which implement the IBugtraqProvider interface. The interface provides a few methods which plugins can use to interact with the issue tracker."
+msgstr "TortoiseSVN 1.5 može koristiti plagine koji implementiraju IBagtagačSnabdevač interfejs. Interfejs obezbeđuje nekoliko metoda čiji plagini se mogu koristiti da interaguju sa problem tragačem."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT ValidateParameters (\n"
+"  // Parent window for any UI that needs to be\n"
+"  // displayed during validation.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The parameter string that needs to be validated.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // Is the string valid?\n"
+"  [out, retval] VARIANT_BOOL *valid\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT ValidateParameters (\n"
+"            // Predački prozor za bilo koji UI koji ga zahteva da\n"
+"   //bude prikazan u toku vrednovanja.\n"
+"  [in] HWND hParentWnd, \n"
+"    \n"
+"           // Parametar string koji treba da bude vrednovan.\n"
+"  [in] BSTR parameters, \n"
+"\n"
+"  // Da li je string valjan?\n"
+"  [out, retval] VARIANT_BOOL *valid\n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog where the user can add and configure the plugin. The <literal>parameters</literal> string can be used by a plugin to get additional required information, e.g., the URL to the issue tracker, login information, etc. The plugin should verify the <literal>parameters</literal> string and show an error dialog if the string is not valid. The <literal>hParentWnd</literal> parameter should be used for any dialog the plugin shows as the parent window. The plugin must return TRUE if the validation of the <literal>parameters</literal> string is successful. If the plugin returns FALSE, the settings dialog won't allow the user to add the plugin to a working copy path."
+msgstr "<placeholder-1/> Ovaj metod je pozvan iz dijaloga podešavanja gde korisnik može dodati i konfigurisati plagin. String  <literal>parametri</literal>  se mogu koristiti plaginom da se dobije dodatna zahtevana informacija, npr. URL ka problem tragaču, dnevnik informacija, itd. Plagin treba da verifikuje string <literal>parametrima</literal> i prikazuje dijalog greške ako string nije valjan. Parametar <literal>hParentWnd</literal> treba da se koristi za svaki  dijalog plagin se prikazuje kao predački prozor. Plagin mora vratiti ISTINU ako vrednovanje  string <literal>parametara</literal> bude zadovoljavajuće. Ako plagin vrati LAŽ dijalog podešavanja ne može dopustiti korisniku da doda plagin u putanju radne kopije."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetLinkText (\n"
+"  // Parent window for any (error) UI that needs to be displayed.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The parameter string, just in case you need to talk to your\n"
+"  // web service (e.g.) to find out what the correct text is.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // What text do you want to display?\n"
+"  // Use the current thread locale.\n"
+"  [out, retval] BSTR *linkText\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT GetLinkText (\n"
+"     // Predački prozor za svaki (pogrešan) UI koji traži da bude prikazan.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+" // Parametar string, upravo u slučaju kada vam je potrebno\n"
+" // da se obratite vašem veb servisu (npr.) da nađete koji je korektan tekst.\n"
+" [in] BSTR parameters,\n"
+"   \n"
+" // Koji tekst želite da prikažete? \n"
+" //Koristite tekuću lokalnu nit.\n"
+"  [out, retval] BSTR *linkText \n"
+" );\n"
+
+#. (para)
+msgid "<placeholder-1/> The plugin can provide a string here which is used in the TortoiseSVN commit dialog for the button which invokes the plugin, e.g., \"Choose issue\" or \"Select ticket\". Make sure the string is not too long, otherwise it might not fit into the button. If the method returns an error (e.g., <literal>E_NOTIMPL</literal>), a default text is used for the button."
+msgstr "<placeholder-1/> Plagin može dati string koji se koristi u TortoiseSVN dijalogu urezivanja za dugmiće koji pozivaju plagine, npr. \"Izaberi problem\" ili \"Izaberi kartu\". Budite sigurni da string nije suviše dugačak, drugačije to ne može biti ubačeno u dugme. Ako metod vraća grešku (npr. <literal>E_NOTIMPL</literal>), uobičajeni tekst se koristi za dugme."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetCommitMessage (\n"
+"  // Parent window for your provider's UI.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  // Your provider should include this text in the new message,\n"
+"  // where appropriate.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+"  // The new text for the commit message.\n"
+"  // This replaces the original message.\n"
+"  [out, retval] BSTR *newMessage\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT GetCommitMessage (\n"
+"   // Predački prozor za UI snabdevača.\n"
+"  [in] HWND hParentWnd,\n"
+" \n"
+"    //Parametri za vašeg snabdevača.\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"  \n"
+"  // Tekst već prisutan u poruci urezivanja.\n"
+"  // Vaš snabdevač treba da uključi ovaj tekst u novu poruku,\n"
+"  // gde odgovara.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+"// Novi tekst za poruku urezivanja.\n"
+"// Ovo zamenjuje originalnu poruku.\n"
+"  [out, retval] BSTR *newMessage\n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This is the main method of the plugin. This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. The <literal>parameters</literal> string is the string the user has to enter in the settings dialog when he configures the plugin. Usually a plugin would use this to find the URL of the issue tracker and/or login information or more. The <literal>commonRoot</literal> string contains the parent path of all items selected to bring up the commit dialog. Note that this is <emphasis>not</emphasis> the root path of all items which the user has selected in the commit dialog. The <literal>pathList</literal> parameter contains an array of paths (as strings) which the user has selected for the commit. The <literal>originalMessage</literal> parameter contains the text entered in the log message box in the commit dialog. If the user has not yet entered any text, this string will be empty. The <literal>newMessage</literal> return string is copied into the log message edit box in the commit dialog, replacing whatever is already there. If a plugin does not modify the <literal>originalMessage</literal> string, it must return the same string again here, otherwise any text the user has entered will be lost."
+msgstr "<placeholder-1/> Ovo je glavni metod plagina. Ovaj metod se poziva iz TortoiseSVN dijaloga urezivanja kada korisnik klikne na dugme plagina. String <literal>parametara</literal> je string koji je korisnik uneo u dijalog podešavanja kada je konfigurisao plagin. Obično plagin ovo koristi da nađe URL problem tragača i/ili login informacije ili nešto više. String <literal>commonRoot</literal> sadrži predačku putanju svih stavki izabranih da prikaže dijalog urezivanja. Primetimo da ovo <emphasis>nije</emphasis>  korena putanja svih stavki koje je korisnik izabrao u dijalogu urezivanja. Parametar <literal>pathList</literal> sadrži skup putanji (kao stringove) koje je korisnik izabrao u dijalogu urezivanja. Parametar <literal>originalMessage</literal> sadrži tekst unet u boks poruke dnevnika u dijalogu urezivanja, zamenjujući sve što je već tamo. Ako korisnik još nije uneo bilo koji tekst, ovaj string će biti prazan. <literal>newMessage</literal> povratni string je kopiran u dnevnik poruka boks uređenja u dijalogu urezivanja, zamenjujući štogod je tamo. Ako plagin ne menja <literal>originalMessage</literal>  string, mora ovde vratiti isti string, inače će svaki tekst, koji korisnik unese,biti izgubljen."
+
+#. (title)
+msgid "The IBugtraqProvider2 interface"
+msgstr "IBagtragačSnabdevač2 interfejs"
+
+#. (para)
+msgid "In TortoiseSVN 1.6 a new interface was added which provides more functionality for plugins. This IBugtraqProvider2 interface inherits from IBugtraqProvider."
+msgstr "U TortoiseSVN 1.6 novi interfejs je dodat da omogući veću funkcionalnost plagina. Ovaj IBagtragačSnabdevač2 interfejs proizilazi iz IBagtragačSnabdevač."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetCommitMessage2 (\n"
+"  // Parent window for your provider's UI.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"  // The common URL of the commit\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  // Your provider should include this text in the new message,\n"
+"  // where appropriate.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+"  // You can assign custom revision properties to a commit\n"
+"  // by setting the next two params.\n"
+"  // note: Both safearrays must be of the same length.\n"
+"  //       For every property name there must be a property value!\n"
+"\n"
+"  // The content of the bugID field (if shown)\n"
+"  [in] BSTR bugID,\n"
+"\n"
+"  // Modified content of the bugID field\n"
+"  [out] BSTR * bugIDOut,\n"
+"\n"
+"  // The list of revision property names.\n"
+"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
+"\n"
+"  // The list of revision property values.\n"
+"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
+"\n"
+"  // The new text for the commit message.\n"
+"  // This replaces the original message\n"
+"  [out, retval] BSTR * newMessage\n"
+");\n"
+msgstr ""
+"\n"
+"\tHRESULT GetCommitMessage2 (\n"
+"  // Predački prozor za vaš UI snabdevač.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parametri za vašeg snabdevača.\n"
+"  [in] BSTR parameters,\n"
+"  // Zajednički URL urezivanjat\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+" // Tekst koji već postoji u poruci urezivanja.\n"
+" // Vaš snabdevač bi trebao da uključi ovaj tekst u novu poruku, \n"
+" // gde to odgovara.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+" // Možete označiti obične osobine revizije za urezivanje \n"
+" // podešavanjem sledeća dva parametra.\n"
+" // primedba: Obe sigurnosne oblasti moraju biti iste dužine.\n"
+" //           Za svako ime osobine mora biti vrednost osobine!\n"
+"\n"
+"   // sadržaj bagID polja (ako je prikazano)\n"
+"  [in] BSTR bugID,\n"
+"\n"
+"   // izmenjeni sadržaj bagID polja\n"
+"  [out] BSTR * bugIDOut,\n"
+"\n"
+" // Lista imena osobina revizije\n"
+"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
+"\n"
+" // Lista imena vrednosti revizije\n"
+"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
+"\n"
+"   //Novi tekst za poruku urezivanja.\n"
+"   // Ovo zamenjuje originalnu poruku.\n"
+"  [out, retval] BSTR * newMessage\n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. This method is called instead of <literal>GetCommitMessage()</literal>. Please refer to the documentation for <literal>GetCommitMessage</literal> for the parameters that are also used there. The parameter <literal>commonURL</literal> is the parent URL of all items selected to bring up the commit dialog. This is basically the URL of the <literal>commonRoot</literal> path. The parameter <literal>bugID</literal> contains the content of the bug-ID field (if it is shown, configured with the property <literal>bugtraq:message</literal>). The return parameter <literal>bugIDOut</literal> is used to fill the bug-ID field when the method returns. The <literal>revPropNames</literal> and <literal>revPropValues</literal> return parameters can contain name/value pairs for revision properties that the commit should set. A plugin must make sure that both arrays have the same size on return! Each property name in <literal>revPropNames</literal> must also have a corresponding value in <literal>revPropValues</literal>. If no revision properties are to be set, the plugin must return empty arrays."
+msgstr "<placeholder-1/> Ovaj metod se poziva iz TortoiseSVN dijaloga urezivanja kada korisnik klikne na plagin dugme. Metod je pozvan umesto <literal>GetCommitMessage()</literal>. Molim uporedite sa dokumentacijom za <literal>GetCommitMessage</literal> za parametre koji se takođe ovde koriste. Parametar <literal>commonURL</literal> je predak URL svih stavki izabranih da se pojavi dijalog urezivanja. Ovo je osnovni URL <literal>commonRoot</literal> putanje. Parametar <literal>bagID</literal>  sadrži sadržaj bag-ID polja kada metod vrati rezultat. Povratni parametri <literal>revPropNames</literal> i <literal>revPropValues</literal> mogu sadržati ime/vrednost par revizionih osobinakoje urezivanje treba da podesi. Plagin mora da osigura oba polja da imaju istu veličinu pri povratku! Svako ime osobine u <literal>revPropNames</literal> takođe mora da ima odgovarajuću vrednost u <literal>revPropValues</literal>. Ako nisu podešene revizione osobine plagin mora da vrati prazno polje."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT CheckCommit (\n"
+"  [in] HWND hParentWnd,\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"  [in] BSTR commitMessage,\n"
+"  [out, retval] BSTR * errorMessage\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT CheckCommit (\n"
+"  [in] HWND hParentWnd,\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"  [in] BSTR commitMessage,\n"
+"  [out, retval] BSTR * errorMessage\n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called right before the commit dialog is closed and the commit begins. A plugin can use this method to validate the selected files/folders for the commit and/or the commit message entered by the user. The parameters are the same as for <literal>GetCommitMessage2()</literal>, with the difference that <literal>commonURL</literal> is now the common URL of all <emphasis>checked</emphasis> items, and <literal>commonRoot</literal> the root path of all checked items. The return parameter <literal>errorMessage</literal> must either contain an error message which TortoiseSVN shows to the user or be empty for the commit to start. If an error message is returned, TortoiseSVN shows the error string in a dialog and keeps the commit dialog open so the user can correct whatever is wrong. A plugin should therefore return an error string which informs the user <emphasis>what</emphasis> is wrong and how to correct it."
+msgstr "<placeholder-1/> Ovaj metod se poziva tačno pre zatvaranja dijaloga urezivanja kada počinje urezivanje. Plagin može koristiti ovaj metod da proveri izabrane fajlove/imenike za urezivanje i/ili  poruke urezivanja koje je uneo korisnik. Parametri su isti za <literal>GetCommitMessage2()</literal>, sa razlikama što je taj <literal>commonURL</literal>  sada zajednički URL svih <emphasis>preuzetih</emphasis> stavki, i <literal>commonRoot</literal> korena putanja svih preuzetih stavki. Povratni parametar <literal>errorMessage</literal> mora da sadrži ili poruku o grešci koju je TortoiseSVN prikazao korisniku ili da bude prazan da bi urezivanje počelo. Ako je vraćena poruka o grešci, TortoiseSVN prikazuje string greške u dijalogu i drži dijalog urezivanja otvorenim dok korisnik ne ispravi što god je neispravno. Plagin bi zato trebalo da vrati string greške koji informiše korisnika <emphasijes>šta</emphasis> je neispravno i kako da se to koriguje."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT  OnCommitFinished (\n"
+"  // Parent window for any (error) UI that needs to be displayed.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The common root of all paths that got committed.\n"
+"  [in] BSTR commonRoot,\n"
+"\n"
+"  // All the paths that got committed.\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  [in] BSTR logMessage,\n"
+"\n"
+"  // The revision of the commit.\n"
+"  [in] ULONG revision,\n"
+"\n"
+"\n"
+"  // An error to show to the user if this function\n"
+"  // returns something else than S_OK\n"
+"  [out, retval] BSTR * error\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT\tOnCommitFinished (\n"
+"   // Predački prozor za svaki (pogrešan) UI koji\n"
+"   // treba da bude prikazan.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Zajednički koren svih putanja za urezivanje.\n"
+"  [in] BSTR commonRoot, \n"
+"\n"
+" // Sve putanje koje su urezane.\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"\n"
+"   // Tekst već prisutan pri urezivanju  poruka.\n"
+"  [in] BSTR logMessage, \n"
+"\n"
+"   // Revizija urezivanja.\n"
+"  [in] ULONG revision,\n"
+"\n"
+"\n"
+"  // Greška za prikazivanje korisniku ako \n"
+"  // funkcija vrati nešto osim  S_OK\n"
+"  [out, retval] BSTR * error \n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called after a successful commit. A plugin can use this method to e.g., close the selected issue or add information about the commit to the issue. The parameters are the same as for <literal>GetCommitMessage2</literal>."
+msgstr "<placeholder-1/> Ovaj metod se poziva posle uspešnog urezivanja. Plagin može koristiri ovaj metod da npr. zatvori izabranu stavku i doda informaciju o urezivanju uz stavku. Parametri su isti kao za <literal>GetCommitMessage2</literal>."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT HasOptions(\n"
+"  // Whether the provider provides options\n"
+"  [out, retval] VARIANT_BOOL *ret\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT HasOptions(\n"
+"  // Da li snabdevač omogućava opcije\n"
+"  [out, retval] VARIANT_BOOL *ret\n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog where the user can configure the plugins. If a plugin provides its own configuration dialog with <literal>ShowOptionsDialog</literal>, it must return TRUE here, otherwise it must return FALSE."
+msgstr "<placeholder-1/> Ovaj metod se poziva iz dijaloga podešavanja gde korisnik može da konfiguriše plagine. Ako sam plagin obezbeđuje sopstveni dijalog konfigurisanja sa <literal>ShowOptionsDialog</literal>, on mora ovde da vrati ISTINA, u drugom slučaju mora da vrati LAŽ."
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT ShowOptionsDialog(\n"
+"  // Parent window for the options dialog\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // The parameters string\n"
+"  [out, retval] BSTR * newparameters\n"
+");\n"
+msgstr ""
+"\n"
+"HRESULT ShowOptionsDialog(\n"
+"  // Predački prozor za dijalog opcija\n"
+"  [in] HWND hParentWnd, \n"
+"\n"
+"  // Parametri za vašeg snabdevača.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+" // String parametara\n"
+"  [out, retval] BSTR * newparameters \n"
+");\n"
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog when the user clicks on the \"Options\" button that is shown if <literal>HasOptions</literal> returns TRUE. A plugin can show an options dialog to make it easier for the user to configure the plugin. The <literal>parameters</literal> string contains the plugin parameters string that is already set/entered. The <literal>newparameters</literal> return parameter must contain the parameters string which the plugin constructed from the info it gathered in its options dialog. That <literal>paramameters</literal> string is passed to all other IBugtraqProvider and IBugtraqProvider2 methods."
+msgstr "<placeholder-1/>  Ovaj metod se poziva iz dijaloga podešavanja kada korisnik klikne na  dugme \"Opcije\"   koje je prikazano ako <literal>HasOptions</literal>  vrati ISTINA. Plagin može prikazati dijalog da olakša korisniku da konfiguriše plagin. String <literal>parametara</literal>  sadrži plagin string parametara koji je već podešen/unet. Povratni parametar <literal>newparameters</literal> mora da sadrži string parametara koje plagin konstruiše iz informacija sakupljenih u dijalogu opcija. String <literal>parametara</literal> se šalje svim drugim IBagtragačSnabdevačima i IBagtragačSnabdevač2 metodima."
+
+#. (title)
 msgid "Glossary"
 msgstr "Pojmovnik"
 
@@ -13008,4 +12816,3 @@ msgstr "Milorad Popović <MiloradSPopovic@gmail.com>"
 #. (None)
 msgid "translator-translation"
 msgstr "Prevod"
-

@@ -26,20 +26,17 @@
 
 using namespace std;
 
-#define LOG_REVISIONREGEX _T("\\b(r\\d+)|\\b(revisions?(\\(s\\))?\\s#?\\d+([, ]+(and\\s?)?\\d+)*)|\\b(revs?\\.?\\s?\\d+([, ]+(and\\s?)?\\d+)*)")
-
 
 ProjectProperties::ProjectProperties(void)
-    : regExNeedUpdate (true)
-	, bNumber (TRUE)
-	, bWarnIfNoIssue (FALSE)
-	, nLogWidthMarker (0)
-	, nMinLogSize (0)
-	, nMinLockMsgSize (0)
-	, bFileListInEnglish (TRUE)
-	, bAppend (TRUE)
-	, lProjectLanguage (0)
 {
+	bNumber = TRUE;
+	bWarnIfNoIssue = FALSE;
+	nLogWidthMarker = 0;
+	nMinLogSize = 0;
+	nMinLockMsgSize = 0;
+	bFileListInEnglish = TRUE;
+	bAppend = TRUE;
+	lProjectLanguage = 0;
 }
 
 ProjectProperties::~ProjectProperties(void)
@@ -61,8 +58,6 @@ BOOL ProjectProperties::ReadPropsPathList(const CTSVNPathList& pathList)
 
 BOOL ProjectProperties::ReadProps(CTSVNPath path)
 {
-    regExNeedUpdate = true;
-
 	BOOL bFoundBugtraqLabel = FALSE;
 	BOOL bFoundBugtraqMessage = FALSE;
 	BOOL bFoundBugtraqNumber = FALSE;
@@ -84,7 +79,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 	BOOL bFoundLogSummary = FALSE;
 	BOOL bFoundBugtraqProviderUuid = FALSE;
 	BOOL bFoundBugtraqProviderParams = FALSE;
-	BOOL bFoundLogRevRegex = FALSE;
 
 	if (!path.IsDirectory())
 		path = path.GetContainingDirectory();
@@ -260,11 +254,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				sLogSummaryRe = sPropVal;
 				bFoundLogSummary = TRUE;
 			}
-			if ((!bFoundLogRevRegex)&&(sPropName.Compare(PROJECTPROPNAME_LOGREVREGEX)==0))
-			{
-				sLogRevRegex = sPropVal;
-				bFoundLogRevRegex = TRUE;
-			}
 		}
 		if (PathIsRoot(path.GetWinPath()))
 			return FALSE;
@@ -276,11 +265,9 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
 				| bFoundBugtraqURL | bFoundBugtraqWarnIssue | bFoundLogWidth
 				| bFoundLogTemplate | bFoundBugtraqLogRe | bFoundMinLockMsgSize
 				| bFoundUserFileProps | bFoundUserDirProps | bFoundAutoProps
-				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary | bFoundLogRevRegex
+				| bFoundWebViewRev | bFoundWebViewPathRev | bFoundLogSummary
 				| bFoundBugtraqProviderUuid | bFoundBugtraqProviderParams)
 			{
-				if (!bFoundLogRevRegex)
-					sLogRevRegex = LOG_REVISIONREGEX;
 				return TRUE;
 			}
 			propsPath.Reset();
@@ -370,17 +357,6 @@ CString ProjectProperties::GetBugIDFromLog(CString& msg)
 	return sBugID;
 }
 
-void ProjectProperties::AutoUpdateRegex()
-{
-    if (regExNeedUpdate)
-    {
-		regCheck = tr1::wregex (sCheckRe);
-		regBugID = tr1::wregex (sBugIDRe);
-
-        regExNeedUpdate = false;
-    }
-}
-
 BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 {
 	size_t offset1 = 0;
@@ -399,7 +375,8 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 			// match with two regex strings (without grouping!)
 			try
 			{
-                AutoUpdateRegex();
+				const tr1::wregex regCheck(sCheckRe);
+				const tr1::wregex regBugID(sBugIDRe);
 				const tr1::wsregex_iterator end;
 				wstring s = msg;
 				for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
@@ -411,7 +388,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					{
 						ATLTRACE(_T("matched id : %s\n"), (*it2)[0].str().c_str());
 						ptrdiff_t matchposID = it2->position(0);
-						CHARRANGE range = {(LONG)(matchpos+matchposID), (LONG)(matchpos+matchposID+(*it2)[0].str().size())};
+						CHARRANGE range = {matchpos+matchposID, matchpos+matchposID+(*it2)[0].str().size()};
 						pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
 						CHARFORMAT2 format;
 						SecureZeroMemory(&format, sizeof(CHARFORMAT2));
@@ -429,7 +406,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 		{
 			try
 			{
-                AutoUpdateRegex();
+				const tr1::wregex regCheck(sCheckRe);
 				const tr1::wsregex_iterator end;
 				wstring s = msg;
 				for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
@@ -440,7 +417,7 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 					if (match.size() >= 2)
 					{
 						ATLTRACE(_T("matched id : %s\n"), wstring(match[1]).c_str());
-						CHARRANGE range = {(LONG)(match[1].first-s.begin()), (LONG)(match[1].second-s.begin())};
+						CHARRANGE range = {match[1].first-s.begin(), match[1].second-s.begin()};
 						pWnd->SendMessage(EM_EXSETSEL, NULL, (LPARAM)&range);
 						CHARFORMAT2 format;
 						SecureZeroMemory(&format, sizeof(CHARFORMAT2));
@@ -532,11 +509,14 @@ BOOL ProjectProperties::FindBugID(const CString& msg, CWnd * pWnd)
 	return FALSE;
 }
 
-std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
+CString ProjectProperties::FindBugID(const CString& msg)
 {
 	size_t offset1 = 0;
 	size_t offset2 = 0;
 	bool bFound = false;
+
+	CString sRet;
+
 	std::set<CString> bugIDs;
 
 	// first use the checkre string to find bug ID's in the message
@@ -547,7 +527,8 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 			// match with two regex strings (without grouping!)
 			try
 			{
-                AutoUpdateRegex();
+				const tr1::wregex regCheck(sCheckRe);
+				const tr1::wregex regBugID(sBugIDRe);
 				const tr1::wsregex_iterator end;
 				wstring s = msg;
 				for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
@@ -567,7 +548,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		{
 			try
 			{
-                AutoUpdateRegex();
+				const tr1::wregex regCheck(sCheckRe);
 				const tr1::wsregex_iterator end;
 				wstring s = msg;
 				for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
@@ -592,7 +573,7 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CString sLastPart;
 		BOOL bTop = FALSE;
 		if (sMessage.Find(_T("%BUGID%"))<0)
-			return bugIDs;
+			goto finish;
 		sFirstPart = sMessage.Left(sMessage.Find(_T("%BUGID%")));
 		sLastPart = sMessage.Mid(sMessage.Find(_T("%BUGID%"))+7);
 		CString sMsg = msg;
@@ -624,10 +605,10 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 			bTop = TRUE;
 		}
 		if (sBugLine.IsEmpty())
-			return bugIDs;
+			goto finish;
 		CString sBugIDPart = sBugLine.Mid(sFirstPart.GetLength(), sBugLine.GetLength() - sFirstPart.GetLength() - sLastPart.GetLength());
 		if (sBugIDPart.IsEmpty())
-			return bugIDs;
+			goto finish;
 		//the bug id part can contain several bug id's, separated by commas
 		if (!bTop)
 			offset1 = sMsg.GetLength() - sBugLine.GetLength() + sFirstPart.GetLength();
@@ -646,25 +627,13 @@ std::set<CString> ProjectProperties::FindBugIDs(const CString& msg)
 		CHARRANGE range = {(LONG)offset1, (LONG)offset2};
 		bugIDs.insert(msg.Mid(range.cpMin, range.cpMax-range.cpMin));
 	}
-
-	return bugIDs;
-}
-
-CString ProjectProperties::FindBugID(const CString& msg)
-{
-	CString sRet;
-	if (!sCheckRe.IsEmpty() || (sMessage.Find(_T("%BUGID%")) >= 0))
-    {
-	    std::set<CString> bugIDs = FindBugIDs(msg);
-
-	    for (std::set<CString>::iterator it = bugIDs.begin(); it != bugIDs.end(); ++it)
-	    {
-		    sRet += *it;
-		    sRet += _T(" ");
-	    }
-	    sRet.Trim();
-    }
-
+finish:
+	for (std::set<CString>::iterator it = bugIDs.begin(); it != bugIDs.end(); ++it)
+	{
+		sRet += *it;
+		sRet += _T(" ");
+	}
+	sRet.Trim();
 	return sRet;
 }
 
@@ -718,8 +687,8 @@ BOOL ProjectProperties::HasBugID(const CString& sMessage)
 	{
 		try
 		{
-            AutoUpdateRegex();
-			return tr1::regex_search((LPCTSTR)sMessage, regCheck);
+			tr1::wregex rx(sCheckRe);
+			return tr1::regex_search((LPCTSTR)sMessage, rx);
 		}
 		catch (exception) {}
 	}
@@ -808,8 +777,6 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
 		bRet = props.Add(PROJECTPROPNAME_LOGFILELISTLANG, "false") && bRet;
 	if (!sLogSummaryRe.IsEmpty())
 		bRet = props.Add(PROJECTPROPNAME_LOGSUMMARY, WideToUTF8((LPCTSTR)sLogSummaryRe)) && bRet;
-	if (!sLogRevRegex.IsEmpty())
-		bRet = props.Add(PROJECTPROPNAME_LOGREVREGEX, WideToUTF8((LPCTSTR)sLogRevRegex)) && bRet;
 	if (lProjectLanguage)
 	{
 		sprintf_s(buf, sizeof(buf), "%ld", lProjectLanguage);
@@ -857,32 +824,6 @@ CString ProjectProperties::GetLogSummary(const CString& sMessage)
 	return sRet;
 }
 
-CString ProjectProperties::MakeShortMessage(const CString& message)
-{
-	bool bFoundShort = true;
-	CString sShortMessage = GetLogSummary(message);
-	if (sShortMessage.IsEmpty())
-	{
-		bFoundShort = false;
-		sShortMessage = message;
-	}
-	// Remove newlines and tabs 'cause those are not shown nicely in the list control
-	sShortMessage.Replace(_T("\r"), _T(""));
-	sShortMessage.Replace(_T("\t"), _T(" "));
-	
-	// Suppose the first empty line separates 'summary' from the rest of the message.
-	int found = sShortMessage.Find(_T("\n\n"));
-	// To avoid too short 'short' messages 
-	// (e.g. if the message looks something like "Bugfix:\n\n*done this\n*done that")
-	// only use the empty newline as a separator if it comes after at least 15 chars.
-	if ((!bFoundShort)&&(found >= 15))
-	{
-		sShortMessage = sShortMessage.Left(found);
-	}
-	sShortMessage.Replace('\n', ' ');
-	return sShortMessage;
-}
-
 #ifdef DEBUG
 static class PropTest
 {
@@ -899,14 +840,12 @@ public:
 		CString sRet = props.FindBugID(_T("This is a test for PAF-88"));
 		ATLASSERT(sRet.IsEmpty());
 		props.sCheckRe = _T("[Ii]ssue #?(\\d+)");
-        props.regExNeedUpdate = true;
 		sRet = props.FindBugID(_T("Testing issue #99"));
 		sRet.Trim();
 		ATLASSERT(sRet.Compare(_T("99"))==0);
 		props.sCheckRe = _T("[Ii]ssues?:?(\\s*(,|and)?\\s*#\\d+)+");
 		props.sBugIDRe = _T("(\\d+)");
 		props.sUrl = _T("http://tortoisesvn.tigris.org/issues/show_bug.cgi?id=%BUGID%");
-        props.regExNeedUpdate = true;
 		sRet = props.FindBugID(_T("This is a test for Issue #7463,#666"));
 		ATLASSERT(props.HasBugID(_T("This is a test for Issue #7463,#666")));
 		ATLASSERT(!props.HasBugID(_T("This is a test for Issue 7463,666")));
@@ -914,13 +853,11 @@ public:
 		ATLASSERT(sRet.Compare(_T("666 7463"))==0);
 		props.sCheckRe = _T("^\\[(\\d+)\\].*");
 		props.sUrl = _T("http://tortoisesvn.tigris.org/issues/show_bug.cgi?id=%BUGID%");
-        props.regExNeedUpdate = true;
 		sRet = props.FindBugID(_T("[000815] some stupid programming error fixed"));
 		sRet.Trim();
 		ATLASSERT(sRet.Compare(_T("000815"))==0);
 		props.sCheckRe = _T("\\[\\[(\\d+)\\]\\]\\]");
 		props.sUrl = _T("http://tortoisesvn.tigris.org/issues/show_bug.cgi?id=%BUGID%");
-        props.regExNeedUpdate = true;
 		sRet = props.FindBugID(_T("test test [[000815]]] some stupid programming error fixed"));
 		sRet.Trim();
 		ATLASSERT(sRet.Compare(_T("000815"))==0);

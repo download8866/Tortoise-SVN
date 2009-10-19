@@ -18,10 +18,8 @@
 //
 #pragma once
 
-#pragma warning(push)
 #include "svn_diff.h"
 #include "apr_pools.h"
-#pragma warning(pop)
 #include "FileTextLines.h"
 #include "Registry.h"
 #include "WorkingFile.h"
@@ -55,7 +53,7 @@ public:
 private:
 	bool DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool);
 	bool DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, apr_pool_t * pool);
-	void HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3);
+
 
 public:
 	CWorkingFile				m_baseFile;

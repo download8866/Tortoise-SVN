@@ -93,7 +93,7 @@ BOOL CBlame::BlameCallback(LONG linenumber, svn_revnum_t revision, const CString
 	return TRUE;
 }
 
-BOOL CBlame::Log(svn_revnum_t revision, const CString& /*author*/, const CString& message, apr_time_t /*time*/, BOOL /*children*/)
+BOOL CBlame::Log(svn_revnum_t revision, const CString& /*author*/, const CString& /*date*/, const CString& message, LogChangedPathArray * /*cpaths*/, apr_time_t /*time*/, int /*filechanges*/, BOOL /*copies*/, DWORD /*actions*/, BOOL /*children*/)
 {
 	m_progressDlg.SetProgress(m_highestrev - revision, m_highestrev);
 	if (m_saveLog.m_hFile != INVALID_HANDLE_VALUE)
@@ -134,7 +134,7 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 		return _T("");
 	CString headline;
 	m_bNoLineNo = false;
-	headline.Format(_T("%c %-6s %-6s %-6s %-30s %-60s %-30s %-s \n"), ' ', _T("line"), _T("rev"), _T("merged"), _T("date"), _T("path"), _T("author"), _T("content"));
+	headline.Format(_T("%c %-6s %-6s %-6s %-30s %-60s %-30s %-s \n"), ' ', _T("line"), _T("rev"), _T("rev"), _T("date"), _T("path"), _T("author"), _T("content"));
 	m_saveFile.WriteString(headline);
 	m_saveFile.WriteString(_T("\n"));
 	m_progressDlg.SetTitle(IDS_BLAME_PROGRESSTITLE);
@@ -180,11 +180,9 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
 			logfile.Empty();
 			return m_sSavePath;
 		}
-		if (   (NULL == ReceiveLog (CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, FALSE, m_bHasMerges, false).get())
-            || (Err != NULL))
+		BOOL bRet = ReceiveLog(CTSVNPathList(path), pegrev, m_nHeadRev, m_lowestrev, 0, FALSE, m_bHasMerges, false);
+		if (!bRet)
 		{
-            // we don't want partial logs
-
 			m_saveLog.Close();
 			DeleteFile(logfile);
 			logfile.Empty();

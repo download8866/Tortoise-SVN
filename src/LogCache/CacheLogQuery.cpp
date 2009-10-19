@@ -20,9 +20,9 @@
 
 #include "CacheLogQuery.h"
 
-#include "Containers/CachedLogInfo.h"
-#include "Access/CopyFollowingLogIterator.h"
-#include "Access/StrictLogIterator.h"
+#include "CachedLogInfo.h"
+#include "CopyFollowingLogIterator.h"
+#include "StrictLogIterator.h"
 #include "LogCachePool.h"
 #include "RepositoryInfo.h"
 
@@ -147,11 +147,8 @@ bool CCacheLogQuery::CDataAvailable::operator() (revision_t revision) const
 
 void CCacheLogQuery::CLogFiller::MergeFromUpdateCache()
 {
-    if (!updateData->IsEmpty())
-    {
-        cache->Update (*updateData);
-        updateData->Clear();
-    }
+    cache->Update (*updateData);
+    updateData->Clear();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -233,15 +230,14 @@ void CCacheLogQuery::CLogFiller::MakeRangeIterable ( const CDictionaryBasedPath&
 // cache data
 
 void CCacheLogQuery::CLogFiller::WriteToCache 
-    ( TChangedPaths* changes
+    ( LogChangedPathArray* changes
     , revision_t revision
     , const StandardRevProps* stdRevProps
     , UserRevPropArray* userRevProps)
 {
     // If it is not yet in cache, add it to the cache directly.
     // Otherwise it is a modification of an existing revision
-    // -> collect them and update cache later in one go 
-    //    for maximum performance.
+    // -> collect them an update cache later for maximum performance.
 
     CCachedLogInfo* targetCache = cache->GetRevisions()[revision] == NO_INDEX
                                 ? cache
@@ -255,9 +251,9 @@ void CCacheLogQuery::CLogFiller::WriteToCache
 
     if (stdRevProps)
     {
-        author = (const char*)CUnicodeUtils::GetUTF8 (stdRevProps->GetAuthor());
-        message = (const char*)CUnicodeUtils::GetUTF8 (stdRevProps->GetMessage());
-        timeStamp = stdRevProps->GetTimeStamp();
+        author = (const char*)CUnicodeUtils::GetUTF8 (stdRevProps->author);
+        message = (const char*)CUnicodeUtils::GetUTF8 (stdRevProps->message);
+        timeStamp = stdRevProps->timeStamp;
     }
 
     char presenceMask = 0; 
@@ -278,55 +274,49 @@ void CCacheLogQuery::CLogFiller::WriteToCache
 
     if (changes != NULL)
     {
-	    for (size_t i = 0, count = changes->size(); i < count; ++i)
+	    for (INT_PTR i = 0, count = changes->GetCount(); i < count; ++i)
 	    {
-		    const SChangedPath& change = (*changes)[i];
+		    const LogChangedPath* change = changes->GetAt (i);
 
 		    CRevisionInfoContainer::TChangeAction action 
-			    = (CRevisionInfoContainer::TChangeAction)(change.action * 4);
+			    = (CRevisionInfoContainer::TChangeAction)(change->action * 4);
 		    std::string path 
-				= (const char*)CUnicodeUtils::GetUTF8 (change.path);
+				= (const char*)CUnicodeUtils::GetUTF8 (change->sPath);
 		    std::string copyFromPath 
-			    = (const char*)CUnicodeUtils::GetUTF8 (change.copyFromPath);
+			    = (const char*)CUnicodeUtils::GetUTF8 (change->sCopyFromPath);
 		    revision_t copyFromRevision 
-			    = change.copyFromRev == 0 
+			    = change->lCopyFromRev == 0 
 			    ? NO_REVISION 
-			    : static_cast<revision_t>(change.copyFromRev);
+			    : static_cast<revision_t>(change->lCopyFromRev);
 
 		    targetCache->AddChange ( action
-                                   , static_cast<node_kind_t>(change.nodeKind)
+                                   , change->nodeKind
                                    , path
                                    , copyFromPath
                                    , copyFromRevision);
 	    }
     }
 
-	// add user revprops
+	// add use revprops
 
     if (userRevProps != NULL)
     {
 	    for (INT_PTR i = 0, count = userRevProps->GetCount(); i < count; ++i)
 	    {
-		    const UserRevProp& revprop = userRevProps->GetAt (i);
+		    const UserRevProp* revprop = userRevProps->GetAt (i);
 
             std::string name 
-                = (const char*)CUnicodeUtils::GetUTF8 (revprop.GetName());
+                = (const char*)CUnicodeUtils::GetUTF8 (revprop->name);
             std::string value 
-                = (const char*)CUnicodeUtils::GetUTF8 (revprop.GetValue());
+                = (const char*)CUnicodeUtils::GetUTF8 (revprop->value);
 
-            targetCache->AddRevProp (name, value);
+            targetCache->AddUserRevProp (name, value);
 	    }
     }
 
 	// update our path info
 
-    if (!currentPath->IsFullyCachedPath())
-    {
-        if (!updateData->IsEmpty())
-            MergeFromUpdateCache();
-
-	    currentPath->RepeatLookup();
-    }
+	currentPath->RepeatLookup();
 
 	// mark the gap and update the current path
 
@@ -336,7 +326,7 @@ void CCacheLogQuery::CLogFiller::WriteToCache
 // implement ILogReceiver
 
 void CCacheLogQuery::CLogFiller::ReceiveLog 
-    ( TChangedPaths* changes
+    ( LogChangedPathArray* changes
     , svn_revnum_t rev
     , const StandardRevProps* stdRevProps
     , UserRevPropArray* userRevProps
@@ -358,53 +348,41 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 		WriteToCache (changes, rev, stdRevProps, userRevProps);
 
 		// maybe the revision was known before but we had no changes info
-		// -> we received it now
+		// -> we received them now
 		// -> update the cache in that case
-        // (if it was not known before, WriteToCache added it directly)
 
 		index_t index = cache->GetRevisions()[revision];
-		if ((  cache->GetLogInfo().GetPresenceFlags (index)
-             & CRevisionInfoContainer::HAS_CHANGEDPATHS) == 0)
+		if ((  cache->GetLogInfo().GetPresenceFlags (index) 
+			 & CRevisionInfoContainer::HAS_CHANGEDPATHS) == 0)
 		{
             MergeFromUpdateCache();
-
-            // repeated lookup should not be necessary as the updateCache
-            // should contain only revisions that are already known by cache
-
-            assert (index == cache->GetRevisions()[revision]);
 		}
 
 		// due to renames / copies, we may continue on a different path
 
-		if (  (cache->GetLogInfo().GetSumChanges (index)
-            & CRevisionInfoContainer::ACTION_ADDED) != 0)
-		{
-            // create the appropriate iterator to follow the potential path change
+        std::auto_ptr<CLogIteratorBase> iterator 
+            (  options.GetStrictNodeHistory()
+             ? static_cast<CLogIteratorBase*>
+                (new CStrictLogIterator (cache, revision, *currentPath))
+             : static_cast<CLogIteratorBase*>
+                (new CCopyFollowingLogIterator (cache, revision, *currentPath)));
 
-            std::auto_ptr<CLogIteratorBase> iterator 
-                (  options.GetStrictNodeHistory()
-                 ? static_cast<CLogIteratorBase*>
-                    (new CStrictLogIterator (cache, revision, *currentPath))
-                 : static_cast<CLogIteratorBase*>
-                    (new CCopyFollowingLogIterator (cache, revision, *currentPath)));
+        // now, iterate as usual
 
-            // now, iterate as usual
-
-		    iterator->Advance();
-            if (iterator->EndOfPath())
-                currentPath.reset();
-            else
-                *currentPath = iterator->GetPath();
-        }
+		iterator->Advance();
+        if (iterator->EndOfPath())
+            currentPath.reset();
+        else
+            *currentPath = iterator->GetPath();
 
 		// the first revision we may not have information about is the one
-		// immediately preceding the one we just received from the server
+		// immediately preceding the on we just received from the server
 
 		firstNARevision = revision-1;
 
 		// hand on to the original log receiver.
         // Even if there is no receiver, track the oldest revision
-        // we received so we can update the skip ranges properly.
+        // we received to update the skip ranges properly.
 
         oldestReported = min (oldestReported, revision);
 		if (options.GetReceiver() != NULL)
@@ -545,7 +523,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
         bool limitReached = (limit > 0) && (receiveCount >= limit);
         if ((receiveCount == 0) || !limitReached)
         {
-            AutoAddSkipRange (max (endRevision, (revision_t)1)-1);
+            AutoAddSkipRange (max (endRevision,1)-1);
         }
     }
 
@@ -559,7 +537,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
 ///////////////////////////////////////////////////////////////
 
 void CCacheLogQuery::CMergeLogger::ReceiveLog 
-    ( TChangedPaths* changes
+    ( LogChangedPathArray* changes
     , svn_revnum_t rev
     , const StandardRevProps* stdRevProps
     , UserRevPropArray* userRevProps
@@ -780,7 +758,7 @@ revision_t CCacheLogQuery::FillLog ( revision_t startRevision
                         , uuid
 						, svnQuery
 						, startRevision
-						, max (min (startRevision, endRevision), (revision_t)0)
+						, max (min (startRevision, endRevision), 0)
 						, startPath
 						, limit
 						, options);
@@ -789,29 +767,57 @@ revision_t CCacheLogQuery::FillLog ( revision_t startRevision
 // fill the receiver's change list buffer 
 
 void CCacheLogQuery::GetChanges 
-    ( TChangedPaths& result
-    , CPathToStringMap& pathToStringMap
+    ( LogChangedPathArray& result
     , CRevisionInfoContainer::CChangesIterator first
     , const CRevisionInfoContainer::CChangesIterator& last)
 {
 	for (; first != last; ++first)
 	{
-        result.push_back (SChangedPath());
+		// find the item in the hash
 
-        SChangedPath& entry = result.back();
-        entry.path = pathToStringMap.AsString (first.GetPath());
-        entry.nodeKind = static_cast<svn_node_kind_t>(first->GetPathType());
-        entry.action = (DWORD)first.GetAction() / 4;
+		std::auto_ptr<LogChangedPath> changedPath (new LogChangedPath);
 
-        if (first.HasFromPath() && (first.GetFromRevision() != NO_REVISION))
+		// extract the path name
+        // use map to cache results (speed-up and reduce memory footprint)
+
+        CDictionaryBasedPath path = first.GetPath();
+        TID2String::const_iterator iter (pathToStringMap.find (path.GetIndex()));
+        if (iter == pathToStringMap.end())
         {
-            entry.copyFromPath = pathToStringMap.AsString (first.GetFromPath());
-            entry.copyFromRev = first.GetFromRevision();
+    		changedPath->sPath = SVN::MakeUIUrlOrPath (path.GetPath().c_str());
+            pathToStringMap.insert (path.GetIndex(), changedPath->sPath);
         }
         else
         {
-            entry.copyFromRev = 0;
+            changedPath->sPath = *iter;
         }
+
+        // path type (aka node kind)
+
+        changedPath->nodeKind = first->GetPathType();
+
+		// decode the action
+
+		CRevisionInfoContainer::TChangeAction action = first.GetAction();
+		changedPath->action = (DWORD)action / 4;
+
+		// decode copy-from info
+
+		if (   first.HasFromPath()
+			&& (first.GetFromRevision() != NO_REVISION))
+		{
+			std::string path2 = first.GetFromPath().GetPath();
+
+			changedPath->lCopyFromRev = first.GetFromRevision();
+			changedPath->sCopyFromPath 
+				= SVN::MakeUIUrlOrPath (path2.c_str());
+		}
+		else
+		{
+			changedPath->lCopyFromRev = 0;
+		}
+
+		result.Add (changedPath.release());
 	} 
 }
 
@@ -828,14 +834,19 @@ void CCacheLogQuery::GetUserRevProps
 
 	for (; first != last; ++first)
 	{
-        CString name = CUnicodeUtils::GetUnicode (first.GetName());
-        CString value = CUnicodeUtils::GetUnicode (first.GetValue().c_str());
+		std::auto_ptr<UserRevProp> revProp (new UserRevProp);
+
+        revProp->name = CUnicodeUtils::GetUnicode (first.GetName());
+        revProp->value = CUnicodeUtils::GetUnicode (first.GetValue().c_str());
 
         // add to output list, 
         // if it matches the filter (or if there is no filter)
 
-        if (userRevProps.empty() || (std::find (begin, end, name) != end))
-		    result.Add (name, value);
+        if (   userRevProps.empty() 
+            || std::find (begin, end, revProp->name) != end)
+        {
+		    result.Add (revProp.release());
+        }
 	} 
 }
 
@@ -867,21 +878,15 @@ void CCacheLogQuery::SendToReceiver ( revision_t revision
 
     // change list
 
-    TChangedPaths changes;
+    LogChangedPathArray changes;
     if (options.GetIncludeChanges())
-    {
-        CRevisionInfoContainer::CChangesIterator first
-            (logInfo.GetChangesBegin (logIndex));
-        CRevisionInfoContainer::CChangesIterator last
-            (logInfo.GetChangesEnd (logIndex));
-
-        changes.reserve (last - first);
-        GetChanges (changes, pathToStringMap, first, last);
-    }
+        GetChanges ( changes
+                   , logInfo.GetChangesBegin (logIndex)
+                   , logInfo.GetChangesEnd (logIndex));
 
     // standard revprops
 
-    StandardRevProps* standardRevProps = NULL;
+    StandardRevProps standardRevProps;
     if (options.GetIncludeStandardRevProps())
     {
         // author
@@ -890,27 +895,23 @@ void CCacheLogQuery::SendToReceiver ( revision_t revision
         TID2String::const_iterator iter = authorToStringMap.find (authorID);
         if (iter == authorToStringMap.end())
         {
-            CString author     
+            standardRevProps.author     
                 = CUnicodeUtils::GetUnicode (logInfo.GetAuthor (logIndex));
-            authorToStringMap.insert (authorID, author);
-            iter = authorToStringMap.find (authorID);
+            authorToStringMap.insert (authorID, standardRevProps.author);
         }
-            
-        const CString& author = *iter;
+        else
+        {
+            standardRevProps.author = *iter;
+        }
 
         // comment
 
-        logInfo.GetComment (logIndex, scratch);
-        CString message = CUnicodeUtils::UTF8ToUTF16 (scratch);
+		standardRevProps.message 
+			= CUnicodeUtils::GetUnicode (logInfo.GetComment (logIndex).c_str());
 
         // time stamp
 
-        __time64_t timeStamp = logInfo.GetTimeStamp (logIndex);
-
-        // create the actual object
-
-        standardRevProps = new (alloca (sizeof (StandardRevProps)))
-                            StandardRevProps (author, message, timeStamp);
+        standardRevProps.timeStamp = logInfo.GetTimeStamp (logIndex);
     }
 
     // user revprops
@@ -929,16 +930,13 @@ void CCacheLogQuery::SendToReceiver ( revision_t revision
                            ? &changes 
                            : NULL
 				     , revision
-                     , standardRevProps 
+                     , options.GetIncludeStandardRevProps() 
+                           ? &standardRevProps 
+                           : NULL
                      , options.GetIncludeUserRevProps() 
                            ? &userRevProps 
                            : NULL
                      , mergesFollow);
-
-    // clean-up
-
-    if (standardRevProps)
-        standardRevProps->~StandardRevProps();
 }
 
 // clear string translating caches
@@ -946,7 +944,7 @@ void CCacheLogQuery::SendToReceiver ( revision_t revision
 void CCacheLogQuery::ResetObjectTranslations()
 {
     authorToStringMap.clear();
-    pathToStringMap.Clear();
+    pathToStringMap.clear();
 }
 
 // log from cache w/o merge history. Auto-fill cache if data is missing.
@@ -1191,10 +1189,8 @@ CDictionaryBasedTempPath CCacheLogQuery::GetRelativeRepositoryPath
 	// to avoid string length comparison faults, we adjust
 	// the repository root here to match the initial url
 
-	if (URL.Left(9).CompareNoCase("file:///\\") == 0)
-		URL.Delete (7, 2);
-	if (svnURLPath.Left(9).CompareNoCase("file:///\\") == 0)
-		svnURLPath.Delete (7, 2);
+    if (svnURLPath.Left(9).CompareNoCase("file:///\\") == 0)
+        svnURLPath.Delete (7, 2);
 
     CStringA relPath = svnURLPath.Mid (URL.GetLength());
 	relPath = CPathUtils::PathUnescape (relPath);
@@ -1544,14 +1540,6 @@ CCachedLogInfo* CCacheLogQuery::GetCache() const
 	return cache;
 }
 
-// get the repository root URL
-
-const CStringA& CCacheLogQuery::GetRootURL() const
-{
-	assert (!URL.IsEmpty());
-    return URL;
-}
-
 // could we get at least some data
 
 bool CCacheLogQuery::GotAnyData() const
@@ -1562,7 +1550,7 @@ bool CCacheLogQuery::GotAnyData() const
 // for tempCaches: write content to "real" cache files
 // (no-op if this is does not use a temp. cache)
 
-void CCacheLogQuery::UpdateCache (CCacheLogQuery* targetQuery)
+void CCacheLogQuery::UpdateCache (CLogCachePool* caches)
 {
 	// resolve URL
 
@@ -1581,18 +1569,8 @@ void CCacheLogQuery::UpdateCache (CCacheLogQuery* targetQuery)
 
 	assert(!uuid.IsEmpty());
 
-    CLogCachePool* caches 
-        = targetQuery->repositoryInfoCache->GetSVN().GetLogCachePool();
     CCachedLogInfo* cache 
         = caches->GetCache (uuid, CUnicodeUtils::GetUnicode (URL));
     if ((cache != this->cache) && (this->cache != NULL))
-    {
         cache->Update (*this->cache);
-
-        //
-
-        targetQuery->cache = cache;
-        targetQuery->uuid = uuid;
-        targetQuery->URL = URL;
-    }
 }

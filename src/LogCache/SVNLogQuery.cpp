@@ -32,7 +32,6 @@
 #include "SVNError.h"
 #include "SVNHelpers.h"
 #include "TSVNPath.h"
-#include "svntrace.h"
 
 // SVN API utility
 
@@ -93,10 +92,8 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 
 	// parse revprops
 
-    CString author;
-    CString message;
-	__time64_t timeStamp = 0;
-
+    StandardRevProps standardRevProps;
+	standardRevProps.timeStamp = NULL;
     UserRevPropArray userRevProps;
 
 	try
@@ -126,18 +123,23 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 	            CString value = CUnicodeUtils::GetUnicode (*val);
 
                 if (name == svnLog)
-                    message = value;
+                    standardRevProps.message = value;
                 else if (name == svnAuthor)
-                    author = value;
+                    standardRevProps.author = value;
                 else if (name == svnDate)
                 {
-	                timeStamp = NULL;
+	                standardRevProps.timeStamp = NULL;
 	                if (value[0])
-		                SVN_ERR (svn_time_from_cstring (&timeStamp, *val, pool));
+		                SVN_ERR (svn_time_from_cstring 
+                                    (&standardRevProps.timeStamp, *val, pool));
                 }
                 else
                 {
-                    userRevProps.Add (name, value);
+				    std::auto_ptr<UserRevProp> revProp (new UserRevProp);
+                    revProp->name = name;
+                    revProp->value = value;
+
+                    userRevProps.Add (revProp.release());
                 }
             }
         }
@@ -147,11 +149,9 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 		e->Delete();
 	}
 
-    StandardRevProps standardRevProps (author, message, timeStamp);
+	// the individual changes
 
-    // the individual changes
-
-	TChangedPaths changedPaths;
+	LogChangedPathArray changedPaths;
 	try
 	{
 		if (log_entry->changed_paths2 != NULL)
@@ -161,18 +161,17 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 
 			for (int i = 0, count = sorted_paths->nelts; i < count; ++i)
 			{
-                changedPaths.push_back (SChangedPath());
-                SChangedPath& entry = changedPaths.back();
+				// find the item in the hash
 
-                // find the item in the hash
-
+				std::auto_ptr<LogChangedPath> changedPath (new LogChangedPath);
 				svn_sort__item_t *item = &(APR_ARRAY_IDX ( sorted_paths
 					, i
 					, svn_sort__item_t));
 
 				// extract the path name
 
-				entry.path = SVN::MakeUIUrlOrPath ((const char *)item->key);
+				const char *path = (const char *)item->key;
+				changedPath->sPath = SVN::MakeUIUrlOrPath (path);
 
 				// decode the action
 
@@ -183,26 +182,29 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 				static const char actionKeys[5] = "AMRD";
 				const char* actionKey = strchr (actionKeys, log_item->action);
 
-				entry.action = actionKey == NULL 
+				changedPath->action = actionKey == NULL 
 					? 0
 					: 1 << (actionKey - actionKeys);
 
-                // node type
+                // extract the node kind
 
-                entry.nodeKind = log_item->node_kind;
+                changedPath->nodeKind = log_item->node_kind;
 
 				// decode copy-from info
 
-                if (    log_item->copyfrom_path 
-                     && SVN_IS_VALID_REVNUM (log_item->copyfrom_rev))
-                {
-                    entry.copyFromPath = SVN::MakeUIUrlOrPath (log_item->copyfrom_path);
-                    entry.copyFromRev = log_item->copyfrom_rev;
-                }
-                else
-                {
-                    entry.copyFromRev = 0;
-                }
+				if (   log_item->copyfrom_path 
+					&& SVN_IS_VALID_REVNUM (log_item->copyfrom_rev))
+				{
+					changedPath->lCopyFromRev = log_item->copyfrom_rev;
+					changedPath->sCopyFromPath 
+						= SVN::MakeUIUrlOrPath (log_item->copyfrom_path);
+				}
+				else
+				{
+					changedPath->lCopyFromRev = 0;
+				}
+				changedPath->nodeKind = log_item->node_kind;
+				changedPaths.Add (changedPath.release());
 			} 
 		} 
         else if (log_entry->changed_paths != NULL)
@@ -212,18 +214,17 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 
 			for (int i = 0, count = sorted_paths->nelts; i < count; ++i)
 			{
-                changedPaths.push_back (SChangedPath());
-                SChangedPath& entry = changedPaths.back();
-
 				// find the item in the hash
 
+				std::auto_ptr<LogChangedPath> changedPath (new LogChangedPath);
 				svn_sort__item_t *item = &(APR_ARRAY_IDX ( sorted_paths
 														 , i
 														 , svn_sort__item_t));
 
 				// extract the path name
 
-				entry.path = SVN::MakeUIUrlOrPath ((const char *)item->key);
+				const char *path = (const char *)item->key;
+				changedPath->sPath = SVN::MakeUIUrlOrPath (path);
 
 				// decode the action
 
@@ -234,26 +235,25 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 				static const char actionKeys[5] = "AMRD";
 				const char* actionKey = strchr (actionKeys, log_item->action);
 
-				entry.action = actionKey == NULL 
-                    ? 0
-                    : 1 << (actionKey - actionKeys);
-
-                // node type
-
-                entry.nodeKind = svn_node_unknown;
+				changedPath->action = actionKey == NULL 
+									? 0
+									: 1 << (actionKey - actionKeys);
 
 				// decode copy-from info
 
-                if (    log_item->copyfrom_path 
-                     && SVN_IS_VALID_REVNUM (log_item->copyfrom_rev))
-                {
-                    entry.copyFromPath = SVN::MakeUIUrlOrPath (log_item->copyfrom_path);
-                    entry.copyFromRev = log_item->copyfrom_rev;
-                }
-                else
-                {
-                    entry.copyFromRev = 0;
-                }
+				if (   log_item->copyfrom_path 
+					&& SVN_IS_VALID_REVNUM (log_item->copyfrom_rev))
+				{
+					changedPath->lCopyFromRev = log_item->copyfrom_rev;
+					changedPath->sCopyFromPath 
+						= SVN::MakeUIUrlOrPath (log_item->copyfrom_path);
+				}
+				else
+				{
+					changedPath->lCopyFromRev = 0;
+				}
+				changedPath->nodeKind = svn_node_unknown;
+				changedPaths.Add (changedPath.release());
 			} 
 		} 
 	}
@@ -267,10 +267,7 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
 	try
 	{
 		// treat revision 0 special: only report/show it if either the author or a message is set, or if user props are set
-		if (   log_entry->revision
-            || userRevProps.GetCount()
-            || !standardRevProps.GetAuthor().IsEmpty()
-            || !standardRevProps.GetMessage().IsEmpty())
+		if ((log_entry->revision)||(userRevProps.GetCount())||(!standardRevProps.author.IsEmpty())||(!standardRevProps.message.IsEmpty()))
 		{
 			receiver->ReceiveLog ( receiverBaton->includeChanges 
 									   ? &changedPaths 
@@ -390,23 +387,24 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
         }
     }
 
-    SVNTRACE (
-	    svn_error_t *result = svn_client_log5 ( targets.MakePathArray (localpool)
-										      , peg_revision
-                                              , revision_ranges
-										      , limit
-										      , includeChanges
-										      , strictNodeHistory
-										      , includeMerges
-                                              , revprops
-										      , LogReceiver
-										      , (void *)&baton
-										      , context
-										      , localpool),
-        NULL
-    );
+	svn_error_t *result = svn_client_log5 ( targets.MakePathArray (localpool)
+										  , peg_revision
+                                          , revision_ranges
+										  , limit
+										  , includeChanges
+										  , strictNodeHistory
+										  , includeMerges
+                                          , revprops
+										  , LogReceiver
+										  , (void *)&baton
+										  , context
+										  , localpool);
 
     if (result != NULL)
-		throw SVNError (result);
+	{
+		SVNError e = SVNError (result);
+		svn_error_clear (result);
+		throw e;
+	}
 }
 

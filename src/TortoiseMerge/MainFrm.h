@@ -30,7 +30,6 @@
 class CLeftView;
 class CRightView;
 class CBottomView;
-#define MOVESTOIGNORE 3
 
 /**
  * \ingroup TortoiseMerge
@@ -53,10 +52,7 @@ protected:
 	virtual BOOL	PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL	OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual void	ActivateFrame(int nCmdShow = -1);
-	/// line = -1 means keep the current position, 
-	/// line >= 0 means scroll to that line, 
-	/// and line == -2 means do nothing or scroll to first diff depending on registry setting
-	bool			LoadViews(int line = -2);
+	bool			LoadViews(bool bRetainPosition = false);
 	void			ClearViewNamesAndPaths();
 	afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
 	afx_msg void	OnApplicationLook(UINT id);
@@ -119,10 +115,6 @@ protected:
 	afx_msg void	OnUpdateEditUseblockfromleftbeforeright(CCmdUI *pCmdUI);
 	afx_msg void	OnEditUseblockfromrightbeforeleft();
 	afx_msg void	OnUpdateEditUseblockfromrightbeforeleft(CCmdUI *pCmdUI);
-	afx_msg void	OnUpdateNavigateNextdifference(CCmdUI *pCmdUI);
-	afx_msg void	OnUpdateNavigatePreviousdifference(CCmdUI *pCmdUI);
-	afx_msg void	OnViewCollapsed();
-	afx_msg void	OnUpdateViewCollapsed(CCmdUI *pCmdUI);
 
 	DECLARE_MESSAGE_MAP()
 protected:
@@ -145,9 +137,6 @@ protected:
 	/// If the user wanted to save the modifications, this method does the saving
 	/// itself.
 	int				CheckForSave();
-	void			OnViewLineUpDown(int direction);
-	void			OnViewLineLeftRight(int direction);
-	bool			RunCommand(TCHAR* command);
 
 protected: 
 	CMFCMenuBar     m_wndMenuBar;
@@ -186,7 +175,12 @@ public:
 	bool			m_bReadOnly;
 	bool			m_bBlame;
 	int				m_nMoveMovesToIgnore;
-	bool			m_bCollapsed;
 
 	void			ShowDiffBar(bool bShow);
 };
+
+
+
+
+
+

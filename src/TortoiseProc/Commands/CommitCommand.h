@@ -19,9 +19,6 @@
 #pragma once
 #include "Command.h"
 
-class CCommitDlg;
-class CSVNProgressDlg;
-
 /**
  * \ingroup TortoiseProc
  * Shows the commit dialog, executes the commit and retries (if necessary)
@@ -30,8 +27,6 @@ class CommitCommand : public Command
 {
 private:
 	CString LoadLogMessage();
-    void InitProgressDialog (CCommitDlg& commitDlg, CSVNProgressDlg& progDlg);
-
 public:
 	/**
 	 * Executes the command.

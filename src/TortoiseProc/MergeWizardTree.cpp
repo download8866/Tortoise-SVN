@@ -24,7 +24,7 @@
 #include "Balloon.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardTree, CMergeWizardBasePage)
 
@@ -69,7 +69,6 @@ void CMergeWizardTree::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
-	DDX_Control(pDX, IDC_WCEDIT, m_WC);
 }
 
 

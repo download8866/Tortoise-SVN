@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,37 +38,39 @@ bool DropExportCommand::Execute()
 		// remove all svn admin dirs, effectively unversion the 'exported' folder.
 		CString msg;
 		msg.Format(IDS_PROC_EXPORTUNVERSION, (LPCTSTR)droppath);
-		if (CMessageBox::Show(hwndExplorer, msg, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO) != IDYES)
-			return false;
-
-		CProgressDlg progress;
-		progress.SetTitle(IDS_PROC_UNVERSION);
-		progress.SetAnimation(IDR_MOVEANI);
-		progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
-		progress.SetTime(true);
-		progress.ShowModeless(hwndExplorer);
-		std::vector<CTSVNPath> removeVector;
-
-		CDirFileEnum lister(droppath);
-		CString srcFile;
-		bool bFolder = false;
-		while (lister.NextFile(srcFile, &bFolder))
+		if (CMessageBox::Show(hwndExplorer, msg, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO) == IDYES)
 		{
-			CTSVNPath item(srcFile);
-			if ((bFolder)&&(g_SVNAdminDir.IsAdminDirName(item.GetFileOrDirectoryName())))
+			CProgressDlg progress;
+			progress.SetTitle(IDS_PROC_UNVERSION);
+			progress.SetAnimation(IDR_MOVEANI);
+			progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
+			progress.SetTime(true);
+			progress.ShowModeless(hwndExplorer);
+			std::vector<CTSVNPath> removeVector;
+
+			CDirFileEnum lister(droppath);
+			CString srcFile;
+			bool bFolder = false;
+			while (lister.NextFile(srcFile, &bFolder))
 			{
-				removeVector.push_back(item);
+				CTSVNPath item(srcFile);
+				if ((bFolder)&&(g_SVNAdminDir.IsAdminDirName(item.GetFileOrDirectoryName())))
+				{
+					removeVector.push_back(item);
+				}
 			}
+			DWORD count = 0;
+			for (std::vector<CTSVNPath>::iterator it = removeVector.begin(); (it != removeVector.end()) && (!progress.HasUserCancelled()); ++it)
+			{
+				progress.FormatPathLine(1, IDS_SVNPROGRESS_UNVERSION, (LPCTSTR)it->GetWinPath());
+				progress.SetProgress(count, removeVector.size());
+				count++;
+				it->Delete(false);
+			}
+			progress.Stop();
 		}
-		DWORD count = 0;
-		for (std::vector<CTSVNPath>::iterator it = removeVector.begin(); (it != removeVector.end()) && (!progress.HasUserCancelled()); ++it)
-		{
-			progress.FormatPathLine(1, IDS_SVNPROGRESS_UNVERSION, (LPCTSTR)it->GetWinPath());
-			progress.SetProgress64(count, removeVector.size());
-			count++;
-			it->Delete(false);
-		}
-		progress.Stop();
+		else
+			return false;
 	}
 	else
 	{
@@ -82,9 +84,7 @@ bool DropExportCommand::Execute()
 				CString sBtn2(MAKEINTRESOURCE(IDS_PROC_OVERWRITEEXPORT_RENAME));
 				CString sBtn3(MAKEINTRESOURCE(IDS_PROC_OVERWRITEEXPORT_CANCEL));
 				sMsg.Format(IDS_PROC_OVERWRITEEXPORT, (LPCTSTR)dropper);
-				const UINT ret = CMessageBox::Show(hwndExplorer, sMsg, _T("TortoiseSVN"), MB_DEFBUTTON1, IDI_QUESTION, sBtn1, sBtn2, sBtn3);
-				if (ret == 3)
-					return false;
+				UINT ret = CMessageBox::Show(hwndExplorer, sMsg, _T("TortoiseSVN"), MB_DEFBUTTON1, IDI_QUESTION, sBtn1, sBtn2, sBtn3);
 				if (ret==2)
 				{
 					dropper.Format(IDS_PROC_EXPORTFOLDERNAME, (LPCTSTR)droppath, (LPCTSTR)pathList[nPath].GetFileOrDirectoryName());
@@ -94,8 +94,10 @@ bool DropExportCommand::Execute()
 						dropper.Format(IDS_PROC_EXPORTFOLDERNAME2, (LPCTSTR)droppath, exportcount++, (LPCTSTR)pathList[nPath].GetFileOrDirectoryName());
 					}
 				}
+				else if (ret == 3)
+					return false;
 			}
-			if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, false, false, svn_depth_infinity, hwndExplorer, !!parser.HasKey(_T("extended"))))
+			if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, FALSE, FALSE, svn_depth_infinity, hwndExplorer, parser.HasKey(_T("extended"))))
 			{
 				CMessageBox::Show(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_OK | MB_ICONERROR);
 				bRet = false;

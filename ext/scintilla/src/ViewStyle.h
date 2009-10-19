@@ -58,13 +58,10 @@ public:
 	unsigned int spaceWidth;
 	bool selforeset;
 	ColourPair selforeground;
-	ColourPair selAdditionalForeground;
 	bool selbackset;
 	ColourPair selbackground;
-	ColourPair selAdditionalBackground;
 	ColourPair selbackground2;
 	int selAlpha;
-	int selAdditionalAlpha;
 	bool selEOLFilled;
 	bool whitespaceForegroundSet;
 	ColourPair whitespaceForeground;
@@ -96,7 +93,6 @@ public:
 	bool viewEOL;
 	bool showMarkedLines;
 	ColourPair caretcolour;
-	ColourPair additionalCaretColour;
 	bool showCaretLineBackground;
 	ColourPair caretLineBackground;
 	int caretLineAlpha;
@@ -106,11 +102,6 @@ public:
 	int caretWidth;
 	bool someStylesProtected;
 	bool extraFontFlag;
-	int extraAscent;
-	int extraDescent;
-	int marginStyleOffset;
-	int annotationVisible;
-	int annotationStyleOffset;
 
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
@@ -124,7 +115,6 @@ public:
 	void ClearStyles();
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
-	bool ValidStyle(size_t styleIndex) const;
 };
 
 #ifdef SCI_NAMESPACE
