@@ -22,16 +22,14 @@
 #include "stdafx.h"
 #include "./Streams/RootInStream.h"
 #include "./Streams/RootOutStream.h"
-#include "./Containers/StringDictonary.h"
-#include "./Containers/CachedLogInfo.h"
-#include "./Access/XMLLogReader.h"
-#include "./Access/XMLLogWriter.h"
+#include "StringDictonary.h"
+#include "CachedLogInfo.h"
+#include "XMLLogReader.h"
+#include "XMLLogWriter.h"
 #include "./Streams/CompositeInStream.h"
 #include "./Streams/CompositeOutStream.h"
-#include "./Streams/HuffmanEncoder.h"
-#include "./Streams/HuffmanDecoder.h"
 #include "HighResClock.h"
-#include "./Access/CopyFollowingLogIterator.h"
+#include "CopyFollowingLogIterator.h"
 
 using namespace LogCache;
 
@@ -74,7 +72,7 @@ void TestXMLIO()
 	logInfo.Clear();
 
 	CHighResClock clock2;
-	logInfo.Load(0);
+	logInfo.Load();
 	clock2.Stop();
 
 	logInfo.Save();
@@ -101,7 +99,7 @@ void TestXMLIO()
 void TestIteration()
 {
 	CCachedLogInfo logInfo (path + L".stream");
-	logInfo.Load(0);
+	logInfo.Load();
 
 	revision_t head = logInfo.GetRevisions().GetLastRevision()-1;
 
@@ -142,10 +140,10 @@ void TestIteration()
 void TestUpdate()
 {
 	CCachedLogInfo logInfo (path + L".stream");
-	logInfo.Load(0);
+	logInfo.Load();
 
 	CCachedLogInfo copied (path + L".stream");
-	copied.Load(0);
+	copied.Load();
 
 	CCachedLogInfo newData;
 	newData.Insert (1234, "dummy", "", 0);
@@ -174,94 +172,11 @@ void TestUpdate()
 	printf (s);
 }
 
-void TestHuffman()
-{
-	enum {RUN_COUNT = 0x1000};
-
-	for (int i = 0; i < RUN_COUNT; ++i)
-	{
-		size_t dataSize = rand();
-		auto_buffer<BYTE> origBuffer (dataSize);
-
-		int maxValue = rand() % 256;
-		for (size_t k = 0; k < dataSize; ++k)
-			origBuffer.get()[k] = (BYTE)(rand() % (maxValue+1));
-
-		std::pair<BYTE*, DWORD> encodedBuffer
-			= CHuffmanEncoder().Encode (origBuffer, dataSize);
-
-		auto_buffer<BYTE> decodedBuffer (dataSize);
-		memset (decodedBuffer.get(), (BYTE)(maxValue+1), dataSize);
-
-		const BYTE* source = encodedBuffer.first;
-		BYTE* dest = decodedBuffer;
-		CHuffmanDecoder().Decode (source, dest);
-
-		assert (memcmp (origBuffer.get(), decodedBuffer.get(), dataSize) == 0);
-
-		delete encodedBuffer.first;
-	}
-}
-
-void BenchmarkHuffman()
-{
-	enum {DATA_SIZE = 0x8000, RUN_COUNT = 0x8000, _1MB = 0x100000};
-
-	// encoder speed
-
-	BYTE data [DATA_SIZE];
-	memset (data, 'x', DATA_SIZE);
-	for (BYTE* target = data; target+10 < data + DATA_SIZE; target += 10)
-		memcpy (target, "0123456789", 10);
-
-	CHighResClock clock1;
-	for (int i = 0; i < RUN_COUNT; ++i)
-	{
-		delete CHuffmanEncoder().Encode (data, DATA_SIZE).first;
-	}
-	clock1.Stop();
-
-	// decoder speed
-
-	std::pair<BYTE*, DWORD> compressed = CHuffmanEncoder().Encode (data, DATA_SIZE);
-
-	CHighResClock clock2;
-	for (int i = 0; i < RUN_COUNT; ++i)
-	{
-		CHuffmanDecoder decoder;
-
-		const BYTE* input = compressed.first;
-		BYTE* output = data;
-		decoder.Decode (input, output);
-	}
-	clock2.Stop();
-
-	delete compressed.first;
-
-	CStringA s;
-	s.Format ("compressed %d MB in %5.3f secs = %5.2f MB/sec (%2.1f ticks / byte)\n"
-			  "decompressed %d / %d MB in %5.3f secs = %5.2f / %5.2f MB/sec\n"
-			 , RUN_COUNT * DATA_SIZE / _1MB
-			 , clock1.GetMusecsTaken() / 1e+06
-			 , (RUN_COUNT * DATA_SIZE * 1e+06) / clock1.GetMusecsTaken() / _1MB
-			 , (2.4e+03 * clock1.GetMusecsTaken()) / (RUN_COUNT * DATA_SIZE)
-			 , RUN_COUNT * compressed.second / _1MB
-			 , RUN_COUNT * DATA_SIZE / _1MB
-			 , clock2.GetMusecsTaken() / 1e+06
-			 , (RUN_COUNT * compressed.second * 1e+06) / clock2.GetMusecsTaken() / _1MB
-			 , (RUN_COUNT * DATA_SIZE * 1e+06) / clock2.GetMusecsTaken() / _1MB);
-
-	printf (s);
-}
-
 int _tmain(int argc, _TCHAR* argv[])
 {
-/*	TestXMLIO();
+	TestXMLIO();
 	TestIteration();
 	TestUpdate();
-*/
-	TestHuffman();
-	BenchmarkHuffman();
 
 	return 0;
 }

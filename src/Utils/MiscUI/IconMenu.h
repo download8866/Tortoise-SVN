@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "IconBitmapUtils.h"
+
+typedef HRESULT (WINAPI *FN_GetBufferedPaintBits) (HPAINTBUFFER hBufferedPaint, RGBQUAD **ppbBuffer, int *pcxRow);
+typedef HPAINTBUFFER (WINAPI *FN_BeginBufferedPaint) (HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
+typedef HRESULT (WINAPI *FN_EndBufferedPaint) (HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
 
 
 /**
@@ -34,18 +37,23 @@ public:
 	CIconMenu(void);
 	~CIconMenu(void);
 
-    BOOL CreateMenu();
-    BOOL CreatePopupMenu();
 	BOOL AppendMenuIcon(UINT_PTR nIDNewItem, LPCTSTR lpszNewItem, UINT uIcon = 0);
 	BOOL AppendMenuIcon(UINT_PTR nIDNewItem, UINT_PTR nNewItem, UINT uIcon = 0);
 	void DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct);
 	void MeasureItem(LPMEASUREITEMSTRUCT lpMeasureItemStruct);
 
 private:
-    BOOL SetMenuStyle(void);
+	HBITMAP IconToBitmapPARGB32(UINT uIcon);
+	HRESULT Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp);
+	HRESULT ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC hdc, HICON hicon, SIZE& sizIcon);
+	bool HasAlpha(__in Gdiplus::ARGB *pargb, SIZE& sizImage, int cxRow);
+	HRESULT ConvertToPARGB32(HDC hdc, __inout Gdiplus::ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow);
 
 private:
-	IconBitmapUtils				bitmapUtils;
+	std::map<UINT, HBITMAP>		bitmaps;
 	std::map<UINT_PTR, UINT>	icons;
-	bool						bShowIcons;
+
+	FN_GetBufferedPaintBits pfnGetBufferedPaintBits;
+	FN_BeginBufferedPaint pfnBeginBufferedPaint;
+	FN_EndBufferedPaint pfnEndBufferedPaint;
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,11 +21,12 @@
 #include "ToolAssocDlg.h"
 #include "SetProgsAdvDlg.h"
 #include "XPTheme.h"
-#include "AppUtils.h"
+#include "PathUtils.h"
+#include "DirFileEnum.h"
 
-IMPLEMENT_DYNAMIC(CSetProgsAdvDlg, CResizableStandAloneDialog)
+IMPLEMENT_DYNAMIC(CSetProgsAdvDlg, CDialog)
 CSetProgsAdvDlg::CSetProgsAdvDlg(const CString& type, CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CSetProgsAdvDlg::IDD, pParent)
+	: CDialog(CSetProgsAdvDlg::IDD, pParent)
 	, m_sType(type)
 	, m_regToolKey(_T("Software\\TortoiseSVN\\") + type + _T("Tools"))
 	, m_ToolsValid(false)
@@ -90,7 +91,7 @@ int CSetProgsAdvDlg::SaveData()
 
 void CSetProgsAdvDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CResizableStandAloneDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TOOLLISTCTRL, m_ToolListCtrl);
 
 	if (pDX->m_bSaveAndValidate)
@@ -110,7 +111,6 @@ void CSetProgsAdvDlg::DoDataExchange(CDataExchange* pDX)
 		for (TOOL_MAP::iterator it = m_Tools.begin(); it != m_Tools.end() ; it++)
 		{
 			CString ext = it->first;
-			ext.TrimLeft('.');
 			CString value = it->second;
 			AddExtension(ext, value);
 		}
@@ -118,7 +118,7 @@ void CSetProgsAdvDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CSetProgsAdvDlg, CResizableStandAloneDialog)
+BEGIN_MESSAGE_MAP(CSetProgsAdvDlg, CDialog)
 	ON_BN_CLICKED(IDC_ADDTOOL, OnBnClickedAddtool)
 	ON_BN_CLICKED(IDC_REMOVETOOL, OnBnClickedRemovetool)
 	ON_BN_CLICKED(IDC_EDITTOOL, OnBnClickedEdittool)
@@ -130,11 +130,7 @@ END_MESSAGE_MAP()
 
 BOOL CSetProgsAdvDlg::OnInitDialog()
 {
-	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_GROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
+	CDialog::OnInitDialog();
 
 	m_ToolListCtrl.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 
@@ -168,16 +164,6 @@ BOOL CSetProgsAdvDlg::OnInitDialog()
 	LoadData();
 	UpdateData(FALSE);
 	EnableBtns();
-
-	AddAnchor(IDC_GROUP, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_TOOLLISTCTRL, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_ADDTOOL, BOTTOM_LEFT);
-	AddAnchor(IDC_EDITTOOL, BOTTOM_LEFT);
-	AddAnchor(IDC_REMOVETOOL, BOTTOM_LEFT);
-	AddAnchor(IDC_RESTOREDEFAULTS, BOTTOM_LEFT);
-	AddAnchor(IDOK, BOTTOM_RIGHT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-
 	return TRUE;
 }
 
@@ -292,7 +278,43 @@ void CSetProgsAdvDlg::OnLvnItemchangedToollistctrl(NMHDR * /* pNMHDR */, LRESULT
 
 void CSetProgsAdvDlg::OnBnClickedRestoredefaults()
 {
-	CAppUtils::SetupDiffScripts(true, m_sType);
+	// set the custom diff/merge scripts
+	CString scriptsdir = CPathUtils::GetAppParentDirectory();
+	scriptsdir += _T("Diff-Scripts");
+	CSimpleFileFind files(scriptsdir);
+	while (files.FindNextFileNoDirectories())
+	{
+		CString file = files.GetFilePath();
+		CString filename = files.GetFileName();
+		CString ext = file.Mid(file.ReverseFind('-')+1);
+		ext = _T(".")+ext.Left(ext.ReverseFind('.'));
+		CString kind;
+		if (file.Right(3).CompareNoCase(_T("vbs"))==0)
+		{
+			kind = _T(" //E:vbscript");
+		}
+		if (file.Right(2).CompareNoCase(_T("js"))==0)
+		{
+			kind = _T(" //E:javascript");
+		}
+
+		if (m_sType.Compare(_T("Diff"))==0)
+		{
+			if (filename.Left(5).CompareNoCase(_T("diff-"))==0)
+			{
+				CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\DiffTools\\")+ext);
+				diffreg = _T("wscript.exe \"") + file + _T("\" %base %mine") + kind;
+			}
+		}
+		else if (m_sType.Compare(_T("Merge"))==0)
+		{
+			if (filename.Left(6).CompareNoCase(_T("merge-"))==0)
+			{
+				CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\MergeTools\\")+ext);
+				diffreg = _T("wscript.exe \"") + file + _T("\" %merged %theirs %mine %base") + kind;
+			}
+		}
+	}
 	m_ToolsValid = FALSE;
 	LoadData();
 	UpdateData(FALSE);

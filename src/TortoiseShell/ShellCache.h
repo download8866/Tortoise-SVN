@@ -60,13 +60,11 @@ public:
 		excludelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
 		includelist = CRegStdString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
 		simplecontext = CRegStdDWORD(_T("Software\\TortoiseSVN\\SimpleContext"), FALSE);
-		shellmenuaccelerators = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShellMenuAccelerators"), TRUE);
 		unversionedasmodified = CRegStdDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
 		showunversionedoverlay = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowUnversionedOverlay"), TRUE);
 		showignoredoverlay = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowIgnoredOverlay"), TRUE);
 		getlocktop = CRegStdDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
 		excludedasnormal = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowExcludedAsNormal"), TRUE);
-		alwaysextended = CRegStdDWORD(_T("Software\\TortoiseSVN\\AlwaysExtendedMenu"), FALSE);
 		cachetypeticker = GetTickCount();
 		recursiveticker = cachetypeticker;
 		folderoverlayticker = cachetypeticker;
@@ -78,7 +76,6 @@ public:
 		excludelistticker2 = 0;
 		includelistticker = 0;
 		simplecontextticker = cachetypeticker;
-		shellmenuacceleratorsticker = cachetypeticker;
 		unversionedasmodifiedticker = cachetypeticker;
 		showunversionedoverlayticker = cachetypeticker;
 		showignoredoverlayticker = cachetypeticker;
@@ -86,7 +83,6 @@ public:
 		columnseverywhereticker = cachetypeticker;
 		getlocktopticker = cachetypeticker;
 		excludedasnormalticker = cachetypeticker;
-		alwaysextendedticker = cachetypeticker;
 		excontextticker = 0;
 		menulayoutlow = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
 		menulayouthigh = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
@@ -97,7 +93,10 @@ public:
 		langid = CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 		blockstatus = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlockStatus"), 0);
 		columnseverywhere = CRegStdDWORD(_T("Software\\TortoiseSVN\\ColumnsEveryWhere"), FALSE);
-		std::fill_n(drivetypecache, 27, (UINT)-1);
+		for (int i=0; i<27; i++)
+		{
+			drivetypecache[i] = (UINT)-1;
+		}
 		if (DWORD(drivefloppy) == 0)
 		{
 			// A: and B: are floppy disks
@@ -134,12 +133,10 @@ public:
 		excludelist.read();
 		includelist.read();
 		simplecontext.read();
-		shellmenuaccelerators.read();
 		unversionedasmodified.read();
 		showunversionedoverlay.read();
 		showignoredoverlay.read();
 		excludedasnormal.read();
-		alwaysextended.read();
 		menulayoutlow.read();
 		menulayouthigh.read();
 		langid.read();
@@ -225,15 +222,6 @@ public:
 		}
 		return (simplecontext!=0);
 	}
-	BOOL HasShellMenuAccelerators()
-	{
-		if ((GetTickCount() - shellmenuacceleratorsticker)>REGISTRYTIMEOUT)
-		{
-			shellmenuacceleratorsticker = GetTickCount();
-			shellmenuaccelerators.read();
-		}
-		return (shellmenuaccelerators!=0);
-	}
 	BOOL IsUnversionedAsModified()
 	{
 		if ((GetTickCount() - unversionedasmodifiedticker)>REGISTRYTIMEOUT)
@@ -278,15 +266,6 @@ public:
 			excludedasnormal.read();
 		}
 		return (excludedasnormal);
-	}
-	BOOL AlwaysExtended()
-	{
-		if ((GetTickCount() - alwaysextendedticker)>REGISTRYTIMEOUT)
-		{
-			alwaysextendedticker = GetTickCount();
-			alwaysextended.read();
-		}
-		return (alwaysextended);
 	}
 	BOOL IsRemote()
 	{
@@ -462,25 +441,32 @@ public:
 	}
 	BOOL HasSVNAdminDir(LPCTSTR path, BOOL bIsDir)
 	{
-        tstring folder (path);
+		size_t len = _tcslen(path);
+		TCHAR * buf = new TCHAR[len+1];
+		_tcscpy_s(buf, len+1, path);
 		if (! bIsDir)
 		{
-            size_t pos = folder.rfind ('\\');
-            if (pos != tstring::npos)
-                folder.erase (pos);
+			TCHAR * ptr = _tcsrchr(buf, '\\');
+			if (ptr != 0)
+			{
+				*ptr = 0;
+			}
 		}
 		if ((GetTickCount() - admindirticker) < ADMINDIRTIMEOUT)
 		{
 			std::map<tstring, BOOL>::iterator iter;
-			sAdminDirCacheKey = folder;
+			sAdminDirCacheKey.assign(buf);
 			if ((iter = admindircache.find(sAdminDirCacheKey)) != admindircache.end())
+			{
+				delete [] buf;
 				return iter->second;
+			}
 		}
-
-        BOOL hasAdminDir = g_SVNAdminDir.HasAdminDir (folder.c_str(), true);
+		BOOL hasAdminDir = g_SVNAdminDir.HasAdminDir(buf, true);
 		admindirticker = GetTickCount();
 		Locker lock(m_critSec);
-		admindircache[folder] = hasAdminDir;
+		admindircache[buf] = hasAdminDir;
+		delete [] buf;
 		return hasAdminDir;
 	}
 	bool IsColumnsEveryWhere()
@@ -608,7 +594,6 @@ private:
 	CRegStdDWORD menulayoutlow;
 	CRegStdDWORD menulayouthigh;
 	CRegStdDWORD simplecontext;
-	CRegStdDWORD shellmenuaccelerators;
 	CRegStdDWORD menumasklow_lm;
 	CRegStdDWORD menumaskhigh_lm;
 	CRegStdDWORD menumasklow_cu;
@@ -617,7 +602,6 @@ private:
 	CRegStdDWORD showunversionedoverlay;
 	CRegStdDWORD showignoredoverlay;
 	CRegStdDWORD excludedasnormal;
-	CRegStdDWORD alwaysextended;
 	CRegStdString excludelist;
 	CRegStdDWORD columnseverywhere;
 	tstring excludeliststr;
@@ -640,12 +624,10 @@ private:
 	DWORD excludelistticker2;
 	DWORD includelistticker;
 	DWORD simplecontextticker;
-	DWORD shellmenuacceleratorsticker;
 	DWORD unversionedasmodifiedticker;
 	DWORD showunversionedoverlayticker;
 	DWORD showignoredoverlayticker;
 	DWORD excludedasnormalticker;
-	DWORD alwaysextendedticker;
 	DWORD columnseverywhereticker;
 	UINT  drivetypecache[27];
 	TCHAR drivetypepathcache[MAX_PATH];		// MAX_PATH ok.

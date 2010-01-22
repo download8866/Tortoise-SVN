@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "StandAloneDlg.h"
 #include "ProjectProperties.h"
 #include "Tooltip.h"
-#include "AeroControls.h"
 
 #define	MAX_TT_LENGTH			10000
 
@@ -39,10 +38,10 @@ public:
 
 	enum { IDD = IDD_EDITPROPERTYVALUE };
 
-	void			SetPropertyName(const std::string& sName);
+	void			SetPropertyName(const CString& sName) {m_sPropName = sName;}
 	void			SetPropertyValue(const std::string& sValue);
 	std::string		GetPropertyValue() {return m_PropValue;}
-	std::string		GetPropertyName() {return m_PropName;}
+	CString			GetPropertyName() {return m_sPropName;}
 	bool			GetRecursive() {return !!m_bRecursive;}
 	bool			IsBinary() {return m_bIsBinary;}
 	bool			IsChanged() { return m_bChanged;}
@@ -69,9 +68,7 @@ protected:
 protected:
 	CToolTips	m_tooltips;
 	CComboBox	m_PropNames;
-	CFont		m_valueFont;
 	std::string m_PropValue;
-	std::string m_PropName;
 	CString		m_sPropValue;
 	CString		m_sPropName;
 	CString		m_sTitle;
@@ -83,5 +80,4 @@ protected:
 	bool		m_bChanged;
 	CTSVNPathList		m_pathList;
 	ProjectProperties	m_ProjectProperties;
-	AeroControlBase		m_aeroControls;
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 
 #include "StandAloneDlg.h"
 #include "SVNStatusListCtrl.h"
-#include "AeroControls.h"
+
 
 /**
  * \ingroup TortoiseProc
@@ -48,7 +48,6 @@ protected:
 	afx_msg LRESULT	OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnBnClickedDelunversioned();
 
 	DECLARE_MESSAGE_MAP()
 
@@ -70,6 +69,5 @@ private:
 	CSVNStatusListCtrl	m_RevertList;
 	CButton				m_SelectAll;
 	bool				m_bCancelled;
-	AeroControlBase		m_aeroControls;
 };
 

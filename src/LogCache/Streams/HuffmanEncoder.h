@@ -41,16 +41,12 @@ private:
 	// key in bits and the number of occurrences of the
 	// original characters.
 
-	// \ref key and \ref keyLength are only valid if
-	// \ref count is > 0.
-
 	key_type key[BUCKET_COUNT];
 	BYTE keyLength[BUCKET_COUNT];
 	DWORD count[BUCKET_COUNT];
 
 	// plain text values ordered by frequency (most
-	// frequently used first). Only \ref sortedCount
-	// entries are valid.
+	// frequently used first)
 
 	BYTE sorted [BUCKET_COUNT];
 

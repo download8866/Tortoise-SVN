@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "Registry.h"
 #include "HistoryDlg.h"
 #include "RegHistory.h"
-#include "AppUtils.h"
 
 
 // CInputLogDlg dialog
@@ -32,7 +31,6 @@ IMPLEMENT_DYNAMIC(CInputLogDlg, CResizableStandAloneDialog)
 CInputLogDlg::CInputLogDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CInputLogDlg::IDD, pParent)
 	, m_pProjectProperties(NULL)
-    , m_bForceFocus(false)
 {
 
 }
@@ -57,10 +55,6 @@ END_MESSAGE_MAP()
 BOOL CInputLogDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_GROUPBOX);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
 
 #ifdef DEBUG
 	if (m_pProjectProperties == NULL)
@@ -94,9 +88,6 @@ BOOL CInputLogDlg::OnInitDialog()
 		m_cInput.SetText(m_pProjectProperties->sLogTemplate);
 	}
 
-	CAppUtils::SetAccProperty(m_cInput.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cInput.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	SetDlgItemText(IDC_ACTIONLABEL, m_sActionText);
 
 	AddAnchor(IDC_ACTIONLABEL, TOP_LEFT, TOP_RIGHT);
@@ -108,17 +99,6 @@ BOOL CInputLogDlg::OnInitDialog()
 	EnableSaveRestore(_T("InputDlg"));
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-
-    // HACK! Under certain conditions, the dialog box
-    // will not get the input focus. 
-    // Call SetForceFocus() to work around that problem.
-
-    if (m_bForceFocus)
-    {
-        ShowWindow (SW_HIDE);
-        ShowWindow (SW_SHOW);
-    }
-
 	GetDlgItem(IDC_INPUTTEXT)->SetFocus();
 	return FALSE;
 }

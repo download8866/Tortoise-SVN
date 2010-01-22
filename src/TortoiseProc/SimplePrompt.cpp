@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
 #include "TortoiseProc.h"
 #include "SimplePrompt.h"
 
-IMPLEMENT_DYNAMIC(CSimplePrompt, CStandAloneDialog)
+IMPLEMENT_DYNAMIC(CSimplePrompt, CDialog)
 CSimplePrompt::CSimplePrompt(CWnd* pParent /*=NULL*/)
-	: CStandAloneDialog(CSimplePrompt::IDD, pParent)
+	: CDialog(CSimplePrompt::IDD, pParent)
 	, m_sUsername(_T(""))
 	, m_sPassword(_T(""))
 	, m_bSaveAuthentication(FALSE)
@@ -36,7 +36,7 @@ CSimplePrompt::~CSimplePrompt()
 
 void CSimplePrompt::DoDataExchange(CDataExchange* pDX)
 {
-	CStandAloneDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_USEREDIT, m_sUsername);
 	DDX_Text(pDX, IDC_PASSEDIT, m_sPassword);
 	DDX_Check(pDX, IDC_SAVECHECK, m_bSaveAuthentication);
@@ -44,17 +44,12 @@ void CSimplePrompt::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CSimplePrompt, CStandAloneDialog)
+BEGIN_MESSAGE_MAP(CSimplePrompt, CDialog)
 END_MESSAGE_MAP()
 
 BOOL CSimplePrompt::OnInitDialog()
 {
-	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_PASSEDIT);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_SAVECHECK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
+	CDialog::OnInitDialog();
 
 	GetDlgItem(IDC_USEREDIT)->SetFocus();
 	if ((m_hParentWnd==NULL)&&(hWndExplorer))

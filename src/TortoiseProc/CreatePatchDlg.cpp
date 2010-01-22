@@ -60,13 +60,6 @@ BOOL CCreatePatch::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_PATCHLIST, IDC_PATCHLIST, IDC_PATCHLIST, IDC_PATCHLIST);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_SHOWUNVERSIONED)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_SELECTALL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	UpdateData(FALSE);
 
 	m_PatchList.Init(0, _T("CreatePatchDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
@@ -125,7 +118,7 @@ UINT CCreatePatch::PatchThread()
 	}
 
 	m_PatchList.Show(
-		ShowMask(),	CTSVNPathList(), SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS, true, true);
+		ShowMask(),	CTSVNPathList(), SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS);
 
 	DialogEnableWindow(IDC_SHOWUNVERSIONED, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
@@ -188,7 +181,7 @@ void CCreatePatch::OnBnClickedShowunversioned()
 {
 	UpdateData();
 	if (!m_bThreadRunning)
-		m_PatchList.Show(ShowMask(), CTSVNPathList(), 0, true, true);
+		m_PatchList.Show(ShowMask());
 }
 
 void CCreatePatch::OnBnClickedHelp()

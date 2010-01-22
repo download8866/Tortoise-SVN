@@ -23,7 +23,8 @@
 		<title>Creating a Repository with the Command Line Client</title>
 		<indexterm>
 			<primary>Create</primary>
- 		</indexterm> 
+			<secondary>Command Line Client</secondary>
+		</indexterm>
 		<orderedlist>
 			<listitem>
 				<para>

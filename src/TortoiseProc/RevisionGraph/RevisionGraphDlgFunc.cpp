@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -105,7 +105,7 @@ void CRevisionGraphWnd::SetScrollbar (int bar, int newPos, int clientMax, int gr
     SCROLLINFO ScrollInfo = {sizeof(SCROLLINFO), SIF_ALL};
 	GetScrollInfo (bar, &ScrollInfo);
 
-    int oldHeight = ScrollInfo.nMax <= 0 ? clientMax : ScrollInfo.nMax;
+    int oldHeight = max(1, ScrollInfo.nMax);
     int newHeight = static_cast<int>(graphMax * m_fZoomFactor);
     int maxPos = max (0, newHeight - clientMax);
     int pos = min (maxPos, newPos >= 0
@@ -158,15 +158,17 @@ CRect CRevisionGraphWnd::GetViewRect()
 
 int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
-	UINT num = 0;          // number of image encoders
-	UINT size = 0;         // size of the image encoder array in bytes
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
+
+	ImageCodecInfo* pImageCodecInfo = NULL;
 
 	if (GetImageEncodersSize(&num, &size)!=Ok)
 		return -1;
 	if(size == 0)
 		return -1;  // Failure
 
-	ImageCodecInfo* pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
 	if(pImageCodecInfo == NULL)
 		return -1;  // Failure
 
@@ -189,10 +191,7 @@ int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
 bool CRevisionGraphWnd::FetchRevisionData 
     ( const CString& path
-    , SVNRev pegRevision
-    , CProgressDlg* progress
-	, ITaskbarList3 * pTaskbarList
-	, HWND hWnd)
+    , SVNRev pegRevision)
 {
     // (re-)fetch the data
 
@@ -206,9 +205,7 @@ bool CRevisionGraphWnd::FetchRevisionData
                                                     , pegRevision
                                                     , showWCRev
                                                     , showWCModification
-                                                    , progress
-													, pTaskbarList
-													, hWnd);
+                                                    , m_pProgress);
 
     m_state.SetLastErrorMessage (newFullHistory->GetLastErrorMessage());
 
@@ -255,8 +252,7 @@ bool CRevisionGraphWnd::AnalyzeRevisionData()
 
         std::auto_ptr<CStandardLayout> newLayout 
             ( new CStandardLayout ( m_state.GetFullHistory()->GetCache()
-                                  , visibleGraph.get()
-								  , m_state.GetFullHistory()->GetWCInfo()));
+                                  , visibleGraph.get()));
         options->GetLayoutOptions().Apply (newLayout.get());
         newLayout->Finalize();
 
@@ -266,11 +262,6 @@ bool CRevisionGraphWnd::AnalyzeRevisionData()
     }
 
     return m_state.GetNodes().get() != NULL;
-}
-
-bool CRevisionGraphWnd::IsUpdateJobRunning() const
-{
-    return (updateJob.get() != NULL) && !updateJob->IsDone();
 }
 
 bool CRevisionGraphWnd::GetShowOverview() const
@@ -303,7 +294,7 @@ void CRevisionGraphWnd::GetSelected
 
     if (node->GetClassification().Is (CNodeClassification::IS_MODIFIED_WC))
     {
-        path.SetFromUnknown (m_sPath);
+        path.SetFromWin (m_sPath);
         rev = SVNRev::REV_WC;
 
         // don't set peg, if we aren't the first node 
@@ -418,3 +409,4 @@ void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
 
     Invalidate (FALSE);
 }
+

@@ -39,7 +39,6 @@ void CRelocateDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_TOURL, m_URLCombo);
-	DDX_Control(pDX, IDC_FROMURL, m_FromUrl);
 }
 
 
@@ -54,11 +53,6 @@ BOOL CRelocateDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_DWM);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
 	m_URLCombo.SetCurSel(0);
@@ -67,12 +61,8 @@ BOOL CRelocateDlg::OnInitDialog()
 	GetWindowRect(&rect);
 	m_height = rect.bottom - rect.top;
 
-	AddAnchor(IDC_FROMURLLABEL, TOP_LEFT);
-	AddAnchor(IDC_FROMURL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_TOURLLABEL, TOP_LEFT);
 	AddAnchor(IDC_TOURL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_DWM, TOP_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);

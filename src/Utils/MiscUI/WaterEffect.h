@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,8 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-
-#include "auto_buffer.h"
 
 #define random( min, max ) (( rand() % (int)((( max ) + 1 ) - ( min ))) + ( min ))
 
@@ -85,6 +83,7 @@ public:
 	CWaterEffect();
 	virtual ~CWaterEffect();
 
+
 	/**
 	 * Creates the CWaterEffect object used for a picture with a width of \a iWidth and a height of \a iHeight
 	 * \param iWidth the width of the picture in pixels
@@ -141,12 +140,13 @@ private:
 	 * Converts the colors of the source picture (perhaps with color tables) to true color values.
 	 */
 	COLORREF GetShiftedColor(COLORREF color,int shift);
-	int NormalizeColor(long color);
 
 	int			m_iLightModifier;
 	int			m_iWidth;
 	int			m_iHeight;
 
-	auto_buffer<int>	m_iBuffer1;
-	auto_buffer<int>	m_iBuffer2;
+	int*		m_iBuffer1;
+	int*		m_iBuffer2;
+
 };
+

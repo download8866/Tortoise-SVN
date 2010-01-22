@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,6 +47,6 @@ public:
 
 	// construction / destruction: manage file buffer
 
-	CRootInStream (const TFileName& fileName);
+	CRootInStream (const std::wstring& fileName);
 	virtual ~CRootInStream();
 };

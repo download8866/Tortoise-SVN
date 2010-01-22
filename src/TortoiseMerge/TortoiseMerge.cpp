@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,8 +27,6 @@
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "DirFileEnum.h"
-#include "auto_buffer.h"
-#include "SelectFileFilter.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -252,29 +250,61 @@ BOOL CTortoiseMergeApp::InitInstance()
 			ofn.lpstrTitle = temp;
 
 		ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
-		if( HasClipboardPatch() ) {
-			ofn.Flags |= ( OFN_ENABLETEMPLATE | OFN_ENABLEHOOK );
-			ofn.hInstance = AfxGetResourceHandle();
-			ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
-			ofn.lpfnHook = CreatePatchFileOpenHook;
+		// check if there's a patchfile in the clipboard
+		UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
+		if (cFormat)
+		{
+			if (OpenClipboard(NULL))
+			{
+				UINT enumFormat = 0;
+				do 
+				{
+					if (enumFormat == cFormat)
+					{
+						// yes, there's a patchfile in the clipboard
+						ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_ENABLETEMPLATE | OFN_ENABLEHOOK | OFN_EXPLORER;
+
+						ofn.hInstance = AfxGetResourceHandle();
+						ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
+						ofn.lpfnHook = CreatePatchFileOpenHook;
+					}
+				} while((enumFormat = EnumClipboardFormats(enumFormat))!=0);
+				CloseClipboard();
+			}
 		}
 
-		CSelectFileFilter fileFilter(IDS_PATCHFILEFILTER);
-		ofn.lpstrFilter = fileFilter;
+		CString sFilter;
+		sFilter.LoadString(IDS_PATCHFILEFILTER);
+		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
+		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
+		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 
 		// Display the Open dialog box. 
+		CString tempfile;
 		if (GetOpenFileName(&ofn)==FALSE)
 		{
+			delete [] pszFilters;
 			return FALSE;
 		}
+		delete [] pszFilters;
 		pFrame->m_Data.m_sDiffFile = ofn.lpstrFile;
 	}
 
 	if ( pFrame->m_Data.m_baseFile.GetFilename().IsEmpty() && pFrame->m_Data.m_yourFile.GetFilename().IsEmpty() )
 	{
+		LPWSTR *szArglist;
 		int nArgs;
-		LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+
+		szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
 		if( NULL == szArglist )
 		{
 			TRACE("CommandLineToArgvW failed\n");
@@ -368,15 +398,28 @@ BOOL CTortoiseMergeApp::InitInstance()
 				if (!temp.IsEmpty())
 					ofn.lpstrTitle = temp;
 				ofn.Flags = OFN_OVERWRITEPROMPT;
-				CSelectFileFilter fileFilter(IDS_COMMONFILEFILTER);
-				ofn.lpstrFilter = fileFilter;
+				CString sFilter;
+				sFilter.LoadString(IDS_COMMONFILEFILTER);
+				TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
+				_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
+				// Replace '|' delimiters with '\0's
+				TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+				while (ptr != pszFilters)
+				{
+					if (*ptr == '|')
+						*ptr = '\0';
+					ptr--;
+				}
+				ofn.lpstrFilter = pszFilters;
 				ofn.nFilterIndex = 1;
 
 				// Display the Save dialog box. 
+				CString sFile;
 				if (GetSaveFileName(&ofn)==TRUE)
 				{
 					outfile = CString(ofn.lpstrFile);
 				}
+				delete [] pszFilters;
 			}
 			if (!outfile.IsEmpty())
 			{
@@ -396,14 +439,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 		return TRUE;
 	}
 
-	int line = -2;
-	if (parser.HasVal(_T("line")))
-	{
-		line = parser.GetLongVal(_T("line"));
-		line--;	// we need the index
-	}
-
-	return pFrame->LoadViews(line);
+	return pFrame->LoadViews();
 }
 
 // CTortoiseMergeApp message handlers
@@ -430,11 +466,13 @@ CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam,
 			LPCSTR lpstr = (LPCSTR)GlobalLock(hglb); 
 
 			DWORD len = GetTempPath(0, NULL);
-			auto_buffer<TCHAR> path(len+1);
-			auto_buffer<TCHAR> tempF(len+100);
+			TCHAR * path = new TCHAR[len+1];
+			TCHAR * tempF = new TCHAR[len+100];
 			GetTempPath (len+1, path);
 			GetTempFileName (path, TEXT("tsm"), 0, tempF);
 			std::wstring sTempFile = std::wstring(tempF);
+			delete [] path;
+			delete [] tempF;
 
 			FILE * outFile;
 			size_t patchlen = strlen(lpstr);
@@ -461,11 +499,11 @@ int CTortoiseMergeApp::ExitInstance()
 	// Look for temporary files left around by TortoiseMerge and
 	// remove them. But only delete 'old' files 
 	DWORD len = ::GetTempPath(0, NULL);
-	auto_buffer<TCHAR> path(len + 100);
+	TCHAR * path = new TCHAR[len + 100];
 	len = ::GetTempPath (len+100, path);
 	if (len != 0)
 	{
-		CSimpleFileFind finder = CSimpleFileFind(path.get(), _T("*tsm*.*"));
+		CSimpleFileFind finder = CSimpleFileFind(path, _T("*tsm*.*"));
 		FILETIME systime_;
 		::GetSystemTimeAsFileTime(&systime_);
 		__int64 systime = (((_int64)systime_.dwHighDateTime)<<32) | ((__int64)systime_.dwLowDateTime);
@@ -491,30 +529,7 @@ int CTortoiseMergeApp::ExitInstance()
 			}
 		}
 	}	
+	delete[] path;		
 
 	return CWinAppEx::ExitInstance();
-}
-
-bool CTortoiseMergeApp::HasClipboardPatch()
-{
-	// check if there's a patchfile in the clipboard
-	const UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
-	if (cFormat == 0)
-		return false;
-
-	if (OpenClipboard(NULL) == 0)
-		return false;
-
-	bool containsPatch = false;
-	UINT enumFormat = 0;
-	do 
-	{
-		if (enumFormat == cFormat)
-		{
-			containsPatch = true;	// yes, there's a patchfile in the clipboard
-		}
-	} while((enumFormat = EnumClipboardFormats(enumFormat))!=0);
-	CloseClipboard();
-
-	return containsPatch;
 }

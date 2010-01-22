@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 //
 #pragma once
 
-#include "tstring.h"
 
 /**
  * \ingroup TortoiseProc
@@ -50,8 +49,8 @@ public:
 	LPCTSTR GetEntry(size_t pos) {return m_arEntries[pos].c_str();}
 
 private:
-	tstring m_sSection;
-	tstring m_sKeyPrefix;
-	std::vector<tstring> m_arEntries;
+	std::wstring m_sSection;
+	std::wstring m_sKeyPrefix;
+	std::vector<std::wstring> m_arEntries;
 	int m_nMaxHistoryItems;
 };

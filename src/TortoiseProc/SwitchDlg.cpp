@@ -35,7 +35,8 @@ CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
 
 CSwitchDlg::~CSwitchDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
@@ -43,7 +44,6 @@ void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Text(pDX, IDC_REVISION_NUM, m_rev);
-	DDX_Control(pDX, IDC_SWITCHPATH, m_SwitchPath);
 }
 
 
@@ -70,11 +70,6 @@ void CSwitchDlg::SetUrlLabel(const CString& sLabel)
 BOOL CSwitchDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_REVGROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
 
 	CTSVNPath svnPath(m_path);
 	SetDlgItemText(IDC_SWITCHPATH, m_path);

@@ -24,7 +24,6 @@
 #include "SVNProperties.h"
 #include "SVN.h"
 #include "HistoryDlg.h"
-#include "AppUtils.h"
 
 #define REFRESHTIMER   100
 
@@ -41,7 +40,10 @@ CLockDlg::CLockDlg(CWnd* pParent /*=NULL*/)
 
 CLockDlg::~CLockDlg()
 {
-	delete m_pThread;
+	if(m_pThread != NULL)
+	{
+		delete m_pThread;
+	}
 }
 
 void CLockDlg::DoDataExchange(CDataExchange* pDX)
@@ -68,13 +70,6 @@ BOOL CLockDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_FILELIST);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_SELECTALL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_STEALLOCKS)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 	m_History.Load(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
 
@@ -93,9 +88,6 @@ BOOL CLockDlg::OnInitDialog()
 	if (!m_sLockMessage.IsEmpty())
 		m_cEdit.SetText(m_sLockMessage);
 		
-	CAppUtils::SetAccProperty(m_cEdit.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cEdit.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_LOCKWARNING, IDS_WARN_SVNNEEDSLOCK);
 
@@ -210,7 +202,7 @@ UINT CLockDlg::StatusThread()
 	}
 
 	DWORD dwShow = SVNSLC_SHOWNORMAL | SVNSLC_SHOWMODIFIED | SVNSLC_SHOWMERGED | SVNSLC_SHOWLOCKS;
-	m_cFileList.Show(dwShow, CTSVNPathList(), dwShow, false, true);
+	m_cFileList.Show(dwShow, CTSVNPathList(), dwShow, false);
 
 	RefreshCursor();
 	CString logmsg;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "resource.h"
 #include "StandAloneDlg.h"
-#include "AeroControls.h"
 
 class CBugTraqAssociation;
 
@@ -60,5 +59,4 @@ protected:
 	CLSID			m_provider_clsid;
 	CString			m_sParameters;
 	CComboBox		m_cProviderCombo;
-	AeroControlBase	m_aeroControls;
 };

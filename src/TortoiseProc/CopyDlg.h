@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,16 +24,10 @@
 #include "SciEdit.h"
 #include "TSVNPath.h"
 #include "SVNRev.h"
-#include "SVN.h"
+#include "LogDlg.h"
 #include "Tooltip.h"
-#include "PathEdit.h"
-#include "AeroControls.h"
 
 #define WM_TSVN_MAXREVFOUND			(WM_APP + 1)
-
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -93,8 +87,6 @@ private:
 	CButton			m_butBrowse;
 	CRegHistory		m_History;
 	CToolTips		m_tooltips;
-	CPathEdit		m_FromUrl;
-	AeroControlBase m_aeroControls;
 
 	svn_revnum_t	m_minrev;
 	svn_revnum_t	m_maxrev;

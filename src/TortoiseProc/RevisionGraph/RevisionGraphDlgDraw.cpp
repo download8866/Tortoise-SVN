@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,7 +81,7 @@ void CRevisionGraphWnd::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 	CRect rect = GetClientRect();
-    if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 	{
 		dc.FillSolidRect(rect, ::GetSysColor(COLOR_APPWORKSPACE));
 		CWnd::OnPaint();
@@ -312,26 +312,6 @@ void CRevisionGraphWnd::DrawNode(Graphics& graphics, const RectF& rect,
                    : contour;
 
     Pen pen (penColor, isWorkingCopy ? 3.0f : 1.0f);
-	if (isWorkingCopy)
-	{
-	    CSyncPointer<const CFullHistory> history (m_state.GetFullHistory());
-		const CFullHistory::SWCInfo& wcInfo = history->GetWCInfo();
-		revision_t revision = node->GetRevision();
-
-		bool isCommitRev =    (wcInfo.minCommit == revision)
-						   || (wcInfo.maxCommit == revision);
-		bool isMinAtRev =    (wcInfo.minAtRev == revision)
-						  && (wcInfo.minAtRev != wcInfo.maxAtRev);
-
-		DashStyle style = wcInfo.maxAtRev == revision
-						? DashStyleSolid
-						: isCommitRev ? isMinAtRev ? DashStyleDashDot									 
-										           : DashStyleDot
-									  : DashStyleDash;
-
-		pen.SetDashStyle (style);
-	}
-
     SolidBrush brush (brightColor);
     DrawShape (graphics, &pen, &brush, rect, shape);
 
@@ -963,7 +943,6 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
     Graphics* graphics = Graphics::FromHDC(*pDC);
     graphics->SetPageUnit (UnitPixel);
     graphics->SetInterpolationMode (InterpolationModeHighQualityBicubic);
-	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics->SetClip(RectF(Gdiplus::REAL(rect.left), Gdiplus::REAL(rect.top), Gdiplus::REAL(rect.Width()), Gdiplus::REAL(rect.Height())));
 
     if (options->GetOption<CShowTreeStripes>()->IsActive())
@@ -1021,9 +1000,12 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 	}
 
     // flush changes to screen
-	
-	delete graphics;
-	delete memDC;
+
+    if (graphics)
+        delete graphics;
+
+	if (memDC)
+		delete memDC;
 }
 
 void CRevisionGraphWnd::DrawRubberBand()

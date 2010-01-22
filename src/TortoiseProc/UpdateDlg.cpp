@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
 #include "registry.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
@@ -33,7 +33,8 @@ CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
 
 CUpdateDlg::~CUpdateDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
@@ -54,10 +55,6 @@ END_MESSAGE_MAP()
 BOOL CUpdateDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_GROUPMIDDLE);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
 
 	AdjustControlSize(IDC_NEWEST);
 	AdjustControlSize(IDC_REVISION_N);

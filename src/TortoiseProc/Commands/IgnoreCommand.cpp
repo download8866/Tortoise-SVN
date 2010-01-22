@@ -42,7 +42,8 @@ bool IgnoreCommand::Execute()
 		CString value;
 		for (int i=0; i<props.GetCount(); i++)
 		{
-			if (props.GetItemName(i).compare(SVN_PROP_IGNORE)==0)
+			CString propname(props.GetItemName(i).c_str());
+			if (propname.CompareNoCase(_T("svn:ignore"))==0)
 			{
 				//treat values as normal text even if they're not
 				value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
@@ -71,7 +72,7 @@ bool IgnoreCommand::Execute()
 				value += _T("\n");
 			}
 		}
-		if (!props.Add(SVN_PROP_IGNORE, (LPCSTR)CUnicodeUtils::GetUTF8(value)))
+		if (!props.Add(_T("svn:ignore"), (LPCSTR)CUnicodeUtils::GetUTF8(value)))
 		{
 			CString temp;
 			temp.Format(IDS_ERR_FAILEDIGNOREPROPERTY, (LPCTSTR)name);

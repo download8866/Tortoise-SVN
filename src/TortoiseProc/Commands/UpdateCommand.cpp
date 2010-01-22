@@ -70,7 +70,8 @@ bool UpdateCommand::Execute()
 	CSVNProgressDlg progDlg;
 	theApp.m_pMainWnd = &progDlg;
 	progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Update);
-	progDlg.SetAutoClose (parser);
+	if (parser.HasVal(_T("closeonend")))
+		progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
 	progDlg.SetOptions(options);
 	progDlg.SetPathList(pathList);
 	progDlg.SetRevision(rev);

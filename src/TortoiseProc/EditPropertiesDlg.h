@@ -22,9 +22,6 @@
 #include "ProjectProperties.h"
 #include "Tooltip.h"
 #include "tstring.h"
-#include "PathEdit.h"
-#include "AeroControls.h"
-#include "CriticalSection.h"
 
 /**
  * \ingroup TortoiseProc
@@ -66,16 +63,12 @@ protected:
 	afx_msg void OnBnClickedAddprops();
 	afx_msg void OnBnClickedExport();
 	afx_msg void OnBnClickedImport();
-	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	DECLARE_MESSAGE_MAP()
 private:
 	static UINT PropsThreadEntry(LPVOID pVoid);
-
-	void ReadProperties (int first, int last);
 	UINT PropsThread();
 	void EditProps(bool bAdd = false);
-	void RemoveProps();
 
 protected:
 	class PropValue
@@ -89,23 +82,16 @@ protected:
 		bool		allthesamevalue;
 		bool		isbinary;
 	};
-
-	async::CCriticalSection m_mutex;
 	CTSVNPathList	m_pathlist;
 	CListCtrl		m_propList;
 	BOOL			m_bRecursive;
 	bool			m_bChanged;
 	bool			m_bRevProps;
 	volatile LONG	m_bThreadRunning;
-
-	typedef std::map<std::string, PropValue> TProperties;
-	typedef TProperties::iterator IT;
-	TProperties		m_properties;
+	std::map<tstring, PropValue>	m_properties;
 	SVNRev			m_revision;
 	CToolTips		m_tooltips;
-	CPathEdit		m_PropPath;
 
 	CString			m_sUUID;
 	ProjectProperties *	m_pProjectProperties;
-	AeroControlBase m_aeroControls;
 };

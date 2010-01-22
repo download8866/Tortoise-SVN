@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -161,7 +161,7 @@ BOOL CResModule::CreateTranslatedResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR l
 		if (m_hResDll == NULL)
 			Sleep(100);
 		count++;
-	} while ((m_hResDll == NULL)&&(count < 10));
+	} while ((m_hResDll == NULL)&&(count < 5));
 
 	if (m_hResDll == NULL)
 		MYERROR;
@@ -180,46 +180,29 @@ BOOL CResModule::CreateTranslatedResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR l
 	m_bTranslatedAcceleratorStrings = 0;
 	m_bDefaultAcceleratorStrings = 0;
 
-	BOOL bRes = FALSE;
-	count = 0;
-	do 
-	{
-		m_hUpdateRes = BeginUpdateResource(sDestFile.c_str(), FALSE);
-		if (m_hUpdateRes == NULL)
-			Sleep(100);
-		count++;
-	} while ((m_hUpdateRes == NULL)&&(count < 10));
-
-	if (m_hUpdateRes == NULL)
-		MYERROR;
-
-
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("Translating StringTable..."));
-	bRes = EnumResourceNames(m_hResDll, RT_STRING, EnumResNameWriteCallback, (long)this);
+	EnumResourceNames(m_hResDll, RT_STRING, EnumResNameWriteCallback, (long)this);
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedStrings, m_bDefaultStrings);
 
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("Translating Dialogs......."));
-	bRes = EnumResourceNames(m_hResDll, RT_DIALOG, EnumResNameWriteCallback, (long)this);
+	EnumResourceNames(m_hResDll, RT_DIALOG, EnumResNameWriteCallback, (long)this);
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedDialogStrings, m_bDefaultDialogStrings);
 
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("Translating Menus........."));
-	bRes = EnumResourceNames(m_hResDll, RT_MENU, EnumResNameWriteCallback, (long)this);
+	EnumResourceNames(m_hResDll, RT_MENU, EnumResNameWriteCallback, (long)this);
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedMenuStrings, m_bDefaultMenuStrings);
 
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("Translating Accelerators.."));
-	bRes = EnumResourceNames(m_hResDll, RT_ACCELERATOR, EnumResNameWriteCallback, (long)this);
+	EnumResourceNames(m_hResDll, RT_ACCELERATOR, EnumResNameWriteCallback, (long)this);
 	if (!m_bQuiet)
 		_ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedAcceleratorStrings, m_bDefaultAcceleratorStrings);
-
-	if (!EndUpdateResource(m_hUpdateRes, !bRes))
-		MYERROR;
 
 	FreeLibrary(m_hResDll);
 	return TRUE;
@@ -1842,6 +1825,16 @@ BOOL CALLBACK CResModule::EnumResWriteLangCallback(HMODULE /*hModule*/, LPCTSTR 
 	BOOL bRes = FALSE;
 	CResModule* lpResModule = (CResModule*)lParam;
 
+
+	int count = 0;
+	do 
+	{
+		lpResModule->m_hUpdateRes = BeginUpdateResource(lpResModule->sDestFile.c_str(), FALSE);
+		if (lpResModule->m_hUpdateRes == NULL)
+			Sleep(100);
+		count++;
+	} while ((lpResModule->m_hUpdateRes == NULL)&&(count < 5));
+
 	if (lpszType == RT_STRING)
 	{
 		if (IS_INTRESOURCE(lpszName))
@@ -1871,6 +1864,8 @@ BOOL CALLBACK CResModule::EnumResWriteLangCallback(HMODULE /*hModule*/, LPCTSTR 
 		}
 	}
 
+	if (!EndUpdateResource(lpResModule->m_hUpdateRes, !bRes))
+		MYERROR;
 	return bRes;
 
 }

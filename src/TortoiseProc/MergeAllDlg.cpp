@@ -28,7 +28,6 @@ CMergeAllDlg::CMergeAllDlg(CWnd* pParent /*=NULL*/)
 	, m_depth(svn_depth_unknown)
 	, m_bIgnoreEOL(FALSE)
 	, m_bIgnoreAncestry(FALSE)
-	, m_bForce(FALSE)
 {
 
 }
@@ -44,7 +43,6 @@ void CMergeAllDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_IGNOREANCESTRY, m_bIgnoreAncestry);
 	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
 	DDX_Check(pDX, IDC_IGNOREEOL, m_bIgnoreEOL);
-	DDX_Check(pDX, IDC_FORCE, m_bForce);
 }
 
 
@@ -63,11 +61,6 @@ void CMergeAllDlg::OnBnClickedHelp()
 BOOL CMergeAllDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_MERGEOPTIONS, IDC_MERGEOPTIONS, IDC_MERGEOPTIONS, IDC_MERGEOPTIONS);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
 
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_WORKING)));
 	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));

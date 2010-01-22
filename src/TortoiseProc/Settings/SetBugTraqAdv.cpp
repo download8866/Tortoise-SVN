@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,8 +19,6 @@
 #include "stdafx.h"
 #include "SetBugTraqAdv.h"
 #include "BrowseFolder.h"
-#include "COMError.h"
-#include "MessageBox.h"
 #include "BugTraqAssociations.h"
 #include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 
@@ -64,11 +62,6 @@ BOOL CSetBugTraqAdv::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_DWM);
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	std::vector<CBugTraqProvider> providers = CBugTraqAssociations::GetAvailableProviders();
 	if (providers.size() == 0)
 	{
@@ -109,7 +102,6 @@ BOOL CSetBugTraqAdv::OnInitDialog()
 	AddAnchor(IDC_BUGTRAQPARAMETERSLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BUGTRAQPARAMETERS, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_OPTIONS, TOP_RIGHT);
-	AddAnchor(IDC_DWM, TOP_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -148,15 +140,13 @@ void CSetBugTraqAdv::OnOK()
 	}
 
 	VARIANT_BOOL valid;
-	ATL::CComBSTR parameters;
-	parameters.Attach(m_sParameters.AllocSysString());
-	if (FAILED(hr = pProvider->ValidateParameters(GetSafeHwnd(), parameters, &valid)))
+	if (FAILED(hr = pProvider->ValidateParameters(GetSafeHwnd(), m_sParameters.AllocSysString(), &valid)))
 	{
 		ShowBalloon(IDC_BUGTRAQPARAMETERS, IDS_ERR_PROVIDER_VALIDATE_FAILED);
 		return;
 	}
 
-	if (valid == VARIANT_FALSE)
+	if (valid != VARIANT_TRUE)
 		return;	// It's assumed that the provider will have done this.
 
 	CResizableStandAloneDialog::OnOK();
@@ -202,10 +192,9 @@ void CSetBugTraqAdv::CheckHasOptions()
 	if (SUCCEEDED(hr))
 	{
 		VARIANT_BOOL hasOptions = VARIANT_FALSE;
-		hr = pProvider->HasOptions(&hasOptions);
-		if (SUCCEEDED(hr))
+		if (SUCCEEDED(hr = pProvider->HasOptions(&hasOptions)))
 		{
-			if (hasOptions != VARIANT_FALSE)
+			if (hasOptions == VARIANT_TRUE)
 			{
 				GetDlgItem(IDC_OPTIONS)->EnableWindow(TRUE);
 				return;
@@ -237,22 +226,14 @@ void CSetBugTraqAdv::OnBnClickedOptions()
 
 	if (SUCCEEDED(hr))
 	{
-		ATL::CComBSTR temp;
+		BSTR temp = NULL;
 		CString p;
 		GetDlgItemText(IDC_BUGTRAQPARAMETERS, p);
-		ATL::CComBSTR params;
-		params.Attach(p.AllocSysString());
-		hr = pProvider->ShowOptionsDialog(GetSafeHwnd(), params, &temp);
-		if (SUCCEEDED(hr))
+		BSTR params = p.AllocSysString();
+		if (SUCCEEDED(hr = pProvider->ShowOptionsDialog(GetSafeHwnd(), params, &temp)))
 		{
-			SetDlgItemText(IDC_BUGTRAQPARAMETERS, temp == 0 ? "" : temp);
+			SetDlgItemText(IDC_BUGTRAQPARAMETERS, temp);
 		}
-		else
-		{
-			COMError ce(hr);
-			CString sErr;
-			sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, ce.GetSource().c_str(), ce.GetMessageAndDescription().c_str());
-			CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
-		}
+		SysFreeString(temp);
 	}
 }

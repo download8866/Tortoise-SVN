@@ -52,7 +52,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;SVN_DEBUG"
 				BasicRuntimeChecks="1"
 				RuntimeLibrary="3"
@@ -82,7 +82,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_ra-nonet.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib ../../ext/libintl/debug_win32/lib/intl3_tsvn.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_ra-nonet.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -154,7 +154,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				InlineFunctionExpansion="0"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;../Utils;..\TortoiseShell;..\SVN;&quot;..\..\ext\libintl\libintl3-x64\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;_DEBUG;_WINDOWS;_USRDLL;SVN_DEBUG"
 				BasicRuntimeChecks="1"
 				RuntimeLibrary="3"
@@ -183,7 +183,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_ra-nonet.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib ../../ext/libintl/debug_x64/lib/intl3_tsvn.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_ra-nonet.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -258,7 +258,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -289,7 +289,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/Subversion\release_win32\\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/Subversion\release_win32\libsvn_ra-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib ../../ext/libintl/release_win32/lib/intl3_tsvn.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/Subversion\release_win32\\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/Subversion\release_win32\libsvn_ra-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -301,6 +301,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				BaseAddress="0x5960000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -366,7 +367,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl&quot;;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="&quot;../../ext/apr-util/include&quot;;&quot;../../ext/apr-util/xml/expat/lib&quot;;../../ext/Subversion/subversion/include;../../ext/apr/include;..\TortoiseShell;..\Utils;..\svn;&quot;..\..\ext\libintl\libintl3-x64\inc&quot;;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;NDEBUG;_WINDOWS;_USRDLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -396,7 +397,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/Subversion\release_x64\\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/Subversion\release_x64\libsvn_ra-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib ../../ext/libintl/release_x64/lib/intl3_tsvn.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/Subversion\release_x64\\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/Subversion\release_x64\libsvn_ra-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib"
 				OutputFile="$(OutDir)/TortoiseSVN.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -408,6 +409,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				BaseAddress="0x5960000"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
@@ -457,14 +459,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\DebugOutput.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\IconBitmapUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\IconOverlay.cpp"
 				>
 			</File>
@@ -505,10 +499,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ShellObjects.cpp"
-				>
-			</File>
-			<File
 				RelativePath="stdafx.cpp"
 				>
 				<FileConfiguration
@@ -545,10 +535,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Utils\StringUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\Svn\SVNAdminDir.cpp"
 				>
 			</File>
@@ -581,14 +567,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SVNTrace.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\SysInfo.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseSVN.cpp"
 				>
 			</File>
@@ -606,19 +584,11 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
-				RelativePath="..\Utils\DebugOutput.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Globals.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Guids.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\MiscUI\IconBitmapUtils.h"
 				>
 			</File>
 			<File
@@ -666,10 +636,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\ShellObjects.h"
-				>
-			</File>
-			<File
 				RelativePath="stdafx.h"
 				>
 			</File>
@@ -706,14 +672,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\SVNTrace.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\SysInfo.h"
-				>
-			</File>
-			<File
 				RelativePath="..\Svn\TSVNPath.h"
 				>
 			</File>
@@ -726,6 +684,14 @@
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;jpg;jpeg;jpe;manifest"
 			>
+			<File
+				RelativePath="..\Resources\clipcopy.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\clipcut.ico"
+				>
+			</File>
 			<File
 				RelativePath="..\Resources\clippaste.ico"
 				>

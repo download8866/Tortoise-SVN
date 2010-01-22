@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #include "StdAfx.h"
 #include "UnicodeUtils.h"
 #include "stringutils.h"
-#include "ClipboardHelper.h"
 
 int strwildcmp(const char *wild, const char *string)
 {
@@ -116,6 +115,7 @@ BOOL CStringUtils::WildCardMatch(const CString& wildcard, const CString& string)
 CString CStringUtils::LinesWrap(const CString& longstring, int limit /* = 80 */, bool bCompactPaths /* = true */)
 {
 	CString retString;
+	CStringArray arWords;
 	if ((longstring.GetLength() < limit) || (limit == 0))
 		return longstring;	// no wrapping needed.
 	// now start breaking the string into lines
@@ -206,10 +206,10 @@ void CStringUtils::RemoveAccelerators(CString& text)
 	}
 }
 
+
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID lcid, HWND hOwningWnd)
 {
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
@@ -223,7 +223,7 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID l
 				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
 				if (GlobalUnlock(hClipboardData))
 				{
-					if (SetClipboardData(CF_TEXT, hClipboardData))
+					if (SetClipboardData(CF_TEXT, hClipboardData)==NULL)
 					{
 						HANDLE hlocmem = GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, sizeof(LCID));
 						if (hlocmem)
@@ -236,19 +236,36 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID l
 							}
 							GlobalUnlock(hlocmem);
 						}
+						CloseClipboard();
 						return true;
 					}
 				}
+				else
+				{
+					CloseClipboard();
+					return false;
+				}
+			}
+			else
+			{
+				CloseClipboard();
+				return false;
 			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return false;
 	}
 	return false;
 }
 
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND hOwningWnd)
 {
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
@@ -262,15 +279,62 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND h
 				_tcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
 				if (GlobalUnlock(hClipboardData))
 				{
-					if (SetClipboardData(CF_UNICODETEXT, hClipboardData))
+					if (SetClipboardData(CF_UNICODETEXT, hClipboardData) != NULL)
 					{
-						// no need to also set CF_TEXT : the OS does this
-						// automatically.
-						return true;
+						CStringA sClipdataA = CStringA(sClipdata);
+						HGLOBAL hClipboardDataA;
+						hClipboardDataA = GlobalAlloc(GMEM_DDESHARE, sClipdataA.GetLength()+1);
+						if (hClipboardDataA)
+						{
+							char * pchDataA;
+							pchDataA = (char*)GlobalLock(hClipboardDataA);
+							if (pchDataA)
+							{
+								strcpy_s(pchDataA, sClipdataA.GetLength()+1, (LPCSTR)sClipdataA);
+								if (GlobalUnlock(hClipboardDataA))
+								{
+									if (SetClipboardData(CF_TEXT, hClipboardDataA) != NULL)
+									{
+										CloseClipboard();
+										return true;
+									}
+								}
+								else
+								{
+									CloseClipboard();
+									return false;
+								}
+							}
+							else
+							{
+								CloseClipboard();
+								return false;
+							}
+						}
+
+						CloseClipboard();
+						return false;
 					}
 				}
+				else
+				{
+					CloseClipboard();
+					return false;
+				}
+			}
+			else
+			{
+				CloseClipboard();
+				return false;
 			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return false;
 	}
 	return false;
 }
@@ -280,8 +344,7 @@ bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningW
 	UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
 	if (cFormat == 0)
 		return false;
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
@@ -297,15 +360,34 @@ bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningW
 				{
 					if (SetClipboardData(cFormat,hClipboardData)==NULL)
 					{
+						CloseClipboard();
 						return false;
 					}
-					if (SetClipboardData(CF_TEXT,hClipboardData))
+					if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
 					{
-						return true;
+						CloseClipboard();
+						return false;
 					}
 				}
+				else
+				{
+					CloseClipboard();
+					return false;
+				}
+			}
+			else
+			{
+				CloseClipboard();
+				return false;
 			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return true;
 	}
 	return false;
 }
@@ -327,79 +409,14 @@ bool CStringUtils::ReadStringFromTextFile(const CString& path, CString& text)
 		text = CUnicodeUtils::GetUnicode(filecontent);
 		file.Close();
 	} 
-	catch (CFileException* pE)
+	catch (CFileException* /*pE*/)
 	{
 		text.Empty();
-		pE->Delete();
 	}
 	return true;
 }
 
 #endif // #ifdef _MFC_VER
-
-#if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
-int CStringUtils::GetMatchingLength (const CString& lhs, const CString& rhs)
-{
-	int lhsLength = lhs.GetLength();
-	int rhsLength = rhs.GetLength();
-	int maxResult = min (lhsLength, rhsLength);
-
-	LPCTSTR pLhs = lhs;
-	LPCTSTR pRhs = rhs;
-
-	for (int i = 0; i < maxResult; ++i)
-		if (pLhs[i] != pRhs[i])
-			return i;
-
-	return maxResult;
-}
-
-int CStringUtils::FastCompareNoCase (const CStringW& lhs, const CStringW& rhs)
-{
-	// attempt latin-only comparison
-
-	INT_PTR count = min (lhs.GetLength(), rhs.GetLength()+1);
-	const wchar_t* left = lhs;
-	const wchar_t* right = rhs;
-	for (const wchar_t* last = left + count+1; left < last; ++left, ++right)
-	{
-		int leftChar = *left;
-		int rightChar = *right;
-
-		int diff = leftChar - rightChar;
-		if (diff != 0)
-		{
-			// case-sensitive comparison found a difference
-
-			if ((leftChar | rightChar) >= 0x80)
-			{
-				// non-latin char -> fall back to CRT code
-				// (full comparison required as we might have
-				// skipped special chars / UTF plane selectors)
-
-				return _wcsicmp (lhs, rhs);
-			}
-
-			// normalize to lower case
-
-			if ((leftChar >= 'A') && (leftChar <= 'Z'))
-				leftChar += 'a' - 'A';
-			if ((rightChar >= 'A') && (rightChar <= 'Z'))
-				rightChar += 'a' - 'A';
-
-			// compare again
-
-			diff = leftChar - rightChar;
-			if (diff != 0)
-				return diff;
-		}
-	}
-
-	// must be equal (both ended with a 0)
-
-	return 0;
-}
-#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
 {
@@ -411,7 +428,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	if (bUTF8)
 	{
 		std::string buf = CUnicodeUtils::StdGetUTF8(text);
-		if (!WriteFile(hFile, buf.c_str(), (DWORD)buf.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, buf.c_str(), buf.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -419,7 +436,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	}
 	else
 	{
-		if (!WriteFile(hFile, text.c_str(), (DWORD)text.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, text.c_str(), text.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -429,36 +446,10 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	return true;
 }
 
-inline static void PipeToNull(TCHAR* ptr)
-{
-	if (*ptr == '|')
-		*ptr = '\0';
-}
-
-void CStringUtils::PipesToNulls(TCHAR* buffer, size_t length)
-{
-	TCHAR* ptr = buffer + length;
-	while (ptr != buffer)
-	{
-		PipeToNull(ptr);
-		ptr--;
-	}
-}
-
-void CStringUtils::PipesToNulls(TCHAR* buffer)
-{
-	TCHAR* ptr = buffer;
-	while (*ptr != 0)
-	{
-		PipeToNull(ptr);
-		ptr++;
-	}
-}
-
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
 
 
-#if defined(_DEBUG) && defined(_MFC_VER)
+#if defined(_DEBUG)
 // Some test cases for these classes
 static class StringUtilsTest
 {

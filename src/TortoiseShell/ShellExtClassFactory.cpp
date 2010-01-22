@@ -20,6 +20,7 @@
 #include "ShellExt.h"
 #include "ShellExtClassFactory.h"
 
+extern std::set<CShellExt *> g_exts;
 
 CShellExtClassFactory::CShellExtClassFactory(FileState state)
 {
@@ -51,7 +52,7 @@ STDMETHODIMP CShellExtClassFactory::QueryInterface(REFIID riid,
 		
         AddRef();
 		
-        return S_OK;
+        return NOERROR;
     }
 	
     return E_NOINTERFACE;

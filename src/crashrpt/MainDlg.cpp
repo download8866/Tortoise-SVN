@@ -2,13 +2,12 @@
 
 #include "MainDlg.h"
 #include "resource.h"
-#include "auto_buffer.h"
 
-CMainDlg::CMainDlg()
+CMainDlg::CMainDlg(void)
 {
 }
 
-CMainDlg::~CMainDlg()
+CMainDlg::~CMainDlg(void)
 {
 }
 
@@ -81,13 +80,15 @@ LRESULT CMainDlg::DoCommand(int id)
 			int      nEmailLen = ::GetWindowTextLength(hWndEmail) + 1;
 			int      nDescLen = ::GetWindowTextLength(hWndDesc) + 1;
 
-			auto_buffer<TCHAR> lpStr(nEmailLen+1);
+			TCHAR * lpStr = new TCHAR[nEmailLen+1];
 			::GetWindowText(hWndEmail, lpStr, nEmailLen);
 			m_sEmail = lpStr;
+			delete [] lpStr;
 
-			lpStr.reset(nDescLen+1);
+			lpStr = new TCHAR[nDescLen+1];
 			::GetWindowText(hWndDesc, lpStr, nDescLen);
 			m_sDescription = lpStr;
+			delete [] lpStr;
 		}
 		EndDialog(*this, IDOK);
 		return 0;

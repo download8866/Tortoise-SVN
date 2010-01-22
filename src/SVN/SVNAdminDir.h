@@ -78,7 +78,8 @@ public:
 	/// Returns true if the admin dir name is set to "_svn".
 	bool IsVSNETHackActive() const {return m_bVSNETHack;}
 	
-	CString GetAdminDirName() const {return m_bVSNETHack ? _T("_svn") : _T(".svn");}
+	CString GetAdminDirName() const {return _T(".svn");}
+	CString GetVSNETAdminDirName() const {return _T("_svn");}
 private:
 	apr_pool_t* m_pool;
 	bool m_bVSNETHack;

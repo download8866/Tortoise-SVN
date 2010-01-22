@@ -21,7 +21,6 @@
 #include "commctrl.h"
 #include "PicWindow.h"
 #include "math.h"
-#include "SysInfo.h"
 
 #pragma comment(lib, "Msimg32.lib")
 #pragma comment(lib, "shell32.lib")
@@ -207,13 +206,6 @@ LRESULT CALLBACK CPicWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, 
 			OnMouseWheel(GET_KEYSTATE_WPARAM(wParam), GET_WHEEL_DELTA_WPARAM(wParam));
 			if (bFitSizes)
 				pTheOtherPic->OnMouseWheel(GET_KEYSTATE_WPARAM(wParam), GET_WHEEL_DELTA_WPARAM(wParam));
-		}
-		break;
-	case WM_MOUSEHWHEEL:
-		{
-			OnMouseWheel(GET_KEYSTATE_WPARAM(wParam)|MK_SHIFT, GET_WHEEL_DELTA_WPARAM(wParam));
-			if (bFitSizes)
-				pTheOtherPic->OnMouseWheel(GET_KEYSTATE_WPARAM(wParam)|MK_SHIFT, GET_WHEEL_DELTA_WPARAM(wParam));
 		}
 		break;
 	case WM_LBUTTONDOWN:
@@ -575,7 +567,7 @@ void CPicWindow::DrawViewTitle(HDC hDC, RECT * rect)
 	}
 
 	SIZE stringsize;
-	if (GetTextExtentPoint32(hDC, realtitle.c_str(), (int)realtitle.size(), &stringsize))
+	if (GetTextExtentPoint32(hDC, realtitle.c_str(), realtitle.size(), &stringsize))
 	{
 		int nStringLength = stringsize.cx;
 		int texttop = pSecondPic ? textrect.top + (HEADER_HEIGHT/2) - stringsize.cy : textrect.top + (HEADER_HEIGHT/2) - stringsize.cy/2;
@@ -585,7 +577,7 @@ void CPicWindow::DrawViewTitle(HDC hDC, RECT * rect)
 			ETO_CLIPPED,
 			&textrect,
 			realtitle.c_str(),
-			(UINT)realtitle.size(),
+			realtitle.size(),
 			NULL);
 		if (pSecondPic)
 		{
@@ -596,13 +588,13 @@ void CPicWindow::DrawViewTitle(HDC hDC, RECT * rect)
 				ETO_CLIPPED,
 				&textrect,
 				realtitle.c_str(),
-				(UINT)realtitle.size(),
+				realtitle.size(),
 				NULL);
 		}
 	}
 	if (HasMultipleImages())
 	{
-		if (GetTextExtentPoint32(hDC, imgnumstring.c_str(), (int)imgnumstring.size(), &stringsize))
+		if (GetTextExtentPoint32(hDC, imgnumstring.c_str(), imgnumstring.size(), &stringsize))
 		{
 			int nStringLength = stringsize.cx;
 
@@ -612,7 +604,7 @@ void CPicWindow::DrawViewTitle(HDC hDC, RECT * rect)
 				ETO_CLIPPED,
 				&textrect,
 				imgnumstring.c_str(),
-				(UINT)imgnumstring.size(),
+				imgnumstring.size(),
 				NULL);
 		}
 	}
@@ -1229,14 +1221,6 @@ void CPicWindow::Paint(HWND hwnd)
 				// set the font
 				NONCLIENTMETRICS metrics = {0};
 				metrics.cbSize = sizeof(NONCLIENTMETRICS);
-
-            #if (WINVER >= 0x600)
-	            if (!SysInfo::Instance().IsVistaOrLater())
-	            {
-		            ncm.cbSize -= sizeof(int);	// subtract the size of the iPaddedBorderWidth member which is not available on XP
-	            }
-            #endif
-
 				SystemParametersInfo(SPI_GETNONCLIENTMETRICS, 0, &metrics, FALSE);
 				HFONT hFont = CreateFontIndirect(&metrics.lfStatusFont);
 				HFONT hFontOld = (HFONT)SelectObject(memDC, (HGDIOBJ)hFont);
@@ -1268,7 +1252,7 @@ void CPicWindow::Paint(HWND hwnd)
 			::ExtTextOut(memDC, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
 			SIZE stringsize;
 			ResString str = ResString(hResource, IDS_INVALIDIMAGEINFO);
-			if (GetTextExtentPoint32(memDC, str, (int)_tcslen(str), &stringsize))
+			if (GetTextExtentPoint32(memDC, str, _tcslen(str), &stringsize))
 			{
 				int nStringLength = stringsize.cx;
 
@@ -1278,7 +1262,7 @@ void CPicWindow::Paint(HWND hwnd)
 					ETO_CLIPPED,
 					&rect,
 					str,
-					(UINT)_tcslen(str),
+					_tcslen(str),
 					NULL);
 			}
 		}

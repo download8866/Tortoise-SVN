@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,16 +24,14 @@
 #include "RightView.h"
 #include "BottomView.h"
 #include "DiffColors.h"
-#include "AppUtils.h"
 
 
 IMPLEMENT_DYNAMIC(CLocatorBar, CPaneDialog)
 CLocatorBar::CLocatorBar() : CPaneDialog()
-	, m_pMainFrm(NULL)
-	, m_pCacheBitmap(NULL)
-	, m_bMouseWithin(FALSE)
-	, m_regUseFishEye(_T("Software\\TortoiseMerge\\UseFishEye"), TRUE)
 {
+	m_pMainFrm = NULL;
+	m_pCacheBitmap = NULL;
+	m_bMouseWithin = FALSE;
 }
 
 CLocatorBar::~CLocatorBar()
@@ -158,7 +156,7 @@ void CLocatorBar::OnPaint()
 	if ((m_pMainFrm)&&(m_pMainFrm->m_pwndLeftView))
 	{
 		nTopLine = m_pMainFrm->m_pwndLeftView->m_nTopLine;
-		nBottomLine = nTopLine + m_pMainFrm->m_pwndLeftView->GetFullScreenLines();
+		nBottomLine = nTopLine + m_pMainFrm->m_pwndLeftView->GetScreenLines();
 	}
 	CDC cacheDC;
 	VERIFY(cacheDC.CreateCompatibleDC(&dc));
@@ -196,19 +194,6 @@ void CLocatorBar::OnPaint()
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
 		}
-		if (m_pMainFrm->m_pwndLeftView->GetMarkedWord()[0])
-		{
-			CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, color, color2);
-			color = CAppUtils::IntenseColor(200, color);
-			for (size_t i=0; i<m_pMainFrm->m_pwndLeftView->m_arMarkedWordLines.size(); ++i)
-			{
-				if (m_pMainFrm->m_pwndLeftView->m_arMarkedWordLines[i])
-				{
-					cacheDC.FillSolidRect(rect.left, height*i/m_nLines, 
-								barwidth, max(height/m_nLines,2), color);
-				}
-			}
-		}
 	}
 	state = 0;
 	identcount = 0;
@@ -226,19 +211,6 @@ void CLocatorBar::OnPaint()
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
 		}
-		if (m_pMainFrm->m_pwndRightView->GetMarkedWord()[0])
-		{
-			CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, color, color2);
-			color = CAppUtils::IntenseColor(200, color);
-			for (size_t i=0; i<m_pMainFrm->m_pwndRightView->m_arMarkedWordLines.size(); ++i)
-			{
-				if (m_pMainFrm->m_pwndRightView->m_arMarkedWordLines[i])
-				{
-					cacheDC.FillSolidRect(rect.left + (width*2/3), height*i/m_nLines, 
-								barwidth, max(height/m_nLines,2), color);
-				}
-			}
-		}
 	}
 	state = 0;
 	identcount = 0;
@@ -255,19 +227,6 @@ void CLocatorBar::OnPaint()
 							barwidth, max(height*identcount/m_nLines,1), color);
 			linecount += identcount;
 		}
-		if (m_pMainFrm->m_pwndBottomView->GetMarkedWord()[0])
-		{
-			CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, color, color2);
-			color = CAppUtils::IntenseColor(200, color);
-			for (size_t i=0; i<m_pMainFrm->m_pwndBottomView->m_arMarkedWordLines.size(); ++i)
-			{
-				if (m_pMainFrm->m_pwndBottomView->m_arMarkedWordLines[i])
-				{
-					cacheDC.FillSolidRect(rect.left + (width/3), height*i/m_nLines, 
-								barwidth, max(height/m_nLines,2), color);
-				}
-			}
-		}
 	}
 
 	if (m_nLines == 0)
@@ -281,7 +240,7 @@ void CLocatorBar::OnPaint()
 	cacheDC.FillSolidRect(rect.left + (width*2/3), rect.top, 1, height, RGB(0,0,0));
 
 	// draw the fish eye
-	if ((m_bMouseWithin)&&(DWORD(m_regUseFishEye)))
+	if (m_bMouseWithin)
 	{
 		int fishstart = m_MousePos.y - height/20;
 		int fishheight = height/10;

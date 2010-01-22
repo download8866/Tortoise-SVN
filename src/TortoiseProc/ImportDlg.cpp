@@ -59,12 +59,6 @@ BOOL CImportDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_MSGGROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_IMPORTIGNORED)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	m_URLCombo.SetURLHistory(TRUE);
@@ -84,19 +78,13 @@ BOOL CImportDlg::OnInitDialog()
 	m_cMessage.Init(m_ProjectProperties);
 	m_cMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 
-	if (!m_sMessage.IsEmpty())
-		m_cMessage.SetText(m_sMessage);
-
-	CAppUtils::SetAccProperty(m_cMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	AdjustControlSize(IDC_IMPORTIGNORED);
 
 	AddAnchor(IDC_STATIC1, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_STATIC4, TOP_LEFT);
 	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_MSGGROUP, TOP_LEFT, BOTTOM_RIGHT);
+	AddAnchor(IDC_STATIC2, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_MESSAGE, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
 	AddAnchor(IDC_IMPORTIGNORED, BOTTOM_LEFT);

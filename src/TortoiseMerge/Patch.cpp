@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2004-2010 - TortoiseSVN
+// Copyright (C) 2004-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #include "svn_wc.h"
 #include "SVNAdminDir.h"
 #include "Patch.h"
-#include "ProgressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,8 +60,8 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 {
 	CString sLine;
 	EOL ending = EOL_NOENDING;
-	int nIndex = 0;
-	int nLineCount = 0;
+	INT_PTR nIndex = 0;
+	INT_PTR nLineCount = 0;
 	g_crasher.AddFile((LPCSTR)(LPCTSTR)filename, (LPCSTR)(LPCTSTR)_T("unified diff file"));
 
 	CFileTextLines PatchLines;
@@ -221,8 +220,11 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 					//a binary file. So start over...
 					state = 0;
 					nIndex--;
-					delete chunks;
-					chunks = NULL;
+					if (chunks)
+					{
+						delete chunks;
+						chunks = NULL;
+					}
 					break;
 				}
 				sLine = sLine.Mid(3);	//remove the "---"
@@ -417,7 +419,8 @@ BOOL CPatch::OpenUnifiedDiffFile(const CString& filename)
 		m_arFileDiffs.Add(chunks);
 	return TRUE;
 errorcleanup:
-	delete chunk;
+	if (chunk)
+		delete chunk;
 	if (chunks)
 	{
 		for (int i=0; i<chunks->chunks.GetCount(); i++)
@@ -562,19 +565,19 @@ BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CSt
 				{
 					if ((lAddLine > PatchLines.GetCount())||(PatchLines.GetCount()==0))
 					{
-						m_sErrorMessage.FormatMessage(IDS_ERR_PATCH_DOESNOTMATCH, _T(""), (LPCTSTR)sPatchLine);
+						m_sErrorMessage.Format(IDS_ERR_PATCH_DOESNOTMATCH, _T(""), (LPCTSTR)sPatchLine);
 						return FALSE; 
 					}
 					if (lAddLine == 0)
 						lAddLine = 1;
 					if ((sPatchLine.Compare(PatchLines.GetAt(lAddLine-1))!=0)&&(!HasExpandedKeyWords(sPatchLine)))
 					{
-						m_sErrorMessage.FormatMessage(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, (LPCTSTR)PatchLines.GetAt(lAddLine-1));
+						m_sErrorMessage.Format(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, (LPCTSTR)PatchLines.GetAt(lAddLine-1));
 						return FALSE; 
 					}
 					if (lAddLine > PatchLines.GetCount())
 					{
-						m_sErrorMessage.FormatMessage(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, _T(""));
+						m_sErrorMessage.Format(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, _T(""));
 						return FALSE; 
 					}
 					PatchLines.RemoveAt(lAddLine-1);
@@ -592,7 +595,7 @@ BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CSt
 				{
 					if (lAddLine > PatchLines.GetCount())
 					{
-						m_sErrorMessage.FormatMessage(IDS_ERR_PATCH_DOESNOTMATCH, _T(""), (LPCTSTR)sPatchLine);
+						m_sErrorMessage.Format(IDS_ERR_PATCH_DOESNOTMATCH, _T(""), (LPCTSTR)sPatchLine);
 						return FALSE; 
 					}
 					if (lAddLine == 0)
@@ -612,7 +615,7 @@ BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CSt
 							lRemoveLine++;
 						else
 						{
-							m_sErrorMessage.FormatMessage(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, (LPCTSTR)PatchLines.GetAt(lAddLine-1));
+							m_sErrorMessage.Format(IDS_ERR_PATCH_DOESNOTMATCH, (LPCTSTR)sPatchLine, (LPCTSTR)PatchLines.GetAt(lAddLine-1));
 							return FALSE; 
 						}
 					} 
@@ -661,23 +664,11 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	//first check if the path already matches
 	if (CountMatches(path) > (GetNumberOfFiles()/3))
 		return path;
-
-	CProgressDlg progress;
-	CString tmp;
-	progress.SetTitle(IDS_PATCH_SEARCHPATHTITLE);
-	progress.SetShowProgressBar(false);
-	tmp.LoadString(IDS_PATCH_SEARCHPATHLINE1);
-	progress.SetLine(1, tmp);
-	progress.ShowModeless(AfxGetMainWnd());
-
 	//now go up the tree and try again
 	CString upperpath = path;
 	while (upperpath.ReverseFind('\\')>0)
 	{
 		upperpath = upperpath.Left(upperpath.ReverseFind('\\'));
-		progress.SetLine(2, upperpath, true);
-		if (progress.HasUserCancelled())
-			return path;
 		if (CountMatches(upperpath) > (GetNumberOfFiles()/3))
 			return upperpath;
 	}
@@ -687,13 +678,10 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	CDirFileEnum filefinder(path);
 	while (filefinder.NextFile(subpath, &isDir))
 	{
-		if (progress.HasUserCancelled())
-			return path;
 		if (!isDir)
 			continue;
 		if (g_SVNAdminDir.IsAdminDirPath(subpath))
 			continue;
-		progress.SetLine(2, subpath, true);
 		if (CountMatches(subpath) > (GetNumberOfFiles()/3))
 			return subpath;
 	}
@@ -706,9 +694,6 @@ CString	CPatch::CheckPatchPath(const CString& path)
 	while (upperpath.ReverseFind('\\')>0)
 	{
 		upperpath = upperpath.Left(upperpath.ReverseFind('\\'));
-		progress.SetLine(2, upperpath, true);
-		if (progress.HasUserCancelled())
-			return path;
 		if (CountDirMatches(upperpath) > (GetNumberOfFiles()/3))
 			return upperpath;
 	}

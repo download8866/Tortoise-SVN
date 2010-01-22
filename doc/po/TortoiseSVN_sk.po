@@ -21,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-04-23 20:52 +0000\n"
-"PO-Revision-Date: 2010-01-12 16:58-0000\n"
-"Last-Translator: Petra <petra.schwarczova@live.co.uk>\n"
+"POT-Creation-Date: 2009-12-09 09:22 +0000\n"
+"PO-Revision-Date: 2010-01-14 10:38+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -36,7 +36,7 @@ msgstr ""
 #. It doesn't matter what you translate it to: it's not used at all.
 #. (None)
 msgid "@@image: 'images/svn_move.png'; md5=THIS FILE DOESN'T EXIST"
-msgstr "@@image: 'images/svn_move.png'; md5=THIS FILE DOESN'T EXIST"
+msgstr ""
 
 #. (title)
 #. (secondary)
@@ -90,7 +90,7 @@ msgstr "Pracujete v tíme?"
 
 #. (para)
 msgid "Has it ever happened that you were working on a file, and someone else was working on the same file at the same time? Did you lose your changes to that file because of that?"
-msgstr "Už sa vám stalo, že ste pracovali na súbore a niekto iný pracoval na tom istom súbore v tom istom čase? Stratili ste už zmeny z takéhoto dôvodu?"
+msgstr "Už sa vám stalo, 6e ste pracovali na súbore a niekto iný pracoval na tom istom súbore v tom istom čase? Stratili ste už zmeny z takéhoto dôvodu?"
 
 #. (para)
 msgid "Have you ever saved a file, and then wanted to revert the changes you made? Have you ever wished you could see what a file looked like some time ago?"
@@ -98,7 +98,7 @@ msgstr "Už sa vám niekedy stalo, že ste uložili zmeny a potom ste chceli zme
 
 #. (para)
 msgid "Have you ever found a bug in your project and wanted to know when that bug got into your files?"
-msgstr "Už ste niekedy našli chybu v projekte a chceli ste vedieť kedy sa dostala do vašich súborov?"
+msgstr "Už ste niekedy našli chybu v projekte a chceli ste vedieť kedy sa dostal sa dostala do vašich súborov?"
 
 #. (para)
 msgid "If you answered <quote>yes</quote> to one of these questions, then TortoiseSVN is for you! Just read on to find out how TortoiseSVN can help you in your work. It's not that difficult."
@@ -128,7 +128,7 @@ msgstr "<emphasis>Úvod</emphasis> Vysvetluje čo TortoiseSVN je, čo robí, odk
 
 #. (para)
 msgid "In <xref linkend=\"tsvn-basics\"/> we give a short introduction to the <emphasis>Subversion</emphasis> revision control system which underlies TortoiseSVN. This is borrowed from the documentation for the Subversion project and explains the different approaches to version control, and how Subversion works."
-msgstr "V <xref linkend=\"tsvn-basics\"/> dávame krátky úvod do správy verzií <emphasis>Subversion</emphasis>, ktoré je pod TortoiseSVN. Tento úvod je prevzatý z dokumentácie k Subversion a vysvetľujne rôzne prístupy k správe verziíí, a ako funguje Subversion."
+msgstr ""
 
 #. (para)
 #, fuzzy
@@ -142,15 +142,15 @@ msgstr "<emphasis>Sprievodca denním pouťívaním</emphasis> je najdôležiteľ
 
 #. (para)
 msgid "<xref linkend=\"tsvn-subwcrev\"/> is a separate program included with TortoiseSVN which can extract the information from your working copy and write it into a file. This is useful for including build information in your projects."
-msgstr "<xref linkend=\"tsvn-subwcrev\"/> je samostatný program zahrnutý v TortoiseSVN, ktorý može extrahovať informácie z vašej pracovnej kópie do súboru. Toto je užitočné pre vkladanie informácií o revízií do prekladu."
+msgstr ""
 
 #. (para)
 msgid "The <xref linkend=\"tsvn-howto\"/> section answers some common questions about performing tasks which are not explicitly covered elsewhere."
-msgstr "Sekcia<xref linkend=\"tsvn-howto\"/> odpovedá ne niektoré časté otázky o vykonávaní úloh, ktoré niesú popísane inde."
+msgstr ""
 
 #. (para)
 msgid "The section on <xref linkend=\"tsvn-automation\"/> shows how the TortoiseSVN GUI dialogs can be called from the command line. This is useful for scripting where you still need user interaction."
-msgstr "Sekcia <xref linkend=\"tsvn-automation\"/> ukazuje ako TortoiseSVN GUI dialógy môžu byť volané z príkazového riadka. Tot je výhodné pri skriptoch, ktoré potrebujú interakciu s užívateľom."
+msgstr ""
 
 #. (para)
 #, fuzzy
@@ -212,7 +212,7 @@ msgstr "Simon Large"
 
 #. (para)
 msgid "for helping with the documentation and bug hunting"
-msgstr "za pomoc s dokumentaciou a hľadanie chýb"
+msgstr ""
 
 #. (term)
 msgid "The Subversion Book"
@@ -256,21 +256,19 @@ msgstr "Aby bolo čítanie manuálu jednoduchšie mená obrazoviek a Menu Tortoi
 
 #. (para)
 msgid "A menu choice is indicated with an arrow. <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Show Log</guimenuitem></menuchoice> means: select <emphasis>Show Log</emphasis> from the <emphasis>TortoiseSVN</emphasis> context menu."
-msgstr "Položka menu je zobrazená šípkou. <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Zobraziť denník</guimenuitem></menuchoice> znamená: vyberte<emphasis>Zobraziť denník</emphasis> z kontextového menu <emphasis>TortoiseSVN</emphasis>."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "Where a local context menu appears within one of the TortoiseSVN dialogs, it is shown like this: <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Save As ...</guimenuitem></menuchoice>"
-msgstr "Tam, kde miestny Kontextové menu sa objaví v jednej z TortoiseSVN dialogs, je preukázané, takhle: <menuchoice> <guimenu> Kontext Menu </ guimenu> <guimenuitem> Save As ...</ guimenuitem> </ menuchoice>"
+msgstr ""
 
 #. (para)
 msgid "User Interface Buttons are indicated like this: Press <guibutton>OK</guibutton> to continue."
-msgstr "Tlačitka Uživateľského rozhrania sú zobrazené: Stlačte <guibutton>OK</guibutton> pre pokračovanie."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "User Actions are indicated using a bold font. <keycap>Alt+A</keycap>: press the <keycap>Alt</keycap>-Key on your keyboard and while holding it down press the <keycap>A</keycap>-Key as well. <action>Right-drag</action>: press the right mouse button and while holding it down <emphasis>drag</emphasis> the items to the new location."
-msgstr "Užívateľské akcie sú vyznačené tučným písmom použitia písma. <keycap> Alt + A </ keycap>: stlačte <keycap> Alt </ keycap>-Key na klávesnici a zároveň hospodárstva nadol stlačte <keycap> A </ keycap>-Key rovnako. <action> Right-přetáhnout </ akcie>: stlačte pravé tlačidlo myši a zároveň hospodárstva to <emphasis> pretiahnite </ dôrazom> položky do nového umiestnenia."
+msgstr ""
 
 #. (para)
 msgid "System output and keyboard input is indicated with a <literal>different</literal> font as well."
@@ -303,23 +301,20 @@ msgid "version control"
 msgstr "správa verzií"
 
 #. (para)
-#, fuzzy
 msgid "Version control is the art of managing changes to information. It has long been a critical tool for programmers, who typically spend their time making small changes to software and then undoing or checking some of those changes the next day. Imagine a team of such developers working concurrently - and perhaps even simultaneously on the very same files! - and you can see why a good system is needed to <emphasis>manage the potential chaos</emphasis>."
-msgstr "Verzií je umenie riadenia zmien k informáciám. Má dlhú dobu rozhodujúci nástroj pre programátorov, ktorí zvyčajne trávia svoj čas tomu, aby malé zmeny na softvér a potom skaze alebo kontroly niektorých týchto zmien na ďalší deň. Predstavte si, že takýto tím vývojárov pracujúcich súčasne - a snáď i súčasne na rovnaké súbory! - A vidíte, prečo je dobré systém je potrebný pre <emphasis> spravovať potenciálny chaos </ dôrazom>."
+msgstr ""
 
 #. (title)
 msgid "What is TortoiseSVN?"
 msgstr "Čo je TortoiseSVN?"
 
 #. (para)
-#, fuzzy
 msgid "TortoiseSVN is a free open-source client for the <firstterm>Subversion</firstterm> version control system. That is, TortoiseSVN manages files and directories over time. Files are stored in a central <firstterm>repository</firstterm>. The repository is much like an ordinary file server, except that it remembers every change ever made to your files and directories. This allows you to recover older versions of your files and examine the history of how and when your data changed, and who changed it. This is why many people think of Subversion and version control systems in general as a sort of <quote>time machine</quote>."
-msgstr "	TortoiseSVN je bezplatný open-source klient pre <firstterm> Subversion </ firstterm> verzií systému. To znamená, že TortoiseSVN spravuje súbory a adresáre v priebehu času. Súbory sú uložené v centrálnom depozitári <firstterm> </ firstterm>. Úložisko je rovnako ako bežné file server, s výnimkou, že si pamätá každú zmenu vôbec predložené vaše súbory a adresáre. To vám umožní obnoviť staršie verzie vašich súborov a skúmať históriu, ako a kedy sa údaje zmenia, a kto to zmenil. To je dôvod, prečo mnoho ľudí napadne Subversion verzie a kontrolné systémy všeobecne ako akýsi stroj času <quote> </ quote>."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "Some version control systems are also software configuration management (SCM) systems. These systems are specifically tailored to manage trees of source code, and have many features that are specific to software development - such as natively understanding programming languages, or supplying tools for building software. Subversion, however, is not one of these systems; it is a general system that can be used to manage <emphasis>any</emphasis> collection of files, including source code."
-msgstr "Niektoré verzie systémov kontroly sú aj softvérové konfiguračnej management (SCM) systémov. Tieto systémy sú špeciálne prispôsobené pre správu stromy zdrojový kód, a majú mnoho vlastností, ktoré sú špecifické pre vývoj software - napríklad nativně pochopenie programovacích jazykov alebo dodávajúce nástroje pre budovanie softvéru. Subversion je však ani jeden z týchto systémov, ale je všeobecný systém, ktorý môže byť použitý k správe akéhokoľvek <emphasis> </ dôrazom> kolekciu súborov, vrátane zdrojového kódu."
+msgstr ""
 
 #. (title)
 msgid "TortoiseSVN's History"
@@ -358,13 +353,12 @@ msgid "explorer"
 msgstr "explorer"
 
 #. (para)
-#, fuzzy
 msgid "TortoiseSVN integrates seamlessly into the Windows shell (i.e. the explorer). This means you can keep working with the tools you're already familiar with. And you do not have to change into a different application each time you need functions of the version control!"
-msgstr "TortoiseSVN hladko integruje do systému Windows (tj Explorer). To znamená, že môžete ďalej pracovať s nástrojmi ste už oboznámení s. A nemusíte meniť do inej aplikácie zakaždým budete potrebovať funkcie pre riadenie verzií!"
+msgstr ""
 
 #. (para)
 msgid "And you are not even forced to use the Windows Explorer. TortoiseSVN's context menus work in many other file managers, and in the File/Open dialog which is common to most standard Windows applications. You should, however, bear in mind that TortoiseSVN is intentionally developed as extension for the Windows Explorer. Thus it is possible that in other applications the integration is not as complete and e.g. the icon overlays may not be shown."
-msgstr "A nie ste ani nútení používař Windows Explorer. Kontextové TortoiseSVN's menu pracuje v mnohých iných súborových managéroch a v dialógoch Súbor/Otvoriž, ktorý je vo väčšine štandarných aplikáciach pre Windows. Mali by ste však mať na zretely, že TortoiseSVN je predovšetkým vyvýjaný ako rozšírenie pre Windows Explorer. Takže je možné, že nie všetky funkcie budú prístupné v iných aplikáciach napr. prekrývacie ikonky nemusia byť zobrazené."
+msgstr ""
 
 #. (term)
 msgid "Icon overlays"
@@ -420,24 +414,20 @@ msgid "Subversion has an abstracted notion of repository access, making it easy 
 msgstr "Subversion má abstraktný náhľad prístupu k úložisku, čo robí implementovanie nových sieťových mechanizmov ľahkým. Subversion <quote>advanced</quote> sieťový server je modul pre Apache server, ktorý komunikuje pomocou WebDAL/DeltaV - variantom HTTP. Toto dáva Subversion veľkú výhodu v stabilite a ... a poskytuje rôzne kľúčové vlastnosti; autentifikáciu, autorizáciu, kompresiu prenosu, prehliadanie úložiska. Menší samostatný Subversion server je tiež dostupný. Tento server používa vlastný protokol a môže byť jednoducho tunelovaný cez ssh."
 
 #. (term)
-#, fuzzy
 msgid "Consistent data handling"
-msgstr "Dôsledné spracovanie dát"
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "Subversion expresses file differences using a binary differencing algorithm, which works identically on both text (human-readable) and binary (human-unreadable) files. Both types of files are stored equally compressed in the repository, and differences are transmitted in both directions across the network."
-msgstr "Subversion vyjadruje súbor rozdielov pomocou binárnych differencing algoritmu, ktorý pracuje zhodne v oboch text (ľudský-čitateľný) a binárne (ľudské-nečitateľné) súbory. Oba typy súborov sú uložené rovnomerne stlačený na úložisko, a rozdiely sú prenášané v oboch smeroch cez sieť."
+msgstr ""
 
 #. (term)
-#, fuzzy
 msgid "Efficient branching and tagging"
-msgstr "Efektívne vetvenia a tagování"
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "The cost of branching and tagging need not be proportional to the project size. Subversion creates branches and tags by simply copying the project, using a mechanism similar to a hard-link. Thus these operations take only a very small, constant amount of time, and very little space in the repository."
-msgstr "Náklady na vetvenia a tagování nemusia byť úmerné veľkosti projektu. Subversion vytvára konáre a tagy jednoduchým kopírovaním projektu pomocou mechanizmu podobné hard-link. Preto táto operácia môže trvať len veľmi malé, konštantné množstvo času, a veľmi malý priestor v depozitári."
+msgstr ""
 
 #. (term)
 msgid "Hackability"
@@ -472,9 +462,8 @@ msgid "install"
 msgstr "inštalovať"
 
 #. (para)
-#, fuzzy
 msgid "TortoiseSVN comes with an easy to use installer. Double click on the installer file and follow the instructions. The installer will take care of the rest."
-msgstr "TortoiseSVN prichádza sa ľahko použiť inštalátor. Dvakrát kliknite na inštalačný súbor a postupujte podľa pokynov. Instalátor sa postará o zvyšok."
+msgstr ""
 
 #. (para)
 msgid "You need Administrator privileges to install TortoiseSVN."
@@ -493,14 +482,12 @@ msgid "translations"
 msgstr "preklady"
 
 #. (para)
-#, fuzzy
 msgid "The TortoiseSVN user interface has been translated into many different languages, so you may be able to download a language pack to suit your needs. You can find the language packs on our <ulink url=\"http://tortoisesvn.net/translation_status\"><citetitle>translation status page</citetitle></ulink>. And if there is no language pack available yet, why not join the team and submit your own translation ;-)"
-msgstr "TortoiseSVN je používateľské rozhranie bola preložená do mnohých jazykov, takže budete mať možnosť stiahnuť jazykový balík, aby vyhovoval vašim potrebám. Môžete nájsť na našich jazykových balíčkov <ulink url=\"http://tortoisesvn.net/translation_status\"> <citetitle> translation status page </ citetitle> </ ulink>. A ak nie je žiadny jazykový balík k dispozícii, nie je dôvod, prečo sa pripojiť k tímu a predloží vlastný preklad ;-)"
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "Each language pack is packaged as a <literal>.exe</literal> installer. Just run the install program and follow the instructions. Next time you restart, the translation will be available."
-msgstr "Každý jazykový balík je zabalený ako <literal>. Exe </ doslovný> inštalátor. Stačí spustiť inštalačný program a postupujte podľa pokynov. Příště nereštartujete, preklad bude k dispozícii."
+msgstr ""
 
 #. (title)
 msgid "Spellchecker"
@@ -515,19 +502,16 @@ msgid "dictionary"
 msgstr "slovník"
 
 #. (para)
-#, fuzzy
 msgid "TortoiseSVN includes a spell checker which allows you to check your commit log messages. This is especially useful if the project language is not your native language. The spell checker uses the same dictionary files as <ulink url=\"http://openoffice.org\"><citetitle>OpenOffice</citetitle></ulink> and <ulink url=\"http://mozilla.org\"><citetitle>Mozilla</citetitle></ulink>."
 msgstr "TortoiseSVN patrí kontrola pravopisu, ktorá vám umožní skontrolovať commit log správ. To je obzvlášť užitočné v prípade, že projekt jazyk nie je váš rodný jazyk. Táto kontrola pravopisu používa rovnaký slovník súbory <ulink url=\"http://openoffice.org\"> <citetitle>OpenOffice</citetitle> </ulink> a <ulink url=\"http://mozilla.org\"> <citetitle>Mozilla</citetitle> </ulink>."
 
 #. (para)
-#, fuzzy
 msgid "The installer automatically adds the US and UK English dictionaries. If you want other languages, the easiest option is simply to install one of TortoiseSVN's language packs. This will install the appropriate dictionary files as well as the TortoiseSVN local user interface. Next time you restart, the dictionary will be available too."
-msgstr "Inštalátor automaticky pridá USA a britská angličtina slovníkov. Ak chcete, aby ostatné jazyky, najjednoduchšie možnosťou je jednoducho nainštalovať jeden z TortoiseSVN jazyku balenia. To bude inštalovať zodpovedajúci slovník súbory rovnako ako TortoiseSVN miestneho používateľského rozhrania. Příště vám reštartu slovníka bude k dispozícii tiež."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "Or you can install the dictionaries yourself. If you have OpenOffice or Mozilla installed, you can copy those dictionaries, which are located in the installation folders for those applications. Otherwise, you need to download the required dictionary files from <ulink url=\"http://wiki.services.openoffice.org/wiki/Dictionaries\"><citetitle>http://wiki.services.openoffice.org/wiki/Dictionaries</citetitle></ulink>"
-msgstr "Alebo si môžete nainštalovať slovníky sami. Máte-li OpenOffice alebo Mozilla nainštalovaná, môžete kópiu tých slovníkov, ktoré sú umiestnené v inštalačného priečinka pre tieto aplikácie. V opačnom prípade je potrebné stiahnuť požadované súbory z slovníka <ulink url=\"http://wiki.services.openoffice.org/wiki/Dictionaries\"> <citetitle> http://wiki.services.openoffice.org/ wiki / Slovníky </ citetitle> </ ulink>"
+msgstr ""
 
 #. (filename)
 msgid "en_US.aff"
@@ -538,34 +522,28 @@ msgid "en_US.dic"
 msgstr "en_US.dic"
 
 #. (para)
-#, fuzzy
 msgid "Once you have got the dictionary files, you probably need to rename them so that the filenames only have the locale chars in it. Example: <placeholder-1/> Then just copy them to the <filename>bin</filename> sub-folder of the TortoiseSVN installation folder. Normally this will be <filename>C:\\Program Files\\TortoiseSVN\\bin</filename>. If you don't want to litter the <filename>bin</filename> sub-folder, you can instead place your spell checker files in <filename>C:\\Program Files\\TortoiseSVN\\Languages</filename>. If that folder isn't there, you have to create it first. The next time you start TortoiseSVN, the spell checker will be available."
 msgstr "Akonáhle máte slovníka súbory, budete pravdepodobne musieť premenovať tak, že súbory majú iba locale znakov v nej. Príklad: <placeholder-1/> Potom stačí skopírovať do <filename>bin</filename> sub-zložky z TortoiseSVN inštalačný priečinok. Obyčajne to bude <filename>C:\\Program Files\\TortoiseSVN\\bin </filename>. Ak nechcete, aby sa odpadky <filename>bin</filename> sub-zložky, môžete miesto umiestniť kontrola pravopisu súborov v <filename>C:\\Program Files\\TortoiseSVN\\jazyky</filename>. V prípade, že zložka nie je tam, musíte ho najprv vytvoriť. Pri ďalšom spustení TortoiseSVN, že kontrola pravopisu je k dispozícii."
 
 #. (para)
-#, fuzzy
 msgid "Check the <literal>tsvn:projectlanguage</literal> setting. Refer to <xref linkend=\"tsvn-dug-propertypage\"/> for information about setting project properties."
-msgstr "Skontrolujte <literal> tsvn: projectlanguage </ doslovný> nastavenia. Odkazujú na <xref linkend=\"tsvn-dug-propertypage\"/> informácie o nastavenia vlastností projektu."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "If no project language is set, or that language is not installed, try the language corresponding to the Windows locale."
-msgstr "Nebude-li projekt je nastavený jazyk, alebo že jazyk nie je nainštalovaný, skúste jazyka zodpovedajúce Windows locale."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "If the exact Windows locale doesn't work, try the <quote>Base</quote> language, eg. <literal>de_CH</literal> (Swiss-German) falls back to <literal>de_DE</literal> (German)."
-msgstr "Ak presné locale Windows nefunguje, skúste <quote> základné </ quote> jazyka, napr. <literal> de_CH </ doslovný> (Švajčiarsko-nemecká verzia) padá späť na <literal> de_DE </ doslovný> (nemecky)."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "If none of the above works, then the default language is English, which is included with the standard installation."
-msgstr "Ak žiadny z vyššie uvedených prác, potom je východiskovým jazykom je angličtina, ktorá je súčasťou štandardnej inštalácie."
+msgstr ""
 
 #. (para)
-#, fuzzy
 msgid "If you install multiple dictionaries, TortoiseSVN uses these rules to select which one to use. <placeholder-1/>"
-msgstr "	Ak budete inštalovať viac slovníkov, TortoiseSVN použitie týchto pravidiel na výber, ktorý z nich použiť. <placeholder-1/>"
+msgstr ""
 
 #. (title)
 msgid "Basic Version-Control Concepts"
@@ -1393,6 +1371,7 @@ msgid "checkout link"
 msgstr ""
 
 #. (primary)
+#, fuzzy
 msgid "TortoiseSVN link"
 msgstr "TortoiseSVN link"
 
@@ -3190,8 +3169,9 @@ msgid "update"
 msgstr "aktualizovať"
 
 #. (primary)
+#, fuzzy
 msgid "fetch changes"
-msgstr "získanie zmeny"
+msgstr "exportovať zmeny"
 
 #. (title)
 msgid "Progress dialog showing finished update"
@@ -4126,8 +4106,9 @@ msgid "You can <emphasis>undo the undo</emphasis> as described above in <guilabe
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Merge revision to..."
-msgstr "Zlúčiť revíziu do..."
+msgstr "revízia"
 
 #. (para)
 msgid "Merge the selected revision(s) into a different working copy. A folder selection dialog allows you to choose the working copy to merge into, but after that there is no confirmation dialog, nor any opportunity to try a test merge. It is a good idea to merge into an unmodified working copy so that you can revert the changes if it doesn't work out! This is a useful feature if you want to merge selected revisions from one branch to another."
@@ -4178,8 +4159,9 @@ msgstr ""
 
 #. (term)
 #. (term)
+#, fuzzy
 msgid "Search log messages..."
-msgstr "Vyhľadať správy denníka..."
+msgstr "Zásoba správ denníka"
 
 #. (para)
 msgid "Search log messages for the text you enter. This searches the log messages that you entered and also the action summaries created by Subversion (shown in the bottom pane). The search is not case sensitive."
@@ -4250,14 +4232,16 @@ msgid "The Log Dialog Bottom Pane with Context Menu"
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show changes"
-msgstr "Zobraziť zmeny"
+msgstr "exportovať zmeny"
 
 #. (para)
 msgid "Show changes made in the selected revision for the selected file. This context menu is only available for files shown as <emphasis>modified</emphasis>."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Blame changes"
 msgstr "Obviniť zmeny"
 
@@ -4266,8 +4250,9 @@ msgid "Blame the selected revision and the previous revision for the selected fi
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show as unified diff"
-msgstr ""
+msgstr "obrázkové porovnaie"
 
 #. (para)
 msgid "Show file changes in unified diff format. This context menu is only available for files shown as <emphasis>modified</emphasis>."
@@ -4287,8 +4272,9 @@ msgid "Revert the changes made to the selected file in that revision."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show properties"
-msgstr "Zobraziť vlastnosti"
+msgstr "vlastnosti"
 
 #. (para)
 msgid "View the Subversion properties for the selected item."
@@ -4304,8 +4290,9 @@ msgid "Show the revision log for the selected single file."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Get merge logs"
-msgstr ""
+msgstr "Použitie dialógu spájania"
 
 #. (para)
 msgid "Show the revision log for the selected single file, including merged changes. Find out more in <xref linkend=\"tsvn-dug-showlog-mergetrack\"/>."
@@ -4393,7 +4380,7 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr ""
 
 #. (para)
-msgid "By default this only works for files. This is because the update revision for a folder may not correspond to the update revision of its content, and the only way to find the effective update revision for the folder is to crawl the working copy. This can be a slow operation for large working copies so if you want to enable this feature you must create a <literal>DWORD</literal> registry key with value 1 at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>."
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
 msgstr ""
 
 #. (title)
@@ -4401,8 +4388,9 @@ msgid "Merge Tracking Features"
 msgstr ""
 
 #. (primary)
+#, fuzzy
 msgid "merge tracking log"
-msgstr ""
+msgstr "Dialóg zamykania"
 
 #. (para)
 msgid "Subversion 1.5 and later keeps a record of merges using properties. This allows us to get a more detailed history of merged changes. For example, if you develop a new feature on a branch and then merge that branch back to trunk, the feature development will show up on the trunk log as a single commit for the merge, even though there may have been 1000 commits during branch development."
@@ -4429,12 +4417,14 @@ msgid "edit log/author"
 msgstr "úpravava denníka/autora"
 
 #. (primary)
+#, fuzzy
 msgid "revision properties"
-msgstr "Vlastnosti revízie"
+msgstr "Vlastnosti Subversion"
 
 #. (primary)
+#, fuzzy
 msgid "revprops"
-msgstr "revprops"
+msgstr "Prehliadač úložiska"
 
 #. (para)
 msgid "Revision properties are completely different from the Subversion properties of each item. Revprops are descriptive items which are associated with one specific revision number in the repository, such as log message, commit date and committer name (author)."
@@ -5009,8 +4999,9 @@ msgid "copy files"
 msgstr "kopírovať súbory"
 
 #. (primary)
+#, fuzzy
 msgid "rename files"
-msgstr "premenovať súbory"
+msgstr "premenovať"
 
 #. (primary)
 msgid "move files"
@@ -5051,8 +5042,9 @@ msgid "You can also use the repository browser to locate content you want, and c
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "Cannot copy between repositories"
-msgstr "Medzi úložiskami nie je mozné kopírovať"
+msgstr "externé úložiská"
 
 #. (para)
 msgid "Whilst you can copy and files and folders <emphasis>within</emphasis> a repository, you <emphasis>cannot</emphasis> copy or move from one repository to another while preserving history using TortoiseSVN. Not even if the repositories live on the same server. All you can do is copy the content in its current state and add it as new content to the second repository."
@@ -5283,8 +5275,9 @@ msgid "Changing case in a filename"
 msgstr ""
 
 #. (primary)
+#, fuzzy
 msgid "case change"
-msgstr ""
+msgstr "Miestne zmeny"
 
 #. (para)
 msgid "Making case-only changes to a filename is tricky with Subversion on Windows, because for a short time during a rename, both filenames have to exist. As Windows has a case-insensitive file system, this does not work using the usual Rename command."
@@ -5480,6 +5473,7 @@ msgid "Subversion Properties"
 msgstr "Vlastnosti Subversion"
 
 #. (primary)
+#, fuzzy
 msgid "Subversion properties"
 msgstr "Vlastnosti Subversion"
 
@@ -5504,8 +5498,9 @@ msgid "keywords"
 msgstr "Kľúčové slová"
 
 #. (primary)
+#, fuzzy
 msgid "expand keywords"
-msgstr "rozšíriť kľúčové slová"
+msgstr "Kľúčové slová"
 
 #. (para)
 msgid "Date of last known commit. This is based on information obtained when you update your working copy. It does <emphasis>not</emphasis> check the repository to find more recent changes."
@@ -5656,12 +5651,14 @@ msgid "If there's a conflict on committing the changes, because another user has
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "TortoiseSVN Project Properties"
-msgstr "TortoiseSVN Vlastnosti projektu"
+msgstr "TortoiseSVN Vlastnosti"
 
 #. (primary)
+#, fuzzy
 msgid "project properties"
-msgstr "Vlastnosti projektu"
+msgstr "Vlastnosť projektu"
 
 #. (primary)
 msgid "TortoiseSVN properties"
@@ -5716,18 +5713,6 @@ msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everythi
 msgstr ""
 
 #. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr ""
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr ""
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr ""
-
-#. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
 msgstr ""
 
@@ -5749,8 +5734,9 @@ msgid "It can also integrate with some web-based repository browsers, using proj
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "Set the project properties on folders"
-msgstr "Nastavenie vlastnosti projektu na adresáre"
+msgstr "Vlastnosť projektu"
 
 #. (para)
 msgid "These special project properties must be set on <emphasis>folders</emphasis> for the system to work. When you commit a file or folder the properties are read from that folder. If the properties are not found there, TortoiseSVN will search upwards through the folder tree to find them until it comes to an unversioned folder, or the tree root (eg. <literal>C:\\</literal>) is found. If you can be sure that each user checks out only from e.g <filename>trunk/</filename> and not some sub-folder, then it is sufficient to set the properties on <filename>trunk/</filename>. If you can't be sure, you should set the properties recursively on each sub-folder. A property setting deeper in the project hierarchy overrides settings on higher levels (closer to <filename>trunk/</filename>)."
@@ -5769,8 +5755,9 @@ msgid "Although TortoiseSVN's project properties are extremely useful, they only
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "External Items"
-msgstr "externé objekty"
+msgstr "externé"
 
 #. (primary)
 msgid "external repositories"
@@ -5786,8 +5773,9 @@ msgid "Sometimes it is useful to construct a working copy that is made out of a 
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "External Folders"
-msgstr "externé adresáre"
+msgstr "externé"
 
 #. (para)
 msgid ""
@@ -6158,8 +6146,9 @@ msgid "Merging a Range of Revisions"
 msgstr "Zlučenie rozshahu revízií"
 
 #. (secondary)
+#, fuzzy
 msgid "revision range"
-msgstr "rozsah revízií"
+msgstr "revízia"
 
 #. (title)
 msgid "The Merge Wizard - Select Revision Range"
@@ -6975,16 +6964,18 @@ msgid "Items which have been added, or created by copying another file/folder ar
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Deleted items"
-msgstr "Vymazané objekty"
+msgstr "Vymazaný uzol"
 
 #. (para)
 msgid "Deleted items eg. a branch which is no longer required, are shown using an octagon (rectangle with corners cut off). The default colour is red."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Renamed items"
-msgstr "Premenované objekty"
+msgstr "premenovať"
 
 #. (para)
 msgid "Renamed items are also shown using an octagon, but the default colour is blue."
@@ -7087,16 +7078,18 @@ msgid "Long path names can take a lot of space and make the node boxes very larg
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show all revisions"
-msgstr "Zobraziť všetky revízie"
+msgstr "Hlavná revízia"
 
 #. (para)
 msgid "This does just what you expect and shows every revision where something (in the tree that you are graphing) has changed. For long histories this can produce a truly huge graph."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show HEAD revisions"
-msgstr "Zobraziť HEAD(Hlavné) revízie"
+msgstr "Hlavná revízia"
 
 #. (para)
 msgid "This ensures that the latest revision on every branch is always shown on the graph."
@@ -7135,16 +7128,18 @@ msgid "Hides branches where no changes were committed to the respective file or 
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show WC revision"
-msgstr "Zobraziť revíziu WC(pracovná kópia)"
+msgstr "Hlavná revízia"
 
 #. (para)
 msgid "Marks the revision on the graph which corresponds to the update revision of the item you fetched the graph for. If you have just updated, this will be HEAD, but if others have committed changes since your last update your WC may be a few revisions lower down. The node is marked by giving it a bold outline."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Show WC modifications"
-msgstr "Zobraziť zmeny WC(pracovná kópia)"
+msgstr "zmeny"
 
 #. (para)
 msgid "If your WC contains local changes, this option draws it as a separate elliptical node, linked back to the node that your WC was last updated to. The default outline colour is red. You may need to refresh the graph using <keycap>F5</keycap> to capture recent changes."
@@ -7297,8 +7292,9 @@ msgid "When exporting from a working copy, if the target folder already contains
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "Exporting single files"
-msgstr "Exportovanie jednotlivých súborov"
+msgstr "Vlastnosti Subversion"
 
 #. (para)
 msgid "The export dialog does not allow exporting single files, even though Subversion can."
@@ -7348,8 +7344,9 @@ msgid "URL changed"
 msgstr "zmenená URL"
 
 #. (primary)
+#, fuzzy
 msgid "repository URL changed"
-msgstr "zmenený URL úložiska"
+msgstr "URL úložiska"
 
 #. (primary)
 msgid "server moved"
@@ -7421,6 +7418,7 @@ msgid "issue tracker"
 msgstr ""
 
 #. (primary)
+#, fuzzy
 msgid "bugtracker"
 msgstr "sledovanie chýb"
 
@@ -7609,12 +7607,14 @@ msgid "repo viewer"
 msgstr "Prezerač úložiska"
 
 #. (primary)
+#, fuzzy
 msgid "ViewVC"
-msgstr "ViewVC"
+msgstr "ViewCS"
 
 #. (primary)
+#, fuzzy
 msgid "WebSVN"
-msgstr "WebSVN"
+msgstr "WebDAV"
 
 #. (para)
 msgid "There are several web-based repository viewers available for use with Subversion such as <ulink url=\"http://www.viewvc.org/\"><citetitle>ViewVC</citetitle></ulink> and <ulink url=\"http://websvn.tigris.org/\"><citetitle>WebSVN</citetitle></ulink>. TortoiseSVN provides a means to link with these viewers."
@@ -8075,16 +8075,18 @@ msgid "The original item has been deleted and a new item with the same name repl
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "Revision Graph Settings"
-msgstr "Nastavenia grafu revizií"
+msgstr "Uzly grafu revizií"
 
 #. (title)
 msgid "The Settings Dialog, Revision Graph Page"
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Classification Patterns"
-msgstr ""
+msgstr "HasModifications"
 
 #. (para)
 msgid "The revision graph attempts to show a clearer picture of your repository structure by distinguishing between trunk, branches and tags. As there is no such classification built into Subversion, this information is extracted from the path names. The default settings assume that you use the conventional English names as suggested in the Subversion documentation, but of course your usage may vary."
@@ -8104,8 +8106,9 @@ msgid "Colors are used in the revision graph to indicate the node type, i.e. whe
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "Revision Graph Colors"
-msgstr "Farby grafu revízií"
+msgstr "Graf revízií"
 
 #. (title)
 msgid "The Settings Dialog, Revision Graph Colors Page"
@@ -8116,6 +8119,7 @@ msgid "<placeholder-1/> This page allows you to configure the colors used. Note 
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Deleted Node"
 msgstr "Vymazaný uzol"
 
@@ -8124,6 +8128,7 @@ msgid "Items which have been deleted and not copied anywhere else in the same re
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Added Node"
 msgstr "Pridaný uzlol"
 
@@ -8132,6 +8137,7 @@ msgid "Items newly added, or copied (add with history)."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Renamed Node"
 msgstr "Premenovaný uzol"
 
@@ -8140,24 +8146,27 @@ msgid "Items deleted from one location and added in another in the same revision
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Modified Node"
-msgstr "Zmenený Uzol"
+msgstr "zmenené / skopírované"
 
 #. (para)
 msgid "Simple modifications without any add or delete."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "Unchanged Node"
-msgstr "Nezmenený Uzol"
+msgstr "Nezmenený a aktuálny"
 
 #. (para)
 msgid "May be used to show the revision used as the source of a copy, even when no change (to the item being graphed) took place in that revision."
 msgstr ""
 
 #. (term)
+#, fuzzy
 msgid "HEAD node"
-msgstr "Hlavný (HEAD) uzlol"
+msgstr "Pridaný uzlol"
 
 #. (para)
 #, fuzzy
@@ -9192,7 +9201,7 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr ""
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. If you want to enable this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
 msgstr ""
 
 #. (term)
@@ -9826,6 +9835,245 @@ msgid "The following example shows how the interface might be used. <placeholder
 msgstr ""
 
 #. (title)
+msgid "IBugtraqProvider interface"
+msgstr ""
+
+#. (primary)
+msgid "plugin"
+msgstr ""
+
+#. (primary)
+msgid "IBugtraqProvider"
+msgstr ""
+
+#. (para)
+msgid "To get a tighter integration with issue trackers than by simply using the <literal>bugtraq:</literal> properties, TortoiseSVN can make use of COM plugins. With such plugins it is possible to fetch information directly from the issue tracker, interact with the user and provide information back to TortoiseSVN about open issues, verify log messages entered by the user and even run actions after a successful commit to e.g, close an issue."
+msgstr ""
+
+#. (para)
+msgid "We can't provide information and tutorials on how you have to implement a COM object in your preferred programming language, but we have example plugins in C++/ATL and C# in our repository in the <filename>contrib/issue-tracker-plugins</filename> folder. In that folder you can also find the required include files you need to build your plugin. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
+msgstr ""
+
+#. (title)
+msgid "The IBugtraqProvider interface"
+msgstr ""
+
+#. (para)
+msgid "TortoiseSVN 1.5 can use plugins which implement the IBugtraqProvider interface. The interface provides a few methods which plugins can use to interact with the issue tracker."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT ValidateParameters (\n"
+"  // Parent window for any UI that needs to be\n"
+"  // displayed during validation.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The parameter string that needs to be validated.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // Is the string valid?\n"
+"  [out, retval] VARIANT_BOOL *valid\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog where the user can add and configure the plugin. The <literal>parameters</literal> string can be used by a plugin to get additional required information, e.g., the URL to the issue tracker, login information, etc. The plugin should verify the <literal>parameters</literal> string and show an error dialog if the string is not valid. The <literal>hParentWnd</literal> parameter should be used for any dialog the plugin shows as the parent window. The plugin must return TRUE if the validation of the <literal>parameters</literal> string is successful. If the plugin returns FALSE, the settings dialog won't allow the user to add the plugin to a working copy path."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetLinkText (\n"
+"  // Parent window for any (error) UI that needs to be displayed.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The parameter string, just in case you need to talk to your\n"
+"  // web service (e.g.) to find out what the correct text is.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // What text do you want to display?\n"
+"  // Use the current thread locale.\n"
+"  [out, retval] BSTR *linkText\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> The plugin can provide a string here which is used in the TortoiseSVN commit dialog for the button which invokes the plugin, e.g., \"Choose issue\" or \"Select ticket\". Make sure the string is not too long, otherwise it might not fit into the button. If the method returns an error (e.g., <literal>E_NOTIMPL</literal>), a default text is used for the button."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetCommitMessage (\n"
+"  // Parent window for your provider's UI.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  // Your provider should include this text in the new message,\n"
+"  // where appropriate.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+"  // The new text for the commit message.\n"
+"  // This replaces the original message.\n"
+"  [out, retval] BSTR *newMessage\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This is the main method of the plugin. This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. The <literal>parameters</literal> string is the string the user has to enter in the settings dialog when he configures the plugin. Usually a plugin would use this to find the URL of the issue tracker and/or login information or more. The <literal>commonRoot</literal> string contains the parent path of all items selected to bring up the commit dialog. Note that this is <emphasis>not</emphasis> the root path of all items which the user has selected in the commit dialog. The <literal>pathList</literal> parameter contains an array of paths (as strings) which the user has selected for the commit. The <literal>originalMessage</literal> parameter contains the text entered in the log message box in the commit dialog. If the user has not yet entered any text, this string will be empty. The <literal>newMessage</literal> return string is copied into the log message edit box in the commit dialog, replacing whatever is already there. If a plugin does not modify the <literal>originalMessage</literal> string, it must return the same string again here, otherwise any text the user has entered will be lost."
+msgstr ""
+
+#. (title)
+msgid "The IBugtraqProvider2 interface"
+msgstr ""
+
+#. (para)
+msgid "In TortoiseSVN 1.6 a new interface was added which provides more functionality for plugins. This IBugtraqProvider2 interface inherits from IBugtraqProvider."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT GetCommitMessage2 (\n"
+"  // Parent window for your provider's UI.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"  // The common URL of the commit\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  // Your provider should include this text in the new message,\n"
+"  // where appropriate.\n"
+"  [in] BSTR originalMessage,\n"
+"\n"
+"  // You can assign custom revision properties to a commit\n"
+"  // by setting the next two params.\n"
+"  // note: Both safearrays must be of the same length.\n"
+"  //       For every property name there must be a property value!\n"
+"\n"
+"  // The content of the bugID field (if shown)\n"
+"  [in] BSTR bugID,\n"
+"\n"
+"  // Modified content of the bugID field\n"
+"  [out] BSTR * bugIDOut,\n"
+"\n"
+"  // The list of revision property names.\n"
+"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
+"\n"
+"  // The list of revision property values.\n"
+"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
+"\n"
+"  // The new text for the commit message.\n"
+"  // This replaces the original message\n"
+"  [out, retval] BSTR * newMessage\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. This method is called instead of <literal>GetCommitMessage()</literal>. Please refer to the documentation for <literal>GetCommitMessage</literal> for the parameters that are also used there. The parameter <literal>commonURL</literal> is the parent URL of all items selected to bring up the commit dialog. This is basically the URL of the <literal>commonRoot</literal> path. The parameter <literal>bugID</literal> contains the content of the bug-ID field (if it is shown, configured with the property <literal>bugtraq:message</literal>). The return parameter <literal>bugIDOut</literal> is used to fill the bug-ID field when the method returns. The <literal>revPropNames</literal> and <literal>revPropValues</literal> return parameters can contain name/value pairs for revision properties that the commit should set. A plugin must make sure that both arrays have the same size on return! Each property name in <literal>revPropNames</literal> must also have a corresponding value in <literal>revPropValues</literal>. If no revision properties are to be set, the plugin must return empty arrays."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT CheckCommit (\n"
+"  [in] HWND hParentWnd,\n"
+"  [in] BSTR parameters,\n"
+"  [in] BSTR commonURL,\n"
+"  [in] BSTR commonRoot,\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"  [in] BSTR commitMessage,\n"
+"  [out, retval] BSTR * errorMessage\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called right before the commit dialog is closed and the commit begins. A plugin can use this method to validate the selected files/folders for the commit and/or the commit message entered by the user. The parameters are the same as for <literal>GetCommitMessage2()</literal>, with the difference that <literal>commonURL</literal> is now the common URL of all <emphasis>checked</emphasis> items, and <literal>commonRoot</literal> the root path of all checked items. The return parameter <literal>errorMessage</literal> must either contain an error message which TortoiseSVN shows to the user or be empty for the commit to start. If an error message is returned, TortoiseSVN shows the error string in a dialog and keeps the commit dialog open so the user can correct whatever is wrong. A plugin should therefore return an error string which informs the user <emphasis>what</emphasis> is wrong and how to correct it."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT  OnCommitFinished (\n"
+"  // Parent window for any (error) UI that needs to be displayed.\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // The common root of all paths that got committed.\n"
+"  [in] BSTR commonRoot,\n"
+"\n"
+"  // All the paths that got committed.\n"
+"  [in] SAFEARRAY(BSTR) pathList,\n"
+"\n"
+"\n"
+"  // The text already present in the commit message.\n"
+"  [in] BSTR logMessage,\n"
+"\n"
+"  // The revision of the commit.\n"
+"  [in] ULONG revision,\n"
+"\n"
+"\n"
+"  // An error to show to the user if this function\n"
+"  // returns something else than S_OK\n"
+"  [out, retval] BSTR * error\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called after a successful commit. A plugin can use this method to e.g., close the selected issue or add information about the commit to the issue. The parameters are the same as for <literal>GetCommitMessage2</literal>."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT HasOptions(\n"
+"  // Whether the provider provides options\n"
+"  [out, retval] VARIANT_BOOL *ret\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog where the user can configure the plugins. If a plugin provides its own configuration dialog with <literal>ShowOptionsDialog</literal>, it must return TRUE here, otherwise it must return FALSE."
+msgstr ""
+
+#. (programlisting)
+#, no-wrap
+msgid ""
+"\n"
+"HRESULT ShowOptionsDialog(\n"
+"  // Parent window for the options dialog\n"
+"  [in] HWND hParentWnd,\n"
+"\n"
+"  // Parameters for your provider.\n"
+"  [in] BSTR parameters,\n"
+"\n"
+"  // The parameters string\n"
+"  [out, retval] BSTR * newparameters\n"
+");\n"
+msgstr ""
+
+#. (para)
+msgid "<placeholder-1/> This method is called from the settings dialog when the user clicks on the \"Options\" button that is shown if <literal>HasOptions</literal> returns TRUE. A plugin can show an options dialog to make it easier for the user to configure the plugin. The <literal>parameters</literal> string contains the plugin parameters string that is already set/entered. The <literal>newparameters</literal> return parameter must contain the parameters string which the plugin constructed from the info it gathered in its options dialog. That <literal>paramameters</literal> string is passed to all other IBugtraqProvider and IBugtraqProvider2 methods."
+msgstr ""
+
+#. (title)
 msgid "Frequently Asked Questions (FAQ)"
 msgstr ""
 
@@ -10037,8 +10285,9 @@ msgid "compare files"
 msgstr "porovnať súbory"
 
 #. (primary)
+#, fuzzy
 msgid "compare folders"
-msgstr "porovnať adresáre"
+msgstr "porovnať súbory"
 
 #. (primary)
 msgid "changes"
@@ -10328,12 +10577,14 @@ msgstr ""
 "</screen>"
 
 #. (title)
+#, fuzzy
 msgid "Disable context menu entries"
-msgstr "Zakázať položky kontextového menu"
+msgstr "kontextové menu"
 
 #. (primary)
+#, fuzzy
 msgid "context menu entries"
-msgstr "položky kontextového menu"
+msgstr "kontextové menu"
 
 #. (primary)
 msgid "disable functions"
@@ -10405,6 +10656,7 @@ msgid "Export"
 msgstr "Exportovať"
 
 #. (entry)
+#, fuzzy
 msgid "Create Repository here"
 msgstr "Vytvoriť úložisko tu"
 
@@ -10601,7 +10853,11 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:3</option> zavrieť dialógové okno automaticky ak nenastali chyby, konflikty, alebo zlúčenia"
 
 #. (para)
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:4</option> zavrieť dialógové okno automaticky ak nenastali chyby, konflikty, alebo zlúčenia pre miestne operácie"
+
+#. (para)
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
 msgstr ""
 
 #. (para)
@@ -10672,45 +10928,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr ""
-
-#. (option)
-msgid "/findtext"
-msgstr ""
-
-#. (option)
-msgid "/findtype:X"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr ""
-
 #. (entry)
 #, fuzzy
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (enables the 'stop-on-copy' checkbox), <placeholder-5/> fills in the filter text, <placeholder-6/> (forces the filter to use text, not regex) and <placeholder-7/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
 msgstr "Otvorí denník. Cesta určuje súbor, alebo adresár pre ktorý ma byť denník zobrazený. Môžu byť zadané daľšie tri možnosti: <placeholder-1/>, <placeholder-2/> and <placeholder-3/>"
 
 #. (option)
@@ -11663,8 +11883,9 @@ msgid ""
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "SSH Client Tools for use with TortoiseSVN"
-msgstr ""
+msgstr "Vytváranie úložiska s TortoiseSVN"
 
 #. (para)
 msgid "Grab the tools we need for using SSH on the windows client from this site: <ulink url=\"http://www.chiark.greenend.org.uk/~sgtatham/putty/\"><citetitle>http://www.chiark.greenend.org.uk/~sgtatham/putty/</citetitle></ulink> Just go to the download section and get <filename>Putty</filename>, <filename>Plink</filename>, <filename>Pageant</filename> and <filename>Puttygen</filename>."
@@ -11784,8 +12005,9 @@ msgid "Note that by default TortoiseSVN uses its own version of Plink to connect
 msgstr ""
 
 #. (title)
+#, fuzzy
 msgid "SSH Configuration Variants"
-msgstr ""
+msgstr "Konfigurácia"
 
 #. (para)
 msgid ""
@@ -11820,245 +12042,6 @@ msgstr ""
 
 #. (para)
 msgid "If you use this last method, be sure you do not have a default username set in PuTTY. We have had reports of a bug in PuTTY causing connections to close in this case. To remove the default user, simply clear <filename>HKEY_CURRENT_USER\\Software\\SimonTatham\\Putty\\Sessions\\Default%20Settings\\HostName</filename>"
-msgstr ""
-
-#. (title)
-msgid "IBugtraqProvider interface"
-msgstr ""
-
-#. (primary)
-msgid "plugin"
-msgstr ""
-
-#. (primary)
-msgid "IBugtraqProvider"
-msgstr ""
-
-#. (para)
-msgid "To get a tighter integration with issue trackers than by simply using the <literal>bugtraq:</literal> properties, TortoiseSVN can make use of COM plugins. With such plugins it is possible to fetch information directly from the issue tracker, interact with the user and provide information back to TortoiseSVN about open issues, verify log messages entered by the user and even run actions after a successful commit to e.g, close an issue."
-msgstr ""
-
-#. (para)
-msgid "We can't provide information and tutorials on how you have to implement a COM object in your preferred programming language, but we have example plugins in C++/ATL and C# in our repository in the <filename>contrib/issue-tracker-plugins</filename> folder. In that folder you can also find the required include files you need to build your plugin. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
-msgstr ""
-
-#. (title)
-msgid "The IBugtraqProvider interface"
-msgstr ""
-
-#. (para)
-msgid "TortoiseSVN 1.5 can use plugins which implement the IBugtraqProvider interface. The interface provides a few methods which plugins can use to interact with the issue tracker."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT ValidateParameters (\n"
-"  // Parent window for any UI that needs to be\n"
-"  // displayed during validation.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The parameter string that needs to be validated.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // Is the string valid?\n"
-"  [out, retval] VARIANT_BOOL *valid\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog where the user can add and configure the plugin. The <literal>parameters</literal> string can be used by a plugin to get additional required information, e.g., the URL to the issue tracker, login information, etc. The plugin should verify the <literal>parameters</literal> string and show an error dialog if the string is not valid. The <literal>hParentWnd</literal> parameter should be used for any dialog the plugin shows as the parent window. The plugin must return TRUE if the validation of the <literal>parameters</literal> string is successful. If the plugin returns FALSE, the settings dialog won't allow the user to add the plugin to a working copy path."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetLinkText (\n"
-"  // Parent window for any (error) UI that needs to be displayed.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The parameter string, just in case you need to talk to your\n"
-"  // web service (e.g.) to find out what the correct text is.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // What text do you want to display?\n"
-"  // Use the current thread locale.\n"
-"  [out, retval] BSTR *linkText\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> The plugin can provide a string here which is used in the TortoiseSVN commit dialog for the button which invokes the plugin, e.g., \"Choose issue\" or \"Select ticket\". Make sure the string is not too long, otherwise it might not fit into the button. If the method returns an error (e.g., <literal>E_NOTIMPL</literal>), a default text is used for the button."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetCommitMessage (\n"
-"  // Parent window for your provider's UI.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  // Your provider should include this text in the new message,\n"
-"  // where appropriate.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-"  // The new text for the commit message.\n"
-"  // This replaces the original message.\n"
-"  [out, retval] BSTR *newMessage\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This is the main method of the plugin. This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. The <literal>parameters</literal> string is the string the user has to enter in the settings dialog when he configures the plugin. Usually a plugin would use this to find the URL of the issue tracker and/or login information or more. The <literal>commonRoot</literal> string contains the parent path of all items selected to bring up the commit dialog. Note that this is <emphasis>not</emphasis> the root path of all items which the user has selected in the commit dialog. The <literal>pathList</literal> parameter contains an array of paths (as strings) which the user has selected for the commit. The <literal>originalMessage</literal> parameter contains the text entered in the log message box in the commit dialog. If the user has not yet entered any text, this string will be empty. The <literal>newMessage</literal> return string is copied into the log message edit box in the commit dialog, replacing whatever is already there. If a plugin does not modify the <literal>originalMessage</literal> string, it must return the same string again here, otherwise any text the user has entered will be lost."
-msgstr ""
-
-#. (title)
-msgid "The IBugtraqProvider2 interface"
-msgstr ""
-
-#. (para)
-msgid "In TortoiseSVN 1.6 a new interface was added which provides more functionality for plugins. This IBugtraqProvider2 interface inherits from IBugtraqProvider."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT GetCommitMessage2 (\n"
-"  // Parent window for your provider's UI.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"  // The common URL of the commit\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  // Your provider should include this text in the new message,\n"
-"  // where appropriate.\n"
-"  [in] BSTR originalMessage,\n"
-"\n"
-"  // You can assign custom revision properties to a commit\n"
-"  // by setting the next two params.\n"
-"  // note: Both safearrays must be of the same length.\n"
-"  //       For every property name there must be a property value!\n"
-"\n"
-"  // The content of the bugID field (if shown)\n"
-"  [in] BSTR bugID,\n"
-"\n"
-"  // Modified content of the bugID field\n"
-"  [out] BSTR * bugIDOut,\n"
-"\n"
-"  // The list of revision property names.\n"
-"  [out] SAFEARRAY(BSTR) * revPropNames,\n"
-"\n"
-"  // The list of revision property values.\n"
-"  [out] SAFEARRAY(BSTR) * revPropValues,\n"
-"\n"
-"  // The new text for the commit message.\n"
-"  // This replaces the original message\n"
-"  [out, retval] BSTR * newMessage\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the TortoiseSVN commit dialog when the user clicks on the plugin button. This method is called instead of <literal>GetCommitMessage()</literal>. Please refer to the documentation for <literal>GetCommitMessage</literal> for the parameters that are also used there. The parameter <literal>commonURL</literal> is the parent URL of all items selected to bring up the commit dialog. This is basically the URL of the <literal>commonRoot</literal> path. The parameter <literal>bugID</literal> contains the content of the bug-ID field (if it is shown, configured with the property <literal>bugtraq:message</literal>). The return parameter <literal>bugIDOut</literal> is used to fill the bug-ID field when the method returns. The <literal>revPropNames</literal> and <literal>revPropValues</literal> return parameters can contain name/value pairs for revision properties that the commit should set. A plugin must make sure that both arrays have the same size on return! Each property name in <literal>revPropNames</literal> must also have a corresponding value in <literal>revPropValues</literal>. If no revision properties are to be set, the plugin must return empty arrays."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT CheckCommit (\n"
-"  [in] HWND hParentWnd,\n"
-"  [in] BSTR parameters,\n"
-"  [in] BSTR commonURL,\n"
-"  [in] BSTR commonRoot,\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"  [in] BSTR commitMessage,\n"
-"  [out, retval] BSTR * errorMessage\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called right before the commit dialog is closed and the commit begins. A plugin can use this method to validate the selected files/folders for the commit and/or the commit message entered by the user. The parameters are the same as for <literal>GetCommitMessage2()</literal>, with the difference that <literal>commonURL</literal> is now the common URL of all <emphasis>checked</emphasis> items, and <literal>commonRoot</literal> the root path of all checked items. The return parameter <literal>errorMessage</literal> must either contain an error message which TortoiseSVN shows to the user or be empty for the commit to start. If an error message is returned, TortoiseSVN shows the error string in a dialog and keeps the commit dialog open so the user can correct whatever is wrong. A plugin should therefore return an error string which informs the user <emphasis>what</emphasis> is wrong and how to correct it."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT  OnCommitFinished (\n"
-"  // Parent window for any (error) UI that needs to be displayed.\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // The common root of all paths that got committed.\n"
-"  [in] BSTR commonRoot,\n"
-"\n"
-"  // All the paths that got committed.\n"
-"  [in] SAFEARRAY(BSTR) pathList,\n"
-"\n"
-"\n"
-"  // The text already present in the commit message.\n"
-"  [in] BSTR logMessage,\n"
-"\n"
-"  // The revision of the commit.\n"
-"  [in] ULONG revision,\n"
-"\n"
-"\n"
-"  // An error to show to the user if this function\n"
-"  // returns something else than S_OK\n"
-"  [out, retval] BSTR * error\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called after a successful commit. A plugin can use this method to e.g., close the selected issue or add information about the commit to the issue. The parameters are the same as for <literal>GetCommitMessage2</literal>."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT HasOptions(\n"
-"  // Whether the provider provides options\n"
-"  [out, retval] VARIANT_BOOL *ret\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog where the user can configure the plugins. If a plugin provides its own configuration dialog with <literal>ShowOptionsDialog</literal>, it must return TRUE here, otherwise it must return FALSE."
-msgstr ""
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"HRESULT ShowOptionsDialog(\n"
-"  // Parent window for the options dialog\n"
-"  [in] HWND hParentWnd,\n"
-"\n"
-"  // Parameters for your provider.\n"
-"  [in] BSTR parameters,\n"
-"\n"
-"  // The parameters string\n"
-"  [out, retval] BSTR * newparameters\n"
-");\n"
-msgstr ""
-
-#. (para)
-msgid "<placeholder-1/> This method is called from the settings dialog when the user clicks on the \"Options\" button that is shown if <literal>HasOptions</literal> returns TRUE. A plugin can show an options dialog to make it easier for the user to configure the plugin. The <literal>parameters</literal> string contains the plugin parameters string that is already set/entered. The <literal>newparameters</literal> return parameter must contain the parameters string which the plugin constructed from the info it gathered in its options dialog. That <literal>paramameters</literal> string is passed to all other IBugtraqProvider and IBugtraqProvider2 methods."
 msgstr ""
 
 #. (title)
@@ -12289,13 +12272,6 @@ msgstr "Oto BREZINA <otik@e-posta.sk>"
 #. (None)
 msgid "translator-translation"
 msgstr "Slovenčina"
-
-#~ msgid ""
-#~ "<option>/closeonend:4</option> auto close if no errors, conflicts and "
-#~ "merges for local operations"
-#~ msgstr ""
-#~ "<option>/closeonend:4</option> zavrieť dialógové okno automaticky ak "
-#~ "nenastali chyby, konflikty, alebo zlúčenia pre miestne operácie"
 
 #, fuzzy
 #~ msgid "Replaced items"

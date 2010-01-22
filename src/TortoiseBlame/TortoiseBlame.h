@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,8 +46,6 @@ const int blockSize = 128 * 1024;
 #define GET_Y_LPARAM(lp)                        ((int)(short)HIWORD(lp))
 #endif
 
-typedef long int svn_revnum_t;
-
 /**
  * \ingroup TortoiseBlame
  * Main class for TortoiseBlame.
@@ -75,9 +73,11 @@ public:
 
 	LRESULT SendEditor(UINT Msg, WPARAM wParam=0, LPARAM lParam=0);
 
+	void GetRange(int start, int end, char *text);
+
 	void SetTitle();
-	BOOL OpenFile(const TCHAR *fileName);
-	BOOL OpenLogFile(const TCHAR *fileName);
+	BOOL OpenFile(const char *fileName);
+	BOOL OpenLogFile(const char *fileName);
 
 	void Command(int id);
 	void Notify(SCNotification *notification);
@@ -94,34 +94,32 @@ public:
 	void BlamePreviousRevision();
 	void DiffPreviousRevision();
 	void ShowLog();
-	bool DoSearch(LPTSTR what, DWORD flags);
+	bool DoSearch(LPSTR what, DWORD flags);
 	bool GotoLine(long line);
 	bool ScrollToLine(long line);
 	void GotoLineDlg();
-	void SelectLine(int yPos, bool bAlwaysSelect);
 	static INT_PTR CALLBACK GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 	void SetSelectedLine(LONG line) { m_SelectedLine=line;};
 
 	LONG						m_mouserev;
-	tstring						m_mouseauthor;
+	std::string					m_mouseauthor;
 	LONG						m_selectedrev;
 	LONG						m_selectedorigrev;
-	tstring						m_selectedauthor;
-	tstring						m_selecteddate;
+	std::string					m_selectedauthor;
+	std::string					m_selecteddate;
 	static long					m_gotoline;
 	long						m_lowestrev;
 	long						m_highestrev;
 	bool						m_colorage;
 
-	std::vector<svn_revnum_t>	revs;
-	std::vector<svn_revnum_t>	mergedrevs;
-	std::vector<tstring>		dates;
-	std::vector<tstring>		mergeddates;
-	std::vector<tstring>		authors;
-	std::vector<tstring>		mergedauthors;
-	std::vector<tstring>		mergedpaths;
-	std::map<LONG, tstring>		logmessages;
+	std::vector<bool>			mergelines;
+	std::vector<LONG>			revs;
+	std::vector<LONG>			origrevs;
+	std::vector<std::string>	dates;
+	std::vector<std::string>	authors;
+	std::vector<std::string>	paths;
+	std::map<LONG, std::string>	logmessages;
 	char						m_szTip[MAX_LOG_LENGTH*2+6];
 	wchar_t						m_wszTip[MAX_LOG_LENGTH*2+6];
 	void StringExpand(LPSTR str);
@@ -129,10 +127,10 @@ public:
 	BOOL						ttVisible;
 protected:
 	void CreateFont();
-	void SetupLexer(LPCTSTR filename);
+	void SetupLexer(LPCSTR filename);
 	void SetupCppLexer();
 	COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
-	static std::wstring GetAppDirectory();
+	std::string GetAppDirectory();
 	std::vector<COLORREF>		colors;
 	HFONT						m_font;
 	HFONT						m_italicfont;
@@ -157,10 +155,6 @@ protected:
 	FINDREPLACE					fr;
 	TCHAR						szFindWhat[80];
 
-	CRegStdDWORD				m_regOldLinesColor;
-	CRegStdDWORD				m_regNewLinesColor;
-
-private:
-	static void MakeLower(TCHAR* buffer, size_t length );
-	static void RunCommand(const tstring& command);
+	CRegStdDWORD					m_regOldLinesColor;
+	CRegStdDWORD					m_regNewLinesColor;
 };

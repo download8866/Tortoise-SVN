@@ -82,10 +82,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <li><a href="#slowbrowse">Browsing very slow in explorer and file/open dialog.</a></li>
 <li><a href="#bugtraq">The bugtraq: properties don't work for dialogs started from the repository browser.</a></li>
 <li><a href="#logcrash">Showing the log often crashes.</a></li>
-<li><a href="#incompleteupdate">When I update a working copy, new files are not added!</a></li>
 <li><a href="#releases">I was told that issue/bug X was fixed in rXXX, but the latest release still doesn't has this implemented/fixed?</a></li>
-<li><a href="#svnbinaries">Will you add the standard subversion client to the installer?</a></li>
-<li><a href="#eclipse">TortoiseSVN does not work well with Eclipse</a></li>
 </ul>
 
 <h4>How can I...</h4>
@@ -105,9 +102,8 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <h4>Error messages</h4>
 <ul>
 <li><a href="#cantmove">Can't copy / move 'XXX.svn-base' to 'XXX.tmp': The system cannot find the file specified.</a></li>
-<li><a href="#cantmove2">Can't move '.svn/tmp/entries' to '.svn/entries': The file or directory is corrupted and unreadable.</a></li>
 <li><a href="#inuse">Can't open file 'XXX\nnn-n.txn\changes': The process cannot access the file because it is being used by another process</a></li>
-<li><a href="#alreadyexists">Failed to add 'XXX': object of the same name already exists</a></li>
+<li><a href="#alreadyexists">Failed to add 'XXX': object of the same name already already exists</a></li>
 <li><a href="#four01">OPTIONS of '&lt;path&gt;': 401 Authorization Required &lt;url&gt;</a></li>
 <li><a href="#clientold">This client is too old to work with working copy 'XXX'</a></li>
 <li><a href="#wcoutofdate">Working copy is out-of-date</a></li>
@@ -419,7 +415,7 @@ lesser degree, with the command-line 'svn' client. Doing a 'svn ls' or
 equivalent and being able to see what repositories and projects are hosted on a 
 specific versioning system would be very useful.</p>
 <p>Unfortunately, this is a limitation in the Subversion libraries that both the 
-command-line client and TortoiseSVN use. It does not have the capability to 
+command-line client and TortoiseSVN uses. It does not have the capability to 
 arbitrarily enumerate repositories on a server.</p>
 <p>Some might even argue that the lack of this feature is incitement for end 
 users to just jumble everything into one big repository, when it would be more 
@@ -436,7 +432,7 @@ clients is identical.</p>
 the Subversion library. The version of the Subversion library that TortoiseSVN uses
 is indicated in the filename of the installer, other clients have similar indications.
 You have to make sure that those versions match each other in the first two digits.
-For example, all clients using Subversion 1.6.x can be used together (the 'x' indicates
+For example, all clients using Subversion 1.5.x can be used together (the 'x' indicates
 that this number is not relevant for compatibility).</p>
 <p>You must also be sure that all the clients are built for the same OS. 
 Client compatibility is only guaranteed for a particular OS type and metadata 
@@ -446,7 +442,7 @@ network you must <em>not</em> use a Linux and a Windows client on the same worki
 copy.</p>
 </div>
 
-<div class="h3" id="eol" title="eol">
+<div class="eol" title="eol">
 <h3>Can TortoiseSVN convert line breaks in text files on the fly?</h3>
 <p>
 Check the subversion book about the svn:eol-style property <a title='svn:eol-style' href='http://svnbook.red-bean.com/en/1.4/svn.advanced.props.file-portability.html#svn.advanced.props.special.eol-style'>here</a>.
@@ -613,7 +609,7 @@ the article named "PowerDesk crashes when right-clicking on some files and folde
 
 <div class="h3" id="samba" title="samba">
 <h3>Permission problems with working copies on a SAMBA share.</h3>
-<p>After upgrading to TortoiseSVN 1.5.x or later, you get a lot of "Access denied" errors for most
+<p>After upgrading to TortoiseSVN 1.5.x, you get a lot of "Access denied" errors for most
 of the Subversion commands if your working copy is stored on a SAMBA share.</p>
 <p>Some users reported that the problem went away after they upgraded SAMBA to the latest version.
 If that does not help or you can't upgrade, allow readonly files to be deleted in the SAMBA config file:
@@ -631,9 +627,6 @@ force security mode = 0600
 </pre>
 
 </p>
-<p>The information we have received suggests that the main problem is fixed in SAMBA 3.2.3.
-There is a supplementary problem with making files with the svn:needs-lock property read-only.
-This is reported to be fixed in SAMBA 3.2.6 or 3.3.0.</p>
 </div>
 
 <div class="h3" id="slowbrowse" title="slowbrowse">
@@ -662,21 +655,8 @@ creating new repositories for customers but simply copied a template repository.
 If you're using such a hoster, please tell <b>them</b> to fix this problem.</p>
 </div>
 
-
-<div class="h3" id="incompleteupdate" title="incompleteupdate">
-<h3>When I update a working copy, new files are not added!</h3>
-<p>Between TortoiseSVN 1.6.0 and 1.6.1, added folders were added with a depth
-of "Only this item". This lead to a so called "sparse checkout" of that part
-of your working copy.</p>
-<p>Please update to the latest version of TortoiseSVN to avoid such problems
-in the future.</p>
-<p>To fix your sparse working copy, instead of "Update", use the 
-"Update to revision..." command from the TortoiseSVN submenu (right-click in
-explorer), change the "Update depth" combobox to "Fully recursive".</p>
-</div>
-
 <div class="h3" id="releases" title="releases">
-<h3>I was told that issue/bug X was fixed in rXXX, but the latest release still doesn't have this implemented/fixed?</h3>
+<h3>I was told that issue/bug X was fixed in rXXX, but the latest release still doesn't has this implemented/fixed?</h3>
 <p>Our release policy is to never introduce new features or resource changes on the stable branch. We work on the trunk, 
 where we fix bugs, introduce new features or change the behavior of features. Only important bugfixes are merged back
 to the stable branch, and the stable branch is where we create our releases from.</p>
@@ -685,30 +665,6 @@ to the stable branch, and the stable branch is where we create our releases from
 the stable branch due to this policy. That's why you don't see the change in the latest release.</p>
 </div>
 
-<div class="h3" id="svnbinaries" title="svn binaries">
-<h3>Will you add the standard subversion client to the installer?</h3>
-<p>No. The subversion command line binaries are available from several places already, notably tigris.org and CollabNet.
-Whilst it would be a convenience for our users there are several good reasons, both technical and
-practical, why we will not do this.</p>
-<p>If we ship those binaries we have to support them too, which we do not have time for.
-Although we include the basic <i>svn.exe</i> and <i>svnadmin.exe</i> on our nightly build site,
-these are not 100% compatible with the official binaries. For a start they are statically linked,
-they are built using a different compiler and our own build scripts, and we use a few different
-build options, notably in the authentication area. If you were to report a subversion bug using
-those binaries it is not guaranteed that the official subversion client would show the same bug,
-so any bug reports sent to the subversion list would simply get bounced back to us.</p>
-<p>As our binaries are statically linked, adding the subversion binaries would increase the size
-of the installer by several MB, and it is already quite large.</p>
-</div>
-
-<div class="h3" id="eclipse" title="eclipse">
-<h3>TortoiseSVN does not work well with Eclipse</h3>
-<p>Eclipse copies directories as part of its normal operation, and in a subversion working copy it will copy the .svn directory as well. This causes TortoiseSVN to think that there are versioned files in the bin directory.</p>
-<p>If you want to keep using TortoiseSVN and just prevent this from happening, you need to add '**/.svn/' to Eclipse's source exclude list.</p>
-<p>But Eclipse has its very own subversion plugin called Subclipse, which makes Eclipse SVN-aware and fixes the problem at source. You can find it at
-<a href="http://subclipse.tigris.org/">http://subclipse.tigris.org/</a>.
-After you install Subclipse you need to make a fresh checkout. It will not fix checkouts that were made before it was installed.</p>
-</div>
 
 
 </div>
@@ -755,7 +711,6 @@ rejects changes to author and log message.</p>
 <h3>... clear the drop-down lists in TortoiseSVN?</h3>
 <p>You can clear all the stored data from the settings dialog of TortoiseSVN. 
 Just click on the corresponding button.</p>
-<p>Single items can be permanently removed from drop-down lists by pressing Shift-Delete.</p>
 </div>
 
 <div class="h3" id="removerepo" title="removerepo">
@@ -868,11 +823,6 @@ error message comes from the Subversion library, which we can't change on our ow
 again. Take a look at these <a href="#casechange">instructions</a>.</p>
 </div>
 
-<div class="h3" id="cantmove2" title="cantmove2">
-<h3>Can't move '.svn/tmp/entries' to '.svn/entries': The file or directory is corrupted and unreadable.</h3>
-<p>This error message typically occurs when you try to update or commit your working copy, and seems to be common on Windows 7 systems. It is due to another process holding a handle on a file that Subversion needs to move or modify. This might be a virus scanner, but on Windows 7 it is likely to be the Windows Indexing Service. Turn off the indexing service on your working copies and repositories, and exclude them from virus scans.</p>
-</div>
-
 <div class="h3" id="inuse" title="inuse">
 <h3>Can't open file 'XXX\nnn-n.txn\changes': The process cannot access the file because it is being used by another process</h3>
 <p>People who report this error often state that it happens randomly, and often 
@@ -884,7 +834,7 @@ it shouldn't. Try disabling the scanner, or get it to ignore your repository.</p
 </div>
 
 <div class="h3" id="alreadyexists" title="alreadyexists">
-<h3>Failed to add 'XXX': object of the same name already exists</h3>
+<h3>Failed to add 'XXX': object of the same name already already exists</h3>
 <p>This error message typically occurs when you try to update your working copy. 
 It is thrown because Subversion never deletes or overwrites existing local data. 
 There may be three reasons why you get this error:</p>
@@ -941,7 +891,7 @@ for the repository access than you use for logging in to your workstations
 with a higher Subversion version, and then try to execute a command with a 
 Subversion client linked with an older version, e.g., you used an 1.4.x client 
 on your working copy, and now you try an svn 1.3.x client on the same working copy.</p>
-<p>The reason for this is that Subversion 1.4 and later upgrade the working copies 
+<p>The reason for this is that Subversion 1.4 and 1.5 upgrade the working copies 
 transparently on every command. But once the working copy format is upgraded, 
 older clients can't access the working copy anymore because they don't know the new format.</p>
 <p>The only solution to 'fix' this is to upgrade whatever client you use and 
@@ -1049,16 +999,6 @@ which were previously working, stop working with TortoiseSVN 1.5. This seems to 
 to plink, and occurs if you have a default hostname set in PuTTY.</p>
 <p>If this is the case you can fix it by using regedit or regedt32 to clear
 HKEY_CURRENT_USER/Software/SimonTatham/Putty/Sessions/Default%20Settings/HostName.</p>
-<p>Another user has reported the following server-side fix:
-<ul>
-<li>ssh into your account</li>
-<li>cd ~</li>
-<li>cp /etc/bashrc .bashrc</li>
-<li>nano .bashrc</li>
-<li>put a # before the line "mesg y" (which comments it out)</li>
-<li>Ctrl+X to exit, press Y when prompted to save.</li>
-</ul>
-</p>
 </div>
 
 </div>

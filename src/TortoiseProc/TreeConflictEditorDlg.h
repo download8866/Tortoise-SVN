@@ -21,7 +21,6 @@
 #include "StandAloneDlg.h"
 #include "TSVNPath.h"
 #include "ProgressDlg.h"
-#include "AeroControls.h"
 
 class CTreeConflictEditorDlg : public CResizableStandAloneDialog
 {
@@ -51,8 +50,6 @@ protected:
 
 	afx_msg void OnBnClickedResolveusingtheirs();
 	afx_msg void OnBnClickedResolveusingmine();
-	afx_msg void OnBnClickedShowlog();
-	afx_msg void OnBnClickedHelp();
 
 	/// called after the thread has finished
 	LRESULT OnAfterThread(WPARAM /*wParam*/, LPARAM /*lParam*/);
@@ -66,11 +63,13 @@ private:
 	CString				m_sUseMine;
 	CTSVNPath			m_path;
 	CTSVNPath			m_copyfromPath;
-	AeroControlBase		m_aeroControls;
 	svn_wc_conflict_version_t *	src_left;
 	svn_wc_conflict_version_t *	src_right;
 	svn_wc_conflict_reason_t conflict_reason;
 	svn_wc_conflict_action_t conflict_action;
+public:
+	afx_msg void OnBnClickedShowlog();
+	afx_msg void OnBnClickedHelp();
 };
 
 static UINT WM_AFTERTHREAD = RegisterWindowMessage(_T("TORTOISESVN_AFTERTHREAD_MSG"));

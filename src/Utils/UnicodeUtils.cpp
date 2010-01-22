@@ -18,7 +18,6 @@
 //
 #include "StdAfx.h"
 #include "unicodeutils.h"
-#include "auto_buffer.h"
 
 CUnicodeUtils::CUnicodeUtils(void)
 {
@@ -38,145 +37,45 @@ CStringA CUnicodeUtils::GetUTF8(const CStringW& string)
 	if (len==0)
 		return retVal;
 	buf = retVal.GetBuffer(len*4 + 1);
+	SecureZeroMemory(buf, (string.GetLength()*4 + 1)*sizeof(char));
 	int lengthIncTerminator = WideCharToMultiByte(CP_UTF8, 0, string, -1, buf, len*4, NULL, NULL);
-	retVal.ReleaseBuffer(lengthIncTerminator == 0 ? 0 : lengthIncTerminator-1);
+	retVal.ReleaseBuffer(lengthIncTerminator-1);
 	return retVal;
 }
 
 CStringA CUnicodeUtils::GetUTF8(const CStringA& string)
 {
+	WCHAR * buf;
 	int len = string.GetLength();
 	if (len==0)
 		return CStringA();
-
-	auto_buffer<WCHAR> buf (len*4 + 1);
-	int ret = MultiByteToWideChar(CP_ACP, 0, string, -1, buf, len*4);
-	if (ret == 0)
-		return CStringA();
-    return (CUnicodeUtils::GetUTF8 (CStringW(buf)));
+	buf = new WCHAR[len*4 + 1];
+	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
+	MultiByteToWideChar(CP_ACP, 0, string, -1, buf, len*4);
+	CStringW temp = CStringW(buf);
+	delete [] buf;
+	return (CUnicodeUtils::GetUTF8(temp));
 }
 
 CString CUnicodeUtils::GetUnicode(const CStringA& string)
 {
+	WCHAR * buf;
 	int len = string.GetLength();
 	if (len==0)
 		return CString();
-
-	auto_buffer<WCHAR> buf (len*4 + 1);
-	int ret = MultiByteToWideChar(CP_UTF8, 0, string, -1, buf, len*4);
-	if (ret == 0)
-		return CString();
-
-    return buf.get();
-}
-
-wchar_t* CUnicodeUtils::UTF8ToUTF16 
-    (const char* source, size_t size, wchar_t* target)
-{
-    const unsigned char* s = reinterpret_cast<const unsigned char*>(source);
-    if (size > 0)
-    {
-        unsigned c;
-        do
-        {
-            if (--size == 0)
-            {
-                *target = 0;
-                ++target;
-                break;
-            }
-
-            c = *s;
-
-            // decode 1 .. 4 byte sequences
-
-            if (c < 0x80)
-            {
-                ++s;
-            }
-            else if (c < 0xE0)
-            {
-                c = ((c & 0x1f) << 6) + (s[1] & 0x3f);
-                s += 2;
-            }
-            else if (c < 0xF0)
-            {
-                c =   ((c & 0x1f) << 12)
-                    + (static_cast<unsigned>(s[1] & 0x3f) << 6)
-                    + (s[2] & 0x3f);
-                s += 3;
-            }
-            else 
-            {
-                c =   ((c & 0x1f) << 12)
-                    + (static_cast<unsigned>(s[1] & 0x3f) << 6)
-                    + (static_cast<unsigned>(s[2] & 0x3f) << 6)
-                    + (s[3] & 0x3f);
-                s += 4;
-            }
-
-            // write result (1 or 2 wchars)
-
-            if (c < 0x10000)
-            {
-                *target = static_cast<wchar_t>(c);
-                ++target;
-            }
-            else
-            {
-                c -= 0x10000;
-                *target = static_cast<wchar_t>((c >> 10) + 0xd800);
-                *(target+1) = static_cast<wchar_t>((c & 0x3ff) + 0xdc00);
-                target += 2;
-            }
-        }
-        while (c != 0);
-    }
-    else
-    {
-        *target = 0;
-        ++target;
-    }
-
-    return target-1;
-}
-
-CString CUnicodeUtils::UTF8ToUTF16 (const std::string& string)
-{
-    enum {FIXED_BUFFER_SIZE = 1024};
-
-    wchar_t fixedBuffer[FIXED_BUFFER_SIZE];
-    auto_buffer<wchar_t> dynamicBuffer; 
-
-    wchar_t* result = NULL;
-
-    size_t size = string.length()+1;
-    if (size <= FIXED_BUFFER_SIZE)
-    {
-        result = fixedBuffer;
-    }
-    else
-    {
-        dynamicBuffer.reset (size);
-        result = dynamicBuffer;
-    }
-
-    wchar_t* target = UTF8ToUTF16 (string.c_str(), size, result);
-    return CString (result, static_cast<int>(target - result));
-}
-
-void CUnicodeUtils::UTF8ToUTF16 (const std::string& source, std::wstring& target)
-{
-    size_t size = source.size();
-    target.resize (size);
-    wchar_t* buffer = &target[0];
-    target.resize (UTF8ToUTF16 (source.c_str(), size+1, buffer) - buffer);
+	buf = new WCHAR[len*4 + 1];
+	SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
+	MultiByteToWideChar(CP_UTF8, 0, string, -1, buf, len*4);
+	CString ret = CString(buf);
+	delete [] buf;
+	return ret;
 }
 
 CStringA CUnicodeUtils::ConvertWCHARStringToUTF8(const CString& string)
 {
 	CStringA sRet;
-	auto_buffer<char> buf (string.GetLength()+1);
+	char * buf;
+	buf = new char[string.GetLength()+1];
 	if (buf)
 	{
 		int i=0;
@@ -185,9 +84,9 @@ CStringA CUnicodeUtils::ConvertWCHARStringToUTF8(const CString& string)
 			buf[i] = (char)string.GetAt(i);
 		}
 		buf[i] = 0;
-		sRet = buf.get();
+		sRet = CStringA(buf);
+		delete [] buf;
 	}
-
 	return sRet;
 }
 
@@ -200,11 +99,12 @@ std::string CUnicodeUtils::StdGetUTF8(const std::wstring& wide)
 	if (len==0)
 		return std::string();
 	int size = len*4;
-	
-    auto_buffer<char> narrow (size);
+	char * narrow = new char[size];
 	int ret = WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), len, narrow, size-1, NULL, NULL);
-
-    return std::string (narrow.get(), ret);
+	narrow[ret] = 0;
+	std::string sRet = std::string(narrow);
+	delete [] narrow;
+	return sRet;
 }
 
 std::wstring CUnicodeUtils::StdGetUnicode(const std::string& multibyte)
@@ -213,29 +113,34 @@ std::wstring CUnicodeUtils::StdGetUnicode(const std::string& multibyte)
 	if (len==0)
 		return std::wstring();
 	int size = len*4;
-
-    auto_buffer<wchar_t> wide (size);
+	wchar_t * wide = new wchar_t[size];
 	int ret = MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), len, wide, size - 1);
-
-    return std::wstring (wide.get(), ret);
+	wide[ret] = 0;
+	std::wstring sRet = std::wstring(wide);
+	delete [] wide;
+	return sRet;
 }
 #endif
 
 std::string WideToMultibyte(const std::wstring& wide)
 {
-    auto_buffer<char> narrow (wide.length()*3+2);
+	char * narrow = new char[wide.length()*3+2];
 	BOOL defaultCharUsed;
 	int ret = (int)WideCharToMultiByte(CP_ACP, 0, wide.c_str(), (int)wide.size(), narrow, (int)wide.length()*3 - 1, ".", &defaultCharUsed);
-
-    return std::string (narrow.get(), ret);
+	narrow[ret] = 0;
+	std::string str = narrow;
+	delete[] narrow;
+	return str;
 }
 
 std::string WideToUTF8(const std::wstring& wide)
 {
-	auto_buffer<char> narrow (wide.length()*3+2);
+	char * narrow = new char[wide.length()*3+2];
 	int ret = (int)WideCharToMultiByte(CP_UTF8, 0, wide.c_str(), (int)wide.size(), narrow, (int)wide.length()*3 - 1, NULL, NULL);
-
-    return std::string (narrow.get(), ret);
+	narrow[ret] = 0;
+	std::string str = narrow;
+	delete[] narrow;
+	return str;
 }
 
 std::wstring MultibyteToWide(const std::string& multibyte)
@@ -244,12 +149,14 @@ std::wstring MultibyteToWide(const std::string& multibyte)
 	if (length == 0)
 		return std::wstring();
 
-	auto_buffer<wchar_t> wide (multibyte.length()*2+2);
-	int ret = wide.get() == NULL
-        ? 0
-        : (int)MultiByteToWideChar(CP_ACP, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
-
-    return std::wstring (wide.get(), ret);
+	wchar_t * wide = new wchar_t[multibyte.length()*2+2];
+	if (wide == NULL)
+		return std::wstring();
+	int ret = (int)MultiByteToWideChar(CP_ACP, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
+	wide[ret] = 0;
+	std::wstring str = wide;
+	delete[] wide;
+	return str;
 }
 
 std::wstring UTF8ToWide(const std::string& multibyte)
@@ -258,12 +165,14 @@ std::wstring UTF8ToWide(const std::string& multibyte)
 	if (length == 0)
 		return std::wstring();
 
-	auto_buffer<wchar_t> wide (length*2+2);
-	int ret = wide.get() == NULL
-        ? 0
-        : (int)MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
-
-    return std::wstring (wide.get(), ret);
+	wchar_t * wide = new wchar_t[length*2+2];
+	if (wide == NULL)
+		return std::wstring();
+	int ret = (int)MultiByteToWideChar(CP_UTF8, 0, multibyte.c_str(), (int)multibyte.size(), wide, (int)length*2 - 1);
+	wide[ret] = 0;
+	std::wstring str = wide;
+	delete[] wide;
+	return str;
 }
 #ifdef UNICODE
 tstring UTF8ToString(const std::string& string) {return UTF8ToWide(string);}

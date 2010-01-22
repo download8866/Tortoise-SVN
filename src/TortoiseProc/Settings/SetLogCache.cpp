@@ -29,7 +29,7 @@
 #include "ProgressDlg.h"
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
-#include "Access/CSVWriter.h"
+#include "CSVWriter.h"
 #include "XPTheme.h"
 
 using namespace LogCache;
@@ -131,8 +131,8 @@ BOOL CSetLogCache::OnApply()
     CSettings::SetAllowAmbiguousURL (m_bSupportAmbiguousURL != FALSE);
     CSettings::SetAllowAmbiguousUUID (m_bSupportAmbiguousUUID != FALSE);
 
-    ConnectionState state 
-        = static_cast<ConnectionState>
+    CRepositoryInfo::ConnectionState state 
+        = static_cast<CRepositoryInfo::ConnectionState>
             (m_cDefaultConnectionState.GetCurSel());
 	CSettings::SetDefaultConnectionState (state);
 
@@ -175,15 +175,11 @@ BOOL CSetLogCache::OnInitDialog()
 
     m_tooltips.AddTool(IDC_GOOFFLINESETTING, IDS_SETTINGS_LOGCACHE_GOOFFLINE);
 
-	m_tooltips.AddTool(IDC_MAXIMINHEADAGE, IDS_SETTINGS_LOGCACHE_HEADAGE);
-	m_tooltips.AddTool(IDC_HEADAGELABEL, IDS_SETTINGS_LOGCACHE_HEADAGE);
-	m_tooltips.AddTool(IDC_CACHEDROPAGELABEL, IDS_SETTINGS_LOGCACHE_DROPAGE);
-	m_tooltips.AddTool(IDC_CACHEDROPAGE, IDS_SETTINGS_LOGCACHE_DROPAGE);
-	m_tooltips.AddTool(IDC_CACHEDROPMAXSIZE, IDS_SETTINGS_LOGCACHE_DROPMAXSIZE);
-	m_tooltips.AddTool(IDC_CACHEDROPMAXSIZELABEL, IDS_SETTINGS_LOGCACHE_DROPMAXSIZE);
+    m_tooltips.AddTool(IDC_MAXIMINHEADAGE, IDS_SETTINGS_LOGCACHE_HEADAGE);
+    m_tooltips.AddTool(IDC_CACHEDROPAGE, IDS_SETTINGS_LOGCACHE_DROPAGE);
+    m_tooltips.AddTool(IDC_CACHEDROPMAXSIZE, IDS_SETTINGS_LOGCACHE_DROPMAXSIZE);
 
-	m_tooltips.AddTool(IDC_MAXFAILUESUNTILDROP, IDS_SETTINGS_LOGCACHE_FAILURELIMIT);
-	m_tooltips.AddTool(IDC_MAXFAILURESLABEL, IDS_SETTINGS_LOGCACHE_FAILURELIMIT);
+    m_tooltips.AddTool(IDC_MAXFAILUESUNTILDROP, IDS_SETTINGS_LOGCACHE_FAILURELIMIT);
 
     m_tooltips.AddTool(IDC_CACHESTDDEFAULTS, IDS_SETTINGS_LOGCACHE_STDDEFAULT);
     m_tooltips.AddTool(IDC_CACHEPOWERDEFAULTS, IDS_SETTINGS_LOGCACHE_POWERDEFAULT);

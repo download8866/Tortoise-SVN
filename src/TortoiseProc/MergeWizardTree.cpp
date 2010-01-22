@@ -24,7 +24,7 @@
 #include "Balloon.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardTree, CMergeWizardBasePage)
 
@@ -69,12 +69,10 @@ void CMergeWizardTree::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
-	DDX_Control(pDX, IDC_WCEDIT, m_WC);
 }
 
 
 BEGIN_MESSAGE_MAP(CMergeWizardTree, CMergeWizardBasePage)
-	ON_MESSAGE(WM_TSVN_MAXREVFOUND, &CMergeWizardTree::OnWCStatus)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBnClickedBrowse2)
@@ -155,8 +153,6 @@ BOOL CMergeWizardTree::OnInitDialog()
 	AddAnchor(IDC_MERGETREEWCGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
-
-	StartWCCheckThread(((CMergeWizard*)GetParent())->wcPath);
 
 	return TRUE;
 }
@@ -364,8 +360,6 @@ LPARAM CMergeWizardTree::OnRevSelected(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMergeWizardTree::OnWizardNext()
 {
-	StopWCCheckThread();
-
 	if (!CheckData(true))
 		return -1;
 
@@ -413,19 +407,4 @@ void CMergeWizardTree::OnCbnEditchangeUrlcombo()
 void CMergeWizardTree::OnCbnEditchangeUrlcombo2()
 {
 	GetDlgItem(IDC_BROWSE2)->EnableWindow(!m_URLCombo2.GetString().IsEmpty());
-}
-
-LPARAM CMergeWizardTree::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
-{
-	if (wParam)
-	{
-		CString text(MAKEINTRESOURCE(IDS_MERGE_WCDIRTY));
-		EDITBALLOONTIP bt;
-		bt.cbStruct = sizeof(bt);
-		bt.pszText  = text;
-		bt.pszTitle = NULL;
-		bt.ttiIcon = TTI_WARNING;
-		SendDlgItemMessage(IDC_WCEDIT, EM_SHOWBALLOONTIP, 0, (LPARAM)&bt);
-	}
-	return 0;
 }

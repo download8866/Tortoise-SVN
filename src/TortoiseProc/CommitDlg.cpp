@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,16 +25,11 @@
 #include "MessageBox.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "StringUtils.h"
 #include "SVN.h"
 #include "Registry.h"
 #include "SVNStatus.h"
 #include "HistoryDlg.h"
 #include "Hooks.h"
-#include "auto_buffer.h"
-#include "COMError.h"
-#include "..\version.h"
-#include "BstrSafeVector.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -63,7 +58,10 @@ CCommitDlg::CCommitDlg(CWnd* pParent /*=NULL*/)
 
 CCommitDlg::~CCommitDlg()
 {
-	delete m_pThread;
+	if(m_pThread != NULL)
+	{
+		delete m_pThread;
+	}
 }
 
 void CCommitDlg::DoDataExchange(CDataExchange* pDX)
@@ -73,15 +71,15 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_SHOWEXTERNALS, m_bShowExternals);
+	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Check(pDX, IDC_KEEPLOCK, m_bKeepLocks);
 	DDX_Control(pDX, IDC_SPLITTER, m_wndSplitter);
 	DDX_Check(pDX, IDC_KEEPLISTS, m_bKeepChangeList);
-	DDX_Control(pDX, IDC_COMMIT_TO, m_CommitTo);
-	DDX_Control(pDX, IDC_NEWVERSIONLINK, m_cUpdateLink);
 }
 
 BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
+	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_BN_CLICKED(IDC_HISTORY, OnBnClickedHistory)
@@ -92,7 +90,6 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_CHECKCHANGED, &CCommitDlg::OnSVNStatusListCtrlCheckChanged)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_CHANGELISTCHANGED, &CCommitDlg::OnSVNStatusListCtrlChangelistChanged)
-	ON_REGISTERED_MESSAGE(CLinkControl::LK_LINKITEMCLICKED, &CCommitDlg::OnCheck)
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady) 
 	ON_WM_TIMER()
     ON_WM_SIZE()
@@ -118,16 +115,10 @@ BOOL CCommitDlg::OnInitDialog()
 	SVNConfig config;
 	m_bKeepLocks = config.KeepLocks();
 
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_LISTGROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_KEEPLOCK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_KEEPLISTS)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	UpdateData(FALSE);
 	
 	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"));
+	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ListCtrl.SetCancelBool(&m_bCancelled);
 	m_ListCtrl.SetEmptyString(IDS_COMMITDLG_NOTHINGTOCOMMIT);
@@ -135,25 +126,9 @@ BOOL CCommitDlg::OnInitDialog()
 	m_ListCtrl.SetBackgroundImage(IDI_COMMIT_BKG);
 	
 	m_ProjectProperties.ReadPropsPathList(m_pathList);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	m_cLogMessage.RegisterContextMenuHandler(this);
-
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, _T("Alt+")+CString(CAppUtils::FindAcceleratorKey(this, IDC_INVISIBLE)));
-
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
 
 	OnEnChangeLogmessage();
 
@@ -161,6 +136,7 @@ BOOL CCommitDlg::OnInitDialog()
 	m_tooltips.AddTool(IDC_EXTERNALWARNING, IDS_COMMITDLG_EXTERNALS);
 	m_tooltips.AddTool(IDC_HISTORY, IDS_COMMITDLG_HISTORY_TT);
 	
+	m_SelectAll.SetCheck(BST_INDETERMINATE);
 	
 	GetDlgItem(IDC_BUGTRAQBUTTON)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUGTRAQBUTTON)->EnableWindow(FALSE);
@@ -175,16 +151,15 @@ BOOL CCommitDlg::OnInitDialog()
 		if (SUCCEEDED(hr))
 		{
 			m_BugTraqProvider = pProvider;
-			ATL::CComBSTR temp;
-			ATL::CComBSTR parameters;
-			parameters.Attach(m_bugtraq_association.GetParameters().AllocSysString());
-			hr = pProvider->GetLinkText(GetSafeHwnd(), parameters, &temp);
-			if (SUCCEEDED(hr))
+			BSTR temp = NULL;
+			if (SUCCEEDED(hr = pProvider->GetLinkText(GetSafeHwnd(), m_bugtraq_association.GetParameters().AllocSysString(), &temp)))
 			{
-				SetDlgItemText(IDC_BUGTRAQBUTTON, temp == 0 ? _T("") : temp);
+				SetDlgItemText(IDC_BUGTRAQBUTTON, temp);
 				GetDlgItem(IDC_BUGTRAQBUTTON)->EnableWindow(TRUE);
 				GetDlgItem(IDC_BUGTRAQBUTTON)->ShowWindow(SW_SHOW);
 			}
+
+			SysFreeString(temp);
 		}
 
 		GetDlgItem(IDC_LOGMESSAGE)->SetFocus();
@@ -209,39 +184,14 @@ BOOL CCommitDlg::OnInitDialog()
 		GetDlgItem(IDC_LOGMESSAGE)->SetFocus();
 	}
 
-	VersionCheck();
-
 	if (!m_sLogMessage.IsEmpty())
 		m_cLogMessage.SetText(m_sLogMessage);
 		
 	GetWindowText(m_sWindowTitle);
 	
 	AdjustControlSize(IDC_SHOWUNVERSIONED);
+	AdjustControlSize(IDC_SELECTALL);
 	AdjustControlSize(IDC_KEEPLOCK);
-
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKALL);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKNONE);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKUNVERSIONED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKVERSIONED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKADDED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDELETED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKMODIFIED);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKFILES);
-	m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDIRECTORIES);
-
-	// line up all controls and adjust their sizes.
-#define LINKSPACING 9
-	RECT rc = AdjustControlSize(IDC_SELECTLABEL);
-	rc.right -= 15;	// AdjustControlSize() adds 20 pixels for the checkbox/radio button bitmap, but this is a label...
-	rc = AdjustStaticSize(IDC_CHECKALL, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKNONE, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKUNVERSIONED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKVERSIONED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKADDED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKDELETED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKMODIFIED, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKFILES, rc, LINKSPACING);
-	rc = AdjustStaticSize(IDC_CHECKDIRECTORIES, rc, LINKSPACING);
 
 	GetClientRect(m_DlgOrigRect);
 	m_cLogMessage.GetClientRect(m_LogMsgOrigRect);
@@ -253,27 +203,13 @@ BOOL CCommitDlg::OnInitDialog()
 	AddAnchor(IDC_COMMIT_TO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
-	AddAnchor(IDC_NEWVERSIONLINK, TOP_LEFT, TOP_RIGHT);
-
-	AddAnchor(IDC_SELECTLABEL, TOP_LEFT);
-	AddAnchor(IDC_CHECKALL, TOP_LEFT);
-	AddAnchor(IDC_CHECKNONE, TOP_LEFT);
-	AddAnchor(IDC_CHECKUNVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKADDED, TOP_LEFT);
-	AddAnchor(IDC_CHECKDELETED, TOP_LEFT);
-	AddAnchor(IDC_CHECKMODIFIED, TOP_LEFT);
-	AddAnchor(IDC_CHECKFILES, TOP_LEFT);
-	AddAnchor(IDC_CHECKDIRECTORIES, TOP_LEFT);
-
-	AddAnchor(IDC_INVISIBLE, TOP_RIGHT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
 	
-	AddAnchor(IDC_INVISIBLE2, TOP_RIGHT);
 	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SPLITTER, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SHOWUNVERSIONED, BOTTOM_LEFT);
+	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
 	AddAnchor(IDC_SHOWEXTERNALS, BOTTOM_LEFT);
 	AddAnchor(IDC_EXTERNALWARNING, BOTTOM_RIGHT);
 	AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -300,7 +236,7 @@ BOOL CCommitDlg::OnInitDialog()
 		int delta = yPos - rectSplitter.top;
 		if ((rcLogMsg.bottom + delta > rcLogMsg.top)&&(rcLogMsg.bottom + delta < rcFileList.bottom - 30))
 		{
-			m_wndSplitter.SetWindowPos(NULL, rectSplitter.left, yPos, 0, 0, SWP_NOSIZE);
+			m_wndSplitter.SetWindowPos(NULL, 0, yPos, 0, 0, SWP_NOSIZE);
 			DoSize(delta);
 		}
 	}
@@ -471,10 +407,6 @@ void CCommitDlg::OnOK()
 		{
 			if (changedList[i].IsAdminDir())
 			{
-				// TODO: refactor this into an SVN class since 'entries' and
-				// 'tmp' are referring to internal files/folders of the .svn dir
-				// and will have to change for the SQLite-based wc format
-
 				// something inside an admin dir was changed.
 				// if it's the entries file, then we have to fully refresh because
 				// files may have been added/removed from version control
@@ -495,8 +427,7 @@ void CCommitDlg::OnOK()
 					if ((!entry->IsFromDifferentRepository()) &&
 						(!entry->IsInExternal()) &&
 						(!entry->IsNested()) && 
-						(!entry->IsChecked()) &&
-						(entry->IsVersioned()))
+						(!entry->IsChecked()))
 					{
 						m_bRecursive = false;
 						break;
@@ -511,7 +442,7 @@ void CCommitDlg::OnOK()
 	// are added before their children
 	itemsToAdd.SortByPathname();
 	SVN svn;
-	if (!svn.Add(itemsToAdd, &m_ProjectProperties, svn_depth_empty, false, false, true))
+	if (!svn.Add(itemsToAdd, &m_ProjectProperties, svn_depth_empty, FALSE, FALSE, TRUE))
 	{
 		CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 		InterlockedExchange(&m_bBlock, FALSE);
@@ -522,7 +453,7 @@ void CCommitDlg::OnOK()
 	// Remove any missing items
 	// Not sure that this sort is really necessary - indeed, it might be better to do a reverse sort at this point
 	itemsToRemove.SortByPathname();
-	svn.Remove(itemsToRemove, true);
+	svn.Remove(itemsToRemove, TRUE);
 
 	//the next step: find all deleted files and check if they're 
 	//inside a deleted folder. If that's the case, then remove those
@@ -532,23 +463,26 @@ void CCommitDlg::OnOK()
 	INT_PTR nDeleted = arDeleted.GetCount();
 	for (INT_PTR i=0; i<arDeleted.GetCount(); i++)
 	{
-		if (!m_ListCtrl.GetCheck(arDeleted.GetAt(i)))
-			continue;
-		const CTSVNPath& path = m_ListCtrl.GetListEntry(arDeleted.GetAt(i))->GetPath();
-		if (!path.IsDirectory())
-			continue;
-		//now find all children of this directory
-		for (int j=0; j<arDeleted.GetCount(); j++)
+		if (m_ListCtrl.GetCheck(arDeleted.GetAt(i)))
 		{
-			if (i==j)
-				continue;
-			CSVNStatusListCtrl::FileEntry* childEntry = m_ListCtrl.GetListEntry(arDeleted.GetAt(j));
-			if (childEntry->IsChecked())
+			const CTSVNPath& path = m_ListCtrl.GetListEntry(arDeleted.GetAt(i))->GetPath();
+			if (path.IsDirectory())
 			{
-				if (path.IsAncestorOf(childEntry->GetPath()))
+				//now find all children of this directory
+				for (int j=0; j<arDeleted.GetCount(); j++)
 				{
-					m_ListCtrl.SetEntryCheck(childEntry, arDeleted.GetAt(j), false);
-					nDeleted--;
+					if (i!=j)
+					{
+						CSVNStatusListCtrl::FileEntry* childEntry = m_ListCtrl.GetListEntry(arDeleted.GetAt(j));
+						if (childEntry->IsChecked())
+						{
+							if (path.IsAncestorOf(childEntry->GetPath()))
+							{
+								m_ListCtrl.SetEntryCheck(childEntry, arDeleted.GetAt(j), false);
+								nDeleted--;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -604,36 +538,37 @@ void CCommitDlg::OnOK()
 		HRESULT hr = m_BugTraqProvider.QueryInterface(&pProvider2);
 		if (SUCCEEDED(hr))
 		{
-			ATL::CComBSTR temp;
+			BSTR temp = NULL;
 			CString common = m_ListCtrl.GetCommonURL(true).GetSVNPathString();
-			ATL::CComBSTR repositoryRoot;
-			repositoryRoot.Attach(common.AllocSysString());
-			ATL::CComBSTR parameters;
-			parameters.Attach(m_bugtraq_association.GetParameters().AllocSysString());
-			ATL::CComBSTR commonRoot(m_pathList.GetCommonRoot().GetDirectory().GetWinPath());
-			ATL::CComBSTR commitMessage;
-			commitMessage.Attach(m_sLogMessage.AllocSysString());
-			CBstrSafeVector pathList(m_selectedPathList.GetCount());
+			BSTR repositoryRoot = common.AllocSysString();
+			BSTR parameters = m_bugtraq_association.GetParameters().AllocSysString();
+			BSTR commonRoot = SysAllocString(m_pathList.GetCommonRoot().GetDirectory().GetWinPath());
+			BSTR commitMessage = m_sLogMessage.AllocSysString();
+			SAFEARRAY *pathList = SafeArrayCreateVector(VT_BSTR, 0, m_selectedPathList.GetCount());
 
 			for (LONG index = 0; index < m_selectedPathList.GetCount(); ++index)
-				pathList.PutElement(index, m_selectedPathList[index].GetSVNPathString());
-			
-			hr = pProvider2->CheckCommit(GetSafeHwnd(), parameters, repositoryRoot, commonRoot, pathList, commitMessage, &temp);
-			if (FAILED(hr))
+				SafeArrayPutElement(pathList, &index, m_selectedPathList[index].GetSVNPathString().AllocSysString());
+
+			if (FAILED(hr = pProvider2->CheckCommit(GetSafeHwnd(), parameters, repositoryRoot, commonRoot, pathList, commitMessage, &temp)))
 			{
-				OnComError(hr);
+				CString sErr;
+				sErr.Format(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), _com_error(hr).ErrorMessage());
+				CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
 			}
 			else
 			{
-				CString sError = temp == 0 ? _T("") : temp;
+				CString sError = temp;
 				if (!sError.IsEmpty())
 				{
 					CMessageBox::Show(m_hWnd, sError, _T("TortoiseSVN"), MB_ICONERROR);
 					return;
 				}
+				SysFreeString(temp);
 			}
 		}
 	}
+
+
 
 	m_History.AddEntry(m_sLogMessage);
 	m_History.Save();
@@ -669,31 +604,12 @@ UINT CCommitDlg::StatusThread()
 	InterlockedExchange(&m_bThreadRunning, TRUE);// so the main thread knows that this thread is still running
 	InterlockedExchange(&m_bRunThread, TRUE);	// if this is set to FALSE, the thread should stop
 	m_bCancelled = false;
-	CoInitialize(NULL);
 
 	DialogEnableWindow(IDOK, false);
 	DialogEnableWindow(IDC_SHOWUNVERSIONED, false);
+	DialogEnableWindow(IDC_SELECTALL, false);
 	GetDlgItem(IDC_EXTERNALWARNING)->ShowWindow(SW_HIDE);
 	DialogEnableWindow(IDC_EXTERNALWARNING, false);
-
-	DialogEnableWindow(IDC_CHECKALL, false);
-	DialogEnableWindow(IDC_CHECKNONE, false);
-	DialogEnableWindow(IDC_CHECKUNVERSIONED, false);
-	DialogEnableWindow(IDC_CHECKVERSIONED, false);
-	DialogEnableWindow(IDC_CHECKADDED, false);
-	DialogEnableWindow(IDC_CHECKDELETED, false);
-	DialogEnableWindow(IDC_CHECKMODIFIED, false);
-	DialogEnableWindow(IDC_CHECKFILES, false);
-	DialogEnableWindow(IDC_CHECKDIRECTORIES, false);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
 
     // read the list of recent log entries before querying the WC for status
     // -> the user may select one and modify / update it while we are crawling the WC
@@ -722,11 +638,11 @@ UINT CCommitDlg::StatusThread()
 		m_cLogMessage.SetRepositoryRoot(m_ListCtrl.m_sRepositoryRoot);
 
 		if (m_checkedPathList.GetCount())
-			m_ListCtrl.Show(dwShow, m_checkedPathList, 0, true, true);
+			m_ListCtrl.Show(dwShow, m_checkedPathList);
 		else
 		{
-			DWORD dwCheck = m_bSelectFilesForCommit ? SVNSLC_SHOWDIRECTS|SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY|SVNSLC_SHOWREMOVED|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWLOCKS : 0;
-			m_ListCtrl.Show(dwShow, CTSVNPathList(), dwCheck, true, true);
+			DWORD dwCheck = m_bSelectFilesForCommit ? SVNSLC_SHOWDIRECTS|SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWLOCKS : 0;
+			m_ListCtrl.Show(dwShow, CTSVNPathList(), dwCheck);
 			m_bSelectFilesForCommit = true;
 		}
 
@@ -735,41 +651,8 @@ UINT CCommitDlg::StatusThread()
 			GetDlgItem(IDC_EXTERNALWARNING)->ShowWindow(SW_SHOW);
 			DialogEnableWindow(IDC_EXTERNALWARNING, TRUE);
 		}
-		m_CommitTo.SetWindowText(m_ListCtrl.m_sURL);
+		SetDlgItemText(IDC_COMMIT_TO, m_ListCtrl.m_sURL);
 		m_tooltips.AddTool(GetDlgItem(IDC_STATISTICS), m_ListCtrl.GetStatisticsString());
-
-		{
-			// compare all url parts against the branches pattern and if it matches,
-			// change the background image of the list control to indicate 
-			// a commit to a branch
-			CRegString branchesPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\BranchPattern"), _T("branches"));
-			CString sBranches = branchesPattern;
-			int pos = 0;
-			CString temp;
-			bool bFound = false;
-			while (!bFound)
-			{
-				temp = sBranches.Tokenize(_T(";"), pos);
-				if (temp.IsEmpty())
-					break;
-
-				int urlpos = 0;
-				CString temp2;
-				for(;;)
-				{
-					temp2 = m_ListCtrl.m_sURL.Tokenize(_T("/"), urlpos);
-					if (temp2.IsEmpty())
-						break;
-
-					if (CStringUtils::WildCardMatch(temp, temp2))
-					{
-						m_ListCtrl.SetBackgroundImage(IDI_COMMITBRANCHES_BKG);
-						bFound = true;
-						break;
-					}
-				}
-			} 
-		}
 	}
 	CString logmsg;
 	GetDlgItemText(IDC_LOGMESSAGE, logmsg);
@@ -778,7 +661,17 @@ UINT CCommitDlg::StatusThread()
 	{
 		if (!m_ListCtrl.GetLastErrorMessage().IsEmpty())
 			m_ListCtrl.SetEmptyString(m_ListCtrl.GetLastErrorMessage());
-		m_ListCtrl.Show(dwShow, CTSVNPathList(), 0, true, true);
+		m_ListCtrl.Show(dwShow);
+	}
+	if ((m_ListCtrl.GetItemCount()==0)&&(m_ListCtrl.HasUnversionedItems())&&((dwShow & SVNSLC_SHOWUNVERSIONED) == 0))
+	{
+		if (CMessageBox::Show(m_hWnd, IDS_COMMITDLG_NOTHINGTOCOMMITUNVERSIONED, IDS_APPNAME, MB_ICONINFORMATION | MB_YESNO)==IDYES)
+		{
+			m_bShowUnversioned = TRUE;
+			GetDlgItem(IDC_SHOWUNVERSIONED)->SendMessage(BM_SETCHECK, BST_CHECKED);
+			dwShow |= SVNSLC_SHOWUNVERSIONED;
+			m_ListCtrl.Show(dwShow);
+		}
 	}
 
 	CTSVNPath commonDir = m_ListCtrl.GetCommonDirectory(false);
@@ -798,14 +691,13 @@ UINT CCommitDlg::StatusThread()
 	if (m_bRunThread)
 	{
 		DialogEnableWindow(IDC_SHOWUNVERSIONED, true);
+		DialogEnableWindow(IDC_SELECTALL, true);
 		if (m_ListCtrl.HasChangeLists())
 			DialogEnableWindow(IDC_KEEPLISTS, true);
 		if (m_ListCtrl.HasExternalsFromDifferentRepos())
 			DialogEnableWindow(IDC_SHOWEXTERNALS, true);
 		if (m_ListCtrl.HasLocks())
 			DialogEnableWindow(IDC_KEEPLOCK, true);
-
-		UpdateCheckLinks();
 		// we have the list, now signal the main thread about it
 		SendMessage(WM_AUTOLISTREADY);	// only send the message if the thread wasn't told to quit!
 	}
@@ -813,7 +705,6 @@ UINT CCommitDlg::StatusThread()
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	// force the cursor to normal
 	RefreshCursor();
-	CoUninitialize();
 	return 0;
 }
 
@@ -854,6 +745,20 @@ void CCommitDlg::OnCancel()
 	m_History.Save();
 	SaveSplitterPos();
 	CResizableStandAloneDialog::OnCancel();
+}
+
+void CCommitDlg::OnBnClickedSelectall()
+{
+	m_tooltips.Pop();	// hide the tooltips
+	UINT state = (m_SelectAll.GetState() & 0x0003);
+	if (state == BST_INDETERMINATE)
+	{
+		// It is not at all useful to manually place the checkbox into the indeterminate state...
+		// We will force this on to the unchecked state
+		state = BST_UNCHECKED;
+		m_SelectAll.SetCheck(state);
+	}
+	m_ListCtrl.SelectAll(state == BST_CHECKED);
 }
 
 BOOL CCommitDlg::PreTranslateMessage(MSG* pMsg)
@@ -932,8 +837,7 @@ void CCommitDlg::OnBnClickedShowunversioned()
 			dwShow |= SVNSLC_SHOWUNVERSIONED;
 		else
 			dwShow &= ~SVNSLC_SHOWUNVERSIONED;
-		m_ListCtrl.Show(dwShow, CTSVNPathList(), 0, true, true);
-		UpdateCheckLinks();
+		m_ListCtrl.Show(dwShow);
 	}
 }
 
@@ -955,8 +859,7 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 		{
 			m_bShowUnversioned = TRUE;
 			DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMAL | SVNSLC_SHOWLOCKS | SVNSLC_SHOWINCHANGELIST | SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO | SVNSLC_SHOWEXTDISABLED | SVNSLC_SHOWUNVERSIONED;
-			m_ListCtrl.Show(dwShow, CTSVNPathList(), 0, true, true);
-			UpdateCheckLinks();
+			m_ListCtrl.Show(dwShow);
 			UpdateData(FALSE);
 		}
 	}
@@ -1068,9 +971,9 @@ void CCommitDlg::ParseRegexFile(const CString& sFile, std::map<CString, CString>
 	{
 		TRACE("CFileException loading auto list regex file\n");
 		pE->Delete();
+		return;
 	}
 }
-
 void CCommitDlg::GetAutocompletionList()
 {
 	// the auto completion list is made of strings from each selected files.
@@ -1082,25 +985,21 @@ void CCommitDlg::GetAutocompletionList()
 	// .h, .hpp = (?<=class[\s])\b\w+\b|(\b\w+(?=[\s ]?\(\);))
 	// .cpp = (?<=[^\s]::)\b\w+\b
 	
-	m_autolist.clear();
 	std::map<CString, CString> mapRegex;
 	CString sRegexFile = CPathUtils::GetAppDirectory();
 	CRegDWORD regtimeout = CRegDWORD(_T("Software\\TortoiseSVN\\AutocompleteParseTimeout"), 5);
 	DWORD timeoutvalue = regtimeout*1000;
-	if (timeoutvalue == 0)
-		return;
 	sRegexFile += _T("autolist.txt");
 	if (!m_bRunThread)
 		return;
-	if (PathFileExists(sRegexFile))
-		ParseRegexFile(sRegexFile, mapRegex);
-
+	ParseRegexFile(sRegexFile, mapRegex);
 	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, sRegexFile.GetBuffer(MAX_PATH+1));
 	sRegexFile.ReleaseBuffer();
 	sRegexFile += _T("\\TortoiseSVN\\autolist.txt");
 	if (PathFileExists(sRegexFile))
+	{
 		ParseRegexFile(sRegexFile, mapRegex);
-
+	}
 	DWORD starttime = GetTickCount();
 
 	// now we have two arrays of strings, where the first array contains all
@@ -1110,7 +1009,7 @@ void CCommitDlg::GetAutocompletionList()
 	// the next step is to go over all files shown in the commit dialog
 	// and scan them for strings we can use
 	int nListItems = m_ListCtrl.GetItemCount();
-	CRegDWORD removedExtension(_T("Software\\TortoiseSVN\\AutocompleteRemovesExtensions"), FALSE);
+
 	for (int i=0; i<nListItems && m_bRunThread; ++i)
 	{
 		// stop parsing after timeout
@@ -1135,7 +1034,7 @@ void CCommitDlg::GetAutocompletionList()
 
 		// Last inserted entry is a file name.
 		// Some users prefer to also list file name without extension.
-		if ((DWORD)removedExtension)
+		if (CRegDWORD(_T("Software\\TortoiseSVN\\AutocompleteRemovesExtensions"), FALSE))
 		{
 			int dotPos = sPartPath.ReverseFind('.');
 			if ((dotPos >= 0) && (dotPos > lastPos))
@@ -1152,7 +1051,7 @@ void CCommitDlg::GetAutocompletionList()
 		if (rdata.IsEmpty())
 			continue;
 
-		ScanFile(entry->GetPath().GetWinPathString(), rdata, sExt);
+		ScanFile(entry->GetPath().GetWinPathString(), rdata);
 		if ((entry->textstatus != svn_wc_status_unversioned) &&
 			(entry->textstatus != svn_wc_status_none) &&
 			(entry->textstatus != svn_wc_status_ignored) &&
@@ -1161,29 +1060,27 @@ void CCommitDlg::GetAutocompletionList()
 		{
 			CTSVNPath basePath = SVN::GetPristinePath(entry->GetPath());
 			if (!basePath.IsEmpty())
-				ScanFile(basePath.GetWinPathString(), rdata, sExt);
+				ScanFile(basePath.GetWinPathString(), rdata);
 		}
 	}
 	ATLTRACE(_T("Auto completion list loaded in %d msec\n"), GetTickCount() - starttime);
 }
 
-void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, const CString& sExt)
+void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex)
 {
-	static std::map<CString, tr1::wregex> regexmap;
-
 	wstring sFileContent;
 	HANDLE hFile = CreateFile(sFilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
 	if (hFile != INVALID_HANDLE_VALUE)
 	{
 		DWORD size = GetFileSize(hFile, NULL);
-		if (size > 300000L)
+		if (size > 1000000L)
 		{
-			// no files bigger than 300k
+			// no files bigger than 1 Meg
 			CloseHandle(hFile);
 			return;
 		}
 		// allocate memory to hold file contents
-		auto_buffer<char> buffer(size);
+		char * buffer = new char[size];
 		DWORD readbytes;
 		ReadFile(hFile, buffer, size, &readbytes, NULL);
 		CloseHandle(hFile);
@@ -1191,20 +1088,23 @@ void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, const
 		IsTextUnicode(buffer, readbytes, &opts);
 		if (opts & IS_TEXT_UNICODE_NULL_BYTES)
 		{
+			delete [] buffer;
 			return;
 		}
 		if (opts & IS_TEXT_UNICODE_UNICODE_MASK)
 		{
-			sFileContent = wstring((wchar_t*)buffer.get(), readbytes/sizeof(WCHAR));
+			sFileContent = wstring((wchar_t*)buffer, readbytes/sizeof(WCHAR));
 		}
 		if ((opts & IS_TEXT_UNICODE_NOT_UNICODE_MASK)||(opts == 0))
 		{
-			const int ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, NULL, 0);
-			auto_buffer<wchar_t> pWideBuf(ret);
-			const int ret2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, pWideBuf, ret);
+			int ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, NULL, 0);
+			wchar_t * pWideBuf = new wchar_t[ret];
+			int ret2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, pWideBuf, ret);
 			if (ret2 == ret)
 				sFileContent = wstring(pWideBuf, ret);
+			delete [] pWideBuf;
 		}
+		delete [] buffer;
 	}
 	if (sFileContent.empty()|| !m_bRunThread)
 	{
@@ -1213,24 +1113,17 @@ void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, const
 
 	try
 	{
-
-		tr1::wregex regCheck;
-		std::map<CString, tr1::wregex>::const_iterator regIt;
-		if ((regIt = regexmap.find(sExt)) != regexmap.end())
-			regCheck = regIt->second;
-		else
-		{
-			regCheck = tr1::wregex(sRegex, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-			regexmap[sExt] = regCheck;
-		}
+		const tr1::wregex regCheck(sRegex, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
 		const tr1::wsregex_iterator end;
-		for (tr1::wsregex_iterator it(sFileContent.begin(), sFileContent.end(), regCheck); it != end; ++it)
+		wstring s = sFileContent;
+		for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
 		{
 			const tr1::wsmatch match = *it;
 			for (size_t i=1; i<match.size(); ++i)
 			{
 				if (match[i].second-match[i].first)
 				{
+					ATLTRACE(_T("matched keyword : %s\n"), wstring(match[i]).c_str());
 					m_autolist.insert(wstring(match[i]).c_str());
 				}
 			}
@@ -1342,17 +1235,15 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
 	if (m_BugTraqProvider == NULL)
 		return;
 
-	ATL::CComBSTR parameters;
-	parameters.Attach(m_bugtraq_association.GetParameters().AllocSysString());
-	ATL::CComBSTR commonRoot(m_pathList.GetCommonRoot().GetDirectory().GetWinPath());
-	CBstrSafeVector pathList(m_pathList.GetCount());
+	BSTR parameters = m_bugtraq_association.GetParameters().AllocSysString();
+	BSTR commonRoot = SysAllocString(m_pathList.GetCommonRoot().GetDirectory().GetWinPath());
+	SAFEARRAY *pathList = SafeArrayCreateVector(VT_BSTR, 0, m_pathList.GetCount());
 
 	for (LONG index = 0; index < m_pathList.GetCount(); ++index)
-		pathList.PutElement(index, m_pathList[index].GetSVNPathString());
+		SafeArrayPutElement(pathList, &index, m_pathList[index].GetSVNPathString().AllocSysString());
 
-	ATL::CComBSTR originalMessage;
-	originalMessage.Attach(sMsg.AllocSysString());
-	ATL::CComBSTR temp;
+	BSTR originalMessage = sMsg.AllocSysString();
+	BSTR temp = NULL;
 	m_revProps.clear();
 
 	// first try the IBugTraqProvider2 interface
@@ -1361,26 +1252,29 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
 	if (SUCCEEDED(hr))
 	{
 		CString common = m_ListCtrl.GetCommonURL(false).GetSVNPathString();
-		ATL::CComBSTR repositoryRoot;
-		repositoryRoot.Attach(common.AllocSysString());
-		ATL::CComBSTR bugIDOut;
+		BSTR repositoryRoot = common.AllocSysString();
+		BSTR bugIDOut = NULL;
 		GetDlgItemText(IDC_BUGID, m_sBugID);
-		ATL::CComBSTR bugID;
-		bugID.Attach(m_sBugID.AllocSysString());
-		CBstrSafeVector revPropNames;
-		CBstrSafeVector revPropValues;
+		BSTR bugID = m_sBugID.AllocSysString();
+		SAFEARRAY * revPropNames = NULL;
+		SAFEARRAY * revPropValues = NULL;
 		if (FAILED(hr = pProvider2->GetCommitMessage2(GetSafeHwnd(), parameters, repositoryRoot, commonRoot, pathList, originalMessage, bugID, &bugIDOut, &revPropNames, &revPropValues, &temp)))
 		{
-			OnComError(hr);
+			CString sErr;
+			sErr.Format(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), _com_error(hr).ErrorMessage());
+			CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
 		}
 		else
 		{
 			if (bugIDOut)
 			{
 				m_sBugID = bugIDOut;
+				SysFreeString(bugIDOut);
 				SetDlgItemText(IDC_BUGID, m_sBugID);
 			}
-			m_cLogMessage.SetText((LPCTSTR)temp);
+			SysFreeString(bugID);
+			SysFreeString(repositoryRoot);
+			m_cLogMessage.SetText(temp);
 			BSTR HUGEP *pbRevNames;
 			BSTR HUGEP *pbRevValues;
 
@@ -1401,6 +1295,10 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
 				}
 				SafeArrayUnaccessData(revPropNames);
 			}
+			if (revPropNames)
+				SafeArrayDestroy(revPropNames);
+			if (revPropValues)
+				SafeArrayDestroy(revPropValues);
 		}
 	}
 	else
@@ -1410,16 +1308,20 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
 		hr = m_BugTraqProvider.QueryInterface(&pProvider);
 		if (FAILED(hr))
 		{
-			OnComError(hr);
+			CString sErr;
+			sErr.Format(IDS_ERR_FAILEDISSUETRACKERCOM, (LPCTSTR)m_bugtraq_association.GetProviderName(), _com_error(hr).ErrorMessage());
+			CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
 			return;
 		}
 
 		if (FAILED(hr = pProvider->GetCommitMessage(GetSafeHwnd(), parameters, commonRoot, pathList, originalMessage, &temp)))
 		{
-			OnComError(hr);
+			CString sErr;
+			sErr.Format(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), _com_error(hr).ErrorMessage());
+			CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
 		}
 		else
-			m_cLogMessage.SetText((LPCTSTR)temp);
+			m_cLogMessage.SetText(temp);
 	}
 	m_sLogMessage = m_cLogMessage.GetText();
 	if (!m_ProjectProperties.sMessage.IsEmpty())
@@ -1432,6 +1334,12 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
 	}
 
 	m_cLogMessage.SetFocus();
+
+	SysFreeString(parameters);
+	SysFreeString(commonRoot);
+	SafeArrayDestroy(pathList);
+	SysFreeString(originalMessage);
+	SysFreeString(temp);
 }
 
 LRESULT CCommitDlg::OnSVNStatusListCtrlCheckChanged(WPARAM, LPARAM)
@@ -1446,31 +1354,6 @@ LRESULT CCommitDlg::OnSVNStatusListCtrlChangelistChanged(WPARAM count, LPARAM)
 	return 0;
 }
 
-LRESULT CCommitDlg::OnCheck(WPARAM wnd, LPARAM)
-{
-	HWND hwnd = (HWND)wnd;
-	if (hwnd == GetDlgItem(IDC_CHECKALL)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWEVERYTHING, true);
-	else if (hwnd == GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd())
-		m_ListCtrl.Check(0, true);
-	else if (hwnd == GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWUNVERSIONED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWVERSIONED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWADDED|SVNSLC_SHOWADDEDHISTORY, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWREMOVED|SVNSLC_SHOWMISSING, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWMODIFIED|SVNSLC_SHOWREPLACED, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWFILES, false);
-	else if (hwnd == GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd())
-		m_ListCtrl.Check(SVNSLC_SHOWFOLDERS, false);
-
-	return 0;
-}
-
 void CCommitDlg::UpdateOKButton()
 {
 	BOOL bValidLogSize = FALSE;
@@ -1482,13 +1365,6 @@ void CCommitDlg::UpdateOKButton()
 	DialogEnableWindow(IDOK, bValidLogSize && nSelectedItems>0);
 }
 
-void CCommitDlg::OnComError( HRESULT hr )
-{
-	COMError ce(hr);
-	CString sErr;
-	sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), ce.GetMessageAndDescription().c_str());
-	CMessageBox::Show(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
-}
 
 LRESULT CCommitDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -1527,45 +1403,15 @@ void CCommitDlg::DoSize(int delta)
 	RemoveAnchor(IDC_SPLITTER);
 	RemoveAnchor(IDC_LISTGROUP);
 	RemoveAnchor(IDC_FILELIST);
-	RemoveAnchor(IDC_SELECTLABEL);
-	RemoveAnchor(IDC_CHECKALL);
-	RemoveAnchor(IDC_CHECKNONE);
-	RemoveAnchor(IDC_CHECKUNVERSIONED);
-	RemoveAnchor(IDC_CHECKVERSIONED);
-	RemoveAnchor(IDC_CHECKADDED);
-	RemoveAnchor(IDC_CHECKDELETED);
-	RemoveAnchor(IDC_CHECKMODIFIED);
-	RemoveAnchor(IDC_CHECKFILES);
-	RemoveAnchor(IDC_CHECKDIRECTORIES);
 	CSplitterControl::ChangeHeight(&m_cLogMessage, delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(GetDlgItem(IDC_MESSAGEGROUP), delta, CW_TOPALIGN);
 	CSplitterControl::ChangeHeight(&m_ListCtrl, -delta, CW_BOTTOMALIGN);
 	CSplitterControl::ChangeHeight(GetDlgItem(IDC_LISTGROUP), -delta, CW_BOTTOMALIGN);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_SELECTLABEL), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKALL), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKNONE), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKUNVERSIONED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKVERSIONED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKADDED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKDELETED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKMODIFIED), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKFILES), 0, delta);
-	CSplitterControl::ChangePos(GetDlgItem(IDC_CHECKDIRECTORIES), 0, delta);
 	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SPLITTER, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_LISTGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_FILELIST, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_SELECTLABEL, TOP_LEFT);
-	AddAnchor(IDC_CHECKALL, TOP_LEFT);
-	AddAnchor(IDC_CHECKNONE, TOP_LEFT);
-	AddAnchor(IDC_CHECKUNVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKVERSIONED, TOP_LEFT);
-	AddAnchor(IDC_CHECKADDED, TOP_LEFT);
-	AddAnchor(IDC_CHECKDELETED, TOP_LEFT);
-	AddAnchor(IDC_CHECKMODIFIED, TOP_LEFT);
-	AddAnchor(IDC_CHECKFILES, TOP_LEFT);
-	AddAnchor(IDC_CHECKDIRECTORIES, TOP_LEFT);
 	ArrangeLayout();
 	// adjust the minimum size of the dialog to prevent the resizing from
 	// moving the list control too far down.
@@ -1587,6 +1433,7 @@ void CCommitDlg::OnSize(UINT nType, int cx, int cy)
     SetSplitterRange();
 }
 
+
 void CCommitDlg::OnBnClickedShowexternals()
 {
 	m_tooltips.Pop();	// hide the tooltips
@@ -1599,71 +1446,6 @@ void CCommitDlg::OnBnClickedShowexternals()
 			dwShow |= SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO|SVNSLC_SHOWEXTDISABLED;
 		else
 			dwShow &= ~(SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO|SVNSLC_SHOWEXTDISABLED);
-		m_ListCtrl.Show(dwShow, CTSVNPathList(), 0, true, true);
-		UpdateCheckLinks();
-	}
-}
-
-void CCommitDlg::UpdateCheckLinks()
-{
-	DialogEnableWindow(IDC_CHECKALL, true);
-	DialogEnableWindow(IDC_CHECKNONE, true);
-	DialogEnableWindow(IDC_CHECKUNVERSIONED, m_ListCtrl.GetUnversionedCount() > 0);
-	DialogEnableWindow(IDC_CHECKVERSIONED, m_ListCtrl.GetItemCount() > m_ListCtrl.GetUnversionedCount());
-	DialogEnableWindow(IDC_CHECKADDED, m_ListCtrl.GetAddedCount() > 0);
-	DialogEnableWindow(IDC_CHECKDELETED, m_ListCtrl.GetDeletedCount() > 0);
-	DialogEnableWindow(IDC_CHECKMODIFIED, m_ListCtrl.GetModifiedCount() > 0);
-	DialogEnableWindow(IDC_CHECKFILES, m_ListCtrl.GetFileCount() > 0);
-	DialogEnableWindow(IDC_CHECKDIRECTORIES, m_ListCtrl.GetFolderCount() > 0);
-	long disabledstate = STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE;
-
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetUnversionedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetItemCount() > m_ListCtrl.GetUnversionedCount() ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetAddedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetDeletedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetModifiedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetFileCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetFolderCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
-}
-
-void CCommitDlg::VersionCheck()
-{
-	CRegString regVer(_T("Software\\TortoiseSVN\\NewVersion"));
-	CString vertemp = regVer;
-	int major = _ttoi(vertemp);
-	vertemp = vertemp.Mid(vertemp.Find('.')+1);
-	int minor = _ttoi(vertemp);
-	vertemp = vertemp.Mid(vertemp.Find('.')+1);
-	int micro = _ttoi(vertemp);
-	vertemp = vertemp.Mid(vertemp.Find('.')+1);
-	int build = _ttoi(vertemp);
-	BOOL bNewer = FALSE;
-	if (major > TSVN_VERMAJOR)
-		bNewer = TRUE;
-	else if ((minor > TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
-		bNewer = TRUE;
-	else if ((micro > TSVN_VERMICRO)&&(minor == TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
-		bNewer = TRUE;
-	else if ((build > TSVN_VERBUILD)&&(micro == TSVN_VERMICRO)&&(minor == TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
-		bNewer = TRUE;
-
-	if (bNewer)
-	{
-		CRegString regDownText(_T("Software\\TortoiseSVN\\NewVersionText"));
-		CRegString regDownLink(_T("Software\\TortoiseSVN\\NewVersionLink"), _T("http://tortoisesvn.net"));
-
-		if (CString(regDownText).IsEmpty())
-		{
-			CString temp;
-			temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
-			regDownText = temp;
-		}
-		m_cUpdateLink.SetURL(CString(regDownLink));
-		m_cUpdateLink.SetWindowText(CString(regDownText));
-		m_cUpdateLink.SetColors(RGB(255,0,0), RGB(150,0,0));
-
-		m_cUpdateLink.ShowWindow(SW_SHOW);
+		m_ListCtrl.Show(dwShow);
 	}
 }

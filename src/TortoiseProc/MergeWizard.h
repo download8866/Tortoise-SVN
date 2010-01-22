@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,8 +24,6 @@
 #include "MergeWizardRevRange.h"
 #include "MergeWizardOptions.h"
 #include "MergeWizardReintegrate.h"
-#include "AeroGlass.h"
-#include "AeroControls.h"
 
 #define MERGEWIZARD_REVRANGE	0
 #define MERGEWIZARD_TREE		1
@@ -44,7 +42,6 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	afx_msg void OnPaint();
-	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg HCURSOR OnQueryDragIcon();
 
 	CMergeWizardStart				page1;
@@ -72,7 +69,6 @@ public:
 	svn_depth_t						m_depth;
 	BOOL							m_bIgnoreEOL;
 	svn_diff_file_ignore_space_t	m_IgnoreSpaces;
-	BOOL							m_bForce;
 	
 	void		SaveMode();
 	LRESULT		GetSecondPage();
@@ -80,8 +76,6 @@ public:
 private:
 	bool							m_FirstPageActivation;
 	HICON							m_hIcon;
-	CDwmApiImpl						m_Dwm;
-	AeroControlBase					m_aeroControls;
 };
 
 

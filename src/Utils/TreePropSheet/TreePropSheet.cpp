@@ -22,7 +22,6 @@
 #include "TreePropSheet.h"
 #include "PropPageFrameDefault.h"
 #include "HighColorTab.hpp"
-#include "XPTheme.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -846,7 +845,7 @@ BOOL CTreePropSheet::OnInitDialog()
 	// MFC7-support here (Thanks to Rainer Wollgarten)
 	// YT: Cast tree control to CWnd and calls CWnd::CreateEx in all cases (VC 6 and7).
 	((CWnd*)m_pwndPageTree)->CreateEx(
-		WS_EX_CLIENTEDGE|WS_EX_NOPARENTNOTIFY|TVS_EX_DOUBLEBUFFER,
+		WS_EX_CLIENTEDGE|WS_EX_NOPARENTNOTIFY,
 		_T("SysTreeView32"), _T("PageTree"),
 		WS_TABSTOP|WS_CHILD|WS_VISIBLE|dwTreeStyle,
 		rectTree, this, s_unPageTreeId);
@@ -856,8 +855,6 @@ BOOL CTreePropSheet::OnInitDialog()
 		m_pwndPageTree->SetImageList(&m_Images, TVSIL_NORMAL);
 		m_pwndPageTree->SetImageList(&m_Images, TVSIL_STATE);
 	}
-	CXPTheme theme;
-	theme.SetWindowTheme(m_pwndPageTree->GetSafeHwnd(), L"Explorer", NULL);
 
 	// Fill the tree ctrl
 	RefillPageTree();
@@ -944,9 +941,9 @@ void CTreePropSheet::OnPageTreeSelChanging(NMHDR *pNotifyStruct, LRESULT *plResu
 		m_bPageTreeSelChangedActive = TRUE;
 
 	NMTREEVIEW	*pTvn = reinterpret_cast<NMTREEVIEW*>(pNotifyStruct);
-	int					nPage = (int)m_pwndPageTree->GetItemData(pTvn->itemNew.hItem);
+	DWORD_PTR			nPage = m_pwndPageTree->GetItemData(pTvn->itemNew.hItem);
 	BOOL				bResult;
-	if (nPage >= (int)m_pwndPageTree->GetCount())
+	if (nPage >= m_pwndPageTree->GetCount())
 		bResult = KillActiveCurrentPage();
 	else
 		bResult = SetActivePage(nPage);

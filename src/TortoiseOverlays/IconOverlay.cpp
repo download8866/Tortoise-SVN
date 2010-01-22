@@ -1,5 +1,5 @@
 // TortoiseOverlays - an overlay handler for Tortoise clients
-// Copyright (C) 2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "Guids.h"
@@ -12,31 +12,13 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 {
 	int nInstalledOverlays = GetInstalledOverlays();
 	
-	// only 12 overlay slots can be used (12 determined by testing,
-	// since not all overlay handlers are registered in the registry, e.g., the
-	// shortcut (arrow) overlay isn't listed there).
-	// Known system overlays:
-	// * shortcut (arrow) (not listed)
-	// * shared (hand) (listed)
-	// * UAC (shield) (not listed)
-	// * Offline (not listed)
-	//
-	// If there are more than 12 handlers registered, then
-	// we have to drop some of our handlers to make sure that
-	// the 'important' handlers are loaded properly:
-	//
-	// 11 registered: drop the unversioned overlay
-	// 12 registered: drop the unversioned and the ignored overlay
-	// 13 registered: drop the unversioned, ignored and locked overlay
-	// 14 and more registered: drop the unversioned, ignored, locked and added overlay
-	
-	if ((m_State == FileStateAdded)&&(nInstalledOverlays > 13))
+	if ((m_State == FileStateAdded)&&(nInstalledOverlays > 12))
 		return S_FALSE;		// don't use the 'added' overlay
-	if ((m_State == FileStateLocked)&&(nInstalledOverlays > 12))
+	if ((m_State == FileStateLocked)&&(nInstalledOverlays > 13))
 		return S_FALSE;		// don't show the 'locked' overlay
-	if ((m_State == FileStateIgnored)&&(nInstalledOverlays > 11))
+	if ((m_State == FileStateIgnored)&&(nInstalledOverlays > 12))
 		return S_FALSE;		// don't use the 'ignored' overlay
-	if ((m_State == FileStateUnversioned)&&(nInstalledOverlays > 10))
+	if ((m_State == FileStateUnversioned)&&(nInstalledOverlays > 13))
 		return S_FALSE;		// don't show the 'unversioned' overlay
 
     // Get folder icons from registry
@@ -97,6 +79,7 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
     else
         return S_FALSE;
 
+
     *pIndex = 0;
     *pdwFlags = ISIOI_ICONFILE;
     return S_OK;
@@ -104,8 +87,6 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 
 STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 {
-	if(pPriority == 0)
-		return E_POINTER;
 	switch (m_State)
 	{
 		case FileStateConflict:
@@ -144,8 +125,6 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 
 STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD dwAttrib)
 {
-	if(pwszPath == 0)
-		return E_INVALIDARG;
 	for (vector<DLLPointers>::iterator it = m_dllpointers.begin(); it != m_dllpointers.end(); ++it)
 	{
 		if (it->pShellIconOverlayIdentifier)
@@ -287,3 +266,6 @@ void CShellExt::LoadRealLibrary(LPCTSTR ModuleName, LPCTSTR clsid, LPWSTR pwszIc
 
 	m_dllpointers.push_back(pointers);
 }
+
+
+

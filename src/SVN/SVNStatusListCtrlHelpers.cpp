@@ -23,7 +23,7 @@
 #include "SVNStatusListCtrl.h"
 #include <iterator>
 
-#define SVNSLC_COL_VERSION 6
+#define SVNSLC_COL_VERSION 4
 
 // assign property list
 
@@ -66,13 +66,12 @@ void CSVNStatusListCtrl::PropertyList::GetPropertyNames (std::set<CString>& name
 
 // get a property value. 
 
-const CString& CSVNStatusListCtrl::PropertyList::operator[](const CString& name) const
+CString CSVNStatusListCtrl::PropertyList::operator[](const CString& name) const
 {
-	static const CString empty;
 	CIT iter = properties.find (name);
 
 	return iter == properties.end()
-		? empty
+		? CString()
 		: iter->second;
 }
 
@@ -94,7 +93,7 @@ bool CSVNStatusListCtrl::PropertyList::HasProperty (const CString& name) const
 
 bool CSVNStatusListCtrl::PropertyList::IsNeedsLockSet() const
 {
-	static const CString svnNeedsLock (SVN_PROP_NEEDS_LOCK);
+	static const CString svnNeedsLock = _T("svn:needs-lock");
 	return HasProperty (svnNeedsLock);
 }
 
@@ -256,7 +255,7 @@ bool CSVNStatusListCtrl::ColumnManager::IsUserProp (int column) const
     return columns[index].index >= SVNSLC_USERPROPCOLOFFSET;
 }
 
-const CString& CSVNStatusListCtrl::ColumnManager::GetName (int column) const
+CString CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 {
     static const UINT standardColumnNames[SVNSLC_NUMCOLUMNS] 
         = { IDS_STATUSLIST_COLFILE
@@ -285,21 +284,15 @@ const CString& CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 		  , IDS_STATUSLIST_COLSVNLOCK
 
 		  , IDS_STATUSLIST_COLCOPYFROM
-		  , IDS_STATUSLIST_COLCOPYFROMREV
-          , IDS_STATUSLIST_COLMODIFICATIONDATE
-		  , IDS_STATUSLIST_COLSIZE};
+          , IDS_STATUSLIST_COLMODIFICATIONDATE};
 
-    static CString standardColumnNameStrings[SVNSLC_NUMCOLUMNS];
-
-	// standard columns
+    // standard columns
 
     size_t index = static_cast<size_t>(column);
     if (index < SVNSLC_NUMCOLUMNS)
     {
-        CString& result = standardColumnNameStrings[index];
-		if (result.IsEmpty())
-			result.LoadString (standardColumnNames[index]);
-
+        CString result;
+        result.LoadString (standardColumnNames[index]);
         return result;
     }
 
@@ -310,8 +303,7 @@ const CString& CSVNStatusListCtrl::ColumnManager::GetName (int column) const
 
     // default: empty
 
-	static const CString empty;
-    return empty;
+    return CString();
 }
 
 int CSVNStatusListCtrl::ColumnManager::GetWidth (int column, bool useDefaults) const
@@ -416,15 +408,13 @@ void CSVNStatusListCtrl::ColumnManager::ColumnResized (int column)
 void CSVNStatusListCtrl::ColumnManager::UpdateUserPropList 
     (const std::vector<FileEntry*>& files)
 {
-	const static CString svnPropNeedsLock (SVN_PROP_NEEDS_LOCK);
-
-	// collect all user-defined props
+    // collect all user-defined props
 
     std::set<CString> aggregatedProps;
     for (size_t i = 0, count = files.size(); i < count; ++i)
         files[i]->present_props.GetPropertyNames (aggregatedProps);
 
-    aggregatedProps.erase (svnPropNeedsLock);
+    aggregatedProps.erase (_T("svn:needs-lock"));
     itemProps = aggregatedProps;
 
     // add new ones to the internal list
@@ -522,15 +512,13 @@ void CSVNStatusListCtrl::ColumnManager::UpdateRelevance
     ( const std::vector<FileEntry*>& files
     , const std::vector<size_t>& visibleFiles)
 {
-	const static CString svnPropNeedsLock (SVN_PROP_NEEDS_LOCK);
-
-	// collect all user-defined props that belong to shown files
+    // collect all user-defined props that belong to shown files
 
     std::set<CString> aggregatedProps;
     for (size_t i = 0, count = visibleFiles.size(); i < count; ++i)
         files[visibleFiles[i]]->present_props.GetPropertyNames (aggregatedProps);
 
-    aggregatedProps.erase (svnPropNeedsLock);
+    aggregatedProps.erase (_T("svn:needs-lock"));
     itemProps = aggregatedProps;
 
     // invisible columns for unused props are not relevant
@@ -929,17 +917,7 @@ bool CSVNStatusListCtrl::CSorter::operator()
 	int result = 0;
 	switch (sortedColumn)
 	{
-	case 22:
-		{
-			if (result == 0)
-			{
-				__int64 fileSize1 = entry1->isfolder ? 0 : entry1->working_size != (-1) ? entry1->working_size : entry1->GetPath().GetFileSize();
-				__int64 fileSize2 = entry2->isfolder ? 0 : entry2->working_size != (-1) ? entry2->working_size : entry2->GetPath().GetFileSize();
-				
-				result = int(fileSize1 - fileSize2);
-			}
-		}
-	case 21:
+	case 20:
 		{
 			if (result == 0)
 			{
@@ -950,13 +928,6 @@ bool CSVNStatusListCtrl::CSorter::operator()
 				FILETIME* filetime2 = (FILETIME*)(__int64*)&writetime2;
 
 				result = CompareFileTime(filetime1,filetime2);
-			}
-		}
-	case 20:
-		{
-			if (result == 0)
-			{
-				result = entry1->copyfrom_rev - entry2->copyfrom_rev;
 			}
 		}
 	case 19:
@@ -1005,7 +976,7 @@ bool CSVNStatusListCtrl::CSorter::operator()
 		{
 			if (result == 0)
 			{
-				result = (int)(entry1->lock_date - entry2->lock_date);
+				result = entry1->lock_date - entry2->lock_date;
 			}
 		}
 	case 12:

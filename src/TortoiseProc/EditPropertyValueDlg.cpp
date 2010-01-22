@@ -23,7 +23,7 @@
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "EditPropertyValueDlg.h"
-#include "auto_buffer.h"
+
 
 IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
 
@@ -63,13 +63,6 @@ END_MESSAGE_MAP()
 BOOL CEditPropertyValueDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_PROPVALUEGROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_PROPRECURSIVE)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-
 	CString resToken;
 	int curPos = 0;
 
@@ -105,30 +98,29 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 
 		if ((m_bFolder)||(m_bMultiple))
 		{
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_URL));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_LOGREGEX));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_LABEL));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_MESSAGE));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_NUMBER));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_WARNIFNOISSUE));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_APPEND));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_PROVIDERUUID));
-			m_PropNames.AddString(_T(BUGTRAQPROPNAME_PROVIDERPARAMS));
+			m_PropNames.AddString(_T("bugtraq:url"));
+			m_PropNames.AddString(_T("bugtraq:logregex"));
+			m_PropNames.AddString(_T("bugtraq:label"));
+			m_PropNames.AddString(_T("bugtraq:message"));
+			m_PropNames.AddString(_T("bugtraq:number"));
+			m_PropNames.AddString(_T("bugtraq:warnifnoissue"));
+			m_PropNames.AddString(_T("bugtraq:append"));
+			m_PropNames.AddString(_T("bugtraq:provideruuid"));
+			m_PropNames.AddString(_T("bugtraq:providerparams"));
 
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGTEMPLATE));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGWIDTHLINE));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGMINSIZE));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOCKMSGMINSIZE));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGFILELISTLANG));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGSUMMARY));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_PROJECTLANGUAGE));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_USERFILEPROPERTY));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_USERDIRPROPERTY));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_AUTOPROPS));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_LOGREVREGEX));
+			m_PropNames.AddString(_T("tsvn:logtemplate"));
+			m_PropNames.AddString(_T("tsvn:logwidthmarker"));
+			m_PropNames.AddString(_T("tsvn:logminsize"));
+			m_PropNames.AddString(_T("tsvn:lockmsgminsize"));
+			m_PropNames.AddString(_T("tsvn:logfilelistenglish"));
+			m_PropNames.AddString(_T("tsvn:logsummary"));
+			m_PropNames.AddString(_T("tsvn:projectlanguage"));
+			m_PropNames.AddString(_T("tsvn:userfileproperties"));
+			m_PropNames.AddString(_T("tsvn:userdirproperties"));
+			m_PropNames.AddString(_T("tsvn:autoprops"));
 
-			m_PropNames.AddString(_T(PROJECTPROPNAME_WEBVIEWER_REV));
-			m_PropNames.AddString(_T(PROJECTPROPNAME_WEBVIEWER_PATHREV));
+			m_PropNames.AddString(_T("webviewer:revision"));
+			m_PropNames.AddString(_T("webviewer:pathrevision"));
 
 			if (!m_ProjectProperties.sDPPath.IsEmpty())
 			{
@@ -173,9 +165,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	if (!m_sTitle.IsEmpty())
 		SetWindowText(m_sTitle);
 
-	CAppUtils::CreateFontForLogs(m_valueFont);
-	GetDlgItem(IDC_PROPVALUE)->SetFont(&m_valueFont);
-
 	AdjustControlSize(IDC_PROPRECURSIVE);
 
 	GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
@@ -190,17 +179,7 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("EditPropertyValueDlg"));
-	if (!m_sPropValue.IsEmpty())
-	{
-		GetDlgItem(IDC_PROPVALUE)->SetFocus();
-		return FALSE;
-	}
 	return TRUE;
-}
-
-void CEditPropertyValueDlg::SetPropertyName(const std::string& sName)
-{
-	m_sPropName = CUnicodeUtils::UTF8ToUTF16 (sName);
 }
 
 void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
@@ -213,7 +192,7 @@ void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
 	else
 	{
 		m_bIsBinary = false;
-		m_sPropValue = CUnicodeUtils::UTF8ToUTF16 (sValue);
+		m_sPropValue = UTF8ToWide(sValue.c_str()).c_str();
 		m_sPropValue.Replace(_T("\n"), _T("\r\n"));
 	}
 }
@@ -239,7 +218,6 @@ void CEditPropertyValueDlg::OnOK()
 		m_PropValue = WideToUTF8((LPCTSTR)m_sPropValue);
 	}
 	m_PropNames.GetWindowText(m_sPropName);
-	m_PropName = WideToUTF8((LPCTSTR)m_sPropName);
 	CDialog::OnOK();
 }
 
@@ -257,84 +235,81 @@ void CEditPropertyValueDlg::CheckRecursive()
 	{
 		CString sName;
 		m_PropNames.GetLBText(idx, sName);
-		std::string nameUTF8 = StringToUTF8 ((LPCTSTR)sName);
 		if ((m_bFolder)||(m_bMultiple))
 		{
 			// folder or multiple, now check for file-only props
-			if (nameUTF8.compare(SVN_PROP_EOL_STYLE)==0)
+			if (sName.Compare(_T("svn:eol-style"))==0)
 				m_bRecursive = TRUE;
-			if (nameUTF8.compare(SVN_PROP_EXECUTABLE)==0)
+			if (sName.Compare(_T("svn:executable"))==0)
 				m_bRecursive = TRUE;
-			if (nameUTF8.compare(SVN_PROP_KEYWORDS)==0)
+			if (sName.Compare(_T("svn:keywords"))==0)
 				m_bRecursive = TRUE;
-			if (nameUTF8.compare(SVN_PROP_NEEDS_LOCK)==0)
+			if (sName.Compare(_T("svn:needs-lock"))==0)
 				m_bRecursive = TRUE;
-			if (nameUTF8.compare(SVN_PROP_MIME_TYPE)==0)
+			if (sName.Compare(_T("svn:mime-type"))==0)
 				m_bRecursive = TRUE;
 		}
 		UINT nText = 0;
-		if (nameUTF8.compare(SVN_PROP_EXTERNALS)==0)
+		if (sName.Compare(_T("svn:externals"))==0)
 			nText = IDS_PROP_TT_EXTERNALS;
-		if (nameUTF8.compare(SVN_PROP_EXECUTABLE)==0)
+		if (sName.Compare(_T("svn:executable"))==0)
 			nText = IDS_PROP_TT_EXECUTABLE;
-		if (nameUTF8.compare(SVN_PROP_NEEDS_LOCK)==0)
+		if (sName.Compare(_T("svn:needs-lock"))==0)
 			nText = IDS_PROP_TT_NEEDSLOCK;
-		if (nameUTF8.compare(SVN_PROP_MIME_TYPE)==0)
+		if (sName.Compare(_T("svn:mime-type"))==0)
 			nText = IDS_PROP_TT_MIMETYPE;
-		if (nameUTF8.compare(SVN_PROP_IGNORE)==0)
+		if (sName.Compare(_T("svn:ignore"))==0)
 			nText = IDS_PROP_TT_IGNORE;
-		if (nameUTF8.compare(SVN_PROP_KEYWORDS)==0)
+		if (sName.Compare(_T("svn:keywords"))==0)
 			nText = IDS_PROP_TT_KEYWORDS;
-		if (nameUTF8.compare(SVN_PROP_EOL_STYLE)==0)
+		if (sName.Compare(_T("svn:eol-style"))==0)
 			nText = IDS_PROP_TT_EOLSTYLE;
-		if (nameUTF8.compare(SVN_PROP_MERGEINFO)==0)
+		if (sName.Compare(_T("svn:mergeinfo"))==0)
 			nText = IDS_PROP_TT_MERGEINFO;
 
-		if (nameUTF8.compare(BUGTRAQPROPNAME_LABEL)==0)
+		if (sName.Compare(_T("bugtraq:label"))==0)
 			nText = IDS_PROP_TT_BQLABEL;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_LOGREGEX)==0)
+		if (sName.Compare(_T("bugtraq:logregex"))==0)
 			nText = IDS_PROP_TT_BQLOGREGEX;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_MESSAGE)==0)
+		if (sName.Compare(_T("bugtraq:message"))==0)
 			nText = IDS_PROP_TT_BQMESSAGE;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_NUMBER)==0)
+		if (sName.Compare(_T("bugtraq:number"))==0)
 			nText = IDS_PROP_TT_BQNUMBER;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_URL)==0)
+		if (sName.Compare(_T("bugtraq:url"))==0)
 			nText = IDS_PROP_TT_BQURL;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_WARNIFNOISSUE)==0)
+		if (sName.Compare(_T("bugtraq:warnifnoissue"))==0)
 			nText = IDS_PROP_TT_BQWARNNOISSUE;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_APPEND)==0)
+		if (sName.Compare(_T("bugtraq:append"))==0)
 			nText = IDS_PROP_TT_BQAPPEND;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_PROVIDERUUID)==0)
+		if (sName.Compare(_T("bugtraq:provideruuid"))==0)
 			nText = IDS_PROP_TT_BQPROVIDERUUID;
-		if (nameUTF8.compare(BUGTRAQPROPNAME_PROVIDERPARAMS)==0)
+		if (sName.Compare(_T("bugtraq:providerparams"))==0)
 			nText = IDS_PROP_TT_BQPROVIDERPARAMS;
 
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGTEMPLATE)==0)
+		if (sName.Compare(_T("tsvn:logtemplate"))==0)
 			nText = IDS_PROP_TT_TSVNLOGTEMPLATE;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGWIDTHLINE)==0)
+		if (sName.Compare(_T("tsvn:logwidthmarker"))==0)
 			nText = IDS_PROP_TT_TSVNLOGWIDTHMARKER;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGMINSIZE)==0)
+		if (sName.Compare(_T("tsvn:logminsize"))==0)
 			nText = IDS_PROP_TT_TSVNLOGMINSIZE;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOCKMSGMINSIZE)==0)
+		if (sName.Compare(_T("tsvn:lockmsgminsize"))==0)
 			nText = IDS_PROP_TT_TSVNLOCKMSGMINSIZE;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGFILELISTLANG)==0)
+		if (sName.Compare(_T("tsvn:logfilelistenglish"))==0)
 			nText = IDS_PROP_TT_TSVNLOGFILELISTENGLISH;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGSUMMARY)==0)
+		if (sName.Compare(_T("tsvn:logsummary"))==0)
 			nText = IDS_PROP_TT_TSVNLOGSUMMARY;
-		if (nameUTF8.compare(PROJECTPROPNAME_PROJECTLANGUAGE)==0)
+		if (sName.Compare(_T("tsvn:projectlanguage"))==0)
 			nText = IDS_PROP_TT_TSVNPROJECTLANGUAGE;
-		if (nameUTF8.compare(PROJECTPROPNAME_USERFILEPROPERTY)==0)
+		if (sName.Compare(_T("tsvn:userfileproperties"))==0)
 			nText = IDS_PROP_TT_TSVNUSERFILEPROPERTIES;
-		if (nameUTF8.compare(PROJECTPROPNAME_USERDIRPROPERTY)==0)
+		if (sName.Compare(_T("tsvn:userfolderproperties"))==0)
 			nText = IDS_PROP_TT_TSVNUSERFOLDERPROPERTIES;
-		if (nameUTF8.compare(PROJECTPROPNAME_AUTOPROPS)==0)
+		if (sName.Compare(_T("tsvn:autoprops"))==0)
 			nText = IDS_PROP_TT_TSVNAUTOPROPS;
-		if (nameUTF8.compare(PROJECTPROPNAME_LOGREVREGEX)==0)
-			nText = IDS_PROP_TT_TSVNLOGREVREGEX;
 
-		if (nameUTF8.compare(PROJECTPROPNAME_WEBVIEWER_REV)==0)
+		if (sName.Compare(_T("webviewer:revision"))==0)
 			nText = IDS_PROP_TT_WEBVIEWERREVISION;
-		if (nameUTF8.compare(PROJECTPROPNAME_WEBVIEWER_PATHREV)==0)
+		if (sName.Compare(_T("webviewer:pathrevision"))==0)
 			nText = IDS_PROP_TT_WEBVIEWERPATHREVISION;
 
 		if (nText)
@@ -391,11 +366,12 @@ void CEditPropertyValueDlg::OnBnClickedLoadprop()
 		DWORD size = GetFileSize(hFile, NULL);
 		FILE * stream;
 		_tfopen_s(&stream, openPath, _T("rbS"));
-		auto_buffer<char> buf(size);
+		char * buf = new char[size];
 		if (fread(buf, sizeof(char), size, stream)==size)
 		{
 			m_PropValue.assign(buf, size);
 		}
+		delete [] buf;
 		fclose(stream);
 		// see if the loaded file contents are binary
 		SetPropertyValue(m_PropValue);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,18 +16,15 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PathUtils.h"
 #include "shlobj.h"
-#include "auto_buffer.h"
-#include "UnicodeUtils.h"
 
 BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
-	const size_t len = _tcslen(path);
-	const size_t fullLen = len+10;
-	auto_buffer<TCHAR> buf(fullLen);
-	auto_buffer<TCHAR> internalpathbuf(fullLen);
+	size_t len = _tcslen(path);
+	TCHAR * buf = new TCHAR[len+10];
+	TCHAR * internalpathbuf = new TCHAR[len+10];
 	TCHAR * pPath = internalpathbuf;
 	SECURITY_ATTRIBUTES attribs;
 
@@ -36,22 +33,22 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 	attribs.nLength = sizeof(SECURITY_ATTRIBUTES);
 	attribs.bInheritHandle = FALSE;
 
-	ConvertToBackslash(internalpathbuf, path, fullLen);
-	if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
-		pPath += 4;
+	ConvertToBackslash(internalpathbuf, path, len+10);
 	do
 	{
-		SecureZeroMemory(buf, fullLen*sizeof(TCHAR));
+		SecureZeroMemory(buf, (len+10)*sizeof(TCHAR));
 		TCHAR * slashpos = _tcschr(pPath, '\\');
 		if (slashpos)
-			_tcsncpy_s(buf, fullLen, internalpathbuf, slashpos - internalpathbuf);
+			_tcsncpy_s(buf, len+10, internalpathbuf, slashpos - internalpathbuf);
 		else
-			_tcsncpy_s(buf, fullLen, internalpathbuf, fullLen);
+			_tcsncpy_s(buf, len+10, internalpathbuf, len+10);
 		CreateDirectory(buf, &attribs);
 		pPath = _tcschr(pPath, '\\');
 	} while ((pPath++)&&(_tcschr(pPath, '\\')));
 	
-	const BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
+	BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
+	delete[] buf;
+	delete[] internalpathbuf;
 	return bRet;
 }
 
@@ -195,7 +192,6 @@ void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 			*p = '\\';
 }
 
-#ifdef CSTRING_AVAILABLE
 CStringA CPathUtils::PathEscape(const CStringA& path)
 {
 	CStringA ret2;
@@ -251,7 +247,7 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
 
 	return ret;
 }
-
+#ifdef CSTRING_AVAILABLE
 bool CPathUtils::DoesPercentNeedEscaping(LPCSTR str)
 {
 	if (str[1] == 0)
@@ -300,26 +296,29 @@ CString CPathUtils::GetLongPathname(const CString& path)
 		ret = GetFullPathName(path, 0, NULL, NULL);
 		if (ret)
 		{
-			auto_buffer<TCHAR> pathbuf(ret+1);
+			TCHAR * pathbuf = new TCHAR[ret+1];
 			if ((ret = GetFullPathName(path, ret, pathbuf, NULL))!=0)
 			{
 				sRet = CString(pathbuf, ret);
 			}
+			delete [] pathbuf;
 		}
 	}
 	else if (PathCanonicalize(pathbufcanonicalized, path))
 	{
 		ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-		auto_buffer<TCHAR> pathbuf(ret+2);
+		TCHAR * pathbuf = new TCHAR[ret+2];	
 		ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, ret+1);
 		sRet = CString(pathbuf, ret);
+		delete[] pathbuf;
 	}
 	else
 	{
 		ret = ::GetLongPathName(path, NULL, 0);
-		auto_buffer<TCHAR> pathbuf(ret+2);
+		TCHAR * pathbuf = new TCHAR[ret+2];
 		ret = ::GetLongPathName(path, pathbuf, ret+1);
 		sRet = CString(pathbuf, ret);
+		delete[] pathbuf;
 	}
 	if (ret == 0)
 		return path;
@@ -385,9 +384,10 @@ CString CPathUtils::GetAppDataDirectory()
 	return CString (path) + _T('\\');
 }
 
+
 CStringA CPathUtils::PathUnescape(const CStringA& path)
 {
-	auto_buffer<char> urlabuf (path.GetLength()+1);
+	std::auto_ptr<char> urlabuf (new char[path.GetLength()+1]);
 
 	strcpy_s(urlabuf.get(), path.GetLength()+1, path);
 	Unescape(urlabuf.get());
@@ -397,44 +397,25 @@ CStringA CPathUtils::PathUnescape(const CStringA& path)
 
 CStringW CPathUtils::PathUnescape(const CStringW& path)
 {
+	char * buf;
+	CStringA patha;
 	int len = path.GetLength();
 	if (len==0)
 		return CStringW();
-	CStringA patha;
-	char * buf = patha.GetBuffer(len*4 + 1);
+	buf = patha.GetBuffer(len*4 + 1);
 	int lengthIncTerminator = WideCharToMultiByte(CP_UTF8, 0, path, -1, buf, len*4, NULL, NULL);
 	patha.ReleaseBuffer(lengthIncTerminator-1);
 
 	patha = PathUnescape(patha);
 
+	WCHAR * bufw;
 	len = patha.GetLength();
-	auto_buffer<WCHAR> bufw(len*4 + 1);
+	bufw = new WCHAR[len*4 + 1];
 	SecureZeroMemory(bufw, (len*4 + 1)*sizeof(WCHAR));
 	MultiByteToWideChar(CP_UTF8, 0, patha, -1, bufw, len*4);
 	CStringW ret = CStringW(bufw);
+	delete [] bufw;
 	return ret;
-}
-
-CString CPathUtils::PathUnescape (const char* path)
-{
-	// try quick path
-	size_t i = 0;
-	for (; char c = path[i]; ++i)
-		if ((c >= 0x80) || (c == '%'))
-		{
-			// quick path does not work for non-latin or escaped chars
-			std::string utf8Path (path);
-
-			CPathUtils::Unescape (&utf8Path[0]);
-			return CUnicodeUtils::UTF8ToUTF16 (utf8Path);
-		}
-
-	// no escapement necessary, just unicode conversion
-	CString result;
-	CUnicodeUtils::UTF8ToUTF16 (path, i+1, result.GetBufferSetLength (i+1));
-	result.ReleaseBuffer();
-
-	return result;
 }
 
 CString CPathUtils::GetVersionFromFile(const CString & p_strDateiname)
@@ -530,15 +511,10 @@ private:
 		CString test(_T("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest"));
 		CString test2 = CPathUtils::PathUnescape(test);
 		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
-		test2 = CPathUtils::PathUnescape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
-		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
-		test2 = CPathUtils::PathUnescape("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk");
-		ATLASSERT(test2.Compare(_T("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk")) == 0);
 		CStringA test3 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test3.Compare("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest") == 0);
 		CStringA test4 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS 1.0/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test4.Compare("file:///d:/REpos1/uCOS%201.0/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest") == 0);
-
 	}
 	void ExtTest()
 	{

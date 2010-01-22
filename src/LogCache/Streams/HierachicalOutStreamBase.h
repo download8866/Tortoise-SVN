@@ -52,14 +52,6 @@ public:
 	virtual IHierarchicalOutStream* OpenSubStream ( SUB_STREAM_ID subStreamID
 												  , STREAM_TYPE_ID type) = 0;
 
-	// for simplified access
-	// The last parameter is only present for technical reasons
-	// (different type overloads must have different signatures) 
-	// and neither needs to be specified nor will it not be used.
-
-	template<class S> 
-	S* OpenSubStream (SUB_STREAM_ID subStreamID, S* = NULL);
-
 	// close the stream (returns a globally unique index)
 
 	virtual STREAM_INDEX AutoClose() = 0;
@@ -68,16 +60,6 @@ public:
 
 	virtual ~IHierarchicalOutStream() {};
 };
-
-///////////////////////////////////////////////////////////////
-// for simplified access
-///////////////////////////////////////////////////////////////
-
-template<class S> 
-S* IHierarchicalOutStream::OpenSubStream (SUB_STREAM_ID subStreamID, S*)
-{
-	return dynamic_cast<S*>(OpenSubStream (subStreamID, typename S::TYPE_ID));
-}
 
 ///////////////////////////////////////////////////////////////
 //
@@ -154,17 +136,8 @@ public:
 	virtual SUB_STREAM_ID GetID() const;
 	virtual IHierarchicalOutStream* OpenSubStream ( SUB_STREAM_ID subStreamID
 												  , STREAM_TYPE_ID type);
-	template<class S> 
-	S* OpenSubStream (SUB_STREAM_ID subStreamID, S* = NULL);
-
 	virtual STREAM_INDEX AutoClose();
 };
-
-template<class S> 
-inline S* CHierachicalOutStreamBase::OpenSubStream (SUB_STREAM_ID subStreamID, S*)
-{
-	return IHierarchicalOutStream::OpenSubStream<S> (subStreamID);
-}
 
 ///////////////////////////////////////////////////////////////
 //
@@ -191,10 +164,6 @@ private:
 
 public:
 
-	// for reference in other templates
-
-	enum {TYPE_ID = type};
-
 	// construction / destruction: nothing to do here
 
 	COutStreamImplBase ( CCacheFileOutBuffer* aBuffer
@@ -214,7 +183,7 @@ public:
 
 	virtual STREAM_TYPE_ID GetTypeID() const
 	{
-		return TYPE_ID;
+		return TFactory::GetInstance()->GetTypeID();
 	}
 };
 

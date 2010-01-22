@@ -60,11 +60,6 @@ public:
 	// plain data access
 
 	size_t GetSizeValue();
-
-    // update members in this derived class as well
-
-    virtual void AutoOpen();
-    virtual void AutoClose();
 };
 
 // plain data access

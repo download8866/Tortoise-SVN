@@ -1,35 +1,36 @@
 # Module for reading and parsing Scintilla.iface file
+import string
 
 def sanitiseLine(line):
 	if line[-1:] == '\n': line = line[:-1]
-	if line.find("##") != -1:
-		line = line[:line.find("##")]
-	line = line.strip()
+	if string.find(line, "##") != -1:
+		line = line[:string.find(line, "##")]
+	line = string.strip(line)
 	return line
 	
 def decodeFunction(featureVal):
-	retType, rest = featureVal.split(" ", 1)
-	nameIdent, params = rest.split("(")
-	name, value = nameIdent.split("=")
-	params, rest = params.split(")")
-	param1, param2 = params.split(",")[0:2]
+	retType, rest = string.split(featureVal, " ", 1)
+	nameIdent, params = string.split(rest, "(")
+	name, value = string.split(nameIdent, "=")
+	params, rest = string.split(params, ")")
+	param1, param2 = string.split(params, ",")[0:2]
 	return retType, name, value, param1, param2
 	
 def decodeEvent(featureVal):
-	retType, rest = featureVal.split(" ", 1)
-	nameIdent, params = rest.split("(")
-	name, value = nameIdent.split("=")
+	retType, rest = string.split(featureVal, " ", 1)
+	nameIdent, params = string.split(rest, "(")
+	name, value = string.split(nameIdent, "=")
 	return retType, name, value
 	
 def decodeParam(p):
-	param = p.strip()
+	param = string.strip(p)
 	type = ""
 	name = ""
 	value = ""
 	if " " in param:
-		type, nv = param.split(" ")
+		type, nv = string.split(param, " ")
 		if "=" in nv:
-			name, value = nv.split("=")
+			name, value = string.split(nv, "=")
 		else:
 			name = nv
 	return type, name, value
@@ -58,7 +59,7 @@ class Face:
 						currentComment.append(line[2:])
 				else:
 					currentCommentFinished = 1
-					featureType, featureVal = line.split(" ", 1)
+					featureType, featureVal = string.split(line, " ", 1)
 					if featureType in ["fun", "get", "set"]:
 						retType, name, value, param1, param2 = decodeFunction(featureVal)
 						p1 = decodeParam(param1)
@@ -71,7 +72,7 @@ class Face:
 							"Param2Type": p2[0],	"Param2Name": p2[1], "Param2Value": p2[2],
 							"Category": currentCategory, "Comment": currentComment
 						}
-						if value in self.values:
+						if self.values.has_key(value):
 							raise "Duplicate value " + value + " " + name
 						self.values[value] = 1
 						self.order.append(name)
@@ -83,25 +84,21 @@ class Face:
 							"Value": value, 
 							"Category": currentCategory, "Comment": currentComment
 						}
-						if value in self.events:
+						if self.events.has_key(value):
 							raise "Duplicate event " + value + " " + name
 						self.events[value] = 1
 						self.order.append(name)
 					elif featureType == "cat":
 						currentCategory = featureVal
 					elif featureType == "val":
-						try:
-							name, value = featureVal.split("=", 1)
-						except ValueError:
-							print("Failure %s" % featureVal)
-							raise
+						name, value = string.split(featureVal, "=", 1)
 						self.features[name] = { 
 							"FeatureType": featureType, 
 							"Category": currentCategory, 
 							"Value": value }
 						self.order.append(name)
 					elif featureType == "enu" or featureType == "lex":
-						name, value = featureVal.split("=", 1)
+						name, value = string.split(featureVal, "=", 1)
 						self.features[name] = { 
 							"FeatureType": featureType, 
 							"Category": currentCategory, 

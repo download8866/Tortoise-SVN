@@ -46,17 +46,12 @@ private:
 	SVNProperties(const SVNProperties&){}
 	SVNProperties& operator=(SVNProperties&){};
 
-	/// construction utility
-
-	void Construct();
-
 public:
 
 #ifdef _MFC_VER
-	SVNProperties(SVNRev rev, bool bRevProps);
 	SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps);
+	void SaveAuthentication(BOOL save);
 #else
-	SVNProperties(bool bRevProps);
 	/**
 	 * Constructor. Creates a Subversion properties object for
 	 * the specified file/directory.
@@ -66,12 +61,7 @@ public:
 #endif
 	~SVNProperties(void);
 
-	/**
-	 * Run SVN query again on different path.
-	 * (session init takes a long time -> reuse it)
-	 */
-
-	void SetFilePath (const CTSVNPath& filepath);
+public:
 
 	/**
 	 * Returns the number of properties the file/directory has.
@@ -82,7 +72,7 @@ public:
 	 * \param index a zero based index
 	 * \return the name of the property
 	 */
-	std::string GetItemName(int index) const;
+	tstring GetItemName(int index) const;
 	/**
 	 * Returns the value of the property.
 	 * \param index a zero based index
@@ -109,7 +99,7 @@ public:
 	 * \param recurse TRUE if the property should be added to subdirectories/files as well
 	 * \return TRUE if the property is added successfully
 	 */
-	BOOL Add(const std::string& Name, const std::string& Value, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
+	BOOL Add(const TCHAR * Name, std::string Value, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
 	/**
 	 * Removes an existing property from the file/directory specified in the constructor.
 	 * \remark After using this method the indexes of the properties may change!
@@ -117,7 +107,7 @@ public:
 	 * \param recurse TRUE if the property should be deleted from subdirectories/files as well
 	 * \return TRUE if the property is removed successfully
 	 */
-	BOOL Remove(const std::string& Name, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
+	BOOL Remove(const TCHAR * Name, svn_depth_t depth = svn_depth_empty, const TCHAR * message = NULL);
 
 	/**
 	 * Checks if the property value is binary or text.
@@ -130,20 +120,6 @@ public:
 	 * Returns the last error message as a CString object.
 	 */
 	tstring GetLastErrorMsg() const;
-
-	/**
-	 * Returns the index of the property.
-	 * \param name name of the property to find
-	 * \return index of the property. -1, if not found
-	 */
-	int IndexOf (const std::string& name) const;
-
-	/**
-	 * Test, whether a property exists.
-	 * \param name name of the property to find
-	 * \return true, if property has been found
-	 */
-	bool HasProperty (const std::string& name) const;
 
 private:		//methods
 	/**

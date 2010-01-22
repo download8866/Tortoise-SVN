@@ -39,45 +39,15 @@ class IHierarchicalInStream
 {
 public:
 
-    // prepare / finish data access
-
-    virtual void AutoOpen() = 0;
-    virtual void AutoClose() = 0;
-    virtual void Prefetch() = 0;
-
 	// access a sub-stream
 
     virtual bool HasSubStream (SUB_STREAM_ID subStreamID) const = 0;
-	virtual IHierarchicalInStream* GetSubStream ( SUB_STREAM_ID subStreamID
-                                                , bool autoOpen = true) = 0;
-
-	// for simplified access
-	// The last parameter is only present for technical reasons
-	// (different type overloads must have different signatures) 
-	// and neither needs to be specified nor will it not be used.
-
-	template<class S> 
-	S* GetSubStream ( SUB_STREAM_ID subStreamID
-                    , bool autoOpen = true
-					, S* = NULL);
+	virtual IHierarchicalInStream* GetSubStream (SUB_STREAM_ID subStreamID) = 0;
 
 	// required for proper destruction of sub-class instances
 
 	virtual ~IHierarchicalInStream() {};
 };
-
-template<class S> 
-S* IHierarchicalInStream::GetSubStream 
-	( SUB_STREAM_ID subStreamID
-    , bool autoOpen
-	, S*)
-{
-    S* result = dynamic_cast<S*>(GetSubStream (subStreamID, autoOpen));
-	if (result == NULL)
-		throw CStreamException ("stream type mismatch");
-
-	return result;
-}
 
 ///////////////////////////////////////////////////////////////
 //
@@ -104,14 +74,8 @@ protected:
 	// stream content
 	// (sub-stream info will be excluded after ReadSubStreams()) 
 
-	typedef unsigned char BYTE;
-	const BYTE* first;
-	const BYTE* last;
-
-    // original stream data. NULL while not open
-
-    const BYTE* packedLast;
-    const BYTE* packedFirst;
+	const unsigned char* first;
+	const unsigned char* last;
 
 	// for usage with CRootInStream
 
@@ -131,29 +95,11 @@ public:
 							 , STREAM_INDEX index);
 	virtual ~CHierachicalInStreamBase(void);
 
-	// implement IHierarchicalInStream
-
-    virtual void AutoOpen();
-    virtual void AutoClose();
-    virtual void Prefetch();
+	// implement IHierarchicalOutStream
 
     virtual bool HasSubStream (SUB_STREAM_ID subStreamID) const;
-	virtual IHierarchicalInStream* GetSubStream ( SUB_STREAM_ID subStreamID
-                                                , bool autoOpen = true);
-	template<class S> 
-	S* GetSubStream ( SUB_STREAM_ID subStreamID
-                    , bool autoOpen = true
-					, S* = NULL);
+	virtual IHierarchicalInStream* GetSubStream (SUB_STREAM_ID subStreamID);
 };
-
-template<class S> 
-inline S* CHierachicalInStreamBase::GetSubStream 
-	( SUB_STREAM_ID subStreamID
-	, bool autoOpen 
-	, S*)
-{
-	return IHierarchicalInStream::GetSubStream<S>(subStreamID, autoOpen);
-}
 
 ///////////////////////////////////////////////////////////////
 //

@@ -354,13 +354,6 @@
 			as real changes to be merged.
 		</para>
 		<para>
-			The checkbox marked <guilabel>Force the merge</guilabel> is used to
-			avoid a tree conflict where an incoming delete affects a file that
-			is either modified locally or not versioned at all. If the file is
-			deleted then there is no way to recover it, which is why that option
-			is not checked by default.
-		</para>
-		<para>
 			If you are using merge tracking and you want to mark a revision as
 			having been merged, without actually doing the merge here, check the
 			<guilabel>Only record the merge</guilabel> checkbox. There are two
@@ -374,14 +367,10 @@
 		<para>
 			Now everything is set up, all you have to do is click on the
 			<guibutton>Merge</guibutton> button. If you want to preview the results
-			<guibutton>Test Merge</guibutton> simulates the merge operation, but does
+			<guibutton>Test Merge</guibutton> performs the merge operation, but does
 			<emphasis>not</emphasis> modify the working copy at all.
-			It shows you a list of the files that will be changed by a real merge,
-			and notes files where conflicts <emphasis>may</emphasis> occur.
-			Because merge tracking makes the merge process a lot more complicated,
-			there is no guaranteed way to find out in advance whether the merge
-			will complete without conflicts, so files marked as conflicted in a
-			test merge may in fact merge without any problem.
+			It shows you a list of the files that will be changed
+			by a real merge, and notes those areas where conflicts will occur.
 		</para>
 		<para>
 			The merge progress dialog shows each stage of the merge, with the
@@ -541,9 +530,8 @@
 						important, so you want to discard the version from the
 						repository and keep your local version. Or you might
 						discard your local changes in favour of the repository
-						version. This only relates to conflicting changes. Changes
-						that can be merged are still merged. Only for the conflicting
-						part your choice is used.
+						version. Either way, no attempt is made to merge the
+						changes - you choose one or the other.
 					</para>
 				</listitem>
 				<listitem>

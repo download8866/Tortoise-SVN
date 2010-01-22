@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ bool AddCommand::Execute()
 		SVN svn;
 		ProjectProperties props;
 		props.ReadPropsPathList(pathList);
-		bRet = !!svn.Add(pathList, &props, svn_depth_empty, false, false, true);
+		bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 		CShellUpdater::Instance().AddPathsForUpdate(pathList);
 	}
 	else
@@ -55,7 +55,7 @@ bool AddCommand::Execute()
 							if (pathList[i].IsEquivalentToWithoutCase(retPath))
 							{
 								CString sMessage;
-								sMessage.FormatMessage(IDS_WARN_ADDCASERENAMED, pathList[i].GetWinPath(), retPath.GetWinPath());
+								sMessage.Format(IDS_WARN_ADDCASERENAMED, pathList[i].GetWinPath(), retPath.GetWinPath());
 								CString sTitle(MAKEINTRESOURCE(IDS_WARN_WARNING));
 								CString sFixRenaming(MAKEINTRESOURCE(IDS_WARN_ADDCASERENAMED_RENAME));
 								CString sAddAnyway(MAKEINTRESOURCE(IDS_WARN_ADDCASERENAMED_ADD));
@@ -70,7 +70,7 @@ bool AddCommand::Execute()
 									pathList.RemovePath(pathList[i]);
 								}
 								else if (ret != 2)
-									return false;
+									return FALSE;
 								break;
 							}
 						}
@@ -82,7 +82,7 @@ bool AddCommand::Execute()
 			SVN svn;
 			ProjectProperties props;
 			props.ReadPropsPathList(pathList);
-			bRet = !!svn.Add(pathList, &props, svn_depth_empty, false, false, true);
+			bRet = !!svn.Add(pathList, &props, svn_depth_empty, FALSE, FALSE, TRUE);
 			CShellUpdater::Instance().AddPathsForUpdate(pathList);
 		}
 		else
@@ -96,7 +96,8 @@ bool AddCommand::Execute()
 				CSVNProgressDlg progDlg;
 				theApp.m_pMainWnd = &progDlg;
 				progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Add);
-				progDlg.SetAutoClose (parser);
+				if (parser.HasVal(_T("closeonend")))
+					progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
 				progDlg.SetPathList(dlg.m_pathList);
 				ProjectProperties props;
 				props.ReadPropsPathList(dlg.m_pathList);

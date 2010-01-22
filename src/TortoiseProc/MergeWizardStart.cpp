@@ -20,7 +20,6 @@
 #include "TortoiseProc.h"
 #include "MergeWizard.h"
 #include "MergeWizardStart.h"
-#include "AppUtils.h"
 
 
 IMPLEMENT_DYNAMIC(CMergeWizardStart, CMergeWizardBasePage)
@@ -77,14 +76,10 @@ BOOL CMergeWizardStart::OnInitDialog()
 	CString sLabel;
 	sLabel.LoadString(IDS_MERGEWIZARD_REVRANGELABEL);
 	SetDlgItemText(IDC_MERGERANGELABEL, sLabel);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_MERGE_REVRANGE)->GetSafeHwnd(), PROPID_ACC_DESCRIPTION, sLabel);
-
 	sLabel.LoadString(IDS_MERGEWIZARD_REINTEGRATELABEL);
 	SetDlgItemText(IDC_MERGEREINTEGRATELABEL, sLabel);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_MERGE_REINTEGRATE)->GetSafeHwnd(), PROPID_ACC_DESCRIPTION, sLabel);
 	sLabel.LoadString(IDS_MERGEWIZARD_TREELABEL);
 	SetDlgItemText(IDC_TREELABEL, sLabel);
-	CAppUtils::SetAccProperty(GetDlgItem(IDC_MERGE_TREE)->GetSafeHwnd(), PROPID_ACC_DESCRIPTION, sLabel);
 
 	AdjustControlSize(IDC_MERGE_REVRANGE);
 	AdjustControlSize(IDC_MERGE_REINTEGRATE);
@@ -97,7 +92,6 @@ BOOL CMergeWizardStart::OnInitDialog()
 	AddAnchor(IDC_MERGEREINTEGRATELABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_MERGE_TREE, TOP_LEFT);
 	AddAnchor(IDC_TREELABEL, TOP_LEFT, TOP_RIGHT);
-
 
 	return TRUE;
 }

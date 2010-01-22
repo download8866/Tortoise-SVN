@@ -184,8 +184,7 @@ CGraphNodeStates::FindPreviousRelevant ( const CVisibleGraphNode* node
 
     const CVisibleGraphNode* source = node->GetSource();
     if (!withinAsWell && (source != NULL))
-        return std::pair<const CFullGraphNode*, DWORD> 
-					((const CFullGraphNode*)NULL, 0);
+        return std::pair<const CFullGraphNode*, DWORD> (0, 0);
 
     const CFullGraphNode* last = source != NULL 
                                ? source->GetBase() 
@@ -210,8 +209,7 @@ CGraphNodeStates::FindPreviousRelevant ( const CVisibleGraphNode* node
 
     // nothing found
 
-    return std::pair<const CFullGraphNode*, DWORD> 
-				((const CFullGraphNode*)NULL, 0);
+    return std::pair<const CFullGraphNode*, DWORD> (0, 0);
 }
 
 std::pair<const CFullGraphNode*, DWORD>
@@ -238,8 +236,7 @@ CGraphNodeStates::FindNextRelevant ( const CVisibleGraphNode* node
 
     const CVisibleGraphNode* next = node->GetNext();
     if (!withinAsWell && (next != NULL))
-        return std::pair<const CFullGraphNode*, DWORD> 
-					((const CFullGraphNode*)NULL, 0);
+        return std::pair<const CFullGraphNode*, DWORD> (0, 0);
 
     const CFullGraphNode* last = next != NULL 
                                ? next->GetBase() 
@@ -260,8 +257,7 @@ CGraphNodeStates::FindNextRelevant ( const CVisibleGraphNode* node
 
     // nothing found
 
-    return std::pair<const CFullGraphNode*, DWORD> 
-				((const CFullGraphNode*)NULL, 0);
+    return std::pair<const CFullGraphNode*, DWORD> (0, 0);
 }
 
 std::pair<const CFullGraphNode*, DWORD>
@@ -308,8 +304,7 @@ CGraphNodeStates::FindRightRelevant (const CVisibleGraphNode* node) const
 
     // nothing found
 
-    return std::pair<const CFullGraphNode*, DWORD> 
-				((const CFullGraphNode*)NULL, 0);
+    return std::pair<const CFullGraphNode*, DWORD> (0, 0);
 }
 
 std::vector<const CFullGraphNode*>

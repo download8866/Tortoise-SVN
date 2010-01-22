@@ -41,7 +41,6 @@ CPicture::CPicture()
 	lpIcons = NULL;
 	nCurrentIcon = 0;
 	bIsIcon = false;
-	bIsTiff = false;
 	m_nSize = 0;
 	m_ColorDepth = 0;
 }
@@ -49,7 +48,8 @@ CPicture::CPicture()
 CPicture::~CPicture()
 {
 	FreePictureData(); // Important - Avoid Leaks...
-	delete pBitmap;
+	if (pBitmap)
+		delete (pBitmap);
 	if (bHaveGDIPlus)
 		GdiplusShutdown(gdiplusToken);
 }
@@ -79,7 +79,8 @@ void CPicture::FreePictureData()
 		delete [] hIcons;
 		hIcons = NULL;
 	}
-	delete [] lpIcons;
+	if (lpIcons)
+		delete [] lpIcons;
 }
 
 // Util function to ease loading of FreeImage library
@@ -161,7 +162,6 @@ bool CPicture::Load(tstring sFilePathName)
 		// file extension for ".ico".
 		std::transform(sFilePathName.begin(), sFilePathName.end(), sFilePathName.begin(), ::tolower);
 		bIsIcon = (guid == ImageFormatIcon) || (_tcsstr(sFilePathName.c_str(), _T(".ico")) != NULL);
-		bIsTiff = (guid == ImageFormatTIFF) || (_tcsstr(sFilePathName.c_str(), _T(".tiff")) != NULL);
 
 		if (bIsIcon)
 		{
@@ -328,8 +328,11 @@ bool CPicture::Load(tstring sFilePathName)
 							}
 							else	// Bitmap allocation failed
 							{
-								delete pBitmap;
-								pBitmap = NULL;
+								if (pBitmap)
+								{
+									delete pBitmap;
+									pBitmap = NULL;
+								}
 							}
 
 							FreeImage_Unload(dib);
@@ -428,12 +431,17 @@ bool CPicture::LoadPictureData(BYTE *pBuffer, int nSize)
 
 	if ((CreateStreamOnHGlobal(hGlobal, true, &pStream) == S_OK)&&(pStream))
 	{
-		HRESULT hr = OleLoadPicture(pStream, nSize, false, IID_IPicture, (LPVOID *)&m_IPicture);
-		if(hr != S_OK)
+		HRESULT hr;
+		if((hr = OleLoadPicture(pStream, nSize, false, IID_IPicture, (LPVOID *)&m_IPicture)) == S_OK)
+		{
+			pStream->Release();
+			pStream = NULL;
+			bResult = true;
+		}
+		else
+		{
 			return false;
-		pStream->Release();
-		pStream = NULL;
-		bResult = true;
+		}
 	}
 
 	FreeResource(hGlobal); // 16Bit Windows Needs This (32Bit - Automatic Release)
@@ -598,8 +606,6 @@ long CPicture::SetActiveFrame(UINT frame)
 		return 0;
 
 	GUID pageGuid = FrameDimensionTime;
-	if (bIsTiff)
-		pageGuid = FrameDimensionPage;
 	pBitmap->SelectActiveFrame(&pageGuid, frame);
 
 	// Assume that the image has a property item of type PropertyItemEquipMake.
@@ -609,18 +615,14 @@ long CPicture::SetActiveFrame(UINT frame)
 	// Allocate a buffer to receive the property item.
 	PropertyItem* pPropertyItem = (PropertyItem*) malloc(nSize);
 
-	Status s = pBitmap->GetPropertyItem(PropertyTagFrameDelay, nSize, pPropertyItem);
+	pBitmap->GetPropertyItem(PropertyTagFrameDelay, nSize, pPropertyItem);
 
 	UINT prevframe = frame;
 	prevframe--;
 	if (prevframe < 0)
 		prevframe = 0;
-	long delay = 0;
-	if (s == Ok)
-	{
-		delay = ((long*)pPropertyItem->value)[prevframe] * 10;
-		free(pPropertyItem);
-	}
+	long delay = ((long*)pPropertyItem->value)[prevframe] * 10;
+	free(pPropertyItem);
 	m_Height = GetHeight();
 	m_Width = GetWidth();
 	return delay;

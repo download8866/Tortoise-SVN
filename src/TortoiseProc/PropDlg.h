@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
-#include "AeroControls.h"
 
 /**
  * \ingroup TortoiseProc
@@ -38,7 +37,7 @@ public:
 private:
 	static UINT PropThreadEntry(LPVOID pVoid);
 	UINT		PropThread();
-	void setProplistColumnWidth();
+
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
@@ -55,6 +54,5 @@ public:
 private:
 	HANDLE		m_hThread;
 	CListCtrl	m_proplist;
-	AeroControlBase m_aeroControls;
 };
 

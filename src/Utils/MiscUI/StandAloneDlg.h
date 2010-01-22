@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,8 +20,6 @@
 
 #include "ResizableDialog.h"
 #include "Balloon.h"
-#include "registry.h"
-#include "AeroGlass.h"
 
 #pragma comment(lib, "htmlhelp.lib")
 
@@ -41,15 +39,9 @@ protected:
 	CStandAloneDialogTmpl(UINT nIDTemplate, CWnd* pParentWnd = NULL) : BaseType(nIDTemplate, pParentWnd)
 	{
 		m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-		m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
-		m_margins.cxLeftWidth = 0;
-		m_margins.cyTopHeight = 0;
-		m_margins.cxRightWidth = 0;
-		m_margins.cyBottomHeight = 0;
 	}
 	virtual BOOL OnInitDialog()
 	{
-		m_Dwm.Initialize();
 		BaseType::OnInitDialog();
 
 		// Set the icon for this dialog.  The framework does this automatically
@@ -84,127 +76,6 @@ protected:
 			BaseType::OnPaint();
 		}
 	}
-
-	BOOL OnEraseBkgnd(CDC*  pDC)
-	{
-		BaseType::OnEraseBkgnd(pDC);
-		if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
-		{
-			// draw the frame margins in black
-			RECT rc;
-			GetClientRect(&rc);
-			if (m_margins.cxLeftWidth < 0)
-				pDC->FillSolidRect(rc.left, rc.top, rc.right-rc.left, rc.bottom-rc.top, RGB(0,0,0));
-			else
-			{
-				pDC->FillSolidRect(rc.left, rc.top, m_margins.cxLeftWidth, rc.bottom-rc.top, RGB(0,0,0));
-				pDC->FillSolidRect(rc.left, rc.top, rc.right-rc.left, m_margins.cyTopHeight, RGB(0,0,0));
-				pDC->FillSolidRect(rc.right-m_margins.cxRightWidth, rc.top, m_margins.cxRightWidth, rc.bottom-rc.top, RGB(0,0,0));
-				pDC->FillSolidRect(rc.left, rc.bottom-m_margins.cyBottomHeight, rc.right-rc.left, m_margins.cyBottomHeight, RGB(0,0,0));
-			}
-		}
-		return TRUE;
-	}
-
-	LRESULT OnNcHitTest(CPoint pt)
-	{
-		if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
-		{
-			CRect rc;
-			GetClientRect(&rc);
-			ClientToScreen(&rc);
-
-			if (m_margins.cxLeftWidth < 0)
-			{
-				return rc.PtInRect(pt) ? HTCAPTION : BaseType::OnNcHitTest(pt);
-			}
-			else
-			{
-				CRect m = rc;
-				m.DeflateRect(m_margins.cxLeftWidth, m_margins.cyTopHeight, m_margins.cxRightWidth, m_margins.cyBottomHeight);
-				return (rc.PtInRect(pt) && !m.PtInRect(pt)) ? HTCAPTION : BaseType::OnNcHitTest(pt);
-			}
-		}
-		return BaseType::OnNcHitTest(pt);
-	}
-
-	/**
-	 *
-	 */
-	void ExtendFrameIntoClientArea(UINT leftControl, UINT topControl, UINT rightControl, UINT botomControl)
-	{
-		if (!(DWORD)m_regEnableDWMFrame)
-			return;
-		RECT rc, rc2;
-		GetWindowRect(&rc);
-		GetClientRect(&rc2);
-		ClientToScreen(&rc2);
-		
-		RECT rccontrol;
-		if (leftControl)
-		{
-			HWND hw = GetDlgItem(leftControl)->GetSafeHwnd();
-			if (hw == NULL)
-				return;
-			::GetWindowRect(hw, &rccontrol);
-			m_margins.cxLeftWidth = rccontrol.left - rc.left;
-			m_margins.cxLeftWidth -= (rc2.left-rc.left);
-		}
-		else
-			m_margins.cxLeftWidth = 0;
-
-		if (topControl)
-		{
-			HWND hw = GetDlgItem(topControl)->GetSafeHwnd();
-			if (hw == NULL)
-				return;
-			::GetWindowRect(hw, &rccontrol);
-			m_margins.cyTopHeight = rccontrol.top - rc.top;
-			m_margins.cyTopHeight -= (rc2.top-rc.top);
-		}
-		else
-			m_margins.cyTopHeight = 0;
-
-		if (rightControl)
-		{
-			HWND hw = GetDlgItem(rightControl)->GetSafeHwnd();
-			if (hw == NULL)
-				return;
-			::GetWindowRect(hw, &rccontrol);
-			m_margins.cxRightWidth = rc.right - rccontrol.right;
-			m_margins.cxRightWidth -= (rc.right-rc2.right);
-		}
-		else
-			m_margins.cxRightWidth = 0;
-
-		if (botomControl)
-		{
-			HWND hw = GetDlgItem(botomControl)->GetSafeHwnd();
-			if (hw == NULL)
-				return;
-			::GetWindowRect(hw, &rccontrol);
-			m_margins.cyBottomHeight = rc.bottom - rccontrol.bottom;
-			m_margins.cyBottomHeight -= (rc.bottom-rc2.bottom);
-		}
-		else
-			m_margins.cyBottomHeight = 0;
-
-		if ((m_margins.cxLeftWidth == 0)&&
-			(m_margins.cyTopHeight == 0)&&
-			(m_margins.cxRightWidth == 0)&&
-			(m_margins.cyBottomHeight == 0))
-		{
-			m_margins.cxLeftWidth = -1;
-			m_margins.cyTopHeight = -1;
-			m_margins.cxRightWidth = -1;
-			m_margins.cyBottomHeight = -1;
-		}
-		if (m_Dwm.IsDwmCompositionEnabled())
-		{
-			m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
-		}
-	}
-
 	/**
 	 * Wrapper around the CWnd::EnableWindow() method, but
 	 * makes sure that a control that has the focus is not disabled
@@ -231,7 +102,7 @@ protected:
 	 * this method can reduce the size of those controls again to only
 	 * fit the text.
 	 */
-	RECT AdjustControlSize(UINT nID)
+	void AdjustControlSize(UINT nID)
 	{
 		CWnd * pwndDlgItem = GetDlgItem(nID);
 		// adjust the size of the control to fit its content
@@ -264,53 +135,6 @@ protected:
 			pDC->SelectObject(pOldFont);
 			ReleaseDC(pDC);
 		}
-		return controlrectorig;
-	}
-
-	/**
-	* Adjusts the size of a static control.
-	* \param rc the position of the control where this control shall
-	*           be positioned next to on its right side.
-	* \param spacing number of pixels to add to rc.right
-	*/
-	RECT AdjustStaticSize(UINT nID, RECT rc, long spacing)
-	{
-		CWnd * pwndDlgItem = GetDlgItem(nID);
-		// adjust the size of the control to fit its content
-		CString sControlText;
-		pwndDlgItem->GetWindowText(sControlText);
-		// next step: find the rectangle the control text needs to
-		// be displayed
-
-		CDC * pDC = pwndDlgItem->GetWindowDC();
-		RECT controlrect;
-		RECT controlrectorig;
-		pwndDlgItem->GetWindowRect(&controlrect);
-		::MapWindowPoints(NULL, GetSafeHwnd(), (LPPOINT)&controlrect, 2);
-		controlrect.right += 200;	// in case the control needs to be bigger than it currently is (e.g., due to translations)
-		controlrectorig = controlrect;
-
-		long height = controlrectorig.bottom-controlrectorig.top;
-		long width = controlrectorig.right-controlrectorig.left;
-		controlrectorig.left = rc.right + spacing;
-		controlrectorig.right = controlrectorig.left + width;
-		controlrectorig.bottom = rc.bottom;
-		controlrectorig.top = controlrectorig.bottom - height;
-
-		if (pDC)
-		{
-			CFont * font = pwndDlgItem->GetFont();
-			CFont * pOldFont = pDC->SelectObject(font);
-			if (pDC->DrawText(sControlText, -1, &controlrect, DT_WORDBREAK | DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
-			{
-				// now we have the rectangle the control really needs
-				controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left);
-				pwndDlgItem->MoveWindow(&controlrectorig);
-			}
-			pDC->SelectObject(pOldFont);
-			ReleaseDC(pDC);
-		}
-		return controlrectorig;
 	}
 
 	/**
@@ -330,25 +154,6 @@ protected:
 		GetCursorPos(&pt);
 		SetCursorPos(pt.x, pt.y);
 	}
-
-	bool IsCursorOverWindowBorder()
-	{
-		RECT wrc, crc;
-		this->GetWindowRect(&wrc);
-		this->GetClientRect(&crc);
-		ClientToScreen(&crc);
-		DWORD pos = GetMessagePos();
-		POINT pt;
-		pt.x = GET_X_LPARAM(pos);
-		pt.y = GET_Y_LPARAM(pos);
-		return (PtInRect(&wrc, pt) && !PtInRect(&crc, pt));
-	}
-protected:
-	CDwmApiImpl		m_Dwm;
-	MARGINS			m_margins;
-	CRegDWORD		m_regEnableDWMFrame;
-
-	DECLARE_MESSAGE_MAP()
 private:
 	HCURSOR OnQueryDragIcon()
 	{
@@ -374,16 +179,8 @@ private:
 		}
 	}
 
-	void OnCompositionChanged()
-	{
-		if (m_Dwm.IsDwmCompositionEnabled())
-		{
-			m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
-		}
-		BaseType::OnCompositionChanged();
-	}
 
-	HICON			m_hIcon;
+	HICON m_hIcon;
 };
 
 class CStateDialog : public CDialog, public CResizableWndState
@@ -392,7 +189,7 @@ public:
 	CStateDialog() {m_bEnableSaveRestore = false;}
 	CStateDialog(UINT /*nIDTemplate*/, CWnd* /*pParentWnd = NULL*/) {m_bEnableSaveRestore = false;}
 	CStateDialog(LPCTSTR /*lpszTemplateName*/, CWnd* /*pParentWnd = NULL*/) {m_bEnableSaveRestore = false;}
-	virtual ~CStateDialog(){};
+	virtual ~CStateDialog();
 
 private:
 	// flags
@@ -454,22 +251,5 @@ private:
 	CRect		m_rcOrgWindowRect;
 };
 
-class CStandAloneDialog : public CStandAloneDialogTmpl<CDialog>
-{
-public:
-	CStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);
-protected:
-	DECLARE_MESSAGE_MAP()
-private:
-	DECLARE_DYNAMIC(CStandAloneDialog)
-};
-
-class CStateStandAloneDialog : public CStandAloneDialogTmpl<CStateDialog>
-{
-public:
-	CStateStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL);
-protected:
-	DECLARE_MESSAGE_MAP()
-private:
-	DECLARE_DYNAMIC(CStateStandAloneDialog)
-};
+typedef CStandAloneDialogTmpl<CDialog> CStandAloneDialog;
+typedef CStandAloneDialogTmpl<CStateDialog> CStateStandAloneDialog;

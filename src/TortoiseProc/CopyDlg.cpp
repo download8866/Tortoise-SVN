@@ -46,7 +46,8 @@ CCopyDlg::CCopyDlg(CWnd* pParent /*=NULL*/)
 
 CCopyDlg::~CCopyDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CCopyDlg::DoDataExchange(CDataExchange* pDX)
@@ -57,7 +58,6 @@ void CCopyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
 	DDX_Check(pDX, IDC_DOSWITCH, m_bDoSwitch);
-	DDX_Control(pDX, IDC_FROMURL, m_FromUrl);
 }
 
 
@@ -79,12 +79,6 @@ END_MESSAGE_MAP()
 BOOL CCopyDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(0, 0, 0, IDC_MSGGROUP);
-	m_aeroControls.SubclassControl(GetDlgItem(IDC_DOSWITCH)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-	m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
 
 	AdjustControlSize(IDC_COPYHEAD);
 	AdjustControlSize(IDC_COPYREV);
@@ -113,11 +107,8 @@ BOOL CCopyDlg::OnInitDialog()
 	CString sUUID = svn.GetUUIDFromPath(path);
 	if (m_wcURL.IsEmpty())
 	{
-		CString Wrong_URL=path.GetSVNPathString();
-		CString temp;
-		temp.Format(IDS_ERR_NOURLOFFILE, (LPCTSTR)Wrong_URL);
-		CMessageBox::Show(this->m_hWnd, temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
-		TRACE(_T("could not retrieve the URL of the file!"));
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_NOURLOFFILE, IDS_APPNAME, MB_ICONERROR);
+		TRACE(_T("could not retrieve the URL of the file!\n"));
 		this->EndDialog(IDCANCEL);		//exit
 	}
 	m_URLCombo.SetURLHistory(TRUE);
@@ -134,9 +125,6 @@ BOOL CCopyDlg::OnInitDialog()
 	m_History.Load(reg, _T("logmsgs"));
 
 	m_ProjectProperties.ReadProps(m_path);
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE)) 
-		m_ProjectProperties.bWarnIfNoIssue = TRUE;
-
 	m_cLogMessage.Init(m_ProjectProperties);
 	m_cLogMessage.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 	if (m_ProjectProperties.sMessage.IsEmpty())
@@ -156,10 +144,6 @@ BOOL CCopyDlg::OnInitDialog()
 	if (!m_sLogMessage.IsEmpty())
 		m_cLogMessage.SetText(m_sLogMessage);
 
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-	CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, _T("Alt+")+CString(CAppUtils::FindAcceleratorKey(this, IDC_INVISIBLE)));
-
 	AddAnchor(IDC_REPOGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_COPYSTARTLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_FROMURL, TOP_LEFT, TOP_RIGHT);
@@ -176,7 +160,6 @@ BOOL CCopyDlg::OnInitDialog()
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
 	AddAnchor(IDC_BUGIDLABEL, TOP_RIGHT);
 	AddAnchor(IDC_BUGID, TOP_RIGHT);
-	AddAnchor(IDC_INVISIBLE, TOP_RIGHT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_DOSWITCH, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -318,14 +301,7 @@ void CCopyDlg::OnCancel()
 	// check if the status thread has already finished
 	if (m_pThread)
 	{
-		WaitForSingleObject(m_pThread->m_hThread, 1000);
-		if (m_bThreadRunning)
-		{
-			// we gave the thread a chance to quit. Since the thread didn't
-			// listen to us we have to kill it.
-			TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-			InterlockedExchange(&m_bThreadRunning, FALSE);
-		}
+		WaitForSingleObject(m_pThread->m_hThread, INFINITE);
 	}
 	if (m_ProjectProperties.sLogTemplate.Compare(m_cLogMessage.GetText()) != 0)
 		m_History.AddEntry(m_cLogMessage.GetText());

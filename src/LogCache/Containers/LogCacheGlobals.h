@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,32 +18,37 @@
 //
 #pragma once
 
-/// used to enable optimized implementations on 64 bit systems
-
-#if (defined (_WIN64) || (__WORDSIZE == 64)) && !defined(_64BITS)
-#define _64BITS
-#endif
 
 /**
  * defines global types and their associated "invalid" values.
  */
 namespace LogCache
 {
-	/// log caching index
 #ifdef HUGE_LOG_CACHE
-	typedef size_t index_t;
-#else
-	typedef unsigned index_t;
-#endif
 
+	typedef size_t index_t;
+	typedef index_t revision_t;
+
+	enum
+	{
+		NO_INDEX = (size_t)0xffffffffffffffff,
+		NO_REVISION = NO_INDEX,
+	};
+
+#else
+
+	/// log caching index
+	typedef DWORD index_t;
 	/// revision number
 	typedef index_t revision_t;
 
 	enum
 	{
 		/// invalid/unknown index
-		NO_INDEX = (index_t)(-1),
+		NO_INDEX = (revision_t)0xffffffff,
 		/// invalid/unknown revision
-		NO_REVISION = (revision_t)(-1),
+		NO_REVISION = NO_INDEX,
 	};
+
+#endif
 };

@@ -21,7 +21,6 @@
 
 #include "AboutCommand.h"
 #include "AddCommand.h"
-#include "AutoTextTestCommand.h"
 #include "BlameCommand.h"
 #include "CatCommand.h"
 #include "CheckoutCommand.h"
@@ -38,7 +37,6 @@
 #include "DropCopyCommand.h"
 #include "DropExportCommand.h"
 #include "DropMoveCommand.h"
-#include "EditFileCommand.h"
 #include "ExportCommand.h"
 #include "HelpCommand.h"
 #include "IgnoreCommand.h"
@@ -70,12 +68,10 @@
 #include "UpdateCommand.h"
 #include "UrlDiffCommand.h"
 
-
 typedef enum
 {
 	cmdAbout,
 	cmdAdd,
-	cmdAutoTextTest,
 	cmdBlame,
 	cmdCat,
 	cmdCheckout,
@@ -91,7 +87,6 @@ typedef enum
 	cmdDropCopyAdd,
 	cmdDropExport,
 	cmdDropMove,
-	cmdEditFile,
 	cmdExport,
 	cmdHelp,
 	cmdIgnore,
@@ -133,7 +128,6 @@ static const struct CommandInfo
 {
 	{	cmdAbout,			_T("about")				},
 	{	cmdAdd,				_T("add")				},
-	{	cmdAutoTextTest,	_T("autotexttest")		},
 	{	cmdBlame,			_T("blame")				},
 	{	cmdCat,				_T("cat")				},
 	{	cmdCheckout,		_T("checkout")			},
@@ -149,7 +143,6 @@ static const struct CommandInfo
 	{	cmdDropCopyAdd,		_T("dropcopyadd")		},
 	{	cmdDropExport,		_T("dropexport")		},
 	{	cmdDropMove,		_T("dropmove")			},
-	{	cmdEditFile,		_T("editfile")			},
 	{	cmdExport,			_T("export")			},
 	{	cmdHelp,			_T("help")				},
 	{	cmdIgnore,			_T("ignore")			},
@@ -210,8 +203,6 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 		return new AboutCommand;
 	case cmdAdd:
 		return new AddCommand;
-	case cmdAutoTextTest:
-		return new AutoTextTestCommand;
 	case cmdBlame:
 		return new BlameCommand;
 	case cmdCat:
@@ -242,8 +233,6 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 		return new DropExportCommand;
 	case cmdDropMove:
 		return new DropMoveCommand;
-	case cmdEditFile:
-		return new EditFileCommand;
 	case cmdExport:
 		return new ExportCommand;
 	case cmdHelp:

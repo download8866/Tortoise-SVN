@@ -21,7 +21,7 @@
 #include "UnicodeUtils.h"
 #include "registry.h"
 #include ".\filetextlines.h"
-#include "FormatMessageWrapper.h"
+
 
 CFileTextLines::CFileTextLines(void)
 {
@@ -35,71 +35,71 @@ CFileTextLines::UnicodeType CFileTextLines::CheckUnicodeType(LPVOID pBuffer, int
 {
 	if (cb < 2)
 		return CFileTextLines::ASCII;
-	UINT16 * pVal16 = (UINT16 *)pBuffer;
-	UINT8 * pVal8 = (UINT8 *)(pVal16+1);
+	UINT16 * pVal = (UINT16 *)pBuffer;
+	UINT8 * pVal2 = (UINT8 *)(pVal+1);
 	// scan the whole buffer for a 0x0000 sequence
 	// if found, we assume a binary file
 	for (int i=0; i<(cb-2); i=i+2)
 	{
-		if (0x0000 == *pVal16++)
+		if (0x0000 == *pVal++)
 			return CFileTextLines::BINARY;
 	}
-	pVal16 = (UINT16 *)pBuffer;
-	if (*pVal16 == 0xFEFF)
+	pVal = (UINT16 *)pBuffer;
+	if (*pVal == 0xFEFF)
 		return CFileTextLines::UNICODE_LE;
 	if (cb < 3)
 		return ASCII;
-	if (*pVal16 == 0xBBEF)
+	if (*pVal == 0xBBEF)
 	{
-		if (*pVal8 == 0xBF)
+		if (*pVal2 == 0xBF)
 			return CFileTextLines::UTF8BOM;
 	}
 	// check for illegal UTF8 chars
-	pVal8 = (UINT8 *)pBuffer;
+	pVal2 = (UINT8 *)pBuffer;
 	for (int i=0; i<cb; ++i)
 	{
-		if ((*pVal8 == 0xC0)||(*pVal8 == 0xC1)||(*pVal8 >= 0xF5))
+		if ((*pVal2 == 0xC0)||(*pVal2 == 0xC1)||(*pVal2 >= 0xF5))
 			return CFileTextLines::ASCII;
-		pVal8++;
+		pVal2++;
 	}
-	pVal8 = (UINT8 *)pBuffer;
+	pVal2 = (UINT8 *)pBuffer;
 	bool bUTF8 = false;
 	bool bNonANSI = false;
 	for (int i=0; i<(cb-3); ++i)
 	{
-		if (*pVal8 > 127)
+		if (*pVal2 > 127)
 			bNonANSI = true;
-		if ((*pVal8 & 0xE0)==0xC0)
+		if ((*pVal2 & 0xE0)==0xC0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
 			bUTF8 = true;
 		}
-		if ((*pVal8 & 0xF0)==0xE0)
+		if ((*pVal2 & 0xF0)==0xE0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
 			bUTF8 = true;
 		}
-		if ((*pVal8 & 0xF8)==0xF0)
+		if ((*pVal2 & 0xF8)==0xF0)
 		{
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
-			pVal8++;i++;
-			if ((*pVal8 & 0xC0)!=0x80)
+			pVal2++;i++;
+			if ((*pVal2 & 0xC0)!=0x80)
 				return CFileTextLines::ASCII;
 			bUTF8 = true;
 		}
-		pVal8++;
+		pVal2++;
 	}
 	if (bUTF8)
 		return CFileTextLines::UTF8;
@@ -300,7 +300,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 				if (*(pTextBuf+1) == '\n')
 				{
 					// crlf line ending
-					CString line(pLineStart, (int)(pTextBuf-pLineStart));
+					CString line(pLineStart, pTextBuf-pLineStart);
 					Add(line, EOL_CRLF);
 					pLineStart = pTextBuf+2;
 					++pTextBuf;
@@ -309,7 +309,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 				else
 				{
 					// cr line ending
-					CString line(pLineStart, (int)(pTextBuf-pLineStart));
+					CString line(pLineStart, pTextBuf-pLineStart);
 					Add(line, EOL_CR);
 					pLineStart =pTextBuf+1;
 				}
@@ -318,7 +318,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 		else if (*pTextBuf == '\n')
 		{
 			// lf line ending
-			CString line(pLineStart, (int)(pTextBuf-pLineStart));
+			CString line(pLineStart, pTextBuf-pLineStart);
 			Add(line, EOL_LF);
 			pLineStart =pTextBuf+1;
 		}
@@ -326,7 +326,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 	}
 	if (pLineStart < pTextBuf)
 	{
-		CString line(pLineStart, (int)(pTextBuf-pLineStart));
+		CString line(pLineStart, pTextBuf-pLineStart);
 		Add(line, EOL_NOENDING);
 		m_bReturnAtEnd = false;		
 	}
@@ -569,7 +569,19 @@ BOOL CFileTextLines::Save(const CString& sFilePath, bool bSaveAsUTF8, DWORD dwIg
 
 void CFileTextLines::SetErrorString()
 {
-	m_sErrorString = CFormatMessageWrapper();
+		LPVOID lpMsgBuf;
+		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM | 
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			::GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR) &lpMsgBuf,
+			0,
+			NULL 
+			);
+		m_sErrorString = (LPCTSTR)lpMsgBuf;
+		LocalFree( lpMsgBuf );
 }
 
 void CFileTextLines::CopySettings(CFileTextLines * pFileToCopySettingsTo)
@@ -580,3 +592,8 @@ void CFileTextLines::CopySettings(CFileTextLines * pFileToCopySettingsTo)
 		pFileToCopySettingsTo->m_LineEndings = m_LineEndings;
 	}
 }
+
+
+
+
+

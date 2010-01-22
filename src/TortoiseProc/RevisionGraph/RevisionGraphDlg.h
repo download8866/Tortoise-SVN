@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "Colors.h"
 #include "RevisionGraphWnd.h"
 #include "StandAloneDlg.h"
-#include "Win7.h"
 
 /**
  * \ingroup TortoiseProc
@@ -111,12 +110,11 @@ private:
     void            UpdateOptionAvailability (UINT id, bool available);
     void            UpdateOptionAvailability();
 
-	bool		    UpdateData();
+	static UINT		WorkerThread(LPVOID pVoid);
 
 	float			m_fZoomFactor;
 	CRevisionGraphWnd	m_Graph;
 	CStatusBarCtrl		m_StatusBar;
 	CRevGraphToolBar	m_ToolBar;
     ULONG_PTR       m_gdiPlusToken;
-	CComPtr<ITaskbarList3>	m_pTaskbarList;
 };

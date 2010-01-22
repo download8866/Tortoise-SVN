@@ -39,10 +39,11 @@ bool CopyCommand::Execute()
 
 	BOOL repeat = FALSE;
 	CCopyDlg dlg;
+	dlg.m_sLogMessage = msg;
 
 	dlg.m_path = cmdLinePath;
 	CString url = parser.GetVal(_T("url"));
-	CString logmessage = msg;
+	CString logmessage;
 	SVNRev copyRev = SVNRev::REV_HEAD;
 	BOOL doSwitch = FALSE;
 	do 
@@ -58,7 +59,8 @@ bool CopyCommand::Execute()
 			TRACE(_T("copy %s to %s\n"), (LPCTSTR)cmdLinePath.GetWinPathString(), (LPCTSTR)dlg.m_URL);
 			CSVNProgressDlg progDlg;
 			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Copy);
-			progDlg.SetAutoClose (parser);
+			if (parser.HasVal(_T("closeonend")))
+				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
 			DWORD options = dlg.m_bDoSwitch ? ProgOptSwitchAfterCopy : ProgOptNone;
 			progDlg.SetOptions(options);
 			progDlg.SetPathList(pathList);

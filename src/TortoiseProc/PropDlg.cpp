@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -51,9 +51,6 @@ BOOL CPropDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_PROPERTYLIST, IDC_PROPERTYLIST, IDC_PROPERTYLIST, IDC_PROPERTYLIST);
-	m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-
 	m_proplist.SetExtendedStyle ( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
 
 	m_proplist.DeleteAllItems();
@@ -66,7 +63,13 @@ BOOL CPropDlg::OnInitDialog()
 	temp.LoadString(IDS_PROPVALUE);
 	m_proplist.InsertColumn(1, temp);
 	m_proplist.SetRedraw(false);
-	setProplistColumnWidth();
+	int mincol = 0;
+	int maxcol = ((CHeaderCtrl*)(m_proplist.GetDlgItem(0)))->GetItemCount()-1;
+	int col;
+	for (col = mincol; col <= maxcol; col++)
+	{
+		m_proplist.SetColumnWidth(col,LVSCW_AUTOSIZE_USEHEADER);
+	}
 	m_proplist.SetRedraw(false);
 
 	DialogEnableWindow(IDOK, FALSE);
@@ -106,7 +109,7 @@ UINT CPropDlg::PropThread()
 	int row = 0;
 	for (int i=0; i<props.GetCount(); ++i)
 	{
-		CString name = UTF8ToString (props.GetItemName(i)).c_str();
+		CString name = props.GetItemName(i).c_str();
 		CString val;
 		val = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
 
@@ -124,7 +127,13 @@ UINT CPropDlg::PropThread()
 			name.Empty();
 		} while (!val.IsEmpty()&&(nFound>=0));
 	}
-	setProplistColumnWidth();
+	int mincol = 0;
+	int maxcol = ((CHeaderCtrl*)(m_proplist.GetDlgItem(0)))->GetItemCount()-1;
+	int col;
+	for (col = mincol; col <= maxcol; col++)
+	{
+		m_proplist.SetColumnWidth(col,LVSCW_AUTOSIZE_USEHEADER);
+	}
 
 	m_proplist.SetRedraw(true);
 	DialogEnableWindow(IDOK, TRUE);
@@ -133,7 +142,7 @@ UINT CPropDlg::PropThread()
 
 BOOL CPropDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
-	if ((GetDlgItem(IDOK)->IsWindowEnabled())||(IsCursorOverWindowBorder()))
+	if ((GetDlgItem(IDOK)->IsWindowEnabled())||(pWnd != GetDlgItem(IDC_PROPERTYLIST)))
 	{
 		HCURSOR hCur = LoadCursor(NULL, MAKEINTRESOURCE(IDC_ARROW));
 		SetCursor(hCur);
@@ -142,13 +151,4 @@ BOOL CPropDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	HCURSOR hCur = LoadCursor(NULL, MAKEINTRESOURCE(IDC_WAIT));
 	SetCursor(hCur);
 	return TRUE;
-}
-
-void CPropDlg::setProplistColumnWidth()
-{
-	const int maxcol = ((CHeaderCtrl*)(m_proplist.GetDlgItem(0)))->GetItemCount()-1;
-	for (int col = 0; col <= maxcol; col++)
-	{
-		m_proplist.SetColumnWidth(col,LVSCW_AUTOSIZE_USEHEADER);
-	}
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2009 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -108,13 +108,12 @@ void CSplitterControl::OnMouseMove(UINT nFlags, CPoint point)
 {
 	if (m_bIsPressed)
 	{
-		CWnd * pParent = GetParent();
-		CDC * pDC = pParent->GetDC();
-		DrawLine(pDC);
+		CWindowDC dc(NULL);
+		DrawLine(&dc);
 		
 		CPoint pt = point;
 		ClientToScreen(&pt);
-		pParent->ScreenToClient(&pt);
+		GetParent()->ScreenToClient(&pt);
 
 		if (pt.x < m_nMin)
 			pt.x = m_nMin;
@@ -129,10 +128,9 @@ void CSplitterControl::OnMouseMove(UINT nFlags, CPoint point)
 		GetParent()->ClientToScreen(&pt);
 		m_nX = pt.x;
 		m_nY = pt.y;
-		DrawLine(pDC);
-		pParent->ReleaseDC(pDC);
+		DrawLine(&dc);
 	}
-	else if (!m_bMouseOverControl)
+	if (!m_bMouseOverControl)
 	{
 		TRACKMOUSEEVENT Tme;
 		Tme.cbSize = sizeof(TRACKMOUSEEVENT);
@@ -185,20 +183,18 @@ void CSplitterControl::OnLButtonDown(UINT nFlags, CPoint point)
 	else
 		m_nSavePos = m_nY;
 
-	CWnd * pParent = GetParent();
-	CDC * pDC = pParent->GetDC();
-	DrawLine(pDC);
-	pParent->ReleaseDC(pDC);
+	CWindowDC dc(NULL);
+	DrawLine(&dc);
 }
 
 void CSplitterControl::OnLButtonUp(UINT nFlags, CPoint point) 
 {
 	if (m_bIsPressed)
 	{
-		CWnd * pParent = GetParent();
-		CDC * pDC = pParent->GetDC();
+		ClientToScreen(&point);
+		CWindowDC dc(NULL);
 
-		DrawLine(pDC);
+		DrawLine(&dc);
 		CPoint pt(m_nX, m_nY);
 		m_bIsPressed = FALSE;
 		CWnd *pOwner = GetOwner();
@@ -236,33 +232,27 @@ void CSplitterControl::DrawLine(CDC* pDC)
 	int nRop = pDC->SetROP2(R2_NOTXORPEN);
 
 	CRect rcWnd;
-	const int d = 1;
+	int d = 1;
 	GetWindowRect(rcWnd);
-	GetParent()->ScreenToClient(&rcWnd);
-	CPoint pt;
-	pt.x = m_nX;
-	pt.y = m_nY;
-	GetParent()->ScreenToClient(&pt);
-
 	CPen  pen;
 	pen.CreatePen(0, 1, ::GetSysColor(COLOR_GRAYTEXT));
 	CPen *pOP = pDC->SelectObject(&pen);
 	
 	if (m_nType == SPS_VERTICAL)
 	{
-		pDC->MoveTo(pt.x - d, rcWnd.top);
-		pDC->LineTo(pt.x - d, rcWnd.bottom);
+		pDC->MoveTo(m_nX - d, rcWnd.top);
+		pDC->LineTo(m_nX - d, rcWnd.bottom);
 
-		pDC->MoveTo(pt.x + d, rcWnd.top);
-		pDC->LineTo(pt.x + d, rcWnd.bottom);
+		pDC->MoveTo(m_nX + d, rcWnd.top);
+		pDC->LineTo(m_nX + d, rcWnd.bottom);
 	}
 	else // m_nType == SPS_HORIZONTAL
 	{
-		pDC->MoveTo(rcWnd.left, pt.y - d);
-		pDC->LineTo(rcWnd.right, pt.y - d);
+		pDC->MoveTo(rcWnd.left, m_nY - d);
+		pDC->LineTo(rcWnd.right, m_nY - d);
 		
-		pDC->MoveTo(rcWnd.left, pt.y + d);
-		pDC->LineTo(rcWnd.right, pt.y + d);
+		pDC->MoveTo(rcWnd.left, m_nY + d);
+		pDC->LineTo(rcWnd.right, m_nY + d);
 	}
 	pDC->SetROP2(nRop);
 	pDC->SelectObject(pOP);

@@ -55,7 +55,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-12-13 09:34 +0000\n"
+"POT-Creation-Date: 2009-12-09 09:22 +0000\n"
 "PO-Revision-Date: 2009-12-14 22:11-0500\n"
 "Last-Translator: Garfield Yao <field977@hotmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
@@ -2555,22 +2555,6 @@ msgstr ""
 "<filename>&gt;&amp;2</filename>实现。"
 
 #. (title)
-msgid "Overriding Hooks"
-msgstr ""
-
-#. (para)
-msgid ""
-"If a hook script rejects your commit then its decision is final. But you can "
-"build an override mechanism into the script itself using the <emphasis>Magic "
-"Word</emphasis> technique. If the script wants to reject the operation it "
-"first scans the log message for a special pass phrase, either a fixed phrase "
-"or perhaps the filename with a prefix. If it finds the magic word then it "
-"allows the commit to proceed. If the phrase is not found then it can block "
-"the commit with a message like <quote>You didn't say the magic word</"
-"quote> :-)"
-msgstr ""
-
-#. (title)
 msgid "Checkout Links"
 msgstr "检出链接"
 
@@ -4441,7 +4425,7 @@ msgid ""
 "bin\\openssl req -new -key conf\\server.key -out conf\\server.csr \\\n"
 "-config conf\\openssl.cnf\n"
 "</screen> and then (on one line) <screen>\n"
-"bin\\openssl x509 -in conf\\server.csr -out conf\\server.cert\n"
+"bin\\openssl x509 -in conf\\server.csr -out conf\\server.crt\n"
 "                 -req -signkey conf\\server.key -days 4000\n"
 "</screen> This will create a certificate which will expire in 4000 days. And "
 "finally enter (on one line): <screen>\n"
@@ -4942,11 +4926,6 @@ msgstr ""
 msgid "authentication"
 msgstr "认证"
 
-#. (primary)
-#, fuzzy
-msgid "authentication cache"
-msgstr "认证"
-
 #. (title)
 msgid "Authentication Dialog"
 msgstr "认证对话框"
@@ -4954,11 +4933,10 @@ msgstr "认证对话框"
 #. (para)
 msgid ""
 "<filename>svn.simple</filename> contains credentials for basic authentication "
-"(username/password). Note that passwords are stored using the WinCrypt API, "
-"not in plain text form."
+"(username/password)."
 msgstr ""
 "<filename>svn.simple</filename> 里包含了基本认证方式所需要的认证信息(用户名/密"
-"码)。注意，保存的密码是通过 WinCrypt API 加密的，不是文本形式。"
+"码)。"
 
 #. (para)
 msgid "<filename>svn.ssl.server</filename> contains SSL server certificates."
@@ -4997,15 +4975,6 @@ msgstr ""
 "已保存数据</guilabel>页来实现。那个按钮能够清除 Subversion 的 <filename>auth</"
 "filename> 目录中缓存的所有认证数据，以及老版本的 TortoiseSVN 存储在注册表里的"
 "认证数据。请参考 <xref linkend=\"tsvn-dug-settings-saved-data\"/>。"
-
-#. (para)
-msgid ""
-"If you want to clear authentication for one realm only then you will have to "
-"dig into those directories, find the file which contains the information you "
-"want to clear and delete the file."
-msgstr ""
-"如果你想清除某一个范围的认证信息，那么你需要打开那些目录，找到包含你要清除的信"
-"息的文件并删除文件。"
 
 #. (para)
 msgid ""
@@ -5082,13 +5051,12 @@ msgid "temporary files"
 msgstr "临时文件"
 
 #. (para)
-#, fuzzy
 msgid ""
 "If you are importing into an existing repository which already contains some "
 "projects, then the repository structure will already have been decided. If "
-"you are importing data into a new repository, then it is worth taking the "
-"time to think about how it will be organised. Read <xref linkend=\"tsvn-"
-"repository-layout\"/> for further advice."
+"are importing data into a new repository then it is worth taking the time to "
+"think about how it will be organised. Read <xref linkend=\"tsvn-repository-"
+"layout\"/> for further advice."
 msgstr ""
 "如果你要将数据导入到已经包括一些项目的版本库中，那么版本库的结构应该已经确定"
 "了。如果你要将数据导入到一个新的版本库中，那么应该花点时间确定版本库的组织结"
@@ -5862,27 +5830,6 @@ msgid ""
 "both the old name (missing) and the new name (unversioned) and use "
 "<menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Move</"
 "guimenuitem></menuchoice> to pair the two files as a rename."
-msgstr ""
-"有时候文件不是用Subversion改名，于是它们在文件列表中作为丢失和未版本控制的文件"
-"出现。为了避免丢失历史，你需要通知Subversion。简单的选择老名称(丢失)和新名称"
-"(未版本控制)，然后使用<menuchoice><guimenu>右键菜单</guimenu><guimenuitem>修复"
-"移动</guimenuitem></menuchoice>来指明这两个文件是改名关系。"
-
-#. (title)
-#. (title)
-#, fuzzy
-msgid "Repairing External Copies"
-msgstr "修复外部改名"
-
-#. (para)
-#. (para)
-#, fuzzy
-msgid ""
-"If you made a copy of a file but forgot to use the Subversion command to do "
-"so, you can repair that copy so the new file doesn't lose its history. Simply "
-"select both the old name (normal or modified) and the new name (unversioned) "
-"and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Copy</"
-"guimenuitem></menuchoice> to pair the two files as a copy."
 msgstr ""
 "有时候文件不是用Subversion改名，于是它们在文件列表中作为丢失和未版本控制的文件"
 "出现。为了避免丢失历史，你需要通知Subversion。简单的选择老名称(丢失)和新名称"
@@ -8453,13 +8400,12 @@ msgstr ""
 msgid ""
 "When you show the log for a folder the revision highlighted is the highest "
 "revision found anywhere within that folder, which requires a crawl of the "
-"working copy. The crawl takes place within a separate thread so as not to "
-"delay showing the log, but as a result highlighting for folders may not "
-"appear immediately."
+"working copy. This can be a slow operation for large working copies, and the "
+"log messages are not displayed until the crawl completes. If you want to "
+"disable or limit this feature you need to set a registry key <literal>HKCU"
+"\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref "
+"linkend=\"tsvn-dug-settings-registry\"/>."
 msgstr ""
-"当你显示文件夹的日志时，高亮的版本是此文件夹中的最高版本，这就需要遍历工作副"
-"本。遍历操作在单独的进程中进行，因此不会使显示日志有延迟，但是这样的结果就是高"
-"亮也许不会立刻显示出来。"
 
 #. (title)
 msgid "Merge Tracking Features"
@@ -8627,14 +8573,6 @@ msgstr ""
 "\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink> 查看在"
 "线文档和指导。过滤器检查你的过滤字符串是否与日志条目匹配，并且只显示与过滤字符"
 "串<emphasis>匹配</emphasis>的条目。"
-
-#. (para)
-msgid ""
-"If you don't use regex mode, you can enter several strings to search for, and "
-"only those log entries which match all of your filter words will be shown."
-msgstr ""
-"如果你不使用正则表达式模式，你可以输入几个字符串进行查找，只有那些匹配所有过滤"
-"词的日志条目才会被显示。"
 
 #. (para)
 msgid ""
@@ -9764,7 +9702,7 @@ msgstr "不能在版本库之间复制"
 
 #. (para)
 msgid ""
-"Whilst you can copy or move files and folders <emphasis>within</emphasis> a "
+"Whilst you can copy and files and folders <emphasis>within</emphasis> a "
 "repository, you <emphasis>cannot</emphasis> copy or move from one repository "
 "to another while preserving history using TortoiseSVN. Not even if the "
 "repositories live on the same server. All you can do is copy the content in "
@@ -10208,19 +10146,6 @@ msgstr ""
 
 #. (para)
 msgid ""
-"Another way of moving or copying files is to use the Windows copy/cut "
-"commands. Select the files you want to copy, right-click and choose "
-"<menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Copy</guimenuitem></"
-"menuchoice> from the explorer context menu. Then browse to the target folder, "
-"right-click and choose <menuchoice><guimenu>TortoiseSVN</"
-"guimenu><guimenuitem>Paste</guimenuitem></menuchoice>. For moving files, "
-"choose <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Cut</"
-"guimenuitem></menuchoice> instead of <menuchoice><guimenu>Context Menu</"
-"guimenu><guimenuitem>Copy</guimenuitem></menuchoice>."
-msgstr ""
-
-#. (para)
-msgid ""
 "You can also use the repository browser to move items around. Read <xref "
 "linkend=\"tsvn-dug-repobrowser\"/> to find out more."
 msgstr ""
@@ -10448,11 +10373,6 @@ msgstr "恢复"
 msgid "undo"
 msgstr "撤消"
 
-#. (primary)
-#, fuzzy
-msgid "clean"
-msgstr "清理"
-
 #. (title)
 msgid "Revert dialog"
 msgstr "恢复对话框"
@@ -10500,17 +10420,6 @@ msgid ""
 msgstr ""
 "在这一对话框中，纵列和在 <guilabel>检查修改</guilabel>对话框中的纵列同样是可以"
 "定制的。更多细节请阅读<xref linkend=\"tsvn-dug-wcstatus-2\"/> "
-
-#. (para)
-msgid ""
-"Since revert is sometimes used to clean up a working copy, there is an extra "
-"button which allows you to delete unversioned items as well. When you click "
-"this button another dialog comes up listing all the unversioned items, which "
-"you can then select for deletion."
-msgstr ""
-"还原命令有时被用来清理工作副本，因此这里有一个额外的按钮，通过这个按钮你可以删"
-"除未版本控制的条目。当你点击这个按钮，会出现另一个对话框列出所有的未版本控制的"
-"条目，你可以选择需要删除的内容。"
 
 #. (title)
 msgid "Undoing Changes which have been Committed"
@@ -11160,35 +11069,6 @@ msgstr ""
 
 #. (para)
 msgid ""
-"The property <literal>tsvn:logrevregex</literal> defines a regular expression "
-"which matches references to revisions in a log message. This is used in the "
-"log dialog to turn such references into links which when clicked will either "
-"scroll to that revision (if the revision is already shown in the log dialog, "
-"or if it's available from the log cache) or open a new log dialog showing "
-"that revision."
-msgstr ""
-"属性 <literal>tsvn:logrevregex</literal> 定义了一个正则表达式，它匹配日志消息"
-"中的对版本号的引文。它的用处是，在日志对话框中，将这样的版本号变成链接，当点击"
-"链接的时候滚动到这一版本(如果此版本已经显示在日志对话框中被显示出来，或者它在"
-"日志缓存中)或者打开一个新的日志对话框显示那个版本。"
-
-#. (para)
-msgid ""
-"The regular expression must match the whole reference, not just the revision "
-"number. The revision number is extracted from the matched reference string "
-"automatically."
-msgstr ""
-"正则表达式必须匹配整个引文，而不仅仅是版本号。版本号可以自动的从匹配的引文字符"
-"串中提取出来。"
-
-#. (para)
-msgid ""
-"If this property is not set, a default regular expression is used to link "
-"revision references."
-msgstr "如果这个属性没有设置，一个默认的正则表达式被用来链接版本引文。"
-
-#. (para)
-msgid ""
 "When you want to add a new property, you can either pick one from the list in "
 "the combo box, or you can enter any property name you like. If your project "
 "uses some custom properties, and you want those properties to appear in the "
@@ -11270,13 +11150,10 @@ msgstr ""
 "置 (靠近 <filename>trunk/</filename>)。"
 
 #. (para)
-#. (para)
-#. (para)
 msgid ""
-"For project properties <emphasis>only</emphasis>, i.e. <literal>tsvn:</"
-"literal>, <literal>bugtraq:</literal> and <literal>webviewer:</literal> you "
-"can use the <guilabel>Recursive</guilabel> checkbox to set the property to "
-"all sub-folders in the hierarchy, without also setting it on all files."
+"For project properties <emphasis>only</emphasis> you can use the "
+"<guilabel>Recursive</guilabel> checkbox to set the property to all sub-"
+"folders in the hierarchy, without also setting it on all files."
 msgstr ""
 "对于<literal>tsvn:</literal>属性，例如 <literal>tsvn:</literal>，"
 "<literal>bugtraq:</literal> 和 <literal>webviewer:</literal>，你<emphasis>只能"
@@ -11876,42 +11753,6 @@ msgstr ""
 "里，而不是到主干里，所以你的工作副本可能仍然标记为已修改状态来避免影响主干。"
 
 #. (title)
-msgid "Other ways to create a branch or tag"
-msgstr "创建分支或标记的其他方法"
-
-#. (para)
-msgid ""
-"You can also create a branch or tag without having a working copy. To do "
-"that, open the repository browser. You can there drag folders to a new "
-"location. You have to hold down the <keycap>Ctrl</keycap> key while you drag "
-"to create a copy, otherwise the folder gets moved, not copied."
-msgstr ""
-"你可以在没有工作副本的情况下创建分支或标记。要这样做，打开版本库浏览器。你可以"
-"拖拽文件夹到新的位置。要创建副本，你必须在拖拽过程中按下 <keycap>Ctrl</"
-"keycap> 键，否则文件夹是被移动，不是被复制。"
-
-#. (para)
-msgid ""
-"You can also drag a folder with the right mouse button. Once you release the "
-"mouse button you can choose from the context menu whether you want the folder "
-"to be moved or copied. Of course to create a branch or tag you must copy the "
-"folder, not move it."
-msgstr ""
-"你可以使用鼠标右键拖拽文件夹。一旦你松开鼠标右键，你可以从右键菜单中选择移动或"
-"复制文件夹。当然，要创建分支或标记你必须复制文件夹，而不是移动它。"
-
-#. (para)
-msgid ""
-"Yet another way is from the log dialog. You can show the log dialog for e.g. "
-"trunk, select a revision (either the HEAD revision at the very top or an "
-"earlier revision), right-click and choose <menuchoice><guimenuitem>create "
-"branch/tag from revision...</guimenuitem></menuchoice>"
-msgstr ""
-"还有一个方法就是从日志对话框。你可以显示某个文件夹，例如 trunk，的日志对话框，"
-"选择一个版本(可以是位于顶端的最新版本，也可以是先前的版本)，右键单击并选择"
-"<menuchoice><guimenuitem>从版本创建分支/标记</guimenuitem></menuchoice>。"
-
-#. (title)
 msgid "To Checkout or to Switch..."
 msgstr "检出或者切换"
 
@@ -12005,7 +11846,7 @@ msgstr ""
 #. (para)
 msgid ""
 "Tags are typically used to create a static snapshot of the project at a "
-"particular stage. As such they are not normally used for development - that's "
+"particular stage. As such they not normally used for development - that's "
 "what branches are for, which is the reason we recommended the <filename>/"
 "trunk /branches /tags</filename> repository structure in the first place. "
 "Working on a tag revision is <emphasis>not a good idea</emphasis>, but "
@@ -12534,14 +12375,6 @@ msgid ""
 "These options are described in <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/"
 ">. The default behaviour is to treat all whitespace and line-end differences "
 "as real changes to be merged."
-msgstr ""
-
-#. (para)
-msgid ""
-"The checkbox marked <guilabel>Force the merge</guilabel> is used to avoid a "
-"tree conflict where an incoming delete affects a file that is either modified "
-"locally or not versioned at all. If the file is deleted then there is no way "
-"to recover it, which is why that option is not checked by default."
 msgstr ""
 
 #. (para)
@@ -13334,10 +13167,7 @@ msgid ""
 "filename> or <filename>.diff</filename> files are shown, but you can opt for "
 "<quote>All files</quote>. If you previously saved a patch to the clipboard, "
 "you can use <guibutton>Open from clipboard...</guibutton> in the file open "
-"dialog. Note that this option only appears if you saved the patch to the "
-"clipboard using <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Create "
-"Patch...</guimenuitem></menuchoice>. Copying a patch to the clipboard from "
-"another app will not make the button appear."
+"dialog."
 msgstr ""
 "从那个目录的上下文菜单，点击<menuchoice><guimenu>TortoiseSVN</"
 "guimenu><guimenuitem>应用补丁...</guimenuitem></menuchoice> 系统会弹出一个打开"
@@ -13791,11 +13621,9 @@ msgid "Delete or rename the folder."
 msgstr "删除或改名文件夹。"
 
 #. (para)
-#, fuzzy
 msgid ""
 "Make a copy of the folder, either to a different part of the repository, or "
-"to a working copy rooted in the same repository. This can also be used to "
-"create a branch/tag without the need to have a working copy checked out."
+"to a working copy rooted in the same repository."
 msgstr ""
 "复制这个目录，目的可以是版本库中的其它地方，也可以是同一版本库中的工作副本。"
 
@@ -15135,6 +14963,17 @@ msgstr ""
 "确定，你必须为每个子目录设置这些属性。一个深级目录的设置会覆盖高级目录(离"
 "<filename>trunk/</filename>更近的)。"
 
+#. (para)
+#. (para)
+#, fuzzy
+msgid ""
+"For <literal>tsvn:</literal> properties <emphasis>only</emphasis> you can use "
+"the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-"
+"folders in the hierarchy, without also setting it on all files."
+msgstr ""
+"对于<literal>tsvn:</literal>属性，你<emphasis>只能</emphasis>对于所有子目录使"
+"用<guilabel>递归</guilabel>检查框设置属性，不能设置文件的属性。"
+
 #. (title)
 msgid "No Issue Tracker Information from Repository Browser"
 msgstr ""
@@ -15144,9 +14983,7 @@ msgid ""
 "Because the issue tracker integration depends upon accessing subversion "
 "properties, you will only see the results when using a checked out working "
 "copy. Fetching properties remotely is a slow operation, so you will not see "
-"this feature in action from the repo browser unless you started the repo "
-"browser from your working copy. If you started the repo browser by entering "
-"the URL of the repository you won't see this feature."
+"this feature in action from the repo browser."
 msgstr ""
 
 #. (para)
@@ -15312,9 +15149,7 @@ msgid ""
 "Because the repo viewer integration depends upon accessing subversion "
 "properties, you will only see the results when using a checked out working "
 "copy. Fetching properties remotely is a slow operation, so you will not see "
-"this feature in action from the repo browser unless you started the repo "
-"browser from your working copy. If you started the repo browser by entering "
-"the URL of the repository you won't see this feature."
+"this feature in action from the repo browser."
 msgstr ""
 
 #. (title)
@@ -15818,13 +15653,6 @@ msgstr ""
 "加</guilabel>，<guilabel>提交</guilabel> 或 <guilabel>检查修改</guilabel> 时显"
 "示的是什么状态，它的每个子文件和子文件夹都要同样显示。取消选择将减少这些对话框"
 "中的混乱程度。这样一来如果你选择添加一个非版本控制的文件夹，将会非递归地添加。"
-
-#. (para)
-msgid ""
-"In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see "
-"ignored items. If this box is checked then whenever an ignored folder is "
-"found, all child items will be shown as well."
-msgstr ""
 
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
@@ -16789,8 +16617,6 @@ msgid ""
 "</screen> or with Araxis: <screen>\n"
 "C:\\Path-To\\compare.exe /max /wait /title1:%bname /title2:%yname\n"
 "    %base %mine\n"
-"</screen> or with UltraCompare: <screen>\n"
-"C:\\Path-To\\uc.exe %base %mine -title1 %bname -title2 %yname\n"
 "</screen>"
 msgstr ""
 "例如，使用 ExamDiff Pro：<screen>\n"
@@ -17897,13 +17723,14 @@ msgstr ""
 msgid ""
 "The log dialog highlights the current working copy revision when the log is "
 "shown for a file. To do the same thing for a folder requires a working copy "
-"crawl, which can be a slow operation for large working copies. However the "
-"crawling is done in a separate thread so it doesn't hold up the display of "
-"log messages. For <emphasis>really</emphasis> large working copies the disk "
-"chatter might be annoying, so if you really want to disable this you must "
+"crawl, which is the default action, but it can be a slow operation for large "
+"working copies. If you want to change the operation of this feature you must "
 "create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software"
-"\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature "
-"(no highlighting for folders)."
+"\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature "
+"(no highlighting for folders), a value of 1 (default) will fetch the status "
+"recursively (find the highest revision in the working copy tree), and a value "
+"of 2 will check the revision of the selected folder itself, but will not "
+"check any child items."
 msgstr ""
 
 #. (term)
@@ -18785,30 +18612,6 @@ msgstr ""
 #. (para)
 msgid ""
 "The following example shows how the interface might be used. <placeholder-1/>"
-msgstr "下述例子显示了如何使用接口。<placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"using LibSubWCRev;\n"
-"SubWCRev sub = new SubWCRev();\n"
-"sub.GetWCInfo(\"C:\\\\PathToMyFile\\\\MyFile.cc\", true, true);\n"
-"if (sub.IsSvnItem == true)\n"
-"{\n"
-"    MessageBox.Show(\"versioned\");\n"
-"}\n"
-"else\n"
-"{\n"
-"    MessageBox.Show(\"not versioned\");\n"
-"}\n"
-msgstr ""
-
-#. (para)
-#, fuzzy
-msgid ""
-"The following listing is an example on how to use the SubWCRev COM object "
-"from C#: <placeholder-1/>"
 msgstr "下述例子显示了如何使用接口。<placeholder-1/>"
 
 #. (title)
@@ -20360,7 +20163,6 @@ msgstr "TortoiseSVN 命令"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "自动化"
 
@@ -20405,15 +20207,6 @@ msgstr ""
 "1.5.0 开始，废弃<option>/notempfile</option>参数，不再需要增加此参数。"
 
 #. (para)
-msgid ""
-"You can also specify a file which contains a list of paths, separated by "
-"newlines. The file must be in UTF-16 format. If you pass such a file, use "
-"<option>/pathfile</option> instead of <option>/path</option>. To have "
-"TortoiseProc delete that file after the command is finished, you can pass the "
-"parameter <option>/deletepathfile</option>."
-msgstr ""
-
-#. (para)
 #, fuzzy
 msgid ""
 "The progress dialog which is used for commits, updates and many more commands "
@@ -20455,13 +20248,16 @@ msgid ""
 msgstr "<option>/closeonend:3</option>如果没有错误、冲突和合并，会自动关闭"
 
 #. (para)
-#, fuzzy
+msgid ""
+"<option>/closeonend:4</option> auto close if no errors, conflicts and merges "
+"for local operations"
+msgstr "<option>/closeonend:4</option>如果没有错误、冲突和合并，会自动关闭"
+
+#. (para)
 msgid ""
 "To close the progress dialog at the end of a command automatically without "
 "using the permanent setting you can pass the <option>/closeonend</option> "
-"parameter. <placeholder-1/> To close the progress dialog for local operations "
-"if there were no errors or conflicts, pass the <option>/closeforlocal</"
-"option> parameter."
+"parameter. <placeholder-1/>"
 msgstr ""
 "如果想在进度对话框执行完毕后自动关闭，而又不必设置永久性的参数，可以传递"
 "<option>/closeonend</option>参数。<placeholder-1/>"
@@ -20540,56 +20336,14 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr ""
-
-#. (option)
-msgid "/findtext"
-msgstr ""
-
-#. (option)
-msgid "/findregex"
-msgstr ""
-
-#. (option)
-msgid "/findtype:X"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr ""
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr ""
-
 #. (entry)
 msgid ""
 "Opens the log dialog. The <placeholder-1/> specifies the file or folder for "
-"which the log should be shown. Six additional options can be set: "
-"<placeholder-2/>, <placeholder-3/>, <placeholder-4/> enables the 'stop-on-"
-"copy' checkbox, <placeholder-5/> fills in the filter text, <placeholder-6/> "
-"forces the filter to use text, not regex, or <placeholder-7/> forces the "
-"filter to use regex, not simple text search, and <placeholder-8/> with X "
-"being a number between 1 and 7. The numbers correspond to: <placeholder-9/>"
+"which the log should be shown. Three additional options can be set: "
+"<placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
 msgstr ""
+"打开日志对话框，<placeholder-1/> 指定了显示日志的文件或目录，另外还有三个选项"
+"可以设置: <placeholder-2/>、<placeholder-3/>和<placeholder-4/>"
 
 #. (option)
 #. (option)
@@ -20682,18 +20436,11 @@ msgid ""
 "which items to revert."
 msgstr "恢复工作副本的本地修改，<placeholder-1/>说明恢复哪些条目。"
 
-#. (option)
-#, fuzzy
-msgid "/noui"
-msgstr "/noquestion"
-
 #. (entry)
 msgid ""
 "Cleans up interrupted or aborted operations and unlocks the working copy in "
-"<placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from "
-"popping up (either telling about the cleanup being finished or showing an "
-"error message)."
-msgstr ""
+"<placeholder-1/>."
+msgstr "清理中断和终止的操作，将工作副本的<placeholder-1/>解锁。"
 
 #. (option)
 #. (option)
@@ -20813,11 +20560,6 @@ msgstr "/path2"
 msgid "/blame"
 msgstr "/blame"
 
-#. (option)
-#, fuzzy
-msgid "/line:xxx"
-msgstr "/rev:xxx"
-
 #. (entry)
 #, fuzzy
 msgid ""
@@ -20827,9 +20569,7 @@ msgid ""
 "> is omitted, then the diff is done between the file in <placeholder-4/> and "
 "its BASE. To explicitly set the revision numbers use <placeholder-5/> and "
 "<placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, "
-"then the diff is done by first blaming the files with the given revisions. "
-"The parameter <placeholder-9/> specifies the line to jump to when the diff is "
-"shown."
+"then the diff is done by first blaming the files with the given revisions."
 msgstr ""
 "启动 TortoiseSVN 设置的外置比较程序，<placeholder-1/>指定了第一个文件，如果设"
 "置了<placeholder-2/>选项，比较程序会用这两个文件启动，如果省略<placeholder-3/"
@@ -20870,26 +20610,11 @@ msgstr "打开重定位对话框，<placeholder-1/>指定了重定位的工作�
 msgid "Opens the help file."
 msgstr "打开帮助文件"
 
-#. (option)
-#, fuzzy
-msgid "/remote"
-msgstr "删除"
-
-#. (guilabel)
-#, fuzzy
-msgid "Check repository"
-msgstr "版本库"
-
 #. (entry)
-#, fuzzy
 msgid ""
 "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the "
-"working copy directory. If <placeholder-2/> is specified, the dialog contacts "
-"the repository immediately on startup, as if the user clicked on the "
-"<placeholder-3/> button."
-msgstr ""
-"打开检出对话框，<placeholder-1/>指定了目标路径，而<placeholder-2/>制定了检出的"
-"URL。"
+"working copy directory."
+msgstr "打开为修改检出对话框，<placeholder-1/> 指定了工作副本目录。"
 
 #. (option)
 #. (option)
@@ -21032,63 +20757,6 @@ msgstr ""
 "TortoiseProc.exe /command:log /path:\"c:\\svn_wc\\file1.txt\"\n"
 "                 /startrev:50 /endrev:60 /closeonend\n"
 "</screen>"
-
-#. (title)
-msgid "Tsvncmd URL handler"
-msgstr ""
-
-#. (primary)
-#, fuzzy
-msgid "URL handler"
-msgstr "URL 已改变"
-
-#. (para)
-msgid ""
-"Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr ""
-
-#. (para)
-msgid ""
-"TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be "
-"used to create hyperlinks that execute TortoiseSVN commands. The commands and "
-"parameters are the same as when automating TortoiseSVN from the command line."
-msgstr ""
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr ""
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr ""
-
-#. (para)
-msgid ""
-"with <literal>cmd</literal> being one of the allowed commands and with "
-"<literal>parameter</literal> being a parameter like <literal>path</literal> "
-"or <literal>revision</literal>, depending on the command used."
-msgstr ""
-
-#. (para)
-#, fuzzy
-msgid ""
-"The following commands are allowed with <literal>tsvncmd:</literal> URLs: "
-"<placeholder-1/>"
-msgstr "下述例子显示了如何使用接口。<placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr ""
 
 #. (title)
 msgid "TortoiseIDiff Commands"
@@ -22159,15 +21827,6 @@ msgid ""
 "subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></"
 "ulink> Additional information on setting up a Windows server was provided by "
 "Thorsten Müller. Thanks guys!"
-msgstr ""
-
-#. (para)
-msgid ""
-"You can also watch a video tutorial created by Maximo Migliari which takes "
-"you through all the important steps. Watch it on <ulink url=\"http://www."
-"vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url="
-"\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</"
-"citetitle></ulink>."
 msgstr ""
 
 #. (title)

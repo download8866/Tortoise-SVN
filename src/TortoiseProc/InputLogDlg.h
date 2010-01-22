@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "StandAloneDlg.h"
 #include "ProjectProperties.h"
 #include "SciEdit.h"
-#include "AeroControls.h"
 
 /**
  * \ingroup TortoiseProc
@@ -38,7 +37,6 @@ public:
 	void SetUUID(const CString& sUUID) {m_sUUID = sUUID;}
 	void SetActionText(const CString& sAction) {m_sActionText = sAction;}
 	CString GetLogMessage() {return m_sLogMsg;}
-    void SetForceFocus(bool force) {m_bForceFocus = force;}
 
 protected:
 	virtual BOOL OnInitDialog();
@@ -64,6 +62,4 @@ private:
 	CString				m_sLogMsg;
 	CString				m_sUUID;
 	CString				m_sActionText;
-    bool                m_bForceFocus;
-	AeroControlBase		m_aeroControls;
 };

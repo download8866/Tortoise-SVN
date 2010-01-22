@@ -96,11 +96,6 @@ public:
 	{
 		return current == last;
 	}
-
-    // update members in this derived class as well
-
-    virtual void AutoOpen();
-    virtual void AutoClose();
 };
 
 ///////////////////////////////////////////////////////////////
@@ -111,10 +106,9 @@ public:
 //
 ///////////////////////////////////////////////////////////////
 
-class CBinaryInStream 
-    : public CInStreamImplBase< CBinaryInStream
-                              , CBinaryInStreamBase
-                              , BINARY_STREAM_TYPE_ID>
+class CBinaryInStream : public CInStreamImplBase< CBinaryInStream
+												, CBinaryInStreamBase
+						                        , BINARY_STREAM_TYPE_ID>
 {
 public:
 

@@ -28,7 +28,7 @@
 //
 // CPackedIntegerInStreamBase
 //
-//		enhances CPackedDWORDInStreamBase to handle signed values.
+//		enhances CPackedDWORDInStreamBase to handle singed values.
 //
 ///////////////////////////////////////////////////////////////
 

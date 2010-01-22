@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "MessageBox.h"
 #include "..\..\TSVNCache\CacheInterface.h"
 
-#define BOTTOMMARG 32
+
 
 IMPLEMENT_DYNAMIC(CSettings, CTreePropSheet)
 CSettings::CSettings(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
@@ -58,7 +58,6 @@ void CSettings::AddPropPages()
 	m_pHooksPage = new CSetHooks();
 	m_pBugTraqPage = new CSetBugTraq();
 	m_pTBlamePage = new CSettingsTBlame();
-	m_pAdvanced = new CSettingsAdvanced();
 
 	SetPageIcon(m_pMainPage, m_pMainPage->GetIconID());
 	SetPageIcon(m_pOverlayPage, m_pOverlayPage->GetIconID());
@@ -79,7 +78,6 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pHooksPage, m_pHooksPage->GetIconID());
 	SetPageIcon(m_pBugTraqPage, m_pBugTraqPage->GetIconID());
 	SetPageIcon(m_pTBlamePage, m_pTBlamePage->GetIconID());
-	SetPageIcon(m_pAdvanced, m_pAdvanced->GetIconID());
 
 	AddPage(m_pMainPage);
 	AddPage(m_pRevisionGraphPage);
@@ -100,7 +98,6 @@ void CSettings::AddPropPages()
 	AddPage(m_pHooksPage);
 	AddPage(m_pBugTraqPage);
 	AddPage(m_pTBlamePage);
-	AddPage(m_pAdvanced);
 }
 
 void CSettings::RemovePropPages()
@@ -124,7 +121,6 @@ void CSettings::RemovePropPages()
 	delete m_pHooksPage;
 	delete m_pBugTraqPage;
 	delete m_pTBlamePage;
-	delete m_pAdvanced;
 }
 
 void CSettings::HandleRestart()
@@ -148,7 +144,6 @@ void CSettings::HandleRestart()
 	restart |= m_pHooksPage->GetRestart();
 	restart |= m_pBugTraqPage->GetRestart();
 	restart |= m_pTBlamePage->GetRestart();
-	restart |= m_pAdvanced->GetRestart();
 	if (restart & ISettingsPropPage::Restart_System)
 	{
 		DWORD_PTR res = 0;
@@ -228,7 +223,6 @@ void CSettings::HandleRestart()
 BEGIN_MESSAGE_MAP(CSettings, CTreePropSheet)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_PAINT()
-	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 BOOL CSettings::OnInitDialog()
@@ -237,22 +231,6 @@ BOOL CSettings::OnInitDialog()
 
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
-
-	MARGINS margs;
-	margs.cxLeftWidth = 0;
-	margs.cyTopHeight = 0;
-	margs.cxRightWidth = 0;
-	margs.cyBottomHeight = BOTTOMMARG;
-
-	if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE))
-	{
-		m_Dwm.Initialize();
-		m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &margs);
-		m_aeroControls.SubclassControl(GetDlgItem(IDCANCEL)->GetSafeHwnd());
-		m_aeroControls.SubclassControl(GetDlgItem(IDOK)->GetSafeHwnd());
-		m_aeroControls.SubclassControl(GetDlgItem(IDHELP)->GetSafeHwnd());
-		m_aeroControls.SubclassControl(GetDlgItem(ID_APPLY_NOW)->GetSafeHwnd());
-	}
 
 	CenterWindow(CWnd::FromHandle(hWndExplorer));
 	return bResult;
@@ -286,18 +264,4 @@ void CSettings::OnPaint()
 HCURSOR CSettings::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
-}
-
-BOOL CSettings::OnEraseBkgnd(CDC* pDC)
-{
-	CTreePropSheet::OnEraseBkgnd(pDC);
-	
-	if (m_Dwm.IsDwmCompositionEnabled())
-	{
-		// draw the frame margins in black
-		RECT rc;
-		GetClientRect(&rc);
-		pDC->FillSolidRect(rc.left, rc.bottom-BOTTOMMARG, rc.right-rc.left, BOTTOMMARG, RGB(0,0,0));
-	}
-	return TRUE;
 }

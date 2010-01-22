@@ -29,7 +29,8 @@
   {\
 	nLen += 2;\
 	_ms_lvi.cchTextMax = nLen;\
-	delete[] __buf;\
+    if (__buf)\
+		delete[] __buf;\
 	__buf = new TCHAR[nLen];\
 	_ms_lvi.pszText = __buf;\
     nRes  = (int)::SendMessage((hwndLV), LVM_GETITEMTEXT, (WPARAM)(i), (LPARAM)(LV_ITEM *)&_ms_lvi);\
@@ -42,7 +43,8 @@
 	do\
 	{\
 		nLen *= 2;\
-		delete [] __buf;\
+		if (__buf)\
+			delete [] __buf;\
 		__buf = new TCHAR[nLen];\
 		nRes = GetDlgItemText(hwndDlg, _id, __buf, nLen);\
 	} while (nRes == nLen-1);\
@@ -76,7 +78,6 @@ protected:
 	 */
 	virtual void InitWorkfileView();
 	void Time64ToTimeString(__time64_t time, TCHAR * buf, size_t buflen);
-	static void RunCommand(const tstring& command);
 	
 	struct listproperty
 	{

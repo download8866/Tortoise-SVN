@@ -19,7 +19,7 @@
 #include "StdAfx.h"
 #include "LogCachePool.h"
 #include "LogCacheSettings.h"
-#include "./Containers/CachedLogInfo.h"
+#include "CachedLogInfo.h"
 #include "RepositoryInfo.h"
 
 #include "DirFileEnum.h"
@@ -211,7 +211,7 @@ CCachedLogInfo* CLogCachePool::GetCache (const CString& uuid, const CString& roo
 	std::wstring fileName = (LPCTSTR)(cacheFolderPath + info->fileName);
 	std::auto_ptr<CCachedLogInfo> cache (new CCachedLogInfo (fileName));
 
-    cache->Load (CSettings::GetMaxFailuresUntilDrop());
+	cache->Load();
 
 	caches[info->fileName] = cache.get();
 

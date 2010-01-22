@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -90,7 +90,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
 		REBARBANDINFO rbbi;
 		SecureZeroMemory(&rbbi, sizeof rbbi);
-		rbbi.cbSize = REBARBANDINFO_V6_SIZE;
+		rbbi.cbSize = sizeof rbbi;
 		rbbi.fMask  = RBBIM_TEXT | RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE | RBBIM_SIZE;
 		rbbi.fStyle = RBBS_NOGRIPPER | RBBS_FIXEDBMP;
 
@@ -234,23 +234,13 @@ void CRepositoryBar::SetRevision(SVNRev rev)
 		m_tooltips.DelTool(&m_btnRevision);
 }
 
-void CRepositoryBar::SetHeadRevision(svn_revnum_t rev)
-{
-	if (rev < 0)
-		return;
-
-	m_headRev = rev;
-	CString sTTText;
-	sTTText.Format(IDS_REPOBROWSE_TT_HEADREV, (LPCTSTR)m_headRev.ToString());
-	m_tooltips.AddTool(&m_btnRevision, sTTText);
-}
-
 CString CRepositoryBar::GetCurrentUrl() const
 {
 	if (m_cbxUrl.m_hWnd != 0)
 	{
-		CString path;
+		CString path, revision;
 		m_cbxUrl.GetWindowText(path);
+		m_btnRevision.GetWindowText(revision);
 		return path;
 	}
 	else
@@ -263,7 +253,8 @@ SVNRev CRepositoryBar::GetCurrentRev() const
 {
 	if (m_cbxUrl.m_hWnd != 0)
 	{
-		CString revision;
+		CString path, revision;
+		m_cbxUrl.GetWindowText(path);
 		m_btnRevision.GetWindowText(revision);
 		return SVNRev(revision);
 	}
@@ -311,7 +302,6 @@ void CRepositoryBar::OnBnClicked()
 
 	CRevisionDlg dlg(this);
 	dlg.AllowWCRevs(false);
-	dlg.SetLogPath(CTSVNPath(GetCurrentUrl()), GetCurrentRev());
 	*((SVNRev*)&dlg) = SVNRev(revision);
 
 	if (dlg.DoModal() == IDOK)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +22,6 @@
 #include "SVNPrompt.h"
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
-#include "JobScheduler.h"
-#include "Win7.h"
 
 class CFullGraphNode;
 
@@ -82,34 +80,9 @@ public:
  * out if they are related to the path we're looking at. If they are, we mark
  * them as \b in-use.
  */
-
 class CFullHistory : private ILogReceiver
 {
 public:
-
-	/**
-	 * \ingroup TortoiseProc
-	 * Contains all WC status relevant for the revision graph.
-	 */
-
-	struct SWCInfo
-	{
-		revision_t minAtRev;
-		revision_t maxAtRev;
-		revision_t minCommit;
-		revision_t maxCommit;
-
-		bool modified;
-
-		SWCInfo (revision_t rev = -1)
-			: minAtRev (rev)
-			, maxAtRev (rev)
-			, minCommit (rev)
-			, maxCommit (rev)
-			, modified (false)
-		{
-		}
-	};
 
     /// construction / destruction
 
@@ -122,9 +95,7 @@ public:
                                                   , SVNRev pegRev
                                                   , bool showWCRev
                                                   , bool showWCModification
-                                                  , CProgressDlg* progress
-												  , ITaskbarList3 * pTaskBarList
-												  , HWND hWnd);
+                                                  , CProgressDlg* progress);
 
     /// data access
 
@@ -140,7 +111,8 @@ public:
     revision_t                  GetStartRevision() const {return startRevision;}
 
     const CDictionaryBasedTempPath* GetWCPath() const {return wcPath.get();}
-    const SWCInfo&				GetWCInfo() const {return wcInfo;}
+    revision_t                  GetWCRevision() const {return wcRevision;}
+    bool                        GetWCModified() const {return wcModified;}
 
     SCopyInfo**                 GetFirstCopyFrom() const {return copyFromRelation;}
     SCopyInfo**                 GetFirstCopyTo() const {return copyToRelation;}
@@ -155,8 +127,6 @@ private:
     /// data members
 
     CProgressDlg* 	            progress;
-	ITaskbarList3*				taskbarlist;
-	HWND						hwnd;
 
     CStringA					repoRoot;
 	CStringA					relPath;
@@ -175,7 +145,7 @@ private:
 
 	bool						cancelled;
 
-    CCachedLogInfo*             cache;
+    const CCachedLogInfo*       cache;
 	std::auto_ptr<CSVNLogQuery> svnQuery;
 	std::auto_ptr<CCacheLogQuery> query;
 
@@ -183,7 +153,8 @@ private:
     revision_t                  startRevision;
 
 	std::auto_ptr<CDictionaryBasedTempPath> wcPath;
-    SWCInfo						wcInfo;
+    revision_t                  wcRevision;
+    bool                        wcModified;
 
     boost::pool<>               copyInfoPool;
 	std::vector<SCopyInfo*>		copiesContainer;
@@ -192,26 +163,19 @@ private:
 	SCopyInfo**		            copyFromRelation;
 	SCopyInfo**		            copyFromRelationEnd;
 
-    /// asynchronuous execution queues
-    /// (one per independent resource)
-
-    async::CJobScheduler        diskIOScheduler;
-    async::CJobScheduler        cpuLoadScheduler;
-
     /// SVN callback
 
 	static svn_error_t*			cancel(void *baton);
 
     /// utility methods
 
-    bool                        ClearCopyInfo();
-    void                        QueryWCRevision (bool doQuery, CString path);
+    void                        ClearCopyInfo();
 	void						AnalyzeRevisionData();
 	void						BuildForwardCopies();
 	
 	/// implement ILogReceiver
 
-	void ReceiveLog ( TChangedPaths* changes
+	void ReceiveLog ( LogChangedPathArray* changes
 					, svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps

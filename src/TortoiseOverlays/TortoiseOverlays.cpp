@@ -70,12 +70,10 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 		if (pcf == NULL)
 			return E_OUTOFMEMORY;
 
-		// refcount set to 0 at this moment
-		const HRESULT hr = pcf->QueryInterface(riid, ppvOut);
-		if (FAILED(hr))
-			delete pcf;
-		return hr;
+		return pcf->QueryInterface(riid, ppvOut);
     }
 	
     return CLASS_E_CLASSNOTAVAILABLE;
+
 }
+

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2009 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,12 +24,15 @@ PreserveChdir::PreserveChdir()
 	DWORD len = GetCurrentDirectory(0, NULL);
 	if (len)
 	{
-        originalCurrentDirectory.reset (len);
-		if (GetCurrentDirectory(len, originalCurrentDirectory) !=0)
-            return;
+		originalCurrentDirectory = new TCHAR[len];
+		if (GetCurrentDirectory(len, originalCurrentDirectory)==0)
+		{
+			delete [] originalCurrentDirectory;
+			originalCurrentDirectory = NULL;
+		}
 	}
-		
-    originalCurrentDirectory.reset();
+	else
+		originalCurrentDirectory = NULL;
 }
 
 PreserveChdir::~PreserveChdir()
@@ -37,7 +40,7 @@ PreserveChdir::~PreserveChdir()
 	if (originalCurrentDirectory)
 	{
 		DWORD len = GetCurrentDirectory(0, NULL);
-		auto_buffer<TCHAR> currentDirectory (len);
+		TCHAR * currentDirectory = new TCHAR[len];
 
 		// _tchdir is an expensive function - don't call it unless we really have to
 		GetCurrentDirectory(len, currentDirectory);
@@ -45,7 +48,8 @@ PreserveChdir::~PreserveChdir()
 		{
 			SetCurrentDirectory(originalCurrentDirectory);
 		}
-
-        originalCurrentDirectory.reset();
+		delete [] currentDirectory;
+		delete [] originalCurrentDirectory;
+		originalCurrentDirectory = NULL;
 	}
 }

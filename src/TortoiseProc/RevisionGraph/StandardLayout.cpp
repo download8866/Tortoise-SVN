@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -318,7 +318,7 @@ void CStandardLayout::CreateTexts()
             size_t visibleElementCount = info.node->GetPath().GetDepth() 
                                        - info.skipStartPathElements
                                        - info.skipTailPathElements;
-            for (index_t k = (index_t)visibleElementCount; k > 0; --k)
+            for (index_t k = visibleElementCount; k > 0; --k)
                 texts.push_back (STextInfo (i, k));
         }
     }
@@ -348,7 +348,8 @@ void CStandardLayout::CalculateTreeBoundingRects()
     // initialize with empty rect
 
     trees.resize (graph->GetRootCount());
-	std::fill_n (trees.begin(), graph->GetRootCount(), CRect(0, 0, 0, 0));
+    for (size_t i = 0, count = graph->GetRootCount(); i < count; ++i)
+        trees[i] = CRect (0, 0, 0, 0);
 
     for (size_t i = 0, count = nodes.size(); i < count; ++i)
     {
@@ -390,10 +391,8 @@ void CStandardLayout::CalculateBoundingRect()
 // construction / destruction
 
 CStandardLayout::CStandardLayout ( const CCachedLogInfo* cache
-								 , const CVisibleGraph* graph
-								 , const CFullHistory::SWCInfo& wcInfo)
+                                 , const CVisibleGraph* graph)
     : cache (cache)
-	, wcInfo (wcInfo)
     , graph (graph)
 {
     InitializeNodes();
@@ -429,7 +428,7 @@ const ILayoutRectList* CStandardLayout::GetTrees() const
 
 const ILayoutNodeList* CStandardLayout::GetNodes() const
 {
-    return new CStandardLayoutNodeList (nodes, cache, wcInfo);
+    return new CStandardLayoutNodeList (nodes, cache);
 }
 
 const ILayoutConnectionList* CStandardLayout::GetConnections() const
