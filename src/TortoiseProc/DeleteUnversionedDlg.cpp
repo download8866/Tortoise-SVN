@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,10 +26,9 @@
 IMPLEMENT_DYNAMIC(CDeleteUnversionedDlg, CResizableStandAloneDialog)
 CDeleteUnversionedDlg::CDeleteUnversionedDlg(CWnd* pParent /*=NULL*/)
 : CResizableStandAloneDialog(CDeleteUnversionedDlg::IDD, pParent)
-	, m_bSelectAll(TRUE)
-	, m_bUseRecycleBin(TRUE)
-	, m_bThreadRunning(FALSE)
-	, m_bCancelled(false)
+, m_bSelectAll(TRUE)
+, m_bThreadRunning(FALSE)
+, m_bCancelled(false)
 {
 }
 
@@ -43,7 +42,6 @@ void CDeleteUnversionedDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_ITEMLIST, m_StatusList);
 	DDX_Check(pDX, IDC_SELECTALL, m_bSelectAll);
 	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
-	DDX_Check(pDX, IDC_USERECYCLEBIN, m_bUseRecycleBin);
 }
 
 
@@ -57,11 +55,6 @@ END_MESSAGE_MAP()
 BOOL CDeleteUnversionedDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_ITEMLIST, IDC_ITEMLIST, IDC_ITEMLIST, IDC_ITEMLIST);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassControl(this, IDC_USERECYCLEBIN);
-	m_aeroControls.SubclassOkCancel(this);
 
 	m_StatusList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS, _T("DeleteUnversionedDlg"), 0, true);
 	m_StatusList.SetUnversionedRecurse(true);
@@ -78,7 +71,6 @@ BOOL CDeleteUnversionedDlg::OnInitDialog()
 
 	AddAnchor(IDC_ITEMLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
-	AddAnchor(IDC_USERECYCLEBIN, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	if (hWndExplorer)
@@ -89,7 +81,7 @@ BOOL CDeleteUnversionedDlg::OnInitDialog()
 	// blocking the dialog
 	if (AfxBeginThread(StatusThreadEntry, this)==0)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
@@ -114,7 +106,7 @@ UINT CDeleteUnversionedDlg::StatusThread()
 		m_StatusList.SetEmptyString(m_StatusList.GetLastErrorMessage());
 	}
 	m_StatusList.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWIGNORED, CTSVNPathList(),
-		SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWIGNORED, true, true);
+		SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWIGNORED);
 
 	CTSVNPath commonDir = m_StatusList.GetCommonDirectory(false);
 	SetWindowText(m_sWindowTitle + _T(" - ") + commonDir.GetWinPathString());
@@ -166,8 +158,16 @@ BOOL CDeleteUnversionedDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		case VK_F5:
 			{
@@ -175,7 +175,7 @@ BOOL CDeleteUnversionedDlg::PreTranslateMessage(MSG* pMsg)
 				{
 					if (AfxBeginThread(StatusThreadEntry, this)==0)
 					{
-						OnCantStartThread();
+						CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 					}
 					else
 						InterlockedExchange(&m_bThreadRunning, TRUE);
@@ -192,7 +192,7 @@ LRESULT CDeleteUnversionedDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	if (AfxBeginThread(StatusThreadEntry, this)==0)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
 }

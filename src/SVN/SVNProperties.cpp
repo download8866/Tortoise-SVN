@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "SVNProperties.h"
 #include "SVNStatus.h"
 #include "SVNHelpers.h"
-#include "SVNTrace.h"
 #pragma warning(push)
 #include "svn_props.h"
 #pragma warning(pop)
@@ -69,14 +68,7 @@ svn_error_t*	SVNProperties::Refresh()
 	svn_error_clear(m_error);
 	m_error = NULL;
 
-	if (m_propCount > 0)
-	{
-		m_propCount = 0;
-		m_props.clear();
-		// don't clear or even destroy the m_pool here, since
-		// there are still subpools of that pool alive!
-	}
-
+	m_propCount = 0;
 #ifdef _MFC_VER
 	rev.kind = ((const svn_opt_revision_t *)m_rev)->kind;
 	rev.value = ((const svn_opt_revision_t *)m_rev)->value;
@@ -84,39 +76,29 @@ svn_error_t*	SVNProperties::Refresh()
 	rev.kind = svn_opt_revision_unspecified;
 	rev.value.number = -1;
 #endif
-
-    const char* svnPath = m_path.GetSVNApiPath(m_pool);
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
 		apr_hash_t * props;
-
-        SVNTRACE (
-		    m_error = svn_client_revprop_list(	&props, 
-											    svnPath,
-											    &rev,
-											    &rev_set,
-											    m_pctx,
-											    m_pool),
-            svnPath
-        )
-
+		m_error = svn_client_revprop_list(	&props, 
+											m_path.GetSVNApiPath(m_pool),
+											&rev,
+											&rev_set,
+											m_pctx,
+											m_pool);
 		m_props[std::string("")] = apr_hash_copy(m_pool, props);
 	}
 	else
 	{
-        SVNTRACE (
-		    m_error = svn_client_proplist3 (svnPath,
-										    &rev,
-										    &rev,
-										    svn_depth_empty,
-										    NULL,
-										    proplist_receiver,
-										    this,
-										    m_pctx,
-										    m_pool),
-            svnPath
-        )
+		m_error = svn_client_proplist3 (m_path.GetSVNApiPath(m_pool),
+										&rev,
+										&rev,
+										svn_depth_empty,
+										NULL,
+										proplist_receiver,
+										this,
+										m_pctx,
+										m_pool);
 	}
 	if(m_error != NULL)
 		return m_error;
@@ -129,16 +111,24 @@ svn_error_t*	SVNProperties::Refresh()
 	return NULL;
 }
 
-void SVNProperties::Construct()
-{
-	m_propCount = 0;
+#ifdef _MFC_VER
 
+SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps)
+	: m_rev(SVNRev::REV_WC)
+	, m_bRevProps(bRevProps)
+{
+	m_rev = rev;
+#else
+
+SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps)
+	: m_bRevProps(bRevProps)
+{
+#endif
 	m_pool = svn_pool_create (NULL);				// create the memory pool
 	m_error = NULL;
 	svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
 
 #ifdef _MFC_VER
-
 	svn_error_clear(svn_config_ensure(NULL, m_pool));
 	// set up the configuration
 	m_error = svn_config_get_config (&m_pctx->config, g_pConfigDir, m_pool);
@@ -149,10 +139,15 @@ void SVNProperties::Construct()
 		svn_pool_destroy (m_pool);					// free the allocated memory
 		return;
 	}
-
+#endif
+	
+	m_path = filepath;
+#ifdef _MFC_VER
 	m_prompt.Init(m_pool, m_pctx);
 
 	m_pctx->log_msg_func3 = svn_get_log_message;
+
+	m_path = filepath;
 
 	// set up the SVN_SSH param
 	CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
@@ -167,31 +162,7 @@ void SVNProperties::Construct()
 	}
 
 #endif
-}
 
-#ifdef _MFC_VER
-SVNProperties::SVNProperties(SVNRev rev, bool bRevProps)
-	: m_rev(rev)
-	, m_bRevProps (bRevProps)
-#else
-SVNProperties::SVNProperties(bool bRevProps)
-	: m_bRevProps (bRevProps)
-#endif
-{
-	Construct();
-}
-
-#ifdef _MFC_VER
-SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps)
-	: m_path (filepath)
-	, m_rev(rev)
-#else
-SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps)
-	: m_path (filepath)
-#endif
-	, m_bRevProps (bRevProps)
-{
-	Construct();
 	SVNProperties::Refresh();
 }
 
@@ -199,12 +170,6 @@ SVNProperties::~SVNProperties(void)
 {
 	svn_error_clear(m_error);
 	svn_pool_destroy (m_pool);					// free the allocated memory
-}
-
-void SVNProperties::SetFilePath (const CTSVNPath& filePath)
-{
-	m_path = filePath;
-	Refresh();
 }
 
 int SVNProperties::GetCount() const
@@ -295,9 +260,9 @@ bool SVNProperties::IsBinary(const std::string& value)
 	return false;
 }
 
-std::string SVNProperties::GetItemName(int index) const
+tstring SVNProperties::GetItemName(int index) const
 {
-	return SVNProperties::GetItem(index, true);
+	return UTF8ToString(SVNProperties::GetItem(index, true));
 }
 
 std::string SVNProperties::GetItemValue(int index) const
@@ -305,9 +270,10 @@ std::string SVNProperties::GetItemValue(int index) const
 	return SVNProperties::GetItem(index, false);
 }
 
-BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool force, svn_depth_t depth, const TCHAR * message)
+BOOL SVNProperties::Add(const TCHAR * Name, std::string Value, svn_depth_t depth, const TCHAR * message)
 {
 	svn_string_t*	pval;
+	std::string		pname_utf8;
 	m_error = NULL;
 
 	SVNPool subpool(m_pool);
@@ -315,7 +281,9 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 
 	pval = svn_string_ncreate (Value.c_str(), Value.size(), subpool);
 
-	if ((!m_bRevProps)&&((!m_path.IsDirectory() && !m_path.IsUrl())&&(((strncmp(name.c_str(), "bugtraq:", 8)==0)||(strncmp(name.c_str(), "tsvn:", 5)==0)||(strncmp(name.c_str(), "webviewer:", 10)==0)))))
+	pname_utf8 = StringToUTF8(Name);
+
+	if ((!m_bRevProps)&&((!m_path.IsDirectory() && !m_path.IsUrl())&&(((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0)||(strncmp(pname_utf8.c_str(), "webviewer:", 10)==0)))))
 	{
 		// bugtraq:, tsvn: and webviewer: properties are not allowed on files.
 #ifdef _MFC_VER
@@ -331,7 +299,7 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 #endif
 		return FALSE;
 	}
-	if (strncmp(name.c_str(), "bugtraq:message", 15)==0)
+	if (strncmp(pname_utf8.c_str(), "bugtraq:message", 15)==0)
 	{
 		// make sure that the bugtraq:message property only contains one single line!
 		for (apr_size_t i=0; i<pval->len; ++i)
@@ -353,8 +321,7 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 			}
 		}
 	}
-
-	if ((!m_bRevProps)&&((depth != svn_depth_empty)&&((strncmp(name.c_str(), "bugtraq:", 8)==0)||(strncmp(name.c_str(), "tsvn:", 5)==0)||(strncmp(name.c_str(), "webviewer:", 10)==0))))
+	if ((!m_bRevProps)&&((depth != svn_depth_empty)&&((strncmp(pname_utf8.c_str(), "bugtraq:", 8)==0)||(strncmp(pname_utf8.c_str(), "tsvn:", 5)==0)||(strncmp(pname_utf8.c_str(), "webviewer:", 10)==0))))
 	{
 		// The bugtraq and tsvn properties must only be set on folders.
 		CTSVNPath path;
@@ -369,11 +336,7 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 				{
 					// a versioned folder, so set the property!
 					svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-                    const char* svnPath = path.GetSVNApiPath(subpool);
-                    SVNTRACE (
-					    m_error = svn_client_propset3 (&commit_info, name.c_str(), pval, svnPath, svn_depth_empty, false, m_rev, NULL, NULL, m_pctx, subpool),
-                        svnPath
-                    )
+					m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, path.GetSVNApiPath(subpool), svn_depth_empty, false, m_rev, NULL, NULL, m_pctx, subpool);
 				}
 			}
 			status = stat.GetNextFileStatus(path);
@@ -382,7 +345,6 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 	else 
 	{
 		svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
-        const char* svnPath = m_path.GetSVNApiPath(subpool);
 		if (m_path.IsUrl())
 		{
 			CString msg = message ? message : _T("");
@@ -398,17 +360,11 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 		if (m_bRevProps)
 		{
 			svn_revnum_t rev_set;
-            SVNTRACE (
-			    m_error = svn_client_revprop_set2(name.c_str(), pval, NULL, svnPath, m_rev, &rev_set, force, m_pctx, subpool),
-                svnPath
-            )
+			m_error = svn_client_revprop_set2(pname_utf8.c_str(), pval, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 		}
 		else
 		{
-            SVNTRACE (
-    			m_error = svn_client_propset3 (&commit_info, name.c_str(), pval, svnPath, depth, force, m_rev, NULL, NULL, m_pctx, subpool),
-                svnPath
-            )
+			m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), pval, m_path.GetSVNApiPath(subpool), depth, false, m_rev, NULL, NULL, m_pctx, subpool);
 		}
 	}
 	if (m_error != NULL)
@@ -425,12 +381,15 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
 	return TRUE;
 }
 
-BOOL SVNProperties::Remove(const std::string& name, svn_depth_t depth, const TCHAR * message)
+BOOL SVNProperties::Remove(const TCHAR * Name, svn_depth_t depth, const TCHAR * message)
 {
+	std::string		pname_utf8;
 	m_error = NULL;
 
 	SVNPool subpool(m_pool);
 	svn_error_clear(m_error);
+
+	pname_utf8 = StringToUTF8(Name);
 
 	svn_commit_info_t *commit_info = svn_create_commit_info(subpool);
 	if (m_path.IsUrl())
@@ -446,21 +405,14 @@ BOOL SVNProperties::Remove(const std::string& name, svn_depth_t depth, const TCH
 		m_pctx->log_msg_baton3 = baton;
 	}
 
-    const char* svnPath = m_path.GetSVNApiPath(subpool);
 	if (m_bRevProps)
 	{
 		svn_revnum_t rev_set;
-        SVNTRACE (
-		    m_error = svn_client_revprop_set2(name.c_str(), NULL, NULL, svnPath, m_rev, &rev_set, false, m_pctx, subpool),
-            svnPath
-        )
+		m_error = svn_client_revprop_set2(pname_utf8.c_str(), NULL, NULL, m_path.GetSVNApiPath(subpool), m_rev, &rev_set, false, m_pctx, subpool);
 	}
 	else
 	{
-        SVNTRACE (
-    		m_error = svn_client_propset3 (&commit_info, name.c_str(), NULL, svnPath, depth, false, m_rev, NULL, NULL, m_pctx, subpool),
-            svnPath
-        )
+		m_error = svn_client_propset3 (&commit_info, pname_utf8.c_str(), NULL, m_path.GetSVNApiPath(subpool), depth, false, m_rev, NULL, NULL, m_pctx, subpool);
 	}
 
 	if (m_error != NULL)
@@ -546,174 +498,6 @@ tstring SVNProperties::GetLastErrorMsg() const
 		return msg;
 	} 
 	return msg;
-}
-
-int SVNProperties::IndexOf (const std::string& name) const
-{
-	if (m_propCount == 0)
-		return -1;
-
-	long index = 0;
-	for (std::map<std::string, apr_hash_t *>::const_iterator it = m_props.begin(); it != m_props.end(); ++it)
-	{
-		apr_hash_index_t *hi;
-
-		for (hi = apr_hash_first(m_pool, it->second); hi; hi = apr_hash_next(hi))
-		{
-			const void *key = NULL;
-			void *val = NULL;
-
-			apr_hash_this(hi, &key, NULL, &val);
-			const char* pname_utf8 = (char *)key;
-			if (strcmp (pname_utf8, name.c_str()) == 0)
-				return index;
-
-			++index;
-		}
-	}
-
-	return -1;
-}
-
-bool SVNProperties::HasProperty (const std::string& name) const
-{
-	return IndexOf (name) != -1;
-}
-
-namespace
-{
-
-	void AddKeyValue 
-		( const char* key
-		, size_t keyLength
-		, const char* value
-		, size_t valueLength
-		, std::string& target)
-	{
-		CStringA keyHeader;
-		keyHeader.Format ("K %d\n", static_cast<int>(keyLength));
-		target.append ((const char*)keyHeader, keyHeader.GetLength());
-
-		target.append (key, keyLength);
-		target.append ('\n', 1);
-
-		CStringA valueHeader;
-		valueHeader.Format ("V %d\n", static_cast<int>(valueLength));
-		target.append ((const char*)valueHeader, valueHeader.GetLength());
-
-		target.append (value, valueLength);
-		target.append ('\n', 1);
-	}
-
-	void AddKeyValue 
-		( const std::string& key
-		, const std::string& value
-		, std::string& target)
-	{
-		AddKeyValue ( key.c_str()
-					, key.length()
-					, value.c_str()
-					, value.length()
-					, target);
-	}
-
-	std::pair<std::string, std::string> GetKeyValue 
-		( const std::string& source
-		, size_t& offset)
-	{
-		// read "K %d\n" line
-
-		int keyLength = atoi (source.c_str() + offset + 2);
-		for (offset += 4; source[offset-1] != '\n'; ++offset)
-		{
-		}
-
-		std::string key (source.c_str() + offset, static_cast<size_t>(keyLength));
-		offset += keyLength+1;
-
-		// read "V %d\n" line
-
-		int valueLength = atoi (source.c_str() + offset + 2);
-		for (offset += 4; source[offset-1] != '\n'; ++offset)
-		{
-		}
-
-		std::string value (source.c_str() + offset, static_cast<size_t>(valueLength));
-		offset += valueLength+1;
-
-		// terminating \n
-
-		return std::pair<std::string, std::string>(key, value);
-	}
-
-}
-
-std::string SVNProperties::GetSerializedForm() const
-{
-	std::string result;
-	result.reserve (m_propCount * 100);
-
-	std::string properties;
-	result.reserve (m_propCount * 100);
-
-	for (std::map<std::string, apr_hash_t *>::const_iterator it = m_props.begin(); it != m_props.end(); ++it)
-	{
-		properties.clear();
-		for (apr_hash_index_t *hi = apr_hash_first(m_pool, it->second); hi; hi = apr_hash_next(hi))
-		{
-			const void *key = NULL;
-			void *val = NULL;
-			apr_ssize_t keyLength = 0;
-
-			apr_hash_this(hi, &key, &keyLength, &val);
-
-			const char* pname_utf8 = static_cast<const char *>(key);
-			svn_string_t* propval = static_cast<svn_string_t *>(val);
-
-			AddKeyValue (pname_utf8, keyLength, propval->data, propval->len, properties);
-		}
-
-		AddKeyValue ("name", it->first, result);
-		AddKeyValue ("properties", properties, result);
-
-	}
-
-	return result;
-}
-
-void SVNProperties::SetFromSerializedForm (const std::string& text)
-{
-	// clear properties list
-
-	for (std::map<std::string, apr_hash_t *>::iterator it = m_props.begin(); it != m_props.end(); ++it)
-		apr_hash_clear (it->second);
-
-	m_props.clear();
-
-	// read all file contents
-
-	for (size_t offset = 0; offset < text.length(); ) 
-	{
-		// create hash for this file
-
-		std::pair<std::string, std::string> props = GetKeyValue (text, offset);
-
-		apr_hash_t*& hash = m_props[props.first];
-		hash = apr_hash_make (m_pool);
-
-		// read all prop entries into hash
-
-		for (size_t propOffset = 0; propOffset < props.second.length(); ) 
-		{
-			std::pair<std::string, std::string> prop 
-				= GetKeyValue (props.second, propOffset);
-
-			svn_string_t* value = svn_string_ncreate ( prop.second.c_str()
-													 , prop.second.length()
-													 , m_pool);
-			apr_hash_set (hash, prop.first.c_str(), prop.first.length(), value);
-		}
-	}
 }
 
 svn_error_t * SVNProperties::proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_pool_t *pool)

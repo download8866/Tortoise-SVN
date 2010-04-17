@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008-2010 - TortoiseSVN
+// External Cache Copyright (C) 2005-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,6 @@ CString GetCacheCommandPipeName();
 CString GetCacheMutexName();
 
 CString GetCacheID();
-bool	SendCacheCommand(BYTE command, const WCHAR * path = NULL);
 
 /**
  * \ingroup TSVNCache
@@ -66,6 +65,7 @@ struct TSVNCacheResponse
 	char m_url[INTERNET_MAX_URL_LENGTH+1];
 	char m_owner[255];		///< owner of the lock
 	char m_author[255];
+	bool m_readonly;		///< whether the file is write protected or not
 	bool m_needslock;		///< whether the file has the svn:needs-lock property set or not (only works with the new working copy version)
 	bool m_tree_conflict;	///< whether the item has a tree conflict
 };
@@ -86,8 +86,7 @@ struct TSVNCacheCommand
 #define		TSVNCACHECOMMAND_CRAWL		1		///< start crawling the specified path for changes
 #define		TSVNCACHECOMMAND_REFRESHALL	2		///< Refreshes the whole cache, usually necessary after the "treat unversioned files as modified" option changed.
 #define		TSVNCACHECOMMAND_RELEASE	3		///< Releases all open handles for the specified path and all paths below
-#define		TSVNCACHECOMMAND_BLOCK		4		///< Blocks a path from getting crawled for a specific amount of time or until the TSVNCACHECOMMAND_UNBLOCK command is sent for that path
-#define		TSVNCACHECOMMAND_UNBLOCK	5		///< Removes a path from the list of paths blocked from getting crawled
+
 
 /// Set this flag if you already know whether or not the item is a folder
 #define TSVNCACHE_FLAGS_FOLDERISKNOWN		0x01
@@ -97,5 +96,3 @@ struct TSVNCacheCommand
 #define TSVNCACHE_FLAGS_RECUSIVE_STATUS		0x04
 /// Set this flag if notifications to the shell are not allowed
 #define TSVNCACHE_FLAGS_NONOTIFICATIONS		0x08
-/// all of the above flags or-gated:
-#define TSVNCACHE_FLAGS_MASK            	0x0f

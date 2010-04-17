@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,12 +37,12 @@ public:
 	 */
 	static void Unescape(char * psz);
 
-#ifdef CSTRING_AVAILABLE
 	/**
 	 * Replaces non-URI chars with the corresponding escape sequences.
 	 */
 	static CStringA PathEscape(const CStringA& path);
 
+#ifdef CSTRING_AVAILABLE
 	/**
 	 * Returns the path to the installation folder, in our case the TortoiseSVN/bin folder.
 	 * \remark the path returned has a trailing backslash
@@ -69,18 +69,6 @@ public:
 	 * returns the file extension from a full path
 	 */
 	static CString GetFileExtFromPath(const CString& sPath);
-
-	/**
-	 * Return an absolute URL for the given URL. If the
-	 * latter is aready absolute, this function will return
-	 * it in canonical form. Otherwise, scheme, server,
-	 * repository or path -relative URLs will be expanded.
-	 * Returns an empty string upon errors.
-	 */
-	static CStringA GetAbsoluteURL
-		( const CStringA& URL
-		, const CStringA& repositoryRootURL
-		, const CStringA& parentPathURL);
 
 	/**
 	 * Copies a file or a folder from \a srcPath to \a destpath, creating
@@ -111,8 +99,6 @@ public:
 	static CStringA PathUnescape(const CStringA& path);
 	static CStringW PathUnescape(const CStringW& path);
 
-	static CString PathUnescape (const char* path);
-
 	/**
 	* Escapes regexp-specific chars.
 	*/
@@ -128,11 +114,6 @@ public:
 	 * \return the version string
 	 */
 	static CString GetVersionFromFile(const CString & p_strDateiname);
-
-	/**
-	 * Combines two url parts, taking care of slashes.
-	 */
-	static CString CombineUrls(CString first, CString second);
 
 private:
 	static bool DoesPercentNeedEscaping(LPCSTR str);

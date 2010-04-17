@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,15 +40,6 @@ public:
 
 private:
 
-	/// revisions that are part of the WC status
-	/// (i.e. min, max etc.)
-
-	std::vector<std::pair<revision_t, CDictionaryBasedPath> > wcRevs;
-
-	/// fill @ref wcRevs list
-
-	void InitWCRevs();
-
     /// simplify graph
 
     void FindRenames (CFullGraphNode* node);
@@ -57,7 +48,7 @@ private:
 
     void MarkRoot (CFullGraphNode* node);
     void MarkCopySource (CFullGraphNode* node);
-    void MarkWCRevisions (CFullGraphNode* node);
+    void MarkWCRevision (CFullGraphNode* node);
     void MarkHead (CFullGraphNode* node);
     void AddWCModification (CFullGraphNode* node);
     void ForwardClassification (CFullGraphNode* node);

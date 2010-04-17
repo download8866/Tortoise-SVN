@@ -18,7 +18,6 @@
 //
 #pragma once
 #include "RevisionGraph/RevisionGraphState.h"
-#include "Future.h"
 #include "ProgressDlg.h"
 #include "Colors.h"
 #include "SVNDiff.h"
@@ -26,57 +25,38 @@
 
 using namespace Gdiplus;
 
-enum 
-{
-	REVGRAPH_PREVIEW_WIDTH = 100,
-	REVGRAPH_PREVIEW_HEIGHT = 200,
+#define REVGRAPH_PREVIEW_WIDTH 100
+#define REVGRAPH_PREVIEW_HEIGHT 200
 
-	// don't draw pre-views with more than that number of nodes
+// don't draw pre-views with more than that number of nodes
 
-	REVGRAPH_PREVIEW_MAX_NODES = 10000
-};
+#define REVGRAPH_PREVIEW_MAX_NODES 10000
 
 // don't try to draw nodes smaller than that:
 
 #define REVGRAPH_MIN_NODE_HIGHT (0.5f)
 
+// size of the node marker
+
 enum
 {
-	// size of the node marker
-
-    MARKER_SIZE = 11,
-
-	// radius of the rounded / slanted box corners  of the expand / collapse / split / join square gylphs
-
-    CORNER_SIZE = 12,
-
-	// font sizes
-
-	DEFAULT_ZOOM_FONT = 9,		// default font size
-	SMALL_ZOOM_FONT = 11,		// rel. larger font size for small zoom factors
-	SMALL_ZOOM_FONT_THRESHOLD = 6,	// max. "small zoom" font size after scaling
-
-	// size of the expand / collapse / split / join square gylphs
-
-    GLYPH_BITMAP_SIZE = 16,
-    GLYPH_SIZE = 12,
-
-	// glyph display delay definitions
-
-    GLYPH_HOVER_EVENT = 10,     // timer ID for the glyph display delay
-    GLYPH_HOVER_DELAY = 250,    // delay until the glyphs are shown [ms]
+    MARKER_SIZE = 14
 };
 
-// zoom control
+// size of the expand / collapse / split / join square gylphs
 
-const float MIN_ZOOM = 0.01f;
-const float MAX_ZOOM = 2.0f;
-const float DEFAULT_ZOOM = 1.0f;
-const float ZOOM_STEP = 0.9f;
+enum
+{
+    GLYPH_SIZE = 16
+};
 
-// don't draw shadows below this zoom level
+// glyph display delay definitions
 
-const float SHADOW_ZOOM_THRESHOLD = 0.2f;
+enum
+{
+    GLYPH_HOVER_EVENT = 10,     // timer ID for the glyph display delay
+    GLYPH_HOVER_DELAY = 250     // delay until the glyphs are shown [ms]
+};
 
 /**
  * \ingroup TortoiseProc
@@ -97,11 +77,6 @@ enum NodeShape
 // forward declarations
 
 class CRevisionGraphDlg;
-
-// simplify usage of classes from other namespaces
-
-using async::IJob;
-using async::CFuture;
 
 /**
  * \ingroup TortoiseProc
@@ -124,8 +99,9 @@ public:
 
 	CString			m_sPath;
     SVNRev          m_pegRev;
+	volatile LONG	m_bThreadRunning;
+	CProgressDlg* 	m_pProgress;
 
-    std::auto_ptr<CFuture<bool> > updateJob;
     CRevisionGraphState m_state;
 
 	void			InitView();
@@ -138,7 +114,6 @@ public:
 									  , ITaskbarList3* pTaskbarList
 									  , HWND hWnd);
     bool            AnalyzeRevisionData();
-    bool            IsUpdateJobRunning() const;
 
     bool            GetShowOverview() const;
     void            SetShowOverview (bool value);
@@ -206,7 +181,6 @@ protected:
 	afx_msg void	OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg BOOL	OnToolTipNotify(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg BOOL	OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
-	afx_msg void	OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void	OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void	OnLButtonUp(UINT nFlags, CPoint point);

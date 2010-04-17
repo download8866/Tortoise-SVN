@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -59,11 +59,6 @@ BOOL CSetHooksAdv::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_DWM);
-	m_aeroControls.SubclassControl(this, IDC_WAITCHECK);
-	m_aeroControls.SubclassControl(this, IDC_HIDECHECK);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	// initialize the combo box with all the hook types we have
 	int index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTCOMMIT)));
 	m_cHookTypeCombo.SetItemData(index, start_commit_hook);
@@ -94,7 +89,6 @@ BOOL CSetHooksAdv::OnInitDialog()
 	m_sCommandLine = cmd.commandline;
 	m_bWait = cmd.bWait;
 	m_bHide = !cmd.bShow;
-	m_tooltips.Create(this);
 	UpdateData(FALSE);
 
 	AddAnchor(IDC_HOOKTYPELABEL, TOP_LEFT, TOP_RIGHT);
@@ -105,7 +99,6 @@ BOOL CSetHooksAdv::OnInitDialog()
 	AddAnchor(IDC_HOOKCMLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_HOOKCOMMANDLINE, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_HOOKCOMMANDBROWSE, TOP_RIGHT);
-	AddAnchor(IDC_DWM, TOP_RIGHT);
 	AddAnchor(IDC_WAITCHECK, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HIDECHECK, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -130,17 +123,17 @@ void CSetHooksAdv::OnOK()
 	}
 	if (key.htype == unknown_hook)
 	{
-		m_tooltips.ShowBalloon(IDC_HOOKTYPECOMBO, IDS_ERR_NOHOOKTYPESPECIFIED, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_HOOKTYPECOMBO, IDS_ERR_NOHOOKTYPESPECIFIED);
 		return;
 	}
 	if (key.path.IsEmpty())
 	{
-		ShowEditBalloon(IDC_HOOKPATH, IDS_ERR_NOHOOKPATHSPECIFIED, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_HOOKPATH, IDS_ERR_NOHOOKPATHSPECIFIED);
 		return;
 	}
 	if (cmd.commandline.IsEmpty())
 	{
-		ShowEditBalloon(IDC_HOOKCOMMANDLINE, IDS_ERR_NOHOOKCOMMANDPECIFIED, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_HOOKCOMMANDLINE, IDS_ERR_NOHOOKCOMMANDPECIFIED);
 		return;
 	}
 	CResizableStandAloneDialog::OnOK();
@@ -177,9 +170,4 @@ void CSetHooksAdv::OnBnClickedHookcommandbrowse()
 void CSetHooksAdv::OnBnClickedHelp()
 {
 	OnHelp();
-}
-BOOL CSetHooksAdv::PreTranslateMessage(MSG* pMsg)
-{
-	m_tooltips.RelayEvent(pMsg);
-	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }

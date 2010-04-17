@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,10 @@
 #include "MergeWizard.h"
 #include "MergeWizardReintegrate.h"
 
+#include "Balloon.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardReintegrate, CMergeWizardBasePage)
 
@@ -34,8 +35,8 @@ CMergeWizardReintegrate::CMergeWizardReintegrate()
 	, m_pLogDlg2(NULL)
 {
 	m_psp.dwFlags |= PSP_DEFAULT|PSP_USEHEADERTITLE|PSP_USEHEADERSUBTITLE;
-	m_psp.pszHeaderTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_REINTEGRATETITLE);
-	m_psp.pszHeaderSubTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_REINTEGRATESUBTITLE);
+	m_psp.pszHeaderTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_TREETITLE);
+	m_psp.pszHeaderSubTitle = MAKEINTRESOURCE(IDS_MERGEWIZARD_TREESUBTITLE);
 }
 
 CMergeWizardReintegrate::~CMergeWizardReintegrate()
@@ -56,12 +57,10 @@ void CMergeWizardReintegrate::DoDataExchange(CDataExchange* pDX)
 {
 	CMergeWizardBasePage::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
-	DDX_Control(pDX, IDC_WCEDIT, m_WCPath);
 }
 
 
 BEGIN_MESSAGE_MAP(CMergeWizardReintegrate, CMergeWizardBasePage)
-	ON_MESSAGE(WM_TSVN_MAXREVFOUND, &CMergeWizardReintegrate::OnWCStatus)
 	ON_BN_CLICKED(IDC_SHOWMERGELOG, &CMergeWizardReintegrate::OnBnClickedShowmergelog)
 	ON_BN_CLICKED(IDC_BROWSE, &CMergeWizardReintegrate::OnBnClickedBrowse)
 	ON_BN_CLICKED(IDC_SHOWLOGWC, &CMergeWizardReintegrate::OnBnClickedShowlogwc)
@@ -79,8 +78,6 @@ BOOL CMergeWizardReintegrate::OnInitDialog()
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
-	if (m_URLCombo.GetString().IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
 	if (!pWizard->URL1.IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
 	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
@@ -94,8 +91,6 @@ BOOL CMergeWizardReintegrate::OnInitDialog()
 	AddAnchor(IDC_MERGEREINTEGRATEWCGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
-
-	StartWCCheckThread(((CMergeWizard*)GetParent())->wcPath);
 
 	return TRUE;
 }
@@ -119,8 +114,6 @@ BOOL CMergeWizardReintegrate::CheckData(bool bShowErrors /* = true */)
 
 LRESULT CMergeWizardReintegrate::OnWizardNext()
 {
-	StopWCCheckThread();
-
 	if (!CheckData(true))
 		return -1;
 
@@ -198,13 +191,4 @@ void CMergeWizardReintegrate::OnBnClickedShowlogwc()
 void CMergeWizardReintegrate::OnCbnEditchangeUrlcombo()
 {
 	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
-}
-
-LPARAM CMergeWizardReintegrate::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
-{
-	if (wParam)
-	{
-		ShowEditBalloon(IDC_WCEDIT, IDS_MERGE_WCDIRTY, IDS_WARN_WARNING, TTI_WARNING);
-	}
-	return 0;
 }

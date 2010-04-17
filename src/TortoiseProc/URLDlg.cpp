@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "TortoiseProc.h"
 #include "URLDlg.h"
 #include ".\urldlg.h"
-#include "ControlsBridge.h"
 
 IMPLEMENT_DYNAMIC(CURLDlg, CResizableStandAloneDialog)
 CURLDlg::CURLDlg(CWnd* pParent /*=NULL*/)
@@ -49,13 +48,10 @@ BOOL CURLDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_DWM);
-	m_aeroControls.SubclassOkCancel(this);
-
 	m_URLCombo.SetURLHistory(TRUE);
 	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
-
-    CControlsBridge::AlignHorizontally(this, IDC_LABEL, IDC_URLCOMBO);
+	m_URLCombo.SetCurSel(0);
+	m_URLCombo.SetFocus();
 
 	RECT rect;
 	GetWindowRect(&rect);
@@ -65,14 +61,6 @@ BOOL CURLDlg::OnInitDialog()
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	EnableSaveRestore(_T("URLDlg"));
-
-	// Now, after the combo size might have changed, select the proper string and
-	// put focus into it so that if the text was too wide to be displayed with
-	// the original size but it fits into the restored size it is no longer scrolled
-	// in the edit box of the combo.
-	m_URLCombo.SetCurSel(0);
-	m_URLCombo.SetFocus();
-
 	return FALSE;
 }
 

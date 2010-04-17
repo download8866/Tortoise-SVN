@@ -30,7 +30,7 @@
 #include <apr_pools.h>
 #include "svn_error.h"
 #include "svn_client.h"
-#include "svn_dirent_uri.h"
+#include "svn_path.h"
 #include "SubWCRev.h"
 #include "UnicodeUtils.h"
 #include "..\version.h"
@@ -130,7 +130,6 @@ $WCISLOCKED$    True if the item is locked\n"
 #define ERR_SVN_MODS	7	// Local mods found (-n)
 #define ERR_SVN_MIXED	8	// Mixed rev WC found (-m)
 #define ERR_OUT_EXISTS	9	// Output file already exists (-d)
-#define ERR_NOWC       10	// the path is not a working copy or part of one
 
 // Value for apr_time_t to signify "now"
 #define USE_TIME_NOW	-2	// 0 and -1 might already be significant.
@@ -382,7 +381,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	memset (&SubStat, 0, sizeof (SubStat));
 	SubStat.bFolders = FALSE;
 
-	//_set_invalid_parameter_handler(customInvalidParameterHandler);
+	_set_invalid_parameter_handler(customInvalidParameterHandler);
 
 	if (argc >= 2 && argc <= 5)
 	{
@@ -530,7 +529,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			delete [] src;
 			return ERR_ALLOC;
 		}
-		if (!ReadFile(hFile, pBuf, (DWORD)filelength, &readlength, NULL))
+		if (!ReadFile(hFile, pBuf, filelength, &readlength, NULL))
 		{
 			_tprintf(_T("Could not read the file '%s'\n"), src);
 			delete [] pBuf;
@@ -573,7 +572,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	char *wc_utf8;
 	wc_utf8 = Utf16ToUtf8(wc, pool);
-	internalpath = svn_dirent_internal_style (wc_utf8, pool);
+	internalpath = svn_path_internal_style (wc_utf8, pool);
 
 	svnerr = svn_status(	internalpath,	//path
 							&SubStat,		//status_baton
@@ -588,9 +587,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	TCHAR wcfullpath[MAX_PATH];
 	LPTSTR dummy;
 	GetFullPathName(wc, MAX_PATH, wcfullpath, &dummy);
-	apr_status_t e = 0;
-	if (svnerr)
-		e = svnerr->apr_err;
 	apr_terminate2();
 	if (svnerr)
 	{
@@ -598,8 +594,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		delete [] wc;
 		delete [] dst;
 		delete [] src;
-		if (e == SVN_ERR_WC_NOT_DIRECTORY)
-			return ERR_NOWC;
 		return ERR_SVN_ERR;
 	}
 	
@@ -741,7 +735,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		DWORD readlengthExisting = 0;
 		char * pBufExisting = new char[filelength];
-		if (!ReadFile(hFile, pBufExisting, (DWORD)filelengthExisting, &readlengthExisting, NULL))
+		if (!ReadFile(hFile, pBufExisting, filelengthExisting, &readlengthExisting, NULL))
 		{
 			_tprintf(_T("Could not read the file '%s'\n"), dst);
 			delete [] pBuf;
@@ -769,7 +763,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
 
-		WriteFile(hFile, pBuf, (DWORD)filelength, &readlength, NULL);
+		WriteFile(hFile, pBuf, filelength, &readlength, NULL);
 		if (readlength != filelength)
 		{
 			_tprintf(_T("Could not write the file '%s' to the end!\n"), dst);

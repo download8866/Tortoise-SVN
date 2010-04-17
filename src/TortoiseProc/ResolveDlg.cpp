@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,10 +55,6 @@ BOOL CResolveDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_RESOLVELIST, IDC_RESOLVELIST, IDC_RESOLVELIST, IDC_RESOLVELIST);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
 	m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_resolveListCtrl.SetSelectButton(&m_SelectAll);
@@ -81,7 +77,7 @@ BOOL CResolveDlg::OnInitDialog()
 	// blocking the dialog
 	if(AfxBeginThread(ResolveThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
@@ -139,7 +135,7 @@ UINT CResolveDlg::ResolveThread()
 	{
 		m_resolveListCtrl.SetEmptyString(m_resolveListCtrl.GetLastErrorMessage());
 	}
-	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, CTSVNPathList(), SVNSLC_SHOWCONFLICTED, true, true);
+	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, CTSVNPathList(), SVNSLC_SHOWCONFLICTED);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
@@ -157,8 +153,16 @@ BOOL CResolveDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		case VK_F5:
 			{
@@ -166,7 +170,7 @@ BOOL CResolveDlg::PreTranslateMessage(MSG* pMsg)
 				{
 					if(AfxBeginThread(ResolveThreadEntry, this) == NULL)
 					{
-						OnCantStartThread();
+						CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 					}
 					else
 						InterlockedExchange(&m_bThreadRunning, TRUE);
@@ -183,7 +187,7 @@ LRESULT CResolveDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	if(AfxBeginThread(ResolveThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
 }

@@ -1,6 +1,6 @@
 #
 # French translation for TortoiseSVN
-# Copyright (C) 2004-2010 the TortoiseSVN team
+# Copyright (C) 2004-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -9,18 +9,14 @@
 # $Rev$
 #
 # Authors:
-# Jérémy Badier jeremy.badier@gmail.com, 2007
-# Steve King, 2009
-# Frédéric Bodin grokwik@gmail.com, 2010
-# Matthias Goupil mgoupil@gmail.com, 2009
-# Yves Smitt yvesmitt@googlewave.com, 2009
+# Jérémy Badier jeremy.badier@gmail.com, 2006
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-12-09 09:22 +0000\n"
-"PO-Revision-Date: 2010-03-16 15:03-0000\n"
-"Last-Translator: Frédéric Bodin <grokwik@gmail.com>\n"
+"POT-Creation-Date: 2010-01-29 00:06 +0000\n"
+"PO-Revision-Date: 2010-03-22 11:38+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -168,8 +164,8 @@ msgid "TortoiseSVN is free. You don't have to pay to use it, and you can use it 
 msgstr "TortoiseSVN est gratuit. Vous n'avez pas à payer pour l'avoir, et vous pouvez l'utiliser comme vous le souhaitez. Il est développé sous licence GP (GPL)."
 
 #. (para)
-msgid "TortoiseSVN is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
-msgstr "TortoiseSVN est un projet Open Source. Cela signifie que vous avez un accès total au code source de ce programme. Vous pouvez y accéder avec ce lien <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. L'utilisateur est <literal>guest</literal>, et laissez le mot de passe vide. La version la plus récente (sur laquelle nous travaillons actuellement) est dans <filename>/trunk/</filename>, les versions publiées sont situées dans <filename>/tags/</filename>."
+msgid "TortoiseSVN is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgstr "TortoiseSVN est un projet Open Source. Cela signifie que vous avez un accès total au code source de ce programme. Vous pouvez y accéder avec ce lien <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. L'utilisateur est <literal>guest</literal>, et laissez le mot de passe vide. La version la plus récente (sur laquelle nous travaillons actuellement) est dans <filename>/trunk/</filename>, les versions publiées sont situées dans <filename>/tags/</filename>."
 
 #. (title)
 msgid "Community"
@@ -1371,14 +1367,6 @@ msgstr ""
 "</screen> Notez que tout ce qui est envoyé sur stdout est abandonné. Si vous voulez qu'un message apparaisse dans la boîte de dialogue du rejet de la livraison vous devez l'envoyer sur stderr. Dans un fichier batch, c'est réalisé en utilisant <filename>&gt;&amp;2</filename>"
 
 #. (title)
-msgid "Overriding Hooks"
-msgstr "Surcharger les hooks"
-
-#. (para)
-msgid "If a hook script rejects your commit then its decision is final. But you can build an override mechanism into the script itself using the <emphasis>Magic Word</emphasis> technique. If the script wants to reject the operation it first scans the log message for a special pass phrase, either a fixed phrase or perhaps the filename with a prefix. If it finds the magic word then it allows the commit to proceed. If the phrase is not found then it can block the commit with a message like <quote>You didn't say the magic word</quote> :-)"
-msgstr "Si un script de hook rejette votre livraison c'est définitif. Ceci dit, vous pouvez ajouter un mécanisme au sein du script grâce à la technique du <emphasis>Mot Magique</emphasis>. Avant d'acter le rejet, le script parcours les commentaires de livraison, et recherche un éventuel message spécial, prédéfini ou le nom de fichier lui même associé d'un préfixe. S'il trouve le mot magique il autorise alors la livraison. Si le message spécial n'est pas trouvé, la livraison est bloquée avec un message comme <quote>Vous n'avez pas dit le mot magique</quote> :-)"
-
-#. (title)
 msgid "Checkout Links"
 msgstr "Liens d'extraction"
 
@@ -2124,8 +2112,8 @@ msgstr ""
 "</screen> et mettez les fichiers <filename>svnindex.xsl</filename>, <filename>svnindex.css</filename> et <filename>menucheckout.ico</filename> dans le dossier racine (la plupart du temps <filename>C:/Program Files/Apache Group/Apache2/htdocs</filename>). Le nom de ce répertoire est fixé par la directive <literal>DocumentRoot</literal> dans votre fichier de configuration Apache."
 
 #. (para)
-msgid "You can get those three files directly from our source repository at <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the TortoiseSVN source repository)."
-msgstr "Vous pouvez récupérer ces trois fichiers depuis notre référentiel : <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/other/svnindex</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explique comment accéder au référentiel des sources de TortoiseSVN)."
+msgid "You can get those three files directly from our source repository at <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/contrib/svnindex\"><citetitle>http://tortoisesvn.googlecode.com/svn/trunk/contrib/svnindex</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the TortoiseSVN source repository)."
+msgstr "Vous pouvez récupérer ces trois fichiers depuis notre référentiel : <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/contrib/svnindex\"><citetitle>http://tortoisesvn.googlecode.com/svn/trunk/contrib/svnindex</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explique comment accéder au référentiel des sources de TortoiseSVN)."
 
 #. (para)
 msgid "The XSL file from the TortoiseSVN repository has a nice gimmick: if you browse the repository with your web browser, then every folder in your repository has an icon on the right shown. If you click on that icon, the TortoiseSVN checkout dialog is started for this URL."
@@ -2491,7 +2479,7 @@ msgid ""
 "bin\\openssl req -new -key conf\\server.key -out conf\\server.csr \\\n"
 "-config conf\\openssl.cnf\n"
 "</screen> and then (on one line) <screen>\n"
-"bin\\openssl x509 -in conf\\server.csr -out conf\\server.cert\n"
+"bin\\openssl x509 -in conf\\server.csr -out conf\\server.crt\n"
 "                 -req -signkey conf\\server.key -days 4000\n"
 "</screen> This will create a certificate which will expire in 4000 days. And finally enter (on one line): <screen>\n"
 "bin\\openssl x509 -in conf\\server.cert -out conf\\server.der.crt\n"
@@ -2828,18 +2816,14 @@ msgstr "Quelques opérations communes ont des raccourcis Windows bien connus, ma
 msgid "authentication"
 msgstr "Authentification"
 
-#. (primary)
-msgid "authentication cache"
-msgstr "cache d'authentification"
-
 #. (title)
 msgid "Authentication Dialog"
 msgstr "Boîte de dialogue d'authentification"
 
 #. (para)
 #, fuzzy
-msgid "<filename>svn.simple</filename> contains credentials for basic authentication (username/password). Note that passwords are stored using the WinCrypt API, not in plain text form."
-msgstr "<filename>svn.simple</filename> contient les accréditations pour l'authentification de base (nom d'utilisateur/mot de passe)."
+msgid "<filename>svn.simple</filename> contains credentials for basic authentication (username/password)."
+msgstr "<filename>svn.username</filename> contient les accréditations pour l'authentification avec le nom d'utilisateur uniquement (aucun mot de passe nécessaire)."
 
 #. (para)
 msgid "<filename>svn.ssl.server</filename> contains SSL server certificates."
@@ -2856,10 +2840,6 @@ msgstr "Si le référentiel auquel vous essayez d'avoir accès est protégé par
 #. (para)
 msgid "If you want to clear the authentication cache for all servers, you can do so from the <guilabel>Saved Data</guilabel> page of TortoiseSVN's settings dialog. That button will clear all cached authentication data from the Subversion <filename>auth</filename> directories, as well as any authentication data stored in the registry by earlier versions of TortoiseSVN. Refer to <xref linkend=\"tsvn-dug-settings-saved-data\"/>."
 msgstr "Si vous voulez effacer le cache d'authentification pour tous les serveurs, vous pouvez le faire à partir de la page <guilabel>Données Sauvegardées</guilabel> de la boîte de dialogue de configuration de TortoiseSVN. Ce bouton effacera toutes les données d'authentification gardées en cache dans les répertoire <filename>auth</filename> de Subversion, aussi bien que les authentifications stockées par des versions précédemment installées de TortoiseSVN. Référez-vous à <xref linkend=\"tsvn-dug-settings-saved-data\"/>."
-
-#. (para)
-msgid "If you want to clear authentication for one realm only then you will have to dig into those directories, find the file which contains the information you want to clear and delete the file."
-msgstr ""
 
 #. (para)
 msgid ""
@@ -2913,7 +2893,8 @@ msgid "temporary files"
 msgstr "fichiers temporaires"
 
 #. (para)
-msgid "If you are importing into an existing repository which already contains some projects, then the repository structure will already have been decided. If you are importing data into a new repository, then it is worth taking the time to think about how it will be organised. Read <xref linkend=\"tsvn-repository-layout\"/> for further advice."
+#, fuzzy
+msgid "If you are importing into an existing repository which already contains some projects, then the repository structure will already have been decided. If are importing data into a new repository then it is worth taking the time to think about how it will be organised. Read <xref linkend=\"tsvn-repository-layout\"/> for further advice."
 msgstr "Si vous importez des éléments dans un référentiel contenant déjà des projets, alors la structure du référentiel aura déjà été décidée. Si vous importez des éléments dans un nouveau référentiel alors il est temps de penser à la manière de l'organiser. Lisez <xref linkend=\"tsvn-repository-layout\"/> pour avoir des conseils."
 
 #. (para)
@@ -3286,16 +3267,6 @@ msgstr "Réparation des renommages externes"
 #. (para)
 msgid "Sometimes files get renamed outside of Subversion, and they show up in the file list as a missing file and an unversioned file. To avoid losing the history you need to notify Subversion about the connection. Simply select both the old name (missing) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Move</guimenuitem></menuchoice> to pair the two files as a rename."
 msgstr "Parfois, les fichiers sont renommés en dehors de Subversion, et son donc affichés comme fichiers manquants et non versionnés. Pour éviter de perdre l'historique vous devez indiquer à Subversion la connexion. Sélectionnez le nom manquant (nom précédent) et le nouveau et utilisez <menuchoice><guimenu>Menu Contextuel</guimenu><guimenuitem>Réparer le Déplacement</guimenuitem></menuchoice> pour associer les deux fichiers au renommage."
-
-#. (title)
-#. (title)
-msgid "Repairing External Copies"
-msgstr "Réparation des Copies Externes"
-
-#. (para)
-#. (para)
-msgid "If you made a copy of a file but forgot to use the Subversion command to do so, you can repair that copy so the new file doesn't lose its history. Simply select both the old name (normal or modified) and the new name (unversioned) and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Repair Copy</guimenuitem></menuchoice> to pair the two files as a copy."
-msgstr "Si vous avez fait une copie de fichier sans utiliser la commande appropriée de Subversion, vous pouvez réparer l'erreur afin que le fichier copié ne perde pas son historique. Sélectionnez juste les deux fichiers (le fichier source et le fichier copié pas encore versionné) et utilisez <menuchoice><guimenu>Menu Contextuel</guimenu><guimenuitem>Réparer la Copie</guimenuitem></menuchoice> pour associer les deux fichiers."
 
 #. (title)
 #. (title)
@@ -4647,7 +4618,8 @@ msgid "Because the log dialog shows you the log from HEAD, not from the current 
 msgstr "La fenêtre de commentaires affichant les commentaires depuis HEAD et non de la révision de la copie de travail, il arrive souvent que des commentaires de révisions non encore importées dans votre copie de travail soient affichés. Pour clarifier, le message de livraison correspondant à la révision de votre copie de travail est affiché en gras."
 
 #. (para)
-msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. The crawl takes place within a separate thread so as not to delay showing the log, but as a result highlighting for folders may not appear immediately."
+#, fuzzy
+msgid "When you show the log for a folder the revision highlighted is the highest revision found anywhere within that folder, which requires a crawl of the working copy. This can be a slow operation for large working copies, and the log messages are not displayed until the crawl completes. If you want to disable or limit this feature you need to set a registry key <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal> as described in <xref linkend=\"tsvn-dug-settings-registry\"/>."
 msgstr "Quand vous affichez les commentaires pour un répertoire, la révision mise en évidence est la plus élevée trouvée dans ce répertoire, ce qui nécessite un parcours de la copie de travail. Ce parcours est effectué dans un autre processus pour ne pas rallentir l'affichage des commentaires, en conséquence la mise en évidence de la révision pour les répertoires peut ne pas apparaitre immédiatement."
 
 #. (title)
@@ -4725,10 +4697,6 @@ msgstr "Si vous voulez limiter les commentaires pour afficher seulement ceux qui
 #. (para)
 msgid "Click on the search icon to select which information you want to search in, and to choose <emphasis>regex</emphasis> mode. Normally you will only need a simple text search, but if you need to more flexible search terms, you can use regular expressions. If you hover the mouse over the box, a tooltip will give hints on how to use the regex functions. You can also find online documentation and a tutorial at <ulink url=\"http://www.regular-expressions.info/\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink>. The filter works by checking whether your filter string matches the log entries, and then only those entries which <emphasis>match</emphasis> the filter string are shown."
 msgstr "Cliquez sur l'icone de recherche pour sélectionner le type d'information que vous souhaitez rechercher, et pour choisir le mode <emphasis>regex</emphasis>. Vous ne devriez avoir besoin que d'une simple recherche de texte, mais si vous souhaitez plus de flexibilité, vous pouvez alors utiliser les expressions regulières. Si vous passez la souris au dessus de la boite, une tooltip vous donnera des informations sur comment utiliser les fonctions d'expressions regulières. Vous pouvez également trouver l'aide en ligne et un tutoriel à cette adresse <ulink url=\"http://www.regular-expressions.info/\"><citetitle>http://www.regular-expressions.info/</citetitle></ulink>. Seuls les commentaires de révision passant le filtre (i.e. qui <emphasis>matchent</emphasis> le filtre) sont affichés."
-
-#. (para)
-msgid "If you don't use regex mode, you can enter several strings to search for, and only those log entries which match all of your filter words will be shown."
-msgstr "Si vous n'utilisez pas les expressions régulières, vous pouvez saisir plusieurs chaînes de caractères, et seuls les commentaires satisfaisant ce filtre seront affichés."
 
 #. (para)
 msgid "To make the filter show all log entries that do <emphasis>not</emphasis> match the filter string, start the string with an exclamation mark ('!'). For example, a filter string <literal>!username</literal> will only show those entries which were not committed by <literal>username</literal>."
@@ -5306,7 +5274,7 @@ msgid "Cannot copy between repositories"
 msgstr "Impossible de copier entre référentiels"
 
 #. (para)
-msgid "Whilst you can copy or move files and folders <emphasis>within</emphasis> a repository, you <emphasis>cannot</emphasis> copy or move from one repository to another while preserving history using TortoiseSVN. Not even if the repositories live on the same server. All you can do is copy the content in its current state and add it as new content to the second repository."
+msgid "Whilst you can copy and files and folders <emphasis>within</emphasis> a repository, you <emphasis>cannot</emphasis> copy or move from one repository to another while preserving history using TortoiseSVN. Not even if the repositories live on the same server. All you can do is copy the content in its current state and add it as new content to the second repository."
 msgstr "Tandis que vous pouvez copier ou déplacer des fichiers et dossiers contenus <emphasis>dans</emphasis> un référentiel, <emphasis>vous ne pouvez pas</emphasis> copier ou déplacer d'un référentiel à l'autre tout en préservant l'historique en utilisant TortoiseSVN. Même si les dépôts sont sur le même serveur. Tout ce que vous pouvez faire est de copier le contenu dans son état actuel et l'ajouter comme nouveau contenu au second référentiel."
 
 #. (para)
@@ -5512,10 +5480,6 @@ msgid "You <emphasis>must</emphasis> commit a folder rename before changing any 
 msgstr "Vous <emphasis>devez</emphasis> livrer un renommage de dossier avant de changer l'un des fichiers de ce dossier, autrement votre copie de travail peut être vraiment salie."
 
 #. (para)
-msgid "Another way of moving or copying files is to use the Windows copy/cut commands. Select the files you want to copy, right-click and choose <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Copy</guimenuitem></menuchoice> from the explorer context menu. Then browse to the target folder, right-click and choose <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Paste</guimenuitem></menuchoice>. For moving files, choose <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Cut</guimenuitem></menuchoice> instead of <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Copy</guimenuitem></menuchoice>."
-msgstr "Une autre manière de déplacer ou copier des fichiers est d'utiliser les commandes Windows copier/couper. Sélectionnez les fichiers que vous souhaitez copier, faites un clic droit et choisissez <menuchoice><guimenu>Menu contextuel</guimenu><guimenuitem>Copier</guimenuitem></menuchoice> dans le menu contextuel de l'explorateur. Ensuite allez dans le dossier cible, faites un clique droit et choisissez <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Coller</guimenuitem></menuchoice>. Pour déplacer des fichiers, choisissez <menuchoice><guimenu>Menu contextuel</guimenu><guimenuitem>Couper</guimenuitem></menuchoice> au lieu de <menuchoice><guimenu>Menu contextuel</guimenu><guimenuitem>Copier</guimenuitem></menuchoice>."
-
-#. (para)
 msgid "You can also use the repository browser to move items around. Read <xref linkend=\"tsvn-dug-repobrowser\"/> to find out more."
 msgstr "Vous pouvez aussi utiliser le navigateur du référentiel pour déplacer des éléments. <xref Lire linkend=\"tsvn-dug-repobrowser\"/> pour en savoir plus."
 
@@ -5641,10 +5605,6 @@ msgstr "revenir en arrière"
 msgid "undo"
 msgstr "annuler"
 
-#. (primary)
-msgid "clean"
-msgstr "nettoyer"
-
 #. (title)
 msgid "Revert dialog"
 msgstr "La boîte de dialogue Revenir en arrière"
@@ -5665,10 +5625,6 @@ msgstr "Si vous souhaitez annuler l'ajout d'un élément, cela apparaît dans le
 #. (para)
 msgid "The columns in this dialog can be customized in the same way as the columns in the <guilabel>Check for modifications</guilabel> dialog. Read <xref linkend=\"tsvn-dug-wcstatus-2\"/> for further details."
 msgstr "Les colonnes dans cette boîte de dialogue peuvent être personnalisées de la même manière que les colonnes dans la boîte de dialogue <guilabel>Vérifier les modifications</guilabel>. Lisez <xref linkend=\"tsvn-dug-wcstatus-2\"/> pour plus de détails."
-
-#. (para)
-msgid "Since revert is sometimes used to clean up a working copy, there is an extra button which allows you to delete unversioned items as well. When you click this button another dialog comes up listing all the unversioned items, which you can then select for deletion."
-msgstr "Depuis le retour en arrière est parfois utilisé pour nettoyer une copie de travail, il ya un bouton supplémentaire qui vous permet de supprimer des éléments non versionnés. Lorsque vous cliquez sur ce bouton, une autre boite de dialogue apparait en listant tous les éléments sans version, que vous pouvez ensuite sélectionner pour suppression."
 
 #. (title)
 msgid "Undoing Changes which have been Committed"
@@ -5973,18 +5929,6 @@ msgid "An example: <literal>\\[SUMMARY\\]:\\s+(.*)</literal> Will catch everythi
 msgstr "Un exemple : <literal>\\[SUMMARY\\]:\\s+(.*)</literal> gardera tout ce qui est après <quote>[SUMMARY]</quote> dans le commentaire et l'utilisera comme résumé."
 
 #. (para)
-msgid "The property <literal>tsvn:logrevregex</literal> defines a regular expression which matches references to revisions in a log message. This is used in the log dialog to turn such references into links which when clicked will either scroll to that revision (if the revision is already shown in the log dialog, or if it's available from the log cache) or open a new log dialog showing that revision."
-msgstr ""
-
-#. (para)
-msgid "The regular expression must match the whole reference, not just the revision number. The revision number is extracted from the matched reference string automatically."
-msgstr ""
-
-#. (para)
-msgid "If this property is not set, a default regular expression is used to link revision references."
-msgstr ""
-
-#. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
 msgstr ""
 
@@ -6018,10 +5962,8 @@ msgid "These special project properties must be set on <emphasis>folders</emphas
 msgstr "Ces propriétés <literal>tsvn:</literal> doivent être mises sur les <emphasis>dossiers</emphasis> pour que le système fonctionne. Quand vous livrez un fichier ou un dossier, les propriétés sont lues à partir de ce dossier. Si les propriétés ne sont pas trouvées là, TortoiseSVN cherchera vers le haut dans l'arborescence des dossiers pour les trouver jusqu'à ce qu'il arrive à un dossier non versionné, ou jusqu'à ce que la racine de l'arbre (par exemple <literal>C:\\</literal>) soit trouvée. Si vous pouvez être sûr que chaque utilisateur extraie seulement du <filename>trunk/</filename> par exemple  et non d'un sous-dossier, il est alors suffisant de mettre les propriétés sur <filename>trunk/</filename>. Si vous ne pouvez pas être sûr, vous devriez définir les propriétés récursivement sur chaque sous-dossier. Une propriété définit plus profondemment dans la hiérarchie du projet ignore les réglages sur les niveaux supérieurs (plus près de <filename>trunk/</filename>)."
 
 #. (para)
-#. (para)
-#. (para)
 #, fuzzy
-msgid "For project properties <emphasis>only</emphasis>, i.e. <literal>tsvn:</literal>, <literal>bugtraq:</literal> and <literal>webviewer:</literal> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgid "For project properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
 msgstr "Pour les propriétés <literal>tsvn:</literal> <emphasis>uniquement</emphasis> vous pouvez utiliser la case à cocher guilabel>Récursif</guilabel> pour mettre la propriété à tous les sous-dossiers dans la hiérarchie, sans la mettre aussi sur tous les fichiers."
 
 #. (para)
@@ -6308,22 +6250,6 @@ msgid "Note that unless you opted to switch your working copy to the newly creat
 msgstr "Notez qu'à moins que vous choisissiez de basculer votre copie de travail vers la branche juste créée, créer une branche ou une étiquette <emphasis>ne modifie pas</emphasis> votre copie de travail. Même si vous créez la branche depuis votre CdT, ces changements sont livrés dans la nouvelle branche, pas dans le tronc, donc votre CdT peut toujours être marquée comme modifiée sans altérer le tronc."
 
 #. (title)
-msgid "Other ways to create a branch or tag"
-msgstr "Autres manières de créer une branche ou une étiquette"
-
-#. (para)
-msgid "You can also create a branch or tag without having a working copy. To do that, open the repository browser. You can there drag folders to a new location. You have to hold down the <keycap>Ctrl</keycap> key while you drag to create a copy, otherwise the folder gets moved, not copied."
-msgstr "Vous pouvez aussi créer une branche ou une étiquette sans avoir de copie de travail. Pour ce faire, ouvrez l'explorateur de référentiel. Vous pouvez glisser/déplacer des répertoires à un nouvel endroit. Vous devez appuyer sur <keycap>Ctrl</keycap> lorsque vous faites glisser la répertoire pour créer une copie, sinon celui ci est déplacé, pas copié."
-
-#. (para)
-msgid "You can also drag a folder with the right mouse button. Once you release the mouse button you can choose from the context menu whether you want the folder to be moved or copied. Of course to create a branch or tag you must copy the folder, not move it."
-msgstr "Vous pouvez également faire glisser un répertoire avec le bouton droit de la souris. Dès que vous relâchez le bouton, un menu contextuel s'affiche vous permettant de choisir entre la copie ou le déplacement. Bien sûr, pour créer une branche ou une étiquette vous devez le copier, pas le déplacer."
-
-#. (para)
-msgid "Yet another way is from the log dialog. You can show the log dialog for e.g. trunk, select a revision (either the HEAD revision at the very top or an earlier revision), right-click and choose <menuchoice><guimenuitem>create branch/tag from revision...</guimenuitem></menuchoice>"
-msgstr "Il y a encore une autre méthode en passant par la fenêtre des commentaires. Vous pouvez afficher le tronc par exemple, sélectionner une révision (la tête ou une plus ancienne), faire un click droit et choisir <menuchoice><guimenuitem>Créer une branche/étiquette depuis la révision...</guimenuitem></menuchoice>"
-
-#. (title)
 msgid "To Checkout or to Switch..."
 msgstr "Extraire ou aller sur..."
 
@@ -6364,7 +6290,7 @@ msgid "To be able to work with your freshly generated branch or tag you have sev
 msgstr "Pour pouvoir travailler avec votre branche ou votre tag récemments générés, vous avez plusieurs méthodes. Vous pouvez : <placeholder-1/><placeholder-2/>"
 
 #. (para)
-msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they are not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
+msgid "Tags are typically used to create a static snapshot of the project at a particular stage. As such they not normally used for development - that's what branches are for, which is the reason we recommended the <filename>/trunk /branches /tags</filename> repository structure in the first place. Working on a tag revision is <emphasis>not a good idea</emphasis>, but because your local files are not write protected there is nothing to stop you doing this by mistake. However, if you try to commit to a path in the repository which contains <filename>/tags/</filename>, TortoiseSVN will warn you."
 msgstr "Les étiquettes sont typiquement utilisées pour garder un état figé du projet à une étape particulière. Ils ne sont normalement pas utilisés comme tel pour le développement - contrairement aux branches, c'est la raison pour laquelle nous avons recommandé la structure de référentiel <filename>/trunk /branches /tags</filename> en premier lieu. Travailler sur une révision d'étiquette <emphasis>n'est pas une bonne idée</emphasis>, mais dans la mesure où vos fichiers locaux ne sont pas protégés en écriture, il n'y a rien pour vous en empêcher. Cependant, si vous essayez de livrer vers un chemin dans le référentiel qui contient <filename>/tags/</filename>, TortoiseSVN vous avertira."
 
 #. (para)
@@ -6590,10 +6516,6 @@ msgstr "La plupart du temps vous voulez fusionner pour tenir compte de l'histori
 #. (para)
 msgid "You can specify the way that line ending and whitespace changes are handled. These options are described in <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/>. The default behaviour is to treat all whitespace and line-end differences as real changes to be merged."
 msgstr "Vous pouvez spécifier la gestion des caractères de fin de ligne et des espaces. Ces options sont décrites dans <xref linkend=\"tsvn-dug-diff-eol-whitespace\"/>. Le comportement par défaut est de traiter tous les espaces et les fins de lignes comme étant des modifications à part entière."
-
-#. (para)
-msgid "The checkbox marked <guilabel>Force the merge</guilabel> is used to avoid a tree conflict where an incoming delete affects a file that is either modified locally or not versioned at all. If the file is deleted then there is no way to recover it, which is why that option is not checked by default."
-msgstr "La case à cocher appelée <guilabel>Forcer la fusion</guilabel> est utilisée pour éviter les conflits d'arborescence lors de la suppression d'un fichier qui a été modifié localement ou qui n'est pas sous contrôle de version. Si le fichier est supprimé, il n'y a aucun moyen de le récupérer, ce qui explique que par défaut cette case ne soit pas cochée."
 
 #. (para)
 msgid "If you are using merge tracking and you want to mark a revision as having been merged, without actually doing the merge here, check the <guilabel>Only record the merge</guilabel> checkbox. There are two possible reasons you might want to do this. It may be that the merge is too complicated for the merge algorithms, so you code the changes by hand, then mark the change as merged so that the merge tracking algorithm is aware of it. Or you might want to prevent a particular revision from being merged. Marking it as already merged will prevent the merge occurring with merge-tracking-aware clients."
@@ -6946,7 +6868,7 @@ msgstr "Pour appliquer un patch à votre copie de travail, vous devez avoir au m
 
 #. (para)
 #, fuzzy
-msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog. Note that this option only appears if you saved the patch to the clipboard using <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Create Patch...</guimenuitem></menuchoice>. Copying a patch to the clipboard from another app will not make the button appear."
+msgid "From the context menu for that folder, click on <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Apply Patch...</guimenuitem></menuchoice> This will bring up a file open dialog allowing you to select the patch file to apply. By default only <filename>.patch</filename> or <filename>.diff</filename> files are shown, but you can opt for <quote>All files</quote>. If you previously saved a patch to the clipboard, you can use <guibutton>Open from clipboard...</guibutton> in the file open dialog."
 msgstr "Depuis le menu contextuel de ce dossier, cliquez sur <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Appliquer le patch...</guimenuitem></menuchoice> Cela affichera une boîte de dialogue Ouvrir un fichier vous permettant de choisir le fichier patch à appliquer. Par défaut, seuls les fichiers <filename>.patch</filename> ou <filename>.diff</filename> sont affichés, mais vous pouvez opter pour \"Tous les fichiers \"."
 
 #. (para)
@@ -7175,7 +7097,7 @@ msgid "Delete or rename the folder."
 msgstr "Supprimez ou renommez le répertoire."
 
 #. (para)
-msgid "Make a copy of the folder, either to a different part of the repository, or to a working copy rooted in the same repository. This can also be used to create a branch/tag without the need to have a working copy checked out."
+msgid "Make a copy of the folder, either to a different part of the repository, or to a working copy rooted in the same repository."
 msgstr ""
 
 #. (para)
@@ -7877,19 +7799,25 @@ msgstr "Mettre les propriétés sur les dossiers"
 msgid "These properties must be set on folders for the system to work. When you commit a file or folder the properties are read from that folder. If the properties are not found there, TortoiseSVN will search upwards through the folder tree to find them until it comes to an unversioned folder, or the tree root (eg. <literal>C:\\</literal>) is found. If you can be sure that each user checks out only from e.g <filename>trunk/</filename> and not some sub-folder, then it's enough if you set the properties on <filename>trunk/</filename>. If you can't be sure, you should set the properties recursively on each sub-folder. A property setting deeper in the project hierarchy overrides settings on higher levels (closer to <filename>trunk/</filename>)."
 msgstr "Ces propriétés doivent être définies sur des dossiers pour que le système fonctionne. Quand vous livrez un fichier ou un dossier les propriétés sont lues depuis ce dossier. Si les propriétés ne sont pas trouvées là, TortoiseSVN cherchera vers le haut dans l'arborescence des dossiers pour les trouver jusqu'à ce qu'il arrive à un dossier non versionné, ou jusqu'à ce que la racine de l'arborescence (par exemple <literal>C:\\</literal>) soit trouvée. Si vous pouvez être sûr que chaque utilisateur n'extraie que depuis <filename>trunk/</filename> par exemple et pas d'un autre sous-dossier, alors il est suffisant de définir les propriétés sur <filename>trunk/</filename>. Si vous ne pouvez pas être sûr, vous devriez définir les propriétés récursivement sur chaque sous-dossier. Un réglage de la propriété plus profondément dans la hiérarchie de projet remplace les réglages sur les niveaux supérieurs (plus près de <filename>trunk/</filename>)."
 
+#. (para)
+#. (para)
+#, fuzzy
+msgid "For <literal>tsvn:</literal> properties <emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> checkbox to set the property to all sub-folders in the hierarchy, without also setting it on all files."
+msgstr "Pour les propriétés <literal>tsvn:</literal> <emphasis>uniquement</emphasis> vous pouvez utiliser la case à cocher guilabel>Récursif</guilabel> pour mettre la propriété à tous les sous-dossiers dans la hiérarchie, sans la mettre aussi sur tous les fichiers."
+
 #. (title)
 msgid "No Issue Tracker Information from Repository Browser"
 msgstr ""
 
 #. (para)
 #, fuzzy
-msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
+msgid "Because the issue tracker integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
 msgstr "Le formattage dépend des propriétés d'accès de subversion, vous ne verrez que le résultat lorsque vous utiliserez une copie de travail exportée. Afficher les propriétés à distance étant une opération lente, vous ne pourrez pas l'effectuer depuis l'explorateur de référentiel."
 
 #. (para)
 #, fuzzy
-msgid "This issue tracker integration is not restricted to TortoiseSVN; it can be used with any Subversion client. For more information, read the full <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/doc/issuetrackers.txt\"><citetitle>Issue Tracker Integration Specification</citetitle></ulink> in the TortoiseSVN source repository. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
-msgstr "Cette intégration de tracker d'incidents n'est pas limité à TortoiseSVN ; elle peut être utilisée avec n'importe quel client Subversion. Pour plus d'informations, lisez <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/doc/issuetrackers.txt\"><citetitle>Issuetracker Integration Specification</citetitle></ulink>."
+msgid "This issue tracker integration is not restricted to TortoiseSVN; it can be used with any Subversion client. For more information, read the full <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/doc/issuetrackers.txt\"><citetitle>Issue Tracker Integration Specification</citetitle></ulink> in the TortoiseSVN source repository. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
+msgstr "Cette intégration de tracker d'incidents n'est pas limité à TortoiseSVN ; elle peut être utilisée avec n'importe quel client Subversion. Pour plus d'informations, lisez <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/doc/issuetrackers.txt\"><citetitle>Issuetracker Integration Specification</citetitle></ulink>."
 
 #. (title)
 msgid "Getting Information from the Issue Tracker"
@@ -7900,7 +7828,7 @@ msgid "The previous section deals with adding issue information to the log messa
 msgstr ""
 
 #. (para)
-msgid "Any such interface is of course highly specific to your issue tracker system, so we cannot provide this part, and describing how to create such a program is beyond the scope of this manual. The interface definition and sample plugins in C# and C++/ATL can be obtained from the <literal>contrib</literal> folder in the <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/issue-tracker-plugins\"><citetitle>TortoiseSVN repository</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository). A summary of the API is also given in <xref linkend=\"tsvn-ibugtraqprovider\"/> Another (working) example plugin in C# is <ulink url=\"http://code.google.com/p/gurtle/\"><citetitle>Gurtle</citetitle></ulink> which implements the required COM interface to interact with the <ulink url=\"http://code.google.com/hosting/\"><citetitle>Google Code</citetitle></ulink> issue tracker."
+msgid "Any such interface is of course highly specific to your issue tracker system, so we cannot provide this part, and describing how to create such a program is beyond the scope of this manual. The interface definition and sample plugins in C# and C++/ATL can be obtained from the <literal>contrib</literal> folder in the <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/contrib/issue-tracker-plugins\"><citetitle>TortoiseSVN repository</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository). A summary of the API is also given in <xref linkend=\"tsvn-ibugtraqprovider\"/> Another (working) example plugin in C# is <ulink url=\"http://code.google.com/p/gurtle/\"><citetitle>Gurtle</citetitle></ulink> which implements the required COM interface to interact with the <ulink url=\"http://code.google.com/hosting/\"><citetitle>Google Code</citetitle></ulink> issue tracker."
 msgstr ""
 
 #. (title)
@@ -7958,7 +7886,7 @@ msgstr "Aucun visualiseur dans l'explorateurde référentiel"
 
 #. (para)
 #, fuzzy
-msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser unless you started the repo browser from your working copy. If you started the repo browser by entering the URL of the repository you won't see this feature."
+msgid "Because the repo viewer integration depends upon accessing subversion properties, you will only see the results when using a checked out working copy. Fetching properties remotely is a slow operation, so you will not see this feature in action from the repo browser."
 msgstr "Le formattage dépend des propriétés d'accès de subversion, vous ne verrez que le résultat lorsque vous utiliserez une copie de travail exportée. Afficher les propriétés à distance étant une opération lente, vous ne pourrez pas l'effectuer depuis l'explorateur de référentiel."
 
 #. (title)
@@ -8224,10 +8152,6 @@ msgstr "Parcourir récursivement les répertoires non versionnés"
 #. (para)
 msgid "If this box is checked (default state), then whenever the status of an unversioned folder is shown in the <guilabel>Add</guilabel>, <guilabel>Commit</guilabel> or <guilabel>Check for Modifications</guilabel> dialog, every child file and folder is also shown. If you uncheck this box, only the unversioned parent is shown. Unchecking reduces clutter in these dialogs. In that case if you select an unversioned folder for Add, it is added recursively."
 msgstr "Si cette case est cochée (l'état par défaut), alors à chaque fois que le statut d'un dossier non versionné est affiché dans les boîtes de dialogue <guilabel>Ajouter</guilabel>, <guilabel>Livrer</guilabel> ou <guilabel>Vérifier les modifications</guilabel>, tous les fichiers et tous les dossiers enfants sont aussi affichés. Si vous décochez cette case, seul le parent non versionné est affiché. Décocher réduit le désordre dans ces boîtes de dialogue. Dans ce cas, si vous sélectionnez un dossier non versionné à Ajouter, il est ajouté récursivement."
-
-#. (para)
-msgid "In the <guilabel>Check for Modifications</guilabel> dialog you can opt to see ignored items. If this box is checked then whenever an ignored folder is found, all child items will be shown as well."
-msgstr "Dans la fenêtre <guilabel>Vérifier les modifications</guilabel> vous pouvez choisir de voir les éléments ignorés. Si cette case est cochée alors dès qu'un dossier ignoré est trouvé, tous les éléments enfants seront également affichés."
 
 #. (term)
 msgid "Use auto-completion of file paths and keywords"
@@ -8811,8 +8735,6 @@ msgid ""
 "</screen> or with Araxis: <screen>\n"
 "C:\\Path-To\\compare.exe /max /wait /title1:%bname /title2:%yname\n"
 "    %base %mine\n"
-"</screen> or with UltraCompare: <screen>\n"
-"C:\\Path-To\\uc.exe %base %mine -title1 %bname -title2 %yname\n"
 "</screen>"
 msgstr ""
 "Par exemple, avec ExamDiff Pro : <screen>\n"
@@ -9377,7 +9299,7 @@ msgid "Normally you will want to hide ugly DOS boxes when the script runs, so <g
 msgstr ""
 
 #. (para)
-msgid "Sample client hook scripts can be found in the <literal>contrib</literal> folder in the <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/contrib/hook-scripts\"><citetitle>TortoiseSVN repository</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
+msgid "Sample client hook scripts can be found in the <literal>contrib</literal> folder in the <ulink url=\"http://tortoisesvn.googlecode.com/svn/trunk/contrib/hook-scripts\"><citetitle>TortoiseSVN repository</citetitle></ulink>. (<xref linkend=\"tsvn-preface-source\"/> explains how to access the repository)."
 msgstr ""
 
 #. (title)
@@ -9541,7 +9463,7 @@ msgid "Current revision highlighting for folders in log dialog"
 msgstr "Mise en valeur de la version courante des répertoires dans la fenêtre de log."
 
 #. (para)
-msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which can be a slow operation for large working copies. However the crawling is done in a separate thread so it doesn't hold up the display of log messages. For <emphasis>really</emphasis> large working copies the disk chatter might be annoying, so if you really want to disable this you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\LogStatusCheck</literal>. A value of 0 disables the feature (no highlighting for folders)."
+msgid "The log dialog highlights the current working copy revision when the log is shown for a file. To do the same thing for a folder requires a working copy crawl, which is the default action, but it can be a slow operation for large working copies. If you want to change the operation of this feature you must create a <literal>DWORD</literal> registry key at <literal>HKCU\\Software\\TortoiseSVN\\RecursiveLogRev</literal>. A value of 0 disables the feature (no highlighting for folders), a value of 1 (default) will fetch the status recursively (find the highest revision in the working copy tree), and a value of 2 will check the revision of the selected folder itself, but will not check any child items."
 msgstr ""
 
 #. (term)
@@ -10297,28 +10219,6 @@ msgstr ""
 
 #. (para)
 msgid "The following example shows how the interface might be used. <placeholder-1/>"
-msgstr "Les exemples suivants montrent comment l'interface devrait être utilisée. <placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"using LibSubWCRev;\n"
-"SubWCRev sub = new SubWCRev();\n"
-"sub.GetWCInfo(\"C:\\\\PathToMyFile\\\\MyFile.cc\", true, true);\n"
-"if (sub.IsSvnItem == true)\n"
-"{\n"
-"    MessageBox.Show(\"versioned\");\n"
-"}\n"
-"else\n"
-"{\n"
-"    MessageBox.Show(\"not versioned\");\n"
-"}\n"
-msgstr ""
-
-#. (para)
-#, fuzzy
-msgid "The following listing is an example on how to use the SubWCRev COM object from C#: <placeholder-1/>"
 msgstr "Les exemples suivants montrent comment l'interface devrait être utilisée. <placeholder-1/>"
 
 #. (title)
@@ -11348,7 +11248,6 @@ msgstr "Commandes de TortoiseSVN"
 
 #. (primary)
 #. (primary)
-#. (primary)
 msgid "automation"
 msgstr "automatisation"
 
@@ -11368,10 +11267,6 @@ msgstr "Puisque certaines des commandes peuvent prendre une liste de chemins cib
 #. (para)
 msgid "TortoiseSVN uses temporary files to pass multiple arguments between the shell extension and the main program. From TortoiseSVN 1.5.0 on and later, <option>/notempfile</option> parameter is obsolete and there is no need to add it anymore."
 msgstr "TortoiseSVN utilise des fichiers temporaires pour passer des arguments multiples entre l'extension du shell et le programme principal. À partir de la version 1.5.0 et supérieures, le paramètre <option>/notempfile</option> est obsolète et il est inutile de l'ajouter désormais."
-
-#. (para)
-msgid "You can also specify a file which contains a list of paths, separated by newlines. The file must be in UTF-16 format. If you pass such a file, use <option>/pathfile</option> instead of <option>/path</option>. To have TortoiseProc delete that file after the command is finished, you can pass the parameter <option>/deletepathfile</option>."
-msgstr ""
 
 #. (para)
 msgid "The progress dialog which is used for commits, updates and many more commands usually stays open after the command has finished until the user presses the <guibutton>OK</guibutton> button. This can be changed by checking the corresponding option in the settings dialog. But using that setting will close the progress dialog, no matter if you start the command from your batch file or from the TortoiseSVN context menu."
@@ -11398,8 +11293,12 @@ msgid "<option>/closeonend:3</option> auto close if no errors, conflicts and mer
 msgstr "<option>/closeonend:2</option> ferme automatiquement s'il n'y a pas d'erreurs, de conflits ni de fusions"
 
 #. (para)
+msgid "<option>/closeonend:4</option> auto close if no errors, conflicts and merges for local operations"
+msgstr "<option>/closeonend:4</option> ferme automatiquement s'il n'y a pas d'erreurs, de conflits ni de fusions pour les opérations locales"
+
+#. (para)
 #, fuzzy
-msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/> To close the progress dialog for local operations if there were no errors or conflicts, pass the <option>/closeforlocal</option> parameter."
+msgid "To close the progress dialog at the end of a command automatically without using the permanent setting you can pass the <option>/closeonend</option> parameter. <placeholder-1/>"
 msgstr "Pour fermer la boîte de dialogue de progression automatiquement à la fin d'une commande sans utiliser le réglage permanent, vous pouvez lui passer le paramètre <option>/closeonend</option>. <placeholder-1/>"
 
 #. (para)
@@ -11469,50 +11368,9 @@ msgstr "/endrev:xxx"
 msgid "/strict"
 msgstr "/strict"
 
-#. (option)
-msgid "/findstring:\"filterstring\""
-msgstr "/findstring:\"filterstring\""
-
-#. (option)
-msgid "/findtext"
-msgstr "/findtext"
-
-#. (option)
-msgid "/findregex"
-msgstr "/findregex"
-
-#. (option)
-msgid "/findtype:X"
-msgstr "/findtype:X"
-
-#. (para)
-msgid "<option>/findtype:1</option> filter by everything"
-msgstr "<option>/findtype:1</option> tout filtrer"
-
-#. (para)
-msgid "<option>/findtype:2</option> filter by messages"
-msgstr "<option>/findtype:2</option> filtrer par messages"
-
-#. (para)
-msgid "<option>/findtype:3</option> filter by path"
-msgstr "<option>/findtype:3</option> filtrer par chemin"
-
-#. (para)
-msgid "<option>/findtype:4</option> filter by authors"
-msgstr "<option>/findtype:4</option> filtrer par auteurs"
-
-#. (para)
-msgid "<option>/findtype:5</option> filter by revisions"
-msgstr "<option>/findtype:5</option> filtrer par révision"
-
-#. (para)
-msgid "<option>/findtype:7</option> filter by bug ID"
-msgstr "<option>/findtype:7</option> filtrer par bug ID"
-
 #. (entry)
-#, fuzzy
-msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Six additional options can be set: <placeholder-2/>, <placeholder-3/>, <placeholder-4/> enables the 'stop-on-copy' checkbox, <placeholder-5/> fills in the filter text, <placeholder-6/> forces the filter to use text, not regex, or <placeholder-7/> forces the filter to use regex, not simple text search, and <placeholder-8/> with X being a number between 1 and 7. The numbers correspond to: <placeholder-9/>"
-msgstr "Ouvre la boîte de dialogue des commentaires. Le <placeholder-1/> spécifie le fichier ou le dossier duquel il faut afficher les commentaires. Six options supplémentaires peuvent être définies : <placeholder-2/>, <placeholder-3/>, <placeholder-4/> (active la case à cocher 'stop-lors-de-la-copie'), <placeholder-5/> remplit le texte de filtrage, <placeholder-6/> (force le filtre à fonctionner en mode text, pas regexp) et <placeholder-7/> X étant un chiffre compris entre 1 et 7. Les chiffres correspondent à : <placeholder-8/>"
+msgid "Opens the log dialog. The <placeholder-1/> specifies the file or folder for which the log should be shown. Three additional options can be set: <placeholder-2/>, <placeholder-3/> and <placeholder-4/>"
+msgstr ""
 
 #. (option)
 #. (option)
@@ -11578,13 +11436,9 @@ msgstr "Ajoute les fichiers de <placeholder-1/> au contrôle de version."
 msgid "Reverts local modifications of a working copy. The <placeholder-1/> tells which items to revert."
 msgstr "Annule les modifications locales d'une copie de travail. Le <placeholder-1/> indique quels éléments annuler."
 
-#. (option)
-msgid "/noui"
-msgstr "/noui"
-
 #. (entry)
-msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from popping up (either telling about the cleanup being finished or showing an error message)."
-msgstr ""
+msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>."
+msgstr "Nettoie les opérations interrompues ou annulées et déverrouille la copie de travail dans <placeholder-1/>."
 
 #. (option)
 #. (option)
@@ -11663,13 +11517,9 @@ msgstr "/path2"
 msgid "/blame"
 msgstr "/blame"
 
-#. (option)
-msgid "/line:xxx"
-msgstr "/line:xxx"
-
 #. (entry)
 #, fuzzy
-msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-9/> specifies the line to jump to when the diff is shown."
+msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>. If <placeholder-7/> is set and <placeholder-8/> is not set, then the diff is done by first blaming the files with the given revisions."
 msgstr "Démarre le programme externe de comparaison indiqué dans la configuration de TortoiseSVN. Le <placeholder-1/> spécifie le premier fichier. Si l'option <placeholder-2/> est activée, alors le programme de comparaison est lancé avec ces deux fichiers. Si <placeholder-3/> est omit, alors la comparaison est faite entre le fichier dans <placeholder-4/> et sa BASE.Pour renseigner explicitement les révisions à comparer, utiliser <placeholder-5/> et <placeholder-6/>. Si <placeholder-7/> est activé et <placeholder-8/> non, alors la comparaison est faite en bannissant d'abord les révisions données."
 
 #. (para)
@@ -11692,17 +11542,9 @@ msgstr "Ouvre la boîte de dialogue Relocaliser. Le <placeholder-1/> spécifie l
 msgid "Opens the help file."
 msgstr "Ouvre le fichier d'aide."
 
-#. (option)
-msgid "/remote"
-msgstr "/remote"
-
-#. (guilabel)
-msgid "Check repository"
-msgstr "Vérifier le référentiel"
-
 #. (entry)
-msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory. If <placeholder-2/> is specified, the dialog contacts the repository immediately on startup, as if the user clicked on the <placeholder-3/> button."
-msgstr "Ouvre la boîte de dialogue de vérification des modifications. Le <placeholder-1/> indique le répertoire de la copie de travail. Si <placeholder-2/> est spécifié, la boite de dialogue  contacte le référentiel directement au démarrage, au moment où l'utilisateur clique sur le bouton <placeholder-3/>."
+msgid "Opens the check-for-modifications dialog. The <placeholder-1/> specifies the working copy directory."
+msgstr "Ouvre la fenêtre vérifier les modifications. Le <placeholder-1/> spécifie le répertoire de la copie de travail."
 
 #. (option)
 #. (option)
@@ -11801,52 +11643,6 @@ msgstr ""
 "</screen>"
 
 #. (title)
-msgid "Tsvncmd URL handler"
-msgstr "Tsvncmd URL handler"
-
-#. (primary)
-msgid "URL handler"
-msgstr "gestionnaire d'URL"
-
-#. (para)
-msgid "Using special URLs, it is also possible to call TortoiseProc from a web page."
-msgstr ""
-
-#. (para)
-msgid "TortoiseSVN registers a new protocol <literal>tsvncmd:</literal> which can be used to create hyperlinks that execute TortoiseSVN commands. The commands and parameters are the same as when automating TortoiseSVN from the command line."
-msgstr ""
-
-#. (para)
-msgid "The format of the <literal>tsvncmd:</literal> URL is like this:"
-msgstr ""
-
-#. (literal)
-msgid "tsvncmd:command:cmd?parameter:paramvalue?parameter:paramvalue"
-msgstr ""
-
-#. (para)
-msgid "with <literal>cmd</literal> being one of the allowed commands and with <literal>parameter</literal> being a parameter like <literal>path</literal> or <literal>revision</literal>, depending on the command used."
-msgstr ""
-
-#. (para)
-msgid "The following commands are allowed with <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-msgstr "Les commandes suivantes sont permises avec <literal>tsvncmd:</literal> URLs: <placeholder-1/>"
-
-#. (programlisting)
-#, no-wrap
-msgid ""
-"\n"
-"&lt;a href=\"tsvncmd:command:showcompare?\n"
-"url1:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"url2:https://stexbar.googlecode.com/svn/trunk/StExBar/src/setup/Setup.wxs?\n"
-"revision1:188?revision2:189\"&gt;compare&lt;/a&gt;\n"
-msgstr ""
-
-#. (para)
-msgid "An example URL might look like this: <placeholder-1/>"
-msgstr "Un exemple d'URL ressemble à ceci : <placeholder-1/>"
-
-#. (title)
 msgid "TortoiseIDiff Commands"
 msgstr "Commandes de TortoiseIDiff"
 
@@ -11934,8 +11730,8 @@ msgid "Conventions and Basic Rules"
 msgstr "Conventions et règles de base"
 
 #. (para)
-msgid "In the descriptions which follow, the URL for a repository location is shown simply as <literal>URL</literal>, and an example might be <systemitem class=\"url\">http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk</systemitem>. The working copy path is shown simply as <literal>PATH</literal>, and an example might be <filename>C:\\TortoiseSVN\\trunk</filename>."
-msgstr "Dans les descriptions qui suivent, l'URL d'un référentiel est simplement affichée <literal>URL</literal> et un exemple pourrait être <systemitem class=\"url\">http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk</systemitem>. Le chemin de la copie de travail est simplement affiché <literal>PATH</literal>, et un exemple pourrait être <filename>C:\\TortoiseSVN\\trunk</filename>."
+msgid "In the descriptions which follow, the URL for a repository location is shown simply as <literal>URL</literal>, and an example might be <systemitem class=\"url\">http://tortoisesvn.googlecode.com/svn/trunk</systemitem>. The working copy path is shown simply as <literal>PATH</literal>, and an example might be <filename>C:\\TortoiseSVN\\trunk</filename>."
+msgstr "Dans les descriptions qui suivent, l'URL d'un référentiel est simplement affichée <literal>URL</literal> et un exemple pourrait être <systemitem class=\"url\">http://tortoisesvn.googlecode.com/svn/trunk</systemitem>. Le chemin de la copie de travail est simplement affiché <literal>PATH</literal>, et un exemple pourrait être <filename>C:\\TortoiseSVN\\trunk</filename>."
 
 #. (para)
 msgid "Because TortoiseSVN is a Windows Shell Extension, it is not able to use the notion of a current working directory. All working copy paths must be given using the absolute path, not a relative path."
@@ -12546,10 +12342,6 @@ msgstr "Dans cette annexe, nous supposons que vous avez déjà les outils subver
 msgid "Much of the information here comes from a tutorial provided by Marc Logemann, which can be found at <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink> Additional information on setting up a Windows server was provided by Thorsten Müller. Thanks guys!"
 msgstr "La plupart de ces informations est associé à un tutoriel fourni par Marc Logemann et qui peut être trouvé sur <ulink url=\"http://www.logemann.org/2007/03/13/subversion-tortoisesvn-ssh-howto/\"><citetitle>www.logemann.org</citetitle></ulink>.  Des informations supplémentaires sur la configuration d'un serveur Windows sont fournies par Thorsten Müller. Merci les gars!"
 
-#. (para)
-msgid "You can also watch a video tutorial created by Maximo Migliari which takes you through all the important steps. Watch it on <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink>. or <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-msgstr "Vous pouvez aussi regarder un tutoriel vidéo créé par Maximo Migliari qui vous mènera à travers toutes les étapes importantes. Regarez la sur <ulink url=\"http://www.vimeo.com/5378553\"><citetitle>Vimeo</citetitle></ulink> ou <ulink url=\"http://www.youtube.com/watch?v=BoKHoRWu4EE\"><citetitle>YouTube</citetitle></ulink>."
-
 #. (title)
 msgid "Setting Up a Linux Server"
 msgstr "Configurer un Serveur Liunx"
@@ -13017,37 +12809,48 @@ msgstr "Jérémy Badier <jeremy.badier@gmail.com>"
 msgid "translator-translation"
 msgstr "traduction"
 
+#~ msgid "authentication cache"
+#~ msgstr "cache d'authentification"
 #~ msgid ""
-#~ "For <literal>tsvn:</literal> and <literal>webviewer:</literal> properties "
-#~ "<emphasis>only</emphasis> you can use the <guilabel>Recursive</guilabel> "
-#~ "checkbox to set the property to all sub-folders in the hierarchy, without "
-#~ "also setting it on all files."
+#~ "The checkbox marked <guilabel>Force the merge</guilabel> is used to avoid "
+#~ "a tree conflict where an incoming delete affects a file that is either "
+#~ "modified locally or not versioned at all. If the file is deleted then "
+#~ "there is no way to recover it, which is why that option is not checked by "
+#~ "default."
 #~ msgstr ""
-#~ "Pour les propriétés <literal>tsvn:</literal> et <literal>webviewer:</"
-#~ "literal> <emphasis>uniquement</emphasis> vous pouvez utiliser la case à "
-#~ "cocher <guilabel>Récursif</guilabel> pour affecter la propriété à tous "
-#~ "les sous-dossiers dans la hiérarchie, sans avoir à  la mettre sur tous "
-#~ "les fichiers."
-
-#, fuzzy
+#~ "La case à cocher appelée <guilabel>Forcer la fusion</guilabel> est "
+#~ "utilisée pour éviter les conflits d'arborescence lors de la suppression "
+#~ "d'un fichier qui a été modifié localement ou qui n'est pas sous contrôle "
+#~ "de version. Si le fichier est supprimé, il n'y a aucun moyen de le "
+#~ "récupérer, ce qui explique que par défaut cette case ne soit pas cochée."
+#~ msgid "clean"
+#~ msgstr "nettoyer"
+#~ msgid "Other ways to create a branch or tag"
+#~ msgstr "Autres manières de créer une branche ou une étiquette"
 #~ msgid ""
-#~ "For <literal>tsvn:</literal> properties <emphasis>only</emphasis> you can "
-#~ "use the <guilabel>Recursive</guilabel> checkbox to set the property to "
-#~ "all sub-folders in the hierarchy, without also setting it on all files."
+#~ "You can also create a branch or tag without having a working copy. To do "
+#~ "that, open the repository browser. You can there drag folders to a new "
+#~ "location. You have to hold down the <keycap>Ctrl</keycap> key while you "
+#~ "drag to create a copy, otherwise the folder gets moved, not copied."
 #~ msgstr ""
 #~ "Pour les propriétés <literal>tsvn:</literal> <emphasis>uniquement</"
 #~ "emphasis> vous pouvez utiliser la case à cocher guilabel>Récursif</"
 #~ "guilabel> pour mettre la propriété à tous les sous-dossiers dans la "
 #~ "hiérarchie, sans la mettre aussi sur tous les fichiers."
 #~ msgid ""
-#~ "Cleans up interrupted or aborted operations and unlocks the working copy "
-#~ "in <placeholder-1/>."
+#~ "You can also drag a folder with the right mouse button. Once you release "
+#~ "the mouse button you can choose from the context menu whether you want "
+#~ "the folder to be moved or copied. Of course to create a branch or tag you "
+#~ "must copy the folder, not move it."
 #~ msgstr ""
 #~ "Nettoie les opérations interrompues ou annulées et déverrouille la copie "
 #~ "de travail dans <placeholder-1/>."
 #~ msgid ""
-#~ "Opens the check-for-modifications dialog. The <placeholder-1/> specifies "
-#~ "the working copy directory."
+#~ "Yet another way is from the log dialog. You can show the log dialog for e."
+#~ "g. trunk, select a revision (either the HEAD revision at the very top or "
+#~ "an earlier revision), right-click and choose "
+#~ "<menuchoice><guimenuitem>create branch/tag from revision...</"
+#~ "guimenuitem></menuchoice>"
 #~ msgstr ""
 #~ "Ouvre la fenêtre vérifier les modifications. Le <placeholder-1/> spécifie "
 #~ "le répertoire de la copie de travail."
@@ -13082,12 +12885,6 @@ msgstr "traduction"
 #~ "requises, une certaine dose d'interprétation est demandée, ce qui peut "
 #~ "parfois donner des résultats étranges. Néanmoins, le résultat pour le "
 #~ "tronc donnera généralement des résultats utiles."
-#~ msgid ""
-#~ "<option>/closeonend:4</option> auto close if no errors, conflicts and "
-#~ "merges for local operations"
-#~ msgstr ""
-#~ "<option>/closeonend:4</option> ferme automatiquement s'il n'y a pas "
-#~ "d'erreurs, de conflits ni de fusions pour les opérations locales"
 #~ msgid "Working copy depth cannot be reduced"
 #~ msgstr "La profondeur de la copie de travail ne peut être réduite"
 #~ msgid ""

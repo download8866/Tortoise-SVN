@@ -73,7 +73,7 @@ void CRevisionGraphWnd::BuildPreview()
     CRect graphRect = GetGraphRect();
 	float horzfact = float(graphRect.Width())/float(preViewSize.cx);
 	float vertfact = float(graphRect.Height())/float(preViewSize.cy);
-	m_previewZoom = min (DEFAULT_ZOOM, 1.0f/(max(horzfact, vertfact)));
+	m_previewZoom = min (1.0f, 1.0f/(max(horzfact, vertfact)));
 
     // make sure the preview window has a minimal size
 
@@ -105,7 +105,7 @@ void CRevisionGraphWnd::SetScrollbar (int bar, int newPos, int clientMax, int gr
     SCROLLINFO ScrollInfo = {sizeof(SCROLLINFO), SIF_ALL};
 	GetScrollInfo (bar, &ScrollInfo);
 
-    int oldHeight = ScrollInfo.nMax <= 0 ? clientMax : ScrollInfo.nMax;
+    int oldHeight = max(1, ScrollInfo.nMax);
     int newHeight = static_cast<int>(graphMax * m_fZoomFactor);
     int maxPos = max (0, newHeight - clientMax);
     int pos = min (maxPos, newPos >= 0
@@ -158,15 +158,17 @@ CRect CRevisionGraphWnd::GetViewRect()
 
 int CRevisionGraphWnd::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
-	UINT num = 0;          // number of image encoders
-	UINT size = 0;         // size of the image encoder array in bytes
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
+
+	ImageCodecInfo* pImageCodecInfo = NULL;
 
 	if (GetImageEncodersSize(&num, &size)!=Ok)
 		return -1;
 	if(size == 0)
 		return -1;  // Failure
 
-	ImageCodecInfo* pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+	pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
 	if(pImageCodecInfo == NULL)
 		return -1;  // Failure
 
@@ -255,8 +257,7 @@ bool CRevisionGraphWnd::AnalyzeRevisionData()
 
         std::auto_ptr<CStandardLayout> newLayout 
             ( new CStandardLayout ( m_state.GetFullHistory()->GetCache()
-                                  , visibleGraph.get()
-								  , m_state.GetFullHistory()->GetWCInfo()));
+                                  , visibleGraph.get()));
         options->GetLayoutOptions().Apply (newLayout.get());
         newLayout->Finalize();
 
@@ -266,11 +267,6 @@ bool CRevisionGraphWnd::AnalyzeRevisionData()
     }
 
     return m_state.GetNodes().get() != NULL;
-}
-
-bool CRevisionGraphWnd::IsUpdateJobRunning() const
-{
-    return (updateJob.get() != NULL) && !updateJob->IsDone();
 }
 
 bool CRevisionGraphWnd::GetShowOverview() const
@@ -303,7 +299,7 @@ void CRevisionGraphWnd::GetSelected
 
     if (node->GetClassification().Is (CNodeClassification::IS_MODIFIED_WC))
     {
-        path.SetFromUnknown (m_sPath);
+        path.SetFromWin (m_sPath);
         rev = SVNRev::REV_WC;
 
         // don't set peg, if we aren't the first node 
@@ -387,9 +383,9 @@ void CRevisionGraphWnd::DoZoom (float fZoomFactor, bool updateScrollbars)
 	float oldzoom = m_fZoomFactor;
 	m_fZoomFactor = fZoomFactor;
 
-    m_nFontSize = max(1, int(DEFAULT_ZOOM_FONT * fZoomFactor));
-    if (m_nFontSize < SMALL_ZOOM_FONT_THRESHOLD)
-        m_nFontSize = min (SMALL_ZOOM_FONT_THRESHOLD, int(SMALL_ZOOM_FONT * fZoomFactor));
+    m_nFontSize = max(1, int(12.0f * fZoomFactor));
+    if (m_nFontSize < 7)
+        m_nFontSize = min (7, int(15.0f * fZoomFactor));
 
 	for (int i=0; i<MAXFONTS; i++)
 	{

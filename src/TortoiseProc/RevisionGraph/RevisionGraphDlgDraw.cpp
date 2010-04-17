@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -81,7 +81,7 @@ void CRevisionGraphWnd::OnPaint()
 {
 	CPaintDC dc(this); // device context for painting
 	CRect rect = GetClientRect();
-    if (IsUpdateJobRunning())
+	if (m_bThreadRunning)
 	{
 		dc.FillSolidRect(rect, ::GetSysColor(COLOR_APPWORKSPACE));
 		CWnd::OnPaint();
@@ -138,7 +138,7 @@ void CRevisionGraphWnd::DrawRoundedRect (Graphics& graphics, const Pen* pen, con
 {
     enum {POINT_COUNT = 8};
 
-    float radius = CORNER_SIZE * m_fZoomFactor;
+    float radius = 16 * m_fZoomFactor;
 	PointF points[POINT_COUNT];
     CutawayPoints (rect, radius, points);
 
@@ -163,7 +163,7 @@ void CRevisionGraphWnd::DrawOctangle (Graphics& graphics, const Pen* pen, const 
 
     // show left & right edges of low boxes as "<===>"
 
-    float minCutAway = min (CORNER_SIZE * m_fZoomFactor, rect.Height / 2);
+    float minCutAway = min (16 * m_fZoomFactor, rect.Height / 2);
 
     // larger boxes: remove 25% of the shorter side
 
@@ -300,8 +300,6 @@ void CRevisionGraphWnd::DrawNode(Graphics& graphics, const RectF& rect,
 
     bool isWorkingCopy 
         = nodeClassification.Is (CNodeClassification::IS_WORKINGCOPY);
-    bool isModifiedWC
-        = nodeClassification.Is (CNodeClassification::IS_MODIFIED_WC);
     bool textAsBorderColor 
         = nodeClassification.IsAnyOf ( CNodeClassification::IS_LAST
                                      | CNodeClassification::IS_MODIFIED_WC)
@@ -314,26 +312,6 @@ void CRevisionGraphWnd::DrawNode(Graphics& graphics, const RectF& rect,
                    : contour;
 
     Pen pen (penColor, isWorkingCopy ? 3.0f : 1.0f);
-	if (isWorkingCopy && !isModifiedWC)
-	{
-	    CSyncPointer<const CFullHistory> history (m_state.GetFullHistory());
-		const CFullHistory::SWCInfo& wcInfo = history->GetWCInfo();
-		revision_t revision = node->GetRevision();
-
-		bool isCommitRev =    (wcInfo.minCommit == revision)
-						   || (wcInfo.maxCommit == revision);
-		bool isMinAtRev =    (wcInfo.minAtRev == revision)
-						  && (wcInfo.minAtRev != wcInfo.maxAtRev);
-
-		DashStyle style = wcInfo.maxAtRev == revision
-						? DashStyleSolid
-						: isCommitRev ? isMinAtRev ? DashStyleDashDot									 
-										           : DashStyleDot
-									  : DashStyleDash;
-
-		pen.SetDashStyle (style);
-	}
-
     SolidBrush brush (brightColor);
     DrawShape (graphics, &pen, &brush, rect, shape);
 
@@ -365,7 +343,7 @@ RectF CRevisionGraphWnd::GetNodeRect (const ILayoutNodeList::SNode& node, const 
     // show two separate lines for touching nodes, 
     // unless the scale is too small
 
-    if (noderect.Height > 15.0f)
+    if (noderect.Height > 4.0f)
         noderect.Height -= 1.0f;
 
     // done
@@ -459,13 +437,10 @@ void CRevisionGraphWnd::DrawSquare
     PointF leftBottom (leftTop.X, leftTop.Y + squareSize);
     RectF square (leftTop, SizeF (squareSize, squareSize));
 
+    Pen pen (penColor, max (1, 1.5f * m_fZoomFactor));
     LinearGradientBrush lgBrush (leftTop, leftBottom, lightColor, darkColor);
     graphics.FillRectangle (&lgBrush, square);
-	if (squareSize > 4.0f)
-	{
-	    Pen pen (penColor);
-		graphics.DrawRectangle (&pen, square);
-	}
+    graphics.DrawRectangle (&pen, square);
 }
 
 void CRevisionGraphWnd::DrawGlyph 
@@ -482,7 +457,7 @@ void CRevisionGraphWnd::DrawGlyph
 
     // bitmap source area
 
-    REAL x = ((REAL)position + (REAL)glyph) * GLYPH_BITMAP_SIZE;
+    REAL x = ((REAL)position + (REAL)glyph) * GLYPH_SIZE;
 
     // screen target area
 
@@ -493,7 +468,7 @@ void CRevisionGraphWnd::DrawGlyph
 
     graphics.DrawImage ( glyphs
                        , target
-                       , x, 0.0f, GLYPH_BITMAP_SIZE, GLYPH_BITMAP_SIZE
+                       , x, 0.0f, GLYPH_SIZE, GLYPH_SIZE
                        , UnitPixel, NULL, NULL, NULL);
 }
 
@@ -968,13 +943,12 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
     Graphics* graphics = Graphics::FromHDC(*pDC);
     graphics->SetPageUnit (UnitPixel);
     graphics->SetInterpolationMode (InterpolationModeHighQualityBicubic);
-	graphics->SetSmoothingMode(SmoothingModeAntiAlias);
 	graphics->SetClip(RectF(Gdiplus::REAL(rect.left), Gdiplus::REAL(rect.top), Gdiplus::REAL(rect.Width()), Gdiplus::REAL(rect.Height())));
 
     if (options->GetOption<CShowTreeStripes>()->IsActive())
         DrawStripes (*graphics, offset);
 
-    if (m_fZoomFactor > SHADOW_ZOOM_THRESHOLD)
+    if (m_fZoomFactor > 0.2f)
         DrawShadows (*graphics, logRect, offset);
 
     Bitmap glyphs (AfxGetInstanceHandle(), MAKEINTRESOURCE(IDR_REVGRAPHGLYPHS));
@@ -1026,9 +1000,12 @@ void CRevisionGraphWnd::DrawGraph(CDC* pDC, const CRect& rect, int nVScrollPos, 
 	}
 
     // flush changes to screen
-	
-	delete graphics;
-	delete memDC;
+
+    if (graphics)
+        delete graphics;
+
+	if (memDC)
+		delete memDC;
 }
 
 void CRevisionGraphWnd::DrawRubberBand()

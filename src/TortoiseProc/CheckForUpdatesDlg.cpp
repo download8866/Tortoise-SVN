@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008,2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 #include "Registry.h"
 #include "AppUtils.h"
 #include "TempFile.h"
-
+#include "SysInfo.h"
 
 IMPLEMENT_DYNAMIC(CCheckForUpdatesDlg, CStandAloneDialog)
 CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
@@ -32,7 +32,7 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
 	, m_bShowInfo(FALSE)
 	, m_bVisible(FALSE)
 {
-	m_sUpdateDownloadLink = _T("http://tortoisesvn.net");
+	m_sUpdateDownloadLink = _T("http://tortoisesvn.tigris.org");
 }
 
 CCheckForUpdatesDlg::~CCheckForUpdatesDlg()
@@ -57,14 +57,6 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, 0, 0, 0);
-	m_aeroControls.SubclassControl(this, IDC_INFO);
-	m_aeroControls.SubclassControl(this, IDC_YOURVERSION);
-	m_aeroControls.SubclassControl(this, IDC_CURRENTVERSION);
-	m_aeroControls.SubclassControl(this, IDC_CHECKRESULT);
-	m_aeroControls.SubclassControl(this, IDC_LINK);
-	m_aeroControls.SubclassControl(this, IDOK);
-
 	CString temp;
 	temp.Format(IDS_CHECKNEWER_YOURVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
 	SetDlgItemText(IDC_YOURVERSION, temp);
@@ -73,7 +65,7 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 
 	if (AfxBeginThread(CheckThreadEntry, this)==NULL)
 	{
-		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
+		CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 
 	SetTimer(100, 1000, NULL);
@@ -113,7 +105,9 @@ UINT CCheckForUpdatesDlg::CheckThread()
 	{
 		sCheckURL = checkurlmachine;
 		if (sCheckURL.IsEmpty())
-			sCheckURL = _T("http://tortoisesvn.googlecode.com/svn/trunk/version.txt");
+			sCheckURL = SysInfo::Instance().IsWin2k()
+					  ? _T("http://tortoisesvn.tigris.org/version_w2k.txt")
+					  : _T("http://tortoisesvn.googlecode.com/svn/trunk/version.txt");
 	}
 	HRESULT res = URLDownloadToFile(NULL, sCheckURL, tempfile, 0, NULL);
 	if (res == S_OK)
@@ -159,27 +153,18 @@ UINT CCheckForUpdatesDlg::CheckThread()
 					if(file.ReadString(temp) && !temp.IsEmpty())
 					{	// Read the next line, it could contain a message for the user
 						CString tempLink;
-						CRegString regDownLink(_T("Software\\TortoiseSVN\\NewVersionLink"));
-						regDownLink = tempLink;
 						if(file.ReadString(tempLink) && !tempLink.IsEmpty())
 						{	// Read another line to find out the download link-URL, if any
 							m_sUpdateDownloadLink = tempLink;
-							regDownLink = m_sUpdateDownloadLink;
 						}
+
 					}
 					else
 					{
 						temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
 					}
-					CRegString regDownText(_T("Software\\TortoiseSVN\\NewVersionText"));
-					regDownText = temp;
 					SetDlgItemText(IDC_CHECKRESULT, temp);
-					// only show the dialog for newer versions if the 'old style' update check
-					// is requested. The current update check shows the info in the commit dialog.
-					if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\OldVersionCheck"))))
-						m_bShowInfo = TRUE;
-					CRegString regVer(_T("Software\\TortoiseSVN\\NewVersion"));
-					regVer = ver;
+					m_bShowInfo = TRUE;
 				}
 				else
 				{

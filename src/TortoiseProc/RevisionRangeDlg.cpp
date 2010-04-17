@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,9 +52,6 @@ BOOL CRevisionRangeDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_ENDREVGROUP);
-	m_aeroControls.SubclassOkCancel(this);
-
 	if (m_StartRev.IsHead())
 	{
 		CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
@@ -103,7 +100,7 @@ void CRevisionRangeDlg::OnOK()
 	}
 	if ((!m_StartRev.IsValid())||((!m_bAllowWCRevs)&&(m_StartRev.IsPrev() || m_StartRev.IsCommitted() || m_StartRev.IsBase())))
 	{
-		ShowEditBalloon(IDC_REVNUM, m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVNUM, m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC);
 		return;
 	}
 
@@ -115,7 +112,7 @@ void CRevisionRangeDlg::OnOK()
 	}
 	if ((!m_EndRev.IsValid())||((!m_bAllowWCRevs)&&(m_EndRev.IsPrev() || m_EndRev.IsCommitted() || m_EndRev.IsBase())))
 	{
-		ShowEditBalloon(IDC_REVNUM2, m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVNUM2, m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC);
 		return;
 	}
 

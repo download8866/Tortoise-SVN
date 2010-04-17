@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007,2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #include "StdAfx.h"
 #include "LogCachePool.h"
 #include "LogCacheSettings.h"
-#include "./Containers/CachedLogInfo.h"
+#include "CachedLogInfo.h"
 #include "RepositoryInfo.h"
 
 #include "DirFileEnum.h"
@@ -212,7 +212,7 @@ CCachedLogInfo* CLogCachePool::GetCache (const CString& uuid, const CString& roo
 	std::wstring fileName = (LPCTSTR)(cacheFolderPath + info->fileName);
 	std::auto_ptr<CCachedLogInfo> cache (new CCachedLogInfo (fileName));
 
-    cache->Load (CSettings::GetMaxFailuresUntilDrop());
+	cache->Load();
 
 	caches[info->fileName] = cache.get();
 
@@ -259,8 +259,7 @@ void CLogCachePool::DropCache (const CString& uuid, const CString& root)
 
     CRepositoryInfo::SPerRepositoryInfo* info 
         = repositoryInfo->data.Lookup (uuid, root);
-    if (info == NULL)
-		return;
+    assert (info != NULL);
 
     TCaches::iterator iter = caches.find (info->fileName);
 	if (iter != caches.end())

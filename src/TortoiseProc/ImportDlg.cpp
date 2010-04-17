@@ -59,10 +59,6 @@ BOOL CImportDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_MSGGROUP);
-	m_aeroControls.SubclassControl(this, IDC_IMPORTIGNORED);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 
 	m_URLCombo.SetURLHistory(TRUE);
@@ -85,16 +81,13 @@ BOOL CImportDlg::OnInitDialog()
 	if (!m_sMessage.IsEmpty())
 		m_cMessage.SetText(m_sMessage);
 
-	CAppUtils::SetAccProperty(m_cMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	AdjustControlSize(IDC_IMPORTIGNORED);
 
 	AddAnchor(IDC_STATIC1, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_STATIC4, TOP_LEFT);
 	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-	AddAnchor(IDC_MSGGROUP, TOP_LEFT, BOTTOM_RIGHT);
+	AddAnchor(IDC_STATIC2, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_MESSAGE, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_HISTORY, TOP_LEFT);
 	AddAnchor(IDC_IMPORTIGNORED, BOTTOM_LEFT);
@@ -140,11 +133,18 @@ BOOL CImportDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if (OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+				}
+			}
 			break;
-		}
-	}
+				}
+			}
 	return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
 }
 

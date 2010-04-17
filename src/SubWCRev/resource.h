@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by SubWCRev.rc
 //
+#define IDI_ICON1                       102
 #define IDI_SUBWCREV                    102
 
 // Next default values for new objects

@@ -30,7 +30,6 @@ USE_BUGSLAYERUTIL - If defined, the class will have another
 // You could include either IMAGEHLP.DLL or DBGHELP.DLL.
 #include "imagehlp.h"
 #include <tchar.h>
-#include "auto_buffer.h"
 
 // Include these in case the user forgets to link against them.
 #pragma comment (lib,"dbghelp.lib")
@@ -157,18 +156,19 @@ public      :
         }
 
         // Got the version size, now get the version information.
-        auto_buffer<TCHAR> lpData(dwVerSize);
+        LPVOID lpData = (LPVOID)new TCHAR [ dwVerSize ] ;
         if ( FALSE == GetFileVersionInfo ( szImageHlp       ,
                                            dwVerInfoHandle  ,
                                            dwVerSize        ,
-                                           lpData.get() ) )
+                                           lpData            ) )
         {
-            return FALSE;
+            delete [] lpData ;
+            return ( FALSE ) ;
         }
 
         VS_FIXEDFILEINFO * lpVerInfo ;
         UINT uiLen ;
-        BOOL bRet = VerQueryValue ( lpData.get()      ,
+        BOOL bRet = VerQueryValue ( lpData              ,
                                      ( "\\" )         ,
                                     (LPVOID*)&lpVerInfo ,
                                     &uiLen               ) ;
@@ -178,7 +178,9 @@ public      :
             dwLS = lpVerInfo->dwFileVersionLS ;
         }
 
-		return bRet;
+        delete [] lpData ;
+
+        return ( bRet ) ;
     }
 
 /*----------------------------------------------------------------------
@@ -275,15 +277,14 @@ public      :
 public      :
 
     BOOL SymEnumerateSymbols (IN DWORD_PTR          BaseOfDll,
-                              IN PSYM_ENUMERATESYMBOLS_CALLBACK
+                              IN PSYM_ENUMSYMBOLS_CALLBACK
                                                     EnumSymbolsCallback,
                               IN PVOID                     UserContext )
     {
-        return ( ::SymEnumSymbols ( m_hProcess          ,
-                                    BaseOfDll           ,
-                                    NULL                ,
-                                    EnumSymbolsCallback ,
-                                    UserContext          ) ) ;
+        return ( ::SymEnumerateSymbols ( m_hProcess          ,
+                                         BaseOfDll           ,
+                                         EnumSymbolsCallback ,
+                                         UserContext          ) ) ;
     }
 
     BOOL SymGetSymFromAddr ( IN  DWORD_PTR           dwAddr          ,

@@ -85,7 +85,7 @@ public:
 	void Stop();
 
 	void CloseWatcherHandles(HDEVNOTIFY hdev);
-	void CloseWatcherHandles(const CTSVNPath& path);
+	void CSVNStatusCache::CloseWatcherHandles(const CTSVNPath& path);
 
 	bool WaitToRead(DWORD waitTime = INFINITE) {return m_rwSection.WaitToRead(waitTime);}
 	bool WaitToWrite(DWORD waitTime = INFINITE) {return m_rwSection.WaitToWrite(waitTime);}
@@ -103,9 +103,6 @@ public:
 	bool IsPathGood(const CTSVNPath& path);
 	bool IsPathWatched(const CTSVNPath& path) {return watcher.IsPathWatched(path);}
 	bool AddPathToWatch(const CTSVNPath& path) {return watcher.AddPath(path);}
-	bool BlockPath(const CTSVNPath& path, DWORD timeout = 0);
-	bool UnBlockPath(const CTSVNPath& path);
-	bool RemoveTimedoutBlocks();
 
 	bool m_bClearMemory;
 private:
@@ -113,10 +110,7 @@ private:
 	CRWSection m_rwSection;
 	CAtlList<CString> m_askedList;
 	CCachedDirectory::CachedDirMap m_directoryCache;
-
-	CComAutoCriticalSection m_NoWatchPathCritSec;
-	std::map<CTSVNPath, DWORD> m_NoWatchPaths;	///< paths to block from getting crawled, and the time in ms until they're unblocked
-
+	std::set<CTSVNPath> m_NoWatchPaths;
 	SVNHelper m_svnHelp;
 	ShellCache	m_shellCache;
 

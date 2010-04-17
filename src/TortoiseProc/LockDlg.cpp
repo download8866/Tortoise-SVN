@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #include "SVNProperties.h"
 #include "SVN.h"
 #include "HistoryDlg.h"
-#include "AppUtils.h"
 
 #define REFRESHTIMER   100
 
@@ -41,7 +40,10 @@ CLockDlg::CLockDlg(CWnd* pParent /*=NULL*/)
 
 CLockDlg::~CLockDlg()
 {
-	delete m_pThread;
+	if(m_pThread != NULL)
+	{
+		delete m_pThread;
+	}
 }
 
 void CLockDlg::DoDataExchange(CDataExchange* pDX)
@@ -68,11 +70,6 @@ BOOL CLockDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_FILELIST);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassControl(this, IDC_STEALLOCKS);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
 	m_History.Load(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
 
@@ -91,9 +88,6 @@ BOOL CLockDlg::OnInitDialog()
 	if (!m_sLockMessage.IsEmpty())
 		m_cEdit.SetText(m_sLockMessage);
 		
-	CAppUtils::SetAccProperty(m_cEdit.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cEdit.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	m_tooltips.Create(this);
 	m_tooltips.AddTool(IDC_LOCKWARNING, IDS_WARN_SVNNEEDSLOCK);
 
@@ -122,7 +116,7 @@ BOOL CLockDlg::OnInitDialog()
 	m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
 	if (m_pThread==NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	else
 	{
@@ -208,7 +202,7 @@ UINT CLockDlg::StatusThread()
 	}
 
 	DWORD dwShow = SVNSLC_SHOWNORMAL | SVNSLC_SHOWMODIFIED | SVNSLC_SHOWMERGED | SVNSLC_SHOWLOCKS;
-	m_cFileList.Show(dwShow, CTSVNPathList(), dwShow, false, true);
+	m_cFileList.Show(dwShow, CTSVNPathList(), dwShow, false);
 
 	RefreshCursor();
 	CString logmsg;
@@ -235,8 +229,16 @@ BOOL CLockDlg::PreTranslateMessage(MSG* pMsg)
 			}
 			break;
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		}
 	}
@@ -249,7 +251,7 @@ void CLockDlg::Refresh()
 	m_bBlock = TRUE;
 	if (AfxBeginThread(StatusThreadEntry, this)==NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 }
 

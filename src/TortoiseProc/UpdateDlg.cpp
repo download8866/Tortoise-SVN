@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007,2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
 #include "registry.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
@@ -33,7 +33,8 @@ CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
 
 CUpdateDlg::~CUpdateDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
@@ -54,9 +55,6 @@ END_MESSAGE_MAP()
 BOOL CUpdateDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_GROUPMIDDLE);
-	m_aeroControls.SubclassOkCancel(this);
 
 	AdjustControlSize(IDC_NEWEST);
 	AdjustControlSize(IDC_REVISION_N);
@@ -89,7 +87,7 @@ void CUpdateDlg::OnOK()
 	}
 	if (!Revision.IsValid())
 	{
-		ShowEditBalloon(IDC_REVNUM, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVNUM, IDS_ERR_INVALIDREV);
 		return;
 	}
 	switch (m_depthCombo.GetCurSel())

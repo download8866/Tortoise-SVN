@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "resource.h"
 #include "StandAloneDlg.h"
-#include "Tooltip.h"
 
 class CBugTraqAssociation;
 
@@ -45,7 +44,6 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedBugTraqbrowse();
 	afx_msg void OnBnClickedHelp();
@@ -61,5 +59,4 @@ protected:
 	CLSID			m_provider_clsid;
 	CString			m_sParameters;
 	CComboBox		m_cProviderCombo;
-	CToolTips		m_tooltips;
 };

@@ -1,6 +1,6 @@
 #
 # Serbian latin translation for TortoiseMerge
-# Copyright (C) 2004-2010 the TortoiseSVN team
+# Copyright (C) 2004-2008 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -15,8 +15,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseMerge Documentation\n"
-"POT-Creation-Date: 2010-03-27 11:38 +0000\n"
-"PO-Revision-Date: 2010-04-03 21:41+0100\n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
+"PO-Revision-Date: 2009-03-10 09:40+0100\n"
 "Last-Translator: Milorad Popović <MiloradSPopovic@gmail.com>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -100,7 +100,7 @@ msgid "TortoiseMerge is free. You don't have to pay for it, you can use it any w
 msgstr "TortoiseMerge je besplatan. Vi ne treba da platite za njega, možete ga koristiti kako god želite. Razvijen je pod GP licencom (GPL)."
 
 #. (para)
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
 msgstr "TortoiseMerge je Otvoren Kod projekat. To znači da imate pun pristup izvornom kodu ovog projekta. Možete ga pretraživati na vezi <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. Pitaće vas da unesete korisnika i lozinku. Korisnik: <literal>guest</literal>, a lozinka mora ostati prazna.  Najskorija verzija (gde mi trenutno radimo) locirana je pod <filename>/trunk/</filename> realizovana verzija je pod <filename>/tags/</filename>."
 
 #. (title)
@@ -201,8 +201,8 @@ msgid "TortoiseMerge's History"
 msgstr "TortoiseMerge istorija"
 
 #. (para)
-msgid "While working on <ulink url=\"http://tortoisesvn.net\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
-msgstr "Radeći na <ulink url=\"http://tortoisesvn.net\"><citetitle>TortoiseSVN</citetitle></ulink> našli smo da smo, kadgod korisnici pošalju zakrpe da poboljšaju projekat ili samo da fiksiraju bagove, imali puno posla samo da primenimo te zakrpe. Mnogo puta ove zakrpe su bile zastarele i nisu se mogle primenite alatom iz komandne linije.<ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> zato što smo radili na tim fajlovima i nekad  već izmenili te fajlove."
+msgid "While working on <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
+msgstr "Radeći na <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> našli smo da smo, kadgod korisnici pošalju zakrpe da poboljšaju projekat ili samo da fiksiraju bagove, imali puno posla samo da primenimo te zakrpe. Mnogo puta ove zakrpe su bile zastarele i nisu se mogle primenite alatom iz komandne linije.<ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> zato što smo radili na tim fajlovima i nekad  već izmenili te fajlove."
 
 #. (para)
 msgid "This was also the main reason why TortoiseSVN did not originally have a <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Create Patch</guimenuitem></menuchoice> implemented: we preferred users to send us the whole files because with those it was easier to apply patches."
@@ -440,21 +440,6 @@ msgid "<guibutton>Switch View</guibutton> selects between one-pane and two-pane 
 msgstr "<guibutton>Prebaci pregled</guibutton> bira između jedan-panel i dva-panela pregleda. Onemogućen u 3-panela pregledu."
 
 #. (para)
-#. (para)
-msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
-msgstr "<guilabel>Poređenje belihpolja</guilabel> prikazuje sve izmene u uvlačenju linija i unutarlinijski razmaci kao dodate/uklonjene linije (kako Subverzija tretira takve izmene)."
-
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr "<guilabel>Zanemarivanje izmena razmaka</guilabel> sakriva izmene  koje su samo zbog izmena u iznosu ili tipu razmaka, npr. izmenom uvlačenja linije ili izmenom tabova u razmake. Dodavanjem razmaka gde nisu bila ranije, ili potpunim uklanjanjem razmaka još uvek je prikazano kao promena."
-
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
-msgstr "<guilabel>Zanemarivanje svih razmaka</guilabel> sakriva sve izmene samo-razmaka."
-
-#. (para)
 msgid "<guibutton>Switch Left and Right View</guibutton> In 2-pane view, swaps the left and right windows. When you are comparing a file in 2 different trees, as opposed to 2 revisions of the same file, TortoiseSVN does not know which one should go in the left pane as the <quote>original/base</quote> version. If it gets this wrong, you can change it to make viewing easier."
 msgstr "<guibutton>Prebaci levi i desni pregled</guibutton> U 2-panela pregledu izmenjuje levi i desni prozor. Kada poredite fajlove u 2 različita stabla, nasuprot od 2 revizije istog fajla, TortoiseSVN ne zna koji treba da ide u levi panel kao <quote>originalna/osnovna</quote> verzija. Ako uzme pogrešnu vi je možete zameniti da napraviti lakši pregled."
 
@@ -463,16 +448,8 @@ msgid "<guibutton>Show/Hide Patch List</guibutton> When TortoiseMerge has a patc
 msgstr "<guibutton>Prikaži/Sakri listu zakrpa</guibutton> Kada TortoiseSVN ima listu zakrpa, ovo dugme vam omogućava da je sakrijete (tako da možete videti oba prozora), ili je prikazati (tako da možete pregledati listu fajlova)."
 
 #. (para)
-msgid "<guilabel>Collapse</guilabel> collapses unchanged regions to a single line, leaving only the changed areas and minimal context. You can expand the collapsed areas by double clicking on the collapse line, but you cannot then re-collapse them unless you reload the file."
-msgstr "<guilabel>Sažimanje</guilabel> sažima  neizmenjene oblasti u jedinstvenu liniju ostavljajući samo izmenjene oblasti i minimalni kontekst. Možete proširiti sažete površine dvostrukim klikom na sažetu liniju, ali je ne možete proširiti bez učitavanja fajla."
-
-#. (para)
 msgid "<guibutton>Settings</guibutton> takes you to TortoiseMerge's settings dialog."
 msgstr "<guibutton>Podešavanje</guibutton> vam donosi TortoiseMerge dijaog podešavanja."
-
-#. (para)
-msgid "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
-msgstr "<guibutton>Pomoć</guibutton> otvara TortoiseMerge fajl pomoćo, svakako."
 
 #. (para)
 msgid "<placeholder-1/> Below the menu bar lies the tool bar. This provides easy access to the most commonly used tools, which are <placeholder-2/>"
@@ -621,6 +598,18 @@ msgstr "<guilabel>Zanemari izmene veličine slova</guilabel> sakriva izmene samo
 #. (para)
 msgid "<guilabel>Colour code in-line changes</guilabel> uses the same scheme as the line diff bar to show the detailed in-line changes within the main display panes. Lines which have been heavily modified will not be shown using this method as the results are simply confusing. In this case the line will be shown as replaced (old line deleted, new line added)."
 msgstr "<guilabel>Kolor kod u-liniji izmene</guilabel> koristi istu šemu kao i linijski diff pult da prikaže detaljne u-liniji promene u okviru panela glavnog displeja. Linije koje su teško izmenjene neće biti prikazane korišćenjem ove metode što je  rezultat jednostavne konfuzije.U ovom slučaju linije će biti prikazane kao zamenjene (stara linija izbrisana, nova linija dodata)."
+
+#. (para)
+msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
+msgstr "<guilabel>Poređenje belihpolja</guilabel> prikazuje sve izmene u uvlačenju linija i unutarlinijski razmaci kao dodate/uklonjene linije (kako Subverzija tretira takve izmene)."
+
+#. (para)
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgstr "<guilabel>Zanemarivanje izmena razmaka</guilabel> sakriva izmene  koje su samo zbog izmena u iznosu ili tipu razmaka, npr. izmenom uvlačenja linije ili izmenom tabova u razmake. Dodavanjem razmaka gde nisu bila ranije, ili potpunim uklanjanjem razmaka još uvek je prikazano kao promena."
+
+#. (para)
+msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
+msgstr "<guilabel>Zanemarivanje svih razmaka</guilabel> sakriva sve izmene samo-razmaka."
 
 #. (title)
 msgid "Colour Settings Page"
@@ -999,10 +988,6 @@ msgstr "/createunifieddiff"
 #. (entry)
 msgid "Creates a unified diff file (patch file) of two files specified with <placeholder-1/> and <placeholder-2/>. The target path is set with <placeholder-3/>. If <placeholder-4/> is not set, a file save dialog is shown so the user can choose the location to save the patch file. Note: If <placeholder-5/> is set, all other parameters are ignored."
 msgstr "Kreira ujedinjen raz fajl (fajl zakrpa) od dva fajla specificiranih sa <placeholder-1/> i <placeholder-2/>. Cilj putanja je podešena sa <placeholder-3/>. Ako <placeholder-4/> nije podešen fajl sačuvaj dijalog je prikazan tako da korisnik može izabrati lokaciju da se sačuva fajl zakrpa. Beleška: Ako <placeholder-5/> je podešen svi drugi parametri se zanemaruju."
-
-#. (entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr "Specificira broj linije na koju skočiti posle unošenja fajlova."
 
 #. (para)
 msgid ""

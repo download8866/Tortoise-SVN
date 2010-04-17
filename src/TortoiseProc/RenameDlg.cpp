@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "TSVNPath.h"
 #include "RenameDlg.h"
 #include ".\renamedlg.h"
-#include "ControlsBridge.h"
 
 
 IMPLEMENT_DYNAMIC(CRenameDlg, CResizableStandAloneDialog)
@@ -52,9 +51,6 @@ BOOL CRenameDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_DWM);
-	m_aeroControls.SubclassOkCancel(this);
-
 	SHAutoComplete(GetDlgItem(IDC_NAME)->m_hWnd, SHACF_DEFAULT);
 
 	if (!m_windowtitle.IsEmpty())
@@ -63,11 +59,8 @@ BOOL CRenameDlg::OnInitDialog()
 		SetDlgItemText(IDC_LABEL, m_label);
 	AddAnchor(IDC_LABEL, TOP_LEFT);
 	AddAnchor(IDC_NAME, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_DWM, TOP_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-
-	CControlsBridge::AlignHorizontally(this, IDC_LABEL, IDC_NAME);
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
 	EnableSaveRestore(_T("RenameDlg"));

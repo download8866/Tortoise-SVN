@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,8 +41,6 @@
 #include "Commands\Command.h"
 #include "..\version.h"
 #include "JumpListHelpers.h"
-#include "CmdUrlParser.h"
-#include "auto_buffer.h"
 
 #define APPID (_T("TSVN.TSVN.1") _T(TSVN_PLATFORM))
 
@@ -106,11 +104,70 @@ HWND hWndExplorer;
 CString sOrigCWD;
 
 CCrashReport crasher("tortoisesvn@gmail.com", "Crash Report for TortoiseSVN " APP_X64_STRING " : " STRPRODUCTVER, TRUE);// crash
+
 // CTortoiseProcApp initialization
+
 BOOL CTortoiseProcApp::InitInstance()
 {
-	CAppUtils::SetupDiffScripts(false, CString());
-	InitializeJumpList();
+	// for Win7 : use a custom jump list
+	{
+		CoInitialize(NULL);
+
+		SetAppID(APPID);
+		DeleteJumpList(APPID);
+		ICustomDestinationList *pcdl;
+		HRESULT hr = CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pcdl));
+		if (SUCCEEDED(hr))
+		{
+			hr = pcdl->SetAppID(APPID);
+			if (SUCCEEDED(hr))
+			{
+				UINT uMaxSlots;
+				IObjectArray *poaRemoved;
+				hr = pcdl->BeginList(&uMaxSlots, IID_PPV_ARGS(&poaRemoved));
+				if (SUCCEEDED(hr))
+				{
+					IObjectCollection *poc;
+					hr = CoCreateInstance(CLSID_EnumerableObjectCollection, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&poc));
+					if (SUCCEEDED(hr))
+					{
+						IShellLink *psl;
+						CString sTemp = CString(MAKEINTRESOURCE(IDS_MENUSETTINGS));
+						CStringUtils::RemoveAccelerators(sTemp);
+						hr = CreateShellLink(_T("/command:settings"), (LPCTSTR)sTemp, 19, &psl);
+						if (SUCCEEDED(hr))
+						{
+							poc->AddObject(psl);
+							psl->Release();
+						}
+						sTemp = CString(MAKEINTRESOURCE(IDS_MENUHELP));
+						CStringUtils::RemoveAccelerators(sTemp);
+						hr = CreateShellLink(_T("/command:help"), (LPCTSTR)sTemp, 18, &psl);
+						if (SUCCEEDED(hr))
+						{
+							poc->AddObject(psl);
+							psl->Release();
+						}
+
+						IObjectArray *poa;
+						hr = poc->QueryInterface(IID_PPV_ARGS(&poa));
+						if (SUCCEEDED(hr))
+						{
+							pcdl->AppendCategory((LPCTSTR)CString(MAKEINTRESOURCE(IDS_PROC_TASKS)), poa);
+							poa->Release();
+						}
+						poc->Release();
+					}				
+					if (SUCCEEDED(hr))
+					{
+						pcdl->CommitList();
+					}
+					poaRemoved->Release();
+				}
+			}
+		}
+		CoUninitialize();
+	}
 	svn_error_set_malfunction_handler(svn_error_handle_malfunction);
 	CheckUpgrade();
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
@@ -231,18 +288,6 @@ BOOL CTortoiseProcApp::InitInstance()
 	if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==TRUE)
 		AfxMessageBox(AfxGetApp()->m_lpCmdLine, MB_OK | MB_ICONINFORMATION);
 
-	if ( parser.HasVal(_T("urlcmd")) )
-	{
-		CmdUrlParser p(parser.GetVal(_T("urlcmd")));
-		CString newCmdLine = p.GetCommandLine();
-		if (newCmdLine.IsEmpty())
-		{
-			CMessageBox::Show(NULL, IDS_ERR_INVALIDPATH, IDS_APPNAME, MB_ICONERROR);
-			return FALSE;
-		}
-		CCmdLineParser p2(newCmdLine);
-		parser = p2;
-	}
 	if ( parser.HasKey(_T("path")) && parser.HasKey(_T("pathfile")))
 	{
 		CMessageBox::Show(NULL, IDS_ERR_INVALIDPATH, IDS_APPNAME, MB_ICONERROR);
@@ -254,11 +299,6 @@ BOOL CTortoiseProcApp::InitInstance()
 	if ( parser.HasKey(_T("pathfile")) )
 	{
 		CString sPathfileArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("pathfile")));
-		if (sPathfileArgument.IsEmpty())
-		{
-			CMessageBox::Show(hWndExplorer, IDS_ERR_NOPATH, IDS_APPNAME, MB_ICONERROR);
-			return FALSE;
-		}
 		cmdLinePath.SetFromUnknown(sPathfileArgument);
 		if (pathList.LoadFromFile(cmdLinePath)==false)
 			return FALSE;		// no path specified!
@@ -299,12 +339,13 @@ BOOL CTortoiseProcApp::InitInstance()
 		DWORD len = GetCurrentDirectory(0, NULL);
 		if (len)
 		{
-			auto_buffer<TCHAR> originalCurrentDirectory(len);
+			TCHAR * originalCurrentDirectory = new TCHAR[len];
 			if (GetCurrentDirectory(len, originalCurrentDirectory))
 			{
 				sOrigCWD = originalCurrentDirectory;
 				sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
 			}
+			delete [] originalCurrentDirectory;
 		}
 		TCHAR pathbuf[MAX_PATH];
 		GetTempPath(MAX_PATH, pathbuf);
@@ -312,7 +353,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	}
 
 	// check for newer versions
-	if (CRegDWORD(_T("Software\\TortoiseSVN\\VersionCheck"), TRUE) != FALSE)
+	if (CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewer"), TRUE) != FALSE)
 	{
 		time_t now;
 		struct tm ptm;
@@ -321,16 +362,6 @@ BOOL CTortoiseProcApp::InitInstance()
 		if ((now != 0) && (localtime_s(&ptm, &now)==0))
 		{
 			int week = 0;
-
-			DWORD count = MAX_PATH;
-			TCHAR username[MAX_PATH] = {0};
-			GetUserName(username, &count);
-			// add a user specific diff to the current day count
-			// so that the update check triggers for different users
-			// at different days. This way we can 'spread' the update hits
-			// to our website a little bit
-			ptm.tm_yday += (username[0] % 7);
-
 			// we don't calculate the real 'week of the year' here
 			// because just to decide if we should check for an update
 			// that's not needed.
@@ -407,11 +438,11 @@ BOOL CTortoiseProcApp::InitInstance()
 	// apps might still be needing the recent ones.
 	{
 		DWORD len = ::GetTempPath(0, NULL);
-		auto_buffer<TCHAR> path(len + 100);
+		TCHAR * path = new TCHAR[len + 100];
 		len = ::GetTempPath (len+100, path);
 		if (len != 0)
 		{
-			CSimpleFileFind finder = CSimpleFileFind(path.get(), _T("*svn*.*"));
+			CSimpleFileFind finder = CSimpleFileFind(path, _T("*svn*.*"));
 			FILETIME systime_;
 			::GetSystemTimeAsFileTime(&systime_);
 			__int64 systime = (((_int64)systime_.dwHighDateTime)<<32) | ((__int64)systime_.dwLowDateTime);
@@ -437,6 +468,7 @@ BOOL CTortoiseProcApp::InitInstance()
 				}
 			}
 		}	
+		delete[] path;		
 	}
 
 
@@ -444,6 +476,8 @@ BOOL CTortoiseProcApp::InitInstance()
 	// application, rather than start the application's message pump.
 	return FALSE;
 }
+
+
 
 void CTortoiseProcApp::CheckUpgrade()
 {
@@ -502,69 +536,53 @@ void CTortoiseProcApp::CheckUpgrade()
 		CRegStdDWORD(_T("Software\\TortoiseSVN\\OwnerdrawnMenus")).removeValue();
 	}
 	
-	CAppUtils::SetupDiffScripts(false, CString());
+	// set the custom diff scripts for every user
+	CString scriptsdir = CPathUtils::GetAppParentDirectory();
+	scriptsdir += _T("Diff-Scripts");
+	CSimpleFileFind files(scriptsdir);
+	while (files.FindNextFileNoDirectories())
+	{
+		CString file = files.GetFilePath();
+		CString filename = files.GetFileName();
+		CString ext = file.Mid(file.ReverseFind('-')+1);
+		ext = _T(".")+ext.Left(ext.ReverseFind('.'));
+		CString kind;
+		if (file.Right(3).CompareNoCase(_T("vbs"))==0)
+		{
+			kind = _T(" //E:vbscript");
+		}
+		if (file.Right(2).CompareNoCase(_T("js"))==0)
+		{
+			kind = _T(" //E:javascript");
+		}
+		
+		if (filename.Left(5).CompareNoCase(_T("diff-"))==0)
+		{
+			CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\DiffTools\\")+ext);
+			CString diffregstring = diffreg;
+			if ((diffregstring.IsEmpty()) || (diffregstring.Find(filename)>=0))
+				diffreg = _T("wscript.exe \"") + file + _T("\" %base %mine") + kind;
+		}
+		if (filename.Left(6).CompareNoCase(_T("merge-"))==0)
+		{
+			CRegString diffreg = CRegString(_T("Software\\TortoiseSVN\\MergeTools\\")+ext);
+			CString diffregstring = diffreg;
+			if ((diffregstring.IsEmpty()) || (diffregstring.Find(filename)>=0))
+				diffreg = _T("wscript.exe \"") + file + _T("\" %merged %theirs %mine %base") + kind;
+		}
+	}
+
+	// Initialize "Software\\TortoiseSVN\\DiffProps" once with the same value as "Software\\TortoiseSVN\\Diff"
+	CRegString regDiffPropsPath = CRegString(_T("Software\\TortoiseSVN\\DiffProps"),_T("non-existant"));
+	CString strDiffPropsPath = regDiffPropsPath;
+	if ( strDiffPropsPath==_T("non-existant") )
+	{
+		CString strDiffPath = CRegString(_T("Software\\TortoiseSVN\\Diff"));
+		regDiffPropsPath = strDiffPath;
+	}
 
 	// set the current version so we don't come here again until the next update!
 	regVersion = _T(STRPRODUCTVER);	
-}
-
-void CTortoiseProcApp::InitializeJumpList()
-{
-	// for Win7 : use a custom jump list
-	CoInitialize(NULL);
-	SetAppID(APPID);
-	DeleteJumpList(APPID);
-	DoInitializeJumpList();	
-	CoUninitialize();
-}
-
-void CTortoiseProcApp::DoInitializeJumpList()
-{
-	ATL::CComPtr<ICustomDestinationList> pcdl;
-	HRESULT hr = pcdl.CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER);
-	if (FAILED(hr))
-		return;
-
-	hr = pcdl->SetAppID(APPID);
-	if (FAILED(hr))
-		return;
-
-	UINT uMaxSlots;
-	ATL::CComPtr<IObjectArray> poaRemoved;
-	hr = pcdl->BeginList(&uMaxSlots, IID_PPV_ARGS(&poaRemoved));
-	if (FAILED(hr))
-		return;
-
-	ATL::CComPtr<IObjectCollection> poc;
-	hr = poc.CoCreateInstance(CLSID_EnumerableObjectCollection, NULL, CLSCTX_INPROC_SERVER);
-	if (FAILED(hr))
-		return;
-
-	CString sTemp = CString(MAKEINTRESOURCE(IDS_MENUSETTINGS));
-	CStringUtils::RemoveAccelerators(sTemp);
-
-	ATL::CComPtr<IShellLink> psl;
-	hr = CreateShellLink(_T("/command:settings"), (LPCTSTR)sTemp, 19, &psl);
-	if (SUCCEEDED(hr))
-	{
-		poc->AddObject(psl);
-	}
-	sTemp = CString(MAKEINTRESOURCE(IDS_MENUHELP));
-	CStringUtils::RemoveAccelerators(sTemp);
-	psl.Release(); // Need to release the object before calling operator&()
-	hr = CreateShellLink(_T("/command:help"), (LPCTSTR)sTemp, 18, &psl);
-	if (SUCCEEDED(hr))
-	{
-		poc->AddObject(psl);
-	}
-
-	ATL::CComPtr<IObjectArray> poa;
-	hr = poc.QueryInterface(&poa);
-	if (SUCCEEDED(hr))
-	{
-		pcdl->AppendCategory((LPCTSTR)CString(MAKEINTRESOURCE(IDS_PROC_TASKS)), poa);
-		pcdl->CommitList();
-	}
 }
 
 int CTortoiseProcApp::ExitInstance()

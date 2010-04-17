@@ -24,7 +24,7 @@
 	</bookinfo>
 	<!-- include external files -->
 	<xi:include href="./tsvn_preface.xml"/>
-	<xi:include href="./tsvn_quick_start.xml"/>
+	<xi:include href="./tsvn_introduction.xml"/>
 	<xi:include href="./tsvn_basics.xml"/>
 	<xi:include href="./tsvn_repository/repository.xml"/>
 	<xi:include href="./tsvn_dug/dug.xml"/>
@@ -37,7 +37,6 @@
 	<xi:include href="./tsvn_app_cli.xml"/>
 	<xi:include href="./tsvn_app_internals.xml"/>
 	<xi:include href="./tsvn_app_ssh.xml"/>
-	<xi:include href="./tsvn_app_lang.xml"/>
 	<xi:include href="../glossary.xml"/>
 	<index id="tsvn-index"/>
 </book>

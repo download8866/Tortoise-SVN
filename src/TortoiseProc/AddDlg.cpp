@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,10 +58,6 @@ BOOL CAddDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_ADDLIST, IDC_ADDLIST, IDC_ADDLIST, IDC_ADDLIST);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	// initialize the svn status list control
 	m_addListCtrl.Init(SVNSLC_COLEXT, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCHANGELISTS|SVNSLC_POPCREATEPATCH)); // adding and committing is useless in the add dialog
 	m_addListCtrl.SetIgnoreRemoveOnly();	// when ignoring, don't add the parent folder since we're in the add dialog
@@ -88,7 +84,7 @@ BOOL CAddDlg::OnInitDialog()
 	//blocking the dialog
 	if(AfxBeginThread(AddThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
@@ -146,7 +142,7 @@ UINT CAddDlg::AddThread()
 		m_addListCtrl.SetEmptyString(m_addListCtrl.GetLastErrorMessage());
 	}
 	m_addListCtrl.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT, CTSVNPathList(), 
-						SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT, true, true);
+						SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWREMOVEDANDPRESENT);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;
@@ -164,8 +160,16 @@ BOOL CAddDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		case VK_F5:
 			{
@@ -173,7 +177,7 @@ BOOL CAddDlg::PreTranslateMessage(MSG* pMsg)
 				{
 					if(AfxBeginThread(AddThreadEntry, this) == NULL)
 					{
-						OnCantStartThread();
+						CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 					}
 					else
 						InterlockedExchange(&m_bThreadRunning, TRUE);
@@ -190,7 +194,7 @@ LRESULT CAddDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	if(AfxBeginThread(AddThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
 }

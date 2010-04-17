@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,7 +60,6 @@ private:
 	CButton				m_SelectAll;
 	bool				m_bCancelled;
 	BOOL				m_bShowUnversioned;
-
 public:
 	/// the list of files to include in the patch
 	CTSVNPathList		m_pathList;

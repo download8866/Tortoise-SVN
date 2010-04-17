@@ -1,6 +1,6 @@
 #
 # Slovak translation for TortoiseSVN
-# Copyright (C) 2004-2010 the TortoiseSVN team
+# Copyright (C) 2004-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -29,7 +29,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2010-01-25 09:28+0100\n"
+"PO-Revision-Date: 2010-02-23 14:25+0100\n"
 "Last-Translator: Oto BREZINA <translator@e-posta.sk>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -90,56 +90,6 @@ msgstr "%1 má zlý formát."
 msgid "%1 was not found."
 msgstr "%1 nebol nájdený."
 
-#. Resource IDs: (169)
-#, c-format
-msgid "%1!d! files selected, %2!d! files total"
-msgstr "Vybraných %1!d! súborov, celkom %2!d! súborov"
-
-#. Resource IDs: (246)
-#, c-format
-msgid "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
-msgstr "%1!d! najaktívnejších autorov s aspoň %2!d! odovzdaní každých %3!d! %%)"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!ld! minute(s) and %2!ld! second(s)"
-msgstr "%1!ld! min %2!ld! s"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "%1!s! (offline) - %2!s!"
-msgstr "%1!s! (odpojené) - %2!s!"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! - at revision: %2!d!"
-msgstr "%1!s! - na revízii: %2!d!"
-
-#. Resource IDs: (151)
-#, c-format
-msgid "%1!s! : Working Base, Revision %2!ld!"
-msgstr "%1!s! : Pracovný základ, Revízia %2!ld!"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! in %2!s!"
-msgstr "%1!s! v %2!s!"
-
-#. Resource IDs: (357)
-#, c-format
-msgid "%1!s!, at %2!s!"
-msgstr "%1!s!. Rýchlosť: %2!s!"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export"
-msgstr "%1!s!\\%2!s! - Export"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export (%3!d!)"
-msgstr "%1!s!\\%2!s! - Export (%3!d!)"
-
 #. Resource IDs: (3860)
 #, c-format
 msgid ""
@@ -167,13 +117,28 @@ msgstr "Prenesené dáta: %I64d B"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d Bytes/s"
-msgstr "%I64d B/s"
+msgid "%I64d kBytes transferred"
+msgstr "Prenesené dáta: %I64d kB"
+
+#. Resource IDs: (169)
+#, c-format
+msgid "%d files selected, %d files total"
+msgstr "%d vybraných súborov, %d súborov celkom"
+
+#. Resource IDs: (246)
+#, c-format
+msgid "%d most active author(s) with at least %d commits each (%d %%)"
+msgstr "%d najaktívnejších autorov s aspoň %d odovzdaní každých (%d %%)"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d kBytes transferred"
-msgstr "Prenesené dáta: %I64d kB"
+msgid "%ld Bytes/s"
+msgstr "%ld B/s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%ld minute(s) and %ld second(s)"
+msgstr "%ld min %ld s"
 
 #. Resource IDs: (7)
 #, c-format
@@ -193,7 +158,17 @@ msgstr "%s"
 #. Resource IDs: (93)
 #, c-format
 msgid "%s (offline)"
-msgstr "%s (odpojené)"
+msgstr "%s (offline)"
+
+#. Resource IDs: (115)
+#, c-format
+msgid "%s (offline) - %s"
+msgstr "%s (offline) - %s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%s - at revision: %d"
+msgstr "%s - na revízii: %d"
 
 #. Resource IDs: (151)
 #, c-format
@@ -207,8 +182,23 @@ msgstr "%s : Pracovný základ"
 
 #. Resource IDs: (151)
 #, c-format
+msgid "%s : Working Base, Revision %ld"
+msgstr "%s : Pracovný základ, Revízia %ld"
+
+#. Resource IDs: (151)
+#, c-format
 msgid "%s : Working Copy"
 msgstr "%s : Pracovná kópia"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%s in %s"
+msgstr "%s v %s"
+
+#. Resource IDs: (357)
+#, c-format
+msgid "%s, at %s"
+msgstr "%s. Rýchlosť: %s"
 
 #. Resource IDs: (609)
 #, c-format
@@ -240,6 +230,16 @@ msgstr "%s, ale už bol miestne zmazaný, presunutý, alebo zmazaný."
 msgid "%s, but it was obstructed in the working copy."
 msgstr "%s, ale bol zahatený v pracovnej kópií."
 
+#. Resource IDs: (145)
+#, c-format
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Export (%d) z %s"
+
+#. Resource IDs: (145)
+#, c-format
+msgid "%s\\Export of %s"
+msgstr "%s\\Export %s"
+
 #. Resource IDs: (3850)
 #, c-format
 msgid ""
@@ -257,19 +257,6 @@ msgid ""
 msgstr ""
 "%s\n"
 "Chcete napriek tomu odstrániť?"
-
-#. Resource IDs: (616)
-#, c-format
-msgid ""
-"%s\n"
-"\n"
-"Shall I update the working copy now\n"
-"and reopen the commit dialog?"
-msgstr ""
-"%s\n"
-"\n"
-"Mám aktualizovať pracovnú kópiu\n"
-"a otvoriť dialóg odovzdávania?"
 
 #. Resource IDs: (69)
 #, c-format
@@ -321,7 +308,7 @@ msgstr "Prid&ať"
 
 #. Resource IDs: (1090, 1093)
 msgid "&Advanced..."
-msgstr "&Pokročilé..."
+msgstr "&Rozšírené..."
 
 #. Resource IDs: (1471)
 msgid "&Allow ambiguous URLs"
@@ -405,7 +392,7 @@ msgstr "&Vzhľad tlačidiel..."
 
 #. Resource IDs: (65535)
 msgid "&Button text:"
-msgstr "&Popis tlačídla:"
+msgstr "&Popis tlačítka:"
 
 #. Resource IDs: (1051)
 msgid "&CD-ROM"
@@ -481,7 +468,7 @@ msgstr "&Kopírovať"
 
 #. Resource IDs: (16911)
 msgid "&Copy Button Image"
-msgstr "&Kopírovať obrázok tlačidla"
+msgstr "&Kopírovať obrázok tlačítka"
 
 #. Resource IDs: (32776)
 msgid "&Copy log message to clipboard"
@@ -515,10 +502,6 @@ msgstr "&Vymazať"
 msgid "&Delete (keep local)"
 msgstr "&Odstrániť (zachovať lokálne)"
 
-#. Resource IDs: (1514)
-msgid "&Delete unversioned items..."
-msgstr "&Vymazať neverziované objekty..."
-
 #. Resource IDs: (101)
 msgid "&Delete..."
 msgstr "&Vymazať"
@@ -535,10 +518,6 @@ msgstr "&Porovnať s URL"
 msgid "&Diff with previous version"
 msgstr "&Porovnať s predchádzajúcou verziou."
 
-#. Resource IDs: (1528)
-msgid "&Directories"
-msgstr "&Adresáre"
-
 #. Resource IDs: (1066)
 msgid "&Docking"
 msgstr "&Zachytávanie"
@@ -546,10 +525,6 @@ msgstr "&Zachytávanie"
 #. Resource IDs: (1031, 65535)
 msgid "&Edit"
 msgstr "&Upraviť"
-
-#. Resource IDs: (1399)
-msgid "&Edit conflict"
-msgstr "&Upraviť konflikt"
 
 #. Resource IDs: (12)
 msgid "&Edit conflicts"
@@ -587,10 +562,6 @@ msgstr "&Externé"
 #. Resource IDs: (65535)
 msgid "&File"
 msgstr "&Súbor"
-
-#. Resource IDs: (1529)
-msgid "&Files"
-msgstr "&Súbory"
 
 #. Resource IDs: (32809)
 msgid "&Filter"
@@ -635,10 +606,6 @@ msgstr "&Z Prac. na URL:"
 #. Resource IDs: (65535)
 msgid "&From revision"
 msgstr "&Z revízie"
-
-#. Resource IDs: (1494)
-msgid "&From: (start URL and revision of the range to merge)"
-msgstr "&Od: (prvá URL adresa, prvá revízia rozsahu k zlúčeniu)"
 
 #. Resource IDs: (32779)
 msgid "&Go To Line..."
@@ -729,7 +696,7 @@ msgstr "&Spojiť s podstromom"
 
 #. Resource IDs: (1016)
 msgid "&Jump to first difference when loading"
-msgstr "Po načítaní skoč na prvý &rozdiel"
+msgstr "Po načítaní &skoč na prvý rozdiel"
 
 #. Resource IDs: (65535)
 msgid "&Language:"
@@ -897,10 +864,6 @@ msgstr "&Náhľad pred tlačou"
 msgid "&Print..."
 msgstr "&Tlačiť..."
 
-#. Resource IDs: (1265)
-msgid "&Properties"
-msgstr "&Vlastnosti"
-
 #. Resource IDs: (11021)
 msgid "&Properties..."
 msgstr "&Vlastnosti..."
@@ -1013,10 +976,6 @@ msgstr "&Nastavenia"
 msgid "&Show HEAD revisions"
 msgstr "&Zobraziť hlavné revízie"
 
-#. Resource IDs: (1132)
-msgid "&Show Log"
-msgstr "Zobraziť &denník"
-
 #. Resource IDs: (65535)
 msgid "&Show Menus for:"
 msgstr "&Zobraziť ponuku pre:"
@@ -1104,10 +1063,6 @@ msgstr "&Na URL:"
 #. Resource IDs: (1305)
 msgid "&To URL: "
 msgstr "&Na URL: "
-
-#. Resource IDs: (1495)
-msgid "&To: (end URL and revision of the range to merge)"
-msgstr "&Po: (posledná URL a adresa rozsahu zlučovania)"
 
 #. Resource IDs: (59392)
 msgid "&Toolbar"
@@ -1205,22 +1160,14 @@ msgstr "&Windows XP"
 msgid "&Working copy"
 msgstr "&Pracovná kópia"
 
-#. Resource IDs: (1540)
-msgid "&file list control"
-msgstr "ovládanie &zoznamu súborov"
-
 #. Resource IDs: (338)
 msgid "'skip ranges' are used to mark revision ranges that have not been cached yet"
 msgstr "'skip ranges' je použitý na označenie rozsahov revízií, ktoré ešte nie sú v zásobníku"
 
 #. Resource IDs: (272)
 #, c-format
-msgid "(%1!s!) %2!s!"
-msgstr "(%1!s!) %2!s!"
-
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Dvojklik na vymazanie chybových správ)"
+msgid "(%s) %s"
+msgstr "(%s) %s"
 
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
@@ -1230,10 +1177,6 @@ msgstr "(binárna hodnota)"
 msgid "(copy)"
 msgstr "(kópia)"
 
-#. Resource IDs: (277)
-msgid "(create branch)"
-msgstr "(vytvorenie vetvy)"
-
 #. Resource IDs: (276)
 msgid "(created)"
 msgstr "(vytvorené)"
@@ -1242,11 +1185,6 @@ msgstr "(vytvorené)"
 #. Resource IDs: (276)
 msgid "(delete)"
 msgstr "(vymazanie)"
-
-# externých
-#. Resource IDs: (214)
-msgid "(externals)"
-msgstr "(externé)"
 
 # zmenený
 #. Resource IDs: (276)
@@ -1274,11 +1212,6 @@ msgstr "(nie je číslo riadku)"
 msgid "(no modification but copy created from here)"
 msgstr "(vytvorená kópia bez zmeny)"
 
-#. Resource IDs: (278)
-#, fuzzy
-msgid "(no modification but relevant for working copy)"
-msgstr "(žiadna zmena, ale dôležité pre pracovnú kópiu)"
-
 #. Resource IDs: (214)
 msgid "(no value)"
 msgstr "(bez hodnoty)"
@@ -1286,6 +1219,10 @@ msgstr "(bez hodnoty)"
 #. Resource IDs: (314)
 msgid "(not found)"
 msgstr "(nenájdené)"
+
+#. Resource IDs: (277)
+msgid "(open branch)"
+msgstr "(otvorenie vetvy)"
 
 #. Resource IDs: (208)
 msgid "(property change only)"
@@ -1375,7 +1312,7 @@ msgid ""
 msgstr ""
 "<b>TortoiseSVN</b> je rozšírenie 'šelu'.\n"
 "To znamená, že je integrovaný do Windows Explorer-a.\n"
-"Aby ste použili <b>TortoiseSVN</b> otvorte prosím Explorer a vyberte pravým tlačídlom myši adresár.\n"
+"Aby ste použili <b>TortoiseSVN</b> otvorte prosím Explorer a vyberte pravým tlačítkom myši adresár.\n"
 "V kontextovej ponuke nájdete všetky príkazy <b>TortoiseSVN</b>.\n"
 "A <u>prečítajte si manuál!</u>"
 
@@ -1400,12 +1337,8 @@ msgid "A list of user defined properties for folders to show in the combo box"
 msgstr "Zoznam užívateľských vlastností adresárov v rolovacích ponukách"
 
 #. Resource IDs: (201)
-msgid ""
-"A newer version is available.\r\n"
-"Please go to http://tortoisesvn.tigris.org and download the current version."
-msgstr ""
-"Je prístupná nová verzia.\r\n"
-"Prosím navštívte http://tortoisesvn.tigris.org a stiahnite si aktuálnu verziu."
+msgid "A newer version is available. Please go to http://tortoisesvn.tigris.org and download the current version! Click _here_ to go directly to our website."
+msgstr "Je prístupná nová verzia. Prosím navštívte http://tortoisesvn.tigris.org a stiahnite si aktuálnu verziu! Kliknutím _sem_ sa dostanete priamo na našu stránku."
 
 #. Resource IDs: (195)
 msgid ""
@@ -1447,6 +1380,10 @@ msgstr ""
 "Prehliadač súborov 'GNU diff' (súborov záplat).\r\n"
 "Ak žiadny nemáte bude použité: Poznámkový blok (notepad)."
 
+#. Resource IDs: (9)
+msgid "A&bout"
+msgstr "&O programe"
+
 #. Resource IDs: (101)
 msgid "A&dd folder..."
 msgstr "Pridaj &adresár..."
@@ -1458,10 +1395,6 @@ msgstr "Zrušiť"
 #. Resource IDs: (1465)
 msgid "Abort &Merge"
 msgstr "Prerušiť &zlučovanie"
-
-#. Resource IDs: (9)
-msgid "About"
-msgstr "O programe"
 
 #. Resource IDs: (136)
 msgid "About TortoiseMerge"
@@ -1546,10 +1479,6 @@ msgstr "Pridať porovnávací program pre príponu"
 msgid "Add extension specific merge program"
 msgstr "Upraviť zlučovací program pre príponu"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Automaticky pridať nové súbory do SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Napriek tomu objekt pridať"
@@ -1630,21 +1559,17 @@ msgstr ""
 "Zmeniť nastavenia\n"
 "Nastavenia"
 
-#. Resource IDs: (307)
-msgid "Advanced"
-msgstr "Pokročilé"
-
 #. Resource IDs: (170)
 msgid "Advanced Diff/Merge Settings"
-msgstr "Pokročilé nastavenia pre rozdiely/zlúčenie"
+msgstr "Rozšírené nastavenia rozdiely/zlúčenie"
 
 #. Resource IDs: (110)
 msgid "Advanced diff settings"
-msgstr "Pokročilé nastavenia porovnávania"
+msgstr "Rozšírené nastavenia porovnávania"
 
 #. Resource IDs: (110)
 msgid "Advanced merge settings"
-msgstr "Pokročilé nastavenia zlučovania"
+msgstr "Rozšírené nastavenia zlučovania"
 
 #. Resource IDs: (65535)
 msgid "Age"
@@ -1653,10 +1578,6 @@ msgstr "Vek"
 #. Resource IDs: (32822)
 msgid "Align trees on top"
 msgstr "Zarovnať stromy na vrch"
-
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Všetko"
 
 #. Resource IDs: (1007)
 msgid "All Commands"
@@ -1699,15 +1620,6 @@ msgstr "Povoliť pre rozdielne úložiská použiť rovnakú URL, napr. http://l
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Povoliť rozdielnym úložiskám použiť rovnaké UUID, napr. kopírované úložiská"
-
-# zlúčených
-#. Resource IDs: (119)
-msgid "Already merged"
-msgstr "Už zlúčené"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Vždy zavrieť po miestnych úkonoch"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1911,6 +1823,10 @@ msgid "Auto Rename"
 msgstr "Automaticky premenovať"
 
 #. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Automaticky zavrieť po miestnych úkonoch"
+
+#. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
 msgstr "Automaticky zavrieť, keď nie sú konflikty"
 
@@ -1935,9 +1851,9 @@ msgstr ""
 msgid "Automatic"
 msgstr "Automatika"
 
-#. Resource IDs: (306)
-msgid "Autotext Tester"
-msgstr "Tester autotextov"
+#. Resource IDs: (1073)
+msgid "Automatically check for &newer versions every week"
+msgstr "Každý týždeň automaticky kontrolovať &nové verzie"
 
 #. Resource IDs: (1157)
 msgid "Average"
@@ -2037,8 +1953,8 @@ msgid "Bug-ID"
 msgstr "ID Chyby"
 
 #. Resource IDs: (1119)
-msgid "Bug-ID / &Issue-Nr:"
-msgstr "&ID Chyby / č. prípadu:"
+msgid "Bug-ID / Issue-Nr:"
+msgstr "ID Chyby / č. prípadu:"
 
 #. Resource IDs: (117)
 msgid "Bug-IDs"
@@ -2108,14 +2024,14 @@ msgstr "Nemožno aktivovať statický objekt ActiveX."
 #, c-format
 msgid ""
 "Can't copy \n"
-"%1!s!\n"
+"%s\n"
 "to\n"
-"%2!s!"
+"%s"
 msgstr ""
-"Nemožno kopírovať\n"
-"%1!s!\n"
+"Nemožno kopírovať \n"
+"%s\n"
 "do\n"
-"%2!s!"
+"%s"
 
 #. Resource IDs: (1001)
 msgid "Can't copy bitmap image into the clipboard!"
@@ -2157,10 +2073,6 @@ msgstr "Kaskáda"
 msgid "Cascaded context menu"
 msgstr "Kaskádová kontextová ponuka"
 
-#. Resource IDs: (117)
-msgid "Case-sensitive"
-msgstr "Rozlišovať veľkosť písmen"
-
 #. Resource IDs: (65535)
 msgid "Cate&gories:"
 msgstr "Kate&górie:"
@@ -2197,8 +2109,8 @@ msgstr "Zmenené súbory"
 
 #. Resource IDs: (324)
 #, c-format
-msgid "Changed files between %1!s!, %2!s! and %3!s!, %4!s!"
-msgstr "Rozdiely medzi %1!s!, %2!s! a %3!s!, %4!s!"
+msgid "Changed files between %s, %s and %s, %s"
+msgstr "Rozdiely medzi %s, %s a %s, %s"
 
 #. Resource IDs: (163)
 #, c-format
@@ -2247,10 +2159,6 @@ msgstr "Skontrolovať &zmeny"
 msgid "Check for modifications"
 msgstr "Skontrolovať zmeny"
 
-#. Resource IDs: (65535)
-msgid "Check for updates"
-msgstr "Skontrolovať aktualizácie"
-
 #. Resource IDs: (9)
 msgid "Check out a working copy from a repository"
 msgstr "Získať pracovnú kópiu z úložiska"
@@ -2287,11 +2195,6 @@ msgstr "Zaškrtnite ak chcete menej výpisov dátumu a času v správach denník
 msgid "Check working copy for modifications"
 msgstr "Skontrolovať pracovnú kópiu na zmeny"
 
-# Kontrola
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Skontrolovať:"
-
 #. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Kontrola prístupnosti novšej verzie TortoiseSVN..."
@@ -2309,8 +2212,8 @@ msgid "Checkout - TortoiseSVN"
 msgstr "Získať - TortoiseSVN"
 
 #. Resource IDs: (1377)
-msgid "Checkout D&epth"
-msgstr "&Hĺbka adresárov pre získanie"
+msgid "Checkout Depth"
+msgstr "Hĺbka adresárov pre získanie"
 
 #. Resource IDs: (229)
 #, c-format
@@ -2335,10 +2238,10 @@ msgstr "Klasifikačné šablóny"
 msgid "Cleaning up"
 msgstr "Čistenie"
 
+# Čistím
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%1!s!\""
-msgstr "Čistenie adresára:  \"%1!s!\""
+msgid "Cleaning up."
+msgstr "(Prebieha) Čistenie"
 
 #. Resource IDs: (83)
 #, c-format
@@ -2377,18 +2280,18 @@ msgstr ""
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! URLs stored for %2!ld! working copies"
-msgstr "Vymaže uložené URL adresy (%1!ld!) pre pracovné kópie (%2!ld!)"
+msgid "Clears %ld URLs stored for %ld working copies"
+msgstr "Vymaže uložené URL adresy (%ld) pre pracovné kópie (%ld)"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! log messages stored for %2!ld! working copies"
-msgstr "Vymaže uložené správy denníka (%1!ld!) pre pracovné kópie (%2!ld!)"
+msgid "Clears %ld log messages stored for %ld working copies"
+msgstr "Vymaže uložené správy denníka (%ld) pre pracovné kópie (%ld)"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! username/password pairs, %2!ld! ssl certificates and %3!ld! usernames"
-msgstr "Vymaže užívateľské mená a heslá(%1!ld!), SSL certifikáty (%2!ld!) a užívateľské mená (%3!ld!)"
+msgid "Clears %ld username/password pairs, %ld ssl certificates and %ld usernames"
+msgstr "Vymaže užívateľské mená a heslá(%ld), SSL certifikáty (%ld) a užívateľské mená (%ld)"
 
 #. Resource IDs: (197)
 #, c-format
@@ -2418,11 +2321,11 @@ msgstr "Kliknite pre vybranie naposledy napísanej správy"
 
 #. Resource IDs: (65535)
 msgid "Click on \"Advanced\" to specify alternate diff programs based on file extension"
-msgstr "Vyberte  \"Pokročilé\" k zadaniu náhradného porovnávacieho programu  podľa prípon"
+msgstr "Vyberte  \"Rozšírené\" k zadaniu náhradného porovnávacieho programu  podľa prípon"
 
 #. Resource IDs: (65535)
 msgid "Click on \"Advanced\" to specify alternate merge programs based on file extension"
-msgstr "Vyberte  \"Pokročilé\" k zadaniu náhradného zlučovacieho programu podľa prípon"
+msgstr "Vyberte  \"Rozšírené\" k zadaniu náhradného zlučovacieho programu podľa prípon"
 
 #. Resource IDs: (257)
 msgid "Clipboard"
@@ -2459,18 +2362,6 @@ msgstr "&Zbaliť zdrojový strom"
 #. Resource IDs: (275)
 msgid "Collapse &following tree"
 msgstr "&Zbaliť nasledovný strom"
-
-#. Resource IDs: (2055)
-msgid ""
-"Collapse unchanged sections\n"
-"Collapse"
-msgstr ""
-"Zbaliť nezmenené sekcie\n"
-"Zbaliť"
-
-#. Resource IDs: (32870)
-msgid "Collapsed"
-msgstr "Zbaliť"
 
 #. Resource IDs: (16662)
 msgid "Color"
@@ -2528,10 +2419,6 @@ msgstr "Odovzdať"
 msgid "Commit - TortoiseSVN"
 msgstr "Odovzdať - TortoiseSVN"
 
-#. Resource IDs: (616)
-msgid "Commit failed - Update needed"
-msgstr "Odovzdávanie zlyhalo - je potrebná aktualizácia"
-
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Odovzdať do:"
@@ -2547,11 +2434,6 @@ msgstr "Odovzdania podľa autorov"
 #. Resource IDs: (244)
 msgid "Commits by date"
 msgstr "Odovzdania podľa času"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Commits each %s"
-msgstr "Odovzdáva každý %s"
 
 #. Resource IDs: (1135)
 msgid "Commits each week:"
@@ -2602,14 +2484,6 @@ msgstr "Porovnať so zákl&adom"
 msgid "Compare with previous revision"
 msgstr "Porovnať s predošlou revíziou"
 
-#. Resource IDs: (2055)
-msgid ""
-"Compares all whitespaces when diffing\n"
-"Compare whitespaces"
-msgstr ""
-"Porovnať všetky biele znaky pri porovnávaní\n"
-"Porovnať biele znaky"
-
 #. Resource IDs: (12)
 msgid "Compares the file with the last committed revision to show you the changes you made"
 msgstr "Porovná súbor s naposledy odovzdanou revíziou, aby ste videli zmeny, ktoré ste vykonali"
@@ -2620,18 +2494,13 @@ msgstr "Porovná vybraný súbor so súborov v úložisku"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Comparing %1!s! to %2!s!"
-msgstr "Porovnanie %1!s! s %2!s!"
+msgid "Comparing %s to %s"
+msgstr "Porovnanie %s s %s"
 
 # Dokončené
 #. Resource IDs: (74)
 msgid "Completed"
 msgstr "Hotovo"
-
-# Dokončené
-#. Resource IDs: (219)
-msgid "Completed!"
-msgstr "Hotovo!"
 
 #. Resource IDs: (236)
 msgid "Configure Hook Scripts"
@@ -2694,10 +2563,6 @@ msgstr "Pokračovať"
 msgid "Contract docked window"
 msgstr "Zúžiť zakotvené okno"
 
-#. Resource IDs: (15)
-msgid "Converts the working copy format to the new version"
-msgstr "Vynový pracovnú kópiu na novšiu verziu"
-
 #. Resource IDs: (376)
 msgid "Cop&y"
 msgstr "&Kopíruj"
@@ -2711,15 +2576,11 @@ msgstr "Prekopírované"
 msgid "Copied from URL"
 msgstr "Prekopírované z URL"
 
-#. Resource IDs: (208)
-msgid "Copied from revision"
-msgstr "Prekopírované z revízie"
-
 # Kopíruj z cesty
 #. Resource IDs: (276)
 #, c-format
-msgid "Copied from: %1!s!@%2!ld!\r\n"
-msgstr "Prekopírované z %1!s!@%2!ld!\r\n"
+msgid "Copied from: %s@%ld\r\n"
+msgstr "Prekopírované z: %s@%ld\r\n"
 
 #. Resource IDs: (126)
 msgid "Copied remotely"
@@ -2732,20 +2593,11 @@ msgstr "Kopírovať"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Copy %1!ld! items to\r\n"
-"%2!s!"
+"Copy %ld items to\r\n"
+"%s"
 msgstr ""
-"Kopírovať %1!ld! objektov do\r\n"
-"%2!s!"
-
-#. Resource IDs: (126)
-#, c-format
-msgid ""
-"Copy %1!s!\r\n"
-"to %2!s!"
-msgstr ""
-"Kopírovať %1!s!\r\n"
-"do %2!s!"
+"Kopírovať %ld objektov do\r\n"
+"%s"
 
 #. Resource IDs: (103)
 #, c-format
@@ -2756,6 +2608,15 @@ msgstr "Kopíruj %s"
 #, c-format
 msgid "Copy %s to %s, Revision %s"
 msgstr "Kopírovať %s do %s, Revízia %s"
+
+#. Resource IDs: (126)
+#, c-format
+msgid ""
+"Copy %s\r\n"
+"to %s"
+msgstr ""
+"Kopírovať %s\r\n"
+"do %s"
 
 #. Resource IDs: (142)
 msgid "Copy (Branch / Tag)"
@@ -2865,8 +2726,8 @@ msgstr "Nemožno pridať '%s' pretože"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not add property '%1!s!' on '%2!s!' because"
-msgstr "Nemožno pridať vlastnosť \"%1!s!\"' na \"%2!s!\" pretože"
+msgid "Could not add property '%s' on '%s' because"
+msgstr "Nemožno pridať vlastnosť '%s' na '%s' pretože"
 
 #. Resource IDs: (201)
 msgid "Could not check for a newer version!"
@@ -2895,8 +2756,8 @@ msgstr "Nemožno vymazať '%s' pretože"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not delete property '%1!s!' on '%2!s!' because"
-msgstr "Nemožno vymazať vlastnosť   \"%1!s!\" na \"%2!s!\" pretože"
+msgid "Could not delete property '%s' on '%s' because"
+msgstr "Nemožno vymazať vlastnosť  '%s' na '%s' pretože"
 
 #. Resource IDs: (83)
 msgid "Could not determine the last committed revision!"
@@ -2913,8 +2774,8 @@ msgstr "Nemožno zlúčiť '%s' pretože"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not merge property '%1!s!' on '%2!s!' because"
-msgstr "Nemožno zlúčiť vlastnosť '%1!s!' na '%2!s!' pretože"
+msgid "Could not merge property '%s' on '%s' because"
+msgstr "Nemožno zlúčiť vlastnosť '%s' na '%s' pretože"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -2952,10 +2813,10 @@ msgstr ""
 #. Resource IDs: (66)
 #, c-format
 msgid ""
-"Could not retrieve revision %1!s! of the file %2!s!.\n"
+"Could not retrieve revision %s of the file %s.\n"
 "Patching is not possible!"
 msgstr ""
-"Nemožno získať revíziu %1!s! pre súbor %2!s!.\n"
+"Nemožno získať revíziu %s pre súbor %s.\n"
 "Zaplátanie nie je možné!"
 
 #. Resource IDs: (64)
@@ -3043,10 +2904,6 @@ msgstr ""
 #. Resource IDs: (8)
 msgid "Create repositor&y here"
 msgstr "Vytvoriť &úložisko tu!"
-
-#. Resource IDs: (102)
-msgid "Create shortcut"
-msgstr "Vytvoriť skratku"
 
 #. Resource IDs: (32828)
 msgid "Create unified diff file"
@@ -3221,14 +3078,6 @@ msgstr "Vymaže súbor zoznamu úkonov"
 msgid "Deleting"
 msgstr "Vymazávanie"
 
-#. Resource IDs: (348)
-msgid "Deleting cached data"
-msgstr "Vymazávanie dát zo zásobníka"
-
-#. Resource IDs: (348)
-msgid "Deleting file"
-msgstr "Vymazávanie súboru"
-
 #. Resource IDs: (207)
 msgid "Depth"
 msgstr "Hĺbka"
@@ -3293,10 +3142,6 @@ msgstr "Porovnávanie"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Porovná súbor v pracovnej kópií s predposledným odovzdaným."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Adresáre"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Adresár:"
@@ -3308,10 +3153,6 @@ msgid ""
 msgstr ""
 "Zakážte túto možnosť keď máte skutočne veľké pracovné kópie\r\n"
 "a máte dojem, že pri prezeraní pracovnej kópie je disková aktivita priveľká."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Zahodiť miestne zmeny pri prijatí vymazania"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3332,7 +3173,7 @@ msgid ""
 "Display help for clicked on buttons, menus and windows\n"
 "Help"
 msgstr ""
-"Zobraziť pomoc o tlačidlách, ponukách a oknách\n"
+"Zobraziť pomoc o tlačítkach, ponukách a oknách\n"
 "Pomoc"
 
 #. Resource IDs: (3605)
@@ -3438,19 +3279,6 @@ msgstr ""
 "Dokumentácia : Simon Large\n"
 "Kód : Tobias Schäfer, Stefan Fuhrmann"
 
-#. Resource IDs: (94)
-#, fuzzy
-msgid ""
-"Don't make the checkout directory a sparse working copy.\n"
-"Instead, all URLs get checked out into a separate\n"
-"working copies next to each other.\n"
-"This works for directory URLs only."
-msgstr ""
-"Nerobte získanie adresára roztrúsenej pracovnej kópie.\n"
-"Namiesto toho získajte oddelene pracovné kópie\n"
-"adresárov.\n"
-"Toto funguje len pre URL adresárov."
-
 #. Resource IDs: (73, 80)
 msgid "Don't show this message again"
 msgstr "Túto správu už nezobrazuj"
@@ -3514,7 +3342,7 @@ msgstr "Upraviť"
 
 #. Resource IDs: (16133)
 msgid "Edit Button Image"
-msgstr "Upraviť obrázok tlačidla"
+msgstr "Upraviť obrázok tlačítka"
 
 #. Resource IDs: (227, 564)
 msgid "Edit Properties"
@@ -3536,6 +3364,10 @@ msgstr "Autor úpravy"
 msgid "Edit author name"
 msgstr "Uprav meno autora"
 
+#. Resource IDs: (1399)
+msgid "Edit conflict"
+msgstr "Upraviť konflikty"
+
 #. Resource IDs: (110)
 msgid "Edit extension specific diff program"
 msgstr "Upraviť porovnávací program podľa prípony"
@@ -3551,11 +3383,11 @@ msgstr "Uprav správu denníka"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Edit property '%1!S!' on\r\n"
-"%2!s!"
+"Edit property '%s' on\r\n"
+"%s"
 msgstr ""
-"Upraviť vlastnosť '%1!S!' na\r\n"
-"%2!s!"
+"Upraviť vlastnosť '%s' na\r\n"
+"%s"
 
 #. Resource IDs: (1331, 1382)
 msgid "Edit..."
@@ -3651,10 +3483,6 @@ msgstr "Zadaj správu denníka"
 msgid "Enter URL"
 msgstr "Zadaj URL"
 
-#. Resource IDs: (65535)
-msgid "Enter a &name for the changelist:"
-msgstr "Zadajte &meno zoznamu zmien"
-
 #. Resource IDs: (3858)
 msgid "Enter a GUID."
 msgstr "Zadajte GUID."
@@ -3674,6 +3502,10 @@ msgstr "Zadajte dátum."
 #. Resource IDs: (313)
 msgid "Enter a lock message (optional):"
 msgstr "Zadaj správu k zámku (nepovinné):"
+
+#. Resource IDs: (65535)
+msgid "Enter a name for the changelist:"
+msgstr "Zadajte meno zoznamu zmien"
 
 #. Resource IDs: (3858)
 #, c-format
@@ -3705,10 +3537,6 @@ msgstr "Zadajte celé číslo medzi 0 a 255."
 msgid "Enter an integer."
 msgstr "Zadajte celé číslo."
 
-#. Resource IDs: (65535)
-msgid "Enter file content to test for below:"
-msgstr "Nižšie zadajte obsah súboru na testovanie:"
-
 #. Resource IDs: (1065)
 msgid "Enter log &message:"
 msgstr "Zadaj &správu denníka:"
@@ -3721,10 +3549,6 @@ msgstr "Zadaj správu denníka:"
 #, c-format
 msgid "Enter no more than %1 characters."
 msgstr "Zadajte nie viac ako %1 znakov."
-
-#. Resource IDs: (65535)
-msgid "Enter the regex string below:"
-msgstr "Nižšie zadajte regulárny výraz:"
 
 #. Resource IDs: (3603)
 msgid ""
@@ -3759,11 +3583,11 @@ msgstr "Chyba pri overovaní certifikátu pre %s:"
 #. Resource IDs: (70)
 #, c-format
 msgid ""
-"Error while reading/writing the registry key %1!s!\n"
-"%2!s!"
+"Error while reading/writing the registry key %s\n"
+"%s"
 msgstr ""
-"Chyba pre čítaní/zápise položky systémových registrov %1!s!\n"
-"%2!s!"
+"Chyba pre čítaní/zápise položky systémových registrov %s\n"
+"%s"
 
 #. Resource IDs: (1413)
 msgid "Exceptions:"
@@ -3780,10 +3604,6 @@ msgstr "Spustiteľné (*.exe)|*.exe|Príkazy (*.com)|*.com|Informácie (*.pdf)|*
 #. Resource IDs: (1002)
 msgid "Existing"
 msgstr "Existujúce"
-
-#. Resource IDs: (2)
-msgid "Exit"
-msgstr "Ukončiť"
 
 #. Resource IDs: (275)
 msgid "Exp&and source tree"
@@ -3855,6 +3675,11 @@ msgstr "Exportuje sadu vlastností do súboru"
 msgid "Extension"
 msgstr "Prípona"
 
+# Rozšírenie:
+#. Resource IDs: (65535)
+msgid "Extension or mime-type:"
+msgstr "Prípona, typ MIME"
+
 #. Resource IDs: (65535)
 msgid "Extension/mime-type specific programs"
 msgstr "Program pre prípony/typ MIME"
@@ -3891,11 +3716,6 @@ msgstr "Vylúčené externé"
 #. Resource IDs: (226)
 msgid "Externals included"
 msgstr "Zahrnuté externé "
-
-# zlúčených
-#. Resource IDs: (1480)
-msgid "F&orce the merge"
-msgstr "&Vynútiť zlúčenie"
 
 #. Resource IDs: (74)
 msgid "Failed revert"
@@ -3949,11 +3769,11 @@ msgstr "Zlyhalo nastavenie/odstránenie zoznamu zmien '%s'"
 #. Resource IDs: (83)
 #, c-format
 msgid ""
-"Failed to start the issue tracker COM provider '%1!s!'.\n"
-"%2!s!"
+"Failed to start the issue tracker COM provider '%s'.\n"
+"%s"
 msgstr ""
-"Nepodarilo sa spustiť poskytovateľa COM pre sledovanie prípadov  \"%1!s!\".\n"
-"%2!s!"
+"Nepodarilo sa spustiť poskytovateľa COM pre sledovanie prípadov '%s'.\n"
+"%s"
 
 #. Resource IDs: (220)
 msgid "Failed!"
@@ -3971,11 +3791,6 @@ msgstr "Získavanie revízie %s súboru:"
 #. Resource IDs: (63, 74, 77, 319, 1001)
 msgid "File"
 msgstr "Súbor"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "File changes each %s"
-msgstr "Súbor menený každý %s"
 
 #. Resource IDs: (1138)
 msgid "File changes each week:"
@@ -4105,19 +3920,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Meno súboru"
 
-# Rozšírenie:
-#. Resource IDs: (65535)
-msgid "Filename, extension or mime-type:"
-msgstr "Meno súboru, prípona alebo typ MIME"
-
-#. Resource IDs: (74)
-msgid "Filename/Extension"
-msgstr "Menp súboru/Prípona"
-
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Súbory"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4199,21 +4001,21 @@ msgstr "Pre pomoc stlačte F1. Horizontálne rolovanie môžete rolovacím kolie
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Pre úplnú históriu vypnite 'Zastaviť na kopírovať/premenovať'"
 
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Vynútiť"
-
 #. Resource IDs: (1064)
 msgid "Forward"
 msgstr "Dopredu"
 
-#. Resource IDs: (65535)
-msgid "Found auto words:"
-msgstr "Najdene automaticke slova:"
+#. Resource IDs: (1489)
+msgid "From URL:"
+msgstr "Z URL:"
 
 #. Resource IDs: (1200, 65535)
 msgid "From:"
 msgstr "Od:"
+
+#. Resource IDs: (1494)
+msgid "From: (start URL and revision of the range to merge)"
+msgstr "Od: (prvá URL adresa, prvá revízia rozsahu k zlúčeniu)"
 
 #. Resource IDs: (1065)
 msgid "Full Screen"
@@ -4282,13 +4084,13 @@ msgstr ""
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Getting file %1!s!"
-msgstr "Získavam súbor %1!s!"
+msgid "Getting file %s"
+msgstr "Získavam súbor %s"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Getting file %1!s!, revision %2!s!"
-msgstr "Získavam súbor %1!s! revízie %2!s!"
+msgid "Getting file %s, revision %s"
+msgstr "Získavam súbor %s revízie %s"
 
 #. Resource IDs: (132)
 msgid "Getting file info..."
@@ -4375,9 +4177,9 @@ msgstr "Vetvy do skupín"
 msgid "Group changelists"
 msgstr "Skupina zoznamu zmien"
 
-#. Resource IDs: (1032)
-msgid "H&EAD Revision"
-msgstr "&HEAD (hlavná) Revízia"
+#. Resource IDs: (1229)
+msgid "H&ide unrelated changed paths"
+msgstr "&Skryť zmeny na neprislúchajúcich cestách"
 
 #. Resource IDs: (65535)
 msgid "H&ue:"
@@ -4450,7 +4252,7 @@ msgstr "Tip: F5 obnovuje vybraný podstrom a Ctrl-F5 načíta aj deti"
 
 #. Resource IDs: (16519)
 msgid "Hint: select the context menu, change the page to 'Commands' and drag the toolbar buttons into the menu window."
-msgstr "Tip: vyberte kontextovú ponuku, zmeňte stranu na 'Príkazy' a presuňte tlačidla na okno ponuky."
+msgstr "Tip: vyberte kontextovú ponuku, zmeňte stranu na 'Príkazy' a presuňte tlačítka na okno ponuky."
 
 #. Resource IDs: (1064)
 msgid "Home"
@@ -4480,14 +4282,6 @@ msgstr "Chybné meno servera (%s)"
 #. Resource IDs: (65535)
 msgid "How do you want to resolve this conflict?"
 msgstr "Ako chcete vyriešiť tento konflikt?"
-
-#. Resource IDs: (1392)
-msgid "I&gnore all whitespaces"
-msgstr "I&gnorovať všetky biele znaky"
-
-#. Resource IDs: (1264)
-msgid "I&gnored"
-msgstr "I&gnorované"
 
 #. Resource IDs: (65535)
 msgid "I&nclude paths:"
@@ -4575,10 +4369,6 @@ msgid "ID:32824:V C +F"
 msgstr "ID:32824:V C +F"
 
 #. Accelerator Entry for Menu ID:32825; ''
-msgid "ID:32825:V C +K"
-msgstr "ID:32825:V C +K"
-
-#. Accelerator Entry for Menu ID:32825; ''
 msgid "ID:32825:V C +L"
 msgstr "ID:32825:V C +L"
 
@@ -4624,10 +4414,6 @@ msgstr "ID:57643:V C +Z"
 msgid "ID:57665:V C +Q"
 msgstr "ID:57665:V C +Q"
 
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-msgid "ID:57665:V C +W"
-msgstr "ID:57665:V C +W"
-
 #. Resource IDs: (106)
 msgid "Icon Overlays"
 msgstr "Prekrytie ikon"
@@ -4649,24 +4435,24 @@ msgid ""
 "If a component (part between two '/') of a given path matches one\n"
 "of these patterns, it is considered a 'branch'."
 msgstr ""
-"Keď element (časť medzi dvomi '/') danej cesty zodpovedá\n"
-"jednej zo šablón, je považovaný za 'vetvu'."
+"Keď element (časť medzi dvomi '/') danej cesty sa zhoduje\n"
+"s jednou zo šablón, je považovaný za 'vetvu'."
 
 #. Resource IDs: (346)
 msgid ""
 "If a component (part between two '/') of a given path matches one\n"
 "of these patterns, it is considered a 'tag'."
 msgstr ""
-"Keď element (časť medzi dvomi '/') danej cesty zodpovedá\n"
-"jednej zo šablón, je považovaný za 'značku'."
+"Keď element (časť medzi dvomi '/') danej cesty sa zhoduje\n"
+"s jednou zo šablón, je považovaný za 'značku'."
 
 #. Resource IDs: (346)
 msgid ""
 "If a component (part between two '/') of a given path matches one\n"
 "of these patterns, it is considered a 'trunk'."
 msgstr ""
-"Keď element (časť medzi dvomi '/') danej cesty zodpovedá\n"
-"jednej zo šablón, je považovaný za 'kmeň'."
+"Keď element (časť medzi dvomi '/') danej cesty sa zhoduje\n"
+"s jednou zo šablón, je považovaný za 'kmeň'."
 
 #. Resource IDs: (194)
 msgid "If activated, prevents the overlays and the context menu from showing in 'save as...' or 'open' dialogs"
@@ -4707,6 +4493,10 @@ msgid ""
 msgstr ""
 "Zaškrtnuté znamená, že dialóg odovzdávania začne po chybe automaticky znova,\r\n"
 "pričom zachová váš výber a správu denníka."
+
+#. Resource IDs: (194)
+msgid "If enabled, TortoiseSVN checks once a week if a newer version is available"
+msgstr "Keď je povolené, TortoiseSVN kontroluje každý týždeň, či je prístupná nová verzia"
 
 #. Resource IDs: (195)
 msgid ""
@@ -4794,26 +4584,18 @@ msgstr "Ignorovať %d objekty podľa &prípony"
 msgid "Ignore &all whitespaces"
 msgstr "Ignorovať &biele znaky"
 
-# Ignorovať predkov
-#. Resource IDs: (1267)
-msgid "Ignore &ancestry"
-msgstr "Zanedbať &pôvod"
-
-#. Resource IDs: (32873)
-msgid "Ignore all whitespace changes"
-msgstr "Ignorovať všetky zmeny bielych znakov"
+#. Resource IDs: (1067)
+msgid "Ignore &case changes"
+msgstr "Ignorovať zmeny vo &veľkosti písma"
 
 #. Resource IDs: (1392)
 msgid "Ignore all whitespaces"
 msgstr "Ignorovať všetky biele znaky"
 
-#. Resource IDs: (1067)
-msgid "Ignore case cha&nges"
-msgstr "Ignorovať zmeny vo &veľkosti písma"
-
-#. Resource IDs: (1126)
-msgid "Ignore line &endings"
-msgstr "Ignorovať &konce riadkov"
+# Ignorovať predkov
+#. Resource IDs: (1267)
+msgid "Ignore ancestry"
+msgstr "Zanedbať pôvod"
 
 #. Resource IDs: (1018)
 msgid "Ignore line &endings (recommended)"
@@ -4824,10 +4606,6 @@ msgid "Ignore line endings"
 msgstr "Ignorovať konce riadkov"
 
 #. Resource IDs: (1391)
-msgid "Ignore whitespace c&hanges"
-msgstr "Ignorovať zmeny &bielych znakov"
-
-#. Resource IDs: (1391)
 msgid "Ignore whitespace changes"
 msgstr "Ignorovať zmeny bielych znakov"
 
@@ -4835,22 +4613,6 @@ msgstr "Ignorovať zmeny bielych znakov"
 #. Resource IDs: (226)
 msgid "Ignored items included"
 msgstr "Zahrnuté ignorované objekty"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores all whitespace changes when diffing\n"
-"Ignore all whitespace changes"
-msgstr ""
-"Ignoruje všetky biele znaky pri porovnaní\n"
-"Ignorovať všetky zmeny bielych znakov"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores changes in whitespaces when diffing\n"
-"Ignore whitespace changes"
-msgstr ""
-"Ignorovať zmeny bielych znakov pri porovnávaní\n"
-"Ignorovať zmeny bielich znakov"
 
 #. Resource IDs: (16916)
 msgid "Image &and Text"
@@ -4898,11 +4660,11 @@ msgstr "Načítatať uloženú sadu vlastností zo súboru"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Import file %1!s!\r\n"
-"to %2!s!"
+"Import file %s\r\n"
+"to %s"
 msgstr ""
-"Importovať súbor %1!s!\r\n"
-"do %2!s!"
+"Importovať súbor %s\r\n"
+"do %s"
 
 #. Resource IDs: (126)
 #, c-format
@@ -4916,11 +4678,11 @@ msgstr ""
 #. Resource IDs: (126)
 #, c-format
 msgid ""
-"Import folder %1!s!\r\n"
-"to %2!s!"
+"Import folder %s\r\n"
+"to %s"
 msgstr ""
-"Importovať adresár %1!s!\r\n"
-"do %2!s!"
+"Importovať adresár %s\r\n"
+"do %s"
 
 #. Resource IDs: (613)
 #, c-format
@@ -4929,8 +4691,8 @@ msgstr "Importovať do %1"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Importing file %1!s!"
-msgstr "Importuje sa súbor %1!s!"
+msgid "Importing file %s"
+msgstr "Importuje sa súbor %s"
 
 #. Resource IDs: (10)
 msgid "Imports the directory to a repository"
@@ -5099,8 +4861,8 @@ msgstr ""
 msgid ""
 "It seems you are trying to <b>relocate</b> your working copy to a different path inside the same repository.\n"
 "\n"
-"From:\t%1!s!\n"
-"To:\t\t%2!s!\n"
+"From:\t%s\n"
+"To:\t\t%s\n"
 "\n"
 "A relocate is only needed if the path <b>to</b> a repository has changed.\n"
 "Changing to a different path <b>inside</b> a repository is done by a switch operation.\n"
@@ -5111,8 +4873,8 @@ msgid ""
 msgstr ""
 "Vyzerá, že sa pokúšate <b>premiestniť</b> vašu pracovnú kópiu na inú cestu v rámci úložiska.\n"
 "\n"
-"Z:\t%1!s!\n"
-"Do:\t%2!s!\n"
+"Z: %s\n"
+"Do: %s\n"
 "\n"
 "Premiestnenie je potrebné iba ak cesta <b>do</b> úložiska sa zmenila.\n"
 "Menenie cesty <b>vrámci</b> úložiska sa vykonáva pomocou príkazu 'prepni'.\n"
@@ -5120,18 +4882,6 @@ msgstr ""
 "Nesprávne použitie presunúť <b>poškodí vašu pracovnú kópiu!</b>\n"
 "Pokiaľ si nie ste istý, pozrite si náš manuál položku <i>relocate</i>.\n"
 "Chcete naozaj presunúť?"
-
-#. Resource IDs: (1480)
-msgid "Items in &externals"
-msgstr "&Externé objekty"
-
-#. Resource IDs: (1527)
-msgid "Items to show"
-msgstr "Objetky na zobrazenie"
-
-#. Resource IDs: (1074)
-msgid "J&ump to first conflict when loading"
-msgstr "Po načítaní skoč na prvý &konflikt"
 
 #. Resource IDs: (275)
 msgid "Join with following &tree"
@@ -5146,8 +4896,8 @@ msgid "Keep &locks"
 msgstr "Zachovať &zámky"
 
 #. Resource IDs: (1126)
-msgid "Keep ch&angelists"
-msgstr "Z&achovať zoznam zmien"
+msgid "Keep changelists"
+msgstr "Zachovať zoznam zmien"
 
 #. Resource IDs: (610)
 msgid "Keep the directory from the repository"
@@ -5278,10 +5028,10 @@ msgstr "Miestny stav"
 #. Resource IDs: (94)
 msgid ""
 "Location where the contents of the\n"
-"repository URL(s) will be saved to."
+"repository URL will be saved to."
 msgstr ""
-"Miesto kde bude uložený obsah\n"
-"URL adresy úložiska."
+"Miesto kam obsah URL adresy\n"
+"úložiska budú uložené."
 
 #. Resource IDs: (32854)
 msgid "Locator Bar"
@@ -5386,17 +5136,13 @@ msgstr "Správy denníka (Zobrazenie denníka)"
 
 #. Resource IDs: (238)
 #, c-format
-msgid "Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!"
-msgstr "Najnižšia zobrazená revízia: %1!ld! - Najvyššia zobrazená revízia: %2!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
+msgstr "Najnižšia zobrazená revízia: %ld - Najvyššia zobrazená revízia: %ld"
 
 #. Resource IDs: (238)
 #, c-format
-msgid ""
-"Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!\n"
-"HEAD revision: %3!ld!"
-msgstr ""
-"Najnižšia zobrazená revízia: %1!ld! - Najvyššia zobrazená revízia: %2!ld!\n"
-"HEAD revízia: %3!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
+msgstr "Najnižšia zobrazená revízia: %ld - Najvyššia zobrazená revízia: %ld - HEAD revízia: %ld"
 
 #. Resource IDs: (16973)
 msgid "Lum"
@@ -5494,10 +5240,6 @@ msgstr "&Tiene ponuky"
 msgid "Merge"
 msgstr "Spájať"
 
-#. Resource IDs: (1488)
-msgid "Merge &depth:"
-msgstr "&Hĺbka spájania:"
-
 #. Resource IDs: (78)
 msgid "Merge - TortoiseSVN"
 msgstr "Zlúčiť - TortoiseSVN"
@@ -5507,12 +5249,16 @@ msgid "Merge Reintegrate"
 msgstr "Reintegračné zlúčenie"
 
 #. Resource IDs: (1468)
-msgid "Merge a &range of revisions"
-msgstr "Zlúčiť &rozsah revízií"
+msgid "Merge a range of revisions"
+msgstr "Zlúčiť rozsah revízií"
 
 #. Resource IDs: (277)
 msgid "Merge all"
 msgstr "Zlúčiť všetko"
+
+#. Resource IDs: (1488, 65535)
+msgid "Merge depth:"
+msgstr "Hĺbka spájania:"
 
 #. Resource IDs: (1432)
 msgid "Merge non-interactive"
@@ -5544,8 +5290,8 @@ msgid "Merge the changes into '%s'"
 msgstr "Zlúčiť zmeny do '%s'"
 
 #. Resource IDs: (1470)
-msgid "Merge two different &trees"
-msgstr "Zlúčiť dva rozdielne s&tromy"
+msgid "Merge two different trees"
+msgstr "Zlúčiť dva rozdielne stromy"
 
 # Typ prílohy
 #. Resource IDs: (595, 65535)
@@ -5575,8 +5321,8 @@ msgstr "Zlučovanie"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Zlučovanie %s do %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Zlučovanie %s do %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5584,18 +5330,18 @@ msgstr "Zlučovanie rozdielov medzi URL úložiska"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Zlučovanie z %s, revízia %s až %s, revízia %s v %s, %s%s%s"
-
-#. Resource IDs: (264)
-#, c-format
-msgid "Merging r%1!ld! through r%2!ld!"
-msgstr "Zlučovanie r%1!ld! po r%2!ld!"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Zlučovanie z %s, revízia %s až %s, revízia %s v %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
 msgid "Merging r%ld"
 msgstr "Zlučovanie r%ld"
+
+#. Resource IDs: (264)
+#, c-format
+msgid "Merging r%ld through r%ld"
+msgstr "Zlučovanie r%ld po r%ld"
 
 #. Resource IDs: (83)
 msgid "Merging requires different revisions or different URLs in 'From:' and 'To:'"
@@ -5603,8 +5349,8 @@ msgstr "Zlučovanie vyžaduje rozdielne revízie, alebo rozdielne URL adresy v Z
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Zlučovanie revízií %s z %s do %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Zlučovanie revízií %s z %s do %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
@@ -5690,20 +5436,20 @@ msgstr "Myš"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!ld! items to\r\n"
-"%2!s!"
+"Move %ld items to\r\n"
+"%s"
 msgstr ""
-"Presunúť %1!ld! objektov do\r\n"
-"%2!s!"
+"Presunúť %ld objektov do\r\n"
+"%s"
 
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!s!\r\n"
-"to %2!s!"
+"Move %s\r\n"
+"to %s"
 msgstr ""
-"Presunúť %1!s!\r\n"
-"do %2!s!"
+"Presunúť %s\r\n"
+"do %s"
 
 #. Resource IDs: (17026)
 msgid "Move &Down"
@@ -5767,11 +5513,6 @@ msgstr "Presúvanie %s"
 #. Resource IDs: (80)
 msgid "Moving..."
 msgstr "Presúvam..."
-
-#. Resource IDs: (1204)
-#, fuzzy
-msgid "Multiple, &independent working copies"
-msgstr "Viacnásobné, &nezávislé pracovné kópie"
 
 #. Resource IDs: (65535)
 msgid "My file:"
@@ -5914,10 +5655,6 @@ msgstr "Graf nie je k dispozícií"
 msgid "No image encoder found for %s."
 msgstr "Nebol nájdený obrázkový kóder pre %s."
 
-#. Resource IDs: (84)
-msgid "No path or pathfile specified on the command line!"
-msgstr "V príkazovom riadku nebola zadaná cesta"
-
 #. Resource IDs: (188)
 msgid "No spell corrections"
 msgstr "Nie je pravopisná kontrola"
@@ -5926,22 +5663,13 @@ msgstr "Nie je pravopisná kontrola"
 msgid "No status cache. Only versioned folders get an overlay, files don't get an overlay"
 msgstr "Bez pamäte stavu. Iba verziované adresáre získajú prekrytie, súbory budú bez prekrývajúcich ikon."
 
-#. Resource IDs: (84)
-#, c-format
-msgid "No such revision '%1!s!'"
-msgstr "Revízia '%1!s!'  neexistuje"
-
 #. Resource IDs: (188)
 msgid "No thesaurus suggestions"
-msgstr "Tezaurus nemá návrh"
+msgstr "Tazaurus nemá návrh"
 
 #. Resource IDs: (65535)
 msgid "Node colors"
 msgstr "Farby uzlov"
-
-#. Resource IDs: (1507)
-msgid "Non-versioned"
-msgstr "Neverziované"
 
 #. Resource IDs: (1271)
 msgid "None"
@@ -5985,11 +5713,6 @@ msgstr "Poznámka: zmena písma ovplyvní aj prehliadač TortoiseUDiff"
 #. Resource IDs: (88)
 msgid "Notice"
 msgstr "Poznámka"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Number of %s"
-msgstr "Počet %s"
 
 #. Resource IDs: (338)
 msgid "Number of authors in the cache"
@@ -6103,10 +5826,6 @@ msgstr ""
 msgid "One or more files are in a conflicted state."
 msgstr "Jeden alebo viac súborov v stave konfliktu."
 
-#. Resource IDs: (1424)
-msgid "Onl&y record the merge (block revisions from getting merged)"
-msgstr "Iba &záznam zlučovania  (revízie nebudú zlúčené)"
-
 #. Resource IDs: (99)
 msgid "Only check out the &top folder"
 msgstr "Získa&ť iba hlavný adresár"
@@ -6122,6 +5841,10 @@ msgid ""
 msgstr ""
 "Sú povolené iba čísla!\n"
 "(eventuálne oddelené čiarkami)"
+
+#. Resource IDs: (1424)
+msgid "Only record the merge (block revisions from getting merged)"
+msgstr "Iba záznam zlučovania  (revízie nebudú zlúčené)"
 
 #. Resource IDs: (19)
 msgid "Only this item"
@@ -6180,10 +5903,6 @@ msgstr "Otvorí prezeranie úložiska na doladenie priamo"
 #. Resource IDs: (199)
 msgid "Operate from log cache for now only"
 msgstr "Použiť zásobník denníka iba teraz"
-
-#. Resource IDs: (348)
-msgid "Option"
-msgstr "Voľby"
 
 #. Resource IDs: (16137)
 msgid "Options"
@@ -6407,7 +6126,7 @@ msgstr "Možné hodnoty: 0 (úplne priesvitné) .. 255 (nepriehľadné)"
 
 #. Resource IDs: (569)
 msgid "Post-Commit Hook"
-msgstr "Poodovzdávací pripnutý (hook)skript"
+msgstr "Poodovzdavací pripnutý (hook)skript"
 
 #. Resource IDs: (570)
 msgid "Post-Update Hook"
@@ -6419,19 +6138,11 @@ msgstr "Pre&došlá strana"
 
 #. Resource IDs: (569)
 msgid "Pre-Commit Hook"
-msgstr "Predodovzdávací pripnutý (hook)skript"
+msgstr "Predodovzdavací pripnutý (hook)skript"
 
 #. Resource IDs: (570)
 msgid "Pre-Update Hook"
 msgstr "Predaktulizačný pripnutý (hook)skript"
-
-#. Resource IDs: (3)
-msgid "Prefer &local"
-msgstr "Uprednostniť &miestne"
-
-#. Resource IDs: (4)
-msgid "Prefer &repository"
-msgstr "&Uprednostniť úložisko"
 
 #. Resource IDs: (65535)
 msgid "Press &New Shortcut Key:"
@@ -6495,8 +6206,8 @@ msgstr "Tlačenie"
 
 #. Resource IDs: (132)
 #, c-format
-msgid "Processing revision %1!d! of %2!d!..."
-msgstr "Spracováva sa revízia %1!d! z %2!d!..."
+msgid "Processing revision %d of %d..."
+msgstr "Spracováva sa revízia %d z %d..."
 
 #. Resource IDs: (74)
 msgid "Program"
@@ -6532,13 +6243,13 @@ msgstr "Vlastnosť"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Revision %2!s!"
-msgstr "Vlastnosť %1!s! : Revízia %2!s!"
+msgid "Property %s : Revision %s"
+msgstr "Vlastnosť %s, Revízia %s"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Working Base, Revision %2!ld!"
-msgstr "Vlastnosť %1!s! : Pracovný základ, Revízia %2!ld!"
+msgid "Property %s : Working Base, Revision %ld"
+msgstr "Vlastnosť %s : Pracovný základ, Revízia %ld"
 
 #. Resource IDs: (151)
 #, c-format
@@ -6622,17 +6333,9 @@ msgstr ""
 msgid "R&AM drives"
 msgstr "R&AM disky"
 
-#. Resource IDs: (1469)
-msgid "R&eintegrate a branch"
-msgstr "R&eintegrovať vetvu"
-
 #. Resource IDs: (16623)
 msgid "R&eset"
 msgstr "P&redvolené"
-
-#. Resource IDs: (1423)
-msgid "R&everse merge"
-msgstr "&Spätné zlučovanie"
 
 #. Resource IDs: (114)
 msgid "R&evert to this revision"
@@ -6662,10 +6365,6 @@ msgstr "Pr&edvolené"
 msgid "Re&set All"
 msgstr "P&redvolené všetko"
 
-#. Resource IDs: (1400)
-msgid "Re&solved"
-msgstr "Re&solved"
-
 #. Resource IDs: (1382)
 msgid "Re&store defaults"
 msgstr "&Obnoviť prednastavené"
@@ -6673,10 +6372,6 @@ msgstr "&Obnoviť prednastavené"
 #. Resource IDs: (8)
 msgid "Re&vert..."
 msgstr "&Vrátiť"
-
-#. Resource IDs: (1033)
-msgid "Re&vision"
-msgstr "Re&vízia"
 
 #. Resource IDs: (12)
 msgid "Read the 'Daily Use Guide' before you are stuck..."
@@ -6756,17 +6451,17 @@ msgstr ""
 "$  : koniec radka\r\n"
 "(string){n} : výskyt práve n-krát\r\n"
 "(abcd) : podvýraz\r\n"
-"[aei0-9] : zodpovedá: a,e,i a 0..9\r\n"
+"[aei0-9] : zhoda jedným z: a,e,i a 0..9\r\n"
 "[^aei0-9] : čokoľvek okrem a,e,i a 0..9\r\n"
 "\r\n"
-"\\w : zodpovedá a-z,A-Z,0-9 a _\r\n"
+"\\w : zahŕňa a-z,A-Z,0-9 a _\r\n"
 "\\W : čokoľvek okrem písmen a čísel\r\n"
 "\\d : čísla 0-9\r\n"
 "\\s : biele znaky"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Reintegračne zlúčiť"
+#. Resource IDs: (1469)
+msgid "Reintegrate a branch"
+msgstr "Reintegrovať vetvu"
 
 #. Resource IDs: (230)
 #, c-format
@@ -6866,11 +6561,11 @@ msgstr "Odstrániť zoznam zmien"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Remove property '%1!S!' from\r\n"
-"%2!s!"
+"Remove property '%s' from\r\n"
+"%s"
 msgstr ""
-"Odstrániť vlastnosť \"%1!S!\" z\r\n"
-"%2!s!"
+"Odstrániť vlastnosť '%s' z\r\n"
+"%s"
 
 #. Resource IDs: (610)
 msgid "Remove the directory"
@@ -6939,11 +6634,11 @@ msgstr "Premenovať %s"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Rename item from %1!s!\r\n"
-"to %2!s!"
+"Rename item from %s\r\n"
+"to %s"
 msgstr ""
-"Premenovať objekt z %1!s!\r\n"
-"na %2!s!"
+"Premenovať objekt z %s\r\n"
+"na %s"
 
 #. Resource IDs: (221)
 msgid "Rename/move - TortoiseSVN"
@@ -6960,10 +6655,6 @@ msgstr "Vzdialene premenované"
 #. Resource IDs: (11)
 msgid "Renames files / folders inside version control"
 msgstr "Premenuje súbory/adresáre vo správe verzií"
-
-#. Resource IDs: (209)
-msgid "Repair copy"
-msgstr "Opraviť kopírovanie"
 
 #. Resource IDs: (209)
 msgid "Repair move"
@@ -7005,10 +6696,6 @@ msgstr "URL úložiska"
 msgid "Repository UUID:"
 msgstr "UUID úložiska:"
 
-#. Resource IDs: (106)
-msgid "Request cancelled by TSVN"
-msgstr "Požiadavka zrušena od TSVN"
-
 # Vyžaduje užívateľské meno a heslo
 #. Resource IDs: (65535)
 msgid "Requests a username and a password"
@@ -7040,8 +6727,8 @@ msgstr "Vyriešiť konflikt"
 
 # &Ignoruj položky
 #. Resource IDs: (1382)
-msgid "Resolve all la&ter"
-msgstr "Vyriešiť všetko n&eskôr"
+msgid "Resolve all later"
+msgstr "Vyriešiť všetko neskôr"
 
 #. Resource IDs: (282)
 msgid "Resolve conflict using 'mine'"
@@ -7056,8 +6743,8 @@ msgid "Resolve conflict:"
 msgstr "Vyriešiť konflikt:"
 
 #. Resource IDs: (2)
-msgid "Resolve l&ater"
-msgstr "Vyriešiť &neskôr"
+msgid "Resolve later"
+msgstr "Vyriešiť neskôr"
 
 #. Resource IDs: (74, 209, 1400)
 msgid "Resolved"
@@ -7092,15 +6779,19 @@ msgstr "Obnovené"
 msgid "Retry"
 msgstr "Znova"
 
-#. Resource IDs: (264)
-#, c-format
-msgid "Reverse merging %1!ld! through %2!ld!"
-msgstr "Spätné zlučovanie %1!ld! po %2!ld!"
+#. Resource IDs: (1423)
+msgid "Reverse merge"
+msgstr "Spätné zlučovanie"
 
 #. Resource IDs: (264)
 #, c-format
 msgid "Reverse merging %ld"
 msgstr "Spätné zlučovanie %ld"
+
+#. Resource IDs: (264)
+#, c-format
+msgid "Reverse merging %ld through %ld"
+msgstr "Spätné zlučovanie %ld po %ld"
 
 #. Resource IDs: (175, 229)
 msgid "Revert"
@@ -7132,18 +6823,18 @@ msgstr "Revízia"
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Revision %1!d!"
-msgstr "Revízia %1!d!"
-
-#. Resource IDs: (120)
-#, c-format
-msgid "Revision %1!s!"
-msgstr "Revízia %1!s!"
+msgid "Revision %d"
+msgstr "Revízia %d"
 
 #. Resource IDs: (269)
 #, c-format
 msgid "Revision %ld"
 msgstr "Revízia %ld"
+
+#. Resource IDs: (120)
+#, c-format
+msgid "Revision %s"
+msgstr "Revízia %s"
 
 #. Resource IDs: (15)
 msgid "Revision &graph"
@@ -7174,8 +6865,8 @@ msgid "Revision graph"
 msgstr "Graf revízií"
 
 #. Resource IDs: (1492)
-msgid "Revision r&ange to merge"
-msgstr "Rozs&ah revízií k zlúčeniu"
+msgid "Revision range to merge"
+msgstr "Rozsah revízií k zlúčeniu"
 
 #. Resource IDs: (75)
 msgid "Revision: "
@@ -7184,44 +6875,44 @@ msgstr "Revízia:"
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%7!s!"
+"%s"
 msgstr ""
-"Revízia: %1!ld! (%2!s!)\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Autor: %5!s!\r\n"
-"Dátum: %6!s!\r\n"
+"Revízia: %ld (%s)\r\n"
+"URL: %s\r\n"
+"%sAutor: %s\r\n"
+"Dátum: %s\r\n"
 "\r\n"
 "Správa denníka:\r\n"
-"%7!s!"
+"%s"
 
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
-"Tags (%7!d!):%8!s!\r\n"
+"Tags (%d):%s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%9!s!"
+"%s"
 msgstr ""
-"Revízia: %1!ld! (%2!s!)\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Autor: %5!s!\r\n"
-"Dátum: %6!s!\r\n"
+"Revízia: %ld (%s)\r\n"
+"URL: %s\r\n"
+"%sAutor: %s\r\n"
+"Dátum: %s\r\n"
 "\r\n"
-"Značky (%7!d!):%8!s!\r\n"
+"Značky (%d):%s\r\n"
 "\r\n"
 "Správa denníka:\r\n"
-"%9!s!"
+"%s"
 
 #. Resource IDs: (116, 65535)
 msgid "Revisions"
@@ -7416,10 +7107,6 @@ msgstr "Ukladám súbory"
 msgid "Saving patchfile to:"
 msgstr "Ukladám záplatu do:"
 
-#. Resource IDs: (1522)
-msgid "Scan"
-msgstr "Analyzovať"
-
 #. Resource IDs: (1014, 1017, 1064, 1212)
 msgid "Scintilla"
 msgstr "Stopa"
@@ -7443,10 +7130,6 @@ msgstr "Hľadať:"
 #. Resource IDs: (7)
 msgid "Search string not found!"
 msgstr "Hľadaný reťazec nenájdený!"
-
-#. Resource IDs: (169)
-msgid "Searching for better path to apply patch..."
-msgstr "Vyhladávanie lepšej cesty na použitie záplaty"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -7495,7 +7178,7 @@ msgstr "Vyberte SSH klienta"
 
 #. Resource IDs: (3858)
 msgid "Select a button."
-msgstr "Zvoľte tlačidlo."
+msgstr "Zvoľte tlačítko."
 
 #. Resource IDs: (3585)
 msgid "Select an object on which to get Help"
@@ -7570,10 +7253,6 @@ msgid "Select text editor application"
 msgstr "Vyberte aplikáciu, ktorá bude použitá na úpravu textových súborov"
 
 #. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Vyberte URL adresy pre reintegrovanie"
-
-#. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
 msgstr "Vyberte URL adresy pre zlučovanie stromov"
 
@@ -7632,11 +7311,11 @@ msgstr "Nastaviť čas súborov na \"&čas posledného odovzdania\""
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Set property '%1!S!' on\r\n"
-"%2!s!"
+"Set property '%s' on\r\n"
+"%s"
 msgstr ""
-"Nastaviť vlastnosť \"%1!S!\" na\r\n"
-"%2!s!"
+"Nastaviť vlastnosť '%s' na\r\n"
+"%s"
 
 #. Resource IDs: (13)
 msgid "Setting properties..."
@@ -7685,7 +7364,7 @@ msgstr "Ukázať"
 
 #. Resource IDs: (16996)
 msgid "Show &Accelerator for:"
-msgstr "Zobraziť skratkové &tlačidlo pre:"
+msgstr "Zobraziť skratkové &tlačítko pre:"
 
 # Zobraziť &Všetko
 #. Resource IDs: (115, 1031)
@@ -7723,6 +7402,10 @@ msgstr "Zobraziť &denník..."
 #. Resource IDs: (1088)
 msgid "Show &overlays and context menu only in explorer"
 msgstr "Z&obrazovať prekrytie a kontextovú ponuku len v Explorer-y"
+
+#. Resource IDs: (1265)
+msgid "Show &properties"
+msgstr "Zobraziť &vlastnosti"
 
 #. Resource IDs: (1073)
 msgid "Show &unversioned files"
@@ -7801,12 +7484,20 @@ msgid "Show excluded folders as normal"
 msgstr "Zobraziť vylúčené adresáre ako normálne"
 
 #. Resource IDs: (1480)
-msgid "Show externals from &different repositories"
-msgstr "Zobraziť externé z o&dlišných úložísk"
+msgid "Show externals from different repositories"
+msgstr "Zobraziť externé z odlišných úložísk"
 
 #. Resource IDs: (16656)
 msgid "Show f&ull menus after a short delay"
 msgstr "Po chvíľke zobraziť &celú ponuku "
+
+#. Resource IDs: (1264)
+msgid "Show i&gnored files"
+msgstr "Zobraziť i&gnorované súbory"
+
+#. Resource IDs: (1480)
+msgid "Show items in externals"
+msgstr "Zobraziť externé objekty"
 
 #. Resource IDs: (1037)
 msgid "Show l&og"
@@ -7816,17 +7507,9 @@ msgstr "Zobraziť &denník"
 msgid "Show linenumber&s"
 msgstr "Zobraz &čísla riadkov"
 
-#. Resource IDs: (1037)
-msgid "Show lo&g"
-msgstr "Zobraziť &denník"
-
 #. Resource IDs: (2051)
 msgid "Show oldest node at top"
 msgstr "Zobraziť najstarší vrchol na vrchu"
-
-#. Resource IDs: (1229)
-msgid "Show only a&ffected paths"
-msgstr "Zobraziť iba &ovlyvnené cesty"
 
 #. Resource IDs: (2052)
 msgid "Show only the changed parts of the path name. Replace unchanged elements with dots."
@@ -7896,19 +7579,27 @@ msgstr "Zobrazí štatistiku pre vybraný zásobník denníka"
 msgid "Show tags on the copy source, not as separate nodes"
 msgstr "Zobrazí značky na kópií zdroja, nie ako samostatný vrchol"
 
+#. Resource IDs: (1209)
+msgid "Show un&modified files"
+msgstr "Zobraziť &nezmenené súbory"
+
+#. Resource IDs: (1073)
+msgid "Show un&versioned files"
+msgstr "Zobraziť ne&verziované súbory"
+
 #. Resource IDs: (198)
 msgid "Show/Hide"
 msgstr "Zobraziť/skryť"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "Showing %1!ld! revision(s), from revision %2!ld! to revision %3!ld! - %4!ld! revision(s) selected."
-msgstr "Zobrazené revízie: %1!ld! (od revízie %2!ld! do revízie %3!ld!) - Vybrané revízie: %4!ld!"
 
 #. Resource IDs: (272)
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Zobrazujem %ld uzlov"
+
+#. Resource IDs: (115)
+#, c-format
+msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
+msgstr "Zobrazené revízie: %ld (od revízie %ld do revízie %ld) - Vybrané revízie: %ld"
 
 #. Resource IDs: (272)
 #, c-format
@@ -8049,7 +7740,7 @@ msgstr "Štandard"
 
 #. Resource IDs: (569)
 msgid "Start Commit Hook"
-msgstr "Spustiť odovzdávací pripnutý (hook)skript"
+msgstr "Spustiť odovzdavací pripnutý (hook)skript"
 
 #. Resource IDs: (65535)
 msgid "Start Revision"
@@ -8111,35 +7802,6 @@ msgstr "Stefan KÜNG, Lübbe ONKEN (preklad Ot(ik))"
 msgid "Stripes"
 msgstr "Prúžky"
 
-#. Resource IDs: (117)
-msgid ""
-"Sub-string filter:\r\n"
-"* Specify one or more strings, separated by spaces. All sub-strings must match.\r\n"
-"* Put a - in front of a sub-string to exclude revisions that contain this sub-string.\r\n"
-"* Enclose strings that contain spaces etc. with \".\r\n"
-"* Put a ! at the beginning of the line to invert the whole filter condition.\r\n"
-"\r\n"
-"Examples:\r\n"
-"myname  2008    : my commits of 2008\r\n"
-".h  -.cpp              : commits that changed headers but no implementations\r\n"
-"\" \"                        : commits with spaces (ex. when searching in paths only)\r\n"
-"-\"\"show all\"\"        : commits that don't contain the string '\"show all\"'\r\n"
-"!myname  .cpp    : everything but my commits to .cpp files"
-msgstr ""
-"Sub-string filter:\r\n"
-"* Zadajte jeden, alebo viac reťazcov, oddelených medzerami.\r\n"
-"* Všetky podreťazce sa musia zhodovať. Dajte - pred podretazec\r\n"
-"* na vylúčenie revízií čo obsahujú daný podreťazec.\r\n"
-"* Reťazce, ktoré obsahujú medzery uzavrite do \".\r\n"
-"* Dajte ! pred riadok na zmenu celej podmienky.\r\n"
-"\r\n"
-"Príklady:\r\n"
-"mojemeno  2008    : moje odovzdania z 2008\r\n"
-".h  -.cpp              : odovzdania, ktoré zmenili hlavičky, ale nie implementáciu\r\n"
-"\" \"                        : odovzdania s medzerami (ex. when searching in paths only)\r\n"
-"-\"\"show all\"\"        : odovzdania neobsahujúce reťazec '\"show all\"'\r\n"
-"!mojemeno  .cpp    : všetky odovzdania .cpp okrem mojich"
-
 #. Resource IDs: (65535)
 msgid "Subversion"
 msgstr "Subversion"
@@ -8162,11 +7824,12 @@ msgid ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion encountered the problem in:\n"
-"file %1!s!, line %2!ld!\n"
-"expression = %3!s!"
+"file %s, line %ld\n"
+"expression = %s"
 msgstr ""
 "Subversion zaznamenal vážny problém.\n"
-"Prosím venujte čas a oznámte to na náš mailing list\n"
+"Prosím venujte čas a oznámte to na mailing list Subversion\n"
+"(users@subversion.apache.org)\n"
 "poskytnite tak mnoho informácií ako je možné\n"
 "o tom čo ste robili.\n"
 "Pred odoslanim prosím prezrite archív mailing listu,\n"
@@ -8176,8 +7839,8 @@ msgstr ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion zaznamenal problém v:\n"
-"súbor %1!s!, riadok %2!ld!\n"
-"výraz = %3!s!"
+"súbor %s, riadok %ld\n"
+"výraz = %s"
 
 #. Resource IDs: (84)
 msgid ""
@@ -8194,7 +7857,8 @@ msgid ""
 "Subversion reported the following:"
 msgstr ""
 "Subversion zaznamenal vážny problém.\n"
-"Prosím venujte čas a oznámte to na náš mailing list\n"
+"Prosím venujte čas a oznámte to na mailing list Subversion\n"
+"(users@subversion.apache.org)\n"
 "poskytnite tak mnoho informácií ako je možné\n"
 "o tom čo ste robili.\n"
 "Pred odoslanim prosím prezrite archív mailing listu,\n"
@@ -8203,7 +7867,7 @@ msgstr ""
 "Archív mailing listu môžete nájsť na\n"
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
-"Subversion zaznamenal problém:"
+"Subversion oznámil:"
 
 #. Resource IDs: (79)
 msgid ""
@@ -8229,8 +7893,8 @@ msgid "Subversion server file:"
 msgstr "Súbor Subversion servera:"
 
 #. Resource IDs: (1232)
-msgid "Swit&ch working copy to new branch/tag"
-msgstr "&Prepnúť pracovnú kópiu na novú vetvu/značku"
+msgid "Sw&itch working copy to new branch/tag"
+msgstr "Prepnúť pracovnú kópiu na novú ve&tvu/značku"
 
 #. Resource IDs: (229)
 #, c-format
@@ -8653,15 +8317,15 @@ msgstr ""
 #, c-format
 msgid ""
 "The patch seems outdated! The file line\n"
-"%1!s!\n"
+"%s\n"
 "and the patchline\n"
-"%2!s!\n"
+"%s\n"
 "do not match!"
 msgstr ""
 "Záplata vyzerá byť zastaralá! Riadok súboru\n"
-"%1!s!\n"
+"%s\n"
 "a riadok záplaty\n"
-"%2!s!\n"
+"%s\n"
 "sa nezhodujú!"
 
 #. Resource IDs: (88)
@@ -8677,7 +8341,7 @@ msgstr ""
 "Cesta/URL, ktorú ste zadali vyzerá byť vo Windows nepovolená!\n"
 "Môžete to napriek tomu skúsiť, ale asi to spôsobí chybu.\n"
 "\n"
-"Platná adresa vo Windows nesmie obsahovať  \"<<>|\"?*:\" a ani jedno z mien zariadení:\n"
+"Platná adresa vo Windows nesmie obsahovať  '<<>|\"?*:' a ani jedno z mien zariadení:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$\n"
 "\n"
 "Chcete napriek tomu pokračovať?"
@@ -8686,39 +8350,22 @@ msgstr ""
 #, c-format
 msgid ""
 "The path\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "in the patchfile does not exist.\n"
 "TortoiseMerge found the relative path\n"
-"<i>%2!s!</i>\n"
+"<i>%s</i>\n"
 "which seems to match the directory you're applying the patch.\n"
 "\n"
 "Do you want to use the suggested path? Answering 'no' will quit TortoiseMerge."
 msgstr ""
 "Cesta\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "v súbore záplat neexistuje.\n"
 "TortoiseMerge našiel relatívnu cestu\n"
-"<i>%2!s!</i>,\n"
+"<i>%s</i>,\n"
 "ktorá vyzerá, že sa zhoduje lepšie.\n"
 "\n"
 "Chcete použiť navrhnutú cestu? Odpoveď nie ukončí TortoiseMerge."
-
-#. Resource IDs: (314)
-#, c-format
-msgid ""
-"The path\n"
-"<i>%1!s!</i>\n"
-"seems not to match the paths in the patchfile.\n"
-"But TortoiseMerge found the path\n"
-"<i>%2!s!</i>\n"
-"matches it better. Do you want to use the suggested path instead?"
-msgstr ""
-"Cesta\n"
-"<i>%1!s!</i>\n"
-"nevyzerá byť zhodná s cestou zo súboru záplat.\n"
-"Ale TortoiseMerge našiel cestu\n"
-"<i>%2!s!</i>,\n"
-"ktorá sa zhoduje lepšie. Chcete použiť navrhnutú cestu?"
 
 #. Resource IDs: (314)
 #, c-format
@@ -8732,6 +8379,23 @@ msgstr ""
 "<i>%s</i>\n"
 "v súbore záplat neexistuje.\n"
 "TortoiseMerge sa pokúsil nájsť cestu vynechaním prefixov, ale nebola nájdená zhoda."
+
+#. Resource IDs: (314)
+#, c-format
+msgid ""
+"The path\n"
+"<i>%s</i>\n"
+"seems not to match the paths in the patchfile.\n"
+"But TortoiseMerge found the path\n"
+"<i>%s</i>\n"
+"matches it better. Do you want to use the suggested path instead?"
+msgstr ""
+"Cesta\n"
+"<i>%s</i>\n"
+"nevyzerá byť zhodná s cestou zo súboru záplat.\n"
+"Ale TortoiseMerge našiel cestu\n"
+"<i>%s</i>,\n"
+"ktorá sa zhoduje lepšie. Chcete použiť navrhnutú cestu?"
 
 #. Resource IDs: (80)
 msgid "The repository was successfully created."
@@ -8781,18 +8445,6 @@ msgstr ""
 "%s\n"
 "nie je prázdny!\n"
 "Ste si istý, že chcete získanie/export do tohoto adresára?"
-
-#. Resource IDs: (279)
-msgid "The target working copy has local modifications!"
-msgstr "Cieľová pracovná kópia obsahuje miestne zmeny!"
-
-#. Resource IDs: (279)
-msgid ""
-"The target working copy has local modifications.\n"
-"Do you want to merge anyway?"
-msgstr ""
-"Cieľová pracovná kópia ma miestne zmeny!\n"
-"Chcete napriek tomu zlučovať?"
 
 #. Resource IDs: (195)
 msgid ""
@@ -8921,7 +8573,7 @@ msgid ""
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 msgstr ""
 "Toto nie je platná cesta!\n"
-"Platná cesta nesmie obsahovať \"<<>|\"?*:\" ani meno nasledovných zariadení:\n"
+"Platná cesta nesmie obsahovať '<<>|\"?*:' ani meno nasledovných zariadení:\n"
 "com1-com9, lpt1-lpt9, prn, aux, con, nul, clock$"
 
 #. Resource IDs: (594)
@@ -8998,12 +8650,16 @@ msgid ""
 "To steal the lock, right-click on the parent folder of this item and select 'Get Lock' from the context menu.\n"
 "This will bring up the locking dialog where you can enforce the lock, i.e., 'steal' it from the one currently holding it."
 msgstr ""
-"Na ukradnutie zámky, stlačte pravý klik na rodičovskom adresári objektu a vyberte \"Uzamknúť\" z kontextovej ponuky.\n"
-"Toto vám zobrazí dialóg zamykania, kde môžete vynútiť zámok - \"ukradnúť\" ho od jeho aktuálneho vlastníka."
+"Na ukradnutie zámky, stlačte pravý klik na rodičovskom adresári objektu a vyberte 'Uzamknúť' z kontextovej ponuky.\n"
+"Toto vám zobrazí dialóg zamykania, kde môžete vynútiť zámok - 'ukradnúť' ho od jeho aktuálneho vlastníka."
 
 #. Resource IDs: (1201, 65535)
 msgid "To:"
 msgstr "Do:"
+
+#. Resource IDs: (1495)
+msgid "To: (end URL and revision of the range to merge)"
+msgstr "Po: (posledná URL a adresa rozsahu zlučovania)"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -9200,7 +8856,7 @@ msgstr "Uzly kmeňa"
 
 #. Resource IDs: (251)
 msgid "Try a 'Cleanup'. If that doesn't work you need to do a fresh checkout."
-msgstr "Skúste \"Vyčistiť\". Keď to nepomôže treba vykonať nové získanie."
+msgstr "Skúste 'Vyčistiť'. Keď to nepomôže treba vykonať nové získanie."
 
 # Skúsiť znova
 #. Resource IDs: (73)
@@ -9233,8 +8889,8 @@ msgid "URL of Subversion items"
 msgstr "Prvky Subversion URL"
 
 #. Resource IDs: (1491)
-msgid "URL to merge &from"
-msgstr "URL, z &ktorej sa má zlučovať"
+msgid "URL to merge from"
+msgstr "URL, z ktorej sa má zlučovať"
 
 #. Resource IDs: (144, 11023, 65535)
 msgid "URL:"
@@ -9243,15 +8899,6 @@ msgstr "URL:"
 #. Resource IDs: (75)
 msgid "URL: "
 msgstr "URL: "
-
-# zmenený
-#. Resource IDs: (1209)
-msgid "Un&modified"
-msgstr "Ne&zmenené"
-
-#. Resource IDs: (1073)
-msgid "Un&versioned"
-msgstr "Od&verziované"
 
 #. Resource IDs: (220)
 #, c-format
@@ -9346,26 +8993,22 @@ msgstr ""
 
 #. Resource IDs: (274, 32786)
 msgid "Unified &diff of HEAD revisions"
-msgstr "Unifikovaný \"&diff\" HEAD revízie"
+msgstr "Unifikovaný '&diff' HEAD revízie"
 
 #. Resource IDs: (81)
 #, c-format
 msgid ""
 "Unknown certificate issuer.\n"
-"  Fingerprint: %1!s!\n"
-"  Distinguished name: %2!s!"
+"  Fingerprint: %s\n"
+"  Distinguished name: %s"
 msgstr ""
 "Neznámy pôvodca certifikátu.\n"
-"  Otlačok: %1!s!\n"
-"  (význačné) Meno: %2!s!"
+"  Otlačok: %s\n"
+"  (význačné )Meno: %s"
 
 #. Resource IDs: (20)
 msgid "Unknown depth"
 msgstr "Neznáma hĺba"
-
-#. Resource IDs: (106)
-msgid "Unknown failure in SVN::List"
-msgstr "Neznáma chyba v SVN::List"
 
 # Odomkni
 #. Resource IDs: (221, 230, 242)
@@ -9461,11 +9104,6 @@ msgstr "Aktualizovanie a obnovovanie zámkov..."
 msgid "Updating log cache"
 msgstr "Aktualizácia pamäte denníka"
 
-# : pracovná kópia
-#. Resource IDs: (15)
-msgid "Upgrade working copy"
-msgstr "Vynoviť pracovnú kópiu"
-
 #. Resource IDs: (16530)
 msgid "Use &Default Image: "
 msgstr "Použiť prednastavený &obrázok"
@@ -9492,13 +9130,9 @@ msgid ""
 "To separate multiple exceptions, use commas (',').\r\n"
 "Example: *.mylan.com, *.company.com"
 msgstr ""
-"Použite \"*\" za zástupný znak pri určovaní výnimiek(vylúčení).\r\n"
-"Výnimky oddeľte  (\",\").\r\n"
+"Použite '*' za zástupný znak pri určovaní výnimiek(vylúčení).\r\n"
+"Výnimky oddeľte  (',').\r\n"
 "Napríklad: *.mojasiet.com, *.firma.com"
-
-#. Resource IDs: (1538)
-msgid "Use Aero dialogs"
-msgstr "Použit Aero dialógy"
 
 #. Resource IDs: (1230)
 msgid "Use URL of &WC as the default \"From:\" URL"
@@ -9556,6 +9190,10 @@ msgstr "Použiť oba bloky (tento posledný)"
 msgid "Use left file"
 msgstr "Použiť"
 
+#. Resource IDs: (3)
+msgid "Use local"
+msgstr "Použiť miestne"
+
 #. Resource IDs: (1432)
 msgid "Use recycle bin when reverting"
 msgstr "Pri vracaní požiť odpadkový kôš"
@@ -9563,6 +9201,10 @@ msgstr "Pri vracaní požiť odpadkový kôš"
 #. Resource IDs: (116)
 msgid "Use regular expression"
 msgstr "Použiť regulárny výraz"
+
+#. Resource IDs: (4)
+msgid "Use repository"
+msgstr "Použiť úložisko"
 
 #. Resource IDs: (1066)
 msgid "Use stri&keout for removed lines"
@@ -9574,51 +9216,51 @@ msgstr "Použiť systémové nastavenie dátumu/času"
 
 #. Resource IDs: (251)
 msgid "Use text block from '&mine'"
-msgstr "Použiť blok \"&Moje\""
+msgstr "Použiť blok '&Moje'"
 
 #. Resource IDs: (251)
 msgid "Use text block from '&theirs'"
-msgstr "Použiť blok \"&Ich\""
+msgstr "Použiť blok '&Ich'"
 
 #. Resource IDs: (251)
 msgid "Use text block from 'm&ine' before 'theirs'"
-msgstr "Použiť blok \"M&oje\" pred \"Ich\""
+msgstr "Použiť blok 'M&oje' pred 'Ich'"
 
 #. Resource IDs: (2052)
 msgid ""
 "Use text block from 'mine' before 'theirs'\n"
 "Use 'mine' text block then 'theirs'"
 msgstr ""
-"Použiť blok \"Moje\" pred \"Ich\"\n"
-"\"Moje\", potom \"Ich\""
+"Použiť blok 'Moje' pred 'Ich'\n"
+"'Moje', potom 'Ich'"
 
 #. Resource IDs: (2052)
 msgid ""
 "Use text block from 'mine'\n"
 "Use 'mine' text block"
 msgstr ""
-"Použiť blok z \"Moje\"\n"
-"Použiť \"Moje\""
+"Použiť blok z 'Moje'\n"
+"Použiť 'Moje'"
 
 #. Resource IDs: (251)
 msgid "Use text block from 't&heirs' before 'mine'"
-msgstr "Použiť blok \"i&ch\" pred \"moje\""
+msgstr "Použiť blok 'i&ch' pred 'moje'"
 
 #. Resource IDs: (2052)
 msgid ""
 "Use text block from 'theirs' before 'mine'\n"
 "Use 'theirs' text block then 'mine'"
 msgstr ""
-"Použiť blok  \"Ich\" pred \"Moje\"\n"
-"\"Ich\", potom \"Moje\""
+"Použiť blok  'Ich' pred 'Moje'\n"
+"'Ich', potom 'Moje'"
 
 #. Resource IDs: (2052)
 msgid ""
 "Use text block from 'theirs'\n"
 "Use 'theirs' text block"
 msgstr ""
-"Použiť blok z \"Ich\"\n"
-"Použiť \"Ich\""
+"Použiť blok z 'Ich'\n"
+"Použiť 'Ich'"
 
 #. Resource IDs: (32820)
 msgid "Use text block from \"&mine\""
@@ -9743,16 +9385,6 @@ msgid "Visual Studio.NET 200&5"
 msgstr "Visual Studio.NET 200&5"
 
 #. Resource IDs: (65535)
-msgid ""
-"WARNING:\r\n"
-"Only change these settings if you are absolutely sure what you are doing!\r\n"
-"To set the values to their default, delete the value text."
-msgstr ""
-"VAROVANIE:\r\n"
-"Mente tieto nastavenia len keď ste si úplne istý čo robíte!\r\n"
-"Pre nastavenie do predvoleného stavu vymažte text hodnoty."
-
-#. Resource IDs: (65535)
 msgid "WC node"
 msgstr "Uzol pracovnej kópie"
 
@@ -9851,11 +9483,6 @@ msgstr ""
 "Pracovná kópia preložená do \n"
 "%s"
 
-#. Resource IDs: (277)
-#, c-format
-msgid "Working copy: %s\n"
-msgstr "Pracovná kópia: %s\n"
-
 #. Resource IDs: (73)
 msgid "Yes"
 msgstr "Áno"
@@ -9920,7 +9547,7 @@ msgid ""
 msgstr ""
 "Túto vlastnosť nie je možné nastaviť na adresáre!\n"
 "Ak ju chcete použiť na všetky súbory v tom adresári,\n"
-"musíte vybrať zaškrtávacie políčko \"rekurzívne\"."
+"musíte vybrať zaškrtávacie políčko 'rekurzívne'."
 
 #. Resource IDs: (105)
 msgid ""
@@ -9985,18 +9612,18 @@ msgstr "Mali by ste vybrať obrázok!"
 #, c-format
 msgid ""
 "You're trying to add the item\n"
-"'%1!s!',\n"
+"'%s',\n"
 "but the item\n"
-"'%2!s!'\n"
+"'%s'\n"
 "already exists.\n"
 "\n"
 "It seems the item got renamed outside Subversion but only with case changes.\n"
 "Do you really want to add it?"
 msgstr ""
 "Snažíte sa pridať objekt\n"
-"\"%1!s!\",\n"
+"'%s',\n"
 "ale objekt\n"
-"\"%2!s!\"\n"
+"'%s'\n"
 "už existuje.\n"
 "\n"
 "Vyzerá to, že bol premenovaný mimo Subversion, ale zmenila sa iba veľkosť písmen.\n"
@@ -10044,12 +9671,12 @@ msgstr ""
 #, c-format
 msgid ""
 "Your working copy contains modifications.\n"
-"Lowest revision in working copy: %1!ld!\n"
-"Path: %2!s!"
+"Lowest revision in working copy: %ld\n"
+"Path: %s"
 msgstr ""
 "Vaša pracovná kópia obsahuje zmeny.\n"
-"Najnižšia revízia v pracovnej kópií: %1!ld!\n"
-"Cesta: %2!s!"
+"Najnižšia revízia v pracovnej kópií: %ld\n"
+"Cesta: %s"
 
 #. Resource IDs: (88)
 msgid ""
@@ -10162,8 +9789,8 @@ msgstr ""
 "Porovnávanie je bez rozlišovania veľkosti písmen.\n"
 "Šablóny musia byť zadané malými písmenami.\n"
 "Biele znaky sú považované za súčasť šablóny.\n"
-"Povolené náhradné znaky sú \"?\" a \"*\".\n"
-"Šablóny sú oddelené pomocou  \";\"."
+"Povolené náhradné znaky sú '?' a '*'.\n"
+"Šablóny sú oddelené pomocou  ';'."
 
 #. Resource IDs: (65535)
 msgid "_POPUP_"
@@ -10180,8 +9807,8 @@ msgstr "pridané súbory"
 
 #. Resource IDs: (272)
 #, c-format
-msgid "alias (%1!s!): %2!s!"
-msgstr "alias (%1!s!): %2!s!"
+msgid "alias (%s): %s"
+msgstr "alias (%s): %s"
 
 #. Resource IDs: (272)
 #, c-format
@@ -10210,12 +9837,8 @@ msgid ""
 "ask repository first if 'online' -\n"
 "work entirely from cache if 'offline'"
 msgstr ""
-"pýtať sa úložiska keď je \"pripojený\" -\n"
-"pracovať len so zásobníkom keď je \"odpojený\""
-
-#. Resource IDs: (278)
-msgid "at this revision"
-msgstr "na tejto revízií"
+"pýtať sa úložiska keď je 'pripojený' -\n"
+"pracovať len so zásobníkom keď je 'odpojený'"
 
 #. Resource IDs: (245)
 msgid "author"
@@ -10233,8 +9856,8 @@ msgid ""
 "is appended to the log message."
 msgstr ""
 "bugtraq:append\r\n"
-"Nastavte \"false\" keď chcete aby \"bugtracking ID\" bolo pridané na vrch\r\n"
-"správy denníka. Predvolená hodnota \"true\" znamená, že \"bugtracking ID\"\r\n"
+"Nastavte 'false' keď chcete aby ' bugtracking ID' bolo pridané na vrch\r\n"
+"správy denníka. Predvolená hodnota 'true' znamená, že 'bugtracking ID'\r\n"
 "je k správe denníka pripojená."
 
 #. Resource IDs: (577)
@@ -10266,7 +9889,7 @@ msgid ""
 msgstr ""
 "bugtraq:message\r\n"
 "Reťazec, ktorý je pridaný k správe v denníku, keď je zadané číslo prípadu.\r\n"
-"Reťazec musí obsahovať \"%BUGID%\", ktoré bude nahradené číslom prípadu."
+"Reťazec musí obsahovať '%BUGID%', ktoré bude nahradené číslom prípadu."
 
 #. Resource IDs: (577)
 msgid ""
@@ -10274,7 +9897,7 @@ msgid ""
 "Set to 'false' if your bugtracking system has issues which are referenced not by numbers."
 msgstr ""
 "bugtraq:number\r\n"
-"Nastavte \"false\" keď váš bugtracking systém nemá odkazy na prípady podľa čísel."
+"Nastavte 'false' keď váš bugtracking systém nemá odkazy na prípady podľa čísel."
 
 #. Resource IDs: (577)
 msgid ""
@@ -10301,7 +9924,7 @@ msgid ""
 msgstr ""
 "bugtraq:url\r\n"
 "URL odkazujúca na záznam prípadov.\r\n"
-"Musí obsahovať \"%BUGID%\", ktoré bude nahradené číslom prípadu."
+"Musí obsahovať '%BUGID%', ktoré bude nahradené číslom prípadu."
 
 #. Resource IDs: (65535)
 msgid "changes total: "
@@ -10311,10 +9934,6 @@ msgstr "zmien celkovo:"
 #. Resource IDs: (244, 245)
 msgid "commits"
 msgstr "odovzdaní"
-
-#. Resource IDs: (277)
-msgid "committed revision"
-msgstr "odovzdaná revízia"
 
 # konfliktných
 #. Resource IDs: (11)
@@ -10329,10 +9948,10 @@ msgstr "pripojenie:"
 #, c-format
 msgid ""
 "copied from\r\n"
-"%1!s! - revision %2!ld!"
+"%s - revision %ld"
 msgstr ""
 "prekopírované z\r\n"
-"%1!s! - revízia %2!ld!"
+"%s - revízia %ld"
 
 #. Resource IDs: (65535)
 msgid "copied:"
@@ -10439,23 +10058,9 @@ msgstr "zamknuté"
 msgid "locked:"
 msgstr "zamknuté:"
 
-#. Resource IDs: (1539)
-msgid "log text &editor"
-msgstr "&editor denníka"
-
 #. Resource IDs: (65535)
 msgid "max revision: "
 msgstr "max revízia:"
-
-#. Resource IDs: (278)
-#, fuzzy
-msgid "max. at this revision"
-msgstr "max. na tejto revízií"
-
-#. Resource IDs: (278)
-#, fuzzy
-msgid "max. committed revision"
-msgstr "max. odovzdaná revízia"
 
 # zlúčených
 #. Resource IDs: (11, 65535)
@@ -10465,16 +10070,6 @@ msgstr "zlúčené"
 #. Resource IDs: (65535)
 msgid "merges total: "
 msgstr "zlúčení celkom:"
-
-#. Resource IDs: (278)
-#, fuzzy
-msgid "min. at this revision"
-msgstr "min. na tejto revízií"
-
-#. Resource IDs: (278)
-#, fuzzy
-msgid "min. committed revision"
-msgstr "min. odovzdaná revízia"
 
 #. Resource IDs: (10)
 msgid "missing"
@@ -10529,7 +10124,7 @@ msgstr "blokované"
 
 #. Resource IDs: (601)
 msgid "offline"
-msgstr "odpojené"
+msgstr "offline"
 
 #. Resource IDs: (3845)
 #, c-format
@@ -10571,7 +10166,7 @@ msgstr "prn"
 
 #. Resource IDs: (245)
 msgid "quarter of year"
-msgstr "štvrťrok"
+msgstr "švrťrok"
 
 #. Resource IDs: (195)
 msgid "readonly"
@@ -10588,21 +10183,17 @@ msgstr "rešpektovanie pôvodu"
 
 #. Resource IDs: (326)
 #, c-format
-msgid "revision %1!s!-%2!s!, revision %3!s!-%4!s!"
-msgstr "revízia %1!s!-%2!s!, revízia %3!s!-%4!s!"
+msgid "revision %s-%s, revision %s-%s"
+msgstr "revízia %s-%s, revízia %s-%s"
 
 #. Resource IDs: (65535)
 msgid "revision count: "
 msgstr "počet revízií:"
 
-#. Resource IDs: (626)
-msgid "revision has already been merged"
-msgstr "revízia už bola zlúčená"
-
 #. Resource IDs: (326)
 #, c-format
-msgid "revisions %1!s!-%2!s!, %3!s!"
-msgstr "revízie %1!s!-%2!s!, %3!s!"
+msgid "revisions %s-%s, %s"
+msgstr "Revízie %s-%s, %s"
 
 #. Resource IDs: (65535)
 msgid "revisions: "
@@ -10611,10 +10202,6 @@ msgstr "revízie:"
 #. Resource IDs: (214)
 msgid "root project"
 msgstr "koreňový projekt"
-
-#. Resource IDs: (169)
-msgid "scanning path:"
-msgstr "hĺbka  analýzy:"
 
 #. Resource IDs: (65535)
 msgid "skip ranges: "
@@ -10626,7 +10213,7 @@ msgid ""
 "One of 'native', 'LF', 'CR', 'CRLF'."
 msgstr ""
 "svn:eol-style\r\n"
-"Jeden z \"native\", \"LF\", \"CR\", \"CRLF\"."
+"Jeden z  'native', 'LF', 'CR', 'CRLF'."
 
 #. Resource IDs: (576)
 msgid ""
@@ -10715,7 +10302,7 @@ msgid ""
 msgstr ""
 "svn:mime-type\r\n"
 "MIME typ súboru. Určuje, či súbor zlúčiť, a ako ho obslúžiť z Apache.\r\n"
-"MIME typ začínajúci \"text/\" (alebo bez určenia) je považovaný za textový.\r\n"
+"MIME typ začínajúci 'text/' (alebo bez určenia) je považovaný za textový.\r\n"
 "Ostatné súbory sú považované za binárne."
 
 #. Resource IDs: (576)
@@ -10727,7 +10314,7 @@ msgid ""
 "before they can edit it and commit changes."
 msgstr ""
 "svn:needs-lock\r\n"
-"Nastavte na hodnotu (napr.: \"*\") k vynúteniu zamknutia tohoto súboru.\r\n"
+"Nastavte na hodnotu (napr.: '*') k vynúteniu zamknutia tohoto súboru.\r\n"
 "Pri odovzdávaní a aktualizovaní bude súbor označený ako zamknutý,\r\n"
 "indikujúc, že užívateľ musí získať zámok k súboru\r\n"
 "predtým ako ho zmení, alebo odošle zmeny."
@@ -10752,10 +10339,6 @@ msgstr "odpojiť dočasne"
 #. Resource IDs: (65535)
 msgid "text [token count]: "
 msgstr "text [počet výrazov]:"
-
-#. Resource IDs: (626)
-msgid "the working copy is at this revision"
-msgstr "pracovná kópia je na revízií"
 
 #. Resource IDs: (583)
 msgid "there are conflicting modifications."
@@ -10807,7 +10390,7 @@ msgid ""
 "in the commit dialog."
 msgstr ""
 "tsvn:logfilelistenglish\r\n"
-"Nastavte na \"false\", keď nechcete, aby zoznam zmenených súborov v odovzdávacom okne\r\n"
+"Nastavte na 'false', keď nechcete, aby zoznam zmenených súborov v odovzdávacom okne\r\n"
 "bol vložený v Angličtine."
 
 #. Resource IDs: (578)
@@ -10817,14 +10400,6 @@ msgid ""
 msgstr ""
 "tsvn:logminsize\r\n"
 "Minimálny počet znakov záznamu denníka, aby bolo povolené odovzdanie."
-
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Regulárny výraz zodpovedajúci číslu revízie v správe denníka"
 
 #. Resource IDs: (578)
 msgid ""
@@ -10890,7 +10465,7 @@ msgid ""
 "Set to 'yes' if a warning shall be shown when no issue is entered in the commit dialog."
 msgstr ""
 "tsvn:warnifnoissue\r\n"
-"Nastavte na \"yes\" ak má byť zobrazené varovanie, pri odovzdávaní bez zadania prípadu."
+"Nastavte na 'áno' ak má byť zobrazené varovanie, pri odovzdávaní bez zadania prípadu."
 
 #. Resource IDs: (65535)
 msgid "user revprops total: "
@@ -10948,29 +10523,6 @@ msgstr "áno"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "Automatically check for &newer versions every week"
-#~ msgstr "Každý týždeň automaticky kontrolovať &nové verzie"
-#~ msgid ""
-#~ "If enabled, TortoiseSVN checks once a week if a newer version is available"
-#~ msgstr ""
-#~ "Keď je povolené, TortoiseSVN kontroluje každý týždeň, či je prístupná "
-#~ "nová verzia"
-#~ msgid "Edit conflict"
-#~ msgstr "Upraviť konflikty"
-#~ msgid "H&ide unrelated changed paths"
-#~ msgstr "&Skryť zmeny na neprislúchajúcich cestách"
-#~ msgid "Unversioned"
-#~ msgstr "Odverziované"
-#~ msgid "From URL:"
-#~ msgstr "Z URL:"
-#~ msgid "Show &properties"
-#~ msgstr "Zobraziť &vlastnosti"
-#~ msgid "Show i&gnored files"
-#~ msgstr "Zobraziť i&gnorované súbory"
-#~ msgid "Show un&modified files"
-#~ msgstr "Zobraziť &nezmenené súbory"
-#~ msgid "Show un&versioned files"
-#~ msgstr "Zobraziť ne&verziované súbory"
 #~ msgid ""
 #~ "Subversion encountered a serious problem.\n"
 #~ "Please take the time to report this on our mailing list\n"
@@ -10985,4 +10537,30 @@ msgstr "{BugTraq}"
 #~ "o tom čo ste robili.\n"
 #~ "\n"
 #~ "Subversion oznámil:"
+#~ msgid "%s, but the local file was already edited."
+#~ msgstr "%s, ale bol miestne upravený."
+#~ msgid "General::Revision Graph"
+#~ msgstr "Všeobecné::Graf revízií"
+#~ msgid "Go offline?"
+#~ msgstr "Odpojiť?"
+#~ msgid "Replaced node"
+#~ msgstr "Nahradiť uzol"
+#~ msgid ""
+#~ "GDI+ is required to save the revision graph as a picture.\n"
+#~ "You can get GDI+ from\n"
+#~ "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-"
+#~ "df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/"
+#~ "downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-"
+#~ "be590feaa05a&DisplayLang=en</a></u>"
+#~ msgstr ""
+#~ "Aby ste mohli uložiť graf ako obrázok je vyžadovaný GDI+.\n"
+#~ "GDI+ môžete získať z\n"
+#~ "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-"
+#~ "df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/"
+#~ "downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-"
+#~ "be590feaa05a&DisplayLang=en</a></u>"
+#~ msgid "Floppy drives (A: B:)"
+#~ msgstr "Pružné disky (A: B:)"
+#~ msgid "Only record the merge"
+#~ msgstr "Zlučenie iba zaznamenaj"
 

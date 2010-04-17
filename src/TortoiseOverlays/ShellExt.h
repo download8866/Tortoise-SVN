@@ -1,12 +1,12 @@
 // TortoiseOverlays - an overlay handler for Tortoise clients
-// Copyright (C) 2007, 2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 #pragma once
 #include <vector>
 
 #include "resource.h"
 
-extern	volatile LONG		g_cRefThisDll;			// Reference count of this DLL.
+extern	UINT				g_cRefThisDll;			// Reference count of this DLL.
 extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
 
 using namespace std;
@@ -58,7 +58,6 @@ private:
 	int				GetInstalledOverlays(void);		///< returns the maximum number of overlays TSVN shall use
 	void			LoadRealLibrary(LPCTSTR ModuleName, LPCTSTR clsid, LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD *pdwFlags);
 	void			LoadHandlers(LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD *pdwFlags);
-	bool			DropHandler(LPCWSTR registryKey);
 public:
 	CShellExt(FileState state);
 	virtual ~CShellExt();

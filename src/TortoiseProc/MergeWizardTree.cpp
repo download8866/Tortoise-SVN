@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,10 @@
 #include "MergeWizard.h"
 #include "MergeWizardTree.h"
 
+#include "Balloon.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardTree, CMergeWizardBasePage)
 
@@ -68,12 +69,10 @@ void CMergeWizardTree::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_START, m_sStartRev);
 	DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
 	DDX_Control(pDX, IDC_URLCOMBO2, m_URLCombo2);
-	DDX_Control(pDX, IDC_WCEDIT, m_WC);
 }
 
 
 BEGIN_MESSAGE_MAP(CMergeWizardTree, CMergeWizardBasePage)
-	ON_MESSAGE(WM_TSVN_MAXREVFOUND, &CMergeWizardTree::OnWCStatus)
 	ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
 	ON_BN_CLICKED(IDC_BROWSE, OnBnClickedBrowse)
 	ON_BN_CLICKED(IDC_BROWSE2, OnBnClickedBrowse2)
@@ -155,8 +154,6 @@ BOOL CMergeWizardTree::OnInitDialog()
 	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
 
-	StartWCCheckThread(((CMergeWizard*)GetParent())->wcPath);
-
 	return TRUE;
 }
 
@@ -174,7 +171,7 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
 	if (!StartRev.IsValid())
 	{
 		if (bShowErrors)
-			ShowEditBalloon(IDC_REVISION_START, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_REVISION_START), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return FALSE;
 	}
 
@@ -186,7 +183,7 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
 	if (!EndRev.IsValid())
 	{
 		if (bShowErrors)
-			ShowEditBalloon(IDC_REVISION_END, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+			CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_REVISION_END), IDS_ERR_INVALIDREV, TRUE, IDI_EXCLAMATION);
 		return FALSE;
 	}
 
@@ -363,8 +360,6 @@ LPARAM CMergeWizardTree::OnRevSelected(WPARAM wParam, LPARAM lParam)
 
 LRESULT CMergeWizardTree::OnWizardNext()
 {
-	StopWCCheckThread();
-
 	if (!CheckData(true))
 		return -1;
 
@@ -412,13 +407,4 @@ void CMergeWizardTree::OnCbnEditchangeUrlcombo()
 void CMergeWizardTree::OnCbnEditchangeUrlcombo2()
 {
 	GetDlgItem(IDC_BROWSE2)->EnableWindow(!m_URLCombo2.GetString().IsEmpty());
-}
-
-LPARAM CMergeWizardTree::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
-{
-	if (wParam)
-	{
-		ShowEditBalloon(IDC_WCEDIT, IDS_MERGE_WCDIRTY, IDS_WARN_WARNING, TTI_WARNING);
-	}
-	return 0;
 }

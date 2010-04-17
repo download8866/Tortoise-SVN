@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,13 +29,12 @@ bool MergeAllCommand::Execute()
 	{
 		CSVNProgressDlg progDlg;
 		progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeAll);
-		progDlg.SetAutoClose (parser);
+		if (parser.HasVal(_T("closeonend")))
+			progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
 		progDlg.SetPathList(pathList);
 		progDlg.SetDepth(dlg.m_depth);
-		progDlg.SetDiffOptions(SVN::GetOptionsString(!!dlg.m_bIgnoreEOL, !!dlg.m_IgnoreSpaces));
-		int options = dlg.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
-		options |= dlg.m_bForce ? ProgOptForce : 0;
-		progDlg.SetOptions(options);
+		progDlg.SetDiffOptions(SVN::GetOptionsString(dlg.m_bIgnoreEOL, dlg.m_IgnoreSpaces));
+		progDlg.SetOptions(dlg.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0);
 
 		SVNRevRangeArray tempRevArray;
 		tempRevArray.AddRevRange(1, SVNRev::REV_HEAD);

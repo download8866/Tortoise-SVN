@@ -39,7 +39,8 @@ CExportDlg::CExportDlg(CWnd* pParent /*=NULL*/)
 
 CExportDlg::~CExportDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CExportDlg::DoDataExchange(CDataExchange* pDX)
@@ -72,9 +73,6 @@ END_MESSAGE_MAP()
 BOOL CExportDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_REVISIONGROUP);
-	m_aeroControls.SubclassOkCancelHelp(this);
 
 	m_sExportDirOrig = m_strExportDirectory;
 	m_bAutoCreateTargetName = !(PathIsDirectoryEmpty(m_sExportDirOrig) || !PathFileExists(m_sExportDirOrig));
@@ -180,7 +178,7 @@ void CExportDlg::OnOK()
 		ExportDirectory = CTSVNPath(m_strExportDirectory);
 	if (!ExportDirectory.IsValidOnWindows())
 	{
-		ShowEditBalloon(IDC_CHECKOUTDIRECTORY, IDS_ERR_NOVALIDPATH, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_CHECKOUTDIRECTORY, IDS_ERR_NOVALIDPATH);
 		return;
 	}
 
@@ -193,7 +191,7 @@ void CExportDlg::OnOK()
 		Revision = SVNRev(m_sRevision);
 	if (!Revision.IsValid())
 	{
-		ShowEditBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV);
 		return;
 	}
 	bool bAutoCreateTargetName = m_bAutoCreateTargetName;
@@ -205,7 +203,7 @@ void CExportDlg::OnOK()
 	// we need an url to export from - local paths won't work
 	if (!SVN::PathIsURL(CTSVNPath(m_URL)))
 	{
-		m_tooltips.ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL, IDI_ERROR);
 		m_bAutoCreateTargetName = bAutoCreateTargetName;
 		return;
 	}

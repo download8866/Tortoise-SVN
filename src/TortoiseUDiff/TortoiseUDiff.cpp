@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,7 +41,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	CCmdLineParser parser(lpCmdLine);
 
-	if (parser.HasKey(_T("?")) || parser.HasKey(_T("help")) ||(!parser.HasKey(_T("patchfile")) && !parser.HasKey(_T("p"))))
+	if (parser.HasKey(_T("?")) || parser.HasKey(_T("help")) || !parser.HasKey(_T("patchfile")))
 	{
 		TCHAR buf[1024];
 		LoadString(hInstance, IDS_COMMANDLINEHELP, buf, sizeof(buf)/sizeof(TCHAR));
@@ -58,32 +58,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	if (::LoadLibrary(_T("SciLexer.DLL")) == NULL)
 		return FALSE;
-
+	
 	CMainWindow mainWindow(hInstance);
-	mainWindow.SetRegistryPath(_T("Software\\TortoiseSVN\\UDiffViewerWindowPos"));
 	if (parser.HasVal(_T("title")))
 		mainWindow.SetTitle(parser.GetVal(_T("title")));
-	else if (parser.HasVal(_T("patchfile")))
-		mainWindow.SetTitle(parser.GetVal(_T("patchfile")));
 	else
-		mainWindow.SetTitle(_T("diff from pipe"));
-
+		mainWindow.SetTitle(parser.GetVal(_T("patchfile")));
 	if (mainWindow.RegisterAndCreateWindow())
 	{
-		bool bLoadedSuccessfully = false;
-		if (parser.HasKey(_T("p")))
-		{
-			// input from console pipe
-			// set console to raw mode
-			DWORD oldMode;
-			GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &oldMode);
-			SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), oldMode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
-
-			bLoadedSuccessfully = mainWindow.LoadFile(GetStdHandle(STD_INPUT_HANDLE));
-		}
-		else if (parser.HasVal(_T("patchfile")))
-			bLoadedSuccessfully = mainWindow.LoadFile(parser.GetVal(_T("patchfile")));
-		if (bLoadedSuccessfully)
+		if (mainWindow.LoadFile(parser.GetVal(_T("patchfile"))))
 		{
 			::ShowWindow(mainWindow.GetHWNDEdit(), SW_SHOW);
 			::SetFocus(mainWindow.GetHWNDEdit());
@@ -104,5 +87,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	}
 	return 0;
 }
+
 
 

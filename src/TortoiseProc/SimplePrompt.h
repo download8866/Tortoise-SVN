@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
  * \ingroup TortoiseProc
  * Helper dialog to ask the user for authentication data.
  */
-class CSimplePrompt : public CStandAloneDialog
+class CSimplePrompt : public CDialog
 {
 	DECLARE_DYNAMIC(CSimplePrompt)
 
@@ -40,7 +40,6 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	DECLARE_MESSAGE_MAP()
-
 public:
 	CString		m_sUsername;
 	CString		m_sPassword;

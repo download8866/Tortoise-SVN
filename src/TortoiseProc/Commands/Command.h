@@ -31,9 +31,6 @@
 class Command
 {
 public:
-
-	/// allow sub-classes to execute code during destruction
-	virtual ~Command() {};
 	/**
 	 * Executes the command.
 	 */

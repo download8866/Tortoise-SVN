@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,13 +21,6 @@
 #include "TortoiseBlame.h"
 #include "registry.h"
 #include "LangDll.h"
-#include "auto_buffer.h"
-#include "CreateProcessHelper.h"
-#include "UnicodeUtils.h"
-#include <ClipboardHelper.h>
-
-#include <algorithm>
-#include <cctype>
 
 #define MAX_LOADSTRING 1000
 
@@ -49,7 +42,7 @@ const bool ShowLine = true;
 bool ShowPath = false;
 
 static TortoiseBlame app;
-long TortoiseBlame::m_gotoLine = 0;
+long TortoiseBlame::m_gotoline = 0;
 
 TortoiseBlame::TortoiseBlame()
 {
@@ -61,53 +54,54 @@ TortoiseBlame::TortoiseBlame()
 	wLocator = 0;
 
 	m_font = 0;
-	m_italicFont = 0;
-	m_blameWidth = 0;
-	m_revWidth = 0;
-	m_dateWidth = 0;
-	m_authorWidth = 0;
-	m_pathWidth = 0;
-	m_lineWidth = 0;
+	m_italicfont = 0;
+	m_blamewidth = 0;
+	m_revwidth = 0;
+	m_datewidth = 0;
+	m_authorwidth = 0;
+	m_pathwidth = 0;
+	m_linewidth = 0;
 
-	m_windowColor = ::GetSysColor(COLOR_WINDOW);
-	m_textColor = ::GetSysColor(COLOR_WINDOWTEXT);
-	m_textHighLightColor = ::GetSysColor(COLOR_HIGHLIGHTTEXT);
-	m_mouseRevColor = InterColor(m_windowColor, m_textColor, 20);
-	m_mouseAuthorColor = InterColor(m_windowColor, m_textColor, 10);
-	m_selectedRevColor = ::GetSysColor(COLOR_HIGHLIGHT);
-	m_selectedAuthorColor = InterColor(m_selectedRevColor, m_textHighLightColor, 35);
-	m_mouseRev = -2;
+	m_windowcolor = ::GetSysColor(COLOR_WINDOW);
+	m_textcolor = ::GetSysColor(COLOR_WINDOWTEXT);
+	m_texthighlightcolor = ::GetSysColor(COLOR_HIGHLIGHTTEXT);
+	m_mouserevcolor = InterColor(m_windowcolor, m_textcolor, 20);
+	m_mouseauthorcolor = InterColor(m_windowcolor, m_textcolor, 10);
+	m_selectedrevcolor = ::GetSysColor(COLOR_HIGHLIGHT);
+	m_selectedauthorcolor = InterColor(m_selectedrevcolor, m_texthighlightcolor, 35);
+	m_mouserev = -2;
 
-	m_selectedRev = -1;
-	m_selectedOrigRev = -1;
-	m_selectedLine = -1;
+	m_selectedrev = -1;
+	m_selectedorigrev = -1;
+	m_SelectedLine = -1;
 	m_directPointer = 0;
 	m_directFunction = 0;
 
-	m_lowestRev = LONG_MAX;
-	m_highestRev = 0;
-	m_colorAge = true;
+	m_lowestrev = LONG_MAX;
+	m_highestrev = 0;
+	m_colorage = true;
 }
 
 TortoiseBlame::~TortoiseBlame()
 {
 	if (m_font)
 		DeleteObject(m_font);
-	if (m_italicFont)
-		DeleteObject(m_italicFont);
+	if (m_italicfont)
+		DeleteObject(m_italicfont);
 }
 
-std::wstring TortoiseBlame::GetAppDirectory()
+std::string TortoiseBlame::GetAppDirectory()
 {
-	std::wstring path;
+	std::string path;
 	DWORD len = 0;
 	DWORD bufferlen = MAX_PATH;		// MAX_PATH is not the limit here!
 	do 
 	{
 		bufferlen += MAX_PATH;		// MAX_PATH is not the limit here!
-		auto_buffer<TCHAR> pBuf(bufferlen);
+		TCHAR * pBuf = new TCHAR[bufferlen];
 		len = GetModuleFileName(NULL, pBuf, bufferlen);	
-		path = std::wstring(pBuf, len);
+		path = std::string(pBuf, len);
+		delete [] pBuf;
 	} while(len == bufferlen);
 	path = path.substr(0, path.rfind('\\') + 1);
 
@@ -146,29 +140,39 @@ LRESULT TortoiseBlame::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 	return ::SendMessage(wEditor, Msg, wParam, lParam);	
 }
 
+void TortoiseBlame::GetRange(int start, int end, char *text) 
+{
+	TEXTRANGE tr;
+	tr.chrg.cpMin = start;
+	tr.chrg.cpMax = end;
+	tr.lpstrText = text;
+	SendMessage(wEditor, EM_GETTEXTRANGE, 0, reinterpret_cast<LPARAM>(&tr));
+}
+
 void TortoiseBlame::SetTitle() 
 {
-	TCHAR title[MAX_PATH + 100];
-	_tcscpy_s(title, MAX_PATH + 100, szTitle);
-	_tcscat_s(title, MAX_PATH + 100, _T(" - "));
-	_tcscat_s(title, MAX_PATH + 100, szViewtitle);
+	char title[MAX_PATH + 100];
+	strcpy_s(title, MAX_PATH + 100, szTitle);
+	strcat_s(title, MAX_PATH + 100, " - ");
+	strcat_s(title, MAX_PATH + 100, szViewtitle);
 	::SetWindowText(wMain, title);
 }
 
-BOOL TortoiseBlame::OpenLogFile(const TCHAR *fileName)
+BOOL TortoiseBlame::OpenLogFile(const char *fileName)
 {
+	char logmsgbuf[10000+1];
 	FILE * File;
-	_tfopen_s(&File, fileName, _T("rb"));
+	fopen_s(&File, fileName, "rb");
 	if (File == 0)
 	{
 		return FALSE;
 	}
 	LONG rev = 0;
-	std::wstring msg;
+	std::string msg;
 	int slength = 0;
 	int reallength = 0;
 	size_t len = 0;
-	char * stringbuf;
+	wchar_t wbuf[MAX_LOG_LENGTH+6];
 	for (;;)
 	{
 		len = fread(&rev, sizeof(LONG), 1, File);
@@ -192,20 +196,29 @@ BOOL TortoiseBlame::OpenLogFile(const TCHAR *fileName)
 		}
 		else
 			reallength = 0;
-		stringbuf = new char[slength+1];
-		len = fread(stringbuf, sizeof(char), slength, File);
-		stringbuf[slength] = 0;
-		msg = CUnicodeUtils::StdGetUnicode(stringbuf);
+		len = fread(logmsgbuf, sizeof(char), slength, File);
+		if (len < (size_t)slength)
+		{
+			fclose(File);
+            InitSize();
+			return FALSE;
+		}
+		msg = std::string(logmsgbuf, slength);
 		if (reallength)
 		{
 			fseek(File, reallength-MAX_LOG_LENGTH, SEEK_CUR);
 			msg = msg + _T("\n...");
 		}
-		m_logMessages[rev] = msg;
+		int len2 = ::MultiByteToWideChar(CP_UTF8, NULL, msg.c_str(), min(msg.size(), MAX_LOG_LENGTH+5), wbuf, MAX_LOG_LENGTH+5);
+		wbuf[len2] = 0;
+		len2 = ::WideCharToMultiByte(CP_ACP, NULL, wbuf, len2, logmsgbuf, MAX_LOG_LENGTH+5, NULL, NULL);
+		logmsgbuf[len2] = 0;
+		msg = std::string(logmsgbuf);
+		logmessages[rev] = msg;
 	}
 }
 
-BOOL TortoiseBlame::OpenFile(const TCHAR *fileName) 
+BOOL TortoiseBlame::OpenFile(const char *fileName) 
 {
 	SendEditor(SCI_SETREADONLY, FALSE);
 	SendEditor(SCI_CLEARALL);
@@ -215,132 +228,77 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
 	SendEditor(SCI_CANCEL);
 	SendEditor(SCI_SETUNDOCOLLECTION, 0);
 	::ShowWindow(wEditor, SW_HIDE);
-
-	FILE * File = NULL;
+	std::ifstream File;
 	int retrycount = 5;
 	while (retrycount)
 	{
-		_tfopen_s(&File, fileName, _T("rb"));
-		if (File == 0)
+		File.open(fileName);
+		if (File.good())
 		{
-			Sleep(500);
-			retrycount--;
-		}
-		else
 			break;
+		}
+		File.clear();
+		Sleep(500);
+		retrycount--;
 	}
-	if (File == NULL)
+	if (!File.good())
 		return FALSE;
 
-	m_lowestRev = LONG_MAX;
-	m_highestRev = 0;
+	char line[100*1024];
+	char * lineptr = NULL;
+	char * trimptr = NULL;
+	//ignore the first two lines, they're of no interest to us
+	File.getline(line, sizeof(line)/sizeof(char));
+	File.getline(line, sizeof(line)/sizeof(char));
+	m_lowestrev = LONG_MAX;
+	m_highestrev = 0;
 	bool bUTF8 = true;
-	size_t len = 0;
-	LONG linenumber = 0;
-	svn_revnum_t rev = 0;
-	svn_revnum_t merged_rev = 0;
-	int strLen = 0;
-	for (;;)
+	do
 	{
-		// line number
-		len = fread(&linenumber, sizeof(LONG), 1, File);
-		if (len == 0)
-			break;
-		// revision	
-		len = fread(&rev, sizeof(svn_revnum_t), 1, File);
-		if (len == 0)
-			break;
-		m_revs.push_back(rev);
-		// author
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (len == 0)
-			break;
-		if (strLen)
+		File.getline(line, sizeof(line)/sizeof(TCHAR));
+		if (File.gcount()>139)
 		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf[strLen] = 0;
-			m_authors.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-		}
-		// date
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (len == 0)
-			break;
-		if (strLen)
-		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf[strLen] = 0;
-			m_dates.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-		}
-		// merged revision
-		len = fread(&merged_rev, sizeof(svn_revnum_t), 1, File);
-		if (len == 0)
-			break;
-		m_mergedRevs.push_back(merged_rev);
-		if ((merged_rev > 0)&&(merged_rev < rev))
-		{
-			m_lowestRev = min(m_lowestRev, merged_rev);
-			m_highestRev = max(m_highestRev, merged_rev);
-		}
-		else
-		{
-			m_lowestRev = min(m_lowestRev, rev);
-			m_highestRev = max(m_highestRev, rev);
-		}
-		// merged author
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (len == 0)
-			break;
-		if (strLen)
-		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf[strLen] = 0;
-			m_mergedAuthors.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-		}
-		// merged date
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (len == 0)
-			break;
-		if (strLen)
-		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf[strLen] = 0;
-			m_mergedDates.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-		}
-		// merged path
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (len == 0)
-			break;
-		if (strLen)
-		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf[strLen] = 0;
-			m_mergedPaths.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-		}
-		// text line
-		len = fread(&strLen, sizeof(int), 1, File);
-		if (strLen)
-		{
-			auto_buffer<char> stringbuf(strLen+1);
-			len = fread(stringbuf.get(), sizeof(char), strLen, File);
-			if (len == 0)
-				break;
-			stringbuf.get()[strLen] = 0;
-			char * lineptr = stringbuf.get();
+			mergelines.push_back((line[0] != ' '));
+			lineptr = &line[9];
+			long rev = _ttol(lineptr);
+			revs.push_back(rev);
+			m_lowestrev = min(m_lowestrev, rev);
+			m_highestrev = max(m_highestrev, rev);
+			lineptr += 7;
+			rev = _ttol(lineptr);
+			origrevs.push_back(rev);
+			lineptr += 7;
+			dates.push_back(std::string(lineptr, 30));
+			lineptr += 31;
+			// unfortunately, the 'path' entry can be longer than the 60 chars
+			// we made the column. We therefore have to step through the path
+			// string until we find a space
+			trimptr = lineptr;
+			do 
+			{
+				// TODO: how can we deal with the situation where the path has
+				// a space in it, but the space is after the 60 chars reserved
+				// for it?
+				// The only way to deal with that would be to use a custom
+				// binary format for the blame file.
+				trimptr++;
+				trimptr = _tcschr(trimptr, ' ');
+			} while ((trimptr)&&(trimptr+1 < lineptr+61));
+			if (trimptr)
+				*trimptr = 0;
+			else
+				trimptr = lineptr;
+			paths.push_back(std::string(lineptr));
+			if (trimptr+1 < lineptr+61)
+				lineptr +=61;
+			else
+				lineptr = (trimptr+1);
+			trimptr = lineptr+30;
+			while ((*trimptr == ' ')&&(trimptr > lineptr))
+				trimptr--;
+			*(trimptr+1) = 0;
+			authors.push_back(std::string(lineptr));
+			lineptr += 31;
 			// in case we find an UTF8 BOM at the beginning of the line, we remove it
 			if (((unsigned char)lineptr[0] == 0xEF)&&((unsigned char)lineptr[1] == 0xBB)&&((unsigned char)lineptr[2] == 0xBF))
 			{
@@ -420,12 +378,10 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
 
 				utf8CheckBuf++;
 			}
-			SendEditor(SCI_ADDTEXT, strlen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
+			SendEditor(SCI_ADDTEXT, _tcslen(lineptr), reinterpret_cast<LPARAM>(static_cast<char *>(lineptr)));
+			SendEditor(SCI_ADDTEXT, 2, (LPARAM)_T("\r\n"));
 		}
-		SendEditor(SCI_ADDTEXT, 2, (LPARAM)"\r\n");
-	};
-
-	fclose(File);
+	} while (File.gcount() > 0);
 
 	if (bUTF8)
 		SendEditor(SCI_SETCODEPAGE, SC_CP_UTF8);
@@ -441,18 +397,11 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
 	//check which lexer to use, depending on the filetype
 	SetupLexer(fileName);
 	::ShowWindow(wEditor, SW_SHOW);
-	m_blameWidth = 0;
+	m_blamewidth = 0;
 	::InvalidateRect(wMain, NULL, TRUE);
 	RECT rc;
 	GetWindowRect(wMain, &rc);
 	SetWindowPos(wMain, 0, rc.left, rc.top, rc.right-rc.left-1, rc.bottom - rc.top, 0);
-
-	if (m_mergedPaths.size() == 0)
-	{
-		HMENU hMenu = GetMenu(wMain);
-		EnableMenuItem(hMenu, ID_VIEW_MERGEPATH, MF_DISABLED | MF_GRAYED | MF_BYCOMMAND);
-	}
-
 	return TRUE;
 }
 
@@ -472,10 +421,10 @@ void TortoiseBlame::InitialiseEditor()
 	m_directPointer = SendMessage(wEditor, SCI_GETDIRECTPOINTER, 0, 0);
 	// Set up the global default style. These attributes are used wherever no explicit choices are made.
 	SetAStyle(STYLE_DEFAULT, black, white, (DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10), 
-		(CUnicodeUtils::StdGetUTF8((tstring)(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New"))))).c_str());
+		((tstring)(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New")))).c_str());
 	SendEditor(SCI_SETTABWIDTH, (DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameTabSize"), 4));
 	SendEditor(SCI_SETREADONLY, TRUE);
-	LRESULT pix = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_99999");
+	LRESULT pix = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)_T("_99999"));
 	if (ShowLine)
 		SendEditor(SCI_SETMARGINWIDTHN, 0, pix);
 	else
@@ -492,150 +441,117 @@ void TortoiseBlame::InitialiseEditor()
 	m_regNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameNewColor"), RGB(255, 230, 230));
 }
 
-void TortoiseBlame::SelectLine(int yPos, bool bAlwaysSelect)
-{
-	LONG line = (LONG)app.SendEditor(SCI_GETFIRSTVISIBLELINE);
-	LONG height = (LONG)app.SendEditor(SCI_TEXTHEIGHT);
-	line = line + (yPos/height);
-	if (line < (LONG)app.m_revs.size())
-	{
-		app.SetSelectedLine(line);
-		if ((bAlwaysSelect)||(app.m_revs[line] != app.m_selectedRev))
-		{
-			app.m_selectedRev = app.m_revs[line];
-			app.m_selectedOrigRev = app.m_revs[line];
-			app.m_selectedAuthor = app.m_authors[line];
-			app.m_selectedDate = app.m_dates[line];
-		}
-		else
-		{
-			app.m_selectedAuthor.clear();
-			app.m_selectedDate.clear();
-			app.m_selectedRev = -2;
-			app.m_selectedOrigRev = -2;
-		}
-		::InvalidateRect(app.wBlame, NULL, FALSE);
-	}
-	else
-	{
-		app.SetSelectedLine(-1);
-	}
-}
-
 void TortoiseBlame::StartSearch()
 {
 	if (currentDialog)
 		return;
 	bool bCase = false;
 	// Initialize FINDREPLACE
-	if (m_fr.Flags & FR_MATCHCASE)
+	if (fr.Flags & FR_MATCHCASE)
 		bCase = true;
-	SecureZeroMemory(&m_fr, sizeof(m_fr));
-	m_fr.lStructSize = sizeof(m_fr);
-	m_fr.hwndOwner = wMain;
-	m_fr.lpstrFindWhat = m_szFindWhat;
-	m_fr.wFindWhatLen = 80;
-	m_fr.Flags = FR_HIDEUPDOWN | FR_HIDEWHOLEWORD;
-	m_fr.Flags |= bCase ? FR_MATCHCASE : 0;
+	SecureZeroMemory(&fr, sizeof(fr));
+	fr.lStructSize = sizeof(fr);
+	fr.hwndOwner = wMain;
+	fr.lpstrFindWhat = szFindWhat;
+	fr.wFindWhatLen = 80;
+	fr.Flags = FR_HIDEUPDOWN | FR_HIDEWHOLEWORD;
+	fr.Flags |= bCase ? FR_MATCHCASE : 0;
 
-	currentDialog = FindText(&m_fr);
+	currentDialog = FindText(&fr);
 }
 
-bool TortoiseBlame::DoSearch(LPTSTR what, DWORD flags)
+bool TortoiseBlame::DoSearch(LPSTR what, DWORD flags)
 {
 	TCHAR szWhat[80];
-	int pos = (int)SendEditor(SCI_GETCURRENTPOS);
-	int line = (int)SendEditor(SCI_LINEFROMPOSITION, pos);
+	int pos = SendEditor(SCI_GETCURRENTPOS);
+	int line = SendEditor(SCI_LINEFROMPOSITION, pos);
 	bool bFound = false;
 	bool bCaseSensitive = !!(flags & FR_MATCHCASE);
 
-	_tcscpy_s(szWhat, sizeof(szWhat)/sizeof(TCHAR), what);
+	strcpy_s(szWhat, sizeof(szWhat), what);
 
 	if(!bCaseSensitive)
 	{
-		MakeLower(szWhat, _tcslen(szWhat));
+		char *p;
+		size_t len = strlen(szWhat);
+		for (p = szWhat; p < szWhat + len; p++)
+		{
+			if (isupper(*p)&&__isascii(*p))
+				*p = _tolower(*p);
+		}
 	}
 
-	tstring sWhat = tstring(szWhat);
+	std::string sWhat = std::string(szWhat);
 	
-	int textSelStart = 0;
-	int textSelEnd = 0;
-	TCHAR buf[20];
+	char buf[20];
 	int i=0;
-	for (i=line; (i<(int)m_authors.size())&&(!bFound); ++i)
+	for (i=line; (i<(int)authors.size())&&(!bFound); ++i)
 	{
-		const int bufsize = (int)SendEditor(SCI_GETLINE, i);
-		auto_buffer<char> linebuf(bufsize+1);
+		int bufsize = SendEditor(SCI_GETLINE, i);
+		char * linebuf = new char[bufsize+1];
 		SecureZeroMemory(linebuf, bufsize+1);
-		SendEditor(SCI_GETLINE, i, (LPARAM)linebuf.get());
-		tstring sLine = CUnicodeUtils::StdGetUnicode(linebuf.get());
+		SendEditor(SCI_GETLINE, i, (LPARAM)linebuf);
 		if (!bCaseSensitive)
 		{
-			std::transform(sLine.begin(), sLine.end(), sLine.begin(), std::tolower);
+			char *p;
+			for (p = linebuf; p < linebuf + bufsize; p++)
+			{
+				if (isupper(*p)&&__isascii(*p))
+					*p = _tolower(*p);
+			}
 		}
-		_stprintf_s(buf, 20, _T("%ld"), m_revs[i]);
-		if (m_authors[i].compare(sWhat)==0)
+		_stprintf_s(buf, 20, _T("%ld"), revs[i]);
+		if (authors[i].compare(sWhat)==0)
 			bFound = true;
-		else if ((!bCaseSensitive)&&(_tcsicmp(m_authors[i].c_str(), szWhat)==0))
+		else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), szWhat)==0))
 			bFound = true;
-		else if (_tcscmp(buf, szWhat) == 0)
+		else if (strcmp(buf, szWhat) == 0)
 			bFound = true;
-		else if (_tcsstr(sLine.c_str(), szWhat))
-		{
-			textSelStart = (int)SendEditor(SCI_POSITIONFROMLINE, i) + int(_tcsstr(sLine.c_str(), szWhat) - sLine.c_str());
-			textSelEnd = textSelStart + (int)CUnicodeUtils::StdGetUTF8(szWhat).size();
-			if ((line != i)||(textSelEnd != pos))
-				bFound = true;
-		}
+		else if (strstr(linebuf, szWhat))
+			bFound = true;
+		delete [] linebuf;
 	}
 	if (!bFound)
 	{
 		for (i=0; (i<line)&&(!bFound); ++i)
 		{
-			const int bufsize = (int)SendEditor(SCI_GETLINE, i);
-			auto_buffer<char> linebuf(bufsize+1);
+			int bufsize = SendEditor(SCI_GETLINE, i);
+			char * linebuf = new char[bufsize+1];
 			SecureZeroMemory(linebuf, bufsize+1);
-			SendEditor(SCI_GETLINE, i, (LPARAM)linebuf.get());
-			tstring sLine = CUnicodeUtils::StdGetUnicode(linebuf.get());
+			SendEditor(SCI_GETLINE, i, (LPARAM)linebuf);
 			if (!bCaseSensitive)
 			{
-				std::transform(sLine.begin(), sLine.end(), sLine.begin(), std::tolower);
+				char *p;
+				for (p = linebuf; p < linebuf + bufsize; p++)
+				{
+					if (isupper(*p)&&__isascii(*p))
+						*p = _tolower(*p);
+				}
 			}
-			_stprintf_s(buf, 20, _T("%ld"), m_revs[i]);
-			if (m_authors[i].compare(sWhat)==0)
+			_stprintf_s(buf, 20, _T("%ld"), revs[i]);
+			if (authors[i].compare(sWhat)==0)
 				bFound = true;
-			else if ((!bCaseSensitive)&&(_tcsicmp(m_authors[i].c_str(), szWhat)==0))
+			else if ((!bCaseSensitive)&&(_stricmp(authors[i].c_str(), szWhat)==0))
 				bFound = true;
-			else if (_tcscmp(buf, szWhat) == 0)
+			else if (strcmp(buf, szWhat) == 0)
 				bFound = true;
-			else if (_tcsstr(sLine.c_str(), szWhat))
-			{
+			else if (strstr(linebuf, szWhat))
 				bFound = true;
-				textSelStart = (int)SendEditor(SCI_POSITIONFROMLINE, i) + int(_tcsstr(sLine.c_str(), szWhat) - sLine.c_str());
-				textSelEnd = textSelStart + (int)CUnicodeUtils::StdGetUTF8(szWhat).size();
-			}
+			delete [] linebuf;
 		}
 	}
 	if (bFound)
 	{
 		GotoLine(i);
-		if (textSelStart == textSelEnd)
-		{
-			int selstart = (int)SendEditor(SCI_GETCURRENTPOS);
-			int selend = (int)SendEditor(SCI_POSITIONFROMLINE, i);
-			SendEditor(SCI_SETSELECTIONSTART, selstart);
-			SendEditor(SCI_SETSELECTIONEND, selend);
-		}
-		else
-		{
-			SendEditor(SCI_SETSELECTIONSTART, textSelStart);
-			SendEditor(SCI_SETSELECTIONEND, textSelEnd);
-		}
-		m_selectedLine = i-1;
+		int selstart = SendEditor(SCI_GETCURRENTPOS);
+		int selend = SendEditor(SCI_POSITIONFROMLINE, i);
+		SendEditor(SCI_SETSELECTIONSTART, selstart);
+		SendEditor(SCI_SETSELECTIONEND, selend);
+		m_SelectedLine = i-1;
 	}
 	else
 	{
-		::MessageBox(wMain, searchstringnotfound, _T("TortoiseBlame"), MB_ICONINFORMATION);
+		::MessageBox(wMain, searchstringnotfound, "TortoiseBlame", MB_ICONINFORMATION);
 	}
 	return true;
 }
@@ -645,15 +561,15 @@ bool TortoiseBlame::GotoLine(long line)
 	--line;
 	if (line < 0)
 		return false;
-	if ((unsigned long)line >= m_authors.size())
+	if ((unsigned long)line >= authors.size())
 	{
-		line = (long)m_authors.size()-1;
+		line = authors.size()-1;
 	}
 
-	int nCurrentPos = (int)SendEditor(SCI_GETCURRENTPOS);
-	int nCurrentLine = (int)SendEditor(SCI_LINEFROMPOSITION,nCurrentPos);
-	int nFirstVisibleLine = (int)SendEditor(SCI_GETFIRSTVISIBLELINE);
-	int nLinesOnScreen = (int)SendEditor(SCI_LINESONSCREEN);
+	int nCurrentPos = SendEditor(SCI_GETCURRENTPOS);
+	int nCurrentLine = SendEditor(SCI_LINEFROMPOSITION,nCurrentPos);
+	int nFirstVisibleLine = SendEditor(SCI_GETFIRSTVISIBLELINE);
+	int nLinesOnScreen = SendEditor(SCI_LINESONSCREEN);
 
 	if ( line>=nFirstVisibleLine && line<=nFirstVisibleLine+nLinesOnScreen)
 	{
@@ -674,8 +590,8 @@ bool TortoiseBlame::GotoLine(long line)
 	}
 
 	// Highlight the line
-	int nPosStart = (int)SendEditor(SCI_POSITIONFROMLINE,line);
-	int nPosEnd = (int)SendEditor(SCI_GETLINEENDPOSITION,line);
+	int nPosStart = SendEditor(SCI_POSITIONFROMLINE,line);
+	int nPosEnd = SendEditor(SCI_GETLINEENDPOSITION,line);
 	SendEditor(SCI_SETSEL,nPosEnd,nPosStart);
 
 	return true;
@@ -686,7 +602,7 @@ bool TortoiseBlame::ScrollToLine(long line)
 	if (line < 0)
 		return false;
 
-	int nCurrentLine = (int)SendEditor(SCI_GETFIRSTVISIBLELINE);
+	int nCurrentLine = SendEditor(SCI_GETFIRSTVISIBLELINE);
 
 	int scrolldelta = line - nCurrentLine;
 	SendEditor(SCI_LINESCROLL, 0, scrolldelta);
@@ -696,34 +612,36 @@ bool TortoiseBlame::ScrollToLine(long line)
 
 void TortoiseBlame::CopySelectedLogToClipboard()
 {
-	if (m_selectedRev <= 0)
+	if (m_selectedrev <= 0)
 		return;
-	std::map<LONG, tstring>::iterator iter;
-	if ((iter = app.m_logMessages.find(m_selectedRev)) != app.m_logMessages.end())
+	std::map<LONG, std::string>::iterator iter;
+	if ((iter = app.logmessages.find(m_selectedrev)) != app.logmessages.end())
 	{
-		tstring msg;
-		msg += m_selectedAuthor;
-		msg += _T("  ");
-		msg += app.m_selectedDate;
-		msg += _T("\n");
+		std::string msg;
+		msg += m_selectedauthor;
+		msg += "  ";
+		msg += app.m_selecteddate;
+		msg += '\n';
 		msg += iter->second;
 		msg += _T("\n");
-		CClipboardHelper clipboardHelper;
-		if (!clipboardHelper.Open(app.wBlame))
-			return;
-
-		EmptyClipboard();
-		HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc((msg.size() + 1)*sizeof(TCHAR));
-		TCHAR* pchData = (TCHAR*)GlobalLock(hClipboardData);
-		_tcscpy_s(pchData, msg.size()+1, msg.c_str());
-		GlobalUnlock(hClipboardData);
-		SetClipboardData(CF_UNICODETEXT,hClipboardData);
+		if (OpenClipboard(app.wBlame))
+		{
+			EmptyClipboard();
+			HGLOBAL hClipboardData;
+			hClipboardData = GlobalAlloc(GMEM_DDESHARE, msg.size()+1);
+			char * pchData;
+			pchData = (char*)GlobalLock(hClipboardData);
+			strcpy_s(pchData, msg.size()+1, msg.c_str());
+			GlobalUnlock(hClipboardData);
+			SetClipboardData(CF_TEXT,hClipboardData);
+			CloseClipboard();
+		}
 	}
 }
 
 void TortoiseBlame::BlamePreviousRevision()
 {
-	LONG nRevisionTo = m_selectedOrigRev - 1;
+	LONG nRevisionTo = m_selectedorigrev - 1;
 	if ( nRevisionTo<1 )
 	{
 		return;
@@ -734,9 +652,9 @@ void TortoiseBlame::BlamePreviousRevision()
 	// 1. we respect the "From revision" which the user entered
 	// 2. we speed up the call of "svn blame" because previous smaller revision numbers don't have any effect on the result
 	LONG nSmallestRevision = -1;
-	for (LONG line=0;line<(LONG)app.m_revs.size();line++)
+	for (LONG line=0;line<(LONG)app.revs.size();line++)
 	{
-		const LONG nRevision = app.m_revs[line];
+		const LONG nRevision = app.revs[line];
 		if ( nRevision > 0 )
 		{
 			if ( nSmallestRevision < 1 )
@@ -750,15 +668,21 @@ void TortoiseBlame::BlamePreviousRevision()
 		}
 	}
 
-	TCHAR bufStartRev[20];
+	char bufStartRev[20];
 	_stprintf_s(bufStartRev, 20, _T("%d"), nSmallestRevision);
 
-	TCHAR bufEndRev[20];
+	char bufEndRev[20];
 	_stprintf_s(bufEndRev, 20, _T("%d"), nRevisionTo);
 
-	TCHAR bufLine[20];
-	_stprintf_s(bufLine, 20, _T("%d"), m_selectedLine+1); //using the current line is a good guess.
+	char bufLine[20];
+	_stprintf_s(bufLine, 20, _T("%d"), m_SelectedLine+1); //using the current line is a good guess.
 
+	STARTUPINFO startup;
+	PROCESS_INFORMATION process;
+	memset(&startup, 0, sizeof(startup));
+	startup.cb = sizeof(startup);
+	memset(&process, 0, sizeof(process));
+	tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
 	tstring svnCmd = _T(" /command:blame ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -775,12 +699,16 @@ void TortoiseBlame::BlamePreviousRevision()
 		svnCmd += _T(" /ignorespaces");
 	if (bIgnoreAllSpaces)
 		svnCmd += _T(" /ignoreallspaces");
-	RunCommand(svnCmd);
+    if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	{
+		CloseHandle(process.hThread);
+		CloseHandle(process.hProcess);
+	}
 }
 
 void TortoiseBlame::DiffPreviousRevision()
 {
-	LONG nRevisionTo = m_selectedOrigRev;
+	LONG nRevisionTo = m_selectedorigrev;
 	if ( nRevisionTo<1 )
 	{
 		return;
@@ -788,12 +716,18 @@ void TortoiseBlame::DiffPreviousRevision()
 
 	LONG nRevisionFrom = nRevisionTo-1;
 
-	TCHAR bufStartRev[20];
+	char bufStartRev[20];
 	_stprintf_s(bufStartRev, 20, _T("%d"), nRevisionFrom);
 
-	TCHAR bufEndRev[20];
+	char bufEndRev[20];
 	_stprintf_s(bufEndRev, 20, _T("%d"), nRevisionTo);
 
+	STARTUPINFO startup;
+	PROCESS_INFORMATION process;
+	memset(&startup, 0, sizeof(startup));
+	startup.cb = sizeof(startup);
+	memset(&process, 0, sizeof(process));
+	tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
 	tstring svnCmd = _T(" /command:diff ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -802,14 +736,24 @@ void TortoiseBlame::DiffPreviousRevision()
 	svnCmd += bufStartRev;
 	svnCmd += _T(" /endrev:");
 	svnCmd += bufEndRev;
-	RunCommand(svnCmd);
+	if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	{
+		CloseHandle(process.hThread);
+		CloseHandle(process.hProcess);
+	}
 }
 
 void TortoiseBlame::ShowLog()
 {
-	TCHAR bufRev[20];
-	_stprintf_s(bufRev, 20, _T("%d"), m_selectedOrigRev);
+	char bufRev[20];
+	_stprintf_s(bufRev, 20, _T("%d"), m_selectedorigrev);
 
+	STARTUPINFO startup;
+	PROCESS_INFORMATION process;
+	memset(&startup, 0, sizeof(startup));
+	startup.cb = sizeof(startup);
+	memset(&process, 0, sizeof(process));
+	tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
 	tstring svnCmd = _T(" /command:log ");
 	svnCmd += _T(" /path:\"");
 	svnCmd += szOrigPath;
@@ -818,7 +762,11 @@ void TortoiseBlame::ShowLog()
 	svnCmd += bufRev;
 	svnCmd += _T(" /pegrev:");
 	svnCmd += bufRev;
-	RunCommand(svnCmd);
+	if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
+	{
+		CloseHandle(process.hThread);
+		CloseHandle(process.hProcess);
+	}
 }
 
 void TortoiseBlame::Notify(SCNotification *notification) 
@@ -835,9 +783,9 @@ void TortoiseBlame::Notify(SCNotification *notification)
 		InvalidateRect(wLocator, NULL, FALSE);
 		break;
 	case SCN_GETBKCOLOR:
-		if ((m_colorAge)&&(notification->line < (int)m_revs.size()))
+		if ((m_colorage)&&(notification->line < (int)revs.size()))
 		{
-			notification->lParam = InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (m_revs[notification->line]-m_lowestRev)*100/((m_highestRev-m_lowestRev)+1));
+			notification->lParam = InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (revs[notification->line]-m_lowestrev)*100/((m_highestrev-m_lowestrev)+1));
 		}
 		break;
 	}
@@ -870,24 +818,23 @@ void TortoiseBlame::Command(int id)
 		break;
 	case ID_VIEW_COLORAGEOFLINES:
 		{
-			m_colorAge = !m_colorAge;
+			m_colorage = !m_colorage;
 			HMENU hMenu = GetMenu(wMain);
 			UINT uCheck = MF_BYCOMMAND;
-			uCheck |= m_colorAge ? MF_CHECKED : MF_UNCHECKED;
+			uCheck |= m_colorage ? MF_CHECKED : MF_UNCHECKED;
 			CheckMenuItem(hMenu, ID_VIEW_COLORAGEOFLINES, uCheck);
-			m_blameWidth = 0;
+			m_blamewidth = 0;
 			InitSize();
 		}
 		break;
 	case ID_VIEW_MERGEPATH:
 		{
-			bool bUseMerged = (m_mergedPaths.size() != 0);
-			ShowPath = bUseMerged && !ShowPath;
+			ShowPath = !ShowPath;
 			HMENU hMenu = GetMenu(wMain);
 			UINT uCheck = MF_BYCOMMAND;
 			uCheck |= ShowPath ? MF_CHECKED : MF_UNCHECKED;
 			CheckMenuItem(hMenu, ID_VIEW_MERGEPATH, uCheck);
-			m_blameWidth = 0;
+			m_blamewidth = 0;
 			InitSize();
 		}
 	default:
@@ -899,7 +846,7 @@ void TortoiseBlame::GotoLineDlg()
 {
 	if (DialogBox(hResource, MAKEINTRESOURCE(IDD_GOTODLG), wMain, GotoDlgProc)==IDOK)
 	{
-		GotoLine(m_gotoLine);
+		GotoLine(m_gotoline);
 	}
 }
 
@@ -919,7 +866,7 @@ INT_PTR CALLBACK TortoiseBlame::GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 						TCHAR buf[MAX_PATH];
 						if (::GetWindowText(hEditCtrl, buf, MAX_PATH))
 						{
-							m_gotoLine = _ttol(buf);
+							m_gotoline = _ttol(buf);
 						}
 
 					}
@@ -937,8 +884,8 @@ INT_PTR CALLBACK TortoiseBlame::GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wPar
 
 LONG TortoiseBlame::GetBlameWidth()
 {
-	if (m_blameWidth)
-		return m_blameWidth;
+	if (m_blamewidth)
+		return m_blamewidth;
 	LONG blamewidth = 0;
 	SIZE width;
 	CreateFont();
@@ -946,46 +893,46 @@ LONG TortoiseBlame::GetBlameWidth()
 	HFONT oldfont = (HFONT)::SelectObject(hDC, m_font);
 	TCHAR buf[MAX_PATH];
 	_stprintf_s(buf, MAX_PATH, _T("%8ld "), 88888888);
-	::GetTextExtentPoint(hDC, buf, (int)_tcslen(buf), &width);
-	m_revWidth = width.cx + BLAMESPACE;
-	blamewidth += m_revWidth;
+	::GetTextExtentPoint(hDC, buf, _tcslen(buf), &width);
+	m_revwidth = width.cx + BLAMESPACE;
+	blamewidth += m_revwidth;
 	if (ShowDate)
 	{
 		_stprintf_s(buf, MAX_PATH, _T("%30s"), _T("31.08.2001 06:24:14"));
-		::GetTextExtentPoint32(hDC, buf, (int)_tcslen(buf), &width);
-		m_dateWidth = width.cx + BLAMESPACE;
-		blamewidth += m_dateWidth;
+		::GetTextExtentPoint32(hDC, buf, _tcslen(buf), &width);
+		m_datewidth = width.cx + BLAMESPACE;
+		blamewidth += m_datewidth;
 	}
 	if (ShowAuthor)
 	{
 		SIZE maxwidth = {0};
-		for (std::vector<tstring>::iterator I = m_authors.begin(); I != m_authors.end(); ++I)
+		for (std::vector<std::string>::iterator I = authors.begin(); I != authors.end(); ++I)
 		{
-			::GetTextExtentPoint32(hDC, I->c_str(), (int)I->size(), &width);
+			::GetTextExtentPoint32(hDC, I->c_str(), I->size(), &width);
 			if (width.cx > maxwidth.cx)
 				maxwidth = width;
 		}
-		m_authorWidth = maxwidth.cx + BLAMESPACE;
-		blamewidth += m_authorWidth;
+		m_authorwidth = maxwidth.cx + BLAMESPACE;
+		blamewidth += m_authorwidth;
 	}
 	if (ShowPath)
 	{
 		SIZE maxwidth = {0};
-		for (std::vector<tstring>::iterator I = m_mergedPaths.begin(); I != m_mergedPaths.end(); ++I)
+		for (std::vector<std::string>::iterator I = paths.begin(); I != paths.end(); ++I)
 		{
-			::GetTextExtentPoint32(hDC, I->c_str(), (int)I->size(), &width);
+			::GetTextExtentPoint32(hDC, I->c_str(), I->size(), &width);
 			if (width.cx > maxwidth.cx)
 				maxwidth = width;
 		}
-		m_pathWidth = maxwidth.cx + BLAMESPACE;
-		blamewidth += m_pathWidth;
+		m_pathwidth = maxwidth.cx + BLAMESPACE;
+		blamewidth += m_pathwidth;
 	}
 	::SelectObject(hDC, oldfont);
 	POINT pt = {blamewidth, 0};
 	LPtoDP(hDC, &pt, 1);
-	m_blameWidth = pt.x;
+	m_blamewidth = pt.x;
 	ReleaseDC(wBlame, hDC);
-	return m_blameWidth;
+	return m_blamewidth;
 }
 
 void TortoiseBlame::CreateFont()
@@ -1002,7 +949,7 @@ void TortoiseBlame::CreateFont()
 	m_font = ::CreateFontIndirect(&lf);
 
 	lf.lfItalic = TRUE;
-	m_italicFont = ::CreateFontIndirect(&lf);
+	m_italicfont = ::CreateFontIndirect(&lf);
 
 	ReleaseDC(wBlame, hDC);
 }
@@ -1026,71 +973,68 @@ void TortoiseBlame::DrawBlame(HDC hDC)
 	for (LRESULT i=line; i<(line+linesonscreen); ++i)
 	{
 		sel = FALSE;
-		if (i < (int)m_revs.size())
+		if (i < (int)revs.size())
 		{
-			bool bUseMerged = ((m_mergedRevs[i] > 0)&&(m_mergedRevs[i] < m_revs[i]));
-			if (bUseMerged)
-				oldfont = (HFONT)::SelectObject(hDC, m_italicFont);
+			if (mergelines[i])
+				oldfont = (HFONT)::SelectObject(hDC, m_italicfont);
 			else
 				oldfont = (HFONT)::SelectObject(hDC, m_font);
-			::SetBkColor(hDC, m_windowColor);
-			::SetTextColor(hDC, m_textColor);
-			tstring author = bUseMerged ? m_mergedAuthors[i] : m_authors[i];
-			if (author.size() > 0)
+			::SetBkColor(hDC, m_windowcolor);
+			::SetTextColor(hDC, m_textcolor);
+			if (authors[i].size()>0)
 			{
-				if (author.compare(m_mouseAuthor)==0)
-					::SetBkColor(hDC, m_mouseAuthorColor);
-				if (author.compare(m_selectedAuthor)==0)
+				if (authors[i].compare(m_mouseauthor)==0)
+					::SetBkColor(hDC, m_mouseauthorcolor);
+				if (authors[i].compare(m_selectedauthor)==0)
 				{
-					::SetBkColor(hDC, m_selectedAuthorColor);
-					::SetTextColor(hDC, m_textHighLightColor);
+					::SetBkColor(hDC, m_selectedauthorcolor);
+					::SetTextColor(hDC, m_texthighlightcolor);
 					sel = TRUE;
 				}
 			}
-			svn_revnum_t rev = bUseMerged ? m_mergedRevs[i] : m_revs[i];
-			if ((rev == m_mouseRev)&&(!sel))
-				::SetBkColor(hDC, m_mouseRevColor);
-			if (rev == m_selectedRev)
+			if ((revs[i] == m_mouserev)&&(!sel))
+				::SetBkColor(hDC, m_mouserevcolor);
+			if (revs[i] == m_selectedrev)
 			{
-				::SetBkColor(hDC, m_selectedRevColor);
-				::SetTextColor(hDC, m_textHighLightColor);
+				::SetBkColor(hDC, m_selectedrevcolor);
+				::SetTextColor(hDC, m_texthighlightcolor);
 			}
-			_stprintf_s(buf, MAX_PATH, _T("%8ld       "), rev);
-			rc.right = rc.left + m_revWidth;
-			::ExtTextOut(hDC, 0, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)_tcslen(buf), 0);
-			int Left = m_revWidth;
+			_stprintf_s(buf, MAX_PATH, _T("%8ld       "), revs[i]);
+			rc.right = rc.left + m_revwidth;
+			::ExtTextOut(hDC, 0, Y, ETO_CLIPPED, &rc, buf, _tcslen(buf), 0);
+			int Left = m_revwidth;
 			if (ShowDate)
 			{
-				rc.right = rc.left + Left + m_dateWidth;
-				_stprintf_s(buf, MAX_PATH, _T("%30s            "), bUseMerged ? m_mergedDates[i].c_str() : m_dates[i].c_str());
-				::ExtTextOut(hDC, Left, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)_tcslen(buf), 0);
-				Left += m_dateWidth;
+				rc.right = rc.left + Left + m_datewidth;
+				_stprintf_s(buf, MAX_PATH, _T("%30s            "), dates[i].c_str());
+				::ExtTextOut(hDC, Left, Y, ETO_CLIPPED, &rc, buf, _tcslen(buf), 0);
+				Left += m_datewidth;
 			}
 			if (ShowAuthor)
 			{
-				rc.right = rc.left + Left + m_authorWidth;
-				_stprintf_s(buf, MAX_PATH, _T("%-30s            "), author.c_str());
-				::ExtTextOut(hDC, Left, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)_tcslen(buf), 0);
-				Left += m_authorWidth;
+				rc.right = rc.left + Left + m_authorwidth;
+				_stprintf_s(buf, MAX_PATH, _T("%-30s            "), authors[i].c_str());
+				::ExtTextOut(hDC, Left, Y, ETO_CLIPPED, &rc, buf, _tcslen(buf), 0);
+				Left += m_authorwidth;
 			}
-			if ((ShowPath)&&(m_mergedPaths.size()))
+			if (ShowPath)
 			{
-				rc.right = rc.left + Left + m_pathWidth;
-				_stprintf_s(buf, MAX_PATH, _T("%-60s            "), m_mergedPaths[i].c_str());
-				::ExtTextOut(hDC, Left, (int)Y, ETO_CLIPPED, &rc, buf, (UINT)_tcslen(buf), 0);
-				Left += m_authorWidth;
+				rc.right = rc.left + Left + m_pathwidth;
+				_stprintf_s(buf, MAX_PATH, _T("%-60s            "), paths[i].c_str());
+				::ExtTextOut(hDC, Left, Y, ETO_CLIPPED, &rc, buf, _tcslen(buf), 0);
+				Left += m_authorwidth;
 			}
-			if ((i==m_selectedLine)&&(currentDialog))
+			if ((i==m_SelectedLine)&&(currentDialog))
 			{
 				LOGBRUSH brush;
-				brush.lbColor = m_textColor;
+				brush.lbColor = m_textcolor;
 				brush.lbHatch = 0;
 				brush.lbStyle = BS_SOLID;
 				HPEN pen = ExtCreatePen(PS_SOLID | PS_GEOMETRIC, 2, &brush, 0, NULL);
 				HGDIOBJ hPenOld = SelectObject(hDC, pen);
 				RECT rc2 = rc;
-				rc2.top = (LONG)Y;
-				rc2.bottom = (LONG)(Y + height);
+				rc2.top = Y;
+				rc2.bottom = Y + height;
 				::MoveToEx(hDC, rc2.left, rc2.top, NULL);
 				::LineTo(hDC, rc2.right, rc2.top);
 				::LineTo(hDC, rc2.right, rc2.bottom);
@@ -1104,9 +1048,10 @@ void TortoiseBlame::DrawBlame(HDC hDC)
 		}
 		else
 		{
-			::SetBkColor(hDC, m_windowColor);
-			std::fill_n(buf, MAX_PATH, _T(' '));
-			::ExtTextOut(hDC, 0, (int)Y, ETO_CLIPPED, &rc, buf, MAX_PATH-1, 0);
+			::SetBkColor(hDC, m_windowcolor);
+			for (int j=0; j< MAX_PATH; ++j)
+				buf[j]=' ';
+			::ExtTextOut(hDC, 0, Y, ETO_CLIPPED, &rc, buf, MAX_PATH-1, 0);
 			Y += height;
 		}
 	}
@@ -1125,28 +1070,28 @@ void TortoiseBlame::DrawHeader(HDC hDC)
 
 	TCHAR szText[MAX_LOADSTRING];
 	LoadString(app.hResource, IDS_HEADER_REVISION, szText, MAX_LOADSTRING);
-	::ExtTextOut(hDC, LOCATOR_WIDTH, 0, ETO_CLIPPED, &rc, szText, (UINT)_tcslen(szText), 0);
-	int Left = m_revWidth+LOCATOR_WIDTH;
+	::ExtTextOut(hDC, LOCATOR_WIDTH, 0, ETO_CLIPPED, &rc, szText, _tcslen(szText), 0);
+	int Left = m_revwidth+LOCATOR_WIDTH;
 	if (ShowDate)
 	{
 		LoadString(app.hResource, IDS_HEADER_DATE, szText, MAX_LOADSTRING);
-		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, (UINT)_tcslen(szText), 0);
-		Left += m_dateWidth;
+		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, _tcslen(szText), 0);
+		Left += m_datewidth;
 	}
 	if (ShowAuthor)
 	{
 		LoadString(app.hResource, IDS_HEADER_AUTHOR, szText, MAX_LOADSTRING);
-		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, (UINT)_tcslen(szText), 0);
-		Left += m_authorWidth;
+		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, _tcslen(szText), 0);
+		Left += m_authorwidth;
 	}
 	if (ShowPath)
 	{
 		LoadString(app.hResource, IDS_HEADER_PATH, szText, MAX_LOADSTRING);
-		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, (UINT)_tcslen(szText), 0);
-		Left += m_pathWidth;
+		::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, _tcslen(szText), 0);
+		Left += m_pathwidth;
 	}
 	LoadString(app.hResource, IDS_HEADER_LINE, szText, MAX_LOADSTRING);
-	::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, (UINT)_tcslen(szText), 0);
+	::ExtTextOut(hDC, Left, 0, ETO_CLIPPED, &rc, szText, _tcslen(szText), 0);
 
 	::SelectObject(hDC, oldfont);
 }
@@ -1168,30 +1113,30 @@ void TortoiseBlame::DrawLocatorBar(HDC hDC)
 	LONG currentLine = 0;
 
 	// draw the colored bar
-	for (std::vector<LONG>::const_iterator it = m_revs.begin(); it != m_revs.end(); ++it)
+	for (std::vector<LONG>::const_iterator it = revs.begin(); it != revs.end(); ++it)
 	{
 		currentLine++;
 		// get the line color
-		COLORREF cr = InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (*it - m_lowestRev)*100/((m_highestRev-m_lowestRev)+1));
+		COLORREF cr = InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (*it - m_lowestrev)*100/((m_highestrev-m_lowestrev)+1));
 		if ((currentLine > line)&&(currentLine <= (line + linesonscreen)))
 		{
 			cr = InterColor(cr, blackColor, 10);
 		}
 		SetBkColor(hDC, cr);
-		lineRect.top = (LONG)Y;
-		lineRect.bottom = (LONG)(currentLine * height / m_revs.size());
+		lineRect.top = Y;
+		lineRect.bottom = (currentLine * height / revs.size());
 		::ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &lineRect, NULL, 0, NULL);
 		Y = lineRect.bottom;
 	}
 
-	if (m_revs.size())
+	if (revs.size())
 	{
 		// now draw two lines indicating the scroll position of the source view
 		SetBkColor(hDC, blackColor);
-		lineRect.top = (LONG)(line * height / m_revs.size());
+		lineRect.top = line * height / revs.size();
 		lineRect.bottom = lineRect.top+1;
 		::ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &lineRect, NULL, 0, NULL);
-		lineRect.top = (LONG)((line + linesonscreen) * height / m_revs.size());
+		lineRect.top = (line + linesonscreen) * height / revs.size();
 		lineRect.bottom = lineRect.top+1;
 		::ExtTextOut(hDC, 0, 0, ETO_OPAQUE, &lineRect, NULL, 0, NULL);
 	}
@@ -1205,7 +1150,7 @@ void TortoiseBlame::StringExpand(LPSTR str)
 		cPos = strchr(cPos, '\n');
 		if (cPos)
 		{
-			memmove(cPos+1, cPos, strlen(cPos));
+			memmove(cPos+1, cPos, strlen(cPos)*sizeof(char));
 			*cPos = '\r';
 			cPos++;
 			cPos++;
@@ -1220,27 +1165,12 @@ void TortoiseBlame::StringExpand(LPWSTR str)
 		cPos = wcschr(cPos, '\n');
 		if (cPos)
 		{
-			wmemmove(cPos+1, cPos, wcslen(cPos));
+			memmove(cPos+1, cPos, wcslen(cPos)*sizeof(wchar_t));
 			*cPos = '\r';
 			cPos++;
 			cPos++;
 		}
 	} while (cPos != NULL);
-}
-
-void TortoiseBlame::MakeLower(TCHAR* buffer, size_t len)
-{
-	for (TCHAR *p = buffer; p < buffer + len; p++)
-	{
-		if (_istupper(*p)&&_istascii(*p))
-			*p = _totlower(*p);
-	}
-}
-
-void TortoiseBlame::RunCommand(const tstring& command)
-{
-	tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
-	CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
 // Forward declarations of functions included in this code module:
@@ -1264,7 +1194,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	MSG msg;
 	HACCEL hAccelTable;
 
-	if (::LoadLibrary(_T("SciLexer.DLL")) == NULL)
+	if (::LoadLibrary("SciLexer.DLL") == NULL)
 		return FALSE;
 
 	CRegStdDWORD loc = CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
@@ -1293,23 +1223,23 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	SecureZeroMemory(szViewtitle, MAX_PATH);
 	SecureZeroMemory(szOrigPath, MAX_PATH);
-	TCHAR blamefile[MAX_PATH] = {0};
-	TCHAR logfile[MAX_PATH] = {0};
+	char blamefile[MAX_PATH] = {0};
+	char logfile[MAX_PATH] = {0};
 
 	CCmdLineParser parser(lpCmdLine);
 
 
 	if (__argc > 1)
 	{
-		_tcscpy_s(blamefile, MAX_PATH, __wargv[1]);
+		_tcscpy_s(blamefile, MAX_PATH, __argv[1]);
 	}
 	if (__argc > 2)
 	{
-		_tcscpy_s(logfile, MAX_PATH, __wargv[2]);
+		_tcscpy_s(logfile, MAX_PATH, __argv[2]);
 	}
 	if (__argc > 3)
 	{
-		_tcscpy_s(szViewtitle, MAX_PATH, __wargv[3]);
+		_tcscpy_s(szViewtitle, MAX_PATH, __argv[3]);
 		if (parser.HasVal(_T("revrange")))
 		{
 			_tcscat_s(szViewtitle, MAX_PATH, _T(" : "));
@@ -1374,7 +1304,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		}
 	}
 	langDLL.Close();
-	return (int)msg.wParam;
+	return msg.wParam;
 }
 
 ATOM MyRegisterClass(HINSTANCE hResource)
@@ -1572,7 +1502,7 @@ void TortoiseBlame::InitSize()
     sourcerc.top = rc.top;
     sourcerc.bottom = rc.bottom;
     sourcerc.right = rc.right;
-	if (m_colorAge)
+	if (m_colorage)
 	{
 		::OffsetRect(&blamerc, LOCATOR_WIDTH, 0);
 		::OffsetRect(&sourcerc, LOCATOR_WIDTH, 0);
@@ -1581,7 +1511,7 @@ void TortoiseBlame::InitSize()
 	InvalidateRect(wMain, NULL, FALSE);
     ::SetWindowPos(wEditor, 0, sourcerc.left, sourcerc.top, sourcerc.right - sourcerc.left, sourcerc.bottom - sourcerc.top, 0);
 	::SetWindowPos(wBlame, 0, blamerc.left, blamerc.top, blamerc.right - blamerc.left, blamerc.bottom - blamerc.top, 0);
-	if (m_colorAge)
+	if (m_colorage)
 		::SetWindowPos(wLocator, 0, 0, blamerc.top, LOCATOR_WIDTH, blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
 	else
 		::ShowWindow(wLocator, SW_HIDE);
@@ -1610,8 +1540,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_CREATE:
 		app.wEditor = ::CreateWindow(
-			_T("Scintilla"),
-			_T("Source"),
+			"Scintilla",
+			"Source",
 			WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
 			0, 0,
 			100, 100,
@@ -1735,64 +1665,47 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
 				LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);
 				line = line + (point.y/height);
-				if (line >= (LONG)app.m_revs.size())
+				if (line >= (LONG)app.revs.size())
 					break;
 				if (line < 0)
 					break;
-				bool bUseMerged = ((app.m_mergedRevs[line] > 0)&&(app.m_mergedRevs[line] < app.m_revs[line]));
-				LONG rev = bUseMerged ? app.m_mergedRevs[line] : app.m_revs[line];
-				LONG origrev = -1;
-				origrev = app.m_revs[line];
+				LONG rev = app.revs[line];
+				if (line >= (LONG)app.revs.size())
+					break;
 
 				SecureZeroMemory(app.m_szTip, sizeof(app.m_szTip));
 				SecureZeroMemory(app.m_wszTip, sizeof(app.m_wszTip));
-				std::map<LONG, tstring>::iterator iter;
-				if ((iter = app.m_logMessages.find(rev)) != app.m_logMessages.end())
+				std::map<LONG, std::string>::iterator iter;
+				if ((iter = app.logmessages.find(rev)) != app.logmessages.end())
 				{
-					tstring msg;
+					std::string msg;
 					if (!ShowAuthor)
 					{
-						msg += app.m_authors[line];
+						msg += app.authors[line];
 					}
 					if (!ShowDate)
 					{
-						if (!ShowAuthor) msg += _T("  ");
-						msg += app.m_dates[line];
+						if (!ShowAuthor) msg += "  ";
+						msg += app.dates[line];
 					}
 					if (!ShowAuthor || !ShowDate)
 						msg += '\n';
 					msg += iter->second;
-					if (rev != origrev)
-					{
-						// add the merged revision
-						std::map<LONG, tstring>::iterator iter2;
-						if ((iter2 = app.m_logMessages.find(origrev)) != app.m_logMessages.end())
-						{
-							if (!msg.empty())
-								msg += _T("\n------------------\n");
-							TCHAR revBuf[100];
-							_stprintf_s(revBuf, 100, _T("merged in r%ld:\n----\n"), origrev);
-							msg += revBuf;
-							msg += iter2->second;
-						}
-					}
-
 					// an empty tooltip string will deactivate the tooltips,
 					// which means we must make sure that the tooltip won't
 					// be empty.
 					if (msg.empty())
 						msg = _T(" ");
-
 					if (pNMHDR->code == TTN_NEEDTEXTA)
 					{
-						lstrcpynA(app.m_szTip, CUnicodeUtils::StdGetUTF8(msg).c_str(), MAX_LOG_LENGTH*2);
+						lstrcpyn(app.m_szTip, msg.c_str(), MAX_LOG_LENGTH*2);
 						app.StringExpand(app.m_szTip);
 						pTTTA->lpszText = app.m_szTip;
 					}
 					else
 					{
 						pTTTW->lpszText = app.m_wszTip;
-						lstrcpyn(app.m_wszTip, msg.c_str(), MAX_LOG_LENGTH*2);
+						::MultiByteToWideChar( CP_ACP , 0, msg.c_str(), min(msg.size(), MAX_LOG_LENGTH*2), app.m_wszTip, MAX_LOG_LENGTH*2);
 						app.StringExpand(app.m_wszTip);
 					}
 				}
@@ -1805,9 +1718,9 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 	case WM_CLOSE:
 		return 0;
 	case WM_MOUSELEAVE:
-		app.m_mouseRev = -2;
-		app.m_mouseAuthor.clear();
-		app.m_ttVisible = FALSE;
+		app.m_mouserev = -2;
+		app.m_mouseauthor.clear();
+		app.ttVisible = FALSE;
 		SendMessage(app.hwndTT, TTM_TRACKACTIVATE, FALSE, 0);
 		::InvalidateRect(app.wBlame, NULL, FALSE);
 		break;
@@ -1823,7 +1736,7 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			pt.x += 15;
 			pt.y += 15;
 			SendMessage(app.hwndTT, TTM_TRACKPOSITION, 0, MAKELONG(pt.x, pt.y));
-			if (!app.m_ttVisible)
+			if (!app.ttVisible)
 			{
 				TOOLINFO ti;
 				ti.cbSize = sizeof(TOOLINFO);
@@ -1835,26 +1748,53 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 			LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
 			LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);
 			line = line + (y/height);
-			app.m_ttVisible = (line < (LONG)app.m_revs.size());
-			if ( app.m_ttVisible )
+			app.ttVisible = (line < (LONG)app.revs.size());
+			if ( app.ttVisible )
 			{
-				if (app.m_authors[line].compare(app.m_mouseAuthor) != 0)
+				if (app.authors[line].compare(app.m_mouseauthor) != 0)
 				{
-					app.m_mouseAuthor = app.m_authors[line];
+					app.m_mouseauthor = app.authors[line];
 				}
-				if (app.m_revs[line] != app.m_mouseRev)
+				if (app.revs[line] != app.m_mouserev)
 				{
-					app.m_mouseRev = app.m_revs[line];
+					app.m_mouserev = app.revs[line];
 					::InvalidateRect(app.wBlame, NULL, FALSE);
 					SendMessage(app.hwndTT, TTM_UPDATE, 0, 0);
 				}
 			}
 		}
 		break;
+	case WM_RBUTTONDOWN:
+		// fall through
 	case WM_LBUTTONDOWN:
 		{
 			int y = GET_Y_LPARAM(lParam);
-			app.SelectLine(y, false);
+			LONG_PTR line = app.SendEditor(SCI_GETFIRSTVISIBLELINE);
+			LONG_PTR height = app.SendEditor(SCI_TEXTHEIGHT);
+			line = line + (y/height);
+			if (line < (LONG)app.revs.size())
+			{
+				app.SetSelectedLine(line);
+				if (app.revs[line] != app.m_selectedrev)
+				{
+					app.m_selectedrev = app.revs[line];
+					app.m_selectedorigrev = app.origrevs[line];
+					app.m_selectedauthor = app.authors[line];
+					app.m_selecteddate = app.dates[line];
+				}
+				else
+				{
+					app.m_selectedauthor.clear();
+					app.m_selecteddate.clear();
+					app.m_selectedrev = -2;
+					app.m_selectedorigrev = -2;
+				}
+				::InvalidateRect(app.wBlame, NULL, FALSE);
+			}
+			else
+			{
+				app.SetSelectedLine(-1);
+			}
 		}
 		break;
 	case WM_SETFOCUS:
@@ -1863,6 +1803,8 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 		break;
 	case WM_CONTEXTMENU:
 		{
+			if (app.m_selectedrev <= 0)
+				break;;
 			int xPos = GET_X_LPARAM(lParam);
 			int yPos = GET_Y_LPARAM(lParam);
 			if ((xPos == -1)||(yPos == -1))
@@ -1874,12 +1816,6 @@ LRESULT CALLBACK WndBlameProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPa
 				xPos = rect.right-rect.left;
 				yPos = rect.bottom-rect.top;
 			}
-			POINT yPt = {0, yPos};
-			ScreenToClient(app.wBlame, &yPt);
-			app.SelectLine(yPt.y, true);
-			if (app.m_selectedRev <= 0)
-				break;;
-
 			HMENU hMenu = LoadMenu(app.hResource, MAKEINTRESOURCE(IDR_BLAMEPOPUP));
 			HMENU hPopMenu = GetSubMenu(hMenu, 0);
 
@@ -1942,7 +1878,7 @@ LRESULT CALLBACK WndLocatorProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM l
 		{
 			RECT rect;
 			::GetClientRect(hWnd, &rect); 
-			int nLine = (int)(HIWORD(lParam)*app.m_revs.size()/(rect.bottom-rect.top));
+			int nLine = HIWORD(lParam)*app.revs.size()/(rect.bottom-rect.top);
 
 			if (nLine < 0)
 				nLine = 0;

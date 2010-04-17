@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "registry.h"
 
 class CMainFrame;
-class CBaseView;
 
 /**
  * \ingroup TortoiseMerge
@@ -53,12 +51,6 @@ protected:
 	afx_msg void	OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void	OnMouseMove(UINT nFlags, CPoint point);
 	LRESULT			OnMouseLeave(WPARAM, LPARAM);
-	void			ScrollOnMouseMove(const CPoint& point );
-	void			ScrollViewToLine(CBaseView* view, int nLine) const;
-	void			PaintView(CDC& cacheDC, CBaseView* view, CDWordArray& indents, CDWordArray& states,
-						const CRect& rect, int stripeIndex);
-	void			DrawFishEye(CDC& dc, const CRect& rect );
-	void			DocumentUpdated(CBaseView* view, CDWordArray& indents, CDWordArray& states);
 
 	CBitmap *		m_pCacheBitmap;
 
@@ -72,8 +64,9 @@ protected:
 	CDWordArray		m_arBottomIdent;
 	CDWordArray		m_arBottomState;
 
-	CRegDWORD		m_regUseFishEye;
 	DECLARE_MESSAGE_MAP()
 public:
 	CMainFrame *	m_pMainFrm;
 };
+
+

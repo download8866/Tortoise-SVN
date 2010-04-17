@@ -1,5 +1,5 @@
 // TortoiseOverlays - an overlay handler for Tortoise clients
-// Copyright (C) 2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 #include "stdafx.h"
 #include "ShellExt.h"
 #include "Guids.h"
@@ -11,77 +11,15 @@
 STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD *pdwFlags)
 {
 	int nInstalledOverlays = GetInstalledOverlays();
-		
-	// only a limited number of overlay slots can be used (determined by testing,
-	// since not all overlay handlers are registered in the registry, e.g., the
-	// shortcut (arrow) overlay isn't listed there).
-	// The following overlays must be accounted for but are not listed under ShellIconOverlayIdentifiers:
-	// * Shortcut arrow
-	// * gray X on Vista+ (black dot on XP) for archived files
-	// * Shared Hand (Windows XP only)
-	// * UAC shield (Windows Vista+ only)
-
-	const int nOverlayLimit = 12;
-
-
-	bool dropIgnored = DropHandler(_T("ShowIgnoredOverlay"));
-	if (dropIgnored)
-		nInstalledOverlays--;
-
-	bool dropUnversioned = DropHandler(_T("ShowUnversionedOverlay"));
-	if (dropUnversioned)
-		nInstalledOverlays--;
-
-	bool dropAdded = DropHandler(_T("ShowAddedOverlay"));
-	if (dropAdded)
-		nInstalledOverlays--;
-
-	bool dropLocked = DropHandler(_T("ShowLockedOverlay"));
-	if (dropLocked)
-		nInstalledOverlays--;
-
-	bool dropReadonly = DropHandler(_T("ShowReadonlyOverlay"));
-	if (dropReadonly)
-		nInstalledOverlays--;
-
-	bool dropDeleted = DropHandler(_T("ShowDeletedOverlay"));
-	if (dropDeleted)
-		nInstalledOverlays--;
-	// The conflict, modified and normal overlays must not be disabled since
-	// those are essential for Tortoise clients.
-
-
-	if (dropIgnored		&& (m_State == FileStateIgnored))
-		return S_FALSE;
-	if (dropUnversioned && (m_State == FileStateUnversioned))
-		return S_FALSE;
-	if (dropAdded		&& (m_State == FileStateAdded))
-		return S_FALSE;
-	if (dropLocked		&& (m_State == FileStateLocked))
-		return S_FALSE;
-	if (dropReadonly	&& (m_State == FileStateReadOnly))
-		return S_FALSE;
-	if (dropDeleted		&& (m_State == FileStateDeleted))
-		return S_FALSE;
-
-	//
-	// If there are more than the maximum number of handlers registered, then
-	// we have to drop some of our handlers to make sure that
-	// the 'important' handlers are loaded properly:
-	//
-	// max     registered: drop the locked overlay
-	// max + 1 registered: drop the locked and the ignored overlay
-	// max + 2 registered: drop the locked, ignored and readonly overlay
-	// max + 3 or more registered: drop the locked, ignored, readonly and unversioned overlay
-
-	if ((m_State == FileStateUnversioned)&&(nInstalledOverlays > nOverlayLimit + 3))
-		return S_FALSE;		// don't use the 'unversioned' overlay
-	if ((m_State == FileStateReadOnly)&&(nInstalledOverlays > nOverlayLimit + 2))
-		return S_FALSE;		// don't show the 'needs-lock' overlay
-	if ((m_State == FileStateIgnored)&&(nInstalledOverlays > nOverlayLimit + 1))
-		return S_FALSE;		// don't use the 'ignored' overlay
-	if ((m_State == FileStateLocked)&&(nInstalledOverlays > nOverlayLimit))
+	
+	if ((m_State == FileStateAdded)&&(nInstalledOverlays > 12))
+		return S_FALSE;		// don't use the 'added' overlay
+	if ((m_State == FileStateLocked)&&(nInstalledOverlays > 13))
 		return S_FALSE;		// don't show the 'locked' overlay
+	if ((m_State == FileStateIgnored)&&(nInstalledOverlays > 12))
+		return S_FALSE;		// don't use the 'ignored' overlay
+	if ((m_State == FileStateUnversioned)&&(nInstalledOverlays > 13))
+		return S_FALSE;		// don't show the 'unversioned' overlay
 
     // Get folder icons from registry
 	// Default icons are stored in LOCAL MACHINE
@@ -141,6 +79,7 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
     else
         return S_FALSE;
 
+
     *pIndex = 0;
     *pdwFlags = ISIOI_ICONFILE;
     return S_OK;
@@ -148,8 +87,6 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 
 STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 {
-	if(pPriority == 0)
-		return E_POINTER;
 	switch (m_State)
 	{
 		case FileStateConflict:
@@ -161,23 +98,23 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 		case FileStateDeleted:
 			*pPriority = 2;
 			break;
-		case FileStateAdded:
+		case FileStateReadOnly:
 			*pPriority = 3;
 			break;
-		case FileStateNormal:
+		case FileStateLocked:
 			*pPriority = 4;
 			break;
-		case FileStateUnversioned:
+		case FileStateAdded:
 			*pPriority = 5;
 			break;
-		case FileStateReadOnly:
+		case FileStateNormal:
 			*pPriority = 6;
+			break;
+		case FileStateUnversioned:
+			*pPriority = 8;
 			break;
 		case FileStateIgnored:
 			*pPriority = 7;
-			break;
-		case FileStateLocked:
-			*pPriority = 8;
 			break;
 		default:
 			*pPriority = 100;
@@ -188,8 +125,6 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 
 STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD dwAttrib)
 {
-	if(pwszPath == 0)
-		return E_INVALIDARG;
 	for (vector<DLLPointers>::iterator it = m_dllpointers.begin(); it != m_dllpointers.end(); ++it)
 	{
 		if (it->pShellIconOverlayIdentifier)
@@ -214,28 +149,15 @@ int CShellExt::GetInstalledOverlays()
 		_T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers"),
 		0, KEY_ENUMERATE_SUB_KEYS, &hKey)==ERROR_SUCCESS)
 	{
-		TCHAR value[1024];
-		TCHAR keystring[1024];
 		for (int i = 0, rc = ERROR_SUCCESS; rc == ERROR_SUCCESS; i++)
 		{ 
+			TCHAR value[1024];
 			DWORD size = sizeof value / sizeof TCHAR;
 			FILETIME last_write_time;
 			rc = RegEnumKeyEx(hKey, i, value, &size, NULL, NULL, NULL, &last_write_time);
 			if (rc == ERROR_SUCCESS) 
 			{
-				DWORD dwType = 0;
-				DWORD dwSize = sizeof(value);
-				// check if there's a 'default' entry with a guid
-				_tcscpy_s(keystring, 1024, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers\\"));
-				_tcscat_s(keystring, 1024, value);
-				if (SHGetValue(HKEY_LOCAL_MACHINE, 
-					keystring, 
-					NULL,
-					&dwType, value, &dwSize) == ERROR_SUCCESS)
-				{
-					if ((dwSize > 10)&&(value[0] == '{'))
-						nInstalledOverlayhandlers++;
-				}
+				nInstalledOverlayhandlers++;
 			}
 		}
 	}
@@ -345,21 +267,5 @@ void CShellExt::LoadRealLibrary(LPCTSTR ModuleName, LPCTSTR clsid, LPWSTR pwszIc
 	m_dllpointers.push_back(pointers);
 }
 
-bool CShellExt::DropHandler(LPCWSTR registryKey)
-{
-	bool drop = false;
-	DWORD dwType = 0;
-	DWORD dwData = 0;
-	DWORD dwDataSize = 4;
-	if (SHGetValue(HKEY_CURRENT_USER, _T("Software\\TortoiseOverlays"), registryKey, &dwType, &dwData, &dwDataSize) == ERROR_SUCCESS)
-	{
-		if (dwType == REG_DWORD)
-		{
-			if (dwData == 0)
-			{
-				drop = true;
-			}
-		}
-	}
-	return drop;
-}
+
+

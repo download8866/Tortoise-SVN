@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,9 +39,9 @@ BOOL CToolTips::OnTtnNeedText(NMHDR *pNMHDR, LRESULT *pResult)
 			// idFrom is actually the HWND of the tool 
 			nID = ::GetDlgCtrlID((HWND)nID);
 		}
-		if (toolTextMap.find((unsigned int)nID) != toolTextMap.end())
+		if (toolTextMap.find(nID) != toolTextMap.end())
 		{
-			lpnmtdi->lpszText = (LPTSTR)(LPCTSTR)(CString)toolTextMap[(unsigned int)nID];
+			lpnmtdi->lpszText = (LPTSTR)(LPCTSTR)(CString)toolTextMap[nID];
 			lpnmtdi->hinst = AfxGetResourceHandle();
 			*pResult = 0;
 			return TRUE;
@@ -78,52 +78,5 @@ void CToolTips::AddTool(int nIdWnd, CString sBalloonTipText, LPCRECT lpRectTool 
 {
 	AddTool(((CDialog*)m_pParentWnd)->GetDlgItem(nIdWnd), sBalloonTipText, lpRectTool, nIDTool);
 }
-BOOL CToolTips::ShowBalloon(CWnd *pWnd, UINT nIDText, UINT nIDTitle, UINT icon /* = 0 */)
-{
-	CString sTemp;
-	sTemp.LoadString(nIDText);
-	// tooltips can't handle \t and single \n, only spaces and \r\n
-	sTemp.Replace('\t', ' ');
-	sTemp.Replace(_T("\r\n"), _T("\n"));
-	sTemp.Replace(_T("\n"), _T("\r\n"));
 
-	HWND hwndTT = NULL;
-	TOOLINFO ti = { 0 };
-	RECT rc;
-	hwndTT = CreateWindow
-		(
-		TOOLTIPS_CLASS,
-		TEXT(""),
-		TTS_NOPREFIX|TTS_BALLOON|TTS_ALWAYSTIP|TTS_CLOSE,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		pWnd->GetSafeHwnd(),
-		NULL,
-		NULL,
-		NULL
-		);
-	if (hwndTT == NULL)
-		return FALSE;
 
-	ti.cbSize = sizeof(ti);
-	ti.uFlags = TTF_TRACK | TTF_IDISHWND | TTF_PARSELINKS;
-	ti.hwnd = pWnd->GetSafeHwnd();
-	ti.lpszText = sTemp.GetBuffer();
-	::SendMessage(hwndTT, TTM_ADDTOOL, 0, (LPARAM)&ti);
-	::SendMessage(hwndTT, TTM_SETTITLE, icon, (LPARAM)(LPCTSTR)CString(MAKEINTRESOURCE(nIDTitle)));
-	::SendMessage(hwndTT, TTM_SETMAXTIPWIDTH, 0, 800);
-
-	// Position the tooltip below the control
-	::GetWindowRect(pWnd->GetSafeHwnd(), &rc);
-	::SendMessage(hwndTT, TTM_TRACKPOSITION, 0, MAKELONG(rc.left + 10, rc.bottom));
-
-	// Show the tooltip
-	::SendMessage(hwndTT, TTM_TRACKACTIVATE, TRUE, (LPARAM)&ti);
-
-	return TRUE;
-}
-
-void CToolTips::ShowBalloon(int nIdWnd, UINT nIdText, UINT nIDTitle, UINT icon /* = 0 */)
-{
-	ShowBalloon(((CDialog*)m_pParentWnd)->GetDlgItem(nIdWnd), nIdText, nIDTitle, icon);
-}

@@ -67,9 +67,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="LogCacheLib.lib LogCacheAccessLib.lib LogCacheContainersLib.lib LogCacheStreamsLib.lib version.lib"
+				AdditionalDependencies="LogCacheLib.lib version.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheAccessLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheStreamsLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheContainersLib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				HeapReserveSize="1024"
@@ -138,6 +138,7 @@
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -153,7 +154,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="LogCacheLib.lib version.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheAccessLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheStreamsLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheContainersLib\$(ConfigurationName)64&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)64&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				HeapReserveSize="1024"
@@ -218,7 +219,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -233,18 +234,19 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="LogCacheLib.lib LogCacheAccessLib.lib LogCacheContainersLib.lib LogCacheStreamsLib.lib version.lib"
+				AdditionalDependencies="LogCacheLib.lib version.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheAccessLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheStreamsLib\$(ConfigurationName)&quot;;&quot;..\..\obj\LogCacheContainersLib\$(ConfigurationName)&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
-				Profile="true"
+				Profile="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -301,8 +303,9 @@
 				PreprocessorDefinitions="WIN64;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
+				Detect64BitPortabilityProblems="true"
 				DebugInformationFormat="3"
 			/>
 			<Tool
@@ -318,16 +321,17 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="LogCacheLib.lib version.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheAccessLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheStreamsLib\$(ConfigurationName)64&quot;;&quot;..\..\obj\LogCacheContainersLib\$(ConfigurationName)64&quot;"
+				AdditionalLibraryDirectories="&quot;$(OutDir)&quot;;&quot;..\..\obj\LogCacheLib\$(ConfigurationName)64&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				LinkTimeCodeGeneration="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
-				Profile="true"
+				Profile="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -404,10 +408,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\Utils\UnicodeUtils.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -420,10 +420,6 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\UnicodeUtils.h"
 				>
 			</File>
 		</Filter>

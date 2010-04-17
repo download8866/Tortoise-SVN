@@ -19,11 +19,7 @@
 #pragma once
 #include "MergeWizardBasePage.h"
 #include "HistoryCombo.h"
-#include "PathEdit.h"
-
-/// forward declarations
-
-class CLogDlg;
+#include "LogDlg.h"
 
 /**
  * Page in the merge wizard for selecting two urls and revisions for
@@ -52,14 +48,12 @@ protected:
 	afx_msg void		OnBnClickedBrowse();
 	afx_msg void		OnBnClickedShowlogwc();
 	afx_msg void		OnCbnEditchangeUrlcombo();
-	afx_msg LRESULT		OnWCStatus(WPARAM wParam, LPARAM lParam);
 
 	DECLARE_MESSAGE_MAP()
 
 	CHistoryCombo		m_URLCombo;
 	CLogDlg	*			m_pLogDlg;
 	CLogDlg	*			m_pLogDlg2;
-	CPathEdit			m_WCPath;
 
 public:
 	CString				m_URL;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,9 +26,8 @@
 
 bool UpdateCommand::Execute()
 {
-	CRegDWORD updateExternals(_T("Software\\TortoiseSVN\\IncludeExternals"), true);
 	SVNRev rev = SVNRev(_T("HEAD"));
-	int options = DWORD(updateExternals) ? 0 : ProgOptIgnoreExternals;
+	int options = 0;
 	svn_depth_t depth = svn_depth_unknown;
 	DWORD exitcode = 0;
 	CString error;
@@ -53,10 +52,7 @@ bool UpdateCommand::Execute()
 		{
 			rev = dlg.Revision;
 			depth = dlg.m_depth;
-			if (dlg.m_bNoExternals)
-				options |= ProgOptIgnoreExternals;
-			else
-				options &= ~ProgOptIgnoreExternals;
+			options |= dlg.m_bNoExternals ? ProgOptIgnoreExternals : 0;
 		}
 		else 
 			return FALSE;
@@ -69,14 +65,13 @@ bool UpdateCommand::Execute()
 			depth = svn_depth_empty;
 		if (parser.HasKey(_T("ignoreexternals")))
 			options |= ProgOptIgnoreExternals;
-		if (parser.HasKey(_T("updateexternals")))
-			options &= ~ProgOptIgnoreExternals;
 	}
 
 	CSVNProgressDlg progDlg;
 	theApp.m_pMainWnd = &progDlg;
 	progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Update);
-	progDlg.SetAutoClose (parser);
+	if (parser.HasVal(_T("closeonend")))
+		progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
 	progDlg.SetOptions(options);
 	progDlg.SetPathList(pathList);
 	progDlg.SetRevision(rev);

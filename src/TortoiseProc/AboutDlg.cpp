@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,18 +45,11 @@ BEGIN_MESSAGE_MAP(CAboutDlg, CStandAloneDialog)
 	ON_WM_TIMER()
 	ON_WM_MOUSEMOVE()
 	ON_BN_CLICKED(IDC_UPDATE, OnBnClickedUpdate)
-    ON_WM_CLOSE()
 END_MESSAGE_MAP()
 
 BOOL CAboutDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_VERSIONBOX);
-	m_aeroControls.SubclassControl(this, IDC_CREDITS1);
-	m_aeroControls.SubclassControl(this, IDC_CREDITS2);
-	m_aeroControls.SubclassControl(this, IDOK);
-	m_aeroControls.SubclassControl(this, IDC_UPDATE);
 
 	// set the version string
 	CString temp;
@@ -142,12 +135,4 @@ void CAboutDlg::OnBnClickedUpdate()
 	_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck /visible"));
 
 	CAppUtils::LaunchApplication(com, 0, false);
-}
-
-void CAboutDlg::OnClose()
-{
-    KillTimer(ID_EFFECTTIMER);
-    KillTimer(ID_DROPTIMER);
-
-    CStandAloneDialog::OnClose();
 }

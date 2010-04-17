@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -196,10 +196,22 @@ void CSetOverlayIcons::ShowIconSet(bool bSmallIcons)
 	DestroyIcon(hUnversionedOverlay);
 
 	// create an image list with different file icons
-	const HICON hIcon = GetFileIcon(_T("Doesn't matter"), bSmallIcons, FILE_ATTRIBUTE_DIRECTORY);
-	int folderindex = pImageList->Add(hIcon);	//folder
-	DestroyIcon(hIcon);
+	SHFILEINFO sfi;
+	SecureZeroMemory(&sfi, sizeof sfi);
 
+	UINT flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
+	if (bSmallIcons)
+		flags |= SHGFI_SMALLICON;
+	else
+		flags |= SHGFI_LARGEICON;
+	SHGetFileInfo(
+		_T("Doesn't matter"),
+		FILE_ATTRIBUTE_DIRECTORY,
+		&sfi, sizeof sfi,
+		flags);
+
+	int folderindex = pImageList->Add(sfi.hIcon);	//folder
+	DestroyIcon(sfi.hIcon);
 	//folders
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sNormal, folderindex);
 	VERIFY(m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(1), TVIS_OVERLAYMASK));
@@ -251,15 +263,27 @@ void CSetOverlayIcons::ShowIconSet(bool bSmallIcons)
 }
 void CSetOverlayIcons::AddFileTypeGroup(CString sFileType, bool bSmallIcons)
 {
-	const HICON hIcon = GetFileIcon(sFileType, bSmallIcons, FILE_ATTRIBUTE_NORMAL);
+	UINT flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
+	if (bSmallIcons)
+		flags |= SHGFI_SMALLICON;
+	else
+		flags |= SHGFI_LARGEICON;
+	SHFILEINFO sfi;
+	SecureZeroMemory(&sfi, sizeof sfi);
+
+	SHGetFileInfo(
+		sFileType,
+		FILE_ATTRIBUTE_NORMAL,
+		&sfi, sizeof sfi,
+		flags);
 
 	int imageindex = 0;
 	if (bSmallIcons)
-		imageindex = m_ImageList.Add(hIcon);
+		imageindex = m_ImageList.Add(sfi.hIcon);
 	else
-		imageindex = m_ImageListBig.Add(hIcon);
+		imageindex = m_ImageListBig.Add(sfi.hIcon);
 
-	DestroyIcon(hIcon);
+	DestroyIcon(sfi.hIcon);
 	int index = 0;
 	index = m_cIconList.InsertItem(m_cIconList.GetItemCount(), m_sNormal+sFileType, imageindex);
 	m_cIconList.SetItemState(index, INDEXTOOVERLAYMASK(1), TVIS_OVERLAYMASK);
@@ -328,22 +352,4 @@ BOOL CSetOverlayIcons::OnApply()
 	}
 	SetModified(FALSE);
 	return ISettingsPropPage::OnApply();
-}
-
-HICON CSetOverlayIcons::GetFileIcon(LPCTSTR fileType, bool bSmallIcons, DWORD attributes)
-{
-	SHFILEINFO sfi;
-	SecureZeroMemory(&sfi, sizeof sfi);
-
-	UINT flags = SHGFI_ICON | SHGFI_USEFILEATTRIBUTES;
-	if (bSmallIcons)
-		flags |= SHGFI_SMALLICON;
-	else
-		flags |= SHGFI_LARGEICON;
-	SHGetFileInfo(
-		fileType,
-		attributes,
-		&sfi, sizeof sfi,
-		flags);
-	return sfi.hIcon;
 }

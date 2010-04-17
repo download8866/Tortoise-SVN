@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,12 +21,9 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 #include "FileDropEdit.h"
+#include "LogDlg.h"
+#include "afxwin.h"
 #include "Tooltip.h"
-#include "TSVNPath.h"
-
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -58,34 +55,25 @@ protected:
 	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
 	afx_msg void OnEnChangeRevisionNum();
 	afx_msg void OnCbnEditchangeUrlcombo();
-	afx_msg void OnCbnSelchangeDepth();
 
 	DECLARE_MESSAGE_MAP()
 
-	void UpdateURLsFromCombo();
-	bool IsStandardCheckout();
-	void SetRevision(const SVNRev& rev);
-
+	void		SetRevision(const SVNRev& rev);
 protected:
 	CToolTips		m_tooltips;
 	CString			m_sRevision;
 	CString			m_sCheckoutDirOrig;
 	bool			m_bAutoCreateTargetName;
 	CComboBox		m_depthCombo;
-
 public:
 	CHistoryCombo	m_URLCombo;
-	CTSVNPathList	m_URLs;
+	CString			m_URL;
 	SVNRev			Revision;
 	BOOL			m_bNoExternals;
-	BOOL			m_bIndependentWCs;
 	CButton			m_butBrowse;
 	CEdit			m_editRevision;
 	CString			m_strCheckoutDirectory;
 	CFileDropEdit	m_cCheckoutEdit;
 	CLogDlg	*		m_pLogDlg;
 	svn_depth_t		m_depth;
-
-	bool			m_standardCheckout;	///< true if only one path got selected and that URL path is a folder
-	bool			m_parentExists;	///< W/C for parent folder already exists. Only valid if \ref m_standardCheckout is false.
 };

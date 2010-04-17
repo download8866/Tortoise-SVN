@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2007, 2009-2010 TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,14 +49,13 @@ public:
 private:
 	static unsigned int __stdcall ThreadEntry(void* pContext);
 	void WorkerThread();
+	void RemoveDuplicates(std::deque<CTSVNPath>& queue);
 
 private:
 	CComAutoCriticalSection m_critSec;
 	HANDLE m_hThread;
 	std::deque<CTSVNPath> m_foldersToUpdate;
-	std::set<CTSVNPath> m_foldersToUpdateUnique;
 	std::deque<CTSVNPath> m_pathsToUpdate;
-	std::set<CTSVNPath> m_pathsToUpdateUnique;
 	HANDLE m_hTerminationEvent;
 	HANDLE m_hWakeEvent;
 	

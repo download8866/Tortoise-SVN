@@ -169,21 +169,6 @@
 				to pair the two files as a rename.
 			</para>
 		</tip>
-		<tip>
-			<title>Repairing External Copies</title>
-			<para>
-				If you made a copy of a file but forgot to use the Subversion command
-				to do so, you can repair that copy so the new file doesn't lose
-				its history.
-				Simply select both the old name (normal or modified) and the new name (unversioned)
-				and use
-				<menuchoice>
-					<guimenu>Context Menu</guimenu>
-					<guimenuitem>Repair Copy</guimenuitem>
-				</menuchoice>
-				to pair the two files as a copy.
-			</para>
-		</tip>
 	</sect2>
 	<sect2 id="tsvn-dug-commit-changelists">
 		<title>Change Lists</title>
@@ -263,13 +248,6 @@
 			<ulink url="http://www.regular-expressions.info/">
 				<citetitle>http://www.regular-expressions.info/</citetitle>
 			</ulink>.
-		</para>
-		<para>
-			Getting the regex just right can be tricky, so to help you sort out a
-			suitable expression there is a test dialog which allows you to enter
-			an expression and then type in filenames to test it against.
-			Start it from the command prompt using the command
-			<literal>TortoiseProc.exe /command:autotexttest</literal>
 		</para>
 		<para>
 			You can re-use previously entered log messages. Just click on

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,9 +18,7 @@
 //
 #include "stdafx.h"
 #include "BaseWindow.h"
-#include "shlwapi.h"
 
-#pragma comment(lib, "shlwapi.lib")
 
 ResString::ResString (HINSTANCE hInst, int resId)
 {
@@ -61,11 +59,7 @@ bool CWindow::RegisterWindow(CONST WNDCLASSEX* wcx)
 	sClassName = std::wstring(wcx->lpszClassName);
 
 	if (RegisterClassEx(wcx) == 0)
-	{
-		if (GetLastError() == ERROR_CLASS_ALREADY_EXISTS)
-			return TRUE;
 		return FALSE;
-	}
 	else
 		return TRUE;
 }
@@ -86,33 +80,7 @@ LRESULT CALLBACK CWindow::stWinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam, L
 	// if we have the pointer, go to the message handler of the window
 	// else, use DefWindowProc
 	if (pWnd)
-	{
-		switch (uMsg)
-		{
-		case WM_ACTIVATE:
-			if ((wParam == WA_ACTIVE)&&(!pWnd->bWindowRestored)&&(!pWnd->sRegistryPath.empty()))
-			{
-				WINDOWPLACEMENT wpl = {0};
-				DWORD size = sizeof(wpl);
-				if (SHGetValue(HKEY_CURRENT_USER, pWnd->sRegistryPath.c_str(), pWnd->sRegistryValue.c_str(), REG_NONE, &wpl, &size) == ERROR_SUCCESS)
-					SetWindowPlacement(hwnd, &wpl);
-				else
-					ShowWindow(hwnd, SW_SHOW);
-				pWnd->bWindowRestored = true;
-			}
-			break;
-		case WM_CLOSE:
-			if (!pWnd->sRegistryPath.empty())
-			{
-				WINDOWPLACEMENT wpl = {0};
-				wpl.length = sizeof(WINDOWPLACEMENT);
-				GetWindowPlacement(hwnd, &wpl);
-				SHSetValue(HKEY_CURRENT_USER, pWnd->sRegistryPath.c_str(), pWnd->sRegistryValue.c_str(), REG_NONE, &wpl, sizeof(wpl));
-			}
-			break;
-		}
 		return pWnd->WinMsgHandler(hwnd, uMsg, wParam, lParam);
-	}
 	else
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }

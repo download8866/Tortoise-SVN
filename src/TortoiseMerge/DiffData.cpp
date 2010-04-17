@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "UnicodeUtils.h"
 #include "SVNAdminDir.h"
 #include "svn_dso.h"
-#include "MovedBlocks.h"
 
 #pragma warning(push)
 #pragma warning(disable: 4702) // unreachable code
@@ -52,11 +51,6 @@ CDiffData::~CDiffData(void)
 {
 	g_SVNAdminDir.Close();
 	apr_terminate();
-}
-
-void CDiffData::SetMovedBlocks(bool bViewMovedBlocks/* = true*/) 
-{ 
-    m_bViewMovedBlocks = bViewMovedBlocks;
 }
 
 int CDiffData::GetLineCount()
@@ -91,123 +85,12 @@ LPCTSTR CDiffData::GetLineChars(int index)
 	return NULL;
 }
 
-svn_diff_file_ignore_space_t CDiffData::GetIgnoreSpaceMode(DWORD dwIgnoreWS)
-{
-	switch (dwIgnoreWS)
-	{
-	case 0:
-		return svn_diff_file_ignore_space_none;
-	case 1:
-		return svn_diff_file_ignore_space_all;
-	case 2:
-		return svn_diff_file_ignore_space_change;
-	default:
-		return svn_diff_file_ignore_space_none;
-	}
-}
-
-svn_diff_file_options_t * CDiffData::CreateDiffFileOptions(DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool)
-{
-	svn_diff_file_options_t * options = svn_diff_file_options_create(pool);  
-	options->ignore_eol_style = bIgnoreEOL;
-	options->ignore_space = GetIgnoreSpaceMode(dwIgnoreWS);
-	return options;
-}
-
-bool CDiffData::HandleSvnError(svn_error_t * svnerr)
-{
-	TRACE(_T("diff-error in CDiffData::Load()\n"));
-	CString sMsg = CString(svnerr->message);
-	while (svnerr->child)
-	{
-		svnerr = svnerr->child;
-		sMsg += _T("\n");
-		sMsg += CString(svnerr->message);
-	}
-	m_sError.Format(IDS_ERR_DIFF_DIFF, (LPCTSTR)sMsg);
-	svn_error_clear(svnerr);
-	return false;
-}
-
-void CDiffData::TieMovedBlocks(int from, int to, apr_off_t length) 
-{
-    for(int i=0; i<length; i++, to++, from++)
-    {
-        int fromIndex = m_YourBaseLeft.FindLineNumber(from);
-        int toIndex = m_YourBaseRight.FindLineNumber(to);
-        m_YourBaseLeft.SetState(fromIndex, DIFFSTATE_MOVED_FROM);
-        m_YourBaseLeft.SetMovedIndex(fromIndex, toIndex);
-        m_YourBaseRight.SetState(toIndex, DIFFSTATE_MOVED_TO);
-        m_YourBaseRight.SetMovedIndex(toIndex, fromIndex);
-
-        toIndex = m_YourBaseBoth.FindLineNumber(to);
-        while((toIndex < m_YourBaseBoth.GetCount())&&
-              ((m_YourBaseBoth.GetState(toIndex) != DIFFSTATE_ADDED)&& 
-              (m_YourBaseBoth.GetState(toIndex) != DIFFSTATE_MOVED_TO)||
-              (m_YourBaseBoth.GetLineNumber(toIndex) != to)))
-        {
-            toIndex++;
-        }
-
-        fromIndex = m_YourBaseBoth.FindLineNumber(from);
-        while((fromIndex < m_YourBaseBoth.GetCount())&&
-              ((m_YourBaseBoth.GetState(fromIndex) != DIFFSTATE_REMOVED)&&
-              (m_YourBaseBoth.GetState(fromIndex) != DIFFSTATE_MOVED_FROM)||
-              (m_YourBaseBoth.GetLineNumber(fromIndex) != from)))
-        {
-            fromIndex++;
-        }
-        if ((fromIndex < m_YourBaseBoth.GetCount())&&(toIndex < m_YourBaseBoth.GetCount()))
-        {
-            m_YourBaseBoth.SetState(fromIndex, DIFFSTATE_MOVED_FROM);
-            m_YourBaseBoth.SetMovedIndex(fromIndex, toIndex);
-            m_YourBaseBoth.SetState(toIndex, DIFFSTATE_MOVED_TO);
-            m_YourBaseBoth.SetMovedIndex(toIndex, fromIndex);
-        }
-    }
-}
-
-bool CDiffData::CompareWithIgnoreWS(CString s1, CString s2, DWORD dwIgnoreWS)
-{
-	if (dwIgnoreWS == 2)
-	{
-		s1 = s1.TrimLeft(_T(" \t"));
-		s2 = s2.TrimLeft(_T(" \t"));
-	}
-	else
-	{
-		s1 = s1.TrimRight(_T(" \t"));
-		s2 = s2.TrimRight(_T(" \t"));
-	}
-
-	return s1 != s2;
-}
-
-void CDiffData::AddLines(LONG baseline, LONG yourline, LONG theirline) 
-{
-	m_arDiff3LinesBase.Add(baseline);
-	m_arDiff3LinesYour.Add(yourline);
-	m_arDiff3LinesTheir.Add(theirline);
-}
-
-void CDiffData::StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_sticked, apr_off_t &modified_length_sticked) 
-{
-    if((m_bViewMovedBlocks)&&(tempdiff->type == svn_diff__type_diff_modified))
-    {
-        svn_diff_t * nextdiff = tempdiff->next;
-        while((nextdiff)&&(nextdiff->type == svn_diff__type_diff_modified))
-        {
-            original_length_sticked += nextdiff->original_length;
-            modified_length_sticked += nextdiff->modified_length;
-            tempdiff = nextdiff;
-            nextdiff = tempdiff->next;
-        }
-    }
-}
-
 BOOL CDiffData::Load()
 {
 	CString sConvertedBaseFilename, sConvertedTheirFilename, sConvertedYourFilename;
+	apr_pool_t * pool;
+
+	apr_pool_create_ex (&pool, NULL, abort_on_pool_failure, NULL);
 
 	m_arBaseFile.RemoveAll();
 	m_arYourFile.RemoveAll();
@@ -314,12 +197,8 @@ BOOL CDiffData::Load()
 	{
 		e->GetErrorMessage(m_sError.GetBuffer(255), 255);
 		m_sError.ReleaseBuffer();
-		e->Delete();
 		return FALSE;
 	}
-
-	apr_pool_t * pool = NULL;
-	apr_pool_create_ex (&pool, NULL, abort_on_pool_failure, NULL);
 
 	// Is this a two-way diff?
 	if (IsBaseFileInUse() && IsYourFileInUse() && !IsTheirFileInUse())
@@ -351,36 +230,54 @@ BOOL CDiffData::Load()
 	return TRUE;
 }
 
+
 bool
 CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool)
 {
-	svn_diff_file_options_t * options = CreateDiffFileOptions(dwIgnoreWS, bIgnoreEOL, pool);
 	// convert CString filenames (UTF-16 or ANSI) to UTF-8
 	CStringA sBaseFilenameUtf8 = CUnicodeUtils::GetUTF8(sBaseFilename);
 	CStringA sYourFilenameUtf8 = CUnicodeUtils::GetUTF8(sYourFilename);
 
 	svn_diff_t * diffYourBase = NULL;
-	svn_error_t * svnerr = svn_diff_file_diff_2(&diffYourBase, sBaseFilenameUtf8, sYourFilenameUtf8, options, pool);
-	
-    if (svnerr)
-        return HandleSvnError(svnerr);
-    
-    tsvn_svn_diff_t_extension * movedBlocks = NULL;
-	if(m_bViewMovedBlocks)
-        movedBlocks = MovedBlocksDetect(diffYourBase, pool); // Side effect is that diffs are now splitted
-    
+	svn_error_t * svnerr = NULL;
+	svn_diff_file_options_t * options = svn_diff_file_options_create(pool);
+	options->ignore_eol_style = bIgnoreEOL;
+	options->ignore_space = svn_diff_file_ignore_space_none;
+	switch (dwIgnoreWS)
+	{
+	case 0:
+		options->ignore_space = svn_diff_file_ignore_space_none;
+		break;
+	case 1:
+		options->ignore_space = svn_diff_file_ignore_space_all;
+		break;
+	case 2:
+		options->ignore_space = svn_diff_file_ignore_space_change;
+		break;
+	}
+
+	svnerr = svn_diff_file_diff_2(&diffYourBase, sBaseFilenameUtf8, sYourFilenameUtf8, options, pool);
+	if (svnerr)
+	{
+		TRACE(_T("diff-error in CDiffData::Load()\n"));
+		CString sMsg = CString(svnerr->message);
+		while (svnerr->child)
+		{
+			svnerr = svnerr->child;
+			sMsg += _T("\n");
+			sMsg += CString(svnerr->message);
+		}
+		m_sError.Format(IDS_ERR_DIFF_DIFF, (LPCTSTR)sMsg);
+		svn_error_clear(svnerr);
+		return false;
+	}
 	svn_diff_t * tempdiff = diffYourBase;
 	LONG baseline = 0;
 	LONG yourline = 0;
-    while (tempdiff)
-    {   
-        svn_diff__type_e diffType = tempdiff->type;
-        // Side effect described above overcoming - sticking together
-        apr_off_t original_length_sticked = tempdiff->original_length;
-        apr_off_t modified_length_sticked = tempdiff->modified_length;
-        StickAndSkip(tempdiff, original_length_sticked, modified_length_sticked);
 
-		for (int i=0; i<original_length_sticked; i++)
+	while (tempdiff)
+	{
+		for (int i=0; i<tempdiff->original_length; i++)
 		{
 			if (baseline >= m_arBaseFile.GetCount())
 			{
@@ -389,7 +286,7 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 			}
 			const CString& sCurrentBaseLine = m_arBaseFile.GetAt(baseline);
 			EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
-			if (diffType == svn_diff__type_common)
+			if (tempdiff->type == svn_diff__type_common)
 			{
 				if (yourline >= m_arYourFile.GetCount())
 				{
@@ -400,47 +297,68 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 				EOL endingYours = m_arYourFile.GetLineEnding(yourline);
 				if (sCurrentBaseLine != sCurrentYourLine)
 				{
-					bool changedWS = false;
 					if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
-						changedWS = CompareWithIgnoreWS(sCurrentBaseLine, sCurrentYourLine, dwIgnoreWS);
-					if (changedWS || dwIgnoreWS == 0)
 					{
-						// one-pane view: two lines, one 'removed' and one 'added'
-						m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_REMOVEDWHITESPACE, yourline, endingBase, HIDESTATE_SHOWN, -1);
-						m_YourBaseBoth.AddData(sCurrentYourLine, DIFFSTATE_ADDEDWHITESPACE, yourline, endingYours, HIDESTATE_SHOWN, -1);
+						CString s1 = m_arBaseFile.GetAt(baseline);
+						CString s2 = sCurrentYourLine;
+						
+						if ( dwIgnoreWS == 2 )
+						{
+							s1.TrimLeft(_T(" \t"));
+							s2.TrimLeft(_T(" \t"));
+						}
+						else
+						{
+							s1.TrimRight(_T(" \t"));
+							s2.TrimRight(_T(" \t"));
+						}
+
+						if (s1 != s2)
+						{
+							// one-pane view: two lines, one 'removed' and one 'added'
+							m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_REMOVEDWHITESPACE, yourline, endingBase);
+							m_YourBaseBoth.AddData(sCurrentYourLine, DIFFSTATE_ADDEDWHITESPACE, yourline, endingYours);
+						}
+						else
+						{
+							m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, yourline, endingBase);
+						}
+					}
+					else if (dwIgnoreWS == 0)
+					{
+						m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_REMOVEDWHITESPACE, yourline, endingBase);
+						m_YourBaseBoth.AddData(sCurrentYourLine, DIFFSTATE_ADDEDWHITESPACE, yourline, endingYours);
 					}
 					else
 					{
-						m_YourBaseBoth.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingBase, HIDESTATE_HIDDEN, -1);
+						m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, yourline, endingBase);
 					}
 				}
 				else
 				{
-					m_YourBaseBoth.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingBase, HIDESTATE_HIDDEN, -1);
+					m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, yourline, endingBase);
 				}
-    			yourline++;		//in both files
+				yourline++;		//in both files
 			}
 			else
-			{ // small trick - we need here a baseline, but we fix it back to yourline at the end of routine
-				m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_REMOVED, baseline, endingBase, HIDESTATE_SHOWN, -1);
-    		}
+			{
+				m_YourBaseBoth.AddData(sCurrentBaseLine, DIFFSTATE_REMOVED, yourline, endingBase);
+			}
 			baseline++;
 		}
-		if (diffType == svn_diff__type_diff_modified)
+		if (tempdiff->type == svn_diff__type_diff_modified)
 		{
-			for (int i=0; i<modified_length_sticked; i++)
+			for (int i=0; i<tempdiff->modified_length; i++)
 			{
 				if (m_arYourFile.GetCount() > yourline)
 				{
-					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, m_arYourFile.GetLineEnding(yourline));
 				}
 				yourline++;
 			}
 		}
 		tempdiff = tempdiff->next;
 	}
-
-	HideUnchangedSections(&m_YourBaseBoth, NULL, NULL);
 
 	tempdiff = diffYourBase;
 	baseline = 0;
@@ -457,24 +375,47 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 				EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
 				if (sCurrentBaseLine != sCurrentYourLine)
 				{
-					bool changedWS = false;
 					if (dwIgnoreWS == 2 || dwIgnoreWS == 3)
-						changedWS = CompareWithIgnoreWS(sCurrentBaseLine, sCurrentYourLine, dwIgnoreWS);
-					if (changedWS || dwIgnoreWS == 0)
 					{
-						m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_WHITESPACE, baseline, endingBase, HIDESTATE_SHOWN, -1);
-						m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_WHITESPACE, yourline, endingYours, HIDESTATE_SHOWN, -1);
+						CString s1 = sCurrentBaseLine;
+						CString s2 = sCurrentYourLine;
+						if ( dwIgnoreWS == 2 )
+						{
+							s1 = s1.TrimLeft(_T(" \t"));
+							s2 = s2.TrimLeft(_T(" \t"));
+						}
+						else
+						{
+							s1 = s1.TrimRight(_T(" \t"));
+							s2 = s2.TrimRight(_T(" \t"));
+						}
+						
+						if (s1 != s2)
+						{
+							m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_WHITESPACE, baseline, endingBase);
+							m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_WHITESPACE, yourline, endingYours);
+						}
+						else
+						{
+							m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase);
+							m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours);
+						}
+					}
+					else if (dwIgnoreWS == 0)
+					{
+						m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_WHITESPACE, baseline, endingBase);
+						m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_WHITESPACE, yourline, endingYours);
 					}
 					else
 					{
-						m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase, HIDESTATE_HIDDEN, -1);
-						m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours, HIDESTATE_HIDDEN, -1);
+						m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase);
+						m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours);
 					}
 				}
 				else
 				{
-					m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase, HIDESTATE_HIDDEN, -1);
-					m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours, HIDESTATE_HIDDEN, -1);
+					m_YourBaseLeft.AddData(sCurrentBaseLine, DIFFSTATE_NORMAL, baseline, endingBase);
+					m_YourBaseRight.AddData(sCurrentYourLine, DIFFSTATE_NORMAL, yourline, endingYours);
 				}
 				baseline++;
 				yourline++;
@@ -482,81 +423,45 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 		}
 		if (tempdiff->type == svn_diff__type_diff_modified)
 		{
-            // now we trying to stick together parts, that were splitted by MovedBlocks
-            apr_off_t original_length_sticked = tempdiff->original_length;
-            apr_off_t modified_length_sticked = tempdiff->modified_length;
-            StickAndSkip(tempdiff, original_length_sticked, modified_length_sticked);
-
-            apr_off_t original_length = original_length_sticked;
-			for (int i=0; i<modified_length_sticked; i++)
+			apr_off_t original_length = tempdiff->original_length;
+			for (int i=0; i<tempdiff->modified_length; i++)
 			{
 				if (m_arYourFile.GetCount() > yourline)
 				{
 					EOL endingYours = m_arYourFile.GetLineEnding(yourline);
-					m_YourBaseRight.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, endingYours, HIDESTATE_SHOWN, -1);
 					if (original_length-- <= 0)
 					{
-						m_YourBaseLeft.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+						m_YourBaseLeft.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
+						m_YourBaseRight.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, endingYours);
 					}
 					else
 					{
 						EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
-						m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, endingBase, HIDESTATE_SHOWN, -1);
+						m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, endingBase);
+						m_YourBaseRight.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, endingYours);
 						baseline++;
 					}
 					yourline++;
 				}
 			}
-			apr_off_t modified_length = modified_length_sticked;
-			for (int i=0; i<original_length_sticked; i++)
+			apr_off_t modified_length = tempdiff->modified_length;
+			for (int i=0; i<tempdiff->original_length; i++)
 			{
-				if ((modified_length-- <= 0)&&(m_arBaseFile.GetCount() > baseline))
+				if (modified_length-- <= 0)
 				{
-					EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
-					m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, endingBase, HIDESTATE_SHOWN, -1);
-					m_YourBaseRight.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
-					baseline++;
+					if (m_arBaseFile.GetCount() > baseline)
+					{
+						EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
+						m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, endingBase);
+						m_YourBaseRight.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
+						baseline++;
+					}
 				}
 			}
 		}
 		tempdiff = tempdiff->next;
 	}
-    // Fixing results for conforming moved blocks 
-   
-    while(movedBlocks)
-    {
-		tempdiff = movedBlocks->base;
-		if(movedBlocks->moved_to != -1)
-        {
-            // set states in a block original:length -> moved_to:length
-            TieMovedBlocks((int)tempdiff->original_start, movedBlocks->moved_to, tempdiff->original_length);
-        }
-        if(movedBlocks->moved_from != -1)
-        {
-            // set states in a block modified:length -> moved_from:length
-            TieMovedBlocks(movedBlocks->moved_from, (int)tempdiff->modified_start, tempdiff->modified_length);
-        }
-        movedBlocks = movedBlocks->next;
-    }
-
-    // replace baseline with the yourline in m_YourBaseBoth
-    yourline = 0;
-    for(int i=0; i<m_YourBaseBoth.GetCount(); i++)
-    {
-        DiffStates state = m_YourBaseBoth.GetState(i);
-        if((state == DIFFSTATE_REMOVED)||(state == DIFFSTATE_MOVED_FROM))
-        {
-            m_YourBaseBoth.SetLineNumber(i, yourline);
-        }
-        else
-        {    
-            yourline++;
-        }
-    }
-
 	TRACE(_T("done with 2-way diff\n"));
-
-	HideUnchangedSections(&m_YourBaseLeft, &m_YourBaseRight, NULL);
 
 	return true;
 }
@@ -564,18 +469,41 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
 bool
 CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, apr_pool_t * pool)
 {
-	CRegDWORD contextLines = CRegDWORD(_T("Software\\TortoiseMerge\\ContextLines"), 3);
-	svn_diff_file_options_t * options = CreateDiffFileOptions(dwIgnoreWS, bIgnoreEOL, pool);
-
 	// convert CString filenames (UTF-16 or ANSI) to UTF-8
 	CStringA sBaseFilenameUtf8  = CUnicodeUtils::GetUTF8(sBaseFilename);
 	CStringA sYourFilenameUtf8  = CUnicodeUtils::GetUTF8(sYourFilename);
 	CStringA sTheirFilenameUtf8 = CUnicodeUtils::GetUTF8(sTheirFilename);
-
 	svn_diff_t * diffTheirYourBase = NULL;
+	svn_diff_file_options_t * options = svn_diff_file_options_create(pool);
+	options->ignore_eol_style = bIgnoreEOL;
+	options->ignore_space = svn_diff_file_ignore_space_none;
+	switch (dwIgnoreWS)
+	{
+	case 0:
+		options->ignore_space = svn_diff_file_ignore_space_none;
+		break;
+	case 1:
+		options->ignore_space = svn_diff_file_ignore_space_all;
+		break;
+	case 2:
+		options->ignore_space = svn_diff_file_ignore_space_change;
+		break;
+	}
 	svn_error_t * svnerr = svn_diff_file_diff3_2(&diffTheirYourBase, sBaseFilenameUtf8, sTheirFilenameUtf8, sYourFilenameUtf8, options, pool);
 	if (svnerr)
-		return HandleSvnError(svnerr);
+	{
+		TRACE(_T("diff-error in CDiffData::Load()\n"));
+		CString sMsg = CString(svnerr->message);
+		while (svnerr->child)
+		{
+			svnerr = svnerr->child;
+			sMsg += _T("\n");
+			sMsg += CString(svnerr->message);
+		}
+		m_sError.Format(IDS_ERR_DIFF_DIFF, (LPCTSTR)sMsg);
+		svn_error_clear(svnerr);
+		return false;
+	}
 
 	svn_diff_t * tempdiff = diffTheirYourBase;
 	LONG baseline = 0;
@@ -591,12 +519,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if ((m_arYourFile.GetCount() > yourline)&&(m_arTheirFile.GetCount() > theirline))
 				{
-					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, resline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_HIDDEN, -1);
+					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, resline, m_arYourFile.GetLineEnding(yourline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_HIDDEN, -1);
-					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_NORMAL, theirline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_HIDDEN, -1);
+					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, yourline, m_arYourFile.GetLineEnding(yourline));
+					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_NORMAL, theirline, m_arTheirFile.GetLineEnding(theirline));
 
 					baseline++;
 					yourline++;
@@ -613,12 +543,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if (m_arBaseFile.GetCount() > baseline)
 				{
-					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
+					m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 
 					baseline++;
 				}
@@ -627,12 +559,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if ((m_arYourFile.GetCount() > yourline)&&(m_arTheirFile.GetCount() > theirline))
 				{
-					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, resline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, resline, m_arYourFile.GetLineEnding(yourline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_IDENTICALADDED, resline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, yourline, m_arYourFile.GetLineEnding(yourline));
+					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_IDENTICALADDED, resline, m_arTheirFile.GetLineEnding(theirline));
 
 					yourline++;
 					theirline++;
@@ -663,12 +597,11 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			}
 			for (int i=0; i<length; i++)
 			{
-                EOL endingBase = m_arBaseFile.GetCount() > baseline ? m_arBaseFile.GetLineEnding(baseline) : EOL_AUTOLINE;
 				if (original)
 				{
 					if (m_arBaseFile.GetCount() > baseline)
 					{
-						m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, endingBase , HIDESTATE_SHOWN, -1);
+						m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 
 						m_arDiff3LinesBase.Add(baseline);
 						m_arDiff3LinesYour.Add(yourline);
@@ -677,7 +610,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 				}
 				else if ((originalresolved)||((modifiedresolved)&&(latestresolved)))
 				{
-					m_Diff3.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 
 					m_arDiff3LinesBase.Add(baseline);
 					m_arDiff3LinesYour.Add(yourline);
@@ -688,7 +621,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 				{
 					if (m_arBaseFile.GetCount() > baseline)
 					{
-						m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, endingBase , HIDESTATE_SHOWN, -1);
+						m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 					}
 				}
 				else
@@ -697,19 +630,19 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 					{
 						if (m_arBaseFile.GetCount() > baseline)
 						{
-							m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, endingBase , HIDESTATE_SHOWN, -1);
+							m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 						}
 					}
 					else if ((latestresolved)&&(modifiedresolved))
 					{
-						m_YourBaseBoth.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+						m_YourBaseBoth.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 					}
 				}
 				if ((modified)&&(original))
 				{
 					if (m_arBaseFile.GetCount() > baseline)
 					{
-						m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, endingBase , HIDESTATE_SHOWN, -1);
+						m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 					}
 				}
 				else
@@ -718,12 +651,12 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 					{
 						if (m_arBaseFile.GetCount() > baseline)
 						{
-							m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, endingBase , HIDESTATE_SHOWN, -1);
+							m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 						}
 					}
 					else if ((modifiedresolved)&&(latestresolved))
 					{
-						m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+						m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 					}
 				}
 				if (original)
@@ -765,9 +698,11 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if ((latest)||(modified))
 				{
-					m_Diff3.AddData(_T(""), DIFFSTATE_CONFLICTED, resline, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(_T(""), DIFFSTATE_CONFLICTED, resline, EOL_NOENDING);
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
 					resline++;
 				}
@@ -776,23 +711,23 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 				{
 					if (m_arYourFile.GetCount() > yourline)
 					{
-						m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_CONFLICTADDED, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
+						m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_CONFLICTADDED, yourline, m_arYourFile.GetLineEnding(yourline));
 					}
 				}
 				else if ((latestresolved)||(modified)||(modifiedresolved))
 				{
-					m_YourBaseBoth.AddData(_T(""), DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(_T(""), DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 				}
 				if (modified)
 				{
 					if (m_arTheirFile.GetCount() > theirline)
 					{
-						m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_CONFLICTADDED, theirline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_SHOWN, -1);
+						m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_CONFLICTADDED, theirline, m_arTheirFile.GetLineEnding(theirline));
 					}
 				}
 				else if ((modifiedresolved)||(latest)||(latestresolved))
 				{
-					m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 				}
 				if (original)
 				{
@@ -824,12 +759,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if ((m_arBaseFile.GetCount() > baseline)&&(m_arYourFile.GetCount() > yourline))
 				{
-					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_THEIRSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_THEIRSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_THEIRSREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, yourline, m_arYourFile.GetLineEnding(yourline));
+					m_TheirBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_THEIRSREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 					baseline++;
 					yourline++;
 				}
@@ -839,12 +776,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if (m_arTheirFile.GetCount() > theirline)
 				{
-					m_Diff3.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_THEIRSADDED, resline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_THEIRSADDED, resline, m_arTheirFile.GetLineEnding(theirline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_THEIRSADDED, theirline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
+					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_THEIRSADDED, theirline, m_arTheirFile.GetLineEnding(theirline));
 
 					theirline++;
 					resline++;
@@ -859,12 +798,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if ((m_arBaseFile.GetCount() > baseline)&&(m_arTheirFile.GetCount() > theirline))
 				{
-					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_YOURSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_YOURSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_YOURSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_NORMAL, theirline, m_arTheirFile.GetLineEnding(theirline), HIDESTATE_HIDDEN, -1);
+					m_YourBaseBoth.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_YOURSREMOVED, DIFF_EMPTYLINENUMBER, m_arBaseFile.GetLineEnding(baseline));
+					m_TheirBaseBoth.AddData(m_arTheirFile.GetAt(theirline), DIFFSTATE_NORMAL, theirline, m_arTheirFile.GetLineEnding(theirline));
 
 					baseline++;
 					theirline++;
@@ -874,12 +815,14 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 			{
 				if (m_arYourFile.GetCount() > yourline)
 				{
-					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_YOURSADDED, resline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
+					m_Diff3.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_YOURSADDED, resline, m_arYourFile.GetLineEnding(yourline));
 
-					AddLines(baseline, yourline, theirline);
+					m_arDiff3LinesBase.Add(baseline);
+					m_arDiff3LinesYour.Add(yourline);
+					m_arDiff3LinesTheir.Add(theirline);
 
-					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
-					m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+					m_YourBaseBoth.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_IDENTICALADDED, yourline, m_arYourFile.GetLineEnding(yourline));
+					m_TheirBaseBoth.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING);
 
 					yourline++;
 					resline++;
@@ -934,75 +877,5 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
 	ASSERT(m_TheirBaseBoth.GetCount() == m_YourBaseBoth.GetCount());
 
 	TRACE(_T("done with 3-way diff\n"));
-
-	HideUnchangedSections(&m_Diff3, &m_YourBaseBoth, &m_TheirBaseBoth);
-
 	return true;
-}
-
-void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3)
-{
-	if (data1 == NULL)
-		return;
-
-	CRegDWORD contextLines = CRegDWORD(_T("Software\\TortoiseMerge\\ContextLines"), 1);
-
-	if (data1->GetCount() > 1)
-	{
-		HIDESTATE lastHideState = data1->GetHideState(0);
-		if (lastHideState == HIDESTATE_HIDDEN)
-		{
-			data1->SetLineHideState(0, HIDESTATE_MARKER);
-			if (data2)
-				data2->SetLineHideState(0, HIDESTATE_MARKER);
-			if (data3)
-				data3->SetLineHideState(0, HIDESTATE_MARKER);
-		}
-		for (int i = 1; i < data1->GetCount(); ++i)
-		{
-			HIDESTATE hideState = data1->GetHideState(i);
-			if (hideState != lastHideState)
-			{
-				if (hideState == HIDESTATE_SHOWN)
-				{
-					// go back and show the last 'contextLines' lines to "SHOWN"
-					int lineback = i - 1;
-					int stopline = lineback - (int)(DWORD)contextLines;
-					while ((lineback >= 0)&&(lineback > stopline))
-					{
-						data1->SetLineHideState(lineback, HIDESTATE_SHOWN);
-						if (data2)
-							data2->SetLineHideState(lineback, HIDESTATE_SHOWN);
-						if (data3)
-							data3->SetLineHideState(lineback, HIDESTATE_SHOWN);
-						lineback--;
-					}
-				}
-				else if ((hideState == HIDESTATE_HIDDEN)&&(lastHideState != HIDESTATE_MARKER))
-				{
-					// go forward and show the next 'contextLines' lines to "SHOWN"
-					int lineforward = i + 1;
-					int stopline = lineforward + (int)(DWORD)contextLines;
-					while ((lineforward < data1->GetCount())&&(lineforward < stopline))
-					{
-						data1->SetLineHideState(lineforward, HIDESTATE_SHOWN);
-						if (data2)
-							data2->SetLineHideState(lineforward, HIDESTATE_SHOWN);
-						if (data3)
-							data3->SetLineHideState(lineforward, HIDESTATE_SHOWN);
-						lineforward++;
-					}
-					if ((lineforward < data1->GetCount())&&(data1->GetHideState(lineforward) == HIDESTATE_HIDDEN))
-					{
-						data1->SetLineHideState(lineforward, HIDESTATE_MARKER);
-						if (data2)
-							data2->SetLineHideState(lineforward, HIDESTATE_MARKER);
-						if (data3)
-							data3->SetLineHideState(lineforward, HIDESTATE_MARKER);
-					}
-				}
-			}
-			lastHideState = hideState;
-		}
-	}
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@
 
 CProgressDlg::CProgressDlg() 
 	: m_pIDlg(NULL)
+	, m_bValid(false)		//not valid by default
 	, m_isVisible(false)
 	, m_dwDlgFlags(PROGDLG_NORMAL)
 	, m_hWndProgDlg(NULL)
@@ -30,29 +31,34 @@ CProgressDlg::CProgressDlg()
 
 CProgressDlg::~CProgressDlg()
 {
-    if (IsValid())
+    if (m_bValid)
     {
 	    if (m_isVisible)			//still visible, so stop first before destroying
 	        m_pIDlg->StopProgressDialog();
 
-		m_pIDlg.Release();
+    	m_pIDlg->Release();
 		m_hWndProgDlg = NULL;
     }
 }
 
 bool CProgressDlg::EnsureValid()
 {
-	if(IsValid())
-		return true;
+	if (!m_bValid)
+	{
+		HRESULT hr;
 
-	HRESULT hr = m_pIDlg.CoCreateInstance (CLSID_ProgressDialog, NULL, CLSCTX_INPROC_SERVER);
-	return (SUCCEEDED(hr));
+		hr = CoCreateInstance (CLSID_ProgressDialog, NULL, CLSCTX_INPROC_SERVER,
+			IID_IProgressDialog, (void**)&m_pIDlg);
+
+		if (SUCCEEDED(hr))
+			m_bValid = true;				//instance successfully created
+	}
+	return m_bValid;
 }
-
 void CProgressDlg::SetTitle(LPCTSTR szTitle)
 {
     USES_CONVERSION;
-    if (IsValid())
+    if (m_bValid)
 	{
 		m_pIDlg->SetTitle(T2COLE(szTitle));
 	}
@@ -65,7 +71,7 @@ void CProgressDlg::SetTitle ( UINT idTitle)
 void CProgressDlg::SetLine(DWORD dwLine, LPCTSTR szText, bool bCompactPath /* = false */)
 {
 	USES_CONVERSION;
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetLine(dwLine, T2COLE(szText), bCompactPath, NULL);
 	}
@@ -81,7 +87,7 @@ void CProgressDlg::SetCancelMsg ( UINT idMessage )
 void CProgressDlg::SetCancelMsg(LPCTSTR szMessage)
 {
     USES_CONVERSION;
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetCancelMsg(T2COLE(szMessage), NULL);
 	}
@@ -89,7 +95,7 @@ void CProgressDlg::SetCancelMsg(LPCTSTR szMessage)
 
 void CProgressDlg::SetAnimation(HINSTANCE hinst, UINT uRsrcID)
 {
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetAnimation(hinst, uRsrcID);
 	}
@@ -97,7 +103,7 @@ void CProgressDlg::SetAnimation(HINSTANCE hinst, UINT uRsrcID)
 #ifdef _MFC_VER
 void CProgressDlg::SetAnimation(UINT uRsrcID)
 {
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetAnimation(AfxGetResourceHandle(), uRsrcID);
 	}
@@ -139,7 +145,7 @@ void CProgressDlg::FormatPathLine ( DWORD dwLine, UINT idFormatText, ...)
 	va_start(args, idFormatText);
 
 	CString sText;
-	sText.FormatMessageV(CString(MAKEINTRESOURCE(idFormatText)), &args);
+	sText.FormatV(CString(MAKEINTRESOURCE(idFormatText)), args);
 	SetLine(dwLine, sText, true);
 
 	va_end(args);
@@ -151,19 +157,18 @@ void CProgressDlg::FormatNonPathLine(DWORD dwLine, UINT idFormatText, ...)
 	va_start(args, idFormatText);
 
 	CString sText;
-	sText.FormatMessageV(CString(MAKEINTRESOURCE(idFormatText)), &args);
+	sText.FormatV(CString(MAKEINTRESOURCE(idFormatText)), args);
 	SetLine(dwLine, sText, false);
 
 	va_end(args);
 }
-
 
 #endif
 //HRESULT CProgressDlg::ShowModal (HWND hWndParent)
 //{
 //	EnsureValid();
 //	HRESULT hr;
-//	if (IsValid())
+//	if (m_bValid)
 //	{
 //
 //		hr = m_pIDlg->StartProgressDialog(hWndParent,
@@ -183,30 +188,33 @@ void CProgressDlg::FormatNonPathLine(DWORD dwLine, UINT idFormatText, ...)
 HRESULT CProgressDlg::ShowModeless(HWND hWndParent, BOOL immediately)
 {
 	EnsureValid();
+	HRESULT hr = E_FAIL;
 	m_hWndProgDlg = NULL;
-	if (!IsValid())
-		return E_FAIL;
-
-	HRESULT hr = m_pIDlg->StartProgressDialog(hWndParent, NULL, m_dwDlgFlags, NULL);
-	if(FAILED(hr))
-		return hr;
-
-	m_isVisible = true;
-
-	if (!immediately)
-		return hr;
-
-	// The progress window can be remarkably slow to display, particularly
-	// if its parent is blocked.
-	// This process finds the hwnd for the progress window and gives it a kick...
-	ATL::CComPtr<IOleWindow> pOleWindow;
-	HRESULT hr2 = m_pIDlg.QueryInterface(&pOleWindow);
-	if(SUCCEEDED(hr2))
+	if (m_bValid)
 	{
-		hr2 = pOleWindow->GetWindow(&m_hWndProgDlg);
-		if(SUCCEEDED(hr2))
+		hr = m_pIDlg->StartProgressDialog(hWndParent, NULL, m_dwDlgFlags, NULL);
+
+		if (SUCCEEDED(hr))
 		{
-			ShowWindow(m_hWndProgDlg, SW_SHOW);
+			m_isVisible = true;
+
+			if (immediately)
+			{
+				// The progress window can be remarkably slow to display, particularly
+				// if its parent is blocked.
+				// This process finds the hwnd for the progress window and gives it a kick...
+				IOleWindow *pOleWindow;
+				HRESULT hr2 = m_pIDlg->QueryInterface(IID_IOleWindow,(LPVOID *)&pOleWindow);
+				if(SUCCEEDED(hr2))
+				{
+					hr2 = pOleWindow->GetWindow(&m_hWndProgDlg);
+					if(SUCCEEDED(hr2))
+					{
+						ShowWindow(m_hWndProgDlg, SW_NORMAL);
+					}
+					pOleWindow->Release();
+				}
+			}
 		}
 	}
 	return hr;
@@ -214,31 +222,34 @@ HRESULT CProgressDlg::ShowModeless(HWND hWndParent, BOOL immediately)
 
 void CProgressDlg::SetProgress(DWORD dwProgress, DWORD dwMax)
 {
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetProgress(dwProgress, dwMax);
 	}
 }
 
+
 void CProgressDlg::SetProgress64(ULONGLONG u64Progress, ULONGLONG u64ProgressMax)
 {
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->SetProgress64(u64Progress, u64ProgressMax);
 	}
 }
 
+
 bool CProgressDlg::HasUserCancelled()
 {
-	if (!IsValid())
-		return false;
-
-	return (0 != m_pIDlg->HasUserCancelled());
+	if (m_bValid)
+	{
+		return (0 != m_pIDlg->HasUserCancelled());
+	}
+	return FALSE;
 }
 
 void CProgressDlg::Stop()
 {
-    if ((m_isVisible)&&(IsValid()))
+    if ((m_isVisible)&&(m_bValid))
     {
         m_pIDlg->StopProgressDialog();
 		// Sometimes the progress dialog sticks around after stopping it,
@@ -249,14 +260,15 @@ void CProgressDlg::Stop()
 			ShowWindow(m_hWndProgDlg, SW_HIDE);
 		}
         m_isVisible = false;
-		m_pIDlg.Release();
+		m_pIDlg->Release();
+		m_bValid = false;
 		m_hWndProgDlg = NULL;
     }
 }
 
 void CProgressDlg::ResetTimer()
 {
-	if (IsValid())
+	if (m_bValid)
 	{
 		m_pIDlg->Timer(PDTIMER_RESET, NULL);
 	}

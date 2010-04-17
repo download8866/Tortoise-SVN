@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -157,7 +157,7 @@ public:
 	 * Checks whether this object was created successfully. If the return value is false then 
 	 * you MUST NOT use the current instance of this class.
 	 */
-    bool IsValid() const { return m_pIDlg != 0; }
+    bool IsValid() const { return m_bValid; }
 
 	/**
 	 * Checks whether the window is shown.
@@ -172,8 +172,10 @@ public:
 	bool EnsureValid();
 
 protected:
-	ATL::CComPtr<IProgressDialog> m_pIDlg;
+    IProgressDialog*	m_pIDlg;
+    bool				m_bValid;
     bool				m_isVisible;
     DWORD				m_dwDlgFlags;
 	HWND				m_hWndProgDlg;
 };
+

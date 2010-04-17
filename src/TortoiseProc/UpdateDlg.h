@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,11 +20,9 @@
 
 #include "StandAloneDlg.h"
 #include "SVNRev.h"
-#include "TSVNPath.h"
+#include "LogDlg.h"
+#include "afxwin.h"
 
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -55,7 +53,6 @@ protected:
 	CLogDlg *	m_pLogDlg;
 	CString		m_sRevision;
 	CComboBox	m_depthCombo;
-
 public:
 	SVNRev		Revision;
 	CTSVNPath	m_wcPath;

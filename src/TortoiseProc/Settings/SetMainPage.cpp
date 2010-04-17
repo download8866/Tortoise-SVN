@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,19 +34,19 @@ IMPLEMENT_DYNAMIC(CSetMainPage, ISettingsPropPage)
 CSetMainPage::CSetMainPage()
 	: ISettingsPropPage(CSetMainPage::IDD)
 	, m_sTempExtensions(_T(""))
+	, m_bCheckNewer(TRUE)
 	, m_bLastCommitTime(FALSE)
 	, m_bUseDotNetHack(FALSE)
-	, m_bUseAero(TRUE)
 {
 	m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
 	CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
 	m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"), temp);
+	m_regCheckNewer = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewer"), TRUE);
 	m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
 	if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
 		m_bUseDotNetHack = false;
 	else
 		m_bUseDotNetHack = true;
-	m_regUseAero = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
 }
 
 CSetMainPage::~CSetMainPage()
@@ -59,9 +59,9 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LANGUAGECOMBO, m_LanguageCombo);
 	m_dwLanguage = (DWORD)m_LanguageCombo.GetItemData(m_LanguageCombo.GetCurSel());
 	DDX_Text(pDX, IDC_TEMPEXTENSIONS, m_sTempExtensions);
+	DDX_Check(pDX, IDC_CHECKNEWERVERSION, m_bCheckNewer);
 	DDX_Check(pDX, IDC_COMMITFILETIMES, m_bLastCommitTime);
 	DDX_Check(pDX, IDC_ASPDOTNETHACK, m_bUseDotNetHack);
-	DDX_Check(pDX, IDC_AERODWM, m_bUseAero);
 }
 
 
@@ -74,7 +74,6 @@ BEGIN_MESSAGE_MAP(CSetMainPage, ISettingsPropPage)
 	ON_BN_CLICKED(IDC_COMMITFILETIMES, OnModified)
 	ON_BN_CLICKED(IDC_SOUNDS, OnBnClickedSounds)
 	ON_BN_CLICKED(IDC_ASPDOTNETHACK, OnASPHACK)
-	ON_BN_CLICKED(IDC_AERODWM, OnModified)
 END_MESSAGE_MAP()
 
 BOOL CSetMainPage::OnInitDialog()
@@ -85,15 +84,15 @@ BOOL CSetMainPage::OnInitDialog()
 
 	m_sTempExtensions = m_regExtensions;
 	m_dwLanguage = m_regLanguage;
-	m_bUseAero = m_regUseAero;
+	m_bCheckNewer = m_regCheckNewer;
 
 	CString temp;
 	temp = m_regLastCommitTime;
 	m_bLastCommitTime = (temp.CompareNoCase(_T("yes"))==0);
 
 	m_tooltips.Create(this);
-	m_tooltips.AddTool(IDC_TEMPEXTENSIONSLABEL, IDS_SETTINGS_TEMPEXTENSIONS_TT);
 	m_tooltips.AddTool(IDC_TEMPEXTENSIONS, IDS_SETTINGS_TEMPEXTENSIONS_TT);
+	m_tooltips.AddTool(IDC_CHECKNEWERVERSION, IDS_SETTINGS_CHECKNEWER_TT);
 	m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
 	m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
 
@@ -120,15 +119,7 @@ BOOL CSetMainPage::OnInitDialog()
 				continue;
 			DWORD loc = _tstoi(filename.Mid(12));
 			GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
-			CString sLang = buf;
-			GetLocaleInfo(loc, LOCALE_SNATIVECTRYNAME, buf, sizeof(buf)/sizeof(TCHAR));
-			if (buf[0])
-			{
-				sLang += _T(" (");
-				sLang += buf;
-				sLang += _T(")");
-			}
-			m_LanguageCombo.AddString(sLang);
+			m_LanguageCombo.AddString(buf);
 			m_LanguageCombo.SetItemData(langcount++, loc);
 		}
 	}
@@ -177,8 +168,8 @@ BOOL CSetMainPage::OnApply()
 		Store (m_sTempExtensions, m_regExtensions);
 		m_restart = Restart_Cache;
 	}
+	Store (m_bCheckNewer, m_regCheckNewer);
 	Store ((m_bLastCommitTime ? _T("yes") : _T("no")), m_regLastCommitTime);
-	Store (m_bUseAero, m_regUseAero);
 
 	CRegString asphack_local(_T("System\\CurrentControlSet\\Control\\Session Manager\\Environment\\SVN_ASP_DOT_NET_HACK"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
 	CRegString asphack_user(_T("Environment\\SVN_ASP_DOT_NET_HACK"));

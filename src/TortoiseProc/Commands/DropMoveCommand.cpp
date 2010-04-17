@@ -106,7 +106,7 @@ bool DropMoveCommand::Execute()
 				sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
 				if (CMessageBox::Show(hwndExplorer, sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO) == IDYES)
 				{
-					if (!svn.Remove(CTSVNPathList(destPath), true, false))
+					if (!svn.Remove(CTSVNPathList(destPath), TRUE, FALSE))
 					{
 						destPath.Delete(true);
 					}

@@ -43,7 +43,7 @@ protected:
 	/// reallocating if more space needed.
 	void RoomFor(int insertionLength) {
 		if (gapLength <= insertionLength) {
-			while (growSize < size / 6)
+			if (growSize * 6 < size)
 				growSize *= 2;
 			ReAllocate(size + insertionLength + growSize);
 		}

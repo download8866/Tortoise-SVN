@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,8 +29,6 @@
 #include "svn_diff.h"
 #include "svn_string.h"
 #include "svn_utf.h"
-#include "CreateProcessHelper.h"
-#include "FormatMessageWrapper.h"
 
 CAppUtils::CAppUtils(void)
 {
@@ -56,12 +54,26 @@ BOOL CAppUtils::GetVersionedFile(CString sPath, CString sVersion, CString sSaveP
 	sSCMPath.Replace(_T("%3"), sSavePath);
 	sSCMPath.Replace(_T("%4"), sTemp);
 	// start the external SCM program to fetch the specific version of the file
+	STARTUPINFO startup;
 	PROCESS_INFORMATION process;
-	if (!CCreateProcessHelper::CreateProcess(NULL, (LPTSTR)(LPCTSTR)sSCMPath, &process))
+	memset(&startup, 0, sizeof(startup));
+	startup.cb = sizeof(startup);
+	memset(&process, 0, sizeof(process));
+	if (CreateProcess(NULL, (LPTSTR)(LPCTSTR)sSCMPath, NULL, NULL, FALSE, 0, 0, 0, &startup, &process)==0)
 	{
-		CFormatMessageWrapper errorDetails;
-		MessageBox(NULL, errorDetails, _T("TortoiseMerge"), MB_OK | MB_ICONERROR);
-		return FALSE;
+		LPVOID lpMsgBuf;
+		FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+			FORMAT_MESSAGE_FROM_SYSTEM | 
+			FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			GetLastError(),
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+			(LPTSTR) &lpMsgBuf,
+			0,
+			NULL 
+			);
+		MessageBox(NULL, (LPCTSTR)lpMsgBuf, _T("TortoiseMerge"), MB_OK | MB_ICONERROR);
+		LocalFree( lpMsgBuf );
 	}
 	DWORD ret = 0;
 	do
@@ -209,22 +221,6 @@ bool CAppUtils::HasClipboardFormat(UINT format)
 	return false;
 }
 
-COLORREF CAppUtils::IntenseColor(long scale, COLORREF col)
-{
-	// if the color is already dark (gray scale below 127),
-	// then lighten the color by 'scale', otherwise darken it
-	int Gray  = (((int)GetRValue(col)) + GetGValue(col) + GetBValue(col))/3;
-	if (Gray > 127)
-	{
-		long red   = MulDiv(GetRValue(col),(255-scale),255);
-		long green = MulDiv(GetGValue(col),(255-scale),255);
-		long blue  = MulDiv(GetBValue(col),(255-scale),255);
 
-		return RGB(red, green, blue);
-	}
-	long R = MulDiv(255-GetRValue(col),scale,255)+GetRValue(col);
-	long G = MulDiv(255-GetGValue(col),scale,255)+GetGValue(col);
-	long B = MulDiv(255-GetBValue(col),scale,255)+GetBValue(col);
 
-	return RGB(R, G, B);
-}
+

@@ -72,7 +72,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/libintl/debug_win32/lib/intl3_tsvn.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\debug_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debug_win32\libsvn_subr-nonet.lib ../../ext/Subversion\debug_win32\libsvn_client-nonet.lib ../../ext/apr\debug_win32\libapr_tsvn.lib ../../ext/apr-util\debug_win32\libaprutil_tsvn.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib ../../ext/Subversion\debug_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debug_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debug_win32\xml.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -156,7 +156,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/libintl/debug_x64/lib/intl3_tsvn.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\debug_x64\libsvn_diff-nonet.lib ../../ext/Subversion\debug_x64\libsvn_subr-nonet.lib ../../ext/Subversion\debug_x64\libsvn_client-nonet.lib ../../ext/apr\debug_x64\libapr_tsvn.lib ../../ext/apr-util\debug_x64\libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib ../../ext/Subversion\debug_x64\libsvn_wc-nonet.lib ../../ext/Subversion\debug_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debug_x64\xml.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -242,12 +242,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/libintl/release_win32/lib/intl3_tsvn.lib ../../ext/Subversion\release_win32\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_win32\libsvn_diff-nonet.lib ../../ext/Subversion\release_win32\libsvn_subr-nonet.lib ../../ext/Subversion\release_win32\libsvn_client-nonet.lib ../../ext/apr\release_win32\libapr_tsvn.lib ../../ext/apr-util\release_win32\libaprutil_tsvn.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib ../../ext/Subversion\release_win32\libsvn_wc-nonet.lib ../../ext/Subversion\release_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_win32\xml.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -330,12 +331,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/libintl/release_x64/lib/intl3_tsvn.lib ../../ext/Subversion\release_x64\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib ../../ext/Subversion\release_x64\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -776,10 +778,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MovedBlocks.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OpenDlg.cpp"
 				>
 			</File>
@@ -962,10 +960,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MovedBlocks.h"
-				>
-			</File>
-			<File
 				RelativePath=".\OpenDlg.h"
 				>
 			</File>
@@ -1111,18 +1105,6 @@
 				Name="Source Files"
 				>
 				<File
-					RelativePath="..\Utils\MiscUI\AeroBaseDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\AeroControls.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\AeroGlass.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\AppUtils.cpp"
 					>
 				</File>
@@ -1243,14 +1225,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\SVN\SVNHelpers.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\SysInfo.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\TempFiles.cpp"
 					>
 				</File>
@@ -1270,18 +1244,6 @@
 			<Filter
 				Name="Header Files"
 				>
-				<File
-					RelativePath="..\Utils\MiscUI\AeroBaseDlg.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\AeroControls.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\MiscUI\AeroGlass.h"
-					>
-				</File>
 				<File
 					RelativePath=".\AppUtils.h"
 					>
@@ -1340,14 +1302,6 @@
 				</File>
 				<File
 					RelativePath="..\Utils\StringUtils.h"
-					>
-				</File>
-				<File
-					RelativePath="..\SVN\SVNHelpers.h"
-					>
-				</File>
-				<File
-					RelativePath="..\Utils\SysInfo.h"
 					>
 				</File>
 				<File

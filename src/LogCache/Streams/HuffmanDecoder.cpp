@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,30 +55,24 @@ void CHuffmanDecoder::BuildDecodeTable (const BYTE*& first)
 	for (size_t i = 1; i < entryCount; ++i)
 	{
 		++currentKey;
-        BYTE prevKeyLength = keyLength[i-1];
-        BYTE thisKeylength = keyLength[i];
-
-		if (prevKeyLength < thisKeylength)
-			currentKey <<= thisKeylength - prevKeyLength;
+		if (keyLength[i-1] < keyLength[i])
+			currentKey <<= keyLength[i] - keyLength[i-1];
 		else
-			if (prevKeyLength > thisKeylength)
-				currentKey >>= prevKeyLength - thisKeylength;
+			if (keyLength[i-1] > keyLength[i])
+				currentKey >>= keyLength[i-1] - keyLength[i];
 
-		key[i] = ReverseBits (currentKey, thisKeylength);
+		key[i] = ReverseBits (currentKey, keyLength[i]);
 	}
 
 	// fill the decoding tables
 
 	for (size_t i = 0; i < entryCount; ++i)
 	{
-        BYTE l = keyLength[i];
-        BYTE v = values[i];
-
-		size_t delta = 1 << l;
+		size_t delta = 1 << keyLength[i];
 		for (size_t k = key[i]; k < 1 << MAX_ENCODING_LENGTH; k += delta)
 		{
-			value[k] = v;
-			length[k] = l;
+			value[k] = values[i];
+			length[k] = keyLength[i];
 		}
 	}
 }
@@ -87,73 +81,67 @@ void CHuffmanDecoder::WriteDecodedStream ( const BYTE* first
 										 , BYTE* dest
 										 , DWORD decodedSize)
 {
-	key_block_type cachedCode = 0;
+	key_type cachedCode = 0;
 	BYTE cachedBits = 0;
+
+#ifdef _WIN64
 
 	// main loop
 
-	BYTE* blockDest = dest;
-	BYTE* blockEnd = blockDest + (decodedSize & (0-sizeof (encode_block_type)));
+	encode_block_type* blockDest 
+		= reinterpret_cast<encode_block_type*>(dest);
+	encode_block_type* blockEnd 
+		= blockDest + decodedSize / sizeof (encode_block_type);
 
-    key_block_type nextCodes = *reinterpret_cast<const key_block_type*>(first);
-	for (; blockDest != blockEnd; blockDest += sizeof (encode_block_type))
+	for (; blockDest != blockEnd; ++blockDest)
 	{
-		// pre-fetch, part III
+		// fetch encoded data into cache
 
-		cachedCode |= nextCodes << cachedBits;
+		size_t bytesToFetch = (KEY_BITS - cachedBits) / 8;
 
-		// decode 2 (32 bit) to 4 (64 bit) bytes
-		// decode byte 0
+		cachedCode |= *reinterpret_cast<const key_type*>(first) << cachedBits;
 
-		BYTE keyLength = length[cachedCode & MAX_KEY_VALUE];
-		blockDest[0] = value[cachedCode & MAX_KEY_VALUE];
+		first += bytesToFetch;
+		cachedBits += static_cast<BYTE>(bytesToFetch * 8);
 
-		// pre-fetch, part I
+		// decode 4 bytes
 
-		first += ((size_t)(KEY_BLOCK_BITS-1) - (size_t)cachedBits) / 8;
-		cachedBits |= KEY_BLOCK_BITS - 8;		// KEY_BLOCK_BITS must be 2^n
+		BYTE length1 = length[cachedCode & MAX_KEY_VALUE];
+		BYTE value1 = value[cachedCode & MAX_KEY_VALUE];
+		cachedCode >>= length1;
+		cachedBits -= length1;
 
-		// continue byte 0
+		encode_block_type data = value1;
 
-		cachedCode >>= keyLength;
-		cachedBits -= keyLength;
+		BYTE length2 = length[cachedCode & MAX_KEY_VALUE];
+		BYTE value2 = value[cachedCode & MAX_KEY_VALUE];
+		cachedCode >>= length2;
+		cachedBits -= length2;
 
-		// decode byte 1
+		data += value2 << 8;
 
-		keyLength = length[cachedCode & MAX_KEY_VALUE];
-		blockDest[1] = value[cachedCode & MAX_KEY_VALUE];
+		BYTE length3 = length[cachedCode & MAX_KEY_VALUE];
+		BYTE value3 = value[cachedCode & MAX_KEY_VALUE];
+		cachedCode >>= length3;
+		cachedBits -= length3;
 
-		// pre-fetch, part II
+		data += value3 << 16;
 
-		nextCodes = *reinterpret_cast<const key_block_type*>(first);
+		BYTE length4 = length[cachedCode & MAX_KEY_VALUE];
+		BYTE value4 = value[cachedCode & MAX_KEY_VALUE];
+		cachedCode >>= length4;
+		cachedBits -= length4;
 
-		// continue byte 1
+		data += value4 << 24;
 
-		cachedCode >>= keyLength;
-		cachedBits -= keyLength;
+		// write result
 
-#ifdef _64BITS
-
-		// decode byte 2
-
-		keyLength = length[cachedCode & MAX_KEY_VALUE];
-		blockDest[2] = value[cachedCode & MAX_KEY_VALUE];
-		cachedCode >>= keyLength;
-		cachedBits -= keyLength;
-
-		// decode byte 3
-
-		keyLength = length[cachedCode & MAX_KEY_VALUE];
-		blockDest[3] = value[cachedCode & MAX_KEY_VALUE];
-		cachedCode >>= keyLength;
-		cachedBits -= keyLength;
-
-#endif
+		*blockDest = data;
 	}
 
 	// fetch encoded data into cache and decode odd bytes
 
-	cachedCode |= nextCodes << cachedBits;
+	cachedCode |= *reinterpret_cast<const key_type*>(first) << cachedBits;
 
 	for ( BYTE* byteDest = reinterpret_cast<BYTE*>(blockDest)
 		, *end = dest + decodedSize
@@ -168,6 +156,37 @@ void CHuffmanDecoder::WriteDecodedStream ( const BYTE* first
 
 		*byteDest = data;
 	}
+
+#else
+
+	// main loop
+
+	for ( BYTE* end = dest + decodedSize
+		; dest != end
+		; ++dest)
+	{
+		// fetch encoded data into cache
+
+		size_t bytesToFetch = (KEY_BITS - cachedBits) / 8;
+
+		cachedCode |= *reinterpret_cast<const key_type*>(first) << cachedBits;
+
+		first += bytesToFetch;
+		cachedBits += static_cast<BYTE>(bytesToFetch * 8);
+
+		// decode 1 byte
+
+		BYTE keyLength = length[cachedCode & MAX_KEY_VALUE];
+		BYTE data = value[cachedCode & MAX_KEY_VALUE];
+		cachedCode >>= keyLength;
+		cachedBits -= keyLength;
+
+		// write result
+
+		*dest = data;
+	}
+
+#endif
 }
 
 // decompress the source data and return the target buffer.
@@ -187,27 +206,17 @@ void CHuffmanDecoder::Decode (const BYTE*& source, BYTE*& target)
 	if (decodedSize == 0)
 		return;
 
-    // special case: unpacked data
+	// read all the decode-info 
 
-    if ((encodedSize == decodedSize+MIN_HEADER_LENGTH) && (*localSource == 0))
-    {
-        // plain copy (and skip empty huffman table)
+	BuildDecodeTable (localSource);
 
-        memcpy (target, ++localSource, decodedSize);
-    }
-    else
-    {
-	    // read all the decode-info 
+	// actually decode
 
-	    BuildDecodeTable (localSource);
+	WriteDecodedStream (localSource, target, decodedSize);
 
-	    // actually decode
+	// update source and target buffer pointers
 
-	    WriteDecodedStream (localSource, target, decodedSize);
-    }
-
-    // update source and target buffer pointers
-
-    source += encodedSize;
-    target += decodedSize;
+	source += encodedSize;
+	target += decodedSize;
 }
+

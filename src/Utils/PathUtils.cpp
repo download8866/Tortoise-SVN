@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,22 +16,15 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PathUtils.h"
 #include "shlobj.h"
-#include "auto_buffer.h"
-#include "UnicodeUtils.h"
-
-#include "SVNHelpers.h"
-#include "apr_uri.h"
-#include "svn_path.h"
 
 BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
-	const size_t len = _tcslen(path);
-	const size_t fullLen = len+10;
-	auto_buffer<TCHAR> buf(fullLen);
-	auto_buffer<TCHAR> internalpathbuf(fullLen);
+	size_t len = _tcslen(path);
+	TCHAR * buf = new TCHAR[len+10];
+	TCHAR * internalpathbuf = new TCHAR[len+10];
 	TCHAR * pPath = internalpathbuf;
 	SECURITY_ATTRIBUTES attribs;
 
@@ -40,22 +33,22 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 	attribs.nLength = sizeof(SECURITY_ATTRIBUTES);
 	attribs.bInheritHandle = FALSE;
 
-	ConvertToBackslash(internalpathbuf, path, fullLen);
-	if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
-		pPath += 4;
+	ConvertToBackslash(internalpathbuf, path, len+10);
 	do
 	{
-		SecureZeroMemory(buf, fullLen*sizeof(TCHAR));
+		SecureZeroMemory(buf, (len+10)*sizeof(TCHAR));
 		TCHAR * slashpos = _tcschr(pPath, '\\');
 		if (slashpos)
-			_tcsncpy_s(buf, fullLen, internalpathbuf, slashpos - internalpathbuf);
+			_tcsncpy_s(buf, len+10, internalpathbuf, slashpos - internalpathbuf);
 		else
-			_tcsncpy_s(buf, fullLen, internalpathbuf, fullLen);
+			_tcsncpy_s(buf, len+10, internalpathbuf, len+10);
 		CreateDirectory(buf, &attribs);
 		pPath = _tcschr(pPath, '\\');
 	} while ((pPath++)&&(_tcschr(pPath, '\\')));
 	
-	const BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
+	BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
+	delete[] buf;
+	delete[] internalpathbuf;
 	return bRet;
 }
 
@@ -199,7 +192,6 @@ void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 			*p = '\\';
 }
 
-#ifdef CSTRING_AVAILABLE
 CStringA CPathUtils::PathEscape(const CStringA& path)
 {
 	CStringA ret2;
@@ -255,7 +247,7 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
 
 	return ret;
 }
-
+#ifdef CSTRING_AVAILABLE
 bool CPathUtils::DoesPercentNeedEscaping(LPCSTR str)
 {
 	if (str[1] == 0)
@@ -304,26 +296,29 @@ CString CPathUtils::GetLongPathname(const CString& path)
 		ret = GetFullPathName(path, 0, NULL, NULL);
 		if (ret)
 		{
-			auto_buffer<TCHAR> pathbuf(ret+1);
+			TCHAR * pathbuf = new TCHAR[ret+1];
 			if ((ret = GetFullPathName(path, ret, pathbuf, NULL))!=0)
 			{
 				sRet = CString(pathbuf, ret);
 			}
+			delete [] pathbuf;
 		}
 	}
 	else if (PathCanonicalize(pathbufcanonicalized, path))
 	{
 		ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-		auto_buffer<TCHAR> pathbuf(ret+2);
+		TCHAR * pathbuf = new TCHAR[ret+2];	
 		ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, ret+1);
 		sRet = CString(pathbuf, ret);
+		delete[] pathbuf;
 	}
 	else
 	{
 		ret = ::GetLongPathName(path, NULL, 0);
-		auto_buffer<TCHAR> pathbuf(ret+2);
+		TCHAR * pathbuf = new TCHAR[ret+2];
 		ret = ::GetLongPathName(path, pathbuf, ret+1);
 		sRet = CString(pathbuf, ret);
+		delete[] pathbuf;
 	}
 	if (ret == 0)
 		return path;
@@ -347,138 +342,6 @@ CString CPathUtils::GetFileExtFromPath(const CString& sPath)
 	if (dotPos > slashPos)
 		return sPath.Mid(dotPos);
 	return CString();
-}
-
-CStringA CPathUtils::GetAbsoluteURL
-	( const CStringA& URL
-	, const CStringA& repositoryRootURL
-	, const CStringA& parentPathURL)
-{
-	CStringA errorResult;
-	SVNPool pool;
-
-	/* If the URL is already absolute, there is nothing to do. */
-
-	const char *canonicalized_url = svn_path_canonicalize (URL, pool);
-	if (svn_path_is_url (canonicalized_url))
-		return canonicalized_url;
-
-	/* Parse the parent directory URL into its parts. */
-
-	apr_uri_t parent_dir_parsed_uri;
-	if (apr_uri_parse (pool, parentPathURL, &parent_dir_parsed_uri))
-		return errorResult;
-
-	/* If the parent directory URL is at the server root, then the URL
-	   may have no / after the hostname so apr_uri_parse() will leave
-	   the URL's path as NULL. */
-
-	if (! parent_dir_parsed_uri.path)
-		parent_dir_parsed_uri.path = apr_pstrmemdup (pool, "/", 1);
-
-	/* Handle URLs relative to the current directory or to the
-	   repository root.  The backpaths may only remove path elements,
-	   not the hostname.  This allows an external to refer to another
-	   repository in the same server relative to the location of this
-	   repository, say using SVNParentPath. */
-
-	if ((0 == strncmp("../", URL, 3)) || (0 == strncmp("^/", URL, 2)))
-	{
-		apr_array_header_t *base_components = NULL;
-		apr_array_header_t *relative_components = NULL;
-
-		/* Decompose either the parent directory's URL path or the
-		   repository root's URL path into components.  */
-
-		if (0 == strncmp ("../", URL, 3))
-		{
-			base_components 
-				= svn_path_decompose (parent_dir_parsed_uri.path, pool);
-			relative_components 
-				= svn_path_decompose (canonicalized_url, pool);
-		}
-		else
-		{
-			apr_uri_t repos_root_parsed_uri;
-			if (apr_uri_parse(pool, repositoryRootURL, &repos_root_parsed_uri))
-				return errorResult;
-
-			/* If the repository root URL is at the server root, then
- 			   the URL may have no / after the hostname so
-			   apr_uri_parse() will leave the URL's path as NULL. */
-
-			if (! repos_root_parsed_uri.path)
-				repos_root_parsed_uri.path = apr_pstrmemdup (pool, "/", 1);
-
-			base_components 
-				= svn_path_decompose (repos_root_parsed_uri.path, pool);
-			relative_components 
-				= svn_path_decompose (canonicalized_url + 2, pool);
-		}
-
-		for (int i = 0; i < relative_components->nelts; ++i)
-		{
-			const char *component 
-				= APR_ARRAY_IDX(relative_components, i, const char *);
-
-			if (0 == strcmp("..", component))
-			{
-				/* Constructing the final absolute URL together with
-				   apr_uri_unparse() requires that the path be absolute,
-				   so only pop a component if the component being popped
-				   is not the component for the root directory. */
-
-			    if (base_components->nelts > 1)
-				    apr_array_pop (base_components);
-			}
-			else
-				APR_ARRAY_PUSH (base_components, const char *) = component;
-		}
-
-		parent_dir_parsed_uri.path = (char *)svn_path_compose(base_components,
-															pool);
-		parent_dir_parsed_uri.query = NULL;
-		parent_dir_parsed_uri.fragment = NULL;
-
-		return apr_uri_unparse (pool, &parent_dir_parsed_uri, 0);
-	}
-
-	/* The remaining URLs are relative to the either the scheme or
-	   server root and can only refer to locations inside that scope, so
-	   backpaths are not allowed. */
-
-	if (svn_path_is_backpath_present (canonicalized_url + 2))
-		return errorResult;
-
-	/* Relative to the scheme. */
-
-	if (0 == strncmp("//", URL, 2))
-	{
-		CStringA scheme 
-			= repositoryRootURL.Left (repositoryRootURL.Find (':'));
-		if (scheme.IsEmpty())
-			return errorResult;
-
-		return svn_path_canonicalize ( apr_pstrcat ( pool
-												   , scheme
-												   , ":"
-												   , URL
-												   , NULL)
-									 , pool);
-	}
-
-	/* Relative to the server root. */
-
-	if (URL[0] == '/')
-	{
-		parent_dir_parsed_uri.path = (char *)(const char*)URL;
-		parent_dir_parsed_uri.query = NULL;
-		parent_dir_parsed_uri.fragment = NULL;
-
-		return apr_uri_unparse (pool, &parent_dir_parsed_uri, 0);
-	}
-
-	return errorResult;
 }
 
 BOOL CPathUtils::FileCopy(CString srcPath, CString destPath, BOOL force)
@@ -521,9 +384,10 @@ CString CPathUtils::GetAppDataDirectory()
 	return CString (path) + _T('\\');
 }
 
+
 CStringA CPathUtils::PathUnescape(const CStringA& path)
 {
-	auto_buffer<char> urlabuf (path.GetLength()+1);
+	std::auto_ptr<char> urlabuf (new char[path.GetLength()+1]);
 
 	strcpy_s(urlabuf.get(), path.GetLength()+1, path);
 	Unescape(urlabuf.get());
@@ -533,44 +397,25 @@ CStringA CPathUtils::PathUnescape(const CStringA& path)
 
 CStringW CPathUtils::PathUnescape(const CStringW& path)
 {
+	char * buf;
+	CStringA patha;
 	int len = path.GetLength();
 	if (len==0)
 		return CStringW();
-	CStringA patha;
-	char * buf = patha.GetBuffer(len*4 + 1);
+	buf = patha.GetBuffer(len*4 + 1);
 	int lengthIncTerminator = WideCharToMultiByte(CP_UTF8, 0, path, -1, buf, len*4, NULL, NULL);
 	patha.ReleaseBuffer(lengthIncTerminator-1);
 
 	patha = PathUnescape(patha);
 
+	WCHAR * bufw;
 	len = patha.GetLength();
-	auto_buffer<WCHAR> bufw(len*4 + 1);
+	bufw = new WCHAR[len*4 + 1];
 	SecureZeroMemory(bufw, (len*4 + 1)*sizeof(WCHAR));
 	MultiByteToWideChar(CP_UTF8, 0, patha, -1, bufw, len*4);
 	CStringW ret = CStringW(bufw);
+	delete [] bufw;
 	return ret;
-}
-
-CString CPathUtils::PathUnescape (const char* path)
-{
-	// try quick path
-	size_t i = 0;
-	for (; char c = path[i]; ++i)
-		if ((c >= 0x80) || (c == '%'))
-		{
-			// quick path does not work for non-latin or escaped chars
-			std::string utf8Path (path);
-
-			CPathUtils::Unescape (&utf8Path[0]);
-			return CUnicodeUtils::UTF8ToUTF16 (utf8Path);
-		}
-
-	// no escapement necessary, just unicode conversion
-	CString result;
-	CUnicodeUtils::UTF8ToUTF16 (path, i+1, result.GetBufferSetLength ((int)i+1));
-	result.ReleaseBuffer();
-
-	return result;
 }
 
 CString CPathUtils::GetVersionFromFile(const CString & p_strDateiname)
@@ -646,13 +491,6 @@ CString CPathUtils::PathPatternUnEscape(const CString& path)
 	return result;
 }
 
-CString CPathUtils::CombineUrls(CString first, CString second)
-{
-	first.TrimRight('/');
-	second.TrimLeft('/');
-	return first + _T("/") + second;
-}
-
 #endif
 
 #if defined(_DEBUG) && defined(_MFC_VER)
@@ -673,15 +511,10 @@ private:
 		CString test(_T("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest"));
 		CString test2 = CPathUtils::PathUnescape(test);
 		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
-		test2 = CPathUtils::PathUnescape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
-		ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
-		test2 = CPathUtils::PathUnescape("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk");
-		ATLASSERT(test2.Compare(_T("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk")) == 0);
 		CStringA test3 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test3.Compare("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest") == 0);
 		CStringA test4 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS 1.0/Trunk/name with spaces/NewTest % NewTest");
 		ATLASSERT(test4.Compare("file:///d:/REpos1/uCOS%201.0/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest") == 0);
-
 	}
 	void ExtTest()
 	{

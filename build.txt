@@ -61,25 +61,21 @@ You only have to do this once.
 - WiX3(\b 1)                  http://wix.sourceforge.net
 - Votive(\b 2)                http://wix.sourceforge.net
 - NAnt(\b 1)                  http://nant.sourceforge.net
+- GPG (\b 3)                  http://www.gnupg.org/
 .
 (\b 1) Add the paths of the binaries to the PATH environment variable. You may have to
     logoff/logon to make the new environment variables take effect!
 
 (\b 2) Install Votive to be able to load .wixproj project files.
 
+(\b 3) This is only required for RELEASE builds which you want to sign with your GPG passphrase. In order to do that, install GPG and create a file called 'gpgpassphrase.txt' which has your GPG passphrase in it (plaintext). Then the build will automatically sign the msi file with your GPG signature.
+
 \subsection Requirements3 Next you need to download some more.
 - OpenSSL source              http://www.openssl.org/source/
-                              You will need version 1.0.0
+                              You will need version 0.9.8k
 - ZLib source                 http://www.gzip.org/zlib/
 - tools collection            http://tortoisesvn.tigris.org/files/documents/406/42347/Tools-1.5.zip
 - dictionaries/thesauri(\b Optional) http://lingucomponent.openoffice.org/
-
-\subsection Requirements4 Finally, you may need to install some fonts.
-- Arabic(\b Optional)         http://www7.bev.net/civic/icb/quran/Iqraa_ttf.zip
-- Japanese(\b Optional)       msgothic.ttc and msmincho.ttc should be available
-                              if you activate support for international fonts in your OS.
-- Chinese(\b Optional)        simhei.ttf and simsun.httf should be available
-                              if you activate support for international fonts in your OS.
 
 \section Preparations Preparations
 
@@ -99,16 +95,13 @@ Now you're almost ready. Only a few more steps to do:
 - unzip the file 'Tools.zip' into a folder, we suggest SVN\TortoiseSVN\Tools.
   Note: the path to the tools folder must not have special chars in it or spaces.
   If you checked out the TortoiseSVN source to such a location, you can store
-  the tools folder somewhere else. 
+  the tools folder somewhere else.
 - Make a copy of the file default.build.user.tmpl in the TortoiseSVN root folder and
   rename that copy to default.build.user. Then adjust the paths as mentioned
-  in that file. You may leave it unchanged if you installed / copied everything
-  into the suggested default paths.
+  in that file.
 - Make a copy of the file doc\doc.build.user.tmpl and rename that copy to 
   doc\doc.build.user. Then adjust the paths in that file according to your
   setup.
-- Unzip (if necessary) and copy the font files into %WINDIR%\Fonts. 
-  You will need them only if you are building the respective language packs.
 
 
 \section build32 Building 32 bit packages

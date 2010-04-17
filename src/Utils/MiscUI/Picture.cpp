@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -49,7 +49,8 @@ CPicture::CPicture()
 CPicture::~CPicture()
 {
 	FreePictureData(); // Important - Avoid Leaks...
-	delete pBitmap;
+	if (pBitmap)
+		delete (pBitmap);
 	if (bHaveGDIPlus)
 		GdiplusShutdown(gdiplusToken);
 }
@@ -79,7 +80,8 @@ void CPicture::FreePictureData()
 		delete [] hIcons;
 		hIcons = NULL;
 	}
-	delete [] lpIcons;
+	if (lpIcons)
+		delete [] lpIcons;
 }
 
 // Util function to ease loading of FreeImage library
@@ -328,8 +330,11 @@ bool CPicture::Load(tstring sFilePathName)
 							}
 							else	// Bitmap allocation failed
 							{
-								delete pBitmap;
-								pBitmap = NULL;
+								if (pBitmap)
+								{
+									delete pBitmap;
+									pBitmap = NULL;
+								}
 							}
 
 							FreeImage_Unload(dib);
@@ -428,12 +433,17 @@ bool CPicture::LoadPictureData(BYTE *pBuffer, int nSize)
 
 	if ((CreateStreamOnHGlobal(hGlobal, true, &pStream) == S_OK)&&(pStream))
 	{
-		HRESULT hr = OleLoadPicture(pStream, nSize, false, IID_IPicture, (LPVOID *)&m_IPicture);
-		if(hr != S_OK)
+		HRESULT hr;
+		if((hr = OleLoadPicture(pStream, nSize, false, IID_IPicture, (LPVOID *)&m_IPicture)) == S_OK)
+		{
+			pStream->Release();
+			pStream = NULL;
+			bResult = true;
+		}
+		else
+		{
 			return false;
-		pStream->Release();
-		pStream = NULL;
-		bResult = true;
+		}
 	}
 
 	FreeResource(hGlobal); // 16Bit Windows Needs This (32Bit - Automatic Release)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,9 @@
 #include "PromptDlg.h"
 
 
-IMPLEMENT_DYNAMIC(CPromptDlg, CStandAloneDialog)
+IMPLEMENT_DYNAMIC(CPromptDlg, CDialog)
 CPromptDlg::CPromptDlg(CWnd* pParent /*=NULL*/)
-	: CStandAloneDialog(CPromptDlg::IDD, pParent)
+	: CDialog(CPromptDlg::IDD, pParent)
 	, m_info(_T(""))
 	, m_sPass(_T(""))
 	, m_saveCheck(FALSE)
@@ -38,7 +38,7 @@ CPromptDlg::~CPromptDlg()
 
 void CPromptDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CStandAloneDialog::DoDataExchange(pDX);
+	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_INFOTEXT, m_info);
 	DDX_Text(pDX, IDC_PASSEDIT, m_sPass);
 	DDX_Control(pDX, IDC_PASSEDIT, m_pass);
@@ -50,17 +50,13 @@ void CPromptDlg::SetHide(BOOL hide)
 	m_hide = hide;
 }
 
-BEGIN_MESSAGE_MAP(CPromptDlg, CStandAloneDialog)
+BEGIN_MESSAGE_MAP(CPromptDlg, CDialog)
 END_MESSAGE_MAP()
 
 
 BOOL CPromptDlg::OnInitDialog()
 {
-	CStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_PASSEDIT);
-	m_aeroControls.SubclassControl(this, IDC_SAVECHECK);
-	m_aeroControls.SubclassOkCancel(this);
+	CDialog::OnInitDialog();
 
 	if (m_hide)
 	{
@@ -78,4 +74,5 @@ BOOL CPromptDlg::OnInitDialog()
 		CenterWindow(CWnd::FromHandle(m_hParentWnd));
 	return FALSE;
 }
+
 

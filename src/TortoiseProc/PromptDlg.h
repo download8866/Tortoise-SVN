@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
  * A dialog box which is used by Subversion authentication callback
  * to prompt the user for authentication data.
  */
-class CPromptDlg : public CStandAloneDialog
+class CPromptDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CPromptDlg)
 
@@ -43,7 +43,6 @@ protected:
 	virtual BOOL OnInitDialog();
 
 	DECLARE_MESSAGE_MAP()
-
 public:
 	CString		m_info;
 	CString		m_sPass;

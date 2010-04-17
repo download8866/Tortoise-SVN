@@ -28,14 +28,12 @@
 //
 // CPackedIntegerOutStreamBase
 //
-//		enhances CPackedDWORDOutStreamBase to handle signed values.
+//		enhances CPackedDWORDOutStreamBase to handle singed values.
 //
 //		To minimize the number of significant bits, the value
 //		is folded as follows:
 //
 //		unsignedValue = abs (signedValue) * 2 + sign (signedValue)
-//
-//		Note, that -0x7fffffff and - 0x80000000 CANNOT be stored!
 //
 ///////////////////////////////////////////////////////////////
 

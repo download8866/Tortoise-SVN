@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 #include "SVN.h"
 #include "TempFile.h"
 #include "ProgressDlg.h"
-#include "SelectFileFilter.h"
 
 #define PATCH_TO_CLIPBOARD_PSEUDO_FILENAME		_T(".TSVNPatchToClipboard")
 
@@ -65,14 +64,15 @@ UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT ui
 	return 0;
 }
 
-bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, const CTSVNPath& cmdLineSavePath)
+bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& path, const CTSVNPath& cmdLineSavePath)
 {
+	OPENFILENAME ofn = {0};				// common dialog box structure
+	CString temp;
 	CTSVNPath savePath;
 
 	if (cmdLineSavePath.IsEmpty())
 	{
-		TCHAR szFile[MAX_PATH] = {0};	// buffer for file name
-		OPENFILENAME ofn = {0};			// common dialog box structure
+		TCHAR szFile[MAX_PATH] = {0};  // buffer for file name
 		// Initialize OPENFILENAME
 		ofn.lStructSize = sizeof(OPENFILENAME);
 		ofn.hwndOwner = hwndExplorer;
@@ -80,7 +80,6 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 		ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
 		ofn.lpstrInitialDir = root.GetWinPath();
 
-		CString temp;
 		temp.LoadString(IDS_REPOBROWSE_SAVEAS);
 		CStringUtils::RemoveAccelerators(temp);
 		if (temp.IsEmpty())
@@ -93,14 +92,27 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 		ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
 		ofn.lpfnHook = CreatePatchFileOpenHook;
 
-		CSelectFileFilter fileFilter(IDS_PATCHFILEFILTER);
-		ofn.lpstrFilter = fileFilter;
+		CString sFilter;
+		sFilter.LoadString(IDS_PATCHFILEFILTER);
+		TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
+		_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
+		// Replace '|' delimiters with '\0's
+		TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
+		while (ptr != pszFilters)
+		{
+			if (*ptr == '|')
+				*ptr = '\0';
+			ptr--;
+		}
+		ofn.lpstrFilter = pszFilters;
 		ofn.nFilterIndex = 1;
 		// Display the Open dialog box. 
 		if (GetSaveFileName(&ofn)==FALSE)
 		{
+			delete [] pszFilters;
 			return FALSE;
 		}
+		delete [] pszFilters;
 		savePath = CTSVNPath(ofn.lpstrFile);
 		if (ofn.nFilterIndex == 1)
 		{
@@ -143,13 +155,13 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
 	CTSVNPath sDir = root;
 	if (sDir.IsEmpty())
-		sDir = paths.GetCommonRoot();
+		sDir = path.GetCommonRoot();
 
 	SVN svn;
-	for (int fileindex = 0; fileindex < paths.GetCount(); ++fileindex)
+	for (int fileindex = 0; fileindex < path.GetCount(); ++fileindex)
 	{
-		svn_depth_t depth = paths[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
-		if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
+		svn_depth_t depth = path[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
+		if (!svn.CreatePatch(path[fileindex], SVNRev::REV_BASE, path[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, FALSE, FALSE, FALSE, _T(""), true, tempPatchFilePath))
 		{
 			progDlg.Stop();
 			::MessageBox(hwndExplorer, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);

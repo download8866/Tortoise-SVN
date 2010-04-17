@@ -240,7 +240,11 @@ Cleanup:
 	{
 		RegCloseKey(hRegKey);
 	}
-	delete [] buf;
+	if (buf != NULL)
+	{
+		delete [] buf;
+	}
 
 	return bResult;
+
 }

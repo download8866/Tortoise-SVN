@@ -101,21 +101,22 @@ bool CMenuButton::ShowMenu()
 	CRect rDraw;
 	GetWindowRect(rDraw);
 	CMenu popup;
-	if (!popup.CreatePopupMenu())
-		return false;
-
-	for (int index=0; index<m_sEntries.GetCount(); ++index)
+	if (popup.CreatePopupMenu())
 	{
-		popup.AppendMenu(MF_ENABLED | MF_STRING, index+1, m_sEntries.GetAt(index));
+		for (int index=0; index<m_sEntries.GetCount(); ++index)
+		{
+			popup.AppendMenu(MF_ENABLED | MF_STRING, index+1, m_sEntries.GetAt(index));
+		}
+		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, rDraw.left, rDraw.bottom-1, this);
+		if (cmd <= 0)
+			return false;
+		if (cmd > m_sEntries.GetCount())
+			return false;
+		m_currentEntry = cmd-1;
+		SetWindowText(m_sEntries.GetAt(cmd-1));
+		return true;
 	}
-	int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, rDraw.left, rDraw.bottom-1, this);
-	if (cmd <= 0)
-		return false;
-	if (cmd > m_sEntries.GetCount())
-		return false;
-	m_currentEntry = cmd-1;
-	SetWindowText(m_sEntries.GetAt(cmd-1));
-	return true;
+	return false;
 }
 
 BOOL CMenuButton::OnClicked()

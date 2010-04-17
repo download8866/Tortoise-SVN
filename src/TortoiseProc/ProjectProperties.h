@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,38 +19,35 @@
 #pragma once
 #include <iostream>
 #include <string>
-#include <regex>
 #include "TSVNPath.h"
 using namespace std;
 
 // when adding new properties, don't forget to change the
 // method AddAutoProps() so the new properties are automatically
 // added to new folders
-#define BUGTRAQPROPNAME_LABEL             "bugtraq:label"
-#define BUGTRAQPROPNAME_MESSAGE           "bugtraq:message"
-#define BUGTRAQPROPNAME_NUMBER            "bugtraq:number"
-#define BUGTRAQPROPNAME_LOGREGEX		  "bugtraq:logregex"
-#define BUGTRAQPROPNAME_URL               "bugtraq:url"
-#define BUGTRAQPROPNAME_WARNIFNOISSUE     "bugtraq:warnifnoissue"
-#define BUGTRAQPROPNAME_APPEND		      "bugtraq:append"
-#define BUGTRAQPROPNAME_PROVIDERUUID      "bugtraq:provideruuid"
-#define BUGTRAQPROPNAME_PROVIDERUUID64    "bugtraq:provideruuid64"
-#define BUGTRAQPROPNAME_PROVIDERPARAMS    "bugtraq:providerparams"
+#define BUGTRAQPROPNAME_LABEL             _T("bugtraq:label")
+#define BUGTRAQPROPNAME_MESSAGE           _T("bugtraq:message")
+#define BUGTRAQPROPNAME_NUMBER            _T("bugtraq:number")
+#define BUGTRAQPROPNAME_LOGREGEX		  _T("bugtraq:logregex")
+#define BUGTRAQPROPNAME_URL               _T("bugtraq:url")
+#define BUGTRAQPROPNAME_WARNIFNOISSUE     _T("bugtraq:warnifnoissue")
+#define BUGTRAQPROPNAME_APPEND		      _T("bugtraq:append")
+#define BUGTRAQPROPNAME_PROVIDERUUID      _T("bugtraq:provideruuid")
+#define BUGTRAQPROPNAME_PROVIDERPARAMS    _T("bugtraq:providerparams")
 
-#define PROJECTPROPNAME_LOGTEMPLATE		  "tsvn:logtemplate"
-#define PROJECTPROPNAME_LOGWIDTHLINE	  "tsvn:logwidthmarker"
-#define PROJECTPROPNAME_LOGMINSIZE		  "tsvn:logminsize"
-#define PROJECTPROPNAME_LOCKMSGMINSIZE	  "tsvn:lockmsgminsize"
-#define PROJECTPROPNAME_LOGFILELISTLANG	  "tsvn:logfilelistenglish"
-#define PROJECTPROPNAME_LOGSUMMARY		  "tsvn:logsummary"
-#define PROJECTPROPNAME_PROJECTLANGUAGE   "tsvn:projectlanguage"
-#define PROJECTPROPNAME_USERFILEPROPERTY  "tsvn:userfileproperties"
-#define PROJECTPROPNAME_USERDIRPROPERTY   "tsvn:userdirproperties"
-#define PROJECTPROPNAME_AUTOPROPS		  "tsvn:autoprops"
-#define PROJECTPROPNAME_LOGREVREGEX		  "tsvn:logrevregex"
+#define PROJECTPROPNAME_LOGTEMPLATE		  _T("tsvn:logtemplate")
+#define PROJECTPROPNAME_LOGWIDTHLINE	  _T("tsvn:logwidthmarker")
+#define PROJECTPROPNAME_LOGMINSIZE		  _T("tsvn:logminsize")
+#define PROJECTPROPNAME_LOCKMSGMINSIZE	  _T("tsvn:lockmsgminsize")
+#define PROJECTPROPNAME_LOGFILELISTLANG	  _T("tsvn:logfilelistenglish")
+#define PROJECTPROPNAME_LOGSUMMARY		  _T("tsvn:logsummary")
+#define PROJECTPROPNAME_PROJECTLANGUAGE   _T("tsvn:projectlanguage")
+#define PROJECTPROPNAME_USERFILEPROPERTY  _T("tsvn:userfileproperties")
+#define PROJECTPROPNAME_USERDIRPROPERTY   _T("tsvn:userdirproperties")
+#define PROJECTPROPNAME_AUTOPROPS		  _T("tsvn:autoprops")
 
-#define PROJECTPROPNAME_WEBVIEWER_REV     "webviewer:revision"
-#define PROJECTPROPNAME_WEBVIEWER_PATHREV "webviewer:pathrevision"
+#define PROJECTPROPNAME_WEBVIEWER_REV     _T("webviewer:revision")
+#define PROJECTPROPNAME_WEBVIEWER_PATHREV _T("webviewer:pathrevision")
 
 class CTSVNPathList;
 struct svn_config_t;
@@ -90,7 +87,6 @@ public:
 	BOOL FindBugID(const CString& msg, CWnd * pWnd);
 
 	CString FindBugID(const CString& msg);
-	std::set<CString> FindBugIDs(const CString& msg);
 	/**
 	 * Searches for the BugID inside a log message. If one is found,
 	 * that BugID is returned. If none is found, an empty string is returned.
@@ -135,26 +131,10 @@ public:
 	 */
 	CString GetLogSummary(const CString& sMessage);
 
-    /**
-     * Transform the log message using \ref GetLogSummary and post-process it
-     * to be suitable for 1-line controls.
-     */
-    CString MakeShortMessage(const CString& message);
-
 	/**
 	 * Returns the path from which the properties were read.
 	 */
 	CTSVNPath GetPropsPath() {return propsPath;}
-
-	/** replaces bNumer: a regular expression string to check the validity of
-	  * the entered bug ID. */
-    const CString& GetCheckRe() const {return sCheckRe;}
-	
-	/** used to extract the bug ID from the string matched by sCheckRe */
-    const CString& GetBugIDRe() const {return sBugIDRe;}
-
-    const CString& GetProviderUUID() const { return (sProviderUuid64.IsEmpty() ? sProviderUuid : sProviderUuid64); }
-
 public:
 	/** The label to show in the commit dialog where the issue number/bug id
 	 * is entered. Example: "Bug-ID: " or "Issue-No.:". Default is "Bug-ID :" */
@@ -168,6 +148,13 @@ public:
 	/** If this is set, then the bug-id / issue number must be a number, no text */
 	BOOL		bNumber;
 
+	/** replaces bNumer: a regular expression string to check the validity of
+	  * the entered bug ID. */
+	CString		sCheckRe;
+	
+	/** used to extract the bug ID from the string matched by sCheckRe */
+	CString		sBugIDRe;
+	
 	/** The url pointing to the issue tracker. If the url contains the string
 	 * "%BUGID% the client has to replace it with the issue number / bug id
 	 * the user entered. */
@@ -180,6 +167,10 @@ public:
 	/** If set to FALSE, then the bug tracking entry is inserted at the top of the
 	   log message instead of at the bottom. Default is TRUE */
 	BOOL		bAppend;
+
+	/** the COM uuid of the bugtraq provider which implements the IBugTraqProvider
+	   interface. */
+	CString		sProviderUuid;
 
 	/** the parameters passed to the COM bugtraq provider which implements the
 	    IBugTraqProvider interface */
@@ -225,39 +216,10 @@ public:
 	 * is the first matching regex group.
 	 */
 	CString		sLogSummaryRe;
-
-	/**
-	 * A regex string to extract revisions from a log message.
-	 */
-	CString		sLogRevRegex;
-
 private:
-
-    /**
-     * Constructing rexex objects is expensive. Therefore, cache them here.
-     */
-    void AutoUpdateRegex();
-
-    bool regExNeedUpdate;
-    tr1::wregex regCheck;
-    tr1::wregex regBugID;
-
 	CString		sAutoProps;
 	CTSVNPath	propsPath;
 #ifdef DEBUG
 	friend class PropTest;
 #endif
-
-    /** the COM uuid of the bugtraq provider which implements the IBugTraqProvider
-    interface. */
-    CString		sProviderUuid;
-    CString		sProviderUuid64;
-
-    /** replaces bNumer: a regular expression string to check the validity of
-	  * the entered bug ID. */
-	CString		sCheckRe;
-	
-	/** used to extract the bug ID from the string matched by sCheckRe */
-	CString		sBugIDRe;
-	static void SetLinkCharFormat(CWnd* window);
 };

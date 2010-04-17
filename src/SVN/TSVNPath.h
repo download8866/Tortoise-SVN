@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -141,7 +141,7 @@ public:
 	 * section stripped off the front
 	 * Returns a string with fwdslash paths 
 	 */
-	LPCTSTR GetDisplayString(const CTSVNPath* pOptionalBasePath = NULL) const;
+	CString GetDisplayString(const CTSVNPath* pOptionalBasePath = NULL) const;
 	/**
 	 * Compares two paths. Slash format is irrelevant.
 	 */
@@ -180,12 +180,6 @@ public:
 	 * Returns a FILETIME structure cast to an __int64, for easy comparisons
 	 */
 	__int64 GetLastWriteTime() const;
-
-	/**
-	 * Get the file size. Returns zero for directories or files that don't exist.
-	 */
-	__int64 GetFileSize() const;
-
 	
 	bool IsReadOnly() const;
 	
@@ -259,7 +253,6 @@ private:
 
 private:
 	mutable CString m_sBackslashPath;
-	mutable CString m_sLongBackslashPath;
 	mutable CString m_sFwdslashPath;
 	mutable CString m_sUIPath;
 	mutable	CStringA m_sUTF8FwdslashPath;
@@ -271,7 +264,6 @@ private:
 	mutable bool m_bURLKnown;
 	mutable bool m_bIsURL;
 	mutable __int64 m_lastWriteTime;
-	mutable __int64 m_fileSize;
 	mutable bool m_bIsReadOnly;
 	mutable bool m_bHasAdminDirKnown;
 	mutable bool m_bHasAdminDir;
@@ -323,7 +315,6 @@ public:
 
 	int GetCount() const;
 	void Clear();
-	CTSVNPath& operator[](INT_PTR index);
 	const CTSVNPath& operator[](INT_PTR index) const;
 	bool AreAllPathsFiles() const;
 	bool AreAllPathsFilesInOneDirectory() const;
@@ -331,11 +322,10 @@ public:
 	CTSVNPath GetCommonRoot() const;
 	void SortByPathname(bool bReverse = false);
 	/** 
-	 * Delete all the files and opt. directories in the list, then clear the list.
+	 * Delete all the files in the list, then clear the list.
 	 * \param bTrash if true, the items are deleted using the Windows trash bin
-	 * \param bFilesOnly if true, delete file paths only
 	 */
-	void DeleteAllPaths(bool bTrash, bool bFilesOnly);
+	void DeleteAllFiles(bool bTrash);
 	/** Remove duplicate entries from the list (sorts the list as a side-effect */
 	void RemoveDuplicates();
 	/** Removes all paths which are on or in a Subversion admin directory */
@@ -354,8 +344,6 @@ public:
 	/** Convert into the SVN API parameter format */
 	apr_array_header_t * MakePathArray (apr_pool_t *pool) const;
 
-	static bool DeleteViaShell(LPCTSTR path, bool useTrashbin);
-
 private:
 	typedef std::vector<CTSVNPath> PathVector;
 	PathVector m_paths;
@@ -363,3 +351,5 @@ private:
 	// this contains the directory name
 	mutable CTSVNPath m_commonBaseDirectory;
 };
+
+

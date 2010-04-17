@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,13 +19,12 @@
 #pragma once
 
 #include "Registry.h"
-#include "StandAloneDlg.h"
 
 /**
  * \ingroup TortoiseProc
  * Helper dialog to configure the external tools used e.g. for diffing/merging/...
  */
-class CSetProgsAdvDlg : public CResizableStandAloneDialog
+class CSetProgsAdvDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CSetProgsAdvDlg)
 

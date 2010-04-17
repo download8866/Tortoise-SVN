@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseUDiff
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,8 +47,6 @@ public:
 	LRESULT				SendEditor(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0);
 	HWND				GetHWNDEdit() { return m_hWndEdit; }
 	bool				LoadFile(LPCTSTR filename);
-	bool				LoadFile(HANDLE hFile);
-	bool				SaveFile(LPCTSTR filename);
 	void				SetTitle(LPCTSTR title);
 
 protected:
@@ -60,10 +58,9 @@ protected:
 	bool				Initialize();
 
 private:
-	void				SetAStyle(int style, COLORREF fore, COLORREF back=::GetSysColor(COLOR_WINDOW), int size=-1, const char *face=0);
-	bool                IsUTF8(LPVOID pBuffer, size_t cb);
-	void				InitEditor();
-	void				SetupWindow(bool bUTF8);
+	void				SetAStyle(int style, COLORREF fore, COLORREF back=::GetSysColor(COLOR_WINDOW), 
+		int size=-1, const char *face=0);
+	bool                IsUTF8(LPVOID pBuffer, int cb);
 
 private:
 	LRESULT				m_directFunction;
@@ -75,6 +72,4 @@ private:
 	bool				m_bShowFindBar;
 	bool				m_bMatchCase;
 	wstring				m_findtext;
-
-	void loadOrSaveFile( bool doLoad );
 };

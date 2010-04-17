@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,7 +58,6 @@ BEGIN_MESSAGE_MAP(CTreeConflictEditorDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_AFTERTHREAD, OnAfterThread) 
 	ON_BN_CLICKED(IDC_LOG, &CTreeConflictEditorDlg::OnBnClickedShowlog)
 	ON_BN_CLICKED(IDHELP, &CTreeConflictEditorDlg::OnBnClickedHelp)
-	ON_BN_CLICKED(IDC_BRANCHLOG, &CTreeConflictEditorDlg::OnBnClickedBranchlog)
 END_MESSAGE_MAP()
 
 
@@ -68,25 +67,15 @@ BOOL CTreeConflictEditorDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_SOURCEGROUP, IDC_SOURCEGROUP, IDC_SOURCEGROUP, IDC_SOURCEGROUP);
-	m_aeroControls.SubclassControl(this, IDC_CONFLICTINFO);
-	m_aeroControls.SubclassControl(this, IDC_INFOLABEL);
-	m_aeroControls.SubclassControl(this, IDC_RESOLVEUSINGTHEIRS);
-	m_aeroControls.SubclassControl(this, IDC_RESOLVEUSINGMINE);
-	m_aeroControls.SubclassControl(this, IDC_LOG);
-	m_aeroControls.SubclassControl(this, IDC_BRANCHLOG);
-	m_aeroControls.SubclassControl(this, IDCANCEL);
-	m_aeroControls.SubclassControl(this, IDHELP);
-
 	SetDlgItemText(IDC_CONFLICTINFO, m_sConflictInfo);
 	SetDlgItemText(IDC_RESOLVEUSINGTHEIRS, m_sUseTheirs);
 	SetDlgItemText(IDC_RESOLVEUSINGMINE, m_sUseMine);
 
 
 	CString sTemp;
-	sTemp.Format(_T("%s/%s@%ld"), (LPCTSTR)CUnicodeUtils::GetUnicode(src_left->repos_url), (LPCTSTR)CUnicodeUtils::GetUnicode(src_left->path_in_repos), src_left->peg_rev);
+	sTemp.Format(_T("%s@%ld"), (LPCTSTR)CUnicodeUtils::GetUnicode(src_left->repos_url), src_left->peg_rev);
 	SetDlgItemText(IDC_SOURCELEFTURL, sTemp);
-	sTemp.Format(_T("%s/%s@%ld"), (LPCTSTR)CUnicodeUtils::GetUnicode(src_right->repos_url), (LPCTSTR)CUnicodeUtils::GetUnicode(src_right->path_in_repos), src_right->peg_rev);
+	sTemp.Format(_T("%s@%ld"), (LPCTSTR)CUnicodeUtils::GetUnicode(src_right->repos_url), src_right->peg_rev);
 	SetDlgItemText(IDC_SOURCERIGHTURL, sTemp);
 
 	if (conflict_reason == svn_wc_conflict_reason_deleted)
@@ -102,7 +91,7 @@ BOOL CTreeConflictEditorDlg::OnInitDialog()
 			if (AfxBeginThread(StatusThreadEntry, this)==NULL)
 			{
 				InterlockedExchange(&m_bThreadRunning, FALSE);
-				OnCantStartThread();
+				CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 			}
 		}
 		else
@@ -138,7 +127,6 @@ BOOL CTreeConflictEditorDlg::OnInitDialog()
 	AddAnchor(IDC_RESOLVEUSINGTHEIRS, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_RESOLVEUSINGMINE, BOTTOM_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_LOG, BOTTOM_LEFT);
-	AddAnchor(IDC_BRANCHLOG, BOTTOM_LEFT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
 
@@ -158,30 +146,12 @@ void CTreeConflictEditorDlg::OnBnClickedShowlog()
 	CAppUtils::LaunchApplication(sCmd, NULL, false);
 }
 
-void CTreeConflictEditorDlg::OnBnClickedBranchlog()
-{
-	if (m_bThreadRunning)
-		return;
-	CString sTemp;
-	sTemp.Format(_T("%s/%s"), (LPCTSTR)CUnicodeUtils::GetUnicode(src_left->repos_url), (LPCTSTR)CUnicodeUtils::GetUnicode(src_left->path_in_repos));
-
-	CTSVNPath logPath = CTSVNPath(sTemp);
-	if (src_left->node_kind != svn_node_dir)
-		logPath = logPath.GetContainingDirectory();
-	CString sCmd;
-	sCmd.Format(_T("\"%s\" /command:log /path:\"%s\" /pegrev:%ld"), 
-		(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")), 
-		(LPCTSTR)logPath.GetSVNPathString(),
-		src_left->peg_rev);
-	CAppUtils::LaunchApplication(sCmd, NULL, false);
-}
-
 void CTreeConflictEditorDlg::OnBnClickedResolveusingtheirs()
 {
 	if (m_bThreadRunning)
 		return;
 
-	int retVal = IDC_RESOLVEUSINGTHEIRS;
+	INT_PTR retVal = IDC_RESOLVEUSINGTHEIRS;
 	SVN svn;
 
 	if (conflict_reason == svn_wc_conflict_reason_deleted)
@@ -237,7 +207,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingtheirs()
 		{
 			if (m_path.Exists())
 			{
-				if (!svn.Remove(CTSVNPathList(m_path), true, false))
+				if (!svn.Remove(CTSVNPathList(m_path), TRUE, FALSE))
 				{
 					CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 					retVal = IDCANCEL;
@@ -253,7 +223,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingmine()
 	if (m_bThreadRunning)
 		return;
 
-	int retVal = IDC_RESOLVEUSINGMINE;
+	INT_PTR retVal = IDC_RESOLVEUSINGMINE;
 	SVN svn;
 	if (!svn.Resolve(m_path, svn_wc_conflict_choose_merged, false))
 	{
@@ -271,7 +241,7 @@ void CTreeConflictEditorDlg::OnBnClickedResolveusingmine()
 		{
 			if (m_path.Exists())
 			{
-				if (!svn.Remove(CTSVNPathList(m_path), true, false))
+				if (!svn.Remove(CTSVNPathList(m_path), TRUE, FALSE))
 				{
 					CMessageBox::Show(m_hWnd, svn.GetLastErrorMessage(), _T("TortoiseSVN"), MB_ICONERROR);
 					retVal = IDCANCEL;
@@ -356,4 +326,3 @@ void CTreeConflictEditorDlg::OnBnClickedHelp()
 {
 	OnHelp();
 }
-

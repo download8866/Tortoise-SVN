@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,8 +19,8 @@
 #include "StdAfx.h"
 #include "resource.h"			//if you defined some IDS_MSGBOX_xxxx this include is needed!
 #include "messagebox.h"
-#include "SysInfo.h"
-#include "ClipboardHelper.h"
+#include ".\messagebox.h"
+
 
 CMessageBox::CMessageBox(void)
 {
@@ -432,15 +432,7 @@ UINT CMessageBox::GoModal(CWnd * pWnd, const CString& title, const CString& msg,
 {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof(NONCLIENTMETRICS);
-
-#if (WINVER >= 0x600)
-	if (!SysInfo::Instance().IsVistaOrLater())
-	{
-		ncm.cbSize -= sizeof(int);	// subtract the size of the iPaddedBorderWidth member which is not available on XP
-	}
-#endif
-
-    VERIFY(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0));
+	VERIFY(SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &ncm, 0));
     memcpy(&m_LogFont, &(ncm.lfMessageFont), sizeof(LOGFONT));
 
 	//the problem with the LOGFONT lfHeight is that it is not in pixels,
@@ -516,12 +508,12 @@ CSize CMessageBox::GetTextSize(const CString& str)
 
 CSize CMessageBox::GetIconSize(HICON hIcon)
 {
+	ICONINFO ii;
 	CSize sz (0, 0);
 
 	if (hIcon != NULL)
 	{
 		//get icon dimensions
-		ICONINFO ii;
 		::SecureZeroMemory(&ii, sizeof(ICONINFO));
 		if (::GetIconInfo(hIcon, &ii))
 		{
@@ -869,17 +861,19 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 			{
 				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
 				{
-					CClipboardHelper clipboardHelper;
-					if(clipboardHelper.Open(GetSafeHwnd()))
+					CStringA sClipboard = CStringA(m_sMessage);
+					if (OpenClipboard())
 					{
 						EmptyClipboard();
-						CStringA sClipboard = CStringA(m_sMessage);
-						HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipboard.GetLength()+1);
-						char * pchData = (char*)GlobalLock(hClipboardData);
+						HGLOBAL hClipboardData;
+						hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipboard.GetLength()+1);
+						char * pchData;
+						pchData = (char*)GlobalLock(hClipboardData);
 						if (pchData)
 							strcpy_s(pchData, sClipboard.GetLength()+1, (LPCSTR)sClipboard);
 						GlobalUnlock(hClipboardData);
 						SetClipboardData(CF_TEXT,hClipboardData);
+						CloseClipboard();
 					}
 					return TRUE;
 				}
@@ -915,6 +909,7 @@ BOOL CMessageBox::PreTranslateMessage(MSG* pMsg)
 
 	return __super::PreTranslateMessage(pMsg);
 }
+
 
 
 

@@ -24,7 +24,7 @@
 #include "ShellCache.h"
 #include "RemoteCacheLink.h"
 #include "SVNFolderStatus.h"
-#include "IconBitmapUtils.h"
+#include "uxtheme.h"
 
 extern	volatile LONG		g_cRefThisDll;			// Reference count of this DLL.
 extern	HINSTANCE			g_hmodThisDll;			// Instance handle for this DLL
@@ -54,6 +54,34 @@ extern  CComCriticalSection	g_csGlobalCOMGuard;
 typedef CComCritSecLock<CComCriticalSection> AutoLocker;
 
 typedef DWORD ARGB;
+typedef HANDLE HPAINTBUFFER;  // handle to a buffered paint context
+
+// BP_BUFFERFORMAT
+typedef enum _BP_BUFFERFORMAT
+{
+	BPBF_COMPATIBLEBITMAP,    // Compatible bitmap
+	BPBF_DIB,                 // Device-independent bitmap
+	BPBF_TOPDOWNDIB,          // Top-down device-independent bitmap
+	BPBF_TOPDOWNMONODIB       // Top-down monochrome device-independent bitmap
+} BP_BUFFERFORMAT;
+
+// BP_PAINTPARAMS
+typedef struct _BP_PAINTPARAMS
+{
+	DWORD                       cbSize;
+	DWORD                       dwFlags; // BPPF_ flags
+	const RECT *                prcExclude;
+	const BLENDFUNCTION *       pBlendFunction;
+} BP_PAINTPARAMS, *PBP_PAINTPARAMS;
+
+#define BPPF_ERASE               0x0001 // Empty the buffer during BeginBufferedPaint()
+#define BPPF_NOCLIP              0x0002 // Don't apply the target DC's clip region to the double buffer
+#define BPPF_NONCLIENT           0x0004 // Using a non-client DC
+
+typedef HRESULT (WINAPI *FN_GetBufferedPaintBits) (HPAINTBUFFER hBufferedPaint, RGBQUAD **ppbBuffer, int *pcxRow);
+typedef HPAINTBUFFER (WINAPI *FN_BeginBufferedPaint) (HDC hdcTarget, const RECT *prcTarget, BP_BUFFERFORMAT dwFormat, BP_PAINTPARAMS *pPaintParams, HDC *phdc);
+typedef HRESULT (WINAPI *FN_EndBufferedPaint) (HPAINTBUFFER hBufferedPaint, BOOL fUpdateTarget);
+
 
 // The actual OLE Shell context menu handler
 /**
@@ -143,16 +171,10 @@ protected:
 		ShellMenuProperties,
 		ShellMenuDelUnversioned,
 		ShellMenuClipPaste,
-		ShellMenuUpgradeWC,
 		ShellMenuLastEntry			// used to mark the menu array end
 	};
 
 	// helper struct for context menu entries
-	typedef struct YesNoPair
-	{
-		DWORD				yes;
-		DWORD				no;
-	};
 	typedef struct MenuInfo
 	{
 		SVNCommands			command;		///< the command which gets executed for this menu entry
@@ -164,11 +186,14 @@ protected:
 		/// be added automatically, based on states of the selected item(s).
 		/// The 'yes' states must be set, the 'no' states must not be set
 		/// the four pairs are OR'ed together, the 'yes'/'no' states are AND'ed together.
-		YesNoPair			first;
-		YesNoPair			second;
-		YesNoPair			third;
-		YesNoPair			fourth;
-		std::wstring		verb;
+		DWORD				firstyes;
+		DWORD				firstno;
+		DWORD				secondyes;
+		DWORD				secondno;
+		DWORD				thirdyes;
+		DWORD				thirdno;
+		DWORD				fourthyes;
+		DWORD				fourthno;
 	};
 
 	static MenuInfo menuInfo[];
@@ -195,27 +220,33 @@ protected:
 	tstring owner;
 	svn_revnum_t columnrev;			///< holds the corresponding revision to the file/dir above
 	svn_wc_status_kind	filestatus;
+	std::map<UINT, HBITMAP> bitmaps;
 
 	SVNFolderStatus		m_CachedStatus;		// status cache
 	CRemoteCacheLink	m_remoteCacheLink;
-	IconBitmapUtils		m_iconBitmapUtils;
+
+	HMODULE hUxTheme;
+	FN_GetBufferedPaintBits pfnGetBufferedPaintBits;
+	FN_BeginBufferedPaint pfnBeginBufferedPaint;
+	FN_EndBufferedPaint pfnEndBufferedPaint;
 
 #define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, sizeof(stringtablebuffer)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 private:
-	void			InsertSVNMenu(BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com, const tstring& verb);
+	void			InsertSVNMenu(BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com, UINT uFlags);
 	void			InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst, HMENU hMenu, HMENU subMenu, UINT &indexMenu, int &indexSubMenu, unsigned __int64 topmenu, bool bShowIcons);
-	tstring			WriteFileListToTempFile();
+	tstring		WriteFileListToTempFile();
 	bool			WriteClipboardPathsToTempFile(tstring& tempfile);
 	LPCTSTR			GetMenuTextFromResource(int id);
 	void			GetColumnStatus(const TCHAR * path, BOOL bIsDir);
+	HBITMAP			IconToBitmap(UINT uIcon);
 	STDMETHODIMP	QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
-	bool			IsIllegalFolder(std::wstring folder, int * csidlarray);
-	static void		RunCommand( const tstring& path, const tstring& command, const tstring& folder, LPCTSTR errorMessage );
-	bool			ShouldInsertItem(const MenuInfo& pair) const;
-	bool			ShouldEnableMenu(const YesNoPair& pair) const;
-	void			GetColumnInfo(SHCOLUMNINFO* to, DWORD index, UINT charactersCount, UINT titleId, UINT descriptionId);
-	void			TweakMenuForVista(HMENU menu);
-	void			ExtractProperty(const TCHAR* path, const char* propertyName, tstring& to);
+	bool			IsIllegalFolder(std::wstring folder, int * cslidarray);
+	HBITMAP			IconToBitmapPARGB32(UINT uIcon);
+	HRESULT			Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp);
+	HRESULT			ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC hdc, HICON hicon, SIZE& sizIcon);
+	bool			HasAlpha(__in ARGB *pargb, SIZE& sizImage, int cxRow);
+	HRESULT			ConvertToPARGB32(HDC hdc, __inout ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow);
+
 
 public:
 	CShellExt(FileState state);

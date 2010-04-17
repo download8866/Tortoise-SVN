@@ -9,9 +9,6 @@
 	<indexterm>
 		<primary>undo</primary>
 	</indexterm>
-	<indexterm>
-		<primary>clean</primary>
-	</indexterm>
 	<para>
 		If you want to undo all changes you made in a file since
 		the last update you need to select the file,
@@ -48,12 +45,6 @@
 		The columns in this dialog can be customized in the same way as the
 		columns in the <guilabel>Check for modifications</guilabel> dialog.
 		Read <xref linkend="tsvn-dug-wcstatus-2"/> for further details.
-	</para>
-	<para>
-		Since revert is sometimes used to clean up a working copy, there is an
-		extra button which allows you to delete unversioned items as well.
-		When you click this button another dialog comes up listing all the
-		unversioned items, which you can then select for deletion.
 	</para>
 	<tip>
 		<title>Undoing Changes which have been Committed</title>

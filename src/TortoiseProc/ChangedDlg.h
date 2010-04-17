@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2009 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,7 +36,6 @@ class CChangedDlg : public CResizableStandAloneDialog, public SVN
 public:
 	CChangedDlg(CWnd* pParent = NULL);   // standard constructor
 	virtual ~CChangedDlg();
-	void ContactRepository(bool bContact) {m_bContactRepository = bContact;}
 
 // Dialog Data
 	enum { IDD = IDD_CHANGEDFILES };
@@ -54,8 +53,6 @@ protected:
 	afx_msg void			OnBnClickedShowignored();
 	afx_msg void			OnBnClickedShowexternals();
     afx_msg void			OnBnClickedShowUserProps();
-	afx_msg void			OnBnClickedShowfolders();
-	afx_msg void			OnBnClickedShowfiles();
 	afx_msg LRESULT			OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 	afx_msg LRESULT			OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
 
@@ -82,10 +79,7 @@ private:
 	BOOL					m_bShowIgnored;
 	BOOL					m_bShowExternals;
 	BOOL					m_bShowUserProps;
-	BOOL					m_bShowDirs;
-	BOOL					m_bShowFiles;
 	bool					m_bDepthInfinity;
 	CToolTips				m_tooltips;
-	bool					m_bContactRepository;
 };
 

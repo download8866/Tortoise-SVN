@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "StdAfx.h"
 #include ".\utils.h"
-#include "FormatMessageWrapper.h"
 
 CUtils::CUtils(void)
 {
@@ -130,7 +129,24 @@ void CUtils::StringCollapse(LPTSTR str)
 
 void CUtils::Error()
 {
-	CFormatMessageWrapper errorDetails;
-	if (errorDetails)
-    	_ftprintf (stderr, _T("%s\n"), (LPCTSTR)errorDetails);
+	LPVOID lpMsgBuf;
+	if (!FormatMessage( 
+		FORMAT_MESSAGE_ALLOCATE_BUFFER | 
+		FORMAT_MESSAGE_FROM_SYSTEM | 
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		GetLastError(),
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
+		(LPTSTR) &lpMsgBuf,
+		0,
+		NULL ))
+	{
+		return;
+	}
+
+	// Display the string.
+	_ftprintf(stderr, _T("%s\n"), (LPCTSTR)lpMsgBuf);
+
+	// Free the buffer.
+	LocalFree( lpMsgBuf );
 }

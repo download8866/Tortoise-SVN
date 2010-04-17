@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "MergeWizardRevRange.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog\LogDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardRevRange, CMergeWizardBasePage)
 
@@ -57,12 +57,10 @@ void CMergeWizardRevRange::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_REVISION_RANGE, m_sRevRange);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Check(pDX, IDC_REVERSEMERGE, ((CMergeWizard*)GetParent())->bReverseMerge);
-	DDX_Control(pDX, IDC_WCEDIT, m_WC);
 }
 
 
 BEGIN_MESSAGE_MAP(CMergeWizardRevRange, CMergeWizardBasePage)
-	ON_MESSAGE(WM_TSVN_MAXREVFOUND, &CMergeWizardRevRange::OnWCStatus)
 	ON_REGISTERED_MESSAGE(WM_REVLIST, OnRevSelected)
 	ON_REGISTERED_MESSAGE(WM_REVLISTONERANGE, OnRevSelectedOneRange)
 	ON_BN_CLICKED(IDC_SELLOG, &CMergeWizardRevRange::OnBnClickedShowlog)
@@ -78,8 +76,6 @@ LRESULT CMergeWizardRevRange::OnWizardBack()
 
 LRESULT CMergeWizardRevRange::OnWizardNext()
 {
-	StopWCCheckThread();
-
 	UpdateData();
 	m_URLCombo.SaveHistory();
 	((CMergeWizard*)GetParent())->URL1 = m_URLCombo.GetString();
@@ -99,7 +95,7 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
 	}
 	if (!((CMergeWizard*)GetParent())->revRangeArray.FromListString(m_sRevRange))
 	{
-		ShowEditBalloon(IDC_REVISION_RANGE, IDS_ERR_INVALIDREVRANGE, IDS_ERR_ERROR, TTI_ERROR);
+		CBalloon::ShowBalloon(this, CBalloon::GetCtrlCentre(this, IDC_REVISION_RANGE), IDS_ERR_INVALIDREVRANGE, TRUE, IDI_EXCLAMATION);
 		return -1;
 	}
 	return IDD_MERGEWIZARD_OPTIONS;
@@ -118,8 +114,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 	if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
 		m_URLCombo.SetCurSel(0);
 	else if (!pWizard->url.IsEmpty())
-		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
-	if (m_URLCombo.GetString().IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->url));
 	if (!pWizard->URL1.IsEmpty())
 		m_URLCombo.SetWindowText(CPathUtils::PathUnescape(pWizard->URL1));
@@ -148,8 +142,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 	AddAnchor(IDC_MERGEREVRANGEWCGROUP, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_WCEDIT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_SHOWLOGWC, TOP_RIGHT);
-
-	StartWCCheckThread(((CMergeWizard*)GetParent())->wcPath);
 
 	return TRUE;
 }
@@ -196,7 +188,6 @@ LPARAM CMergeWizardRevRange::OnRevSelected(WPARAM wParam, LPARAM lParam)
 		bool bReverse = !!dlg->bReverseMerge;
 		m_sRevRange = dlg->revRangeArray.ToListString(bReverse);
 		UpdateData(FALSE);
-		SetFocus();
 	}
 	return 0;
 }
@@ -214,7 +205,6 @@ LPARAM CMergeWizardRevRange::OnRevSelectedOneRange(WPARAM /*wParam*/, LPARAM lPa
 		bool bReverse = !!dlg->bReverseMerge;
 		m_sRevRange = dlg->revRangeArray.ToListString(bReverse);
 		UpdateData(FALSE);
-		SetFocus();
 	}
 	return 0;
 }
@@ -252,13 +242,4 @@ void CMergeWizardRevRange::OnBnClickedShowlogwc()
 	m_pLogDlg2->SetMergePath(wcPath);
 	m_pLogDlg2->Create(IDD_LOGMESSAGE, this);
 	m_pLogDlg2->ShowWindow(SW_SHOW);
-}
-
-LPARAM CMergeWizardRevRange::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
-{
-	if (wParam)
-	{
-		ShowEditBalloon(IDC_WCEDIT, IDS_MERGE_WCDIRTY, IDS_WARN_WARNING, TTI_WARNING);
-	}
-	return 0;
 }

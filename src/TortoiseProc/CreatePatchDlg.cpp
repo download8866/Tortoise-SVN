@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,11 +60,6 @@ BOOL CCreatePatch::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_PATCHLIST, IDC_PATCHLIST, IDC_PATCHLIST, IDC_PATCHLIST);
-	m_aeroControls.SubclassControl(this, IDC_SHOWUNVERSIONED);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	UpdateData(FALSE);
 
 	m_PatchList.Init(0, _T("CreatePatchDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
@@ -90,7 +85,7 @@ BOOL CCreatePatch::OnInitDialog()
 	// blocking the dialog
 	if(AfxBeginThread(PatchThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
@@ -123,7 +118,7 @@ UINT CCreatePatch::PatchThread()
 	}
 
 	m_PatchList.Show(
-		ShowMask(),	CTSVNPathList(), SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS, true, true);
+		ShowMask(),	CTSVNPathList(), SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS);
 
 	DialogEnableWindow(IDC_SHOWUNVERSIONED, true);
 	InterlockedExchange(&m_bThreadRunning, FALSE);
@@ -137,8 +132,16 @@ BOOL CCreatePatch::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		case VK_F5:
 			{
@@ -146,7 +149,7 @@ BOOL CCreatePatch::PreTranslateMessage(MSG* pMsg)
 				{
 					if(AfxBeginThread(PatchThreadEntry, this) == NULL)
 					{
-						OnCantStartThread();
+						CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 					}
 					else
 						InterlockedExchange(&m_bThreadRunning, TRUE);
@@ -178,7 +181,7 @@ void CCreatePatch::OnBnClickedShowunversioned()
 {
 	UpdateData();
 	if (!m_bThreadRunning)
-		m_PatchList.Show(ShowMask(), CTSVNPathList(), 0, true, true);
+		m_PatchList.Show(ShowMask());
 }
 
 void CCreatePatch::OnBnClickedHelp()
@@ -239,7 +242,7 @@ LRESULT CCreatePatch::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	if(AfxBeginThread(PatchThreadEntry, this) == NULL)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
 }

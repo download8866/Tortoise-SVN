@@ -127,8 +127,8 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 				::CloseHandle(TSVNMutex);
 				return &invalidstatus;
 			}
-			::CloseHandle(TSVNMutex);
 		}
+		::CloseHandle(TSVNMutex);
 	}
 
 	pool = svn_pool_create (rootpool);				// create the memory pool
@@ -285,7 +285,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 DWORD SVNFolderStatus::GetTimeoutValue()
 {
 	DWORD timeout = SVNFOLDERSTATUS_CACHETIMEOUT;
-	DWORD factor = (DWORD)m_cache.size()/200;
+	DWORD factor = m_cache.size()/200;
 	if (factor==0)
 		factor = 1;
 	return factor*timeout;
@@ -388,7 +388,7 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, svn
 		s.rev = status->entry->cmt_rev;
 		s.owner = Stat->owners.GetString(status->entry->lock_owner);
 		if (status->entry->present_props)
-			s.needslock = strstr(status->entry->present_props, SVN_PROP_NEEDS_LOCK) ? true : false;
+			s.needslock = strstr(status->entry->present_props, "svn:needs-lock") ? true : false;
 	}
 	else
 	{

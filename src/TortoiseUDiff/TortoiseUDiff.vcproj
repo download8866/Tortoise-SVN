@@ -216,6 +216,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -291,6 +292,7 @@
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="17"
@@ -387,10 +389,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\Utils\StringUtils.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TortoiseUDiff.cpp"
 				>
 			</File>
@@ -434,10 +432,6 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Utils\StringUtils.h"
 				>
 			</File>
 			<File

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,10 +53,11 @@ private:
 	CComboBox		m_LanguageCombo;
 	CRegDWORD		m_regLanguage;
 	DWORD			m_dwLanguage;
+	CRegDWORD		m_regCheckNewer;
+	BOOL			m_bCheckNewer;
 	CRegString		m_regLastCommitTime;
 	BOOL			m_bLastCommitTime;
-	CRegDWORD		m_regUseAero;
-	BOOL			m_bUseAero;
+
 	BOOL			m_bUseDotNetHack;
 
 public:

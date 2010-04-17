@@ -1,27 +1,27 @@
 #
 # Simplified Chinese translation for TortoiseMerge
-# Copyright (C) 2004-2009 the TortoiseSVN team
+# Copyright (C) 2004-2008 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
 # $Author$
 # $Date$
 # $Rev$
-#
 # Authors:
-# Dongsheng Song <dongsheng.song@gmail.com>, 2006-2009
+# Dongsheng Song <dongsheng.song@gmail.com>, 2006-2008
 # Xingyu.Wang <xingyu.wang@gmail.com>, 2006
 # Stan J <thinkernel@yeah.net>, 2006
+# HuiMin <h.xia@rac.de>, 2010.
 #
 # Update to new pot:
-#    msgmerge --update TortoiseMerge_zh_CN.po TortoiseMerge.pot
+# msgmerge --update TortoiseMerge_zh_CN.po TortoiseMerge.pot
 #
 # Check translation:
-#    msgfmt --statistics -c TortoiseMerge_zh_CN.po
+# msgfmt --statistics -c TortoiseMerge_zh_CN.po
 #
 # Please format your translation before commit:
-#    msgmerge --width=80 -o TortoiseMerge_zh_CN_new.po TortoiseMerge_zh_CN.po TortoiseMerge.pot
-#    mv -f TortoiseMerge_zh_CN_new.po TortoiseMerge_zh_CN.po
+# msgmerge --width=80 -o TortoiseMerge_zh_CN_new.po TortoiseMerge_zh_CN.po TortoiseMerge.pot
+# mv -f TortoiseMerge_zh_CN_new.po TortoiseMerge_zh_CN.po
 #
 # Dictionary:
 # BASE revision     基础版本
@@ -41,17 +41,21 @@
 # unversioned       未版本控制
 # versioned         已版本控制
 # working copy      工作副本
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2009-10-09 18:46 +0000\n"
-"PO-Revision-Date: 2009-11-06 09:36+0800\n"
-"Last-Translator: Dongsheng Song <dongsheng@users.sourceforge.net>\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
+"PO-Revision-Date: 2010-04-12 12:25+0200\n"
+"Last-Translator: HuiMin <h.xia@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Virtaal 0.5.2\n"
 
 #. (title)
 msgid "TortoiseMerge"
@@ -147,16 +151,16 @@ msgstr ""
 msgid ""
 "TortoiseMerge is an Open Source project. That means you have full read access "
 "to the source code of this program. You can browse it on this link <ulink url="
-"\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://"
-"tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. You will be "
+"\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://"
+"code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be "
 "prompted to enter username and password. The username is <literal>guest</"
 "literal>, and the password must be left blank. The most recent version (where "
 "we're currently working) is located under <filename>/trunk/</filename>, and "
 "the released versions are located under <filename>/tags/</filename>."
 msgstr ""
 "TortoiseMerge 是一个开源软件项目。这意味着你可以取得它的全部源代码。你可以访问"
-"以下链接得到源代码：<ulink url=\"http://tortoisesvn.tigris.org/svn/"
-"tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</"
+"以下链接得到源代码：<ulink url=\"http://code.google.com/p/tortoisesvn/source/"
+"browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</"
 "citetitle></ulink>。你会被提示输入用户名称和密码。用户名称是 <literal>guest</"
 "literal>，不能填写密码。最新的版本(我们当前正在开发的)放在 <filename>/trunk/</"
 "filename> ，已发布版本放在 <filename>/tags/</filename> 。"
@@ -1640,10 +1644,6 @@ msgstr ""
 "件保存对话框，从而用户可以选择保存补丁文件的位置。注意：如果设置了 "
 "<placeholder-5/>，所有其它参数都会被忽略。"
 
-#. (entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr "指定加载文件后调至行号"
-
 #. (para)
 msgid ""
 "You can also supply simple filenames on the command line for compatibility "
@@ -1715,8 +1715,8 @@ msgid ""
 "Berkeley DB. A well tested database backend for repositories, that cannot be "
 "used on network shares. Default for pre 1.2 repositories."
 msgstr ""
-"伯克利 DB(BDB)。 一个经过广泛测试的版本库的数据库后端，不能使用网络文件系统(例"
-"如 NFS 或 SMBFS)。是 1.2 版本及以前的版本库之默认后端。"
+"伯克利 DB(BDB)。 一个经过广泛测试的版本库的数据库后端，不能使用网络文件系统。"
+"是 1.2 版本及以前的版本库之默认后端。"
 
 #. (glossterm)
 msgid "Branch"
@@ -1855,8 +1855,8 @@ msgid ""
 "A proprietary Subversion filesystem backend for repositories. Can be used on "
 "network shares. Default for 1.2 and newer repositories."
 msgstr ""
-"一个专用于 Subversion 版本库的文件系统后端，可以使用网络文件系统(例如 NFS 或 "
-"SMBFS)。是 1.2 版本及其后的版本库之默认后端。"
+"一个专用于 Subversion 版本库的文件系统后端，可以使用网络文件系统。是 1.2 版本"
+"及其后的版本库之默认后端。"
 
 #. (glossterm)
 msgid "GPO"
@@ -2156,3 +2156,22 @@ msgstr ""
 #. (None)
 msgid "translator-translation"
 msgstr "译者"
+
+#~ msgid ""
+#~ "TortoiseMerge is an Open Source project. That means you have full read "
+#~ "access to the source code of this program. You can browse it on this link "
+#~ "<ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/"
+#~ "\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></"
+#~ "ulink>. You will be prompted to enter username and password. The username "
+#~ "is <literal>guest</literal>, and the password must be left blank. The most "
+#~ "recent version (where we're currently working) is located under <filename>/"
+#~ "trunk/</filename>, and the released versions are located under <filename>/"
+#~ "tags/</filename>."
+#~ msgstr ""
+#~ "TortoiseMerge 是一个开源软件项目。这意味着你可以取得它的全部源代码。你可以"
+#~ "访问以下链接得到源代码：<ulink url=\"http://code.google.com/p/tortoisesvn/"
+#~ "source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/"
+#~ "browse/</citetitle></ulink>。你会被提示输入用户名称和密码。用户名称是 "
+#~ "<literal>guest</literal>，不能填写密码。最新的版本(我们当前正在开发的)放在 "
+#~ "<filename>/trunk/</filename> ，已发布版本放在 <filename>/tags/</"
+#~ "filename> 。"

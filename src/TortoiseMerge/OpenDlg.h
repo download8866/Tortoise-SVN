@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,11 @@
 //
 #pragma once
 #include "FileDropEdit.h"
-#include "AeroBaseDlg.h"
+#include "afxwin.h"
 
 // COpenDlg dialog
 
-class COpenDlg : public CStandAloneDialog
+class COpenDlg : public CDialog
 {
 	DECLARE_DYNAMIC(COpenDlg)
 
@@ -35,10 +35,10 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	void OnBrowseForFile(CString& filepath, UINT nFileFilter = IDS_COMMONFILEFILTER);
-	BOOL BrowseForFile(CString& filepath, const CString& title, UINT nFileFilter) const;
+	BOOL BrowseForFile(CString& filepath, CString title, UINT nFileFilter = IDS_COMMONFILEFILTER);
 	void GroupRadio(UINT nID);
 	bool CheckAndEnableClipboardChecker();
+	BOOL DialogEnableWindow(UINT nID, BOOL bEnable);
 	DECLARE_MESSAGE_MAP()
 public:
 	CString m_sBaseFile;
@@ -66,13 +66,13 @@ protected:
 	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
 	afx_msg void OnDrawClipboard();
 	afx_msg void OnDestroy();
-	afx_msg void OnBnClickedPatchfromclipboard();
 
 	virtual BOOL OnInitDialog();
 	virtual void OnOK();
-	void AutoCompleteOn(int controlId);
 
 	BOOL	m_bFromClipboard;
 	UINT	m_cFormat;
 	HWND	m_nextViewer;
+public:
+	afx_msg void OnBnClickedPatchfromclipboard();
 };

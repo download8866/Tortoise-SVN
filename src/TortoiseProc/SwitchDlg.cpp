@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "BrowseFolder.h"
 #include "TSVNPath.h"
 #include "AppUtils.h"
-#include "PathUtils.h"
 
 IMPLEMENT_DYNAMIC(CSwitchDlg, CResizableStandAloneDialog)
 CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
@@ -31,13 +30,13 @@ CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
 	, m_URL(_T(""))
 	, Revision(_T("HEAD"))
 	, m_pLogDlg(NULL)
-	, m_bNoExternals(FALSE)
 {
 }
 
 CSwitchDlg::~CSwitchDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
@@ -45,11 +44,6 @@ void CSwitchDlg::DoDataExchange(CDataExchange* pDX)
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_URLCOMBO, m_URLCombo);
 	DDX_Text(pDX, IDC_REVISION_NUM, m_rev);
-    DDX_Control(pDX, IDC_SWITCHPATH, m_SwitchPath);
-    DDX_Control(pDX, IDC_DESTURL, m_DestUrl);
-    DDX_Control(pDX, IDC_SRCURL, m_SrcUrl);
-	DDX_Check(pDX, IDC_NOEXTERNALS, m_bNoExternals);
-	DDX_Control(pDX, IDC_DEPTH, m_depthCombo);
 }
 
 
@@ -77,32 +71,24 @@ BOOL CSwitchDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_REVGROUP);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	CTSVNPath svnPath(m_path);
 	SetDlgItemText(IDC_SWITCHPATH, m_path);
 	m_bFolder = svnPath.IsDirectory();
 	SVN svn;
-	CString sUUID;
-	m_repoRoot = svn.GetRepositoryRootAndUUID(svnPath, true, sUUID);
-	m_repoRoot.TrimRight('/');
 	CString url = svn.GetURLFromPath(svnPath);
-	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoPaths\\")+sUUID, _T("url"));
+	CString sUUID = svn.GetUUIDFromPath(svnPath);
+	m_URLCombo.SetURLHistory(TRUE);
+	m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
 	m_URLCombo.SetCurSel(0);
+
 	if (!url.IsEmpty())
 	{
-		CString relPath = url.Mid(m_repoRoot.GetLength());
-		CTSVNPath r = CTSVNPath(relPath);
-		relPath = r.GetUIPathString();
-		relPath.Replace('\\', '/');
-		m_URLCombo.AddString(relPath, 0);
-		m_URLCombo.SelectString(-1, relPath);
-		m_URL = url;
-
-        SetDlgItemText(IDC_SRCURL, m_URL);
-		SetDlgItemText(IDC_DESTURL, CPathUtils::CombineUrls(m_repoRoot, relPath));
+		m_path = url;
+		m_URLCombo.AddString(CTSVNPath(url).GetUIPathString(), 0);
+		m_URLCombo.SelectString(-1, CTSVNPath(url).GetUIPathString());
+		m_URL = m_path;
 	}
+	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 
 	if (m_sTitle.IsEmpty())
 		GetWindowText(m_sTitle);
@@ -114,14 +100,6 @@ BOOL CSwitchDlg::OnInitDialog()
 	// set head revision as default revision
 	SetRevision(SVNRev::REV_HEAD);
 
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_WORKING)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_IMMEDIATE)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_FILES)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_EMPTY)));
-	m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_EXCLUDE)));
-	m_depthCombo.SetCurSel(0);
-
 	RECT rect;
 	GetWindowRect(&rect);
 	m_height = rect.bottom - rect.top;
@@ -131,18 +109,11 @@ BOOL CSwitchDlg::OnInitDialog()
 	AddAnchor(IDC_URLLABEL, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_BROWSE, TOP_RIGHT);
-    AddAnchor(IDC_SRCLABEL, TOP_LEFT, TOP_RIGHT);
-    AddAnchor(IDC_SRCURL, TOP_LEFT, TOP_RIGHT);
-    AddAnchor(IDC_DESTLABEL, TOP_LEFT, TOP_RIGHT);
-    AddAnchor(IDC_DESTURL, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_REVGROUP, TOP_LEFT);
+	AddAnchor(IDC_REVGROUP, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
 	AddAnchor(IDC_REVISION_N, TOP_LEFT);
 	AddAnchor(IDC_REVISION_NUM, TOP_LEFT);
 	AddAnchor(IDC_LOG, TOP_LEFT);
-	AddAnchor(IDC_GROUPMIDDLE, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_DEPTH, TOP_LEFT, TOP_RIGHT);
-	AddAnchor(IDC_NOEXTERNALS, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -165,7 +136,7 @@ void CSwitchDlg::OnBnClickedBrowse()
 		rev = SVNRev(m_rev);
 	if (!rev.IsValid())
 		rev = SVNRev::REV_HEAD;
-	CAppUtils::BrowseRepository(m_repoRoot, m_URLCombo, this, rev);
+	CAppUtils::BrowseRepository(m_URLCombo, this, rev);
 	SetRevision(rev);
 }
 
@@ -182,38 +153,18 @@ void CSwitchDlg::OnOK()
 	Revision = SVNRev(m_rev);
 	if (!Revision.IsValid())
 	{
-		ShowEditBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV);
 		return;
 	}
 
 	m_URLCombo.SaveHistory();
-	m_URL = CPathUtils::CombineUrls(m_repoRoot, m_URLCombo.GetString());
+	m_URL = m_URLCombo.GetString();
 
-	switch (m_depthCombo.GetCurSel())
+	if (m_URL.IsEmpty())
 	{
-	case 0:
-		m_depth = svn_depth_unknown;
-		break;
-	case 1:
-		m_depth = svn_depth_infinity;
-		break;
-	case 2:
-		m_depth = svn_depth_immediates;
-		break;
-	case 3:
-		m_depth = svn_depth_files;
-		break;
-	case 4:
-		m_depth = svn_depth_empty;
-		break;
-	case 5:
-		m_depth = svn_depth_exclude;
-		break;
-	default:
-		m_depth = svn_depth_empty;
-		break;
+		ShowBalloon(IDC_URLCOMBO, IDS_ERR_MUSTBEURL);
+		return;
 	}
-
 	UpdateData(FALSE);
 	CResizableStandAloneDialog::OnOK();
 }
@@ -249,7 +200,7 @@ void CSwitchDlg::OnBnClickedLog()
 	UpdateData(TRUE);
 	if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
 		return;
-	m_URL = CPathUtils::CombineUrls(m_repoRoot, m_URLCombo.GetString());
+	m_URL = m_URLCombo.GetString();
 	if (!m_URL.IsEmpty())
 	{
 		delete m_pLogDlg;
@@ -298,5 +249,5 @@ void CSwitchDlg::OnSizing(UINT fwSide, LPRECT pRect)
 
 void CSwitchDlg::OnCbnEditchangeUrlcombo()
 {
-	SetDlgItemText(IDC_DESTURL, CPathUtils::CombineUrls(m_repoRoot, m_URLCombo.GetWindowString()));
+	GetDlgItem(IDC_BROWSE)->EnableWindow(!m_URLCombo.GetString().IsEmpty());
 }

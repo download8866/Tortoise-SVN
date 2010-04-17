@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2009 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,14 +34,14 @@ const svn_diff_fns_t SVNLineDiff::SVNLineDiff_vtable =
 #define SVNLINEDIFF_CHARTYPE_SPACE			2
 #define SVNLINEDIFF_CHARTYPE_OTHER			3
 
-typedef void (*LineParser)(LPCTSTR line, apr_size_t lineLength, std::vector<std::wstring> &tokens);
+typedef void (*LineParser)(LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens);
 
 void SVNLineDiff::ParseLineWords(
-	LPCTSTR line, apr_size_t lineLength, std::vector<std::wstring> &tokens)
+	LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens)
 {
 	std::wstring token;
 	int prevCharType = SVNLINEDIFF_CHARTYPE_NONE;
-	for (apr_size_t i = 0; i < lineLength; ++i)
+	for (unsigned long i = 0; i < lineLength; ++i)
 	{
 		int charType = 
 			IsCharAlphaNumeric(line[i]) ? SVNLINEDIFF_CHARTYPE_ALPHANUMERIC :
@@ -65,10 +65,10 @@ void SVNLineDiff::ParseLineWords(
 }
 
 void SVNLineDiff::ParseLineChars(
-	LPCTSTR line, apr_size_t lineLength, std::vector<std::wstring> &tokens)
+	LPCTSTR line, unsigned long lineLength, std::vector<std::wstring> &tokens)
 {
 	std::wstring token;
-	for (apr_size_t i = 0; i < lineLength; ++i)
+	for (unsigned long i = 0; i < lineLength; ++i)
 	{
 		token = line[i];
 		tokens.push_back(token);
@@ -97,7 +97,7 @@ svn_error_t * SVNLineDiff::datasource_close(void * /*baton*/, svn_diff_datasourc
 }
 
 void SVNLineDiff::NextTokenWords(
-	apr_uint32_t* hash, void** token, apr_size_t& linePos, const std::vector<std::wstring>& tokens)
+	apr_uint32_t* hash, void** token, unsigned long& linePos, const std::vector<std::wstring>& tokens)
 {
 	if (linePos < tokens.size())
 	{
@@ -108,7 +108,7 @@ void SVNLineDiff::NextTokenWords(
 }
 
 void SVNLineDiff::NextTokenChars(
-	apr_uint32_t* hash, void** token, apr_size_t& linePos, LPCTSTR line, apr_size_t lineLength)
+	apr_uint32_t* hash, void** token, unsigned long& linePos, LPCTSTR line, unsigned long lineLength)
 {
 	if (linePos < lineLength)
 	{
@@ -197,7 +197,7 @@ SVNLineDiff::~SVNLineDiff()
 	svn_pool_destroy(m_pool);
 };
 
-bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, apr_size_t len1, LPCTSTR line2, apr_size_t len2, bool bWordDiff)
+bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, int len1, LPCTSTR line2, int len2, bool bWordDiff)
 {
 	if (m_subpool)
 		svn_pool_clear(m_subpool);
@@ -221,7 +221,7 @@ bool SVNLineDiff::Diff(svn_diff_t **diff, LPCTSTR line1, apr_size_t len1, LPCTST
 	if (err)
 	{
 		svn_error_clear(err);
-        svn_pool_clear(m_subpool);
+		svn_pool_clear(m_subpool);
 		return false;
 	}
 	return true;
@@ -273,8 +273,8 @@ bool SVNLineDiff::IsCharWhiteSpace(TCHAR c)
 bool SVNLineDiff::ShowInlineDiff(svn_diff_t* diff)
 {
 	svn_diff_t* tempdiff = diff;
-	apr_size_t diffcounts = 0;
-	apr_size_t origcounts = 0;
+	int diffcounts = 0;
+	int origcounts = 0;
 	apr_off_t origsize = 0;
 	apr_off_t diffsize = 0;
 	while (tempdiff)

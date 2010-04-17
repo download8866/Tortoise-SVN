@@ -122,15 +122,12 @@ public:
 	~CCrashReport()
 	{
 		UninstallEx pfnUninstallEx;
-		if (m_hDll)
+		if ((m_hDll)&&(m_lpvState))
 		{
-			if (m_lpvState)
-			{
-				pfnUninstallEx = (UninstallEx)GetProcAddress(m_hDll, "UninstallEx");
-				pfnUninstallEx(m_lpvState);
-			}
-			FreeLibrary(m_hDll);
+			pfnUninstallEx = (UninstallEx)GetProcAddress(m_hDll, "UninstallEx");
+			pfnUninstallEx(m_lpvState);
 		}
+		FreeLibrary(m_hDll);
 	}
 	/**
 	 * Adds a file which will be included in the crash report. Use this

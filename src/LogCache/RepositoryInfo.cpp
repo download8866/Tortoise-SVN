@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 
 #include "StdAfx.h"
 #include "RepositoryInfo.h"
-#include "./Containers/CachedLogInfo.h"
+#include "CachedLogInfo.h"
 #include "LogCacheSettings.h"
 
 #include "svn_client.h"
@@ -211,7 +211,7 @@ void CRepositoryInfo::CData::Remove (SPerRepositoryInfo* info)
     TData::iterator iter = std::find (data.begin(), data.end(), info);
     assert (iter != data.end());
 
-    *iter = data.back();
+    *iter = *data.rbegin();
     data.pop_back();
 
     // remove it from the indices
@@ -254,67 +254,66 @@ void CRepositoryInfo::CData::Load (const CString& fileName)
 	CFile file;
 	if (!file.Open (fileName, CFile::modeRead | CFile::shareDenyWrite))
 		return;
+    CArchive stream (&file, CArchive::load);
 
+    // format ID
+
+    int version = 0;
 	try
 	{
-        CArchive stream (&file, CArchive::load);
-
-        // format ID
-
-        int version = 0;
-	    stream >> version;
-
-        // ignore newer formats
-
-        if (version > VERSION)
-            return;
-
-        // number of entries to read
-        // (old file don't have a version info -> "version" is the count)
-
-        int count = 0;
-        if (version >= MIN_COMPATIBLE_VERSION)
-            stream >> count;
-        else
-            count = version;
-
-        // actually load the data
-
-        for (int i = 0; i < count; ++i)
-        {
-            int connectionState = online;
-
-            SPerRepositoryInfo info;
-            stream >> info.root 
-                   >> info.uuid
-                   >> info.headURL
-                   >> info.headRevision
-                   >> info.headLookupTime;
-
-            if (version >= MIN_COMPATIBLE_VERSION)
-                stream >> connectionState;
-
-            info.connectionState = static_cast<ConnectionState>(connectionState);
-
-            if (version >= MIN_FILENAME_VERSION)
-                stream >> info.fileName;
-            else
-                info.fileName = info.uuid;
-
-            // caches from 1.5.x may have a number of alias entries
-            // -> use at most one
-
-            if (   (version >= MIN_FILENAME_VERSION)
-                || (uuidIndex.find (info.uuid) == uuidIndex.end()))
-            {
-                Add (info);
-            }
-        }
+		stream >> version;
 	}
 	catch (...)
 	{
 		return;
 	}
+
+    // ignore newer formats
+
+    if (version > VERSION)
+        return;
+
+    // number of entries to read
+    // (old file don't have a version info -> "version" is the count)
+
+    int count = 0;
+    if (version >= MIN_COMPATIBLE_VERSION)
+        stream >> count;
+    else
+        count = version;
+
+    // actually load the data
+
+    for (int i = 0; i < count; ++i)
+    {
+        int connectionState = online;
+
+        SPerRepositoryInfo info;
+        stream >> info.root 
+               >> info.uuid
+               >> info.headURL
+               >> info.headRevision
+               >> info.headLookupTime;
+
+        if (version >= MIN_COMPATIBLE_VERSION)
+            stream >> connectionState;
+
+        info.connectionState = static_cast<ConnectionState>(connectionState);
+
+        if (version >= MIN_FILENAME_VERSION)
+            stream >> info.fileName;
+        else
+            info.fileName = info.uuid;
+
+        // caches from 1.5.x may have a number of alias entries
+        // -> use at most one
+
+        if (   (version >= MIN_FILENAME_VERSION)
+            || (uuidIndex.find (info.uuid) == uuidIndex.end()))
+        {
+            Add (info);
+        }
+    }
 }
 
 void CRepositoryInfo::CData::Save (const CString& fileName) const
@@ -368,7 +367,7 @@ bool CRepositoryInfo::CData::empty() const
 const CRepositoryInfo::SPerRepositoryInfo* const * 
 CRepositoryInfo::CData::begin() const
 {
-    return data.empty() ? NULL : &data.front();
+    return data.empty() ? NULL : &data.at(0);
 }
 
 const CRepositoryInfo::SPerRepositoryInfo* const * 
@@ -418,15 +417,6 @@ bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info)
     {
         // Default behavior is "Ask the user what to do"
 
-		// TODO: improve the dialog with
-		// * the error message (why do we think the repository is offline?)
-		//   this could be shown in the dialog itself in a label, a separate popup
-		//   from a "show error" button or simply a tooltip
-		// * a button to retry
-		//
-		// for this, the IsOffline() method needs changing:
-		// * requires a param for the error message (or the SVNError exception object)
-		// * an int return type which tells either to cancel, go offline, retry, ...
         CGoOffline dialog;
         dialog.DoModal();
         if (dialog.asDefault)
@@ -505,7 +495,7 @@ CString CRepositoryInfo::GetRepositoryRootAndUUID ( const CTSVNPath& url
 
     if (info == NULL)
     {
-        root = svn.GetRepositoryRootAndUUID (url, false, uuid);
+        root = svn.GetRepositoryRootAndUUID (url, uuid);
         info = data.Lookup (uuid, root);
     }
     else
@@ -542,17 +532,9 @@ revision_t CRepositoryInfo::GetHeadRevision (CString uuid, const CTSVNPath& url)
 
     __time64_t now = CTime::GetCurrentTime().GetTime();
 
-    // is the current info outdated?
-    // (and don't try to update the info if we are off-line,
-    //  as long as we have at least *some* HEAD info).
-
-    bool outdated = info->connectionState == online
-        ? now - info->headLookupTime > CSettings::GetMaxHeadAge()
-        : false;
-
     // is there a valid cached entry?
 
-    if (   outdated
+    if (   (now - info->headLookupTime > CSettings::GetMaxHeadAge())
         || !IsParentDirectory (info->headURL, sURL)
         || (info->headRevision == NO_REVISION))
     {
@@ -634,7 +616,7 @@ bool CRepositoryInfo::IsOffline (const CString& uuid, const CString& root, bool 
 
 // get the connection state (uninterpreted)
 
-ConnectionState 
+CRepositoryInfo::ConnectionState 
 CRepositoryInfo::GetConnectionState (const CString& uuid, const CString& url)
 {
 	// find the info
@@ -678,9 +660,8 @@ void CRepositoryInfo::Flush()
         data.Save (fileName);
 		modified = false;
 	}
-	catch (CException* e)
+	catch (CException* /*e*/)
 	{
-		e->Delete();
 	}
 }
 
@@ -700,7 +681,7 @@ SVN& CRepositoryInfo::GetSVN() const
 
 // access to the result of the last SVN operation
 
-const svn_error_t* CRepositoryInfo::GetLastError() const
+svn_error_t* CRepositoryInfo::GetLastError() const
 {
     return svn.Err;
 }

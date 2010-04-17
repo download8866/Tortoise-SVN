@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,9 +50,6 @@ protected:
 
 	afx_msg void OnBnClickedResolveusingtheirs();
 	afx_msg void OnBnClickedResolveusingmine();
-	afx_msg void OnBnClickedShowlog();
-	afx_msg void OnBnClickedBranchlog();
-	afx_msg void OnBnClickedHelp();
 
 	/// called after the thread has finished
 	LRESULT OnAfterThread(WPARAM /*wParam*/, LPARAM /*lParam*/);
@@ -70,6 +67,9 @@ private:
 	svn_wc_conflict_version_t *	src_right;
 	svn_wc_conflict_reason_t conflict_reason;
 	svn_wc_conflict_action_t conflict_action;
+public:
+	afx_msg void OnBnClickedShowlog();
+	afx_msg void OnBnClickedHelp();
 };
 
 static UINT WM_AFTERTHREAD = RegisterWindowMessage(_T("TORTOISESVN_AFTERTHREAD_MSG"));

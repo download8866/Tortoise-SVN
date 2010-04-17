@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 #include "TortoiseProc.h"
 #include "InputDlg.h"
 #include "Registry.h"
-#include "AppUtils.h"
 
 
 IMPLEMENT_DYNAMIC(CInputDlg, CResizableStandAloneDialog)
@@ -52,11 +51,6 @@ END_MESSAGE_MAP()
 BOOL CInputDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_INPUTTEXT, IDC_INPUTTEXT, IDC_INPUTTEXT, IDC_INPUTTEXT);
-	m_aeroControls.SubclassControl(this, IDC_CHECKBOX);
-	m_aeroControls.SubclassControl(this, IDC_HINTTEXT);
-	m_aeroControls.SubclassOkCancel(this);
 
 	if (m_pProjectProperties)
 		m_cInput.Init(*m_pProjectProperties);
@@ -102,9 +96,6 @@ BOOL CInputDlg::OnInitDialog()
 		GetDlgItem(IDC_CHECKBOX)->ShowWindow(SW_HIDE);
 	}
 
-	CAppUtils::SetAccProperty(m_cInput.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
-	CAppUtils::SetAccProperty(m_cInput.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
-
 	AddAnchor(IDC_HINTTEXT, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_INPUTTEXT, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_CHECKBOX, BOTTOM_LEFT, BOTTOM_RIGHT);
@@ -133,8 +124,15 @@ BOOL CInputDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if (OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+				}
+			}
 			break;
 		}
 	}

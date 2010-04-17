@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,11 +63,6 @@ BOOL CBlameDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(IDC_DIFFGROUP);
-	m_aeroControls.SubclassControl(this, IDC_USETEXTVIEWER);
-	m_aeroControls.SubclassControl(this, IDC_INCLUDEMERGEINFO);
-	m_aeroControls.SubclassOkCancelHelp(this);
-
 	AdjustControlSize(IDC_USETEXTVIEWER);
 	AdjustControlSize(IDC_IGNOREEOL);
 	AdjustControlSize(IDC_COMPAREWHITESPACES);
@@ -105,7 +100,7 @@ void CBlameDlg::OnOK()
 	EndRev = SVNRev(m_sEndRev);
 	if (!StartRev.IsValid())
 	{
-		ShowEditBalloon(IDC_REVISON_START, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVISON_START, IDS_ERR_INVALIDREV);
 		return;
 	}
 	EndRev = SVNRev(m_sEndRev);
@@ -115,7 +110,7 @@ void CBlameDlg::OnOK()
 	}
 	if (!EndRev.IsValid())
 	{
-		ShowEditBalloon(IDC_REVISION_END, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVISION_END, IDS_ERR_INVALIDREV);
 		return;
 	}
 	BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);

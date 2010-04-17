@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -59,7 +59,7 @@ bool CEditPropConflictDlg::SetPrejFile(const CTSVNPath& prejFile)
 	for (;;)
 	{
 		len = fread(contentbuf, sizeof(char), 10000, File);
-		m_sPrejText += CUnicodeUtils::GetUnicode(CStringA(contentbuf, (int)len));
+		m_sPrejText += CUnicodeUtils::GetUnicode(CStringA(contentbuf, len));
 		if (len < 10000)
 		{
 			fclose(File);
@@ -82,11 +82,6 @@ END_MESSAGE_MAP()
 BOOL CEditPropConflictDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_DIFFGROUP);
-	m_aeroControls.SubclassControl(this, IDC_RESOLVE);
-	m_aeroControls.SubclassControl(this, IDC_EDITPROPS);
-	m_aeroControls.SubclassControl(this, IDCANCEL);
 
 	CString sInfo;
 	sInfo.Format(IDS_PROPCONFLICT_INFO, (LPCTSTR)m_conflictItem.GetFileOrDirectoryName());

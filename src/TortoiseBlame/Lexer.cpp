@@ -22,10 +22,10 @@
 
 #include "TortoiseBlame.h"
 
-void TortoiseBlame::SetupLexer(LPCTSTR filename)
+void TortoiseBlame::SetupLexer(LPCSTR filename)
 {
-	TCHAR line[20];
-	const TCHAR * lineptr = _tcsrchr(filename, '.');
+	char line[20];
+	const char * lineptr = _tcsrchr(filename, '.');
 
 	if (lineptr)
 	{

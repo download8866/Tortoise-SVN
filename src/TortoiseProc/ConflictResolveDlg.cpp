@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,16 +63,11 @@ BOOL CConflictResolveDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
 
-	ExtendFrameIntoClientArea(0, IDC_GROUP, 0, IDC_GROUP);
-	m_aeroControls.SubclassControl(this, IDC_INFOLABEL);
-	m_aeroControls.SubclassControl(this, IDC_ABORT);
-	m_aeroControls.SubclassControl(this, IDHELP);
-
 	// without a conflict description, this dialog is useless.
 	ASSERT(m_pConflictDescription);
 
-	CString filepath = CUnicodeUtils::GetUnicode(m_pConflictDescription->path);
-	CString filename = CPathUtils::GetFileNameFromPath(filepath);
+	CString filename = CUnicodeUtils::GetUnicode(m_pConflictDescription->path);
+	filename = CPathUtils::GetFileNameFromPath(filename);
 
 	CString sInfoText;
 	CString sActionText;
@@ -81,7 +76,7 @@ BOOL CConflictResolveDlg::OnInitDialog()
 	{
 	case svn_wc_conflict_action_edit:
 		if (m_pConflictDescription->property_name)
-			sActionText.FormatMessage(IDS_EDITCONFLICT_PROP_ACTIONINFO_MODIFY, 
+			sActionText.Format(IDS_EDITCONFLICT_PROP_ACTIONINFO_MODIFY, 
 				(LPCTSTR)CUnicodeUtils::GetUnicode(m_pConflictDescription->property_name), 
 				(LPCTSTR)filename);
 		else
@@ -89,7 +84,7 @@ BOOL CConflictResolveDlg::OnInitDialog()
 		break;
 	case svn_wc_conflict_action_add:
 		if (m_pConflictDescription->property_name)
-			sActionText.FormatMessage(IDS_EDITCONFLICT_PROP_ACTIONINFO_ADD, 
+			sActionText.Format(IDS_EDITCONFLICT_PROP_ACTIONINFO_ADD, 
 				(LPCTSTR)CUnicodeUtils::GetUnicode(m_pConflictDescription->property_name), 
 				(LPCTSTR)filename);
 		else
@@ -97,7 +92,7 @@ BOOL CConflictResolveDlg::OnInitDialog()
 		break;
 	case svn_wc_conflict_action_delete:
 		if (m_pConflictDescription->property_name)
-			sActionText.FormatMessage(IDS_EDITCONFLICT_PROP_ACTIONINFO_DELETE,
+			sActionText.Format(IDS_EDITCONFLICT_PROP_ACTIONINFO_DELETE,
 				(LPCTSTR)CUnicodeUtils::GetUnicode(m_pConflictDescription->property_name),
 				(LPCTSTR)filename);
 		else
@@ -128,7 +123,7 @@ BOOL CConflictResolveDlg::OnInitDialog()
 		break;
 	}
 
-	sInfoText = filepath + _T("\r\n") + sActionText + _T(" ") + sReasonText;
+	sInfoText = sActionText + _T(" ") + sReasonText;
 	SetDlgItemText(IDC_INFOLABEL, sInfoText);
 
 	// if we deal with a binary file, editing the conflict isn't possible
@@ -204,7 +199,7 @@ void CConflictResolveDlg::OnBnClickedEditconflict()
 		// no base file, start TortoiseMerge in Two-way diff mode
 		CAppUtils::StartExtDiff(CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->their_file)),
 			CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->my_file)),
-			n3, n1, flags, 0);
+			n3, n1, flags);
 	}
 	else
 	{

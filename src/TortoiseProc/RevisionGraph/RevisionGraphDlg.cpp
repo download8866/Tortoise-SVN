@@ -47,7 +47,7 @@ CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
 	: CResizableStandAloneDialog(CRevisionGraphDlg::IDD, pParent)
 	, m_hAccel(NULL)
 	, m_bFetchLogs(true)
-	, m_fZoomFactor(DEFAULT_ZOOM)
+	, m_fZoomFactor(0.5)
 {
     // GDI+ initialization
 
@@ -58,10 +58,6 @@ CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
 
 	DWORD dwOpts = CRegStdDWORD(_T("Software\\TortoiseSVN\\RevisionGraphOptions"), 0x1ff199);
     m_Graph.m_state.GetOptions()->SetRegistryFlags (dwOpts, 0x7fbf);
-
-    // begin background operation
-
-    StartWorkerThread();
 }
 
 CRevisionGraphDlg::~CRevisionGraphDlg()
@@ -247,63 +243,75 @@ BOOL CRevisionGraphDlg::OnInitDialog()
 	m_Graph.Init(this, &graphrect);
 	m_Graph.SetOwner(this);
 	m_Graph.UpdateWindow();
-    DoZoom (DEFAULT_ZOOM);
+    DoZoom (0.75);
 
 	EnableSaveRestore(_T("RevisionGraphDlg"));
+
+    assert (m_Graph.m_bThreadRunning == TRUE);
+	if (AfxBeginThread(WorkerThread, this)== NULL)
+	{
+        InterlockedExchange (&m_Graph.m_bThreadRunning, FALSE);
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
+	}
 	if (hWndExplorer)
 		CenterWindow(CWnd::FromHandle(hWndExplorer));
-
 	return TRUE;  // return TRUE unless you set the focus to a control
 }
 
-bool CRevisionGraphDlg::UpdateData()
+UINT CRevisionGraphDlg::WorkerThread(LPVOID pVoid)
 {
+	CRevisionGraphDlg*	pDlg;
+	pDlg = (CRevisionGraphDlg*)pVoid;
+	assert (pDlg->m_Graph.m_bThreadRunning == TRUE);
 	CoInitialize(NULL);
 
-    if (m_bFetchLogs)
+    if (pDlg->m_bFetchLogs)
     {
-    	CProgressDlg progress;
-	    progress.SetTitle(IDS_REVGRAPH_PROGTITLE);
-	    progress.SetCancelMsg(IDS_REVGRAPH_PROGCANCEL);
-	    progress.SetTime();
-	    progress.SetProgress(0, 100);
-		if (m_pTaskbarList)
+	    pDlg->m_Graph.m_pProgress = new CProgressDlg();
+	    pDlg->m_Graph.m_pProgress->SetTitle(IDS_REVGRAPH_PROGTITLE);
+	    pDlg->m_Graph.m_pProgress->SetCancelMsg(IDS_REVGRAPH_PROGCANCEL);
+	    pDlg->m_Graph.m_pProgress->SetTime();
+	    pDlg->m_Graph.m_pProgress->SetProgress(0, 100);
+		if (pDlg->m_pTaskbarList)
 		{
-			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_NORMAL);
-			m_pTaskbarList->SetProgressValue(m_hWnd, 0, 100);
+			pDlg->m_pTaskbarList->SetProgressState(pDlg->m_hWnd, TBPF_NORMAL);
+			pDlg->m_pTaskbarList->SetProgressValue(pDlg->m_hWnd, 0, 100);
 		}
 
-        svn_revnum_t pegRev = m_Graph.m_pegRev.IsNumber()
-                            ? (svn_revnum_t)m_Graph.m_pegRev
+        svn_revnum_t pegRev = pDlg->m_Graph.m_pegRev.IsNumber()
+                            ? (svn_revnum_t)pDlg->m_Graph.m_pegRev
                             : (svn_revnum_t)-1;
 
-	    if (!m_Graph.FetchRevisionData (m_Graph.m_sPath, pegRev, &progress, m_pTaskbarList, m_hWnd))
-		    CMessageBox::Show ( m_hWnd
-                              , m_Graph.m_state.GetLastErrorMessage()
+	    if (!pDlg->m_Graph.FetchRevisionData (pDlg->m_Graph.m_sPath, pegRev, pDlg->m_Graph.m_pProgress, pDlg->m_pTaskbarList, pDlg->m_hWnd))
+		    CMessageBox::Show ( pDlg->m_hWnd
+                              , pDlg->m_Graph.m_state.GetLastErrorMessage()
                               , _T("TortoiseSVN")
                               , MB_ICONERROR);
 
-        progress.Stop();
-		if (m_pTaskbarList)
+        pDlg->m_Graph.m_pProgress->Stop();
+        delete pDlg->m_Graph.m_pProgress;
+        pDlg->m_Graph.m_pProgress = NULL;
+		if (pDlg->m_pTaskbarList)
 		{
-			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_NOPROGRESS);
+			pDlg->m_pTaskbarList->SetProgressState(pDlg->m_hWnd, TBPF_NOPROGRESS);
 		}
 
-    	m_bFetchLogs = false;	// we've got the logs, no need to fetch them a second time
+    	pDlg->m_bFetchLogs = false;	// we've got the logs, no need to fetch them a second time
     }
 
     // standard plus user settings
 
-    if (m_Graph.AnalyzeRevisionData())
+    if (pDlg->m_Graph.AnalyzeRevisionData())
     {
-        UpdateStatusBar();
-        UpdateOptionAvailability();
+        pDlg->UpdateStatusBar();
+        pDlg->UpdateOptionAvailability();
     }
 
 	CoUninitialize();
-    m_Graph.PostMessage (CRevisionGraphWnd::WM_WORKERTHREADDONE, 0, 0);
+	InterlockedExchange(&pDlg->m_Graph.m_bThreadRunning, FALSE);
 
-    return true;
+    pDlg->m_Graph.SendMessage (CRevisionGraphWnd::WM_WORKERTHREADDONE, 0, 0);
+	return 0;
 }
 
 void CRevisionGraphDlg::OnSize(UINT nType, int cx, int cy)
@@ -390,17 +398,17 @@ void CRevisionGraphDlg::DoZoom (float zoom)
 
 void CRevisionGraphDlg::OnViewZoomin()
 {
-    DoZoom (min (MAX_ZOOM, m_fZoomFactor / ZOOM_STEP));
+    DoZoom (min (2.0f, m_fZoomFactor / .9f));
 }
 
 void CRevisionGraphDlg::OnViewZoomout()
 {
-    DoZoom (max (MIN_ZOOM, m_fZoomFactor * ZOOM_STEP));
+    DoZoom (max (0.01f, m_fZoomFactor * .9f));
 }
 
 void CRevisionGraphDlg::OnViewZoom100()
 {
-	DoZoom (DEFAULT_ZOOM);
+	DoZoom (1.0);
 }
 
 void CRevisionGraphDlg::OnViewZoomHeight()
@@ -410,10 +418,10 @@ void CRevisionGraphDlg::OnViewZoomHeight()
 
 	float horzfact = (windowRect.Width() - 4.0f)/(4.0f + graphRect.Width());
 	float vertfact = (windowRect.Height() - 4.0f)/(4.0f + graphRect.Height());
-    if ((horzfact < vertfact) && (horzfact < MAX_ZOOM))
+    if ((horzfact < vertfact) && (horzfact < 2.0f))
     	vertfact = (windowRect.Height() - 20.0f)/(4.0f + graphRect.Height());
 
-    DoZoom (min (MAX_ZOOM, vertfact));
+    DoZoom (min (2.0f, vertfact));
 }
 
 void CRevisionGraphDlg::OnViewZoomWidth()
@@ -424,10 +432,10 @@ void CRevisionGraphDlg::OnViewZoomWidth()
 
 	float horzfact = (windowRect.Width() - 4.0f)/(4.0f + graphRect.Width());
 	float vertfact = (windowRect.Height() - 4.0f)/(4.0f + graphRect.Height());
-    if ((vertfact < horzfact) && (vertfact < MAX_ZOOM))
+    if ((vertfact < horzfact) && (vertfact < 2.0f))
     	horzfact = (windowRect.Width() - 20.0f)/(4.0f + graphRect.Width());
 
-    DoZoom (min (MAX_ZOOM, horzfact));
+    DoZoom (min (2.0f, horzfact));
 }
 
 void CRevisionGraphDlg::OnViewZoomAll()
@@ -439,12 +447,12 @@ void CRevisionGraphDlg::OnViewZoomAll()
 	float horzfact = (windowRect.Width() - 4.0f)/(4.0f + graphRect.Width());
 	float vertfact = (windowRect.Height() - 4.0f)/(4.0f + graphRect.Height());
 
-    DoZoom (min (MAX_ZOOM, min(horzfact, vertfact)));
+    DoZoom (min (2.0f, min(horzfact, vertfact)));
 }
 
 void CRevisionGraphDlg::OnMenuexit()
 {
-    if (!m_Graph.IsUpdateJobRunning())
+	if (!m_Graph.m_bThreadRunning)
 		EndDialog(IDOK);
 }
 
@@ -515,17 +523,14 @@ BOOL CRevisionGraphDlg::ToggleOption (UINT controlID)
 {
     // check request for validity
 
-	if (m_Graph.IsUpdateJobRunning())
+	if (m_Graph.m_bThreadRunning)
 	{
-        // restore previous state
-
 		int state = m_ToolBar.GetToolBarCtrl().GetState(controlID);
 		if (state & TBSTATE_CHECKED)
 			state &= ~TBSTATE_CHECKED;
 		else
 			state |= TBSTATE_CHECKED;
 		m_ToolBar.GetToolBarCtrl().SetState (controlID, state);
-
 		return FALSE;
 	}
 
@@ -589,13 +594,19 @@ BOOL CRevisionGraphDlg::OnToggleRedrawOption (UINT controlID)
 
 void CRevisionGraphDlg::StartWorkerThread()
 {
-    if (!m_Graph.IsUpdateJobRunning())
-        m_Graph.updateJob.reset (new CFuture<bool>(this, &CRevisionGraphDlg::UpdateData));
+	if (InterlockedExchange(&m_Graph.m_bThreadRunning, TRUE) == TRUE)
+        return;
+
+	if (AfxBeginThread(WorkerThread, this)==NULL)
+	{
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
+	    InterlockedExchange(&m_Graph.m_bThreadRunning, FALSE);
+	}
 }
 
 void CRevisionGraphDlg::OnCancel()
 {
-    if (!m_Graph.IsUpdateJobRunning())
+	if (!m_Graph.m_bThreadRunning)
 		__super::OnCancel();
 }
 
@@ -842,4 +853,3 @@ void CRevisionGraphDlg::UpdateOptionAvailability()
     UpdateOptionAvailability (ID_VIEW_SHOWWCREV, isWCPath);
     UpdateOptionAvailability (ID_VIEW_SHOWWCMODIFICATION, isWCPath);
 }
-

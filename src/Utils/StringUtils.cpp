@@ -19,7 +19,6 @@
 #include "StdAfx.h"
 #include "UnicodeUtils.h"
 #include "stringutils.h"
-#include "ClipboardHelper.h"
 
 int strwildcmp(const char *wild, const char *string)
 {
@@ -116,6 +115,7 @@ BOOL CStringUtils::WildCardMatch(const CString& wildcard, const CString& string)
 CString CStringUtils::LinesWrap(const CString& longstring, int limit /* = 80 */, bool bCompactPaths /* = true */)
 {
 	CString retString;
+	CStringArray arWords;
 	if ((longstring.GetLength() < limit) || (limit == 0))
 		return longstring;	// no wrapping needed.
 	// now start breaking the string into lines
@@ -206,63 +206,135 @@ void CStringUtils::RemoveAccelerators(CString& text)
 	}
 }
 
+
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID lcid, HWND hOwningWnd)
 {
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
-		HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength()+1);
+		HGLOBAL hClipboardData;
+		hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipdata.GetLength()+1);
 		if (hClipboardData)
 		{
-			char* pchData = (char*)GlobalLock(hClipboardData);
+			char * pchData;
+			pchData = (char*)GlobalLock(hClipboardData);
 			if (pchData)
 			{
 				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-				GlobalUnlock(hClipboardData);
-				if (SetClipboardData(CF_TEXT, hClipboardData))
+				if (GlobalUnlock(hClipboardData))
 				{
-					HANDLE hlocmem = CClipboardHelper::GlobalAlloc(sizeof(LCID));
-					if (hlocmem)
+					if (SetClipboardData(CF_TEXT, hClipboardData)==NULL)
 					{
-						PLCID plcid = (PLCID)GlobalLock(hlocmem);
-						if (plcid)
+						HANDLE hlocmem = GlobalAlloc(GMEM_MOVEABLE|GMEM_DDESHARE, sizeof(LCID));
+						if (hlocmem)
 						{
-							*plcid = lcid;
-							SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
+							PLCID plcid = (PLCID)GlobalLock(hlocmem);
+							if (plcid)
+							{
+								*plcid = lcid;
+								SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));	
+							}
+							GlobalUnlock(hlocmem);
 						}
-						GlobalUnlock(hlocmem);
+						CloseClipboard();
+						return true;
 					}
-					return true;
+				}
+				else
+				{
+					CloseClipboard();
+					return false;
 				}
 			}
+			else
+			{
+				CloseClipboard();
+				return false;
+			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return false;
 	}
 	return false;
 }
 
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND hOwningWnd)
 {
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
-		HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc((sClipdata.GetLength()+1)*sizeof(WCHAR));
+		HGLOBAL hClipboardData;
+		hClipboardData = GlobalAlloc(GMEM_DDESHARE, (sClipdata.GetLength()+1)*sizeof(WCHAR));
 		if (hClipboardData)
 		{
-			WCHAR* pchData = (WCHAR*)GlobalLock(hClipboardData);
+			WCHAR * pchData;
+			pchData = (WCHAR*)GlobalLock(hClipboardData);
 			if (pchData)
 			{
 				_tcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
-				GlobalUnlock(hClipboardData);
-				if (SetClipboardData(CF_UNICODETEXT, hClipboardData))
+				if (GlobalUnlock(hClipboardData))
 				{
-					// no need to also set CF_TEXT : the OS does this
-					// automatically.
-					return true;
+					if (SetClipboardData(CF_UNICODETEXT, hClipboardData) != NULL)
+					{
+						CStringA sClipdataA = CStringA(sClipdata);
+						HGLOBAL hClipboardDataA;
+						hClipboardDataA = GlobalAlloc(GMEM_DDESHARE, sClipdataA.GetLength()+1);
+						if (hClipboardDataA)
+						{
+							char * pchDataA;
+							pchDataA = (char*)GlobalLock(hClipboardDataA);
+							if (pchDataA)
+							{
+								strcpy_s(pchDataA, sClipdataA.GetLength()+1, (LPCSTR)sClipdataA);
+								if (GlobalUnlock(hClipboardDataA))
+								{
+									if (SetClipboardData(CF_TEXT, hClipboardDataA) != NULL)
+									{
+										CloseClipboard();
+										return true;
+									}
+								}
+								else
+								{
+									CloseClipboard();
+									return false;
+								}
+							}
+							else
+							{
+								CloseClipboard();
+								return false;
+							}
+						}
+
+						CloseClipboard();
+						return false;
+					}
+				}
+				else
+				{
+					CloseClipboard();
+					return false;
 				}
 			}
+			else
+			{
+				CloseClipboard();
+				return false;
+			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return false;
 	}
 	return false;
 }
@@ -272,28 +344,50 @@ bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningW
 	UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
 	if (cFormat == 0)
 		return false;
-	CClipboardHelper clipboardHelper;
-	if (clipboardHelper.Open(hOwningWnd))
+	if (OpenClipboard(hOwningWnd))
 	{
 		EmptyClipboard();
-		HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength()+1);
+		HGLOBAL hClipboardData;
+		hClipboardData = GlobalAlloc(GMEM_DDESHARE, sClipdata.GetLength()+1);
 		if (hClipboardData)
 		{
-			char* pchData = (char*)GlobalLock(hClipboardData);
+			char * pchData;
+			pchData = (char*)GlobalLock(hClipboardData);
 			if (pchData)
 			{
 				strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-				GlobalUnlock(hClipboardData);
-				if (SetClipboardData(cFormat,hClipboardData)==NULL)
+				if (GlobalUnlock(hClipboardData))
 				{
+					if (SetClipboardData(cFormat,hClipboardData)==NULL)
+					{
+						CloseClipboard();
+						return false;
+					}
+					if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
+					{
+						CloseClipboard();
+						return false;
+					}
+				}
+				else
+				{
+					CloseClipboard();
 					return false;
 				}
-				if (SetClipboardData(CF_TEXT,hClipboardData))
-				{
-					return true;
-				}
+			}
+			else
+			{
+				CloseClipboard();
+				return false;
 			}
 		}
+		else
+		{
+			CloseClipboard();
+			return false;
+		}
+		CloseClipboard();
+		return true;
 	}
 	return false;
 }
@@ -315,17 +409,15 @@ bool CStringUtils::ReadStringFromTextFile(const CString& path, CString& text)
 		text = CUnicodeUtils::GetUnicode(filecontent);
 		file.Close();
 	} 
-	catch (CFileException* pE)
+	catch (CFileException* /*pE*/)
 	{
 		text.Empty();
-		pE->Delete();
 	}
 	return true;
 }
 
 #endif // #ifdef _MFC_VER
 
-#if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 int CStringUtils::GetMatchingLength (const CString& lhs, const CString& rhs)
 {
 	int lhsLength = lhs.GetLength();
@@ -342,53 +434,6 @@ int CStringUtils::GetMatchingLength (const CString& lhs, const CString& rhs)
 	return maxResult;
 }
 
-int CStringUtils::FastCompareNoCase (const CStringW& lhs, const CStringW& rhs)
-{
-	// attempt latin-only comparison
-
-	INT_PTR count = min (lhs.GetLength(), rhs.GetLength()+1);
-	const wchar_t* left = lhs;
-	const wchar_t* right = rhs;
-	for (const wchar_t* last = left + count+1; left < last; ++left, ++right)
-	{
-		int leftChar = *left;
-		int rightChar = *right;
-
-		int diff = leftChar - rightChar;
-		if (diff != 0)
-		{
-			// case-sensitive comparison found a difference
-
-			if ((leftChar | rightChar) >= 0x80)
-			{
-				// non-latin char -> fall back to CRT code
-				// (full comparison required as we might have
-				// skipped special chars / UTF plane selectors)
-
-				return _wcsicmp (lhs, rhs);
-			}
-
-			// normalize to lower case
-
-			if ((leftChar >= 'A') && (leftChar <= 'Z'))
-				leftChar += 'a' - 'A';
-			if ((rightChar >= 'A') && (rightChar <= 'Z'))
-				rightChar += 'a' - 'A';
-
-			// compare again
-
-			diff = leftChar - rightChar;
-			if (diff != 0)
-				return diff;
-		}
-	}
-
-	// must be equal (both ended with a 0)
-
-	return 0;
-}
-#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
-
 bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
 {
 	DWORD dwWritten = 0;
@@ -399,7 +444,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	if (bUTF8)
 	{
 		std::string buf = CUnicodeUtils::StdGetUTF8(text);
-		if (!WriteFile(hFile, buf.c_str(), (DWORD)buf.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, buf.c_str(), buf.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -407,7 +452,7 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	}
 	else
 	{
-		if (!WriteFile(hFile, text.c_str(), (DWORD)text.length(), &dwWritten, NULL))
+		if (!WriteFile(hFile, text.c_str(), text.length(), &dwWritten, NULL))
 		{
 			CloseHandle(hFile);
 			return false;
@@ -417,42 +462,17 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
 	return true;
 }
 
-inline static void PipeToNull(TCHAR* ptr)
-{
-	if (*ptr == '|')
-		*ptr = '\0';
-}
-
-void CStringUtils::PipesToNulls(TCHAR* buffer, size_t length)
-{
-	TCHAR* ptr = buffer + length;
-	while (ptr != buffer)
-	{
-		PipeToNull(ptr);
-		ptr--;
-	}
-}
-
-void CStringUtils::PipesToNulls(TCHAR* buffer)
-{
-	TCHAR* ptr = buffer;
-	while (*ptr != 0)
-	{
-		PipeToNull(ptr);
-		ptr++;
-	}
-}
-
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
 
 
-#if defined(_DEBUG) && defined(_MFC_VER)
+#if defined(_DEBUG)
 // Some test cases for these classes
 static class StringUtilsTest
 {
 public:
 	StringUtilsTest()
 	{
+#ifdef _MFC_VER
 		CString longline = _T("this is a test of how a string can be splitted into several lines");
 		CString splittedline = CStringUtils::WordWrap(longline, 10);
 		ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
@@ -481,6 +501,7 @@ public:
 		longline = _T("The commit comment is not properly formatted.\nFormat:\n  Field 1 : Field 2 : Field 3\nWhere:\nField 1 - Team Name|Triage|Merge|Goal\nField 2 - V1 Backlog Item ID|Triage Number|SVNBranch|Goal Name\nField 3 - Description of change\nExamples:\n\nTeam Gamma : B-12345 : Changed some code\n  Triage : 123 : Fixed production release bug\n  Merge : sprint0812 : Merged sprint0812 into prod\n  Goal : Implement Pre-Commit Hook : Commit message hook impl");
 		splittedline = CStringUtils::LinesWrap(longline, 80);
 		ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+#endif
 	}
 } StringUtilsTest;
 

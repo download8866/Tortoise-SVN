@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,11 +19,10 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "messagebox.h"
+#include "Revertdlg.h"
 #include "SVN.h"
 #include "Registry.h"
-#include "PathUtils.h"
-#include "AppUtils.h"
-#include "Revertdlg.h"
+#include ".\revertdlg.h"
 
 #define REFRESHTIMER   100
 
@@ -55,7 +54,6 @@ BEGIN_MESSAGE_MAP(CRevertDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
 	ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
 	ON_WM_TIMER()
-	ON_BN_CLICKED(IDC_DELUNVERSIONED, &CRevertDlg::OnBnClickedDelunversioned)
 END_MESSAGE_MAP()
 
 
@@ -63,12 +61,6 @@ END_MESSAGE_MAP()
 BOOL CRevertDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_REVERTLIST, IDC_REVERTLIST, IDC_REVERTLIST, IDC_REVERTLIST);
-	m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-	m_aeroControls.SubclassControl(this, IDC_UNVERSIONEDITEMS);
-	m_aeroControls.SubclassControl(this, IDC_DELUNVERSIONED);
-	m_aeroControls.SubclassOkCancelHelp(this);
 
 	m_RevertList.Init(SVNSLC_COLTEXTSTATUS | SVNSLC_COLPROPSTATUS, _T("RevertDlg"));
 	m_RevertList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
@@ -84,7 +76,6 @@ BOOL CRevertDlg::OnInitDialog()
 	AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
 	AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
 	AddAnchor(IDC_UNVERSIONEDITEMS, BOTTOM_RIGHT);
-	AddAnchor(IDC_DELUNVERSIONED, BOTTOM_LEFT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
 	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 	AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -96,7 +87,7 @@ BOOL CRevertDlg::OnInitDialog()
 	// blocking the dialog
 	if (AfxBeginThread(RevertThreadEntry, this)==0)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	InterlockedExchange(&m_bThreadRunning, TRUE);
 
@@ -123,7 +114,7 @@ UINT CRevertDlg::RevertThread()
 	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO | SVNSLC_SHOWNESTED, 
 						CTSVNPathList(),
 						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES|SVNSLC_SHOWADDED, true, true);
+						SVNSLC_SHOWDIRECTFILES|SVNSLC_SHOWADDED);
 
 	CTSVNPath commonDir = m_RevertList.GetCommonDirectory(false);
 	SetWindowText(m_sWindowTitle + _T(" - ") + commonDir.GetWinPathString());
@@ -220,8 +211,16 @@ BOOL CRevertDlg::PreTranslateMessage(MSG* pMsg)
 		switch (pMsg->wParam)
 		{
 		case VK_RETURN:
-			if(OnEnterPressed())
-				return TRUE;
+			{
+				if (GetAsyncKeyState(VK_CONTROL)&0x8000)
+				{
+					if ( GetDlgItem(IDOK)->IsWindowEnabled() )
+					{
+						PostMessage(WM_COMMAND, IDOK);
+					}
+					return TRUE;
+				}
+			}
 			break;
 		case VK_F5:
 			{
@@ -229,7 +228,7 @@ BOOL CRevertDlg::PreTranslateMessage(MSG* pMsg)
 				{
 					if (AfxBeginThread(RevertThreadEntry, this)==0)
 					{
-						OnCantStartThread();
+						CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 					}
 					else
 						InterlockedExchange(&m_bThreadRunning, TRUE);
@@ -246,7 +245,7 @@ LRESULT CRevertDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
 {
 	if (AfxBeginThread(RevertThreadEntry, this)==0)
 	{
-		OnCantStartThread();
+		CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
 	}
 	return 0;
 }
@@ -323,14 +322,4 @@ void CRevertDlg::OnTimer(UINT_PTR nIDEvent)
 		break;
 	}
 	__super::OnTimer(nIDEvent);
-}
-
-void CRevertDlg::OnBnClickedDelunversioned()
-{
-	CString sCmd;
-
-	sCmd.Format(_T("%s /command:delunversioned /path:\"%s\""),
-		(LPCTSTR)(CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe")),
-		(LPCTSTR)m_pathList.CreateAsteriskSeparatedString());
-	CAppUtils::LaunchApplication(sCmd, NULL, false);
 }

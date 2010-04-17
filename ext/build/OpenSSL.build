@@ -13,24 +13,18 @@
 	</target>
 	<target name="OpenSSL" depends="clean">
 		<delete file="..\..\..\common\openssl\del.bat" if="${file::exists('..\..\..\common\openssl\del.bat')}" />
-		<copy file="e_os.h" tofile="..\..\..\common\openssl\e_os.h" overwrite="true" />
-		<!-- patch the capi engine so that we can configure it whether it will load or not.
-		     TODO: once we have a release and people don't have problems with CAPI enabled
-			 or can resolve their issues by removing a duplicate certifcate from their CA store,
-			 we can remove our patching and just leave CAPI enabled permanently. -->
-		<copy file="e_capi.c" tofile="..\..\..\common\openssl\engines\e_capi.c" overwrite="true" />
-    <if test="${platform == 'win32'}">
+		<!-- OpenSSL links against bufferoverflowu.lib for x64 builds, but with VS2008, that library is no
+		     longer required: the functions are built in the c-runtime. To prevent a linker error (not finding
+		     the library) we patch the openssl configure script to omit that library if we're using VS2008 -->
+		<copy file="VC-32.pl" tofile="..\..\..\common\openssl\util\pl\VC-32.pl" overwrite="true" />
+		<if test="${platform == 'win32'}">
 			<exec program="perl" workingdir="..\..\..\common\openssl">
 				<arg value="Configure" />
 				<arg value="VC-WIN32" />
-				<arg value="no-asm" />
-				<arg value="enable-capieng" />
-				<arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
-				<arg value="-DOPENSSL_CAPIENG_DIALOG" />
 			</exec>
 			<exec program="cmd" workingdir="..\..\..\common\openssl">
 				<arg value="/c" />
-				<arg value="ms\do_ms" />
+				<arg value="ms\do_masm" />
 			</exec>
 			<exec program="nmake" workingdir="..\..\..\common\openssl">
 				<arg value="-f" />
@@ -41,10 +35,6 @@
 			<exec program="perl" workingdir="..\..\..\common\openssl">
 				<arg value="Configure" />
 				<arg value="VC-WIN64A" />
-				<arg value="no-asm" />
-				<arg value="enable-capieng" />
-				<arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
-				<arg value="-DOPENSSL_CAPIENG_DIALOG" />
 			</exec>
 			<exec program="cmd" workingdir="..\..\..\common\openssl">
 				<arg value="/c" />

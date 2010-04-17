@@ -35,7 +35,8 @@ CUrlDiffDlg::CUrlDiffDlg(CWnd* pParent /*=NULL*/)
 
 CUrlDiffDlg::~CUrlDiffDlg()
 {
-	delete m_pLogDlg;
+	if (m_pLogDlg)
+		delete m_pLogDlg;
 }
 
 void CUrlDiffDlg::DoDataExchange(CDataExchange* pDX)
@@ -59,9 +60,6 @@ END_MESSAGE_MAP()
 BOOL CUrlDiffDlg::OnInitDialog()
 {
 	CResizableStandAloneDialog::OnInitDialog();
-
-	ExtendFrameIntoClientArea(IDC_REVGROUP);
-	m_aeroControls.SubclassOkCancelHelp(this);
 
 	CTSVNPath svnPath(m_path);
 	m_bFolder = svnPath.IsDirectory();
@@ -131,7 +129,7 @@ void CUrlDiffDlg::OnOK()
 	Revision = SVNRev(m_rev);
 	if (!Revision.IsValid())
 	{
-		ShowEditBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
+		ShowBalloon(IDC_REVISION_NUM, IDS_ERR_INVALIDREV);
 		return;
 	}
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -93,16 +93,11 @@ public:
 	 */
 	void SetRevision(SVNRev rev);
 
-	/**
-	 * Sets the head revision for the tooltip
-	 */
-	void SetHeadRevision(svn_revnum_t rev);
-
 	void SetFocusToURL();
 
 	void SetIRepo(IRepo * pRepo) {m_pRepo = pRepo;}
 
-	SVNRev GetHeadRevision() {return m_headRev;}
+	void SetHeadRevision(const SVNRev& rev) {m_headRev = rev;}
 	afx_msg void OnGoUp();
 protected:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);

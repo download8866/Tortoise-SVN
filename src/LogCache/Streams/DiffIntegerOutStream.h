@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,17 +26,13 @@
 
 ///////////////////////////////////////////////////////////////
 //
-// CDiffOutStreamBase
+// CDiffIntegerOutStreamBase
 //
 //		enhances CPackedIntegerOutStreamBase as well as
 //		CPackedDWORDOutStreamBase to store the values 
 //		differentially, i.e. the difference to the previous 
 //		value is stored (in packed format). The base value 
 //		for the first element is 0.
-//
-//		Make sure that the differences between any two values
-//		don't exceed the limits defined by the respective
-//		base classes.
 //
 ///////////////////////////////////////////////////////////////
 
@@ -114,9 +110,9 @@ public:
 	using TBase::Add;
 };
 
-template class COutStreamImplBase< CDiffDWORDOutStream
-                                 , CDiffDWORDOutStreamBase
-                                 , DIFF_DWORD_STREAM_TYPE_ID>;
+template COutStreamImplBase< CDiffDWORDOutStream
+						   , CDiffDWORDOutStreamBase
+	                       , DIFF_DWORD_STREAM_TYPE_ID>;
 
 ///////////////////////////////////////////////////////////////
 //
@@ -150,6 +146,6 @@ public:
 	using TBase::Add;
 };
 
-template class COutStreamImplBase< CDiffIntegerOutStream
-                                 , CDiffIntegerOutStreamBase
-                                 , DIFF_INTEGER_STREAM_TYPE_ID>;
+template COutStreamImplBase< CDiffIntegerOutStream
+						   , CDiffIntegerOutStreamBase
+		                   , DIFF_INTEGER_STREAM_TYPE_ID>;

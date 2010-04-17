@@ -87,9 +87,8 @@ public:
 	 * Reads the string \text from the file \path in utf8 encoding.
 	 */
 	static bool ReadStringFromTextFile(const CString& path, CString& text);
-
 #endif
-#if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
+
 	/**
 	 * Find and return the number n of starting characters equal between 
 	 * \ref lhs and \ref rhs. (max n: lhs.Left(n) == rhs.Left(n))
@@ -97,21 +96,9 @@ public:
 	static int GetMatchingLength (const CString& lhs, const CString& rhs);
 
 	/**
-	 * Optimizing wrapper around CompareNoCase.
-	 */
-	static int FastCompareNoCase (const CStringW& lhs, const CStringW& rhs);
-#endif
-	/**
 	 * Writes the string \text to the file \path, either in utf16 or utf8 encoding,
 	 * depending on the \c bUTF8 param.
 	 */
 	static bool WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 = true);
 
-	/**
-	 * Replace all pipe (|) character in the string with a NULL character. Used
-	 * for passing into Win32 functions that require such representation
-	 */
-	static void PipesToNulls(TCHAR* buffer, size_t length);
-	static void PipesToNulls(TCHAR* buffer);
 };
-

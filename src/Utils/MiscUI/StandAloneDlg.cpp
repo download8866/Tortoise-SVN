@@ -19,31 +19,6 @@
 #include "stdafx.h"
 #include "Resource.h"
 #include "StandAloneDlg.h"
-#include "MessageBox.h"
-
-BEGIN_TEMPLATE_MESSAGE_MAP(CStandAloneDialogTmpl, BaseType, BaseType)
-	ON_WM_ERASEBKGND()
-	ON_WM_PAINT()
-	ON_WM_NCHITTEST()
-	ON_WM_DWMCOMPOSITIONCHANGED()
-END_MESSAGE_MAP()
-
-IMPLEMENT_DYNAMIC(CStandAloneDialog, CStandAloneDialogTmpl<CDialog>)
-CStandAloneDialog::CStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd /*= NULL*/)
-: CStandAloneDialogTmpl<CDialog>(nIDTemplate, pParentWnd)
-{
-}
-BEGIN_MESSAGE_MAP(CStandAloneDialog, CStandAloneDialogTmpl<CDialog>)
-END_MESSAGE_MAP()
-
-IMPLEMENT_DYNAMIC(CStateStandAloneDialog, CStandAloneDialogTmpl<CStateDialog>)
-CStateStandAloneDialog::CStateStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd /*= NULL*/)
-: CStandAloneDialogTmpl<CStateDialog>(nIDTemplate, pParentWnd)
-{
-}
-BEGIN_MESSAGE_MAP(CStateStandAloneDialog, CStandAloneDialogTmpl<CStateDialog>)
-END_MESSAGE_MAP()
-
 
 IMPLEMENT_DYNAMIC(CResizableStandAloneDialog, CStandAloneDialogTmpl<CResizableDialog>)
 CResizableStandAloneDialog::CResizableStandAloneDialog(UINT nIDTemplate, CWnd* pParentWnd /*= NULL*/)
@@ -136,25 +111,3 @@ void CResizableStandAloneDialog::OnNcRButtonUp(UINT nHitTest, CPoint point)
 	}
 	CStandAloneDialogTmpl<CResizableDialog>::OnNcRButtonUp(nHitTest, point);
 }
-
-void CResizableStandAloneDialog::OnCantStartThread()
-{
-	CMessageBox::Show(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-}
-
-bool CResizableStandAloneDialog::OnEnterPressed()
-{
-	if (GetAsyncKeyState(VK_CONTROL)&0x8000)
-	{
-		if ( GetDlgItem(IDOK)->IsWindowEnabled() )
-		{
-			if (DWORD(CRegStdDWORD(_T("Software\\TortoiseSVN\\CtrlEnter"), TRUE)))
-				PostMessage(WM_COMMAND, IDOK);
-		}
-		return true;
-	}
-	return false;
-}
-
-BEGIN_MESSAGE_MAP(CStateDialog, CDialog)
-END_MESSAGE_MAP()

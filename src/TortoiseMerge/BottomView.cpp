@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -39,71 +39,98 @@ bool CBottomView::OnContextMenu(CPoint point, int /*nLine*/, DiffStates state)
 		return false;
 
 	CMenu popup;
-	if (!popup.CreatePopupMenu())
-		return false;
-
+	if (popup.CreatePopupMenu())
+	{
 #define ID_USETHEIRBLOCK 1
 #define ID_USEYOURBLOCK 2
 #define ID_USETHEIRANDYOURBLOCK 3
 #define ID_USEYOURANDTHEIRBLOCK 4
-	const UINT uFlags = GetMenuFlags( state );
+		UINT uEnabled = MF_ENABLED;
+		if ((m_nSelBlockStart == -1)||(m_nSelBlockEnd == -1))
+			uEnabled |= MF_DISABLED | MF_GRAYED;
+		CString temp;
 
-	CString temp;
-	temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRBLOCK);
-	popup.AppendMenu(uFlags, ID_USETHEIRBLOCK, temp);
-	temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURBLOCK);
-	popup.AppendMenu(uFlags, ID_USEYOURBLOCK, temp);
-	temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURANDTHEIRBLOCK);
-	popup.AppendMenu(uFlags, ID_USEYOURANDTHEIRBLOCK, temp);
-	temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRANDYOURBLOCK);
-	popup.AppendMenu(uFlags, ID_USETHEIRANDYOURBLOCK, temp);
+		bool bImportantBlock = true;
+		switch (state)
+		{
+		case DIFFSTATE_UNKNOWN:
+			bImportantBlock = false;
+			break;
+		}
 
-	AddCutCopyAndPaste(popup);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USETHEIRBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USEYOURBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURANDTHEIRBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USEYOURANDTHEIRBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRANDYOURBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USETHEIRANDYOURBLOCK, temp);
 
-	CompensateForKeyboard(point);
+		popup.AppendMenu(MF_SEPARATOR, NULL);
 
-	int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
-	viewstate rightstate;
-	viewstate bottomstate;
-	viewstate leftstate;
-	switch (cmd)
-	{
-	case ID_USETHEIRBLOCK:
-		UseTheirTextBlock();
-		break;
-	case ID_USEYOURBLOCK:
-		UseMyTextBlock();
-		break;
-	case ID_USEYOURANDTHEIRBLOCK:
-		UseYourAndTheirBlock(rightstate, bottomstate, leftstate);
-		CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
-		break;
-	case ID_USETHEIRANDYOURBLOCK:
-		UseTheirAndYourBlock(rightstate, bottomstate, leftstate);
-		CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
-		break;
-	case ID_EDIT_COPY:
-		OnEditCopy();
-		return true;
-	case ID_EDIT_CUT:
-		OnEditCopy();
-		RemoveSelectedText();
-		break;
-	case ID_EDIT_PASTE:
-		PasteText();
-		break;
+		temp.LoadString(IDS_EDIT_COPY);
+		popup.AppendMenu(MF_STRING | (HasTextSelection() ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_COPY, temp);
+		if (!m_bCaretHidden)
+		{
+			temp.LoadString(IDS_EDIT_CUT);
+			popup.AppendMenu(MF_STRING | (HasTextSelection() ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_CUT, temp);
+			temp.LoadString(IDS_EDIT_PASTE);
+			popup.AppendMenu(MF_STRING | (CAppUtils::HasClipboardFormat(CF_UNICODETEXT)||CAppUtils::HasClipboardFormat(CF_TEXT) ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_PASTE, temp);
+		}
+
+		// if the context menu is invoked through the keyboard, we have to use
+		// a calculated position on where to anchor the menu on
+		if ((point.x == -1) && (point.y == -1))
+		{
+			CRect rect;
+			GetWindowRect(&rect);
+			point = rect.CenterPoint();
+		}
+
+		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
+		viewstate rightstate;
+		viewstate bottomstate;
+		viewstate leftstate;
+		switch (cmd)
+		{
+		case ID_USETHEIRBLOCK:
+			UseTheirTextBlock();
+			break;
+		case ID_USEYOURBLOCK:
+			UseMyTextBlock();
+			break;
+		case ID_USEYOURANDTHEIRBLOCK:
+			UseYourAndTheirBlock(rightstate, bottomstate, leftstate);
+			CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+			break;
+		case ID_USETHEIRANDYOURBLOCK:
+			UseTheirAndYourBlock(rightstate, bottomstate, leftstate);
+			CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+			break;
+		case ID_EDIT_COPY:
+			OnEditCopy();
+			return true;
+		case ID_EDIT_CUT:
+			OnEditCopy();
+			RemoveSelectedText();
+			break;
+		case ID_EDIT_PASTE:
+			PasteText();
+			break;
+		}
 	}
 	return false;
 }
 
 void CBottomView::UseTheirTextBlock()
 {
-	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
-		return;
-
 	viewstate leftstate;
 	viewstate rightstate;
 	viewstate bottomstate;
+	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
+		return;
+
 	for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
 	{
 		bottomstate.difflines[i] = m_pViewData->GetLine(i);
@@ -126,12 +153,12 @@ void CBottomView::UseTheirTextBlock()
 
 void CBottomView::UseMyTextBlock()
 {
-	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
-		return;
-
 	viewstate leftstate;
 	viewstate rightstate;
 	viewstate bottomstate;
+	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
+		return;
+
 	for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
 	{
 		bottomstate.difflines[i] = m_pViewData->GetLine(i);
@@ -139,10 +166,13 @@ void CBottomView::UseMyTextBlock()
 		bottomstate.linestates[i] = m_pViewData->GetState(i);
 		m_pViewData->SetState(i, m_pwndRight->m_pViewData->GetState(i));
 		m_pViewData->SetLineEnding(i, EOL_AUTOLINE);
-		if (m_pwndRight->m_pViewData->GetState(i) == DIFFSTATE_CONFLICTEMPTY)
-			m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVEDEMPTY);
-		else
-			m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVED);
+		m_pViewData->SetLineEnding(i, EOL_AUTOLINE);
+		{
+			if (m_pwndRight->m_pViewData->GetState(i) == DIFFSTATE_CONFLICTEMPTY)
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVEDEMPTY);
+			else
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVED);
+		}
 	}
 	CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
 	SetModified();

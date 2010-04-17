@@ -20,7 +20,6 @@
 #include "ShellExt.h"
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
-#include "ShellObjects.h"
 #include "svn_dso.h"
 
 volatile LONG		g_cRefThisDll = 0;				///< reference count of this DLL.
@@ -47,8 +46,7 @@ bool				g_unversionedovlloaded = false;
 CComCriticalSection	g_csGlobalCOMGuard;
 
 LPCTSTR				g_MenuIDString = _T("TortoiseSVN");
-
-ShellObjects		g_shellObjects;
+extern std::set<CShellExt *> g_exts;
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
@@ -60,28 +58,25 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 	// this prevents other apps from loading the dll and locking
 	// it.
 
-	if (!SysInfo::Instance().IsWin7OrLater())
+	bool bInShellTest = false;
+	TCHAR buf[_MAX_PATH + 1];		// MAX_PATH ok, the test really is for debugging anyway.
+	DWORD pathLength = GetModuleFileName(NULL, buf, _MAX_PATH);
+	if(pathLength >= 14)
 	{
-		bool bInShellTest = false;
-		TCHAR buf[_MAX_PATH + 1];		// MAX_PATH ok, the test really is for debugging anyway.
-		DWORD pathLength = GetModuleFileName(NULL, buf, _MAX_PATH);
-		if(pathLength >= 14)
+		if ((_tcsicmp(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
 		{
-			if ((_tcsicmp(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
-			{
-				bInShellTest = true;
-			}
-			if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
-			{
-				bInShellTest = true;
-			}
+			bInShellTest = true;
 		}
+		if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
+		{
+			bInShellTest = true;
+		}
+	}
 
-		if (!::IsDebuggerPresent() && !bInShellTest)
-		{
-			ATLTRACE("In debug load preventer\n");
-			return FALSE;
-		}
+	if (!::IsDebuggerPresent() && !bInShellTest)
+	{
+		ATLTRACE("In debug load preventer\n");
+		return FALSE;
 	}
 #endif
 
@@ -106,9 +101,15 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 		// in that case, we do it ourselves
 		if (g_cRefThisDll > 0)
 		{
+			if (g_exts.size())
 			{
 				AutoLocker lock(g_csGlobalCOMGuard);
-				g_shellObjects.DeleteAll();
+				std::set<CShellExt *>::iterator it = g_exts.begin();
+				while (it != g_exts.end())
+				{
+					delete *it;
+					it = g_exts.begin();
+				}
 			}
 			while (g_cAprInit--)
 			{
@@ -128,8 +129,6 @@ STDAPI DllCanUnloadNow(void)
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 {
-	if (ppvOut == 0 )
-		return E_POINTER;
     *ppvOut = NULL;
 	
     FileState state = FileStateInvalid;
@@ -166,11 +165,7 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppvOut)
 		CShellExtClassFactory *pcf = new (std::nothrow) CShellExtClassFactory(state);
 		if (pcf == NULL)
 			return E_OUTOFMEMORY;
-		// refcount currently set to 0
-		const HRESULT hr = pcf->QueryInterface(riid, ppvOut);
-		if(FAILED(hr))
-			delete pcf;
-		return hr;
+		return pcf->QueryInterface(riid, ppvOut);
     }
 	
     return CLASS_E_CLASSNOTAVAILABLE;
