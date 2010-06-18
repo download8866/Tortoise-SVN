@@ -19,21 +19,26 @@ namespace Scintilla {
  */
 class SVector {
 	enum { allocSize = 4000 };
-
+	
 	int *v;				///< The vector
 	unsigned int size;	///< Number of elements allocated
 	unsigned int len;	///< Number of elements used in vector
-
+	bool allocFailure;	///< A memory allocation call has failed
+	
 	/** Internally allocate more elements than the user wants
 	 * to avoid thrashing the memory allocator. */
 	void SizeTo(int newSize) {
 		if (newSize < allocSize)
 			newSize += allocSize;
-		else
+		else 
 			newSize = (newSize * 3) / 2;
-		int *newv = new int[newSize];
+		int* newv = new int[newSize];
+		if (!newv) {
+			allocFailure = true;
+			return;
+		}
 		size = newSize;
-        unsigned int i=0;
+        	unsigned int i=0;
 		for (; i<len; i++) {
 			newv[i] = v[i];
 		}
@@ -43,9 +48,10 @@ class SVector {
 		delete []v;
 		v = newv;
 	}
-
+	
 public:
 	SVector() {
+		allocFailure = false;
 		v = 0;
 		len = 0;
 		size = 0;
@@ -55,27 +61,33 @@ public:
 	}
 	/// Constructor from another vector.
 	SVector(const SVector &other) {
+		allocFailure = false;
 		v = 0;
 		len = 0;
 		size = 0;
 		if (other.Length() > 0) {
 			SizeTo(other.Length());
-			for (int i=0; i<other.Length(); i++)
-				v[i] = other.v[i];
-			len = other.Length();
+			if (!allocFailure) {
+				for (int i=0;i<other.Length();i++)
+					v[i] = other.v[i];
+				len = other.Length();
+			}
 		}
 	}
 	/// Copy constructor.
 	SVector &operator=(const SVector &other) {
 		if (this != &other) {
 			delete []v;
+			allocFailure = false;
 			v = 0;
 			len = 0;
 			size = 0;
 			if (other.Length() > 0) {
 				SizeTo(other.Length());
-				for (int i=0; i<other.Length(); i++)
-					v[i] = other.v[i];
+				if (!allocFailure) {
+					for (int i=0;i<other.Length();i++)
+						v[i] = other.v[i];
+				}
 				len = other.Length();
 			}
 		}

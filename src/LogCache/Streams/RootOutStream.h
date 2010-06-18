@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,12 +28,12 @@
 //
 // CRootOutStream
 //
-//      The mother of all streams: represents the root of the
-//      stream hierarchy but has no content of its own. It also
-//      opens and closes the write buffer.
+//		The mother of all streams: represents the root of the
+//		stream hierarchy but has no content of its own. It also
+//		opens and closes the write buffer.
 //
-//      In contrast to all other stream types, there is no
-//      factory to create an instance of this class.
+//		In contrast to all other stream types, there is no 
+//		factory to create an instance of this class.
 //
 ///////////////////////////////////////////////////////////////
 
@@ -41,23 +41,23 @@ class CRootOutStream : public CHierachicalOutStreamBase
 {
 private:
 
-    CCacheFileOutBuffer buffer;
+	CCacheFileOutBuffer buffer;
 
-    enum {ROOT_STREAM_ID = 0};
+	enum {ROOT_STREAM_ID = 0};
 
-    // the root does not have local stream data
+	// the root does not have local stream data
 
-    virtual const unsigned char* GetStreamData() {return NULL;}
-    virtual size_t GetStreamSize() {return 0;}
+	virtual const unsigned char* GetStreamData() {return NULL;}
+	virtual size_t GetStreamSize() {return 0;}
 
 public:
 
-    // construction / destruction: manage file buffer
+	// construction / destruction: manage file buffer
 
-    CRootOutStream (const TFileName& fileName);
-    virtual ~CRootOutStream();
+	CRootOutStream (const std::wstring& fileName);
+	virtual ~CRootOutStream();
 
-    // implement the rest of IHierarchicalOutStream
+	// implement the rest of IHierarchicalOutStream
 
-    virtual STREAM_TYPE_ID GetTypeID() const;
+	virtual STREAM_TYPE_ID GetTypeID() const;
 };

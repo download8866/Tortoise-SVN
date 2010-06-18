@@ -8,7 +8,7 @@
 #ifndef PARTITIONING_H
 #define PARTITIONING_H
 
-/// A split vector of integers with a method for adding a value to all elements
+/// A split vector of integers with a method for adding a value to all elements 
 /// in a range.
 /// Used by the Partitioning class.
 
@@ -153,7 +153,7 @@ public:
 		return pos;
 	}
 
-	int PartitionFromPosition(int pos) const {
+	int PartitionFromPosition(int pos) {
 		if (body->Length() <= 1)
 			return 0;
 		if (pos >= (PositionFromPartition(body->Length()-1)))

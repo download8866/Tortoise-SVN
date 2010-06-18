@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 
 // construction
 
-CStandardLayoutTextList::CStandardLayoutTextList
+CStandardLayoutTextList::CStandardLayoutTextList 
     ( const std::vector<CStandardLayoutNodeInfo>& nodes
     , const std::vector<CStandardLayout::STextInfo>& texts)
     : nodes (nodes)
@@ -44,13 +44,13 @@ CString CStandardLayoutTextList::GetToolTip (index_t /* index */) const
     return CString();
 }
 
-index_t CStandardLayoutTextList::GetFirstVisible
+index_t CStandardLayoutTextList::GetFirstVisible 
     (const CRect& viewRect) const
 {
     return GetNextVisible (static_cast<index_t>(-1), viewRect);
 }
 
-index_t CStandardLayoutTextList::GetNextVisible
+index_t CStandardLayoutTextList::GetNextVisible 
     ( index_t prev
     , const CRect& viewRect) const
 {
@@ -66,7 +66,7 @@ index_t CStandardLayoutTextList::GetNextVisible
     return static_cast<index_t>(NO_INDEX);
 }
 
-index_t CStandardLayoutTextList::GetAt
+index_t CStandardLayoutTextList::GetAt 
     ( const CPoint& /* point */
     , CSize /* delta */) const
 {
@@ -75,7 +75,7 @@ index_t CStandardLayoutTextList::GetAt
 
 // implement ILayoutTextList
 
-CStandardLayoutTextList::SText
+CStandardLayoutTextList::SText 
 CStandardLayoutTextList::GetText (index_t index) const
 {
     // determine the text and its bounding rect
@@ -83,18 +83,18 @@ CStandardLayoutTextList::GetText (index_t index) const
     const CStandardLayout::STextInfo& textInfo = texts[index];
     const CStandardLayoutNodeInfo& nodeInfo = nodes[textInfo.nodeIndex];
 
-    bool isModifiedWC = nodeInfo.node->GetClassification().Is
+    bool isModifiedWC = nodeInfo.node->GetClassification().Is 
                             (CNodeClassification::IS_MODIFIED_WC);
 
     CString text;
     CRect rect = nodeInfo.rect;
     if (textInfo.subPathIndex > 0)
     {
-        rect.top = rect.top + 21 + 16 * (textInfo.subPathIndex-1);
+        rect.top = rect.top + 25 + 21 * (textInfo.subPathIndex-1);
 
         size_t localindex = textInfo.subPathIndex-1 + nodeInfo.skipStartPathElements;
         const CDictionaryBasedTempPath& path = nodeInfo.node->GetPath();
-        size_t visibleElementCount = path.GetDepth()
+        size_t visibleElementCount = path.GetDepth() 
                                    - nodeInfo.skipStartPathElements
                                    - nodeInfo.skipTailPathElements;
         text = CUnicodeUtils::StdGetUnicode (path[localindex]).c_str();
@@ -105,7 +105,7 @@ CStandardLayoutTextList::GetText (index_t index) const
         if ((textInfo.subPathIndex == 1) && (nodeInfo.skipStartPathElements > 0))
             text.Insert (0, CString ('.', nodeInfo.skipStartPathElements));
 
-        if (   (visibleElementCount == (size_t)textInfo.subPathIndex)
+        if (   (visibleElementCount == (size_t)textInfo.subPathIndex) 
             && (nodeInfo.skipTailPathElements != 0))
         {
             text.AppendChar (_T('/'));

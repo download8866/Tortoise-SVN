@@ -1,6 +1,6 @@
 #
 # Indonesian translation for TortoiseMerge
-# Copyright (C) 2004-2010 the TortoiseSVN team
+# Copyright (C) 2004-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -16,9 +16,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2010-01-10 08:44 +0000\n"
-"PO-Revision-Date: 2010-01-11 13:54-0600\n"
-"Last-Translator: Evan Allrich <eallrich@gmail.com>\n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
+"PO-Revision-Date: 2010-01-12 08:33+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -103,8 +103,8 @@ msgstr "TortoiseMerge adalah bebas. Anda tidak perlu membayarnya, Anda bisa meng
 
 # Indonesian#: source/TortoiseMerge_en.xml:68
 #. (para)
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
-msgstr "TortoiseMerge adalah proyek Sumber Terbuka. Ini berarti bahwa Anda mempunyai akses penuh ke kode sumber dari program ini. Anda bisa melihatnya pada pranala ini <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. Anda akan diminta untuk memasukkan nama pengguna dan sandi lewat. Nama pengguna adalah <literal>guest</literal>, dan sandi lewat harus dibiarkan kosong. Versi paling baru (di mana saat ini kami sedang bekerja) ditempatkan di bawah <filename>/trunk/</filename>, dan versi rilis ditempatkan di bawah <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgstr "TortoiseMerge adalah proyek Sumber Terbuka. Ini berarti bahwa Anda mempunyai akses penuh ke kode sumber dari program ini. Anda bisa melihatnya pada pranala ini <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. Anda akan diminta untuk memasukkan nama pengguna dan sandi lewat. Nama pengguna adalah <literal>guest</literal>, dan sandi lewat harus dibiarkan kosong. Versi paling baru (di mana saat ini kami sedang bekerja) ditempatkan di bawah <filename>/trunk/</filename>, dan versi rilis ditempatkan di bawah <filename>/tags/</filename>."
 
 #. (title)
 msgid "Donate!"
@@ -490,24 +490,6 @@ msgstr "Modus kata adalah default dan dalam kebanyakan kasus ini bekerja lebih b
 msgid "<guibutton>Switch View</guibutton> selects between one-pane and two-pane view. Disabled in 3-pane view."
 msgstr "<guibutton>Tukar Tampilan</guibutton> memilih antara tampilan satu-pane dan dua-pane. Dimatikan dalam tampilan 3-pane."
 
-# Indonesian#: source/TortoiseMerge_en.xml:705
-#. (para)
-#. (para)
-msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
-msgstr "<guilabel>Bandingkan spasi putih</guilabel> memperlihatkan semua perubahan dalam indentasi dan spasi putih sebaris karena baris ditambah/dihapus (inilah bagaimana Subversion memperlakukan perubahan demikian)."
-
-# Indonesian#: source/TortoiseMerge_en.xml:711
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr "<guilabel>Abaikan perubahan spasi putih</guilabel> menyembunyikan perubahan karena perubahan dalam sejumlah atau tipe spasi putih, contoh perubahan indentasi atau perubahan tab ke spasi. Menambah spasi putih di mana tidak ada sebelumnya, atau menghapus spasi putih sepenuhnya masih ditampilkan sebagai perubahan."
-
-# Indonesian#: source/TortoiseMerge_en.xml:718
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
-msgstr "<guilabel>Abaikan semua spasi putih</guilabel> menyembunyikan semua perubahan hanya-spasi putih."
-
 #. (para)
 msgid "<guibutton>Switch Left and Right View</guibutton> In 2-pane view, swaps the left and right windows. When you are comparing a file in 2 different trees, as opposed to 2 revisions of the same file, TortoiseSVN does not know which one should go in the left pane as the <quote>original/base</quote> version. If it gets this wrong, you can change it to make viewing easier."
 msgstr "<guibutton>Tukar Tampilan Kiri dan Kanan</guibutton> Dalam tampilan 2-pane, menukar jendela kiri dan kanan. Ketika Anda membandingkan file dalam 2 susunan berbeda, kebalikan dari 2 revisi dari file yang sama, TortoiseSVN tidak mengetahui yang mana yang harus di sebelah pane kiri karena versi <quote>original/base</quote>. Jika ini salah, Anda bisa mengubahnya untuk kemudahan melihatnya."
@@ -516,19 +498,10 @@ msgstr "<guibutton>Tukar Tampilan Kiri dan Kanan</guibutton> Dalam tampilan 2-pa
 msgid "<guibutton>Show/Hide Patch List</guibutton> When TortoiseMerge has a patch list, this button allows you to hide it (so you can see both windows), or show it (so you can review the file list)."
 msgstr "<guibutton>Tampilkan/Sembunyikan Daftar Patch</guibutton> Ketika TortoiseMerge mempunyai daftar patch, tombol ini membolehkan Anda untuk menyembunyikannya (agar Anda bisa melihat kedua jendela), atau menampilkannya (agar Anda bisa meninjau daftar file)."
 
-#. (para)
-msgid "<guilabel>Collapse</guilabel> collapses unchanged regions to a single line, leaving only the changed areas and minimal context. You can expand the collapsed areas by double clicking on the collapse line, but you cannot then re-collapse them unless you reload the file."
-msgstr "<guilabel>Runtuh</guilabel> runtuhkan daerah tidak berubah kepada satu baris, hanya menyisakan berubah wilayah dan konteks sedikit. Anda dapat memperluas wilayah runtuh dengan mengklik ganda pada baris keruntuhan, tetapi Anda tidak dapat kemudian kembali keruntuhan mereka, kecuali jika Anda memuat berkas lagi."
-
 # Indonesian#: source/TortoiseMerge_en.xml:560
 #. (para)
 msgid "<guibutton>Settings</guibutton> takes you to TortoiseMerge's settings dialog."
 msgstr "<guibutton>Seting</guibutton> membawa Anda ke dialog seting TortoiseMerge."
-
-# Indonesian#: source/TortoiseMerge_en.xml:560
-#. (para)
-msgid "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
-msgstr "<guibutton>Bantuan</guibutton> membuka berkas membantu untuk TortoiseMerge."
 
 # Indonesian#: source/TortoiseMerge_en.xml:461
 #. (para)
@@ -702,6 +675,21 @@ msgstr "<guilabel>Abaikan perubahan huruf</guilabel> menyembunyikan perubahan ka
 #. (para)
 msgid "<guilabel>Colour code in-line changes</guilabel> uses the same scheme as the line diff bar to show the detailed in-line changes within the main display panes. Lines which have been heavily modified will not be shown using this method as the results are simply confusing. In this case the line will be shown as replaced (old line deleted, new line added)."
 msgstr "<guilabel>Kode warna perubahan-perubahan sebaris</guilabel> menggunakan skema sama dengan baris bar diff untuk menampilkan detil perubahan sebaris di dalam tampilan pane utama. Baris-baris yang telah banyak diubah tidak akan ditampilkan dengan metode ini karena hasilnya akan membingungkan. Dalam kasus ini, baris tersebut akan ditampilkan sebagai diganti (baris yang lama dihapus, baris yang baru ditambahkan)."
+
+# Indonesian#: source/TortoiseMerge_en.xml:705
+#. (para)
+msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
+msgstr "<guilabel>Bandingkan spasi putih</guilabel> memperlihatkan semua perubahan dalam indentasi dan spasi putih sebaris karena baris ditambah/dihapus (inilah bagaimana Subversion memperlakukan perubahan demikian)."
+
+# Indonesian#: source/TortoiseMerge_en.xml:711
+#. (para)
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgstr "<guilabel>Abaikan perubahan spasi putih</guilabel> menyembunyikan perubahan karena perubahan dalam sejumlah atau tipe spasi putih, contoh perubahan indentasi atau perubahan tab ke spasi. Menambah spasi putih di mana tidak ada sebelumnya, atau menghapus spasi putih sepenuhnya masih ditampilkan sebagai perubahan."
+
+# Indonesian#: source/TortoiseMerge_en.xml:718
+#. (para)
+msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
+msgstr "<guilabel>Abaikan semua spasi putih</guilabel> menyembunyikan semua perubahan hanya-spasi putih."
 
 # Indonesian#: source/TortoiseMerge_en.xml:724
 #. (title)
@@ -1156,10 +1144,6 @@ msgstr "/createunifieddiff"
 msgid "Creates a unified diff file (patch file) of two files specified with <placeholder-1/> and <placeholder-2/>. The target path is set with <placeholder-3/>. If <placeholder-4/> is not set, a file save dialog is shown so the user can choose the location to save the patch file. Note: If <placeholder-5/> is set, all other parameters are ignored."
 msgstr "Membuat sebuah file diff (file patch) dari dua file yang ditentukan dengan <placeholder-1/> dan <placeholder-2/>. Path target ditentukan dengan <placeholder-3/>. Apabila <placeholder-4/> tidak ditentukan, dialog save file akan ditampilkan sehingga anda dapat menentukan tempat penyimpanan file patch. Catatan: Jika <placeholder-5/> ditentukan, semua parameter akan diabaikan."
 
-#. (entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr "Menentukan nomor baris untuk loncat ke setelah memuat berkas."
-
 #. (para)
 msgid ""
 "You can also supply simple filenames on the command line for compatibility with other diff programs. In this simplified form the command line is <screen>\n"
@@ -1538,6 +1522,15 @@ msgstr ""
 msgid "translator-translation"
 msgstr "Terjemahan oleh"
 
-#~ msgid "Wishlist"
-#~ msgstr "Daftar Keinginan"
+#~ msgid ""
+#~ "<guilabel>Collapse</guilabel> collapses unchanged regions to a single "
+#~ "line, leaving only the changed areas and minimal context. You can expand "
+#~ "the collapsed areas by double clicking on the collapse line, but you "
+#~ "cannot then re-collapse them unless you reload the file."
+#~ msgstr ""
+#~ "<guilabel>Runtuh</guilabel> runtuhkan daerah tidak berubah kepada satu "
+#~ "baris, hanya menyisakan berubah wilayah dan konteks sedikit. Anda dapat "
+#~ "memperluas wilayah runtuh dengan mengklik ganda pada baris keruntuhan, "
+#~ "tetapi Anda tidak dapat kemudian kembali keruntuhan mereka, kecuali jika "
+#~ "Anda memuat berkas lagi."
 

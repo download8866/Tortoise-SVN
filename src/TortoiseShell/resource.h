@@ -135,9 +135,6 @@
 #define IDS_MENUDESCDELETEIGNORE        224
 #define IDS_MENUCLIPPASTE               225
 #define IDS_MENUDESCCLIPPASTE           226
-#define IDS_MENUUPGRADE                 227
-#define IDS_MENUDESCUPGRADE             228
-#define IDS_MENUADDIMMEDIATE            229
 #define IDS_ERR_PROPNOTONFILE           230
 #define IDS_MENUIGNOREMULTIPLE          231
 #define IDS_ERR_PROPNOMULTILINE         232
@@ -181,7 +178,6 @@
 #define IDS_SVN_DEPTH_EXCLUDE           304
 #define IDS_SVN_DEPTH_UNKNOWN           305
 #define IDS_SVN_DEPTH_WORKING           306
-#define IDS_COLTITLESTATUSNUMBER        307
 #define IDC_REVISION                    1001
 #define IDC_LOCKED                      1002
 #define IDC_REPOURL                     1003
@@ -230,7 +226,7 @@
 #define IDC_CHECKSUM                    11027
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        5165

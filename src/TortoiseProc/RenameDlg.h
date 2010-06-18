@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,31 +25,26 @@
  */
 class CRenameDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CRenameDlg)
+	DECLARE_DYNAMIC(CRenameDlg)
 
 public:
-    CRenameDlg(CWnd* pParent = NULL);
-    virtual ~CRenameDlg();
+	CRenameDlg(CWnd* pParent = NULL);
+	virtual ~CRenameDlg();
 
-    void AlwaysEnableOkButton(bool bAlwaysEnable = false) { m_bOKEnabled = bAlwaysEnable; }
-    enum { IDD = IDD_RENAME };
+	enum { IDD = IDD_RENAME };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
 
-    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
-    afx_msg void OnEnChangeName();
-
-    DECLARE_MESSAGE_MAP()
-
+	DECLARE_MESSAGE_MAP()
 public:
-    CString m_name;
-    CString m_windowtitle;
-    CString m_label;
-
-private:
-    bool    m_bOKEnabled;
+	CString m_name;
+	CString m_windowtitle;
+	CString m_label;
+public:
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	afx_msg void OnEnChangeName();
 };

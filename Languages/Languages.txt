@@ -1,11 +1,11 @@
-﻿#
+#
 # Copyright (C) 2004-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
-# $Author$
-# $Date$
-# $Rev$
+# $Author: luebbe $
+# $Date: 2009-12-08 10:09:49 +0100 (Di, 08. Dez 2009) $
+# $Rev: 17873 $
 #
 # ======================================================================
 #
@@ -60,7 +60,7 @@
 1;  fr;     1036; 111;  French;                 "Olivier Booklage, Philippe Torche, Jean-Christophe Gigogne, Jérémy Badier, Jean-Christophe Mazenc, Christophe Sauveur, Frédéric Bodin, Matthias Goupil, Dany McCarthy, Yves Mittelmann, Vincent Houde"
 1;  ka;     1079; 000;  Georgian;               "Gia Shervashidze"
 1;  de;     1031; 111;  German;                 "Stefan Küng, Lübbe Onken"
-1;  el;     1032; 000;  Greek;                  "George Marselis, Joseph Megkousoglou, John Stratoudakis, Stavros Labrou, Vasilios Will"
+1;  el;     1032; 000;  Greek;                  "George Marselis, Joseph Megkousoglou, John Stratoudakis, Stavros Labrou"
 1;  hu;     1038; 001;  Hungarian;              "Szente-Varga Bálint, Gábor Halász, István Dovák"
 1;  id;     1057; 111;  Indonesian;             "Zaenal Mutaqin, Thomas Edwin Santosa, Evan Allrich"
 1;  it;     1040; 001;  Italian;                "Luca Berti, Cecilia Saltori"
@@ -71,14 +71,14 @@
 1;  fa;     1065; 000;  Persian;                "Titto Agustine, Mohsen Sajjadi"
 1;  pl;     1045; 001;  Polish;                 "Michal Mielniczuk, Andrzej Rusin, Piotr Kontek, Krzysztof Kotowicz"
 1;  pt_BR;  1046; 111;  Portuguese, Brazil;     "CRAb Group, Humberto Osório, Emanuele Santos, Guilherme Cantisano, Juliano Ravasi Ferraz, Victor Westmann, Conrado Quilles Gomes, Tiago Deliberali Santos, Leandro Herrera, Alex Vieira, Rafael Heise"
-1;  pt_PT;  2070; 110;  Portuguese, Portugal;   "Manuel Menezes de Sequeira, Luis X. B. Mourão, Paulo Justino"
+1;  pt_PT;  2070; 110;  Portuguese, Portugal;   "Manuel Menezes de Sequeira, Luis X. B. Mourão"
 1;  ro;     1048; 000;  Romanian;               "Seby Rusu, Ben Felt, Florin Daneliuc"
-1;  ru;     1049; 111;  Russian;                "Dzmitry Lazerka, Dimitry Mardiyan, Shura Zam, Alexander Leschinsky, Stanislav Petrakov, Boris & Polina Rozenshtein, Peter Denim, Siarhei Niakhai"
+1;  ru;     1049; 111;  Russian;                "Dzmitry Lazerka, Dimitry Mardiyan, Shura Zam, Alexander Leschinsky, Stanislav Petrakov"
 1;  sr_spc; 3098; 110;  Serbian cyrillic;       "Milorad Popović"
 1;  sr_spl; 2074; 110;  Serbian latin;          "Milorad Popović"
 1;  sk;     1051; 111;  Slovak;                 "Oto Brezina"
-1;  sl;     1060; 111;  Slovenian;              "Goran Kavrecic, Martin Srebotnjak, Matjaz Cepon, Miha Nahtigal, Vito Smolej"
-1;  es;     1034; 111;  Spanish;                "Fernando P. Nájera Cano, Antonio Romero Lopez, Franco Catena, Marco Klipfel, Tomas Christie, Augusto Wloch, JC Fuentes, Alejandro Ariel Abaca, Jeff B Martinez, Imanol"
+1;  sl;     1060; 111;  Slovenian;              "Goran Kavrecic, Martin Srebotnjak, Matjaz Cepon, Miha Nahtigal"
+1;  es;     1034; 111;  Spanish;                "Fernando P. Nájera Cano, Antonio Romero Lopez, Franco Catena, Marco Klipfel"
 1;  sv;     1053; 001;  Swedish;                "Johan Stenqvist, Johan Appelgren, Johan Foglemark"
 1;  tr;     1055; 000;  Turkish;                "Aydogan Yolacan, Ali Karaoglu, Berke Baydu, Vural Goze"
 1;  uk;     1058; 000;  Ukrainian;              "Vadim Mikhnevych"

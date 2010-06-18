@@ -32,7 +32,7 @@
 using namespace Gdiplus;
 
 /**
- * An auto_ptr-like template that keeps a lock
+ * An auto_ptr-like template that keeps a lock 
  * alongside with the pointer.
  */
 
@@ -62,7 +62,7 @@ private:
     /// the synchronization objects
 
     CSyncObject* mutex;
-    CSingleLock lock;
+    CSingleLock lock; 
 
     /// the actual data
 
@@ -219,11 +219,11 @@ public:
 
     /// convenience methods
 
-    CRect        GetGraphRect();
+	CRect        GetGraphRect();
     int          GetNodeCount();
 
-    svn_revnum_t GetHeadRevision() const;
-    CString      GetRepositoryRoot() const;
+    svn_revnum_t GetHeadRevision() const;             
+    CString      GetRepositoryRoot() const;             
     CString      GetRepositoryUUID() const;
     size_t       GetTreeCount() const;
 

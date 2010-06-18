@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DiffIntegerInStream.h"
 
 ///////////////////////////////////////////////////////////////
@@ -28,8 +28,8 @@
 // construction: nothing special to do
 
 CDiffDWORDInStream::CDiffDWORDInStream ( CCacheFileInBuffer* buffer
-                                       , STREAM_INDEX index)
-    : TBase (buffer, index)
+									   , STREAM_INDEX index)
+	: TBase (buffer, index)
 {
 }
 
@@ -42,7 +42,7 @@ CDiffDWORDInStream::CDiffDWORDInStream ( CCacheFileInBuffer* buffer
 // construction: nothing special to do
 
 CDiffIntegerInStream::CDiffIntegerInStream ( CCacheFileInBuffer* buffer
-                                           , STREAM_INDEX index)
-    : TBase (buffer, index)
+										   , STREAM_INDEX index)
+	: TBase (buffer, index)
 {
 }

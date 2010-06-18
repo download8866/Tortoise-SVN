@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "CommonAppUtils.h"
 #include "svn_types.h"
 
 class CProgressDlg;
@@ -27,30 +26,28 @@ class CProgressDlg;
  *
  * Helper functions
  */
-class CAppUtils : public CCommonAppUtils
+class CAppUtils
 {
 public:
-    CAppUtils(void);
-    ~CAppUtils(void);
+	CAppUtils(void);
+	~CAppUtils(void);
 
-    /**
-     * Starts an external program to get a file with a specific revision.
-     * \param sPath path to the file for which a specific revision is fetched
-     * \param sVersion the revision to get
-     * \param sSavePath the path to where the file version shall be saved
-     * \param hWnd the window handle of the calling app
-     * \return TRUE if successful
-     */
-    static BOOL GetVersionedFile(CString sPath, CString sVersion, CString sSavePath, CProgressDlg * progDlg, HWND hWnd = NULL);
+	/**
+	 * Starts an external program to get a file with a specific revision. 
+	 * \param sPath path to the file for which a specific revision is fetched
+	 * \param sVersion the revision to get
+	 * \param sSavePath the path to where the file version shall be saved
+	 * \param hWnd the window handle of the calling app
+	 * \return TRUE if successful
+	 */
+	static BOOL GetVersionedFile(CString sPath, CString sVersion, CString sSavePath, CProgressDlg * progDlg, HWND hWnd = NULL);
+	
+	/**
+	 * Creates a unified diff from two files
+	 */
+	static bool CreateUnifiedDiff(const CString& orig, const CString& modified, const CString& output, bool bShowError);
 
-    /**
-     * Creates a unified diff from two files
-     */
-    static bool CreateUnifiedDiff(const CString& orig, const CString& modified, const CString& output, bool bShowError);
-
-
-    static bool HasClipboardFormat(UINT format);
-    static CString GetErrorString(svn_error_t * Err);
-    static COLORREF IntenseColor(long scale, COLORREF col);
+	static bool HasClipboardFormat(UINT format);
+	static CString GetErrorString(svn_error_t * Err);
 
 };
