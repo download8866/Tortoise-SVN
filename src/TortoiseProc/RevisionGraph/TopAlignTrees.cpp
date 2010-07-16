@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,13 +20,13 @@
 #include "TopAlignTrees.h"
 #include "StandardLayout.h"
 
-void CTopAlignTrees::GetMinMaxY
+void CTopAlignTrees::GetMinMaxY 
     ( IStandardLayoutNodeAccess* nodeAccess
     , std::vector<int>& minY)
 {
     for (size_t i = 0, count = nodeAccess->GetNodeCount(); i < count; ++i)
     {
-        const CStandardLayoutNodeInfo* node = nodeAccess->GetNode((index_t)i);
+        const CStandardLayoutNodeInfo* node = nodeAccess->GetNode(i);
 
         index_t rootID = node->rootID;
         while (minY.size() <= rootID)
@@ -37,13 +37,13 @@ void CTopAlignTrees::GetMinMaxY
     }
 }
 
-void CTopAlignTrees::MirrorY
+void CTopAlignTrees::MirrorY 
     ( IStandardLayoutNodeAccess* nodeAccess
     , const std::vector<int>& minY)
 {
     for (size_t i = 0, count = nodeAccess->GetNodeCount(); i < count; ++i)
     {
-        CStandardLayoutNodeInfo* node = nodeAccess->GetNode((index_t)i);
+        CStandardLayoutNodeInfo* node = nodeAccess->GetNode(i);
 
         int y = minY[node->rootID];
         CRect& rect = node->rect;
@@ -55,7 +55,7 @@ void CTopAlignTrees::MirrorY
 
 // construction
 
-CTopAlignTrees::CTopAlignTrees
+CTopAlignTrees::CTopAlignTrees 
     ( CRevisionGraphOptionList& list)
     : CRevisionGraphOptionImpl<ILayoutOption, 1100, ID_VIEW_TOPALIGNTREES> (list)
 {
@@ -68,9 +68,9 @@ void CTopAlignTrees::ApplyTo (IRevisionGraphLayout* layout)
 {
     // we need access to actual data
 
-    IStandardLayoutNodeAccess* nodeAccess
+    IStandardLayoutNodeAccess* nodeAccess 
         = dynamic_cast<IStandardLayoutNodeAccess*>(layout);
-    if (nodeAccess == NULL)
+    if (nodeAccess == NULL) 
         return;
 
     // get the sub-tree dimensions

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009 - TortoiseSVN
+// Copyright (C) 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,4 +24,3 @@ HRESULT CreateShellLink(PCWSTR pszArguments, PCWSTR pszTitle, int iconIndex, ISh
 HRESULT CreateSeparatorLink(IShellLink **ppsl);
 bool IsItemInArray(IShellItem *psi, IObjectArray *poaRemoved);
 void DeleteJumpList(LPCTSTR appID);
-

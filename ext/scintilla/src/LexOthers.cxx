@@ -14,7 +14,6 @@
 
 #include "Platform.h"
 
-#include "CharClassify.h"
 #include "PropSet.h"
 #include "Accessor.h"
 #include "KeyWords.h"
@@ -35,10 +34,6 @@ static bool Is0To9(char ch) {
 
 static bool Is1To9(char ch) {
 	return (ch >= '1') && (ch <= '9');
-}
-
-static bool IsAlphabetic(int ch) {
-	return isascii(ch) && isalpha(ch);
 }
 
 static inline bool AtEOL(Accessor &styler, unsigned int i) {
@@ -105,7 +100,7 @@ static void ColouriseBatchLine(
 		}
 		return;
 	// Check for Drive Change (Drive Change is internal command) - return if found
-	} else if ((IsAlphabetic(lineBuffer[offset])) &&
+	} else if ((isalpha(lineBuffer[offset])) &&
 		(lineBuffer[offset + 1] == ':') &&
 		((isspacechar(lineBuffer[offset + 2])) ||
 		(((lineBuffer[offset + 2] == '\\')) &&
@@ -218,7 +213,6 @@ static void ColouriseBatchLine(
 			// No need to Reset Offset
 		// Check for Special Keyword in list, External Command / Program, or Default Text
 		} else if ((wordBuffer[0] != '%') &&
-				   (wordBuffer[0] != '!') &&
 			(!IsBOperator(wordBuffer[0])) &&
 			(continueProcessing)) {
 			// Check for Special Keyword
@@ -255,7 +249,6 @@ static void ColouriseBatchLine(
 					// Read up to %, Operator or Separator
 					while ((wbo < wbl) &&
 						(wordBuffer[wbo] != '%') &&
-						(wordBuffer[wbo] != '!') &&
 						(!IsBOperator(wordBuffer[wbo])) &&
 						(!IsBSeparator(wordBuffer[wbo]))) {
 						wbo++;
@@ -305,7 +298,6 @@ static void ColouriseBatchLine(
 					// Read up to %, Operator or Separator
 					while ((wbo < wbl) &&
 						(wordBuffer[wbo] != '%') &&
-						(wordBuffer[wbo] != '!') &&
 						(!IsBOperator(wordBuffer[wbo])) &&
 						(!IsBSeparator(wordBuffer[wbo]))) {
 						wbo++;
@@ -378,29 +370,6 @@ static void ColouriseBatchLine(
 				// Reset Offset to re-process remainder of word
 				offset -= (wbl - 3);
 			}
-		// Check for Environment Variable (!x...!)
-		} else if (wordBuffer[0] == '!') {
-			// Colorize Default Text
-			styler.ColourTo(startLine + offset - 1 - wbl, SCE_BAT_DEFAULT);
-			wbo++;
-			// Search to end of word for second ! (can be a long path)
-			while ((wbo < wbl) &&
-				(wordBuffer[wbo] != '!') &&
-				(!IsBOperator(wordBuffer[wbo])) &&
-				(!IsBSeparator(wordBuffer[wbo]))) {
-				wbo++;
-			}
-			if (wordBuffer[wbo] == '!') {
-				wbo++;
-				// Check for External Command / Program
-				if (cmdLoc == offset - wbl) {
-					cmdLoc = offset - (wbl - wbo);
-				}
-				// Colorize Environment Variable
-				styler.ColourTo(startLine + offset - 1 - (wbl - wbo), SCE_BAT_IDENTIFIER);
-				// Reset Offset to re-process remainder of word
-				offset -= (wbl - wbo);
-			}
 		// Check for Operator
 		} else if (IsBOperator(wordBuffer[0])) {
 			// Colorize Default Text
@@ -448,7 +417,6 @@ static void ColouriseBatchLine(
 			// Read up to %, Operator or Separator
 			while ((wbo < wbl) &&
 				(wordBuffer[wbo] != '%') &&
-				(wordBuffer[wbo] != '!') &&
 				(!IsBOperator(wordBuffer[wbo])) &&
 				(!IsBSeparator(wordBuffer[wbo]))) {
 				wbo++;
@@ -672,27 +640,17 @@ static void ColourisePoDoc(unsigned int startPos, int length, int, WordList *[],
 	}
 }
 
-static inline bool isassignchar(unsigned char ch) {
-	return (ch == '=') || (ch == ':');
-}
 
 static void ColourisePropsLine(
     char *lineBuffer,
     unsigned int lengthLine,
     unsigned int startLine,
     unsigned int endPos,
-    Accessor &styler,
-    bool allowInitialSpaces) {
+    Accessor &styler) {
 
 	unsigned int i = 0;
-	if (allowInitialSpaces) {
-		while ((i < lengthLine) && isspacechar(lineBuffer[i]))	// Skip initial spaces
-			i++;
-	} else {
-		if (isspacechar(lineBuffer[i])) // don't allow initial spaces
-			i = lengthLine;
-	}
-
+	while ((i < lengthLine) && isspacechar(lineBuffer[i]))	// Skip initial spaces
+		i++;
 	if (i < lengthLine) {
 		if (lineBuffer[i] == '#' || lineBuffer[i] == '!' || lineBuffer[i] == ';') {
 			styler.ColourTo(endPos, SCE_PROPS_COMMENT);
@@ -700,14 +658,14 @@ static void ColourisePropsLine(
 			styler.ColourTo(endPos, SCE_PROPS_SECTION);
 		} else if (lineBuffer[i] == '@') {
 			styler.ColourTo(startLine + i, SCE_PROPS_DEFVAL);
-			if (isassignchar(lineBuffer[i++]))
+			if (lineBuffer[++i] == '=')
 				styler.ColourTo(startLine + i, SCE_PROPS_ASSIGNMENT);
 			styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
 		} else {
 			// Search for the '=' character
-			while ((i < lengthLine) && !isassignchar(lineBuffer[i]))
+			while ((i < lengthLine) && (lineBuffer[i] != '='))
 				i++;
-			if ((i < lengthLine) && isassignchar(lineBuffer[i])) {
+			if ((i < lengthLine) && (lineBuffer[i] == '=')) {
 				styler.ColourTo(startLine + i - 1, SCE_PROPS_KEY);
 				styler.ColourTo(startLine + i, SCE_PROPS_ASSIGNMENT);
 				styler.ColourTo(endPos, SCE_PROPS_DEFAULT);
@@ -726,25 +684,18 @@ static void ColourisePropsDoc(unsigned int startPos, int length, int, WordList *
 	styler.StartSegment(startPos);
 	unsigned int linePos = 0;
 	unsigned int startLine = startPos;
-
-	// property lexer.props.allow.initial.spaces
-	//	For properties files, set to 0 to style all lines that start with whitespace in the default style.
-	//	This is not suitable for SciTE .properties files which use indentation for flow control but
-	//	can be used for RFC2822 text where indentation is used for continuation lines.
-	bool allowInitialSpaces = styler.GetPropertyInt("lexer.props.allow.initial.spaces", 1) != 0;
-
 	for (unsigned int i = startPos; i < startPos + length; i++) {
 		lineBuffer[linePos++] = styler[i];
 		if (AtEOL(styler, i) || (linePos >= sizeof(lineBuffer) - 1)) {
 			// End of line (or of line buffer) met, colourise it
 			lineBuffer[linePos] = '\0';
-			ColourisePropsLine(lineBuffer, linePos, startLine, i, styler, allowInitialSpaces);
+			ColourisePropsLine(lineBuffer, linePos, startLine, i, styler);
 			linePos = 0;
 			startLine = i + 1;
 		}
 	}
 	if (linePos > 0) {	// Last line does not have ending characters
-		ColourisePropsLine(lineBuffer, linePos, startLine, startPos + length - 1, styler, allowInitialSpaces);
+		ColourisePropsLine(lineBuffer, linePos, startLine, startPos + length - 1, styler);
 	}
 }
 
@@ -819,7 +770,7 @@ static void FoldPropsDoc(unsigned int startPos, int length, int, WordList *[], A
 		lev = SC_FOLDLEVELBASE;
 	}
 	int flagsNext = styler.LevelAt(lineCurrent);
-	styler.SetLevel(lineCurrent, lev | (flagsNext & ~SC_FOLDLEVELNUMBERMASK));
+	styler.SetLevel(lineCurrent, lev | flagsNext & ~SC_FOLDLEVELNUMBERMASK);
 }
 
 static void ColouriseMakeLine(
@@ -965,17 +916,17 @@ static int RecogniseErrorListLine(const char *lineBuffer, unsigned int lengthLin
 	} else if (strstart(lineBuffer, "Warning ")) {
 		// Borland warning message
 		return SCE_ERR_BORLAND;
-	} else if (strstr(lineBuffer, "at line ") &&
-	        (strstr(lineBuffer, "at line ") < (lineBuffer + lengthLine)) &&
+	} else if (strstr(lineBuffer, "at line " ) &&
+	           (strstr(lineBuffer, "at line " ) < (lineBuffer + lengthLine)) &&
 	           strstr(lineBuffer, "file ") &&
 	           (strstr(lineBuffer, "file ") < (lineBuffer + lengthLine))) {
 		// Lua 4 error message
 		return SCE_ERR_LUA;
-	} else if (strstr(lineBuffer, " at ") &&
-	        (strstr(lineBuffer, " at ") < (lineBuffer + lengthLine)) &&
+	} else if (strstr(lineBuffer, " at " ) &&
+	           (strstr(lineBuffer, " at " ) < (lineBuffer + lengthLine)) &&
 	           strstr(lineBuffer, " line ") &&
 	           (strstr(lineBuffer, " line ") < (lineBuffer + lengthLine)) &&
-	        (strstr(lineBuffer, " at ") < (strstr(lineBuffer, " line ")))) {
+	           (strstr(lineBuffer, " at " ) < (strstr(lineBuffer, " line ")))) {
 		// perl error message
 		return SCE_ERR_PERL;
 	} else if ((memcmp(lineBuffer, "   at ", 6) == 0) &&
@@ -1069,7 +1020,7 @@ static int RecogniseErrorListLine(const char *lineBuffer, unsigned int lengthLin
 						numstep = 1; // ch was ' ', handle as if it's a delphi errorline, only add 1 to i.
 					else
 						numstep = 2; // otherwise add 2.
-					for (j = i + numstep; j < lengthLine && IsAlphabetic(lineBuffer[j]) && chPos < sizeof(word) - 1; j++)
+					for (j = i + numstep; j < lengthLine && isalpha(lineBuffer[j]) && chPos < sizeof(word) - 1; j++)
 						word[chPos++] = lineBuffer[j];
 					word[chPos] = 0;
 					if (!CompareCaseInsensitive(word, "error") || !CompareCaseInsensitive(word, "warning") ||
@@ -1134,12 +1085,6 @@ static void ColouriseErrorListDoc(unsigned int startPos, int length, int, WordLi
 	styler.StartAt(startPos);
 	styler.StartSegment(startPos);
 	unsigned int linePos = 0;
-
-	// property lexer.errorlist.value.separate
-	//	For lines in the output pane that are matches from Find in Files or GCC-style
-	//	diagnostics, style the path and line number separately from the rest of the
-	//	line with style 21 used for the rest of the line.
-	//	This allows matched text to be more easily distinguished from its location.
 	bool valueSeparate = styler.GetPropertyInt("lexer.errorlist.value.separate", 0) != 0;
 	for (unsigned int i = startPos; i < startPos + length; i++) {
 		lineBuffer[linePos++] = styler[i];
@@ -1256,13 +1201,13 @@ static void ColouriseLatexDoc(unsigned int startPos, int length, int initStyle,
 	styler.ColourTo(lengthDoc-1, state);
 }
 
-static const char *const batchWordListDesc[] = {
+static const char * const batchWordListDesc[] = {
 	"Internal Commands",
 	"External Commands",
 	0
 };
 
-static const char *const emptyWordListDesc[] = {
+static const char * const emptyWordListDesc[] = {
 	0
 };
 

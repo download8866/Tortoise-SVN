@@ -8,6 +8,7 @@ import "wtypes.idl";
 library LibSubWCRev
 {
 	importlib("stdole32.tlb");
+	importlib("stdole.tlb"); 
 
 	[ 
 	  uuid(2F5EA5B0-4DE7-4f96-8E6B-FC0C37D9C0D6),
@@ -43,6 +44,9 @@ library LibSubWCRev
 		[propget, helpstring("TRUE if the file or folder is under SVN version control")]
 		HRESULT IsSvnItem([out, retval]VARIANT_BOOL* svn_item);
 
+		[propget, helpstring("TRUE if locking is generally required for the requested file / folder")]
+		HRESULT NeedsLocking([out, retval]VARIANT_BOOL* needs_locking);
+		
 		[propget, helpstring("TRUE if the file or folder is locked")]
 		HRESULT IsLocked([out, retval]VARIANT_BOOL* locked);
 		

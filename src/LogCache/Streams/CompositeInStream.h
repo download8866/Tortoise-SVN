@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 //
 // CCompositeInStreamBase
 //
-//      Base class for all read streams with no local content.
+//		Base class for all read streams with no local content.
 //
 ///////////////////////////////////////////////////////////////
 
@@ -36,30 +36,30 @@ class CCompositeInStreamBase : public CHierachicalInStreamBase
 {
 protected:
 
-    // not meant to be instantiated
+	// not meant to be instantiated
 
-    // construction: nothing to do here
+	// construction: nothing to do here
 
-    CCompositeInStreamBase ( CCacheFileInBuffer* buffer
-                           , STREAM_INDEX index);
+	CCompositeInStreamBase ( CCacheFileInBuffer* buffer
+						   , STREAM_INDEX index);
 
 public:
 
-    // destruction
+	// destruction
 
-    virtual ~CCompositeInStreamBase() {};
+	virtual ~CCompositeInStreamBase() {};
 };
 
 ///////////////////////////////////////////////////////////////
 //
 // CCompositeInStream
 //
-//      Instantiable base class of CCompositeInStreamBase.
+//		Instantiable base class of CCompositeInStreamBase.
 //
 ///////////////////////////////////////////////////////////////
 
-template class CInStreamImpl< CCompositeInStreamBase
-                            , COMPOSITE_STREAM_TYPE_ID>;
+template CInStreamImpl< CCompositeInStreamBase
+					  , COMPOSITE_STREAM_TYPE_ID>;
 typedef CInStreamImpl< CCompositeInStreamBase
-                     , COMPOSITE_STREAM_TYPE_ID> CCompositeInStream;
+					 , COMPOSITE_STREAM_TYPE_ID> CCompositeInStream;
 

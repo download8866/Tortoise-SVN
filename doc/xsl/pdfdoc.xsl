@@ -5,7 +5,6 @@
 
 <xsl:import href="./db_pdfdoc.xsl"/>
 <xsl:import href="./defaults.xsl"/>
-
 <xsl:param name="paper.type" select="'A4'"></xsl:param>
 <xsl:param name="page.orientation">portrait</xsl:param>
 <xsl:param name="double.sided" select="0"></xsl:param>
@@ -23,6 +22,7 @@
   <xsl:attribute name="keep-together.within-column">auto</xsl:attribute>
 </xsl:attribute-set>
 
+    
 <xsl:param name="formal.title.placement">
   figure after
   example after

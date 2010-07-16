@@ -135,9 +135,6 @@
 #define IDS_MENUDESCDELETEIGNORE        224
 #define IDS_MENUCLIPPASTE               225
 #define IDS_MENUDESCCLIPPASTE           226
-#define IDS_MENUUPGRADE                 227
-#define IDS_MENUDESCUPGRADE             228
-#define IDS_MENUADDIMMEDIATE            229
 #define IDS_ERR_PROPNOTONFILE           230
 #define IDS_MENUIGNOREMULTIPLE          231
 #define IDS_ERR_PROPNOMULTILINE         232
@@ -181,7 +178,6 @@
 #define IDS_SVN_DEPTH_EXCLUDE           304
 #define IDS_SVN_DEPTH_UNKNOWN           305
 #define IDS_SVN_DEPTH_WORKING           306
-#define IDS_COLTITLESTATUSNUMBER        307
 #define IDC_REVISION                    1001
 #define IDC_LOCKED                      1002
 #define IDC_REPOURL                     1003
@@ -200,13 +196,9 @@
 #define IDC_FILEEXTERNAL                1013
 #define IDC_EDITNAME                    1014
 #define IDC_TREECONFLICT                1014
-#define IDC_TEXTSTATUS2                 1014
 #define IDC_EDITVALUE                   1015
-#define IDC_TEXTDATE2                   1015
 #define IDC_SHOWLOG                     1016
 #define IDC_RECURSIVE                   1018
-#define IDC_NODESTATUS                  1019
-#define IDC_NODEDATE                    1020
 #define IDS_SVN_USERCANCELLED           1181
 #define IDI_REPOBROWSE                  5145
 #define IDI_BLAME                       5146

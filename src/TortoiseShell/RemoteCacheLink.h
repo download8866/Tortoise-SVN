@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,34 +28,30 @@ class CTSVNPath;
 class CRemoteCacheLink
 {
 public:
-    CRemoteCacheLink(void);
-    ~CRemoteCacheLink(void);
+	CRemoteCacheLink(void);
+	~CRemoteCacheLink(void);
 
 public:
-    bool GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCacheResponse* pReturnedStatus, bool bRecursive);
-    bool ReleaseLockForPath(const CTSVNPath& path);
+	bool GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCacheResponse* pReturnedStatus, bool bRecursive);
+	bool ReleaseLockForPath(const CTSVNPath& path);
 
 private:
-    bool InternalEnsurePipeOpen ( HANDLE& hPipe, const CString& pipeName);
+	bool EnsurePipeOpen();
+	void ClosePipe();
 
-    bool EnsurePipeOpen();
-    void ClosePipe();
-
-    bool EnsureCommandPipeOpen();
-    void CloseCommandPipe();
-
-    DWORD GetProcessIntegrityLevel();
+	bool EnsureCommandPipeOpen();
+	void CloseCommandPipe();
 
 private:
-    HANDLE m_hPipe;
-    OVERLAPPED m_Overlapped;
-    HANDLE m_hEvent;
+	HANDLE m_hPipe;
+	OVERLAPPED m_Overlapped;
+	HANDLE m_hEvent;
 
-    HANDLE m_hCommandPipe;
+	HANDLE m_hCommandPipe;
 
 
-    CComCriticalSection m_critSec;
-    svn_client_status_t m_dummyStatus;
-    long m_lastTimeout;
+	CComCriticalSection m_critSec;
+	svn_wc_status2_t m_dummyStatus;
+	long m_lastTimeout;
 
 };

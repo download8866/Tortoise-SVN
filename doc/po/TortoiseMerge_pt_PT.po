@@ -14,9 +14,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2010-03-27 11:38 +0000\n"
-"PO-Revision-Date: 2010-07-14 01:45-0000\n"
-"Last-Translator: Paulo Santana Justino <paulo.justino@netcabo.pt>\n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
+"PO-Revision-Date: 2010-07-07 08:57+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -99,7 +99,7 @@ msgstr "TortoiseMerge é grátis. Não tens que pagar nada e podes utilizá-lo c
 
 #. (para)
 #, fuzzy
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
 msgstr "O TortoiseMerge é um projecto Open Source. Isto significa que tens total accesso de leitura ao código fonte. Podes acede ao código fonte neste link <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. Quando te for pedido o teu nome utiliza <literal>guest</literal>, e a palavra chave em branco. A versão mais recente (aquele em que estamos a trabalhar) encontra-se no diretório <filename>/trunk/</filename>, e as versão disponíveis encontram-se no diretório <filename>/tags/</filename>."
 
 #. (title)
@@ -202,7 +202,7 @@ msgstr "A História do TortoiseMerge"
 
 #. (para)
 #, fuzzy
-msgid "While working on <ulink url=\"http://tortoisesvn.net\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
+msgid "While working on <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
 msgstr "Enquanto trabalhávamos no <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> verificámos que sempre que um utilizador enviava  correcções para melhorar o projecto ou simplesmente corrijir problemas, tinhamos um enorme trabalho só para os aplicar, sendo que muitas das vezes essas mesmas correcções estavam desactualizadas e nao podiam ser aplicadas através da linha de comandos da ferramenta de correcção <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> porque estávamos a trabalhar nesses ficheiros e que por vezes já haviam sido alterados."
 
 #. (para)
@@ -444,21 +444,6 @@ msgid "<guibutton>Switch View</guibutton> selects between one-pane and two-pane 
 msgstr "<guibutton>Mudar Vista</guibutton> seleciona entre vista de um e dois painéis. Desactivado em vista de 3 painéis."
 
 #. (para)
-#. (para)
-msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
-msgstr "<guilabel>Comparar espaços em branco</guilabel> mostra todas as alterações de indentação e espaços em branco no interior do texto, como linhas adicionadas/removidas (que é como o Subversion trata tais alterações)."
-
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr "<guilabel>Ignorar alterações nos espaços em branco</guilabel> esconde as alterações que são apenas devidas à alteração na quantidade ou tipo de espaços em branco, e.g. alterar uma indentação ou alterar tabs para espaços. Adicionar espaços em branco onde não havia nenhum, ou remover completamente um espaço em branco é ainda mostrado como uma alteração."
-
-#. (para)
-#. (para)
-msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
-msgstr "<guilabel>Ignorar todos os espaços em branco</guilabel> esconde todas as alterações de apenas espaços em branco."
-
-#. (para)
 msgid "<guibutton>Switch Left and Right View</guibutton> In 2-pane view, swaps the left and right windows. When you are comparing a file in 2 different trees, as opposed to 2 revisions of the same file, TortoiseSVN does not know which one should go in the left pane as the <quote>original/base</quote> version. If it gets this wrong, you can change it to make viewing easier."
 msgstr "<guibutton>Trocar vista da Esquerda e Direita</guibutton> Na vista de 2 paineis, troca as janelas da esquerda e direita. Quando se está a comparar um ficheiro em 2 árvores diferentes, ao contrário de 2 revisões do mesmo ficheiro, TortoiseSVN não sabe qual dos 2 deve ir para o painél da esquerda como a versão <quote>original/base</quote>. Se ele não acertar, o utilizador pode mudar isso para se torne mais fácil a sua visualização."
 
@@ -467,16 +452,7 @@ msgid "<guibutton>Show/Hide Patch List</guibutton> When TortoiseMerge has a patc
 msgstr "<guibutton>Mostrar/Esconder a Patch List</guibutton> Quando TortoiseMerge tem uma patch list, este botão permite-lhe esconde-la (para que possa ver ambas as janelas), ou mostra-la (para que possa rever a lista do ficheiro)."
 
 #. (para)
-msgid "<guilabel>Collapse</guilabel> collapses unchanged regions to a single line, leaving only the changed areas and minimal context. You can expand the collapsed areas by double clicking on the collapse line, but you cannot then re-collapse them unless you reload the file."
-msgstr ""
-
-#. (para)
 msgid "<guibutton>Settings</guibutton> takes you to TortoiseMerge's settings dialog."
-msgstr "<guibutton>Definições</guibutton> mostra o diálogo de definições do TortoiseMerge."
-
-#. (para)
-#, fuzzy
-msgid "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
 msgstr "<guibutton>Definições</guibutton> mostra o diálogo de definições do TortoiseMerge."
 
 #. (para)
@@ -626,6 +602,18 @@ msgstr "<guilabel>Ignorar alterações de maiúsculas/minúsculas</guilabel> esc
 #. (para)
 msgid "<guilabel>Colour code in-line changes</guilabel> uses the same scheme as the line diff bar to show the detailed in-line changes within the main display panes. Lines which have been heavily modified will not be shown using this method as the results are simply confusing. In this case the line will be shown as replaced (old line deleted, new line added)."
 msgstr "<guilabel>Código de cor das alterações interiores às linhas</guilabel> usa o mesmo esquema de cores da barra de comparação de linha, para mostrar os detalhes das alterações no interior da linha, dentro dos painéis principais de visualização. As linhas que tenham sido muito modificadas não serão mostradas recorrendo a este método, já que os resultados seriam simplesmente confusos. Neste caso a linha será mostrada como tendo sido substituída (removida a linha antiga, adicionada linha nova)."
+
+#. (para)
+msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
+msgstr "<guilabel>Comparar espaços em branco</guilabel> mostra todas as alterações de indentação e espaços em branco no interior do texto, como linhas adicionadas/removidas (que é como o Subversion trata tais alterações)."
+
+#. (para)
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgstr "<guilabel>Ignorar alterações nos espaços em branco</guilabel> esconde as alterações que são apenas devidas à alteração na quantidade ou tipo de espaços em branco, e.g. alterar uma indentação ou alterar tabs para espaços. Adicionar espaços em branco onde não havia nenhum, ou remover completamente um espaço em branco é ainda mostrado como uma alteração."
+
+#. (para)
+msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
+msgstr "<guilabel>Ignorar todos os espaços em branco</guilabel> esconde todas as alterações de apenas espaços em branco."
 
 #. (title)
 msgid "Colour Settings Page"
@@ -1005,10 +993,6 @@ msgstr "/createunifieddiff"
 msgid "Creates a unified diff file (patch file) of two files specified with <placeholder-1/> and <placeholder-2/>. The target path is set with <placeholder-3/>. If <placeholder-4/> is not set, a file save dialog is shown so the user can choose the location to save the patch file. Note: If <placeholder-5/> is set, all other parameters are ignored."
 msgstr "Cria um ficheiro de comparação unificada (ficheiro correcção) dos dois ficheiros especificados com <placeholder-1/> e <placeholder-2/>. O caminho de destino é especificado com <placeholder-3/>. Se não for especificado o <placeholder-4/>, é mostrada uma caixa de diálogo guardar para que o utilizador possa escolher a localização para guardar o ficheiro correcção. Se for especificado o <placeholder-5/>, então todos os outros parâmetros são ignorados."
 
-#. (entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr "Especifica um número de linha para saltar após carregar os ficheiros."
-
 #. (para)
 msgid ""
 "You can also supply simple filenames on the command line for compatibility with other diff programs. In this simplified form the command line is <screen>\n"
@@ -1037,7 +1021,7 @@ msgstr "Revisão BASE"
 
 #. (para)
 msgid "The current base revision of a file or folder in your <emphasis>working copy</emphasis>. This is the revision the file or folder was in, when the last checkout, update or commit was run. The BASE revision is normally not equal to the HEAD revision."
-msgstr "A revisão base corrente de um ficheiro ou pasta na tua <emphasis>cópia de trabalho</emphasis>. Isto é a revisão em que estava o ficheiro ou pasta na altura em que foi corrido o ultimo checkout, actualização ou submissão. A revisão BASE é normalmente diferente à revisão HEAD."
+msgstr ""
 
 #. (glossterm)
 msgid "Blame"
@@ -1045,7 +1029,7 @@ msgstr "Culpa"
 
 #. (para)
 msgid "This command is for text files only, and it annotates every line to show the repository revision in which it was last changed, and the author who made that change. Our GUI implementation is called TortoiseBlame and it also shows the commit date/time and the log message when you hover the mouse of the revision number."
-msgstr "Este comando é apenas para ficheiros de texto, e irá anotar cada linha de modo a mostrar a revisão do repositório em que foi alterada por último, e o autor que efectuou essa alteração. A nossa implementação de GUI chama-se TortoiseBlame e também mostra a data/tempo de submissão e a mensagem de registo, quando passas o rato sobre o número de revisão."
+msgstr ""
 
 #. (glossterm)
 msgid "BDB"
@@ -1061,7 +1045,7 @@ msgstr "Ramo"
 
 #. (para)
 msgid "A term frequently used in revision control systems to describe what happens when development forks at a particular point and follows 2 separate paths. You can create a branch off the main development line so as to develop a new feature without rendering the main line unstable. Or you can branch a stable release to which you make only bug fixes, while new developments take place on the unstable trunk. In Subversion a branch is implemented as a <quote>cheap copy</quote>."
-msgstr "Termo usado frequentemente em sistemas de controlo de versões para descrever o que acontece quando o desenvolvimento de se divide num determinado ponto, e segue dois caminhos separados. Tu podes criar um ramo derivado da linha de desenvolvimento principal par desenvolver uma nova funcionalidade, sem tornar instável a linha principal. Ou podes ramificar uma entrega (release) estável, para a qual efectuas apenas correcções de problemas, enquanto novos desenvolvimentos tomam lugar no instável trunk. No Subversion um ramo é implementado como uma <quote>cópia barata</quote>."
+msgstr ""
 
 #. (glossterm)
 msgid "Checkout"
@@ -1077,7 +1061,7 @@ msgstr "Limpar"
 
 #. (para)
 msgid "To quote from the Subversion book: <quote> Recursively clean up the working copy, removing locks and resuming unfinished operations. If you ever get a <emphasis>working copy locked</emphasis> error, run this command to remove stale locks and get your working copy into a usable state again. </quote> Note that in this context <emphasis>lock</emphasis> refers to local filesystem locking, not repository locking."
-msgstr "Para citar o livro do Subversion: <quote> Recursively clean up the working copy, removing locks and resuming unfinished operations. If you ever get a <emphasis>working copy locked</emphasis> error, run this command to remove stale locks and get your working copy into a usable state again. </quote> Observa que neste contexto <emphasis>bloquear (lock)</emphasis> se refere ao bloqueio do sistema de ficheiros local, e não ao bloqueio no repositório."
+msgstr ""
 
 #. (glossterm)
 msgid "Commit"
@@ -1101,7 +1085,7 @@ msgstr "Cópia"
 
 #. (para)
 msgid "In a Subversion repository you can create a copy of a single file or an entire tree. These are implemented as <quote>cheap copies</quote> which act a bit like a link to the original in that they take up almost no space. Making a copy preserves the history of the item in the copy, so you can trace changes made before the copy was made."
-msgstr "Num repositório Subversion tu podes criar uma cópia de um ficheiro simples ou uma árvore inteira. Essas são implementadas como <quote>cópias baratas</quote> que actuam um pouco como uma hiperligação para o original, pelo que não ocupam praticamente nenhum espaço. Efectuar uma cópia preserva a história do item para que possas seguir as alterações efectuadas antes de a cópia ter sido efectuada. "
+msgstr ""
 
 #. (glossterm)
 msgid "Delete"
@@ -1217,7 +1201,7 @@ msgstr "Realocar"
 
 #. (para)
 msgid "If your repository moves, perhaps because you have moved it to a different directory on your server, or the server domain name has changed, you need to <quote>relocate</quote> your working copy so that its repository URLs point to the new location."
-msgstr "Se se alterar a localização do teu repositório, talvez porque o moveste para uma pasta diferente no teu servidor, o o nome de domínio do servidor foi alterado, irás necessitar de <quote>reposicionar</quote> a tua cópia de trabalho para que o seu URL aponte para a nova localização."
+msgstr ""
 
 #. (para)
 msgid "Note: you should only use this command if your working copy is referring to the same location in the same repository, but the repository itself has moved. In any other circumstance you probably need the <quote>Switch</quote> command instead."
@@ -1285,7 +1269,7 @@ msgstr "parâmetro"
 
 #. (para)
 msgid "Just as <quote>Update-to-revision</quote> changes the time window of a working copy to look at a different point in history, so <quote>Switch</quote> changes the space window of a working copy so that it points to a different part of the repository. It is particularly useful when working on trunk and branches where only a few files differ. You can switch your working copy between the two and only the changed files will be transferred."
-msgstr "Tal como <quote>Actualizar-para-revisão</quote> altera a janela de tempo da cópia de trabalho de modo a olhar para um ponto diferente na história, o <quote>Trocar</quote> altera a janela espacial da cópia de trabalho para que aponte para uma diferente secção do repositório. É particularmente útil quando se está a trabalhar no trunk e nos ramos onde poucos ficheiros diferem. Podes trocar a tua cópia de trabalho entre os dois, e só os ficheiros alterados serão transferidos."
+msgstr ""
 
 #. (glossterm)
 msgid "Update"
@@ -1312,4 +1296,14 @@ msgstr "Luis X. B. Mourão, Paulo Santana Justino"
 #. (None)
 msgid "translator-translation"
 msgstr "Tradução"
+
+#, fuzzy
+#~ msgid ""
+#~ "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
+#~ msgstr ""
+#~ "<guibutton>Definições</guibutton> mostra o diálogo de definições do "
+#~ "TortoiseMerge."
+#~ msgid "Specifies a line number to jump to after loading the files."
+#~ msgstr ""
+#~ "Especifica um número de linha para saltar após carregar os ficheiros."
 

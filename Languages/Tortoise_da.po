@@ -1,6 +1,6 @@
 #
 # Danish translation for TortoiseSVN
-# Copyright (C) 2004-2010 the TortoiseSVN team
+# Copyright (C) 2004-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -21,8 +21,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2010-07-09 21:48+0100\n"
-"Last-Translator: Mikkel Elmholdt <mikkel@elmholdt.dk>\n"
+"PO-Revision-Date: 2010-03-08 09:14+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -55,11 +55,9 @@ msgstr ""
 # Docked = Fastgjort (ikke 'låst' som tidligere anvendt)
 # Event = handling (men udelades gerne, f.eks. "Associate double-click event with" -> "Associer dobbeltklik med")
 # Explorer = Windows Stifinder
-# External(s) = Ekstern(e)
 # Float = Flydende
 # Get lock = Rekvivier lås
 # Hook (script)= Tilkobling
-# Hunk = Stykke
 # Icon overlay = Ikonoverdækning
 # (Re)integrate = (Re)integrer
 # Issue = Sag
@@ -73,7 +71,7 @@ msgstr ""
 # Options = Indstillinger
 # Pane = Rude
 # Password = Adgangskode
-# Patch = Rettelse (nogen gange betydning som "patch file", brug der oversættelse nedenfor)
+# Patch = Rettelse (nogen gange betyning som "patch file", brug der oversættelse nedenfor)
 # Patch file = Rettelsesfil
 # Port = Overføre (f.eks.: "To port these changes to the trunk..." -> "For at overføre disse ændringer til stamen...")
 # Personalized = Tilpasset
@@ -207,57 +205,6 @@ msgstr "%1 har et forkert format."
 msgid "%1 was not found."
 msgstr "%1 findes ikke."
 
-#. Resource IDs: (169)
-#, c-format
-msgid "%1!d! files selected, %2!d! files total"
-msgstr "%1!d! filer valgt, %2!d! filer ialt"
-
-#. Resource IDs: (246)
-#, c-format
-msgid "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
-msgstr "%1!d! mest aktive forfatter(e) med mindst %2!d! arkiveringer hver (%3!d! %%)"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!ld! minute(s) and %2!ld! second(s)"
-msgstr "%1!ld! minut(ter) and %2!ld! sekund(er)"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "%1!s! (offline) - %2!s!"
-msgstr "%1!s! (offline) - %2!s!"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! - at revision: %2!d!"
-msgstr "%1!s! - ved revision: %2!d!"
-
-#. Resource IDs: (151)
-#, c-format
-msgid "%1!s! : Working Base, Revision %2!ld!"
-msgstr "%1!s! : Grundrevision af Arbejdskopi, revision %2!ld!"
-
-# Example: "123 kBytes transferred in 2 minute(s) and 34 second(s)"
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! in %2!s!"
-msgstr "%1!s! in %2!s!"
-
-#. Resource IDs: (357)
-#, c-format
-msgid "%1!s!, at %2!s!"
-msgstr "%1!s!, ved %2!s!"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export"
-msgstr "%1!s!\\%2!s! - Eksport"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export (%3!d!)"
-msgstr "%1!s!\\%2!s! - Eksport (%3!d!)"
-
 #. Resource IDs: (3860)
 #, c-format
 msgid ""
@@ -285,13 +232,28 @@ msgstr "%I64d byte overført"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d Bytes/s"
-msgstr "%I64d Bytes/s"
+msgid "%I64d kBytes transferred"
+msgstr "%I64d KB overført"
+
+#. Resource IDs: (169)
+#, c-format
+msgid "%d files selected, %d files total"
+msgstr "%d fil(er) valgt, %d fil(er) i alt"
+
+#. Resource IDs: (246)
+#, c-format
+msgid "%d most active author(s) with at least %d commits each (%d %%)"
+msgstr "%d mest aktive forfatter(e) med mindst %d arkiveringer hver (%d %%)"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d kBytes transferred"
-msgstr "%I64d KB overført"
+msgid "%ld Bytes/s"
+msgstr "%ld Bytes/s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%ld minute(s) and %ld second(s)"
+msgstr "%ld minut(ter) og %ld sekund(er)"
 
 #. Resource IDs: (7)
 #, c-format
@@ -313,6 +275,16 @@ msgstr "%s"
 msgid "%s (offline)"
 msgstr "%s (offline)"
 
+#. Resource IDs: (115)
+#, c-format
+msgid "%s (offline) - %s"
+msgstr "%s (offline) - %s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%s - at revision: %d"
+msgstr "%s - ved revision: %d"
+
 #. Resource IDs: (151)
 #, c-format
 msgid "%s : Remote file"
@@ -325,92 +297,64 @@ msgstr "%s : Grundrevision af arbejdskopi"
 
 #. Resource IDs: (151)
 #, c-format
+msgid "%s : Working Base, Revision %ld"
+msgstr "%s : Grundrevision af arbejdskopi, revision %ld"
+
+#. Resource IDs: (151)
+#, c-format
 msgid "%s : Working Copy"
 msgstr "%s : Arbejdskopi"
 
-#. Resource IDs: (3887)
+# Example: "123 kBytes transferred in 2 minute(s) and 34 second(s)"
+#. Resource IDs: (226)
 #, c-format
-msgid "%s [Recovered]"
-msgstr "%s [Genskabt]"
+msgid "%s in %s"
+msgstr "%s på %s"
+
+#. Resource IDs: (357)
+#, c-format
+msgid "%s, at %s"
+msgstr "%s ved %s"
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory already exists unversioned locally."
-msgstr "%s, men kataloget eksisterer allerede uversioneret lokalt."
+msgid "%s, but it already exists unversioned locally."
+msgstr "%s, men eksisterer allerede uversioneret lokalt."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory is missing locally."
-msgstr "%s, men kataloget findes ikke lokalt."
+msgid "%s, but it is missing locally."
+msgstr "%s, men findes ikke lokalt."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was already added locally."
-msgstr "%s , men kataloget er allerede tilføjet lokalt."
+msgid "%s, but it was already added locally."
+msgstr "%s , men er allerede tilføjet lokalt."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was already edited."
-msgstr "%s, men kataloget var allerede blevet ændret."
+msgid "%s, but it was already edited."
+msgstr "%s , men er allerede ændret."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was deleted, moved or renamed locally."
-msgstr "%s, men kataloget er blevet slettet, flyttet eller omdøbt lokalt."
+msgid "%s, but it was deleted, moved or renamed locally."
+msgstr "%s, men er blevet slettet, flyttet eller omdøbt lokalt."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was obstructed in the working copy."
-msgstr "%s, men kataloget blev blokeret i den nuværende arbejdskopi."
+msgid "%s, but it was obstructed in the working copy."
+msgstr "%s, men blev blokeret i den nuværende arbejdskopi."
 
-#. Resource IDs: (609)
+#. Resource IDs: (145)
 #, c-format
-msgid "%s, but the directory was replaced"
-msgstr "%s, men kataloget blev erstattet"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Eksport (%d) af %s"
 
-#. Resource IDs: (609)
+#. Resource IDs: (145)
 #, c-format
-msgid "%s, but the file already exists unversioned locally."
-msgstr "%s, men filen eksisterer allerede uversioneret lokalt."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file is missing locally."
-msgstr "%s, men filen findes ikke lokalt."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was already added locally."
-msgstr "%s , men filen var allerede tilføjet lokalt."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was already edited."
-msgstr "%s, men filen var allerede blevet ændret."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was deleted, moved or renamed locally."
-msgstr "%s, men filen var blevet slettet, flyttet eller omdøbt lokalt."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was obstructed in the working copy."
-msgstr "%s, men filen blev blokeret i den nuværende arbejdskopi."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was replaced"
-msgstr "%s, men filen blev erstattet"
-
-#. Resource IDs: (376)
-#, c-format
-msgid ""
-"%s\n"
-"%ld failed hunk(s)"
-msgstr ""
-"%s\n"
-"%ld fejlende stykke(r)"
+msgid "%s\\Export of %s"
+msgstr "%s\\Eksport af %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -429,19 +373,6 @@ msgid ""
 msgstr ""
 "%s\n"
 "Vil du fjerne alligevel?"
-
-#. Resource IDs: (616)
-#, c-format
-msgid ""
-"%s\n"
-"\n"
-"Shall I update the working copy now\n"
-"and reopen the commit dialog?"
-msgstr ""
-"%s\n"
-"\n"
-"Skal jeg opdatere arbejdskopien nu\n"
-"og genåbne arkiveringsdialogen?"
 
 #. Resource IDs: (69)
 #, c-format
@@ -479,10 +410,6 @@ msgstr "&Om TortoiseMerge..."
 msgid "&Activate"
 msgstr "&Aktiver"
 
-#. Resource IDs: (15)
-msgid "&Add"
-msgstr "&Tilføj"
-
 #. Resource IDs: (17075)
 msgid "&Add >>"
 msgstr "&Tilføj >>"
@@ -495,10 +422,6 @@ msgstr "&Tilføj eller Fjern Knapper"
 msgid "&Add..."
 msgstr "Tilfø&j..."
 
-#. Resource IDs: (32849)
-msgid "&Advanced"
-msgstr "&Avanceret"
-
 #. Resource IDs: (1090, 1093)
 msgid "&Advanced..."
 msgstr "&Avanceret..."
@@ -510,10 +433,6 @@ msgstr "&Tillad tvetydige URL'er"
 #. Resource IDs: (65535)
 msgid "&Application Look"
 msgstr "&Programudseende"
-
-#. Resource IDs: (1294)
-msgid "&Apply property recursively"
-msgstr "%Anvend egenskaben rekursivt"
 
 #. Resource IDs: (1013)
 msgid "&Apply unified diff"
@@ -547,10 +466,6 @@ msgstr "&Auto-luk:"
 msgid "&Backup original file"
 msgstr "Lav &sikkerhedskopi af oprindelig fil"
 
-#. Resource IDs: (1559)
-msgid "&Binary"
-msgstr "&Binært"
-
 #. Resource IDs: (114)
 msgid "&Blame changes"
 msgstr "&Angiv ansvar for ændringer"
@@ -576,14 +491,6 @@ msgid "&Blue:"
 msgstr "&Blå:"
 
 #. Resource IDs: (65535)
-msgid "&Border:"
-msgstr "&Margin:"
-
-#. Resource IDs: (1568)
-msgid "&Bottom"
-msgstr "&Bund"
-
-#. Resource IDs: (65535)
 msgid "&Branches"
 msgstr "&Sidegrene"
 
@@ -594,10 +501,6 @@ msgstr "&Gennemse versionsarkiv"
 #. Resource IDs: (1001, 1009)
 msgid "&Browse..."
 msgstr "&Gennemse..."
-
-#. Resource IDs: (32850)
-msgid "&Bugtraq (Issue tracker integration)"
-msgstr "&Bugtraq (sagsbehandlerintegration)"
 
 #. Resource IDs: (16913)
 msgid "&Button Appearance..."
@@ -659,7 +562,7 @@ msgstr "&Sammenlign URL'er"
 msgid "&Compare revisions"
 msgstr "&Sammenlign revisioner"
 
-#. Resource IDs: (1019, 1390)
+#. Resource IDs: (1019)
 msgid "&Compare whitespaces"
 msgstr "&Sammenlign blanktegn"
 
@@ -695,13 +598,9 @@ msgstr "&Kopier til udklipsholder"
 msgid "&Copy to..."
 msgstr "&Kopier til..."
 
-#. Resource IDs: (1097, 1560)
+#. Resource IDs: (1097)
 msgid "&Custom"
 msgstr "&Personlig"
-
-#. Resource IDs: (1610, 1613)
-msgid "&Date"
-msgstr "&Dato"
 
 # Bedre oversættelse af caches?
 #. Resource IDs: (1485)
@@ -720,10 +619,6 @@ msgstr "S&let"
 msgid "&Delete (keep local)"
 msgstr "&Slet (behold lokalt)"
 
-#. Resource IDs: (1514)
-msgid "&Delete unversioned items..."
-msgstr "&Slet ikke-versionerede emner..."
-
 #. Resource IDs: (101)
 msgid "&Delete..."
 msgstr "&Slet..."
@@ -740,25 +635,13 @@ msgstr "&Sammenlign med URL"
 msgid "&Diff with previous version"
 msgstr "Sammenl&ign med forrige version"
 
-#. Resource IDs: (1528)
-msgid "&Directories"
-msgstr "&Mapper"
-
 #. Resource IDs: (1066)
 msgid "&Docking"
 msgstr "&Dokning"
 
-#. Resource IDs: (32851)
-msgid "&EOL"
-msgstr "&EOL"
-
 #. Resource IDs: (1031, 65535)
 msgid "&Edit"
 msgstr "&Rediger"
-
-#. Resource IDs: (1399)
-msgid "&Edit conflict"
-msgstr "R&ediger konflikt"
 
 #. Resource IDs: (12)
 msgid "&Edit conflicts"
@@ -780,10 +663,6 @@ msgstr "&Aktiver logcaching"
 msgid "&Enter a message describing why you are locking the file(s)."
 msgstr "&Indtast en besked som beskriver, hvorfor du låser filen/filerne."
 
-#. Resource IDs: (1554)
-msgid "&Executable"
-msgstr "&Program"
-
 #. Resource IDs: (32782)
 msgid "&Exit"
 msgstr "&Afslut"
@@ -799,10 +678,6 @@ msgstr "&Ekstern"
 #. Resource IDs: (65535)
 msgid "&File"
 msgstr "&Fil"
-
-#. Resource IDs: (1529)
-msgid "&Files"
-msgstr "&Filer"
 
 #. Resource IDs: (32809)
 msgid "&Filter"
@@ -841,16 +716,12 @@ msgid "&From URL:"
 msgstr "&Fra URL:"
 
 #. Resource IDs: (1259)
-msgid "&From WC / URL:"
-msgstr "&Fra arbejdskopi / URL:"
+msgid "&From WC at URL:"
+msgstr "&Fra arbejdskopi med URL:"
 
 #. Resource IDs: (65535)
 msgid "&From revision"
 msgstr "&Fra revision"
-
-#. Resource IDs: (1494)
-msgid "&From: (start URL and revision of the range to merge)"
-msgstr "&Fra: (start-URL og -revision af intervallet der skal flettes)"
 
 #. Resource IDs: (32779)
 msgid "&Go To Line..."
@@ -864,7 +735,7 @@ msgstr "&Grøn:"
 msgid "&Group by branch"
 msgstr "&Gruppér efter gren"
 
-#. Resource IDs: (1115)
+#. Resource IDs: (1032, 1115)
 msgid "&HEAD Revision"
 msgstr "&HEAD-revision"
 
@@ -944,10 +815,6 @@ msgstr "&Foren med under-træer"
 msgid "&Jump to first difference when loading"
 msgstr "&Gå direkte til første forskel"
 
-#. Resource IDs: (32852)
-msgid "&Keywords"
-msgstr "&Nøgleord"
-
 #. Resource IDs: (65535)
 msgid "&Language:"
 msgstr "&Sprog:"
@@ -960,18 +827,9 @@ msgstr "&Store ikoner"
 msgid "&Limit search to modified lines"
 msgstr "&Begræns søgning til ændrede linjer"
 
-# Kontekst?
-#. Resource IDs: (65535)
-msgid "&Limit:"
-msgstr "&Grænse:"
-
 #. Resource IDs: (32797)
 msgid "&Link image positions"
 msgstr "&Sammenkæd billedplaceringer"
-
-#. Resource IDs: (1590)
-msgid "&Linux (LF)"
-msgstr "&Linux (LF)"
 
 #. Resource IDs: (1172)
 msgid "&List View"
@@ -981,22 +839,10 @@ msgstr "Vis som &liste"
 msgid "&Load..."
 msgstr "&Åbn..."
 
-#. Resource IDs: (1554)
-msgid "&Locking required (read-only update)"
-msgstr "&Låsning nødvendig (skrivebeskyttet opdatering)"
-
-#. Resource IDs: (32854)
-msgid "&Log Sizes"
-msgstr "Log Størrelser"
-
 # Kontekst?
 #. Resource IDs: (65535)
-msgid "&Luminence:"
+msgid "&Lum:"
 msgstr "&Luminans:"
-
-#. Resource IDs: (1591)
-msgid "&Mac (CR)"
-msgstr "&Mac (CR)"
 
 #. Resource IDs: (1282)
 msgid "&Manually edit property"
@@ -1031,10 +877,6 @@ msgstr "&Flet..."
 msgid "&Merging"
 msgstr "&Fletning"
 
-#. Resource IDs: (32847)
-msgid "&Mime-Type"
-msgstr "&Mime-Type"
-
 #. Resource IDs: (16925)
 msgid "&Minimize"
 msgstr "M&inimer"
@@ -1046,10 +888,6 @@ msgstr "Ændr farve for &mærke-kopier"
 #. Resource IDs: (1492)
 msgid "&Modify color for trunk copies"
 msgstr "Ændr farve for &kopier af hovedgren"
-
-#. Resource IDs: (32880)
-msgid "&Moved blocks"
-msgstr "&Flyttede blokke"
 
 #. Resource IDs: (65535)
 msgid "&Navigate"
@@ -1063,7 +901,7 @@ msgstr "&Netværksdrev"
 msgid "&New "
 msgstr "&Ny "
 
-#. Resource IDs: (1310, 1542, 16509, 16615)
+#. Resource IDs: (1310, 16509, 16615)
 msgid "&New..."
 msgstr "&Ny..."
 
@@ -1087,18 +925,6 @@ msgstr "&Næste Side"
 #. Resource IDs: (16632)
 msgid "&No double-click event"
 msgstr "&Ingen dobbeltklikhandling"
-
-#. Resource IDs: (1555)
-msgid "&No locking required"
-msgstr "&Låsning ikke nødvendig"
-
-#. Resource IDs: (1555)
-msgid "&Not executable"
-msgstr "&Ikke kørbar"
-
-#. Resource IDs: (1566)
-msgid "&Numeric"
-msgstr "&Numerisk"
 
 #. Resource IDs: (1)
 msgid "&OK"
@@ -1132,17 +958,9 @@ msgstr "Adgangs&kode:"
 msgid "&Paste"
 msgstr "&Indsæt"
 
-#. Resource IDs: (1600)
-msgid "&Peg revision:"
-msgstr "&Fastgør revision:"
-
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
 msgstr "&Permanent offline"
-
-#. Resource IDs: (1588)
-msgid "&Platform dependent (native)"
-msgstr "&Platform afhængig (indfødt)"
 
 #. Resource IDs: (1414)
 msgid "&Port:"
@@ -1164,10 +982,6 @@ msgstr "&Vis Udskrift"
 msgid "&Print..."
 msgstr "&Udskriv..."
 
-#. Resource IDs: (1265)
-msgid "&Properties"
-msgstr "&Egenskaber"
-
 #. Resource IDs: (11021)
 msgid "&Properties..."
 msgstr "&Egenskaber..."
@@ -1187,10 +1001,6 @@ msgstr "&Gentag"
 #. Resource IDs: (1382)
 msgid "&Refresh"
 msgstr "&Opdater"
-
-#. Resource IDs: (1562)
-msgid "&Remind me to enter a bug-ID"
-msgstr "&Mind mig om at indtaste et fejl-ID"
 
 #. Resource IDs: (1100, 1285, 16646)
 msgid "&Remove"
@@ -1232,10 +1042,6 @@ msgstr "Brug &lokal egenskab til at løse konflikt"
 msgid "&Restore defaults"
 msgstr "Gendan &standardindstillinger"
 
-#. Resource IDs: (1542)
-msgid "&Retry without hooks"
-msgstr "&Forsøg igen uden tilkobling"
-
 #. Resource IDs: (114)
 msgid "&Revert changes from these revisions"
 msgstr "Tilbagefør ænd&ringer fra disse revisioner"
@@ -1256,8 +1062,9 @@ msgstr "&SSH-klient:"
 msgid "&SVN"
 msgstr "&SVN"
 
+# Kontekst?
 #. Resource IDs: (65535)
-msgid "&Saturation:"
+msgid "&Sat:"
 msgstr "&Mætning:"
 
 #. Resource IDs: (16921, 57603)
@@ -1277,8 +1084,8 @@ msgid "&Save list of selected files to..."
 msgstr "&Gem liste af valgte filer til..."
 
 #. Resource IDs: (1308)
-msgid "&Save value..."
-msgstr "&Gem værdi..."
+msgid "&Save..."
+msgstr "&Gem..."
 
 #. Resource IDs: (9)
 msgid "&Settings"
@@ -1287,10 +1094,6 @@ msgstr "Indstillin&ger"
 #. Resource IDs: (32815)
 msgid "&Show HEAD revisions"
 msgstr "&Vis HEAD-revisioner"
-
-#. Resource IDs: (1132)
-msgid "&Show Log"
-msgstr "&Vis logbog"
 
 #. Resource IDs: (65535)
 msgid "&Show Menus for:"
@@ -1373,17 +1176,13 @@ msgstr "&Timeout i sekunder før stop af filanalyse til automatisk udfyldning"
 msgid "&To Revision"
 msgstr "&Til revision"
 
-#. Resource IDs: (1305, 1384)
+#. Resource IDs: (1384, 65535)
 msgid "&To URL:"
 msgstr "&Til URL:"
 
-#. Resource IDs: (1305, 1384)
-msgid "&To path:"
-msgstr "&Til sti:"
-
-#. Resource IDs: (1495)
-msgid "&To: (end URL and revision of the range to merge)"
-msgstr "&Til: (slut-URL og -revision af intervallet der skal flettes)"
+#. Resource IDs: (1305)
+msgid "&To URL: "
+msgstr "&Til URL: "
 
 #. Resource IDs: (59392)
 msgid "&Toolbar"
@@ -1396,10 +1195,6 @@ msgstr "&Navn på værktøjslinje:"
 #. Resource IDs: (65535)
 msgid "&Toolbars:"
 msgstr "&Værktøjslinjer:"
-
-#. Resource IDs: (1567)
-msgid "&Top"
-msgstr "&Top"
 
 #. Resource IDs: (1091, 1093, 1094)
 msgid "&TortoiseMerge"
@@ -1425,7 +1220,7 @@ msgstr "&To sider"
 msgid "&URL of repository:"
 msgstr "&URL til versionsarkivet:"
 
-#. Resource IDs: (1076, 1305, 1561)
+#. Resource IDs: (1076)
 msgid "&URL:"
 msgstr "&URL:"
 
@@ -1457,10 +1252,6 @@ msgstr "Op&dater til revision..."
 msgid "&Use auto-completion of file paths and keywords"
 msgstr "&Benyt automatisk udfyldning af stier og nøgleord"
 
-#. Resource IDs: (1432)
-msgid "&Use recycle bin"
-msgstr "&Brug papirkurv"
-
 #. Resource IDs: (1005, 1410, 65535)
 msgid "&Username:"
 msgstr "&Brugernavn:"
@@ -1481,10 +1272,6 @@ msgstr "&Blanktegn"
 msgid "&Whole word"
 msgstr "&Helt ord"
 
-#. Resource IDs: (1589)
-msgid "&Windows (CRLF)"
-msgstr "&Windows (CRLF)"
-
 #. Resource IDs: (32846)
 msgid "&Windows XP"
 msgstr "&Windows XP"
@@ -1493,10 +1280,6 @@ msgstr "&Windows XP"
 msgid "&Working copy"
 msgstr "&Arbejdskopi"
 
-#. Resource IDs: (1540)
-msgid "&file list control"
-msgstr "&Fil liste kontrol"
-
 #. Resource IDs: (338)
 msgid "'skip ranges' are used to mark revision ranges that have not been cached yet"
 msgstr "\"intervaller der skal springes over\" bruges til at markere revisionsintervaller der endnu ikke er blevet cachede"
@@ -1504,12 +1287,8 @@ msgstr "\"intervaller der skal springes over\" bruges til at markere revisionsin
 # Example: "123 kBytes transferred in 2 minute(s) and 34 second(s)"
 #. Resource IDs: (272)
 #, c-format
-msgid "(%1!s!) %2!s!"
-msgstr "(%1!s!) %2!s!"
-
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Dobbeltklik for at slette fejlmeddelelse)"
+msgid "(%s) %s"
+msgstr "(%s) %s"
 
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
@@ -1520,10 +1299,6 @@ msgstr "(binær værdi)"
 msgid "(copy)"
 msgstr "(kopiér)"
 
-#. Resource IDs: (277)
-msgid "(create branch)"
-msgstr "(opret sidegren)"
-
 #. Resource IDs: (276)
 msgid "(created)"
 msgstr "(oprettet)"
@@ -1531,10 +1306,6 @@ msgstr "(oprettet)"
 #. Resource IDs: (276)
 msgid "(delete)"
 msgstr "(slet)"
-
-#. Resource IDs: (214)
-msgid "(externals)"
-msgstr "(eksterne)"
 
 #. Resource IDs: (276)
 msgid "(modified)"
@@ -1560,10 +1331,6 @@ msgstr "(ingen linjenummer)"
 msgid "(no modification but copy created from here)"
 msgstr "(ingen ændringer men kopi blev oprettet herfra)"
 
-#. Resource IDs: (278)
-msgid "(no modification but relevant for working copy)"
-msgstr "(ingen ændringer men relevant for arbejdskopi)"
-
 # Kontekst?
 #. Resource IDs: (214)
 msgid "(no value)"
@@ -1572,6 +1339,10 @@ msgstr "(ingen værdi)"
 #. Resource IDs: (314)
 msgid "(not found)"
 msgstr "(ikke fundet)"
+
+#. Resource IDs: (277)
+msgid "(open branch)"
+msgstr "(åben sidegren)"
 
 #. Resource IDs: (208)
 msgid "(property change only)"
@@ -1687,24 +1458,16 @@ msgid "A list of user defined properties for folders to show in the combo box"
 msgstr "En liste med brugerdefinerede mapper der skal vises i kombinationsboksen"
 
 #. Resource IDs: (201)
-msgid ""
-"A newer version is available.\r\n"
-"Please go to http://tortoisesvn.net and download the current version."
-msgstr ""
-"En nyere version er tilgængelig.\r\n"
-"Gå venligst til  http://tortoisesvn.net for at hente den nyeste version."
+msgid "A newer version is available. Please go to http://tortoisesvn.tigris.org and download the current version! Click _here_ to go directly to our website."
+msgstr "Der er en nyere version til rådighed. Gå til http://tortoisesvn.tigris.org og hent den nyeste version. Klik _her_ for at gå direkte til vores hjemmeside."
 
 #. Resource IDs: (195)
 msgid ""
 "A newline separated list of paths for which icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be included.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are included too."
+"If you add an '*' char at the end of a path, then all files and subdirs inside that path are included too."
 msgstr ""
-"A newline separated list of paths for which icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be included.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are included too.\"\"En linjesepareret liste af stier hvorfra ikonoverdækninger skal vises.\r\n"
-"Hvis du tilføjer et '?'-tegn i slutningen af stien, vil kun denne sti blive inkluderet.\r\n"
-"Hvis du tilføjer et '*'- eller blank-tegn i slutningen af stien, vil alle filer og undermapper i stien også blive inkluderet."
+"En linjesepareret liste af stier hvor ikonoverdækninger skal vises.\r\n"
+"Hvis du tilføjer et \"*\"-tegn i slutningen af stien, vil alle filer og undermapper i stien også blive inkluderet."
 
 #. Resource IDs: (197)
 msgid ""
@@ -1719,17 +1482,12 @@ msgstr ""
 #. Resource IDs: (194)
 msgid ""
 "A newline separated list of paths for which no icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be excluded.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
+"If you add an '*' char at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
 "An empty list will allow overlays on all paths."
 msgstr ""
-"A newline separated list of paths for which no icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be excluded.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
-"An empty list will allow overlays on all paths.\"\"En linjesepareret liste af stier hvorfra ikonoverdækninger ikke skal vises.\r\n"
-"Hvis du tilføjer et '?'-tegn i slutningen af stien, vil kun denne sti blive udelukket.\r\n"
-"Hvis du tilføjer et '*'- eller blank-tegn i slutningen af stien, vil alle filer og undermapper i stien også blive udelukket.\r\n"
-"En tom liste vil tillade ikonoverdækninger fra alle stier."
+"En linjesepareret liste af stier hvor ikonoverdækninger ikke skal vises.\r\n"
+"Hvis du tilføjer et \"*\"-tegn i slutningen af stien, vil alle filer og undermapper i stien også blive udelukket.\r\n"
+"En tom liste vil tillade ikonoverdækninger på alle stier."
 
 #. Resource IDs: (3843)
 msgid "A required resource was unavailable."
@@ -1743,6 +1501,10 @@ msgstr ""
 "Et visningsprogram for GNU diff-filer (rettelsesfiler).\r\n"
 "Hvis du ikke har et, kan Notesblok benyttes."
 
+#. Resource IDs: (9)
+msgid "A&bout"
+msgstr "&Om"
+
 #. Resource IDs: (101)
 msgid "A&dd folder..."
 msgstr "T&ilføj mappe..."
@@ -1754,10 +1516,6 @@ msgstr "Afbryd"
 #. Resource IDs: (1465)
 msgid "Abort &Merge"
 msgstr "&Afbryd fletning"
-
-#. Resource IDs: (9)
-msgid "About"
-msgstr "Om"
 
 #. Resource IDs: (136)
 msgid "About TortoiseMerge"
@@ -1842,10 +1600,6 @@ msgstr "Tilføj filendelse-specifikt sammenligningsprogram"
 msgid "Add extension specific merge program"
 msgstr "Tilføj filendelse-specifikt fletningsprogram"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Tilføje nye filer automatisk til SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Tilføj elementet alligevel"
@@ -1926,10 +1680,6 @@ msgstr ""
 "Juster indstillingerne\n"
 "Indstillinger"
 
-#. Resource IDs: (307)
-msgid "Advanced"
-msgstr "Avanceret"
-
 #. Resource IDs: (170)
 msgid "Advanced Diff/Merge Settings"
 msgstr "Avancerede indstillinger for sammenligning/fletning"
@@ -1949,10 +1699,6 @@ msgstr "Alder"
 #. Resource IDs: (32822)
 msgid "Align trees on top"
 msgstr "Flugt træer til top"
-
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Alle"
 
 #. Resource IDs: (1007)
 msgid "All Commands"
@@ -1995,14 +1741,6 @@ msgstr "Tillad flere forskellige versionsarkiver at benytte samme URL, f.eks. ht
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Tillad flere forskellige versionsarkiver at benytte samme UUID, f.eks. http://localhost/mitversionsarkiv/"
-
-#. Resource IDs: (119)
-msgid "Already merged"
-msgstr "Allerede flettet"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Altid luk dialoger ved lokale handlinger"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -2097,17 +1835,13 @@ msgstr ""
 "Anvend indstillinger for erfarne brugere. Dette vil give en mere strømlinet oplevelse.\n"
 "Du bør kende betydningen af alle indstillingerne nævnt ovenfor."
 
-#. Resource IDs: (313)
-msgid "Apply Patch..."
-msgstr "Påfør Rettelse..."
+#. Resource IDs: (1294)
+msgid "Apply property recursively"
+msgstr "Anvend egenskaben rekursivt"
 
-#. Resource IDs: (1072)
+#. Resource IDs: (65535)
 msgid "Apply unified diff"
 msgstr "Aktiver unified diff"
-
-#. Resource IDs: (1565)
-msgid "Arb&itrary text"
-msgstr "&Tilfældig tekst"
 
 #. Resource IDs: (145)
 msgid "Are you sure you want to mark the conflicted file(s) as resolved?"
@@ -2126,10 +1860,6 @@ msgstr "Er du sikker på at du vil tilbageføre %d emne(r)? Du mister <b>alle</b
 #. Resource IDs: (32793)
 msgid "Arrange &Vertical"
 msgstr "Arranger &lodret"
-
-#. Resource IDs: (1587)
-msgid "As &is (no specific EOL)"
-msgstr "&Uændret (ingen specifik EOL)"
 
 #. Resource IDs: (199)
 msgid "Ask the user"
@@ -2181,8 +1911,8 @@ msgid "Author"
 msgstr "Forfatter"
 
 #. Resource IDs: (65535)
-msgid "Author:\t\t\t\tStefan Kueng"
-msgstr "Forfatter:\t\t\t\tStefan Kueng"
+msgid "Author:                                    Stefan Kueng"
+msgstr "Forfatter:                                    Stefan Kueng"
 
 #. Resource IDs: (116)
 msgid "Authors"
@@ -2192,7 +1922,7 @@ msgstr "Forfattere"
 msgid "Authors case sensitive"
 msgstr "Forfattere er følsom overfor store/små bogstaver."
 
-#. Resource IDs: (1444)
+#. Resource IDs: (65535)
 msgid "Authors:"
 msgstr "Forfattere:"
 
@@ -2208,6 +1938,10 @@ msgstr "Skjul automatisk alle"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Auto-omdøb"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Altid luk dialoger ved lokale handlinger"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2233,9 +1967,9 @@ msgstr ""
 msgid "Automatic"
 msgstr "Automatisk"
 
-#. Resource IDs: (306)
-msgid "Autotext Tester"
-msgstr "Autotext Tester"
+#. Resource IDs: (1073)
+msgid "Automatically check for &newer versions every week"
+msgstr "Check automatisk efter &ny version hver uge"
 
 #. Resource IDs: (1157)
 msgid "Average"
@@ -2269,7 +2003,7 @@ msgstr ""
 "Bitmap\n"
 "et bitmap"
 
-#. Resource IDs: (162)
+#. Resource IDs: (114, 162)
 msgid "Blame"
 msgstr "Ansvar"
 
@@ -2336,13 +2070,9 @@ msgstr "Fejl-&ID / Sagsnr:"
 msgid "Bug-ID"
 msgstr "Fejl-ID"
 
-#. Resource IDs: (1578)
-msgid "Bug-ID e&xpression:"
-msgstr "Fejl-ID &udtryk:"
-
 #. Resource IDs: (1119)
-msgid "Bug-ID is:"
-msgstr "Fejl-ID er:"
+msgid "Bug-ID / Issue-Nr:"
+msgstr "Fejl-ID / Sagsnr:"
 
 #. Resource IDs: (117)
 msgid "Bug-IDs"
@@ -2413,14 +2143,14 @@ msgstr "Kan ikke aktivere et statisk ActiveX-objekt."
 #, c-format
 msgid ""
 "Can't copy \n"
-"%1!s!\n"
+"%s\n"
 "to\n"
-"%2!s!"
+"%s"
 msgstr ""
 "Kan ikke kopiere \n"
-"%1!s!\n"
+"%s\n"
 "til\n"
-"%2!s!"
+"%s"
 
 #. Resource IDs: (1001)
 msgid "Can't copy bitmap image into the clipboard!"
@@ -2431,7 +2161,7 @@ msgid "Can't create a new image!"
 msgstr "Kan ikke oprette et nyt billede!"
 
 #. Resource IDs: (1001)
-msgid "Can't customize menus!"
+msgid "Can't customize menues!"
 msgstr "Kan ikke tilpasse menuer!"
 
 #. Resource IDs: (1001)
@@ -2458,8 +2188,8 @@ msgstr "Forskellene kan ikke vises på grund af inkonsistente linjeafslutninger 
 # Navneord: vandfald/kaskade/brus
 # Udsangsord: strømme/bruse/komme strømmende/komme væltende
 #. Resource IDs: (16926)
-msgid "Casca&de"
-msgstr "Vis i serie"
+msgid "Cascade"
+msgstr "Udvid"
 
 # Kontekst? Mulige oversættelser:
 # Navneord: vandfald/kaskade/brus
@@ -2467,10 +2197,6 @@ msgstr "Vis i serie"
 #. Resource IDs: (65535)
 msgid "Cascaded context menu"
 msgstr "Udvidet højrekliksmenu"
-
-#. Resource IDs: (117)
-msgid "Case-sensitive"
-msgstr "Forskel på store/små bogstaver."
 
 #. Resource IDs: (65535)
 msgid "Cate&gories:"
@@ -2508,8 +2234,8 @@ msgstr "Ændrede filer"
 
 #. Resource IDs: (324)
 #, c-format
-msgid "Changed files between %1!s!, %2!s! and %3!s!, %4!s!"
-msgstr "Ændrede filer mellem %1!s!, %2!s! og %3!s!, %4!s!"
+msgid "Changed files between %s, %s and %s, %s"
+msgstr "Ændrede filer mellem %s, %s og %s, %s"
 
 #. Resource IDs: (163)
 #, c-format
@@ -2529,14 +2255,6 @@ msgstr "Ændringsliste:"
 msgid "Changes made (double-click on file for diff):"
 msgstr "Aktuelle ændringer (dobbeltklik på fil for at sammenligne):"
 
-#. Resource IDs: (230)
-msgid "Changing externals to fixed revision"
-msgstr "Ændrer eksterne til låst revision"
-
-#. Resource IDs: (65535)
-msgid "Char position where to show a border line in commit text boxes:"
-msgstr "Position hvor en kant-linie vises i kommentar-bokse:"
-
 #. Resource IDs: (8)
 msgid "Chec&kout..."
 msgstr "&Hent arbejdskopi..."
@@ -2554,10 +2272,6 @@ msgstr "Check for opdateringer"
 msgid "Check For Updates..."
 msgstr "Check for opdateringer..."
 
-#. Resource IDs: (1544)
-msgid "Check externals to explicit revision"
-msgstr "Check eksterne ved eksplicit revision"
-
 #. Resource IDs: (276)
 msgid "Check for &modifications"
 msgstr "Check for &ændringer"
@@ -2569,10 +2283,6 @@ msgstr "&Check for ændringer"
 #. Resource IDs: (65535)
 msgid "Check for modifications"
 msgstr "Check for ændringer"
-
-#. Resource IDs: (65535)
-msgid "Check for updates"
-msgstr "Check for opdateringer"
 
 #. Resource IDs: (9)
 msgid "Check out a working copy from a repository"
@@ -2610,12 +2320,7 @@ msgstr "Marker denne for at benytte et kortere dato- og tidsformat i logbeskeder
 msgid "Check working copy for modifications"
 msgstr "Check arbejdskopi for ændringer"
 
-# Autogenereret, bruges formodentlig ikke
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Vælg:"
-
-#. Resource IDs: (1536)
+#. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Søger efter en nyere version af TortoiseSVN..."
 
@@ -2632,8 +2337,8 @@ msgid "Checkout - TortoiseSVN"
 msgstr "Hent arbejdskopi - TortoiseSVN"
 
 #. Resource IDs: (1377)
-msgid "Checkout D&epth"
-msgstr "D&ybde af \"Hent arbejdskopi\""
+msgid "Checkout Depth"
+msgstr "Dybde af \"Hent arbejdskopi\""
 
 #. Resource IDs: (229)
 #, c-format
@@ -2657,9 +2362,8 @@ msgid "Cleaning up"
 msgstr "Rydder op"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%1!s!\""
-msgstr "Rydder op i mappe \"%1!s!\""
+msgid "Cleaning up."
+msgstr "Rydder op."
 
 #. Resource IDs: (83)
 #, c-format
@@ -2697,18 +2401,18 @@ msgstr ""
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! URLs stored for %2!ld! working copies"
-msgstr "Rydder %1!ld! URL'er gemt for %2!ld! arbejdskopier"
+msgid "Clears %ld URLs stored for %ld working copies"
+msgstr "Rydder %ld URL'er gemt for %ld arbejdskopier"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! log messages stored for %2!ld! working copies"
-msgstr "Rydder %1!ld! logbeskeder gemt for %2!ld! arbejdskopier"
+msgid "Clears %ld log messages stored for %ld working copies"
+msgstr "Rydder %ld logbeskeder gemt for %ld arbejdskopier"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! username/password pairs, %2!ld! ssl certificates and %3!ld! usernames"
-msgstr "Rydder %1!ld! brugernavn/adgangskode-par, %2!ld! SSL-certifikater og %3!ld! brugernavne"
+msgid "Clears %ld username/password pairs, %ld ssl certificates and %ld usernames"
+msgstr "Rydder %ld brugernavn/adgangskode-par, %ld SSL-certifikater og %ld brugernavne"
 
 #. Resource IDs: (197)
 #, c-format
@@ -2781,18 +2485,6 @@ msgstr "Koll&aps kilde-træ"
 msgid "Collapse &following tree"
 msgstr "Kollaps &følgende træ"
 
-#. Resource IDs: (2055)
-msgid ""
-"Collapse unchanged sections\n"
-"Collapse"
-msgstr ""
-"Skjul uændrede sektioner\n"
-"Skjul"
-
-#. Resource IDs: (32870)
-msgid "Collapsed"
-msgstr "Sammentrukket"
-
 #. Resource IDs: (16662)
 msgid "Color"
 msgstr "Farve"
@@ -2849,10 +2541,6 @@ msgstr "Arkivér"
 msgid "Commit - TortoiseSVN"
 msgstr "Arkivér - TortoiseSVN"
 
-#. Resource IDs: (616)
-msgid "Commit failed - Update needed"
-msgstr "Arkivering fejlede - Opdater venligst"
-
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Arkivér til:"
@@ -2868,11 +2556,6 @@ msgstr "Arkiveringer pr. forfatter"
 #. Resource IDs: (244)
 msgid "Commits by date"
 msgstr "Arkiveringer efter dato"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Commits each %s"
-msgstr "Arkiveringer hver %s"
 
 #. Resource IDs: (1135)
 msgid "Commits each week:"
@@ -2922,14 +2605,6 @@ msgstr "Sammenlign med b&asisfilen"
 msgid "Compare with previous revision"
 msgstr "Sammenlign med forrige version"
 
-#. Resource IDs: (2055)
-msgid ""
-"Compares all whitespaces when diffing\n"
-"Compare whitespaces"
-msgstr ""
-"Sammenlign alle mellemrum ved differens\n"
-"Sammenlign mellemrum"
-
 #. Resource IDs: (12)
 msgid "Compares the file with the last committed revision to show you the changes you made"
 msgstr "Sammenligner filen med den sidst arkiverede revision og viser de ændringer, du har foretaget"
@@ -2940,16 +2615,12 @@ msgstr "Sammenligner den valgte fil med en fil i versionsarkivet"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Comparing %1!s! to %2!s!"
-msgstr "Sammenligner %1!s! med %2!s!"
+msgid "Comparing %s to %s"
+msgstr "Sammenligner %s med %s"
 
 #. Resource IDs: (74)
 msgid "Completed"
 msgstr "Gennemført"
-
-#. Resource IDs: (219)
-msgid "Completed!"
-msgstr "Gennemført!"
 
 #. Resource IDs: (236)
 msgid "Configure Hook Scripts"
@@ -3013,10 +2684,6 @@ msgstr "Fortsæt"
 msgid "Contract docked window"
 msgstr "Sammentræk fastgjort vindue"
 
-#. Resource IDs: (15)
-msgid "Converts the working copy format to the new version"
-msgstr "Konverterer arbejdskopien til den nyeste version"
-
 #. Resource IDs: (376)
 msgid "Cop&y"
 msgstr "Kop&ier"
@@ -3029,14 +2696,10 @@ msgstr "Kopieret"
 msgid "Copied from URL"
 msgstr "Kopieret fra URL"
 
-#. Resource IDs: (208)
-msgid "Copied from revision"
-msgstr "Kopieret fra revision"
-
 #. Resource IDs: (276)
 #, c-format
-msgid "Copied from: %1!s!@%2!ld!\r\n"
-msgstr "Kopieret fra: %1!s!@%2!ld!\r\n"
+msgid "Copied from: %s@%ld\r\n"
+msgstr "Kopieret fra: %s@%ld\r\n"
 
 #. Resource IDs: (126)
 msgid "Copied remotely"
@@ -3050,20 +2713,11 @@ msgstr "Kopiér"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Copy %1!ld! items to\r\n"
-"%2!s!"
+"Copy %ld items to\r\n"
+"%s"
 msgstr ""
-"Kopier %1!ld! elementer til \r\n"
-"%2!s!"
-
-#. Resource IDs: (126)
-#, c-format
-msgid ""
-"Copy %1!s!\r\n"
-"to %2!s!"
-msgstr ""
-"Kopier %1!s!\r\n"
-"til %2!s!"
+"Kopier %ld emner til\r\n"
+"%s"
 
 #. Resource IDs: (103)
 #, c-format
@@ -3074,6 +2728,15 @@ msgstr "Kopier %s"
 #, c-format
 msgid "Copy %s to %s, Revision %s"
 msgstr "Kopier %s til %s, revision %s"
+
+#. Resource IDs: (126)
+#, c-format
+msgid ""
+"Copy %s\r\n"
+"to %s"
+msgstr ""
+"Kopier %s\r\n"
+"til %s"
 
 #. Resource IDs: (142)
 msgid "Copy (Branch / Tag)"
@@ -3159,8 +2822,8 @@ msgstr "Kopier: Nyt navn til %s"
 
 #. Resource IDs: (80)
 #, c-format
-msgid "Copying %1!s!"
-msgstr "Kopierer %1!s!"
+msgid "Copying %s"
+msgstr "Kopierer %s"
 
 #. Resource IDs: (80)
 msgid "Copying..."
@@ -3182,8 +2845,8 @@ msgstr "\"%s\" kunne ikke tilføjes fordi"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not add property '%1!s!' on '%2!s!' because"
-msgstr "Kunne ikke tilføje egenskab '%1!s!' på '%2!s!' fordi"
+msgid "Could not add property '%s' on '%s' because"
+msgstr "Kunne ikke tilføje egenskab \"%s\" på \"%s\" fordi"
 
 #. Resource IDs: (201)
 msgid "Could not check for a newer version!"
@@ -3212,8 +2875,8 @@ msgstr "\"%s\" kunne ikke slettes fordi"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not delete property '%1!s!' on '%2!s!' because"
-msgstr "Kunne ikke slette egenskab '%1!s!' på '%2!s!' fordi"
+msgid "Could not delete property '%s' on '%s' because"
+msgstr "Kunne ikke slette egenskab \"%s\" på \"%s\" fordi"
 
 #. Resource IDs: (83)
 msgid "Could not determine the last committed revision!"
@@ -3230,8 +2893,8 @@ msgstr "Kunne ikke flette \"%s\" fordi"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not merge property '%1!s!' on '%2!s!' because"
-msgstr "Kunne ikke flette egenskaben '%1!s!' på '%2!s!' fordi"
+msgid "Could not merge property '%s' on '%s' because"
+msgstr "Kunne ikke flette egenskaben \"%s\" på \"%s\" fordi"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3257,16 +2920,6 @@ msgstr "Kunne ikke fjerne %1, da det er den aktuelle mappe."
 msgid "Could not remove %s from the ignore list"
 msgstr "Det lykkedes ikke at fjerne %s fra \"ignorer\"-listen"
 
-#. Resource IDs: (582)
-#, c-format
-msgid "Could not replace '%s' because"
-msgstr "Kunne ikke erstatte '%s' fordi"
-
-#. Resource IDs: (582)
-#, c-format
-msgid "Could not replace property '%1!s!' on '%2!s!' because"
-msgstr "Kunne ikke erstatte egenskab '%1!s!' på '%2!s!' fordi"
-
 #. Resource IDs: (81)
 #, c-format
 msgid ""
@@ -3279,25 +2932,16 @@ msgstr ""
 #. Resource IDs: (66)
 #, c-format
 msgid ""
-"Could not retrieve revision %1!s! of the file %2!s!.\n"
+"Could not retrieve revision %s of the file %s.\n"
 "Patching is not possible!"
 msgstr ""
-"Kunne ikke hente revision %1!s! af filen %2!s!.\n"
+"Kunne ikke hente revision %s af filen %s.\n"
 "Rettelser kan ikke foretages!"
 
 #. Resource IDs: (64)
 #, c-format
 msgid "Could not save the file %s!"
 msgstr "Filen %s kunne ikke gemmes!"
-
-#. Resource IDs: (70)
-#, c-format
-msgid ""
-"Could not start diff viewer!\n"
-"%s"
-msgstr ""
-"Kunne ikke åbne forskelsprogram!\n"
-"%s"
 
 #. Resource IDs: (81)
 #, c-format
@@ -3340,15 +2984,6 @@ msgstr "Udskriftsjobbet kunne ikke startes."
 #, c-format
 msgid ""
 "Could not start text viewer!\n"
-"%s"
-msgstr ""
-"Kunne ikke åbne program til at se tekst!\n"
-"%s"
-
-#. Resource IDs: (83)
-#, c-format
-msgid ""
-"Could not start text viewer!\n"
 "<hr=100%%>\n"
 "%s"
 msgstr ""
@@ -3359,10 +2994,6 @@ msgstr ""
 #. Resource IDs: (81)
 msgid "Could not start thread!"
 msgstr "Tråden kunne ikke startes!"
-
-#. Resource IDs: (1542)
-msgid "Create &Library"
-msgstr "Opret &Bibliotek"
 
 #. Resource IDs: (13)
 msgid "Create &patch..."
@@ -3393,10 +3024,6 @@ msgstr ""
 msgid "Create repositor&y here"
 msgstr "Opret versions&arkiv her"
 
-#. Resource IDs: (102)
-msgid "Create shortcut"
-msgstr "Opret genvej"
-
 #. Resource IDs: (32828)
 msgid "Create unified diff file"
 msgstr "Opret unified diff-fil"
@@ -3408,10 +3035,6 @@ msgstr "Mappen blev oprettet på serveren"
 #. Resource IDs: (10)
 msgid "Creates a 'cheap' copy inside the repository used for branches or tagging"
 msgstr "Opretter en 'hurtig' kopi indeni versionsarkivet til brug for forgrening eller mærkning"
-
-#. Resource IDs: (199)
-msgid "Creates a library folder with special settings for Subversion working copies"
-msgstr "Opret biblioteks-katalog med specielle egenskaber for Subversion arbejskopier"
 
 #. Resource IDs: (2052)
 msgid ""
@@ -3503,7 +3126,7 @@ msgstr "&Antal af logbeskeder, der vises som standard"
 msgid "Default Menu"
 msgstr "Standardmenu"
 
-#. Resource IDs: (1516)
+#. Resource IDs: (65535)
 msgid "Default URL:"
 msgstr "Standard-URL:"
 
@@ -3511,7 +3134,7 @@ msgstr "Standard-URL:"
 msgid "Default application menu. Appears when no documents are open."
 msgstr "Standardprogrammenu. Vises når ingen dokumenter er åbne."
 
-#. Resource IDs: (1515)
+#. Resource IDs: (65535)
 msgid "Default path:"
 msgstr "Standard-sti:"
 
@@ -3533,15 +3156,15 @@ msgstr "Slet ikke-versionerede emner"
 msgid "Delete and &ignore %d items by name"
 msgstr "Slet og &ignorer %d elementer efter navn"
 
+#. Resource IDs: (14)
+msgid "Delete and add to &ignore list"
+msgstr "Slet og tilføj til \"&ignorer\"-listen"
+
 # Går ud fra at der med "extension" menes "file extension".
 #. Resource IDs: (14)
 #, c-format
 msgid "Delete and ignore %d items by &extension"
 msgstr "Slet og ignorer %d elementer efter &filtypenavne"
-
-#. Resource IDs: (616)
-msgid "Delete unversioned items"
-msgstr "Slet ikke-versionerede emner..."
 
 #. Resource IDs: (17)
 msgid "Delete unversioned items..."
@@ -3575,14 +3198,6 @@ msgstr "Sletter handlingslogfilen"
 msgid "Deleting"
 msgstr "Sletter"
 
-#. Resource IDs: (348)
-msgid "Deleting cached data"
-msgstr "Sletter cache data"
-
-#. Resource IDs: (348)
-msgid "Deleting file"
-msgstr "Sletter filen"
-
 #. Resource IDs: (207)
 msgid "Depth"
 msgstr "Dybde"
@@ -3603,21 +3218,9 @@ msgstr "Beskrivelse:"
 msgid "Deselect changelist"
 msgstr "Fravælg ændringsliste"
 
-#. Resource IDs: (1547)
-msgid "Destinatio&n URL:"
-msgstr "Destinatio&ns-URL:"
-
-#. Resource IDs: (1547)
-msgid "Destination URL:"
-msgstr "Destinations-URL:"
-
 #. Resource IDs: (3859)
 msgid "Destination disk drive is full."
 msgstr "Destinationsdisken er fyldt op."
-
-#. Resource IDs: (2056)
-msgid "Detect and highlight moved blocks"
-msgstr "Detekter og marker flyttede blokke"
 
 # Oversættelse af "device"? Kontekst?
 # Ordet "bitmap" ikke oversat. Bruges på dansk.
@@ -3637,7 +3240,7 @@ msgstr "Dialogstørrelser og -placeringer"
 msgid "Diff file:"
 msgstr "Sammenligningsfil:"
 
-#. Resource IDs: (1533)
+#. Resource IDs: (65535)
 msgid "Diff options"
 msgstr "Indstillinger for sammenligning"
 
@@ -3661,10 +3264,6 @@ msgstr "Sammenligner"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Sammenligner filen i arbejdskopien med versionen før sidste arkivering"
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Mapper"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Mappe:"
@@ -3676,10 +3275,6 @@ msgid ""
 msgstr ""
 "Slå denne indstilling fra, hvis du har meget store arbejdskopier og oplever\r\n"
 "for meget adgang til disken når du gennemser arbejdskopien."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Ignorer lokale ændringer ved indkommende sletninger"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3777,10 +3372,6 @@ msgstr ""
 msgid "Do you want to proceed?"
 msgstr "Vil du fortsætte?"
 
-#. Resource IDs: (3887)
-msgid "Do you want to recover these auto-saved documents?"
-msgstr "Ønsker du at genskabe disse automatisk gemte dokumenter?"
-
 #. Resource IDs: (313)
 msgid ""
 "Do you want to reload the documents to reflect the settings changes?\n"
@@ -3809,26 +3400,6 @@ msgid ""
 msgstr ""
 "Dokumentation : Simon Large, Dansk oversættelse : Christian Funder Sommerlund\n"
 "Kode : Tobias Schäfer, Stefan Fuhrmann"
-
-#. Resource IDs: (94)
-msgid ""
-"Don't make the checkout directory a sparse working copy.\n"
-"Instead, all URLs get checked out into a separate\n"
-"working copies next to each other.\n"
-"This works for directory URLs only."
-msgstr ""
-"Gør ikke arbejdskopi-kataloget til en sparsom arbejdskopi.\n"
-"Sørg istedet for at alle URL'er gemmes i separate\n"
-"arbejdskopier ved siden af hinanden.\n"
-"Dette mulighed fungerer kun for katalog-URL'er."
-
-#. Resource IDs: (3887)
-msgid ""
-"Don't recover the auto-saved documents\n"
-"Use the last explicitly saved versions of the documents"
-msgstr ""
-"Genskab ikke automatisk gemte dokumenter\n"
-"Brug de sidst eksplicit gemte versioner af dokumenterne"
 
 #. Resource IDs: (73, 80)
 msgid "Don't show this message again"
@@ -3877,13 +3448,9 @@ msgstr "Ikke muligt at droppe på %1"
 msgid "E&xact copy sources"
 msgstr "&Nøjagtige kopioprindelser"
 
-#. Resource IDs: (1518)
+#. Resource IDs: (65535)
 msgid "E&xclude paths:"
 msgstr "&Udelad stier:"
-
-#. Resource IDs: (32839)
-msgid "E&xecutable"
-msgstr "&Program"
 
 #. Resource IDs: (105, 57665)
 msgid "E&xit"
@@ -3919,10 +3486,6 @@ msgstr "Rediger"
 msgid "Edit Button Image"
 msgstr "Rediger knapbillede"
 
-#. Resource IDs: (319)
-msgid "Edit External"
-msgstr "Rediger Ekstern"
-
 #. Resource IDs: (227, 564)
 msgid "Edit Properties"
 msgstr "Rediger egenskaber"
@@ -3943,9 +3506,9 @@ msgstr "Rediger forfatter"
 msgid "Edit author name"
 msgstr "Rediger forfatternavn"
 
-#. Resource IDs: (315)
-msgid "Edit bugtraq properties"
-msgstr "Rediger egenskaber for bugtraq"
+#. Resource IDs: (1399)
+msgid "Edit conflict"
+msgstr "Rediger konflikt"
 
 #. Resource IDs: (110)
 msgid "Edit extension specific diff program"
@@ -3955,10 +3518,6 @@ msgstr "Rediger filendelse-specifikt sammenligningsprogram"
 msgid "Edit extension specific merge program"
 msgstr "Rediger filendelse-specifikt fletningsprogram"
 
-#. Resource IDs: (321)
-msgid "Edit language properties"
-msgstr "Rediger egenskaber for sprog"
-
 #. Resource IDs: (113, 115)
 msgid "Edit log message"
 msgstr "Rediger logbesked"
@@ -3966,11 +3525,11 @@ msgstr "Rediger logbesked"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Edit property '%1!S!' on\r\n"
-"%2!s!"
+"Edit property '%s' on\r\n"
+"%s"
 msgstr ""
-"Rediger egenskab '%1!S!' på\r\n"
-"%2!s!"
+"Rediger egenskab \"%s\" på\r\n"
+"%s"
 
 #. Resource IDs: (1331, 1382)
 msgid "Edit..."
@@ -3983,10 +3542,6 @@ msgstr "Ændrer den valgte egenskabsværdi"
 #. Resource IDs: (79)
 msgid "Either the name or IP of the proxy server"
 msgstr "Navn eller IP-adresse på proxyserveren"
-
-#. Resource IDs: (265)
-msgid "Eliding mergeinfo"
-msgstr "Udeluk flette-info"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -4011,10 +3566,6 @@ msgid ""
 msgstr ""
 "Slå kun dette til, hvis du arbejder med web-projekter på VS.NET2003!\r\n"
 "Du skal genstarte computeren, før denne indstilling træder i kraft."
-
-#. Resource IDs: (65535)
-msgid "Enabled Overlay Handlers"
-msgstr "Aktiver Overdækningshåndtering"
 
 #. Resource IDs: (195)
 msgid ""
@@ -4053,7 +3604,7 @@ msgstr "Der opstod en uforudset fejl under læsning af %1."
 msgid "Encountered an unexpected error while writing %1."
 msgstr "Der opstod en uforudset fejl under skrivning af %1."
 
-#. Resource IDs: (1537)
+#. Resource IDs: (65535)
 msgid "End Revision"
 msgstr "Slut-revision"
 
@@ -4068,10 +3619,6 @@ msgstr "Indtast logbesked"
 #. Resource IDs: (80)
 msgid "Enter URL"
 msgstr "Indtast URL"
-
-#. Resource IDs: (65535)
-msgid "Enter a &name for the changelist:"
-msgstr "Indtast et &navn for ændringslisten:"
 
 #. Resource IDs: (3858)
 msgid "Enter a GUID."
@@ -4092,6 +3639,10 @@ msgstr "Indtast en dato."
 #. Resource IDs: (313)
 msgid "Enter a lock message (optional):"
 msgstr "Indtast en låsebesked (valgfrit):"
+
+#. Resource IDs: (65535)
+msgid "Enter a name for the changelist:"
+msgstr "Indtast et navn til ændringslisten:"
 
 #. Resource IDs: (3858)
 #, c-format
@@ -4123,10 +3674,6 @@ msgstr "Indtast et heltal mellem 0 og 255."
 msgid "Enter an integer."
 msgstr "Indtast et heltal."
 
-#. Resource IDs: (65535)
-msgid "Enter file content to test for below:"
-msgstr "Indtast fil indhold til test nedenfor:"
-
 #. Resource IDs: (1065)
 msgid "Enter log &message:"
 msgstr "Indtast log-&besked:"
@@ -4139,14 +3686,6 @@ msgstr "Indtast logbesked:"
 #, c-format
 msgid "Enter no more than %1 characters."
 msgstr "Indtast højest %1 tegn."
-
-#. Resource IDs: (65535)
-msgid "Enter the regex string below:"
-msgstr "Indsæt regulært udtryk nedenfor:"
-
-#. Resource IDs: (1577)
-msgid "Enter the regular expression patterns for filtering out the bug-ID from a commit message."
-msgstr "Indtast de regulære udtryksmønstre for filtrering af fejl-ID fra arkiveringsmeddelelse"
 
 #. Resource IDs: (3603)
 msgid ""
@@ -4180,15 +3719,11 @@ msgstr "Der opstod en fejl under validering af servercertifikatet for %s:"
 #. Resource IDs: (70)
 #, c-format
 msgid ""
-"Error while reading/writing the registry key %1!s!\n"
-"%2!s!"
+"Error while reading/writing the registry key %s\n"
+"%s"
 msgstr ""
-"Fejl ved læsning eller skrivning af registreringsnøglen %1!s!\n"
-"%2!s!"
-
-#. Resource IDs: (32853)
-msgid "Ex&ternals"
-msgstr "E&ksterne"
+"Fejl ved læsning eller skrivning af registreringsnøglen %s\n"
+"%s"
 
 #. Resource IDs: (1413)
 msgid "Exceptions:"
@@ -4205,10 +3740,6 @@ msgstr "Program (*.exe)|*.exe|Kommando (*.com)|*.com|PDF-fil (*.pdf)|*.pdf|Batch
 #. Resource IDs: (1002)
 msgid "Existing"
 msgstr "Eksisterende"
-
-#. Resource IDs: (2)
-msgid "Exit"
-msgstr "Afslut"
 
 #. Resource IDs: (275)
 msgid "Exp&and source tree"
@@ -4263,8 +3794,8 @@ msgstr "Eksporter også ikke-versionerede filer"
 
 #. Resource IDs: (284)
 #, c-format
-msgid "Exporting %1!s!"
-msgstr "Eksporterer %1!s!"
+msgid "Exporting %s"
+msgstr "Eksporterer %s"
 
 #. Resource IDs: (79)
 msgid "Exporting..."
@@ -4282,7 +3813,11 @@ msgstr "Eksporterer et sæt indstillinger til en fil"
 msgid "Extension"
 msgstr "Filendelse"
 
-#. Resource IDs: (1287)
+#. Resource IDs: (65535)
+msgid "Extension or mime-type:"
+msgstr "Filendelse eller MIME-type:"
+
+#. Resource IDs: (65535)
 msgid "Extension/mime-type specific programs"
 msgstr "Filendelse/MIME-type-specifikke programmer"
 
@@ -4317,14 +3852,6 @@ msgstr "Externals udeladt"
 #. Resource IDs: (226)
 msgid "Externals included"
 msgstr "Externals inkluderet"
-
-#. Resource IDs: (1480)
-msgid "F&orce the merge"
-msgstr "&Gennemtving fletning"
-
-#. Resource IDs: (1070)
-msgid "Fade"
-msgstr "Fjern gradvist"
 
 #. Resource IDs: (74)
 msgid "Failed revert"
@@ -4379,11 +3906,11 @@ msgstr "Det lykkedes ikke at sætte/fjerne ændringslisten \"%s\""
 #. Resource IDs: (83)
 #, c-format
 msgid ""
-"Failed to start the issue tracker COM provider '%1!s!'.\n"
-"%2!s!"
+"Failed to start the issue tracker COM provider '%s'.\n"
+"%s"
 msgstr ""
-"Det var ikke muligt at starte sagsbehandler-COM-udbyderen  '%1!s!'.\n"
-"%2!s!"
+"Det var ikke muligt at starte sagsbehandler-COM-udbyderen \"%s\".\n"
+"%s"
 
 #. Resource IDs: (220)
 msgid "Failed!"
@@ -4401,11 +3928,6 @@ msgstr "Henter revision %s af filen:"
 #. Resource IDs: (63, 74, 77, 319, 1001)
 msgid "File"
 msgstr "Fil"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "File changes each %s"
-msgstr "Filændringer hver %s"
 
 #. Resource IDs: (1138)
 msgid "File changes each week:"
@@ -4531,18 +4053,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Filnavn"
 
-#. Resource IDs: (65535)
-msgid "Filename, extension or mime-type:"
-msgstr "Filenavn, endelse eller mime-type:"
-
-#. Resource IDs: (74)
-msgid "Filename/Extension"
-msgstr "Filnavn/Endelse"
-
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Filer"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4550,10 +4060,6 @@ msgid ""
 msgstr ""
 "Udfyldningsværktøj\n"
 "Udfyld"
-
-#. Resource IDs: (65535)
-msgid "Filter match"
-msgstr "Filter overensstemmelse"
 
 #. Resource IDs: (65535)
 msgid ""
@@ -4603,10 +4109,6 @@ msgstr "Tilpas bredde"
 msgid "Fix case of item and do not add it"
 msgstr "Korriger store/små bogstaver på element og tilføj det ikke"
 
-#. Resource IDs: (281)
-msgid "Fixed at rev"
-msgstr "Fastgjort ved rev"
-
 #. Resource IDs: (32818)
 msgid "Fold &tags"
 msgstr "Fold &mærker sammen"
@@ -4631,21 +4133,21 @@ msgstr "Tryk F1 for hjælp. Rul horisontalt med Ctrl+rullehjulet"
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "For at vise komplet historik, skal du fravælge \"Stop ved kopiering/omdøbning\""
 
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Tving"
-
 #. Resource IDs: (1064)
 msgid "Forward"
 msgstr "Fremad"
 
-#. Resource IDs: (65535)
-msgid "Found auto words:"
-msgstr "Fandt auto ord:"
+#. Resource IDs: (1489)
+msgid "From URL:"
+msgstr "Fra URL:"
 
 #. Resource IDs: (1200, 65535)
 msgid "From:"
 msgstr "Fra:"
+
+#. Resource IDs: (1494)
+msgid "From: (start URL and revision of the range to merge)"
+msgstr "Fra: (start-URL og -revision af intervallet der skal flettes)"
 
 # Kontekst?
 #. Resource IDs: (1065)
@@ -4714,13 +4216,13 @@ msgstr ""
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Getting file %1!s!"
-msgstr "Henter filen %1!s!"
+msgid "Getting file %s"
+msgstr "Henter filen %s"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Getting file %1!s!, revision %2!s!"
-msgstr "Henter filen %1!s!, revision %2!s!"
+msgid "Getting file %s, revision %s"
+msgstr "Henter filen %s, revision %s"
 
 #. Resource IDs: (132)
 msgid "Getting file info..."
@@ -4746,7 +4248,7 @@ msgstr "Henter nødvendig information..."
 msgid "Getting unified diff"
 msgstr "Henter unified diff"
 
-#. Resource IDs: (1517)
+#. Resource IDs: (65535)
 msgid "Global ignore &pattern:"
 msgstr "Globalt ignorer-&mønster:"
 
@@ -4806,9 +4308,9 @@ msgstr "Gruppér efter gren"
 msgid "Group changelists"
 msgstr "Gruppe-ændringslister"
 
-#. Resource IDs: (1032)
-msgid "H&EAD Revision"
-msgstr "H&oved-revision"
+#. Resource IDs: (1229)
+msgid "H&ide unrelated changed paths"
+msgstr "Skjul &irrelevante ændrede stier"
 
 # Dansk oversættelse?
 #. Resource IDs: (65535)
@@ -4827,10 +4329,6 @@ msgstr "Hoved knude"
 #, c-format
 msgid "Head revision is %s"
 msgstr "HEAD-revisionen er %s"
-
-#. Resource IDs: (1595)
-msgid "Header"
-msgstr "Overskrift"
 
 #. Resource IDs: (9, 73, 332, 1004)
 msgid "Help"
@@ -4919,25 +4417,9 @@ msgstr "Værtsnavnet passer ikke (%s)"
 msgid "How do you want to resolve this conflict?"
 msgstr "Hvordan ønsker du at løse denne konflikt?"
 
-#. Resource IDs: (1392)
-msgid "I&gnore all whitespaces"
-msgstr "I&gnorer alle blanktegn"
-
-#. Resource IDs: (1264)
-msgid "I&gnored"
-msgstr "&Ignoreret"
-
-#. Resource IDs: (1519)
+#. Resource IDs: (65535)
 msgid "I&nclude paths:"
 msgstr "I&nkluder stier:"
-
-#. Resource IDs: (1580)
-msgid "IBugTraqProvider"
-msgstr "IBugTraqProvider"
-
-#. Resource IDs: (1592)
-msgid "ID"
-msgstr "ID"
 
 #. Accelerator Entry for Menu ID:32771; '&Find...'
 msgid "ID:32771:V C +F"
@@ -5008,10 +4490,6 @@ msgid "ID:32824:V C +F"
 msgstr "ID:32824:V C +F"
 
 #. Accelerator Entry for Menu ID:32825; ''
-msgid "ID:32825:V C +K"
-msgstr "ID:32825:V C +K"
-
-#. Accelerator Entry for Menu ID:32825; ''
 msgid "ID:32825:V C +L"
 msgstr "ID:32825:V C +L"
 
@@ -5057,10 +4535,6 @@ msgstr "ID:57643:V C +Z"
 msgid "ID:57665:V C +Q"
 msgstr "ID:57665:V C +Q"
 
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-msgid "ID:57665:V C +W"
-msgstr "ID:57665:V C +W"
-
 #. Resource IDs: (106)
 msgid "Icon Overlays"
 msgstr "Ikonoverdækninger"
@@ -5073,13 +4547,9 @@ msgstr "Ikonoverdækninger/statuskolonner"
 msgid "Icon Overlays::Icon Set"
 msgstr "Ikonoverdækning::Ikonsæt"
 
-#. Resource IDs: (308)
-msgid "Icon Overlays::Overlay Handlers"
-msgstr "Ikonoverdækning::Overdækningshåndteringer"
-
 #. Resource IDs: (65535)
-msgid "Icons/Design/Code:\t\tLuebbe Onken"
-msgstr "Ikoner/Design/Kode:\t\tLuebbe Onken"
+msgid "Icons/Design/Code:                 Luebbe Onken"
+msgstr "Ikoner/Design/Kode:                 Luebbe Onken"
 
 #. Resource IDs: (346)
 msgid ""
@@ -5144,6 +4614,10 @@ msgid ""
 msgstr ""
 "Hvis valgt, vil arkiveringsdialogen automatisk genstartes efter en fejl,\r\n"
 "men med dine markeringer og logbesked bevaret."
+
+#. Resource IDs: (194)
+msgid "If enabled, TortoiseSVN checks once a week if a newer version is available"
+msgstr "Hvis valgt, så undersøger TortoiseSVN én gang om ugen om der en nyere version til rådighed"
 
 #. Resource IDs: (195)
 msgid ""
@@ -5232,65 +4706,33 @@ msgstr "Ignorerer %d elementer efter &filtypenavn"
 msgid "Ignore &all whitespaces"
 msgstr "Ignorer &alle blanktegn"
 
-#. Resource IDs: (1267)
-msgid "Ignore &ancestry"
-msgstr "Ignorer &forældreskab"
-
-#. Resource IDs: (32873)
-msgid "Ignore all whitespace changes"
-msgstr "Ignorer alle ændringer i blanktegn"
+#. Resource IDs: (1067)
+msgid "Ignore &case changes"
+msgstr "Ignorer &store/små bogstaver"
 
 #. Resource IDs: (1392)
 msgid "Ignore all whitespaces"
 msgstr "Ignorer alle blanktegn"
 
-#. Resource IDs: (1067)
-msgid "Ignore case cha&nges"
-msgstr "Ignorer &store/små bogstaver"
-
-#. Resource IDs: (1126)
-msgid "Ignore line &endings"
-msgstr "Ignorer linje&afslutninger"
+#. Resource IDs: (1267)
+msgid "Ignore ancestry"
+msgstr "Ignorer forældreskab"
 
 #. Resource IDs: (1018)
 msgid "Ignore line &endings (recommended)"
 msgstr "Ignorer linje&afslutninger (anbefales)"
 
-#. Resource IDs: (1127)
+#. Resource IDs: (1126, 1127)
 msgid "Ignore line endings"
 msgstr "Ignorer linjeafslutninger"
-
-#. Resource IDs: (1391)
-msgid "Ignore whitespace c&hanges"
-msgstr "Ignorer &ændringer i blanktegn"
 
 #. Resource IDs: (1391)
 msgid "Ignore whitespace changes"
 msgstr "Ignorer ændringer i blanktegn"
 
-#. Resource IDs: (1432)
-msgid "Ignored"
-msgstr "Ignoreret"
-
 #. Resource IDs: (226)
 msgid "Ignored items included"
 msgstr "Ignorerede emner inkluderet"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores all whitespace changes when diffing\n"
-"Ignore all whitespace changes"
-msgstr ""
-"Ignorer alle mellemrum ændringer ved differens\n"
-"Ignorer alle mellemrum ændringer"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores changes in whitespaces when diffing\n"
-"Ignore whitespace changes"
-msgstr ""
-"Ignorer ændringer i mellemrum ved differens\n"
-"Ignorer ændringer i mellemrum"
 
 #. Resource IDs: (16916)
 msgid "Image &and Text"
@@ -5324,7 +4766,7 @@ msgstr "Importer %ld emner"
 msgid "Import %s to %s%s"
 msgstr "Importer %s til %s%s"
 
-#. Resource IDs: (1386)
+#. Resource IDs: (1056)
 msgid "Import &message"
 msgstr "&Logbesked for import"
 
@@ -5339,11 +4781,11 @@ msgstr "Importer et tidligere gemt sæt af indstillinger fra en fil"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Import file %1!s!\r\n"
-"to %2!s!"
+"Import file %s\r\n"
+"to %s"
 msgstr ""
-"Importer filer %1!s!\r\n"
-"til %2!s!"
+"Importer fil %s\r\n"
+"til %s"
 
 #. Resource IDs: (126)
 #, c-format
@@ -5357,25 +4799,21 @@ msgstr ""
 #. Resource IDs: (126)
 #, c-format
 msgid ""
-"Import folder %1!s!\r\n"
-"to %2!s!"
+"Import folder %s\r\n"
+"to %s"
 msgstr ""
-"Importer mappe %1!s!\r\n"
-"til %2!s!"
+"Importer mappe %s\r\n"
+"til %s"
 
 #. Resource IDs: (613)
 #, c-format
 msgid "Import to %1"
 msgstr "Importertil %1"
 
-#. Resource IDs: (80)
-msgid "Imported folder structure"
-msgstr "Importet folder struktur"
-
 #. Resource IDs: (120)
 #, c-format
-msgid "Importing file %1!s!"
-msgstr "Importerer filen %1!s!"
+msgid "Importing file %s"
+msgstr "Importerer filen %s"
 
 #. Resource IDs: (10)
 msgid "Imports the directory to a repository"
@@ -5424,10 +4862,6 @@ msgid ""
 msgstr ""
 "Indsæt indholdet af udklipsholderen\n"
 "Indsæt"
-
-#. Resource IDs: (1575)
-msgid "Insert message at:"
-msgstr "Indtast besked ved:"
 
 #. Resource IDs: (3857)
 msgid "Insufficient memory to perform operation."
@@ -5529,10 +4963,6 @@ msgstr ""
 "Et interval kan specificeres med en tankestreg.\n"
 "Eksempel: 2-5,7,10,44-70,300-HEAD"
 
-#. Resource IDs: (1571)
-msgid "Issue tracker"
-msgstr "Sagsstyrings-system"
-
 #. Resource IDs: (145)
 msgid ""
 "It is not possible to rename a file by changing the case of its name alone.\n"
@@ -5548,8 +4978,8 @@ msgstr ""
 msgid ""
 "It seems you are trying to <b>relocate</b> your working copy to a different path inside the same repository.\n"
 "\n"
-"From:\t%1!s!\n"
-"To:\t\t%2!s!\n"
+"From:\t%s\n"
+"To:\t\t%s\n"
 "\n"
 "A relocate is only needed if the path <b>to</b> a repository has changed.\n"
 "Changing to a different path <b>inside</b> a repository is done by a switch operation.\n"
@@ -5560,8 +4990,8 @@ msgid ""
 msgstr ""
 "Det lader til, at du forsøger at <b>omlægge</b> din arbejdskopi til en anden sti indenfor det samme versionsarkiv.\n"
 "\n"
-"Fra:\t%1!s!\n"
-"Til:\t\t%2!s!\n"
+"Fra:\t%s\n"
+"Til:\t\t%s\n"
 "\n"
 "Omlægning er kun nødvendigt hvis stien <b>til</b> et versionsarkiv er ændret.\n"
 "Ændring til en anden sti <b>indenfor</b> samme versionsarkiv gøres ved handlingen <b>skift</b>.\n"
@@ -5569,18 +4999,6 @@ msgstr ""
 "Forkert anvendelse af omlægning <b>vil ødelægge din arbejdskopi!</b>\n"
 "Hvis du ikke er sikker på hvad du skal gøre, læs da dokumentationen for <i>omlæg</i>.\n"
 "Ønsker du virkelig at omlægge?"
-
-#. Resource IDs: (1480)
-msgid "Items in &externals"
-msgstr "Elementer i &externe egenskaber"
-
-#. Resource IDs: (1527)
-msgid "Items to show"
-msgstr "Vis elementer"
-
-#. Resource IDs: (1074)
-msgid "J&ump to first conflict when loading"
-msgstr "&Gå til første konflikt ved indlæsning"
 
 #. Resource IDs: (275)
 msgid "Join with following &tree"
@@ -5595,8 +5013,8 @@ msgid "Keep &locks"
 msgstr "Bevar &låse"
 
 #. Resource IDs: (1126)
-msgid "Keep ch&angelists"
-msgstr "Behold &ændringslister"
+msgid "Keep changelists"
+msgstr "Behold ændringslister"
 
 #. Resource IDs: (610)
 msgid "Keep the directory from the repository"
@@ -5626,22 +5044,6 @@ msgstr "Tastaturgenveje:"
 #. Resource IDs: (1002)
 msgid "Keys"
 msgstr "Taster"
-
-#. Resource IDs: (65535)
-msgid "L&imit:"
-msgstr "&Grænse"
-
-#. Resource IDs: (1599)
-msgid "L&ocal path:"
-msgstr "L&okal sti:"
-
-#. Resource IDs: (32855)
-msgid "Lan&guages"
-msgstr "&Sprog:"
-
-#. Resource IDs: (65535)
-msgid "Language:"
-msgstr "Sprog:"
 
 #. Resource IDs: (65535)
 msgid "Last commit revision:"
@@ -5743,9 +5145,9 @@ msgstr "Lokal status"
 #. Resource IDs: (94)
 msgid ""
 "Location where the contents of the\n"
-"repository URL(s) will be saved to."
+"repository URL will be saved to."
 msgstr ""
-"Placering hvor indholdet af\n"
+"Placering hvortil indholdet af\n"
 "versionsarkiv-URL'en vil blive gemt."
 
 # Bedre oversættelse af "locator bar"?
@@ -5790,10 +5192,6 @@ msgstr "Ejer af lås:"
 #, c-format
 msgid "Lock stolen by %s"
 msgstr "Låsen stjålen af %s"
-
-#. Resource IDs: (1529)
-msgid "Locked"
-msgstr "Låst"
 
 #. Resource IDs: (263)
 #, c-format
@@ -5854,17 +5252,13 @@ msgstr "Logbeskeder (dialogen \"vis log\")"
 
 #. Resource IDs: (238)
 #, c-format
-msgid "Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!"
-msgstr "Laveste viste revision: %1!ld! - Højeste viste revision: %2!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
+msgstr "Laveste viste revision: %ld - Højeste viste revision: %ld"
 
 #. Resource IDs: (238)
 #, c-format
-msgid ""
-"Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!\n"
-"HEAD revision: %3!ld!"
-msgstr ""
-"Laveste viste revision: %1!ld! - Højeste viste revision: %2!ld!\n"
-"HEAD-revision: %3!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
+msgstr "Laveste viste revision: %ld - Højeste viste revision: %ld - HEAD-revision: %ld"
 
 # Antager at der med "lum" menes luminans...
 #. Resource IDs: (16973)
@@ -5960,13 +5354,9 @@ msgstr "Menubar"
 msgid "Menu s&hadows"
 msgstr "Menus&kygger"
 
-#. Resource IDs: (109, 110, 111, 112, 278, 65535)
+#. Resource IDs: (109, 110, 111, 112, 276, 278, 65535)
 msgid "Merge"
 msgstr "Flet"
-
-#. Resource IDs: (1488, 65535)
-msgid "Merge &depth:"
-msgstr "Fletnings&dybde:"
 
 #. Resource IDs: (78)
 msgid "Merge - TortoiseSVN"
@@ -5977,12 +5367,16 @@ msgid "Merge Reintegrate"
 msgstr "Reintegreringsfletning"
 
 #. Resource IDs: (1468)
-msgid "Merge a &range of revisions"
-msgstr "Flet et &interval af revisioner"
+msgid "Merge a range of revisions"
+msgstr "Flet et interval af revisioner"
 
 #. Resource IDs: (277)
 msgid "Merge all"
 msgstr "Flet alle"
+
+#. Resource IDs: (1488, 65535)
+msgid "Merge depth:"
+msgstr "Fletningsdybde:"
 
 #. Resource IDs: (1432)
 msgid "Merge non-interactive"
@@ -6014,8 +5408,8 @@ msgid "Merge the changes into '%s'"
 msgstr "Flet ændringerne til \"%s\""
 
 #. Resource IDs: (1470)
-msgid "Merge two different &trees"
-msgstr "Flet to forskellige &træer"
+msgid "Merge two different trees"
+msgstr "Flet to forskellige træer"
 
 #. Resource IDs: (595, 65535)
 msgid "Merge type"
@@ -6040,14 +5434,14 @@ msgid "Merges all missing revisions back into the working copy using merge-track
 msgstr "Fletter alle manglende revisioner tilbage i arbejdskopien ved hjælp af sporingsinformation om fletninger."
 
 # Dette er overskriften i en dialog
-#. Resource IDs: (1073)
+#. Resource IDs: (65535)
 msgid "Merging"
 msgstr "Fletning"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Fletter %s ind i %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Fletter %s ind i %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -6055,18 +5449,18 @@ msgstr "Fletter forskelle mellem versionsarkiv URL'er"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Fletter fra %s, revision %s til %s, revision %s ind i  %s, %s%s%s"
-
-#. Resource IDs: (264)
-#, c-format
-msgid "Merging r%1!ld! through r%2!ld!"
-msgstr "Fletter fra r%1!ld! til og med r%2!ld!"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Fletter fra %s, revision %s til %s, revision %s ind i %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
 msgid "Merging r%ld"
 msgstr "Fletter r%ld"
+
+#. Resource IDs: (264)
+#, c-format
+msgid "Merging r%ld through r%ld"
+msgstr "Fletter fra r%ld til r%ld"
 
 #. Resource IDs: (83)
 msgid "Merging requires different revisions or different URLs in 'From:' and 'To:'"
@@ -6074,24 +5468,12 @@ msgstr "Fletning kræver forskellige revisioner eller forskellige URL'er i \"Fra
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Fletter revisioner %s af %s ind i %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Fletter revisioner %s af %s ind i %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
 msgstr "Besked"
-
-#. Resource IDs: (1574)
-msgid "Message &label:"
-msgstr "Besked &tekst:"
-
-#. Resource IDs: (1573)
-msgid "Message &pattern:"
-msgstr "Besked &mønster:"
-
-#. Resource IDs: (1579)
-msgid "Message part &expression:"
-msgstr "Besked del-&udtryk"
 
 #. Resource IDs: (1241)
 msgid "Message:"
@@ -6121,14 +5503,6 @@ msgstr "Min"
 #. Resource IDs: (1068)
 msgid "Minimize the Ribbon"
 msgstr "Minimer båndet"
-
-#. Resource IDs: (65535)
-msgid "Minimum number of chars for a commit message:"
-msgstr "Minimum antal karakterer for arkiveringsmeddelelse:"
-
-#. Resource IDs: (65535)
-msgid "Minimum number of chars for a lock message:"
-msgstr "Minimum antal karakterer for låsningsmeddelelse:"
 
 #. Resource IDs: (1023, 65535)
 msgid "Misc"
@@ -6181,20 +5555,20 @@ msgstr "Mus"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!ld! items to\r\n"
-"%2!s!"
+"Move %ld items to\r\n"
+"%s"
 msgstr ""
-"Flyt %1!ld! elementer til\r\n"
-"%2!s!"
+"Flyt %ld emner til\r\n"
+"%s"
 
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!s!\r\n"
-"to %2!s!"
+"Move %s\r\n"
+"to %s"
 msgstr ""
-"Flyt %1!s!\r\n"
-"til %2!s!"
+"Flyt %s\r\n"
+"til %s"
 
 #. Resource IDs: (17026)
 msgid "Move &Down"
@@ -6242,17 +5616,9 @@ msgstr "Flyt/Omdøb"
 msgid "Move: New name for %s"
 msgstr "Flyt: Nyt navn til %s"
 
-#. Resource IDs: (65535)
-msgid "Moved from"
-msgstr "Flyttet fra"
-
 #. Resource IDs: (126)
 msgid "Moved remotely"
 msgstr "Flyttet på serveren"
-
-#. Resource IDs: (65535)
-msgid "Moved to"
-msgstr "Flyttet til"
 
 #. Resource IDs: (197)
 msgid "Moves the modified files to the recycle bin first before reverting"
@@ -6260,16 +5626,12 @@ msgstr "Flytter de redigerede filer til papirkurven før tilbageførsel"
 
 #. Resource IDs: (80)
 #, c-format
-msgid "Moving %1!s!"
-msgstr "Flytte r%1!s!"
+msgid "Moving %s"
+msgstr "Flytter %s"
 
 #. Resource IDs: (80)
 msgid "Moving..."
 msgstr "Flytter..."
-
-#. Resource IDs: (1204)
-msgid "Multiple, &independent working copies"
-msgstr "Multiple, &uafhængige arbejdskopier"
 
 #. Resource IDs: (65535)
 msgid "My file:"
@@ -6294,14 +5656,6 @@ msgstr "Indstillinger for navigeringsrude..."
 #. Resource IDs: (208)
 msgid "Needs lock"
 msgstr "Kræver lås"
-
-#. Resource IDs: (32845)
-msgid "Needs-&Lock"
-msgstr "Kræver-&Lås"
-
-#. Resource IDs: (1550)
-msgid "Needs-lock"
-msgstr "Kræver-lås"
 
 #. Resource IDs: (213)
 msgid "Nested"
@@ -6335,10 +5689,6 @@ msgstr "Nyt navn til %s"
 #. Resource IDs: (98)
 msgid "New name:"
 msgstr "Nyt navn:"
-
-#. Resource IDs: (32875)
-msgid "Next &Inline Difference"
-msgstr "Næste &Linie Forskel"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -6378,10 +5728,6 @@ msgstr "Der er ingen fejlmeddelelse tilgængelig."
 #. Resource IDs: (3867, 3868)
 msgid "No error occurred."
 msgstr "Der opstod ingen fejl."
-
-#. Resource IDs: (281)
-msgid "No externals found"
-msgstr "Ingen eksterne fundet"
 
 #. Resource IDs: (82)
 msgid "No files or folders were modified. There is nothing for TortoiseSVN to revert!"
@@ -6428,10 +5774,6 @@ msgstr "Der er ingen graf tilgængelig"
 msgid "No image encoder found for %s."
 msgstr "Der blev ikke fundet nogen billed-indkoder til %s."
 
-#. Resource IDs: (84)
-msgid "No path or pathfile specified on the command line!"
-msgstr "Ingen sti eller sti-fil specificeret på kommandolinien"
-
 #. Resource IDs: (188)
 msgid "No spell corrections"
 msgstr "Ingen stavekontrol-rettelser"
@@ -6440,26 +5782,13 @@ msgstr "Ingen stavekontrol-rettelser"
 msgid "No status cache. Only versioned folders get an overlay, files don't get an overlay"
 msgstr "Ingen status-cache. Kun mapper under versionskontrol får overdækning, filer gør ikke"
 
-#. Resource IDs: (84)
-#, c-format
-msgid "No such revision '%1!s!'"
-msgstr "Ingen revision ved navn '%1!s!'"
-
 #. Resource IDs: (188)
 msgid "No thesaurus suggestions"
 msgstr "Ingen forslag fra opslagsværk"
 
 #. Resource IDs: (65535)
-msgid "Node Status:"
-msgstr "Knude status:"
-
-#. Resource IDs: (65535)
 msgid "Node colors"
 msgstr "Knude farver"
-
-#. Resource IDs: (1507)
-msgid "Non-versioned"
-msgstr "Ikke-versioneret"
 
 #. Resource IDs: (1271)
 msgid "None"
@@ -6491,10 +5820,6 @@ msgstr ""
 msgid "Not recursive"
 msgstr "Ikke-rekursivt"
 
-#. Resource IDs: (3887)
-msgid "Note that if you choose to recover the auto-saved documents, you must explicitly save them to overwrite the original documents.  If you choose to not recover the auto-saved versions, they will be deleted."
-msgstr "Bemærk at hvis du vælger at genskabe de automatisk gemte dokumenter skal du eksplicit gemme og overskrive de originale dokumenter. Hvis du vælger ikke at genskabe de automatisk gemte dokumenter, vil de blive slettet."
-
 # Rigtig oversættelse?
 #. Resource IDs: (1481)
 msgid "Note: the folder contains unversioned items"
@@ -6504,22 +5829,9 @@ msgstr "Bemærk: Kataloget indeholder ikke-versionerede emner"
 msgid "Note: the font settings also affect the TortoiseUDiff viewer"
 msgstr "Bemærk: Skrifttypeindstillingerne påvirker også visningsprogrammet TortoiseUDiff"
 
-#. Resource IDs: (65535)
-msgid "Note: this affects all Tortoise clients, not just TortoiseSVN!"
-msgstr "Bemærk: Dette påvirker alle Tortoise klienter, ikke bare TortoiseSVN!"
-
-#. Resource IDs: (1557)
-msgid "Note: this property has no effect on Windows"
-msgstr "Bemærk: Denne egenskab har ingen effekt på Windows"
-
 #. Resource IDs: (88)
 msgid "Notice"
 msgstr "Bemærk"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Number of %s"
-msgstr "Antal af %s"
 
 #. Resource IDs: (338)
 msgid "Number of authors in the cache"
@@ -6629,17 +5941,9 @@ msgstr ""
 "\n"
 "Er du sikker på at du vil flytte de markerede stier?"
 
-#. Resource IDs: (3887)
-msgid "One or more auto-saved documents were found."
-msgstr "Et eller flere automatisk gemte dokumenter blev fundet."
-
 #. Resource IDs: (219)
 msgid "One or more files are in a conflicted state."
 msgstr "En eller flere filer indeholder konflikter."
-
-#. Resource IDs: (1424)
-msgid "Onl&y record the merge (block revisions from getting merged)"
-msgstr "Registrer k&un fletningen (forhindr revisioner i at blive flettet)"
 
 #. Resource IDs: (99)
 msgid "Only check out the &top folder"
@@ -6659,9 +5963,9 @@ msgstr ""
 "Kun tal (eventuelt adskilt af kommaer)\n"
 "er tilladt!"
 
-#. Resource IDs: (626)
-msgid "Only properties changed"
-msgstr "Kun egenskaber ændret"
+#. Resource IDs: (1424)
+msgid "Only record the merge (block revisions from getting merged)"
+msgstr "Registrer kun fletningen (forhindr revisioner i at blive flettet)"
 
 #. Resource IDs: (19)
 msgid "Only this item"
@@ -6718,11 +6022,6 @@ msgstr "Åbner versionsarkivbrowseren for at justere versionsarkivet online"
 #. Resource IDs: (199)
 msgid "Operate from log cache for now only"
 msgstr "Operer indtil videre kun fra logcachen"
-
-# Kontekst? Muligheder: Egenskaber, indstillinger, muligheder, ...
-#. Resource IDs: (348)
-msgid "Option"
-msgstr "Mulighed"
 
 # Kontekst? Muligheder: Egenskaber, indstillinger, muligheder, ...
 #. Resource IDs: (16137)
@@ -6824,34 +6123,17 @@ msgstr "Indsæt filnavne"
 msgid "Pastes the svn path from the clipboard, resulting in a move (cut) or copy operation"
 msgstr "Indsætter svn-stien fra udklipsholderen og initierer en flytte- (klippe-) eller kopioperation"
 
-#. Resource IDs: (1076)
-msgid "Patch &all items"
-msgstr "Ret &alle elementer"
-
-#. Resource IDs: (1075)
-msgid "Patch &selected item"
-msgstr "Ret &valgte element"
+#. Resource IDs: (376)
+msgid "Patch all"
+msgstr "Ret alle"
 
 #. Resource IDs: (376)
-msgid "Patch all files"
-msgstr "Ret alle filer"
-
-#. Resource IDs: (376)
-msgid "Patch selected files"
-msgstr "Ret valgte filer"
+msgid "Patch selected"
+msgstr "Ret valgte"
 
 #. Resource IDs: (157)
 msgid "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
 msgstr "Rettelsesfiler (*.diff, *.patch)|*.diff;*.patch|Alle (*.*)|*.*||"
-
-#. Resource IDs: (169)
-msgid "Patching"
-msgstr "Retter"
-
-#. Resource IDs: (169)
-#, c-format
-msgid "Patching file '%1'"
-msgstr "Retter filen '%1'"
 
 #. Resource IDs: (20, 63, 77, 198, 207)
 msgid "Path"
@@ -6868,16 +6150,6 @@ msgid ""
 msgstr ""
 "Blyantsredskab\n"
 "Blyant"
-
-#. Resource IDs: (245)
-msgid "Percent of authorship"
-msgstr "Andel af forfatterskab"
-
-# Kontekst?
-# Ental eller flertal? Eller kombi ala "Nylig(e)"?
-#. Resource IDs: (245)
-msgid "Percents"
-msgstr "Procenter"
 
 #. Resource IDs: (16538)
 msgid "Personalized Menus and Toolbars"
@@ -6953,10 +6225,6 @@ msgstr "Vent venligst mens der annulleres..."
 msgid "Please wait while differences are obtained..."
 msgstr "Vent venligst mens forskellene findes..."
 
-#. Resource IDs: (281)
-msgid "Please wait while the externals are gathered..."
-msgstr "Vent venligst mens de eksterne referencer findes..."
-
 #. Resource IDs: (104)
 msgid "Please wait while the repository browser is initializing..."
 msgstr "Vent venligst mens versionsarkivbrowseren initialiserer..."
@@ -6997,14 +6265,6 @@ msgstr "\"Før arkivering\"-tilkobling"
 msgid "Pre-Update Hook"
 msgstr "\"Før opdatering\"-tilkobling"
 
-#. Resource IDs: (3)
-msgid "Prefer &local"
-msgstr "Foretræk &lokal"
-
-#. Resource IDs: (4)
-msgid "Prefer &repository"
-msgstr "Foretræk &versionsarkiv"
-
 #. Resource IDs: (65535)
 msgid "Press &New Shortcut Key:"
 msgstr "Tryk den &nye genvejstast:"
@@ -7028,10 +6288,6 @@ msgstr "Forhåndsvis rettet fil"
 #. Resource IDs: (65535)
 msgid "Preview: "
 msgstr "Forhåndsvisning:"
-
-#. Resource IDs: (32876)
-msgid "Previous In&line Difference"
-msgstr "Forrige &Linie Forskel"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -7072,8 +6328,8 @@ msgstr "Udskriver"
 
 #. Resource IDs: (132)
 #, c-format
-msgid "Processing revision %1!d! of %2!d!..."
-msgstr "Behandler revision %1!d! ud af %2!d!..."
+msgid "Processing revision %d of %d..."
+msgstr "Behandler revision %d ud af %d..."
 
 #. Resource IDs: (74)
 msgid "Program"
@@ -7109,13 +6365,13 @@ msgstr "Egenskab"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Revision %2!s!"
-msgstr "Egenskab %1!s! : Revision %2!s!"
+msgid "Property %s : Revision %s"
+msgstr "Egenskab %s : Revision %s"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Working Base, Revision %2!ld!"
-msgstr "Egenskab %1!s! : Arbejdskopi, Revision %2!ld!"
+msgid "Property %s : Working Base, Revision %ld"
+msgstr "Egenskab %s : Arbejdskopi, Revision %ld"
 
 #. Resource IDs: (151)
 #, c-format
@@ -7166,14 +6422,6 @@ msgstr "Egenskabsværdi:"
 msgid "Provider"
 msgstr "Udbyder"
 
-#. Resource IDs: (1586)
-msgid "Provider para&meters:"
-msgstr "Udbyder para&metre:"
-
-#. Resource IDs: (1581)
-msgid "Provider uuid win&32:"
-msgstr "Udbyder uuid win&32:"
-
 #. Resource IDs: (1475)
 msgid "Provider:"
 msgstr "Udbyder:"
@@ -7209,17 +6457,9 @@ msgstr ""
 msgid "R&AM drives"
 msgstr "&Hukommelsesdrev"
 
-#. Resource IDs: (1469)
-msgid "R&eintegrate a branch"
-msgstr "R&eintegrer en gren"
-
 #. Resource IDs: (16623)
 msgid "R&eset"
 msgstr "N&ulstil"
-
-#. Resource IDs: (1423)
-msgid "R&everse merge"
-msgstr "Omv&endt fletning"
 
 #. Resource IDs: (114)
 msgid "R&evert to this revision"
@@ -7250,10 +6490,6 @@ msgstr "Nul&stil"
 msgid "Re&set All"
 msgstr "Nul&stil Alle"
 
-#. Resource IDs: (1400)
-msgid "Re&solved"
-msgstr "Lø&st"
-
 #. Resource IDs: (1382)
 msgid "Re&store defaults"
 msgstr "Gendan &standarder"
@@ -7261,10 +6497,6 @@ msgstr "Gendan &standarder"
 #. Resource IDs: (8)
 msgid "Re&vert..."
 msgstr "Til&bagefør..."
-
-#. Resource IDs: (1033)
-msgid "Re&vision"
-msgstr "Re&vision"
 
 #. Resource IDs: (12)
 msgid "Read the 'Daily Use Guide' before you are stuck..."
@@ -7283,40 +6515,6 @@ msgstr "Nyligt ændrede linjer"
 #. Resource IDs: (276)
 msgid "Record Only"
 msgstr "Registrer kun"
-
-#. Resource IDs: (265)
-msgid "Recording mergeinfo for merge between URLs"
-msgstr "Registrerer fletteinfo for fletning mellem URL'er"
-
-# Kontekst?
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for merge of r%1!ld! through r%2!ld!"
-msgstr "Registrerer fletteinfo for fletning af r%1!ld! til r%2!ld!"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for merge of r%ld"
-msgstr "Registrerer fletteinfo for fletning af  r%ld"
-
-# Kontekst?
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for reverse merge of r%1!ld! through r%2!ld!"
-msgstr "Registrerer fletteinfo for omvendt fletning af r%1!ld! til r%2!ld!"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for reverse merge of r%ld"
-msgstr "Registrerer fletteinfo for omvendt fletning af  r%ld"
-
-#. Resource IDs: (3887)
-msgid ""
-"Recover the auto-saved documents\n"
-"Open the auto-saved versions instead of the explicitly saved versions"
-msgstr ""
-"Genskab de automatisk gemte dokumenter\n"
-"Åben de automatisk gemte versioner i stedet for de eksplicit gemte versioner"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -7354,10 +6552,6 @@ msgstr "Minimer vindue til et ikon"
 msgid "Refresh"
 msgstr "Opdater"
 
-#. Resource IDs: (1576)
-msgid "Regular Expression"
-msgstr "Regulært Udtryk"
-
 #. Resource IDs: (117)
 msgid ""
 "Regular expressions filter:\r\n"
@@ -7392,9 +6586,9 @@ msgstr ""
 "\\d   : cifrene 0-9\r\n"
 "\\s   : blanktegn"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Reintegrer fletning"
+#. Resource IDs: (1469)
+msgid "Reintegrate a branch"
+msgstr "Reintegrer en gren"
 
 #. Resource IDs: (230)
 #, c-format
@@ -7405,13 +6599,8 @@ msgstr "Reintegreringsflet %s ind i %s"
 msgid "Reject"
 msgstr "Afvis"
 
-#. Resource IDs: (7)
-#, c-format
-msgid "Rejected patch hunks for '%s'"
-msgstr "Afviste rettelses-stykker for '%s'"
-
 #. Resource IDs: (16)
-msgid "Release loc&k..."
+msgid "Release loc&k"
 msgstr "Lås o&p"
 
 #. Resource IDs: (16)
@@ -7495,11 +6684,11 @@ msgstr "Fjern fra ændringsliste"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Remove property '%1!S!' from\r\n"
-"%2!s!"
+"Remove property '%s' from\r\n"
+"%s"
 msgstr ""
-"Fjern egenskab  '%1!S!' fra\r\n"
-"%2!s!"
+"Fjern egenskab  \"%s\" fra\r\n"
+"%s"
 
 #. Resource IDs: (610)
 msgid "Remove the directory"
@@ -7568,11 +6757,11 @@ msgstr "Omdøb %s"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Rename item from %1!s!\r\n"
-"to %2!s!"
+"Rename item from %s\r\n"
+"to %s"
 msgstr ""
-"Omdøb emne fra %1!s!\r\n"
-"til %2!s!"
+"Omdøb emne fra %s\r\n"
+"til %s"
 
 #. Resource IDs: (221)
 msgid "Rename/move - TortoiseSVN"
@@ -7589,10 +6778,6 @@ msgstr "Omdøbt på serveren"
 #. Resource IDs: (11)
 msgid "Renames files / folders inside version control"
 msgstr "Omdøber filer/mapper under versionskontrol"
-
-#. Resource IDs: (209)
-msgid "Repair copy"
-msgstr "Reparationskopi"
 
 #. Resource IDs: (209)
 msgid "Repair move"
@@ -7635,10 +6820,6 @@ msgstr "URL til versionsarkiv"
 msgid "Repository UUID:"
 msgstr "Versionarkivet-UUID:"
 
-#. Resource IDs: (106)
-msgid "Request cancelled by TSVN"
-msgstr "Anmodning afbrudt af TSVN"
-
 #. Resource IDs: (65535)
 msgid "Requests a username and a password"
 msgstr "Spørger efter brugernavn og adgangskode"
@@ -7669,8 +6850,8 @@ msgid "Resolve Conflict"
 msgstr "Løs konflikt"
 
 #. Resource IDs: (1382)
-msgid "Resolve all la&ter"
-msgstr "Løs &alle senere"
+msgid "Resolve all later"
+msgstr "Løs alle senere"
 
 #. Resource IDs: (282)
 msgid "Resolve conflict using 'mine'"
@@ -7685,8 +6866,8 @@ msgid "Resolve conflict:"
 msgstr "Løs konflikt:"
 
 #. Resource IDs: (2)
-msgid "Resolve l&ater"
-msgstr "Løs &senere"
+msgid "Resolve later"
+msgstr "Løs senere"
 
 #. Resource IDs: (74, 209, 1400)
 msgid "Resolved"
@@ -7721,17 +6902,21 @@ msgstr "Gendannet"
 msgid "Retry"
 msgstr "Prøv igen"
 
-# Kontekst?
-#. Resource IDs: (264)
-#, c-format
-msgid "Reverse merging %1!ld! through %2!ld!"
-msgstr "Omvendt fletning fra %1!ld! til og med %2!ld!"
+#. Resource IDs: (1423)
+msgid "Reverse merge"
+msgstr "Fortryd fletning"
 
 # Kontekst?
 #. Resource IDs: (264)
 #, c-format
 msgid "Reverse merging %ld"
 msgstr "Fortryd fletning af %ld"
+
+# Kontekst?
+#. Resource IDs: (264)
+#, c-format
+msgid "Reverse merging %ld through %ld"
+msgstr "Fortryd fletning af %ld gennem %ld"
 
 #. Resource IDs: (175, 229)
 msgid "Revert"
@@ -7763,18 +6948,18 @@ msgstr "Revision"
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Revision %1!d!"
-msgstr "Revision %1!d!"
-
-#. Resource IDs: (120)
-#, c-format
-msgid "Revision %1!s!"
-msgstr "Revision %1!s!"
+msgid "Revision %d"
+msgstr "Revision %d"
 
 #. Resource IDs: (269)
 #, c-format
 msgid "Revision %ld"
 msgstr "Revision %ld"
+
+#. Resource IDs: (120)
+#, c-format
+msgid "Revision %s"
+msgstr "Revision %s"
 
 #. Resource IDs: (15)
 msgid "Revision &graph"
@@ -7784,7 +6969,7 @@ msgstr "Revisionsgr&af"
 msgid "Revision / Author:"
 msgstr "Revision/forfatter:"
 
-#. Resource IDs: (182, 296)
+#. Resource IDs: (182)
 msgid "Revision Graph"
 msgstr "Revisionsgraf"
 
@@ -7805,8 +6990,8 @@ msgid "Revision graph"
 msgstr "Revisionsgraf"
 
 #. Resource IDs: (1492)
-msgid "Revision r&ange to merge"
-msgstr "Revisions&interval for fletning"
+msgid "Revision range to merge"
+msgstr "Revisionsinterval for fletning"
 
 #. Resource IDs: (75)
 msgid "Revision: "
@@ -7815,44 +7000,44 @@ msgstr "Revision: "
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%7!s!"
+"%s"
 msgstr ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Forfatter: %5!s!\r\n"
-"Dato: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sForfatter: %s\r\n"
+"Dato: %s\r\n"
 "\r\n"
-"Log besked:\r\n"
-"%7!s!"
+"Logbesked:\r\n"
+"%s"
 
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
-"Tags (%7!d!):%8!s!\r\n"
+"Tags (%d):%s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%9!s!"
+"%s"
 msgstr ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Forfatter: %5!s!\r\n"
-"Dato: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sForfatter: %s\r\n"
+"Dato: %s\r\n"
 "\r\n"
-"Tags (%7!d!):%8!s!\r\n"
+"Mærker (%d):%s\r\n"
 "\r\n"
-"Log besked:\r\n"
-"%9!s!"
+"Logbesked:\r\n"
+"%s"
 
 #. Resource IDs: (116, 65535)
 msgid "Revisions"
@@ -7883,14 +7068,6 @@ msgstr "Række %d af %d"
 #, c-format
 msgid "Row %d-%d of %d"
 msgstr "Række %d-%d af %d"
-
-#. Resource IDs: (1070)
-msgid "Row Down"
-msgstr "Række Ned"
-
-#. Resource IDs: (1070)
-msgid "Row Up"
-msgstr "Række Op"
 
 # Kontekst?
 #. Resource IDs: (17045)
@@ -7973,10 +7150,6 @@ msgstr "SVN Revision"
 #. Resource IDs: (11)
 msgid "SVN Status"
 msgstr "SVN Status"
-
-#. Resource IDs: (20)
-msgid "SVN Statusnumber"
-msgstr "SVN Statusnummer"
 
 #. Resource IDs: (12)
 msgid "SVN URL"
@@ -8061,10 +7234,6 @@ msgstr "Gemmer filer"
 msgid "Saving patchfile to:"
 msgstr "Gemmer rettelsesfil til:"
 
-#. Resource IDs: (1522)
-msgid "Scan"
-msgstr "Gennemse"
-
 # Autogenereret, bruges ikke
 #. Resource IDs: (1014, 1017, 1064, 1212)
 msgid "Scintilla"
@@ -8089,10 +7258,6 @@ msgstr "Søg efter:"
 #. Resource IDs: (7)
 msgid "Search string not found!"
 msgstr "Søgestrengen blev ikke fundet."
-
-#. Resource IDs: (169)
-msgid "Searching for better path to apply patch..."
-msgstr "Søger efter en bedre sti til at placere rettelse..."
 
 #. Resource IDs: (3867)
 #, c-format
@@ -8155,6 +7320,10 @@ msgstr "Vælg ændringsliste"
 msgid "Select diff application"
 msgstr "Vælg program til sammenligning"
 
+#. Resource IDs: (313)
+msgid "Select diff file..."
+msgstr "Vælg diff-fil..."
+
 #. Resource IDs: (99)
 msgid "Select directory to check out to"
 msgstr "Vælg mappen, der skal hentes til"
@@ -8199,10 +7368,6 @@ msgstr "Vælg fletningsprogram"
 msgid "Select merge target"
 msgstr "Vælg mål for fletning"
 
-#. Resource IDs: (13)
-msgid "Select patch file..."
-msgstr "Vælg rettelsesfil..."
-
 #. Resource IDs: (276)
 msgid "Select revision range"
 msgstr "Vælg revisions-interval"
@@ -8214,10 +7379,6 @@ msgstr "Vælg start-revision"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Vælg tekstredigeringsprogram"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Vælg URL'erne til reintegrationen"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -8234,10 +7395,6 @@ msgid ""
 msgstr ""
 "Vælg hele dokumentet\n"
 "Vælg alt"
-
-#. Resource IDs: (65535)
-msgid "Select the language this project is using. This settings affects the spell checker used for commit messages."
-msgstr "Vælg det sprog som skal anvendes af dette projekt. Denne egenskab styrer stavekontrollen der anvendes til arkiveringsbeskeder."
 
 #. Resource IDs: (595)
 msgid "Select the merge options"
@@ -8283,11 +7440,11 @@ msgstr "Sæt filers datostempel til \"seneste arkiverings&tidspunkt\""
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Set property '%1!S!' on\r\n"
-"%2!s!"
+"Set property '%s' on\r\n"
+"%s"
 msgstr ""
-"Sæt egenskab '%1!S!' på\r\n"
-"%2!s!"
+"Sæt egenskab \"%s\" på\r\n"
+"%s"
 
 #. Resource IDs: (13)
 msgid "Setting properties..."
@@ -8374,6 +7531,10 @@ msgstr "&Vis log..."
 msgid "Show &overlays and context menu only in explorer"
 msgstr "Vis kun &overdækninger og kontekstmenu i Windows Stifinder"
 
+#. Resource IDs: (1265)
+msgid "Show &properties"
+msgstr "Vis &egenskaber"
+
 #. Resource IDs: (1073)
 msgid "Show &unversioned files"
 msgstr "Vis &ikke-versionerede filer"
@@ -8387,10 +7548,6 @@ msgstr "Vis over båndet"
 #. Resource IDs: (1069)
 msgid "Show Below the Ribbon"
 msgstr "Vis under båndet"
-
-#. Resource IDs: (1542)
-msgid "Show Branch L&og"
-msgstr "Vis Sidegrens L&og"
 
 #. Resource IDs: (1065)
 msgid "Show Fewer Buttons"
@@ -8461,14 +7618,22 @@ msgid "Show excluded folders as normal"
 msgstr "Vis udelukkede mapper som versionerede"
 
 #. Resource IDs: (1480)
-msgid "Show externals from &different repositories"
-msgstr "Vis externe elementer fra &forskellige versionsarkiver"
+msgid "Show externals from different repositories"
+msgstr "Vis externe elementer fra forskellige versionsarkiver"
 
 #. Resource IDs: (16656)
 msgid "Show f&ull menus after a short delay"
 msgstr "Vis f&ulde menuer efter en kort forsinkelse"
 
-#. Resource IDs: (1034, 1037)
+#. Resource IDs: (1264)
+msgid "Show i&gnored files"
+msgstr "Vis i&gnorerede filer"
+
+#. Resource IDs: (1480)
+msgid "Show items in externals"
+msgstr "Vis elementer i externe egenskaber"
+
+#. Resource IDs: (1037)
 msgid "Show l&og"
 msgstr "&Vis log"
 
@@ -8476,17 +7641,9 @@ msgstr "&Vis log"
 msgid "Show linenumber&s"
 msgstr "Vis lin&jenumre"
 
-#. Resource IDs: (1037)
-msgid "Show lo&g"
-msgstr "Vis lo&g"
-
 #. Resource IDs: (2051)
 msgid "Show oldest node at top"
 msgstr "Vis ældste knude øverst"
-
-#. Resource IDs: (1229)
-msgid "Show only a&ffected paths"
-msgstr "&Vis kun påvirkede stier"
 
 #. Resource IDs: (2052)
 msgid "Show only the changed parts of the path name. Replace unchanged elements with dots."
@@ -8526,6 +7683,14 @@ msgstr ""
 "Vis eller skjul værktøjslinjen\n"
 "Vis/skjul værktøjslinje"
 
+#. Resource IDs: (1432)
+msgid "Show overlay for ignored items"
+msgstr "Vis overdækning for ignorerede emner"
+
+#. Resource IDs: (1462)
+msgid "Show overlay for unversioned items"
+msgstr "Vis overdækning for ikke-versionerede emner"
+
 #. Resource IDs: (102)
 msgid "Show revision properties"
 msgstr "Vis egenskaber for revision"
@@ -8550,19 +7715,27 @@ msgstr "Vis statistik for den valgte logcache"
 msgid "Show tags on the copy source, not as separate nodes"
 msgstr "Vis mærker på kilden til kopieringen, ikke som separate knuder"
 
+#. Resource IDs: (1209)
+msgid "Show un&modified files"
+msgstr "Vis ikke-&ændrede filer"
+
+#. Resource IDs: (1073)
+msgid "Show un&versioned files"
+msgstr "Vis ikke-&versionerede filer"
+
 #. Resource IDs: (198)
 msgid "Show/Hide"
 msgstr "Vis/skjul"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "Showing %1!ld! revision(s), from revision %2!ld! to revision %3!ld! - %4!ld! revision(s) selected, showing %5!ld! changed paths"
-msgstr "Viser %1!ld! revision(er) fra revision %2!ld! til revision %3!ld! - %4!ld! revision(er) valgt, viser %5!ld! ændrede stier"
 
 #. Resource IDs: (272)
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Viser %ld knuder"
+
+#. Resource IDs: (115)
+#, c-format
+msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
+msgstr "Viser %ld revision(er) fra revision %ld til revision %ld - %ld revision(er) valgt."
 
 #. Resource IDs: (272)
 #, c-format
@@ -8617,10 +7790,6 @@ msgstr "Størrelse of status"
 msgid "Size of all cached text information"
 msgstr "Størrelse af alt cached tekstinformation"
 
-#. Resource IDs: (320)
-msgid "Size of log messages"
-msgstr "Størrelse af logbeskeder"
-
 #. Resource IDs: (339)
 msgid "Size of the cache file on disk"
 msgstr "Størrelse af cachefilen på harddisken"
@@ -8637,10 +7806,6 @@ msgstr "Oversprunget"
 msgid "Skipped missing target"
 msgstr "Sprang over manglende element"
 
-#. Resource IDs: (1070)
-msgid "Slide"
-msgstr "Glid"
-
 #. Resource IDs: (1126)
 msgid "Sort by commit count"
 msgstr "Sorter efter antal arkiveringer"
@@ -8653,21 +7818,9 @@ msgstr "Venstre kilde:"
 msgid "Source Right:"
 msgstr "Højre kilde:"
 
-#. Resource IDs: (1552)
-msgid "Source URL:"
-msgstr "Kilde URL:"
-
 #. Resource IDs: (196)
 msgid "Specifies how many items you want to keep in the most recent log messages dialog."
 msgstr "Angiver hvor mange filer du ønsker gemt i listen over nyeste logbeskeder."
-
-#. Resource IDs: (1572)
-msgid "Specify how the commit message should be built from the entered bug-ID. Use the placeholder %BUGID% for the real bug-ID. If you leave these settings empty, TortoiseSVN will use the regular expressions instead."
-msgstr "Specificer hvordan arkiveringsbeskeden skal konstrueres ud fra den angivne fejl-ID. Brug mønsteret %BUGID% i stedet for det rigtige fejl-ID. Hvis du ikke specificerer noget her vil TortoiseSVN benytte de regulære udtryk i stedet for."
-
-#. Resource IDs: (1305)
-msgid "Specify the URL to access the issue tracker. Use %BUGID% as a placeholder for the real issue number."
-msgstr "Specificer URL'en til sagsstyrings-systemet. Brug mønsteret %BUGID% i stedet for det rigtige fejl-ID"
 
 #. Resource IDs: (79)
 msgid ""
@@ -8784,34 +7937,6 @@ msgstr "Stefan Küng, Lübbe Onken"
 msgid "Stripes"
 msgstr "Striber"
 
-#. Resource IDs: (117)
-msgid ""
-"Sub-string filter:\r\n"
-"* Specify one or more strings, separated by spaces. All sub-strings must match.\r\n"
-"* Put a - in front of a sub-string to exclude revisions that contain this sub-string.\r\n"
-"* Enclose strings that contain spaces etc. with \".\r\n"
-"* Put a ! at the beginning of the line to invert the whole filter condition.\r\n"
-"\r\n"
-"Examples:\r\n"
-"myname  2008    : my commits of 2008\r\n"
-".h  -.cpp              : commits that changed headers but no implementations\r\n"
-"\" \"                        : commits with spaces (ex. when searching in paths only)\r\n"
-"-\"\"show all\"\"        : commits that don't contain the string '\"show all\"'\r\n"
-"!myname  .cpp    : everything but my commits to .cpp files"
-msgstr ""
-"Del-streng filter:\r\n"
-"* Specificer en eller flere strenge, adskilt af mellemrum. Alle del-strenge skal matche.\r\n"
-"* Placer et '-' tegn foran en del-streng for at udelukke revisioner med denne del-streng.\r\n"
-"* Omgiv strenge der indeholder mellemrum med \".\r\n"
-"* Placer et '!' tegn foran en linie for at invertere hele filter betingelsen.\r\n"
-"\r\n"
-"Eksepler:\r\n"
-"mitname  2008    : mine commits fra 2008\r\n"
-".h  -.cpp              : commits som ændrede headerfiler men ikke implementationsfiler\r\n"
-"\" \"                        : commits med mellemrum (f.eks. når man søger i stier)\r\n"
-"-\"\"show all\"\"        : commits som ikke indeholder strengen '\"show all\"'\r\n"
-"!mitname  .cpp    : alt undtagen mine commits til .cpp filer"
-
 #. Resource IDs: (65535)
 msgid "Subversion"
 msgstr "Subversion"
@@ -8834,8 +7959,8 @@ msgid ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion encountered the problem in:\n"
-"file %1!s!, line %2!ld!\n"
-"expression = %3!s!"
+"file %s, line %ld\n"
+"expression = %s"
 msgstr ""
 "Subversion løb ind i et alvorligt  problem.\n"
 "Vi vil bede dig om at rapportere dette på vores email liste\n"
@@ -8848,8 +7973,8 @@ msgstr ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion fandt problemet i :\n"
-"file %1!s!, line %2!ld!\n"
-"expression = %3!s!"
+"file %s, line %ld\n"
+"expression = %s"
 
 #. Resource IDs: (84)
 msgid ""
@@ -8901,7 +8026,7 @@ msgid "Subversion server file:"
 msgstr "Subversion server-fil:"
 
 #. Resource IDs: (1232)
-msgid "Swit&ch working copy to new branch/tag"
+msgid "Sw&itch working copy to new branch/tag"
 msgstr "S&kift arbejdskopi til ny gren/mærke"
 
 #. Resource IDs: (229)
@@ -8912,10 +8037,6 @@ msgstr "Skift %s til %s, revision %s"
 #. Resource IDs: (78)
 msgid "Switch - TortoiseSVN"
 msgstr "Skift - TortoiseSVN"
-
-#. Resource IDs: (1377)
-msgid "Switch Depth"
-msgstr "Ombytningsdybde"
 
 #. Resource IDs: (32811)
 msgid "Switch Left<->Right"
@@ -9211,16 +8332,6 @@ msgstr "Den sidste flette-operation forsøgte at ændre filen \"%s\""
 
 #. Resource IDs: (608)
 #, c-format
-msgid "The last merge operation tried to replace the directory '%s'"
-msgstr "Den sidste flette-operation forsøgte at erstatte folderen '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last merge operation tried to replace the file '%s'"
-msgstr "Den sidste flette-operation forsøgte at erstatte filen '%s'"
-
-#. Resource IDs: (608)
-#, c-format
 msgid "The last switch operation tried to add the directory '%s'"
 msgstr "Den sidste skifte-operation forsøgte at tilføje folderen \"%s\""
 
@@ -9248,16 +8359,6 @@ msgstr "Den sidste skifte-operation forsøgte at ændre folderen \"%s\""
 #, c-format
 msgid "The last switch operation tried to modify the file '%s'"
 msgstr "Den sidste skifte-operation forsøgte at ændre filen \"%s\""
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last switch operation tried to replace the directory '%s'"
-msgstr "Den sidste skifte-operation forsøgte at erstatte folderen '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last switch operation tried to replace the file '%s'"
-msgstr "Den sidste skifte-operation forsøgte at erstatte filen  '%s'"
 
 #. Resource IDs: (607)
 #, c-format
@@ -9288,16 +8389,6 @@ msgstr "Den sidste flette-operation forsøgte at ændre folderen \"%s\""
 #, c-format
 msgid "The last update operation tried to modify the file '%s'"
 msgstr "Den sidste opdaterings-operation forsøgte at ændre filen \"%s\""
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last update operation tried to replace the directory '%s'"
-msgstr "Den sidste opdaterings-operation forsøgte at erstatte folderen'%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last update operation tried to replace the file '%s'"
-msgstr "Den sidste opdaterings-operation forsøgte at erstatte filen  '%s'"
 
 #. Resource IDs: (63)
 #, c-format
@@ -9358,15 +8449,15 @@ msgstr ""
 #, c-format
 msgid ""
 "The patch seems outdated! The file line\n"
-"%1!s!\n"
+"%s\n"
 "and the patchline\n"
-"%2!s!\n"
+"%s\n"
 "do not match!"
 msgstr ""
 "Rettelsesfilen er tilsyneladende forældet! Linjen\n"
-"%1!s!\n"
+"%s\n"
 "og rettelseslinjen\n"
-"%2!s!\n"
+"%s\n"
 "stemmer ikke overens!"
 
 #. Resource IDs: (88)
@@ -9391,39 +8482,22 @@ msgstr ""
 #, c-format
 msgid ""
 "The path\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "in the patchfile does not exist.\n"
 "TortoiseMerge found the relative path\n"
-"<i>%2!s!</i>\n"
+"<i>%s</i>\n"
 "which seems to match the directory you're applying the patch.\n"
 "\n"
 "Do you want to use the suggested path? Answering 'no' will quit TortoiseMerge."
 msgstr ""
 "Stien\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "i rettelsesfilen findes ikke.\n"
 "TortoiseMerge fandt den relative sti\n"
-"<i>%2!s!</i>\n"
+"<i>%s</i>\n"
 "som lader til at passe til mappen du er ved at påføre rettelsesfilen på.\n"
 "\n"
 "Ønsker du at benytte den foreslåede sti? Hvis du svarer 'nej', afsluttes TortoiseMerge."
-
-#. Resource IDs: (314)
-#, c-format
-msgid ""
-"The path\n"
-"<i>%1!s!</i>\n"
-"seems not to match the paths in the patchfile.\n"
-"But TortoiseMerge found the path\n"
-"<i>%2!s!</i>\n"
-"matches it better. Do you want to use the suggested path instead?"
-msgstr ""
-"Stien\n"
-"<i>%1!s!</i>\n"
-"lader ikke til at stemme overens med stierne i rettelsesfilen.\n"
-"TortoiseMerge fandt ud af at stien \n"
-"<i>%2!s!</i>\n"
-"passer bedre. Vil du benytte den foreslåede sti i stedet?"
 
 #. Resource IDs: (314)
 #, c-format
@@ -9438,21 +8512,26 @@ msgstr ""
 "i rettelsesfilen findes ikke.\n"
 "TortoiseMerge har forsøgt at påføre rettelsesfilen ved af fjerne præfikser, men der kunne ikke findes en passende sti."
 
-#. Resource IDs: (84)
+#. Resource IDs: (314)
+#, c-format
 msgid ""
-"The regular expression is invalid!\n"
-"Please enter a valid regular expression."
+"The path\n"
+"<i>%s</i>\n"
+"seems not to match the paths in the patchfile.\n"
+"But TortoiseMerge found the path\n"
+"<i>%s</i>\n"
+"matches it better. Do you want to use the suggested path instead?"
 msgstr ""
-"Det regulære udtryk er ugyldigt!\n"
-"Indtast venligst et validt udtryk."
+"Stien\n"
+"<i>%s</i>\n"
+"lader ikke til at stemme overens med stierne i rettelsesfilen.\n"
+"TortoiseMerge fandt ud af at stien \n"
+"<i>%s</i>\n"
+"passer bedre. Vil du benytte den foreslåede sti i stedet?"
 
 #. Resource IDs: (80)
-msgid ""
-"The repository was successfully created.\n"
-"Do you want to create the default folder structure (trunk/branches/tags) now?"
-msgstr ""
-"Versionsarkivet blev oprettet korrekt.\n"
-"Ønsker du at oprette en standard katalog struktur (trunk/branches/tags) nu?"
+msgid "The repository was successfully created."
+msgstr "Oprettelsen af versionsarkivet lykkedes."
 
 #. Resource IDs: (78)
 msgid ""
@@ -9498,18 +8577,6 @@ msgstr ""
 "%s\n"
 "er ikke tom!\n"
 "Er du sikker på, at du vil hente en arbejdskopi eller eksportere til denne mappe?"
-
-#. Resource IDs: (279)
-msgid "The target working copy has local modifications!"
-msgstr "Destinations-arbejdskopien har lokale ændringer!"
-
-#. Resource IDs: (279)
-msgid ""
-"The target working copy has local modifications.\n"
-"Do you want to merge anyway?"
-msgstr ""
-"Destinations-arbejdskopien har lokale ændringer.\n"
-"Ønsker du at flette alligevel?"
 
 # Bemærk: Meget dårlig engelsk grammatik. Tilnærmelsesvis oversættelse.
 # Bedre oversættelse af "parsing"?
@@ -9625,14 +8692,6 @@ msgstr "Der er intet at låse op. Der er ingen filer i arbejdskopien med en lås
 msgid "Thesaurus"
 msgstr "Opslagsværk"
 
-#. Resource IDs: (3887)
-msgid "These are more recently saved than the currently open documents and contain changes that were made before the application closed."
-msgstr "Disse er gemt senere end end de nuværende åbne dokumenter og indeholder ændringer der blev foretaget før programmet lukkede."
-
-#. Resource IDs: (84)
-msgid "This file already exists!"
-msgstr "Denne fil eksisterer allerede!"
-
 #. Resource IDs: (83)
 msgid ""
 "This is not a valid URL.\n"
@@ -9663,11 +8722,11 @@ msgstr "Denne metode dækker tilfældet når du har lavet en eller flere revisio
 msgid "This method covers the case when you want to merge the differences of two different branches into your working copy."
 msgstr "Denne metode dækker tilfældet når du vil flette forskellene mellem to forskellige grene ind i din arbejdskopi."
 
-#. Resource IDs: (1531)
+#. Resource IDs: (65535)
 msgid "This product includes software developed by CollabNet (http://www.Collab.Net/)"
 msgstr "Dette produkt indeholder software udviklet af CollabNet (http://www.Collab.Net/)"
 
-#. Resource IDs: (1532)
+#. Resource IDs: (65535)
 msgid "This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/)"
 msgstr "Dette produkt indeholder software udviklet af OpenSSL-projektet til brug i OpenSSL Toolkit (http://www.openssl.org/)"
 
@@ -9693,13 +8752,13 @@ msgstr "Denne egenskab må ikke indeholde flere linjer. Der tillades kun én lin
 msgid "This will delete the record of commands you've used in this application and restore the default set of visible commands to the menus and toolbars. It will not undo any explicit customizations. Are you sure you want to do this?"
 msgstr "Dette vil slette historikken over kommandoer du har brugt i dette program samt genoprette standardsættet af synlige kommandoer i menuer og værktøjslinjer. Dette vil ikke annullere nogen eksplicitte tilpasninger. Er du sikker på at du vil gøre dette?"
 
+#. Resource IDs: (16924)
+msgid "Tile &Horizontally"
+msgstr "Arranger &Horisontalt"
+
 #. Resource IDs: (16928)
 msgid "Tile &Vertically"
 msgstr "Arranger &Vertikalt"
-
-#. Resource IDs: (16924)
-msgid "Tile Hori&zontally"
-msgstr "Arranger &Horisontalt"
 
 #. Resource IDs: (65535)
 msgid "Timeouts"
@@ -9730,6 +8789,10 @@ msgstr ""
 #. Resource IDs: (1201, 65535)
 msgid "To:"
 msgstr "Til:"
+
+#. Resource IDs: (1495)
+msgid "To: (end URL and revision of the range to merge)"
+msgstr "Til: (slut-URL og -revision af intervallet der skal flettes)"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -9871,10 +8934,6 @@ msgstr ""
 "%s\r\n"
 "zlib %s"
 
-#. Resource IDs: (281)
-msgid "TortoiseSVN auto commit: changed externals to fixed revision."
-msgstr "TortoiseSVN auto arkivering: ændrede eksterne til låst revision."
-
 #. Resource IDs: (98)
 #, c-format
 msgid ""
@@ -9963,8 +9022,8 @@ msgid "URL of Subversion items"
 msgstr "URL for Subversion-emner"
 
 #. Resource IDs: (1491)
-msgid "URL to merge &from"
-msgstr "URL til at flette &fra"
+msgid "URL to merge from"
+msgstr "URL til at flette fra"
 
 #. Resource IDs: (144, 11023, 65535)
 msgid "URL:"
@@ -9973,14 +9032,6 @@ msgstr "URL:"
 #. Resource IDs: (75)
 msgid "URL: "
 msgstr "URL: "
-
-#. Resource IDs: (1209)
-msgid "Un&modified"
-msgstr "U&ændret"
-
-#. Resource IDs: (1073)
-msgid "Un&versioned"
-msgstr "U&versioneret"
 
 #. Resource IDs: (220)
 #, c-format
@@ -10064,10 +9115,6 @@ msgstr ""
 msgid "Unexpected file format."
 msgstr "Ikke-forventet filformat."
 
-#. Resource IDs: (1070)
-msgid "Unfold"
-msgstr "Luk op"
-
 #. Resource IDs: (3850)
 msgid ""
 "Unformatted Text\n"
@@ -10084,20 +9131,16 @@ msgstr "Unified &diff af HEAD-revisioner"
 #, c-format
 msgid ""
 "Unknown certificate issuer.\n"
-"  Fingerprint: %1!s!\n"
-"  Distinguished name: %2!s!"
+"  Fingerprint: %s\n"
+"  Distinguished name: %s"
 msgstr ""
 "Ukendt certifikatudsteder.\n"
-"  Fingeraftryk: %1!s!\n"
-"  Kendenavn: %2!s!"
+"  Fingeraftryk: %s\n"
+"  Kendenavn: %s"
 
 #. Resource IDs: (20)
 msgid "Unknown depth"
 msgstr "Ukendt dybde"
-
-#. Resource IDs: (106)
-msgid "Unknown failure in SVN::List"
-msgstr "Ukendt fejl i SVN::List"
 
 #. Resource IDs: (221, 230, 242)
 msgid "Unlock"
@@ -10131,26 +9174,14 @@ msgstr ""
 msgid "Unversion"
 msgstr "Afversionér"
 
-#. Resource IDs: (14)
-msgid "Unversion and add to &ignore list"
-msgstr "Afversioner og tilføj til &ignorer-listen"
-
-#. Resource IDs: (1462)
-msgid "Unversioned"
-msgstr "Uversioneret"
-
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
 msgstr "Ikke-versionerede filer viser overordnet mappe som ændret"
 
-#. Resource IDs: (265)
-msgid "Unversioned obstruction"
-msgstr "Ikke-versioneret forhindring"
-
 #. Resource IDs: (286)
 #, c-format
-msgid "Unversioning %1!s!"
-msgstr "Afversionerer %1!s!"
+msgid "Unversioning %s"
+msgstr "Afversionerer %s"
 
 #. Resource IDs: (106)
 msgid "Up one folder"
@@ -10201,15 +9232,6 @@ msgstr "Opdaterer og forsøger låsning igen..."
 msgid "Updating log cache"
 msgstr "Opdaterer log-cache"
 
-#. Resource IDs: (15)
-msgid "Upgrade working copy"
-msgstr "Opgrader arbejdskopi"
-
-#. Resource IDs: (99)
-#, c-format
-msgid "Upgrading \"%1!s!\""
-msgstr "Opgraderer \"%1!s!\""
-
 #. Resource IDs: (16530)
 msgid "Use &Default Image: "
 msgstr "Benyt &Standardbillede:"
@@ -10239,10 +9261,6 @@ msgstr ""
 "Benyt '*' som et joker-tegn ved specificering af en undtagelse.\r\n"
 "Benyt kommaer (',') for at adskille flere undtagelser.\r\n"
 "Eksempel: *.mitlan.dk, *.firma.dk"
-
-#. Resource IDs: (1538)
-msgid "Use Aero dialogs"
-msgstr "Brug Aero dialoger"
 
 #. Resource IDs: (1230)
 msgid "Use URL of &WC as the default \"From:\" URL"
@@ -10300,6 +9318,10 @@ msgstr "Benyt begge tekstblokke (denne sidst)"
 msgid "Use left file"
 msgstr "Benyt venstre fil"
 
+#. Resource IDs: (3)
+msgid "Use local"
+msgstr "Benyt lokal"
+
 #. Resource IDs: (1432)
 msgid "Use recycle bin when reverting"
 msgstr "Brug papirkurv ved tilbageførsel"
@@ -10307,6 +9329,10 @@ msgstr "Brug papirkurv ved tilbageførsel"
 #. Resource IDs: (116)
 msgid "Use regular expression"
 msgstr "Benyt regulært udtryk"
+
+#. Resource IDs: (4)
+msgid "Use repository"
+msgstr "Benyt versionsarkiv"
 
 #. Resource IDs: (1066)
 msgid "Use stri&keout for removed lines"
@@ -10485,16 +9511,6 @@ msgid "Visual Studio.NET 200&5"
 msgstr "Visual Studio.NET 200&5"
 
 #. Resource IDs: (65535)
-msgid ""
-"WARNING:\r\n"
-"Only change these settings if you are absolutely sure what you are doing!\r\n"
-"To set the values to their default, delete the value text."
-msgstr ""
-"ADVARSEL:\r\n"
-"Ændr kun disse værdier hvis du er helt sikker på hvad du gør!\r\n"
-"For at sætte værdierne tilbage til standard, skal du slette indtastningen."
-
-#. Resource IDs: (65535)
 msgid "WC node"
 msgstr "Arbejdskopi knude"
 
@@ -10572,7 +9588,7 @@ msgstr "Windows &2000"
 msgid "With URL:"
 msgstr "Med URL:"
 
-#. Resource IDs: (158, 1490, 1493, 1496)
+#. Resource IDs: (158, 65535)
 msgid "Working Copy"
 msgstr "Arbejdskopi"
 
@@ -10592,11 +9608,6 @@ msgid ""
 msgstr ""
 "Arbejdskopien blev omlagt til\n"
 "%s"
-
-#. Resource IDs: (277)
-#, c-format
-msgid "Working copy: %s\n"
-msgstr "Arbejdskopi: %s\n"
 
 #. Resource IDs: (73)
 msgid "Yes"
@@ -10643,14 +9654,6 @@ msgstr ""
 "Du forsøger at flytte trunk-mappen!\n"
 "Er du helt sikker på at du ønsker at flytte\n"
 "trunk-mappen?"
-
-#. Resource IDs: (65535)
-msgid ""
-"You can disable specific Overlay handlers here.\n"
-"Disabled handlers won't use up an overlay slot and give other shell extensions a chance to show their overlays."
-msgstr ""
-"Du kan deaktivere specifikke overdækninger her.\n"
-"Deaktiverede overdækninger vil ikke tage en overdækningsplads og vil give andre udvidelser mulighed for at vise deres overdækninger."
 
 #. Resource IDs: (1001)
 #, c-format
@@ -10737,18 +9740,18 @@ msgstr "Du skal vælge et billede!"
 #, c-format
 msgid ""
 "You're trying to add the item\n"
-"'%1!s!',\n"
+"'%s',\n"
 "but the item\n"
-"'%2!s!'\n"
+"'%s'\n"
 "already exists.\n"
 "\n"
 "It seems the item got renamed outside Subversion but only with case changes.\n"
 "Do you really want to add it?"
 msgstr ""
 "Du forsøger at tilføje elementet\n"
-"'%1!s!',\n"
+"\"%s\",\n"
 "men elementet\n"
-"'%2!s!'\n"
+"\"%s\",\n"
 "eksisterer allerede.\n"
 "\n"
 "Det lader til at navnet på elementet blev ændret m.h.t. store/små bogstaver uden for Subversion.\n"
@@ -10796,12 +9799,12 @@ msgstr ""
 #, c-format
 msgid ""
 "Your working copy contains modifications.\n"
-"Lowest revision in working copy: %1!ld!\n"
-"Path: %2!s!"
+"Lowest revision in working copy: %ld\n"
+"Path: %s"
 msgstr ""
 "Din arbejdskopi indeholder ændringer.\n"
-"Mindste revision i arbejdskopi:  %1!ld!\n"
-"Sti: %2!s!"
+"Mindste revision i arbejdskopi: %ld\n"
+"Sti: %s"
 
 #. Resource IDs: (88)
 msgid ""
@@ -10896,10 +9899,6 @@ msgstr "Tilpas zoom til højden"
 msgid "Zoom to fit in width"
 msgstr "Tilpas zoom til bredden"
 
-#. Resource IDs: (1070)
-msgid "[Default]"
-msgstr "[Standard]"
-
 #. Resource IDs: (1001)
 msgid "[Unassigned]"
 msgstr "[Ikke tildelt]"
@@ -10934,8 +9933,8 @@ msgstr "tilføjede filer"
 
 #. Resource IDs: (272)
 #, c-format
-msgid "alias (%1!s!): %2!s!"
-msgstr "alias (%1!s!): %2!s!"
+msgid "alias (%s): %s"
+msgstr "alias (%s): %s"
 
 #. Resource IDs: (272)
 #, c-format
@@ -10965,10 +9964,6 @@ msgid ""
 msgstr ""
 "spørg først versionsarkiv om det er 'online' - \n"
 "arbejd udelukkende fra cachen hvis 'offline'"
-
-#. Resource IDs: (278)
-msgid "at this revision"
-msgstr "ved denne revision"
 
 #. Resource IDs: (245)
 msgid "author"
@@ -11065,10 +10060,6 @@ msgstr "ændringer i alt:"
 msgid "commits"
 msgstr "arkiveringer"
 
-#. Resource IDs: (277)
-msgid "committed revision"
-msgstr "arkiverede revision"
-
 #. Resource IDs: (11)
 msgid "conflicted"
 msgstr "konflikter"
@@ -11081,10 +10072,10 @@ msgstr "forbindelse:"
 #, c-format
 msgid ""
 "copied from\r\n"
-"%1!s! - revision %2!ld!"
+"%s - revision %ld"
 msgstr ""
 "kopieret fra\r\n"
-"%1!s! - revision %2!ld!"
+"%s - revision %ld"
 
 #. Resource IDs: (65535)
 msgid "copied:"
@@ -11163,10 +10154,6 @@ msgstr "emnet er ikke versioneret."
 msgid "item kept locally"
 msgstr "emne beholdt lokalt"
 
-#. Resource IDs: (1562)
-msgid "keep the file lists in English"
-msgstr "vis fil-lister på engelsk"
-
 #. Resource IDs: (65535)
 msgid "last head update: "
 msgstr "sidste HEAD-opdatering:"
@@ -11187,21 +10174,9 @@ msgstr "låst"
 msgid "locked:"
 msgstr "låst:"
 
-#. Resource IDs: (1539)
-msgid "log text &editor"
-msgstr "log tekst &editor"
-
 #. Resource IDs: (65535)
 msgid "max revision: "
 msgstr "højeste revision:"
-
-#. Resource IDs: (278)
-msgid "max. at this revision"
-msgstr "max. ved denne revision"
-
-#. Resource IDs: (278)
-msgid "max. committed revision"
-msgstr "max. arkiverede revision"
 
 #. Resource IDs: (11, 65535)
 msgid "merged"
@@ -11210,14 +10185,6 @@ msgstr "flettet"
 #. Resource IDs: (65535)
 msgid "merges total: "
 msgstr "fletninger i alt:"
-
-#. Resource IDs: (278)
-msgid "min. at this revision"
-msgstr "min. ved denne revision"
-
-#. Resource IDs: (278)
-msgid "min. committed revision"
-msgstr "min. arkiverede revision"
 
 #. Resource IDs: (10)
 msgid "missing"
@@ -11287,7 +10254,7 @@ msgstr "eller"
 
 #. Resource IDs: (65535)
 msgid "pair tokens: "
-msgstr "sammensæt symboler:"
+msgstr "sanmensæt symboler:"
 
 #. Resource IDs: (65535)
 msgid "path elements: "
@@ -11327,21 +10294,17 @@ msgstr "respekterer afstamning"
 
 #. Resource IDs: (326)
 #, c-format
-msgid "revision %1!s!-%2!s!, revision %3!s!-%4!s!"
-msgstr "revision %1!s!-%2!s!, revision %3!s!-%4!s!"
+msgid "revision %s-%s, revision %s-%s"
+msgstr "revision %s-%s, revision %s-%s"
 
 #. Resource IDs: (65535)
 msgid "revision count: "
 msgstr "revisionsantal:"
 
-#. Resource IDs: (626)
-msgid "revision has already been merged"
-msgstr "revisionen er allerede blevet flettet"
-
 #. Resource IDs: (326)
 #, c-format
-msgid "revisions %1!s!-%2!s!, %3!s!"
-msgstr "revisioner %1!s!-%2!s!, %3!s!"
+msgid "revisions %s-%s, %s"
+msgstr "revisioner %s-%s, %s"
 
 #. Resource IDs: (65535)
 msgid "revisions: "
@@ -11351,17 +10314,9 @@ msgstr "revisioner:"
 msgid "root project"
 msgstr "grund projekt"
 
-#. Resource IDs: (169)
-msgid "scanning path:"
-msgstr "gennemser sti:"
-
 #. Resource IDs: (65535)
 msgid "skip ranges: "
 msgstr "intervaller der skal springes over:"
-
-#. Resource IDs: (316)
-msgid "svn:eol-style"
-msgstr "svn:eol-style"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11370,10 +10325,6 @@ msgid ""
 msgstr ""
 "svn:eol-style\r\n"
 "En af følgende: 'native', 'LF', 'CR', 'CRLF'."
-
-#. Resource IDs: (312)
-msgid "svn:executable"
-msgstr "svn:executable"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11384,10 +10335,6 @@ msgstr ""
 "svn:executable\r\n"
 "Hvis angivet, gør filen eksekverbar. Denne egenskab kan ikke sættes på en mappe.\r\n"
 "Et ikke-rekursivt forsøg vil fejle, og et rekursivt forsøg vil kun sætte egenskaben på alle filerne i mappen."
-
-#. Resource IDs: (318)
-msgid "svn:externals"
-msgstr "svn:externals"
 
 # Kontekst: http://subversion.apache.org/svn_1.5_releasenotes.html#externals
 #. Resource IDs: (576)
@@ -11426,10 +10373,6 @@ msgstr ""
 "svn:ignore\r\n"
 "En linjesepareret liste over filmønstre der skal ignoreres."
 
-#. Resource IDs: (317)
-msgid "svn:keywords"
-msgstr "svn:keywords"
-
 #. Resource IDs: (576)
 msgid ""
 "svn:keywords\r\n"
@@ -11462,10 +10405,6 @@ msgstr ""
 "Eksempel:\r\n"
 "/trunk:123-125,129"
 
-#. Resource IDs: (314)
-msgid "svn:mime-type"
-msgstr "svn:mime-type"
-
 #. Resource IDs: (576)
 msgid ""
 "svn:mime-type\r\n"
@@ -11477,10 +10416,6 @@ msgstr ""
 "Filens mime-typen. Bruges til at fastslå om filen skal flettes, og hvordan den skal behandles af Apache.\r\n"
 "En mime-type, der begynder med 'text/' (eller en manglende mime-type), opfattes som tekst.\r\n"
 "Alt andet opfattes som binært."
-
-#. Resource IDs: (313)
-msgid "svn:needs-lock"
-msgstr "svn:needs-lock"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11517,10 +10452,6 @@ msgstr "midl. offline"
 msgid "text [token count]: "
 msgstr "tekst [antal symboler]:"
 
-#. Resource IDs: (626)
-msgid "the working copy is at this revision"
-msgstr "arbejdskopien er på denne revision"
-
 #. Resource IDs: (583)
 msgid "there are conflicting modifications."
 msgstr "der er ændringer med konflikter."
@@ -11530,11 +10461,6 @@ msgstr "der er ændringer med konflikter."
 msgid "to %1"
 msgstr "til %1"
 
-#. Resource IDs: (80, 284)
-#, c-format
-msgid "to %1!s!"
-msgstr "til %1!s!"
-
 #. Resource IDs: (80, 103, 284)
 #, c-format
 msgid "to %s"
@@ -11543,6 +10469,10 @@ msgstr "til %s"
 #. Resource IDs: (208, 264)
 msgid "tree conflict"
 msgstr "træ konflikt"
+
+#. Resource IDs: (65535)
+msgid "tree conflict:"
+msgstr "træ konflikt:"
 
 #. Resource IDs: (578)
 msgid ""
@@ -11581,14 +10511,6 @@ msgid ""
 msgstr ""
 "tsvn:logminsize\r\n"
 "Angiver det mindste antal tegn, en logbesked skal indeholde, før arkivering kan foretages."
-
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Et søgemønster som matcher revisionsnumre i en logmeddelelse"
 
 # "in its first group" er tilsyneladende underforstået / kun til forvirring.
 #. Resource IDs: (578)
@@ -11661,10 +10583,6 @@ msgstr ""
 msgid "user revprops total: "
 msgstr "brugerdefinerede revisionsegenskaber i alt:"
 
-#. Resource IDs: (1583)
-msgid "uuid x6&4:"
-msgstr "uuid x6&4:"
-
 #. Resource IDs: (563)
 msgid "values are different"
 msgstr "værdierne er forskellige"
@@ -11718,51 +10636,24 @@ msgstr "ja"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-# Kontekst?
-#~ msgid "&Sat:"
-#~ msgstr "&Mætning:"
-#~ msgid "&Save..."
-#~ msgstr "&Gem..."
-#~ msgid "&To URL: "
-#~ msgstr "&Til URL: "
-#, fuzzy
-#~ msgid "&To path: "
-#~ msgstr "stier:"
-#~ msgid "Bug-ID / &Issue-Nr:"
-#~ msgstr "Fejl-ID / &Sagsnr:"
-#~ msgid "Show overlay for ignored items"
-#~ msgstr "Vis overdækning for ignorerede emner"
-#~ msgid "Show overlay for unversioned items"
-#~ msgstr "Vis overdækning for ikke-versionerede emner"
-#~ msgid "The repository was successfully created."
-#~ msgstr "Oprettelsen af versionsarkivet lykkedes."
-#~ msgid "tree conflict:"
-#~ msgstr "træ konflikt:"
-#~ msgid "Author:                                    Stefan Kueng"
-#~ msgstr "Forfatter:                                    Stefan Kueng"
-#~ msgid "Automatically check for &newer versions every week"
-#~ msgstr "Check automatisk efter &ny version hver uge"
 #~ msgid ""
-#~ "If enabled, TortoiseSVN checks once a week if a newer version is available"
+#~ "Subversion encountered a serious problem.\n"
+#~ "Please take the time to report this on our mailing list\n"
+#~ "with as much information as possible about what\n"
+#~ "you were trying to do.\n"
+#~ "\n"
+#~ "Subversion reported the following:"
 #~ msgstr ""
-#~ "Hvis valgt, så undersøger TortoiseSVN én gang om ugen om der en nyere "
-#~ "version til rådighed"
-#~ msgid "Edit conflict"
-#~ msgstr "Rediger konflikt"
-#~ msgid "From URL:"
-#~ msgstr "Fra URL:"
-#~ msgid "H&ide unrelated changed paths"
-#~ msgstr "Skjul &irrelevante ændrede stier"
-#~ msgid "Show &properties"
-#~ msgstr "Vis &egenskaber"
-#~ msgid "Show i&gnored files"
-#~ msgstr "Vis i&gnorerede filer"
-#~ msgid "Show un&modified files"
-#~ msgstr "Vis ikke-&ændrede filer"
-#~ msgid "Show un&versioned files"
-#~ msgstr "Vis ikke-&versionerede filer"
-#~ msgid "Cleaning up."
-#~ msgstr "Rydder op."
+#~ "Subversion løb ind i et alvorligt  problem.\n"
+#~ "Vi vil bede dig om at tage dig tid til at rapportere dette til\n"
+#~ "vores email liste med så megen information som muligt om\n"
+#~ "hvad du gjorde før problemet opstod.\n"
+#~ "\n"
+#~ "Subversion rapporterede følgende:"
+#~ msgid "Add new files automatically to SVN"
+#~ msgstr "Tilføje nye filer automatisk til SVN"
+#~ msgid "%s, but the local file was already edited."
+#~ msgstr "%s, men den lokale fil er allerede blevet ændret."
 #~ msgid "General::Revision Graph"
 #~ msgstr "Generelt::Revisionsgraf"
 #~ msgid "Go offline?"

@@ -1,6 +1,6 @@
 #
 # Slovenian translation of TortoiseSVN
-# Copyright (C) 2005-2010 the TortoiseSVN team
+# Copyright (C) 2005-2009 the TortoiseSVN team
 # This file is distributed under the same license as TortoiseSVN
 #
 # Last commit by:
@@ -19,8 +19,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2010-06-14 06:57+0100\n"
-"Last-Translator: smo <smolejv@gmx.net>\n"
+"PO-Revision-Date: 2010-03-08 09:07+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -99,56 +99,6 @@ msgstr "%1 je v nepravilnem zapisu."
 msgid "%1 was not found."
 msgstr "%1 ni mogoče najti."
 
-#. Resource IDs: (169)
-#, c-format
-msgid "%1!d! files selected, %2!d! files total"
-msgstr "%1!d! izbranih datotek, skupaj %2!d! datotek"
-
-#. Resource IDs: (246)
-#, c-format
-msgid "%1!d! most active author(s) with at least %2!d! commits each (%3!d! %%)"
-msgstr "%1!d! najbolj aktivnih avtorjev z vsak vsaj %2!d! objavami (%3!d! %%)"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!ld! minute(s) and %2!ld! second(s)"
-msgstr "%1!ld! minut(a) and %2!ld! sekund"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "%1!s! (offline) - %2!s!"
-msgstr "%1!s! (nepovezano) - %2!s!"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! - at revision: %2!d!"
-msgstr "%1!s! - revizija: %2!d!"
-
-#. Resource IDs: (151)
-#, c-format
-msgid "%1!s! : Working Base, Revision %2!ld!"
-msgstr "%1!s! : Delovna osnova, Revizija %2!ld!"
-
-#. Resource IDs: (226)
-#, c-format
-msgid "%1!s! in %2!s!"
-msgstr "%1!s! v %2!s!"
-
-#. Resource IDs: (357)
-#, c-format
-msgid "%1!s!, at %2!s!"
-msgstr "%1!s!, pri %2!s!"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export"
-msgstr "%1!s!\\%2!s! - Izvoz"
-
-#. Resource IDs: (145)
-#, c-format
-msgid "%1!s!\\%2!s! - Export (%3!d!)"
-msgstr "%1!s!\\%2!s! - Izvoz (%3!d!)"
-
 #. Resource IDs: (3860)
 #, c-format
 msgid ""
@@ -176,13 +126,28 @@ msgstr "Prenesenih %I64d B"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d Bytes/s"
-msgstr "%I64d B/s"
+msgid "%I64d kBytes transferred"
+msgstr "Prenesenih %I64d kB"
+
+#. Resource IDs: (169)
+#, c-format
+msgid "%d files selected, %d files total"
+msgstr "%d izbranih datotek, skupaj %d datotek"
+
+#. Resource IDs: (246)
+#, c-format
+msgid "%d most active author(s) with at least %d commits each (%d %%)"
+msgstr "%d najbolj aktivnih avtorjev z vsak vsaj %d objavami (%d %%)"
 
 #. Resource IDs: (357)
 #, c-format
-msgid "%I64d kBytes transferred"
-msgstr "Prenesenih %I64d kB"
+msgid "%ld Bytes/s"
+msgstr "%ld B/s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%ld minute(s) and %ld second(s)"
+msgstr "%ld minut and %ld sekund"
 
 #. Resource IDs: (7)
 #, c-format
@@ -204,6 +169,16 @@ msgstr "%s"
 msgid "%s (offline)"
 msgstr "%s (nepovezano)"
 
+#. Resource IDs: (115)
+#, c-format
+msgid "%s (offline) - %s"
+msgstr "%s (nepovezano) - %s"
+
+#. Resource IDs: (226)
+#, c-format
+msgid "%s - at revision: %d"
+msgstr "%s - revizija: %d"
+
 #. Resource IDs: (151)
 #, c-format
 msgid "%s : Remote file"
@@ -216,92 +191,63 @@ msgstr "%s : Delovna osnova"
 
 #. Resource IDs: (151)
 #, c-format
+msgid "%s : Working Base, Revision %ld"
+msgstr "%s : Delovna osnova, Revizija %ld"
+
+#. Resource IDs: (151)
+#, c-format
 msgid "%s : Working Copy"
 msgstr "%s : Delovna kopija"
 
-#. Resource IDs: (3887)
+#. Resource IDs: (226)
 #, c-format
-msgid "%s [Recovered]"
-msgstr "%s [Povrnjeno]"
+msgid "%s in %s"
+msgstr "%s v %s"
+
+#. Resource IDs: (357)
+#, c-format
+msgid "%s, at %s"
+msgstr "%s, pri %s"
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory already exists unversioned locally."
-msgstr "%s, samo če lokalno že obstaja brez verzije."
+msgid "%s, but it already exists unversioned locally."
+msgstr "%s, vendar samo če lokalno obstaja brez verzije."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory is missing locally."
-msgstr "%s, samo če lokalno ne obstaja."
+msgid "%s, but it is missing locally."
+msgstr "%s, vendar samo če lokalno ne obstaja."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was already added locally."
-msgstr "%s, samo če je bila lokalno vnesena v skladišče."
+msgid "%s, but it was already added locally."
+msgstr "%s, vendar samo če je bila lokalno vnešena v skladišče."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was already edited."
-msgstr "%s, samo če je bila mapa že spremenjena."
+msgid "%s, but it was already edited."
+msgstr "%s je že izbrisana."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was deleted, moved or renamed locally."
-msgstr "%s, samo če je bila lokalno izbrisana, premaknjena ali preimenovana."
+msgid "%s, but it was deleted, moved or renamed locally."
+msgstr "%s, vendar samo če je bila lokalno izbrisana, premaknjena ali preimenovana."
 
 #. Resource IDs: (609)
 #, c-format
-msgid "%s, but the directory was obstructed in the working copy."
-msgstr "%s, samo če je bila mapa blokirana v delovni kopiji."
+msgid "%s, but it was obstructed in the working copy."
+msgstr "%s, vendar če je bila lokalno blokirana."
 
-#. Resource IDs: (609)
+#. Resource IDs: (145)
 #, c-format
-msgid "%s, but the directory was replaced"
-msgstr "%s, ampak zamenjalo se je mapo"
+msgid "%s\\Export (%d) of %s"
+msgstr "%s\\Izvoz (%d) od %s"
 
-#. Resource IDs: (609)
+#. Resource IDs: (145)
 #, c-format
-msgid "%s, but the file already exists unversioned locally."
-msgstr "%s, samo če lokalno obstaja brez verzije."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file is missing locally."
-msgstr "%s, samo če lokalno ne obstaja."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was already added locally."
-msgstr "%s, samo če je bila lokalno vnesena v skladišče."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was already edited."
-msgstr "%s, samo če je bila datoteka že spremenjena."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was deleted, moved or renamed locally."
-msgstr "%s, samo če je bila datoteka izbrisana, premaknjena ali preimenovana."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was obstructed in the working copy."
-msgstr "%s, samo če je bila lokalno blokirana v delovni kopiji."
-
-#. Resource IDs: (609)
-#, c-format
-msgid "%s, but the file was replaced"
-msgstr "%s, ampak datoteko se je zamenjalo"
-
-#. Resource IDs: (376)
-#, c-format
-msgid ""
-"%s\n"
-"%ld failed hunk(s)"
-msgstr ""
-"%s\n"
-"%ld kos(ov) je spodletelo"
+msgid "%s\\Export of %s"
+msgstr "%s\\Izvoz %s"
 
 #. Resource IDs: (3850)
 #, c-format
@@ -320,19 +266,6 @@ msgid ""
 msgstr ""
 "%s\n"
 "Ali ga želite kljub temu odstraniti?"
-
-#. Resource IDs: (616)
-#, c-format
-msgid ""
-"%s\n"
-"\n"
-"Shall I update the working copy now\n"
-"and reopen the commit dialog?"
-msgstr ""
-"%s\n"
-"\n"
-"Ali želite posodobiti delovno kopijo\n"
-"ter se po posodobitvi vrniti na dialog za objavo?"
 
 #. Resource IDs: (69)
 #, c-format
@@ -370,10 +303,6 @@ msgstr "&O TortoiseMerge ..."
 msgid "&Activate"
 msgstr "&Aktiviraj"
 
-#. Resource IDs: (15)
-msgid "&Add"
-msgstr "Dod&aj"
-
 #. Resource IDs: (17075)
 msgid "&Add >>"
 msgstr "&Dodaj >>"
@@ -386,10 +315,6 @@ msgstr "&Dodaj ali odstrani gumbe"
 msgid "&Add..."
 msgstr "Dod&aj ..."
 
-#. Resource IDs: (32849)
-msgid "&Advanced"
-msgstr "N&apredno"
-
 #. Resource IDs: (1090, 1093)
 msgid "&Advanced..."
 msgstr "N&apredno..."
@@ -400,11 +325,7 @@ msgstr "&Dovoli isti URL za več skladišč"
 
 #. Resource IDs: (65535)
 msgid "&Application Look"
-msgstr "Videz &aplikacije"
-
-#. Resource IDs: (1294)
-msgid "&Apply property recursively"
-msgstr "L&astnost uporabi rekurzivno"
+msgstr "&Izgled aplikacije"
 
 #. Resource IDs: (1013)
 msgid "&Apply unified diff"
@@ -438,10 +359,6 @@ msgstr "&Samodejno zapiranje:"
 msgid "&Backup original file"
 msgstr "Naredi &varnostno kopijo izvorne datoteke"
 
-#. Resource IDs: (1559)
-msgid "&Binary"
-msgstr "&Binarno"
-
 #. Resource IDs: (114)
 msgid "&Blame changes"
 msgstr "&Okrivi spremembe"
@@ -467,14 +384,6 @@ msgid "&Blue:"
 msgstr "&Modro:"
 
 #. Resource IDs: (65535)
-msgid "&Border:"
-msgstr "&Okvir:"
-
-#. Resource IDs: (1568)
-msgid "&Bottom"
-msgstr "&Dno:"
-
-#. Resource IDs: (65535)
 msgid "&Branches"
 msgstr "&Veje"
 
@@ -486,13 +395,9 @@ msgstr "Pre&brskaj skladišče"
 msgid "&Browse..."
 msgstr "&Prebrskaj..."
 
-#. Resource IDs: (32850)
-msgid "&Bugtraq (Issue tracker integration)"
-msgstr "&Bugtraq (integracija sledilnika zadev)"
-
 #. Resource IDs: (16913)
 msgid "&Button Appearance..."
-msgstr "Videz gum&ba"
+msgstr "Izgled gum&ba"
 
 #. Resource IDs: (65535)
 msgid "&Button text:"
@@ -550,7 +455,7 @@ msgstr "&Primerjaj naslova URL"
 msgid "&Compare revisions"
 msgstr "&Primerjaj reviziji"
 
-#. Resource IDs: (1019, 1390)
+#. Resource IDs: (1019)
 msgid "&Compare whitespaces"
 msgstr "&Primerjaj presledke"
 
@@ -586,7 +491,7 @@ msgstr "&Kopiraj na odložišče"
 msgid "&Copy to..."
 msgstr "&Kopiraj v ..."
 
-#. Resource IDs: (1097, 1560)
+#. Resource IDs: (1097)
 msgid "&Custom"
 msgstr "Po &meri ..."
 
@@ -604,11 +509,7 @@ msgstr "I&zbriši"
 
 #. Resource IDs: (17)
 msgid "&Delete (keep local)"
-msgstr "I&zbriši (ohrani lokalno)"
-
-#. Resource IDs: (1514)
-msgid "&Delete unversioned items..."
-msgstr "Iz&briši elemente brez različic..."
+msgstr "I&zbriši (ohrani krajevne)"
 
 #. Resource IDs: (101)
 msgid "&Delete..."
@@ -626,25 +527,13 @@ msgstr "&Razlikuj z URL"
 msgid "&Diff with previous version"
 msgstr "&Razlikuj s prejšnjo verzijo"
 
-#. Resource IDs: (1528)
-msgid "&Directories"
-msgstr "&Mape"
-
 #. Resource IDs: (1066)
 msgid "&Docking"
 msgstr "Pripa&janje"
 
-#. Resource IDs: (32851)
-msgid "&EOL"
-msgstr "Kon&ec vrstice:"
-
 #. Resource IDs: (1031, 65535)
 msgid "&Edit"
 msgstr "&Uredi"
-
-#. Resource IDs: (1399)
-msgid "&Edit conflict"
-msgstr "&Uredi spore"
 
 #. Resource IDs: (12)
 msgid "&Edit conflicts"
@@ -666,10 +555,6 @@ msgstr "&Omogoči predpomnilnik dnevnika"
 msgid "&Enter a message describing why you are locking the file(s)."
 msgstr "&Vnesite razlog, zakaj ste zaklenili datoteke."
 
-#. Resource IDs: (1554)
-msgid "&Executable"
-msgstr "Izvršljive datotek&e"
-
 #. Resource IDs: (32782)
 msgid "&Exit"
 msgstr "I&zhod"
@@ -685,10 +570,6 @@ msgstr "&Zunanje"
 #. Resource IDs: (65535)
 msgid "&File"
 msgstr "&Datoteka"
-
-#. Resource IDs: (1529)
-msgid "&Files"
-msgstr "&Datoteke"
 
 #. Resource IDs: (32809)
 msgid "&Filter"
@@ -734,10 +615,6 @@ msgstr "&Iz delovne kopije, ki kaže na URL:"
 msgid "&From revision"
 msgstr "&Od revizije"
 
-#. Resource IDs: (1494)
-msgid "&From: (start URL and revision of the range to merge)"
-msgstr "&Od: (začetni URL in revizija obsega za spajanje)"
-
 #. Resource IDs: (32779)
 msgid "&Go To Line..."
 msgstr "&Pojdi na vrstico ..."
@@ -750,7 +627,7 @@ msgstr "&Zeleno"
 msgid "&Group by branch"
 msgstr "&Veje v skupinah"
 
-#. Resource IDs: (1115)
+#. Resource IDs: (1032, 1115)
 msgid "&HEAD Revision"
 msgstr "Revizija &HEAD"
 
@@ -827,10 +704,6 @@ msgstr "Spo&ji s poddrevesi"
 msgid "&Jump to first difference when loading"
 msgstr "Pri nalaganju &skoči na prvo razliko"
 
-#. Resource IDs: (32852)
-msgid "&Keywords"
-msgstr "&Ključne besede"
-
 #. Resource IDs: (65535)
 msgid "&Language:"
 msgstr "&Jezik:"
@@ -843,17 +716,9 @@ msgstr "&Velike ikone"
 msgid "&Limit search to modified lines"
 msgstr "Išči le v &spremenjenih vrsticah"
 
-#. Resource IDs: (65535)
-msgid "&Limit:"
-msgstr "&Meja:"
-
 #. Resource IDs: (32797)
 msgid "&Link image positions"
 msgstr "&Poveži položaje slik"
-
-#. Resource IDs: (1590)
-msgid "&Linux (LF)"
-msgstr "&Linux (LF)"
 
 #. Resource IDs: (1172)
 msgid "&List View"
@@ -863,21 +728,9 @@ msgstr "&Seznamski pogled"
 msgid "&Load..."
 msgstr "&Naloži ..."
 
-#. Resource IDs: (1554)
-msgid "&Locking required (read-only update)"
-msgstr "&Zahtevan zaklep (prenos samo za branje)"
-
-#. Resource IDs: (32854)
-msgid "&Log Sizes"
-msgstr "Ve&likost dnevnikov"
-
 #. Resource IDs: (65535)
-msgid "&Luminence:"
+msgid "&Lum:"
 msgstr "&Lum:"
-
-#. Resource IDs: (1591)
-msgid "&Mac (CR)"
-msgstr "&Mac (CR)"
 
 #. Resource IDs: (1282)
 msgid "&Manually edit property"
@@ -911,10 +764,6 @@ msgstr "&Spoji ..."
 msgid "&Merging"
 msgstr "&Spajanje"
 
-#. Resource IDs: (32847)
-msgid "&Mime-Type"
-msgstr "&MIME-Tip"
-
 #. Resource IDs: (16925)
 msgid "&Minimize"
 msgstr "&Skrči"
@@ -926,10 +775,6 @@ msgstr "Spre&memba barve za kopije oznak"
 #. Resource IDs: (1492)
 msgid "&Modify color for trunk copies"
 msgstr "Spre&memba barve za kopije debla"
-
-#. Resource IDs: (32880)
-msgid "&Moved blocks"
-msgstr "Pre&maknjeni bloki"
 
 #. Resource IDs: (65535)
 msgid "&Navigate"
@@ -943,7 +788,7 @@ msgstr "&Omrežni diski"
 msgid "&New "
 msgstr "&Novo"
 
-#. Resource IDs: (1310, 1542, 16509, 16615)
+#. Resource IDs: (1310, 16509, 16615)
 msgid "&New..."
 msgstr "&Novo..."
 
@@ -967,18 +812,6 @@ msgstr "&Naslednja stran"
 #. Resource IDs: (16632)
 msgid "&No double-click event"
 msgstr "&Brez dogodka ob dvokliku"
-
-#. Resource IDs: (1555)
-msgid "&No locking required"
-msgstr "Brez zahtev za zaklepa&nje"
-
-#. Resource IDs: (1555)
-msgid "&Not executable"
-msgstr "&Ni izvršilna datoteka"
-
-#. Resource IDs: (1566)
-msgid "&Numeric"
-msgstr "&Numerično"
 
 #. Resource IDs: (1)
 msgid "&OK"
@@ -1012,17 +845,9 @@ msgstr "&Geslo:"
 msgid "&Paste"
 msgstr "&Prilepi"
 
-#. Resource IDs: (1600)
-msgid "&Peg revision:"
-msgstr "&Okrivi revizije:"
-
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
 msgstr "&Stalno nepovezan način"
-
-#. Resource IDs: (1588)
-msgid "&Platform dependent (native)"
-msgstr "Glede na vrsto &platforme (native)"
 
 #. Resource IDs: (1414)
 msgid "&Port:"
@@ -1044,10 +869,6 @@ msgstr "&Predogled tiskanja"
 msgid "&Print..."
 msgstr "&Natisni..."
 
-#. Resource IDs: (1265)
-msgid "&Properties"
-msgstr "&Lastnosti"
-
 #. Resource IDs: (11021)
 msgid "&Properties..."
 msgstr "&Lastnosti..."
@@ -1068,10 +889,6 @@ msgstr "&Ponovi"
 msgid "&Refresh"
 msgstr "&Osveži"
 
-#. Resource IDs: (1562)
-msgid "&Remind me to enter a bug-ID"
-msgstr "Opomni me na vpis ID-ja h&rošča"
-
 #. Resource IDs: (1100, 1285, 16646)
 msgid "&Remove"
 msgstr "&Odstrani"
@@ -1090,11 +907,11 @@ msgstr "&Brskalnik po skladišču"
 
 #. Resource IDs: (16613, 16624)
 msgid "&Reset"
-msgstr "&Ponastavi"
+msgstr "&Reset"
 
 #. Resource IDs: (1019)
 msgid "&Reset Toolbar"
-msgstr "Ponastavi o&rodno vrstico"
+msgstr "&Resetiraj orodno vrstico"
 
 #. Resource IDs: (16657)
 msgid "&Reset my usage data"
@@ -1102,7 +919,7 @@ msgstr "&Ponastavi podatke o uporabi"
 
 #. Resource IDs: (16910)
 msgid "&Reset to Default"
-msgstr "Ponastavi na &privzeto"
+msgstr "&Obnovi privzeto"
 
 #. Resource IDs: (1382)
 msgid "&Resolve using local property"
@@ -1112,17 +929,13 @@ msgstr "Ra&zreši z uporabo lokalne lastnosti"
 msgid "&Restore defaults"
 msgstr "Obnovi p&rivzeto"
 
-#. Resource IDs: (1542)
-msgid "&Retry without hooks"
-msgstr "&Poizkusi ponovno brez akcij"
-
 #. Resource IDs: (114)
 msgid "&Revert changes from these revisions"
-msgstr "Pov&rni spremembe teh revizij"
+msgstr "Po&vrni spremembe teh revizij"
 
 #. Resource IDs: (113)
 msgid "&Revert changes from this revision"
-msgstr "Pov&rni spremembe te revizije"
+msgstr "&Povrni spremembe te revizije"
 
 #. Resource IDs: (1033, 1035, 1116)
 msgid "&Revision"
@@ -1137,8 +950,8 @@ msgid "&SVN"
 msgstr "&SVN"
 
 #. Resource IDs: (65535)
-msgid "&Saturation:"
-msgstr "Zasi&čenje:"
+msgid "&Sat:"
+msgstr "&Sat:"
 
 #. Resource IDs: (16921, 57603)
 msgid "&Save"
@@ -1157,8 +970,8 @@ msgid "&Save list of selected files to..."
 msgstr "&Shrani seznam izbranih datotek v..."
 
 #. Resource IDs: (1308)
-msgid "&Save value..."
-msgstr "&Shrani vrednost..."
+msgid "&Save..."
+msgstr "&Shrani..."
 
 #. Resource IDs: (9)
 msgid "&Settings"
@@ -1167,10 +980,6 @@ msgstr "&Nastavitve"
 #. Resource IDs: (32815)
 msgid "&Show HEAD revisions"
 msgstr "&Pokaži revizije HEAD"
-
-#. Resource IDs: (1132)
-msgid "&Show Log"
-msgstr "Prikaz &dnevnika"
 
 #. Resource IDs: (65535)
 msgid "&Show Menus for:"
@@ -1246,23 +1055,19 @@ msgstr "&Časovni rok v sekundah pred posodobitvijo revizije HEAD"
 
 #. Resource IDs: (1222)
 msgid "&Timeout in seconds to stop the auto-completion parsing"
-msgstr "&Rok v s za razčlenitev samozaključevanja"
+msgstr "&Časovni rok v sekundah za ustavitev razčlenjevanja samozaključevanja"
 
 #. Resource IDs: (65535)
 msgid "&To Revision"
 msgstr "&Do revizije"
 
-#. Resource IDs: (1305, 1384)
+#. Resource IDs: (1384, 65535)
 msgid "&To URL:"
 msgstr "&Na URL"
 
-#. Resource IDs: (1305, 1384)
-msgid "&To path:"
-msgstr "Na po&t:"
-
-#. Resource IDs: (1495)
-msgid "&To: (end URL and revision of the range to merge)"
-msgstr "&Do: (končni URL in revizija obsega za spajanje)"
+#. Resource IDs: (1305)
+msgid "&To URL: "
+msgstr "&Na URL"
 
 #. Resource IDs: (59392)
 msgid "&Toolbar"
@@ -1275,10 +1080,6 @@ msgstr "Ime &orodne vrstice"
 #. Resource IDs: (65535)
 msgid "&Toolbars:"
 msgstr "&Orodne vrstice"
-
-#. Resource IDs: (1567)
-msgid "&Top"
-msgstr "&Vrh"
 
 #. Resource IDs: (1091, 1093, 1094)
 msgid "&TortoiseMerge"
@@ -1304,7 +1105,7 @@ msgstr "&Dve strani"
 msgid "&URL of repository:"
 msgstr "&URL skladišča:"
 
-#. Resource IDs: (1076, 1305, 1561)
+#. Resource IDs: (1076)
 msgid "&URL:"
 msgstr "&URL:"
 
@@ -1336,10 +1137,6 @@ msgstr "&Posodobi na revizijo ..."
 msgid "&Use auto-completion of file paths and keywords"
 msgstr "&Uporabi samozaključevanje poti datotek in ključnih besed"
 
-#. Resource IDs: (1432)
-msgid "&Use recycle bin"
-msgstr "&Uporabi koš"
-
 #. Resource IDs: (1005, 1410, 65535)
 msgid "&Username:"
 msgstr "&Uporabniško ime:"
@@ -1360,10 +1157,6 @@ msgstr "Pre&sledki"
 msgid "&Whole word"
 msgstr "&Cela beseda"
 
-#. Resource IDs: (1589)
-msgid "&Windows (CRLF)"
-msgstr "&Windows (CRLF)"
-
 #. Resource IDs: (32846)
 msgid "&Windows XP"
 msgstr "&Windows XP"
@@ -1372,22 +1165,14 @@ msgstr "&Windows XP"
 msgid "&Working copy"
 msgstr "&Delovna kopija"
 
-#. Resource IDs: (1540)
-msgid "&file list control"
-msgstr "&nadzor seznama datotek"
-
 #. Resource IDs: (338)
 msgid "'skip ranges' are used to mark revision ranges that have not been cached yet"
 msgstr "'luknje' označujejo območja revizij, ki še niso v predpomnilniku"
 
 #. Resource IDs: (272)
 #, c-format
-msgid "(%1!s!) %2!s!"
-msgstr "(%1!s!) %2!s!"
-
-#. Resource IDs: (119)
-msgid "(Double-click to clear error message)"
-msgstr "(Dvoklik počisti sporočilo o napaki)"
+msgid "(%s) %s"
+msgstr "(%s) %s"
 
 #. Resource IDs: (17, 564)
 msgid "(binary value)"
@@ -1397,10 +1182,6 @@ msgstr "(dvojiška vrednost)"
 msgid "(copy)"
 msgstr "(kopiraj)"
 
-#. Resource IDs: (277)
-msgid "(create branch)"
-msgstr "(ustvari vejo)"
-
 #. Resource IDs: (276)
 msgid "(created)"
 msgstr "(ustvarjeno)"
@@ -1408,10 +1189,6 @@ msgstr "(ustvarjeno)"
 #. Resource IDs: (276)
 msgid "(delete)"
 msgstr "(izbriši)"
-
-#. Resource IDs: (214)
-msgid "(externals)"
-msgstr "(zunanje)"
 
 #. Resource IDs: (276)
 msgid "(modified)"
@@ -1437,10 +1214,6 @@ msgstr "(brez številke vrstice)"
 msgid "(no modification but copy created from here)"
 msgstr "(brez sprememb, kopija iz trenutne lokacije)"
 
-#. Resource IDs: (278)
-msgid "(no modification but relevant for working copy)"
-msgstr "(brez sprememb, trenutna delovna kopija)"
-
 #. Resource IDs: (214)
 msgid "(no value)"
 msgstr "(brez vrednosti)"
@@ -1448,6 +1221,10 @@ msgstr "(brez vrednosti)"
 #. Resource IDs: (314)
 msgid "(not found)"
 msgstr "(ni najden)"
+
+#. Resource IDs: (277)
+msgid "(open branch)"
+msgstr "(odpri vejo)"
 
 #. Resource IDs: (208)
 msgid "(property change only)"
@@ -1559,22 +1336,16 @@ msgid "A list of user defined properties for folders to show in the combo box"
 msgstr "Seznam uporabniško določenih lastnosti map, ki se prikažejo v spustnem polju"
 
 #. Resource IDs: (201)
-msgid ""
-"A newer version is available.\r\n"
-"Please go to http://tortoisesvn.net and download the current version."
-msgstr ""
-"Na voljo je novejša različica.\r\n"
-"Pojdite na http://tortoisesvn.net in prenesite željeno različico."
+msgid "A newer version is available. Please go to http://tortoisesvn.tigris.org and download the current version! Click _here_ to go directly to our website."
+msgstr "Na voljo je novejša različica. Pojdite na http://tortoisesvn.tigris.org in prenesite trenutno različico! Kliknite _tukaj_ za dostop do naše spletne strani."
 
 #. Resource IDs: (195)
 msgid ""
 "A newline separated list of paths for which icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be included.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are included too."
+"If you add an '*' char at the end of a path, then all files and subdirs inside that path are included too."
 msgstr ""
 "Vrstični seznam poti, pri katerih se prikažejo prekrivne ikone.\r\n"
-"Če na konec poti dodate znak '?', bo uporabljena samo ta pot.\r\n"
-"Če na konec poti dodate znak '*', se zajamejo tudi vse datoteke in podmape znotraj te poti."
+"Če dodate na konec poti znak '*', se zajamejo tudi vse datoteke in podmape znotraj te poti."
 
 #. Resource IDs: (197)
 msgid ""
@@ -1589,12 +1360,10 @@ msgstr ""
 #. Resource IDs: (194)
 msgid ""
 "A newline separated list of paths for which no icon overlays are shown.\r\n"
-"If you add an '?' char at the end of a path, then only this path will be excluded.\r\n"
-"If you add an '*' or no char at all at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
+"If you add an '*' char at the end of a path, then all files and subdirs inside that path are excluded too.\r\n"
 "An empty list will allow overlays on all paths."
 msgstr ""
 "Vrstični seznam poti, za katere se prekrivne ikone ne prikažejo.\r\n"
-"Če na konec poti dodate znak '?', bo izključena samo ta pot.\r\n"
 "Če dodate na konec poti znak '*', se izključijo tudi vse datoteke in podmape znotraj te poti.\r\n"
 "Prazen seznam omogoča prekrivanje na vseh poteh."
 
@@ -1610,6 +1379,10 @@ msgstr ""
 "Pregledovalnik za datoteke razlik GNU (datoteke popravkov).\r\n"
 "Če ga nimate, uporabite Beležko (NotePad)."
 
+#. Resource IDs: (9)
+msgid "A&bout"
+msgstr "&O programu"
+
 #. Resource IDs: (101)
 msgid "A&dd folder..."
 msgstr "&Dodaj mapo ..."
@@ -1621,10 +1394,6 @@ msgstr "Prekini"
 #. Resource IDs: (1465)
 msgid "Abort &Merge"
 msgstr "Prekini &spajanje"
-
-#. Resource IDs: (9)
-msgid "About"
-msgstr "O programu"
 
 #. Resource IDs: (136)
 msgid "About TortoiseMerge"
@@ -1709,10 +1478,6 @@ msgstr "Dodaj program za razlikovanje glede za končnico"
 msgid "Add extension specific merge program"
 msgstr "Dodaj program za spajanje glede za končnico"
 
-#. Resource IDs: (1065)
-msgid "Add new files automatically to SVN"
-msgstr "Nove datoteke samodejno vključi v SVN"
-
 #. Resource IDs: (89)
 msgid "Add the item anyway"
 msgstr "Vseeno dodaj element"
@@ -1793,10 +1558,6 @@ msgstr ""
 "Prilagajanje nastavitev\n"
 "Nastavitve"
 
-#. Resource IDs: (307)
-msgid "Advanced"
-msgstr "Napredno"
-
 #. Resource IDs: (170)
 msgid "Advanced Diff/Merge Settings"
 msgstr "Napredne nastavitve razlikovanja/spajanja"
@@ -1817,10 +1578,6 @@ msgstr "Starost"
 msgid "Align trees on top"
 msgstr "Poravnaj drevesa na vrhu"
 
-#. Resource IDs: (1505)
-msgid "All"
-msgstr "Vse"
-
 #. Resource IDs: (1007)
 msgid "All Commands"
 msgstr "Vsi ukazi"
@@ -1835,21 +1592,21 @@ msgstr "Vse datoteke (*.*)|*.*||"
 
 #. Resource IDs: (1008)
 msgid "All your changes will be lost! Do you really want to reset all toolbars and menus?"
-msgstr "Vse spremembe bodo izgubljene! Res želite ponastaviti vse orodne vrstice in menije?"
+msgstr "Vse spremembe bodo izgubljene! Ali zares želite resetirati vse orodne vrstice in menije?"
 
 #. Resource IDs: (1008)
 msgid "All your changes will be lost! Do you really want to reset the keyboard assignments?"
-msgstr "Vse spremembe bodo izgubljene! Res želite ponastaviti vse nastavitve bližnjic?"
+msgstr "Vse spremembe bodo izgubljene! Ali zares želite ponastaviti vse nastavitve bližnjic?"
 
 #. Resource IDs: (1008)
 #, c-format
 msgid "All your changes will be lost! Do you really want to reset the menu '%s'?"
-msgstr "Vse spremembe bodo izgubljene! Res želite ponastaviti meni '%s'?"
+msgstr "Vse spremembe bodo izgubljene! Ali zares želite ponastaviti meni '%s'?"
 
 #. Resource IDs: (1007)
 #, c-format
 msgid "All your changes will be lost! Do you really want to reset the toolbar '%s'?"
-msgstr "Vse spremembe bodo izgubljene! Res želite ponastaviti orodno vrstico '%s'?"
+msgstr "Vse spremembe bodo izgubljene! Ali zares želite ponastaviti orodno vrstico '%s'?"
 
 #. Resource IDs: (1484)
 msgid "Allow ambiguous &UUIDs"
@@ -1862,14 +1619,6 @@ msgstr "Dovoli uporabo različnih skladišč z istim naslovom URL, na primer htt
 #. Resource IDs: (345)
 msgid "Allow different repositories to use the same UUID, e.g. copied repositories"
 msgstr "Dovoli uporabo različnih skladišč z istim UUID, na primer kopirana skladišča"
-
-#. Resource IDs: (119)
-msgid "Already merged"
-msgstr "Že spojeno"
-
-#. Resource IDs: (1480)
-msgid "Always close dialogs for local operations"
-msgstr "Zapri dialoge po lokalnih operacijah"
 
 #. Resource IDs: (197)
 msgid "Always use the system locale settings to show times and dates"
@@ -1964,17 +1713,13 @@ msgstr ""
 "Uporabi privzete nastavitve naprednih uporabnikov. Te nastavitve omogočajo hitrejše delo.\n"
 "Za uporabo naprednih funkcij, bi morali poznati vse nastavitve tega okna."
 
-#. Resource IDs: (313)
-msgid "Apply Patch..."
-msgstr "Uporabi popravek ..."
+#. Resource IDs: (1294)
+msgid "Apply property recursively"
+msgstr "Lastnost uporabi rekurzivno"
 
-#. Resource IDs: (1072)
+#. Resource IDs: (65535)
 msgid "Apply unified diff"
 msgstr "Uporabi poenoteno razliko"
-
-#. Resource IDs: (1565)
-msgid "Arb&itrary text"
-msgstr "Splošno besed&ilo"
 
 #. Resource IDs: (145)
 msgid "Are you sure you want to mark the conflicted file(s) as resolved?"
@@ -1993,10 +1738,6 @@ msgstr "Ali ste prepričani, da želite povrniti %d elementov? Izgubili boste <b
 #. Resource IDs: (32793)
 msgid "Arrange &Vertical"
 msgstr "Poravnaj &navpično"
-
-#. Resource IDs: (1587)
-msgid "As &is (no specific EOL)"
-msgstr "Kot &je (brez določenega preloma)"
 
 #. Resource IDs: (199)
 msgid "Ask the user"
@@ -2048,8 +1789,8 @@ msgid "Author"
 msgstr "Avtor"
 
 #. Resource IDs: (65535)
-msgid "Author:\t\t\t\tStefan Kueng"
-msgstr "Avtor:\t\t\t\tStefan Kueng"
+msgid "Author:                                    Stefan Kueng"
+msgstr "Avtor:                        Stefan Kueng"
 
 #. Resource IDs: (116)
 msgid "Authors"
@@ -2059,7 +1800,7 @@ msgstr "Avtorji"
 msgid "Authors case sensitive"
 msgstr "Pri imenih avtorjev upoštevaj velike/male črke"
 
-#. Resource IDs: (1444)
+#. Resource IDs: (65535)
 msgid "Authors:"
 msgstr "Avtorji"
 
@@ -2074,6 +1815,10 @@ msgstr "Samodejno skrij vse"
 #. Resource IDs: (99)
 msgid "Auto Rename"
 msgstr "Samodejno preimenuj"
+
+#. Resource IDs: (222)
+msgid "Auto-close for local operations"
+msgstr "Samodejno zapri pri krajevnih operacijah"
 
 #. Resource IDs: (222)
 msgid "Auto-close if no conflicts"
@@ -2099,9 +1844,9 @@ msgstr ""
 msgid "Automatic"
 msgstr "Samodejno"
 
-#. Resource IDs: (306)
-msgid "Autotext Tester"
-msgstr "Testiranje auto-teksta"
+#. Resource IDs: (1073)
+msgid "Automatically check for &newer versions every week"
+msgstr "Vsak teden preveri, če je na voljo &novejša različica"
 
 #. Resource IDs: (1157)
 msgid "Average"
@@ -2135,7 +1880,7 @@ msgstr ""
 "Bitna slika\n"
 "bitna slika"
 
-#. Resource IDs: (162)
+#. Resource IDs: (114, 162)
 msgid "Blame"
 msgstr "Okrivi"
 
@@ -2199,13 +1944,9 @@ msgstr "&ID hrošča / Št. zadeve:"
 msgid "Bug-ID"
 msgstr "ID hrošča"
 
-#. Resource IDs: (1578)
-msgid "Bug-ID e&xpression:"
-msgstr "Izraz za &ID hrošča:"
-
 #. Resource IDs: (1119)
-msgid "Bug-ID is:"
-msgstr "ID-hrošča:"
+msgid "Bug-ID / Issue-Nr:"
+msgstr "ID hrošča / Št. zadeve:"
 
 #. Resource IDs: (117)
 msgid "Bug-IDs"
@@ -2213,7 +1954,7 @@ msgstr "ID-ji hroščev"
 
 #. Resource IDs: (16132)
 msgid "Button Appearance"
-msgstr "Videz gumba"
+msgstr "Izgled gumba"
 
 #. Resource IDs: (1215)
 msgid "C&heck now"
@@ -2221,7 +1962,7 @@ msgstr "&Preveri zdaj"
 
 #. Resource IDs: (1132)
 msgid "C&heck repository"
-msgstr "&Preveri skladišče"
+msgstr "P&reveri skladišče"
 
 #. Resource IDs: (275)
 msgid "C&ollapse sub-trees"
@@ -2229,7 +1970,7 @@ msgstr "Zapri &poddrevesa"
 
 #. Resource IDs: (65535)
 msgid "C&ommands:"
-msgstr "&Ukazi:"
+msgstr "&Ukazi"
 
 #. Resource IDs: (77)
 msgid "C&reate branch/tag from revision"
@@ -2241,7 +1982,7 @@ msgstr "Ustva&ri mapo..."
 
 #. Resource IDs: (65535)
 msgid "C&urrent Keys:"
-msgstr "Tren&utne tipke:"
+msgstr "&Trenutne tipke:"
 
 #. Resource IDs: (501)
 msgid "C&ut"
@@ -2275,14 +2016,14 @@ msgstr "Statičnega objekta ActiveX ni mogoče aktivirati."
 #, c-format
 msgid ""
 "Can't copy \n"
-"%1!s!\n"
+"%s\n"
 "to\n"
-"%2!s!"
+"%s"
 msgstr ""
 "Ni mogoče kopirati \n"
-"%1!s!\n"
+"%s\n"
 "v\n"
-"%2!s!"
+"%s"
 
 #. Resource IDs: (1001)
 msgid "Can't copy bitmap image into the clipboard!"
@@ -2293,8 +2034,8 @@ msgid "Can't create a new image!"
 msgstr "Ne morem ustvariti nove slike!"
 
 #. Resource IDs: (1001)
-msgid "Can't customize menus!"
-msgstr "Menijev ni mogoče prilagajati!"
+msgid "Can't customize menues!"
+msgstr "Menijev ni možno prilagoditi!"
 
 #. Resource IDs: (1001)
 msgid "Can't paste bitmap image from the clipboard!"
@@ -2317,16 +2058,12 @@ msgid "Cannot show diff because of inconsistent newlines in the file."
 msgstr "Razlik ni mogoče prikazati zaradi nedoslednih novih vrstic v datoteki."
 
 #. Resource IDs: (16926)
-msgid "Casca&de"
-msgstr "Roletna razpore&ditev"
+msgid "Cascade"
+msgstr "Padajoče"
 
 #. Resource IDs: (65535)
 msgid "Cascaded context menu"
 msgstr "Kaskadni kontekstni meni"
-
-#. Resource IDs: (117)
-msgid "Case-sensitive"
-msgstr "Upoštevaj velike/male črke"
 
 #. Resource IDs: (65535)
 msgid "Cate&gories:"
@@ -2364,8 +2101,8 @@ msgstr "Spremenjene datoteke"
 
 #. Resource IDs: (324)
 #, c-format
-msgid "Changed files between %1!s!, %2!s! and %3!s!, %4!s!"
-msgstr "Spremenjene datoteke med %1!s!, %2!s! in %3!s!, %4!s!"
+msgid "Changed files between %s, %s and %s, %s"
+msgstr "Spremenjene datoteke med %s, %s in %s, %s"
 
 #. Resource IDs: (163)
 #, c-format
@@ -2385,14 +2122,6 @@ msgstr "Seznam sprememb:"
 msgid "Changes made (double-click on file for diff):"
 msgstr "Opravljene spremembe (dvokliknite za podrobnosti):"
 
-#. Resource IDs: (230)
-msgid "Changing externals to fixed revision"
-msgstr "Spreminjanje zunanjih povezav na fiksno revizijo"
-
-#. Resource IDs: (65535)
-msgid "Char position where to show a border line in commit text boxes:"
-msgstr "Pozicija (število znakov) za prikaz mejne linije v okvirčku za sporočilo:"
-
 #. Resource IDs: (8)
 msgid "Chec&kout..."
 msgstr "Pre&vzemi..."
@@ -2409,10 +2138,6 @@ msgstr "Preveri posodobitve"
 msgid "Check For Updates..."
 msgstr "Preveri posodobitve..."
 
-#. Resource IDs: (1544)
-msgid "Check externals to tag"
-msgstr "Preverite povezave med zunanjimi povezavami in oznako"
-
 #. Resource IDs: (276)
 msgid "Check for &modifications"
 msgstr "Preveri spre&membe"
@@ -2424,10 +2149,6 @@ msgstr "Preveri &spremembe"
 #. Resource IDs: (65535)
 msgid "Check for modifications"
 msgstr "Preveri spremembe"
-
-#. Resource IDs: (65535)
-msgid "Check for updates"
-msgstr "Preveri posodobitve"
 
 #. Resource IDs: (9)
 msgid "Check out a working copy from a repository"
@@ -2465,11 +2186,7 @@ msgstr "Potrdite, če želite v dnevniških zapisih uporabljati krajši zapis da
 msgid "Check working copy for modifications"
 msgstr "Preverite spremembe v delovni verziji"
 
-#. Resource IDs: (1504)
-msgid "Check:"
-msgstr "Preveri:"
-
-#. Resource IDs: (1536)
+#. Resource IDs: (65535)
 msgid "Checking if a newer version of TortoiseSVN is available..."
 msgstr "Preverjanje obstoja novejše različice TortoiseSVN..."
 
@@ -2486,8 +2203,8 @@ msgid "Checkout - TortoiseSVN"
 msgstr "Prevzemi - TortoiseSVN"
 
 #. Resource IDs: (1377)
-msgid "Checkout D&epth"
-msgstr "&Globina prevzema"
+msgid "Checkout Depth"
+msgstr "Globina prevzema"
 
 #. Resource IDs: (229)
 #, c-format
@@ -2511,9 +2228,8 @@ msgid "Cleaning up"
 msgstr "Čiščenje"
 
 #. Resource IDs: (146)
-#, c-format
-msgid "Cleaning up directory \"%1!s!\""
-msgstr "Čiščenje mape \"%1!s!\""
+msgid "Cleaning up."
+msgstr "Čiščenje."
 
 #. Resource IDs: (83)
 #, c-format
@@ -2551,18 +2267,18 @@ msgstr ""
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! URLs stored for %2!ld! working copies"
-msgstr "Počisti %1!ld! URL(jev), shranjenih za %2!ld! delovnih kopij"
+msgid "Clears %ld URLs stored for %ld working copies"
+msgstr "Počisti %ld URL(jev), shranjenih za %ld delovnih kopij"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! log messages stored for %2!ld! working copies"
-msgstr "Počisti %1!ld! dnevniških zapisov, shranjenih za %2!ld! delovnih kopij"
+msgid "Clears %ld log messages stored for %ld working copies"
+msgstr "Počisti %ld dnevniških zapisov, shranjenih za %ld delovnih kopij"
 
 #. Resource IDs: (196)
 #, c-format
-msgid "Clears %1!ld! username/password pairs, %2!ld! ssl certificates and %3!ld! usernames"
-msgstr "Počisti %1!ld! parov uporabniških imen/gesel, %2!ld! potrdil ssl in %3!ld! uporabniških imen"
+msgid "Clears %ld username/password pairs, %ld ssl certificates and %ld usernames"
+msgstr "Počisti %ld parov uporabniških imen/gesel, %ld potrdil ssl in %ld uporabniških imen"
 
 #. Resource IDs: (197)
 #, c-format
@@ -2634,18 +2350,6 @@ msgstr "Zapri &izvorno drevo"
 msgid "Collapse &following tree"
 msgstr "Zapri &sledeča drevesa"
 
-#. Resource IDs: (2055)
-msgid ""
-"Collapse unchanged sections\n"
-"Collapse"
-msgstr ""
-"Zapri veje nespremenjenih sekcije\n"
-"Zapri veje"
-
-#. Resource IDs: (32870)
-msgid "Collapsed"
-msgstr "Zaprto"
-
 #. Resource IDs: (16662)
 msgid "Color"
 msgstr "Barva"
@@ -2702,10 +2406,6 @@ msgstr "Objavi"
 msgid "Commit - TortoiseSVN"
 msgstr "Objavi - TortoiseSVN"
 
-#. Resource IDs: (616)
-msgid "Commit failed - Update needed"
-msgstr "Pošiljanje objave ni uspelo - Potrebna je posodobitev"
-
 #. Resource IDs: (1110)
 msgid "Commit to:"
 msgstr "Objavi v:"
@@ -2721,11 +2421,6 @@ msgstr "Objave po avtorjih"
 #. Resource IDs: (244)
 msgid "Commits by date"
 msgstr "Objave po dnevih"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Commits each %s"
-msgstr "Število objav na %s"
 
 #. Resource IDs: (1135)
 msgid "Commits each week:"
@@ -2775,14 +2470,6 @@ msgstr "Primerjaj z &osnovo"
 msgid "Compare with previous revision"
 msgstr "Primerjaj s prejšnjo revizijo"
 
-#. Resource IDs: (2055)
-msgid ""
-"Compares all whitespaces when diffing\n"
-"Compare whitespaces"
-msgstr ""
-"Primerjanje presledkov pri prikazu sprememb\n"
-"Primerjaj presledke"
-
 #. Resource IDs: (12)
 msgid "Compares the file with the last committed revision to show you the changes you made"
 msgstr "Primerja datoteko z zadnjo objavljeno revizijo in pokaže spremembe, ki ste jih naredili"
@@ -2793,16 +2480,12 @@ msgstr "Primerja izbrano datoteko z datoteko v skladišču"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Comparing %1!s! to %2!s!"
-msgstr "Primerjanje %1!s! z %2!s!"
+msgid "Comparing %s to %s"
+msgstr "Primerjanje %s z %s"
 
 #. Resource IDs: (74)
 msgid "Completed"
 msgstr "Dokončano"
-
-#. Resource IDs: (219)
-msgid "Completed!"
-msgstr "Dokončano!"
 
 #. Resource IDs: (236)
 msgid "Configure Hook Scripts"
@@ -2865,10 +2548,6 @@ msgstr "Nadaljuj"
 msgid "Contract docked window"
 msgstr "Skrči pripojeno okno"
 
-#. Resource IDs: (15)
-msgid "Converts the working copy format to the new version"
-msgstr "Pretvori delovno kopijo v nov format"
-
 #. Resource IDs: (376)
 msgid "Cop&y"
 msgstr "&Kopiraj"
@@ -2881,14 +2560,10 @@ msgstr "Kopirano"
 msgid "Copied from URL"
 msgstr "Kopirano z naslova"
 
-#. Resource IDs: (208)
-msgid "Copied from revision"
-msgstr "Kopirano iz revizije"
-
 #. Resource IDs: (276)
 #, c-format
-msgid "Copied from: %1!s!@%2!ld!\r\n"
-msgstr "Kopirano iz: %1!s!@%2!ld!\r\n"
+msgid "Copied from: %s@%ld\r\n"
+msgstr "Kopirano iz: %s@%ld\r\n"
 
 #. Resource IDs: (126)
 msgid "Copied remotely"
@@ -2901,20 +2576,11 @@ msgstr "Kopiraj"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Copy %1!ld! items to\r\n"
-"%2!s!"
+"Copy %ld items to\r\n"
+"%s"
 msgstr ""
-"Kopiraj %1!ld! elementov v\r\n"
-"%2!s!"
-
-#. Resource IDs: (126)
-#, c-format
-msgid ""
-"Copy %1!s!\r\n"
-"to %2!s!"
-msgstr ""
-"Kopiraj %1!s!\r\n"
-"v %2!s!"
+"Kopiraj %ld elementov v\r\n"
+"%s"
 
 #. Resource IDs: (103)
 #, c-format
@@ -2925,6 +2591,15 @@ msgstr "Kopiraj %s"
 #, c-format
 msgid "Copy %s to %s, Revision %s"
 msgstr "Kopiraj %s v %s, revizija: %s"
+
+#. Resource IDs: (126)
+#, c-format
+msgid ""
+"Copy %s\r\n"
+"to %s"
+msgstr ""
+"Kopiraj %s\r\n"
+"v %s"
 
 #. Resource IDs: (142)
 msgid "Copy (Branch / Tag)"
@@ -3010,8 +2685,8 @@ msgstr "Kopiraj: Novo ime za %s"
 
 #. Resource IDs: (80)
 #, c-format
-msgid "Copying %1!s!"
-msgstr "Kopiranje %1!s!"
+msgid "Copying %s"
+msgstr "Kopiranje %s"
 
 #. Resource IDs: (80)
 msgid "Copying..."
@@ -3033,8 +2708,8 @@ msgstr "'%s' ni mogoče dodati, ker"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not add property '%1!s!' on '%2!s!' because"
-msgstr "Lastnosti '%1!s!' ni mogoče dodati za '%2!s!', ker"
+msgid "Could not add property '%s' on '%s' because"
+msgstr "Lastnosti '%s' ni mogoče dodati v '%s', ker"
 
 #. Resource IDs: (201)
 msgid "Could not check for a newer version!"
@@ -3063,8 +2738,8 @@ msgstr "'%s' ni mogoče brisati, ker"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not delete property '%1!s!' on '%2!s!' because"
-msgstr "Lastnosti '%1!s!' ni mogoče brisati iz '%2!s!', ker"
+msgid "Could not delete property '%s' on '%s' because"
+msgstr "Lastnosti '%s' ni mogoče brisati iz '%s', ker"
 
 #. Resource IDs: (83)
 msgid "Could not determine the last committed revision!"
@@ -3081,8 +2756,8 @@ msgstr "'%s' ni mogoče spojiti, ker"
 
 #. Resource IDs: (582)
 #, c-format
-msgid "Could not merge property '%1!s!' on '%2!s!' because"
-msgstr "Lastnosti '%1!s!' ni mogoče spojiti s %2!s!', ker"
+msgid "Could not merge property '%s' on '%s' because"
+msgstr "Lastnosti '%s' ni mogoče spojiti s '%s', ker"
 
 #. Resource IDs: (3867)
 #, c-format
@@ -3108,16 +2783,6 @@ msgstr "%1 ni mogoče izbrisati, ker je to trenutna mapa."
 msgid "Could not remove %s from the ignore list"
 msgstr "%s ni mogoče odstraniti s seznama prezrtih"
 
-#. Resource IDs: (582)
-#, c-format
-msgid "Could not replace '%s' because"
-msgstr "'%s' ni bilo mogoče zamenjati, ker"
-
-#. Resource IDs: (582)
-#, c-format
-msgid "Could not replace property '%1!s!' on '%2!s!' because"
-msgstr "Lastnosti '%1!s!' za  '%2!s!' ni bilo mogoče zamenjati, ker"
-
 #. Resource IDs: (81)
 #, c-format
 msgid ""
@@ -3130,25 +2795,16 @@ msgstr ""
 #. Resource IDs: (66)
 #, c-format
 msgid ""
-"Could not retrieve revision %1!s! of the file %2!s!.\n"
+"Could not retrieve revision %s of the file %s.\n"
 "Patching is not possible!"
 msgstr ""
-"Revizije %1!s! datoteke %2!s! ni mogoče pridobiti.\n"
+"Revizije %s datoteke %s ni mogoče pridobiti.\n"
 "Namestitev popravka ni mogoča!"
 
 #. Resource IDs: (64)
 #, c-format
 msgid "Could not save the file %s!"
 msgstr "Datoteke %s ni mogoče shraniti!"
-
-#. Resource IDs: (70)
-#, c-format
-msgid ""
-"Could not start diff viewer!\n"
-"%s"
-msgstr ""
-"Pregledovalnika razlik ni bilo mogoče zagnati!\n"
-"%s"
 
 #. Resource IDs: (81)
 #, c-format
@@ -3191,15 +2847,6 @@ msgstr "Tiskalniškega opravila ni mogoče zagnati."
 #, c-format
 msgid ""
 "Could not start text viewer!\n"
-"%s"
-msgstr ""
-"Pregledovalnika besedila ni bilo mogoče zagnati!\n"
-"%s"
-
-#. Resource IDs: (83)
-#, c-format
-msgid ""
-"Could not start text viewer!\n"
 "<hr=100%%>\n"
 "%s"
 msgstr ""
@@ -3210,10 +2857,6 @@ msgstr ""
 #. Resource IDs: (81)
 msgid "Could not start thread!"
 msgstr "Niti ni mogoče začeti!"
-
-#. Resource IDs: (1542)
-msgid "Create &Library"
-msgstr "Ustvari &knjižnico"
 
 #. Resource IDs: (13)
 msgid "Create &patch..."
@@ -3244,10 +2887,6 @@ msgstr ""
 msgid "Create repositor&y here"
 msgstr "Ustvari skla&dišče tukaj..."
 
-#. Resource IDs: (102)
-msgid "Create shortcut"
-msgstr "Ustvari bljižnico"
-
 #. Resource IDs: (32828)
 msgid "Create unified diff file"
 msgstr "Ustvari datoteko poenotene razlike"
@@ -3259,10 +2898,6 @@ msgstr "Mapa ustvarjena oddaljeno"
 #. Resource IDs: (10)
 msgid "Creates a 'cheap' copy inside the repository used for branches or tagging"
 msgstr "Ustvari 'poceni' kopijo v skladišču, namenjeno vejam ali označevanju"
-
-#. Resource IDs: (199)
-msgid "Creates a library folder with special settings for Subversion working copies"
-msgstr "Ustvari mapo s posebnimi nastavitvami za Subversion delovne kopije"
 
 #. Resource IDs: (2052)
 msgid ""
@@ -3353,7 +2988,7 @@ msgstr "Privzeto &število dnevniških zapisov"
 msgid "Default Menu"
 msgstr "Privzeti meni"
 
-#. Resource IDs: (1516)
+#. Resource IDs: (65535)
 msgid "Default URL:"
 msgstr "Privzet URL:"
 
@@ -3361,7 +2996,7 @@ msgstr "Privzet URL:"
 msgid "Default application menu. Appears when no documents are open."
 msgstr "Privzeti meni aplikacije. Pojavi se, kadar ni odprt noben dokument."
 
-#. Resource IDs: (1515)
+#. Resource IDs: (65535)
 msgid "Default path:"
 msgstr "Privzeta pot:"
 
@@ -3383,13 +3018,13 @@ msgid "Delete and &ignore %d items by name"
 msgstr "Izbriši in prezr&i  elemente (%d) po imenu"
 
 #. Resource IDs: (14)
+msgid "Delete and add to &ignore list"
+msgstr "Izbriši in dodaj na seznam &prezrtih elementov"
+
+#. Resource IDs: (14)
 #, c-format
 msgid "Delete and ignore %d items by &extension"
 msgstr "Izbriši in prezri &elemente (%d) po tipu"
-
-#. Resource IDs: (616)
-msgid "Delete unversioned items"
-msgstr "Izbriši elemente brez različic"
 
 #. Resource IDs: (17)
 msgid "Delete unversioned items..."
@@ -3423,14 +3058,6 @@ msgstr "Pobriše dnevnik dejanj"
 msgid "Deleting"
 msgstr "Brisanje"
 
-#. Resource IDs: (348)
-msgid "Deleting cached data"
-msgstr "Brisanje predpomnjenih podatkov"
-
-#. Resource IDs: (348)
-msgid "Deleting file"
-msgstr "Brisanje datoteke"
-
 #. Resource IDs: (207)
 msgid "Depth"
 msgstr "Globina"
@@ -3451,21 +3078,9 @@ msgstr "Opis:"
 msgid "Deselect changelist"
 msgstr "Izključi izbiro seznama sprememb"
 
-#. Resource IDs: (1547)
-msgid "Destinatio&n URL:"
-msgstr "Cilj&ni  URL:"
-
-#. Resource IDs: (1547)
-msgid "Destination URL:"
-msgstr "Ciljni  URL:"
-
 #. Resource IDs: (3859)
 msgid "Destination disk drive is full."
 msgstr "Ciljni disk je poln."
-
-#. Resource IDs: (2056)
-msgid "Detect and highlight moved blocks"
-msgstr "Poišči in označi premaknjene bloke"
 
 #. Resource IDs: (3849)
 msgid ""
@@ -3483,7 +3098,7 @@ msgstr "Velikosti in položaji pogovornih oken"
 msgid "Diff file:"
 msgstr "Datoteka razlik (diff):"
 
-#. Resource IDs: (1533)
+#. Resource IDs: (65535)
 msgid "Diff options"
 msgstr "Možnosti razlikovanja"
 
@@ -3507,10 +3122,6 @@ msgstr "Razlikovanje"
 msgid "Diffs the working copy file with the one before the last commit."
 msgstr "Razlikuje delovno kopijo s predzadnjo objavo."
 
-#. Resource IDs: (1513)
-msgid "Directories"
-msgstr "Mape"
-
 #. Resource IDs: (65535)
 msgid "Directory:"
 msgstr "Mapa:"
@@ -3520,17 +3131,13 @@ msgid ""
 "Disable this option if you have really big working copies and experience\r\n"
 "too much disk access when browsing the working copy."
 msgstr ""
-"Onemogočite to možnost, če imate resnično velike delovne kopije in če\r\n"
-"med dostopom do delovne kopije prihaja do pretiranega branja z diska."
-
-#. Resource IDs: (596)
-msgid "Discards local changes upon incoming deletes"
-msgstr "Ob zahtevkih za brisanje zavrže vse lokalne spremembe"
+"Onemogočite to možnost, če imate resnično velike delovne kopije\r\n"
+"in prihaja do preveč aktivnega branja z diska pri dostopanju do delovne kopije."
 
 #. Resource IDs: (3867)
 #, c-format
 msgid "Disk full while accessing %1."
-msgstr "Disk poln med delom z %1."
+msgstr "Disk poln med dostopanjem do %1."
 
 #. Resource IDs: (3860)
 #, c-format
@@ -3623,10 +3230,6 @@ msgstr ""
 msgid "Do you want to proceed?"
 msgstr "Ali želite nadaljevati?"
 
-#. Resource IDs: (3887)
-msgid "Do you want to recover these auto-saved documents?"
-msgstr "Ali želite obnoviti dokumente iz avtomatske varnostne kopije?"
-
 #. Resource IDs: (313)
 msgid ""
 "Do you want to reload the documents to reflect the settings changes?\n"
@@ -3655,25 +3258,6 @@ msgid ""
 msgstr ""
 "Dokumentacija : Simon Large\n"
 "Koda : Tobias Schäfer, Stefan Fuhrmann"
-
-#. Resource IDs: (94)
-msgid ""
-"Don't make the checkout directory a sparse working copy.\n"
-"Instead, all URLs get checked out into a separate\n"
-"working copies next to each other.\n"
-"This works for directory URLs only."
-msgstr ""
-"Mape za prevzem prevzem podatke, ne uporabljajte kot pomožno delovno kopijo.\n"
-" Namesto tega se vse URL prevzema v kot ločene delovne kopije, druga poleg druge.\n"
-"Tak način deluje samo za URL imenike."
-
-#. Resource IDs: (3887)
-msgid ""
-"Don't recover the auto-saved documents\n"
-"Use the last explicitly saved versions of the documents"
-msgstr ""
-"Brez obnavljanja avtomatske varnostne kopije\n"
-"Uporabi zadnjo ročno shranjeno različico dokumentov"
 
 #. Resource IDs: (73, 80)
 msgid "Don't show this message again"
@@ -3704,13 +3288,9 @@ msgstr "Izpust %1 ni mogoč"
 msgid "E&xact copy sources"
 msgstr "&Natančni izvori kopiranja"
 
-#. Resource IDs: (1518)
+#. Resource IDs: (65535)
 msgid "E&xclude paths:"
 msgstr "&Izločene poti:"
-
-#. Resource IDs: (32839)
-msgid "E&xecutable"
-msgstr "&Izvršilna datoteka"
 
 #. Resource IDs: (105, 57665)
 msgid "E&xit"
@@ -3744,10 +3324,6 @@ msgstr "Uredi"
 msgid "Edit Button Image"
 msgstr "Uredi sliko gumba"
 
-#. Resource IDs: (319)
-msgid "Edit External"
-msgstr "Urejanje zunanjih povezav"
-
 #. Resource IDs: (227, 564)
 msgid "Edit Properties"
 msgstr "Uredi lastnosti"
@@ -3768,9 +3344,9 @@ msgstr "Spremeni ime avtorja"
 msgid "Edit author name"
 msgstr "Spremeni ime avtorja"
 
-#. Resource IDs: (315)
-msgid "Edit bugtraq properties"
-msgstr "Uredi nastavitve sledenja hroščev"
+#. Resource IDs: (1399)
+msgid "Edit conflict"
+msgstr "Uredi spor"
 
 #. Resource IDs: (110)
 msgid "Edit extension specific diff program"
@@ -3780,10 +3356,6 @@ msgstr "Nastavi program za razlikovanje glede na končnico"
 msgid "Edit extension specific merge program"
 msgstr "Nastavi program za spajanje glede na končnico"
 
-#. Resource IDs: (321)
-msgid "Edit language properties"
-msgstr "Uredi nastavitev jezika"
-
 #. Resource IDs: (113, 115)
 msgid "Edit log message"
 msgstr "Uredi dnevniški zapis"
@@ -3791,11 +3363,11 @@ msgstr "Uredi dnevniški zapis"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Edit property '%1!S!' on\r\n"
-"%2!s!"
+"Edit property '%s' on\r\n"
+"%s"
 msgstr ""
-"Uredi lastnost '%1!S!' na\r\n"
-"%2!s!"
+"Uredi lastnost '%s' na\r\n"
+"%s"
 
 #. Resource IDs: (1331, 1382)
 msgid "Edit..."
@@ -3808,10 +3380,6 @@ msgstr "Uredi vrednost izbrane lastnosti"
 #. Resource IDs: (79)
 msgid "Either the name or IP of the proxy server"
 msgstr "Ime ali IP naslov prehoda"
-
-#. Resource IDs: (265)
-msgid "Eliding mergeinfo"
-msgstr "Elidiram  informacije o spajanju"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -3837,10 +3405,6 @@ msgstr ""
 "To možnost vključite, če delate s spletnimi projekti v VS.NET2003!\r\n"
 "Za uveljavitev spremembe morate sistem ponovno zagnati."
 
-#. Resource IDs: (65535)
-msgid "Enabled Overlay Handlers"
-msgstr "Omogočeni načini prekrivanja ikon"
-
 #. Resource IDs: (195)
 msgid ""
 "Enables the spellchecker only if the\n"
@@ -3857,12 +3421,12 @@ msgstr "Pri dostopu do %1 je prišlo do strojne V/I napake."
 #. Resource IDs: (3867)
 #, c-format
 msgid "Encountered a locking violation while accessing %1."
-msgstr "Prišlo je do kršitve zaklepanja pri delu z %1."
+msgstr "Prišlo je do kršitve zaklepanja pri dostopanju do %1."
 
 #. Resource IDs: (3867)
 #, c-format
 msgid "Encountered a sharing violation while accessing %1."
-msgstr "Prišlo je do kršitve souporabe pri delu z %1."
+msgstr "Prišlo je do kršitve souporabe pri dostopanju do %1."
 
 #. Resource IDs: (3843)
 msgid "Encountered an improper argument."
@@ -3878,7 +3442,7 @@ msgstr "Pri branju %1 je prišlo do nepričakovane napake."
 msgid "Encountered an unexpected error while writing %1."
 msgstr "Pri pisanju %1 je prišlo do nepričakovane napake."
 
-#. Resource IDs: (1537)
+#. Resource IDs: (65535)
 msgid "End Revision"
 msgstr "Končna revizija"
 
@@ -3893,10 +3457,6 @@ msgstr "Vnesite dnevniški zapis"
 #. Resource IDs: (80)
 msgid "Enter URL"
 msgstr "Vnesite URL"
-
-#. Resource IDs: (65535)
-msgid "Enter a &name for the changelist:"
-msgstr "V&nesite ime seznama sprememb:"
 
 #. Resource IDs: (3858)
 msgid "Enter a GUID."
@@ -3917,6 +3477,10 @@ msgstr "Vnesite datum."
 #. Resource IDs: (313)
 msgid "Enter a lock message (optional):"
 msgstr "Vnesite sporočilo zaklepa (neobvezno):"
+
+#. Resource IDs: (65535)
+msgid "Enter a name for the changelist:"
+msgstr "Vnesite ime seznama sprememb:"
 
 #. Resource IDs: (3858)
 #, c-format
@@ -3948,10 +3512,6 @@ msgstr "Vnesite celo število med 0 in 255."
 msgid "Enter an integer."
 msgstr "Vnesite celo število."
 
-#. Resource IDs: (65535)
-msgid "Enter file content to test for below:"
-msgstr "Vpišite vsebino datoteke za test:"
-
 #. Resource IDs: (1065)
 msgid "Enter log &message:"
 msgstr "Vnesite dnevniški &zapis:"
@@ -3964,14 +3524,6 @@ msgstr "Vnesite dnevniški zapis:"
 #, c-format
 msgid "Enter no more than %1 characters."
 msgstr "Vnesite največ %1 znak(ov)."
-
-#. Resource IDs: (65535)
-msgid "Enter the regex string below:"
-msgstr "Vpišite regularni izraz:"
-
-#. Resource IDs: (1577)
-msgid "Enter the regular expression patterns for filtering out the bug-ID from a commit message."
-msgstr "Vpišite regularni izraz, ki izlušči ID hrošča iz oddanega sporočila."
 
 #. Resource IDs: (3603)
 msgid ""
@@ -4005,15 +3557,11 @@ msgstr "Napaka pri potrjevanju veljavnosti strežniškega certifikata za %s:"
 #. Resource IDs: (70)
 #, c-format
 msgid ""
-"Error while reading/writing the registry key %1!s!\n"
-"%2!s!"
+"Error while reading/writing the registry key %s\n"
+"%s"
 msgstr ""
-"Napaka pri branju/pisanju registrskega ključa %1!s!\n"
-"%2!s!"
-
-#. Resource IDs: (32853)
-msgid "Ex&ternals"
-msgstr "Z&unanje"
+"Napaka pri branju/pisanju registrskega ključa %s\n"
+"%s"
 
 #. Resource IDs: (1413)
 msgid "Exceptions:"
@@ -4030,10 +3578,6 @@ msgstr "Izvršne datoteke (*.exe)|*.exe|Ukazne datoteke (*.com)|*.com|Informacij
 #. Resource IDs: (1002)
 msgid "Existing"
 msgstr "Obstoječe"
-
-#. Resource IDs: (2)
-msgid "Exit"
-msgstr "Izhod"
 
 #. Resource IDs: (275)
 msgid "Exp&and source tree"
@@ -4086,8 +3630,8 @@ msgstr "Izvozi tudi datoteke brez različic"
 
 #. Resource IDs: (284)
 #, c-format
-msgid "Exporting %1!s!"
-msgstr "Izvažanje %1!s!"
+msgid "Exporting %s"
+msgstr "Izvažanje %s"
 
 #. Resource IDs: (79)
 msgid "Exporting..."
@@ -4105,7 +3649,11 @@ msgstr "Izvozi nabor lastnosti v datoteko"
 msgid "Extension"
 msgstr "Končnica"
 
-#. Resource IDs: (1287)
+#. Resource IDs: (65535)
+msgid "Extension or mime-type:"
+msgstr "Končnica ali tip MIME:"
+
+#. Resource IDs: (65535)
 msgid "Extension/mime-type specific programs"
 msgstr "Programi glede na končnico/tip MIME"
 
@@ -4141,14 +3689,6 @@ msgstr "Zunanji izključeni"
 msgid "Externals included"
 msgstr "Zunanji vključeni"
 
-#. Resource IDs: (1480)
-msgid "F&orce the merge"
-msgstr "Prisi&li spajanje"
-
-#. Resource IDs: (1070)
-msgid "Fade"
-msgstr "Potemnitev"
-
 #. Resource IDs: (74)
 msgid "Failed revert"
 msgstr "Neuspešna povrnitev"
@@ -4171,7 +3711,7 @@ msgstr "Praznega dokumenta ni mogoče ustvariti."
 
 #. Resource IDs: (3865)
 msgid "Failed to create object.  Make sure the application is entered in the system registry."
-msgstr "Objekta ni mogoče ustvariti. Zagotovite, da je aplikacija vnesena v sistemski register."
+msgstr "Objekta ni mogoče ustvariti. Zagotovite, da je aplikacija vnešena v sistemski register."
 
 #. Resource IDs: (3857)
 msgid "Failed to launch help."
@@ -4201,11 +3741,11 @@ msgstr "Nastavitev/odstranitev seznama sprememb '%s' ni uspela"
 #. Resource IDs: (83)
 #, c-format
 msgid ""
-"Failed to start the issue tracker COM provider '%1!s!'.\n"
-"%2!s!"
+"Failed to start the issue tracker COM provider '%s'.\n"
+"%s"
 msgstr ""
-"Ponudnika COM '%1!s!' za sledilnik zadev ni mogoče zagnati.\n"
-"%2!s!"
+"Ponudnika COM '%s' za sledilnik zadev ni mogoče zagnati.\n"
+"%s"
 
 #. Resource IDs: (220)
 msgid "Failed!"
@@ -4223,11 +3763,6 @@ msgstr "Pridobivanje revizije %s datoteke:"
 #. Resource IDs: (63, 74, 77, 319, 1001)
 msgid "File"
 msgstr "Datoteka"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "File changes each %s"
-msgstr "Št. sprememb na %s"
 
 #. Resource IDs: (1138)
 msgid "File changes each week:"
@@ -4357,18 +3892,6 @@ msgstr ""
 msgid "Filename"
 msgstr "Ime datoteke"
 
-#. Resource IDs: (65535)
-msgid "Filename, extension or mime-type:"
-msgstr "Ime datoteke, končnica ali tip MIME:"
-
-#. Resource IDs: (74)
-msgid "Filename/Extension"
-msgstr "Ime datoteke/Končnica"
-
-#. Resource IDs: (1512)
-msgid "Files"
-msgstr "Datoteke"
-
 #. Resource IDs: (1057)
 msgid ""
 "Fill Tool\n"
@@ -4376,10 +3899,6 @@ msgid ""
 msgstr ""
 "Orodje za zapolnitev\n"
 "Zapolnitev"
-
-#. Resource IDs: (65535)
-msgid "Filter match"
-msgstr "Filter poti"
 
 #. Resource IDs: (65535)
 msgid ""
@@ -4453,21 +3972,21 @@ msgstr "Za pomoč pritisnite F1. Vodoravno premikajte s Ctrl+miškin kolešček"
 msgid "For complete history deselect 'Stop on copy/rename'"
 msgstr "Za prikaz celotne zgodovine izklopite možnost 'Ustavi ob kopiranju/preimenovanju'"
 
-#. Resource IDs: (279)
-msgid "Force"
-msgstr "Prisilno"
-
 #. Resource IDs: (1064)
 msgid "Forward"
 msgstr "Naprej"
 
-#. Resource IDs: (65535)
-msgid "Found auto words:"
-msgstr "Najdene besede:"
+#. Resource IDs: (1489)
+msgid "From URL:"
+msgstr "Iz URL:"
 
 #. Resource IDs: (1200, 65535)
 msgid "From:"
 msgstr "Od:"
+
+#. Resource IDs: (1494)
+msgid "From: (start URL and revision of the range to merge)"
+msgstr "Od: (začetni URL in revizija obsega za spajanje)"
 
 #. Resource IDs: (1065)
 msgid "Full Screen"
@@ -4535,13 +4054,13 @@ msgstr ""
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Getting file %1!s!"
-msgstr "Pridobivanje datoteke %1!s!"
+msgid "Getting file %s"
+msgstr "Pridobivanje datoteke %s"
 
 #. Resource IDs: (120)
 #, c-format
-msgid "Getting file %1!s!, revision %2!s!"
-msgstr "Pridobivanje datoteke %1!s! različice %2!s!"
+msgid "Getting file %s, revision %s"
+msgstr "Pridobivanje datoteke %s različice %s"
 
 #. Resource IDs: (132)
 msgid "Getting file info..."
@@ -4567,7 +4086,7 @@ msgstr "Pridobivanje zahtevanih podatkov..."
 msgid "Getting unified diff"
 msgstr "Pridobivanje poenotene razlike"
 
-#. Resource IDs: (1517)
+#. Resource IDs: (65535)
 msgid "Global ignore &pattern:"
 msgstr "Splošni &vzorec prezrtih:"
 
@@ -4627,9 +4146,9 @@ msgstr "Veje v skupinah"
 msgid "Group changelists"
 msgstr "Razdeli sezname sprememb v skupine"
 
-#. Resource IDs: (1032)
-msgid "H&EAD Revision"
-msgstr "Revizija H&EAD"
+#. Resource IDs: (1229)
+msgid "H&ide unrelated changed paths"
+msgstr "Skr&ij nepovezane spremenjene poti"
 
 #. Resource IDs: (65535)
 msgid "H&ue:"
@@ -4647,10 +4166,6 @@ msgstr "HEAD vozlišče"
 #, c-format
 msgid "Head revision is %s"
 msgstr "Revizija HEAD je %s"
-
-#. Resource IDs: (1595)
-msgid "Header"
-msgstr "Glava"
 
 #. Resource IDs: (9, 73, 332, 1004)
 msgid "Help"
@@ -4737,25 +4252,9 @@ msgstr "Napaka v imenu strežnika (%s)"
 msgid "How do you want to resolve this conflict?"
 msgstr "Izberite način rešitve konflikta."
 
-#. Resource IDs: (1392)
-msgid "I&gnore all whitespaces"
-msgstr "Prezr&i vse presledke"
-
-#. Resource IDs: (1264)
-msgid "I&gnored"
-msgstr "Prezr&to"
-
-#. Resource IDs: (1519)
+#. Resource IDs: (65535)
 msgid "I&nclude paths:"
 msgstr "&Vključene poti:"
-
-#. Resource IDs: (1580)
-msgid "IBugTraqProvider"
-msgstr "IBugTraqProvider ponudnik"
-
-#. Resource IDs: (1592)
-msgid "ID"
-msgstr "ID"
 
 #. Accelerator Entry for Menu ID:32771; '&Find...'
 msgid "ID:32771:V C +F"
@@ -4826,10 +4325,6 @@ msgid "ID:32824:V C +F"
 msgstr "ID:32824:V C +F"
 
 #. Accelerator Entry for Menu ID:32825; ''
-msgid "ID:32825:V C +K"
-msgstr "ID:32825:V C +K"
-
-#. Accelerator Entry for Menu ID:32825; ''
 msgid "ID:32825:V C +L"
 msgstr "ID:32825:V C +L"
 
@@ -4875,10 +4370,6 @@ msgstr "ID:57643:V C +Z"
 msgid "ID:57665:V C +Q"
 msgstr "ID:57665:V C +Q"
 
-#. Accelerator Entry for Menu ID:57665; 'E&xit'
-msgid "ID:57665:V C +W"
-msgstr "ID:57665:V C +W"
-
 #. Resource IDs: (106)
 msgid "Icon Overlays"
 msgstr "Prekrivanje ikon"
@@ -4891,13 +4382,9 @@ msgstr "Prekrivanje ikon / Stolpci stanja"
 msgid "Icon Overlays::Icon Set"
 msgstr "Prekrivanje ikon::Nabor ikon"
 
-#. Resource IDs: (308)
-msgid "Icon Overlays::Overlay Handlers"
-msgstr "Načini prekrivanja ikon"
-
 #. Resource IDs: (65535)
-msgid "Icons/Design/Code:\t\tLuebbe Onken"
-msgstr "Ikone/Oblikovanje/Koda:\t\tLuebbe Onken"
+msgid "Icons/Design/Code:                 Luebbe Onken"
+msgstr "Ikone/Oblikovanje/Koda:     Luebbe Onken"
 
 #. Resource IDs: (346)
 msgid ""
@@ -4960,6 +4447,10 @@ msgid ""
 msgstr ""
 "Če je možnost izbrana, se bo pogovorno okno objave v primeru napake samodejno prikazalo,\r\n"
 "ob tem pa se ohrani izbor datotek in dnevniški zapis."
+
+#. Resource IDs: (194)
+msgid "If enabled, TortoiseSVN checks once a week if a newer version is available"
+msgstr "Če je možnost izbrana, TortoiseSVN enkrat tedensko preveri, če je na voljo nova različica"
 
 #. Resource IDs: (195)
 msgid ""
@@ -5046,65 +4537,33 @@ msgstr "Pr&ezri elemente (%d) glede na tip"
 msgid "Ignore &all whitespaces"
 msgstr "Prezri &vse presledke"
 
-#. Resource IDs: (1267)
-msgid "Ignore &ancestry"
-msgstr "Prezri &prednike"
-
-#. Resource IDs: (32873)
-msgid "Ignore all whitespace changes"
-msgstr "Prezri razlike v presledkih"
+#. Resource IDs: (1067)
+msgid "Ignore &case changes"
+msgstr "Prezri spremembe velikih/malih &črk"
 
 #. Resource IDs: (1392)
 msgid "Ignore all whitespaces"
 msgstr "Prezri vse presledke"
 
-#. Resource IDs: (1067)
-msgid "Ignore case cha&nges"
-msgstr "Prezri spre&membe velikih/malih črk"
-
-#. Resource IDs: (1126)
-msgid "Ignore line &endings"
-msgstr "Prezri &zaključke vrstic"
+#. Resource IDs: (1267)
+msgid "Ignore ancestry"
+msgstr "Prezri dedovanje"
 
 #. Resource IDs: (1018)
 msgid "Ignore line &endings (recommended)"
 msgstr "Prezri &zaključke vrstic (priporočeno)"
 
-#. Resource IDs: (1127)
+#. Resource IDs: (1126, 1127)
 msgid "Ignore line endings"
 msgstr "Prezri zaključke vrstic"
 
 #. Resource IDs: (1391)
-msgid "Ignore whitespace c&hanges"
-msgstr "Prezri razlike v &presledkih"
-
-#. Resource IDs: (1391)
 msgid "Ignore whitespace changes"
-msgstr "Prezri razlike v presledkih"
-
-#. Resource IDs: (1432)
-msgid "Ignored"
-msgstr "Prezrto"
+msgstr "Prezri razlike presledkov"
 
 #. Resource IDs: (226)
 msgid "Ignored items included"
 msgstr "Vključeni prezrti elementi"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores all whitespace changes when diffing\n"
-"Ignore all whitespace changes"
-msgstr ""
-"Prezre vse spremembe v presledkih pri prikazu razlik\n"
-"Prezri vse spremembe v presledkih"
-
-#. Resource IDs: (2055)
-msgid ""
-"Ignores changes in whitespaces when diffing\n"
-"Ignore whitespace changes"
-msgstr ""
-"Prezri spremembe v presledkih pri prikazu sprememb\n"
-"Prezri spremembe v presledkih"
 
 #. Resource IDs: (16916)
 msgid "Image &and Text"
@@ -5136,7 +4595,7 @@ msgstr "Uvozi %ld elementov"
 msgid "Import %s to %s%s"
 msgstr "Uvozi %s do %s%s"
 
-#. Resource IDs: (1386)
+#. Resource IDs: (1056)
 msgid "Import &message"
 msgstr "Sporočilo ob &uvozu"
 
@@ -5151,11 +4610,11 @@ msgstr "Uvozi predhodno shranjen nabor lastnosti iz datoteke"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Import file %1!s!\r\n"
-"to %2!s!"
+"Import file %s\r\n"
+"to %s"
 msgstr ""
-"Uvozi datoteko %1!s!\r\n"
-"v %2!s!"
+"Uvozi datoteko %s\r\n"
+"v %s"
 
 #. Resource IDs: (126)
 #, c-format
@@ -5169,25 +4628,21 @@ msgstr ""
 #. Resource IDs: (126)
 #, c-format
 msgid ""
-"Import folder %1!s!\r\n"
-"to %2!s!"
+"Import folder %s\r\n"
+"to %s"
 msgstr ""
-"Uvozi datoteko %1!s!\r\n"
-"v %2!s!"
+"Uvozi datoteko %s\r\n"
+"v %s"
 
 #. Resource IDs: (613)
 #, c-format
 msgid "Import to %1"
 msgstr "Uvozi v %1"
 
-#. Resource IDs: (80)
-msgid "Imported folder structure"
-msgstr "Uvožena struktura map"
-
 #. Resource IDs: (120)
 #, c-format
-msgid "Importing file %1!s!"
-msgstr "Uvažanje datoteke %1!s!"
+msgid "Importing file %s"
+msgstr "Uvažanje datoteke %s"
 
 #. Resource IDs: (10)
 msgid "Imports the directory to a repository"
@@ -5236,10 +4691,6 @@ msgid ""
 msgstr ""
 "Vstavi vsebino odložišča\n"
 "Prilepi"
-
-#. Resource IDs: (1575)
-msgid "Insert message at:"
-msgstr "Vnos sporočila pri/po:"
 
 #. Resource IDs: (3857)
 msgid "Insufficient memory to perform operation."
@@ -5341,10 +4792,6 @@ msgstr ""
 "Območje je lahko podano z uporabo vezaja.\n"
 "Primer: 2-5,7,10,44-70,300-HEAD"
 
-#. Resource IDs: (1571)
-msgid "Issue tracker"
-msgstr "Sledilnik hroščev"
-
 #. Resource IDs: (145)
 msgid ""
 "It is not possible to rename a file by changing the case of its name alone.\n"
@@ -5360,8 +4807,8 @@ msgstr ""
 msgid ""
 "It seems you are trying to <b>relocate</b> your working copy to a different path inside the same repository.\n"
 "\n"
-"From:\t%1!s!\n"
-"To:\t\t%2!s!\n"
+"From:\t%s\n"
+"To:\t\t%s\n"
 "\n"
 "A relocate is only needed if the path <b>to</b> a repository has changed.\n"
 "Changing to a different path <b>inside</b> a repository is done by a switch operation.\n"
@@ -5372,8 +4819,8 @@ msgid ""
 msgstr ""
 "Zdi se, da <b>premeščate</b> delovno kopijo na drugo pot znotraj istega skladišča.\n"
 "\n"
-"Iz:\t%1!s!\n"
-"V:\t%2!s!\n"
+"Iz: %s\n"
+"V: %s\n"
 "\n"
 "Premeščanje je potrebno le, če se je spremenila pot <b>do</b> skladišča.\n"
 "Sprememba na drugo pot <b>znotraj</b> skladišča se izvede z ukazom Preklopi.\n"
@@ -5381,18 +4828,6 @@ msgstr ""
 "Nepravilna uporaba ukaza Premesti <b>povzroči okvaro podatkov!</b>\n"
 "Če niste prepričani, kaj storiti, poglejte v dokumentacijo pod <i>Premesti</i>.\n"
 "Ali zares želite premestiti?"
-
-#. Resource IDs: (1480)
-msgid "Items in &externals"
-msgstr "&Elementi med zunanjimi"
-
-#. Resource IDs: (1527)
-msgid "Items to show"
-msgstr "Elementi za prikaz"
-
-#. Resource IDs: (1074)
-msgid "J&ump to first conflict when loading"
-msgstr "Pri nalaganj&u skoči na prvo razliko"
 
 #. Resource IDs: (275)
 msgid "Join with following &tree"
@@ -5407,8 +4842,8 @@ msgid "Keep &locks"
 msgstr "Ohrani &zaklepe"
 
 #. Resource IDs: (1126)
-msgid "Keep ch&angelists"
-msgstr "Ohrani &sezname sprememb"
+msgid "Keep changelists"
+msgstr "Ohrani sezname sprememb"
 
 #. Resource IDs: (610)
 msgid "Keep the directory from the repository"
@@ -5437,22 +4872,6 @@ msgstr "Bližnjice na tipkovnici:"
 #. Resource IDs: (1002)
 msgid "Keys"
 msgstr "Tipke"
-
-#. Resource IDs: (65535)
-msgid "L&imit:"
-msgstr "Omej&itev:"
-
-#. Resource IDs: (1599)
-msgid "L&ocal path:"
-msgstr "L&okalna pot:"
-
-#. Resource IDs: (32855)
-msgid "Lan&guages"
-msgstr "&Jeziki"
-
-#. Resource IDs: (65535)
-msgid "Language:"
-msgstr "Jezik:"
 
 #. Resource IDs: (65535)
 msgid "Last commit revision:"
@@ -5549,12 +4968,12 @@ msgstr "Naloži slike"
 
 #. Resource IDs: (63)
 msgid "Local status"
-msgstr "Lokalno stanje"
+msgstr "Krajevno stanje"
 
 #. Resource IDs: (94)
 msgid ""
 "Location where the contents of the\n"
-"repository URL(s) will be saved to."
+"repository URL will be saved to."
 msgstr "Mesto, kamor bo shranjena vsebina skladišča."
 
 #. Resource IDs: (32854)
@@ -5597,10 +5016,6 @@ msgstr "Lastnik zaklepa:"
 #, c-format
 msgid "Lock stolen by %s"
 msgstr "Zaklep ukradel %s"
-
-#. Resource IDs: (1529)
-msgid "Locked"
-msgstr "Zaklenjeno"
 
 #. Resource IDs: (263)
 #, c-format
@@ -5661,17 +5076,13 @@ msgstr "Sporočila dnevniških zapisov (okno Pokaži dnevnik)"
 
 #. Resource IDs: (238)
 #, c-format
-msgid "Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!"
-msgstr "Najnižja prikazana revizija: %1!ld! - Najvišja prikazana revizija: %2!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld"
+msgstr "Najnižja prikazana revizija: %ld - Najvišja prikazana revizija: %ld"
 
 #. Resource IDs: (238)
 #, c-format
-msgid ""
-"Lowest shown revision: %1!ld! - Highest shown revision: %2!ld!\n"
-"HEAD revision: %3!ld!"
-msgstr ""
-"Najnižja prikazana revizija: %1!ld! - Najvišja prikazana revizija: %2!ld!\n"
-"Revizija HEAD: %3!ld!"
+msgid "Lowest shown revision: %ld - Highest shown revision: %ld - HEAD revision: %ld"
+msgstr "Najnižja prikazana revizija: %ld - Najvišja prikazana revizija: %ld - Revizija HEAD: %ld"
 
 #. Resource IDs: (16973)
 msgid "Lum"
@@ -5765,13 +5176,9 @@ msgstr "Menijska vrstica"
 msgid "Menu s&hadows"
 msgstr "&Sence menijev"
 
-#. Resource IDs: (109, 110, 111, 112, 278, 65535)
+#. Resource IDs: (109, 110, 111, 112, 276, 278, 65535)
 msgid "Merge"
 msgstr "Spoji"
-
-#. Resource IDs: (1488, 65535)
-msgid "Merge &depth:"
-msgstr "G&lobina spajanja:"
 
 #. Resource IDs: (78)
 msgid "Merge - TortoiseSVN"
@@ -5782,12 +5189,16 @@ msgid "Merge Reintegrate"
 msgstr "Vključitev veje"
 
 #. Resource IDs: (1468)
-msgid "Merge a &range of revisions"
-msgstr "Spoji &razpon revizij"
+msgid "Merge a range of revisions"
+msgstr "Spoji območje revizij"
 
 #. Resource IDs: (277)
 msgid "Merge all"
 msgstr "Spoji vse"
+
+#. Resource IDs: (1488, 65535)
+msgid "Merge depth:"
+msgstr "Globina spajanja:"
 
 #. Resource IDs: (1432)
 msgid "Merge non-interactive"
@@ -5819,8 +5230,8 @@ msgid "Merge the changes into '%s'"
 msgstr "Spoji spremembe v '%s'"
 
 #. Resource IDs: (1470)
-msgid "Merge two different &trees"
-msgstr "Spoji dve različni &drevesi"
+msgid "Merge two different trees"
+msgstr "Spoji dve različni drevesi"
 
 #. Resource IDs: (595, 65535)
 msgid "Merge type"
@@ -5843,14 +5254,14 @@ msgstr "Spoji vejo z glavnim deblom"
 msgid "Merges all missing revisions back into the working copy using merge-tracking information"
 msgstr "Spoji vse manjkajoče reviziji nazaj v delovno kopijo z uporabo informacij sledenja spajanja"
 
-#. Resource IDs: (1073)
+#. Resource IDs: (65535)
 msgid "Merging"
 msgstr "Spajanje"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging %s into %s, %s%s"
-msgstr "Spajanje %s v %s, %s%s"
+msgid "Merging %s into %s, %s"
+msgstr "Spajanje %s v %s, %s"
 
 #. Resource IDs: (264)
 msgid "Merging differences between repository URLs"
@@ -5858,18 +5269,18 @@ msgstr "Spajanje razlik med dvema naslovoma skladišč"
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s%s"
-msgstr "Spajanje iz %s, revizija %s do %s, revizija %s v %s, %s%s%s"
-
-#. Resource IDs: (264)
-#, c-format
-msgid "Merging r%1!ld! through r%2!ld!"
-msgstr "Spajanje r%1!ld! do r%2!ld!"
+msgid "Merging from %s, revision %s to %s, revision %s into %s, %s%s"
+msgstr "Spajanje iz %s, revizija %s do %s, revizija %s v %s, %s%s"
 
 #. Resource IDs: (264)
 #, c-format
 msgid "Merging r%ld"
 msgstr "Spajanje r%ld"
+
+#. Resource IDs: (264)
+#, c-format
+msgid "Merging r%ld through r%ld"
+msgstr "Spajanje r%ld do r%ld"
 
 #. Resource IDs: (83)
 msgid "Merging requires different revisions or different URLs in 'From:' and 'To:'"
@@ -5877,24 +5288,12 @@ msgstr "Spajanje zahteva različne revizije ali različne naslove URL v poljih '
 
 #. Resource IDs: (229)
 #, c-format
-msgid "Merging revisions %s of %s into %s, %s%s%s"
-msgstr "Spajanje revizij %s od %s v %s, %s%s%s"
+msgid "Merging revisions %s of %s into %s, %s%s"
+msgstr "Spajanje revizij %s od %s v %s, %s%s"
 
 #. Resource IDs: (76, 1359)
 msgid "Message"
 msgstr "Sporočilo"
-
-#. Resource IDs: (1574)
-msgid "Message &label:"
-msgstr "Nas&lov sporočila:"
-
-#. Resource IDs: (1573)
-msgid "Message &pattern:"
-msgstr "Predloga s&poročila:"
-
-#. Resource IDs: (1579)
-msgid "Message part &expression:"
-msgstr "Izraz za d&el sporočila:"
 
 #. Resource IDs: (1241)
 msgid "Message:"
@@ -5923,14 +5322,6 @@ msgstr "Moje"
 #. Resource IDs: (1068)
 msgid "Minimize the Ribbon"
 msgstr "Skrči trak"
-
-#. Resource IDs: (65535)
-msgid "Minimum number of chars for a commit message:"
-msgstr "Min. število znakov za sporočilo:"
-
-#. Resource IDs: (65535)
-msgid "Minimum number of chars for a lock message:"
-msgstr "Minimalno število znakov za sporočilo o zaklepanju:"
 
 #. Resource IDs: (1023, 65535)
 msgid "Misc"
@@ -5983,20 +5374,20 @@ msgstr "Miška"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!ld! items to\r\n"
-"%2!s!"
+"Move %ld items to\r\n"
+"%s"
 msgstr ""
-"Premakni %1!ld! elementov v \r\n"
-"%2!s!"
+"Premakni %ld elementov v \r\n"
+"%s"
 
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Move %1!s!\r\n"
-"to %2!s!"
+"Move %s\r\n"
+"to %s"
 msgstr ""
-"Premakni %1!s!\r\n"
-"v %2!s!"
+"Premakni %s\r\n"
+"v %s"
 
 #. Resource IDs: (17026)
 msgid "Move &Down"
@@ -6044,17 +5435,9 @@ msgstr "Premakni/Preimenuj"
 msgid "Move: New name for %s"
 msgstr "Premakni: Novo ime za %s"
 
-#. Resource IDs: (65535)
-msgid "Moved from"
-msgstr "Premaknjeno z/iz"
-
 #. Resource IDs: (126)
 msgid "Moved remotely"
 msgstr "Premaknjeno oddaljeno"
-
-#. Resource IDs: (65535)
-msgid "Moved to"
-msgstr "Premaknjeno v/na"
 
 #. Resource IDs: (197)
 msgid "Moves the modified files to the recycle bin first before reverting"
@@ -6062,16 +5445,12 @@ msgstr "Spremenjene datoteke pred povrnitvijo premakne v koš"
 
 #. Resource IDs: (80)
 #, c-format
-msgid "Moving %1!s!"
-msgstr "Premikanje %1!s!"
+msgid "Moving %s"
+msgstr "Premikanje %s"
 
 #. Resource IDs: (80)
 msgid "Moving..."
 msgstr "Premikanje..."
-
-#. Resource IDs: (1204)
-msgid "Multiple, &independent working copies"
-msgstr "Večkratne, neodv&isne delovne kopije"
 
 #. Resource IDs: (65535)
 msgid "My file:"
@@ -6097,17 +5476,9 @@ msgstr "Možnosti navigacijskega podokna..."
 msgid "Needs lock"
 msgstr "Potrebuje zaklep"
 
-#. Resource IDs: (32845)
-msgid "Needs-&Lock"
-msgstr "Zahteva-Zak&lep"
-
-#. Resource IDs: (1550)
-msgid "Needs-lock"
-msgstr "Potrebuje zaklep"
-
 #. Resource IDs: (213)
 msgid "Nested"
-msgstr "Ugnezdeno"
+msgstr "Vgnezdeno"
 
 #. Resource IDs: (102)
 msgid "Network"
@@ -6137,10 +5508,6 @@ msgstr "Novo ime za %s"
 #. Resource IDs: (98)
 msgid "New name:"
 msgstr "Novo ime:"
-
-#. Resource IDs: (32875)
-msgid "Next &Inline Difference"
-msgstr "&Naslednja sprememba vrstice"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -6180,10 +5547,6 @@ msgstr "Ni obvestil o napaki."
 #. Resource IDs: (3867, 3868)
 msgid "No error occurred."
 msgstr "Brez napak."
-
-#. Resource IDs: (281)
-msgid "No externals found"
-msgstr "Ni zunanjih povezav"
 
 #. Resource IDs: (82)
 msgid "No files or folders were modified. There is nothing for TortoiseSVN to revert!"
@@ -6229,10 +5592,6 @@ msgstr "Graf ni na voljo"
 msgid "No image encoder found for %s."
 msgstr "Kodirnik slike za %s ni na voljo."
 
-#. Resource IDs: (84)
-msgid "No path or pathfile specified on the command line!"
-msgstr "V ukaznem načinu ni podane poti ali datoteka s potjo!"
-
 #. Resource IDs: (188)
 msgid "No spell corrections"
 msgstr "Ni popravkov črkovanja"
@@ -6241,11 +5600,6 @@ msgstr "Ni popravkov črkovanja"
 msgid "No status cache. Only versioned folders get an overlay, files don't get an overlay"
 msgstr "Brez predpomnilnika stanja. Le mape pod nadzorom dobijo prekrivne ikone, datoteke pa ne"
 
-#. Resource IDs: (84)
-#, c-format
-msgid "No such revision '%1!s!'"
-msgstr "Revizija '%1!s!' ne obstaja"
-
 #. Resource IDs: (188)
 msgid "No thesaurus suggestions"
 msgstr "Ni predlogov iz tezavra"
@@ -6253,10 +5607,6 @@ msgstr "Ni predlogov iz tezavra"
 #. Resource IDs: (65535)
 msgid "Node colors"
 msgstr "Barve vozlišč"
-
-#. Resource IDs: (1507)
-msgid "Non-versioned"
-msgstr "Brez različice"
 
 #. Resource IDs: (1271)
 msgid "None"
@@ -6288,10 +5638,6 @@ msgstr ""
 msgid "Not recursive"
 msgstr "Nerekurzivno"
 
-#. Resource IDs: (3887)
-msgid "Note that if you choose to recover the auto-saved documents, you must explicitly save them to overwrite the original documents.  If you choose to not recover the auto-saved versions, they will be deleted."
-msgstr "Opozorilo - v primeru izbire avtomatske varnostne kopije, bo potrebno dokument ponovno ročno shraniti."
-
 #. Resource IDs: (1481)
 msgid "Note: the folder contains unversioned items"
 msgstr "Opozorilo: mapa vsebuje elemente, ki niso v skladišču"
@@ -6300,22 +5646,9 @@ msgstr "Opozorilo: mapa vsebuje elemente, ki niso v skladišču"
 msgid "Note: the font settings also affect the TortoiseUDiff viewer"
 msgstr "Opomba: nastavitve pisave vplivajo tudi na pregledovalnik TortoiseUDiff"
 
-#. Resource IDs: (65535)
-msgid "Note: this affects all Tortoise clients, not just TortoiseSVN!"
-msgstr "Opozorilo: nastavitev velja za vse Tortoise kliente, ne le za TortoiseSVN!"
-
-#. Resource IDs: (1557)
-msgid "Note: this property has no effect on Windows"
-msgstr "Opomba: nastavitev nima efekta v Windows okolju"
-
 #. Resource IDs: (88)
 msgid "Notice"
 msgstr "Opomba"
-
-#. Resource IDs: (247)
-#, c-format
-msgid "Number of %s"
-msgstr "Število %s"
 
 #. Resource IDs: (338)
 msgid "Number of authors in the cache"
@@ -6425,17 +5758,9 @@ msgstr ""
 "\n"
 "Ali ste prepričani, da želite premakniti izbrane poti?"
 
-#. Resource IDs: (3887)
-msgid "One or more auto-saved documents were found."
-msgstr "Najdene so varnostne kopije dokumentov."
-
 #. Resource IDs: (219)
 msgid "One or more files are in a conflicted state."
 msgstr "Ena ali več datotek je spornih."
-
-#. Resource IDs: (1424)
-msgid "Onl&y record the merge (block revisions from getting merged)"
-msgstr "Zavedi sa&mo spajanje (prepreči spajanje revizij)"
 
 #. Resource IDs: (99)
 msgid "Only check out the &top folder"
@@ -6453,9 +5778,9 @@ msgstr ""
 "Dovoljene so le številke,\n"
 "ki so lahko ločene z vejicami."
 
-#. Resource IDs: (626)
-msgid "Only properties changed"
-msgstr "Spremenjene samo lastnosti"
+#. Resource IDs: (1424)
+msgid "Only record the merge (block revisions from getting merged)"
+msgstr "Izvedi samo spajanje (prepreči spajanje revizij)"
 
 #. Resource IDs: (19)
 msgid "Only this item"
@@ -6513,10 +5838,6 @@ msgstr "Odpre skladiščni brskalnik za neposredno nastavljanje skladišča"
 msgid "Operate from log cache for now only"
 msgstr "Začasno uporabljaj predpomnilnik dnevnika"
 
-#. Resource IDs: (348)
-msgid "Option"
-msgstr "Možnost"
-
 #. Resource IDs: (16137)
 msgid "Options"
 msgstr "Možnosti"
@@ -6559,7 +5880,7 @@ msgstr "Prepiši"
 
 #. Resource IDs: (32802)
 msgid "P&revious Conflict"
-msgstr "P&rejšnji spor"
+msgstr "P&rejšni spor"
 
 #. Resource IDs: (76)
 msgid "PEM"
@@ -6615,21 +5936,13 @@ msgstr "Prilepi seznam datotek"
 msgid "Pastes the svn path from the clipboard, resulting in a move (cut) or copy operation"
 msgstr "Prilepi pot SVN iz odložišča in s tem naredi premik (izreži) ali kopiranje"
 
-#. Resource IDs: (1076)
-msgid "Patch &all items"
-msgstr "N&amesti vse elemente"
-
-#. Resource IDs: (1075)
-msgid "Patch &selected item"
-msgstr "Name&sti izbrani element"
+#. Resource IDs: (376)
+msgid "Patch all"
+msgstr "Namesti vse"
 
 #. Resource IDs: (376)
-msgid "Patch all files"
-msgstr "Namesti vse datoteke"
-
-#. Resource IDs: (376)
-msgid "Patch selected files"
-msgstr "Namesti izbrane datoteke"
+msgid "Patch selected"
+msgstr "Namesti izbrane"
 
 #. Resource IDs: (157)
 msgid "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
@@ -6650,14 +5963,6 @@ msgid ""
 msgstr ""
 "Svinčnik\n"
 "Svinčnik"
-
-#. Resource IDs: (245)
-msgid "Percent of authorship"
-msgstr "Deleži avtorjev:"
-
-#. Resource IDs: (245)
-msgid "Percents"
-msgstr "Procentov"
 
 #. Resource IDs: (16538)
 msgid "Personalized Menus and Toolbars"
@@ -6732,10 +6037,6 @@ msgstr "Prosimo, počakajte, da bo operacija preklicana..."
 msgid "Please wait while differences are obtained..."
 msgstr "Počakajte na pridobitev razlik ..."
 
-#. Resource IDs: (281)
-msgid "Please wait while the externals are gathered..."
-msgstr "Počakajte na pridobitev zunanjih povezav ..."
-
 #. Resource IDs: (104)
 msgid "Please wait while the repository browser is initializing..."
 msgstr "Počakajte, da se vzpostavi skladiščni brskalnik..."
@@ -6776,21 +6077,13 @@ msgstr "Pred objavo"
 msgid "Pre-Update Hook"
 msgstr "Pred posodobitvijo"
 
-#. Resource IDs: (3)
-msgid "Prefer &local"
-msgstr "Prednost &lokalna kopija"
-
-#. Resource IDs: (4)
-msgid "Prefer &repository"
-msgstr "Prednostno &skladišče"
-
 #. Resource IDs: (65535)
 msgid "Press &New Shortcut Key:"
-msgstr "Pritisnite &Novo bližnjico:"
+msgstr "Pritisnite &novo bližnjico"
 
 #. Resource IDs: (65535)
 msgid "Press &new shortcut key:"
-msgstr "Pritisnite &novo bližnjico:"
+msgstr "Pritisnite &novo bližnjico"
 
 #. Resource IDs: (2052)
 msgid "Prevents most cases in which connection lines cross revision nodes"
@@ -6807,10 +6100,6 @@ msgstr "Predogled popravljene datoteke"
 #. Resource IDs: (65535)
 msgid "Preview: "
 msgstr "Predogled:"
-
-#. Resource IDs: (32876)
-msgid "Previous In&line Difference"
-msgstr "&Prejšnja sprememba vrstice"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -6850,8 +6139,8 @@ msgstr "Tiskanje"
 
 #. Resource IDs: (132)
 #, c-format
-msgid "Processing revision %1!d! of %2!d!..."
-msgstr "Procesiranje revizije %1!d! od %2!d!..."
+msgid "Processing revision %d of %d..."
+msgstr "Procesiranje revizije %d od %d..."
 
 #. Resource IDs: (74)
 msgid "Program"
@@ -6887,13 +6176,13 @@ msgstr "Lastnost"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Revision %2!s!"
-msgstr "Lastnost %1!s! : Revizija %2!s!"
+msgid "Property %s : Revision %s"
+msgstr "Lastnost %s : Revizija %s"
 
 #. Resource IDs: (151)
 #, c-format
-msgid "Property %1!s! : Working Base, Revision %2!ld!"
-msgstr "Lastnost %1!s! : Delovna Osnova, Revizija %2!ld!"
+msgid "Property %s : Working Base, Revision %ld"
+msgstr "Lastnost %s : Delovna Osnova, Revizija %ld"
 
 #. Resource IDs: (151)
 #, c-format
@@ -6944,14 +6233,6 @@ msgstr "Vrednost lastnosti:"
 msgid "Provider"
 msgstr "Ponudnik"
 
-#. Resource IDs: (1586)
-msgid "Provider para&meters:"
-msgstr "Para&metri ponudnika:"
-
-#. Resource IDs: (1581)
-msgid "Provider uuid win&32:"
-msgstr "Win&32 UUID  ponudnika:"
-
 #. Resource IDs: (1475)
 msgid "Provider:"
 msgstr "Ponudnik:"
@@ -6985,17 +6266,9 @@ msgstr ""
 msgid "R&AM drives"
 msgstr "Diski R&AM"
 
-#. Resource IDs: (1469)
-msgid "R&eintegrate a branch"
-msgstr "Ponovna vključit&ev veje"
-
 #. Resource IDs: (16623)
 msgid "R&eset"
 msgstr "Po&nastavi"
-
-#. Resource IDs: (1423)
-msgid "R&everse merge"
-msgstr "Obrnj&eno spajanje"
 
 #. Resource IDs: (114)
 msgid "R&evert to this revision"
@@ -7025,10 +6298,6 @@ msgstr "Po&nastavi"
 msgid "Re&set All"
 msgstr "Pona&stavi vse"
 
-#. Resource IDs: (1400)
-msgid "Re&solved"
-msgstr "Razre&šeno"
-
 #. Resource IDs: (1382)
 msgid "Re&store defaults"
 msgstr "Obnovi &privzeto"
@@ -7036,10 +6305,6 @@ msgstr "Obnovi &privzeto"
 #. Resource IDs: (8)
 msgid "Re&vert..."
 msgstr "Po&vrni..."
-
-#. Resource IDs: (1033)
-msgid "Re&vision"
-msgstr "Re&vizija"
 
 #. Resource IDs: (12)
 msgid "Read the 'Daily Use Guide' before you are stuck..."
@@ -7056,38 +6321,6 @@ msgstr "Nedavno spremenjene vrstice"
 #. Resource IDs: (276)
 msgid "Record Only"
 msgstr "Samo zapis"
-
-#. Resource IDs: (265)
-msgid "Recording mergeinfo for merge between URLs"
-msgstr "Snemanje podatkov za spajanje med URLs"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for merge of r%1!ld! through r%2!ld!"
-msgstr "Snemanje podatkov za spajanje  r%1!ld! do  r%2!ld!"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for merge of r%ld"
-msgstr "Snemanje podatkov za spajanje r%ld"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for reverse merge of r%1!ld! through r%2!ld!"
-msgstr "Snemanje podatkov za obratno spajanje  r%1!ld! do  r%2!ld!"
-
-#. Resource IDs: (265)
-#, c-format
-msgid "Recording mergeinfo for reverse merge of r%ld"
-msgstr "Snemanje podatkov za obratno spajanje r%ld"
-
-#. Resource IDs: (3887)
-msgid ""
-"Recover the auto-saved documents\n"
-"Open the auto-saved versions instead of the explicitly saved versions"
-msgstr ""
-"Obnovi avtomatske varnostne kopije dokumentov\n"
-"Odpri avtomatsko shranjeno različico namesto različice iz zadnjega ročnega shranjevanja."
 
 #. Resource IDs: (1057)
 msgid ""
@@ -7125,10 +6358,6 @@ msgstr "Pomanjšaj okno v ikono"
 msgid "Refresh"
 msgstr "Osveži"
 
-#. Resource IDs: (1576)
-msgid "Regular Expression"
-msgstr "Regularni izraz"
-
 #. Resource IDs: (117)
 msgid ""
 "Regular expressions filter:\r\n"
@@ -7163,9 +6392,9 @@ msgstr ""
 "\\d   : številke 0-9\r\n"
 "\\s   : presledki"
 
-#. Resource IDs: (595)
-msgid "Reintegrate merge"
-msgstr "Reintegracija spajanja"
+#. Resource IDs: (1469)
+msgid "Reintegrate a branch"
+msgstr "Vključitev veje"
 
 #. Resource IDs: (230)
 #, c-format
@@ -7176,14 +6405,9 @@ msgstr "Vključitev veje %s v %s"
 msgid "Reject"
 msgstr "Zavrni"
 
-#. Resource IDs: (7)
-#, c-format
-msgid "Rejected patch hunks for '%s'"
-msgstr "Kosi popravkov za  '%s' zavrnjeni"
-
 #. Resource IDs: (16)
-msgid "Release loc&k..."
-msgstr "Sprosti za&klep..."
+msgid "Release loc&k"
+msgstr "&Sprosti zaklep"
 
 #. Resource IDs: (16)
 msgid "Releases locks even if you're not the owner of the locks (breaks them)."
@@ -7266,11 +6490,11 @@ msgstr "Odstrani s seznama sprememb"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Remove property '%1!S!' from\r\n"
-"%2!s!"
+"Remove property '%s' from\r\n"
+"%s"
 msgstr ""
-"Odstrani lastnost '%1!S!' na\r\n"
-"%2!s!"
+"Odstrani lastnost '%s' na\r\n"
+"%s"
 
 #. Resource IDs: (610)
 msgid "Remove the directory"
@@ -7339,11 +6563,11 @@ msgstr "Preimenuj %s"
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Rename item from %1!s!\r\n"
-"to %2!s!"
+"Rename item from %s\r\n"
+"to %s"
 msgstr ""
-"Preimenuj element iz %1!s!\r\n"
-"v %2!s!"
+"Preimenuj element iz %s\r\n"
+"v %s"
 
 #. Resource IDs: (221)
 msgid "Rename/move - TortoiseSVN"
@@ -7360,10 +6584,6 @@ msgstr "Preimenovano oddaljeno"
 #. Resource IDs: (11)
 msgid "Renames files / folders inside version control"
 msgstr "Preimenuje datoteke / mape znotraj nadzora različic"
-
-#. Resource IDs: (209)
-msgid "Repair copy"
-msgstr "Popravi kopijo"
 
 #. Resource IDs: (209)
 msgid "Repair move"
@@ -7405,10 +6625,6 @@ msgstr "URL skladišča"
 msgid "Repository UUID:"
 msgstr "UUID skladišča"
 
-#. Resource IDs: (106)
-msgid "Request cancelled by TSVN"
-msgstr "TSVN je preklical zahtevo"
-
 #. Resource IDs: (65535)
 msgid "Requests a username and a password"
 msgstr "zahteva uporabniško ime in geslo"
@@ -7438,8 +6654,8 @@ msgid "Resolve Conflict"
 msgstr "Reši spor"
 
 #. Resource IDs: (1382)
-msgid "Resolve all la&ter"
-msgstr "Reši vse ka&sneje"
+msgid "Resolve all later"
+msgstr "Reši vse kasneje"
 
 #. Resource IDs: (282)
 msgid "Resolve conflict using 'mine'"
@@ -7454,8 +6670,8 @@ msgid "Resolve conflict:"
 msgstr "Reši spor:"
 
 #. Resource IDs: (2)
-msgid "Resolve l&ater"
-msgstr "Reši k&asneje"
+msgid "Resolve later"
+msgstr "Reši kasneje"
 
 #. Resource IDs: (74, 209, 1400)
 msgid "Resolved"
@@ -7490,15 +6706,19 @@ msgstr "Povrnjeno"
 msgid "Retry"
 msgstr "Ponovno poskusi"
 
-#. Resource IDs: (264)
-#, c-format
-msgid "Reverse merging %1!ld! through %2!ld!"
-msgstr "Obrnjeno spajanje %1!ld! do %2!ld!"
+#. Resource IDs: (1423)
+msgid "Reverse merge"
+msgstr "Obrnjeno spajanje"
 
 #. Resource IDs: (264)
 #, c-format
 msgid "Reverse merging %ld"
 msgstr "Obrnjeno spajanje %ld"
+
+#. Resource IDs: (264)
+#, c-format
+msgid "Reverse merging %ld through %ld"
+msgstr "Obrnjeno spajanje %ld do %ld"
 
 #. Resource IDs: (175, 229)
 msgid "Revert"
@@ -7530,18 +6750,18 @@ msgstr "Revizija"
 
 #. Resource IDs: (119)
 #, c-format
-msgid "Revision %1!d!"
-msgstr "Revizija %1!d!"
-
-#. Resource IDs: (120)
-#, c-format
-msgid "Revision %1!s!"
-msgstr "Revizija %1!s!"
+msgid "Revision %d"
+msgstr "Revizija %d"
 
 #. Resource IDs: (269)
 #, c-format
 msgid "Revision %ld"
 msgstr "Revizija %ld"
+
+#. Resource IDs: (120)
+#, c-format
+msgid "Revision %s"
+msgstr "Revizija %s"
 
 #. Resource IDs: (15)
 msgid "Revision &graph"
@@ -7551,7 +6771,7 @@ msgstr "&Graf revizij"
 msgid "Revision / Author:"
 msgstr "Revizija / avtor:"
 
-#. Resource IDs: (182, 296)
+#. Resource IDs: (182)
 msgid "Revision Graph"
 msgstr "Graf revizij"
 
@@ -7572,8 +6792,8 @@ msgid "Revision graph"
 msgstr "Graf revizij"
 
 #. Resource IDs: (1492)
-msgid "Revision r&ange to merge"
-msgstr "Območje revizij za sp&ajanje"
+msgid "Revision range to merge"
+msgstr "Območje revizij za spajanje"
 
 #. Resource IDs: (75)
 msgid "Revision: "
@@ -7582,44 +6802,44 @@ msgstr "Revizija:"
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%7!s!"
+"%s"
 msgstr ""
-"Revizija: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Avtor: %5!s!\r\n"
-"Datum: %6!s!\r\n"
+"Revizija: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAvtor: %s\r\n"
+"Datum: %s\r\n"
 "\r\n"
 "Sporočilo:\r\n"
-"%7!s!"
+"%s"
 
 #. Resource IDs: (272)
 #, c-format
 msgid ""
-"Revision: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Author: %5!s!\r\n"
-"Date: %6!s!\r\n"
+"Revision: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAuthor: %s\r\n"
+"Date: %s\r\n"
 "\r\n"
-"Tags (%7!d!):%8!s!\r\n"
+"Tags (%d):%s\r\n"
 "\r\n"
 "Logmessage:\r\n"
-"%9!s!"
+"%s"
 msgstr ""
-"Revizija: %1!ld! %2!s!\r\n"
-"URL: %3!s!\r\n"
-"%4!s!Avtor: %5!s!\r\n"
-"Datum: %6!s!\r\n"
+"Revizija: %ld %s\r\n"
+"URL: %s\r\n"
+"%sAvtor: %s\r\n"
+"Datum: %s\r\n"
 "\r\n"
-"Oznake (%7!d!):%8!s!\r\n"
+"Oznake (%d):%s\r\n"
 "\r\n"
 "Sporočilo:\r\n"
-"%9!s!"
+"%s"
 
 #. Resource IDs: (116, 65535)
 msgid "Revisions"
@@ -7650,14 +6870,6 @@ msgstr "Vrstica %d od %d"
 #, c-format
 msgid "Row %d-%d of %d"
 msgstr "Vrstica %d-%d od %d"
-
-#. Resource IDs: (1070)
-msgid "Row Down"
-msgstr "Naslednja vrstica"
-
-#. Resource IDs: (1070)
-msgid "Row Up"
-msgstr "Vrstica navzgor"
 
 #. Resource IDs: (17045)
 msgid "S&elect..."
@@ -7721,7 +6933,7 @@ msgstr "SVN - Kopiraj datoteke pod nadzorom sem"
 
 #. Resource IDs: (16)
 msgid "SVN Local lock owner"
-msgstr "Lastnik lokalnega zaklepa SVN"
+msgstr "Lastnik krajevnega zaklepa SVN"
 
 #. Resource IDs: (17)
 msgid "SVN Move and rename versioned item here"
@@ -7738,10 +6950,6 @@ msgstr "SVN - Revizija"
 #. Resource IDs: (11)
 msgid "SVN Status"
 msgstr "SVN - Status"
-
-#. Resource IDs: (20)
-msgid "SVN Statusnumber"
-msgstr "SVN - Št.Statusa"
 
 #. Resource IDs: (12)
 msgid "SVN URL"
@@ -7825,10 +7033,6 @@ msgstr "Shranjevanje datotek"
 msgid "Saving patchfile to:"
 msgstr "Shranjevanje datoteke popravka v:"
 
-#. Resource IDs: (1522)
-msgid "Scan"
-msgstr "Skeniraj"
-
 #. Resource IDs: (1014, 1017, 1064, 1212)
 msgid "Scintilla"
 msgstr "Scintilla"
@@ -7852,10 +7056,6 @@ msgstr "Išči:"
 #. Resource IDs: (7)
 msgid "Search string not found!"
 msgstr "Iskanega niza ne najdem!"
-
-#. Resource IDs: (169)
-msgid "Searching for better path to apply patch..."
-msgstr "Iščem ustreznejšo pot za popravek..."
 
 #. Resource IDs: (3867)
 #, c-format
@@ -7918,6 +7118,10 @@ msgstr "Izberite seznam sprememb"
 msgid "Select diff application"
 msgstr "Izberi aplikacijo za razlikovanje"
 
+#. Resource IDs: (313)
+msgid "Select diff file..."
+msgstr "Izberite datoteko razlik (diff)..."
+
 #. Resource IDs: (99)
 msgid "Select directory to check out to"
 msgstr "Izberi mapo prevzema"
@@ -7962,10 +7166,6 @@ msgstr "Izberite aplikacijo za spajanje"
 msgid "Select merge target"
 msgstr "Izberite cilj spajanja"
 
-#. Resource IDs: (13)
-msgid "Select patch file..."
-msgstr "Izberite datoteko popravkov..."
-
 #. Resource IDs: (276)
 msgid "Select revision range"
 msgstr "Izberite obseg revizije"
@@ -7977,10 +7177,6 @@ msgstr "Izberite začetno revizijo"
 #. Resource IDs: (79)
 msgid "Select text editor application"
 msgstr "Izberite urejevalnik besedila"
-
-#. Resource IDs: (595)
-msgid "Select the URL from which to reintegrate"
-msgstr "Izberite izvorni URL naslov za reintegracijo"
 
 #. Resource IDs: (595)
 msgid "Select the URLs for the tree merge"
@@ -7997,10 +7193,6 @@ msgid ""
 msgstr ""
 "Izberi cel dokument\n"
 "Izberi vse"
-
-#. Resource IDs: (65535)
-msgid "Select the language this project is using. This settings affects the spell checker used for commit messages."
-msgstr "Izberite jezik projekta. Ta nastavitev vpliva na preverjanje jezika v sporočilih."
 
 #. Resource IDs: (595)
 msgid "Select the merge options"
@@ -8045,11 +7237,11 @@ msgstr "Nastavi datume datotek na \"&čas zadnje objave\""
 #. Resource IDs: (127)
 #, c-format
 msgid ""
-"Set property '%1!S!' on\r\n"
-"%2!s!"
+"Set property '%s' on\r\n"
+"%s"
 msgstr ""
-"Nastavi lastnost '%1!S!' na\r\n"
-"%2!s!"
+"Nastavi lastnost '%s' na\r\n"
+"%s"
 
 #. Resource IDs: (13)
 msgid "Setting properties..."
@@ -8135,6 +7327,10 @@ msgstr "Pokaži &dnevnik..."
 msgid "Show &overlays and context menu only in explorer"
 msgstr "&Prekrivanje ikon in kontekstni meni pokaži samo v Raziskovalcu"
 
+#. Resource IDs: (1265)
+msgid "Show &properties"
+msgstr "Pokaži &lastnosti"
+
 #. Resource IDs: (1073)
 msgid "Show &unversioned files"
 msgstr "Pokaži datoteke &brez različic"
@@ -8146,10 +7342,6 @@ msgstr "Pokaži nad trakom"
 #. Resource IDs: (1069)
 msgid "Show Below the Ribbon"
 msgstr "Pokaži pod trakom"
-
-#. Resource IDs: (1542)
-msgid "Show Branch L&og"
-msgstr "Prikaz &dnevnika veje"
 
 #. Resource IDs: (1065)
 msgid "Show Fewer Buttons"
@@ -8216,14 +7408,22 @@ msgid "Show excluded folders as normal"
 msgstr "Prikaži izločene mape kot navadne"
 
 #. Resource IDs: (1480)
-msgid "Show externals from &different repositories"
-msgstr "Prikaži zunanje povezave iz &drugih skladišč"
+msgid "Show externals from different repositories"
+msgstr "Prikaži zunanje povezave iz drugih skladišč"
 
 #. Resource IDs: (16656)
 msgid "Show f&ull menus after a short delay"
 msgstr "Po krajšem časovnem &zamiku pokaži polne menije"
 
-#. Resource IDs: (1034, 1037)
+#. Resource IDs: (1264)
+msgid "Show i&gnored files"
+msgstr "Pokaži &prezrte datoteke"
+
+#. Resource IDs: (1480)
+msgid "Show items in externals"
+msgstr "Prikaži elemente med zunanjimi"
+
+#. Resource IDs: (1037)
 msgid "Show l&og"
 msgstr "P&okaži dnevnik"
 
@@ -8231,17 +7431,9 @@ msgstr "P&okaži dnevnik"
 msgid "Show linenumber&s"
 msgstr "Pokaži &številke vrstic"
 
-#. Resource IDs: (1037)
-msgid "Show lo&g"
-msgstr "Pokaži &dnevnik"
-
 #. Resource IDs: (2051)
 msgid "Show oldest node at top"
 msgstr "Najstarejše vozlišče prikaži na vrhu"
-
-#. Resource IDs: (1229)
-msgid "Show only a&ffected paths"
-msgstr "Prik&aži samo popravljene poti"
 
 #. Resource IDs: (2052)
 msgid "Show only the changed parts of the path name. Replace unchanged elements with dots."
@@ -8279,6 +7471,14 @@ msgstr ""
 "Pokaži ali skrij orodno vrstico\n"
 "Preklopi orodno vrstico"
 
+#. Resource IDs: (1432)
+msgid "Show overlay for ignored items"
+msgstr "Pokaži prekrivne ikone za prezrte elemente"
+
+#. Resource IDs: (1462)
+msgid "Show overlay for unversioned items"
+msgstr "Pokaži prekrivne ikone za elemente brez različic"
+
 #. Resource IDs: (102)
 msgid "Show revision properties"
 msgstr "Pokaži lastnosti revizije"
@@ -8303,19 +7503,27 @@ msgstr "Pokaži statistiko za izbran predpomnilnik"
 msgid "Show tags on the copy source, not as separate nodes"
 msgstr "Prikaži oznake na viru kopiranja, ne kot ločena vozlišča"
 
+#. Resource IDs: (1209)
+msgid "Show un&modified files"
+msgstr "Pokaži &nespremenjene datoteke"
+
+#. Resource IDs: (1073)
+msgid "Show un&versioned files"
+msgstr "Pokaži datoteke &brez različic"
+
 #. Resource IDs: (198)
 msgid "Show/Hide"
 msgstr "Prikaži/Skrij"
-
-#. Resource IDs: (115)
-#, c-format
-msgid "Showing %1!ld! revision(s), from revision %2!ld! to revision %3!ld! - %4!ld! revision(s) selected, showing %5!ld! changed paths"
-msgstr "Prikaz %1!ld! različic, od različice %2!ld! do različice %3!ld! - %4!ld! izbranih različic, prikaz %5!ld! spremenjenih poti"
 
 #. Resource IDs: (272)
 #, c-format
 msgid "Showing %ld nodes"
 msgstr "Prikaz %ld vozlišč"
+
+#. Resource IDs: (115)
+#, c-format
+msgid "Showing %ld revision(s), from revision %ld to revision %ld - %ld revision(s) selected."
+msgstr "Prikaz %ld različic, od različice %ld do različice %ld - %ld izbranih različic."
 
 #. Resource IDs: (272)
 #, c-format
@@ -8328,7 +7536,7 @@ msgstr "Pokaže grafičen prikaz kopij/oznak/vej"
 
 #. Resource IDs: (13)
 msgid "Shows all files which were changed since the last update, locally and in the repository"
-msgstr "Pokaže vse datoteke, spremenjene od zadnje posodobitve, lokalno in v skladišču"
+msgstr "Pokaže vse datoteke, spremenjene od zadnje posodobitve, krajevno in v skladišču"
 
 #. Resource IDs: (2050)
 msgid "Shows all revisions where changes were made to this item"
@@ -8370,10 +7578,6 @@ msgstr "Velikost in stanje"
 msgid "Size of all cached text information"
 msgstr "Velikost besedila v predpomnilniku"
 
-#. Resource IDs: (320)
-msgid "Size of log messages"
-msgstr "Velikost dnevniških zapisov"
-
 #. Resource IDs: (339)
 msgid "Size of the cache file on disk"
 msgstr "Velikost predpomnilnika na disku"
@@ -8390,10 +7594,6 @@ msgstr "Preskočeno"
 msgid "Skipped missing target"
 msgstr "Preskočen manjkajoči cilj"
 
-#. Resource IDs: (1070)
-msgid "Slide"
-msgstr "Slide"
-
 #. Resource IDs: (1126)
 msgid "Sort by commit count"
 msgstr "Razvrščanje po številu objav"
@@ -8406,21 +7606,9 @@ msgstr "Izvor Levo:"
 msgid "Source Right:"
 msgstr "Izvor Desno:"
 
-#. Resource IDs: (1552)
-msgid "Source URL:"
-msgstr "Naslov vira:"
-
 #. Resource IDs: (196)
 msgid "Specifies how many items you want to keep in the most recent log messages dialog."
 msgstr "Določa, koliko zadnjih sporočil dnevniških zapisov želite ohraniti."
-
-#. Resource IDs: (1572)
-msgid "Specify how the commit message should be built from the entered bug-ID. Use the placeholder %BUGID% for the real bug-ID. If you leave these settings empty, TortoiseSVN will use the regular expressions instead."
-msgstr "Določite podlogo za sporočilo, sestavljeno glede na vpisan ID hrošča. Uporabite vstavek %BUGID% za ID hrošča. V primeru, da pustite nastavitev prazno, bo TortoiseSVN uporabi regularni izraz."
-
-#. Resource IDs: (1305)
-msgid "Specify the URL to access the issue tracker. Use %BUGID% as a placeholder for the real issue number."
-msgstr "Vpišite povezavo do sledilnika hroščev. Uporabite %BUGID% za predlogo ID-ja hrošča."
 
 #. Resource IDs: (79)
 msgid ""
@@ -8536,34 +7724,6 @@ msgstr "Stefan Küng, Lübbe Onken"
 msgid "Stripes"
 msgstr "Proge"
 
-#. Resource IDs: (117)
-msgid ""
-"Sub-string filter:\r\n"
-"* Specify one or more strings, separated by spaces. All sub-strings must match.\r\n"
-"* Put a - in front of a sub-string to exclude revisions that contain this sub-string.\r\n"
-"* Enclose strings that contain spaces etc. with \".\r\n"
-"* Put a ! at the beginning of the line to invert the whole filter condition.\r\n"
-"\r\n"
-"Examples:\r\n"
-"myname  2008    : my commits of 2008\r\n"
-".h  -.cpp              : commits that changed headers but no implementations\r\n"
-"\" \"                        : commits with spaces (ex. when searching in paths only)\r\n"
-"-\"\"show all\"\"        : commits that don't contain the string '\"show all\"'\r\n"
-"!myname  .cpp    : everything but my commits to .cpp files"
-msgstr ""
-"Filter nizov:\r\n"
-"* Potrebno je podati eno ali več besed, ločenih s presledki. V vsebini morajo obstajati vse naštete besede.\r\n"
-"* Znak - (minus) pred besedo izloči revizije, ki jo vsebujejo.\r\n"
-"* Besedne zveze s presledki naj bodo obdane z narekovaji - \".\r\n"
-"* Znak ! na začetku označuje obrnjen pogoj celotnega filtra.\r\n"
-"\r\n"
-"Primeri:\r\n"
-"mojeime  2008    : moje objave iz leta 2008\r\n"
-".h  -.cpp              : objave, ki so spremenile glavo knjižnice, ne pa vsebine\r\n"
-"\" \"                        : objave s presledki (npr. pri iskanju po poteh do datotek)\r\n"
-"-\"\"prikaži vse\"\"        : objave, ki ne vsebujejo niza '\"prikaži vse\"'\r\n"
-"!mojeime  .cpp    : vse, razen mojih objav .cpp datotek"
-
 #. Resource IDs: (65535)
 msgid "Subversion"
 msgstr "Subversion"
@@ -8586,11 +7746,11 @@ msgid ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion encountered the problem in:\n"
-"file %1!s!, line %2!ld!\n"
-"expression = %3!s!"
+"file %s, line %ld\n"
+"expression = %s"
 msgstr ""
 "Prišlo je do resnega problema pri uporabi programa.\n"
-"Prosimo, vzemite si čas za objavo problema v poštni listi\n"
+"Prosimo, vzemite si čas za objavo problema v mailing listi\n"
 "(users@subversion.apache.org)\n"
 "s čim več podatki o tem, kako je do napake prišlo oz.\n"
 "katero operacijo ste želeli izvesti.\n"
@@ -8600,8 +7760,8 @@ msgstr ""
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
 "Subversion je zaznal napako v:\n"
-"datoteka %1!s!, vrstica %2!ld!\n"
-"izraz = %3!s!"
+"datoteka %s, vrstica %ld\n"
+"koda = %s"
 
 #. Resource IDs: (84)
 msgid ""
@@ -8653,8 +7813,8 @@ msgid "Subversion server file:"
 msgstr "Datoteka strežnika Subversion:"
 
 #. Resource IDs: (1232)
-msgid "Swit&ch working copy to new branch/tag"
-msgstr "Preklopi de&lovno kopijo na drugo vejo/oznako"
+msgid "Sw&itch working copy to new branch/tag"
+msgstr "Preklop&i delovno kopijo na drugo vejo/oznako"
 
 #. Resource IDs: (229)
 #, c-format
@@ -8664,10 +7824,6 @@ msgstr "Preklopi %s v %s, revizija %s"
 #. Resource IDs: (78)
 msgid "Switch - TortoiseSVN"
 msgstr "Preklopi - TortoiseSVN"
-
-#. Resource IDs: (1377)
-msgid "Switch Depth"
-msgstr "Preklopi globino"
 
 #. Resource IDs: (32811)
 msgid "Switch Left<->Right"
@@ -8756,10 +7912,6 @@ msgstr "Velikost tabulatorja:"
 #. Resource IDs: (65535)
 msgid "Tag nodes"
 msgstr "Označi vozlišča"
-
-#. Resource IDs: (281)
-msgid "Tagged"
-msgstr "Oznake"
 
 #. Resource IDs: (79)
 #, c-format
@@ -8966,16 +8118,6 @@ msgstr "Pri zadnjem spajanju je prišlo do poizkusa spremembe datoteke '%s'"
 
 #. Resource IDs: (608)
 #, c-format
-msgid "The last merge operation tried to replace the directory '%s'"
-msgstr "Zadnja operacija spajanja je skušala nadomestiti mapo '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last merge operation tried to replace the file '%s'"
-msgstr "Zadnja operacija spajanja je skušala nadomestiti datoteko '%s'"
-
-#. Resource IDs: (608)
-#, c-format
 msgid "The last switch operation tried to add the directory '%s'"
 msgstr "Zadnja operacija preklopa je poizkusila dodati mapo '%s'"
 
@@ -9003,16 +8145,6 @@ msgstr "Zadnja operacija preklopa je poizkusila spremeniti mapo '%s'"
 #, c-format
 msgid "The last switch operation tried to modify the file '%s'"
 msgstr "Pri zadnji operaciji priklopa je prišlo do poizkusa spremembe datoteke '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last switch operation tried to replace the directory '%s'"
-msgstr "Zadnja operacija preklopa je skušala nadomestiti mapo '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last switch operation tried to replace the file '%s'"
-msgstr "Zadnja operacija preklopa je skušala nadomestiti datoteko '%s'"
 
 #. Resource IDs: (607)
 #, c-format
@@ -9043,16 +8175,6 @@ msgstr "Zadnja operacija posodobitve je poizkusila spremeniti mapo '%s'"
 #, c-format
 msgid "The last update operation tried to modify the file '%s'"
 msgstr "Zadnja operacija posodobitve je poizkusila spremeniti datoteko '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last update operation tried to replace the directory '%s'"
-msgstr "Zadnja operacija posodobitve je skušala nadomestiti mapo '%s'"
-
-#. Resource IDs: (608)
-#, c-format
-msgid "The last update operation tried to replace the file '%s'"
-msgstr "Zadnja operacija posodobitve je skušala nadomestiti datoteko '%s'"
 
 #. Resource IDs: (63)
 #, c-format
@@ -9113,15 +8235,15 @@ msgstr ""
 #, c-format
 msgid ""
 "The patch seems outdated! The file line\n"
-"%1!s!\n"
+"%s\n"
 "and the patchline\n"
-"%2!s!\n"
+"%s\n"
 "do not match!"
 msgstr ""
 "Popravek se zdi zastarel! Vrstica datoteke\n"
-"%1!s!\n"
+"%s\n"
 "in vrstica popravka\n"
-"%2!s!\n"
+"%s\n"
 "se ne ujemata!"
 
 #. Resource IDs: (88)
@@ -9145,39 +8267,22 @@ msgstr ""
 #, c-format
 msgid ""
 "The path\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "in the patchfile does not exist.\n"
 "TortoiseMerge found the relative path\n"
-"<i>%2!s!</i>\n"
+"<i>%s</i>\n"
 "which seems to match the directory you're applying the patch.\n"
 "\n"
 "Do you want to use the suggested path? Answering 'no' will quit TortoiseMerge."
 msgstr ""
 "Pot\n"
-"<i>%1!s!</i>\n"
+"<i>%s</i>\n"
 "v datoteki popravkov ne obstaja.\n"
 "TortoiseMerge je našel relativno pot\n"
-"<i>%2!s!</i>\n"
+"<i>%s</i>,\n"
 "za katero se zdi, da ustreza poti, za katero uporabljate popravek datotek.\n"
 "\n"
 "Ali želite uporabiti predlagano pot? Če odgovorite 'ne', se bo aplikacija TortoiseMerge zaključila."
-
-#. Resource IDs: (314)
-#, c-format
-msgid ""
-"The path\n"
-"<i>%1!s!</i>\n"
-"seems not to match the paths in the patchfile.\n"
-"But TortoiseMerge found the path\n"
-"<i>%2!s!</i>\n"
-"matches it better. Do you want to use the suggested path instead?"
-msgstr ""
-"Pot\n"
-"<i>%1!s!</i>\n"
-"se ne ujema s potmi v datoteki popravkov.\n"
-"Vendar je aplikacija TortoiseMerge našla pot\n"
-"<i>%2!s!</i>\n"
-"ki se zdi bolj primerna. Ali ste prepričani, da želite raje uporabiti predlagano pot?"
 
 #. Resource IDs: (314)
 #, c-format
@@ -9192,21 +8297,26 @@ msgstr ""
 "v datoteki popravkov ne obstaja.\n"
 "Aplikacija TortoiseMerge je poskušala uporabiti datoteko popravkov z brisanjem predpon, vendar ni našla ustreznih poti."
 
-#. Resource IDs: (84)
+#. Resource IDs: (314)
+#, c-format
 msgid ""
-"The regular expression is invalid!\n"
-"Please enter a valid regular expression."
+"The path\n"
+"<i>%s</i>\n"
+"seems not to match the paths in the patchfile.\n"
+"But TortoiseMerge found the path\n"
+"<i>%s</i>\n"
+"matches it better. Do you want to use the suggested path instead?"
 msgstr ""
-"Regularni izraz ni veljaven!\n"
-"Prosimo, vpišite veljaven izraz."
+"Pot\n"
+"<i>%s</i>\n"
+"se ne ujema s potmi v datoteki popravkov.\n"
+"Vendar je aplikacija TortoiseMerge našla pot\n"
+"<i>%s</i>,\n"
+"ki se zdi bolj primerna. Ali ste prepričani, da želite raje uporabiti predlagano pot?"
 
 #. Resource IDs: (80)
-msgid ""
-"The repository was successfully created.\n"
-"Do you want to create the default folder structure (trunk/branches/tags) now?"
-msgstr ""
-"Zbirka je bila uspešno ustvarjna.\n"
-"Ali želite ustvariti tudi privzeto strukturo map (trunk/branches/tags)?"
+msgid "The repository was successfully created."
+msgstr "Skladišče je bilo uspešno ustvarjeno."
 
 #. Resource IDs: (78)
 msgid ""
@@ -9252,18 +8362,6 @@ msgstr ""
 "%s\n"
 "ni prazna!\n"
 "Ali ste prepričani, da želite prevzeti/izvoziti datoteke v to mapo?"
-
-#. Resource IDs: (279)
-msgid "The target working copy has local modifications!"
-msgstr "Ciljna delovna kopija vsebuje lokalne spremembe!"
-
-#. Resource IDs: (279)
-msgid ""
-"The target working copy has local modifications.\n"
-"Do you want to merge anyway?"
-msgstr ""
-"Ciljna delovna kopija vsebuje lokalne spremembe!\n"
-"Ali jih vseeno želite združiti?"
 
 #. Resource IDs: (195)
 msgid ""
@@ -9377,10 +8475,6 @@ msgstr "Ničesar ni mogoče odkleniti. Nobena datoteka v tej delovni kopiji ni z
 msgid "Thesaurus"
 msgstr "Slovar sopomenk"
 
-#. Resource IDs: (3887)
-msgid "These are more recently saved than the currently open documents and contain changes that were made before the application closed."
-msgstr "Obstajajo novejši dokumenti od trenutno odprte različice. Ti vsebujejo spremembe narejene pred zaprtjem aplikacije."
-
 #. Resource IDs: (83)
 msgid ""
 "This is not a valid URL.\n"
@@ -9411,11 +8505,11 @@ msgstr "Ta metoda velja za primer, ko ste naredili nekaj objav na določeni veji
 msgid "This method covers the case when you want to merge the differences of two different branches into your working copy."
 msgstr "Ta metoda se uporablja v primeru, ko želite spojiti razlike dveh vej v delovno kopijo."
 
-#. Resource IDs: (1531)
+#. Resource IDs: (65535)
 msgid "This product includes software developed by CollabNet (http://www.Collab.Net/)"
 msgstr "Izdelek vsebuje programsko opremo, ki jo je razvilo podjetje CollabNet (http://www.Collab.Net/)"
 
-#. Resource IDs: (1532)
+#. Resource IDs: (65535)
 msgid "This product includes software developed by the OpenSSL Project for use in the OpenSSL Toolkit (http://www.openssl.org/)"
 msgstr "Izdelek vsebuje programsko opremo, ki jo je razvil projekt OpenSSL za uporabo v paketu orodij OpenSSL (http://www.openssl.org/)"
 
@@ -9441,13 +8535,13 @@ msgstr "Ta lastnost ne sme imeti več vrstic. Dovoljena je ena sama."
 msgid "This will delete the record of commands you've used in this application and restore the default set of visible commands to the menus and toolbars. It will not undo any explicit customizations. Are you sure you want to do this?"
 msgstr "Ta akcija izbriše vse zapise o uporabljenih ukazih v tej aplikaciji in ponastavi privzet nabor vidnih ukazov v menijih in orodnih vrsticah. Ne izbriše posebnih prilagoditev. Ali zares želite storiti to?"
 
+#. Resource IDs: (16924)
+msgid "Tile &Horizontally"
+msgstr "Razpostavi &vodoravno"
+
 #. Resource IDs: (16928)
 msgid "Tile &Vertically"
 msgstr "Razpostavi &navpično"
-
-#. Resource IDs: (16924)
-msgid "Tile Hori&zontally"
-msgstr "Razpostavi hori&zontalno"
 
 #. Resource IDs: (65535)
 msgid "Timeouts"
@@ -9461,11 +8555,11 @@ msgid ""
 "Otherwise, TortoiseSVN must do a non-recursive commit\n"
 "which does not allow directory deletion."
 msgstr ""
-"SDa rekurzivno objavite in da se tej napaki izognete,\n"
-"poskrbite za to, da so vsi podrejeni elementi označene\n"
-" mape v pogovornem oknu objave prav tako označeni.\n"
-"Sicer bo  TortoiseSVN mora objaviti nerekurzivno, zaradi\n"
-"česar map ni mogoče brisati."
+"Za rekurzivno objavo in izogib tej napaki\n"
+"zagotovite, da so vsi podrejeni elementi označene mape\n"
+"prav tako označeni v pogovornem oknu objave.\n"
+"Sicer mora TortoiseSVN opraviti nerekurzivno objavo,\n"
+"kar ne omogoča brisanja map."
 
 #. Resource IDs: (284)
 msgid ""
@@ -9478,6 +8572,10 @@ msgstr ""
 #. Resource IDs: (1201, 65535)
 msgid "To:"
 msgstr "Do:"
+
+#. Resource IDs: (1495)
+msgid "To: (end URL and revision of the range to merge)"
+msgstr "Do: (končni URL in revizija obsega za spajanje)"
 
 #. Resource IDs: (3633)
 msgid ""
@@ -9615,10 +8713,6 @@ msgstr ""
 "%s\r\n"
 "zlib %s"
 
-#. Resource IDs: (281)
-msgid "TortoiseSVN auto commit: changed externals to fixed revision."
-msgstr "TortoiseSVN avtomatsko pošiljanje: spremenjene zunanje povezave v fiksno revizijo."
-
 #. Resource IDs: (98)
 #, c-format
 msgid ""
@@ -9707,8 +8801,8 @@ msgid "URL of Subversion items"
 msgstr "URL elementov Subversion"
 
 #. Resource IDs: (1491)
-msgid "URL to merge &from"
-msgstr "URL, &od koder se spaja"
+msgid "URL to merge from"
+msgstr "Izvorni naslov URL za spajanje"
 
 #. Resource IDs: (144, 11023, 65535)
 msgid "URL:"
@@ -9717,14 +8811,6 @@ msgstr "URL:"
 #. Resource IDs: (75)
 msgid "URL: "
 msgstr "URL: "
-
-#. Resource IDs: (1209)
-msgid "Un&modified"
-msgstr "Nespre&menjeno"
-
-#. Resource IDs: (1073)
-msgid "Un&versioned"
-msgstr "&Brez različice"
 
 #. Resource IDs: (220)
 #, c-format
@@ -9807,10 +8893,6 @@ msgstr ""
 msgid "Unexpected file format."
 msgstr "Nepričakovana vrsta datoteke."
 
-#. Resource IDs: (1070)
-msgid "Unfold"
-msgstr "Razpri"
-
 #. Resource IDs: (3850)
 msgid ""
 "Unformatted Text\n"
@@ -9827,20 +8909,16 @@ msgstr "Poenotene &razlike revizij HEAD"
 #, c-format
 msgid ""
 "Unknown certificate issuer.\n"
-"  Fingerprint: %1!s!\n"
-"  Distinguished name: %2!s!"
+"  Fingerprint: %s\n"
+"  Distinguished name: %s"
 msgstr ""
 "Izdajatelj certifikata neznan.\n"
-"  Prstni odtis: %1!s!\n"
-"  Razločeno ime: %2!s!"
+"  Prstni odtis: %s\n"
+"  Razločeno ime: %s"
 
 #. Resource IDs: (20)
 msgid "Unknown depth"
 msgstr "Neznana globina"
-
-#. Resource IDs: (106)
-msgid "Unknown failure in SVN::List"
-msgstr "Neznana napaka v SVN::List"
 
 #. Resource IDs: (221, 230, 242)
 msgid "Unlock"
@@ -9874,26 +8952,14 @@ msgstr ""
 msgid "Unversion"
 msgstr "Brez različic"
 
-#. Resource IDs: (14)
-msgid "Unversion and add to &ignore list"
-msgstr "Odstrani iz skladišča in dodaj na seznam prezrt&ih elementov"
-
-#. Resource IDs: (1462)
-msgid "Unversioned"
-msgstr "Brez različice"
-
 #. Resource IDs: (1313)
 msgid "Unversioned files mark parent folder as modified"
 msgstr "V primeru datotek brez različic označi nadrejeno mapo kot spremenjeno."
 
-#. Resource IDs: (265)
-msgid "Unversioned obstruction"
-msgstr "Obstrukcija brez različice"
-
 #. Resource IDs: (286)
 #, c-format
-msgid "Unversioning %1!s!"
-msgstr "Neverzioniranje %1!s!"
+msgid "Unversioning %s"
+msgstr "Neverzioniranje %s"
 
 #. Resource IDs: (106)
 msgid "Up one folder"
@@ -9944,15 +9010,6 @@ msgstr "Posodabljanje in ponoven poskus zaklepa..."
 msgid "Updating log cache"
 msgstr "Posodabljanje predpomnilnika dnevnika"
 
-#. Resource IDs: (15)
-msgid "Upgrade working copy"
-msgstr "Posodobitev delovne kopije"
-
-#. Resource IDs: (99)
-#, c-format
-msgid "Upgrading \"%1!s!\""
-msgstr "Nadgrajujem \"%1!s!\""
-
 #. Resource IDs: (16530)
 msgid "Use &Default Image: "
 msgstr "Uporabi &privzeto sliko:"
@@ -9982,10 +9039,6 @@ msgstr ""
 "Uporabite '*' kot nadomestni znak za vse druge, ko določate izjemo.\r\n"
 "Za ločitev več izjem uporabite vejice (',').\r\n"
 "Primer: *.mojlan.si, *.podjetje.si"
-
-#. Resource IDs: (1538)
-msgid "Use Aero dialogs"
-msgstr "Prikaz Aero dialogov"
 
 #. Resource IDs: (1230)
 msgid "Use URL of &WC as the default \"From:\" URL"
@@ -10043,6 +9096,10 @@ msgstr "Uporabi oba dela besedila (tega zadnjega)"
 msgid "Use left file"
 msgstr "Uporabi levo datoteko"
 
+#. Resource IDs: (3)
+msgid "Use local"
+msgstr "Uporabi krajevno"
+
 #. Resource IDs: (1432)
 msgid "Use recycle bin when reverting"
 msgstr "Uporabi koš pri ukazu Povrni"
@@ -10050,6 +9107,10 @@ msgstr "Uporabi koš pri ukazu Povrni"
 #. Resource IDs: (116)
 msgid "Use regular expression"
 msgstr "Uporabi regularni izraz"
+
+#. Resource IDs: (4)
+msgid "Use repository"
+msgstr "Uporabi skladišče"
 
 #. Resource IDs: (1066)
 msgid "Use stri&keout for removed lines"
@@ -10229,16 +9290,6 @@ msgid "Visual Studio.NET 200&5"
 msgstr "Visual Studio.NET 200&5"
 
 #. Resource IDs: (65535)
-msgid ""
-"WARNING:\r\n"
-"Only change these settings if you are absolutely sure what you are doing!\r\n"
-"To set the values to their default, delete the value text."
-msgstr ""
-"OPOZORILO:\r\n"
-"Nastavitve spremenite samo, če  ste prepričani, da poznate posledica!\r\n"
-"Za  ppovrnitev privzete nastavitve, izbrišite vrednost polja."
-
-#. Resource IDs: (65535)
 msgid "WC node"
 msgstr "WC vozlišče"
 
@@ -10314,7 +9365,7 @@ msgstr "Windows &2000"
 msgid "With URL:"
 msgstr "Z URL:"
 
-#. Resource IDs: (158, 1490, 1493, 1496)
+#. Resource IDs: (158, 65535)
 msgid "Working Copy"
 msgstr "Delovna kopija"
 
@@ -10334,11 +9385,6 @@ msgid ""
 msgstr ""
 "Delovna kopija prestavljena na\n"
 "%s"
-
-#. Resource IDs: (277)
-#, c-format
-msgid "Working copy: %s\n"
-msgstr "Delovna kopija: %s\n"
 
 #. Resource IDs: (73)
 msgid "Yes"
@@ -10372,9 +9418,9 @@ msgid ""
 "Do you really want to do that?"
 msgstr ""
 "Do skladišča na omrežno deljenem pogonu želite\n"
-"dostop prek protokola file://\n"
+"dostopati preko protokola file://\n"
 "To lahko pripelje do hude okvare skladišča!\n"
-"Ali res želite to storiti?"
+"Ali želite resnično to storiti?"
 
 #. Resource IDs: (105)
 msgid ""
@@ -10385,14 +9431,6 @@ msgstr ""
 "Premakniti želite mapo osnovnega debla.\n"
 "Ali ste popolnoma prepričani, da želite\n"
 "premakniti mapo?"
-
-#. Resource IDs: (65535)
-msgid ""
-"You can disable specific Overlay handlers here.\n"
-"Disabled handlers won't use up an overlay slot and give other shell extensions a chance to show their overlays."
-msgstr ""
-"Tukaj lahko onemogočite posamezne načine prekrivanje ikon.\n"
-"Onemogočeni načini prekrivanja ne bodo zasedali mest v lupini (shell-u), ki so na voljo za razširitve. S tem bodo lahko tudi ostale razširitve lupine prikazovale svoje ikone."
 
 #. Resource IDs: (1001)
 #, c-format
@@ -10477,18 +9515,18 @@ msgstr "Izbrati morate sliko!"
 #, c-format
 msgid ""
 "You're trying to add the item\n"
-"'%1!s!',\n"
+"'%s',\n"
 "but the item\n"
-"'%2!s!'\n"
+"'%s'\n"
 "already exists.\n"
 "\n"
 "It seems the item got renamed outside Subversion but only with case changes.\n"
 "Do you really want to add it?"
 msgstr ""
 "Poizkušate dodati element\n"
-"'%1!s!',\n"
+"'%s',\n"
 "vendar\n"
-"'%2!s!'\n"
+"'%s'\n"
 "že obstaja.\n"
 "\n"
 "Očitno je bil preimenovan zunaj Subversion okolja.\n"
@@ -10536,12 +9574,12 @@ msgstr ""
 #, c-format
 msgid ""
 "Your working copy contains modifications.\n"
-"Lowest revision in working copy: %1!ld!\n"
-"Path: %2!s!"
+"Lowest revision in working copy: %ld\n"
+"Path: %s"
 msgstr ""
 "Delovna kopija vsebuje spremembe.\n"
-"Najnižja revizija delovne kopije: %1!ld!\n"
-"Pot: %2!s!"
+"Najnižja revizija delovne kopije: %ld\n"
+"Pot: %s"
 
 #. Resource IDs: (88)
 msgid ""
@@ -10549,9 +9587,9 @@ msgid ""
 "Note: updating to another revision won't lose those modifications so the working copy\n"
 "won't look exactly as it was in the revision you're updating to!"
 msgstr ""
-"Vaša delovna kopija ima lokalne spremembe!\n"
+"Vaša delovna kopija ima krajevne spremembe!\n"
 "Opomba: s posodobitvijo na drugo revizijo te spremembe ne bo izgubljene, tako da delovna kopija\n"
-"ne bo videti natanko tako, kot v reviziji, na katero posodabljate!"
+"ne bo izgledala natanko tako, kot v reviziji, na katero posodabljate!"
 
 #. Resource IDs: (89)
 msgid ""
@@ -10559,7 +9597,7 @@ msgid ""
 "If you branch/tag from the HEAD revision, your local changes won't\n"
 "show up in the branch/tag!"
 msgstr ""
-"Vaša delovna kopija vsebuje lokalne spremembe.\n"
+"Vaša delovna kopija vsebuje krajevne spremembe.\n"
 "Če naredite vejo/oznako iz revizije HEAD, krajevne spremembe\n"
 "ne bodo vidne v veji/oznaki!"
 
@@ -10636,10 +9674,6 @@ msgstr "Prilagodi po višini"
 msgid "Zoom to fit in width"
 msgstr "Prilagodi po širini"
 
-#. Resource IDs: (1070)
-msgid "[Default]"
-msgstr "[Privzeto]"
-
 #. Resource IDs: (1001)
 msgid "[Unassigned]"
 msgstr "[Unassigned]"
@@ -10674,8 +9708,8 @@ msgstr "dodane datoteke"
 
 #. Resource IDs: (272)
 #, c-format
-msgid "alias (%1!s!): %2!s!"
-msgstr "vzdevek (%1!s!): %2!s!"
+msgid "alias (%s): %s"
+msgstr "vzdevek (%s): %s"
 
 #. Resource IDs: (272)
 #, c-format
@@ -10705,10 +9739,6 @@ msgid ""
 msgstr ""
 "če je skladišče dostopno, ga uporabi,\n"
 "v nasprotnem primeru uporabi predpomnilnik"
-
-#. Resource IDs: (278)
-msgid "at this revision"
-msgstr "na reviziji"
 
 #. Resource IDs: (245)
 msgid "author"
@@ -10804,10 +9834,6 @@ msgstr "skupno število sprememb:"
 msgid "commits"
 msgstr "objave"
 
-#. Resource IDs: (277)
-msgid "committed revision"
-msgstr "objavljena revizija"
-
 #. Resource IDs: (11)
 msgid "conflicted"
 msgstr "sporno"
@@ -10820,10 +9846,10 @@ msgstr "povezava:"
 #, c-format
 msgid ""
 "copied from\r\n"
-"%1!s! - revision %2!ld!"
+"%s - revision %ld"
 msgstr ""
 "kopirano iz\r\n"
-"%1!s! - revizija %2!ld!"
+"%s revizije %ld"
 
 #. Resource IDs: (65535)
 msgid "copied:"
@@ -10902,10 +9928,6 @@ msgstr "ni pod nadzorom."
 msgid "item kept locally"
 msgstr "obdržana lokalna kopija elementa"
 
-#. Resource IDs: (1562)
-msgid "keep the file lists in English"
-msgstr "ohrani seznam datotek v angleščini"
-
 #. Resource IDs: (65535)
 msgid "last head update: "
 msgstr "zadnja posodobitev revizije HEAD"
@@ -10926,21 +9948,9 @@ msgstr "zaklenjeno"
 msgid "locked:"
 msgstr "zaklenjeno:"
 
-#. Resource IDs: (1539)
-msgid "log text &editor"
-msgstr "urejevalnik dn&evnika"
-
 #. Resource IDs: (65535)
 msgid "max revision: "
 msgstr "najvišja revizija:"
-
-#. Resource IDs: (278)
-msgid "max. at this revision"
-msgstr "maks. trenutne revizije"
-
-#. Resource IDs: (278)
-msgid "max. committed revision"
-msgstr "maks. objavljene revizije"
 
 #. Resource IDs: (11, 65535)
 msgid "merged"
@@ -10949,14 +9959,6 @@ msgstr "spojeno"
 #. Resource IDs: (65535)
 msgid "merges total: "
 msgstr "število spajanj:"
-
-#. Resource IDs: (278)
-msgid "min. at this revision"
-msgstr "min. trenutne revizije"
-
-#. Resource IDs: (278)
-msgid "min. committed revision"
-msgstr "min. objavljene revizije"
 
 #. Resource IDs: (10)
 msgid "missing"
@@ -11066,21 +10068,17 @@ msgstr "dedovanje upoštevano"
 
 #. Resource IDs: (326)
 #, c-format
-msgid "revision %1!s!-%2!s!, revision %3!s!-%4!s!"
-msgstr "revizija %1!s!-%2!s!, revizija %3!s!-%4!s!"
+msgid "revision %s-%s, revision %s-%s"
+msgstr "revizija %s-%s, revizija %s-%s"
 
 #. Resource IDs: (65535)
 msgid "revision count: "
 msgstr "število revizij:"
 
-#. Resource IDs: (626)
-msgid "revision has already been merged"
-msgstr "revizija je bila že spojena"
-
 #. Resource IDs: (326)
 #, c-format
-msgid "revisions %1!s!-%2!s!, %3!s!"
-msgstr "revizije %1!s!-%2!s!, %3!s!"
+msgid "revisions %s-%s, %s"
+msgstr "revizije %s-%s, %s"
 
 #. Resource IDs: (65535)
 msgid "revisions: "
@@ -11090,17 +10088,9 @@ msgstr "revizije:"
 msgid "root project"
 msgstr "izvorni projekt"
 
-#. Resource IDs: (169)
-msgid "scanning path:"
-msgstr "pot za skeniranje:"
-
 #. Resource IDs: (65535)
 msgid "skip ranges: "
 msgstr "luknje:"
-
-#. Resource IDs: (316)
-msgid "svn:eol-style"
-msgstr "svn:prelom-vrstic"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11109,10 +10099,6 @@ msgid ""
 msgstr ""
 "svn:eol-style\r\n"
 "Ena izmed možnosti: 'native', 'LF', 'CR' ali 'CRLF'."
-
-#. Resource IDs: (312)
-msgid "svn:executable"
-msgstr "svn:izvršljive-datoteke"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11123,10 +10109,6 @@ msgstr ""
 "svn:executable\r\n"
 "Če je prisotno, naredi datoteko izvršljivo. Te lastnosti ni mogoče nastaviti mapi.\r\n"
 "Nerekurziven poskus ne bo uspel in rekurziven poskus bo nastavil lastnost le na podrejene datoteke mape."
-
-#. Resource IDs: (318)
-msgid "svn:externals"
-msgstr "svn:zunanje"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11164,10 +10146,6 @@ msgstr ""
 "svn:ignore\r\n"
 "Vrstični seznam vzorcev prezrtih datotek."
 
-#. Resource IDs: (317)
-msgid "svn:keywords"
-msgstr "svn:ključne-besede"
-
 #. Resource IDs: (576)
 msgid ""
 "svn:keywords\r\n"
@@ -11200,10 +10178,6 @@ msgstr ""
 "Primer\r\n"
 "/trunk:123-125,129"
 
-#. Resource IDs: (314)
-msgid "svn:mime-type"
-msgstr "svn:mime-tip"
-
 #. Resource IDs: (576)
 msgid ""
 "svn:mime-type\r\n"
@@ -11215,10 +10189,6 @@ msgstr ""
 "Vrsta mime datoteke. Uporabljeno za odločanje o spajanju datoteke in načinu strežbe s strežnika Apache.\r\n"
 "Vrsta MIME, ki se začne s 'text/' (ali odsotna vrsta mime) se obravnava kot besedilo.\r\n"
 "Vse ostalo se obravnava kot dvojiška datoteka."
-
-#. Resource IDs: (313)
-msgid "svn:needs-lock"
-msgstr "svn:zahtevno-zaklepanje"
 
 #. Resource IDs: (576)
 msgid ""
@@ -11255,10 +10225,6 @@ msgstr "začasno nepovezan način"
 msgid "text [token count]: "
 msgstr "besedilo [število žetonov]"
 
-#. Resource IDs: (626)
-msgid "the working copy is at this revision"
-msgstr "delovno kopijo na je na reviziji"
-
 #. Resource IDs: (583)
 msgid "there are conflicting modifications."
 msgstr "obstajajo sporne spremembe."
@@ -11268,11 +10234,6 @@ msgstr "obstajajo sporne spremembe."
 msgid "to %1"
 msgstr "v %1"
 
-#. Resource IDs: (80, 284)
-#, c-format
-msgid "to %1!s!"
-msgstr "v %1!s!"
-
 #. Resource IDs: (80, 103, 284)
 #, c-format
 msgid "to %s"
@@ -11281,6 +10242,10 @@ msgstr "v %s"
 #. Resource IDs: (208, 264)
 msgid "tree conflict"
 msgstr "spor"
+
+#. Resource IDs: (65535)
+msgid "tree conflict:"
+msgstr "spor:"
 
 #. Resource IDs: (578)
 msgid ""
@@ -11319,14 +10284,6 @@ msgid ""
 msgstr ""
 "tsvn:logminsize\r\n"
 "Najmanjša velikost dnevniškega zapisa v številu znakov, da je objava dovoljena."
-
-#. Resource IDs: (579)
-msgid ""
-"tsvn:logrevregex\r\n"
-"A regular expression matching revision numbers in a log message"
-msgstr ""
-"tsvn:logrevregex\r\n"
-"Regularni izraz, ki ustreza številki revizije v sporočilu dnevnika."
 
 #. Resource IDs: (578)
 msgid ""
@@ -11398,10 +10355,6 @@ msgstr ""
 msgid "user revprops total: "
 msgstr "število uporabniških lastnosti"
 
-#. Resource IDs: (1583)
-msgid "uuid x6&4:"
-msgstr "uuid x6&4:"
-
 #. Resource IDs: (563)
 msgid "values are different"
 msgstr "vrednosti se razlikujeta"
@@ -11454,49 +10407,48 @@ msgstr "da"
 msgid "{BugTraq}"
 msgstr "{BugTraq}"
 
-#~ msgid "tree conflict:"
-#~ msgstr "spor:"
-#~ msgid "&Sat:"
-#~ msgstr "&Sat:"
-#~ msgid "&Save..."
-#~ msgstr "&Shrani..."
-#~ msgid "Bug-ID / &Issue-Nr:"
-#~ msgstr "&ID hrošča / Št. zadeve:"
-#~ msgid "The repository was successfully created."
-#~ msgstr "Skladišče je bilo uspešno ustvarjeno."
-#~ msgid "Show overlay for ignored items"
-#~ msgstr "Pokaži prekrivne ikone za prezrte elemente"
-#~ msgid "Show overlay for unversioned items"
-#~ msgstr "Pokaži prekrivne ikone za elemente brez različic"
-#~ msgid "&To URL: "
-#~ msgstr "&Na URL"
-#~ msgid "Author:                                    Stefan Kueng"
-#~ msgstr "Avtor:                        Stefan Kueng"
-#~ msgid "Automatically check for &newer versions every week"
-#~ msgstr "Vsak teden preveri, če je na voljo &novejša različica"
 #~ msgid ""
-#~ "If enabled, TortoiseSVN checks once a week if a newer version is available"
+#~ "Subversion encountered a serious problem.\n"
+#~ "Please take the time to report this on our mailing list\n"
+#~ "with as much information as possible about what\n"
+#~ "you were trying to do.\n"
+#~ "\n"
+#~ "Subversion reported the following:"
 #~ msgstr ""
-#~ "Če je možnost izbrana, TortoiseSVN enkrat tedensko preveri, če je na "
-#~ "voljo nova različica"
-#~ msgid "Edit conflict"
-#~ msgstr "Uredi spor"
-#~ msgid "From URL:"
-#~ msgstr "Iz URL:"
-#~ msgid "H&ide unrelated changed paths"
-#~ msgstr "Skr&ij nepovezane spremenjene poti"
+#~ "Prišlo je do resnega problema pri uporabi programa.\n"
+#~ "Prosimo, vzemite si čas za objavo problema v mailing listi\n"
+#~ "s čim več podatki, kako je do napake prišlo oz.\n"
+#~ "katero operacijo ste želeli izvesti.\n"
+#~ "\n"
+#~ "Subversion obvestila:"
+#~ msgid "Floppy drives (A: B:)"
+#~ msgstr "Disketniki (A: B:)"
 #~ msgid ""
-#~ "The URL to check out refers to a file but this\n"
-#~ "working copy path is an existing directory."
+#~ "GDI+ is required to save the revision graph as a picture.\n"
+#~ "You can get GDI+ from\n"
+#~ "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-"
+#~ "df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/"
+#~ "downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-"
+#~ "be590feaa05a&DisplayLang=en</a></u>"
 #~ msgstr ""
-#~ "Povezava za prevzem se sklicuje na datoteko,\n"
-#~ "pod delovne verzije pa je obstoječ direktorij."
-#~ msgid "Show &properties"
-#~ msgstr "Pokaži &lastnosti"
-#~ msgid "Show i&gnored files"
-#~ msgstr "Pokaži &prezrte datoteke"
-#~ msgid "Show un&modified files"
-#~ msgstr "Pokaži &nespremenjene datoteke"
-#~ msgid "Show un&versioned files"
-#~ msgstr "Pokaži datoteke &brez različic"
+#~ "Za shranjevanje grafa revizij kot slike je potreben GDI+.\n"
+#~ "GDI+ lahko dobite na naslovu\n"
+#~ "<u><a=http://www.microsoft.com/downloads/details.aspx?FamilyID=6a63ab9c-"
+#~ "df12-4d41-933c-be590feaa05a&DisplayLang=en>http://www.microsoft.com/"
+#~ "downloads/details.aspx?FamilyID=6a63ab9c-df12-4d41-933c-"
+#~ "be590feaa05a&DisplayLang=en</a></u>"
+#~ msgid "Go offline?"
+#~ msgstr "Nepovezan način?"
+#~ msgid "Only record the merge"
+#~ msgstr "Zgolj zabeleži spajanje"
+#~ msgid "Replaced node"
+#~ msgstr "Zamenjano vozlišče"
+#~ msgid "alias (deleted): %s"
+#~ msgstr "vzdevek (izrisan): %s"
+#~ msgid "&?"
+#~ msgstr "&?"
+#~ msgid "Merge all..."
+#~ msgstr "Spoji vse..."
+#~ msgid "SVN Export to here"
+#~ msgstr "SVN - Izvozi sem"
 

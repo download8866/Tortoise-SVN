@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008,2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 
 #include "IRevisionGraphLayout.h"
-#include "FullHistory.h"
 
 class CVisibleGraphNode;
 class CVisibleGraph;
@@ -109,7 +108,7 @@ public:
     virtual CStandardLayoutNodeInfo* GetNode (index_t index) = 0;
 };
 
-class CStandardLayout
+class CStandardLayout 
     : public IRevisionGraphLayout
     , public IStandardLayoutNodeAccess
 {
@@ -122,7 +121,7 @@ public:
 
         STextInfo (index_t nodeIndex, int subPathIndex)
             : nodeIndex (nodeIndex)
-            , subPathIndex (subPathIndex)
+            , subPathIndex (subPathIndex) 
         {
         }
     };
@@ -132,10 +131,6 @@ private:
     /// source of revision data
 
     const CCachedLogInfo* cache;
-
-    /// source of working copy info
-
-    CFullHistory::SWCInfo wcInfo;
 
     /// logical tree structure
 
@@ -180,9 +175,7 @@ public:
 
     /// construction / destruction
 
-    CStandardLayout ( const CCachedLogInfo* cache
-                    , const CVisibleGraph* graph
-                    , const CFullHistory::SWCInfo& wcInfo);
+    CStandardLayout (const CCachedLogInfo* cache, const CVisibleGraph* graph);
     virtual ~CStandardLayout(void);
 
     /// call this after executing the format options

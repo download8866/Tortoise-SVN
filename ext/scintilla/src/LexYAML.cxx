@@ -3,7 +3,7 @@
  ** Lexer for YAML.
  **/
 // Copyright 2003- by Sean O'Dell <sean@celsoft.com>
-// The License.txt file describes the conditions under which this software may be distributed.
+// Release under the same license as Scintilla/SciTE.
 
 #include <stdlib.h>
 #include <string.h>
