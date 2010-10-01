@@ -14,9 +14,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN Documentation\n"
-"POT-Creation-Date: 2010-09-15 22:56 +0000\n"
-"PO-Revision-Date: 2010-09-20 17:53-0000\n"
-"Last-Translator: Paulo Santana Justino <paulo.justino@netcabo.pt>\n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
+"PO-Revision-Date: 2010-07-26 09:47+0100\n"
+"Last-Translator: Lübbe Onken <l.onken@rac.de>\n"
 "Language-Team: TortoiseSVN translation team <dev@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -31,6 +31,11 @@ msgstr "TortoiseMerge"
 #. (subtitle)
 msgid "A diff/merge tool for Windows"
 msgstr "Uma ferramenta diff/integração para Windows"
+
+#. TRANSLATORS: "$MajorVersion$.$MinorVersion$.$MicroVersion$" is a literal value and should not be translated
+#. (subtitle)
+msgid "Version $MajorVersion$.$MinorVersion$.$MicroVersion$"
+msgstr "Versão $MajorVersion$.$MinorVersion$.$MicroVersion$"
 
 #. (edition)
 msgid "First"
@@ -93,7 +98,7 @@ msgid "TortoiseMerge is free. You don't have to pay for it, you can use it any w
 msgstr "TortoiseMerge é grátis. Não tens que pagar nada e podes utilizá-lo como queiras. É licensiado sob os termos da GP (GPL)."
 
 #. (para)
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
 msgstr "O TortoiseMerge é um projecto Open Source. Isto significa que tens total acesso de leitura ao código fonte deste programa. Podes navegar nele através desta hiperligação <ulink url=\"http://tortoisesvn.tigris.org/svn/tortoisesvn/\"><citetitle>http://tortoisesvn.tigris.org/svn/tortoisesvn/</citetitle></ulink>. A versão mais recente (a qual estamos a trabalhar correntemente) encontra-se sob a pasta <filename>/trunk/</filename>, e as versões disponibilizadas encontram-se localizadas sob a pasta <filename>/tags/</filename>."
 
 #. (title)
@@ -194,7 +199,7 @@ msgid "TortoiseMerge's History"
 msgstr "A História do TortoiseMerge"
 
 #. (para)
-msgid "While working on <ulink url=\"http://tortoisesvn.net\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
+msgid "While working on <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
 msgstr "Enquanto trabalhávamos no <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> verificámos que sempre que um utilizador enviava correcções para melhorar o projecto ou para simplesmente corrigir problemas,nós tinhamos um enorme trabalho só para as aplicar, sendo que muitas das vezes essas mesmas correcções estavam desactualizadas e nao podiam ser aplicadas através da linha de comandos da ferramenta de correcção <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> porque estávamos a trabalhar nesses ficheiros e por vezes já os tinhamos alterado."
 
 #. (para)
@@ -361,8 +366,8 @@ msgid "But don't worry. If you're working with Subversion you can retrieve an ol
 msgstr "Mas não há problema. Se está a trabalhar com o Subversion então pode devolver uma versão mais antiga do ficheiro e resolver o conflicto. De facto, TortoiseMerge tenta automáticamente obter esse versão mais antiga do ficheiro e mostra-lhe a comparação entre <emphasis>Base</emphasis> (a versão mais antiga do ficheiro),  <emphasis>Mine</emphasis> (o ficheiro que é neste momento a sua cópia de trabalho) e  <emphasis>Deles</emphasis> (a versão mais antiga do ficheiro com o patch aplicado). Aí o utlizador pode resolver possiveis conflictos manualmente."
 
 #. (para)
-msgid "The patch file window has a context menu which allows you to preview the effect of the patch on the current file (apply without saving), to apply and save the changes for the selected file, or to apply and save changes to <emphasis>all</emphasis> files in the list. The double click action is to preview."
-msgstr "A janela do ficheiro correcção tem um menu de contexto que te permite pré-visualizar o efeito que esta correcção irá ter no ficheiro corrente (aplicar sem guardar), para aplicar e guardar as alterações para o ficheiro seleccionado, ou aplicar e guardar as alterações para <emphasis>todos</emphasis> os ficheiros na lista. A acção de duplo-clique serve para pré-visualizar."
+msgid "The patch file window has a context menu which allows you to preview the effect of the patch on the current file (apply without saving), to apply and save the changes for the selected file, or to apply and save changes to <emphasis>all</emphasis> files in the list. The double-click action is to preview."
+msgstr "A janela do ficheiro patch tem um menu que lhe permite pre-visualizar o efeito que este irá ter no ficheiro (aplicar sem salvar), aplicar e salvar as alteraçoes para o ficheiro selecionado, ou aplicar e salvar as alterações para  <emphasis>all</emphasis> os ficheiros na lista. A acção de duplo-clique serve para ver a pre-visualização."
 
 #. (para)
 msgid "Depending on whether TortoiseMerge can apply the patch directly or by fetching an older version of the file first, it shows you a two pane view (patch can be applied directly) or a three pane view (older version of file fetched)."
@@ -421,28 +426,12 @@ msgid "<guibutton>Show Whitespaces</guibutton> toggles the option to display spa
 msgstr "<guibutton>Mostra espaços em branco</guibutton> activa a opção que faz com que os caracteres space e tab sejam mostrados como símbolos."
 
 #. (para)
-msgid "<guibutton>Wrap long lines</guibutton> toggles the word wrapping at the end of the views. If turned on, long lines which would normally extend beyond the view border are wrapped around, i.e., one long line is split into several lines."
-msgstr "<guibutton>Quebrar linhas longas</guibutton> alterna a activação da quebra de linhas no fim das vistas. Se activada, as linhas longas que normalmente se estenderiam para além da borda da vista são então quebradas, i.e., uma linha longa é dividida em várias linhas."
-
-#. (para)
 msgid "<guibutton>Inline Diff Word-wise</guibutton> toggles the method used to display inline diffs. In word-wise mode, when a character is changed, the whole word is highlighted. In char-wise mode, each individual changed character is highlighted."
 msgstr "<guibutton>Inline Diff Word-wise</guibutton> activa o método usado que mostra as diferenças numa linha. No modo word-wise, quando um caracter é alterado, toda a palavra fica ilumindada. No modo char-wise, cada caracter individual alterado é iluminado."
 
 #. (para)
 msgid "Word-wise is the default and in most cases it works better. For example if you change a variable name, the whole name is highlighted in word-wise mode, whereas in char-wise mode you tend to get a mess of added and deleted characters which doesn't make much sense. However, some content does not resolve neatly into words, for example a hex file, and in that case, char-wise display works better."
 msgstr "Word-wise é a opção por defeito e a que funciona melhor para a maior parte dos casos. Por exemplo, se mudar o nome duma variável, todo o nome fica marcado no modo word-wise, considerando que no modo char-wise o utilizador tende a criar uma confusão de caracteres adicionados e eliminados, o que não faz muito sentido. Contudo, "
-
-#. (para)
-msgid "<guibutton>Compare whitespaces</guibutton> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
-msgstr "<guilabel>Comparar espaços em branco</guilabel> mostra todas as alterações de indentação e espaços brancos em linha, como linhas adicionadas/removidas (sendo deste modo que o Subversion trata tais alterações)."
-
-#. (para)
-msgid "<guibutton>Ignore whitespace changes</guibutton> hides changes which are due solely to a change in the amount or type of whitespace, e.g. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr "<guilabel>Ignorar alterações em espaços em branco</guilabel> esconde alterações que são apenas devidas à alteração na quantidade ou tipo de espaços em branco, e.g. alterar uma indentação ou alterar tabs para espaços. Adicionar espaços em branco onde não havia nenhum, ou remover completamente um espaço em branco, é ainda mostrado como uma alteração."
-
-#. (para)
-msgid "<guibutton>Ignore all whitespaces</guibutton> hides all whitespace-only changes."
-msgstr "<guilabel>Ignorar todos os espaços em branco</guilabel> esconde todas as alterações de apenas espaços em branco."
 
 #. (para)
 msgid "<guibutton>Switch View</guibutton> selects between one-pane and two-pane view. Disabled in 3-pane view."
@@ -457,16 +446,8 @@ msgid "<guibutton>Show/Hide Patch List</guibutton> When TortoiseMerge has a patc
 msgstr "<guibutton>Mostrar/Esconder a Patch List</guibutton> Quando TortoiseMerge tem uma patch list, este botão permite-lhe esconde-la (para que possa ver ambas as janelas), ou mostra-la (para que possa rever a lista do ficheiro)."
 
 #. (para)
-msgid "<guibutton>Collapse</guibutton> collapses unchanged regions to a single line, leaving only the changed areas and minimal context. You can expand the collapsed areas by double clicking on the collapse line, but you cannot then re-collapse them unless you reload the file."
-msgstr "<guilabel>Colapsa</guilabel> colapsa regiões inalteradas numa linha única, deixando apenas visíveis as áreas alteradas acompanhadas de um contexto mínimo. Poderás expandir as áreas, então colapsadas, através do duplo clique mas não te será permitido colapsá-las de novo, a não ser que recarregues o ficheiro."
-
-#. (para)
 msgid "<guibutton>Settings</guibutton> takes you to TortoiseMerge's settings dialog."
 msgstr "<guibutton>Definições</guibutton> mostra o diálogo de definições do TortoiseMerge."
-
-#. (para)
-msgid "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
-msgstr "<guibutton>Ajuda</guibutton> abre, está claro, o ficheiro de ajuda do TortoiseMerge."
 
 #. (para)
 msgid "<placeholder-1/> Below the menu bar lies the tool bar. This provides easy access to the most commonly used tools, which are <placeholder-2/>"
@@ -525,8 +506,8 @@ msgid "TortoiseMerge not only <emphasis>shows</emphasis> you the differences bet
 msgstr "O TortoiseMege não só <emphasis>mostra</emphasis> ao utilizador as diferenças entre ficheiros mas também o deixa resolver conflitos ou aplicar alterações."
 
 #. (para)
-msgid "If you're in two pane view, then you can only edit the file in the right pane (<literal>Mine</literal>). To apply changes made in the left file (<literal>Theirs</literal>), <action>right click</action> on the changed lines and select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'theirs' </guimenuitem></menuchoice>. Then the changes from the left file are added to the right file."
-msgstr "Se está na vista de 2 painéis, então apenas podes editar o ficheiro do painel da direita  (<literal>Meu</literal>). Para aplicar alterações efectuadas no painel da esquerda  (<literal>Deles</literal>), <action>clica-à-direita</action> nas linhas alteradas e seleciona <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem>Usa o bloco de texto 'deles'</guimenuitem></menuchoice>. Então as alterações do ficheiro da esquerda são adicionadas ao ficheiro da direita."
+msgid "If you're in two pane view, then you can only edit the file in the right pane (<literal>Mine</literal>). To apply changes made in the left file (<literal>Theirs</literal>), <action>right-click</action> on the changed lines and select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>theirs</quote></guimenuitem></menuchoice>. Then the changes from the left file are added to the right file."
+msgstr "Se está na vista de 2 painéis, então apenas podes editar o ficheiro do painel da direita  (<literal>Meu</literal>). Para aplicar alterações feitas no painel da esquerda  (<literal>Deles</literal>), <action>clica-com-o-botão-direito</action> nas linhas alteradas e seleciona <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem>. Usa o bloco de texto <quote>deles</quote></guimenuitem></menuchoice>. Então as alterações do ficheiro da esquerda são adicionadas ao ficheiro da direita."
 
 #. (para)
 msgid "Sometimes you actually want both text blocks, and the context menu also offers you <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use both text blocks (this one first)</guimenuitem></menuchoice> and <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use both text blocks (this one last)</guimenuitem></menuchoice>."
@@ -537,8 +518,8 @@ msgid "You can also edit the output file just as you would in a text editor. Suc
 msgstr "Também podes editar o ficheiro de saída como farias num editor de texto. Tais linhas são marcadas com o ícone de lápis. Tem atenção que se quiseres fazer algumas das alterações baseadas em linhas/blocos descritas acima, o melhor é faze-las primeiro pois uma vez que comeces a editar o ficheiro irá ser impossível para o TortoiseMerge seguir as relações com os ficheiros originais."
 
 #. (para)
-msgid "If you're in three pane view (sometimes called <emphasis>merge view</emphasis>) you can only edit the file in the bottom view (<literal>Merged</literal>). As in two pane view, you can <action>right click</action> on conflicted lines and either select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'theirs' </guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'mine' </guimenuitem></menuchoice>. In addition, if you want <emphasis>both</emphasis> blocks, you can select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from 'mine' before 'theirs' </guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from 'theirs' before 'mine' </guimenuitem></menuchoice>. According to the command you've selected, the changes are used in the resulting <literal>Merged</literal> file."
-msgstr "Se estiveres na vista de três paineis (por vezes chamada <emphasis>vista de integração</emphasis>) apenas podes editar o ficheiro na vista de baixo  (<literal>Integrado</literal>). Como na vista de dois paineis, tu podes <action>clicar-à-direita</action> nas linhas em conflito e ou seleccionar <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem>Usar bloco de texto 'deles'</guimenuitem></menuchoice> ou <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar bloco de texto 'meu'</guimenuitem></menuchoice>. Adicionalmente, se queres <emphasis>ambos</emphasis> os blocos, poderás seleccionar <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar o bloco de texto 'meu' antes do 'deles'</guimenuitem></menuchoice> ou <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar o bloco de texto 'deles' antes do 'meu'</guimenuitem></menuchoice>. De acordo com o comando que escolheste, as alterações serão usadas no ficheiro <literal>integrado</literal> resultante."
+msgid "If you're in three pane view (sometimes called <emphasis>merge view</emphasis>) you can only edit the file in the bottom view (<literal>Merged</literal>). As in two pane view, you can <action>right-click</action> on conflicted lines and either select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>theirs</quote></guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>mine</quote></guimenuitem></menuchoice>. In addition, if you want <emphasis>both</emphasis> blocks, you can select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from <quote>mine</quote> before <quote>theirs</quote></guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from <quote>theirs</quote> before <quote>mine</quote></guimenuitem></menuchoice>. According to the command you've selected, the changes are used in the resulting <literal>Merged</literal> file."
+msgstr "Se estiveres na vista de três paineis (por vezes chamada <emphasis>vista de integração</emphasis>) tu apenas podes editar o ficheiro na vista de baixo  (<literal>Integrado</literal>). Como na vista de dois paineis, tu podes <action>clicar-com-o-botão-dreito</action> nas linhas em conflito e seleccionar <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem>Usar bloco de texto <quote>deles</quote></guimenuitem></menuchoice> ou <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar bloco de texto <quote>meu</quote></guimenuitem></menuchoice>. Adicionalmente, se queres <emphasis>ambos</emphasis> os blocos, podes seleccionar <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar bloco de texto  <quote>meu</quote> antes <quote>deles</quote></guimenuitem></menuchoice> ou <menuchoice><guimenu>Menu Contexto</guimenu><guimenuitem> Usar bloco de texto <quote>deles</quote> antes do <quote>meu</quote></guimenuitem></menuchoice>. De acordo com o comando que escolheste, as alterações são usadas no ficheiro <literal>integrado</literal> resultante."
 
 #. (para)
 msgid "Sometimes a file will be marked as conflicted in Subversion, yet when you view it using TortoiseMerge there are no conflicts shown. This may be due to the whitespace handling you have chosen. If you choose to ignore line-endings or whitespace changes, those lines will be marked using the <emphasis>Conflict-Ignored</emphasis> icon. To resolve the conflict you still need to pick which version you want to use."
@@ -621,8 +602,8 @@ msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation
 msgstr "<guilabel>Comparar espaços em branco</guilabel> mostra todas as alterações de indentação e espaços em branco no interior do texto, como linhas adicionadas/removidas (que é como o Subversion trata tais alterações)."
 
 #. (para)
-msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, e.g. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr "<guilabel>Ignorar alterações nos espaços brancos</guilabel> esconde as alterações que são apenas devidas à alteração na quantidade ou tipo de espaços em branco, e.g. alterar uma indentação ou alterar tabs para espaços. Adicionar espaços em branco onde não havia nenhum, ou remover completamente um espaço em branco é ainda mostrado como uma alteração."
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgstr "<guilabel>Ignorar alterações nos espaços em branco</guilabel> esconde as alterações que são apenas devidas à alteração na quantidade ou tipo de espaços em branco, e.g. alterar uma indentação ou alterar tabs para espaços. Adicionar espaços em branco onde não havia nenhum, ou remover completamente um espaço em branco é ainda mostrado como uma alteração."
 
 #. (para)
 msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
@@ -741,8 +722,8 @@ msgid "Keyboard shortcuts"
 msgstr "Atalhos de teclado"
 
 #. (term)
-msgid "Ctrl-Q, Ctrl-W, Escape"
-msgstr "Ctrl-Q, Ctrl-W, Escape"
+msgid "Ctrl-Q"
+msgstr "Ctrl-Q"
 
 #. (para)
 msgid "Quit the program"
@@ -755,30 +736,6 @@ msgstr "Ctrl-C"
 #. (para)
 msgid "Copy the selected text to the clipboard"
 msgstr "Copiar o texto seleccionado para a área de transferência."
-
-#. (term)
-msgid "Ctrl-X, Shift-Del"
-msgstr "Ctrl-X, Shift-Del"
-
-#. (para)
-msgid "Cut the selected text to the clipboard"
-msgstr "Corta o texto seleccionado para a área de transferência."
-
-#. (term)
-msgid "Ctrl-V, Shift-Insert"
-msgstr "Ctrl-V, Shift-Insert"
-
-#. (para)
-msgid "Paste the selected text from the clipboard"
-msgstr "Cola o texto seleccionado da área de transferência."
-
-#. (term)
-msgid "Ctrl-Z, Alt-Backspace"
-msgstr "Ctrl-Z, Alt-Backspace"
-
-#. (para)
-msgid "Undo the last edits"
-msgstr "Desfaz a última edição"
 
 #. (term)
 msgid "Ctrl-F"
@@ -1030,14 +987,6 @@ msgstr "/createunifieddiff"
 msgid "Creates a unified diff file (patch file) of two files specified with <placeholder-1/> and <placeholder-2/>. The target path is set with <placeholder-3/>. If <placeholder-4/> is not set, a file save dialog is shown so the user can choose the location to save the patch file. Note: If <placeholder-5/> is set, all other parameters are ignored."
 msgstr "Cria um ficheiro de comparação unificada (ficheiro correcção) dos dois ficheiros especificados com <placeholder-1/> e <placeholder-2/>. O caminho de destino é especificado com <placeholder-3/>. Se não for especificado o <placeholder-4/>, é mostrada uma caixa de diálogo guardar para que o utilizador possa escolher a localização para guardar o ficheiro correcção. Se for especificado o <placeholder-5/>, então todos os outros parâmetros são ignorados."
 
-#. (entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr "Especifica um número de linha para saltar após carregar os ficheiros."
-
-#. (entry)
-msgid "Prevents the file from being edited. That means the editing capabilities of TortoiseMerge are disabled."
-msgstr "Evita que o ficheiro seja editado. Isto significa que as capacidades de edição do TortoiseMerge estão desactivadas."
-
 #. (para)
 msgid ""
 "You can also supply simple filenames on the command line for compatibility with other diff programs. In this simplified form the command line is <screen>\n"
@@ -1169,8 +1118,8 @@ msgid "GPO"
 msgstr "GPO"
 
 #. (para)
-msgid "Group policy object."
-msgstr "Objecto de política de grupo."
+msgid "Group policy object"
+msgstr "Object de politica de grupo"
 
 #. (glossterm)
 msgid "HEAD revision"
@@ -1342,8 +1291,23 @@ msgstr "Luis X. B. Mourão, Paulo Santana Justino"
 msgid "translator-translation"
 msgstr "Tradução"
 
-#~ msgid "Version $MajorVersion$.$MinorVersion$.$MicroVersion$"
-#~ msgstr "Versão $MajorVersion$.$MinorVersion$.$MicroVersion$"
-#~ msgid "Ctrl-Q"
-#~ msgstr "Ctrl-Q"
+#~ msgid ""
+#~ "<guilabel>Collapse</guilabel> collapses unchanged regions to a single "
+#~ "line, leaving only the changed areas and minimal context. You can expand "
+#~ "the collapsed areas by double clicking on the collapse line, but you "
+#~ "cannot then re-collapse them unless you reload the file."
+#~ msgstr ""
+#~ "<guilabel>Colapso</guilabel> colapsa regiões inalteradas numa única "
+#~ "linha, deixando apenas visíveis as áreas alteradas com um contexto "
+#~ "mínimo. Poderás expandir as áreas então colapsadas através do duplo "
+#~ "clique, mas não te será permitido colapsá-las novamente a não ser que "
+#~ "recarregues o ficheiro."
+#~ msgid ""
+#~ "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
+#~ msgstr ""
+#~ "<guibutton>Ajuda</guibutton> abre, está claro, o ficheiro de ajuda do "
+#~ "TortoiseMerge."
+#~ msgid "Specifies a line number to jump to after loading the files."
+#~ msgstr ""
+#~ "Especifica um número de linha para saltar após carregar os ficheiros."
 

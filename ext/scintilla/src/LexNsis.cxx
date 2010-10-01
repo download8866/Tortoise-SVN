@@ -13,7 +13,6 @@
 
 #include "Platform.h"
 
-#include "CharClassify.h"
 #include "PropSet.h"
 #include "Accessor.h"
 #include "KeyWords.h"
@@ -78,7 +77,7 @@ static bool NsisNextLineHasElse(unsigned int start, unsigned int end, Accessor &
     }
   }
 
-  if( nNextLine == -1 ) // We never found the next line...
+  if( nNextLine == -1 ) // We never foudn the next line...
     return false;
 
   for( unsigned int firstChar = nNextLine; firstChar < end; firstChar++ )
@@ -146,7 +145,7 @@ static int calculateFoldNsis(unsigned int start, unsigned int end, int foldlevel
 
   if( s[0] == '!' )
   {
-    if( NsisCmp(s, "!ifndef", bIgnoreCase) == 0 || NsisCmp(s, "!ifdef", bIgnoreCase ) == 0 || NsisCmp(s, "!ifmacrodef", bIgnoreCase ) == 0 || NsisCmp(s, "!ifmacrondef", bIgnoreCase ) == 0 || NsisCmp(s, "!if", bIgnoreCase ) == 0 || NsisCmp(s, "!macro", bIgnoreCase ) == 0 )
+    if( NsisCmp(s, "!ifndef", bIgnoreCase) == 0 || NsisCmp(s, "!ifdef", bIgnoreCase ) == 0 || NsisCmp(s, "!if", bIgnoreCase ) == 0 || NsisCmp(s, "!macro", bIgnoreCase ) == 0 )
       newFoldlevel++;
     else if( NsisCmp(s, "!endif", bIgnoreCase) == 0 || NsisCmp(s, "!macroend", bIgnoreCase ) == 0 )
       newFoldlevel--;
@@ -191,16 +190,16 @@ static int classifyWordNsis(unsigned int start, unsigned int end, WordList *keyw
 	}
 
 	// Check for special words...
-	if( NsisCmp(s, "!macro", bIgnoreCase ) == 0 || NsisCmp(s, "!macroend", bIgnoreCase) == 0 ) // Covers !macro and !macroend
+	if( NsisCmp(s, "!macro", bIgnoreCase ) == 0 || NsisCmp(s, "!macroend", bIgnoreCase) == 0 ) // Covers !micro and !microend
 		return SCE_NSIS_MACRODEF;
 
-	if( NsisCmp(s, "!ifdef", bIgnoreCase ) == 0 ||  NsisCmp(s, "!ifndef", bIgnoreCase) == 0 ||  NsisCmp(s, "!endif", bIgnoreCase) == 0 ) // Covers !ifdef, !ifndef and !endif
+	if( NsisCmp(s, "!ifdef", bIgnoreCase ) == 0 ||  NsisCmp(s, "!ifndef", bIgnoreCase) == 0 ||  NsisCmp(s, "!endif", bIgnoreCase) == 0 )
 		return SCE_NSIS_IFDEFINEDEF;
 
-	if( NsisCmp(s, "!if", bIgnoreCase ) == 0 || NsisCmp(s, "!else", bIgnoreCase )  == 0 ) // Covers !if and else
+  if( NsisCmp(s, "!else", bIgnoreCase ) == 0 ) // ||  NsisCmp(s, "!ifndef", bIgnoreCase) == 0 ||  NsisCmp(s, "!endif", bIgnoreCase) == 0 )
 		return SCE_NSIS_IFDEFINEDEF;
 
-	if (NsisCmp(s, "!ifmacrodef", bIgnoreCase ) == 0 || NsisCmp(s, "!ifmacrondef", bIgnoreCase )  == 0 ) // Covers !ifmacrodef and !ifnmacrodef
+  if( NsisCmp(s, "!if", bIgnoreCase ) == 0 )
 		return SCE_NSIS_IFDEFINEDEF;
 
   if( NsisCmp(s, "SectionGroup", bIgnoreCase) == 0 || NsisCmp(s, "SectionGroupEnd", bIgnoreCase) == 0 ) // Covers SectionGroup and SectionGroupEnd

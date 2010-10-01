@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008 - TortoiseSVN
+// Copyright (C) 2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,17 +26,20 @@
 class SysInfo
 {
 private:
-    SysInfo(void);
-    ~SysInfo(void);
+	SysInfo(void);
+	~SysInfo(void);
 public:
-    static const SysInfo& Instance();
-
-    DWORD           GetFullVersion() const {return MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);}
-    bool            IsXP() const {return (GetFullVersion() < 0x0600);} // cover Win5.1 and 5.2 alike
-    bool            IsVista() const {return (GetFullVersion() == 0x0600);}
-    bool            IsVistaOrLater() const {return (GetFullVersion() >= 0x0600);}
-    bool            IsWin7() const {return (GetFullVersion() == 0x0601);}
-    bool            IsWin7OrLater() const {return (GetFullVersion() >= 0x0601);}
+	static SysInfo& Instance();
+	
+	DWORD			GetFullVersion() const {return MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);}
+	bool			IsWin2k() const {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0500);}
+	bool			IsWin2kOrLater() const {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0500);}
+	bool			IsXP() const {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0501);}
+	bool			IsXPorLater() const {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0501);}
+	bool			IsVista() {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) == 0x0600);}
+	bool			IsVistaOrLater() const {return (MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion) >= 0x0600);}
+	bool			IsWin7() const {return (GetFullVersion() == 0x0601);}
+	bool			IsWin7OrLater() const {return (GetFullVersion() >= 0x0601);}
 private:
-    OSVERSIONINFOEX         inf;
+	OSVERSIONINFOEX			inf;
 };

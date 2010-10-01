@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2010-09-15 22:56 +0000\n"
+"POT-Creation-Date: 2009-03-03 10:39 +0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,6 +15,11 @@ msgstr ""
 
 #.(subtitle)
 msgid "A diff/merge tool for Windows"
+msgstr ""
+
+#. TRANSLATORS: "$MajorVersion$.$MinorVersion$.$MicroVersion$" is a literal value and should not be translated
+#.(subtitle)
+msgid "Version $MajorVersion$.$MinorVersion$.$MicroVersion$"
 msgstr ""
 
 #.(edition)
@@ -78,7 +83,7 @@ msgid "TortoiseMerge is free. You don't have to pay for it, you can use it any w
 msgstr ""
 
 #.(para)
-msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
+msgid "TortoiseMerge is an Open Source project. That means you have full read access to the source code of this program. You can browse it on this link <ulink url=\"http://code.google.com/p/tortoisesvn/source/browse/\"><citetitle>http://code.google.com/p/tortoisesvn/source/browse/</citetitle></ulink>. You will be prompted to enter username and password. The username is <literal>guest</literal>, and the password must be left blank. The most recent version (where we're currently working) is located under <filename>/trunk/</filename>, and the released versions are located under <filename>/tags/</filename>."
 msgstr ""
 
 #.(title)
@@ -179,7 +184,7 @@ msgid "TortoiseMerge's History"
 msgstr ""
 
 #.(para)
-msgid "While working on <ulink url=\"http://tortoisesvn.net\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
+msgid "While working on <ulink url=\"http://tortoisesvn.tigris.org\"><citetitle>TortoiseSVN</citetitle></ulink> we found that whenever users sent in patches to enhance the project or just to fix bugs, we had a lot of work just applying those patches. And many times those patches were outdated and couldn't be applied with the command line patch tool <ulink url=\"http://unxutils.sourceforge.net/\"><citetitle>http://unxutils.sourceforge.net/</citetitle></ulink> because we were working on those files and had sometimes changed those files already."
 msgstr ""
 
 #.(para)
@@ -346,7 +351,7 @@ msgid "But don't worry. If you're working with Subversion you can retrieve an ol
 msgstr ""
 
 #.(para)
-msgid "The patch file window has a context menu which allows you to preview the effect of the patch on the current file (apply without saving), to apply and save the changes for the selected file, or to apply and save changes to <emphasis>all</emphasis> files in the list. The double click action is to preview."
+msgid "The patch file window has a context menu which allows you to preview the effect of the patch on the current file (apply without saving), to apply and save the changes for the selected file, or to apply and save changes to <emphasis>all</emphasis> files in the list. The double-click action is to preview."
 msgstr ""
 
 #.(para)
@@ -406,27 +411,11 @@ msgid "<guibutton>Show Whitespaces</guibutton> toggles the option to display spa
 msgstr ""
 
 #.(para)
-msgid "<guibutton>Wrap long lines</guibutton> toggles the word wrapping at the end of the views. If turned on, long lines which would normally extend beyond the view border are wrapped around, i.e., one long line is split into several lines."
-msgstr ""
-
-#.(para)
 msgid "<guibutton>Inline Diff Word-wise</guibutton> toggles the method used to display inline diffs. In word-wise mode, when a character is changed, the whole word is highlighted. In char-wise mode, each individual changed character is highlighted."
 msgstr ""
 
 #.(para)
 msgid "Word-wise is the default and in most cases it works better. For example if you change a variable name, the whole name is highlighted in word-wise mode, whereas in char-wise mode you tend to get a mess of added and deleted characters which doesn't make much sense. However, some content does not resolve neatly into words, for example a hex file, and in that case, char-wise display works better."
-msgstr ""
-
-#.(para)
-msgid "<guibutton>Compare whitespaces</guibutton> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
-msgstr ""
-
-#.(para)
-msgid "<guibutton>Ignore whitespace changes</guibutton> hides changes which are due solely to a change in the amount or type of whitespace, e.g. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
-msgstr ""
-
-#.(para)
-msgid "<guibutton>Ignore all whitespaces</guibutton> hides all whitespace-only changes."
 msgstr ""
 
 #.(para)
@@ -442,15 +431,7 @@ msgid "<guibutton>Show/Hide Patch List</guibutton> When TortoiseMerge has a patc
 msgstr ""
 
 #.(para)
-msgid "<guibutton>Collapse</guibutton> collapses unchanged regions to a single line, leaving only the changed areas and minimal context. You can expand the collapsed areas by double clicking on the collapse line, but you cannot then re-collapse them unless you reload the file."
-msgstr ""
-
-#.(para)
 msgid "<guibutton>Settings</guibutton> takes you to TortoiseMerge's settings dialog."
-msgstr ""
-
-#.(para)
-msgid "<guibutton>Help</guibutton> opens the TortoiseMerge help file, of course."
 msgstr ""
 
 #.(para)
@@ -510,7 +491,7 @@ msgid "TortoiseMerge not only <emphasis>shows</emphasis> you the differences bet
 msgstr ""
 
 #.(para)
-msgid "If you're in two pane view, then you can only edit the file in the right pane (<literal>Mine</literal>). To apply changes made in the left file (<literal>Theirs</literal>), <action>right click</action> on the changed lines and select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'theirs' </guimenuitem></menuchoice>. Then the changes from the left file are added to the right file."
+msgid "If you're in two pane view, then you can only edit the file in the right pane (<literal>Mine</literal>). To apply changes made in the left file (<literal>Theirs</literal>), <action>right-click</action> on the changed lines and select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>theirs</quote></guimenuitem></menuchoice>. Then the changes from the left file are added to the right file."
 msgstr ""
 
 #.(para)
@@ -522,7 +503,7 @@ msgid "You can also edit the output file just as you would in a text editor. Suc
 msgstr ""
 
 #.(para)
-msgid "If you're in three pane view (sometimes called <emphasis>merge view</emphasis>) you can only edit the file in the bottom view (<literal>Merged</literal>). As in two pane view, you can <action>right click</action> on conflicted lines and either select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'theirs' </guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from 'mine' </guimenuitem></menuchoice>. In addition, if you want <emphasis>both</emphasis> blocks, you can select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from 'mine' before 'theirs' </guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from 'theirs' before 'mine' </guimenuitem></menuchoice>. According to the command you've selected, the changes are used in the resulting <literal>Merged</literal> file."
+msgid "If you're in three pane view (sometimes called <emphasis>merge view</emphasis>) you can only edit the file in the bottom view (<literal>Merged</literal>). As in two pane view, you can <action>right-click</action> on conflicted lines and either select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>theirs</quote></guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Use text block from <quote>mine</quote></guimenuitem></menuchoice>. In addition, if you want <emphasis>both</emphasis> blocks, you can select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from <quote>mine</quote> before <quote>theirs</quote></guimenuitem></menuchoice> or <menuchoice><guimenu>Context Menu</guimenu><guimenuitem> Use text block from <quote>theirs</quote> before <quote>mine</quote></guimenuitem></menuchoice>. According to the command you've selected, the changes are used in the resulting <literal>Merged</literal> file."
 msgstr ""
 
 #.(para)
@@ -606,7 +587,7 @@ msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation
 msgstr ""
 
 #.(para)
-msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, e.g. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, eg. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
 msgstr ""
 
 #.(para)
@@ -726,7 +707,7 @@ msgid "Keyboard shortcuts"
 msgstr ""
 
 #.(term)
-msgid "Ctrl-Q, Ctrl-W, Escape"
+msgid "Ctrl-Q"
 msgstr ""
 
 #.(para)
@@ -739,30 +720,6 @@ msgstr ""
 
 #.(para)
 msgid "Copy the selected text to the clipboard"
-msgstr ""
-
-#.(term)
-msgid "Ctrl-X, Shift-Del"
-msgstr ""
-
-#.(para)
-msgid "Cut the selected text to the clipboard"
-msgstr ""
-
-#.(term)
-msgid "Ctrl-V, Shift-Insert"
-msgstr ""
-
-#.(para)
-msgid "Paste the selected text from the clipboard"
-msgstr ""
-
-#.(term)
-msgid "Ctrl-Z, Alt-Backspace"
-msgstr ""
-
-#.(para)
-msgid "Undo the last edits"
 msgstr ""
 
 #.(term)
@@ -1009,14 +966,6 @@ msgstr ""
 msgid "Creates a unified diff file (patch file) of two files specified with <placeholder-1/> and <placeholder-2/>. The target path is set with <placeholder-3/>. If <placeholder-4/> is not set, a file save dialog is shown so the user can choose the location to save the patch file. Note: If <placeholder-5/> is set, all other parameters are ignored."
 msgstr ""
 
-#.(entry)
-msgid "Specifies a line number to jump to after loading the files."
-msgstr ""
-
-#.(entry)
-msgid "Prevents the file from being edited. That means the editing capabilities of TortoiseMerge are disabled."
-msgstr ""
-
 #.(para)
 msgid "You can also supply simple filenames on the command line for compatibility with other diff programs. In this simplified form the command line is <screen>\nTortoiseMerge BaseFilePath MyFilePath [ TheirFilePath ]\n</screen> If two files are given they will be compared with each other. If three files are given, the first is taken as the BASE file, and the other two are compared with it in a three-way diff."
 msgstr ""
@@ -1142,7 +1091,7 @@ msgid "GPO"
 msgstr ""
 
 #.(para)
-msgid "Group policy object."
+msgid "Group policy object"
 msgstr ""
 
 #.(glossterm)

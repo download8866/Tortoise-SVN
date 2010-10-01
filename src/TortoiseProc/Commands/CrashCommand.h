@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "Command.h"
 
-#include "AppUtils.h"
+#include "MessageBox.h"
 #include "CrashReport.h"
 
 extern CCrashReport crasher;
@@ -30,25 +30,25 @@ extern CCrashReport crasher;
 class CrashCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute()
-    {
-        crasher.Enable(!parser.HasKey(_T("nocustom")));
-        MessageBox(NULL, _T("You are testing the crashhandler.\nDo NOT send the crashreport!!!!"), _T("TortoiseSVN"), MB_ICONINFORMATION);
-        CrashProgram();
-        MessageBox(NULL, IDS_ERR_NOCOMMAND, IDS_APPNAME, MB_ICONERROR);
-        return true;
-    }
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute()
+	{
+		crasher.Enable(!parser.HasKey(_T("nocustom")));
+		CMessageBox::Show(NULL, _T("You are testing the crashhandler.\n<ct=0x0000FF>Do NOT send the crashreport!!!!</ct>"), _T("TortoiseSVN"), MB_ICONINFORMATION);
+		CrashProgram();
+		CMessageBox::Show(NULL, IDS_ERR_NOCOMMAND, IDS_APPNAME, MB_ICONERROR);
+		return true;
+	}
 
-    void CrashProgram()
-    {
-        // this function is to test the crash reporting utility
-        int * a;
-        a = NULL;
-        *a = 7;
-    }
+	void CrashProgram()
+	{
+		// this function is to test the crash reporting utility
+		int * a;
+		a = NULL;
+		*a = 7;
+	}
 };
 
 

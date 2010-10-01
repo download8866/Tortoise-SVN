@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,34 +19,37 @@
 #include "stdafx.h"
 #include "PreserveChdir.h"
 
-PreserveChdir::PreserveChdir() :
-    size(GetCurrentDirectory(0, NULL)),
-    originalCurrentDirectory(size)
+PreserveChdir::PreserveChdir()
 {
-    if (size > 0)
-        if (GetCurrentDirectory((DWORD)size, originalCurrentDirectory) !=0)
-            return; // succeeded
-
-    // GetCurrentDirectory failed
-    originalCurrentDirectory.reset();
+	DWORD len = GetCurrentDirectory(0, NULL);
+	if (len)
+	{
+		originalCurrentDirectory = new TCHAR[len];
+		if (GetCurrentDirectory(len, originalCurrentDirectory)==0)
+		{
+			delete [] originalCurrentDirectory;
+			originalCurrentDirectory = NULL;
+		}
+	}
+	else
+		originalCurrentDirectory = NULL;
 }
 
 PreserveChdir::~PreserveChdir()
 {
-    if (!originalCurrentDirectory)
-        return; // nothing to do
+	if (originalCurrentDirectory)
+	{
+		DWORD len = GetCurrentDirectory(0, NULL);
+		TCHAR * currentDirectory = new TCHAR[len];
 
-    // _tchdir is an expensive function - don't call it unless we really have to
-    const DWORD len = GetCurrentDirectory(0, NULL);
-    if(len == size) {
-        // same size, must check contents
-        auto_buffer<TCHAR> currentDirectory(len);
-        if(GetCurrentDirectory(len, currentDirectory) != 0)
-            if(_tcscmp(currentDirectory, originalCurrentDirectory) == 0)
-                return; // no change required, reset of no use as dtor is called exactly once
-    }
-
-    // must reset directory
-    if(SetCurrentDirectory(originalCurrentDirectory))
-        originalCurrentDirectory.reset();
+		// _tchdir is an expensive function - don't call it unless we really have to
+		GetCurrentDirectory(len, currentDirectory);
+		if(_tcscmp(currentDirectory, originalCurrentDirectory) != 0)
+		{
+			SetCurrentDirectory(originalCurrentDirectory);
+		}
+		delete [] currentDirectory;
+		delete [] originalCurrentDirectory;
+		originalCurrentDirectory = NULL;
+	}
 }

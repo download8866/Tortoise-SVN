@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006,2009-2010 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "Watereffect.h"
 #include "Dib.h"
 #include "HyperLink.h"
-#include "StandAloneDlg.h"
 
 #define ID_EFFECTTIMER 1111
 #define ID_DROPTIMER 1112
@@ -32,31 +31,35 @@
  * with the TortoiseMerge logo with a nice water effect. See CWaterEffect
  * for the implementation.
  */
-class CAboutDlg : public CStandAloneDialog
+class CAboutDlg : public CDialog
 {
-    DECLARE_DYNAMIC(CAboutDlg)
+	DECLARE_DYNAMIC(CAboutDlg)
 
 public:
-    CAboutDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CAboutDlg();
+	CAboutDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CAboutDlg();
 
 // Dialog Data
-    enum { IDD = IDD_ABOUT };
+	enum { IDD = IDD_ABOUT };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    afx_msg void OnTimer(UINT_PTR nIDEvent);
-    afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-    afx_msg void OnClose();
+	HICON m_hIcon;
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    DECLARE_MESSAGE_MAP()
+	virtual BOOL OnInitDialog();
+	afx_msg void OnPaint();
+	afx_msg HCURSOR OnQueryDragIcon();
+
+	DECLARE_MESSAGE_MAP()
 public:
 
 private:
-    CWaterEffect m_waterEffect;
-    CDib m_renderSrc;
-    CDib m_renderDest;
-    CHyperLink m_cWebLink;
-    CHyperLink m_cSupportLink;
+	CWaterEffect m_waterEffect;
+	CDib m_renderSrc;
+	CDib m_renderDest;
+	CHyperLink m_cWebLink;
+	CHyperLink m_cSupportLink;
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };

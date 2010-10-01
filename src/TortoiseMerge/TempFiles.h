@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2010 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,10 +27,9 @@
 class CTempFiles
 {
 public:
-    CTempFiles(void);
-    ~CTempFiles(void);
-    CString GetTempFilePath();
-    void    AddFileToRemove(const CString& file) { m_arTempFileList.Add(file); }
+	CTempFiles(void);
+	~CTempFiles(void);
+	CString GetTempFilePath();
 protected:
-    CStringArray        m_arTempFileList;
+	CStringArray		m_arTempFileList;
 };

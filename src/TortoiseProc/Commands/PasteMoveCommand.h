@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008, 2010 - TortoiseSVN
+// Copyright (C) 2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,23 +18,18 @@
 //
 #pragma once
 #include "Command.h"
-#include "IInputValidator.h"
 
 /**
  * \ingroup TortoiseProc
  * Moves pasted items.
  */
-class PasteMoveCommand : public Command, public IInputValidator
+class PasteMoveCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute();
-    virtual CString         Validate(const int nID, const CString& input);
-
-private:
-    CTSVNPath               m_renPath;
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute();
 };
 
 

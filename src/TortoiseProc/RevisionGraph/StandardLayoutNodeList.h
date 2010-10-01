@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008,2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 
 #include "StandardLayout.h"
-#include "FullHistory.h"
 
 class CStandardLayoutNodeList : public ILayoutNodeList
 {
@@ -27,20 +26,18 @@ private:
 
     const CCachedLogInfo* cache;
     const std::vector<CStandardLayoutNodeInfo>& nodes;
-    CFullHistory::SWCInfo wcInfo;
 
-    /// utilities
+	/// utilities
 
-    index_t GetStyle (const CVisibleGraphNode* node) const;
-    DWORD GetStyleFlags (const CVisibleGraphNode* node) const;
+	index_t GetStyle (const CVisibleGraphNode* node) const;
+	DWORD GetStyleFlags (const CVisibleGraphNode* node) const;
 
 public:
 
     /// construction
 
     CStandardLayoutNodeList ( const std::vector<CStandardLayoutNodeInfo>& nodes
-                            , const CCachedLogInfo* cache
-                            , const CFullHistory::SWCInfo& wcInfo);
+                            , const CCachedLogInfo* cache);
 
     /// implement ILayoutItemList
 

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007,2009-2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,44 +27,40 @@ CViewData::~CViewData(void)
 {
 }
 
-void CViewData::AddData(const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedIndex)
+void CViewData::AddData(const CString& sLine, DiffStates state, int linenumber, EOL ending)
 {
-    viewdata data;
-    data.sLine = sLine;
-    data.state = state;
-    data.linenumber = linenumber;
-    data.ending = ending;
-    data.hidestate = hide;
-    data.movedIndex = movedIndex;
-    return AddData(data);
+	viewdata data;
+	data.sLine = sLine;
+	data.state = state;
+	data.linenumber = linenumber;
+	data.ending = ending;
+	return AddData(data);
 }
 
 void CViewData::AddData(const viewdata& data)
 {
-    return m_data.push_back(data);
+	return m_data.push_back(data);
 }
 
-void CViewData::InsertData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedIndex)
+void CViewData::InsertData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending)
 {
-    viewdata data;
-    data.sLine = sLine;
-    data.state = state;
-    data.linenumber = linenumber;
-    data.ending = ending;
-    data.hidestate = hide;
-    data.movedIndex = movedIndex;
-    return InsertData(index, data);
+	viewdata data;
+	data.sLine = sLine;
+	data.state = state;
+	data.linenumber = linenumber;
+	data.ending = ending;
+	return InsertData(index, data);
 }
 
 void CViewData::InsertData(int index, const viewdata& data)
 {
-    m_data.insert(m_data.begin()+index, data);
+	m_data.insert(m_data.begin()+index, data);
 }
 
 int CViewData::FindLineNumber(int number)
 {
-    for(size_t i = 0; i < m_data.size(); ++i)
-        if (m_data[i].linenumber >= number)
-            return (int)i;
-    return -1;
+	for(size_t i = 0; i < m_data.size(); ++i)
+		if (m_data[i].linenumber >= number)
+			return i;
+	return -1;
 }

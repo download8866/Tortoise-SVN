@@ -11,7 +11,7 @@
 
 #include "Platform.h"
 
-#include "CharClassify.h"
+#include "PropSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE
@@ -43,12 +43,12 @@ AutoComplete::~AutoComplete() {
 	}
 }
 
-bool AutoComplete::Active() const {
+bool AutoComplete::Active() {
 	return active;
 }
 
-void AutoComplete::Start(Window &parent, int ctrlID,
-	int position, Point location, int startLen_,
+void AutoComplete::Start(Window &parent, int ctrlID, 
+	int position, Point location, int startLen_, 
 	int lineHeight, bool unicodeMode) {
 	if (active) {
 		Cancel();
@@ -82,7 +82,7 @@ void AutoComplete::SetSeparator(char separator_) {
 	separator = separator_;
 }
 
-char AutoComplete::GetSeparator() const {
+char AutoComplete::GetSeparator() {
 	return separator;
 }
 
@@ -90,7 +90,7 @@ void AutoComplete::SetTypesep(char separator_) {
 	typesep = separator_;
 }
 
-char AutoComplete::GetTypesep() const {
+char AutoComplete::GetTypesep() {
 	return typesep;
 }
 

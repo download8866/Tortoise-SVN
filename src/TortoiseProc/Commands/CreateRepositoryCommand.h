@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,9 @@
 #pragma once
 #include "Command.h"
 
+#include "MessageBox.h"
+#include "SVN.h"
+
 /**
  * \ingroup TortoiseProc
  * Creates a repository
@@ -26,10 +29,22 @@
 class CreateRepositoryCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute();
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute()
+	{
+		if (!SVN::CreateRepository(cmdLinePath))
+		{
+			CMessageBox::Show(hwndExplorer, IDS_PROC_REPOCREATEERR, IDS_APPNAME, MB_ICONERROR);
+			return false;
+		}
+		else
+		{
+			CMessageBox::Show(hwndExplorer, IDS_PROC_REPOCREATEFINISHED, IDS_APPNAME, MB_OK | MB_ICONINFORMATION);
+		}
+		return true;
+	}
 };
 
 

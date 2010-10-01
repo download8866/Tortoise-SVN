@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,374 +16,348 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "HuffmanEncoder.h"
-#include "StreamException.h"
-#include "auto_buffer.h"
 
 // Huffman encoding stages:
 
 // (1) determine distribution
 
 void CHuffmanEncoder::CountValues ( const unsigned char* source
-                                  , const unsigned char* end)
+								  , const unsigned char* end)
 {
-    SecureZeroMemory (&count, sizeof (count));
+	// keep intermediate results
 
-    // cleaning memory speed is about 2 buckets / clock tick
-    // optimized counting saves about 2 clock ticks / char
-    // -> don't use temp buckets for short sequences
+	DWORD localCount[sizeof (count_block_type)][BUCKET_COUNT];
+	SecureZeroMemory (localCount, sizeof (localCount));
 
-    if (2 * (end - source) > (sizeof (count_block_type) * BUCKET_COUNT) / 2)
-    {
-        // keep intermediate results
+	// main loop
 
-        DWORD localCount[sizeof (count_block_type)][BUCKET_COUNT];
-        SecureZeroMemory (localCount, sizeof (localCount));
+	const count_block_type* blockSource 
+		= reinterpret_cast<const count_block_type*>(source);
+	const count_block_type* blockEnd 
+		= blockSource + (end - source) / sizeof (count_block_type);
 
-        // main loop
+	for (; blockSource != blockEnd; ++blockSource)
+	{
+		count_block_type block = *blockSource;
 
-        const count_block_type* blockSource
-            = reinterpret_cast<const count_block_type*>(source);
-        const count_block_type* blockEnd
-            = blockSource + (end - source) / sizeof (count_block_type);
+		++localCount[0][block & 0xff];
+		++localCount[1][(block >> 8) & 0xff];
+		++localCount[2][(block >> 16) & 0xff];
+		++localCount[3][(block >> 24) & 0xff];
 
-        for (; blockSource != blockEnd; ++blockSource)
-        {
-            count_block_type block = *blockSource;
+#ifdef _WIN64
 
-            // make compiler generate faster add instead of inc
+		++localCount[4][(block >> 32) & 0xff];
+		++localCount[5][(block >> 40) & 0xff];
+		++localCount[6][(block >> 48) & 0xff];
+		++localCount[7][(block >> 56) & 0xff];
 
-            localCount[0][block & 0xff] += 2;
-            localCount[1][(block >> 8) & 0xff] += 2;
-            localCount[2][(block >> 16) & 0xff] += 2;
-            localCount[3][(block >> 24) & 0xff] += 2;
+#endif
+	}
 
-    #ifdef _64BITS
+	// count odd chars
 
-            localCount[4][(block >> 32) & 0xff] += 2;
-            localCount[5][(block >> 40) & 0xff] += 2;
-            localCount[6][(block >> 48) & 0xff] += 2;
-            localCount[7][(block >> 56) & 0xff] += 2;
+	source = reinterpret_cast<const BYTE*>(blockEnd);
+	for (; source != end; ++source)
+		++count[*source];
 
-    #endif
-        }
+	// fold temp. results
 
-        source = reinterpret_cast<const BYTE*>(blockEnd);
-
-        // fold temp. results
-
-        for (size_t i = 0; i < sizeof (count_block_type); ++i)
-            for (size_t k = 0; k < BUCKET_COUNT; ++k)
-                count[k] += localCount[i][k] / 2;
-    }
-
-    // count odd chars
-
-    for (; source != end; ++source)
-        count[*source] += 1;
+	for (size_t i = 0; i < sizeof (count_block_type); ++i)
+		for (size_t k = 0; k < BUCKET_COUNT; ++k)
+			count[k] += localCount[i][k];
 }
 
 // (2) prepare for key assignment: sort by frequency
 
 void CHuffmanEncoder::SortByFrequency()
 {
-    // sort all tokens to encode by frequency
+	// sort all tokens to encode and sort them by frequency
 
-    std::pair<DWORD, BYTE> frequencyOrder[BUCKET_COUNT];
-    std::pair<DWORD, BYTE>* firstPair = frequencyOrder;
-    std::pair<DWORD, BYTE>* lastPair = firstPair;
+	typedef std::multimap<DWORD, BYTE> TFrequencyOrder;
 
-    for (size_t i = 0; i < BUCKET_COUNT; ++i)
-        if (count[i] > 0)
-        {
-            lastPair->first = count[i];
-            lastPair->second = static_cast<BYTE>(i);
-            ++lastPair;
-        }
+	TFrequencyOrder frequencyOrder;
+	for (size_t i = 0; i < BUCKET_COUNT; ++i)
+		if (count[i] > 0)
+			frequencyOrder.insert (std::make_pair ( count[i]
+												  , static_cast<BYTE>(i)));
 
-    std::sort (firstPair, lastPair);
-    sortedCount = lastPair - firstPair;
+	// convert to an array for easier iteration
 
-    // convert to an array for easier iteration
+	BYTE* first = sorted;
+	BYTE* last = first;
+	for ( TFrequencyOrder::const_reverse_iterator iter = frequencyOrder.rbegin()
+		, end = frequencyOrder.rend()
+		; iter != end
+		; ++iter)
+	{
+		*last = iter->second;
+		++last;
+	}
 
-    BYTE* first = sorted;
-    BYTE* last = first;
-    for ( ; firstPair != lastPair; ++ firstPair)
-    {
-        *last = firstPair->second;
-        ++last;
-    }
+	sortedCount = frequencyOrder.size();
 
-    // recursively construct Huffman keys
+	// recursively construct Huffman keys
 
-    if (first != last)
-        AssignEncoding (first, last, 0, 0);
+	if (first != last)
+		AssignEncoding (first, last, 0, 0);
 }
 
 // (3) recursively construct & assign keys
 
 void CHuffmanEncoder::AssignEncoding ( BYTE* first
-                                     , BYTE* last
-                                     , key_type encoding
-                                     , BYTE bitCount)
+								     , BYTE* last
+								     , key_type encoding
+								     , BYTE bitCount)
 {
-    size_t distance = last - first;
-    if (distance == 1)
-    {
-        // we constructed a unique encoding
+	size_t distance = last - first;
+	if (distance == 1)
+	{
+		// we constructed a unique encoding
 
-        key[*first] = ReverseBits (encoding, bitCount);
-        keyLength[*first] = bitCount;
-    }
-    else
-    {
-        // we must split this range
+		key[*first] = ReverseBits (encoding, bitCount) << (KEY_BITS - bitCount);
+		keyLength[*first] = bitCount;
+	}
+	else
+	{
+		// we must split this range
 
-        BYTE* mid;
-        if (((size_t)1 << (MAX_ENCODING_LENGTH-1 - bitCount)) < distance)
-        {
-            // oops .. we have some extremely unfavorable distribution
-            // -> must artificially limit the key length because it
-            // might grow to 45+ bits
+		BYTE* mid;
+		if (((size_t)1 << (MAX_ENCODING_LENGTH-1 - bitCount)) < distance)
+		{
+			// oops .. we have some extremely unfavorable distribution
+			// -> must artificially limit the key length because it 
+			// might grow to 45+ bits
 
-            mid = first + distance / 2;
-        }
-        else
-        {
-            // find the position that is close to a 50:50 frequency split
+			mid = first + distance / 2;
+		}
+		else
+		{
+			// find the position that is closed to a 50:50 frequency split
 
-            // 50% of what?
+			// 50% of what?
 
-            DWORD totalSum = 0;
-            for (BYTE* iter = first; iter != last; ++iter)
-                totalSum += count[*iter];
+			DWORD totalSum = 0;
+			for (BYTE* iter = first; iter != last; ++iter)
+				totalSum += count[*iter];
 
-            // find the middle position
+			// find the middle position
 
-            DWORD halfSum = 0;
-            for (mid = first; (mid != last) && (halfSum < totalSum / 2); ++mid)
-                halfSum += count[*mid];
+			DWORD halfSum = 0;
+			for (mid = first; (mid != last) && (halfSum < totalSum / 2); ++mid)
+				halfSum += count[*mid];
 
-            // maybe, the previous position is closer to a 50:50 split
+			// maybe, the previous position is closer to a 50:50 split
 
-            DWORD lowerHalfSum = halfSum - count[*(mid-1)];
-            assert (totalSum / 2 > lowerHalfSum);
-            assert (totalSum / 2 <= halfSum);
+			DWORD lowerHalfSum = halfSum - count[*(mid-1)];
+			assert (totalSum / 2 > lowerHalfSum);
+			assert (totalSum / 2 <= halfSum);
 
-            if (totalSum - lowerHalfSum < halfSum)
-                --mid;
-        }
+			if (totalSum - lowerHalfSum < halfSum)
+				--mid;
+		}
 
-        // recursion
+		// recursion
 
-        assert ((first < mid) && (mid < last));
+		assert ((first < mid) && (mid < last));
 
-        AssignEncoding (first, mid, 2*encoding, bitCount+1);
-        AssignEncoding (mid, last, 2*encoding+1, bitCount+1);
-    }
+		AssignEncoding (first, mid, 2*encoding, bitCount+1);
+		AssignEncoding (mid, last, 2*encoding+1, bitCount+1);
+	}
 }
 
 // (4) target buffer size calculation
 
 DWORD CHuffmanEncoder::CalculatePackedSize()
 {
-    // first, the original and packed buffer sizes
+	// first, the original and packed buffer sizes
 
-    DWORD result = 2 * sizeof(DWORD);
+	DWORD result = 2 * sizeof(DWORD);
 
-    // Huffman table:
-    //      * 1 byte entry count
-    //      * 1.5 bytes per entry
+	// Huffman table: 
+	//		* 1 byte entry count
+	//		* 1.5 bytes per entry
+	
+	result += (DWORD)(1 + (3 * sortedCount + 1) / 2) * sizeof (BYTE);
 
-    result += (DWORD)(1 + (3 * sortedCount + 1) / 2) * sizeof (BYTE);
+	// calculate total bit count
 
-    // calculate total bit count
+	QWORD bitCount = 0;
+	for (size_t i = 0; i < BUCKET_COUNT; ++i)
+		bitCount += count[i] * keyLength[i];
 
-    QWORD bitCount = 0;
-    for (size_t i = 0; i < BUCKET_COUNT; ++i)
-        bitCount += count[i] * keyLength[i];
+	// packed data will use full QWORDs, i.e. up to 63 unused bits
 
-    // packed data will use full QWORDs, i.e. up to 63 unused bits
+	assert (bitCount < 0x800000000);
+	result += static_cast<DWORD>(bitCount / 8 + sizeof (QWORD));
 
-    assert (bitCount < 0x800000000ull);
-    result += static_cast<DWORD>(bitCount / 8 + sizeof (QWORD));
+	// ready
 
-    // ready
-
-    return result;
+	return result;
 }
 
 // (5) write a Huffman table
 
 void CHuffmanEncoder::WriteHuffmanTable (BYTE*& dest)
 {
-    *dest = static_cast<BYTE>(sortedCount);
-    ++dest;
+	*dest = static_cast<BYTE>(sortedCount);
+	++dest;
 
-    for (size_t i = 0; i < sortedCount; ++i)
-    {
-        // write the character value
+	for (size_t i = 0; i < sortedCount; ++i)
+	{
+		// write the character value
 
-        *dest = sorted[i];
-        ++dest;
+		*dest = sorted[i];
+		++dest;
     }
-
+    
     for (size_t i = 0; i < sortedCount; i+=2)
-    {
+	{
         assert (MAX_ENCODING_LENGTH < 0x10);
 
         // number of bits used (use 4 bits per value)
 
-        *dest = keyLength[sorted[i]]
+		*dest = keyLength[sorted[i]]
               + keyLength[sorted[i+1]] * 0x10;
-        ++dest;
-    }
+		++dest;
+	}
 }
 
 // (6) write encoded target stream
 
 void CHuffmanEncoder::WriteHuffmanEncoded ( const BYTE* source
-                                          , const BYTE* end
-                                          , BYTE* dest)
+									      , const BYTE* end
+										  , BYTE* dest)
 {
-    key_block_type cachedCode = 0;
-    BYTE cachedBits = 0;
+	key_type cachedCode = 0;
+	BYTE cachedBits = 0;
 
-#ifdef _64BITS
+#ifdef _WIN64
 
-    // main loop
+	// main loop (22 1/3 clock ticks per 4 chars on K8) 
 
-    const encode_block_type* blockSource
-        = reinterpret_cast<const encode_block_type*>(source);
-    const encode_block_type* blockEnd
-        = blockSource + (end - source) / sizeof (encode_block_type);
+	const encode_block_type* blockSource 
+		= reinterpret_cast<const encode_block_type*>(source);
+	const encode_block_type* blockEnd 
+		= blockSource + (end - source) / sizeof (encode_block_type);
 
-    for ( ; blockSource != blockEnd; ++blockSource)
-    {
-        // fetch 4 chars at once
+	for ( ; blockSource != blockEnd; ++blockSource)
+	{
+		// fetch 4 chars at once
 
-        QWORD data = *blockSource;
+		encode_block_type data = *blockSource;
 
-        // encode byte 0
+		// build chain [key1][key2][key3][key4],
+		// start with key4
 
-        size_t index = data & 0xff;
-        data >>= 8;
+		BYTE bits4 = keyLength [(data >> 24) & 0xff];
+		key_type mask4 = key [(data >> 24) & 0xff];
+		BYTE totalShift = bits4;
+		key_type totalMask = mask4;
 
-        cachedCode += key [index] << cachedBits;
-        cachedBits += keyLength [index];
+		BYTE bits3 = keyLength [(data >> 16) & 0xff];
+		key_type mask3 = key [(data >> 16) & 0xff];
+		mask3 >>= totalShift;
+		totalShift += bits3;
+		totalMask += mask3;
 
-        // encode byte 1
+		BYTE bits2 = keyLength [(data >> 8) & 0xff];
+		key_type mask2 = key [(data >> 8) & 0xff];
+		mask2 >>= totalShift;
+		totalShift += bits2;
+		totalMask += mask2;
 
-        index = data & 0xff;
-        data >>= 8;
+		BYTE bits1 = keyLength [data & 0xff];
+		key_type mask1 = key [data & 0xff];
+		mask1 >>= totalShift;
+		totalShift += bits1;
+		totalMask += mask1;
 
-        cachedCode += key [index] << cachedBits;
-        cachedBits += keyLength [index];
+		// add to existing bit cache
 
-        // encode byte 2
+		cachedCode >>= totalShift;
+		cachedCode += totalMask;
+		cachedBits += totalShift;
 
-        index = data & 0xff;
-        data >>= 8;
+		// write full bytes only
 
-        cachedCode += key [index] << cachedBits;
-        cachedBits += keyLength [index];
+		*reinterpret_cast<key_type*>(dest) 
+			= cachedCode >> (KEY_BITS - cachedBits);
+		dest += cachedBits / 8;
 
-        // encode byte 3
+		// update cache
 
-        index = data & 0xff;
+		cachedBits &= 7;
+	}
 
-        cachedCode += key [index] << cachedBits;
-        cachedBits += keyLength [index];
+	// encode odd chars
 
-        // write full bytes only
+	source = reinterpret_cast<const BYTE*>(blockEnd);
+	for ( ; source != end; ++source)
+	{
+		// encode just one byte
 
-        *reinterpret_cast<key_block_type*>(dest) = cachedCode;
-        cachedCode >>= (cachedBits & ~7);
-        dest += cachedBits / 8;
+		DWORD data = *source;
 
-        // update cache
+		BYTE length = keyLength [data];
+		key_type mask = key [data];
 
-        cachedBits &= 7;
-    }
+		// add to existing bit cache
 
-    source = reinterpret_cast<const BYTE*>(blockEnd);
+		cachedCode >>= length;
+		cachedCode += mask;
+		cachedBits += length;
+	}
 
 #else
 
-    // main loop (9.5 clock ticks per 2 chars on Core2)
+	// main loop (11.3 clock ticks per char on K8)
 
-    const BYTE* blockEnd = source + (end - source) / sizeof (encode_block_type) * sizeof (encode_block_type);
-    for ( ; source != blockEnd; source += sizeof (encode_block_type))
-    {
-        // encode byte 0
+	for ( ; source != end; ++source)
+	{
+		// encode just one byte
 
-        DWORD data0 = source[0];
+		DWORD data = *source;
 
-        BYTE len0 = keyLength [data0];
-        cachedCode += key [data0] << cachedBits;
-        cachedBits += len0;
+		BYTE length = keyLength [data];
+		key_type mask = key [data];
 
-        // encode byte 1
+		// add to existing bit cache
 
-        DWORD data1 = source[1];
+		cachedCode >>= length;
+		cachedCode += mask;
+		cachedBits += length;
 
-        BYTE len1 = keyLength [data1];
-        cachedCode += key [data1] << cachedBits;
-        cachedBits += len1;
+		// write full bytes only
 
-        // write full bytes only
+		*reinterpret_cast<key_type*>(dest) 
+			= cachedCode >> (KEY_BITS - cachedBits);
+		dest += cachedBits / 8;
 
-        *reinterpret_cast<key_block_type*>(dest) = cachedCode;
-        cachedCode >>= (cachedBits & ~7);
-        dest += cachedBits / 8;
+		// update cache
 
-        // update cache
-
-        cachedBits &= 7;
-    }
-
-    source = blockEnd;
+		cachedBits &= 7;
+	}
 
 #endif
 
-    // encode odd chars
+	// write the remaining cached data
 
-    for ( ; source != end; ++source)
-    {
-        // encode just one byte
-
-        DWORD data = *source;
-
-        BYTE length = keyLength [data];
-        key_block_type mask = key [data];
-
-        // add to existing bit cache
-
-        cachedCode += mask << cachedBits;
-        cachedBits += length;
-
-        // write full bytes only
-
-        *reinterpret_cast<key_block_type*>(dest) = cachedCode;
-        cachedCode >>= (cachedBits & ~7);
-        dest += cachedBits / 8;
-
-        // update cache
-
-        cachedBits &= 7;
-    }
-
-    // write the remaining cached data
-
-    *reinterpret_cast<key_block_type*>(dest) = cachedCode;
+	*reinterpret_cast<key_type*>(dest) 
+		= cachedCode >> (KEY_BITS - cachedBits);
 }
 
 // construction: nothing special to do
 
 CHuffmanEncoder::CHuffmanEncoder()
-    : sortedCount (0)
+	: sortedCount (0)
 {
+	SecureZeroMemory (&key, sizeof (key));
+	SecureZeroMemory (&keyLength, sizeof (keyLength));
+	SecureZeroMemory (&count, sizeof (count));
+	SecureZeroMemory (&sorted, sizeof (sorted));
 }
 
 // write local stream data and close the stream
@@ -391,51 +365,33 @@ CHuffmanEncoder::CHuffmanEncoder()
 std::pair<CHuffmanEncoder::BYTE*, DWORD>
 CHuffmanEncoder::Encode (const BYTE* source, size_t byteCount)
 {
-    // this may fail under x64
+	assert (sorted[0] == NULL);
 
-    if (byteCount > (DWORD)(-1))
-        throw CStreamException ("BLOB to large for stream");
+	// this may fail under x64
 
-    // calculate static Huffman encoding
+	if (byteCount > (DWORD)(-1))
+		throw std::exception ("BLOB to large for stream");
 
-    CountValues (source, source + byteCount);
-    SortByFrequency();
+	// calculate static Huffman encoding
 
-    // create buffer
+	CountValues (source, source + byteCount);
+	SortByFrequency();
 
-    DWORD targetSize = std::min ( (DWORD)byteCount+MIN_HEADER_LENGTH
-                                , CalculatePackedSize());
-    auto_buffer<BYTE> buffer (targetSize);
+	// create buffer
 
-    // fill it
+	DWORD targetSize = CalculatePackedSize();
+	std::auto_ptr<BYTE> buffer (new BYTE[targetSize]);
 
-    BYTE* dest = buffer.get();
-    *reinterpret_cast<DWORD*>(dest) = static_cast<DWORD>(byteCount);
-    dest += sizeof (DWORD);
-    *reinterpret_cast<DWORD*>(dest) = targetSize;
-    dest += sizeof (DWORD);
+	// fill it
 
-    // special case: no compression possible
+	BYTE* dest = buffer.get();
+	*reinterpret_cast<DWORD*>(dest) = static_cast<DWORD>(byteCount);
+	dest += sizeof (DWORD);
+	*reinterpret_cast<DWORD*>(dest) = targetSize;
+	dest += sizeof (DWORD);
 
-    if (byteCount + MIN_HEADER_LENGTH == targetSize)
-    {
-        // empty huffman table (to discern it from legacy files)
+	WriteHuffmanTable (dest);
+	WriteHuffmanEncoded (source, source + byteCount, dest);
 
-        *dest = 0;
-        ++dest;
-
-        // copy plain content
-
-        memcpy (dest, source, byteCount);
-        dest += byteCount;
-    }
-    else
-    {
-        // write huffman-encoded data
-
-        WriteHuffmanTable (dest);
-        WriteHuffmanEncoded (source, source + byteCount, dest);
-    }
-
-    return std::make_pair (buffer.release(), targetSize);
+	return std::make_pair (buffer.release(), targetSize);
 }

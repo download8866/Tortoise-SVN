@@ -50,51 +50,51 @@ void CDib::DeleteObject()
 
 void CDib::Create32BitFromPicture (CPictureHolder* pPicture, int iWidth, int iHeight)
 {
-    CRect r;
-    CBitmap newBMP;
-    CWindowDC dc(NULL);
-    CDC tempDC;
+	CRect r;
+	CBitmap newBMP;
+	CWindowDC dc(NULL);
+	CDC tempDC;
 
-    tempDC.CreateCompatibleDC(&dc);
+	tempDC.CreateCompatibleDC(&dc);
 
-    newBMP.CreateDiscardableBitmap(&dc,iWidth,iHeight);
+	newBMP.CreateDiscardableBitmap(&dc,iWidth,iHeight);
 
-    CBitmap* pOldBitmap = tempDC.SelectObject(&newBMP);
+	CBitmap* pOldBitmap = tempDC.SelectObject(&newBMP);
 
-    r.SetRect(0,0,iWidth,iHeight);
-    pPicture->Render(&tempDC,r,r);
+	r.SetRect(0,0,iWidth,iHeight);
+	pPicture->Render(&tempDC,r,r);
 
-    // Create a 32 bit bitmap
-    stdex::vector<DWORD> pBits(iWidth * iHeight);
+	// Create a 32 bit bitmap
+	stdex::vector<DWORD> pBits(iWidth * iHeight);
 
-    BITMAPINFO bi;
+	BITMAPINFO bi;
     bi.bmiHeader.biSize          = sizeof(BITMAPINFOHEADER);
-    bi.bmiHeader.biWidth         = iWidth;
-    bi.bmiHeader.biHeight        = iHeight;
-    bi.bmiHeader.biPlanes        = 1;
-    bi.bmiHeader.biBitCount      = 32;
-    bi.bmiHeader.biCompression   = BI_RGB;
-    bi.bmiHeader.biSizeImage     = 0;
-    bi.bmiHeader.biXPelsPerMeter = 0;
-    bi.bmiHeader.biYPelsPerMeter = 0;
-    bi.bmiHeader.biClrUsed       = 0;
-    bi.bmiHeader.biClrImportant  = 0;
+    bi.bmiHeader.biWidth         = iWidth; 
+    bi.bmiHeader.biHeight        = iHeight; 
+    bi.bmiHeader.biPlanes        = 1; 
+    bi.bmiHeader.biBitCount      = 32; 
+    bi.bmiHeader.biCompression   = BI_RGB; 
+    bi.bmiHeader.biSizeImage     = 0; 
+    bi.bmiHeader.biXPelsPerMeter = 0; 
+    bi.bmiHeader.biYPelsPerMeter = 0; 
+    bi.bmiHeader.biClrUsed       = 0; 
+    bi.bmiHeader.biClrImportant  = 0; 
+	
+	
+	SetBitmap(&bi, pBits);
 
+	DWORD* pAr = (DWORD*)GetDIBits();
 
-    SetBitmap(&bi, pBits);
+	// Copy data into the 32 bit dib..
+	for(int i=0;i<iHeight;i++)
+	{	
+		for(int j=0;j<iWidth;j++)
+		{
+			pAr[(i*iWidth)+j] = FixColorRef(tempDC.GetPixel(j,i));
+		}
+	}
 
-    DWORD* pAr = (DWORD*)GetDIBits();
-
-    // Copy data into the 32 bit dib..
-    for(int i=0;i<iHeight;i++)
-    {
-        for(int j=0;j<iWidth;j++)
-        {
-            pAr[(i*iWidth)+j] = FixColorRef(tempDC.GetPixel(j,i));
-        }
-    }
-
-    tempDC.SelectObject(pOldBitmap);
+	tempDC.SelectObject(pOldBitmap);
 }
 
 BOOL CDib::SetBitmap(const LPBITMAPINFO lpBitmapInfo, const LPVOID lpBits)
@@ -111,25 +111,25 @@ BOOL CDib::SetBitmap(const LPBITMAPINFO lpBitmapInfo, const LPVOID lpBits)
     memcpy(&m_BMinfo, lpBitmapInfo, dwBitmapInfoSize);
 
     hDC = ::GetDC(NULL);
-    if (!hDC)
-    {
-        DeleteObject();
-        return FALSE;
-    }
+    if (!hDC) 
+	{
+		DeleteObject();
+		return FALSE;
+	}
 
     m_hBitmap = CreateDIBSection(hDC, &m_BMinfo,
                                     DIB_RGB_COLORS, &m_pBits, NULL, 0);
     ::ReleaseDC(NULL, hDC);
     if (!m_hBitmap)
-    {
-        DeleteObject();
-        return FALSE;
-    }
+	{
+		DeleteObject();
+		return FALSE;
+	}
 
     DWORD dwImageSize = m_BMinfo.bmiHeader.biSizeImage;
     if (dwImageSize == 0)
     {
-        int nBytesPerLine = BytesPerLine(lpBitmapInfo->bmiHeader.biWidth,
+        int nBytesPerLine = BytesPerLine(lpBitmapInfo->bmiHeader.biWidth, 
                                             lpBitmapInfo->bmiHeader.biBitCount);
         dwImageSize = nBytesPerLine * lpBitmapInfo->bmiHeader.biHeight;
     }
@@ -141,8 +141,8 @@ BOOL CDib::SetBitmap(const LPBITMAPINFO lpBitmapInfo, const LPVOID lpBits)
     return TRUE;
 }
 
-BOOL CDib::Draw(CDC* pDC, CPoint ptDest)
-{
+BOOL CDib::Draw(CDC* pDC, CPoint ptDest) 
+{ 
     if (!m_hBitmap)
         return FALSE;
 
@@ -151,23 +151,23 @@ BOOL CDib::Draw(CDC* pDC, CPoint ptDest)
 
     BOOL resVal = FALSE;
 
-    resVal = SetDIBitsToDevice(pDC->GetSafeHdc(),
-                                ptDest.x, ptDest.y,
+    resVal = SetDIBitsToDevice(pDC->GetSafeHdc(), 
+                                ptDest.x, ptDest.y, 
                                 size.cx, size.cy,
                                 SrcOrigin.x, SrcOrigin.y,
-                                SrcOrigin.y, size.cy - SrcOrigin.y,
-                                GetDIBits(), &m_BMinfo,
-                                DIB_RGB_COLORS);
+                                SrcOrigin.y, size.cy - SrcOrigin.y, 
+                                GetDIBits(), &m_BMinfo, 
+                                DIB_RGB_COLORS); 
 
     return resVal;
 }
 
 COLORREF CDib::FixColorRef(COLORREF clr)
 {
-    int r = GetRValue(clr);
-    int g = GetGValue(clr);
-    int b =  GetBValue(clr);
+	int r = GetRValue(clr);
+	int g = GetGValue(clr);
+	int b =  GetBValue(clr);
 
-    return RGB(b,g,r);
+	return RGB(b,g,r);
 }
 

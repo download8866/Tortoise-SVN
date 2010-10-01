@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@
 
 // construction
 
-CStandardNodeSizeAssignment::CStandardNodeSizeAssignment
+CStandardNodeSizeAssignment::CStandardNodeSizeAssignment 
     ( CRevisionGraphOptionList& list
     , const CGraphNodeStates* nodeStates)
     : CRevisionGraphOptionImpl<ILayoutOption, 100, 0> (list)
@@ -40,9 +40,9 @@ void CStandardNodeSizeAssignment::ApplyTo (IRevisionGraphLayout* layout)
 {
     // we need access to actual data
 
-    IStandardLayoutNodeAccess* nodeAccess
+    IStandardLayoutNodeAccess* nodeAccess 
         = dynamic_cast<IStandardLayoutNodeAccess*>(layout);
-    if (nodeAccess == NULL)
+    if (nodeAccess == NULL) 
         return;
 
     // run
@@ -54,35 +54,35 @@ void CStandardNodeSizeAssignment::ApplyTo (IRevisionGraphLayout* layout)
         // expand node to show the path, if necessary
 
         node->requiresPath =   (node->previousInBranch == NULL)
-                            || (   node->previousInBranch->node->GetPath()
+                            || (   node->previousInBranch->node->GetPath() 
                                 != node->node->GetPath());
 
-        int height = 21;
+        int height = 28;
         if (node->requiresPath)
         {
-            size_t visibleElementCount = node->node->GetPath().GetDepth()
+            size_t visibleElementCount = node->node->GetPath().GetDepth() 
                                        - node->skipStartPathElements
                                        - node->skipTailPathElements;
-            height += (int)(3 + visibleElementCount * 16);
+            height += 3 + visibleElementCount * 21;
         }
 
         // shift (root) nodes down, if their source has been folded
         // (otherwise, glyphs would be partly hidden)
 
         DWORD state = nodeStates->GetFlags (node->node);
-        int shift = (state & ( CGraphNodeStates::COLLAPSED_ABOVE
+        int shift = (state & ( CGraphNodeStates::COLLAPSED_ABOVE 
                              | CGraphNodeStates::SPLIT_ABOVE)) == 0
                   ? 0
-                  : 6;
+                  : 8;
 
-        int extension = (state & ( CGraphNodeStates::COLLAPSED_BELOW
+        int extension = (state & ( CGraphNodeStates::COLLAPSED_BELOW 
                                  | CGraphNodeStates::SPLIT_BELOW)) == 0
                       ? 0
-                      : 6;
+                      : 8;
 
         // set result
 
-        node->requiredSize = CSize (150, height + extension + shift);
-        node->rect = CRect (0, shift, 150, height + shift);
+        node->requiredSize = CSize (200, height + extension + shift);
+        node->rect = CRect (0, shift, 200, height + shift);
     }
 }
