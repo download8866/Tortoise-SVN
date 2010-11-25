@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,8 +28,8 @@
 //
 // CDiffInStreamBase<>
 //
-//      enhances CPackedIntegerInStreamBase as well as
-//      CPackedDWORDInStreamBase to store values differentially.
+//		enhances CPackedIntegerInStreamBase as well as
+//		CPackedDWORDInStreamBase to store values differentially.
 //
 ///////////////////////////////////////////////////////////////
 
@@ -38,44 +38,44 @@ class CDiffInStreamBase : public Base
 {
 private:
 
-    // our current diff base
+	// our current diff base
 
-    V lastValue;
+	V lastValue;
 
 protected:
 
-    // not meant to be instantiated
+	// not meant to be instantiated
 
-    // construction: nothing to do here
+	// construction: nothing to do here
 
-    CDiffInStreamBase ( CCacheFileInBuffer* buffer
-                      , STREAM_INDEX index)
-        : Base (buffer, index)
-        , lastValue (0)
-    {
-    }
+	CDiffInStreamBase ( CCacheFileInBuffer* buffer
+					  , STREAM_INDEX index)
+		: Base (buffer, index)
+		, lastValue (0)
+	{
+	}
 
-    // data access
+	// data access
 
-    V GetValue() throw()
-    {
-        lastValue += Base::GetValue();
-        return lastValue;
-    }
+	V GetValue() throw()
+	{
+		lastValue += Base::GetValue();
+		return lastValue;
+	}
 
 public:
 
-    // destruction
+	// destruction
 
-    virtual ~CDiffInStreamBase() {};
+	virtual ~CDiffInStreamBase() {};
 
-    // extend Reset() to reset lastValue properly
+	// extend Reset() to reset lastValue properly
 
-    virtual void Reset()
-    {
-        Base::Reset();
-        lastValue = 0;
-    }
+	virtual void Reset()
+	{
+		Base::Reset();
+		lastValue = 0;
+	}
 };
 
 ///////////////////////////////////////////////////////////////
@@ -83,79 +83,79 @@ public:
 ///////////////////////////////////////////////////////////////
 
 typedef CDiffInStreamBase< CPackedDWORDInStreamBase
-                         , DWORD> CDiffDWORDInStreamBase;
+						 , DWORD> CDiffDWORDInStreamBase;
 typedef CDiffInStreamBase< CPackedIntegerInStreamBase
-                         , int> CDiffIntegerInStreamBase;
+						 , int> CDiffIntegerInStreamBase;
 
 ///////////////////////////////////////////////////////////////
 //
 // CDiffDWORDInStream
 //
-//      instantiable sub-class of CDiffDWORDInStreamBase.
+//		instantiable sub-class of CDiffDWORDInStreamBase.
 //
 ///////////////////////////////////////////////////////////////
 
-class CDiffDWORDInStream
-    : public CInStreamImplBase< CDiffDWORDInStream
-                              , CDiffDWORDInStreamBase
-                              , DIFF_DWORD_STREAM_TYPE_ID>
+class CDiffDWORDInStream 
+	: public CInStreamImplBase< CDiffDWORDInStream
+							  , CDiffDWORDInStreamBase
+							  , DIFF_DWORD_STREAM_TYPE_ID>
 {
 public:
 
-    typedef CInStreamImplBase< CDiffDWORDInStream
-                             , CDiffDWORDInStreamBase
-                             , DIFF_DWORD_STREAM_TYPE_ID> TBase;
+	typedef CInStreamImplBase< CDiffDWORDInStream
+							 , CDiffDWORDInStreamBase
+							 , DIFF_DWORD_STREAM_TYPE_ID> TBase;
 
-    typedef int value_type;
+	typedef int value_type;
 
-    // construction / destruction: nothing special to do
+	// construction / destruction: nothing special to do
 
-    CDiffDWORDInStream ( CCacheFileInBuffer* buffer
-                       , STREAM_INDEX index);
-    virtual ~CDiffDWORDInStream() {};
+	CDiffDWORDInStream ( CCacheFileInBuffer* buffer
+					   , STREAM_INDEX index);
+	virtual ~CDiffDWORDInStream() {};
 
-    // public data access methods
+	// public data access methods
 
-    using TBase::GetValue;
+	using TBase::GetValue;
 };
 
-template class CInStreamImplBase< CDiffDWORDInStream
-                                , CDiffDWORDInStreamBase
-                                , DIFF_DWORD_STREAM_TYPE_ID>;
+template CInStreamImplBase< CDiffDWORDInStream
+						  , CDiffDWORDInStreamBase
+						  , DIFF_DWORD_STREAM_TYPE_ID>;
 
 ///////////////////////////////////////////////////////////////
 //
 // CDiffIntegerInStream
 //
-//      instantiable sub-class of CDiffIntegerInStreamBase.
+//		instantiable sub-class of CDiffIntegerInStreamBase.
 //
 ///////////////////////////////////////////////////////////////
 
-class CDiffIntegerInStream
-    : public CInStreamImplBase< CDiffIntegerInStream
-                              , CDiffIntegerInStreamBase
-                              , DIFF_INTEGER_STREAM_TYPE_ID>
+class CDiffIntegerInStream 
+	: public CInStreamImplBase< CDiffIntegerInStream
+							  , CDiffIntegerInStreamBase
+							  , DIFF_INTEGER_STREAM_TYPE_ID>
 {
 public:
 
-    typedef CInStreamImplBase< CDiffIntegerInStream
-                             , CDiffIntegerInStreamBase
-                             , DIFF_INTEGER_STREAM_TYPE_ID> TBase;
+	typedef CInStreamImplBase< CDiffIntegerInStream
+							 , CDiffIntegerInStreamBase
+							 , DIFF_INTEGER_STREAM_TYPE_ID> TBase;
 
-    typedef int value_type;
+	typedef int value_type;
 
-    // construction / destruction: nothing special to do
+	// construction / destruction: nothing special to do
 
-    CDiffIntegerInStream ( CCacheFileInBuffer* buffer
-                         , STREAM_INDEX index);
-    virtual ~CDiffIntegerInStream() {};
+	CDiffIntegerInStream ( CCacheFileInBuffer* buffer
+					     , STREAM_INDEX index);
+	virtual ~CDiffIntegerInStream() {};
 
-    // public data access methods
+	// public data access methods
 
-    using TBase::GetValue;
+	using TBase::GetValue;
 };
 
-template class CInStreamImplBase< CDiffIntegerInStream
-                                , CDiffIntegerInStreamBase
-                                , DIFF_INTEGER_STREAM_TYPE_ID>;
+template CInStreamImplBase< CDiffIntegerInStream
+						  , CDiffIntegerInStreamBase
+						  , DIFF_INTEGER_STREAM_TYPE_ID>;
 

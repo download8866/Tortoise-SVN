@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,41 +18,42 @@
 //
 #include "StdAfx.h"
 #include "DelUnversionedCommand.h"
+
 #include "DeleteUnversionedDlg.h"
-#include "auto_buffer.h"
-#include "StringUtils.h"
 
 bool DelUnversionedCommand::Execute()
 {
-    bool bRet = false;
-    CDeleteUnversionedDlg dlg;
-    dlg.m_pathList = pathList;
-    if (dlg.DoModal() == IDOK)
-    {
-        if (dlg.m_pathList.GetCount() == 0)
-            return FALSE;
-        // now remove all items by moving them to the trash bin
-        dlg.m_pathList.RemoveChildren();
-        CString filelist;
-        for (INT_PTR i=0; i<dlg.m_pathList.GetCount(); ++i)
-        {
-            filelist += dlg.m_pathList[i].GetWinPathString();
-            filelist += _T("|");
-        }
-        filelist += _T("|");
-        int len = filelist.GetLength();
-        auto_buffer<TCHAR> buf(len+2);
-        _tcscpy_s(buf, len+2, filelist);
-        CStringUtils::PipesToNulls(buf, len);
-        SHFILEOPSTRUCT fileop;
-        fileop.hwnd = GetExplorerHWND();
-        fileop.wFunc = FO_DELETE;
-        fileop.pFrom = buf;
-        fileop.pTo = NULL;
-        fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS;
-        fileop.fFlags |= dlg.m_bUseRecycleBin ? FOF_ALLOWUNDO : 0;
-        fileop.lpszProgressTitle = (LPCTSTR)CString(MAKEINTRESOURCE(IDS_DELUNVERSIONED));
-        bRet = (SHFileOperation(&fileop) == 0);
-    }
-    return bRet;
+	bool bRet = false;
+	CDeleteUnversionedDlg dlg;
+	dlg.m_pathList = pathList;
+	if (dlg.DoModal() == IDOK)
+	{
+		if (dlg.m_pathList.GetCount() == 0)
+			return FALSE;
+		// now remove all items by moving them to the trash bin
+		dlg.m_pathList.RemoveChildren();
+		CString filelist;
+		for (INT_PTR i=0; i<dlg.m_pathList.GetCount(); ++i)
+		{
+			filelist += dlg.m_pathList[i].GetWinPathString();
+			filelist += _T("|");
+		}
+		filelist += _T("|");
+		int len = filelist.GetLength();
+		TCHAR * buf = new TCHAR[len+2];
+		_tcscpy_s(buf, len+2, filelist);
+		for (int i=0; i<len; ++i)
+			if (buf[i] == '|')
+				buf[i] = 0;
+		SHFILEOPSTRUCT fileop;
+		fileop.hwnd = hwndExplorer;
+		fileop.wFunc = FO_DELETE;
+		fileop.pFrom = buf;
+		fileop.pTo = NULL;
+		fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS | FOF_ALLOWUNDO;
+		fileop.lpszProgressTitle = _T("deleting file");
+		bRet = (SHFileOperation(&fileop) == 0);
+		delete [] buf;
+	}
+	return true;
 }

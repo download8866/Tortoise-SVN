@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
-#include "PathEdit.h"
 
 /**
  * \ingroup TortoiseProc
@@ -27,30 +26,29 @@
  */
 class CRelocateDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CRelocateDlg)
+	DECLARE_DYNAMIC(CRelocateDlg)
 
 public:
-    CRelocateDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CRelocateDlg();
+	CRelocateDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CRelocateDlg();
 
-    enum { IDD = IDD_RELOCATE };
+	enum { IDD = IDD_RELOCATE };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual void OnOK();
-    virtual BOOL OnInitDialog();
-    afx_msg void OnBnClickedBrowse();
-    afx_msg void OnBnClickedHelp();
-    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
-    afx_msg void OnCbnEditchangeTourl();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void OnOK();
+	virtual BOOL OnInitDialog();
+	afx_msg void OnBnClickedBrowse();
+	afx_msg void OnBnClickedHelp();
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	afx_msg void OnCbnEditchangeTourl();
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    int             m_height;
-    CPathEdit       m_FromUrl;
+	int				m_height;
+
 public:
-    CHistoryCombo   m_URLCombo;
-    CString         m_sToUrl;
-    CString         m_sFromUrl;
-    BOOL            m_bIncludeExternals;
+	CHistoryCombo m_URLCombo;
+	CString m_sToUrl;
+	CString m_sFromUrl;
 };

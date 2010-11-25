@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2007, 2009-2010 TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,6 @@
 
 #include "TSVNPath.h"
 #include "CacheInterface.h"
-#include "UniqueQueue.h"
 #include <set>
 //////////////////////////////////////////////////////////////////////////
 
@@ -36,48 +35,49 @@
 class CFolderCrawler
 {
 public:
-    CFolderCrawler(void);
-    ~CFolderCrawler(void);
+	CFolderCrawler(void);
+	~CFolderCrawler(void);
 
 public:
-    void Initialise();
-    void AddDirectoryForUpdate(const CTSVNPath& path);
-    void AddPathForUpdate(const CTSVNPath& path);
-    void Stop();
-    bool SetHoldoff(DWORD milliseconds = 500);
-    bool IsHoldOff();
-    void BlockPath(const CTSVNPath& path, DWORD ticks = 0);
+	void Initialise();
+	void AddDirectoryForUpdate(const CTSVNPath& path);
+	void AddPathForUpdate(const CTSVNPath& path);
+	void Stop();
+	bool SetHoldoff(DWORD milliseconds = 500);
+	bool IsHoldOff();
+	void BlockPath(const CTSVNPath& path, DWORD ticks = 0);
 private:
-    static unsigned int __stdcall ThreadEntry(void* pContext);
-    void WorkerThread();
+	static unsigned int __stdcall ThreadEntry(void* pContext);
+	void WorkerThread();
+	void RemoveDuplicates(std::deque<CTSVNPath>& queue);
 
 private:
-    CComAutoCriticalSection m_critSec;
-    HANDLE m_hThread;
-    UniqueQueue<CTSVNPath> m_foldersToUpdate;
-    UniqueQueue<CTSVNPath> m_pathsToUpdate;
-    HANDLE m_hTerminationEvent;
-    HANDLE m_hWakeEvent;
+	CComAutoCriticalSection m_critSec;
+	HANDLE m_hThread;
+	std::deque<CTSVNPath> m_foldersToUpdate;
+	std::deque<CTSVNPath> m_pathsToUpdate;
+	HANDLE m_hTerminationEvent;
+	HANDLE m_hWakeEvent;
+	
+	// This will be *asynchronously* modified by CCrawlInhibitor.
+	// So, we have to mark it volatile, preparing compiler and
+	// optimizer for the "worst".
+	volatile LONG m_lCrawlInhibitSet;
+	
+	// While the shell is still asking for items, we don't
+	// want to start crawling.  This timer is pushed-out for 
+	// every shell request, and stops us crawling until
+	// a bit of quiet time has elapsed
+	long m_crawlHoldoffReleasesAt;
+	bool m_bItemsAddedSinceLastCrawl;
+	bool m_bPathsAddedSinceLastCrawl;
+	
+	CTSVNPath m_blockedPath;
+	DWORD m_blockReleasesAt;
+	bool m_bRun;
 
-    // This will be *asynchronously* modified by CCrawlInhibitor.
-    // So, we have to mark it volatile, preparing compiler and
-    // optimizer for the "worst".
-    volatile LONG m_lCrawlInhibitSet;
 
-    // While the shell is still asking for items, we don't
-    // want to start crawling.  This timer is pushed-out for
-    // every shell request, and stops us crawling until
-    // a bit of quiet time has elapsed
-    long m_crawlHoldoffReleasesAt;
-    bool m_bItemsAddedSinceLastCrawl;
-    bool m_bPathsAddedSinceLastCrawl;
-
-    CTSVNPath m_blockedPath;
-    DWORD m_blockReleasesAt;
-    bool m_bRun;
-
-
-    friend class CCrawlInhibitor;
+	friend class CCrawlInhibitor;
 };
 
 
@@ -87,23 +87,23 @@ private:
 class CCrawlInhibitor
 {
 private:
-    CCrawlInhibitor(); // Not defined
+	CCrawlInhibitor(); // Not defined
 public:
-    explicit CCrawlInhibitor(CFolderCrawler* pCrawler)
-    {
-        m_pCrawler = pCrawler;
-
-        // Count locks instead of a mere flag toggle (exchange)
-        // to allow for multiple, concurrent locks.
-        ::InterlockedIncrement(&m_pCrawler->m_lCrawlInhibitSet);
-    }
-    ~CCrawlInhibitor()
-    {
-        ::InterlockedDecrement(&m_pCrawler->m_lCrawlInhibitSet);
-        m_pCrawler->SetHoldoff();
-    }
+	explicit CCrawlInhibitor(CFolderCrawler* pCrawler)
+	{
+		m_pCrawler = pCrawler;
+		
+		// Count locks instead of a mere flag toggle (exchange)
+		// to allow for multiple, concurrent locks.
+		::InterlockedIncrement(&m_pCrawler->m_lCrawlInhibitSet);
+	}
+	~CCrawlInhibitor()
+	{
+		::InterlockedDecrement(&m_pCrawler->m_lCrawlInhibitSet);
+		m_pCrawler->SetHoldoff();
+	}
 private:
-    CFolderCrawler* m_pCrawler;
+	CFolderCrawler* m_pCrawler;
 };
 
 #pragma pack(pop, r1)

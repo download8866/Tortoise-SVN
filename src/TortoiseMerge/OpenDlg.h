@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,60 +18,61 @@
 //
 #pragma once
 #include "FileDropEdit.h"
-#include "StandAloneDlg.h"
+#include "afxwin.h"
 
 // COpenDlg dialog
 
-class COpenDlg : public CStandAloneDialog
+class COpenDlg : public CDialog
 {
-    DECLARE_DYNAMIC(COpenDlg)
+	DECLARE_DYNAMIC(COpenDlg)
 
 public:
-    COpenDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~COpenDlg();
+	COpenDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~COpenDlg();
 
 // Dialog Data
-    enum { IDD = IDD_OPENDLG };
+	enum { IDD = IDD_OPENDLG };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    void OnBrowseForFile(CString& filepath, UINT nFileFilter = IDS_COMMONFILEFILTER);
-    void GroupRadio(UINT nID);
-    bool CheckAndEnableClipboardChecker();
-    DECLARE_MESSAGE_MAP()
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	BOOL BrowseForFile(CString& filepath, CString title, UINT nFileFilter = IDS_COMMONFILEFILTER);
+	void GroupRadio(UINT nID);
+	bool CheckAndEnableClipboardChecker();
+	BOOL DialogEnableWindow(UINT nID, BOOL bEnable);
+	DECLARE_MESSAGE_MAP()
 public:
-    CString m_sBaseFile;
-    CString m_sTheirFile;
-    CString m_sYourFile;
-    CString m_sUnifiedDiffFile;
-    CString m_sPatchDirectory;
+	CString m_sBaseFile;
+	CString m_sTheirFile;
+	CString m_sYourFile;
+	CString m_sUnifiedDiffFile;
+	CString m_sPatchDirectory;
 
 protected:
-    CFileDropEdit m_cBaseFileEdit;
-    CFileDropEdit m_cTheirFileEdit;
-    CFileDropEdit m_cYourFileEdit;
-    CFileDropEdit m_cDiffFileEdit;
-    CFileDropEdit m_cDirEdit;
+	CFileDropEdit m_cBaseFileEdit;
+	CFileDropEdit m_cTheirFileEdit;
+	CFileDropEdit m_cYourFileEdit;
+	CFileDropEdit m_cDiffFileEdit;
+	CFileDropEdit m_cDirEdit;
 
-    afx_msg void OnBnClickedBasefilebrowse();
-    afx_msg void OnBnClickedTheirfilebrowse();
-    afx_msg void OnBnClickedYourfilebrowse();
-    afx_msg void OnBnClickedHelp();
-    afx_msg void OnBnClickedDifffilebrowse();
-    afx_msg void OnBnClickedDirectorybrowse();
-    afx_msg void OnBnClickedMergeradio();
-    afx_msg void OnBnClickedApplyradio();
+	afx_msg void OnBnClickedBasefilebrowse();
+	afx_msg void OnBnClickedTheirfilebrowse();
+	afx_msg void OnBnClickedYourfilebrowse();
+	afx_msg void OnBnClickedHelp();
+	afx_msg void OnBnClickedDifffilebrowse();
+	afx_msg void OnBnClickedDirectorybrowse();
+	afx_msg void OnBnClickedMergeradio();
+	afx_msg void OnBnClickedApplyradio();
 
-    afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
-    afx_msg void OnDrawClipboard();
-    afx_msg void OnDestroy();
-    afx_msg void OnBnClickedPatchfromclipboard();
+	afx_msg void OnChangeCbChain(HWND hWndRemove, HWND hWndAfter);
+	afx_msg void OnDrawClipboard();
+	afx_msg void OnDestroy();
 
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
-    void AutoCompleteOn(int controlId);
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
 
-    BOOL    m_bFromClipboard;
-    UINT    m_cFormat;
-    HWND    m_nextViewer;
+	BOOL	m_bFromClipboard;
+	UINT	m_cFormat;
+	HWND	m_nextViewer;
+public:
+	afx_msg void OnBnClickedPatchfromclipboard();
 };

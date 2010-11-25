@@ -5,28 +5,27 @@ While you are working on the docs, please oberve the following rules for your ma
 The markup is processed by XSL Transformations, FO Processors and the like. Always
 remember that you define the structure and leave the formatting to the processors
 For more information about tags in docbook read http://www.docbook.org/tdg/index.html.
-If you want to translate the German or French docs you have to enable UTF-8 BOM's in 
+If you want to translate the german or french docs you have to enable UTF-8 BOM's in 
 your editor.
 
 Rules
 =====
 - Separate XML tags from content
   In most cases, the XML tag should be included on a line by itself,
-  and the content should be indented, e.g.
+  and the content should be indented, eg.
   <para>
-      Contents of the paragraph, which
-      may span several lines or just one.
+  	Contents of the paragraph, which
+  	may span several lines or just one.
   </para>
-  Some tags are only used for a few words, e.g. <emphasis> and these
+  Some tags are only used for a few words, eg. <emphasis> and these
   may be included inline. But please do not break such a tag over
-  a line boundary. e.g. <emphasis>NOT
+  a line boundary. eg <emphasis>NOT
   </emphasis> like this.
-
-- Use spaces, not tabs
-  Please set up your editor to use spaces, NOT tabs. If anyone
-  else views the file with different tab settings it will look very messy.
-  Set the tabs to four spaces, so that your editor inserts four spaces when
-  you press the tab key.
+  
+- Use leading tabs, not spaces
+  Please set up your editor NOT to expand tabs to spaces. If anyone
+  else views the file with different tab settings it will look a mess.
+  Recommended tab setting for viewing is 4 spaces.
 
 - Avoid very long lines
   Most of the files have kept line length to within 80 characters when
@@ -54,14 +53,14 @@ Rules
   markup, with layout shown:
   Select
   <menuchoice>
-      <guimenu>TortoiseSVN</guimenu>
-      <guimenuitem>Commit</guimenuitem>
+  	<guimenu>TortoiseSVN</guimenu>
+  	<guimenuitem>Commit</guimenuitem>
   </menuchoice>
 
   For context menus within TSVN dialogs, use this markup:
   <menuchoice>
-      <guimenu>Context Menu</guimenu>
-      <guimenuitem>Commit</guimenuitem>
+  	<guimenu>Context Menu</guimenu>
+  	<guimenuitem>Commit</guimenuitem>
   </menuchoice>
   
 - Gui Labels / Fields
@@ -78,7 +77,7 @@ Rules
 - Multiline input/output or file content is marked using <screen>.
   Note that any leading spaces are also included in the formatting,
   so this text normally appears hard against the left margin in the
-  XML source file. The <screen> tag should also be left aligned. e.g.
+  XML source file. The <screen> tag should also be left aligned. eg.
   the content of the Apache config file is shown as follows:
 <screen>
 &lt;Location /svn&gt;
@@ -94,8 +93,8 @@ Require valid-user
 
 - Figures (graphics) should use a format like this:
   <figure id="tsvn-DUG-settings-dia-1">
-      <title>The Settings Dialog, Main Tab</title>
-      <graphic fileref="images/SettingsMain.png"/>
+	<title>The Settings Dialog, Main Tab</title>
+	<graphic fileref="images/SettingsMain.png"/>
   </figure>
 
 - Links:
@@ -103,45 +102,45 @@ Require valid-user
   Use ulink for external links. This should be formatted as
   as shown below:
   <ulink url="http://svnbook.red-bean.com/">
-      <citetitle>SVN book</citetitle>
+  	<citetitle>SVN book</citetitle>
   </ulink>.
 
 - A list of bullet points is declared as follows:
   <itemizedlist>
-      <listitem>
-          paragraphs in point 1
-      </listitem>
-      <listitem>
-          paragraphs in point 2
-      </listitem>
+  	<listitem>
+  		paragraphs in point 1
+  	</listitem>
+  	<listitem>
+  		paragraphs in point 2
+  	</listitem>
   </itemizedlist>
   Each paragraph should be enclosed in <para> tags.
 
 - A numbered list is declared as follows:
   <orderedlist>
-      <listitem>
-          paragraphs in point 1
-      </listitem>
-      <listitem>
-          paragraphs in point 2
-      </listitem>
+  	<listitem>
+  		paragraphs in point 1
+  	</listitem>
+  	<listitem>
+  		paragraphs in point 2
+  	</listitem>
   </orderedlist>
   Each paragraph should be enclosed in <para> tags.
 
 - A list with headings for each item is declared as follows:
   <variablelist>
-      <varlistentry>
-          <term>First heading</term>
-          <listitem>
-              paragraphs in point 1
-          </listitem>
-      </varlistentry>
-      <varlistentry>
-          <term>Second heading</term>
-          <listitem>
-              paragraphs in point 2
-          </listitem>
-      </varlistentry>
+  	<varlistentry>
+  		<term>First heading</term>
+  		<listitem>
+  			paragraphs in point 1
+  		</listitem>
+  	</varlistentry>
+  	<varlistentry>
+  		<term>Second heading</term>
+  		<listitem>
+  			paragraphs in point 2
+  		</listitem>
+  	</varlistentry>
   </variablelist>
   Each paragraph should be enclosed in <para> tags.
 
@@ -152,7 +151,7 @@ Require valid-user
 
 - Place markers where you want an index entry to point to:
   <indexterm>
-      <primary>text to go in index</primary>
+  	<primary>text to go in index</primary>
   </indexterm>
 
 - Avoid quotes (" or ').

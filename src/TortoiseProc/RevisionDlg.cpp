@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,15 +19,14 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "RevisionDlg.h"
-#include "PathUtils.h"
-#include "AppUtils.h"
-#include "LogDialog\LogDlg.h"
+#include "Balloon.h"
 
-IMPLEMENT_DYNAMIC(CRevisionDlg, CStandAloneDialog)
+
+IMPLEMENT_DYNAMIC(CRevisionDlg, CDialog)
 CRevisionDlg::CRevisionDlg(CWnd* pParent /*=NULL*/)
-    : CStandAloneDialog(CRevisionDlg::IDD, pParent)
-    , SVNRev(_T("HEAD"))
-    , m_bAllowWCRevs(true)
+	: CDialog(CRevisionDlg::IDD, pParent)
+	, SVNRev(_T("HEAD"))
+	, m_bAllowWCRevs(true)
 {
 }
 
@@ -37,103 +36,74 @@ CRevisionDlg::~CRevisionDlg()
 
 void CRevisionDlg::DoDataExchange(CDataExchange* pDX)
 {
-    CStandAloneDialog::DoDataExchange(pDX);
-    DDX_Text(pDX, IDC_REVNUM, m_sRevision);
+	CDialog::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_REVNUM, m_sRevision);
 }
 
 
-BEGIN_MESSAGE_MAP(CRevisionDlg, CStandAloneDialog)
-    ON_EN_CHANGE(IDC_REVNUM, OnEnChangeRevnum)
-    ON_BN_CLICKED(IDC_LOG, &CRevisionDlg::OnBnClickedLog)
-    ON_BN_CLICKED(IDC_REVISION_N, &CRevisionDlg::OnBnClickedRevisionN)
+BEGIN_MESSAGE_MAP(CRevisionDlg, CDialog)
+	ON_EN_CHANGE(IDC_REVNUM, OnEnChangeRevnum)
 END_MESSAGE_MAP()
 
 BOOL CRevisionDlg::OnInitDialog()
 {
-    CStandAloneDialog::OnInitDialog();
+	CDialog::OnInitDialog();
 
-    ExtendFrameIntoClientArea(IDC_REVGROUP);
-    m_aeroControls.SubclassOkCancel(this);
-
-    if (IsHead())
-    {
-        CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
-    }
-    else
-    {
-        CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
-        CString sRev;
-        if (IsDate())
-            sRev = GetDateString();
-        else
-            sRev.Format(_T("%ld"), (LONG)(*this));
-        SetDlgItemText(IDC_REVNUM, sRev);
-    }
-    if (!m_logPath.IsEmpty())
-        GetDlgItem(IDC_LOG)->ShowWindow(SW_SHOW);
-
-    if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
-        CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    GetDlgItem(IDC_REVNUM)->SetFocus();
-    return FALSE;
+	if (IsHead())
+	{
+		CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
+	}
+	else
+	{
+		CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
+		CString sRev;
+		if (IsDate())
+			sRev = GetDateString();
+		else
+			sRev.Format(_T("%ld"), (LONG)(*this));
+		SetDlgItemText(IDC_REVNUM, sRev);
+	}
+	if ((m_pParentWnd==NULL)&&(hWndExplorer))
+		CenterWindow(CWnd::FromHandle(hWndExplorer));
+	GetDlgItem(IDC_REVNUM)->SetFocus();
+	return FALSE;
 }
 
 void CRevisionDlg::OnOK()
 {
-    if (!UpdateData(TRUE))
-        return; // don't dismiss dialog (error message already shown by MFC framework)
+	if (!UpdateData(TRUE))
+		return; // don't dismiss dialog (error message already shown by MFC framework)
 
-    SVNRev::Create(m_sRevision);
-    // if head revision, set revision as -1
-    if (GetCheckedRadioButton(IDC_NEWEST, IDC_REVISION_N) == IDC_NEWEST)
-    {
-        SVNRev::Create(_T("HEAD"));
-        m_sRevision = _T("HEAD");
-    }
-    if ((!IsValid())||((!m_bAllowWCRevs)&&(IsPrev() || IsCommitted() || IsBase())))
-    {
-        ShowEditBalloon(IDC_REVNUM, m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC, IDS_ERR_ERROR, TTI_ERROR);
-        return;
-    }
+	SVNRev::Create(m_sRevision);
+	// if head revision, set revision as -1
+	if (GetCheckedRadioButton(IDC_NEWEST, IDC_REVISION_N) == IDC_NEWEST)
+	{
+		SVNRev::Create(_T("HEAD"));
+		m_sRevision = _T("HEAD");
+	}
+	if ((!IsValid())||((!m_bAllowWCRevs)&&(IsPrev() || IsCommitted() || IsBase())))
+	{
+		CBalloon::ShowBalloon(
+			this, CBalloon::GetCtrlCentre(this, IDC_REVNUM),
+			m_bAllowWCRevs ? IDS_ERR_INVALIDREV : IDS_ERR_INVALIDREVNOWC, TRUE, IDI_EXCLAMATION);
+		return;
+	}
 
-    UpdateData(FALSE);
+	UpdateData(FALSE);
 
-    CStandAloneDialog::OnOK();
+	CDialog::OnOK();
 }
 
 void CRevisionDlg::OnEnChangeRevnum()
 {
-    CString sText;
-    GetDlgItemText(IDC_REVNUM, sText);
-    if (sText.IsEmpty())
-    {
-        CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
-    }
-    else
-    {
-        CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
-    }
-}
-
-void CRevisionDlg::SetLogPath(const CTSVNPath& path, const SVNRev& rev /* = SVNRev::REV_HEAD */)
-{
-    m_logPath = path;
-    m_logRev = rev;
-}
-
-void CRevisionDlg::OnBnClickedLog()
-{
-    CLogDlg dlg;
-    dlg.SetParams (m_logPath, SVNRev::REV_HEAD, m_logRev, 1);
-    dlg.SetSelect (true);
-    if (dlg.DoModal() == IDOK)
-    {
-        m_logRev = dlg.GetSelectedRevRanges().GetHighestRevision();
-        SetDlgItemText (IDC_REVNUM, m_logRev.ToString());
-    }
-}
-
-void CRevisionDlg::OnBnClickedRevisionN()
-{
-    GetDlgItem(IDC_REVNUM)->SetFocus();
+	CString sText;
+	GetDlgItemText(IDC_REVNUM, sText);
+	if (sText.IsEmpty())
+	{
+		CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_NEWEST);
+	}
+	else
+	{
+		CheckRadioButton(IDC_NEWEST, IDC_REVISION_N, IDC_REVISION_N);
+	}
 }

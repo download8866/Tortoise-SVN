@@ -36,7 +36,7 @@
 import re
 import libxml2
 import os
-import hashlib
+import md5
 import sys
 
 class docbookXmlMode:
@@ -113,7 +113,7 @@ class docbookXmlMode:
         return last
 
     def _md5_for_file(self, filename):
-        hash = hashlib.md5()
+        hash = md5.new()
         input = open(filename, "rb")
         read = input.read(4096)
         while read:

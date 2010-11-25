@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,6 @@
 //
 #pragma once
 
-#include "FileName.h"
-
 /**
  * class that maps arbitrary files into memory.
  *
@@ -30,54 +28,41 @@ class CMappedInFile
 {
 private:
 
-#ifdef _WIN32
-    // the file
+	// the file
 
-    HANDLE file;
+	HANDLE file;
 
-    // the memory mapping
+	// the memory mapping
 
-    HANDLE mapping;
-#else
-    int file;
-#endif
+	HANDLE mapping;
 
-    // file content memory address
+	// file content memory address
 
-    unsigned char* buffer;
+	const unsigned char* buffer;
 
-    // physical file size (== file size)
+	// physical file size (== file size)
 
-    size_t size;
+	size_t size;
 
-    // if true, buffer content may be modfied
+	// construction utilities
 
-    bool writable;
+	void MapToMemory (const std::wstring& fileName);
 
-    // construction utilities
+	// destruction / exception utility: close all handles
 
-    void MapToMemory (const TFileName& fileName);
-
-    // destruction / exception utility: close all handles
-
-    void UnMap (size_t newSize = (size_t)-1);
+	void UnMap();
 
 public:
 
-    // construction / destruction: auto- open/close
+	// construction / destruction: auto- open/close
 
-    CMappedInFile (const TFileName& fileName, bool writable = false);
-    virtual ~CMappedInFile();
+	CMappedInFile (const std::wstring& fileName);
+	virtual ~CMappedInFile();
 
-    // access streams
+	// access streams
 
-    const unsigned char* GetBuffer() const;
-    unsigned char* GetWritableBuffer() const;
-    size_t GetSize() const;
-
-    // close and optionally truncate file
-
-    void Close (size_t newSize = (size_t)(-1));
+	const unsigned char* GetBuffer() const;
+	size_t GetSize() const;
 };
 
 ///////////////////////////////////////////////////////////////
@@ -86,10 +71,10 @@ public:
 
 inline const unsigned char* CMappedInFile::GetBuffer() const
 {
-    return buffer;
+	return buffer;
 }
 
 inline size_t CMappedInFile::GetSize() const
 {
-    return size;
+	return size;
 }

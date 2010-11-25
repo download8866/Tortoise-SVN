@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,24 +24,25 @@
 
 bool ResolveCommand::Execute()
 {
-    CResolveDlg dlg;
-    dlg.m_pathList = pathList;
-    INT_PTR ret = IDOK;
-    if (!parser.HasKey(_T("noquestion")))
-        ret = dlg.DoModal();
-    if (ret == IDOK)
-    {
-        if (dlg.m_pathList.GetCount())
-        {
-            CSVNProgressDlg progDlg(CWnd::FromHandle(GetExplorerHWND()));
-            theApp.m_pMainWnd = &progDlg;
-            progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Resolve);
-            progDlg.SetAutoClose (parser);
-            progDlg.SetOptions(parser.HasKey(_T("skipcheck")) ? ProgOptSkipConflictCheck : ProgOptNone);
-            progDlg.SetPathList(dlg.m_pathList);
-            progDlg.DoModal();
-            return !progDlg.DidErrorsOccur();
-        }
-    }
-    return false;
+	CResolveDlg dlg;
+	dlg.m_pathList = pathList;
+	INT_PTR ret = IDOK;
+	if (!parser.HasKey(_T("noquestion")))
+		ret = dlg.DoModal();
+	if (ret == IDOK)
+	{
+		if (dlg.m_pathList.GetCount())
+		{
+			CSVNProgressDlg progDlg(CWnd::FromHandle(hWndExplorer));
+			theApp.m_pMainWnd = &progDlg;
+			progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Resolve);
+			if (parser.HasVal(_T("closeonend")))
+				progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
+			progDlg.SetOptions(parser.HasKey(_T("skipcheck")) ? ProgOptSkipConflictCheck : ProgOptNone);
+			progDlg.SetPathList(dlg.m_pathList);
+			progDlg.DoModal();
+			return !progDlg.DidErrorsOccur();
+		}
+	}
+	return false;
 }

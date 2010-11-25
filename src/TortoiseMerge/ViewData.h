@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,36 +22,17 @@
 
 #include <vector>
 
-enum HIDESTATE
-{
-    HIDESTATE_SHOWN,
-    HIDESTATE_HIDDEN,
-    HIDESTATE_MARKER,
-};
-
 /**
  * \ingroup TortoiseMerge
  * Holds the information which is required to define a single line of text.
  */
-class viewdata
+typedef struct
 {
-public:
-    viewdata()
-        : state(DIFFSTATE_UNKNOWN)
-        , linenumber(-1)
-        , movedIndex(-1)
-        , ending(EOL_AUTOLINE)
-        , hidestate(HIDESTATE_HIDDEN)
-    {
-    }
-
-    CString                     sLine;
-    DiffStates                  state;
-    int                         linenumber;
-    int                         movedIndex;
-    EOL                         ending;
-    HIDESTATE                   hidestate;
-};
+	CString						sLine;
+	DiffStates					state;
+	int							linenumber; 
+	EOL							ending;
+} viewdata;
 
 /**
  * \ingroup TortoiseMerge
@@ -60,36 +41,32 @@ public:
 class CViewData
 {
 public:
-    CViewData(void);
-    ~CViewData(void);
+	CViewData(void);
+	~CViewData(void);
 
-    void            AddData(const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
-    void            AddData(const viewdata& data);
-    void            InsertData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
-    void            InsertData(int index, const viewdata& data);
-    void            RemoveData(int index) {m_data.erase(m_data.begin() + index);}
+	void			AddData(const CString& sLine, DiffStates state, int linenumber, EOL ending);
+	void			AddData(const viewdata& data);
+	void			InsertData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending);
+	void			InsertData(int index, const viewdata& data);
+	void			RemoveData(int index) {m_data.erase(m_data.begin() + index);}
 
-    const viewdata& GetData(int index) {return m_data[index];}
-    const CString&  GetLine(int index) const {return m_data[index].sLine;}
-    DiffStates      GetState(int index) const {return m_data[index].state;}
-    HIDESTATE       GetHideState(int index) {return m_data[index].hidestate;}
-    int             GetLineNumber(int index) {return m_data.size() ? m_data[index].linenumber : 0;}
-    int             GetMovedIndex(int index) {return m_data.size() ? m_data[index].movedIndex: 0;}
-    int             FindLineNumber(int number);
-    EOL             GetLineEnding(int index) const {return m_data[index].ending;}
+	const viewdata&	GetData(int index) {return m_data[index];}
+	const CString&	GetLine(int index) {return m_data[index].sLine;}
+	DiffStates		GetState(int index) {return m_data[index].state;}
+	int				GetLineNumber(int index) {return m_data.size() ? m_data[index].linenumber : 0;}
+	int				FindLineNumber(int number);
+	EOL				GetLineEnding(int index) {return m_data[index].ending;}
 
-    int             GetCount() const {return (int)m_data.size();}
+	int				GetCount() {return m_data.size();}
 
-    void            SetState(int index, DiffStates state) {m_data[index].state = state;}
-    void            SetLine(int index, const CString& sLine) {m_data[index].sLine = sLine;}
-    void            SetLineNumber(int index, int linenumber) {m_data[index].linenumber = linenumber;}
-    void            SetLineEnding(int index, EOL ending) {m_data[index].ending = ending;}
-    void            SetMovedIndex(int index, int movedIndex) {m_data[index].movedIndex = movedIndex;}
-    void            SetLineHideState(int index, HIDESTATE state) {m_data[index].hidestate = state;}
+	void			SetState(int index, DiffStates state) {m_data[index].state = state;}
+	void			SetLine(int index, const CString& sLine) {m_data[index].sLine = sLine;}
+	void			SetLineNumber(int index, int linenumber) {m_data[index].linenumber = linenumber;}
+	void			SetLineEnding(int index, EOL ending) {m_data[index].ending = ending;}
 
-    void            Clear() {m_data.clear();}
-    void            Reserve(int length) {m_data.reserve(length);}
+	void			Clear() {m_data.clear();}
+	void			Reserve(int length) {m_data.reserve(length);}
 
 protected:
-    std::vector<viewdata>       m_data;
+	std::vector<viewdata>		m_data;
 };

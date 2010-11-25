@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,44 +17,70 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "SVN.h"
 #include "ResizablePageEx.h"
-#include "AppUtils.h"
-
-#define WM_TSVN_MAXREVFOUND         (WM_APP + 1)
 
 /**
  * base class for the merge wizard property pages
  */
-class CMergeWizardBasePage : public CResizablePageEx, public SVN
+class CMergeWizardBasePage : public CResizablePageEx
 {
 public:
-    CMergeWizardBasePage() : CResizablePageEx() {;}
-    explicit CMergeWizardBasePage(UINT nIDTemplate, UINT nIDCaption = 0)
-        : CResizablePageEx(nIDTemplate, nIDCaption, 0)
-        , m_bCancelled(false)
-        , m_pThread(NULL) {;}
-    explicit CMergeWizardBasePage(LPCTSTR lpszTemplateName, UINT nIDCaption = 0)
-        : CResizablePageEx(lpszTemplateName, nIDCaption, 0)
-        , m_bCancelled(false)
-        , m_pThread(NULL) {;}
+	CMergeWizardBasePage() : CResizablePageEx() {;}
+	explicit CMergeWizardBasePage(UINT nIDTemplate, UINT nIDCaption = 0) 
+		: CResizablePageEx(nIDTemplate, nIDCaption, 0) {;}
+	explicit CMergeWizardBasePage(LPCTSTR lpszTemplateName, UINT nIDCaption = 0)
+		: CResizablePageEx(lpszTemplateName, nIDCaption, 0) {;}
 
-    virtual ~CMergeWizardBasePage() {;}
+	virtual ~CMergeWizardBasePage() {;}
+
+
 
 protected:
-    virtual void    SetButtonTexts();
-    void            AdjustControlSize(UINT nID);
-    void            StartWCCheckThread(const CTSVNPath& path);
-    void            StopWCCheckThread();
-    void            ShowEditBalloon(UINT nIdControl, UINT nIdText, UINT nIdTitle, int nIcon = TTI_WARNING);
+	virtual void			SetButtonTexts()
+	{
+		CPropertySheet* psheet = (CPropertySheet*) GetParent();
+		if (psheet)
+		{
+			psheet->GetDlgItem(ID_WIZFINISH)->SetWindowText(CString(MAKEINTRESOURCE(IDS_MERGE_MERGE)));
+			psheet->GetDlgItem(ID_WIZBACK)->SetWindowText(CString(MAKEINTRESOURCE(IDS_PROPPAGE_BACK)));
+			psheet->GetDlgItem(ID_WIZNEXT)->SetWindowText(CString(MAKEINTRESOURCE(IDS_PROPPAGE_NEXT)));
+			psheet->GetDlgItem(IDHELP)->SetWindowText(CString(MAKEINTRESOURCE(IDS_PROPPAGE_HELP)));
+			psheet->GetDlgItem(IDCANCEL)->SetWindowText(CString(MAKEINTRESOURCE(IDS_PROPPAGE_CANCEL)));
+		}
+	}
 
-    static UINT     FindRevThreadEntry(LPVOID pVoid);
-    UINT            FindRevThread();
-    virtual BOOL    Cancel() {return m_bCancelled;}
+	void AdjustControlSize(UINT nID)
+	{
+		CWnd * pwndDlgItem = GetDlgItem(nID);
+		// adjust the size of the control to fit its content
+		CString sControlText;
+		pwndDlgItem->GetWindowText(sControlText);
+		// next step: find the rectangle the control text needs to
+		// be displayed
 
-private:
-    CTSVNPath       m_path;
-    bool            m_bCancelled;
-    CWinThread *    m_pThread;
-    volatile LONG   m_bThreadRunning;
+		CDC * pDC = pwndDlgItem->GetWindowDC();
+		RECT controlrect;
+		RECT controlrectorig;
+		pwndDlgItem->GetWindowRect(&controlrect);
+		::MapWindowPoints(NULL, GetSafeHwnd(), (LPPOINT)&controlrect, 2);
+		controlrectorig = controlrect;
+		if (pDC)
+		{
+			CFont * font = pwndDlgItem->GetFont();
+			CFont * pOldFont = pDC->SelectObject(font);
+			if (pDC->DrawText(sControlText, -1, &controlrect, DT_WORDBREAK | DT_EDITCONTROL | DT_EXPANDTABS | DT_LEFT | DT_CALCRECT))
+			{
+				// now we have the rectangle the control really needs
+				if ((controlrectorig.right - controlrectorig.left) > (controlrect.right - controlrect.left))
+				{
+					// we're dealing with radio buttons and check boxes,
+					// which means we have to add a little space for the checkbox
+					controlrectorig.right = controlrectorig.left + (controlrect.right - controlrect.left) + 20;
+					pwndDlgItem->MoveWindow(&controlrectorig);
+				}
+			}
+			pDC->SelectObject(pOldFont);
+			ReleaseDC(pDC);
+		}
+	}
 };

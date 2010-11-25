@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,57 +26,50 @@ class CRepositoryBrowser;
 
 /**
  * \ingroup TortoiseProc
- * Base class for the drag'n'drop classes for the repository browser.
- */
-class CBaseDropTarget : public CIDropTarget
-{
-public:
-    CBaseDropTarget(CRepositoryBrowser * pRepoBrowser, HWND hTargetWnd);
-
-    void HandleDropFormats(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt, const CString& targetUrl, const CString& root);
-
-protected:
-    CRepositoryBrowser * m_pRepoBrowser;
-
-    bool m_bFiles;
-    CString sNoDrop;
-    CString sImportDrop;
-    CString sCopyDrop;
-    CString sMoveDrop;
-};
-
-/**
- * \ingroup TortoiseProc
  * Implements a drop target on the left tree control in the repository browser
  */
-class CTreeDropTarget : public CBaseDropTarget
+class CTreeDropTarget : public CIDropTarget
 {
 public:
-    CTreeDropTarget(CRepositoryBrowser * pRepoBrowser);
-
-    virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt);
-    virtual HRESULT STDMETHODCALLTYPE DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
-    virtual HRESULT STDMETHODCALLTYPE DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
-    virtual HRESULT STDMETHODCALLTYPE DragLeave(void);
+	CTreeDropTarget(CRepositoryBrowser * pRepoBrowser);
+	
+	virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt);
+	virtual HRESULT STDMETHODCALLTYPE DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
+	virtual HRESULT STDMETHODCALLTYPE DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
+	virtual HRESULT STDMETHODCALLTYPE DragLeave(void);
 
 private:
-    DWORD                   m_dwHoverStartTicks;
-    HTREEITEM               hLastItem;
+	CRepositoryBrowser *	m_pRepoBrowser;
+	bool					m_bFiles;
+	DWORD					m_dwHoverStartTicks;
+	HTREEITEM				hLastItem;
+
+	CString sNoDrop;
+	CString sImportDrop;
+	CString sCopyDrop;
+	CString sMoveDrop;
 };
 
 /**
  * \ingroup TortoiseProc
  * Implements a drop target on the right list control in the repository browser
  */
-class CListDropTarget : public CBaseDropTarget
+class CListDropTarget : public CIDropTarget
 {
 public:
-    CListDropTarget(CRepositoryBrowser * pRepoBrowser);
+	CListDropTarget(CRepositoryBrowser * pRepoBrowser);
 
-    virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt);
-    virtual HRESULT STDMETHODCALLTYPE DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
-    virtual HRESULT STDMETHODCALLTYPE DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
-    virtual HRESULT STDMETHODCALLTYPE DragLeave(void);
+	virtual bool OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEffect, POINTL pt);
+	virtual HRESULT STDMETHODCALLTYPE DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
+	virtual HRESULT STDMETHODCALLTYPE DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR *pdwEffect);
+	virtual HRESULT STDMETHODCALLTYPE DragLeave(void);
+
+private:
+	CRepositoryBrowser * m_pRepoBrowser;
+	bool m_bFiles;
+
+	CString sNoDrop;
+	CString sImportDrop;
+	CString sCopyDrop;
+	CString sMoveDrop;
 };
-
-

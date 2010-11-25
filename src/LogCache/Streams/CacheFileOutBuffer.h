@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,8 +38,8 @@ typedef int STREAM_INDEX;
 
 enum
 {
-    OUR_LOG_CACHE_FILE_VERSION = 0x20100515,
-    MIN_LOG_CACHE_FILE_VERSION = 0x20100515
+	OUR_LOG_CACHE_FILE_VERSION = 0x20070607,
+	MIN_LOG_CACHE_FILE_VERSION = 0x20070607
 };
 
 /**
@@ -61,35 +61,31 @@ enum
  * - our version ID (4 bytes. Current value: 0x20070607)
  * - min. version ID (4 bytes. Current value: 0x20070607)
  * - stream(s) (N BLOBs)
- * - stream size in bytes (N 4 byte integers)
+ * - stream size in (N 4 byte integers)
  * - N (4 bytes unsigned integer)
  */
 class CCacheFileOutBuffer : public CBufferedOutFile
 {
 private:
 
-    // offsets of all streams
+	// offsets of all streams
 
-    std::vector<size_t> streamOffsets;
+	std::vector<size_t> streamOffsets;
 
-    // check that we don't open two streams at once
+	// check that we don't open two streams at once
 
-    bool streamIsOpen;
+	bool streamIsOpen;
 
 public:
 
-    // construction / destruction: auto- open/close
+	// construction / destruction: auto- open/close
 
-#ifdef _WIN32
-    CCacheFileOutBuffer (const std::wstring& fileName);
-#else
-    CCacheFileOutBuffer (const std::string& fileName);
-#endif
-    virtual ~CCacheFileOutBuffer();
+	CCacheFileOutBuffer (const std::wstring& fileName);
+	virtual ~CCacheFileOutBuffer();
 
-    // write data to file
+	// write data to file
 
-    STREAM_INDEX OpenStream();
-    void CloseStream();
+	STREAM_INDEX OpenStream();
+	void CloseStream();
 };
 

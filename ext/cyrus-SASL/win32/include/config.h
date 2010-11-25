@@ -50,12 +50,14 @@
    Note that we can't include both winsock.h and winsock2.h as
    they conflict */
 #include <winsock2.h>
+#include <Ws2tcpip.h>
+#include <Wspiapi.h>
 
 /* Our package */
 #define PACKAGE "cyrus-sasl"
 
 /* Our version */
-#define VERSION "2.1.24"
+#define VERSION "2.1.22"
 
 /* Visual Studio supports prototypes */
 #define PROTOTYPES     1
@@ -196,14 +198,7 @@ struct sockaddr_storage {
 
 #include <time.h>
 
-/* Keep in sync with SleepyCat definitions */
-typedef int int32_t;
-typedef __int64 int64_t;
-#ifdef _WIN64
-typedef int64_t ssize_t;
-#else
-typedef int32_t ssize_t;
-#endif
+typedef int ssize_t;
 
 #define HIER_DELIMITER '\\'
 

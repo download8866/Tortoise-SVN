@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "UpsideDownLayout.h"
 #include "StandardLayout.h"
 
-std::pair<int, int> CUpsideDownLayout::GetMinMaxY
+std::pair<int, int> CUpsideDownLayout::GetMinMaxY 
     (IStandardLayoutNodeAccess* nodeAccess)
 {
     int minY = INT_MAX;
@@ -28,7 +28,7 @@ std::pair<int, int> CUpsideDownLayout::GetMinMaxY
 
     for (size_t i = 0, count = nodeAccess->GetNodeCount(); i < count; ++i)
     {
-        const CRect& rect = nodeAccess->GetNode((index_t)i)->rect;
+        const CRect& rect = nodeAccess->GetNode(i)->rect;
         minY = min (minY, rect.top);
         maxY = max (maxY, rect.bottom);
     }
@@ -36,13 +36,13 @@ std::pair<int, int> CUpsideDownLayout::GetMinMaxY
     return std::make_pair (minY, maxY);
 }
 
-void CUpsideDownLayout::MirrorY
+void CUpsideDownLayout::MirrorY 
     ( IStandardLayoutNodeAccess* nodeAccess
     , std::pair<int, int> minMaxY)
 {
     for (size_t i = 0, count = nodeAccess->GetNodeCount(); i < count; ++i)
     {
-        CRect& rect = nodeAccess->GetNode((index_t)i)->rect;
+        CRect& rect = nodeAccess->GetNode(i)->rect;
         int origTop = rect.top;
 
         rect.top = minMaxY.first + minMaxY.second - rect.bottom;
@@ -52,7 +52,7 @@ void CUpsideDownLayout::MirrorY
 
 // construction
 
-CUpsideDownLayout::CUpsideDownLayout
+CUpsideDownLayout::CUpsideDownLayout 
     ( CRevisionGraphOptionList& list)
     : CRevisionGraphOptionImpl<ILayoutOption, 1000, ID_VIEW_TOPDOWN> (list)
 {
@@ -72,9 +72,9 @@ void CUpsideDownLayout::ApplyTo (IRevisionGraphLayout* layout)
 {
     // we need access to actual data
 
-    IStandardLayoutNodeAccess* nodeAccess
+    IStandardLayoutNodeAccess* nodeAccess 
         = dynamic_cast<IStandardLayoutNodeAccess*>(layout);
-    if (nodeAccess == NULL)
+    if (nodeAccess == NULL) 
         return;
 
     // get dimensions

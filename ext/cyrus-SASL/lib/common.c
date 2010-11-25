@@ -1,7 +1,7 @@
 /* common.c - Functions that are common to server and clinet
  * Rob Siemborski
  * Tim Martin
- * $Id: common.c,v 1.124 2009/02/20 23:10:53 mel Exp $
+ * $Id: common.c,v 1.114 2006/04/19 18:39:59 mel Exp $
  */
 /* 
  * Copyright (c) 1998-2003 Carnegie Mellon University.  All rights reserved.
@@ -107,7 +107,6 @@ sasl_allocation_utils_t _sasl_allocation_utils={
   (sasl_realloc_t *) &realloc,
   (sasl_free_t *) &free
 };
-int _sasl_allocation_locked = 0;
 
 #define SASL_ENCODEV_EXTRA  4096
 
@@ -122,12 +121,6 @@ static sasl_callback_t default_getconfpath_cb = {
 static char * default_plugin_path = NULL;
 static char * default_conf_path = NULL;
 
-static int _sasl_global_getopt(void *context,
-			       const char *plugin_name,
-			       const char *option,
-			       const char ** result,
-			       unsigned *len);
- 
 /* Intenal mutex functions do as little as possible (no thread protection) */
 static void *sasl_mutex_alloc(void)
 {
@@ -156,21 +149,13 @@ sasl_mutex_utils_t _sasl_mutex_utils={
   &sasl_mutex_free
 };
 
-void sasl_set_mutex(sasl_mutex_alloc_t *n,
-		    sasl_mutex_lock_t *l,
-		    sasl_mutex_unlock_t *u,
-		    sasl_mutex_free_t *d)
+void sasl_set_mutex(sasl_mutex_alloc_t *n, sasl_mutex_lock_t *l,
+		    sasl_mutex_unlock_t *u, sasl_mutex_free_t *d)
 {
-    /* Disallow mutex function changes once sasl_client_init
-       and/or sasl_server_init is called */
-    if (_sasl_server_cleanup_hook || _sasl_client_cleanup_hook) {
-	return;
-    }
-
-    _sasl_mutex_utils.alloc=n;
-    _sasl_mutex_utils.lock=l;
-    _sasl_mutex_utils.unlock=u;
-    _sasl_mutex_utils.free=d;
+  _sasl_mutex_utils.alloc=n;
+  _sasl_mutex_utils.lock=l;
+  _sasl_mutex_utils.unlock=u;
+  _sasl_mutex_utils.free=d;
 }
 
 /* copy a string to malloced memory */
@@ -255,10 +240,7 @@ int sasl_set_path (int path_type, char * path)
 
 /* return the version of the cyrus sasl library as compiled,
  * using 32 bits: high byte is major version, second byte is minor version,
- * low 16 bits are step #.
- * Patch version is not available using this function,
- * use sasl_version_info() instead.
- */
+ * low 16 bits are step # */
 void sasl_version(const char **implementation, int *version) 
 {
     if(implementation) *implementation = implementation_string;
@@ -402,7 +384,7 @@ int sasl_encodev(sasl_conn_t *conn,
 		 const char **output,
                  unsigned *outputlen)
 {
-    int result = SASL_OK;
+    int result;
     unsigned i;
     unsigned j;
     size_t total_size = 0;
@@ -515,9 +497,7 @@ int sasl_encodev(sasl_conn_t *conn,
                the conn->oparams.maxoutbuf buffer. */
             /* Note, if next_buf points to the very end of the IOV record,
                it will be reset to NULL below */
-            /* Note, that some platforms define iov_base as "void *",
-               thus the typecase below */
-            next_buf = (char *) last_invec.iov_base + last_invec.iov_len;
+            next_buf = last_invec.iov_base + last_invec.iov_len;
             /* Note - remainder_len is how many bytes left to be encoded in
                the current IOV slot. */
             remainder_len = (total_size + invec[i].iov_len) - conn->oparams.maxoutbuf;
@@ -533,9 +513,7 @@ int sasl_encodev(sasl_conn_t *conn,
 
                 /* Note, if next_buf points to the very end of the IOV record,
                    it will be reset to NULL below */
-                /* Note, that some platforms define iov_base as "void *",
-                   thus the typecase below */
-                next_buf = (char *) last_invec.iov_base + last_invec.iov_len;
+                next_buf = last_invec.iov_base + last_invec.iov_len;
                 remainder_len = remainder_len - conn->oparams.maxoutbuf;
 
                 result = _sasl_encodev (conn,
@@ -659,16 +637,28 @@ sasl_set_alloc(sasl_malloc_t *m,
 	       sasl_realloc_t *r,
 	       sasl_free_t *f)
 {
-  if (_sasl_allocation_locked++)  return;
-
   _sasl_allocation_utils.malloc=m;
   _sasl_allocation_utils.calloc=c;
   _sasl_allocation_utils.realloc=r;
   _sasl_allocation_utils.free=f;
 }
 
-void sasl_common_done(void)
+void sasl_done(void)
 {
+    if (_sasl_server_cleanup_hook && _sasl_server_cleanup_hook() == SASL_OK) {
+	_sasl_server_idle_hook = NULL;
+	_sasl_server_cleanup_hook = NULL;
+    }
+    
+    if (_sasl_client_cleanup_hook && _sasl_client_cleanup_hook() == SASL_OK) {
+	_sasl_client_idle_hook = NULL;	
+	_sasl_client_cleanup_hook = NULL;
+    }
+    
+    if (_sasl_server_cleanup_hook || _sasl_client_cleanup_hook) {
+	return;
+    }
+
     /* NOTE - the caller will need to reinitialize the values,
        if it is going to call sasl_client_init/sasl_server_init again. */
     if (default_plugin_path != NULL) {
@@ -688,30 +678,8 @@ void sasl_common_done(void)
     
     _sasl_free_utils(&sasl_global_utils);
     
-    if (global_mech_list) {
-	sasl_FREE(global_mech_list);
-	global_mech_list = NULL;
-    }
-}
-
-/* This function is for backward compatibility */
-void sasl_done(void)
-{
-    if (_sasl_server_cleanup_hook && _sasl_server_cleanup_hook() == SASL_OK) {
-	_sasl_server_idle_hook = NULL;
-	_sasl_server_cleanup_hook = NULL;
-    }
-    
-    if (_sasl_client_cleanup_hook && _sasl_client_cleanup_hook() == SASL_OK) {
-	_sasl_client_idle_hook = NULL;	
-	_sasl_client_cleanup_hook = NULL;
-    }
-    
-    if (_sasl_server_cleanup_hook || _sasl_client_cleanup_hook) {
-	return;
-    }
-
-    sasl_common_done();
+    if(global_mech_list) sasl_FREE(global_mech_list);
+    global_mech_list = NULL;
 }
 
 /* fills in the base sasl_conn_t info */
@@ -772,14 +740,11 @@ int _sasl_conn_init(sasl_conn_t *conn,
 
   if(serverFQDN) {
       result = _sasl_strdup(serverFQDN, &conn->serverFQDN, NULL);
-      sasl_strlower (conn->serverFQDN);
   } else if (conn->type == SASL_CONN_SERVER) {
       /* We can fake it because we *are* the server */
       char name[MAXHOSTNAMELEN];
       memset(name, 0, sizeof(name));
-      if (get_fqhostname (name, MAXHOSTNAMELEN, 0) != 0) {
-        return (SASL_FAIL);
-      }
+      gethostname(name, MAXHOSTNAMELEN);
       
       result = _sasl_strdup(name, &conn->serverFQDN, NULL);
   } else {
@@ -795,19 +760,7 @@ int _sasl_conn_init(sasl_conn_t *conn,
 int _sasl_common_init(sasl_global_callbacks_t *global_callbacks)
 {
     int result;
-
-    /* The last specified global callback always wins */
-    if (sasl_global_utils != NULL) {
-	sasl_utils_t * global_utils = (sasl_utils_t *)sasl_global_utils;
-	global_utils->getopt = &_sasl_global_getopt;
-	global_utils->getopt_context = global_callbacks;
-    }
-
-    /* Do nothing if we are already initialized */
-    if (free_mutex) {
-	return SASL_OK;
-    }
-
+    
     /* Setup the global utilities */
     if(!sasl_global_utils) {
 	sasl_global_utils = _sasl_alloc_utils(NULL, global_callbacks);
@@ -818,9 +771,8 @@ int _sasl_common_init(sasl_global_callbacks_t *global_callbacks)
     result = sasl_canonuser_add_plugin("INTERNAL", internal_canonuser_init);
     if(result != SASL_OK) return result;    
 
-    if (!free_mutex) {
+    if (!free_mutex)
 	free_mutex = sasl_MUTEX_ALLOC();
-    }
     if (!free_mutex) return SASL_FAIL;
 
     return SASL_OK;
@@ -893,7 +845,7 @@ void _sasl_conn_dispose(sasl_conn_t *conn) {
  * returns:
  *  SASL_OK       -- no error
  *  SASL_NOTDONE  -- property not available yet
- *  SASL_BADPARAM -- bad property number or SASL context is NULL
+ *  SASL_BADPARAM -- bad property number
  */
 int sasl_getprop(sasl_conn_t *conn, int propnum, const void **pvalue)
 {
@@ -1297,10 +1249,6 @@ const char *sasl_errstring(int saslerr,
     case SASL_NOCHANGE:   return "requested change was not needed";
     case SASL_WEAKPASS:   return "passphrase is too weak for security policy";
     case SASL_NOUSERPASS: return "user supplied passwords are not permitted";
-    case SASL_NEED_OLD_PASSWD: return "sasl_setpass needs old password in order "
-				"to perform password change";
-    case SASL_CONSTRAINT_VIOLAT: return "sasl_setpass can't store a property because "
-			        "of a constraint violation";
 
     default:   return "undefined error!";
     }
@@ -2295,7 +2243,6 @@ int _sasl_build_mechlist(void)
     }
 
     if(!olist) {
-	/* This is not going to be very useful */
 	printf ("no olist");
 	return SASL_FAIL;
     }
