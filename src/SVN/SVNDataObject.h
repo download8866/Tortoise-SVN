@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,15 +25,13 @@
 
 using namespace std;
 
-extern  CLIPFORMAT  CF_FILECONTENTS;
-extern  CLIPFORMAT  CF_FILEDESCRIPTOR;
-extern  CLIPFORMAT  CF_PREFERREDDROPEFFECT;
-extern  CLIPFORMAT  CF_SVNURL;
-extern  CLIPFORMAT  CF_INETURL;
-extern  CLIPFORMAT  CF_SHELLURL;
+extern 	CLIPFORMAT	CF_FILECONTENTS;
+extern	CLIPFORMAT	CF_FILEDESCRIPTOR;
+extern	CLIPFORMAT	CF_PREFERREDDROPEFFECT;
+extern	CLIPFORMAT	CF_SVNURL;
 
 
-#define SVNDATAOBJECT_NUMFORMATS 9
+#define SVNDATAOBJECT_NUMFORMATS 6
 
 /**
  * \ingroup SVN
@@ -44,63 +42,62 @@ extern  CLIPFORMAT  CF_SHELLURL;
 class SVNDataObject : public IDataObject, public IAsyncOperation
 {
 public:
-    /**
-     * Constructs the SVNDataObject.
-     * \param svnpaths a list of paths or URLs. Local paths must be inside a
-     *                 working copy, URLs must point to a Subversion repository.
-     * \param peg      the peg revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
-     * \param revision the revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
-     */
-    SVNDataObject(const CTSVNPathList& svnpaths, SVNRev peg, SVNRev rev, bool bFilesAsUrlLinks = false);
-    ~SVNDataObject();
+	/**
+	 * Constructs the SVNDataObject.
+	 * \param svnpaths a list of paths or URLs. Local paths must be inside a
+	 *                 working copy, URLs must point to a Subversion repository.
+	 * \param peg      the peg revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
+	 * \param revision the revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
+	 */
+	SVNDataObject(const CTSVNPathList& svnpaths, SVNRev peg, SVNRev rev);
+	~SVNDataObject();
 
-    //IUnknown
-    virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject);
-    virtual ULONG STDMETHODCALLTYPE AddRef(void);
-    virtual ULONG STDMETHODCALLTYPE Release(void);
+	//IUnknown
+	virtual HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void** ppvObject);        
+	virtual ULONG STDMETHODCALLTYPE AddRef(void);
+	virtual ULONG STDMETHODCALLTYPE Release(void);
 
-    //IDataObject
-    virtual HRESULT STDMETHODCALLTYPE GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium);
-    virtual HRESULT STDMETHODCALLTYPE GetDataHere(FORMATETC* pformatetc, STGMEDIUM* pmedium);
-    virtual HRESULT STDMETHODCALLTYPE QueryGetData(FORMATETC* pformatetc);
-    virtual HRESULT STDMETHODCALLTYPE GetCanonicalFormatEtc(FORMATETC* pformatectIn, FORMATETC* pformatetcOut);
-    virtual HRESULT STDMETHODCALLTYPE SetData(FORMATETC* pformatetc, STGMEDIUM* pmedium, BOOL fRelease);
-    virtual HRESULT STDMETHODCALLTYPE EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC** ppenumFormatEtc);
-    virtual HRESULT STDMETHODCALLTYPE DAdvise(FORMATETC* pformatetc, DWORD advf, IAdviseSink* pAdvSink, DWORD* pdwConnection);
-    virtual HRESULT STDMETHODCALLTYPE DUnadvise(DWORD dwConnection);
-    virtual HRESULT STDMETHODCALLTYPE EnumDAdvise(IEnumSTATDATA** ppenumAdvise);
+	//IDataObject
+	virtual HRESULT STDMETHODCALLTYPE GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium);
+	virtual HRESULT STDMETHODCALLTYPE GetDataHere(FORMATETC* pformatetc, STGMEDIUM* pmedium);
+	virtual HRESULT STDMETHODCALLTYPE QueryGetData(FORMATETC* pformatetc);
+	virtual HRESULT STDMETHODCALLTYPE GetCanonicalFormatEtc(FORMATETC* pformatectIn, FORMATETC* pformatetcOut);
+	virtual HRESULT STDMETHODCALLTYPE SetData(FORMATETC* pformatetc, STGMEDIUM* pmedium, BOOL fRelease);
+	virtual HRESULT STDMETHODCALLTYPE EnumFormatEtc(DWORD dwDirection, IEnumFORMATETC** ppenumFormatEtc);
+	virtual HRESULT STDMETHODCALLTYPE DAdvise(FORMATETC* pformatetc, DWORD advf, IAdviseSink* pAdvSink, DWORD* pdwConnection);
+	virtual HRESULT STDMETHODCALLTYPE DUnadvise(DWORD dwConnection);
+	virtual HRESULT STDMETHODCALLTYPE EnumDAdvise(IEnumSTATDATA** ppenumAdvise);
 
-    //IAsyncOperation
-    virtual HRESULT STDMETHODCALLTYPE SetAsyncMode(BOOL fDoOpAsync);
-    virtual HRESULT STDMETHODCALLTYPE GetAsyncMode(BOOL* pfIsOpAsync);
-    virtual HRESULT STDMETHODCALLTYPE StartOperation(IBindCtx* pbcReserved);
-    virtual HRESULT STDMETHODCALLTYPE InOperation(BOOL* pfInAsyncOp);
-    virtual HRESULT STDMETHODCALLTYPE EndOperation(HRESULT hResult, IBindCtx* pbcReserved, DWORD dwEffects);
+	//IAsyncOperation
+	virtual HRESULT STDMETHODCALLTYPE SetAsyncMode(BOOL fDoOpAsync);	
+	virtual HRESULT STDMETHODCALLTYPE GetAsyncMode(BOOL* pfIsOpAsync);
+	virtual HRESULT STDMETHODCALLTYPE StartOperation(IBindCtx* pbcReserved);
+	virtual HRESULT STDMETHODCALLTYPE InOperation(BOOL* pfInAsyncOp);	
+	virtual HRESULT STDMETHODCALLTYPE EndOperation(HRESULT hResult, IBindCtx* pbcReserved, DWORD dwEffects);
 
-    HRESULT SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, LPCTSTR insert);
-
-private:
-    void CopyMedium(STGMEDIUM* pMedDest, STGMEDIUM* pMedSrc, FORMATETC* pFmtSrc);
+	HRESULT SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, LPCTSTR insert);
 
 private:
-    struct SVNObjectInfoData
-    {
-        CTSVNPath               rootpath;
-        SVNInfoData             infodata;
-    } SVNobjectInfoData;
+	void CopyMedium(STGMEDIUM* pMedDest, STGMEDIUM* pMedSrc, FORMATETC* pFmtSrc);
 
 private:
-    SVN                         m_svn;
-    CTSVNPathList               m_svnPaths;
-    SVNRev                      m_pegRev;
-    SVNRev                      m_revision;
-    bool                        m_bFilesAsUrlLinks;
-    vector<SVNObjectInfoData>   m_allPaths;
-    long                        m_cRefCount;
-    BOOL                        m_bInOperation;
-    BOOL                        m_bIsAsync;
-    vector<FORMATETC*>          m_vecFormatEtc;
-    vector<STGMEDIUM*>          m_vecStgMedium;
+	struct SVNObjectInfoData
+	{
+		CTSVNPath				rootpath;
+		SVNInfoData				infodata;
+	} SVNobjectInfoData;
+
+private:
+	SVN							m_svn;
+	CTSVNPathList				m_svnPaths;
+	SVNRev						m_pegRev;
+	SVNRev						m_revision;
+	vector<SVNObjectInfoData>	m_allPaths;
+	long						m_cRefCount;
+	BOOL						m_bInOperation;
+	BOOL						m_bIsAsync;
+	vector<FORMATETC*>			m_vecFormatEtc;
+	vector<STGMEDIUM*>			m_vecStgMedium;
 };
 
 
@@ -111,25 +108,25 @@ private:
 class CSVNEnumFormatEtc : public IEnumFORMATETC
 {
 public:
-    CSVNEnumFormatEtc(const vector<FORMATETC*>& vec, bool localonly);
-    CSVNEnumFormatEtc(const vector<FORMATETC>& vec, bool localonly);
-    //IUnknown members
-    STDMETHOD(QueryInterface)(REFIID, void**);
-    STDMETHOD_(ULONG, AddRef)(void);
-    STDMETHOD_(ULONG, Release)(void);
+	CSVNEnumFormatEtc(const vector<FORMATETC*>& vec, bool localonly);
+	CSVNEnumFormatEtc(const vector<FORMATETC>& vec, bool localonly);
+	//IUnknown members
+	STDMETHOD(QueryInterface)(REFIID, void**);
+	STDMETHOD_(ULONG, AddRef)(void);
+	STDMETHOD_(ULONG, Release)(void);
 
-    //IEnumFORMATETC members
-    STDMETHOD(Next)(ULONG, LPFORMATETC, ULONG*);
-    STDMETHOD(Skip)(ULONG);
-    STDMETHOD(Reset)(void);
-    STDMETHOD(Clone)(IEnumFORMATETC**);
+	//IEnumFORMATETC members
+	STDMETHOD(Next)(ULONG, LPFORMATETC, ULONG*);
+	STDMETHOD(Skip)(ULONG);
+	STDMETHOD(Reset)(void);
+	STDMETHOD(Clone)(IEnumFORMATETC**);
 private:
-    void                        Init(bool localonly);
+	void						Init(bool localonly);
 private:
-    vector<FORMATETC>           m_vecFormatEtc;
-    FORMATETC                   m_formats[SVNDATAOBJECT_NUMFORMATS];
-    ULONG                       m_cRefCount;
-    size_t                      m_iCur;
-    bool                        m_localonly;
+	vector<FORMATETC>			m_vecFormatEtc;
+	FORMATETC					m_formats[SVNDATAOBJECT_NUMFORMATS];
+	ULONG						m_cRefCount;
+	size_t						m_iCur;
+	bool						m_localonly;
 };
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,39 +27,39 @@
  */
 class CResolveDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CResolveDlg)
+	DECLARE_DYNAMIC(CResolveDlg)
 
 public:
-    CResolveDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CResolveDlg();
+	CResolveDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CResolveDlg();
 
 // Dialog Data
-    enum { IDD = IDD_RESOLVE };
+	enum { IDD = IDD_RESOLVE };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    afx_msg void OnBnClickedSelectall();
-    afx_msg void OnBnClickedHelp();
-    afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
-    afx_msg void OnTimer(UINT_PTR nIDEvent);
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
-    virtual void OnCancel();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	afx_msg void OnBnClickedSelectall();
+	afx_msg void OnBnClickedHelp();
+	afx_msg LRESULT OnFileDropped(WPARAM, LPARAM lParam);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	virtual void OnCancel();
 
 private:
-    static UINT ResolveThreadEntry(LPVOID pVoid);
-    UINT ResolveThread();
-    afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
+	static UINT ResolveThreadEntry(LPVOID pVoid);
+	UINT ResolveThread();
+	afx_msg LRESULT	OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
 public:
-    CTSVNPathList   m_pathList;
+	CTSVNPathList	m_pathList;
 
 private:
-    CSVNStatusListCtrl  m_resolveListCtrl;
-    volatile LONG       m_bThreadRunning;
-    CButton             m_SelectAll;
-    bool                m_bCancelled;
+	CSVNStatusListCtrl	m_resolveListCtrl;
+	volatile LONG		m_bThreadRunning;
+	CButton				m_SelectAll;
+	bool				m_bCancelled;
 };

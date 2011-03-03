@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2007,2009-2011 - TortoiseSVN
+// Copyright (C) 2007-2007,2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,115 +32,85 @@
 
 #include "svn_types.h"
 
+
 /**
  * data structure to accommodate the change list.
  */
-
-struct SChangedPath
+struct LogChangedPath
 {
-    std::string path;
-    std::string copyFromPath;
-    svn_revnum_t copyFromRev;
-    svn_node_kind_t nodeKind;
-    DWORD action;
-    svn_tristate_t text_modified;
-    svn_tristate_t props_modified;
+	CString sPath;
+	CString sCopyFromPath;
+	svn_revnum_t lCopyFromRev;
+	svn_node_kind_t nodeKind;
+	DWORD action;
+
+	/// returns the action as a string
+	const CString& GetAction() const;
+
+private:
+
+	/// cached return value of GetAction()
+	mutable CString actionAsString;
 };
 
 enum
 {
-    LOGACTIONS_ADDED    = 0x00000001,
-    LOGACTIONS_MODIFIED = 0x00000002,
-    LOGACTIONS_REPLACED = 0x00000004,
-    LOGACTIONS_DELETED  = 0x00000008
+	LOGACTIONS_ADDED	= 0x00000001,
+	LOGACTIONS_MODIFIED	= 0x00000002,
+	LOGACTIONS_REPLACED	= 0x00000004,
+	LOGACTIONS_DELETED	= 0x00000008
 };
 
-/**
- * Factory and container for LogChangedPath objects.
- * Provides just enough methods to read them.
- */
+/// auto-deleting extension of MFC Arrays for pointer arrays
 
-typedef std::vector<SChangedPath> TChangedPaths;
+template<class T>
+class CAutoArray : public CArray<T*,T*>
+{
+public:
+
+    // default and copy construction
+
+    CAutoArray() 
+    {
+    }
+
+    CAutoArray (const CAutoArray& rhs)
+    {
+        Copy (rhs);
+    }
+
+    // destruction deletes members
+
+    ~CAutoArray()
+    {
+	    for (INT_PTR i = 0, count = GetCount(); i < count; ++i)
+		    delete GetAt (i);
+    }
+};
+
+typedef CAutoArray<LogChangedPath> LogChangedPathArray;
 
 /**
  * standard revision properties
  */
 
-class StandardRevProps
+struct StandardRevProps
 {
-private:
-
-    std::string author;
-    std::string message;
+    CString author;
     apr_time_t timeStamp;
-
-public:
-
-    /// construction
-
-    StandardRevProps
-        ( const std::string& author
-        , const std::string& message
-        , apr_time_t timeStamp);
-
-    /// r/o data access
-
-    const std::string& GetAuthor() const {return author;}
-    const std::string& GetMessage() const {return message;}
-    apr_time_t GetTimeStamp() const {return timeStamp;}
-
+    CString message;
 };
 
 /**
  * data structure to accommodate the list of user-defined revision properties.
  */
-
-class UserRevProp
+struct UserRevProp
 {
-private:
-
-    std::string name;
-    std::string value;
-
-    // construction is only allowed through the container
-
-    friend class UserRevPropArray;
-
-public:
-
-    /// r/o data access
-
-    const std::string& GetName() const {return name;}
-    const std::string& GetValue() const {return value;}
-
+	CString name;
+	CString value;
 };
 
-/**
- * Factory and container for UserRevProp objects.
- * Provides just enough methods to read them.
- */
-
-class UserRevPropArray : private std::vector<UserRevProp>
-{
-public:
-
-    /// construction
-
-    UserRevPropArray();
-    UserRevPropArray (size_t initialCapacity);
-
-    /// modification
-
-    void Add
-        ( const std::string& name
-        , const std::string& value);
-
-    /// data access
-
-    size_t GetCount() const {return size();}
-    const UserRevProp& GetAt (size_t index) const {return at (index);}
-    const UserRevProp& operator[] (size_t index) const {return at (index);}
-};
+typedef CAutoArray<UserRevProp> UserRevPropArray;
 
 
 /**
@@ -153,18 +123,18 @@ class ILogReceiver
 {
 public:
 
-    /// call-back for every revision found
-    /// (called at most once per revision)
+	/// call-back for every revision found
+	/// (called at most once per revision)
     ///
     /// the implementation may modify but not delete()
     /// the data containers passed to it
     ///
     /// any pointer may be NULL
-    ///
-    /// may throw a SVNError to cancel the log
+	///
+	/// may throw a SVNError to cancel the log
 
-    virtual void ReceiveLog ( TChangedPaths* changes
-                            , svn_revnum_t rev
+	virtual void ReceiveLog ( LogChangedPathArray* changes
+							, svn_revnum_t rev
                             , const StandardRevProps* stdRevProps
                             , UserRevPropArray* userRevProps
                             , bool mergesFollow) = 0;

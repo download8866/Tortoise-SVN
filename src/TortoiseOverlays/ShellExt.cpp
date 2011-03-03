@@ -1,5 +1,5 @@
 // TortoiseOverlays - an overlay handler for Tortoise clients
-// Copyright (C) 2007, 2010-2011 - TortoiseSVN
+// Copyright (C) 2007, 2010 - TortoiseSVN
 #include "stdafx.h"
 
 #pragma warning (disable : 4786)
@@ -10,59 +10,60 @@
 
 #include "ShellExt.h"
 
+
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
 {
     m_State = state;
 
     m_cRef = 0L;
-    InterlockedIncrement(&g_cRefThisDll);
+	InterlockedIncrement(&g_cRefThisDll);	
 }
 
 CShellExt::~CShellExt()
 {
-    for (auto it = m_dllpointers.begin(); it != m_dllpointers.end(); ++it)
-    {
-        if (it->pShellIconOverlayIdentifier != NULL)
-        {
-            it->pShellIconOverlayIdentifier->Release();
-            it->pShellIconOverlayIdentifier = NULL;
-        }
-        if (it->hDll != NULL)
-        {
-            FreeLibrary(it->hDll);
-            it->hDll = NULL;
-        }
-
-        it->pDllGetClassObject = NULL;
-        it->pDllCanUnloadNow = NULL;
-    }
-    m_dllpointers.clear();
-
-    InterlockedDecrement(&g_cRefThisDll);
+	InterlockedDecrement(&g_cRefThisDll);
 }
+
 
 STDMETHODIMP CShellExt::QueryInterface(REFIID riid, LPVOID FAR *ppv)
 {
     if(ppv == 0)
-        return E_POINTER;
-    *ppv = NULL;
+		return E_POINTER;
+	*ppv = NULL; 
 
-    if (IsEqualIID(riid, IID_IUnknown))
+    if (IsEqualIID(riid, IID_IShellExtInit) || IsEqualIID(riid, IID_IUnknown))
     {
-        *ppv = static_cast<IUnknown*>(this);
+        *ppv = (LPSHELLEXTINIT)this;
+    }
+    else if (IsEqualIID(riid, IID_IContextMenu))
+    {
+        *ppv = (LPCONTEXTMENU)this;
+    }
+    else if (IsEqualIID(riid, IID_IContextMenu2))
+    {
+        *ppv = (LPCONTEXTMENU2)this;
+    }
+    else if (IsEqualIID(riid, IID_IContextMenu3))
+    {
+        *ppv = (LPCONTEXTMENU3)this;
     }
     else if (IsEqualIID(riid, IID_IShellIconOverlayIdentifier))
     {
-        *ppv = static_cast<IShellIconOverlayIdentifier*>(this);
+        *ppv = (IShellIconOverlayIdentifier*)this;
     }
-    else
+    else if (IsEqualIID(riid, IID_IShellPropSheetExt))
     {
-        return E_NOINTERFACE;
+        *ppv = (LPSHELLPROPSHEETEXT)this;
     }
-
-    AddRef();
-    return S_OK;
+    if (*ppv)
+    {
+        AddRef();
+		
+        return NOERROR;
+    }
+	
+    return E_NOINTERFACE;
 }
 
 STDMETHODIMP_(ULONG) CShellExt::AddRef()
@@ -75,6 +76,24 @@ STDMETHODIMP_(ULONG) CShellExt::Release()
     if (--m_cRef)
         return m_cRef;
 
+	for (vector<DLLPointers>::iterator it = m_dllpointers.begin(); it != m_dllpointers.end(); ++it)
+	{
+		if (it->pShellIconOverlayIdentifier != NULL)
+			it->pShellIconOverlayIdentifier->Release();
+		if (it->hDll != NULL)
+			FreeLibrary(it->hDll);
+
+		it->hDll = NULL;
+		it->pDllGetClassObject = NULL;
+		it->pDllCanUnloadNow = NULL;
+		it->pShellIconOverlayIdentifier = NULL;
+	}
+
+	m_dllpointers.clear();
+
     delete this;
+	
     return 0L;
 }
+
+

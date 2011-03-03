@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +22,7 @@
 // necessary includes
 ///////////////////////////////////////////////////////////////
 
-#include "./Containers/LogCacheGlobals.h"
-#include "./ConnectionState.h"
+#include "./Containers/logCacheGlobals.h"
 
 ///////////////////////////////////////////////////////////////
 // forward declarations
@@ -33,11 +32,6 @@ struct svn_error_t;
 
 class CTSVNPath;
 class SVN;
-
-namespace async
-{
-    class CCriticalSection;
-}
 
 ///////////////////////////////////////////////////////////////
 // begin namespace LogCache
@@ -53,23 +47,47 @@ namespace LogCache
  * However, there is a minor difference in how the head revision is
  * treated: if the head rev. of some parent path is already known,
  * it will be returned for every sub-path where SVN may return a
- * smaller number. However, this higher HEAD will still be valid
+ * smaller number. However, this higher HEAD will still be valid 
  * for the path (i.e. it didn't get deleted etc.). To determine the
  * head *change*, call the SVN method directly.
  *
  * Mimic some methods of the SVN class. Results will automatically
  * be put into this cache.
- *
+ * 
  * Store to disk as "Repositories.dat" in the log cache folder.
  */
 
 class CRepositoryInfo
 {
-private:
+public:
 
     /**
-     * Contains all "header" data for a repository.
+     * Per-repository server connectivity state: Default is 
+     * @a online, user can switch to one of the other states
+     * upon connection failure. Refreshing a view will always 
+     * reset to default.
      */
+
+    enum ConnectionState 
+    {
+        /// call the server whenever necessary (default)
+
+        online = 0,
+
+        /// don't call the server, except when HEAD info needs to be refreshed
+
+        tempOffline = 1,
+
+        /// don't contact the server for any reason whatsoever
+
+        offline = 2
+    };
+
+private:
+
+	/**
+	 * Contains all "header" data for a repository.
+	 */
 
     struct SPerRepositoryInfo
     {
@@ -77,7 +95,7 @@ private:
 
         CString root;
 
-        /// Universal Unique Identifier for a cached repository
+        /// repository URL
 
         CString uuid;
 
@@ -105,7 +123,7 @@ private:
     class CData
     {
     private:
-
+        
         /// per-repository properties
 
         typedef std::vector<SPerRepositoryInfo*> TData;
@@ -133,7 +151,7 @@ private:
 
         // a lookup utility that scans an index range
 
-        CString FindRoot
+        CString FindRoot 
             ( TPartialIndex::const_iterator begin
             , TPartialIndex::const_iterator end
             , const CString& url) const;
@@ -190,10 +208,6 @@ private:
 
     SVN& svn;
 
-    /// used to sync access to the global "data"
-
-    async::CCriticalSection& GetDataMutex();
-
     /// read the dump file
 
     void Load();
@@ -213,12 +227,12 @@ public:
     CRepositoryInfo (SVN& svn, const CString& cacheFolderPath);
     ~CRepositoryInfo();
 
-    /// look-up and ask SVN if the info is not in cache.
+    /// look-up and ask SVN if the info is not in cache. 
     /// cache the result.
 
-    CString GetRepositoryRoot (const CTSVNPath& url);
-    CString GetRepositoryUUID (const CTSVNPath& url);
-    CString GetRepositoryRootAndUUID (const CTSVNPath& url, CString& uuid);
+	CString GetRepositoryRoot (const CTSVNPath& url);
+	CString GetRepositoryUUID (const CTSVNPath& url);
+	CString GetRepositoryRootAndUUID (const CTSVNPath& url, CString& uuid);
 
     revision_t GetHeadRevision (CString uuid, const CTSVNPath& url);
 
@@ -226,8 +240,8 @@ public:
 
     void ResetHeadRevision (const CString& uuid, const CString& root);
 
-    /// is the repository offline?
-    /// Don't modify the state if autoSet is false.
+    /// is the repository offline? 
+	/// Don't modify the state if autoSet is false.
 
     bool IsOffline (const CString& uuid, const CString& url, bool autoSet);
 
@@ -241,21 +255,21 @@ public:
 
     void DropEntry (CString uuid, CString url);
 
-    /// write all changes to disk
+	/// write all changes to disk
 
-    void Flush();
+	void Flush();
 
     /// clear cache
 
     void Clear();
 
-    /// get the owning SVN instance
+	/// get the owning SVN instance
 
-    SVN& GetSVN() const;
+	SVN& GetSVN() const;
 
     /// access to the result of the last SVN operation
 
-    const svn_error_t* GetLastError() const;
+    svn_error_t* GetLastError() const;
 
     /// construct the dump file name
 
@@ -263,8 +277,8 @@ public:
 
     /// for statistics
 
-    friend class CLogCacheStatistics;
-    friend class CLogCachePool;
+	friend class CLogCacheStatistics;
+	friend class CLogCachePool;
 };
 
 ///////////////////////////////////////////////////////////////

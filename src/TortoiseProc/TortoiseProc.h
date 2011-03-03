@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,11 +19,11 @@
 #pragma once
 
 #ifndef __AFXWIN_H__
-    #error include 'stdafx.h' before including this file for PCH
+	#error include 'stdafx.h' before including this file for PCH
 #endif
 
 
-#include "resource.h"       // main symbols
+#include "resource.h"		// main symbols
 
 
 #include "..\\TortoiseShell\\resource.h"
@@ -37,7 +37,7 @@ class CTSVNPathList;
  * Main class of the TortoiseProc.exe\n
  * It is the entry point when calling the TortoiseProc.exe and
  * handles the command line. Depending on the command line
- * other 'modules' are called, usually dialog boxes which
+ * other 'modules' are called, usually dialog boxes which 
  * themselves then execute a specific function.\n\n
  * Many commands are executed using the CSVNProgressDlg which
  * just displays the common notify callbacks of the Subversion commands.
@@ -47,31 +47,26 @@ class CTSVNPathList;
 class CTortoiseProcApp : public CWinAppEx
 {
 public:
-    CTortoiseProcApp();
-    ~CTortoiseProcApp();
+	CTortoiseProcApp();
+	~CTortoiseProcApp();
 
 // Overrides
 public:
-    virtual BOOL InitInstance();
-    virtual int ExitInstance();
+	virtual BOOL InitInstance();
+	virtual int ExitInstance();
 
-    void CheckUpgrade();
-    void InitializeJumpList();
-    void DoInitializeJumpList();
-
-    HWND GetExplorerHWND() { return (::IsWindow(hWndExplorer) ? hWndExplorer : NULL); }
+	void CheckUpgrade();
 
 // Implementation
 
 private:
-    DECLARE_MESSAGE_MAP()
+
+
+	DECLARE_MESSAGE_MAP()
 private:
-    bool    retSuccess;
-    HWND    hWndExplorer;
-    void CheckForNewerVersion();
+	bool	retSuccess;
 };
 
 extern CTortoiseProcApp theApp;
+extern HWND hWndExplorer;
 extern CString sOrigCWD;
-HWND GetExplorerHWND();
-

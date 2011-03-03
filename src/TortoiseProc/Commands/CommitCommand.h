@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,9 +19,6 @@
 #pragma once
 #include "Command.h"
 
-class CCommitDlg;
-class CSVNProgressDlg;
-
 /**
  * \ingroup TortoiseProc
  * Shows the commit dialog, executes the commit and retries (if necessary)
@@ -29,14 +26,12 @@ class CSVNProgressDlg;
 class CommitCommand : public Command
 {
 private:
-    CString LoadLogMessage();
-    void InitProgressDialog (CCommitDlg& commitDlg, CSVNProgressDlg& progDlg);
-    bool IsOutOfDate(const svn_error_t* err ) const;
-    bool AskToUpdate(CSVNProgressDlg& progDlg) const;
-
+	CString LoadLogMessage();
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute();
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute();
 };
+
+

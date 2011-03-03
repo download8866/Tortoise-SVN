@@ -23,7 +23,6 @@
 
 #include "RemoveSimpleChanges.h"
 #include "RemoveDeletedBranches.h"
-#include "RemoveTags.h"
 #include "FoldTags.h"
 #include "RemoveUnchangedBranches.h"
 #include "ShowHeads.h"
@@ -54,7 +53,7 @@ CAllRevisionGraphOptions::CAllRevisionGraphOptions (const CGraphNodeStates* node
     // The order is critical as it determines the option bit position
     // in the registry DWORD.
 
-    CStandardNodePositioning* standardNodePositioning
+    CStandardNodePositioning* standardNodePositioning 
         = new CStandardNodePositioning (*this);
     new CRemoveSimpleChanges (*this);
     new CUpsideDownLayout (*this);
@@ -85,10 +84,6 @@ CAllRevisionGraphOptions::CAllRevisionGraphOptions (const CGraphNodeStates* node
 
     (new CStandardNodeSizeAssignment (*this, nodeStates))->ToggleSelection();
     new CStrictOrderNodePositioning (*this, standardNodePositioning, reduceCrossLines);
-
-    // new options (we have to add them there as the order is to be preserved)
-
-    new CRemoveTags (*this);
 
     // link options as necessary
 

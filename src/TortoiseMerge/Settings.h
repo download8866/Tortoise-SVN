@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009 - TortoiseSVN
+// Copyright (C) 2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,8 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "AeroGlass.h"
-#include "AeroControls.h"
 
 class CSetMainPage;
 class CSetColorPage;
@@ -35,38 +33,35 @@ class CSetColorPage;
  */
 class CSettings : public CPropertySheet
 {
-    DECLARE_DYNAMIC(CSettings)
+	DECLARE_DYNAMIC(CSettings)
 private:
-    /**
-     * Adds all pages to this Settings-Dialog.
-     */
-    void AddPropPages();
-    /**
-     * Removes the pages and frees up memory.
-     */
-    void RemovePropPages();
+	/**
+	 * Adds all pages to this Settings-Dialog.
+	 */
+	void AddPropPages();
+	/**
+	 * Removes the pages and frees up memory.
+	 */
+	void RemovePropPages();
 
 private:
-    CSetMainPage *      m_pMainPage;
-    CSetColorPage *     m_pColorPage;
-    CDwmApiImpl         m_Dwm;
-    AeroControlBase     m_aeroControls;
+	CSetMainPage *		m_pMainPage;
+	CSetColorPage *		m_pColorPage;
 
 public:
-    CSettings(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
-    CSettings(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
-    virtual ~CSettings();
+	CSettings(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+	CSettings(LPCTSTR pszCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);
+	virtual ~CSettings();
 
-    /**
-     * Calls the SaveData()-methods of each of the settings pages.
-     */
-    void SaveData();
+	/**
+	 * Calls the SaveData()-methods of each of the settings pages.
+	 */
+	void SaveData();
 
-    BOOL IsReloadNeeded() const;
+	BOOL IsReloadNeeded() const;
 protected:
-    DECLARE_MESSAGE_MAP()
-    virtual BOOL OnInitDialog();
-    afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	DECLARE_MESSAGE_MAP()
+	virtual BOOL OnInitDialog();
 };
 
 
