@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,10 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
+#include "Registry.h"
 #include "TempFile.h"
-#include "auto_buffer.h"
-#include "PathUtils.h"
-#include "DirFileEnum.h"
 
 CTempFiles::CTempFiles(void)
 {
@@ -28,161 +26,62 @@ CTempFiles::CTempFiles(void)
 
 CTempFiles::~CTempFiles(void)
 {
-    m_TempFileList.DeleteAllPaths(false, false);
+	m_TempFileList.DeleteAllFiles(false);
 }
 
 CTempFiles& CTempFiles::Instance()
 {
-    static CTempFiles instance;
-    return instance;
-}
-
-CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev revision)
-{
-    DWORD len = ::GetTempPath(0, NULL);
-    auto_buffer<TCHAR> temppath (len+1);
-    auto_buffer<TCHAR> tempF (len+50);
-    ::GetTempPath (len+1, temppath);
-    CTSVNPath tempfile;
-    CString possibletempfile;
-    if (path.IsEmpty())
-    {
-        ::GetTempFileName (temppath, TEXT("svn"), 0, tempF);
-        tempfile = CTSVNPath (tempF.get());
-    }
-    else
-    {
-        int i=0;
-        do
-        {
-            // use the UI path, which does unescaping for urls
-            CString filename = path.GetUIFileOrDirectoryName();
-
-            // the inner loop assures that the resulting path is < MAX_PATH
-            // if that's not possible without reducing the 'filename' to less than 5 chars, use a path
-            // that's longer than MAX_PATH (in that case, we can't really do much to avoid longer paths)
-            do
-            {
-                if (revision.IsValid())
-                {
-                    possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
-                }
-                else
-                {
-                    possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
-                }
-                tempfile.SetFromWin(possibletempfile);
-                filename = filename.Left(filename.GetLength()-1);
-            } while (   (filename.GetLength() > 4)
-                     && (revision.IsValid() || tempfile.GetWinPathString().GetLength() >= MAX_PATH));
-            i++;
-        } while (PathFileExists(tempfile.GetWinPath()));
-    }
-
-    // caller has to actually grab the file path
-
-    return tempfile;
-}
-
-CTSVNPath CTempFiles::CreateTempPath (bool bRemoveAtEnd, const CTSVNPath& path, const SVNRev revision, bool directory)
-{
-    bool succeeded = false;
-    for (int retryCount = 0; retryCount < MAX_RETRIES; ++retryCount)
-    {
-        CTSVNPath tempfile = ConstructTempPath (path, revision);
-
-        // now create the temp file / directory, so that subsequent calls to GetTempFile() return
-        // different filenames.
-        // Handle races, i.e. name collisions.
-
-        if (directory)
-        {
-            DeleteFile(tempfile.GetWinPath());
-            if (CreateDirectory (tempfile.GetWinPath(), NULL) == FALSE)
-            {
-                if (GetLastError() != ERROR_ALREADY_EXISTS)
-                    return CTSVNPath();
-            }
-            else
-                succeeded = true;
-        }
-        else
-        {
-            HANDLE hFile = CreateFile(tempfile.GetWinPath(), GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
-            if (hFile== INVALID_HANDLE_VALUE)
-            {
-                if (GetLastError() != ERROR_ALREADY_EXISTS)
-                    return CTSVNPath();
-            }
-            else
-            {
-                CloseHandle(hFile);
-                succeeded = true;
-            }
-        }
-
-        // done?
-
-        if (succeeded)
-        {
-            if (bRemoveAtEnd)
-                m_TempFileList.AddPath(tempfile);
-
-            return tempfile;
-        }
-    }
-
-    // give up
-
-    return CTSVNPath();
+	static CTempFiles instance;
+	return instance;
 }
 
 CTSVNPath CTempFiles::GetTempFilePath(bool bRemoveAtEnd, const CTSVNPath& path /* = CTSVNPath() */, const SVNRev revision /* = SVNRev() */)
 {
-    return CreateTempPath (bRemoveAtEnd, path, revision, false);
-}
-
-CString CTempFiles::GetTempFilePathString()
-{
-    return CreateTempPath (true, CTSVNPath(), SVNRev(), false).GetWinPathString();
-}
-
-CTSVNPath CTempFiles::GetTempDirPath(bool bRemoveAtEnd, const CTSVNPath& path /* = CTSVNPath() */, const SVNRev revision /* = SVNRev() */)
-{
-    return CreateTempPath (bRemoveAtEnd, path, revision, true);
-}
-
-void CTempFiles::DeleteOldTempFiles(LPCTSTR wildCard)
-{
-    DWORD len = ::GetTempPath(0, NULL);
-    auto_buffer<TCHAR> path(len + 100);
-    len = ::GetTempPath (len+100, path);
-    if (len == 0)
-        return;
-
-    CSimpleFileFind finder = CSimpleFileFind(path.get(), wildCard);
-    FILETIME systime_;
-    ::GetSystemTimeAsFileTime(&systime_);
-    __int64 systime = ((ULARGE_INTEGER&)systime_).QuadPart;
-    while (finder.FindNextFileNoDirectories())
-    {
-        CString filepath = finder.GetFilePath();
-        HANDLE hFile = ::CreateFile(filepath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, NULL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE)
-            continue;
-
-        FILETIME createtime_;
-        const bool timeObtained = ::GetFileTime(hFile, &createtime_, NULL, NULL) != 0;
-        ::CloseHandle(hFile);
-        if(!timeObtained)
-            continue;
-
-        __int64 createtime = ((ULARGE_INTEGER&)createtime_).QuadPart;
-        if ((createtime + 864000000000) < systime)      //only delete files older than a day
-        {
-            ::SetFileAttributes(filepath, FILE_ATTRIBUTE_NORMAL);
-            ::DeleteFile(filepath);
-        }
-    }
+	DWORD len = ::GetTempPath(0, NULL);
+	TCHAR * temppath = new TCHAR[len+1];
+	TCHAR * tempF = new TCHAR[len+50];
+	::GetTempPath (len+1, temppath);
+	CTSVNPath tempfile;
+	CString possibletempfile;
+	if (path.IsEmpty())
+	{
+		::GetTempFileName (temppath, TEXT("svn"), 0, tempF);
+		tempfile = CTSVNPath(tempF);
+	}
+	else
+	{
+		int i=0;
+		// use the UI path, which does unescaping for urls
+		CString filename = path.GetUIFileOrDirectoryName();
+		do
+		{
+			// the inner loop assures that the resulting path is < MAX_PATH
+			// if that's not possible without reducing the 'filename' to less than 5 chars, use a path
+			// that's longer than MAX_PATH (in that case, we can't really do much to avoid longer paths)
+			do 
+			{
+				if (revision.IsValid())
+				{
+					possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
+				}
+				else
+				{
+					possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
+				}
+				tempfile.SetFromWin(possibletempfile);
+				filename = filename.Left(filename.GetLength()-1);
+			} while ((filename.GetLength() > 4) && (tempfile.GetWinPathString().GetLength() >= MAX_PATH));
+			i++;
+		} while (PathFileExists(tempfile.GetWinPath()));
+	}
+	//now create the temp file, so that subsequent calls to GetTempFile() return
+	//different filenames.
+	HANDLE hFile = CreateFile(tempfile.GetWinPath(), GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
+	CloseHandle(hFile);
+	delete [] temppath;
+	delete [] tempF;
+	if (bRemoveAtEnd)
+		m_TempFileList.AddPath(tempfile);
+	return tempfile;
 }
 

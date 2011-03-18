@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,15 +26,15 @@
 class RenameCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute();
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute();
 private:
-    bool                    RenameWithReplace(HWND hWnd, const CTSVNPathList& srcPathList,
-                                            const CTSVNPath& destPath,
-                                            const CString& message = _T(""),
-                                            bool move_as_child = false, bool make_parents = false);
+	bool					RenameWithReplace(HWND hWnd, const CTSVNPathList& srcPathList, 
+											const CTSVNPath& destPath, 
+											BOOL force, const CString& message = _T(""), 
+											bool move_as_child = false, bool make_parents = false);
 };
 
 

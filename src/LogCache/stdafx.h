@@ -21,13 +21,13 @@
 // Modify the following defines if you have to target a platform prior to the ones specified below.
 // Refer to MSDN for the latest info on corresponding values for different platforms.
 #ifndef WINVER
-#   define WINVER 0x0501
+#	define WINVER 0x0501
 #endif
 #ifndef _WIN32_WINNT
-#   define _WIN32_WINNT 0x0501
-#endif
+#	define _WIN32_WINNT 0x0501
+#endif						
 #ifndef _WIN32_WINDOWS
-#   define _WIN32_WINDOWS 0x0501
+#	define _WIN32_WINDOWS 0x0501
 #endif
 
 
@@ -36,15 +36,15 @@
 #define _WIN32_IE 0x0501
 #endif
 
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS  // some CString constructors will be explicit
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
 
 // turns off MFC's hiding of some common and often safely ignored warning messages
 #define _AFX_ALL_WARNINGS
 
 // Exclude rarely-used stuff from Windows headers
 
-#define VC_EXTRALEAN
-#define WIN32_LEAN_AND_MEAN
+#define VC_EXTRALEAN       
+#define WIN32_LEAN_AND_MEAN        
 
 #define NOSERVICE
 #define NOMCX
@@ -52,7 +52,6 @@
 #define NOSOUND
 #define NOCOMM
 #define NORPC
-#define NOMINMAX
 
 // streamline APIs
 
@@ -65,7 +64,7 @@
 // include commonly used headers
 
 #include <afxwin.h>         // MFC core and standard components
-#include <afxtempl.h>       // CArray and friends
+#include <afxtempl.h>       // CArray and friend
 
 #include <assert.h>
 #include <time.h>
@@ -76,11 +75,7 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <iostream>
 #include <fstream>
-#include <memory>
-
-#include "tstring.h"
 
 // Commonly used log cache streams
 // (others may be included locally)
@@ -91,3 +86,6 @@
 #include "./Streams/PackedTime64OutStream.h"
 #include "./Streams/CompositeInStream.h"
 #include "./Streams/CompositeOutStream.h"
+
+
+

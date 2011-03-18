@@ -43,13 +43,7 @@ static void logwrite(struct LogContext *ctx, void *data, int len)
 	bufchain_add(&ctx->queue, data, len);
     } else if (ctx->state == L_OPEN) {
 	assert(ctx->lgfp);
-	if (fwrite(data, 1, len, ctx->lgfp) < len) {
-	    logfclose(ctx);
-	    ctx->state = L_ERROR;
-	    /* Log state is L_ERROR so this won't cause a loop */
-	    logevent(ctx->frontend,
-		     "Disabled writing session log due to error while writing");
-	}
+	fwrite(data, 1, len, ctx->lgfp);
     }				       /* else L_ERROR, so ignore the write */
 }
 
@@ -91,7 +85,7 @@ static void logfopen_callback(void *handle, int mode)
 	ctx->state = L_ERROR;	       /* disable logging */
     } else {
 	fmode = (mode == 1 ? "ab" : "wb");
-	ctx->lgfp = f_open(ctx->currlogfilename, fmode, FALSE);
+	ctx->lgfp = f_open(ctx->currlogfilename, fmode, TRUE);
 	if (ctx->lgfp)
 	    ctx->state = L_OPEN;
 	else
@@ -107,9 +101,8 @@ static void logfopen_callback(void *handle, int mode)
     }
 
     event = dupprintf("%s session log (%s mode) to file: %s",
-		      ctx->state == L_ERROR ?
-		      (mode == 0 ? "Disabled writing" : "Error writing") :
-		      (mode == 1 ? "Appending" : "Writing new"),
+		      (mode == 0 ? "Disabled writing" :
+                       mode == 1 ? "Appending" : "Writing new"),
 		      (ctx->cfg.logtype == LGTYP_ASCII ? "ASCII" :
 		       ctx->cfg.logtype == LGTYP_DEBUG ? "raw" :
 		       ctx->cfg.logtype == LGTYP_PACKETS ? "SSH packets" :
@@ -227,9 +220,8 @@ void log_eventlog(void *handle, const char *event)
  * Set of blanking areas must be in increasing order.
  */
 void log_packet(void *handle, int direction, int type,
-		char *texttype, const void *data, int len,
-		int n_blanks, const struct logblank_t *blanks,
-		const unsigned long *seq)
+		char *texttype, void *data, int len,
+		int n_blanks, const struct logblank_t *blanks)
 {
     struct LogContext *ctx = (struct LogContext *)handle;
     char dumpdata[80], smalldata[5];
@@ -241,20 +233,13 @@ void log_packet(void *handle, int direction, int type,
 	return;
 
     /* Packet header. */
-    if (texttype) {
-	if (seq) {
-	    logprintf(ctx, "%s packet #0x%lx, type %d / 0x%02x (%s)\r\n",
-		      direction == PKT_INCOMING ? "Incoming" : "Outgoing",
-		      *seq, type, type, texttype);
-	} else {
-	    logprintf(ctx, "%s packet type %d / 0x%02x (%s)\r\n",
-		      direction == PKT_INCOMING ? "Incoming" : "Outgoing",
-		      type, type, texttype);
-	}
-    } else {
+    if (texttype)
+        logprintf(ctx, "%s packet type %d / 0x%02x (%s)\r\n",
+                  direction == PKT_INCOMING ? "Incoming" : "Outgoing",
+                  type, type, texttype);
+    else
         logprintf(ctx, "%s raw data\r\n",
                   direction == PKT_INCOMING ? "Incoming" : "Outgoing");
-    }
 
     /*
      * Output a hex/ASCII dump of the packet body, blanking/omitting
@@ -391,7 +376,7 @@ static void xlatlognam(Filename *dest, Filename src,
 	    char c;
 	    s++;
 	    size = 0;
-	    if (*s) switch (c = *s++, tolower((unsigned char)c)) {
+	    if (*s) switch (c = *s++, tolower(c)) {
 	      case 'y':
 		size = strftime(buf, sizeof(buf), "%Y", tm);
 		break;

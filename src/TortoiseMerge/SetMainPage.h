@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,68 +27,62 @@
  */
 class CSetMainPage : public CPropertyPage
 {
-    DECLARE_DYNAMIC(CSetMainPage)
+	DECLARE_DYNAMIC(CSetMainPage)
 
 public:
-    CSetMainPage();
-    virtual ~CSetMainPage();
+	CSetMainPage();
+	virtual ~CSetMainPage();
 
-    /**
-     * Saves the changed settings to the registry.
-     * \remark If the dialog is closed/dismissed without calling
-     * this method first then all settings the user made must be
-     * discarded!
-     */
-    void SaveData();
+	/**
+	 * Saves the changed settings to the registry.
+	 * \remark If the dialog is closed/dismissed without calling
+	 * this method first then all settings the user made must be
+	 * discarded!
+	 */
+	void SaveData();
 
-    BOOL    m_bReloadNeeded;
-    enum { IDD = IDD_SETMAINPAGE };
+	BOOL	m_bReloadNeeded;
+	enum { IDD = IDD_SETMAINPAGE };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnApply();
-    virtual BOOL OnInitDialog();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL OnApply();
+	virtual BOOL OnInitDialog();
 
-    afx_msg void OnModified();
-    afx_msg void OnModifiedWithReload();
-    afx_msg void OnBnClickedWhitespace();
+	DECLARE_MESSAGE_MAP()
 
-    DECLARE_MESSAGE_MAP()
+	BOOL			m_bBackup;
+	CRegDWORD		m_regBackup;
+	BOOL			m_bFirstDiffOnLoad;
+	CRegDWORD		m_regFirstDiffOnLoad;
+	int				m_nTabSize;
+	CRegDWORD		m_regTabSize;
+	BOOL			m_bIgnoreEOL;
+	CRegDWORD		m_regIgnoreEOL;
+	BOOL			m_bOnePane;
+	CRegDWORD		m_regOnePane;
+	DWORD			m_nIgnoreWS;
+	CRegDWORD		m_regIgnoreWS;
+	BOOL			m_bViewLinenumbers;
+	CRegDWORD		m_regViewLinenumbers;
+	BOOL			m_bStrikeout;
+	CRegDWORD		m_regStrikeout;
+	BOOL			m_bDisplayBinDiff;
+	CRegDWORD		m_regDisplayBinDiff;
+	BOOL			m_bCaseInsensitive;
+	CRegDWORD		m_regCaseInsensitive;
+	BOOL			m_bUTF8Default;
+	CRegDWORD		m_regUTF8Default;
+	
+	CRegDWORD		m_regFontSize;
+	DWORD			m_dwFontSize;
+	CRegString		m_regFontName;
+	CString			m_sFontName;
 
-    BOOL DialogEnableWindow(UINT nID, BOOL bEnable);
-
-    BOOL            m_bBackup;
-    CRegDWORD       m_regBackup;
-    BOOL            m_bFirstDiffOnLoad;
-    CRegDWORD       m_regFirstDiffOnLoad;
-    BOOL            m_bFirstConflictOnLoad;
-    CRegDWORD       m_regFirstConflictOnLoad;
-    int             m_nTabSize;
-    CRegDWORD       m_regTabSize;
-    BOOL            m_bIgnoreEOL;
-    CRegDWORD       m_regIgnoreEOL;
-    BOOL            m_bOnePane;
-    CRegDWORD       m_regOnePane;
-    DWORD           m_nIgnoreWS;
-    CRegDWORD       m_regIgnoreWS;
-    BOOL            m_bViewLinenumbers;
-    CRegDWORD       m_regViewLinenumbers;
-    BOOL            m_bStrikeout;
-    CRegDWORD       m_regStrikeout;
-    BOOL            m_bDisplayBinDiff;
-    CRegDWORD       m_regDisplayBinDiff;
-    BOOL            m_bCaseInsensitive;
-    CRegDWORD       m_regCaseInsensitive;
-    BOOL            m_bUTF8Default;
-    CRegDWORD       m_regUTF8Default;
-    BOOL            m_bAutoAdd;
-    CRegDWORD       m_regAutoAdd;
-
-    CRegDWORD       m_regFontSize;
-    DWORD           m_dwFontSize;
-    CRegString      m_regFontName;
-    CString         m_sFontName;
-
-    CMFCFontComboBox m_cFontNames;
-    CComboBox       m_cFontSizes;
+	CMFCFontComboBox m_cFontNames;
+	CComboBox		m_cFontSizes;
+protected:
+	afx_msg void OnModified();
+	afx_msg void OnModifiedWithReload();
+	afx_msg void OnBnClickedWhitespace();
 };

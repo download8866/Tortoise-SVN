@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,32 +27,32 @@
  */
 class CPropDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CPropDlg)
+	DECLARE_DYNAMIC(CPropDlg)
 
 public:
-    CPropDlg(CWnd* pParent = NULL);
-    virtual ~CPropDlg();
+	CPropDlg(CWnd* pParent = NULL);
+	virtual ~CPropDlg();
 
-    enum { IDD = IDD_PROPERTIES };
+	enum { IDD = IDD_PROPERTIES };
 private:
-    static UINT PropThreadEntry(LPVOID pVoid);
-    UINT        PropThread();
-    void setProplistColumnWidth();
+	static UINT PropThreadEntry(LPVOID pVoid);
+	UINT		PropThread();
+
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    virtual void OnCancel();
-    virtual void OnOK();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL OnInitDialog();
+	virtual void OnCancel();
+	virtual void OnOK();
 
-    afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
+	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
 public:
-    CTSVNPath   m_Path;
-    SVNRev      m_rev;
+	CTSVNPath	m_Path;
+	SVNRev		m_rev;
 private:
-    HANDLE      m_hThread;
-    CListCtrl   m_proplist;
+	HANDLE		m_hThread;
+	CListCtrl	m_proplist;
 };
 

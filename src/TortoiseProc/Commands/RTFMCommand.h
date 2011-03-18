@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,19 +29,19 @@
 class RTFMCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute()
-    {
-        // If the user tries to start TortoiseProc from the link in the programs start menu
-        // show an explanation about what TSVN is (shell extension) and open up an explorer window
-        ::MessageBox(GetExplorerHWND(), IDS_PROC_RTFM, IDS_APPNAME, MB_ICONINFORMATION);
-        TCHAR path[MAX_PATH];
-        SHGetFolderPath(GetExplorerHWND(), CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
-        ShellExecute(0, _T("explore"), path, NULL, NULL, SW_SHOWNORMAL);
-        return true;
-    }
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute()
+	{
+		// If the user tries to start TortoiseProc from the link in the programs start menu
+		// show an explanation about what TSVN is (shell extension) and open up an explorer window
+		CMessageBox::Show(hwndExplorer, IDS_PROC_RTFM, IDS_APPNAME, MB_ICONINFORMATION);
+		TCHAR path[MAX_PATH];
+		SHGetFolderPath(hwndExplorer, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
+		ShellExecute(0, _T("explore"), path, NULL, NULL, SW_SHOWNORMAL);
+		return true;
+	}
 };
 
 

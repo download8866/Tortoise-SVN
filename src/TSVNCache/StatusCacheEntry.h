@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006, 2010 - TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 
 struct TSVNCacheResponse;
-#define CACHETIMEOUT    0x7FFFFFFF
+#define CACHETIMEOUT	0x7FFFFFFF
 extern DWORD cachetimeout;
 
 /**
@@ -29,55 +29,42 @@ extern DWORD cachetimeout;
 class CStatusCacheEntry
 {
 public:
-    CStatusCacheEntry();
-    CStatusCacheEntry(const svn_client_status_t* pSVNStatus, bool needsLock, __int64 lastWriteTime, bool forceNormal);
-    bool HasExpired(long now) const;
-    void BuildCacheResponse(TSVNCacheResponse& response, DWORD& responseLength) const;
-    bool IsVersioned() const;
-    bool DoesFileTimeMatch(__int64 testTime) const;
-    bool ForceStatus(svn_wc_status_kind forcedStatus);
-    svn_wc_status_kind GetEffectiveStatus() const { return m_highestPriorityLocalStatus; }
-    bool IsKindKnown() const { return ((m_kind != svn_node_none)&&(m_kind != svn_node_unknown)); }
-    void SetStatus(const svn_client_status_t* pSVNStatus, bool needsLock, bool forceNormal);
-    bool HasBeenSet() const;
-    void Invalidate();
-    bool IsDirectory() const {return ((m_kind == svn_node_dir)&&(m_highestPriorityLocalStatus != svn_wc_status_ignored));}
-    bool SaveToDisk(FILE * pFile);
-    bool LoadFromDisk(FILE * pFile);
-    void SetKind(svn_node_kind_t kind) {m_kind = kind;}
+	CStatusCacheEntry();
+	CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool bReadOnly, DWORD validuntil = 0);
+	bool HasExpired(long now) const;
+	void BuildCacheResponse(TSVNCacheResponse& response, DWORD& responseLength) const;
+	bool IsVersioned() const;
+	bool DoesFileTimeMatch(__int64 testTime) const;
+	bool ForceStatus(svn_wc_status_kind forcedStatus);
+	svn_wc_status_kind GetEffectiveStatus() const { return m_highestPriorityLocalStatus; }
+	bool IsKindKnown() const { return ((m_kind != svn_node_none)&&(m_kind != svn_node_unknown)); }
+	void SetStatus(const svn_wc_status2_t* pSVNStatus);
+	bool HasBeenSet() const;
+	void Invalidate();
+	bool IsDirectory() const {return ((m_kind == svn_node_dir)&&(m_highestPriorityLocalStatus != svn_wc_status_ignored));}
+	bool SaveToDisk(FILE * pFile);
+	bool LoadFromDisk(FILE * pFile);
+	void SetKind(svn_node_kind_t kind) {m_kind = kind;}
 private:
-    void SetAsUnversioned();
+	void SetAsUnversioned();
 
 private:
-    __int64             m_lastWriteTime;
-    long                m_discardAtTime;
-    svn_revnum_t        m_commitRevision;
+	long				m_discardAtTime;
+	svn_wc_status_kind	m_highestPriorityLocalStatus;
+	svn_wc_status2_t	m_svnStatus;
+	__int64				m_lastWriteTime;
+	bool				m_bSet;
+	svn_node_kind_t		m_kind;
+	bool				m_bReadOnly;
+	bool				m_treeconflict;
 
-    struct
-    {
-        svn_wc_status_kind node_status:5;
-        svn_wc_status_kind text_status:5;
-        svn_wc_status_kind prop_status:5;
+	// Values copied from the 'entries' structure
+	bool				m_bSVNEntryFieldSet;
+	CStringA			m_sUrl;
+	CStringA			m_sOwner;
+	CStringA			m_sAuthor;
+	CStringA			m_sPresentProps;
+	svn_revnum_t		m_commitRevision;
 
-        svn_boolean_t locked:1;
-        svn_boolean_t copied:1;
-        svn_boolean_t switched:1;
-
-        svn_wc_status_kind repos_text_status:5;
-        svn_wc_status_kind repos_prop_status:5;
-    } m_svnStatus;
-
-    struct
-    {
-        svn_wc_status_kind  m_highestPriorityLocalStatus:5;
-        svn_node_kind_t     m_kind:3;
-        svn_boolean_t       m_bSet:1;
-        svn_boolean_t       m_treeconflict:1;
-
-        // Values copied from the 'entries' structure
-        svn_boolean_t       m_bSVNEntryFieldSet:1;
-        svn_boolean_t       m_bHasOwner:1;
-        svn_boolean_t       m_needsLock:1;
-    };
-//  friend class CSVNStatusCache;
+//	friend class CSVNStatusCache;
 };

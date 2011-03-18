@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,26 +28,25 @@
 #include "SVN.h"
 #include "MessageBox.h"
 #include "SysInfo.h"
-#include "Libraries.h"
 
 
 IMPLEMENT_DYNAMIC(CSetMainPage, ISettingsPropPage)
 CSetMainPage::CSetMainPage()
-    : ISettingsPropPage(CSetMainPage::IDD)
-    , m_sTempExtensions(_T(""))
-    , m_bLastCommitTime(FALSE)
-    , m_bUseDotNetHack(FALSE)
-    , m_bUseAero(TRUE)
+	: ISettingsPropPage(CSetMainPage::IDD)
+	, m_sTempExtensions(_T(""))
+	, m_bCheckNewer(TRUE)
+	, m_bLastCommitTime(FALSE)
+	, m_bUseDotNetHack(FALSE)
 {
-    m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
-    CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
-    m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"), temp);
-    m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
-    if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
-        m_bUseDotNetHack = false;
-    else
-        m_bUseDotNetHack = true;
-    m_regUseAero = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
+	m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
+	CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
+	m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"), temp);
+	m_regCheckNewer = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewer"), TRUE);
+	m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
+	if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
+		m_bUseDotNetHack = false;
+	else
+		m_bUseDotNetHack = true;
 }
 
 CSetMainPage::~CSetMainPage()
@@ -56,199 +55,181 @@ CSetMainPage::~CSetMainPage()
 
 void CSetMainPage::DoDataExchange(CDataExchange* pDX)
 {
-    ISettingsPropPage::DoDataExchange(pDX);
-    DDX_Control(pDX, IDC_LANGUAGECOMBO, m_LanguageCombo);
-    m_dwLanguage = (DWORD)m_LanguageCombo.GetItemData(m_LanguageCombo.GetCurSel());
-    DDX_Text(pDX, IDC_TEMPEXTENSIONS, m_sTempExtensions);
-    DDX_Check(pDX, IDC_COMMITFILETIMES, m_bLastCommitTime);
-    DDX_Check(pDX, IDC_ASPDOTNETHACK, m_bUseDotNetHack);
-    DDX_Check(pDX, IDC_AERODWM, m_bUseAero);
+	ISettingsPropPage::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LANGUAGECOMBO, m_LanguageCombo);
+	m_dwLanguage = (DWORD)m_LanguageCombo.GetItemData(m_LanguageCombo.GetCurSel());
+	DDX_Text(pDX, IDC_TEMPEXTENSIONS, m_sTempExtensions);
+	DDX_Check(pDX, IDC_CHECKNEWERVERSION, m_bCheckNewer);
+	DDX_Check(pDX, IDC_COMMITFILETIMES, m_bLastCommitTime);
+	DDX_Check(pDX, IDC_ASPDOTNETHACK, m_bUseDotNetHack);
 }
 
 
 BEGIN_MESSAGE_MAP(CSetMainPage, ISettingsPropPage)
-    ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnModified)
-    ON_EN_CHANGE(IDC_TEMPEXTENSIONS, OnModified)
-    ON_BN_CLICKED(IDC_EDITCONFIG, OnBnClickedEditconfig)
-    ON_BN_CLICKED(IDC_CHECKNEWERVERSION, OnModified)
-    ON_BN_CLICKED(IDC_CHECKNEWERBUTTON, OnBnClickedChecknewerbutton)
-    ON_BN_CLICKED(IDC_COMMITFILETIMES, OnModified)
-    ON_BN_CLICKED(IDC_SOUNDS, OnBnClickedSounds)
-    ON_BN_CLICKED(IDC_ASPDOTNETHACK, OnASPHACK)
-    ON_BN_CLICKED(IDC_AERODWM, OnModified)
-    ON_BN_CLICKED(IDC_CREATELIB, &CSetMainPage::OnBnClickedCreatelib)
+	ON_CBN_SELCHANGE(IDC_LANGUAGECOMBO, OnModified)
+	ON_EN_CHANGE(IDC_TEMPEXTENSIONS, OnModified)
+	ON_BN_CLICKED(IDC_EDITCONFIG, OnBnClickedEditconfig)
+	ON_BN_CLICKED(IDC_CHECKNEWERVERSION, OnModified)
+	ON_BN_CLICKED(IDC_CHECKNEWERBUTTON, OnBnClickedChecknewerbutton)
+	ON_BN_CLICKED(IDC_COMMITFILETIMES, OnModified)
+	ON_BN_CLICKED(IDC_SOUNDS, OnBnClickedSounds)
+	ON_BN_CLICKED(IDC_ASPDOTNETHACK, OnASPHACK)
 END_MESSAGE_MAP()
 
 BOOL CSetMainPage::OnInitDialog()
 {
-    ISettingsPropPage::OnInitDialog();
+	ISettingsPropPage::OnInitDialog();
 
-    EnableToolTips();
+	EnableToolTips();
 
-    m_sTempExtensions = m_regExtensions;
-    m_dwLanguage = m_regLanguage;
-    m_bUseAero = m_regUseAero;
+	m_sTempExtensions = m_regExtensions;
+	m_dwLanguage = m_regLanguage;
+	m_bCheckNewer = m_regCheckNewer;
 
-    CDwmApiImpl dwm;
-    dwm.Initialize();
-    DialogEnableWindow(IDC_AERODWM, dwm.IsDwmCompositionEnabled());
+	CString temp;
+	temp = m_regLastCommitTime;
+	m_bLastCommitTime = (temp.CompareNoCase(_T("yes"))==0);
 
-    CString temp;
-    temp = m_regLastCommitTime;
-    m_bLastCommitTime = (temp.CompareNoCase(_T("yes"))==0);
+	m_tooltips.Create(this);
+	m_tooltips.AddTool(IDC_TEMPEXTENSIONS, IDS_SETTINGS_TEMPEXTENSIONS_TT);
+	m_tooltips.AddTool(IDC_CHECKNEWERVERSION, IDS_SETTINGS_CHECKNEWER_TT);
+	m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
+	m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
 
-    m_tooltips.Create(this);
-    m_tooltips.AddTool(IDC_TEMPEXTENSIONSLABEL, IDS_SETTINGS_TEMPEXTENSIONS_TT);
-    m_tooltips.AddTool(IDC_TEMPEXTENSIONS, IDS_SETTINGS_TEMPEXTENSIONS_TT);
-    m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
-    m_tooltips.AddTool(IDC_ASPDOTNETHACK, IDS_SETTINGS_DOTNETHACK_TT);
-    m_tooltips.AddTool(IDC_CREATELIB, IDS_SETTINGS_CREATELIB_TT);
+	// set up the language selecting combobox
+	TCHAR buf[MAX_PATH];
+	GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
+	m_LanguageCombo.AddString(buf);
+	m_LanguageCombo.SetItemData(0, 1033);
+	CString path = CPathUtils::GetAppParentDirectory();
+	path = path + _T("Languages\\");
+	CSimpleFileFind finder(path, _T("*.dll"));
+	int langcount = 1;
+	while (finder.FindNextFileNoDirectories())
+	{
+		CString file = finder.GetFilePath();
+		CString filename = finder.GetFileName();
+		if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0)
+		{
+			CString sVer = _T(STRPRODUCTVER);
+			sVer = sVer.Left(sVer.ReverseFind(','));
+			CString sFileVer = CPathUtils::GetVersionFromFile(file);
+			sFileVer = sFileVer.Left(sFileVer.ReverseFind(','));
+			if (sFileVer.Compare(sVer)!=0)
+				continue;
+			DWORD loc = _tstoi(filename.Mid(12));
+			GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, sizeof(buf)/sizeof(TCHAR));
+			m_LanguageCombo.AddString(buf);
+			m_LanguageCombo.SetItemData(langcount++, loc);
+		}
+	}
+	
+	for (int i=0; i<m_LanguageCombo.GetCount(); i++)
+	{
+		if (m_LanguageCombo.GetItemData(i) == m_dwLanguage)
+			m_LanguageCombo.SetCurSel(i);
+	}
 
-    DialogEnableWindow(IDC_CREATELIB, SysInfo::Instance().IsWin7OrLater());
-
-    // set up the language selecting combobox
-    TCHAR buf[MAX_PATH];
-    GetLocaleInfo(1033, LOCALE_SNATIVELANGNAME, buf, _countof(buf));
-    m_LanguageCombo.AddString(buf);
-    m_LanguageCombo.SetItemData(0, 1033);
-    CString path = CPathUtils::GetAppParentDirectory();
-    path = path + _T("Languages\\");
-    CSimpleFileFind finder(path, _T("*.dll"));
-    int langcount = 1;
-    while (finder.FindNextFileNoDirectories())
-    {
-        CString file = finder.GetFilePath();
-        CString filename = finder.GetFileName();
-        if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0)
-        {
-            CString sVer = _T(STRPRODUCTVER);
-            sVer = sVer.Left(sVer.ReverseFind(','));
-            CString sFileVer = CPathUtils::GetVersionFromFile(file);
-            sFileVer = sFileVer.Left(sFileVer.ReverseFind(','));
-            if (sFileVer.Compare(sVer)!=0)
-                continue;
-            DWORD loc = _tstoi(filename.Mid(12));
-            GetLocaleInfo(loc, LOCALE_SNATIVELANGNAME, buf, _countof(buf));
-            CString sLang = buf;
-            GetLocaleInfo(loc, LOCALE_SNATIVECTRYNAME, buf, _countof(buf));
-            if (buf[0])
-            {
-                sLang += _T(" (");
-                sLang += buf;
-                sLang += _T(")");
-            }
-            m_LanguageCombo.AddString(sLang);
-            m_LanguageCombo.SetItemData(langcount++, loc);
-        }
-    }
-
-    for (int i=0; i<m_LanguageCombo.GetCount(); i++)
-    {
-        if (m_LanguageCombo.GetItemData(i) == m_dwLanguage)
-            m_LanguageCombo.SetCurSel(i);
-    }
-
-    UpdateData(FALSE);
-    return TRUE;
+	UpdateData(FALSE);
+	return TRUE;
 }
 
 BOOL CSetMainPage::PreTranslateMessage(MSG* pMsg)
 {
-    m_tooltips.RelayEvent(pMsg);
-    return ISettingsPropPage::PreTranslateMessage(pMsg);
+	m_tooltips.RelayEvent(pMsg);
+	return ISettingsPropPage::PreTranslateMessage(pMsg);
 }
 
 void CSetMainPage::OnModified()
 {
-    SetModified();
+	SetModified();
 }
 
 void CSetMainPage::OnASPHACK()
 {
-    if (::MessageBox(m_hWnd, IDS_SETTINGS_ASPHACKWARNING, IDS_APPNAME, MB_ICONWARNING|MB_YESNO) == IDYES)
-    {
-        SetModified();
-    }
-    else
-    {
-        UpdateData();
-        m_bUseDotNetHack = !m_bUseDotNetHack;
-        UpdateData(FALSE);
-    }
+	if (CMessageBox::Show(m_hWnd, IDS_SETTINGS_ASPHACKWARNING, IDS_APPNAME, MB_ICONWARNING|MB_YESNO) == IDYES)
+	{
+		SetModified();
+	}
+	else
+	{
+		UpdateData();
+		m_bUseDotNetHack = !m_bUseDotNetHack;
+		UpdateData(FALSE);
+	}
 }
 
 BOOL CSetMainPage::OnApply()
 {
-    UpdateData();
-    Store (m_dwLanguage, m_regLanguage);
-    if (m_sTempExtensions.Compare(CString(m_regExtensions)))
-    {
-        Store (m_sTempExtensions, m_regExtensions);
-        m_restart = Restart_Cache;
-    }
-    Store ((m_bLastCommitTime ? _T("yes") : _T("no")), m_regLastCommitTime);
-    Store (m_bUseAero, m_regUseAero);
+	UpdateData();
+	Store (m_dwLanguage, m_regLanguage);
+	if (m_sTempExtensions.Compare(CString(m_regExtensions)))
+	{
+		Store (m_sTempExtensions, m_regExtensions);
+		m_restart = Restart_Cache;
+	}
+	Store (m_bCheckNewer, m_regCheckNewer);
+	Store ((m_bLastCommitTime ? _T("yes") : _T("no")), m_regLastCommitTime);
 
-    CRegString asphack_local(_T("System\\CurrentControlSet\\Control\\Session Manager\\Environment\\SVN_ASP_DOT_NET_HACK"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
-    CRegString asphack_user(_T("Environment\\SVN_ASP_DOT_NET_HACK"));
-    if (m_bUseDotNetHack)
-    {
-        asphack_local = _T("*");
+	CRegString asphack_local(_T("System\\CurrentControlSet\\Control\\Session Manager\\Environment\\SVN_ASP_DOT_NET_HACK"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
+	CRegString asphack_user(_T("Environment\\SVN_ASP_DOT_NET_HACK"));
+	if (m_bUseDotNetHack)
+	{
+		asphack_local = _T("*");
         if (asphack_local.GetLastError() != ERROR_SUCCESS)
-            asphack_user = _T("*");
-        if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
-        {
-            DWORD_PTR dwRet = 0;
-            SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)_T("Environment"), SMTO_ABORTIFHUNG, 1000, &dwRet);
-            m_restart = Restart_System;
-        }
-    }
-    else
-    {
-        asphack_local.removeValue();
-        asphack_user.removeValue();
-        if (GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)!=0)
-        {
-            DWORD_PTR dwRet = 0;
-            SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)_T("Environment"), SMTO_ABORTIFHUNG, 1000, &dwRet);
-            m_restart = Restart_System;
-        }
-    }
-    SetModified(FALSE);
-    return ISettingsPropPage::OnApply();
+			asphack_user = _T("*");
+		if ((GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)==0)&&(GetLastError()==ERROR_ENVVAR_NOT_FOUND))
+		{
+			DWORD_PTR dwRet = 0;
+			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)_T("Environment"), SMTO_ABORTIFHUNG, 1000, &dwRet);
+			m_restart = Restart_System;
+		}
+	}
+	else
+	{
+		asphack_local.removeValue();
+		asphack_user.removeValue();
+		if (GetEnvironmentVariable(_T("SVN_ASP_DOT_NET_HACK"), NULL, 0)!=0)
+		{
+			DWORD_PTR dwRet = 0;
+			SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)_T("Environment"), SMTO_ABORTIFHUNG, 1000, &dwRet);
+			m_restart = Restart_System;
+		}
+	}
+	SetModified(FALSE);
+	return ISettingsPropPage::OnApply();
 }
 
 void CSetMainPage::OnBnClickedEditconfig()
 {
-    TCHAR buf[MAX_PATH];
-    SVN::EnsureConfigFile();
-    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
-    CString path = buf;
-    path += _T("\\Subversion\\config");
-    CAppUtils::StartTextViewer(path);
+	TCHAR buf[MAX_PATH];
+	SVN::EnsureConfigFile();
+	SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
+	CString path = buf;
+	path += _T("\\Subversion\\config");
+	CAppUtils::StartTextViewer(path);
 }
 
 void CSetMainPage::OnBnClickedChecknewerbutton()
 {
-    TCHAR com[MAX_PATH+100];
-    GetModuleFileName(NULL, com, MAX_PATH);
-    _tcscat_s(com, _T(" /command:updatecheck /visible"));
+	TCHAR com[MAX_PATH+100];
+	GetModuleFileName(NULL, com, MAX_PATH);
+	_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck /visible"));
 
-    CAppUtils::LaunchApplication(com, 0, false);
+	CAppUtils::LaunchApplication(com, 0, false);
 }
 
 void CSetMainPage::OnBnClickedSounds()
-{
-    if (SysInfo::Instance().IsVistaOrLater())
-        CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,2"), NULL, false);
-    else
-        CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
+{	
+	if (SysInfo::Instance().IsVistaOrLater())
+		CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,2"), NULL, false);
+	else
+		CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
 }
 
-void CSetMainPage::OnBnClickedCreatelib()
-{
-    CoInitialize(NULL);
-    EnsureSVNLibrary();
-    CoUninitialize();
-}
+
+
+
+
+
 

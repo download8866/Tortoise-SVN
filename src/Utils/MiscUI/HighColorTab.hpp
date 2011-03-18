@@ -2,11 +2,11 @@
 //
 // Author:  Yves Tkaczyk (yves@tkaczyk.net)
 //
-// This software is released into the public domain.  You are free to use it
+// This software is released into the public domain.  You are free to use it 
 // in any way you like BUT LEAVE THIS HEADER INTACT.
 //
-// This software is provided "as is" with no expressed or implied warranty.
-// I accept no liability for any damage or loss of business that this software
+// This software is provided "as is" with no expressed or implied warranty.  
+// I accept no liability for any damage or loss of business that this software 
 // may cause.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -22,14 +22,14 @@
 
 namespace HighColorTab
 {
-  /*! \brief Policy class for creating image list.
+  /*! \brief Policy class for creating image list. 
 
-    Policy for creating a high color (32 bits) image list. The policy
+    Policy for creating a high color (32 bits) image list. The policy 
     ensure that there is a Win32 image list associated with the CImageList.
-    If this is not the case, a NULL pointer shall be returned.
+    If this is not the case, a NULL pointer shall be returned. 
 
     Returned image list is wrapped in an std::auto_ptr.
-
+    
     \sa UpdateImageListFull  */
   struct CHighColorListCreator
   {
@@ -70,14 +70,14 @@ namespace HighColorTab
            typename TListCreator>
     bool UpdateImageListFull(TSheet& rSheet)
   {
-      // Get the tab control...
-      CTabCtrl* pTab = rSheet.GetTabControl();
-      if (!IsWindow(pTab->GetSafeHwnd()))
-      {
+	  // Get the tab control...
+	  CTabCtrl* pTab = rSheet.GetTabControl();
+	  if (!IsWindow(pTab->GetSafeHwnd()))
+	  {
       // ASSERT: Tab control could not be retrieved or it is not a valid window.
       ASSERT( FALSE );
-          return false;
-      }
+		  return false;
+	  }
 
     // Create the replacement image list via policy.
     std::auto_ptr<CImageList> apILNew( TListCreator::CreateImageList() );
@@ -123,7 +123,7 @@ namespace HighColorTab
     {
       pilOld->DeleteImageList();
     }
-
+       
     return true;
   };
 

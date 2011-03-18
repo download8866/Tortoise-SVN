@@ -19,54 +19,63 @@ You only have to do this once.
 
 \subsection Requirements1 First, you need to install the compiler package.
 
--# You need VS2010 to allow
+-# You need VS2008 with SP1 (or at least Visual C++ 2008) to allow
    building of the full TortoiseSVN package. 
+   If you don't have the SP1 installed for VS2008, you will also need the
+   MFC feature pack for VS2008 which is available from here: 
+   http://www.microsoft.com/downloads/details.aspx?FamilyId=D466226B-8DAB-445F-A7B4-448B326C48E7&displaylang=en
    This is the recommended option, but it is not free :-(
    If you want to build the msi make sure the "Tools for Redistributing
    Applications" are installed.
 -# If you do not have access to VS.NET you can download the free
-   Visual C++ 2010 Express Edition.
+   Visual C++ 2008 Express Edition.
    This will allow you to build the subversion libraries and the
    SubWCRev, TortoiseBlame, TortoiseUDiff, TortoiseIDiff, CrashRpt
    and ResText projects only. You can not build the main parts of
    TortoiseSVN (shell extension, TortoiseProc, TSVNCache, TortoiseMerge)
    with the Express Edition!
-   - Install Visual C++ 2010 Express Edition.
+   - Install Visual C++ 2008 Express Edition.
      Download it from http://msdn.microsoft.com/vstudio/express/visualc/
    - Install MASM 6.15 from: http://win32assembly.online.fr/files/masm615.zip
      and add it to the PATH environment variable
    \note Do not bother to install WiX and Votive as you cannot build very much.
 -# If you plan to build 64 bit packages, install the package 
    - "Language Tools" -> "Visual C++" -> "X64 Compilers and Tools" 
-     available in the VS.NET2010 Professional and higher. 
+     available in the VS.NET2008 Professional and higher. 
      This will provide you with a cross-compiler and a suitable 
      command shell. On XP64, there will also be a native compiler.
+-# Install Microsoft SDK for Windows Vista (February 2007 Update)
+   - http://www.microsoft.com/downloads/details.aspx?FamilyID=FF6467E6-5BBA-4BF5-B562-9199BE864D29 .
+     Make sure you install the x64 compiler, header and libraries if you want to build in x64.
+   - Open "Microsoft Windows SDK", "Visual Studio Registration", "Integrate Windows SDK with Visual Studio 2008"
+     to make sure Visual Studio uses the latest SDK headers and libraries.
+-# \b Optional: Install the MSDN Library (documentation) from
+   http://www.microsoft.com/downloads/details.aspx?familyid=B8704100-0127-4D88-9B5D-896B9B388313
+   You can always access it online at http://msdn2.microsoft.com/en-us/Library
 
 \subsection Requirements2 Next you need to install some utilities/programs.
 - Java runtime                http://www.java.com
 - Python 2.6(\b 1)            http://www.python.org/windows/
 - libxml2 python bindings     http://users.skynet.be/sbi/libxml-python/
 - Perl                        http://www.activestate.com/Products/ActivePerl/
-- WiX3(\b 1)                  http://wix.codeplex.com/
+- WiX3(\b 1)                  http://wix.sourceforge.net
+- Votive(\b 2)                http://wix.sourceforge.net
 - NAnt 0.90 (\b 1)            http://nant.sourceforge.net
+- GPG (\b 3)                  http://www.gnupg.org/
 .
 (\b 1) Add the paths of the binaries to the PATH environment variable. You may have to
     logoff/logon to make the new environment variables take effect!
 
+(\b 2) Install Votive to be able to load .wixproj project files.
+
+(\b 3) This is only required for RELEASE builds which you want to sign with your GPG passphrase. In order to do that, install GPG and create a file called 'gpgpassphrase.txt' which has your GPG passphrase in it (plaintext). Then the build will automatically sign the msi file with your GPG signature.
+
 \subsection Requirements3 Next you need to download some more.
 - OpenSSL source              http://www.openssl.org/source/
-                              You will need version 1.0.0a
+                              You will need version 0.9.8k
 - ZLib source                 http://www.gzip.org/zlib/
-                              You will need version 1.2.5
-- tools collection            http://code.google.com/p/tortoisesvn/downloads/list
+- tools collection            http://tortoisesvn.tigris.org/files/documents/406/42347/Tools-1.5.zip
 - dictionaries/thesauri(\b Optional) http://lingucomponent.openoffice.org/
-
-\subsection Requirements4 Finally, you may need to install some fonts.
-- Arabic(\b Optional)         http://www7.bev.net/civic/icb/quran/Iqraa_ttf.zip
-- Japanese(\b Optional)       msgothic.ttc and msmincho.ttc should be available
-                              if you activate support for international fonts in your OS.
-- Chinese(\b Optional)        simhei.ttf and simsun.httf should be available
-                              if you activate support for international fonts in your OS.
 
 \section Preparations Preparations
 
@@ -86,26 +95,23 @@ Now you're almost ready. Only a few more steps to do:
 - unzip the file 'Tools.zip' into a folder, we suggest SVN\TortoiseSVN\Tools.
   Note: the path to the tools folder must not have special chars in it or spaces.
   If you checked out the TortoiseSVN source to such a location, you can store
-  the tools folder somewhere else. 
+  the tools folder somewhere else.
 - Make a copy of the file default.build.user.tmpl in the TortoiseSVN root folder and
   rename that copy to default.build.user. Then adjust the paths as mentioned
-  in that file. You may leave it unchanged if you installed / copied everything
-  into the suggested default paths.
+  in that file.
 - Make a copy of the file doc\doc.build.user.tmpl and rename that copy to 
   doc\doc.build.user. Then adjust the paths in that file according to your
   setup.
-- Unzip (if necessary) and copy the font files into %WINDIR%\Fonts. 
-  You will need them only if you are building the respective language packs.
 
 
 \section build32 Building 32 bit packages
 
   Hint: before you can start building TortoiseSVN, you need to call the vsvars32.bat
-  file which is located in \%VS100COMNTOOLS%. 
+  file which is located in \%VS90COMNTOOLS%. 
   
   Note that for the Express edition you need to sort out the vars for the platform SDK
   as well. The easiest way I found was to edit the supplied VC++ file
-  C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat
+  C:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat
   Look for the :x86 label and add an extra call to setenv.cmd as shown below:
 
 \code
@@ -174,8 +180,8 @@ Now you're almost ready. Only a few more steps to do:
 
   First, we build some 32-bit SVN utilities you will need later 
   during the build process. Follow the instruction above or just
-  open "Microsoft Visual Studio 2010" -> "Visual Studio Tools" ->
-  "Visual Studio 2010 Command Prompt", change to the TortoiseSVN source
+  open "Microsoft Visual Studio 2008" -> "Visual Studio Tools" ->
+  "Visual Studio 2008 Command Prompt", change to the TortoiseSVN source
   directory and run
 
 \verbatim
@@ -183,8 +189,8 @@ Now you're almost ready. Only a few more steps to do:
 \endverbatim
 
   Now, build the x64 packages: Open 
-  "Microsoft Visual Studio 2010" -> "Visual Studio Tools" -> 
-  "Visual Studio 2010 x64 Cross Tools Command Prompt", change to the
+  "Microsoft Visual Studio 2008" -> "Visual Studio Tools" -> 
+  "Visual Studio 2008 x64 Cross Tools Command Prompt", change to the
   TortoiseSVN source directory and run
 
 \verbatim
@@ -196,8 +202,8 @@ Now you're almost ready. Only a few more steps to do:
 \section build64 Building 64 bit packages on x64
 
   To build native packages on your 64 bit Windows, just open
-  "Microsoft Visual Studio 2010" -> "Visual Studio Tools" -> 
-  "Visual Studio 2010 Win64 Command Prompt", change to the
+  "Microsoft Visual Studio 2008" -> "Visual Studio Tools" -> 
+  "Visual Studio 2008 Win64 Command Prompt", change to the
   TortoiseSVN source directory and run
 
 \verbatim

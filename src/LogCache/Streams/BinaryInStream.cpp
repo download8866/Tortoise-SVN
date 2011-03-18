@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "BinaryInStream.h"
 
 ///////////////////////////////////////////////////////////////
@@ -28,24 +28,10 @@
 // construction: nothing to do here
 
 CBinaryInStreamBase::CBinaryInStreamBase ( CCacheFileInBuffer* buffer
-                                         , STREAM_INDEX index)
-    : CHierachicalInStreamBase (buffer, index)
-    , current (NULL)
+									     , STREAM_INDEX index)
+	: CHierachicalInStreamBase (buffer, index)
+	, current (first)
 {
-}
-
-// update members in this derived class as well
-
-void CBinaryInStreamBase::AutoOpen()
-{
-    CHierachicalInStreamBase::AutoOpen();
-    current = first;
-}
-
-void CBinaryInStreamBase::AutoClose()
-{
-    current = NULL;
-    CHierachicalInStreamBase::AutoClose();
 }
 
 ///////////////////////////////////////////////////////////////
@@ -57,7 +43,7 @@ void CBinaryInStreamBase::AutoClose()
 // construction: nothing special to do
 
 CBinaryInStream::CBinaryInStream ( CCacheFileInBuffer* buffer
-                                 , STREAM_INDEX index)
-    : TBase (buffer, index)
+							     , STREAM_INDEX index)
+	: TBase (buffer, index)
 {
 }
