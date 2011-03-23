@@ -24,14 +24,13 @@
 
 bool UrlDiffCommand::Execute()
 {
-    bool bRet = false;
-    CUrlDiffDlg dlg;
+	bool bRet = false;
+	CUrlDiffDlg dlg;
     dlg.m_path = cmdLinePath.GetWinPathString();
-    if (dlg.DoModal() == IDOK)
-    {
-        SVNDiff diff(NULL, GetExplorerHWND());
-        diff.SetJumpLine(parser.GetLongVal(_T("line")));
-        bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, CTSVNPath(dlg.m_URL), dlg.Revision);
-    }
-    return bRet;
+	if (dlg.DoModal() == IDOK)
+	{
+		SVNDiff diff(NULL, hWndExplorer);
+		bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, CTSVNPath(dlg.m_URL), dlg.Revision);
+	}
+	return false;
 }

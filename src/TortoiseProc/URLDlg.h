@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,29 +22,30 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 
+
 /**
  * \ingroup TortoiseProc
  * A simple dialog, used for entering an URL.
  */
 class CURLDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CURLDlg)
+	DECLARE_DYNAMIC(CURLDlg)
 
 public:
-    CURLDlg(CWnd* pParent = NULL);
-    virtual ~CURLDlg();
+	CURLDlg(CWnd* pParent = NULL);
+	virtual ~CURLDlg();
 
-    CString m_url;
+	CString m_url;
 
-    enum { IDD = IDD_URL };
+	enum { IDD = IDD_URL };
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
-    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    CHistoryCombo   m_URLCombo;
-    int             m_height;
+	CHistoryCombo	m_URLCombo;
+	int				m_height;
 };

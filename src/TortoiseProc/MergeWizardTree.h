@@ -19,12 +19,7 @@
 #pragma once
 #include "MergeWizardBasePage.h"
 #include "HistoryCombo.h"
-#include "PathEdit.h"
-#include "SVNRev.h"
-
-/// forward declarations
-
-class CLogDlg;
+#include "LogDlg.h"
 
 /**
  * Page in the merge wizard for selecting two urls and revisions for
@@ -32,49 +27,47 @@ class CLogDlg;
  */
 class CMergeWizardTree : public CMergeWizardBasePage
 {
-    DECLARE_DYNAMIC(CMergeWizardTree)
+	DECLARE_DYNAMIC(CMergeWizardTree)
 
 public:
-    CMergeWizardTree();
-    virtual ~CMergeWizardTree();
+	CMergeWizardTree();
+	virtual ~CMergeWizardTree();
 
-    enum { IDD = IDD_MERGEWIZARD_TREE };
+	enum { IDD = IDD_MERGEWIZARD_TREE };
 
 protected:
-    virtual void        DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL        OnInitDialog();
-    virtual LRESULT     OnWizardNext();
-    virtual LRESULT     OnWizardBack();
-    virtual BOOL        OnSetActive();
-    afx_msg void        OnBnClickedBrowse();
-    afx_msg void        OnBnClickedFindbranchstart();
-    afx_msg void        OnBnClickedFindbranchend();
-    afx_msg void        OnBnClickedShowlogwc();
-    afx_msg void        OnBnClickedBrowse2();
-    afx_msg void        OnEnChangeRevisionEnd();
-    afx_msg void        OnEnChangeRevisionStart();
-    afx_msg LRESULT     OnRevSelected(WPARAM wParam, LPARAM lParam);
-    afx_msg void        OnCbnEditchangeUrlcombo();
-    afx_msg void        OnCbnEditchangeUrlcombo2();
-    afx_msg LRESULT     OnWCStatus(WPARAM wParam, LPARAM lParam);
+	virtual void		DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL		OnInitDialog();
+	virtual LRESULT		OnWizardNext();
+	virtual LRESULT		OnWizardBack();
+	virtual BOOL		OnSetActive();
+	afx_msg void		OnBnClickedBrowse();
+	afx_msg void		OnBnClickedFindbranchstart();
+	afx_msg void		OnBnClickedFindbranchend();
+	afx_msg void		OnBnClickedShowlogwc();
+	afx_msg void		OnBnClickedBrowse2();
+	afx_msg void		OnEnChangeRevisionEnd();
+	afx_msg void		OnEnChangeRevisionStart();
+	afx_msg LRESULT		OnRevSelected(WPARAM wParam, LPARAM lParam);
+	afx_msg void		OnCbnEditchangeUrlcombo();
+	afx_msg void		OnCbnEditchangeUrlcombo2();
 
-    BOOL                CheckData(bool bShowErrors = true);
-    void                SetStartRevision(const SVNRev& rev);
-    void                SetEndRevision(const SVNRev& rev);
+	BOOL				CheckData(bool bShowErrors = true);
+	void				SetStartRevision(const SVNRev& rev);
+	void				SetEndRevision(const SVNRev& rev);
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    CLogDlg *           m_pLogDlg;
-    CLogDlg *           m_pLogDlg2;
-    CLogDlg *           m_pLogDlg3;
-    CHistoryCombo       m_URLCombo;
-    CHistoryCombo       m_URLCombo2;
-    CString             m_sStartRev;
-    CString             m_sEndRev;
-    CPathEdit           m_WC;
+	CLogDlg *			m_pLogDlg;
+	CLogDlg *			m_pLogDlg2;
+	CLogDlg *			m_pLogDlg3;
+	CHistoryCombo		m_URLCombo;
+	CHistoryCombo		m_URLCombo2;
+	CString				m_sStartRev;
+	CString				m_sEndRev;
 public:
-    CString             m_URLFrom;
-    CString             m_URLTo;
-    SVNRev              StartRev;
-    SVNRev              EndRev;
+	CString				m_URLFrom;
+	CString				m_URLTo;
+	SVNRev				StartRev;
+	SVNRev				EndRev;
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2011 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,17 +20,18 @@
 #include "ShellExt.h"
 #include "ShellExtClassFactory.h"
 
+extern std::set<CShellExt *> g_exts;
 
 CShellExtClassFactory::CShellExtClassFactory(FileState state)
 {
     m_StateToMake = state;
 
     m_cRef = 0L;
-
-    InterlockedIncrement(&g_cRefThisDll);
+	
+	InterlockedIncrement(&g_cRefThisDll);
 }
 
-CShellExtClassFactory::~CShellExtClassFactory()
+CShellExtClassFactory::~CShellExtClassFactory()          
 {
     InterlockedDecrement(&g_cRefThisDll);
 }
@@ -39,21 +40,23 @@ STDMETHODIMP CShellExtClassFactory::QueryInterface(REFIID riid,
                                                    LPVOID FAR *ppv)
 {
     if(ppv == 0)
-        return E_POINTER;
+		return E_POINTER;
 
-    *ppv = NULL;
+	*ppv = NULL;
 
     // Any interface on this object is the object pointer
-
+	
     if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_IClassFactory))
     {
-        *ppv = static_cast<LPCLASSFACTORY>(this);
+        *ppv = (LPCLASSFACTORY)this;
+		
         AddRef();
-        return S_OK;
+		
+        return NOERROR;
     }
-
+	
     return E_NOINTERFACE;
-}
+}  
 
 STDMETHODIMP_(ULONG) CShellExtClassFactory::AddRef()
 {
@@ -66,37 +69,37 @@ STDMETHODIMP_(ULONG) CShellExtClassFactory::Release()
         return m_cRef;
 
     delete this;
-
+	
     return 0L;
 }
 
 STDMETHODIMP CShellExtClassFactory::CreateInstance(LPUNKNOWN pUnkOuter,
-                                                   REFIID riid,
-                                                   LPVOID *ppvObj)
+												   REFIID riid,
+												   LPVOID *ppvObj)
 {
-    if(ppvObj == 0)
-        return E_POINTER;
+	if(ppvObj == 0)
+		return E_POINTER;
 
-    *ppvObj = NULL;
-
+	*ppvObj = NULL;
+	
     // Shell extensions typically don't support aggregation (inheritance)
-
+	
     if (pUnkOuter)
         return CLASS_E_NOAGGREGATION;
-
+	
     // Create the main shell extension object.  The shell will then call
     // QueryInterface with IID_IShellExtInit--this is how shell extensions are
     // initialized.
-
+	
     CShellExt* pShellExt = new (std::nothrow) CShellExt(m_StateToMake);  //Create the CShellExt object
-
+		
     if (NULL == pShellExt)
         return E_OUTOFMEMORY;
-
+	
     const HRESULT hr = pShellExt->QueryInterface(riid, ppvObj);
-    if(FAILED(hr))
-        delete pShellExt;
-    return hr;
+	if(FAILED(hr))
+		delete pShellExt;
+	return hr;
 }
 
 STDMETHODIMP CShellExtClassFactory::LockServer(BOOL /*fLock*/)

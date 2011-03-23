@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,22 +25,23 @@
 
 bool RevertCommand::Execute()
 {
-    CRevertDlg dlg;
-    dlg.m_pathList = pathList;
-    if (dlg.DoModal() == IDOK)
-    {
-        if (dlg.m_pathList.GetCount() == 0)
-            return FALSE;
-        CSVNProgressDlg progDlg;
-        theApp.m_pMainWnd = &progDlg;
-        progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Revert);
-        progDlg.SetAutoClose (parser);
-        progDlg.SetOptions(dlg.m_bRecursive ? ProgOptRecursive : ProgOptNonRecursive);
-        progDlg.SetPathList(dlg.m_pathList);
-        progDlg.SetItemCount(dlg.m_selectedPathList.GetCount());
-        progDlg.SetSelectedList(dlg.m_selectedPathList);
-        progDlg.DoModal();
-        return !progDlg.DidErrorsOccur();
-    }
-    return false;
+	CRevertDlg dlg;
+	dlg.m_pathList = pathList;
+	if (dlg.DoModal() == IDOK)
+	{
+		if (dlg.m_pathList.GetCount() == 0)
+			return FALSE;
+		CSVNProgressDlg progDlg;
+		theApp.m_pMainWnd = &progDlg;
+		progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Revert);
+		if (parser.HasVal(_T("closeonend")))
+			progDlg.SetAutoClose(parser.GetLongVal(_T("closeonend")));
+		progDlg.SetOptions(dlg.m_bRecursive ? ProgOptRecursive : ProgOptNonRecursive);
+		progDlg.SetPathList(dlg.m_pathList);
+		progDlg.SetItemCount(dlg.m_selectedPathList.GetCount());
+		progDlg.SetSelectedList(dlg.m_selectedPathList);
+		progDlg.DoModal();
+		return !progDlg.DidErrorsOccur();
+	}
+	return false;
 }

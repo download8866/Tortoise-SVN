@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
 #include "registry.h"
+#include "afxwin.h"
 
 /**
  * \ingroup TortoiseProc
@@ -27,43 +28,42 @@
  */
 class CSetSavedDataPage : public ISettingsPropPage
 {
-    DECLARE_DYNAMIC(CSetSavedDataPage)
+	DECLARE_DYNAMIC(CSetSavedDataPage)
 
 public:
-    CSetSavedDataPage();
-    virtual ~CSetSavedDataPage();
+	CSetSavedDataPage();
+	virtual ~CSetSavedDataPage();
 
-    UINT GetIconID() {return IDI_SAVEDDATA;}
+	UINT GetIconID() {return IDI_SAVEDDATA;}
 
-    enum { IDD = IDD_SETTINGSSAVEDDATA };
+	enum { IDD = IDD_SETTINGSSAVEDDATA };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    afx_msg void OnBnClickedUrlhistclear();
-    afx_msg void OnBnClickedLoghistclear();
-    afx_msg void OnBnClickedResizablehistclear();
-    afx_msg void OnBnClickedAuthhistclear();
-    afx_msg void OnBnClickedRepologclear();
-    afx_msg void OnBnClickedActionlogshow();
-    afx_msg void OnBnClickedActionlogclear();
-    afx_msg void OnModified();
+	afx_msg void OnBnClickedUrlhistclear();
+	afx_msg void OnBnClickedLoghistclear();
+	afx_msg void OnBnClickedResizablehistclear();
+	afx_msg void OnBnClickedAuthhistclear();
+	afx_msg void OnBnClickedRepologclear();
+	afx_msg void OnBnClickedActionlogshow();
+	afx_msg void OnBnClickedActionlogclear();
+	afx_msg void OnModified();
 
-    virtual BOOL OnInitDialog();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual BOOL OnApply();
-    void DeleteViaShell(LPCTSTR path, UINT progressText);
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnApply();
 private:
-    CToolTips       m_tooltips;
-    CButton         m_btnUrlHistClear;
-    CButton         m_btnLogHistClear;
-    CButton         m_btnResizableHistClear;
-    CButton         m_btnAuthHistClear;
-    CButton         m_btnRepoLogClear;
-    CButton         m_btnActionLogShow;
-    CButton         m_btnActionLogClear;
-    DWORD           m_maxLines;
-    CRegDWORD       m_regMaxLines;
+	CToolTips		m_tooltips;
+	CButton			m_btnUrlHistClear;
+	CButton			m_btnLogHistClear;
+	CButton			m_btnResizableHistClear;
+	CButton			m_btnAuthHistClear;
+	CButton			m_btnRepoLogClear;
+	CButton			m_btnActionLogShow;
+	CButton			m_btnActionLogClear;
+	DWORD			m_maxLines;
+	CRegDWORD		m_regMaxLines;
 };

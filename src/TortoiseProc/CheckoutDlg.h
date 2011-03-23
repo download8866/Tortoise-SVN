@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,12 +21,9 @@
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
 #include "FileDropEdit.h"
+#include "LogDlg.h"
+#include "afxwin.h"
 #include "Tooltip.h"
-#include "TSVNPath.h"
-
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -35,62 +32,48 @@ class CLogDlg;
  */
 class CCheckoutDlg : public CResizableStandAloneDialog //CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CCheckoutDlg)
+	DECLARE_DYNAMIC(CCheckoutDlg)
 
 public:
-    CCheckoutDlg(CWnd* pParent = NULL);   ///< standard constructor
-    virtual ~CCheckoutDlg();
+	CCheckoutDlg(CWnd* pParent = NULL);   ///< standard constructor
+	virtual ~CCheckoutDlg();
 
 // Dialog Data
-    enum { IDD = IDD_CHECKOUT };
+	enum { IDD = IDD_CHECKOUT };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    virtual BOOL OnInitDialog();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual void OnOK();
-    afx_msg void OnBnClickedBrowse();
-    afx_msg void OnBnClickedCheckoutdirectoryBrowse();
-    afx_msg void OnEnChangeCheckoutdirectory();
-    afx_msg void OnBnClickedHelp();
-    afx_msg void OnBnClickedShowlog();
-    afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnEnChangeRevisionNum();
-    afx_msg void OnCbnEditchangeUrlcombo();
-    afx_msg void OnCbnSelchangeDepth();
-    afx_msg void OnBnClickedSparse();
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual void OnOK();
+	afx_msg void OnBnClickedBrowse();
+	afx_msg void OnBnClickedCheckoutdirectoryBrowse();
+	afx_msg void OnEnChangeCheckoutdirectory();
+	afx_msg void OnBnClickedHelp();
+	afx_msg void OnBnClickedShowlog();
+	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnEnChangeRevisionNum();
+	afx_msg void OnCbnEditchangeUrlcombo();
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    void UpdateURLsFromCombo();
-    bool IsStandardCheckout();
-    void SetRevision(const SVNRev& rev);
-    SVNRev GetSelectedRevision();
-    SVNRev GetSelectedRevisionOrHead();
-
+	void		SetRevision(const SVNRev& rev);
 protected:
-    CToolTips       m_tooltips;
-    CString         m_sRevision;
-    CString         m_sCheckoutDirOrig;
-    bool            m_bAutoCreateTargetName;
-    CComboBox       m_depthCombo;
-
+	CToolTips		m_tooltips;
+	CString			m_sRevision;
+	CString			m_sCheckoutDirOrig;
+	bool			m_bAutoCreateTargetName;
+	CComboBox		m_depthCombo;
 public:
-    CHistoryCombo   m_URLCombo;
-    CTSVNPathList   m_URLs;
-    SVNRev          Revision;
-    BOOL            m_bNoExternals;
-    BOOL            m_bIndependentWCs;
-    CButton         m_butBrowse;
-    CEdit           m_editRevision;
-    CString         m_strCheckoutDirectory;
-    CFileDropEdit   m_cCheckoutEdit;
-    CLogDlg *       m_pLogDlg;
-    svn_depth_t     m_depth;
-    BOOL            m_blockPathAdjustments;
-
-    std::map<CString,svn_depth_t> m_checkoutDepths;
-    bool            m_standardCheckout; ///< true if only one path got selected and that URL path is a folder
-    bool            m_parentExists; ///< W/C for parent folder already exists. Only valid if \ref m_standardCheckout is false.
+	CHistoryCombo	m_URLCombo;
+	CString			m_URL;
+	SVNRev			Revision;
+	BOOL			m_bNoExternals;
+	CButton			m_butBrowse;
+	CEdit			m_editRevision;
+	CString			m_strCheckoutDirectory;
+	CFileDropEdit	m_cCheckoutEdit;
+	CLogDlg	*		m_pLogDlg;
+	svn_depth_t		m_depth;
 };

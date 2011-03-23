@@ -38,11 +38,7 @@ for %%? in (fi\*.png) do Call :ProcAdjustFile %%?
 for %%? in (fr\*.png) do Call :ProcAdjustFile %%?
 for %%? in (id\*.png) do Call :ProcAdjustFile %%?
 for %%? in (ja\*.png) do Call :ProcAdjustFile %%?
-for %%? in (pt_PT\*.png) do Call :ProcAdjustFile %%?
 for %%? in (ru\*.png) do Call :ProcAdjustFile %%?
-for %%? in (sl\*.png) do Call :ProcAdjustFile %%?
-for %%? in (sr_spc\*.png) do Call :ProcAdjustFile %%?
-for %%? in (sr_spl\*.png) do Call :ProcAdjustFile %%?
 :: Cleanup
 for %%? in (f_info.txt) do if exist %%? del %%?
 endlocal & goto :EOF
@@ -125,9 +121,8 @@ if %w_delta% geq 0 (
 :: Make sure the dpi is large enough (integer arithmetic truncates)
 set /a new_dpi = new_dpi + 1
 echo adjust dpi to %new_dpi%
-nconvert.exe -overwrite -dpi %new_dpi% %1 >nul
+nconvert.exe -dpi %new_dpi% %1 >nul
 :Done
-optipng.exe -o7 -quiet %1
 endlocal & goto :EOF
 ::===============================================================
 :ProcGetLine FileName LineNro returnText

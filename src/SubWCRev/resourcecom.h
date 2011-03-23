@@ -2,10 +2,11 @@
 // Microsoft Visual C++ generated include file.
 // Used by SubWCRevCOM.rc
 //
+#define IDI_ICON1                       102
 #define IDI_SUBWCREV                    102
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,13 +19,8 @@
 #pragma once
 #include "StandAloneDlg.h"
 #include "HistoryCombo.h"
+#include "LogDlg.h"
 #include "SVNRev.h"
-#include "PathEdit.h"
-#include "Tooltip.h"
-
-/// forward declarations
-
-class CLogDlg;
 
 /**
  * \ingroup TortoiseProc
@@ -36,64 +31,54 @@ class CLogDlg;
  */
 class CSwitchDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CSwitchDlg)
+	DECLARE_DYNAMIC(CSwitchDlg)
 
 public:
-    CSwitchDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CSwitchDlg();
+	CSwitchDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CSwitchDlg();
 
-    /**
-     * Sets the text for the dialog title.
-     * \remark this method must be called before the dialog is shown!
-     */
-    void SetDialogTitle(const CString& sTitle);
+	/**
+	 * Sets the text for the dialog title.
+	 * \remark this method must be called before the dialog is shown!
+	 */
+	void SetDialogTitle(const CString& sTitle);
 
-    /**
-     * Sets the label in front of the URL combobox.
-     * \remark this method must be called before the dialog is shown!
-     */
-    void SetUrlLabel(const CString& sLabel);
+	/**
+	 * Sets the label in front of the URL combobox.
+	 * \remark this method must be called before the dialog is shown!
+	 */
+	void SetUrlLabel(const CString& sLabel);
 
 // Dialog Data
-    enum { IDD = IDD_SWITCH };
+	enum { IDD = IDD_SWITCH };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    virtual BOOL OnInitDialog();
-    virtual void OnOK();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    afx_msg void OnBnClickedBrowse();
-    afx_msg void OnBnClickedHelp();
-    afx_msg void OnEnChangeRevisionNum();
-    afx_msg void OnBnClickedLog();
-    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
-    afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnCbnEditchangeUrlcombo();
+	virtual BOOL OnInitDialog();
+	virtual void OnOK();
+	afx_msg void OnBnClickedBrowse();
+	afx_msg void OnBnClickedHelp();
+	afx_msg void OnEnChangeRevisionNum();
+	afx_msg void OnBnClickedLog();
+	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+	afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
+	afx_msg void OnCbnEditchangeUrlcombo();
 
-    void        SetRevision(const SVNRev& rev);
+	void		SetRevision(const SVNRev& rev);
 
-    DECLARE_MESSAGE_MAP()
+	DECLARE_MESSAGE_MAP()
 
-    CString         m_rev;
-    CHistoryCombo   m_URLCombo;
-    BOOL            m_bFolder;
-    CString         m_sTitle;
-    CString         m_sLabel;
-    CString         m_repoRoot;
-    CLogDlg *       m_pLogDlg;
-    CComboBox       m_depthCombo;
-    int             m_height;
-    CPathEdit       m_SwitchPath;
-    CPathEdit       m_DestUrl;
-    CPathEdit       m_SrcUrl;
-    CToolTips       m_tooltips;
+	CString			m_rev;
+	CHistoryCombo	m_URLCombo;
+	BOOL			m_bFolder;
+	CString			m_sTitle;
+	CString			m_sLabel;
+	CLogDlg *		m_pLogDlg;
+	int				m_height;
 
 public:
-    CString         m_path;
-    CString         m_URL;
-    SVNRev          Revision;
-    BOOL            m_bNoExternals;
-    BOOL            m_bStickyDepth;
-    svn_depth_t     m_depth;
+	CString			m_path;
+	CString			m_URL;
+	SVNRev			Revision;
 };

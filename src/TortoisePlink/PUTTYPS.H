@@ -9,6 +9,10 @@
 
 #include "winstuff.h"
 
+#elif defined(macintosh)
+
+#include "macstuff.h"
+
 #elif defined(MACOSX)
 
 #include "osx.h"

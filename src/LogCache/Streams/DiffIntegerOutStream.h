@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,17 +26,13 @@
 
 ///////////////////////////////////////////////////////////////
 //
-// CDiffOutStreamBase
+// CDiffIntegerOutStreamBase
 //
-//      enhances CPackedIntegerOutStreamBase as well as
-//      CPackedDWORDOutStreamBase to store the values
-//      differentially, i.e. the difference to the previous
-//      value is stored (in packed format). The base value
-//      for the first element is 0.
-//
-//      Make sure that the differences between any two values
-//      don't exceed the limits defined by the respective
-//      base classes.
+//		enhances CPackedIntegerOutStreamBase as well as
+//		CPackedDWORDOutStreamBase to store the values 
+//		differentially, i.e. the difference to the previous 
+//		value is stored (in packed format). The base value 
+//		for the first element is 0.
 //
 ///////////////////////////////////////////////////////////////
 
@@ -45,32 +41,32 @@ class CDiffOutStreamBase : public Base
 {
 private:
 
-    // last value written (i.e. our diff base)
+	// last value written (i.e. our diff base)
 
-    V lastValue;
+	V lastValue;
 
 protected:
 
-    // add data to the stream
+	// add data to the stream
 
-    void Add (V value) throw()
-    {
-        Base::Add (value - lastValue);
-        lastValue = value;
-    }
+	void Add (V value) throw()
+	{
+		Base::Add (value - lastValue);
+		lastValue = value;
+	}
 
 public:
 
-    // construction / destruction: nothing special to do
+	// construction / destruction: nothing special to do
 
-    CDiffOutStreamBase ( CCacheFileOutBuffer* aBuffer
-                       , SUB_STREAM_ID anID)
-        : Base (aBuffer, anID)
-        , lastValue (0)
-    {
-    }
+	CDiffOutStreamBase ( CCacheFileOutBuffer* aBuffer
+				       , SUB_STREAM_ID anID)
+		: Base (aBuffer, anID)
+		, lastValue (0)
+	{
+	}
 
-    virtual ~CDiffOutStreamBase() {};
+	virtual ~CDiffOutStreamBase() {};
 };
 
 ///////////////////////////////////////////////////////////////
@@ -78,78 +74,78 @@ public:
 ///////////////////////////////////////////////////////////////
 
 typedef CDiffOutStreamBase< CPackedDWORDOutStreamBase
-                          , DWORD> CDiffDWORDOutStreamBase;
+						  , DWORD> CDiffDWORDOutStreamBase;
 typedef CDiffOutStreamBase< CPackedIntegerOutStreamBase
-                          , int> CDiffIntegerOutStreamBase;
+						  , int> CDiffIntegerOutStreamBase;
 
 ///////////////////////////////////////////////////////////////
 //
 // CDiffDWORDOutStream
 //
-//      instantiable sub-class of CDiffDWORDOutStreamBase.
+//		instantiable sub-class of CDiffDWORDOutStreamBase.
 //
 ///////////////////////////////////////////////////////////////
 
-class CDiffDWORDOutStream
-    : public COutStreamImplBase< CDiffDWORDOutStream
-                               , CDiffDWORDOutStreamBase
-                               , DIFF_DWORD_STREAM_TYPE_ID>
+class CDiffDWORDOutStream 
+	: public COutStreamImplBase< CDiffDWORDOutStream
+							   , CDiffDWORDOutStreamBase
+		                       , DIFF_DWORD_STREAM_TYPE_ID>
 {
 public:
 
-    typedef COutStreamImplBase< CDiffDWORDOutStream
-                              , CDiffDWORDOutStreamBase
-                              , DIFF_DWORD_STREAM_TYPE_ID> TBase;
+	typedef COutStreamImplBase< CDiffDWORDOutStream
+							  , CDiffDWORDOutStreamBase
+		                      , DIFF_DWORD_STREAM_TYPE_ID> TBase;
 
-    typedef int value_type;
+	typedef int value_type;
 
-    // construction / destruction: nothing special to do
+	// construction / destruction: nothing special to do
 
-    CDiffDWORDOutStream ( CCacheFileOutBuffer* aBuffer
-                        , SUB_STREAM_ID anID);
-    virtual ~CDiffDWORDOutStream() {};
+	CDiffDWORDOutStream ( CCacheFileOutBuffer* aBuffer
+						, SUB_STREAM_ID anID);
+	virtual ~CDiffDWORDOutStream() {};
 
-    // public Add() methods
+	// public Add() methods
 
-    using TBase::Add;
+	using TBase::Add;
 };
 
-template class COutStreamImplBase< CDiffDWORDOutStream
-                                 , CDiffDWORDOutStreamBase
-                                 , DIFF_DWORD_STREAM_TYPE_ID>;
+template COutStreamImplBase< CDiffDWORDOutStream
+						   , CDiffDWORDOutStreamBase
+	                       , DIFF_DWORD_STREAM_TYPE_ID>;
 
 ///////////////////////////////////////////////////////////////
 //
 // CDiffIntegerOutStream
 //
-//      instantiable sub-class of CDiffIntegerOutStreamBase.
+//		instantiable sub-class of CDiffIntegerOutStreamBase.
 //
 ///////////////////////////////////////////////////////////////
 
-class CDiffIntegerOutStream
-    : public COutStreamImplBase< CDiffIntegerOutStream
-                               , CDiffIntegerOutStreamBase
-                               , DIFF_INTEGER_STREAM_TYPE_ID>
+class CDiffIntegerOutStream 
+	: public COutStreamImplBase< CDiffIntegerOutStream
+							   , CDiffIntegerOutStreamBase
+		                       , DIFF_INTEGER_STREAM_TYPE_ID>
 {
 public:
 
-    typedef COutStreamImplBase< CDiffIntegerOutStream
-                              , CDiffIntegerOutStreamBase
-                              , DIFF_INTEGER_STREAM_TYPE_ID> TBase;
+	typedef COutStreamImplBase< CDiffIntegerOutStream
+							  , CDiffIntegerOutStreamBase
+		                      , DIFF_INTEGER_STREAM_TYPE_ID> TBase;
 
-    typedef int value_type;
+	typedef int value_type;
 
-    // construction / destruction: nothing special to do
+	// construction / destruction: nothing special to do
 
-    CDiffIntegerOutStream ( CCacheFileOutBuffer* aBuffer
-                          , SUB_STREAM_ID anID);
-    virtual ~CDiffIntegerOutStream() {};
+	CDiffIntegerOutStream ( CCacheFileOutBuffer* aBuffer
+						  , SUB_STREAM_ID anID);
+	virtual ~CDiffIntegerOutStream() {};
 
-    // public Add() methods
+	// public Add() methods
 
-    using TBase::Add;
+	using TBase::Add;
 };
 
-template class COutStreamImplBase< CDiffIntegerOutStream
-                                 , CDiffIntegerOutStreamBase
-                                 , DIFF_INTEGER_STREAM_TYPE_ID>;
+template COutStreamImplBase< CDiffIntegerOutStream
+						   , CDiffIntegerOutStreamBase
+		                   , DIFF_INTEGER_STREAM_TYPE_ID>;

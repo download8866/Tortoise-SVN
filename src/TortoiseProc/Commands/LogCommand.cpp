@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,74 +18,58 @@
 //
 #include "StdAfx.h"
 #include "LogCommand.h"
-#include "LogDialog\LogDlg.h"
-#include "StringUtils.h"
+
+#include "LogDlg.h"
 
 bool LogCommand::Execute()
 {
-    //the log command line looks like this:
-    //command:log path:<path_to_file_or_directory_to_show_the_log_messages> [startrev:<startrevision>] [endrev:<endrevision>]
-    CString val = parser.GetVal(_T("startrev"));
-    if ( val.IsEmpty() )
-    {
-        // support deprecated parameter prior 1.5.0
-        val = parser.GetVal(_T("revstart"));
-    }
-    SVNRev revstart = val.IsEmpty() ? SVNRev() : SVNRev(val);
-    val = parser.GetVal(_T("endrev"));
-    if ( val.IsEmpty() )
-    {
-        // support deprecated parameter prior 1.5.0
-        val = parser.GetVal(_T("revend"));
-    }
-    SVNRev revend = val.IsEmpty() ? SVNRev() : SVNRev(val);
-    val = parser.GetVal(_T("limit"));
-    int limit = _tstoi(val);
-    val = parser.GetVal(_T("pegrev"));
-    if ( val.IsEmpty() )
-    {
-        // support deprecated parameter prior 1.5.0
-        val = parser.GetVal(_T("revpeg"));
-    }
-    SVNRev pegrev = val.IsEmpty() ? SVNRev() : SVNRev(val);
-    if (!revstart.IsValid())
-        revstart = SVNRev::REV_HEAD;
-    if (!revend.IsValid())
-        revend = 0;
+	//the log command line looks like this:
+	//command:log path:<path_to_file_or_directory_to_show_the_log_messages> [startrev:<startrevision>] [endrev:<endrevision>]
+	CString val = parser.GetVal(_T("startrev"));
+	if ( val.IsEmpty() )
+	{
+		// support deprecated parameter prior 1.5.0
+		val = parser.GetVal(_T("revstart"));
+	}
+	SVNRev revstart = val.IsEmpty() ? SVNRev() : SVNRev(val);
+	val = parser.GetVal(_T("endrev"));
+	if ( val.IsEmpty() )
+	{
+		// support deprecated parameter prior 1.5.0
+		val = parser.GetVal(_T("revend"));
+	}
+	SVNRev revend = val.IsEmpty() ? SVNRev() : SVNRev(val);
+	val = parser.GetVal(_T("limit"));
+	int limit = _tstoi(val);
+	val = parser.GetVal(_T("pegrev"));
+	if ( val.IsEmpty() )
+	{
+		// support deprecated parameter prior 1.5.0
+		val = parser.GetVal(_T("revpeg"));
+	}
+	SVNRev pegrev = val.IsEmpty() ? SVNRev() : SVNRev(val);
+	if (!revstart.IsValid())
+		revstart = SVNRev::REV_HEAD;
+	if (!revend.IsValid())
+		revend = 0;
 
-    if (limit == 0)
-    {
-        CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
-        limit = (int)(LONG)reg;
-    }
-    BOOL bStrict = (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE);
-    if (parser.HasKey(_T("strict")))
-    {
-        bStrict = TRUE;
-    }
-    CString findStr = parser.GetVal(_T("findstring"));
-    LONG findType = parser.GetLongVal(_T("findtype"));
-    bool findRegex = !!CRegDWORD(_T("Software\\TortoiseSVN\\UseRegexFilter"), FALSE);
-    if (parser.HasKey(_T("findtext")))
-        findRegex = false;
-    if (parser.HasKey(_T("findregex")))
-        findRegex = true;
-
-    CLogDlg dlg;
-    theApp.m_pMainWnd = &dlg;
-    dlg.SetParams(cmdLinePath, pegrev, revstart, revend, bStrict, TRUE, limit);
-    dlg.SetFilter(findStr, findType, findRegex);
-    dlg.SetIncludeMerge(!!parser.HasKey(_T("merge")));
-    val = parser.GetVal(_T("propspath"));
-    if (!val.IsEmpty())
-        dlg.SetProjectPropertiesPath(CTSVNPath(val));
-    if (parser.HasVal(L"outfile"))
-        dlg.SetSelect(true);
-    dlg.DoModal();
-    if (parser.HasVal(L"outfile"))
-    {
-        CString sText = dlg.GetSelectedRevRanges().ToListString();
-        CStringUtils::WriteStringToTextFile(parser.GetVal(L"outfile"), (LPCTSTR)sText, true);
-    }
-    return true;
+	if (limit == 0)
+	{
+		CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"), 100);
+		limit = (int)(LONG)reg;
+	}
+	BOOL bStrict = (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE);
+	if (parser.HasKey(_T("strict")))
+	{
+		bStrict = TRUE;
+	}
+	CLogDlg dlg;
+	theApp.m_pMainWnd = &dlg;
+	dlg.SetParams(cmdLinePath, pegrev, revstart, revend, limit, bStrict);
+	dlg.SetIncludeMerge(!!parser.HasKey(_T("merge")));
+	val = parser.GetVal(_T("propspath"));
+	if (!val.IsEmpty())
+		dlg.SetProjectPropertiesPath(CTSVNPath(val));
+	dlg.DoModal();			
+	return true;
 }
