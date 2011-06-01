@@ -8,11 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
 
 #include "Platform.h"
 
-#include "CharacterSet.h"
+#include "PropSet.h"
 #include "AutoComplete.h"
 
 #ifdef SCI_NAMESPACE
@@ -44,12 +43,12 @@ AutoComplete::~AutoComplete() {
 	}
 }
 
-bool AutoComplete::Active() const {
+bool AutoComplete::Active() {
 	return active;
 }
 
-void AutoComplete::Start(Window &parent, int ctrlID,
-	int position, Point location, int startLen_,
+void AutoComplete::Start(Window &parent, int ctrlID, 
+	int position, Point location, int startLen_, 
 	int lineHeight, bool unicodeMode) {
 	if (active) {
 		Cancel();
@@ -83,7 +82,7 @@ void AutoComplete::SetSeparator(char separator_) {
 	separator = separator_;
 }
 
-char AutoComplete::GetSeparator() const {
+char AutoComplete::GetSeparator() {
 	return separator;
 }
 
@@ -91,7 +90,7 @@ void AutoComplete::SetTypesep(char separator_) {
 	typesep = separator_;
 }
 
-char AutoComplete::GetTypesep() const {
+char AutoComplete::GetTypesep() {
 	return typesep;
 }
 
@@ -129,11 +128,11 @@ void AutoComplete::Select(const char *word) {
 	size_t lenWord = strlen(word);
 	int location = -1;
 	const int maxItemLen=1000;
+	char item[maxItemLen];
 	int start = 0; // lower bound of the api array block to search
 	int end = lb->Length() - 1; // upper bound of the api array block to search
 	while ((start <= end) && (location == -1)) { // Binary searching loop
 		int pivot = (start + end) / 2;
-		char item[maxItemLen];
 		lb->GetValue(pivot, item, maxItemLen);
 		int cond;
 		if (ignoreCase)

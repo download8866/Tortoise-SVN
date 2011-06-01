@@ -22,8 +22,6 @@ DLLs
 Donators
 DVDs
 eg
-EOL
-eol
 filepaths
 filesystem
 globbing
@@ -37,7 +35,6 @@ lightbox
 LoadModule's
 locator
 LogMessage
-mergeable
 metadata
 mousewheel
 Nr
@@ -55,7 +52,6 @@ revprops
 SCM
 screenshot
 screenshots
-SpecialCase
 spellchecker
 submenu
 timestamp

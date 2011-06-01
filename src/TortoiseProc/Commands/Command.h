@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2011 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,24 +31,19 @@
 class Command
 {
 public:
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute() = 0;
 
-    /// allow sub-classes to execute code during destruction
-    virtual ~Command() {};
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute() = 0;
-
-    void                    SetParser(const CCmdLineParser& p) {parser = p;}
-    void                    SetPaths(const CTSVNPathList& plist, const CTSVNPath& path) {pathList = plist; cmdLinePath = path;}
-    void                    SetExplorerHwnd(HWND hWnd) {hwndExplorer = hWnd;}
-    HWND                    GetExplorerHWND() const { return (::IsWindow(hwndExplorer) ? hwndExplorer : NULL); }
+	void					SetParser(const CCmdLineParser& p) {parser = p;}
+	void					SetPaths(const CTSVNPathList& plist, const CTSVNPath path) {pathList = plist; cmdLinePath = path;}
+	void					SetExplorerHwnd(HWND hWnd) {hwndExplorer = hWnd;}
 protected:
-    CCmdLineParser          parser;
-    CTSVNPathList           pathList;
-    CTSVNPath               cmdLinePath;
-private:
-    HWND                    hwndExplorer;
+	CCmdLineParser			parser;
+	CTSVNPathList			pathList;
+	CTSVNPath				cmdLinePath;
+	HWND					hwndExplorer;
 };
 
 /**
@@ -60,5 +55,5 @@ class CommandServer
 {
 public:
 
-    Command *               GetCommand(const CString& sCmd);
+	Command *				GetCommand(const CString& sCmd);
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,28 +28,31 @@
  */
 class CInputDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CInputDlg)
+	DECLARE_DYNAMIC(CInputDlg)
 
 public:
-    CInputDlg(CWnd* pParent = NULL);
-    virtual ~CInputDlg();
+	CInputDlg(CWnd* pParent = NULL);
+	virtual ~CInputDlg();
 
-    enum { IDD = IDD_INPUTDLG };
+	enum { IDD = IDD_INPUTDLG };
 
 protected:
-    CFont           m_logFont;
+	CFont			m_logFont;
 
-    virtual void DoDataExchange(CDataExchange* pDX);
-    virtual BOOL OnInitDialog();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual void OnOK();
+	virtual void DoDataExchange(CDataExchange* pDX);
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual void OnOK();
 
-    DECLARE_MESSAGE_MAP()
+	afx_msg void OnEnChangeLogmessage();
+	DECLARE_MESSAGE_MAP()
 public:
-    CString             m_sInputText;
-    CString             m_sHintText;
-    CString             m_sTitle;
-    CString             m_sCheckText;
-    int                 m_iCheck;
-    CSciEdit            m_cInput;
+	CString				m_sInputText;
+	CString				m_sHintText;
+	CString				m_sTitle;
+	CString				m_sCheckText;
+	int					m_iCheck;
+	CSciEdit			m_cInput;
+	ProjectProperties * m_pProjectProperties;
+	bool				m_bUseLogWidth;
 };

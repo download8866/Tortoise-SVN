@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,22 +24,17 @@
 #include "UnicodeUtils.h"
 #include "SVNStatus.h"
 #include "PathUtils.h"
-#include "SysInfo.h"
 #include "..\TSVNCache\CacheInterface.h"
 
 
 const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
 
-// copied from ../TortoiseProc/ProjectProperties.h
-#define PROJECTPROPNAME_USERFILEPROPERTY  "tsvn:userfileproperties"
-#define PROJECTPROPNAME_USERDIRPROPERTY   "tsvn:userdirproperties"
-
 // Defines that revision numbers occupy at most MAX_REV_STRING_LEN characters.
 // There are Perforce repositories out there that have several 100,000 revs.
-// So, don't be too restrictive by limiting this to 6 digits + 1 separator,
-// for instance.
+// So, don't be too restrictive by limiting this to 6 digits + 1 separator, 
+// for instance. 
 //
-// Because shorter strings will be extended to have exactly MAX_REV_STRING_LEN
+// Because shorter strings will be extended to have exactly MAX_REV_STRING_LEN 
 // characters, large numbers will produce large strings. These, in turn, will
 // affect column auto sizing. This setting is a reasonable compromise.
 //
@@ -50,474 +45,417 @@ const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
 // IColumnProvider members
 STDMETHODIMP CShellExt::GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci)
 {
-    if (psci == 0)
-        return E_POINTER;
+	PreserveChdir preserveChdir;
+	if (dwIndex > 8)
+		return S_FALSE;
 
-    PreserveChdir preserveChdir;
-    ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
-    LoadLangDll();
-    switch (dwIndex)
-    {
-        case 0: // SVN Status
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 15, IDS_COLTITLESTATUS, IDS_COLDESCSTATUS);
-            break;
-        case 1: // SVN Revision
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-            psci->scid.pid = dwIndex;
-            psci->vt = VT_I4;
-            psci->fmt = LVCFMT_RIGHT;
-            psci->cChars = 15;
-            psci->csFlags = SHCOLSTATE_TYPE_INT | SHCOLSTATE_ONBYDEFAULT;
+	ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
+	LoadLangDll();
+	std::wstring ws;
+	switch (dwIndex)
+	{
+		case 0:	// SVN Status
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 15;
+			psci->csFlags = ColumnFlags;
 
-            MAKESTRING(IDS_COLTITLEREV);
-            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
-            MAKESTRING(IDS_COLDESCREV);
-            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
-            break;
-        case 2: // SVN Url
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLEURL, IDS_COLDESCURL);
-            break;
-        case 3: // SVN Short Url
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLESHORTURL, IDS_COLDESCSHORTURL);
-            break;
-        case 4: // Author
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            psci->scid.fmtid = FMTID_SummaryInformation;    // predefined FMTID
-            psci->scid.pid   = PIDSI_AUTHOR;                // Predefined - author
-            psci->vt         = VT_LPSTR;                    // We'll return the data as a string
-            psci->fmt        = LVCFMT_LEFT;                 // Text will be left-aligned in the column
-            psci->csFlags    = SHCOLSTATE_TYPE_STR;         // Data should be sorted as strings
-            psci->cChars     = 32;                          // Default col width in chars
-            break;
-        case 5: // SVN mime-type
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLEMIMETYPE, IDS_COLDESCMIMETYPE);
-            break;
-        case 6: // SVN Lock Owner
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLEOWNER, IDS_COLDESCOWNER);
-            break;
-        case 7: // SVN eol-style
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLEEOLSTYLE, IDS_COLDESCEOLSTYLE);
-            break;
-        case 8: // SVN Author
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            GetColumnInfo(psci, dwIndex, 30, IDS_COLTITLEAUTHOR, IDS_COLDESCAUTHOR);
-            break;
-        case 9: // SVN Status
-            if (cachetype == ShellCache::none)
-                return S_FALSE;
-            psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-            psci->scid.pid = dwIndex;
-            psci->vt = VT_I4;
-            psci->fmt = LVCFMT_RIGHT;
-            psci->cChars = 15;
-            psci->csFlags = SHCOLSTATE_TYPE_INT;
-            MAKESTRING(IDS_COLTITLESTATUSNUMBER);
-            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
-            MAKESTRING(IDS_COLDESCSTATUS);
-            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
-            break;
-        default:
-			// SVN custom properties
-            if (dwIndex - 9 > columnuserprops.size())
-                return S_FALSE;
-            psci->scid.fmtid = FMTID_UserDefinedProperties;
-            psci->scid.pid = dwIndex - 10;
-            psci->vt = VT_BSTR;
-            psci->fmt = LVCFMT_LEFT;
-            psci->cChars = 30;
-            psci->csFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_SECONDARYUI | SHCOLSTATE_SLOW;
-            lstrcpynW(psci->wszTitle, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_NAME_LEN);
-            lstrcpynW(psci->wszDescription, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_DESC_LEN);
-            break;
-    }
+			MAKESTRING(IDS_COLTITLESTATUS);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCSTATUS);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 1:	// SVN Revision
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_I4;
+			psci->fmt = LVCFMT_RIGHT;
+			psci->cChars = 15;
+			psci->csFlags = SHCOLSTATE_TYPE_INT | SHCOLSTATE_ONBYDEFAULT;
+
+			MAKESTRING(IDS_COLTITLEREV);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCREV);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 2:	// SVN Url
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLEURL);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCURL);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 3:	// SVN Short Url
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLESHORTURL);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCSHORTURL);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 4:	// Author
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = FMTID_SummaryInformation;	// predefined FMTID
+			psci->scid.pid   = PIDSI_AUTHOR;				// Predefined - author
+			psci->vt         = VT_LPSTR;					// We'll return the data as a string
+			psci->fmt        = LVCFMT_LEFT;					// Text will be left-aligned in the column
+			psci->csFlags    = SHCOLSTATE_TYPE_STR;			// Data should be sorted as strings
+			psci->cChars     = 32;							// Default col width in chars
+			break;
+		case 5:	// SVN mime-type
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLEMIMETYPE);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCMIMETYPE);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 6:	// SVN Lock Owner
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLEOWNER);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCOWNER);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 7:	// SVN eol-style
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLEEOLSTYLE);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCEOLSTYLE);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+		case 8:	// SVN Author
+			if (cachetype == ShellCache::none)
+				return S_FALSE;
+			psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
+			psci->scid.pid = dwIndex;
+			psci->vt = VT_BSTR;
+			psci->fmt = LVCFMT_LEFT;
+			psci->cChars = 30;
+			psci->csFlags = ColumnFlags;
+
+			MAKESTRING(IDS_COLTITLEAUTHOR);
+			lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
+			MAKESTRING(IDS_COLDESCAUTHOR);
+			lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
+			break;
+	}
 
 	return S_OK;
 }
 
-void CShellExt::GetColumnInfo(SHCOLUMNINFO* psci, DWORD dwIndex, UINT charactersCount, UINT titleId, UINT descriptionId)
-{
-    psci->scid.fmtid = CLSID_TortoiseSVN_UPTODATE;
-    psci->scid.pid = dwIndex;
-    psci->vt = VT_BSTR;
-    psci->fmt = LVCFMT_LEFT;
-    psci->cChars = charactersCount;
-    psci->csFlags = ColumnFlags;
-
-    MAKESTRING(titleId);
-    lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
-    MAKESTRING(descriptionId);
-    lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
-}
-
 STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData)
 {
-    if((pscid == 0) || (pscd == 0))
-        return E_INVALIDARG;
-    if(pvarData == 0)
-        return E_POINTER;
-
-    PreserveChdir preserveChdir;
-    if (!g_ShellCache.IsPathAllowed((TCHAR *)pscd->wszFile))
-    {
-        return S_FALSE;
-    }
-    LoadLangDll();
-    ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
-    if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid != 8)
-    {
-        tstring szInfo;
-        const TCHAR * path = (TCHAR *)pscd->wszFile;
-
-        // reserve for the path + trailing \0
-
-        TCHAR buf[MAX_STATUS_STRING_LENGTH+1];
-        SecureZeroMemory(buf, sizeof(buf));
-        switch (pscid->pid)
-        {
-            case 0: // SVN Status
-                GetMainColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                SVNStatus::GetStatusString(g_hResInst, filestatus, buf, _countof(buf), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
-                szInfo = buf;
-                break;
-            case 1: // SVN Revision
-                GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                if (columnrev >= 0)
-                {
-                    V_VT(pvarData) = VT_I4;
-                    V_I4(pvarData) = columnrev;
-                }
-                return S_OK;
-                break;
-            case 2: // SVN Url
-                GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                szInfo = itemurl;
-                break;
-            case 3: // SVN Short Url
-                GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                szInfo = itemshorturl;
-                break;
-            case 5: // SVN mime-type
-                if (cachetype == ShellCache::none)
-                    return S_FALSE;
-                if (g_ShellCache.IsPathAllowed(path))
-                    ExtractProperty(path, SVN_PROP_MIME_TYPE, szInfo);
-                break;
-            case 6: // SVN Lock Owner
-                GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                szInfo = owner;
-                break;
-            case 7: // SVN eol-style
-                if (cachetype == ShellCache::none)
-                    return S_FALSE;
-                if (g_ShellCache.IsPathAllowed(path))
-                    ExtractProperty(path, SVN_PROP_EOL_STYLE, szInfo);
-                break;
-            case 9: // SVN Status
-                GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                V_VT(pvarData) = VT_I4;
-                V_I4(pvarData) = filestatus;
-                return S_OK;
-                break;
-            default:
-                return S_FALSE;
-        }
-        const WCHAR * wsInfo = szInfo.c_str();
-        V_VT(pvarData) = VT_BSTR;
-        V_BSTR(pvarData) = SysAllocString(wsInfo);
-        return S_OK;
-    }
-    if ((pscid->fmtid == FMTID_SummaryInformation)||(pscid->pid == 8))
-    {
-        tstring szInfo;
-        const TCHAR * path = pscd->wszFile;
-
-        if (cachetype == ShellCache::none)
-            return S_FALSE;
-        switch (pscid->pid)
-        {
-        case PIDSI_AUTHOR:          // author
-        case 8:
-            GetExtraColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-            szInfo = columnauthor;
-            break;
-        default:
-            return S_FALSE;
-        }
-        std::wstring wsInfo = szInfo;
-        V_VT(pvarData) = VT_BSTR;
-        V_BSTR(pvarData) = SysAllocString(wsInfo.c_str());
-        return S_OK;
-    }
-	if(pscid->fmtid == FMTID_UserDefinedProperties && pscid->pid < columnuserprops.size())
+	PreserveChdir preserveChdir;
+	if (!g_ShellCache.IsPathAllowed((TCHAR *)pscd->wszFile))
 	{
-		// SVN custom properties
-        tstring szInfo;
-        const TCHAR * path = (TCHAR *)pscd->wszFile;
-		if (g_ShellCache.IsPathAllowed(path))
-            ExtractProperty(path, columnuserprops.at(pscid->pid).second.c_str(), szInfo);
-        const WCHAR * wsInfo = szInfo.c_str();
-        V_VT(pvarData) = VT_BSTR;
-        V_BSTR(pvarData) = SysAllocString(wsInfo);
-        return S_OK;
+		return S_FALSE;
+	}
+	LoadLangDll();
+	ShellCache::CacheType cachetype = g_ShellCache.GetCacheType();
+	if (pscid->fmtid == CLSID_TortoiseSVN_UPTODATE && pscid->pid < 8) 
+	{
+		tstring szInfo;
+		const TCHAR * path = (TCHAR *)pscd->wszFile;
+
+		// reserve for the path + trailing \0
+
+		TCHAR buf[MAX_STATUS_STRING_LENGTH+1];
+		SecureZeroMemory(buf, MAX_STATUS_STRING_LENGTH);
+		switch (pscid->pid) 
+		{
+			case 0:	// SVN Status
+				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+				SVNStatus::GetStatusString(g_hResInst, filestatus, buf, sizeof(buf)/sizeof(TCHAR), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+				szInfo = buf;
+				break;
+			case 1:	// SVN Revision
+				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+				if (columnrev >= 0)
+				{
+					V_VT(pvarData) = VT_I4;
+					V_I4(pvarData) = columnrev;
+				}
+				return S_OK;
+				break;
+			case 2:	// SVN Url
+				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+				szInfo = itemurl;
+				break;
+			case 3:	// SVN Short Url
+				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+				szInfo = itemshorturl;
+				break;
+			case 5:	// SVN mime-type
+				if (cachetype == ShellCache::none)
+					return S_FALSE;
+				if (g_ShellCache.IsPathAllowed(path))
+				{
+					SVNProperties props(CTSVNPath(path), false);
+					for (int i=0; i<props.GetCount(); i++)
+					{
+						if (props.GetItemName(i).compare(_T("svn:mime-type"))==0)
+						{
+							szInfo = UTF8ToWide((char *)props.GetItemValue(i).c_str());
+						}
+					}
+				}
+				break;
+			case 6:	// SVN Lock Owner
+				GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+				szInfo = owner;
+				break;
+			case 7:	// SVN eol-style
+				if (cachetype == ShellCache::none)
+					return S_FALSE;
+				if (g_ShellCache.IsPathAllowed(path))
+				{
+					SVNProperties props(CTSVNPath(path), false);
+					for (int i=0; i<props.GetCount(); i++)
+					{
+						if (props.GetItemName(i).compare(_T("svn:eol-style"))==0)
+						{
+							szInfo = UTF8ToWide((char *)props.GetItemValue(i).c_str());
+						}
+					}
+				}
+				break;
+			default:
+				return S_FALSE;
+		}
+		const WCHAR * wsInfo = szInfo.c_str();
+		V_VT(pvarData) = VT_BSTR;
+		V_BSTR(pvarData) = SysAllocString(wsInfo);
+		return S_OK;
+	}
+	if ((pscid->fmtid == FMTID_SummaryInformation)||(pscid->pid == 8))
+	{
+		tstring szInfo;
+		const TCHAR * path = pscd->wszFile;
+
+		if (cachetype == ShellCache::none)
+			return S_FALSE;
+		switch (pscid->pid)
+		{
+		case PIDSI_AUTHOR:			// author
+		case 8:
+			GetColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+			szInfo = columnauthor;
+			break;
+		default:
+			return S_FALSE;
+		}
+		std::wstring wsInfo = szInfo;
+		V_VT(pvarData) = VT_BSTR;
+		V_BSTR(pvarData) = SysAllocString(wsInfo.c_str());
+		return S_OK;
 	}
 
-    return S_FALSE;
+	return S_FALSE;
 }
 
 STDMETHODIMP CShellExt::Initialize(LPCSHCOLUMNINIT psci)
 {
-    if(psci == 0)
-        return E_INVALIDARG;
-    // psci->wszFolder (WCHAR) holds the path to the folder to be displayed
-    // Should check to see if its a "SVN" folder and if not return E_FAIL
+	// psci->wszFolder (WCHAR) holds the path to the folder to be displayed
+	// Should check to see if its a "SVN" folder and if not return E_FAIL
 
-    PreserveChdir preserveChdir;
-    if (g_ShellCache.IsColumnsEveryWhere())
-        return S_OK;
-    CString path = psci->wszFolder;
-    if (!path.IsEmpty())
-    {
-        if (! g_ShellCache.IsVersioned(path, true, true))
-            return E_FAIL;
-    }
-
-    maincolumnfilepath.clear();
-    extracolumnfilepath.clear();
-
-    // load SVN custom properties of the folder
-    if(g_ShellCache.GetCacheType() != ShellCache::none && path != columnfolder)
-    {
-        columnfolder = path;
-        columnuserprops.clear();
-
-        if(g_ShellCache.IsPathAllowed(path))
-        {
-            // locate user directory and file properties
-            CTSVNPath svnpath;
-            svnpath.SetFromWin(path, true);
-            std::string values;
-            while(!svnpath.IsEmpty())
-            {
-                if(!g_ShellCache.IsVersioned(svnpath.GetWinPath(), true, true))
-                    break;  // beyond root of working copy
-                SVNProperties props(svnpath, false);
-                for (int i=0; i<props.GetCount(); ++i)
-                {
-                    std::string name = props.GetItemName(i);
-                    if (name.compare(PROJECTPROPNAME_USERFILEPROPERTY)==0 ||
-                        name.compare(PROJECTPROPNAME_USERDIRPROPERTY)==0)
-                        values.append(props.GetItemValue(i)).append("\n");
-                }
-                if(!values.empty())
-                    break;  // user properties found
-                svnpath = svnpath.GetContainingDirectory();
-            }
-
-            // parse user directory and file properties
-            typedef std::set<std::string> props_type;
-            props_type props;
-            std::string::size_type from = values.find_first_not_of("\r\n");
-            while(from != std::string::npos) {
-                std::string::size_type to = values.find_first_of("\r\n", from);
-                ASSERT(to != std::string::npos);    // holds as '\n' was appended last
-                std::string value = values.substr(from, to - from);
-                if(props.insert(value).second) {
-                    // swap sequence avoiding unnecessary copies
-                    columnuserprops.push_back(columnuserprop());
-                    CUnicodeUtils::StdGetUnicode(value).swap(columnuserprops.back().first);
-                    value.swap(columnuserprops.back().second);
-                }
-                from = values.find_first_not_of("\r\n", to);
-            }
-        }
-    }
-
-    return S_OK;
+	PreserveChdir preserveChdir;
+	if (g_ShellCache.IsColumnsEveryWhere())
+		return S_OK;
+	std::wstring path = psci->wszFolder;
+	if (!path.empty())
+	{
+		if (! g_ShellCache.HasSVNAdminDir(path.c_str(), TRUE))
+			return E_FAIL;
+	}
+	columnfilepath = _T("");
+	return S_OK;
 }
 
-void CShellExt::SetExtraColumnStatus
-    ( const TCHAR * path
-    , const FileStatusCacheEntry * status)
+void CShellExt::GetColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
-    extracolumnfilepath = path;
+	PreserveChdir preserveChdir;
+	if (_tcscmp(path, columnfilepath.c_str())==0)
+		return;
+	LoadLangDll();
+	columnfilepath = path;
+	const FileStatusCacheEntry * status = NULL;
+	TSVNCacheResponse itemStatus;
+	ShellCache::CacheType t = ShellCache::exe;
+	AutoLocker lock(g_csGlobalCOMGuard);
+	t = g_ShellCache.GetCacheType();
 
-    itemshorturl.clear();
-    if (status)
-    {
-        columnauthor = CUnicodeUtils::StdGetUnicode(status->author);
-        columnrev = status->rev;
-        itemurl = CUnicodeUtils::StdGetUnicode(status->url);
-        owner = CUnicodeUtils::StdGetUnicode(status->owner);
-    }
-    else
-    {
-        filestatus = svn_wc_status_none;
-        columnauthor.clear();
-        columnrev = 0;
-        itemurl.clear();
-        owner.clear();
-        return;
-    }
+	switch (t)
+	{
+	case ShellCache::exe:
+		{
+			SecureZeroMemory(&itemStatus, sizeof(itemStatus));
+			if(m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(path), &itemStatus, true))
+			{
+				filestatus = SVNStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
+			}
+			else
+			{
+				filestatus = svn_wc_status_none;
+				columnauthor.clear();
+				columnrev = 0;
+				itemurl.clear();
+				itemshorturl.clear();
+				owner.clear();
+				return;	
+			}
+		}
+		break;
+	case ShellCache::dll:
+		{
+			status = m_CachedStatus.GetFullStatus(CTSVNPath(path), bIsDir, TRUE);
+			filestatus = status->status;
+		}
+		break;
+	default:
+	case ShellCache::none:
+		{
+			if (g_ShellCache.HasSVNAdminDir(path, bIsDir))
+				filestatus = svn_wc_status_normal;
+			else
+				filestatus = svn_wc_status_none;
+			columnauthor.clear();
+			columnrev = 0;
+			itemurl.clear();
+			itemshorturl.clear();
+			owner.clear();
+			return;	
+		}
+		break;
+	}
 
-    TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
+	if (t == ShellCache::exe)
+	{
+		columnauthor = UTF8ToWide(itemStatus.m_author);
+		columnrev = itemStatus.m_entry.cmt_rev;
+		itemurl = UTF8ToWide(itemStatus.m_url);
+		owner = UTF8ToWide(itemStatus.m_owner);
+	}
+	else
+	{
+		if (status)
+		{
+			columnauthor = UTF8ToWide(status->author);
+			columnrev = status->rev;
+			itemurl = UTF8ToWide(status->url);
+			owner = UTF8ToWide(status->owner);
+		}
+	}
+	TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
 
-    URL_COMPONENTS urlComponents;
-    memset(&urlComponents, 0, sizeof(URL_COMPONENTS));
-    urlComponents.dwStructSize = sizeof(URL_COMPONENTS);
-    urlComponents.dwUrlPathLength = INTERNET_MAX_URL_LENGTH;
-    urlComponents.lpszUrlPath = urlpath;
+	URL_COMPONENTS urlComponents;
+	memset(&urlComponents, 0, sizeof(URL_COMPONENTS));
+	urlComponents.dwStructSize = sizeof(URL_COMPONENTS);
+	urlComponents.dwUrlPathLength = INTERNET_MAX_URL_LENGTH;
+	urlComponents.lpszUrlPath = urlpath;
+	if (InternetCrackUrl(itemurl.c_str(), 0, ICU_DECODE, &urlComponents))
+	{
+		// since the short url is shown as an additional column where the
+		// file/foldername is shown too, we strip that name from the url
+		// to make the url even shorter.
+		TCHAR * ptr = _tcsrchr(urlComponents.lpszUrlPath, '/');
+		if (ptr == NULL)
+			ptr = _tcsrchr(urlComponents.lpszUrlPath, '\\');
+		if (ptr)
+		{
+			*ptr = '\0';
+			// to shorten the url even more, we check for 'trunk', 'branches' and 'tags'
+			// and simply assume that these are the folders attached to the repository
+			// root. If we find those, we strip the whole path before those folders too.
+			// Note: this will strip too much if such a folder is *below* the repository
+			// root - but it's called 'short url' and we're free to shorten it the way we
+			// like :)
+			ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/trunk"));
+			if (ptr == NULL)
+				ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\trunk"));
+			if ((ptr == NULL)||((*(ptr+6) != 0)&&(*(ptr+6) != '/')&&(*(ptr+6) != '\\')))
+			{
+				ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/branches"));
+				if (ptr == NULL)
+					ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\branches"));
+				if ((ptr == NULL)||((*(ptr+9) != 0)&&(*(ptr+9) != '/')&&(*(ptr+9) != '\\')))
+				{
+					ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/tags"));
+					if (ptr == NULL)
+						ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\tags"));
+					if ((ptr)&&(*(ptr+5) != 0)&&(*(ptr+5) != '/')&&(*(ptr+5) != '\\'))
+						ptr = NULL;
+				}
+			}
+			if (ptr)
+				itemshorturl = ptr;
+			else
+				itemshorturl = urlComponents.lpszUrlPath;
+		}
+		else 
+			itemshorturl = _T(" ");
+	}
+	else
+		itemshorturl = _T(" ");
 
-    if (InternetCrackUrl(itemurl.c_str(), 0, ICU_DECODE, &urlComponents))
-    {
-        // since the short url is shown as an additional column where the
-        // file/foldername is shown too, we strip that name from the url
-        // to make the url even shorter.
-        TCHAR * ptr = _tcsrchr(urlComponents.lpszUrlPath, '/');
-        if (ptr == NULL)
-            ptr = _tcsrchr(urlComponents.lpszUrlPath, '\\');
-        if (ptr)
-        {
-            *ptr = '\0';
-            // to shorten the url even more, we check for 'trunk', 'branches' and 'tags'
-            // and simply assume that these are the folders attached to the repository
-            // root. If we find those, we strip the whole path before those folders too.
-            // Note: this will strip too much if such a folder is *below* the repository
-            // root - but it's called 'short url' and we're free to shorten it the way we
-            // like :)
-            ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/trunk"));
-            if (ptr == NULL)
-                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\trunk"));
-            if ((ptr == NULL)||((*(ptr+6) != 0)&&(*(ptr+6) != '/')&&(*(ptr+6) != '\\')))
-            {
-                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/branches"));
-                if (ptr == NULL)
-                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\branches"));
-                if ((ptr == NULL)||((*(ptr+9) != 0)&&(*(ptr+9) != '/')&&(*(ptr+9) != '\\')))
-                {
-                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/tags"));
-                    if (ptr == NULL)
-                        ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\tags"));
-                    if ((ptr)&&(*(ptr+5) != 0)&&(*(ptr+5) != '/')&&(*(ptr+5) != '\\'))
-                        ptr = NULL;
-                }
-            }
-            if (ptr)
-                itemshorturl = ptr;
-            else
-                itemshorturl = urlComponents.lpszUrlPath;
-        }
-    }
-
-    if (status)
-    {
-        char url[INTERNET_MAX_URL_LENGTH];
-        strcpy_s(url, status->url);
-        CPathUtils::Unescape(url);
-        itemurl = CUnicodeUtils::StdGetUnicode(url);
-    }
+	if (status)
+	{
+		char url[INTERNET_MAX_URL_LENGTH];
+		strcpy_s(url, INTERNET_MAX_URL_LENGTH, status->url);
+		CPathUtils::Unescape(url);
+		itemurl = UTF8ToWide(url);
+	}
+	else if (t == ShellCache::exe)
+	{
+		char url[INTERNET_MAX_URL_LENGTH];
+		strcpy_s(url, INTERNET_MAX_URL_LENGTH, itemStatus.m_url);
+		CPathUtils::Unescape(url);
+		itemurl = UTF8ToWide(url);
+	}
 }
 
-void CShellExt::GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir)
-{
-    if (_tcscmp(path, extracolumnfilepath.c_str())==0)
-        return;
-
-    PreserveChdir preserveChdir;
-    LoadLangDll();
-
-    const FileStatusCacheEntry * status = NULL;
-    ShellCache::CacheType t = ShellCache::exe;
-    AutoLocker lock(g_csGlobalCOMGuard);
-    t = g_ShellCache.GetCacheType();
-
-    CTSVNPath tsvnPath (path);
-    switch (t)
-    {
-    case ShellCache::exe:
-        {
-            TSVNCacheResponse itemStatus;
-            if (m_remoteCacheLink.GetStatusFromRemoteCache(tsvnPath, &itemStatus, true))
-                status = m_CachedStatus.GetFullStatus(tsvnPath, bIsDir, TRUE);
-        }
-        break;
-    case ShellCache::dll:
-        {
-            status = m_CachedStatus.GetFullStatus(tsvnPath, bIsDir, TRUE);
-        }
-        break;
-    }
-
-    SetExtraColumnStatus (path, status);
-}
-
-void CShellExt::GetMainColumnStatus(const TCHAR * path, BOOL bIsDir)
-{
-    if (_tcscmp(path, maincolumnfilepath.c_str())==0)
-        return;
-
-    PreserveChdir preserveChdir;
-    LoadLangDll();
-    maincolumnfilepath = path;
-
-    ShellCache::CacheType t = ShellCache::exe;
-    AutoLocker lock(g_csGlobalCOMGuard);
-    t = g_ShellCache.GetCacheType();
-
-    filestatus = svn_wc_status_none;
-    switch (t)
-    {
-    case ShellCache::exe:
-        {
-            TSVNCacheResponse itemStatus;
-            if (m_remoteCacheLink.GetStatusFromRemoteCache(CTSVNPath(path), &itemStatus, true))
-                filestatus = (svn_wc_status_kind)itemStatus.m_Status;
-        }
-        break;
-    case ShellCache::dll:
-        {
-            const FileStatusCacheEntry * status 
-                = m_CachedStatus.GetFullStatus(CTSVNPath(path), bIsDir, TRUE);
-
-            filestatus = status->status;
-            SetExtraColumnStatus (path, status);
-        }
-        break;
-    default:
-    case ShellCache::none:
-        {
-            if (g_ShellCache.IsVersioned(path, !!bIsDir, true))
-                filestatus = svn_wc_status_normal;
-            else
-                filestatus = svn_wc_status_none;
-        }
-        break;
-    }
-}
-
-void CShellExt::ExtractProperty(const TCHAR* path, const char* propertyName, tstring& to)
-{
-    SVNProperties props(CTSVNPath(path), false);
-    for (int i=0; i<props.GetCount(); i++)
-    {
-        if (props.GetItemName(i).compare(propertyName)==0)
-        {
-            to = CUnicodeUtils::StdGetUnicode(props.GetItemValue(i));
-        }
-    }
-}

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,8 @@
 #include "ProgressDlg.h"
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
-#include "Access/CSVWriter.h"
+#include "CSVWriter.h"
+#include "XPTheme.h"
 
 using namespace LogCache;
 
@@ -37,9 +38,8 @@ IMPLEMENT_DYNAMIC(CSettingsLogCaches, ISettingsPropPage)
 #define WM_REFRESH_REPOSITORYLIST (WM_APP + 110)
 
 CSettingsLogCaches::CSettingsLogCaches()
-    : ISettingsPropPage(CSettingsLogCaches::IDD)
+	: ISettingsPropPage(CSettingsLogCaches::IDD)
     , progress(NULL)
-    , m_bThreadRunning(0)
 {
 }
 
@@ -58,64 +58,65 @@ BOOL CSettingsLogCaches::OnSetActive()
 
 void CSettingsLogCaches::DoDataExchange(CDataExchange* pDX)
 {
-    ISettingsPropPage::DoDataExchange(pDX);
+	ISettingsPropPage::DoDataExchange(pDX);
 
-    DDX_Control(pDX, IDC_REPOSITORYLIST, m_cRepositoryList);
+	DDX_Control(pDX, IDC_REPOSITORYLIST, m_cRepositoryList);
 }
 
 
 BEGIN_MESSAGE_MAP(CSettingsLogCaches, ISettingsPropPage)
-    ON_BN_CLICKED(IDC_CACHEDETAILS, OnBnClickedDetails)
-    ON_BN_CLICKED(IDC_CACHEUPDATE, OnBnClickedUpdate)
-    ON_BN_CLICKED(IDC_CACHEEXPORT, OnBnClickedExport)
-    ON_BN_CLICKED(IDC_CACHEDELETE, OnBnClickedDelete)
+	ON_BN_CLICKED(IDC_CACHEDETAILS, OnBnClickedDetails)
+	ON_BN_CLICKED(IDC_CACHEUPDATE, OnBnClickedUpdate)
+	ON_BN_CLICKED(IDC_CACHEEXPORT, OnBnClickedExport)
+	ON_BN_CLICKED(IDC_CACHEDELETE, OnBnClickedDelete)
 
-    ON_MESSAGE(WM_REFRESH_REPOSITORYLIST, OnRefeshRepositoryList)
-    ON_NOTIFY(NM_DBLCLK, IDC_REPOSITORYLIST, &CSettingsLogCaches::OnNMDblclkRepositorylist)
-    ON_NOTIFY(LVN_ITEMCHANGED, IDC_REPOSITORYLIST, &CSettingsLogCaches::OnLvnItemchangedRepositorylist)
+	ON_MESSAGE(WM_REFRESH_REPOSITORYLIST, OnRefeshRepositoryList)
+	ON_NOTIFY(NM_DBLCLK, IDC_REPOSITORYLIST, &CSettingsLogCaches::OnNMDblclkRepositorylist)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_REPOSITORYLIST, &CSettingsLogCaches::OnLvnItemchangedRepositorylist)
 END_MESSAGE_MAP()
 
 BOOL CSettingsLogCaches::OnInitDialog()
 {
-    ISettingsPropPage::OnInitDialog();
+	ISettingsPropPage::OnInitDialog();
 
     // repository list (including header text update when language changed)
 
-    m_cRepositoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
+	m_cRepositoryList.SetExtendedStyle(LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP);
 
-    m_cRepositoryList.DeleteAllItems();
+	m_cRepositoryList.DeleteAllItems();
     int c = m_cRepositoryList.GetHeaderCtrl()->GetItemCount()-1;
-    while (c>=0)
-        m_cRepositoryList.DeleteColumn(c--);
+	while (c>=0)
+		m_cRepositoryList.DeleteColumn(c--);
 
     CString temp;
     temp.LoadString(IDS_SETTINGS_REPOSITORY_URL);
-    m_cRepositoryList.InsertColumn (0, temp, LVCFMT_LEFT, 289);
-    temp.LoadString(IDS_SETTINGS_REPOSITORY_SIZE);
-    m_cRepositoryList.InsertColumn (1, temp, LVCFMT_RIGHT, 95);
+	m_cRepositoryList.InsertColumn (0, temp, LVCFMT_LEFT, 289);
+	temp.LoadString(IDS_SETTINGS_REPOSITORY_SIZE);
+	m_cRepositoryList.InsertColumn (1, temp, LVCFMT_RIGHT, 95);
 
-    SetWindowTheme(m_cRepositoryList.GetSafeHwnd(), L"Explorer", NULL);
+	CXPTheme theme;
+	theme.SetWindowTheme(m_cRepositoryList.GetSafeHwnd(), L"Explorer", NULL);
 
     FillRepositoryList();
 
     // tooltips
 
-    m_tooltips.Create(this);
+	m_tooltips.Create(this);
 
-    m_tooltips.AddTool(IDC_REPOSITORYLIST, IDS_SETTINGS_LOGCACHE_CACHELIST);
+	m_tooltips.AddTool(IDC_REPOSITORYLIST, IDS_SETTINGS_LOGCACHE_CACHELIST);
 
-    m_tooltips.AddTool(IDC_CACHEDETAILS, IDS_SETTINGS_LOGCACHE_DETAILS);
-    m_tooltips.AddTool(IDC_CACHEUPDATE, IDS_SETTINGS_LOGCACHE_UPDATE);
-    m_tooltips.AddTool(IDC_CACHEEXPORT, IDS_SETTINGS_LOGCACHE_EXPORT);
-    m_tooltips.AddTool(IDC_CACHEDELETE, IDS_SETTINGS_LOGCACHE_DELETE);
+	m_tooltips.AddTool(IDC_CACHEDETAILS, IDS_SETTINGS_LOGCACHE_DETAILS);
+	m_tooltips.AddTool(IDC_CACHEUPDATE, IDS_SETTINGS_LOGCACHE_UPDATE);
+	m_tooltips.AddTool(IDC_CACHEEXPORT, IDS_SETTINGS_LOGCACHE_EXPORT);
+	m_tooltips.AddTool(IDC_CACHEDELETE, IDS_SETTINGS_LOGCACHE_DELETE);
 
-    return TRUE;
+	return TRUE;
 }
 
 BOOL CSettingsLogCaches::PreTranslateMessage(MSG* pMsg)
 {
-    m_tooltips.RelayEvent(pMsg);
-    return ISettingsPropPage::PreTranslateMessage(pMsg);
+	m_tooltips.RelayEvent(pMsg);
+	return ISettingsPropPage::PreTranslateMessage(pMsg);
 }
 
 void CSettingsLogCaches::OnBnClickedDetails()
@@ -123,7 +124,7 @@ void CSettingsLogCaches::OnBnClickedDetails()
     TRepo repo = GetSelectedRepo();
     if (!repo.first.IsEmpty())
     {
-        CLogCacheStatistics staticstics
+        CLogCacheStatistics staticstics 
             (*SVN().GetLogCachePool(), repo.second, repo.first);
 
         CLogCacheStatisticsDlg dialog (staticstics.GetData(), this);
@@ -133,7 +134,7 @@ void CSettingsLogCaches::OnBnClickedDetails()
 
 void CSettingsLogCaches::OnBnClickedUpdate()
 {
-    AfxBeginThread (WorkerThread, this);
+	AfxBeginThread (WorkerThread, this);
 }
 
 void CSettingsLogCaches::OnBnClickedExport()
@@ -145,7 +146,7 @@ void CSettingsLogCaches::OnBnClickedExport()
         if (dialog.DoModal() == IDOK)
         {
             SVN svn;
-            CCachedLogInfo* cache
+            CCachedLogInfo* cache 
                 = svn.GetLogCachePool()->GetCache (repo.second, repo.first);
             CCSVWriter writer;
             writer.Write (*cache, (LPCTSTR)dialog.GetFileName());
@@ -155,46 +156,27 @@ void CSettingsLogCaches::OnBnClickedExport()
 
 void CSettingsLogCaches::OnBnClickedDelete()
 {
-    int nSelCount = m_cRepositoryList.GetSelectedCount();
-    CString sQuestion;
-    sQuestion.Format(IDS_SETTINGS_CACHEDELETEQUESTION, nSelCount);
-    bool bDelete = false;
-    if (CTaskDialog::IsSupported())
-    {
-        CTaskDialog taskdlg(sQuestion, 
-                            CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK2)), 
-                            L"TortoiseSVN",
-                            0,
-                            TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
-        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK3)));
-        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK4)));
-        taskdlg.SetDefaultCommandControl(2);
-        taskdlg.SetMainIcon(TD_WARNING_ICON);
-        bDelete = (taskdlg.DoModal(GetExplorerHWND())==1);
-    }
-    else
-    {
-        bDelete = (TSVNMessageBox(m_hWnd, sQuestion, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES);
-    }
-
-    if (bDelete)
-    {
-        POSITION pos = m_cRepositoryList.GetFirstSelectedItemPosition();
-        while (pos)
-        {
-            int index = m_cRepositoryList.GetNextSelectedItem(pos);
-            IT iter = repos.begin();
-            std::advance (iter, index);
+	int nSelCount = m_cRepositoryList.GetSelectedCount();
+	CString sQuestion;
+	sQuestion.Format(IDS_SETTINGS_CACHEDELETEQUESTION, nSelCount);
+	if (CMessageBox::Show(m_hWnd, sQuestion, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES)
+	{
+		POSITION pos = m_cRepositoryList.GetFirstSelectedItemPosition();
+		while (pos)
+		{
+			int index = m_cRepositoryList.GetNextSelectedItem(pos);
+			IT iter = repos.begin();
+			std::advance (iter, index);
             SVN().GetLogCachePool()->DropCache (iter->second, iter->first);
-        }
-        FillRepositoryList();
-    }
+		}
+		FillRepositoryList();
+	}
 }
 
 LRESULT CSettingsLogCaches::OnRefeshRepositoryList (WPARAM, LPARAM)
 {
     FillRepositoryList();
-    return 0L;
+	return 0L;
 }
 
 CSettingsLogCaches::TRepo CSettingsLogCaches::GetSelectedRepo()
@@ -234,142 +216,114 @@ void CSettingsLogCaches::FillRepositoryList()
 
 // implement ILogReceiver
 
-void CSettingsLogCaches::ReceiveLog ( TChangedPaths*
-                                    , svn_revnum_t rev
-                                    , const StandardRevProps*
-                                    , UserRevPropArray*
+void CSettingsLogCaches::ReceiveLog ( LogChangedPathArray* 
+					                , svn_revnum_t rev
+                                    , const StandardRevProps* 
+                                    , UserRevPropArray* 
                                     , bool )
 {
-    // update internal data
+	// update internal data
 
     if ((headRevision < (svn_revnum_t)rev) || (headRevision == NO_REVISION))
-        headRevision = rev;
+		headRevision = rev;
 
-    // update progress bar and check for user pressing "Cancel"
+	// update progress bar and check for user pressing "Cancel"
 
-    static DWORD lastProgressCall = 0;
-    if (lastProgressCall < GetTickCount() - 500)
-    {
-        lastProgressCall = GetTickCount();
+	static DWORD lastProgressCall = 0;
+	if (lastProgressCall < GetTickCount() - 500)
+	{
+		lastProgressCall = GetTickCount();
 
-        CString temp;
-        temp.LoadString(IDS_REVGRAPH_PROGGETREVS);
-        progress->SetLine(1, temp);
+		CString temp;
+		temp.LoadString(IDS_REVGRAPH_PROGGETREVS);
+		progress->SetLine(1, temp);
         temp.Format(IDS_REVGRAPH_PROGCURRENTREV, rev);
-        progress->SetLine(2, temp);
+		progress->SetLine(2, temp);
 
-        progress->SetProgress (headRevision - rev, headRevision);
-        if (progress->HasUserCancelled())
-            throw SVNError (SVN_ERR_CANCELLED, "");
-    }
+		progress->SetProgress (headRevision - rev, headRevision);
+		if (progress->HasUserCancelled())
+			throw SVNError (SVN_ERR_CANCELLED, "");
+	}
 }
 
 UINT CSettingsLogCaches::WorkerThread(LPVOID pVoid)
 {
-    CSettingsLogCaches* dialog = (CSettingsLogCaches*)pVoid;
-    InterlockedExchange(&dialog->m_bThreadRunning, TRUE);
-
     CoInitialize (NULL);
 
-    dialog->DialogEnableWindow(IDC_CACHEUPDATE, false);
+	CSettingsLogCaches* dialog = (CSettingsLogCaches*)pVoid;
 
     dialog->progress = new CProgressDlg();
-    dialog->progress->SetTitle(IDS_SETTINGS_LOGCACHE_UPDATETITLE);
-    dialog->progress->SetCancelMsg(IDS_REVGRAPH_PROGCANCEL);
-    dialog->progress->SetTime();
-    dialog->progress->ShowModeless(dialog->m_hWnd);
+	dialog->progress->SetTitle(IDS_SETTINGS_LOGCACHE_UPDATETITLE);
+	dialog->progress->SetCancelMsg(IDS_REVGRAPH_PROGCANCEL);
+	dialog->progress->SetTime();
+	dialog->progress->ShowModeless(dialog->m_hWnd);
 
-    // we have to get the log from the repository root
+	// we have to get the log from the repository root
 
     SVN svn;
-    CLogCachePool* caches = svn.GetLogCachePool();
+	CLogCachePool* caches = svn.GetLogCachePool();
     CRepositoryInfo& info = caches->GetRepositoryInfo();
 
     TRepo repo = dialog->GetSelectedRepo();
-    CTSVNPath urlpath;
+	CTSVNPath urlpath;
     urlpath.SetFromSVN (repo.first);
 
     dialog->headRevision = info.GetHeadRevision (repo.second, urlpath);
-    dialog->progress->SetProgress (0, dialog->headRevision);
+	dialog->progress->SetProgress (0, dialog->headRevision);
 
-    apr_pool_t *pool = svn_pool_create(NULL);
+	apr_pool_t *pool = svn_pool_create(NULL);
 
     try
-    {
-        CSVNLogQuery svnQuery (svn.GetSVNClientContext(), pool);
-        CCacheLogQuery query (caches, &svnQuery);
+	{
+        CSVNLogQuery svnQuery (svn.m_pctx, pool);
+		CCacheLogQuery query (caches, &svnQuery);
 
-        query.Log ( CTSVNPathList (urlpath)
-                  , dialog->headRevision
-                  , dialog->headRevision
-                  , SVNRev(0)
-                  , 0
-                  , false       // strictNodeHistory
-                  , dialog
-                  , true        // includeChanges
-                  , false       // includeMerges
-                  , true        // includeStandardRevProps
-                  , true        // includeUserRevProps
+		query.Log ( CTSVNPathList (urlpath)
+				  , dialog->headRevision
+				  , dialog->headRevision
+				  , SVNRev(0)
+				  , 0
+				  , false		// strictNodeHistory
+				  , dialog
+                  , true		// includeChanges
+                  , false		// includeMerges
+                  , true		// includeStandardRevProps
+                  , true		// includeUserRevProps
                   , TRevPropNames());
-    }
-    catch (SVNError&)
-    {
-    }
+	}
+	catch (SVNError&)
+	{
+	}
 
     caches->Flush();
-    svn_pool_destroy (pool);
+	svn_pool_destroy (pool);
 
-    if (dialog->progress)
-    {
-        dialog->progress->Stop();
-        delete dialog->progress;
-        dialog->progress = NULL;
-    }
+	if (dialog->progress)
+	{
+		dialog->progress->Stop();
+		delete dialog->progress;
+		dialog->progress = NULL;
+	}
 
     CoUninitialize();
 
     dialog->PostMessage (WM_REFRESH_REPOSITORYLIST);
 
-    dialog->DialogEnableWindow(IDC_CACHEUPDATE, true);
-
-    InterlockedExchange(&dialog->m_bThreadRunning, FALSE);
-    return 0;
+	return 0;
 }
 
 void CSettingsLogCaches::OnNMDblclkRepositorylist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 {
-    OnBnClickedDetails();
-    *pResult = 0;
+	OnBnClickedDetails();
+	*pResult = 0;
 }
 
 void CSettingsLogCaches::OnLvnItemchangedRepositorylist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
 {
-    UINT count = m_cRepositoryList.GetSelectedCount();
-    DialogEnableWindow(IDC_CACHEDETAILS, count == 1);
-    DialogEnableWindow(IDC_CACHEUPDATE, !m_bThreadRunning && (count == 1));
-    DialogEnableWindow(IDC_CACHEEXPORT, count == 1);
-    DialogEnableWindow(IDC_CACHEDELETE, count >= 1);
-    *pResult = 0;
-}
-
-BOOL CSettingsLogCaches::OnKillActive()
-{
-    if (m_bThreadRunning)
-    {
-        // don't allow closing this page if
-        // the update thread is still running.
-        return 0;
-    }
-    return __super::OnKillActive();
-}
-
-BOOL CSettingsLogCaches::OnQueryCancel()
-{
-    if (m_bThreadRunning)
-    {
-        // don't allow closing this page if
-        // the update thread is still running.
-        return FALSE;
-    }
-    return __super::OnQueryCancel();
+	UINT count = m_cRepositoryList.GetSelectedCount();
+	GetDlgItem(IDC_CACHEDETAILS)->EnableWindow(count == 1);
+	GetDlgItem(IDC_CACHEUPDATE)->EnableWindow(count == 1);
+	GetDlgItem(IDC_CACHEEXPORT)->EnableWindow(count == 1);
+	GetDlgItem(IDC_CACHEDELETE)->EnableWindow(count >= 1);
+	*pResult = 0;
 }

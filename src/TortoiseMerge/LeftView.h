@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2011 - TortoiseSVN
+// Copyright (C) 2006-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,12 +25,11 @@
  */
 class CLeftView : public CBaseView
 {
-    DECLARE_DYNCREATE(CLeftView)
+	DECLARE_DYNCREATE(CLeftView)
 public:
-    CLeftView(void);
-    ~CLeftView(void);
-
+	CLeftView(void);
+	~CLeftView(void);
 protected:
-    void    AddContextItems(CIconMenu& popup, DiffStates state);
-
+	bool	OnContextMenu(CPoint point, int nLine, DiffStates state);
+	
 };

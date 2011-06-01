@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008, 2010 - TortoiseSVN
+// External Cache Copyright (C) 2005-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,241 +22,275 @@
 #include "CacheInterface.h"
 #include "registry.h"
 
-#define CACHEENTRYDISKVERSION 9
+#define CACHEENTRYDISKVERSION 5
 
 DWORD cachetimeout = (DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\Cachetimeout"), CACHETIMEOUT);
 
 CStatusCacheEntry::CStatusCacheEntry()
+	: m_bSet(false)
+	, m_bSVNEntryFieldSet(false)
+	, m_kind(svn_node_unknown)
+	, m_bReadOnly(false)
+	, m_highestPriorityLocalStatus(svn_wc_status_none)
 {
-    m_bSet = false;
-    m_bSVNEntryFieldSet = false;
-    m_kind = svn_node_unknown;
-    m_highestPriorityLocalStatus = svn_wc_status_none;
-
-    SetAsUnversioned();
+	SetAsUnversioned();
 }
 
-CStatusCacheEntry::CStatusCacheEntry(const svn_client_status_t* pSVNStatus, bool needsLock, __int64 lastWriteTime, bool forceNormal)
+CStatusCacheEntry::CStatusCacheEntry(const svn_wc_status2_t* pSVNStatus, __int64 lastWriteTime, bool bReadOnly, DWORD validuntil /* = 0*/)
+	: m_bSet(false)
+	, m_bSVNEntryFieldSet(false)
+	, m_kind(svn_node_unknown)
+	, m_bReadOnly(false)
+	, m_highestPriorityLocalStatus(svn_wc_status_none)
 {
-    m_bSet = false;
-    m_bSVNEntryFieldSet = false;
-    m_kind = svn_node_unknown;
-    m_highestPriorityLocalStatus = svn_wc_status_none;
-
-    SetStatus(pSVNStatus, needsLock, forceNormal);
-    m_lastWriteTime = lastWriteTime;
-    m_discardAtTime = GetTickCount()+cachetimeout;
+	SetStatus(pSVNStatus);
+	m_lastWriteTime = lastWriteTime;
+	if (validuntil)
+		m_discardAtTime = validuntil;
+	else
+		m_discardAtTime = GetTickCount()+cachetimeout;
+	m_bReadOnly = bReadOnly;
 }
 
 bool CStatusCacheEntry::SaveToDisk(FILE * pFile)
 {
 #define WRITEVALUETOFILE(x) if (fwrite(&x, sizeof(x), 1, pFile)!=1) return false;
-#define WRITECOPYVALUETOFILE(x) if (fputc((char)x, pFile)==EOF) return false;
+#define WRITESTRINGTOFILE(x) if (x.IsEmpty()) {value=0;WRITEVALUETOFILE(value);}else{value=x.GetLength();WRITEVALUETOFILE(value);if (fwrite((LPCSTR)x, sizeof(char), value, pFile)!=value) return false;}
 
-    unsigned int value = CACHEENTRYDISKVERSION;
-    WRITEVALUETOFILE(value); // 'version' of this save-format
+	unsigned int value = CACHEENTRYDISKVERSION;
+	WRITEVALUETOFILE(value); // 'version' of this save-format
+	WRITEVALUETOFILE(m_highestPriorityLocalStatus);
+	WRITEVALUETOFILE(m_lastWriteTime);
+	WRITEVALUETOFILE(m_bSet);
+	WRITEVALUETOFILE(m_bSVNEntryFieldSet);
+	WRITEVALUETOFILE(m_commitRevision);
+	WRITESTRINGTOFILE(m_sUrl);
+	WRITESTRINGTOFILE(m_sOwner);
+	WRITESTRINGTOFILE(m_sAuthor);
+	WRITEVALUETOFILE(m_kind);
+	WRITEVALUETOFILE(m_bReadOnly);
+	WRITESTRINGTOFILE(m_sPresentProps);
 
-    WRITECOPYVALUETOFILE(m_highestPriorityLocalStatus);
-    WRITEVALUETOFILE(m_lastWriteTime);
-    WRITECOPYVALUETOFILE(m_bSet);
-    WRITECOPYVALUETOFILE(m_bSVNEntryFieldSet);
-    WRITEVALUETOFILE(m_commitRevision);
-    WRITECOPYVALUETOFILE(m_bHasOwner);   
-    WRITECOPYVALUETOFILE(m_kind);
-    WRITECOPYVALUETOFILE(m_needsLock);
-
-    // now save the status struct (without the entry field, because we don't use that)
-    WRITECOPYVALUETOFILE(m_svnStatus.copied);
-    WRITECOPYVALUETOFILE(m_svnStatus.locked);
-    WRITECOPYVALUETOFILE(m_svnStatus.node_status);
-    WRITECOPYVALUETOFILE(m_svnStatus.prop_status);
-    WRITECOPYVALUETOFILE(m_svnStatus.repos_prop_status);
-    WRITECOPYVALUETOFILE(m_svnStatus.repos_text_status);
-    WRITECOPYVALUETOFILE(m_svnStatus.switched);
-    WRITECOPYVALUETOFILE(m_svnStatus.text_status);
-    WRITECOPYVALUETOFILE(m_treeconflict);
-    return true;
+	// now save the status struct (without the entry field, because we don't use that)
+	WRITEVALUETOFILE(m_svnStatus.copied);
+	WRITEVALUETOFILE(m_svnStatus.locked);
+	WRITEVALUETOFILE(m_svnStatus.prop_status);
+	WRITEVALUETOFILE(m_svnStatus.repos_prop_status);
+	WRITEVALUETOFILE(m_svnStatus.repos_text_status);
+	WRITEVALUETOFILE(m_svnStatus.switched);
+	WRITEVALUETOFILE(m_svnStatus.text_status);
+	WRITEVALUETOFILE(m_treeconflict);
+	return true;
 }
 
 bool CStatusCacheEntry::LoadFromDisk(FILE * pFile)
 {
 #define LOADVALUEFROMFILE(x) if (fread(&x, sizeof(x), 1, pFile)!=1) return false;
-#define LOADCOPYVALUEFROMFILE(x,T) {int v=fgetc(pFile); if (v==EOF) return false; x=(T)v;}
-    try
-    {
-        unsigned int value = 0;
-        LOADVALUEFROMFILE(value);
-        if (value != CACHEENTRYDISKVERSION)
-            return false;       // not the correct version
-
-        LOADCOPYVALUEFROMFILE(m_highestPriorityLocalStatus, svn_wc_status_kind);
-        LOADVALUEFROMFILE(m_lastWriteTime);
-        LOADCOPYVALUEFROMFILE(m_bSet, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_bSVNEntryFieldSet, svn_boolean_t);
-        LOADVALUEFROMFILE(m_commitRevision);
-
-        LOADCOPYVALUEFROMFILE(m_bHasOwner, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_kind, svn_node_kind_t);
-        LOADCOPYVALUEFROMFILE(m_needsLock, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.copied, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.locked, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.node_status, svn_wc_status_kind);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.prop_status, svn_wc_status_kind);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.repos_prop_status, svn_wc_status_kind);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.repos_text_status, svn_wc_status_kind);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.switched, svn_boolean_t);
-        LOADCOPYVALUEFROMFILE(m_svnStatus.text_status, svn_wc_status_kind);
-        LOADCOPYVALUEFROMFILE(m_treeconflict, svn_boolean_t);
-
-        m_discardAtTime = GetTickCount()+cachetimeout;
-    }
-    catch ( CAtlException )
-    {
-        return false;
-    }
-    return true;
+	try
+	{
+		unsigned int value = 0;
+		LOADVALUEFROMFILE(value);
+		if (value != CACHEENTRYDISKVERSION)
+			return false;		// not the correct version
+		LOADVALUEFROMFILE(m_highestPriorityLocalStatus);
+		LOADVALUEFROMFILE(m_lastWriteTime);
+		LOADVALUEFROMFILE(m_bSet);
+		LOADVALUEFROMFILE(m_bSVNEntryFieldSet);
+		LOADVALUEFROMFILE(m_commitRevision);
+		LOADVALUEFROMFILE(value);
+		if (value != 0)
+		{
+			if (value > INTERNET_MAX_URL_LENGTH)
+				return false;		// invalid length for an url
+			if (fread(m_sUrl.GetBuffer(value+1), sizeof(char), value, pFile)!=value)
+			{
+				m_sUrl.ReleaseBuffer(0);
+				return false;
+			}
+			m_sUrl.ReleaseBuffer(value);
+		}
+		LOADVALUEFROMFILE(value);
+		if (value != 0)
+		{
+			if (fread(m_sOwner.GetBuffer(value+1), sizeof(char), value, pFile)!=value)
+			{
+				m_sOwner.ReleaseBuffer(0);
+				return false;
+			}
+			m_sOwner.ReleaseBuffer(value);
+		}
+		LOADVALUEFROMFILE(value);
+		if (value != 0)
+		{
+			if (fread(m_sAuthor.GetBuffer(value+1), sizeof(char), value, pFile)!=value)
+			{
+				m_sAuthor.ReleaseBuffer(0);
+				return false;
+			}
+			m_sAuthor.ReleaseBuffer(value);
+		}
+		LOADVALUEFROMFILE(m_kind);
+		LOADVALUEFROMFILE(m_bReadOnly);
+		LOADVALUEFROMFILE(value);
+		if (value != 0)
+		{
+			if (fread(m_sPresentProps.GetBuffer(value+1), sizeof(char), value, pFile)!=value)
+			{
+				m_sPresentProps.ReleaseBuffer(0);
+				return false;
+			}
+			m_sPresentProps.ReleaseBuffer(value);
+		}
+		SecureZeroMemory(&m_svnStatus, sizeof(m_svnStatus));
+		LOADVALUEFROMFILE(m_svnStatus.copied);
+		LOADVALUEFROMFILE(m_svnStatus.locked);
+		LOADVALUEFROMFILE(m_svnStatus.prop_status);
+		LOADVALUEFROMFILE(m_svnStatus.repos_prop_status);
+		LOADVALUEFROMFILE(m_svnStatus.repos_text_status);
+		LOADVALUEFROMFILE(m_svnStatus.switched);
+		LOADVALUEFROMFILE(m_svnStatus.text_status);
+		LOADVALUEFROMFILE(m_treeconflict);
+		m_svnStatus.entry = NULL;
+		m_discardAtTime = GetTickCount()+cachetimeout;
+	}
+	catch ( CAtlException )
+	{
+		return false;
+	}
+	return true;
 }
 
-void CStatusCacheEntry::SetStatus(const svn_client_status_t* pSVNStatus, bool needsLock, bool forceNormal)
+void CStatusCacheEntry::SetStatus(const svn_wc_status2_t* pSVNStatus)
 {
-    if(pSVNStatus == NULL)
-    {
-        SetAsUnversioned();
-    }
-    else
-    {
-        m_svnStatus.node_status = pSVNStatus->node_status;
-        m_svnStatus.text_status = pSVNStatus->text_status;
-        m_svnStatus.prop_status = pSVNStatus->prop_status;
+	if(pSVNStatus == NULL)
+	{
+		SetAsUnversioned();
+	}
+	else
+	{
+		m_highestPriorityLocalStatus = SVNStatus::GetMoreImportant(pSVNStatus->prop_status, pSVNStatus->text_status);
+		m_svnStatus = *pSVNStatus;
 
-        m_svnStatus.locked = pSVNStatus->locked;
-        m_svnStatus.copied = pSVNStatus->copied;
-        m_svnStatus.switched = pSVNStatus->switched;
-
-        m_svnStatus.repos_text_status = pSVNStatus->repos_text_status;
-        m_svnStatus.repos_prop_status = pSVNStatus->repos_prop_status;
-        m_kind = pSVNStatus->kind;
-
-        if ((pSVNStatus->node_status == svn_wc_status_incomplete)&&(pSVNStatus->local_abspath))
-        {
-            // just in case: incomplete status can get the kind completely wrong
-            // for example paths that are illegal on windows show up with status incomplete
-            // but kind as directory, even if they in fact are files.
-            CTSVNPath p;
-            p.SetFromSVN(pSVNStatus->local_abspath);
-            if (!p.Exists() || !p.IsDirectory())
-                m_kind = svn_node_file;
-        }
-
-        if (forceNormal)
-        {
-            m_svnStatus.text_status = svn_wc_status_normal;
-            m_svnStatus.prop_status = svn_wc_status_normal;
-            m_svnStatus.node_status = svn_wc_status_normal;
-        }
-
-        m_highestPriorityLocalStatus = m_svnStatus.node_status;
-
-        // Currently we don't deep-copy the whole entry value, but we do take a few members
-        if(pSVNStatus->versioned)
-        {
-            m_commitRevision = pSVNStatus->changed_rev;
-            m_bSVNEntryFieldSet = true;
-            m_bHasOwner = pSVNStatus->lock && *pSVNStatus->lock->owner;
-            m_needsLock = needsLock;
-        }
-        else
-        {
-            m_bHasOwner = FALSE;
-            m_commitRevision = 0;
-            m_bSVNEntryFieldSet = false;
-        }
-        m_treeconflict = pSVNStatus->conflicted != 0;
-    }
-    m_discardAtTime = GetTickCount()+cachetimeout;
-    m_bSet = true;
+		// Currently we don't deep-copy the whole entry value, but we do take a few members
+        if(pSVNStatus->entry != NULL)
+		{
+			m_sUrl = pSVNStatus->entry->url;
+			m_commitRevision = pSVNStatus->entry->cmt_rev;
+			m_bSVNEntryFieldSet = true;
+			m_sOwner = pSVNStatus->entry->lock_owner;
+			m_kind = pSVNStatus->entry->kind;
+			m_sAuthor = pSVNStatus->entry->cmt_author;
+			if (pSVNStatus->entry->present_props)
+				m_sPresentProps = pSVNStatus->entry->present_props;
+		}
+		else
+		{
+			m_sUrl.Empty();
+			m_commitRevision = 0;
+			m_bSVNEntryFieldSet = false;
+		}
+		m_svnStatus.entry = NULL;
+		m_treeconflict = pSVNStatus->tree_conflict != 0;
+	}
+	m_discardAtTime = GetTickCount()+cachetimeout;
+	m_bSet = true;
 }
 
 
 void CStatusCacheEntry::SetAsUnversioned()
 {
-    SecureZeroMemory(&m_svnStatus, sizeof(m_svnStatus));
-    m_discardAtTime = GetTickCount()+cachetimeout;
-    svn_wc_status_kind status = svn_wc_status_none;
-    if (m_highestPriorityLocalStatus == svn_wc_status_ignored)
-        status = svn_wc_status_ignored;
-    if (m_highestPriorityLocalStatus == svn_wc_status_unversioned)
-        status = svn_wc_status_unversioned;
-    m_highestPriorityLocalStatus = status;
-    m_svnStatus.prop_status = status;
-    m_svnStatus.text_status = status;
-    m_svnStatus.node_status = status;
-    m_lastWriteTime = 0;
-    m_treeconflict = false;
-    m_needsLock = false;
+	SecureZeroMemory(&m_svnStatus, sizeof(m_svnStatus));
+	m_discardAtTime = GetTickCount()+cachetimeout;
+	svn_wc_status_kind status = svn_wc_status_none;
+	if (m_highestPriorityLocalStatus == svn_wc_status_ignored)
+		status = svn_wc_status_ignored;
+	if (m_highestPriorityLocalStatus == svn_wc_status_unversioned)
+		status = svn_wc_status_unversioned;
+	m_highestPriorityLocalStatus = status;
+	m_svnStatus.prop_status = svn_wc_status_none;
+	m_svnStatus.text_status = status;
+	m_lastWriteTime = 0;
+	m_treeconflict = false;
 }
 
 bool CStatusCacheEntry::HasExpired(long now) const
 {
-    return m_discardAtTime != 0 && (now - m_discardAtTime) >= 0;
+	return m_discardAtTime != 0 && (now - m_discardAtTime) >= 0;
 }
 
 void CStatusCacheEntry::BuildCacheResponse(TSVNCacheResponse& response, DWORD& responseLength) const
 {
-    SecureZeroMemory(&response, sizeof(response));
+	SecureZeroMemory(&response, sizeof(response));
+	if(m_bSVNEntryFieldSet)
+	{
+		response.m_status = m_svnStatus;
+		response.m_entry.cmt_rev = m_commitRevision;
 
-    response.m_textStatus = (INT8)m_svnStatus.text_status;
-    response.m_propStatus = (INT8)m_svnStatus.prop_status;
-    response.m_Status     = (INT8)m_svnStatus.node_status;
-    response.m_tree_conflict = m_treeconflict != FALSE;
+		// There is no point trying to set these pointers here, because this is not 
+		// the process which will be using the data.
+		// The process which receives this response (generally the TSVN Shell Extension)
+		// must fix-up these pointers when it gets them
+		response.m_status.entry = NULL;
+		response.m_entry.url = NULL;
 
-    if(m_bSVNEntryFieldSet)
-    {
-        response.m_cmt_rev    = m_commitRevision;
+		response.m_kind = m_kind;
+		response.m_readonly = m_bReadOnly;
 
-        response.m_kind = (INT8)m_kind;
-        response.m_needslock = m_needsLock != FALSE;
-        response.m_has_lockonwner = m_bHasOwner != FALSE;
-    }
-
-    responseLength = sizeof(response);
+		if (m_sPresentProps.Find("svn:needs-lock")>=0)
+		{
+			response.m_needslock = true;
+		}
+		else
+			response.m_needslock = false;
+		// The whole of response has been zeroed, so this will copy safely 
+		strncat_s(response.m_url, INTERNET_MAX_URL_LENGTH, m_sUrl, _TRUNCATE);
+		strncat_s(response.m_owner, 255, m_sOwner, _TRUNCATE);
+		strncat_s(response.m_author, 255, m_sAuthor, _TRUNCATE);
+		response.m_tree_conflict = m_treeconflict;
+		responseLength = sizeof(response);
+	}
+	else
+	{
+		response.m_status = m_svnStatus;
+		response.m_tree_conflict = m_treeconflict;
+		responseLength = sizeof(response);
+	}
 }
 
 bool CStatusCacheEntry::IsVersioned() const
 {
-    return m_highestPriorityLocalStatus > svn_wc_status_unversioned;
+	return m_highestPriorityLocalStatus > svn_wc_status_unversioned;
 }
 
 bool CStatusCacheEntry::DoesFileTimeMatch(__int64 testTime) const
 {
-    return m_lastWriteTime == testTime;
+	return m_lastWriteTime == testTime;
 }
 
 
 bool CStatusCacheEntry::ForceStatus(svn_wc_status_kind forcedStatus)
 {
-    svn_wc_status_kind newStatus = forcedStatus;
+	svn_wc_status_kind newStatus = forcedStatus; 
 
-    if(newStatus != m_highestPriorityLocalStatus)
-    {
-        // We've had a status change
-        m_highestPriorityLocalStatus = newStatus;
-        m_svnStatus.node_status = newStatus;
-        m_svnStatus.prop_status = newStatus;
-        m_svnStatus.text_status = newStatus;
-        m_discardAtTime = GetTickCount()+cachetimeout;
-        return true;
-    }
-    return false;
+	if(newStatus != m_highestPriorityLocalStatus)
+	{
+		// We've had a status change
+		m_highestPriorityLocalStatus = newStatus;
+		m_svnStatus.text_status = newStatus;
+		m_svnStatus.prop_status = newStatus;
+		m_discardAtTime = GetTickCount()+cachetimeout;
+		return true;
+	}
+	return false;
 }
 
-bool
+bool 
 CStatusCacheEntry::HasBeenSet() const
 {
-    return m_bSet != FALSE;
+	return m_bSet;
 }
 
 void CStatusCacheEntry::Invalidate()
 {
-    m_bSet = false;
+	m_bSet = false;
 }

@@ -19,7 +19,6 @@
 #pragma once
 
 #include "TSVNPath.h"
-#include "SmartHandle.h"
 
 /**
  * \ingroup TSVNCache
@@ -29,27 +28,27 @@
 class CShellUpdater
 {
 public:
-    CShellUpdater(void);
-    ~CShellUpdater(void);
+	CShellUpdater(void);
+	~CShellUpdater(void);
 
 public:
-    void Initialise();
-    void AddPathForUpdate(const CTSVNPath& path);
-    void Stop();
+	void Initialise();
+	void AddPathForUpdate(const CTSVNPath& path);
+	void Stop();
 
 private:
-    static unsigned int __stdcall ThreadEntry(void* pContext);
-    void WorkerThread();
+	static unsigned int __stdcall ThreadEntry(void* pContext);
+	void WorkerThread();
 
 private:
-    CComAutoCriticalSection m_critSec;
-    CAutoGeneralHandle m_hThread;
-    std::deque<CTSVNPath> m_pathsToUpdate;
-    CAutoGeneralHandle m_hTerminationEvent;
-    CAutoGeneralHandle m_hWakeEvent;
-
-    bool m_bItemsAddedSinceLastUpdate;
-    volatile LONG m_bRunning;
+	CComAutoCriticalSection m_critSec;
+	HANDLE m_hThread;
+	std::deque<CTSVNPath> m_pathsToUpdate;
+	HANDLE m_hTerminationEvent;
+	HANDLE m_hWakeEvent;
+	
+	bool m_bItemsAddedSinceLastUpdate;
+	volatile LONG m_bRunning;
 };
 
 

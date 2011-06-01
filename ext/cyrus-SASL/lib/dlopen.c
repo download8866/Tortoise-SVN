@@ -1,7 +1,7 @@
 /* dlopen.c--Unix dlopen() dynamic loader interface
  * Rob Siemborski
  * Rob Earhart
- * $Id: dlopen.c,v 1.52 2009/04/11 10:21:43 mel Exp $
+ * $Id: dlopen.c,v 1.49 2005/03/15 13:33:30 mel Exp $
  */
 /* 
  * Copyright (c) 1998-2003 Carnegie Mellon University.  All rights reserved.
@@ -95,7 +95,7 @@
 #ifndef HAVE_DLFCN_H
 #include <dl.h>
 
-typedef shl_t * dll_handle;
+typedef shl_t dll_handle;
 typedef void * dll_func;
 
 dll_handle
@@ -117,18 +117,11 @@ dlopen(char *fname, int mode)
 }
 
 int
-dlclose(dll_handle hp)
+dlclose(dll_handle h)
 {
-    shl_t h;
-
-    if (hp != NULL) {
-	h = *((shl_t *)hp);
-	free(hp);
-	return shl_unload(h);
-    } else {
-	/* Return error */
-	return -1;
-    }
+    shl_t hp = *((shl_t *)h);
+    if (hp != NULL) free(hp);
+    return shl_unload(h);
 }
 
 dll_func
@@ -151,17 +144,10 @@ char *dlerror()
 }
 
 #endif /* HAVE_DLFCN_H */
-
-#ifdef __ia64
-#define SO_SUFFIX       ".so"
-#else
 #define SO_SUFFIX	".sl"
-#endif /* __ia64 */
-#elif defined(__APPLE__)
-#define SO_SUFFIX	".plugin"
-#else /* __APPLE__ */
+#else /* __hpux */
 #define SO_SUFFIX	".so"
-#endif
+#endif /* __hpux */
 
 #define LA_SUFFIX       ".la"
 

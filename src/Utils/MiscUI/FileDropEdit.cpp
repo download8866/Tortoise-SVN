@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2009 - Stefan Kueng
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,12 +24,14 @@
 // CFileDropEdit
 
 IMPLEMENT_DYNAMIC(CFileDropEdit, CEdit)
-CFileDropEdit::CFileDropEdit()
+CFileDropEdit::CFileDropEdit() : m_pDropTarget(NULL)
 {
 }
 
 CFileDropEdit::~CFileDropEdit()
 {
+	if (m_pDropTarget)
+		delete m_pDropTarget;
 }
 
 
@@ -42,17 +44,17 @@ END_MESSAGE_MAP()
 
 void CFileDropEdit::PreSubclassWindow()
 {
-    m_pDropTarget.reset (new CFileDropTarget (m_hWnd));
-    RegisterDragDrop(m_hWnd, m_pDropTarget.get());
-    // create the supported formats:
-    FORMATETC ftetc={0};
-    ftetc.cfFormat = CF_TEXT;
-    ftetc.dwAspect = DVASPECT_CONTENT;
-    ftetc.lindex = -1;
-    ftetc.tymed = TYMED_HGLOBAL;
-    m_pDropTarget->AddSuportedFormat(ftetc);
-    ftetc.cfFormat=CF_HDROP;
-    m_pDropTarget->AddSuportedFormat(ftetc);
+	m_pDropTarget = new CFileDropTarget(m_hWnd);
+	RegisterDragDrop(m_hWnd,m_pDropTarget);
+	// create the supported formats:
+	FORMATETC ftetc={0}; 
+	ftetc.cfFormat = CF_TEXT; 
+	ftetc.dwAspect = DVASPECT_CONTENT; 
+	ftetc.lindex = -1; 
+	ftetc.tymed = TYMED_HGLOBAL; 
+	m_pDropTarget->AddSuportedFormat(ftetc); 
+	ftetc.cfFormat=CF_HDROP; 
+	m_pDropTarget->AddSuportedFormat(ftetc);
 
-    CEdit::PreSubclassWindow();
+	CEdit::PreSubclassWindow();
 }

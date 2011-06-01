@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,6 @@
 //
 #pragma once
 
-#include "auto_buffer.h"
-
 /**
  * \ingroup TortoiseShell
  * Helper class to keep the current directory.
@@ -33,14 +31,10 @@
 class PreserveChdir
 {
 public:
-    PreserveChdir();                                ///< saves originalCurrentDirectory
-    ~PreserveChdir();                               ///< restores originalCurrentDirectory
+	PreserveChdir();
+	~PreserveChdir();
 
 private:
-    PreserveChdir(const PreserveChdir&);            ///< non-copyable
-    PreserveChdir& operator=(const PreserveChdir&); ///< non-assignable
-
-    const size_t size;                              ///< size of originalCurrentDirectory
-    auto_buffer<TCHAR> originalCurrentDirectory;    ///< %CD% at ctor time
+	TCHAR  * originalCurrentDirectory;
 };
 

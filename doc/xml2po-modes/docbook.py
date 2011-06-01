@@ -148,7 +148,7 @@ class docbookXmlMode:
     def preProcessXml(self, doc, msg):
         """Add additional messages of interest here."""
         root = doc.getRootElement()
-        #self._output_images(root,msg)
+        self._output_images(root,msg)
 
     def postProcessXmlTranslation(self, doc, language, translators, translation):
         """Sets a language and translators in "doc" tree.

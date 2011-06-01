@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2010 - TortoiseSVN
+// Copyright (C) 2003-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,48 +27,39 @@
  */
 class CInputLogDlg : public CResizableStandAloneDialog
 {
-    DECLARE_DYNAMIC(CInputLogDlg)
+	DECLARE_DYNAMIC(CInputLogDlg)
 
 public:
-    CInputLogDlg(CWnd* pParent = NULL);   // standard constructor
-    virtual ~CInputLogDlg();
+	CInputLogDlg(CWnd* pParent = NULL);   // standard constructor
+	virtual ~CInputLogDlg();
 
-    void SetProjectProperties(ProjectProperties * pProps, const CStringA& sAction) { m_pProjectProperties = pProps; m_sSVNAction = sAction; }
-    void SetUUID(const CString& sUUID) {m_sUUID = sUUID;}
-    void SetActionText(const CString& sAction) {m_sActionText = sAction;}
-    void SetTitleText(const CString& sTitle) { m_sTitleText = sTitle; }
-    void SetCheckText(const CString& sCheck) { m_sCheckText = sCheck; }
-    int GetCheck() { return m_iCheck; }
-    CString GetLogMessage() {return m_sLogMsg;}
-    void SetForceFocus(bool force) {m_bForceFocus = force;}
+	void SetProjectProperties(ProjectProperties * pProps) {m_pProjectProperties = pProps;}
+	void SetUUID(const CString& sUUID) {m_sUUID = sUUID;}
+	void SetActionText(const CString& sAction) {m_sActionText = sAction;}
+	CString GetLogMessage() {return m_sLogMsg;}
 
 protected:
-    virtual BOOL OnInitDialog();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual void OnOK();
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual void OnOK();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    afx_msg void OnEnChangeLogmessage();
-    afx_msg void OnBnClickedHistory();
-    DECLARE_MESSAGE_MAP()
+	afx_msg void OnEnChangeLogmessage();
+	afx_msg void OnBnClickedHistory();
+	DECLARE_MESSAGE_MAP()
 
 // Dialog Data
-    enum { IDD = IDD_INPUTLOGDLG };
+	enum { IDD = IDD_INPUTLOGDLG };
 
 private:
-    void        UpdateOKButton();
+	void		UpdateOKButton();
 
 
 private:
-    CSciEdit            m_cInput;
-    ProjectProperties * m_pProjectProperties;
-    CStringA            m_sSVNAction;
-    CFont               m_logFont;
-    CString             m_sLogMsg;
-    CString             m_sUUID;
-    CString             m_sActionText;
-    CString             m_sTitleText;
-    CString             m_sCheckText;
-    int                 m_iCheck;
-    bool                m_bForceFocus;
+	CSciEdit			m_cInput;
+	ProjectProperties * m_pProjectProperties;
+	CFont				m_logFont;
+	CString				m_sLogMsg;
+	CString				m_sUUID;
+	CString				m_sActionText;
 };

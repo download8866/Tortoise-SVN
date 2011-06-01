@@ -1097,35 +1097,35 @@ static void aes_sdctr(unsigned char *blk, int len, AESContext *ctx)
     memcpy(ctx->iv, iv, sizeof(iv));
 }
 
-void *aes_make_context(void)
+static void *aes_make_context(void)
 {
     return snew(AESContext);
 }
 
-void aes_free_context(void *handle)
+static void aes_free_context(void *handle)
 {
     sfree(handle);
 }
 
-void aes128_key(void *handle, unsigned char *key)
+static void aes128_key(void *handle, unsigned char *key)
 {
     AESContext *ctx = (AESContext *)handle;
     aes_setup(ctx, 16, key, 16);
 }
 
-void aes192_key(void *handle, unsigned char *key)
+static void aes192_key(void *handle, unsigned char *key)
 {
     AESContext *ctx = (AESContext *)handle;
     aes_setup(ctx, 16, key, 24);
 }
 
-void aes256_key(void *handle, unsigned char *key)
+static void aes256_key(void *handle, unsigned char *key)
 {
     AESContext *ctx = (AESContext *)handle;
     aes_setup(ctx, 16, key, 32);
 }
 
-void aes_iv(void *handle, unsigned char *iv)
+static void aes_iv(void *handle, unsigned char *iv)
 {
     AESContext *ctx = (AESContext *)handle;
     int i;
@@ -1133,13 +1133,13 @@ void aes_iv(void *handle, unsigned char *iv)
 	ctx->iv[i] = GET_32BIT_MSB_FIRST(iv + 4 * i);
 }
 
-void aes_ssh2_encrypt_blk(void *handle, unsigned char *blk, int len)
+static void aes_ssh2_encrypt_blk(void *handle, unsigned char *blk, int len)
 {
     AESContext *ctx = (AESContext *)handle;
     aes_encrypt_cbc(blk, len, ctx);
 }
 
-void aes_ssh2_decrypt_blk(void *handle, unsigned char *blk, int len)
+static void aes_ssh2_decrypt_blk(void *handle, unsigned char *blk, int len)
 {
     AESContext *ctx = (AESContext *)handle;
     aes_decrypt_cbc(blk, len, ctx);

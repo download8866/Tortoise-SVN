@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PackedDWORDOutStream.h"
 
 ///////////////////////////////////////////////////////////////
@@ -29,28 +29,28 @@
 
 void CPackedDWORDOutStreamBase::FlushLastValue() throw()
 {
-    if (count > 0)
-    {
-        InternalAdd (0);
-        InternalAdd (count);
-        InternalAdd (lastValue);
-    }
+	if (count > 0)
+	{
+		InternalAdd (0);
+		InternalAdd (count);
+		InternalAdd (lastValue);
+	}
 }
 
 // prepare our data for being written to the file
 
 void CPackedDWORDOutStreamBase::FlushData()
 {
-    FlushLastValue();
+	FlushLastValue();
 }
 
 // construction: nothing special to do
 
 CPackedDWORDOutStreamBase::CPackedDWORDOutStreamBase ( CCacheFileOutBuffer* aBuffer
-                                                     , SUB_STREAM_ID anID)
-    : CBinaryOutStreamBase (aBuffer, anID)
-    , lastValue (0)
-    , count (0)
+													 , SUB_STREAM_ID anID)
+	: CBinaryOutStreamBase (aBuffer, anID)
+	, lastValue (0)
+	, count (0)
 {
 }
 
@@ -63,7 +63,7 @@ CPackedDWORDOutStreamBase::CPackedDWORDOutStreamBase ( CCacheFileOutBuffer* aBuf
 // construction: nothing special to do
 
 CPackedDWORDOutStream::CPackedDWORDOutStream ( CCacheFileOutBuffer* aBuffer
-                                             , SUB_STREAM_ID anID)
-    : TBase (aBuffer, anID)
+										     , SUB_STREAM_ID anID)
+	: TBase (aBuffer, anID)
 {
 }

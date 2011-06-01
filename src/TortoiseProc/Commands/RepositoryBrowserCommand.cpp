@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,85 +24,75 @@
 #include "SVN.h"
 #include "PathUtils.h"
 #include "UnicodeUtils.h"
-#include "StringUtils.h"
 
 bool RepositoryBrowserCommand::Execute()
 {
-    CString url;
-    BOOL bFile = FALSE;
-    SVN svn;
-    if (!cmdLinePath.IsEmpty())
-    {
-        if (cmdLinePath.GetSVNPathString().Left(4).CompareNoCase(_T("svn:"))==0)
-        {
-            // If the path starts with "svn:" and there is another protocol
-            // found in the path (a "://" found after the "svn:") then
-            // remove "svn:" from the beginning of the path.
-            if (cmdLinePath.GetSVNPathString().Find(_T("://"), 4)>=0)
-                cmdLinePath.SetFromSVN(cmdLinePath.GetSVNPathString().Mid(4));
-        }
+	CString url;
+	BOOL bFile = FALSE;
+	SVN svn;
+	if (!cmdLinePath.IsEmpty())
+	{
+		if (cmdLinePath.GetSVNPathString().Left(4).CompareNoCase(_T("svn:"))==0)
+		{
+			// If the path starts with "svn:" and there is another protocol
+			// found in the path (a "://" found after the "svn:") then
+			// remove "svn:" from the beginning of the path.
+			if (cmdLinePath.GetSVNPathString().Find(_T("://"), 4)>=0)
+				cmdLinePath.SetFromSVN(cmdLinePath.GetSVNPathString().Mid(4));
+		}
 
-        url = svn.GetURLFromPath(cmdLinePath);
+		url = svn.GetURLFromPath(cmdLinePath);
 
-        if (url.IsEmpty())
-        {
-            if (SVN::PathIsURL(cmdLinePath))
-                url = cmdLinePath.GetSVNPathString();
-            else if (svn.IsRepository(cmdLinePath))
-            {
-                // The path points to a local repository.
-                // Add 'file:///' so the repository browser recognizes
-                // it as an URL to the local repository.
-                if (cmdLinePath.GetWinPathString().GetAt(0) == '\\')    // starts with '\' means an UNC path
-                {
-                    CString p = cmdLinePath.GetWinPathString();
-                    p.TrimLeft('\\');
-                    url = _T("file://")+p;
-                }
-                else
-                    url = _T("file:///")+cmdLinePath.GetWinPathString();
-                url.Replace('\\', '/');
-            }
-        }
-    }
-    if (cmdLinePath.GetUIPathString().Left(7).CompareNoCase(_T("file://"))==0)
-    {
-        cmdLinePath.SetFromUnknown(cmdLinePath.GetUIPathString().Mid(7));
-    }
-    bFile = PathFileExists(cmdLinePath.GetWinPath()) ? !cmdLinePath.IsDirectory() : FALSE;
+		if (url.IsEmpty())
+		{
+			if (SVN::PathIsURL(cmdLinePath))
+				url = cmdLinePath.GetSVNPathString();
+			else if (svn.IsRepository(cmdLinePath))
+			{
+				// The path points to a local repository.
+				// Add 'file:///' so the repository browser recognizes
+				// it as an URL to the local repository.
+				if (cmdLinePath.GetWinPathString().GetAt(0) == '\\')	// starts with '\' means an UNC path
+				{
+					CString p = cmdLinePath.GetWinPathString();
+					p.TrimLeft('\\');
+					url = _T("file://")+p;
+				}
+				else
+					url = _T("file:///")+cmdLinePath.GetWinPathString();
+				url.Replace('\\', '/');
+			}
+		}
+	}
+	if (cmdLinePath.GetUIPathString().Left(7).CompareNoCase(_T("file://"))==0)
+	{
+		cmdLinePath.SetFromUnknown(cmdLinePath.GetUIPathString().Mid(7));
+	}
+	bFile = PathFileExists(cmdLinePath.GetWinPath()) ? !cmdLinePath.IsDirectory() : FALSE;
 
-    if (url.IsEmpty())
-    {
-        CURLDlg urldlg;
-        if (urldlg.DoModal() != IDOK)
-        {
-            return false;
-        }
-        url = urldlg.m_url;
-    }
+	if (url.IsEmpty())
+	{
+		CURLDlg urldlg;
+		if (urldlg.DoModal() != IDOK)
+		{
+			return false;
+		}
+		url = urldlg.m_url;
+	}
 
-    CString val = parser.GetVal(_T("rev"));
-    SVNRev rev(val);
-    CRepositoryBrowser dlg(url, rev);
-    if (!cmdLinePath.IsUrl())
-        dlg.m_ProjectProperties.ReadProps(cmdLinePath);
-    else
-    {
-        if (parser.HasVal(_T("projectpropertiespath")))
-        {
-            dlg.m_ProjectProperties.ReadProps(CTSVNPath(parser.GetVal(_T("projectpropertiespath"))));
-        }
-    }
-    if (parser.HasKey(L"sparse"))
-        dlg.SetSparseCheckoutMode();
-    dlg.m_path = cmdLinePath;
-    dlg.DoModal();
-    if (parser.HasVal(L"outfile"))
-    {
-        CString sText = dlg.GetPath();
-        sText += L"\n";
-        sText += dlg.GetRevision().ToString();
-        CStringUtils::WriteStringToTextFile(parser.GetVal(L"outfile"), (LPCTSTR)sText, true);
-    }
-    return true;
+	CString val = parser.GetVal(_T("rev"));
+	SVNRev rev(val);
+	CRepositoryBrowser dlg(url, rev);
+	if (!cmdLinePath.IsUrl())
+		dlg.m_ProjectProperties.ReadProps(cmdLinePath);
+	else
+	{
+		if (parser.HasVal(_T("projectpropertiespath")))
+		{
+			dlg.m_ProjectProperties.ReadProps(CTSVNPath(parser.GetVal(_T("projectpropertiespath"))));
+		}
+	}
+	dlg.m_path = cmdLinePath;
+	dlg.DoModal();
+	return true;
 }

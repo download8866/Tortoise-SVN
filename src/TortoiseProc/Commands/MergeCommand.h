@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007. 2011 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@
 #pragma once
 #include "Command.h"
 
+#include "MessageBox.h"
+
 /**
  * \ingroup TortoiseProc
  * Shows the merge dialog.
@@ -26,10 +28,10 @@
 class MergeCommand : public Command
 {
 public:
-    /**
-     * Executes the command.
-     */
-    virtual bool            Execute();
+	/**
+	 * Executes the command.
+	 */
+	virtual bool			Execute();
 };
 
 

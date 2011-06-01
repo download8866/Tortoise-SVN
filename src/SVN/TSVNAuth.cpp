@@ -18,17 +18,17 @@
 //
 #include "StdAfx.h"
 #include "TSVNAuth.h"
-#include "auto_buffer.h"
+#include <Wincrypt.h>
 
 std::map<CStringA,Creds> tsvn_creds;
 
 /* Get cached encrypted credentials from the simple provider's cache. */
 svn_error_t * tsvn_simple_first_creds(void **credentials,
-                                      void **iter_baton,
-                                      void * /*provider_baton*/,
-                                      apr_hash_t * /*parameters*/,
-                                      const char *realmstring,
-                                      apr_pool_t *pool)
+									  void **iter_baton,
+									  void * /*provider_baton*/,
+									  apr_hash_t * /*parameters*/,
+									  const char *realmstring,
+									  apr_pool_t *pool)
 {
     *iter_baton = NULL;
     if (tsvn_creds.find(realmstring) != tsvn_creds.end())
@@ -51,42 +51,42 @@ svn_error_t * tsvn_simple_first_creds(void **credentials,
     else
         *credentials = NULL;
 
-    return SVN_NO_ERROR;
+	return SVN_NO_ERROR;
 }
 
 
 const svn_auth_provider_t tsvn_simple_provider = {
-    SVN_AUTH_CRED_SIMPLE,
-    tsvn_simple_first_creds,
-    NULL,
-    NULL
+	SVN_AUTH_CRED_SIMPLE,
+	tsvn_simple_first_creds,
+	NULL,
+	NULL
 };
 
 void svn_auth_get_tsvn_simple_provider(svn_auth_provider_object_t **provider,
-                                       apr_pool_t *pool)
+									   apr_pool_t *pool)
 {
-    svn_auth_provider_object_t *po = (svn_auth_provider_object_t *)apr_pcalloc(pool, sizeof(*po));
+	svn_auth_provider_object_t *po = (svn_auth_provider_object_t *)apr_pcalloc(pool, sizeof(*po));
 
-    po->vtable = &tsvn_simple_provider;
-    *provider = po;
+	po->vtable = &tsvn_simple_provider;
+	*provider = po;
 }
 
 
 char * Creds::Decrypt( const char * text )
 {
+    DATA_BLOB blobin;
+    DATA_BLOB blobout;
+    LPWSTR descr;
     DWORD dwLen = 0;
     CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, NULL, &dwLen, NULL, NULL);
-
-    auto_buffer<BYTE> strIn(dwLen + 1);
+    BYTE * strIn = new BYTE[dwLen + 1];
     CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, strIn, &dwLen, NULL, NULL);
 
-    DATA_BLOB blobin;
     blobin.cbData = dwLen;
     blobin.pbData = strIn;
-    LPWSTR descr;
-    DATA_BLOB blobout;
     CryptUnprotectData(&blobin, &descr, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout);
     SecureZeroMemory(blobin.pbData, blobin.cbData);
+    delete [] strIn;
 
     char * result = new char[blobout.cbData+1];
     strncpy_s(result, blobout.cbData+1, (const char*)blobout.pbData, blobout.cbData);
@@ -106,11 +106,12 @@ CStringA Creds::Encrypt( const char * text )
     CryptProtectData(&blobin, L"TSVNAuth", NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout);
     DWORD dwLen = 0;
     CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, NULL, &dwLen);
-    auto_buffer<char> strOut(dwLen + 1);
+    char * strOut = new char[dwLen + 1];
     CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, strOut, &dwLen);
     LocalFree(blobout.pbData);
 
     CStringA result = strOut;
+    delete [] strOut;
 
     return result;
 }

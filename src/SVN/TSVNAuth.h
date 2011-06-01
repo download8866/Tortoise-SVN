@@ -36,4 +36,4 @@ private:
 extern std::map<CStringA, Creds> tsvn_creds;
 
 void svn_auth_get_tsvn_simple_provider(svn_auth_provider_object_t **provider,
-                                       apr_pool_t *pool);
+									   apr_pool_t *pool);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006,2008,2010 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,53 +28,23 @@
 */
 class CTempFiles
 {
+private:
+	CTempFiles(void);
+	~CTempFiles(void);
 public:
-    static CTempFiles& Instance();
-
-    /**
-     * Returns a path to a temporary file.
-     * \param bRemoveAtEnd if true, the temp file is removed when this object
-     *                     goes out of scope.
-     * \param path         if set, the temp file will have the same file extension
-     *                     as this path.
-     * \param revision     if set, the temp file name will include the revision number
-     */
-    CTSVNPath       GetTempFilePath(bool bRemoveAtEnd, const CTSVNPath& path = CTSVNPath(), const SVNRev revision = SVNRev());
-    CString         GetTempFilePathString();
-
-    /**
-     * Returns a path to a temporary directory.
-     * \param bRemoveAtEnd if true, the temp directory is removed when this object
-     *                     goes out of scope.
-     * \param path         if set, the temp directory will have the same file extension
-     *                     as this path.
-     * \param revision     if set, the temp directory name will include the revision number
-     */
-    CTSVNPath       GetTempDirPath(bool bRemoveAtEnd, const CTSVNPath& path = CTSVNPath(), const SVNRev revision = SVNRev());
-
-    // Look for temporary files left around by TortoiseMerge and
-    // remove them. But only delete 'old' files
-    static void     DeleteOldTempFiles(LPCTSTR wildCard);
-
-    void            AddFileToRemove(const CString& file) { m_TempFileList.AddPath(CTSVNPath(file)); }
+	static CTempFiles& Instance();
+	
+	/**
+	 * Returns a path to a temporary file.
+	 * \param bRemoveAtEnd if true, the temp file is removed when this object
+	 *                     goes out of scope.
+	 * \param path         if set, the temp file will have the same file extension
+	 *                     as this path.
+	 */
+	CTSVNPath		GetTempFilePath(bool bRemoveAtEnd, const CTSVNPath& path = CTSVNPath(), const SVNRev revision = SVNRev());
 
 private:
 
-    // try to allocate an unused temp file / dir at most MAX_RETRIES times
-
-    enum {MAX_RETRIES = 100};
-
-    // list of paths to delete when terminating the app
-
-    CTSVNPathList m_TempFileList;
-
-    // actual implementation
-
-    CTSVNPath ConstructTempPath(const CTSVNPath& path, const SVNRev revision);
-    CTSVNPath CreateTempPath (bool bRemoveAtEnd, const CTSVNPath& path, const SVNRev revision, bool directory);
-
-    // construction / destruction
-
-    CTempFiles(void);
-    ~CTempFiles(void);
+private:
+	CTSVNPathList m_TempFileList;
 };

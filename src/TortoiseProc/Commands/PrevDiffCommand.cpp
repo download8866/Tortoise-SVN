@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,41 +21,40 @@
 #include "ChangedDlg.h"
 #include "SVNDiff.h"
 #include "SVNStatus.h"
-#include "AppUtils.h"
+#include "MessageBox.h"
 
 bool PrevDiffCommand::Execute()
 {
-    bool bRet = false;
-    bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
-    if (cmdLinePath.IsDirectory())
-    {
-        CChangedDlg dlg;
-        dlg.m_pathList = CTSVNPathList(cmdLinePath);
-        dlg.DoModal();
-        bRet = true;
-    }
-    else
-    {
-        SVNDiff diff(NULL, GetExplorerHWND());
-        diff.SetAlternativeTool(bAlternativeTool);
-        diff.SetJumpLine(parser.GetLongVal(_T("line")));
-        SVNStatus st;
-        st.GetStatus(cmdLinePath);
-        if (st.status && st.status->changed_rev)
-        {
-            bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->changed_rev - 1, st.status->changed_rev, L"", false, false, st.status->kind);
-        }
-        else
-        {
-            if (st.GetLastErrorMessage().IsEmpty())
-            {
-                TSVNMessageBox(GetExplorerHWND(), IDS_ERR_NOPREVREVISION, IDS_APPNAME, MB_ICONERROR);
-            }
-            else
-            {
-                TSVNMessageBox(GetExplorerHWND(), IDS_ERR_NOSTATUS, IDS_APPNAME, MB_ICONERROR);
-            }
-        }
-    }
-    return bRet;
+	bool bRet = false;
+	bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
+	if (cmdLinePath.IsDirectory())
+	{
+		CChangedDlg dlg;
+		dlg.m_pathList = CTSVNPathList(cmdLinePath);
+		dlg.DoModal();
+		bRet = true;
+	}
+	else
+	{
+		SVNDiff diff(NULL, hWndExplorer);
+		diff.SetAlternativeTool(bAlternativeTool);
+		SVNStatus st;
+		st.GetStatus(cmdLinePath);
+		if (st.status && st.status->entry && st.status->entry->cmt_rev)
+		{
+			bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->entry->cmt_rev - 1, st.status->entry->cmt_rev, false, false, st.status->entry->kind);
+		}
+		else
+		{
+			if (st.GetLastErrorMsg().IsEmpty())
+			{
+				CMessageBox::Show(hWndExplorer, IDS_ERR_NOPREVREVISION, IDS_APPNAME, MB_ICONERROR);
+			}
+			else
+			{
+				CMessageBox::Show(hWndExplorer, IDS_ERR_NOSTATUS, IDS_APPNAME, MB_ICONERROR);
+			}
+		}
+	}
+	return bRet;
 }

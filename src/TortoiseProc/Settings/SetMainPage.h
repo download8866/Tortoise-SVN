@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,40 +29,44 @@
  */
 class CSetMainPage : public ISettingsPropPage
 {
-    DECLARE_DYNAMIC(CSetMainPage)
+	DECLARE_DYNAMIC(CSetMainPage)
 
 public:
-    CSetMainPage();
-    virtual ~CSetMainPage();
+	CSetMainPage();
+	virtual ~CSetMainPage();
+	
+	UINT GetIconID() {return IDI_GENERAL;}
 
-    UINT GetIconID() {return IDI_GENERAL;}
-
-    enum { IDD = IDD_SETTINGSMAIN };
+	enum { IDD = IDD_SETTINGSMAIN };
 
 protected:
-    virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual BOOL OnApply();
-    afx_msg void OnModified();
-    afx_msg void OnBnClickedEditconfig();
-    afx_msg void OnBnClickedChecknewerbutton();
-    afx_msg void OnBnClickedSounds();
-    afx_msg void OnBnClickedCreatelib();
+	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
-    DECLARE_MESSAGE_MAP()
-
-    CString GetVersionFromFile(const CString & p_strDateiname);
+	DECLARE_MESSAGE_MAP()
+	
+	CString GetVersionFromFile(const CString & p_strDateiname);
 
 private:
-    CRegString      m_regExtensions;
-    CString         m_sTempExtensions;
-    CToolTips       m_tooltips;
-    CComboBox       m_LanguageCombo;
-    CRegDWORD       m_regLanguage;
-    DWORD           m_dwLanguage;
-    CRegString      m_regLastCommitTime;
-    BOOL            m_bLastCommitTime;
-    CRegDWORD       m_regUseAero;
-    BOOL            m_bUseAero;
+	CRegString		m_regExtensions;
+	CString			m_sTempExtensions;
+	CToolTips		m_tooltips;
+	CComboBox		m_LanguageCombo;
+	CRegDWORD		m_regLanguage;
+	DWORD			m_dwLanguage;
+	CRegDWORD		m_regCheckNewer;
+	BOOL			m_bCheckNewer;
+	CRegString		m_regLastCommitTime;
+	BOOL			m_bLastCommitTime;
+
+	BOOL			m_bUseDotNetHack;
+
+public:
+	virtual BOOL OnInitDialog();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	virtual BOOL OnApply();
+	afx_msg void OnModified();
+	afx_msg void OnASPHACK();
+	afx_msg void OnBnClickedEditconfig();
+	afx_msg void OnBnClickedChecknewerbutton();
+	afx_msg void OnBnClickedSounds();
 };

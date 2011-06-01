@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007,2011 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,41 +17,61 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
+#include "Resource.h"
+
 #include "ILogReceiver.h"
 
-// construction
+///////////////////////////////////////////////////////////////
+// data structures to accommodate the change list 
+// (taken from the SVN class)
+///////////////////////////////////////////////////////////////
 
-StandardRevProps::StandardRevProps
-    ( const std::string& author
-    , const std::string& message
-    , apr_time_t timeStamp)
-    : author (author)
-    , message (message)
-    , timeStamp (timeStamp)
+// convenience method
+
+const CString& LogChangedPath::GetAction() const
 {
+	static CString addActionString;
+	static CString deleteActionString;
+	static CString replacedActionString;
+	static CString modifiedActionString;
+
+	if (actionAsString.IsEmpty())
+	{
+		switch (action)
+		{
+		case LOGACTIONS_ADDED: 
+			if (addActionString.IsEmpty())
+				addActionString.LoadString(IDS_SVNACTION_ADD);
+
+			actionAsString = addActionString;
+			break;
+
+		case LOGACTIONS_DELETED: 
+			if (deleteActionString.IsEmpty())
+				deleteActionString.LoadString(IDS_SVNACTION_DELETE);
+
+			actionAsString = deleteActionString;
+			break;
+
+		case LOGACTIONS_REPLACED: 
+			if (replacedActionString.IsEmpty())
+				replacedActionString.LoadString(IDS_SVNACTION_REPLACED);
+
+			actionAsString = replacedActionString;
+			break;
+
+		case LOGACTIONS_MODIFIED: 
+			if (modifiedActionString.IsEmpty())
+				modifiedActionString.LoadString(IDS_SVNACTION_MODIFIED);
+
+			actionAsString = modifiedActionString;
+			break;
+
+		default:
+			// there should always be an action
+			assert (0);
+		}
+	}
+
+	return actionAsString;
 }
-
-// construction
-
-UserRevPropArray::UserRevPropArray()
-{
-}
-
-UserRevPropArray::UserRevPropArray (size_t initialCapacity)
-{
-    reserve (initialCapacity);
-}
-
-// modification
-
-void UserRevPropArray::Add
-    ( const std::string& name
-    , const std::string& value)
-{
-    push_back (UserRevProp());
-
-    UserRevProp& item = back();
-    item.name = name;
-    item.value = value;
-}
-

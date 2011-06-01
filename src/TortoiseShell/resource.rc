@@ -16,8 +16,10 @@
 // Neutral resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+#ifdef _WIN32
 LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 #pragma code_page(1252)
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -71,11 +73,13 @@ IDI_CLIPPASTE           ICON                    "..\\Resources\\clippaste.ico"
 
 
 /////////////////////////////////////////////////////////////////////////////
-// English (United States) resources
+// English (U.S.) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
+#endif //_WIN32
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -97,33 +101,34 @@ BEGIN
     LTEXT           "Last commit revision:",IDC_STATIC,4,43,76,8
     EDITTEXT        IDC_CREVISION,80,43,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
     EDITTEXT        IDC_CDATE,120,43,123,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    LTEXT           "Node Status:",IDC_STATIC,4,55,76,8
-    EDITTEXT        IDC_NODESTATUS,80,55,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    LTEXT           "Text Status:",IDC_STATIC,4,66,76,8
-    EDITTEXT        IDC_TEXTSTATUS,80,66,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    EDITTEXT        IDC_TEXTDATE,120,66,123,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    LTEXT           "Property Status:",IDC_STATIC,4,77,76,8
-    EDITTEXT        IDC_PROPSTATUS,80,77,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
-    LTEXT           "Lock owner:",IDC_STATIC,4,89,76,8
-    EDITTEXT        IDC_LOCKOWNER,80,89,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "Lock creation date:",IDC_STATIC,4,101,76,8
-    EDITTEXT        IDC_LOCKDATE,80,100,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "Repository UUID:",IDC_STATIC,4,113,76,8
-    EDITTEXT        IDC_REPOUUID,80,112,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "Changelist:",IDC_STATIC,4,125,76,8
-    EDITTEXT        IDC_CHANGELIST,80,124,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "Depth:",IDC_STATIC,4,137,76,8
-    EDITTEXT        IDC_DEPTHEDIT,80,136,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "Checksum:",IDC_STATIC,4,149,76,8
-    EDITTEXT        IDC_CHECKSUM,80,148,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
-    LTEXT           "locked:",IDC_STATIC,4,161,76,8
-    LTEXT           "yes",IDC_LOCKED,80,160,163,8
-    LTEXT           "switched:",IDC_STATIC,4,173,76,8
-    LTEXT           "yes",IDC_SWITCHED,80,172,163,8
-    LTEXT           "copied:",IDC_STATIC,4,185,76,8
-    LTEXT           "yes",IDC_COPIED,80,184,163,8
-    LTEXT           "file external:",IDC_STATIC,4,196,76,8
-    LTEXT           "yes",IDC_FILEEXTERNAL,80,195,163,8
+    LTEXT           "Text Status:",IDC_STATIC,4,55,76,8
+    EDITTEXT        IDC_TEXTSTATUS,80,55,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_TEXTDATE,120,55,123,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    LTEXT           "Property Status:",IDC_STATIC,4,67,76,8
+    EDITTEXT        IDC_PROPSTATUS,80,67,40,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    EDITTEXT        IDC_PROPDATE,120,67,123,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER,WS_EX_TRANSPARENT
+    LTEXT           "Lock owner:",IDC_STATIC,4,79,76,8
+    EDITTEXT        IDC_LOCKOWNER,80,79,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "Lock creation date:",IDC_STATIC,4,91,76,8
+    EDITTEXT        IDC_LOCKDATE,80,90,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "Repository UUID:",IDC_STATIC,4,103,76,8
+    EDITTEXT        IDC_REPOUUID,80,102,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "Changelist:",IDC_STATIC,4,115,76,8
+    EDITTEXT        IDC_CHANGELIST,80,114,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "Depth:",IDC_STATIC,4,127,76,8
+    EDITTEXT        IDC_DEPTHEDIT,80,126,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "Checksum:",IDC_STATIC,4,139,76,8
+    EDITTEXT        IDC_CHECKSUM,80,138,163,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    LTEXT           "locked:",IDC_STATIC,4,151,76,8
+    LTEXT           "yes",IDC_LOCKED,80,150,163,8
+    LTEXT           "switched:",IDC_STATIC,4,163,76,8
+    LTEXT           "yes",IDC_SWITCHED,80,162,163,8
+    LTEXT           "copied:",IDC_STATIC,4,175,76,8
+    LTEXT           "yes",IDC_COPIED,80,174,163,8
+    LTEXT           "file external:",IDC_STATIC,4,186,76,8
+    LTEXT           "yes",IDC_FILEEXTERNAL,80,185,163,8
+    LTEXT           "tree conflict:",IDC_STATIC,4,197,76,8
+    LTEXT           "yes",IDC_TREECONFLICT,80,196,163,8
     PUSHBUTTON      "&Properties...",IDC_EDITPROPERTIES,4,218,107,14
     PUSHBUTTON      "Show &log",IDC_SHOWLOG,120,218,123,14
 END
@@ -163,7 +168,7 @@ END
 //
 
 #ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
+GUIDELINES DESIGNINFO 
 BEGIN
     IDD_PROPPAGE, DIALOG
     BEGIN
@@ -182,7 +187,7 @@ END
 // String Table
 //
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUCHECKOUT        "Chec&kout..."
     IDS_MENUUPDATE          "&Update"
@@ -194,7 +199,7 @@ BEGIN
     IDS_MENURESOLVE         "Res&olved..."
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUSWITCH          "S&witch..."
     IDS_MENUMERGE           "&Merge..."
@@ -202,7 +207,7 @@ BEGIN
     IDS_MENUIMPORT          "&Import..."
     IDS_MENUEXPORT          "E&xport..."
     IDS_MENUSETTINGS        "&Settings"
-    IDS_MENUABOUT           "About"
+    IDS_MENUABOUT           "A&bout"
     IDS_MENUSUBMENU         "&TortoiseSVN"
     IDS_MENUDESCCHECKOUT    "Check out a working copy from a repository"
     IDS_MENUDESCUPDATE      "Updates the working copy to the current revision"
@@ -214,14 +219,14 @@ BEGIN
     IDS_MENUDESCSWITCH      "Switch working copy to another branch / tag"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUDESCIMPORT      "Imports the directory to a repository"
-    IDS_MENUDESCEXPORT      "Exports a versioned folder as a separate unversioned folder"
+    IDS_MENUDESCEXPORT      "Exports a repository to a clean working copy without the svn administrative folders"
     IDS_MENUDESCABOUT       "Shows information about TortoiseSVN"
     IDS_MENUDESCCREATEREPOS "Creates a repository database at the current location"
     IDS_MENUDESCCOPY        "Creates a 'cheap' copy inside the repository used for branches or tagging"
-    IDS_MENUDESCMERGE       "Merge changes into the working copy"
+    IDS_MENUDESCMERGE       "Merges a branch into the main trunk"
     IDS_MENUDESCSETTINGS    "Tweak TortoiseSVN"
     IDS_MENUDESCDEFAULT     "no description for this command is available"
     IDS_STATUSNONE          " "
@@ -234,7 +239,7 @@ BEGIN
     IDS_STATUSMODIFIED      "modified"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_STATUSMERGED        "merged"
     IDS_STATUSCONFLICTED    "conflicted"
@@ -254,7 +259,7 @@ BEGIN
     IDS_COLDESCREV          "Last saved revision of item"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUSHOWCHANGED     "Check for modi&fications"
     IDS_MENUDESCSHOWCHANGED "Shows all files which were changed since the last update, locally and in the repository"
@@ -274,7 +279,7 @@ BEGIN
     IDS_MENUAPPLYPATCH      "Apply &patch..."
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUDIFF            "&Diff"
     IDS_MENUDESCDIFF        "Compares the file with the last committed revision to show you the changes you made"
@@ -294,7 +299,7 @@ BEGIN
     IDS_MENUDESCHELP        "Read the 'Daily Use Guide' before you are stuck..."
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUDESCCREATEPATCH "Creates a unified diff file with all changes you made"
     IDS_MENUDESCAPPLYPATCH  "Applies a unified diff file to the working copy"
@@ -312,33 +317,26 @@ BEGIN
     IDS_MENUDELETEIGNOREMULTIPLE "Delete and &ignore %d items by name"
     IDS_MENUDELETEIGNOREMULTIPLEMASK 
                             "Delete and ignore %d items by &extension"
-    IDS_MENUDELETEIGNORE    "Unversion and add to &ignore list"
+    IDS_MENUDELETEIGNORE    "Delete and add to &ignore list"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUDESCDELETEIGNORE 
                             "Deletes and adds the selected file(s) or the filemask to the 'ignore' list"
     IDS_MENUCLIPPASTE       "&Paste"
     IDS_MENUDESCCLIPPASTE   "Pastes the svn path from the clipboard, resulting in a move (cut) or copy operation"
-    IDS_MENUUPGRADE         "Upgrade working copy"
-    IDS_MENUDESCUPGRADE     "Converts the working copy format to the new version"
-    IDS_MENUADDIMMEDIATE    "&Add"
     IDS_ERR_PROPNOTONFILE   "This property is only allowed on folders, not files."
     IDS_MENUIGNOREMULTIPLE  "&Ignore %d items by name"
     IDS_ERR_PROPNOMULTILINE "This property must not have multiple lines. Only one line is allowed."
     IDS_MENUREVISIONGRAPH   "Revision &graph"
     IDS_MENUDESCREVISIONGRAPH 
                             "Shows a graphical representation of copies/tags/branches"
-    IDS_MENUCLEANUPREFRESH  "Cleanup and refresh shell"
-    IDS_MENUDESCCLEANUPREFRESH 
-                            "Cleanup interrupted operations and refresh the shell overlays"
     IDS_MENUUNIGNORE        "Remove from &ignore list"
     IDS_MENUDESCUNIGNORE    "Removes the file or filemask from the list of ignored items"
-    IDS_SVNREPORTEDANERROR  "Subversion reported an error:"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_DROPMOVERENAMEMENU  "SVN Move and rename versioned item here"
     IDS_MENUPROPERTIES      "Properties"
@@ -348,17 +346,15 @@ BEGIN
     IDS_MENUURLDIFF         "&Diff with URL"
     IDS_MENUDESCURLDIFF     "Compares the selected file with a file in the repository"
     IDS_PROPBIN             "(binary value)"
-    IDS_CLOSE               "&Close"
-    IDS_SVN_DEPTH_CUSTOM    "Custom depths"
     IDS_MENUDELUNVERSIONED  "Delete unversioned items..."
     IDS_MENUDESCDELUNVERSIONED "Removes all unversioned and ignored items"
     IDS_MENUREMOVEKEEP      "&Delete (keep local)"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENU_LOCK           "Get loc&k..."
-    IDS_MENU_UNLOCK         "Release loc&k..."
+    IDS_MENU_UNLOCK         "Release loc&k"
     IDS_MENUDESC_LOCK       "Locks a file for other users and makes it editable by you."
     IDS_MENUDESC_UNLOCK     "Releases locks on files so other users can edit them again."
     IDS_MENU_UNLOCKFORCE    "Break loc&k"
@@ -367,7 +363,6 @@ BEGIN
     IDS_MENU_LOCKFORCE      "Steal loc&k"
     IDS_COLTITLEOWNER       "SVN Local lock owner"
     IDS_COLDESCOWNER        "The user who owns the lock of the file"
-    IDS_RUNCLEANUPNOW       "Run cleanup &now"
     IDS_DROPCOPYRENAMEMENU  "SVN Copy and rename versioned item here"
     IDS_COLTITLEAUTHOR      "SVN Author"
     IDS_COLDESCAUTHOR       "The user who did the last commit"
@@ -376,14 +371,14 @@ BEGIN
     IDS_MENUADDASREPLACEMENT "Add (as replacement)..."
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_MENUDESCREMOVEKEEP  "Deletes files / folders from version control but keeps the file"
     IDS_YES                 "yes"
     IDS_NO                  "no"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_SVN_DEPTH_INFINITE  "Fully recursive"
     IDS_SVN_DEPTH_IMMEDIATE "Immediate children, including folders"
@@ -391,15 +386,14 @@ BEGIN
     IDS_SVN_DEPTH_EMPTY     "Only this item"
 END
 
-STRINGTABLE
+STRINGTABLE 
 BEGIN
     IDS_SVN_DEPTH_EXCLUDE   "Exclude"
     IDS_SVN_DEPTH_UNKNOWN   "Unknown depth"
     IDS_SVN_DEPTH_WORKING   "Working copy"
-    IDS_COLTITLESTATUSNUMBER "SVN Statusnumber"
 END
 
-#endif    // English (United States) resources
+#endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 

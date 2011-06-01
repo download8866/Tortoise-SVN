@@ -110,26 +110,3 @@ between all Tortoise clients.
 Also make sure your icon sets include *all* icons, not just the ones
 your client uses. Otherwise the user will have inconsistent icons in
 those clients who use all icons.
-
-Settings:
----------
-As of version 1.1.1, it is possible to disable overlay handlers
-and prevent them from getting loaded and use up an overlay slot.
-To do that, create the registry DWORD values and set the values
-to zero. If the value is not zero or the registry entries don't
-exist, the handlers are loaded as usual.
-
-HKCU\Software\TortoiseOverlays\ShowIgnoredOverlay
-HKCU\Software\TortoiseOverlays\ShowUnversionedOverlay
-HKCU\Software\TortoiseOverlays\ShowAddedOverlay
-HKCU\Software\TortoiseOverlays\ShowLockedOverlay
-HKCU\Software\TortoiseOverlays\ShowReadonlyOverlay
-HKCU\Software\TortoiseOverlays\ShowDeletedOverlay
-
-If you provide an UI in your Tortoise client to disable the
-handlers, inform the user that this affects *all* Tortoise clients!
-
-Since this setting affects the loading of the overlay handlers, a restart
-of the shell (at least a logoff/logon) is required for the changes
-to take effect.
-

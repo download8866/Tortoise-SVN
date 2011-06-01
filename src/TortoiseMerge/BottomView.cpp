@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2011 - TortoiseSVN
+// Copyright (C) 2006-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,146 +19,182 @@
 #include "StdAfx.h"
 #include "Resource.h"
 #include "AppUtils.h"
-
-#include "bottomview.h"
+#include ".\bottomview.h"
 
 IMPLEMENT_DYNCREATE(CBottomView, CBaseView)
 
 CBottomView::CBottomView(void)
 {
-    m_pwndBottom = this;
-    m_pState = &m_AllState.bottom;
-    m_nStatusBarID = ID_INDICATOR_BOTTOMVIEW;
+	m_pwndBottom = this;
+	m_nStatusBarID = ID_INDICATOR_BOTTOMVIEW;
 }
 
 CBottomView::~CBottomView(void)
 {
 }
 
-
-void CBottomView::AddContextItems(CIconMenu& popup, DiffStates state)
+bool CBottomView::OnContextMenu(CPoint point, int /*nLine*/, DiffStates state)
 {
-    const bool bShow = HasSelection() && (state != DIFFSTATE_UNKNOWN);
-    if (!bShow)
-        return;
+	if (!this->IsWindowVisible())
+		return false;
 
-    popup.AppendMenuIcon(POPUPCOMMAND_USETHEIRBLOCK, IDS_VIEWCONTEXTMENU_USETHEIRBLOCK);
-    popup.AppendMenuIcon(POPUPCOMMAND_USEYOURBLOCK, IDS_VIEWCONTEXTMENU_USEYOURBLOCK);
-    popup.AppendMenuIcon(POPUPCOMMAND_USEYOURANDTHEIRBLOCK, IDS_VIEWCONTEXTMENU_USEYOURANDTHEIRBLOCK);
-    popup.AppendMenuIcon(POPUPCOMMAND_USETHEIRANDYOURBLOCK, IDS_VIEWCONTEXTMENU_USETHEIRANDYOURBLOCK);
+	CMenu popup;
+	if (popup.CreatePopupMenu())
+	{
+#define ID_USETHEIRBLOCK 1
+#define ID_USEYOURBLOCK 2
+#define ID_USETHEIRANDYOURBLOCK 3
+#define ID_USEYOURANDTHEIRBLOCK 4
+		UINT uEnabled = MF_ENABLED;
+		if ((m_nSelBlockStart == -1)||(m_nSelBlockEnd == -1))
+			uEnabled |= MF_DISABLED | MF_GRAYED;
+		CString temp;
 
-    CBaseView::AddContextItems(popup, state);
+		bool bImportantBlock = true;
+		switch (state)
+		{
+		case DIFFSTATE_UNKNOWN:
+			bImportantBlock = false;
+			break;
+		}
+
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USETHEIRBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USEYOURBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USEYOURANDTHEIRBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USEYOURANDTHEIRBLOCK, temp);
+		temp.LoadString(IDS_VIEWCONTEXTMENU_USETHEIRANDYOURBLOCK);
+		popup.AppendMenu(MF_STRING | uEnabled | (bImportantBlock ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_USETHEIRANDYOURBLOCK, temp);
+
+		popup.AppendMenu(MF_SEPARATOR, NULL);
+
+		temp.LoadString(IDS_EDIT_COPY);
+		popup.AppendMenu(MF_STRING | (HasTextSelection() ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_COPY, temp);
+		if (!m_bCaretHidden)
+		{
+			temp.LoadString(IDS_EDIT_CUT);
+			popup.AppendMenu(MF_STRING | (HasTextSelection() ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_CUT, temp);
+			temp.LoadString(IDS_EDIT_PASTE);
+			popup.AppendMenu(MF_STRING | (CAppUtils::HasClipboardFormat(CF_UNICODETEXT)||CAppUtils::HasClipboardFormat(CF_TEXT) ? MF_ENABLED : MF_DISABLED|MF_GRAYED), ID_EDIT_PASTE, temp);
+		}
+
+		// if the context menu is invoked through the keyboard, we have to use
+		// a calculated position on where to anchor the menu on
+		if ((point.x == -1) && (point.y == -1))
+		{
+			CRect rect;
+			GetWindowRect(&rect);
+			point = rect.CenterPoint();
+		}
+
+		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, point.x, point.y, this, 0);
+		viewstate rightstate;
+		viewstate bottomstate;
+		viewstate leftstate;
+		switch (cmd)
+		{
+		case ID_USETHEIRBLOCK:
+			UseTheirTextBlock();
+			break;
+		case ID_USEYOURBLOCK:
+			UseMyTextBlock();
+			break;
+		case ID_USEYOURANDTHEIRBLOCK:
+			UseYourAndTheirBlock(rightstate, bottomstate, leftstate);
+			CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+			break;
+		case ID_USETHEIRANDYOURBLOCK:
+			UseTheirAndYourBlock(rightstate, bottomstate, leftstate);
+			CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+			break;
+		case ID_EDIT_COPY:
+			OnEditCopy();
+			return true;
+		case ID_EDIT_CUT:
+			OnEditCopy();
+			RemoveSelectedText();
+			break;
+		case ID_EDIT_PASTE:
+			PasteText();
+			break;
+		}
+	}
+	return false;
 }
 
-
-void CBottomView::UseBlock(CBaseView * pwndView, int nFirstViewLine, int nLastViewLine)
+void CBottomView::UseTheirTextBlock()
 {
-    CUndo::GetInstance().BeginGrouping(); // start group undo
+	viewstate leftstate;
+	viewstate rightstate;
+	viewstate bottomstate;
+	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
+		return;
 
-    for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
-    {
-        viewdata lineData = pwndView->GetViewData(viewLine);
-        lineData.ending = lineendings;
-        lineData.state = ResolveState(lineData.state);
-        SetViewData(viewLine, lineData);
-    }
-
-    int nRemovedLines = CleanEmptyLines();
-    SaveUndoStep();	
-    UpdateViewLineNumbers();
-    SaveUndoStep();
-
-    CUndo::GetInstance().EndGrouping();
-
-    // final clean up
-    ClearSelection();
-    SetupAllViewSelection(nFirstViewLine, nLastViewLine - nRemovedLines);
-    BuildAllScreen2ViewVector();
-    SetModified();
-    RefreshViews();
+	for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+	{
+		bottomstate.difflines[i] = m_pViewData->GetLine(i);
+		m_pViewData->SetLine(i, m_pwndLeft->m_pViewData->GetLine(i));
+		bottomstate.linestates[i] = m_pViewData->GetState(i);
+		m_pViewData->SetState(i, m_pwndLeft->m_pViewData->GetState(i));
+		m_pViewData->SetLineEnding(i, EOL_AUTOLINE);
+		if (IsLineConflicted(i))
+		{
+			if (m_pwndLeft->m_pViewData->GetState(i) == DIFFSTATE_CONFLICTEMPTY)
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVEDEMPTY);
+			else
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVED);
+		}
+	}
+	CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+	SetModified();
+	RefreshViews();
 }
 
-void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
+void CBottomView::UseMyTextBlock()
 {
-    int nFirstViewLine; // first view line in selection
-    int nLastViewLine; // last view line in selection
+	viewstate leftstate;
+	viewstate rightstate;
+	viewstate bottomstate;
+	if ((m_nSelBlockStart < 0)||(m_nSelBlockEnd < 0))
+		return;
 
-    if (!GetViewSelection(nFirstViewLine, nLastViewLine))
-        return;
-
-    int nNextViewLine = nLastViewLine + 1; // first view line after selected block
-
-    CUndo::GetInstance().BeginGrouping(); // start group undo
-
-    // use (copy) first block
-    for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
-    {
-        viewdata lineData = pwndFirst->GetViewData(viewLine);
-        lineData.ending = lineendings;
-        lineData.state = ResolveState(lineData.state);
-        SetViewData(viewLine, lineData);
-        if (!IsStateEmpty(pwndFirst->GetViewState(viewLine)))
-        {
-            pwndFirst->SetViewState(viewLine, DIFFSTATE_YOURSADDED); // this is improper (may be DIFFSTATE_THEIRSADDED) but seems not to produce any visible bug
-        }
-    }
-    SaveUndoStep();
-
-    // use (insert) last block
-    int nViewIndex = nNextViewLine;
-    for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++, nViewIndex++)
-    {
-        viewdata lineData = pwndLast->GetViewData(viewLine);
-        lineData.state = ResolveState(lineData.state);
-        InsertViewData(nViewIndex, lineData);
-        if (!IsStateEmpty(pwndLast->GetViewState(viewLine)))
-        {
-            pwndLast->SetViewState(viewLine, DIFFSTATE_THEIRSADDED); // this is improper but seems not to produce any visible bug
-        }
-    }
-    SaveUndoStep();
-
-    // adjust line numbers in target
-    // we fix all line numbers to handle exotic cases
-    UpdateViewLineNumbers();
-    SaveUndoStep();
-
-    // now insert an empty block in both first and last
-    int nCount = nLastViewLine - nFirstViewLine + 1;
-    pwndLast->InsertViewEmptyLines(nFirstViewLine, nCount);
-    pwndFirst->InsertViewEmptyLines(nNextViewLine, nCount);
-    SaveUndoStep();
-
-    int nRemovedLines = CleanEmptyLines();
-    SaveUndoStep();	
-
-    CUndo::GetInstance().EndGrouping();
-
-    // final clean up
-    ClearSelection();
-    SetupAllViewSelection(nFirstViewLine, 2*nLastViewLine - nFirstViewLine - nRemovedLines + 1);
-    BuildAllScreen2ViewVector();
-    SetModified();
-    pwndLast->SetModified();
-    pwndFirst->SetModified();
-    RefreshViews();
+	for (int i=m_nSelBlockStart; i<=m_nSelBlockEnd; i++)
+	{
+		bottomstate.difflines[i] = m_pViewData->GetLine(i);
+		m_pViewData->SetLine(i, m_pwndRight->m_pViewData->GetLine(i));
+		bottomstate.linestates[i] = m_pViewData->GetState(i);
+		m_pViewData->SetState(i, m_pwndRight->m_pViewData->GetState(i));
+		m_pViewData->SetLineEnding(i, EOL_AUTOLINE);
+		m_pViewData->SetLineEnding(i, EOL_AUTOLINE);
+		{
+			if (m_pwndRight->m_pViewData->GetState(i) == DIFFSTATE_CONFLICTEMPTY)
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVEDEMPTY);
+			else
+				m_pViewData->SetState(i, DIFFSTATE_CONFLICTRESOLVED);
+		}
+	}
+	CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+	SetModified();
+	RefreshViews();
 }
 
-void CBottomView::UseViewBlock(CBaseView * pwndView)
+void CBottomView::UseTheirThenMyTextBlock()
 {
-    int nFirstViewLine; // first view line in selection
-    int nLastViewLine; // last view line in selection
-
-    if (!GetViewSelection(nFirstViewLine, nLastViewLine))
-        return;
-
-    return UseBlock(pwndView, nFirstViewLine, nLastViewLine);
+	viewstate leftstate;
+	viewstate rightstate;
+	viewstate bottomstate;
+	UseTheirAndYourBlock(rightstate, bottomstate, leftstate);
+	CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+	RefreshViews();
 }
 
-void CBottomView::UseViewFile(CBaseView * pwndView)
+void CBottomView::UseMyThenTheirTextBlock()
 {
-    int nFirstViewLine = 0;
-    int nLastViewLine = GetViewCount()-1;
-
-    return UseBlock(pwndView, nFirstViewLine, nLastViewLine);
+	viewstate leftstate;
+	viewstate rightstate;
+	viewstate bottomstate;
+	UseYourAndTheirBlock(rightstate, bottomstate, leftstate);
+	CUndo::GetInstance().AddState(leftstate, rightstate, bottomstate, m_ptCaretPos);
+	RefreshViews();
 }

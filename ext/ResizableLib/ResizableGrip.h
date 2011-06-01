@@ -88,7 +88,6 @@ protected:
 public:
 	CResizableGrip();
 	virtual ~CResizableGrip();
-    void HideGrip() { m_wndGrip.ShowWindow(SW_HIDE); m_nShowCount = -100; }
 };
 
 // @}

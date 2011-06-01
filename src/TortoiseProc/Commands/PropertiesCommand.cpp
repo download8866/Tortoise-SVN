@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2010 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,12 +19,12 @@
 #include "StdAfx.h"
 #include "PropertiesCommand.h"
 
-#include "Properties/EditPropertiesDlg.h"
+#include "EditPropertiesDlg.h"
 
 bool PropertiesCommand::Execute()
 {
-    CEditPropertiesDlg dlg;
-    dlg.SetPathList(pathList);
-    dlg.DoModal();
-    return true;
+	CEditPropertiesDlg dlg;
+	dlg.SetPathList(pathList);
+	dlg.DoModal();
+	return true;
 }

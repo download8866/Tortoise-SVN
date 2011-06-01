@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2011 - TortoiseSVN
+// Copyright (C) 2006-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,34 +24,29 @@
  * for the various files used in TMerge
  */
 class CWorkingFile
-{
+{ 
 public:
-    CWorkingFile(void);
-    ~CWorkingFile(void);
+	CWorkingFile(void);
+	~CWorkingFile(void);
 
 public:
-    // Is this file in use?
-    bool InUse() const      { return !m_sFilename.IsEmpty(); }
-    bool Exists() const;
-    void SetFileName(const CString& newFilename);
-    void SetDescriptiveName(const CString& newDescName);
-    CString GetDescriptiveName();
-    void CreateEmptyFile();
-    CString GetWindowName() const;
-    CString GetFilename() const     { return m_sFilename; }
-    void SetOutOfUse();
+	// Is this file in use?
+	bool InUse() const		{ return !m_sFilename.IsEmpty(); }
+	bool Exists() const;
+	void SetFileName(const CString& newFilename);
+	void SetDescriptiveName(const CString& newDescName);
+	CString GetDescriptiveName();
+	void CreateEmptyFile();
+	CString GetWindowName() const;
+	CString GetFilename() const		{ return m_sFilename; }
+	void SetOutOfUse()				{ m_sFilename.Empty(); m_sDescriptiveName.Empty(); }
 
-    bool HasSourceFileChanged() const;
-    void StoreFileAttributes();
-
-    // Move the details of the specified file to the current one, and then mark the specified file
-    // as out of use
-    void TransferDetailsFrom(CWorkingFile& rightHandFile);
+	// Move the details of the specified file to the current one, and then mark the specified file
+	// as out of use
+	void TransferDetailsFrom(CWorkingFile& rightHandFile);
 
 private:
-    void ClearStoredAttributes();
+	CString m_sFilename;
+	CString m_sDescriptiveName;
 
-    CString m_sFilename;
-    CString m_sDescriptiveName;
-    WIN32_FILE_ATTRIBUTE_DATA m_attribs;
-};
+}; 

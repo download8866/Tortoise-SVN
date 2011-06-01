@@ -1,6 +1,6 @@
 // this script is a local pre-commit hook script.
 // Used to check whether the copyright year of modified files has been bumped
-// up to the current (2011) year.
+// up to the current (2007) year.
 //
 // Only *.cpp and *.h files are checked
 //
@@ -18,7 +18,7 @@ if (num != 4)
     WScript.Quit(1);
 }
 
-var re = /^\/\/ Copyright.+(2011)(.*)/;
+var re = /^\/\/ Copyright.+(2009)(.*)/;
 var basere = /^\/\/ Copyright(.*)/;
 var filere = /(\.cpp$)|(\.h$)/;
 var found = true;
@@ -37,30 +37,25 @@ while (fileindex < files.length)
 		if (fs.FileExists(f))
 		{
 			a = fs.OpenTextFile(f, ForReading, false);
-			var copyrightFound = false;
-			var yearFound = false;
-			while ((!a.AtEndOfStream)&&(!yearFound))
+			var currentfound = false;
+			while ((!a.AtEndOfStream)&&(!currentfound))
 			{
 				r =  a.ReadLine();
 				rv = r.match(basere);
 				if (rv != null)
 				{
 					rv = r.match(re);
-					if (rv != null)
-						yearFound = true;
-
-					copyrightFound = true;
+					if (rv == null)
+					{
+						if (errormsg != "")
+							errormsg += "\n";
+						errormsg += f;
+						found = false;
+					}
+					currentfound = true;
 				}
 			}
 			a.Close();
-
-			if (copyrightFound && (!yearFound))
-			{
-				if (errormsg != "")
-					errormsg += "\n";
-				errormsg += f;
-				found = false;
-			}
 		}
     }
     fileindex+=1;

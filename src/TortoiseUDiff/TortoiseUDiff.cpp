@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2011 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseUDiff.h"
 #include "MainWindow.h"
 #include "CmdLineParser.h"
-
+#include "SetDllDirectory.h"
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
@@ -33,80 +33,61 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
                      LPTSTR    lpCmdLine,
                      int       nCmdShow)
 {
-    UNREFERENCED_PARAMETER(hPrevInstance);
-    UNREFERENCED_PARAMETER(nCmdShow);
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(nCmdShow);
+    SetSafeDllSearchOrder();
 
-    SetDllDirectory(L"");
-    MSG msg;
-    HACCEL hAccelTable;
+	MSG msg;
+	HACCEL hAccelTable;
 
-    CCmdLineParser parser(lpCmdLine);
+	CCmdLineParser parser(lpCmdLine);
 
-    if (parser.HasKey(_T("?")) || parser.HasKey(_T("help")))
-    {
-        TCHAR buf[1024];
-        LoadString(hInstance, IDS_COMMANDLINEHELP, buf, sizeof(buf)/sizeof(TCHAR));
-        MessageBox(NULL, buf, _T("TortoiseUDiff"), MB_ICONINFORMATION);
-        return 0;
-    }
+	if (parser.HasKey(_T("?")) || parser.HasKey(_T("help")) || !parser.HasKey(_T("patchfile")))
+	{
+		TCHAR buf[1024];
+		LoadString(hInstance, IDS_COMMANDLINEHELP, buf, sizeof(buf)/sizeof(TCHAR));
+		MessageBox(NULL, buf, _T("TortoiseUDiff"), MB_ICONINFORMATION);
+		return 0;
+	}
 
-    INITCOMMONCONTROLSEX used = {
-        sizeof(INITCOMMONCONTROLSEX),
-        ICC_STANDARD_CLASSES | ICC_BAR_CLASSES
-    };
-    InitCommonControlsEx(&used);
+	INITCOMMONCONTROLSEX used = {
+		sizeof(INITCOMMONCONTROLSEX),
+		ICC_STANDARD_CLASSES | ICC_BAR_CLASSES
+	};
+	InitCommonControlsEx(&used);
 
 
-    if (::LoadLibrary(_T("SciLexer.DLL")) == NULL)
-        return FALSE;
+	if (::LoadLibrary(_T("SciLexer.DLL")) == NULL)
+		return FALSE;
+	
+	CMainWindow mainWindow(hInstance);
+	if (parser.HasVal(_T("title")))
+		mainWindow.SetTitle(parser.GetVal(_T("title")));
+	else
+		mainWindow.SetTitle(parser.GetVal(_T("patchfile")));
+	if (mainWindow.RegisterAndCreateWindow())
+	{
+		if (mainWindow.LoadFile(parser.GetVal(_T("patchfile"))))
+		{
+			::ShowWindow(mainWindow.GetHWNDEdit(), SW_SHOW);
+			::SetFocus(mainWindow.GetHWNDEdit());
 
-    CMainWindow mainWindow(hInstance);
-    mainWindow.SetRegistryPath(_T("Software\\TortoiseSVN\\UDiffViewerWindowPos"));
-    if (parser.HasVal(_T("title")))
-        mainWindow.SetTitle(parser.GetVal(_T("title")));
-    else if (parser.HasVal(_T("patchfile")))
-        mainWindow.SetTitle(parser.GetVal(_T("patchfile")));
-    else
-        mainWindow.SetTitle(_T("diff from pipe"));
+			hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TORTOISEUDIFF));
 
-    if (mainWindow.RegisterAndCreateWindow())
-    {
-        bool bLoadedSuccessfully = false;
-        if ( (parser.HasKey(_T("p"))) ||
-             (_tcslen(lpCmdLine) == 0) )
-        {
-            // input from console pipe
-            // set console to raw mode
-            DWORD oldMode;
-            GetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), &oldMode);
-            SetConsoleMode(GetStdHandle(STD_INPUT_HANDLE), oldMode & ~(ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT));
-
-            bLoadedSuccessfully = mainWindow.LoadFile(GetStdHandle(STD_INPUT_HANDLE));
-        }
-        else if (parser.HasVal(_T("patchfile")))
-            bLoadedSuccessfully = mainWindow.LoadFile(parser.GetVal(_T("patchfile")));
-        else if (_tcslen(lpCmdLine) > 0)
-            bLoadedSuccessfully = mainWindow.LoadFile(lpCmdLine);
-        if (bLoadedSuccessfully)
-        {
-            ::ShowWindow(mainWindow.GetHWNDEdit(), SW_SHOW);
-            ::SetFocus(mainWindow.GetHWNDEdit());
-
-            hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TORTOISEUDIFF));
-
-            // Main message loop:
-            while (GetMessage(&msg, NULL, 0, 0))
-            {
-                if (!TranslateAccelerator(mainWindow, hAccelTable, &msg))
-                {
-                    TranslateMessage(&msg);
-                    DispatchMessage(&msg);
-                }
-            }
-            return (int) msg.wParam;
-        }
-    }
-    return 0;
+			// Main message loop:
+			while (GetMessage(&msg, NULL, 0, 0))
+			{
+				if (!TranslateAccelerator(mainWindow, hAccelTable, &msg))
+				{
+					TranslateMessage(&msg);
+					DispatchMessage(&msg);
+				}
+			}
+			return (int) msg.wParam;
+		}
+	}
+	return 0;
 }
+
 
 
