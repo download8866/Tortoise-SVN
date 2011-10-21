@@ -18,7 +18,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-18 03:35+0000\n"
+"PO-Revision-Date: 2011-09-23 00:35+0000\n"
 "Last-Translator: Damarawy <m_eldamarawy@yahoo.com>\n"
 "Language-Team: Arabic <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1047,10 +1047,6 @@ msgstr "صفحة واحدة(&O)"
 msgid "&Open"
 msgstr "فتح(&O)"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "الخيارات(&O)"
@@ -1068,8 +1064,8 @@ msgid "&Paste"
 msgstr "لصق(&O)"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "إصدار &Peg:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3156,10 +3152,6 @@ msgstr ""
 msgid "Compare and blame with previous revision"
 msgstr ""
 
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr ""
-
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
 msgstr "مقارنة المسافات البيضاء"
@@ -5127,6 +5119,12 @@ msgstr ""
 msgid "Highest revision number in the cache"
 msgstr ""
 
+#. Resource IDs: (1127)
+msgid ""
+"Hint: Press F5 to refresh the selected subtree and Ctrl-F5 to load all "
+"children too"
+msgstr ""
+
 #. Resource IDs: (16519)
 msgid ""
 "Hint: select the context menu, change the page to 'Commands' and drag the "
@@ -6940,10 +6938,6 @@ msgstr ""
 msgid "Operate from log cache for now only"
 msgstr ""
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr ""
@@ -7099,10 +7093,6 @@ msgstr ""
 
 #. Resource IDs: (116)
 msgid "Paths"
-msgstr ""
-
-#. Resource IDs: (218)
-msgid "Peg"
 msgstr ""
 
 #. Resource IDs: (1057)

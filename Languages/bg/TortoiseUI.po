@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# petkovmt <petkovmt@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 07:16+0000\n"
+"PO-Revision-Date: 2011-10-20 07:22+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Bulgarian <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1053,10 +1051,6 @@ msgstr "&Една страница"
 msgid "&Open"
 msgstr "&Отваряне"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "&Оперативен:"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Настройки"
@@ -1074,8 +1068,8 @@ msgid "&Paste"
 msgstr "&Поставяне"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "&Знак:"
+msgid "&Peg revision:"
+msgstr "&Peg ревизия:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3243,10 +3237,6 @@ msgstr "Сравняване и &авторство спрямо работна�
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Сравняване и авторство спрямо предишна ревизия"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Сравни два файла"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7400,10 +7390,6 @@ msgstr ""
 msgid "Operate from log cache for now only"
 msgstr "Използване на кеша само този път"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "Оперативен"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Опция"
@@ -7574,10 +7560,6 @@ msgstr "Пътя намери, че съвпада с парчто по-добр
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Пътища"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "Знак"
 
 #. Resource IDs: (1057)
 msgid ""

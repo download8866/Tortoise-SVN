@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Lübbe Onken <l.onken@rac.de>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-18 07:46+0000\n"
+"PO-Revision-Date: 2011-10-17 07:08+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: German <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1055,10 +1053,6 @@ msgstr "&Eine Seite"
 msgid "&Open"
 msgstr "Ö&ffnen"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "&In Betrieb:"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Optionen"
@@ -1076,8 +1070,8 @@ msgid "&Paste"
 msgstr "E&infügen"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "&Fix:"
+msgid "&Peg revision:"
+msgstr "&Fixe Revision:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3247,10 +3241,6 @@ msgstr "Vergleiche und &Annotiere mit Arbeitskopie BASE"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Vergleiche und Annotiere mit vorheriger Revision"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Vergleiche zwei Dateien"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7427,10 +7417,6 @@ msgstr "Programm, um das Projektarchiv direkt zu manipulieren."
 msgid "Operate from log cache for now only"
 msgstr "Einmalig auf den Log-Puffer zurückgreifen"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "In Betrieb"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Option"
@@ -7601,10 +7587,6 @@ msgstr "Pfad gefunden, der besser zum Patch passt."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Pfade"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "Fix"
 
 #. Resource IDs: (1057)
 msgid ""

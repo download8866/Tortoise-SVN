@@ -10,22 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Alexandre Paradis <paradial@hotmail.com>, 2011.
-#   <christophe@xhaleera.com>, 2011.
-#   <gobes2@gmail.com>, 2011.
-# <grokwik@gmail.com>, 2011.
-#   <grokwik@gmail.com>, 2011.
-# grokwik <grokwik@gmail.com>, 2011.
-#   <guillaume.francois55@gmail.com>, 2011.
-# Linus Fredrich Levisse <linukcs@live.fr>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Lübbe Onken <l.onken@rac.de>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:57+0000\n"
+"PO-Revision-Date: 2011-10-17 07:06+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: French <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1063,10 +1053,6 @@ msgstr "&Une Page"
 msgid "&Open"
 msgstr "&Ouvrir"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Options"
@@ -1084,8 +1070,8 @@ msgid "&Paste"
 msgstr "Co&ller"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "Révision d'&ancrage :"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3260,10 +3246,6 @@ msgstr "Comparer avec la BASE de travail et &annoter"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Comparer avec la révision précédente et annoter"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Comparer deux fichiers"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7448,10 +7430,6 @@ msgstr ""
 msgid "Operate from log cache for now only"
 msgstr "Travailler uniquement à partir du cache du journal dès maintenant"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Option"
@@ -7622,10 +7600,6 @@ msgstr "Chemin trouvé qui correspond mieux au patch."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Chemins"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9939,16 +9913,14 @@ msgid ""
 "to the clipboard using Ctrl-C."
 msgstr ""
 "Subversion a rencontré un problème grave.\n"
-"Veuillez prendre le temps de le rapporter dans la liste de diffusion de Subversion\n"
-"avec autant d'informations que possible concernant ce que vous essayiez de faire.\n"
-"Mais veuillez d'abord rechercher ce message d'erreur dans les archives de la liste\n"
-"de diffusion pour éviter de signaler un problème déjà connu.\n"
+"Veuillez s'il vous plaît le signaler à la liste de diffusion de Subversion avec autant d'informations que possible concernant ce que vous essayiez de faire.\n"
+"Mais cherchez d'abord le message d'erreur dans les archives de la liste de diffusion pour éviter de signaler un problème déjà connu. \n"
+"Vous pouvez trouver ces archives à l'adresse http://subversion.apache.org/mailing-lists.html \n"
 "\n"
 "Subversion a rencontré le problème dans:\n"
 "fichier %1!s!, ligne %2!ld! expression = %3!s!\n"
 "\n"
-"Vous pouvez copier le contenu de ce message vers\n"
-"le presse-papier en appuyant sur Ctrl-C"
+"Vous pouvez copier le contenu de ce message vers le presse-papier en appuyant sur Ctrl-C"
 
 #. Resource IDs: (84)
 msgid ""
@@ -9967,14 +9939,15 @@ msgid ""
 msgstr ""
 "Un problème grave est arrivé à Subversion.\n"
 "Veuillez prendre le temps de le rapporter dans la liste de diffusion de Subversion\n"
-"avec autant d'informations que possible concernant ce que vous essayiez de faire.\n"
+"avec autant d'informations que possible concernant ce\n"
+"que vous essayiez de faire.\n"
+"\n"
 "Mais veuillez d'abord rechercher ce message d'erreur dans les archives de la liste\n"
 "de diffusion pour éviter de signaler un problème déjà connu.\n"
 "Vous pouvez trouver ces archives à cette adresse\n"
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"
-"Subversion a rapporté les informations suivantes :(Vous pouvez copier le contenu de ce message vers\n"
-"le presse-papier en appuyant sur Ctrl-C):"
+"Subversion a rapporté les informations suivantes :"
 
 #. Resource IDs: (79)
 msgid ""

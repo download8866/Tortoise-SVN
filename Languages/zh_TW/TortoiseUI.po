@@ -10,18 +10,13 @@
 # 
 # Authors:
 # Translators:
-# Arith Hsu <arithmandar@gmail.com>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Nick Vrvilo <nick@vrvilo.com>, 2011.
-#   <zcecil@csie.org>, 2011.
-# zcecil <zcecil@csie.org>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-19 02:46+0000\n"
-"Last-Translator: arith <arithmandar@gmail.com>\n"
+"PO-Revision-Date: 2011-10-17 07:19+0000\n"
+"Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1052,10 +1047,6 @@ msgstr "單頁(&O)"
 msgid "&Open"
 msgstr "開啟(&O)"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "實施修訂(&O):"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "選項(&O)"
@@ -1073,8 +1064,8 @@ msgid "&Paste"
 msgstr "貼上(&P)"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "＆Peg:"
+msgid "&Peg revision:"
+msgstr "&Peg 版本表示法:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3189,10 +3180,6 @@ msgstr "與工作基礎版本比對並追溯(&B)"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "與前一個版本比對並追溯"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "比較兩個檔案"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7271,10 +7258,6 @@ msgstr "開啟檔案庫瀏覽器, 進行線上調校檔案庫"
 msgid "Operate from log cache for now only"
 msgstr "目前暫時從記錄訊息快取中作業"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "實施修訂"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "選項"
@@ -7443,10 +7426,6 @@ msgstr "已找到更符合補綴的路徑."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "路徑"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "Peg"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9721,7 +9700,8 @@ msgid ""
 "to the clipboard using Ctrl-C."
 msgstr ""
 "Subversion 發生嚴重錯誤.\n"
-"請回報至我們的郵件討論串, 並盡量提供您發生此問題時的詳細情況.\n"
+"請回報至我們的郵件討論串\n"
+"並盡量提供您發生此問題時的詳細情況.\n"
 "但是請先搜尋郵件討論串以避免重複回報相同的問題.\n"
 "郵件討論串的內容全部保存於\n"
 "http://subversion.apache.org/mailing-lists.html\n"
@@ -9748,7 +9728,8 @@ msgid ""
 "to the clipboard using Ctrl-C):"
 msgstr ""
 "Subversion 發生嚴重錯誤.\n"
-"請回報至我們的郵件討論串, 並盡量提供您發生此問題時的詳細情況.\n"
+"請回報至我們的郵件討論串\n"
+"並盡量提供您發生此問題時的詳細情況.\n"
 "但是請先搜尋郵件討論串以避免重複回報相同的問題.\n"
 "郵件討論串的內容全部保存於\n"
 "http://subversion.apache.org/mailing-lists.html\n"

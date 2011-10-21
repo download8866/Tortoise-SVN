@@ -10,16 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Muhammet Kara <muhammet.k@gmail.com>, 2011.
-# turambar <vuralgoze@gmail.com>, 2011.
-#   <vuralgoze@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:53+0000\n"
+"PO-Revision-Date: 2011-10-17 07:08+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Turkish <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1051,10 +1047,6 @@ msgstr "&Tek Sayfa"
 msgid "&Open"
 msgstr "&Aç"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Seçenekler"
@@ -1072,8 +1064,8 @@ msgid "&Paste"
 msgstr "&Yapıştır"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Revizyon sorumluları:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3242,10 +3234,6 @@ msgstr "Çalışan taban dosyası ile karşılaştır ve &sorumlusunu göster."
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Bir önceki revizyon ile karşılaştır ve sorumlusunu göster."
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr ""
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7404,10 +7392,6 @@ msgstr "Depoda online değişiklik yapmak için depo tarayıcısını başlatır
 msgid "Operate from log cache for now only"
 msgstr "Şimdilik günlük önbelleğinden çalış"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Seçenek"
@@ -7578,10 +7562,6 @@ msgstr "Yamaya daha iyi uyan dizin yolu bulundu."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Dizinler"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""

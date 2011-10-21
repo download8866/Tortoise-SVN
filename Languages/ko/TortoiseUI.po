@@ -10,17 +10,12 @@
 # 
 # Authors:
 # Translators:
-#   <bandoche@hanmail.net>, 2011.
-#   <kmkh12@paran.com>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Seongki Shin <skshin@gmail.com>, 2011.
-# TaeDong Kim <fly1004@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 07:54+0000\n"
+"PO-Revision-Date: 2011-10-20 07:57+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Korean <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1050,10 +1045,6 @@ msgstr "한페이지(&O)"
 msgid "&Open"
 msgstr "열기(&O)"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "Operative(&O):"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "옵션(&O)"
@@ -1071,8 +1062,8 @@ msgid "&Paste"
 msgstr "붙여넣기(&P)"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "Peg(&P):"
+msgid "&Peg revision:"
+msgstr "&Peg 리비전:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3193,10 +3184,6 @@ msgstr "꺼내온 버전(BASE)과 비교후 수정한 사람 보이기(&B)"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "이전 버전과 비교 후 수정한 사람 보이기"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "두 파일 "
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7280,10 +7267,6 @@ msgstr "저장소를 직접 조작하려면 저장소 브라우저를 사용하�
 msgid "Operate from log cache for now only"
 msgstr "지금만 로그 캐시로부터 수행"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "Operative"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "옵션"
@@ -7452,10 +7435,6 @@ msgstr "패치와 더 잘 맞는 경로를 찾았습니다."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "경로"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "Peg"
 
 #. Resource IDs: (1057)
 msgid ""

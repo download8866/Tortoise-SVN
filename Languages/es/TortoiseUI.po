@@ -10,18 +10,12 @@
 # 
 # Authors:
 # Translators:
-#   <clogaffo@gmail.com>, 2011.
-# cuscu <agua.cuscu@gmail.com>, 2011.
-# Erik Chacon <erikchacon@gmail.com>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Mark O'Neill <phoenixteam1@gmail.com>, 2011.
-# Tomás Christie <tommychristie@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:57+0000\n"
+"PO-Revision-Date: 2011-10-17 07:12+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Spanish (Castilian) <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1058,10 +1052,6 @@ msgstr "&Una página"
 msgid "&Open"
 msgstr "&Abrir"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Opciones"
@@ -1079,8 +1069,8 @@ msgid "&Paste"
 msgstr "Pega&r"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "Revisión &Peg"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3251,10 +3241,6 @@ msgstr "Comparar y ver &autoría con la BASE de trabajo"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Comparar y ver autoría con la revisión anterior"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr ""
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7433,10 +7419,6 @@ msgstr ""
 msgid "Operate from log cache for now only"
 msgstr "Operar desde la caché de registro solamente por ahora"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Opcion"
@@ -7609,10 +7591,6 @@ msgstr "Ruta encontrada que coincide con el parche correcto. "
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Rutas"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9960,8 +9938,9 @@ msgstr ""
 "Por favor, tómese el tiempo para reportar este informe en la lista\n"
 "de correo de Subversion con la mayor cantidad de información posible\n"
 "sobre lo que estaba tratando de hacer.\n"
-"Pero por favor, primero busque el mensaje de error en la lista de correo\n"
-"para evitar informar el mismo problema en varias ocasiones.\n"
+"Pero por favor, primero busque el mensaje de \n"
+"error en la lista de correo para evitar informar el mismo problema \n"
+"en varias ocasiones.\n"
 "Usted puede encontrar los archivos de lista de correo en\n"
 "http://subversion.apache.org/mailing-lists.html\n"
 "\n"

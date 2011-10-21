@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Kari Granö <kari.grano@gmail.com>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:58+0000\n"
+"PO-Revision-Date: 2011-10-17 07:10+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Finnish <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1056,10 +1054,6 @@ msgstr "&Yksi sivu"
 msgid "&Open"
 msgstr "&Avaa"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Asetukset"
@@ -1077,8 +1071,8 @@ msgid "&Paste"
 msgstr "&Liitä"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Ankkuriversio:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3237,10 +3231,6 @@ msgstr "&Vertaa ja selvitä tekijät kantaversion (BASE) kanssa"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Vertaa ja selvitä tekijätiedot edelliseen versioon nähden"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Vertaa kahta tiedostoa"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7391,10 +7381,6 @@ msgstr "Avaa arkistoselaimen arkiston suoraan käsittelyyn (ilman työkopiota)"
 msgid "Operate from log cache for now only"
 msgstr "Käytä tällä kertaa aiemmin talletettuja lokitietoja"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Valitsin"
@@ -7565,10 +7551,6 @@ msgstr "Löydettin polku joka täsmää paremmin paikkatiedoston kanssa."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Polut"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""

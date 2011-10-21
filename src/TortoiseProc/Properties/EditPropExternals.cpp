@@ -89,20 +89,16 @@ BOOL CEditPropExternals::OnInitDialog()
     m_ExtList.InsertColumn(0, temp);
     temp.LoadString(IDS_STATUSLIST_COLURL);
     m_ExtList.InsertColumn(1, temp);
-    temp.LoadString(IDS_EXTERNALS_PEG);
+    temp.LoadString(IDS_STATUSLIST_COLREVISION);
     m_ExtList.InsertColumn(2, temp);
-    m_ExtList.SetItemCountEx((int)m_externals.size());
-    temp.LoadString(IDS_EXTERNALS_OPERATIVE);
-    m_ExtList.InsertColumn(3, temp);
     m_ExtList.SetItemCountEx((int)m_externals.size());
 
     CRect rect;
     m_ExtList.GetClientRect(&rect);
     m_ExtList.SetColumnWidth(0, LVSCW_AUTOSIZE_USEHEADER);
-    int cx = (rect.Width()-160-m_ExtList.GetColumnWidth(0));
+    int cx = (rect.Width()-80-m_ExtList.GetColumnWidth(0));
     m_ExtList.SetColumnWidth(1, cx);
     m_ExtList.SetColumnWidth(2, 80);
-    m_ExtList.SetColumnWidth(3, 80);
 
     m_ExtList.SetRedraw(true);
 
@@ -231,6 +227,12 @@ void CEditPropExternals::OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *p
                 case 1: // url
                     {
                         lstrcpyn(m_columnbuf, ext.url, pDispInfo->item.cchTextMax);
+                        SVNRev peg(ext.pegrevision);
+                        if (peg.IsValid() && !peg.IsHead())
+                        {
+                            _tcscat_s(m_columnbuf, _T("@"));
+                            _tcscat_s(m_columnbuf, peg.ToString());
+                        }
                         int cWidth = m_ExtList.GetColumnWidth(1);
                         cWidth = max(14, cWidth-14);
                         CDC * pDC = m_ExtList.GetDC();
@@ -243,14 +245,8 @@ void CEditPropExternals::OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *p
                         }
                     }
                     break;
-                case 2: // peg
-                    if ((ext.pegrevision.kind == svn_opt_revision_number) && (ext.pegrevision.value.number >= 0))
-                        _stprintf_s(m_columnbuf, _T("%ld"), ext.pegrevision.value.number);
-                    else
-                        m_columnbuf[0] = 0;
-                    break;
-                case 3: // operative
-                    if ((ext.revision.kind == svn_opt_revision_number) && (ext.revision.value.number >= 0) && (ext.revision.value.number != ext.pegrevision.value.number))
+                case 2: // revision
+                    if ((ext.revision.kind == svn_opt_revision_number) && (ext.revision.value.number >= 0))
                         _stprintf_s(m_columnbuf, _T("%ld"), ext.revision.value.number);
                     else
                         m_columnbuf[0] = 0;

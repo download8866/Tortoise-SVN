@@ -10,15 +10,13 @@
 # 
 # Authors:
 # Translators:
-# Daisuke Deguchi <ddeguchi@is.nagoya-u.ac.jp>, 2011.
-# Masahiro Fujimoto <fujimoto@internet.ne.jp>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-19 18:15+0000\n"
-"Last-Translator: mfuji <fujimoto@internet.ne.jp>\n"
+"PO-Revision-Date: 2011-10-17 07:11+0000\n"
+"Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Japanese <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1048,10 +1046,6 @@ msgstr "1ページ(&O)"
 msgid "&Open"
 msgstr "開く(&O)"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "操作対象(&O):"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "オプション(&O)"
@@ -1069,8 +1063,8 @@ msgid "&Paste"
 msgstr "貼り付け(&P)"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "ペグ(&P):"
+msgid "&Peg revision:"
+msgstr "ペグリビジョン(&P):"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3186,10 +3180,6 @@ msgstr "作業ベースと比較/注釈履歴(&B)"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "直前のリビジョンと比較/注釈履歴を行う"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "2つのファイルを比較"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7277,10 +7267,6 @@ msgstr "オンラインのリポジトリを調整するためにリポジトリ
 msgid "Operate from log cache for now only"
 msgstr "今回のみログキャッシュから操作する"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "操作対象"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "オプション"
@@ -7449,10 +7435,6 @@ msgstr "パッチに適合するパスが見つかりました。"
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "パス"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "ペグ"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9725,8 +9707,9 @@ msgid ""
 "to the clipboard using Ctrl-C."
 msgstr ""
 "Subversion は深刻な問題に遭遇しました。\n"
-"下記のエラー情報と、何をしようとしたかをできるだけ詳しく\n"
-"書いて、Subversionのメーリングリストに報告してください。\n"
+"下記のエラー情報と、何をしようとしたかをできるだけ\n"
+"詳しく書いて、Subversionのメーリングリスト\n"
+"に報告してください。\n"
 "但し、同じ問題が繰り返し報告されることを避けるために、\n"
 "まずメーリングリストアーカイブから、このエラーメッセージを\n"
 "探してみてください。メーリングリストのアーカイブは下記の\n"
@@ -9756,8 +9739,9 @@ msgid ""
 "to the clipboard using Ctrl-C):"
 msgstr ""
 "Subversion は深刻な問題に遭遇しました。\n"
-"下記のエラー情報と、何をしようとしたかをできるだけ詳しく\n"
-"書いて、Subversionのメーリングリストに報告してください。\n"
+"下記のエラー情報と、何をしようとしたかをできるだけ\n"
+"詳しく書いて、Subversionのメーリングリスト\n"
+"に報告してください。\n"
 "但し、同じ問題が繰り返し報告されることを避けるために、\n"
 "まずメーリングリストアーカイブから、このエラーメッセージを\n"
 "探してみてください。メーリングリストのアーカイブは下記の\n"

@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Vito Smolej <smolejv@gmx.net>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:55+0000\n"
+"PO-Revision-Date: 2011-10-17 07:18+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Slovenian <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1049,10 +1047,6 @@ msgstr "&Ena stran"
 msgid "&Open"
 msgstr "&Odpri"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "M&ožnosti"
@@ -1070,8 +1064,8 @@ msgid "&Paste"
 msgstr "&Prilepi"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Okrivi revizije:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3231,10 +3225,6 @@ msgstr "Primerjaj in &okrivi z delovno osnovo (BASE)"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Primerjaj in okrivi s predhodno revizijo"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr ""
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7366,10 +7356,6 @@ msgstr "Odpre skladiščni brskalnik za neposredno nastavljanje skladišča"
 msgid "Operate from log cache for now only"
 msgstr "Začasno uporabljaj predpomnilnik dnevnika"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Možnost"
@@ -7539,10 +7525,6 @@ msgstr "Napel pot, ki bolj odgovarja popravku."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Poti"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""

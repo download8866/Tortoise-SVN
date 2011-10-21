@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Milorad Popovic <MiloradSPopovic@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:54+0000\n"
+"PO-Revision-Date: 2011-10-17 07:20+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Serbian (Latin) <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1051,10 +1049,6 @@ msgstr "&Jedna strana"
 msgid "&Open"
 msgstr "&Otvori"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Opcije"
@@ -1072,8 +1066,8 @@ msgid "&Paste"
 msgstr "&Nalepi"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Vezana revizija:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3230,10 +3224,6 @@ msgstr "Uporedi sa radnom OSNOVOM i &okrivi"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Uporedi i okrivi prethodnu reviziju"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Poredi dva fajla"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7375,10 +7365,6 @@ msgstr "Otvara preglednik spremišta kako bi podesio spremište dok je na vezi"
 msgid "Operate from log cache for now only"
 msgstr "Od sad radi samo sa kešom dnevnika"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Opcije"
@@ -7549,10 +7535,6 @@ msgstr "Nađena putanja bolje upoređuje zakrpu"
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Putanje"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9850,7 +9832,8 @@ msgid ""
 msgstr ""
 "Subverzija je naišla na ozbiljan problem.\n"
 "Molim vas da nađete vremena da izvestite Subverzionu mejling listu\n"
-"sa što više informacija o tome šta ste pokušali da uradite.\n"
+"sa što više informacija o tome\n"
+"šta ste pokušali da uradite.\n"
 "Ali  molimo da najpre pregledate arhivu mejling liste o porukama o grešci\n"
 "da bi se izbeglo izveštavanje o istim problemima stalno.\n"
 "Arhivu mejling liste možete naći na\n"
@@ -9880,7 +9863,8 @@ msgid ""
 msgstr ""
 "Subverzija je naišla na ozbiljan problem.\n"
 "Molim vas da nađete vremena da izvestite Subverzionu mejling listu\n"
-"sa što više informacija o tome šta ste pokušali da uradite.\n"
+"sa što više informacija o tome\n"
+"šta ste pokušali da uradite.\n"
 "Ali  molimo da najpre pregledate arhivu mejling liste o porukama o grešci\n"
 "da bi se izbeglo izveštavanje o istim problemima stalno.\n"
 "Arhivu mejling liste možete naći na\n"

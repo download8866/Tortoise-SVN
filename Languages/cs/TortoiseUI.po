@@ -10,15 +10,13 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Zbyněk Schwarz <zbynek.schwarz@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-18 06:20+0000\n"
-"Last-Translator: Tsbook <zbynek.schwarz@gmail.com>\n"
+"PO-Revision-Date: 2011-10-17 07:10+0000\n"
+"Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Czech <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1050,10 +1048,6 @@ msgstr "&Jedna Stránka"
 msgid "&Open"
 msgstr "&Otevřít"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr "&Operativní"
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Nastavení"
@@ -1071,8 +1065,8 @@ msgid "&Paste"
 msgstr "&Vložit"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr "&Zavěsit"
+msgid "&Peg revision:"
+msgstr "&Udržet revizi"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3219,10 +3213,6 @@ msgstr "Porovnat a o&bvinit s pracovním originálem"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Porovnat a obvinit s předchozí revizí"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Porovnat dva soubory"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7361,10 +7351,6 @@ msgstr "Otevře průzkumníka úložiště pro online manipulaci"
 msgid "Operate from log cache for now only"
 msgstr "Pouze pro teď pracovat z úschovy záznamu"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr "Operativní"
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Nastavení"
@@ -7535,10 +7521,6 @@ msgstr "Zjištěna cesta, která se lépe shoduje se záplatou."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Cesty"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr "Zavěsit"
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9827,7 +9809,7 @@ msgstr ""
 "Prosíme, udělejte si čas a oznamte toto na mailovou konferenci Subversion\n"
 "s co nejvíce informacemi o tom\n"
 "co jste se pokoušeli dělat.\n"
-"Nejdříve ale, prosím, hledejte chybovou zprávu v archívu konference,\n"
+"Nejdříve ale, prosím, prohledejte archív konference pro chybovou zprávu,\n"
 "abyste zabránili opakovanému ohlášení stejné zprávy.\n"
 "Archív konference naleznete na \n"
 "http://subversion.apache.org/mailing-lists.html\n"
@@ -9858,7 +9840,7 @@ msgstr ""
 "Prosíme, udělejte si čas a oznamte toto na mailovou konferenci Subversion\n"
 "s co nejvíce informacemi o tom\n"
 "co jste se pokoušeli dělat.\n"
-"Nejdříve ale, prosím, hledejte chybovou zprávu v archívu konference,\n"
+"Nejdříve ale, prosím, prohledejte archív konference pro chybovou zprávu,\n"
 "abyste zabránili opakovanému ohlášení stejné zprávy.\n"
 "Archív konference naleznete na \n"
 "http://subversion.apache.org/mailing-lists.html\n"

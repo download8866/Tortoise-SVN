@@ -10,16 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# okloster <okl@sintef.no>, 2011.
-#   <okl@sintef.no>, 2011.
-# Ronny N. Olsen <rnolsen@hotmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:56+0000\n"
+"PO-Revision-Date: 2011-10-17 07:15+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Norwegian Bokmål <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1052,10 +1048,6 @@ msgstr "&En Side"
 msgid "&Open"
 msgstr "Å&pne"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Opsjoner"
@@ -1073,8 +1065,8 @@ msgid "&Paste"
 msgstr "&Lim inn"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Spikret revisjon:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3233,10 +3225,6 @@ msgstr "Sammenlign og vis &skyld med basisfil (BASE)"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Sammenlign og vis skyld med forrige revisjon"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Sammenlign to filer"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7380,10 +7368,6 @@ msgstr "Åpner depot-utforskeren slik at depotet kan jobbes med når tilkoblet"
 msgid "Operate from log cache for now only"
 msgstr "Arbeid fra mellomlagret logg bare foreløpig"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Opsjon"
@@ -7554,10 +7538,6 @@ msgstr "Fant sti som passer korreksjonen bedre."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Filstier"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9849,7 +9829,8 @@ msgid ""
 msgstr ""
 "Subversion støtte på et alvorlig problem.\n"
 "Vennligst ta deg tid til å rapportere dette til vår epost-liste\n"
-"med så mye informasjon som mulig om hva du prøvde å gjøre.\n"
+"med så mye informasjon som mulig om\n"
+"hva du prøvde å gjøre.\n"
 "Men først, søk i arkivene til epost-listen etter feilmeldingen\n"
 "så ikke det samme problemet rapporteres flere ganger.\n"
 "Du kan finne listearkivet på\n"
@@ -9878,7 +9859,8 @@ msgid ""
 msgstr ""
 "Subversion støtte på et alvorlig problem.\n"
 "Vennligst ta deg tid til å rapportere dette til vår epost-liste\n"
-"med så mye informasjon som mulig om hva du prøvde å gjøre.\n"
+"med så mye informasjon som mulig om\n"
+"hva du prøvde å gjøre.\n"
 "Men først, søk i arkivene til epost-listen etter feilmeldingen\n"
 "så ikke det samme problemt rapporteres flere ganger.\n"
 "Du kan finne listearkivet på\n"

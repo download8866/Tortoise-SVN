@@ -10,14 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Mikkel Elmholdt <mikkel@elmholdt.dk>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:58+0000\n"
+"PO-Revision-Date: 2011-10-17 07:09+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Danish <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1050,10 +1048,6 @@ msgstr "&En Side"
 msgid "&Open"
 msgstr "&Åbn"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Indstillinger"
@@ -1071,8 +1065,8 @@ msgid "&Paste"
 msgstr "&Indsæt"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Fastgør revision:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3239,10 +3233,6 @@ msgstr ""
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Sammenlign og angiv ansvar i forhold til forrige revision"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr ""
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7387,10 +7377,6 @@ msgstr "Åbner versionsarkivbrowseren for at justere versionsarkivet online"
 msgid "Operate from log cache for now only"
 msgstr "Operer indtil videre kun fra logcachen"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Mulighed"
@@ -7561,10 +7547,6 @@ msgstr "Sti fundet, der matcher patch bedre."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Stier"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""
@@ -9859,10 +9841,11 @@ msgid ""
 "you can copy the content of this dialog\n"
 "to the clipboard using Ctrl-C."
 msgstr ""
-"Subversion er stødt på et alvorligt problem.\n"
+"Subversion er stødt på et alvorligt problem. \n"
 "Du må meget gerne rapportere dette på Subversions mailingliste\n"
-"med så mange oplysninger som muligt om hvad du forsøgte at gøre. \n"
-"Først må du dog gerne lige kigge mailingliste-arkivet igennem\n"
+"med så mange oplysninger som muligt om hvad \n"
+"du forsøgte at gøre. \n"
+"Først må du dog gerne lige kigge mailingliste-arkivet igennem \n"
 "for at undgå at rapportere den samme fejl flere gange.\n"
 "Du kan finde mailingliste-arkivet på \n"
 "http://subversion.apache.org/mailing-lists.html \n"
@@ -9890,7 +9873,8 @@ msgid ""
 msgstr ""
 "Subversion er stødt på et alvorligt problem. \n"
 "Du må meget gerne rapportere dette på Subversions mailingliste\n"
-"med så mange oplysninger som muligt om hvad du forsøgte at gøre. \n"
+"med så mange oplysninger som muligt om hvad \n"
+"du forsøgte at gøre. \n"
 "Først må du dog gerne lige kigge mailingliste-arkivet igennem \n"
 "for at undgå at rapportere den samme fejl flere gange.\n"
 "Du kan finde mailingliste-arkivet på \n"

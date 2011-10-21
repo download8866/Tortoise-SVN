@@ -10,16 +10,12 @@
 # 
 # Authors:
 # Translators:
-# Edson Chen <edson.chen@gmail.com>, 2011.
-# Eduardo Marques <ebmarques@gmail.com>, 2011.
-# Lübbe  <luebbe.tortoisesvn@gmail.com>, 2011.
-# Rafael Heise <rmheise@gmail.com>, 2011.
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: http://code.google.com/p/tortoisesvn/wiki/IssueTracker?tm=3\n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2011-10-20 06:55+0000\n"
+"PO-Revision-Date: 2011-10-17 07:07+0000\n"
 "Last-Translator: luebbe <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Portuguese (Brazilian) <translators@tortoisesvn.tigris.org>\n"
 "MIME-Version: 1.0\n"
@@ -1052,10 +1048,6 @@ msgstr "&Uma Página"
 msgid "&Open"
 msgstr "&Abrir"
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr "&Opções"
@@ -1073,8 +1065,8 @@ msgid "&Paste"
 msgstr "&Colar"
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
-msgstr ""
+msgid "&Peg revision:"
+msgstr "&Revisão da Correção:"
 
 #. Resource IDs: (1382)
 msgid "&Permanently offline"
@@ -3245,10 +3237,6 @@ msgstr "Comparar e ver &autoria com a BASE de trabalho"
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
 msgstr "Comparar e ver autoria com a revisão anterior"
-
-#. Resource IDs: (210)
-msgid "Compare two files"
-msgstr "Comparar dois arquivos"
 
 #. Resource IDs: (32871)
 msgid "Compare whitespaces"
@@ -7422,10 +7410,6 @@ msgstr "Abre o navegador de repositório para manipular o repositório online"
 msgid "Operate from log cache for now only"
 msgstr "Operar a partir do cache do log apenas agora"
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr "Opção"
@@ -7598,10 +7582,6 @@ msgstr "Caminho melhor encontrado de acordo com a correção."
 #. Resource IDs: (116)
 msgid "Paths"
 msgstr "Caminhos"
-
-#. Resource IDs: (218)
-msgid "Peg"
-msgstr ""
 
 #. Resource IDs: (1057)
 msgid ""

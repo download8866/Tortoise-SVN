@@ -983,10 +983,6 @@ msgstr ""
 msgid "&Open"
 msgstr ""
 
-#. Resource IDs: (1602)
-msgid "&Operative:"
-msgstr ""
-
 #. Resource IDs: (1382)
 msgid "&Options"
 msgstr ""
@@ -1004,7 +1000,7 @@ msgid "&Paste"
 msgstr ""
 
 #. Resource IDs: (1600)
-msgid "&Peg:"
+msgid "&Peg revision:"
 msgstr ""
 
 #. Resource IDs: (1382)
@@ -2798,10 +2794,6 @@ msgstr ""
 
 #. Resource IDs: (114)
 msgid "Compare and blame with previous revision"
-msgstr ""
-
-#. Resource IDs: (210)
-msgid "Compare two files"
 msgstr ""
 
 #. Resource IDs: (32871)
@@ -6236,10 +6228,6 @@ msgstr ""
 msgid "Operate from log cache for now only"
 msgstr ""
 
-#. Resource IDs: (218)
-msgid "Operative"
-msgstr ""
-
 #. Resource IDs: (348)
 msgid "Option"
 msgstr ""
@@ -6381,10 +6369,6 @@ msgstr ""
 
 #. Resource IDs: (116)
 msgid "Paths"
-msgstr ""
-
-#. Resource IDs: (218)
-msgid "Peg"
 msgstr ""
 
 #. Resource IDs: (1057)
