@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta name="keywords" content="TortoiseSVN" />
+<meta http-equiv="content-language" content="en" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>TortoiseSVN</title>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
+</head>
+<body>
+<div id="langselection">
+    <a href="index.html">EN</a> <a href="index.de.html">DE</a>
+</div>
+<div id="wrapper">
+    <!--#include FILE="menu.html" -->
+    <div id="page">
+        <div id="banner">&nbsp;</div>
+
+        <div id="content">
+        
+            <div class="post">
+                <h2 class="title"><a href="#">TortoiseSVN 1.7.1 released</a></h2>
+                <p class="meta">Posted on October 22, 2011</p>
+                <div class="entry">
+                    $ADSENSE_TOP$
+                    <p>
+                    We're proud to announce that TortoiseSVN 1.7.1 has been released.
+                    It is linked against Subversion 1.7.1
+                    </p>
+                    <p>
+                    It's only been a few days since we released 1.7.0, but in this
+                    time we've fixed a lot of bugs. Both in TortoiseSVN and the
+                    underlying SVN library.
+                    </p>
+                    <p>
+                    We recommend that you update to this version as soon as possible.
+                    You can get it from our <a href="/downloads.html">download page</a>.
+                    </p>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title"><a href="#">TortoiseSVN 1.7.0 released</a></h2>
+                <p class="meta">Posted on October 11, 2011</p>
+                <div class="entry">
+                    <p>
+                    We're proud to announce that TortoiseSVN 1.7 has been released.
+                    It is linked against Subversion 1.7
+                    </p>
+                    <p>
+                    It's been two and a half year, 935 days to be exact since 
+                    version 1.6 was released. The TortoiseSVN repository 
+                    counts 6213 commits since then, which results in about 6 
+                    commits per day.
+                    </p>
+                    <p>
+                    With that many changes done to TortoiseSVN alone, and much
+                    more to the Subversion core itself you can expect a lot of
+                    improvements. We've listed the most obvious and visible 
+                    improvements in the
+                    <a href="/tsvn_1.7_releasenotes.html">release notes</a>.
+                    <P>
+                    </p>
+                    Please read those <b>thoroughly</b> before you upgrade to 
+                    TortoiseSVN 1.7 to avoid any surprises.
+                    </p>
+                    <p>
+                    Together with TortoiseSVN 1.7, we also released new versions
+                    of <a href="http://tools.tortoisesvn.net/CommitMonitor.html">CommitMonitor</a> and 
+                    <a href="/svnprotocolhandler.html">SVNProtocolHandler</a>.
+                    </p>
+                </div>
+            </div>
+            <div class="post">
+                <h2 class="title"><a href="#">T-Shirt poll</a></h2>
+                <p class="meta">Posted on September 26, 2011</p>
+                <div class="entry">
+                    <p>
+                    The poll for the TortoiseSVN T-Shirt design contest is on.
+                    Please visit: 
+                    <a href="http://sodahead.com/poll/2169689/">http://sodahead.com/poll/2169689/</a>
+                    and vote for your favourite.
+                    </p>
+                    <p>
+                    Larger versions of the submissions or black/white colour 
+                    alternatives are visible in the 
+                    <a href="https://plus.google.com/photos/106492031686866587461/albums/5644406774297546849">gallery</a>
+                    </p>
+                </div>
+            </div>
+            <div class="post">
+                <h1 class="title"><a href="#">Auto Aero Colors</a></h1>
+                <p class="meta">Posted on April 9, 2011
+                    &nbsp;&bull;&nbsp; <a href="http://tools.tortoisesvn.net/AAClr.html" class="permalink">Full article</a></p>
+                <div class="entry">
+                    <p>Windows 8 (or whatever its name will be when it's released)
+                    will have a new feature where the Aero colors can be 
+                    <a href="http://www.withinwindows.com/2011/04/06/windows-8-secrets-aero-auto-colorization/">
+                    automatically adjusted according to the selected wallpaper</a>.</p>
+                    <p>This seems to be a nice feature, and there's even a tool available
+                    that offers that feature for Windows 7: <a href="http://aura.codeplex.com/">Aura</a>.</p>
+                    <p>But there are some things about Aura that bother me, so I hacked together
+                    my own tool which offers that feature.</p>
+                    <p>Unlike Aura, AAClr is written in plain C++ and doesn't 
+                    use the .NET framework. For tools that are supposed to be started
+                    automatically on logon, this ensures that the whole startup time
+                    doesn't increase by several seconds.</p>
+                    <p>AAClr also detects changes in wallpapers by catching events
+                    from the system and doesn't use timers that access the wallpaper file
+                    several times a second (like Aura does). That means that AAClr is idle
+                    most of the time and only wakes up when necessary.</p>
+                    <p>And about resource usage: AAClr uses less than 2MB of 
+                    private bytes - I think that's not too much.</p>
+                    <p>The link to the download can be found on the <a href="http://tools.tortoisesvn.net/AAClr.html">project page</a>.</p>
+                </div>
+            </div>
+            <div class="post">
+                <h1 class="title"><a href="#">TortoiseSVN 1.7 Beginner's Guide</a></h1>
+                <p class="meta">Posted on January 15, 2011
+                &nbsp;&bull;&nbsp; <a href="beginnersguide.html" class="permalink">full article</a></p>
+                <div class="entry">
+                    <p>
+                    There's now a <a href="http://link.packtpub.com/qcmkxs">book</a> available about TortoiseSVN. Of course, 
+                    there are books about Subversion which mention TortoiseSVN.
+                    But this is (I think) the first book about TortoiseSVN.
+                    </p>
+                    <p>
+                    Full disclosure: I was asked to <a href="http://www.packtpub.com/article/author_reviewing_for_packt">review</a>
+                    the book, which I did. And I'm mentioned as a reviewer in
+                    the book! So I had to write something about it here since
+                    I was never mentioned in a book before :). 
+                    </p>
+                    <p>
+                    read my <a href="beginnersguide.html" class="permalink">full post</a> about this book.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- end #content -->
+        
+        <!--#include FILE="sidebar.html" -->
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+    <!-- end #page -->
+    <!--#include FILE="footer.html" -->
+</div>
+</body>
+</html>
