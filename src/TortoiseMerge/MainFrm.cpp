@@ -41,6 +41,7 @@
 #endif
 
 // CMainFrame
+const UINT CMainFrame::m_FindDialogMessage = RegisterWindowMessage(FINDMSGSTRING);
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
@@ -67,6 +68,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_COMMAND(ID_VIEW_OPTIONS, OnViewOptions)
     ON_WM_CLOSE()
     ON_WM_ACTIVATE()
+    ON_COMMAND(ID_EDIT_FIND, OnEditFind)
+    ON_REGISTERED_MESSAGE(m_FindDialogMessage, OnFindDialogMessage)
+    ON_COMMAND(ID_EDIT_FINDNEXT, OnEditFindnext)
+    ON_COMMAND(ID_EDIT_FINDPREV, OnEditFindprev)
     ON_COMMAND(ID_FILE_RELOAD, OnFileReload)
     ON_COMMAND(ID_VIEW_LINEDOWN, OnViewLinedown)
     ON_COMMAND(ID_VIEW_LINEUP, OnViewLineup)
@@ -97,8 +102,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
     ON_UPDATE_COMMAND_UI(ID_EDIT_USETHEIRTHENMYBLOCK, &CMainFrame::OnUpdateEditUsetheirthenmyblock)
     ON_COMMAND(ID_VIEW_INLINEDIFFWORD, &CMainFrame::OnViewInlinediffword)
     ON_UPDATE_COMMAND_UI(ID_VIEW_INLINEDIFFWORD, &CMainFrame::OnUpdateViewInlinediffword)
-    ON_COMMAND(ID_VIEW_INLINEDIFF, &CMainFrame::OnViewInlinediff)
-    ON_UPDATE_COMMAND_UI(ID_VIEW_INLINEDIFF, &CMainFrame::OnUpdateViewInlinediff)
     ON_UPDATE_COMMAND_UI(ID_EDIT_CREATEUNIFIEDDIFFFILE, &CMainFrame::OnUpdateEditCreateunifieddifffile)
     ON_COMMAND(ID_EDIT_CREATEUNIFIEDDIFFFILE, &CMainFrame::OnEditCreateunifieddifffile)
     ON_UPDATE_COMMAND_UI(ID_VIEW_LINEDIFFBAR, &CMainFrame::OnUpdateViewLinediffbar)
@@ -146,13 +149,17 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-    : m_bInitSplitter(FALSE)
+    : m_pFindDialog(NULL)
+    , m_nSearchIndex(0)
+    , m_bInitSplitter(FALSE)
     , m_bReversedPatch(FALSE)
     , m_bHasConflicts(false)
     , m_bInlineWordDiff(true)
     , m_bLineDiff(true)
     , m_bLocatorBar(true)
     , m_nMoveMovesToIgnore(0)
+    , m_bLimitToDiff(false)
+    , m_bWholeWord(false)
     , m_pwndLeftView(NULL)
     , m_pwndRightView(NULL)
     , m_pwndBottomView(NULL)
@@ -165,7 +172,6 @@ CMainFrame::CMainFrame()
     m_bCollapsed = !!(DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\Collapsed"), 0);
     m_bViewMovedBlocks = !!(DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\ViewMovedBlocks"), 0);
     m_bWrapLines = !!(DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\WrapLines"), 0);
-    m_bInlineDiff = !!CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
 }
 
 CMainFrame::~CMainFrame()
@@ -1318,6 +1324,11 @@ void CMainFrame::OnViewOptions()
 
 void CMainFrame::OnClose()
 {
+    if ((m_pFindDialog)&&(!m_pFindDialog->IsTerminating()))
+    {
+        m_pFindDialog->SendMessage(WM_CLOSE);
+        return;
+    }
     UINT ret = IDNO;
     if (HasUnsavedEdits())
     {
@@ -1389,6 +1400,230 @@ void CMainFrame::OnActivate(UINT nValue, CWnd* /*pwnd*/, BOOL /*bActivated?*/) {
         else
             CheckForReload();
     }
+}
+
+void CMainFrame::OnEditFind()
+{
+    if (m_pFindDialog)
+        return;
+
+    // start searching from the start again
+    // if no line is selected, otherwise start from
+    // the selected line
+    m_nSearchIndex = FindSearchStart(0);
+    m_pFindDialog = new CFindDlg();
+    m_pFindDialog->Create(this);
+    CString markedWord;
+    if (IsViewGood(m_pwndLeftView))
+        markedWord = m_pwndLeftView->GetMarkedWord();
+    if (markedWord.IsEmpty() && IsViewGood(m_pwndRightView))
+        markedWord = m_pwndRightView->GetMarkedWord();
+    if (markedWord.IsEmpty() && IsViewGood(m_pwndBottomView))
+        markedWord = m_pwndBottomView->GetMarkedWord();
+
+    m_pFindDialog->SetFindString(markedWord);
+}
+
+LRESULT CMainFrame::OnFindDialogMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
+{
+    ASSERT(m_pFindDialog != NULL);
+
+    if (m_pFindDialog->IsTerminating())
+    {
+        // invalidate the handle identifying the dialog box.
+        m_pFindDialog = NULL;
+        return 0;
+    }
+
+    if(m_pFindDialog->FindNext())
+    {
+        //read data from dialog
+        m_sFindText = m_pFindDialog->GetFindString();
+        m_bMatchCase = (m_pFindDialog->MatchCase() == TRUE);
+        m_bLimitToDiff = m_pFindDialog->LimitToDiffs();
+        m_bWholeWord = m_pFindDialog->WholeWord();
+
+        OnEditFindnext();
+    }
+
+    return 0;
+}
+
+bool CharIsDelimiter(const CString& ch)
+{
+    CString delimiters(_T(" .,:;=+-*/\\\n\t()[]<>@"));
+    return delimiters.Find(ch) >= 0;
+}
+
+bool CMainFrame::StringFound(const CString& str)const
+{
+    int nSubStringStartIdx = str.Find(m_sFindText);
+    bool bStringFound = (nSubStringStartIdx >= 0);
+    if (bStringFound && m_bWholeWord)
+    {
+        if (nSubStringStartIdx)
+            bStringFound = CharIsDelimiter(str.Mid(nSubStringStartIdx-1,1));
+
+        if (bStringFound)
+        {
+            int nEndIndex = nSubStringStartIdx + m_sFindText.GetLength();
+            if (str.GetLength() > nEndIndex)
+                bStringFound = CharIsDelimiter(str.Mid(nEndIndex, 1));
+        }
+    }
+    return bStringFound;
+}
+
+void CMainFrame::OnEditFindprev()
+{
+    Search(SearchPrevious);
+}
+
+void CMainFrame::OnEditFindnext()
+{
+    Search(SearchNext);
+}
+
+void CMainFrame::Search(SearchDirection srchDir)
+{
+    if (m_sFindText.IsEmpty())
+        return;
+    if (!m_pwndLeftView)
+        return;
+    if(!m_pwndLeftView->m_pViewData)
+        return;
+
+    m_nSearchIndex = FindSearchStart(m_nSearchIndex);
+    m_nSearchIndex++;
+    if (m_nSearchIndex >= m_pwndLeftView->m_pViewData->GetCount())
+        m_nSearchIndex = 0;
+    if (srchDir == SearchPrevious)
+    {
+        // SearchIndex points 1 past where we found the last match,
+        // so if we are searching backwards we need to adjust accordingly
+        m_nSearchIndex -= 2;
+        // if at the top, start again from the end
+        if (m_nSearchIndex < 0)
+            m_nSearchIndex += m_pwndLeftView->m_pViewData->GetCount();
+    }
+    const int idxLimits[2][2][2]={{{m_nSearchIndex, m_pwndLeftView->m_pViewData->GetCount()},
+                                       {0, m_nSearchIndex}},
+                                  {{m_nSearchIndex, -1},
+                                       {m_pwndLeftView->m_pViewData->GetCount()-1, m_nSearchIndex}}};
+    const int offsets[2]={+1, -1};
+
+    int i = 0;
+    bool bFound = false;
+    CString left;
+    CString right;
+    CString bottom;
+    DiffStates leftstate = DIFFSTATE_NORMAL;
+    DiffStates rightstate = DIFFSTATE_NORMAL;
+    DiffStates bottomstate = DIFFSTATE_NORMAL;
+
+    for (int j=0; j != 2 && !bFound; ++j)
+    {
+        for (i=idxLimits[srchDir][j][0]; i != idxLimits[srchDir][j][1]; i += offsets[srchDir])
+        {
+            left = m_pwndLeftView->m_pViewData->GetLine(i);
+            leftstate = m_pwndLeftView->m_pViewData->GetState(i);
+            if ((!m_bOneWay)&&(m_pwndRightView->m_pViewData))
+            {
+                right = m_pwndRightView->m_pViewData->GetLine(i);
+                rightstate = m_pwndRightView->m_pViewData->GetState(i);
+            }
+            if ((m_pwndBottomView)&&(m_pwndBottomView->m_pViewData))
+            {
+                bottom = m_pwndBottomView->m_pViewData->GetLine(i);
+                bottomstate = m_pwndBottomView->m_pViewData->GetState(i);
+            }
+
+            if (!m_bMatchCase)
+            {
+                left = left.MakeLower();
+                right = right.MakeLower();
+                bottom = bottom.MakeLower();
+                m_sFindText = m_sFindText.MakeLower();
+            }
+            if (StringFound(left))
+            {
+                if ((!m_bLimitToDiff)||(leftstate != DIFFSTATE_NORMAL))
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            else if (StringFound(right))
+            {
+                if ((!m_bLimitToDiff)||(rightstate != DIFFSTATE_NORMAL))
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+            else if (StringFound(bottom))
+            {
+                if ((!m_bLimitToDiff)||(bottomstate != DIFFSTATE_NORMAL))
+                {
+                    bFound = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!bFound)
+    {
+        m_nSearchIndex = 0;
+        return;
+    }
+
+    m_nSearchIndex = i;
+    m_pwndLeftView->GoToLine(m_nSearchIndex);
+    if (StringFound(left))
+    {
+        m_pwndLeftView->SetFocus();
+        m_pwndLeftView->HighlightViewLines(m_nSearchIndex);
+    }
+    else if (StringFound(right))
+    {
+        m_pwndRightView->SetFocus();
+        m_pwndRightView->HighlightViewLines(m_nSearchIndex);
+    }
+    else if (StringFound(bottom))
+    {
+        m_pwndBottomView->SetFocus();
+        m_pwndBottomView->HighlightViewLines(m_nSearchIndex);
+    }
+    m_nMoveMovesToIgnore = MOVESTOIGNORE;
+}
+
+int CMainFrame::FindSearchStart(int nDefault)
+{
+    // TortoiseMerge doesn't have a cursor which we could use to
+    // anchor the search on.
+    // Instead we use a line that is selected.
+    // If however no line is selected, use the default line (which could
+    // be the top of the document for a new search, or the line where the
+    // search was successful on)
+    int nSelStart = 0;
+    int nSelEnd = 0;
+    if (m_pwndLeftView)
+    {
+        m_pwndLeftView->GetViewSelection(nSelStart, nSelEnd);
+    }
+    else if (m_pwndRightView)
+    {
+        m_pwndRightView->GetViewSelection(nSelStart, nSelEnd);
+    }
+    else if (m_pwndBottomView)
+    {
+        m_pwndBottomView->GetViewSelection(nSelStart, nSelEnd);
+    }
+    if (nSelStart == nSelEnd)
+    {
+        return nSelStart;
+    }
+    return nDefault;
 }
 
 void CMainFrame::OnViewLinedown()
@@ -2031,58 +2266,25 @@ void CMainFrame::OnViewInlinediffword()
     if (m_pwndLeftView)
     {
         m_pwndLeftView->SetInlineWordDiff(m_bInlineWordDiff);
-        m_pwndLeftView->BuildAllScreen2ViewVector();
-        m_pwndLeftView->DocumentUpdated();
+        m_pwndLeftView->Invalidate();
     }
     if (m_pwndRightView)
     {
         m_pwndRightView->SetInlineWordDiff(m_bInlineWordDiff);
-        m_pwndRightView->BuildAllScreen2ViewVector();
-        m_pwndRightView->DocumentUpdated();
+        m_pwndRightView->Invalidate();
     }
     if (m_pwndBottomView)
     {
         m_pwndBottomView->SetInlineWordDiff(m_bInlineWordDiff);
-        m_pwndBottomView->BuildAllScreen2ViewVector();
-        m_pwndBottomView->DocumentUpdated();
+        m_pwndBottomView->Invalidate();
     }
-    m_wndLineDiffBar.DocumentUpdated();
+    m_wndLineDiffBar.Invalidate();
 }
 
 void CMainFrame::OnUpdateViewInlinediffword(CCmdUI *pCmdUI)
 {
-    pCmdUI->Enable(m_bInlineDiff && IsViewGood(m_pwndLeftView) && IsViewGood(m_pwndRightView));
-    pCmdUI->SetCheck(m_bInlineWordDiff);
-}
-
-void CMainFrame::OnViewInlinediff()
-{
-    m_bInlineDiff = !m_bInlineDiff;
-    if (m_pwndLeftView)
-    {
-        m_pwndLeftView->SetInlineDiff(m_bInlineDiff);
-        m_pwndLeftView->BuildAllScreen2ViewVector();
-        m_pwndLeftView->DocumentUpdated();
-    }
-    if (m_pwndRightView)
-    {
-        m_pwndRightView->SetInlineDiff(m_bInlineDiff);
-        m_pwndRightView->BuildAllScreen2ViewVector();
-        m_pwndRightView->DocumentUpdated();
-    }
-    if (m_pwndBottomView)
-    {
-        m_pwndBottomView->SetInlineDiff(m_bInlineDiff);
-        m_pwndBottomView->BuildAllScreen2ViewVector();
-        m_pwndBottomView->DocumentUpdated();
-    }
-    m_wndLineDiffBar.DocumentUpdated();
-}
-
-void CMainFrame::OnUpdateViewInlinediff(CCmdUI *pCmdUI)
-{
     pCmdUI->Enable(IsViewGood(m_pwndLeftView) && IsViewGood(m_pwndRightView));
-    pCmdUI->SetCheck(m_bInlineDiff);
+    pCmdUI->SetCheck(m_bInlineWordDiff);
 }
 
 void CMainFrame::OnUpdateEditCreateunifieddifffile(CCmdUI *pCmdUI)

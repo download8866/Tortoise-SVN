@@ -193,7 +193,7 @@ public:
 
 /**
  */
-class Document : PerLine, public IDocument, public ILoader {
+class Document : PerLine, public IDocument {
 
 public:
 	/** Used to pair watcher pointer with user data. */
@@ -252,7 +252,7 @@ public:
 	virtual ~Document();
 
 	int AddRef();
-	int SCI_METHOD Release();
+	int Release();
 
 	virtual void Init();
 	virtual void InsertLine(int line);
@@ -281,8 +281,6 @@ public:
 	void CheckReadOnly();
 	bool DeleteChars(int pos, int len);
 	bool InsertString(int position, const char *s, int insertLength);
-	int SCI_METHOD AddData(char *data, int length);
-	void * SCI_METHOD ConvertToDocument();
 	int Undo();
 	int Redo();
 	bool CanUndo() { return cb.CanUndo(); }
@@ -325,7 +323,6 @@ public:
 		cb.GetStyleRange(buffer, position, lengthRetrieve);
 	}
 	int GetMark(int line);
-	int MarkerNext(int lineStart, int mask) const;
 	int AddMark(int line, int markerNum);
 	void AddMarkSet(int line, int valueSet);
 	void DeleteMark(int line, int markerNum);

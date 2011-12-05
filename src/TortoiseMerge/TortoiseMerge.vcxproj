@@ -264,7 +264,6 @@
     <ClCompile Include="FilePatchesDlg.cpp" />
     <ClCompile Include="FileTextLines.cpp" />
     <ClCompile Include="FindDlg.cpp" />
-    <ClCompile Include="GotoLineDlg.cpp" />
     <ClCompile Include="LeftView.cpp" />
     <ClCompile Include="LineDiffBar.cpp" />
     <ClCompile Include="LocatorBar.cpp" />
@@ -348,7 +347,6 @@
     <ClInclude Include="FilePatchesDlg.h" />
     <ClInclude Include="FileTextLines.h" />
     <ClInclude Include="FindDlg.h" />
-    <ClInclude Include="GotoLineDlg.h" />
     <ClInclude Include="LeftView.h" />
     <ClInclude Include="LineDiffBar.h" />
     <ClInclude Include="LocatorBar.h" />
