@@ -58,7 +58,6 @@ BEGIN_MESSAGE_MAP(CEditPropExternalsValue, CResizableStandAloneDialog)
     ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CEditPropExternalsValue::OnRevSelected)
     ON_WM_SIZING()
     ON_EN_CHANGE(IDC_REVISION_NUM, &CEditPropExternalsValue::OnEnChangeRevisionNum)
-    ON_EN_CHANGE(IDC_PEGREV, &CEditPropExternalsValue::OnEnChangeRevisionNum)
     ON_BN_CLICKED(IDHELP, &CEditPropExternalsValue::OnBnClickedHelp)
 END_MESSAGE_MAP()
 
@@ -74,28 +73,17 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     m_aeroControls.SubclassOkCancelHelp(this);
 
     m_sWCPath = m_External.targetDir;
-
     SVNRev rev = m_External.revision;
-    SVNRev pegRev = SVNRev(m_External.pegrevision);
-
-    if ((pegRev.IsValid() && !pegRev.IsHead()) || (rev.IsValid() && !rev.IsHead()))
-    {
-        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-
-        if (m_External.revision.value.number == m_External.pegrevision.value.number)
-        {
-            m_sPegRev = pegRev.ToString();
-        }
-        else
-        {
-            m_sRevision = rev.ToString();
-            m_sPegRev = pegRev.ToString();
-        }
-    }
+    if (!rev.IsValid() || rev.IsHead())
+        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     else
     {
-        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
+        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
+        m_sRevision = rev.ToString();
     }
+    SVNRev pegRev = SVNRev(m_External.pegrevision);
+    if (pegRev.IsValid() && !pegRev.IsHead())
+        m_sPegRev = pegRev.ToString();
 
     m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
     m_URLCombo.SetURLHistory(true, false);
@@ -117,8 +105,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_BROWSE, TOP_RIGHT);
     AddAnchor(IDC_PEGLABEL, TOP_LEFT);
-    AddAnchor(IDC_OPERATIVELABEL, TOP_LEFT);
-    AddAnchor(IDC_PEGREV, TOP_LEFT, TOP_RIGHT);
+    AddAnchor(IDC_PEGREV, TOP_LEFT);
     AddAnchor(IDC_GROUPBOTTOM, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
     AddAnchor(IDC_REVISION_N, TOP_LEFT);
@@ -276,8 +263,7 @@ LPARAM CEditPropExternalsValue::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
     temp.Format(_T("%ld"), lParam);
-    SetDlgItemText(IDC_PEGREV, temp);
-    SetDlgItemText(IDC_REVISION_NUM, CString());
+    SetDlgItemText(IDC_REVISION_NUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
 }
@@ -304,7 +290,7 @@ void CEditPropExternalsValue::OnSizing(UINT fwSide, LPRECT pRect)
 void CEditPropExternalsValue::OnEnChangeRevisionNum()
 {
     UpdateData();
-    if (m_sRevision.IsEmpty() && m_sPegRev.IsEmpty())
+    if (m_sRevision.IsEmpty())
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     else
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);

@@ -578,11 +578,9 @@
     <ClCompile Include="Properties\EditPropNeedsLock.cpp" />
     <ClCompile Include="Properties\EditPropTSVNLang.cpp" />
     <ClCompile Include="Properties\EditPropTSVNSizes.cpp" />
-    <ClCompile Include="RecycleBinDlg.cpp" />
     <ClCompile Include="RepoCreationFinished.cpp" />
     <ClCompile Include="RevisionGraph\RemoveTags.cpp" />
     <ClCompile Include="Settings\SetOverlayHandlers.cpp" />
-    <ClCompile Include="Settings\SettingsDialogs3.cpp" />
     <ClCompile Include="UpdateDlg.cpp" />
     <ClCompile Include="Commands\AddCommand.cpp" />
     <ClCompile Include="AddDlg.cpp" />
@@ -624,6 +622,7 @@
     <ClCompile Include="Settings\SettingsLogCaches.cpp" />
     <ClCompile Include="Settings\SettingsProgsDiff.cpp" />
     <ClCompile Include="Settings\SettingsProgsMerge.cpp" />
+    <ClCompile Include="Settings\SettingsProgsUniDiff.cpp" />
     <ClCompile Include="Settings\SettingsPropPage.cpp" />
     <ClCompile Include="Settings\SettingsRevGraphColors.cpp" />
     <ClCompile Include="Settings\SettingsRevisionGraph.cpp" />
@@ -909,11 +908,9 @@
     <ClInclude Include="Properties\EditPropNeedsLock.h" />
     <ClInclude Include="Properties\EditPropTSVNLang.h" />
     <ClInclude Include="Properties\EditPropTSVNSizes.h" />
-    <ClInclude Include="RecycleBinDlg.h" />
     <ClInclude Include="RepoCreationFinished.h" />
     <ClInclude Include="RevisionGraph\RemoveTags.h" />
     <ClInclude Include="Settings\SetOverlayHandlers.h" />
-    <ClInclude Include="Settings\SettingsDialogs3.h" />
     <ClInclude Include="UpdateDlg.h" />
     <ClInclude Include="Commands\AddCommand.h" />
     <ClInclude Include="AddDlg.h" />
@@ -955,6 +952,7 @@
     <ClInclude Include="Settings\SettingsLogCaches.h" />
     <ClInclude Include="Settings\SettingsProgsDiff.h" />
     <ClInclude Include="Settings\SettingsProgsMerge.h" />
+    <ClInclude Include="Settings\SettingsProgsUniDiff.h" />
     <ClInclude Include="Settings\SettingsPropPage.h" />
     <ClInclude Include="Settings\SettingsRevGraphColors.h" />
     <ClInclude Include="Settings\SettingsRevisionGraph.h" />
