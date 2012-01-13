@@ -25,6 +25,7 @@
 #include "TempFile.h"
 #include "XSplitter.h"
 #include "SVNPatch.h"
+#include "FindDlg.h"
 
 class CLeftView;
 class CRightView;
@@ -61,6 +62,7 @@ protected:
     void            ClearViewNamesAndPaths();
     void            SetWindowTitle();
 
+    afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
     afx_msg void    OnApplicationLook(UINT id);
     afx_msg void    OnUpdateApplicationLook(CCmdUI* pCmdUI);
@@ -71,6 +73,9 @@ protected:
     afx_msg void    OnFileReload();
     afx_msg void    OnClose();
     afx_msg void    OnActivate(UINT, CWnd*, BOOL);
+    afx_msg void    OnEditFind();
+    afx_msg void    OnEditFindnext();
+    afx_msg void    OnEditFindprev();
     afx_msg void    OnViewWhitespaces();
     afx_msg int     OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void    OnSize(UINT nType, int cx, int cy);
@@ -107,8 +112,6 @@ protected:
     afx_msg void    OnUpdateEditUndo(CCmdUI *pCmdUI);
     afx_msg void    OnViewInlinediffword();
     afx_msg void    OnUpdateViewInlinediffword(CCmdUI *pCmdUI);
-    afx_msg void    OnViewInlinediff();
-    afx_msg void    OnUpdateViewInlinediff(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateEditCreateunifieddifffile(CCmdUI *pCmdUI);
     afx_msg void    OnEditCreateunifieddifffile();
     afx_msg void    OnUpdateViewLinediffbar(CCmdUI *pCmdUI);
@@ -153,6 +156,10 @@ protected:
     bool            FileSave(bool bCheckResolved=true);
     void            PatchSave();
     bool            FileSaveAs(bool bCheckResolved=true);
+    bool            StringFound(const CString&)const;
+    enum SearchDirection{SearchNext=0, SearchPrevious=1};
+    void            Search(SearchDirection);
+    int             FindSearchStart(int nDefault);
     /// checks if there are modifications and asks the user to save them first
     /// IDCANCEL is returned if the user wants to cancel.
     /// If the user wanted to save the modifications, this method does the saving
@@ -187,10 +194,16 @@ protected:
     BOOL            m_bInitSplitter;
     bool            m_bCheckReload;
 
+    int             m_nSearchIndex;
+    CString         m_sFindText;
+    BOOL            m_bMatchCase;
+    bool            m_bLimitToDiff;
+    bool            m_bWholeWord;
+    static const UINT m_FindDialogMessage;
+    CFindDlg *      m_pFindDialog;
     bool            m_bHasConflicts;
 
     bool            m_bInlineWordDiff;
-    bool            m_bInlineDiff;
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
 

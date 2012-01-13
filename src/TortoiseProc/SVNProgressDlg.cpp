@@ -48,7 +48,6 @@
 #include "BstrSafeVector.h"
 #include "..\..\TSVNCache\CacheInterface.h"
 #include "SmartHandle.h"
-#include "RecycleBinDlg.h"
 
 BOOL    CSVNProgressDlg::m_bAscending = FALSE;
 int     CSVNProgressDlg::m_nSortedColumn = -1;
@@ -121,8 +120,6 @@ CSVNProgressDlg::~CSVNProgressDlg()
         delete m_arData[i];
     }
     delete m_pThread;
-    if (m_boldFont)
-        DeleteObject(m_boldFont);
 }
 
 void CSVNProgressDlg::DoDataExchange(CDataExchange* pDX)
@@ -273,9 +270,9 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
     case svn_wc_notify_update_add:
         if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
         {
-            data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+            data->color = m_Colors.GetColor(CColors::Conflict);
             data->bConflictedActionItem = true;
-            data->sActionColumnText.LoadString(((m_options & ProgOptDryRun)!=0) ? IDS_SVNACTION_DRYRUN_CONFLICTED : IDS_SVNACTION_CONFLICTED);
+            data->sActionColumnText.LoadString(IDS_SVNACTION_CONFLICTED);
             m_nConflicts++;
             m_bConflictWarningShown = false;
         }
@@ -303,7 +300,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->bAuxItem = true;
                 data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
                 data->sPathColumnText.Format(IDS_PROGRS_COPYDEPTH_WARNING, SVNStatus::GetDepthString(m_depth));
-                data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+                data->color = m_Colors.GetColor(CColors::Conflict);
                 CSoundUtils::PlayTSVNWarning();
 
                 m_bWarningShown = true;
@@ -354,7 +351,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
             data->bAuxItem = true;
             data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
             data->sPathColumnText.Format(IDS_PROGRS_COPYDEPTH_WARNING, SVNStatus::GetDepthString(m_depth));
-            data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+            data->color = m_Colors.GetColor(CColors::Conflict);
             CSoundUtils::PlayTSVNWarning();
 
             m_bWarningShown = true;
@@ -367,11 +364,11 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
     case svn_wc_notify_exists:
         if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
         {
-            data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+            data->color = m_Colors.GetColor(CColors::Conflict);
             data->bConflictedActionItem = true;
             m_nConflicts++;
             m_bConflictWarningShown = false;
-            data->sActionColumnText.LoadString(((m_options & ProgOptDryRun)!=0) ? IDS_SVNACTION_DRYRUN_CONFLICTED : IDS_SVNACTION_CONFLICTED);
+            data->sActionColumnText.LoadString(IDS_SVNACTION_CONFLICTED);
         }
         else if ((data->content_state == svn_wc_notify_state_merged) || (data->prop_state == svn_wc_notify_state_merged))
         {
@@ -402,11 +399,11 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
         }
         if ((data->content_state == svn_wc_notify_state_conflicted) || (data->prop_state == svn_wc_notify_state_conflicted))
         {
-            data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+            data->color = m_Colors.GetColor(CColors::Conflict);
             data->bConflictedActionItem = true;
             m_nConflicts++;
             m_bConflictWarningShown = false;
-            data->sActionColumnText.LoadString(((m_options & ProgOptDryRun)!=0) ? IDS_SVNACTION_DRYRUN_CONFLICTED : IDS_SVNACTION_CONFLICTED);
+            data->sActionColumnText.LoadString(IDS_SVNACTION_CONFLICTED);
         }
         else if ((data->content_state == svn_wc_notify_state_merged) || (data->prop_state == svn_wc_notify_state_merged))
         {
@@ -442,7 +439,6 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 m_UpdateStartRevMap[m_basePath.GetSVNApiPath(pool)] = s->changed_rev;
             data->sActionColumnText.LoadString(IDS_SVNACTION_EXTERNAL);
             data->bAuxItem = true;
-            data->bBold = true;
         }
         break;
 
@@ -460,7 +456,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->bAuxItem = true;
                 data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
                 data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
-                data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+                data->color = m_Colors.GetColor(CColors::Conflict);
                 data->bConflictSummary = true;
                 CSoundUtils::PlayTSVNWarning();
                 m_bConflictWarningShown = true;
@@ -489,7 +485,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                 data->bAuxItem = true;
                 data->sActionColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED_WARNING);
                 data->sPathColumnText.LoadString(IDS_PROGRS_CONFLICTSOCCURED);
-                data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+                data->color = m_Colors.GetColor(CColors::Conflict);
                 data->bConflictSummary = true;
                 CSoundUtils::PlayTSVNWarning();
                 m_bConflictWarningShown = true;
@@ -602,7 +598,7 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
         break;
     case svn_wc_notify_tree_conflict:
         data->sActionColumnText.LoadString(IDS_SVNACTION_TREECONFLICTED);
-        data->color = m_Colors.GetColor(((m_options & ProgOptDryRun)!=0) ? CColors::DryRunConflict : CColors::Conflict);
+        data->color = m_Colors.GetColor(CColors::Conflict);
         data->bConflictedActionItem = true;
         data->bTreeConflict = true;
         m_nConflicts++;
@@ -856,14 +852,6 @@ void CSVNProgressDlg::ResizeColumns()
 
         for (int index = 0; index<count; ++index)
         {
-            HFONT hFont = NULL;
-            if (m_arData[index]->bBold)
-            {
-                hFont = (HFONT)m_ProgList.SendMessage(WM_GETFONT);
-                // set the bold font and ask for the string width again
-                m_ProgList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont, NULL);
-            }
-
             // get the width of the string and add 12 pixels for the column separator and margins
             int linewidth = cx;
             switch (col)
@@ -878,12 +866,6 @@ void CSVNProgressDlg::ResizeColumns()
                 linewidth = m_ProgList.GetStringWidth(m_arData[index]->mime_type) + 12;
                 break;
             }
-            if (m_arData[index]->bBold)
-            {
-                // restore the system font
-                m_ProgList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
-            }
-
             if (cx < linewidth)
                 cx = linewidth;
         }
@@ -949,15 +931,6 @@ BOOL CSVNProgressDlg::OnInitDialog()
         m_pThread->m_bAutoDelete = FALSE;
         m_pThread->ResumeThread();
     }
-
-    // use the default GUI font, create a copy of it and
-    // change the copy to BOLD (leave the rest of the font
-    // the same)
-    HFONT hFont = (HFONT)m_ProgList.SendMessage(WM_GETFONT);
-    LOGFONT lf = {0};
-    GetObject(hFont, sizeof(LOGFONT), &lf);
-    lf.lfWeight = FW_BOLD;
-    m_boldFont = CreateFontIndirect(&lf);
 
     UpdateData(FALSE);
 
@@ -1458,13 +1431,6 @@ void CSVNProgressDlg::OnNMCustomdrawSvnprogress(NMHDR *pNMHDR, LRESULT *pResult)
 
         // Store the color back in the NMLVCUSTOMDRAW struct.
         pLVCD->clrText = data->color;
-        if (data->bBold)
-        {
-            SelectObject(pLVCD->nmcd.hdc, m_boldFont);
-            // We changed the font, so we're returning CDRF_NEWFONT. This
-            // tells the control to recalculate the extent of the text.
-            *pResult = CDRF_NEWFONT;
-        }
     }
 }
 
@@ -2258,8 +2224,7 @@ bool CSVNProgressDlg::CmdCheckout(CString& sWindowTitle, bool& /*localoperation*
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2347,8 +2312,7 @@ bool CSVNProgressDlg::CmdSparseCheckout(CString& sWindowTitle, bool& /*localoper
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2479,8 +2443,7 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
     }
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_hWnd, m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2522,8 +2485,7 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
     {
         OnCommitFinished();
     }
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_hWnd, m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2550,8 +2512,7 @@ bool CSVNProgressDlg::CmdCopy(CString& sWindowTitle, bool& /*localoperation*/)
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_hWnd, m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2627,8 +2588,7 @@ bool CSVNProgressDlg::CmdCopy(CString& sWindowTitle, bool& /*localoperation*/)
 
     OnCommitFinished();
 
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_hWnd, m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2676,8 +2636,7 @@ bool CSVNProgressDlg::CmdImport(CString& sWindowTitle, bool& /*localoperation*/)
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_hWnd, m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreCommit(m_selectedPaths, m_depth, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2697,8 +2656,7 @@ bool CSVNProgressDlg::CmdImport(CString& sWindowTitle, bool& /*localoperation*/)
         return false;
     }
 
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_hWnd, m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostCommit(m_selectedPaths, m_depth, m_RevisionEnd, m_sMessage, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3166,13 +3124,7 @@ bool CSVNProgressDlg::CmdRevert(CString& sWindowTitle, bool& localoperation)
 
     CTSVNPathList delList = m_selectedPaths;
     if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)))
-    {
-        CRecycleBinDlg rec;
-        rec.StartTime();
-        int count = delList.GetCount();
         delList.DeleteAllPaths(true, true);
-        rec.EndTime(count);
-    }
 
     ReportCmd(CString(MAKEINTRESOURCE(IDS_PROGRS_CMD_REVERT)));
     CBlockCacheForPath cacheBlock (m_targetPathList.GetCommonRoot().GetWinPath());
@@ -3206,8 +3158,7 @@ bool CSVNProgressDlg::CmdSwitch(CString& sWindowTitle, bool& /*localoperation*/)
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_hWnd, m_targetPathList, m_depth, m_Revision, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_targetPathList, m_depth, m_Revision, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3223,8 +3174,7 @@ bool CSVNProgressDlg::CmdSwitch(CString& sWindowTitle, bool& /*localoperation*/)
         return false;
     }
 
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3251,8 +3201,7 @@ bool CSVNProgressDlg::CmdSwitchBackToParent( CString& sWindowTitle, bool& /*loca
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_hWnd, m_targetPathList, m_depth, m_Revision, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_targetPathList, m_depth, m_Revision, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3294,8 +3243,7 @@ bool CSVNProgressDlg::CmdSwitchBackToParent( CString& sWindowTitle, bool& /*loca
         }
     }
 
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3375,8 +3323,7 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
 
     DWORD exitcode = 0;
     CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_hWnd, m_targetPathList, m_depth, nUUIDs > 1 ? revstore : m_Revision, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PreUpdate(m_targetPathList, m_depth, nUUIDs > 1 ? revstore : m_Revision, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3414,8 +3361,7 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
             return false;
         }
     }
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {

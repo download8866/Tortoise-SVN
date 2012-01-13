@@ -4903,30 +4903,6 @@ msgid "If this property is not set, a default regular expression is used to link
 msgstr ""
 
 #. (para)
-msgid "There are several properties available to configure client-side hook scripts. Each property is for one specific hook script type."
-msgstr ""
-
-#. (para)
-msgid "The available properties/hook-scripts are <literal>tsvn:startcommithook</literal>, <literal>tsvn:precommithook</literal>, <literal>tsvn:postcommithook</literal>, <literal>tsvn:startupdatehook</literal>, <literal>tsvn:preupdatehook</literal> and <literal>tsvn:postupdatehook</literal>."
-msgstr ""
-
-#. (para)
-msgid "The parameters are the same as if you would configure the hook scripts in the settings dialog. See <xref linkend=\"tsvn-dug-settings-hooks\"/> for the details."
-msgstr ""
-
-#. (para)
-msgid "Since not every user has his or her working copy checked out at the same location with the same name, you can configure a script/tool to execute that resides in your working copy by specifying the url in the repository instead, using <filename>%REPOROOT%</filename> as the part of the url to the repository root. For example, if your hook script is in your working copy under <filename>contrib/hook-scripts/client-side/checkyear.js</filename>, you would specify the path to the script as <filename>%REPOROOT%/trunk/contrib/hook-scripts/client-side/checkyear.js</filename>. This way even if you move your repository to another server you do not have to adjust the hook script properties."
-msgstr ""
-
-#. (title)
-msgid "Property dialog for hook scripts"
-msgstr ""
-
-#. (para)
-msgid "The following screenshot shows how the script to check for current copyright years in source file headers is configured for TortoiseSVN. <placeholder-1/>"
-msgstr ""
-
-#. (para)
 msgid "When you want to add a new property, you can either pick one from the list in the combo box, or you can enter any property name you like. If your project uses some custom properties, and you want those properties to appear in the list in the combo box (to avoid typos when you enter a property name), you can create a list of your custom properties using <literal>tsvn:userfileproperties</literal> and <literal>tsvn:userdirproperties</literal>. Apply these properties to a folder. When you go to edit the properties of any child item, your custom properties will appear in the list of pre-defined property names."
 msgstr ""
 
@@ -7426,38 +7402,6 @@ msgid "If your project is using the <literal>tsvn:lockmsgminsize</literal> prope
 msgstr ""
 
 #. (title)
-msgid "TortoiseSVN Dialog Settings 3"
-msgstr ""
-
-#. (title)
-msgid "The Settings Dialog, Dialogs 3 Page"
-msgstr ""
-
-#. (term)
-msgid "Pre-fetch folders for faster browsing"
-msgstr ""
-
-#. (para)
-msgid "If this box is checked (default state), then the repository browser fetches information about shown folders in the background. That way as soon as you browse into one of those folders, the information is already available."
-msgstr ""
-
-#. (para)
-msgid "Some servers however can't handle the multiple requests this causes or when not configured correctly treat so many requests as something bad and start blocking them. In this case you can disable the pre-fetching here."
-msgstr ""
-
-#. (term)
-msgid "Show externals"
-msgstr ""
-
-#. (para)
-msgid "If this box is checked (default state), then the repository browser shows files and folders that are included with the <literal>svn:externals</literal> property as normal files and folders, but with an overlay icon to mark them as from an external source."
-msgstr ""
-
-#. (para)
-msgid "As with the pre-fetch feature explained above, this too can put too much stress on weak servers. In this case you can disable this feature here."
-msgstr ""
-
-#. (title)
 msgid "TortoiseSVN Colour Settings"
 msgstr ""
 
@@ -8010,14 +7954,6 @@ msgstr ""
 msgid "If you have configured an alternate diff tool, you can access TortoiseMerge <emphasis>and</emphasis> the third party tool from the context menus. <menuchoice><guimenu>Context menu</guimenu><guimenuitem>Diff</guimenuitem></menuchoice> uses the primary diff tool, and <keycap>Shift</keycap>+ <menuchoice><guimenu>Context menu</guimenu><guimenuitem>Diff</guimenuitem></menuchoice> uses the secondary diff tool."
 msgstr ""
 
-#. (para)
-msgid "At the bottom of the dialog you can configure a viewer program for unified-diff files (patch files). No parameters are required. The <guilabel>Default</guilabel> setting is to use TortoiseUDiff which is installed alongside TortoiseSVN, and colour-codes the added and removed lines."
-msgstr ""
-
-#. (para)
-msgid "Since Unified Diff is just a text format, you can use your favourite text editor if you prefer."
-msgstr ""
-
 #. (title)
 msgid "Merge Tool"
 msgstr ""
@@ -8082,6 +8018,18 @@ msgstr ""
 
 #. (para)
 msgid "To associate using a file extension, you need to specify the extension. Use <literal>.bmp</literal> to describe Windows bitmap files. To associate using the <literal>svn:mime-type</literal> property, specify the mime type, including a slash, for example <literal>text/xml</literal>."
+msgstr ""
+
+#. (title)
+msgid "Unified Diff Viewer"
+msgstr ""
+
+#. (para)
+msgid "A viewer program for unified-diff files (patch files). No parameters are required. The <guilabel>Default</guilabel> setting is to use TortoiseUDiff which is installed alongside TortoiseSVN, and colour-codes the added and removed lines."
+msgstr ""
+
+#. (para)
+msgid "Since Unified Diff is just a text format, you can use your favourite text editor if you prefer."
 msgstr ""
 
 #. (title)
@@ -12405,19 +12353,27 @@ msgid "<guilabel>Backup original file</guilabel> renames the original file in th
 msgstr ""
 
 #. (para)
-msgid "<guilabel>Default to UTF-8 encoding</guilabel> when set, ANSI files are loaded as UTF8 encoded and saved as such when edited."
-msgstr ""
-
-#. (para)
-msgid "<guilabel>Max line length for inline diffs</guilabel> TortoiseMerge can get slow when showing inline diffs for very long lines. Because of that only lines that are shorter than 3000 chars are shown with inline diffs. You can change this value here."
-msgstr ""
-
-#. (para)
 msgid "<guilabel>Ignore line endings</guilabel> hides changes which are due solely to difference in line-end style."
 msgstr ""
 
 #. (para)
 msgid "<guilabel>Ignore case changes</guilabel> hides changes which are due solely to case changes within the text. This can be useful with apps such as Visual Basic, which changes case in variables without warning."
+msgstr ""
+
+#. (para)
+msgid "<guilabel>Colour code in-line changes</guilabel> uses the same scheme as the line diff bar to show the detailed in-line changes within the main display panes. Lines which have been heavily modified will not be shown using this method as the results are simply confusing. In this case the line will be shown as replaced (old line deleted, new line added)."
+msgstr ""
+
+#. (para)
+msgid "<guilabel>Compare whitespaces</guilabel> shows all changes in indentation and inline whitespace as added/removed lines (which is how Subversion treats such changes)."
+msgstr ""
+
+#. (para)
+msgid "<guilabel>Ignore whitespace changes</guilabel> hides changes which are due solely to a change in the amount or type of whitespace, e.g. changing the indentation or changing tabs to spaces. Adding whitespace where there was none before, or removing a whitespace completely is still shown as a change."
+msgstr ""
+
+#. (para)
+msgid "<guilabel>Ignore all whitespaces</guilabel> hides all whitespace-only changes."
 msgstr ""
 
 #. (title)

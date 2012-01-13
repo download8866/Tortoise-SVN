@@ -30,7 +30,6 @@
 #include "SVNStatus.h"
 #include "SVNHelpers.h"
 #include "..\..\TSVNCache\CacheInterface.h"
-#include "RecycleBinDlg.h"
 
 bool CleanupCommand::Execute()
 {
@@ -136,13 +135,7 @@ bool CleanupCommand::Execute()
         {
             CTSVNPathList revertItems = itemsToRevert;
             if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)))
-            {
-                CRecycleBinDlg rec;
-                rec.StartTime();
-                int count = itemsToRevert.GetCount();
                 itemsToRevert.DeleteAllPaths(true, true);
-                rec.EndTime(count);
-            }
             SVN svn;
             if (!svn.Revert(revertItems, CStringArray(), false))
             {
