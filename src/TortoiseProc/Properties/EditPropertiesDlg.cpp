@@ -42,11 +42,7 @@
 #include "EditPropExternals.h"
 #include "EditPropTSVNSizes.h"
 #include "EditPropTSVNLang.h"
-#include "EditPropsLocalHooks.h"
-#include "EditPropUserBool.h"
-#include "EditPropUserState.h"
-#include "EditPropUserSingleLine.h"
-#include "EditPropUserMultiLine.h"
+
 
 #define ID_CMD_PROP_SAVEVALUE   1
 #define ID_CMD_PROP_REMOVE      2
@@ -146,76 +142,10 @@ BOOL CEditPropertiesDlg::OnInitDialog()
         GetDlgItem(IDC_EXPORT)->ShowWindow(SW_HIDE);
     }
 
-    if (m_pProjectProperties)
-    {
-        int curPos = 0;
-        CString resToken = m_pProjectProperties->sFPPath.Tokenize(_T("\n"),curPos);
-        while (resToken != "")
-        {
-            UserProp up(true);
-            if (up.Parse(resToken))
-                m_userProperties.push_back(up);
-            resToken = m_pProjectProperties->sFPPath.Tokenize(_T("\n"),curPos);
-        }
-
-        curPos = 0;
-        resToken = m_pProjectProperties->sDPPath.Tokenize(_T("\n"),curPos);
-        while (resToken != "")
-        {
-            UserProp up(false);
-            if (up.Parse(resToken))
-                m_userProperties.push_back(up);
-            resToken = m_pProjectProperties->sDPPath.Tokenize(_T("\n"),curPos);
-        }
-    }
-
-
     m_newMenu.LoadMenu(IDR_PROPNEWMENU);
     m_btnNew.m_hMenu = m_newMenu.GetSubMenu(0)->GetSafeHmenu();
     m_btnNew.m_bOSMenu = TRUE;
     m_btnNew.m_bRightArrow = TRUE;
-
-    // add the user property names to the menu
-    int menuID = 50000;
-    bool bFolder = true;
-    bool bFile = true;
-    if (m_pathlist.GetCount() == 1)
-    {
-        if (PathIsDirectory(m_pathlist[0].GetWinPath()))
-        {
-            bFolder = true;
-            bFile = false;
-        }
-        else
-        {
-            bFolder = false;
-            bFile = true;
-        }
-        if (m_pathlist[0].IsUrl())
-        {
-            if (m_bUrlIsFolder)
-            {
-                bFolder = true;
-                bFile = false;
-            }
-            else
-            {
-                bFolder = false;
-                bFile = true;
-            }
-        }
-    }
-    for (auto it = m_userProperties.begin(); it != m_userProperties.end(); ++it)
-    {
-        if ((it->propType != UserPropTypeUnknown)&&(!it->propName.IsEmpty()))
-        {
-            if ( (bFile && it->file) || (bFolder && !it->file) )
-            {
-                if (InsertMenu(m_btnNew.m_hMenu, (UINT)-1, MF_BYPOSITION, menuID, it->propName))
-                    it->SetMenuID(menuID++);
-            }
-        }
-    }
 
     m_editMenu.LoadMenu(IDR_PROPEDITMENU);
     m_btnEdit.m_hMenu = m_editMenu.GetSubMenu(0)->GetSafeHmenu();
@@ -391,7 +321,6 @@ UINT CEditPropertiesDlg::PropsThread()
         RemoveMenu(m_btnNew.m_hMenu, ID_NEW_LOGSIZES, MF_BYCOMMAND);
         RemoveMenu(m_btnNew.m_hMenu, ID_NEW_BUGTRAQ, MF_BYCOMMAND);
         RemoveMenu(m_btnNew.m_hMenu, ID_NEW_LANGUAGES, MF_BYCOMMAND);
-        RemoveMenu(m_btnNew.m_hMenu, ID_NEW_LOCALHOOKS, MF_BYCOMMAND);
     }
     return 0;
 }
@@ -504,27 +433,9 @@ void CEditPropertiesDlg::OnBnClickedAddprops()
     case ID_NEW_LANGUAGES:
         EditProps(true, "tsvn:lang", true);
         break;
-    case ID_NEW_LOCALHOOKS:
-        EditProps(true, PROJECTPROPNAME_STARTCOMMITHOOK, true);
-        break;
     case ID_NEW_ADVANCED:
-        EditProps(false, "", true);
-        break;
     default:
-        // maybe a user property?
-        {
-            bool bFound = false;
-            for (auto it = m_userProperties.cbegin(); it != m_userProperties.cend(); ++it)
-            {
-                if (it->GetMenuID() == m_btnNew.m_nMenuResult)
-                {
-                    bFound = true;
-                    EditProps(true, (LPCSTR)CUnicodeUtils::GetUTF8(it->propName), true);
-                }
-            }
-            if (!bFound)
-                EditProps(false, "", true);
-        }
+        EditProps(false, "", true);
         break;
     }
 }
@@ -560,53 +471,8 @@ EditPropBase * CEditPropertiesDlg::GetPropDialog(bool bDefault, const std::strin
         (sName.compare(PROJECTPROPNAME_PROJECTLANGUAGE) == 0) ||
         (sName.compare("tsvn:lang") == 0))
         dlg = new CEditPropTSVNLang(this);
-    else if ((sName.compare(PROJECTPROPNAME_STARTCOMMITHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_PRECOMMITHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_POSTCOMMITHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_STARTUPDATEHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_PREUPDATEHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_POSTUPDATEHOOK) == 0))
-        dlg = new CEditPropsLocalHooks(this);
     else
-    {
-        // before using the default dialog find out if this
-        // is maybe a user property with one of the user property dialogs
-        if (m_userProperties.size())
-        {
-            for (auto it = m_userProperties.cbegin(); it != m_userProperties.cend(); ++it)
-            {
-                if (sName.compare(CUnicodeUtils::GetUTF8(it->propName)) == 0)
-                {
-                    // user property found, but what kind?
-                    switch (it->propType)
-                    {
-                    case UserPropTypeBool:
-                        {
-                            dlg = new EditPropUserBool(this, &(*it));
-                        }
-                        break;
-                    case UserPropTypeState:
-                        {
-                            dlg = new EditPropUserState(this, &(*it));
-                        }
-                        break;
-                    case UserPropTypeSingleLine:
-                        {
-                            dlg = new EditPropUserSingleLine(this, &(*it));
-                        }
-                        break;
-                    case UserPropTypeMultiLine:
-                        {
-                            dlg = new EditPropUserMultiLine(this, &(*it));
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        if (dlg == NULL)
-            dlg = new CEditPropertyValueDlg(this);
-    }
+        dlg = new CEditPropertyValueDlg(this);
 
     return dlg;
 }
@@ -703,9 +569,6 @@ void CEditPropertiesDlg::EditProps(bool bDefault, const std::string& propName /*
                         {
                             for (IT propsit = dlgprops.begin(); propsit != dlgprops.end(); ++propsit)
                             {
-                                if (dlg->IsFolderOnlyProperty())
-                                    props.AddFolderPropName(propsit->first);
-
                                 prog.SetLine(1, CUnicodeUtils::StdGetUnicode(propsit->first).c_str());
                                 BOOL ret = FALSE;
                                 if (propsit->second.remove)
@@ -732,8 +595,6 @@ void CEditPropertiesDlg::EditProps(bool bDefault, const std::string& propName /*
                         }
                         else
                         {
-                            if (dlg->IsFolderOnlyProperty())
-                                props.AddFolderPropName(sName);
                             bool bRemove = false;
                             if ((sName.substr(0, 4).compare("svn:") == 0) ||
                                 (sName.substr(0, 5).compare("tsvn:") == 0) ||

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2012 - TortoiseSVN
+// Copyright (C) 2006-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,7 +69,6 @@ CTortoiseMergeApp::CTortoiseMergeApp()
     EnableHtmlHelp();
     m_bLoadUserToolbars = FALSE;
     m_bSaveState = FALSE;
-    m_bHiColorIcons = TRUE;
 }
 
 // The one and only CTortoiseMergeApp object
@@ -83,6 +82,9 @@ BOOL CTortoiseMergeApp::InitInstance()
 {
     SetDllDirectory(L"");
     SetTaskIDPerUUID();
+
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+    CMFCButton::EnableWindowsTheming();
 
     {
         DWORD len = GetCurrentDirectory(0, NULL);
@@ -183,22 +185,10 @@ BOOL CTortoiseMergeApp::InitInstance()
     // visual styles.  Otherwise, any window creation will fail.
     InitCommonControls();
 
-    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
-    CMFCButton::EnableWindowsTheming();
-    EnableTaskbarInteraction(FALSE);
-
     // Initialize all Managers for usage. They are automatically constructed
     // if not yet present
     InitContextMenuManager();
     InitKeyboardManager();
-    InitTooltipManager ();
-    CMFCToolTipInfo params;
-    params.m_bVislManagerTheme = TRUE;
-
-    GetTooltipManager ()->SetTooltipParams (
-        AFX_TOOLTIP_TYPE_ALL,
-        RUNTIME_CLASS (CMFCToolTipCtrl),
-        &params);
 
     CCmdLineParser parser = CCmdLineParser(this->m_lpCmdLine);
 

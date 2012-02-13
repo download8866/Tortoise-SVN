@@ -56,7 +56,6 @@
 #include "FormatMessageWrapper.h"
 #include "AsyncCall.h"
 #include "DiffOptionsDlg.h"
-#include "RecycleBinDlg.h"
 
 #include <tuple>
 
@@ -112,12 +111,9 @@ const static CString svnPropIgnore (SVN_PROP_IGNORE);
 #define IDSVNLC_CHECKFORMODS    37
 #define IDSVNLC_REPAIRCOPY      38
 #define IDSVNLC_SWITCH          39
-#define IDSVNLC_COMPARETWO      40
-#define IDSVNLC_CREATERESTORE   41
-#define IDSVNLC_RESTOREPATH     42
 // the IDSVNLC_MOVETOCS *must* be the last index, because it contains a dynamic submenu where
 // the submenu items get command ID's sequent to this number
-#define IDSVNLC_MOVETOCS        43
+#define IDSVNLC_MOVETOCS        40
 
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
@@ -288,8 +284,6 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
         SYS_IMAGE_LIST().SetOverlayImage(m_nDepthImmediatesOvl, OVL_DEPTHIMMEDIATES);
         m_nDepthEmptyOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_DEPTHEMPTYOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(m_nDepthEmptyOvl, OVL_DEPTHEMPTY);
-        m_nRestoreOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_RESTOREOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
-        SYS_IMAGE_LIST().SetOverlayImage(m_nRestoreOvl, OVL_RESTORE);
         SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
         m_ColumnManager.ReadSettings (m_dwDefaultColumns, sColumnInfoContainer);
@@ -1628,18 +1622,6 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, int listIndex)
         lvItem.state = INDEXTOOVERLAYMASK(OVL_DEPTHIMMEDIATES);
     else if (entry->depth == svn_depth_empty)
         lvItem.state = INDEXTOOVERLAYMASK(OVL_DEPTHEMPTY);
-    if (m_restorepaths.size())
-    {
-        for (auto it = m_restorepaths.cbegin(); it != m_restorepaths.cend(); ++it)
-        {
-            if (entry->path.IsEquivalentTo(CTSVNPath(it->second)))
-            {
-                entry->restorepath = it->first;
-                lvItem.state = INDEXTOOVERLAYMASK(OVL_RESTORE);
-                break;
-            }
-        }
-    }
     InsertItem(&lvItem);
 
     SetCheck(listIndex, entry->checked);
@@ -2533,6 +2515,7 @@ void CSVNStatusListCtrl::Revert (const CTSVNPath& filepath)
             taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK3)));
             taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK4)));
             taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+            taskdlg.SetExpansionArea(CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK5)));
             taskdlg.SetDefaultCommandControl(2);
             taskdlg.SetMainIcon(TD_WARNING_ICON);
             bDoRevert = (taskdlg.DoModal(m_hWnd) == 1);
@@ -2570,15 +2553,8 @@ void CSVNStatusListCtrl::Revert (const CTSVNPath& filepath)
             delList.AddPath(entry2->GetPath());
         }
     }
-
     if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)))
-    {
-        CRecycleBinDlg rec;
-        rec.StartTime();
-        int count = delList.GetCount();
         delList.DeleteAllPaths(true, true);
-        rec.EndTime(count);
-    }
 
     if (!svn.Revert(targetList, CStringArray(), bRecursive && !bNonRecursive))
     {
@@ -2796,28 +2772,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
             if (selectedCount > 0)
             {
                 if ((selectedCount == 2)&&
-                    (m_dwContextMenus & SVNSLC_POPCOMPARETWO))
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    int index = GetNextSelectedItem(pos);
-                    if (index >= 0)
-                    {
-                        bool bothItemsAreFiles = true;
-                        FileEntry * entry2 = GetListEntry(index);
-                        if (entry2)
-                            bothItemsAreFiles = !entry2->IsFolder();
-                        index = GetNextSelectedItem(pos);
-                        if (index >= 0)
-                        {
-                            entry2 = GetListEntry(index);
-                            if (entry2)
-                                bothItemsAreFiles = bothItemsAreFiles && !entry2->IsFolder();
-                            if (bothItemsAreFiles)
-                                popup.AppendMenuIcon(IDSVNLC_COMPARETWO, IDS_STATUSLIST_CONTEXT_COMPARETWO, IDI_DIFF);
-                        }
-                    }
-                }
-                if ((selectedCount == 2)&&
                     ((m_dwContextMenus & SVNSLC_POPREPAIRMOVE)||(m_dwContextMenus & SVNSLC_POPREPAIRCOPY)))
                 {
                     POSITION pos = GetFirstSelectedItemPosition();
@@ -2862,13 +2816,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                             popup.AppendMenuIcon(IDSVNLC_REVERT, IDS_MENUUNDOADD, IDI_REVERT);
                         else
                             popup.AppendMenuIcon(IDSVNLC_REVERT, IDS_MENUREVERT, IDI_REVERT);
-                    }
-                    if (m_dwContextMenus & SVNSLC_POPRESTORE)
-                    {
-                        if (entry->GetRestorePath().IsEmpty())
-                            popup.AppendMenuIcon(IDSVNLC_CREATERESTORE, IDS_MENUCREATERESTORE, IDI_RESTORE);
-                        else
-                            popup.AppendMenuIcon(IDSVNLC_RESTOREPATH, IDS_MENURESTORE, IDI_RESTORE);
                     }
                 }
                 if (entry->remotestatus > svn_wc_status_normal)
@@ -3173,61 +3120,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
             case IDSVNLC_REVERT:
                 Revert (filepath);
                 break;
-            case IDSVNLC_CREATERESTORE:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    while ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * entry2 = GetListEntry(index);
-                        ASSERT(entry2 != NULL);
-                        if (entry2 == NULL)
-                            continue;
-                        if (!entry2->GetRestorePath().IsEmpty())
-                            continue;
-                        CTSVNPath tempFile = CTempFiles::Instance().GetTempFilePath(false);
-                        if (CopyFile(entry2->GetPath().GetWinPath(), tempFile.GetWinPath(), FALSE))
-                        {
-                            entry2->restorepath = tempFile.GetWinPathString();
-                            SetItemState(index, INDEXTOOVERLAYMASK(OVL_RESTORE), LVIS_OVERLAYMASK);
-                        }
-                    }
-                    Invalidate();
-                }
-                break;
-            case IDSVNLC_RESTOREPATH:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    while ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * entry2 = GetListEntry(index);
-                        ASSERT(entry2 != NULL);
-                        if (entry2 == NULL)
-                            continue;
-                        if (entry2->GetRestorePath().IsEmpty())
-                            continue;
-                        if (CopyFile(entry2->GetRestorePath() ,entry2->GetPath().GetWinPath(), FALSE))
-                        {
-                            entry2->restorepath.Empty();
-                            // restore the original overlay
-                            UINT state = 0;
-                            if (entry2->IsNested())
-                                state = INDEXTOOVERLAYMASK(OVL_NESTED);
-                            else if (entry2->IsInExternal()||entry2->file_external)
-                                state = INDEXTOOVERLAYMASK(OVL_EXTERNAL);
-                            else if (entry2->depth == svn_depth_files)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHFILES);
-                            else if (entry2->depth == svn_depth_immediates)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHIMMEDIATES);
-                            else if (entry2->depth == svn_depth_empty)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHEMPTY);
-                            SetItemState(index, state, LVIS_OVERLAYMASK);
-                        }
-                    }
-                    Invalidate();
-                }
-                break;
             case IDSVNLC_COMPARE:
                 {
                     POSITION pos = GetFirstSelectedItemPosition();
@@ -3253,28 +3145,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                         svn_revnum_t baseRev = entry2->Revision;
                         diff.DiffFileAgainstBase(
                             entry2->path, baseRev, entry2->textstatus, entry2->propstatus);
-                    }
-                }
-                break;
-            case IDSVNLC_COMPARETWO:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    if ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * firstentry = GetListEntry(index);
-                        ASSERT(firstentry != NULL);
-                        if (firstentry == NULL)
-                            break;
-                        index = GetNextSelectedItem(pos);
-                        FileEntry * secondentry = GetListEntry(index);
-                        ASSERT(secondentry != NULL);
-                        if (secondentry == NULL)
-                            break;
-                        CString sCmd;
-                        sCmd.Format(_T("/command:diff /path:\"%s\" /path2:\"%s\" /hwnd:%ld"),
-                            firstentry->GetPath().GetWinPath(), secondentry->GetPath().GetWinPath(), (unsigned long)m_hWnd);
-                        CAppUtils::RunTortoiseProc(sCmd);
                     }
                 }
                 break;
@@ -4920,7 +4790,11 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
     if (GetSelectedCount() == 0)
         return false;
 
+    WORD langID = (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
+
     CString sClipboard;
+    CString temp;
+    TCHAR buf[100];
 
     // count the bits
     int c = 0;
@@ -5745,7 +5619,7 @@ void CSVNStatusListCtrlDropTarget::OnDrop(HDROP hDrop, POINTL pt)
     }
     // find the changelist name
     LONG_PTR nGroup = m_pSVNStatusListCtrl->GetGroupFromPoint(&clientpoint, false);
-    CString sChangelist(GetChangelistName(nGroup));
+	CString sChangelist(GetChangelistName(nGroup));
 
     SVN svn;
     if (!sChangelist.IsEmpty())

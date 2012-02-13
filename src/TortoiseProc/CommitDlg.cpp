@@ -127,14 +127,14 @@ BOOL CCommitDlg::OnInitDialog()
 
     UpdateData(FALSE);
 
-    m_ListCtrl.SetRestorePaths(m_restorepaths);
-    m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"), SVNSLC_POPALL ^ SVNSLC_POPCOMMIT);
+    m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"));
     m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
     m_ListCtrl.SetCancelBool(&m_bCancelled);
     m_ListCtrl.SetEmptyString(IDS_COMMITDLG_NOTHINGTOCOMMIT);
     m_ListCtrl.EnableFileDrop();
     m_ListCtrl.SetBackgroundImage(IDI_COMMIT_BKG);
 
+    m_ProjectProperties.ReadPropsPathList(m_pathList);
     if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE))
         m_ProjectProperties.bWarnIfNoIssue = TRUE;
     m_cLogMessage.Init(m_ProjectProperties);
@@ -457,7 +457,6 @@ void CCommitDlg::OnOK()
     bool bHasCopyPlus = false;
     std::set<CString> checkedLists;
     std::set<CString> uncheckedLists;
-    m_restorepaths.clear();
     for (int j=0; j<nListItems; j++)
     {
         const CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetConstListEntry(j);
@@ -490,10 +489,6 @@ void CCommitDlg::OnOK()
             if (entry->IsCopied())
             {
                 bHasCopyPlus = true;
-            }
-            if (!entry->GetRestorePath().IsEmpty())
-            {
-                m_restorepaths[entry->GetRestorePath()] = entry->GetPath().GetWinPathString();
             }
             checkedLists.insert(entry->GetChangeList());
         }

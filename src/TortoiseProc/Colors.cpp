@@ -138,28 +138,11 @@ CRegDWORD* CColors::GetLegacyRegistrySetting (GDIPlusColor id)
 
 COLORREF CColors::GetColor (Colors col, bool bDefault)
 {
-    switch (col)
-    {
-    case DryRunConflict:
-        {
-            COLORREF c = GetColor(Conflict);
-            static const int scale = 150;
-            long red   = MulDiv(GetRValue(c),(255-scale),255);
-            long green = MulDiv(GetGValue(c),(255-scale),255);
-            long blue  = MulDiv(GetBValue(c),(255-scale),255);
+    CRegDWORD* setting = GetRegistrySetting (col);
+    if (setting == NULL)
+        return RGB (0,0,0);
 
-            return RGB(red, green, blue);
-        }
-        break;
-    default:
-        {
-            CRegDWORD* setting = GetRegistrySetting (col);
-            if (setting == NULL)
-                return RGB (0,0,0);
-
-            return bDefault ? setting->defaultValue() : (DWORD)*setting;
-        }
-    }
+    return bDefault ? setting->defaultValue() : (DWORD)*setting;
 }
 
 void CColors::SetColor(Colors col, COLORREF cr)

@@ -65,9 +65,6 @@
     <ClInclude Include="..\Utils\TaskbarUUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="BlameIndexColors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="TortoiseBlame.ico">

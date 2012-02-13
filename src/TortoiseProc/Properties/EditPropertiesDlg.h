@@ -25,7 +25,6 @@
 #include "tstring.h"
 #include "PathEdit.h"
 #include "CriticalSection.h"
-#include "UserProperties.h"
 
 /**
  * \ingroup TortoiseProc
@@ -95,7 +94,7 @@ protected:
     SVNRev          m_revision;
     CToolTips       m_tooltips;
     CPathEdit       m_PropPath;
-    std::vector<UserProp>   m_userProperties;
+
     CMFCMenuButton  m_btnNew;
     CMFCMenuButton  m_btnEdit;
     CMenu           m_editMenu;

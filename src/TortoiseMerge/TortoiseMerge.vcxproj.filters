@@ -216,9 +216,6 @@
     <ClCompile Include="..\SVN\SVNGlobal.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GotoLineDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AboutDlg.h">
@@ -422,9 +419,6 @@
     <ClInclude Include="..\SVN\SVNGlobal.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GotoLineDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\download.avi">
@@ -481,22 +475,16 @@
     <None Include="..\Resources\moved.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Margin.cur">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\Margin.cur">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="aerobackground.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\aerobackground.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon.mfcribbon-ms">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\TortoiseMerge.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonlarge.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonsmall.png">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

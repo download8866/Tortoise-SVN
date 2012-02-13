@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,6 @@
 #include "UnicodeUtils.h"
 #include <ClipboardHelper.h>
 #include "TaskbarUUID.h"
-#include "BlameIndexColors.h"
 
 #include <algorithm>
 #include <cctype>
@@ -35,12 +34,6 @@
 #define MAX_LOADSTRING 1000
 
 #define STYLE_MARK 11
-
-#define COLORBYNONE     0
-#define COLORBYAGE      1
-#define COLORBYAGECONT  2
-#define COLORBYAUTHOR   3
-
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #pragma comment(lib, "Shlwapi.lib")
@@ -63,8 +56,6 @@ bool ShowPath = false;
 static TortoiseBlame app;
 long TortoiseBlame::m_gotoLine = 0;
 std::wstring        uuid;
-
-COLORREF colorset[MAX_BLAMECOLORS];
 
 TortoiseBlame::TortoiseBlame()
 {
@@ -101,21 +92,7 @@ TortoiseBlame::TortoiseBlame()
 
     m_lowestRev = LONG_MAX;
     m_highestRev = 0;
-    m_regcolorby = CRegStdDWORD(L"Software\\TortoiseSVN\\BlameColorBy",  COLORBYAGE);
-    m_colorby = m_regcolorby;
-
-    colorset[0] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor1",  BLAMEINDEXCOLOR1);
-    colorset[1] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor2",  BLAMEINDEXCOLOR2);
-    colorset[2] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor3",  BLAMEINDEXCOLOR3);
-    colorset[3] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor4",  BLAMEINDEXCOLOR4);
-    colorset[4] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor5",  BLAMEINDEXCOLOR5);
-    colorset[5] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor6",  BLAMEINDEXCOLOR6);
-    colorset[6] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor7",  BLAMEINDEXCOLOR7);
-    colorset[7] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor8",  BLAMEINDEXCOLOR8);
-    colorset[8] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor9",  BLAMEINDEXCOLOR9);
-    colorset[9] =  CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor10", BLAMEINDEXCOLOR10);
-    colorset[10] = CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor11", BLAMEINDEXCOLOR11);
-    colorset[11] = CRegStdDWORD(L"Software\\TortoiseSVN\\BlameIndexColor12", BLAMEINDEXCOLOR12);
+    m_colorAge = true;
 }
 
 TortoiseBlame::~TortoiseBlame()
@@ -260,7 +237,6 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
         if (len == 0)
             break;
         m_revs.push_back(rev);
-        m_revset.insert(rev);
         // author
         len = fread(&strLen, sizeof(int), 1, File);
         if (len == 0)
@@ -273,13 +249,9 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
                 break;
             stringbuf[strLen] = 0;
             m_authors.push_back(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
-            m_authorset.insert(CUnicodeUtils::StdGetUnicode(stringbuf.get()));
         }
         else
-        {
             m_authors.push_back(L"");
-            m_authorset.insert(L"");
-        }
         // date
         len = fread(&strLen, sizeof(int), 1, File);
         if (len == 0)
@@ -513,7 +485,6 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
     SetWindowPos(wMain, 0, rc.left, rc.top, rc.right-rc.left-1, rc.bottom - rc.top, 0);
 
     m_blameWidth = 0;
-    SetupColoring();
     InitSize();
 
     if (!bHasMergePaths)
@@ -562,12 +533,10 @@ void TortoiseBlame::InitialiseEditor()
     SendEditor(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
     SendEditor(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     SendEditor(SCI_SETCARETFORE, ::GetSysColor(COLOR_WINDOWTEXT));
-    SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
-    SendEditor(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED);
-    m_regOldLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameOldColor"), BLAMENEWCOLOR);
-    m_regNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameNewColor"), BLAMEOLDCOLOR);
-    m_regLocatorOldLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameLocatorOldColor"), BLAMEOLDCOLORBAR);
-    m_regLocatorNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameLocatorNewColor"), BLAMENEWCOLORBAR);
+    m_regOldLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameOldColor"), RGB(255, 255, 255));
+    m_regNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameNewColor"), RGB(255, 230, 230));
+    m_regLocatorOldLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameLocatorOldColor"), RGB(255, 255, 255));
+    m_regLocatorNewLinesColor = CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameLocatorNewColor"), RGB(230, 0, 0));
 }
 
 void TortoiseBlame::SelectLine(int yPos, bool bAlwaysSelect)
@@ -602,22 +571,6 @@ void TortoiseBlame::SelectLine(int yPos, bool bAlwaysSelect)
     }
 }
 
-void TortoiseBlame::StartSearchSel()
-{
-    int selTextLen = (int)SendEditor(SCI_GETSELTEXT);
-    if (selTextLen == 0)
-        return;
-
-    std::unique_ptr<char[]> seltextbuffer = std::unique_ptr<char[]>(new char[selTextLen+1]);
-    SendEditor(SCI_GETSELTEXT, 0, (LPARAM)(char*)seltextbuffer.get());
-    if (seltextbuffer[0] == 0)
-        return;
-    wcsncpy_s(m_szFindWhat, _countof(m_szFindWhat), CUnicodeUtils::StdGetUnicode(seltextbuffer.get()).c_str(), _countof(m_szFindWhat)-1);
-    m_fr.Flags = FR_HIDEUPDOWN | FR_HIDEWHOLEWORD;
-    m_fr.Flags |= FR_MATCHCASE;
-    DoSearch(m_szFindWhat, m_fr.Flags);
-}
-
 void TortoiseBlame::StartSearch()
 {
     if (currentDialog)
@@ -635,13 +588,6 @@ void TortoiseBlame::StartSearch()
     m_fr.Flags |= bCase ? FR_MATCHCASE : 0;
 
     currentDialog = FindText(&m_fr);
-}
-
-void TortoiseBlame::DoSearchNext()
-{
-    if (wcslen(m_szFindWhat)==0)
-        return StartSearchSel();
-    DoSearch(m_szFindWhat, m_fr.Flags);
 }
 
 bool TortoiseBlame::DoSearch(LPTSTR what, DWORD flags)
@@ -956,9 +902,9 @@ void TortoiseBlame::Notify(SCNotification *notification)
         InvalidateRect(wLocator, NULL, FALSE);
         break;
     case SCN_GETBKCOLOR:
-        if ((m_colorby != COLORBYNONE)&&(notification->line < (int)m_revs.size()))
+        if ((m_colorAge)&&(notification->line < (int)m_revs.size()))
         {
-            notification->lParam = GetLineColor(notification->line);
+            notification->lParam = InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (m_revs[notification->line]-m_lowestRev)*100/((m_highestRev-m_lowestRev)+1));
         }
         break;
     case SCN_STYLENEEDED:
@@ -1012,12 +958,6 @@ void TortoiseBlame::Command(int id)
     case ID_EDIT_FIND:
         StartSearch();
         break;
-    case ID_EDIT_FINDSEL:
-        StartSearchSel();
-        break;
-    case ID_EDIT_FINDNEXT:
-        DoSearchNext();
-        break;
     case ID_COPYTOCLIPBOARD:
         CopySelectedLogToClipboard();
         break;
@@ -1033,39 +973,14 @@ void TortoiseBlame::Command(int id)
     case ID_EDIT_GOTOLINE:
         GotoLineDlg();
         break;
-    case ID_VIEW_COLORBYAUTHOR:
-        {
-            if (m_colorby == COLORBYAUTHOR)
-                m_colorby = COLORBYNONE;
-            else
-                m_colorby = COLORBYAUTHOR;
-
-            m_regcolorby = m_colorby;
-            SetupColoring();
-            InitSize();
-        }
-        break;
     case ID_VIEW_COLORAGEOFLINES:
         {
-            if (m_colorby == COLORBYAGE)
-                m_colorby = COLORBYNONE;
-            else
-                m_colorby = COLORBYAGE;
-
-            m_regcolorby = m_colorby;
-            SetupColoring();
-            InitSize();
-        }
-        break;
-    case ID_VIEW_COLORBYAGE:
-        {
-            if (m_colorby == COLORBYAGECONT)
-                m_colorby = COLORBYNONE;
-            else
-                m_colorby = COLORBYAGECONT;
-
-            m_regcolorby = m_colorby;
-            SetupColoring();
+            m_colorAge = !m_colorAge;
+            HMENU hMenu = GetMenu(wMain);
+            UINT uCheck = MF_BYCOMMAND;
+            uCheck |= m_colorAge ? MF_CHECKED : MF_UNCHECKED;
+            CheckMenuItem(hMenu, ID_VIEW_COLORAGEOFLINES, uCheck);
+            m_blameWidth = 0;
             InitSize();
         }
         break;
@@ -1366,9 +1281,9 @@ void TortoiseBlame::DrawLocatorBar(HDC hDC)
     // draw the colored bar
     for (std::vector<LONG>::const_iterator it = m_revs.begin(); it != m_revs.end(); ++it)
     {
-        // get the line color
-        COLORREF cr = GetLineColor(currentLine);
         currentLine++;
+        // get the line color
+        COLORREF cr = InterColor(DWORD(m_regLocatorOldLinesColor), DWORD(m_regLocatorNewLinesColor), (*it - m_lowestRev)*100/((m_highestRev-m_lowestRev)+1));
         if ((currentLine > line)&&(currentLine <= (line + linesonscreen)))
         {
             cr = InterColor(cr, blackColor, 10);
@@ -1547,6 +1462,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     {
         app.GotoLine(parser.GetLongVal(_T("line")));
     }
+
+    CheckMenuItem(GetMenu(app.wMain), ID_VIEW_COLORAGEOFLINES, MF_CHECKED|MF_BYCOMMAND);
 
     HACCEL hAccelTable = LoadAccelerators(app.hResource, (LPCTSTR)IDC_TORTOISEBLAME);
     MSG msg = {};
@@ -1762,7 +1679,7 @@ void TortoiseBlame::InitSize()
     sourcerc.top = rc.top;
     sourcerc.bottom = rc.bottom;
     sourcerc.right = rc.right;
-    if (m_colorby != COLORBYNONE)
+    if (m_colorAge)
     {
         ::OffsetRect(&blamerc, LOCATOR_WIDTH, 0);
         ::OffsetRect(&sourcerc, LOCATOR_WIDTH, 0);
@@ -1771,64 +1688,10 @@ void TortoiseBlame::InitSize()
     InvalidateRect(wMain, NULL, FALSE);
     ::SetWindowPos(wEditor, 0, sourcerc.left, sourcerc.top, sourcerc.right - sourcerc.left, sourcerc.bottom - sourcerc.top, 0);
     ::SetWindowPos(wBlame, 0, blamerc.left, blamerc.top, blamerc.right - blamerc.left, blamerc.bottom - blamerc.top, 0);
-    if (m_colorby != COLORBYNONE)
+    if (m_colorAge)
         ::SetWindowPos(wLocator, 0, 0, blamerc.top, LOCATOR_WIDTH, blamerc.bottom - blamerc.top, SWP_SHOWWINDOW);
     else
         ::ShowWindow(wLocator, SW_HIDE);
-}
-
-COLORREF TortoiseBlame::GetLineColor(int line)
-{
-    switch (m_colorby)
-    {
-    case COLORBYAGE:
-        return m_revcolormap[m_revs[line]];
-        break;
-    case COLORBYAGECONT:
-        return InterColor(DWORD(m_regOldLinesColor), DWORD(m_regNewLinesColor), (m_revs[line]-m_lowestRev)*100/((m_highestRev-m_lowestRev)+1));
-        break;
-    case COLORBYAUTHOR:
-        return m_authorcolormap[m_authors[line]];
-        break;
-    case COLORBYNONE:
-    default:
-        return m_windowColor;
-    }
-}
-
-void TortoiseBlame::SetupColoring()
-{
-    HMENU hMenu = GetMenu(wMain);
-    CheckMenuItem(hMenu, ID_VIEW_COLORBYAUTHOR, MF_BYCOMMAND | ((m_colorby == COLORBYAUTHOR) ? MF_CHECKED : MF_UNCHECKED));
-    CheckMenuItem(hMenu, ID_VIEW_COLORAGEOFLINES, MF_BYCOMMAND | ((m_colorby == COLORBYAGE) ? MF_CHECKED : MF_UNCHECKED));
-    CheckMenuItem(hMenu, ID_VIEW_COLORBYAGE, MF_BYCOMMAND | ((m_colorby == COLORBYAGECONT) ? MF_CHECKED : MF_UNCHECKED));
-    m_blameWidth = 0;
-    m_authorcolormap.clear();
-    int colindex = 0;
-    switch (m_colorby)
-    {
-    case COLORBYAGE:
-        {
-            for (auto it = m_revset.cbegin(); it != m_revset.cend(); ++it)
-            {
-                m_revcolormap[*it] = colorset[colindex++ % MAX_BLAMECOLORS];
-            }
-        }
-        break;
-    case COLORBYAGECONT:
-        {
-            // nothing to do
-        }
-        break;
-    case COLORBYAUTHOR:
-        {
-            for (auto it = m_authorset.cbegin(); it != m_authorset.cend(); ++it)
-            {
-                m_authorcolormap[*it] = colorset[colindex++ % MAX_BLAMECOLORS];
-            }
-        }
-        break;
-    }
 }
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

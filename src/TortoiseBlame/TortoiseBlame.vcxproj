@@ -215,7 +215,6 @@
     <ClInclude Include="..\Utils\LangDll.h" />
     <ClInclude Include="..\Utils\registry.h" />
     <ClInclude Include="..\Utils\TaskbarUUID.h" />
-    <ClInclude Include="BlameIndexColors.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TortoiseBlame.h" />
