@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "PathUtils.h"
 #include "shlobj.h"
+#include "auto_buffer.h"
 #include "UnicodeUtils.h"
 
 #include "SVNHelpers.h"
@@ -31,9 +32,9 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
     const size_t len = _tcslen(path);
     const size_t fullLen = len+10;
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[fullLen]);
-    std::unique_ptr<TCHAR[]> internalpathbuf(new TCHAR[fullLen]);
-    TCHAR * pPath = internalpathbuf.get();
+    auto_buffer<TCHAR> buf(fullLen);
+    auto_buffer<TCHAR> internalpathbuf(fullLen);
+    TCHAR * pPath = internalpathbuf;
     SECURITY_ATTRIBUTES attribs;
 
     SecureZeroMemory(&attribs, sizeof(SECURITY_ATTRIBUTES));
@@ -41,22 +42,22 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
     attribs.nLength = sizeof(SECURITY_ATTRIBUTES);
     attribs.bInheritHandle = FALSE;
 
-    ConvertToBackslash(internalpathbuf.get(), path, fullLen);
-    if (_tcsncmp(internalpathbuf.get(), _T("\\\\?\\"), 4) == 0)
+    ConvertToBackslash(internalpathbuf, path, fullLen);
+    if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
         pPath += 4;
     do
     {
-        SecureZeroMemory(buf.get(), fullLen*sizeof(TCHAR));
+        SecureZeroMemory(buf, fullLen*sizeof(TCHAR));
         TCHAR * slashpos = _tcschr(pPath, '\\');
         if (slashpos)
-            _tcsncpy_s(buf.get(), fullLen, internalpathbuf.get(), slashpos - internalpathbuf.get());
+            _tcsncpy_s(buf, fullLen, internalpathbuf, slashpos - internalpathbuf);
         else
-            _tcsncpy_s(buf.get(), fullLen, internalpathbuf.get(), fullLen);
-        CreateDirectory(buf.get(), &attribs);
+            _tcsncpy_s(buf, fullLen, internalpathbuf, fullLen);
+        CreateDirectory(buf, &attribs);
         pPath = _tcschr(pPath, '\\');
     } while ((pPath++)&&(_tcschr(pPath, '\\')));
 
-    const BOOL bRet = CreateDirectory(internalpathbuf.get(), &attribs);
+    const BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
     return bRet;
 }
 
@@ -357,18 +358,18 @@ CString CPathUtils::GetLongPathname(const CString& path)
         ret = GetFullPathName(path, 0, NULL, NULL);
         if (ret)
         {
-            std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+1]);
-            if ((ret = GetFullPathName(path, ret, pathbuf.get(), NULL))!=0)
+            auto_buffer<TCHAR> pathbuf(ret+1);
+            if ((ret = GetFullPathName(path, ret, pathbuf, NULL))!=0)
             {
-                sRet = CString(pathbuf.get(), ret);
+                sRet = CString(pathbuf, ret);
             }
         }
     }
     else if (PathCanonicalize(pathbufcanonicalized, path))
     {
         ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
-        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf.get(), ret+1);
+        auto_buffer<TCHAR> pathbuf(ret+2);
+        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, ret+1);
         // GetFullPathName() sometimes returns the full path with the wrong
         // case. This is not a problem on Windows since its filesystem is 
         // case-insensitive. But for SVN that's a problem if the wrong case
@@ -376,34 +377,34 @@ CString CPathUtils::GetLongPathname(const CString& path)
         // To fix the casing of the path, we use a trick:
         // convert the path to its short form, then back to its long form.
         // That will fix the wrong casing of the path.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        int shortret = ::GetShortPathName(pathbuf, NULL, 0);
         if (shortret)
         {
-            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            auto_buffer<TCHAR> shortpath(shortret+2);
+            if (::GetShortPathName(pathbuf, shortpath, shortret+1))
             {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                int ret2 = ::GetLongPathName(shortpath, pathbuf, ret+1);
                 if (ret2)
-                    sRet = CString(pathbuf.get(), ret2);
+                    sRet = CString(pathbuf, ret2);
             }
         }
     }
     else
     {
         ret = ::GetLongPathName(path, NULL, 0);
-        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
-        ret = ::GetLongPathName(path, pathbuf.get(), ret+1);
-        sRet = CString(pathbuf.get(), ret);
+        auto_buffer<TCHAR> pathbuf(ret+2);
+        ret = ::GetLongPathName(path, pathbuf, ret+1);
+        sRet = CString(pathbuf, ret);
         // fix the wrong casing of the path. See above for details.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        int shortret = ::GetShortPathName(pathbuf, NULL, 0);
         if (shortret)
         {
-            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            auto_buffer<TCHAR> shortpath(shortret+2);
+            if (::GetShortPathName(pathbuf, shortpath, shortret+1))
             {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                int ret2 = ::GetLongPathName(shortpath, pathbuf, ret+1);
                 if (ret2)
-                    sRet = CString(pathbuf.get(), ret2);
+                    sRet = CString(pathbuf, ret2);
             }
         }
     }
@@ -605,7 +606,7 @@ CString CPathUtils::GetAppDataDirectory()
 
 CStringA CPathUtils::PathUnescape(const CStringA& path)
 {
-    std::unique_ptr<char[]> urlabuf (new char[path.GetLength()+1]);
+    auto_buffer<char> urlabuf (path.GetLength()+1);
 
     strcpy_s(urlabuf.get(), path.GetLength()+1, path);
     Unescape(urlabuf.get());
@@ -626,10 +627,10 @@ CStringW CPathUtils::PathUnescape(const CStringW& path)
     patha = PathUnescape(patha);
 
     len = patha.GetLength();
-    std::unique_ptr<WCHAR[]> bufw(new WCHAR[len*4 + 1]);
-    SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(WCHAR));
-    MultiByteToWideChar(CP_UTF8, 0, patha, -1, bufw.get(), len*4);
-    CStringW ret = CStringW(bufw.get());
+    auto_buffer<WCHAR> bufw(len*4 + 1);
+    SecureZeroMemory(bufw, (len*4 + 1)*sizeof(WCHAR));
+    MultiByteToWideChar(CP_UTF8, 0, patha, -1, bufw, len*4);
+    CStringW ret = CStringW(bufw);
     return ret;
 }
 

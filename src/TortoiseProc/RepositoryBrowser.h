@@ -27,8 +27,6 @@
 #include "RepositoryLister.h"
 #include "ReaderWriterLock.h"
 
-#include <list>
-
 #define REPOBROWSER_CTRL_MIN_WIDTH  20
 #define REPOBROWSER_FETCHTIMER      101
 
@@ -53,7 +51,6 @@ public:
         , has_child_folders(false)
         , is_external(false)
         , kind(svn_node_unknown)
-        , svnparentpathroot(false)
     {
     }
 
@@ -67,7 +64,6 @@ public:
     deque<CItem>    children;
     CString         error;
     svn_node_kind_t kind;
-    bool            svnparentpathroot;
 };
 
 
@@ -103,10 +99,6 @@ public:
     std::map<CString,svn_depth_t> GetUpdateDepths() { return m_updateDepths; }
 
     void OnCbenDragbeginUrlcombo(NMHDR *pNMHDR, LRESULT *pResult);
-
-    HWND GetHWND() const { return GetSafeHwnd(); }
-    size_t GetHistoryForwardCount() const { return m_UrlHistoryForward.size(); }
-    size_t GetHistoryBackwardCount() const { return m_UrlHistory.size(); }
 
     void SetSparseCheckoutMode() { m_bSparseCheckoutMode = true; m_bStandAlone = false; }
 
@@ -163,8 +155,6 @@ protected:
     afx_msg void OnRefresh();
     afx_msg void OnDelete();
     afx_msg void OnGoUp();
-    afx_msg void OnUrlHistoryBack();
-    afx_msg void OnUrlHistoryForward();
 
     DECLARE_MESSAGE_MAP()
 
@@ -267,11 +257,6 @@ protected:
     /// extract info from controls before they get destroyed
     void StoreSelectedURLs();
 
-    /// tries to fetch the html page returned by an apache server
-    /// set up with the SVNParentPath directive, parse all the listed
-    /// repositories and fill them in to the repo browser
-    bool TrySVNParentPath();
-
     /// resizes the control so that the divider is at position 'point'
     void HandleDividerMove(CPoint point, bool bDraw);
     bool CheckoutDepthForItem( HTREEITEM hItem );
@@ -310,7 +295,6 @@ private:
     int                 m_nIconFolder;
     int                 m_nOpenIconFolder;
     int                 m_nExternalOvl;
-    int                 m_nSVNParentPath;
 
     volatile bool       m_blockEvents;
 
@@ -335,8 +319,6 @@ private:
     CRepositoryLister   m_lister;
     std::map<CString,svn_depth_t> m_checkoutDepths;
     std::map<CString,svn_depth_t> m_updateDepths;
-    std::list<CString>  m_UrlHistory;
-    std::list<CString>  m_UrlHistoryForward;
 
     /// used to execute user ops (e.g. context menu actions) in the background
     async::CJobScheduler m_backgroundJobs;

@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -84,8 +84,8 @@ CString CCommonAppUtils::ExpandEnvironmentStrings (const CString& s)
     if (len == 0)
         return s;
 
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[len+1]);
-    if (::ExpandEnvironmentStrings (s, buf.get(), len) == 0)
+    auto_buffer<TCHAR> buf(len+1);
+    if (::ExpandEnvironmentStrings (s, buf, len) == 0)
         return s;
 
     return buf.get();
@@ -117,8 +117,8 @@ CString CCommonAppUtils::GetAppForFile
         CString documentClass;
         DWORD buflen = 0;
         AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, NULL, &buflen);
-        std::unique_ptr<TCHAR[]> cmdbuf(new TCHAR[buflen + 1]);
-        if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, cmdbuf.get(), &buflen)))
+        auto_buffer<TCHAR> cmdbuf(buflen + 1);
+        if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, cmdbuf, &buflen)))
         {
             documentClass = CRegString (extensionToUse + _T("\\"), _T(""), FALSE, HKEY_CLASSES_ROOT);
 
@@ -127,7 +127,7 @@ CString CCommonAppUtils::GetAppForFile
         }
         else
         {
-            application = cmdbuf.get();
+            application = cmdbuf;
         }
 
         // fallback to "open"
@@ -136,15 +136,15 @@ CString CCommonAppUtils::GetAppForFile
         {
             buflen = 0;
             AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, _T("open"), NULL, &buflen);
-            std::unique_ptr<TCHAR[]> cmdopenbuf (new TCHAR[buflen + 1]);
-            if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, _T("open"), cmdopenbuf.get(), &buflen)))
+            auto_buffer<TCHAR> cmdopenbuf (buflen + 1);
+            if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, _T("open"), cmdopenbuf, &buflen)))
             {
                 CString key = documentClass + _T("\\Shell\\Open\\Command\\");
                 application = CRegString (key, _T(""), FALSE, HKEY_CLASSES_ROOT);
             }
             else
             {
-                application = cmdopenbuf.get();
+                application = cmdopenbuf;
             }
         }
     }
@@ -218,7 +218,7 @@ bool CCommonAppUtils::LaunchApplication
     // make sure we get a writable copy of the command line
 
     size_t bufferLen = sCommandLine.GetLength()+1;
-    std::unique_ptr<TCHAR[]> cleanCommandLine (new TCHAR[bufferLen]);
+    auto_buffer<TCHAR> cleanCommandLine (bufferLen);
     memcpy (cleanCommandLine.get(),
             (LPCTSTR)sCommandLine,
             sizeof (TCHAR) * bufferLen);

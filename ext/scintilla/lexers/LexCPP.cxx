@@ -13,6 +13,10 @@
 #include <stdarg.h>
 #include <assert.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
+
 #include <string>
 #include <vector>
 #include <map>
@@ -86,7 +90,7 @@ static bool followsReturnKeyword(StyleContext &sc, LexAccessor &styler) {
 static std::string GetRestOfLine(LexAccessor &styler, int start, bool allowSpace) {
 	std::string restOfLine;
 	int i =0;
-	char ch = styler.SafeGetCharAt(start, '\n');
+	char ch = styler.SafeGetCharAt(start + i, '\n');
 	while ((ch != '\r') && (ch != '\n')) {
 		if (allowSpace || (ch != ' '))
 			restOfLine += ch;
@@ -205,7 +209,6 @@ struct OptionsCPP {
 	bool trackPreprocessor;
 	bool updatePreprocessor;
 	bool triplequotedStrings;
-	bool hashquotedStrings;
 	bool fold;
 	bool foldSyntaxBased;
 	bool foldComment;
@@ -223,7 +226,6 @@ struct OptionsCPP {
 		trackPreprocessor = true;
 		updatePreprocessor = true;
 		triplequotedStrings = false;
-		hashquotedStrings = false;
 		fold = false;
 		foldSyntaxBased = true;
 		foldComment = false;
@@ -265,9 +267,6 @@ struct OptionSetCPP : public OptionSet<OptionsCPP> {
 
 		DefineProperty("lexer.cpp.triplequoted.strings", &OptionsCPP::triplequotedStrings,
 			"Set to 1 to enable highlighting of triple-quoted strings.");
-
-		DefineProperty("lexer.cpp.hashquoted.strings", &OptionsCPP::hashquotedStrings,
-			"Set to 1 to enable highlighting of hash-quoted strings.");
 
 		DefineProperty("fold", &OptionsCPP::fold);
 
@@ -554,8 +553,6 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle, 
 		// Handle line continuation generically.
 		if (sc.ch == '\\') {
 			if (sc.chNext == '\n' || sc.chNext == '\r') {
-				lineCurrent++;
-				vlls.Add(lineCurrent, preproc);
 				sc.Forward();
 				if (sc.ch == '\r' && sc.chNext == '\n') {
 					sc.Forward();
@@ -695,15 +692,6 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle, 
 					sc.ForwardSetState(SCE_C_DEFAULT|activitySet);
 				}
 				break;
-			case SCE_C_HASHQUOTEDSTRING:
-				if (sc.ch == '\\') {
-					if (sc.chNext == '\"' || sc.chNext == '\'' || sc.chNext == '\\') {
-						sc.Forward();
-					}
-				} else if (sc.ch == '\"') {
-					sc.ForwardSetState(SCE_C_DEFAULT|activitySet);
-				}
-				break;
 			case SCE_C_STRINGRAW:
 				if (sc.Match(rawStringTerminator.c_str())) {
 					for (size_t termPos=rawStringTerminator.size(); termPos; termPos--)
@@ -780,9 +768,6 @@ void SCI_METHOD LexerCPP::Lex(unsigned int startPos, int length, int initStyle, 
 			} else if (options.triplequotedStrings && sc.Match("\"\"\"")) {
 				sc.SetState(SCE_C_TRIPLEVERBATIM|activitySet);
 				sc.Forward(2);
-			} else if (options.hashquotedStrings && sc.Match('#', '\"')) {
-				sc.SetState(SCE_C_HASHQUOTEDSTRING|activitySet);
-				sc.Forward();
 			} else if (IsADigit(sc.ch) || (sc.ch == '.' && IsADigit(sc.chNext))) {
 				if (lastWordWasUUID) {
 					sc.SetState(SCE_C_UUID|activitySet);
@@ -1052,7 +1037,7 @@ void LexerCPP::EvaluateTokens(std::vector<std::string> &tokens) {
 			if (tokens[i+2] == ")") {
 				// defined()
 				tokens.erase(tokens.begin() + i + 1, tokens.begin() + i + 3);
-			} else if (((i+3)<tokens.size()) && (tokens[i+3] == ")")) {
+			} else if (((i+2)<tokens.size()) && (tokens[i+3] == ")")) {
 				// defined(<int>)
 				tokens.erase(tokens.begin() + i + 1, tokens.begin() + i + 4);
 				val = "1";

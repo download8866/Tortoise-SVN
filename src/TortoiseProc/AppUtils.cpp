@@ -30,6 +30,7 @@
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
 #include <intshcut.h>
+#include "auto_buffer.h"
 #include "StringUtils.h"
 #include "CreateProcessHelper.h"
 #include "FormatMessageWrapper.h"

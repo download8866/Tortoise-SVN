@@ -20,9 +20,9 @@ public:
 	enum typeOfFold { undefined, head, body, tail, headWithTail };
 
 	int markType;
-	ColourDesired fore;
-	ColourDesired back;
-	ColourDesired backSelected;
+	ColourPair fore;
+	ColourPair back;
+	ColourPair backSelected;
 	int alpha;
 	XPM *pxpm;
 	RGBAImage *image;
@@ -62,6 +62,7 @@ public:
 		image = NULL;
 		return *this;
 	}
+	void RefreshColourPalette(Palette &pal, bool want);
 	void SetXPM(const char *textForm);
 	void SetXPM(const char *const *linesForm);
 	void SetRGBAImage(Point sizeRGBAImage, const unsigned char *pixelsRGBAImage);

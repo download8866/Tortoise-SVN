@@ -77,7 +77,7 @@ void CBufferedOutFile::InternalClose()
 CBufferedOutFile::CBufferedOutFile (const TFileName& fileName)
     : fileName (fileName)
     , file (INVALID_HANDLE_VALUE)
-    , buffer (new unsigned char[BUFFER_SIZE])
+    , buffer (BUFFER_SIZE)
     , used (0)
     , fileSize (0)
 {
@@ -98,7 +98,7 @@ CBufferedOutFile::CBufferedOutFile (const TFileName& fileName)
 #else
 CBufferedOutFile::CBufferedOutFile (const TFileName& fileName)
     : fileName (fileName)
-    , buffer (new unsigned char[BUFFER_SIZE])
+    , buffer (BUFFER_SIZE)
     , used (0)
     , fileSize (0)
 {

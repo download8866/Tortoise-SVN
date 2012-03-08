@@ -90,7 +90,6 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmASY);
 	LINK_LEXER(lmAU3);
 	LINK_LEXER(lmAVE);
-	LINK_LEXER(lmAVS);
 	LINK_LEXER(lmBaan);
 	LINK_LEXER(lmBash);
 	LINK_LEXER(lmBatch);
@@ -101,7 +100,6 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmClwNoCase);
 	LINK_LEXER(lmCmake);
 	LINK_LEXER(lmCOBOL);
-	LINK_LEXER(lmCoffeeScript);
 	LINK_LEXER(lmConf);
 	LINK_LEXER(lmCPP);
 	LINK_LEXER(lmCPPNoCase);
@@ -173,7 +171,6 @@ int Scintilla_LinkLexers() {
 	LINK_LEXER(lmTADS3);
 	LINK_LEXER(lmTAL);
 	LINK_LEXER(lmTCL);
-	LINK_LEXER(lmTCMD);
 	LINK_LEXER(lmTeX);
 	LINK_LEXER(lmTxt2tags);
 	LINK_LEXER(lmVB);
