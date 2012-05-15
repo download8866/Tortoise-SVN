@@ -623,13 +623,7 @@ size_t CLogDataVector::GetVisibleCount() const
 
 PLOGENTRYDATA CLogDataVector::GetVisible (size_t index) const
 {
-    if (index < visible.size())
-    {
-        size_t i = visible.at (index);
-        if (i < size())
-            return at (i);
-    }
-    return NULL;
+    return at (visible.at (index));
 }
 
 namespace

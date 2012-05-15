@@ -26,7 +26,6 @@
 #include <shellapi.h>
 #include <io.h>
 #include <fcntl.h>
-#include <memory>
 
 
 #pragma warning(push)
@@ -79,12 +78,6 @@ SrcVersionFile is then copied to DstVersionFile but the placeholders\n\
 are replaced with information about the working copy as follows:\n\
 \n\
 $WCREV$         Highest committed revision number\n\
-$WCREV&$        Highest committed revision number ANDed with the number\n\
-                after the &\n\
-$WCREV+$        Highest committed revision number added with the number\n\
-                after the &\n\
-$WCREV-$        Highest committed revision number subtracted with the\n\
-                number after the &\n\
 $WCDATE$        Date of highest committed revision\n\
 $WCDATE=$       Like $WCDATE$ with an added strftime format after the =\n\
 $WCRANGE$       Update revision range\n\
@@ -112,9 +105,6 @@ $WCISLOCKED$    True if the item is locked\n"
 // End of multi-line help text.
 
 #define VERDEF           "$WCREV$"
-#define VERDEFAND        "$WCREV&"
-#define VERDEFOFFSET1    "$WCREV-"
-#define VERDEFOFFSET2    "$WCREV+"
 #define DATEDEF          "$WCDATE$"
 #define DATEDEFUTC       "$WCDATEUTC$"
 #define DATEWFMTDEF      "$WCDATE="
@@ -166,17 +156,6 @@ int FindPlaceholder(char *def, char *pBuf, size_t & index, size_t filelength)
     }
     return FALSE;
 }
-int FindPlaceholderW(wchar_t *def, wchar_t *pBuf, size_t & index, size_t filelength)
-{
-    size_t deflen = wcslen(def);
-    while (index + (deflen*sizeof(wchar_t)) <= filelength)
-    {
-        if (memcmp(pBuf + index, def, deflen*sizeof(wchar_t)) == 0)
-            return TRUE;
-        index++;
-    }
-    return FALSE;
-}
 
 int InsertRevision(char * def, char * pBuf, size_t & index,
                     size_t & filelength, size_t maxlength,
@@ -187,46 +166,6 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
     {
         // No more matches found.
         return FALSE;
-    }
-    ptrdiff_t exp = 0;
-    if ((strcmp(def,VERDEFAND) == 0) || (strcmp(def,VERDEFOFFSET1) == 0) || (strcmp(def,VERDEFOFFSET2) == 0))
-    {
-        char format[1024];
-        char * pStart = pBuf + index + strlen(def);
-        char * pEnd = pStart;
-
-        while (*pEnd != '$')
-        {
-            pEnd++;
-            if (pEnd - pBuf >= (__int64)filelength)
-                return FALSE;   // No terminator - malformed so give up.
-        }
-        if ((pEnd - pStart) > 1024)
-        {
-            return FALSE; // value specifier too big
-        }
-        exp = pEnd - pStart + 1;
-        memset(format,0,1024);
-        memcpy(format,pStart,pEnd - pStart);
-        unsigned long number = strtoul(format, NULL, 0);
-        if (strcmp(def,VERDEFAND) == 0)
-        {
-            if (MinRev != -1)
-                MinRev &= number;
-            MaxRev &= number;
-        }
-        if (strcmp(def,VERDEFOFFSET1) == 0)
-        {
-            if (MinRev != -1)
-                MinRev -= number;
-            MaxRev -= number;
-        }
-        if (strcmp(def,VERDEFOFFSET2) == 0)
-        {
-            if (MinRev != -1)
-                MinRev += number;
-            MaxRev += number;
-        }
     }
     // Format the text to insert at the placeholder
     char destbuf[40];
@@ -250,7 +189,7 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
     }
     // Replace the $WCxxx$ string with the actual revision number
     char * pBuild = pBuf + index;
-    ptrdiff_t Expansion = strlen(destbuf) - exp - strlen(def);
+    ptrdiff_t Expansion = strlen(destbuf) - strlen(def);
     if (Expansion < 0)
     {
         memmove(pBuild, pBuild - Expansion, filelength - ((pBuild - Expansion) - pBuf));
@@ -263,95 +202,6 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
     }
     memmove(pBuild, destbuf, strlen(destbuf));
     filelength += Expansion;
-    return TRUE;
-}
-int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
-    size_t & filelength, size_t maxlength,
-    long MinRev, long MaxRev, SubWCRev_t * SubStat)
-{
-    // Search for first occurrence of def in the buffer, starting at index.
-    if (!FindPlaceholderW(def, pBuf, index, filelength))
-    {
-        // No more matches found.
-        return FALSE;
-    }
-
-    ptrdiff_t exp = 0;
-    if ((wcscmp(def,TEXT(VERDEFAND)) == 0) || (wcscmp(def,TEXT(VERDEFOFFSET1)) == 0) || (wcscmp(def,TEXT(VERDEFOFFSET2)) == 0))
-    {
-        wchar_t format[1024];
-        wchar_t * pStart = pBuf + index + wcslen(def);
-        wchar_t * pEnd = pStart;
-
-        while (*pEnd != '$')
-        {
-            pEnd++;
-            if (((__int64)(pEnd - pBuf))*((__int64)sizeof(wchar_t)) >= (__int64)filelength)
-                return FALSE;   // No terminator - malformed so give up.
-        }
-        if ((pEnd - pStart) > 1024)
-        {
-            return FALSE; // Format specifier too big
-        }
-        exp = pEnd - pStart + 1;
-        memset(format,0,1024*sizeof(wchar_t));
-        memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
-        unsigned long number = wcstoul(format, NULL, 0);
-        if (wcscmp(def,TEXT(VERDEFAND)) == 0)
-        {
-            if (MinRev != -1)
-                MinRev &= number;
-            MaxRev &= number;
-        }
-        if (wcscmp(def,TEXT(VERDEFOFFSET1)) == 0)
-        {
-            if (MinRev != -1)
-                MinRev -= number;
-            MaxRev -= number;
-        }
-        if (wcscmp(def,TEXT(VERDEFOFFSET2)) == 0)
-        {
-            if (MinRev != -1)
-                MinRev += number;
-            MaxRev += number;
-        }
-    }
-
-    // Format the text to insert at the placeholder
-    wchar_t destbuf[40];
-    if (MinRev == -1 || MinRev == MaxRev)
-    {
-        if ((SubStat)&&(SubStat->bHexPlain))
-            swprintf_s(destbuf, L"%LX", MaxRev);
-        else if ((SubStat)&&(SubStat->bHexX))
-            swprintf_s(destbuf, L"%#LX", MaxRev);
-        else
-            swprintf_s(destbuf, L"%Ld", MaxRev);
-    }
-    else
-    {
-        if ((SubStat)&&(SubStat->bHexPlain))
-            swprintf_s(destbuf, L"%LX:%LX", MinRev, MaxRev);
-        else if ((SubStat)&&(SubStat->bHexX))
-            swprintf_s(destbuf, L"%#LX:%#LX", MinRev, MaxRev);
-        else
-            swprintf_s(destbuf, L"%Ld:%Ld", MinRev, MaxRev);
-    }
-    // Replace the $WCxxx$ string with the actual revision number
-    wchar_t * pBuild = pBuf + index;
-    ptrdiff_t Expansion = wcslen(destbuf) - exp - wcslen(def);
-    if (Expansion < 0)
-    {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf))*sizeof(wchar_t));
-    }
-    else if (Expansion > 0)
-    {
-        // Check for buffer overflow
-        if (maxlength < Expansion + filelength) return FALSE;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf))*sizeof(wchar_t));
-    }
-    memmove(pBuild, destbuf, wcslen(destbuf)*sizeof(wchar_t));
-    filelength += (Expansion*sizeof(wchar_t));
     return TRUE;
 }
 
@@ -439,90 +289,6 @@ int InsertDate(char * def, char * pBuf, size_t & index,
     filelength += Expansion;
     return TRUE;
 }
-int InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
-    size_t & filelength, size_t maxlength,
-    apr_time_t date_svn)
-{
-    // Search for first occurrence of def in the buffer, starting at index.
-    if (!FindPlaceholderW(def, pBuf, index, filelength))
-    {
-        // No more matches found.
-        return FALSE;
-    }
-    // Format the text to insert at the placeholder
-    __time64_t ttime;
-    if (date_svn == USE_TIME_NOW)
-        _time64(&ttime);
-    else
-        ttime = date_svn/1000000L;
-
-    struct tm newtime;
-    if (wcsstr(def, L"UTC"))
-    {
-        if (_gmtime64_s(&newtime, &ttime))
-            return FALSE;
-    }
-    else
-    {
-        if (_localtime64_s(&newtime, &ttime))
-            return FALSE;
-    }
-    wchar_t destbuf[1024];
-    wchar_t * pBuild = pBuf + index;
-    ptrdiff_t Expansion;
-    if ((wcscmp(def,TEXT(DATEWFMTDEF)) == 0) || (wcscmp(def,TEXT(NOWWFMTDEF)) == 0) || (wcscmp(def,TEXT(LOCKWFMTDEF)) == 0) ||
-        (wcscmp(def,TEXT(DATEWFMTDEFUTC)) == 0) || (wcscmp(def,TEXT(NOWWFMTDEFUTC)) == 0) || (wcscmp(def,TEXT(LOCKWFMTDEFUTC)) == 0))
-    {
-        // Format the date/time according to the supplied strftime format string
-        wchar_t format[1024];
-        wchar_t * pStart = pBuf + index + wcslen(def);
-        wchar_t * pEnd = pStart;
-
-        while (*pEnd != '$')
-        {
-            pEnd++;
-            if (((__int64)(pEnd - pBuf))*((__int64)sizeof(wchar_t)) >= (__int64)filelength)
-                return FALSE;   // No terminator - malformed so give up.
-        }
-        if ((pEnd - pStart) > 1024)
-        {
-            return FALSE; // Format specifier too big
-        }
-        memset(format,0,1024*sizeof(wchar_t));
-        memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
-
-        wcsftime(destbuf,1024,format,&newtime);
-
-        Expansion = wcslen(destbuf) - (wcslen(def) + pEnd - pStart + 1);
-    }
-    else
-    {
-        // Format the date/time in international format as yyyy/mm/dd hh:mm:ss
-        swprintf_s(destbuf, L"%04d/%02d/%02d %02d:%02d:%02d",
-            newtime.tm_year + 1900,
-            newtime.tm_mon + 1,
-            newtime.tm_mday,
-            newtime.tm_hour,
-            newtime.tm_min,
-            newtime.tm_sec);
-
-        Expansion = wcslen(destbuf) - wcslen(def);
-    }
-    // Replace the def string with the actual commit date
-    if (Expansion < 0)
-    {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf))*sizeof(wchar_t));
-    }
-    else if (Expansion > 0)
-    {
-        // Check for buffer overflow
-        if (maxlength < Expansion + filelength) return FALSE;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf))*sizeof(wchar_t));
-    }
-    memmove(pBuild, destbuf, wcslen(destbuf)*sizeof(wchar_t));
-    filelength += Expansion*sizeof(wchar_t);
-    return TRUE;
-}
 
 int InsertUrl(char * def, char * pBuf, size_t & index,
                     size_t & filelength, size_t maxlength,
@@ -549,33 +315,6 @@ int InsertUrl(char * def, char * pBuf, size_t & index,
     }
     memmove(pBuild, pUrl, strlen(pUrl));
     filelength += Expansion;
-    return TRUE;
-}
-int InsertUrlW(wchar_t * def, wchar_t * pBuf, size_t & index,
-    size_t & filelength, size_t maxlength,
-    const wchar_t * pUrl)
-{
-    // Search for first occurrence of def in the buffer, starting at index.
-    if (!FindPlaceholderW(def, pBuf, index, filelength))
-    {
-        // No more matches found.
-        return FALSE;
-    }
-    // Replace the $WCURL$ string with the actual URL
-    wchar_t * pBuild = pBuf + index;
-    ptrdiff_t Expansion = wcslen(pUrl) - wcslen(def);
-    if (Expansion < 0)
-    {
-        memmove(pBuild, pBuild - Expansion, (filelength - ((pBuild - Expansion) - pBuf))*sizeof(wchar_t));
-    }
-    else if (Expansion > 0)
-    {
-        // Check for buffer overflow
-        if (maxlength < Expansion + filelength) return FALSE;
-        memmove(pBuild + Expansion, pBuild, (filelength - (pBuild - pBuf))*sizeof(wchar_t));
-    }
-    memmove(pBuild, pUrl, wcslen(pUrl)*sizeof(wchar_t));
-    filelength += Expansion*sizeof(wchar_t);
     return TRUE;
 }
 
@@ -626,56 +365,6 @@ int InsertBoolean(char * def, char * pBuf, size_t & index, size_t & filelength, 
         // Remove $WCxxx?TrueText:
         memmove(pBuild, pSplit + 1, filelength - (pSplit + 1 - pBuf));
         filelength -= (pSplit + 1 - pBuild);
-    }
-    return TRUE;
-}
-int InsertBooleanW(wchar_t * def, wchar_t * pBuf, size_t & index, size_t & filelength, BOOL isTrue)
-{
-    // Search for first occurrence of def in the buffer, starting at index.
-    if (!FindPlaceholderW(def, pBuf, index, filelength))
-    {
-        // No more matches found.
-        return FALSE;
-    }
-    // Look for the terminating '$' character
-    wchar_t * pBuild = pBuf + index;
-    wchar_t * pEnd = pBuild + 1;
-    while (*pEnd != '$')
-    {
-        pEnd++;
-        if (pEnd - pBuf >= (__int64)filelength)
-            return FALSE;   // No terminator - malformed so give up.
-    }
-
-    // Look for the ':' dividing TrueText from FalseText
-    wchar_t *pSplit = pBuild + 1;
-    // this loop is guaranteed to terminate due to test above.
-    while (*pSplit != ':' && *pSplit != '$')
-        pSplit++;
-
-    if (*pSplit == '$')
-        return FALSE;       // No split - malformed so give up.
-
-    if (isTrue)
-    {
-        // Replace $WCxxx?TrueText:FalseText$ with TrueText
-        // Remove :FalseText$
-        memmove(pSplit, pEnd + 1, (filelength - (pEnd + 1 - pBuf))*sizeof(wchar_t));
-        filelength -= ((pEnd + 1 - pSplit)*sizeof(wchar_t));
-        // Remove $WCxxx?
-        size_t deflen = wcslen(def);
-        memmove(pBuild, pBuild + deflen, (filelength - (pBuild + deflen - pBuf))*sizeof(wchar_t));
-        filelength -= (deflen*sizeof(wchar_t));
-    }
-    else
-    {
-        // Replace $WCxxx?TrueText:FalseText$ with FalseText
-        // Remove terminating $
-        memmove(pEnd, pEnd + 1, (filelength - (pEnd + 1 - pBuf))*sizeof(wchar_t));
-        filelength -= sizeof(wchar_t);
-        // Remove $WCxxx?TrueText:
-        memmove(pBuild, pSplit + 1, (filelength - (pSplit + 1 - pBuf))*sizeof(wchar_t));
-        filelength -= ((pSplit + 1 - pBuild)*sizeof(wchar_t));
     }
     return TRUE;
 }
@@ -1041,127 +730,68 @@ int _tmain(int argc, _TCHAR* argv[])
     size_t index = 0;
 
     while (InsertRevision(VERDEF, pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-    index = 0;
-    while (InsertRevisionW(TEXT(VERDEF), (wchar_t*)pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-
-    index = 0;
-    while (InsertRevision(VERDEFAND, pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-    index = 0;
-    while (InsertRevisionW(TEXT(VERDEFAND), (wchar_t*)pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-
-    index = 0;
-    while (InsertRevision(VERDEFOFFSET1, pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-    index = 0;
-    while (InsertRevisionW(TEXT(VERDEFOFFSET1), (wchar_t*)pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-
-    index = 0;
-    while (InsertRevision(VERDEFOFFSET2, pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
-    index = 0;
-    while (InsertRevisionW(TEXT(VERDEFOFFSET2), (wchar_t*)pBuf, index, filelength, maxlength, -1, SubStat.CmtRev, &SubStat));
 
     index = 0;
     while (InsertRevision(RANGEDEF, pBuf, index, filelength, maxlength, SubStat.MinRev, SubStat.MaxRev, &SubStat));
-    index = 0;
-    while (InsertRevisionW(TEXT(RANGEDEF), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.MinRev, SubStat.MaxRev, &SubStat));
 
     index = 0;
     while (InsertDate(DATEDEF, pBuf, index, filelength, maxlength, SubStat.CmtDate));
-    index = 0;
-    while (InsertDateW(TEXT(DATEDEF), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.CmtDate));
 
     index = 0;
     while (InsertDate(DATEDEFUTC, pBuf, index, filelength, maxlength, SubStat.CmtDate));
-    index = 0;
-    while (InsertDateW(TEXT(DATEDEFUTC), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.CmtDate));
 
     index = 0;
     while (InsertDate(DATEWFMTDEF, pBuf, index, filelength, maxlength, SubStat.CmtDate));
     index = 0;
-    while (InsertDateW(TEXT(DATEWFMTDEF), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.CmtDate));
-    index = 0;
     while (InsertDate(DATEWFMTDEFUTC, pBuf, index, filelength, maxlength, SubStat.CmtDate));
-    index = 0;
-    while (InsertDateW(TEXT(DATEWFMTDEFUTC), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.CmtDate));
 
     index = 0;
     while (InsertDate(NOWDEF, pBuf, index, filelength, maxlength, USE_TIME_NOW));
-    index = 0;
-    while (InsertDateW(TEXT(NOWDEF), (wchar_t*)pBuf, index, filelength, maxlength, USE_TIME_NOW));
 
     index = 0;
     while (InsertDate(NOWDEFUTC, pBuf, index, filelength, maxlength, USE_TIME_NOW));
-    index = 0;
-    while (InsertDateW(TEXT(NOWDEFUTC), (wchar_t*)pBuf, index, filelength, maxlength, USE_TIME_NOW));
 
     index = 0;
     while (InsertDate(NOWWFMTDEF, pBuf, index, filelength, maxlength, USE_TIME_NOW));
-    index = 0;
-    while (InsertDateW(TEXT(NOWWFMTDEF), (wchar_t*)pBuf, index, filelength, maxlength, USE_TIME_NOW));
 
     index = 0;
     while (InsertDate(NOWWFMTDEFUTC, pBuf, index, filelength, maxlength, USE_TIME_NOW));
-    index = 0;
-    while (InsertDateW(TEXT(NOWWFMTDEFUTC), (wchar_t*)pBuf, index, filelength, maxlength, USE_TIME_NOW));
 
     index = 0;
     while (InsertBoolean(MODDEF, pBuf, index, filelength, SubStat.HasMods));
-    index = 0;
-    while (InsertBooleanW(TEXT(MODDEF), (wchar_t*)pBuf, index, filelength, SubStat.HasMods));
 
     index = 0;
     while (InsertBoolean(MIXEDDEF, pBuf, index, filelength, SubStat.MinRev != SubStat.MaxRev));
-    index = 0;
-    while (InsertBooleanW(TEXT(MIXEDDEF), (wchar_t*)pBuf, index, filelength, SubStat.MinRev != SubStat.MaxRev));
 
     index = 0;
     while (InsertUrl(URLDEF, pBuf, index, filelength, maxlength, SubStat.Url));
-    index = 0;
-    while (InsertUrlW(TEXT(URLDEF), (wchar_t*)pBuf, index, filelength, maxlength, Utf8ToWide(SubStat.Url).c_str()));
 
     index = 0;
     while (InsertBoolean(ISINSVN, pBuf, index, filelength, SubStat.bIsSvnItem));
-    index = 0;
-    while (InsertBooleanW(TEXT(ISINSVN), (wchar_t*)pBuf, index, filelength, SubStat.bIsSvnItem));
 
     index = 0;
     while (InsertBoolean(NEEDSLOCK, pBuf, index, filelength, SubStat.LockData.NeedsLocks));
-    index = 0;
-    while (InsertBooleanW(TEXT(NEEDSLOCK), (wchar_t*)pBuf, index, filelength, SubStat.LockData.NeedsLocks));
 
     index = 0;
     while (InsertBoolean(ISLOCKED, pBuf, index, filelength,  SubStat.LockData.IsLocked));
-    index = 0;
-    while (InsertBooleanW(TEXT(ISLOCKED), (wchar_t*)pBuf, index, filelength,  SubStat.LockData.IsLocked));
 
     index = 0;
     while (InsertDate(LOCKDATE, pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
-    index = 0;
-    while (InsertDateW(TEXT(LOCKDATE), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
 
     index = 0;
     while (InsertDate(LOCKDATEUTC, pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
-    index = 0;
-    while (InsertDateW(TEXT(LOCKDATEUTC), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
 
     index = 0;
     while (InsertDate(LOCKWFMTDEF, pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
-    index = 0;
-    while (InsertDateW(TEXT(LOCKWFMTDEF), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
 
     index = 0;
     while (InsertDate(LOCKWFMTDEFUTC, pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
-    index = 0;
-    while (InsertDateW(TEXT(LOCKWFMTDEFUTC), (wchar_t*)pBuf, index, filelength, maxlength, SubStat.LockData.CreationDate));
 
     index = 0;
     while (InsertUrl(LOCKOWNER, pBuf, index, filelength, maxlength, SubStat.LockData.Owner));
-    index = 0;
-    while (InsertUrlW(TEXT(LOCKOWNER), (wchar_t*)pBuf, index, filelength, maxlength, Utf8ToWide(SubStat.LockData.Owner).c_str()));
 
     index = 0;
     while (InsertUrl(LOCKCOMMENT, pBuf, index, filelength, maxlength, SubStat.LockData.Comment));
-    index = 0;
-    while (InsertUrlW(TEXT(LOCKCOMMENT), (wchar_t*)pBuf, index, filelength, maxlength, Utf8ToWide(SubStat.LockData.Comment).c_str()));
 
     CAutoFile hFile = CreateFile(dst, GENERIC_WRITE|GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_ALWAYS, NULL, NULL);
     if (!hFile)

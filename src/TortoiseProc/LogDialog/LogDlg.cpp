@@ -264,7 +264,7 @@ void CLogDlg::SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, S
     m_path = path;
     m_pegrev = pegrev;
     m_startrev = startrev;
-    m_bStartRevIsHead = !!m_startrev.IsHead();
+    m_bStartRevIsHead = m_startrev.IsHead();
     m_LogRevision = startrev;
     m_endrev = endrev;
     m_hasWC = !path.IsUrl();
@@ -1788,11 +1788,12 @@ void CLogDlg::UpdateSelectedRevs()
     POSITION pos = m_LogList.GetFirstSelectedItemPosition();
     if (pos)
     {
+        pLogEntry = m_logEntries.GetVisible (m_LogList.GetNextSelectedItem(pos));
+        revisions.push_back (pLogEntry->GetRevision());
         while (pos)
         {
             pLogEntry = m_logEntries.GetVisible (m_LogList.GetNextSelectedItem(pos));
-            if (pLogEntry)
-                revisions.push_back (pLogEntry->GetRevision());
+            revisions.push_back (pLogEntry->GetRevision());
         }
 
         m_selectedRevs.AddRevisions (revisions);

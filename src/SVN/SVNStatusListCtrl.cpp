@@ -51,12 +51,11 @@
 #include "SysInfo.h"
 #include "ProgressDlg.h"
 #include "StringUtils.h"
+#include "auto_buffer.h"
 #include "svntrace.h"
 #include "FormatMessageWrapper.h"
 #include "AsyncCall.h"
 #include "DiffOptionsDlg.h"
-#include "RecycleBinDlg.h"
-#include "BrowseFolder.h"
 
 #include <tuple>
 
@@ -112,13 +111,9 @@ const static CString svnPropIgnore (SVN_PROP_IGNORE);
 #define IDSVNLC_CHECKFORMODS    37
 #define IDSVNLC_REPAIRCOPY      38
 #define IDSVNLC_SWITCH          39
-#define IDSVNLC_COMPARETWO      40
-#define IDSVNLC_CREATERESTORE   41
-#define IDSVNLC_RESTOREPATH     42
-#define IDSVNLC_EXPORT          43
 // the IDSVNLC_MOVETOCS *must* be the last index, because it contains a dynamic submenu where
 // the submenu items get command ID's sequent to this number
-#define IDSVNLC_MOVETOCS        44
+#define IDSVNLC_MOVETOCS        40
 
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
@@ -289,10 +284,6 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
         SYS_IMAGE_LIST().SetOverlayImage(m_nDepthImmediatesOvl, OVL_DEPTHIMMEDIATES);
         m_nDepthEmptyOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_DEPTHEMPTYOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(m_nDepthEmptyOvl, OVL_DEPTHEMPTY);
-        m_nRestoreOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_RESTOREOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
-        SYS_IMAGE_LIST().SetOverlayImage(m_nRestoreOvl, OVL_RESTORE);
-        m_nMergeInfoOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MERGEINFOOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
-        SYS_IMAGE_LIST().SetOverlayImage(m_nMergeInfoOvl, OVL_MERGEINFO);
         SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
         m_ColumnManager.ReadSettings (m_dwDefaultColumns, sColumnInfoContainer);
@@ -535,7 +526,7 @@ svn_error_t * proplist_receiver(void *baton, const char *path, apr_hash_t *prop_
     if (proplist.Count())
     {
         CTSVNPath listPath;
-        listPath.SetFromSVN(path);
+        listPath.SetFromSVN(CUnicodeUtils::GetUnicode(path));
         CReaderWriterLock* l = std::get<0>(*t);
         CAutoWriteLock lock(*l);
         (*std::get<1>(*t))[listPath] = proplist;
@@ -1635,18 +1626,6 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, int listIndex)
         lvItem.state = INDEXTOOVERLAYMASK(OVL_DEPTHIMMEDIATES);
     else if (entry->depth == svn_depth_empty)
         lvItem.state = INDEXTOOVERLAYMASK(OVL_DEPTHEMPTY);
-    if (m_restorepaths.size())
-    {
-        for (auto it = m_restorepaths.cbegin(); it != m_restorepaths.cend(); ++it)
-        {
-            if (entry->path.IsEquivalentTo(CTSVNPath(it->second)))
-            {
-                entry->restorepath = it->first;
-                lvItem.state = INDEXTOOVERLAYMASK(OVL_RESTORE);
-                break;
-            }
-        }
-    }
     InsertItem(&lvItem);
 
     SetCheck(listIndex, entry->checked);
@@ -2433,13 +2412,13 @@ void CSVNStatusListCtrl::Delete (const CTSVNPath& filepath, int selIndex)
     }
     filelist += _T("|");
     int len = filelist.GetLength();
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[len+2]);
-    _tcscpy_s(buf.get(), len+2, filelist);
-    CStringUtils::PipesToNulls(buf.get(), len);
+    auto_buffer<TCHAR> buf(len+2);
+    _tcscpy_s(buf, len+2, filelist);
+    CStringUtils::PipesToNulls(buf, len);
     SHFILEOPSTRUCT fileop;
     fileop.hwnd = this->m_hWnd;
     fileop.wFunc = FO_DELETE;
-    fileop.pFrom = buf.get();
+    fileop.pFrom = buf;
     fileop.pTo = NULL;
     fileop.fAnyOperationsAborted = FALSE;
     bool useTrash = DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)) != 0;
@@ -2567,6 +2546,7 @@ void CSVNStatusListCtrl::Revert (const CTSVNPath& filepath)
             taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK3)));
             taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK4)));
             taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+            taskdlg.SetExpansionArea(CString(MAKEINTRESOURCE(IDS_PROC_WARNREVERT_TASK5)));
             taskdlg.SetDefaultCommandControl(2);
             taskdlg.SetMainIcon(TD_WARNING_ICON);
             bDoRevert = (taskdlg.DoModal(m_hWnd) == 1);
@@ -2619,15 +2599,8 @@ void CSVNStatusListCtrl::Revert (const CTSVNPath& filepath)
             delList.AddPath(entry2->GetPath());
         }
     }
-
     if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)))
-    {
-        CRecycleBinDlg rec;
-        rec.StartTime();
-        int count = delList.GetCount();
         delList.DeleteAllPaths(true, true);
-        rec.EndTime(count);
-    }
 
     if (!svn.Revert(targetList, CStringArray(), bRecursive && !bNonRecursive))
     {
@@ -2664,8 +2637,6 @@ void CSVNStatusListCtrl::Revert (const CTSVNPath& filepath)
             fentry->textstatus = svn_wc_status_normal;
             fentry->copied = false;
             fentry->isConflicted = false;
-            fentry->onlyMergeInfoMods = false;
-
             if ((fentry->GetChangeList().IsEmpty()&&(fentry->remotestatus <= svn_wc_status_normal))||(m_dwShow & SVNSLC_SHOWNORMAL))
             {
                 if ( bAdded )
@@ -2853,28 +2824,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
             if (selectedCount > 0)
             {
                 if ((selectedCount == 2)&&
-                    (m_dwContextMenus & SVNSLC_POPCOMPARETWO))
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    int index = GetNextSelectedItem(pos);
-                    if (index >= 0)
-                    {
-                        bool bothItemsAreFiles = true;
-                        FileEntry * entry2 = GetListEntry(index);
-                        if (entry2)
-                            bothItemsAreFiles = !entry2->IsFolder();
-                        index = GetNextSelectedItem(pos);
-                        if (index >= 0)
-                        {
-                            entry2 = GetListEntry(index);
-                            if (entry2)
-                                bothItemsAreFiles = bothItemsAreFiles && !entry2->IsFolder();
-                            if (bothItemsAreFiles)
-                                popup.AppendMenuIcon(IDSVNLC_COMPARETWO, IDS_STATUSLIST_CONTEXT_COMPARETWO, IDI_DIFF);
-                        }
-                    }
-                }
-                if ((selectedCount == 2)&&
                     ((m_dwContextMenus & SVNSLC_POPREPAIRMOVE)||(m_dwContextMenus & SVNSLC_POPREPAIRCOPY)))
                 {
                     POSITION pos = GetFirstSelectedItemPosition();
@@ -2935,17 +2884,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                             popup.AppendMenuIcon(IDSVNLC_REVERT, IDS_MENUUNDOADD, IDI_REVERT);
                         else
                             popup.AppendMenuIcon(IDSVNLC_REVERT, IDS_MENUREVERT, IDI_REVERT);
-                    }
-                    if (m_dwContextMenus & SVNSLC_POPRESTORE)
-                    {
-                        if (entry->GetRestorePath().IsEmpty())
-                            popup.AppendMenuIcon(IDSVNLC_CREATERESTORE, IDS_MENUCREATERESTORE, IDI_RESTORE);
-                        else
-                            popup.AppendMenuIcon(IDSVNLC_RESTOREPATH, IDS_MENURESTORE, IDI_RESTORE);
-                    }
-                    if (m_dwContextMenus & SVNSLC_POPEXPORT)
-                    {
-                        popup.AppendMenuIcon(IDSVNLC_EXPORT, IDS_MENUEXPORT, IDI_EXPORT);
                     }
                 }
                 if (entry->remotestatus > svn_wc_status_normal)
@@ -3253,105 +3191,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
             case IDSVNLC_REVERT:
                 Revert (filepath);
                 break;
-            case IDSVNLC_CREATERESTORE:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    while ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * entry2 = GetListEntry(index);
-                        ASSERT(entry2 != NULL);
-                        if (entry2 == NULL)
-                            continue;
-                        if (!entry2->GetRestorePath().IsEmpty())
-                            continue;
-                        CTSVNPath tempFile = CTempFiles::Instance().GetTempFilePath(false);
-                        if (CopyFile(entry2->GetPath().GetWinPath(), tempFile.GetWinPath(), FALSE))
-                        {
-                            entry2->restorepath = tempFile.GetWinPathString();
-                            SetItemState(index, INDEXTOOVERLAYMASK(OVL_RESTORE), LVIS_OVERLAYMASK);
-                        }
-                    }
-                    Invalidate();
-                }
-                break;
-            case IDSVNLC_EXPORT:
-                {
-                    // ask where the export should go to.
-                    CBrowseFolder folderBrowser;
-                    CString strTemp;
-                    strTemp.LoadString(IDS_PROC_EXPORT_1);
-                    folderBrowser.SetInfo(strTemp);
-                    folderBrowser.m_style = BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS | BIF_VALIDATE | BIF_EDITBOX;
-                    TCHAR saveto[MAX_PATH];
-                    if (folderBrowser.Show(m_hWnd, saveto, _countof(saveto))==CBrowseFolder::OK)
-                    {
-                        CString saveplace = CString(saveto);
-
-                        CProgressDlg progress;
-                        progress.SetTitle(IDS_PROC_EXPORT_3);
-                        progress.SetAnimation(IDR_MOVEANI);
-                        progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
-                        progress.SetTime(true);
-                        progress.ShowModeless(m_hWnd);
-                        size_t count = 0;
-                        size_t total = GetSelectedCount();
-
-                        POSITION pos = GetFirstSelectedItemPosition();
-                        while ( pos )
-                        {
-                            int index = GetNextSelectedItem(pos);
-                            FileEntry * entry2 = GetListEntry(index);
-                            ASSERT(entry2 != NULL);
-                            if (entry2 == NULL)
-                                continue;
-                            if (entry2->IsFolder())
-                                continue;
-
-                            CString targetpath = saveplace + L"\\" + entry2->GetRelativeSVNPath(true);
-                            targetpath.Replace('/', '\\');
-                            progress.FormatPathLine(1, IDS_SVNPROGRESS_EXPORTING, entry2->GetPath().GetWinPath());
-                            progress.FormatPathLine(2, IDS_SVNPROGRESS_EXPORTINGTO, targetpath);
-                            progress.SetProgress64(count, total);
-                            CPathUtils::FileCopy(entry2->GetPath().GetWinPath(), targetpath);
-                        }
-                        progress.Stop();
-                    }
-                }
-                break;
-            case IDSVNLC_RESTOREPATH:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    while ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * entry2 = GetListEntry(index);
-                        ASSERT(entry2 != NULL);
-                        if (entry2 == NULL)
-                            continue;
-                        if (entry2->GetRestorePath().IsEmpty())
-                            continue;
-                        if (CopyFile(entry2->GetRestorePath() ,entry2->GetPath().GetWinPath(), FALSE))
-                        {
-                            entry2->restorepath.Empty();
-                            // restore the original overlay
-                            UINT state = 0;
-                            if (entry2->IsNested())
-                                state = INDEXTOOVERLAYMASK(OVL_NESTED);
-                            else if (entry2->IsInExternal()||entry2->file_external)
-                                state = INDEXTOOVERLAYMASK(OVL_EXTERNAL);
-                            else if (entry2->depth == svn_depth_files)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHFILES);
-                            else if (entry2->depth == svn_depth_immediates)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHIMMEDIATES);
-                            else if (entry2->depth == svn_depth_empty)
-                                state = INDEXTOOVERLAYMASK(OVL_DEPTHEMPTY);
-                            SetItemState(index, state, LVIS_OVERLAYMASK);
-                        }
-                    }
-                    Invalidate();
-                }
-                break;
             case IDSVNLC_COMPARE:
                 {
                     POSITION pos = GetFirstSelectedItemPosition();
@@ -3382,28 +3221,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                         svn_revnum_t baseRev = entry2->Revision;
                         diff.DiffFileAgainstBase(
                             entry2->path, baseRev, entry2->textstatus, entry2->propstatus);
-                    }
-                }
-                break;
-            case IDSVNLC_COMPARETWO:
-                {
-                    POSITION pos = GetFirstSelectedItemPosition();
-                    if ( pos )
-                    {
-                        int index = GetNextSelectedItem(pos);
-                        FileEntry * firstentry = GetListEntry(index);
-                        ASSERT(firstentry != NULL);
-                        if (firstentry == NULL)
-                            break;
-                        index = GetNextSelectedItem(pos);
-                        FileEntry * secondentry = GetListEntry(index);
-                        ASSERT(secondentry != NULL);
-                        if (secondentry == NULL)
-                            break;
-                        CString sCmd;
-                        sCmd.Format(_T("/command:diff /path:\"%s\" /path2:\"%s\" /hwnd:%ld"),
-                            firstentry->GetPath().GetWinPath(), secondentry->GetPath().GetWinPath(), (unsigned long)m_hWnd);
-                        CAppUtils::RunTortoiseProc(sCmd);
                     }
                 }
                 break;
@@ -4383,72 +4200,6 @@ void CSVNStatusListCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
                         crText = GetSysColor(COLOR_GRAYTEXT);
                     }
 
-                    if (!entry->onlyMergeInfoModsKnown)
-                    {
-                        entry->onlyMergeInfoModsKnown = true;
-                        switch (entry->propstatus)
-                        {
-                        case svn_wc_status_none:
-                        case svn_wc_status_normal:
-                        case svn_wc_status_unversioned:
-                            break;
-                        default:
-                            {
-                                SVNProperties wcProps(entry->path, SVNRev(), false);
-                                int mwci = wcProps.IndexOf("svn:mergeinfo");
-                                if (mwci >= 0)
-                                {
-                                    SVNProperties baseProps(entry->path, SVNRev::REV_BASE, false);
-                                    int mii = baseProps.IndexOf("svn:mergeinfo");
-                                    if ((mii < 0)||(wcProps.GetItemValue(mwci).compare(baseProps.GetItemValue(mii))))
-                                    {
-                                        // svn:mergeinfo properties are different.
-                                        // now check if there are other properties with modifications
-                                        bool othermods = false;
-                                        for (int wcp = 0; wcp < wcProps.GetCount(); ++wcp)
-                                        {
-                                            if (wcp == mwci)
-                                                continue;
-                                            int propindex = baseProps.IndexOf(wcProps.GetItemName(wcp));
-                                            if (propindex < 0)
-                                            {
-                                                // added property
-                                                othermods = true;
-                                                break;
-                                            }
-                                            if (wcProps.GetItemValue(wcp).compare(baseProps.GetItemValue(propindex)))
-                                            {
-                                                othermods = true;
-                                                break;
-                                            }
-                                        }
-                                        for (int bp = 0; bp < baseProps.GetCount(); ++bp)
-                                        {
-                                            int propindex = wcProps.IndexOf(baseProps.GetItemName(bp));
-                                            if (propindex < 0)
-                                            {
-                                                // removed property
-                                                othermods = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!othermods)
-                                            entry->onlyMergeInfoMods = true;
-                                    }
-
-                                }
-                            }
-                            break;
-                        }
-                    }
-
-                    if (entry->onlyMergeInfoModsKnown && entry->onlyMergeInfoMods)
-                    {
-                        UINT state = GetItemState((int)pLVCD->nmcd.dwItemSpec, LVIS_OVERLAYMASK);
-                        if (state != INDEXTOOVERLAYMASK(OVL_MERGEINFO))
-                            SetItemState((int)pLVCD->nmcd.dwItemSpec, INDEXTOOVERLAYMASK(OVL_MERGEINFO), LVIS_OVERLAYMASK);
-                    }
-
                     // Store the color back in the NMLVCUSTOMDRAW struct.
                     pLVCD->clrText = crText;
                 }
@@ -5116,36 +4867,44 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
     if (GetSelectedCount() == 0)
         return false;
 
+    WORD langID = (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), GetUserDefaultLangID());
+
     CString sClipboard;
+    CString temp;
+    TCHAR buf[100];
 
-    bool bMultipleColumnSelected = ((dwCols & dwCols-1) != 0 ); //  multiple columns are selected (clear least signifient bit and check for zero)
-
-#define ADDTOCLIPBOARDSTRING(x) sClipboard += (sClipboard.IsEmpty() || (sClipboard.Right(1)==_T("\n"))) ? (x) : ('\t' + x)
-#define ADDNEWLINETOCLIPBOARDSTRING() sClipboard += (sClipboard.IsEmpty()) ? _T("") : _T("\r\n")
+    // count the bits
+    int c = 0;
+    DWORD v = dwCols;
+    for (c = 0; v; c++)
+    {
+        v &= v - 1; // clear the least significant bit set
+    }
 
     // first add the column titles as the first line
     DWORD selection = 0;
-    int count = m_ColumnManager.GetColumnCount();
-    for (int column = 0; column < count; ++column)
+    for (int i = 0, count = m_ColumnManager.GetColumnCount(); i < count; ++i)
     {
-        if (   ((dwCols == -1) && m_ColumnManager.IsVisible(column))
-            || ((column < SVNSLC_NUMCOLUMNS) && (dwCols & (1 << column))))
+        if (   ((dwCols == -1) && m_ColumnManager.IsVisible (i))
+            || ((i < SVNSLC_NUMCOLUMNS) && (dwCols & (1 << i))))
         {
-            if ( bMultipleColumnSelected )
+            if ( c > 1)
             {
-                ADDTOCLIPBOARDSTRING(m_ColumnManager.GetName(column));
+                if (!sClipboard.IsEmpty())
+                    sClipboard += _T("\t");
+
+                sClipboard += m_ColumnManager.GetName(i);
             }
 
-            selection |= 1 << column;
+            if (i < sizeof(selection)*CHAR_BIT)
+                selection += 1 << i;
         }
     }
 
-    if ( bMultipleColumnSelected )
-        ADDNEWLINETOCLIPBOARDSTRING();
+    if (c > 1)
+        sClipboard += _T("\r\n");
 
-    // maybe clear first line when only one column is selected (btw by select not by dwCols) is simplier(not faster) way
-    // but why no title on single column output ?
-    // if (selection & selection-1) == 0 ) sClipboard = "";
+#define ADDTOCLIPBOARDSTRING(x) sClipboard += sClipboard.IsEmpty() ? x : (sClipboard.Right(1)==_T("\n") ? x : '\t' + x)
 
     CAutoReadLock locker(m_guard);
 
@@ -5153,14 +4912,20 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
     int index;
     while ((index = GetNextSelectedItem(pos)) >= 0)
     {
-        // we selected only cols we want, so not other then select test needed
-        for (int column = 0; column < count; ++column)
+        for (int column = 0; column < SVNSLC_NUMCOLUMNS; ++column)
         {
             if (selection & (1<<column))
                 ADDTOCLIPBOARDSTRING(GetCellText(index, column));
         }
+        for ( int column = SVNSLC_NUMCOLUMNS, count = m_ColumnManager.GetColumnCount()
+            ; column < count
+            ; ++column)
+        {
+            if ((selection & (1<<column)) && m_ColumnManager.IsVisible (column))
+                ADDTOCLIPBOARDSTRING(GetCellText(index, column));
+        }
 
-        ADDNEWLINETOCLIPBOARDSTRING();
+        sClipboard += _T("\r\n");
     }
 
     return CStringUtils::WriteAsciiStringToClipboard(sClipboard);
@@ -5934,7 +5699,7 @@ void CSVNStatusListCtrlDropTarget::OnDrop(HDROP hDrop, POINTL pt)
     }
     // find the changelist name
     LONG_PTR nGroup = m_pSVNStatusListCtrl->GetGroupFromPoint(&clientpoint, false);
-    CString sChangelist(GetChangelistName(nGroup));
+	CString sChangelist(GetChangelistName(nGroup));
 
     SVN svn;
     if (!sChangelist.IsEmpty())

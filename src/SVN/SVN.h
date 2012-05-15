@@ -124,13 +124,6 @@ public:
         SVNProgress();
     };
 
-    enum SVNExportType
-    {
-        SVNExportNormal,
-        SVNExportIncludeUnversioned,
-        SVNExportOnlyLocalChanges
-    };
-
     /**
      * Checkout a working copy of moduleName at revision, using destPath as the root
      * directory of the newly checked out working copy
@@ -367,7 +360,7 @@ public:
      */
     bool Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision,
         bool force = true, bool bIgnoreExternals = false, bool bIgnoreKeywords = false, svn_depth_t depth = svn_depth_infinity,
-        HWND hWnd = NULL, SVNExportType extended = SVNExportNormal, const CString& eol = CString());
+        HWND hWnd = NULL, bool extended = false, const CString& eol = CString());
     /**
      * Switch working tree path to URL at revision
      *
@@ -787,7 +780,6 @@ public:
      * type is either svn_checksum_md5 or svn_checksum_sha1.
      */
     CString GetChecksumString(svn_checksum_kind_t type, const CString& s);
-    static CString GetChecksumString(svn_checksum_kind_t type, const CString& s, apr_pool_t * localpool);
 
     /**
      * Checks if the configuration file is present and valid.
@@ -972,7 +964,7 @@ protected:
                     , svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps
-                    , const MergeInfo* mergeInfo) override;
+                    , const MergeInfo* mergeInfo);
 
     // logCachePool management utilities
 

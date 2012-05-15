@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "resource.h"
 #include "afxcmn.h"
 #include "HistoryCombo.h"
 
@@ -60,5 +59,4 @@ private:
     BOOL            m_bLimitToDiffs;
     BOOL            m_bWholeWord;
     CHistoryCombo   m_FindCombo;
-    CWnd *          m_pParent;
 };

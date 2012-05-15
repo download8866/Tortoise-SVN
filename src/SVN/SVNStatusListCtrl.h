@@ -137,9 +137,6 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPCHECKFORMODS          0x00400000
 #define SVNSLC_POPREPAIRCOPY            0x00800000
 #define SVNSLC_POPSWITCH                0x01000000
-#define SVNSLC_POPCOMPARETWO            0x02000000
-#define SVNSLC_POPRESTORE               0x04000000
-#define SVNSLC_POPEXPORT                0x08000000
 
 #define SVNSLC_IGNORECHANGELIST         _T("ignore-on-commit")
 
@@ -167,8 +164,6 @@ typedef CComCritSecLock<CComCriticalSection> Locker;
 #define OVL_DEPTHFILES      3
 #define OVL_DEPTHIMMEDIATES 4
 #define OVL_DEPTHEMPTY      5
-#define OVL_RESTORE         6
-#define OVL_MERGEINFO       7
 
 /**
  * \ingroup SVN
@@ -309,8 +304,6 @@ public:
             , isNested(false)
             , Revision(0)
             , isConflicted(false)
-            , onlyMergeInfoMods(false)
-            , onlyMergeInfoModsKnown(false)
             , working_size(SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN)
             , depth(svn_depth_unknown)
         {
@@ -379,10 +372,6 @@ public:
         {
             return url;
         }
-        CString GetRestorePath() const
-        {
-            return restorepath;
-        }
     public:
         svn_wc_status_kind      status;                 ///< local status
         svn_wc_status_kind      textstatus;             ///< local text status
@@ -399,7 +388,6 @@ public:
         CString                 lock_remoteowner;       ///< the username which owns the lock in the repository
         CString                 lock_remotetoken;       ///< the unique URI in the repository of the lock
         CString                 lock_comment;           ///< the message for the lock
-        CString                 restorepath;            ///< path to a copy of the file, to be restored after a commit
         apr_time_t              lock_date;              ///< the date when this item was locked
         CString                 changelist;             ///< the name of the changelist the item belongs to
         CString                 last_commit_author;     ///< the author which last committed this item
@@ -416,8 +404,6 @@ public:
         bool                    isfolder;               ///< TRUE if entry refers to a folder
         bool                    isNested;               ///< TRUE if the folder from a different repository and/or path
         bool                    isConflicted;           ///< TRUE if a file entry is conflicted, i.e. if it has the conflicted paths set
-        bool                    onlyMergeInfoMods;      ///< TRUE if only the svn:mergeinfo property has mods, no other properties
-        bool                    onlyMergeInfoModsKnown; ///< TRUE if onlyMergeInfoMods has been calculated
         svn_revnum_t            Revision;               ///< the base revision
         svn_filesize_t          working_size;           ///< Size of the file after being translated into local representation or SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN
         svn_depth_t             depth;                  ///< the depth of this entry
@@ -599,7 +585,7 @@ public:
      *                       Use the SVNSLC_POPxxx defines.
      * \param bHasCheckboxes TRUE if the control should show check boxes on the left of each file entry.
      */
-    void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = ((SVNSLC_POPALL ^ SVNSLC_POPCOMMIT) ^ SVNSLC_POPRESTORE), bool bHasCheckboxes = true);
+    void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = (SVNSLC_POPALL ^ SVNSLC_POPCOMMIT), bool bHasCheckboxes = true);
     /**
      * Sets a background image for the list control.
      * The image is shown in the right bottom corner.
@@ -840,11 +826,6 @@ public:
      */
     DWORD GetShowFlags() {return m_dwShow;}
 
-    /**
-     * Sets restore paths from a previous run
-     */
-    void SetRestorePaths(const std::map<CString,CString>& restorepaths) {m_restorepaths = restorepaths;}
-
     CString GetLastErrorMessage() {return m_sLastError;}
 
     void BusyCursor(bool bBusy) { m_bWaitCursor = bBusy; }
@@ -1083,8 +1064,6 @@ private:
     int                         m_nDepthFilesOvl;
     int                         m_nDepthImmediatesOvl;
     int                         m_nDepthEmptyOvl;
-    int                         m_nRestoreOvl;
-    int                         m_nMergeInfoOvl;
 
     CWnd *                      m_pStatLabel;
     CButton *                   m_pSelectButton;
@@ -1107,7 +1086,6 @@ private:
     std::map<CString,bool>      m_mapFilenameToChecked; ///< Remember manually de-/selected items
     bool                        m_bBlockItemChangeHandler;
     std::set<CTSVNPath>         m_externalSet;
-    std::map<CString, CString>  m_restorepaths;
     mutable CReaderWriterLock   m_guard;
 
     friend class CSVNStatusListCtrlDropTarget;

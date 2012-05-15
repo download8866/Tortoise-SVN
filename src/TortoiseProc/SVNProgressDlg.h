@@ -136,7 +136,6 @@ public:
     void SetRevisionRanges(const SVNRevRangeArray& revArray) {m_revisionArray = revArray;}
     void SetBugTraqProvider(const CComPtr<IBugTraqProvider>& pBugtraqProvider) { m_BugTraqProvider = pBugtraqProvider;}
     void SetRevisionProperties(const RevPropHash& revProps) {m_revProps = revProps;}
-    void SetRestorePaths(const std::map<CString,CString>& restorepaths) {m_restorepaths = restorepaths;}
     /**
      * If the number of items for which the operation is done on is known
      * beforehand, that number can be set here. It is then used to show a more
@@ -166,8 +165,7 @@ private:
               bTreeConflict(false),
               bAuxItem(false),
               lock_state(svn_wc_notify_lock_state_unchanged),
-              bConflictSummary(false),
-              bBold(false)
+              bConflictSummary(false)
           {
               merge_range.end = 0;
               merge_range.start = 0;
@@ -195,7 +193,6 @@ private:
         bool                    bTreeConflict;              ///< item is tree conflict
         bool                    bAuxItem;                   ///< Set if this item is not a true 'SVN action'
         bool                    bConflictSummary;           ///< if true, the entry is "one or more items are in a conflicted state"
-        bool                    bBold;                      ///< if true, the line is shown with a bold font
         CString                 sPathColumnText;
 
     };
@@ -209,11 +206,10 @@ protected:
         const CString& changelistname,
         const CString& propertyName,
         svn_merge_range_t * range,
-        svn_error_t * err, apr_pool_t * pool) override;
-    virtual svn_wc_conflict_choice_t    ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile) override;
-    virtual BOOL                        Cancel() override;
-
+        svn_error_t * err, apr_pool_t * pool);
+    virtual svn_wc_conflict_choice_t    ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile);
     virtual BOOL                        OnInitDialog();
+    virtual BOOL                        Cancel();
     virtual void                        OnCancel();
     virtual BOOL                        PreTranslateMessage(MSG* pMsg);
     virtual void                        DoDataExchange(CDataExchange* pDX);
@@ -264,7 +260,6 @@ private:
     void        OnCommitFinished();
     bool        CheckUpdateAndRetry();
     void        ResetVars();
-    void        MergeAfterCommit();
     void        GenerateMergeLogMessage();
 
     /**
@@ -295,6 +290,7 @@ private:
     bool        CmdSwitchBackToParent(CString& sWindowTitle, bool& localoperation);
     bool        CmdUnlock(CString& sWindowTitle, bool& localoperation);
     bool        CmdUpdate(CString& sWindowTitle, bool& localoperation);
+
 private:
     typedef std::map<CStringA, svn_revnum_t> StringRevMap;
     typedef std::map<CString, svn_revnum_t> StringWRevMap;
@@ -328,7 +324,6 @@ private:
     RevPropHash             m_revProps;
     SVNExternals            m_externals;
     std::map<CString,svn_depth_t> m_pathdepths;
-    std::map<CString,CString> m_restorepaths;
 
     DWORD                   m_dwCloseOnEnd;
     DWORD                   m_bCloseLocalOnEnd;
@@ -357,8 +352,6 @@ private:
     CString                 m_sTotalBytesTransferred;
 
     CColors                 m_Colors;
-    HFONT                   m_boldFont;
-
 
     bool                    m_bLockWarning;
     bool                    m_bLockExists;

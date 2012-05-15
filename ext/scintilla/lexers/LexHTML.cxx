@@ -261,29 +261,28 @@ static void classifyAttribHTML(unsigned int start, unsigned int end, WordList &k
 static int classifyTagHTML(unsigned int start, unsigned int end,
                            WordList &keywords, Accessor &styler, bool &tagDontFold,
 			   bool caseSensitive, bool isXml, bool allowScripts) {
-	char withSpace[30 + 2] = " ";
-	const char *s = withSpace + 1;
+	char s[30 + 2];
 	// Copy after the '<'
-	unsigned int i = 1;
+	unsigned int i = 0;
 	for (unsigned int cPos = start; cPos <= end && i < 30; cPos++) {
 		char ch = styler[cPos];
 		if ((ch != '<') && (ch != '/')) {
-			withSpace[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
+			s[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
 		}
 	}
 
 	//The following is only a quick hack, to see if this whole thing would work
 	//we first need the tagname with a trailing space...
-	withSpace[i] = ' ';
-	withSpace[i+1] = '\0';
+	s[i] = ' ';
+	s[i+1] = '\0';
 
 	// if the current language is XML, I can fold any tag
 	// if the current language is HTML, I don't want to fold certain tags (input, meta, etc.)
 	//...to find it in the list of no-container-tags
-	tagDontFold = (!isXml) && (NULL != strstr(" area base basefont br col command embed frame hr img input isindex keygen link meta param source track wbr ", withSpace));
+	tagDontFold = (!isXml) && (NULL != strstr("meta link img area br hr input ", s));
 
 	//now we can remove the trailing space
-	withSpace[i] = '\0';
+	s[i] = '\0';
 
 	// No keywords -> all are known
 	char chAttr = SCE_H_TAGUNKNOWN;
@@ -903,7 +902,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 		         (chNext == '?') &&
 				 !IsScriptCommentState(state)) {
  			beforeLanguage = scriptLanguage;
-			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, isXml ? eScriptXML : eScriptPHP);
+			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, eScriptPHP);
 			if (scriptLanguage != eScriptPHP && isStringState(state)) continue;
 			styler.ColourTo(i - 1, StateToPrint);
 			beforePreProc = state;

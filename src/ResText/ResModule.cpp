@@ -18,13 +18,6 @@
 #include "StdAfx.h"
 #include "Utils.h"
 #include ".\resmodule.h"
-#include <regex>
-#include <memory>
-
-#ifndef RT_RIBBON
-#define RT_RIBBON MAKEINTRESOURCE(28)
-#endif
-
 
 #define MYERROR {CUtils::Error(); return FALSE;}
 
@@ -37,8 +30,6 @@ CResModule::CResModule(void)
     , m_bDefaultMenuStrings(0)
     , m_bTranslatedAcceleratorStrings(0)
     , m_bDefaultAcceleratorStrings(0)
-    , m_bTranslatedRibbonTexts(0)
-    , m_bDefaultRibbonTexts(0)
     , m_wTargetLang(0)
     , m_hResDll(NULL)
     , m_hUpdateRes(NULL)
@@ -88,12 +79,6 @@ BOOL CResModule::ExtractResources(std::vector<std::wstring> filelist, LPCTSTR lp
         EnumResourceNames(m_hResDll, RT_ACCELERATOR, EnumResNameCallback, (long)this);
         if (!m_bQuiet)
             _ftprintf(stdout, _T("%4d Accelerators\n"), m_StringEntries.size()-nEntries);
-        nEntries = m_StringEntries.size();
-        if (!m_bQuiet)
-            _ftprintf(stdout, _T("Extracting Ribbons........"));
-        EnumResourceNames(m_hResDll, RT_RIBBON, EnumResNameCallback, (long)this);
-        if (!m_bQuiet)
-            _ftprintf(stdout, _T("%4d Strings\n"), m_StringEntries.size()-nEntries);
         nEntries = m_StringEntries.size();
 
         // parse a probably existing file and update the translations which are
@@ -230,12 +215,6 @@ BOOL CResModule::CreateTranslatedResources(LPCTSTR lpszSrcLangDllPath, LPCTSTR l
     if (!m_bQuiet)
         _ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedAcceleratorStrings, m_bDefaultAcceleratorStrings);
 
-    if (!m_bQuiet)
-        _ftprintf(stdout, _T("Translating Ribbons......."));
-    bRes = EnumResourceNames(m_hResDll, RT_RIBBON, EnumResNameWriteCallback, (long)this);
-    if (!m_bQuiet)
-        _ftprintf(stdout, _T("%4d translated, %4d not translated\n"), m_bTranslatedRibbonTexts, m_bDefaultRibbonTexts);
-    bRes = TRUE;
     if (!EndUpdateResource(m_hUpdateRes, !bRes))
         MYERROR;
 
@@ -1060,6 +1039,7 @@ BOOL CResModule::ReplaceAccelerator(UINT nID, WORD wLanguage)
     TCHAR * pBuf = new TCHAR[BufferSize];
     for (i = 0; i < cAccelerators; i++)
     {
+        m_bDefaultAcceleratorStrings++;
         if ((lpaccelNew[i].key < 0x30) ||
             (lpaccelNew[i].key > 0x5A) ||
             (lpaccelNew[i].key >= 0x3A && lpaccelNew[i].key <= 0x40))
@@ -1126,8 +1106,6 @@ BOOL CResModule::ReplaceAccelerator(UINT nID, WORD wLanguage)
                 lpaccelNew[i].key = xkey;
             }
         }
-        else
-            m_bDefaultAcceleratorStrings++;
     }
 
     delete [] pBuf;
@@ -1813,174 +1791,6 @@ const WORD* CResModule::ReplaceControlInfo(const WORD * res, size_t * wordcount,
     return res;
 }
 
-BOOL CResModule::ExtractRibbon(UINT nID)
-{
-    HRSRC       hrsrc = FindResource(m_hResDll, MAKEINTRESOURCE(nID), RT_RIBBON);
-    HGLOBAL     hglRibbonTemplate;
-    const BYTE *p;
-
-    if (!hrsrc)
-        MYERROR;
-
-    hglRibbonTemplate = LoadResource(m_hResDll, hrsrc);
-
-    DWORD sizeres = SizeofResource(m_hResDll, hrsrc);
-
-    if (!hglRibbonTemplate)
-        MYERROR;
-
-    p = (const BYTE*)LockResource(hglRibbonTemplate);
-
-    if (p == NULL)
-        MYERROR;
-
-    // Resource consists of one single string
-    // that is XML.
-
-    // extract all <text>blah</text> elements
-
-    const std::regex regRevMatch("<TEXT>([^<]+)</TEXT>");
-    std::string ss = std::string((const char*)p, sizeres);
-    const std::sregex_iterator end;
-    for (std::sregex_iterator it(ss.begin(), ss.end(), regRevMatch); it != end; ++it)
-    {
-        std::string str = (*it)[1];
-        size_t len = str.size();
-        std::unique_ptr<wchar_t[]> bufw(new wchar_t[len*4 + 1]);
-        SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufw.get(), (int)len*4);
-        std::wstring ret = bufw.get();
-        RESOURCEENTRY entry = m_StringEntries[ret];
-        entry.resourceIDs.insert(nID);
-        if (wcschr(ret.c_str(), '%'))
-            entry.flag = _T("#, c-format");
-        m_StringEntries[ret] = entry;
-        m_bDefaultRibbonTexts++;
-    }
-
-    // extract all </ELEMENT_NAME><NAME>blahblah</NAME> elements
-
-    const std::regex regRevMatchName("</ELEMENT_NAME><NAME>([^<]+)</NAME>");
-    for (std::sregex_iterator it(ss.begin(), ss.end(), regRevMatchName); it != end; ++it)
-    {
-        std::string str = (*it)[1];
-        size_t len = str.size();
-        std::unique_ptr<wchar_t[]> bufw(new wchar_t[len*4 + 1]);
-        SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufw.get(), (int)len*4);
-        std::wstring ret = bufw.get();
-        RESOURCEENTRY entry = m_StringEntries[ret];
-        entry.resourceIDs.insert(nID);
-        if (wcschr(ret.c_str(), '%'))
-            entry.flag = _T("#, c-format");
-        m_StringEntries[ret] = entry;
-        m_bDefaultRibbonTexts++;
-    }
-
-    UnlockResource(hglRibbonTemplate);
-    FreeResource(hglRibbonTemplate);
-    return TRUE;
-}
-
-BOOL CResModule::ReplaceRibbon(UINT nID, WORD wLanguage)
-{
-    HRSRC       hrsrc = FindResource(m_hResDll, MAKEINTRESOURCE(nID), RT_RIBBON);
-    HGLOBAL     hglRibbonTemplate;
-    const BYTE *p;
-
-    if (!hrsrc)
-        MYERROR;
-
-    hglRibbonTemplate = LoadResource(m_hResDll, hrsrc);
-
-    DWORD sizeres = SizeofResource(m_hResDll, hrsrc);
-
-    if (!hglRibbonTemplate)
-        MYERROR;
-
-    p = (const BYTE*)LockResource(hglRibbonTemplate);
-
-    if (p == NULL)
-        MYERROR;
-
-    std::string ss = std::string((const char*)p, sizeres);
-    size_t len = ss.size();
-    std::unique_ptr<wchar_t[]> bufw(new wchar_t[len*4 + 1]);
-    SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(wchar_t));
-    MultiByteToWideChar(CP_UTF8, 0, ss.c_str(), -1, bufw.get(), (int)len*4);
-    std::wstring ssw = bufw.get();
-
-
-    const std::regex regRevMatch("<TEXT>([^<]+)</TEXT>");
-    const std::sregex_iterator end;
-    for (std::sregex_iterator it(ss.begin(), ss.end(), regRevMatch); it != end; ++it)
-    {
-        std::string str = (*it)[1];
-        size_t len = str.size();
-        std::unique_ptr<wchar_t[]> bufw(new wchar_t[len*4 + 1]);
-        SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufw.get(), (int)len*4);
-        std::wstring ret = bufw.get();
-
-        RESOURCEENTRY entry = m_StringEntries[ret];
-        ret = L"<TEXT>" + ret + L"</TEXT>";
-
-        if (entry.msgstr.size())
-        {
-            CUtils::SearchReplace(ssw, ret, L"<TEXT>" + entry.msgstr + L"</TEXT>");
-            m_bTranslatedRibbonTexts++;
-        }
-        else
-            m_bDefaultRibbonTexts++;
-    }
-
-    const std::regex regRevMatchName("</ELEMENT_NAME><NAME>([^<]+)</NAME>");
-    for (std::sregex_iterator it(ss.begin(), ss.end(), regRevMatchName); it != end; ++it)
-    {
-        std::string str = (*it)[1];
-        size_t len = str.size();
-        std::unique_ptr<wchar_t[]> bufw(new wchar_t[len*4 + 1]);
-        SecureZeroMemory(bufw.get(), (len*4 + 1)*sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufw.get(), (int)len*4);
-        std::wstring ret = bufw.get();
-
-        RESOURCEENTRY entry = m_StringEntries[ret];
-        ret = L"</ELEMENT_NAME><NAME>" + ret + L"</NAME>";
-
-        if (entry.msgstr.size())
-        {
-            CUtils::SearchReplace(ssw, ret, L"</ELEMENT_NAME><NAME>" + entry.msgstr + L"</NAME>");
-            m_bTranslatedRibbonTexts++;
-        }
-        else
-            m_bDefaultRibbonTexts++;
-    }
-
-    std::unique_ptr<char[]> buf(new char[ssw.size()*4 + 1]);
-    int lengthIncTerminator = WideCharToMultiByte(CP_UTF8, 0, ssw.c_str(), -1, buf.get(), (int)len*4, NULL, NULL);
-
-
-    if (!UpdateResource(m_hUpdateRes, RT_RIBBON, MAKEINTRESOURCE(nID), (m_wTargetLang ? m_wTargetLang : wLanguage), buf.get(), lengthIncTerminator-1))
-    {
-        goto DONE_ERROR;
-    }
-
-    if ((m_wTargetLang)&&(!UpdateResource(m_hUpdateRes, RT_RIBBON, MAKEINTRESOURCE(nID), wLanguage, NULL, 0)))
-    {
-        goto DONE_ERROR;
-    }
-
-
-    UnlockResource(hglRibbonTemplate);
-    FreeResource(hglRibbonTemplate);
-    return TRUE;
-
-DONE_ERROR:
-    UnlockResource(hglRibbonTemplate);
-    FreeResource(hglRibbonTemplate);
-    MYERROR;
-}
-
 BOOL CALLBACK CResModule::EnumResNameCallback(HMODULE /*hModule*/, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam)
 {
     CResModule* lpResModule = (CResModule*)lParam;
@@ -2014,14 +1824,6 @@ BOOL CALLBACK CResModule::EnumResNameCallback(HMODULE /*hModule*/, LPCTSTR lpszT
         if (IS_INTRESOURCE(lpszName))
         {
             if (!lpResModule->ExtractAccelerator(LOWORD(lpszName)))
-                return FALSE;
-        }
-    }
-    else if (lpszType == RT_RIBBON)
-    {
-        if (IS_INTRESOURCE(lpszName))
-        {
-            if (!lpResModule->ExtractRibbon(LOWORD(lpszName)))
                 return FALSE;
         }
     }
@@ -2069,13 +1871,6 @@ BOOL CALLBACK CResModule::EnumResWriteLangCallback(HMODULE /*hModule*/, LPCTSTR 
         if (IS_INTRESOURCE(lpszName))
         {
             bRes = lpResModule->ReplaceAccelerator(LOWORD(lpszName), wLanguage);
-        }
-    }
-    else if (lpszType == RT_RIBBON)
-    {
-        if (IS_INTRESOURCE(lpszName))
-        {
-            bRes = lpResModule->ReplaceRibbon(LOWORD(lpszName), wLanguage);
         }
     }
 

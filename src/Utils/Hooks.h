@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2006-2011 - TortoiseSVN
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,8 +21,6 @@
 #include "registry.h"
 #include "TSVNPath.h"
 #include "SVNRev.h"
-
-class ProjectProperties;
 
 /**
  * \ingroup TortoiseProc
@@ -71,8 +69,6 @@ typedef struct hookcmd
     CString         commandline;
     bool            bWait;
     bool            bShow;
-    bool            bApproved;
-    CString         sRegKey;
 } hookcmd;
 
 typedef std::map<hookkey, hookcmd>::iterator hookiterator;
@@ -119,9 +115,6 @@ public:
     /// returns the hooktype from a string representation of the same.
     static hooktype     GetHookType(const CString& s);
 
-    /// Add hook script data from project properties
-    void                SetProjectProperties(const CTSVNPath& wcPath, const ProjectProperties& pp);
-
     /**
      * Executes the Start-Update-Hook that first matches one of the paths in
      * \c pathList.
@@ -133,7 +126,7 @@ public:
      * in \c pathList, separated by newlines. The hook script can parse this
      * file to get all the paths the update is about to be done on.
      */
-    bool                StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitcode,
+    bool                StartUpdate(const CTSVNPathList& pathList, DWORD& exitcode,
                                     CString& error);
     /**
      * Executes the Pre-Update-Hook that first matches one of the paths in
@@ -151,7 +144,7 @@ public:
      * to the \c bRecursive parameter. And the string "%REVISION%" is replaced with
      * the string representation of \c rev.
      */
-    bool                PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PreUpdate(const CTSVNPathList& pathList, svn_depth_t depth,
                                     SVNRev rev, DWORD& exitcode, CString& error);
     /**
      * Executes the Post-Update-Hook that first matches one of the paths in
@@ -169,7 +162,7 @@ public:
      * to the \c bRecursive parameter. And the string "%REVISION%" is replaced with
      * the string representation of \c rev.
      */
-    bool                PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PostUpdate(const CTSVNPathList& pathList, svn_depth_t depth,
                                     SVNRev rev, DWORD& exitcode, CString& error);
 
     /**
@@ -187,7 +180,7 @@ public:
      * \c message. If the script finishes successfully, contents of this file
      * is read back into \c message parameter.
      */
-    bool                StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message,
+    bool                StartCommit(const CTSVNPathList& pathList, CString& message,
                                     DWORD& exitcode, CString& error);
     /**
      * Executes the Pre-Commit-Hook that first matches one of the paths in
@@ -205,7 +198,7 @@ public:
      * svn_depth_t parameter. See the Subversion source documentation about the
      * values.
      */
-    bool                PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PreCommit(const CTSVNPathList& pathList, svn_depth_t depth,
                                     CString& message, DWORD& exitcode,
                                     CString& error);
     /**
@@ -225,7 +218,7 @@ public:
      * svn_depth_t parameter. See the Subversion source documentation about the
      * values.
      */
-    bool                PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PostCommit(const CTSVNPathList& pathList, svn_depth_t depth,
                                     SVNRev rev, const CString& message,
                                     DWORD& exitcode, CString& error);
 
@@ -254,20 +247,6 @@ private:
      * path in \c pathList.
      */
     hookiterator        FindItem(hooktype t, const CTSVNPathList& pathList);
-
-    /**
-     * Parses the hook information from a project property string
-     */
-    bool                ParseAndInsertProjectProperty(hooktype t, const CString& strhooks, const CTSVNPath& wcPath,
-                                                      const CString& rootPath, const CString& rootUrl,
-                                                      const CString& repoRootUrl);
-
-    /**
-     * Checks whether the hook script has been validated already and
-     * if not, asks the user to validate it.
-     */
-    bool                ApproveHook(HWND hWnd, hookiterator it);
-
     static CHooks *     m_pInstance;
     DWORD               m_lastPreConnectTicks;
     bool                m_PathsConvertedToUrls;

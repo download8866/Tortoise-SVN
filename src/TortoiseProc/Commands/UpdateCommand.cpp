@@ -34,10 +34,7 @@ bool UpdateCommand::Execute()
     CString error;
     if (pathList.GetCount() == 0)
         return false;
-    ProjectProperties props;
-    props.ReadPropsPathList(pathList);
-    CHooks::Instance().SetProjectProperties(pathList.GetCommonRoot(), props);
-    if (CHooks::Instance().StartUpdate(GetExplorerHWND(), pathList, exitcode, error))
+    if (CHooks::Instance().StartUpdate(pathList, exitcode, error))
     {
         if (exitcode)
         {
@@ -97,7 +94,6 @@ bool UpdateCommand::Execute()
     progDlg.SetOptions(options);
     progDlg.SetPathList(pathList);
     progDlg.SetRevision(rev);
-    progDlg.SetProjectProperties(props);
     if (checkoutDepths.size())
         progDlg.SetPathDepths(checkoutDepths);
     else

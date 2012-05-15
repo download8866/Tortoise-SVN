@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,10 +55,6 @@ SVNDataObject::~SVNDataObject()
 // IUnknown
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
-#define IID_IDataObjectAsyncCapability IID_IAsyncOperation
-#endif
-
 STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
 {
     if(ppvObject == 0)
@@ -66,8 +62,8 @@ STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
     *ppvObject = NULL;
     if (IsEqualIID(IID_IUnknown, riid) || IsEqualIID(IID_IDataObject, riid))
         *ppvObject=static_cast<IDataObject*>(this);
-    else if (IsEqualIID(riid, IID_IDataObjectAsyncCapability))
-        *ppvObject = static_cast<IDataObjectAsyncCapability*>(this);
+    else if (IsEqualIID(riid, IID_IAsyncOperation))
+        *ppvObject = static_cast<IAsyncOperation*>(this);
     else
         return E_NOINTERFACE;
 

@@ -72,7 +72,7 @@ class Face:
 							"Category": currentCategory, "Comment": currentComment
 						}
 						if value in self.values:
-							raise Exception("Duplicate value " + value + " " + name)
+							raise "Duplicate value " + value + " " + name
 						self.values[value] = 1
 						self.order.append(name)
 					elif featureType == "evt":
@@ -84,7 +84,7 @@ class Face:
 							"Category": currentCategory, "Comment": currentComment
 						}
 						if value in self.events:
-							raise Exception("Duplicate event " + value + " " + name)
+							raise "Duplicate event " + value + " " + name
 						self.events[value] = 1
 						self.order.append(name)
 					elif featureType == "cat":
@@ -94,7 +94,7 @@ class Face:
 							name, value = featureVal.split("=", 1)
 						except ValueError:
 							print("Failure %s" % featureVal)
-							raise Exception()
+							raise
 						self.features[name] = { 
 							"FeatureType": featureType, 
 							"Category": currentCategory, 

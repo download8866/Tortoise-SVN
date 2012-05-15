@@ -42,6 +42,7 @@
 #include "..\version.h"
 #include "JumpListHelpers.h"
 #include "CmdUrlParser.h"
+#include "auto_buffer.h"
 #include "Libraries.h"
 #include "TempFile.h"
 #include "SmartHandle.h"
@@ -382,10 +383,10 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
-            if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
+            auto_buffer<TCHAR> originalCurrentDirectory(len);
+            if (GetCurrentDirectory(len, originalCurrentDirectory))
             {
-                sOrigCWD = originalCurrentDirectory.get();
+                sOrigCWD = originalCurrentDirectory;
                 sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
