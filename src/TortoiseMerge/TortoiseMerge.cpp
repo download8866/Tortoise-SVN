@@ -27,6 +27,7 @@
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "DirFileEnum.h"
+#include "auto_buffer.h"
 #include "SelectFileFilter.h"
 #include "FileDlgEventHandler.h"
 #include "TempFile.h"
@@ -64,10 +65,10 @@ public:
 
 
 CTortoiseMergeApp::CTortoiseMergeApp()
-    : m_nAppLook(0)
 {
     EnableHtmlHelp();
-    m_bHiColorIcons = TRUE;
+    m_bLoadUserToolbars = FALSE;
+    m_bSaveState = FALSE;
 }
 
 // The one and only CTortoiseMergeApp object
@@ -84,14 +85,17 @@ BOOL CTortoiseMergeApp::InitInstance()
     SetTaskIDPerUUID();
     CCrashReport::Instance().AddUserInfoToReport(L"CommandLine", GetCommandLine());
 
+    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
+    CMFCButton::EnableWindowsTheming();
+
     {
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
-            if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
+            auto_buffer<TCHAR> originalCurrentDirectory(len);
+            if (GetCurrentDirectory(len, originalCurrentDirectory))
             {
-                sOrigCWD = originalCurrentDirectory.get();
+                sOrigCWD = originalCurrentDirectory;
                 sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
@@ -183,22 +187,10 @@ BOOL CTortoiseMergeApp::InitInstance()
     // visual styles.  Otherwise, any window creation will fail.
     InitCommonControls();
 
-    CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
-    CMFCButton::EnableWindowsTheming();
-    EnableTaskbarInteraction(FALSE);
-
     // Initialize all Managers for usage. They are automatically constructed
     // if not yet present
     InitContextMenuManager();
     InitKeyboardManager();
-    InitTooltipManager ();
-    CMFCToolTipInfo params;
-    params.m_bVislManagerTheme = TRUE;
-
-    GetTooltipManager ()->SetTooltipParams (
-        AFX_TOOLTIP_TYPE_ALL,
-        RUNTIME_CLASS (CMFCToolTipCtrl),
-        &params);
 
     CCmdLineParser parser = CCmdLineParser(this->m_lpCmdLine);
 
@@ -569,11 +561,11 @@ bool CTortoiseMergeApp::TrySavePatchFromClipboard(std::wstring& resultFile)
     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
     DWORD len = GetTempPath(0, NULL);
-    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
-    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
-    GetTempPath (len+1, path.get());
-    GetTempFileName (path.get(), TEXT("tsm"), 0, tempF.get());
-    std::wstring sTempFile = std::wstring(tempF.get());
+    auto_buffer<TCHAR> path(len+1);
+    auto_buffer<TCHAR> tempF(len+100);
+    GetTempPath (len+1, path);
+    GetTempFileName (path, TEXT("tsm"), 0, tempF);
+    std::wstring sTempFile = std::wstring(tempF);
 
     FILE* outFile = 0;
     _tfopen_s(&outFile, sTempFile.c_str(), _T("wb"));

@@ -254,7 +254,6 @@ public:
 
     //! Installs exception handlers to the caller process
     CCrashReportTSVN(LPCTSTR appname, bool bOwnProcess = true)
-        : m_nInstallStatus(0)
     {
         char s_month[6];
         int month, day, year;

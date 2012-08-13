@@ -26,7 +26,7 @@ IconBitmapUtils::IconBitmapUtils()
 {
     if (SysInfo::Instance().IsVistaOrLater())
     {
-        hUxTheme = AtlLoadSystemLibraryUsingFullPath(_T("UXTHEME.DLL"));
+        hUxTheme = LoadLibrary(_T("UXTHEME.DLL"));
 
         if (hUxTheme)
         {

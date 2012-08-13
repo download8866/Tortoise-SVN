@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008, 2011-2012 - TortoiseSVN
+// Copyright (C) 2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,13 +30,13 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override
+    virtual bool            Execute()
     {
         CAutoTextTestDlg dlg;
         dlg.DoModal();
         return true;
     }
-    virtual bool            CheckPaths() override {return true;}
+    virtual bool            CheckPaths() {return true;}
 };
 
 

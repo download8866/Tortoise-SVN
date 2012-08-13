@@ -33,7 +33,7 @@ void FontAlias::ClearFont() {
 }
 
 bool FontSpecification::EqualTo(const FontSpecification &other) const {
-	return weight == other.weight &&
+	return bold == other.bold &&
 	       italic == other.italic &&
 	       size == other.size &&
 	       characterSet == other.characterSet &&
@@ -45,8 +45,10 @@ FontMeasurements::FontMeasurements() {
 }
 
 void FontMeasurements::Clear() {
+	lineHeight = 2;
 	ascent = 1;
 	descent = 1;
+	externalLeading = 0;
 	aveCharWidth = 1;
 	spaceWidth = 1;
 	sizeZoomed = 2;
@@ -54,18 +56,18 @@ void FontMeasurements::Clear() {
 
 Style::Style() : FontSpecification() {
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
-	      Platform::DefaultFontSize() * SC_FONT_SIZE_MULTIPLIER, 0, SC_CHARSET_DEFAULT,
-	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
+	      Platform::DefaultFontSize(), 0, SC_CHARSET_DEFAULT,
+	      false, false, false, false, caseMixed, true, true, false);
 }
 
 Style::Style(const Style &source) : FontSpecification(), FontMeasurements() {
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	      0, 0, 0,
-	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
-	fore = source.fore;
-	back = source.back;
+	      false, false, false, false, caseMixed, true, true, false);
+	fore.desired = source.fore.desired;
+	back.desired = source.back.desired;
 	characterSet = source.characterSet;
-	weight = source.weight;
+	bold = source.bold;
 	italic = source.italic;
 	size = source.size;
 	eolFilled = source.eolFilled;
@@ -84,11 +86,11 @@ Style &Style::operator=(const Style &source) {
 		return * this;
 	Clear(ColourDesired(0, 0, 0), ColourDesired(0xff, 0xff, 0xff),
 	      0, 0, SC_CHARSET_DEFAULT,
-	      SC_WEIGHT_NORMAL, false, false, false, caseMixed, true, true, false);
-	fore = source.fore;
-	back = source.back;
+	      false, false, false, false, caseMixed, true, true, false);
+	fore.desired = source.fore.desired;
+	back.desired = source.back.desired;
 	characterSet = source.characterSet;
-	weight = source.weight;
+	bold = source.bold;
 	italic = source.italic;
 	size = source.size;
 	eolFilled = source.eolFilled;
@@ -101,13 +103,13 @@ Style &Style::operator=(const Style &source) {
 
 void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_,
         const char *fontName_, int characterSet_,
-        int weight_, bool italic_, bool eolFilled_,
+        bool bold_, bool italic_, bool eolFilled_,
         bool underline_, ecaseForced caseForce_,
         bool visible_, bool changeable_, bool hotspot_) {
-	fore = fore_;
-	back = back_;
+	fore.desired = fore_;
+	back.desired = back_;
 	characterSet = characterSet_;
-	weight = weight_;
+	bold = bold_;
 	italic = italic_;
 	size = size_;
 	fontName = fontName_;
@@ -123,12 +125,12 @@ void Style::Clear(ColourDesired fore_, ColourDesired back_, int size_,
 
 void Style::ClearTo(const Style &source) {
 	Clear(
-	    source.fore,
-	    source.back,
+	    source.fore.desired,
+	    source.back.desired,
 	    source.size,
 	    source.fontName,
 	    source.characterSet,
-	    source.weight,
+	    source.bold,
 	    source.italic,
 	    source.eolFilled,
 	    source.underline,

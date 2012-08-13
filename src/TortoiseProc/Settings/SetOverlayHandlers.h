@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010, 2012 - TortoiseSVN
+// Copyright (C) 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ public:
     CSetOverlayHandlers();
     virtual ~CSetOverlayHandlers();
 
-    UINT GetIconID() override {return IDI_SET_OVERLAYS;}
+    UINT GetIconID() {return IDI_SET_OVERLAYS;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSOVERLAYHANDLERS };
@@ -43,14 +43,10 @@ public:
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
     virtual BOOL OnInitDialog();
-    virtual BOOL OnApply();
     afx_msg void OnChange();
-    afx_msg void OnBnClickedRegedt();
+    virtual BOOL OnApply();
 
     DECLARE_MESSAGE_MAP()
-
-    int         GetInstalledOverlays();
-    void        UpdateInfoLabel();
 
 private:
     BOOL            m_bShowIgnoredOverlay;

@@ -34,9 +34,6 @@ public:
     virtual bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked) = 0;
     virtual CString GetRepoRoot() = 0;
     virtual void OnCbenDragbeginUrlcombo(NMHDR *pNMHDR, LRESULT *pResult) = 0;
-    virtual HWND GetHWND() const = 0;
-    virtual size_t GetHistoryForwardCount() const = 0;
-    virtual size_t GetHistoryBackwardCount() const = 0;
     virtual bool IsThreadRunning() const = 0;
 };
 
@@ -117,8 +114,6 @@ protected:
     afx_msg void OnBnClicked();
     afx_msg void OnDestroy();
     afx_msg void OnCbenDragbeginUrlcombo(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnHistoryBack();
-    afx_msg void OnHistoryForward();
 
     DECLARE_MESSAGE_MAP()
 
@@ -138,8 +133,6 @@ private:
 
     CButton m_btnRevision;
     CMFCButton m_btnUp;
-    CMFCButton m_btnBack;
-    CMFCButton m_btnForward;
 
     SVNRev  m_headRev;
     CToolTips m_tooltips;

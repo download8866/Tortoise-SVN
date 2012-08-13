@@ -4,7 +4,7 @@ body {
 	background: #27343C;
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 14px;
-	color: #000000;
+	color: #787878;
 }
 
 h1, h2, h3 {
@@ -337,7 +337,7 @@ blockquote.style2 {
 	float: left;
 	width: 220px;
 	padding: 20px 0 0 30px;
-	color: #000000;
+	color: #787878;
 }
 
 #sidebar ul {
@@ -364,7 +364,7 @@ blockquote.style2 {
 	display: block;
 	margin-top: -10px;
 	padding: 0;
-	font-size: 14px;
+	font-size: 11px;
 	font-style: italic;
 	line-height: 100%;
 }
@@ -388,7 +388,7 @@ blockquote.style2 {
 
 #sidebar a:hover {
 	text-decoration: underline;
-	color: #000000;
+	color: #787878;
 }
 
 /* Footer */
@@ -413,21 +413,6 @@ blockquote.style2 {
 
 #footer a {
 	color: #FFFFFF;
-}
-
-/* ad group box */
-#adgroup
-{
-    border-top: 1px solid #D0D0D0;
-    border-left: 1px solid #D0D0D0;
-    border-right: 1px solid #E8E8E8;
-    border-bottom: 1px solid #E8E8E8;
-}
-#adgroup legend 
-{
-    padding:0;
-    color:#417FDA;
-    padding:2em;
 }
 
 /* all A tags whose HREF attribute ends in .pdf */

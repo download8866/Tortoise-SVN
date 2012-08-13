@@ -1,6 +1,5 @@
 // this script is a local start-update hook script.
 
-var ForReading = 1
 var objArgs,num;
 
 objArgs = WScript.Arguments;
@@ -12,10 +11,12 @@ if (num != 2)
 }
 
 var paths = readPaths(objArgs(0));
-var message = "list of paths selected for update:\n";
-for (var i=0; i < paths.length; i++)
+var message = "list of paths selected for commit:\n";
+var i = 0;
+while (i < paths.length)
 {
     message = message + paths[i] + "\n";
+    i = i + 1;
 }
 message = message + "CWD is: " + objArgs(1) + "\n";
 
@@ -29,13 +30,16 @@ function readPaths(path)
     var fs = new ActiveXObject("Scripting.FileSystemObject");
     if (fs.FileExists(path))
     {
-        var a = fs.OpenTextFile(path, ForReading);
+        var a = fs.OpenTextFile(path, 1, false);
+        var i = 0;
         while (!a.AtEndOfStream)
         {
             var line = a.ReadLine();
-            retPaths.push(line);
+            retPaths[i] = line;
+            i = i + 1;
         }
         a.Close();
     }
     return retPaths;
+
 }

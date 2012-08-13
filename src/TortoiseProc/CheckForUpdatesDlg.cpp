@@ -31,7 +31,6 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
     , m_bShowInfo(FALSE)
     , m_bVisible(FALSE)
-    , m_bThreadRunning(FALSE)
 {
     m_sUpdateDownloadLink = _T("http://tortoisesvn.net");
 }

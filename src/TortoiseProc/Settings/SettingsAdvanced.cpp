@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2012 - TortoiseSVN
+// Copyright (C) 2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -96,10 +96,6 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].sName   = L"GroupTaskbarIconsPerRepoOverlay";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
-    
-    settings[i].sName   = L"HideExternalInfo";
-    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
-    settings[i++].def.b = true;
 
     settings[i].sName   = L"IncludeExternals";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
@@ -125,7 +121,11 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
-    settings[i].sName   = L"ScintillaDirect2D";
+    settings[i].sName   = L"RepoBrowserPrefetch";
+    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
+    settings[i++].def.b = true;
+
+    settings[i].sName   = L"RepoBrowserShowExternals";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
@@ -157,8 +157,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 33 so far...
-    ASSERT(i < _countof(settings));
+    // 31 so far...
 }
 
 CSettingsAdvanced::~CSettingsAdvanced()
