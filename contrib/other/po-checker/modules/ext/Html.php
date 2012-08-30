@@ -13,6 +13,7 @@ define("HTML_ELEMENT_SMARTCLOSE", 3);
 
 class html
 {
+
    // public property declaration
    public $type = "xhtml10t";
    public $skipDefault = false;
@@ -300,7 +301,7 @@ class html
    public function RenderStyle()
    {
       $ret = "";
-      $styles = isset($this->_header["style"]) ? $this->_header["style"] : NULL;
+      $styles = $this->_header["style"];
       if(isset($styles))
       {
          $ret .= NEW_LINE;
@@ -350,7 +351,7 @@ class html
    public function RenderScript()
    {
       $ret = "";
-      $scripts = isset($this->_header["script"]) ? $this->_header["script"] : NULL;
+      $scripts = $this->_header["script"];
       if(isset($scripts))
       {
          $ret .= NEW_LINE;

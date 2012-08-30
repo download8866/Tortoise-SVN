@@ -117,6 +117,12 @@ SVN::SVN(bool suppressUI)
 
     if (m_pctx->config == nullptr)
     {
+        Err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, pool);
+    }
+
+    if (Err != 0)
+    {
+        ShowErrorDialog(NULL);
         svn_pool_destroy (pool);
         svn_pool_destroy (parentpool);
         exit(-1);
@@ -140,6 +146,8 @@ SVN::SVN(bool suppressUI)
     m_pctx->progress_func = progress_func;
     m_pctx->progress_baton = this;
     m_pctx->client_name = SVNHelper::GetUserAgentString(pool);
+
+    SVNConfig::SetUpSSH(m_pctx);
 }
 
 SVN::~SVN(void)
@@ -624,7 +632,7 @@ bool SVN::Resolve(const CTSVNPath& path, svn_wc_conflict_choice_t result, bool r
 
 bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision,
                  bool force, bool bIgnoreExternals, bool bIgnoreKeywords, svn_depth_t depth, HWND hWnd,
-                 SVNExportType extended, const CString& eol)
+                 bool extended, const CString& eol)
 {
     Prepare();
 
@@ -653,61 +661,54 @@ bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
         progress.SetTime(true);
         progress.ShowModeless(hWnd);
         std::map<CTSVNPath, CTSVNPath> copyMap;
-        switch (extended)
+        if (extended)
         {
-        case SVNExportNormal:
-        case SVNExportOnlyLocalChanges:
+
+            CString srcfile;
+            CDirFileEnum lister(srcPath.GetWinPathString());
+            copyMap[srcPath] = destPath;
+            while (lister.NextFile(srcfile, NULL))
             {
-                CTSVNPath statusPath;
-                svn_client_status_t * s;
-                SVNStatus status;
-                if ((s = status.GetFirstFileStatus(srcPath, statusPath, false, svn_depth_infinity, true, !!bIgnoreExternals))!=0)
-                {
-                    if (SVNStatus::GetMoreImportant(s->node_status, svn_wc_status_unversioned)!=svn_wc_status_unversioned)
-                    {
-                        CTSVNPath destination = destPath;
-                        destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
-                        copyMap[statusPath] = destination;
-                    }
-                    while ((s = status.GetNextFileStatus(statusPath))!=0)
-                    {
-                        if ((s->node_status == svn_wc_status_unversioned)||
-                            (s->node_status == svn_wc_status_ignored)||
-                            (s->node_status == svn_wc_status_none)||
-                            (s->node_status == svn_wc_status_missing)||
-                            (s->node_status == svn_wc_status_deleted))
-                            continue;
-                        if ((extended == SVNExportOnlyLocalChanges) &&
-                            (s->node_status == svn_wc_status_normal) )
-                            continue;
-                        CTSVNPath destination = destPath;
-                        destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
-                        copyMap[statusPath] = destination;
-                    }
-                }
-                else
-                {
-                    Err = svn_error_create(status.GetSVNError()->apr_err, const_cast<svn_error_t *>(status.GetSVNError()), NULL);
-                    return false;
-                }
+                if (g_SVNAdminDir.IsAdminDirPath(srcfile))
+                    continue;
+                CTSVNPath destination = destPath;
+                destination.AppendPathString(srcfile.Mid(srcPath.GetWinPathString().GetLength()));
+                copyMap[CTSVNPath(srcfile)] = destination;
             }
-            break;
-        case SVNExportIncludeUnversioned:
-            {
-                CString srcfile;
-                CDirFileEnum lister(srcPath.GetWinPathString());
-                copyMap[srcPath] = destPath;
-                while (lister.NextFile(srcfile, NULL))
-                {
-                    if (g_SVNAdminDir.IsAdminDirPath(srcfile))
-                        continue;
-                    CTSVNPath destination = destPath;
-                    destination.AppendPathString(srcfile.Mid(srcPath.GetWinPathString().GetLength()));
-                    copyMap[CTSVNPath(srcfile)] = destination;
-                }
-            }
-            break;
         }
+        else
+        {
+            CTSVNPath statusPath;
+            svn_client_status_t * s;
+            SVNStatus status;
+            if ((s = status.GetFirstFileStatus(srcPath, statusPath, false, svn_depth_infinity, true, !!bIgnoreExternals))!=0)
+            {
+                if (SVNStatus::GetMoreImportant(s->node_status, svn_wc_status_unversioned)!=svn_wc_status_unversioned)
+                {
+                    CTSVNPath destination = destPath;
+                    destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
+                    copyMap[statusPath] = destination;
+                }
+                while ((s = status.GetNextFileStatus(statusPath))!=0)
+                {
+                    if ((s->node_status == svn_wc_status_unversioned)||
+                        (s->node_status == svn_wc_status_ignored)||
+                        (s->node_status == svn_wc_status_none)||
+                        (s->node_status == svn_wc_status_missing)||
+                        (s->node_status == svn_wc_status_deleted))
+                        continue;
+
+                    CTSVNPath destination = destPath;
+                    destination.AppendPathString(statusPath.GetWinPathString().Mid(srcPath.GetWinPathString().GetLength()));
+                    copyMap[statusPath] = destination;
+                }
+            }
+            else
+            {
+                Err = svn_error_create(status.GetSVNError()->apr_err, const_cast<svn_error_t *>(status.GetSVNError()), NULL);
+                return false;
+            }
+        } // else from if (extended)
         size_t count = 0;
         for (std::map<CTSVNPath, CTSVNPath>::iterator it = copyMap.begin(); (it != copyMap.end()) && (!progress.HasUserCancelled()); ++it)
         {
@@ -722,14 +723,6 @@ bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
                 if (!CopyFile(it->first.GetWinPath(), it->second.GetWinPath(), !force))
                 {
                     DWORD lastError = GetLastError();
-                    if (lastError == ERROR_PATH_NOT_FOUND)
-                    {
-                        CPathUtils::MakeSureDirectoryPathExists(it->second.GetContainingDirectory().GetWinPath());
-                        if (!CopyFile(it->first.GetWinPath(), it->second.GetWinPath(), !force))
-                            lastError = GetLastError();
-                        else
-                            lastError = 0;
-                    }
                     if ((lastError == ERROR_ALREADY_EXISTS)||(lastError == ERROR_FILE_EXISTS))
                     {
                         lastError = 0;
@@ -2784,7 +2777,7 @@ apr_array_header_t * SVN::MakeChangeListArray(const CStringArray& changelists, a
 apr_hash_t * SVN::MakeRevPropHash(const RevPropHash& revProps, apr_pool_t * pool)
 {
     apr_hash_t * revprop_table = NULL;
-    if (!revProps.empty())
+    if (revProps.size())
     {
         revprop_table = apr_hash_make(pool);
         for (RevPropHash::const_iterator it = revProps.begin(); it != revProps.end(); ++it)
@@ -2949,19 +2942,14 @@ void SVN::CallPreConnectHookIfUrl( const CTSVNPathList& pathList, const CTSVNPat
     }
 }
 
-CString SVN::GetChecksumString( svn_checksum_kind_t type, const CString& s, apr_pool_t * localpool )
+CString SVN::GetChecksumString( svn_checksum_kind_t type, const CString& s )
 {
     svn_checksum_t *checksum;
     CStringA sa = CUnicodeUtils::GetUTF8(s);
-    svn_checksum(&checksum, type, s, s.GetLength(), localpool);
-    const char * hexname = svn_checksum_to_cstring(checksum, localpool);
+    svn_checksum(&checksum, type, s, s.GetLength(), pool);
+    const char * hexname = svn_checksum_to_cstring(checksum, pool);
     CString hex = CUnicodeUtils::GetUnicode(hexname);
     return hex;
-}
-
-CString SVN::GetChecksumString( svn_checksum_kind_t type, const CString& s )
-{
-    return GetChecksumString(type, s, pool);
 }
 
 void SVN::Prepare()

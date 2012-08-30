@@ -213,6 +213,8 @@ void CDiffData::StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_
 
 BOOL CDiffData::Load()
 {
+    CString sConvertedBaseFilename, sConvertedTheirFilename, sConvertedYourFilename;
+
     m_arBaseFile.RemoveAll();
     m_arYourFile.RemoveAll();
     m_arTheirFile.RemoveAll();
@@ -243,28 +245,18 @@ BOOL CDiffData::Load()
     // To ignore case changes or to handle UTF-16 files, we have to
     // save the original file in UTF-8 and/or the letters changed to lowercase
     // so the Subversion diff can handle those.
-    CString sConvertedBaseFilename = m_baseFile.GetFilename();
-    CString sConvertedYourFilename = m_yourFile.GetFilename();
-    CString sConvertedTheirFilename = m_theirFile.GetFilename();
+    sConvertedBaseFilename = m_baseFile.GetFilename();
+    sConvertedYourFilename = m_yourFile.GetFilename();
+    sConvertedTheirFilename = m_theirFile.GetFilename();
 
     m_baseFile.StoreFileAttributes();
     m_theirFile.StoreFileAttributes();
     m_yourFile.StoreFileAttributes();
     //m_mergedFile.StoreFileAttributes();
 
-    bool bBaseNeedConvert  = false;
-    bool bTheirNeedConvert = false;
-    bool bYourNeedConvert  = false;
-    bool bBaseIsUtf8  = false;
-    bool bTheirIsUtf8 = false;
-    bool bYourIsUtf8  = false;
-
-    // in case at least one of the files got converted or is UTF8
-    // we have to convert all non UTF8 (ASCII) files
-    // otherwise one file might be in ANSI and the other in UTF8 and we'll end up
-    // with lines marked as different throughout the files even though the lines
-    // would show no change at all in the viewer.
-    bool bIsNotUtf8 = false; // Any non UTF8 file ?
+    bool bBaseConverted  = false;
+    bool bTheirConverted = false;
+    bool bYourConverted  = false;
 
     if (IsBaseFileInUse())
     {
@@ -273,58 +265,78 @@ BOOL CDiffData::Load()
             m_sError = m_arBaseFile.GetErrorString();
             return FALSE;
         }
-        bBaseNeedConvert = bIgnoreCase || (m_arBaseFile.NeedsConversion());
-        bBaseIsUtf8 = (m_arBaseFile.GetUnicodeType()!=CFileTextLines::ASCII) || bBaseNeedConvert;
-        bIsNotUtf8 |= !bBaseIsUtf8;
+        if ((bIgnoreCase)||(m_arBaseFile.GetUnicodeType() == CFileTextLines::UNICODE_LE))
+        {
+            CFileTextLines converted(m_arBaseFile);
+            sConvertedBaseFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedBaseFilename, true, 0, bIgnoreCase, m_bBlame);
+            bBaseConverted = true;
+        }
     }
 
     if (IsTheirFileInUse())
     {
         // m_arBaseFile.GetCount() is passed as a hint for the number of lines in this file
         // It's a fair guess that the files will be roughly the same size
-        if (!m_arTheirFile.Load(m_theirFile.GetFilename(), m_arBaseFile.GetCount()))
+        if (!m_arTheirFile.Load(m_theirFile.GetFilename(),m_arBaseFile.GetCount()))
         {
             m_sError = m_arTheirFile.GetErrorString();
             return FALSE;
         }
-        bTheirNeedConvert = bIgnoreCase || (m_arTheirFile.NeedsConversion());
-        bTheirIsUtf8 = (m_arTheirFile.GetUnicodeType()!=CFileTextLines::ASCII) || bTheirNeedConvert;
-        bIsNotUtf8 |= !bTheirIsUtf8;
+        if ((bIgnoreCase)||(m_arTheirFile.GetUnicodeType() == CFileTextLines::UNICODE_LE))
+        {
+            CFileTextLines converted(m_arTheirFile);
+            sConvertedTheirFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedTheirFilename, true, 0, bIgnoreCase, m_bBlame);
+            bTheirConverted = true;
+        }
     }
 
     if (IsYourFileInUse())
     {
         // m_arBaseFile.GetCount() is passed as a hint for the number of lines in this file
         // It's a fair guess that the files will be roughly the same size
-        if (!m_arYourFile.Load(m_yourFile.GetFilename(), m_arBaseFile.GetCount()))
+        if (!m_arYourFile.Load(m_yourFile.GetFilename(),m_arBaseFile.GetCount()))
         {
             m_sError = m_arYourFile.GetErrorString();
             return FALSE;
         }
-        bYourNeedConvert = bIgnoreCase || (m_arYourFile.NeedsConversion());
-        bYourIsUtf8 = (m_arYourFile.GetUnicodeType()!=CFileTextLines::ASCII) || bYourNeedConvert;
-        bIsNotUtf8 |= !bYourIsUtf8;
+        if ((bIgnoreCase)||(m_arYourFile.GetUnicodeType() == CFileTextLines::UNICODE_LE))
+        {
+            CFileTextLines converted(m_arYourFile);
+            sConvertedYourFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedYourFilename, true, 0, bIgnoreCase, m_bBlame);
+            bYourConverted = true;
+        }
     }
 
-    // convert all files we need to
-    bool bIsUtf8 = bBaseIsUtf8 || bTheirIsUtf8 || bYourIsUtf8; // any file end as UTF8
-    bBaseNeedConvert |= (IsBaseFileInUse() && !bBaseIsUtf8 && bIsUtf8);
-    if (bBaseNeedConvert)
+    // in case at least one of the files got converted, we have to convert all of the files
+    // otherwise one file might be in ANSI and the other in UTF8 and we'll end up
+    // with lines marked as different throughout the files even though the lines
+    // would show no change at all in the viewer.
+    if (bBaseConverted || bYourConverted || bTheirConverted)
     {
-        sConvertedBaseFilename = CTempFiles::Instance().GetTempFilePathString();
-        m_arBaseFile.Save(sConvertedBaseFilename, true, true, 0, bIgnoreCase, m_bBlame);
-    }
-    bYourNeedConvert |= (IsYourFileInUse() && !bYourIsUtf8 && bIsUtf8);
-    if (bYourNeedConvert)
-    {
-        sConvertedYourFilename = CTempFiles::Instance().GetTempFilePathString();
-        m_arYourFile.Save(sConvertedYourFilename, true, true, 0, bIgnoreCase, m_bBlame);
-    }
-    bTheirNeedConvert |= (IsTheirFileInUse() && !bTheirIsUtf8 && bIsUtf8);
-    if (bTheirNeedConvert)
-    {
-        sConvertedTheirFilename = CTempFiles::Instance().GetTempFilePathString();
-        m_arTheirFile.Save(sConvertedTheirFilename, true, true, 0, bIgnoreCase, m_bBlame);
+        if (!bBaseConverted)
+        {
+            CFileTextLines converted(m_arBaseFile);
+            sConvertedBaseFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedBaseFilename, true, 0, bIgnoreCase, m_bBlame);
+            bBaseConverted = true;
+        }
+        if (!bYourConverted)
+        {
+            CFileTextLines converted(m_arYourFile);
+            sConvertedYourFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedYourFilename, true, 0, bIgnoreCase, m_bBlame);
+            bYourConverted = true;
+        }
+        if (!bTheirConverted)
+        {
+            CFileTextLines converted(m_arTheirFile);
+            sConvertedTheirFilename = CTempFiles::Instance().GetTempFilePathString();
+            converted.Save(sConvertedTheirFilename, true, 0, bIgnoreCase, m_bBlame);
+            bTheirConverted = true;
+        }
     }
 
     // Calculate the number of lines in the largest of the three files
@@ -383,13 +395,7 @@ BOOL CDiffData::Load()
         }
     }
 
-    // free the allocated memory
-    apr_pool_destroy (pool);
-
-    m_arBaseFile.RemoveAll();
-    m_arYourFile.RemoveAll();
-    m_arTheirFile.RemoveAll();
-
+    apr_pool_destroy (pool);                    // free the allocated memory
     return TRUE;
 }
 
@@ -538,7 +544,7 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
                     m_YourBaseRight.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, endingYours, HIDESTATE_SHOWN, -1);
                     if (original_length-- <= 0)
                     {
-                        m_YourBaseLeft.AddEmpty();
+                        m_YourBaseLeft.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
                     }
                     else
                     {
@@ -556,63 +562,13 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
                 {
                     EOL endingBase = m_arBaseFile.GetLineEnding(baseline);
                     m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, endingBase, HIDESTATE_SHOWN, -1);
-                    m_YourBaseRight.AddEmpty();
+                    m_YourBaseRight.AddData(_T(""), DIFFSTATE_EMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN, -1);
                     baseline++;
                 }
             }
         }
         tempdiff = tempdiff->next;
     }
-    // add last (empty) lines if needed - diff don't report those
-    if (m_arBaseFile.GetCount() > baseline)
-    {
-        if (m_arYourFile.GetCount() > yourline)
-        {
-            // last line is missing in both files add them to end and mark as no diff
-            m_YourBaseLeft.AddData(m_arBaseFile.GetAt(baseline), DIFFSTATE_NORMAL, baseline, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
-            m_YourBaseRight.AddData(m_arYourFile.GetAt(yourline), DIFFSTATE_NORMAL, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
-            yourline++;
-            baseline++;
-        }
-        else
-        {
-            viewdata oViewData(m_arBaseFile.GetAt(baseline), DIFFSTATE_REMOVED, baseline, m_arBaseFile.GetLineEnding(baseline), HIDESTATE_SHOWN, -1);
-            baseline++;
-
-            // find first EMPTY line in last blok
-            int nPos = m_YourBaseLeft.GetCount();
-            while (--nPos>=0 && m_YourBaseLeft.GetState(nPos)==DIFFSTATE_EMPTY) ;
-            if (++nPos<m_YourBaseLeft.GetCount())
-            {
-                m_YourBaseLeft.SetData(nPos, oViewData);
-            }
-            else
-            {
-                m_YourBaseLeft.AddData(oViewData);
-                m_YourBaseRight.AddEmpty();
-            }
-        }
-    }
-    else if (m_arYourFile.GetCount() > yourline)
-    {
-        viewdata oViewData(m_arYourFile.GetAt(yourline), DIFFSTATE_ADDED, yourline, m_arYourFile.GetLineEnding(yourline), HIDESTATE_SHOWN, -1);
-        yourline++;
-
-        // try to move last line higher
-        int nPos = m_YourBaseRight.GetCount();
-        while (--nPos>=0 && m_YourBaseRight.GetState(nPos)==DIFFSTATE_EMPTY) ;
-        if (++nPos<m_YourBaseRight.GetCount())
-        {
-            m_YourBaseRight.SetData(nPos, oViewData);
-        }
-        else
-        {
-            m_YourBaseLeft.AddEmpty();
-            m_YourBaseRight.AddData(oViewData);
-        }
-    }
-
-
     // Fixing results for conforming moved blocks
 
     while(movedBlocks)

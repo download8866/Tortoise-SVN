@@ -67,6 +67,12 @@ SVNHelper::~SVNHelper(void)
     svn_pool_destroy (m_pool);
 }
 
+void SVNHelper::ReloadConfig()
+{
+    m_config = SVNConfig::Instance().GetConfig();
+    m_ctx->config = m_config;
+}
+
 svn_client_ctx_t * SVNHelper::ClientContext(apr_pool_t * pool) const
 {
     if (pool == NULL)
@@ -78,7 +84,7 @@ svn_client_ctx_t * SVNHelper::ClientContext(apr_pool_t * pool) const
     {
         ctx->cancel_func = cancelfunc;
         ctx->cancel_baton = (void *)this;
-        ctx->config = SVNConfig::Instance().GetConfig();
+        ctx->config = m_config;
     }
 
     return ctx;

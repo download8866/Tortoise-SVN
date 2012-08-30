@@ -48,7 +48,7 @@ public:
 	FontRealised *frNext;
 	FontRealised(const FontSpecification &fs);
 	virtual ~FontRealised();
-	void Realise(Surface &surface, int zoomLevel, int technology);
+	void Realise(Surface &surface, int zoomLevel);
 	FontRealised *Find(const FontSpecification &fs);
 	void FindMaxAscentDescent(unsigned int &maxAscent, unsigned int &maxDescent);
 };
@@ -66,44 +66,43 @@ public:
 	size_t stylesSize;
 	Style *styles;
 	LineMarker markers[MARKER_MAX + 1];
-	int largestMarkerHeight;
 	Indicator indicators[INDIC_MAX + 1];
-	int technology;
 	int lineHeight;
 	unsigned int maxAscent;
 	unsigned int maxDescent;
-	XYPOSITION aveCharWidth;
-	XYPOSITION spaceWidth;
+	unsigned int aveCharWidth;
+	unsigned int spaceWidth;
 	bool selforeset;
-	ColourDesired selforeground;
-	ColourDesired selAdditionalForeground;
+	ColourPair selforeground;
+	ColourPair selAdditionalForeground;
 	bool selbackset;
-	ColourDesired selbackground;
-	ColourDesired selAdditionalBackground;
-	ColourDesired selbackground2;
+	ColourPair selbackground;
+	ColourPair selAdditionalBackground;
+	ColourPair selbackground2;
 	int selAlpha;
 	int selAdditionalAlpha;
 	bool selEOLFilled;
 	bool whitespaceForegroundSet;
-	ColourDesired whitespaceForeground;
+	ColourPair whitespaceForeground;
 	bool whitespaceBackgroundSet;
-	ColourDesired whitespaceBackground;
-	ColourDesired selbar;
-	ColourDesired selbarlight;
+	ColourPair whitespaceBackground;
+	ColourPair selbar;
+	ColourPair selbarlight;
 	bool foldmarginColourSet;
-	ColourDesired foldmarginColour;
+	ColourPair foldmarginColour;
 	bool foldmarginHighlightColourSet;
-	ColourDesired foldmarginHighlightColour;
+	ColourPair foldmarginHighlightColour;
 	bool hotspotForegroundSet;
-	ColourDesired hotspotForeground;
+	ColourPair hotspotForeground;
 	bool hotspotBackgroundSet;
-	ColourDesired hotspotBackground;
+	ColourPair hotspotBackground;
 	bool hotspotUnderline;
 	bool hotspotSingleLine;
 	/// Margins are ordered: Line Numbers, Selection Margin, Spacing Margin
 	enum { margins=5 };
 	int leftMarginWidth;	///< Spacing margin on left of text
-	int rightMarginWidth;	///< Spacing margin on right of text
+	int rightMarginWidth;	///< Spacing margin on left of text
+	bool symbolMargin;
 	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
 	MarginStyle ms[margins];
 	int fixedColumnWidth;
@@ -112,12 +111,13 @@ public:
 	int whitespaceSize;
 	IndentView viewIndentationGuides;
 	bool viewEOL;
-	ColourDesired caretcolour;
-	ColourDesired additionalCaretColour;
+	bool showMarkedLines;
+	ColourPair caretcolour;
+	ColourPair additionalCaretColour;
 	bool showCaretLineBackground;
-	ColourDesired caretLineBackground;
+	ColourPair caretLineBackground;
 	int caretLineAlpha;
-	ColourDesired edgecolour;
+	ColourPair edgecolour;
 	int edgeState;
 	int caretStyle;
 	int caretWidth;
@@ -139,6 +139,7 @@ public:
 	~ViewStyle();
 	void Init(size_t stylesSize_=64);
 	void CreateFont(const FontSpecification &fs);
+	void RefreshColourPalette(Palette &pal, bool want);
 	void Refresh(Surface &surface);
 	void AllocStyles(size_t sizeNew);
 	void EnsureStyle(size_t index);
@@ -147,7 +148,6 @@ public:
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
 	bool ValidStyle(size_t styleIndex) const;
-	void CalcLargestMarkerHeight();
 };
 
 #ifdef SCI_NAMESPACE

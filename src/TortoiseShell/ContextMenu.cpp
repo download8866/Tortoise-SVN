@@ -23,6 +23,7 @@
 #include "UnicodeUtils.h"
 #include "SVNProperties.h"
 #include "SVNStatus.h"
+#include "auto_buffer.h"
 #include "CreateProcessHelper.h"
 #include "FormatMessageWrapper.h"
 #include "PathUtils.h"
@@ -271,13 +272,13 @@ STDMETHODIMP CShellExt::Initialize_Wrap(LPCITEMIDLIST pIDFolder,
                     UINT len = DragQueryFile(drop, i, NULL, 0);
                     if (len == 0)
                         continue;
-                    std::unique_ptr<TCHAR[]> szFileName(new TCHAR[len+1]);
-                    if (0 == DragQueryFile(drop, i, szFileName.get(), len+1))
+                    auto_buffer<TCHAR> szFileName(len+1);
+                    if (0 == DragQueryFile(drop, i, szFileName, len+1))
                     {
                         continue;
                     }
-                    tstring str = tstring(szFileName.get());
-                    if (str.empty()||(!g_ShellCache.IsContextPathAllowed(szFileName.get())))
+                    tstring str = tstring(szFileName);
+                    if (str.empty()||(!g_ShellCache.IsContextPathAllowed(szFileName)))
                         continue;
                     CTSVNPath strpath;
                     strpath.SetFromWin(CPathUtils::GetLongPathname(str.c_str()));
@@ -581,7 +582,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(LPCITEMIDLIST pIDFolder,
         if (status == svn_wc_status_ignored)
             itemStatesFolder |= ITEMIS_IGNORED;
         itemStatesFolder |= ITEMIS_FOLDER;
-        if (files_.empty())
+        if (files_.size() == 0)
             itemStates |= ITEMIS_ONLYONE;
         if (m_State != FileStateDropHandler)
             itemStates |= itemStatesFolder;
@@ -700,13 +701,13 @@ bool CShellExt::WriteClipboardPathsToTempFile(tstring& tempfile)
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
-    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
-    GetTempPath (pathlength+1, path.get());
-    GetTempFileName (path.get(), _T("svn"), 0, tempFile.get());
-    tempfile = tstring(tempFile.get());
+    auto_buffer<TCHAR> path(pathlength+1);
+    auto_buffer<TCHAR> tempFile(pathlength + 100);
+    GetTempPath (pathlength+1, path);
+    GetTempFileName (path, _T("svn"), 0, tempFile);
+    tempfile = tstring(tempFile);
 
-    CAutoFile file = ::CreateFile (tempFile.get(),
+    CAutoFile file = ::CreateFile (tempFile,
                                    GENERIC_WRITE,
                                    FILE_SHARE_READ,
                                    0,
@@ -756,13 +757,13 @@ tstring CShellExt::WriteFileListToTempFile()
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
-    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
-    GetTempPath (pathlength+1, path.get());
-    GetTempFileName (path.get(), _T("svn"), 0, tempFile.get());
-    tstring retFilePath = tstring(tempFile.get());
+    auto_buffer<TCHAR> path(pathlength+1);
+    auto_buffer<TCHAR> tempFile(pathlength + 100);
+    GetTempPath (pathlength+1, path);
+    GetTempFileName (path, _T("svn"), 0, tempFile);
+    tstring retFilePath = tstring(tempFile);
 
-    CAutoFile file = ::CreateFile (tempFile.get(),
+    CAutoFile file = ::CreateFile (tempFile,
                                    GENERIC_WRITE,
                                    FILE_SHARE_READ,
                                    0,
@@ -796,7 +797,7 @@ STDMETHODIMP CShellExt::QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMe
     if ((uFlags & CMF_DEFAULTONLY)!=0)
         return S_OK;                    //we don't change the default action
 
-    if (files_.empty()||folder_.empty())
+    if ((files_.size() == 0)||(folder_.size() == 0))
         return S_OK;
 
     if (((uFlags & 0x000f)!=CMF_NORMAL)&&(!(uFlags & CMF_EXPLORE))&&(!(uFlags & CMF_VERBSONLY)))
@@ -847,11 +848,6 @@ STDMETHODIMP CShellExt::QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMe
     // available if source is versioned and a folder
     if ((itemStates & ITEMIS_INSVN)&&(itemStates & ITEMIS_FOLDER)&&(itemStates & ITEMIS_WCROOT))
         InsertSVNMenu(FALSE, hMenu, indexMenu++, idCmd++, IDS_DROPEXPORTEXTENDEDMENU, 0, idCmdFirst, ShellMenuDropExportExtended, _T("tsvn_dropexportextended"));
-
-    // SVN export changed here
-    // available if source is versioned and a folder
-    if ((itemStates & ITEMIS_INSVN)&&(itemStates & ITEMIS_FOLDER))
-        InsertSVNMenu(FALSE, hMenu, indexMenu++, idCmd++, IDS_DROPEXPORTCHANGEDMENU, 0, idCmdFirst, ShellMenuDropExportChanged, _T("tsvn_dropexportchanged"));
 
     // apply patch
     // available if source is a patchfile
@@ -904,7 +900,7 @@ STDMETHODIMP CShellExt::QueryContextMenu_Wrap(HMENU hMenu,
     if ((uFlags & CMF_DEFAULTONLY)!=0)
         return S_OK;                    //we don't change the default action
 
-    if (files_.empty()&&folder_.empty())
+    if ((files_.size() == 0)&&(folder_.size() == 0))
         return S_OK;
 
     if (((uFlags & 0x000f)!=CMF_NORMAL)&&(!(uFlags & CMF_EXPLORE))&&(!(uFlags & CMF_VERBSONLY)))
@@ -938,7 +934,7 @@ STDMETHODIMP CShellExt::QueryContextMenu_Wrap(HMENU hMenu,
     if (folder_.empty())
     {
         // folder is empty, but maybe files are selected
-        if (files_.empty())
+        if (files_.size() == 0)
             return S_OK;    // nothing selected - we don't have a menu to show
         // check whether a selected entry is an UID - those are namespace extensions
         // which we can't handle
@@ -1159,7 +1155,7 @@ void CShellExt::AddPathCommand(tstring& svnCmd, LPCTSTR command, bool bFilesAllo
 {
     svnCmd += command;
     svnCmd += _T(" /path:\"");
-    if ((bFilesAllowed) && !files_.empty())
+    if ((bFilesAllowed)&&(files_.size() > 0))
         svnCmd += files_.front();
     else
         svnCmd += folder_;
@@ -1211,6 +1207,10 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
 
     if(files_.empty()&&folder_.empty())
         return hr;
+
+    std::string command;
+    std::string parent;
+    std::string file;
 
     UINT_PTR idCmd = LOWORD(lpcmi->lpVerb);
 
@@ -1400,11 +1400,7 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
             break;
         case ShellMenuDropExportExtended:
             AddPathFileDropCommand(svnCmd, L"dropexport");
-            svnCmd += _T(" /extended:unversioned");
-            break;
-        case ShellMenuDropExportChanged:
-            AddPathFileDropCommand(svnCmd, L"dropexport");
-            svnCmd += _T(" /extended:localchanges");
+            svnCmd += _T(" /extended");
             break;
         case ShellMenuLog:
             AddPathCommand(svnCmd, L"log", true);
@@ -1446,11 +1442,11 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
                     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
                     DWORD len = GetTempPath(0, NULL);
-                    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
-                    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
-                    GetTempPath (len+1, path.get());
-                    GetTempFileName (path.get(), TEXT("svn"), 0, tempF.get());
-                    std::wstring sTempFile = std::wstring(tempF.get());
+                    auto_buffer<TCHAR> path(len+1);
+                    auto_buffer<TCHAR> tempF(len+100);
+                    GetTempPath (len+1, path);
+                    GetTempFileName (path, TEXT("svn"), 0, tempF);
+                    std::wstring sTempFile = std::wstring(tempF);
 
                     FILE * outFile;
                     size_t patchlen = strlen(lpstr);
@@ -1478,7 +1474,7 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
             if (itemStates & ITEMIS_PATCHFILE)
             {
                 svnCmd = _T(" /diff:\"");
-                if (!files_.empty())
+                if (files_.size() > 0)
                 {
                     svnCmd += files_.front();
                     if (itemStatesFolder & ITEMIS_FOLDERINSVN)
@@ -1497,7 +1493,7 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
             else
             {
                 svnCmd = _T(" /patchpath:\"");
-                if (!files_.empty())
+                if (files_.size() > 0)
                     svnCmd += files_.front();
                 else
                     svnCmd += folder_;
@@ -1801,7 +1797,7 @@ STDMETHODIMP CShellExt::HandleMenuMsg2_Wrap(UINT uMsg, WPARAM wParam, LPARAM lPa
                     accmenus.push_back(It->first);
                 }
             }
-            if (accmenus.empty())
+            if (accmenus.size() == 0)
             {
                 // no menu with that accelerator key.
                 *pResult = MAKELONG(0, MNC_IGNORE);
@@ -1933,7 +1929,7 @@ void CShellExt::InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst,
     bool bShowIgnoreMenu = false;
     TCHAR maskbuf[MAX_PATH];        // MAX_PATH is ok, since this only holds a filename
     TCHAR ignorepath[MAX_PATH];     // MAX_PATH is ok, since this only holds a filename
-    if (files_.empty())
+    if (files_.size() == 0)
         return;
     UINT icon = bShowIcons ? IDI_IGNORE : 0;
 

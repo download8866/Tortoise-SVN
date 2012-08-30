@@ -59,6 +59,8 @@ protected:
 	virtual void Initialise() = 0;
 	virtual void Finalise() = 0;
 
+	virtual void RefreshColourPalette(Palette &pal, bool want);
+
 	virtual void AddCharUTF(char *s, unsigned int len, bool treatAsDBCS=false);
 	void Command(int cmdId);
 	virtual void CancelModes();

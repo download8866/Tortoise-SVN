@@ -78,6 +78,9 @@ CFullHistory::CFullHistory(void)
 
     ctx->cancel_func = cancel;
     ctx->cancel_baton = this;
+
+    //set up the SVN_SSH param
+    SVNConfig::SetUpSSH(ctx);
 }
 
 CFullHistory::~CFullHistory(void)
@@ -329,10 +332,10 @@ bool CFullHistory::FetchRevisionData ( CString path
         {
             cache = query->GetCache();
 
-            // This should never happen:
+			// This should never happen:
 
-            if (cache == NULL)
-                return false;
+			if (cache == NULL)
+				return false;
         }
         else
         {

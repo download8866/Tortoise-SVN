@@ -153,6 +153,14 @@ void SVNReadProperties::Construct()
     m_pctx->config = SVNConfig::Instance().GetConfig();
     if (m_pctx->config == nullptr)
     {
+        Err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);
+    }
+
+    if (Err)
+    {
+        ShowErrorDialog(NULL);
+        svn_error_clear(Err);
+        Err = NULL;
         svn_pool_destroy (m_pool);                  // free the allocated memory
         return;
     }
@@ -160,6 +168,8 @@ void SVNReadProperties::Construct()
     m_prompt.Init(m_pool, m_pctx);
 
     m_pctx->log_msg_func3 = svn_get_log_message;
+
+    SVNConfig::SetUpSSH(m_pctx);
 
 #endif
 }
@@ -450,15 +460,6 @@ bool SVNReadProperties::IsFolderOnlyProperty( const std::string& name ) const
         return true;
     if (name.compare("svn:ignore") == 0)
         return true;
-
-    if (!m_folderprops.empty())
-    {
-        for (auto it = m_folderprops.cbegin(); it != m_folderprops.cend(); ++it)
-        {
-            if (it->compare(name)==0)
-                return true;
-        }
-    }
 
     return false;
 }

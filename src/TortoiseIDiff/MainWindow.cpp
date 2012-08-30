@@ -126,11 +126,11 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 
             picWindow1.SetOtherPicWindow(&picWindow2);
             picWindow2.SetOtherPicWindow(&picWindow1);
-            CreateToolbar();
             // center the splitter
             RECT rect;
             GetClientRect(hwnd, &rect);
-            nSplitterPos = (rect.right-rect.left)/2;
+            nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
+            CreateToolbar();
             PositionChildren(&rect);
             picWindow1.FitImageInWindow();
             picWindow2.FitImageInWindow();
@@ -171,10 +171,10 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
                 RECT tbRect;
                 GetWindowRect(hwndTB, &tbRect);
                 LONG tbHeight = tbRect.bottom-tbRect.top-1;
-                nSplitterPos = (rect.bottom-rect.top+tbHeight)/2;
+                nSplitterPos = (rect.bottom-rect.top-SPLITTER_BORDER+tbHeight)/2;
             }
             else
-                nSplitterPos = (rect.right-rect.left)/2;
+                nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
             PositionChildren(&rect);
         }
         break;
@@ -282,7 +282,7 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
                 mii.cbSize = sizeof(MENUITEMINFO);
                 mii.fMask = MIIM_TYPE;
                 mii.dwTypeData = stringbuf;
-                mii.cch = _countof(stringbuf);
+                mii.cch = sizeof(stringbuf)/sizeof(TCHAR);
                 GetMenuItemInfo(GetMenu(*this), (UINT)lpttt->hdr.idFrom, FALSE, &mii);
                 _tcscpy_s(lpttt->lpszText, 80, stringbuf);
             }
@@ -542,11 +542,11 @@ LRESULT CMainWindow::DoCommand(int id)
                 RECT tbRect;
                 GetWindowRect(hwndTB, &tbRect);
                 LONG tbHeight = tbRect.bottom-tbRect.top-1;
-                nSplitterPos = (rect.bottom-rect.top+tbHeight)/2;
+                nSplitterPos = (rect.bottom-rect.top-SPLITTER_BORDER+tbHeight)/2;
             }
             else
             {
-                nSplitterPos = (rect.right-rect.left)/2;
+                nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
             }
             HMENU hMenu = GetMenu(*this);
             UINT uCheck = MF_BYCOMMAND;

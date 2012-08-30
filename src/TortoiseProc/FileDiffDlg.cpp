@@ -53,12 +53,7 @@ CFileDiffDlg::CFileDiffDlg(CWnd* pParent /*=NULL*/)
     , m_pProgDlg(NULL)
     , m_bCancelled(false)
     , netScheduler(1, 0, true)
-    , m_nIconFolder(0)
-    , m_bIgnoreancestry(false)
-    , m_bDoPegDiff(false)
-    , m_bThreadRunning(false)
 {
-    m_columnbuf[0] = 0;
 }
 
 CFileDiffDlg::~CFileDiffDlg()

@@ -1,13 +1,10 @@
-#!/bin/bash
-
-#set -x
+#!/bin/sh
 
 #PARAMS SET
+SVNDIR=/srv/www/sites/tsvn.e-posta.sk/data/trunk
+DATADIR=/srv/www/sites/tsvn.e-posta.sk/data/
 
-ROOTDIR=/srv/www/sites/tsvn.e-posta.sk/data/
-ROOTDIR=/var/www/po-checker/data/
-SVNDIR=${ROOTDIR}/trunk/
-DATADIR=${ROOTDIR}/
+ROOTDIR=/srv/www/sites/tsvn.e-posta.sk/data
 STARTTIME=`date +%s`
 MAXTIME=180
 MAXCOUNT=25
@@ -18,7 +15,7 @@ SQLPASS=YjMEMDbSpQXB5Qjj
 # old style update teporary
 if true; then
 	#update branches
-	SVNDIR=${DATADIR}/branches.actual
+	SVNDIR=/srv/www/sites/tsvn.e-posta.sk/data/branches
 	URL=`svn info $SVNDIR | grep -E "^URL: "`
 	URL=${URL:4}
 	if [ "`svn info $URL | grep -E \"^Revision: \"`" != "`svn info $SVNDIR | grep -E \"^Revision: \"`" ]; then

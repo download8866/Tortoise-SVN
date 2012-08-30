@@ -42,12 +42,11 @@
 #include "..\version.h"
 #include "JumpListHelpers.h"
 #include "CmdUrlParser.h"
+#include "auto_buffer.h"
 #include "Libraries.h"
 #include "TempFile.h"
 #include "SmartHandle.h"
 #include "TaskbarUUID.h"
-#include "CreateProcessHelper.h"
-#include "SVNConfig.h"
 
 #define STRUCT_IOVEC_DEFINED
 #include "sasl.h"
@@ -276,15 +275,6 @@ BOOL CTortoiseProcApp::InitInstance()
         return FALSE;
     }
 
-    if (parser.HasVal(_T("configdir")))
-    {
-        // the user can override the location of the Subversion config directory here
-        CString sConfigDir = parser.GetVal(_T("configdir"));
-        g_SVNGlobal.SetConfigDir(sConfigDir);
-    }
-    // load the configuration now
-    SVNConfig::Instance().GetConfig();
-
     CTSVNPath cmdLinePath;
     CTSVNPathList pathList;
     if (g_sGroupingUUID.IsEmpty())
@@ -394,10 +384,10 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
-            if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
+            auto_buffer<TCHAR> originalCurrentDirectory(len);
+            if (GetCurrentDirectory(len, originalCurrentDirectory))
             {
-                sOrigCWD = originalCurrentDirectory.get();
+                sOrigCWD = originalCurrentDirectory;
                 sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
@@ -408,6 +398,12 @@ BOOL CTortoiseProcApp::InitInstance()
 
     CheckForNewerVersion();
 
+    if (parser.HasVal(_T("configdir")))
+    {
+        // the user can override the location of the Subversion config directory here
+        CString sConfigDir = parser.GetVal(_T("configdir"));
+        g_SVNGlobal.SetConfigDir(sConfigDir);
+    }
     // to avoid that SASL will look for and load its plugin dlls all around the
     // system, we set the path here.
     // Note that SASL doesn't have to be initialized yet for this to work
@@ -641,6 +637,7 @@ void CTortoiseProcApp::CheckForNewerVersion()
 
     TCHAR com[MAX_PATH+100];
     GetModuleFileName(NULL, com, MAX_PATH);
+    _tcscat_s(com, _T(" /command:updatecheck"));
 
-    CCreateProcessHelper::CreateProcessDetached(com, L" /command:updatecheck");
+    CAppUtils::LaunchApplication(com, 0, false);
 }

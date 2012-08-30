@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2012 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 ///////////////////////////////////////////////////////////////
 
 #include "HierachicalOutStreamBase.h"
+#include "auto_buffer.h"
 
 ///////////////////////////////////////////////////////////////
 //
@@ -47,7 +48,7 @@ private:
 
     // data to write (may be NULL)
 
-    std::unique_ptr<unsigned char[]> data;
+    auto_buffer<unsigned char> data;
     unsigned char* current;
     unsigned char* last;
 
@@ -59,9 +60,9 @@ protected:
 
     // return the stream data
 
-    virtual const unsigned char* GetStreamData() override;
-    virtual size_t GetStreamSize() override;
-    virtual void ReleaseStreamData() override;
+    virtual const unsigned char* GetStreamData();
+    virtual size_t GetStreamSize();
+    virtual void ReleaseStreamData();
 
     // add data to the stream
 

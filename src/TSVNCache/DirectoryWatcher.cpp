@@ -386,7 +386,7 @@ void CDirectoryWatcher::WorkerThread()
             {
                 if (!m_bRunning)
                     return;
-                if (watchInfoMap.empty())
+                if (watchInfoMap.size()==0)
                     continue;
 
                 // NOTE: the longer this code takes to execute until ReadDirectoryChangesW
@@ -403,7 +403,7 @@ void CDirectoryWatcher::WorkerThread()
                         // objects haven't been cleared, we can access them here.
                         if (InterlockedExchange(&m_bCleaned, FALSE))
                             continue;
-                        if (   (!pdi->m_hDir) || watchInfoMap.empty()
+                        if (   (!pdi->m_hDir) || (watchInfoMap.size()==0)
                             || (watchInfoMap.find(pdi->m_hDir) == watchInfoMap.end()))
                         {
                             continue;
@@ -482,7 +482,7 @@ void CDirectoryWatcher::WorkerThread()
                             &pdi->m_Overlapped,
                             NULL);  //no completion routine!
                     }
-                    if (!notifyPaths.empty())
+                    if (notifyPaths.size())
                     {
                         for (auto nit = notifyPaths.cbegin(); nit != notifyPaths.cend(); ++nit)
                         {
@@ -525,7 +525,7 @@ void CDirectoryWatcher::CloseWatchHandles()
 void CDirectoryWatcher::ClearInfoMap()
 {
     CloseWatchHandles();
-    if (!watchInfoMap.empty())
+    if (watchInfoMap.size() > 0)
     {
         AutoLocker lock(m_critSec);
         for (TInfoMap::iterator I = watchInfoMap.begin(); I != watchInfoMap.end(); ++I)
