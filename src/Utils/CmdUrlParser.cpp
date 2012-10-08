@@ -70,8 +70,6 @@ CString CmdUrlParser::GetCommandLine()
                 isCmdAllowed = true;
             else if (cmd.CompareNoCase(_T("showcompare")) == 0)
                 isCmdAllowed = true;
-            else if (cmd.CompareNoCase(_T("log")) == 0)
-                isCmdAllowed = true;
 
             if (!isCmdAllowed)
                 return CString();   // command is not on the allowed list, return empty command line

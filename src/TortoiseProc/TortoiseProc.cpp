@@ -42,11 +42,11 @@
 #include "..\version.h"
 #include "JumpListHelpers.h"
 #include "CmdUrlParser.h"
+#include "auto_buffer.h"
 #include "Libraries.h"
 #include "TempFile.h"
 #include "SmartHandle.h"
 #include "TaskbarUUID.h"
-#include "CreateProcessHelper.h"
 #include "SVNConfig.h"
 
 #define STRUCT_IOVEC_DEFINED
@@ -394,10 +394,10 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
-            if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
+            auto_buffer<TCHAR> originalCurrentDirectory(len);
+            if (GetCurrentDirectory(len, originalCurrentDirectory))
             {
-                sOrigCWD = originalCurrentDirectory.get();
+                sOrigCWD = originalCurrentDirectory;
                 sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
@@ -641,6 +641,7 @@ void CTortoiseProcApp::CheckForNewerVersion()
 
     TCHAR com[MAX_PATH+100];
     GetModuleFileName(NULL, com, MAX_PATH);
+    _tcscat_s(com, _T(" /command:updatecheck"));
 
-    CCreateProcessHelper::CreateProcessDetached(com, L" /command:updatecheck");
+    CAppUtils::LaunchApplication(com, 0, false);
 }

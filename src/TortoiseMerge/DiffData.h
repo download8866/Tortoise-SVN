@@ -45,7 +45,9 @@ public:
     BOOL                        Load();
     void                        SetBlame(bool bBlame = true) {m_bBlame = bBlame;}
     void                        SetMovedBlocks(bool bViewMovedBlocks = true);
-    int                         GetLineCount() const;
+    int                         GetLineCount();
+    int                         GetLineActualLength(int index);
+    LPCTSTR                     GetLineChars(int index);
     CString                     GetError() const  {return m_sError;}
 
     bool    IsBaseFileInUse() const     { return m_baseFile.InUse(); }
@@ -66,6 +68,7 @@ private:
     void TieMovedBlocks(int from, int to, apr_off_t length);
 
     void HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3);
+    void AddLines(LONG baseline, LONG yourline, LONG theirline);
 
     svn_diff_file_ignore_space_t GetIgnoreSpaceMode(DWORD dwIgnoreWS);
     svn_diff_file_options_t * CreateDiffFileOptions(DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool);
@@ -97,6 +100,12 @@ public:
     CViewData                   m_TheirBaseRight;           ///< two-pane view, diff between 'theirs' and 'base', right view
 
     CViewData                   m_Diff3;                    ///< three-pane view, bottom pane
+
+    // the following three arrays are used to check for conflicts even in case the
+    // user has ignored spaces/eols.
+    CStdDWORDArray              m_arDiff3LinesBase;
+    CStdDWORDArray              m_arDiff3LinesYour;
+    CStdDWORDArray              m_arDiff3LinesTheir;
 
     CString                     m_sError;
 

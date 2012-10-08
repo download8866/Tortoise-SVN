@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010, 2012 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "registry.h"
-#include "..\..\TortoiseBlame\BlameIndexColors.h"
 
 
 /**
@@ -34,7 +33,7 @@ public:
     CSettingsTBlame();
     virtual ~CSettingsTBlame();
 
-    UINT GetIconID() override {return IDI_TORTOISEBLAME;}
+    UINT GetIconID() {return IDI_TORTOISEBLAME;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSTBLAME };
@@ -57,9 +56,6 @@ private:
     CRegDWORD       m_regOldLinesColor;
     CRegDWORD       m_regNewLinesColorBar;
     CRegDWORD       m_regOldLinesColorBar;
-
-    CMFCColorButton m_indexColors[MAX_BLAMECOLORS];
-    CRegDWORD       m_regIndexColors[MAX_BLAMECOLORS];
 
     CMFCFontComboBox    m_cFontNames;
     CComboBox       m_cFontSizes;

@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2011-2012 - TortoiseSVN
+// Copyright (C) 2003-2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,14 +25,10 @@
 
 #include <algorithm>
 #include <cctype>
-#include <memory>
-#include <functional>
 
 #define MYERROR {CUtils::Error(); return FALSE;}
 
 CPOFile::CPOFile()
-    : m_bQuiet(false)
-    , m_bAdjustEOLs(false)
 {
 }
 
@@ -158,7 +154,6 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting, bool bAdjustEOLs)
     printf(File.getloc().name().c_str());
     File.close();
     RESOURCEENTRY emptyentry;
-    emptyentry.menuID = 0;
     (*this)[std::wstring(_T(""))] = emptyentry;
     if (!m_bQuiet)
         _ftprintf(stdout, _T("%d Entries found, %d were already translated and %d got deleted\n"), nEntries, nTranslated, nDeleted);

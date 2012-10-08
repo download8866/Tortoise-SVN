@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009, 2012 - TortoiseSVN
+// Copyright (C) 2008-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #include "stdafx.h"
 #include "BugTraqAssociations.h"
+#include "auto_buffer.h"
 
 #include <initguid.h>
 
@@ -76,10 +77,10 @@ void CBugTraqAssociations::Load(LPCTSTR uuid /* = NULL */, LPCTSTR params /* = N
 
             DWORD cbParameters = 0;
             RegQueryValueEx(hk2, _T("Parameters"), NULL, NULL, (LPBYTE)NULL, &cbParameters);
-            std::unique_ptr<TCHAR[]> szParameters (new TCHAR[cbParameters+1]);
+            auto_buffer<TCHAR> szParameters (cbParameters+1);
             RegQueryValueEx(hk2, _T("Parameters"), NULL, NULL, (LPBYTE)szParameters.get(), &cbParameters);
             szParameters[cbParameters] = 0;
-            m_inner.push_back(new CBugTraqAssociation(szWorkingCopy, provider_clsid, LookupProviderName(provider_clsid), szParameters.get()));
+            m_inner.push_back(new CBugTraqAssociation(szWorkingCopy, provider_clsid, LookupProviderName(provider_clsid), szParameters));
 
             RegCloseKey(hk2);
         }

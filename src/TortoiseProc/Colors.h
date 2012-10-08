@@ -45,8 +45,7 @@ public:
         RenamedNode = 10,
         LastCommitNode = 11,
         PropertyChanged = 12,
-        FilterMatch = 13,
-        DryRunConflict,
+        FilterMatch = 13
     };
 
     enum GDIPlusColor

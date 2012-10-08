@@ -65,7 +65,6 @@ public:
      */
     static BOOL StartExtMerge(const MergeFlags& flags,
         const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-        bool bSaveRequired,
         const CString& basename = CString(), const CString& theirname = CString(), const CString& yourname = CString(),
         const CString& mergedname = CString());
 

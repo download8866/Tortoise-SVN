@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2007,2009-2012 - TortoiseSVN
+// External Cache Copyright (C) 2007,2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #include "stdafx.h"
 #include "CacheInterface.h"
+#include "auto_buffer.h"
 #include "SmartHandle.h"
 
 CString GetCachePipeName()
@@ -46,8 +47,8 @@ CString GetCacheID()
         GetTokenInformation(token, TokenStatistics, NULL, 0, &len);
         if (len >= sizeof (TOKEN_STATISTICS))
         {
-            std::unique_ptr<BYTE[]> data (new BYTE[len]);
-            GetTokenInformation(token, TokenStatistics, data.get(), len, &len);
+            auto_buffer<BYTE> data (len);
+            GetTokenInformation(token, TokenStatistics, data, len, &len);
             LUID uid = ((PTOKEN_STATISTICS)data.get())->AuthenticationId;
             t.Format(_T("-%08x%08x"), uid.HighPart, uid.LowPart);
         }

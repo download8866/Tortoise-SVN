@@ -30,12 +30,6 @@
     <ClCompile Include="UnicodeUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\Registry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\StringUtils.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Midl Include="SubWCRevCOM.idl">
@@ -56,9 +50,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="UnicodeUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\StringUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

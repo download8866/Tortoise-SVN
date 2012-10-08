@@ -27,7 +27,6 @@
 #include "DirFileEnum.h"
 #include "MessageBox.h"
 #include "SVNStatus.h"
-#include "SVN.h"
 
 bool ExportCommand::Execute()
 {
@@ -165,7 +164,7 @@ bool ExportCommand::Execute()
                 SVN svn;
                 if (!svn.Export(cmdLinePath, CTSVNPath(saveplace), SVNRev::REV_WC,
                     SVNRev::REV_WC, false, !!folderBrowser.m_bCheck2, false, svn_depth_infinity,
-                    GetExplorerHWND(), folderBrowser.m_bCheck ? SVN::SVNExportIncludeUnversioned : SVN::SVNExportNormal))
+                    GetExplorerHWND(), !!folderBrowser.m_bCheck))
                 {
                     svn.ShowErrorDialog(GetExplorerHWND(), cmdLinePath);
                     bRet = false;

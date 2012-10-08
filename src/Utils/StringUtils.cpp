@@ -413,6 +413,7 @@ int CStringUtils::FastCompareNoCase (const CStringW& lhs, const CStringW& rhs)
 
     return 0;
 }
+#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
 {
@@ -438,7 +439,6 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
     }
     return true;
 }
-#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 inline static void PipeToNull(TCHAR* ptr)
 {

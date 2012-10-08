@@ -74,11 +74,6 @@
                 be the difference between a successful and a failed build of
                 an older snapshot of your complex code base.
             </para>
-            <para>
-                The edit dialog for <literal>svn:externals</literal>
-                properties allows you to select the externals and automatically
-                set them explicitly to the HEAD revision.
-            </para>
         </tip>
         <para>
             If the external project is in the same repository, any changes
@@ -204,11 +199,7 @@
             </varlistentry>
         </variablelist>
         <para>
-            You can also specify a peg and operative revision for the URL if required.
-            To learn more about peg and operative revisions, please read the
-            <ulink url="http://svnbook.red-bean.com/en/1.7/svn.advanced.pegrevs.html">
-                <citetitle>corresponding chapter</citetitle>
-            </ulink> in the Subversion book.
+            You can also specify a peg revision for the URL if required.
         </para>
         <para>
             If you need more information how TortoiseSVN

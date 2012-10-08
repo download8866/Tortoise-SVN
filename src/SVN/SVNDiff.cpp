@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -98,20 +98,6 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
             if (s)
                 baseRev = s->revision >= 0 ? s->revision : s->changed_rev;
         }
-        // If necessary, convert the line-endings on the file before diffing
-        if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\ConvertBase"), TRUE))
-        {
-            CTSVNPath temporaryFile = CTempFiles::Instance().GetTempFilePath(m_bRemoveTempFiles, filePath, SVNRev::REV_BASE);
-            if (!m_pSVN->Export(filePath, temporaryFile, SVNRev(SVNRev::REV_BASE), SVNRev(SVNRev::REV_BASE)))
-            {
-                temporaryFile.Reset();
-            }
-            else
-            {
-                basePath = temporaryFile;
-                SetFileAttributes(basePath.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-            }
-        }
     }
 
     if (remotetext_status > svn_wc_status_normal)
@@ -164,7 +150,7 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
         flags.bAlternativeTool = m_bAlternativeTool;
         flags.bReadOnly = true;
         return !!CAppUtils::StartExtMerge(flags,
-            basePath, remotePath, filePath, CTSVNPath(), false, n2, n3, n1);
+            basePath, remotePath, filePath, CTSVNPath(), n2, n3, n1);
     }
 }
 

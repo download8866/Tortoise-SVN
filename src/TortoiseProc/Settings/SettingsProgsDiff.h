@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ public:
     CSettingsProgsDiff();
     virtual ~CSettingsProgsDiff();
 
-    UINT GetIconID() override {return IDI_DIFF;}
+    UINT GetIconID() {return IDI_DIFF;}
 
     enum { IDD = IDD_SETTINGSPROGSDIFF };
 
@@ -57,10 +57,6 @@ protected:
     afx_msg void OnBnClickedDontconvert();
     afx_msg void OnEnChangeExtdiff();
     afx_msg void OnEnChangeExtdiffprops();
-    afx_msg void OnBnClickedDiffviewerOff();
-    afx_msg void OnBnClickedDiffviewerOn();
-    afx_msg void OnBnClickedDiffviewerbrowse();
-    afx_msg void OnEnChangeDiffviewer();
 
     bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
     void CheckProgComment();
@@ -77,11 +73,7 @@ private:
     CToolTips       m_tooltips;
     CRegDWORD       m_regConvertBase;   ///< registry value for the "Don't Convert" flag
     BOOL            m_bConvertBase;     ///< don't convert files when diffing against BASE
-    CString         m_sDiffViewerPath;
-    CRegString      m_regDiffViewerPath;
-    int             m_iDiffViewer;
 
     CFileDropEdit   m_cDiffEdit;
     CFileDropEdit   m_cDiffPropsEdit;
-    CFileDropEdit   m_cUnifiedDiffEdit;
 };

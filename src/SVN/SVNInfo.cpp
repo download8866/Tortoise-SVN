@@ -33,7 +33,6 @@
 #include "SVNTrace.h"
 
 SVNConflictData::SVNConflictData()
-    : treeconflict_binary(false)
 {
 }
 
@@ -89,6 +88,12 @@ SVNInfo::SVNInfo (bool)
         svn_error_clear(Err);
         svn_pool_destroy (m_pool);                  // free the allocated memory
     }
+#ifdef _MFC_VER
+    else
+    {
+        SVNConfig::SetUpSSH(m_pctx);
+    }
+#endif
 }
 
 SVNInfo::~SVNInfo(void)
@@ -134,7 +139,7 @@ const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegr
     )
     if (Err != NULL)
         return NULL;
-    if (m_arInfo.empty())
+    if (m_arInfo.size() == 0)
         return NULL;
     return &m_arInfo[0];
 }

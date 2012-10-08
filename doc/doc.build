@@ -133,10 +133,10 @@ it from the config.bat.sample file before building the docs. Please
 consider adapting it to your needs.
         </echo>
       </if>
-        <exec program="createmetrics.bat"
-              basedir="xsl/fonts"
-              workingdir="xsl/fonts"
-              verbose="false"/>
+      <exec program="createmetrics.bat"
+            basedir="xsl/fonts"
+            workingdir="xsl/fonts"
+            verbose="false"/>
     </if>
 
   </target>

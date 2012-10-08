@@ -25,7 +25,6 @@
 #include "DiffColors.h"
 #include "StringUtils.h"
 #include "AppUtils.h"
-#include "GotoLineDlg.h"
 
 // Note about lines:
 // We use three different kind of lines here:
@@ -56,7 +55,6 @@ CLineDiffBar * CBaseView::m_pwndLineDiffBar = NULL;
 CMFCStatusBar * CBaseView::m_pwndStatusBar = NULL;
 CMainFrame * CBaseView::m_pMainFrame = NULL;
 CBaseView::Screen2View CBaseView::m_Screen2View;
-const UINT CBaseView::m_FindDialogMessage = RegisterWindowMessage(FINDMSGSTRING);
 
 allviewstate CBaseView::m_AllState;
 
@@ -123,7 +121,6 @@ CBaseView::CBaseView()
     m_hMovedIcon = LoadIcon(IDI_MOVEDLINE);
     m_margincursor = (HCURSOR)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDC_MARGINCURSOR), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
     m_pState = NULL;
-    m_pFindDialog = NULL;
 
     for (int i=0; i<1024; ++i)
         m_sConflictedText += _T("??");
@@ -186,13 +183,6 @@ BEGIN_MESSAGE_MAP(CBaseView, CView)
     ON_COMMAND(ID_NAVIGATE_NEXTINLINEDIFF, &CBaseView::OnNavigateNextinlinediff)
     ON_COMMAND(ID_NAVIGATE_PREVINLINEDIFF, &CBaseView::OnNavigatePrevinlinediff)
     ON_COMMAND(ID_EDIT_SELECTALL, &CBaseView::OnEditSelectall)
-    ON_COMMAND(ID_EDIT_FIND, OnEditFind)
-    ON_REGISTERED_MESSAGE(m_FindDialogMessage, OnFindDialogMessage)
-    ON_COMMAND(ID_EDIT_FINDNEXT, OnEditFindnext)
-    ON_COMMAND(ID_EDIT_FINDPREV, OnEditFindprev)
-    ON_COMMAND(ID_EDIT_FINDNEXTSTART, OnEditFindnextStart)
-    ON_COMMAND(ID_EDIT_FINDPREVSTART, OnEditFindprevStart)
-    ON_COMMAND(ID_EDIT_GOTOLINE, &CBaseView::OnEditGotoline)
     ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
@@ -213,6 +203,7 @@ void CBaseView::DocumentUpdated()
     m_nMouseLine = -1;
     m_nTabSize = (int)(DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\TabSize"), 4);
     m_bViewLinenumbers = CRegDWORD(_T("Software\\TortoiseMerge\\ViewLinenumbers"), 1);
+    m_bShowInlineDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
     m_InlineAddedBk = CRegDWORD(_T("Software\\TortoiseMerge\\InlineAdded"), INLINEADDED_COLOR);
     m_InlineRemovedBk = CRegDWORD(_T("Software\\TortoiseMerge\\InlineRemoved"), INLINEREMOVED_COLOR);
     m_ModifiedBk = CRegDWORD(_T("Software\\TortoiseMerge\\Colors\\ColorModifiedB"), MODIFIED_COLOR);
@@ -272,17 +263,8 @@ void CBaseView::UpdateStatusBar()
     case CFileTextLines::BINARY:
         sBarText = _T("BINARY ");
         break;
-    case CFileTextLines::UTF16_LE:
+    case CFileTextLines::UNICODE_LE:
         sBarText = _T("UTF-16LE ");
-        break;
-    case CFileTextLines::UTF16_BE:
-        sBarText = _T("UTF-16BE ");
-        break;
-    case CFileTextLines::UTF32_LE:
-        sBarText = _T("UTF-32LE ");
-        break;
-    case CFileTextLines::UTF32_BE:
-        sBarText = _T("UTF-32BE ");
         break;
     case CFileTextLines::UTF8:
         sBarText = _T("UTF8 ");
@@ -305,21 +287,6 @@ void CBaseView::UpdateStatusBar()
         break;
     case EOL_CR:
         sBarText += _T("CR ");
-        break;
-    case EOL_VT:
-        sBarText += _T("VT ");
-        break;
-    case EOL_FF:
-        sBarText += _T("FF ");
-        break;
-    case EOL_NEL:
-        sBarText += _T("NEL ");
-        break;
-    case EOL_LS:
-        sBarText += _T("LS ");
-        break;
-    case EOL_PS:
-        sBarText += _T("PS ");
         break;
 #ifdef _DEBUG
     case EOL_AUTOLINE:
@@ -406,19 +373,24 @@ BOOL CBaseView::PreCreateWindow(CREATESTRUCT& cs)
     return TRUE;
 }
 
-CFont* CBaseView::GetFont(BOOL bItalic /*= FALSE*/, BOOL bBold /*= FALSE*/)
+CFont* CBaseView::GetFont(BOOL bItalic /*= FALSE*/, BOOL bBold /*= FALSE*/, BOOL bStrikeOut /*= FALSE*/)
 {
     int nIndex = 0;
     if (bBold)
         nIndex |= 1;
     if (bItalic)
         nIndex |= 2;
+    if (bStrikeOut)
+        nIndex |= 4;
     if (m_apFonts[nIndex] == NULL)
     {
         m_apFonts[nIndex] = new CFont;
         m_lfBaseFont.lfCharSet = DEFAULT_CHARSET;
         m_lfBaseFont.lfWeight = bBold ? FW_BOLD : FW_NORMAL;
         m_lfBaseFont.lfItalic = (BYTE) bItalic;
+        m_lfBaseFont.lfStrikeOut = (BYTE) bStrikeOut;
+        if (bStrikeOut)
+            m_lfBaseFont.lfStrikeOut = (BYTE)(DWORD)CRegDWORD(_T("Software\\TortoiseMerge\\StrikeOut"), TRUE);
         CDC * pDC = GetDC();
         if (pDC)
         {
@@ -545,7 +517,7 @@ int CBaseView::GetLineLength(int index)
     return nLineLength;
 }
 
-int CBaseView::GetViewLineLength(int nViewLine) const
+int CBaseView::GetViewLineLength(int nViewLine)
 {
     if (m_pViewData == NULL)
         return 0;
@@ -570,7 +542,7 @@ int CBaseView::GetSubLineOffset(int index)
     return m_Screen2View.GetSubLineOffset(index);
 }
 
-CString CBaseView::GetViewLineChars(int nViewLine) const
+CString CBaseView::GetViewLineChars(int nViewLine)
 {
     if (m_pViewData == NULL)
         return 0;
@@ -1286,7 +1258,7 @@ void CBaseView::DrawHeader(CDC *pdc, const CRect &rect)
 
     pdc->SetTextColor(crFg);
 
-    pdc->SelectObject(GetFont(FALSE, TRUE));
+    pdc->SelectObject(GetFont(FALSE, TRUE, FALSE));
 
     CString sViewTitle;
     if (IsModified())
@@ -1526,11 +1498,6 @@ void CBaseView::DrawLineEnding(CDC *pDC, const CRect &rc, int nLineIndex, const 
         {
             switch (ending)
             {
-            case EOL_AUTOLINE:
-            case EOL_CRLF:
-                // arrow from top to middle+2, then left
-                pDC->MoveTo(origin.x+GetCharWidth()-1, rc.top+1);
-                pDC->LineTo(origin.x+GetCharWidth()-1, yMiddle);
             case EOL_CR:
                 // arrow from right to left
                 pDC->MoveTo(origin.x+GetCharWidth()-1, yMiddle);
@@ -1539,14 +1506,15 @@ void CBaseView::DrawLineEnding(CDC *pDC, const CRect &rc, int nLineIndex, const 
                 pDC->MoveTo(origin.x, yMiddle);
                 pDC->LineTo(origin.x+4, yMiddle-4);
                 break;
-            case EOL_LFCR:
-                // from right-upper to left then down
-                pDC->MoveTo(origin.x+GetCharWidth()-1, yMiddle-2);
-                pDC->LineTo(xMiddle, yMiddle-2);
-                pDC->LineTo(xMiddle, rc.bottom-1);
-                pDC->LineTo(xMiddle+4, rc.bottom-5);
-                pDC->MoveTo(xMiddle, rc.bottom-1);
-                pDC->LineTo(xMiddle-4, rc.bottom-5);
+            case EOL_AUTOLINE:
+            case EOL_CRLF:
+                // arrow from top to middle+2, then left
+                pDC->MoveTo(origin.x+GetCharWidth()-1, rc.top+1);
+                pDC->LineTo(origin.x+GetCharWidth()-1, yMiddle);
+                pDC->LineTo(origin.x, yMiddle);
+                pDC->LineTo(origin.x+4, yMiddle+4);
+                pDC->MoveTo(origin.x, yMiddle);
+                pDC->LineTo(origin.x+4, yMiddle-4);
                 break;
             case EOL_LF:
                 // arrow from top to bottom
@@ -1555,28 +1523,6 @@ void CBaseView::DrawLineEnding(CDC *pDC, const CRect &rc, int nLineIndex, const 
                 pDC->LineTo(xMiddle+4, rc.bottom-5);
                 pDC->MoveTo(xMiddle, rc.bottom-1);
                 pDC->LineTo(xMiddle-4, rc.bottom-5);
-                break;
-            case EOL_FF:    // Form Feed, U+000C
-            case EOL_NEL:   // Next Line, U+0085
-            case EOL_LS:    // Line Separator, U+2028
-            case EOL_PS:    // Paragraph Separator, U+2029
-                // draw a horizontal line at the bottom of this line
-                pDC->FillSolidRect(rc.left, rc.bottom-1, rc.right, rc.bottom, GetSysColor(COLOR_WINDOWTEXT));
-                pDC->MoveTo(origin.x+GetCharWidth()-1, rc.bottom-GetCharWidth()-2);
-                pDC->LineTo(origin.x, rc.bottom-2);
-                pDC->LineTo(origin.x+5, rc.bottom-2);
-                pDC->MoveTo(origin.x, rc.bottom-2);
-                pDC->LineTo(origin.x+1, rc.bottom-6);
-                break;
-            default: // other EOLs
-                // arrow from top right to bottom left
-                pDC->MoveTo(origin.x+GetCharWidth()-1, rc.bottom-GetCharWidth());
-                pDC->LineTo(origin.x, rc.bottom-1);
-                pDC->LineTo(origin.x+5, rc.bottom-2);
-                pDC->MoveTo(origin.x, rc.bottom-1);
-                pDC->LineTo(origin.x+1, rc.bottom-6);
-                break;
-            case EOL_NOENDING:
                 break;
             }
         }
@@ -1613,7 +1559,7 @@ void CBaseView::DrawBlockLine(CDC *pDC, const CRect &rc, int nLineIndex)
 }
 
 void CBaseView::DrawTextLine(
-    CDC * pDC, const CRect &rc, int nLineIndex, POINT& coords)
+    CDC * pDC, const CRect &rc, int nLineIndex, POINT coords)
  {
     ASSERT(nLineIndex < GetLineCount());
     int nViewLine = GetViewLineForScreen(nLineIndex);
@@ -1621,13 +1567,13 @@ void CBaseView::DrawTextLine(
 
     LineColors lineCols = GetLineColors(nViewLine);
 
-    CString sViewLine = GetViewLineChars(nViewLine);
     // mark selection
     if (m_bShowSelection && HasTextSelection())
     {
         // has this line selection ?
         if ((m_ptSelectionViewPosStart.y <= nViewLine) && (nViewLine <= m_ptSelectionViewPosEnd.y))
         {
+            CString sViewLine = GetViewLineChars(nViewLine);
             int nViewLineLength = sViewLine.GetLength();
 
             // first suppose the whole line is selected
@@ -1668,6 +1614,7 @@ void CBaseView::DrawTextLine(
     if (!m_sMarkedWord.IsEmpty())
     {
         int nMarkLength = m_sMarkedWord.GetLength();
+        CString sViewLine = GetViewLineChars(nViewLine);
         //int nViewLineLength = sViewLine.GetLength();
         const TCHAR * text = sViewLine;
         const TCHAR * findText = text;
@@ -1694,37 +1641,6 @@ void CBaseView::DrawTextLine(
             findText += nMarkLength;
         }
     }
-    if (!m_sFindText.IsEmpty())
-    {
-        int nMarkStart = 0;
-        int nMarkEnd = 0;
-        int nStringPos = nMarkStart;
-        CString searchLine = sViewLine;
-        if (!m_bMatchCase)
-            searchLine.MakeLower();
-        while (StringFound(searchLine, SearchNext, nMarkStart, nMarkEnd)!=0)
-        {
-            // First enforce start and end point
-            lineCols.SplitBlock(nMarkStart+nStringPos);
-            lineCols.SplitBlock(nMarkEnd+nStringPos);
-            // change color of affected parts
-            const long int nIntenseColorScale = 30;
-            std::map<int, linecolors_t>::iterator it = lineCols.lower_bound(nMarkStart+nStringPos);
-            for ( ; it != lineCols.end() && it->first < nMarkEnd; ++it)
-            {
-                COLORREF crBk = CAppUtils::IntenseColor(nIntenseColorScale, it->second.background);
-                if (it->second.shot == it->second.background)
-                {
-                    it->second.shot = crBk;
-                }
-                it->second.background = crBk;
-                it->second.text = CAppUtils::IntenseColor(nIntenseColorScale, it->second.text);
-            }
-            searchLine = searchLine.Mid(nMarkEnd);
-            nStringPos = nMarkEnd;
-        }
-    }
-
     // @ this point we may cache data for next line which may be same in wrapped mode
 
     int nTextOffset = 0;
@@ -1742,10 +1658,10 @@ void CBaseView::DrawTextLine(
     //int nLineLengthExp = sLineExp.GetLength();
     int nStartExp = 0;
     int nLeft = coords.x;
-    for (std::map<int, linecolors_t>::const_iterator itStart = lineCols.begin(); itStart != lineCols.end(); ++itStart)
+    for (std::map<int, linecolors_t>::const_iterator itStart = lineCols.begin(); itStart != lineCols.end(); itStart++)
     {
         std::map<int, linecolors_t>::const_iterator itEnd = itStart;
-        ++itEnd;
+        itEnd++;
         int nStart = std::max<int>(0, itStart->first - nTextOffset);
         int nEnd = nLineLength;
         if (itEnd != lineCols.end())
@@ -1761,7 +1677,7 @@ void CBaseView::DrawTextLine(
             int nTextLength = nEndExp - nStartExp;
             LPCTSTR p_zBlockText = textExp + nStartExp;
             SIZE Size;
-            GetTextExtentPoint32(pDC->GetSafeHdc(), p_zBlockText, nTextLength, &Size); // falls time-2-tme
+            GetTextExtentPoint32(pDC->operator HDC(), p_zBlockText, nTextLength, &Size); // falls time-2-tme
             int nRight = nLeft + Size.cx;
             if ((nRight > rc.left) && (nLeft < rc.right))
             {
@@ -1788,7 +1704,6 @@ void CBaseView::DrawTextLine(
                 }
             }
             nLeft = nRight;
-            coords.x = nRight;
             nStartExp = nEndExp;
         }
     }
@@ -1859,9 +1774,11 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
 
     // Draw the line
 
-    pDC->SelectObject(GetFont(FALSE, FALSE));
+    pDC->SelectObject(GetFont(FALSE, FALSE, IsLineRemoved(nLineIndex)));
 
     DrawTextLine(pDC, rc, nLineIndex, origin);
+    CString line = ExpandChars(sLine); // note: DrawTextLine can possibly return pixel text width
+    origin.x += pDC->GetTextExtent(line).cx;
 
     // draw white space after the end of line
     CRect frect = rc;
@@ -1871,7 +1788,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
         pDC->FillSolidRect(frect, crBkgnd);
 
     // draw the whitespace chars
-    LPCTSTR pszChars = (LPCWSTR)sLine;
+    LPCTSTR pszChars = sLine.operator LPCWSTR();
     if (m_bViewWhitespace)
     {
         int xpos = 0;
@@ -1943,7 +1860,7 @@ void CBaseView::ExpandChars(const CString &sLine, int nOffset, int nCount, CStri
 
     int nActualOffset = CountExpandedChars(sLine, nOffset);
 
-    LPCTSTR pszChars = (LPCWSTR)sLine;
+    LPCTSTR pszChars = sLine.operator LPCWSTR();
     pszChars += nOffset;
     int nLength = nCount;
 
@@ -2062,11 +1979,6 @@ int CBaseView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CBaseView::OnDestroy()
 {
-    if ((m_pFindDialog)&&(!m_pFindDialog->IsTerminating()))
-    {
-        m_pFindDialog->SendMessage(WM_CLOSE);
-        return;
-    }
     CView::OnDestroy();
     DeleteFonts();
     ReleaseBitmap();
@@ -2141,10 +2053,7 @@ void CBaseView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 
 void CBaseView::OnDoMouseWheel(UINT /*nFlags*/, short zDelta, CPoint /*pt*/)
 {
-    bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
-    bool bShift = !!(GetKeyState(VK_SHIFT)&0x8000);
-
-    if (bControl || bShift)
+    if ((GetKeyState(VK_CONTROL)&0x8000)||(GetKeyState(VK_SHIFT)&0x8000))
     {
         if (m_pMainFrame->m_bWrapLines)
             return;
@@ -2159,10 +2068,7 @@ void CBaseView::OnDoMouseWheel(UINT /*nFlags*/, short zDelta, CPoint /*pt*/)
 
 void CBaseView::OnDoMouseHWheel(UINT /*nFlags*/, short zDelta, CPoint /*pt*/)
 {
-    bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
-    bool bShift = !!(GetKeyState(VK_SHIFT)&0x8000);
-
-    if (bControl || bShift)
+    if ((GetKeyState(VK_CONTROL)&0x8000)||(GetKeyState(VK_SHIFT)&0x8000))
     {
         ScrollVertical(zDelta);
     }
@@ -2640,28 +2546,6 @@ BOOL CBaseView::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pResult)
     CString strTipText;
     strTipText = m_sWindowName + _T("\r\n") + m_sFullFilePath;
 
-    DWORD pos = GetMessagePos();
-    CPoint point(GET_X_LPARAM(pos), GET_Y_LPARAM(pos));
-    ScreenToClient(&point);
-    const int nLine = GetButtonEventLineIndex(point);
-
-    if (nLine >= 0)
-    {
-        int nViewLine = GetViewLineForScreen(nLine);
-        if((m_pViewData)&&(nViewLine < m_pViewData->GetCount()))
-        {
-            if (m_pViewData->GetState(nViewLine)==DIFFSTATE_MOVED_FROM)
-            {
-                strTipText.Format(IDS_MOVED_TO_TT, m_pViewData->GetMovedIndex(nViewLine)+1);
-            }
-            if (m_pViewData->GetState(nViewLine)==DIFFSTATE_MOVED_TO)
-            {
-                strTipText.Format(IDS_MOVED_FROM_TT, m_pViewData->GetMovedIndex(nViewLine)+1);
-            }
-        }
-    }
-
-
     *pResult = 0;
     if (strTipText.IsEmpty())
         return TRUE;
@@ -2688,14 +2572,7 @@ INT_PTR CBaseView::OnToolHitTest(CPoint point, TOOLINFO* pTI) const
     CRect rcClient;
     GetClientRect(rcClient);
     CRect textrect(rcClient.left, rcClient.top, rcClient.Width(), m_nLineHeight+HEADERHEIGHT);
-    int marginwidth = MARGINWIDTH;
-    if ((m_bViewLinenumbers)&&(m_pViewData)&&(m_pViewData->GetCount())&&(m_nDigits > 0))
-    {
-        marginwidth = (MARGINWIDTH + (m_nDigits * m_nCharWidth) + 2);
-    }
-    CRect borderrect(rcClient.left, rcClient.top+m_nLineHeight+HEADERHEIGHT, marginwidth, rcClient.bottom);
-
-    if (textrect.PtInRect(point) || borderrect.PtInRect(point))
+    if (textrect.PtInRect(point))
     {
         // inside the header part of the view (showing the filename)
         pTI->hwnd = this->m_hWnd;
@@ -2711,9 +2588,8 @@ INT_PTR CBaseView::OnToolHitTest(CPoint point, TOOLINFO* pTI) const
             pToolTip->SetMaxTipWidth(INT_MAX);
         }
 
-        return (textrect.PtInRect(point) ? 1 : 2);
+        return 1;
     }
-
     return -1;
 }
 
@@ -2721,11 +2597,10 @@ void CBaseView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
     bool bControl = !!(GetKeyState(VK_CONTROL)&0x8000);
     bool bShift = !!(GetKeyState(VK_SHIFT)&0x8000);
-
     switch (nChar)
     {
     case VK_TAB:
-        if ((nChar == '\t') && bControl)
+        if ((nChar == '\t') && ((GetKeyState(VK_CONTROL)&0x8000) != 0))
         {
             if (this==m_pwndLeft)
             {
@@ -3108,7 +2983,56 @@ void CBaseView::OnLButtonTrippleClick( UINT /*nFlags*/, CPoint point )
 
 void CBaseView::OnEditCopy()
 {
-    CString sCopyData = GetSelectedText();
+    POINT start = m_ptSelectionViewPosStart;
+    POINT end = m_ptSelectionViewPosEnd;
+    if (!HasTextSelection())
+    {
+        if (!HasSelection())
+            return;
+        start.y = m_nSelViewBlockStart;
+        start.x = 0;
+        end.y = m_nSelViewBlockEnd;
+        end.x = GetViewLineLength(m_nSelViewBlockEnd);
+    }
+    // first store the selected lines in one CString
+    CString sCopyData;
+    for (int nViewLine=start.y; nViewLine<=end.y; nViewLine++)
+    {
+        switch (m_pViewData->GetState(nViewLine))
+        {
+        case DIFFSTATE_EMPTY:
+            break;
+        case DIFFSTATE_UNKNOWN:
+        case DIFFSTATE_NORMAL:
+        case DIFFSTATE_REMOVED:
+        case DIFFSTATE_REMOVEDWHITESPACE:
+        case DIFFSTATE_ADDED:
+        case DIFFSTATE_ADDEDWHITESPACE:
+        case DIFFSTATE_WHITESPACE:
+        case DIFFSTATE_WHITESPACE_DIFF:
+        case DIFFSTATE_CONFLICTED:
+        case DIFFSTATE_CONFLICTED_IGNORED:
+        case DIFFSTATE_CONFLICTADDED:
+        case DIFFSTATE_CONFLICTEMPTY:
+        case DIFFSTATE_CONFLICTRESOLVED:
+        case DIFFSTATE_IDENTICALREMOVED:
+        case DIFFSTATE_IDENTICALADDED:
+        case DIFFSTATE_THEIRSREMOVED:
+        case DIFFSTATE_THEIRSADDED:
+        case DIFFSTATE_MOVED_FROM:
+        case DIFFSTATE_MOVED_TO:
+        case DIFFSTATE_YOURSREMOVED:
+        case DIFFSTATE_YOURSADDED:
+        case DIFFSTATE_EDITED:
+            sCopyData += GetViewLineChars(nViewLine);
+            sCopyData += _T("\r\n");
+            break;
+        }
+    }
+    // remove the non-selected chars from the first line, last line and last \r\n
+    int nLeftCut = start.x;
+    int nRightCut = GetViewLineChars(end.y).GetLength() - end.x + 2;
+    sCopyData = sCopyData.Mid(nLeftCut, sCopyData.GetLength()-nLeftCut-nRightCut);
 
     if (!sCopyData.IsEmpty())
     {
@@ -3518,6 +3442,7 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
     else if (nChar == 10)
     {
         int nViewLine = GetViewLineForScreen(GetCaretPosition().y);
+        AddUndoViewLine(nViewLine);
         EOL eol = m_pViewData->GetLineEnding(nViewLine);
         EOL newEOL = EOL_CRLF;
         switch (eol)
@@ -3529,16 +3454,9 @@ void CBaseView::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
                 newEOL = EOL_LF;
                 break;
             case EOL_LF:
-                newEOL = EOL_CRLF;
+                newEOL = (nViewLine==GetViewCount()-1) ? EOL_NOENDING : EOL_CRLF;
                 break;
         }
-        if (eol==EOL_NOENDING || eol==newEOL)
-            // don't allow to change enter on empty line, or last text line (lines with EOL_NOENDING)
-            // to add EOL on newly edited empty line hit enter
-            // don't store into UNDO if no change happened
-            // and don't mark file as modified
-            return;
-        AddUndoViewLine(nViewLine);
         m_pViewData->SetLineEnding(nViewLine, newEOL);
         m_pViewData->SetState(nViewLine, DIFFSTATE_EDITED);
         UpdateGoalPos();
@@ -3962,7 +3880,7 @@ void CBaseView::OnCaretUp()
     ShowDiffLines(ptCaretPos.y);
 }
 
-bool CBaseView::IsWordSeparator(const wchar_t ch) const
+bool CBaseView::IsWordSeparator(wchar_t ch) const
 {
     return ch == ' ' || ch == '\t' || (m_sWordSeparators.Find(ch) >= 0);
 }
@@ -4099,8 +4017,8 @@ void CBaseView::DeleteFonts()
 
 void CBaseView::OnCaretMove(bool bMoveLeft)
 {
-    bool bShift = !!(GetKeyState(VK_SHIFT)&0x8000);
-    OnCaretMove(bMoveLeft, bShift);
+    const bool isShiftPressed = (GetKeyState(VK_SHIFT)&0x8000) != 0;
+    OnCaretMove(bMoveLeft, isShiftPressed);
 }
 
 void CBaseView::OnCaretMove(bool bMoveLeft, bool isShiftPressed)
@@ -4186,34 +4104,6 @@ void CBaseView::BuildMarkedWordArray()
     }
 }
 
-void CBaseView::BuildFindStringArray()
-{
-    int lineCount = GetLineCount();
-    m_arFindStringLines.clear();
-    m_arFindStringLines.reserve(lineCount);
-    bool bDoit = !m_sFindText.IsEmpty();
-    int s = 0;
-    int e = 0;
-    for (int i = 0; i < lineCount; ++i)
-    {
-        if (bDoit)
-        {
-            CString line = GetLineChars(i);
-
-            if (!line.IsEmpty())
-            {
-                line = line.MakeLower();
-                m_arFindStringLines.push_back(StringFound(line, SearchNext, s, e));
-            }
-            else
-                m_arFindStringLines.push_back(0);
-        }
-        else
-            m_arFindStringLines.push_back(0);
-    }
-    UpdateLocator();
-}
-
 bool CBaseView::GetInlineDiffPositions(int nViewLine, std::vector<inlineDiffPos>& positions)
 {
     if (!m_bShowInlineDiff)
@@ -4264,7 +4154,7 @@ bool CBaseView::GetInlineDiffPositions(int nViewLine, std::vector<inlineDiffPos>
         diff = diff->next;
     }
 
-    return !positions.empty();
+    return (positions.size() > 0);
 }
 
 void CBaseView::OnNavigateNextinlinediff()
@@ -4460,7 +4350,7 @@ int CBaseView::FindScreenLineForViewLine( int viewLine )
 
 int CBaseView::CountMultiLines( int nViewLine )
 {
-    if (m_ScreenedViewLine.empty())
+    if (m_ScreenedViewLine.size()==0)
         return 0;   // in case the view is completely empty
 
     ASSERT(nViewLine < (int)m_ScreenedViewLine.size());
@@ -4848,14 +4738,14 @@ int CBaseView::Screen2View::FindScreenLineForViewLine( int viewLine )
         while (nTestBit)
         {
             int nTestPos = nPos | nTestBit;
-            if (nTestPos < nScreenLineCount && m_Screen2View[nTestPos].nViewLine < viewLine)
+            if (nTestPos < nScreenLineCount && m_Screen2View.operator[](nTestPos).nViewLine < viewLine)
             {
                 nPos = nTestPos;
             }
             nTestBit >>= 1;
         }
     }
-    while (nPos < nScreenLineCount && m_Screen2View[nPos].nViewLine < viewLine)
+    while (nPos < nScreenLineCount && m_Screen2View.operator[](nPos).nViewLine < viewLine)
     {
         nPos++;
     }
@@ -4928,341 +4818,23 @@ bool CBaseView::Screen2View::ResetScreenedViewLineCache(CBaseView* pwndView, con
     return false;
 }
 
+HICON CBaseView::GetIconForCommand(UINT cmdId)
+{
+    if (m_pMainFrame)
+    {
+        int offset = m_pMainFrame->GetToolbar()->CommandToIndex(cmdId);
+        UINT nid, style;
+        int imgIndex = 0;
+        m_pMainFrame->GetToolbar()->GetButtonInfo(offset, nid, style, imgIndex);
+        HICON h = m_pMainFrame->GetToolbar()->GetImages()->ExtractIcon(imgIndex);
+        return h;
+    }
+    return 0;
+}
+
 void CBaseView::WrapChanged()
 {
     m_nMaxLineLength = -1;
     m_nOffsetChar = 0;
-}
-
-void CBaseView::OnEditFind()
-{
-    if (m_pFindDialog)
-        return;
-
-    m_pFindDialog = new CFindDlg(this);
-    m_pFindDialog->Create(this);
-
-    m_pFindDialog->SetFindString(HasTextSelection() ? GetSelectedText() : L"");
-}
-
-LRESULT CBaseView::OnFindDialogMessage(WPARAM /*wParam*/, LPARAM /*lParam*/)
-{
-    ASSERT(m_pFindDialog != NULL);
-
-    if (m_pFindDialog->IsTerminating())
-    {
-        // invalidate the handle identifying the dialog box.
-        m_pFindDialog = NULL;
-        return 0;
-    }
-
-    if(m_pFindDialog->FindNext())
-    {
-        //read data from dialog
-        m_sFindText = m_pFindDialog->GetFindString();
-        m_bMatchCase = (m_pFindDialog->MatchCase() == TRUE);
-        m_bLimitToDiff = m_pFindDialog->LimitToDiffs();
-        m_bWholeWord = m_pFindDialog->WholeWord();
-
-        if (!m_bMatchCase)
-            m_sFindText = m_sFindText.MakeLower();
-
-        BuildFindStringArray();
-        OnEditFindnext();
-    }
-
-    return 0;
-}
-
-void CBaseView::OnEditFindnextStart()
-{
-    if (m_pViewData == nullptr)
-        return;
-    if (HasTextSelection())
-    {
-        m_sFindText = GetSelectedText();
-        m_bMatchCase = false;
-        m_bLimitToDiff = false;
-        m_bWholeWord = false;
-        m_sFindText = m_sFindText.MakeLower();
-
-        BuildFindStringArray();
-        OnEditFindnext();
-    }
-    else
-    {
-        m_sFindText.Empty();
-        BuildFindStringArray();
-    }
-}
-
-void CBaseView::OnEditFindprevStart()
-{
-    if (m_pViewData == nullptr)
-        return;
-    if (HasTextSelection())
-    {
-        m_sFindText = GetSelectedText();
-        m_bMatchCase = false;
-        m_bLimitToDiff = false;
-        m_bWholeWord = false;
-        m_sFindText = m_sFindText.MakeLower();
-
-        BuildFindStringArray();
-        OnEditFindprev();
-    }
-    else
-    {
-        m_sFindText.Empty();
-        BuildFindStringArray();
-    }
-}
-
-bool CBaseView::StringFound(const CString& str, SearchDirection srchDir, int& start, int& end) const
-{
-    start = str.Find(m_sFindText);
-    if ((srchDir==SearchPrevious)&&(start>=0))
-    {
-        int laststart = start;
-        do
-        {
-            start = laststart;
-            laststart = str.Find(m_sFindText, laststart+1);
-        } while (laststart >= 0);
-    }
-    end = start + m_sFindText.GetLength();
-    bool bStringFound = (start >= 0);
-    if (bStringFound && m_bWholeWord)
-    {
-        if (start)
-            bStringFound = IsWordSeparator(str.Mid(start-1,1).GetAt(0));
-
-        if (bStringFound)
-        {
-            if (str.GetLength() > end)
-                bStringFound = IsWordSeparator(str.Mid(end, 1).GetAt(0));
-        }
-    }
-    return bStringFound;
-}
-
-void CBaseView::OnEditFindprev()
-{
-    Search(SearchPrevious);
-}
-
-void CBaseView::OnEditFindnext()
-{
-    Search(SearchNext);
-}
-
-void CBaseView::Search(SearchDirection srchDir)
-{
-    if (m_sFindText.IsEmpty())
-        return;
-    if(!m_pViewData)
-        return;
-
-    POINT start = m_ptSelectionViewPosEnd;
-    POINT end;
-    end.y = m_pViewData->GetCount()-1;
-    if (end.y < 0)
-        return;
-
-    if (srchDir==SearchNext)
-        end.x = GetViewLineLength(end.y);
-    else
-    {
-        end.x = m_ptSelectionViewPosStart.x;
-        start.x = 0;
-    }
-
-    if (!HasTextSelection())
-    {
-        start.y = m_ptCaretViewPos.y;
-        if (srchDir==SearchNext)
-            start.x = m_ptCaretViewPos.x;
-        else
-        {
-            start.x = 0;
-            end.x = m_ptCaretViewPos.x;
-        }
-    }
-    CString sSelectedText;
-    int startline = -1;
-    for (int nViewLine=start.y; ;srchDir==SearchNext ? nViewLine++ : nViewLine--)
-    {
-        if (nViewLine < 0)
-        {
-            nViewLine = m_pViewData->GetCount()-1;
-            startline = start.y;
-        }
-        if (nViewLine > end.y)
-        {
-            nViewLine = 0;
-            startline = start.y;
-        }
-        if (startline >= 0)
-        {
-            if (nViewLine == startline)
-                break;
-        }
-        switch (m_pViewData->GetState(nViewLine))
-        {
-        case DIFFSTATE_EMPTY:
-            break;
-        case DIFFSTATE_UNKNOWN:
-        case DIFFSTATE_NORMAL:
-            if (m_bLimitToDiff)
-                break;
-        case DIFFSTATE_REMOVED:
-        case DIFFSTATE_REMOVEDWHITESPACE:
-        case DIFFSTATE_ADDED:
-        case DIFFSTATE_ADDEDWHITESPACE:
-        case DIFFSTATE_WHITESPACE:
-        case DIFFSTATE_WHITESPACE_DIFF:
-        case DIFFSTATE_CONFLICTED:
-        case DIFFSTATE_CONFLICTED_IGNORED:
-        case DIFFSTATE_CONFLICTADDED:
-        case DIFFSTATE_CONFLICTEMPTY:
-        case DIFFSTATE_CONFLICTRESOLVED:
-        case DIFFSTATE_IDENTICALREMOVED:
-        case DIFFSTATE_IDENTICALADDED:
-        case DIFFSTATE_THEIRSREMOVED:
-        case DIFFSTATE_THEIRSADDED:
-        case DIFFSTATE_MOVED_FROM:
-        case DIFFSTATE_MOVED_TO:
-        case DIFFSTATE_YOURSREMOVED:
-        case DIFFSTATE_YOURSADDED:
-        case DIFFSTATE_EDITED:
-            {
-                sSelectedText = GetViewLineChars(nViewLine);
-                if (nViewLine==start.y)
-                    sSelectedText = srchDir==SearchNext ? sSelectedText.Mid(start.x) : sSelectedText.Left(start.x);
-                if (!m_bMatchCase)
-                    sSelectedText = sSelectedText.MakeLower();
-                int startfound = -1;
-                int endfound = -1;
-                if (StringFound(sSelectedText, srchDir, startfound, endfound))
-                {
-                    HighlightViewLines(nViewLine, nViewLine);
-                    m_ptSelectionViewPosStart.x = startfound;
-                    m_ptSelectionViewPosEnd.x = endfound;
-                    if (nViewLine==start.y)
-                    {
-                        m_ptSelectionViewPosStart.x += start.x;
-                        m_ptSelectionViewPosEnd.x += start.x;
-                    }
-                    m_ptSelectionViewPosEnd.x = m_ptSelectionViewPosStart.x + m_sFindText.GetLength();
-                    m_ptSelectionViewPosStart.y = nViewLine;
-                    m_ptSelectionViewPosEnd.y = nViewLine;
-                    m_ptCaretViewPos = m_ptSelectionViewPosStart;
-                    UpdateViewsCaretPosition();
-                    EnsureCaretVisible();
-                    Invalidate();
-                    return;
-                }
-            }
-            break;
-        }
-    }
-    m_pMainFrame->m_nMoveMovesToIgnore = MOVESTOIGNORE;
-}
-
-CString CBaseView::GetSelectedText() const
-{
-    CString sSelectedText;
-    POINT start = m_ptSelectionViewPosStart;
-    POINT end = m_ptSelectionViewPosEnd;
-    if (!HasTextSelection())
-    {
-        if (!HasSelection())
-            return sSelectedText;
-        start.y = m_nSelViewBlockStart;
-        start.x = 0;
-        end.y = m_nSelViewBlockEnd;
-        end.x = GetViewLineLength(m_nSelViewBlockEnd);
-    }
-    // first store the selected lines in one CString
-    for (int nViewLine=start.y; nViewLine<=end.y; nViewLine++)
-    {
-        switch (m_pViewData->GetState(nViewLine))
-        {
-        case DIFFSTATE_EMPTY:
-            break;
-        case DIFFSTATE_UNKNOWN:
-        case DIFFSTATE_NORMAL:
-        case DIFFSTATE_REMOVED:
-        case DIFFSTATE_REMOVEDWHITESPACE:
-        case DIFFSTATE_ADDED:
-        case DIFFSTATE_ADDEDWHITESPACE:
-        case DIFFSTATE_WHITESPACE:
-        case DIFFSTATE_WHITESPACE_DIFF:
-        case DIFFSTATE_CONFLICTED:
-        case DIFFSTATE_CONFLICTED_IGNORED:
-        case DIFFSTATE_CONFLICTADDED:
-        case DIFFSTATE_CONFLICTEMPTY:
-        case DIFFSTATE_CONFLICTRESOLVED:
-        case DIFFSTATE_IDENTICALREMOVED:
-        case DIFFSTATE_IDENTICALADDED:
-        case DIFFSTATE_THEIRSREMOVED:
-        case DIFFSTATE_THEIRSADDED:
-        case DIFFSTATE_MOVED_FROM:
-        case DIFFSTATE_MOVED_TO:
-        case DIFFSTATE_YOURSREMOVED:
-        case DIFFSTATE_YOURSADDED:
-        case DIFFSTATE_EDITED:
-            sSelectedText += GetViewLineChars(nViewLine);
-            sSelectedText += _T("\r\n");
-            break;
-        }
-    }
-    // remove the non-selected chars from the first line, last line and last \r\n
-    int nLeftCut = start.x;
-    int nRightCut = GetViewLineChars(end.y).GetLength() - end.x + 2;
-    sSelectedText = sSelectedText.Mid(nLeftCut, sSelectedText.GetLength()-nLeftCut-nRightCut);
-    return sSelectedText;
-}
-
-void CBaseView::OnEditGotoline()
-{
-    if (m_pViewData == NULL)
-        return;
-    // find the last and first line number
-    int nViewLineCount = m_pViewData->GetCount();
-
-    int nLastLineNumber = DIFF_EMPTYLINENUMBER;
-    for (int nViewLine=nViewLineCount-1; nViewLine>=0; --nViewLine)
-    {
-         nLastLineNumber = m_pViewData->GetLineNumber(nViewLine);
-         if (nLastLineNumber!=DIFF_EMPTYLINENUMBER)
-         {
-             break;
-         }
-    }
-    if (nLastLineNumber==DIFF_EMPTYLINENUMBER || nLastLineNumber==0) // not numbered line foud or last one is first
-    {
-        return;
-    }
-    nLastLineNumber++;
-    int nFirstLineNumber=1; // first is always 1
-
-    CString sText;
-    sText.Format(IDS_GOTOLINE, nFirstLineNumber, nLastLineNumber);
-
-    CGotoLineDlg dlg(this);
-    dlg.SetLabel(sText);
-    dlg.SetLimits(nFirstLineNumber, nLastLineNumber);
-    if (dlg.DoModal() == IDOK)
-    {
-        for (int nViewLine = 0; nViewLine < nViewLineCount; ++nViewLine)
-        {
-            if ((m_pViewData->GetLineNumber(nViewLine)+1) == dlg.GetLineNumber())
-            {
-                HighlightViewLines(nViewLine, nViewLine);
-                return;
-            }
-        }
-    }
 }
 

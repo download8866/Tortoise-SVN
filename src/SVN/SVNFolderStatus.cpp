@@ -86,7 +86,6 @@ SVNFolderStatus::SVNFolderStatus(void)
     : m_TimeStamp(0)
     , m_nCounter(0)
     , dirstatus(NULL)
-    , m_mostRecentStatus(nullptr)
 {
     emptyString[0] = 0;
     invalidstatus.author = emptyString;
@@ -395,7 +394,16 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, con
 {
     SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
     FileStatusMap * cache = &Stat->m_cache;
-    FileStatusCacheEntry s;
+    FileStatusCacheEntry s = {  svn_wc_status_none,          // state
+                                "",                          // author
+                                "",                          // url
+                                "",                          // owner
+                                false,                       // needslock
+                                -1,                          // rev
+                                SVNFOLDERSTATUS_CACHETIMES,  // askedcounter
+                                NULL,                        // lock
+                                false,                       // tree_conflict;
+                             };
     if (status)
     {
         s.author = Stat->authors.GetString(status->changed_author);

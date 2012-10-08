@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010, 2012 - TortoiseSVN
+// Copyright (C) 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,9 +30,7 @@
 class SVNExternal
 {
 public:
-    SVNExternal()
-        : adjust(false)
-        , headrev(SVN_INVALID_REVNUM)
+    SVNExternal() : adjust(false)
     {
         revision.kind = svn_opt_revision_unspecified;
         origrevision.kind = svn_opt_revision_unspecified;
@@ -43,9 +41,6 @@ public:
     CString             pathurl;            ///< the repository url of path
     CString             targetDir;          ///< the target folder where the external is put
     CString             url;                ///< the url of the external
-    CString             fullurl;            ///< the full url of the external (relative urls are resolved)
-    CString             root;               ///< the root of the repository or empty string if not known
-    svn_revnum_t        headrev;            ///< the HEAD revision of the external repository, or SVN_INVALID_REVNUM if not known
     svn_opt_revision_t  revision;           ///< the revision the external should be tagged to
     svn_opt_revision_t  origrevision;       ///< the revision the external is tagged to
     svn_opt_revision_t  pegrevision;        ///< the peg revision, if it has one
@@ -87,10 +82,6 @@ public:
     std::string GetValue(const CTSVNPath& path) const;
     /// return the error string of the last failed operation
     CString GetLastErrorString() { return m_sError; }
-
-    /// returns the full url of a (possible) relative external url
-    static CString GetFullExternalUrl(const CString& extUrl, const CString& root, const CString& dirUrl);
-
 private:
     std::map<CTSVNPath, std::string>    m_originals;
     CString                             m_sError;

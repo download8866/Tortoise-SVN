@@ -120,7 +120,6 @@ protected:
         ShellMenuDropCopyRename,
         ShellMenuDropExport,
         ShellMenuDropExportExtended,
-        ShellMenuDropExportChanged,
         ShellMenuLog,
         ShellMenuConflictEditor,
         ShellMenuRelocate,

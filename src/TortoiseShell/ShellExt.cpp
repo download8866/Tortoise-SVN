@@ -28,6 +28,7 @@
 #include "ShellObjects.h"
 #include "..\version.h"
 #include "libintl.h"
+#include "auto_buffer.h"
 #undef swprintf
 
 extern ShellObjects g_shellObjects;
@@ -113,7 +114,7 @@ void LoadLangDll()
 
             if (dwBufferSize > 0)
             {
-                std::unique_ptr<char[]> buffer(new char[dwBufferSize]);
+                auto_buffer<char> buffer(dwBufferSize);
 
                 if (buffer.get() != 0)
                 {
@@ -202,9 +203,9 @@ tstring GetAppDirectory()
     do
     {
         bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
-        len = GetModuleFileName(g_hmodThisDll, pBuf.get(), bufferlen);
-        path = tstring(pBuf.get(), len);
+        auto_buffer<TCHAR> pBuf(bufferlen);
+        len = GetModuleFileName(g_hmodThisDll, pBuf, bufferlen);
+        path = tstring(pBuf, len);
     } while(len == bufferlen);
     path = path.substr(0, path.rfind('\\') + 1);
 

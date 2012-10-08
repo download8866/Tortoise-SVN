@@ -717,13 +717,13 @@ CString CRepositoryLister::GetList
     // find that query
 
     CListQuery* query = FindQuery (url, pegRev, repository, complete, includeExternals);
-    if (query == NULL)
-    {
-        // something went very wrong.
-        // Report than and let the user do a refresh
+	if (query == NULL)
+	{
+		// something went very wrong.
+		// Report than and let the user do a refresh
 
-        return CString(MAKEINTRESOURCE(IDS_REPOBROWSE_QUERYFAILURE));
-    }
+		return CString(MAKEINTRESOURCE(IDS_REPOBROWSE_QUERYFAILURE));
+	}
 
     // wait for the results to come in and return them
     // get "ordinary" list plus direct externals
@@ -762,13 +762,11 @@ CString CRepositoryLister::AddSubTreeExternals
 
         int levels = CItem::Levels (externalsRelPath);
         for (TI iter = begin; iter != end; ++iter)
-        {
             if (   (iter->external_position == levels)
                 && (iter->external_rel_path.Find (externalsRelPath) == 0))
             {
                 items.push_back (*iter);
             }
-        }
     }
 
     return query->GetError();

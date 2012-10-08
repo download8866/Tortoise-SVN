@@ -31,6 +31,7 @@
 #include "SVNStatus.h"
 #include "HistoryDlg.h"
 #include "Hooks.h"
+#include "auto_buffer.h"
 #include "COMError.h"
 #include "..\version.h"
 #include "BstrSafeVector.h"
@@ -98,7 +99,6 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
     ON_WM_SIZE()
     ON_STN_CLICKED(IDC_EXTERNALWARNING, &CCommitDlg::OnStnClickedExternalwarning)
     ON_BN_CLICKED(IDC_SHOWEXTERNALS, &CCommitDlg::OnBnClickedShowexternals)
-    ON_BN_CLICKED(IDC_LOG, &CCommitDlg::OnBnClickedLog)
 END_MESSAGE_MAP()
 
 
@@ -123,19 +123,18 @@ BOOL CCommitDlg::OnInitDialog()
     ExtendFrameIntoClientArea(IDC_DWM);
     m_aeroControls.SubclassControl(this, IDC_KEEPLOCK);
     m_aeroControls.SubclassControl(this, IDC_KEEPLISTS);
-    m_aeroControls.SubclassControl(this, IDC_LOG);
     m_aeroControls.SubclassOkCancelHelp(this);
 
     UpdateData(FALSE);
 
-    m_ListCtrl.SetRestorePaths(m_restorepaths);
-    m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"), SVNSLC_POPALL ^ SVNSLC_POPCOMMIT);
+    m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS | SVNSLC_COLLOCK, _T("CommitDlg"));
     m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
     m_ListCtrl.SetCancelBool(&m_bCancelled);
     m_ListCtrl.SetEmptyString(IDS_COMMITDLG_NOTHINGTOCOMMIT);
     m_ListCtrl.EnableFileDrop();
     m_ListCtrl.SetBackgroundImage(IDI_COMMIT_BKG);
 
+    m_ProjectProperties.ReadPropsPathList(m_pathList);
     if (CRegDWORD(_T("Software\\TortoiseSVN\\AlwaysWarnIfNoIssue"), FALSE))
         m_ProjectProperties.bWarnIfNoIssue = TRUE;
     m_cLogMessage.Init(m_ProjectProperties);
@@ -221,7 +220,6 @@ BOOL CCommitDlg::OnInitDialog()
     OnEnChangeLogmessage();
 
     GetWindowText(m_sWindowTitle);
-    DialogEnableWindow(IDC_LOG, m_pathList.GetCount() > 0);
 
     AdjustControlSize(IDC_SHOWUNVERSIONED);
     AdjustControlSize(IDC_KEEPLOCK);
@@ -287,7 +285,6 @@ BOOL CCommitDlg::OnInitDialog()
     AddAnchor(IDC_STATISTICS, BOTTOM_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_KEEPLOCK, BOTTOM_LEFT);
     AddAnchor(IDC_KEEPLISTS, BOTTOM_LEFT);
-    AddAnchor(IDC_LOG, BOTTOM_RIGHT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -457,10 +454,9 @@ void CCommitDlg::OnOK()
 
     bool bCheckedInExternal = false;
     bool bHasConflicted = false;
-    bool bHasDirCopyPlus = false;
+    bool bHasCopyPlus = false;
     std::set<CString> checkedLists;
     std::set<CString> uncheckedLists;
-    m_restorepaths.clear();
     for (int j=0; j<nListItems; j++)
     {
         const CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetConstListEntry(j);
@@ -492,11 +488,7 @@ void CCommitDlg::OnOK()
             }
             if (entry->IsCopied() && entry->IsFolder())
             {
-                bHasDirCopyPlus = true;
-            }
-            if (!entry->GetRestorePath().IsEmpty())
-            {
-                m_restorepaths[entry->GetRestorePath()] = entry->GetPath().GetWinPathString();
+                bHasCopyPlus = true;
             }
             checkedLists.insert(entry->GetChangeList());
         }
@@ -641,7 +633,7 @@ void CCommitDlg::OnOK()
             m_sChangeList = *checkedLists.begin();
     }
 
-    if ((!m_bRecursive)&&(bHasDirCopyPlus))
+    if ((!m_bRecursive)&&(bHasCopyPlus))
     {
         if (CTaskDialog::IsSupported())
         {
@@ -1223,8 +1215,6 @@ void CCommitDlg::GetAutocompletionList()
         const CSVNStatusListCtrl::FileEntry * entry = m_ListCtrl.GetConstListEntry(i);
         if (!entry)
             continue;
-        if (!entry->IsChecked() && (entry->GetChangeList().Compare(SVNSLC_IGNORECHANGELIST)==0))
-            continue;
 
         // add the path parts to the auto completion list too
         CString sPartPath = entry->GetRelativeSVNPath(false);
@@ -1288,12 +1278,12 @@ void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, const
             return;
         }
         // allocate memory to hold file contents
-        std::unique_ptr<char[]> buffer(new char[size]);
+        auto_buffer<char> buffer(size);
         DWORD readbytes;
-        if (!ReadFile(hFile, buffer.get(), size, &readbytes, NULL))
+        if (!ReadFile(hFile, buffer, size, &readbytes, NULL))
             return;
         int opts = 0;
-        IsTextUnicode(buffer.get(), readbytes, &opts);
+        IsTextUnicode(buffer, readbytes, &opts);
         if (opts & IS_TEXT_UNICODE_NULL_BYTES)
         {
             return;
@@ -1304,11 +1294,11 @@ void CCommitDlg::ScanFile(const CString& sFilePath, const CString& sRegex, const
         }
         if ((opts & IS_TEXT_UNICODE_NOT_UNICODE_MASK)||(opts == 0))
         {
-            const int ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer.get(), readbytes, NULL, 0);
-            std::unique_ptr<wchar_t[]> pWideBuf(new wchar_t[ret]);
-            const int ret2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer.get(), readbytes, pWideBuf.get(), ret);
+            const int ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, NULL, 0);
+            auto_buffer<wchar_t> pWideBuf(ret);
+            const int ret2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer, readbytes, pWideBuf, ret);
             if (ret2 == ret)
-                sFileContent = wstring(pWideBuf.get(), ret);
+                sFileContent = wstring(pWideBuf, ret);
         }
     }
     if (sFileContent.empty()|| !m_bRunThread)
@@ -1539,19 +1529,6 @@ void CCommitDlg::OnBnClickedBugtraqbutton()
     }
 
     m_cLogMessage.SetFocus();
-}
-
-void CCommitDlg::OnBnClickedLog()
-{
-    CString sCmd;
-    CTSVNPath root = m_pathList.GetCommonRoot();
-    if (root.IsEmpty())
-    {
-        SVN svn;
-        root = svn.GetWCRootFromPath(m_pathList[0]);
-    }
-    sCmd.Format(_T("/command:log /path:\"%s\""), root.GetWinPath());
-    CAppUtils::RunTortoiseProc(sCmd);
 }
 
 LRESULT CCommitDlg::OnSVNStatusListCtrlCheckChanged(WPARAM, LPARAM)
@@ -1794,4 +1771,3 @@ void CCommitDlg::VersionCheck()
         m_cUpdateLink.ShowWindow(SW_SHOW);
     }
 }
-
