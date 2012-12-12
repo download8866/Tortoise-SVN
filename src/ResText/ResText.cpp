@@ -73,6 +73,7 @@ int _tmain(int argc, _TCHAR* argv[])
     {
         if (_tcscmp(arg->c_str(), _T("extract"))==0)
         {
+            tstring sDllFile;
             tstring sPoFile;
             tstring sHeaderFile;
             ++arg;

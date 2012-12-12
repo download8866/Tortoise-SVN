@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UnicodeUtils.h"
 #include "stringutils.h"
 #include "ClipboardHelper.h"
@@ -413,6 +413,7 @@ int CStringUtils::FastCompareNoCase (const CStringW& lhs, const CStringW& rhs)
 
     return 0;
 }
+#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
 {
@@ -438,7 +439,6 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
     }
     return true;
 }
-#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 inline static void PipeToNull(TCHAR* ptr)
 {

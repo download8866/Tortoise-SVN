@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@
 #include <memory>
 #include "shlwapi.h"
 #include "tstring.h"
+#include "auto_buffer.h"
 #include "FormatMessageWrapper.h"
 
 #ifndef ASSERT
@@ -722,7 +723,7 @@ void CRegStringCommon<Base>::InternalRead (HKEY hKey, typename Base::StringT& va
 
     if (LastError == ERROR_SUCCESS)
     {
-        std::unique_ptr<TCHAR[]> pStr (new TCHAR[size]);
+        auto_buffer<TCHAR> pStr (size);
         if ((LastError = RegQueryValueEx(hKey, GetPlainString (m_key), NULL, &type, (BYTE*) pStr.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_SZ || type==REG_EXPAND_SZ);

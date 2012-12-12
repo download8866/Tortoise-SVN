@@ -17,6 +17,14 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|Win32">
+      <Configuration>Template</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Template|x64">
+      <Configuration>Template</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{50797F06-39C5-4802-8E2B-7B7A4EF03214}</ProjectGuid>
@@ -29,28 +37,27 @@
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Template|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -59,6 +66,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Template|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
@@ -101,7 +111,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
-      <DisableSpecificWarnings>4481</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -136,7 +145,6 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <DisableSpecificWarnings>4481</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -174,7 +182,6 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4481</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -216,7 +223,6 @@
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DisableSpecificWarnings>4481</DisableSpecificWarnings>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -234,6 +240,14 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Template|x64'">
+    <Link />
+    <Link />
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\SVN\SVNBase.cpp" />
     <ClCompile Include="..\SVN\SVNReadProperties.cpp" />
@@ -247,7 +261,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="..\Utils\Callback.cpp" />
     <ClCompile Include="..\Utils\CommonAppUtils.cpp" />
     <ClCompile Include="..\Utils\IconExtractor.cpp" />
     <ClCompile Include="..\Utils\Libraries.cpp" />
@@ -345,6 +358,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\affixmgr.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -363,6 +378,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\csutil.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -381,6 +398,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\dictmgr.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -399,6 +418,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\hashmgr.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -417,6 +438,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\hunspell.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -435,6 +458,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\mythes.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -453,6 +478,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\suggestmgr.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -471,6 +498,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\..\ext\hunspell\utf_info.cxx">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -489,6 +518,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|Win32'">TurnOffAllWarnings</WarningLevel>
+      <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Template|x64'">TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <ClCompile Include="..\Utils\TreePropSheet\PropPageFrame.cpp" />
     <ClCompile Include="..\Utils\TreePropSheet\PropPageFrameDefault.cpp" />
@@ -543,22 +574,13 @@
     <ClCompile Include="Properties\EditPropExternals.cpp" />
     <ClCompile Include="Properties\EditPropExternalsValue.cpp" />
     <ClCompile Include="Properties\EditPropKeywords.cpp" />
-    <ClCompile Include="Properties\EditPropMergeLogTemplate.cpp" />
     <ClCompile Include="Properties\EditPropMimeType.cpp" />
     <ClCompile Include="Properties\EditPropNeedsLock.cpp" />
-    <ClCompile Include="Properties\EditPropsLocalHooks.cpp" />
     <ClCompile Include="Properties\EditPropTSVNLang.cpp" />
     <ClCompile Include="Properties\EditPropTSVNSizes.cpp" />
-    <ClCompile Include="Properties\EditPropUserBool.cpp" />
-    <ClCompile Include="Properties\EditPropUserMultiLine.cpp" />
-    <ClCompile Include="Properties\EditPropUserSingleLine.cpp" />
-    <ClCompile Include="Properties\EditPropUserState.cpp" />
-    <ClCompile Include="Properties\UserProperties.cpp" />
-    <ClCompile Include="RecycleBinDlg.cpp" />
     <ClCompile Include="RepoCreationFinished.cpp" />
     <ClCompile Include="RevisionGraph\RemoveTags.cpp" />
     <ClCompile Include="Settings\SetOverlayHandlers.cpp" />
-    <ClCompile Include="Settings\SettingsDialogs3.cpp" />
     <ClCompile Include="UpdateDlg.cpp" />
     <ClCompile Include="Commands\AddCommand.cpp" />
     <ClCompile Include="AddDlg.cpp" />
@@ -600,6 +622,7 @@
     <ClCompile Include="Settings\SettingsLogCaches.cpp" />
     <ClCompile Include="Settings\SettingsProgsDiff.cpp" />
     <ClCompile Include="Settings\SettingsProgsMerge.cpp" />
+    <ClCompile Include="Settings\SettingsProgsUniDiff.cpp" />
     <ClCompile Include="Settings\SettingsPropPage.cpp" />
     <ClCompile Include="Settings\SettingsRevGraphColors.cpp" />
     <ClCompile Include="Settings\SettingsRevisionGraph.cpp" />
@@ -723,9 +746,7 @@
   <ItemGroup>
     <ClInclude Include="..\SVN\SVNBase.h" />
     <ClInclude Include="..\SVN\SVNReadProperties.h" />
-    <ClInclude Include="..\Utils\Callback.h" />
     <ClInclude Include="..\Utils\CommonAppUtils.h" />
-    <ClInclude Include="..\Utils\CrashReport.h" />
     <ClInclude Include="..\Utils\IconExtractor.h" />
     <ClInclude Include="..\Utils\IInputValidator.h" />
     <ClInclude Include="..\Utils\Libraries.h" />
@@ -882,22 +903,13 @@
     <ClInclude Include="Properties\EditPropExternals.h" />
     <ClInclude Include="Properties\EditPropExternalsValue.h" />
     <ClInclude Include="Properties\EditPropKeywords.h" />
-    <ClInclude Include="Properties\EditPropMergeLogTemplate.h" />
     <ClInclude Include="Properties\EditPropMimeType.h" />
     <ClInclude Include="Properties\EditPropNeedsLock.h" />
-    <ClInclude Include="Properties\EditPropsLocalHooks.h" />
     <ClInclude Include="Properties\EditPropTSVNLang.h" />
     <ClInclude Include="Properties\EditPropTSVNSizes.h" />
-    <ClInclude Include="Properties\EditPropUserBool.h" />
-    <ClInclude Include="Properties\EditPropUserMultiLine.h" />
-    <ClInclude Include="Properties\EditPropUserSingleLine.h" />
-    <ClInclude Include="Properties\EditPropUserState.h" />
-    <ClInclude Include="Properties\UserProperties.h" />
-    <ClInclude Include="RecycleBinDlg.h" />
     <ClInclude Include="RepoCreationFinished.h" />
     <ClInclude Include="RevisionGraph\RemoveTags.h" />
     <ClInclude Include="Settings\SetOverlayHandlers.h" />
-    <ClInclude Include="Settings\SettingsDialogs3.h" />
     <ClInclude Include="UpdateDlg.h" />
     <ClInclude Include="Commands\AddCommand.h" />
     <ClInclude Include="AddDlg.h" />
@@ -939,6 +951,7 @@
     <ClInclude Include="Settings\SettingsLogCaches.h" />
     <ClInclude Include="Settings\SettingsProgsDiff.h" />
     <ClInclude Include="Settings\SettingsProgsMerge.h" />
+    <ClInclude Include="Settings\SettingsProgsUniDiff.h" />
     <ClInclude Include="Settings\SettingsPropPage.h" />
     <ClInclude Include="Settings\SettingsRevGraphColors.h" />
     <ClInclude Include="Settings\SettingsRevisionGraph.h" />
@@ -1053,7 +1066,7 @@
     <ClInclude Include="SimplePrompt.h" />
     <ClInclude Include="SVNProgressDlg.h" />
     <ClInclude Include="URLDlg.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TortoiseProc.h" />
   </ItemGroup>
@@ -1066,7 +1079,6 @@
     <None Include="..\Resources\actionreversemerged.ico" />
     <None Include="..\Resources\AddBackground.ico" />
     <None Include="..\Resources\aerobackground.ico" />
-    <None Include="..\Resources\backward.ico" />
     <None Include="..\Resources\bin167.avi" />
     <None Include="..\Resources\bin168.avi" />
     <None Include="..\Resources\bugtraq.ico" />
@@ -1091,9 +1103,7 @@
     <None Include="..\Resources\explorer.ico" />
     <None Include="..\Resources\ExportBackground.ico" />
     <None Include="..\Resources\externalovl.ico" />
-    <None Include="..\Resources\externalpeggedovl.ico" />
     <None Include="..\Resources\filteredit.ico" />
-    <None Include="..\Resources\forward.ico" />
     <None Include="..\Resources\general.ico" />
     <None Include="..\Resources\graph-bar-stacked.ico" />
     <None Include="..\Resources\graph-bar.ico" />
@@ -1140,7 +1150,6 @@
     <None Include="..\Resources\menuswitch.ico" />
     <None Include="..\Resources\menuupdate.ico" />
     <None Include="..\Resources\MergeBackground.ico" />
-    <None Include="..\Resources\mergeinfoovl.ico" />
     <None Include="..\Resources\MergeWizardTitle.bmp" />
     <None Include="..\Resources\misc.ico" />
     <None Include="..\resources\nestedovl.ico" />
@@ -1159,8 +1168,6 @@
     <None Include="..\Resources\repo_svn.ico" />
     <None Include="..\Resources\repo_unknown.ico" />
     <None Include="..\Resources\ResolveBackground.ico" />
-    <None Include="..\Resources\restore.ico" />
-    <None Include="..\Resources\restoreovl.ico" />
     <None Include="..\Resources\RevertBackground.ico" />
     <None Include="..\Resources\revgraph_added.ico" />
     <None Include="..\Resources\revgraph_addedplus.ico" />
@@ -1180,6 +1187,7 @@
     <None Include="..\Resources\svnfolder.ico" />
     <None Include="..\Resources\switch.ico" />
     <None Include="..\Resources\SwitchBackground.ico" />
+    <None Include="..\Resources\Toolbar.bmp" />
     <None Include="..\Resources\Tortoise.ico" />
     <None Include="..\TortoiseBlame\TortoiseBlame.ico" />
     <None Include="..\Resources\TortoiseMerge.ico" />
@@ -1191,7 +1199,8 @@
     <None Include="..\Resources\up.ico" />
     <None Include="..\Resources\UpdateBackground.ico" />
     <None Include="..\Resources\warning-general.ico" />
-    <None Include="externalpeggedovl.ico" />
+    <None Include="actionreversemerged.ico" />
+    <None Include="aerobackground.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Resources\TortoiseProcENG.rc" />

@@ -1,23 +1,23 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta name="keywords" content="release notes" />
+<meta name="description" content="TortoiseSVN release notes, version 1.5" />
+<meta http-equiv="content-language" content="en" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>TortoiseSVN - Release notes for 1.5</title>
-<meta name="description" content="TortoiseSVN release notes, version 1.5"/>
-<meta name="keywords" content="release notes"/>
-<meta http-equiv="content-language" content="en"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-<link rel="shortcut icon" href="favicon.ico"/>
-<link href="css/pack.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="langselection">
-    <a href="support.html">EN</a>&nbsp;<a href="support.de.html">DE</a>
+    <a href="support.html">EN</a> <a href="support.de.html">DE</a>
 </div>
 <div id="wrapper">
-    <!--#include FILE="menu.html"-->
-    <div id="page">
-        <div id="banner">&nbsp;</div>
-        <div id="content">
+    <!--#include FILE="menu.html" -->
+	<div id="page">
+		<div id="banner">&nbsp;</div>
+		<div id="content">
 
             <div class="post" id="news">
                 <h2>What's New in TortoiseSVN 1.5</h2>
@@ -77,7 +77,7 @@
                 All other features are independent of the server version and can be used without any
                 restrictions.
                 <p>
-                For a more detailed compatibility table, see the
+                For a more detailed compatibility table, see the 
                 <a href="http://subversion.apache.org/svn_1.5_releasenotes.html#new-feature-compatibility-table">Subversion release notes</a>.
                 </p>
 
@@ -105,7 +105,7 @@
                 </p>
 
                 <p>
-                Have a look at the Subversion FAQ about the
+                Have a look at the Subversion FAQ about the 
                 <a href="http://subversion.apache.org/faq.html#working-copy-format-change">
                 working copy format change</a>.
                 </p>
@@ -138,8 +138,8 @@
                 the risk of merging the same revision twice. Subversion will automatically
                 omit the already merged revisions when doing the merge.</p>
 
-                <img src="img/LogWithGrayedMerge.png" alt="Log dialog showing already
-                merged entries grayed out"/>
+                <img src="images/LogWithGrayedMerge.png" alt="Log dialog showing already 
+                merged entries grayed out" />
 
                 <p>When showing the log from the merge dialog to find the revisions to
                 merge, TortoiseSVN shows the already merged revisions grayed out as
@@ -167,24 +167,25 @@
                 log of a folder/file would be the log messages of all the revisions
                 that got merged.</p>
 
-                <img src="img/LogWithoutMerge.png" alt="Log dialog showing entries
-                without merge history"/>
+                <img src="images/LogWithoutMerge.png" alt="Log dialog showing entries 
+                without merge history" />
 
                 <p>TortoiseSVN can show you those log messages if you want. The log dialog
                 has a checkbox which when activated will fetch all the log messages of
                 merged revisions. The log entries of merged revisions are shown a little
                 indented.</p>
 
-                <img src="img/LogWithMerge.png" alt="Log dialog showing entries
-                with merge history"/>
+                <img src="images/LogWithMerge.png" alt="Log dialog showing entries 
+                with merge history" />
                 </div>  <!-- merge-info -->
             </div> <!-- merge-tracking -->
+
 
 
             <div class="post" id="sparse-checkouts" title="sparse-checkouts">
                 <h2>Sparse checkouts</h2>
 
-                <p>Many users have very large trees of which they only want to checkout
+                <p>Many users have very large trees of which they only want to checkout 
                 certain parts. In case of folders with many subfolders, some of the
                 subfolders might not be needed.</p>
                 <p>TortoiseSVN provides the user with a combo box to choose the depth
@@ -205,7 +206,7 @@
                 <h2>Cyrus SASL support for <tt>svnserve</tt></h2>
 
                 <p>In Subversion 1.5, svnserve can use SASL (Simple Authentication and Security Layer)
-                for authentication and data encryption.
+                for authentication and data encryption. 
                 TortoiseSVN has SASL implemented too. The following SASL authentication
                 methods are available with TortoiseSVN 1.5:
                 <ul>
@@ -234,8 +235,8 @@
                 Check for Modifications dialog. As well as giving a visual indication, you
                 can also select groups for commit.
                 </p>
-                <img src="img/ChangeList.png" alt="Commit dialog showing changelists
-                grouped together"/>
+                <img src="images/ChangeList.png" alt="Commit dialog showing changelists
+                grouped together" />
 
                 <p>
                 TortoiseSVN also provides a special changelist named <em>ignore-on-commit</em>.
@@ -270,7 +271,7 @@
                 resembles the Windows explorer. It has two panes, with a tree
                 view on the left and the file/folder list on the right.</p>
 
-                <img src="img/RepositoryBrowser.png" alt="Repository Browser"/>
+                <img src="images/RepositoryBrowser.png" alt="Repository Browser" />
 
                 <p>Part of the rewrite also includes a performance improvement when
                 showing very big directories.</p>
@@ -374,18 +375,18 @@
                 an overlay too.
                 </p>
                 <p>
-                <img src="img/Overlays.png" alt="Icon Overlays"/>
+                <img src="images/Overlays.png" alt="Icon Overlays" />
 
                 </p>
             </div>  <!-- Overlays -->
         </div>
         <!-- end #content -->
-
-        <!--#include FILE="sidebar.html"-->
-        <div style="clear: both">&nbsp;</div>
+        
+        <!--#include FILE="sidebar.html" -->
+        <div style="clear: both;">&nbsp;</div>
     </div>
     <!-- end #page -->
-    <!--#include FILE="footer.html"-->
+    <!--#include FILE="footer.html" -->
 </div>
 </body>
 </html>

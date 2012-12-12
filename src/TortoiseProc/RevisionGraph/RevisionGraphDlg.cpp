@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@
 #include "SVNInfo.h"
 #include "SVNDiff.h"
 #include "RevGraphFilterDlg.h"
-#include "revisiongraphdlg.h"
+#include ".\revisiongraphdlg.h"
 #include "RepositoryInfo.h"
 #include "RevisionInRange.h"
 #include "RemovePathsBySubString.h"
@@ -59,9 +59,6 @@ CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
 
     DWORD dwOpts = CRegStdDWORD(_T("Software\\TortoiseSVN\\RevisionGraphOptions"), 0x1ff199);
     m_Graph.m_state.GetOptions()->SetRegistryFlags (dwOpts, 0x407fbf);
-
-    m_szTip[0]  = 0;
-    m_wszTip[0] = 0;
 }
 
 CRevisionGraphDlg::~CRevisionGraphDlg()

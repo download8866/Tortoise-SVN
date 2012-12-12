@@ -233,19 +233,19 @@
                 repository. There are two ways of doing this.
             </para>
             <para>
-                You can edit the Subversion configuration file to enable
+                You can edit the subversion configuration file to enable
                 this feature on your client. The <guilabel>General</guilabel>
                 page of TortoiseSVN's settings dialog has an edit button to
                 take you there directly.
                 The config file is a simple text file which controls some of
-                Subversion's workings. You need to change two things:
+                subversion's workings. You need to change two things:
                 firstly in the section headed
                 <literal>miscellany</literal> uncomment the line
                 <literal>enable-auto-props = yes</literal>.
                 Secondly you need to edit the section below to define which
                 properties you want added to which file types.
-                This method is a standard Subversion feature and works with
-                any Subversion client. However it has to be defined on each
+                This method is a standard subversion feature and works with
+                any subversion client. However it has to be defined on each
                 client individually - there is no way to propagate these settings
                 from the repository.
             </para>
@@ -405,11 +405,11 @@
                         Subversion allows you to set <quote>autoprops</quote> which
                         will be applied to newly added or imported files, based on
                         the file extension. This depends on every client having set
-                        appropriate autoprops in their Subversion configuration file.
+                        appropriate autoprops in their subversion configuration file.
                         <literal>tsvn:autoprops</literal> can be set on folders
                         and these will be merged with the user's local autoprops
                         when importing or adding files.
-                        The format is the same as for Subversion autoprops, e.g.
+                        The format is the same as for subversion autoprops, e.g.
                         <literal>*.sh = svn:eol-style=native;svn:executable</literal>
                         sets two properties on files with the <literal>.sh</literal>
                         extension.
@@ -494,66 +494,6 @@
                 </listitem>
                 <listitem>
                     <para>
-                        There are several properties available to configure
-                        client-side hook scripts. Each property is for
-                        one specific hook script type.
-                    </para>
-                    <para>
-                        The available properties/hook-scripts are
-						<itemizedlist>
-							<listitem>tsvn:startcommithook</listitem>
-							<listitem>tsvn:precommithook</listitem>
-							<listitem>tsvn:postcommithook</listitem>
-							<listitem>tsvn:startupdatehook</listitem>
-							<listitem>tsvn:preupdatehook</listitem>
-							<listitem>tsvn:postupdatehook</listitem>
-						</itemizedlist>
-                    </para>
-                    <para>
-                        The parameters are the same as if you would
-                        configure the hook scripts in the settings dialog.
-                        See <xref linkend="tsvn-dug-settings-hooks"/> for
-                        the details.
-                    </para>
-                    <para>
-                        Since not every user has his or her working copy
-                        checked out at the same location with the same
-                        name, you can configure a script/tool to execute
-                        that resides in your working copy by specifying
-                        the URL in the repository instead, using <filename>%REPOROOT%</filename>
-                        as the part of the URL to the repository root.
-                        For example, if your hook script is in your working copy
-                        under <filename>contrib/hook-scripts/client-side/checkyear.js</filename>,
-                        you would specify the path to the script as
-                        <filename>%REPOROOT%/trunk/contrib/hook-scripts/client-side/checkyear.js</filename>.
-                        This way even if you move your repository to
-                        another server you do not have to adjust the
-                        hook script properties.
-                    </para>
-					<para>
-						Instead of <filename>%REPOROOT%</filename> you
-						can also specify <filename>%REPOROOT+%</filename>.
-						The <literal>+</literal> is used to insert any
-						number of folder paths necessary to find the script.
-						This is useful if you want to specify your script
-						so that if you create a branch the script is still
-						found even though the url of the working copy is now
-						different. Using the example above, you would
-						specify the path to the script as
-						<filename>%REPOROOT+%/contrib/hook-scripts/client-side/checkyear.js</filename>.
-					</para>
-                    <para>
-                        The following screenshot shows how the script
-                        to check for current copyright years in source
-                        file headers is configured for TortoiseSVN.
-                        <figure id="tsvn-dug-propertypage-tsvn-props-copyright">
-                            <title>Property dialog for hook scripts</title>
-                            <graphic fileref="../images/hookpropertydlg.png"/>
-                        </figure>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
                         When you want to add a new property, you can either pick one from
                         the list in the combo box, or you can enter any property name
                         you like. If your project uses some custom properties,
@@ -565,123 +505,6 @@
                         Apply these properties to a folder. When you go to edit
                         the properties of any child item, your custom properties will
                         appear in the list of pre-defined property names.
-                    </para>
-                    <para>
-                        You can also specify whether a custom dialog is used
-                        to add/edit your property. TortoiseSVN offers four
-                        different dialog, depending on the type of your property.
-                        <variablelist>
-                            <varlistentry>
-                                <term condition="pot">bool</term>
-                                <listitem>
-                                    <para>
-                                        If your property can only have two states, 
-                                        e.g., true and false, then you can configure
-                                        your property as a <literal>bool</literal> type.
-                                        <figure id="tsvn-dug-propertypage-tsvn-props-userbool">
-                                            <title>Property dialog boolean user types</title>
-                                            <graphic fileref="../images/userpropbool.png"/>
-                                        </figure>
-                                        Specify your property like this:
-                                    </para>
-                                    <para>
-                                    <literal>propertyname=bool;labeltext(YESVALUE;NOVALUE;Checkboxtext)</literal>
-                                    </para>
-                                    <para>
-                                        the <literal>labeltext</literal> is the text shown
-                                        in the dialog above the checkbox where you can explain the purpose
-                                        and use of the property. The other parameters should be self explanatory.
-                                    </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term condition="pot">state</term>
-                                <listitem>
-                                    <para>
-                                        If your property represents one of many possible
-                                        states, e.g., <literal>yes, no, maybe</literal>,
-                                        then you can configure your property as a <literal>state</literal>
-                                        <figure id="tsvn-dug-propertypage-tsvn-props-userstate">
-                                            <title>Property dialog state user types</title>
-                                            <graphic fileref="../images/userpropstate1.png"/>
-                                            <graphic fileref="../images/userpropstate2.png"/>
-                                            <graphic fileref="../images/userpropstate3.png"/>
-                                        </figure>
-                                        property like this:
-                                    </para>
-                                    <para>
-                                    <literal>propertyname=state;labeltext(DEFVAL;VAL1;TEXT1;VAL2;TEXT2;VAL3;TEXT3;...)</literal>
-                                    </para>
-                                    <para>
-                                        The parameters are the same as for the <literal>bool</literal>
-                                        property, with <literal>DEFVAL</literal> being the default
-                                        value to be used if the property isn't set yet or has a value that's
-                                        not configured.
-                                    </para>
-                                    <para>
-                                        For up to three different values, the dialog shows
-                                        up to three radio buttons. If there are more values
-                                        configured, it uses a combo box from where the user
-                                        can select the required state.
-                                    </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term condition="pot">singleline</term>
-                                <listitem>
-                                    <para>
-                                        For properties that consist of one line of text,
-                                        use the <literal>singleline</literal> property type:
-                                        <figure id="tsvn-dug-propertypage-tsvn-props-usersingleline">
-                                            <title>Property dialog single-line user types</title>
-                                            <graphic fileref="../images/userpropsingleline.png"/>
-                                        </figure>
-                                    </para>
-                                    <para>
-                                    <literal>propertyname=singleline;labeltext(regex)</literal>
-                                    </para>
-                                    <para>
-                                        the <literal>regex</literal> specifies a regular
-                                        expression which is used to validate (match)
-                                        the text the user entered. If the text does
-                                        not match the regex, then the user is shown an error
-                                        and the property isn't set.
-                                    </para>
-                                </listitem>
-                            </varlistentry>
-                            <varlistentry>
-                                <term condition="pot">multiline</term>
-                                <listitem>
-                                    <para>
-                                        For properties that consist of multiple lines of text,
-                                        use the <literal>multiline</literal> property type:
-                                        <figure id="tsvn-dug-propertypage-tsvn-props-usermultiline">
-                                            <title>Property dialog multi-line user types</title>
-                                            <graphic fileref="../images/userpropmultiline.png"/>
-                                        </figure>
-                                    </para>
-                                    <para>
-                                    <literal>propertyname=multiline;labeltext(regex)</literal>
-                                    </para>
-                                    <para>
-                                        the <literal>regex</literal> specifies a regular
-                                        expression which is used to validate (match)
-                                        the text the user entered. Don't forget to
-                                        include the newline (\n) character in the regex!
-                                    </para>
-                                </listitem>
-                            </varlistentry>
-                        </variablelist>
-                        The screenshots above were made with the following
-                        <literal>tsvn:userdirproperties</literal>:
-<screen>
-my:boolprop=bool;This is a bool type property. Either check or uncheck it.(true;false;my bool prop)
-my:stateprop1=state;This is a state property. Select one of the two states.(true;true;true value;false;false value)
-my:stateprop2=state;This is a state property. Select one of the three states.(maybe;true;answer is correct;false;answer is wrong;maybe;not answered)
-my:stateprop3=state;Specify the day to set this property.(1;1;Monday;2;Tuesday;3;Wednesday;4;Thursday;5;Friday;6;Saturday;7;Sunday)
-my:singlelineprop=singleline;enter a small comment(.*)
-my:multilineprop=multiline;copy and paste a full chapter here(.*)
-</screen>
                     </para>
                 </listitem>
             </itemizedlist>
@@ -802,7 +625,7 @@ my:multilineprop=multiline;copy and paste a full chapter here(.*)
             </para>
             <para>
                 You need to define the name of the sub-folder that the external
-                folder is checked out as, and the Subversion URL of the external item.
+                folder is checked out as, and the subversion URL of the external item.
                 You can check out an external at its HEAD revision, so when the external
                 item changes in the repository, your working copy will receive those
                 changes on update. However, if you want the external to reference a
@@ -812,16 +635,6 @@ my:multilineprop=multiline;copy and paste a full chapter here(.*)
                 then Subversion will not be able to update this item in your working copy.
                 By specifying a peg revision you tell Subversion to look for an item that
                 had that name at the peg revision rather than at HEAD.
-            </para>
-            <para>
-                The button <guibutton>Find HEAD-Revision</guibutton>
-                fetches the HEAD revision of every external URL and
-                shows that HEAD revision in the rightmost column.
-                After the HEAD revision is known, a simple right click
-                on an external gives you the command to peg the
-                selected externals to their explicit HEAD revision.
-                In case the HEAD revision is not known yet, the right
-                click command will fetch the HEAD revision first.
             </para>
         </sect3>
         <sect3 id="tsvn_dug_propertypage-edit-keywords">
@@ -866,7 +679,7 @@ my:multilineprop=multiline;copy and paste a full chapter here(.*)
                     <graphic fileref="../images/PropEditLogSize.png"/>
                 </figure>
                 These 3 properties control the formatting of log messages.
-                The first 2 disable the <guibutton>OK</guibutton> in the
+                The first 2 disable the <guibutton>OK</guibutton>OK in the
                 commit or lock dialogs until the message meets the minimum length.
                 The border position shows a marker at the given column width as
                 a guide for projects which have width limits on their log messages.
@@ -884,7 +697,7 @@ my:multilineprop=multiline;copy and paste a full chapter here(.*)
                 Choose the language to use for spell-checking log messages in the
                 commit dialog. The file lists checkbox comes into effect when you
                 right click in the log message pane and select
-                <guilabel>Paste file list</guilabel>. By default the Subversion
+                <guilabel>Paste file list</guilabel>. By default the subversion
                 status will be shown in your local language. When this box is checked
                 the status is always given in English, for projects which require
                 English-only log messages.
@@ -923,150 +736,6 @@ my:multilineprop=multiline;copy and paste a full chapter here(.*)
                 This property controls whether a file will be given executable status
                 when checked out on a Unix/Linux system. It has no effect on a Windows
                 checkout.
-            </para>
-        </sect3>
-        <sect3 id="tsvn_dug_propertypage-edit-mergelogmsgtemplate">
-            <?dbhh topicname="HIDD_EDITPROPMERGELOGTEMPLATE"?>
-            <title>Merge log message templates</title>
-            <para>
-                Whenever revisions are merged into a working copy,
-                TortoiseSVN generates a log message from all the
-                merged revisions. Those are then available from the
-                <guibutton>Recent Messages</guibutton> button in the
-                commit dialog.
-            </para>
-            <para>
-                You can customize that generated message with the following
-                properties:
-                <figure id="tsvn-dug-propertypage-tsvn-props-mergelogtemplate">
-                    <title>Property dialog merge log message templates</title>
-                    <graphic fileref="../images/mergelogmsgtemplate.png"/>
-                </figure>
-            </para>
-            <para>
-                <variablelist>
-                    <varlistentry>
-                        <term condition="pot">tsvn:mergelogtemplatetitle, tsvn:mergelogtemplatereversetitle</term>
-                        <listitem>
-                            <para>
-                                This property specifies the first part of the generated
-                                log message. The following keywords can be used:
-                                <variablelist>
-                                    <varlistentry>
-                                        <term condition="pot">{revisions}</term>
-                                        <listitem>
-                                            <para>
-                                                A comma separated list of the merged revisions,
-                                                e.g., <literal>3, 5, 6, 7</literal>
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{revisionsr}</term>
-                                        <listitem>
-                                            <para>
-                                                Like <literal>{revisions}</literal>, but with each
-                                                revision preceded with an <literal>r</literal>,
-                                                e.g., <literal>r3, r5, r6, r7</literal>
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{revrange}</term>
-                                        <listitem>
-                                            <para>
-                                                A comma separated list of the merged revisions,
-                                                grouped into ranges if possible,
-                                                e.g., <literal>3, 5-7</literal>
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{mergeurl}</term>
-                                        <listitem>
-                                            <para>
-                                                The source URL of the merge, i.e., where the
-                                                revisions are merged from.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                </variablelist>
-                            </para>
-                            <para>
-                                The default value for this string is
-                                <literal>Merged revision(s) {revrange} from {mergeurl}:</literal>
-                                with a newline at the end.
-                            </para>
-                        </listitem>
-                    </varlistentry>
-                    <varlistentry>
-                        <term condition="pot">tsvn:mergelogtemplatemsg</term>
-                        <listitem>
-                            <para>
-                                This property specifies how the text for each
-                                merged revision should look like. The following
-                                keywords can be used:
-                                <variablelist>
-                                    <varlistentry>
-                                        <term condition="pot">{msg}</term>
-                                        <listitem>
-                                            <para>
-                                                The log message of the merged revision, as it was entered.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{msgoneline}</term>
-                                        <listitem>
-                                            <para>
-                                                Like <literal>{msg}</literal>, but all
-                                                newlines are replaced with a space, so that
-                                                the whole log message appears on one single line.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{author}</term>
-                                        <listitem>
-                                            <para>
-                                                The author of the merged revision.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{rev}</term>
-                                        <listitem>
-                                            <para>
-                                                The merged revision itself.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                    <varlistentry>
-                                        <term condition="pot">{bugid}</term>
-                                        <listitem>
-                                            <para>
-                                                The bug IDs of the merged revision, if
-                                                there are any.
-                                            </para>
-                                        </listitem>
-                                    </varlistentry>
-                                </variablelist>
-                            </para>
-                            <para>
-                                <important>
-                                    <para>
-                                        This only works if the merged revisions
-                                        are already in the log cache. If you have disabled
-                                        the log cache or not shown the log first
-                                        before the merge, the generated message
-                                        won't contain any information about the merged
-                                        revisions.
-                                    </para>
-                                </important>
-                            </para>
-                        </listitem>
-                    </varlistentry>
-                </variablelist>
             </para>
         </sect3>
     </sect2>

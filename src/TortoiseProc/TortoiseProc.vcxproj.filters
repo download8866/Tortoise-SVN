@@ -626,6 +626,9 @@
     <ClCompile Include="Settings\SettingsProgsMerge.cpp">
       <Filter>Commands\Settings\Settings Dialog</Filter>
     </ClCompile>
+    <ClCompile Include="Settings\SettingsProgsUniDiff.cpp">
+      <Filter>Commands\Settings\Settings Dialog</Filter>
+    </ClCompile>
     <ClCompile Include="Settings\SettingsPropPage.cpp">
       <Filter>Commands\Settings\Settings Dialog</Filter>
     </ClCompile>
@@ -1069,36 +1072,6 @@
     </ClCompile>
     <ClCompile Include="..\Utils\TaskbarUUID.cpp">
       <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\SettingsDialogs3.cpp">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="RecycleBinDlg.cpp">
-      <Filter>Utility Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropsLocalHooks.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\UserProperties.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropUserMultiLine.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropUserSingleLine.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropUserState.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropUserBool.cpp">
-      <Filter>Commands\Properties</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\Callback.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="Properties\EditPropMergeLogTemplate.cpp">
-      <Filter>Commands\Properties</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1600,6 +1573,9 @@
     <ClInclude Include="Settings\SettingsProgsMerge.h">
       <Filter>Commands\Settings\Settings Dialog</Filter>
     </ClInclude>
+    <ClInclude Include="Settings\SettingsProgsUniDiff.h">
+      <Filter>Commands\Settings\Settings Dialog</Filter>
+    </ClInclude>
     <ClInclude Include="Settings\SettingsPropPage.h">
       <Filter>Commands\Settings\Settings Dialog</Filter>
     </ClInclude>
@@ -1987,7 +1963,7 @@
     <ClInclude Include="..\Utils\MiscUI\ControlsBridge.h">
       <Filter>Utils\UI</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>Misc</Filter>
     </ClInclude>
     <ClInclude Include="TortoiseProc.h">
@@ -2072,39 +2048,6 @@
       <Filter>Utils\UI</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\TaskbarUUID.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\SettingsDialogs3.h">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="RecycleBinDlg.h">
-      <Filter>Utility Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropsLocalHooks.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\UserProperties.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropUserMultiLine.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropUserSingleLine.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropUserState.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropUserBool.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\Callback.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="Properties\EditPropMergeLogTemplate.h">
-      <Filter>Commands\Properties</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\CrashReport.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
   </ItemGroup>
@@ -2445,6 +2388,9 @@
     <None Include="..\Resources\SwitchBackground.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\Resources\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\Tortoise.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -2484,31 +2430,16 @@
     <None Include="..\Resources\svnfolder.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="aerobackground.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\aerobackground.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="actionreversemerged.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\actionreversemerged.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\restore.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\restoreovl.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\forward.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\backward.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\mergeinfoovl.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="externalpeggedovl.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\externalpeggedovl.ico">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

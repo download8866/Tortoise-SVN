@@ -21,14 +21,10 @@ $icons=array(
 	);
 
 
-include_once("source.php");
-include_once("po.php");
-
 
 // show version infos
 $target=$dirTarget;
 $dirBase="/srv/www/sites/tsvn.e-posta.sk/data/";
-$dirBase="/var/www/po-checker/data/";
 $dir=$dirBase.$dirTarget;
 $revFileName=$dirBase."info/".$target.".rev";
 
@@ -38,90 +34,13 @@ $revFileLines=file($revFileName);
 
 
 //echo $revFileName;
-// render source menu
 echo "<h1>".$revFileLines[0]."of $targetDisplayName</h1>";
 echo "<p>Last update: ".date("F d Y H:i", filemtime($revFileName))." CET (GMT+1/GMT+2(DST)) <br />";
-$src_tx=array(
-	"code" => "txt",
-	"desc" => "transifex trunk",
-	"path" => "tx/translations/tortoisesvn.trunk-*",
-	"listpath" => "trunk.actual");
-$src_tx_br=array(
-	"code" => "txb",
-	"desc" => "transifex branch (unused?)",
-	"path" => "tx/translations/tortoisesvn.branch-*",
-	"listpath" => "branch.actual/1.6.x");
-$src_trunk=array(
-	"code" => "trunk",
-	"desc" => "svn trunk",
-	"path" => "trunk.actual");
-$src_16x=array(
-	"code" => "16x",
-	"desc" => "1.6.x (old stable) branch",
-	"path" => "branch.actual/1.6.x");
-$src_tx17=array(
-	"code" => "tx17",
-	"desc" => "transifex branch (stable)",
-	"path" => "tx/translations/tortoisesvn.*-1-7-x",
-	"listpath" => "branch.actual/1.7.x");
-$src_17x=array(
-	"code" => "17x",
-	"desc" => "1.7.x (stable) branch", 
-	"path" => "branch.actual/1.7.x");
-
-$sources=array($src_trunk, $src_tx, $src_17x, $src_tx17, $src_16x, $src_tx_br);
-
-$sourceDefault=$source;
-if (!isset($source)) {
-	$sourceDefault="trunk";
+if ($stable) {
+	echo 'Go to <a href="/?l='.$lang.'">TRUNK</a>.</p>';
+} else {
+	echo 'Go to <a href="/?stable=1amp;l='.$lang.'">STABLE</a>.</p>';
 }
-// validate source
-
-// validate lang
-
-// build lang lists
-echo "<ul>";
-foreach ($sources as &$src) {
-	$src_code=$src["code"];
-	$src_desc=$src["desc"];
-	$src_path=$src["path"];
-	$src_path2=isset($src["listpath"]) ? $src["listpath"] : "";
-	$sourceList = new TSource;
-	$sourceList->BuildList($dirBase . $src_path, $src_path2 ? $dirBase.$src_path2 : "");
-	$src["srcs"] = $sourceList;
-
-	$count = count($sourceList->list);
-
-	if ($sourceDefault!=$src_code) {
-		echo '<li><a href="/?s='.$src_code.'&amp;l=' . (isset($lang) ? $lang : "") .'">'.$src_desc.'</a> <sup>('.$count.')</sup> </li>';
-	} else {
-		echo '<li>'.$src_desc.' <sup>('.$count.')</sup> </li>';
-	}
-}
-echo "</ul>";
-
-$langlist=array();
-$sourceTarget = $sourceDefault;
-$langTarget = $lang;
-if (isset($langTarget) && !$langTarget) {
-	unset($sourceTarget);
-}
-if (isset($langTarget)) {
-	unset($sourceTarget);
-}
-foreach ($sources as $src) {
-	$src_code=$src["code"];
-	if (!isset($sourceTarget) || $sourceTarget==$src_code) {
-		$sourceList=$src["srcs"];
-		foreach ($sourceList->list as $langData) {
-			$code=$langData['Code'];
-			if (!isset($langTarget) || $langTarget==$code) {
-				$langlist[$code][$src_code]=$langData;
-			}
-		}
-	}
-}
-ksort($langlist);
 
 
 function BuildLanguageList($languagelistFileName) {
@@ -163,24 +82,88 @@ function BuildLanguageList($languagelistFileName) {
 			"ka" => "Georgia",
 			"ml_IN" => "India",
 			"" => "");
+
+
+	// load language.txt
+	$csv = new parseCSV();
+	// ...or if you know the delimiter, set the delimiter character if its not the default comma...
+	$csv->delimiter = ";";
+	// ...and then use the parse() function.
+	$csv->parse($languagelistFileName);
+
+
+	function AnalyseLanguagesTxtLine($csvLine) {
+		if (!isset($csvLine) || !is_array($csvLine) || count($csvLine)<1) {
+			return false;
+		}
+		$indexedArray=array_values($csvLine);
+		if ($indexedArray[0][0]=='#') {
+			return false;
+		}
+		$ret=array();
+		switch (count($csvLine)) {
+		 case 6:
+		 	if (preg_match("/^[-01]/", $indexedArray[0])) {
+				$ret['Enabled']=$indexedArray[0];
+				$ret['Lang']=$indexedArray[1];
+				$ret['Code']=$indexedArray[2];
+				$ret['Flags']=$indexedArray[3];
+				$ret['LangName']=$indexedArray[4];
+				$ret['Credits']=$indexedArray[5];
+			} else {
+				$ret['Lang']=$indexedArray[0];
+				$ret['Code']=$indexedArray[1];
+				$ret['Enabled']=$indexedArray[2];
+				//$ret['Flags']=$indexedArray[3];
+				$ret['LangName']=$indexedArray[4];
+				//$ret['Credits']=$indexedArray[5];
+				// Credits should be loaded from other file ... (vars)
+			}
+			break;
+
+		 case 7:
+			$ret['Enabled']=$indexedArray[0];
+			$ret['Lang']=$indexedArray[1];
+			$ret['WixLang']=$indexedArray[2];
+			$ret['Code']=$indexedArray[3];
+			$ret['Flags']=$indexedArray[4];
+			$ret['LangName']=$indexedArray[5];
+			$ret['Credits']=$indexedArray[6];
+		}
+		return $ret;
+	}
+
+
+	$list=array();
+	foreach ($csv->data as $row) {
+		$rowArray=AnalyseLanguagesTxtLine($row);
+		if ($rowArray===false) {
+			continue;
+		}
+		$rowArray['Flag']=$langToFlag[$rowArray['Lang']];
+		$list[]=$rowArray;
+	}
+	return $list;
 }
 
-/*	$potGui=new TPo;
+$list=BuildLanguageList("$dirLocation/Languages.txt");
+
+/*	$potGui=new po;
 	$potGui->load("$dirLocation/Tortoise.pot", NULL);
-	$potMerge=new TPo;
+	$potMerge=new po;
 	$potMerge->load("$dirDoc/TortoiseMerge.pot", NULL);
-	$potSvn=new TPo;
+	$potSvn=new po;
 	$potSvn->load("$dirDoc/TortoiseSVN.pot", NULL);
-	$potSvn=new TPo;
+	$potSvn=new po;
 	$potSvn->load("$dirLocation/TortoiseDoc.pot", NULL);
 	$pos=array();
 
 	$data=array();//*/
 
-/*	$potGui=new TPo;
+	$potGui=new po;
 	$potGui->load("$dirLocation/TortoiseUI.pot", NULL);
-	$potDoc=new TPo;
-	$potDoc->load("$dirLocation/TortoiseDoc.pot", NULL);//*/
+	$potDoc=new po;
+	$potDoc->load("$dirLocation/TortoiseDoc.pot", NULL);
 
 
 
@@ -189,7 +172,7 @@ function BuildLanguageList($languagelistFileName) {
 	echo "<a name=\"TAB$lang\"></a>";
 	echo '<table border="1"><thead><tr>
 		<td rowspan="2"><acronym title="Native language name in English"><img src="'.$icons['language'].'" alt="" />Language</acronym></td>
-		<td colspan="6"><img src="'.$icons['gui'].'" alt="" />GUI check</td>
+		<td colspan="7"><img src="'.$icons['gui'].'" alt="" />GUI check</td>
 		<td colspan="3"><img src="'.$icons['doc'].'" alt="" />DOC</td>
 		<td rowspan="2"><img src='.$icons['authors'].' alt="" />Author(s)</td>
 	</tr><tr>
@@ -197,7 +180,7 @@ function BuildLanguageList($languagelistFileName) {
 		<td><acronym title="Parameter test (Severity: High - may be harmfull)"><img src="'.$icons['error'].'" alt="" />PAR!!</acronym></td>
 		<td><acronym title="Accelerator test (Severity: Medium - accessibility)"><img src="'.$icons['info'].'" alt="" />ACC!</acronym></td>
 		<td><acronym title="Untranslated (Severity: Low - appearance)"><img src="'.$icons['new'].'" alt="" />UNT</acronym></td>
-		<!--<td><acronym title="Fuzzy mark test (Severity: Low - appearance)"><img src="'.$icons['unknown'].'" alt="" />FUZ</acronym></td>-->
+		<td><acronym title="Fuzzy mark test (Severity: Low - appearance)"><img src="'.$icons['unknown'].'" alt="" />FUZ</acronym></td>
 		<td><acronym title="Escaped chars (Severity: Low - appearance)"><img src="'.$icons['info'].'" alt="" />ESC</acronym></td>
 		<td><img src="'.$icons['note'].'" alt="" />Note</td>
 		<td><img src="'.$icons['doc'].'" title="Tortoise DOC" /></td>
@@ -209,23 +192,18 @@ function BuildLanguageList($languagelistFileName) {
 	function ExtractErrorCount($po, $name) {
 		if (is_array($po)) {
 			return $po[$name];
-		} else if (is_a($po, "TPo")) {
+		} else if (is_a($po, "po")) {
 			return $po->GetErrorCount($name);
 		}
-		echo "error ---";
-		echo get_class($po);
-		echo "---";
 		return false;
 	}
 
-/*	function GetCheckResulForLanguage($po, $lang, $pot, $db, $group) {
-		if (!is_a($po, "TPo")) {
-			echo "Error".__FILE__.":".__LINE__."<br />\n";
-			echo "is a ".get_class($po)."<br />\n";
+	function GetCheckResulForLanguage($fileName, $lang, $pot, $db, $group) {
+		if (!file_exists($fileName)) {
 			return false;
 		}
-		//unset($poTemp);
-/*		if (isset($db) && isset($group) && $db!=NULL && $group!="") { // this is a hack ! - redesign !
+		unset($poTemp);
+		if (isset($db) && isset($group) && $db!=NULL && $group!="") { // this is a hack ! - redesign !
 			$query="SELECT * FROM `state` WHERE `language`='$lang' AND `group`='$group' ORDER BY `revision` DESC LIMIT 1";
 			$res=mysql_query($query, $db);
 			if ($res===false) {
@@ -238,24 +216,22 @@ function BuildLanguageList($languagelistFileName) {
 				}
 				return $poTemp;
 			}
-		}//*/
-//		$poTemp=new TPo;
-//		$poTemp->Load($fileName, $lang);
-//		$poTemp->AddPot($pot);
-//		$poTemp->buildReport();
-/*
-		return $po;
-	}//*/
+		}
+		$poTemp=new po;
+		$poTemp->Load($fileName, $lang);
+		$poTemp->AddPot($pot);
+		$poTemp->buildReport();
+		return $poTemp;
+	}
 
 	function PrintErrorCount($po, $name, $link="") {
 		$errorCount=ExtractErrorCount($po, $name);
-		$warningCount=0;
 		if (is_array($errorCount)) {
 			$warningCount=$errorCount('warnings');
 			$errorCount=$errorCount('errors');
 		}
 		if ($errorCount===false || !isset($errorCount)) {
-			echo "<td>$name?</td>\n";
+			echo "<td>?</td>\n";
 			return 0;
 		}
 		if (!$errorCount && !$warningCount) {
@@ -275,7 +251,6 @@ function BuildLanguageList($languagelistFileName) {
 	}
 
 	function GetDocStatus($fileName, $lang, $pot, $db=NULL, $group=NULL) {
-		return;
 		$po=GetCheckResulForLanguage($fileName, $lang, $pot, $db, $group);
 		if (!isset($po) || $po==NULL) {
 			return "-";
@@ -298,18 +273,15 @@ function BuildLanguageList($languagelistFileName) {
 		return $statDoc;
 	}
 
-	$rowClassIndex=0;
-	$rowClasses=array("odd", "even");
+	$langSelected=($lang!="");
+	$classIndex=0;
+	$classes=array("odd", "even");
 	unset($countries);
 	$countriesFile="trans_countries.inc";
 	$countriesFile=$dir."/contrib/drupal-modules/translation-status/".$countriesFile;
 	if (file_exists($countriesFile)) {
 		include $countriesFile;
 	}
-
-
-	// build file list for all sources
-
 
 	function findCoutriesParam($countries, $code, $index, $default) {
 		$ret=$default;
@@ -321,7 +293,7 @@ function BuildLanguageList($languagelistFileName) {
 
 
 	// prefill variables used in loop
-	$reportCodeList=array("par", "acc", "unt", /*"fuz", */"esc"/*, "spl"*/);
+	$reportCodeList=array("par", "acc", "unt", "fuz", "esc"/*, "spl"*/);
 /*	if (!$langSelected && !$stable) { // this is a hack ! - redesign !
 		if ($m='g') { // this i a hack ! - redesign !
 			$dbLink1=$db;
@@ -334,125 +306,114 @@ function BuildLanguageList($languagelistFileName) {
 		$dbLink2=NULL;
 	}
 
-	$pos = array();
-	function GetPoFile($filename) {
-		global $pots;
-		if (!isset($pots[$filename])) {
-			$pots[$filename] = new TPo($filename, NULL);
-		}
-		//echo "PO:$filename<br/>\n";
-		return $pots[$filename];
-	}
+	foreach ($list as $rowArray) {
+		$state=$rowArray['Enabled'];
+		$code=$rowArray['Lang'];
+		$language=$rowArray['LangName'];
+		$language=findCoutriesParam($countries, $code, 3, $language);
+		$flag=$rowArray['Flags'];
+		$rowArray['LangName'];
+		$author=$rowArray['Credits'];
+		$author=findCoutriesParam($countries, $code, 4, $author);
 
-	$pots = array();
-	foreach ($langlist as $langs) {
-		foreach ($langs as $src=>$lang) {
-			$state    = isset($lang['Enabled']) ? $lang['Enabled'] : NULL;
-			$code     = $lang['Code'];
-			$language = $lang['LangName'];
-			$flag     = $lang['Flag'];
-			//$flags    = $lang['Flags'];
-			$author   = $lang['Credits'];
+		$pos[$code]=NULL;
+		$file=$dirLocation."/$code/TortoiseUI.po";
+		$pot=$potGui;
+		$fileDoc=$dirLocation."/$code/TortoiseDoc.po";
+		$fileGui=$dirLocation."/Tortoise_$code.po";
+		$fileSvn=$dirDoc."/TortoiseSVN_$code.po";
+		$fileMerge=$dirDoc."/TortoiseMerge_$code.po";
 
-			$pos[$code]   = NULL;
+/*		switch ($m) {
+		 default:
+		 case 'g':
+			$file=$fileGui;
+			$pot=$potGui;
+			break;
 
-			//echo "<pre>"; var_dump($lang); echo "<pre/>";
-			$poUi     = GetPoFile($lang['PoUiFile']);
-			//$poDoc    = isset($lang['PoDocFile']) ? GetPoFile($lang['PoDocFile']) : NULL;
-			//$poTsvn   = isset($lang['PoTsvnFile']) ? GetPoFile($lang['PoTsvnFile']) : NULL;
-			//$poMerge  = isset($lang['PoMergeFile']) ? GetPoFile($lang['PoMergeFile']) : NULL;
-			$potUi    = isset($lang['PotUiFile']) ? GetPoFile($lang['PotUiFile']) : NULL;
-			//$potDoc   = isset($lang['PotDocFile']) ? GetPoFile($lang['PotDocFile']) : NULL;
-			//$potTsvn  = isset($lang['PotTsvnFile']) ? GetPoFile($lang['PotTsvnFile']) : NULL;
-			//$potMerge = isset($lang['PotMergeFile']) ? GetPoFile($lang['PotMergeFile']) : NULL;
+		 case 's':
+			$file=$fileSvn;
+			$pot=$potSvn;
+			break;
 
-			$rowClass = $rowClasses[$rowClassIndex];
-			$rowClassIndex = ($rowClassIndex+1)%count($rowClasses);
+		 case 'm':
+			$file=$fileMerge;
+			$pot=$potMerge;
+			break;
+		}//*/;
 
-			echo "<tr class=\"$rowClass\">";
-			echo "<td>".$language."</td>\n";
-			$link="?s=$sourceDefault&amp;m=$m&amp;l=$code";
-			$flagcode=$code;
-			$imagesrc="http://tortoisesvn.net/flags/world.small/$flagcode.png";
-			$imagesrc2=$flag;
-			// todo: change fix sizes into class definition
-			if (isset($imagesrc2)) {
-				$imagesrc2="/images/flags/$imagesrc2.png";
-				echo "<td><a href=\"$link#TAB$code\"><img src=\"$imagesrc2\" alt=\"$code\" height=\"48\" width=\"48\" /></a></td>\n";
-			} else {
-				echo "<td><a href=\"$link#TAB$code\"><img src=\"$imagesrc\" alt=\"$code\" height=\"24\" width=\"36\" /></a></td>\n";
-			}
-
-			//$po = GetCheckResulForLanguage($poUi, $code, $potUi, $dbLink1, $m);
-			$po = $poUi;
-			$po->AddPot($potUi);
-			$po->BuildReport();
-			$errorCount=0;
-			foreach ($reportCodeList as $reportCode) {
-				$errorCount+=PrintErrorCount($po, $reportCode, $link);
-			}
-
-			// note
-			if ($state===false) {
-				echo '<td><img src="'.$icons['disabled'],'" alt="Disabled" title="Disabled"/></td>';
-			} else if(!$errorCount) {
-				echo '<td><img src="'.$icons['ok'],'" alt="o.k." title="OK"/></td>';
-			} else {
-				echo "<td />";
-			}
-
-			if (isset($filenameDoc)) {
-				$statDoc=GetDocStatus($filenameDoc, $code, $potDoc, $dbLink2, 'd');
-			} else {
-				$statDoc="-";
-			}
-			if ($statDoc=="-") {
-			} else {
-				if ($statDocTsvn=="OK") {
-					$statDocTsvn='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
-				}
-				$statDocTsvn='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=s">'.$statDocTsvn.'</a>';
-			}
-			echo "<td>$statDoc</td>\n";
-
-			if (isset($potSvn)) {
-				$statDocTsvn=GetDocStatus($filenameTsvn, $code, $potSvn, $dbLink2, 't');
-			} else {
-				$statDocTsvn="-";
-			}
-			if ($statDocTsvn=="-") {
-			} else {
-				if ($statDocTsvn=="OK") {
-					$statDocTsvn='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
-				}
-				$statDocTsvn='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=s">'.$statDocTsvn.'</a>';
-			}
-			echo "<td>$statDocTsvn</td>\n";//*/
-
-			if (isset($potMerge)) {
-				$statDocMerge=GetDocStatus($filenameMerge, $code, $potMerge, $dbLink2, 'm');
-			} else {
-				$statDocMerge="-";
-			}
-			if ($statDocMerge=="-") {
-			} else {
-				if ($statDocMerge=="OK") {
-					$statDocMerge='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
-				}
-				$statDocMerge='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=m">'.$statDocMerge.'</a>';
-			}
-			echo "<td>$statDocMerge</td>\n";//*/
-
-					echo "<td>".$author."</td>";
-					echo "</tr>\n";
-					$pos[$code]=$po;
-					flush();
+		{
+			if (file_exists($file) && ($lang=="" || $lang==$code)) {
+				$class=$classes[$classIndex];
+				$classIndex=($classIndex+1)%count($classes);
+//				if (isset($countries[$code])) {
+//					$flagcode=$countries[$code][2];
+//				} else {
+					$flagcode=$code;
 //				}
+				echo "<tr class=\"$class\">";
+				echo "<td>".$language."</td>\n";
+				$link="?stable=$stable&amp;m=$m&amp;l=$code";
+				$imagesrc="http://tortoisesvn.net/flags/world.small/$flagcode.png";
+				$imagesrc2=$flag;
+				if (isset($imagesrc2)) {
+					$imagesrc2="/images/flags/$imagesrc2.png";
+					echo "<td><a href=\"$link#TAB$code\"><img src=\"$imagesrc2\" alt=\"$code\" height=\"48\" width=\"48\" /></a></td>\n";
+				} else {
+					echo "<td><a href=\"$link#TAB$code\"><img src=\"$imagesrc\" alt=\"$code\" height=\"24\" width=\"36\" /></a></td>\n";
+				}
+				$po=GetCheckResulForLanguage($file, $code, $pot, $dbLink1, $m);
+				$errorCount=0;
+				foreach ($reportCodeList as $reportCode) {
+					$errorCount+=PrintErrorCount($po, $reportCode, $link);
+				}
+
+				// note
+				if ($state=="-1") {
+					echo '<td><img src="'.$icons['disabled'],'" alt="Disabled" title="Disabled"/></td>';
+				} else if(!$errorCount) {
+					echo '<td><img src="'.$icons['ok'],'" alt="o.k." title="OK"/></td>';
+				} else {
+					echo "<td />";
+				}
+
+				$statDoc=GetDocStatus($fileDoc, $code, $potDoc, $dbLink2, 'd');
+				if ($statDoc=="-") {
+				} else {
+					if ($statDocTsvn=="OK") {
+						$statDocTsvn='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
+					}
+					$statDocTsvn='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=s">'.$statDocTsvn.'</a>';
+				}
+				echo "<td>$statDoc</td>\n";
+
+				$statDocTsvn=GetDocStatus($fileSvn, $code, $potSvn, $dbLink2, 'd');
+				if ($statDocTsvn=="-") {
+				} else {
+					if ($statDocTsvn=="OK") {
+						$statDocTsvn='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
+					}
+					$statDocTsvn='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=s">'.$statDocTsvn.'</a>';
+				}
+				echo "<td>$statDocTsvn</td>\n";
+				$statDocMerge=GetDocStatus($fileMerge, $code, $potMerge, $dbLink2, 'm');
+				if ($statDocMerge=="-") {
+				} else {
+					if ($statDocMerge=="OK") {
+						$statDocMerge='<img src="'.$icons['ok'].'" alt="o.k." title="OK"/>';
+					}
+					$statDocMerge='<a href="/?stable='.$stable.'&amp;l='.$code.'&amp;m=m">'.$statDocMerge.'</a>';
+				}
+				echo "<td>$statDocMerge</td>\n";
+
+				echo "<td>".$author."</td>";
+				echo "</tr>\n";
+				$pos[$code]=$po;
+				flush();
+			}
 		}
-//		break;
 	}
 	echo '</tbody></table>';
-	exit;
 
 
 	if (is_dir($dirLocation)) {

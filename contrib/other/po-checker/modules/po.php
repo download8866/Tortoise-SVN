@@ -13,6 +13,7 @@ define("PO_UNKNOWN", 'PO_UNKNOWN');
 
 define("MARK_OK", 'MARK_OK');
 define("MARK_ERROR", 'MARK_ERROR');
+define("PO_UNKNOWN", 'PO_UNKNOWN');
 
 function IsDebugOn() {
 	return $_SERVER['REMOTE_ADDR']=="217.75.82.130";
@@ -41,20 +42,15 @@ function isEmptyArray($var) {
 	return (isset($var) && is_array($var) && count($var)==0);
 }
 
-class TPo {
+class po {
 	protected $dictionary=array();
 	protected $lines=array();
 	protected $report=array();
 	protected $pot=NULL;
 	protected $spellDictFiles=array();
 
-
-	function __construct($a, $b) {
-		$this->Load($a, $b);
-	}
-
 	// line types NOTE MSGID MSGSTR EMPTY PARAMETER
-	function Load($poFileName, $lang) {
+	function load($poFileName, $lang) {
 		$this->lang=$lang;
 //		echo "<i>Loading $poFileName</i><br />\n";
 		$this->dictionary=array();
@@ -84,7 +80,6 @@ class TPo {
 		$linesLoaded=file($poFileName);
 		$linesLoaded[]=""; // add empty line to enforce block procesing
 		foreach ($linesLoaded as $line) {
-			//echo "$line<br/>";
 			$line=trim($line);
 			$linenum++;
 			$lineType=PO_UNKNOWN;
@@ -103,7 +98,7 @@ class TPo {
 				$lineType=$codes[$command];
 			} else {
 				$lineType=PO_UNKNOWN;
-//			 	echo "unknown line in TPo file<br /><b>$line</b><br />";
+//			 	echo "unknown line in po file<br /><b>$line</b><br />";
 			 	continue;
 			}
 			if (preg_match_all("/^[^\"]*\"(.*)\"[^\"]*$/", $line, $result, PREG_PATTERN_ORDER)) {
@@ -136,7 +131,7 @@ class TPo {
 				break;
 
 			 case PO_EMPTY:
-				if (isset($block) && count($block) && isset($block[PO_MSGID]) /*&& isset($block[PO_MSGSTR])*/) {
+				if (count($block) && isset($block[PO_MSGID]) /*&& isset($block[PO_MSGSTR])*/) {
 					$msgid=$block[PO_MSGID];
 					$msgstr=$block[PO_MSGSTR];
 					$flags=array();
@@ -168,10 +163,10 @@ class TPo {
 	}
 
 	function AddPot($pot) {
-		if (is_a($pot, "TPo")) {
+		if (is_a($pot, "po")) {
 			$this->pot=$pot;
 		} else if (is_string($pot)) {
-			$this->pot=new TPo;
+			$this->pot=new po;
 			$this->pot->Load($pot);
 		} else {
 			echo "<i>Internal warning</i>: <b>unsupported pot type</b>";
@@ -267,7 +262,7 @@ class TPo {
 		return true;
 	}
 
-	function BuildReport($potFile=NULL) {
+	function buildReport($potFile=NULL) {
 		// clean potFile if unusable 
 		$search=array("\\n");
 		$replace=array("\\n<br />");
@@ -280,16 +275,15 @@ class TPo {
 		}
 		if (is_string($potFile)) {
 			$potFileName=$potFile;
-			$potFile=new TPo;
+			$potFile=new po;
 			$potFile->Load($potFileName);
 		}
-		//echo "------<br/>";
-		if (!is_a($potFile, "TPo")) {
+		if (!is_a($potFile, "po")) {
 			return false;
 		}
 
 		// no report was created && are there data to create report ?
-		if (isNonEmptyArray($this->report)/* || !isNonEmptyArray($this->dictionary)*/) {
+		if (isNonEmptyArray($this->report) || !isNonEmptyArray($this->dictionary)) {
 			return true;
 		}
 
@@ -322,8 +316,8 @@ class TPo {
 					$mark['type']=$matchesOnNat[0][$i][2] ? MARK_OK : MARK_WARNING;
 					$natMarks[]=$mark;
 				}
-				$orig=TPo::CreateHtmlFromMarks($oriMarks, $orig);
-				$native=TPo::CreateHtmlFromMarks($natMarks, $native);
+				$orig=po::CreateHtmlFromMarks($oriMarks, $orig);
+				$native=po::CreateHtmlFromMarks($natMarks, $native);
 
 				$natLine=$value["line"];
 				if (isset($value["flag"]["fuzzy"])) {
@@ -390,8 +384,8 @@ class TPo {
 						}
 					}
 					if (!$match) {
-						$orig=TPo::CreateHtmlFromMarks($oriMarks, $orig);
-						$native=TPo::CreateHtmlFromMarks($natMarks, $native);
+						$orig=po::CreateHtmlFromMarks($oriMarks, $orig);
+						$native=po::CreateHtmlFromMarks($natMarks, $native);
 
 						$natLine=$value["line"];
 						if (isset($value["flag"]["fuzzy"])) {
@@ -457,8 +451,8 @@ class TPo {
 					}
 					// if error found add line to data
 					if (!$match) {
-						$orig=TPo::CreateHtmlFromMarks($oriMarks, $orig);
-						$native=TPo::CreateHtmlFromMarks($natMarks, $native);
+						$orig=po::CreateHtmlFromMarks($oriMarks, $orig);
+						$native=po::CreateHtmlFromMarks($natMarks, $native);
 
 						$natLine=$value["line"];
 						if (isset($value["flag"]["fuzzy"])) {
@@ -682,14 +676,13 @@ class TPo {
 					$data[]=array(count($data)+1, $lineE, $orig, $lineN);
 				}
 			}
-		} else {
-			echo "no pot file<br/>";
 		}
 		$table=new Table;
 		$table->name="Nottranslated";
 		$table->header=array("Index", "Line", "English", "Line");
 		$table->data=$data;
 		$report["unt"]=$table;
+
 
 		// fuzzy
 		$data=array();
@@ -717,21 +710,15 @@ class TPo {
 		return true;
 	}
 
-	function BuildReportFor($report) {
+	function buildReportFor($report) {
 		switch ($report) {
 		 case "acc":
 			$this->checkAcc();
 			break;
-		 case "nls":
-			$this->checkNls();
-			break;
 		 case "spl":
 			$this->checkSpl();
 			break;
-		 default:
-			$this->BuildReport();
 		}
-		return $this->report[$report];
 	}
 
 
@@ -740,10 +727,9 @@ class TPo {
 		if (isset($this->pot)) {
 			$potFile=$this->pot;
 		} else {
-			echo "no pot set<br/>\n";
 			return;
 		}
-		//$lang=$this->lang;
+		$lang=$this->lang;
 
 
 
@@ -777,8 +763,8 @@ class TPo {
 					$mark['type']=$matchesOnNat[0][$i][2] ? MARK_OK : MARK_WARNING;
 					$natMarks[]=$mark;
 				}
-				$orig=TPo::CreateHtmlFromMarks($oriMarks, $orig);
-				$native=TPo::CreateHtmlFromMarks($natMarks, $native);
+				$orig=po::CreateHtmlFromMarks($oriMarks, $orig);
+				$native=po::CreateHtmlFromMarks($natMarks, $native);
 
 				$natLine=$value["line"];
 				if (isset($value["flag"]["fuzzy"])) {
@@ -799,9 +785,7 @@ class TPo {
 //		$this->report["spl"]["error"]="Internal error";
 	}
 
-	/// Check new line style - original and translated NLS should match
-	function checkNls() {
-	}
+
 
 	// check for wrong spelling
 	function checkSpl() {
@@ -812,6 +796,7 @@ class TPo {
 		}
 		$lang=$this->lang;
 
+		//var_dump($this->spellDictFiles);
 		$data=array();
 		if (false && $this->lang) {
 			$suggestEnabled=$this->lang != "hu";
@@ -1048,10 +1033,9 @@ class TPo {
 	}
 
 	function GetErrorCount($name) {
-		if (isset($this->report[$name])) {
-			$count=$this->report[$name];
-		} else {
-			$count=$this->BuildReportFor($name);
+		$count=$this->report[$name];
+		if (!isset($count)) {
+			$this->buildReportFor($name);
 		}
 		if (!isset($count)) {
 			return false;
@@ -1091,7 +1075,7 @@ class TPo {
 	}
 
 	function getProgress(){
-		BuildReport();
+		buildReport();
 		return $this->report();
 		return array(
 				"translate" => $this->report["unt"]);
@@ -1102,7 +1086,7 @@ class TPo {
 	}
 
 	function printReport($potFile=NULL) {
-		$this->BuildReport($potFile);
+		$this->buildReport($potFile);
 
 		if (isset($this->report["param"])) {
 			$this->report["param"]->output();
@@ -1207,7 +1191,7 @@ class TPo {
 			echo "<p><i>Internal error</i></p>";
 		}
 
-/*		echo "<a name=\"nls\"></a><a name=\"nls$lang\"></a><h3>Differences in new line style</h3>\n";
+		echo "<a name=\"nls\"></a><a name=\"nls$lang\"></a><h3>Differences in new line style</h3>\n";
 		echo "<p>This tests if new line style from pot match localized new line style. <b>This test may have false positives when English text has new line style inconsistence.</b> 
 				Using more lines for Native when English use just one is also alowed for most of translation even here reported.
 			</p>\n";
@@ -1222,7 +1206,7 @@ class TPo {
 			}
 		} else {
 			echo "<p><i>Internal error</i></p>";
-		}//*/
+		}
 
 		echo "<a name=\"unt\"></a><a name=\"unt$lang\"></a><h3>Not translated strings test</h3>\n";
 		echo "<p>This tests if all strings has been translated. Translated mean that there in native string set. If English and native are same it is not marked as not translated, this just can happen.</p>\n";
@@ -1285,3 +1269,5 @@ class TPo {
 		}
 	}
 }
+
+//php?>

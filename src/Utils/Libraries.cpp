@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@ DEFINE_GUID(FOLDERTYPEID_SVNWC,       0x72949A62, 0x135C, 0x4681, 0x88, 0x7C, 0x
 
 #endif /* (NTDDI_VERSION < NTDDI_WIN7) */
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Libraries.h"
 #include "win7.h"
 #include "SmartHandle.h"
@@ -140,7 +140,7 @@ HRESULT GetShellLibraryItem(LPWSTR pwszLibraryName, IShellItem2** ppShellItem)
     swprintf_s(wszRealLibraryName, L"%s%s", pwszLibraryName, L".library-ms");
 
     typedef HRESULT STDAPICALLTYPE SHCreateItemInKnownFolderFN(REFKNOWNFOLDERID kfid, DWORD dwKFFlags, __in_opt PCWSTR pszItem, REFIID riid, __deref_out void **ppv);
-    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
+    CAutoLibrary hShell = ::LoadLibrary(_T("shell32.dll"));
     if (hShell)
     {
         SHCreateItemInKnownFolderFN *pfnSHCreateItemInKnownFolder = (SHCreateItemInKnownFolderFN*)GetProcAddress(hShell, "SHCreateItemInKnownFolder");

@@ -39,7 +39,21 @@
     <copy file="include\apr_ldap.hw" tofile="include\apr_ldap.h" overwrite="true" />
     <copy file="include\private\apu_select_dbm.hw" tofile="include\private\apu_select_dbm.h" overwrite="true" />
     <copy file="include\private\apu_config.hw" tofile="include\private\apu_config.h" overwrite="true" />
-    <rc rcfile="libaprutil.rc" output="${configuration}_${platform}\libaprutil_tsvn.res">
+    <loadfile file="include\apu_version.h" property="versionfile" />
+    <regex pattern="#define APU_MAJOR_VERSION( )+(?'APU_MAJOR_VERSION'\d+)" input="${versionfile}" />
+    <echo message="${APU_MAJOR_VERSION}" />
+    <regex pattern="#define APU_MINOR_VERSION[ ]+(?'APU_MINOR_VERSION'\d+)" input="${versionfile}" />
+    <echo message="${APU_MINOR_VERSION}" />
+    <regex pattern="#define APU_PATCH_VERSION[ ]+(?'APU_PATCH_VERSION'\d+)" input="${versionfile}" />
+    <echo message="${APU_PATCH_VERSION}" />
+    <loadfile file="libaprutil.rc" property="rcfile">
+      <filterchain>
+        <replacestring from="0,0,0" to="${APU_MAJOR_VERSION},${APU_MINOR_VERSION},${APU_PATCH_VERSION}" />
+        <replacestring from="0.0.0" to="${APU_MAJOR_VERSION},${APU_MINOR_VERSION},${APU_PATCH_VERSION}" />
+      </filterchain>
+    </loadfile>
+    <echo file="libaprutilver.rc" message="${rcfile}" />
+    <rc rcfile="libaprutilver.rc" output="${configuration}_${platform}\libaprutil_tsvn.res">
       <includedirs>
         <include name="..\apr\include" />
         <include name="include" />
@@ -99,7 +113,6 @@
         <!-- force the export of the expat functions -->
         <define name="XMLIMPORT" value="__declspec(dllexport)" />
         <define name="COMPILED_FROM_DSP" />
-        <define name="_USING_V110_SDK71_" />
       </defines>
     </cl>
     <property name="machineoption" value="/MACHINE:X86" />
@@ -108,7 +121,7 @@
     <property name="platext" value ="" if="${platform == 'x64'}" />
     <link
               output="${configuration}_${platform}\libaprutil_tsvn${platext}.dll"
-              options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:".\${configuration}_${platform}\libaprutil_tsvn.dll.intermediate.manifest" /DEBUG /PDB:".\${configuration}_${platform}/libaprutil_tsvn.pdb" /DLL ${subsystem} /OPT:REF /BASE:"0x6EE60000" /IMPLIB:".\${configuration}_${platform}/libaprutil_tsvn.lib" ${machineoption} ${configuration}_${platform}\libaprutil_tsvn.res ..\apr\${configuration}_${platform}\libapr_tsvn.lib ws2_32.lib Wldap32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib'>
+              options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:".\${configuration}_${platform}\libaprutil_tsvn.dll.intermediate.manifest" /DEBUG /PDB:".\${configuration}_${platform}/libaprutil_tsvn.pdb" /DLL /SUBSYSTEM:WINDOWS /OPT:REF /BASE:"0x6EE60000" /IMPLIB:".\${configuration}_${platform}/libaprutil_tsvn.lib" ${machineoption} ${configuration}_${platform}\libaprutil_tsvn.res ..\apr\${configuration}_${platform}\libapr_tsvn.lib ws2_32.lib Wldap32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib'>
       <sources>
         <include name="${configuration}_${platform}\*.obj" />
       </sources>

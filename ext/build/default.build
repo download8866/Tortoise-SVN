@@ -12,12 +12,8 @@
       <nant target="clean">
         <buildfiles>
           <include name="*.build" />
-          <!-- avoid recursion -->
           <exclude name="default.build" />
-          <!-- cleaned separately -->
           <exclude name="crashrpt.build" />
-          <!-- cleaned separately -->
-          <exclude name="OpenSSL.build" />
         </buildfiles>
       </nant>
     </if>
@@ -33,6 +29,7 @@
     <nant target="build" buildfile="sqlite.build" />
     <nant target="build" buildfile="gssapi.build" />
     <nant target="build" buildfile="sasl.build" />
+    <nant target="build" buildfile="neon.build" />
     <nant target="build" buildfile="serf.build" />
     <nant target="build" buildfile="libintl.build" />
     <nant target="build" buildfile="subversion.build" />

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2012 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "HuffmanEncoder.h"
 #include "StreamException.h"
+#include "auto_buffer.h"
 
 // Huffman encoding stages:
 
@@ -404,7 +405,7 @@ CHuffmanEncoder::Encode (const BYTE* source, size_t byteCount)
 
     DWORD targetSize = std::min ( (DWORD)byteCount+MIN_HEADER_LENGTH
                                 , CalculatePackedSize());
-    std::unique_ptr<BYTE[]> buffer (new BYTE[targetSize]);
+    auto_buffer<BYTE> buffer (targetSize);
 
     // fill it
 

@@ -58,10 +58,10 @@ On Error Goto 0
 Set objFSO = CreateObject("Scripting.FileSystemObject")
 Set objFile = objFSO.GetFile(sNewDoc)
 If (objFile.Attributes AND 1)=1 Then
-    objFile.Attributes = objFile.Attributes XOR 1
+    objFile.Attributes = objFile.Attributes XOR 1 
 End If
 
-'Create the DesktopSet
+'Create the DesktopSet 
 Set objDesktop = objServiceManager.createInstance("com.sun.star.frame.Desktop")
 Set objUriTranslator = objServiceManager.createInstance("com.sun.star.uri.ExternalUriReferenceTranslator")
 'Adjust the paths for OO
@@ -69,14 +69,12 @@ sBaseDoc=Replace(sBaseDoc, "\", "/")
 sBaseDoc=Replace(sBaseDoc, ":", "|")
 sBaseDoc=Replace(sBaseDoc, "%", "%25")
 sBaseDoc=Replace(sBaseDoc, " ", "%20")
-sBaseDoc=Replace(sBaseDoc, "#", "%23")
 sBaseDoc="file:///"&sBaseDoc
 sBaseDoc=objUriTranslator.translateToInternal(sBaseDoc)
 sNewDoc=Replace(sNewDoc, "\", "/")
 sNewDoc=Replace(sNewDoc, ":", "|")
 sNewDoc=Replace(sNewDoc, "%", "%25")
 sNewDoc=Replace(sNewDoc, " ", "%20")
-sNewDoc=Replace(sNewDoc, "#", "%23")
 sNewDoc="file:///"&sNewDoc
 sNewDoc=objUriTranslator.translateToInternal(sNewDoc)
 

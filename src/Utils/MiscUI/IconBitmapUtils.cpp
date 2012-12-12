@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "IconBitmapUtils.h"
 #include "SysInfo.h"
 #include "registry.h"
@@ -26,7 +26,7 @@ IconBitmapUtils::IconBitmapUtils()
 {
     if (SysInfo::Instance().IsVistaOrLater())
     {
-        hUxTheme = AtlLoadSystemLibraryUsingFullPath(_T("UXTHEME.DLL"));
+        hUxTheme = LoadLibrary(_T("UXTHEME.DLL"));
 
         if (hUxTheme)
         {

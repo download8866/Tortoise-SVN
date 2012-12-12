@@ -30,7 +30,7 @@
 #include "BrowseFolder.h"
 #include "RevisionDlg.h"
 #include "IconMenu.h"
-#include "filediffdlg.h"
+#include ".\filediffdlg.h"
 #include "DiffOptionsDlg.h"
 #include "AsyncCall.h"
 
@@ -53,12 +53,7 @@ CFileDiffDlg::CFileDiffDlg(CWnd* pParent /*=NULL*/)
     , m_pProgDlg(NULL)
     , m_bCancelled(false)
     , netScheduler(1, 0, true)
-    , m_nIconFolder(0)
-    , m_bIgnoreancestry(false)
-    , m_bDoPegDiff(false)
-    , m_bThreadRunning(false)
 {
-    m_columnbuf[0] = 0;
 }
 
 CFileDiffDlg::~CFileDiffDlg()
@@ -358,8 +353,8 @@ void CFileDiffDlg::DiffProps(int selIndex)
     CTSVNPath url1 = CTSVNPath(m_path1.GetSVNPathString() + _T("/") + fd.path.GetSVNPathString());
     CTSVNPath url2 = m_bDoPegDiff ? url1 : CTSVNPath(m_path2.GetSVNPathString() + _T("/") + fd.path.GetSVNPathString());
 
-    SVNProperties propsurl1(url1, m_rev1, false, false);
-    SVNProperties propsurl2(url2, m_rev2, false, false);
+    SVNProperties propsurl1(url1, m_rev1, false);
+    SVNProperties propsurl2(url2, m_rev2, false);
 
     // collect the properties of both revisions in a set
     std::set<std::string> properties;
@@ -683,11 +678,11 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
                     progDlg.SetProgress(i+1, urls1.GetCount());
                     if (bDoPegDiff)
                     {
-                        PegDiff(url1, m_peg, m_rev1, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, true, false, true, false, options, true, diffFile);
+                        PegDiff(url1, m_peg, m_rev1, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, true, false, options, true, diffFile);
                     }
                     else
                     {
-                        Diff(url1, m_rev1, url2, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, true, false, true, false, options, true, diffFile);
+                        Diff(url1, m_rev1, url2, m_rev2, CTSVNPath(), m_depth, m_bIgnoreancestry, false, true, true, false, options, true, diffFile);
                     }
                     if (progDlg.HasUserCancelled() || m_bCancelled)
                         break;

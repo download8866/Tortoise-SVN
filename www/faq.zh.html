@@ -1,39 +1,42 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="zh" xml:lang="zh">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta name="keywords" content="faq" />
+<meta name="description" content="TortoiseSVN FAQ zh_CN" />
+<meta http-equiv="content-language" content="zh_CN" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>TortoiseSVN - FAQ</title>
-<meta name="description" content="TortoiseSVN FAQ zh_CN"/>
-<meta name="keywords" content="faq"/>
-<meta http-equiv="content-language" content="zh_CN"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-<link rel="shortcut icon" href="favicon.ico"/>
-<link href="css/pack.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="langselection">
-    <a href="faq.html">EN</a>&nbsp;<a href="faq.de.html">DE</a>&nbsp;<a href="faq.zh.html">ZH</a>
+    <a href="faq.html">EN</a> <a href="faq.de.html">DE</a> <a href="faq.zh.html">&#31616;&#20307;&#20013;&#25991;</a>
 </div>
 <div id="wrapper">
-    <!--#include FILE="menu.zh.html"-->
-    <div id="page">
-        <div id="banner">&nbsp;</div>
-        <div id="content">
-
-            <div class="post">
-                <h1 class="title"><a href="#">TortoiseSVN FAQ</a></h1>
-                <p>感谢<a href="http://www.subversion.org.cn">Subversion中文站</a>的中文化翻译小组翻译本页。</p>
-                $ADSENSE_TOPZH$
-                <div class="entry">
+    <!--#include FILE="menu.html" -->
+	<div id="page">
+		<div id="banner">&nbsp;</div>
+		<div id="content">
+        
+			<div class="post">
+				<h1 class="title"><a href="#">TortoiseSVN FAQ</a></h1>
+                <p>本文根据原文r13339翻译，由<a 
+                href="http://www.subversion.org.cn">Subversion中文站</a>的中文化翻译小组翻译，欢迎各位参与翻译工作，加入地址：<a 
+                href="http://code.google.com/p/svncndoc/">http://code.google.com/p/svncndoc/</a>。
+                </p>
+                $ADSENSE_TOP$
+				<div class="entry">
 
                     <h2>目录</h2>
 
                     <h3>安装 &amp; 升级</h3>
                     <ul>
                         <li><a href="#uninstallfirst">在升级TortoiseSVN之前，是否需要卸载已安装的版本？</a></li>
-                        <li><a href="#adminpriv">安装TortoiseSVN是否需要管理员权限？</a></li>
+                        <li><a href="#adminpriv">安装TortoiseSVN是否需要管理员权限？</a></li> 
                         <li><a href="#installsubversion">在使用TortoiseSVN之前，是否需要安装Subversion？</a></li>
                         <li><a href="#uninstall">怎样卸载TortoiseSVN？</a></li>
-                        <li><a href="#msidisabled">我的电脑上关闭了MSI的安装模式，是否有.exe的安装文件？</a></li>
+                        <li><a href="#msidisabled">我的电脑上关闭了MSI的安装模式，是否有.exe的安装文件？</a></li> 
                         <li><a href="#whymsi">为什么使用MSI代替其他安装方式？</a></li>
                         <li><a href="#installerror">安装终止的错误信息</a></li>
                         <li><a href="#nomenus">安装完成后，TortoiseSVN不能显示，没有可以使用的菜单</a></li>
@@ -154,7 +157,7 @@
                         <ul>
                             <li><em>&quot;This installation package is not supported by this processor type. Contact your product vendor.&quot;</em> 这是说你试图将64位的TortoiseSVN安装到32位的操作系统上。你需要下载和使用正确的MSI文件。对于32位的操作系统，请确定MSI文件名里没有<em>x64</em>。</li>
                             <li><em>&quot;The installer was interrupted beforeTortoiseSVNcould be installed. You need to restart the installer to try again&quot;</em>然后用户在 MSI 文件的位置就丢掉正确的读和运行的权限。也不能把 MSI 文件移动到其他的地方或者给用户SYSTEM 读和运行的权限</li>
-                            <li><em>&quot;The windows installer service could not be accessed&quot;</em> 这个可能在你运行 Windows 安全模式的时候出现，或者说 windows installer 没有被正确的安装。对于这种类型的错误信息，请核实 Microsoft Knowledgebase 的文章 <a href="http://support.microsoft.com/default.aspx?scid=kb;en-us;q315346">Q315346</a> (基本上确定 MSI 文件夹没有加密或者被压缩即可)</li>
+                            <li><em>&quot;The windows installer service could not be accessed&quot;</em> 这个可能在你运行 Windows 安全模式的时候出现，或者说 windows installer 没有被正确的安装。对于这种类型的错误信息，请核实 Microsoft Knowledgebase 的文章 <a href='http://support.microsoft.com/default.aspx?scid=kb;en-us;q315346'>Q315346</a> (基本上确定 MSI 文件夹没有加密或者被压缩即可)</li>
                             <li><em>&quot;The system can not open the device of file specified&quot;</em>, 紧接着通常是 <em>&quot;The installer has encountered an unexpected error installing this package. This may indicate a problem with this package. The error code is 2755&quot;</em>. 出现这种错误信息需要:
                                 <ul>
                                     <li>安装程序没有权限访问临时文件夹，或者系统设定的临时文件夹没有清理，或者说没有足够的空间来完成安装。</li>
@@ -180,6 +183,7 @@
                         </div>
 
                     </div>
+
 
                     <div class="h2" id="overlay-icons" title="overlay-icons">
                         <h2>覆盖图标</h2>
@@ -207,7 +211,7 @@
 
                         <div class="h3" id="ovlonlylocal" title="ovlonlylocal">
                         <h3>为什么图标只在本地磁盘上显示，而不能在网络磁盘上显示？</h3>
-                        <p>Go to the Settings -> Look and Feel -> Icon Overlays 为你想看到的覆盖图标检查驱动器类型。要注意到，使用图标覆盖会使整个系统都<strong>慢下来</strong>，不仅仅是TortoiseSVN。</p>
+                        <p>Go to the Settings -> Look and Feel -> Icon Overlays 为你想看到的覆盖图标检查驱动器类型。要注意到，使用图标覆盖会使整个系统都<b>慢下来</b>，不仅仅是TortoiseSVN。</p>
                         </div>
 
                         <div class="h3" id="ovlsubst" title="ovlsubst">
@@ -232,8 +236,8 @@
                         <h3>为什么图标覆盖有时会变成一个随机图案？</h3>
                         <p>Windows图标缓存有很多bug。可以使用下面的方法解决这个问题：</p>
                         <ul>
-                            <li>安装Microsoft的<a href="http://www.microsoft.com/ntworkstation/downloads/powertoys/networking/nttweakui.asp">TweakUI</a> 通过选项来重新创建图标。</li>
-                            <li>或者增加图标缓存。到<code>HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer</code> 增加一个新的字符串 <code>Max Cached Icons</code>。他的默认值为500 - 尝试增加到2048（见微软知识库的<a href="http://support.microsoft.com/support/kb/articles/Q132/6/68.asp">Q132668</a>）。 </li>
+                            <li>安装Microsoft的<a href='http://www.microsoft.com/ntworkstation/downloads/powertoys/networking/nttweakui.asp'>TweakUI</a> 通过选项来重新创建图标。</li>
+                            <li>或者增加图标缓存。到<code>HKEY_LOCAL_MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer</code> 增加一个新的字符串 <code>Max Cached Icons</code>。他的默认值为500 - 尝试增加到2048（见微软知识库的<a href='http://support.microsoft.com/support/kb/articles/Q132/6/68.asp'>Q132668</a>）。 </li>
                             <li>或者在Windows目录下删除ShellIconCache文件，然后重启计算机。</li>
                             <li>TortoiseSVN 1.3.0以后的版本，你可以在命令行调用TortoiseProc重建图标缓存，<code>TortoiseProc.exe /command:rebuildiconcache</code></li>
                         </ul>
@@ -296,9 +300,9 @@
                             <li>你将给所有用户直接访问权限，所以他们会有可能偶然的删除或者破换版本库文件系统。</li>
                             <li>并不是所有的网络共享协议都支持Subversion要求的锁定。总有一天你会发现你的版本库被悄悄的破坏。</li>
                             <li>你不得不设置正确的访问权限，SAMBA 在这一点上特别难以满足。</li>
-                        </ol>
+                        </ol> 
                         <p>更好的办法是创建一个真正的服务器进程（像Apache，svnserve），存储版本库到当地的文件系统上，使版本库服务器可以在网络上有效，可以被访问。这也许会比你想的要简单。Subversion书中
-                        <a title="第6章 服务器配置" href="http://www.subversion.org.cn/svnbook/1.4/svn.serverconfig.html">第6章 服务器配置</a> 有详细的方法说明。</p>
+                        <a title='第6章 服务器配置' href='http://www.subversion.org.cn/svnbook/1.4/svn.serverconfig.html'>第6章 服务器配置</a> 有详细的方法说明。</p>
                         </div>
 
                         <div class="h3" id="listparentpath" title="listparentpath">
@@ -319,8 +323,8 @@
 
                         <div class="eol" id="eol" title="eol">
                         <h3>TortoiseSVN能实时自动转换文本文件中的换行符吗？</h3>
-                        <p>请到查看Subversion书中关于<a title="svn:eol-style" href="http://www.subversion.org.cn/svnbook/1.4/svn.advanced.props.file-portability.html#svn.advanced.props.special.eol-style">svn:eol-style</a>属性的内容。
-                        比如说，如果你将此属性设置为‘native’，在 Linux 下它就会以LF作为换行符， Windows 下则是 CRLF。想了解如何通过TortoiseSVN设置这些属性，请到 <a title="setting properties" href="/docs/release/TortoiseSVN_en/tsvn-dug-propertypage.html#tsvn-dug-propertypage-props">这里</a> 阅读我们的文档。</p>
+                        <p>请到查看Subversion书中关于<a title='svn:eol-style' href='http://www.subversion.org.cn/svnbook/1.4/svn.advanced.props.file-portability.html#svn.advanced.props.special.eol-style'>svn:eol-style</a>属性的内容。
+                        比如说，如果你将此属性设置为‘native’，在 Linux 下它就会以LF作为换行符， Windows 下则是 CRLF。想了解如何通过TortoiseSVN设置这些属性，请到 <a title='setting properties' href='/docs/release/TortoiseSVN_en/tsvn-dug-propertypage.html#tsvn-dug-propertypage-props'>这里</a> 阅读我们的文档。</p>
                         </div>
 
                         <div class="h3" id="propconflict" title="propconflict">
@@ -328,14 +332,14 @@
                         <p>在属性有冲突的文件夹里，有一个<code>dir_conflicts.prej</code>文件，用文本编辑器打开它，你会看到有冲突的属性，用你想保留的属性覆盖有冲突的。</p>
                         </div>
 
-                        <div class="h3" id="getremovedfileback" title="getremovedfileback">
-                        <h3>我误删了一个文件，怎么找回来？</h3>
-                        <p>如果你还没提交，你可以在被删除的文件/文件夹的父文件夹作 <cite>还原</cite>
+                        <div class="h3" id="getremovedfileback" title="getremovedfileback"> 
+                        <h3>我误删了一个文件，怎么找回来？</h3> 
+                        <p>如果你还没提交，你可以在被删除的文件/文件夹的父文件夹作 <cite>还原</cite> 
                         操作。</p>
                         <p>如果你已经提交了删除文件，你可以使用版本库浏览器，回到那文件还存在时的版本，然后在上下文菜单中使用 <cite>拷贝到……</cite> 命令，输入你工作拷贝的路径作为目标路径，被删除的文件就会从版本库复制到你的的工作拷贝。</p>
-                        <p>用这个方法也可以恢复被删除的目录。</p>
-                        <p>如果用这个方法恢复文件/目录后，日志对话框无法显示它的修改历史，别担心，历史信息还在的。在 SVN 中复制一个文件时，它的历史信息会同时被复制。但TortoiseSVN的查看日志功能默认是“Stop on
-                        copy”，即当你查看的日志是由分支点开始的。之所以这么做是因为当查看一个真正的分支时，你多数只是想知道那个分支的历史信息。如果要看完整的历史信息，你可以不选 'Stop on copy'，而把‘Get All’选上。</p>
+                        <p>用这个方法也可以恢复被删除的目录。</p> 
+                        <p>如果用这个方法恢复文件/目录后，日志对话框无法显示它的修改历史，别担心，历史信息还在的。在 SVN 中复制一个文件时，它的历史信息会同时被复制。但TortoiseSVN的查看日志功能默认是“Stop on 
+                        copy”，即当你查看的日志是由分支点开始的。之所以这么做是因为当查看一个真正的分支时，你多数只是想知道那个分支的历史信息。如果要看完整的历史信息，你可以不选 'Stop on copy'，而把‘Get All’选上。 </p> 
                         </div>
 
                         <div class="h3" id="multiplemenus" title="multiplemenus">
@@ -421,13 +425,14 @@
 
                     </div>
 
+
                     <div class="h2" id="how-can-i" title="how-can-i">
                         <h2>怎样才能……</h2>
 
                         <div class="h3" id="keywords" title="keywords">
                         <h3>……为我的文件添加关键字信息，比如作者、版本、日期、提交日期？</h3>
-                        <p>请阅读Subversion书中关于<a href="http://www.subversion.org.cn/svnbook/1.4/svn.advanced.props.special.keywords.html">svn:keywords</a>属性的说明。</p>
-                        <p>在TortoiseSVN中，<a href="/docs/release/TortoiseSVN_en/tsvn-dug-propertypage.html#tsvn-dug-propertypage-props">这样</a> 设置。</p>
+                        <p>请阅读Subversion书中关于<a href='http://www.subversion.org.cn/svnbook/1.4/svn.advanced.props.special.keywords.html'>svn:keywords</a>属性的说明。</p>
+                        <p>在TortoiseSVN中，<a href='/docs/release/TortoiseSVN_en/tsvn-dug-propertypage.html#tsvn-dug-propertypage-props'>这样</a> 设置。</p>
                         </div>
 
                         <div class="h3" id="casechange" title="casechange">
@@ -476,28 +481,29 @@
                             <dt>$WCDATE$</dt>
                             <dd>将会用你工作拷贝的最新修订日期替换</dd>
                         </dl>
-                        <p>举个例子，请看 <a href="http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/version.in">TortoiseSVN 代码树</a> 的 <cite>version.in</cite> 文件，这个文件在TortoiseSVN及它的资源文件中用到。在编译脚本中这样调用 SubWCRev.exe 工具：
+                        <p>举个例子，请看 <a href='http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk/src/version.in'>TortoiseSVN 代码树</a> 的 <cite>version.in</cite> 文件，这个文件在TortoiseSVN及它的资源文件中用到。在编译脚本中这样调用 SubWCRev.exe 工具：
                         <code>SubWCRev.exe path\\to\\working\\copy version.in version.h</code>
                         将会创建一个新的文件 <cite>version.h</cite>，文件中出现的所有上面提到的字符串都会用工作拷贝的实际值来替换。<cite>version.h</cite> 会放在项目的资源文件里，用来描述版本信息。</p>
                         </div>
 
                         <div class="h3" id="noautomerge" title="noautomerge">
-                        <h3>……禁止Subversion自动合并？</h3>
+                        <h3>……禁止Subversion自动合并？</h3> 
                         <p>有些人不喜欢Subversion
                         在更新时自动合并其他人的修改和自己的本地修改，如果要强制这些文件为冲突状态，之后再自己手工合并，可以这么做：</p>
-                        <ol>
-                            <li>在TortoiseSVN-> 设置 ->Subversion配置文件, 点编辑按钮</li>
-                            <li>修改 [helpers] 部分，添加 diff-cmd = "C:\\false.bat" diff3-cmd
-                            = "C:\\false.bat" （注意，有两个反斜杠）</li>
+                        <ol> 
+                            <li>在TortoiseSVN-> 设置 ->Subversion配置文件, 点编辑按钮</li> 
+                            <li>修改 [helpers] 部分，添加 diff-cmd = "C:\\false.bat" diff3-cmd 
+                            = "C:\\false.bat" （注意，有两个反斜杠）</li> 
                             <li>创建文件 C:\false.bat，输入两行
                             <pre>
-@type %9
-@exit 1</pre>
-                            </li>
+@type %9 
+@exit 1 
+                            </pre> 
+                            </li> 
                         </ol>
 
-                        <p>这可以令自动合并总是失败，从而强制文件变为冲突状态。</p>
-                        <p>写上 'type %9' 这行是因为 diff3-cmd 会将合并结果输出到标准输出，然后Subversion会以这个合并结果覆盖你的本地文件。写上这句，你的本地文件就不会变成一个空文件。</p>
+                        <p>这可以令自动合并总是失败，从而强制文件变为冲突状态。</p> 
+                        <p>写上 'type %9' 这行是因为 diff3-cmd 会将合并结果输出到标准输出，然后Subversion会以这个合并结果覆盖你的本地文件。写上这句，你的本地文件就不会变成一个空文件。</p> 
                         </div>
 
                         <div class="h3" id="currentrepo" title="currentrepo">
@@ -509,7 +515,7 @@
                         <div class="h3" id="silentinstall" title="silentinstall">
                         <h3>……静默/自动安装 TortoiseSVN？</h3>
                         <p>这样运行 msi 安装程序：</p>
-                        <code>msiexec /package TortoiseSVN.msi /quiet INSTALLDIR="path/to/install/dir"</code>
+                        <pre>msiexec /package TortoiseSVN.msi /quiet INSTALLDIR="path/to/install/dir"</pre>
                         </div>
                     </div>
 
@@ -547,7 +553,7 @@
 
                         <div class="h3" id="four01" title="four01">
                         <h3>OPTIONS of '&lt;path&gt;': 401 Authorization Required &lt;url&gt;</h3>
-                        <p>升级到 1.4.x 版之后，你发现无法访问版本库了，每次都出这个错： <em>OPTIONS of 'path': 401 Authorization Required 'url'</em>。</p>
+                        <p>升级到 1.4.x 版之后，你发现无法访问版本库了，每次都出这个错： <em>OPTIONS of 'path': 401 Authorization Required 'url'</em>。 </p>
                         <p>这是因为 1.4.x 版使用了 SSPI 自动验证，即TortoiseSVN会自动使用登录 Windows 域控制器的用户信息来作身份验证。</p>
                         <p>如果你设置你的服务器以 SSPI 的方式向域控制器作身份验证，而域控制器又没开放 GUEST 用户的话，不会有问题。但是如果开放了 GUEST 用户，自然所有以 GUEST 用户进行的验证都会通过——但是一般来说你是不会授权 GUEST 访问你的版本库的。这就造成了 <em>验证</em> 通过了，但 <em>授权</em> 不成功。</p>
                         <p>另一个失败的原因是，你设置用来访问版本库的用户跟你用来登录工作站的用户不一致（那我就奇怪了，如果是这样你根本就不应该以 SSPI 方式来验证呀）。</p>
@@ -576,12 +582,14 @@
                         <pre>
 Add Folder in revision 1
 Add File1 and File2 in revision 2
-Modify File1 and commit in revision 3</pre>
+Modify File1 and commit in revision 3
+                        </pre>
                         <p>现在版本库处于修订版本 3，但你的工作拷贝的版本会是这个样子：</p>
                         <pre>
-Folder     : revision 1
+Folder       : revision 1
 Folder/File1 : revision 3
-Folder/File2 : revision 2</pre>
+Folder/File2 : revision 2
+                        </pre>
                         <p>这时如果你修改 File2 然后提交，就会失败。因为客户端告诉版本库 File2 是在版本 2 的基础上作修改的，但是版本库已经处于版本 3 了。如果此时你执行更新命令，就会将 File2 也变成版本 3 （当然，你的本地修改还会在的）。</p>
                         <p>这个错误还可能在你试图创建分支或标记时出现。答案永远都是：如果工作拷贝已经过期，那就更新呗！</p>
                         </div>
@@ -598,7 +606,7 @@ Folder/File2 : revision 2</pre>
                         <div class="h3" id="four00" title="four00">
                         <h3>400 服务器未能理解请求(400 Bad Request)</h3>
                         <p>REPORT request failed on '...' REPORT of '...': 400 Bad Request (http://...)</p>
-                        <p>你的 DAV 请求被防火墙阻止了，多数防火墙都会这么这么干。你可以让你的管理员更改防火墙的设置，或者以 <strong>https</strong> 访问，如 <a href="https://svn.collab.net/repos/svn/">https://svn.collab.net/repos/svn/</a> ，这样你与版本库之间的通信是经过 SSL 加密的，防火墙无法阻止（如果它没有封掉 SSL 端口的话）。
+                        <p>你的 DAV 请求被防火墙阻止了，多数防火墙都会这么这么干。你可以让你的管理员更改防火墙的设置，或者以 <strong>https</strong> 访问，如 <a href='https://svn.collab.net/repos/svn/'>https://svn.collab.net/repos/svn/</a> ，这样你与版本库之间的通信是经过 SSL 加密的，防火墙无法阻止（如果它没有封掉 SSL 端口的话）。
                         </p>
                         <p>另外，现已确认某些病毒扫描程序（如卡巴斯基）也会导致这个错误。</p>
                         </div>
@@ -621,7 +629,7 @@ Folder/File2 : revision 2</pre>
                         你漏了 URL 末尾的斜杠 ‘/’，较旧版本的 TSVN 要求在版本库名字后必须有斜杠，否则它会砍掉版本库名字，等于试图去访问它的父目录。</li>
                         <li><strong>PROPFIND Request Failed</strong>
                         你可能正尝试通过一个不允许 DAV 请求的代理访问版本库。通常你用网页浏览器浏览版本库是没问题的，只在使用 svn 客户端时才出错。你必须配置你的代理服务器或防火墙，以让 DAV 请求通过，或者使用 https 来访问，多数代理服务器无法分析加密过的信息包，因而也就无法阻止 DAV 请求了。
-                        <br/>
+                        <br />
                         另一个可能是你正在运行病毒扫描程序或防火墙，很多此类软件会在你根本不知道的情况下就阻止了 DAV 请求，可以试一下禁用它们。</li>
                         <li><strong>Lock Request Failed</strong>
                         你尝试在工作拷贝中锁定一个文件，而这个文件在版本库中已经不存在了。你需要先更新工作拷贝。</li>
@@ -631,16 +639,16 @@ Folder/File2 : revision 2</pre>
 
                     </div>
 
-                </div>
-            </div>
-        </div>
-        <!-- end #content -->
-
-        <!--#include FILE="sidebar.zh.html"-->
-        <div style="clear: both">&nbsp;</div>
-    </div>
-    <!-- end #page -->
-    <!--#include FILE="footer.html"-->
+				</div>
+			</div>
+		</div>
+		<!-- end #content -->
+        
+        <!--#include FILE="sidebar.html" -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+    <!--#include FILE="footer.html" -->
 </div>
 </body>
 </html>

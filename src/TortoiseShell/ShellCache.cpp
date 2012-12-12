@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ShellCache.h"
 #include "SVNHelpers.h"
 #include "TSVNPath.h"
@@ -54,9 +54,6 @@ ShellCache::ShellCache()
     excludedasnormalticker = cachetypeticker;
     alwaysextendedticker = cachetypeticker;
     hidemenusforunversioneditemsticker = cachetypeticker;
-    layoutticker = cachetypeticker;
-    menumaskticker = cachetypeticker;
-    blockstatusticker = cachetypeticker;
     excontextticker = 0;
     menulayoutlow = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
     menulayouthigh = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);

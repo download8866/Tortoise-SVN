@@ -1,5 +1,4 @@
 <?php
-
 function PrintArray($array) {
 	if (is_array($array)) {
 		echo "Array:";
@@ -116,3 +115,5 @@ function ValueOrNull($value) {
 	return $value;
 }
 //----------------------------------------------------------------------------
+
+php?>

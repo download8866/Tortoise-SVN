@@ -96,7 +96,7 @@ public:
                             const CString& locktoken, const CString& lockowner,
                             const CString& lockcomment, bool is_dav_comment,
                             apr_time_t lock_creationdate, apr_time_t lock_expirationdate,
-                            const CString& absolutepath, const CString& externalParentUrl, const CString& externalTarget);
+                            const CString& absolutepath);
     virtual svn_wc_conflict_choice_t ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile);
 
     struct SVNLock
@@ -122,13 +122,6 @@ public:
 
         /// Ensure a definined initial state
         SVNProgress();
-    };
-
-    enum SVNExportType
-    {
-        SVNExportNormal,
-        SVNExportIncludeUnversioned,
-        SVNExportOnlyLocalChanges
     };
 
     /**
@@ -312,7 +305,7 @@ public:
      */
     bool Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
                 const CString& message = _T(""), bool move_as_child = false,
-                bool make_parents = false, bool allow_mixed = false, const RevPropHash& revProps = RevPropHash());
+                bool make_parents = false, const RevPropHash& revProps = RevPropHash());
     /**
      * If path is a URL, use the message to immediately
      * attempt to commit the creation of the directory URL in the
@@ -367,7 +360,7 @@ public:
      */
     bool Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision,
         bool force = true, bool bIgnoreExternals = false, bool bIgnoreKeywords = false, svn_depth_t depth = svn_depth_infinity,
-        HWND hWnd = NULL, SVNExportType extended = SVNExportNormal, const CString& eol = CString());
+        HWND hWnd = NULL, bool extended = false, const CString& eol = CString());
     /**
      * Switch working tree path to URL at revision
      *
@@ -528,19 +521,16 @@ public:
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth,
         bool ignoreancestry, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly,
         const CString& options, bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
     bool Diff(const CTSVNPath& path1, const SVNRev& revision1,
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry,
-        bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, 
-        bool ignoreproperties, bool propertiesonly, const CString& options,
+        bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, const CString& options,
         bool bAppend, const CTSVNPath& outputfile);
     bool CreatePatch(const CTSVNPath& path1, const SVNRev& revision1,
         const CTSVNPath& path2, const SVNRev& revision2,
         const CTSVNPath& relativeToDir, svn_depth_t depth, bool ignoreancestry,
-        bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, 
-        bool ignoreproperties, bool propertiesonly, const CString& options, bool bAppend, const CTSVNPath& outputfile);
+        bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, const CString& options, bool bAppend, const CTSVNPath& outputfile);
 
     /**
      * Produce diff output which describes the delta between the file system object \a path in
@@ -553,13 +543,11 @@ public:
      */
     bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev,
         const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth,
-        bool ignoreancestry, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, const CString& options,
+        bool ignoreancestry, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, const CString& options,
         bool bAppend, const CTSVNPath& outputfile, const CTSVNPath& errorfile);
     bool PegDiff(const CTSVNPath& path, const SVNRev& pegrevision, const SVNRev& startrev,
         const SVNRev& endrev, const CTSVNPath& relativeToDir, svn_depth_t depth,
-        bool ignoreancestry, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat,
-        bool ignoreproperties, bool propertiesonly, const CString& options,
+        bool ignoreancestry, bool nodiffdeleted, bool showCopiesAsAdds, bool ignorecontenttype, bool useGitFormat, const CString& options,
         bool bAppend, const CTSVNPath& outputfile);
 
     /**
@@ -636,7 +624,7 @@ public:
      * If \c fetchlocks is true, include locks when reporting directory entries.
      * \return TRUE if successful
      */
-    bool List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks, bool complete, bool includeExternals);
+    bool List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks, bool complete);
 
     /**
      * Relocates a working copy to a new/changes repository URL. Use this function
@@ -693,11 +681,7 @@ public:
     bool IsRepository(const CTSVNPath& path);
 
     /**
-     * Returns the repository UUID for the \c path.
-     */
-    CString GetUUIDFromPath(const CTSVNPath& path);
-    /**
-     * Finds the repository root of a given url or path.
+     * Finds the repository root of a given url.
      * \return The root url or an empty string
      */
     CString GetRepositoryRoot(const CTSVNPath& url);
@@ -783,6 +767,10 @@ public:
      */
     CString GetURLFromPath(const CTSVNPath& path);
     /**
+     * Returns the repository UUID for the \c path.
+     */
+    CString GetUUIDFromPath(const CTSVNPath& path);
+    /**
      * Returns the wc root of the specified \c path.
      */
     CTSVNPath GetWCRootFromPath(const CTSVNPath& path);
@@ -792,7 +780,6 @@ public:
      * type is either svn_checksum_md5 or svn_checksum_sha1.
      */
     CString GetChecksumString(svn_checksum_kind_t type, const CString& s);
-    static CString GetChecksumString(svn_checksum_kind_t type, const CString& s, apr_pool_t * localpool);
 
     /**
      * Checks if the configuration file is present and valid.
@@ -937,6 +924,7 @@ protected:
 
     void                 CallPreConnectHookIfUrl(const CTSVNPathList& pathList, const CTSVNPath& path = CTSVNPath());
     void                 Prepare();
+    svn_error_t * get_uuid_from_target (const char **UUID, const char *target);
 
     void cancel();
     static svn_error_t* cancel(void *baton);
@@ -963,8 +951,6 @@ protected:
                     const svn_dirent_t *dirent,
                     const svn_lock_t *lock,
                     const char *abs_path,
-                    const char *external_parent_url,
-                    const char *external_target,
                     apr_pool_t *pool);
     static svn_error_t* conflict_resolver(svn_wc_conflict_result_t **result,
                     const svn_wc_conflict_description2_t *description,
@@ -972,20 +958,13 @@ protected:
                     apr_pool_t * resultpool,
                     apr_pool_t * scratchpool);
 
-    static svn_error_t * import_filter(void *baton,
-                                       svn_boolean_t *filtered,
-                                       const char *local_abspath,
-                                       const svn_io_dirent2_t *dirent,
-                                       apr_pool_t *scratch_pool);
-
-
     // implement ILogReceiver
 
     void ReceiveLog ( TChangedPaths* changes
                     , svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps
-                    , const MergeInfo* mergeInfo) override;
+                    , const MergeInfo* mergeInfo);
 
     // logCachePool management utilities
 

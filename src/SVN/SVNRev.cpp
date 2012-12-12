@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNRev.h"
 #pragma warning(push)
 #include "svn_time.h"
@@ -522,21 +522,12 @@ public:
         array.AddRevRange(SVNRev(20), SVNRev(20));
         array.AddRevRange(SVNRev(25), SVNRev(29));
         array.AddRevRange(SVNRev(26), SVNRev(30));
-        array.AddRevRange(SVNRev(26), SVNRev(30));
-        array.AddRevision(SVNRev(4896), false);
-        array.AddRevRange(SVNRev(4898), SVNRev(4900));
-        ATLASSERT(_tcscmp((LPCTSTR)array.ToListString(), _T("1,3-5,7-9,20,25-30,4896,4898-4900"))==0);
+        ATLASSERT(_tcscmp((LPCTSTR)array.ToListString(), _T("1,3-5,7-9,20,25-30"))==0);
         SVNRevRangeArray array2;
         array2.FromListString(array.ToListString());
-        ATLASSERT(array2.GetCount()==7);
-        SVNRevRange range = array2[6];
-        ATLASSERT(range.GetStartRevision() == 4898);
-        ATLASSERT(range.GetEndRevision() == 4900);
-        range = array[6];
-        ATLASSERT(range.GetStartRevision() == 4898);
-        ATLASSERT(range.GetEndRevision() == 4900);
+        ATLASSERT(array2.GetCount()==5);
         array.AddRevRange(1, SVNRev::REV_HEAD);
-        ATLASSERT(array.GetCount()==8);
+        ATLASSERT(array.GetCount()==6);
         SVNRevRangeArray revarray;
         ATLASSERT(revarray.AddRevRange(25, 24)==1);
         ATLASSERT(_tcscmp((LPCTSTR)revarray.ToListString(true), _T("25-24"))==0);

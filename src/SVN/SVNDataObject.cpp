@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNDataObject.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
@@ -55,10 +55,6 @@ SVNDataObject::~SVNDataObject()
 // IUnknown
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
-#define IID_IDataObjectAsyncCapability IID_IAsyncOperation
-#endif
-
 STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
 {
     if(ppvObject == 0)
@@ -66,8 +62,8 @@ STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
     *ppvObject = NULL;
     if (IsEqualIID(IID_IUnknown, riid) || IsEqualIID(IID_IDataObject, riid))
         *ppvObject=static_cast<IDataObject*>(this);
-    else if (IsEqualIID(riid, IID_IDataObjectAsyncCapability))
-        *ppvObject = static_cast<IDataObjectAsyncCapability*>(this);
+    else if (IsEqualIID(riid, IID_IAsyncOperation))
+        *ppvObject = static_cast<IAsyncOperation*>(this);
     else
         return E_NOINTERFACE;
 

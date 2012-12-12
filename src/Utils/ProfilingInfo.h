@@ -51,37 +51,22 @@
 
 class CProfilingRecord
 {
-public:
+private:
+
+    /// identification
+
+    const char* name;
+    const char* file;
+    int line;
+
     /// collected profiling info
 
-    struct CSpent {
-        unsigned __int64 sum;
-        unsigned __int64 minValue;
-        unsigned __int64 maxValue;
+    size_t count;
+    unsigned __int64 sum;
+    unsigned __int64 minValue;
+    unsigned __int64 maxValue;
 
-        void Add(unsigned __int64  value)
-        {
-            sum += value;
-
-            if (value < minValue)
-                minValue = value;
-            if (value > maxValue)
-                maxValue = value;
-        }
-        /// First value add
-        void Init(unsigned __int64  value)
-        {
-            sum = value;
-            minValue = value;
-            maxValue = value;
-        }
-        void Init()
-        {
-            sum = 0;
-            minValue = ULLONG_MAX; /* -1 */
-            maxValue = 0;
-        }
-    };
+public:
 
     /// construction
 
@@ -91,11 +76,7 @@ public:
 
     /// record values
 
-    void Add ( unsigned __int64 valueRdtsc
-             , unsigned __int64 valueWall
-             , unsigned __int64 valueUser
-             , unsigned __int64 valueKernel
-             );
+    void Add (unsigned __int64 value);
 
     /// modification
 
@@ -108,22 +89,9 @@ public:
     int GetLine() const {return line;}
 
     size_t GetCount() const {return count;}
-    const CSpent & Get() const {return m_rdtsc; }
-    const CSpent & GetU() const {return m_user; }
-    const CSpent & GetK() const {return m_kernel; }
-    const CSpent & GetW() const {return m_wall; }
-
-
-private:
-
-    /// identification
-
-    const char* name;
-    const char* file;
-    int line;
-
-    CSpent m_rdtsc, m_user, m_kernel, m_wall;
-    size_t count;
+    unsigned __int64 GetSum() const {return sum;}
+    unsigned __int64 GetMinValue() const {return minValue;}
+    unsigned __int64 GetMaxValue() const {return maxValue;}
 };
 
 /**
@@ -137,14 +105,9 @@ private:
 
     CProfilingRecord* record;
 
-    /// the initial counter values
-    unsigned __int64 m_rdtscStart;
-    FILETIME m_kernelStart;
-    FILETIME m_userStart;
-    FILETIME m_wallStart;
+    /// the initial CPU counter value
 
-    /// Temp object for parameters we don't care, but can't be NULL
-    static FILETIME ftTemp;
+    unsigned __int64 start;
 
 public:
 
@@ -162,52 +125,31 @@ public:
     void Stop();
 };
 
+#ifndef _DEBUG
+
 /// construction / destruction
 
 inline CRecordProfileEvent::CRecordProfileEvent (CProfilingRecord* aRecord)
     : record (aRecord)
+    , start (__rdtsc())
 {
-    // less precise first
-    SYSTEMTIME st;
-    GetSystemTime(&st);
-    SystemTimeToFileTime(&st, &m_wallStart);
-
-    GetProcessTimes(GetCurrentProcess(), &ftTemp, &ftTemp, &m_kernelStart, &m_userStart);
-
-    m_rdtscStart = __rdtsc();
 }
 
 inline CRecordProfileEvent::~CRecordProfileEvent()
 {
-    Stop();
+    if (record)
+        record->Add (__rdtsc() - start);
 }
 
-UINT64 inline DiffFiletime(FILETIME time1, FILETIME time2)
-{
-    return *(UINT64 *)&time1 - *(UINT64 *)&time2;
-}
+#endif
 
-/// stop counting
+/// don't wait for destruction
 
 inline void CRecordProfileEvent::Stop()
 {
     if (record)
     {
-        // more precise first
-        unsigned __int64 nTake = __rdtsc() - m_rdtscStart;
-
-        FILETIME kernelEnd, userEnd;
-        GetProcessTimes(GetCurrentProcess(), &ftTemp, &ftTemp, &kernelEnd, &userEnd);
-
-        SYSTEMTIME st;
-        GetSystemTime(&st);
-        FILETIME oTime;
-        SystemTimeToFileTime(&st, &oTime);
-
-        record->Add (nTake
-                   , DiffFiletime(oTime, m_wallStart)
-                   , DiffFiletime(userEnd, m_userStart)
-                   , DiffFiletime(kernelEnd, m_kernelStart));
+        record->Add (__rdtsc() - start);
         record = NULL;
     }
 }
@@ -254,8 +196,9 @@ public:
 * Profiling macros
 */
 
-#define PROFILE_CONCAT( a, b )   PROFILE_CONCAT3( a, b )
 #define PROFILE_CONCAT3( a, b )  a##b
+#define PROFILE_CONCAT2( a, b )  PROFILE_CONCAT3( a, b )
+#define PROFILE_CONCAT( a, b )   PROFILE_CONCAT2( a, b )
 
 /// measures the time from the point of usage to the end of the respective block
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,10 +46,10 @@ void CSettings::AddPropPages()
     m_pProxyPage = new CSetProxyPage();
     m_pProgsDiffPage = new CSettingsProgsDiff();
     m_pProgsMergePage = new CSettingsProgsMerge();
+    m_pProgsUniDiffPage = new CSettingsProgsUniDiff();
     m_pLookAndFeelPage = new CSetLookAndFeelPage();
     m_pDialogsPage = new CSetDialogs();
     m_pMiscPage = new CSetMisc();
-    m_pDialogs3Page = new SettingsDialogs3();
     m_pRevisionGraphPage = new CSettingsRevisionGraph();
     m_pRevisionGraphColorsPage = new CSettingsRevisionGraphColors();
     m_pLogCachePage = new CSetLogCache();
@@ -68,12 +68,12 @@ void CSettings::AddPropPages()
     SetPageIcon(m_pProxyPage, m_pProxyPage->GetIconID());
     SetPageIcon(m_pProgsDiffPage, m_pProgsDiffPage->GetIconID());
     SetPageIcon(m_pProgsMergePage, m_pProgsMergePage->GetIconID());
+    SetPageIcon(m_pProgsUniDiffPage, m_pProgsUniDiffPage->GetIconID());
     SetPageIcon(m_pLookAndFeelPage, m_pLookAndFeelPage->GetIconID());
     SetPageIcon(m_pDialogsPage, m_pDialogsPage->GetIconID());
     SetPageIcon(m_pRevisionGraphPage, m_pRevisionGraphPage->GetIconID());
     SetPageIcon(m_pRevisionGraphColorsPage, m_pRevisionGraphColorsPage->GetIconID());
     SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
-    SetPageIcon(m_pDialogs3Page, m_pDialogs3Page->GetIconID());
     SetPageIcon(m_pLogCachePage, m_pLogCachePage->GetIconID());
     SetPageIcon(m_pLogCacheListPage, m_pLogCacheListPage->GetIconID());
     SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
@@ -83,8 +83,6 @@ void CSettings::AddPropPages()
     SetPageIcon(m_pTBlamePage, m_pTBlamePage->GetIconID());
     SetPageIcon(m_pAdvanced, m_pAdvanced->GetIconID());
 
-    // don't change the order here, since the
-    // page number can be passed on the command line!
     AddPage(m_pMainPage);
     AddPage(m_pRevisionGraphPage);
     AddPage(m_pRevisionGraphColorsPage);
@@ -94,10 +92,10 @@ void CSettings::AddPropPages()
     AddPage(m_pProxyPage);
     AddPage(m_pProgsDiffPage);
     AddPage(m_pProgsMergePage);
+    AddPage(m_pProgsUniDiffPage);
     AddPage(m_pLookAndFeelPage);
     AddPage(m_pDialogsPage);
     AddPage(m_pMiscPage);
-    AddPage(m_pDialogs3Page);
     AddPage(m_pColorsPage);
     AddPage(m_pSavedPage);
     AddPage(m_pLogCachePage);
@@ -117,12 +115,12 @@ void CSettings::RemovePropPages()
     delete m_pProxyPage;
     delete m_pProgsDiffPage;
     delete m_pProgsMergePage;
+    delete m_pProgsUniDiffPage;
     delete m_pLookAndFeelPage;
     delete m_pDialogsPage;
     delete m_pRevisionGraphColorsPage;
     delete m_pRevisionGraphPage;
     delete m_pMiscPage;
-    delete m_pDialogs3Page;
     delete m_pLogCachePage;
     delete m_pLogCacheListPage;
     delete m_pColorsPage;
@@ -143,11 +141,11 @@ void CSettings::HandleRestart()
     restart |= m_pProxyPage->GetRestart();
     restart |= m_pProgsDiffPage->GetRestart();
     restart |= m_pProgsMergePage->GetRestart();
+    restart |= m_pProgsUniDiffPage->GetRestart();
     restart |= m_pLookAndFeelPage->GetRestart();
     restart |= m_pDialogsPage->GetRestart();
     restart |= m_pRevisionGraphPage->GetRestart();
     restart |= m_pMiscPage->GetRestart();
-    restart |= m_pDialogs3Page->GetRestart();
     restart |= m_pLogCachePage->GetRestart();
     restart |= m_pLogCacheListPage->GetRestart();
     restart |= m_pColorsPage->GetRestart();

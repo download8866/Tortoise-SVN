@@ -184,7 +184,7 @@ private:
         CString error;
 
         /// in case of a redirect
-
+        
         CString redirectedUrl;
 
         /// copy copying supported
@@ -236,7 +236,7 @@ private:
 
         /// actual job code: fetch externals and parse them
 
-        virtual void InternalExecute() override;
+        virtual void InternalExecute();
 
         /// not meant to be destroyed directly
 
@@ -277,18 +277,17 @@ private:
             apr_time_t time, const CString& author, const CString& locktoken,
             const CString& lockowner, const CString& lockcomment,
             bool is_dav_comment, apr_time_t lock_creationdate,
-            apr_time_t lock_expirationdate, const CString& absolutepath,
-            const CString& externalParentUrl, const CString& externalTarget) override;
+            apr_time_t lock_expirationdate, const CString& absolutepath);
 
         /// early termination
 
-        virtual BOOL Cancel() override;
+        virtual BOOL Cancel();
 
     protected:
 
         /// actual job code: just call \ref SVN::List
 
-        virtual void InternalExecute() override;
+        virtual void InternalExecute();
 
         /// not meant to be destroyed directly
 
@@ -308,7 +307,7 @@ private:
 
         /// cancel the svn:externals sub query as well
 
-        virtual void Terminate() override;
+        virtual void Terminate();
 
         /// access additional results
 

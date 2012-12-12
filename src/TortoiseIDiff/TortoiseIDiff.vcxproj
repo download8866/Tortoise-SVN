@@ -28,23 +28,19 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -205,11 +201,12 @@
     <ClInclude Include="..\Utils\MiscUI\hyperlink_base.h" />
     <ClInclude Include="..\Utils\LangDll.h" />
     <ClInclude Include="MainWindow.h" />
+    <ClInclude Include="..\Utils\MiscUI\MemDC.h" />
     <ClInclude Include="NiceTrackbar.h" />
     <ClInclude Include="..\Utils\MiscUI\Picture.h" />
     <ClInclude Include="PicWindow.h" />
     <ClInclude Include="..\Utils\registry.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="..\Utils\SysInfo.h" />
     <ClInclude Include="TortoiseIDiff.h" />

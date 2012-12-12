@@ -120,7 +120,6 @@ protected:
         ShellMenuDropCopyRename,
         ShellMenuDropExport,
         ShellMenuDropExportExtended,
-        ShellMenuDropExportChanged,
         ShellMenuLog,
         ShellMenuConflictEditor,
         ShellMenuRelocate,
@@ -129,13 +128,9 @@ protected:
         ShellMenuIgnoreSub,
         ShellMenuDeleteIgnoreSub,
         ShellMenuIgnore,
-        ShellMenuIgnoreGlobal,
         ShellMenuDeleteIgnore,
-        ShellMenuDeleteIgnoreGlobal,
         ShellMenuIgnoreCaseSensitive,
-        ShellMenuIgnoreCaseSensitiveGlobal,
         ShellMenuDeleteIgnoreCaseSensitive,
-        ShellMenuDeleteIgnoreCaseSensitiveGlobal,
         ShellMenuRepoBrowse,
         ShellMenuBlame,
         ShellMenuApplyPatch,
@@ -143,9 +138,7 @@ protected:
         ShellMenuRevisionGraph,
         ShellMenuUnIgnoreSub,
         ShellMenuUnIgnoreCaseSensitive,
-        ShellMenuUnIgnoreCaseSensitiveGlobal,
         ShellMenuUnIgnore,
-        ShellMenuUnIgnoreGlobal,
         ShellMenuLock,
         ShellMenuUnlock,
         ShellMenuUnlockForce,
@@ -202,7 +195,6 @@ protected:
     tstring itemurl;
     tstring itemshorturl;
     tstring ignoredprops;
-    tstring ignoredglobalprops;
     tstring owner;
     svn_revnum_t columnrev;         ///< holds the corresponding revision to the file/dir above
     svn_wc_status_kind  filestatus;

@@ -29,7 +29,6 @@ IMPLEMENT_DYNAMIC(CPropDlg, CResizableStandAloneDialog)
 CPropDlg::CPropDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CPropDlg::IDD, pParent)
     , m_rev(SVNRev::REV_WC)
-    , m_hThread(NULL)
 {
 }
 
@@ -103,7 +102,7 @@ UINT CPropDlg::PropThreadEntry(LPVOID pVoid)
 
 UINT CPropDlg::PropThread()
 {
-    SVNProperties props(m_Path, m_rev, false, false);
+    SVNProperties props(m_Path, m_rev, false);
 
     m_proplist.SetRedraw(false);
     int row = 0;

@@ -44,7 +44,7 @@ protected:
     virtual BOOL        OnInitDialog();
     virtual LRESULT     OnWizardNext();
     virtual BOOL        OnSetActive();
-    virtual bool        OkToCancel() override;
+    virtual bool        OkToCancel();
 
     afx_msg void        OnBnClickedShowlog();
     afx_msg void        OnBnClickedBrowse();
@@ -52,8 +52,6 @@ protected:
     afx_msg LRESULT     OnRevSelectedOneRange(WPARAM wParam, LPARAM lParam);
     afx_msg void        OnBnClickedShowlogwc();
     afx_msg LRESULT     OnWCStatus(WPARAM wParam, LPARAM lParam);
-    afx_msg void        OnBnClickedMergeradioAll();
-    afx_msg void        OnBnClickedMergeradioSpecific();
 
     DECLARE_MESSAGE_MAP()
 

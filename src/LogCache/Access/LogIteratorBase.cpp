@@ -337,7 +337,6 @@ CLogIteratorBase& CLogIteratorBase::operator=(const CLogIteratorBase& rhs)
     {
         revision = rhs.revision;
         path = rhs.path;
-        addRevision = rhs.addRevision;
     }
 
     return *this;

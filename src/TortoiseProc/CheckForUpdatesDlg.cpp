@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "..\version.h"
 #include "MessageBox.h"
-#include "checkforupdatesdlg.h"
+#include ".\checkforupdatesdlg.h"
 #include "Registry.h"
 #include "AppUtils.h"
 #include "TempFile.h"
@@ -31,7 +31,6 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
     , m_bShowInfo(FALSE)
     , m_bVisible(FALSE)
-    , m_bThreadRunning(FALSE)
 {
     m_sUpdateDownloadLink = _T("http://tortoisesvn.net");
 }

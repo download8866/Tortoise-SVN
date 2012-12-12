@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "CreatePatchCommand.h"
 
 #include "PathUtils.h"
@@ -80,7 +80,6 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 {
     CTSVNPath savePath;
     BOOL gitFormat = false;
-    BOOL ignoreproperties = false;
 
     if (cmdLineSavePath.IsEmpty())
     {
@@ -114,7 +113,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
             {
                 typedef HRESULT (WINAPI *SHCIFPN)(PCWSTR pszPath, IBindCtx * pbc, REFIID riid, void ** ppv);
 
-                CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+                CAutoLibrary hLib = LoadLibrary(L"shell32.dll");
                 if (hLib)
                 {
                     SHCIFPN pSHCIFPN = (SHCIFPN)GetProcAddress(hLib, "SHCreateItemFromParsingName");
@@ -142,8 +141,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
                 {
                     pfdCustomize->StartVisualGroup(100, L"");
                     pfdCustomize->AddCheckButton(101, CString(MAKEINTRESOURCE(IDS_PATCH_SAVEGITFORMAT)), FALSE);
-                    pfdCustomize->AddCheckButton(102, CString(MAKEINTRESOURCE(IDS_PATCH_INCLUDEPROPS)), TRUE);
-                    pfdCustomize->AddPushButton(103, CString(MAKEINTRESOURCE(IDS_PATCH_COPYTOCLIPBOARD)));
+                    pfdCustomize->AddPushButton(102, CString(MAKEINTRESOURCE(IDS_PATCH_COPYTOCLIPBOARD)));
                     pfdCustomize->EndVisualGroup();
 
                     hr = pfd->Advise(pEvents, &dwCookie);
@@ -160,8 +158,6 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
                 if (SUCCEEDED(hr))
                 {
                     pfdCustomize->GetCheckButtonState(101, &gitFormat);
-                    pfdCustomize->GetCheckButtonState(102, &ignoreproperties);
-                    ignoreproperties = !ignoreproperties;
                 }
 
                 // Get the selection from the user
@@ -278,7 +274,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
     for (int fileindex = 0; fileindex < paths.GetCount(); ++fileindex)
     {
         svn_depth_t depth = paths[fileindex].IsDirectory() ? svn_depth_empty : svn_depth_files;
-        if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, false, false, true, false, !!gitFormat, !!ignoreproperties, false, diffoptions, true, tempPatchFilePath))
+        if (!svn.CreatePatch(paths[fileindex], SVNRev::REV_BASE, paths[fileindex], SVNRev::REV_WC, sDir.GetDirectory(), depth, false, false, true, false, !!gitFormat, diffoptions, true, tempPatchFilePath))
         {
             progDlg.Stop();
             svn.ShowErrorDialog(GetExplorerHWND(), paths[fileindex]);
@@ -316,7 +312,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
 STDMETHODIMP PatchSaveDlgEventHandler::OnButtonClicked( IFileDialogCustomize* pfdc, DWORD dwIDCtl )
 {
-    if (dwIDCtl == 103)
+    if (dwIDCtl == 102)
     {
         CComQIPtr<IFileSaveDialog> pDlg = pfdc;
         if (pDlg)

@@ -25,6 +25,7 @@
 #include "TempFile.h"
 #include "XSplitter.h"
 #include "SVNPatch.h"
+#include "FindDlg.h"
 
 class CLeftView;
 class CRightView;
@@ -43,6 +44,7 @@ public:
     virtual ~CMainFrame();
 
     void            ShowDiffBar(bool bShow);
+    const CMFCToolBar *   GetToolbar() const { return &m_wndToolBar; }
 #ifdef _DEBUG
     virtual void    AssertValid() const;
     virtual void    Dump(CDumpContext& dc) const;
@@ -60,6 +62,7 @@ protected:
     void            ClearViewNamesAndPaths();
     void            SetWindowTitle();
 
+    afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
     afx_msg void    OnApplicationLook(UINT id);
     afx_msg void    OnUpdateApplicationLook(CCmdUI* pCmdUI);
@@ -70,6 +73,9 @@ protected:
     afx_msg void    OnFileReload();
     afx_msg void    OnClose();
     afx_msg void    OnActivate(UINT, CWnd*, BOOL);
+    afx_msg void    OnEditFind();
+    afx_msg void    OnEditFindnext();
+    afx_msg void    OnEditFindprev();
     afx_msg void    OnViewWhitespaces();
     afx_msg int     OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void    OnSize(UINT nType, int cx, int cy);
@@ -106,8 +112,6 @@ protected:
     afx_msg void    OnUpdateEditUndo(CCmdUI *pCmdUI);
     afx_msg void    OnViewInlinediffword();
     afx_msg void    OnUpdateViewInlinediffword(CCmdUI *pCmdUI);
-    afx_msg void    OnViewInlinediff();
-    afx_msg void    OnUpdateViewInlinediff(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateEditCreateunifieddifffile(CCmdUI *pCmdUI);
     afx_msg void    OnEditCreateunifieddifffile();
     afx_msg void    OnUpdateViewLinediffbar(CCmdUI *pCmdUI);
@@ -115,7 +119,6 @@ protected:
     afx_msg void    OnUpdateViewLocatorbar(CCmdUI *pCmdUI);
     afx_msg void    OnViewLocatorbar();
     afx_msg void    OnEditUseleftblock();
-    afx_msg void    OnUpdateUseBlock(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateEditUseleftblock(CCmdUI *pCmdUI);
     afx_msg void    OnEditUseleftfile();
     afx_msg void    OnUpdateEditUseleftfile(CCmdUI *pCmdUI);
@@ -143,8 +146,8 @@ protected:
     DECLARE_MESSAGE_MAP()
 protected:
     void            UpdateLayout();
-    virtual BOOL    PatchFile(CString sFilePath, bool bContentMods, bool bPropMods, CString sVersion, BOOL bAutoPatch) override;
-    virtual BOOL    DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString sRev2) override;
+    virtual BOOL    PatchFile(CString sFilePath, bool bContentMods, bool bPropMods, CString sVersion, BOOL bAutoPatch);
+    virtual BOOL    DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString sRev2);
     int             CheckResolved();
     BOOL            MarkAsResolved();
     int             SaveFile(const CString& sFilePath);
@@ -153,6 +156,10 @@ protected:
     bool            FileSave(bool bCheckResolved=true);
     void            PatchSave();
     bool            FileSaveAs(bool bCheckResolved=true);
+    bool            StringFound(const CString&)const;
+    enum SearchDirection{SearchNext=0, SearchPrevious=1};
+    void            Search(SearchDirection);
+    int             FindSearchStart(int nDefault);
     /// checks if there are modifications and asks the user to save them first
     /// IDCANCEL is returned if the user wants to cancel.
     /// If the user wanted to save the modifications, this method does the saving
@@ -173,11 +180,10 @@ protected:
     static bool     HasNextConflict(CBaseView* view);
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
-
-    static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
-
 protected:
+    CMFCMenuBar     m_wndMenuBar;
     CMFCStatusBar   m_wndStatusBar;
+    CMFCToolBar     m_wndToolBar;
     CLocatorBar     m_wndLocatorBar;
     CLineDiffBar    m_wndLineDiffBar;
     CXSplitter      m_wndSplitter;
@@ -188,15 +194,18 @@ protected:
     BOOL            m_bInitSplitter;
     bool            m_bCheckReload;
 
+    int             m_nSearchIndex;
+    CString         m_sFindText;
+    BOOL            m_bMatchCase;
+    bool            m_bLimitToDiff;
+    bool            m_bWholeWord;
+    static const UINT m_FindDialogMessage;
+    CFindDlg *      m_pFindDialog;
     bool            m_bHasConflicts;
 
     bool            m_bInlineWordDiff;
-    bool            m_bInlineDiff;
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
-
-    CMFCRibbonBar               m_wndRibbonBar;
-    CMFCRibbonApplicationButton m_MainButton;
 
     CRegDWORD       m_regWrapLines;
     CRegDWORD       m_regViewModedBlocks;
@@ -216,8 +225,4 @@ public:
     bool            m_bCollapsed;
     bool            m_bViewMovedBlocks;
     bool            m_bWrapLines;
-    bool            m_bSaveRequired;
-    HWND            resolveMsgWnd;
-    WPARAM          resolveMsgWParam;
-    LPARAM          resolveMsgLParam;
 };

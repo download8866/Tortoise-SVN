@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2006,2008-2012 - TortoiseSVN
+// External Cache Copyright (C) 2005-2006,2008-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,12 +17,11 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNStatus.h"
 #include "Svnstatuscache.h"
 #include "CacheInterface.h"
 #include "UnicodeUtils.h"
-#include "SVNConfig.h"
 #include "shlobj.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -259,8 +258,8 @@ CSVNStatusCache::~CSVNStatusCache(void)
 void CSVNStatusCache::Refresh()
 {
     m_shellCache.ForceRefresh();
-    SVNConfig::Instance().Refresh();
-    if (!m_pInstance->m_directoryCache.empty())
+    m_pInstance->m_svnHelp.ReloadConfig();
+    if (m_pInstance->m_directoryCache.size())
     {
         CCachedDirectory::CachedDirMap::iterator I = m_pInstance->m_directoryCache.begin();
         for (/* no init */; I != m_pInstance->m_directoryCache.end(); ++I)
@@ -378,7 +377,7 @@ bool CSVNStatusCache::RemoveTimedoutBlocks()
             toRemove.push_back(it->first);
         }
     }
-    if (toRemove.empty())
+    if (toRemove.size() == 0)
         return false;
 
     for (std::vector<CTSVNPath>::const_iterator it = toRemove.begin(); it != toRemove.end(); ++it)
@@ -408,7 +407,7 @@ bool CSVNStatusCache::RemoveCacheForDirectory(CCachedDirectory * cdir)
 {
     if (cdir == NULL)
         return false;
-    if (!cdir->m_childDirectories.empty())
+    if (cdir->m_childDirectories.size())
     {
         auto it = cdir->m_childDirectories.begin();
         for (; it != cdir->m_childDirectories.end(); )

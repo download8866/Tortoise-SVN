@@ -83,6 +83,9 @@
     <ClInclude Include="MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\MemDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="NiceTrackbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -95,7 +98,7 @@
     <ClInclude Include="..\Utils\registry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">

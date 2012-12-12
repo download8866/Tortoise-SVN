@@ -16,8 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "TSVNAuth.h"
+#include "auto_buffer.h"
 
 std::map<CStringA,Creds> tsvn_creds;
 
@@ -82,13 +83,12 @@ char * Creds::Decrypt( const char * text )
     if (CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, NULL, &dwLen, NULL, NULL)==FALSE)
         return NULL;
 
-    std::unique_ptr<BYTE[]> strIn(new BYTE[dwLen + 1]);
-    if (CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, strIn.get(), &dwLen, NULL, NULL)==FALSE)
-        return NULL;
+    auto_buffer<BYTE> strIn(dwLen + 1);
+    CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, strIn, &dwLen, NULL, NULL);
 
     DATA_BLOB blobin;
     blobin.cbData = dwLen;
-    blobin.pbData = strIn.get();
+    blobin.pbData = strIn;
     LPWSTR descr;
     DATA_BLOB blobout = {0};
     if (CryptUnprotectData(&blobin, &descr, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout)==FALSE)
@@ -116,12 +116,11 @@ CStringA Creds::Encrypt( const char * text )
     DWORD dwLen = 0;
     if (CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, NULL, &dwLen)==FALSE)
         return result;
-    std::unique_ptr<char[]> strOut(new char[dwLen + 1]);
-    if (CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, strOut.get(), &dwLen)==FALSE)
-        return result;
+    auto_buffer<char> strOut(dwLen + 1);
+    CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, strOut, &dwLen);
     LocalFree(blobout.pbData);
 
-    result = strOut.get();
+    result = strOut;
 
     return result;
 }

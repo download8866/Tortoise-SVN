@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,8 +62,6 @@ CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
     , m_langOrder(0)
     , m_firstInterval(0)
     , m_lastInterval(0)
-    , m_nTotalCommits(0)
-    , m_nTotalFileChanges(0)
 {
     m_parDates = NULL;
     m_parFileChanges = NULL;
@@ -707,7 +705,7 @@ void CStatGraphDlg::ShowPercentageOfAuthorship()
     // Loop over all authors in the authors list and
     // add them to the graph.
 
-    if (!authors.empty())
+    if (authors.size())
     {
         for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
         {
@@ -717,7 +715,7 @@ void CStatGraphDlg::ShowPercentageOfAuthorship()
     }
 
     //     If we have other authors, count them and their commits.
-    if (!others.empty())
+    if (others.size() != 0)
         DrawOthers(others, graphData, m_PercentageOfAuthorship);
 
     // Paint the graph now that we're through.
@@ -740,7 +738,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
     // Loop over all authors in the authors list and
     // add them to the graph.
 
-    if (!authors.empty())
+    if (authors.size())
     {
         for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
         {
@@ -750,7 +748,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
     }
 
     //     If we have other authors, count them and their commits.
-    if (!others.empty())
+    if (others.size() != 0)
         DrawOthers(others, graphData, m_commitsPerAuthor);
 
     // Paint the graph now that we're through.
@@ -803,7 +801,7 @@ void CStatGraphDlg::ShowCommitsByDate()
     for (int i=m_lastInterval; i>=m_firstInterval; --i)
     {
         // Collect data for authors listed by name.
-        if (!authors.empty())
+        if (authors.size())
         {
             for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
             {
@@ -815,7 +813,7 @@ void CStatGraphDlg::ShowCommitsByDate()
             }
         }
         // Collect data for all skipped authors.
-        if (!others.empty())
+        if (others.size())
         {
             for (std::list<tstring>::iterator it = others.begin(); it != others.end(); ++it)
             {
@@ -830,7 +828,7 @@ void CStatGraphDlg::ShowCommitsByDate()
         // Create a new data series for this unit/interval.
         MyGraphSeries * graphData = new MyGraphSeries();
         // Loop over all created graphs and set the corresponding data.
-        if (!authorGraphMap.empty())
+        if (authorGraphMap.size())
         {
             for (AuthorDataMap::const_iterator it = authorGraphMap.begin(); it != authorGraphMap.end(); ++it)
             {

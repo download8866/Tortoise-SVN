@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "resource.h"
 #include "TortoiseProc.h"
 #include "PathUtils.h"
@@ -30,6 +30,7 @@
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
 #include <intshcut.h>
+#include "auto_buffer.h"
 #include "StringUtils.h"
 #include "CreateProcessHelper.h"
 #include "FormatMessageWrapper.h"
@@ -37,12 +38,10 @@
 #include "SysInfo.h"
 #include "SelectFileFilter.h"
 #include "SmartHandle.h"
-#include "SVNExternals.h"
-#include "CmdLineParser.h"
 
 bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype)
 {
-    SVNProperties props(file, SVNRev::REV_WC, false, false);
+    SVNProperties props(file, SVNRev::REV_WC, false);
     for (int i = 0; i < props.GetCount(); ++i)
     {
         if (props.GetItemName(i).compare(SVN_PROP_MIME_TYPE)==0)
@@ -55,7 +54,7 @@ bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype)
 }
 
 BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
-    const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile, bool bSaveRequired,
+    const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
     const CString& basename, const CString& theirname, const CString& yourname, const CString& mergedname)
 {
 
@@ -112,20 +111,6 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
             com += L" /groupuuid:\"";
             com += g_sGroupingUUID;
             com += L"\"";
-        }
-        if (bSaveRequired)
-        {
-            com += L" /saverequired";
-            CCmdLineParser parser(GetCommandLine());
-            HWND   resolveMsgWnd    = parser.HasVal(L"resolvemsghwnd")   ? (HWND)parser.GetLongLongVal(L"resolvemsghwnd")     : 0;
-            WPARAM resolveMsgWParam = parser.HasVal(L"resolvemsgwparam") ? (WPARAM)parser.GetLongLongVal(L"resolvemsgwparam") : 0;
-            LPARAM resolveMsgLParam = parser.HasVal(L"resolvemsglparam") ? (LPARAM)parser.GetLongLongVal(L"resolvemsglparam") : 0;
-            if (resolveMsgWnd)
-            {
-                CString s;
-                s.Format(L" /resolvemsghwnd:%I64d /resolvemsgwparam:%I64d /resolvemsglparam:%I64d", (__int64)resolveMsgWnd, (__int64)resolveMsgWParam, (__int64)resolveMsgLParam);
-                com += s;
-            }
         }
     }
     // check if the params are set. If not, just add the files to the command line
@@ -517,9 +502,8 @@ bool CAppUtils::LaunchTortoiseBlame(const CString& sBlameFile,
                                     const SVNRev& endrev,
                                     const SVNRev& pegrev)
 {
-    CString viewer = L"\"";
-    viewer += CPathUtils::GetAppDirectory();
-    viewer += _T("TortoiseBlame.exe\"");
+    CString viewer = CPathUtils::GetAppDirectory();
+    viewer += _T("TortoiseBlame.exe");
     viewer += _T(" \"") + sBlameFile + _T("\"");
     viewer += _T(" \"") + sOriginalFile + _T("\"");
     viewer += _T(" ")+sParams;
@@ -767,7 +751,50 @@ bool CAppUtils::BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& r
 
     if (strUrl.GetLength() > 1)
     {
-        strUrl = SVNExternals::GetFullExternalUrl(strUrl, root, selUrl);
+        if ((strUrl[0] == '^')&&(!selUrl.IsEmpty()))
+        {
+            // relative to repo root
+            strUrl = root + strUrl.Mid(1);
+        }
+        else if ((strUrl[0] == '/')&&(strUrl[1] == '/'))
+        {
+            // relative to scheme
+            int pos = strUrl.Find(L"://");
+            if (pos >= 0)
+            {
+                strUrl = strUrl + L"/" + strUrl.Left(pos);
+            }
+        }
+        else if (strUrl[0] == '/')
+        {
+            // relative to servers hostname
+            URL_COMPONENTS components = {0};
+            TCHAR urlpath[INTERNET_MAX_PATH_LENGTH+1];
+            TCHAR scheme[INTERNET_MAX_SCHEME_LENGTH+1];
+            TCHAR hostname[INTERNET_MAX_HOST_NAME_LENGTH+1];
+            TCHAR username[INTERNET_MAX_USER_NAME_LENGTH+1];
+            TCHAR password[INTERNET_MAX_PASSWORD_LENGTH+1];
+            components.dwStructSize = sizeof(URL_COMPONENTS);
+            components.dwUrlPathLength = _countof(urlpath) - 1;
+            components.lpszUrlPath = urlpath;
+            components.lpszScheme = scheme;
+            components.dwSchemeLength = _countof(scheme) - 1;
+            components.lpszHostName = hostname;
+            components.dwHostNameLength = _countof(hostname) - 1;
+            components.lpszUserName = username;
+            components.dwUserNameLength = _countof(username) - 1;
+            components.lpszPassword = password;
+            components.dwPasswordLength = _countof(password) - 1;
+            InternetCrackUrl((LPCTSTR)root, root.GetLength(), 0, &components);
+            components.dwUrlPathLength = 0;
+            components.lpszUrlPath = NULL;
+            components.dwExtraInfoLength = 0;
+            components.lpszExtraInfo = NULL;
+            WCHAR droot[INTERNET_MAX_PATH_LENGTH] = {0};
+            DWORD dwSize = INTERNET_MAX_PATH_LENGTH;
+            InternetCreateUrl(&components, 0, droot, &dwSize);
+            strUrl = CString(droot) + L"/" + strUrl;
+        }
     }
 
     if (strUrl.Left(7) == _T("file://"))

@@ -20,10 +20,8 @@ class AutoComplete {
 	char fillUpChars[256];
 	char separator;
 	char typesep; // Type seperator
-	enum { maxItemLen=1000 };
 
 public:
-
 	bool ignoreCase;
 	bool chooseSingle;
 	ListBox *lb;
@@ -33,9 +31,6 @@ public:
 	bool cancelAtStartPos;
 	bool autoHide;
 	bool dropRestOfWord;
-	unsigned int ignoreCaseBehaviour;
-	int widthLBDefault;
-	int heightLBDefault;
 
 	AutoComplete();
 	~AutoComplete();
@@ -45,7 +40,7 @@ public:
 
 	/// Display the auto completion list positioned to be near a character position
 	void Start(Window &parent, int ctrlID, int position, Point location,
-		int startLen_, int lineHeight, bool unicodeMode, int technology);
+		int startLen_, int lineHeight, bool unicodeMode);
 
 	/// The stop chars are characters which, when typed, cause the auto completion list to disappear
 	void SetStopChars(const char *stopChars_);
@@ -65,12 +60,6 @@ public:
 
 	/// The list string contains a sequence of words separated by the separator character
 	void SetList(const char *list);
-	
-	/// Return the position of the currently selected list item
-	int GetSelection() const;
-
-	/// Return the value of an item in the list
-	std::string GetValue(int item) const;
 
 	void Show(bool show);
 	void Cancel();

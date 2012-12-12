@@ -17,8 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
-#include "foldercrawler.h"
+#include "StdAfx.h"
+#include ".\foldercrawler.h"
 #include "SVNStatusCache.h"
 #include "registry.h"
 #include "TSVNCache.h"
@@ -116,6 +116,7 @@ void CFolderCrawler::WorkerThread()
     hWaitHandles[1] = m_hWakeEvent;
     CTSVNPath workingPath;
     bool bFirstRunAfterWakeup = false;
+    DWORD currentTicks = 0;
 
     for(;;)
     {
@@ -181,6 +182,7 @@ void CFolderCrawler::WorkerThread()
                 // Nothing left to do
                 break;
             }
+            currentTicks = GetTickCount();
             if (m_pathsToUpdate.size())
             {
                 {
@@ -282,10 +284,7 @@ void CFolderCrawler::WorkerThread()
                     {
                         CAutoWriteLock writeLock(CSVNStatusCache::Instance().GetGuard());
                         CSVNStatusCache::Instance().RemoveCacheForPath(workingPath);
-                        if (!workingPath.GetContainingDirectory().Exists())
-                            continue;
-                        else
-                            workingPath = workingPath.GetContainingDirectory();
+                        continue;
                     }
                     {
                         AutoLocker print(critSec);
@@ -296,6 +295,10 @@ void CFolderCrawler::WorkerThread()
                         CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": updating path %s\n"), workingPath.GetWinPath());
                     }
                     InvalidateRect(hWnd, NULL, FALSE);
+                    // HasAdminDir() already checks if the path points to a dir
+                    DWORD flags = TSVNCACHE_FLAGS_FOLDERISKNOWN;
+                    flags |= (workingPath.IsDirectory() ? TSVNCACHE_FLAGS_ISFOLDER : 0);
+                    flags |= (bRecursive ? TSVNCACHE_FLAGS_RECUSIVE_STATUS : 0);
                     {
                         CAutoReadLock readLock(CSVNStatusCache::Instance().GetGuard());
                         // Invalidate the cache of folders manually. The cache of files is invalidated

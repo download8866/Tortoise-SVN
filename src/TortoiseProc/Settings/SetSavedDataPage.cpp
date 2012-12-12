@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ void CSetSavedDataPage::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_MAXLINES, m_maxLines);
     DDX_Control(pDX, IDC_ACTIONLOGSHOW, m_btnActionLogShow);
     DDX_Control(pDX, IDC_ACTIONLOGCLEAR, m_btnActionLogClear);
-    DDX_Control(pDX, IDC_HOOKCLEAR, m_btnHookClear);
 }
 
 BOOL CSetSavedDataPage::OnInitDialog()
@@ -139,13 +138,6 @@ BOOL CSetSavedDataPage::OnInitDialog()
 
     BOOL bActionLog = PathFileExists(CPathUtils::GetAppDataDirectory() + _T("logfile.txt"));
 
-    INT_PTR nHooks = 0;
-    CRegistryKey regHooks(_T("Software\\TortoiseSVN\\approvedhooks"));
-    CStringList hookslist;
-    regHooks.getValues(hookslist);
-    nHooks += hookslist.GetCount();
-
-
     DialogEnableWindow(&m_btnLogHistClear, nLogHistMsg || nLogHistWC);
     DialogEnableWindow(&m_btnUrlHistClear, nUrlHistItems || nUrlHistWC);
     DialogEnableWindow(&m_btnResizableHistClear, nResizableDialogs > 0);
@@ -153,7 +145,6 @@ BOOL CSetSavedDataPage::OnInitDialog()
     DialogEnableWindow(&m_btnRepoLogClear, nLogHistRepo >= 0);
     DialogEnableWindow(&m_btnActionLogClear, bActionLog);
     DialogEnableWindow(&m_btnActionLogShow, bActionLog);
-    DialogEnableWindow(&m_btnHookClear, nHooks > 0);
 
     EnableToolTips();
 
@@ -180,8 +171,6 @@ BOOL CSetSavedDataPage::OnInitDialog()
     m_tooltips.AddTool(IDC_MAXLINES, sTT);
     sTT.LoadString(IDS_SETTINGS_CLEARACTIONLOG_TT);
     m_tooltips.AddTool(IDC_ACTIONLOGCLEAR, sTT);
-    sTT.Format(IDS_SETTINGS_CLEARHOOKS_TT, nHooks);
-    m_tooltips.AddTool(IDC_HOOKCLEAR, sTT);
 
     return TRUE;
 }
@@ -201,7 +190,6 @@ BEGIN_MESSAGE_MAP(CSetSavedDataPage, ISettingsPropPage)
     ON_BN_CLICKED(IDC_ACTIONLOGSHOW, &CSetSavedDataPage::OnBnClickedActionlogshow)
     ON_BN_CLICKED(IDC_ACTIONLOGCLEAR, &CSetSavedDataPage::OnBnClickedActionlogclear)
     ON_EN_CHANGE(IDC_MAXLINES, OnModified)
-    ON_BN_CLICKED(IDC_HOOKCLEAR, &CSetSavedDataPage::OnBnClickedHookclear)
 END_MESSAGE_MAP()
 
 void CSetSavedDataPage::OnBnClickedUrlhistclear()
@@ -241,16 +229,6 @@ void CSetSavedDataPage::OnBnClickedResizablehistclear()
     m_tooltips.DelTool(GetDlgItem(IDC_RESIZABLEHISTCLEAR));
     m_tooltips.DelTool(GetDlgItem(IDC_RESIZABLEHISTORY));
 }
-
-void CSetSavedDataPage::OnBnClickedHookclear()
-{
-    CRegistryKey reg(_T("Software\\TortoiseSVN\\approvedhooks"));
-    reg.removeKey();
-    DialogEnableWindow(&m_btnHookClear, false);
-    m_tooltips.DelTool(GetDlgItem(IDC_HOOKCLEAR));
-    m_tooltips.DelTool(GetDlgItem(IDC_HOOKS));
-}
-
 
 void CSetSavedDataPage::OnBnClickedAuthhistclear()
 {
@@ -312,18 +290,17 @@ void CSetSavedDataPage::DeleteViaShell(LPCTSTR path, UINT progressText)
     CString p(path);
     p += L"||";
     int len = p.GetLength();
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[len+2]);
-    wcscpy_s(buf.get(), len+2, p);
-    CStringUtils::PipesToNulls(buf.get(), len);
+    auto_buffer<TCHAR> buf(len+2);
+    wcscpy_s(buf, len+2, p);
+    CStringUtils::PipesToNulls(buf, len);
 
     CString progText(MAKEINTRESOURCE(progressText));
     SHFILEOPSTRUCT fileop;
     fileop.hwnd = m_hWnd;
     fileop.wFunc = FO_DELETE;
-    fileop.pFrom = buf.get();
+    fileop.pFrom = buf;
     fileop.pTo = NULL;
     fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS | FOF_NOCONFIRMATION;
     fileop.lpszProgressTitle = progText;
     SHFileOperation(&fileop);
 }
-

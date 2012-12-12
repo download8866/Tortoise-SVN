@@ -50,7 +50,7 @@ SVNStatus::SVNStatus(bool * pbCancelled, bool)
 {
     m_pool = svn_pool_create (NULL);
 
-    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(m_pool), m_pool));
+    svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
 
     if (pbCancelled)
     {
@@ -61,6 +61,9 @@ SVNStatus::SVNStatus(bool * pbCancelled, bool)
 
 
 #ifdef _MFC_VER
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
+
     // set up authentication
     m_prompt.Init(m_pool, m_pctx);
 
@@ -71,6 +74,12 @@ SVNStatus::SVNStatus(bool * pbCancelled, bool)
         svn_pool_destroy (m_pool);                  // free the allocated memory
         exit(-1);
     }
+
+    SVNConfig::SetUpSSH(m_pctx);
+#else
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
+
 #endif
 }
 
@@ -92,10 +101,16 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
     svn_wc_status_kind          statuskind;
     apr_pool_t *                pool;
     svn_error_t *               err;
+    BOOL                        isDir;
+
+    isDir = path.IsDirectory();
 
     pool = svn_pool_create (NULL);              // create the memory pool
 
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), pool));
+    svn_error_clear(svn_client_create_context(&ctx, pool));
+
+    // set up the configuration
+    ctx->config = SVNConfig::Instance().GetConfig(pool);
 
     svn_revnum_t youngest = SVN_INVALID_REVNUM;
     svn_opt_revision_t rev;
@@ -653,16 +668,12 @@ svn_error_t * SVNStatus::getstatushash(void * baton, const char * path, const sv
         apr_hash_set (hash->exthash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, (const void*)1);
         return SVN_NO_ERROR;
     }
-    if (status->file_external)
-    {
-        apr_hash_set (hash->exthash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, (const void*)1);
-    }
     svn_client_status_t * statuscopy = svn_client_status_dup (status, hash->pThis->m_pool);
     apr_hash_set (hash->hash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, statuscopy);
     return SVN_NO_ERROR;
 }
 
-void SVNStatus::notify(void *baton, const svn_wc_notify_t *notify, apr_pool_t * /*pool*/)
+void SVNStatus::notify(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool)
 {
     hashbaton_t * hash = (hashbaton_t *)baton;
 

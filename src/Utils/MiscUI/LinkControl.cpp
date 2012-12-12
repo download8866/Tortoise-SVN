@@ -201,7 +201,6 @@ LRESULT CALLBACK CLinkControl::_HyperlinkProc(HWND hwnd, UINT message,
             return 0;
         }
         break;
-    case BM_CLICK:
         PostMessage(::GetParent(hwnd), LK_LINKITEMCLICKED, (WPARAM)hwnd, (LPARAM)0);
         break;
     case WM_LBUTTONDOWN:
@@ -219,11 +218,9 @@ LRESULT CALLBACK CLinkControl::_HyperlinkProc(HWND hwnd, UINT message,
             LRESULT lres = CallWindowProc(pHyperLink->m_pfnOrigCtlProc, hwnd, message, wParam, lParam);
             // we want all keys to get the return key
             lres |= DLGC_WANTALLKEYS;
-            lres |= DLGC_BUTTON;
             // but we don't want the tab key since that should be used in dialogs
             // to switch the focus
             lres &= ~DLGC_WANTTAB;
-            lres &= ~DLGC_STATIC;
             if (lParam &&
                 ((MSG *)lParam)->message == WM_KEYDOWN &&
                 ((MSG *)lParam)->wParam == VK_TAB)

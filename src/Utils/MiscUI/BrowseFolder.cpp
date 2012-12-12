@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <windowsx.h>
 #include "BrowseFolder.h"
 #include "PathUtils.h"
@@ -110,7 +110,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         {
             typedef HRESULT (WINAPI *SHCIFPN)(PCWSTR pszPath, IBindCtx * pbc, REFIID riid, void ** ppv);
 
-            CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+            CAutoLibrary hLib = LoadLibrary(L"shell32.dll");
             if (hLib)
             {
                 SHCIFPN pSHCIFPN = (SHCIFPN)GetProcAddress(hLib, "SHCreateItemFromParsingName");

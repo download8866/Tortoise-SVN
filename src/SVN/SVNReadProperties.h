@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,8 +30,6 @@
 #include "UnicodeUtils.h"
 #include "TSVNPath.h"
 
-#include <tuple>
-
 /**
  * \ingroup SVN
  * Read access to Subversion Properties.
@@ -58,18 +56,18 @@ private:
 public:
 
 #ifdef _MFC_VER
-    SVNReadProperties(SVNRev rev, bool bRevProps, bool includeInherited);
-    SVNReadProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps, bool includeInherited);
-    SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, SVNRev rev, bool suppressUI, bool includeInherited);
+    SVNReadProperties(SVNRev rev, bool bRevProps);
+    SVNReadProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps);
+    SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, SVNRev rev, bool suppressUI);
     void SetProgressDlg(CProgressDlg * dlg) { m_pProgress = dlg; }
 #else
-    SVNReadProperties(bool bRevProps, bool includeInherited);
+    SVNReadProperties(bool bRevProps);
     /**
      * Constructor. Creates a Subversion properties object for
      * the specified file/directory.
      * \param filepath the file/directory
      */
-    SVNReadProperties(const CTSVNPath& filepath, bool bRevProps, bool includeInherited);
+    SVNReadProperties(const CTSVNPath& filepath, bool bRevProps);
 #endif
     virtual ~SVNReadProperties(void);
 
@@ -145,16 +143,6 @@ public:
      */
     std::string GetSerializedForm() const;
 
-    /**
-     * Adds a property name to the list of properties that can only be set on folders
-     */
-    void AddFolderPropName(const std::string& p) {m_folderprops.push_back(p);}
-
-    /**
-     * Returns the object with all inherited properties.
-     */
-    std::vector<std::tuple<std::string, std::map<std::string,std::string>>> GetInheritedProperties() const { return m_inheritedProperties; }
-
     CTSVNPath GetPath() const { return m_path; }
 private:        //methods
     /**
@@ -172,13 +160,10 @@ protected:        //members
     apr_pool_t *                m_pool;             ///< memory pool baton
     CTSVNPath                   m_path;             ///< the path to the file/directory this properties object acts upon
     apr_hash_t *                m_props;
-    apr_array_header_t *        m_inheritedprops;
-    std::vector<std::tuple<std::string, std::map<std::string,std::string>>>  m_inheritedProperties;
     int                         m_propCount;        ///< number of properties found
     SVNRev                      m_rev;
     bool                        m_bRevProps;
-    bool                        m_includeInherited;
-    std::vector<std::string>    m_folderprops;
+
 #ifdef _MFC_VER
     SVNPrompt                   m_prompt;
     CProgressDlg *              m_pProgress;
@@ -188,6 +173,6 @@ private:        //members
     SVNRev                      m_peg_rev;
 
 private:
-    static svn_error_t *        proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_array_header_t *inherited_props, apr_pool_t *pool);
+    static svn_error_t *        proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_pool_t *pool);
 
 };

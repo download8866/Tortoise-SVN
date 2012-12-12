@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "fullHistory.h"
 
 #include "resource.h"
@@ -67,15 +67,20 @@ CFullHistory::CFullHistory(void)
                                     // plus as much as we got left from the shared pool
 {
     parentpool = svn_pool_create(NULL);
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), parentpool));
+    svn_error_clear(svn_client_create_context(&ctx, parentpool));
 
     pool = svn_pool_create (parentpool);
+    // set up the configuration
+    ctx->config = SVNConfig::Instance().GetConfig(pool);
 
     // set up authentication
     prompt.Init(pool, ctx);
 
     ctx->cancel_func = cancel;
     ctx->cancel_baton = this;
+
+    //set up the SVN_SSH param
+    SVNConfig::SetUpSSH(ctx);
 }
 
 CFullHistory::~CFullHistory(void)
@@ -327,10 +332,10 @@ bool CFullHistory::FetchRevisionData ( CString path
         {
             cache = query->GetCache();
 
-            // This should never happen:
+			// This should never happen:
 
-            if (cache == NULL)
-                return false;
+			if (cache == NULL)
+				return false;
         }
         else
         {

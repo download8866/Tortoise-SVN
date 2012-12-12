@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2012 - TortoiseSVN
+// Copyright (C) 2003-2006 - Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
-#include "utils.h"
+#include "StdAfx.h"
+#include ".\utils.h"
 #include "FormatMessageWrapper.h"
 
 CUtils::CUtils(void)
@@ -133,25 +133,4 @@ void CUtils::Error()
     CFormatMessageWrapper errorDetails;
     if (errorDetails)
         _ftprintf (stderr, _T("%s\n"), (LPCTSTR)errorDetails);
-}
-
-void CUtils::SearchReplace(std::wstring& str, const std::wstring& toreplace, const std::wstring& replacewith)
-{
-    std::wstring result;
-    std::wstring::size_type pos = 0;
-    for ( ; ; )	// while (true)
-    {
-        std::wstring::size_type next = str.find(toreplace, pos);
-        result.append(str, pos, next-pos);
-        if( next != std::string::npos )
-        {
-            result.append(replacewith);
-            pos = next + toreplace.size();
-        }
-        else
-        {
-            break;  // exit loop
-        }
-    }
-    str.swap(result);
 }

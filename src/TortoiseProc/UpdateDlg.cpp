@@ -223,7 +223,7 @@ void CUpdateDlg::OnBnClickedSparse()
     CString strUrl = svn.GetURLFromPath(m_wcPath);
 
     CRepositoryBrowser browser(strUrl, SVNRev::REV_HEAD, this);
-    browser.SetSparseCheckoutMode(m_wcPath);
+    browser.SetSparseCheckoutMode();
     if (browser.DoModal() == IDOK)
     {
         m_checkoutDepths = browser.GetUpdateDepths();

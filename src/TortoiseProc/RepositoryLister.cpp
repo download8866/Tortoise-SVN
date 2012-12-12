@@ -20,7 +20,7 @@
 #include "RepositoryLister.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
-#include "resource.h"
+#include "Resource.h"
 
 #include "SVNProperties.h"
 #include "SVNInfo.h"
@@ -108,12 +108,8 @@ BOOL CRepositoryLister::CListQuery::ReportList
     , bool is_dav_comment
     , apr_time_t lock_creationdate
     , apr_time_t lock_expirationdate
-    , const CString& absolutepath
-    , const CString& externalParentUrl
-    , const CString& externalTarget)
+    , const CString& absolutepath)
 {
-    UNREFERENCED_PARAMETER(externalParentUrl);
-    UNREFERENCED_PARAMETER(externalTarget);
     // skip the parent path
 
     if (path.IsEmpty())
@@ -129,7 +125,7 @@ BOOL CRepositoryLister::CListQuery::ReportList
     CString relPath = absolutepath + (abspath_has_slash ? _T("") : _T("/"));
     CItem entry
         ( path
-        , externalTarget 
+        , CString()
         , kind
         , size
         , has_props
@@ -162,8 +158,7 @@ BOOL CRepositoryLister::CListQuery::Cancel()
 
 void CRepositoryLister::CListQuery::InternalExecute()
 {
-    // TODO: let the svn API fetch the externals
-    if (!List (path, GetRevision(), GetPegRevision(), svn_depth_immediates, true, complete, false))
+    if (!List (path, GetRevision(), GetPegRevision(), svn_depth_immediates, true, complete))
     {
         // something went wrong or query was cancelled
         // -> store error, clear results and terminate sub-queries
@@ -275,7 +270,7 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
 
     static const std::string svnExternals (SVN_PROP_EXTERNALS);
 
-    SVNReadProperties properties (path, GetRevision(), GetPegRevision(), runSilently, false);
+    SVNReadProperties properties (path, GetRevision(), GetPegRevision(), runSilently);
 
     std::string externals;
     for (int i = 0, count = properties.GetCount(); i < count; ++i)
@@ -722,13 +717,13 @@ CString CRepositoryLister::GetList
     // find that query
 
     CListQuery* query = FindQuery (url, pegRev, repository, complete, includeExternals);
-    if (query == NULL)
-    {
-        // something went very wrong.
-        // Report than and let the user do a refresh
+	if (query == NULL)
+	{
+		// something went very wrong.
+		// Report than and let the user do a refresh
 
-        return CString(MAKEINTRESOURCE(IDS_REPOBROWSE_QUERYFAILURE));
-    }
+		return CString(MAKEINTRESOURCE(IDS_REPOBROWSE_QUERYFAILURE));
+	}
 
     // wait for the results to come in and return them
     // get "ordinary" list plus direct externals
@@ -767,13 +762,11 @@ CString CRepositoryLister::AddSubTreeExternals
 
         int levels = CItem::Levels (externalsRelPath);
         for (TI iter = begin; iter != end; ++iter)
-        {
             if (   (iter->external_position == levels)
                 && (iter->external_rel_path.Find (externalsRelPath) == 0))
             {
                 items.push_back (*iter);
             }
-        }
     }
 
     return query->GetError();

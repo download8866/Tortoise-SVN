@@ -128,7 +128,7 @@ bool CLogDlgFilter::Match (char* text, size_t size) const
                 // lowercase won't work: we first have to convert
                 // the string to wide-char. Very very slow, but unavoidable
                 // if we want to make this work right.
-                CStringA as = CStringA(text, (int)size);
+                CStringA as = CStringA(text, size);
                 CString s = CUnicodeUtils::GetUnicode(as);
                 s.MakeLower();
                 as = CUnicodeUtils::GetUTF8(s);
@@ -540,7 +540,7 @@ bool CLogDlgFilter::operator() (const CLogEntryData& entry) const
     if (patterns.empty() && subStringConditions.empty())
         return !negate;
 
-    if (hideNonMergeable && mergedrevs && !mergedrevs->empty())
+    if (hideNonMergeable && mergedrevs && mergedrevs->size())
     {
         if (mergedrevs->find(entry.GetRevision()) != mergedrevs->end())
             return false;

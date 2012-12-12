@@ -36,13 +36,17 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#if !defined(_WIN32) && !defined(WIN32)
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
 # include <signal.h>
 # if !defined(__RTP__) && !defined(_WRS_KERNEL)
 #  include <pwd.h>
 # endif
 # include <unistd.h>
 # include <sys/types.h>
+#endif
+
+#ifdef __OS2__
+# include <unistd.h>
 #endif
 
 #ifdef HAVE_EDITLINE
@@ -64,9 +68,7 @@
 # include <io.h>
 #define isatty(h) _isatty(h)
 #define access(f,m) _access((f),(m))
-#undef popen
 #define popen(a,b) _popen((a),(b))
-#undef pclose
 #define pclose(x) _pclose(x)
 #else
 /* Make sure isatty() has a prototype.
@@ -90,7 +92,7 @@ static int enableTimer = 0;
 #define IsDigit(X)  isdigit((unsigned char)X)
 #define ToLower(X)  (char)tolower((unsigned char)X)
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(_WRS_KERNEL)
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -1451,7 +1453,6 @@ static int process_input(struct callback_data *p, FILE *in);
 */
 static void open_db(struct callback_data *p){
   if( p->db==0 ){
-    sqlite3_initialize();
     sqlite3_open(p->zDbFilename, &p->db);
     db = p->db;
     if( db && sqlite3_errcode(db)==SQLITE_OK ){
@@ -2183,25 +2184,23 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         zShellStatic = azArg[1];
         rc = sqlite3_exec(p->db,
           "SELECT sql FROM "
-          "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
+          "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
           "     FROM sqlite_master UNION ALL"
-          "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
+          "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
           "WHERE lower(tbl_name) LIKE shellstatic()"
           "  AND type!='meta' AND sql NOTNULL "
-          "ORDER BY substr(type,2,1), "
-                  " CASE type WHEN 'view' THEN rowid ELSE name END",
+          "ORDER BY substr(type,2,1), name",
           callback, &data, &zErrMsg);
         zShellStatic = 0;
       }
     }else{
       rc = sqlite3_exec(p->db,
          "SELECT sql FROM "
-         "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
+         "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
          "     FROM sqlite_master UNION ALL"
-         "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
+         "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
          "WHERE type!='meta' AND sql NOTNULL AND name NOT LIKE 'sqlite_%'"
-         "ORDER BY substr(type,2,1),"
-                  " CASE type WHEN 'view' THEN rowid ELSE name END",
+         "ORDER BY substr(type,2,1), name",
          callback, &data, &zErrMsg
       );
     }
@@ -2467,7 +2466,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     open_db(p);
     output_file_close(p->traceOut);
     p->traceOut = output_file_open(azArg[1]);
-#if !defined(SQLITE_OMIT_TRACE) && !defined(SQLITE_OMIT_FLOATING_POINT)
+#ifndef SQLITE_OMIT_TRACE
     if( p->traceOut==0 ){
       sqlite3_trace(p->db, 0, 0);
     }else{
@@ -2695,13 +2694,11 @@ static char *find_home_dir(void){
   static char *home_dir = NULL;
   if( home_dir ) return home_dir;
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
-  {
-    struct passwd *pwent;
-    uid_t uid = getuid();
-    if( (pwent=getpwuid(uid)) != NULL) {
-      home_dir = pwent->pw_dir;
-    }
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
+  struct passwd *pwent;
+  uid_t uid = getuid();
+  if( (pwent=getpwuid(uid)) != NULL) {
+    home_dir = pwent->pw_dir;
   }
 #endif
 
@@ -2711,7 +2708,7 @@ static char *find_home_dir(void){
   home_dir = "/";
 #else
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
   if (!home_dir) {
     home_dir = getenv("USERPROFILE");
   }
@@ -2721,7 +2718,7 @@ static char *find_home_dir(void){
     home_dir = getenv("HOME");
   }
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
   if (!home_dir) {
     char *zDrive, *zPath;
     int n;
@@ -2774,7 +2771,6 @@ static int process_sqliterc(
 #endif
       return 1;
     }
-    sqlite3_initialize();
     zBuf = sqlite3_mprintf("%s/.sqliterc",home_dir);
     sqliterc = zBuf;
   }
@@ -2938,7 +2934,11 @@ int main(int argc, char **argv){
     }
   }
   if( i<argc ){
+#if defined(SQLITE_OS_OS2) && SQLITE_OS_OS2
+    data.zDbFilename = (const char *)convertCpPathToUtf8( argv[i++] );
+#else
     data.zDbFilename = argv[i++];
+#endif
   }else{
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";

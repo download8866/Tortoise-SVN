@@ -53,20 +53,18 @@ If Err.Number <> 0 Then
 End If
 
 On Error Goto 0
-'Create the DesktopSet
+'Create the DesktopSet 
 Set objDesktop = objServiceManager.createInstance("com.sun.star.frame.Desktop")
 'Adjust the paths for OO
 sMyDoc=Replace(sMyDoc, "\", "/")
 sMyDoc=Replace(sMyDoc, ":", "|")
 sMyDoc=Replace(sMyDoc, "%", "%25")
 sMyDoc=Replace(sMyDoc, " ", "%20")
-sMyDoc=Replace(sMyDoc, "#", "%23")
 sMyDoc="file:///"&sMyDoc
 sTheirDoc=Replace(sTheirDoc, "\", "/")
 sTheirDoc=Replace(sTheirDoc, ":", "|")
 sTheirDoc=Replace(sTheirDoc, "%", "%25")
 sTheirDoc=Replace(sTheirDoc, " ", "%20")
-sTheirDoc=Replace(sTheirDoc, "#", "%23")
 sTheirDoc="file:///"&sTheirDoc
 
 'Open the %mine document

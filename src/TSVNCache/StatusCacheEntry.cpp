@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "statuscacheentry.h"
+#include "StdAfx.h"
+#include ".\statuscacheentry.h"
 #include "SVNStatus.h"
 #include "CacheInterface.h"
 #include "registry.h"
@@ -122,12 +122,6 @@ void CStatusCacheEntry::SetStatus(const svn_client_status_t* pSVNStatus, bool ne
     if(pSVNStatus == NULL)
     {
         SetAsUnversioned();
-        if (forceNormal)
-        {
-            m_svnStatus.text_status = svn_wc_status_normal;
-            m_svnStatus.prop_status = svn_wc_status_normal;
-            m_svnStatus.node_status = svn_wc_status_normal;
-        }
     }
     else
     {

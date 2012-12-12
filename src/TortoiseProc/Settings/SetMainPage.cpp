@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 #include "DirFileEnum.h"
 #include "SVNProgressDlg.h"
 #include "..\version.h"
-#include "setmainpage.h"
+#include ".\setmainpage.h"
 #include "SVN.h"
 #include "SysInfo.h"
 #include "Libraries.h"
@@ -36,7 +36,6 @@ CSetMainPage::CSetMainPage()
     , m_sTempExtensions(_T(""))
     , m_bLastCommitTime(FALSE)
     , m_bUseAero(TRUE)
-    , m_dwLanguage(0)
 {
     m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
     CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
@@ -114,9 +113,9 @@ BOOL CSetMainPage::OnInitDialog()
         if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0)
         {
             CString sVer = _T(STRPRODUCTVER);
-            sVer = sVer.Left(sVer.ReverseFind('.'));
+            sVer = sVer.Left(sVer.ReverseFind(','));
             CString sFileVer = CPathUtils::GetVersionFromFile(file);
-            sFileVer = sFileVer.Left(sFileVer.ReverseFind('.'));
+            sFileVer = sFileVer.Left(sFileVer.ReverseFind(','));
             if (sFileVer.Compare(sVer)!=0)
                 continue;
             CString sLoc = filename.Mid(12);
@@ -189,8 +188,9 @@ void CSetMainPage::OnBnClickedChecknewerbutton()
 {
     TCHAR com[MAX_PATH+100];
     GetModuleFileName(NULL, com, MAX_PATH);
+    _tcscat_s(com, _T(" /command:updatecheck /visible"));
 
-    CCreateProcessHelper::CreateProcessDetached(com, L" /command:updatecheck /visible");
+    CAppUtils::LaunchApplication(com, 0, false);
 }
 
 void CSetMainPage::OnBnClickedSounds()

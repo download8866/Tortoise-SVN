@@ -1,9 +1,6 @@
 // Test file for SubWCRev
 
 char *Revision      = "$WCREV$";
-char *Revision16    = "$WCREV&0xFF$";
-char *Revisionp100  = "$WCREV+100$";
-char *Revisionm100  = "$WCREV-100$";
 char *Modified      = "$WCMODS?Modified:Not modified$";
 char *Date          = "$WCDATE$";
 char *CustDate      = "$WCDATE=%a, %d %B %Y$";
@@ -13,8 +10,6 @@ char *TimeNow       = "$WCNOW$";
 char *TimeNowUTC    = "$WCNOWUTC$";
 char *RevRange      = "$WCRANGE$";
 char *Mixed         = "$WCMIXED?Mixed revision WC:Not mixed$";
-char *ExtAllFixed   = "$WCEXTALLFIXED?All externals fixed:Not all externals fixed$";
-char *IsTagged      = "$WCISTAGGED?Tagged:Not tagged$";
 char *URL           = "$WCURL$";
 char *isInSVN       = "$WCINSVN?versioned:not versioned$";
 char *needslck      = "$WCNEEDSLOCK?TRUE:FALSE$";

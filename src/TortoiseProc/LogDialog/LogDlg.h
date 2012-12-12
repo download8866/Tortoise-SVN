@@ -101,10 +101,9 @@ public:
 
 protected:
     //implement the virtual methods from SVN base class
-    virtual BOOL Log(svn_revnum_t rev, const std::string& author, const std::string& message, apr_time_t time, const MergeInfo* mergeInfo) override;
-    virtual BOOL Cancel() override;
-    virtual bool Validate(LPCTSTR string) override;
-
+    virtual BOOL Log(svn_revnum_t rev, const std::string& author, const std::string& message, apr_time_t time, const MergeInfo* mergeInfo);
+    virtual BOOL Cancel();
+    virtual bool Validate(LPCTSTR string);
     virtual bool FilterConditionChanged();
 
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -213,7 +212,7 @@ private:
     void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
     void ShowContextMenuForChangedpaths(CWnd* pWnd, CPoint point);
 
-    virtual CString GetToolTipText(int nItem, int nSubItem) override;
+    virtual CString GetToolTipText(int nItem, int nSubItem);
     bool DoFindItemLogList(LPNMLVFINDITEM pFindInfo, size_t startIndex, size_t endIndex,
         const CString& whatToFind, LRESULT *pResult);
     void NotifyTargetOnOk();
@@ -227,7 +226,7 @@ private:
     void AutoRestoreSelection();
 
     // ListViewAccProvider
-    virtual CString GetListviewHelpString(HWND hControl, int index) override;
+    virtual CString GetListviewHelpString(HWND hControl, int index);
 public:
     CWnd *              m_pNotifyWindow;
     ProjectProperties   m_ProjectProperties;

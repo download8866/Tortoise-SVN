@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MessageBox.h"
 #include "SmartHandle.h"
 #include "XMessageBox.h"

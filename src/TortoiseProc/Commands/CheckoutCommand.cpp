@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,13 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "CheckoutCommand.h"
 
 #include "CheckoutDlg.h"
 #include "SVNProgressDlg.h"
 #include "BrowseFolder.h"
+#include "auto_buffer.h"
 
 bool CheckoutCommand::Execute()
 {
@@ -38,9 +39,9 @@ bool CheckoutCommand::Execute()
         {
             checkoutDirectory.SetFromWin(sOrigCWD, true);
             DWORD len = ::GetTempPath(0, NULL);
-            std::unique_ptr<TCHAR[]> tszPath(new TCHAR[len]);
-            ::GetTempPath(len, tszPath.get());
-            if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath.get(), len-2 /* \\ and \0 */) == 0)
+            auto_buffer<TCHAR> tszPath(len);
+            ::GetTempPath(len, tszPath);
+            if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath, len-2 /* \\ and \0 */) == 0)
             {
                 // if the current directory is set to a temp directory,
                 // we don't use that but leave it empty instead.
@@ -58,30 +59,9 @@ bool CheckoutCommand::Execute()
     }
 
     CCheckoutDlg dlg;
-    dlg.m_URLs.LoadFromAsteriskSeparatedString (parser.GetVal(_T("url")));
-    if (dlg.m_URLs.GetCount()==0)
-    {
-        SVN svn;
-        if (svn.IsRepository(cmdLinePath))
-        {
-            CString url;
-            // The path points to a local repository.
-            // Add 'file:///' so the repository browser recognizes
-            // it as an URL to the local repository.
-            if (cmdLinePath.GetWinPathString().GetAt(0) == '\\')    // starts with '\' means an UNC path
-            {
-                CString p = cmdLinePath.GetWinPathString();
-                p.TrimLeft('\\');
-                url = _T("file://")+p;
-            }
-            else
-                url = _T("file:///")+cmdLinePath.GetWinPathString();
-            url.Replace('\\', '/');
-            dlg.m_URLs.AddPath(CTSVNPath(url));
-            checkoutDirectory.AppendRawString(L"wc");
-        }
-    }
     dlg.m_strCheckoutDirectory = checkoutDirectory.GetWinPathString();
+    dlg.m_URLs.LoadFromAsteriskSeparatedString (parser.GetVal(_T("url")));
+
     // if there is no url specified on the command line, check if there's one
     // specified in the settings dialog to use as the default and use that
     CRegString regDefCheckoutUrl(_T("Software\\TortoiseSVN\\DefaultCheckoutUrl"));

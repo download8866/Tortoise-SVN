@@ -26,6 +26,7 @@
 #include "SetOverlayHandlers.h"
 #include "SettingsProgsDiff.h"
 #include "SettingsProgsMerge.h"
+#include "SettingsProgsUniDiff.h"
 #include "SetLookAndFeelPage.h"
 #include "SetDialogs.h"
 #include "SettingsColors.h"
@@ -40,7 +41,6 @@
 #include "SettingsRevGraphColors.h"
 #include "TreePropSheet/TreePropSheet.h"
 #include "SettingsAdvanced.h"
-#include "SettingsDialogs3.h"
 
 #include "AeroGlass.h"
 #include "AeroControls.h"
@@ -77,6 +77,7 @@ private:
     CSetOverlayHandlers *           m_pOverlayHandlersPage;
     CSettingsProgsDiff *            m_pProgsDiffPage;
     CSettingsProgsMerge *           m_pProgsMergePage;
+    CSettingsProgsUniDiff *         m_pProgsUniDiffPage;
     CSetLookAndFeelPage *           m_pLookAndFeelPage;
     CSetDialogs *                   m_pDialogsPage;
     CSettingsRevisionGraph *        m_pRevisionGraphPage;
@@ -90,7 +91,6 @@ private:
     CSetBugTraq *                   m_pBugTraqPage;
     CSettingsTBlame *               m_pTBlamePage;
     CSettingsAdvanced *             m_pAdvanced;
-    SettingsDialogs3 *              m_pDialogs3Page;
 
     HICON                           m_hIcon;
     CDwmApiImpl                     m_Dwm;

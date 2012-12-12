@@ -619,13 +619,7 @@ size_t CLogDataVector::GetVisibleCount() const
 
 PLOGENTRYDATA CLogDataVector::GetVisible (size_t index) const
 {
-    if (index < visible.size())
-    {
-        size_t i = visible.at (index);
-        if (i < size())
-            return at (i);
-    }
-    return NULL;
+    return at (visible.at (index));
 }
 
 namespace
@@ -873,7 +867,7 @@ void CLogDataVector::Filter (__time64_t from, __time64_t to, bool hideNonMergeab
 
         if ((date >= from) && (date <= to))
         {
-            if (hideNonMergeable && mergedrevs && !mergedrevs->empty())
+            if (hideNonMergeable && mergedrevs && mergedrevs->size())
             {
                 if ((mergedrevs->find(entry->GetRevision()) == mergedrevs->end()) && (entry->GetRevision() >= minrev))
                     visible.push_back (i);
@@ -891,7 +885,7 @@ void CLogDataVector::ClearFilter(bool hideNonMergeables, std::set<svn_revnum_t> 
 
     for (size_t i=0, count = size(); i < count; ++i)
     {
-        if (hideNonMergeables && mergedrevs && !mergedrevs->empty())
+        if (hideNonMergeables && mergedrevs && mergedrevs->size())
         {
             svn_revnum_t r = inherited::operator[](i)->GetRevision();
             if ((r >= minrev) && (mergedrevs->find(r) == mergedrevs->end()))
