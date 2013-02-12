@@ -1,0 +1,90 @@
+// TortoiseMerge - a Diff/Patch program
+
+// Copyright (C) 2006-2007, 2009-2012 - TortoiseSVN
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+#pragma once
+#include "ViewData.h"
+#include <map>
+#include <list>
+
+class CBaseView;
+
+/**
+ * \ingroup TortoiseMerge
+ * this struct holds all the information of a single change in TortoiseMerge.
+ */
+typedef struct viewstate
+{
+    std::map<int, CString> difflines;
+    std::map<int, DWORD> linestates;
+    std::map<int, DWORD> linelines;
+    std::map<int, EOL> linesEOL;
+    std::list<int> addedlines;
+
+    std::map<int, viewdata> removedlines;
+    std::map<int, viewdata> replacedlines;
+
+    void    AddViewLineFromView(CBaseView *pView, int nViewLine, bool bAddEmptyLine);
+    void    Clear();
+    bool    IsEmpty() { return difflines.empty() && linestates.empty() && linelines.empty() && linesEOL.empty() && addedlines.empty() && removedlines.empty() && replacedlines.empty(); }
+} viewstate;
+
+/**
+ * \ingroup TortoiseMerge
+ * this struct holds all the information of a single change in TortoiseMerge for all(3) views.
+ */
+struct allviewstate
+{
+    viewstate right;
+    viewstate bottom;
+    viewstate left;
+
+    void    Clear() { right.Clear(); bottom.Clear(); left.Clear(); }
+    bool    IsEmpty() { return right.IsEmpty() && bottom.IsEmpty() && left.IsEmpty(); }
+};
+
+/**
+ * \ingroup TortoiseMerge
+ * Holds all the information of previous changes made to a view content.
+ * Of course, can undo those changes.
+ */
+class CUndo
+{
+public:
+    static CUndo& GetInstance();
+
+    bool Undo(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom);
+    void AddState(const allviewstate& allstate, POINT pt);
+    bool CanUndo() {return !m_viewstates.empty();}
+
+    bool IsGrouping() { return m_groups.size() % 2 == 1; }
+    void BeginGrouping() { if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); m_groupCount++; }
+    void EndGrouping(){ m_groupCount--; if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); }
+    void Clear();
+    void MarkAsOriginalState() { m_originalstate = m_viewstates.size(); }
+protected:
+    void Undo(const viewstate& state, CBaseView * pView, const POINT& pt);
+    void UndoOne(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom);
+    std::list<allviewstate> m_viewstates;
+    std::list<POINT> m_caretpoints;
+    std::list< std::list<int>::size_type > m_groups;
+    size_t m_originalstate;
+    int m_groupCount;
+private:
+    CUndo();
+    ~CUndo();
+};
