@@ -149,13 +149,6 @@
             previously used URLs.
         </para>
         <para>
-            If you are merging from a renamed or deleted branch then you will
-            have to go back to a revision where that branch still existed. In this
-            case you will also need to specify that revision as a peg revision
-            in the range of revisions being merged (see below), otherwise
-            the merge will fail when it can't find that path at HEAD.
-        </para>
-        <para>
             In the <guilabel>Revision range to merge</guilabel> field
             enter the list of revisions you want to merge. This can
             be a single revision, a list of specific revisions
@@ -190,7 +183,7 @@
             </para>
             <para>
                 If you are merging revisions in chunks, the method
-                shown in the Subversion book will have you merge
+                shown in the subversion book will have you merge
                 100-200 this time and 200-300 next time. With
                 TortoiseSVN you would merge 100-200 this time and
                 201-300 next time.
@@ -424,19 +417,6 @@
             merge and see if it's as expected. Merging is usually quite complicated.
             Conflicts often arise if the branch has drifted far from the trunk.
         </para>
-        <tip>
-            <para>
-                Whenever revisions are merged into a working copy,
-                TortoiseSVN generates a log message from all the
-                merged revisions. Those are then available from the
-                <guibutton>Recent Messages</guibutton> button in the
-                commit dialog.
-            </para>
-            <para>
-                To customize that generated message, set the corresponding
-                project properties on your working copy. See <xref linkend="tsvn_dug_propertypage-edit-mergelogmsgtemplate"/>
-            </para>
-        </tip>
         <para>
             For Subversion clients and servers prior to 1.5, no merge information
             is stored and merged revisions have to be tracked manually.
@@ -544,7 +524,7 @@
         </para>
         <para>
             Find out more about merge tracking from Subversion's
-            <ulink url="http://svn.apache.org/repos/asf/Subversion/trunk/notes/merge-tracking/index.html">
+            <ulink url="http://svn.apache.org/repos/asf/subversion/trunk/notes/merge-tracking/index.html">
                 <citetitle>Merge tracking documentation</citetitle>
             </ulink>.
         </para>

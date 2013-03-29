@@ -16,6 +16,10 @@
 #include <assert.h>
 #include <ctype.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
+
 #include <string>
 #include <map>
 #include <set>
@@ -153,7 +157,7 @@ class LexerAsm : public ILexer {
 public:
 	LexerAsm() {
 	}
-	virtual ~LexerAsm() {
+	~LexerAsm() {
 	}
 	void SCI_METHOD Release() {
 		delete this;

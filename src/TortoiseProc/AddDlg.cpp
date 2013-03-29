@@ -22,7 +22,7 @@
 #include "DirFileEnum.h"
 #include "AddDlg.h"
 #include "SVNConfig.h"
-#include "registry.h"
+#include "Registry.h"
 #include "AppUtils.h"
 
 #define REFRESHTIMER   100
@@ -68,7 +68,7 @@ BOOL CAddDlg::OnInitDialog()
     m_aeroControls.SubclassOkCancelHelp(this);
 
     // initialize the svn status list control
-    m_addListCtrl.Init(SVNSLC_COLEXT, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCHANGELISTS|SVNSLC_POPCREATEPATCH|SVNSLC_POPRESTORE)); // adding and committing is useless in the add dialog
+    m_addListCtrl.Init(SVNSLC_COLEXT, _T("AddDlg"), SVNSLC_POPALL ^ (SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCHANGELISTS|SVNSLC_POPCREATEPATCH)); // adding and committing is useless in the add dialog
     m_addListCtrl.SetIgnoreRemoveOnly();    // when ignoring, don't add the parent folder since we're in the add dialog
     m_addListCtrl.SetUnversionedRecurse(true);  // recurse into unversioned folders - user might want to add those too
     m_addListCtrl.SetSelectButton(&m_SelectAll);

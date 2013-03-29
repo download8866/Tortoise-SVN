@@ -30,7 +30,6 @@ CResizableComboBox::CResizableComboBox()
 {
     m_bClipMaxHeight = TRUE;
     m_bIntegralHeight = TRUE;
-    m_iExtent = 0;
 }
 
 CResizableComboBox::~CResizableComboBox()

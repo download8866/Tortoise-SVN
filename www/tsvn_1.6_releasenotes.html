@@ -1,23 +1,23 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta name="keywords" content="release notes" />
+<meta name="description" content="TortoiseSVN release notes, version 1.6" />
+<meta http-equiv="content-language" content="en" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>TortoiseSVN - Release notes for 1.6</title>
-<meta name="description" content="TortoiseSVN release notes, version 1.6"/>
-<meta name="keywords" content="release notes"/>
-<meta http-equiv="content-language" content="en"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-<link rel="shortcut icon" href="favicon.ico"/>
-<link href="css/pack.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="langselection">
-    <a href="support.html">EN</a>&nbsp;<a href="support.de.html">DE</a>
+    <a href="support.html">EN</a> <a href="support.de.html">DE</a>
 </div>
 <div id="wrapper">
-    <!--#include FILE="menu.html"-->
-    <div id="page">
-        <div id="banner">&nbsp;</div>
-        <div id="content">
+    <!--#include FILE="menu.html" -->
+	<div id="page">
+		<div id="banner">&nbsp;</div>
+		<div id="content">
 
             <div class="post" id="news">
                 <h2>What's New in TortoiseSVN 1.6</h2>
@@ -43,7 +43,7 @@
                 bugfixes not present in any earlier release.</p>
             </div>  <!-- news -->
 
-            <div class="post" id="compatibility">
+            <div class="post" id="compatibility" title="compatibility">
                 <h2>Compatibility Concerns</h2>
 
                 <p>Older clients and servers interoperate transparently with 1.6
@@ -52,7 +52,8 @@
                 cases where a new feature will work but will run less efficiently if the client is
                 new and the server old.</p>
 
-                <div class="h3" id="new-feature-compatibility-table">
+                <div class="h3" id="new-feature-compatibility-table"
+                             title="new-feature-compatibility-table">
                 <h3>New Feature Compatibility Table</h3>
                 <table border="1">
                   <tr>
@@ -70,7 +71,8 @@
                 </table>
                 </div>  <!-- new-feature-compatibility-table -->
 
-                <div class="h3" id="wc-and-fs-format-change">
+                <div class="h3" id="wc-and-fs-format-change"
+                             title="wc-and-fs-format-change">
                     <h3>Working Copy and Repository Filesystem Format Changes</h3>
 
                     <p>The working copy format has been upgraded.  This means that 1.5 and
@@ -78,7 +80,7 @@
                     working copies produced by Subversion/TortoiseSVN 1.6.  Working copies are <a
                     href="#wc-upgrades" >upgraded automatically</a>.</p>
 
-                    <div class="h4" id="wc-upgrades">
+                    <div class="h4" id="wc-upgrades" title="wc-upgrades">
                     <h4>Working Copy Upgrades</h4>
 
                     <p><strong>WARNING:</strong> if a Subversion 1.6 client encounters a
@@ -92,7 +94,7 @@
                     <p>If you accidentally upgrade a 1.5 working copy to 1.6, and wish to
                     downgrade back to 1.5, use the <a
                     href="http://svn.collab.net/repos/svn/trunk/tools/client-side/change-svn-wc-format.py"
-                    ><code>change-svn-wc-format.py</code></a> script.  See <a
+                    ><tt>change-svn-wc-format.py</tt></a> script.  See <a
                     href="http://subversion.apache.org/faq.html#working-copy-format-change"
                     >this FAQ entry</a> for details, and run the script with the
                     <code>--help</code> option for usage instructions.</p>
@@ -102,23 +104,24 @@
 
             $ADSENSE_INPAGE$
 
-            <div class="post" id="new-features">
+            <div class="post" id="new-features" title="new-features">
                 <h2>New Features / Enhancements</h2>
 
-                <div class="h3" id="bdb-file">
+
+                <div class="h3" id="bdb-file" title="bdb-file">
                 <h3>file:/// access to BDB repositories</h3>
                 <p>TortoiseSVN 1.6 no longer supports access to BDB repositories via the
                 file:/// url. This doesn't affect accessing BDB repositories over svn:// or http:// though.</p>
                 <p>If you have a BDB repository that you still access via the file:/// url, you
-                have to convert the repository to the FSFS format with the
+                have to convert the repository to the FSFS format with the 
                 <a href="http://svnbook.red-bean.com/en/1.5/svn.ref.svnadmin.html">svnadmin</a> tool
                 which is available in the <a href="http://subversion.apache.org/getting.html#windows">SVN command line client</a>.</p>
-                <p>Please follow the
-                <a href="http://svnbook.red-bean.com/en/1.5/svn.reposadmin.maint.html#svn.reposadmin.maint.migrate">instructions</a>
+                <p>Please follow the 
+                <a href="http://svnbook.red-bean.com/en/1.5/svn.reposadmin.maint.html#svn.reposadmin.maint.migrate">instructions</a> 
                 in the Subversion book to convert the repository.</p>
                 </div> <!-- bdb-file -->
 
-                <div class="h3" id="tree-conflicts">
+                <div class="h3" id="tree-conflicts" title="tree-conflicts">
                 <h3>Improved handling of tree conflicts</h3>
 
                 <p>Subversion 1.6 can detect tree conflicts during update/merge/switch
@@ -134,7 +137,7 @@
                 the type of tree conflict and hints on how you can resolve those conflicts.</p>
                 </div>  <!-- tree-conflicts -->
 
-                <div class="h3" id="log-cache">
+                <div class="h3" id="log-cache" title="Log Cache">
                 <h3>Log Cache</h3>
 
                 <p>The log cache introduced in TortoiseSVN 1.5 has been improved to run
@@ -144,20 +147,20 @@
                 <p>Also, repositories sharing the same URL or UUID are now fully supported.</p>
                 </div>  <!-- log-cache -->
 
-                <div class="h3" id="revisiongraph">
+                <div class="h3" id="revisiongraph" title="revision-graph">
                 <h3>Revision Graph</h3>
 
                 <p>The revision graph has changed dramatically and has been rewritten almost
                 completely.</p>
 
-                <a href="img/Tortoise-1.6-trunkgraph-full.png"><img src="img/Tortoise-1.6-revisiongraph.png" alt="revision graph"/></a>
+                <a href="images/Tortoise-1.6-trunkgraph-full.png"><img alt="revision graph" src="images/Tortoise-1.6-revisiongraph.png" /></a>
 
                 <p>The new revision graph has many more options to tweak the output. For example,
                 it is now possible to hide/show individual subtrees.
                 </p>
                 </div>  <!-- revision-graph -->
 
-                <div class="h3" id="bugtraq-plugin">
+                <div class="h3" id="bugtraq-plugin" title="IBugtraq provider plugin enhancements">
                 <h3>IBugtraq provider plugin enhancements</h3>
                 <p>A new interface IBugtraqProvider2 can be used by plugins get more control
                 over commits and provide more information for the user.</p>
@@ -166,11 +169,11 @@
                 It also allows plugins to show an options/settings dialog. And a plugin can add
                 revision properties with each commit.</p>
                 <p>Developers interested in writing a plugin for an issue tracker can get the
-                code for example plugins in C++ and C# from our
+                code for example plugins in C++ and C# from our 
                 <a href="http://code.google.com/p/tortoisesvn/source/browse/#svn/trunk/contrib/issue-tracker-plugins">contrib folder</a>.</p>
                 </div>  <!-- bugtraq-plugin -->
 
-                <div class="h3" id="misc">
+                <div class="h3" id="misc" title="misc">
                 <h3>Misc changes</h3>
 
                 <p>
@@ -186,17 +189,17 @@
                 </p>
                 <p>
                 Of course, those are not all the enhancements/changes that were done for this 1.6
-                release. You can get a more detailed list of changes from the
-                <a href="http://code.google.com/p/tortoisesvn/source/browse/tags/version_1.6.0/src/Changelog.txt">changelog</a>
+                release. You can get a more detailed list of changes from the 
+                <a href="http://code.google.com/p/tortoisesvn/source/browse/tags/version_1.6.0/src/Changelog.txt">changelog</a> 
                 or by showing the svn log on our repository.</p>
                 </p>
                 </div>  <!-- misc -->
             </div>  <!-- new features -->
 
-            <div class="post" id="issues">
+            <div class="post" id="issues" title="issues">
                 <h2>Known issues in 1.6</h2>
 
-                <div class="h3" id="file-ext">
+                <div class="h3" id="file-ext" title="file-externals">
                 <h3>File externals</h3>
                 <p>Subversion 1.6 now supports single file externals as well as folder externals.
                 However, there are some significant issues you should be aware of before using them.</p>
@@ -211,12 +214,12 @@
             </div>  <!-- known issues -->
         </div>
         <!-- end #content -->
-
-        <!--#include FILE="sidebar.html"-->
-        <div style="clear: both">&nbsp;</div>
+        
+        <!--#include FILE="sidebar.html" -->
+        <div style="clear: both;">&nbsp;</div>
     </div>
     <!-- end #page -->
-    <!--#include FILE="footer.html"-->
+    <!--#include FILE="footer.html" -->
 </div>
 </body>
 </html>

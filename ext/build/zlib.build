@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="zlib" default="build" basedir="..\zlib">
+<project name="zlib" default="build" basedir="..\..\..\common\zlib">
 
   <!-- ====================================================================== -->
   <!-- Project targets                                                        -->
@@ -24,7 +24,7 @@
     <mkdir dir="${configuration}_${platform}" />
     <if test="${platform == 'win32'}">
       <copy todir="." overwrite="true">
-        <fileset basedir="contrib\masmx86">
+        <fileset basedir="contrib/masmx86">
           <include name="*.asm" />
           <include name="*.c" />
         </fileset>
@@ -35,7 +35,7 @@
     </if>
     <if test="${platform == 'x64'}">
       <copy todir="." overwrite="true">
-        <fileset basedir="contrib\masmx64">
+        <fileset basedir="contrib/masmx64">
           <include name="*.asm" />
           <include name="*.c" />
         </fileset>
@@ -43,19 +43,21 @@
       <exec program="ml64" commandline="-nologo -c -Zi -Fo${configuration}_${platform}\gvmat64.obj gvmat64.asm" />
     </if>
     <cl outputdir="${configuration}_${platform}">
-      <arg value="/O2" if="${configuration == 'release'}" />
-      <arg value="/Od" if="${configuration == 'debug'}" />
-      <arg value="/EHsc" />
-      <arg value="/MD" if="${configuration == 'release'}" />
-      <arg value="/MDd" if="${configuration == 'debug'}" />
+      <arg value="/Ox" if="${configuration == 'release'}" />
+      <arg value="/Od" if="${configuration != 'release'}" />
+      <arg value="/GF" if="${configuration == 'release'}" />
+      <arg value="/Gs" if="${configuration == 'release'}" />
+      <arg value="/FD" />
+      <arg value="/EHa-" />
+      <arg value="/MD" if="${(configuration == 'release')}" />
+      <arg value="/MDd" if="${(configuration != 'release')}" />
       <arg value="/Gy" />
       <arg value="/W0" />
       <arg value="/nologo" />
       <arg value="/c" />
       <arg value="/Zi" />
       <arg value="/MP" />
-      <arg value="/GL" if="${configuration == 'release'}" />
-      <arg value="/arch:IA32" if="${configuration == 'release' and platform == 'win32'}" />
+      <arg value="/errorReport:prompt" />
       <sources>
         <include name="*.c" />
       </sources>
@@ -65,22 +67,21 @@
       <defines>
         <define name="_CRT_NONSTDC_NO_DEPRECATE" />
         <define name="_CRT_SECURE_NO_DEPRECATE" />
+        <define name="APU_DECLARE_EXPORT" />
         <define name="WIN32" />
         <define name="_WINDOWS" />
         <define name="_WIN32" />
         <define name="HAS_ADLER32_FAST" />
         <define name="WIN64" if="${platform == 'x64'}" />
         <define name="NDEBUG" if="${configuration == 'release'}"/>
-        <define name="_DEBUG" if="${configuration == 'debug'}"/>
-        <define name="_USING_V110_SDK71_" />
+        <define name="_DEBUG" if="${configuration != 'release'}"/>
       </defines>
     </cl>
-    <property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}" />
-    <property name="machineoption" value="/MACHINE:X64" if="${platform == 'x64'}" />
+    <property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}"  />
+    <property name="machineoption" value="/MACHINE:x64" if="${platform == 'x64'}" />
     <lib
       output="${configuration}_${platform}\zlibstat.lib"
       options='/NOLOGO /SUBSYSTEM:WINDOWS ${machineoption}'>
-      <arg value="/LTCG" if="${configuration == 'release'}" />
       <sources>
         <include name="${configuration}_${platform}\*.obj" />
         <exclude name="${configuration}_${platform}\example.obj" />

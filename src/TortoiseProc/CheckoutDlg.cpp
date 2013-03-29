@@ -40,8 +40,6 @@ CCheckoutDlg::CCheckoutDlg(CWnd* pParent /*=NULL*/)
     , m_parentExists(false)
     , m_blockPathAdjustments(FALSE)
     , m_bBlockMessages(false)
-    , m_bAutoCreateTargetName(false)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -576,7 +574,7 @@ void CCheckoutDlg::OnBnClickedSparse()
 
     CString strUrl = paths.GetCommonRoot().GetSVNPathString();
     CRepositoryBrowser browser(strUrl, rev, this);
-    browser.SetSparseCheckoutMode(CTSVNPath());
+    browser.SetSparseCheckoutMode();
     if (browser.DoModal() == IDOK)
     {
         m_checkoutDepths = browser.GetCheckoutDepths();

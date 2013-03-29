@@ -16,11 +16,11 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include <shellapi.h>
-#include <CommCtrl.h>
+#include "StdAfx.h"
+#include "shellapi.h"
+#include "commctrl.h"
 #include "PicWindow.h"
-#include <math.h>
+#include "math.h"
 #include "SysInfo.h"
 #include <memory>
 
@@ -659,7 +659,7 @@ void CPicWindow::SetupScrollBars()
 
     double width = double(picture.m_Width)*picscale;
     double height = double(picture.m_Height)*picscale;
-    if (pSecondPic && pTheOtherPic)
+    if (pSecondPic)
     {
         width = max(width, double(pSecondPic->m_Width)*pTheOtherPic->GetZoom());
         height = max(height, double(pSecondPic->m_Height)*pTheOtherPic->GetZoom());

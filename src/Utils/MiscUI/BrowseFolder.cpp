@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,11 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <windowsx.h>
 #include "BrowseFolder.h"
 #include "PathUtils.h"
 #include "SmartHandle.h"
-#include <strsafe.h>
 
 BOOL CBrowseFolder::m_bCheck = FALSE;
 BOOL CBrowseFolder::m_bCheck2 = FALSE;
@@ -111,7 +110,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         {
             typedef HRESULT (WINAPI *SHCIFPN)(PCWSTR pszPath, IBindCtx * pbc, REFIID riid, void ** ppv);
 
-            CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+            CAutoLibrary hLib = LoadLibrary(L"shell32.dll");
             if (hLib)
             {
                 SHCIFPN pSHCIFPN = (SHCIFPN)GetProcAddress(hLib, "SHCreateItemFromParsingName");
@@ -190,7 +189,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         browseInfo.lParam           = (LPARAM)this;
         browseInfo.lpfn             = BrowseCallBackProc;
 
-        PCIDLIST_ABSOLUTE itemIDList = SHBrowseForFolder(&browseInfo);
+        LPITEMIDLIST itemIDList = SHBrowseForFolder(&browseInfo);
 
         //is the dialog canceled?
         if (!itemIDList)
@@ -203,7 +202,15 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
 
             path.ReleaseBuffer();
 
-            CoTaskMemFree((LPVOID)itemIDList);
+            LPMALLOC shellMalloc = 0;
+            hr = SHGetMalloc(&shellMalloc);
+            if (SUCCEEDED(hr))
+            {
+                //free memory
+                shellMalloc->Free(itemIDList);
+                //release interface
+                shellMalloc->Release();
+            }
         }
     }
 
@@ -244,7 +251,7 @@ void CBrowseFolder::SetFont(HWND hwnd,LPTSTR FontName,int FontSize)
     GetObject(GetWindowFont(hwnd),sizeof(lf),&lf);
     lf.lfWeight = FW_REGULAR;
     lf.lfHeight = (LONG)FontSize;
-    StringCchCopy( lf.lfFaceName, _countof(lf.lfFaceName), FontName );
+    lstrcpy( lf.lfFaceName, FontName );
     hf=CreateFontIndirect(&lf);
     SetBkMode(hdc,OPAQUE);
     SendMessage(hwnd,WM_SETFONT,(WPARAM)hf,TRUE);
@@ -371,7 +378,7 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
     {
         // Set the status window to the currently selected path.
         TCHAR szDir[MAX_PATH];
-        if (SHGetPathFromIDList((PCIDLIST_ABSOLUTE)lParam, szDir))
+        if (SHGetPathFromIDList((LPITEMIDLIST)lParam, szDir))
         {
             SendMessage(hwnd,BFFM_SETSTATUSTEXT, 0, (LPARAM)szDir);
         }

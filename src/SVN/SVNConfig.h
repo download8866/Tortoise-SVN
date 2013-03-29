@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2010, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2006, 2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -48,19 +48,6 @@ public:
     apr_hash_t * GetConfig(apr_pool_t * pool);
 
     /**
-     * Reloads the configuration
-     */
-    void Refresh();
-
-    /**
-     * Returns the error object from the initialization, or nullptr if there wasn't any
-     */
-    svn_error_t * GetError() const
-    {
-        return Err;
-    }
-
-    /**
      * Reads the global ignore patterns which will be used later in
      * MatchIgnorePattern().
      * \return TRUE if the function is successful
@@ -71,20 +58,20 @@ public:
      * Checks if the \c name matches a pattern in the array of
      * ignore patterns.
      * \param name the name to check
+     * \param *patterns the array of ignore patterns. Get this array with GetDefaultIgnores()
      * \return TRUE if the name matches a pattern, FALSE if it doesn't.
      */
     BOOL MatchIgnorePattern(const CString& name);
 
     BOOL KeepLocks();
 
+    static bool SetUpSSH(svn_client_ctx_t * ctx);
 private:
-    bool SetUpSSH();
-
     apr_pool_t *                parentpool;
     apr_pool_t *                pool;
     apr_hash_t *                config;
     apr_array_header_t *        patterns;
-    svn_error_t *               Err;
+
     CComCriticalSection         m_critSec;
     static SVNConfig *          m_pInstance;
 };

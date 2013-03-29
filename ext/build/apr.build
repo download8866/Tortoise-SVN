@@ -37,20 +37,21 @@
     </rc>
 
     <cl outputdir="${configuration}_${platform}">
-      <arg value="/O2" if="${configuration == 'release'}" />
-      <arg value="/Od" if="${configuration == 'debug'}" />
+      <arg value="/Ox" if="${configuration == 'release'}" />
+      <arg value="/Od" if="${configuration != 'release'}" />
       <arg value="/GF" if="${configuration == 'release'}" />
-      <arg value="/EHsc" />
-      <arg value="/MD" if="${configuration == 'release'}" />
-      <arg value="/MDd" if="${configuration == 'debug'}" />
+      <arg value="/Gs" if="${configuration == 'release'}" />
+      <arg value="/FD" />
+      <arg value="/EHa-" />
+      <arg value="/MD" if="${(configuration == 'release')}" />
+      <arg value="/MDd" if="${(configuration != 'release')}" />
       <arg value="/Gy" />
       <arg value="/W0" />
       <arg value="/nologo" />
       <arg value="/c" />
       <arg value="/Zi" />
       <arg value="/MP" />
-      <arg value="/GL" if="${configuration == 'release'}" />
-      <arg value="/arch:IA32" if="${configuration == 'release' and platform == 'win32'}" />
+      <arg value="/errorReport:prompt" />
       <sources>
         <include name="network_io\win32\*.c" />
         <include name="network_io\unix\inet_ntop.c" />
@@ -102,18 +103,16 @@
         <define name="WIN64" if="${platform == 'x64'}" />
         <define name="_WINDLL" />
         <define name="NDEBUG" if="${configuration == 'release'}"/>
-        <define name="_DEBUG" if="${configuration == 'debug'}"/>
-        <define name="_USING_V110_SDK71_" />
+        <define name="_DEBUG" if="${configuration != 'release'}"/>
       </defines>
     </cl>
     <property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}" />
-    <property name="machineoption" value="/MACHINE:X64" if="${platform == 'x64'}" />
+    <property name="machineoption" value="/MACHINE:x64" if="${platform == 'x64'}" />
     <property name="platext" value ="32" if="${platform == 'win32'}" />
     <property name="platext" value ="" if="${platform == 'x64'}" />
     <link
-      output="${configuration}_${platform}\libapr_tsvn${platext}.dll"
-      options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:"${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" /DEBUG /PDB:"${configuration}_${platform}\libapr_tsvn.pdb" /DLL ${subsystem} /OPT:REF /OPT:ICF /BASE:"0x6EEC0000" /IMPLIB:"${configuration}_${platform}\libapr_tsvn.lib" ${machineoption} ${configuration}_${platform}\libapr_tsvn.res ws2_32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib Shell32.lib'>
-      <arg line="/LTCG /RELEASE" if="${configuration == 'release'}" />
+              output="${configuration}_${platform}\libapr_tsvn${platext}.dll"
+              options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:".\${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" /DEBUG /PDB:".\${configuration}_${platform}/libapr_tsvn.pdb" /DLL /SUBSYSTEM:WINDOWS /OPT:REF /BASE:"0x6EEC0000" /IMPLIB:".\${configuration}_${platform}/libapr_tsvn.lib" ${machineoption} ${configuration}_${platform}\libapr_tsvn.res ws2_32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib Shell32.lib'>
       <sources>
         <include name="${configuration}_${platform}\*.obj" />
       </sources>
@@ -121,8 +120,8 @@
     <exec program="mt.exe">
       <arg value="-nologo" />
       <arg value="-manifest" />
-      <arg value="${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" />
-      <arg value='/outputresource:"${configuration}_${platform}\libapr_tsvn${platext}.dll;#2"' />
+      <arg value=".\${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" />
+      <arg value='/outputresource:".\${configuration}_${platform}\libapr_tsvn${platext}.dll;#2"' />
     </exec>
     <delete file="include\arch\win32\apr_arch_poll_private.h" failonerror="false" />
   </target>

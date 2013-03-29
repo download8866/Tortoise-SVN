@@ -22,7 +22,6 @@
 #include "AboutDlg.h"
 #include "svn_version.h"
 #include "..\version.h"
-#include "..\..\ext\serf\serf.h"
 #include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
@@ -64,17 +63,11 @@ BOOL CAboutDlg::OnInitDialog()
     CString temp;
     const svn_version_t * svnver = svn_client_version();
 
-    CString svnvertag = CString(svnver->tag);
-    if (svnvertag.IsEmpty())
-    {
-        svnvertag = L"-release";
-    }
-
     temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE),
-        svnver->major, svnver->minor, svnver->patch, (LPCWSTR)svnvertag,
+        svnver->major, svnver->minor, svnver->patch, CString(svnver->tag),
         APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
         APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
-        SERF_MAJOR_VERSION, SERF_MINOR_VERSION, SERF_PATCH_VERSION,
+        _T(NEON_VERSION),
         _T(OPENSSL_VERSION_TEXT),
         _T(ZLIB_VERSION));
     SetDlgItemText(IDC_VERSIONABOUT, temp);
@@ -147,8 +140,9 @@ void CAboutDlg::OnBnClickedUpdate()
 {
     TCHAR com[MAX_PATH+100];
     GetModuleFileName(NULL, com, MAX_PATH);
+    _tcscat_s(com, _T(" /command:updatecheck /visible"));
 
-    CCreateProcessHelper::CreateProcessDetached(com, L" /command:updatecheck /visible");
+    CAppUtils::LaunchApplication(com, 0, false);
 }
 
 void CAboutDlg::OnClose()

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2013 - TortoiseSVN
+// Copyright (C) 2006-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "resource.h"
+#include "StdAfx.h"
+#include "Resource.h"
 #include "AppUtils.h"
 
 #include "bottomview.h"
@@ -60,23 +60,9 @@ void CBottomView::UseBlock(CBaseView * pwndView, int nFirstViewLine, int nLastVi
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
     {
         viewdata lineData = pwndView->GetViewData(viewLine);
-        if ((lineData.ending != EOL_NOENDING)||(viewLine < (GetViewCount()-1)))
-            lineData.ending = lineendings;
+        lineData.ending = lineendings;
         lineData.state = ResolveState(lineData.state);
         SetViewData(viewLine, lineData);
-    }
-
-    // make sure previous (non empty) line have EOL set
-    for (int nCheckViewLine = nFirstViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
-    {
-        if (!IsViewLineEmpty(nCheckViewLine))
-        {
-            if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
-            {
-                SetViewLineEnding(nCheckViewLine, lineendings);
-            }
-            break;
-        }
     }
 
     int nRemovedLines = CleanEmptyLines();
@@ -112,8 +98,7 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
     {
         viewdata lineData = pwndFirst->GetViewData(viewLine);
-        if ((lineData.ending != EOL_NOENDING)||(viewLine < (GetViewCount()-1)))
-            lineData.ending = lineendings;
+        lineData.ending = lineendings;
         lineData.state = ResolveState(lineData.state);
         SetViewData(viewLine, lineData);
         if (!IsStateEmpty(pwndFirst->GetViewState(viewLine)))
@@ -121,19 +106,6 @@ void CBottomView::UseBothBlocks(CBaseView * pwndFirst, CBaseView * pwndLast)
             pwndFirst->SetViewState(viewLine, DIFFSTATE_YOURSADDED); // this is improper (may be DIFFSTATE_THEIRSADDED) but seems not to produce any visible bug
         }
     }
-    // make sure previous (non empty) line have EOL set
-    for (int nCheckViewLine = nFirstViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
-    {
-        if (!IsViewLineEmpty(nCheckViewLine))
-        {
-            if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
-            {
-                SetViewLineEnding(nCheckViewLine, lineendings);
-            }
-            break;
-        }
-    }
-
     SaveUndoStep();
 
     // use (insert) last block

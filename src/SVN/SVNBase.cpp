@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2013 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNBase.h"
 #include "TSVNPath.h"
 #include "StringUtils.h"
@@ -36,8 +36,6 @@
 #include "svn_pools.h"
 #include "svn_client.h"
 #pragma warning(pop)
-
-extern "C" void TSVN_ClearLastUsedAuthCache();
 
 SVNBase::SVNBase()
     : Err(NULL)
@@ -133,9 +131,6 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
             msg += temp;
         }
         temp.Empty();
-        if (svn_error_find_cause(Err, SVN_ERR_WC_LOCKED) && (Err->apr_err != SVN_ERR_WC_CLEANUP_REQUIRED))
-            temp.LoadString(IDS_SVNERR_RUNCLEANUP);
-
 #ifdef IDS_SVNERR_CHECKPATHORURL
         // add some hint text for some of the error messages
         switch (Err->apr_err)
@@ -158,21 +153,6 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
         case SVN_ERR_WC_CORRUPT_TEXT_BASE:
             // do a "cleanup". If that doesn't work you need to do a fresh checkout.
             temp.LoadString(IDS_SVNERR_CLEANUPORFRESHCHECKOUT);
-            break;
-        case SVN_ERR_REPOS_POST_COMMIT_HOOK_FAILED:
-            temp.LoadString(IDS_SVNERR_POSTCOMMITHOOKFAILED);
-            break;
-        case SVN_ERR_REPOS_POST_LOCK_HOOK_FAILED:
-            temp.LoadString(IDS_SVNERR_POSTLOCKHOOKFAILED);
-            break;
-        case SVN_ERR_REPOS_POST_UNLOCK_HOOK_FAILED:
-            temp.LoadString(IDS_SVNERR_POSTUNLOCKHOOKFAILED);
-            break;
-        case SVN_ERR_REPOS_HOOK_FAILURE:
-            temp.LoadString(IDS_SVNERR_HOOKFAILED);
-            break;
-        case SVN_ERR_SQLITE_BUSY:
-            temp.LoadString(IDS_SVNERR_SQLITEBUSY);
             break;
         default:
             break;
@@ -215,7 +195,7 @@ int SVNBase::ShowErrorDialog( HWND hParent, const CTSVNPath& wcPath, const CStri
     if (!sErr.IsEmpty())
         sError = sErr;
 
-    CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"Comctl32.dll");
+    CAutoLibrary hLib = LoadLibrary(L"Comctl32.dll");
     if (hLib)
     {
         TDLG pTDLG = (TDLG)GetProcAddress(hLib, "TaskDialogIndirect");
@@ -224,6 +204,11 @@ int SVNBase::ShowErrorDialog( HWND hParent, const CTSVNPath& wcPath, const CStri
             CString sCleanup = CString(MAKEINTRESOURCE(IDS_RUNCLEANUPNOW));
             CString sClose = CString(MAKEINTRESOURCE(IDS_CLOSE));
             CString sInstruction = CString(MAKEINTRESOURCE(IDS_SVNREPORTEDANERROR));
+            TASKDIALOG_BUTTON aCustomButtons[2];
+            aCustomButtons[0].nButtonID = 1000;
+            aCustomButtons[0].pszButtonText = sCleanup;
+            aCustomButtons[1].nButtonID = IDOK;
+            aCustomButtons[1].pszButtonText = sClose;
 
             TASKDIALOGCONFIG tconfig = {0};
             tconfig.cbSize = sizeof(TASKDIALOGCONFIG);
@@ -235,11 +220,6 @@ int SVNBase::ShowErrorDialog( HWND hParent, const CTSVNPath& wcPath, const CStri
             tconfig.pszMainInstruction = sInstruction;
             tconfig.pszContent = (LPCTSTR)sError;
 #ifdef HAVE_APPUTILS
-            TASKDIALOG_BUTTON aCustomButtons[2];
-            aCustomButtons[0].nButtonID = 1000;
-            aCustomButtons[0].pszButtonText = sCleanup;
-            aCustomButtons[1].nButtonID = IDOK;
-            aCustomButtons[1].pszButtonText = sClose;
             if (Err && (Err->apr_err == SVN_ERR_WC_CLEANUP_REQUIRED) && (!wcPath.IsEmpty()))
             {
                 tconfig.dwCommonButtons = 0;
@@ -265,17 +245,6 @@ int SVNBase::ShowErrorDialog( HWND hParent, const CTSVNPath& wcPath, const CStri
 
     ret = MessageBox(hParent, (LPCTSTR)sError, L"TortoiseSVN", MB_ICONERROR);
     return ret;
-}
-
-void SVNBase::ClearCAPIAuthCacheOnError()
-{
-    if (Err != NULL)
-    {
-        if ( (SVN_ERROR_IN_CATEGORY(Err->apr_err, SVN_ERR_AUTHN_CATEGORY_START)) ||
-             (SVN_ERROR_IN_CATEGORY(Err->apr_err, SVN_ERR_AUTHZ_CATEGORY_START)) ||
-             (Err->apr_err == SVN_ERR_RA_DAV_FORBIDDEN))
-            TSVN_ClearLastUsedAuthCache();
-    }
 }
 
 #endif

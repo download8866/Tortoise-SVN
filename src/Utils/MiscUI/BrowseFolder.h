@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010, 2013 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,7 +52,6 @@ public:
      * Shows the Dialog.
      * \param parent [in] window handle of the parent window.
      * \param path [out] the path to the folder which the user has selected
-     * \param sDefaultPath [in]
      * \return one of CANCEL, NOPATH or OK
      */
     CBrowseFolder::retVal Show(HWND parent, CString& path, const CString& sDefaultPath = CString());
@@ -81,7 +80,7 @@ protected:
     static HWND ListView;
     static CString m_sDefaultPath;
     TCHAR m_displayName[200];
-    PCIDLIST_ABSOLUTE m_root;
+    LPITEMIDLIST m_root;
     static TCHAR m_CheckText[200];
     static TCHAR m_CheckText2[200];
     static bool m_DisableCheckbox2WhenCheckbox1IsChecked;

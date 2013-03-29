@@ -15,14 +15,12 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNDataObject.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
 #include "TempFile.h"
 #include "StringUtils.h"
-#include <strsafe.h>
-
 
 CLIPFORMAT CF_FILECONTENTS = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILECONTENTS);
 CLIPFORMAT CF_FILEDESCRIPTOR = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
@@ -57,10 +55,6 @@ SVNDataObject::~SVNDataObject()
 // IUnknown
 //////////////////////////////////////////////////////////////////////////
 
-#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
-#define IID_IDataObjectAsyncCapability IID_IAsyncOperation
-#endif
-
 STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
 {
     if(ppvObject == 0)
@@ -68,8 +62,8 @@ STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
     *ppvObject = NULL;
     if (IsEqualIID(IID_IUnknown, riid) || IsEqualIID(IID_IDataObject, riid))
         *ppvObject=static_cast<IDataObject*>(this);
-    else if (IsEqualIID(riid, IID_IDataObjectAsyncCapability))
-        *ppvObject = static_cast<IDataObjectAsyncCapability*>(this);
+    else if (IsEqualIID(riid, IID_IAsyncOperation))
+        *ppvObject = static_cast<IAsyncOperation*>(this);
     else
         return E_NOINTERFACE;
 
@@ -726,8 +720,8 @@ HRESULT SVNDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, L
     DROPDESCRIPTION* pDropDescription = (DROPDESCRIPTION*)GlobalLock(medium.hGlobal);
     if (pDropDescription == nullptr)
         return E_FAIL;
-    StringCchCopy(pDropDescription->szInsert, _countof(pDropDescription->szInsert), insert);
-    StringCchCopy(pDropDescription->szMessage, _countof(pDropDescription->szMessage), format);
+    lstrcpyW(pDropDescription->szInsert, insert);
+    lstrcpyW(pDropDescription->szMessage, format);
     pDropDescription->type = image;
     GlobalUnlock(medium.hGlobal);
     return SetData(&fetc, &medium, TRUE);

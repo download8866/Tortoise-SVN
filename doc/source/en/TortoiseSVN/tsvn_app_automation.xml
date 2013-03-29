@@ -242,11 +242,6 @@ Don't touch these lines:
                                 The <option>/stickydepth</option> indicates that
                                 the specified depth should be sticky, creating
                                 a sparse checkout.
-								The <option>/skipprechecks</option> can be set
-								to skip all checks that are done before an update. If this
-								is specified, then the <guilabel>Show log</guilabel> button
-								is disabled, and the context menu
-								to show diffs is also disabled after the update.
                             </entry>
                         </row>
                         <row>
@@ -320,8 +315,7 @@ Don't touch these lines:
                             <entry condition="pot">:switch</entry>
                             <entry>
                                 Opens the switch dialog. The <option>/path</option> specifies the
-                                target directory and <option>/url</option> the
-                                URL to switch to.
+                                target directory.
                             </entry>
                         </row>
                         <row>
@@ -346,20 +340,7 @@ Don't touch these lines:
                                 user confirmation, and the option <option>/autorename</option>
                                 specifies that if files already exist, the exported
                                 files get automatically renamed to avoid overwriting
-                                them. The option <option>/extended</option> can specify either
-                                <literal>localchanges</literal> to only export files that
-                                got changed locally, or <literal>unversioned</literal>
-                                to also export all unversioned items as well.
-                            </entry>
-                        </row>
-                        <row>
-                            <entry condition="pot">:dropvendor</entry>
-                            <entry>
-                                Copies the folder in <option>/path</option> recursively
-                                to the directory specified in <option>/droptarget</option>.
-								New files are added automatically, and missing files get
-								removed in the target working copy, basically ensuring
-								that source and destination are exactly the same.
+                                them.
                             </entry>
                         </row>
                         <row>
@@ -395,9 +376,7 @@ Don't touch these lines:
                                 The <option>/path</option>
                                 is the working copy to branch/tag from.
                                 And the <option>/url</option> is the
-                                target URL. To already check the option <literal>Switch 
-                                working copy to new branch/tag</literal> you can pass
-                                the <option>/switchaftercopy</option> switch.
+                                target URL.
                                 You can also specify the <option>/logmsg</option> switch
                                 to pass a predefined log message to the branch/tag dialog.
                                 Or, if you don't want to pass the log message on the
@@ -576,11 +555,7 @@ Don't touch these lines:
                             <entry condition="pot">:createpatch</entry>
                             <entry>
                                 Creates a patch file for the path given in
-                                <option>/path</option>. To skip the file Save-As dialog
-                                you can pass <option>/savepath:path</option> to specify
-                                the path where to save the patch file to directly.
-                                To prevent the unified diff viewer from being started showing
-                                the patch file, pass <option>/noview</option>.
+                                <option>/path</option>.
                             </entry>
                         </row>
                         <row>
@@ -646,21 +621,8 @@ Don't touch these lines:
                         <row>
                             <entry condition="pot">:properties</entry>
                             <entry>
-                                <para>
-                                    Shows the properties dialog for the path given in
-                                    <option>/path</option>.
-                                </para>
-                                <para>
-                                    For dealing with versioned properties this command requires a working copy.
-                                </para>
-                                <para>
-                                    Revision properties can be viewed/changed if <option>/path</option> is an
-                                    URL and <option>/rev:XXX</option> is specified.
-                                </para>
-                                <para>
-                                    To open the properties dialog directly for a specific
-                                    property, pass the property name as <option>/property:name</option>.
-                                </para>
+                                Shows the properties dialog for the path given in
+                                <option>/path</option>.
                             </entry>
                         </row>
                     </tbody>
@@ -728,7 +690,6 @@ TortoiseProc.exe /command:log /path:"c:\svn_wc\file1.txt"
                 <listitem><literal condition="pot">:repostatus</literal></listitem>
                 <listitem><literal condition="pot">:revisiongraph</literal></listitem>
                 <listitem><literal condition="pot">:showcompare</literal></listitem>
-                <listitem><literal condition="pot">:log</literal></listitem>
             </itemizedlist>
         </para>
         <para>

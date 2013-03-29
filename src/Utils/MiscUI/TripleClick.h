@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2012 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,11 +26,7 @@
 class CTripleClick
 {
 public:
-    CTripleClick()
-        : m_LastDblClickMsg(0)
-        , m_LastDblClickTime(0)
-    {
-    }
+    CTripleClick() {}
     virtual ~CTripleClick() {}
 
     virtual void OnLButtonTrippleClick(UINT /*nFlags*/, CPoint /*point*/) {}
@@ -80,3 +76,20 @@ private:
     UINT    m_LastDblClickMsg;
     DWORD   m_LastDblClickTime;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

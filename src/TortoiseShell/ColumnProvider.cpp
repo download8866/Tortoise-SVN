@@ -26,7 +26,6 @@
 #include "PathUtils.h"
 #include "SysInfo.h"
 #include "..\TSVNCache\CacheInterface.h"
-#include <strsafe.h>
 
 
 const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
@@ -87,9 +86,9 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->csFlags = SHCOLSTATE_TYPE_INT | SHCOLSTATE_ONBYDEFAULT;
 
             MAKESTRING(IDS_COLTITLEREV);
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
             MAKESTRING(IDS_COLDESCREV);
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
             break;
         case 2: // SVN Url
             if (cachetype == ShellCache::none)
@@ -141,9 +140,9 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->cChars = 15;
             psci->csFlags = SHCOLSTATE_TYPE_INT;
             MAKESTRING(IDS_COLTITLESTATUSNUMBER);
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
             MAKESTRING(IDS_COLDESCSTATUS);
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
             break;
         default:
             // SVN custom properties
@@ -155,8 +154,8 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->fmt = LVCFMT_LEFT;
             psci->cChars = 30;
             psci->csFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_SECONDARYUI | SHCOLSTATE_SLOW;
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), columnuserprops.at(psci->scid.pid).first.c_str());
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), columnuserprops.at(psci->scid.pid).first.c_str());
+            lstrcpynW(psci->wszTitle, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_NAME_LEN);
+            lstrcpynW(psci->wszDescription, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_DESC_LEN);
             break;
     }
 
@@ -173,9 +172,9 @@ void CShellExt::GetColumnInfo(SHCOLUMNINFO* psci, DWORD dwIndex, UINT characters
     psci->csFlags = ColumnFlags;
 
     MAKESTRING(titleId);
-    StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+    lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
     MAKESTRING(descriptionId);
-    StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+    lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
 }
 
 STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData)
@@ -354,7 +353,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(LPCSHCOLUMNINIT psci)
             {
                 if(!g_ShellCache.IsVersioned(svnpath.GetWinPath(), true, true))
                     break;  // beyond root of working copy
-                SVNProperties props(svnpath, false, false);
+                SVNProperties props(svnpath, false);
                 for (int i=0; i<props.GetCount(); ++i)
                 {
                     std::string name = props.GetItemName(i);
@@ -548,7 +547,7 @@ void CShellExt::GetMainColumnStatus(const TCHAR * path, BOOL bIsDir)
 
 void CShellExt::ExtractProperty(const TCHAR* path, const char* propertyName, tstring& to)
 {
-    SVNProperties props(CTSVNPath(path), false, false);
+    SVNProperties props(CTSVNPath(path), false);
     for (int i=0; i<props.GetCount(); i++)
     {
         if (props.GetItemName(i).compare(propertyName)==0)

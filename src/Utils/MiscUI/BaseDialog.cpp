@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-
 #include "stdafx.h"
 #include "BaseDialog.h"
-#include <CommCtrl.h>
-#include <WindowsX.h>
+#include "commctrl.h"
 
 INT_PTR CDialog::DoModal(HINSTANCE hInstance, int resID, HWND hWndParent)
 {
@@ -41,8 +39,6 @@ INT_PTR CDialog::DoModal(HINSTANCE hInstance, int resID, HWND hWndParent, UINT i
         ::EnableWindow(hWndParent, FALSE);
 
     ShowWindow(m_hwnd, SW_SHOW);
-    ::BringWindowToTop(m_hwnd);
-    ::SetForegroundWindow(m_hwnd);
 
     // Main message loop:
     MSG msg = {0};
@@ -59,9 +55,8 @@ INT_PTR CDialog::DoModal(HINSTANCE hInstance, int resID, HWND hWndParent, UINT i
         {
             if (!PreTranslateMessage(&msg))
             {
-                if (!TranslateAccelerator(m_hwnd, hAccelTable, &msg) &&
-                    !IsDialogMessage(m_hwnd, &msg)
-                    )
+                if (!IsDialogMessage(m_hwnd, &msg) &&
+                    !TranslateAccelerator(m_hwnd, hAccelTable, &msg))
                 {
                     TranslateMessage(&msg);
                     DispatchMessage(&msg);
@@ -107,7 +102,7 @@ void CDialog::InitDialog(HWND hwndDlg, UINT iconID)
 
     hwndOwner = ::GetParent(hwndDlg);
     GetWindowPlacement(hwndOwner, &placement);
-    if ((hwndOwner == NULL) || (placement.showCmd == SW_SHOWMINIMIZED) || (placement.showCmd == SW_SHOWMINNOACTIVE))
+    if ((hwndOwner == NULL)||(placement.showCmd == SW_SHOWMINIMIZED)||(placement.showCmd == SW_SHOWMINNOACTIVE))
         hwndOwner = ::GetDesktopWindow();
 
     GetWindowRect(hwndOwner, &rcOwner);

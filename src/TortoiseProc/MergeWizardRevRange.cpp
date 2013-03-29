@@ -68,8 +68,6 @@ BEGIN_MESSAGE_MAP(CMergeWizardRevRange, CMergeWizardBasePage)
     ON_BN_CLICKED(IDC_SELLOG, &CMergeWizardRevRange::OnBnClickedShowlog)
     ON_BN_CLICKED(IDC_BROWSE, &CMergeWizardRevRange::OnBnClickedBrowse)
     ON_BN_CLICKED(IDC_SHOWLOGWC, &CMergeWizardRevRange::OnBnClickedShowlogwc)
-    ON_BN_CLICKED(IDC_MERGERADIO_ALL, &CMergeWizardRevRange::OnBnClickedMergeradioAll)
-    ON_BN_CLICKED(IDC_MERGERADIO_SPECIFIC, &CMergeWizardRevRange::OnBnClickedMergeradioSpecific)
 END_MESSAGE_MAP()
 
 
@@ -113,10 +111,6 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
 
     ((CMergeWizard*)GetParent())->URL1 = m_URLCombo.GetString();
     ((CMergeWizard*)GetParent())->URL2 = m_URLCombo.GetString();
-
-    if (GetCheckedRadioButton(IDC_MERGERADIO_ALL, IDC_MERGERADIO_SPECIFIC)==IDC_MERGERADIO_ALL)
-        m_sRevRange.Empty();
-
     // if the revision range has HEAD as a revision specified, we have to
     // ask the server what the HEAD revision is: the SVNRevList can only deal
     // with numerical revisions because we have to sort the list to get the
@@ -176,8 +170,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
         SetDlgItemText(IDC_REVISION_RANGE, m_sRevRange);
     }
 
-    CheckRadioButton(IDC_MERGERADIO_ALL, IDC_MERGERADIO_SPECIFIC, IDC_MERGERADIO_SPECIFIC);
-
     CString sLabel;
     sLabel.LoadString(IDS_MERGEWIZARD_REVRANGESTRING);
     SetDlgItemText(IDC_REVRANGELABEL, sLabel);
@@ -190,8 +182,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
     AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_BROWSE, TOP_RIGHT);
     AddAnchor(IDC_MERGEREVRANGERANGEGROUP, TOP_LEFT, TOP_RIGHT);
-    AddAnchor(IDC_MERGERADIO_ALL, TOP_LEFT);
-    AddAnchor(IDC_MERGERADIO_SPECIFIC, TOP_LEFT);
     AddAnchor(IDC_REVISION_RANGE, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_SELLOG, TOP_RIGHT);
     AddAnchor(IDC_REVERSEMERGE, TOP_LEFT);
@@ -332,26 +322,6 @@ LPARAM CMergeWizardRevRange::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
     return 0;
 }
 
-void CMergeWizardRevRange::OnBnClickedMergeradioAll()
-{
-    CWnd * pwndDlgItem = GetDlgItem(IDC_REVISION_RANGE);
-    if (pwndDlgItem == NULL)
-        return;
-    if (GetFocus() == pwndDlgItem)
-    {
-        SendMessage(WM_NEXTDLGCTL, 0, FALSE);
-    }
-    pwndDlgItem->EnableWindow(FALSE);
-}
-
-void CMergeWizardRevRange::OnBnClickedMergeradioSpecific()
-{
-    CWnd * pwndDlgItem = GetDlgItem(IDC_REVISION_RANGE);
-    if (pwndDlgItem == NULL)
-        return;
-    pwndDlgItem->EnableWindow(TRUE);
-}
-
 bool CMergeWizardRevRange::OkToCancel()
 {
     StopWCCheckThread();
@@ -367,3 +337,4 @@ bool CMergeWizardRevRange::OkToCancel()
     }
     return true;
 }
+

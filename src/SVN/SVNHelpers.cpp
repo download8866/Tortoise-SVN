@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNHelpers.h"
 #include "TSVNPath.h"
 #include "SVNConfig.h"
@@ -55,16 +55,22 @@ SVNHelper::SVNHelper(void)
 {
     m_pool = svn_pool_create (NULL);                // create the memory pool
 
-    m_config = SVNConfig::Instance().GetConfig(m_pool);
-    svn_error_clear(svn_client_create_context2(&m_ctx, m_config, m_pool));
+    svn_error_clear(svn_client_create_context(&m_ctx, m_pool));
     m_ctx->cancel_func = cancelfunc;
     m_ctx->cancel_baton = this;
     m_ctx->client_name = SVNHelper::GetUserAgentString(m_pool);
+    m_config = SVNConfig::Instance().GetConfig(m_pool);
 }
 
 SVNHelper::~SVNHelper(void)
 {
     svn_pool_destroy (m_pool);
+}
+
+void SVNHelper::ReloadConfig()
+{
+    m_config = SVNConfig::Instance().GetConfig(m_pool);
+    m_ctx->config = m_config;
 }
 
 svn_client_ctx_t * SVNHelper::ClientContext(apr_pool_t * pool) const
@@ -73,11 +79,12 @@ svn_client_ctx_t * SVNHelper::ClientContext(apr_pool_t * pool) const
         return m_ctx;
 
     svn_client_ctx_t * ctx = nullptr;
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), pool));
+    svn_error_clear(svn_client_create_context(&ctx, pool));
     if (ctx)
     {
         ctx->cancel_func = cancelfunc;
         ctx->cancel_baton = (void *)this;
+        ctx->config = SVNConfig::Instance().GetConfig(pool);
     }
 
     return ctx;
@@ -117,7 +124,7 @@ bool SVNHelper::IsVersioned( const CTSVNPath& path, bool mustbeok )
         svn_error_clear(err);
         return false;
     }
-    err = svn_wc_read_kind2(&kind, pctx, local_abspath, true, true, pool);
+    err = svn_wc_read_kind(&kind, pctx, local_abspath, true, pool);
     if (err)
     {
         switch (err->apr_err)

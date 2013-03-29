@@ -34,9 +34,6 @@ CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
     , m_bNoExternals(FALSE)
     , m_bStickyDepth(FALSE)
     , m_bIgnoreAncestry(FALSE)
-    , m_bFolder(false)
-    , m_height(0)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -87,23 +84,18 @@ BOOL CSwitchDlg::OnInitDialog()
     m_repoRoot = svn.GetRepositoryRootAndUUID(svnPath, true, sUUID);
     m_repoRoot.TrimRight('/');
     CString url = svn.GetURLFromPath(svnPath);
-    CString destUrl = url;
-    if (m_URL != _T(""))
-    {
-        destUrl = m_URL;
-    }
     m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoPaths\\")+sUUID, _T("url"));
     m_URLCombo.SetCurSel(0);
     if (!url.IsEmpty())
     {
-        CString relPath = destUrl.Mid(m_repoRoot.GetLength());
+        CString relPath = url.Mid(m_repoRoot.GetLength());
         relPath = CPathUtils::PathUnescape(relPath);
         relPath.Replace('\\', '/');
         m_URLCombo.AddString(relPath, 0);
         m_URLCombo.SelectString(-1, relPath);
-        m_URL = destUrl;
+        m_URL = url;
 
-        SetDlgItemText(IDC_SRCURL, CTSVNPath(url).GetUIPathString());
+        SetDlgItemText(IDC_SRCURL, CTSVNPath(m_URL).GetUIPathString());
         SetDlgItemText(IDC_DESTURL, CTSVNPath(CPathUtils::CombineUrls(m_repoRoot, relPath)).GetUIPathString());
     }
 

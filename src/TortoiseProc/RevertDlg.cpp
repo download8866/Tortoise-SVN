@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "messagebox.h"
 #include "SVN.h"
-#include "registry.h"
+#include "Registry.h"
 #include "PathUtils.h"
 #include "AppUtils.h"
 #include "Revertdlg.h"
@@ -33,7 +33,6 @@ CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
     , m_bSelectAll(TRUE)
     , m_bThreadRunning(FALSE)
     , m_bCancelled(false)
-    , m_bRecursive(false)
 {
 }
 

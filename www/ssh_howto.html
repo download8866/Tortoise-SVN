@@ -1,25 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta name="keywords" content="ssh, howto, subversion" />
+<meta name="description" content="how to set up SSH with Subversion/TortoiseSVN" />
+<meta http-equiv="content-language" content="en" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>TortoiseSVN - Securing Svnserve using SSH</title>
-<meta name="description" content="how to set up SSH with Subversion/TortoiseSVN"/>
-<meta name="keywords" content="ssh, howto, subversion"/>
-<meta http-equiv="content-language" content="en"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-<link rel="shortcut icon" href="favicon.ico"/>
-<link href="css/pack.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="wrapper">
-    <!--#include FILE="menu.html"-->
-    <div id="page">
-        <div id="banner">&nbsp;</div>
-        <div id="content">
-
-            <div class="post">
-                <h1 class="title"><a href="#">Securing Svnserve using SSH</a></h1>
+    <!--#include FILE="menu.html" -->
+	<div id="page">
+		<div id="banner">&nbsp;</div>
+		<div id="content">
+        
+			<div class="post">
+				<h1 class="title"><a href="#">Securing Svnserve using SSH</a></h1>
                 $ADSENSE_TOP$
-                <div class="entry">
+				<div class="entry">
 
         <p>
             This section provides a step-by-step guide to setting up
@@ -39,7 +39,7 @@
         <p>
             In this appendix we assume that you already have the subversion tools
             installed, and that you have created a repository as detailed elsewhere
-            in this manual. Note that you should <em>not</em> start
+            in this manual. Note that you should <i>not</i> start
             svnserve as a service or daemon when used with SSH.
         </p>
         <p>
@@ -213,7 +213,8 @@ cat keyfile.pub &gt;&gt; /home/svnuser/.ssh/authorized_keys
 PubkeyAuthentication yes
 PasswordAuthentication no
 PermitEmptyPasswords no
-ChallengeResponseAuthentication no</pre>
+ChallengeResponseAuthentication no
+</pre>
         <h2>Testing SSH with TortoiseSVN</h2>
         <p>
             So far we have only tested that you can login using SSH. Now we need
@@ -226,8 +227,9 @@ ChallengeResponseAuthentication no</pre>
         </p>
 <pre>
 command="svnserve -t -r &lt;ReposRootPath&gt; --tunnel-user=&lt;author&gt;",
-         no-port-forwarding,no-agent-forwarding,no-X11-forwarding,
-         no-pty ssh-rsa &lt;PublicKey&gt; &lt;Comment&gt;</pre>
+            no-port-forwarding,no-agent-forwarding,no-X11-forwarding,
+            no-pty ssh-rsa &lt;PublicKey&gt; &lt;Comment&gt;
+</pre>
         <p>
             There are several values that you need to set according to your setup.
         </p>
@@ -308,7 +310,7 @@ svn+ssh://SvnConnection/repos
             so if you have multiple configurations with the same server name, it
             will pick the first one which matches. Also, if you edit the default
             configuration and save it, the auto login user name is
-            <em>not</em> saved.
+            <i>not</i> saved.
         </p>
         <p>
             Many people like to use Pageant for storing all their keys.
@@ -340,7 +342,8 @@ svn+ssh://SvnConnection/repos
         </p>
 <pre>
 svn+ssh://svnuser@100.101.102.103/repos
-svn+ssh://svnuser@mydomain.com/repos</pre>
+svn+ssh://svnuser@mydomain.com/repos
+</pre>
         <p>
             As you can see, we don't use a saved PuTTY session but an IP address
             (or domain name) as the connection target. We also supply the user,
@@ -356,15 +359,15 @@ svn+ssh://svnuser@mydomain.com/repos</pre>
             <cite>HKEY_CURRENT_USER\Software\SimonTatham\Putty\Sessions\Default%20Settings\HostName</cite>.
         </p>
 
-                </div>
-            </div>
-        </div>
-        <!-- end #content -->
-        <!--#include FILE="sidebar.html"-->
-        <div style="clear: both">&nbsp;</div>
-    </div>
-    <!-- end #page -->
-    <!--#include FILE="footer.html"-->
+				</div>
+			</div>
+		</div>
+		<!-- end #content -->
+        <!--#include FILE="sidebar.html" -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+    <!--#include FILE="footer.html" -->
 </div>
 </body>
 </html>

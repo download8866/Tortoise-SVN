@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,13 @@
 
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "registry.h"
+#include "Registry.h"
 #include "HistoryDlg.h"
 
 
 IMPLEMENT_DYNAMIC(CHistoryDlg, CResizableStandAloneDialog)
 CHistoryDlg::CHistoryDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CHistoryDlg::IDD, pParent)
-    , m_history(NULL)
 {
 }
 

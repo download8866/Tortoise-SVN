@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 #include "UnicodeUtils.h"
 #include "RepositoryBrowser.h"
 #include "BrowseFolder.h"
-#include "registry.h"
+#include "Registry.h"
 #include "TSVNPath.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
@@ -43,16 +43,12 @@ CCopyDlg::CCopyDlg(CWnd* pParent /*=NULL*/)
     , m_sBugID(_T(""))
     , m_CopyRev(SVNRev::REV_HEAD)
     , m_bDoSwitch(false)
-    , m_bMakeParents(false)
     , m_bSettingChanged(false)
     , m_bCancelled(false)
     , m_pThread(NULL)
     , m_pLogDlg(NULL)
     , m_bThreadRunning(0)
-    , m_maxrev(0)
-    , m_bmodified(false)
 {
-    m_columnbuf[0] = 0;
 }
 
 CCopyDlg::~CCopyDlg()
@@ -68,7 +64,6 @@ void CCopyDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_BUGID, m_sBugID);
     DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
     DDX_Check(pDX, IDC_DOSWITCH, m_bDoSwitch);
-    DDX_Check(pDX, IDC_MAKEPARENTS, m_bMakeParents);
     DDX_Control(pDX, IDC_FROMURL, m_FromUrl);
     DDX_Control(pDX, IDC_DESTURL, m_DestUrl);
     DDX_Control(pDX, IDC_EXTERNALSLIST, m_ExtList);
@@ -104,7 +99,6 @@ BOOL CCopyDlg::OnInitDialog()
 
     ExtendFrameIntoClientArea(IDC_EXTGROUP);
     m_aeroControls.SubclassControl(this, IDC_DOSWITCH);
-    m_aeroControls.SubclassControl(this, IDC_MAKEPARENTS);
     m_aeroControls.SubclassOkCancelHelp(this);
     m_bCancelled = false;
 
@@ -117,7 +111,6 @@ BOOL CCopyDlg::OnInitDialog()
     AdjustControlSize(IDC_COPYREV);
     AdjustControlSize(IDC_COPYWC);
     AdjustControlSize(IDC_DOSWITCH);
-    AdjustControlSize(IDC_MAKEPARENTS);
 
     CTSVNPath path(m_path);
     CString sWindowTitle;
@@ -272,7 +265,6 @@ BOOL CCopyDlg::OnInitDialog()
     AddAnchor(IDC_CHECKNONE, MIDDLE_LEFT);
     AddAnchor(IDC_EXTERNALSLIST, MIDDLE_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_DOSWITCH, BOTTOM_LEFT);
-    AddAnchor(IDC_MAKEPARENTS, BOTTOM_LEFT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
@@ -313,100 +305,36 @@ UINT CCopyDlg::FindRevThread()
         svn_client_status_t * s = NULL;
         m_maxrev = 0;
         s = stats.GetFirstFileStatus(m_path, retPath, false, svn_depth_unknown, true, true);
-        if (s)
+        while ((s) && (!m_bCancelled))
         {
-            std::string sUUID;
-            if (s->repos_uuid)
-                sUUID = s->repos_uuid;
-            while ((s) && (!m_bCancelled))
+            if (s->kind == svn_node_dir)
             {
-                if (s->repos_uuid && sUUID.empty())
-                    sUUID = s->repos_uuid;
-                if (s->kind == svn_node_dir)
+                // read the props of this dir and find out if it has svn:external props
+                SVNProperties props(retPath, SVNRev::REV_WC, false);
+                for (int i = 0; i < props.GetCount(); ++i)
                 {
-                    // read the props of this dir and find out if it has svn:external props
-                    SVNProperties props(retPath, SVNRev::REV_WC, false, false);
-                    for (int i = 0; i < props.GetCount(); ++i)
+                    if (props.GetItemName(i).compare(SVN_PROP_EXTERNALS) == 0)
                     {
-                        if (props.GetItemName(i).compare(SVN_PROP_EXTERNALS) == 0)
-                        {
-                            m_externals.Add(retPath, props.GetItemValue(i), true);
-                        }
+                        m_externals.Add(retPath, props.GetItemValue(i), true);
                     }
                 }
-                if (s->changed_rev > m_maxrev)
-                    m_maxrev = s->changed_rev;
-                if ( (s->node_status != svn_wc_status_none) &&
-                    (s->node_status != svn_wc_status_normal) &&
-                    (s->node_status != svn_wc_status_external) &&
-                    (s->node_status != svn_wc_status_unversioned) &&
-                    (s->node_status != svn_wc_status_ignored))
-                    m_bmodified = true;
+            }
+            if (s->changed_rev > m_maxrev)
+                m_maxrev = s->changed_rev;
+            if ( (s->node_status != svn_wc_status_none) &&
+                (s->node_status != svn_wc_status_normal) &&
+                (s->node_status != svn_wc_status_external) &&
+                (s->node_status != svn_wc_status_unversioned) &&
+                (s->node_status != svn_wc_status_ignored))
+                m_bmodified = true;
 
-                s = stats.GetNextFileStatus(retPath);
-            }
-            // now go through all externals and scan those as well,
-            // as long as they are from the same repository and therefore
-            // they can be committed with the main commit.
-            std::set<CTSVNPath> exts;
-            stats.GetExternals(exts);
-            for (auto i: exts)
-            {
-                ScanWC(i, sUUID);
-            }
+            s = stats.GetNextFileStatus(retPath);
         }
         if (!m_bCancelled)
             SendMessage(WM_TSVN_MAXREVFOUND);
     }
     InterlockedExchange(&m_bThreadRunning, FALSE);
     return 0;
-}
-
-void CCopyDlg::ScanWC( const CTSVNPath& path, const std::string& sUUID )
-{
-    // find the external properties
-    SVNStatus stats(&m_bCancelled);
-    CTSVNPath retPath;
-    svn_client_status_t * s = stats.GetFirstFileStatus(path, retPath, false, svn_depth_unknown, true, true);
-    if (s == nullptr)
-        return;
-    if (s->file_external)
-        return;
-    if (s->repos_uuid && sUUID.compare(s->repos_uuid))
-        return;
-    while ((s) && (!m_bCancelled))
-    {
-        if (s->repos_uuid && sUUID.compare(s->repos_uuid))
-            return;
-        if (s->kind == svn_node_dir)
-        {
-            // read the props of this dir and find out if it has svn:external props
-            SVNProperties props(retPath, SVNRev::REV_WC, false, false);
-            for (int i = 0; i < props.GetCount(); ++i)
-            {
-                if (props.GetItemName(i).compare(SVN_PROP_EXTERNALS) == 0)
-                {
-                    m_externals.Add(retPath, props.GetItemValue(i), true);
-                }
-            }
-        }
-        if (s->changed_rev > m_maxrev)
-            m_maxrev = s->changed_rev;
-        if ( (s->node_status != svn_wc_status_none) &&
-            (s->node_status != svn_wc_status_normal) &&
-            (s->node_status != svn_wc_status_external) &&
-            (s->node_status != svn_wc_status_unversioned) &&
-            (s->node_status != svn_wc_status_ignored))
-            m_bmodified = true;
-
-        s = stats.GetNextFileStatus(retPath);
-    }
-    std::set<CTSVNPath> exts;
-    stats.GetExternals(exts);
-    for (auto i: exts)
-    {
-        ScanWC(i, sUUID);
-    }
 }
 
 void CCopyDlg::OnOK()

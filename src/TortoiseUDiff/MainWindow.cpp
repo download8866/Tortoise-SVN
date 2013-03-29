@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,23 +16,18 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MainWindow.h"
 #include "UnicodeUtils.h"
 #include "StringUtils.h"
+#include "auto_buffer.h"
 #include "TaskbarUUID.h"
-#include "CreateProcessHelper.h"
-#include "SysInfo.h"
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
 CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = NULL*/)
     : CWindow(hInst, wcx)
     , m_bShowFindBar(false)
-    , m_directFunction(0)
-    , m_directPointer(0)
-    , m_hWndEdit(NULL)
-    , m_bMatchCase(false)
 {
     SetWindowTitle(_T("TortoiseUDiff"));
 }
@@ -53,8 +48,7 @@ bool CMainWindow::RegisterAndCreateWindow()
     wcx.cbWndExtra = 0;
     wcx.hInstance = hResource;
     wcx.hCursor = NULL;
-    ResString clsname(hResource, IDS_APP_TITLE);
-    wcx.lpszClassName = clsname;
+    wcx.lpszClassName = ResString(hResource, IDS_APP_TITLE);
     wcx.hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
     wcx.lpszMenuName = MAKEINTRESOURCE(IDC_TORTOISEUDIFF);
@@ -249,40 +243,12 @@ LRESULT CMainWindow::DoCommand(int id)
         else
             PostQuitMessage(0);
         break;
-    case ID_FILE_SETTINGS:
-        {
-            tstring svnCmd = _T(" /command:settings /page:19");
-            RunCommand(svnCmd);
-        }
-        break;
     default:
         break;
     };
     return 1;
 }
 
-std::wstring CMainWindow::GetAppDirectory()
-{
-    std::wstring path;
-    DWORD len = 0;
-    DWORD bufferlen = MAX_PATH;     // MAX_PATH is not the limit here!
-    do
-    {
-        bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
-        len = GetModuleFileName(NULL, pBuf.get(), bufferlen);
-        path = std::wstring(pBuf.get(), len);
-    } while(len == bufferlen);
-    path = path.substr(0, path.rfind('\\') + 1);
-
-    return path;
-}
-
-void CMainWindow::RunCommand(const std::wstring& command)
-{
-    tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
-}
 
 LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -337,13 +303,6 @@ bool CMainWindow::Initialize()
     SendEditor(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
     SendEditor(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     SendEditor(SCI_SETCARETFORE, ::GetSysColor(COLOR_WINDOWTEXT));
-    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", FALSE);
-    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
-    {
-        SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
-        SendEditor(SCI_SETBUFFEREDDRAW, 0);
-    }
-    SendEditor(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED);
 
     return true;
 }
@@ -436,9 +395,9 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
         return false;
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-    std::unique_ptr<char[]> data (new char[len+1]);
-    SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data.get())));
-    fwrite(data.get(), sizeof(char), len-1, fp);
+    auto_buffer<char> data (len+1);
+    SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data)));
+    fwrite(data, sizeof(char), len-1, fp);
     fclose(fp);
 
     SendEditor(SCI_SETSAVEPOINT);
@@ -449,9 +408,9 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 void CMainWindow::SetTitle(LPCTSTR title)
 {
     size_t len = _tcslen(title);
-    std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
-    _stprintf_s(pBuf.get(), len+40, _T("%s - TortoiseUDiff"), title);
-    SetWindowTitle(std::wstring(pBuf.get()));
+    auto_buffer<TCHAR> pBuf(len+40);
+    _stprintf_s(pBuf, len+40, _T("%s - TortoiseUDiff"), title);
+    SetWindowTitle(std::wstring(pBuf));
 }
 
 void CMainWindow::SetAStyle(int style, COLORREF fore, COLORREF back, int size, const char *face)

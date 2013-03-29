@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009, 2011-2013 - TortoiseSVN
+// Copyright (C) 2003-2006,2009,2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,24 +16,16 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ShellExt.h"
 #include "ItemIDList.h"
 
 
-ItemIDList::ItemIDList(PCUITEMID_CHILD item, PCUIDLIST_RELATIVE parent)
-    : item_ (item)
+ItemIDList::ItemIDList(LPCITEMIDLIST item, LPCITEMIDLIST parent) :
+      item_ (item)
     , parent_ (parent)
     , count_ (-1)
 {
-}
-
-ItemIDList::ItemIDList( PCIDLIST_ABSOLUTE item )
-    : item_ ((PCUITEMID_CHILD)item)
-    , parent_ (0)
-    , count_ (-1)
-{
-
 }
 
 ItemIDList::~ItemIDList()
@@ -124,14 +116,14 @@ tstring ItemIDList::toString(bool resolveLibraries /*= true*/)
         (_tcsncmp(ret.c_str(), _T("::{"), 3)==0))
     {
         CComPtr<IShellLibrary> plib;
-        HRESULT hr = CoCreateInstance(CLSID_ShellLibrary,
-                                      NULL,
-                                      CLSCTX_INPROC_SERVER,
+        HRESULT hr = CoCreateInstance(CLSID_ShellLibrary, 
+                                      NULL, 
+                                      CLSCTX_INPROC_SERVER, 
                                       IID_PPV_ARGS(&plib));
         if (SUCCEEDED(hr))
         {
             typedef HRESULT STDAPICALLTYPE SHCreateItemFromParsingNameFN(__in PCWSTR pszPath, __in_opt IBindCtx *pbc, __in REFIID riid, __deref_out void **ppv);
-            CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
+            CAutoLibrary hShell = ::LoadLibrary(_T("shell32.dll"));
             if (hShell)
             {
                 SHCreateItemFromParsingNameFN *pfnSHCreateItemFromParsingName = (SHCreateItemFromParsingNameFN*)GetProcAddress(hShell, "SHCreateItemFromParsingName");
@@ -165,7 +157,7 @@ tstring ItemIDList::toString(bool resolveLibraries /*= true*/)
     return ret;
 }
 
-PCUITEMID_CHILD ItemIDList::operator& ()
+LPCITEMIDLIST ItemIDList::operator& ()
 {
     return item_;
 }

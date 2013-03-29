@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UnIgnoreCommand.h"
 
 #include "MessageBox.h"
@@ -27,7 +27,6 @@ bool UnIgnoreCommand::Execute()
 {
     BOOL err = FALSE;
     std::set<CString> removeditems;
-    bool bRecursive = !!parser.HasKey(_T("recursive"));
     for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
     {
         CString name = CPathUtils::PathPatternEscape(pathList[nPath].GetFileOrDirectoryName());
@@ -37,17 +36,11 @@ bool UnIgnoreCommand::Execute()
         }
         removeditems.insert(name);
         CTSVNPath parentfolder = pathList[nPath].GetContainingDirectory();
-        SVNProperties props(parentfolder, SVNRev::REV_WC, false, false);
+        SVNProperties props(parentfolder, SVNRev::REV_WC, false);
         CString value;
         for (int i=0; i<props.GetCount(); i++)
         {
-            if (!bRecursive && (props.GetItemName(i).compare(SVN_PROP_IGNORE)==0))
-            {
-                //treat values as normal text even if they're not
-                value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
-                break;
-            }
-            else if (bRecursive && (props.GetItemName(i).compare(SVN_PROP_INHERITABLE_IGNORES)==0))
+            if (props.GetItemName(i).compare(SVN_PROP_IGNORE)==0)
             {
                 //treat values as normal text even if they're not
                 value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
@@ -69,7 +62,7 @@ bool UnIgnoreCommand::Execute()
         sTrimmedvalue.Trim();
         if (sTrimmedvalue.IsEmpty())
         {
-            if (!props.Remove(bRecursive ? SVN_PROP_INHERITABLE_IGNORES : SVN_PROP_IGNORE))
+            if (!props.Remove(SVN_PROP_IGNORE))
             {
                 CString temp;
                 temp.Format(IDS_ERR_FAILEDUNIGNOREPROPERTY, (LPCTSTR)name);
@@ -80,7 +73,7 @@ bool UnIgnoreCommand::Execute()
         }
         else
         {
-            if (!props.Add(bRecursive ? SVN_PROP_INHERITABLE_IGNORES : SVN_PROP_IGNORE, (LPCSTR)CUnicodeUtils::GetUTF8(value)))
+            if (!props.Add(SVN_PROP_IGNORE, (LPCSTR)CUnicodeUtils::GetUTF8(value)))
             {
                 CString temp;
                 temp.Format(IDS_ERR_FAILEDUNIGNOREPROPERTY, (LPCTSTR)name);
@@ -99,7 +92,7 @@ bool UnIgnoreCommand::Execute()
             filelist += L"\n";
         }
         CString temp;
-        temp.Format(bRecursive ? IDS_PROC_UNIGNORERECURSIVESUCCESS : IDS_PROC_UNIGNORESUCCESS, (LPCTSTR)filelist);
+        temp.Format(IDS_PROC_UNIGNORESUCCESS, (LPCTSTR)filelist);
         MessageBox(GetExplorerHWND(), temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
         return true;
     }

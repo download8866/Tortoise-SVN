@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2013 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ShellCache.h"
 #include "SVNHelpers.h"
 #include "TSVNPath.h"
@@ -35,7 +35,6 @@ ShellCache::ShellCache()
     driveunknown = CRegStdDWORD(_T("Software\\TortoiseSVN\\DriveMaskUnknown"));
     shellmenuaccelerators = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShellMenuAccelerators"), TRUE);
     unversionedasmodified = CRegStdDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
-    ignoreoncommitignored = CRegStdDWORD(_T("Software\\TortoiseSVN\\IgnoreOnCommitIgnored"), TRUE);
     hidemenusforunversioneditems = CRegStdDWORD(_T("Software\\TortoiseSVN\\HideMenusForUnversionedItems"), FALSE);
     getlocktop = CRegStdDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
     excludedasnormal = CRegStdDWORD(_T("Software\\TortoiseSVN\\ShowExcludedFoldersAsNormal"), FALSE);
@@ -50,15 +49,11 @@ ShellCache::ShellCache()
     pathfilterticker = 0;
     shellmenuacceleratorsticker = cachetypeticker;
     unversionedasmodifiedticker = cachetypeticker;
-    ignoreoncommitignoredticker = cachetypeticker;
     columnseverywhereticker = cachetypeticker;
     getlocktopticker = cachetypeticker;
     excludedasnormalticker = cachetypeticker;
     alwaysextendedticker = cachetypeticker;
     hidemenusforunversioneditemsticker = cachetypeticker;
-    layoutticker = cachetypeticker;
-    menumaskticker = cachetypeticker;
-    blockstatusticker = cachetypeticker;
     excontextticker = 0;
     menulayoutlow = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
     menulayouthigh = CRegStdDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
@@ -88,7 +83,6 @@ ShellCache::ShellCache()
     GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_INEGNUMBER, &szBuffer[0], _countof(szBuffer));
     columnrevformat.NegativeOrder = _ttoi(szBuffer);
     nocontextpaths = CRegStdString(_T("Software\\TortoiseSVN\\NoContextPaths"), _T(""));
-    drivetypepathcache[0] = 0;
     m_critSec.Init();
 }
 
@@ -106,7 +100,6 @@ void ShellCache::ForceRefresh()
     driveunknown.read();
     shellmenuaccelerators.read();
     unversionedasmodified.read();
-    ignoreoncommitignored.read();
     excludedasnormal.read();
     alwaysextended.read();
     hidemenusforunversioneditems.read();
@@ -214,16 +207,6 @@ BOOL ShellCache::IsUnversionedAsModified()
         unversionedasmodified.read();
     }
     return (unversionedasmodified);
-}
-
-BOOL ShellCache::IsIgnoreOnCommitIgnored()
-{
-    if ((GetTickCount() - ignoreoncommitignoredticker)>REGISTRYTIMEOUT)
-    {
-        ignoreoncommitignoredticker = GetTickCount();
-        ignoreoncommitignored.read();
-    }
-    return (ignoreoncommitignored);
 }
 
 BOOL ShellCache::IsGetLockTop()

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "BufferDC.h"
 
 IMPLEMENT_DYNAMIC(CBufferDC, CPaintDC)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2013 - TortoiseSVN
+// Copyright (C) 2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ HRESULT SetAppID(LPCTSTR appID)
 {
     HRESULT hRes = S_FALSE;
     typedef HRESULT STDAPICALLTYPE SetCurrentProcessExplicitAppUserModelIDFN(PCWSTR AppID);
-    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
+    CAutoLibrary hShell = ::LoadLibrary(_T("shell32.dll"));
     if (hShell)
     {
         SetCurrentProcessExplicitAppUserModelIDFN *pfnSetCurrentProcessExplicitAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDFN*)GetProcAddress(hShell, "SetCurrentProcessExplicitAppUserModelID");
@@ -136,6 +136,6 @@ void DeleteJumpList(LPCTSTR appID)
     HRESULT hr = pcdl.CoCreateInstance(CLSID_DestinationList, NULL, CLSCTX_INPROC_SERVER);
     if (SUCCEEDED(hr))
     {
-        pcdl->DeleteList(appID);
+        hr = pcdl->DeleteList(appID);
     }
 }

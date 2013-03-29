@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2011-2013 - TortoiseSVN
+// Copyright (C) 2007-2009,2011-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -187,9 +187,9 @@ bool CLogIteratorBase::InternalHandleCopyAndDelete
                     // to our searchPath (there may be multiple renames,
                     // if the base path got renamed).
 
-                    assert ( ((bestRename == last)
-                            || (bestRename.GetPathID() < iter.GetPathID()))
-                            && "parent ADDs are not in strict order");
+                    assert (   (bestRename == last)
+                            || (bestRename.GetPathID() < iter.GetPathID())
+                            || "parent ADDs are not in strict order");
 
                     bestRename = iter;
                 }
@@ -335,11 +335,8 @@ CLogIteratorBase& CLogIteratorBase::operator=(const CLogIteratorBase& rhs)
 
     if (this != &rhs)
     {
-        // parent operator= is not called because it's an interface, not a class
         revision = rhs.revision;
         path = rhs.path;
-        addRevision = rhs.addRevision;
-        // don't copy/set addPath because that's a temp path
     }
 
     return *this;

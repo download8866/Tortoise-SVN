@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -164,7 +164,7 @@ BOOL CEditPropBugtraq::OnInitDialog()
     m_height = rect.bottom - rect.top;
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || m_bRemote ? SW_HIDE : SW_SHOW);
+    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
 
     AddAnchor(IDC_ISSUETRACKERGROUP, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_URLLABEL, TOP_LEFT, TOP_RIGHT);
@@ -287,10 +287,6 @@ void CEditPropBugtraq::OnOK()
     CString sLogRegex = m_sBugtraqRegex2 + _T("\n") + m_sBugtraqRegex1;
     if (m_sBugtraqRegex1.IsEmpty() && m_sBugtraqRegex2.IsEmpty())
         sLogRegex.Empty();
-    if (m_sBugtraqRegex2.IsEmpty() && !m_sBugtraqRegex1.IsEmpty())
-        sLogRegex = m_sBugtraqRegex1;
-    if (m_sBugtraqRegex1.IsEmpty() && !m_sBugtraqRegex2.IsEmpty())
-        sLogRegex = m_sBugtraqRegex2;
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)sLogRegex);
     pVal.value = propVal;
     pVal.remove = (pVal.value.size() == 0);

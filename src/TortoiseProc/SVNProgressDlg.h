@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,8 +26,6 @@
 #include "SVNExternals.h"
 #include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 #include "Win7.h"
-#include "LinkControl.h"
-#include "Hooks.h"
 
 class CCmdLineParser;
 
@@ -60,9 +58,6 @@ typedef enum
     ProgOptStickyDepth              = 0x8000,
     ProgOptUseAutoprops             = 0x10000,
     ProgOptIgnoreKeywords           = 0x20000,
-    ProgOptMakeParents              = 0x40000,
-    ProgOptAllowMixedRev            = 0x80000,
-    ProgOptSkipPreChecks            = 0x100000,
 } ProgressOptions;
 
 typedef enum
@@ -87,7 +82,6 @@ class CSVNProgressDlg : public CResizableStandAloneDialog, public SVN
 public:
     typedef enum
     {
-        SVNProgress_none,
         SVNProgress_Add,
         SVNProgress_Checkout,
         SVNProgress_SparseCheckout,
@@ -99,7 +93,6 @@ public:
         SVNProgress_Lock,
         SVNProgress_Merge,
         SVNProgress_MergeReintegrate,
-        SVNProgress_MergeReintegrateOldStyle,
         SVNProgress_MergeAll,
         SVNProgress_Rename,
         SVNProgress_Resolve,
@@ -126,7 +119,6 @@ public:
     void SetHidden (bool hidden) {m_hidden = hidden;}
     void SetOptions(DWORD opts) {m_options = opts;}
     void SetPathList(const CTSVNPathList& pathList) {m_targetPathList = pathList;}
-    void SetOrigPathList(const CTSVNPathList& oritList) {m_origPathList = oritList;}
     void SetUrl(const CString& url) {m_url.SetFromUnknown(url);}
     void SetSecondUrl(const CString& url) {m_url2.SetFromUnknown(url);}
     void SetCommitMessage(const CString& msg) {m_sMessage = msg;}
@@ -144,7 +136,6 @@ public:
     void SetRevisionRanges(const SVNRevRangeArray& revArray) {m_revisionArray = revArray;}
     void SetBugTraqProvider(const CComPtr<IBugTraqProvider>& pBugtraqProvider) { m_BugTraqProvider = pBugtraqProvider;}
     void SetRevisionProperties(const RevPropHash& revProps) {m_revProps = revProps;}
-    void SetRestorePaths(const std::map<CString,CString>& restorepaths) {m_restorepaths = restorepaths;}
     /**
      * If the number of items for which the operation is done on is known
      * beforehand, that number can be set here. It is then used to show a more
@@ -163,25 +154,21 @@ private:
     class NotificationData
     {
     public:
-        NotificationData()
-            : action((svn_wc_notify_action_t)-1)
-            , kind(svn_node_none)
-            , content_state(svn_wc_notify_state_inapplicable)
-            , prop_state(svn_wc_notify_state_inapplicable)
-            , rev(0)
-            , color(::GetSysColor(COLOR_WINDOWTEXT))
-            , bConflictedActionItem(false)
-            , bTreeConflict(false)
-            , bAuxItem(false)
-            , lock_state(svn_wc_notify_lock_state_unchanged)
-            , bConflictSummary(false)
-            , bBold(false)
-            , indent(0)
-            , id(0)
+        NotificationData() :
+          action((svn_wc_notify_action_t)-1),
+              kind(svn_node_none),
+              content_state(svn_wc_notify_state_inapplicable),
+              prop_state(svn_wc_notify_state_inapplicable),
+              rev(0),
+              color(::GetSysColor(COLOR_WINDOWTEXT)),
+              bConflictedActionItem(false),
+              bTreeConflict(false),
+              bAuxItem(false),
+              lock_state(svn_wc_notify_lock_state_unchanged),
+              bConflictSummary(false)
           {
               merge_range.end = 0;
               merge_range.start = 0;
-              merge_range.inheritable = false;
           }
     public:
         // The text we put into the first column (the SVN action for normal items, just text for aux items)
@@ -206,10 +193,7 @@ private:
         bool                    bTreeConflict;              ///< item is tree conflict
         bool                    bAuxItem;                   ///< Set if this item is not a true 'SVN action'
         bool                    bConflictSummary;           ///< if true, the entry is "one or more items are in a conflicted state"
-        bool                    bBold;                      ///< if true, the line is shown with a bold font
         CString                 sPathColumnText;
-        int                     indent;                     ///< indentation
-        long                    id;                         ///< used to identify an entry even after sorting
 
     };
 protected:
@@ -222,11 +206,10 @@ protected:
         const CString& changelistname,
         const CString& propertyName,
         svn_merge_range_t * range,
-        svn_error_t * err, apr_pool_t * pool) override;
-    virtual svn_wc_conflict_choice_t    ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile) override;
-    virtual BOOL                        Cancel() override;
-
+        svn_error_t * err, apr_pool_t * pool);
+    virtual svn_wc_conflict_choice_t    ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile);
     virtual BOOL                        OnInitDialog();
+    virtual BOOL                        Cancel();
     virtual void                        OnCancel();
     virtual BOOL                        PreTranslateMessage(MSG* pMsg);
     virtual void                        DoDataExchange(CDataExchange* pDX);
@@ -249,8 +232,6 @@ protected:
     afx_msg LRESULT OnTaskbarBtnCreated(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnCloseOnEnd(WPARAM /*wParam*/, LPARAM /*lParam*/);
     afx_msg void    OnBnClickedRetrynohooks();
-    afx_msg LRESULT OnCheck(WPARAM wnd, LPARAM);
-    afx_msg LRESULT OnResolveMsg(WPARAM, LPARAM);
 
     DECLARE_MESSAGE_MAP()
 
@@ -260,9 +241,6 @@ protected:
     static BOOL     m_bAscending;
     static int      m_nSortedColumn;
     CStringList     m_ExtStack;
-    bool            m_bExtDataAdded;
-    bool            m_bHideExternalInfo;
-    bool            m_bExternalStartInfoShown;
 
 private:
     static UINT ProgressThreadEntry(LPVOID pVoid);
@@ -270,7 +248,7 @@ private:
     virtual void OnOK();
     void        ReportSVNError();
     void        ReportError(const CString& sError);
-    void        ReportHookFailed(hooktype t, const CTSVNPathList& pathList, const CString& error);
+    void        ReportHookFailed(const CString& error);
     void        ReportWarning(const CString& sWarning);
     void        ReportNotification(const CString& sNotification);
     void        ReportCmd(const CString& sCmd);
@@ -282,7 +260,6 @@ private:
     void        OnCommitFinished();
     bool        CheckUpdateAndRetry();
     void        ResetVars();
-    void        MergeAfterCommit();
     void        GenerateMergeLogMessage();
     void        CompareWithWC(NotificationData * data);
 
@@ -307,7 +284,6 @@ private:
     bool        CmdMerge(CString& sWindowTitle, bool& localoperation);
     bool        CmdMergeAll(CString& sWindowTitle, bool& localoperation);
     bool        CmdMergeReintegrate(CString& sWindowTitle, bool& localoperation);
-    bool        CmdMergeReintegrateOldStyle(CString& sWindowTitle, bool& localoperation);
     bool        CmdRename(CString& sWindowTitle, bool& localoperation);
     bool        CmdResolve(CString& sWindowTitle, bool& localoperation);
     bool        CmdRevert(CString& sWindowTitle, bool& localoperation);
@@ -315,6 +291,7 @@ private:
     bool        CmdSwitchBackToParent(CString& sWindowTitle, bool& localoperation);
     bool        CmdUnlock(CString& sWindowTitle, bool& localoperation);
     bool        CmdUpdate(CString& sWindowTitle, bool& localoperation);
+
 private:
     typedef std::map<CStringA, svn_revnum_t> StringRevMap;
     typedef std::map<CString, svn_revnum_t> StringWRevMap;
@@ -334,7 +311,6 @@ private:
     svn_depth_t             m_depth;
     CTSVNPathList           m_targetPathList;
     CTSVNPathList           m_selectedPaths;
-    CTSVNPathList           m_origPathList;
     CTSVNPath               m_url;
     CTSVNPath               m_url2;
     CString                 m_sMessage;
@@ -349,7 +325,6 @@ private:
     RevPropHash             m_revProps;
     SVNExternals            m_externals;
     std::map<CString,svn_depth_t> m_pathdepths;
-    std::map<CString,CString> m_restorepaths;
 
     DWORD                   m_dwCloseOnEnd;
     DWORD                   m_bCloseLocalOnEnd;
@@ -364,25 +339,20 @@ private:
 
     BOOL                    m_bCancelled;
     int                     m_nConflicts;
-    int                     m_nTotalConflicts;
     bool                    m_bConflictWarningShown;
     bool                    m_bWarningShown;
     bool                    m_bErrorsOccurred;
     bool                    m_bMergesAddsDeletesOccurred;
     bool                    m_bHookError;
     bool                    m_bNoHooks;
-    bool                    m_bHooksAreOptional;
 
     int                     iFirstResized;
     BOOL                    bSecondResized;
     int                     nEnsureVisibleCount;
 
     CString                 m_sTotalBytesTransferred;
-    CLinkControl            m_linkControl;
 
     CColors                 m_Colors;
-    HFONT                   m_boldFont;
-
 
     bool                    m_bLockWarning;
     bool                    m_bLockExists;

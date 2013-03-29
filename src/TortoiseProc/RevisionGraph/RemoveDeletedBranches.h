@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 #include "CopyFilterOptions.h"
 #include "ModificationOptions.h"
 #include "revisiongraphoptionsimpl.h"
-#include "resource.h"
+#include "Resource.h"
 
 /** Remove all branches / tags that have been deleted and have
 * no surviving copy.
@@ -48,9 +48,9 @@ public:
 
     /// implement ICopyFilterOption (pre-filter most nodes)
 
-    virtual EResult ShallRemove (const CFullGraphNode* node) const override;
+    virtual EResult ShallRemove (const CFullGraphNode* node) const;
 
     /// implement IModificationOption (post-filter deleted non-tagged branches)
 
-    virtual void Apply (CVisibleGraph* graph, CVisibleGraphNode* node) override;
+    virtual void Apply (CVisibleGraph* graph, CVisibleGraphNode* node);
 };

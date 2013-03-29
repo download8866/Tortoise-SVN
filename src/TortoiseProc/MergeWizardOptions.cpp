@@ -21,7 +21,7 @@
 #include "MergeWizard.h"
 #include "MergeWizardOptions.h"
 #include "SVNProgressDlg.h"
-#include "WaitDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardOptions, CMergeWizardBasePage)
 
@@ -46,7 +46,6 @@ void CMergeWizardOptions::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_IGNOREEOL, ((CMergeWizard*)GetParent())->m_bIgnoreEOL);
     DDX_Check(pDX, IDC_RECORDONLY, ((CMergeWizard*)GetParent())->m_bRecordOnly);
     DDX_Check(pDX, IDC_FORCE, ((CMergeWizard*)GetParent())->m_bForce);
-    DDX_Check(pDX, IDC_REINTEGRATEOLDSTYLE, ((CMergeWizard*)GetParent())->bReintegrate);
 }
 
 
@@ -99,7 +98,6 @@ BOOL CMergeWizardOptions::OnInitDialog()
     AdjustControlSize(IDC_IGNOREALLWHITESPACES);
     AdjustControlSize(IDC_FORCE);
     AdjustControlSize(IDC_RECORDONLY);
-    AdjustControlSize(IDC_REINTEGRATEOLDSTYLE);
 
     AddAnchor(IDC_MERGEOPTIONSGROUP, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_MERGEOPTIONSDEPTHLABEL, TOP_LEFT);
@@ -111,7 +109,6 @@ BOOL CMergeWizardOptions::OnInitDialog()
     AddAnchor(IDC_IGNOREALLWHITESPACES, TOP_LEFT);
     AddAnchor(IDC_FORCE, TOP_LEFT);
     AddAnchor(IDC_RECORDONLY, TOP_LEFT);
-    AddAnchor(IDC_REINTEGRATEOLDSTYLE, TOP_LEFT);
     AddAnchor(IDC_DRYRUN, BOTTOM_RIGHT);
 
     return TRUE;
@@ -124,66 +121,28 @@ LRESULT CMergeWizardOptions::OnWizardBack()
 
 BOOL CMergeWizardOptions::OnWizardFinish()
 {
-    UpdateData();
-    CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
     switch (m_depthCombo.GetCurSel())
     {
     case 0:
-        pWizard->m_depth = svn_depth_unknown;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_unknown;
         break;
     case 1:
-        pWizard->m_depth = svn_depth_infinity;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_infinity;
         break;
     case 2:
-        pWizard->m_depth = svn_depth_immediates;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_immediates;
         break;
     case 3:
-        pWizard->m_depth = svn_depth_files;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_files;
         break;
     case 4:
-        pWizard->m_depth = svn_depth_empty;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_empty;
         break;
     default:
-        pWizard->m_depth = svn_depth_empty;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_empty;
         break;
     }
-    pWizard->m_IgnoreSpaces = GetIgnores();
-
-    if ((pWizard->nRevRangeMerge == MERGEWIZARD_REINTEGRATE) && (!pWizard->bReintegrate))
-    {
-        CWaitDlg waitdlg;
-        waitdlg.SetInfo(CString(MAKEINTRESOURCE(IDS_MERGE_WAITCHECK)));
-        waitdlg.Create(IDD_PLEASEWAIT, this);
-        waitdlg.ShowWindow(SW_SHOW);
-        // the wait dialog needs to process some messages now, otherwise it
-        // won't show the info text.
-        MSG stMsg;
-        while (::PeekMessage (&stMsg, NULL, 0, 0, PM_REMOVE))
-        {
-            ::TranslateMessage (&stMsg);
-            ::DispatchMessage (&stMsg);
-        }
-
-        // now this can take a really, really long time.
-        // should we do this here?
-        // or just have the merge error out later instead?
-        if (IsReintegrateMerge(CTSVNPath(pWizard->URL1), SVNRev(), pWizard->wcPath, true, true, true))
-        {
-            if (pWizard->m_bRecordOnly)
-            {
-                TSVNMessageBox(GetSafeHwnd(), IDS_MERGEAUTO_REINTEGRATELIKE_RECORDONLY, IDS_APPNAME, MB_ICONERROR);
-                return FALSE;
-            }
-            if (pWizard->m_depth != svn_depth_unknown)
-            {
-                TSVNMessageBox(GetSafeHwnd(), IDS_MERGEAUTO_REINTEGRATELIKE_DEPTH, IDS_APPNAME, MB_ICONERROR);
-                return FALSE;
-            }
-            pWizard->bAllowMixedRev = false;
-        }
-        waitdlg.ShowWindow(SW_HIDE);
-        waitdlg.DestroyWindow();
-    }
+    ((CMergeWizard*)GetParent())->m_IgnoreSpaces = GetIgnores();
 
     return CMergeWizardBasePage::OnWizardFinish();
 }
@@ -194,7 +153,9 @@ BOOL CMergeWizardOptions::OnSetActive()
     psheet->SetWizardButtons(PSWIZB_BACK|PSWIZB_FINISH);
     SetButtonTexts();
     CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
-    GetDlgItem(IDC_REINTEGRATEOLDSTYLE)->EnableWindow(pWizard->nRevRangeMerge == MERGEWIZARD_REINTEGRATE);
+    GetDlgItem(IDC_RECORDONLY)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
+    GetDlgItem(IDC_DEPTH)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
+    GetDlgItem(IDC_FORCE)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
 
     CString sTitle;
     switch (pWizard->nRevRangeMerge)
@@ -263,10 +224,7 @@ void CMergeWizardOptions::OnBnClickedDryrun()
         break;
     case MERGEWIZARD_REINTEGRATE:
         {
-            if (pWizard->bReintegrate)
-                progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrateOldStyle);
-            else
-                progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
+            progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
         }
         break;
     }

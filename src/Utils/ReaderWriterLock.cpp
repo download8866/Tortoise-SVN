@@ -41,7 +41,7 @@ Email questions, comments or suggestions to quynhnguyenhuu@gmail.com
 
 CReaderWriterLockNonReentrance::CReaderWriterLockNonReentrance()
 {
-    SecureZeroMemory(this, sizeof(*this));
+    ZeroMemory(this, sizeof(*this));
 #if (_WIN32_WINNT >= 0x0403)
     InitializeCriticalSectionAndSpinCount(&m_cs, READER_WRITER_SPIN_COUNT);
 #else

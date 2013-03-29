@@ -1,12 +1,10 @@
-import os
-import string
-import shutil
+import os, string, shutil
 
-searchfor = ['$TSVNSHORTVERSION$', '$TSVNVERSION$', '$SVNVERSION$']
-replacewith = ['1.7.11', '1.7.11.23600', '1.7.8']
+searchfor = [ '$TSVNSHORTVERSION$', '$TSVNVERSION$', '$SVNVERSION$' ]
+replacewith = [ '1.6.16', '1.6.16.21511', '1.6.17' ]
 setpath = 'D:\\Development\\SVN\\tsvnsite'
 
-for root, dirs, files in os.walk(setpath, topdown = False):
+for root, dirs, files in os.walk(setpath, topdown=False):
     for name in files:
         os.remove(os.path.join(root, name))
     for name in dirs:
@@ -15,29 +13,20 @@ if os.path.exists(setpath):
     os.rmdir(setpath)
 shutil.copytree(os.path.abspath('..'), setpath)
 
-footerFile = file(os.path.join(setpath, 'templates/footer.html'), 'r')
-footerJSFile = file(os.path.join(setpath, 'templates/footer-js.html'), 'r')
-menuFile = file(os.path.join(setpath, 'templates/menu.html'), 'r')
-menuFileDE = file(os.path.join(setpath, 'templates/menu.de.html'), 'r')
-menuFileZH = file(os.path.join(setpath, 'templates/menu.zh.html'), 'r')
-sidebarFile = file(os.path.join(setpath, 'templates/sidebar.html'), 'r')
-sidebarFileDE = file(os.path.join(setpath, 'templates/sidebar.de.html'), 'r')
-sidebarFileZH = file(os.path.join(setpath, 'templates/sidebar.zh.html'), 'r')
-adtopFile = file(os.path.join(setpath, 'templates/adsense_top.html'), 'r')
-adtopFileDE = file(os.path.join(setpath, 'templates/adsense_top.de.html'), 'r')
-adtopFileZH = file(os.path.join(setpath, 'templates/adsense_top.zh.html'), 'r')
-adtopBigFile = file(os.path.join(setpath, 'templates/adsense_downloadtop.html'), 'r')
-adtopBigFileDE = file(os.path.join(setpath, 'templates/adsense_downloadstop.de.html'), 'r')
-adtopBigFileZH = file(os.path.join(setpath, 'templates/adsense_downloadstop.zh.html'), 'r')
-adinpageFile = file(os.path.join(setpath, 'templates/adsense_inpage.html'), 'r')
-adinpageFileDE = file(os.path.join(setpath, 'templates/adsense_inpage.de.html'), 'r')
-adinpageFileZH = file(os.path.join(setpath, 'templates/adsense_inpage.zh.html'), 'r')
+footerFile = file(os.path.join(setpath, 'footer.html'), 'r')
+menuFile = file(os.path.join(setpath, 'menu.html'), 'r')
+menuFileDE = file(os.path.join(setpath, 'menu.de.html'), 'r')
+sidebarFile = file(os.path.join(setpath, 'sidebar.html'), 'r')
+sidebarFileDE = file(os.path.join(setpath, 'sidebar.de.html'), 'r')
+adtopFile = file(os.path.join(setpath, 'files/adsense_top.txt'), 'r')
+adtopFileDE = file(os.path.join(setpath, 'files/adsense_top.de.txt'), 'r')
+adtopBigFile = file(os.path.join(setpath, 'files/adsense_downloadtop.txt'), 'r')
+adtopBigFileDE = file(os.path.join(setpath, 'files/adsense_downloadstop.de.txt'), 'r')
+adinpageFile = file(os.path.join(setpath, 'files/adsense_inpage.txt'), 'r')
+adinpageFileDE = file(os.path.join(setpath, 'files/adsense_inpage.de.txt'), 'r')
 
 footerText = footerFile.read()
 footerFile.close()
-
-footerJSText = footerJSFile.read()
-footerJSFile.close()
 
 menuText = menuFile.read()
 menuFile.close()
@@ -45,17 +34,11 @@ menuFile.close()
 menuTextDE = menuFileDE.read()
 menuFileDE.close()
 
-menuTextZH = menuFileZH.read()
-menuFileZH.close()
-
 sidebarText = sidebarFile.read()
 sidebarFile.close()
 
 sidebarTextDE = sidebarFileDE.read()
 sidebarFileDE.close()
-
-sidebarTextZH = sidebarFileZH.read()
-sidebarFileZH.close()
 
 adtopText = adtopFile.read()
 adtopFile.close()
@@ -63,17 +46,11 @@ adtopFile.close()
 adtopTextDE = adtopFileDE.read()
 adtopFileDE.close()
 
-adtopTextZH = adtopFileZH.read()
-adtopFileZH.close()
-
 adtopBigText = adtopBigFile.read()
 adtopBigFile.close()
 
 adtopBigTextDE = adtopBigFileDE.read()
 adtopBigFileDE.close()
-
-adtopBigTextZH = adtopBigFileZH.read()
-adtopBigFileZH.close()
 
 adinpageText = adinpageFile.read()
 adinpageFile.close()
@@ -81,58 +58,25 @@ adinpageFile.close()
 adinpageTextDE = adinpageFileDE.read()
 adinpageFileDE.close()
 
-adinpageTextZH = adinpageFileZH.read()
-adinpageFileZH.close()
-
-searchfor.extend(['<!--#include FILE="menu.html"-->',
-                  '<!--#include FILE="menu.de.html"-->',
-                  '<!--#include FILE="menu.zh.html"-->',
-                  '<!--#include FILE="sidebar.html"-->',
-                  '<!--#include FILE="sidebar.de.html"-->',
-                  '<!--#include FILE="sidebar.zh.html"-->',
-                  '<!--#include FILE="footer.html"-->',
-                  '<!--#include FILE="footer-js.html"-->',
-                  '$ADSENSE_TOP$',
-                  '$ADSENSE_TOPDE$',
-                  '$ADSENSE_TOPZH$',
-                  '$ADSENSE_BIGTOP$',
-                  '$ADSENSE_BIGTOPDE$',
-                  '$ADSENSE_BIGTOPZH$',
-                  '$ADSENSE_INPAGE$',
-                  '$ADSENSE_INPAGEDE$',
-                  '$ADSENSE_INPAGEZH$'])
-replacewith.extend([menuText,
-                    menuTextDE,
-                    menuTextZH,
-                    sidebarText,
-                    sidebarTextDE,
-                    sidebarTextZH,
-                    footerText,
-                    footerJSText,
-                    adtopText,
-                    adtopTextDE,
-                    adtopTextZH,
-                    adtopBigText,
-                    adtopBigTextDE,
-                    adtopBigTextZH,
-                    adinpageText,
-                    adinpageTextDE,
-                    adinpageTextZH])
+searchfor.extend( [ '<!--#include FILE="menu.html" -->', '<!--#include FILE="menu.de.html" -->', '<!--#include FILE="sidebar.html" -->', '<!--#include FILE="sidebar.de.html" -->', '<!--#include FILE="footer.html" -->', '$ADSENSE_TOP$', '$ADSENSE_TOPDE$', '$ADSENSE_BIGTOP$', '$ADSENSE_BIGTOPDE$', '$ADSENSE_INPAGE$', '$ADSENSE_INPAGEDE$' ] )
+replacewith.extend( [ menuText, menuTextDE, sidebarText, sidebarTextDE, footerText, adtopText, adtopTextDE, adtopBigText, adtopBigTextDE, adinpageText, adinpageTextDE ] )
 
 for root, dirs, files in os.walk(setpath):
     fname = files
     for fname in files:
         if fname.endswith('.html'):
-            inputFile = file(os.path.join(root, fname), 'r')
+            inputFile = file(os.path.join(root,fname), 'r')
             data = inputFile.read()
             inputFile.close()
             for i in range(len(searchfor)):
                 x = searchfor[i]
                 y = replacewith[i]
                 search = string.find(data, x)
-                if search >= 1:
+                if search >=1:
                     data = data.replace(x, y)
 
-            outputFile = file(os.path.join(root, fname), 'w')
+            outputFile = file(os.path.join(root,fname), 'w')
             outputFile.write(data)
             outputFile.close()
+
+        

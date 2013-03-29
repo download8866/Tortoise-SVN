@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2012-2013 - TortoiseSVN
+// Copyright (C) 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -178,7 +178,7 @@ public:
     //! Sends assertion violation report from this point and continue execution.
     //! \sa ExceptionAssertionViolated
     //! \note Functions prefixed with "CrashServer_" will be ignored in stack parsing.
-    void CrashServer_SendAssertionViolated() const
+    void CrashServer_SendAssertionViolated()
     {
         if (!m_InitCrashHandler)
             return;
@@ -250,7 +250,6 @@ public:
 
     //! Installs exception handlers to the caller process
     CCrashReportTSVN(LPCTSTR appname, bool bOwnProcess = true)
-        : m_nInstallStatus(0)
     {
         char s_month[6];
         int month, day, year;

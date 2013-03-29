@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2013 - TortoiseSVN
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,18 +69,20 @@ protected:
     CRegDWORD       m_regIgnoreEOL;
     BOOL            m_bOnePane;
     CRegDWORD       m_regOnePane;
+    DWORD           m_nIgnoreWS;
+    CRegDWORD       m_regIgnoreWS;
     BOOL            m_bViewLinenumbers;
     CRegDWORD       m_regViewLinenumbers;
+    BOOL            m_bStrikeout;
+    CRegDWORD       m_regStrikeout;
+    BOOL            m_bDisplayBinDiff;
+    CRegDWORD       m_regDisplayBinDiff;
     BOOL            m_bCaseInsensitive;
     CRegDWORD       m_regCaseInsensitive;
     BOOL            m_bUTF8Default;
     CRegDWORD       m_regUTF8Default;
     BOOL            m_bAutoAdd;
     CRegDWORD       m_regAutoAdd;
-    int             m_nMaxInline;
-    CRegDWORD       m_regMaxInline;
-    BOOL            m_bUseRibbons;
-    CRegDWORD       m_regUseRibbons;
 
     CRegDWORD       m_regFontSize;
     DWORD           m_dwFontSize;

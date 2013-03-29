@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "ChangedDlg.h"
 #include "messagebox.h"
-#include "changeddlg.h"
+#include ".\changeddlg.h"
 #include "AppUtils.h"
 
 
@@ -110,9 +110,9 @@ BOOL CChangedDlg::OnInitDialog()
     m_FileListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS |
                         SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP |
                         SVNSLC_COLLOCK | SVNSLC_COLLOCKCOMMENT |
-                        SVNSLC_COLAUTHOR |
+                        SVNSLC_COLAUTHOR | SVNSLC_COLAUTHOR |
                         SVNSLC_COLREVISION | SVNSLC_COLDATE, _T("ChangedDlg"),
-                        SVNSLC_POPALL ^ SVNSLC_POPRESTORE, false);
+                        SVNSLC_POPALL, false);
     m_FileListCtrl.SetCancelBool(&m_bCanceled);
     m_FileListCtrl.SetBackgroundImage(IDI_CFM_BKG);
     m_FileListCtrl.SetEmptyString(IDS_REPOSTATUS_EMPTYFILELIST);

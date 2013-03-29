@@ -49,24 +49,22 @@ struct log_msg_baton3
 };
 
 #ifdef _MFC_VER
-SVNProperties::SVNProperties(SVNRev rev, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties(rev, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(SVNRev rev, bool bRevProps)
+    : SVNReadProperties(rev, bRevProps)
 #else
-SVNProperties::SVNProperties(bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(bool bRevProps)
+    : SVNReadProperties (bRevProps)
 #endif
-    , rev_set(0)
 {
 }
 
 #ifdef _MFC_VER
-SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (filepath, rev, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps)
+    : SVNReadProperties (filepath, rev, bRevProps)
 #else
-SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (filepath, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps)
+    : SVNReadProperties (filepath, bRevProps)
 #endif
-    , rev_set(0)
 {
 }
 
@@ -374,7 +372,7 @@ void SVNProperties::PrepareMsgForUrl( const TCHAR * message, SVNPool& subpool )
     }
 }
 
-svn_error_t* SVNProperties::CommitCallback( const svn_commit_info_t *commit_info, void *baton, apr_pool_t * /*pool*/ )
+svn_error_t* SVNProperties::CommitCallback( const svn_commit_info_t *commit_info, void *baton, apr_pool_t *pool )
 {
     svn_revnum_t* pRev = (svn_revnum_t*)baton;
     *pRev = commit_info->revision;

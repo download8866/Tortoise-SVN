@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Utils\Debug.cpp">
+    <ClCompile Include="..\Utils\Debug.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TortoiseStub.cpp">
+    <ClCompile Include="TortoiseStub.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

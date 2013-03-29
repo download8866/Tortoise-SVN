@@ -29,7 +29,7 @@ $html->AddMeta("description", "");
 echo $html->openBody();
 
 #log
-include "../modules/log.php";
+include "log.hp";
 
 
 #load intro texts
@@ -40,8 +40,8 @@ include MODULE_PATH."intro_3.php";
 
 #eliminate crawlers
 if ($crawler) {
-    echo '<div><center><hr/>Icons by: <a href="http://dryicons.com" class="link">DryIcons</a></center></div>';
-    exit;
+	echo '<div><center><hr/>Icons by: <a href="http://dryicons.com" class="link">DryIcons</a></center></div>';
+	exit;
 }
 
 //include MODULE_PATH."intro_4.php";
@@ -52,50 +52,44 @@ if ($crawler) {
 //include MODULE_PATH."intro_9.php";
 
 # get and fix parameters
-
-function GetFromGet($name) {
-    //echo "<br/>GET(\"$name\") = ".$_GET[$name]."<br/>";
-    return isset($_GET[$name]) ? $_GET[$name] : NULL;
-}
-
-$lang=GetFromGet("l"); // language
+$lang=$_GET["l"]; // language
 if ($lang=="") {
-    unset($lang);
+	$lang="";
 }
 
-$source=GetFromGet("s"); // stable(branch) vs. trunk
-switch ($source) {
- case "trunk":
- case "17x":
- case "16x":
- case "txt":
- case "txb":
- case "tx17":
- case "trunk":
-    break;
- default:
-    $source="trunk";
+$stable=$_GET["stable"]; // stable(branch) vs. trunk
+if ($stable) {
+	$stable=1;
+} else {
+	$stable=0;
 }
 
-$gx=GetFromGet("gx"); // graph x axis type
+$tx=$_GET["tx"]; // transifex vs. svn
+if ($tx) {
+	$tx=1;
+} else {
+	$tx=0;
+}
+
+$gx=$_GET["gx"]; // graph x axis type
 switch ($gx) {
  case "date":
-    break;
+	break;
  default:
-    $gx="rev";
+	$gx="rev";
 }
 
-$m=GetFromGet("m"); // module
+$m=$_GET["m"]; // module
 switch ($m) {
  case 'g':
  case 's':
  case 'm':
-    break;
+	break;
  case 'd':
-    $m='s';
-    break;
+	$m='s';
+	break;
  default:
-    $m='g';
+	$m='g';
 }
 
 
@@ -104,7 +98,10 @@ switch ($m) {
 include MODULE_PATH."trunk.php";
 
 
+
 #load mode module
+
+
 
 echo "ok".__LINE__;
 flush();

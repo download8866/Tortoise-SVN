@@ -36,13 +36,17 @@
 #include <ctype.h>
 #include <stdarg.h>
 
-#if !defined(_WIN32) && !defined(WIN32)
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__)
 # include <signal.h>
 # if !defined(__RTP__) && !defined(_WRS_KERNEL)
 #  include <pwd.h>
 # endif
 # include <unistd.h>
 # include <sys/types.h>
+#endif
+
+#ifdef __OS2__
+# include <unistd.h>
 #endif
 
 #ifdef HAVE_EDITLINE
@@ -64,9 +68,7 @@
 # include <io.h>
 #define isatty(h) _isatty(h)
 #define access(f,m) _access((f),(m))
-#undef popen
 #define popen(a,b) _popen((a),(b))
-#undef pclose
 #define pclose(x) _pclose(x)
 #else
 /* Make sure isatty() has a prototype.
@@ -90,8 +92,7 @@ static int enableTimer = 0;
 #define IsDigit(X)  isdigit((unsigned char)X)
 #define ToLower(X)  (char)tolower((unsigned char)X)
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(_WRS_KERNEL) \
- && !defined(__minux)
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(__RTP__) && !defined(_WRS_KERNEL)
 #include <sys/time.h>
 #include <sys/resource.h>
 
@@ -542,9 +543,6 @@ static void output_c_string(FILE *out, const char *z){
     if( c=='\\' ){
       fputc(c, out);
       fputc(c, out);
-    }else if( c=='"' ){
-      fputc('\\', out);
-      fputc('"', out);
     }else if( c=='\t' ){
       fputc('\\', out);
       fputc('t', out);
@@ -700,7 +698,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
           }else{
             w = 0;
           }
-          if( w==0 ){
+          if( w<=0 ){
             w = strlen30(azCol[i] ? azCol[i] : "");
             if( w<10 ) w = 10;
             n = strlen30(azArg && azArg[i] ? azArg[i] : p->nullvalue);
@@ -710,11 +708,7 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
             p->actualWidth[i] = w;
           }
           if( p->showHeader ){
-            if( w<0 ){
-              fprintf(p->out,"%*.*s%s",-w,-w,azCol[i], i==nArg-1 ? "\n": "  ");
-            }else{
-              fprintf(p->out,"%-*.*s%s",w,w,azCol[i], i==nArg-1 ? "\n": "  ");
-            }
+            fprintf(p->out,"%-*.*s%s",w,w,azCol[i], i==nArg-1 ? "\n": "  ");
           }
         }
         if( p->showHeader ){
@@ -722,7 +716,6 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
             int w;
             if( i<ArraySize(p->actualWidth) ){
                w = p->actualWidth[i];
-               if( w<0 ) w = -w;
             }else{
                w = 10;
             }
@@ -744,13 +737,8 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
            strlen30(azArg[i])>w ){
           w = strlen30(azArg[i]);
         }
-        if( w<0 ){
-          fprintf(p->out,"%*.*s%s",-w,-w,
-              azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
-        }else{
-          fprintf(p->out,"%-*.*s%s",w,w,
-              azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
-        }
+        fprintf(p->out,"%-*.*s%s",w,w,
+            azArg[i] ? azArg[i] : p->nullvalue, i==nArg-1 ? "\n": "  ");
       }
       break;
     }
@@ -800,14 +788,14 @@ static int shell_callback(void *pArg, int nArg, char **azArg, char **azCol, int 
       if( p->cnt++==0 && p->showHeader ){
         for(i=0; i<nArg; i++){
           output_c_string(p->out,azCol[i] ? azCol[i] : "");
-          if(i<nArg-1) fprintf(p->out, "%s", p->separator);
+          fprintf(p->out, "%s", p->separator);
         }
         fprintf(p->out,"\n");
       }
       if( azArg==0 ) break;
       for(i=0; i<nArg; i++){
         output_c_string(p->out, azArg[i] ? azArg[i] : p->nullvalue);
-        if(i<nArg-1) fprintf(p->out, "%s", p->separator);
+        fprintf(p->out, "%s", p->separator);
       }
       fprintf(p->out,"\n");
       break;
@@ -1430,10 +1418,9 @@ static char zHelp[] =
   "                         list     Values delimited by .separator string\n"
   "                         tabs     Tab-separated values\n"
   "                         tcl      TCL list elements\n"
-  ".nullvalue STRING      Use STRING in place of NULL values\n"
+  ".nullvalue STRING      Print STRING in place of NULL values\n"
   ".output FILENAME       Send output to FILENAME\n"
   ".output stdout         Send output to the screen\n"
-  ".print STRING...       Print literal STRING\n"
   ".prompt MAIN CONTINUE  Replace the standard prompts\n"
   ".quit                  Exit this program\n"
   ".read FILENAME         Execute SQL in FILENAME\n"
@@ -1466,7 +1453,6 @@ static int process_input(struct callback_data *p, FILE *in);
 */
 static void open_db(struct callback_data *p){
   if( p->db==0 ){
-    sqlite3_initialize();
     sqlite3_open(p->zDbFilename, &p->db);
     db = p->db;
     if( db && sqlite3_errcode(db)==SQLITE_OK ){
@@ -1480,18 +1466,6 @@ static void open_db(struct callback_data *p){
     }
 #ifndef SQLITE_OMIT_LOAD_EXTENSION
     sqlite3_enable_load_extension(p->db, 1);
-#endif
-#ifdef SQLITE_ENABLE_REGEXP
-    {
-      extern int sqlite3_add_regexp_func(sqlite3*);
-      sqlite3_add_regexp_func(db);
-    }
-#endif
-#ifdef SQLITE_ENABLE_SPELLFIX
-    {
-      extern int sqlite3_spellfix1_register(sqlite3*);
-      sqlite3_spellfix1_register(db);
-    }
 #endif
   }
 }
@@ -1538,18 +1512,17 @@ static void resolve_backslashes(char *z){
 ** Interpret zArg as a boolean value.  Return either 0 or 1.
 */
 static int booleanValue(char *zArg){
-  int i;
-  for(i=0; zArg[i]>='0' && zArg[i]<='9'; i++){}
-  if( i>0 && zArg[i]==0 ) return atoi(zArg);
-  if( sqlite3_stricmp(zArg, "on")==0 || sqlite3_stricmp(zArg,"yes")==0 ){
-    return 1;
+  int val = atoi(zArg);
+  int j;
+  for(j=0; zArg[j]; j++){
+    zArg[j] = ToLower(zArg[j]);
   }
-  if( sqlite3_stricmp(zArg, "off")==0 || sqlite3_stricmp(zArg,"no")==0 ){
-    return 0;
+  if( strcmp(zArg,"on")==0 ){
+    val = 1;
+  }else if( strcmp(zArg,"yes")==0 ){
+    val = 1;
   }
-  fprintf(stderr, "ERROR: Not a boolean value: \"%s\". Assuming \"no\".\n",
-          zArg);
-  return 0;
+  return val;
 }
 
 /*
@@ -1637,50 +1610,24 @@ static int do_meta_command(char *zLine, struct callback_data *p){
   if( nArg==0 ) return 0; /* no tokens, no error */
   n = strlen30(azArg[0]);
   c = azArg[0][0];
-  if( c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0 ){
-    const char *zDestFile = 0;
-    const char *zDb = 0;
-    const char *zKey = 0;
+  if( c=='b' && n>=3 && strncmp(azArg[0], "backup", n)==0 && nArg>1 && nArg<4){
+    const char *zDestFile;
+    const char *zDb;
     sqlite3 *pDest;
     sqlite3_backup *pBackup;
-    int j;
-    for(j=1; j<nArg; j++){
-      const char *z = azArg[j];
-      if( z[0]=='-' ){
-        while( z[0]=='-' ) z++;
-        if( strcmp(z,"key")==0 && j<nArg-1 ){
-          zKey = azArg[++j];
-        }else
-        {
-          fprintf(stderr, "unknown option: %s\n", azArg[j]);
-          return 1;
-        }
-      }else if( zDestFile==0 ){
-        zDestFile = azArg[j];
-      }else if( zDb==0 ){
-        zDb = zDestFile;
-        zDestFile = azArg[j];
-      }else{
-        fprintf(stderr, "too many arguments to .backup\n");
-        return 1;
-      }
+    if( nArg==2 ){
+      zDestFile = azArg[1];
+      zDb = "main";
+    }else{
+      zDestFile = azArg[2];
+      zDb = azArg[1];
     }
-    if( zDestFile==0 ){
-      fprintf(stderr, "missing FILENAME argument on .backup\n");
-      return 1;
-    }
-    if( zDb==0 ) zDb = "main";
     rc = sqlite3_open(zDestFile, &pDest);
     if( rc!=SQLITE_OK ){
       fprintf(stderr, "Error: cannot open \"%s\"\n", zDestFile);
       sqlite3_close(pDest);
       return 1;
     }
-#ifdef SQLITE_HAS_CODEC
-    sqlite3_key(pDest, zKey, (int)strlen(zKey));
-#else
-    (void)zKey;
-#endif
     open_db(p);
     pBackup = sqlite3_backup_init(pDest, "main", p->db, zDb);
     if( pBackup==0 ){
@@ -1782,8 +1729,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     p->echoOn = booleanValue(azArg[1]);
   }else
 
-  if( c=='e' && strncmp(azArg[0], "exit", n)==0 ){
-    if( nArg>1 && (rc = atoi(azArg[1]))!=0 ) exit(rc);
+  if( c=='e' && strncmp(azArg[0], "exit", n)==0  && nArg==1 ){
     rc = 2;
   }else
 
@@ -2062,7 +2008,6 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       p->mode = MODE_Html;
     }else if( n2==3 && strncmp(azArg[1],"tcl",n2)==0 ){
       p->mode = MODE_Tcl;
-      sqlite3_snprintf(sizeof(p->separator), p->separator, " ");
     }else if( n2==3 && strncmp(azArg[1],"csv",n2)==0 ){
       p->mode = MODE_Csv;
       sqlite3_snprintf(sizeof(p->separator), p->separator, ",");
@@ -2124,15 +2069,6 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         sqlite3_snprintf(sizeof(p->outfile), p->outfile, "%s", azArg[1]);
       }
     }
-  }else
-
-  if( c=='p' && n>=3 && strncmp(azArg[0], "print", n)==0 ){
-    int i;
-    for(i=1; i<nArg; i++){
-      if( i>1 ) fprintf(p->out, " ");
-      fprintf(p->out, "%s", azArg[i]);
-    }
-    fprintf(p->out, "\n");
   }else
 
   if( c=='p' && strncmp(azArg[0], "prompt", n)==0 && (nArg==2 || nArg==3)){
@@ -2248,25 +2184,23 @@ static int do_meta_command(char *zLine, struct callback_data *p){
         zShellStatic = azArg[1];
         rc = sqlite3_exec(p->db,
           "SELECT sql FROM "
-          "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
+          "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
           "     FROM sqlite_master UNION ALL"
-          "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
+          "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
           "WHERE lower(tbl_name) LIKE shellstatic()"
           "  AND type!='meta' AND sql NOTNULL "
-          "ORDER BY substr(type,2,1), "
-                  " CASE type WHEN 'view' THEN rowid ELSE name END",
+          "ORDER BY substr(type,2,1), name",
           callback, &data, &zErrMsg);
         zShellStatic = 0;
       }
     }else{
       rc = sqlite3_exec(p->db,
          "SELECT sql FROM "
-         "  (SELECT sql sql, type type, tbl_name tbl_name, name name, rowid x"
+         "  (SELECT sql sql, type type, tbl_name tbl_name, name name"
          "     FROM sqlite_master UNION ALL"
-         "   SELECT sql, type, tbl_name, name, rowid FROM sqlite_temp_master) "
+         "   SELECT sql, type, tbl_name, name FROM sqlite_temp_master) "
          "WHERE type!='meta' AND sql NOTNULL AND name NOT LIKE 'sqlite_%'"
-         "ORDER BY substr(type,2,1),"
-                  " CASE type WHEN 'view' THEN rowid ELSE name END",
+         "ORDER BY substr(type,2,1), name",
          callback, &data, &zErrMsg
       );
     }
@@ -2532,7 +2466,7 @@ static int do_meta_command(char *zLine, struct callback_data *p){
     open_db(p);
     output_file_close(p->traceOut);
     p->traceOut = output_file_open(azArg[1]);
-#if !defined(SQLITE_OMIT_TRACE) && !defined(SQLITE_OMIT_FLOATING_POINT)
+#ifndef SQLITE_OMIT_TRACE
     if( p->traceOut==0 ){
       sqlite3_trace(p->db, 0, 0);
     }else{
@@ -2557,13 +2491,6 @@ static int do_meta_command(char *zLine, struct callback_data *p){
       }
     }
   }else
-
-#if defined(SQLITE_DEBUG) && defined(SQLITE_ENABLE_WHERETRACE)
-  if( c=='w' && strncmp(azArg[0], "wheretrace", n)==0 ){
-    extern int sqlite3WhereTrace;
-    sqlite3WhereTrace = atoi(azArg[1]);
-  }else
-#endif
 
   if( c=='w' && strncmp(azArg[0], "width", n)==0 && nArg>1 ){
     int j;
@@ -2756,7 +2683,7 @@ static int process_input(struct callback_data *p, FILE *in){
     free(zSql);
   }
   free(zLine);
-  return errCnt>0;
+  return errCnt;
 }
 
 /*
@@ -2767,13 +2694,11 @@ static char *find_home_dir(void){
   static char *home_dir = NULL;
   if( home_dir ) return home_dir;
 
-#if !defined(_WIN32) && !defined(WIN32) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
-  {
-    struct passwd *pwent;
-    uid_t uid = getuid();
-    if( (pwent=getpwuid(uid)) != NULL) {
-      home_dir = pwent->pw_dir;
-    }
+#if !defined(_WIN32) && !defined(WIN32) && !defined(__OS2__) && !defined(_WIN32_WCE) && !defined(__RTP__) && !defined(_WRS_KERNEL)
+  struct passwd *pwent;
+  uid_t uid = getuid();
+  if( (pwent=getpwuid(uid)) != NULL) {
+    home_dir = pwent->pw_dir;
   }
 #endif
 
@@ -2783,7 +2708,7 @@ static char *find_home_dir(void){
   home_dir = "/";
 #else
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
   if (!home_dir) {
     home_dir = getenv("USERPROFILE");
   }
@@ -2793,7 +2718,7 @@ static char *find_home_dir(void){
     home_dir = getenv("HOME");
   }
 
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32) || defined(WIN32) || defined(__OS2__)
   if (!home_dir) {
     char *zDrive, *zPath;
     int n;
@@ -2846,7 +2771,6 @@ static int process_sqliterc(
 #endif
       return 1;
     }
-    sqlite3_initialize();
     zBuf = sqlite3_mprintf("%s/.sqliterc",home_dir);
     sqliterc = zBuf;
   }
@@ -2869,14 +2793,11 @@ static const char zOptions[] =
   "   -bail                stop after hitting an error\n"
   "   -batch               force batch I/O\n"
   "   -column              set output mode to 'column'\n"
-  "   -cmd COMMAND         run \"COMMAND\" before reading stdin\n"
+  "   -cmd command         run \"command\" before reading stdin\n"
   "   -csv                 set output mode to 'csv'\n"
   "   -echo                print commands before execution\n"
-  "   -init FILENAME       read/process named file\n"
+  "   -init filename       read/process named file\n"
   "   -[no]header          turn headers on or off\n"
-#if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
-  "   -heap SIZE           Size of heap for memsys3 or memsys5\n"
-#endif
   "   -help                show this message\n"
   "   -html                set output mode to HTML\n"
   "   -interactive         force interactive I/O\n"
@@ -2885,8 +2806,8 @@ static const char zOptions[] =
 #ifdef SQLITE_ENABLE_MULTIPLEX
   "   -multiplex           enable the multiplexor VFS\n"
 #endif
-  "   -nullvalue TEXT      set text string for NULL values. Default ''\n"
-  "   -separator SEP       set output field separator. Default: '|'\n"
+  "   -nullvalue 'text'    set text string for NULL values\n"
+  "   -separator 'x'       set output field separator (|)\n"
   "   -stats               print memory stats before each finalize\n"
   "   -version             show SQLite version\n"
   "   -vfs NAME            use NAME as the default VFS\n"
@@ -2922,19 +2843,6 @@ static void main_init(struct callback_data *data) {
   sqlite3_config(SQLITE_CONFIG_SINGLETHREAD);
 }
 
-/*
-** Get the argument to an --option.  Throw an error and die if no argument
-** is available.
-*/
-static char *cmdline_option_value(int argc, char **argv, int i){
-  if( i==argc ){
-    fprintf(stderr, "%s: Error: missing argument to %s\n",
-            argv[0], argv[argc-1]);
-    exit(1);
-  }
-  return argv[i];
-}
-
 int main(int argc, char **argv){
   char *zErrMsg = 0;
   struct callback_data data;
@@ -2964,35 +2872,24 @@ int main(int argc, char **argv){
   ** the size of the alternative malloc heap,
   ** and the first command to execute.
   */
-  for(i=1; i<argc; i++){
+  for(i=1; i<argc-1; i++){
     char *z;
+    if( argv[i][0]!='-' ) break;
     z = argv[i];
-    if( z[0]!='-' ){
-      if( data.zDbFilename==0 ){
-        data.zDbFilename = z;
-        continue;
-      }
-      if( zFirstCmd==0 ){
-        zFirstCmd = z;
-        continue;
-      }
-      fprintf(stderr,"%s: Error: too many options: \"%s\"\n", Argv0, argv[i]);
-      fprintf(stderr,"Use -help for a list of options.\n");
-      return 1;
-    }
     if( z[1]=='-' ) z++;
     if( strcmp(z,"-separator")==0
      || strcmp(z,"-nullvalue")==0
      || strcmp(z,"-cmd")==0
     ){
-      (void)cmdline_option_value(argc, argv, ++i);
+      i++;
     }else if( strcmp(z,"-init")==0 ){
-      zInitFile = cmdline_option_value(argc, argv, ++i);
+      i++;
+      zInitFile = argv[i];
+    /* Need to check for batch mode here to so we can avoid printing
+    ** informational messages (like from process_sqliterc) before 
+    ** we do the actual processing of arguments later in a second pass.
+    */
     }else if( strcmp(z,"-batch")==0 ){
-      /* Need to check for batch mode here to so we can avoid printing
-      ** informational messages (like from process_sqliterc) before 
-      ** we do the actual processing of arguments later in a second pass.
-      */
       stdin_is_interactive = 0;
     }else if( strcmp(z,"-heap")==0 ){
 #if defined(SQLITE_ENABLE_MEMSYS3) || defined(SQLITE_ENABLE_MEMSYS5)
@@ -3000,7 +2897,7 @@ int main(int argc, char **argv){
       const char *zSize;
       sqlite3_int64 szHeap;
 
-      zSize = cmdline_option_value(argc, argv, ++i);
+      zSize = argv[++i];
       szHeap = atoi(zSize);
       for(j=0; (c = zSize[j])!=0; j++){
         if( c=='M' ){ szHeap *= 1000000; break; }
@@ -3027,7 +2924,7 @@ int main(int argc, char **argv){
       sqlite3_multiplex_initialize(0, 1);
 #endif
     }else if( strcmp(z,"-vfs")==0 ){
-      sqlite3_vfs *pVfs = sqlite3_vfs_find(cmdline_option_value(argc,argv,++i));
+      sqlite3_vfs *pVfs = sqlite3_vfs_find(argv[++i]);
       if( pVfs ){
         sqlite3_vfs_register(pVfs, 1);
       }else{
@@ -3036,15 +2933,35 @@ int main(int argc, char **argv){
       }
     }
   }
-  if( data.zDbFilename==0 ){
+  if( i<argc ){
+#if defined(SQLITE_OS_OS2) && SQLITE_OS_OS2
+    data.zDbFilename = (const char *)convertCpPathToUtf8( argv[i++] );
+#else
+    data.zDbFilename = argv[i++];
+#endif
+  }else{
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";
 #else
-    fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
-    return 1;
+    data.zDbFilename = 0;
 #endif
   }
+  if( i<argc ){
+    zFirstCmd = argv[i++];
+  }
+  if( i<argc ){
+    fprintf(stderr,"%s: Error: too many options: \"%s\"\n", Argv0, argv[i]);
+    fprintf(stderr,"Use -help for a list of options.\n");
+    return 1;
+  }
   data.out = stdout;
+
+#ifdef SQLITE_OMIT_MEMORYDB
+  if( data.zDbFilename==0 ){
+    fprintf(stderr,"%s: Error: no database filename specified\n", Argv0);
+    return 1;
+  }
+#endif
 
   /* Go ahead and open the database file if it already exists.  If the
   ** file does not exist, delay opening it.  This prevents empty database
@@ -3069,9 +2986,8 @@ int main(int argc, char **argv){
   ** file is processed so that the command-line arguments will override
   ** settings in the initialization file.
   */
-  for(i=1; i<argc; i++){
+  for(i=1; i<argc && argv[i][0]=='-'; i++){
     char *z = argv[i];
-    if( z[0]!='-' ) continue;
     if( z[1]=='-' ){ z++; }
     if( strcmp(z,"-init")==0 ){
       i++;
@@ -3087,11 +3003,25 @@ int main(int argc, char **argv){
       data.mode = MODE_Csv;
       memcpy(data.separator,",",2);
     }else if( strcmp(z,"-separator")==0 ){
+      i++;
+      if(i>=argc){
+        fprintf(stderr,"%s: Error: missing argument for option: %s\n",
+                        Argv0, z);
+        fprintf(stderr,"Use -help for a list of options.\n");
+        return 1;
+      }
       sqlite3_snprintf(sizeof(data.separator), data.separator,
-                       "%s",cmdline_option_value(argc,argv,++i));
+                       "%.*s",(int)sizeof(data.separator)-1,argv[i]);
     }else if( strcmp(z,"-nullvalue")==0 ){
+      i++;
+      if(i>=argc){
+        fprintf(stderr,"%s: Error: missing argument for option: %s\n",
+                        Argv0, z);
+        fprintf(stderr,"Use -help for a list of options.\n");
+        return 1;
+      }
       sqlite3_snprintf(sizeof(data.nullvalue), data.nullvalue,
-                       "%s",cmdline_option_value(argc,argv,++i));
+                       "%.*s",(int)sizeof(data.nullvalue)-1,argv[i]);
     }else if( strcmp(z,"-header")==0 ){
       data.showHeader = 1;
     }else if( strcmp(z,"-noheader")==0 ){
@@ -3125,7 +3055,8 @@ int main(int argc, char **argv){
       usage(1);
     }else if( strcmp(z,"-cmd")==0 ){
       if( i==argc-1 ) break;
-      z = cmdline_option_value(argc,argv,++i);
+      i++;
+      z = argv[i];
       if( z[0]=='.' ){
         rc = do_meta_command(z, &data);
         if( rc && bail_on_error ) return rc;

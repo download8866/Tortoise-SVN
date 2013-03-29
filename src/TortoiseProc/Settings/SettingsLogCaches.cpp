@@ -40,7 +40,6 @@ CSettingsLogCaches::CSettingsLogCaches()
     : ISettingsPropPage(CSettingsLogCaches::IDD)
     , progress(NULL)
     , m_bThreadRunning(0)
-    , headRevision(-1)
 {
 }
 
@@ -229,7 +228,7 @@ void CSettingsLogCaches::FillRepositoryList()
         size_t fileSize = caches->FileSize (iter->second, url) / 1024;
 
         CString sizeText;
-        sizeText.Format(_T("%d"), fileSize);
+        sizeText.Format(TEXT("%d"), fileSize);
         m_cRepositoryList.SetItemText (count, 1, sizeText);
     }
 }

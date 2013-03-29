@@ -23,7 +23,7 @@
 #include "AppUtils.h"
 #include "DirFileEnum.h"
 #include "BrowseFolder.h"
-#include "registry.h"
+#include "Registry.h"
 #include "HistoryDlg.h"
 
 IMPLEMENT_DYNAMIC(CImportDlg, CResizableStandAloneDialog)

@@ -181,11 +181,12 @@ a.linkerror {color:red; }
 a.linkwarning {color:yellow; }
 
 .history {
-    width: 1040px;
-    height: 220px;
+	width: 1040px;
+	height: 220px;
 }
 
 .progress {
-    width: 22px;
-    height: 220px;
+	width: 22px;
+	height: 220px;
 }
+

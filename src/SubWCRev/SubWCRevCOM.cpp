@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2013 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <objbase.h>
 #include "SubWCRevCOM_h.h"
 #include "SubWCRevCOM_i.c"
@@ -26,7 +26,6 @@
 #include <shlwapi.h>
 #include <Shellapi.h>
 #include <comutil.h>
-#include <memory>
 
 #pragma warning(push)
 #include <apr_pools.h>
@@ -37,6 +36,7 @@
 #pragma warning(pop)
 #include "Register.h"
 #include "UnicodeUtils.h"
+#include "auto_buffer.h"
 #include <atlbase.h>
 
 STDAPI DllRegisterServer();
@@ -176,8 +176,15 @@ ULONG __stdcall SubWCRev::Release()
     return refCount;
 }
 
-HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
+//
+// ISubWCRev implementation
+//
+HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
 {
+    if (wcPath==NULL)
+        return E_INVALIDARG;
+
+    memset (&SubStat, 0, sizeof (SubStat));
     SubStat.bFolders = folders;
     SubStat.bExternals = externals;
 
@@ -195,13 +202,13 @@ HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL f
     const char * internalpath = svn_path_internal_style (wc_utf8, pool);
 
     svn_client_ctx_t * ctx;
-    svn_client_create_context2(&ctx, NULL, pool);
+    svn_client_create_context(&ctx, pool);
 
     svn_error_t * svnerr = svn_status(  internalpath,   //path
-        &SubStat,       //status_baton
-        TRUE,           //noignore
-        ctx,
-        pool);
+                                        &SubStat,       //status_baton
+                                        TRUE,           //noignore
+                                        ctx,
+                                        pool);
 
     HRESULT hr = S_OK;
     if (svnerr)
@@ -211,27 +218,6 @@ HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL f
     }
     apr_pool_destroy(pool);
     return hr;
-}
-//
-// ISubWCRev implementation
-//
-HRESULT __stdcall SubWCRev::GetWCInfo2(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals, /*[in]*/VARIANT_BOOL externalsNoMixed)
-{
-    if (wcPath==NULL)
-        return E_INVALIDARG;
-
-    memset (&SubStat, 0, sizeof (SubStat));
-    SubStat.bExternalsNoMixedRevision = externalsNoMixed;
-    return GetWCInfoInternal(wcPath, folders, externals);
-}
-
-HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
-{
-    if (wcPath==NULL)
-        return E_INVALIDARG;
-
-    memset (&SubStat, 0, sizeof (SubStat));
-    return GetWCInfoInternal(wcPath, folders, externals);
 }
 
 HRESULT __stdcall SubWCRev::get_Revision(/*[out, retval]*/VARIANT* rev)
@@ -284,36 +270,16 @@ HRESULT SubWCRev::Utf8StringToVariant(const char* string, VARIANT* result )
 
     result->vt = VT_BSTR;
     const size_t len = strlen(string);
-    std::unique_ptr<WCHAR[]> buf(new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
-    MultiByteToWideChar(CP_UTF8, 0, string, -1, buf.get(), (int)len*4);
-    result->bstrVal = SysAllocString(buf.get());
+    auto_buffer<WCHAR> buf(len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
+    MultiByteToWideChar(CP_UTF8, 0, string, -1, buf, (int)len*4);
+    result->bstrVal = SysAllocString(buf);
     return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_HasModifications(VARIANT_BOOL* modifications)
 {
     return BoolToVariantBool(SubStat.HasMods, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HasUnversioned(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(SubStat.HasUnversioned, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HasMixedRevisions(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(((SubStat.MinRev != SubStat.MaxRev) || SubStat.bIsExternalMixed), modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HaveExternalsAllFixedRevision(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(!SubStat.bIsExternalsNotFixed, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_IsWcTagged(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(SubStat.bIsTagged, modifications);
 }
 
 HRESULT __stdcall SubWCRev::get_IsSvnItem(/*[out, retval]*/VARIANT_BOOL* svn_item)
@@ -397,15 +363,15 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
         result = S_OK;
     }
 
-    std::unique_ptr<WCHAR[]> buf (new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
+    auto_buffer<WCHAR> buf (len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
 
     if(TRUE == SubStat.LockData.NeedsLocks)
     {
-        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf.get(), (int)len*4);
+        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, (int)len*4);
     }
 
-    owner->bstrVal = SysAllocString(buf.get());
+    owner->bstrVal = SysAllocString(buf);
     return result;
 }
 
@@ -430,15 +396,15 @@ HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
         result = S_OK;
     }
 
-    std::unique_ptr<WCHAR[]> buf (new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
+    auto_buffer<WCHAR> buf (len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
 
     if(TRUE == SubStat.LockData.NeedsLocks)
     {
-        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf.get(), (int)len*4);
+        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, (int)len*4);
     }
 
-    comment->bstrVal = SysAllocString(buf.get());
+    comment->bstrVal = SysAllocString(buf);
     return result;
 }
 
