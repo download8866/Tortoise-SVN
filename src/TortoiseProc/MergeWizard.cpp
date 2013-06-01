@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "MergeWizard.h"
 #include "SVN.h"
-#include "registry.h"
+#include "Registry.h"
 #include "TaskbarUUID.h"
 
 #define BOTTOMMARG 48
@@ -33,15 +33,11 @@ CMergeWizard::CMergeWizard(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
     :CResizableSheetEx(nIDCaption, pParentWnd, iSelectPage)
     , bReverseMerge(FALSE)
     , nRevRangeMerge(MERGEWIZARD_REVRANGE)
-    , bReintegrate(false)
     , m_bIgnoreAncestry(FALSE)
     , m_bIgnoreEOL(FALSE)
-    , m_IgnoreSpaces(svn_diff_file_ignore_space_none)
     , m_depth(svn_depth_unknown)
     , m_bRecordOnly(FALSE)
-    , m_bForce(FALSE)
     , m_FirstPageActivation(true)
-    , bAllowMixedRev(true)
 {
     SetWizardMode();
     AddPage(&page1);

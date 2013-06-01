@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "EditPropertyValueDlg.h"
+#include "auto_buffer.h"
 #include "SmartHandle.h"
 
 IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
@@ -83,8 +84,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
         {
             m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_EXTERNALS));
             m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_IGNORE));
-            m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_INHERITABLE_IGNORES));
-            m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_INHERITABLE_AUTO_PROPS));
         }
         m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_KEYWORDS));
         m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_NEEDS_LOCK));
@@ -96,9 +95,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
             resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
             while (resToken != "")
             {
-                int equalpos = resToken.Find('=');
-                if (equalpos >= 0)
-                    resToken = resToken.Left(equalpos);
                 m_PropNames.AddString(resToken);
                 resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
             }
@@ -147,9 +143,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
 
                 while (resToken != "")
                 {
-                    int equalpos = resToken.Find('=');
-                    if (equalpos >= 0)
-                        resToken = resToken.Left(equalpos);
                     m_PropNames.AddString(resToken);
                     resToken = m_ProjectProperties.sDPPath.Tokenize(_T("\n"),curPos);
                 }
@@ -189,7 +182,7 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
     AdjustControlSize(IDC_PROPRECURSIVE);
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || m_bRemote ? SW_HIDE : SW_SHOW);
+    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
 
     AddAnchor(IDC_PROPNAME, TOP_LEFT, TOP_CENTER);
     AddAnchor(IDC_PROPNAMECOMBO, TOP_CENTER, TOP_RIGHT);
@@ -301,10 +294,6 @@ void CEditPropertyValueDlg::CheckRecursive()
             nText = IDS_PROP_TT_MIMETYPE;
         if (nameUTF8.compare(SVN_PROP_IGNORE)==0)
             nText = IDS_PROP_TT_IGNORE;
-        if (nameUTF8.compare(SVN_PROP_INHERITABLE_IGNORES)==0)
-            nText = IDS_PROP_TT_INHERITABLEIGNORE;
-        if (nameUTF8.compare(SVN_PROP_INHERITABLE_AUTO_PROPS)==0)
-            nText = IDS_PROP_TT_INHERITABLEAUTOPROPS;
         if (nameUTF8.compare(SVN_PROP_KEYWORDS)==0)
             nText = IDS_PROP_TT_KEYWORDS;
         if (nameUTF8.compare(SVN_PROP_EOL_STYLE)==0)
@@ -433,10 +422,10 @@ void CEditPropertyValueDlg::OnBnClickedLoadprop()
         DWORD size = GetFileSize(hFile, NULL);
         FILE * stream;
         _tfopen_s(&stream, openPath, _T("rbS"));
-        std::unique_ptr<char[]> buf(new char[size]);
-        if (fread(buf.get(), sizeof(char), size, stream)==size)
+        auto_buffer<char> buf(size);
+        if (fread(buf, sizeof(char), size, stream)==size)
         {
-            m_PropValue.assign(buf.get(), size);
+            m_PropValue.assign(buf, size);
         }
         fclose(stream);
         // see if the loaded file contents are binary

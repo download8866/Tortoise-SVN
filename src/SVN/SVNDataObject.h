@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010, 2012-2013 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,11 +22,6 @@
 #include "SVNInfo.h"
 #include "DragDropImpl.h"
 #include <vector>
-#include <Shldisp.h>
-
-#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
-#define IDataObjectAsyncCapability IAsyncOperation
-#endif
 
 using namespace std;
 
@@ -46,7 +41,7 @@ extern  CLIPFORMAT  CF_SHELLURL;
  * This can be used for drag and drop operations to other applications like
  * the shell itself.
  */
-class SVNDataObject : public IDataObject, public IDataObjectAsyncCapability
+class SVNDataObject : public IDataObject, public IAsyncOperation
 {
 public:
     /**
@@ -54,8 +49,7 @@ public:
      * \param svnpaths a list of paths or URLs. Local paths must be inside a
      *                 working copy, URLs must point to a Subversion repository.
      * \param peg      the peg revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
-     * \param rev      the revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
-     * \param bFilesAsUrlLinks
+     * \param revision the revision the URL points to, or SVNRev::REV_WC/SVNRev::REV_BASE
      */
     SVNDataObject(const CTSVNPathList& svnpaths, SVNRev peg, SVNRev rev, bool bFilesAsUrlLinks = false);
     ~SVNDataObject();
@@ -76,7 +70,7 @@ public:
     virtual HRESULT STDMETHODCALLTYPE DUnadvise(DWORD dwConnection);
     virtual HRESULT STDMETHODCALLTYPE EnumDAdvise(IEnumSTATDATA** ppenumAdvise);
 
-    //IDataObjectAsyncCapability
+    //IAsyncOperation
     virtual HRESULT STDMETHODCALLTYPE SetAsyncMode(BOOL fDoOpAsync);
     virtual HRESULT STDMETHODCALLTYPE GetAsyncMode(BOOL* pfIsOpAsync);
     virtual HRESULT STDMETHODCALLTYPE StartOperation(IBindCtx* pbcReserved);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,6 @@ CHistoryCombo::CHistoryCombo(BOOL bAllowSortStyle /*=FALSE*/ )
     , m_bDyn(FALSE)
     , m_bTrim(TRUE)
 {
-    SecureZeroMemory(&m_ToolInfo, sizeof(m_ToolInfo));
 }
 
 CHistoryCombo::~CHistoryCombo()
@@ -55,38 +54,29 @@ BOOL CHistoryCombo::PreCreateWindow(CREATESTRUCT& cs)
 
 BOOL CHistoryCombo::PreTranslateMessage(MSG* pMsg)
 {
-    switch (pMsg->message)
+    if (pMsg->message == WM_KEYDOWN)
     {
-    case WM_KEYDOWN:
-        {
-            bool bShift = !!(GetKeyState(VK_SHIFT) & 0x8000);
-            int nVirtKey = (int) pMsg->wParam;
+        bool bShift = !!(GetKeyState(VK_SHIFT) & 0x8000);
+        int nVirtKey = (int) pMsg->wParam;
 
-            if (nVirtKey == VK_RETURN)
-                return OnReturnKeyPressed();
-            else if (nVirtKey == VK_DELETE && bShift && GetDroppedState() )
-            {
-                RemoveSelectedItem();
-                return TRUE;
-            }
-        }
-        break;
-    case WM_MOUSEMOVE:
+        if (nVirtKey == VK_RETURN)
+            return OnReturnKeyPressed();
+        else if (nVirtKey == VK_DELETE && bShift && GetDroppedState() )
         {
-            if ((pMsg->wParam & MK_LBUTTON) == 0)
-            {
-                CPoint pt;
-                pt.x = LOWORD(pMsg->lParam);
-                pt.y = HIWORD(pMsg->lParam);
-                OnMouseMove((UINT)pMsg->wParam, pt);
-                return TRUE;
-            }
-        }
-        break;
-    case WM_MOUSEWHEEL:
-    case WM_MOUSEHWHEEL:
-        if (!GetDroppedState())
+            RemoveSelectedItem();
             return TRUE;
+        }
+    }
+    if (pMsg->message == WM_MOUSEMOVE)
+    {
+        if ((pMsg->wParam & MK_LBUTTON) == 0)
+        {
+            CPoint pt;
+            pt.x = LOWORD(pMsg->lParam);
+            pt.y = HIWORD(pMsg->lParam);
+            OnMouseMove((UINT)pMsg->wParam, pt);
+            return TRUE;
+        }
     }
     return CComboBoxEx::PreTranslateMessage(pMsg);
 }
@@ -101,14 +91,6 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
 {
     if (str.IsEmpty())
         return -1;
-
-    //truncate list to m_nMaxHistoryItems
-    int nNumItems = GetCount();
-    for (int n = m_nMaxHistoryItems; n < nNumItems; n++)
-    {
-        DeleteItem(m_nMaxHistoryItems);
-        m_arEntries.RemoveAt(m_nMaxHistoryItems);
-    }
 
     COMBOBOXEXITEM cbei;
     SecureZeroMemory(&cbei, sizeof cbei);
@@ -169,6 +151,14 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
     {
         DeleteItem(nIndex);
         m_arEntries.RemoveAt(nIndex);
+    }
+
+    //truncate list to m_nMaxHistoryItems
+    int nNumItems = GetCount();
+    for (int n = m_nMaxHistoryItems; n < nNumItems; n++)
+    {
+        DeleteItem(m_nMaxHistoryItems);
+        m_arEntries.RemoveAt(m_nMaxHistoryItems);
     }
 
     SetCurSel(nRet);

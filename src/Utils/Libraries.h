@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,9 +22,12 @@
 // which isn't available in the Win7 SDK but not unless NTDDI_VERSION is
 // set to NTDDI_WIN7
 #pragma once
+#include "Win7.h"
 
 void    EnsureSVNLibrary(bool bCreate = true);
 HRESULT GetShellLibraryItem(LPWSTR pwszLibraryName, IShellItem2** ppShellItem);
 HRESULT OpenShellLibrary(LPWSTR pwszLibraryName, IShellLibrary** ppShellLib);
 
 EXTERN_C const CLSID FOLDERTYPEID_SVNWC;
+
+

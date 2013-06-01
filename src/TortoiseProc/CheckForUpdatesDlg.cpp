@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,10 +18,10 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "../version.h"
+#include "..\version.h"
 #include "MessageBox.h"
-#include "CheckForUpdatesDlg.h"
-#include "registry.h"
+#include ".\checkforupdatesdlg.h"
+#include "Registry.h"
 #include "AppUtils.h"
 #include "TempFile.h"
 
@@ -31,7 +31,6 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CCheckForUpdatesDlg::IDD, pParent)
     , m_bShowInfo(FALSE)
     , m_bVisible(FALSE)
-    , m_bThreadRunning(FALSE)
 {
     m_sUpdateDownloadLink = _T("http://tortoisesvn.net");
 }

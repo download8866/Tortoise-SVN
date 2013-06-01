@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2012 - TortoiseSVN
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "registry.h"
+#include "StdAfx.h"
+#include "Registry.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "UnicodeUtils.h"
@@ -87,7 +87,7 @@ bool CAppUtils::CreateUnifiedDiff(const CString& orig, const CString& modified, 
     apr_file_t * outfile = NULL;
     apr_pool_t * pool = svn_pool_create(NULL);
 
-    svn_error_t * err = svn_io_file_open (&outfile, svn_dirent_internal_style(CUnicodeUtils::GetUTF8(output), pool),
+    svn_error_t * err = svn_io_file_open (&outfile, svn_path_internal_style(CUnicodeUtils::GetUTF8(output), pool),
         APR_WRITE | APR_CREATE | APR_BINARY | APR_TRUNCATE,
         APR_OS_DEFAULT, pool);
     if (err == NULL)
@@ -99,13 +99,13 @@ bool CAppUtils::CreateUnifiedDiff(const CString& orig, const CString& modified, 
             svn_diff_file_options_t * opts = svn_diff_file_options_create(pool);
             opts->ignore_eol_style = false;
             opts->ignore_space = svn_diff_file_ignore_space_none;
-            err = svn_diff_file_diff_2(&diff, svn_dirent_internal_style(CUnicodeUtils::GetUTF8(orig), pool),
-                svn_dirent_internal_style(CUnicodeUtils::GetUTF8(modified), pool), opts, pool);
+            err = svn_diff_file_diff_2(&diff, svn_path_internal_style(CUnicodeUtils::GetUTF8(orig), pool),
+                svn_path_internal_style(CUnicodeUtils::GetUTF8(modified), pool), opts, pool);
             if (err == NULL)
             {
-                err = svn_diff_file_output_unified3(stream, diff, svn_dirent_internal_style(CUnicodeUtils::GetUTF8(orig), pool),
-                    svn_dirent_internal_style(CUnicodeUtils::GetUTF8(modified), pool),
-                    NULL, NULL, NULL, NULL, true, pool);
+                err = svn_diff_file_output_unified(stream, diff, svn_path_internal_style(CUnicodeUtils::GetUTF8(orig), pool),
+                    svn_path_internal_style(CUnicodeUtils::GetUTF8(modified), pool),
+                    NULL, NULL, pool);
                 svn_stream_close(stream);
             }
         }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2013 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,14 +18,11 @@
 //
 #include "stdafx.h"
 #include "Hooks.h"
-#include "resource.h"
 #include "registry.h"
 #include "StringUtils.h"
 #include "TempFile.h"
 #include "SVN.h"
-#include "SVNHelpers.h"
 #include "SmartHandle.h"
-#include "MessageBox.h"
 
 CHooks* CHooks::m_pInstance = NULL;
 
@@ -53,7 +50,6 @@ bool CHooks::Create()
     // line 3: command line to execute
     // line 4: 'true' or 'false' for waiting for the script to finish
     // line 5: 'show' or 'hide' on how to start the hook script
-    // line 6: 'enforce' on whether to aks the user for permission (optinal)
     hookkey key;
     int pos = 0;
     hookcmd cmd;
@@ -82,7 +78,6 @@ bool CHooks::Create()
                     strhooks = strhooks.Mid(pos+1);
                 else
                     strhooks.Empty();
-
                 if ((pos = strhooks.Find('\n')) >= 0)
                 {
                     // line 4
@@ -99,18 +94,6 @@ bool CHooks::Create()
                             strhooks = strhooks.Mid(pos+1);
                         else
                             strhooks.Empty();
-
-                        cmd.bEnforce = false;
-                        if ((pos = strhooks.Find('\n')) >= 0)
-                        {
-                            // line 5
-                            cmd.bEnforce = (strhooks.Mid(0, pos).CompareNoCase(_T("enforce"))==0);
-                            if (pos+1 < strhooks.GetLength())
-                                strhooks = strhooks.Mid(pos+1);
-                            else
-                                strhooks.Empty();
-                        }
-                        cmd.bApproved = true;   // user configured scripts are pre-approved
                         bComplete = true;
                     }
                 }
@@ -122,18 +105,6 @@ bool CHooks::Create()
         }
     }
     return true;
-}
-
-void CHooks::SetProjectProperties( const CTSVNPath& wcRootPath, const ProjectProperties& pp )
-{
-    m_wcRootPath = wcRootPath;
-    CString sLocalPath = pp.sRepositoryRootUrl;
-    ParseAndInsertProjectProperty(pre_commit_hook, pp.sPreCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(start_commit_hook, pp.sStartCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(post_commit_hook, pp.sPostCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(pre_update_hook, pp.sPreUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(start_update_hook, pp.sStartUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(post_update_hook, pp.sPostUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
 }
 
 CHooks& CHooks::Instance()
@@ -161,8 +132,6 @@ bool CHooks::Save()
         strhooks += '\n';
         strhooks += (it->second.bShow ? _T("show") : _T("hide"));
         strhooks += '\n';
-        if (it->second.bEnforce)
-          strhooks += _T("enforce\n");
     }
 
     CRegString reghooks = CRegString(_T("Software\\TortoiseSVN\\hooks"));
@@ -178,8 +147,7 @@ bool CHooks::Remove(hookkey key)
     return (erase(key) > 0);
 }
 
-void CHooks::Add(hooktype ht, const CTSVNPath& Path, LPCTSTR szCmd,
-                 bool bWait, bool bShow, bool bEnforce)
+void CHooks::Add(hooktype ht, const CTSVNPath& Path, LPCTSTR szCmd, bool bWait, bool bShow)
 {
     hookkey key;
     key.htype = ht;
@@ -192,9 +160,6 @@ void CHooks::Add(hooktype ht, const CTSVNPath& Path, LPCTSTR szCmd,
     cmd.commandline = szCmd;
     cmd.bWait = bWait;
     cmd.bShow = bShow;
-    cmd.bEnforce = bEnforce;
-    cmd.bApproved = bEnforce;
-
     insert(std::pair<hookkey, hookcmd>(key, cmd));
 }
 
@@ -286,18 +251,11 @@ CTSVNPath CHooks::AddMessageFileParam(CString& sCmd, const CString& message)
     return tempPath;
 }
 
-bool CHooks::StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message, DWORD& exitcode, CString& error)
+bool CHooks::StartCommit(const CTSVNPathList& pathList, CString& message, DWORD& exitcode, CString& error)
 {
-    exitcode = 0;
     hookiterator it = FindItem(start_commit_hook, pathList);
     if (it == end())
         return false;
-    if (!ApproveHook(hWnd, it))
-    {
-        exitcode = 1;
-        error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return false;
-    }
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
     CTSVNPath temppath = AddMessageFileParam(sCmd, message);
@@ -310,12 +268,10 @@ bool CHooks::StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& mess
     return true;
 }
 
-bool CHooks::PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, CString& message, DWORD& exitcode, CString& error)
+bool CHooks::PreCommit(const CTSVNPathList& pathList, svn_depth_t depth, CString& message, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(pre_commit_hook, pathList);
     if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
         return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -330,12 +286,10 @@ bool CHooks::PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     return true;
 }
 
-bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CString& message, DWORD& exitcode, CString& error)
+bool CHooks::PostCommit(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CString& message, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(post_commit_hook, pathList);
     if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
         return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -348,12 +302,10 @@ bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t de
     return true;
 }
 
-bool CHooks::StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitcode, CString& error)
+bool CHooks::StartUpdate(const CTSVNPathList& pathList, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(start_update_hook, pathList);
     if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
         return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -362,12 +314,10 @@ bool CHooks::StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitco
     return true;
 }
 
-bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
+bool CHooks::PreUpdate(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(pre_update_hook, pathList);
     if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
         return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -378,12 +328,10 @@ bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     return true;
 }
 
-bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
+bool CHooks::PostUpdate(const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(post_update_hook, pathList);
     if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
         return false;
     CString sCmd = it->second.commandline;
     AddPathParam(sCmd, pathList);
@@ -433,12 +381,6 @@ bool CHooks::PreConnect(const CTSVNPathList& pathList)
     return false;
 }
 
-bool CHooks::IsHookExecutionEnforced(hooktype t, const CTSVNPathList& pathList)
-{
-    hookiterator it = FindItem(t, pathList);
-    return it != end() && it->second.bEnforce;
-}
-
 hookiterator CHooks::FindItem(hooktype t, const CTSVNPathList& pathList)
 {
     hookkey key;
@@ -457,20 +399,10 @@ hookiterator CHooks::FindItem(hooktype t, const CTSVNPathList& pathList)
             path = path.GetContainingDirectory();
         } while(!path.IsEmpty());
     }
-
-    // try the wc root path
-    key.htype = t;
-    key.path = m_wcRootPath;
-    hookiterator it = find(key);
-    if (it != end())
-    {
-        return it;
-    }
-
     // look for a script with a path as '*'
     key.htype = t;
     key.path = CTSVNPath(_T("*"));
-    it = find(key);
+    hookiterator it = find(key);
     if (it != end())
     {
         return it;
@@ -599,199 +531,5 @@ DWORD CHooks::RunScript(CString cmd, const CTSVNPathList& paths, CString& error,
     DeleteFile(szErr);
 
     return exitcode;
-}
-
-bool CHooks::ParseAndInsertProjectProperty( hooktype t, const CString& strhook, const CTSVNPath& wcRootPath, const CString& rootPath, const CString& rootUrl, const CString& repoRootUrl )
-{
-    if (strhook.IsEmpty())
-        return false;
-    // the string consists of multiple lines, where one hook script is defined
-    // as four lines:
-    // line 1: command line to execute
-    // line 2: 'true' or 'false' for waiting for the script to finish
-    // line 3: 'show' or 'hide' on how to start the hook script
-    // line 4: 'force' on whether to ask the user for permission
-    hookkey key;
-    hookcmd cmd;
-
-    key.htype = t;
-    key.path = wcRootPath;
-
-    int pos = 0;
-    CString temp;
-
-    temp = strhook.Tokenize(_T("\n"), pos);
-    if (!temp.IsEmpty())
-    {
-        ASSERT(t == GetHookType(temp));
-        temp = strhook.Tokenize(_T("\n"), pos);
-        if (!temp.IsEmpty())
-        {
-            int urlstart = temp.Find(L"%REPOROOT%");
-            if (urlstart >= 0)
-            {
-                temp.Replace(L"%REPOROOT%", repoRootUrl);
-                CString fullUrl = temp.Mid(urlstart);
-                int urlend = -1;
-                if ((urlstart > 0)&&(temp[urlstart-1]=='\"'))
-                    urlend = temp.Find('\"', urlstart);
-                else
-                    urlend = temp.Find(' ', urlstart);
-                if (urlend < 0)
-                    urlend = temp.GetLength();
-                fullUrl = temp.Mid(urlstart, urlend-urlstart);
-                fullUrl.Replace('\\', '/');
-                // now we have the full url of the script, e.g.
-                // https://tortoisesvn.googlecode.com/svn/trunk/contrib/hook-scripts/client-side/checkyear.js
-
-                CString sLocalPathUrl = rootUrl;
-                CString sLocalPath = rootPath;
-                // find the lowest common ancestor of the local path url and the script url
-                while (fullUrl.Left(sLocalPathUrl.GetLength()).Compare(sLocalPathUrl))
-                {
-                    int sp = sLocalPathUrl.ReverseFind('/');
-                    if (sp < 0)
-                        return false;
-                    sLocalPathUrl = sLocalPathUrl.Left(sp);
-
-                    sp = sLocalPath.ReverseFind('\\');
-                    if (sp < 0)
-                        return false;
-                    sLocalPath = sLocalPath.Left(sp);
-                }
-                // now both sLocalPathUrl and sLocalPath can be used to construct
-                // the path to the script
-                sLocalPath = sLocalPath + L"\\" + fullUrl.Mid(sLocalPathUrl.GetLength());
-                sLocalPath.Replace('/', '\\');
-                // now replace the full url in the command line with the local path
-                temp.Replace(fullUrl, sLocalPath);
-            }
-            urlstart = temp.Find(L"%REPOROOT+%");
-            if (urlstart >= 0)
-            {
-                CString temp2 = temp;
-                CString sExt = rootUrl.Mid(repoRootUrl.GetLength());
-                CString sLocalPath;
-                do
-                {
-                    temp = temp2;
-                    CString repoRootUrlExt = repoRootUrl + sExt;
-                    int slp = sExt.ReverseFind('/');
-                    if (slp >= 0)
-                        sExt = sExt.Left(sExt.ReverseFind('/'));
-                    else if (sExt.IsEmpty())
-                        return false;
-                    else
-                        sExt.Empty();
-                    temp.Replace(L"%REPOROOT+%", repoRootUrlExt);
-                    CString fullUrl = temp.Mid(urlstart);
-                    int urlend = -1;
-                    if ((urlstart > 0)&&(temp[urlstart-1]=='\"'))
-                        urlend = temp.Find('\"', urlstart);
-                    else
-                        urlend = temp.Find(' ', urlstart);
-                    if (urlend < 0)
-                        urlend = temp.GetLength();
-                    fullUrl = temp.Mid(urlstart, urlend-urlstart);
-                    fullUrl.Replace('\\', '/');
-                    // now we have the full url of the script, e.g.
-                    // https://tortoisesvn.googlecode.com/svn/trunk/contrib/hook-scripts/client-side/checkyear.js
-
-                    CString sLocalPathUrl = rootUrl;
-                    sLocalPath = rootPath;
-                    // find the lowest common ancestor of the local path url and the script url
-                    while (fullUrl.Left(sLocalPathUrl.GetLength()).Compare(sLocalPathUrl))
-                    {
-                        int sp = sLocalPathUrl.ReverseFind('/');
-                        if (sp < 0)
-                            return false;
-                        sLocalPathUrl = sLocalPathUrl.Left(sp);
-
-                        sp = sLocalPath.ReverseFind('\\');
-                        if (sp < 0)
-                            return false;
-                        sLocalPath = sLocalPath.Left(sp);
-                    }
-                    // now both sLocalPathUrl and sLocalPath can be used to construct
-                    // the path to the script
-                    sLocalPath = sLocalPath + L"\\" + fullUrl.Mid(sLocalPathUrl.GetLength());
-                    sLocalPath.Replace('/', '\\');
-                    // now replace the full url in the command line with the local path
-                    temp.Replace(fullUrl, sLocalPath);
-                } while (!PathFileExists(sLocalPath));
-            }
-            cmd.commandline = temp;
-            temp = strhook.Tokenize(_T("\n"), pos);
-            if (!temp.IsEmpty())
-            {
-                cmd.bWait = (temp.CompareNoCase(_T("true"))==0);
-                temp = strhook.Tokenize(_T("\n"), pos);
-                if (!temp.IsEmpty())
-                {
-                    cmd.bShow = (temp.CompareNoCase(_T("show"))==0);
-
-                    temp.Format(L"%d%s", (int)key.htype, (LPCTSTR)cmd.commandline);
-                    SVNPool pool;
-                    cmd.sRegKey = L"Software\\TortoiseSVN\\approvedhooks\\" + SVN::GetChecksumString(svn_checksum_sha1, temp, pool);
-                    CRegDWORD reg(cmd.sRegKey, 0);
-                    cmd.bApproved = (DWORD(reg) != 0);
-                    cmd.bStored = reg.exists();
-
-                    temp = strhook.Tokenize(_T("\n"), pos);
-                    cmd.bEnforce = temp.CompareNoCase(_T("enforce"))==0;
-
-                    if (find(key) == end())
-                    {
-                        m_pInstance->insert(std::pair<hookkey, hookcmd>(key, cmd));
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    return false;
-}
-
-bool CHooks::ApproveHook( HWND hWnd, hookiterator it )
-{
-    if (it->second.bApproved || it->second.bStored)
-        return it->second.bApproved;
-
-    CString sQuestion;
-    sQuestion.Format(IDS_HOOKS_APPROVE_TASK1, it->second.commandline);
-    bool bApproved = false;
-    bool bDoNotAskAgain = false;
-    if (CTaskDialog::IsSupported())
-    {
-        CTaskDialog taskdlg(sQuestion,
-                            CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK2)),
-                            L"TortoiseSVN",
-                            0,
-                            TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
-        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK3)));
-        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK4)));
-        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-        taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_HOOKS_APPROVE_TASK5)));
-        taskdlg.SetVerificationCheckbox(false);
-        taskdlg.SetDefaultCommandControl(2);
-        taskdlg.SetMainIcon(TD_WARNING_ICON);
-        bApproved = taskdlg.DoModal(hWnd) == 1;
-        bDoNotAskAgain = !!taskdlg.GetVerificationCheckboxState();
-    }
-    else
-    {
-        UINT ret = TSVNMessageBox(hWnd, sQuestion, CString(MAKEINTRESOURCE(IDS_APPNAME)), MB_YESNO|MB_ICONWARNING|MB_DONOTASKAGAIN);
-        bApproved = (ret & 0xFFFF) == IDYES;
-        bDoNotAskAgain = (ret & MB_DONOTASKAGAIN)!=0;
-    }
-
-    if (bDoNotAskAgain)
-    {
-        CRegDWORD reg(it->second.sRegKey, 0);
-        reg = bApproved ? 1 : 0;
-        it->second.bStored = true;
-    }
-    it->second.bApproved = bApproved;
-    return bApproved;
 }
 

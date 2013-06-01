@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "ExportDlg.h"
 #include "RepositoryBrowser.h"
-#include "MessageBox.h"
+#include "Messagebox.h"
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "AppUtils.h"
@@ -37,8 +37,6 @@ CExportDlg::CExportDlg(CWnd* pParent /*=NULL*/)
     , m_bNoKeywords(FALSE)
     , m_pLogDlg(NULL)
     , m_blockPathAdjustments(FALSE)
-    , m_bAutoCreateTargetName(false)
-    , m_depth(svn_depth_unknown)
 {
 }
 

@@ -4,11 +4,13 @@
   <!-- default configuration is release -->
   <property name="configuration" value="release" />
   <!-- default builds are dev builds -->
-  <property name="devrelease" value="-dev" unless="${property::exists('devrelease')}" />
+  <property name="devrelease" value="-dev" unless="${property::exists('devrelease')}"/>
   <!-- default build for win32 platform -->
   <property name="platform" value="win32" />
+  <!-- default build tool is VS.NET2008 -->
+  <property name="buildtool" value="devenv.com" />
   <!-- default: don't add a platform specific extension
-       to the bin folders 'release' / 'debug'   -->
+     to the bin folders 'release' / 'debug'	 -->
   <property name="bindirextension" value="" />
   <!-- default: we don't cross-compile -->
   <property name="crosscompile" value="" />
@@ -18,34 +20,33 @@
   <property name="ipv6" value="" />
   <!-- default: we build with openssl support -->
   <property name="skipssl" value="" />
+  <!-- default: we build with VS2010 -->
+  <property name="studioversion" value="2010"/>
   <!-- default: we build in a user session -->
-  <property name="schedule" value="no" />
-  <!-- the ${subsystem} to use -->
-  <property name="subsystem" value="/SUBSYSTEM:WINDOWS,5.01" />
-  <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE,5.01" />
+  <property name="schedule" value="no"/>
 
   <!-- make sure the user config file exists -->
   <property name="userconfigfile"
             value="default.build.user" />
-  <property name="userconfigtemplate"
+  <property name="userconfigtemplate" 
             value="${userconfigfile}.tmpl" />
   <if test="${not file::exists(userconfigfile)}">
     <echo level="Warning">
-      The file ${userconfigfile} is missing. We will auto-create it
-      from the ${userconfigtemplate} file. Please consider adapting
-      it to your needs.
+The file ${userconfigfile} is missing. We will auto-create it
+from the ${userconfigtemplate} file. Please consider adapting
+it to your needs.
     </echo>
     <copy file="${userconfigtemplate}"
-          tofile="${userconfigfile}" />
+          tofile="${userconfigfile}"/>
   </if>
 
   <include buildfile="default.build.user" />
 
   <!-- the signinfo.txt file has to contain one line with parameters for signtool.exe,
        for example:
-       /t "url/to/timestamp/server" /q
+     /t "url/to/timestamp/server" /q
   -->
-  <loadfile file="signinfo.txt" property="signinfo" failonerror="false" if="${file::exists('signinfo.txt')}" />
+  <loadfile file="signinfo.txt" property="signinfo" failonerror="false" if="${file::exists('signinfo.txt')}"/>
 
   <!-- ====================================================================== -->
   <!-- Configuration targets                                                  -->
@@ -71,16 +72,14 @@
     </description>
     <property name="platform" value="x64" />
     <property name="bindirextension" value="64" />
-    <property name="subsystem" value="/SUBSYSTEM:WINDOWS,5.02" />
-    <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE,5.02" />
   </target>
 
   <target name="cross" depends="x64">
     <description>
       Cross-compiles on win32 for a different platform.
     </description>
-    <property name="crosscompile" value="yes" if="${platform == 'x64'}" />
-    <echo message="ignore cross-compiling (only supported for x64)" level="Warning" if="${platform != 'x64'}" />
+    <property name="crosscompile" value="yes" if="${platform == 'x64'}"/>
+    <echo message="ignore cross-compiling (only supported for x64)" level="Warning" if="${platform != 'x64'}"/>
   </target>
 
   <target name="ipv6">
@@ -101,24 +100,11 @@
     <description>
       run this task if the whole build is done via task scheduler
     </description>
-    <property name="schedule" value="yes" />
+    <property name="schedule" value="yes"/>
   </target>
   <!-- ====================================================================== -->
   <!-- Project targets                                                        -->
   <!-- ====================================================================== -->
-
-  <target name="xp">
-    <!--
-      To target Windows XP with VS2012 as well, we have to set a few
-      environment variables up.
-    -->
-    <setenv>
-      <variable name="INCLUDE" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%" />
-      <variable name="PATH" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%" />
-      <variable name="LIB" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%" if="${platform == 'win32'}" />
-      <variable name="LIB" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%" if="${platform == 'x64'}" />
-    </setenv>
-  </target>
 
   <target name="clean" depends="VSNET">
     <description>
@@ -134,11 +120,11 @@
     <property name="cleanup" value="yes" />
     <nant target="clean">
       <buildfiles>
-        <include name="doc\doc.build" />
-        <include name="src\TortoiseSVN.build" />
-        <include name="ext\build\OpenSSL.build" />
-        <include name="ext\build\default.build" />
-        <include name="Languages\LanguagePack.build" />
+        <include name="doc/doc.build" />
+        <include name="src/TortoiseSVN.build" />
+        <include name="ext/build/OpenSSL.build" />
+        <include name="ext/build/default.build" />
+        <include name="Languages/LanguagePack.build" />
       </buildfiles>
     </nant>
   </target>
@@ -149,7 +135,7 @@
     </description>
     <nant target="all">
       <buildfiles>
-        <include name="doc\doc.build" />
+        <include name="doc/doc.build" />
       </buildfiles>
     </nant>
   </target>
@@ -160,18 +146,18 @@
     </description>
     <nant target="potfile">
       <buildfiles>
-        <include name="doc\doc.build" />
+        <include name="doc/doc.build" />
       </buildfiles>
     </nant>
   </target>
 
-  <target name="APIDocs" depends="env">
+  <target name="APIDocs" depends="env" >
     <description>
       Builds the API docs from the comments in the sourcecode
     </description>
     <nant target="apidoc">
       <buildfiles>
-        <include name="doc\doc.build" />
+        <include name="doc/doc.build" />
       </buildfiles>
     </nant>
   </target>
@@ -183,18 +169,18 @@
     </description>
     <nant target="versioninfo">
       <buildfiles>
-        <include name="src\TortoiseSVN.build" />
+        <include name="src/TortoiseSVN.build" />
       </buildfiles>
     </nant>
   </target>
 
-  <target name="Overlays" depends="VSNET,env">
+  <target name="Overlays" depends="VSNET,env" >
     <description>
       Builds the TortoiseOverlays install files
     </description>
     <nant target="all">
       <buildfiles>
-        <include name="src\TortoiseOverlays\TortoiseOverlays.build" />
+        <include name="src/TortoiseOverlays/TortoiseOverlays.build" />
       </buildfiles>
     </nant>
   </target>
@@ -204,7 +190,7 @@
       Builds all the libraries TortoiseSVN depends on:
       Subversion, apr, OpenSSL, ...
     </description>
-    <nant target="OpenSSL" if="${skipssl != 'yes'}">
+    <nant target="OpenSSL" if="${skipssl != 'yes'}" >
       <buildfiles>
         <include name="ext\build\OpenSSL.build" />
       </buildfiles>
@@ -234,7 +220,7 @@
     </description>
     <nant target="TortoiseSVN">
       <buildfiles>
-        <include name="src\TortoiseSVN.build" />
+        <include name="src/TortoiseSVN.build" />
       </buildfiles>
     </nant>
   </target>
@@ -291,8 +277,8 @@
       server http://crash-server.com
     </description>
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
-    <property name="platformfoldername" value=""   if="${platform == 'win32'}" />
-    <property name="platformfoldername" value="64" if="${platform == 'x64'}" />
+    <property name="platformfoldername" value=""   if="${platform == 'win32'}"/>
+    <property name="platformfoldername" value="64" if="${platform == 'x64'}"/>
 
     <exec program="${environment::get-variable('DEBUGTOOLS')}\srcsrv\svnindex.cmd">
       <arg value="/debug" />
@@ -322,7 +308,7 @@
     </exec>
 
   </target>
-
+  
   <!-- ====================================================================== -->
   <!-- Help target                                                            -->
   <!-- ====================================================================== -->
@@ -352,7 +338,6 @@
     <echo message="          those targets are built with debug support" />
     <echo message="release : call this if you want to create official releases." />
     <echo message="          It removes the '-dev' string from some builds" />
-    <echo message="xp      : target Windows XP" />
     <echo message="x64     : call this if you want to create native 64 bit builds." />
     <echo message="          (AMD64/EM64T only -- will not work on Itanium systems.)" />
     <echo message="cross   : cross-compile on win32 for the given target platform." />
@@ -369,3 +354,5 @@
     <echo />
   </target>
 </project>
+
+

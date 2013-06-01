@@ -17,9 +17,9 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "RepositoryInfo.h"
-#include "Containers/CachedLogInfo.h"
+#include "./Containers/CachedLogInfo.h"
 #include "LogCacheSettings.h"
 
 #include "svn_client.h"

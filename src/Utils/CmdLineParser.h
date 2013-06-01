@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009, 2013 - TortoiseSVN
+// Copyright (C) 2003-2007,2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -80,7 +80,7 @@ public:
     /**
      * Get the next key/value pair. If no more keys are available then
      * an empty key is returned.
-     * \param pos the position from where to get. To get the first pair use the
+     * \param the position from where to get. To get the first pair use the
      * begin() method. \a pos is incremented by 1 on return.
      * \param sKey returns the key
      * \param sValue returns the value
@@ -119,12 +119,11 @@ public:
     /**
      * Reads the value for a key as a long. If the value is a string which can't be
      * converted to a number then 0 is returned.
-     * \param sKey the key to get the value from
+     * \param the key to get the value from
      * \return the value converted to a long
      */
     LONG GetLongVal(LPCTSTR sKey) const;
 
-    __int64 GetLongLongVal(LPCTSTR sKey) const;
 private:
     BOOL Parse(LPCTSTR sCmdLine);
     CValsMap::const_iterator findKey(LPCTSTR sKey) const;

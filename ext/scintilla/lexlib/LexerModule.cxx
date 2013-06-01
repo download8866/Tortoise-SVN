@@ -74,9 +74,11 @@ int LexerModule::GetNumWordLists() const {
 }
 
 const char *LexerModule::GetWordListDescription(int index) const {
+	static const char *emptyStr = "";
+
 	assert(index < GetNumWordLists());
-	if (!wordListDescriptions || (index >= GetNumWordLists())) {
-		return "";
+	if (index >= GetNumWordLists()) {
+		return emptyStr;
 	} else {
 		return wordListDescriptions[index];
  	}

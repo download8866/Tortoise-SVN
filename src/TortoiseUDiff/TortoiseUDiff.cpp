@@ -30,10 +30,13 @@
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE /*hPrevInstance*/,
-                       LPTSTR    lpCmdLine,
-                       int       /*nCmdShow*/)
+                     HINSTANCE hPrevInstance,
+                     LPTSTR    lpCmdLine,
+                     int       nCmdShow)
 {
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(nCmdShow);
+
     SetDllDirectory(L"");
     SetTaskIDPerUUID();
     MSG msg;
@@ -117,3 +120,5 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     FreeLibrary(hSciLexerDll);
     return (int) msg.wParam;
 }
+
+

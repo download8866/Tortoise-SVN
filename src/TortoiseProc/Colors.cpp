@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2010, 2013 - TortoiseSVN
+// Copyright (C) 2003-2007, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "Colors.h"
+#include "StdAfx.h"
+#include ".\colors.h"
 
 using namespace Gdiplus;
 
@@ -138,28 +138,11 @@ CRegDWORD* CColors::GetLegacyRegistrySetting (GDIPlusColor id)
 
 COLORREF CColors::GetColor (Colors col, bool bDefault)
 {
-    switch (col)
-    {
-    case DryRunConflict:
-        {
-            COLORREF c = GetColor(Conflict);
-            static const int scale = 150;
-            long red   = MulDiv(GetRValue(c),(255-scale),255);
-            long green = MulDiv(GetGValue(c),(255-scale),255);
-            long blue  = MulDiv(GetBValue(c),(255-scale),255);
+    CRegDWORD* setting = GetRegistrySetting (col);
+    if (setting == NULL)
+        return RGB (0,0,0);
 
-            return RGB(red, green, blue);
-        }
-        break;
-    default:
-        {
-            CRegDWORD* setting = GetRegistrySetting (col);
-            if (setting == NULL)
-                return RGB (0,0,0);
-
-            return bDefault ? setting->defaultValue() : (DWORD)*setting;
-        }
-    }
+    return bDefault ? setting->defaultValue() : (DWORD)*setting;
 }
 
 void CColors::SetColor(Colors col, COLORREF cr)

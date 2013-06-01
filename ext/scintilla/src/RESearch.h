@@ -33,9 +33,10 @@ class RESearch {
 public:
 	RESearch(CharClassify *charClassTable);
 	~RESearch();
-	void GrabMatches(CharacterIndexer &ci);
+	bool GrabMatches(CharacterIndexer &ci);
 	const char *Compile(const char *pattern, int length, bool caseSensitive, bool posix);
 	int Execute(CharacterIndexer &ci, int lp, int endp);
+	int Substitute(CharacterIndexer &ci, char *src, char *dst);
 
 	enum { MAXTAG=10 };
 	enum { MAXNFA=2048 };
@@ -43,7 +44,7 @@ public:
 
 	int bopat[MAXTAG];
 	int eopat[MAXTAG];
-	std::string pat[MAXTAG];
+	char *pat[MAXTAG];
 
 private:
 	void Init();

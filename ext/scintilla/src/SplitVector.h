@@ -174,7 +174,8 @@ public:
 			}
 			RoomFor(insertLength);
 			GapTo(position);
-			std::fill(&body[part1Length], &body[part1Length + insertLength], v);
+			for (int i = 0; i < insertLength; i++)
+				body[part1Length + i] = v;
 			lengthBody += insertLength;
 			part1Length += insertLength;
 			gapLength -= insertLength;
@@ -259,24 +260,6 @@ public:
 		GapTo(lengthBody);
 		body[lengthBody] = 0;
 		return body;
-	}
-
-	T *RangePointer(int position, int rangeLength) {
-		if (position < part1Length) {
-			if ((position + rangeLength) > part1Length) {
-				// Range overlaps gap, so move gap to start of range.
-				GapTo(position);
-				return body + position + gapLength;
-			} else {
-				return body + position ;
-			}
-		} else {
-			return body + position + gapLength;
-		}
-	}
-
-	int GapPosition() const {
-		return part1Length; 
 	}
 };
 

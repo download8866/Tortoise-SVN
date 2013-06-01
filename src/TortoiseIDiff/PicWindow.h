@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include <CommCtrl.h>
+#include "commctrl.h"
 #include "BaseWindow.h"
 #include "TortoiseIDiff.h"
 #include "Picture.h"
@@ -86,22 +86,10 @@ public:
         , startHScrollPos(0)
         , startVSecondScrollPos(0)
         , startHSecondScrollPos(0)
-        , hwndTT(0)
-        , hwndLeftBtn(0)
-        , hwndRightBtn(0)
-        , hwndPlayBtn(0)
-        , hwndAlphaToggleBtn(0)
-        , hLeft(0)
-        , hRight(0)
-        , hPlay(0)
-        , hStop(0)
-        , hAlphaToggle(0)
     {
         SetWindowTitle(_T("Picture Window"));
         m_lastTTPos.x = 0;
         m_lastTTPos.y = 0;
-        m_wszTip[0]   = 0;
-        m_szTip[0]    = 0;
         ptPanStart.x = -1;
         ptPanStart.y = -1;
     };
@@ -275,3 +263,7 @@ protected:
     bool                bPlaying;
     RECT                m_inforect;
 };
+
+
+
+

@@ -48,16 +48,16 @@
     <ClCompile Include="..\Utils\StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\SVNAdminDir.cpp">
+    <ClCompile Include="..\Svn\SVNAdminDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNGlobal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\SVNHelpers.cpp">
+    <ClCompile Include="..\Svn\SVNHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\SVNStatus.cpp">
+    <ClCompile Include="..\Svn\SVNStatus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SVNStatusCache.cpp">
@@ -72,7 +72,7 @@
     <ClCompile Include="TSVNCache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\TSVNPath.cpp">
+    <ClCompile Include="..\Svn\TSVNPath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\UnicodeUtils.cpp">
@@ -97,9 +97,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNConfig.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ext\xpsupportvc11upd2\xpatl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -140,16 +137,16 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\SVNAdminDir.h">
+    <ClInclude Include="..\Svn\SVNAdminDir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SVN\SVNGlobal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\SVNHelpers.h">
+    <ClInclude Include="..\Svn\SVNHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\SVNStatus.h">
+    <ClInclude Include="..\Svn\SVNStatus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SVNStatusCache.h">
@@ -164,7 +161,7 @@
     <ClInclude Include="TSVNCache.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\TSVNPath.h">
+    <ClInclude Include="..\Svn\TSVNPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\UnicodeUtils.h">
@@ -193,18 +190,13 @@
     <None Include="..\Resources\Tortoise.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\Resources\TortoiseCache.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TSVNCache.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\..\ext\xpsupportvc11upd2\xpatlwrap.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-    <MASM Include="..\..\ext\xpsupportvc11upd2\xpatlwrap64.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
   </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,11 +19,12 @@
 #include "stdafx.h"
 
 #include "ShellExt.h"
-#include "SVNPropertyPage.h"
+#include "svnpropertypage.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
 #include "SVNStatus.h"
 #include "SVNInfo.h"
+#include "auto_buffer.h"
 #include "CreateProcessHelper.h"
 
 #define MAX_STRING_LENGTH       4096            //should be big enough
@@ -57,7 +58,7 @@ STDMETHODIMP CShellExt::AddPages_Wrap (LPFNADDPROPSHEETPAGE lpfnAddPage, LPARAM 
             return S_OK;
     }
 
-    if (files_.empty())
+    if (files_.size() == 0)
         return S_OK;
 
     LoadLangDll();
@@ -148,10 +149,8 @@ UINT CALLBACK PropPageCallbackProc ( HWND /*hwnd*/, UINT uMsg, LPPROPSHEETPAGE p
 // *********************** CSVNPropertyPage *************************
 
 CSVNPropertyPage::CSVNPropertyPage(const std::vector<tstring> &newFilenames)
-    : filenames(newFilenames)
-    , m_hwnd(NULL)
+    :filenames(newFilenames)
 {
-    stringtablebuffer[0] = 0;
 }
 
 CSVNPropertyPage::~CSVNPropertyPage(void)
@@ -208,13 +207,13 @@ void CSVNPropertyPage::PageProcOnCommand(WPARAM wParam)
     if (LOWORD(wParam) == IDC_EDITPROPERTIES)
     {
         DWORD pathlength = GetTempPath(0, NULL);
-        std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
-        std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
-        GetTempPath (pathlength+1, path.get());
-        GetTempFileName (path.get(), _T("svn"), 0, tempFile.get());
-        tstring retFilePath = tstring(tempFile.get());
+        auto_buffer<TCHAR> path(pathlength+1);
+        auto_buffer<TCHAR> tempFile(pathlength + 100);
+        GetTempPath (pathlength+1, path);
+        GetTempFileName (path, _T("svn"), 0, tempFile);
+        tstring retFilePath = tstring(tempFile);
 
-        CAutoFile file = ::CreateFile (tempFile.get(),
+        CAutoFile file = ::CreateFile (tempFile,
                                        GENERIC_WRITE,
                                        FILE_SHARE_READ,
                                        0,
@@ -316,16 +315,16 @@ void CSVNPropertyPage::InitWorkfileView()
                 {
                     size_t len = strlen(svn.status->repos_relpath) + strlen(svn.status->repos_root_url);
                     len += 2;
-                    std::unique_ptr<char[]> url(new char[len*4]);
-                    strcpy_s(url.get(), len*4, svn.status->repos_root_url);
-                    strcat_s(url.get(), len*4, "/");
-                    strcat_s(url.get(), len*4, svn.status->repos_relpath);
+                    auto_buffer<char> url(len*4);
+                    strcpy_s(url, len*4, svn.status->repos_root_url);
+                    strcat_s(url, len*4, "/");
+                    strcat_s(url, len*4, svn.status->repos_relpath);
 
-                    std::unique_ptr<char[]> unescapedurl(new char[len]);
-                    strcpy_s(unescapedurl.get(), len, url.get());
+                    auto_buffer<char> unescapedurl(len);
+                    strcpy_s(unescapedurl, len, url.get());
                     CStringA escapedurl = CPathUtils::PathEscape(url.get());
-                    CPathUtils::Unescape(unescapedurl.get());
-                    strcpy_s(url.get(), len*4, escapedurl);
+                    CPathUtils::Unescape(unescapedurl);
+                    strcpy_s(url, len*4, escapedurl);
                     SetDlgItemText(m_hwnd, IDC_REPOURL, CUnicodeUtils::StdGetUnicode(unescapedurl.get()).c_str());
                     if (strcmp(unescapedurl.get(), url.get()))
                     {
@@ -420,7 +419,7 @@ void CSVNPropertyPage::InitWorkfileView()
             }
         }
     }
-    else if (!filenames.empty())
+    else if (filenames.size() != 0)
     {
         //deactivate the show log button
         HWND logwnd = GetDlgItem(m_hwnd, IDC_SHOWLOG);

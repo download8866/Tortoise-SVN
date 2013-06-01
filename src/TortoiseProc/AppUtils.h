@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -65,7 +65,6 @@ public:
      */
     static BOOL StartExtMerge(const MergeFlags& flags,
         const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-        bool bSaveRequired,
         const CString& basename = CString(), const CString& theirname = CString(), const CString& yourname = CString(),
         const CString& mergedname = CString());
 
@@ -165,7 +164,7 @@ public:
     /**
      * Sets up all the default diff and merge scripts.
      * \param force if true, overwrite all existing entries
-     * \param type either "Diff", "Merge" or an empty string
+     * \param either "Diff", "Merge" or an empty string
      */
     static bool SetupDiffScripts(bool force, const CString& type);
 

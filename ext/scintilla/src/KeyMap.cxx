@@ -5,10 +5,6 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-
-#include <vector>
-
 #include "Platform.h"
 
 #include "Scintilla.h"
@@ -19,7 +15,7 @@
 using namespace Scintilla;
 #endif
 
-KeyMap::KeyMap() {
+KeyMap::KeyMap() : kmap(0), len(0), alloc(0) {
 	for (int i = 0; MapDefault[i].key; i++) {
 		AssignCmdKey(MapDefault[i].key,
 			MapDefault[i].modifiers,
@@ -32,25 +28,37 @@ KeyMap::~KeyMap() {
 }
 
 void KeyMap::Clear() {
-	kmap.clear();
+	delete []kmap;
+	kmap = 0;
+	len = 0;
+	alloc = 0;
 }
 
 void KeyMap::AssignCmdKey(int key, int modifiers, unsigned int msg) {
-	for (size_t keyIndex = 0; keyIndex < kmap.size(); keyIndex++) {
+	if ((len+1) >= alloc) {
+		KeyToCommand *ktcNew = new KeyToCommand[alloc + 5];
+		if (!ktcNew)
+			return;
+		for (int k = 0; k < len; k++)
+			ktcNew[k] = kmap[k];
+		alloc += 5;
+		delete []kmap;
+		kmap = ktcNew;
+	}
+	for (int keyIndex = 0; keyIndex < len; keyIndex++) {
 		if ((key == kmap[keyIndex].key) && (modifiers == kmap[keyIndex].modifiers)) {
 			kmap[keyIndex].msg = msg;
 			return;
 		}
 	}
-	KeyToCommand ktc;
-	ktc.key = key;
-	ktc.modifiers = modifiers;
-	ktc.msg = msg;
-	kmap.push_back(ktc);
+	kmap[len].key = key;
+	kmap[len].modifiers = modifiers;
+	kmap[len].msg = msg;
+	len++;
 }
 
 unsigned int KeyMap::Find(int key, int modifiers) {
-	for (size_t i = 0; i < kmap.size(); i++) {
+	for (int i = 0; i < len; i++) {
 		if ((key == kmap[i].key) && (modifiers == kmap[i].modifiers)) {
 			return kmap[i].msg;
 		}

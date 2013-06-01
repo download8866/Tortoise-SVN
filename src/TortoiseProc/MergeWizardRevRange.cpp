@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2013 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "MergeWizardRevRange.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog/LogDlg.h"
+#include "LogDialog\LogDlg.h"
 
 IMPLEMENT_DYNAMIC(CMergeWizardRevRange, CMergeWizardBasePage)
 
@@ -68,8 +68,6 @@ BEGIN_MESSAGE_MAP(CMergeWizardRevRange, CMergeWizardBasePage)
     ON_BN_CLICKED(IDC_SELLOG, &CMergeWizardRevRange::OnBnClickedShowlog)
     ON_BN_CLICKED(IDC_BROWSE, &CMergeWizardRevRange::OnBnClickedBrowse)
     ON_BN_CLICKED(IDC_SHOWLOGWC, &CMergeWizardRevRange::OnBnClickedShowlogwc)
-    ON_BN_CLICKED(IDC_MERGERADIO_ALL, &CMergeWizardRevRange::OnBnClickedMergeradioAll)
-    ON_BN_CLICKED(IDC_MERGERADIO_SPECIFIC, &CMergeWizardRevRange::OnBnClickedMergeradioSpecific)
 END_MESSAGE_MAP()
 
 
@@ -105,15 +103,6 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
         return -1;
     }
 
-    CString sUrl;
-    m_URLCombo.GetWindowText(sUrl);
-    CTSVNPath url(sUrl);
-    if (!url.IsUrl())
-    {
-        ShowComboBalloon(&m_URLCombo, IDS_ERR_MUSTBEURL, IDS_ERR_ERROR, TTI_ERROR);
-        return -1;
-    }
-
     m_URLCombo.SaveHistory();
 
     CString sRegKey = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLFor") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
@@ -122,10 +111,6 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
 
     ((CMergeWizard*)GetParent())->URL1 = m_URLCombo.GetString();
     ((CMergeWizard*)GetParent())->URL2 = m_URLCombo.GetString();
-
-    if (GetCheckedRadioButton(IDC_MERGERADIO_ALL, IDC_MERGERADIO_SPECIFIC)==IDC_MERGERADIO_ALL)
-        m_sRevRange.Empty();
-
     // if the revision range has HEAD as a revision specified, we have to
     // ask the server what the HEAD revision is: the SVNRevList can only deal
     // with numerical revisions because we have to sort the list to get the
@@ -185,8 +170,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
         SetDlgItemText(IDC_REVISION_RANGE, m_sRevRange);
     }
 
-    CheckRadioButton(IDC_MERGERADIO_ALL, IDC_MERGERADIO_SPECIFIC, IDC_MERGERADIO_SPECIFIC);
-
     CString sLabel;
     sLabel.LoadString(IDS_MERGEWIZARD_REVRANGESTRING);
     SetDlgItemText(IDC_REVRANGELABEL, sLabel);
@@ -199,8 +182,6 @@ BOOL CMergeWizardRevRange::OnInitDialog()
     AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_BROWSE, TOP_RIGHT);
     AddAnchor(IDC_MERGEREVRANGERANGEGROUP, TOP_LEFT, TOP_RIGHT);
-    AddAnchor(IDC_MERGERADIO_ALL, TOP_LEFT);
-    AddAnchor(IDC_MERGERADIO_SPECIFIC, TOP_LEFT);
     AddAnchor(IDC_REVISION_RANGE, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_SELLOG, TOP_RIGHT);
     AddAnchor(IDC_REVERSEMERGE, TOP_LEFT);
@@ -219,11 +200,10 @@ void CMergeWizardRevRange::OnBnClickedShowlog()
     if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
         return;
 
-    CString sUrl;
-    m_URLCombo.GetWindowText(sUrl);
-    CTSVNPath url(sUrl);
+    CString url;
+    m_URLCombo.GetWindowText(url);
 
-    if (!url.IsEmpty() && url.IsUrl())
+    if (!url.IsEmpty())
     {
         StopWCCheckThread();
         CTSVNPath wcPath = ((CMergeWizard*)GetParent())->wcPath;
@@ -235,7 +215,7 @@ void CMergeWizardRevRange::OnBnClickedShowlog()
 
         m_pLogDlg->SetSelect(true);
         m_pLogDlg->m_pNotifyWindow = this;
-        m_pLogDlg->SetParams(url, SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, TRUE, FALSE);
+        m_pLogDlg->SetParams(CTSVNPath(url), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, TRUE, FALSE);
         m_pLogDlg->SetProjectPropertiesPath(wcPath);
         m_pLogDlg->SetMergePath(wcPath);
 
@@ -342,26 +322,6 @@ LPARAM CMergeWizardRevRange::OnWCStatus(WPARAM wParam, LPARAM /*lParam*/)
     return 0;
 }
 
-void CMergeWizardRevRange::OnBnClickedMergeradioAll()
-{
-    CWnd * pwndDlgItem = GetDlgItem(IDC_REVISION_RANGE);
-    if (pwndDlgItem == NULL)
-        return;
-    if (GetFocus() == pwndDlgItem)
-    {
-        SendMessage(WM_NEXTDLGCTL, 0, FALSE);
-    }
-    pwndDlgItem->EnableWindow(FALSE);
-}
-
-void CMergeWizardRevRange::OnBnClickedMergeradioSpecific()
-{
-    CWnd * pwndDlgItem = GetDlgItem(IDC_REVISION_RANGE);
-    if (pwndDlgItem == NULL)
-        return;
-    pwndDlgItem->EnableWindow(TRUE);
-}
-
 bool CMergeWizardRevRange::OkToCancel()
 {
     StopWCCheckThread();
@@ -377,3 +337,4 @@ bool CMergeWizardRevRange::OkToCancel()
     }
     return true;
 }
+

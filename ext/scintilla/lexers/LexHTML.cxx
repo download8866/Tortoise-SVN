@@ -261,29 +261,28 @@ static void classifyAttribHTML(unsigned int start, unsigned int end, WordList &k
 static int classifyTagHTML(unsigned int start, unsigned int end,
                            WordList &keywords, Accessor &styler, bool &tagDontFold,
 			   bool caseSensitive, bool isXml, bool allowScripts) {
-	char withSpace[30 + 2] = " ";
-	const char *s = withSpace + 1;
+	char s[30 + 2];
 	// Copy after the '<'
-	unsigned int i = 1;
+	unsigned int i = 0;
 	for (unsigned int cPos = start; cPos <= end && i < 30; cPos++) {
 		char ch = styler[cPos];
 		if ((ch != '<') && (ch != '/')) {
-			withSpace[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
+			s[i++] = caseSensitive ? ch : static_cast<char>(MakeLowerCase(ch));
 		}
 	}
 
 	//The following is only a quick hack, to see if this whole thing would work
 	//we first need the tagname with a trailing space...
-	withSpace[i] = ' ';
-	withSpace[i+1] = '\0';
+	s[i] = ' ';
+	s[i+1] = '\0';
 
 	// if the current language is XML, I can fold any tag
 	// if the current language is HTML, I don't want to fold certain tags (input, meta, etc.)
 	//...to find it in the list of no-container-tags
-	tagDontFold = (!isXml) && (NULL != strstr(" area base basefont br col command embed frame hr img input isindex keygen link meta param source track wbr ", withSpace));
+	tagDontFold = (!isXml) && (NULL != strstr("meta link img area br hr input ", s));
 
 	//now we can remove the trailing space
-	withSpace[i] = '\0';
+	s[i] = '\0';
 
 	// No keywords -> all are known
 	char chAttr = SCE_H_TAGUNKNOWN;
@@ -297,7 +296,7 @@ static int classifyTagHTML(unsigned int start, unsigned int end,
 		if (allowScripts && 0 == strcmp(s, "script")) {
 			// check to see if this is a self-closing tag by sniffing ahead
 			bool isSelfClose = false;
-			for (unsigned int cPos = end; cPos <= end + 200; cPos++) {
+			for (unsigned int cPos = end; cPos <= end + 100; cPos++) {
 				char ch = styler.SafeGetCharAt(cPos, '\0');
 				if (ch == '\0' || ch == '>')
 					break;
@@ -445,6 +444,11 @@ static int StateForScript(script_type scriptLanguage) {
 	return Result;
 }
 
+static inline bool ishtmlwordchar(int ch) {
+	return !isascii(ch) ||
+		(isalnum(ch) || ch == '.' || ch == '-' || ch == '_' || ch == ':' || ch == '!' || ch == '#');
+}
+
 static inline bool issgmlwordchar(int ch) {
 	return !isascii(ch) ||
 		(isalnum(ch) || ch == '.' || ch == '_' || ch == ':' || ch == '!' || ch == '#' || ch == '[');
@@ -477,6 +481,10 @@ static bool IsScriptCommentState(const int state) {
 
 static bool isLineEnd(int ch) {
 	return ch == '\r' || ch == '\n';
+}
+
+static bool isOKBeforeRE(int ch) {
+	return (ch == '(') || (ch == '=') || (ch == ',');
 }
 
 static bool isMakoBlockEnd(const int ch, const int chNext, const char *blockType) {
@@ -589,12 +597,11 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 	char djangoBlockType[2];
 	djangoBlockType[0] = '\0';
 
-	// If inside a tag, it may be a script tag, so reread from the start of line starting tag to ensure any language tags are seen
+	// If inside a tag, it may be a script tag, so reread from the start to ensure any language tags are seen
 	if (InTagState(state)) {
 		while ((startPos > 0) && (InTagState(styler.StyleAt(startPos - 1)))) {
-			int backLineStart = styler.LineStart(styler.GetLine(startPos-1));
-			length += startPos - backLineStart;
-			startPos = backLineStart;
+			startPos--;
+			length++;
 		}
 		state = SCE_H_DEFAULT;
 	}
@@ -682,8 +689,6 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 	const CharacterSet setHTMLWord(CharacterSet::setAlphaNum, ".-_:!#", 0x80, true);
 	const CharacterSet setTagContinue(CharacterSet::setAlphaNum, ".-_:!#[", 0x80, true);
 	const CharacterSet setAttributeContinue(CharacterSet::setAlphaNum, ".-_:!#/", 0x80, true);
-	// TODO: also handle + and - (except if they're part of ++ or --) and return keywords
-	const CharacterSet setOKBeforeJSRE(CharacterSet::setNone, "([{=,:;!%^&*|?~");
 
 	int levelPrev = styler.LevelAt(lineCurrent) & SC_FOLDLEVELNUMBERMASK;
 	int levelCurrent = levelPrev;
@@ -897,8 +902,8 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 		         (chNext == '?') &&
 				 !IsScriptCommentState(state)) {
  			beforeLanguage = scriptLanguage;
-			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, isXml ? eScriptXML : eScriptPHP);
-			if ((scriptLanguage != eScriptPHP) && (isStringState(state) || (state==SCE_H_COMMENT))) continue;
+			scriptLanguage = segIsScriptingIndicator(styler, i + 2, i + 6, eScriptPHP);
+			if (scriptLanguage != eScriptPHP && isStringState(state)) continue;
 			styler.ColourTo(i - 1, StateToPrint);
 			beforePreProc = state;
 			i++;
@@ -1082,7 +1087,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 				state = SCE_H_SGML_COMMAND; // wait for a pending command
 			}
 			// fold whole tag (-- when closing the tag)
-			if (foldHTMLPreprocessor || state == SCE_H_COMMENT || state == SCE_H_CDATA)
+			if (foldHTMLPreprocessor || (state == SCE_H_COMMENT))
 				levelCurrent++;
 			continue;
 		}
@@ -1578,14 +1583,10 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 					state = SCE_HJ_COMMENTDOC;
 				else
 					state = SCE_HJ_COMMENT;
-				if (chNext2 == '/') {
-					// Eat the * so it isn't used for the end of the comment
-					i++;
-				}
 			} else if (ch == '/' && chNext == '/') {
 				styler.ColourTo(i - 1, StateToPrint);
 				state = SCE_HJ_COMMENTLINE;
-			} else if (ch == '/' && setOKBeforeJSRE.Contains(chPrevNonWhite)) {
+			} else if (ch == '/' && isOKBeforeRE(chPrevNonWhite)) {
 				styler.ColourTo(i - 1, StateToPrint);
 				state = SCE_HJ_REGEX;
 			} else if (ch == '\"') {
@@ -2127,8 +2128,7 @@ static void ColouriseHyperTextDoc(unsigned int startPos, int length, int initSty
 		break;
 	default:
 		StateToPrint = statePrintForState(state, inScriptType);
-		if (static_cast<int>(styler.GetStartSegment()) < lengthDoc)
-			styler.ColourTo(lengthDoc - 1, StateToPrint);
+		styler.ColourTo(lengthDoc - 1, StateToPrint);
 		break;
 	}
 

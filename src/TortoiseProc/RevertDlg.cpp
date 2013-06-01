@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,12 +18,12 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "MessageBox.h"
+#include "messagebox.h"
 #include "SVN.h"
-#include "registry.h"
+#include "Registry.h"
 #include "PathUtils.h"
 #include "AppUtils.h"
-#include "RevertDlg.h"
+#include "Revertdlg.h"
 
 #define REFRESHTIMER   100
 
@@ -33,7 +33,6 @@ CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
     , m_bSelectAll(TRUE)
     , m_bThreadRunning(FALSE)
     , m_bCancelled(false)
-    , m_bRecursive(false)
 {
 }
 

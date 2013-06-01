@@ -33,8 +33,7 @@ void CJobScheduler::CQueue::Grow (size_t newSize)
     TJob* newData = new TJob[newSize];
 
     size_t count = size();
-    if (first)
-        memmove (newData, first, count * sizeof (TJob[1]));
+    memmove (newData, first, count * sizeof (TJob[1]));
     delete[] data;
 
     data = newData;
@@ -183,7 +182,7 @@ void CJobScheduler::CThreadPool::SetThreadCount (size_t count)
     }
 }
 
-size_t CJobScheduler::CThreadPool::GetThreadCount() const
+size_t CJobScheduler::CThreadPool::GetThreadCount()
 {
     return maxCount;
 }
@@ -518,7 +517,7 @@ void CJobScheduler::WaitForEmptyQueue()
 
 bool CJobScheduler::WaitForEmptyQueueOrTimeout(DWORD milliSeconds)
 {
-    for (;;)
+    while (true)
     {
         {
             CCriticalSectionLock lock (mutex);
@@ -549,7 +548,7 @@ bool CJobScheduler::WaitForEmptyQueueOrTimeout(DWORD milliSeconds)
         if (!emptyEvent.WaitForEndOrTimeout(milliSeconds))
             return false;
     }
-    //return true;
+    return true;
 }
 
 // wait for some jobs to be finished.

@@ -9,8 +9,8 @@
 #ifndef __DRAGDROPIMPL_H__
 #define __DRAGDROPIMPL_H__
 //#include <ShlDisp.h>
-#include <shobjidl.h>
-#include <shlobj.h>
+#include "shobjidl.h"
+#include "shlobj.h"
 
 
 // problem: the interface IDragSourceHelper2 is only available if compiled
@@ -189,12 +189,12 @@ public:
     CDragSourceNotify* pDragSourceNotify;
 
 
-    CIDropSource():m_cRefCount(0),m_bDropped(false),m_pIDataObj(NULL)
+    CIDropSource::CIDropSource():m_cRefCount(0),m_bDropped(false),m_pIDataObj(NULL)
     {
         pDragSourceNotify = new CDragSourceNotify();
         pDragSourceNotify->AddRef();
     }
-    ~CIDropSource()
+    CIDropSource::~CIDropSource()
     {
         if (m_pIDataObj)
         {

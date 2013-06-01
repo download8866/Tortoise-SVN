@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2011-2013 - TortoiseSVN
+// Copyright (C) 2006-2007, 2011-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "WorkingFile.h"
+#include "StdAfx.h"
+#include "Workingfile.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "resource.h"
@@ -150,9 +150,5 @@ void CWorkingFile::ClearStoredAttributes()
 {
     static const WIN32_FILE_ATTRIBUTE_DATA attribsEmpty = {0};
     m_attribs = attribsEmpty;
-}
 
-bool CWorkingFile::IsReadonly() const
-{
-    return (m_attribs.dwFileAttributes != INVALID_FILE_ATTRIBUTES) && (m_attribs.dwFileAttributes & FILE_ATTRIBUTE_READONLY);
 }

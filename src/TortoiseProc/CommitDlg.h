@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "SVNStatusListCtrl.h"
 #include "ProjectProperties.h"
 #include "RegHistory.h"
-#include "registry.h"
+#include "Registry.h"
 #include "SciEdit.h"
 #include "SplitterControl.h"
 #include "LinkControl.h"
@@ -30,7 +30,7 @@
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
 #include "Tooltip.h"
-#include "../IBugTraqProvider/IBugTraqProvider_h.h"
+#include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 #include "PathEdit.h"
 
 #include <regex>
@@ -53,8 +53,8 @@ public:
     virtual ~CCommitDlg();
 
     // CSciEditContextMenuInterface
-    virtual void        InsertMenuItems(CMenu& mPopup, int& nCmd) override;
-    virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit) override;
+    virtual void        InsertMenuItems(CMenu& mPopup, int& nCmd);
+    virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit);
 
 private:
     static UINT StatusThreadEntry(LPVOID pVoid);
@@ -78,7 +78,6 @@ protected:
     afx_msg void OnBnClickedShowunversioned();
     afx_msg void OnBnClickedHistory();
     afx_msg void OnBnClickedBugtraqbutton();
-    afx_msg void OnBnClickedLog();
     afx_msg void OnEnChangeLogmessage();
     afx_msg void OnStnClickedExternalwarning();
     afx_msg LRESULT OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
@@ -104,7 +103,6 @@ protected:
 
 
 public:
-    ProjectProperties   m_ProjectProperties;
     CTSVNPathList       m_pathList;
     CTSVNPathList       m_updatedPathList;
     CTSVNPathList       m_selectedPathList;
@@ -120,7 +118,7 @@ public:
     INT_PTR             m_itemsCount;
     bool                m_bSelectFilesForCommit;
     CComPtr<IBugTraqProvider> m_BugTraqProvider;
-    std::map<CString, CString> m_restorepaths;
+
 private:
     CWinThread*         m_pThread;
     std::set<CString>   m_autolist;
@@ -134,6 +132,7 @@ private:
     CRegDWORD           m_regAddBeforeCommit;
     CRegDWORD           m_regKeepChangelists;
     CRegDWORD           m_regShowExternals;
+    ProjectProperties   m_ProjectProperties;
     CString             m_sWindowTitle;
     static UINT         WM_AUTOLISTREADY;
     int                 m_nPopupPasteListCmd;
@@ -147,4 +146,5 @@ private:
     CPathEdit           m_CommitTo;
     CBugTraqAssociation m_bugtraq_association;
     CHyperLink          m_cUpdateLink;
+
 };

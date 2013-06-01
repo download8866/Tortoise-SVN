@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "CheckoutDlg.h"
 #include "RepositoryBrowser.h"
-#include "MessageBox.h"
+#include "Messagebox.h"
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "AppUtils.h"
@@ -40,8 +40,6 @@ CCheckoutDlg::CCheckoutDlg(CWnd* pParent /*=NULL*/)
     , m_parentExists(false)
     , m_blockPathAdjustments(FALSE)
     , m_bBlockMessages(false)
-    , m_bAutoCreateTargetName(false)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -576,7 +574,7 @@ void CCheckoutDlg::OnBnClickedSparse()
 
     CString strUrl = paths.GetCommonRoot().GetSVNPathString();
     CRepositoryBrowser browser(strUrl, rev, this);
-    browser.SetSparseCheckoutMode(CTSVNPath());
+    browser.SetSparseCheckoutMode();
     if (browser.DoModal() == IDOK)
     {
         m_checkoutDepths = browser.GetCheckoutDepths();

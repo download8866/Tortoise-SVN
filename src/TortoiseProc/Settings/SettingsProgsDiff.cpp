@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009, 2013 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
-#include "SettingsProgsDiff.h"
+#include ".\settingsprogsdiff.h"
 
 
 IMPLEMENT_DYNAMIC(CSettingsProgsDiff, ISettingsPropPage)
@@ -33,12 +33,9 @@ CSettingsProgsDiff::CSettingsProgsDiff()
     , m_sDiffPropsPath(_T(""))
     , m_regConvertBase(_T("Software\\TortoiseSVN\\ConvertBase"), TRUE)
     , m_bConvertBase(false)
-    , m_sDiffViewerPath(_T(""))
-    , m_iDiffViewer(0)
 {
     m_regDiffPath = CRegString(_T("Software\\TortoiseSVN\\Diff"));
     m_regDiffPropsPath = CRegString(_T("Software\\TortoiseSVN\\DiffProps"));
-    m_regDiffViewerPath = CRegString(_T("Software\\TortoiseSVN\\DiffViewer"));
 }
 
 CSettingsProgsDiff::~CSettingsProgsDiff()
@@ -60,13 +57,6 @@ void CSettingsProgsDiff::DoDataExchange(CDataExchange* pDX)
     DialogEnableWindow(IDC_EXTDIFFPROPSBROWSE, m_iExtDiffProps == 1);
     DDX_Control(pDX, IDC_EXTDIFF, m_cDiffEdit);
     DDX_Control(pDX, IDC_EXTDIFFPROPS, m_cDiffPropsEdit);
-
-    DDX_Text(pDX, IDC_DIFFVIEWER, m_sDiffViewerPath);
-    DDX_Radio(pDX, IDC_DIFFVIEWER_OFF, m_iDiffViewer);
-
-    DialogEnableWindow(IDC_DIFFVIEWER, m_iDiffViewer == 1);
-    DialogEnableWindow(IDC_DIFFVIEWERBROWSE, m_iDiffViewer == 1);
-    DDX_Control(pDX, IDC_DIFFVIEWER, m_cUnifiedDiffEdit);
 }
 
 
@@ -81,11 +71,6 @@ BEGIN_MESSAGE_MAP(CSettingsProgsDiff, ISettingsPropPage)
     ON_BN_CLICKED(IDC_DONTCONVERT, OnBnClickedDontconvert)
     ON_EN_CHANGE(IDC_EXTDIFF, OnEnChangeExtdiff)
     ON_EN_CHANGE(IDC_EXTDIFFPROPS, OnEnChangeExtdiffprops)
-
-    ON_BN_CLICKED(IDC_DIFFVIEWER_OFF, OnBnClickedDiffviewerOff)
-    ON_BN_CLICKED(IDC_DIFFVIEWER_ON, OnBnClickedDiffviewerOn)
-    ON_BN_CLICKED(IDC_DIFFVIEWERBROWSE, OnBnClickedDiffviewerbrowse)
-    ON_EN_CHANGE(IDC_DIFFVIEWER, OnEnChangeDiffviewer)
 END_MESSAGE_MAP()
 
 
@@ -103,15 +88,9 @@ BOOL CSettingsProgsDiff::OnInitDialog()
 
     m_bConvertBase = m_regConvertBase;
 
-    m_sDiffViewerPath = m_regDiffViewerPath;
-    m_iDiffViewer = IsExternal(m_sDiffViewerPath);
-
-    SHAutoComplete(::GetDlgItem(m_hWnd, IDC_DIFFVIEWER), SHACF_FILESYSTEM | SHACF_FILESYS_ONLY);
-
     m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_EXTDIFF, IDS_SETTINGS_EXTDIFF_TT);
     m_tooltips.AddTool(IDC_DONTCONVERT, IDS_SETTINGS_CONVERTBASE_TT);
-    m_tooltips.AddTool(IDC_DIFFVIEWER, IDS_SETTINGS_DIFFVIEWER_TT);
 
     UpdateData(FALSE);
     return TRUE;
@@ -140,12 +119,6 @@ BOOL CSettingsProgsDiff::OnApply()
 
     m_regConvertBase = m_bConvertBase;
     m_dlgAdvDiff.SaveData();
-
-    if (m_iDiffViewer == 0 && !m_sDiffViewerPath.IsEmpty() && m_sDiffViewerPath.Left(1) != _T("#"))
-        m_sDiffViewerPath = _T("#") + m_sDiffViewerPath;
-
-    m_regDiffViewerPath = m_sDiffViewerPath;
-
     SetModified(FALSE);
     return ISettingsPropPage::OnApply();
 }
@@ -234,11 +207,6 @@ void CSettingsProgsDiff::CheckProgComment()
         m_sDiffPath = _T("#") + m_sDiffPath;
     else if (m_iExtDiff == 1)
         m_sDiffPath.TrimLeft('#');
-
-    if (m_iDiffViewer == 0 && !m_sDiffViewerPath.IsEmpty() && m_sDiffViewerPath.Left(1) != _T("#"))
-        m_sDiffViewerPath = _T("#") + m_sDiffViewerPath;
-    else if (m_iDiffViewer == 1)
-        m_sDiffViewerPath.TrimLeft('#');
     UpdateData(FALSE);
 }
 
@@ -250,37 +218,4 @@ void CSettingsProgsDiff::CheckProgCommentProps()
     else if (m_iExtDiffProps == 1)
         m_sDiffPropsPath.TrimLeft('#');
     UpdateData(FALSE);
-}
-
-void CSettingsProgsDiff::OnBnClickedDiffviewerOff()
-{
-    m_iDiffViewer = 0;
-    SetModified();
-    DialogEnableWindow(IDC_DIFFVIEWER, false);
-    DialogEnableWindow(IDC_DIFFVIEWERBROWSE, false);
-    CheckProgComment();
-}
-
-void CSettingsProgsDiff::OnBnClickedDiffviewerOn()
-{
-    m_iDiffViewer = 1;
-    SetModified();
-    DialogEnableWindow(IDC_DIFFVIEWER, true);
-    DialogEnableWindow(IDC_DIFFVIEWERBROWSE, true);
-    GetDlgItem(IDC_DIFFVIEWER)->SetFocus();
-    CheckProgComment();
-}
-
-void CSettingsProgsDiff::OnEnChangeDiffviewer()
-{
-    SetModified();
-}
-
-void CSettingsProgsDiff::OnBnClickedDiffviewerbrowse()
-{
-    if (CAppUtils::FileOpenSave(m_sDiffViewerPath, NULL, IDS_SETTINGS_SELECTDIFFVIEWER, IDS_PROGRAMSFILEFILTER, true, m_hWnd))
-    {
-        UpdateData(FALSE);
-        SetModified();
-    }
 }

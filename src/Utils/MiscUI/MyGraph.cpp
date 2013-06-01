@@ -233,8 +233,6 @@ CString MyGraphSeries::GetTipText(int nGroup, const CString &unitString) const
 MyGraph::MyGraph(GraphType eGraphType /* = MyGraph::Pie */ , bool bStackedGraph /* = false */)
     : m_nXAxisWidth(0)
     , m_nYAxisHeight(0)
-    , m_nAxisLabelHeight(0)
-    , m_nAxisTickLabelHeight(0)
     , m_eGraphType(eGraphType)
     , m_bStackedGraph(bStackedGraph)
 {
@@ -533,7 +531,7 @@ int MyGraph::GetNonZeroSeriesCount() const
         }
     }
 
-    return nCount ? nCount : 1;
+    return nCount;
 }
 
 // Returns the group number for the sent label; -1 if not found.
@@ -967,7 +965,7 @@ void MyGraph::DrawAxes(CDC& dc) const
     CFont* pFontOld = dc.SelectObject(&fontYAxis);
     ASSERT_VALID(pFontOld);
     CSize sizYLabel(dc.GetTextExtent(m_sYAxisLabel));
-    VERIFY(dc.TextOut(GAP_PIXELS, (m_rcGraph.Height() + sizYLabel.cx) / 2,
+    VERIFY(dc.TextOut(GAP_PIXELS, (m_rcGraph.Height() - sizYLabel.cy) / 2,
         m_sYAxisLabel));
 
     // Set the x-axis label font and draw the label.
@@ -978,7 +976,6 @@ void MyGraph::DrawAxes(CDC& dc) const
 
     // chose suitable tick step (1, 2, 5, 10, 20, 50, etc.)
     int nMaxDataValue(GetMaxDataValue());
-    nMaxDataValue = max(nMaxDataValue, 1);
     int nTickStep = 1;
     while (10 * nTickStep * Y_AXIS_TICK_COUNT_TARGET <= nMaxDataValue)
         nTickStep *= 10;
@@ -1026,6 +1023,7 @@ void MyGraph::DrawAxes(CDC& dc) const
             0 < pSeries->GetNonZeroElementCount()) {
 
             // Get the spacing of the series.
+            _ASSERTE(GetNonZeroSeriesCount()  &&  "Div by zero coming");
             int nSeriesSpace(0);
 
             if (m_saLegendLabels.GetSize()) {
@@ -1118,10 +1116,8 @@ void MyGraph::DrawSeriesBar(CDC& dc) const
 
                 if (pSeries->GetData(nGroup)) {
 
-                    int nMaxDataValue(GetMaxDataValue());
-                    nMaxDataValue = max(nMaxDataValue, 1);
                     double barTop = m_ptOrigin.y - (double)m_nYAxisHeight *
-                        pSeries->GetData(nGroup) / (double)nMaxDataValue - stackAccumulator;
+                        pSeries->GetData(nGroup) / (double)GetMaxDataValue() - stackAccumulator;
 
                     CRect rcBar;
                     rcBar.left = (int)runningLeft;
@@ -1182,9 +1178,7 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
         }
 
         // Determine width of bars.
-        int nMaxSeriesSize(GetMaxSeriesSize());
-        nMaxSeriesSize = max(nMaxSeriesSize, 1);
-        int nBarWidth(nSeriesSpace / nMaxSeriesSize);
+        int nBarWidth(nSeriesSpace / GetMaxSeriesSize());
 
         if (1 < m_olMyGraphSeries.GetCount()) {
             nBarWidth = (int) ((double) nBarWidth * INTERSERIES_PERCENT_USED);
@@ -1216,10 +1210,8 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
             ptLoc.x = m_ptOrigin.x + (((nSeries + 1) * nSeriesSpace) -
                 (nSeriesSpace / 2));
 
-            int nMaxDataValue(GetMaxDataValue());
-            nMaxDataValue = max(nMaxDataValue, 1);
             double dLineHeight(pSeries->GetData(nGroup) * m_nYAxisHeight /
-                nMaxDataValue);
+                GetMaxDataValue());
 
             ptLoc.y = (int) ((double) m_ptOrigin.y - dLineHeight);
 
@@ -1279,9 +1271,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
         nSeriesSpace = m_nXAxisWidth / nSeriesCount;
     }
 
-    int nMaxDataValue(GetMaxDataValue());
-    nMaxDataValue = max(nMaxDataValue, 1);
-    double dYScaling = double(m_nYAxisHeight) / nMaxDataValue;
+    double dYScaling = double(m_nYAxisHeight) / GetMaxDataValue();
 
     // Iterate the groups.
     for (int nGroup = 0; nGroup < GetMaxSeriesSize(); nGroup++) {
@@ -1355,6 +1345,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
 {
     VALIDATE;
     ASSERT_VALID(&dc);
+    _ASSERTE(0 < GetNonZeroSeriesCount()  &&  "Div by zero");
 
     // Determine width of pie display area (pie and space).
     int nSeriesSpace(0);
@@ -1366,7 +1357,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
         // With legend box.
 
         horizontalSpace = m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2);
-        int nPieAndSpaceWidth(horizontalSpace / (seriesCount ? seriesCount : 1));
+        int nPieAndSpaceWidth(horizontalSpace / seriesCount);
 
         // Height is limiting factor.
         if (nPieAndSpaceWidth > m_nYAxisHeight - (GAP_PIXELS * 2)) {
@@ -1383,12 +1374,12 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
         horizontalSpace = m_nXAxisWidth;
 
         // Height is limiting factor.
-        if (m_nXAxisWidth > m_nYAxisHeight * (seriesCount ? seriesCount : 1)) {
+        if (m_nXAxisWidth > m_nYAxisHeight * seriesCount) {
             nSeriesSpace = m_nYAxisHeight;
         }
         else {
             // Width is limiting factor.
-            nSeriesSpace = m_nXAxisWidth / (seriesCount ? seriesCount : 1);
+            nSeriesSpace = m_nXAxisWidth / seriesCount;
         }
     }
 

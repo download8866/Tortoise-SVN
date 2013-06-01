@@ -16,10 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "UnicodeUtils.h"
-#include <memory>
-#include <emmintrin.h>
+#include "StdAfx.h"
+#include "unicodeutils.h"
+#include "auto_buffer.h"
 
 CUnicodeUtils::CUnicodeUtils(void)
 {
@@ -42,7 +41,7 @@ namespace
         enum {FIXED_BUFFER_SIZE = 1024};
 
         T fixedBuffer[FIXED_BUFFER_SIZE];
-        std::unique_ptr<T[]> dynamicBuffer;
+        auto_buffer<T> dynamicBuffer;
 
         T* buffer;
 
@@ -50,15 +49,14 @@ namespace
 
         CBuffer (size_t minCapacity)
         {
-            fixedBuffer[0] = 0;
             if (minCapacity <= FIXED_BUFFER_SIZE)
             {
                 buffer = fixedBuffer;
             }
             else
             {
-                dynamicBuffer.reset (new T[minCapacity]);
-                buffer = dynamicBuffer.get();
+                dynamicBuffer.reset (minCapacity);
+                buffer = dynamicBuffer;
             }
         }
 
@@ -255,3 +253,6 @@ public:
 
 } UnicodeTestobject;
 #endif
+
+
+

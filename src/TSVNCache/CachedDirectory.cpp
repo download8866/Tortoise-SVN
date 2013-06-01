@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "CachedDirectory.h"
+#include "StdAfx.h"
+#include ".\cacheddirectory.h"
 #include "SVNHelpers.h"
 #include "SVNStatusCache.h"
 #include "SVNStatus.h"
@@ -568,12 +568,12 @@ CCachedDirectory::SvnUpdateMembersStatus()
         switch (pErr->apr_err)
         {
         case SVN_ERR_WC_NOT_WORKING_COPY:
+        case SVN_ERR_WC_PATH_NOT_FOUND:
             {
                 m_currentFullStatus = m_mostImportantFileStatus = svn_wc_status_none;
                 CSVNStatusCache::Instance().BlockPath(m_directoryPath, true);
             }
             break;
-        case SVN_ERR_WC_PATH_NOT_FOUND:
         case SVN_ERR_WC_NOT_FILE:
         case SVN_ERR_WC_CORRUPT:
         case SVN_ERR_WC_CORRUPT_TEXT_BASE:

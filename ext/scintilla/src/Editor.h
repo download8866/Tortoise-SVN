@@ -47,30 +47,21 @@ public:
 
 /**
  * When platform has a way to generate an event before painting,
- * accumulate needed styling range and other work items in 
- * WorkNeeded to avoid unnecessary work inside paint handler
+ * accumulate needed styling range in StyleNeeded to avoid unnecessary work.
  */
-class WorkNeeded {
+class StyleNeeded {
 public:
-	enum workItems {
-		workNone=0,
-		workStyle=1,
-		workUpdateUI=2
-	};
 	bool active;
-	enum workItems items;
 	Position upTo;
 
-	WorkNeeded() : active(false), items(workNone), upTo(0) {}
+	StyleNeeded() : active(false), upTo(0) {}
 	void Reset() {
 		active = false;
-		items = workNone;
 		upTo = 0;
 	}
-	void Need(workItems items_, Position pos) {
-		if ((items_ & workStyle) && (upTo < pos))
+	void NeedUpTo(Position pos) {
+		if (upTo < pos)
 			upTo = pos;
-		items = static_cast<workItems>(items | items_);
 	}
 };
 
@@ -91,13 +82,19 @@ public:
 		Free();
 	}
 	void Free() {
+		Set(0, 0, 0, 0, false, false);
+	}
+	void Set(char *s_, int len_, int codePage_, int characterSet_, bool rectangular_, bool lineCopy_) {
 		delete []s;
-		s = 0;
-		len = 0;
-		rectangular = false;
-		lineCopy = false;
-		codePage = 0;
-		characterSet = 0;
+		s = s_;
+		if (s)
+			len = len_;
+		else
+			len = 0;
+		codePage = codePage_;
+		characterSet = characterSet_;
+		rectangular = rectangular_;
+		lineCopy = lineCopy_;
 	}
 	void Copy(const char *s_, int len_, int codePage_, int characterSet_, bool rectangular_, bool lineCopy_) {
 		delete []s;
@@ -111,21 +108,9 @@ public:
 		characterSet = characterSet_;
 		rectangular = rectangular_;
 		lineCopy = lineCopy_;
-		FixSelectionForClipboard();
 	}
 	void Copy(const SelectionText &other) {
 		Copy(other.s, other.len, other.codePage, other.characterSet, other.rectangular, other.lineCopy);
-	}
-	
-private:
-	void FixSelectionForClipboard() {
-		// Replace null characters by spaces.
-		// To avoid that the content of the clipboard is truncated in the paste operation 
-		// when the clipboard contains null characters.
-		for (int i = 0; i < len - 1; ++i) {
-			if (s[i] == '\0')
-				s[i] = ' ';
-		}
 	}
 };
 
@@ -141,15 +126,13 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	/** On GTK+, Scintilla is a container widget holding two scroll bars
 	 * whereas on Windows there is just one window with both scroll bars turned on. */
 	Window wMain;	///< The Scintilla parent window
-	Window wMargin;	///< May be separate when using a scroll view for wMain
 
 	/** Style resources may be expensive to allocate so are cached between uses.
 	 * When a style attribute is changed, this cache is flushed. */
 	bool stylesValid;
 	ViewStyle vs;
-	int technology;
 	Point sizeRGBAImage;
-	float scaleRGBAImage;
+	Palette palette;
 
 	int printMagnification;
 	int printColourMode;
@@ -193,7 +176,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	Surface *pixmapLine;
 	Surface *pixmapSelMargin;
 	Surface *pixmapSelPattern;
-	Surface *pixmapSelPatternOffset1;
 	Surface *pixmapIndentGuide;
 	Surface *pixmapIndentGuideHighlight;
 
@@ -244,8 +226,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	enum { notPainting, painting, paintAbandoned } paintState;
 	PRectangle rcPaint;
 	bool paintingAllText;
-	bool willRedrawAll;
-	WorkNeeded workNeeded;
+	StyleNeeded styleNeeded;
 
 	int modEventMask;
 
@@ -267,7 +248,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool recordingMacro;
 
 	int foldFlags;
-	int foldAutomatic;
 	ContractionState cs;
 
 	// Hotspot support
@@ -283,13 +263,10 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int wrapVisualFlags;
 	int wrapVisualFlagsLocation;
 	int wrapVisualStartIndent;
+	int wrapAddIndent; // This will be added to initial indent of line
 	int wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
 
 	bool convertPastes;
-
-	int marginNumberPadding; // the right-side padding of the number margin
-	int ctrlCharPadding; // the padding around control character text blobs
-	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
 
 	Document *pdoc;
 
@@ -300,15 +277,10 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	void InvalidateStyleData();
 	void InvalidateStyleRedraw();
+	virtual void RefreshColourPalette(Palette &pal, bool want);
 	void RefreshStyleData();
-	void DropGraphics(bool freeObjects);
-	void AllocateGraphics();
+	void DropGraphics();
 
-	// The top left visible point in main window coordinates. Will be 0,0 except for
-	// scroll views where it will be equivalent to the current scroll position.
-	virtual Point GetVisibleOriginInMain();
-	Point DocumentPointFromView(Point ptView);  // Convert a point from view space to document
-	int TopLineOfMain();   // Return the line at Main's y coordinate 0
 	virtual PRectangle GetClientRectangle();
 	PRectangle GetTextRectangle();
 
@@ -375,19 +347,10 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 		int xOffset;
 		int topLine;
 		XYScrollPosition(int xOffset_, int topLine_) : xOffset(xOffset_), topLine(topLine_) {}
-		bool operator==(const XYScrollPosition &other) const {
-			return (xOffset == other.xOffset) && (topLine == other.topLine);
-		}
 	};
-	enum XYScrollOptions {
-		xysUseMargin=0x1,
-		xysVertical=0x2,
-		xysHorizontal=0x4,
-		xysDefault=xysUseMargin|xysVertical|xysHorizontal};
-	XYScrollPosition XYScrollToMakeVisible(const SelectionRange range, const XYScrollOptions options);
+	XYScrollPosition XYScrollToMakeVisible(const bool useMargin, const bool vert, const bool horiz);
 	void SetXYScroll(XYScrollPosition newXY);
 	void EnsureCaretVisible(bool useMargin=true, bool vert=true, bool horiz=true);
-	void ScrollRange(SelectionRange range);
 	void ShowCaretAtCurrentPosition();
 	void DropCaret();
 	void InvalidateCaret();
@@ -404,14 +367,14 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	LineLayout *RetrieveLineLayout(int lineNumber);
 	void LayoutLine(int line, Surface *surface, ViewStyle &vstyle, LineLayout *ll,
 		int width=LineLayout::wrapWidthInfinite);
-	ColourDesired SelectionBackground(ViewStyle &vsDraw, bool main);
-	ColourDesired TextBackground(ViewStyle &vsDraw, bool overrideBackground, ColourDesired background, int inSelection, bool inHotspot, int styleMain, int i, LineLayout *ll);
+	ColourAllocated SelectionBackground(ViewStyle &vsDraw, bool main);
+	ColourAllocated TextBackground(ViewStyle &vsDraw, bool overrideBackground, ColourAllocated background, int inSelection, bool inHotspot, int styleMain, int i, LineLayout *ll);
 	void DrawIndentGuide(Surface *surface, int lineVisible, int lineHeight, int start, PRectangle rcSegment, bool highlight);
-	void DrawWrapMarker(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourDesired wrapColour);
+	void DrawWrapMarker(Surface *surface, PRectangle rcPlace, bool isEndMarker, ColourAllocated wrapColour);
 	void DrawEOL(Surface *surface, ViewStyle &vsDraw, PRectangle rcLine, LineLayout *ll,
-		int line, int lineEnd, int xStart, int subLine, XYACCUMULATOR subLineStart,
-		bool overrideBackground, ColourDesired background,
-		bool drawWrapMark, ColourDesired wrapColour);
+		int line, int lineEnd, int xStart, int subLine, int subLineStart,
+		bool overrideBackground, ColourAllocated background,
+		bool drawWrapMark, ColourAllocated wrapColour);
 	void DrawIndicator(int indicNum, int startPos, int endPos, Surface *surface, ViewStyle &vsDraw,
 		int xStart, PRectangle rcLine, LineLayout *ll, int subLine);
 	void DrawIndicators(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
@@ -421,7 +384,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void DrawLine(Surface *surface, ViewStyle &vsDraw, int line, int lineVisible, int xStart,
 		PRectangle rcLine, LineLayout *ll, int subLine);
 	void DrawBlockCaret(Surface *surface, ViewStyle &vsDraw, LineLayout *ll, int subLine,
-		int xStart, int offset, int posCaret, PRectangle rcCaret, ColourDesired caretColour);
+		int xStart, int offset, int posCaret, PRectangle rcCaret, ColourAllocated caretColour);
 	void DrawCarets(Surface *surface, ViewStyle &vsDraw, int line, int xStart,
 		PRectangle rcLine, LineLayout *ll, int subLine);
 	void RefreshPixMaps(Surface *surfaceWindow);
@@ -472,7 +435,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void NotifyHotSpotClicked(int position, bool shift, bool ctrl, bool alt);
 	void NotifyHotSpotDoubleClicked(int position, bool shift, bool ctrl, bool alt);
 	void NotifyHotSpotReleaseClick(int position, bool shift, bool ctrl, bool alt);
-	bool NotifyUpdateUI();
+	void NotifyUpdateUI();
 	void NotifyPainted();
 	void NotifyIndicatorClick(bool click, int position, bool shift, bool ctrl, bool alt);
 	bool NotifyMarginClick(Point pt, bool shift, bool ctrl, bool alt);
@@ -507,6 +470,9 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	int KeyDownWithModifiers(int key, int modifiers, bool *consumed);
 	int KeyDown(int key, bool shift, bool ctrl, bool alt, bool *consumed=0);
 
+	int GetWhitespaceVisible();
+	void SetWhitespaceVisible(int view);
+
 	void Indent(bool forwards);
 
 	virtual CaseFolder *CaseFolderForEncoding();
@@ -517,7 +483,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void GoToLine(int lineNo);
 
 	virtual void CopyToClipboard(const SelectionText &selectedText) = 0;
-	std::string RangeText(int start, int end) const;
+	char *CopyRange(int start, int end);
 	void CopySelectionRange(SelectionText *ss, bool allowLineCopy=false);
 	void CopyRangeToClipboard(int start, int end);
 	void CopyText(int length, const char *text);
@@ -531,7 +497,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	bool PointInSelection(Point pt);
 	bool PointInSelMargin(Point pt);
 	Window::Cursor GetMarginCursor(Point pt);
-	void TrimAndSetSelection(int currentPos_, int anchor_);
 	void LineSelection(int lineCurrentPos_, int lineAnchorPos_, bool wholeLine);
 	void WordSelection(int pos);
 	void DwellEnd(bool mouseMoved);
@@ -550,8 +515,8 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	int PositionAfterArea(PRectangle rcArea);
 	void StyleToPositionInView(Position pos);
-	virtual void IdleWork();
-	virtual void QueueIdleWork(WorkNeeded::workItems items, int upTo=0);
+	void IdleStyling();
+	virtual void QueueStyling(int upTo);
 
 	virtual bool PaintContains(PRectangle rc);
 	bool PaintContainsMargin();
@@ -559,20 +524,14 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void SetBraceHighlight(Position pos0, Position pos1, int matchStyle);
 
 	void SetAnnotationHeights(int start, int end);
-	virtual void SetDocPointer(Document *document);
+	void SetDocPointer(Document *document);
 
 	void SetAnnotationVisible(int visible);
 
-	int ExpandLine(int line);
-	void SetFoldExpanded(int lineDoc, bool expanded);
-	void FoldLine(int line, int action);
-	void FoldExpand(int line, int action, int level);
+	void Expand(int &line, bool doExpand);
+	void ToggleContraction(int line);
 	int ContractedFoldNext(int lineStart);
 	void EnsureLineVisible(int lineDoc, bool enforcePolicy);
-	void FoldChanged(int line, int levelNow, int levelPrev);
-	void NeedShown(int pos, int len);
-	void FoldAll(int action);
-
 	int GetTag(char *tagValue, int tagNumber);
 	int ReplaceTarget(bool replacePatterns, const char *text, int length=-1);
 
@@ -614,9 +573,9 @@ class AutoSurface {
 private:
 	Surface *surf;
 public:
-	AutoSurface(Editor *ed, int technology = -1) : surf(0) {
+	AutoSurface(Editor *ed) : surf(0) {
 		if (ed->wMain.GetID()) {
-			surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
+			surf = Surface::Allocate();
 			if (surf) {
 				surf->Init(ed->wMain.GetID());
 				surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());
@@ -624,9 +583,9 @@ public:
 			}
 		}
 	}
-	AutoSurface(SurfaceID sid, Editor *ed, int technology = -1) : surf(0) {
+	AutoSurface(SurfaceID sid, Editor *ed) : surf(0) {
 		if (ed->wMain.GetID()) {
-			surf = Surface::Allocate(technology != -1 ? technology : ed->technology);
+			surf = Surface::Allocate();
 			if (surf) {
 				surf->Init(sid, ed->wMain.GetID());
 				surf->SetUnicodeMode(SC_CP_UTF8 == ed->CodePage());

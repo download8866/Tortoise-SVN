@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2013 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,13 +17,14 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "TaskbarUUID.h"
 #include "registry.h"
 #include "CmdLineParser.h"
 
 #include <Shobjidl.h>
-#include <atlbase.h>
+#include "Win7.h"
+
 
 #define APPID (_T("TSVN.TSVN.1"))
 
@@ -31,7 +32,7 @@
 void SetTaskIDPerUUID()
 {
     typedef HRESULT STDAPICALLTYPE SetCurrentProcessExplicitAppUserModelIDFN(PCWSTR AppID);
-    HMODULE hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
+    HMODULE hShell = ::LoadLibrary(_T("shell32.dll"));
     if (hShell)
     {
         SetCurrentProcessExplicitAppUserModelIDFN *pfnSetCurrentProcessExplicitAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDFN*)GetProcAddress(hShell, "SetCurrentProcessExplicitAppUserModelID");

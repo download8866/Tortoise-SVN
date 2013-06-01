@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -120,8 +120,6 @@ protected:
         ShellMenuDropCopyRename,
         ShellMenuDropExport,
         ShellMenuDropExportExtended,
-        ShellMenuDropExportChanged,
-        ShellMenuDropVendor,
         ShellMenuLog,
         ShellMenuConflictEditor,
         ShellMenuRelocate,
@@ -130,13 +128,9 @@ protected:
         ShellMenuIgnoreSub,
         ShellMenuDeleteIgnoreSub,
         ShellMenuIgnore,
-        ShellMenuIgnoreGlobal,
         ShellMenuDeleteIgnore,
-        ShellMenuDeleteIgnoreGlobal,
         ShellMenuIgnoreCaseSensitive,
-        ShellMenuIgnoreCaseSensitiveGlobal,
         ShellMenuDeleteIgnoreCaseSensitive,
-        ShellMenuDeleteIgnoreCaseSensitiveGlobal,
         ShellMenuRepoBrowse,
         ShellMenuBlame,
         ShellMenuApplyPatch,
@@ -144,9 +138,7 @@ protected:
         ShellMenuRevisionGraph,
         ShellMenuUnIgnoreSub,
         ShellMenuUnIgnoreCaseSensitive,
-        ShellMenuUnIgnoreCaseSensitiveGlobal,
         ShellMenuUnIgnore,
-        ShellMenuUnIgnoreGlobal,
         ShellMenuLock,
         ShellMenuUnlock,
         ShellMenuUnlockForce,
@@ -203,7 +195,6 @@ protected:
     tstring itemurl;
     tstring itemshorturl;
     tstring ignoredprops;
-    tstring ignoredglobalprops;
     tstring owner;
     svn_revnum_t columnrev;         ///< holds the corresponding revision to the file/dir above
     svn_wc_status_kind  filestatus;
@@ -268,7 +259,7 @@ private:
      * IShellExtInit wrapper functions to catch exceptions and send crash reports
      */
     //@{
-    STDMETHODIMP    Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+    STDMETHODIMP    Initialize_Wrap(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
     //@}
 
     /** \name IShellIconOverlayIdentifier wrappers
@@ -338,7 +329,7 @@ public:
      * IShellExtInit methods
      */
     //@{
-    STDMETHODIMP    Initialize(PCIDLIST_ABSOLUTE pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+    STDMETHODIMP    Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
     //@}
 
     /** \name IPersistFile

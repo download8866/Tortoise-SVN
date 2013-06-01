@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "Colors.h"
-#include "Tooltip.h"
+#include "ToolTip.h"
 
 /**
  * \ingroup TortoiseProc
@@ -33,7 +33,7 @@ public:
     CSettingsRevisionGraphColors();
     virtual ~CSettingsRevisionGraphColors();
 
-    UINT GetIconID() override {return IDI_LOOKANDFEEL;}
+    UINT GetIconID() {return IDI_LOOKANDFEEL;}
 
     enum { IDD = IDD_SETTINGSREVGRAPHCOLORS };
 

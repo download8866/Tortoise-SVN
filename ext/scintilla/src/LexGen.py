@@ -249,70 +249,6 @@ def sortListInsensitive(l):
     except TypeError:    # Earlier version of Python, so use comparison function
         l.sort(ciCompare)
 
-def UpdateLineInFile(path, linePrefix, lineReplace):
-    lines = []
-    with open(path, "r") as f:
-        for l in f.readlines():
-            l = l.rstrip()
-            if l.startswith(linePrefix):
-                lines.append(lineReplace)
-            else:
-                lines.append(l)
-    contents = NATIVE.join(lines) + NATIVE
-    UpdateFile(path, contents)
-
-host = "prdownloads.sourceforge.net/"
-def UpdateDownloadLinks(path, version):
-    lines = []
-    with open(path, "r") as f:
-        for l in f.readlines():
-            l = l.rstrip()
-            if host in l:
-                start, prd, rest = l.partition(host)
-                pth, dot, ending = rest.partition(".")
-                pthNew = pth[:-3] + version.rstrip()
-                lineWithNewVersion = start + prd +pthNew + dot + ending
-                lines.append(lineWithNewVersion)
-            else:
-                lines.append(l)
-    contents = NATIVE.join(lines) + NATIVE
-    UpdateFile(path, contents)
-
-def UpdateVersionNumbers(root):
-    with open(root + "scintilla/version.txt") as f:
-        version = f.read()
-    versionDotted = version[0] + '.' + version[1] + '.' + version[2]
-    versionCommad = version[0] + ', ' + version[1] + ', ' + version[2] + ', 0'
-
-    UpdateLineInFile(root + "scintilla/win32/ScintRes.rc", "#define VERSION_SCINTILLA",
-        "#define VERSION_SCINTILLA \"" + versionDotted + "\"")
-    UpdateLineInFile(root + "scintilla/win32/ScintRes.rc", "#define VERSION_WORDS", 
-        "#define VERSION_WORDS " + versionCommad)
-    UpdateLineInFile(root + "scintilla/qt/ScintillaEditBase/ScintillaEditBase.pro",
-        "VERSION =", 
-        "VERSION = " + versionDotted)
-    UpdateLineInFile(root + "scintilla/qt/ScintillaEdit/ScintillaEdit.pro",
-        "VERSION =", 
-        "VERSION = " + versionDotted)
-    UpdateLineInFile(root + "scintilla/doc/ScintillaDownload.html", "       Release", 
-        "       Release " + versionDotted)
-    UpdateDownloadLinks(root + "scintilla/doc/ScintillaDownload.html", version)
-    UpdateLineInFile(root + "scintilla/doc/index.html",
-        '          <font color="#FFCC99" size="3"> Release version', 
-        '          <font color="#FFCC99" size="3"> Release version ' + versionDotted + '<br />') 
-
-    if os.path.exists(root + "scite"):
-        UpdateLineInFile(root + "scite/src/SciTE.h", "#define VERSION_SCITE", 
-            "#define VERSION_SCITE \"" + versionDotted + "\"")
-        UpdateLineInFile(root + "scite/src/SciTE.h", "#define VERSION_WORDS", 
-            "#define VERSION_WORDS " + versionCommad)
-        UpdateLineInFile(root + "scite/doc/SciTEDownload.html", "       Release", 
-            "       Release " + versionDotted)
-        UpdateDownloadLinks(root + "scite/doc/SciTEDownload.html", version)
-        UpdateLineInFile(root + "scite/doc/SciTE.html",
-            '          <font color="#FFCC99" size="3"> Release version', 
-            '          <font color="#FFCC99" size="3"> Release version ' + versionDotted + '<br />') 
-
 def RegenerateAll():
     root="../../"
 
@@ -330,8 +266,7 @@ def RegenerateAll():
             lexerProperties[k] = 1
         documents = FindPropertyDocumentation(lexFile)
         for k in documents.keys():
-            if k not in propertyDocuments:
-                propertyDocuments[k] = documents[k]
+            propertyDocuments[k] = documents[k]
     sortListInsensitive(lexerModules)
     lexerProperties = list(lexerProperties.keys())
     sortListInsensitive(lexerProperties)
@@ -342,8 +277,8 @@ def RegenerateAll():
     sortListInsensitive(documentProperties)
     propertiesHTML = []
     for k in documentProperties:
-        propertiesHTML.append("\t<tr id='property-%s'>\n\t<td>%s</td>\n\t<td>%s</td>\n\t</tr>" %
-            (k, k, propertyDocuments[k]))
+        propertiesHTML.append("\t<tr>\n\t<td>%s</td>\n\t<td>%s</td>\n\t</tr>" %
+            (k, propertyDocuments[k]))
 
     # Find all the SciTE properties files
     otherProps = ["abbrev.properties", "Embedded.properties", "SciTEGlobal.properties", "SciTE.properties"]
@@ -356,6 +291,7 @@ def RegenerateAll():
 
     Regenerate(root + "scintilla/src/Catalogue.cxx", "//", NATIVE, lexerModules)
     Regenerate(root + "scintilla/win32/scintilla.mak", "#", NATIVE, lexFiles)
+    Regenerate(root + "scintilla/win32/scintilla_vc6.mak", "#", NATIVE, lexFiles)
     if os.path.exists(root + "scite"):
         Regenerate(root + "scite/win32/makefile", "#", NATIVE, propFiles)
         Regenerate(root + "scite/win32/scite.mak", "#", NATIVE, propFiles)
@@ -363,7 +299,5 @@ def RegenerateAll():
         Regenerate(root + "scite/doc/SciTEDoc.html", "<!--", NATIVE, propertiesHTML)
         Generate(root + "scite/boundscheck/vcproj.gen",
          root + "scite/boundscheck/SciTE.vcproj", "#", NATIVE, lexFiles)
-
-    UpdateVersionNumbers(root)
 
 RegenerateAll()

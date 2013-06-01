@@ -53,16 +53,6 @@
             </listitem>
         </varlistentry>
         <varlistentry>
-            <term condition="pot">AutoCompleteMinChars</term>
-            <listitem>
-                <para>
-                    The minimum amount of chars from which the editor
-                    shows an auto-completion popup. The default value
-                    is <literal>3</literal>.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
             <term condition="pot">AutocompleteRemovesExtensions</term>
             <listitem>
                 <para>
@@ -153,7 +143,7 @@
             <term condition="pot">DialogTitles</term>
             <listitem>
                 <para>
-                    The default format (value of 0) of dialog titles is
+                    The default format (value of 0) of dialog titles is 
                     <literal>url/path - name of dialog - TortoiseSVN</literal>.
                     If you set this value to 1, the format changes to
                     <literal>name of dialog - url/path - TortoiseSVN</literal>.
@@ -285,23 +275,6 @@
             </listitem>
         </varlistentry>
         <varlistentry>
-            <term condition="pot">HideExternalInfo</term>
-            <listitem>
-                <para>
-                    If this is set to <literal>false</literal>, then
-                    every <literal>svn:externals</literal> is shown
-                    during an update separately.
-                </para>
-                <para>
-                    If it is set to <literal>true</literal> (the default),
-                    then update information for externals is only shown
-                    if the externals are affected by the update, i.e.
-                    changed in some way. Otherwise nothing is shown
-                    as with normal files and folders.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
             <term condition="pot">GroupTaskbarIconsPerRepoOverlay</term>
             <listitem>
                 <para>
@@ -350,7 +323,7 @@
                     and hide all the revisions that are beyond that revision.
                     Since this can take quite a while, this option is disabled
                     by default. Also this option doesn't work with some SVN servers
-                    (e.g., Google Code Hosting, see
+                    (e.g., Google Code Hosting, see 
                     <ulink url="http://code.google.com/p/support/issues/detail?id=5471">
                         <citetitle>issue #5471</citetitle>
                     </ulink>).
@@ -370,7 +343,7 @@
             </listitem>
         </varlistentry>
         <varlistentry>
-            <term condition="pot">MergeLogSeparator</term>
+            <term condition="pot">Merge log separator</term>
             <listitem>
                 <para>
                     When you merge revisions from another branch, and merge tracking
@@ -379,16 +352,6 @@
                     A pre-defined string is used to separate the individual log
                     messages of the merged revisions. If you prefer, you can set
                     this to a value containing a separator string of your choice.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
-            <term condition="pot">NumDiffWarning</term>
-            <listitem>
-                <para>
-                    If you want to show the diff at once for more items
-                    than specified with this settings, a warning dialog
-                    is shown first. The default is 10.
                 </para>
             </listitem>
         </varlistentry>
@@ -406,28 +369,34 @@
             </listitem>
         </varlistentry>
         <varlistentry>
-            <term condition="pot">ScintillaDirect2D</term>
-            <listitem>
-                <para>
-                    This option enables the use of Direct2D accelerated
-                    drawing in the Scintilla control which is used
-                    as the edit box in e.g. the commit dialog, and also
-                    for the unified diff viewer.
-                    With some graphic cards however this sometimes
-                    doesn't work properly so that the cursor to enter
-                    text isn't always visible. If that happens, you
-                    can turn this feature off by setting this value
-                    to <literal>false</literal>.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
             <term condition="pot">OutOfDateRetry</term>
             <listitem>
                 <para>
                     If you don't want TortoiseSVN to ask you to update
                     the working copy automatically after an <literal>Out of date</literal>
                     error, set this value to <literal>false</literal>.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term condition="pot">RepoBrowserPrefetch</term>
+            <listitem>
+                <para>
+                    Some servers have problems handling the many requests
+                    the repository browser makes while it pre-fetches
+                    shown folders. To disable the pre-fetching set
+                    this value to <literal>false</literal>.
+                </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term condition="pot">RepoBrowserShowExternals</term>
+            <listitem>
+                <para>
+                    Some servers have problems handling the many requests
+                    the repository browser makes while it looks for
+                    <literal>svn:externals</literal>. To disable looking 
+                    for externals, set this value to <literal>false</literal>.
                 </para>
             </listitem>
         </varlistentry>

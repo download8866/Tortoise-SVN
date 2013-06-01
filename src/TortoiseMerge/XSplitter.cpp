@@ -344,3 +344,4 @@ void CXSplitter::CopyRowAndColInfo()
             m_pRowOldSize[i] = m_pRowInfo[i].nCurSize;
     }
 }
+

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -46,9 +46,6 @@ using namespace std;
 #define PROJECTPROPNAME_LOGTEMPLATEMKDIR  "tsvn:logtemplatemkdir"
 #define PROJECTPROPNAME_LOGTEMPLATEPROPSET "tsvn:logtemplatepropset"
 #define PROJECTPROPNAME_LOGTEMPLATELOCK   "tsvn:logtemplatelock"
-#define PROJECTPROPNAME_MERGELOGTEMPLATETITLE "tsvn:mergelogtemplatetitle"
-#define PROJECTPROPNAME_MERGELOGTEMPLATEREVERSETITLE "tsvn:mergelogtemplatereversetitle"
-#define PROJECTPROPNAME_MERGELOGTEMPLATEMSG "tsvn:mergelogtemplatemsg"
 
 #define PROJECTPROPNAME_LOGWIDTHLINE      "tsvn:logwidthmarker"
 #define PROJECTPROPNAME_LOGMINSIZE        "tsvn:logminsize"
@@ -60,12 +57,6 @@ using namespace std;
 #define PROJECTPROPNAME_USERDIRPROPERTY   "tsvn:userdirproperties"
 #define PROJECTPROPNAME_AUTOPROPS         "tsvn:autoprops"
 #define PROJECTPROPNAME_LOGREVREGEX       "tsvn:logrevregex"
-#define PROJECTPROPNAME_STARTCOMMITHOOK   "tsvn:startcommithook"
-#define PROJECTPROPNAME_PRECOMMITHOOK     "tsvn:precommithook"
-#define PROJECTPROPNAME_POSTCOMMITHOOK    "tsvn:postcommithook"
-#define PROJECTPROPNAME_STARTUPDATEHOOK   "tsvn:startupdatehook"
-#define PROJECTPROPNAME_PREUPDATEHOOK     "tsvn:preupdatehook"
-#define PROJECTPROPNAME_POSTUPDATEHOOK    "tsvn:postupdatehook"
 
 #define PROJECTPROPNAME_WEBVIEWER_REV     "webviewer:revision"
 #define PROJECTPROPNAME_WEBVIEWER_PATHREV "webviewer:pathrevision"
@@ -94,12 +85,9 @@ public:
     /**
      * Reads the properties from all paths found in a path list.
      * This method calls ReadProps() for each path .
-     * \param pathList list of paths
+     * \param list of paths
      */
     BOOL ReadPropsPathList(const CTSVNPathList& pathList);
-
-    /// returns true if ReadProps() or ReadPropsPathList() has been called before
-    bool PropsRead() const { return m_bPropsRead; }
 
     /**
      * Searches for the BugID inside a log message. If one is found,
@@ -145,7 +133,7 @@ public:
     /**
      * Returns the URL pointing to the Issue in the issue tracker. The URL is
      * created from the bugtraq:url property and the BugID found in the log message.
-     * \param sBugID the BugID extracted from the log message
+     * \param msg the BugID extracted from the log message
      */
     CString GetBugIDUrl(const CString& sBugID);
 
@@ -176,7 +164,7 @@ public:
     /**
      * Returns the path from which the properties were read.
      */
-    CTSVNPath GetPropsPath() const {return propsPath;}
+    CTSVNPath GetPropsPath() {return propsPath;}
 
     /** replaces bNumer: a regular expression string to check the validity of
       * the entered bug ID. */
@@ -187,11 +175,8 @@ public:
     const CString& GetBugIDRe() const {return sBugIDRe;}
     void SetBugIDRe(const CString& s) {sBugIDRe = s;regExNeedUpdate=true;AutoUpdateRegex();}
 
-#ifdef _WIN64
     const CString& GetProviderUUID() const { return (sProviderUuid64.IsEmpty() ? sProviderUuid : sProviderUuid64); }
-#else
-    const CString& GetProviderUUID() const { return (sProviderUuid.IsEmpty() ? sProviderUuid64 : sProviderUuid); }
-#endif
+
     const CString& GetLogMsgTemplate(const CStringA& prop) const;
 
     const CString& GetLogRevRegex() const;
@@ -264,42 +249,12 @@ public:
     CString     sLogSummaryRe;
 
 
-    /// multi line string containing the data for a start-commit-hook
-    CString     sStartCommitHook;
-    /// multi line string containing the data for a pre-commit-hook
-    CString     sPreCommitHook;
-    /// multi line string containing the data for a post-commit-hook
-    CString     sPostCommitHook;
-    /// multi line string containing the data for a start-update-hook
-    CString     sStartUpdateHook;
-    /// multi line string containing the data for a pre-update-hook
-    CString     sPreUpdateHook;
-    /// multi line string containing the data for a post-update-hook
-    CString     sPostUpdateHook;
-    /// multi line string containing the data for a pre-connect-hook
-    CString     sPreConnectHook;
-
-    /// the repository root url
-    CString     sRepositoryRootUrl;
-    /// the repository url of the directory for which the project properties
-    /// are meant for
-    CString     sRepositoryPathUrl;
-
-    /// template for the first line (title) of the generated log message of a merge
-    CString     sMergeLogTemplateTitle;
-    /// template for the first line (title) of the generated log message of a merge in case of a reverse merge
-    CString     sMergeLogTemplateReverseTitle;
-    /// template for the messge lines of the generated log message of a merge
-    CString     sMergeLogTemplateMsg;
-
 private:
 
     /**
-     * Constructing regex objects is expensive. Therefore, cache them here.
+     * Constructing rexex objects is expensive. Therefore, cache them here.
      */
     void AutoUpdateRegex();
-
-    bool CheckStringProp(CString& s, const std::string& propname, const CString& propval, LPCSTR prop);
 
     bool regExNeedUpdate;
     tr1::wregex regCheck;
@@ -339,7 +294,4 @@ private:
     CString     sLogRevRegex;
 
     int         nBugIdPos;              ///< result of sMessage.Find(L"%BUGID%");
-
-    bool        m_bFound;
-    bool        m_bPropsRead;
 };

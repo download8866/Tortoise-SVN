@@ -24,14 +24,13 @@
 #include "StringUtils.h"
 #include "PathUtils.h"
 #include "MessageBox.h"
-#include "registry.h"
+#include "Registry.h"
 #include "FormatMessageWrapper.h"
 
 #include <cmath>
 #include <locale>
 #include <list>
 #include <utility>
-#include <strsafe.h>
 
 using namespace Gdiplus;
 
@@ -63,10 +62,6 @@ CStatGraphDlg::CStatGraphDlg(CWnd* pParent /*=NULL*/)
     , m_langOrder(0)
     , m_firstInterval(0)
     , m_lastInterval(0)
-    , m_nTotalCommits(0)
-    , m_nTotalFileChanges(0)
-    , m_minDate(0)
-    , m_maxDate(0)
 {
     m_parDates = NULL;
     m_parFileChanges = NULL;
@@ -710,7 +705,7 @@ void CStatGraphDlg::ShowPercentageOfAuthorship()
     // Loop over all authors in the authors list and
     // add them to the graph.
 
-    if (!authors.empty())
+    if (authors.size())
     {
         for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
         {
@@ -720,7 +715,7 @@ void CStatGraphDlg::ShowPercentageOfAuthorship()
     }
 
     //     If we have other authors, count them and their commits.
-    if (!others.empty())
+    if (others.size() != 0)
         DrawOthers(others, graphData, m_PercentageOfAuthorship);
 
     // Paint the graph now that we're through.
@@ -743,7 +738,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
     // Loop over all authors in the authors list and
     // add them to the graph.
 
-    if (!authors.empty())
+    if (authors.size())
     {
         for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
         {
@@ -753,7 +748,7 @@ void CStatGraphDlg::ShowCommitsByAuthor()
     }
 
     //     If we have other authors, count them and their commits.
-    if (!others.empty())
+    if (others.size() != 0)
         DrawOthers(others, graphData, m_commitsPerAuthor);
 
     // Paint the graph now that we're through.
@@ -806,7 +801,7 @@ void CStatGraphDlg::ShowCommitsByDate()
     for (int i=m_lastInterval; i>=m_firstInterval; --i)
     {
         // Collect data for authors listed by name.
-        if (!authors.empty())
+        if (authors.size())
         {
             for (std::list<tstring>::iterator it = authors.begin(); it != authors.end(); ++it)
             {
@@ -818,7 +813,7 @@ void CStatGraphDlg::ShowCommitsByDate()
             }
         }
         // Collect data for all skipped authors.
-        if (!others.empty())
+        if (others.size())
         {
             for (std::list<tstring>::iterator it = others.begin(); it != others.end(); ++it)
             {
@@ -833,7 +828,7 @@ void CStatGraphDlg::ShowCommitsByDate()
         // Create a new data series for this unit/interval.
         MyGraphSeries * graphData = new MyGraphSeries();
         // Loop over all created graphs and set the corresponding data.
-        if (!authorGraphMap.empty())
+        if (authorGraphMap.size())
         {
             for (AuthorDataMap::const_iterator it = authorGraphMap.begin(); it != authorGraphMap.end(); ++it)
             {
@@ -1199,7 +1194,7 @@ void CStatGraphDlg::OnNeedText(NMHDR *pnmh, LRESULT * /*pResult*/)
         CString string;
         int percentage = int(min_commits*100.0/(m_nTotalCommits ? m_nTotalCommits : 1));
         string.FormatMessage(IDS_STATGRAPH_AUTHORSLIDER_TT, m_Skipper.GetPos(), min_commits, percentage);
-        StringCchCopy(pttt->szText, _countof(pttt->szText), (LPCTSTR) string);
+        ::lstrcpy(pttt->szText, (LPCTSTR) string);
     }
 }
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "RevisionGraphWnd.h"
+#include "Revisiongraphwnd.h"
 #include "MessageBox.h"
 #include "SVN.h"
 #include "AppUtils.h"
@@ -40,7 +40,6 @@
 #include "RevisionGraph/UpsideDownLayout.h"
 #include "SysInfo.h"
 #include "FormatMessageWrapper.h"
-#include <strsafe.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -102,7 +101,6 @@ CRevisionGraphWnd::CRevisionGraphWnd()
     , m_previewWidth(0)
     , m_previewHeight(0)
     , m_previewZoom(1)
-    , m_dwTicks(0)
 {
     memset(&m_lfBaseFont, 0, sizeof(LOGFONT));
     std::fill_n(m_apFonts, MAXFONTS, (CFont*)NULL);
@@ -128,8 +126,6 @@ CRevisionGraphWnd::CRevisionGraphWnd()
 
     m_bTweakTrunkColors = CRegDWORD(_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTrunkColors"), TRUE) != FALSE;
     m_bTweakTagsColors = CRegDWORD(_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTagsColors"), TRUE) != FALSE;
-    m_szTip[0]  = 0;
-    m_wszTip[0] = 0;
 }
 
 CRevisionGraphWnd::~CRevisionGraphWnd()
@@ -660,7 +656,7 @@ BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
     {
         TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
         ::SendMessage(pNMHDR->hwndFrom, TTM_SETMAXTIPWIDTH, 0, tooltipSize.cx);
-        StringCchCopy(m_wszTip, _countof(m_wszTip), strTipText);
+        lstrcpyn(m_wszTip, strTipText, strTipText.GetLength()+1);
         pTTTW->lpszText = m_wszTip;
     }
 

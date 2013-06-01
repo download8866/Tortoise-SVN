@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Dbt.h"
 #include "SVNStatusCache.h"
-#include "DirectoryWatcher.h"
+#include "directorywatcher.h"
 #include "SmartHandle.h"
 
 #include <list>
@@ -396,7 +396,7 @@ void CDirectoryWatcher::WorkerThread()
             {
                 if (!m_bRunning)
                     return;
-                if (watchInfoMap.empty())
+                if (watchInfoMap.size()==0)
                     continue;
 
                 // NOTE: the longer this code takes to execute until ReadDirectoryChangesW
@@ -413,7 +413,7 @@ void CDirectoryWatcher::WorkerThread()
                         // objects haven't been cleared, we can access them here.
                         if (InterlockedExchange(&m_bCleaned, FALSE))
                             continue;
-                        if (   (!pdi->m_hDir) || watchInfoMap.empty()
+                        if (   (!pdi->m_hDir) || (watchInfoMap.size()==0)
                             || (watchInfoMap.find(pdi->m_hDir) == watchInfoMap.end()))
                         {
                             continue;
@@ -435,7 +435,7 @@ void CDirectoryWatcher::WorkerThread()
 
                             SecureZeroMemory(buf, READ_DIR_CHANGE_BUFFER_SIZE*sizeof(TCHAR));
                             _tcsncpy_s(buf, pdi->m_DirPath, _countof(buf)-1);
-                            errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), pnotify->FileName, min(READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), int(pnotify->FileNameLength/sizeof(TCHAR))));
+                            errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), pnotify->FileName, min(READ_DIR_CHANGE_BUFFER_SIZE-pdi->m_DirPath.GetLength(), pnotify->FileNameLength/sizeof(TCHAR)));
                             if (err == STRUNCATE)
                             {
                                 continue;
@@ -487,7 +487,7 @@ void CDirectoryWatcher::WorkerThread()
                             &pdi->m_Overlapped,
                             NULL);  //no completion routine!
                     }
-                    if (!notifyPaths.empty())
+                    if (notifyPaths.size())
                     {
                         for (auto nit = notifyPaths.cbegin(); nit != notifyPaths.cend(); ++nit)
                         {
@@ -530,7 +530,7 @@ void CDirectoryWatcher::CloseWatchHandles()
 void CDirectoryWatcher::ClearInfoMap()
 {
     CloseWatchHandles();
-    if (!watchInfoMap.empty())
+    if (watchInfoMap.size() > 0)
     {
         AutoLocker lock(m_critSec);
         for (TInfoMap::iterator I = watchInfoMap.begin(); I != watchInfoMap.end(); ++I)

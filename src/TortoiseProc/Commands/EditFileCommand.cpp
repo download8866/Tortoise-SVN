@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "EditFileCommand.h"
 #include "TempFile.h"
 #include "SVN.h"
@@ -103,7 +103,7 @@ bool EditFileCommand::AutoLock()
 {
     // needs lock?
 
-    SVNProperties properties (path, SVNRev::REV_WC, false, false);
+    SVNProperties properties (path, SVNRev::REV_WC, false);
     if (!properties.HasProperty (SVN_PROP_NEEDS_LOCK))
         return true;
 

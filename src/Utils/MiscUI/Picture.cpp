@@ -18,12 +18,11 @@
 
 #include "stdafx.h"
 #include <olectl.h>
-#include <Shlwapi.h>
+#include "shlwapi.h"
 #include <locale>
 #include <algorithm>
 #include "Picture.h"
 #include "SmartHandle.h"
-#include <atlbase.h>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "gdiplus.lib")
@@ -31,23 +30,21 @@
 #define HIMETRIC_INCH 2540
 
 CPicture::CPicture()
-    : m_IPicture(NULL)
-    , m_Height(0)
-    , m_Weight(0)
-    , m_Width(0)
-    , pBitmap(NULL)
-    , bHaveGDIPlus(false)
-    , m_ip(InterpolationModeDefault)
-    , hIcons(NULL)
-    , lpIcons(NULL)
-    , nCurrentIcon(0)
-    , bIsIcon(false)
-    , bIsTiff(false)
-    , m_nSize(0)
-    , m_ColorDepth(0)
-    , hGlobal(NULL)
-    , gdiplusToken(NULL)
 {
+    m_IPicture = NULL;
+    m_Height = 0;
+    m_Weight = 0;
+    m_Width = 0;
+    pBitmap = NULL;
+    bHaveGDIPlus = false;
+    m_ip = InterpolationModeDefault;
+    hIcons = NULL;
+    lpIcons = NULL;
+    nCurrentIcon = 0;
+    bIsIcon = false;
+    bIsTiff = false;
+    m_nSize = 0;
+    m_ColorDepth = 0;
 }
 
 CPicture::~CPicture()
@@ -127,7 +124,7 @@ bool CPicture::Load(tstring sFilePathName)
         return true;
 
     // Load & initialize the GDI+ library if available
-    HMODULE hGdiPlusLib = AtlLoadSystemLibraryUsingFullPath(_T("gdiplus.dll"));
+    HMODULE hGdiPlusLib = LoadLibrary(_T("gdiplus.dll"));
     if (hGdiPlusLib && GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) == Ok)
     {
         bHaveGDIPlus = true;
@@ -267,12 +264,12 @@ bool CPicture::Load(tstring sFilePathName)
             typedef unsigned    (__stdcall *FreeImage_GetHeight_t)(void* dib);
             typedef void        (__stdcall *FreeImage_ConvertToRawBits_t)(BYTE *bits, void *dib, int pitch, unsigned bpp, unsigned red_mask, unsigned green_mask, unsigned blue_mask, BOOL topdown);
 
-            //FreeImage_GetVersion_t FreeImage_GetVersion = NULL;
+            FreeImage_GetVersion_t FreeImage_GetVersion = NULL;
             FreeImage_GetFileType_t FreeImage_GetFileType = NULL;
             FreeImage_GetFIFFromFilename_t FreeImage_GetFIFFromFilename = NULL;
             FreeImage_Load_t FreeImage_Load = NULL;
             FreeImage_Unload_t FreeImage_Unload = NULL;
-            //FreeImage_GetColorType_t FreeImage_GetColorType = NULL;
+            FreeImage_GetColorType_t FreeImage_GetColorType = NULL;
             FreeImage_GetWidth_t FreeImage_GetWidth = NULL;
             FreeImage_GetHeight_t FreeImage_GetHeight = NULL;
             FreeImage_ConvertToRawBits_t  FreeImage_ConvertToRawBits = NULL;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2013 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "Command.h"
 #include "SVN.h"
 #include "ProgressDlg.h"
-#include "../../TSVNCache/CacheInterface.h"
+#include "..\..\TSVNCache\CacheInterface.h"
 
 /**
  * \ingroup TortoiseProc
@@ -32,7 +32,7 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override
+    virtual bool            Execute()
     {
         bool bUpgrade = false;
         if (CTaskDialog::IsSupported())
@@ -87,7 +87,7 @@ public:
         const CString& /*changelistname*/,
         const CString& /*propertyName*/,
         svn_merge_range_t * /*range*/,
-        svn_error_t * /*err*/, apr_pool_t * /*pool*/) override
+        svn_error_t * /*err*/, apr_pool_t * /*pool*/)
     {
         progress.FormatPathLine(2, IDS_PROC_UPGRADE_INFO, path.GetWinPath());
         return TRUE;

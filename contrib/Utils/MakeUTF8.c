@@ -1,7 +1,7 @@
 ﻿/******************************************************************************
     MakeUTF8.c
 
-Copyright (C) 2002 - 2006, 2013 Simon Large
+Copyright (C) 2002 - 2006 Simon Large
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -41,10 +41,6 @@ changed in other environments.
 No special compiler options were used. CL MakeUTF8.c works OK.
 ******************************************************************************/
 
-#ifndef _CRT_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS 1
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -58,16 +54,16 @@ No special compiler options were used. CL MakeUTF8.c works OK.
 #define FIXED_TAG   128     // XML tag has been added or fixed
 
 char *help =
-    "MakeUTF8     Version 1.1\n"
-    "Add UTF-8 byte-order-mark and XML-tag to start of text file.\n\n"
-    "Use: MakeUTF8 [ -b ] [ -x ] file [ file ... ]\n"
-    "     -b option adds/corrects BOM in file if not already present\n"
-    "     -x option adds/corrects XML tag if not already present\n"
-    "     With no options, just report current state\n\n";
+"MakeUTF8     Version 1.1\n"
+"Add UTF-8 byte-order-mark and XML-tag to start of text file.\n\n"
+"Use: MakeUTF8 [ -b ] [ -x ] file [ file ... ]\n"
+"     -b option adds/corrects BOM in file if not already present\n"
+"     -x option adds/corrects XML tag if not already present\n"
+"     With no options, just report current state\n\n";
 
 int ProcessFile(const char *FName, const char *TName, int Action);
 
-int main(int argc, char *argv[])
+main(int argc, char *argv[])
 {
     int n, Action = 0, Result = 0;
     char Path[_MAX_PATH], Temp[_MAX_PATH];
@@ -83,12 +79,12 @@ int main(int argc, char *argv[])
 
     for (n = 1; n < argc; n++)
     {
-        if (_stricmp(argv[n], "-b") == 0)
+        if (stricmp(argv[n], "-b") == 0)
         {
             Action |= ADD_BOM | DOUBLE_BOM;
             continue;
         }
-        if (_stricmp(argv[n], "-x") == 0)
+        if (stricmp(argv[n], "-x") == 0)
         {
             Action |= XML_TAG;
             continue;
@@ -102,22 +98,10 @@ int main(int argc, char *argv[])
             strcpy(Path, argv[n]);
             // Set FName to point to filename portion of path
             FName = strrchr(Path, '\\');
-            if (FName == NULL)
-            {
-                FName = strrchr(Path, '/');
-            }
-            if (FName == NULL)
-            {
-                FName = strrchr(Path, ':');
-            }
-            if (FName == NULL)
-            {
-                FName = Path;
-            }
-            else
-            {
-                ++FName;
-            }
+            if (FName == NULL) FName = strrchr(Path, '/');
+            if (FName == NULL) FName = strrchr(Path, ':');
+            if (FName == NULL) FName = Path;
+            else ++FName;
 
             // Process all matching files.
             do
@@ -130,59 +114,37 @@ int main(int argc, char *argv[])
                     // Create temp filename by replacing extension with $$$
                     strcpy(Temp, Path);
                     p = strrchr(Temp, '.');
-                    if (p != NULL)
-                    {
-                        *p = '\0';      // Trim off extension
-                    }
+                    if (p != NULL) *p = '\0';       // Trim off extension
                     strcat(Temp, ".$$$");
                     Result = ProcessFile(Path, Temp, Action);
-                    if (Result < 0)
-                    {
-                        break;          // Failed.
-                    }
+                    if (Result < 0) break;          // Failed.
                     // Show results of analysis / repair
                     if (Result & ADD_BOM)
                     {
                         if (Result & FIXED_BOM)
-                        {
                             p = "Added";
-                        }
                         else
-                        {
                             p = "None";
-                        }
                     }
                     else if (Result & DOUBLE_BOM)
                     {
                         if (Result & FIXED_BOM)
-                        {
                             p = "Fixed";
-                        }
                         else
-                        {
                             p = "Multi";
-                        }
                     }
                     else
-                    {
                         p = "OK";
-                    }
                     printf("%s\t", p);
                     if (Result & XML_TAG)
                     {
                         if (Result & FIXED_TAG)
-                        {
                             p = "Fixed";
-                        }
                         else
-                        {
                             p = "None";
-                        }
                     }
                     else
-                    {
                         p = "OK";
-                    }
                     printf("%s\t%s\n", p, FileInfo.name);
                 }
             }
@@ -206,17 +168,15 @@ int ProcessFile(const char *FName, const char *TName, int Action)
 {
     FILE *fp, *fpout;
     char Buffer[BUFSIZE + 1024];
-    size_t Len;
+    int Len;
     size_t NumRead;
     int Changed = 0, Checked = 0;
-    size_t UTFtaglen;
+    int UTFtaglen;
     char *TagStart, *TagStop;
     char *AfterBOM = Buffer;
 
     if ((fp = fopen(FName, "r")) == NULL)
-    {
         return -1;
-    }
 
     // Check if output file exists already
     if ((fpout = fopen(TName, "r")) != NULL) {
@@ -248,9 +208,7 @@ int ProcessFile(const char *FName, const char *TName, int Action)
                         Buffer[NumRead] = '\0';
                     }
                     else
-                    {
                         break;
-                    }
                 }
             }
             else
@@ -350,13 +308,9 @@ int ProcessFile(const char *FName, const char *TName, int Action)
         }
         // Add flags to indicate what we have actually fixed
         if (Changed & Action & (DOUBLE_BOM | ADD_BOM))
-        {
             Changed |= FIXED_BOM;
-        }
         if (Changed & Action & XML_TAG)
-        {
             Changed |= FIXED_TAG;
-        }
     }
 
     return Changed;

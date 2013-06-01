@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "LogCachePool.h"
 #include "LogCacheSettings.h"
-#include "Containers/CachedLogInfo.h"
+#include "./Containers/CachedLogInfo.h"
 #include "RepositoryInfo.h"
 
 #include "DirFileEnum.h"

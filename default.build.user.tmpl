@@ -19,10 +19,12 @@
   <!-- These two targets have to exist in doc.build.user                      -->
   <!-- ====================================================================== -->
 
-  <target name="VSNET" description="Checks if the env variables for VS2012 are set">
+  <target name="VSNET" description="Checks if the env variables for VS.NET2010 are set">
     <if test="${not environment::variable-exists('VCINSTALLDIR')}">
-      <fail>You must first call "%VS110COMNTOOLS%\vsvars32.bat"</fail>
+      <fail>You must first call "%VS100COMNTOOLS%\vsvars32.bat"</fail>
     </if>
+    <!-- Uncomment the line below to allow limited building using VC Express instead of VS.NET. -->
+    <!-- <property name="buildtool" value="vcexpress.exe" /> -->
 
     <!-- Uncomment and modify the path of the statement below if you're building
          a version of TSVN which uses a different working copy format than
@@ -44,7 +46,7 @@
         <!--
           TODO: change path value, if WIX is not defined
         -->
-        <variable name="WIX" value="C:\Program Files (x86)\WiX Toolset v3.7" />
+        <variable name="WIX" value="C:\WiX" />
       </setenv>
     </if>
     <if test="${file::exists(environment::get-variable('WIX') + '\bin\candle.exe')}">
@@ -70,7 +72,7 @@
           TODO: change path value, if neither TSVNTOOLS is defined
           nor have tools be copied directly below the TSVN root.
         -->
-        <variable name="TSVNTOOLS" value="D:\Development\SVN\TortoiseSVN\Tools" />
+        <variable name="TSVNTOOLS" value="C:\Tools" />
       </setenv>
     </if>
 
@@ -78,7 +80,7 @@
          zip all debug symbols. To do that, specify the path to
          7zip here -->
     <property name="sevenzip" value="c:\program files\7-zip\7z.exe" />
-
+    
     <!--
       Update environment & we are good to go.
     -->

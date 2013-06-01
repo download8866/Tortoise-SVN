@@ -42,6 +42,9 @@
     <ClCompile Include="PIDL.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PreserveChdir.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Utils\Registry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -63,7 +66,7 @@
     <ClCompile Include="..\Utils\StringUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\SVNAdminDir.cpp">
+    <ClCompile Include="..\Svn\SVNAdminDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNFolderStatus.cpp">
@@ -72,7 +75,7 @@
     <ClCompile Include="..\SVN\SVNGlobal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\SVNHelpers.cpp">
+    <ClCompile Include="..\Svn\SVNHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNProperties.cpp">
@@ -96,7 +99,7 @@
     <ClCompile Include="TortoiseSVN.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\SVN\TSVNPath.cpp">
+    <ClCompile Include="..\Svn\TSVNPath.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\UnicodeUtils.cpp">
@@ -115,12 +118,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNConfig.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\PreserveChdir.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ext\xpsupportvc11upd2\xpatl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -274,6 +271,9 @@
     <ClInclude Include="PIDL.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="PreserveChdir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\ProgressDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -301,7 +301,7 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\SVNAdminDir.h">
+    <ClInclude Include="..\Svn\SVNAdminDir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SVN\SVNFolderStatus.h">
@@ -310,7 +310,7 @@
     <ClInclude Include="..\SVN\SVNGlobal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\SVNHelpers.h">
+    <ClInclude Include="..\Svn\SVNHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SVN\SVNProperties.h">
@@ -331,7 +331,7 @@
     <ClInclude Include="..\Utils\SysInfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\SVN\TSVNPath.h">
+    <ClInclude Include="..\Svn\TSVNPath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\UnicodeUtils.h">
@@ -349,21 +349,10 @@
     <ClInclude Include="..\SVN\SVNConfig.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\PreserveChdir.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="..\..\ext\xpsupportvc11upd2\xpatlwrap.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
-    <MASM Include="..\..\ext\xpsupportvc11upd2\xpatlwrap64.asm">
-      <Filter>Source Files</Filter>
-    </MASM>
   </ItemGroup>
 </Project>

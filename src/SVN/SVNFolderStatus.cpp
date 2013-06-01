@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "ShellExt.h"
 #include "SVNFolderStatus.h"
 #include "UnicodeUtils.h"
-#include "../TSVNCache/CacheInterface.h"
+#include "..\TSVNCache\CacheInterface.h"
 #include "SVNConfig.h"
 #include "SVNGlobal.h"
 #include "SmartHandle.h"
@@ -86,7 +86,6 @@ SVNFolderStatus::SVNFolderStatus(void)
     : m_TimeStamp(0)
     , m_nCounter(0)
     , dirstatus(NULL)
-    , m_mostRecentStatus(nullptr)
 {
     emptyString[0] = 0;
     invalidstatus.author = emptyString;
@@ -134,7 +133,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
     pool = svn_pool_create (rootpool);              // create the memory pool
 
     ClearCache();
-    svn_error_clear(svn_client_create_context2(&localctx, NULL, pool));
+    svn_error_clear(svn_client_create_context(&localctx, pool));
     // set up the configuration
     // Note: I know this is an 'expensive' call, but without this, ignores
     // done in the global ignore pattern won't show up.
@@ -395,7 +394,16 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, con
 {
     SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
     FileStatusMap * cache = &Stat->m_cache;
-    FileStatusCacheEntry s;
+    FileStatusCacheEntry s = {  svn_wc_status_none,          // state
+                                "",                          // author
+                                "",                          // url
+                                "",                          // owner
+                                false,                       // needslock
+                                -1,                          // rev
+                                SVNFOLDERSTATUS_CACHETIMES,  // askedcounter
+                                NULL,                        // lock
+                                false,                       // tree_conflict;
+                             };
     if (status)
     {
         s.author = Stat->authors.GetString(status->changed_author);

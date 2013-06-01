@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2012 - TortoiseSVN
+// Copyright (C) 2003-2008,2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,6 +27,25 @@
 
 #include "ProfilingInfo.h"
 
+#ifdef _DEBUG
+
+//////////////////////////////////////////////////////////////////////
+/// construction / destruction
+//////////////////////////////////////////////////////////////////////
+
+CRecordProfileEvent::CRecordProfileEvent (CProfilingRecord* aRecord)
+    : record (aRecord)
+    , start (__rdtsc())
+{
+}
+
+CRecordProfileEvent::~CRecordProfileEvent()
+{
+    if (record)
+        record->Add (__rdtsc() - start);
+}
+
+#endif
 
 //////////////////////////////////////////////////////////////////////
 // construction / destruction
@@ -39,34 +58,25 @@ CProfilingRecord::CProfilingRecord ( const char* name
     , file (file)
     , line (line)
     , count (0)
+    , sum (0)
+    , minValue (ULLONG_MAX)
+    , maxValue (0)
 {
-    Reset();
 }
 
 //////////////////////////////////////////////////////////////////////
 // record values
 //////////////////////////////////////////////////////////////////////
 
-void CProfilingRecord::Add (unsigned __int64 valueRdtsc
-    , unsigned __int64 valueTime
-    , unsigned __int64 valueUser
-    , unsigned __int64 valueKernel
-)
+void CProfilingRecord::Add (unsigned __int64 value)
 {
-    if (!count++)
-    {
-        m_rdtsc.Init(valueRdtsc);
-        m_user.Init(valueUser);
-        m_kernel.Init(valueKernel);
-        m_wall.Init(valueTime);
-    }
-    else
-    {
-        m_rdtsc.Add(valueRdtsc);
-        m_user.Add(valueUser);
-        m_kernel.Add(valueKernel);
-        m_wall.Add(valueTime);
-    }
+    ++count;
+    sum += value;
+
+    if (value < minValue)
+        minValue = value;
+    if (value > maxValue)
+        maxValue = value;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -76,11 +86,10 @@ void CProfilingRecord::Add (unsigned __int64 valueRdtsc
 void CProfilingRecord::Reset()
 {
     count = 0;
-    // we don't need to init other then count, to be save we do
-    m_rdtsc.Init();
-    m_user.Init();
-    m_kernel.Init();
-    m_wall.Init();
+    sum = 0;
+
+    minValue = LLONG_MAX;
+    maxValue = 0;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -113,7 +122,7 @@ CProfilingInfo* CProfilingInfo::GetInstance()
 
 void CProfilingInfo::DumpReport()
 {
-    if (!records.empty())
+    if (records.size() > 0)
     {
         // write profile to file
 
@@ -163,62 +172,36 @@ std::string CProfilingInfo::GetReport() const
     enum { LINE_LENGTH = 600 };
 
     char lineBuffer [LINE_LENGTH];
+    const char * const format ="%10s%17s%17s%17s%17s%6s %s\t%s\n";
+
     std::string result;
     result.reserve (LINE_LENGTH * records.size());
-
-    const char * const format ="%15s%17s%17s%17s%17s\n";
+    sprintf_s ( lineBuffer, format
+              , "count", "sum", "avg", "min", "max"
+              , "line", "name", "file");
+    result += lineBuffer;
 
     for ( TRecords::const_iterator iter = records.begin(), end = records.end()
         ; iter != end
         ; ++iter)
     {
-        size_t nCount = (*iter)->GetCount();
-        sprintf_s ( lineBuffer, "%7sx %s\n%s:%s\n"
-                  , IntToStr (nCount).c_str()
+        unsigned __int64 minValue = (*iter)->GetMinValue();
+        if (minValue == ULLONG_MAX)
+            minValue = 0;
+
+        sprintf_s ( lineBuffer, format
+
+                  , IntToStr ((*iter)->GetCount()).c_str()
+                  , IntToStr ((*iter)->GetSum()).c_str()
+                  , IntToStr ((*iter)->GetSum()/(*iter)->GetCount()).c_str()
+                  , IntToStr (minValue).c_str()
+                  , IntToStr ((*iter)->GetMaxValue()).c_str()
+
+                  , IntToStr ((*iter)->GetLine()).c_str()
                   , (*iter)->GetName()
-                  , (*iter)->GetFile()
-                  , IntToStr ((*iter)->GetLine()).c_str());
-        result += lineBuffer;
-        if (nCount==0)
-            continue;
+                  , (*iter)->GetFile());
 
-        sprintf_s ( lineBuffer, format
-                  , "type", "sum", "avg", "min", "max");
         result += lineBuffer;
-
-        sprintf_s ( lineBuffer, format
-                  , "CPU Ticks"
-                  , IntToStr ((*iter)->Get().sum).c_str()
-                  , IntToStr ((*iter)->Get().sum/nCount).c_str()
-                  , IntToStr ((*iter)->Get().minValue).c_str()
-                  , IntToStr ((*iter)->Get().maxValue).c_str());
-        result += lineBuffer;
-
-        sprintf_s ( lineBuffer, format
-                  , "UserMode[us]"
-                  , IntToStr ((*iter)->GetU().sum/10).c_str()
-                  , IntToStr ((*iter)->GetU().sum/10/nCount).c_str()
-                  , IntToStr ((*iter)->GetU().minValue/10).c_str()
-                  , IntToStr ((*iter)->GetU().maxValue/10).c_str());
-        result += lineBuffer;
-
-        sprintf_s ( lineBuffer, format
-                  , "KernelMode[us]"
-                  , IntToStr ((*iter)->GetK().sum/10).c_str()
-                  , IntToStr ((*iter)->GetK().sum/10/nCount).c_str()
-                  , IntToStr ((*iter)->GetK().minValue/10).c_str()
-                  , IntToStr ((*iter)->GetK().maxValue/10).c_str());
-        result += lineBuffer;
-
-        sprintf_s ( lineBuffer, format
-                  , "WallTime[us]"
-                  , IntToStr ((*iter)->GetW().sum/10).c_str()
-                  , IntToStr ((*iter)->GetW().sum/10/nCount).c_str()
-                  , IntToStr ((*iter)->GetW().minValue/10).c_str()
-                  , IntToStr ((*iter)->GetW().maxValue/10).c_str());
-        result += lineBuffer;
-
-        result += "\n";
     }
 
     // now print the processor speed read from the registry: the user may want to
@@ -226,15 +209,15 @@ std::string CProfilingInfo::GetReport() const
     HKEY hKey;
     // open the key where the proc speed is hidden:
     long lError = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-                               L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
-                               0,
-                               KEY_READ,
-                               &hKey);
+                                L"HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+                                0,
+                                KEY_READ,
+                                &hKey);
 
     if(lError == ERROR_SUCCESS)
     {
         // query the key:
-        DWORD BufSize = MAX_PATH;
+        DWORD BufSize = _MAX_PATH;
         DWORD dwMHz = 0;
         RegQueryValueEx(hKey, L"~MHz", NULL, NULL, (LPBYTE) &dwMHz, &BufSize);
         RegCloseKey(hKey);
@@ -251,9 +234,9 @@ std::string CProfilingInfo::GetReport() const
 // add a new record
 //////////////////////////////////////////////////////////////////////
 
-CProfilingRecord* CProfilingInfo::Create ( const char* name,
-                                           const char* file,
-                                           int line)
+CProfilingRecord* CProfilingInfo::Create ( const char* name
+                                         , const char* file
+                                         , int line)
 {
     CProfilingRecord* record = new CProfilingRecord (name, file, line);
     records.push_back (record);
@@ -261,5 +244,3 @@ CProfilingRecord* CProfilingInfo::Create ( const char* name,
     return record;
 }
 
-
-FILETIME CRecordProfileEvent::ftTemp;

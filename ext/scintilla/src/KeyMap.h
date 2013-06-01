@@ -32,7 +32,9 @@ public:
 /**
  */
 class KeyMap {
-	std::vector<KeyToCommand> kmap;
+	KeyToCommand *kmap;
+	int len;
+	int alloc;
 	static const KeyToCommand MapDefault[];
 
 public:

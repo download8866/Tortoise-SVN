@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +22,8 @@
 #include "SetOverlayIcons.h"
 #include "Globals.h"
 #include "ShellUpdater.h"
-#include "../TSVNCache/CacheInterface.h"
-#include "SetOverlayPage.h"
+#include "..\TSVNCache\CacheInterface.h"
+#include ".\setoverlaypage.h"
 
 
 IMPLEMENT_DYNAMIC(CSetOverlayPage, ISettingsPropPage)
@@ -39,7 +39,6 @@ CSetOverlayPage::CSetOverlayPage()
     , m_sExcludePaths(_T(""))
     , m_sIncludePaths(_T(""))
     , m_bUnversionedAsModified(FALSE)
-    , m_bIgnoreOnCommitIgnored(TRUE)
     , m_bFloppy(FALSE)
     , m_bShowExcludedAsNormal(TRUE)
 {
@@ -55,7 +54,6 @@ CSetOverlayPage::CSetOverlayPage()
     m_regIncludePaths = CRegString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
     m_regCacheType = CRegDWORD(_T("Software\\TortoiseSVN\\CacheType"), GetSystemMetrics(SM_REMOTESESSION) ? 2 : 1);
     m_regUnversionedAsModified = CRegDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
-    m_regIgnoreOnCommitIgnored = CRegDWORD(L"Software\\TortoiseSVN\\IgnoreOnCommitIgnored", TRUE);
     m_regShowExcludedAsNormal = CRegDWORD(_T("Software\\TortoiseSVN\\ShowExcludedFoldersAsNormal"), FALSE);
 
     m_bOnlyExplorer = m_regOnlyExplorer;
@@ -67,7 +65,6 @@ CSetOverlayPage::CSetOverlayPage()
     m_bRAM = m_regDriveMaskRAM;
     m_bUnknown = m_regDriveMaskUnknown;
     m_bUnversionedAsModified = m_regUnversionedAsModified;
-    m_bIgnoreOnCommitIgnored = m_regIgnoreOnCommitIgnored;
     m_bShowExcludedAsNormal = m_regShowExcludedAsNormal;
     m_sExcludePaths = m_regExcludePaths;
     m_sExcludePaths.Replace(_T("\n"), _T("\r\n"));
@@ -93,7 +90,6 @@ void CSetOverlayPage::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_EXCLUDEPATHS, m_sExcludePaths);
     DDX_Text(pDX, IDC_INCLUDEPATHS, m_sIncludePaths);
     DDX_Check(pDX, IDC_UNVERSIONEDASMODIFIED, m_bUnversionedAsModified);
-    DDX_Check(pDX, IDC_IGNOREONCOMMITIGNORE, m_bIgnoreOnCommitIgnored);
     DDX_Check(pDX, IDC_FLOPPY, m_bFloppy);
     DDX_Check(pDX, IDC_SHOWEXCLUDEDASNORMAL, m_bShowExcludedAsNormal);
 }
@@ -113,7 +109,6 @@ BEGIN_MESSAGE_MAP(CSetOverlayPage, ISettingsPropPage)
     ON_BN_CLICKED(IDC_CACHESHELL, &CSetOverlayPage::OnChange)
     ON_BN_CLICKED(IDC_CACHENONE, &CSetOverlayPage::OnChange)
     ON_BN_CLICKED(IDC_UNVERSIONEDASMODIFIED, &CSetOverlayPage::OnChange)
-    ON_BN_CLICKED(IDC_IGNOREONCOMMITIGNORE, &CSetOverlayPage::OnChange)
     ON_BN_CLICKED(IDC_SHOWEXCLUDEDASNORMAL, &CSetOverlayPage::OnChange)
 END_MESSAGE_MAP()
 
@@ -230,9 +225,6 @@ BOOL CSetOverlayPage::OnApply()
     if (DWORD(m_regUnversionedAsModified) != DWORD(m_bUnversionedAsModified))
         m_restart = Restart_Cache;
     Store (m_bUnversionedAsModified, m_regUnversionedAsModified);
-    if (DWORD(m_regIgnoreOnCommitIgnored) != DWORD(m_bIgnoreOnCommitIgnored))
-        m_restart = Restart_Cache;
-    Store (m_bIgnoreOnCommitIgnored, m_regIgnoreOnCommitIgnored);
     if (DWORD(m_regShowExcludedAsNormal) != DWORD(m_bShowExcludedAsNormal))
         m_restart = Restart_Cache;
     Store (m_bShowExcludedAsNormal, m_regShowExcludedAsNormal);

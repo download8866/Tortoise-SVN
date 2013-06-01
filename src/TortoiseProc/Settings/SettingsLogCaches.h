@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2011-2012 - TortoiseSVN
+// Copyright (C) 2007-2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 #include "ILogReceiver.h"
 
 class CProgressDlg;
@@ -38,7 +38,7 @@ public:
     CSettingsLogCaches();
     virtual ~CSettingsLogCaches();
 
-    UINT GetIconID() override {return IDI_CACHELIST;}
+    UINT GetIconID() {return IDI_CACHELIST;}
 
     // update cache list
 
@@ -92,5 +92,5 @@ private:
                     , svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps
-                    , const MergeInfo* mergeInfo) override;
+                    , const MergeInfo* mergeInfo);
 };

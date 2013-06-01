@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,15 +38,15 @@
 #include "svn_dso.h"
 #include <openssl/ssl.h>
 #include <openssl/err.h>
-#include "Commands/Command.h"
-#include "../version.h"
+#include "Commands\Command.h"
+#include "..\version.h"
 #include "JumpListHelpers.h"
 #include "CmdUrlParser.h"
+#include "auto_buffer.h"
 #include "Libraries.h"
 #include "TempFile.h"
 #include "SmartHandle.h"
 #include "TaskbarUUID.h"
-#include "CreateProcessHelper.h"
 #include "SVNConfig.h"
 
 #define STRUCT_IOVEC_DEFINED
@@ -87,7 +87,7 @@ CTortoiseProcApp::CTortoiseProcApp() : hWndExplorer(NULL)
 CTortoiseProcApp::~CTortoiseProcApp()
 {
     // global application exit cleanup (after all SSL activity is shutdown)
-    // we have to clean up SSL ourselves, since serf doesn't do that (can't do it)
+    // we have to clean up SSL ourselves, since neon doesn't do that (can't do it)
     // because those cleanup functions work globally per process.
     ERR_free_strings();
     EVP_cleanup();
@@ -284,39 +284,6 @@ BOOL CTortoiseProcApp::InitInstance()
     }
     // load the configuration now
     SVNConfig::Instance();
-    {
-        if (SVNConfig::Instance().GetError())
-        {
-            CString msg;
-            CString temp;
-            svn_error_t * ErrPtr = SVNConfig::Instance().GetError();
-            msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
-            while (ErrPtr->child)
-            {
-                ErrPtr = ErrPtr->child;
-                msg += _T("\n");
-                msg += CUnicodeUtils::GetUnicode(ErrPtr->message);
-            }
-            if (!temp.IsEmpty())
-            {
-                msg += _T("\n") + temp;
-            }
-
-            ::MessageBox(hWndExplorer, msg, _T("TortoiseSVN"), MB_ICONERROR);
-            // Normally, we give-up and exit at this point, but there is a trap here
-            // in that the user might need to use the settings dialog to edit the config file.
-            if (CString(parser.GetVal(_T("command"))).Compare(_T("settings"))==0)
-            {
-                // just open the config file
-                TCHAR buf2[MAX_PATH];
-                SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf2);
-                CString path = buf2;
-                path += _T("\\Subversion\\config");
-                CAppUtils::StartTextViewer(path);
-                return FALSE;
-            }
-        }
-    }
 
     CTSVNPath cmdLinePath;
     CTSVNPathList pathList;
@@ -427,10 +394,10 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
-            if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
+            auto_buffer<TCHAR> originalCurrentDirectory(len);
+            if (GetCurrentDirectory(len, originalCurrentDirectory))
             {
-                sOrigCWD = originalCurrentDirectory.get();
+                sOrigCWD = originalCurrentDirectory;
                 sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
             }
         }
@@ -447,6 +414,25 @@ BOOL CTortoiseProcApp::InitInstance()
     sasl_set_path(SASL_PATH_TYPE_PLUGIN, (LPSTR)(LPCSTR)CUnicodeUtils::GetUTF8(CPathUtils::GetAppDirectory().TrimRight('\\')));
 
     CAutoGeneralHandle TSVNMutex = ::CreateMutex(NULL, FALSE, _T("TortoiseProc.exe"));
+    {
+        CString err = SVN::CheckConfigFile();
+        if (!err.IsEmpty())
+        {
+            ::MessageBox(hWndExplorer, err, _T("TortoiseSVN"), MB_ICONERROR);
+            // Normally, we give-up and exit at this point, but there is a trap here
+            // in that the user might need to use the settings dialog to edit the config file.
+            if (CString(parser.GetVal(_T("command"))).Compare(_T("settings"))==0)
+            {
+                // just open the config file
+                TCHAR buf2[MAX_PATH];
+                SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf2);
+                CString path = buf2;
+                path += _T("\\Subversion\\config");
+                CAppUtils::StartTextViewer(path);
+                return FALSE;
+            }
+        }
+    }
 
     // execute the requested command
     CommandServer server;
@@ -481,24 +467,13 @@ void CTortoiseProcApp::CheckUpgrade()
     // we're starting the first time with a new version!
 
     LONG lVersion = 0;
-    int pos = sVersion.Find('.');
+    int pos = sVersion.Find(',');
     if (pos > 0)
     {
         lVersion = (_ttol(sVersion.Left(pos))<<24);
         lVersion |= (_ttol(sVersion.Mid(pos+1))<<16);
-        pos = sVersion.Find('.', pos+1);
+        pos = sVersion.Find(',', pos+1);
         lVersion |= (_ttol(sVersion.Mid(pos+1))<<8);
-    }
-    else
-    {
-        pos = sVersion.Find(',');
-        if (pos > 0)
-        {
-            lVersion = (_ttol(sVersion.Left(pos))<<24);
-            lVersion |= (_ttol(sVersion.Mid(pos+1))<<16);
-            pos = sVersion.Find(',', pos+1);
-            lVersion |= (_ttol(sVersion.Mid(pos+1))<<8);
-        }
     }
 
     CRegDWORD regval = CRegDWORD(_T("Software\\TortoiseSVN\\DontConvertBase"), 999);
@@ -666,6 +641,7 @@ void CTortoiseProcApp::CheckForNewerVersion()
 
     TCHAR com[MAX_PATH+100];
     GetModuleFileName(NULL, com, MAX_PATH);
+    _tcscat_s(com, _T(" /command:updatecheck"));
 
-    CCreateProcessHelper::CreateProcessDetached(com, L" /command:updatecheck");
+    CAppUtils::LaunchApplication(com, 0, false);
 }

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2013 - TortoiseSVN
+// Copyright (C) 2006-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,8 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "resource.h"
+#include "StdAfx.h"
+#include "Resource.h"
 #include "AppUtils.h"
 #include "IconBitmapUtils.h"
 
@@ -72,7 +72,6 @@ void CRightView::UseBothLeftFirst()
         }
         else
         {
-            SetModified();
             line.state = DIFFSTATE_THEIRSADDED;
         }
         InsertViewData(viewLine, line);
@@ -95,7 +94,8 @@ void CRightView::UseBothLeftFirst()
     ClearSelection();
     SetupAllViewSelection(nFirstViewLine, 2*nLastViewLine - nFirstViewLine - nRemovedLines + 1);
     BuildAllScreen2ViewVector();
-    m_pwndLeft->Invalidate();
+    m_pwndLeft->SetModified();
+    SetModified();
     RefreshViews();
 }
 
@@ -136,7 +136,6 @@ void CRightView::UseBothRightFirst()
         }
         else
         {
-            SetModified();
             line.state = DIFFSTATE_THEIRSADDED;
         }
         InsertViewData(viewindex++, line);
@@ -160,7 +159,8 @@ void CRightView::UseBothRightFirst()
     ClearSelection();
     SetupAllViewSelection(nFirstViewLine, 2*nLastViewLine - nFirstViewLine - nRemovedLines + 1);
     BuildAllScreen2ViewVector();
-    m_pwndLeft->Invalidate();
+    m_pwndLeft->SetModified();
+    SetModified();
     RefreshViews();
 }
 
@@ -184,7 +184,6 @@ void CRightView::UseLeftFile()
 
     if (!IsWritable())
         return;
-    ClearSelection();
     return UseBlock(nFirstViewLine, nLastViewLine);
 }
 
@@ -207,23 +206,12 @@ void CRightView::AddContextItems(CIconMenu& popup, DiffStates state)
     else
     {
         if (bShow)
-        {
-            popup.AppendMenuIcon(POPUPCOMMAND_USELEFTBLOCK, IDS_VIEWCONTEXTMENU_USEOTHERBLOCK);
-            popup.AppendMenuIcon(POPUPCOMMAND_USEBOTHRIGHTFIRST, IDS_VIEWCONTEXTMENU_USEBOTHTHISFIRST);
-            popup.AppendMenuIcon(POPUPCOMMAND_USEBOTHLEFTFIRST, IDS_VIEWCONTEXTMENU_USEBOTHTHISLAST);
-            if (IsLeftViewGood() && !m_pwndLeft->IsReadonly())
-            {
-                popup.AppendMenu(MF_SEPARATOR, NULL);
-                popup.AppendMenuIcon(POPUPCOMMAND_PREPENDFROMRIGHT, IDS_VIEWCONTEXTMENU_PREPENDTHIS);
-                popup.AppendMenuIcon(POPUPCOMMAND_REPLACEBYRIGHT, IDS_VIEWCONTEXTMENU_USETHIS);
-                popup.AppendMenuIcon(POPUPCOMMAND_APPENDFROMRIGHT, IDS_VIEWCONTEXTMENU_APPENDTHIS);
-            }
-            popup.AppendMenu(MF_SEPARATOR, NULL);
-        }
+            popup.AppendMenuIcon(POPUPCOMMAND_USELEFTBLOCK, IDS_VIEWCONTEXTMENU_USEOTHERBLOCK, GetIconForCommand(ID_EDIT_USELEFTBLOCK));
         popup.AppendMenuIcon(POPUPCOMMAND_USELEFTFILE, IDS_VIEWCONTEXTMENU_USEOTHERFILE);
-        if (IsLeftViewGood() && !m_pwndLeft->IsReadonly())
+        if (bShow)
         {
-            popup.AppendMenuIcon(POPUPCOMMAND_USERIGHTFILE, IDS_VIEWCONTEXTMENU_USETHISFILE);
+            popup.AppendMenuIcon(POPUPCOMMAND_USEBOTHRIGHTFIRST, IDS_VIEWCONTEXTMENU_USEBOTHTHISFIRST, GetIconForCommand(ID_EDIT_USEMINETHENTHEIRBLOCK));
+            popup.AppendMenuIcon(POPUPCOMMAND_USEBOTHLEFTFIRST, IDS_VIEWCONTEXTMENU_USEBOTHTHISLAST, GetIconForCommand(ID_EDIT_USETHEIRTHENMYBLOCK));
         }
     }
 
@@ -242,50 +230,35 @@ void CRightView::UseBlock(int nFirstViewLine, int nLastViewLine)
     for (int viewLine = nFirstViewLine; viewLine <= nLastViewLine; viewLine++)
     {
         viewdata line = m_pwndLeft->GetViewData(viewLine);
-        if ((line.ending != EOL_NOENDING)||(viewLine < (GetViewCount()-1)))
-            line.ending = lineendings;
+        line.ending = lineendings;
         switch (line.state)
         {
         case DIFFSTATE_CONFLICTEMPTY:
         case DIFFSTATE_UNKNOWN:
-            line.state = DIFFSTATE_EMPTY;
         case DIFFSTATE_EMPTY:
+            line.state = DIFFSTATE_EMPTY;
             break;
         case DIFFSTATE_ADDED:
         case DIFFSTATE_MOVED_TO:
+        case DIFFSTATE_MOVED_FROM:
         case DIFFSTATE_CONFLICTADDED:
         case DIFFSTATE_CONFLICTED:
         case DIFFSTATE_CONFLICTED_IGNORED:
         case DIFFSTATE_IDENTICALADDED:
+        case DIFFSTATE_NORMAL:
         case DIFFSTATE_THEIRSADDED:
         case DIFFSTATE_YOURSADDED:
-        case DIFFSTATE_MOVED_FROM:
+            break;
         case DIFFSTATE_IDENTICALREMOVED:
         case DIFFSTATE_REMOVED:
         case DIFFSTATE_THEIRSREMOVED:
         case DIFFSTATE_YOURSREMOVED:
-            m_pwndLeft->SetViewState(viewLine, DIFFSTATE_NORMAL);
-            line.state = DIFFSTATE_NORMAL;
-        case DIFFSTATE_NORMAL:
-            SetModified();
+            line.state = DIFFSTATE_ADDED;
             break;
         default:
             break;
         }
         SetViewData(viewLine, line);
-    }
-    // make sure previous (non empty) line have EOL set
-    for (int nCheckViewLine = nFirstViewLine-1; nCheckViewLine > 0; nCheckViewLine--)
-    {
-        SetModified();
-        if (!IsViewLineEmpty(nCheckViewLine))
-        {
-            if (GetViewLineEnding(nCheckViewLine) == EOL_NOENDING)
-            {
-                SetViewLineEnding(nCheckViewLine, lineendings);
-            }
-            break;
-        }
     }
     SaveUndoStep();
 
@@ -303,6 +276,7 @@ void CRightView::UseBlock(int nFirstViewLine, int nLastViewLine)
         SetupAllViewSelection(nFirstViewLine, nLastViewLine - nRemovedLines);
     }
     BuildAllScreen2ViewVector();
-    m_pwndLeft->Invalidate();
+    m_pwndLeft->SetModified();
+    SetModified();
     RefreshViews();
 }

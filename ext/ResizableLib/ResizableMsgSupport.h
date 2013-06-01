@@ -31,7 +31,7 @@ typedef struct tagRESIZEPROPERTIES
     BOOL bCachedNeedsRefresh;
 
     // initialize with valid data
-    tagRESIZEPROPERTIES() : bAskClipping(TRUE), bAskRefresh(TRUE), bCachedLikesClipping(FALSE), bCachedNeedsRefresh(TRUE) {}
+    tagRESIZEPROPERTIES() : bAskClipping(TRUE), bAskRefresh(TRUE) {}
 
 } RESIZEPROPERTIES, *PRESIZEPROPERTIES, *LPRESIZEPROPERTIES;
 

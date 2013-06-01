@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,14 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #pragma warning(push)
-#include "SVNDiff.h"
+#include "svndiff.h"
 #include "svn_types.h"
 #pragma warning(pop)
 
 #include "resource.h"
-#include "../TortoiseShell/resource.h"
+#include "..\TortoiseShell\resource.h"
 #include "AppUtils.h"
 #include "TempFile.h"
 #include "SVNStatus.h"
@@ -98,20 +98,6 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
             if (s)
                 baseRev = s->revision >= 0 ? s->revision : s->changed_rev;
         }
-        // If necessary, convert the line-endings on the file before diffing
-        if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\ConvertBase"), TRUE))
-        {
-            CTSVNPath temporaryFile = CTempFiles::Instance().GetTempFilePath(m_bRemoveTempFiles, filePath, SVNRev::REV_BASE);
-            if (!m_pSVN->Export(filePath, temporaryFile, SVNRev(SVNRev::REV_BASE), SVNRev(SVNRev::REV_BASE)))
-            {
-                temporaryFile.Reset();
-            }
-            else
-            {
-                basePath = temporaryFile;
-                SetFileAttributes(basePath.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-            }
-        }
     }
 
     if (remotetext_status > svn_wc_status_normal)
@@ -164,7 +150,7 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
         flags.bAlternativeTool = m_bAlternativeTool;
         flags.bReadOnly = true;
         return !!CAppUtils::StartExtMerge(flags,
-            basePath, remotePath, filePath, CTSVNPath(), false, n2, n3, n1);
+            basePath, remotePath, filePath, CTSVNPath(), n2, n3, n1);
     }
 }
 
@@ -263,17 +249,9 @@ bool SVNDiff::UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNR
     progDlg.SetTime(false);
     m_pSVN->SetAndClearProgressInfo(&progDlg);
     progDlg.ShowModeless(GetHWND());
-    // find the root of the files
-    CTSVNPathList plist;
-    plist.AddPath(url1);
-    plist.AddPath(url2);
-    CTSVNPath relativeTo = plist.GetCommonRoot();
-    // the 'relativeTo' path must be a path: svn throws an error if it's used for urls.
-    if (relativeTo.IsEquivalentTo(url1) || relativeTo.IsEquivalentTo(url2) || url1.IsUrl() || url2.IsUrl())
-        relativeTo.Reset();
     if ((!url1.IsEquivalentTo(url2))||((rev1.IsWorking() || rev1.IsBase())&&(rev2.IsWorking() || rev2.IsBase())))
     {
-        if (!m_pSVN->Diff(url1, rev1, url2, rev2, relativeTo, svn_depth_infinity, true, false, false, false, false, false, true, false, options, bIgnoreAncestry, tempfile))
+        if (!m_pSVN->Diff(url1, rev1, url2, rev2, CTSVNPath(), svn_depth_infinity, true, false, false, false, false, options, bIgnoreAncestry, tempfile))
         {
             progDlg.Stop();
             m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -283,9 +261,9 @@ bool SVNDiff::UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNR
     }
     else
     {
-        if (!m_pSVN->PegDiff(url1, (peg.IsValid() ? peg : (bIsUrl ? m_headPeg : SVNRev::REV_WC)), rev1, rev2, relativeTo, svn_depth_infinity, true, false, false, false, false, false, true, false, options, false, tempfile))
+        if (!m_pSVN->PegDiff(url1, (peg.IsValid() ? peg : (bIsUrl ? m_headPeg : SVNRev::REV_WC)), rev1, rev2, CTSVNPath(), svn_depth_infinity, true, false, false, false, false, options, false, tempfile))
         {
-            if (!m_pSVN->Diff(url1, rev1, url2, rev2, relativeTo, svn_depth_infinity, true, false, false, false, false, false, true, false, options, false, tempfile))
+            if (!m_pSVN->Diff(url1, rev1, url2, rev2, CTSVNPath(), svn_depth_infinity, true, false, false, false, false, options, false, tempfile))
             {
                 progDlg.Stop();
                 m_pSVN->SetAndClearProgressInfo((HWND)NULL);
@@ -698,8 +676,8 @@ bool SVNDiff::DiffProps(const CTSVNPath& filePath, const SVNRev& rev1, const SVN
 {
     bool retvalue = false;
     // diff the properties
-    SVNProperties propswc(filePath, rev1, false, false);
-    SVNProperties propsbase(filePath, rev2, false, false);
+    SVNProperties propswc(filePath, rev1, false);
+    SVNProperties propsbase(filePath, rev2, false);
 
 #define MAX_PATH_LENGTH 80
     WCHAR pathbuf1[MAX_PATH] = {0};
@@ -855,7 +833,7 @@ bool SVNDiff::DiffProps(const CTSVNPath& filePath, const SVNRev& rev1, const SVN
                 fclose(pFile);
                 FILE * pFile2;
                 _tfopen_s(&pFile2, basepropfile.GetWinPath(), _T("wb"));
-                if (pFile2)
+                if (pFile)
                 {
                     fputs(CUnicodeUtils::StdGetUTF8(basevalue).c_str(), pFile2);
                     fclose(pFile2);

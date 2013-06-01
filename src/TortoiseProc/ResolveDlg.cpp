@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "MessageBox.h"
+#include "messagebox.h"
 #include "ResolveDlg.h"
 #include "AppUtils.h"
 
@@ -61,7 +61,7 @@ BOOL CResolveDlg::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDC_SELECTALL);
     m_aeroControls.SubclassOkCancelHelp(this);
 
-    m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH|SVNSLC_POPRESTORE));
+    m_resolveListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
     m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
     m_resolveListCtrl.SetSelectButton(&m_SelectAll);
     m_resolveListCtrl.SetCancelBool(&m_bCancelled);

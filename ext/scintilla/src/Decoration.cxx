@@ -9,8 +9,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 
-#include <algorithm>
-
 #include "Platform.h"
 
 #include "Scintilla.h"
@@ -30,7 +28,7 @@ Decoration::~Decoration() {
 }
 
 bool Decoration::Empty() {
-	return (rs.Runs() == 1) && (rs.AllSameAs(0));
+	return rs.Runs() == 1;
 }
 
 DecorationList::DecorationList() : currentIndicator(0), currentValue(1), current(0),
@@ -150,7 +148,7 @@ void DecorationList::DeleteRange(int position, int deleteLength) {
 void DecorationList::DeleteAnyEmpty() {
 	Decoration *deco = root;
 	while (deco) {
-		if ((lengthDocument == 0) || deco->Empty()) {
+		if (deco->Empty()) {
 			Delete(deco->indicator);
 			deco = root;
 		} else {

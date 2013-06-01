@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "RevisionGraphDlg.h"
+#include "Revisiongraphdlg.h"
 #include "MessageBox.h"
 #include "SVN.h"
 #include "AppUtils.h"
@@ -29,11 +29,10 @@
 #include "SVNInfo.h"
 #include "SVNDiff.h"
 #include "RevGraphFilterDlg.h"
-#include "RevisionGraphDlg.h"
+#include ".\revisiongraphdlg.h"
 #include "RepositoryInfo.h"
 #include "RevisionInRange.h"
 #include "RemovePathsBySubString.h"
-#include <strsafe.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -60,9 +59,6 @@ CRevisionGraphDlg::CRevisionGraphDlg(CWnd* pParent /*=NULL*/)
 
     DWORD dwOpts = CRegStdDWORD(_T("Software\\TortoiseSVN\\RevisionGraphOptions"), 0x1ff199);
     m_Graph.m_state.GetOptions()->SetRegistryFlags (dwOpts, 0x407fbf);
-
-    m_szTip[0]  = 0;
-    m_wszTip[0] = 0;
 }
 
 CRevisionGraphDlg::~CRevisionGraphDlg()
@@ -729,7 +725,7 @@ BOOL CRevisionGraphDlg::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
     else
     {
         ::SendMessage(pNMHDR->hwndFrom, TTM_SETMAXTIPWIDTH, 0, 600);
-        StringCchCopy(m_wszTip, _countof(m_wszTip), strTipText);
+        lstrcpyn(m_wszTip, strTipText, strTipText.GetLength()+1);
         pTTTW->lpszText = m_wszTip;
     }
     // bring the tooltip window above other pop up windows

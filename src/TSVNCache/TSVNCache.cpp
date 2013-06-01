@@ -18,20 +18,20 @@
 //
 
 #include "stdafx.h"
-#include <shellapi.h>
+#include "shellapi.h"
 #include "TSVNCache.h"
 #include "SVNStatusCache.h"
 #include "CacheInterface.h"
-#include "resource.h"
+#include "Resource.h"
 #include "registry.h"
 #include "CrashReport.h"
 #include "SVNAdminDir.h"
 #include "Dbt.h"
 #include <initguid.h>
-#include <ioevent.h>
+#include "ioevent.h"
+#include "..\version.h"
 #include "svn_dso.h"
 #include "SmartHandle.h"
-#include "DllVersion.h"
 
 #include <ShellAPI.h>
 
@@ -61,6 +61,44 @@ int                 nCurrentCrawledpathIndex = 0;
 CComAutoCriticalSection critSec;
 
 #define PACKVERSION(major,minor) MAKELONG(minor,major)
+DWORD GetDllVersion(LPCTSTR lpszDllName)
+{
+    DWORD dwVersion = 0;
+
+    /* For security purposes, LoadLibrary should be provided with a
+    fully-qualified path to the DLL. The lpszDllName variable should be
+    tested to ensure that it is a fully qualified path before it is used. */
+    CAutoLibrary hinstDll = LoadLibrary(lpszDllName);
+
+    if(hinstDll)
+    {
+        DLLGETVERSIONPROC pDllGetVersion;
+        pDllGetVersion = (DLLGETVERSIONPROC)GetProcAddress(hinstDll,
+            "DllGetVersion");
+
+        /* Because some DLLs might not implement this function, you
+        must test for it explicitly. Depending on the particular
+        DLL, the lack of a DllGetVersion function can be a useful
+        indicator of the version. */
+
+        if(pDllGetVersion)
+        {
+            DLLVERSIONINFO dvi;
+            HRESULT hr;
+
+            SecureZeroMemory(&dvi, sizeof(dvi));
+            dvi.cbSize = sizeof(dvi);
+
+            hr = (*pDllGetVersion)(&dvi);
+
+            if(SUCCEEDED(hr))
+            {
+                dwVersion = PACKVERSION(dvi.dwMajorVersion, dvi.dwMinorVersion);
+            }
+        }
+    }
+    return dwVersion;
+}
 
 svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
                                            const char *file, int line,
@@ -153,10 +191,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
     {
         SecureZeroMemory(&niData,sizeof(NOTIFYICONDATA));
 
-        DWORD dwMajor = 0;
-        DWORD dwMinor = 0;
-        GetShellVersion(&dwMajor, &dwMinor);
-        DWORD dwVersion = PACKVERSION(dwMajor, dwMinor);
+        DWORD dwVersion = GetDllVersion(_T("Shell32.dll"));
 
         if (dwVersion >= PACKVERSION(6,0))
             niData.cbSize = sizeof(NOTIFYICONDATA);

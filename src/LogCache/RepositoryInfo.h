@@ -22,8 +22,8 @@
 // necessary includes
 ///////////////////////////////////////////////////////////////
 
-#include "Containers/LogCacheGlobals.h"
-#include "ConnectionState.h"
+#include "./Containers/LogCacheGlobals.h"
+#include "./ConnectionState.h"
 
 ///////////////////////////////////////////////////////////////
 // forward declarations

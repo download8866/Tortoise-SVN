@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MergeCommand.h"
 
 #include "MergeWizard.h"
@@ -63,7 +63,6 @@ bool MergeCommand::Execute()
         int options = wizard.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
         options |= wizard.m_bRecordOnly ? ProgOptRecordOnly : 0;
         options |= wizard.m_bForce ? ProgOptForce : 0;
-        options |= wizard.bAllowMixedRev ? ProgOptAllowMixedRev : 0;
         progDlg.SetOptions(options);
         progDlg.SetPathList(CTSVNPathList(wizard.wcPath));
         progDlg.SetUrl(wizard.URL1);
@@ -105,10 +104,7 @@ bool MergeCommand::Execute()
             break;
         case MERGEWIZARD_REINTEGRATE:
             {
-                if (wizard.bReintegrate)
-                    progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrateOldStyle);
-                else
-                    progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
+                progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
             }
             break;
         }

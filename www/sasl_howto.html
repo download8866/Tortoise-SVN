@@ -1,25 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta name="keywords" content="ssh, howto, subversion" />
+<meta name="description" content="how to set up SSH with Subversion/TortoiseSVN" />
+<meta http-equiv="content-language" content="en" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <title>TortoiseSVN - Securing Svnserve with SASL</title>
-<meta name="description" content="how to set up SSH with Subversion/TortoiseSVN"/>
-<meta name="keywords" content="ssh, howto, subversion"/>
-<meta http-equiv="content-language" content="en"/>
-<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-<link rel="shortcut icon" href="favicon.ico"/>
-<link href="css/pack.css" rel="stylesheet" type="text/css"/>
+<link href="style.css" rel="stylesheet" type="text/css" media="screen" />
 </head>
 <body>
 <div id="wrapper">
-    <!--#include FILE="menu.html"-->
-    <div id="page">
-        <div id="banner">&nbsp;</div>
-        <div id="content">
-
-            <div class="post">
-                <h1 class="title"><a href="#">Securing Svnserve with SASL</a></h1>
+    <!--#include FILE="menu.html" -->
+	<div id="page">
+		<div id="banner">&nbsp;</div>
+		<div id="content">
+        
+			<div class="post">
+				<h1 class="title"><a href="#">Securing Svnserve with SASL</a></h1>
                 $ADSENSE_TOP$
-                <div class="entry">
+				<div class="entry">
 
             <h3>What is SASL?</h3>
             <p>
@@ -77,7 +77,8 @@ use-sasl = true
 pwcheck_method: auxprop
 auxprop_plugin: sasldb
 mech_list: DIGEST-MD5
-sasldb_path: C:\TortoiseSVN\sasldb</pre>
+sasldb_path: C:\TortoiseSVN\sasldb
+</pre>
             <p>
                 The last line shows the location of the authentication database,
                 which is a file called <cite>sasldb</cite>.
@@ -120,7 +121,8 @@ saslpasswd2 -c -f C:\TortoiseSVN\sasldb -u realm username
 [sasl]
 use-sasl = true
 min-encryption = 128
-max-encryption = 256</pre>
+max-encryption = 256
+</pre>
             <p>
                 The <code>min-encryption</code> and
                 <code>max-encryption</code> variables control the
@@ -136,15 +138,15 @@ max-encryption = 256</pre>
                 but no more than 256-bit encryption.
             </p>
 
-                </div>
-            </div>
-        </div>
-        <!-- end #content -->
-        <!--#include FILE="sidebar.html"-->
-        <div style="clear: both">&nbsp;</div>
-    </div>
-    <!-- end #page -->
-    <!--#include FILE="footer.html"-->
+				</div>
+			</div>
+		</div>
+		<!-- end #content -->
+        <!--#include FILE="sidebar.html" -->
+		<div style="clear: both;">&nbsp;</div>
+	</div>
+	<!-- end #page -->
+    <!--#include FILE="footer.html" -->
 </div>
 </body>
 </html>

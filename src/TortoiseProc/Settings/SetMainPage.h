@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 
 
 /**
@@ -35,7 +35,7 @@ public:
     CSetMainPage();
     virtual ~CSetMainPage();
 
-    UINT GetIconID() override {return IDI_GENERAL;}
+    UINT GetIconID() {return IDI_GENERAL;}
 
     enum { IDD = IDD_SETTINGSMAIN };
 

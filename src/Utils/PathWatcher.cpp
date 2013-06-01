@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "Dbt.h"
 #include "PathWatcher.h"
 
@@ -246,7 +246,7 @@ void CPathWatcher::WorkerThread()
                     }
                     if (!ReadDirectoryChangesW(pDirInfo->m_hDir,
                                                 pDirInfo->m_Buffer,
-                                                bufferSize,
+                                                READ_DIR_CHANGE_BUFFER_SIZE,
                                                 TRUE,
                                                 FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE,
                                                 &numBytes,// not used
@@ -279,7 +279,7 @@ void CPathWatcher::WorkerThread()
                         goto continuewatching;
                     }
                     PFILE_NOTIFY_INFORMATION pnotify = (PFILE_NOTIFY_INFORMATION)pdi->m_Buffer;
-                    if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > bufferSize)
+                    if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
                         goto continuewatching;
                     DWORD nOffset = pnotify->NextEntryOffset;
                     do
@@ -287,7 +287,7 @@ void CPathWatcher::WorkerThread()
                         nOffset = pnotify->NextEntryOffset;
                         SecureZeroMemory(buf, bufferSize*sizeof(TCHAR));
                         _tcsncpy_s(buf, bufferSize, pdi->m_DirPath, bufferSize);
-                        errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), bufferSize-pdi->m_DirPath.GetLength(), pnotify->FileName, min(bufferSize-pdi->m_DirPath.GetLength(), int(pnotify->FileNameLength/sizeof(TCHAR))));
+                        errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), (bufferSize)-pdi->m_DirPath.GetLength(), pnotify->FileName, _TRUNCATE);
                         if (err == STRUNCATE)
                         {
                             pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
@@ -303,7 +303,7 @@ void CPathWatcher::WorkerThread()
                             else
                                 m_bLimitReached = true;
                         }
-                        if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > bufferSize)
+                        if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
                             break;
                     } while (nOffset);
 continuewatching:
@@ -315,7 +315,7 @@ continuewatching:
                     SecureZeroMemory(&pdi->m_Overlapped, sizeof(OVERLAPPED));
                     if (!ReadDirectoryChangesW(pdi->m_hDir,
                                                 pdi->m_Buffer,
-                                                bufferSize,
+                                                READ_DIR_CHANGE_BUFFER_SIZE,
                                                 TRUE,
                                                 FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE,
                                                 &numBytes,// not used
@@ -338,7 +338,7 @@ continuewatching:
 
 void CPathWatcher::ClearInfoMap()
 {
-    if (!watchInfoMap.empty())
+    if (watchInfoMap.size()!=0)
     {
         AutoLocker lock(m_critSec);
         for (std::map<HANDLE, CDirWatchInfo *>::iterator I = watchInfoMap.begin(); I != watchInfoMap.end(); ++I)
@@ -352,9 +352,9 @@ void CPathWatcher::ClearInfoMap()
     m_hCompPort.CloseHandle();
 }
 
-CPathWatcher::CDirWatchInfo::CDirWatchInfo(HANDLE hDir, const CTSVNPath& DirectoryName)
-    : m_hDir(hDir)
-    , m_DirName(DirectoryName)
+CPathWatcher::CDirWatchInfo::CDirWatchInfo(HANDLE hDir, const CTSVNPath& DirectoryName) :
+    m_hDir(hDir),
+    m_DirName(DirectoryName)
 {
     ATLASSERT( hDir && !DirectoryName.IsEmpty());
     m_Buffer[0] = 0;
@@ -373,3 +373,11 @@ bool CPathWatcher::CDirWatchInfo::CloseDirectoryHandle()
 {
     return m_hDir.CloseHandle();
 }
+
+
+
+
+
+
+
+

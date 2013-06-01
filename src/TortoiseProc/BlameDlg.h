@@ -18,7 +18,7 @@
 //
 #pragma once
 #include "SVNRev.h"
-#include "registry.h"
+#include "Registry.h"
 #include "StandAloneDlg.h"
 #include "TSVNPath.h"
 

@@ -16,19 +16,17 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "TSVNPath.h"
 #include "UnicodeUtils.h"
 #include "SVNAdminDir.h"
 #include "SVNHelpers.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
-#include "DebugOutput.h"
 #include "svn_dirent_uri.h"
 #include "svn_path.h"
 #include <regex>
-#include <functional>
-#include <memory>
+#include "auto_buffer.h"
 
 #if defined(_MFC_VER)
 #include "AppUtils.h"
@@ -336,8 +334,8 @@ bool CTSVNPath::Delete(bool bTrash) const
     {
         if ((bTrash)||(IsDirectory()))
         {
-            std::unique_ptr<TCHAR[]> buf(new TCHAR[m_sBackslashPath.GetLength()+2]);
-            _tcscpy_s(buf.get(), m_sBackslashPath.GetLength()+2, m_sBackslashPath);
+            auto_buffer<TCHAR> buf(m_sBackslashPath.GetLength()+2);
+            _tcscpy_s(buf, m_sBackslashPath.GetLength()+2, m_sBackslashPath);
             buf[m_sBackslashPath.GetLength()] = 0;
             buf[m_sBackslashPath.GetLength()+1] = 0;
             bRet = CTSVNPathList::DeleteViaShell(buf.get(), bTrash, NULL);
@@ -760,6 +758,7 @@ bool CTSVNPath::IsValidOnWindows() const
     if (m_bIsValidOnWindowsKnown)
         return m_bIsValidOnWindows;
 
+#if _MSC_VER >= 1600
     m_bIsValidOnWindows = true;
     EnsureBackslashPathSet();
     wstring checkPath = m_sBackslashPath;
@@ -780,6 +779,63 @@ bool CTSVNPath::IsValidOnWindows() const
 
     m_bIsValidOnWindowsKnown = true;
     return m_bIsValidOnWindows;
+#else
+    m_bIsValidOnWindows = false;
+    EnsureBackslashPathSet();
+    CString sMatch = m_sBackslashPath + _T("\r\n");
+    wstring sPattern;
+
+    // commonly used sub-patterns
+    wstring innerCharPattern = _T("[^\\\\/:\\*\\?\"\\|<>]");
+    wstring endCharPattern = _T("[^\\\\/:\\*\\?\"\\|<>\\. ]");
+    wstring filePattern = _T("(") + innerCharPattern + _T("*") + endCharPattern + _T(")?");
+    wstring relPathPattern = _T("(((\\.)|(\\.\\.)|(") + filePattern + _T("))\\\\)*") + filePattern + _T("$");
+    wstring fullPathPattern = _T("^(\\\\\\\\\\?\\\\)?(([a-zA-Z]:|\\\\)\\\\)?") + relPathPattern;
+
+    // the 'file://' URL is just a normal windows path:
+    if (sMatch.Left(7).CompareNoCase(_T("file:\\\\"))==0)
+    {
+        sMatch = sMatch.Mid(7);
+        sMatch.TrimLeft(_T("\\"));
+        sPattern = fullPathPattern;
+    }
+    else if (IsUrl())
+    {
+        sPattern = _T("^((http|https|svn|svn\\+ssh|file)\\:\\\\+([^\\\\@\\:]+\\:[^\\\\@\\:]+@)?\\\\[^\\\\]+(\\:\\d+)?)?") + relPathPattern;
+    }
+    else
+    {
+        sPattern = fullPathPattern;
+    }
+
+    try
+    {
+        tr1::wregex rx(sPattern, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
+        tr1::wsmatch match;
+
+        wstring rmatch = wstring((LPCTSTR)sMatch);
+        if (tr1::regex_match(rmatch, match, rx))
+        {
+            // the check for _Mycont to be != 0 is required since the regex_match returns
+            // sometimes matches that have 'matched == true) but the iterators are actually null
+            // which results without that check in a debug assertion (debug mode) or an abort() (!!!) (release mode)
+            if ((match[0].matched)&&(match[0].first._Mycont != 0)&&(wstring(match[0]).compare((LPCTSTR)sMatch)==0))
+                m_bIsValidOnWindows = true;
+        }
+        if (m_bIsValidOnWindows)
+        {
+            // now check for illegal filenames
+            tr1::wregex rx2(_T("\\\\(lpt\\d|com\\d|aux|nul|prn|con)(\\\\|$)"), tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
+            rmatch = m_sBackslashPath;
+            if (tr1::regex_search(rmatch, rx2, tr1::regex_constants::match_default))
+                m_bIsValidOnWindows = false;
+        }
+    }
+    catch (exception) {}
+
+    m_bIsValidOnWindowsKnown = true;
+    return m_bIsValidOnWindows;
+#endif
 }
 
 bool CTSVNPath::IsSpecialDirectory() const
@@ -874,9 +930,9 @@ bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
     }
     catch (CFileException* pE)
     {
-        std::unique_ptr<TCHAR[]> error(new TCHAR[10000]);
-        pE->GetErrorMessage(error.get(), 10000);
-        ::MessageBox(NULL, error.get(), _T("TortoiseSVN"), MB_ICONERROR);
+        auto_buffer<TCHAR> error(10000);
+        pE->GetErrorMessage(error, 10000);
+        ::MessageBox(NULL, error, _T("TortoiseSVN"), MB_ICONERROR);
         pE->Delete();
         return false;
     }

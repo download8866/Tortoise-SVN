@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <project name="TortoiseSVN" default="all">
 
-  <property name="SubWCRevFileName" value="bin\${configuration}${bindirextension}\bin\SubWCRev.exe" />
-  <property name="solutionname" value="TortoiseOverlays.sln" />
+  <property name="SubWCRevFileName" value="bin\${configuration}${bindirextension}\bin\SubWCRev.exe"/>
+  <property name="solutionname" value="TortoiseOverlays.sln" if="${studioversion == '2008'}"/>
+  <property name="solutionname" value="TortoiseOverlays_VS10.sln" if="${studioversion == '2010'}"/>
 
   <target name="all">
 
@@ -31,6 +32,7 @@
           <token key="MicroVersion" value="${environment::get-variable('Microversion')}" />
           <token key="WCREV" value="${environment::get-variable('WCREV')}" />
           <token key="WCDATE" value="${environment::get-variable('WCDATE')}" />
+          <token key="DEVBUILD" value="${devrelease}" />
         </replacetokens>
       </filterchain>
     </loadfile>
@@ -50,12 +52,12 @@
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
 
 
-    <exec program="devenv.com">
+    <exec program="devenv.com" >
       <arg value="${solutionname}" />
       <arg value="/rebuild" />
       <arg value="release|win32" />
     </exec>
-    <exec program="devenv.com">
+    <exec program="devenv.com" >
       <arg value="${solutionname}" />
       <arg value="/rebuild" />
       <arg value="release|x64" />
@@ -68,12 +70,12 @@
       <exec program="signtool">
         <arg value="sign" />
         <arg value="${signinfo}" />
-        <arg value="..\..\bin\Release\bin\TortoiseOverlays.dll" />
+        <arg value="..\..\bin\release\bin\TortoiseOverlays.dll" />
       </exec>
       <exec program="signtool">
         <arg value="sign" />
         <arg value="${signinfo}" />
-        <arg value="..\..\bin\Release64\bin\TortoiseOverlays.dll" />
+        <arg value="..\..\bin\release64\bin\TortoiseOverlays.dll" />
       </exec>
     </if>
 

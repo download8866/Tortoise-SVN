@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2013 - TortoiseSVN
+// Copyright (C) 2003-2007,2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
 #include "registry.h"
-#include "LogDialog/LogDlg.h"
+#include "LogDialog\LogDlg.h"
 #include "AppUtils.h"
 #include "RepositoryBrowser.h"
 
@@ -31,7 +31,6 @@ CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
     , m_bNoExternals(FALSE)
     , m_bStickyDepth(TRUE)
     , m_pLogDlg(NULL)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -224,7 +223,7 @@ void CUpdateDlg::OnBnClickedSparse()
     CString strUrl = svn.GetURLFromPath(m_wcPath);
 
     CRepositoryBrowser browser(strUrl, SVNRev::REV_HEAD, this);
-    browser.SetSparseCheckoutMode(m_wcPath);
+    browser.SetSparseCheckoutMode();
     if (browser.DoModal() == IDOK)
     {
         m_checkoutDepths = browser.GetUpdateDepths();

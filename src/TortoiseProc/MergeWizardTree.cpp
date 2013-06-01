@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2012-2013 - TortoiseSVN
+// Copyright (C) 2007-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 
 #include "AppUtils.h"
 #include "PathUtils.h"
-#include "LogDialog/LogDlg.h"
+#include "LogDialog\LogDlg.h"
 
 IMPLEMENT_DYNAMIC(CMergeWizardTree, CMergeWizardBasePage)
 
@@ -203,22 +203,6 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
         return FALSE;
     }
 
-    CString sUrl;
-    m_URLCombo.GetWindowText(sUrl);
-    CTSVNPath url(sUrl);
-    if (!url.IsUrl())
-    {
-        ShowComboBalloon(&m_URLCombo, IDS_ERR_MUSTBEURL, IDS_ERR_ERROR, TTI_ERROR);
-        return FALSE;
-    }
-    m_URLCombo2.GetWindowText(sUrl);
-    CTSVNPath url2(sUrl);
-    if (!url2.IsUrl())
-    {
-        ShowComboBalloon(&m_URLCombo2, IDS_ERR_MUSTBEURL, IDS_ERR_ERROR, TTI_ERROR);
-        return FALSE;
-    }
-
     m_URLCombo.SaveHistory();
     m_URLFrom = m_URLCombo.GetString();
 
@@ -312,11 +296,10 @@ void CMergeWizardTree::OnBnClickedFindbranchstart()
         StartRev = SVNRev::REV_HEAD;
     if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
         return;
-    CString sUrl;
-    m_URLCombo.GetWindowText(sUrl);
+    CString url;
+    m_URLCombo.GetWindowText(url);
     //now show the log dialog for the main trunk
-    CTSVNPath url(sUrl);
-    if (!url.IsEmpty() && url.IsUrl())
+    if (!url.IsEmpty())
     {
         StopWCCheckThread();
         CTSVNPath wcPath = ((CMergeWizard*)GetParent())->wcPath;
@@ -330,7 +313,7 @@ void CMergeWizardTree::OnBnClickedFindbranchstart()
         m_pLogDlg->SetDialogTitle(CString(MAKEINTRESOURCE(IDS_MERGE_SELECTSTARTREVISION)));
         m_pLogDlg->SetSelect(true);
         m_pLogDlg->m_pNotifyWindow = this;
-        m_pLogDlg->SetParams(url, StartRev, StartRev, 1, TRUE, FALSE);
+        m_pLogDlg->SetParams(CTSVNPath(url), StartRev, StartRev, 1, TRUE, FALSE);
         m_pLogDlg->SetProjectPropertiesPath(wcPath);
         m_pLogDlg->ContinuousSelection(true);
         m_pLogDlg->SetMergePath(wcPath);
@@ -347,12 +330,11 @@ void CMergeWizardTree::OnBnClickedFindbranchend()
         EndRev = SVNRev::REV_HEAD;
     if (::IsWindow(m_pLogDlg2->GetSafeHwnd())&&(m_pLogDlg2->IsWindowVisible()))
         return;
-    CString sUrl;
+    CString url;
 
-    m_URLCombo2.GetWindowText(sUrl);
+    m_URLCombo2.GetWindowText(url);
     //now show the log dialog for the main trunk
-    CTSVNPath url(sUrl);
-    if (!url.IsEmpty() && url.IsUrl())
+    if (!url.IsEmpty())
     {
         StopWCCheckThread();
         CTSVNPath wcPath = ((CMergeWizard*)GetParent())->wcPath;
@@ -367,7 +349,7 @@ void CMergeWizardTree::OnBnClickedFindbranchend()
         m_pLogDlg2->SetSelect(true);
         m_pLogDlg2->m_pNotifyWindow = this;
         m_pLogDlg2->SetProjectPropertiesPath(wcPath);
-        m_pLogDlg2->SetParams(url, EndRev, EndRev, 1, TRUE, FALSE);
+        m_pLogDlg2->SetParams(CTSVNPath(url), EndRev, EndRev, 1, TRUE, FALSE);
         m_pLogDlg2->ContinuousSelection(true);
         m_pLogDlg2->SetMergePath(wcPath);
         m_pLogDlg2->Create(IDD_LOGMESSAGE, this);

@@ -1,3 +1,7 @@
+;shellext.def : Declares the module parameters for the DLL.
+
+LIBRARY      TORTOISEOVERLAYS
+
 EXPORTS
-    DllCanUnloadNow     PRIVATE
-    DllGetClassObject   PRIVATE
+    DllCanUnloadNow private
+    DllGetClassObject private

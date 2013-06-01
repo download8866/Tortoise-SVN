@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006-2013 - TortoiseSVN
+// Copyright (C) 2006-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include <CommCtrl.h>
-#include <Commdlg.h>
+#include "StdAfx.h"
+#include "commctrl.h"
+#include "Commdlg.h"
 #include "TortoiseIDiff.h"
 #include "MainWindow.h"
 #include "AboutDlg.h"
@@ -46,8 +46,7 @@ bool CMainWindow::RegisterAndCreateWindow()
     wcx.cbWndExtra = 0;
     wcx.hInstance = hResource;
     wcx.hCursor = LoadCursor(NULL, IDC_SIZEWE);
-    ResString clsname(hResource, IDS_APP_TITLE);
-    wcx.lpszClassName = clsname;
+    wcx.lpszClassName = ResString(hResource, IDS_APP_TITLE);
     wcx.hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_TORTOISEIDIFF));
     wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
     wcx.lpszMenuName = MAKEINTRESOURCE(IDC_TORTOISEIDIFF);
@@ -127,11 +126,11 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
 
             picWindow1.SetOtherPicWindow(&picWindow2);
             picWindow2.SetOtherPicWindow(&picWindow1);
-            CreateToolbar();
             // center the splitter
             RECT rect;
             GetClientRect(hwnd, &rect);
-            nSplitterPos = (rect.right-rect.left)/2;
+            nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
+            CreateToolbar();
             PositionChildren(&rect);
             picWindow1.FitImageInWindow();
             picWindow2.FitImageInWindow();
@@ -172,10 +171,10 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
                 RECT tbRect;
                 GetWindowRect(hwndTB, &tbRect);
                 LONG tbHeight = tbRect.bottom-tbRect.top-1;
-                nSplitterPos = (rect.bottom-rect.top+tbHeight)/2;
+                nSplitterPos = (rect.bottom-rect.top-SPLITTER_BORDER+tbHeight)/2;
             }
             else
-                nSplitterPos = (rect.right-rect.left)/2;
+                nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
             PositionChildren(&rect);
         }
         break;
@@ -283,7 +282,7 @@ LRESULT CALLBACK CMainWindow::WinMsgHandler(HWND hwnd, UINT uMsg, WPARAM wParam,
                 mii.cbSize = sizeof(MENUITEMINFO);
                 mii.fMask = MIIM_TYPE;
                 mii.dwTypeData = stringbuf;
-                mii.cch = _countof(stringbuf);
+                mii.cch = sizeof(stringbuf)/sizeof(TCHAR);
                 GetMenuItemInfo(GetMenu(*this), (UINT)lpttt->hdr.idFrom, FALSE, &mii);
                 _tcscpy_s(lpttt->lpszText, 80, stringbuf);
             }
@@ -543,11 +542,11 @@ LRESULT CMainWindow::DoCommand(int id)
                 RECT tbRect;
                 GetWindowRect(hwndTB, &tbRect);
                 LONG tbHeight = tbRect.bottom-tbRect.top-1;
-                nSplitterPos = (rect.bottom-rect.top+tbHeight)/2;
+                nSplitterPos = (rect.bottom-rect.top-SPLITTER_BORDER+tbHeight)/2;
             }
             else
             {
-                nSplitterPos = (rect.right-rect.left)/2;
+                nSplitterPos = (rect.right-rect.left-SPLITTER_BORDER)/2;
             }
             HMENU hMenu = GetMenu(*this);
             UINT uCheck = MF_BYCOMMAND;
@@ -605,7 +604,7 @@ void CMainWindow::DrawXorBar(HDC hdc, int x1, int y1, int width, int height)
     DeleteObject(hbm);
 }
 
-LRESULT CMainWindow::Splitter_OnLButtonDown(HWND hwnd, UINT /*iMsg*/, WPARAM /*wParam*/, LPARAM lParam)
+LRESULT CMainWindow::Splitter_OnLButtonDown(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     POINT pt;
     HDC hdc;
@@ -661,7 +660,7 @@ void CMainWindow::Splitter_CaptureChanged()
     bDragMode = false;
 }
 
-LRESULT CMainWindow::Splitter_OnLButtonUp(HWND hwnd, UINT /*iMsg*/, WPARAM /*wParam*/, LPARAM lParam)
+LRESULT CMainWindow::Splitter_OnLButtonUp(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
     RECT rect;
@@ -727,7 +726,7 @@ LRESULT CMainWindow::Splitter_OnLButtonUp(HWND hwnd, UINT /*iMsg*/, WPARAM /*wPa
     return 0;
 }
 
-LRESULT CMainWindow::Splitter_OnMouseMove(HWND hwnd, UINT /*iMsg*/, WPARAM wParam, LPARAM lParam)
+LRESULT CMainWindow::Splitter_OnMouseMove(HWND hwnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     HDC hdc;
     RECT rect;
@@ -794,7 +793,7 @@ bool CMainWindow::OpenDialog()
     return (DialogBox(hResource, MAKEINTRESOURCE(IDD_OPEN), *this, (DLGPROC)OpenDlgProc)==IDOK);
 }
 
-BOOL CALLBACK CMainWindow::OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM /*lParam*/)
+BOOL CALLBACK CMainWindow::OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     switch (message)
     {
@@ -811,7 +810,7 @@ BOOL CALLBACK CMainWindow::OpenDlgProc(HWND hwndDlg, UINT message, WPARAM wParam
             centeredrect.bottom = centeredrect.top + (childrect.bottom-childrect.top);
             SetWindowPos(hwndDlg, NULL, centeredrect.left, centeredrect.top, centeredrect.right-centeredrect.left, centeredrect.bottom-centeredrect.top, SWP_SHOWWINDOW);
 
-            if (!leftpicpath.empty())
+            if (leftpicpath.size())
                 SetDlgItemText(hwndDlg, IDC_LEFTIMAGE, leftpicpath.c_str());
             SetFocus(hwndDlg);
         }
@@ -864,8 +863,7 @@ bool CMainWindow::AskForFile(HWND owner, TCHAR * path)
     ofn.hwndOwner = owner;
     ofn.lpstrFile = path;
     ofn.nMaxFile = MAX_PATH;
-    ResString sTitle(::hResource, IDS_OPENIMAGEFILE);
-    ofn.lpstrTitle = sTitle;
+    ofn.lpstrTitle = ResString(::hResource, IDS_OPENIMAGEFILE);
     ofn.Flags = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST | OFN_EXPLORER;
     ofn.hInstance = ::hResource;
     TCHAR filters[] = _T("Images\0*.wmf;*.jpg;*jpeg;*.bmp;*.gif;*.png;*.ico;*.dib;*.emf\0All (*.*)\0*.*\0\0");

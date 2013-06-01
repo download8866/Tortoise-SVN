@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@
 #include "HintCtrl.h"
 #include "LinkControl.h"
 #include "BugTraqAssociations.h"
-#include "../IBugTraqProvider/IBugTraqProvider_h.h"
+#include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 
 #define WM_TSVN_MAXREVFOUND         (WM_APP + 1)
 
@@ -83,21 +83,19 @@ protected:
     afx_msg void OnNMClickExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnBnClickedBugtraqbutton();
     afx_msg LRESULT OnCheck(WPARAM count, LPARAM);
-    afx_msg void OnEnChangeCopyrevtext();
     DECLARE_MESSAGE_MAP()
 
-    virtual BOOL    Cancel() override {return m_bCancelled;}
+    virtual BOOL    Cancel() {return m_bCancelled;}
     void            SetRevision(const SVNRev& rev);
     void            ToggleCheckbox(int index);
     void            OnComError( HRESULT hr );
-    void            ScanWC(const CTSVNPath& path, const std::string& sUUID);
+
 public:
     CString         m_URL;
     CTSVNPath       m_path;
     CString         m_sLogMessage;
     SVNRev          m_CopyRev;
     BOOL            m_bDoSwitch;
-    BOOL            m_bMakeParents;
     std::map<CString, CString> m_revProps;
 
 private:
@@ -129,4 +127,6 @@ private:
     volatile LONG   m_bThreadRunning;
     SVNExternals    m_externals;
     CLinkControl    m_linkControl;
+public:
+    afx_msg void OnEnChangeCopyrevtext();
 };

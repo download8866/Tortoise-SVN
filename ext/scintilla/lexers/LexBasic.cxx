@@ -24,6 +24,10 @@
 #include <assert.h>
 #include <ctype.h>
 
+#ifdef _MSC_VER
+#pragma warning(disable: 4786)
+#endif
+
 #include <string>
 #include <map>
 
@@ -223,7 +227,7 @@ public:
 	           CheckFoldPoint(CheckFoldPoint_),
 	           osBasic(wordListDescriptions) {
 	}
-	virtual ~LexerBasic() {
+	~LexerBasic() {
 	}
 	void SCI_METHOD Release() {
 		delete this;

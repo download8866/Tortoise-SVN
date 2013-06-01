@@ -121,6 +121,7 @@ private:
         CAutoFile   m_hDir;         ///< handle to the directory that we're watching
         CTSVNPath   m_DirName;      ///< the directory that we're watching
         CHAR        m_Buffer[READ_DIR_CHANGE_BUFFER_SIZE]; ///< buffer for ReadDirectoryChangesW
+        DWORD       m_dwBufLength;  ///< length or returned data from ReadDirectoryChangesW -- ignored?...
         OVERLAPPED  m_Overlapped;
         CString     m_DirPath;      ///< the directory name we're watching with a backslash at the end
         //HDEVNOTIFY    m_hDevNotify;   ///< Notification handle

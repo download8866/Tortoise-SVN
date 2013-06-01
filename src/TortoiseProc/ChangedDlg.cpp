@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,8 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ChangedDlg.h"
-#include "MessageBox.h"
+#include "messagebox.h"
+#include ".\changeddlg.h"
 #include "AppUtils.h"
 
 
@@ -109,9 +110,9 @@ BOOL CChangedDlg::OnInitDialog()
     m_FileListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS |
                         SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP |
                         SVNSLC_COLLOCK | SVNSLC_COLLOCKCOMMENT |
-                        SVNSLC_COLAUTHOR |
+                        SVNSLC_COLAUTHOR | SVNSLC_COLAUTHOR |
                         SVNSLC_COLREVISION | SVNSLC_COLDATE, _T("ChangedDlg"),
-                        SVNSLC_POPALL ^ SVNSLC_POPRESTORE, false);
+                        SVNSLC_POPALL, false);
     m_FileListCtrl.SetCancelBool(&m_bCanceled);
     m_FileListCtrl.SetBackgroundImage(IDI_CFM_BKG);
     m_FileListCtrl.SetEmptyString(IDS_REPOSTATUS_EMPTYFILELIST);

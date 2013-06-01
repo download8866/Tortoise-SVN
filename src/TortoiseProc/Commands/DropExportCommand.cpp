@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DropExportCommand.h"
 #include "MessageBox.h"
 #include "SVN.h"
@@ -30,16 +30,6 @@ bool DropExportCommand::Execute()
     CString droppath = parser.GetVal(_T("droptarget"));
     if (CTSVNPath(droppath).IsAdminDir())
         return false;
-    SVN::SVNExportType exportType = SVN::SVNExportNormal;
-    if (parser.HasKey(L"extended"))
-    {
-        exportType = SVN::SVNExportIncludeUnversioned;
-        CString et = parser.GetVal(L"extended");
-        if (et == L"localchanges")
-            exportType = SVN::SVNExportOnlyLocalChanges;
-        if (et == L"unversioned")
-            exportType = SVN::SVNExportIncludeUnversioned;
-    }
     SVN svn;
     if ((pathList.GetCount() == 1)&&
         (pathList[0].IsEquivalentTo(CTSVNPath(droppath))))
@@ -157,7 +147,7 @@ bool DropExportCommand::Execute()
                     dropper = renameddropper;
                 }
             }
-            if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, !!parser.HasKey(L"overwrite"), false, false, svn_depth_infinity, GetExplorerHWND(), exportType))
+            if (!svn.Export(pathList[nPath], CTSVNPath(dropper), SVNRev::REV_WC ,SVNRev::REV_WC, !!parser.HasKey(L"overwrite"), false, false, svn_depth_infinity, GetExplorerHWND(), !!parser.HasKey(_T("extended"))))
             {
                 svn.ShowErrorDialog(GetExplorerHWND(), pathList[nPath]);
                 bRet = false;
