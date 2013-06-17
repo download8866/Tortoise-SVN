@@ -144,6 +144,13 @@ protected:
     afx_msg void    OnIndicatorLeftview();
     afx_msg void    OnIndicatorRightview();
     afx_msg void    OnIndicatorBottomview();
+    afx_msg void    OnIndicatorLeftviewPopup();
+    afx_msg void    OnIndicatorRightviewPopup();
+    afx_msg void    OnIndicatorBottomviewPopup();
+
+    afx_msg void    OnRemoveTrailSpaces();
+    afx_msg void    OnTabToSpaces();
+    afx_msg void    OnTabulatorize();
 
     DECLARE_MESSAGE_MAP()
 protected:
@@ -189,6 +196,7 @@ protected:
     static bool     HasNextConflict(CBaseView* view);
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
+    void            OnIndicatorPopup();
 
     static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
 
@@ -211,7 +219,6 @@ protected:
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
     bool            m_bUseRibbons;
-    bool            m_bUseTaskDialog;
 
     CMFCRibbonBar               m_wndRibbonBar;
     CMFCRibbonApplicationButton m_MainButton;
@@ -222,11 +229,11 @@ protected:
     CRegDWORD       m_regCollapsed;
     CRegDWORD       m_regInlineDiff;
     CRegDWORD       m_regUseRibbons;
-    CRegDWORD       m_regUseTaskDialog;
 public:
     CLeftView *     m_pwndLeftView;
     CRightView *    m_pwndRightView;
     CBottomView *   m_pwndBottomView;
+    CBaseView *     m_pwndCommandView;
     BOOL            m_bOneWay;
     BOOL            m_bReversedPatch;
     CDiffData       m_Data;

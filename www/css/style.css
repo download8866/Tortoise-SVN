@@ -1,6 +1,3 @@
-/*csslint box-sizing: false, font-sizes: false, ids: false, important: false,
-  qualified-headings: false, unique-headings: false*/
-
 body {
     background-color: #27343C;
     color: black;
@@ -66,10 +63,10 @@ table {
 
 th {
     font-weight: bold;
+    text-align: left;
 }
 
-td.lang,
-th.lang {
+td {
     text-align: left;
 }
 
@@ -208,6 +205,14 @@ img.centered {
     width: 230px;
 }
 
+#banner {
+    background: url("../img/tortoisesvn_logo_hor468x64.png") no-repeat center top;
+    margin: 0 auto;
+    padding: 0;
+    width: 468px;
+    height: 64px;
+}
+
 /* Menu */
 #menu {
     background-color: #565F68;
@@ -256,12 +261,12 @@ img.centered {
 
 /* Page */
 #page {
-    background: white url("../img/tortoisesvn_logo_hor468x64.png") no-repeat center 20px;
+    background-color: white;
     -webkit-border-radius: 2px;
        -moz-border-radius: 2px;
             border-radius: 2px;
     margin: 0 auto;
-    padding-top: 84px;
+    padding-top: 20px;
     width: 910px;
 }
 
@@ -287,9 +292,9 @@ img.centered {
 
 .post .meta {
     border-bottom: 1px dashed #D2D4C9;
-    font-size: 11px;
-    font-style: italic;
+    font: italic 11px/180% Arial, Helvetica, sans-serif;
     padding-bottom: 5px;
+    text-align: left;
 }
 
 .post .entry {
@@ -373,10 +378,6 @@ a.fancybox,
 .fancybox a,
 .fancybox-skin a {
     border-bottom: none;
-}
-
-.nobr {
-    white-space: nowrap;
 }
 
 
