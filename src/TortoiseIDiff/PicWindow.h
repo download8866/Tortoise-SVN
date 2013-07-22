@@ -1,6 +1,6 @@
 // TortoiseIDiff - an image diff viewer in TortoiseSVN
 
-// Copyright (C) 2006-2010, 2012-2013 - TortoiseSVN
+// Copyright (C) 2006-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -63,7 +63,7 @@ public:
         , bValid(false)
         , nHScrollPos(0)
         , nVScrollPos(0)
-        , picscale(100)
+        , picscale(1.0)
         , transparentColor(::GetSysColor(COLOR_WINDOW))
         , pSecondPic(NULL)
         , blendAlpha(0.5f)
@@ -75,8 +75,7 @@ public:
         , bPlaying(false)
         , pTheOtherPic(NULL)
         , bLinkedPositions(true)
-        , bFitWidths(false)
-        , bFitHeights(false)
+        , bFitSizes(false)
         , bOverlap(false)
         , m_blend(BLEND_ALPHA)
         , bMainPic(false)
@@ -97,9 +96,6 @@ public:
         , hPlay(0)
         , hStop(0)
         , hAlphaToggle(0)
-        , m_linkedWidth(0)
-        , m_linkedHeight(0)
-        , bDragging(false)
     {
         SetWindowTitle(_T("Picture Window"));
         m_lastTTPos.x = 0;
@@ -163,14 +159,12 @@ public:
     void FitImageInWindow();
     /// center the image in the view
     void CenterImage();
-    /// forces the widths of the images to be the same
-    void FitWidths(bool bFit);
-    /// forces the heights of the images to be the same
-    void FitHeights(bool bFit);
+    /// Makes both images the same size, fitting into the window
+    void FitSizes(bool bFit);
     /// Sets the zoom factor of the image
-    void SetZoom(int Zoom, bool centermouse, bool inzoom = false);
+    void SetZoom(double dZoom, bool centermouse);
     /// Returns the currently used zoom factor in which the image is shown.
-    int GetZoom() {return picscale;}
+    double GetZoom() {return picscale;}
     /// Zooms in (true) or out (false) in nice steps
     void Zoom(bool in, bool centermouse);
     /// Sets the 'Other' pic window
@@ -188,7 +182,7 @@ public:
 
     int GetHPos() {return nHScrollPos;}
     int GetVPos() {return nVScrollPos;}
-    void SetZoomValue(int z) {picscale = z; InvalidateRect(*this, NULL, FALSE);}
+    void SetZoomValue(double z) {picscale = z; InvalidateRect(*this, NULL, FALSE);}
 
     /// Handles the mouse wheel
     void                OnMouseWheel(short fwKeys, short zDelta);
@@ -211,9 +205,11 @@ protected:
     /// the WM_PAINT function
     void                Paint(HWND hwnd);
     /// Draw pic to hdc, with a border, scaled by scale.
-    void                ShowPicWithBorder(HDC hdc, const RECT &bounds, CPicture &pic, int scale);
+    void                ShowPicWithBorder(HDC hdc, const RECT &bounds, CPicture &pic, double scale);
     /// Positions the buttons
     void                PositionChildren();
+    /// Rounds a double to a given precision
+    double              RoundDouble(double doValue, int nPrecision);
     /// advance to the next image in the file
     void                NextImage();
     /// go back to the previous image in the file
@@ -226,27 +222,20 @@ protected:
     void                PositionTrackBar();
     /// creates the info string used in the info box and the tooltips
     void                BuildInfoString(TCHAR * buf, int size, bool bTooltip);
-    /// adjusts the zoom to fit the specified width
-    void                SetZoomToWidth(long width);
-    /// adjusts the zoom to fit the specified height
-    void                SetZoomToHeight(long height);
-
 
     tstring             picpath;            ///< the path to the image we show
     tstring             pictitle;           ///< the string to show in the image view as a title
     CPicture            picture;            ///< the picture object of the image
     bool                bValid;             ///< true if the picture object is valid, i.e. if the image could be loaded and can be shown
-    int                 picscale;           ///< the scale factor of the image in percent
+    double              picscale;           ///< the scale factor of the image
     COLORREF            transparentColor;   ///< the color to draw under the images
     bool                bFirstpaint;        ///< true if the image is painted the first time. Used to initialize some stuff when the window is valid for sure.
     CPicture *          pSecondPic;         ///< if set, this is the picture to draw transparently above the original
     CPicWindow *        pTheOtherPic;       ///< pointer to the other picture window. Used for "linking" the two windows when scrolling/zooming/...
     bool                bMainPic;           ///< if true, this is the first image
     bool                bLinkedPositions;   ///< if true, the two image windows are linked together for scrolling/zooming/...
-    bool                bFitWidths;         ///< if true, the two image windows are shown with the same width
-    bool                bFitHeights;        ///< if true, the two image windows are shown with the same height
+    bool                bFitSizes;          ///< if true, the two image windows are always zoomed so they match their size
     bool                bOverlap;           ///< true if the overlay mode is active
-    bool                bDragging;          ///< indicates an ongoing dragging operation
     BlendType           m_blend;            ///< type of blending to use
     tstring             pictitle2;          ///< the title of the second picture
     tstring             picpath2;           ///< the path of the second picture
@@ -285,8 +274,4 @@ protected:
     HICON               hAlphaToggle;
     bool                bPlaying;
     RECT                m_inforect;
-
-    // linked image sizes/positions
-    long                m_linkedWidth;
-    long                m_linkedHeight;
 };

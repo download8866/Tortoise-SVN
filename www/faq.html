@@ -16,10 +16,12 @@
 <div id="wrapper">
     <!--#include FILE="menu.html"-->
     <div id="page">
+        <div id="banner">&nbsp;</div>
         <div id="content">
 
             <div class="post">
                 <h1 class="title"><a href="#">Frequently asked questions</a></h1>
+                $ADSENSE_TOP$
                 <div class="entry">
                     <h2>Table of Contents</h2>
 
@@ -78,6 +80,7 @@
                         <li><a href="#iesecurity">Security warnings when uploading files in IE</a></li>
                         <li><a href="#smartcard">Repeated dialogs to insert smart card</a></li>
                         <li><a href="#useserf">How do I make GSSAPI authentication work?</a></li>
+                        <li><a href="#ads">Why does your site have advertisements?</a></li>
                     </ul>
 
                     <h3>How can I...</h3>
@@ -111,6 +114,8 @@
                         <li><a href="#sshclosed">SSH connection closed unexpectedly.</a></li>
                     </ul>
                     <hr/>
+
+                    $ADSENSE_INPAGE$
 
                     <div class="h2" id="installation-and-upgrade">
                         <h2>Installation &amp; Upgrade:</h2>
@@ -429,7 +434,14 @@
                         <p>By far the best way is to set up a real server process (such as Apache or svnserve),
                         store the repository on a local filesystem which the server can access, and make the
                         repository server available over a network. It is easier than you might think.
-                        <a title="Chapter 6. Server Configuration" href="http://svnbook.red-bean.com/en/1.7/svn.serverconfig.html">Chapter 6, Server Configuration</a> in the Subversion Book covers this process in detail.</p>
+                        <a title="Chapter 6. Server Configuration" href="http://svnbook.red-bean.com/en/1.7/svn.serverconfig.html">Chapter 6, Server Configuration</a>
+                        in the Subversion Book covers this process in detail.</p>
+                        Here's an incomplete list of user friendly server installers:
+                        <ul>
+                            <li><a title="CollabNet server download" href="http://www.collab.net/downloads/subversion/" rel="nofollow">CollabNet Subversion Edge</a></li>
+                            <li><a title="uberSVN" href="http://www.ubersvn.com/" rel="nofollow">uberSVN</a></li>
+                            <li><a title="VisualSVN" href="http://www.visualsvn.com/server/" rel="nofollow">VisualSVN</a></li>
+                        </ul>
                         </div>
 
                         <div class="h3" id="listparentpath">
@@ -766,6 +778,22 @@ http-library = serf</pre>
                         Note that this change will affect all Subversion clients on your PC.
                         </div>
 
+                        <div class="h3" id="ads">
+                        <h3>Why does your site have advertisements?</h3>
+                        <p>Yes it's true, our website carries advertisements for other products
+                        and even has download buttons for them. We like ad-free sites, and in
+                        an ideal world ours would be too, but that's not where we are.
+                        TortoiseSVN is probably the most popular of all subversion clients, a
+                        fact that we are extremely proud of, but which also means a large
+                        number of requests for support, new features and bugfixes. Yet at the
+                        same time it has a very small development community - almost all of
+                        the work is done by just one person - and we have no commercial
+                        sponsorship. Running a project like this has all sorts of costs, and
+                        apart from the obvious website hosting charges and maintenance of
+                        compilers, there are many hidden costs too. You may not like them
+                        but we depend on the income they generate to keep the project going.
+                        </p>
+                        </div>
                     </div>
 
                     <div class="h2" id="how-can-i">
@@ -1070,11 +1098,12 @@ Folder/File2 : revision 2</pre>
                         <p>REPORT request failed on '...' REPORT of '...': 400 Bad Request (http://...)</p>
                         <p>You're behind a firewall which blocks DAV requests. Most firewalls do that.
                         Either ask your Administrator to change the firewall, or access the repository
-                        with <strong>https://</strong> instead of <strong>http://</strong>.
+                        with <strong>https://</strong> instead of <strong>http://</strong> like in
+                        <a href="https://svn.collab.net/repos/svn/">https://svn.collab.net/repos/svn/</a>
                         That way you connect to the repository with SSL encryption, which firewalls
                         can't interfere with (if they don't block the SSL port completely).
                         </p>
-                        <p>Also some virus scanners (i.e. Kaspersky) are known to interfere and cause
+                        <p>Also some virus scanners (i.e. Kapersky) are known to interfere and cause
                         this error.</p>
                         </div>
 

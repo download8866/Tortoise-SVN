@@ -4143,10 +4143,6 @@ msgstr ""
 msgid "End Revision"
 msgstr ""
 
-#. Resource IDs: (252)
-msgid "End of Line Style"
-msgstr ""
-
 #. Resource IDs: (200)
 msgid "Enforce"
 msgstr ""
@@ -4495,10 +4491,6 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#. Resource IDs: (252)
-msgid "File Encoding"
-msgstr ""
-
 #. Resource IDs: (90)
 msgid "File already exists"
 msgstr ""
@@ -4620,12 +4612,8 @@ msgstr ""
 msgid "Fit height"
 msgstr ""
 
-#. Resource IDs: (32818)
-msgid "Fit image &heights"
-msgstr ""
-
-#. Resource IDs: (32817)
-msgid "Fit image &widths"
+#. Resource IDs: (32810)
+msgid "Fit image &sizes"
 msgstr ""
 
 #. Resource IDs: (32803)
@@ -5048,6 +5036,10 @@ msgstr ""
 msgid "ID:32809:V C +F"
 msgstr ""
 
+#. Accelerator Entry for Menu ID:32810; 'Fit image &sizes'
+msgid "ID:32810:V   +T"
+msgstr ""
+
 #. Accelerator Entry for Menu ID:32811; ''
 msgid "ID:32811:V C +U"
 msgstr ""
@@ -5058,14 +5050,6 @@ msgstr ""
 
 #. Accelerator Entry for Menu ID:32814; 'Oldest on to&p'
 msgid "ID:32814:VA  +D"
-msgstr ""
-
-#. Accelerator Entry for Menu ID:32817; 'Fit image &widths'
-msgid "ID:32817:V   +W"
-msgstr ""
-
-#. Accelerator Entry for Menu ID:32818; 'Fit image &heights'
-msgid "ID:32818:V   +H"
 msgstr ""
 
 #. Accelerator Entry for Menu ID:32824; ''
@@ -6329,10 +6313,6 @@ msgstr ""
 msgid "New name for %s"
 msgstr ""
 
-#. Resource IDs: (95)
-msgid "New name must not be empty or the same as the original name!"
-msgstr ""
-
 #. Resource IDs: (98)
 msgid "New name:"
 msgstr ""
@@ -7574,11 +7554,6 @@ msgstr ""
 #. Resource IDs: (97)
 #, c-format
 msgid "Rename %s"
-msgstr ""
-
-#. Resource IDs: (95)
-#, c-format
-msgid "Rename '%s':"
 msgstr ""
 
 #. Resource IDs: (127)
@@ -10100,10 +10075,6 @@ msgstr ""
 
 #. Resource IDs: (1066)
 msgid "Use Ribbons"
-msgstr ""
-
-#. Resource IDs: (1500)
-msgid "Use Task Dialog"
 msgstr ""
 
 #. Resource IDs: (1230)

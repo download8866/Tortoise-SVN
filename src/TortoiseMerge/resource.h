@@ -2,7 +2,6 @@
 // Microsoft Visual C++ generated include file.
 // Used by D:\Development\SVN\TortoiseSVN\src\Resources\TortoiseMergeENG.rc
 //
-#define IDCANCEL2                       4
 #define IDR_MAINFRAME                   100
 #define IDP_OLE_INIT_FAILED             101
 #define IDS_TITLE_REJECTEDHUNKS         101
@@ -163,13 +162,6 @@
 #define IDC_FONTSIZES                   1086
 #define IDC_BKMOVEDFROM                 1087
 #define IDC_BKMOVEDTO                   1088
-#define IDC_TRIM                        1090
-#define IDC_USESPACES                   1091
-#define IDC_USETABS                     1092
-#define IDC_STOPASKING                  1093
-#define IDC_TITLE                       1094
-#define IDC_DESCRIPTION                 1095
-#define IDC_FIXEOLS                     1096
 #define IDS_ERR_FILE_OPEN               1100
 #define IDS_ERR_FILE_BINARY             1101
 #define IDS_ERR_FILE_NOTAFILE           1102
@@ -183,7 +175,6 @@
 #define IDS_ERR_TEXTVIEWSTART           1326
 #define IDS_GOTOLINE                    1400
 #define IDS_GOTO_OUTOFRANGE             1401
-#define IDC_USETASKDIALOG               1500
 #define IDS_ABOUTVERSION                1700
 #define IDS_ABOUTVERSIONBOX             1701
 #define IDS_SETTINGSTITLE               1702
@@ -225,8 +216,6 @@
 #define IDS_VIEWCONTEXTMENU_USERIGHT    4014
 #define IDS_VIEWCONTEXTMENU_APENDRIGHT  4015
 #define IDS_VIEWCONTEXTMENU_APPENDRIGHT 4015
-#define IDS_VIEWCONTEXTMENU_EOL         4016
-#define IDS_VIEWCONTEXTMENU_ENCODING    4017
 #define IDS_VIEWTITLE_THEIRS            4200
 #define IDS_VIEWTITLE_MERGED            4201
 #define IDS_VIEWTITLE_MINE              4202
@@ -410,9 +399,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        164
+#define _APS_NEXT_RESOURCE_VALUE        163
 #define _APS_NEXT_COMMAND_VALUE         32979
-#define _APS_NEXT_CONTROL_VALUE         1501
+#define _APS_NEXT_CONTROL_VALUE         1081
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

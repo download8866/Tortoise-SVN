@@ -124,6 +124,9 @@
     <Image Include="resources\fitinwindow.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="resources\fittogether.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
     <Image Include="resources\imginfo.ico">
       <Filter>Resource Files</Filter>
     </Image>
@@ -158,12 +161,6 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="resources\zoomout.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\fitheights.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="resources\fitwidths.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>
