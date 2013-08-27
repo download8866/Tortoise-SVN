@@ -2939,7 +2939,7 @@ msgstr ""
 
 #. Resource IDs: (247)
 #, c-format
-msgid "Commits each %s:"
+msgid "Commits each %s"
 msgstr ""
 
 #. Resource IDs: (1135)
@@ -4143,10 +4143,6 @@ msgstr ""
 msgid "End Revision"
 msgstr ""
 
-#. Resource IDs: (252)
-msgid "End of Line Style"
-msgstr ""
-
 #. Resource IDs: (200)
 msgid "Enforce"
 msgstr ""
@@ -4495,17 +4491,13 @@ msgstr ""
 msgid "File"
 msgstr ""
 
-#. Resource IDs: (252)
-msgid "File Encoding"
-msgstr ""
-
 #. Resource IDs: (90)
 msgid "File already exists"
 msgstr ""
 
 #. Resource IDs: (247)
 #, c-format
-msgid "File changes each %s:"
+msgid "File changes each %s"
 msgstr ""
 
 #. Resource IDs: (1138)
@@ -4620,12 +4612,8 @@ msgstr ""
 msgid "Fit height"
 msgstr ""
 
-#. Resource IDs: (32818)
-msgid "Fit image &heights"
-msgstr ""
-
-#. Resource IDs: (32817)
-msgid "Fit image &widths"
+#. Resource IDs: (32810)
+msgid "Fit image &sizes"
 msgstr ""
 
 #. Resource IDs: (32803)
@@ -5048,6 +5036,10 @@ msgstr ""
 msgid "ID:32809:V C +F"
 msgstr ""
 
+#. Accelerator Entry for Menu ID:32810; 'Fit image &sizes'
+msgid "ID:32810:V   +T"
+msgstr ""
+
 #. Accelerator Entry for Menu ID:32811; ''
 msgid "ID:32811:V C +U"
 msgstr ""
@@ -5058,14 +5050,6 @@ msgstr ""
 
 #. Accelerator Entry for Menu ID:32814; 'Oldest on to&p'
 msgid "ID:32814:VA  +D"
-msgstr ""
-
-#. Accelerator Entry for Menu ID:32817; 'Fit image &widths'
-msgid "ID:32817:V   +W"
-msgstr ""
-
-#. Accelerator Entry for Menu ID:32818; 'Fit image &heights'
-msgid "ID:32818:V   +H"
 msgstr ""
 
 #. Accelerator Entry for Menu ID:32824; ''
@@ -5947,10 +5931,6 @@ msgstr ""
 msgid "Merge Log &Templates"
 msgstr ""
 
-#. Resource IDs: (345)
-msgid "Merge Log Templates"
-msgstr ""
-
 #. Resource IDs: (221)
 msgid "Merge Reintegrate"
 msgstr ""
@@ -6333,10 +6313,6 @@ msgstr ""
 msgid "New name for %s"
 msgstr ""
 
-#. Resource IDs: (95)
-msgid "New name must not be empty or the same as the original name!"
-msgstr ""
-
 #. Resource IDs: (98)
 msgid "New name:"
 msgstr ""
@@ -6513,7 +6489,7 @@ msgstr ""
 
 #. Resource IDs: (247)
 #, c-format
-msgid "Number of %s:"
+msgid "Number of %s"
 msgstr ""
 
 #. Resource IDs: (338)
@@ -7580,11 +7556,6 @@ msgstr ""
 msgid "Rename %s"
 msgstr ""
 
-#. Resource IDs: (95)
-#, c-format
-msgid "Rename '%s':"
-msgstr ""
-
 #. Resource IDs: (127)
 #, c-format
 msgid "Rename item from %1!s!\r\nto %2!s!"
@@ -8178,10 +8149,6 @@ msgstr ""
 #. Resource IDs: (3867)
 #, c-format
 msgid "Seek failed on %1"
-msgstr ""
-
-#. Resource IDs: (8)
-msgid "Select"
 msgstr ""
 
 #. Resource IDs: (376)
@@ -10110,10 +10077,6 @@ msgstr ""
 msgid "Use Ribbons"
 msgstr ""
 
-#. Resource IDs: (1500)
-msgid "Use Task Dialog"
-msgstr ""
-
 #. Resource IDs: (1230)
 msgid "Use URL of &WC as the default \"From:\" URL"
 msgstr ""
@@ -10770,10 +10733,6 @@ msgstr ""
 msgid "day"
 msgstr ""
 
-#. Resource IDs: (247)
-msgid "days"
-msgstr ""
-
 #. Resource IDs: (10, 272)
 msgid "deleted"
 msgstr ""
@@ -10931,10 +10890,6 @@ msgstr ""
 msgid "month"
 msgstr ""
 
-#. Resource IDs: (248)
-msgid "months"
-msgstr ""
-
 #. Resource IDs: (199)
 #, c-format
 msgid "multiple URLs (e.g. %s)"
@@ -11003,10 +10958,6 @@ msgstr ""
 
 #. Resource IDs: (245)
 msgid "quarter of year"
-msgstr ""
-
-#. Resource IDs: (248)
-msgid "quarters of year"
 msgstr ""
 
 #. Resource IDs: (195)
@@ -11294,10 +11245,6 @@ msgstr ""
 msgid "week"
 msgstr ""
 
-#. Resource IDs: (247)
-msgid "weeks"
-msgstr ""
-
 #. Resource IDs: (65535)
 msgid "word tokens: "
 msgstr ""
@@ -11308,10 +11255,6 @@ msgstr ""
 
 #. Resource IDs: (245)
 msgid "year"
-msgstr ""
-
-#. Resource IDs: (248)
-msgid "years"
 msgstr ""
 
 #. Resource IDs: (18, 1002, 1011, 1012, 1013)

@@ -110,7 +110,7 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll)
             LPSTR       lpVersion = NULL;
             VOID*       lpFixedPointer;
             TRANSARRAY* lpTransArray;
-            TCHAR       strLangProductVersion[MAX_PATH];
+            TCHAR       strLangProduktVersion[MAX_PATH];
 
             GetFileVersionInfo((LPTSTR)langDll,
                 dwReserved,
@@ -123,13 +123,13 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll)
                 &nFixedLength);
             lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-            _stprintf_s(strLangProductVersion,
+            _stprintf_s(strLangProduktVersion,
                         _T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
                         lpTransArray[0].wLanguageID,
                         lpTransArray[0].wCharacterSet);
 
             VerQueryValue(pBuffer,
-                (LPTSTR)strLangProductVersion,
+                (LPTSTR)strLangProduktVersion,
                 (LPVOID *)&lpVersion,
                 &nInfoSize);
             if (lpVersion && nInfoSize)

@@ -19,7 +19,6 @@
 #define IDS_IMAGEINFOTT                 111
 #define IDS_DUALIMAGEINFOTT             112
 #define IDS_ALPHABUTTONTT               113
-#define IDS_SELECT                      114
 #define IDD_OPEN                        130
 #define IDR_TORTOISEIDIFF               131
 #define IDI_OVERLAP                     134
@@ -36,11 +35,9 @@
 #define IDI_LINK                        145
 #define IDI_ALPHATOGGLE                 147
 #define IDI_UNDO                        148
-#define IDI_FITWIDTHS                   149
+#define IDI_FITTOGETHER                 149
 #define IDI_BLEND                       152
 #define IDD_ABOUT                       153
-#define IDI_FITHEIGHTS                  154
-#define IDC_TORTOISEIDIFF2              155
 #define IDC_LEFTIMAGE                   1000
 #define IDC_RIGHTIMAGE                  1001
 #define IDC_LEFTBROWSE                  1002
@@ -62,22 +59,20 @@
 #define ID_VIEW_ALPHA127                32800
 #define ID_VIEW_ALPHATOGGLE             32806
 #define ID_VIEW_MAKESAMESIZE            32809
+#define ID_VIEW_FITTOGETHER             32810
 #define ID_VIEW_BLENDALPHA              32812
 #define ID_ABOUT                        32814
 #define ID_VIEW_BACKGROUNDCOLOR         32815
 #define ID_VIEW_TRANSPARENTCOLOR        32816
-#define ID_VIEW_FITIMAGEWIDTHS          32817
-#define ID_VIEW_FITIMAGEHEIGHTS         32818
-#define ID_                             32819
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
-#define _APS_NEXT_RESOURCE_VALUE        156
-#define _APS_NEXT_COMMAND_VALUE         32820
+#define _APS_NEXT_RESOURCE_VALUE        154
+#define _APS_NEXT_COMMAND_VALUE         32817
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

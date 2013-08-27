@@ -7709,6 +7709,14 @@ msgid "Note that this setting applies only to messages that you type in on this 
 msgstr ""
 
 #. (term)
+msgid "Re-open commit and branch/tag dialog after a commit failed"
+msgstr ""
+
+#. (para)
+msgid "When a commit fails for some reason (working copy needs updating, pre-commit hook rejects commit, network error, etc), you can select this option to keep the commit dialog open ready to try again."
+msgstr ""
+
+#. (term)
 msgid "Select items automatically"
 msgstr ""
 
@@ -8972,14 +8980,6 @@ msgstr ""
 
 #. (para)
 msgid "The auto-completion list shown in the commit message editor displays the names of files listed for commit. To also include these names with extensions removed, set this value to <literal>true</literal>."
-msgstr ""
-
-#. (para)
-msgid "File externals that are pegged to a specific revision are blocked by default from being selected for a commit. This is because a subsequent update would revert those changes again unless the pegged revision of the external is adjusted."
-msgstr ""
-
-#. (para)
-msgid "Set this value to <literal>false</literal> in case you still want to commit changes to such external files."
 msgstr ""
 
 #. (para)

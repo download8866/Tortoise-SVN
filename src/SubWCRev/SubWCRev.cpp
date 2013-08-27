@@ -223,7 +223,7 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
             return FALSE; // value specifier too big
         }
         exp = pEnd - pStart + 1;
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024);
         memcpy(format,pStart,pEnd - pStart);
         unsigned long number = strtoul(format, NULL, 0);
         if (strcmp(def,VERDEFAND) == 0)
@@ -311,7 +311,7 @@ int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
             return FALSE; // Format specifier too big
         }
         exp = pEnd - pStart + 1;
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024*sizeof(wchar_t));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
         unsigned long number = wcstoul(format, NULL, 0);
         if (wcscmp(def,TEXT(VERDEFAND)) == 0)
@@ -374,8 +374,8 @@ int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
 
 void _invalid_parameter_donothing(
     const wchar_t * /*expression*/,
-    const wchar_t * /*function*/,
-    const wchar_t * /*file*/,
+    const wchar_t * /*function*/, 
+    const wchar_t * /*file*/, 
     unsigned int /*line*/,
     uintptr_t /*pReserved*/
     )
@@ -432,7 +432,7 @@ int InsertDate(char * def, char * pBuf, size_t & index,
         {
             return FALSE; // Format specifier too big
         }
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024);
         memcpy(format,pStart,pEnd - pStart);
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -526,7 +526,7 @@ int InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
         {
             return FALSE; // Format specifier too big
         }
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024*sizeof(wchar_t));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -749,7 +749,7 @@ int _tmain(int argc, _TCHAR* argv[])
     BOOL bErrOnMixed = FALSE;
     BOOL bQuiet = FALSE;
     SubWCRev_t SubStat;
-    SecureZeroMemory(&SubStat, sizeof(SubStat));
+    memset (&SubStat, 0, sizeof (SubStat));
     SubStat.bFolders = FALSE;
 
     SetDllDirectory(L"");
