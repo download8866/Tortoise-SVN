@@ -112,7 +112,6 @@ enum LogDlgContextMenuCommands
     ID_EDITAUTHOR,
     ID_EDITLOG,
     ID_DIFF,
-    ID_DIFF_CONTENTONLY,
     ID_COPYCLIPBOARD,
     ID_CHECKOUT,
     ID_REVERTTOREV,
@@ -128,7 +127,6 @@ enum LogDlgContextMenuCommands
     ID_GETMERGELOGS,
     ID_REVPROPS,
     ID_DIFF_MULTIPLE,
-    ID_DIFF_MULTIPLE_CONTENTONLY,
     ID_OPENLOCAL_MULTIPLE,
     ID_CODE_COLLABORATOR
 };
@@ -1471,6 +1469,7 @@ void CLogDlg::LogThread()
         if (Err == NULL)
         {
             // now check the relative paths
+            apr_hash_index_t *hi;
             const void *key;
             void *val;
 
@@ -1482,7 +1481,7 @@ void CLogDlg::LogThread()
                 CStringA sUrl = CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(m_sURL));
                 sUrl.TrimRight('/');
 
-                for (apr_hash_index_t *hi = apr_hash_first(localpool, mergeinfo); hi; hi = apr_hash_next(hi))
+                for (hi = apr_hash_first(localpool, mergeinfo); hi; hi = apr_hash_next(hi))
                 {
                     apr_hash_this(hi, &key, NULL, &val);
                     CStringA sKey = (char*)key;
@@ -1980,6 +1979,7 @@ void CLogDlg::UpdateSelectedRevs()
     std::vector<svn_revnum_t> revisions;
     revisions.reserve (m_logEntries.GetVisibleCount());
 
+    PLOGENTRYDATA pLogEntry = NULL;
     POSITION pos = m_LogList.GetFirstSelectedItemPosition();
     if (pos)
     {
@@ -1988,7 +1988,7 @@ void CLogDlg::UpdateSelectedRevs()
             int index = m_LogList.GetNextSelectedItem(pos);
             if (index < (int)m_logEntries.GetVisibleCount())
             {
-                PLOGENTRYDATA pLogEntry = m_logEntries.GetVisible (index);
+                pLogEntry = m_logEntries.GetVisible (index);
                 if (pLogEntry)
                     revisions.push_back (pLogEntry->GetRevision());
             }
@@ -2152,10 +2152,10 @@ void CLogDlg::OnNMDblclkChangedFileList(NMHDR * /*pNMHDR*/, LRESULT *pResult)
     // a double click on an entry in the changed-files list has happened
     *pResult = 0;
 
-    DiffSelectedFile(true);
+    DiffSelectedFile();
 }
 
-void CLogDlg::DiffSelectedFile( bool ignoreprops )
+void CLogDlg::DiffSelectedFile()
 {
     if ((m_bLogThreadRunning)||(m_LogList.HasText()))
         return;
@@ -2196,7 +2196,7 @@ void CLogDlg::DiffSelectedFile( bool ignoreprops )
         {
             CoInitialize(NULL);
             this->EnableWindow(FALSE);
-            DoDiffFromLog(selIndex, rev1, rev2, false, false, ignoreprops);
+            DoDiffFromLog(selIndex, rev1, rev2, false, false);
             this->EnableWindow(TRUE);
             this->SetFocus();
         };
@@ -2235,7 +2235,7 @@ void CLogDlg::DiffSelectedFile( bool ignoreprops )
             {
                 CoInitialize(NULL);
                 this->EnableWindow(FALSE);
-                DoDiffFromLog(selIndex, rev1, rev2, false, false, ignoreprops);
+                DoDiffFromLog(selIndex, rev1, rev2, false, false);
                 this->EnableWindow(TRUE);
                 this->SetFocus();
             };
@@ -2373,18 +2373,19 @@ void CLogDlg::DiffSelectedRevWithPrevious()
         SVNDiff diff(this, m_hWnd, true);
         diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
         diff.SetHEADPeg(m_LogRevision);
-        diff.ShowCompare(path, rev2, path, rev1, SVNRev(), false, L"", false, false, nodekind);
+        diff.ShowCompare(path, rev2, path, rev1, SVNRev(), L"", false, false, nodekind);
     }
     else
     {
         CAppUtils::StartShowCompare(m_hWnd, path, rev2, path, rev1, SVNRev(),
-            m_LogRevision, false, L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000), false, false, nodekind);
+            m_LogRevision, L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000), false, false, nodekind);
     }
 
     EnableOKButton();
 }
 
-void CLogDlg::DoDiffFromLog( INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2, bool blame, bool unified, bool ignoreprops )
+void CLogDlg::DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1,
+                            svn_revnum_t rev2, bool blame, bool unified)
 {
     DialogEnableWindow(IDOK, FALSE);
     SetPromptApp(&theApp);
@@ -2456,7 +2457,7 @@ void CLogDlg::DoDiffFromLog( INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t r
     else
     {
         diff.ShowCompare(CTSVNPath(secondfile), rev2, CTSVNPath(firstfile), rev1, SVNRev(),
-                                        ignoreprops, L"", false, blame, nodekind);
+                                        L"", false, blame, nodekind);
     }
     EnableOKButton();
 }
@@ -2708,7 +2709,7 @@ BOOL CLogDlg::PreTranslateMessage(MSG* pMsg)
         }
         if (GetFocus()==GetDlgItem(IDC_LOGMSG))
         {
-            DiffSelectedFile(false);
+            DiffSelectedFile();
             return TRUE;
         }
     }
@@ -5331,7 +5332,7 @@ void CLogDlg::ExecuteCompareWithWorkingCopyMenuRevisions(ContextMenuInfoForRevis
             SVNDiff diff(this, m_hWnd, true);
             diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
             diff.SetHEADPeg(m_LogRevision);
-            diff.ShowCompare(m_path, SVNRev::REV_WC, m_path, pCmi->RevSelected, SVNRev(), false, L"");
+            diff.ShowCompare(m_path, SVNRev::REV_WC, m_path, pCmi->RevSelected, SVNRev(), L"");
 
             this->EnableWindow(TRUE);
             this->SetFocus();
@@ -5341,7 +5342,7 @@ void CLogDlg::ExecuteCompareWithWorkingCopyMenuRevisions(ContextMenuInfoForRevis
     else
         CAppUtils::StartShowCompare(m_hWnd, m_path, SVNRev::REV_WC, m_path,
         pCmi->RevSelected, SVNRev(), m_LogRevision,
-        false, L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
+        L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
 }
 
 void CLogDlg::ExecuteCompareTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi)
@@ -5370,7 +5371,7 @@ void CLogDlg::ExecuteCompareTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCm
             diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
             diff.SetHEADPeg(m_LogRevision);
             diff.ShowCompare(CTSVNPath(pCmi->PathURL), r2, CTSVNPath(pCmi->PathURL),
-                r1, SVNRev(), false, L"", false, false, nodekind);
+                r1, SVNRev(), L"", false, false, nodekind);
 
             this->EnableWindow(TRUE);
             this->SetFocus();
@@ -5379,7 +5380,7 @@ void CLogDlg::ExecuteCompareTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCm
     }
     else
         CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pCmi->PathURL), r2, CTSVNPath(pCmi->PathURL), r1,
-        SVNRev(), m_LogRevision, false, L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000),
+        SVNRev(), m_LogRevision, L"", !!(GetAsyncKeyState(VK_SHIFT) & 0x8000),
         false, false, nodekind);
 }
 
@@ -5402,7 +5403,7 @@ void CLogDlg::ExecuteCompareWithPreviousMenuRevisions(ContextMenuInfoForRevision
             diff.SetHEADPeg(m_LogRevision);
             diff.ShowCompare(CTSVNPath(pCmi->PathURL), pCmi->RevPrevious,
                 CTSVNPath(pCmi->PathURL), pCmi->RevSelected, SVNRev(),
-                false, L"", false, false, nodekind);
+                L"", false, false, nodekind);
 
             this->EnableWindow(TRUE);
             this->SetFocus();
@@ -5412,7 +5413,7 @@ void CLogDlg::ExecuteCompareWithPreviousMenuRevisions(ContextMenuInfoForRevision
     else
         CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pCmi->PathURL),
         pCmi->RevPrevious, CTSVNPath(pCmi->PathURL), pCmi->RevSelected,
-        SVNRev(), m_LogRevision, false, L"",
+        SVNRev(), m_LogRevision, L"",
         !!(GetAsyncKeyState(VK_SHIFT) & 0x8000), false, false, nodekind);
 }
 
@@ -5429,7 +5430,7 @@ void CLogDlg::ExecuteBlameCompareMenuRevisions(ContextMenuInfoForRevisionsPtr& p
 
             SVNDiff diff(this, this->m_hWnd, true);
             diff.SetHEADPeg(m_LogRevision);
-            diff.ShowCompare(m_path, SVNRev::REV_BASE, m_path, pCmi->RevSelected, SVNRev(), false, L"", false, true);
+            diff.ShowCompare(m_path, SVNRev::REV_BASE, m_path, pCmi->RevSelected, SVNRev(), L"", false, true);
 
             this->EnableWindow(TRUE);
             this->SetFocus();
@@ -5438,7 +5439,7 @@ void CLogDlg::ExecuteBlameCompareMenuRevisions(ContextMenuInfoForRevisionsPtr& p
     }
     else
         CAppUtils::StartShowCompare(m_hWnd, m_path, SVNRev::REV_BASE, m_path,
-        pCmi->RevSelected, SVNRev(), m_LogRevision, false, L"", false, false, true);
+        pCmi->RevSelected, SVNRev(), m_LogRevision, L"", false, false, true);
 }
 
 void CLogDlg::ExecuteBlameTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi)
@@ -5460,7 +5461,7 @@ void CLogDlg::ExecuteBlameTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi)
             diff.SetHEADPeg(m_LogRevision);
             diff.ShowCompare(CTSVNPath(pCmi->PathURL), pCmi->RevSelected2,
                 CTSVNPath(pCmi->PathURL), pCmi->RevSelected, SVNRev(),
-                false, L"", false, true, nodekind);
+                L"", false, true, nodekind);
 
             this->EnableWindow(TRUE);
             this->SetFocus();
@@ -5470,7 +5471,7 @@ void CLogDlg::ExecuteBlameTwoMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi)
     else
         CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pCmi->PathURL),
         pCmi->RevSelected, CTSVNPath(pCmi->PathURL), pCmi->RevSelected,
-        SVNRev(), m_LogRevision, false, L"", false, false, true, nodekind);
+        SVNRev(), m_LogRevision, L"", false, false, true, nodekind);
 }
 
 
@@ -5492,7 +5493,7 @@ void CLogDlg::ExecuteWithPreviousMenuRevisions(ContextMenuInfoForRevisionsPtr& p
             diff.SetHEADPeg(m_LogRevision);
             diff.ShowCompare(CTSVNPath(pCmi->PathURL), pCmi->RevPrevious,
                 CTSVNPath(pCmi->PathURL), pCmi->RevSelected, SVNRev(),
-                false, L"", false, true, nodekind);
+                L"", false, true, nodekind);
         };
         new async::CAsyncCall(f, &netScheduler);
         netScheduler.WaitForEmptyQueue();
@@ -5500,7 +5501,7 @@ void CLogDlg::ExecuteWithPreviousMenuRevisions(ContextMenuInfoForRevisionsPtr& p
     else
         CAppUtils::StartShowCompare(m_hWnd, CTSVNPath(pCmi->PathURL),
         pCmi->RevPrevious, CTSVNPath(pCmi->PathURL), pCmi->RevSelected,
-        SVNRev(), m_LogRevision, false, L"", false, false, true, nodekind);
+        SVNRev(), m_LogRevision, L"", false, false, true, nodekind);
 }
 
 void CLogDlg::ExecuteSaveAsMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi)
@@ -5752,71 +5753,65 @@ void CLogDlg::ShowContextMenuForChangedPaths(CWnd* /*pWnd*/, CPoint point)
 
     switch (cmd)
     {
-    case ID_DIFF:
-        ExecuteDiffChangedPaths(pCmi, selIndex, false);
-        break;
-    case ID_DIFF_CONTENTONLY:
-        ExecuteDiffChangedPaths(pCmi, selIndex, true);
-        break;
-    case ID_BLAMEDIFF:
-        ExecuteBlameDiffChangedPaths(selIndex, pCmi);
-        break;
-    case ID_GNUDIFF1:
-        ExecuteGnuDiff1ChangedPaths(selIndex, pCmi);
-        break;
-    case ID_REVERTREV:
-        ExecuteRevertChangedPaths(pCmi, changedlogpath);
-        break;
-    case ID_POPPROPS:
-        ExecuteShowPropertiesChangedPaths(pCmi);
-        break;
-    case ID_SAVEAS:
-        ExecuteSaveAsChangedPaths(pCmi, selIndex);
-        break;
-    case ID_EXPORTTREE:
-        ExecuteExportTreeChangedPaths(pCmi);
-        break;
-    case ID_OPENWITH:
-        ExecuteOpenChangedPaths(selIndex, pCmi, true);
-        break;
-    case ID_OPEN:
-        ExecuteOpenChangedPaths(selIndex, pCmi, false);
-        break;
-    case ID_OPENWITHLOCAL:
-        DoOpenFileWith(false, true, CTSVNPath(pCmi->wcPath));
-        break;
-    case ID_OPENLOCAL:
-        DoOpenFileWith(false, false, CTSVNPath(pCmi->wcPath));
-        break;
-    case ID_DIFF_MULTIPLE:
-        ExecuteMultipleDiffChangedPaths(pCmi, false);
-        break;
-    case ID_DIFF_MULTIPLE_CONTENTONLY:
-        ExecuteMultipleDiffChangedPaths(pCmi, true);
-        break;
-    case ID_OPENLOCAL_MULTIPLE:
-        if (((GetKeyState(VK_CONTROL) & 0x8000) && m_bVisualStudioRunningAtStart == true))
-            OpenSelectedWcFilesWithVisualStudio(pCmi->ChangedLogPathIndices);
-        else
-            OpenSelectedWcFilesWithRegistedProgram(pCmi->ChangedLogPathIndices);
-        break;
-    case ID_BLAME:
-        ExecuteBlameChangedPaths(pCmi, changedlogpath);
-        break;
-    case ID_GETMERGELOGS:
-        ExecuteShowLogChangedPaths(pCmi, changedlogpath, true);
-        break;
-    case ID_LOG:
-        ExecuteShowLogChangedPaths(pCmi, changedlogpath, false);
-        break;
-    case ID_REPOBROWSE:
-        ExecuteBrowseRepositoryChangedPaths(pCmi, changedlogpath);
-        break;
-    case ID_VIEWPATHREV:
-        ExecuteViewPathRevisionChangedPaths(selIndex);
-        break;
-    default:
-        break;
+        case ID_DIFF:
+            ExecuteDiffChangedPaths(pCmi, selIndex);
+            break;
+        case ID_BLAMEDIFF:
+            ExecuteBlameDiffChangedPaths(selIndex, pCmi);
+            break;
+        case ID_GNUDIFF1:
+            ExecuteGnuDiff1ChangedPaths(selIndex, pCmi);
+            break;
+        case ID_REVERTREV:
+            ExecuteRevertChangedPaths(pCmi, changedlogpath);
+            break;
+        case ID_POPPROPS:
+            ExecuteShowPropertiesChangedPaths(pCmi);
+            break;
+        case ID_SAVEAS:
+            ExecuteSaveAsChangedPaths(pCmi, selIndex);
+            break;
+        case ID_EXPORTTREE:
+            ExecuteExportTreeChangedPaths(pCmi);
+            break;
+        case ID_OPENWITH:
+            ExecuteOpenChangedPaths(selIndex, pCmi, true);
+            break;
+        case ID_OPEN:
+            ExecuteOpenChangedPaths(selIndex, pCmi, false);
+            break;
+        case ID_OPENWITHLOCAL:
+            DoOpenFileWith(false, true, CTSVNPath(pCmi->wcPath));
+            break;
+        case ID_OPENLOCAL:
+            DoOpenFileWith(false, false, CTSVNPath(pCmi->wcPath));
+            break;
+        case ID_DIFF_MULTIPLE:
+            ExecuteMultipleDiffChangedPaths(pCmi);
+            break;
+        case ID_OPENLOCAL_MULTIPLE:
+            if (((GetKeyState(VK_CONTROL) & 0x8000) && m_bVisualStudioRunningAtStart == true))
+                OpenSelectedWcFilesWithVisualStudio(pCmi->ChangedLogPathIndices);
+            else
+                OpenSelectedWcFilesWithRegistedProgram(pCmi->ChangedLogPathIndices);
+            break;
+        case ID_BLAME:
+            ExecuteBlameChangedPaths(pCmi, changedlogpath);
+            break;
+        case ID_GETMERGELOGS:
+            ExecuteShowLogChangedPaths(pCmi, changedlogpath, true);
+            break;
+        case ID_LOG:
+            ExecuteShowLogChangedPaths(pCmi, changedlogpath, false);
+            break;
+        case ID_REPOBROWSE:
+            ExecuteBrowseRepositoryChangedPaths(pCmi, changedlogpath);
+            break;
+        case ID_VIEWPATHREV:
+            ExecuteViewPathRevisionChangedPaths(selIndex);
+            break;
+        default:
+            break;
     } // switch (cmd)
 }
 
@@ -6391,6 +6386,7 @@ bool CLogDlg::IsProcessRunningInHighIntegrity(DWORD pid)
     DWORD dwLengthNeeded = 0;
     DWORD dwError = ERROR_SUCCESS;
     PTOKEN_MANDATORY_LABEL pTIL = NULL;
+    DWORD dwIntegrityLevel = 0;
     CAutoGeneralHandle hProcess = OpenProcess(MAXIMUM_ALLOWED, FALSE, pid);
     CAutoGeneralHandle hToken;
 
@@ -6411,7 +6407,7 @@ bool CLogDlg::IsProcessRunningInHighIntegrity(DWORD pid)
                     if (GetTokenInformation(hToken, TokenIntegrityLevel,
                         pTIL, dwLengthNeeded, &dwLengthNeeded))
                     {
-                        DWORD dwIntegrityLevel = *GetSidSubAuthority(pTIL->Label.Sid,
+                        dwIntegrityLevel = *GetSidSubAuthority(pTIL->Label.Sid,
                             (DWORD)(UCHAR)(*GetSidSubAuthorityCount(pTIL->Label.Sid)-1));
 
                         if (dwIntegrityLevel >= SECURITY_MANDATORY_HIGH_RID)
@@ -6427,8 +6423,9 @@ bool CLogDlg::IsProcessRunningInHighIntegrity(DWORD pid)
 
 void CLogDlg::ActivateVisualStudioWindow(CComPtr<EnvDTE::_DTE>& pDTE)
 {
+    HRESULT result = E_FAIL;
     CComPtr<EnvDTE::Window> pMainWindow;
-    HRESULT result = pDTE->get_MainWindow(&pMainWindow);
+    result = pDTE->get_MainWindow(&pMainWindow);
     if (FAILED(result))
         return;
     long hwnd = 0;
@@ -6585,7 +6582,6 @@ bool CLogDlg::PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsP
             if ((!pCmi->OneRev)||(IsDiffPossible (m_currentChangedArray[selIndex], pCmi->Rev1)))
             {
                 popup.AppendMenuIcon(ID_DIFF, IDS_LOG_POPUP_DIFF, IDI_DIFF);
-                popup.AppendMenuIcon(ID_DIFF_CONTENTONLY, IDS_LOG_POPUP_DIFF_CONTENTONLY, IDI_DIFF);
                 popup.AppendMenuIcon(ID_BLAMEDIFF, IDS_LOG_POPUP_BLAMEDIFF, IDI_BLAME);
                 popup.SetDefaultItem(ID_DIFF, FALSE);
                 popup.AppendMenuIcon(ID_GNUDIFF1, IDS_LOG_POPUP_GNUDIFF_CH, IDI_DIFF);
@@ -6594,7 +6590,6 @@ bool CLogDlg::PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsP
             else if (pCmi->OneRev)
             {
                 popup.AppendMenuIcon(ID_DIFF, IDS_LOG_POPUP_DIFF, IDI_DIFF);
-                popup.AppendMenuIcon(ID_DIFF_CONTENTONLY, IDS_LOG_POPUP_DIFF_CONTENTONLY, IDI_DIFF);
                 popup.SetDefaultItem(ID_DIFF, FALSE);
                 bEntryAdded = true;
             }
@@ -6642,7 +6637,6 @@ bool CLogDlg::PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsP
             if(m_ChangedFileListCtrl.GetSelectedCount() > 1)
             {
                 popup.AppendMenuIcon(ID_DIFF_MULTIPLE, IDS_LOG_POPUP_DIFF_MULTIPLE, IDI_DIFF);
-                popup.AppendMenuIcon(ID_DIFF_MULTIPLE_CONTENTONLY, IDS_LOG_POPUP_DIFF_MULTIPLE_CONTENTONLY, IDI_DIFF);
                 popup.SetDefaultItem(ID_DIFF_MULTIPLE, FALSE);
                 popup.AppendMenuIcon(ID_OPENLOCAL_MULTIPLE, IDS_LOG_POPUP_OPENLOCAL_MULTIPLE, IDI_OPEN);
             }
@@ -6687,8 +6681,9 @@ bool CLogDlg::CheckMultipleDiffs( UINT selCount )
     return true;
 }
 
-void CLogDlg::ExecuteMultipleDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, bool ignoreprops )
+void CLogDlg::ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi)
 {
+    INT_PTR selIndex = 0;
     int nPaths = (int)pCmi->ChangedLogPathIndices.size();
 
     // warn if we exceed Software\\TortoiseSVN\\NumDiffWarning or 15 if not set
@@ -6697,13 +6692,13 @@ void CLogDlg::ExecuteMultipleDiffChangedPaths( ContextMenuInfoForChangedPathsPtr
 
     for (int i = 0; i < nPaths; ++i)
     {
-        INT_PTR selIndex = (INT_PTR)pCmi->ChangedLogPathIndices[i];
-        ExecuteDiffChangedPaths(pCmi, selIndex, ignoreprops);
+        selIndex = (INT_PTR)pCmi->ChangedLogPathIndices[i];
+        ExecuteDiffChangedPaths(pCmi, selIndex);
     }
 }
 
 
-void CLogDlg::ExecuteDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops )
+void CLogDlg::ExecuteDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex )
 {
     if ((!pCmi->OneRev)|| IsDiffPossible (m_currentChangedArray[selIndex], pCmi->Rev1))
     {
@@ -6711,7 +6706,7 @@ void CLogDlg::ExecuteDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, I
         {
             CoInitialize(NULL);
             this->EnableWindow(FALSE);
-            DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, false, false, ignoreprops);
+            DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, false, false);
             this->EnableWindow(TRUE);
             this->SetFocus();
         };
@@ -6723,7 +6718,7 @@ void CLogDlg::ExecuteDiffChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, I
         {
             CoInitialize(NULL);
             this->EnableWindow(FALSE);
-            DiffSelectedFile(ignoreprops);
+            DiffSelectedFile();
             this->EnableWindow(TRUE);
             this->SetFocus();
         };
@@ -6737,7 +6732,7 @@ void CLogDlg::ExecuteBlameDiffChangedPaths( INT_PTR selIndex, ContextMenuInfoFor
     {
         CoInitialize(NULL);
         this->EnableWindow(FALSE);
-        DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, true, false, false);
+        DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, true, false);
         this->EnableWindow(TRUE);
         this->SetFocus();
     };
@@ -6750,7 +6745,7 @@ void CLogDlg::ExecuteGnuDiff1ChangedPaths( INT_PTR selIndex, ContextMenuInfoForC
     {
         CoInitialize(NULL);
         this->EnableWindow(FALSE);
-        DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, false, true, false);
+        DoDiffFromLog(selIndex, pCmi->Rev1, pCmi->Rev2, false, true);
         this->EnableWindow(TRUE);
         this->SetFocus();
     };

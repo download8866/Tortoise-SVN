@@ -104,7 +104,7 @@ CRevisionGraphWnd::CRevisionGraphWnd()
     , m_previewZoom(1)
     , m_dwTicks(0)
 {
-    SecureZeroMemory(&m_lfBaseFont, sizeof(LOGFONT));
+    memset(&m_lfBaseFont, 0, sizeof(LOGFONT));
     std::fill_n(m_apFonts, MAXFONTS, (CFont*)NULL);
 
     WNDCLASS wndcls;
@@ -202,7 +202,7 @@ void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
     }
     EnableToolTips();
 
-    SecureZeroMemory(&m_lfBaseFont, sizeof(m_lfBaseFont));
+    memset(&m_lfBaseFont, 0, sizeof(m_lfBaseFont));
     m_lfBaseFont.lfHeight = 0;
     m_lfBaseFont.lfWeight = FW_NORMAL;
     m_lfBaseFont.lfItalic = FALSE;

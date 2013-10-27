@@ -166,11 +166,11 @@ CMainFrame::CMainFrame()
     , m_pwndLeftView(NULL)
     , m_pwndRightView(NULL)
     , m_pwndBottomView(NULL)
+    , m_pwndCommandView(NULL)
     , m_bReadOnly(false)
     , m_bBlame(false)
     , m_bCheckReload(false)
     , m_bSaveRequired(false)
-    , m_bSaveRequiredOnConflicts(false)
     , resolveMsgWnd(0)
     , resolveMsgWParam(0)
     , resolveMsgLParam(0)
@@ -180,7 +180,6 @@ CMainFrame::CMainFrame()
     , m_regCollapsed(L"Software\\TortoiseMerge\\Collapsed", 0)
     , m_regInlineDiff(L"Software\\TortoiseMerge\\DisplayBinDiff", TRUE)
     , m_regUseRibbons(L"Software\\TortoiseMerge\\UseRibbons", TRUE)
-    , m_regUseTaskDialog(L"Software\\TortoiseMerge\\UseTaskDialog", TRUE)
 {
     m_bOneWay = (0 != ((DWORD)m_regOneWay));
     theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -189,7 +188,6 @@ CMainFrame::CMainFrame()
     m_bWrapLines = !!(DWORD)m_regWrapLines;
     m_bInlineDiff = !!m_regInlineDiff;
     m_bUseRibbons = !!m_regUseRibbons;
-    m_bUseTaskDialog = CTaskDialog::IsSupported() && (DWORD)m_regUseTaskDialog;
     CMFCVisualManagerWindows::m_b3DTabsXPTheme = TRUE;
 }
 
@@ -736,7 +734,7 @@ bool CMainFrame::LoadViews(int line)
                 progDlg.Stop();
                 CString msg;
                 msg.FormatMessage(IDS_WARNBETTERPATCHPATHFOUND, (LPCTSTR)m_Data.m_sPatchPath, (LPCTSTR)betterpatchpath);
-                if (m_bUseTaskDialog)
+                if (CTaskDialog::IsSupported())
                 {
                     CTaskDialog taskdlg(msg,
                                         CString(MAKEINTRESOURCE(IDS_WARNBETTERPATCHPATHFOUND_TASK2)),
@@ -789,7 +787,6 @@ bool CMainFrame::LoadViews(int line)
         //diff between YOUR and BASE
         if (m_bOneWay)
         {
-            pwndActiveView = m_pwndLeftView;
             if (!m_wndSplitter2.IsColumnHidden(1))
                 m_wndSplitter2.HideColumn(1);
 
@@ -847,44 +844,6 @@ bool CMainFrame::LoadViews(int line)
             m_pwndLeftView->SetHidden(FALSE);
             m_pwndRightView->SetHidden(FALSE);
             m_pwndBottomView->SetHidden(TRUE);
-        }
-        bool hasMods, hasConflicts, hasWhitespaceMods;
-        pwndActiveView->CheckModifications(hasMods, hasConflicts, hasWhitespaceMods);
-        if (!hasMods && !hasConflicts)
-        {
-            // files appear identical, show a dialog informing the user that there are or might
-            // be other differences
-            bool hasEncodingDiff = m_Data.m_arBaseFile.GetUnicodeType() != m_Data.m_arYourFile.GetUnicodeType();
-            bool hasEOLDiff = m_Data.m_arBaseFile.GetLineEndings() != m_Data.m_arYourFile.GetLineEndings();
-            if (hasWhitespaceMods || hasEncodingDiff || hasEOLDiff)
-            {
-                // text is identical, but the files do not match
-                CString sWarning(MAKEINTRESOURCE(IDS_TEXTIDENTICAL_MAIN));
-                CString sWhitespace(MAKEINTRESOURCE(IDS_TEXTIDENTICAL_WHITESPACE));
-                CString sEncoding(MAKEINTRESOURCE(IDS_TEXTIDENTICAL_ENCODING));
-                CString sEOL(MAKEINTRESOURCE(IDS_TEXTIDENTICAL_EOL));
-                if (hasWhitespaceMods)
-                {
-                    sWarning += L"\r\n";
-                    sWarning += sWhitespace;
-                }
-                if (hasEncodingDiff)
-                {
-                    sWarning += L"\r\n";
-                    sWarning += sEncoding;
-                    sWarning += L" (";
-                    sWarning += m_Data.m_arBaseFile.GetEncodingName(m_Data.m_arBaseFile.GetUnicodeType());
-                    sWarning += L", ";
-                    sWarning += m_Data.m_arYourFile.GetEncodingName(m_Data.m_arYourFile.GetUnicodeType());
-                    sWarning += L")";
-                }
-                if (hasEOLDiff)
-                {
-                    sWarning += L"\r\n";
-                    sWarning += sEOL;
-                }
-                AfxMessageBox(sWarning, MB_ICONINFORMATION);
-            }
         }
     }
     else if (m_Data.IsBaseFileInUse() && m_Data.IsYourFileInUse() && m_Data.IsTheirFileInUse())
@@ -995,7 +954,7 @@ bool CMainFrame::LoadViews(int line)
         }
     }
     CheckResolved();
-    if (m_bHasConflicts && !m_bSaveRequiredOnConflicts)
+    if (m_bHasConflicts)
         m_bSaveRequired = false;
     CUndo::GetInstance().Clear();
     return true;
@@ -1336,7 +1295,7 @@ void CMainFrame::OnFileSave()
         {
             // both views
             UINT ret = IDNO;
-            if (m_bUseTaskDialog)
+            if (CTaskDialog::IsSupported())
             {
                 CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_SAVE_MORE)),
                                     CString(MAKEINTRESOURCE(IDS_SAVE)),
@@ -1455,7 +1414,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
         // file was saved with 0 lines!
         // ask the user if the file should be deleted
         bool bDelete = false;
-        if (m_bUseTaskDialog)
+        if (CTaskDialog::IsSupported())
         {
             CString msg;
             msg.Format(IDS_DELETEWHENEMPTY, (LPCTSTR)CPathUtils::GetFileNameFromPath(m_Data.m_mergedFile.GetFilename()));
@@ -1516,7 +1475,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
             if ((err == NULL) && (statuskind == svn_wc_status_conflicted))
             {
                 bool bResolve = false;
-                if (m_bUseTaskDialog)
+                if (CTaskDialog::IsSupported())
                 {
                     CString msg;
                     msg.Format(IDS_MARKASRESOLVED, (LPCTSTR)CPathUtils::GetFileNameFromPath(m_Data.m_mergedFile.GetFilename()));
@@ -1563,7 +1522,7 @@ bool CMainFrame::FileSave(bool bCheckResolved /*=true*/)
 
 void CMainFrame::OnFileSaveAs()
 {
-    if (m_bUseTaskDialog)
+    if (CTaskDialog::IsSupported())
     {
         // ask what file to save as
         bool bHaveConflict = (CheckResolved() >= 0);
@@ -2305,6 +2264,56 @@ void CMainFrame::OnIndicatorBottomview()
     }
 }
 
+void CMainFrame::OnIndicatorLeftviewPopup()
+{
+    m_pwndCommandView = m_pwndLeftView;
+    OnIndicatorPopup();
+}
+
+void CMainFrame::OnIndicatorRightviewPopup()
+{
+    m_pwndCommandView = m_pwndRightView;
+    OnIndicatorPopup();
+}
+
+void CMainFrame::OnIndicatorBottomviewPopup()
+{
+    m_pwndCommandView = m_pwndBottomView;
+    OnIndicatorPopup();
+}
+
+void CMainFrame::OnIndicatorPopup()
+{
+    if (IsViewGood(m_pwndCommandView))
+    {
+        m_pwndCommandView->ShowFormatPopup(CPoint(100, 100));
+    }
+}
+
+void CMainFrame::OnRemoveTrailSpaces()
+{
+    if (IsViewGood(m_pwndCommandView))
+    {
+        m_pwndCommandView->RemoveTrailWhiteChars();
+    }
+}
+
+void CMainFrame::OnTabToSpaces()
+{
+    if (IsViewGood(m_pwndCommandView))
+    {
+        m_pwndCommandView->ConvertTabToSpaces();
+    }
+}
+
+void CMainFrame::OnTabulatorize()
+{
+    if (IsViewGood(m_pwndCommandView))
+    {
+        m_pwndCommandView->Tabularize();
+    }
+}
+
 int CMainFrame::CheckForReload()
 {
     static bool bLock = false; //we don't want to check when activated after MessageBox we just created ... this is simple, but we don't need multithread lock
@@ -2325,7 +2334,7 @@ int CMainFrame::CheckForReload()
     }
 
     UINT ret = IDNO;
-    if (m_bUseTaskDialog)
+    if (CTaskDialog::IsSupported())
     {
         CString msg = HasUnsavedEdits() ? CString(MAKEINTRESOURCE(IDS_WARNMODIFIEDOUTSIDELOOSECHANGES)) : CString(MAKEINTRESOURCE(IDS_WARNMODIFIEDOUTSIDE));
         CTaskDialog taskdlg(msg,
@@ -2446,7 +2455,7 @@ int CMainFrame::CheckForSave(ECheckForSaveReason eReason)
         {
             // both views
             UINT ret = IDNO;
-            if (m_bUseTaskDialog)
+            if (CTaskDialog::IsSupported())
             {
                 CTaskDialog taskdlg(sTitle,
                                     sSubTitle,
@@ -2520,7 +2529,7 @@ int CMainFrame::CheckForSave(ECheckForSaveReason eReason)
         if (HasUnsavedEdits(m_pwndLeftView))
         {
             UINT ret = IDNO;
-            if (m_bUseTaskDialog)
+            if (CTaskDialog::IsSupported())
             {
                 CTaskDialog taskdlg(sTitle,
                                     sSubTitle,
@@ -2562,7 +2571,7 @@ int CMainFrame::CheckForSave(ECheckForSaveReason eReason)
     UINT ret = IDNO;
     if (HasUnsavedEdits())
     {
-        if (m_bUseTaskDialog)
+        if (CTaskDialog::IsSupported())
         {
             CTaskDialog taskdlg(sTitle,
                                 sSubTitle,
@@ -2810,7 +2819,7 @@ bool CMainFrame::HasConflictsWontKeep()
     CString sTemp;
     sTemp.Format(IDS_ERR_MAINFRAME_FILEHASCONFLICTS, m_pwndBottomView->m_pViewData->GetLineNumber(nConflictLine)+1);
     bool bSave = false;
-    if (m_bUseTaskDialog)
+    if (CTaskDialog::IsSupported())
     {
         CTaskDialog taskdlg(sTemp,
                             CString(MAKEINTRESOURCE(IDS_ERR_MAINFRAME_FILEHASCONFLICTS_TASK2)),

@@ -21,15 +21,12 @@
   </target>
 
   <target name="build" depends="clean">
-    <property name="ssldbg" value="" if="${configuration == 'release'}" />
-    <property name="ssldbg" value=".dbg" if="${configuration == 'debug'}" />
-    <property name="sslplat" value="32" if="${platform == 'win32'}" />
-    <property name="sslplat" value="64" if="${platform == 'x64'}" />
     <mkdir dir="${configuration}_${platform}" />
     <cl outputdir="${configuration}_${platform}">
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
+      <arg value="/GF" if="${configuration == 'release'}" />
       <arg value="/EHsc" />
       <arg value="/MD" if="${configuration == 'release'}" />
       <arg value="/MDd" if="${configuration == 'debug'}" />
@@ -56,7 +53,8 @@
         <include name="..\apr-util\include" />
         <include name="..\apr-util\xml\expat\lib" />
         <include name="..\zlib" />
-        <include name="..\openssl\inc${sslplat}" />
+        <include name="..\openssl\inc32" if="${platform == 'win32'}" />
+        <include name="..\openssl\inc64" if="${platform == 'x64'}" />
       </includedirs>
       <defines>
         <define name="APR_DECLARE_EXPORT" />
@@ -82,6 +80,10 @@
     </cl>
     <property name="machineoption" value="/MACHINE:X86" if="${platform == 'win32'}" />
     <property name="machineoption" value="/MACHINE:X64" if="${platform == 'x64'}" />
+    <property name="ssldbg" value="" if="${configuration == 'release'}" />
+    <property name="ssldbg" value=".dbg" if="${configuration == 'debug'}" />
+    <property name="sslplat" value="32" if="${platform == 'win32'}" />
+    <property name="sslplat" value="64" if="${platform == 'x64'}" />
     <lib
       output="${configuration}_${platform}\libserf.lib"
       options='/NOLOGO ${subsystem} ${machineoption}'>

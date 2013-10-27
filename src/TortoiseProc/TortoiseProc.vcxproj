@@ -942,16 +942,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\Bookmarks.ico" />
-    <Image Include="..\Resources\ccollabgui.ico" />
-    <Image Include="Bookmarks.ico" />
+    <Image Include="..\resources\ccollabgui.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties RESOURCE_FILE="\Development\SVN\TortoiseSVN\src\Resources\TortoiseProcENG.rc" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

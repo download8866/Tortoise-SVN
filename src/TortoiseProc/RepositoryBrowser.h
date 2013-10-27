@@ -52,7 +52,6 @@ public:
         , is_external(false)
         , kind(svn_node_unknown)
         , svnparentpathroot(false)
-        , bookmark(false)
     {
     }
 
@@ -67,7 +66,6 @@ public:
     CString         error;
     svn_node_kind_t kind;
     bool            svnparentpathroot;
-    bool            bookmark;
 };
 
 
@@ -292,10 +290,6 @@ protected:
     bool RunStartCommit(const CTSVNPathList& pathlist, CString& sLogMsg);
     bool RunPreCommit(const CTSVNPathList& pathlist, svn_depth_t depth, CString& sMsg);
     bool RunPostCommit(const CTSVNPathList& pathlist, svn_depth_t depth, svn_revnum_t revEnd, const CString& sMsg);
-    void LoadBookmarks();
-    void SaveBookmarks();
-    HTREEITEM FindBookmarkRoot();
-    void RefreshBookmarks();
 protected:
     bool                m_bInitDone;
     CRepositoryBar      m_barRepository;
@@ -324,7 +318,6 @@ private:
     bool                m_bShowLocks;
     CTreeItem *         m_pListCtrlTreeItem;
 
-    int                 m_nBookmarksIcon;
     int                 m_nIconFolder;
     int                 m_nOpenIconFolder;
     int                 m_nExternalOvl;
@@ -357,7 +350,6 @@ private:
     std::list<CString>  m_UrlHistoryForward;
     std::map<CString, svn_depth_t> m_wcDepths;
 
-    std::set<std::wstring>  m_bookmarks;
     std::unique_ptr<EditFileCommand>    m_EditFileCommand;
 
     /// used to execute user ops (e.g. context menu actions) in the background

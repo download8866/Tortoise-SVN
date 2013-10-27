@@ -8,10 +8,6 @@
 #ifndef PARTITIONING_H
 #define PARTITIONING_H
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 /// A split vector of integers with a method for adding a value to all elements
 /// in a range.
 /// Used by the Partitioning class.
@@ -189,10 +185,5 @@ public:
 		Allocate(growSize);
 	}
 };
-
-
-#ifdef SCI_NAMESPACE
-}
-#endif
 
 #endif

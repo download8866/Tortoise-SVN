@@ -172,7 +172,8 @@ protected:
     virtual BOOL PreTranslateMessage(MSG* pMsg);
 
     void    FillLogMessageCtrl(bool bShow = true);
-    void DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2, bool blame, bool unified, bool ignoreprops);
+    void    DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2,
+                                                            bool blame, bool unified);
 
     DECLARE_MESSAGE_MAP()
 
@@ -207,7 +208,7 @@ private:
     void SaveSplitterPos();
     bool ValidateRegexp(LPCTSTR regexp_str, std::tr1::wregex& pat, bool bMatchCase);
     void CheckRegexpTooltip();
-    void DiffSelectedFile(bool ignoreprops);
+    void DiffSelectedFile();
     void DiffSelectedRevWithPrevious();
     void SetDlgTitle(bool bOffline);
     void ToggleCheckbox(size_t item);
@@ -292,14 +293,14 @@ private:
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteSaveAsChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteShowPropertiesChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
-    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops);
+    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteGnuDiff1ChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameDiffChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteRevertChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     bool VerifyContextMenuForChangedPathsAllowed(INT_PTR selIndex);
     bool GetContextMenuInfoForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi);
     bool PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi, CIconMenu& popup);
-    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, bool ignoreprops);
+    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     bool CheckMultipleDiffs(UINT selCount);
     int  OpenWorkingCopyFileWithRegisteredProgram(CString& fullPath);
     void OpenSelectedWcFilesWithRegistedProgram(std::vector<size_t>& changedlogpathindices);

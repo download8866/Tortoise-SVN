@@ -19,8 +19,6 @@ namespace Scintilla {
 typedef int Position;
 const Position invalidPosition = -1;
 
-enum EncodingFamily { efEightBit, efUnicode, efDBCS };
-
 /**
  * The range class represents a range of text in a document.
  * The two values are not sorted as one end may be more significant than the other
@@ -268,7 +266,6 @@ public:
 	int SCI_METHOD CodePage() const;
 	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
 	int SafeSegment(const char *text, int length, int lengthSegment) const;
-	EncodingFamily CodePageFamily() const;
 
 	// Gateways to modifying document
 	void ModifiedAt(int pos);

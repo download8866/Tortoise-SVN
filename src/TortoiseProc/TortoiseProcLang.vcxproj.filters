@@ -290,19 +290,19 @@
     <Image Include="..\Resources\open.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Resources\externalovl.ico">
+    <Image Include="..\resources\externalovl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Resources\nestedovl.ico">
+    <Image Include="..\resources\nestedovl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Resources\depthemptyovl.ico">
+    <Image Include="..\resources\depthemptyovl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Resources\depthfilesovl.ico">
+    <Image Include="..\resources\depthfilesovl.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="..\Resources\depthimmediatesovl.ico">
+    <Image Include="..\resources\depthimmediatesovl.ico">
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="..\Resources\CommitBackgroundBranches.ico">

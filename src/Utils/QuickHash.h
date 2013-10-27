@@ -327,7 +327,7 @@ public:
         TPair* temp = tempBuffer.get();
 
         size_t used[MAX_CLUSTERS];
-        SecureZeroMemory(used, sizeof(used));
+        memset (used, 0, sizeof (used));
 
         // sort main: fill bucket chains
 

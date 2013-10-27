@@ -152,7 +152,6 @@ public: // methods
     static void     SetupViewSelection(CBaseView* view, int start, int end);
     void            SetupViewSelection(int start, int end);
     CString         GetSelectedText() const;
-    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods);
 
     // state classifying methods; note: state may belong to more classes
     static bool     IsStateConflicted(DiffStates state);
@@ -215,19 +214,14 @@ public: // methods
 
     void            AddIndentationForSelectedBlock();
     void            RemoveIndentationForSelectedBlock();
+    bool            HasTabsToConvert();
     void            ConvertTabToSpaces();
+    bool            HasSpacesToConvert();
     void            Tabularize();
+    bool            HasTrailWhiteChars();
     void            RemoveTrailWhiteChars();
 
-    struct TWhitecharsProperties
-    {
-        bool HasMixedEols;
-        bool HasTrailWhiteChars;
-        bool HasSpacesToConvert;
-        bool HasTabsToConvert;
-    };
-
-    TWhitecharsProperties   GetWhitecharsProperties();
+    void            ShowFormatPopup(CPoint point);
 
 public: // variables
     CViewData *     m_pViewData;
@@ -259,7 +253,6 @@ public: // variables
     int             SaveFileTo(CString FileName, int Flags = 0);
 
     EOL             GetLineEndings();                                           ///< Get Line endings on view from lineendings or "mixed"
-    EOL             GetLineEndings(bool MixelEols);
     void            ReplaceLineEndings(EOL);                                    ///< Set AUTO lineending and replaces all EOLs
     void            SetLineEndingStyle(EOL);                                    ///< Set AUTO lineending
     UnicodeType     GetTextType() { return m_texttype; }
@@ -440,6 +433,7 @@ protected:  // methods
 
     static void     ResetUndoStep();
     void            SaveUndoStep();
+
 protected:  // variables
     COLORREF        m_InlineRemovedBk;
     COLORREF        m_InlineAddedBk;

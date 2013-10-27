@@ -55,9 +55,10 @@ bool CEditPropConflictDlg::SetPrejFile(const CTSVNPath& prejFile)
     {
         return false;
     }
+    size_t len = 0;
     for (;;)
     {
-        size_t len = fread(contentbuf, sizeof(char), 10000, File);
+        len = fread(contentbuf, sizeof(char), 10000, File);
         m_sPrejText += CUnicodeUtils::GetUnicode(CStringA(contentbuf, (int)len));
         if (len < 10000)
         {

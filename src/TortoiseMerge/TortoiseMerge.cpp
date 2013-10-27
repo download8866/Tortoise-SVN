@@ -104,7 +104,7 @@ BOOL CTortoiseMergeApp::InitInstance()
     HINSTANCE hInst = NULL;
     do
     {
-        langDll.Format(_T("%sLanguages\\TortoiseMerge%ld.dll"), (LPCTSTR)CPathUtils::GetAppParentDirectory(), langId);
+        langDll.Format(_T("%sLanguages\\TortoiseMerge%d.dll"), (LPCTSTR)CPathUtils::GetAppParentDirectory(), langId);
 
         hInst = LoadLibrary(langDll);
         CString sVer = _T(STRPRODUCTVER);
@@ -265,8 +265,6 @@ BOOL CTortoiseMergeApp::InitInstance()
         pFrame->m_bReversedPatch = TRUE;
     if (parser.HasKey(_T("saverequired")))
         pFrame->m_bSaveRequired = true;
-    if (parser.HasKey(_T("saverequiredonconflicts")))
-        pFrame->m_bSaveRequiredOnConflicts = true;
     if (pFrame->m_Data.IsBaseFileInUse() && !pFrame->m_Data.IsYourFileInUse() && pFrame->m_Data.IsTheirFileInUse())
     {
         pFrame->m_Data.m_yourFile.TransferDetailsFrom(pFrame->m_Data.m_theirFile);

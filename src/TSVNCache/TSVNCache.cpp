@@ -288,12 +288,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             for (int i=nCurrentCrawledpathIndex; i<MAX_CRAWLEDPATHS; ++i)
             {
                 TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)_tcslen(szCurrentCrawledPath[i]));
-                ++line;
+                line++;
             }
             for (int i=0; i<nCurrentCrawledpathIndex; ++i)
             {
                 TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)_tcslen(szCurrentCrawledPath[i]));
-                ++line;
+                line++;
             }
 
 
@@ -590,6 +590,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": InstanceThread started\n");
     TSVNCacheResponse response;
     DWORD cbBytesRead, cbWritten;
+    BOOL fSuccess;
     CAutoFile hPipe;
 
     // The thread's parameter is a handle to a pipe instance.
@@ -600,7 +601,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
     {
         // Read client requests from the pipe.
         TSVNCacheRequest request;
-        BOOL fSuccess = ReadFile(
+        fSuccess = ReadFile(
             hPipe,        // handle to pipe
             &request,    // buffer to receive data
             sizeof(request), // size of buffer
@@ -665,6 +666,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
     CCrashReportThread crashthread;
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": CommandThread started\n");
     DWORD cbBytesRead;
+    BOOL fSuccess;
     CAutoFile hPipe;
 
     // The thread's parameter is a handle to a pipe instance.
@@ -675,7 +677,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
     {
         // Read client requests from the pipe.
         TSVNCacheCommand command;
-        BOOL fSuccess = ReadFile(
+        fSuccess = ReadFile(
             hPipe,              // handle to pipe
             &command,           // buffer to receive data
             sizeof(command),    // size of buffer

@@ -223,7 +223,7 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
             return FALSE; // value specifier too big
         }
         exp = pEnd - pStart + 1;
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024);
         memcpy(format,pStart,pEnd - pStart);
         unsigned long number = strtoul(format, NULL, 0);
         if (strcmp(def,VERDEFAND) == 0)
@@ -250,20 +250,20 @@ int InsertRevision(char * def, char * pBuf, size_t & index,
     if (MinRev == -1 || MinRev == MaxRev)
     {
         if ((SubStat)&&(SubStat->bHexPlain))
-            sprintf_s(destbuf, "%lX", MaxRev);
+            sprintf_s(destbuf, "%LX", MaxRev);
         else if ((SubStat)&&(SubStat->bHexX))
-            sprintf_s(destbuf, "%#lX", MaxRev);
+            sprintf_s(destbuf, "%#LX", MaxRev);
         else
-            sprintf_s(destbuf, "%ld", MaxRev);
+            sprintf_s(destbuf, "%Ld", MaxRev);
     }
     else
     {
         if ((SubStat)&&(SubStat->bHexPlain))
-            sprintf_s(destbuf, "%lX:%lX", MinRev, MaxRev);
+            sprintf_s(destbuf, "%LX:%LX", MinRev, MaxRev);
         else if ((SubStat)&&(SubStat->bHexX))
-            sprintf_s(destbuf, "%#lX:%#lX", MinRev, MaxRev);
+            sprintf_s(destbuf, "%#LX:%#LX", MinRev, MaxRev);
         else
-            sprintf_s(destbuf, "%ld:%ld", MinRev, MaxRev);
+            sprintf_s(destbuf, "%Ld:%Ld", MinRev, MaxRev);
     }
     // Replace the $WCxxx$ string with the actual revision number
     char * pBuild = pBuf + index;
@@ -311,7 +311,7 @@ int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
             return FALSE; // Format specifier too big
         }
         exp = pEnd - pStart + 1;
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024*sizeof(wchar_t));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
         unsigned long number = wcstoul(format, NULL, 0);
         if (wcscmp(def,TEXT(VERDEFAND)) == 0)
@@ -339,20 +339,20 @@ int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
     if (MinRev == -1 || MinRev == MaxRev)
     {
         if ((SubStat)&&(SubStat->bHexPlain))
-            swprintf_s(destbuf, L"%lX", MaxRev);
+            swprintf_s(destbuf, L"%LX", MaxRev);
         else if ((SubStat)&&(SubStat->bHexX))
-            swprintf_s(destbuf, L"%#lX", MaxRev);
+            swprintf_s(destbuf, L"%#LX", MaxRev);
         else
-            swprintf_s(destbuf, L"%ld", MaxRev);
+            swprintf_s(destbuf, L"%Ld", MaxRev);
     }
     else
     {
         if ((SubStat)&&(SubStat->bHexPlain))
-            swprintf_s(destbuf, L"%lX:%lX", MinRev, MaxRev);
+            swprintf_s(destbuf, L"%LX:%LX", MinRev, MaxRev);
         else if ((SubStat)&&(SubStat->bHexX))
-            swprintf_s(destbuf, L"%#lX:%#lX", MinRev, MaxRev);
+            swprintf_s(destbuf, L"%#LX:%#LX", MinRev, MaxRev);
         else
-            swprintf_s(destbuf, L"%ld:%ld", MinRev, MaxRev);
+            swprintf_s(destbuf, L"%Ld:%Ld", MinRev, MaxRev);
     }
     // Replace the $WCxxx$ string with the actual revision number
     wchar_t * pBuild = pBuf + index;
@@ -374,8 +374,8 @@ int InsertRevisionW(wchar_t * def, wchar_t * pBuf, size_t & index,
 
 void _invalid_parameter_donothing(
     const wchar_t * /*expression*/,
-    const wchar_t * /*function*/,
-    const wchar_t * /*file*/,
+    const wchar_t * /*function*/, 
+    const wchar_t * /*file*/, 
     unsigned int /*line*/,
     uintptr_t /*pReserved*/
     )
@@ -432,7 +432,7 @@ int InsertDate(char * def, char * pBuf, size_t & index,
         {
             return FALSE; // Format specifier too big
         }
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024);
         memcpy(format,pStart,pEnd - pStart);
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -526,7 +526,7 @@ int InsertDateW(wchar_t * def, wchar_t * pBuf, size_t & index,
         {
             return FALSE; // Format specifier too big
         }
-        SecureZeroMemory(format, sizeof(format));
+        memset(format,0,1024*sizeof(wchar_t));
         memcpy(format,pStart,(pEnd - pStart)*sizeof(wchar_t));
 
         // to avoid wcsftime aborting if the user specified an invalid time format,
@@ -749,7 +749,7 @@ int _tmain(int argc, _TCHAR* argv[])
     BOOL bErrOnMixed = FALSE;
     BOOL bQuiet = FALSE;
     SubWCRev_t SubStat;
-    SecureZeroMemory(&SubStat, sizeof(SubStat));
+    memset (&SubStat, 0, sizeof (SubStat));
     SubStat.bFolders = FALSE;
 
     SetDllDirectory(L"");
