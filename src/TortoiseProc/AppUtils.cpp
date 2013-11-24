@@ -101,27 +101,12 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
 
     if (com.IsEmpty()||(com.Left(1).Compare(_T("#"))==0))
     {
-        // Maybe we should use TortoiseIDiff?
-        if ((ext == _T(".jpg")) || (ext == _T(".jpeg")) ||
-            (ext == _T(".bmp")) || (ext == _T(".gif"))  ||
-            (ext == _T(".png")) || (ext == _T(".ico"))  ||
-            (ext == _T(".tif")) || (ext == _T(".tiff"))  ||
-            (ext == _T(".dib")) || (ext == _T(".emf")))
-        {
-            com = CPathUtils::GetAppDirectory() + _T("TortoiseIDiff.exe");
-            com = _T("\"") + com + _T("\"");
-            com = com + _T(" /base:%base /theirs:%theirs /mine:%mine /result:%merged");
-            com = com + _T(" /basetitle:%bname /theirstitle:%tname /minetitle:%yname");
-        }
-        else
-        {
-            // use TortoiseMerge
-            bInternal = true;
-            com = CPathUtils::GetAppDirectory() + _T("TortoiseMerge.exe");
-            com = _T("\"") + com + _T("\"");
-            com = com + _T(" /base:%base /theirs:%theirs /mine:%mine /merged:%merged");
-            com = com + _T(" /basename:%bname /theirsname:%tname /minename:%yname /mergedname:%mname");
-        }
+        // use TortoiseMerge
+        bInternal = true;
+        com = CPathUtils::GetAppDirectory() + _T("TortoiseMerge.exe");
+        com = _T("\"") + com + _T("\"");
+        com = com + _T(" /base:%base /theirs:%theirs /mine:%mine /merged:%merged");
+        com = com + _T(" /basename:%bname /theirsname:%tname /minename:%yname /mergedname:%mname");
         if (!g_sGroupingUUID.IsEmpty())
         {
             com += L" /groupuuid:\"";
@@ -424,7 +409,7 @@ bool CAppUtils::StartExtDiff(
     {
         viewer += _T(" /line:");
         CString temp;
-        temp.Format(_T("%d"), line);
+        temp.Format(_T("%ld"), line);
         viewer += temp;
     }
 
@@ -957,10 +942,10 @@ bool CAppUtils::StartShowUnifiedDiff(HWND hWnd, const CTSVNPath& url1, const SVN
 bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
                                  const CTSVNPath& url2, const SVNRev& rev2,
                                  const SVNRev& peg, const SVNRev& headpeg,
-                                 bool ignoreprops, const CString& options,
-                                 bool bAlternateDiff /*= false*/, bool bIgnoreAncestry /*= false*/,
-                                 bool blame /*= false*/, svn_node_kind_t nodekind /*= svn_node_unknown*/,
-                                 int line /*= 0*/ )
+                                 const CString& options,
+                                 bool bAlternateDiff /* = false */, bool bIgnoreAncestry /* = false */,
+                                 bool blame /* = false */, svn_node_kind_t nodekind /* = svn_node_unknown */,
+                                 int line /* = 0 */)
 {
     CString sCmd;
     sCmd.Format(_T("/command:showcompare /nodekind:%d"), nodekind);
@@ -984,8 +969,6 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
         sCmd += _T(" /ignoreancestry");
     if (blame)
         sCmd += _T(" /blame");
-    if (ignoreprops)
-        sCmd += _T(" /ignoreprops");
 
     if (hWnd)
     {
@@ -999,7 +982,7 @@ bool CAppUtils::StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev&
     {
         sCmd += _T(" /line:");
         CString temp;
-        temp.Format(_T("%d"), line);
+        temp.Format(_T("%ld"), line);
         sCmd += temp;
     }
 

@@ -1860,7 +1860,7 @@ void CSVNProgressDlg::OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult)
         SVNDiff diff(NULL, this->m_hWnd, true); // do not pass 'this' as the SVN instance since that would make the diff command invoke this notify handler
         diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
         svn_revnum_t baseRev = 0;
-        diff.DiffFileAgainstBase(data->path, baseRev, false);
+        diff.DiffFileAgainstBase(data->path, baseRev);
     }
     else if ((!data->bAuxItem)&&(data->path.Exists())&&(!data->path.IsDirectory()))
     {
@@ -1933,15 +1933,7 @@ LRESULT CSVNProgressDlg::OnSVNProgress(WPARAM /*wParam*/, LPARAM lParam)
             m_pTaskbarList->SetProgressValue(m_hWnd, pProgressData->progress, pProgressData->total);
         }
     }
-    CString progText;
-    if (pProgressData->overall_total < 1024LL)
-        m_sTotalBytesTransferred.Format(IDS_SVN_PROGRESS_TOTALBYTESTRANSFERRED, pProgressData->overall_total);
-    else if (pProgressData->overall_total < 1200000LL)
-        m_sTotalBytesTransferred.Format(IDS_SVN_PROGRESS_TOTALTRANSFERRED, pProgressData->overall_total / 1024);
-    else
-        m_sTotalBytesTransferred.Format(IDS_SVN_PROGRESS_TOTALMBTRANSFERRED, (double)((double)pProgressData->overall_total / 1024000.0));
-    progText.FormatMessage(L"%1!s!, %2!s!", (LPCTSTR)m_sTotalBytesTransferred, (LPCTSTR)pProgressData->SpeedString);
-    SetDlgItemText(IDC_PROGRESSLABEL, progText);
+    SetDlgItemText(IDC_PROGRESSLABEL, (LPCTSTR)pProgressData->SpeedString);
     return 0;
 }
 
@@ -1949,11 +1941,11 @@ void CSVNProgressDlg::OnTimer(UINT_PTR nIDEvent)
 {
     if (nIDEvent == TRANSFERTIMER)
     {
-        CString progText;
         CString progSpeed;
         progSpeed.Format(IDS_SVN_PROGRESS_BYTES_SEC, 0i64);
-        progText.FormatMessage(IDS_SVN_PROGRESS_TOTALANDSPEED, (LPCTSTR)m_sTotalBytesTransferred, (LPCTSTR)progSpeed);
-        SetDlgItemText(IDC_PROGRESSLABEL, progText);
+        CString s;
+        s.Format(IDS_SVN_PROGRESS_SPEED, (LPCWSTR)progSpeed);
+        SetDlgItemText(IDC_PROGRESSLABEL, (LPCTSTR)s);
         KillTimer(TRANSFERTIMER);
     }
     if (nIDEvent == VISIBLETIMER)
@@ -2576,8 +2568,7 @@ bool CSVNProgressDlg::CmdCheckout(CString& sWindowTitle, bool& /*localoperation*
     DWORD exitcode = 0;
     CString error;
     CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    CTSVNPathList updatedList = GetPathsForUpdateHook(m_targetPathList);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, updatedList, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2673,8 +2664,7 @@ bool CSVNProgressDlg::CmdSparseCheckout(CString& sWindowTitle, bool& /*localoper
     DWORD exitcode = 0;
     CString error;
     CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    CTSVNPathList updatedList = GetPathsForUpdateHook(m_targetPathList);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, updatedList, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -2859,13 +2849,9 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
     }
     if (!m_restorepaths.empty())
     {
-        // use a separate SVN object to avoid getting the notifications when
-        // we re-set the changelists
-        SVN svn;
         for (auto it = m_restorepaths.cbegin(); it != m_restorepaths.cend(); ++it)
         {
-            CopyFile(it->first, std::get<0>(it->second), FALSE);
-            svn.AddToChangeList(CTSVNPathList(CTSVNPath(std::get<0>(it->second))), std::get<1>(it->second), svn_depth_empty);
+            CopyFile(it->first, it->second, FALSE);
         }
         m_restorepaths.clear();
     }
@@ -3564,8 +3550,7 @@ bool CSVNProgressDlg::CmdSwitch(CString& sWindowTitle, bool& /*localoperation*/)
     }
 
     CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    CTSVNPathList updatedList = GetPathsForUpdateHook(m_targetPathList);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, updatedList, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3636,8 +3621,7 @@ bool CSVNProgressDlg::CmdSwitchBackToParent( CString& sWindowTitle, bool& /*loca
     }
 
     CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    CTSVNPathList updatedList = GetPathsForUpdateHook(m_targetPathList);
-    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, updatedList, exitcode, error)))
+    if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
     {
         if (exitcode)
         {
@@ -3771,39 +3755,31 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
         DWORD exitcode = 0;
         CString error;
         CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-        if (!m_bNoHooks)
+        if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, exitcode, error)))
         {
-            CTSVNPathList updatedList = GetPathsForUpdateHook(m_targetPathList);
-            if (CHooks::Instance().PostUpdate(m_hWnd, m_targetPathList, m_depth, m_RevisionEnd, updatedList, exitcode, error))
+            if (exitcode)
             {
-                if (exitcode)
-                {
-                    ReportHookFailed(post_update_hook, m_targetPathList, error);
-                    return false;
-                }
+                ReportHookFailed(post_update_hook, m_targetPathList, error);
+                return false;
             }
         }
     }
     else
     {
-        if (!m_bNoHooks)
+        for (auto it:wcroots)
         {
-            for (auto it:wcroots)
+            DWORD exitcode = 0;
+            CString error;
+            ProjectProperties pp;
+            pp.ReadProps(it);
+            CHooks::Instance().SetProjectProperties(it, pp);
+            CTSVNPathList pl(it);
+            if ((!m_bNoHooks)&&(CHooks::Instance().PostUpdate(m_hWnd, pl, m_depth, m_RevisionEnd, exitcode, error)))
             {
-                DWORD exitcode = 0;
-                CString error;
-                ProjectProperties pp;
-                pp.ReadProps(it);
-                CHooks::Instance().SetProjectProperties(it, pp);
-                CTSVNPathList pl(it);
-                CTSVNPathList updatedList = GetPathsForUpdateHook(pl);
-                if (CHooks::Instance().PostUpdate(m_hWnd, pl, m_depth, m_RevisionEnd, updatedList, exitcode, error))
+                if (exitcode)
                 {
-                    if (exitcode)
-                    {
-                        ReportHookFailed(post_update_hook, pl, error);
-                        return false;
-                    }
+                    ReportHookFailed(post_update_hook, pl, error);
+                    return false;
                 }
             }
         }
@@ -4269,23 +4245,5 @@ LRESULT CSVNProgressDlg::OnCheck( WPARAM wnd, LPARAM )
         }
     }
     return 0;
-}
-
-CTSVNPathList CSVNProgressDlg::GetPathsForUpdateHook( const CTSVNPathList& pathList )
-{
-    CTSVNPathList updatedList;
-    if (!m_bNoHooks)
-    {
-        if (CHooks::Instance().IsHookPresent(post_update_hook, pathList))
-        {
-            for (const auto& n : m_arData)
-            {
-                if (!n->path.IsEmpty())
-                    updatedList.AddPath(n->path);
-            }
-            updatedList.RemoveDuplicates();
-        }
-    }
-    return updatedList;
 }
 

@@ -251,6 +251,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
 
     m_lowestRev = LONG_MAX;
     m_highestRev = 0;
+    size_t len = 0;
     LONG linenumber = 0;
     svn_revnum_t rev = 0;
     svn_revnum_t merged_rev = 0;
@@ -261,7 +262,7 @@ BOOL TortoiseBlame::OpenFile(const TCHAR *fileName)
         rev = 0;
         merged_rev = 0;
         // line number
-        size_t len = fread(&linenumber, sizeof(LONG), 1, File);
+        len = fread(&linenumber, sizeof(LONG), 1, File);
         if (len == 0)
             break;
         // revision
@@ -896,10 +897,10 @@ void TortoiseBlame::BlamePreviousRevision()
     }
 
     TCHAR bufStartRev[20];
-    _stprintf_s(bufStartRev, _T("%ld"), nSmallestRevision);
+    _stprintf_s(bufStartRev, _T("%d"), nSmallestRevision);
 
     TCHAR bufEndRev[20];
-    _stprintf_s(bufEndRev, _T("%ld"), nRevisionTo);
+    _stprintf_s(bufEndRev, _T("%d"), nRevisionTo);
 
     TCHAR bufLine[20];
     _stprintf_s(bufLine, _T("%d"), m_selectedLine+1); //using the current line is a good guess.
@@ -941,10 +942,10 @@ void TortoiseBlame::DiffPreviousRevision()
     LONG nRevisionFrom = nRevisionTo-1;
 
     TCHAR bufStartRev[20];
-    _stprintf_s(bufStartRev, _T("%ld"), nRevisionFrom);
+    _stprintf_s(bufStartRev, _T("%d"), nRevisionFrom);
 
     TCHAR bufEndRev[20];
-    _stprintf_s(bufEndRev, _T("%ld"), nRevisionTo);
+    _stprintf_s(bufEndRev, _T("%d"), nRevisionTo);
 
     tstring svnCmd = _T(" /command:diff ");
     svnCmd += _T(" /path:\"");
@@ -967,7 +968,7 @@ void TortoiseBlame::DiffPreviousRevision()
 void TortoiseBlame::ShowLog()
 {
     TCHAR bufRev[20];
-    _stprintf_s(bufRev, _countof(bufRev), _T("%ld"), m_selectedOrigRev);
+    _stprintf_s(bufRev, 20, _T("%d"), m_selectedOrigRev);
 
     tstring svnCmd = _T(" /command:log ");
     svnCmd += _T(" /path:\"");
@@ -1278,7 +1279,7 @@ void TortoiseBlame::DrawBlame(HDC hDC)
             tstring author;
             if (i < (int)m_authors.size())
                 author = bUseMerged ? m_mergedAuthors[i] : m_authors[i];
-            if (!author.empty())
+            if (author.size() > 0)
             {
                 if (author.compare(m_mouseAuthor)==0)
                     ::SetBkColor(hDC, m_mouseAuthorColor);

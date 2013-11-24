@@ -68,12 +68,8 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     // initialize the combo box with all the hook types we have
     int index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, start_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_CHECKCOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, check_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_PRECOMMIT)));
     m_cHookTypeCombo.SetItemData(index, pre_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_MANUALPRECOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, manual_precommit);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_POSTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, post_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTUPDATE)));
@@ -94,11 +90,11 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     cmd.bEnforce = false;
     cmd.bApproved = false;
     hooktype htype = unknown_hook;
+    int pos = 0;
     CString temp;
     CString strhook = CUnicodeUtils::GetUnicode(m_PropValue.c_str());
     if (!strhook.IsEmpty())
     {
-        int pos = 0;
         temp = strhook.Tokenize(_T("\n"), pos);
         htype = CHooks::GetHookType(temp);
         if (!temp.IsEmpty())
@@ -125,12 +121,8 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     {
         if (m_PropName.compare(PROJECTPROPNAME_STARTCOMMITHOOK)==0)
             htype = start_commit_hook;
-        if (m_PropName.compare(PROJECTPROPNAME_CHECKCOMMITHOOK)==0)
-            htype = pre_commit_hook;
         if (m_PropName.compare(PROJECTPROPNAME_PRECOMMITHOOK)==0)
             htype = pre_commit_hook;
-        if (m_PropName.compare(PROJECTPROPNAME_MANUALPRECOMMITHOOK)==0)
-            htype = manual_precommit;
         if (m_PropName.compare(PROJECTPROPNAME_POSTCOMMITHOOK)==0)
             htype = post_commit_hook;
         if (m_PropName.compare(PROJECTPROPNAME_STARTUPDATEHOOK)==0)
@@ -222,14 +214,8 @@ void CEditPropsLocalHooks::OnOK()
     case start_commit_hook:
         m_PropName = PROJECTPROPNAME_STARTCOMMITHOOK;
         break;
-    case check_commit_hook:
-        m_PropName = PROJECTPROPNAME_CHECKCOMMITHOOK;
-        break;
     case pre_commit_hook:
         m_PropName = PROJECTPROPNAME_PRECOMMITHOOK;
-        break;
-    case manual_precommit:
-        m_PropName = PROJECTPROPNAME_MANUALPRECOMMITHOOK;
         break;
     case post_commit_hook:
         m_PropName = PROJECTPROPNAME_POSTCOMMITHOOK;

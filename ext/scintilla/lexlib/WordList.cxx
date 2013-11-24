@@ -7,8 +7,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <ctype.h>
+#include <stdio.h>
 #include <stdarg.h>
 
 #include <algorithm>
@@ -32,11 +32,11 @@ static char **ArrayFromWordList(char *wordlist, int *len, bool onlyLineEnds = fa
 	for (int i=0; i<256; i++) {
 		wordSeparator[i] = false;
 	}
-	wordSeparator[static_cast<unsigned int>('\r')] = true;
-	wordSeparator[static_cast<unsigned int>('\n')] = true;
+	wordSeparator['\r'] = true;
+	wordSeparator['\n'] = true;
 	if (!onlyLineEnds) {
-		wordSeparator[static_cast<unsigned int>(' ')] = true;
-		wordSeparator[static_cast<unsigned int>('\t')] = true;
+		wordSeparator[' '] = true;
+		wordSeparator['\t'] = true;
 	}
 	for (int j = 0; wordlist[j]; j++) {
 		int curr = static_cast<unsigned char>(wordlist[j]);
@@ -45,24 +45,22 @@ static char **ArrayFromWordList(char *wordlist, int *len, bool onlyLineEnds = fa
 		prev = curr;
 	}
 	char **keywords = new char *[words + 1];
-	int wordsStore = 0;
-	const size_t slen = strlen(wordlist);
-	if (words) {
-		prev = '\0';
-		for (size_t k = 0; k < slen; k++) {
-			if (!wordSeparator[static_cast<unsigned char>(wordlist[k])]) {
-				if (!prev) {
-					keywords[wordsStore] = &wordlist[k];
-					wordsStore++;
-				}
-			} else {
-				wordlist[k] = '\0';
+	words = 0;
+	prev = '\0';
+	size_t slen = strlen(wordlist);
+	for (size_t k = 0; k < slen; k++) {
+		if (!wordSeparator[static_cast<unsigned char>(wordlist[k])]) {
+			if (!prev) {
+				keywords[words] = &wordlist[k];
+				words++;
 			}
-			prev = wordlist[k];
+		} else {
+			wordlist[k] = '\0';
 		}
+		prev = wordlist[k];
 	}
-	keywords[wordsStore] = &wordlist[slen];
-	*len = wordsStore;
+	keywords[words] = &wordlist[slen];
+	*len = words;
 	return keywords;
 }
 
@@ -105,7 +103,7 @@ void WordList::Clear() {
 #ifdef _MSC_VER
 
 static bool cmpWords(const char *a, const char *b) {
-	return strcmp(a, b) < 0;
+	return strcmp(a, b) == -1;
 }
 
 #else
@@ -163,7 +161,7 @@ bool WordList::InList(const char *s) const {
 			j++;
 		}
 	}
-	j = starts[static_cast<unsigned int>('^')];
+	j = starts['^'];
 	if (j >= 0) {
 		while (words[j][0] == '^') {
 			const char *a = words[j] + 1;
@@ -215,7 +213,7 @@ bool WordList::InListAbbreviated(const char *s, const char marker) const {
 			j++;
 		}
 	}
-	j = starts[static_cast<unsigned int>('^')];
+	j = starts['^'];
 	if (j >= 0) {
 		while (words[j][0] == '^') {
 			const char *a = words[j] + 1;

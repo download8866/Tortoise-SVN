@@ -792,7 +792,7 @@ void CStatGraphDlg::ShowCommitsByDate()
     tstring othersName;
     if (!others.empty())
     {
-        temp.Format(_T(" (%Iu)"), others.size());
+        temp.Format(_T(" (%ld)"), others.size());
         sOthers += temp;
         othersName = (LPCWSTR)sOthers;
         authorGraphMap[othersName] = m_graph.AppendGroup(sOthers);
@@ -945,7 +945,7 @@ void CStatGraphDlg::ShowStats()
         nWeeks = 1;
     // Adjust the labels with the unit type (week, month, ...)
     CString labelText;
-    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, GetUnitsString());
+    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, GetUnitString());
     SetDlgItemText(IDC_NUMWEEK, labelText);
     labelText.Format(IDS_STATGRAPH_COMMITSBYUNIT, GetUnitString());
     SetDlgItemText(IDC_COMMITSEACHWEEK, labelText);
@@ -953,11 +953,11 @@ void CStatGraphDlg::ShowStats()
     SetDlgItemText(IDC_FILECHANGESEACHWEEK, labelText);
     // We have now all data we want and we can fill in the labels...
     CString number;
-    number.Format(_T("%d"), nWeeks);
+    number.Format(_T("%ld"), nWeeks);
     SetDlgItemText(IDC_NUMWEEKVALUE, number);
-    number.Format(_T("%Iu"), nAuthors);
+    number.Format(_T("%ld"), nAuthors);
     SetDlgItemText(IDC_NUMAUTHORVALUE, number);
-    number.Format(_T("%d"), m_nTotalCommits);
+    number.Format(_T("%ld"), m_nTotalCommits);
     SetDlgItemText(IDC_NUMCOMMITSVALUE, number);
     number.Format(_T("%ld"), m_nTotalFileChanges);
     SetDlgItemText(IDC_NUMFILECHANGESVALUE, number);
@@ -1090,19 +1090,6 @@ CString CStatGraphDlg::GetUnitString()
     if (m_nWeeks < 320)
         return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXQUARTER));
     return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXYEAR));
-}
-
-CString CStatGraphDlg::GetUnitsString()
-{
-    if (m_nDays < 8)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXDAYS));
-    if (m_nWeeks < 15)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXWEEKS));
-    if (m_nWeeks < 80)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXMONTHS));
-    if (m_nWeeks < 320)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXQUARTERS));
-    return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXYEARS));
 }
 
 CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
@@ -1569,7 +1556,7 @@ void CStatGraphDlg::DrawOthers(const std::list<tstring> &others, MyGraphSeries *
     }
 
     CString temp;
-    temp.Format(_T(" (%Iu)"), others.size());
+    temp.Format(_T(" (%ld)"), others.size());
 
     CString sOthers(MAKEINTRESOURCE(IDS_STATGRAPH_OTHERGROUP));
     sOthers += temp;

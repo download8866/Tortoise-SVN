@@ -2,11 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by D:\Development\SVN\TortoiseSVN\src\Resources\TortoiseMergeENG.rc
 //
-#define IDCANCEL2                       4
 #define IDR_MAINFRAME                   100
 #define IDP_OLE_INIT_FAILED             101
 #define IDS_TITLE_REJECTEDHUNKS         101
-#define IDS_CONFIGUREREGEXES            102
 #define IDD_SETMAINPAGE                 107
 #define IDD_OPENDLG                     130
 #define IDD_DIFFLOCATOR                 131
@@ -42,11 +40,6 @@
 #define IDB_RIBBONSMALLHDPI             161
 #define IDB_PNG3                        162
 #define IDB_RIBBONLARGEHDPI             162
-#define IDD_REGEXFILTERS                164
-#define IDD_REGEXFILTER                 165
-#define IDR_CONFIG1                     166
-#define IDR_REGEXFILTERINI              166
-#define IDR_CONFIG2                     167
 #define IDB_LOGOFLIPPED                 168
 #define IDD_PATCH_FILE_OPEN_CUSTOM      180
 #define IDS_SELECTFILE                  200
@@ -56,16 +49,18 @@
 #define IDC_COMBO_ENCODING              302
 #define IDC_STATIC_EOL                  303
 #define IDC_COMBO_EOL                   304
-#define ID_REGEXFILTER                  500
 #define IDC_BASEFILEEDIT                1000
 #define IDS_ERR_PATCH_NOINDEX           1000
 #define IDC_BASEFILEBROWSE              1001
 #define IDS_ERR_PATCH_NOEQUATIONCHARLINE 1001
 #define IDC_THEIRFILEEDIT               1002
+#define IDS_ERR_PATCH_NOREMOVEFILELINE  1002
 #define IDC_THEIRFILEBROWSE             1003
 #define IDS_ERR_PATCH_NOADDFILELINE     1003
 #define IDC_HELPBUTTON                  1004
+#define IDS_ERR_PATCH_RENAMINGNOTSUPPORTED 1004
 #define IDC_VERSIONSTRING               1005
+#define IDS_ERR_PATCH_CHUNKSTARTNOTFOUND 1005
 #define IDC_YOURFILEEDIT                1006
 #define IDS_ERR_PATCH_UNKOWNLINETYPE    1006
 #define IDC_YOURFILEBROWSE              1007
@@ -88,6 +83,7 @@
 #define IDS_ERR_PATCH_FILENOTINPATCH    1021
 #define IDS_ERR_PATCH_DOESNOTMATCH      1022
 #define IDC_DIFFGROUP                   1022
+#define IDS_ERR_PATCH_FILESAVE          1023
 #define IDC_MISCGROUP                   1023
 #define IDC_ONEPANE                     1024
 #define IDC_BKUNKNOWN                   1027
@@ -150,7 +146,6 @@
 #define IDC_BKMODIFIED                  1071
 #define IDC_UNIDIFFGROUP                1072
 #define IDC_MERGEGROUP                  1073
-#define IDC_SEARCHUP                    1074
 #define IDC_FIRSTCONFLICTONLOAD         1074
 #define IDC_VERSIONBOX                  1075
 #define IDC_PATCHSELECTEDBUTTON         1075
@@ -166,13 +161,6 @@
 #define IDC_FONTSIZES                   1086
 #define IDC_BKMOVEDFROM                 1087
 #define IDC_BKMOVEDTO                   1088
-#define IDC_TRIM                        1090
-#define IDC_USESPACES                   1091
-#define IDC_USETABS                     1092
-#define IDC_STOPASKING                  1093
-#define IDC_TITLE                       1094
-#define IDC_DESCRIPTION                 1095
-#define IDC_FIXEOLS                     1096
 #define IDS_ERR_FILE_OPEN               1100
 #define IDS_ERR_FILE_BINARY             1101
 #define IDS_ERR_FILE_NOTAFILE           1102
@@ -180,30 +168,12 @@
 #define IDS_ERR_DIFFVIEWSTART           1110
 #define IDS_ERR_PATCHPATHS              1111
 #define IDC_PATCH_TO_CLIPBOARD          1132
+#define IDS_UTILS_SELECTTEXTVIEWER      1254
 #define IDS_APPNAME                     1271
 #define IDS_ERR_THREADSTARTFAILED       1281
 #define IDS_ERR_TEXTVIEWSTART           1326
 #define IDS_GOTOLINE                    1400
 #define IDS_GOTO_OUTOFRANGE             1401
-#define IDC_USETASKDIALOG               1500
-#define IDC_COUNT                       1501
-#define IDS_FIND_COUNT                  1502
-#define IDC_FINDSTATUS                  1503
-#define IDS_FIND_NOTFOUND               1504
-#define IDC_REGEXLIST                   1504
-#define IDS_FIND_BOTTOMREACHED          1505
-#define IDC_ADD                         1505
-#define IDS_FIND_TOPREACHED             1506
-#define IDC_EDIT                        1506
-#define IDC_REMOVE                      1507
-#define IDC_NAME                        1508
-#define IDC_REGEX                       1509
-#define IDC_NAME3                       1511
-#define IDC_REPLACE                     1511
-#define IDS_TEXTIDENTICAL_MAIN          1600
-#define IDS_TEXTIDENTICAL_WHITESPACE    1601
-#define IDS_TEXTIDENTICAL_ENCODING      1602
-#define IDS_TEXTIDENTICAL_EOL           1603
 #define IDS_ABOUTVERSION                1700
 #define IDS_ABOUTVERSIONBOX             1701
 #define IDS_SETTINGSTITLE               1702
@@ -212,6 +182,7 @@
 #define ID_INDICATOR_BOTTOMVIEW         2002
 #define IDS_COMMONFILEFILTER            2500
 #define IDS_PATCHFILEFILTER             2501
+#define IDS_PROGRAMSFILEFILTER          2502
 #define IDS_PATCH_SEARCHPATHTITLE       2700
 #define IDS_PATCH_SEARCHPATHLINE1       2701
 #define IDS_PATCH_PROGTITLE             2702
@@ -242,9 +213,8 @@
 #define IDS_VIEWCONTEXTMENU_APPENDTHIS  4012
 #define IDS_VIEWCONTEXTMENU_PREPENDRIGHT 4013
 #define IDS_VIEWCONTEXTMENU_USERIGHT    4014
+#define IDS_VIEWCONTEXTMENU_APENDRIGHT  4015
 #define IDS_VIEWCONTEXTMENU_APPENDRIGHT 4015
-#define IDS_VIEWCONTEXTMENU_EOL         4016
-#define IDS_VIEWCONTEXTMENU_ENCODING    4017
 #define IDS_VIEWTITLE_THEIRS            4200
 #define IDS_VIEWTITLE_MERGED            4201
 #define IDS_VIEWTITLE_MINE              4202
@@ -255,9 +225,13 @@
 #define IDS_GETVERSIONOFFILETITLE       5003
 #define IDS_GETVERSIONOFFILE            5004
 #define IDS_WARNMODIFIEDLOOSECHANGES    5005
+#define IDS_ASKFORSAVE                  5006
+#define IDS_WARNMODIFIEDLOOSECHANGES_   5007
 #define IDS_WARNMODIFIEDLOOSECHANGESOPTIONS 5007
 #define IDS_WARNBETTERPATCHPATHFOUND    5008
 #define IDS_NOTFOUNDVIEWTITLEINDICATOR  5009
+#define IDS_WARNABSOLUTEPATHFOUND       5010
+#define IDS_WARNABSOLUTEPATHNOTFOUND    5011
 #define IDS_DELETEWHENEMPTY             5012
 #define IDS_EMPTYLINETT                 5013
 #define IDS_WARNMODIFIEDOUTSIDELOOSECHANGES 5014
@@ -284,7 +258,9 @@
 #define IDS_ERR_MAINFRAME_FILEHASCONFLICTS_TASK4 5035
 #define IDS_ASKFORSAVE_NOSAVE_OPEN      5036
 #define IDS_ASKFORSAVE_CANCEL_OPEN      5037
+#define IDS_ASKFORSAVE_CANCEL_RELOAD    5038
 #define IDS_ASKFORSAVE_CANCEL_OPTIONS   5039
+#define IDS_ASKFORSAVE_TASK9            5040
 #define IDS_ASKFORSAVE_SAVELEFT         5041
 #define IDS_ASKFORSAVE_SAVELEFTAS       5042
 #define IDS_ASKFORSAVE_SAVERIGHT        5043
@@ -316,6 +292,25 @@
 #define IDS_EDIT_TAB2SPACE              8003
 #define IDS_EDIT_SPACE2TAB              8004
 #define IDS_EDIT_TRIM                   8005
+#define IDS_MSGBOX_OK                   9001
+#define IDS_MSGBOX_CANCEL               9002
+#define IDS_MSGBOX_IGNORE               9003
+#define IDS_MSGBOX_RETRY                9004
+#define IDS_MSGBOX_ABORT                9005
+#define IDS_MSGBOX_HELP                 9006
+#define IDS_MSGBOX_YES                  9007
+#define IDS_MSGBOX_NO                   9008
+#define IDS_MSGBOX_CONTINUE             9009
+#define IDS_MSGBOX_DONOTASKAGAIN        9010
+#define IDS_MSGBOX_DONOTTELLAGAIN       9011
+#define IDS_MSGBOX_DONOTSHOWAGAIN       9012
+#define IDS_MSGBOX_YESTOALL             9013
+#define IDS_MSGBOX_NOTOALL              9014
+#define IDS_MSGBOX_TRYAGAIN             9015
+#define IDS_MSGBOX_REPORT               9016
+#define IDS_MSGBOX_IGNOREALL            9017
+#define IDS_MSGBOX_SKIP                 9018
+#define IDS_MSGBOX_SKIPALL              9019
 #define IDC_STYLEBUTTON                 10000
 #define ID_VIEW_APPLOOK_WIN7            10001
 #define ID_VIEW_APPLOOK_VS_2008         10002
@@ -382,7 +377,6 @@
 #define ID_EDIT_GOTOLINE                32893
 #define ID_EDIT_GOTOLINE32895           32895
 #define ID_BUTTON2                      32896
-#define ID_VIEW_IGNORECOMMENTS          32896
 #define ID_LOGOBUTTON                   32897
 #define ID_USEBLOCKS                    32914
 #define ID_BUTTON20                     32916
@@ -404,9 +398,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        168
-#define _APS_NEXT_COMMAND_VALUE         32981
-#define _APS_NEXT_CONTROL_VALUE         1509
+#define _APS_NEXT_RESOURCE_VALUE        163
+#define _APS_NEXT_COMMAND_VALUE         32979
+#define _APS_NEXT_CONTROL_VALUE         1081
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

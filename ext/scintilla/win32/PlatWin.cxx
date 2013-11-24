@@ -7,12 +7,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 #include <ctype.h>
 #include <stdarg.h>
+#include <stdio.h>
 #include <time.h>
-#include <math.h>
 #include <limits.h>
+#include <math.h>
 
 #include <vector>
 #include <map>
@@ -103,13 +103,13 @@ static BOOL (WINAPI *GetMonitorInfoFn)(HMONITOR, LPMONITORINFO) = 0;
 
 static HCURSOR reverseArrowCursor = NULL;
 
-#ifdef SCI_NAMESPACE
-namespace Scintilla {
-#endif
-
 bool IsNT() {
 	return onNT;
 }
+
+#ifdef SCI_NAMESPACE
+using namespace Scintilla;
+#endif
 
 Point Point::FromLong(long lpoint) {
 	return Point(static_cast<short>(LOWORD(lpoint)), static_cast<short>(HIWORD(lpoint)));
@@ -212,7 +212,8 @@ struct FormatAndMetrics {
 };
 
 HFONT FormatAndMetrics::HFont() {
-	LOGFONTW lf = {};
+	LOGFONTW lf;
+	memset(&lf, 0, sizeof(lf));
 #if defined(USE_D2D)
 	if (technology == SCWIN_TECH_GDI) {
 		if (0 == ::GetObjectW(hfont, sizeof(lf), &lf)) {
@@ -284,7 +285,6 @@ static void SetLogFont(LOGFONTA &lf, const char *faceName, int characterSet, flo
 	lf.lfCharSet = static_cast<BYTE>(characterSet);
 	lf.lfQuality = Win32MapFontQuality(extraFontFlag);
 	strncpy(lf.lfFaceName, faceName, sizeof(lf.lfFaceName));
-	lf.lfFaceName[sizeof(lf.lfFaceName)-1] = '\0';
 }
 
 /**
@@ -497,6 +497,10 @@ public:
 };
 typedef VarBuffer<XYPOSITION, stackBufferLength> TextPositions;
 
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
+
 class SurfaceGDI : public Surface {
 	bool unicodeMode;
 	HDC hdc;
@@ -568,6 +572,10 @@ public:
 	void SetUnicodeMode(bool unicodeMode_);
 	void SetDBCSMode(int codePage_);
 };
+
+#ifdef SCI_NAMESPACE
+} //namespace Scintilla
+#endif
 
 SurfaceGDI::SurfaceGDI() :
 	unicodeMode(false),
@@ -781,7 +789,7 @@ void SurfaceGDI::AlphaRectangle(PRectangle rc, int cornerSize, ColourDesired fil
 		int height = rc.Height();
 		// Ensure not distorted too much by corners when small
 		cornerSize = Platform::Minimum(cornerSize, (Platform::Minimum(width, height) / 2) - 2);
-		BITMAPINFO bpih = {{sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0}};
+		BITMAPINFO bpih = {sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0};
 		void *image = 0;
 		HBITMAP hbmMem = CreateDIBSection(reinterpret_cast<HDC>(hMemDC), &bpih,
 			DIB_RGB_COLORS, &image, NULL, 0);
@@ -844,7 +852,7 @@ void SurfaceGDI::DrawRGBAImage(PRectangle rc, int width, int height, const unsig
 			rc.top += static_cast<int>((rc.Height() - height) / 2);
 		rc.bottom = rc.top + height;
 
-		BITMAPINFO bpih = {{sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0}};
+		BITMAPINFO bpih = {sizeof(BITMAPINFOHEADER), width, height, 1, 32, BI_RGB, 0, 0, 0, 0, 0};
 		unsigned char *image = 0;
 		HBITMAP hbmMem = CreateDIBSection(reinterpret_cast<HDC>(hMemDC), &bpih,
 			DIB_RGB_COLORS, reinterpret_cast<void **>(&image), NULL, 0);
@@ -1138,6 +1146,10 @@ void SurfaceGDI::SetDBCSMode(int codePage_) {
 
 #if defined(USE_D2D)
 
+#ifdef SCI_NAMESPACE
+namespace Scintilla {
+#endif
+
 class SurfaceD2D : public Surface {
 	bool unicodeMode;
 	int x, y;
@@ -1216,6 +1228,10 @@ public:
 	void SetUnicodeMode(bool unicodeMode_);
 	void SetDBCSMode(int codePage_);
 };
+
+#ifdef SCI_NAMESPACE
+} //namespace Scintilla
+#endif
 
 SurfaceD2D::SurfaceD2D() :
 	unicodeMode(false),
@@ -1730,17 +1746,14 @@ void SurfaceD2D::MeasureWidths(Font &font_, const char *s, int len, XYPOSITION *
 	} else {
 
 		// May be more than one byte per position
-		unsigned int ui = 0;
-		FLOAT position = 0.0f;
+		int ui = 0;
 		for (int i=0;i<len;) {
-			if (ui < count)
-				position = poses.buffer[ui];
 			if (Platform::IsDBCSLeadByte(codePageText, s[i])) {
-				positions[i] = position;
-				positions[i+1] = position;
+				positions[i] = poses.buffer[ui];
+				positions[i+1] = poses.buffer[ui];
 				i += 2;
 			} else {
-				positions[i] = position;
+				positions[i] = poses.buffer[ui];
 				i++;
 			}
 
@@ -2257,15 +2270,12 @@ PRectangle ListBoxX::GetDesiredRect() {
 	HDC hdc = ::GetDC(lb);
 	HFONT oldFont = SelectFont(hdc, fontCopy);
 	SIZE textSize = {0, 0};
-	int len = 0;
-	if (widestItem) {
-		len = static_cast<int>(strlen(widestItem));
-		if (unicodeMode) {
-			const TextWide tbuf(widestItem, len, unicodeMode);
-			::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &textSize);
-		} else {
-			::GetTextExtentPoint32A(hdc, widestItem, len, &textSize);
-		}
+	int len = static_cast<int>(widestItem ? strlen(widestItem) : 0);
+	if (unicodeMode) {
+		const TextWide tbuf(widestItem, len, unicodeMode);
+		::GetTextExtentPoint32W(hdc, tbuf.buffer, tbuf.tlen, &textSize);
+	} else {
+		::GetTextExtentPoint32A(hdc, widestItem, len, &textSize);
 	}
 	TEXTMETRIC tm;
 	::GetTextMetrics(hdc, &tm);
@@ -2429,11 +2439,7 @@ void ListBoxX::Draw(DRAWITEMSTRUCT *pDrawItem) {
 							delete surfaceItem;
 							pDCRT->EndDraw();
 							pDCRT->Release();
-						} else {
-							delete surfaceItem;
 						}
-					} else {
-						delete surfaceItem;
 					}
 #endif
 				}
@@ -2985,7 +2991,6 @@ ElapsedTime::ElapsedTime() {
 		littleBit = timeVal.LowPart;
 	} else {
 		bigBit = clock();
-		littleBit = 0;
 	}
 }
 
@@ -3245,7 +3250,3 @@ void Platform_Finalise() {
 	ListBoxX_Unregister();
 	::DeleteCriticalSection(&crPlatformLock);
 }
-
-#ifdef SCI_NAMESPACE
-}
-#endif

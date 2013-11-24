@@ -62,12 +62,11 @@ SVNDiff::~SVNDiff(void)
 }
 
 bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
-                         bool ignoreprops,
-                         svn_wc_status_kind status, /* = svn_wc_status_none */
-                         svn_wc_status_kind text_status /* = svn_wc_status_none */,
-                         svn_wc_status_kind prop_status /* = svn_wc_status_none */,
-                         svn_wc_status_kind remotetext_status /* = svn_wc_status_none */,
-                         svn_wc_status_kind remoteprop_status /* = svn_wc_status_none */)
+                        svn_wc_status_kind status, /* = svn_wc_status_none */
+                        svn_wc_status_kind text_status /* = svn_wc_status_none */,
+                        svn_wc_status_kind prop_status /* = svn_wc_status_none */,
+                        svn_wc_status_kind remotetext_status /* = svn_wc_status_none */,
+                        svn_wc_status_kind remoteprop_status /* = svn_wc_status_none */)
 {
     CTSVNPath basePath;
     CTSVNPath remotePath;
@@ -77,11 +76,11 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
     // first diff the remote properties against the wc props
     // TODO: should we attempt to do a three way diff with the properties too
     // if they're modified locally and remotely?
-    if (!ignoreprops && (remoteprop_status > svn_wc_status_normal))
+    if (remoteprop_status > svn_wc_status_normal)
     {
         DiffProps(filePath, SVNRev::REV_HEAD, SVNRev::REV_WC, baseRev);
     }
-    if (!ignoreprops && (prop_status > svn_wc_status_normal)&&(filePath.IsDirectory()))
+    if ((prop_status > svn_wc_status_normal)&&(filePath.IsDirectory()))
     {
         DiffProps(filePath, SVNRev::REV_WC, SVNRev::REV_BASE, baseRev);
     }
@@ -156,7 +155,7 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
     }
     else if (remotePath.IsEmpty())
     {
-        return DiffFileAgainstBase(filePath, baseRev, ignoreprops, status, text_status, prop_status);
+        return DiffFileAgainstBase(filePath, baseRev, status, text_status, prop_status);
     }
     else
     {
@@ -169,7 +168,12 @@ bool SVNDiff::DiffWCFile(const CTSVNPath& filePath,
     }
 }
 
-bool SVNDiff::DiffFileAgainstBase( const CTSVNPath& filePath, svn_revnum_t & baseRev, bool ignoreprops, svn_wc_status_kind status /*= svn_wc_status_none*/, svn_wc_status_kind text_status /*= svn_wc_status_none*/, svn_wc_status_kind prop_status /*= svn_wc_status_none*/ )
+bool SVNDiff::DiffFileAgainstBase(
+    const CTSVNPath& filePath,
+    svn_revnum_t &baseRev,
+    svn_wc_status_kind status /* = svn_wc_status_none */,
+    svn_wc_status_kind text_status /* = svn_wc_status_none */,
+    svn_wc_status_kind prop_status /* = svn_wc_status_none */)
 {
     bool retvalue = false;
     bool fileexternal = false;
@@ -183,7 +187,7 @@ bool SVNDiff::DiffFileAgainstBase( const CTSVNPath& filePath, svn_revnum_t & bas
         prop_status = stat.status->prop_status;
         fileexternal = stat.status->file_external != 0;
     }
-    if (!ignoreprops && (prop_status > svn_wc_status_normal))
+    if (prop_status > svn_wc_status_normal)
     {
         DiffProps(filePath, SVNRev::REV_WC, SVNRev::REV_BASE, baseRev);
     }
@@ -337,7 +341,13 @@ bool SVNDiff::ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1,
     return false;
 }
 
-bool SVNDiff::ShowCompare( const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, SVNRev peg, bool ignoreprops, const CString& options, bool ignoreancestry /*= false*/, bool blame /*= false*/, svn_node_kind_t nodekind /*= svn_node_unknown*/ )
+bool SVNDiff::ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
+                          const CTSVNPath& url2, const SVNRev& rev2,
+                          SVNRev peg,
+                          const CString& options,
+                          bool ignoreancestry /* = false */,
+                          bool blame /* = false */,
+                          svn_node_kind_t nodekind /* = svn_node_unknown */)
 {
     CTSVNPath tempfile;
 
@@ -434,7 +444,7 @@ bool SVNDiff::ShowCompare( const CTSVNPath& url1, const SVNRev& rev1, const CTSV
         }
         else
         {
-            if (url1.IsEquivalentTo(url2) && !ignoreprops)
+            if (url1.IsEquivalentTo(url2))
             {
                 svn_revnum_t baseRev = 0;
                 DiffProps(url1, rev2, rev1, baseRev);
@@ -604,7 +614,7 @@ bool SVNDiff::ShowCompare( const CTSVNPath& url1, const SVNRev& rev1, const CTSV
         {
             ASSERT(rev1.IsWorking());
 
-            if (url1.IsEquivalentTo(url2) && !ignoreprops)
+            if (url1.IsEquivalentTo(url2))
             {
                 svn_revnum_t baseRev = 0;
                 DiffProps(url1, rev1, rev2, baseRev);

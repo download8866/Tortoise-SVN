@@ -213,8 +213,9 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
     // In all most circumstances, we ask for the status of a member of this directory.
     ATLASSERT(m_directoryPath.IsEquivalentToWithoutCase(path.GetContainingDirectory()) || bRequestForSelf);
 
+    bool wcDbFileTimeChanged = false;
     long long dbFileTime = CSVNStatusCache::Instance().WCRoots()->GetDBFileTime(m_directoryPath);
-    bool wcDbFileTimeChanged = (m_wcDbFileTime != dbFileTime);
+    wcDbFileTimeChanged = (m_wcDbFileTime != dbFileTime);
 
     if ( !wcDbFileTimeChanged )
     {

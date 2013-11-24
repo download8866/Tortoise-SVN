@@ -137,5 +137,5 @@ bool DropVendorCommand::Execute()
         svn.Remove(CTSVNPathList(delpath), true, false);
     }
 
-    return bSuccess != FALSE;
+    return bSuccess != false;
 }

@@ -25,8 +25,6 @@
 #include "TaskbarUUID.h"
 #include "../Utils/CrashReport.h"
 
-#include <Shellapi.h>
-
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
 // Global Variables:
@@ -46,7 +44,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     SetTaskIDPerUUID();
     CRegStdDWORD loc = CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
     long langId = loc;
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
     CLangDll langDLL;
     hResource = langDLL.Init(_T("TortoiseIDiff"), langId);
@@ -81,44 +78,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     std::unique_ptr<CMainWindow> mainWindow(new CMainWindow(hResource));
     mainWindow->SetRegistryPath(_T("Software\\TortoiseSVN\\TortoiseIDiffWindowPos"));
     std::wstring leftfile = parser.HasVal(_T("left")) ? parser.GetVal(_T("left")) : _T("");
-    std::wstring rightfile = parser.HasVal(_T("right")) ? parser.GetVal(_T("right")) : _T("");
     if ((leftfile.empty()) && (lpCmdLine[0] != 0))
     {
-        int nArgs;
-        LPWSTR * szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-        if( szArglist )
-        {
-            if ( nArgs==3 )
-            {
-                // Four parameters:
-                // [0]: Program name
-                // [1]: left file
-                // [2]: right file
-                if ( PathFileExists(szArglist[1]) && PathFileExists(szArglist[2]) )
-                {
-                    leftfile = szArglist[1];
-                    rightfile = szArglist[2];
-                }
-            }
-        }
-
-        // Free memory allocated for CommandLineToArgvW arguments.
-        LocalFree(szArglist);
+        leftfile = lpCmdLine;
     }
     mainWindow->SetLeft(leftfile.c_str(), parser.HasVal(_T("lefttitle")) ? parser.GetVal(_T("lefttitle")) : _T(""));
-    mainWindow->SetRight(rightfile.c_str(), parser.HasVal(_T("righttitle")) ? parser.GetVal(_T("righttitle")) : _T(""));
-    if (parser.HasVal(L"base"))
-        mainWindow->SetSelectionImage(FileTypeBase, parser.GetVal(L"base"), parser.HasVal(L"basetitle") ? parser.GetVal(L"basetitle") : L"");
-    if (parser.HasVal(L"mine"))
-        mainWindow->SetSelectionImage(FileTypeMine, parser.GetVal(L"mine"), parser.HasVal(L"minetitle") ? parser.GetVal(L"minetitle") : L"");
-    if (parser.HasVal(L"theirs"))
-        mainWindow->SetSelectionImage(FileTypeTheirs, parser.GetVal(L"theirs"), parser.HasVal(L"theirstitle") ? parser.GetVal(L"theirstitle") : L"");
-    if (parser.HasVal(L"result"))
-        mainWindow->SetSelectionResult(parser.GetVal(L"result"));
+    mainWindow->SetRight(parser.HasVal(_T("right")) ? parser.GetVal(_T("right")) : _T(""), parser.HasVal(_T("righttitle")) ? parser.GetVal(_T("righttitle")) : _T(""));
     if (mainWindow->RegisterAndCreateWindow())
     {
         HACCEL hAccelTable = LoadAccelerators(hResource, MAKEINTRESOURCE(IDR_TORTOISEIDIFF));
-        if (!parser.HasVal(L"left") && parser.HasVal(L"base") && !parser.HasVal(L"mine") && !parser.HasVal(L"theirs"))
+        if (!parser.HasVal(_T("left")))
         {
             PostMessage(*mainWindow, WM_COMMAND, ID_FILE_OPEN, 0);
         }
@@ -128,16 +97,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         }
         if (parser.HasKey(_T("fit")))
         {
-            PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_FITIMAGEHEIGHTS, 0);
-            PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_FITIMAGEWIDTHS, 0);
-        }
-        if (parser.HasKey(_T("fitwidth")))
-        {
-            PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_FITIMAGEWIDTHS, 0);
-        }
-        if (parser.HasKey(_T("fitheight")))
-        {
-            PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_FITIMAGEHEIGHTS, 0);
+            PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_FITTOGETHER, 0);
         }
         if (parser.HasKey(_T("showinfo")))
         {
@@ -157,6 +117,5 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     langDLL.Close();
     DestroyCursor(curHand);
     DestroyCursor(curHandDown);
-    CoUninitialize();
     return 1;
 }

@@ -97,7 +97,7 @@ protected:
 
     BOOL OnEraseBkgnd(CDC*  pDC)
     {
-        BOOL baseRet = BaseType::OnEraseBkgnd(pDC);
+        BaseType::OnEraseBkgnd(pDC);
         if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
         {
             // draw the frame margins in black
@@ -130,7 +130,7 @@ protected:
                 pDC->FillSolidRect(rc.left, rc.bottom-m_margins.cyBottomHeight, rc.right-rc.left, m_margins.cyBottomHeight, RGB(0,0,0));
             }
         }
-        return baseRet;
+        return TRUE;
     }
 
     LRESULT OnNcHitTest(CPoint pt)
@@ -429,7 +429,7 @@ private:
         CWaitCursor wait;
 
         CString cmd;
-        cmd.Format(_T("HH.exe -mapid %lu \"%s\""), dwData, pApp->m_pszHelpFilePath);
+        cmd.Format(_T("HH.exe -mapid %ld \"%s\""), dwData, pApp->m_pszHelpFilePath);
         if (!CCreateProcessHelper::CreateProcessDetached(NULL,
             cmd.GetBuffer()))
         {

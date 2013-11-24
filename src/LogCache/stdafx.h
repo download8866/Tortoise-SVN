@@ -79,7 +79,6 @@
 #include <iostream>
 #include <fstream>
 #include <memory>
-#include <algorithm>
 
 #include "tstring.h"
 

@@ -201,11 +201,9 @@ BOOL CDiffData::Load()
     CRegDWORD regIgnoreWS = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreWS"));
     CRegDWORD regIgnoreEOL = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreEOL"), TRUE);
     CRegDWORD regIgnoreCase = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
-    CRegDWORD regIgnoreComments = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreComments"), FALSE);
     DWORD dwIgnoreWS = regIgnoreWS;
     bool bIgnoreEOL = ((DWORD)regIgnoreEOL)!=0;
     BOOL bIgnoreCase = ((DWORD)regIgnoreCase)!=0;
-    bool bIgnoreComments = ((DWORD)regIgnoreComments)!=0;
 
     // The Subversion diff API only can ignore whitespaces and eol styles.
     // It also can only handle one-byte charsets.
@@ -242,7 +240,7 @@ BOOL CDiffData::Load()
             m_sError = m_arBaseFile.GetErrorString();
             return FALSE;
         }
-        bBaseNeedConvert = bIgnoreCase || bIgnoreComments || (m_arBaseFile.NeedsConversion()) || !m_rx._Empty();
+        bBaseNeedConvert = bIgnoreCase || (m_arBaseFile.NeedsConversion());
         bBaseIsUtf8 = (m_arBaseFile.GetUnicodeType()!=CFileTextLines::ASCII) || bBaseNeedConvert;
         bIsNotUtf8 |= !bBaseIsUtf8;
     }
@@ -256,7 +254,7 @@ BOOL CDiffData::Load()
             m_sError = m_arTheirFile.GetErrorString();
             return FALSE;
         }
-        bTheirNeedConvert = bIgnoreCase || bIgnoreComments || (m_arTheirFile.NeedsConversion()) || !m_rx._Empty();
+        bTheirNeedConvert = bIgnoreCase || (m_arTheirFile.NeedsConversion());
         bTheirIsUtf8 = (m_arTheirFile.GetUnicodeType()!=CFileTextLines::ASCII) || bTheirNeedConvert;
         bIsNotUtf8 |= !bTheirIsUtf8;
     }
@@ -270,7 +268,7 @@ BOOL CDiffData::Load()
             m_sError = m_arYourFile.GetErrorString();
             return FALSE;
         }
-        bYourNeedConvert = bIgnoreCase || bIgnoreComments || (m_arYourFile.NeedsConversion()) || !m_rx._Empty();
+        bYourNeedConvert = bIgnoreCase || (m_arYourFile.NeedsConversion());
         bYourIsUtf8 = (m_arYourFile.GetUnicodeType()!=CFileTextLines::ASCII) || bYourNeedConvert;
         bIsNotUtf8 |= !bYourIsUtf8;
     }
@@ -282,27 +280,21 @@ BOOL CDiffData::Load()
     {
         sConvertedBaseFilename = CTempFiles::Instance().GetTempFilePathString();
         m_baseFile.SetConvertedFileName(sConvertedBaseFilename);
-        m_arBaseFile.Save(sConvertedBaseFilename, true, true, 0, bIgnoreCase, m_bBlame
-                        , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                        , m_rx, m_replacement);
+        m_arBaseFile.Save(sConvertedBaseFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
     bYourNeedConvert |= (IsYourFileInUse() && !bYourIsUtf8 && bIsUtf8);
     if (bYourNeedConvert)
     {
         sConvertedYourFilename = CTempFiles::Instance().GetTempFilePathString();
         m_yourFile.SetConvertedFileName(sConvertedYourFilename);
-        m_arYourFile.Save(sConvertedYourFilename, true, true, 0, bIgnoreCase, m_bBlame
-                        , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                        , m_rx, m_replacement);
+        m_arYourFile.Save(sConvertedYourFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
     bTheirNeedConvert |= (IsTheirFileInUse() && !bTheirIsUtf8 && bIsUtf8);
     if (bTheirNeedConvert)
     {
         sConvertedTheirFilename = CTempFiles::Instance().GetTempFilePathString();
         m_theirFile.SetConvertedFileName(sConvertedTheirFilename);
-        m_arTheirFile.Save(sConvertedTheirFilename, true, true, 0, bIgnoreCase, m_bBlame
-                         , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                         , m_rx, m_replacement);
+        m_arTheirFile.Save(sConvertedTheirFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
 
     // Calculate the number of lines in the largest of the three files
@@ -1039,17 +1031,4 @@ void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CVie
             lastHideState = hideState;
         }
     }
-}
-
-void CDiffData::SetCommentTokens( const CString& sLineStart, const CString& sBlockStart, const CString& sBlockEnd )
-{
-    m_CommentLineStart  = sLineStart;
-    m_CommentBlockStart = sBlockStart;
-    m_CommentBlockEnd   = sBlockEnd;
-}
-
-void CDiffData::SetRegexTokens( const std::wregex& rx, const std::wstring& replacement )
-{
-    m_rx          = rx;
-    m_replacement = replacement;
 }

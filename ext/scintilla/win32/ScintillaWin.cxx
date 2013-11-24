@@ -5,6 +5,7 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <new>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -12,7 +13,6 @@
 #include <assert.h>
 #include <limits.h>
 
-#include <new>
 #include <string>
 #include <vector>
 #include <map>
@@ -197,7 +197,6 @@ class ScintillaWin :
 	bool hasOKText;
 
 	CLIPFORMAT cfColumnSelect;
-	CLIPFORMAT cfBorlandIDEBlockType;
 	CLIPFORMAT cfLineSelect;
 
 	HRESULT hrOle;
@@ -349,11 +348,9 @@ ScintillaWin::ScintillaWin(HWND hwnd) {
 	hasOKText = false;
 
 	// There does not seem to be a real standard for indicating that the clipboard
-	// contains a rectangular selection, so copy Developer Studio and Borland Delphi.
+	// contains a rectangular selection, so copy Developer Studio.
 	cfColumnSelect = static_cast<CLIPFORMAT>(
 		::RegisterClipboardFormat(TEXT("MSDEVColumnSelect")));
-	cfBorlandIDEBlockType = static_cast<CLIPFORMAT>(
-		::RegisterClipboardFormat(TEXT("Borland IDE Block Type")));
 
 	// Likewise for line-copy (copies a full line when no text is selected)
 	cfLineSelect = static_cast<CLIPFORMAT>(
@@ -627,11 +624,7 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 		::EndPaint(MainHWND(), pps);
 	if (paintState == paintAbandoned) {
 		// Painting area was insufficient to cover new styling or brace highlight positions
-		if (IsOcxCtrl) {
-			FullPaintDC(pps->hdc);
-		} else {
-			FullPaint();
-		}
+		FullPaint();
 	}
 	paintState = notPainting;
 
@@ -898,10 +891,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 
 		case WM_MOUSEMOVE:
 			SetTrackMouseLeaveEvent(true);
-			ButtonMoveWithModifiers(Point::FromLong(lParam),
-				((wParam & MK_SHIFT) != 0 ? SCI_SHIFT : 0) |
-				((wParam & MK_CONTROL) != 0 ? SCI_CTRL : 0) |
-				(Platform::IsKeyDown(VK_MENU) ? SCI_ALT : 0));
+			ButtonMove(Point::FromLong(lParam));
 			break;
 
 		case WM_MOUSELEAVE:
@@ -1397,7 +1387,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
 	if (horizEndPreferred < 0)
 		horizEndPreferred = 0;
 	unsigned int pageWidth = rcText.Width();
-	if (!horizontalScrollBarVisible || Wrapping())
+	if (!horizontalScrollBarVisible || (wrapState != eWrapNone))
 		pageWidth = horizEndPreferred + 1;
 	sci.fMask = SIF_PAGE | SIF_RANGE;
 	GetScrollInfo(SB_HORZ, &sci);
@@ -1430,7 +1420,6 @@ void ScintillaWin::NotifyFocus(bool focus) {
 	::SendMessage(::GetParent(MainHWND()), WM_COMMAND,
 	        MAKELONG(GetCtrlID(), focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS),
 		reinterpret_cast<LPARAM>(MainHWND()));
-	Editor::NotifyFocus(focus);
 }
 
 void ScintillaWin::SetCtrlID(int identifier) {
@@ -1716,16 +1705,7 @@ void ScintillaWin::Paste() {
 	SelectionPosition selStart = sel.IsRectangular() ?
 		sel.Rectangular().Start() :
 		sel.Range(sel.Main()).Start();
-	bool isRectangular = (::IsClipboardFormatAvailable(cfColumnSelect) != 0);
-
-	if (!isRectangular) {
-		// Evaluate "Borland IDE Block Type" explicitly
-		GlobalMemory memBorlandSelection(::GetClipboardData(cfBorlandIDEBlockType));
-		if (memBorlandSelection) {
-			isRectangular = (memBorlandSelection.Size() == 1) && (static_cast<BYTE *>(memBorlandSelection.ptr)[0] == 0x02);
-			memBorlandSelection.Unlock();
-		}
-	}
+	bool isRectangular = ::IsClipboardFormatAvailable(cfColumnSelect) != 0;
 
 	// Always use CF_UNICODETEXT if available
 	GlobalMemory memUSelection(::GetClipboardData(CF_UNICODETEXT));
@@ -2160,7 +2140,7 @@ void ScintillaWin::ImeStartComposition() {
 			lf.lfItalic = static_cast<BYTE>(vs.styles[styleHere].italic ? 1 : 0);
 			lf.lfCharSet = DEFAULT_CHARSET;
 			lf.lfFaceName[0] = '\0';
-			if (vs.styles[styleHere].fontName && (strlen(vs.styles[styleHere].fontName) < sizeof(lf.lfFaceName)))
+			if (vs.styles[styleHere].fontName)
 				strcpy(lf.lfFaceName, vs.styles[styleHere].fontName);
 
 			::ImmSetCompositionFontA(hIMC, &lf);
@@ -2272,13 +2252,6 @@ void ScintillaWin::CopyToClipboard(const SelectionText &selectedText) {
 
 	if (selectedText.rectangular) {
 		::SetClipboardData(cfColumnSelect, 0);
-
-		GlobalMemory borlandSelection;
-		borlandSelection.Allocate(1);
-		if (borlandSelection) {
-			static_cast<BYTE *>(borlandSelection.ptr)[0] = 0x02;
-			borlandSelection.SetClip(cfBorlandIDEBlockType);
-		}
 	}
 
 	if (selectedText.lineCopy) {
@@ -2292,7 +2265,8 @@ void ScintillaWin::ScrollMessage(WPARAM wParam) {
 	//DWORD dwStart = timeGetTime();
 	//Platform::DebugPrintf("Scroll %x %d\n", wParam, lParam);
 
-	SCROLLINFO sci = {};
+	SCROLLINFO sci;
+	memset(&sci, 0, sizeof(sci));
 	sci.cbSize = sizeof(sci);
 	sci.fMask = SIF_ALL;
 

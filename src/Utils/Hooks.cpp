@@ -131,14 +131,12 @@ void CHooks::SetProjectProperties( const CTSVNPath& wcRootPath, const ProjectPro
 {
     m_wcRootPath = wcRootPath;
     CString sLocalPath = pp.sRepositoryRootUrl;
-    ParseAndInsertProjectProperty(check_commit_hook, pp.sCheckCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(pre_commit_hook, pp.sPreCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(start_commit_hook, pp.sStartCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(post_commit_hook, pp.sPostCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(pre_update_hook, pp.sPreUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(start_update_hook, pp.sStartUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
     ParseAndInsertProjectProperty(post_update_hook, pp.sPostUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(manual_precommit, pp.sManualPreCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
 }
 
 CHooks& CHooks::Instance()
@@ -209,8 +207,6 @@ CString CHooks::GetHookTypeString(hooktype t)
     {
     case start_commit_hook:
         return _T("start_commit_hook");
-    case check_commit_hook:
-        return _T("check_commit_hook");
     case pre_commit_hook:
         return _T("pre_commit_hook");
     case post_commit_hook:
@@ -223,8 +219,6 @@ CString CHooks::GetHookTypeString(hooktype t)
         return _T("post_update_hook");
     case pre_connect_hook:
         return _T("pre_connect_hook");
-    case manual_precommit:
-        return _T("manual_precommit_hook");
     }
     return _T("");
 }
@@ -233,8 +227,6 @@ hooktype CHooks::GetHookType(const CString& s)
 {
     if (s.Compare(_T("start_commit_hook"))==0)
         return start_commit_hook;
-    if (s.Compare(_T("check_commit_hook"))==0)
-        return check_commit_hook;
     if (s.Compare(_T("pre_commit_hook"))==0)
         return pre_commit_hook;
     if (s.Compare(_T("post_commit_hook"))==0)
@@ -247,8 +239,6 @@ hooktype CHooks::GetHookType(const CString& s)
         return post_update_hook;
     if (s.Compare(_T("pre_connect_hook"))==0)
         return pre_connect_hook;
-    if (s.Compare(_T("manual_precommit_hook"))==0)
-        return manual_precommit;
     return unknown_hook;
 }
 
@@ -323,30 +313,6 @@ bool CHooks::StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& mess
     return true;
 }
 
-bool CHooks::CheckCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message, DWORD& exitcode, CString& error)
-{
-    exitcode = 0;
-    hookiterator it = FindItem(check_commit_hook, pathList);
-    if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
-    {
-        exitcode = 1;
-        error.LoadString(IDS_ERR_HOOKNOTAPPROVED);
-        return false;
-    }
-    CString sCmd = it->second.commandline;
-    AddPathParam(sCmd, pathList);
-    CTSVNPath temppath = AddMessageFileParam(sCmd, message);
-    AddCWDParam(sCmd, pathList);
-    exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
-    if (!exitcode && !temppath.IsEmpty())
-    {
-        CStringUtils::ReadStringFromTextFile(temppath.GetWinPathString(), message);
-    }
-    return true;
-}
-
 bool CHooks::PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, CString& message, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(pre_commit_hook, pathList);
@@ -366,26 +332,6 @@ bool CHooks::PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     }
     return true;
 }
-
-bool CHooks::ManualPreCommit( HWND hWnd, const CTSVNPathList& pathList, CString& message, DWORD& exitcode, CString& error )
-{
-    hookiterator it = FindItem(manual_precommit, pathList);
-    if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
-        return false;
-    CString sCmd = it->second.commandline;
-    AddPathParam(sCmd, pathList);
-    CTSVNPath temppath = AddMessageFileParam(sCmd, message);
-    AddCWDParam(sCmd, pathList);
-    exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
-    if (!exitcode && !temppath.IsEmpty())
-    {
-        CStringUtils::ReadStringFromTextFile(temppath.GetWinPathString(), message);
-    }
-    return true;
-}
-
 
 bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CString& message, DWORD& exitcode, CString& error)
 {
@@ -435,7 +381,7 @@ bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     return true;
 }
 
-bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CTSVNPathList& updatedList, DWORD& exitcode, CString& error)
+bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(post_update_hook, pathList);
     if (it == end())
@@ -448,7 +394,6 @@ bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t de
     AddParam(sCmd, rev.ToString());
     AddErrorParam(sCmd, error);
     AddCWDParam(sCmd, pathList);
-    AddPathParam(sCmd, updatedList);
     exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
     return true;
 }
@@ -495,12 +440,6 @@ bool CHooks::IsHookExecutionEnforced(hooktype t, const CTSVNPathList& pathList)
 {
     hookiterator it = FindItem(t, pathList);
     return it != end() && it->second.bEnforce;
-}
-
-bool CHooks::IsHookPresent( hooktype t, const CTSVNPathList& pathList )
-{
-    hookiterator it = FindItem(t, pathList);
-    return it != end();
 }
 
 hookiterator CHooks::FindItem(hooktype t, const CTSVNPathList& pathList)

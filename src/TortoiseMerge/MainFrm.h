@@ -25,9 +25,6 @@
 #include "TempFile.h"
 #include "XSplitter.h"
 #include "SVNPatch.h"
-#include "SimpleIni.h"
-
-#include <tuple>
 
 class CLeftView;
 class CRightView;
@@ -147,11 +144,14 @@ protected:
     afx_msg void    OnIndicatorLeftview();
     afx_msg void    OnIndicatorRightview();
     afx_msg void    OnIndicatorBottomview();
+    afx_msg void    OnIndicatorLeftviewPopup();
+    afx_msg void    OnIndicatorRightviewPopup();
+    afx_msg void    OnIndicatorBottomviewPopup();
     afx_msg void    OnTimer(UINT_PTR nIDEvent);
-    afx_msg void    OnViewIgnorecomments();
-    afx_msg void    OnUpdateViewIgnorecomments(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateViewRegexFilter(CCmdUI *pCmdUI);
-    afx_msg void    OnRegexfilter(UINT cmd);
+
+    afx_msg void    OnRemoveTrailSpaces();
+    afx_msg void    OnTabToSpaces();
+    afx_msg void    OnTabulatorize();
 
     DECLARE_MESSAGE_MAP()
 protected:
@@ -166,7 +166,6 @@ protected:
     bool            FileSave(bool bCheckResolved=true);
     void            PatchSave();
     bool            FileSaveAs(bool bCheckResolved=true);
-    void            LoadIgnoreCommentData();
     /// checks if there are modifications and asks the user to save them first
     /// IDCANCEL is returned if the user wants to cancel.
     /// If the user wanted to save the modifications, this method does the saving
@@ -198,7 +197,7 @@ protected:
     static bool     HasNextConflict(CBaseView* view);
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
-    void            BuildRegexSubitems();
+    void            OnIndicatorPopup();
 
     static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
 
@@ -221,7 +220,6 @@ protected:
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
     bool            m_bUseRibbons;
-    bool            m_bUseTaskDialog;
 
     CMFCRibbonBar               m_wndRibbonBar;
     CMFCRibbonApplicationButton m_MainButton;
@@ -232,16 +230,11 @@ protected:
     CRegDWORD       m_regCollapsed;
     CRegDWORD       m_regInlineDiff;
     CRegDWORD       m_regUseRibbons;
-    CRegDWORD       m_regUseTaskDialog;
-    CRegDWORD       m_regIgnoreComments;
-
-    std::map<CString, std::tuple<CString, CString, CString>>    m_IgnoreCommentsMap;
-    CSimpleIni      m_regexIni;
-    int             m_regexIndex;
 public:
     CLeftView *     m_pwndLeftView;
     CRightView *    m_pwndRightView;
     CBottomView *   m_pwndBottomView;
+    CBaseView *     m_pwndCommandView;
     BOOL            m_bOneWay;
     BOOL            m_bReversedPatch;
     CDiffData       m_Data;
@@ -252,7 +245,6 @@ public:
     bool            m_bViewMovedBlocks;
     bool            m_bWrapLines;
     bool            m_bSaveRequired;
-    bool            m_bSaveRequiredOnConflicts;
     HWND            resolveMsgWnd;
     WPARAM          resolveMsgWParam;
     LPARAM          resolveMsgLParam;

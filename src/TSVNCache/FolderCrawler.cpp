@@ -116,6 +116,7 @@ void CFolderCrawler::WorkerThread()
     hWaitHandles[0] = m_hTerminationEvent;
     hWaitHandles[1] = m_hWakeEvent;
     CTSVNPath workingPath;
+    bool bFirstRunAfterWakeup = false;
 
     for(;;)
     {
@@ -141,7 +142,7 @@ void CFolderCrawler::WorkerThread()
         // However, it's important that we don't do our crawling while
         // the shell is still asking for items
         //
-        bool bFirstRunAfterWakeup = true;
+        bFirstRunAfterWakeup = true;
         for(;;)
         {
             if (!m_bRun)

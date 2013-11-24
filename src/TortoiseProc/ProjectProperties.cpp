@@ -203,9 +203,7 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
         CheckStringProp(sLogSummaryRe, sPropName, sPropVal, PROJECTPROPNAME_LOGSUMMARY);
         CheckStringProp(sLogRevRegex, sPropName, sPropVal, PROJECTPROPNAME_LOGREVREGEX);
         CheckStringProp(sStartCommitHook, sPropName, sPropVal, PROJECTPROPNAME_STARTCOMMITHOOK);
-        CheckStringProp(sCheckCommitHook, sPropName, sPropVal, PROJECTPROPNAME_CHECKCOMMITHOOK);
         CheckStringProp(sPreCommitHook, sPropName, sPropVal, PROJECTPROPNAME_PRECOMMITHOOK);
-        CheckStringProp(sManualPreCommitHook, sPropName, sPropVal, PROJECTPROPNAME_MANUALPRECOMMITHOOK);
         CheckStringProp(sPostCommitHook, sPropName, sPropVal, PROJECTPROPNAME_POSTCOMMITHOOK);
         CheckStringProp(sStartUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_STARTUPDATEHOOK);
         CheckStringProp(sPreUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_PREUPDATEHOOK);
@@ -345,6 +343,8 @@ void ProjectProperties::AutoUpdateRegex()
 
 std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
 {
+    size_t offset1 = 0;
+    size_t offset2 = 0;
     std::vector<CHARRANGE> result;
 
     // first use the checkre string to find bug ID's in the message
@@ -445,8 +445,6 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
             return result;
 
         //the bug id part can contain several bug id's, separated by commas
-        size_t offset1 = 0;
-        size_t offset2 = 0;
         if (!bTop)
             offset1 = sMsg.GetLength() - sBugLine.GetLength() + sFirstPart.GetLength();
         else
@@ -540,10 +538,11 @@ BOOL ProjectProperties::CheckBugID(const CString& sID)
     {
         // check if the revision actually _is_ a number
         // or a list of numbers separated by colons
+        TCHAR c = 0;
         int len = sID.GetLength();
         for (int i=0; i<len; ++i)
         {
-            TCHAR c = sID.GetAt(i);
+            c = sID.GetAt(i);
             if ((c < '0')&&(c != ',')&&(c != ' '))
             {
                 return FALSE;
@@ -634,19 +633,19 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
         bRet = props.Add(BUGTRAQPROPNAME_PROVIDERPARAMS, CUnicodeUtils::StdGetUTF8((LPCTSTR)sProviderParams)) && bRet;
     if (nLogWidthMarker)
     {
-        sprintf_s(buf, "%d", nLogWidthMarker);
+        sprintf_s(buf, "%ld", nLogWidthMarker);
         bRet = props.Add(PROJECTPROPNAME_LOGWIDTHLINE, buf) && bRet;
     }
     if (!sLogTemplate.IsEmpty())
         bRet = props.Add(PROJECTPROPNAME_LOGTEMPLATE, CUnicodeUtils::StdGetUTF8((LPCTSTR)sLogTemplate)) && bRet;
     if (nMinLogSize)
     {
-        sprintf_s(buf, "%d", nMinLogSize);
+        sprintf_s(buf, "%ld", nMinLogSize);
         bRet = props.Add(PROJECTPROPNAME_LOGMINSIZE, buf) && bRet;
     }
     if (nMinLockMsgSize)
     {
-        sprintf_s(buf, "%d", nMinLockMsgSize);
+        sprintf_s(buf, "%ld", nMinLockMsgSize);
         bRet = props.Add(PROJECTPROPNAME_LOCKMSGMINSIZE, buf) && bRet;
     }
     if (!bFileListInEnglish)
@@ -672,12 +671,8 @@ bool ProjectProperties::AddAutoProps(const CTSVNPath& path)
         bRet = props.Add(PROJECTPROPNAME_AUTOPROPS, CUnicodeUtils::StdGetUTF8((LPCTSTR)sAutoProps)) && bRet;
     if (!sStartCommitHook.IsEmpty())
         bRet = props.Add(PROJECTPROPNAME_STARTCOMMITHOOK, CUnicodeUtils::StdGetUTF8((LPCTSTR)sStartCommitHook)) && bRet;
-    if (!sCheckCommitHook.IsEmpty())
-        bRet = props.Add(PROJECTPROPNAME_CHECKCOMMITHOOK, CUnicodeUtils::StdGetUTF8((LPCTSTR)sCheckCommitHook)) && bRet;
     if (!sPreCommitHook.IsEmpty())
         bRet = props.Add(PROJECTPROPNAME_PRECOMMITHOOK, CUnicodeUtils::StdGetUTF8((LPCTSTR)sPreCommitHook)) && bRet;
-    if (!sManualPreCommitHook.IsEmpty())
-        bRet = props.Add(PROJECTPROPNAME_MANUALPRECOMMITHOOK, CUnicodeUtils::StdGetUTF8((LPCTSTR)sManualPreCommitHook)) && bRet;
     if (!sPostCommitHook.IsEmpty())
         bRet = props.Add(PROJECTPROPNAME_POSTCOMMITHOOK, CUnicodeUtils::StdGetUTF8((LPCTSTR)sPostCommitHook)) && bRet;
     if (!sStartUpdateHook.IsEmpty())

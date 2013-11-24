@@ -666,7 +666,7 @@ public:
      * are separated by newlines.
      * \param dwCols the columns to copy. Each column is separated by a tab.
      */
-    bool CopySelectedEntriesToClipboard(DWORD dwCols, int cmd);
+    bool CopySelectedEntriesToClipboard(DWORD dwCols);
 
     /**
      * If during the call to GetStatus() some svn:externals are found from different
@@ -863,7 +863,7 @@ public:
     /**
      * Sets restore paths from a previous run
      */
-    void SetRestorePaths(const std::map<CString,std::tuple<CString, CString>>& restorepaths) {m_restorepaths = restorepaths;}
+    void SetRestorePaths(const std::map<CString,CString>& restorepaths) {m_restorepaths = restorepaths;}
 
     CString GetLastErrorMessage() {return m_sLastError;}
 
@@ -902,8 +902,8 @@ private:
     void AddEntry(FileEntry * entry, int listIndex);    ///< add an entry to the control
     void RemoveListEntry(int index);                    ///< removes an entry from the listcontrol and both arrays
     bool BuildStatistics(bool repairCaseRenames);       ///< build the statistics and correct the case of files/folders
-    void StartDiff(int fileindex, bool ignoreprops);    ///< start the external diff program
-    void StartDiff(FileEntry * entry, bool ignoreprops);
+    void StartDiff(int fileindex);                      ///< start the external diff program
+    void StartDiff(FileEntry * entry);
     void StartDiffOrResolve(int fileindex);
     void StartConflictEditor(const CTSVNPath& filepath, __int64 id);
     void AddPropsPath(const CTSVNPath& filepath, CString& command );
@@ -1123,9 +1123,9 @@ private:
     WCHAR                       m_tooltipbuf[4096];
 
     std::map<CString,bool>      m_mapFilenameToChecked; ///< Remember manually de-/selected items
-    int                         m_nBlockItemChangeHandler;
+    int                         m_bBlockItemChangeHandler;
     std::set<CTSVNPath>         m_externalSet;
-    std::map<CString, std::tuple<CString, CString>>  m_restorepaths;
+    std::map<CString, CString>  m_restorepaths;
     mutable CReaderWriterLock   m_guard;
 
     friend class CSVNStatusListCtrlDropTarget;

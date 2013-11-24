@@ -88,6 +88,7 @@ static BOOL WantRealVersion(void)
     WCHAR ExplorerPath[MAX_PATH] = {0};
 
     HKEY hKey = HKEY_CURRENT_USER;
+    LONG Result = ERROR;
     DWORD Type = REG_DWORD;
     DWORD Len = sizeof(DWORD);
 
@@ -96,7 +97,7 @@ static BOOL WantRealVersion(void)
 
     TRACE(_T("WantRealVersion() - Enter\n"));
 
-    LONG Result = RegOpenKeyEx(HKEY_CURRENT_USER, TSVNRootKey, 0, KEY_READ, &hKey);
+    Result = RegOpenKeyEx(HKEY_CURRENT_USER, TSVNRootKey, 0, KEY_READ, &hKey);
     if (Result == ERROR_SUCCESS)
     {
         Result = RegQueryValueEx(hKey, ExplorerOnlyValue, NULL, &Type, (BYTE *)&bExplorerOnly, &Len);

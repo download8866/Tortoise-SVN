@@ -62,7 +62,6 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <algorithm>
 #pragma warning(pop)
 
 #pragma warning(push)

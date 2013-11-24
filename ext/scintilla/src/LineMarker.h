@@ -12,6 +12,7 @@
 namespace Scintilla {
 #endif
 
+
 /**
  */
 class LineMarker {

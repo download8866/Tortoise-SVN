@@ -100,7 +100,7 @@ const static CString svnPropGlobalIgnore (SVN_PROP_INHERITABLE_IGNORES);
 #define IDSVNLC_REMOVE              21
 #define IDSVNLC_COMMIT              22
 #define IDSVNLC_PROPERTIES          23
-#define IDSVNLC_COPYRELPATHS        24
+#define IDSVNLC_COPY                24
 #define IDSVNLC_COPYEXT             25
 #define IDSVNLC_COPYCOL             26
 #define IDSVNLC_REPAIRMOVE          27
@@ -123,14 +123,10 @@ const static CString svnPropGlobalIgnore (SVN_PROP_INHERITABLE_IGNORES);
 #define IDSVNLC_UPDATEREV           44
 #define IDSVNLC_IGNOREGLOBAL        45
 #define IDSVNLC_IGNOREMASKGLOBAL    46
-#define IDSVNLC_COMPARE_CONTENTONLY 47
-#define IDSVNLC_COMPAREWC_CONTENTONLY 48
-#define IDSVNLC_COPYFULL            49
-#define IDSVNLC_COPYFILENAMES       50
 
 // the IDSVNLC_MOVETOCS *must* be the last index, because it contains a dynamic submenu where
 // the submenu items get command ID's sequent to this number
-#define IDSVNLC_MOVETOCS            51
+#define IDSVNLC_MOVETOCS            47
 
 
 BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
@@ -191,7 +187,7 @@ CSVNStatusListCtrl::CSVNStatusListCtrl() : CListCtrl()
     , m_nSortedColumn(-1)
     , m_sNoPropValueText(MAKEINTRESOURCE(IDS_STATUSLIST_NOPROPVALUE))
     , m_bDepthInfinity(false)
-    , m_nBlockItemChangeHandler(0)
+    , m_bBlockItemChangeHandler(0)
     , m_nSelected(0)
     , m_bFixCaseRenames(true)
     , m_nTargetCount(0)
@@ -1821,7 +1817,7 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, int listIndex)
         }
     }
 
-    ++m_nBlockItemChangeHandler;
+    ++m_bBlockItemChangeHandler;
     LVITEM lvItem = {0};
     lvItem.iItem = listIndex;
     lvItem.mask = LVIF_TEXT|LVIF_IMAGE|LVIF_STATE;
@@ -1845,14 +1841,11 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, int listIndex)
         lvItem.state = INDEXTOOVERLAYMASK(OVL_DEPTHEMPTY);
     if (!m_restorepaths.empty())
     {
-        SVN svn;
         for (auto it = m_restorepaths.cbegin(); it != m_restorepaths.cend(); ++it)
         {
-            if (entry->path.IsEquivalentTo(CTSVNPath(std::get<0>(it->second))))
+            if (entry->path.IsEquivalentTo(CTSVNPath(it->second)))
             {
                 entry->restorepath = it->first;
-                entry->changelist = std::get<1>(it->second);
-                svn.AddToChangeList(CTSVNPathList(entry->path), entry->changelist, svn_depth_empty);
                 lvItem.state = INDEXTOOVERLAYMASK(OVL_RESTORE);
                 break;
             }
@@ -1889,7 +1882,7 @@ void CSVNStatusListCtrl::AddEntry(FileEntry * entry, int listIndex)
     }
 
     SetItemGroup(listIndex, groupIndex);
-    --m_nBlockItemChangeHandler;
+    --m_bBlockItemChangeHandler;
 }
 
 bool CSVNStatusListCtrl::SetItemGroup(int item, int groupindex)
@@ -1985,7 +1978,7 @@ void CSVNStatusListCtrl::OnLvnItemchanging(NMHDR *pNMHDR, LRESULT *pResult)
     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
     *pResult = 0;
 
-    if (m_nBlockItemChangeHandler)
+    if (m_bBlockItemChangeHandler)
         return;
 
 #define ISCHECKED(x) ((x) ? ((((x)&LVIS_STATEIMAGEMASK)>>12)-1) : FALSE)
@@ -2008,7 +2001,7 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
 {
     *pResult = 0;
     LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
-    if ((m_nBlockItemChangeHandler)||(pNMLV->uNewState==0)||(pNMLV->uNewState & LVIS_SELECTED)||(pNMLV->uNewState & LVIS_FOCUSED))
+    if ((m_bBlockItemChangeHandler)||(pNMLV->uNewState==0)||(pNMLV->uNewState & LVIS_SELECTED)||(pNMLV->uNewState & LVIS_FOCUSED))
         return FALSE;
 
     CAutoWriteWeakLock writeLock(m_guard);
@@ -2020,12 +2013,12 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
         // was the item checked?
         if (GetCheck(pNMLV->iItem))
         {
-            ++m_nBlockItemChangeHandler;
+            ++m_bBlockItemChangeHandler;
             CheckEntry(pNMLV->iItem, nListItems);
-            --m_nBlockItemChangeHandler;
+            --m_bBlockItemChangeHandler;
             if (bSelected)
             {
-                ++m_nBlockItemChangeHandler;
+                ++m_bBlockItemChangeHandler;
                 POSITION pos = GetFirstSelectedItemPosition();
                 int index;
                 while (pos)
@@ -2034,17 +2027,17 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
                     if (index != pNMLV->iItem)
                         CheckEntry(index, nListItems);
                 }
-                --m_nBlockItemChangeHandler;
+                --m_bBlockItemChangeHandler;
             }
         }
         else
         {
-            ++m_nBlockItemChangeHandler;
+            ++m_bBlockItemChangeHandler;
             UncheckEntry(pNMLV->iItem, nListItems);
-            --m_nBlockItemChangeHandler;
+            --m_bBlockItemChangeHandler;
             if (bSelected)
             {
-                ++m_nBlockItemChangeHandler;
+                ++m_bBlockItemChangeHandler;
                 POSITION pos = GetFirstSelectedItemPosition();
                 int index;
                 while (pos)
@@ -2053,7 +2046,7 @@ BOOL CSVNStatusListCtrl::OnLvnItemchanged(NMHDR *pNMHDR, LRESULT *pResult)
                     if (index != pNMLV->iItem)
                         UncheckEntry(index, nListItems);
                 }
-                --m_nBlockItemChangeHandler;
+                --m_bBlockItemChangeHandler;
             }
         }
         GetStatisticsString();
@@ -3021,7 +3014,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
         CIconMenu popup;
         CMenu changelistSubMenu;
         CMenu ignoreSubMenu;
-        CIconMenu clipSubMenu;
         if (popup.CreatePopupMenu())
         {
             if ((wcStatus >= svn_wc_status_normal)&&(wcStatus != svn_wc_status_ignored)&&(wcStatus != svn_wc_status_external))
@@ -3031,11 +3023,7 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                     if (entry->remotestatus > svn_wc_status_normal)
                         popup.AppendMenuIcon(IDSVNLC_COMPARE, IDS_LOG_COMPAREWITHHEAD, IDI_DIFF);
                     else
-                    {
                         popup.AppendMenuIcon(IDSVNLC_COMPARE, IDS_LOG_COMPAREWITHBASE, IDI_DIFF);
-                        if ((entry->propstatus > svn_wc_status_normal) && (entry->textstatus > svn_wc_status_normal))
-                            popup.AppendMenuIcon(IDSVNLC_COMPARE_CONTENTONLY, IDS_LOG_COMPAREWITHBASE_CONTENTONLY, IDI_DIFF);
-                    }
                     if ((wcStatus != svn_wc_status_normal)||(entry->remotestatus > svn_wc_status_normal))
                         popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
                 }
@@ -3078,8 +3066,6 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                         if (m_dwContextMenus & SVNSLC_POPCOMPARE)
                         {
                             popup.AppendMenuIcon(IDSVNLC_COMPAREWC, IDS_LOG_COMPAREWITHBASE, IDI_DIFF);
-                            if ((entry->propstatus > svn_wc_status_normal) && (entry->textstatus > svn_wc_status_normal))
-                                popup.AppendMenuIcon(IDSVNLC_COMPAREWC_CONTENTONLY, IDS_LOG_COMPAREWITHBASE_CONTENTONLY, IDI_DIFF);
                             popup.SetDefaultItem(IDSVNLC_COMPARE, FALSE);
                             bEntryAdded = true;
                         }
@@ -3410,24 +3396,11 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                 }
                 if (!bInactiveItem)
                 {
-                    if (clipSubMenu.CreatePopupMenu())
-                    {
-                        CString temp;
-
-                        clipSubMenu.AppendMenuIcon(IDSVNLC_COPYFULL, IDS_STATUSLIST_CONTEXT_COPYFULLPATHS, IDI_COPYCLIP);
-                        clipSubMenu.AppendMenuIcon(IDSVNLC_COPYRELPATHS, IDS_STATUSLIST_CONTEXT_COPYRELPATHS, IDI_COPYCLIP);
-                        clipSubMenu.AppendMenuIcon(IDSVNLC_COPYFILENAMES, IDS_STATUSLIST_CONTEXT_COPYFILENAMES, IDI_COPYCLIP);
-                        clipSubMenu.AppendMenuIcon(IDSVNLC_COPYEXT, IDS_STATUSLIST_CONTEXT_COPYEXT, IDI_COPYCLIP);
-                        if (selSubitem >= 0)
-                        {
-                            CString temp;
-                            temp.Format(IDS_STATUSLIST_CONTEXT_COPYCOL, (LPCWSTR)m_ColumnManager.GetName(selSubitem));
-                            clipSubMenu.AppendMenuIcon(IDSVNLC_COPYCOL, temp, IDI_COPYCLIP);
-                        }
-
-                        temp.LoadString(IDS_LOG_POPUP_COPYTOCLIPBOARD);
-                        popup.InsertMenu((UINT)-1, MF_BYPOSITION | MF_POPUP, (UINT_PTR)clipSubMenu.m_hMenu, temp);
-                    }
+                    popup.AppendMenu(MF_SEPARATOR);
+                    popup.AppendMenuIcon(IDSVNLC_COPY, IDS_STATUSLIST_CONTEXT_COPY, IDI_COPYCLIP);
+                    popup.AppendMenuIcon(IDSVNLC_COPYEXT, IDS_STATUSLIST_CONTEXT_COPYEXT, IDI_COPYCLIP);
+                    if (selSubitem >= 0)
+                        popup.AppendMenuIcon(IDSVNLC_COPYCOL, IDS_STATUSLIST_CONTEXT_COPYCOL, IDI_COPYCLIP);
                 }
                 if ((m_dwContextMenus & SVNSLC_POPCHANGELISTS)
                     &&(wcStatus != svn_wc_status_unversioned)&&(wcStatus != svn_wc_status_none))
@@ -3480,19 +3453,16 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
             m_bWaitCursor = true;
             int iItemCountBeforeMenuCmd = GetItemCount();
             size_t iChangelistCountBeforeMenuCmd = m_changelists.size();
-            bool bIgnoreProps = false;
             switch (cmd)
             {
-            case IDSVNLC_COPYFULL:
-            case IDSVNLC_COPYRELPATHS:
-            case IDSVNLC_COPYFILENAMES:
-                CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH, cmd);
+            case IDSVNLC_COPY:
+                CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH);
                 break;
             case IDSVNLC_COPYEXT:
-                CopySelectedEntriesToClipboard((DWORD)-1, 0);
+                CopySelectedEntriesToClipboard((DWORD)-1);
                 break;
             case IDSVNLC_COPYCOL:
-                CopySelectedEntriesToClipboard((DWORD)1 << selSubitem, 0);
+                CopySelectedEntriesToClipboard((DWORD)1 << selSubitem);
                 break;
             case IDSVNLC_PROPERTIES:
                 {
@@ -3548,7 +3518,7 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                         if (CopyFile(entry2->GetPath().GetWinPath(), tempFile.GetWinPath(), FALSE))
                         {
                             entry2->restorepath = tempFile.GetWinPathString();
-                            m_restorepaths[entry2->GetRestorePath()] = std::make_tuple(entry2->GetPath().GetWinPathString(), entry2->GetChangeList());
+                            m_restorepaths[entry2->GetRestorePath()] = entry2->GetPath().GetWinPathString();
                             SetItemState(index, INDEXTOOVERLAYMASK(OVL_RESTORE), LVIS_OVERLAYMASK);
                         }
                     }
@@ -3638,28 +3608,24 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                     Invalidate();
                 }
                 break;
-            case IDSVNLC_COMPARE_CONTENTONLY:
-                bIgnoreProps = true;
             case IDSVNLC_COMPARE:
                 {
                     if (CheckMultipleDiffs())
                     {
                         POSITION pos = GetFirstSelectedItemPosition();
                         if (pos == NULL)
-                            StartDiff(entry, bIgnoreProps);
+                            StartDiff(entry);
                         else
                         {
                             while ( pos )
                             {
                                 int index = GetNextSelectedItem(pos);
-                                StartDiff(index, bIgnoreProps);
+                                StartDiff(index);
                             }
                         }
                     }
                 }
                 break;
-            case IDSVNLC_COMPAREWC_CONTENTONLY:
-                bIgnoreProps = true;
             case IDSVNLC_COMPAREWC:
                 {
                     if (CheckMultipleDiffs())
@@ -3676,7 +3642,7 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                             diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
                             svn_revnum_t baseRev = entry2->Revision;
                             diff.DiffFileAgainstBase(
-                                entry2->path, baseRev, bIgnoreProps, entry2->textstatus, entry2->propstatus);
+                                entry2->path, baseRev, entry2->textstatus, entry2->propstatus);
                         }
                     }
                 }
@@ -4292,17 +4258,17 @@ void CSVNStatusListCtrl::OnNMDblclk(NMHDR *pNMHDR, LRESULT *pResult)
     }
 }
 
-void CSVNStatusListCtrl::StartDiff(int fileindex, bool ignoreprops)
+void CSVNStatusListCtrl::StartDiff(int fileindex)
 {
     if (fileindex < 0)
         return;
     CAutoReadLock locker(m_guard);
     FileEntry * entry = GetListEntry(fileindex);
     ASSERT(entry != NULL);
-    StartDiff(entry, ignoreprops);
+    StartDiff(entry);
 }
 
-void CSVNStatusListCtrl::StartDiff(FileEntry * entry, bool ignoreprops)
+void CSVNStatusListCtrl::StartDiff(FileEntry * entry)
 {
     ASSERT(entry != NULL);
     if (entry == NULL)
@@ -4354,7 +4320,7 @@ void CSVNStatusListCtrl::StartDiff(FileEntry * entry, bool ignoreprops)
     SVNDiff diff(NULL, m_hWnd, true);
     diff.SetAlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
     diff.DiffWCFile(
-        entry->path, ignoreprops, entry->status, entry->textstatus, entry->propstatus,
+        entry->path, entry->status, entry->textstatus, entry->propstatus,
         entry->remotetextstatus, entry->remotepropstatus);
 }
 
@@ -4370,7 +4336,7 @@ void CSVNStatusListCtrl::StartDiffOrResolve(int fileindex)
     }
     else
     {
-        StartDiff(entry, false);
+        StartDiff(entry);
     }
 }
 
@@ -4410,7 +4376,7 @@ CString CSVNStatusListCtrl::GetStatisticsString()
     SVNStatus::GetStatusString(AfxGetResourceHandle(), svn_wc_status_unversioned, buf, _countof(buf), langID);
     sUnversioned = buf;
     CString sToolTip;
-    sToolTip.Format(_T("%s = %ld\n%s = %ld\n%s = %ld\n%s = %ld\n%s = %ld\n%s = %ld\n%s = %ld"),
+    sToolTip.Format(_T("%s = %d\n%s = %d\n%s = %d\n%s = %d\n%s = %d\n%s = %d\n%s = %d"),
         (LPCTSTR)sNormal, m_nNormal,
         (LPCTSTR)sUnversioned, m_nUnversioned,
         (LPCTSTR)sModified, m_nModified,
@@ -4506,7 +4472,7 @@ void CSVNStatusListCtrl::SelectAll(bool bSelect, bool bIncludeNoCommits)
     {
         // block here so the LVN_ITEMCHANGED messages
         // get ignored
-        ++m_nBlockItemChangeHandler;
+        ++m_bBlockItemChangeHandler;
 
         CAutoWriteLock locker(m_guard);
         SetRedraw(FALSE);
@@ -4525,7 +4491,7 @@ void CSVNStatusListCtrl::SelectAll(bool bSelect, bool bIncludeNoCommits)
             if ((bIncludeNoCommits)||(entry->GetChangeList().Compare(SVNSLC_IGNORECHANGELIST)))
                 SetEntryCheck(entry,i,bSelect);
         }
-        --m_nBlockItemChangeHandler;
+        --m_bBlockItemChangeHandler;
     }
     SetRedraw(TRUE);
     GetStatisticsString();
@@ -4540,7 +4506,7 @@ void CSVNStatusListCtrl::Check(DWORD dwCheck, bool uncheckNonMatches)
     {
         CAutoWriteLock locker(m_guard);
         SetRedraw(FALSE);
-        ++m_nBlockItemChangeHandler;
+        ++m_bBlockItemChangeHandler;
 
         int nListItems = GetItemCount();
 
@@ -4567,7 +4533,7 @@ void CSVNStatusListCtrl::Check(DWORD dwCheck, bool uncheckNonMatches)
                     m_nSelected--;
             }
         }
-        --m_nBlockItemChangeHandler;
+        --m_bBlockItemChangeHandler;
     }
     SetRedraw(TRUE);
     GetStatisticsString();
@@ -4856,7 +4822,7 @@ void CSVNStatusListCtrl::SetCheckOnAllDescendentsOf(const FileEntry* parentEntry
 {
     CAutoWriteLock locker(m_guard);
     int nListItems = GetItemCount();
-    ++m_nBlockItemChangeHandler;
+    ++m_bBlockItemChangeHandler;
     for (int j=0; j< nListItems ; ++j)
     {
         FileEntry * childEntry = GetListEntry(j);
@@ -4879,7 +4845,7 @@ void CSVNStatusListCtrl::SetCheckOnAllDescendentsOf(const FileEntry* parentEntry
             m_nSelected--;
         }
     }
-    --m_nBlockItemChangeHandler;
+    --m_bBlockItemChangeHandler;
 }
 
 void CSVNStatusListCtrl::WriteCheckedNamesToPathList(CTSVNPathList& pathList)
@@ -5414,9 +5380,9 @@ BOOL CSVNStatusListCtrl::PreTranslateMessage(MSG* pMsg)
                 {
                     // copy all selected paths to the clipboard
                     if (GetAsyncKeyState(VK_SHIFT)&0x8000)
-                        CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH|SVNSLC_COLSTATUS|SVNSLC_COLURL, IDSVNLC_COPYRELPATHS);
+                        CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH|SVNSLC_COLSTATUS|SVNSLC_COLURL);
                     else
-                        CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH, IDSVNLC_COPYRELPATHS);
+                        CopySelectedEntriesToClipboard(SVNSLC_COLFILEPATH);
                     return TRUE;
                 }
             }
@@ -5462,7 +5428,7 @@ BOOL CSVNStatusListCtrl::PreTranslateMessage(MSG* pMsg)
     return CListCtrl::PreTranslateMessage(pMsg);
 }
 
-bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols, int cmd)
+bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols)
 {
     static CString ponly(MAKEINTRESOURCE(IDS_STATUSLIST_PROPONLY));
     static HINSTANCE hResourceHandle(AfxGetResourceHandle());
@@ -5511,28 +5477,7 @@ bool CSVNStatusListCtrl::CopySelectedEntriesToClipboard(DWORD dwCols, int cmd)
         // we selected only cols we want, so not other then select test needed
         for (int column = 0; column < count; ++column)
         {
-            if (cmd && (SVNSLC_COLFILEPATH & (1<<column)))
-            {
-                FileEntry * entry = GetListEntry(index);
-                if (entry)
-                {
-                    CString sPath;
-                    switch (cmd)
-                    {
-                    case IDSVNLC_COPYFULL:
-                        sPath = entry->GetPath().GetWinPathString();
-                        break;
-                    case IDSVNLC_COPYRELPATHS:
-                        sPath = entry->GetRelativeSVNPath(false);
-                        break;
-                    case IDSVNLC_COPYFILENAMES:
-                        sPath = entry->GetPath().GetFileOrDirectoryName();
-                        break;
-                    }
-                    ADDTOCLIPBOARDSTRING(sPath);
-                }
-            }
-            else if (selection & (1<<column))
+            if (selection & (1<<column))
                 ADDTOCLIPBOARDSTRING(GetCellText(index, column));
         }
 
