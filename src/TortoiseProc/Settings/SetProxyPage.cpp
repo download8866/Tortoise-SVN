@@ -26,30 +26,30 @@
 IMPLEMENT_DYNAMIC(CSetProxyPage, ISettingsPropPage)
 CSetProxyPage::CSetProxyPage()
     : ISettingsPropPage(CSetProxyPage::IDD)
-    , m_serveraddress(L"")
+    , m_serveraddress(_T(""))
     , m_serverport(0)
-    , m_username(L"")
-    , m_password(L"")
+    , m_username(_T(""))
+    , m_password(_T(""))
     , m_timeout(0)
     , m_isEnabled(FALSE)
-    , m_SSHClient(L"")
-    , m_Exceptions(L"")
+    , m_SSHClient(_T(""))
+    , m_Exceptions(_T(""))
 {
-    m_regServeraddress = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-host", L"");
-    m_regServerport = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-port", L"");
-    m_regUsername = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-username", L"");
-    m_regPassword = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-password", L"");
-    m_regTimeout = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-timeout", L"");
-    m_regSSHClient = CRegString(L"Software\\TortoiseSVN\\SSH");
+    m_regServeraddress = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-host"), _T(""));
+    m_regServerport = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-port"), _T(""));
+    m_regUsername = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-username"), _T(""));
+    m_regPassword = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-password"), _T(""));
+    m_regTimeout = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-timeout"), _T(""));
+    m_regSSHClient = CRegString(_T("Software\\TortoiseSVN\\SSH"));
     m_SSHClient = m_regSSHClient;
-    m_regExceptions = CRegString(L"Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-exceptions", L"");
+    m_regExceptions = CRegString(_T("Software\\Tigris.org\\Subversion\\Servers\\global\\http-proxy-exceptions"), _T(""));
 
-    m_regServeraddress_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-host", L"");
-    m_regServerport_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-port", L"");
-    m_regUsername_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-username", L"");
-    m_regPassword_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-password", L"");
-    m_regTimeout_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-timeout", L"");
-    m_regExceptions_copy = CRegString(L"Software\\TortoiseSVN\\Servers\\global\\http-proxy-exceptions", L"");
+    m_regServeraddress_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-host"), _T(""));
+    m_regServerport_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-port"), _T(""));
+    m_regUsername_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-username"), _T(""));
+    m_regPassword_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-password"), _T(""));
+    m_regTimeout_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-timeout"), _T(""));
+    m_regExceptions_copy = CRegString(_T("Software\\TortoiseSVN\\Servers\\global\\http-proxy-exceptions"), _T(""));
 }
 
 CSetProxyPage::~CSetProxyPage()
@@ -96,11 +96,11 @@ BOOL CSetProxyPage::OnInitDialog()
 
     m_SSHClient = m_regSSHClient;
     m_serveraddress = m_regServeraddress;
-    m_serverport = _wtoi((LPCTSTR)(CString)m_regServerport);
+    m_serverport = _ttoi((LPCTSTR)(CString)m_regServerport);
     m_username = m_regUsername;
     m_password = m_regPassword;
     m_Exceptions = m_regExceptions;
-    m_timeout = _wtoi((LPCTSTR)(CString)m_regTimeout);
+    m_timeout = _ttoi((LPCTSTR)(CString)m_regTimeout);
 
     if (m_serveraddress.IsEmpty())
     {
@@ -123,7 +123,7 @@ BOOL CSetProxyPage::OnInitDialog()
     if (m_serveraddress.IsEmpty())
         m_serveraddress = m_regServeraddress_copy;
     if (m_serverport==0)
-        m_serverport = _wtoi((LPCTSTR)(CString)m_regServerport_copy);
+        m_serverport = _ttoi((LPCTSTR)(CString)m_regServerport_copy);
     if (m_username.IsEmpty())
         m_username = m_regUsername_copy;
     if (m_password.IsEmpty())
@@ -131,7 +131,7 @@ BOOL CSetProxyPage::OnInitDialog()
     if (m_Exceptions.IsEmpty())
         m_Exceptions = m_regExceptions_copy;
     if (m_timeout == 0)
-        m_timeout = _wtoi((LPCTSTR)(CString)m_regTimeout_copy);
+        m_timeout = _ttoi((LPCTSTR)(CString)m_regTimeout_copy);
 
     SHAutoComplete(::GetDlgItem(m_hWnd, IDC_SSHCLIENT), SHACF_FILESYSTEM | SHACF_FILESYS_ONLY);
 
@@ -189,14 +189,14 @@ BOOL CSetProxyPage::OnApply()
         CString temp;
         Store (m_serveraddress, m_regServeraddress);
         m_regServeraddress_copy = m_serveraddress;
-        temp.Format(L"%u", m_serverport);
+        temp.Format(_T("%d"), m_serverport);
         Store (temp, m_regServerport);
         m_regServerport_copy = temp;
         Store (m_username, m_regUsername);
         m_regUsername_copy = m_username;
         Store (m_password, m_regPassword);
         m_regPassword_copy = m_password;
-        temp.Format(L"%u", m_timeout);
+        temp.Format(_T("%d"), m_timeout);
         Store (temp, m_regTimeout);
         m_regTimeout_copy = temp;
         Store (m_Exceptions, m_regExceptions);
@@ -213,11 +213,11 @@ BOOL CSetProxyPage::OnApply()
 
         CString temp;
         m_regServeraddress_copy = m_serveraddress;
-        temp.Format(L"%u", m_serverport);
+        temp.Format(_T("%d"), m_serverport);
         m_regServerport_copy = temp;
         m_regUsername_copy = m_username;
         m_regPassword_copy = m_password;
-        temp.Format(L"%u", m_timeout);
+        temp.Format(_T("%d"), m_timeout);
         m_regTimeout_copy = temp;
         m_regExceptions_copy = m_Exceptions;
     }
@@ -247,6 +247,6 @@ void CSetProxyPage::OnBnClickedEditservers()
     SVN::EnsureConfigFile();
     SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
     CString path = buf;
-    path += L"\\Subversion\\servers";
+    path += _T("\\Subversion\\servers");
     CAppUtils::StartTextViewer(path);
 }

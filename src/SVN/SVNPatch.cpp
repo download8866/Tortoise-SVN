@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -403,7 +403,7 @@ int SVNPatch::CountMatches( const CString& path ) const
         temp.Replace('/', '\\');
         if ((PathIsRelative(temp)) ||
             ((temp.GetLength() > 1) && (temp[0]=='\\') && (temp[1]!='\\')) )
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         if (PathFileExists(temp))
             matches++;
     }
@@ -418,7 +418,7 @@ int SVNPatch::CountDirMatches( const CString& path ) const
         CString temp = GetStrippedPath(i);
         temp.Replace('/', '\\');
         if (PathIsRelative(temp))
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         // remove the filename
         temp = temp.Left(temp.ReverseFind('\\'));
         if (PathFileExists(temp))
@@ -430,14 +430,14 @@ int SVNPatch::CountDirMatches( const CString& path ) const
 CString SVNPatch::GetStrippedPath( int nIndex ) const
 {
     if (nIndex < 0)
-        return L"";
+        return _T("");
     if (nIndex < (int)m_filePaths.size())
     {
         CString filepath = Strip(GetFilePath(nIndex));
         return filepath;
     }
 
-    return L"";
+    return _T("");
 }
 
 CString SVNPatch::Strip( const CString& filename ) const
@@ -458,7 +458,7 @@ CString SVNPatch::Strip( const CString& filename ) const
             //       "ts/my-working-copy/dir/file.txt"
             //          "my-working-copy/dir/file.txt"
             //                          "dir/file.txt"
-            int p = s.FindOneOf(L"/\\");
+            int p = s.FindOneOf(_T("/\\"));
             if (p < 0)
             {
                 s.Empty();
@@ -482,7 +482,7 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
         while (ErrPtr->child)
         {
             ErrPtr = ErrPtr->child;
-            msg += L"\n";
+            msg += _T("\n");
             temp = GetErrorMessageForNode(ErrPtr);
             msg += temp;
         }
@@ -490,9 +490,10 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
     return msg;
 }
 
-CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
+CString	 SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
 {
     CString msg;
+    char errbuf[256];
     if (Err != NULL)
     {
         svn_error_t * ErrPtr = Err;
@@ -500,7 +501,6 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
             msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
         else
         {
-            char errbuf[256] = {0};
             /* Is this a Subversion-specific error code? */
             if ((ErrPtr->apr_err > APR_OS_START_USEERR)
                 && (ErrPtr->apr_err <= APR_OS_START_CANONERR))
@@ -516,7 +516,7 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
                 if (temp_err)
                 {
                     svn_error_clear (temp_err);
-                    msg = L"Can't recode error string from APR";
+                    msg = _T("Can't recode error string from APR");
                 }
                 else
                 {
@@ -553,3 +553,4 @@ bool SVNPatch::RemoveFile( const CString& path )
     }
     return true;
 }
+

@@ -45,13 +45,17 @@ public:
      * \param text_status
      * \param prop_status
      */
-    bool DiffFileAgainstBase( const CTSVNPath& filePath, svn_revnum_t & baseRev, bool ignoreprops, svn_wc_status_kind status = svn_wc_status_none, svn_wc_status_kind text_status = svn_wc_status_none, svn_wc_status_kind prop_status = svn_wc_status_none);
+    bool DiffFileAgainstBase(
+        const CTSVNPath& filePath,
+        svn_revnum_t & baseRev,
+        svn_wc_status_kind status = svn_wc_status_none,
+        svn_wc_status_kind text_status = svn_wc_status_none,
+        svn_wc_status_kind prop_status = svn_wc_status_none);
 
     /**
      * Shows a diff of a file in the working copy with its BASE.
      */
     bool DiffWCFile(const CTSVNPath& filePath,
-                    bool ignoreprops,
                     svn_wc_status_kind status = svn_wc_status_none,
                     svn_wc_status_kind text_status = svn_wc_status_none,
                     svn_wc_status_kind prop_status = svn_wc_status_none,
@@ -68,14 +72,14 @@ public:
      *
      * \remark the peg revision is only used if \a url1 is the same as \a url2
      */
-    bool ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, SVNRev peg, const CString& options, bool bIgnoreAncestry = false, bool /*blame*/ = false, bool bIgnoreProperties = true);
+    bool ShowUnifiedDiff(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, SVNRev peg, const CString& options, bool bIgnoreAncestry = false, bool /*blame*/ = false);
 
     /**
      * See ShowUnifiedDiff().
      * Unlike ShowUnifiedDiff(), this method returns the path to the saved unified diff
      * without starting the diff viewer.
      */
-    bool UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, const SVNRev& peg, const CString& options, bool bIgnoreAncestry = false, bool bIgnoreProperties = true);
+    bool UnifiedDiff(CTSVNPath& tempfile, const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, const SVNRev& peg, const CString& options, bool bIgnoreAncestry = false);
 
     /**
      * Compares two revisions of a path and shows them in a GUI.
@@ -90,7 +94,13 @@ public:
      * In case \a url1 is an URL and not a local path, then the file diff dialog
      * is used to show the diff.
      */
-    bool ShowCompare(const CTSVNPath& url1, const SVNRev& rev1, const CTSVNPath& url2, const SVNRev& rev2, SVNRev peg, bool ignoreprops, const CString& options, bool ignoreancestry = false, bool blame = false, svn_node_kind_t nodekind = svn_node_unknown);
+    bool ShowCompare(const CTSVNPath& url1, const SVNRev& rev1,
+                     const CTSVNPath& url2, const SVNRev& rev2,
+                     SVNRev peg,
+                     const CString& options,
+                     bool ignoreancestry = false,
+                     bool blame = false,
+                     svn_node_kind_t nodekind = svn_node_unknown);
 
     bool DiffProps(const CTSVNPath& filePath, const SVNRev& rev1, const SVNRev& rev2, svn_revnum_t &baseRev);
 

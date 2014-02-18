@@ -32,9 +32,9 @@
 #define CACHEDISKVERSION 2
 
 #ifdef _WIN64
-#define STATUSCACHEFILENAME L"\\cache64"
+#define STATUSCACHEFILENAME _T("\\cache64")
 #else
-#define STATUSCACHEFILENAME L"\\cache"
+#define STATUSCACHEFILENAME _T("\\cache")
 #endif
 
 CSVNStatusCache* CSVNStatusCache::m_pInstance;
@@ -63,26 +63,26 @@ void CSVNStatusCache::Create()
     TCHAR path2[MAX_PATH] = {0};
     if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)==S_OK)
     {
-        wcscat_s(path, L"\\TSVNCache");
+        _tcscat_s(path, _T("\\TSVNCache"));
         if (!PathIsDirectory(path))
         {
             DeleteFile(path);
             if (CreateDirectory(path, NULL)==0)
                 goto error;
         }
-        wcscat_s(path, STATUSCACHEFILENAME);
+        _tcscat_s(path, STATUSCACHEFILENAME);
         // in case the cache file is corrupt, we could crash while
         // reading it! To prevent crashing every time once that happens,
         // we make a copy of the cache file and use that copy to read from.
         // if that copy is corrupt, the original file won't exist anymore
         // and the second time we start up and try to read the file,
         // it's not there anymore and we start from scratch without a crash.
-        wcscpy_s(path2, path);
-        wcscat_s(path2, L"2");
+        _tcscpy_s(path2, path);
+        _tcscat_s(path2, _T("2"));
         DeleteFile(path2);
         CopyFile(path, path2, FALSE);
         DeleteFile(path);
-        pFile = _tfsopen(path2, L"rb", _SH_DENYNO);
+        pFile = _tfsopen(path2, _T("rb"), _SH_DENYNO);
         if (pFile)
         {
             try
@@ -165,11 +165,11 @@ bool CSVNStatusCache::SaveCache()
     TCHAR path[MAX_PATH] = { 0 };       //MAX_PATH ok here.
     if (SHGetFolderPath(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)==S_OK)
     {
-        wcscat_s(path, L"\\TSVNCache");
+        _tcscat_s(path, _T("\\TSVNCache"));
         if (!PathIsDirectory(path))
             CreateDirectory(path, NULL);
-        wcscat_s(path, STATUSCACHEFILENAME);
-        _tfopen_s(&pFile, path, L"wb");
+        _tcscat_s(path, STATUSCACHEFILENAME);
+        _tfopen_s(&pFile, path, _T("wb"));
         if (pFile)
         {
             value = CACHEDISKVERSION;       // 'version'
@@ -198,7 +198,7 @@ bool CSVNStatusCache::SaveCache()
             fclose(pFile);
         }
     }
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": cache saved to disk at %s\n", path);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": cache saved to disk at %s\n"), path);
     return true;
 error:
     fclose(pFile);
@@ -281,18 +281,18 @@ void CSVNStatusCache::Refresh()
 bool CSVNStatusCache::IsPathGood(const CTSVNPath& path)
 {
     AutoLocker lock(m_NoWatchPathCritSec);
-    for (std::map<CTSVNPath, ULONGLONG>::const_iterator it = m_NoWatchPaths.begin(); it != m_NoWatchPaths.end(); ++it)
+    for (std::map<CTSVNPath, DWORD>::const_iterator it = m_NoWatchPaths.begin(); it != m_NoWatchPaths.end(); ++it)
     {
         if (it->first.IsAncestorOf(path))
         {
-            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": path not good: %s\n", path.GetWinPath());
+            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": path not good: %s\n"), path.GetWinPath());
             return false;
         }
     }
     return true;
 }
 
-bool CSVNStatusCache::BlockPath(const CTSVNPath& path, bool specific, ULONGLONG timeout /* = 0 */)
+bool CSVNStatusCache::BlockPath(const CTSVNPath& path, bool specific, DWORD timeout /* = 0 */)
 {
     if (timeout == 0)
         timeout = BLOCK_PATH_DEFAULT_TIMEOUT;
@@ -300,7 +300,7 @@ bool CSVNStatusCache::BlockPath(const CTSVNPath& path, bool specific, ULONGLONG 
     if (timeout > BLOCK_PATH_MAX_TIMEOUT)
         timeout = BLOCK_PATH_MAX_TIMEOUT;
 
-    timeout = GetTickCount64() + (timeout * 1000);    // timeout is in seconds, but we need the milliseconds
+    timeout = GetTickCount() + (timeout * 1000);    // timeout is in seconds, but we need the milliseconds
 
     if (!specific)
     {
@@ -308,12 +308,12 @@ bool CSVNStatusCache::BlockPath(const CTSVNPath& path, bool specific, ULONGLONG 
         do
         {
             CTSVNPath dbPath(p);
-            dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + L"\\wc.db");
+            dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\wc.db"));
             if (!dbPath.Exists())
                 p = p.GetContainingDirectory();
             else
             {
-                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": block path %s\n", p.GetWinPath());
+                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": block path %s\n"), p.GetWinPath());
                 AutoLocker lock(m_NoWatchPathCritSec);
                 m_NoWatchPaths[p] = timeout;
                 return true;
@@ -321,7 +321,7 @@ bool CSVNStatusCache::BlockPath(const CTSVNPath& path, bool specific, ULONGLONG 
         } while (!p.IsEmpty());
     }
 
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": block path %s\n", path.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": block path %s\n"), path.GetWinPath());
     AutoLocker lock(m_NoWatchPathCritSec);
     m_NoWatchPaths[path.GetDirectory()] = timeout;
 
@@ -336,16 +336,16 @@ bool CSVNStatusCache::UnBlockPath(const CTSVNPath& path)
     do
     {
         CTSVNPath dbPath(p);
-        dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + L"\\wc.db");
+        dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\wc.db"));
         if (!dbPath.Exists())
             p = p.GetContainingDirectory();
         else
         {
             AutoLocker lock(m_NoWatchPathCritSec);
-            std::map<CTSVNPath, ULONGLONG>::iterator it = m_NoWatchPaths.find(p);
+            std::map<CTSVNPath, DWORD>::iterator it = m_NoWatchPaths.find(p);
             if (it != m_NoWatchPaths.end())
             {
-                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": path removed from no good: %s\n", it->first.GetWinPath());
+                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": path removed from no good: %s\n"), it->first.GetWinPath());
                 m_NoWatchPaths.erase(it);
                 ret = true;
             }
@@ -354,10 +354,10 @@ bool CSVNStatusCache::UnBlockPath(const CTSVNPath& path)
     } while (!p.IsEmpty());
 
     AutoLocker lock(m_NoWatchPathCritSec);
-    std::map<CTSVNPath, ULONGLONG>::iterator it = m_NoWatchPaths.find(path.GetDirectory());
+    std::map<CTSVNPath, DWORD>::iterator it = m_NoWatchPaths.find(path.GetDirectory());
     if (it != m_NoWatchPaths.end())
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": path removed from no good: %s\n", it->first.GetWinPath());
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": path removed from no good: %s\n"), it->first.GetWinPath());
         m_NoWatchPaths.erase(it);
         ret = true;
     }
@@ -368,10 +368,10 @@ bool CSVNStatusCache::UnBlockPath(const CTSVNPath& path)
 
 bool CSVNStatusCache::RemoveTimedoutBlocks()
 {
-    const ULONGLONG currentTicks = GetTickCount64();
+    const DWORD currentTicks = GetTickCount();
     AutoLocker lock(m_NoWatchPathCritSec);
     std::vector<CTSVNPath> toRemove;
-    for (std::map<CTSVNPath, ULONGLONG>::const_iterator it = m_NoWatchPaths.begin(); it != m_NoWatchPaths.end(); ++it)
+    for (std::map<CTSVNPath, DWORD>::const_iterator it = m_NoWatchPaths.begin(); it != m_NoWatchPaths.end(); ++it)
     {
         if (currentTicks > it->second)
         {
@@ -452,8 +452,9 @@ bool CSVNStatusCache::RemoveCacheForDirectory(CCachedDirectory * cdir)
         itMap = m_directoryCache.lower_bound(cdir->m_directoryPath);
     } while (itMap != m_directoryCache.end() && cdir->m_directoryPath.IsAncestorOf(itMap->first));
 
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": removed from cache %s\n", cdir->m_directoryPath.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": removed from cache %s\n"), cdir->m_directoryPath.GetWinPath());
     delete cdir;
+    cdir = NULL;
     return true;
 }
 
@@ -547,7 +548,7 @@ CStatusCacheEntry CSVNStatusCache::GetStatusForPath(const CTSVNPath& path, DWORD
     bool bRecursive = !!(flags & TSVNCACHE_FLAGS_RECUSIVE_STATUS);
 
     // Check a very short-lived 'mini-cache' of the last thing we were asked for.
-    LONGLONG now = (LONGLONG)GetTickCount64();
+    long now = (long)GetTickCount();
     if(now-m_mostRecentExpiresAt < 0)
     {
         if(path.IsEquivalentToWithoutCase(m_mostRecentAskedPath))

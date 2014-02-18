@@ -16,9 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#ifndef _WIN32_WINNT
-#define _WIN32_WINNT 0x0600
-#endif
+#define _WIN32_WINNT 0x0400
 #include <Windows.h>
 #include <tchar.h>
 #include "Debug.h"
@@ -37,8 +35,8 @@ static LPFNCANUNLOADNOW pDllCanUnloadNow = NULL;
 
 static BOOL DebugActive(void)
 {
-    static const WCHAR TSVNRootKey[]=L"Software\\TortoiseSVN";
-    static const WCHAR ExplorerOnlyValue[]=L"DebugShell";
+    static const WCHAR TSVNRootKey[]=_T("Software\\TortoiseSVN");
+    static const WCHAR ExplorerOnlyValue[]=_T("DebugShell");
 
 
     DWORD bDebug = 0;
@@ -51,7 +49,7 @@ static BOOL DebugActive(void)
     BOOL bDebugActive = FALSE;
 
 
-    TRACE(L"DebugActive() - Enter\n");
+    TRACE(_T("DebugActive() - Enter\n"));
 
     if (IsDebuggerPresent())
     {
@@ -61,7 +59,7 @@ static BOOL DebugActive(void)
             Result = RegQueryValueEx(hKey, ExplorerOnlyValue, NULL, &Type, (BYTE *)&bDebug, &Len);
             if ((Result == ERROR_SUCCESS) && (Type == REG_DWORD) && (Len == sizeof(DWORD)) && bDebug)
             {
-                TRACE(L"DebugActive() - debug active\n");
+                TRACE(_T("DebugActive() - debug active\n"));
                 bDebugActive = TRUE;
             }
 
@@ -69,7 +67,7 @@ static BOOL DebugActive(void)
         }
     }
 
-    TRACE(L"WantRealVersion() - Exit\n");
+    TRACE(_T("WantRealVersion() - Exit\n"));
     return bDebugActive;
 }
 
@@ -79,10 +77,10 @@ static BOOL DebugActive(void)
  */
 static BOOL WantRealVersion(void)
 {
-    static const WCHAR TSVNRootKey[]=L"Software\\TortoiseSVN";
-    static const WCHAR ExplorerOnlyValue[]=L"LoadDllOnlyInExplorer";
+    static const WCHAR TSVNRootKey[]=_T("Software\\TortoiseSVN");
+    static const WCHAR ExplorerOnlyValue[]=_T("LoadDllOnlyInExplorer");
 
-    static const WCHAR ExplorerEnvPath[]=L"%SystemRoot%\\explorer.exe";
+    static const WCHAR ExplorerEnvPath[]=_T("%SystemRoot%\\explorer.exe");
 
 
     DWORD bExplorerOnly = 0;
@@ -90,39 +88,40 @@ static BOOL WantRealVersion(void)
     WCHAR ExplorerPath[MAX_PATH] = {0};
 
     HKEY hKey = HKEY_CURRENT_USER;
+    LONG Result = ERROR;
     DWORD Type = REG_DWORD;
     DWORD Len = sizeof(DWORD);
 
     BOOL bWantReal = TRUE;
 
 
-    TRACE(L"WantRealVersion() - Enter\n");
+    TRACE(_T("WantRealVersion() - Enter\n"));
 
-    LONG Result = RegOpenKeyEx(HKEY_CURRENT_USER, TSVNRootKey, 0, KEY_READ, &hKey);
+    Result = RegOpenKeyEx(HKEY_CURRENT_USER, TSVNRootKey, 0, KEY_READ, &hKey);
     if (Result == ERROR_SUCCESS)
     {
         Result = RegQueryValueEx(hKey, ExplorerOnlyValue, NULL, &Type, (BYTE *)&bExplorerOnly, &Len);
         if ((Result == ERROR_SUCCESS) && (Type == REG_DWORD) && (Len == sizeof(DWORD)) && bExplorerOnly)
         {
-            TRACE(L"WantRealVersion() - Explorer Only\n");
+            TRACE(_T("WantRealVersion() - Explorer Only\n"));
 
             // check if the current process is in fact the explorer
             Len = GetModuleFileName(NULL, ModuleName, _countof(ModuleName));
             if (Len)
             {
-                TRACE(L"Process is %s\n", ModuleName);
+                TRACE(_T("Process is %s\n"), ModuleName);
 
                 Len = ExpandEnvironmentStrings(ExplorerEnvPath, ExplorerPath, _countof(ExplorerPath));
                 if (Len && (Len <= _countof(ExplorerPath)))
                 {
-                    TRACE(L"Explorer path is %s\n", ExplorerPath);
+                    TRACE(_T("Explorer path is %s\n"), ExplorerPath);
                     bWantReal = !lstrcmpi(ModuleName, ExplorerPath);
                 }
 
                 // we also have to allow the verclsid.exe process - that process determines
                 // first whether the shell is allowed to even use an extension.
                 Len = lstrlen(ModuleName);
-                if ((Len > 13)&&(lstrcmpi(&ModuleName[Len-13], L"\\verclsid.exe") == 0))
+                if ((Len > 13)&&(lstrcmpi(&ModuleName[Len-13], _T("\\verclsid.exe")) == 0))
                     bWantReal = TRUE;
             }
         }
@@ -130,7 +129,7 @@ static BOOL WantRealVersion(void)
         RegCloseKey(hKey);
     }
 
-    TRACE(L"WantRealVersion() - Exit\n");
+    TRACE(_T("WantRealVersion() - Exit\n"));
     return bWantReal;
 }
 
@@ -148,7 +147,7 @@ static void LoadRealLibrary(void)
 
     if (!WantRealVersion())
     {
-        TRACE(L"LoadRealLibrary() - Bypass\n");
+        TRACE(_T("LoadRealLibrary() - Bypass\n"));
         hTortoiseSVN = NIL;
         return;
     }
@@ -160,7 +159,7 @@ static void LoadRealLibrary(void)
     Len = GetModuleFileName(hUseInst, ModuleName, _countof(ModuleName));
     if (!Len)
     {
-        TRACE(L"LoadRealLibrary() - Fail\n");
+        TRACE(_T("LoadRealLibrary() - Fail\n"));
         hTortoiseSVN = NIL;
         return;
     }
@@ -177,32 +176,32 @@ static void LoadRealLibrary(void)
     }
     if (Len == 0)
     {
-        TRACE(L"LoadRealLibrary() - Fail\n");
+        TRACE(_T("LoadRealLibrary() - Fail\n"));
         hTortoiseSVN = NIL;
         return;
     }
 #ifdef _WIN64
-    lstrcat(ModuleName, L"\\TortoiseSVN.dll");
+    lstrcat(ModuleName, _T("\\TortoiseSVN.dll"));
 #else
-    lstrcat(ModuleName, L"\\TortoiseSVN32.dll");
+    lstrcat(ModuleName, _T("\\TortoiseSVN32.dll"));
 #endif
-    TRACE(L"LoadRealLibrary() - Load %s\n", ModuleName);
+    TRACE(_T("LoadRealLibrary() - Load %s\n"), ModuleName);
 
     hTortoiseSVN = LoadLibraryEx(ModuleName, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
     if (!hTortoiseSVN)
     {
-        TRACE(L"LoadRealLibrary() - Fail\n");
+        TRACE(_T("LoadRealLibrary() - Fail\n"));
         hTortoiseSVN = NIL;
         return;
     }
 
-    TRACE(L"LoadRealLibrary() - Success\n");
+    TRACE(_T("LoadRealLibrary() - Success\n"));
     pDllGetClassObject = NULL;
     pDllCanUnloadNow = NULL;
     pDllGetClassObject = (LPFNGETCLASSOBJECT)GetProcAddress(hTortoiseSVN, GetClassObject);
     if (pDllGetClassObject == NULL)
     {
-        TRACE(L"LoadRealLibrary() - Fail\n");
+        TRACE(_T("LoadRealLibrary() - Fail\n"));
         FreeLibrary(hTortoiseSVN);
         hTortoiseSVN = NIL;
         return;
@@ -210,7 +209,7 @@ static void LoadRealLibrary(void)
     pDllCanUnloadNow = (LPFNCANUNLOADNOW)GetProcAddress(hTortoiseSVN, CanUnloadNow);
     if (pDllCanUnloadNow == NULL)
     {
-        TRACE(L"LoadRealLibrary() - Fail\n");
+        TRACE(_T("LoadRealLibrary() - Fail\n"));
         FreeLibrary(hTortoiseSVN);
         hTortoiseSVN = NIL;
         return;
@@ -245,11 +244,11 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD Reason, LPVOID Reserved)
 
     if (pathLength >= 14)
     {
-        if ((lstrcmpi(&buf[pathLength-14], L"\\ShellTest.exe")) == 0)
+        if ((lstrcmpi(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
         {
             bInShellTest = TRUE;
         }
-        if ((_wcsicmp(&buf[pathLength-13], L"\\verclsid.exe")) == 0)
+        if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
         {
             bInShellTest = TRUE;
         }
@@ -257,7 +256,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD Reason, LPVOID Reserved)
 
     if (!IsDebuggerPresent() && !bInShellTest)
     {
-        TRACE(L"In debug load preventer\n");
+        TRACE(_T("In debug load preventer\n"));
         return FALSE;
     }
 #else
@@ -287,7 +286,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD Reason, LPVOID Reserved)
 
 STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
 {
-    TRACE(L"DllGetClassObject() - Enter\n");
+    TRACE(_T("DllGetClassObject() - Enter\n"));
 
     LoadRealLibrary();
     if (!pDllGetClassObject)
@@ -295,27 +294,27 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID *ppv)
         if (ppv)
             *ppv = NULL;
 
-        TRACE(L"DllGetClassObject() - Bypass\n");
+        TRACE(_T("DllGetClassObject() - Bypass\n"));
         return CLASS_E_CLASSNOTAVAILABLE;
     }
 
-    TRACE(L"DllGetClassObject() - Forward\n");
+    TRACE(_T("DllGetClassObject() - Forward\n"));
     return pDllGetClassObject(rclsid, riid, ppv);
 }
 
 STDAPI DllCanUnloadNow(void)
 {
-    TRACE(L"DllCanUnloadNow() - Enter\n");
+    TRACE(_T("DllCanUnloadNow() - Enter\n"));
 
     if (pDllCanUnloadNow)
     {
-        TRACE(L"DllCanUnloadNow() - Forward\n");
+        TRACE(_T("DllCanUnloadNow() - Forward\n"));
         HRESULT Result = pDllCanUnloadNow();
         if (Result != S_OK)
             return Result;
     }
 
-    TRACE(L"DllCanUnloadNow() - Unload\n");
+    TRACE(_T("DllCanUnloadNow() - Unload\n"));
     UnloadRealLibrary();
     return S_OK;
 }

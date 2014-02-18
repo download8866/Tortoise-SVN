@@ -160,7 +160,7 @@ BOOL SVNPrompt::SimplePrompt(CString& username, CString& password, const CString
 void SVNPrompt::ShowErrorMessage()
 {
     CFormatMessageWrapper errorDetails;
-    MessageBox( FindParentWindow(m_hParentWnd), errorDetails, L"TortoiseSVN", MB_OK | MB_ICONINFORMATION );
+    MessageBox( FindParentWindow(m_hParentWnd), errorDetails, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION );
 }
 
 svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton, const char * realm, svn_boolean_t may_save, apr_pool_t *pool)
@@ -226,7 +226,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
 
     CString msg;
     msg.Format(IDS_ERR_SSL_VALIDATE, (LPCTSTR)CUnicodeUtils::GetUnicode(realm));
-    msg += L"\n";
+    msg += _T("\n");
     CString temp;
     if (failures & SVN_AUTH_SSL_UNKNOWNCA)
     {
@@ -237,7 +237,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_CNMISMATCH)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_CNMISMATCH, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->hostname));
         msg += temp;
         prev = TRUE;
@@ -245,7 +245,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_NOTYETVALID)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_NOTYETVALID, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->valid_from));
         msg += temp;
         prev = TRUE;
@@ -253,13 +253,13 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_EXPIRED)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_EXPIRED, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->valid_until));
         msg += temp;
         prev = TRUE;
     }
     if (prev)
-        msg += L"\n";
+        msg += _T("\n");
     temp.LoadString(IDS_SSL_ACCEPTQUESTION);
     msg += temp;
 
@@ -268,16 +268,28 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     {
         if (may_save)
         {
-            CTaskDialog taskdlg(msg,
-                                CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTALWAYS_TASK)));
-            taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetMainIcon(TD_WARNING_ICON);
-            UINT ret = (UINT)taskdlg.DoModal(svn->m_hParentWnd);
+            UINT ret = 0;
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskdlg(msg,
+                                    CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTALWAYS_TASK)));
+                taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                ret = (UINT)taskdlg.DoModal(svn->m_hParentWnd);
+            }
+            else
+            {
+                CString sAcceptAlways, sAcceptTemp, sReject;
+                sAcceptAlways.LoadString(IDS_SSL_ACCEPTALWAYS);
+                sAcceptTemp.LoadString(IDS_SSL_ACCEPTTEMP);
+                sReject.LoadString(IDS_SSL_REJECT);
+                ret = TSVNMessageBox(svn->m_hParentWnd, msg, _T("TortoiseSVN"), MB_DEFBUTTON3|MB_ICONQUESTION, sAcceptAlways, sAcceptTemp, sReject);
+            }
             if (ret == IDCUSTOM1)
             {
                 *cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
@@ -293,17 +305,25 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
         }
         else
         {
-            CTaskDialog taskdlg(msg,
-                                CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
-            taskdlg.AddCommandControl(IDCUSTOM3, CString(MAKEINTRESOURCE(IDS_SSL_REJECT_TASK)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetDefaultCommandControl(IDCUSTOM3);
-            taskdlg.SetMainIcon(TD_WARNING_ICON);
-            bool bAccept = (taskdlg.DoModal(svn->m_hParentWnd) == IDCUSTOM2);
+            bool bAccept = false;
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskdlg(msg,
+                                    CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
+                taskdlg.AddCommandControl(IDCUSTOM3, CString(MAKEINTRESOURCE(IDS_SSL_REJECT_TASK)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetDefaultCommandControl(IDCUSTOM3);
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                bAccept = (taskdlg.DoModal(svn->m_hParentWnd) == IDCUSTOM2);
+            }
+            else
+            {
+                bAccept = (TSVNMessageBox(svn->m_hParentWnd, msg, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION)==IDYES);
+            }
             if (bAccept)
             {
                 *cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
@@ -433,9 +453,9 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
         // We do the saving here ourselves (until subversion implements its own saving)
         if (may_save)
         {
-            CString regpath = L"Software\\tigris.org\\Subversion\\Servers\\";
+            CString regpath = _T("Software\\tigris.org\\Subversion\\Servers\\");
             CString groups = regpath;
-            groups += L"groups\\";
+            groups += _T("groups\\");
             CString server = CString(realm);
             int f1 = server.Find('<')+9;
             int len = server.Find(':', 10)-f1;
@@ -445,7 +465,7 @@ svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, 
             CRegString server_groups = CRegString(groups);
             server_groups = server;
             regpath += server;
-            regpath += L"\\ssl-client-cert-file";
+            regpath += _T("\\ssl-client-cert-file");
             CRegString client_cert_filepath_reg = CRegString(regpath);
             client_cert_filepath_reg = filename;
         }

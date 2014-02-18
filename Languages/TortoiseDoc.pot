@@ -534,11 +534,6 @@ msgid "Now that we have a project in our repository, we need to create a working
 msgstr ""
 
 #. (para)
-#. (para)
-msgid "In the default setting, the checkout menu item is not located in the TortoiseSVN submenu but is shown at the top explorer menu. TortoiseSVN commands that are not in the submenu have <literal>SVN</literal> prepended: <menuchoice><guimenuitem>SVN Checkout...</guimenuitem></menuchoice>"
-msgstr ""
-
-#. (para)
 msgid "You will notice that the appearance of this folder is different from our original folder. Every file has a green check mark in the bottom left corner. These are TortoiseSVN's status icons which are only present in a working copy. The green state indicates that the file is unchanged from the version in the repository."
 msgstr ""
 
@@ -3967,10 +3962,6 @@ msgstr ""
 msgid "If you want to see the differences between two different files, you can do that directly in explorer by selecting both files (using the usual <keycap>Ctrl</keycap>-modifier). Then from the explorer context menu select <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff</guimenuitem></menuchoice>."
 msgstr ""
 
-#. (para)
-msgid "If the files to compare are not located in the same folder, use the command <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff later</guimenuitem></menuchoice> to mark the first file for diffing, then browse to the second file and use <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff with \"path/of/marked/file\"</guimenuitem></menuchoice>. To remove the marked file, use the command <menuchoice><guimenu>TortoiseSVN</guimenu><guimenuitem>Diff later</guimenuitem></menuchoice> again, but hold down the <keycap>Ctrl</keycap>-modifier while clicking on it."
-msgstr ""
-
 #. (term)
 msgid "Difference between WC file/folder and a URL"
 msgstr ""
@@ -5454,7 +5445,7 @@ msgid "Use explicit revision numbers"
 msgstr ""
 
 #. (para)
-msgid "You should strongly consider using explicit revision numbers in all of your externals definitions, as described above. Doing so means that you get to decide when to pull down a different snapshot of external information, and exactly which snapshot to pull. Besides the common sense aspect of not being surprised by changes to third-party repositories that you might not have any control over, using explicit revision numbers also means that as you backdate your working copy to a previous revision, your externals definitions will also revert to the way they looked in that previous revision, which in turn means that the external working copies will be updated to match the way <emphasis>they</emphasis> looked back when your repository was at that previous revision. For software projects, this could be the difference between a successful and a failed build of an older snapshot of your complex code base."
+msgid "You should strongly consider using explicit revision numbers in all of your externals definitions, as described above. Doing so means that you get to decide when to pull down a different snapshot of external information, and exactly which snapshot to pull. Besides the common sense aspect of not being surprised by changes to third-party repositories that you might not have any control over, using explicit revision numbers also means that as you backdate your working copy to a previous revision, your externals definitions will also revert to the way they looked in that previous revision, which in turn means that the external working copies will be updated to match they way <emphasis>they</emphasis> looked back when your repository was at that previous revision. For software projects, this could be the difference between a successful and a failed build of an older snapshot of your complex code base."
 msgstr ""
 
 #. (para)
@@ -5564,18 +5555,6 @@ msgstr ""
 
 #. (para)
 msgid "A file external behaves just like any other versioned file in many respects, but they cannot be moved or deleted using the normal commands; the <literal>svn:externals</literal> property must be modified instead."
-msgstr ""
-
-#. (title)
-msgid "Creating externals via drag and drop"
-msgstr ""
-
-#. (para)
-msgid "If you already have a working copy of the files or folders you want to include as externals in another working copy, you can simply add those via drag and drop from the windows explorer."
-msgstr ""
-
-#. (para)
-msgid "Simply <action>right drag</action> the file or folder from one working copy to where you want those to be included as externals. A context menu appears when you release the mouse button: <menuchoice><guimenuitem>SVN Add as externals here</guimenuitem></menuchoice> if you click on that context menu entry, the <literal>svn:externals</literal> property is automatically added. All you have to do after that is commit the property changes and update to get those externals properly included in your working copy."
 msgstr ""
 
 #. (title)
@@ -6672,10 +6651,6 @@ msgstr ""
 msgid "Sometimes when you try to open a path you will get an error message in place of the item details. This might happen if you specified an invalid URL, or if you don't have access permission, or if there is some other server problem. If you need to copy this message to include it in an email, just right click on it and use <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Copy error message to clipboard</guimenuitem></menuchoice>, or simply use <keycap>Ctrl+C</keycap>."
 msgstr ""
 
-#. (para)
-msgid "Bookmarked urls/repositories are shown below the current repository folders in the left tree view. You can add entries there by <action>right clicking</action> on any file or folder and select <menuchoice><guimenu>Context Menu</guimenu><guimenuitem>Add to Bookmarks</guimenuitem></menuchoice>. Clicking on a bookmark will browse to that repository and file/folder."
-msgstr ""
-
 #. (title)
 msgid "Revision Graphs"
 msgstr ""
@@ -7734,19 +7709,19 @@ msgid "Note that this setting applies only to messages that you type in on this 
 msgstr ""
 
 #. (term)
+msgid "Re-open commit and branch/tag dialog after a commit failed"
+msgstr ""
+
+#. (para)
+msgid "When a commit fails for some reason (working copy needs updating, pre-commit hook rejects commit, network error, etc), you can select this option to keep the commit dialog open ready to try again."
+msgstr ""
+
+#. (term)
 msgid "Select items automatically"
 msgstr ""
 
 #. (para)
 msgid "The normal behaviour in the commit dialog is for all modified (versioned) items to be selected for commit automatically. If you prefer to start with nothing selected and pick the items for commit manually, uncheck this box."
-msgstr ""
-
-#. (term)
-msgid "Reopen dialog after commit if items were left uncommitted"
-msgstr ""
-
-#. (para)
-msgid "This reopens the commit dialog automatically at the same directory after a successful commit. The dialog is reopened only if there still are items left to commit."
 msgstr ""
 
 #. (term)
@@ -8291,11 +8266,6 @@ msgid "The window title for the base file"
 msgstr ""
 
 #. (para)
-#. (para)
-msgid "The window title for the base file, without quotes"
-msgstr ""
-
-#. (para)
 msgid "Your own file, with your changes"
 msgstr ""
 
@@ -8305,16 +8275,7 @@ msgid "The window title for your file"
 msgstr ""
 
 #. (para)
-#. (para)
-msgid "The window title for your file, without quotes"
-msgstr ""
-
-#. (para)
 msgid "The URL of the original file, if available"
-msgstr ""
-
-#. (para)
-msgid "The URL of the original file, if available, without quotes"
 msgstr ""
 
 #. (para)
@@ -8322,15 +8283,7 @@ msgid "The URL of the second file, if available"
 msgstr ""
 
 #. (para)
-msgid "The URL of the second file, if available, without quotes"
-msgstr ""
-
-#. (para)
 msgid "The revision of the original file, if available"
-msgstr ""
-
-#. (para)
-msgid "The revision of the original file, if available, without quotes"
 msgstr ""
 
 #. (para)
@@ -8338,23 +8291,7 @@ msgid "The revision of the second file, if available"
 msgstr ""
 
 #. (para)
-msgid "The revision of the second file, if available, without quotes"
-msgstr ""
-
-#. (para)
 msgid "The peg revision, if available"
-msgstr ""
-
-#. (para)
-msgid "The peg revision, if available, without quotes"
-msgstr ""
-
-#. (para)
-msgid "The name of the conflicted file"
-msgstr ""
-
-#. (para)
-msgid "The name of the conflicted file, without quotes"
 msgstr ""
 
 #. (para)
@@ -8425,27 +8362,11 @@ msgid "The window title for the file in the repository"
 msgstr ""
 
 #. (para)
-msgid "The window title for the file in the repository, without quotes"
-msgstr ""
-
-#. (para)
 msgid "the conflicted file, the result of the merge operation"
 msgstr ""
 
 #. (para)
 msgid "The window title for the merged file"
-msgstr ""
-
-#. (para)
-msgid "The window title for the merged file, without quotes"
-msgstr ""
-
-#. (para)
-msgid "The name of the file. This is an empty string if two different files are diffed instead of two states of the same file."
-msgstr ""
-
-#. (para)
-msgid "The name of the file, without quotes"
 msgstr ""
 
 #. (para)
@@ -8805,27 +8726,6 @@ msgstr ""
 
 #. (term)
 #. (term)
-msgid "Manual Pre-commit"
-msgstr ""
-
-#. (para)
-msgid "If this is specified, the commit dialog shows a button <guibutton>Run Hook</guibutton> which when clicked runs the specified hook script. The hook script receives a list of all checkec files and folders and the commit message if there was one entered."
-msgstr ""
-
-#. (term)
-msgid "Check-commit"
-msgstr ""
-
-#. (para)
-msgid "Called after the user clicks <guibutton>OK</guibutton> in the commit dialog, and before the commit dialog closes. This hook gets a list of all the checked files. If the hook returns an error, the commit dialog stays open."
-msgstr ""
-
-#. (para)
-msgid "If the returned error message contains paths on newline separated lines, those paths will get selected in the commit dialog after the error message is shown."
-msgstr ""
-
-#. (term)
-#. (term)
 msgid "Pre-commit"
 msgstr ""
 
@@ -8948,10 +8848,6 @@ msgstr ""
 
 #. (para)
 msgid "The current working directory with which the script is run. This is set to the common root directory of all affected paths."
-msgstr ""
-
-#. (para)
-msgid "A path to a temporary file which contains all the paths which were somehow touched by the operation. Each path is on a separate line in the temp file."
 msgstr ""
 
 #. (para)
@@ -9087,14 +8983,6 @@ msgid "The auto-completion list shown in the commit message editor displays the 
 msgstr ""
 
 #. (para)
-msgid "File externals that are pegged to a specific revision are blocked by default from being selected for a commit. This is because a subsequent update would revert those changes again unless the pegged revision of the external is adjusted."
-msgstr ""
-
-#. (para)
-msgid "Set this value to <literal>false</literal> in case you still want to commit changes to such external files."
-msgstr ""
-
-#. (para)
 msgid "If you don't want the explorer to update the status overlays while another TortoiseSVN command is running (e.g. Update, Commit, ...) then set this value to <literal>true</literal>."
 msgstr ""
 
@@ -9208,22 +9096,6 @@ msgid "If this option is set to <literal>true</literal> then TortoiseSVN tries t
 msgstr ""
 
 #. (para)
-msgid "A format string for the log messages when multiple revisions are selected in the log dialog."
-msgstr ""
-
-#. (listitem)
-msgid "gets replaced with the revision number text"
-msgstr ""
-
-#. (listitem)
-msgid "gets replaced with the short log message of the revision"
-msgstr ""
-
-#. (para)
-msgid "You can use the following placeholders in your format string: <placeholder-1/>"
-msgstr ""
-
-#. (para)
 msgid "The log dialog shows the revision the working copy path is at in bold. But this requires that the log dialog fetches the status of that path. Since for very big working copies this can take a while, you can set this value to <literal>false</literal> to deactivate this feature."
 msgstr ""
 
@@ -9237,10 +9109,6 @@ msgstr ""
 
 #. (para)
 msgid "TortoiseSVN checks whether there's a new version available about once a week. If an updated version is found, the commit dialog shows a link control with that info. If you prefer the old behavior back where a dialog pops up notifying you about the update, set this value to <literal>true</literal>."
-msgstr ""
-
-#. (para)
-msgid "The repository browser tries to fetch the web page that's generated by an SVN server configured with the SVNParentPath directive to get a list of all repositories. To disable that behavior, set this value to <literal>false</literal>."
 msgstr ""
 
 #. (para)
@@ -11518,10 +11386,6 @@ msgid "/path2"
 msgstr ""
 
 #. (option)
-msgid "/ignoreprops"
-msgstr ""
-
-#. (option)
 msgid "/pegrevision:xxx"
 msgstr ""
 
@@ -11534,7 +11398,7 @@ msgid "/line:xxx"
 msgstr ""
 
 #. (entry)
-msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. If the specified file also has property modifications, the external diff tool is also started for each modified property. To prevent that, pass the option <placeholder-5/>. To explicitly set the revision numbers use <placeholder-6/> and <placeholder-7/>, and for the optional peg revision use <placeholder-8/>. If <placeholder-9/> is set and <placeholder-10/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-11/> specifies the line to jump to when the diff is shown."
+msgid "Starts the external diff program specified in the TortoiseSVN settings. The <placeholder-1/> specifies the first file. If the option <placeholder-2/> is set, then the diff program is started with those two files. If <placeholder-3/> is omitted, then the diff is done between the file in <placeholder-4/> and its BASE. To explicitly set the revision numbers use <placeholder-5/> and <placeholder-6/>, and for the optional peg revision use <placeholder-7/>. If <placeholder-8/> is set and <placeholder-9/> is not set, then the diff is done by first blaming the files with the given revisions. The parameter <placeholder-10/> specifies the line to jump to when the diff is shown."
 msgstr ""
 
 #. (para)
@@ -11543,10 +11407,6 @@ msgstr ""
 
 #. (para)
 msgid "The options <option>url1</option>, <option>url2</option>, <option>revision1</option> and <option>revision2</option> must be specified. The options <option>pegrevision</option>, <option>ignoreancestry</option>, <option>blame</option> and <option>unified</option> are optional."
-msgstr ""
-
-#. (para)
-msgid "If the specified url also has property modifications, the external diff tool is also started for each modified property. To prevent that, pass the option <option>/ignoreprops</option>."
 msgstr ""
 
 #. (entry)
@@ -13429,16 +13289,12 @@ msgstr ""
 msgid "The name of the mine file. This is shown in the view title instead of the file path."
 msgstr ""
 
-#. (para)
-msgid "Specifies the resulting <emphasis>merged</emphasis> file used in diffs. This is the file path where the result of the merge/conflict resolving is saved."
+#. (emphasis)
+msgid "merged"
 msgstr ""
 
-#. (para)
-msgid "If this is not set for a three-way diff, then TortoiseMerge will ask the user where to save the result."
-msgstr ""
-
-#. (para)
-msgid "If this is not set for a two-way diff, then TortoiseMerge will automatically use the path of the file shown in the right view as the save path."
+#. (entry)
+msgid "Specifies the resulting <placeholder-1/> file used in three way diffs. This is the file path where the result of the merge/conflict resolving is saved. If this is not set, then TortoiseMerge will ask the user where to save the result."
 msgstr ""
 
 #. (entry)

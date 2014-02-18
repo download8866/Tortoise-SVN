@@ -53,13 +53,13 @@ private:
 	}
 
 public:
-	explicit LexAccessor(IDocument *pAccess_) :
+	LexAccessor(IDocument *pAccess_) :
 		pAccess(pAccess_), startPos(extremePosition), endPos(0),
-		codePage(pAccess->CodePage()),
+		codePage(pAccess->CodePage()), 
 		encodingType(enc8bit),
 		lenDoc(pAccess->Length()),
 		mask(127), validLen(0), chFlags(0), chWhile(0),
-		startSeg(0), startPosStyling(0),
+		startSeg(0), startPosStyling(0), 
 		documentVersion(pAccess->Version()) {
 		switch (codePage) {
 		case 65001:
@@ -139,6 +139,7 @@ public:
 		return lenDoc;
 	}
 	void Flush() {
+		startPos = extremePosition;
 		if (validLen > 0) {
 			pAccess->SetStyles(validLen, styleBuf);
 			startPosStyling += validLen;

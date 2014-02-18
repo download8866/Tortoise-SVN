@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,14 +24,9 @@
 #include "Picture.h"
 #include "SmartHandle.h"
 #include <atlbase.h>
-#include <Wincodec.h>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "gdiplus.lib")
-// note: linking with Windowscodecs.lib does not make the exe require the dll
-// which means it still runs on XP even if the WIC isn't installed - WIC won't work
-// but the exe still runs
-#pragma comment(lib, "Windowscodecs.lib")
 
 #define HIMETRIC_INCH 2540
 
@@ -113,7 +108,7 @@ tstring CPicture::GetFileSizeAsText(bool bAbbrev /* = true */)
     if (bAbbrev)
         StrFormatByteSize(m_nSize, buf, _countof(buf));
     else
-        swprintf_s(buf, L"%ld Bytes", m_nSize);
+        _stprintf_s(buf, _T("%ld Bytes"), m_nSize);
 
     return tstring(buf);
 }
@@ -132,7 +127,7 @@ bool CPicture::Load(tstring sFilePathName)
         return true;
 
     // Load & initialize the GDI+ library if available
-    HMODULE hGdiPlusLib = AtlLoadSystemLibraryUsingFullPath(L"gdiplus.dll");
+    HMODULE hGdiPlusLib = AtlLoadSystemLibraryUsingFullPath(_T("gdiplus.dll"));
     if (hGdiPlusLib && GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) == Ok)
     {
         bHaveGDIPlus = true;
@@ -168,9 +163,8 @@ bool CPicture::Load(tstring sFilePathName)
         // the image format is "icon" or not, we also check the
         // file extension for ".ico".
         std::transform(sFilePathName.begin(), sFilePathName.end(), sFilePathName.begin(), ::tolower);
-        bIsIcon = (guid == ImageFormatIcon) || (wcsstr(sFilePathName.c_str(), L".ico") != NULL);
-        bIsTiff = (guid == ImageFormatTIFF) || (wcsstr(sFilePathName.c_str(), L".tiff") != NULL);
-        m_Name = sFilePathName;
+        bIsIcon = (guid == ImageFormatIcon) || (_tcsstr(sFilePathName.c_str(), _T(".ico")) != NULL);
+        bIsTiff = (guid == ImageFormatTIFF) || (_tcsstr(sFilePathName.c_str(), _T(".tiff")) != NULL);
 
         if (bIsIcon)
         {
@@ -208,7 +202,7 @@ bool CPicture::Load(tstring sFilePathName)
                                     nCurrentIcon = 0;
                                     hIcons = new HICON[lpIconDir->idCount];
                                     // check that the pointers point to data that we just loaded
-                                    if (((BYTE*)lpIconDir->idEntries > (BYTE*)lpIconDir) &&
+                                    if (((BYTE*)lpIconDir->idEntries > (BYTE*)lpIconDir) && 
                                         (((BYTE*)lpIconDir->idEntries) + (lpIconDir->idCount * sizeof(ICONDIRENTRY)) < ((BYTE*)lpIconDir) + fileinfo.nFileSizeLow))
                                     {
                                         m_Width = lpIconDir->idEntries[0].bWidth;
@@ -274,7 +268,7 @@ bool CPicture::Load(tstring sFilePathName)
 
             // NOTE: Currently just loading via FreeImage & using GDI+ for drawing.
             // It might be nice to remove this dependency in the future.
-            HMODULE hFreeImageLib = LoadLibrary(L"FreeImage.dll");
+            HMODULE hFreeImageLib = LoadLibrary(_T("FreeImage.dll"));
 
             // FreeImage DLL functions
             typedef const char* (__stdcall *FreeImage_GetVersion_t)(void);
@@ -515,7 +509,6 @@ bool CPicture::Show(HDC hDC, RECT DrawRect)
         Graphics graphics(hDC);
         graphics.SetInterpolationMode(m_ip);
         graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-        graphics.SetPixelOffsetMode(PixelOffsetModeHalf);
         ImageAttributes attr;
         attr.SetWrapMode(WrapModeTileFlipXY);
         Rect rect(DrawRect.left, DrawRect.top, DrawRect.right-DrawRect.left, DrawRect.bottom-DrawRect.top);
@@ -550,63 +543,6 @@ UINT CPicture::GetColorDepth() const
         LPICONDIR lpIconDir = (LPICONDIR)lpIcons;
         return lpIconDir->idEntries[nCurrentIcon].wBitCount;
     }
-
-    // try first with WIC to get the pixel format since GDI+ often returns 32-bit even if it's not
-    // Create the image factory.
-    UINT bpp = 0;
-    IWICImagingFactory * pFactory = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory,
-                                  NULL,
-                                  CLSCTX_INPROC_SERVER,
-                                  IID_IWICImagingFactory,
-                                  (LPVOID*) &pFactory);
-
-    // Create a decoder from the file.
-    if (SUCCEEDED(hr))
-    {
-        IWICBitmapDecoder * pDecoder = NULL;
-        hr = pFactory->CreateDecoderFromFilename(m_Name.c_str(),
-                                                 NULL,
-                                                 GENERIC_READ,
-                                                 WICDecodeMetadataCacheOnDemand,
-                                                 &pDecoder);
-        if (SUCCEEDED(hr))
-        {
-            IWICBitmapFrameDecode * pBitmapFrameDecode = NULL;
-            hr = pDecoder->GetFrame(0, &pBitmapFrameDecode);
-            if (SUCCEEDED(hr))
-            {
-                IWICBitmapSource * pSource = NULL;
-                pSource = pBitmapFrameDecode;
-                pSource->AddRef();
-                WICPixelFormatGUID pixelFormat;
-                hr = pSource->GetPixelFormat(&pixelFormat);
-                if (SUCCEEDED(hr))
-                {
-                    IWICComponentInfo * piCompInfo = NULL;
-                    hr = pFactory->CreateComponentInfo(pixelFormat, &piCompInfo);
-                    if (SUCCEEDED(hr))
-                    {
-                        IWICPixelFormatInfo * piPixelFormatInfo = NULL;
-                        hr = piCompInfo->QueryInterface(IID_IWICPixelFormatInfo,(LPVOID *) &piPixelFormatInfo);
-                        if (SUCCEEDED(hr))
-                        {
-                            hr = piPixelFormatInfo->GetBitsPerPixel(&bpp);
-                            piPixelFormatInfo->Release();
-                        }
-                        piCompInfo->Release();
-                    }
-                    pSource->Release();
-                }
-                pBitmapFrameDecode->Release();
-            }
-            pDecoder->Release();
-        }
-        pFactory->Release();
-    }
-    if (bpp)
-        return bpp;
-
     switch (GetPixelFormat())
     {
     case PixelFormat1bppIndexed:
@@ -627,9 +563,6 @@ UINT CPicture::GetColorDepth() const
     case PixelFormat32bppRGB:
         return 32;
     case PixelFormat48bppRGB:
-        // note: GDI+ converts images with bit depths > 32 automatically
-        // on loading, so PixelFormat48bppRGB, PixelFormat64bppARGB and
-        // PixelFormat64bppPARGB will never be used here.
         return 48;
     case PixelFormat64bppARGB:
     case PixelFormat64bppPARGB:

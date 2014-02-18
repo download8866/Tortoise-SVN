@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2013 - TortoiseSVN
+// Copyright (C) 2003-2006 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,7 +45,7 @@ void CDib::DeleteObject()
         ::DeleteObject(m_hBitmap);
     m_hBitmap = NULL;
 
-    SecureZeroMemory(&m_BMinfo, sizeof(m_BMinfo));
+    memset(&m_BMinfo, 0, sizeof(m_BMinfo));
 }
 
 void CDib::Create32BitFromPicture (CPictureHolder* pPicture, int iWidth, int iHeight)
@@ -149,7 +149,9 @@ BOOL CDib::Draw(CDC* pDC, CPoint ptDest)
     CSize size = GetSize();
     CPoint SrcOrigin = CPoint(0,0);
 
-    BOOL resVal = SetDIBitsToDevice(pDC->GetSafeHdc(),
+    BOOL resVal = FALSE;
+
+    resVal = SetDIBitsToDevice(pDC->GetSafeHdc(),
                                 ptDest.x, ptDest.y,
                                 size.cx, size.cy,
                                 SrcOrigin.x, SrcOrigin.y,

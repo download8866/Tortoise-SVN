@@ -41,11 +41,11 @@ unsigned int CWaitDialog::ThreadRoutine()
     PostMessage(WM_PROCESS_STARTING);
 
     STARTUPINFO si;
-    SecureZeroMemory(&si, sizeof(STARTUPINFO));
+    memset(&si, 0, sizeof(STARTUPINFO));
     si.cb = sizeof(STARTUPINFO);
 
     PROCESS_INFORMATION pi;
-    SecureZeroMemory(&pi, sizeof(PROCESS_INFORMATION));
+    memset(&pi, 0, sizeof(PROCESS_INFORMATION));
 
     BOOL ok;
 

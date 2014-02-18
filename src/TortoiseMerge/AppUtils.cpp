@@ -44,25 +44,25 @@ CAppUtils::~CAppUtils(void)
 
 BOOL CAppUtils::GetVersionedFile(CString sPath, CString sVersion, CString sSavePath, CProgressDlg * progDlg, HWND hWnd /*=NULL*/)
 {
-    CString sSCMPath = CRegString(L"Software\\TortoiseMerge\\SCMPath", L"");
+    CString sSCMPath = CRegString(_T("Software\\TortoiseMerge\\SCMPath"), _T(""));
     if (sSCMPath.IsEmpty())
     {
         // no path set, so use TortoiseSVN as default
-        sSCMPath = CPathUtils::GetAppDirectory() + L"TortoiseProc.exe";
-        sSCMPath += L" /command:cat /path:\"%1\" /revision:%2 /savepath:\"%3\" /hwnd:%4";
+        sSCMPath = CPathUtils::GetAppDirectory() + _T("TortoiseProc.exe");
+        sSCMPath += _T(" /command:cat /path:\"%1\" /revision:%2 /savepath:\"%3\" /hwnd:%4");
     }
     CString sTemp;
-    sTemp.Format(L"%p", (void*)hWnd);
-    sSCMPath.Replace(L"%1", sPath);
-    sSCMPath.Replace(L"%2", sVersion);
-    sSCMPath.Replace(L"%3", sSavePath);
-    sSCMPath.Replace(L"%4", sTemp);
+    sTemp.Format(_T("%p"), (void*)hWnd);
+    sSCMPath.Replace(_T("%1"), sPath);
+    sSCMPath.Replace(_T("%2"), sVersion);
+    sSCMPath.Replace(_T("%3"), sSavePath);
+    sSCMPath.Replace(_T("%4"), sTemp);
     // start the external SCM program to fetch the specific version of the file
     PROCESS_INFORMATION process;
     if (!CCreateProcessHelper::CreateProcess(NULL, (LPTSTR)(LPCTSTR)sSCMPath, &process))
     {
         CFormatMessageWrapper errorDetails;
-        MessageBox(NULL, errorDetails, L"TortoiseMerge", MB_OK | MB_ICONERROR);
+        MessageBox(NULL, errorDetails, _T("TortoiseMerge"), MB_OK | MB_ICONERROR);
         return FALSE;
     }
     DWORD ret = 0;
@@ -127,10 +127,10 @@ CString CAppUtils::GetErrorString(svn_error_t * Err)
 {
     CString msg;
     CString temp;
+    char errbuf[256] = { 0 };
 
     if (Err != NULL)
     {
-        char errbuf[256] = { 0 };
         svn_error_t * ErrPtr = Err;
         if (ErrPtr->message)
             msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
@@ -149,7 +149,7 @@ CString CAppUtils::GetErrorString(svn_error_t * Err)
                 if (temp_err)
                 {
                     svn_error_clear (temp_err);
-                    msg = L"Can't recode error string from APR";
+                    msg = _T("Can't recode error string from APR");
                 }
                 else
                 {
@@ -160,7 +160,7 @@ CString CAppUtils::GetErrorString(svn_error_t * Err)
         while (ErrPtr->child)
         {
             ErrPtr = ErrPtr->child;
-            msg += L"\n";
+            msg += _T("\n");
             if (ErrPtr->message)
                 temp = CUnicodeUtils::GetUnicode(ErrPtr->message);
             else
@@ -178,7 +178,7 @@ CString CAppUtils::GetErrorString(svn_error_t * Err)
                     if (temp_err)
                     {
                         svn_error_clear (temp_err);
-                        temp = L"Can't recode error string from APR";
+                        temp = _T("Can't recode error string from APR");
                     }
                     else
                     {
@@ -190,7 +190,7 @@ CString CAppUtils::GetErrorString(svn_error_t * Err)
         }
         return msg;
     }
-    return L"";
+    return _T("");
 }
 
 bool CAppUtils::HasClipboardFormat(UINT format)

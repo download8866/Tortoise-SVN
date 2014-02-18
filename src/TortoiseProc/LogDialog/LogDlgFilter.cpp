@@ -484,7 +484,7 @@ CLogDlgFilter::CLogDlgFilter
 
             // ordinary sub-string
 
-            AddSubString (filterText.Tokenize (L" ", curPos), prefix);
+            AddSubString (filterText.Tokenize (_T(" "), curPos), prefix);
         }
     }
 }

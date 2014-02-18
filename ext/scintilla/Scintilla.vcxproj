@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,22 +27,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -65,6 +65,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\obj\$(ProjectName)\$(Configuration)64\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
@@ -149,7 +150,6 @@
     <ClCompile Include="lexers\LexCsound.cxx" />
     <ClCompile Include="lexers\LexCSS.cxx" />
     <ClCompile Include="lexers\LexD.cxx" />
-    <ClCompile Include="lexers\LexDMAP.cxx" />
     <ClCompile Include="lexers\LexECL.cxx" />
     <ClCompile Include="lexers\LexEiffel.cxx" />
     <ClCompile Include="lexers\LexErlang.cxx" />
@@ -163,7 +163,6 @@
     <ClCompile Include="lexers\LexHTML.cxx" />
     <ClCompile Include="lexers\LexInno.cxx" />
     <ClCompile Include="lexers\LexKix.cxx" />
-    <ClCompile Include="lexers\LexKVIrc.cxx" />
     <ClCompile Include="lexers\LexLaTeX.cxx" />
     <ClCompile Include="lexers\LexLisp.cxx" />
     <ClCompile Include="lexers\LexLout.cxx" />
@@ -196,7 +195,6 @@
     <ClCompile Include="lexers\LexR.cxx" />
     <ClCompile Include="lexers\LexRebol.cxx" />
     <ClCompile Include="lexers\LexRuby.cxx" />
-    <ClCompile Include="lexers\LexRust.cxx" />
     <ClCompile Include="lexers\LexScriptol.cxx" />
     <ClCompile Include="lexers\LexSmalltalk.cxx" />
     <ClCompile Include="lexers\LexSML.cxx" />
@@ -271,7 +269,6 @@
     <ClInclude Include="lexlib\OptionSet.h" />
     <ClInclude Include="lexlib\PropSetSimple.h" />
     <ClInclude Include="lexlib\SparseState.h" />
-    <ClInclude Include="lexlib\StringCopy.h" />
     <ClInclude Include="lexlib\StyleContext.h" />
     <ClInclude Include="lexlib\WordList.h" />
     <ClInclude Include="src\AutoComplete.h" />

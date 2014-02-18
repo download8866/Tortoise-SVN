@@ -31,7 +31,10 @@
 #include "UnicodeUtils.h"
 #include <algorithm>
 
-CRegStdString regTagsPattern = CRegStdString(L"Software\\TortoiseSVN\\RevisionGraph\\TagsPattern", L"tags");
+#pragma warning(push)
+#pragma warning(disable:4127)   //conditional expression is constant (cause of SVN_ERR)
+
+CRegStdString regTagsPattern = CRegStdString(_T("Software\\TortoiseSVN\\RevisionGraph\\TagsPattern"), _T("tags"));
 
 // Copy the URL from src to dest, unescaping on the fly.
 void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
@@ -62,6 +65,7 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
             }
 
             char nValue = '?';
+            char * pszLow = NULL;
             char * pszHigh = NULL;
             pszSource++;
 
@@ -72,7 +76,7 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
             {
                 pszSource++;
                 up = (char) toupper(*pszSource);
-                char *pszLow = strchr(szHex, up);
+                pszLow = strchr(szHex, up);
 
                 if (pszLow != NULL)
                 {
@@ -101,8 +105,8 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
 tstring Tokenize(const _TCHAR* str, const _TCHAR* delim, tstring::size_type& iStart)
 {
     const _TCHAR* pstr = str + iStart;
-    const _TCHAR* r = wcsstr(pstr, delim);
-    tstring::size_type dlen = wcslen(delim);
+    const _TCHAR* r = _tcsstr(pstr, delim);
+    tstring::size_type dlen = _tcslen(delim);
 
     while( r )
     {
@@ -112,12 +116,12 @@ tstring Tokenize(const _TCHAR* str, const _TCHAR* delim, tstring::size_type& iSt
             return tstring(pstr, tstring::size_type(r - pstr));
         }
         pstr = r + dlen;
-        r = wcsstr(pstr, delim);
+        r = _tcsstr(pstr, delim);
     }
 
-    if( wcslen(pstr) > 0)
+    if( _tcslen(pstr) > 0)
     {
-        iStart = tstring::size_type(wcslen(str));
+        iStart = tstring::size_type(_tcslen(str));
         return tstring(pstr);
     }
     return tstring();
@@ -141,7 +145,7 @@ bool IsTaggedVersion(const char * url)
     tstring temp;
     while (!isTag)
     {
-        temp = Tokenize(sTags.c_str(), L";", pos);
+        temp = Tokenize(sTags.c_str(), _T(";"), pos);
         if (!temp.length())
             break;
 
@@ -149,11 +153,11 @@ bool IsTaggedVersion(const char * url)
         tstring temp2;
         for(;;)
         {
-            temp2 = Tokenize(urllower.c_str(), L"/", urlpos);
+            temp2 = Tokenize(urllower.c_str(), _T("/"), urlpos);
             if (!temp2.length())
                 break;
 
-            if (wcswildcmp(temp.c_str(), temp2.c_str()))
+            if (_tcswildcmp(temp.c_str(), temp2.c_str()))
             {
                 isTag = true;
                 break;
@@ -398,3 +402,4 @@ svn_status (    const char *path,
 
     return SVN_NO_ERROR;
 }
+#pragma warning(pop)

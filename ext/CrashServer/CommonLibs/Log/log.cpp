@@ -1,4 +1,4 @@
-// Copyright 2012, 2014 Idol Software, Inc.
+// Copyright 2012 Idol Software, Inc.
 //
 // This file is part of CrashHandler library.
 //
@@ -23,10 +23,6 @@
 #include <time.h>
 #include <crtdbg.h>
 #include "log_media.h"
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#include <VersionHelpers.h>
-#endif
 
 #define ASSERT(f) assert(f)
 
@@ -278,27 +274,6 @@ CString GetSystemInformation()
 {
     CString info = _T("Microsoft Windows ");
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    if (IsWindows8Point1OrGreater())
-        info += _T(">= 8.1");
-    else if (IsWindows8OrGreater())
-        info += _T("8.1");
-    else if (IsWindows7SP1OrGreater())
-        info += _T("7 SP1");
-    else if (IsWindows7OrGreater())
-        info += _T("7");
-    else if (IsWindowsVistaSP2OrGreater())
-        info += _T("Vista SP2");
-    else if (IsWindowsVistaSP1OrGreater())
-        info += _T("Vista SP1");
-    else if (IsWindowsVistaOrGreater())
-        info += _T("Vista");
-
-    if (IsWindowsServer())
-        info += _T(" Server");
-    else
-        info += _T(" Client");
-#else
     OSVERSIONINFOEX rcOS;
     ZeroMemory(&rcOS, sizeof(rcOS));
     rcOS.dwOSVersionInfoSize = sizeof(rcOS);
@@ -339,22 +314,10 @@ CString GetSystemInformation()
             {
             case 0: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("Vista") : _T("Server 2008"); break;
             case 1: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("7") : _T("Server 2008 R2"); break;
-            case 2: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("8") : _T("Server 2012"); break;
-            case 3: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("8.1") : _T("Server 2012 R2"); break;
-            default:
-            {
-                CString future;
-                future.Format(_T("%ld.%ld%s"), rcOS.dwMajorVersion, rcOS.dwMinorVersion, VER_NT_WORKSTATION ? _T("") : _T(" Server"));
-                info += future;
-                break;
+            default: ASSERT(false); info += _T("future version"); break;
             }
             break;
-        default:
-        {
-            CString future;
-            future.Format(_T("%ld.%ld%s"), rcOS.dwMajorVersion, rcOS.dwMinorVersion, VER_NT_WORKSTATION ? _T("") : _T(" Server"));
-            info += future;
-            break;
+        default: ASSERT(false); info += _T("future version"); break;
         }
         if (_tcslen(rcOS.szCSDVersion) > 0)
         {
@@ -362,7 +325,6 @@ CString GetSystemInformation()
             info += rcOS.szCSDVersion;
         }
     }
-#endif
     return info;
 }
 

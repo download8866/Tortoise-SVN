@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2014 - TortoiseSVN
+// Copyright (C) 2008-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,7 +38,6 @@ CTreeConflictEditorDlg::CTreeConflictEditorDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CTreeConflictEditorDlg::IDD, pParent)
     , conflict_reason(svn_wc_conflict_reason_edited)
     , conflict_action(svn_wc_conflict_action_edit)
-    , conflict_operation(svn_wc_operation_none)
     , src_right_version_kind(svn_node_unknown)
     , src_left_version_kind(svn_node_unknown)
     , m_theirsChoice(svn_wc_conflict_choose_merged)
@@ -46,7 +45,6 @@ CTreeConflictEditorDlg::CTreeConflictEditorDlg(CWnd* pParent /*=NULL*/)
     , m_choice(svn_wc_conflict_choose_postpone)
     , m_bInteractive(false)
     , m_bCancelled(false)
-    , kind(svn_node_none)
 {
 
 }
@@ -302,9 +300,9 @@ BOOL CTreeConflictEditorDlg::OnInitDialog()
     CAppUtils::SetWindowTitle(m_hWnd, m_path.GetUIPathString(), sWindowTitle);
 
     CString sTemp;
-    sTemp.Format(L"%s/%s@%ld", (LPCTSTR)src_left_version_url, (LPCWSTR)src_left_version_path, (svn_revnum_t)src_left_version_rev);
+    sTemp.Format(_T("%s/%s@%ld"), (LPCTSTR)src_left_version_url, (LPCWSTR)src_left_version_path, (svn_revnum_t)src_left_version_rev);
     SetDlgItemText(IDC_SOURCELEFTURL, sTemp);
-    sTemp.Format(L"%s/%s@%ld", (LPCTSTR)src_right_version_url, (LPCTSTR)src_right_version_path, (svn_revnum_t)src_right_version_rev);
+    sTemp.Format(_T("%s/%s@%ld"), (LPCTSTR)src_right_version_url, (LPCTSTR)src_right_version_path, (svn_revnum_t)src_right_version_rev);
     SetDlgItemText(IDC_SOURCERIGHTURL, sTemp);
 
 
@@ -365,10 +363,10 @@ CString CTreeConflictEditorDlg::GetShowLogCmd(const CTSVNPath &logPath, const CS
 {
     CString sFilter;
     if (!sFile.IsEmpty())
-        sFilter.Format(L"/findstring:\"%s\" /findtype:2 /findtext", (LPCTSTR)sFile);
+        sFilter.Format(_T("/findstring:\"%s\" /findtype:2 /findtext"), (LPCTSTR)sFile);
 
     CString sCmd;
-    sCmd.Format(L"/command:log /path:\"%s\" /pegrev:%ld %s",
+    sCmd.Format(_T("/command:log /path:\"%s\" /pegrev:%ld %s"),
         (LPCTSTR)logPath.GetSVNPathString(),
         (svn_revnum_t)src_left_version_rev,
         (LPCTSTR)sFilter);
@@ -391,7 +389,7 @@ void CTreeConflictEditorDlg::OnBnClickedShowlog()
 void CTreeConflictEditorDlg::OnBnClickedBranchlog()
 {
     CString sTemp;
-    sTemp.Format(L"%s/%s", (LPCTSTR)src_left_version_url, (LPCTSTR)src_left_version_path);
+    sTemp.Format(_T("%s/%s"), (LPCTSTR)src_left_version_url, (LPCTSTR)src_left_version_path);
 
     CString sFile;
     CTSVNPath logPath = CTSVNPath(sTemp);

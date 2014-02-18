@@ -5,11 +5,6 @@
 #pragma once
 #define XMESSAGEBOX_APPREGPATH "Software\\TortoiseSVN\\"
 
-// Including SDKDDKVer.h defines the highest available Windows platform.
-
-// If you wish to build your application for a previous Windows platform, include WinSDKVer.h and
-// set the _WIN32_WINNT macro to the platform you wish to support before including SDKDDKVer.h.
-
 #include <SDKDDKVer.h>
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS  // some CString constructors will be explicit
@@ -54,6 +49,8 @@
 #include "svn_props.h"
 #pragma warning(pop)
 
+#pragma warning(push)
+#pragma warning(disable: 4702)  // Unreachable code warnings in xtree
 #include <string>
 #include <vector>
 #include <map>
@@ -61,7 +58,10 @@
 #include <algorithm>
 #include <deque>
 #include <regex>
+#pragma warning(pop)
 
+#pragma warning(push)
+#pragma warning(disable: 4201)  // nonstandard extension used : nameless struct/union (in MMSystem.h)
 #include <vfw.h>
 #include <shlobj.h>
 #include <Shlwapi.h>
@@ -73,15 +73,20 @@
 #include <assert.h>
 #include <math.h>
 #include <gdiplus.h>
+#pragma warning(pop)
 
-#include "apr_version.h"
-#include "apu_version.h"
+#pragma warning(push)
+#pragma warning(disable: 4005)  // macro redefinition
+#include "../../ext/apr/include/apr_version.h"
+#include "../../ext/apr-util/include/apu_version.h"
+//#include "../../ext/berkeley-db/db4.3-win32/include/db.h"
 #ifdef _WIN64
-#include "openssl/opensslv.h"
+#include "../../ext/openssl/inc64/openssl/opensslv.h"
 #else
-#include "openssl/opensslv.h"
+#include "../../ext/openssl/inc32/openssl/opensslv.h"
 #endif
 #include "../../ext/zlib/zlib.h"
+#pragma warning(pop)
 
 #define __WIN32__
 #include "boost/pool/object_pool.hpp"
@@ -100,3 +105,7 @@
 #endif
 
 #define HAVE_APPUTILS
+
+#pragma warning(disable: 4512)  // assignment operator could not be generated
+#pragma warning(disable: 4355)  // used in base member initializer list
+

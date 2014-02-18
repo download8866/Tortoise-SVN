@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2014 - TortoiseSVN
+// Copyright (C) 2011-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -68,12 +68,8 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     // initialize the combo box with all the hook types we have
     int index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, start_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_CHECKCOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, check_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_PRECOMMIT)));
     m_cHookTypeCombo.SetItemData(index, pre_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_MANUALPRECOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, manual_precommit);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_POSTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, post_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTUPDATE)));
@@ -94,28 +90,28 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     cmd.bEnforce = false;
     cmd.bApproved = false;
     hooktype htype = unknown_hook;
+    int pos = 0;
     CString temp;
     CString strhook = CUnicodeUtils::GetUnicode(m_PropValue.c_str());
     if (!strhook.IsEmpty())
     {
-        int pos = 0;
-        temp = strhook.Tokenize(L"\n", pos);
+        temp = strhook.Tokenize(_T("\n"), pos);
         htype = CHooks::GetHookType(temp);
         if (!temp.IsEmpty())
         {
-            temp = strhook.Tokenize(L"\n", pos);
+            temp = strhook.Tokenize(_T("\n"), pos);
             cmd.commandline = temp;
-            temp = strhook.Tokenize(L"\n", pos);
+            temp = strhook.Tokenize(_T("\n"), pos);
             if (!temp.IsEmpty())
             {
-                cmd.bWait = (temp.CompareNoCase(L"true")==0);
-                temp = strhook.Tokenize(L"\n", pos);
+                cmd.bWait = (temp.CompareNoCase(_T("true"))==0);
+                temp = strhook.Tokenize(_T("\n"), pos);
                 if (!temp.IsEmpty())
                 {
-                    cmd.bShow = (temp.CompareNoCase(L"show")==0);
+                    cmd.bShow = (temp.CompareNoCase(_T("show"))==0);
 
-                    temp = strhook.Tokenize(L"\n", pos);
-                    cmd.bEnforce = (temp.CompareNoCase(L"enforce")==0);
+                    temp = strhook.Tokenize(_T("\n"), pos);
+                    cmd.bEnforce = (temp.CompareNoCase(_T("enforce"))==0);
                 }
             }
         }
@@ -125,12 +121,8 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     {
         if (m_PropName.compare(PROJECTPROPNAME_STARTCOMMITHOOK)==0)
             htype = start_commit_hook;
-        if (m_PropName.compare(PROJECTPROPNAME_CHECKCOMMITHOOK)==0)
-            htype = pre_commit_hook;
         if (m_PropName.compare(PROJECTPROPNAME_PRECOMMITHOOK)==0)
             htype = pre_commit_hook;
-        if (m_PropName.compare(PROJECTPROPNAME_MANUALPRECOMMITHOOK)==0)
-            htype = manual_precommit;
         if (m_PropName.compare(PROJECTPROPNAME_POSTCOMMITHOOK)==0)
             htype = post_commit_hook;
         if (m_PropName.compare(PROJECTPROPNAME_STARTUPDATEHOOK)==0)
@@ -175,7 +167,7 @@ BOOL CEditPropsLocalHooks::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"EditPropsLocalHooks");
+    EnableSaveRestore(_T("EditPropsLocalHooks"));
 
     return TRUE;
 }
@@ -222,14 +214,8 @@ void CEditPropsLocalHooks::OnOK()
     case start_commit_hook:
         m_PropName = PROJECTPROPNAME_STARTCOMMITHOOK;
         break;
-    case check_commit_hook:
-        m_PropName = PROJECTPROPNAME_CHECKCOMMITHOOK;
-        break;
     case pre_commit_hook:
         m_PropName = PROJECTPROPNAME_PRECOMMITHOOK;
-        break;
-    case manual_precommit:
-        m_PropName = PROJECTPROPNAME_MANUALPRECOMMITHOOK;
         break;
     case post_commit_hook:
         m_PropName = PROJECTPROPNAME_POSTCOMMITHOOK;

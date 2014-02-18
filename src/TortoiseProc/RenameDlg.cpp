@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,10 +28,9 @@
 IMPLEMENT_DYNAMIC(CRenameDlg, CResizableStandAloneDialog)
 CRenameDlg::CRenameDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CRenameDlg::IDD, pParent)
-    , m_name(L"")
+    , m_name(_T(""))
     , m_renameRequired(true)
     , m_pInputValidator(NULL)
-    , m_bBalloonVisible(false)
 {
 }
 
@@ -48,7 +47,7 @@ void CRenameDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CRenameDlg, CResizableStandAloneDialog)
     ON_WM_SIZING()
-    ON_EN_SETFOCUS(IDC_NAME, &CRenameDlg::OnEnSetfocusName)
+    ON_EN_CHANGE(IDC_NAME, OnEnChangeName)
 END_MESSAGE_MAP()
 
 BOOL CRenameDlg::OnInitDialog()
@@ -65,15 +64,6 @@ BOOL CRenameDlg::OnInitDialog()
         this->SetWindowText(m_windowtitle);
     if (!m_label.IsEmpty())
         SetDlgItemText(IDC_LABEL, m_label);
-
-    if (!m_name.IsEmpty())
-    {
-        CString sTmp;
-        sTmp.Format(IDS_RENAME_INFO, (LPCWSTR)m_name);
-        SetDlgItemText(IDC_RENINFOLABEL, sTmp);
-    }
-
-    AddAnchor(IDC_RENINFOLABEL, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_LABEL, TOP_LEFT);
     AddAnchor(IDC_NAME, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_DWM, TOP_LEFT);
@@ -83,8 +73,10 @@ BOOL CRenameDlg::OnInitDialog()
     CControlsBridge::AlignHorizontally(this, IDC_LABEL, IDC_NAME);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"RenameDlg");
+    EnableSaveRestore(_T("RenameDlg"));
     m_originalName = m_name;
+    if (m_renameRequired)
+        GetDlgItem(IDOK)->EnableWindow(FALSE);
     return TRUE;
 }
 
@@ -97,24 +89,13 @@ void CRenameDlg::OnOK()
         CString sError = m_pInputValidator->Validate(IDC_NAME, m_name);
         if (!sError.IsEmpty())
         {
-            m_bBalloonVisible = true;
             ShowEditBalloon(IDC_NAME, sError, CString(MAKEINTRESOURCE(IDS_ERR_ERROR)), TTI_ERROR);
             return;
         }
     }
-    bool nameAllowed = ((m_originalName != m_name) || !m_renameRequired)
-                       && !m_name.IsEmpty();
-    if (!nameAllowed)
-    {
-        m_bBalloonVisible = true;
-        ShowEditBalloon(IDC_NAME, IDS_WARN_RENAMEREQUIRED, IDS_ERR_ERROR, TTI_ERROR);
-        return;
-    }
-
     CTSVNPath path(m_name);
     if (!path.IsValidOnWindows())
     {
-        m_bBalloonVisible = true;
         ShowEditBalloon(IDC_NAME, IDS_WARN_NOVALIDPATH, IDS_ERR_ERROR, TTI_ERROR);
         return;
     }
@@ -142,20 +123,11 @@ void CRenameDlg::OnSizing(UINT fwSide, LPRECT pRect)
     CResizableStandAloneDialog::OnSizing(fwSide, pRect);
 }
 
-void CRenameDlg::OnCancel()
+void CRenameDlg::OnEnChangeName()
 {
-    // find out if there's a balloon tip showing and if there is,
-    // hide that tooltip but do NOT exit the dialog.
-    if (m_bBalloonVisible)
-    {
-        Edit_HideBalloonTip(GetDlgItem(IDC_NAME)->GetSafeHwnd());
-        return;
-    }
+    UpdateData();
 
-    CResizableStandAloneDialog::OnCancel();
-}
-
-void CRenameDlg::OnEnSetfocusName()
-{
-    m_bBalloonVisible = false;
+    bool nameAllowed =    ((m_originalName != m_name) || !m_renameRequired)
+                       && !m_name.IsEmpty();
+    GetDlgItem(IDOK)->EnableWindow (nameAllowed);
 }

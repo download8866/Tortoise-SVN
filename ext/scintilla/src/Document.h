@@ -19,8 +19,6 @@ namespace Scintilla {
 typedef int Position;
 const Position invalidPosition = -1;
 
-enum EncodingFamily { efEightBit, efUnicode, efDBCS };
-
 /**
  * The range class represents a range of text in a document.
  * The two values are not sorted as one end may be more significant than the other
@@ -32,7 +30,7 @@ public:
 	Position start;
 	Position end;
 
-	explicit Range(Position pos=0) :
+	Range(Position pos=0) :
 		start(pos), end(pos) {
 	}
 	Range(Position start_, Position end_) :
@@ -165,7 +163,7 @@ protected:
 	ILexer *instance;
 	bool performingStyle;	///< Prevent reentrance
 public:
-	explicit LexInterface(Document *pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false) {
+	LexInterface(Document *pdoc_) : pdoc(pdoc_), instance(0), performingStyle(false) {
 	}
 	virtual ~LexInterface() {
 	}
@@ -268,7 +266,6 @@ public:
 	int SCI_METHOD CodePage() const;
 	bool SCI_METHOD IsDBCSLeadByte(char ch) const;
 	int SafeSegment(const char *text, int length, int lengthSegment) const;
-	EncodingFamily CodePageFamily() const;
 
 	// Gateways to modifying document
 	void ModifiedAt(int pos);
@@ -443,12 +440,12 @@ public:
  */
 class DocModification {
 public:
-	int modificationType;
+  	int modificationType;
 	int position;
-	int length;
-	int linesAdded;	/**< Negative if lines deleted. */
-	const char *text;	/**< Only valid for changes to text, not for changes to style. */
-	int line;
+ 	int length;
+ 	int linesAdded;	/**< Negative if lines deleted. */
+ 	const char *text;	/**< Only valid for changes to text, not for changes to style. */
+ 	int line;
 	int foldLevelNow;
 	int foldLevelPrev;
 	int annotationLinesAdded;

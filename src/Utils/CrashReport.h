@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2012-2013 - TortoiseSVN
+// Copyright (C) 2012-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -275,7 +275,7 @@ public:
         if ((now - compiletime)<(60*60*24*31*3))
         {
             ApplicationInfo appInfo;
-            SecureZeroMemory(&appInfo, sizeof(appInfo));
+            memset(&appInfo, 0, sizeof(appInfo));
             appInfo.ApplicationInfoSize = sizeof(ApplicationInfo);
             appInfo.ApplicationGUID = "71040f62-f78a-4953-b5b3-5c148349fed7";
             appInfo.Prefix = "tsvn";
@@ -289,7 +289,7 @@ public:
             appInfo.V[3] = TSVN_VERBUILD;
 
             HandlerSettings handlerSettings;
-            SecureZeroMemory(&handlerSettings, sizeof(handlerSettings));
+            memset(&handlerSettings, 0, sizeof(handlerSettings));
             handlerSettings.HandlerSettingsSize = sizeof(handlerSettings);
             handlerSettings.LeaveDumpFilesInTempFolder = FALSE;
             handlerSettings.UseWER = FALSE;

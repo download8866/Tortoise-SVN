@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2006-2014 - TortoiseSVN
+// Copyright (C) 2006-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,9 +38,7 @@ typedef enum hooktype
     pre_update_hook,
     post_update_hook,
     issue_tracker_hook,
-    pre_connect_hook,
-    manual_precommit,
-    check_commit_hook
+    pre_connect_hook
 } hooktype;
 
 /**
@@ -163,7 +161,6 @@ public:
      * \param pathList a list of paths to look for the hook scripts
      * \param depth the depth of the commit
      * \param rev the revision the update was done to
-     * \param updatedList list of paths that were touched by the update in some way
      * \param exitcode on return, contains the exit code of the hook script
      * \param error the data the hook script outputs to stderr
      * \remark the string "%PATHS% in the command line of the hook script is
@@ -175,7 +172,7 @@ public:
      * the string representation of \c rev.
      */
     bool                PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
-                                    SVNRev rev, const CTSVNPathList& updatedList, DWORD& exitcode, CString& error);
+                                    SVNRev rev, DWORD& exitcode, CString& error);
 
     /**
      * Executes the Start-Commit-Hook that first matches one of the paths in
@@ -193,23 +190,6 @@ public:
      * is read back into \c message parameter.
      */
     bool                StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message,
-                                    DWORD& exitcode, CString& error);
-    /**
-     * Executes the Start-Commit-Hook that first matches one of the paths in
-     * \c pathList.
-     * \param pathList a list of paths to look for the hook scripts
-     * \param message a commit message
-     * \param exitcode on return, contains the exit code of the hook script
-     * \param error the data the hook script outputs to stderr
-     * \remark the string "%PATHS% in the command line of the hook script is
-     * replaced with the path to a temporary file which contains a list of files
-     * in \c pathList, separated by newlines. The hook script can parse this
-     * file to get all the paths the commit is about to be done on.
-     * The string %MESSAGEFILE% is replaced with path to temporary file containing
-     * \c message. If the script finishes successfully, contents of this file
-     * is read back into \c message parameter.
-     */
-    bool                CheckCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message,
                                     DWORD& exitcode, CString& error);
     /**
      * Executes the Pre-Commit-Hook that first matches one of the paths in
@@ -230,20 +210,6 @@ public:
     bool                PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
                                     CString& message, DWORD& exitcode,
                                     CString& error);
-    /**
-     * Executes the Manual Pre-Commit-Hook
-     * \param pathList a list of paths that are checked in the commit dialog
-     * \param message the commit message if there already is one
-     * \param exitcode on return, contains the exit code of the hook script
-     * \param error the data the hook script outputs to stderr
-     * \remark the string "%PATHS% in the command line of the hook script is
-     * replaced with the path to a temporary file which contains a list of files
-     * in \c pathList, separated by newlines. The hook script can parse this
-     * file to get all the paths the update is about to be done on.
-     */
-    bool                ManualPreCommit(HWND hWnd, const CTSVNPathList& pathList,
-                                        CString& message, DWORD& exitcode,
-                                        CString& error);
     /**
      * Executes the Post-Commit-Hook that first matches one of the paths in
      * \c pathList.
@@ -282,12 +248,6 @@ public:
      */
     bool                IsHookExecutionEnforced(hooktype t, const CTSVNPathList& pathList);
 
-    /**
-     * Returns true if the hook \c t for the paths given in \c pathList
-     * exists.
-     */
-    bool                IsHookPresent(hooktype t, const CTSVNPathList& pathList);
-
 private:
     /**
      * Starts a new process, specified in \c cmd.
@@ -318,7 +278,7 @@ private:
     bool                ApproveHook(HWND hWnd, hookiterator it);
 
     static CHooks *     m_pInstance;
-    ULONGLONG           m_lastPreConnectTicks;
+    DWORD               m_lastPreConnectTicks;
     bool                m_PathsConvertedToUrls;
     CTSVNPath           m_wcRootPath;
 };

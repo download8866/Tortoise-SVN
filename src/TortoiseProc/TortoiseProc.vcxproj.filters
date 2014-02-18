@@ -1071,10 +1071,7 @@
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="CodeCollaboratorSettingsDlg.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\DropExternalCommand.cpp">
-      <Filter>Commands\Drop</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -2048,13 +2045,13 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="CodeCollaboratorSettingsDlg.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\DropExternalCommand.h">
-      <Filter>Commands\Drop</Filter>
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="externalpeggedovl.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\actionadded.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -2461,16 +2458,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\ccollabgui.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\Bookmarks.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\actionmoved.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\actionmovereplaced.ico">
+    <Image Include="..\resources\ccollabgui.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

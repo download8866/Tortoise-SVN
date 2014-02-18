@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2007, 2009-2010, 2014 TortoiseSVN
+// External Cache Copyright (C) 2005-2007, 2009-2010 TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,12 +69,12 @@ private:
     // want to start crawling.  This timer is pushed-out for
     // every shell request, and stops us crawling until
     // a bit of quiet time has elapsed
-    LONGLONG m_crawlHoldoffReleasesAt;
+    long m_crawlHoldoffReleasesAt;
     bool m_bItemsAddedSinceLastCrawl;
     bool m_bPathsAddedSinceLastCrawl;
 
     CTSVNPath m_blockedPath;
-    ULONGLONG m_blockReleasesAt;
+    DWORD m_blockReleasesAt;
     bool m_bRun;
 
 

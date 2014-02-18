@@ -19,7 +19,6 @@
 #pragma once
 #include "EOL.h"
 #include <deque>
-#include <regex>
 
 // A template class to make an array which looks like a CStringArray or CDWORDArray but
 // is in fact based on a STL vector, which is much faster at large sizes
@@ -120,18 +119,12 @@ public:
      * \param bIgnoreCase converts whole file to lower case
      * \param bBlame limit line len
      */
-    BOOL Save(const CString& sFilePath
-             , bool bSaveAsUTF8 = false
-             , bool bUseSVNCompatibleEOLs = false
-             , DWORD dwIgnoreWhitespaces = 0
-             , BOOL bIgnoreCase = FALSE
-             , bool bBlame = false
-             , bool bIgnoreComments = false
-             , const CString& linestart = CString()
-             , const CString& blockstart = CString()
-             , const CString& blockend = CString()
-             , const std::wregex& rx = std::wregex(L"")
-             , const std::wstring& replacement = L"");
+    BOOL            Save(const CString& sFilePath
+                        , bool bSaveAsUTF8 = false
+                        , bool bUseSVNCompatibleEOLs = false
+                        , DWORD dwIgnoreWhitespaces = 0
+                        , BOOL bIgnoreCase = FALSE
+                        , bool bBlame = false) const;
     /**
      * Returns an error string of the last failed operation
      */
@@ -141,8 +134,6 @@ public:
      * to another CFileTextLines object.
      */
     void            CopySettings(CFileTextLines * pFileToCopySettingsTo);
-
-    void            SetCommentTokens();
 
     bool            NeedsConversion() const { return m_bNeedsConversion; }
     UnicodeType     GetUnicodeType() const  {return m_SaveParams.m_UnicodeType;}
@@ -169,17 +160,12 @@ private:
     void            SetErrorString();
 
     static void     StripWhiteSpace(CString& sLine, DWORD dwIgnoreWhitespaces, bool blame);
-    bool            StripComments(CString& sLine, bool bInBlockComment);
-    void            LineRegex(CString& sLine, const std::wregex& rx, const std::wstring& replacement);
 
 
 private:
-    CString             m_sErrorString;
-    bool                m_bNeedsConversion;
-    SaveParams          m_SaveParams;
-    CString             m_sCommentLine;
-    CString             m_sCommentBlockStart;
-    CString             m_sCommentBlockEnd;
+    CString              m_sErrorString;
+    bool                 m_bNeedsConversion;
+    SaveParams           m_SaveParams;
 };
 
 

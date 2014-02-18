@@ -9,7 +9,6 @@
 
 #include <algorithm>
 
-#include "StringCopy.h"
 #include "CharacterCategory.h"
 
 #ifdef SCI_NAMESPACE
@@ -3276,7 +3275,7 @@ const int catRanges[] = {
 
 const int maxUnicode = 0x10ffff;
 const int maskCategory = 0x1F;
-const int nRanges = ELEMENTS(catRanges);
+const int nRanges = sizeof(catRanges) / sizeof(catRanges[0]);
 
 }
 

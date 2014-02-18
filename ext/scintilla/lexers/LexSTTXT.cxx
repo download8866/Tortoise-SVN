@@ -85,22 +85,17 @@ static void ColouriseSTTXTDoc (unsigned int startPos, int length, int initStyle,
 				break;
 			}
 			case SCE_STTXT_HEXNUMBER: {
-				if (setHexNumber.Contains(sc.ch))
+				if(setHexNumber.Contains(sc.ch))
 					continue;
 				else if(setDataTime.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DATETIME);
-				else if(setWord.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DEFAULT);
+					sc.SetState(SCE_STTXT_DATETIME);
 				else
 					sc.SetState(SCE_STTXT_DEFAULT);
+
 				break;
 			}
 			case SCE_STTXT_DATETIME: {
-				if (setDataTime.Contains(sc.ch))
-					continue;
-				else if(setWord.Contains(sc.ch))
-					sc.ChangeState(SCE_STTXT_DEFAULT);
-				else
+				if(!setDataTime.Contains(sc.ch))
 					sc.SetState(SCE_STTXT_DEFAULT);
 				break;
 			}

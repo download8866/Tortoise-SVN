@@ -37,7 +37,15 @@
 #include "ListViewAccServer.h"
 
 // import EnvDTE for opening files in Visual Studio through COM
+#pragma warning(disable : 4278)
+#pragma warning(disable : 4146)
+#pragma warning(disable : 4298)
 #include "dte80a.tlh"
+#pragma warning(default : 4146)
+#pragma warning(default : 4278)
+#pragma warning(default : 4298)
+
+
 
 #define MERGE_REVSELECTSTART     1
 #define MERGE_REVSELECTEND       2
@@ -85,9 +93,9 @@ public:
     virtual ~CLogDlg();
 
     void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev,
-        BOOL bStrict = CRegDWORD(L"Software\\TortoiseSVN\\LastLogStrict", FALSE),
+        BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE),
         BOOL bSaveStrict = TRUE,
-        int limit = (int)(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\NumberOfLogs",
+        int limit = (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"),
         100));
     void SetFilter(const CString& findstr, LONG findtype, bool findregex);
     void SetIncludeMerge(bool bInclude = true) {m_bIncludeMerges = bInclude;}
@@ -154,6 +162,7 @@ protected:
     afx_msg void OnLogCancel();
     afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnKeydownFilelist(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnEnscrollMsgview();
     afx_msg void OnDestroy();
 
@@ -164,7 +173,8 @@ protected:
     virtual BOOL PreTranslateMessage(MSG* pMsg);
 
     void    FillLogMessageCtrl(bool bShow = true);
-    void DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2, bool blame, bool unified, bool ignoreprops);
+    void    DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2,
+                                                            bool blame, bool unified);
 
     DECLARE_MESSAGE_MAP()
 
@@ -185,10 +195,6 @@ private:
     void CopySelectionToClipBoard(bool bIncludeChangedList);
     void CopyCommaSeparatedRevisionsToClipboard();
     void CopyChangedSelectionToClipBoard();
-    void CopyCommaSeparatedAuthorsToClipboard();
-    void CopyMessagesToClipboard();
-    void CopyChangedPathInfoToClipboard(ContextMenuInfoForChangedPathsPtr pCmi, int cmd);
-
     CTSVNPathList GetChangedPathsAndMessageSketchFromSelectedRevisions(CString& sMessageSketch,
                                                                 CLogChangedPathArray& currentChangedArray);
     void RecalculateShownList(svn_revnum_t revToKeep = -1);
@@ -203,9 +209,10 @@ private:
     void SaveSplitterPos();
     bool ValidateRegexp(LPCTSTR regexp_str, std::tr1::wregex& pat, bool bMatchCase);
     void CheckRegexpTooltip();
-    void DiffSelectedFile(bool ignoreprops);
+    void DiffSelectedFile();
     void DiffSelectedRevWithPrevious();
     void SetDlgTitle(bool bOffline);
+    void ToggleCheckbox(size_t item);
     void SelectAllVisibleRevisions();
     void AddMainAnchors();
     void RemoveMainAnchors();
@@ -247,7 +254,7 @@ private:
     void ResizeAllListCtrlCols(bool bOnlyVisible);
 
     void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
-    void PopulateContextMenuForRevisions(ContextMenuInfoForRevisionsPtr& pCmi, CIconMenu& popup, CIconMenu& clipSubMenu);
+    void PopulateContextMenuForRevisions(ContextMenuInfoForRevisionsPtr& pCmi, CIconMenu& popup);
     bool GetContextMenuInfoForRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void AdjustContextMenuAnchorPointIfKeyboardInvoked(CPoint &point, int selIndex, CListCtrl& listControl);
     bool VerifyContextMenuForRevisionsAllowed(int selIndex);
@@ -287,14 +294,14 @@ private:
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteSaveAsChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteShowPropertiesChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
-    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops);
+    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteGnuDiff1ChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameDiffChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteRevertChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     bool VerifyContextMenuForChangedPathsAllowed(INT_PTR selIndex);
     bool GetContextMenuInfoForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi);
-    bool PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi, CIconMenu& popup, CIconMenu& clipSubMenu);
-    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, bool ignoreprops);
+    bool PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi, CIconMenu& popup);
+    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     bool CheckMultipleDiffs(UINT selCount);
     int  OpenWorkingCopyFileWithRegisteredProgram(CString& fullPath);
     void OpenSelectedWcFilesWithRegistedProgram(std::vector<size_t>& changedlogpathindices);
@@ -404,7 +411,6 @@ private:
     CString             m_sLogInfo;
     std::set<svn_revnum_t> m_mergedRevs;
     SVNRev              m_copyfromrev;
-    CString             m_sMultiLogFormat;
 
     CToolTips           m_tooltips;
 
@@ -418,8 +424,6 @@ private:
     HICON               m_hDeletedIcon;
     HICON               m_hMergedIcon;
     HICON               m_hReverseMergedIcon;
-    HICON               m_hMovedIcon;
-    HICON               m_hMoveReplacedIcon;
     int                 m_nIconFolder;
 
     HACCEL              m_hAccel;
@@ -440,6 +444,6 @@ private:
 
     bool                m_bVisualStudioRunningAtStart;
 };
-static UINT WM_REVSELECTED = RegisterWindowMessage(L"TORTOISESVN_REVSELECTED_MSG");
-static UINT WM_REVLIST = RegisterWindowMessage(L"TORTOISESVN_REVLIST_MSG");
-static UINT WM_REVLISTONERANGE = RegisterWindowMessage(L"TORTOISESVN_REVLISTONERANGE_MSG");
+static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
+static UINT WM_REVLIST = RegisterWindowMessage(_T("TORTOISESVN_REVLIST_MSG"));
+static UINT WM_REVLISTONERANGE = RegisterWindowMessage(_T("TORTOISESVN_REVLISTONERANGE_MSG"));

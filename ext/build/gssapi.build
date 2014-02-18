@@ -20,6 +20,7 @@
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
+      <arg value="/GF" if="${configuration == 'release'}" />
       <arg value="/EHsc" />
       <arg value="/MD" if="${configuration == 'release'}" />
       <arg value="/MDd" if="${configuration == 'debug'}" />
@@ -35,6 +36,7 @@
       </sources>
       <defines>
         <define name="WIN64" if="${platform == 'x64'}" />
+        <define name="_USING_V110_SDK71_" />
       </defines>
     </cl>
 

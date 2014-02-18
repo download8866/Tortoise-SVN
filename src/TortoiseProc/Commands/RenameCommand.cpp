@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,7 +47,7 @@ bool RenameCommand::Execute()
         sNewName = dlg.m_name;
     } while(PathIsRelative(sNewName) && !PathIsURL(sNewName) && (sNewName.IsEmpty() || (sNewName.Compare(filename)==0)));
 
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": rename file %s to %s\n", (LPCTSTR)cmdLinePath.GetWinPathString(), (LPCTSTR)sNewName);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": rename file %s to %s\n"), (LPCTSTR)cmdLinePath.GetWinPathString(), (LPCTSTR)sNewName);
     CTSVNPath destinationPath(basePath);
     if (PathIsRelative(sNewName) && !PathIsURL(sNewName))
         destinationPath.AppendPathString(sNewName);
@@ -112,7 +112,7 @@ bool RenameCommand::Execute()
         else
             sNewMask.Empty();
 
-        if (((!sFilemask.IsEmpty()) && (parser.HasKey(L"noquestion"))) ||
+        if (((!sFilemask.IsEmpty()) && (parser.HasKey(_T("noquestion")))) ||
             (cmdLinePath.GetFileExtension().Compare(destinationPath.GetFileExtension())!=0))
         {
             if (RenameWithReplace(GetExplorerHWND(), CTSVNPathList(cmdLinePath), destinationPath, sMsg))
@@ -124,7 +124,7 @@ bool RenameCommand::Execute()
             // at once because those files belong together.
             // e.g. file.aspx, file.aspx.cs, file.aspx.resx
             CTSVNPathList renlist;
-            CSimpleFileFind filefind(cmdLinePath.GetDirectory().GetWinPathString(), sFilemask+L".*");
+            CSimpleFileFind filefind(cmdLinePath.GetDirectory().GetWinPathString(), sFilemask+_T(".*"));
             while (filefind.FindNextFileNoDots())
             {
                 if (!filefind.IsDirectory())
@@ -150,14 +150,14 @@ bool RenameCommand::Execute()
                 {
                     CString sFilename = renlist[i].GetFilename();
                     CString sNewFilename = sNewMask + sFilename.Mid(sFilemask.GetLength());
-                    sTemp.Format(L"\n%s -> %s", (LPCTSTR)sFilename, (LPCTSTR)sNewFilename);
+                    sTemp.Format(_T("\n%s -> %s"), (LPCTSTR)sFilename, (LPCTSTR)sNewFilename);
                     if (!renlist[i].IsEquivalentTo(cmdLinePath))
                         sRenList += sTemp;
-                    renmap[renlist[i].GetWinPathString()] = renlist[i].GetContainingDirectory().GetWinPathString()+L"\\"+sNewFilename;
+                    renmap[renlist[i].GetWinPathString()] = renlist[i].GetContainingDirectory().GetWinPathString()+_T("\\")+sNewFilename;
                 }
                 CString sRenameMultipleQuestion;
                 sRenameMultipleQuestion.Format(IDS_PROC_MULTIRENAME, (LPCTSTR)sRenList);
-                UINT idret = ::MessageBox(GetExplorerHWND(), sRenameMultipleQuestion, L"TortoiseSVN", MB_ICONQUESTION|MB_YESNOCANCEL);
+                UINT idret = ::MessageBox(GetExplorerHWND(), sRenameMultipleQuestion, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNOCANCEL);
                 if (idret == IDYES)
                 {
                     CProgressDlg progress;
@@ -212,21 +212,28 @@ bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathLis
         CString sReplace;
         sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
 
-        CTaskDialog taskdlg(sReplace,
-                            CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
-                            L"TortoiseSVN",
-                            0,
-                            TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
-        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
-        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-        taskdlg.SetDefaultCommandControl(2);
-        taskdlg.SetMainIcon(TD_WARNING_ICON);
-        INT_PTR ret = taskdlg.DoModal(hWnd);
-        if (ret == 1) // replace
-            idret = IDYES;
+        if (CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskdlg(sReplace,
+                                CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
+                                L"TortoiseSVN",
+                                0,
+                                TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
+            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
+            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+            taskdlg.SetDefaultCommandControl(2);
+            taskdlg.SetMainIcon(TD_WARNING_ICON);
+            INT_PTR ret = taskdlg.DoModal(hWnd);
+            if (ret == 1) // replace
+                idret = IDYES;
+            else
+                idret = IDNO;
+        }
         else
-            idret = IDNO;
+        {
+            idret = TSVNMessageBox(hWnd, sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO);
+        }
 
         if (idret == IDYES)
         {

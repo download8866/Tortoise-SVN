@@ -27,7 +27,7 @@ HRESULT SetAppID(LPCTSTR appID)
 {
     HRESULT hRes = S_FALSE;
     typedef HRESULT STDAPICALLTYPE SetCurrentProcessExplicitAppUserModelIDFN(PCWSTR AppID);
-    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
     if (hShell)
     {
         SetCurrentProcessExplicitAppUserModelIDFN *pfnSetCurrentProcessExplicitAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDFN*)GetProcAddress(hShell, "SetCurrentProcessExplicitAppUserModelID");
@@ -47,7 +47,7 @@ HRESULT CreateShellLink(PCWSTR pszArguments, PCWSTR pszTitle, int iconIndex, ISh
         return hr;
 
     WCHAR szAppPath[MAX_PATH] = { 0 };
-    if (GetModuleFileName(NULL, szAppPath, _countof(szAppPath)) == 0)
+    if (GetModuleFileName(NULL, szAppPath, ARRAYSIZE(szAppPath)) == 0)
     {
         hr = HRESULT_FROM_WIN32(GetLastError());
         return hr;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -138,10 +138,10 @@ void CFullHistory::ReceiveLog ( TChangedPaths* changes
 
     // update progress bar and check for user pressing "Cancel" somewhere
 
-    static ULONGLONG lastProgressCall = 0;
-    if (lastProgressCall < GetTickCount64() - 200UL)
+    static DWORD lastProgressCall = 0;
+    if (lastProgressCall < GetTickCount() - 200)
     {
-        lastProgressCall = GetTickCount64();
+        lastProgressCall = GetTickCount();
 
         if (progress)
         {

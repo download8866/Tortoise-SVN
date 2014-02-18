@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2012-2014 - TortoiseSVN
+// Copyright (C) 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -90,6 +90,7 @@ BOOL CEditPropMergeLogTemplate::OnInitDialog()
 
     CString sWindowTitle;
     GetWindowText(sWindowTitle);
+    sWindowTitle.Remove('&');
     CAppUtils::SetWindowTitle(m_hWnd, m_pathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
@@ -109,7 +110,7 @@ BOOL CEditPropMergeLogTemplate::OnInitDialog()
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"EditPropMergeLogTemplate");
+    EnableSaveRestore(_T("EditPropMergeLogTemplate"));
     GetDlgItem(IDC_TITLE)->SetFocus();
 
     return FALSE;

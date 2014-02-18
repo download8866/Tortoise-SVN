@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -164,7 +164,7 @@ bool CRemoteCacheLink::GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCache
         // in between, the explorer is rendered unusable!
         // Failing to start the cache can have different reasons: missing exe,
         // missing registry key, corrupt exe, ...
-        if (((LONGLONG)GetTickCount64() - m_lastTimeout) < 0)
+        if (((long)GetTickCount() - m_lastTimeout) < 0)
             return false;
         // if we're in protected mode, don't try to start the cache: since we're
         // here, we know we can't access it anyway and starting a new process will
@@ -176,16 +176,16 @@ bool CRemoteCacheLink::GetStatusFromRemoteCache(const CTSVNPath& Path, TSVNCache
             return false;
 
         // Wait for the cache to open
-        LONGLONG endTime = (LONGLONG)GetTickCount64() + 1000;
+        long endTime = (long)GetTickCount()+1000;
         while(!EnsurePipeOpen())
         {
-            if (((LONGLONG)GetTickCount64() - endTime) > 0)
+            if(((long)GetTickCount() - endTime) > 0)
             {
-                m_lastTimeout = (LONGLONG)GetTickCount64() + 10000;
+                m_lastTimeout = (long)GetTickCount()+10000;
                 return false;
             }
         }
-        m_lastTimeout = (LONGLONG)GetTickCount64() + 10000;
+        m_lastTimeout = (long)GetTickCount()+10000;
     }
 
     AutoLocker lock(m_critSec);
@@ -326,6 +326,6 @@ bool CRemoteCacheLink::RunTsvnCacheProcess()
 
 CString CRemoteCacheLink::GetTsvnCachePath()
 {
-    CString sCachePath = CPathUtils::GetAppDirectory(g_hmodThisDll) + L"TSVNCache.exe";
+    CString sCachePath = CPathUtils::GetAppDirectory(g_hmodThisDll) + _T("TSVNCache.exe");
     return sCachePath;
 }

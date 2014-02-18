@@ -152,7 +152,6 @@ public: // methods
     static void     SetupViewSelection(CBaseView* view, int start, int end);
     void            SetupViewSelection(int start, int end);
     CString         GetSelectedText() const;
-    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods);
 
     // state classifying methods; note: state may belong to more classes
     static bool     IsStateConflicted(DiffStates state);
@@ -213,22 +212,16 @@ public: // methods
     static bool     IsViewGood(const CBaseView* view ) { return (view != 0) && view->IsWindowVisible(); }
     static CBaseView * GetFirstGoodView();
 
-    int             GetIndentCharsForLine(int x, int y);
     void            AddIndentationForSelectedBlock();
     void            RemoveIndentationForSelectedBlock();
+    bool            HasTabsToConvert();
     void            ConvertTabToSpaces();
+    bool            HasSpacesToConvert();
     void            Tabularize();
+    bool            HasTrailWhiteChars();
     void            RemoveTrailWhiteChars();
 
-    struct TWhitecharsProperties
-    {
-        bool HasMixedEols;
-        bool HasTrailWhiteChars;
-        bool HasSpacesToConvert;
-        bool HasTabsToConvert;
-    };
-
-    TWhitecharsProperties   GetWhitecharsProperties();
+    void            ShowFormatPopup(CPoint point);
 
 public: // variables
     CViewData *     m_pViewData;
@@ -250,10 +243,7 @@ public: // variables
     static CLocatorBar * m_pwndLocator; ///< Pointer to the locator bar on the left
     static CLineDiffBar * m_pwndLineDiffBar;    ///< Pointer to the line diff bar at the bottom
     static CMFCStatusBar * m_pwndStatusBar;///< Pointer to the status bar
-    static CMFCRibbonStatusBar * m_pwndRibbonStatusBar;///< Pointer to the status bar
     static CMainFrame * m_pMainFrame;   ///< Pointer to the mainframe
-
-    int             m_nTabMode;
 
     void            GoToFirstDifference();
     void            GoToFirstConflict();
@@ -263,7 +253,6 @@ public: // variables
     int             SaveFileTo(CString FileName, int Flags = 0);
 
     EOL             GetLineEndings();                                           ///< Get Line endings on view from lineendings or "mixed"
-    EOL             GetLineEndings(bool MixelEols);
     void            ReplaceLineEndings(EOL);                                    ///< Set AUTO lineending and replaces all EOLs
     void            SetLineEndingStyle(EOL);                                    ///< Set AUTO lineending
     UnicodeType     GetTextType() { return m_texttype; }
@@ -444,6 +433,7 @@ protected:  // methods
 
     static void     ResetUndoStep();
     void            SaveUndoStep();
+
 protected:  // variables
     COLORREF        m_InlineRemovedBk;
     COLORREF        m_InlineAddedBk;

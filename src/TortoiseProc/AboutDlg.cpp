@@ -23,7 +23,6 @@
 #include "svn_version.h"
 #include "../version.h"
 #include "../../ext/serf/serf.h"
-#include "../../ext/sqlite/sqlite3.h"
 #include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
@@ -77,10 +76,9 @@ BOOL CAboutDlg::OnInitDialog()
         APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
         SERF_MAJOR_VERSION, SERF_MINOR_VERSION, SERF_PATCH_VERSION,
         _T(OPENSSL_VERSION_TEXT),
-        _T(ZLIB_VERSION),
-        _T(SQLITE_VERSION));
+        _T(ZLIB_VERSION));
     SetDlgItemText(IDC_VERSIONABOUT, temp);
-    this->SetWindowText(L"TortoiseSVN");
+    this->SetWindowText(_T("TortoiseSVN"));
 
     CPictureHolder tmpPic;
     tmpPic.CreateFromBitmap(IDB_LOGOFLIPPED);
@@ -91,8 +89,8 @@ BOOL CAboutDlg::OnInitDialog()
     SetTimer(ID_EFFECTTIMER, 40, NULL);
     SetTimer(ID_DROPTIMER, 1500, NULL);
 
-    m_cWebLink.SetURL(L"http://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"http://tortoisesvn.net/donate.html");
+    m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
+    m_cSupportLink.SetURL(_T("http://tortoisesvn.net/donate.html"));
 
     CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
     GetDlgItem(IDOK)->SetFocus();
