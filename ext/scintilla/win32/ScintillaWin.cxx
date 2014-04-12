@@ -5,6 +5,7 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
+#include <new>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -12,7 +13,6 @@
 #include <assert.h>
 #include <limits.h>
 
-#include <new>
 #include <string>
 #include <vector>
 #include <map>
@@ -45,7 +45,6 @@
 #include "SciLexer.h"
 #include "LexerModule.h"
 #endif
-#include "StringCopy.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -88,6 +87,10 @@
 #define UNICODE_NOCHAR                  0xFFFF
 #endif
 
+#ifndef WM_IME_STARTCOMPOSITION
+#include <imm.h>
+#endif
+
 #include <commctrl.h>
 #include <zmouse.h>
 #include <ole2.h>
@@ -109,17 +112,28 @@ const TCHAR callClassName[] = TEXT("CallTip");
 using namespace Scintilla;
 #endif
 
+// Take care of 32/64 bit pointers
+#ifdef GetWindowLongPtr
 static void *PointerFromWindow(HWND hWnd) {
 	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
 }
-
 static void SetWindowPointer(HWND hWnd, void *ptr) {
 	::SetWindowLongPtr(hWnd, 0, reinterpret_cast<LONG_PTR>(ptr));
 }
-
 static void SetWindowID(HWND hWnd, int identifier) {
 	::SetWindowLongPtr(hWnd, GWLP_ID, identifier);
 }
+#else
+static void *PointerFromWindow(HWND hWnd) {
+	return reinterpret_cast<void *>(::GetWindowLong(hWnd, 0));
+}
+static void SetWindowPointer(HWND hWnd, void *ptr) {
+	::SetWindowLong(hWnd, 0, reinterpret_cast<LONG>(ptr));
+}
+static void SetWindowID(HWND hWnd, int identifier) {
+	::SetWindowLong(hWnd, GWL_ID, identifier);
+}
+#endif
 
 class ScintillaWin; 	// Forward declaration for COM interface subobjects
 
@@ -131,9 +145,10 @@ class FormatEnumerator {
 public:
 	VFunction **vtbl;
 	int ref;
-	unsigned int pos;
-	std::vector<CLIPFORMAT> formats;
-	FormatEnumerator(int pos_, CLIPFORMAT formats_[], size_t formatsLen_);
+	int pos;
+	CLIPFORMAT formats[2];
+	int formatsLen;
+	FormatEnumerator(int pos_, CLIPFORMAT formats_[], int formatsLen_);
 };
 
 /**
@@ -182,7 +197,6 @@ class ScintillaWin :
 	bool hasOKText;
 
 	CLIPFORMAT cfColumnSelect;
-	CLIPFORMAT cfBorlandIDEBlockType;
 	CLIPFORMAT cfLineSelect;
 
 	HRESULT hrOle;
@@ -197,7 +211,7 @@ class ScintillaWin :
 	bool renderTargetValid;
 #endif
 
-	explicit ScintillaWin(HWND hwnd);
+	ScintillaWin(HWND hwnd);
 	ScintillaWin(const ScintillaWin &);
 	virtual ~ScintillaWin();
 	ScintillaWin &operator=(const ScintillaWin &);
@@ -243,7 +257,7 @@ class ScintillaWin :
 	virtual int GetCtrlID();
 	virtual void NotifyParent(SCNotification scn);
 	virtual void NotifyParent(SCNotification * scn);
-	virtual void NotifyDoubleClick(Point pt, int modifiers);
+	virtual void NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt);
 	virtual CaseFolder *CaseFolderForEncoding();
 	virtual std::string CaseMapString(const std::string &s, int caseMapping);
 	virtual void Copy();
@@ -334,11 +348,9 @@ ScintillaWin::ScintillaWin(HWND hwnd) {
 	hasOKText = false;
 
 	// There does not seem to be a real standard for indicating that the clipboard
-	// contains a rectangular selection, so copy Developer Studio and Borland Delphi.
+	// contains a rectangular selection, so copy Developer Studio.
 	cfColumnSelect = static_cast<CLIPFORMAT>(
 		::RegisterClipboardFormat(TEXT("MSDEVColumnSelect")));
-	cfBorlandIDEBlockType = static_cast<CLIPFORMAT>(
-		::RegisterClipboardFormat(TEXT("Borland IDE Block Type")));
 
 	// Likewise for line-copy (copies a full line when no text is selected)
 	cfLineSelect = static_cast<CLIPFORMAT>(
@@ -513,6 +525,14 @@ static int InputCodePage() {
 	return atoi(sCodePage);
 }
 
+#ifndef VK_OEM_2
+static const int VK_OEM_2=0xbf;
+static const int VK_OEM_3=0xc0;
+static const int VK_OEM_4=0xdb;
+static const int VK_OEM_5=0xdc;
+static const int VK_OEM_6=0xdd;
+#endif
+
 /** Map the key codes to their equivalent SCK_ form. */
 static int KeyTranslate(int keyIn) {
 //PLATFORM_ASSERT(!keyIn);
@@ -578,16 +598,19 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 		}
 	} else {
 #if defined(USE_D2D)
-		EnsureRenderTarget();
-		AutoSurface surfaceWindow(pRenderTarget, this);
-		if (surfaceWindow) {
-			pRenderTarget->BeginDraw();
-			Paint(surfaceWindow, rcPaint);
-			surfaceWindow->Release();
-			HRESULT hr = pRenderTarget->EndDraw();
-			if (hr == D2DERR_RECREATE_TARGET) {
-				DropRenderTarget();
-				paintState = paintAbandoned;
+		for (int attempt=0;attempt<2;attempt++) {
+			EnsureRenderTarget();
+			AutoSurface surfaceWindow(pRenderTarget, this);
+			if (surfaceWindow) {
+				pRenderTarget->BeginDraw();
+				Paint(surfaceWindow, rcPaint);
+				surfaceWindow->Release();
+				HRESULT hr = pRenderTarget->EndDraw();
+				if (hr == D2DERR_RECREATE_TARGET) {
+					DropRenderTarget();
+				} else {
+					break;
+				}
 			}
 		}
 #endif
@@ -601,11 +624,7 @@ LRESULT ScintillaWin::WndPaint(uptr_t wParam) {
 		::EndPaint(MainHWND(), pps);
 	if (paintState == paintAbandoned) {
 		// Painting area was insufficient to cover new styling or brace highlight positions
-		if (IsOcxCtrl) {
-			FullPaintDC(pps->hdc);
-		} else {
-			FullPaint();
-		}
+		FullPaint();
 	}
 	paintState = notPainting;
 
@@ -872,10 +891,7 @@ sptr_t ScintillaWin::WndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam
 
 		case WM_MOUSEMOVE:
 			SetTrackMouseLeaveEvent(true);
-			ButtonMoveWithModifiers(Point::FromLong(lParam),
-				((wParam & MK_SHIFT) != 0 ? SCI_SHIFT : 0) |
-				((wParam & MK_CONTROL) != 0 ? SCI_CTRL : 0) |
-				(Platform::IsKeyDown(VK_MENU) ? SCI_ALT : 0));
+			ButtonMove(Point::FromLong(lParam));
 			break;
 
 		case WM_MOUSELEAVE:
@@ -1299,7 +1315,6 @@ void ScintillaWin::ScrollText(int /* linesToMove */) {
 	//	vs.lineHeight * linesToMove, 0, 0);
 	//::UpdateWindow(MainHWND());
 	Redraw();
-	UpdateSystemCaret();
 }
 
 void ScintillaWin::UpdateSystemCaret() {
@@ -1372,7 +1387,7 @@ bool ScintillaWin::ModifyScrollBars(int nMax, int nPage) {
 	if (horizEndPreferred < 0)
 		horizEndPreferred = 0;
 	unsigned int pageWidth = rcText.Width();
-	if (!horizontalScrollBarVisible || Wrapping())
+	if (!horizontalScrollBarVisible || (wrapState != eWrapNone))
 		pageWidth = horizEndPreferred + 1;
 	sci.fMask = SIF_PAGE | SIF_RANGE;
 	GetScrollInfo(SB_HORZ, &sci);
@@ -1405,7 +1420,6 @@ void ScintillaWin::NotifyFocus(bool focus) {
 	::SendMessage(::GetParent(MainHWND()), WM_COMMAND,
 	        MAKELONG(GetCtrlID(), focus ? SCEN_SETFOCUS : SCEN_KILLFOCUS),
 		reinterpret_cast<LPARAM>(MainHWND()));
-	Editor::NotifyFocus(focus);
 }
 
 void ScintillaWin::SetCtrlID(int identifier) {
@@ -1430,13 +1444,13 @@ void ScintillaWin::NotifyParent(SCNotification * scn) {
 		GetCtrlID(), reinterpret_cast<LPARAM>(scn));
 }
 
-void ScintillaWin::NotifyDoubleClick(Point pt, int modifiers) {
+void ScintillaWin::NotifyDoubleClick(Point pt, bool shift, bool ctrl, bool alt) {
 	//Platform::DebugPrintf("ScintillaWin Double click 0\n");
-	ScintillaBase::NotifyDoubleClick(pt, modifiers);
+	ScintillaBase::NotifyDoubleClick(pt, shift, ctrl, alt);
 	// Send myself a WM_LBUTTONDBLCLK, so the container can handle it too.
 	::SendMessage(MainHWND(),
 			  WM_LBUTTONDBLCLK,
-			  (modifiers & SCI_SHIFT) ? MK_SHIFT : 0,
+			  shift ? MK_SHIFT : 0,
 			  MAKELPARAM(pt.x, pt.y));
 }
 
@@ -1447,7 +1461,7 @@ class CaseFolderDBCS : public CaseFolderTable {
 	std::vector<wchar_t> utf16Folded;
 	UINT cp;
 public:
-	explicit CaseFolderDBCS(UINT cp_) : cp(cp_) {
+	CaseFolderDBCS(UINT cp_) : cp(cp_) {
 		StandardASCII();
 	}
 	virtual size_t Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
@@ -1478,9 +1492,9 @@ public:
 					// Maximum length of a case conversion is 6 bytes, 3 characters
 					wchar_t wFolded[20];
 					unsigned int charsConverted = UTF16FromUTF8(foldedUTF8,
-							static_cast<unsigned int>(strlen(foldedUTF8)),
-							wFolded, ELEMENTS(wFolded));
-					for (size_t j=0; j<charsConverted; j++)
+							static_cast<unsigned int>(strlen(foldedUTF8)), 
+							wFolded, sizeof(wFolded)/sizeof(wFolded[0]));
+					for (size_t j=0;j<charsConverted;j++)
 						utf16Folded[lenFlat++] = wFolded[j];
 				} else {
 					utf16Folded[lenFlat++] = utf16Mixed[mixIndex];
@@ -1518,19 +1532,19 @@ CaseFolder *ScintillaWin::CaseFolderForEncoding() {
 				sCharacter[0] = static_cast<char>(i);
 				wchar_t wCharacter[20];
 				unsigned int lengthUTF16 = ::MultiByteToWideChar(cpDoc, 0, sCharacter, 1,
-					wCharacter, ELEMENTS(wCharacter));
+					wCharacter, sizeof(wCharacter)/sizeof(wCharacter[0]));
 				if (lengthUTF16 == 1) {
 					const char *caseFolded = CaseConvert(wCharacter[0], CaseConversionFold);
 					if (caseFolded) {
 						wchar_t wLower[20];
 						unsigned int charsConverted = UTF16FromUTF8(caseFolded,
-							static_cast<unsigned int>(strlen(caseFolded)),
-							wLower, ELEMENTS(wLower));
+							static_cast<unsigned int>(strlen(caseFolded)), 
+							wLower, sizeof(wLower)/sizeof(wLower[0]));
 						if (charsConverted == 1) {
 							char sCharacterLowered[20];
 							unsigned int lengthConverted = ::WideCharToMultiByte(cpDoc, 0,
 								wLower, charsConverted,
-								sCharacterLowered, ELEMENTS(sCharacterLowered), NULL, 0);
+								sCharacterLowered, sizeof(sCharacterLowered), NULL, 0);
 							if ((lengthConverted == 1) && (sCharacter[0] != sCharacterLowered[0])) {
 								pcf->SetTranslation(sCharacter[0], sCharacterLowered[0]);
 							}
@@ -1552,7 +1566,7 @@ std::string ScintillaWin::CaseMapString(const std::string &s, int caseMapping) {
 	UINT cpDoc = CodePageOfDocument();
 	if (cpDoc == SC_CP_UTF8) {
 		std::string retMapped(s.length() * maxExpansionCaseConversion, 0);
-		size_t lenMapped = CaseConvertString(&retMapped[0], retMapped.length(), s.c_str(), s.length(),
+		size_t lenMapped = CaseConvertString(&retMapped[0], retMapped.length(), s.c_str(), s.length(), 
 			(caseMapping == cmUpper) ? CaseConversionUpper : CaseConversionLower);
 		retMapped.resize(lenMapped);
 		return retMapped;
@@ -1620,7 +1634,7 @@ public:
 	void *ptr;
 	GlobalMemory() : hand(0), ptr(0) {
 	}
-	explicit GlobalMemory(HGLOBAL hand_) : hand(hand_), ptr(0) {
+	GlobalMemory(HGLOBAL hand_) : hand(hand_), ptr(0) {
 		if (hand) {
 			ptr = ::GlobalLock(hand);
 		}
@@ -1691,16 +1705,7 @@ void ScintillaWin::Paste() {
 	SelectionPosition selStart = sel.IsRectangular() ?
 		sel.Rectangular().Start() :
 		sel.Range(sel.Main()).Start();
-	bool isRectangular = (::IsClipboardFormatAvailable(cfColumnSelect) != 0);
-
-	if (!isRectangular) {
-		// Evaluate "Borland IDE Block Type" explicitly
-		GlobalMemory memBorlandSelection(::GetClipboardData(cfBorlandIDEBlockType));
-		if (memBorlandSelection) {
-			isRectangular = (memBorlandSelection.Size() == 1) && (static_cast<BYTE *>(memBorlandSelection.ptr)[0] == 0x02);
-			memBorlandSelection.Unlock();
-		}
-	}
+	bool isRectangular = ::IsClipboardFormatAvailable(cfColumnSelect) != 0;
 
 	// Always use CF_UNICODETEXT if available
 	GlobalMemory memUSelection(::GetClipboardData(CF_UNICODETEXT));
@@ -1818,15 +1823,16 @@ STDMETHODIMP_(ULONG)FormatEnumerator_Release(FormatEnumerator *fe) {
 }
 /// Implement IEnumFORMATETC
 STDMETHODIMP FormatEnumerator_Next(FormatEnumerator *fe, ULONG celt, FORMATETC *rgelt, ULONG *pceltFetched) {
+	//Platform::DebugPrintf("EFE Next %d %d", fe->pos, celt);
 	if (rgelt == NULL) return E_POINTER;
+	// We only support one format, so this is simple.
 	unsigned int putPos = 0;
-	while ((fe->pos < fe->formats.size()) && (putPos < celt)) {
+	while ((fe->pos < fe->formatsLen) && (putPos < celt)) {
 		rgelt->cfFormat = fe->formats[fe->pos];
 		rgelt->ptd = 0;
 		rgelt->dwAspect = DVASPECT_CONTENT;
 		rgelt->lindex = -1;
 		rgelt->tymed = TYMED_HGLOBAL;
-		rgelt++;
 		fe->pos++;
 		putPos++;
 	}
@@ -1845,7 +1851,7 @@ STDMETHODIMP FormatEnumerator_Reset(FormatEnumerator *fe) {
 STDMETHODIMP FormatEnumerator_Clone(FormatEnumerator *fe, IEnumFORMATETC **ppenum) {
 	FormatEnumerator *pfe;
 	try {
-		pfe = new FormatEnumerator(fe->pos, &fe->formats[0], fe->formats.size());
+		pfe = new FormatEnumerator(fe->pos, fe->formats, fe->formatsLen);
 	} catch (...) {
 		return E_OUTOFMEMORY;
 	}
@@ -1863,11 +1869,13 @@ static VFunction *vtFormatEnumerator[] = {
 	(VFunction *)(FormatEnumerator_Clone)
 };
 
-FormatEnumerator::FormatEnumerator(int pos_, CLIPFORMAT formats_[], size_t formatsLen_) {
+FormatEnumerator::FormatEnumerator(int pos_, CLIPFORMAT formats_[], int formatsLen_) {
 	vtbl = vtFormatEnumerator;
 	ref = 0;   // First QI adds first reference...
 	pos = pos_;
-	formats.insert(formats.begin(), formats_, formats_+formatsLen_);
+	formatsLen = formatsLen_;
+	for (int i=0; i<formatsLen; i++)
+		formats[i] = formats_[i];
 }
 
 /// Implement IUnknown
@@ -1982,10 +1990,10 @@ STDMETHODIMP DataObject_EnumFormatEtc(DataObject *pd, DWORD dwDirection, IEnumFO
 		FormatEnumerator *pfe;
 		if (pd->sci->IsUnicodeMode()) {
 			CLIPFORMAT formats[] = {CF_UNICODETEXT, CF_TEXT};
-			pfe = new FormatEnumerator(0, formats, ELEMENTS(formats));
+			pfe = new FormatEnumerator(0, formats, 2);
 		} else {
 			CLIPFORMAT formats[] = {CF_TEXT};
-			pfe = new FormatEnumerator(0, formats, ELEMENTS(formats));
+			pfe = new FormatEnumerator(0, formats, 1);
 		}
 		return FormatEnumerator_QueryInterface(pfe, IID_IEnumFORMATETC,
 											   reinterpret_cast<void **>(ppEnum));
@@ -2133,7 +2141,7 @@ void ScintillaWin::ImeStartComposition() {
 			lf.lfCharSet = DEFAULT_CHARSET;
 			lf.lfFaceName[0] = '\0';
 			if (vs.styles[styleHere].fontName)
-				StringCopy(lf.lfFaceName, vs.styles[styleHere].fontName);
+				strcpy(lf.lfFaceName, vs.styles[styleHere].fontName);
 
 			::ImmSetCompositionFontA(hIMC, &lf);
 		}
@@ -2244,13 +2252,6 @@ void ScintillaWin::CopyToClipboard(const SelectionText &selectedText) {
 
 	if (selectedText.rectangular) {
 		::SetClipboardData(cfColumnSelect, 0);
-
-		GlobalMemory borlandSelection;
-		borlandSelection.Allocate(1);
-		if (borlandSelection) {
-			static_cast<BYTE *>(borlandSelection.ptr)[0] = 0x02;
-			borlandSelection.SetClip(cfBorlandIDEBlockType);
-		}
 	}
 
 	if (selectedText.lineCopy) {
@@ -2264,7 +2265,8 @@ void ScintillaWin::ScrollMessage(WPARAM wParam) {
 	//DWORD dwStart = timeGetTime();
 	//Platform::DebugPrintf("Scroll %x %d\n", wParam, lParam);
 
-	SCROLLINFO sci = {};
+	SCROLLINFO sci;
+	memset(&sci, 0, sizeof(sci));
 	sci.cbSize = sizeof(sci);
 	sci.fMask = SIF_ALL;
 

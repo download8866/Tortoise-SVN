@@ -345,10 +345,22 @@ typedef void (*CallBackAction)(void*);
 class Window {
 protected:
 	WindowID wid;
+#if PLAT_MACOSX
+	void *windowRef;
+	void *control;
+#endif
 public:
 	Window() : wid(0), cursorLast(cursorInvalid) {
+#if PLAT_MACOSX
+	  windowRef = 0;
+	  control = 0;
+#endif
 	}
 	Window(const Window &source) : wid(source.wid), cursorLast(cursorInvalid) {
+#if PLAT_MACOSX
+	  windowRef = 0;
+	  control = 0;
+#endif
 	}
 	virtual ~Window();
 	Window &operator=(WindowID wid_) {
@@ -371,6 +383,10 @@ public:
 	void SetCursor(Cursor curs);
 	void SetTitle(const char *s);
 	PRectangle GetMonitorRect(Point pt);
+#if PLAT_MACOSX
+	void SetWindow(void *ref) { windowRef = ref; }
+	void SetControl(void *_control) { control = _control; }
+#endif
 private:
 	Cursor cursorLast;
 };
@@ -444,16 +460,6 @@ public:
 	static DynamicLibrary *Load(const char *modulePath);
 };
 
-#if defined(__clang__)
-# if __has_feature(attribute_analyzer_noreturn)
-#  define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
-# else
-#  define CLANG_ANALYZER_NORETURN
-# endif
-#else
-# define CLANG_ANALYZER_NORETURN
-#endif
-
 /**
  * Platform class used to retrieve system wide parameters such as double click speed
  * and chrome colour. Not a creatable object, more of a module with several functions.
@@ -498,7 +504,7 @@ public:
 	}
 	static void DebugPrintf(const char *format, ...);
 	static bool ShowAssertionPopUps(bool assertionPopUps_);
-	static void Assert(const char *c, const char *file, int line) CLANG_ANALYZER_NORETURN;
+	static void Assert(const char *c, const char *file, int line);
 	static int Clamp(int val, int minVal, int maxVal);
 };
 
@@ -522,7 +528,9 @@ public:
 #endif
 
 #if defined(__GNUC__) && defined(SCINTILLA_QT)
+#pragma GCC diagnostic ignored "-Wmissing-braces"
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#pragma GCC diagnostic ignored "-Wchar-subscripts"
 #endif
 
 #endif

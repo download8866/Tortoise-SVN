@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,19 +25,16 @@
 #include "RenameDlg.h"
 #include "ShellUpdater.h"
 
-#define IDYESTOALL          19
-#define IDNOTOALL           20
-
 bool DropMoveCommand::Execute()
 {
-    CString droppath = parser.GetVal(L"droptarget");
+    CString droppath = parser.GetVal(_T("droptarget"));
     if (CTSVNPath(droppath).IsAdminDir())
         return FALSE;
     SVN svn;
     unsigned long count = 0;
     pathList.RemoveAdminPaths();
     CString sNewName;
-    if ((parser.HasKey(L"rename"))&&(pathList.GetCount()==1))
+    if ((parser.HasKey(_T("rename")))&&(pathList.GetCount()==1))
     {
         // ask for a new name of the source item
         CRenameDlg renDlg;
@@ -54,6 +51,7 @@ bool DropMoveCommand::Execute()
     if (progress.IsValid())
     {
         progress.SetTitle(IDS_PROC_MOVING);
+        progress.SetAnimation(IDR_MOVEANI);
         progress.SetTime(true);
         progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
     }
@@ -62,9 +60,9 @@ bool DropMoveCommand::Execute()
     {
         CTSVNPath destPath;
         if (sNewName.IsEmpty())
-            destPath = CTSVNPath(droppath+L"\\"+pathList[nPath].GetFileOrDirectoryName());
+            destPath = CTSVNPath(droppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
         else
-            destPath = CTSVNPath(droppath+L"\\"+sNewName);
+            destPath = CTSVNPath(droppath+_T("\\")+sNewName);
         // path the same but case-changed is ok: results in a case-rename
         if (!(pathList[nPath].IsEquivalentToWithoutCase(destPath) && !pathList[nPath].IsEquivalentTo(destPath)))
         {
@@ -82,7 +80,7 @@ bool DropMoveCommand::Execute()
                 {
                     return FALSE;
                 }
-                destPath.SetFromWin(droppath+L"\\"+dlg.m_name);
+                destPath.SetFromWin(droppath+_T("\\")+dlg.m_name);
             }
         }
         if (!svn.Move(CTSVNPathList(pathList[nPath]), destPath))
@@ -94,23 +92,30 @@ bool DropMoveCommand::Execute()
                     // target file already exists. Ask user if he wants to replace the file
                     CString sReplace;
                     sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
-                    CTaskDialog taskdlg(sReplace,
-                                        CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
-                                        L"TortoiseSVN",
-                                        0,
-                                        TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-                    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
-                    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
-                    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                    taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK5)));
-                    taskdlg.SetVerificationCheckbox(false);
-                    taskdlg.SetDefaultCommandControl(2);
-                    taskdlg.SetMainIcon(TD_WARNING_ICON);
-                    INT_PTR ret = taskdlg.DoModal(GetExplorerHWND());
-                    if (ret == 1) // replace
-                        msgRet = taskdlg.GetVerificationCheckboxState() ? IDYES : IDYESTOALL;
+                    if (CTaskDialog::IsSupported())
+                    {
+                        CTaskDialog taskdlg(sReplace,
+                                            CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
+                                            L"TortoiseSVN",
+                                            0,
+                                            TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
+                        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
+                        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                        taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK5)));
+                        taskdlg.SetVerificationCheckbox(false);
+                        taskdlg.SetDefaultCommandControl(2);
+                        taskdlg.SetMainIcon(TD_WARNING_ICON);
+                        INT_PTR ret = taskdlg.DoModal(GetExplorerHWND());
+                        if (ret == 1) // replace
+                            msgRet = taskdlg.GetVerificationCheckboxState() ? IDYES : IDYESTOALL;
+                        else
+                            msgRet = taskdlg.GetVerificationCheckboxState() ? IDNO : IDNOTOALL;
+                    }
                     else
-                        msgRet = taskdlg.GetVerificationCheckboxState() ? IDNO : IDNOTOALL;
+                    {
+                        msgRet = TSVNMessageBox(GetExplorerHWND(), sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO|MB_YESTOALL|MB_NOTOALL);
+                    }
                 }
 
                 if ((msgRet == IDYES) || (msgRet == IDYESTOALL))
@@ -144,7 +149,7 @@ bool DropMoveCommand::Execute()
         }
         if ((progress.IsValid())&&(progress.HasUserCancelled()))
         {
-            TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_SVN_USERCANCELLED), NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+            TSVNMessageBox(GetExplorerHWND(), IDS_SVN_USERCANCELLED, IDS_APPNAME, MB_ICONINFORMATION);
             return FALSE;
         }
     }
@@ -155,10 +160,10 @@ CString DropMoveCommand::Validate(const int /*nID*/, const CString& input)
 {
     CString sError;
 
-    CString sDroppath = parser.GetVal(L"droptarget");
+    CString sDroppath = parser.GetVal(_T("droptarget"));
     if (input.IsEmpty())
         sError.LoadString(IDS_ERR_NOVALIDPATH);
-    else if (!CTSVNPath(sDroppath+L"\\"+input).IsValidOnWindows())
+    else if (!CTSVNPath(sDroppath+_T("\\")+input).IsValidOnWindows())
         sError.LoadString(IDS_ERR_NOVALIDPATH);
 
     return sError;

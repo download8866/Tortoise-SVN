@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -61,13 +61,11 @@
 #define PROJECTPROPNAME_AUTOPROPS         "tsvn:autoprops"
 #define PROJECTPROPNAME_LOGREVREGEX       "tsvn:logrevregex"
 #define PROJECTPROPNAME_STARTCOMMITHOOK   "tsvn:startcommithook"
-#define PROJECTPROPNAME_CHECKCOMMITHOOK   "tsvn:checkcommithook"
 #define PROJECTPROPNAME_PRECOMMITHOOK     "tsvn:precommithook"
 #define PROJECTPROPNAME_POSTCOMMITHOOK    "tsvn:postcommithook"
 #define PROJECTPROPNAME_STARTUPDATEHOOK   "tsvn:startupdatehook"
 #define PROJECTPROPNAME_PREUPDATEHOOK     "tsvn:preupdatehook"
 #define PROJECTPROPNAME_POSTUPDATEHOOK    "tsvn:postupdatehook"
-#define PROJECTPROPNAME_MANUALPRECOMMITHOOK "tsvn:manualprecommithook"
 
 #define PROJECTPROPNAME_WEBVIEWER_REV     "webviewer:revision"
 #define PROJECTPROPNAME_WEBVIEWER_PATHREV "webviewer:pathrevision"
@@ -156,6 +154,11 @@ public:
      * Call this before an import or an add operation.
      */
     void InsertAutoProps(svn_config_t *cfg);
+
+    /**
+     * Adds all the project properties to the specified entry
+     */
+    bool AddAutoProps(const CTSVNPath& path);
 
     /**
      * Returns the log message summary if the tsvn:logsummaryregex property is
@@ -263,12 +266,8 @@ public:
 
     /// multi line string containing the data for a start-commit-hook
     CString     sStartCommitHook;
-    /// multi line string containing the data for a check-commit-hook
-    CString     sCheckCommitHook;
     /// multi line string containing the data for a pre-commit-hook
     CString     sPreCommitHook;
-    /// multi line string containing the data for a manual pre-commit-hook
-    CString     sManualPreCommitHook;
     /// multi line string containing the data for a post-commit-hook
     CString     sPostCommitHook;
     /// multi line string containing the data for a start-update-hook

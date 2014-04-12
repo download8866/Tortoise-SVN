@@ -38,7 +38,7 @@ using namespace Scintilla;
 #endif
 
 static inline bool IsPunctuation(char ch) {
-	return IsASCII(ch) && ispunct(ch);
+	return isascii(ch) && ispunct(ch);
 }
 
 void LexInterface::Colourise(int start, int end) {
@@ -279,7 +279,7 @@ int SCI_METHOD Document::LineStart(int line) const {
 }
 
 int SCI_METHOD Document::LineEnd(int line) const {
-	if (line >= LinesTotal() - 1) {
+	if (line == LinesTotal() - 1) {
 		return LineStart(line + 1);
 	} else {
 		int position = LineStart(line + 1);
@@ -825,7 +825,7 @@ int Document::SafeSegment(const char *text, int length, int lengthSegment) const
 		return length;
 	int lastSpaceBreak = -1;
 	int lastPunctuationBreak = -1;
-	int lastEncodingAllowedBreak = 0;
+	int lastEncodingAllowedBreak = -1;
 	for (int j=0; j < lengthSegment;) {
 		unsigned char ch = static_cast<unsigned char>(text[j]);
 		if (j > 0) {
@@ -852,15 +852,6 @@ int Document::SafeSegment(const char *text, int length, int lengthSegment) const
 		return lastPunctuationBreak;
 	}
 	return lastEncodingAllowedBreak;
-}
-
-EncodingFamily Document::CodePageFamily() const {
-	if (SC_CP_UTF8 == dbcsCodePage)
-		return efUnicode;
-	else if (dbcsCodePage)
-		return efDBCS;
-	else
-		return efEightBit;
 }
 
 void Document::ModifiedAt(int pos) {
@@ -955,7 +946,7 @@ bool Document::InsertString(int position, const char *s, int insertLength) {
 int SCI_METHOD Document::AddData(char *data, int length) {
 	try {
 		int position = Length();
-		InsertString(position, data, length);
+		InsertString(position,data, length);
 	} catch (std::bad_alloc &) {
 		return SC_STATUS_BADALLOC;
 	} catch (...) {
@@ -1892,7 +1883,7 @@ void SCI_METHOD Document::DecorationFillRange(int position, int value, int fillL
 
 bool Document::AddWatcher(DocWatcher *watcher, void *userData) {
 	WatcherWithUserData wwud(watcher, userData);
-	std::vector<WatcherWithUserData>::iterator it =
+	std::vector<WatcherWithUserData>::iterator it = 
 		std::find(watchers.begin(), watchers.end(), wwud);
 	if (it != watchers.end())
 		return false;
@@ -1901,7 +1892,7 @@ bool Document::AddWatcher(DocWatcher *watcher, void *userData) {
 }
 
 bool Document::RemoveWatcher(DocWatcher *watcher, void *userData) {
-	std::vector<WatcherWithUserData>::iterator it =
+	std::vector<WatcherWithUserData>::iterator it = 
 		std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
 	if (it != watchers.end()) {
 		watchers.erase(it);
@@ -1974,10 +1965,10 @@ int Document::WordPartLeft(int pos) {
 					--pos;
 				if (!isspacechar(cb.CharAt(pos)))
 					++pos;
-			} else if (!IsASCII(startChar)) {
-				while (pos > 0 && !IsASCII(cb.CharAt(pos)))
+			} else if (!isascii(startChar)) {
+				while (pos > 0 && !isascii(cb.CharAt(pos)))
 					--pos;
-				if (IsASCII(cb.CharAt(pos)))
+				if (isascii(cb.CharAt(pos)))
 					++pos;
 			} else {
 				++pos;
@@ -1995,8 +1986,8 @@ int Document::WordPartRight(int pos) {
 			++pos;
 		startChar = cb.CharAt(pos);
 	}
-	if (!IsASCII(startChar)) {
-		while (pos < length && !IsASCII(cb.CharAt(pos)))
+	if (!isascii(startChar)) {
+		while (pos < length && !isascii(cb.CharAt(pos)))
 			++pos;
 	} else if (IsLowerCase(startChar)) {
 		while (pos < length && IsLowerCase(cb.CharAt(pos)))
@@ -2103,7 +2094,7 @@ int Document::BraceMatch(int position, int /*maxReStyle*/) {
  */
 class BuiltinRegex : public RegexSearchBase {
 public:
-	explicit BuiltinRegex(CharClassify *charClassTable) : search(charClassTable) {}
+	BuiltinRegex(CharClassify *charClassTable) : search(charClassTable) {}
 
 	virtual ~BuiltinRegex() {
 	}

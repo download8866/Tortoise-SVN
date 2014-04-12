@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -292,15 +292,15 @@ private:
      * time stamp of the last registry lookup, i.e \ref read() call
      */
 
-    ULONGLONG lastRead;
+    DWORD lastRead;
 
     /**
      * \ref read() will be called, if \ref lastRead differs from the
      * current time stamp by more than this.
-     * (ULONGLONG)(-1) -> no automatic refresh.
+     * (DWORD)(-1) -> no automatic refresh.
      */
 
-    ULONGLONG lookupInterval;
+    DWORD lookupInterval;
 
     /**
      * Check time stamps etc.
@@ -379,7 +379,7 @@ void CRegTypedBase<T, Base>::HandleAutoRefresh()
 {
     if (m_read && (lookupInterval != (DWORD)(-1)))
     {
-        ULONGLONG currentTime = GetTickCount64();
+        DWORD currentTime = GetTickCount();
         if (   (currentTime < lastRead)
             || (currentTime > lastRead + lookupInterval))
         {
@@ -393,7 +393,7 @@ CRegTypedBase<T, Base>::CRegTypedBase (const T& def)
     : m_value (def)
     , m_defaultvalue (def)
     , lastRead (0)
-    , lookupInterval((ULONGLONG)-1)
+    , lookupInterval ((DWORD)-1)
 {
 }
 
@@ -440,7 +440,7 @@ void CRegTypedBase<T, Base>::read()
     }
 
     m_read = true;
-    lastRead = GetTickCount64();
+    lastRead = GetTickCount();
 }
 
 template<class T, class Base>
@@ -449,7 +449,7 @@ void CRegTypedBase<T, Base>::write()
     HKEY hKey = NULL;
 
     DWORD disp = 0;
-    if ((LastError = RegCreateKeyEx(m_base, GetPlainString (m_path), 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE|m_sam, NULL, &hKey, &disp))!=ERROR_SUCCESS)
+    if ((LastError = RegCreateKeyEx(m_base, GetPlainString (m_path), 0, _T(""), REG_OPTION_NON_VOLATILE, KEY_WRITE|m_sam, NULL, &hKey, &disp))!=ERROR_SUCCESS)
     {
         return;
     }
@@ -462,7 +462,7 @@ void CRegTypedBase<T, Base>::write()
     }
     LastError = RegCloseKey(hKey);
 
-    lastRead = GetTickCount64();
+    lastRead = GetTickCount();
 }
 
 template<class T, class Base>
@@ -692,8 +692,8 @@ public:
      * \param base a predefined base key like HKEY_LOCAL_MACHINE. see the SDK documentation for more information.
      * \param sam
      */
-    CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def = L"", bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
-    CRegStringCommon(DWORD lookupInterval, const typename Base::StringT& key, const typename Base::StringT& def = L"", bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+    CRegStringCommon(const typename Base::StringT& key, const typename Base::StringT& def = _T(""), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
+    CRegStringCommon(DWORD lookupInterval, const typename Base::StringT& key, const typename Base::StringT& def = _T(""), bool force = false, HKEY base = HKEY_CURRENT_USER, REGSAM sam = 0);
 
     CRegStringCommon& operator=(const typename Base::StringT& rhs) {CRegTypedBase<StringT, Base>::operator =(rhs); return *this;}
     CRegStringCommon& operator+=(const typename Base::StringT& s) { return *this = (typename Base::StringT)*this + s; }

@@ -19,7 +19,7 @@
     </loadfile>
     <echo file="VersionNumberInclude.wxi" message="${versionwixfile}" />
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
-    <property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.8.x-dev" />
+    <property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.8.8" />
   </target>
 
   <target name="setup" depends="versioninfo">
@@ -47,9 +47,9 @@
         </setenv>
       </if>
 
-      <!-- we're using VS2013 -->
+      <!-- we're using VS2012 -->
       <setenv>
-        <variable name="VCVERSION" value="120" />
+        <variable name="VCVERSION" value="110" />
       </setenv>
 
       <!-- find the path to the merge modules -->

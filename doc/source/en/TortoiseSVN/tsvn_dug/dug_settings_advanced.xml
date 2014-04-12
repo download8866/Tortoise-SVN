@@ -74,21 +74,6 @@
             </listitem>
         </varlistentry>
         <varlistentry>
-            <term condition="pot">BlockPeggedExternals</term>
-            <listitem>
-                <para>
-                    File externals that are pegged to a specific revision are
-                    blocked by default from being selected for a commit. This
-                    is because a subsequent update would revert those changes again
-                    unless the pegged revision of the external is adjusted.
-                </para>
-                <para>
-                    Set this value to <literal>false</literal> in case you still
-                    want to commit changes to such external files.
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
             <term condition="pot">BlockStatus</term>
             <listitem>
                 <para>
@@ -369,32 +354,6 @@
                     <ulink url="http://code.google.com/p/support/issues/detail?id=5471">
                         <citetitle>issue #5471</citetitle>
                     </ulink>).
-                </para>
-            </listitem>
-        </varlistentry>
-        <varlistentry>
-            <term condition="pot">LogMultiRevFormat</term>
-            <listitem>
-                <para>
-                    A format string for the log messages when multiple revisions
-                    are selected in the log dialog.
-                </para>
-                <para>
-                    You can use the following placeholders in your format string:
-                    <variablelist>
-                        <varlistentry>
-                            <term condition="pot">%1!ld!</term>
-                            <listitem>
-                                gets replaced with the revision number text
-                            </listitem>
-                        </varlistentry>
-                        <varlistentry>
-                            <term condition="pot">%2!s!</term>
-                            <listitem>
-                                gets replaced with the short log message of the revision
-                            </listitem>
-                        </varlistentry>
-                    </variablelist>
                 </para>
             </listitem>
         </varlistentry>

@@ -97,7 +97,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     }
 
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
     m_URLCombo.SetURLHistory(true, false);
     m_URLCombo.SetWindowText(CPathUtils::PathUnescape(m_External.url));
 
@@ -128,7 +128,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"EditPropExternalsValue");
+    EnableSaveRestore(_T("EditPropExternalsValue"));
 
     return TRUE;
 }
@@ -183,7 +183,7 @@ void CEditPropExternalsValue::OnOK()
     }
 
     if (m_sPegRev.IsEmpty())
-        m_External.pegrevision = *SVNRev(L"HEAD");
+        m_External.pegrevision = *SVNRev(_T("HEAD"));
     else
         m_External.pegrevision = *SVNRev(m_sPegRev);
     m_External.targetDir = m_sWCPath;
@@ -202,7 +202,7 @@ void CEditPropExternalsValue::OnBnClickedBrowse()
     if (strURLs.IsEmpty())
         strURLs = m_URLCombo.GetString();
     strURLs.Replace('\\', '/');
-    strURLs.Replace(L"%", L"%25");
+    strURLs.Replace(_T("%"), _T("%25"));
 
     CString root = m_RepoRoot.GetSVNPathString();
     int rootlength = root.GetLength();
@@ -249,7 +249,7 @@ void CEditPropExternalsValue::OnBnClickedShowLog()
 LPARAM CEditPropExternalsValue::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_PEGREV, temp);
     SetDlgItemText(IDC_REVISION_NUM, CString());
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);

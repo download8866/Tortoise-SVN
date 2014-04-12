@@ -53,22 +53,19 @@ public:
 	int lines;
 	XYPOSITION wrapIndent; // In pixels
 
-	explicit LineLayout(int maxLineLength_);
+	LineLayout(int maxLineLength_);
 	virtual ~LineLayout();
 	void Resize(int maxLineLength_);
 	void Free();
 	void Invalidate(validLevel validity_);
 	int LineStart(int line) const;
 	int LineLastVisible(int line) const;
-	Range SubLineRange(int line) const;
 	bool InLine(int offset, int line) const;
 	void SetLineStart(int line, int start);
 	void SetBracesHighlight(Range rangeLine, Position braces[],
 		char bracesMatchStyle, int xHighlight, bool ignoreStyle);
 	void RestoreBracesHighlight(Range rangeLine, Position braces[], bool ignoreStyle);
 	int FindBefore(XYPOSITION x, int lower, int upper) const;
-	int FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const;
-	Point PointFromPosition(int posInLine, int lineHeight) const;
 	int EndLineStyle() const;
 };
 
@@ -116,39 +113,6 @@ public:
 	void ResetClock();
 };
 
-class Representation {
-public:
-	std::string stringRep;
-	explicit Representation(const char *value="") : stringRep(value) {
-	}
-};
-
-typedef std::map<int, Representation> MapRepresentation;
-
-class SpecialRepresentations {
-	MapRepresentation mapReprs;
-	short startByteHasReprs[0x100];
-public:
-	SpecialRepresentations();
-	void SetRepresentation(const char *charBytes, const char *value);
-	void ClearRepresentation(const char *charBytes);
-	Representation *RepresentationFromCharacter(const char *charBytes, size_t len);
-	bool Contains(const char *charBytes, size_t len) const;
-	void Clear();
-};
-
-struct TextSegment {
-	int start;
-	int length;
-	Representation *representation;
-	TextSegment(int start_=0, int length_=0, Representation *representation_=0) :
-		start(start_), length(length_), representation(representation_) {
-	}
-	int end() const {
-		return start + length;
-	}
-};
-
 // Class to break a line of text into shorter runs at sensible places.
 class BreakFinder {
 	LineLayout *ll;
@@ -161,8 +125,6 @@ class BreakFinder {
 	int saeNext;
 	int subBreak;
 	Document *pdoc;
-	EncodingFamily encodingFamily;
-	SpecialRepresentations *preprs;
 	void Insert(int val);
 	// Private so BreakFinder objects can not be copied
 	BreakFinder(const BreakFinder &);
@@ -173,10 +135,10 @@ public:
 	// Try to make each subdivided run lengthEachSubdivision or shorter.
 	enum { lengthEachSubdivision = 100 };
 	BreakFinder(LineLayout *ll_, int lineStart_, int lineEnd_, int posLineStart_,
-		int xStart, bool breakForSelection, Document *pdoc_, SpecialRepresentations *preprs_);
+		int xStart, bool breakForSelection, Document *pdoc_);
 	~BreakFinder();
-	TextSegment Next();
-	bool More() const;
+	int First() const;
+	int Next();
 };
 
 class PositionCache {

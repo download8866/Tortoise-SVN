@@ -31,17 +31,17 @@
 #include "SmartHandle.h"
 #include "PreserveChdir.h"
 
-#define PATCH_TO_CLIPBOARD_PSEUDO_FILENAME      L".TSVNPatchToClipboard"
+#define PATCH_TO_CLIPBOARD_PSEUDO_FILENAME      _T(".TSVNPatchToClipboard")
 
 
 
 bool CreatePatchCommand::Execute()
 {
     bool bRet = false;
-    CString savepath = CPathUtils::GetLongPathname(parser.GetVal(L"savepath"));
+    CString savepath = CPathUtils::GetLongPathname(parser.GetVal(_T("savepath")));
     CCreatePatch dlg;
     dlg.m_pathList = pathList;
-    if (parser.HasKey(L"noui")||(dlg.DoModal()==IDOK))
+    if (parser.HasKey(_T("noui"))||(dlg.DoModal()==IDOK))
     {
         if (cmdLinePath.IsEmpty())
         {
@@ -57,7 +57,7 @@ bool CreatePatchCommand::Execute()
         }
         bRet = CreatePatch(cmdLinePath.GetDirectory(), dlg.m_pathList, dlg.m_sDiffOptions, CTSVNPath(savepath));
         SVN svn;
-        svn.Revert(dlg.m_filesToRevert, CStringArray(), false, false);
+        svn.Revert(dlg.m_filesToRevert, CStringArray(), false);
     }
     return bRet;
 }
@@ -117,15 +117,21 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
             // set the default folder
             if (SUCCEEDED(hr))
             {
+                typedef HRESULT (WINAPI *SHCIFPN)(PCWSTR pszPath, IBindCtx * pbc, REFIID riid, void ** ppv);
+
                 CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
                 if (hLib)
                 {
-                    IShellItem* psiDefault = 0;
-                    hr = SHCreateItemFromParsingName(root.GetWinPath(), NULL, IID_PPV_ARGS(&psiDefault));
-                    if (SUCCEEDED(hr))
+                    SHCIFPN pSHCIFPN = (SHCIFPN)GetProcAddress(hLib, "SHCreateItemFromParsingName");
+                    if (pSHCIFPN)
                     {
-                        hr = pfd->SetFolder(psiDefault);
-                        psiDefault->Release();
+                        IShellItem* psiDefault = 0;
+                        hr = pSHCIFPN(root.GetWinPath(), NULL, IID_PPV_ARGS(&psiDefault));
+                        if (SUCCEEDED(hr))
+                        {
+                            hr = pfd->SetFolder(psiDefault);
+                            psiDefault->Release();
+                        }
                     }
                 }
             }
@@ -177,7 +183,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
                         savePath = CTSVNPath(pszPath);
                         CoTaskMemFree(pszPath);
                         if (savePath.GetFileExtension().IsEmpty())
-                            savePath.AppendRawString(L".patch");
+                            savePath.AppendRawString(_T(".patch"));
                     }
                 }
                 else
@@ -232,7 +238,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
             if (ofn.nFilterIndex == 1)
             {
                 if (savePath.GetFileExtension().IsEmpty())
-                    savePath.AppendRawString(L".patch");
+                    savePath.AppendRawString(_T(".patch"));
             }
         }
     }
@@ -244,7 +250,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
     // This is horrible and I should be ashamed of myself, but basically, the
     // the file-open dialog writes ".TSVNPatchToClipboard" to its file field if the user clicks
     // the "Save To Clipboard" button.
-    bool bToClipboard = wcsstr(savePath.GetWinPath(), PATCH_TO_CLIPBOARD_PSEUDO_FILENAME) != NULL;
+    bool bToClipboard = _tcsstr(savePath.GetWinPath(), PATCH_TO_CLIPBOARD_PSEUDO_FILENAME) != NULL;
 
     CProgressDlg progDlg;
     progDlg.SetTitle(IDS_PROC_PATCHTITLE);
@@ -259,6 +265,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
     {
         progDlg.SetLine(2, savePath.GetUIPathString(), true);
     }
+    //progDlg.SetAnimation(IDR_ANIMATION);
 
     CTSVNPath tempPatchFilePath;
     if (bToClipboard)
@@ -289,7 +296,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
     {
         // The user actually asked for the patch to be written to the clipboard
         FILE * inFile = 0;
-        _tfopen_s(&inFile, tempPatchFilePath.GetWinPath(), L"rb");
+        _tfopen_s(&inFile, tempPatchFilePath.GetWinPath(), _T("rb"));
         if(inFile)
         {
             CStringA sClipdata;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2010-2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2010 - 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -122,7 +122,7 @@ bool SVNConfig::SetUpSSH()
     if (config == nullptr)
         return bRet;
     //set up the SVN_SSH param
-    CString tsvn_ssh = CRegString(L"Software\\TortoiseSVN\\SSH");
+    CString tsvn_ssh = CRegString(_T("Software\\TortoiseSVN\\SSH"));
     if (tsvn_ssh.IsEmpty() && config)
     {
         // check whether the ssh client is already set in the Subversion config
@@ -133,7 +133,7 @@ bool SVNConfig::SetUpSSH()
             const char * sshValue = NULL;
             svn_config_get(cfg, &sshValue, SVN_CONFIG_SECTION_TUNNELS, "ssh", "");
             if ((sshValue == NULL)||(sshValue[0] == 0))
-                tsvn_ssh = L"\"" + CPathUtils::GetAppDirectory() + L"TortoisePlink.exe" + L"\"";
+                tsvn_ssh = _T("\"") + CPathUtils::GetAppDirectory() + _T("TortoisePlink.exe") + _T("\"");
         }
     }
     tsvn_ssh.Replace('\\', '/');
@@ -179,6 +179,74 @@ void SVNConfig::Refresh()
     if (config)
         SetUpSSH();
 }
+
+
+// TODO: remove these forward declarations
+// once svn 1.8 is out and the config copy
+// APIs can be used.
+struct svn_config_t
+{
+  /* Table of cfg_section_t's. */
+  apr_hash_t *sections;
+
+  /* Pool for hash tables, table entries and unexpanded values */
+  apr_pool_t *pool;
+
+  /* Pool for expanded values -- this is separate, so that we can
+     clear it when modifying the config data. */
+  apr_pool_t *x_pool;
+
+  /* Indicates that some values in the configuration have been expanded. */
+  svn_boolean_t x_values;
+
+  /* Temporary string used for lookups.  (Using a stringbuf so that
+     frequent resetting is efficient.) */
+  svn_stringbuf_t *tmp_key;
+
+  /* Temporary value used for expanded default values in svn_config_get.
+     (Using a stringbuf so that frequent resetting is efficient.) */
+  svn_stringbuf_t *tmp_value;
+
+  /* Specifies whether section names are populated case sensitively. */
+  svn_boolean_t section_names_case_sensitive;
+};
+
+/* Section table entries. */
+typedef struct cfg_section_t cfg_section_t;
+struct cfg_section_t
+{
+  /* The section name. */
+  const char *name;
+
+  /* The section name, converted into a hash key. */
+  const char *hash_key;
+
+  /* Table of cfg_option_t's. */
+  apr_hash_t *options;
+};
+
+
+/* Option table entries. */
+typedef struct cfg_option_t cfg_option_t;
+struct cfg_option_t
+{
+  /* The option name. */
+  const char *name;
+
+  /* The option name, converted into a hash key. */
+  const char *hash_key;
+
+  /* The unexpanded option value. */
+  const char *value;
+
+  /* The expanded option value. */
+  const char *x_value;
+
+  /* Expansion flag. If this is TRUE, this value has already been expanded.
+     In this case, if x_value is NULL, no expansions were necessary,
+     and value should be used directly. */
+  svn_boolean_t expanded;
+};
 
 apr_hash_t * SVNConfig::GetConfig( apr_pool_t * pool )
 {

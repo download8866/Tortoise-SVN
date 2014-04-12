@@ -160,7 +160,7 @@ fill:#%06lx;\"><![CDATA[%s]]></text>",
     objects.push_back(sObj);
 }
 
-DWORD SVG::GetColor( Gdiplus::Color c ) const
+DWORD SVG::GetColor( Gdiplus::Color c )
 {
     return ((DWORD)c.GetRed() << 16) | ((DWORD)c.GetGreen() << 8) | ((DWORD)c.GetBlue());
 }

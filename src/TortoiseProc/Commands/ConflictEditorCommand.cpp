@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2014 - TortoiseSVN
+// Copyright (C) 2008-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@ bool ConflictEditorCommand::Execute()
     CTSVNPath merge = cmdLinePath;
     CTSVNPath directory = merge.GetDirectory();
     bool bRet = false;
-    bool bAlternativeTool = !!parser.HasKey(L"alternative");
+    bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
 
     // we have the conflicted file (%merged)
     // now look for the other required files
@@ -57,7 +57,7 @@ bool ConflictEditorCommand::Execute()
                 if (mine.IsEmpty())
                     mine = merge;
                 bRet = !!CAppUtils::StartExtMerge(CAppUtils::MergeFlags().AlternativeTool(bAlternativeTool),
-                                                  base, theirs, mine, merge, true, CString(), CString(), CString(), CString(), merge.GetFileOrDirectoryName());
+                                                  base, theirs, mine, merge, true);
             }
             break;
         case svn_wc_conflict_kind_property:

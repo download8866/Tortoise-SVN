@@ -46,14 +46,6 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqbname</term>
-                    <listitem>
-                        <para>
-                            The window title for the base file, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%mine</term>
                     <listitem>
                         <para>
@@ -70,26 +62,10 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqyname</term>
-                    <listitem>
-                        <para>
-                            The window title for your file, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%burl</term>
                     <listitem>
                         <para>
                             The URL of the original file, if available
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqburl</term>
-                    <listitem>
-                        <para>
-                            The URL of the original file, if available, without quotes
                         </para>
                     </listitem>
                 </varlistentry>
@@ -102,26 +78,10 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqyurl</term>
-                    <listitem>
-                        <para>
-                            The URL of the second file, if available, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%brev</term>
                     <listitem>
                         <para>
                             The revision of the original file, if available
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqbrev</term>
-                    <listitem>
-                        <para>
-                            The revision of the original file, if available, without quotes
                         </para>
                     </listitem>
                 </varlistentry>
@@ -134,42 +94,10 @@
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqyrev</term>
-                    <listitem>
-                        <para>
-                            The revision of the second file, if available, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%peg</term>
                     <listitem>
                         <para>
                             The peg revision, if available
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqpeg</term>
-                    <listitem>
-                        <para>
-                            The peg revision, if available, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%fname</term>
-                    <listitem>
-                        <para>
-                            The name of the conflicted file
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqfname</term>
-                    <listitem>
-                        <para>
-                            The name of the conflicted file, without quotes
                         </para>
                     </listitem>
                 </varlistentry>
@@ -287,14 +215,6 @@ C:\Path-To\DiffMerge.exe -nosplash -t1=%bname -t2=%yname %base %mine
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqbname</term>
-                    <listitem>
-                        <para>
-                            The window title for the base file, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%mine</term>
                     <listitem>
                         <para>
@@ -307,14 +227,6 @@ C:\Path-To\DiffMerge.exe -nosplash -t1=%bname -t2=%yname %base %mine
                     <listitem>
                         <para>
                             The window title for your file
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqyname</term>
-                    <listitem>
-                        <para>
-                            The window title for your file, without quotes
                         </para>
                     </listitem>
                 </varlistentry>
@@ -335,14 +247,6 @@ C:\Path-To\DiffMerge.exe -nosplash -t1=%bname -t2=%yname %base %mine
                     </listitem>
                 </varlistentry>
                 <varlistentry>
-                    <term condition="pot">%nqtname</term>
-                    <listitem>
-                        <para>
-                            The window title for the file in the repository, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
                     <term condition="pot">%merged</term>
                     <listitem>
                         <para>
@@ -356,32 +260,6 @@ C:\Path-To\DiffMerge.exe -nosplash -t1=%bname -t2=%yname %base %mine
                     <listitem>
                         <para>
                             The window title for the merged file
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqmname</term>
-                    <listitem>
-                        <para>
-                            The window title for the merged file, without quotes
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%fname</term>
-                    <listitem>
-                        <para>
-                            The name of the file. This is an empty string if two
-                            different files are diffed instead of two states of
-                            the same file.
-                        </para>
-                    </listitem>
-                </varlistentry>
-                <varlistentry>
-                    <term condition="pot">%nqfname</term>
-                    <listitem>
-                        <para>
-                            The name of the file, without quotes
                         </para>
                     </listitem>
                 </varlistentry>

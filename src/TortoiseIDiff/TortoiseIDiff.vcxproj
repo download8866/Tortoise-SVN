@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,22 +27,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -65,6 +65,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
+    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\bin\$(Configuration)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\bin\$(Configuration)64\bin\</OutDir>
@@ -145,23 +146,22 @@
     <ClInclude Include="TortoiseIDiff.h" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\alphatoggle.ico" />
-    <Image Include="Resources\blend.ico" />
-    <Image Include="Resources\fitheights.ico" />
-    <Image Include="Resources\fitinwindow.ico" />
-    <Image Include="Resources\fitwidths.ico" />
-    <Image Include="Resources\imginfo.ico" />
-    <Image Include="Resources\link.ico" />
-    <Image Include="Resources\origsize.ico" />
-    <Image Include="Resources\overlap.ico" />
-    <Image Include="Resources\player_fwd.ico" />
-    <Image Include="Resources\player_rew.ico" />
-    <Image Include="Resources\player_start.ico" />
-    <Image Include="Resources\player_stop.ico" />
-    <Image Include="Resources\TortoiseIDiff.ico" />
-    <Image Include="Resources\vertical.ico" />
-    <Image Include="Resources\zoomin.ico" />
-    <Image Include="Resources\zoomout.ico" />
+    <Image Include="resources\alphatoggle.ico" />
+    <Image Include="resources\blend.ico" />
+    <Image Include="resources\fitinwindow.ico" />
+    <Image Include="resources\fittogether.ico" />
+    <Image Include="resources\imginfo.ico" />
+    <Image Include="resources\link.ico" />
+    <Image Include="resources\origsize.ico" />
+    <Image Include="resources\overlap.ico" />
+    <Image Include="resources\player_fwd.ico" />
+    <Image Include="resources\player_rew.ico" />
+    <Image Include="resources\player_start.ico" />
+    <Image Include="resources\player_stop.ico" />
+    <Image Include="resources\TortoiseIDiff.ico" />
+    <Image Include="resources\vertical.ico" />
+    <Image Include="resources\zoomin.ico" />
+    <Image Include="resources\zoomout.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TortoiseIDiff.rc" />

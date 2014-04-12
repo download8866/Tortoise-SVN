@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -132,7 +132,6 @@ public: // methods
     inline BOOL     IsHidden() const  {return m_bIsHidden;}
     inline void     SetHidden(BOOL bHidden) {m_bIsHidden = bHidden;}
     inline bool     IsModified() const  {return m_bModified;}
-    // cppcheck-suppress bitwiseOnBoolean
     void            SetModified(bool bModified = true) { m_bModified = bModified; m_pState->modifies |= bModified; Invalidate(); }
     void            ClearStepModifiedMark() { m_pState->modifies = false; }
     void            SetInlineWordDiff(bool bWord) {m_bInlineWordDiff = bWord;}
@@ -153,7 +152,6 @@ public: // methods
     static void     SetupViewSelection(CBaseView* view, int start, int end);
     void            SetupViewSelection(int start, int end);
     CString         GetSelectedText() const;
-    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods);
 
     // state classifying methods; note: state may belong to more classes
     static bool     IsStateConflicted(DiffStates state);
@@ -188,7 +186,6 @@ public: // methods
     virtual void    UseLeftFile() {return UseViewFile(m_pwndLeft); }
     virtual void    UseRightBlock() {return UseViewBlock(m_pwndRight); }
     virtual void    UseRightFile() {return UseViewFile(m_pwndRight); }
-    virtual void    LeaveOnlyMarkedBlocks() { return LeaveOnlyMarkedBlocks(m_pwndLeft); }
 
     // ViewData methods
     void            InsertViewData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
@@ -203,7 +200,6 @@ public: // methods
     int             GetViewMovedIndex(int index) {return m_pViewData->GetMovedIndex(index); }
     int             FindViewLineNumber(int number) {return m_pViewData->FindLineNumber(number); }
     EOL             GetViewLineEnding(int index) const {return m_pViewData->GetLineEnding(index); }
-    bool            GetViewMarked(int index) const {return m_pViewData->GetMarked(index); }
 
     int             GetViewCount() const {return m_pViewData ? m_pViewData->GetCount() : -1; }
 
@@ -212,27 +208,20 @@ public: // methods
     void            SetViewLine(int index, const CString& sLine);
     void            SetViewLineNumber(int index, int linenumber);
     void            SetViewLineEnding(int index, EOL ending);
-    void            SetViewMarked(int index, bool marked);
 
     static bool     IsViewGood(const CBaseView* view ) { return (view != 0) && view->IsWindowVisible(); }
     static CBaseView * GetFirstGoodView();
 
-    int             GetIndentCharsForLine(int x, int y);
     void            AddIndentationForSelectedBlock();
     void            RemoveIndentationForSelectedBlock();
+    bool            HasTabsToConvert();
     void            ConvertTabToSpaces();
+    bool            HasSpacesToConvert();
     void            Tabularize();
+    bool            HasTrailWhiteChars();
     void            RemoveTrailWhiteChars();
 
-    struct TWhitecharsProperties
-    {
-        bool HasMixedEols;
-        bool HasTrailWhiteChars;
-        bool HasSpacesToConvert;
-        bool HasTabsToConvert;
-    };
-
-    TWhitecharsProperties   GetWhitecharsProperties();
+    void            ShowFormatPopup(CPoint point);
 
 public: // variables
     CViewData *     m_pViewData;
@@ -254,10 +243,7 @@ public: // variables
     static CLocatorBar * m_pwndLocator; ///< Pointer to the locator bar on the left
     static CLineDiffBar * m_pwndLineDiffBar;    ///< Pointer to the line diff bar at the bottom
     static CMFCStatusBar * m_pwndStatusBar;///< Pointer to the status bar
-    static CMFCRibbonStatusBar * m_pwndRibbonStatusBar;///< Pointer to the status bar
     static CMainFrame * m_pMainFrame;   ///< Pointer to the mainframe
-
-    int             m_nTabMode;
 
     void            GoToFirstDifference();
     void            GoToFirstConflict();
@@ -267,7 +253,6 @@ public: // variables
     int             SaveFileTo(CString FileName, int Flags = 0);
 
     EOL             GetLineEndings();                                           ///< Get Line endings on view from lineendings or "mixed"
-    EOL             GetLineEndings(bool MixelEols);
     void            ReplaceLineEndings(EOL);                                    ///< Set AUTO lineending and replaces all EOLs
     void            SetLineEndingStyle(EOL);                                    ///< Set AUTO lineending
     UnicodeType     GetTextType() { return m_texttype; }
@@ -433,11 +418,8 @@ protected:  // methods
 
     virtual void    UseBothBlocks(CBaseView * /*pwndFirst*/, CBaseView * /*pwndLast*/) {};
     virtual void    UseViewBlock(CBaseView * /*pwndView*/) {}
-    void            UseViewBlock(CBaseView * pwndView, int nFirstViewLine, int nLastViewLine, bool skipMarked = false);
+    void            UseViewBlock(CBaseView * pwndView, int nFirstViewLine, int nLastViewLine);
     virtual void    UseViewFile(CBaseView * /*pwndView*/) {}
-    virtual void    MarkBlock(bool /*marked*/) {}
-    void            MarkBlock(bool marked, int nFirstViewLine, int nLastViewLine);
-    void            LeaveOnlyMarkedBlocks(CBaseView *pwndView);
 
     virtual void    AddContextItems(CIconMenu& popup, DiffStates state);
     void            AddCutCopyAndPaste(CIconMenu& popup);
@@ -451,6 +433,7 @@ protected:  // methods
 
     static void     ResetUndoStep();
     void            SaveUndoStep();
+
 protected:  // variables
     COLORREF        m_InlineRemovedBk;
     COLORREF        m_InlineAddedBk;
@@ -518,7 +501,6 @@ protected:  // variables
     HICON           m_hLineEndingLF;
 
     HICON           m_hMovedIcon;
-    HICON           m_hMarkedIcon;
 
     LOGFONT         m_lfBaseFont;
     static const int fontsCount = 4;
@@ -583,7 +565,6 @@ protected:  // variables
             ICN_ADD,
             ICN_REMOVED,
             ICN_MOVED,
-            ICN_MARKED,
             ICN_CONFLICT,
             ICN_CONFLICTIGNORED,
         } eIcon;
@@ -606,9 +587,6 @@ protected:  // variables
         POPUPCOMMAND_USELEFTFILE,
         POPUPCOMMAND_USEBOTHLEFTFIRST,
         POPUPCOMMAND_USEBOTHRIGHTFIRST,
-        POPUPCOMMAND_MARKBLOCK,
-        POPUPCOMMAND_UNMARKBLOCK,
-        POPUPCOMMAND_LEAVEONLYMARKEDBLOCKS,
         // multiple writable views
         POPUPCOMMAND_PREPENDFROMRIGHT,
         POPUPCOMMAND_REPLACEBYRIGHT,
@@ -653,8 +631,8 @@ protected:  // variables
 
         bool            FixScreenedCacheSize(CBaseView* View);
         void            RebuildIfNecessary();
-        bool            ResetScreenedViewLineCache(CBaseView* View) const;
-        bool            ResetScreenedViewLineCache(CBaseView* View, const TRebuildRange& Range) const;
+        bool            ResetScreenedViewLineCache(CBaseView* View);
+        bool            ResetScreenedViewLineCache(CBaseView* View, const TRebuildRange& Range);
 
         CViewData *                     m_pViewData;
         bool                            m_bFull;

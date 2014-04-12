@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@
 bool PrevDiffCommand::Execute()
 {
     bool bRet = false;
-    bool bAlternativeTool = !!parser.HasKey(L"alternative");
+    bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
     if (cmdLinePath.IsDirectory())
     {
         CChangedDlg dlg;
@@ -38,23 +38,22 @@ bool PrevDiffCommand::Execute()
     {
         SVNDiff diff(NULL, GetExplorerHWND());
         diff.SetAlternativeTool(bAlternativeTool);
-        diff.SetJumpLine(parser.GetLongVal(L"line"));
+        diff.SetJumpLine(parser.GetLongVal(_T("line")));
         SVNStatus st;
         st.GetStatus(cmdLinePath);
         if (st.status && st.status->changed_rev)
         {
-            bool ignoreprops = !!parser.HasKey(L"ignoreprops");
-            bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->changed_rev - 1, st.status->changed_rev, ignoreprops, L"", false, false, st.status->kind);
+            bRet = diff.ShowCompare(cmdLinePath, SVNRev::REV_WC, cmdLinePath, st.status->changed_rev - 1, st.status->changed_rev, L"", false, false, st.status->kind);
         }
         else
         {
             if (st.GetLastErrorMessage().IsEmpty())
             {
-                TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_ERR_NOPREVREVISION), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                TSVNMessageBox(GetExplorerHWND(), IDS_ERR_NOPREVREVISION, IDS_APPNAME, MB_ICONERROR);
             }
             else
             {
-                TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_ERR_NOSTATUS), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                TSVNMessageBox(GetExplorerHWND(), IDS_ERR_NOSTATUS, IDS_APPNAME, MB_ICONERROR);
             }
         }
     }

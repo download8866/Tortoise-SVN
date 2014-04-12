@@ -38,18 +38,10 @@ public:
     bool MatchCase() {return !!m_bMatchCase;}
     bool LimitToDiffs() {return !!m_bLimitToDiffs;}
     bool WholeWord() {return !!m_bWholeWord;}
-    bool SearchUp() { return !!m_bSearchUp; }
     CString GetFindString() {return m_FindCombo.GetString();}
     void SetFindString(const CString& str) { if (!str.IsEmpty()){ m_FindCombo.SetWindowText(str);} }
-    void SetStatusText(const CString& str, COLORREF color = RGB(0, 0, 255));
 // Dialog Data
     enum { IDD = IDD_FIND };
-
-    enum FindType
-    {
-        Find,
-        Count
-    };
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -60,8 +52,6 @@ protected:
     virtual void OnOK();
     virtual BOOL OnInitDialog();
     afx_msg void OnCbnEditchangeFindcombo();
-    afx_msg void OnBnClickedCount();
-    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd *pWnd, UINT nCtlColor);
 private:
     UINT            m_FindMsg;
     bool            m_bTerminating;
@@ -69,12 +59,9 @@ private:
     BOOL            m_bMatchCase;
     BOOL            m_bLimitToDiffs;
     BOOL            m_bWholeWord;
-    BOOL            m_bSearchUp;
     CHistoryCombo   m_FindCombo;
-    CStatic         m_FindStatus;
     CWnd *          m_pParent;
     CRegDWORD       m_regMatchCase;
     CRegDWORD       m_regLimitToDiffs;
     CRegDWORD       m_regWholeWord;
-    COLORREF        m_clrFindStatus;
 };

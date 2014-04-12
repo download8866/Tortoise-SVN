@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009, 2011, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,9 @@
 #include <locale>
 #include <algorithm>
 
-const TCHAR CCmdLineParser::m_sDelims[] = L"-/";
-const TCHAR CCmdLineParser::m_sQuotes[] = L"\"";
-const TCHAR CCmdLineParser::m_sValueSep[] = L" :"; // don't forget space!!
+const TCHAR CCmdLineParser::m_sDelims[] = _T("-/");
+const TCHAR CCmdLineParser::m_sQuotes[] = _T("\"");
+const TCHAR CCmdLineParser::m_sValueSep[] = _T(" :"); // don't forget space!!
 
 
 CCmdLineParser::CCmdLineParser(LPCTSTR sCmdLine)
@@ -41,7 +41,7 @@ CCmdLineParser::~CCmdLineParser()
 
 BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
 {
-    const tstring sEmpty = L"";          //use this as a value if no actual value is given in commandline
+    const tstring sEmpty = _T("");          //use this as a value if no actual value is given in commandline
     int nArgs = 0;
 
     if(!sCmdLine)
@@ -59,15 +59,15 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
         if (sCurrent[0] == 0)
             break;      // no more data, leave loop
 
-        LPCTSTR sArg = wcspbrk(sCurrent, m_sDelims);
+        LPCTSTR sArg = _tcspbrk(sCurrent, m_sDelims);
         if(!sArg)
             break; // no (more) delimiters found
-        sArg =  _wcsinc(sArg);
+        sArg =  _tcsinc(sArg);
 
         if(sArg[0] == 0)
             break; // ends with delim
 
-        LPCTSTR sVal = wcspbrk(sArg, m_sValueSep);
+        LPCTSTR sVal = _tcspbrk(sArg, m_sValueSep);
         if(sVal == NULL)
         {
             tstring Key(sArg);
@@ -75,7 +75,7 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
             m_valueMap.insert(CValsMap::value_type(Key, sEmpty));
             break;
         }
-        else if (sVal[0] == ' ' || wcslen(sVal) == 1 )
+        else if (sVal[0] == _T(' ') || _tcslen(sVal) == 1 )
         {
             // cmdline ends with /Key: or a key with no value
             tstring Key(sArg, (int)(sVal - sArg));
@@ -84,7 +84,7 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
                 std::transform(Key.begin(), Key.end(), Key.begin(), ::tolower);
                 m_valueMap.insert(CValsMap::value_type(Key, sEmpty));
             }
-            sCurrent = _wcsinc(sVal);
+            sCurrent = _tcsinc(sVal);
             continue;
         }
         else
@@ -93,19 +93,19 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
             tstring Key(sArg, (int)(sVal - sArg));
             std::transform(Key.begin(), Key.end(), Key.begin(), ::tolower);
 
-            sVal = _wcsinc(sVal);
+            sVal = _tcsinc(sVal);
 
-            LPCTSTR sQuote = wcspbrk(sVal, m_sQuotes), sEndQuote(NULL);
+            LPCTSTR sQuote = _tcspbrk(sVal, m_sQuotes), sEndQuote(NULL);
             if(sQuote == sVal)
             {
                 // string with quotes (defined in m_sQuotes, e.g. '")
-                sQuote = _wcsinc(sVal);
-                sEndQuote = wcspbrk(sQuote, m_sQuotes);
+                sQuote = _tcsinc(sVal);
+                sEndQuote = _tcspbrk(sQuote, m_sQuotes);
             }
             else
             {
                 sQuote = sVal;
-                sEndQuote = wcschr(sQuote, ' ');
+                sEndQuote = _tcschr(sQuote, _T(' '));
             }
 
             if(sEndQuote == NULL)
@@ -126,7 +126,7 @@ BOOL CCmdLineParser::Parse(LPCTSTR sCmdLine)
                     tstring csVal(sQuote, (int)(sEndQuote - sQuote));
                     m_valueMap.insert(CValsMap::value_type(Key, csVal));
                 }
-                sCurrent = _wcsinc(sEndQuote);
+                sCurrent = _tcsinc(sEndQuote);
                 continue;
             }
         }
@@ -182,7 +182,7 @@ __int64 CCmdLineParser::GetLongLongVal(LPCTSTR sKey) const
     CValsMap::const_iterator it = findKey(sKey);
     if (it == m_valueMap.end())
         return 0;
-    return _wtoi64(it->second.c_str());
+    return _ttoi64(it->second.c_str());
 }
 
 CCmdLineParser::ITERPOS CCmdLineParser::begin() const

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2012-2014 - TortoiseSVN
+// Copyright (C) 2006-2007, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 #include "EOL.h"
 #include <deque>
-#include <regex>
 
 // A template class to make an array which looks like a CStringArray or CDWORDArray but
 // is in fact based on a STL vector, which is much faster at large sizes
@@ -120,18 +119,12 @@ public:
      * \param bIgnoreCase converts whole file to lower case
      * \param bBlame limit line len
      */
-    BOOL Save(const CString& sFilePath
-             , bool bSaveAsUTF8 = false
-             , bool bUseSVNCompatibleEOLs = false
-             , DWORD dwIgnoreWhitespaces = 0
-             , BOOL bIgnoreCase = FALSE
-             , bool bBlame = false
-             , bool bIgnoreComments = false
-             , const CString& linestart = CString()
-             , const CString& blockstart = CString()
-             , const CString& blockend = CString()
-             , const std::wregex& rx = std::wregex(L"")
-             , const std::wstring& replacement = L"");
+    BOOL            Save(const CString& sFilePath
+                        , bool bSaveAsUTF8 = false
+                        , bool bUseSVNCompatibleEOLs = false
+                        , DWORD dwIgnoreWhitespaces = 0
+                        , BOOL bIgnoreCase = FALSE
+                        , bool bBlame = false) const;
     /**
      * Returns an error string of the last failed operation
      */
@@ -140,9 +133,7 @@ public:
      * Copies the settings of a file like the line ending styles
      * to another CFileTextLines object.
      */
-    void            CopySettings(CFileTextLines * pFileToCopySettingsTo) const;
-
-    void            SetCommentTokens();
+    void            CopySettings(CFileTextLines * pFileToCopySettingsTo);
 
     bool            NeedsConversion() const { return m_bNeedsConversion; }
     UnicodeType     GetUnicodeType() const  {return m_SaveParams.m_UnicodeType;}
@@ -169,17 +160,12 @@ private:
     void            SetErrorString();
 
     static void     StripWhiteSpace(CString& sLine, DWORD dwIgnoreWhitespaces, bool blame);
-    bool            StripComments(CString& sLine, bool bInBlockComment);
-    void            LineRegex(CString& sLine, const std::wregex& rx, const std::wstring& replacement) const;
 
 
 private:
-    CString             m_sErrorString;
-    bool                m_bNeedsConversion;
-    SaveParams          m_SaveParams;
-    CString             m_sCommentLine;
-    CString             m_sCommentBlockStart;
-    CString             m_sCommentBlockEnd;
+    CString              m_sErrorString;
+    bool                 m_bNeedsConversion;
+    SaveParams           m_SaveParams;
 };
 
 
@@ -193,7 +179,7 @@ public:
     ~CBuffer() {Free(); }
 
     CBuffer & operator =(const CBuffer & Src) { Copy(Src); return *this; }
-    operator bool () const { return !IsEmpty(); }
+    operator bool () { return !IsEmpty(); }
     template<typename T>
     operator T () const { return  (T)m_pBuffer; }
 
@@ -223,7 +209,7 @@ public:
 
     virtual bool Decode(/*in out*/ CBuffer & s);
     virtual const CBuffer & Encode(const CString data);
-    const CBuffer & GetBuffer() const {return m_oBuffer; }
+    const CBuffer & GetBuffer() {return m_oBuffer; }
     void Write(const CString s) { Write(Encode(s)); } ///< encode into buffer and write
     void Write() { Write(m_oBuffer); } ///< write preencoded internal buffer
     void Write(const CBuffer & buffer) { if (buffer.GetLength()) m_pFile->Write((void*)buffer, buffer.GetLength()); } ///< write preencoded buffer

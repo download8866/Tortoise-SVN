@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,6 @@
 #include "DropCopyAddCommand.h"
 #include "DropCopyCommand.h"
 #include "DropExportCommand.h"
-#include "DropExternalCommand.h"
 #include "DropMoveCommand.h"
 #include "DropVendorCommand.h"
 #include "EditFileCommand.h"
@@ -93,7 +92,6 @@ typedef enum
     cmdDropCopy,
     cmdDropCopyAdd,
     cmdDropExport,
-    cmdDropExternals,
     cmdDropMove,
     cmdDropVendor,
     cmdEditFile,
@@ -137,59 +135,58 @@ static const struct CommandInfo
     LPCTSTR pCommandName;
 } commandInfo[] =
 {
-    {   cmdAbout,           L"about"             },
-    {   cmdAdd,             L"add"               },
-    {   cmdAutoTextTest,    L"autotexttest"      },
-    {   cmdBlame,           L"blame"             },
-    {   cmdCat,             L"cat"               },
-    {   cmdCheckout,        L"checkout"          },
-    {   cmdCleanup,         L"cleanup"           },
-    {   cmdCommit,          L"commit"            },
-    {   cmdConflictEditor,  L"conflicteditor"    },
-    {   cmdCopy,            L"copy"              },
-    {   cmdCrash,           L"crash"             },
-    {   cmdCreatePatch,     L"createpatch"       },
-    {   cmdDelUnversioned,  L"delunversioned"    },
-    {   cmdDiff,            L"diff"              },
-    {   cmdDropCopy,        L"dropcopy"          },
-    {   cmdDropCopyAdd,     L"dropcopyadd"       },
-    {   cmdDropExport,      L"dropexport"        },
-    {   cmdDropExternals,   L"dropexternals"     },
-    {   cmdDropMove,        L"dropmove"          },
-    {   cmdDropVendor,      L"dropvendor"        },
-    {   cmdEditFile,        L"editfile"          },
-    {   cmdExport,          L"export"            },
-    {   cmdHelp,            L"help"              },
-    {   cmdIgnore,          L"ignore"            },
-    {   cmdImport,          L"import"            },
-    {   cmdLock,            L"lock"              },
-    {   cmdLog,             L"log"               },
-    {   cmdMerge,           L"merge"             },
-    {   cmdMergeAll,        L"mergeall"          },
-    {   cmdPasteCopy,       L"pastecopy"         },
-    {   cmdPasteMove,       L"pastemove"         },
-    {   cmdPrevDiff,        L"prevdiff"          },
-    {   cmdProperties,      L"properties"        },
-    {   cmdRTFM,            L"rtfm"              },
-    {   cmdRebuildIconCache,L"rebuildiconcache"  },
-    {   cmdRelocate,        L"relocate"          },
-    {   cmdRemove,          L"remove"            },
-    {   cmdRename,          L"rename"            },
-    {   cmdRepoBrowser,     L"repobrowser"       },
-    {   cmdRepoCreate,      L"repocreate"        },
-    {   cmdRepoStatus,      L"repostatus"        },
-    {   cmdResolve,         L"resolve"           },
-    {   cmdRevert,          L"revert"            },
-    {   cmdRevisionGraph,   L"revisiongraph"     },
-    {   cmdSettings,        L"settings"          },
-    {   cmdShowCompare,     L"showcompare"       },
-    {   cmdSwitch,          L"switch"            },
-    {   cmdUnIgnore,        L"unignore"          },
-    {   cmdUnlock,          L"unlock"            },
-    {   cmdUpdate,          L"update"            },
-    {   cmdUpdateCheck,     L"updatecheck"       },
-    {   cmdUrlDiff,         L"urldiff"           },
-    {   cmdWcUpgrade,       L"wcupgrade"         },
+    {   cmdAbout,           _T("about")             },
+    {   cmdAdd,             _T("add")               },
+    {   cmdAutoTextTest,    _T("autotexttest")      },
+    {   cmdBlame,           _T("blame")             },
+    {   cmdCat,             _T("cat")               },
+    {   cmdCheckout,        _T("checkout")          },
+    {   cmdCleanup,         _T("cleanup")           },
+    {   cmdCommit,          _T("commit")            },
+    {   cmdConflictEditor,  _T("conflicteditor")    },
+    {   cmdCopy,            _T("copy")              },
+    {   cmdCrash,           _T("crash")             },
+    {   cmdCreatePatch,     _T("createpatch")       },
+    {   cmdDelUnversioned,  _T("delunversioned")    },
+    {   cmdDiff,            _T("diff")              },
+    {   cmdDropCopy,        _T("dropcopy")          },
+    {   cmdDropCopyAdd,     _T("dropcopyadd")       },
+    {   cmdDropExport,      _T("dropexport")        },
+    {   cmdDropMove,        _T("dropmove")          },
+    {   cmdDropVendor,      _T("dropvendor")        },
+    {   cmdEditFile,        _T("editfile")          },
+    {   cmdExport,          _T("export")            },
+    {   cmdHelp,            _T("help")              },
+    {   cmdIgnore,          _T("ignore")            },
+    {   cmdImport,          _T("import")            },
+    {   cmdLock,            _T("lock")              },
+    {   cmdLog,             _T("log")               },
+    {   cmdMerge,           _T("merge")             },
+    {   cmdMergeAll,        _T("mergeall")          },
+    {   cmdPasteCopy,       _T("pastecopy")         },
+    {   cmdPasteMove,       _T("pastemove")         },
+    {   cmdPrevDiff,        _T("prevdiff")          },
+    {   cmdProperties,      _T("properties")        },
+    {   cmdRTFM,            _T("rtfm")              },
+    {   cmdRebuildIconCache,_T("rebuildiconcache")  },
+    {   cmdRelocate,        _T("relocate")          },
+    {   cmdRemove,          _T("remove")            },
+    {   cmdRename,          _T("rename")            },
+    {   cmdRepoBrowser,     _T("repobrowser")       },
+    {   cmdRepoCreate,      _T("repocreate")        },
+    {   cmdRepoStatus,      _T("repostatus")        },
+    {   cmdResolve,         _T("resolve")           },
+    {   cmdRevert,          _T("revert")            },
+    {   cmdRevisionGraph,   _T("revisiongraph")     },
+    {   cmdSettings,        _T("settings")          },
+    {   cmdShowCompare,     _T("showcompare")       },
+    {   cmdSwitch,          _T("switch")            },
+    {   cmdUnIgnore,        _T("unignore")          },
+    {   cmdUnlock,          _T("unlock")            },
+    {   cmdUpdate,          _T("update")            },
+    {   cmdUpdateCheck,     _T("updatecheck")       },
+    {   cmdUrlDiff,         _T("urldiff")           },
+    {   cmdWcUpgrade,       _T("wcupgrade")         },
 };
 
 
@@ -215,123 +212,121 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 
     switch (command)
     {
-        case cmdAbout:
-            return new AboutCommand;
-        case cmdAdd:
-            return new AddCommand;
-        case cmdAutoTextTest:
-            return new AutoTextTestCommand;
-        case cmdBlame:
-            return new BlameCommand;
-        case cmdCat:
-            return new CatCommand;
-        case cmdCheckout:
-            return new CheckoutCommand;
-        case cmdCleanup:
-            return new CleanupCommand;
-        case cmdCommit:
-            return new CommitCommand;
-        case cmdConflictEditor:
-            return new ConflictEditorCommand;
-        case cmdCopy:
-            return new CopyCommand;
-        case cmdCrash:
-            return new CrashCommand;
-        case cmdCreatePatch:
-            return new CreatePatchCommand;
-        case cmdDelUnversioned:
-            return new DelUnversionedCommand;
-        case cmdDiff:
-            return new DiffCommand;
-        case cmdDropCopy:
-            return new DropCopyCommand;
-        case cmdDropCopyAdd:
-            return new DropCopyAddCommand;
-        case cmdDropExport:
-            return new DropExportCommand;
-        case cmdDropExternals:
-            return new DropExternalCommand;
-        case cmdDropMove:
-            return new DropMoveCommand;
-        case cmdDropVendor:
-            return new DropVendorCommand;
-        case cmdEditFile:
-            return new EditFileCommand;
-        case cmdExport:
-            return new ExportCommand;
-        case cmdHelp:
-            return new HelpCommand;
-        case cmdIgnore:
-            return new IgnoreCommand;
-        case cmdImport:
-            return new ImportCommand;
-        case cmdLock:
-            return new LockCommand;
-        case cmdLog:
-            return new LogCommand;
-        case cmdMerge:
-            return new MergeCommand;
-        case cmdMergeAll:
-            return new MergeAllCommand;
-        case cmdPasteCopy:
-            return new PasteCopyCommand;
-        case cmdPasteMove:
-            return new PasteMoveCommand;
-        case cmdPrevDiff:
-            return new PrevDiffCommand;
-        case cmdProperties:
-            return new PropertiesCommand;
-        case cmdRTFM:
-            return new RTFMCommand;
-        case cmdRebuildIconCache:
-            return new RebuildIconCacheCommand;
-        case cmdRelocate:
-            return new RelocateCommand;
-        case cmdRemove:
-            return new RemoveCommand;
-        case cmdRename:
-            return new RenameCommand;
-        case cmdRepoBrowser:
-            return new RepositoryBrowserCommand;
-        case cmdRepoCreate:
-            return new CreateRepositoryCommand;
-        case cmdRepoStatus:
-            return new RepoStatusCommand;
-        case cmdResolve:
-            return new ResolveCommand;
-        case cmdRevert:
-            return new RevertCommand;
-        case cmdRevisionGraph:
-            return new RevisionGraphCommand;
-        case cmdSettings:
-            return new SettingsCommand;
-        case cmdShowCompare:
-            return new ShowCompareCommand;
-        case cmdSwitch:
-            return new SwitchCommand;
-        case cmdUnIgnore:
-            return new UnIgnoreCommand;
-        case cmdUnlock:
-            return new UnLockCommand;
-        case cmdUpdate:
-            return new UpdateCommand;
-        case cmdUpdateCheck:
-            return new UpdateCheckCommand;
-        case cmdUrlDiff:
-            return new UrlDiffCommand;
-        case cmdWcUpgrade:
-            return new WcUpgradeCommand;
+    case cmdAbout:
+        return new AboutCommand;
+    case cmdAdd:
+        return new AddCommand;
+    case cmdAutoTextTest:
+        return new AutoTextTestCommand;
+    case cmdBlame:
+        return new BlameCommand;
+    case cmdCat:
+        return new CatCommand;
+    case cmdCheckout:
+        return new CheckoutCommand;
+    case cmdCleanup:
+        return new CleanupCommand;
+    case cmdCommit:
+        return new CommitCommand;
+    case cmdConflictEditor:
+        return new ConflictEditorCommand;
+    case cmdCopy:
+        return new CopyCommand;
+    case cmdCrash:
+        return new CrashCommand;
+    case cmdCreatePatch:
+        return new CreatePatchCommand;
+    case cmdDelUnversioned:
+        return new DelUnversionedCommand;
+    case cmdDiff:
+        return new DiffCommand;
+    case cmdDropCopy:
+        return new DropCopyCommand;
+    case cmdDropCopyAdd:
+        return new DropCopyAddCommand;
+    case cmdDropExport:
+        return new DropExportCommand;
+    case cmdDropMove:
+        return new DropMoveCommand;
+    case cmdDropVendor:
+        return new DropVendorCommand;
+    case cmdEditFile:
+        return new EditFileCommand;
+    case cmdExport:
+        return new ExportCommand;
+    case cmdHelp:
+        return new HelpCommand;
+    case cmdIgnore:
+        return new IgnoreCommand;
+    case cmdImport:
+        return new ImportCommand;
+    case cmdLock:
+        return new LockCommand;
+    case cmdLog:
+        return new LogCommand;
+    case cmdMerge:
+        return new MergeCommand;
+    case cmdMergeAll:
+        return new MergeAllCommand;
+    case cmdPasteCopy:
+        return new PasteCopyCommand;
+    case cmdPasteMove:
+        return new PasteMoveCommand;
+    case cmdPrevDiff:
+        return new PrevDiffCommand;
+    case cmdProperties:
+        return new PropertiesCommand;
+    case cmdRTFM:
+        return new RTFMCommand;
+    case cmdRebuildIconCache:
+        return new RebuildIconCacheCommand;
+    case cmdRelocate:
+        return new RelocateCommand;
+    case cmdRemove:
+        return new RemoveCommand;
+    case cmdRename:
+        return new RenameCommand;
+    case cmdRepoBrowser:
+        return new RepositoryBrowserCommand;
+    case cmdRepoCreate:
+        return new CreateRepositoryCommand;
+    case cmdRepoStatus:
+        return new RepoStatusCommand;
+    case cmdResolve:
+        return new ResolveCommand;
+    case cmdRevert:
+        return new RevertCommand;
+    case cmdRevisionGraph:
+        return new RevisionGraphCommand;
+    case cmdSettings:
+        return new SettingsCommand;
+    case cmdShowCompare:
+        return new ShowCompareCommand;
+    case cmdSwitch:
+        return new SwitchCommand;
+    case cmdUnIgnore:
+        return new UnIgnoreCommand;
+    case cmdUnlock:
+        return new UnLockCommand;
+    case cmdUpdate:
+        return new UpdateCommand;
+    case cmdUpdateCheck:
+        return new UpdateCheckCommand;
+    case cmdUrlDiff:
+        return new UrlDiffCommand;
+    case cmdWcUpgrade:
+        return new WcUpgradeCommand;
 
-        default:
-            return new AboutCommand;
+    default:
+        return new AboutCommand;
     }
 }
 
 bool Command::CheckPaths()
 {
-    if ((pathList.GetCount() == 0) && (cmdLinePath.IsEmpty()))
+    if ((pathList.GetCount()==0)&&(cmdLinePath.IsEmpty()))
     {
-        TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_INVALIDPARAMS), MAKEINTRESOURCE(IDS_ERR_PATHPARAMMISSING), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+        TSVNMessageBox(GetExplorerHWND(), IDS_ERR_PATHPARAMMISSING, IDS_APPNAME, MB_ICONERROR);
         return false;
     }
 
