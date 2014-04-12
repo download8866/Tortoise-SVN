@@ -1,46 +1,67 @@
 // To build this file, execute "nant APIDocs"
-// After that, you can read the compiled version at doc\output\TortoiseSVNAPI.chm
+// After that, you can read the compiled version at TortoiseSVN\doc\output\TortoiseSVNAPI.chm
 
 /**
 \page build Build instructions
 
 \section Introduction Introduction
 Compiling TortoiseSVN is not very difficult, but it requires several steps
-to finish, at least when you do it the first time.
+to finish, at least the first time.
 
 Unlike other big open source projects, once you have built all the libraries
 TortoiseSVN depends on, you can use the familiar VisualStudio IDE to build
 and debug the binaries. No need to run the build script for every little change.
 
-So don't give up if you read through the next section you will find all the requirements.
-You need to perform most steps only once.
+So don't give up if you read through the next section and all the requirements.
+You only have to do this once.
 
 \section Requirements Requirements
 
 \subsection Requirements1 First, you need to install the compiler package.
 
--# You need VS2013 to allow building of the full TortoiseSVN package.
+-# You need VS2010 to allow
+   building of the full TortoiseSVN package.
    This is the recommended option, but it is not free :-(
    If you want to build the msi make sure the "Tools for Redistributing
    Applications" are installed.
+-# If you do not have access to VS.NET you can download the free
+   Visual C++ 2010 Express Edition.
+   This will allow you to build the subversion libraries and the
+   SubWCRev, TortoiseBlame, TortoiseUDiff, TortoiseIDiff, CrashRpt
+   and ResText projects only. You can not build the main parts of
+   TortoiseSVN (shell extension, TortoiseProc, TSVNCache, TortoiseMerge)
+   with the Express Edition!
+   - Install Visual C++ 2010 Express Edition.
+     Download it from http://msdn.microsoft.com/vstudio/express/visualc/
+   - Install MASM 6.15 from: http://win32assembly.online.fr/files/masm615.zip
+     and add it to the PATH environment variable
+   \note Do not bother to install WiX and Votive as you cannot build very much.
+-# If you plan to build 64 bit packages, install the package
+   - "Language Tools" -> "Visual C++" -> "X64 Compilers and Tools"
+     available in the VS.NET2010 Professional and higher.
+     This will provide you with a cross-compiler and a suitable
+     command shell. On XP64, there will also be a native compiler.
 
 \subsection Requirements2 Next you need to install some utilities/programs.
-- Java runtime                      http://www.java.com
-- Python 2.6(\b 1 \b 3)             http://www.python.org/windows/
-- libxml2 python bindings(\b 2)     http://users.skynet.be/sbi/libxml-python/
-- Perl                              http://strawberryperl.com/releases.html
-                                    or
-                                    http://www.activestate.com/Products/ActivePerl/
-- WiX 3.8(\b 1)                     http://wixtoolset.org/
-- NAnt 0.92(\b 1)                   http://nant.sourceforge.net
-
+- Java runtime                http://www.java.com
+- Python 2.6(\b 1)            http://www.python.org/windows/
+- libxml2 python bindings     http://users.skynet.be/sbi/libxml-python/
+- Perl                        http://www.activestate.com/Products/ActivePerl/
+- WiX3.7(\b 1)                http://wix.codeplex.com/
+- NAnt 0.92 (\b 1)            http://nant.sourceforge.net
+.
 (\b 1) Add the paths of the binaries to the PATH environment variable. You may have to
     logoff/logon to make the new environment variables take effect!
-(\b 2) right-click on the installer file and "run as administrator" to install it.
-(\b 3) use 32 bit installer (even on x64 OS)
 
+\subsection Requirements3 Next you need to download some more.
+- OpenSSL source              http://www.openssl.org/source/
+                              You will need version 1.0.1g
+- ZLib source                 http://www.gzip.org/zlib/
+                              You will need version 1.2.7
+- tools collection            http://code.google.com/p/tortoisesvn/downloads/list
+- dictionaries/thesauri(\b Optional) http://lingucomponent.openoffice.org/
 
-\subsection Requirements3 Finally, you may need to install some fonts.
+\subsection Requirements4 Finally, you may need to install some fonts.
 - Arabic(\b Optional)         http://www7.bev.net/civic/icb/quran/Iqraa_ttf.zip
 - Japanese(\b Optional)       msgothic.ttc and msmincho.ttc should be available
                               if you activate support for international fonts in your OS.
@@ -52,25 +73,54 @@ You need to perform most steps only once.
 Now you're almost ready. Only a few more steps to do:
 - create a new folder on your harddisk, e.g. SVN. Make sure you have at least
   1.5 GB of free space left!!!
+- create a new folder in SVN called 'common'
+- unzip the openssl sourcecode into 'common', and rename the folder to 'openssl'
+- unzip the zlib sourcecode into 'common' and rename the folder to 'zlib'
+- copy the dictionaries/thesauri to 'common\spell'.
+  note that the names of the files are important!
+  They have to be en_US.aff, en_US.dic, en_GB.aff and en_GB.dic (or whatever language you use).
+  Warning: only the thesaurus in the format for OO2 will work. Earlier versions will
+  crash TortoiseSVN!
 - Checkout the TortoiseSVN sources from the Subversion repository into
   SVN\TortoiseSVN
+- unzip the file 'Tools.zip' into a folder, we suggest SVN\TortoiseSVN\Tools.
+  Note: the path to the tools folder must not have special chars in it or spaces.
+  If you checked out the TortoiseSVN source to such a location, you can store
+  the tools folder somewhere else.
 - Make a copy of the file default.build.user.tmpl in the TortoiseSVN root folder and
   rename that copy to default.build.user. Then adjust the paths as mentioned
   in that file. You may leave it unchanged if you installed / copied everything
   into the suggested default paths.
 - Make a copy of the file doc\doc.build.user.tmpl and rename that copy to
   doc\doc.build.user. Then adjust the paths in that file according to your
-  setup. You need to edit this file if your installed version of Tortoise has a different
-  working-copy database version than the tool expects.
+  setup.
 - Unzip (if necessary) and copy the font files into %WINDIR%\Fonts.
   You will need them only if you are building the respective language packs.
-- run 'nant init' to fetch and unzip the required tools
 
 
 \section build32 Building 32 bit packages
 
   Hint: before you can start building TortoiseSVN, you need to call the vsvars32.bat
-  file which is located in \%VS110COMNTOOLS%.
+  file which is located in \%VS100COMNTOOLS%.
+
+  Note that for the Express edition you need to sort out the vars for the platform SDK
+  as well. The easiest way I found was to edit the supplied VC++ file
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\vcvarsall.bat
+  Look for the :x86 label and add an extra call to setenv.cmd as shown below:
+
+\code
+    :x86
+    if not exist "%~dp0bin\vcvars32.bat" goto missing
+    call "%~dp0bin\vcvars32.bat"
+    if exist "%ProgramFiles%\Microsoft SDKs\Windows\v6.0\bin\setenv.cmd" call "%ProgramFiles%\Microsoft SDKs\Windows\v6.0\bin\setenv.cmd" /Release /x86 /vista
+    if exist "%ProgramFiles%\Microsoft SDKs\Windows\v6.0\bin\setenv.cmd" goto :eof
+    if exist "%ProgramFiles%\Microsoft Platform SDK\setenv.cmd" call "%ProgramFiles%\Microsoft Platform SDK\setenv.cmd"
+    if exist "%ProgramFiles%\Microsoft Platform SDK\setenv.cmd" goto :eof
+    goto :eof
+\endcode
+
+  Then call vsvarsall.bat when you start your command processor instead
+  of vsvars32 as described above.
 
   Now, if you got some time left you can run the build script to compile
   TortoiseSVN. Grab a cup of coffee - it can take up to two hours, depending on
@@ -84,26 +134,48 @@ Now you're almost ready. Only a few more steps to do:
 \verbatim
   > nant setup
 \endverbatim
-  will compile everything, including docs and language packs and create the msi installer
+  will compile everything, including docs and languagepacks and create the msi installer
 
   If you encounter any build errors, you can run nant again like this:
 \verbatim
   > nant setup -l:buildlog.txt
 \endverbatim
-  which will create a build log file which you can use to analyze where
+  which will create a build log file which you can use to analyse where
   exactly the build failed.
+
+  If you are building using VC++ Express, your options are somewhat limited.
+  Firstly you need to change the build tool in default.build.user.
+  There is already a line to set this up which you need to un-comment:
+
+\verbatim
+  <property name="buildtool" value="vcexpress.exe" />
+\endverbatim
 
   Now you need to build the Subversion libraries:
 \verbatim
   > nant Subversion
 \endverbatim
 
+  Note that the VC Express compiler works in the background without a console
+  window. There is a lot of disk activity with no apparent result showing
+  in the Nant console window. Be patient!
+
+  Before building the applications, update the version info:
+  > nant VersionInfo
+
+  Now you can open the SubWCRev.vcproj file to start the IDE.
+  Some error dialogs will come up, which you can ignore.
+  Right click on SubWCRev and 'Build'.
+
+  You can also right click on TortoiseBlame and TortoiseIDiff and build those.
+
+
 \section build64cross Building 64 bit packages on win32 (cross-compile)
 
   First, we build some 32-bit SVN utilities you will need later
-  during the build process. Follow the instructions above or just
-  open "Microsoft Visual Studio 2013" -> "Visual Studio Tools" ->
-  "Visual Studio 2013 Command Prompt", change to the TortoiseSVN source
+  during the build process. Follow the instruction above or just
+  open "Microsoft Visual Studio 2010" -> "Visual Studio Tools" ->
+  "Visual Studio 2010 Command Prompt", change to the TortoiseSVN source
   directory and run
 
 \verbatim
@@ -111,8 +183,8 @@ Now you're almost ready. Only a few more steps to do:
 \endverbatim
 
   Now, build the x64 packages: Open
-  "Microsoft Visual Studio 2013" -> "Visual Studio Tools" ->
-  "Visual Studio 2013 x64 Cross Tools Command Prompt", change to the
+  "Microsoft Visual Studio 2010" -> "Visual Studio Tools" ->
+  "Visual Studio 2010 x64 Cross Tools Command Prompt", change to the
   TortoiseSVN source directory and run
 
 \verbatim
@@ -124,8 +196,8 @@ Now you're almost ready. Only a few more steps to do:
 \section build64 Building 64 bit packages on x64
 
   To build native packages on your 64 bit Windows, just open
-  "Microsoft Visual Studio 2013" -> "Visual Studio Tools" ->
-  "Visual Studio 2013 Win64 Command Prompt", change to the
+  "Microsoft Visual Studio 2010" -> "Visual Studio Tools" ->
+  "Visual Studio 2010 Win64 Command Prompt", change to the
   TortoiseSVN source directory and run
 
 \verbatim
@@ -143,14 +215,14 @@ Now you're almost ready. Only a few more steps to do:
   > nant release clean
 \endverbatim
 
-  You have to run the clean target when altering between x86 and x64 builds. You will find that
-  Language\Tortoise.pot gets deleted, which is normal behavior. This generated file is
-  present in the repository so the translators don't need to execute the entire
-  build if they only wish to update documentation.
+  You have to clean when alterning between x86 and x64 builds. You will find that
+  Language\Tortoise.pot gets deleted. This is normal. This is a generated file
+  that is in the repository so the translators don't need to build the whole
+  thing to update documentation.
 
 \section buildhelp Learning the current build options
 
-  Many other settings can be used. You can see a description of the available nant targets
+  Many other settings can be used. You can have a description of the possible targets
   by running
 
 \verbatim

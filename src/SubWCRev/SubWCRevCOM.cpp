@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <objbase.h>
 #include "SubWCRevCOM_h.h"
 #include "SubWCRevCOM_i.c"
@@ -26,10 +26,9 @@
 #include <shlwapi.h>
 #include <Shellapi.h>
 #include <comutil.h>
-#include <memory>
 
 #pragma warning(push)
-#include "apr_pools.h"
+#include <apr_pools.h>
 #include "svn_error.h"
 #include "svn_client.h"
 #include "svn_path.h"
@@ -37,6 +36,7 @@
 #pragma warning(pop)
 #include "Register.h"
 #include "UnicodeUtils.h"
+#include "auto_buffer.h"
 #include <atlbase.h>
 
 STDAPI DllRegisterServer();
@@ -63,11 +63,11 @@ static void ImplWinMain()
 
     if ((argc >= 2) && (argc <= 5))
     {
-        if (wcscmp(argv[1], L"/automation")==0)
+        if (_tcscmp(argv[1], _T("/automation"))==0)
             AutomationMain();
-        else if (wcscmp(argv[1], L"unregserver")==0)
+        else if (_tcscmp(argv[1], _T("unregserver"))==0)
             DllUnregisterServer();
-        else if (wcscmp(argv[1], L"regserver")==0)
+        else if (_tcscmp(argv[1], _T("regserver"))==0)
             DllRegisterServer();
     }
     LocalFree(argv);
@@ -176,8 +176,15 @@ ULONG __stdcall SubWCRev::Release()
     return refCount;
 }
 
-HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
+//
+// ISubWCRev implementation
+//
+HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
 {
+    if (wcPath==NULL)
+        return E_INVALIDARG;
+
+    memset (&SubStat, 0, sizeof (SubStat));
     SubStat.bFolders = folders;
     SubStat.bExternals = externals;
 
@@ -195,13 +202,13 @@ HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL f
     const char * internalpath = svn_path_internal_style (wc_utf8, pool);
 
     svn_client_ctx_t * ctx;
-    svn_client_create_context2(&ctx, NULL, pool);
+    svn_client_create_context(&ctx, pool);
 
     svn_error_t * svnerr = svn_status(  internalpath,   //path
-        &SubStat,       //status_baton
-        TRUE,           //noignore
-        ctx,
-        pool);
+                                        &SubStat,       //status_baton
+                                        TRUE,           //noignore
+                                        ctx,
+                                        pool);
 
     HRESULT hr = S_OK;
     if (svnerr)
@@ -211,27 +218,6 @@ HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL f
     }
     apr_pool_destroy(pool);
     return hr;
-}
-//
-// ISubWCRev implementation
-//
-HRESULT __stdcall SubWCRev::GetWCInfo2(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals, /*[in]*/VARIANT_BOOL externalsNoMixed)
-{
-    if (wcPath==NULL)
-        return E_INVALIDARG;
-
-    SecureZeroMemory(&SubStat, sizeof(SubStat));
-    SubStat.bExternalsNoMixedRevision = externalsNoMixed;
-    return GetWCInfoInternal(wcPath, folders, externals);
-}
-
-HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals)
-{
-    if (wcPath==NULL)
-        return E_INVALIDARG;
-
-    SecureZeroMemory(&SubStat, sizeof(SubStat));
-    return GetWCInfoInternal(wcPath, folders, externals);
 }
 
 HRESULT __stdcall SubWCRev::get_Revision(/*[out, retval]*/VARIANT* rev)
@@ -256,14 +242,14 @@ HRESULT __stdcall SubWCRev::get_Date(/*[out, retval]*/VARIANT* date)
 
     date->vt = VT_BSTR;
 
-    WCHAR destbuf[32] = { 0 };
+    WCHAR destbuf[32];
     HRESULT result = CopyDateToString(destbuf, _countof(destbuf), SubStat.CmtDate) ? S_OK : S_FALSE;
     if(S_FALSE == result)
     {
-        swprintf_s(destbuf, L"");
+        _stprintf_s(destbuf, _T(""));
     }
 
-    date->bstrVal = SysAllocStringLen(destbuf, (UINT)wcslen(destbuf));
+    date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
     return result;
 }
 
@@ -284,36 +270,16 @@ HRESULT SubWCRev::Utf8StringToVariant(const char* string, VARIANT* result )
 
     result->vt = VT_BSTR;
     const size_t len = strlen(string);
-    std::unique_ptr<WCHAR[]> buf(new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
-    MultiByteToWideChar(CP_UTF8, 0, string, -1, buf.get(), (int)len*4);
-    result->bstrVal = SysAllocString(buf.get());
+    auto_buffer<WCHAR> buf(len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
+    MultiByteToWideChar(CP_UTF8, 0, string, -1, buf, (int)len*4);
+    result->bstrVal = SysAllocString(buf);
     return S_OK;
 }
 
 HRESULT __stdcall SubWCRev::get_HasModifications(VARIANT_BOOL* modifications)
 {
     return BoolToVariantBool(SubStat.HasMods, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HasUnversioned(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(SubStat.HasUnversioned, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HasMixedRevisions(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(((SubStat.MinRev != SubStat.MaxRev) || SubStat.bIsExternalMixed), modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_HaveExternalsAllFixedRevision(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(!SubStat.bIsExternalsNotFixed, modifications);
-}
-
-HRESULT __stdcall SubWCRev::get_IsWcTagged(VARIANT_BOOL* modifications)
-{
-    return BoolToVariantBool(SubStat.bIsTagged, modifications);
 }
 
 HRESULT __stdcall SubWCRev::get_IsSvnItem(/*[out, retval]*/VARIANT_BOOL* svn_item)
@@ -356,11 +322,11 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
 
     date->vt = VT_BSTR;
 
-    WCHAR destbuf[32] = { 0 };
+    WCHAR destbuf[32];
     HRESULT result = S_OK;
     if(FALSE == IsLockDataAvailable())
     {
-        swprintf_s(destbuf, L"");
+        _stprintf_s(destbuf, _T(""));
         result = S_FALSE;
     }
     else
@@ -368,11 +334,11 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
         result = CopyDateToString(destbuf, _countof(destbuf), SubStat.LockData.CreationDate) ? S_OK : S_FALSE;
         if(S_FALSE == result)
         {
-            swprintf_s(destbuf, L"");
+            _stprintf_s(destbuf, _T(""));
         }
     }
 
-    date->bstrVal = SysAllocStringLen(destbuf, (UINT)wcslen(destbuf));
+    date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
     return result;
 }
 
@@ -397,15 +363,15 @@ HRESULT __stdcall SubWCRev::get_LockOwner(/*[out, retval]*/VARIANT* owner)
         result = S_OK;
     }
 
-    std::unique_ptr<WCHAR[]> buf (new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
+    auto_buffer<WCHAR> buf (len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
 
     if(TRUE == SubStat.LockData.NeedsLocks)
     {
-        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf.get(), (int)len*4);
+        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Owner, -1, buf, (int)len*4);
     }
 
-    owner->bstrVal = SysAllocString(buf.get());
+    owner->bstrVal = SysAllocString(buf);
     return result;
 }
 
@@ -430,15 +396,15 @@ HRESULT __stdcall SubWCRev::get_LockComment(/*[out, retval]*/VARIANT* comment)
         result = S_OK;
     }
 
-    std::unique_ptr<WCHAR[]> buf (new WCHAR[len*4 + 1]);
-    SecureZeroMemory(buf.get(), (len*4 + 1)*sizeof(WCHAR));
+    auto_buffer<WCHAR> buf (len*4 + 1);
+    SecureZeroMemory(buf, (len*4 + 1)*sizeof(WCHAR));
 
     if(TRUE == SubStat.LockData.NeedsLocks)
     {
-        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf.get(), (int)len*4);
+        MultiByteToWideChar(CP_UTF8, 0, SubStat.LockData.Comment, -1, buf, (int)len*4);
     }
 
-    comment->bstrVal = SysAllocString(buf.get());
+    comment->bstrVal = SysAllocString(buf);
     return result;
 }
 
@@ -459,7 +425,7 @@ BOOL SubWCRev::CopyDateToString(WCHAR *destbuf, int buflen, apr_time_t time)
     if (_localtime64_s(&newtime, &ttime))
         return FALSE;
     // Format the date/time in international format as yyyy/mm/dd hh:mm:ss
-    swprintf_s(destbuf, min_buflen, L"%04d/%02d/%02d %02d:%02d:%02d",
+    _stprintf_s(destbuf, min_buflen, _T("%04d/%02d/%02d %02d:%02d:%02d"),
         newtime.tm_year + 1900,
         newtime.tm_mon + 1,
         newtime.tm_mday,
@@ -652,9 +618,9 @@ STDAPI DllRegisterServer()
 
     HRESULT hr = RegisterServer(hModule,
         CLSID_SubWCRev,
-        L"SubWCRev Server Object",
-        L"SubWCRev.object",
-        L"SubWCRev.object.1",
+        _T("SubWCRev Server Object"),
+        _T("SubWCRev.object"),
+        _T("SubWCRev.object.1"),
         LIBID_LibSubWCRev) ;
     if (SUCCEEDED(hr))
     {
@@ -671,8 +637,8 @@ STDAPI DllUnregisterServer()
     const HMODULE hModule = ::GetModuleHandle(NULL);
 
     HRESULT hr = UnregisterServer(CLSID_SubWCRev,
-        L"SubWCRev.object",
-        L"SubWCRev.object.1",
+        _T("SubWCRev.object"),
+        _T("SubWCRev.object.1"),
         LIBID_LibSubWCRev) ;
     if (SUCCEEDED(hr))
     {

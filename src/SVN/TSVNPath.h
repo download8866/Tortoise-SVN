@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -210,7 +210,7 @@ public:
     bool IsAdminDir() const;
 
     void SetCustomData(LPARAM lp) {m_customData = lp;}
-    LPARAM GetCustomData() const {return m_customData;}
+    LPARAM GetCustomData() {return m_customData;}
 
     /**
      * Checks if the path or URL is valid on Windows.
@@ -333,7 +333,6 @@ public:
      * Delete all the files and opt. directories in the list, then clear the list.
      * \param bTrash if true, the items are deleted using the Windows trash bin
      * \param bFilesOnly if true, delete file paths only
-     * \param hErrorWnd
      */
     void DeleteAllPaths(bool bTrash, bool bFilesOnly, HWND hErrorWnd);
     /** Remove duplicate entries from the list (sorts the list as a side-effect */

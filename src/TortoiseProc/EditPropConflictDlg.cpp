@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2014 - TortoiseSVN
+// Copyright (C) 2008-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,30 +50,30 @@ bool CEditPropConflictDlg::SetPrejFile(const CTSVNPath& prejFile)
     // open the prej file to get the info text
     char contentbuf[10000+1];
     FILE * File;
-    _tfopen_s(&File, m_prejFile.GetWinPath(), L"rb, ccs=UTF-8");
+    _tfopen_s(&File, m_prejFile.GetWinPath(), _T("rb, ccs=UTF-8"));
     if (File == NULL)
     {
         return false;
     }
+    size_t len = 0;
     for (;;)
     {
-        size_t len = fread(contentbuf, sizeof(char), 10000, File);
+        len = fread(contentbuf, sizeof(char), 10000, File);
         m_sPrejText += CUnicodeUtils::GetUnicode(CStringA(contentbuf, (int)len));
         if (len < 10000)
         {
             fclose(File);
             // we've read the whole file
-            m_sPrejText.Replace(L"\n", L"\r\n");
+            m_sPrejText.Replace(_T("\n"), _T("\r\n"));
             return true;
         }
     }
-    //return false;
+    return false;
 }
 
 BEGIN_MESSAGE_MAP(CEditPropConflictDlg, CResizableStandAloneDialog)
     ON_BN_CLICKED(IDC_RESOLVE, &CEditPropConflictDlg::OnBnClickedResolve)
     ON_BN_CLICKED(IDC_EDITPROPS, &CEditPropConflictDlg::OnBnClickedEditprops)
-    ON_BN_CLICKED(IDC_RESOLVETHEIRS, &CEditPropConflictDlg::OnBnClickedResolvetheirs)
 END_MESSAGE_MAP()
 
 
@@ -84,8 +84,7 @@ BOOL CEditPropConflictDlg::OnInitDialog()
     CResizableStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
-    ExtendFrameIntoClientArea(IDC_PROPCONFLICTINFO);
-    m_aeroControls.SubclassControl(this, IDC_RESOLVETHEIRS);
+    ExtendFrameIntoClientArea(IDC_DIFFGROUP);
     m_aeroControls.SubclassControl(this, IDC_RESOLVE);
     m_aeroControls.SubclassControl(this, IDC_EDITPROPS);
     m_aeroControls.SubclassControl(this, IDCANCEL);
@@ -101,7 +100,6 @@ BOOL CEditPropConflictDlg::OnInitDialog()
 
     AddAnchor(IDC_PROPINFO, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_PROPCONFLICTINFO, TOP_LEFT, BOTTOM_RIGHT);
-    AddAnchor(IDC_RESOLVETHEIRS, BOTTOM_LEFT);
     AddAnchor(IDC_RESOLVE, BOTTOM_LEFT);
     AddAnchor(IDC_EDITPROPS, BOTTOM_LEFT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
@@ -123,16 +121,9 @@ void CEditPropConflictDlg::OnBnClickedEditprops()
     // start the properties dialog
     CString sCmd;
 
-    sCmd.Format(L"/command:properties /path:\"%s\"",
+    sCmd.Format(_T("/command:properties /path:\"%s\""),
         (LPCTSTR)m_conflictItem.GetWinPath());
     CAppUtils::RunTortoiseProc(sCmd);
 
     EndDialog(IDC_EDITPROPS);
-}
-
-void CEditPropConflictDlg::OnBnClickedResolvetheirs()
-{
-    SVN svn;
-    svn.Resolve(m_conflictItem, svn_wc_conflict_choose_theirs_full, FALSE, true, svn_wc_conflict_kind_property);
-    EndDialog(IDC_RESOLVETHEIRS);
 }

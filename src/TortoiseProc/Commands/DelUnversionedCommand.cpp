@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DelUnversionedCommand.h"
 #include "DeleteUnversionedDlg.h"
+#include "auto_buffer.h"
 #include "StringUtils.h"
 
 bool DelUnversionedCommand::Execute()
@@ -36,17 +37,17 @@ bool DelUnversionedCommand::Execute()
         for (INT_PTR i=0; i<dlg.m_pathList.GetCount(); ++i)
         {
             filelist += dlg.m_pathList[i].GetWinPathString();
-            filelist += L"|";
+            filelist += _T("|");
         }
-        filelist += L"|";
+        filelist += _T("|");
         int len = filelist.GetLength();
-        std::unique_ptr<TCHAR[]> buf(new TCHAR[len+2]);
-        wcscpy_s(buf.get(), len+2, filelist);
-        CStringUtils::PipesToNulls(buf.get(), len);
+        auto_buffer<TCHAR> buf(len+2);
+        _tcscpy_s(buf, len+2, filelist);
+        CStringUtils::PipesToNulls(buf, len);
         SHFILEOPSTRUCT fileop;
         fileop.hwnd = GetExplorerHWND();
         fileop.wFunc = FO_DELETE;
-        fileop.pFrom = buf.get();
+        fileop.pFrom = buf;
         fileop.pTo = NULL;
         fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS;
         fileop.fFlags |= dlg.m_bUseRecycleBin ? FOF_ALLOWUNDO : 0;

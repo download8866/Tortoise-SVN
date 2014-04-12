@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -96,7 +96,7 @@ public:
 
     /**
      * Specifies that the progress dialog should have a line indicating the time remaining to complete.
-     * \param bTime false to deactivate the time remaining line.
+     * \param bCalculate false to deactivate the time remaining line.
      */
     void SetTime ( bool bTime = true );
 
@@ -172,7 +172,7 @@ public:
     bool EnsureValid();
 
 private:
-    static LRESULT fnSubclass(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+    static LRESULT CProgressDlg::fnSubclass(HWND hwnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 
 protected:
     ATL::CComPtr<IProgressDialog> m_pIDlg;

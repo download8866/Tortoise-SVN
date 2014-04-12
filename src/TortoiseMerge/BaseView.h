@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "LineColors.h"
 #include "TripleClick.h"
 #include "IconMenu.h"
-#include "FindDlg.h"
 
 typedef struct inlineDiffPos
 {
@@ -46,15 +45,6 @@ class CBaseView : public CView, public CTripleClick
     DECLARE_DYNCREATE(CBaseView)
 friend class CLineDiffBar;
 public:
-    typedef CFileTextLines::UnicodeType UnicodeType;
-    enum ECharGroup { // ordered by priority low-to-hi
-        CHG_UNKNOWN,
-        CHG_CONTROL, // x00-x08, x0a-x1f
-        CHG_WHITESPACE, // space, tab
-        CHG_WORDSEPARATOR, // 0x21-2f, x3a-x40, x5b-x60, x7b-x7f .,:;!?(){}[]/\<> ...
-        CHG_WORDLETTER, // alpha num _ (others)
-    };
-
     CBaseView();
     virtual ~CBaseView();
 
@@ -85,11 +75,9 @@ public: // methods
     void            ScrollAllToChar(int nNewOffsetChar, BOOL bTrackScrollBar = TRUE);
     void            SetReadonly(bool bReadonly = true) {m_bReadonly = bReadonly;}
     void            SetWritable(bool bWritable = true) {m_bReadonly = !bWritable;}
-    void            SetWritableIsChangable(bool bWritableIsChangable = true) {m_bReadonlyIsChangable = bWritableIsChangable;}
     void            SetTarget(bool bTarget = true) {m_bTarget = bTarget;}
     bool            IsReadonly() const {return m_bReadonly;}
     bool            IsWritable() const {return !m_bReadonly && m_pViewData;}
-    bool            IsReadonlyChangable() const {return m_bReadonlyIsChangable && !IsModified();}
     bool            IsTarget() const {return m_bTarget;}
     void            SetCaretAndGoalPosition(const POINT& pt) {UpdateCaretPosition(pt); UpdateGoalPos(); }
     void            SetCaretAndGoalViewPosition(const POINT& pt) {UpdateCaretViewPosition(pt); UpdateGoalPos(); }
@@ -132,28 +120,21 @@ public: // methods
     inline BOOL     IsHidden() const  {return m_bIsHidden;}
     inline void     SetHidden(BOOL bHidden) {m_bIsHidden = bHidden;}
     inline bool     IsModified() const  {return m_bModified;}
-    // cppcheck-suppress bitwiseOnBoolean
-    void            SetModified(bool bModified = true) { m_bModified = bModified; m_pState->modifies |= bModified; Invalidate(); }
-    void            ClearStepModifiedMark() { m_pState->modifies = false; }
+    void            SetModified(bool bModified = true) {m_bModified = bModified; Invalidate();}
     void            SetInlineWordDiff(bool bWord) {m_bInlineWordDiff = bWord;}
-    void            SetInlineDiff(bool bDiff) {m_bShowInlineDiff = bDiff;}
     void            SetMarkedWord(const CString& word) {m_sMarkedWord = word; BuildMarkedWordArray();}
     LPCTSTR         GetMarkedWord() {return (LPCTSTR)m_sMarkedWord;}
-    LPCTSTR         GetFindString() {return (LPCTSTR)m_sFindText;}
 
     // Selection methods; all public methods dealing with selection go here
     static void     ClearSelection();
     BOOL            GetViewSelection(int& start, int& end) const;
     BOOL            HasSelection() const { return (!((m_nSelViewBlockEnd < 0)||(m_nSelViewBlockStart < 0)||(m_nSelViewBlockStart > m_nSelViewBlockEnd))); }
     BOOL            HasTextSelection() const { return ((m_ptSelectionViewPosStart.x != m_ptSelectionViewPosEnd.x) || (m_ptSelectionViewPosStart.y != m_ptSelectionViewPosEnd.y)); }
-    BOOL            HasTextLineSelection() const { return m_ptSelectionViewPosStart.y != m_ptSelectionViewPosEnd.y; }
     static void     SetupAllViewSelection(int start, int end);
     static void     SetupAllSelection(int start, int end);
     void            SetupSelection(int start, int end);
     static void     SetupViewSelection(CBaseView* view, int start, int end);
     void            SetupViewSelection(int start, int end);
-    CString         GetSelectedText() const;
-    void            CheckModifications(bool& hasMods, bool& hasConflicts, bool& hasWhitespaceMods);
 
     // state classifying methods; note: state may belong to more classes
     static bool     IsStateConflicted(DiffStates state);
@@ -165,7 +146,7 @@ public: // methods
     bool            IsViewLineEmpty(int nViewLine);
     bool            IsLineRemoved(int nLineIndex);
     bool            IsViewLineRemoved(int nViewLine);
-    bool            IsBlockWhitespaceOnly(int nLineIndex, bool& bIdentical, int& blockstart, int& blockend);
+    bool            IsBlockWhitespaceOnly(int nLineIndex, bool& bIdentical);
     bool            IsViewLineConflicted(int nLineIndex);
     bool            HasNextConflict();
     bool            HasPrevConflict();
@@ -188,7 +169,6 @@ public: // methods
     virtual void    UseLeftFile() {return UseViewFile(m_pwndLeft); }
     virtual void    UseRightBlock() {return UseViewBlock(m_pwndRight); }
     virtual void    UseRightFile() {return UseViewFile(m_pwndRight); }
-    virtual void    LeaveOnlyMarkedBlocks() { return LeaveOnlyMarkedBlocks(m_pwndLeft); }
 
     // ViewData methods
     void            InsertViewData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
@@ -203,7 +183,6 @@ public: // methods
     int             GetViewMovedIndex(int index) {return m_pViewData->GetMovedIndex(index); }
     int             FindViewLineNumber(int number) {return m_pViewData->FindLineNumber(number); }
     EOL             GetViewLineEnding(int index) const {return m_pViewData->GetLineEnding(index); }
-    bool            GetViewMarked(int index) const {return m_pViewData->GetMarked(index); }
 
     int             GetViewCount() const {return m_pViewData ? m_pViewData->GetCount() : -1; }
 
@@ -212,27 +191,9 @@ public: // methods
     void            SetViewLine(int index, const CString& sLine);
     void            SetViewLineNumber(int index, int linenumber);
     void            SetViewLineEnding(int index, EOL ending);
-    void            SetViewMarked(int index, bool marked);
 
     static bool     IsViewGood(const CBaseView* view ) { return (view != 0) && view->IsWindowVisible(); }
     static CBaseView * GetFirstGoodView();
-
-    int             GetIndentCharsForLine(int x, int y);
-    void            AddIndentationForSelectedBlock();
-    void            RemoveIndentationForSelectedBlock();
-    void            ConvertTabToSpaces();
-    void            Tabularize();
-    void            RemoveTrailWhiteChars();
-
-    struct TWhitecharsProperties
-    {
-        bool HasMixedEols;
-        bool HasTrailWhiteChars;
-        bool HasSpacesToConvert;
-        bool HasTabsToConvert;
-    };
-
-    TWhitecharsProperties   GetWhitecharsProperties();
 
 public: // variables
     CViewData *     m_pViewData;
@@ -241,7 +202,8 @@ public: // variables
 
     CString         m_sWindowName;      ///< The name of the view which is shown as a window title to the user
     CString         m_sFullFilePath;    ///< The full path of the file shown
-    CString         m_sConvertedFilePath;   ///< the path to the converted file that's shown in the view
+    CFileTextLines::UnicodeType texttype;   ///< the text encoding this view uses
+    EOL lineendings; ///< the line endings the view uses
 
     BOOL            m_bViewWhitespace;  ///< If TRUE, then SPACE and TAB are shown as special characters
     BOOL            m_bShowInlineDiff;  ///< If TRUE, diffs in lines are marked colored
@@ -249,32 +211,15 @@ public: // variables
     bool            m_bWhitespaceInlineDiffs; ///< if true, inline diffs are shown for identical lines only differing in whitespace
     int             m_nTopLine;         ///< The topmost text line in the view
     std::vector<int> m_arMarkedWordLines;   ///< which lines contain a marked word
-    std::vector<int> m_arFindStringLines;   ///< which lines contain a found string
 
     static CLocatorBar * m_pwndLocator; ///< Pointer to the locator bar on the left
     static CLineDiffBar * m_pwndLineDiffBar;    ///< Pointer to the line diff bar at the bottom
     static CMFCStatusBar * m_pwndStatusBar;///< Pointer to the status bar
-    static CMFCRibbonStatusBar * m_pwndRibbonStatusBar;///< Pointer to the status bar
     static CMainFrame * m_pMainFrame;   ///< Pointer to the mainframe
-
-    int             m_nTabMode;
 
     void            GoToFirstDifference();
     void            GoToFirstConflict();
     void            AddEmptyViewLine(int nLineIndex);
-#define SAVE_REMOVEDLINES 1
-    int             SaveFile(int Flags = 0);
-    int             SaveFileTo(CString FileName, int Flags = 0);
-
-    EOL             GetLineEndings();                                           ///< Get Line endings on view from lineendings or "mixed"
-    EOL             GetLineEndings(bool MixelEols);
-    void            ReplaceLineEndings(EOL);                                    ///< Set AUTO lineending and replaces all EOLs
-    void            SetLineEndingStyle(EOL);                                    ///< Set AUTO lineending
-    UnicodeType     GetTextType() { return m_texttype; }
-    void            SetTextType(UnicodeType);                                   ///< Changes TextType
-    void            AskUserForNewLineEndingsAndTextType(int);                   ///< Open gui
-
-    CWorkingFile * m_pWorkingFile; ///< pointer to source/destination file parametrers
 
 protected:  // methods
     enum {
@@ -309,7 +254,7 @@ protected:  // methods
     afx_msg void    OnLButtonDown(UINT nFlags, CPoint point);
     afx_msg void    OnLButtonUp(UINT nFlags, CPoint point);
     afx_msg void    OnLButtonDblClk(UINT nFlags, CPoint point);
-    virtual void    OnLButtonTrippleClick(UINT nFlags, CPoint point) override;
+    virtual void    OnLButtonTrippleClick(UINT nFlags, CPoint point);
     afx_msg void    OnEditCopy();
     afx_msg void    OnMouseMove(UINT nFlags, CPoint point);
     afx_msg void    OnTimer(UINT_PTR nIDEvent);
@@ -323,14 +268,6 @@ protected:  // methods
     afx_msg void    OnEditCut();
     afx_msg void    OnEditPaste();
     afx_msg void    OnEditSelectall();
-    afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
-    afx_msg void    OnEditFind();
-    afx_msg void    OnEditFindnext();
-    afx_msg void    OnEditFindprev();
-    afx_msg void    OnEditFindnextStart();
-    afx_msg void    OnEditFindprevStart();
-    afx_msg void    OnEditGotoline();
-    afx_msg void    OnToggleReadonly();
 
     DECLARE_MESSAGE_MAP()
 
@@ -367,24 +304,24 @@ protected:  // methods
     int             GetCharWidth();
     int             GetMaxLineLength();
     int             GetLineLength(int index);
-    int             GetViewLineLength(int index) const;
+    int             GetViewLineLength(int index);
     int             GetScreenChars();
     int             GetAllMinScreenChars() const;
     int             GetAllMaxLineLength() const;
     int             GetAllLineCount() const;
     int             GetAllMinScreenLines() const;
-    CString         GetViewLineChars(int index) const;
+    CString         GetViewLineChars(int index);
     CString         GetLineChars(int index);
     int             GetLineNumber(int index) const;
-    CFont *         GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE);
+    CFont *         GetFont(BOOL bItalic = FALSE, BOOL bBold = FALSE, BOOL bStrikeOut = FALSE);
     int             GetLineFromPoint(CPoint point);
     int             GetMarginWidth();
     COLORREF        InlineDiffColor(int nLineIndex);
     COLORREF        InlineViewLineDiffColor(int nLineIndex);
     bool            GetInlineDiffPositions(int lineIndex, std::vector<inlineDiffPos>& positions);
     void            CheckOtherView();
-    void            GetWhitespaceBlock(CViewData *viewData, int nLineIndex, int & nStartBlock, int & nEndBlock);
-    CString         GetWhitespaceString(CViewData *viewData, int nStartBlock, int nEndBlock);
+    static void     GetWhitespaceBlock(CViewData *viewData, int nLineIndex, int & nStartBlock, int & nEndBlock);
+    static CString  GetWhitespaceString(CViewData *viewData, int nStartBlock, int nEndBlock);
     bool            IsViewLineHidden(int nViewLine);
     static bool     IsViewLineHidden(CViewData * pViewData, int nViewLine);
 
@@ -401,15 +338,10 @@ protected:  // methods
     int             CalculateActualOffset(const POINT& point);
     int             CalculateCharIndex(int nLineIndex, int nActualOffset);
     POINT           TextToClient(const POINT& point);
-    void            DrawTextLine(CDC * pDC, const CRect &rc, int nLineIndex, POINT& coords);
+    void            DrawTextLine(CDC * pDC, const CRect &rc, int nLineIndex, POINT coords);
     void            ClearCurrentSelection();
     void            AdjustSelection(bool bMoveLeft);
     bool            SelectNextBlock(int nDirection, bool bConflict, bool bSkipEndOfCurrentBlock = true, bool dryrun = false);
-
-    enum            SearchDirection{SearchNext=0, SearchPrevious=1};
-    bool            StringFound(const CString& str, SearchDirection srchDir, int& start, int& end) const;
-    void            Search(SearchDirection srchDir);
-    void            BuildFindStringArray();
 
     void            RemoveLine(int nLineIndex);
     void            RemoveSelectedText();
@@ -424,25 +356,20 @@ protected:  // methods
     void            OnCaretMove(bool bMoveLeft, bool isShiftPressed);
     void            UpdateGoalPos();
 
-    ECharGroup      GetCharGroup(const CString &str, int index) const { return index >= 0 && index < str.GetLength() ? GetCharGroup(str[index]) : CHG_UNKNOWN; }
-    ECharGroup      GetCharGroup(const wchar_t zChar) const;
-    bool            IsWordSeparator(const wchar_t ch) const;
+    bool            IsWordSeparator(wchar_t ch) const;
     bool            IsCaretAtWordBoundary();
     void            UpdateViewsCaretPosition();
     void            BuildMarkedWordArray();
 
     virtual void    UseBothBlocks(CBaseView * /*pwndFirst*/, CBaseView * /*pwndLast*/) {};
     virtual void    UseViewBlock(CBaseView * /*pwndView*/) {}
-    void            UseViewBlock(CBaseView * pwndView, int nFirstViewLine, int nLastViewLine, bool skipMarked = false);
     virtual void    UseViewFile(CBaseView * /*pwndView*/) {}
-    virtual void    MarkBlock(bool /*marked*/) {}
-    void            MarkBlock(bool marked, int nFirstViewLine, int nLastViewLine);
-    void            LeaveOnlyMarkedBlocks(CBaseView *pwndView);
 
     virtual void    AddContextItems(CIconMenu& popup, DiffStates state);
     void            AddCutCopyAndPaste(CIconMenu& popup);
     void            CompensateForKeyboard(CPoint& point);
     static HICON    LoadIcon(WORD iconId);
+    HICON           GetIconForCommand(UINT cmdId);
     void            ReleaseBitmap();
     static bool     LinesInOneChange( int direction, DiffStates firstLineState, DiffStates currentLineState );
     static void     FilterWhitespaces(CString& first, CString& second);
@@ -487,7 +414,6 @@ protected:  // variables
 
     // caret
     bool            m_bReadonly;
-    bool            m_bReadonlyIsChangable;
     bool            m_bTarget;                     ///< view intended as result
     POINT           m_ptCaretViewPos;
     int             m_nCaretGoalPos;
@@ -496,13 +422,6 @@ protected:  // variables
     POINT           m_ptSelectionViewPosStart;
     POINT           m_ptSelectionViewPosEnd;
     POINT           m_ptSelectionViewPosOrigin;
-
-    static const UINT m_FindDialogMessage;
-    CFindDlg *      m_pFindDialog;
-    CString         m_sFindText;
-    BOOL            m_bMatchCase;
-    bool            m_bLimitToDiff;
-    bool            m_bWholeWord;
 
 
     HICON           m_hAddedIcon;
@@ -518,10 +437,9 @@ protected:  // variables
     HICON           m_hLineEndingLF;
 
     HICON           m_hMovedIcon;
-    HICON           m_hMarkedIcon;
 
     LOGFONT         m_lfBaseFont;
-    static const int fontsCount = 4;
+    static const int fontsCount = 8;
     CFont *         m_apFonts[fontsCount];
     CString         m_sConflictedText;
     CString         m_sNoLineNr;
@@ -532,10 +450,6 @@ protected:  // variables
     CDC *           m_pDC;
     CScrollTool     m_ScrollTool;
     CString         m_sWordSeparators;
-    CString         m_Eols[EOL__COUNT];
-
-    UnicodeType     m_texttype;   ///< the text encoding this view uses
-    EOL             m_lineendings; ///< the line endings the view uses
 
     char            m_szTip[MAX_PATH*2+1];
     wchar_t         m_wszTip[MAX_PATH*2+1];
@@ -583,7 +497,6 @@ protected:  // variables
             ICN_ADD,
             ICN_REMOVED,
             ICN_MOVED,
-            ICN_MARKED,
             ICN_CONFLICT,
             ICN_CONFLICTIGNORED,
         } eIcon;
@@ -600,20 +513,11 @@ protected:  // variables
 
     enum PopupCommands
     {
-        POPUPCOMMAND_DISMISSED = 0,
         // 2-pane view commands
-        POPUPCOMMAND_USELEFTBLOCK,
+        POPUPCOMMAND_USELEFTBLOCK = 1,      // 0 means the context menu was dismissed
         POPUPCOMMAND_USELEFTFILE,
         POPUPCOMMAND_USEBOTHLEFTFIRST,
         POPUPCOMMAND_USEBOTHRIGHTFIRST,
-        POPUPCOMMAND_MARKBLOCK,
-        POPUPCOMMAND_UNMARKBLOCK,
-        POPUPCOMMAND_LEAVEONLYMARKEDBLOCKS,
-        // multiple writable views
-        POPUPCOMMAND_PREPENDFROMRIGHT,
-        POPUPCOMMAND_REPLACEBYRIGHT,
-        POPUPCOMMAND_APPENDFROMRIGHT,
-        POPUPCOMMAND_USERIGHTFILE,
         // 3-pane view commands
         POPUPCOMMAND_USEYOURANDTHEIRBLOCK,
         POPUPCOMMAND_USETHEIRANDYOURBLOCK,
@@ -621,12 +525,6 @@ protected:  // variables
         POPUPCOMMAND_USEYOURFILE,
         POPUPCOMMAND_USETHEIRBLOCK,
         POPUPCOMMAND_USETHEIRFILE,
-        // others
-        POPUPCOMMAND_TABTOSPACES,
-        POPUPCOMMAND_SPACESTOTABS,
-        POPUPCOMMAND_REMOVETRAILWHITES,
-
-        POPUPCOMMAND__LAST,
     };
 
     class Screen2View
@@ -653,8 +551,8 @@ protected:  // variables
 
         bool            FixScreenedCacheSize(CBaseView* View);
         void            RebuildIfNecessary();
-        bool            ResetScreenedViewLineCache(CBaseView* View) const;
-        bool            ResetScreenedViewLineCache(CBaseView* View, const TRebuildRange& Range) const;
+        bool            ResetScreenedViewLineCache(CBaseView* View);
+        bool            ResetScreenedViewLineCache(CBaseView* View, const TRebuildRange& Range);
 
         CViewData *                     m_pViewData;
         bool                            m_bFull;
@@ -663,5 +561,5 @@ protected:  // variables
     };
 
     static Screen2View m_Screen2View;
-    CFileTextLines::SaveParams m_SaveParams; ///< encoding and new line style for saving
+
 };

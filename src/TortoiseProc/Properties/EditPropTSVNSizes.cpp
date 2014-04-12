@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -85,9 +85,6 @@ BOOL CEditPropTSVNSizes::OnInitDialog()
         }
     }
 
-    GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || (!m_bFolder && !m_bMultiple) || m_bRemote ? SW_HIDE : SW_SHOW);
-
     CString sWindowTitle;
     GetWindowText(sWindowTitle);
     CAppUtils::SetWindowTitle(m_hWnd, m_pathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
@@ -104,18 +101,18 @@ void CEditPropTSVNSizes::OnOK()
     TProperties newProps;
     PropValue pVal;
 
-    char numBuf[20] = { 0 };
-    sprintf_s(numBuf, "%d", m_LogMinSize);
+    char numBuf[20];
+    sprintf_s(numBuf, "%ld", m_LogMinSize);
     pVal.value = numBuf;
     pVal.remove = (m_LogMinSize == 0);
     newProps[PROJECTPROPNAME_LOGMINSIZE] = pVal;
 
-    sprintf_s(numBuf, "%d", m_LockMinSize);
+    sprintf_s(numBuf, "%ld", m_LockMinSize);
     pVal.value = numBuf;
     pVal.remove = (m_LockMinSize == 0);
     newProps[PROJECTPROPNAME_LOCKMSGMINSIZE] = pVal;
 
-    sprintf_s(numBuf, "%d", m_Border);
+    sprintf_s(numBuf, "%ld", m_Border);
     pVal.value = numBuf;
     pVal.remove = (m_Border == 0);
     newProps[PROJECTPROPNAME_LOGWIDTHLINE] = pVal;

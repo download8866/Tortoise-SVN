@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009, 2014 - TortoiseSVN
+// Copyright (C) 2007, 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "RepoStatusCommand.h"
 
 #include "ChangedDlg.h"
@@ -25,7 +25,7 @@ bool RepoStatusCommand::Execute()
 {
     CChangedDlg dlg;
     dlg.m_pathList = pathList;
-    dlg.ContactRepository(!!parser.HasKey(L"remote"));
+    dlg.ContactRepository(!!parser.HasKey(_T("remote")));
     dlg.DoModal();
     return true;
 }

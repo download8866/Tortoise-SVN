@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2013 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -84,8 +84,6 @@ public:
      *
      * \param path the pathname of the entry
      * \param update true if the status should be updated with the repository. Default is false.
-     * \param noignore
-     * \param noexternals
      * \return If update is set to true the HEAD revision of the repository is returned. If update is false then -1 is returned.
      * \remark If the return value is -2 then the status could not be obtained.
      */
@@ -94,7 +92,6 @@ public:
     /**
      * Returns a string representation of a Subversion status.
      * \param status the status enum
-     * \param buflen
      * \param string a string representation
      */
     static void GetStatusString(svn_wc_status_kind status, size_t buflen, TCHAR * string);
@@ -114,7 +111,6 @@ public:
      * \param path the path of the folder from where the status list should be obtained
      * \param retPath the path of the file for which the status was returned
      * \param update set this to true if you want the status to be updated with the repository (needs network access)
-     * \param depth
      * \param recurse true to fetch the status recursively
      * \param bNoIgnore true to not fetch the ignored files
      * \param bNoExternals true to not fetch the status of included svn:externals
@@ -162,7 +158,7 @@ public:
      * Returns true if the last error was SVN_ERR_WC_UNSUPPORTED_FORMAT, indicating that the
      * working copy is still in the old format (or a newer format than this client supports)
      */
-    bool IsUnsupportedFormat() const {return Err ? ((Err->apr_err == SVN_ERR_WC_UNSUPPORTED_FORMAT)||(Err->apr_err == SVN_ERR_WC_UPGRADE_REQUIRED)) : false;}
+    bool IsUnsupportedFormat() {return Err ? ((Err->apr_err == SVN_ERR_WC_UNSUPPORTED_FORMAT)||(Err->apr_err == SVN_ERR_WC_UPGRADE_REQUIRED)) : false;}
 
 friend class SVN;   // So that SVN can get to our m_err
 

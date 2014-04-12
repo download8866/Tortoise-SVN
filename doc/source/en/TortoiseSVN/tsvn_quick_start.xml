@@ -70,7 +70,7 @@
         <title>Basic Concepts</title>
         <para>
             Before we get stuck into working with some real files, it is important
-            to get an overview of how Subversion works and the terms that are used.
+            to get an overview of how subversion works and the terms that are used.
         </para>
         <variablelist>
             <varlistentry>
@@ -215,17 +215,6 @@
                 and click on <guibutton>OK</guibutton>. Our development folder is then populated
                 with files from the repository.
             </para>
-            <important>
-                <para>
-                    In the default setting, the checkout menu item is not
-                    located in the TortoiseSVN submenu but is shown at the top
-                    explorer menu. TortoiseSVN commands that are not in the submenu
-                    have <literal>SVN</literal> prepended:
-                    <menuchoice>
-                        <guimenuitem>SVN Checkout...</guimenuitem>
-                    </menuchoice>
-                </para>
-            </important>
             <para>
                 You will notice that the appearance of this folder is different from our
                 original folder. Every file has a green check mark in the bottom left corner.

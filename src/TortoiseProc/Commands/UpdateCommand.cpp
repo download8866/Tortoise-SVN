@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,39 +16,37 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UpdateCommand.h"
 
 #include "UpdateDlg.h"
 #include "SVNProgressDlg.h"
 #include "Hooks.h"
+#include "MessageBox.h"
 
 bool UpdateCommand::Execute()
 {
-    CRegDWORD updateExternals(L"Software\\TortoiseSVN\\IncludeExternals", true);
-    SVNRev rev = SVNRev(L"HEAD");
+    CRegDWORD updateExternals(_T("Software\\TortoiseSVN\\IncludeExternals"), true);
+    SVNRev rev = SVNRev(_T("HEAD"));
     int options = DWORD(updateExternals) ? 0 : ProgOptIgnoreExternals;
     svn_depth_t depth = svn_depth_unknown;
     DWORD exitcode = 0;
     CString error;
     if (pathList.GetCount() == 0)
         return false;
-    ProjectProperties props;
-    props.ReadPropsPathList(pathList);
-    CHooks::Instance().SetProjectProperties(pathList.GetCommonRoot(), props);
-    if (CHooks::Instance().StartUpdate(GetExplorerHWND(), pathList, exitcode, error))
+    if (CHooks::Instance().StartUpdate(pathList, exitcode, error))
     {
         if (exitcode)
         {
             CString temp;
             temp.Format(IDS_ERR_HOOKFAILED, (LPCTSTR)error);
-            ::MessageBox(GetExplorerHWND(), temp, L"TortoiseSVN", MB_ICONERROR);
+            ::MessageBox(GetExplorerHWND(), temp, _T("TortoiseSVN"), MB_ICONERROR);
             return FALSE;
         }
     }
     std::map<CString,svn_depth_t> checkoutDepths;
     CSVNProgressDlg::Command cmd = CSVNProgressDlg::SVNProgress_Update;
-    if ((parser.HasKey(L"rev"))&&(!parser.HasVal(L"rev")))
+    if ((parser.HasKey(_T("rev")))&&(!parser.HasVal(_T("rev"))))
     {
         CUpdateDlg dlg;
         if (pathList.GetCount()>0)
@@ -77,18 +75,16 @@ bool UpdateCommand::Execute()
     }
     else
     {
-        if (parser.HasVal(L"rev"))
-            rev = SVNRev(parser.GetVal(L"rev"));
-        if (parser.HasKey(L"nonrecursive"))
+        if (parser.HasVal(_T("rev")))
+            rev = SVNRev(parser.GetVal(_T("rev")));
+        if (parser.HasKey(_T("nonrecursive")))
             depth = svn_depth_empty;
-        if (parser.HasKey(L"ignoreexternals"))
+        if (parser.HasKey(_T("ignoreexternals")))
             options |= ProgOptIgnoreExternals;
-        if (parser.HasKey(L"updateexternals"))
+        if (parser.HasKey(_T("updateexternals")))
             options &= ~ProgOptIgnoreExternals;
-        if (parser.HasKey(L"stickydepth"))
+        if (parser.HasKey(_T("stickydepth")))
             options |= ProgOptStickyDepth;
-        if (parser.HasKey(L"skipprechecks"))
-            options |= ProgOptSkipPreChecks;
     }
 
     CSVNProgressDlg progDlg;
@@ -98,8 +94,7 @@ bool UpdateCommand::Execute()
     progDlg.SetOptions(options);
     progDlg.SetPathList(pathList);
     progDlg.SetRevision(rev);
-    progDlg.SetProjectProperties(props);
-    if (!checkoutDepths.empty())
+    if (checkoutDepths.size())
         progDlg.SetPathDepths(checkoutDepths);
     else
         progDlg.SetDepth(depth);

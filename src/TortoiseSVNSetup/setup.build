@@ -19,7 +19,7 @@
     </loadfile>
     <echo file="VersionNumberInclude.wxi" message="${versionwixfile}" />
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
-    <property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.8.x-dev" />
+    <property name="msifilename" value="TortoiseSVN-${verstring}${devrelease}-${platform}-svn-1.7.16" />
   </target>
 
   <target name="setup" depends="versioninfo">
@@ -28,9 +28,21 @@
     </if>
     <if test="${configuration == 'release'}">
       <setenv>
+        <variable name="DictionaryENUS" value="0" />
+        <variable name="DictionaryENGB" value="0" />
         <variable name="IncludeCrashReportDll" value="0" />
       </setenv>
 
+      <if test="${file::exists('..\..\..\Common\Spell\en_US.aff')}">
+        <setenv>
+          <variable name="DictionaryENUS" value="1" />
+        </setenv>
+      </if>
+      <if test="${file::exists('..\..\..\Common\Spell\en_GB.aff')}">
+        <setenv>
+          <variable name="DictionaryENGB" value="1" />
+        </setenv>
+      </if>
       <if test="${file::exists('..\..\MYBUILD')}">
         <setenv>
           <variable name="IncludeCrashReportDll" value="1" />
@@ -46,11 +58,11 @@
           <variable name="Platform" value="win32" />
         </setenv>
       </if>
-
-      <!-- we're using VS2013 -->
-      <setenv>
-        <variable name="VCVERSION" value="120" />
-      </setenv>
+      <if test="${studioversion == '2010'}">
+        <setenv>
+          <variable name="VCVERSION" value="100" />
+        </setenv>
+      </if>
 
       <!-- find the path to the merge modules -->
       <script language="C#">
@@ -145,3 +157,4 @@
   </target>
 
 </project>
+

@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,10 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "resource.h"
 #include "CommonAppUtils.h"
-#include "registry.h"
+#include "Registry.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
 #include "ClipboardHelper.h"
@@ -27,7 +27,6 @@
 #include "CreateProcessHelper.h"
 #include "SelectFileFilter.h"
 #include "SmartHandle.h"
-#include "PreserveChdir.h"
 #include <WinInet.h>
 #include <oleacc.h>
 #include <initguid.h>
@@ -40,17 +39,17 @@ extern CString g_sGroupingUUID;
 BOOL CCommonAppUtils::StartUnifiedDiffViewer(const CString& patchfile, const CString& title, BOOL bWait)
 {
     CString viewer;
-    CRegString v = CRegString(L"Software\\TortoiseSVN\\DiffViewer");
+    CRegString v = CRegString(_T("Software\\TortoiseSVN\\DiffViewer"));
     viewer = v;
-    if (viewer.IsEmpty() || (viewer.Left(1).Compare(L"#")==0))
+    if (viewer.IsEmpty() || (viewer.Left(1).Compare(_T("#"))==0))
     {
         // use TortoiseUDiff
         viewer = CPathUtils::GetAppDirectory();
-        viewer += L"TortoiseUDiff.exe";
+        viewer += _T("TortoiseUDiff.exe");
         // enquote the path to TortoiseUDiff
-        viewer = L"\"" + viewer + L"\"";
+        viewer = _T("\"") + viewer + _T("\"");
         // add the params
-        viewer = viewer + L" /patchfile:%1 /title:\"%title\"";
+        viewer = viewer + _T(" /patchfile:%1 /title:\"%title\"");
         if (!g_sGroupingUUID.IsEmpty())
         {
             viewer += L" /groupuuid:\"";
@@ -58,18 +57,18 @@ BOOL CCommonAppUtils::StartUnifiedDiffViewer(const CString& patchfile, const CSt
             viewer += L"\"";
         }
     }
-    if (viewer.Find(L"%1")>=0)
+    if (viewer.Find(_T("%1"))>=0)
     {
-        if (viewer.Find(L"\"%1\"") >= 0)
-            viewer.Replace(L"%1", patchfile);
+        if (viewer.Find(_T("\"%1\"")) >= 0)
+            viewer.Replace(_T("%1"), patchfile);
         else
-            viewer.Replace(L"%1", L"\"" + patchfile + L"\"");
+            viewer.Replace(_T("%1"), _T("\"") + patchfile + _T("\""));
     }
     else
-        viewer += L" \"" + patchfile + L"\"";
-    if (viewer.Find(L"%title") >= 0)
+        viewer += _T(" \"") + patchfile + _T("\"");
+    if (viewer.Find(_T("%title")) >= 0)
     {
-        viewer.Replace(L"%title", title);
+        viewer.Replace(_T("%title"), title);
     }
 
     if(!LaunchApplication(viewer, IDS_ERR_DIFFVIEWSTART, !!bWait))
@@ -85,8 +84,8 @@ CString CCommonAppUtils::ExpandEnvironmentStrings (const CString& s)
     if (len == 0)
         return s;
 
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[len+1]);
-    if (::ExpandEnvironmentStrings (s, buf.get(), len) == 0)
+    auto_buffer<TCHAR> buf(len+1);
+    if (::ExpandEnvironmentStrings (s, buf, len) == 0)
         return s;
 
     return buf.get();
@@ -103,7 +102,7 @@ CString CCommonAppUtils::GetAppForFile
     // normalize file path
 
     CString fullFileName = ExpandEnvironmentStrings (fileName);
-    CString normalizedFileName = L"\"" + fullFileName + L"\"";
+    CString normalizedFileName = _T("\"") + fullFileName + _T("\"");
 
     // registry lookup
 
@@ -118,17 +117,17 @@ CString CCommonAppUtils::GetAppForFile
         CString documentClass;
         DWORD buflen = 0;
         AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, NULL, &buflen);
-        std::unique_ptr<TCHAR[]> cmdbuf(new TCHAR[buflen + 1]);
-        if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, cmdbuf.get(), &buflen)))
+        auto_buffer<TCHAR> cmdbuf(buflen + 1);
+        if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, verb, cmdbuf, &buflen)))
         {
-            documentClass = CRegString (extensionToUse + L"\\", L"", FALSE, HKEY_CLASSES_ROOT);
+            documentClass = CRegString (extensionToUse + _T("\\"), _T(""), FALSE, HKEY_CLASSES_ROOT);
 
-            CString key = documentClass + L"\\Shell\\" + verb + L"\\Command\\";
-            application = CRegString (key, L"", FALSE, HKEY_CLASSES_ROOT);
+            CString key = documentClass + _T("\\Shell\\") + verb + _T("\\Command\\");
+            application = CRegString (key, _T(""), FALSE, HKEY_CLASSES_ROOT);
         }
         else
         {
-            application = cmdbuf.get();
+            application = cmdbuf;
         }
 
         // fallback to "open"
@@ -136,16 +135,16 @@ CString CCommonAppUtils::GetAppForFile
         if (application.IsEmpty())
         {
             buflen = 0;
-            AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, L"open", NULL, &buflen);
-            std::unique_ptr<TCHAR[]> cmdopenbuf (new TCHAR[buflen + 1]);
-            if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, L"open", cmdopenbuf.get(), &buflen)))
+            AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, _T("open"), NULL, &buflen);
+            auto_buffer<TCHAR> cmdopenbuf (buflen + 1);
+            if (FAILED(AssocQueryString(ASSOCF_INIT_DEFAULTTOSTAR, ASSOCSTR_COMMAND, extensionToUse, _T("open"), cmdopenbuf, &buflen)))
             {
-                CString key = documentClass + L"\\Shell\\Open\\Command\\";
-                application = CRegString (key, L"", FALSE, HKEY_CLASSES_ROOT);
+                CString key = documentClass + _T("\\Shell\\Open\\Command\\");
+                application = CRegString (key, _T(""), FALSE, HKEY_CLASSES_ROOT);
             }
             else
             {
-                application = cmdopenbuf.get();
+                application = cmdopenbuf;
             }
         }
     }
@@ -160,19 +159,19 @@ CString CCommonAppUtils::GetAppForFile
 
     if (applySecurityHeuristics)
     {
-        if (   (application.Find (L"%2") >= 0)
-            || (application.Find (L"%*") >= 0))
+        if (   (application.Find (_T("%2")) >= 0)
+            || (application.Find (_T("%*")) >= 0))
         {
             // consumes extra parameters
             // -> probably a script execution
             // -> retry with "open" verb or ask user
 
-            if (verb.CompareNoCase (L"open") == 0)
+            if (verb.CompareNoCase (_T("open")) == 0)
                 application.Empty();
             else
                 return GetAppForFile ( fileName
                                      , extension
-                                     , L"open"
+                                     , _T("open")
                                      , true);
         }
     }
@@ -184,23 +183,23 @@ CString CCommonAppUtils::GetAppForFile
 
     // resolve parameters
 
-    if (application.Find (L"%1") < 0)
-        application += L" %1";
+    if (application.Find (_T("%1")) < 0)
+        application += _T(" %1");
 
-    if (application.Find(L"\"%1\"") >= 0)
-        application.Replace(L"\"%1\"", L"%1");
+    if (application.Find(_T("\"%1\"")) >= 0)
+        application.Replace(_T("\"%1\""), _T("%1"));
 
-    application.Replace (L"%1", normalizedFileName);
+    application.Replace (_T("%1"), normalizedFileName);
 
     return application;
 }
 
 BOOL CCommonAppUtils::StartTextViewer(CString file)
 {
-    CString viewer = GetAppForFile (file, L".txt", L"open", false);
+    CString viewer = GetAppForFile (file, _T(".txt"), _T("open"), false);
     if (viewer.IsEmpty())
     {
-        viewer = L"RUNDLL32 Shell32,OpenAs_RunDLL ";
+        viewer = _T("RUNDLL32 Shell32,OpenAs_RunDLL ");
         viewer += file;
     }
     return LaunchApplication (viewer, IDS_ERR_TEXTVIEWSTART, false)
@@ -220,7 +219,7 @@ bool CCommonAppUtils::LaunchApplication
     // make sure we get a writable copy of the command line
 
     size_t bufferLen = sCommandLine.GetLength()+1;
-    std::unique_ptr<TCHAR[]> cleanCommandLine (new TCHAR[bufferLen]);
+    auto_buffer<TCHAR> cleanCommandLine (bufferLen);
     memcpy (cleanCommandLine.get(),
             (LPCTSTR)sCommandLine,
             sizeof (TCHAR) * bufferLen);
@@ -266,14 +265,14 @@ bool CCommonAppUtils::LaunchApplication
 
 bool CCommonAppUtils::RunTortoiseProc(const CString& sCommandLine)
 {
-    CString pathToExecutable = CPathUtils::GetAppDirectory()+L"TortoiseProc.exe";
+    CString pathToExecutable = CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe");
     CString sCmd;
-    sCmd.Format(L"\"%s\" %s", (LPCTSTR)pathToExecutable, (LPCTSTR)sCommandLine);
+    sCmd.Format(_T("\"%s\" %s"), (LPCTSTR)pathToExecutable, (LPCTSTR)sCommandLine);
     if (AfxGetMainWnd()->GetSafeHwnd() && (sCommandLine.Find(L"/hwnd:")<0))
     {
         CString sCmdLine;
-        sCmdLine.Format(L"%s /hwnd:%p", (LPCTSTR)sCommandLine, (void*)AfxGetMainWnd()->GetSafeHwnd());
-        sCmd.Format(L"\"%s\" %s", (LPCTSTR)pathToExecutable, (LPCTSTR)sCmdLine);
+        sCmdLine.Format(L"%s /hwnd:%ld", (LPCTSTR)sCommandLine, AfxGetMainWnd()->GetSafeHwnd());
+        sCmd.Format(_T("\"%s\" %s"), (LPCTSTR)pathToExecutable, (LPCTSTR)sCmdLine);
     }
     if (!g_sGroupingUUID.IsEmpty())
     {
@@ -290,7 +289,7 @@ void CCommonAppUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)
 {
     int maxcol = ((CHeaderCtrl*)(pListCtrl->GetDlgItem(0)))->GetItemCount()-1;
     int nItemCount = pListCtrl->GetItemCount();
-    TCHAR textbuf[MAX_PATH] = { 0 };
+    TCHAR textbuf[MAX_PATH];
     CHeaderCtrl * pHdrCtrl = (CHeaderCtrl*)(pListCtrl->GetDlgItem(0));
     if (pHdrCtrl)
     {
@@ -367,8 +366,8 @@ bool CCommonAppUtils::SetListCtrlBackgroundImage(HWND hListCtrl, UINT nID, int w
                 }
                 ::DeleteDC(dst_hdc);
             }
-            ::ReleaseDC(desktop, screen_dev);
         }
+        ::ReleaseDC(desktop, screen_dev);
     }
 
     // Restore settings
@@ -497,11 +496,11 @@ TCHAR CCommonAppUtils::FindAcceleratorKey(CWnd * pWnd, UINT id)
 CString CCommonAppUtils::GetAbsoluteUrlFromRelativeUrl(const CString& root, const CString& url)
 {
     // is the URL a relative one?
-    if (url.Left(2).Compare(L"^/") == 0)
+    if (url.Left(2).Compare(_T("^/")) == 0)
     {
         // URL is relative to the repository root
         CString url1 = root + url.Mid(1);
-        TCHAR buf[INTERNET_MAX_URL_LENGTH] = { 0 };
+        TCHAR buf[INTERNET_MAX_URL_LENGTH];
         DWORD len = url.GetLength();
         if (UrlCanonicalize((LPCTSTR)url1, buf, &len, 0) == S_OK)
             return CString(buf, len);
@@ -512,12 +511,12 @@ CString CCommonAppUtils::GetAbsoluteUrlFromRelativeUrl(const CString& root, cons
         // URL is relative to the server's hostname
         CString sHost;
         // find the server's hostname
-        int schemepos = root.Find(L"//");
+        int schemepos = root.Find(_T("//"));
         if (schemepos >= 0)
         {
             sHost = root.Left(root.Find('/', schemepos+3));
             CString url1 = sHost + url;
-            TCHAR buf[INTERNET_MAX_URL_LENGTH] = { 0 };
+            TCHAR buf[INTERNET_MAX_URL_LENGTH];
             DWORD len = url.GetLength();
             if (UrlCanonicalize((LPCTSTR)url, buf, &len, 0) == S_OK)
                 return CString(buf, len);
@@ -541,7 +540,7 @@ void CCommonAppUtils::ExtendControlOverHiddenControl(CWnd* parent, UINT controlT
     parent->GetDlgItem(controlToExtend)->MoveWindow(controlToExtendRect);
 }
 
-bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title, UINT filterId, bool bOpen, const CString& initialDir, HWND hwndOwner)
+bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title, UINT filterId, bool bOpen, HWND hwndOwner)
 {
     HRESULT hr;
     // Create a new common save file dialog
@@ -578,16 +577,6 @@ bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title,
             hr = pfd->SetFileTypes(fileFilter.GetCount(), fileFilter);
         }
 
-        // set the default folder
-        CComPtr<IShellItem> psiFolder;
-        if (!initialDir.IsEmpty())
-        {
-            hr = SHCreateItemFromParsingName(initialDir, NULL, IID_PPV_ARGS(&psiFolder));
-            if (SUCCEEDED(hr))
-                pfd->SetFolder(psiFolder);
-            hr = S_OK;
-        }
-
         // Show the save/open file dialog
         if (SUCCEEDED(hr) && SUCCEEDED(hr = pfd->Show(hwndOwner)))
         {
@@ -618,7 +607,7 @@ bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title,
         TCHAR szFile[MAX_PATH] = {0};       // buffer for file name. Explorer can't handle paths longer than MAX_PATH.
         ofn.lStructSize = sizeof(OPENFILENAME);
         ofn.hwndOwner = hwndOwner;
-        wcscpy_s(szFile, (LPCTSTR)path);
+        _tcscpy_s(szFile, (LPCTSTR)path);
         ofn.lpstrFile = szFile;
         ofn.nMaxFile = _countof(szFile);
         CSelectFileFilter fileFilter;
@@ -631,8 +620,6 @@ bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title,
         ofn.lpstrFileTitle = NULL;
         ofn.nMaxFileTitle = 0;
         ofn.lpstrInitialDir = NULL;
-        if (!initialDir.IsEmpty())
-            ofn.lpstrInitialDir = initialDir;
         CString temp;
         if (title)
         {
@@ -647,7 +634,6 @@ bool CCommonAppUtils::FileOpenSave(CString& path, int * filterindex, UINT title,
 
 
         // Display the Open dialog box.
-        PreserveChdir preserveDir;
         bool bRet = false;
         if (bOpen)
         {
@@ -738,7 +724,7 @@ void CCommonAppUtils::MarkWindowAsUnpinnable( HWND hWnd )
 {
     typedef HRESULT (WINAPI *SHGPSFW) (HWND hwnd,REFIID riid,void** ppv);
 
-    CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(L"Shell32.dll");
+    CAutoLibrary hShell = LoadLibrary(_T("Shell32.dll"));
 
     if (!hShell.IsValid())
         return;

@@ -12,10 +12,8 @@
       <nant target="clean">
         <buildfiles>
           <include name="*.build" />
-          <!-- avoid recursion -->
           <exclude name="default.build" />
-          <!-- cleaned separately -->
-          <exclude name="OpenSSL.build" />
+          <exclude name="crashrpt.build" />
         </buildfiles>
       </nant>
     </if>
@@ -24,13 +22,18 @@
   <target name="build" depends="clean">
     <nant target="build" buildfile="apr.build" />
     <nant target="build" buildfile="aprutil.build" />
+
+    <copy file="inffas32.asm" tofile="..\..\..\common\zlib\contrib\masmx86\inffas32.asm" overwrite="true" />
+    <copy file="inffas32.asm" tofile="..\..\..\common\zlib\inffas32.asm" overwrite="true" />
     <nant target="build" buildfile="zlib.build" />
     <nant target="build" buildfile="sqlite.build" />
     <nant target="build" buildfile="gssapi.build" />
     <nant target="build" buildfile="sasl.build" />
+    <nant target="build" buildfile="neon.build" />
     <nant target="build" buildfile="serf.build" />
     <nant target="build" buildfile="libintl.build" />
     <nant target="build" buildfile="subversion.build" />
+    <!-- <nant target="build" buildfile="crashrpt.build" /> -->
     <nant target="build" buildfile="crashserver.build" />
   </target>
 

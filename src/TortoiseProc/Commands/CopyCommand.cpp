@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "CopyCommand.h"
 
 #include "CopyDlg.h"
@@ -27,13 +27,13 @@ bool CopyCommand::Execute()
 {
     bool bRet = false;
     CString msg;
-    if (parser.HasKey(L"logmsg"))
+    if (parser.HasKey(_T("logmsg")))
     {
-        msg = parser.GetVal(L"logmsg");
+        msg = parser.GetVal(_T("logmsg"));
     }
-    if (parser.HasKey(L"logmsgfile"))
+    if (parser.HasKey(_T("logmsgfile")))
     {
-        CString logmsgfile = parser.GetVal(L"logmsgfile");
+        CString logmsgfile = parser.GetVal(_T("logmsgfile"));
         CStringUtils::ReadStringFromTextFile(logmsgfile, msg);
     }
 
@@ -41,10 +41,10 @@ bool CopyCommand::Execute()
     CCopyDlg dlg;
 
     dlg.m_path = cmdLinePath;
-    CString url = parser.GetVal(L"url");
+    CString url = parser.GetVal(_T("url"));
     CString logmessage = msg;
     SVNRev copyRev = SVNRev::REV_HEAD;
-    BOOL doSwitch = parser.HasKey(L"switchaftercopy");
+    BOOL doSwitch = FALSE;
     do
     {
         repeat = FALSE;
@@ -59,7 +59,6 @@ bool CopyCommand::Execute()
             progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Copy);
             progDlg.SetAutoClose (parser);
             DWORD options = dlg.m_bDoSwitch ? ProgOptSwitchAfterCopy : ProgOptNone;
-            options |= dlg.m_bMakeParents ? ProgOptMakeParents : ProgOptNone;
             progDlg.SetOptions(options);
             progDlg.SetPathList(pathList);
             progDlg.SetUrl(dlg.m_URL);
@@ -71,11 +70,11 @@ bool CopyCommand::Execute()
             copyRev = dlg.m_CopyRev;
             doSwitch = dlg.m_bDoSwitch;
             progDlg.DoModal();
-            CRegDWORD err = CRegDWORD(L"Software\\TortoiseSVN\\ErrorOccurred", FALSE);
+            CRegDWORD err = CRegDWORD(_T("Software\\TortoiseSVN\\ErrorOccurred"), FALSE);
             err = (DWORD)progDlg.DidErrorsOccur();
             bRet = !progDlg.DidErrorsOccur();
             repeat = progDlg.DidErrorsOccur();
-            CRegDWORD bFailRepeat = CRegDWORD(L"Software\\TortoiseSVN\\CommitReopen", FALSE);
+            CRegDWORD bFailRepeat = CRegDWORD(_T("Software\\TortoiseSVN\\CommitReopen"), FALSE);
             if (DWORD(bFailRepeat) == FALSE)
                 repeat = false;     // do not repeat if the user chose not to in the settings.
         }

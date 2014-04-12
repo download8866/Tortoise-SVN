@@ -71,7 +71,7 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override;
+    virtual bool            Execute();
 
     /// stop waiting for the editor to finish
     bool StopWaitingForEditor();

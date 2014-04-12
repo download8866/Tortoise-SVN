@@ -10,7 +10,7 @@
 
   <xsl:param name="body.start.indent">0pt</xsl:param>
   <xsl:param name="title.margin.left">-0.5in</xsl:param>
-
+  
 <xsl:attribute-set name="table.cell.padding">
   <xsl:attribute name="padding-left">4pt</xsl:attribute>
   <xsl:attribute name="padding-right">4pt</xsl:attribute>
@@ -58,7 +58,7 @@
     <xsl:attribute name="border-left">1px solid</xsl:attribute>
 
     <xsl:attribute name="border-color">
-      <xsl:variable name="node" select="."/>
+      <xsl:param name="node" select="."/>
       <xsl:choose>
         <xsl:when test="name($node)='note'">#069</xsl:when>
         <xsl:when test="name($node)='warning'">#900</xsl:when>
@@ -76,7 +76,7 @@
 
     <xsl:attribute name="border-left">1px solid</xsl:attribute>
     <xsl:attribute name="border-color">
-      <xsl:variable name="node" select="."/>
+      <xsl:param name="node" select="."/>
       <xsl:choose>
         <xsl:when test="name($node)='note'">#069</xsl:when>
         <xsl:when test="name($node)='warning'">#900</xsl:when>

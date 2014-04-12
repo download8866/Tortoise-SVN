@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,19 +15,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNDataObject.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
 #include "TempFile.h"
 #include "StringUtils.h"
-#include <strsafe.h>
-
 
 CLIPFORMAT CF_FILECONTENTS = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILECONTENTS);
 CLIPFORMAT CF_FILEDESCRIPTOR = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
 CLIPFORMAT CF_PREFERREDDROPEFFECT = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
-CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(L"TSVN_SVNURL");
+CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(_T("TSVN_SVNURL"));
 CLIPFORMAT CF_INETURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_INETURL);
 CLIPFORMAT CF_SHELLURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_SHELLURL);
 
@@ -64,8 +62,8 @@ STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
     *ppvObject = NULL;
     if (IsEqualIID(IID_IUnknown, riid) || IsEqualIID(IID_IDataObject, riid))
         *ppvObject=static_cast<IDataObject*>(this);
-    else if (IsEqualIID(riid, IID_IDataObjectAsyncCapability))
-        *ppvObject = static_cast<IDataObjectAsyncCapability*>(this);
+    else if (IsEqualIID(riid, IID_IAsyncOperation))
+        *ppvObject = static_cast<IAsyncOperation*>(this);
     else
         return E_NOINTERFACE;
 
@@ -236,7 +234,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         FILEGROUPDESCRIPTOR* files = (FILEGROUPDESCRIPTOR*)GlobalLock(data);
         files->cItems = static_cast<UINT>(m_allPaths.size());
         int index = 0;
-        for (std::vector<SVNDataObject::SVNObjectInfoData>::const_iterator it = m_allPaths.begin(); it != m_allPaths.end(); ++it)
+        for (vector<SVNDataObject::SVNObjectInfoData>::const_iterator it = m_allPaths.begin(); it != m_allPaths.end(); ++it)
         {
             CString temp;
             if (it->rootpath.IsUrl())
@@ -248,7 +246,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 temp = CPathUtils::PathUnescape(temp);
                 if (m_bFilesAsUrlLinks)
                     temp += L".url";
-                temp.Replace(L"/", L"\\");
+                temp.Replace(_T("/"), _T("\\"));
             }
             else
             {
@@ -257,7 +255,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     temp += L".url";
             }
             if (temp.GetLength() < MAX_PATH)
-                wcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
+                _tcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
             else
             {
                 files->cItems--;
@@ -337,7 +335,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         CStringA texta = CUnicodeUtils::GetUTF8(text);
@@ -366,7 +364,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -374,7 +372,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -393,12 +391,12 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 if (m_svnPaths[i].IsUrl())
                 {
                     text += m_svnPaths[i].GetSVNPathString();
-                    text += L"?";
+                    text += _T("?");
                     text += m_revision.ToString();
                 }
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -406,7 +404,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -706,6 +704,7 @@ HRESULT SVNDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, L
     fetc.dwAspect = DVASPECT_CONTENT;
     fetc.lindex = -1;
     fetc.tymed = TYMED_HGLOBAL;
+    fetc.tymed = TYMED_HGLOBAL;
 
     STGMEDIUM medium = {0};
     medium.hGlobal = GlobalAlloc(GHND, sizeof(DROPDESCRIPTION));
@@ -715,8 +714,8 @@ HRESULT SVNDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, L
     DROPDESCRIPTION* pDropDescription = (DROPDESCRIPTION*)GlobalLock(medium.hGlobal);
     if (pDropDescription == nullptr)
         return E_FAIL;
-    StringCchCopy(pDropDescription->szInsert, _countof(pDropDescription->szInsert), insert);
-    StringCchCopy(pDropDescription->szMessage, _countof(pDropDescription->szMessage), format);
+    lstrcpyW(pDropDescription->szInsert, insert);
+    lstrcpyW(pDropDescription->szMessage, format);
     pDropDescription->type = image;
     GlobalUnlock(medium.hGlobal);
     return SetData(&fetc, &medium, TRUE);
@@ -804,7 +803,7 @@ void CSVNEnumFormatEtc::Init(bool localonly)
     }
 }
 
-CSVNEnumFormatEtc::CSVNEnumFormatEtc(const std::vector<FORMATETC>& vec, bool localonly) : m_cRefCount(0)
+CSVNEnumFormatEtc::CSVNEnumFormatEtc(const vector<FORMATETC>& vec, bool localonly) : m_cRefCount(0)
     , m_iCur(0)
 {
     m_localonly = localonly;
@@ -813,7 +812,7 @@ CSVNEnumFormatEtc::CSVNEnumFormatEtc(const std::vector<FORMATETC>& vec, bool loc
     Init(localonly);
 }
 
-CSVNEnumFormatEtc::CSVNEnumFormatEtc(const std::vector<FORMATETC*>& vec, bool localonly) : m_cRefCount(0)
+CSVNEnumFormatEtc::CSVNEnumFormatEtc(const vector<FORMATETC*>& vec, bool localonly) : m_cRefCount(0)
     , m_iCur(0)
 {
     m_localonly = localonly;

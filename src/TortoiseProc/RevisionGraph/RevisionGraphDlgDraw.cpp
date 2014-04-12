@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,15 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "MyMemDC.h"
-#include "RevisionGraphDlg.h"
+#include "Revisiongraphdlg.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "TempFile.h"
 #include "UnicodeUtils.h"
 #include "TSVNPath.h"
 #include "SVNInfo.h"
 #include "SVNDiff.h"
-#include "RevisionGraphWnd.h"
+#include ".\revisiongraphwnd.h"
 #include "IRevisionGraphLayout.h"
 #include "UpsideDownLayout.h"
 #include "ShowTreeStripes.h"
@@ -60,7 +61,7 @@ CFont* CRevisionGraphWnd::GetFont(BOOL bItalic /*= FALSE*/, BOOL bBold /*= FALSE
         ReleaseDC(pDC);
         // use the empty font name, so GDI takes the first font which matches
         // the specs. Maybe this will help render chinese/japanese chars correctly.
-        wcsncpy_s(m_lfBaseFont.lfFaceName, L"MS Shell Dlg 2", 32);
+        _tcsncpy_s(m_lfBaseFont.lfFaceName, _T("MS Shell Dlg 2"), 32);
         if (!m_apFonts[nIndex]->CreateFontIndirect(&m_lfBaseFont))
         {
             delete m_apFonts[nIndex];

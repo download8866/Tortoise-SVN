@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2013 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,8 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-
-#include <atlstr.h>
 
 #ifdef UNICODE
 #define _tcswildcmp wcswildcmp
@@ -102,13 +100,12 @@ public:
      * Optimizing wrapper around CompareNoCase.
      */
     static int FastCompareNoCase (const CStringW& lhs, const CStringW& rhs);
-
+#endif
     /**
      * Writes the string \text to the file \path, either in utf16 or utf8 encoding,
      * depending on the \c bUTF8 param.
      */
     static bool WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 = true);
-#endif
 
     /**
      * Replace all pipe (|) character in the string with a NULL character. Used
@@ -116,12 +113,5 @@ public:
      */
     static void PipesToNulls(TCHAR* buffer, size_t length);
     static void PipesToNulls(TCHAR* buffer);
-
-
-    static char *       Decrypt(const char * text);
-    static CStringA     Encrypt(const char * text);
-    static wchar_t *    Decrypt(const wchar_t * text);
-    static CStringW     Encrypt(const wchar_t * text);
-
 };
 

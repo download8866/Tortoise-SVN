@@ -124,8 +124,8 @@
                     This ignore pattern will affect all your projects.
                     It is not versioned, so it will not affect other users.
                     By contrast you can also use the versioned
-                    <literal>svn:ignore</literal> or <literal>svn:global-ignores</literal>
-                    property to exclude files or directories from version control. Read
+                    <literal>svn:ignore</literal> property to exclude
+                    files or directories from version control. Read
                     <xref linkend="tsvn-dug-ignore"/>
                     for more information.
                 </para>
@@ -157,18 +157,18 @@
                     TortoiseSVN, and need to be set here instead.
                     For more information about the Subversion
                     <filename>config</filename> file see the
-                    <ulink url="http://svnbook.red-bean.com/en/1.8/svn.advanced.confarea.html">
+                    <ulink url="http://svnbook.red-bean.com/en/1.7/svn.advanced.confarea.html">
                         <citetitle>Runtime Configuration Area</citetitle>
                     </ulink>.
                     The section on
-                    <ulink url="http://svnbook.red-bean.com/en/1.8/svn.advanced.props.html#svn.advanced.props.auto">
+                    <ulink url="http://svnbook.red-bean.com/en/1.7/svn.advanced.props.html#svn.advanced.props.auto">
                         <citetitle>Automatic Property Setting</citetitle>
                     </ulink>
                     is of particular interest, and that is configured here.
                     Note that Subversion can read configuration information
                     from several places, and you need to know which one
                     takes priority. Refer to
-                    <ulink url="http://svnbook.red-bean.com/en/1.8/svn.advanced.confarea.html#svn.advanced.confarea.windows-registry">
+                    <ulink url="http://svnbook.red-bean.com/en/1.7/svn.advanced.confarea.html#svn.advanced.confarea.windows-registry">
                         <citetitle>Configuration and the Windows Registry</citetitle>
                     </ulink> to find out more.
                 </para>
@@ -216,7 +216,7 @@
             for unversioned paths</literal>, TortoiseSVN will not add its entries
             to the context menu for unversioned folders. But the entries are
             added for all items and paths in a versioned folder. And you can
-            get the entries back for unversioned folders by holding the
+            get the entries back for unversioned folders by holding the 
             <keycap>Shift</keycap> key down while showing the context menu.
         </para>
         <para>
@@ -471,6 +471,16 @@
                 </listitem>
             </varlistentry>
             <varlistentry>
+                <term>Re-open commit and branch/tag dialog after a commit failed</term>
+                <listitem>
+                    <para>
+                        When a commit fails for some reason (working copy needs updating,
+                        pre-commit hook rejects commit, network error, etc), you can select
+                        this option to keep the commit dialog open ready to try again.
+                    </para>
+                </listitem>
+            </varlistentry>
+            <varlistentry>
                 <term>Select items automatically</term>
                 <listitem>
                     <para>
@@ -478,16 +488,6 @@
                         (versioned) items to be selected for commit automatically.
                         If you prefer to start with nothing selected and pick the
                         items for commit manually, uncheck this box.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Reopen dialog after commit if items were left uncommitted</term>
-                <listitem>
-                    <para>
-                        This reopens the commit dialog automatically at the same
-                        directory after a successful commit. The dialog is reopened
-                        only if there still are items left to commit.
                     </para>
                 </listitem>
             </varlistentry>
@@ -527,55 +527,6 @@
                         If your project is using the <literal>tsvn:lockmsgminsize</literal>
                         property, you will see the lock dialog regardless of this setting
                         because the project <emphasis>requires</emphasis> lock messages.
-                    </para>
-                </listitem>
-            </varlistentry>
-        </variablelist>
-    </sect3>
-    <sect3 id="tsvn-dug-settings-dialogs-3">
-        <title>TortoiseSVN Dialog Settings 3</title>
-        <?dbhh topicname="HIDD_SETTINGSDIALOGS3"?>
-        <para>
-            <figure id="tsvn-dug-settings-dia-dialogs-3">
-                <title>The Settings Dialog, Dialogs 3 Page</title>
-                <graphic fileref="../images/SettingsDialog3.png"/>
-            </figure>
-        </para>
-        <variablelist>
-            <varlistentry>
-                <term>Pre-fetch folders for faster browsing</term>
-                <listitem>
-                    <para>
-                        If this box is checked (default state), then
-                        the repository browser fetches information about
-                        shown folders in the background. That way as soon
-                        as you browse into one of those folders, the
-                        information is already available.
-                    </para>
-                    <para>
-                        Some servers however can't handle the multiple
-                        requests this causes or when not configured
-                        correctly treat so many requests as something
-                        bad and start blocking them. In this case you
-                        can disable the pre-fetching here.
-                    </para>
-                </listitem>
-            </varlistentry>
-            <varlistentry>
-                <term>Show externals</term>
-                <listitem>
-                    <para>
-                        If this box is checked (default state), then
-                        the repository browser shows files and folders
-                        that are included with the <literal>svn:externals</literal>
-                        property as normal files and folders, but with
-                        an overlay icon to mark them as from an external
-                        source.
-                    </para>
-                    <para>
-                        As with the pre-fetch feature explained above,
-                        this too can put too much stress on weak servers.
-                        In this case you can disable this feature here.
                     </para>
                 </listitem>
             </varlistentry>

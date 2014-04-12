@@ -7,12 +7,10 @@
 **************************************************************************/
 // IDataObjectImpl.cpp: implementation of the CIDataObjectImpl class.
 //////////////////////////////////////////////////////////////////////
-#include "stdafx.h"
 #include <shlobj.h>
 #include <atlbase.h>
 #include "DragDropImpl.h"
 #include <new>
-#include <Strsafe.h>
 
 //////////////////////////////////////////////////////////////////////
 // CIDataObject Class
@@ -286,10 +284,8 @@ HRESULT CIDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, LP
         return E_OUTOFMEMORY;
 
     DROPDESCRIPTION* pDropDescription = (DROPDESCRIPTION*)GlobalLock(medium.hGlobal);
-    if (pDropDescription == nullptr)
-        return E_OUTOFMEMORY;
-    StringCchCopy(pDropDescription->szInsert, _countof(pDropDescription->szInsert), insert);
-    StringCchCopy(pDropDescription->szMessage, _countof(pDropDescription->szMessage), format);
+    lstrcpyW(pDropDescription->szInsert, insert);
+    lstrcpyW(pDropDescription->szMessage, format);
     pDropDescription->type = image;
     GlobalUnlock(medium.hGlobal);
     return SetData(&fetc, &medium, TRUE);
@@ -365,7 +361,7 @@ STDMETHODIMP CIDropSource::GiveFeedback(
     if (m_pIDataObj)
     {
         FORMATETC fetc = {0};
-        fetc.cfFormat = (CLIPFORMAT)RegisterClipboardFormat(L"DragWindow");
+        fetc.cfFormat = (CLIPFORMAT)RegisterClipboardFormat(_T("DragWindow"));
         fetc.dwAspect = DVASPECT_CONTENT;
         fetc.lindex = -1;
         fetc.tymed = TYMED_HGLOBAL;
@@ -685,17 +681,15 @@ HRESULT CIDropTarget::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, LP
     if(medium.hGlobal)
     {
         DROPDESCRIPTION* pDropDescription = (DROPDESCRIPTION*)GlobalLock(medium.hGlobal);
-        if (pDropDescription == nullptr)
-            return hr;
 
         if (insert)
-            StringCchCopy(pDropDescription->szInsert, _countof(pDropDescription->szInsert), insert);
+            lstrcpyW(pDropDescription->szInsert, insert);
         else
             pDropDescription->szInsert[0] = 0;
         if (format)
-            StringCchCopy(pDropDescription->szMessage, _countof(pDropDescription->szMessage), format);
+            lstrcpyW(pDropDescription->szMessage, format);
         else
-            pDropDescription->szMessage[0] = 0;
+            pDropDescription->szInsert[0] = 0;
         pDropDescription->type = image;
         GlobalUnlock(medium.hGlobal);
 

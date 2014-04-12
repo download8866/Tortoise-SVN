@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 
 #include "stdafx.h"
 #include "TortoiseProc.h"
+#include "MessageBox.h"
 #include "CreatePatchDlg.h"
 #include "SVN.h"
 #include "DiffOptionsDlg.h"
@@ -69,16 +70,15 @@ BOOL CCreatePatch::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDC_DIFFOPTIONS);
     m_aeroControls.SubclassOkCancelHelp(this);
 
-    m_regAddBeforeCommit = CRegDWORD(L"Software\\TortoiseSVN\\AddBeforeCommit", TRUE);
+    m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"), TRUE);
     m_bShowUnversioned = m_regAddBeforeCommit;
     UpdateData(FALSE);
 
-    m_PatchList.Init(0, L"CreatePatchDlg", SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH|SVNSLC_POPRESTORE));
+    m_PatchList.Init(0, _T("CreatePatchDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPCOMMIT|SVNSLC_POPCREATEPATCH));
     m_PatchList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
     m_PatchList.SetSelectButton(&m_SelectAll);
     m_PatchList.SetCancelBool(&m_bCancelled);
     m_PatchList.EnableFileDrop();
-    m_PatchList.SetRevertMode(true);
 
     CString sWindowTitle;
     GetWindowText(sWindowTitle);
@@ -96,7 +96,7 @@ BOOL CCreatePatch::OnInitDialog()
     AddAnchor(IDHELP, BOTTOM_RIGHT);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"CreatePatchDlg");
+    EnableSaveRestore(_T("CreatePatchDlg"));
 
     // first start a thread to obtain the file list with the status without
     // blocking the dialog
@@ -307,7 +307,7 @@ LRESULT CCreatePatch::OnFileDropped(WPARAM, LPARAM lParam)
 
     // Always start the timer, since the status of an existing item might have changed
     SetTimer(REFRESHTIMER, 200, NULL);
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Item %s dropped, timer started\n", path.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Item %s dropped, timer started\n"), path.GetWinPath());
     return 0;
 }
 

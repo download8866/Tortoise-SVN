@@ -32,9 +32,9 @@
             from the context menu.
             The Properties Dialog comes up. Then go to the Subversion tab.
             There, you can set properties. Click <guibutton>Properties...</guibutton>.
-            In the properties dialog, either double click on the
+            In the properties dialog, either double click on the 
             <literal>svn:externals</literal> if it already exists, or click
-            on the <guibutton>New...</guibutton> button and select
+            on the <guibutton>New...</guibutton> button and select 
             <literal>externals</literal> from the menu.
             To add a new external, click the <guibutton>New...</guibutton>
             and then fill in the required information in the shown dialog.
@@ -68,16 +68,11 @@
                 that as you backdate your working copy to a previous
                 revision, your externals definitions will also revert to the
                 way they looked in that previous revision, which in turn means
-                that the external working copies will be updated to match the
+                that the external working copies will be updated to match they
                 way <emphasis>they</emphasis> looked back when your repository was
                 at that previous revision.  For software projects, this could
                 be the difference between a successful and a failed build of
                 an older snapshot of your complex code base.
-            </para>
-            <para>
-                The edit dialog for <literal>svn:externals</literal>
-                properties allows you to select the externals and automatically
-                set them explicitly to the HEAD revision.
             </para>
         </tip>
         <para>
@@ -204,11 +199,7 @@
             </varlistentry>
         </variablelist>
         <para>
-            You can also specify a peg and operative revision for the URL if required.
-            To learn more about peg and operative revisions, please read the
-            <ulink url="http://svnbook.red-bean.com/en/1.8/svn.advanced.pegrevs.html">
-                <citetitle>corresponding chapter</citetitle>
-            </ulink> in the Subversion book.
+            You can also specify a peg revision for the URL if required.
         </para>
         <para>
             If you need more information how TortoiseSVN
@@ -249,26 +240,6 @@
             A file external behaves just like any other versioned file in many respects,
             but they cannot be moved or deleted using the normal commands; the
             <literal>svn:externals</literal> property must be modified instead.
-        </para>
-    </sect2>
-    <sect2 id="tsvn-dug-externals-drop">
-        <title>Creating externals via drag and drop</title>
-        <para>
-            If you already have a working copy of the files or folders you want
-            to include as externals in another working copy, you can simply add
-            those via drag and drop from the windows explorer.
-        </para>
-        <para>
-            Simply <action>right drag</action> the file or folder from one
-            working copy to where you want those to be included as externals.
-            A context menu appears when you release the mouse button:
-            <menuchoice>
-                <guimenuitem>SVN Add as externals here</guimenuitem>
-            </menuchoice>
-            if you click on that context menu entry, the <literal>svn:externals</literal>
-            property is automatically added. All you have to do after that
-            is commit the property changes and update to get those externals
-            properly included in your working copy.
         </para>
     </sect2>
 </sect1>

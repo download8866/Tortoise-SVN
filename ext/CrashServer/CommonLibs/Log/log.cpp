@@ -1,4 +1,4 @@
-// Copyright 2012, 2014 Idol Software, Inc.
+// Copyright 2012 Idol Software, Inc.
 //
 // This file is part of CrashHandler library.
 //
@@ -23,10 +23,6 @@
 #include <time.h>
 #include <crtdbg.h>
 #include "log_media.h"
-
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#include <VersionHelpers.h>
-#endif
 
 #define ASSERT(f) assert(f)
 
@@ -78,10 +74,10 @@ void SetLogThreadName(LPCTSTR pszThreadName)
 //      SetDebuggerThreadName(-1, __LPCSTR(pszThreadName));
 }
 
-//! РЎРѕР·РґР°С‘С‚ РїСѓС‚СЊ Рє С„Р°Р№Р»Сѓ.
+//! Создаёт путь к файлу.
 bool CreateFileDir(LPCTSTR pszFilePath)
 {
-    // РќР°Р№РґС‘Рј РїРѕР»РЅС‹Р№ РїСѓС‚СЊ
+    // Найдём полный путь
     TCHAR szBuffer[1024];
     LPTSTR pszFilePart;
     DWORD dwRes = GetFullPathName(pszFilePath, sizeof(szBuffer)/sizeof(*szBuffer), szBuffer, &pszFilePart);
@@ -90,7 +86,7 @@ bool CreateFileDir(LPCTSTR pszFilePath)
         || pszFilePart == NULL)
         return false;
 
-    // РћС‚СЂРµР¶РµРј РёРјСЏ С„Р°Р№Р»Р°
+    // Отрежем имя файла
     *pszFilePart = _T('\0');
 
     CString sPath(szBuffer);
@@ -99,9 +95,9 @@ bool CreateFileDir(LPCTSTR pszFilePath)
 
     int nPos;
     if (sPath.Left(2) == _T("\\\\"))
-        nPos = sPath.Find(_T("\\"), sPath.Find(_T("\\"), 2) + 1) + 1; // РџСЂРѕРїСѓСЃС‚РёРј РёРјСЏ РєРѕРјРїСЊСЋС‚РµСЂР° Рё С€Р°СЂС‹
+        nPos = sPath.Find(_T("\\"), sPath.Find(_T("\\"), 2) + 1) + 1; // Пропустим имя компьютера и шары
     else
-        nPos = 4; // РџСЂРѕРїСѓСЃС‚РёРј РёРјСЏ РґРёСЃРєР°
+        nPos = 4; // Пропустим имя диска
     while ( (nPos = sPath.Find(_T('\\'), nPos + 1)) != -1)
     {
         if (!CreateDirectory(sPath.Left(nPos), NULL) && GetLastError() != ERROR_ALREADY_EXISTS)
@@ -278,27 +274,6 @@ CString GetSystemInformation()
 {
     CString info = _T("Microsoft Windows ");
 
-#if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-    if (IsWindows8Point1OrGreater())
-        info += _T(">= 8.1");
-    else if (IsWindows8OrGreater())
-        info += _T("8.1");
-    else if (IsWindows7SP1OrGreater())
-        info += _T("7 SP1");
-    else if (IsWindows7OrGreater())
-        info += _T("7");
-    else if (IsWindowsVistaSP2OrGreater())
-        info += _T("Vista SP2");
-    else if (IsWindowsVistaSP1OrGreater())
-        info += _T("Vista SP1");
-    else if (IsWindowsVistaOrGreater())
-        info += _T("Vista");
-
-    if (IsWindowsServer())
-        info += _T(" Server");
-    else
-        info += _T(" Client");
-#else
     OSVERSIONINFOEX rcOS;
     ZeroMemory(&rcOS, sizeof(rcOS));
     rcOS.dwOSVersionInfoSize = sizeof(rcOS);
@@ -339,22 +314,10 @@ CString GetSystemInformation()
             {
             case 0: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("Vista") : _T("Server 2008"); break;
             case 1: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("7") : _T("Server 2008 R2"); break;
-            case 2: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("8") : _T("Server 2012"); break;
-            case 3: info += rcOS.wProductType == VER_NT_WORKSTATION ? _T("8.1") : _T("Server 2012 R2"); break;
-            default:
-            {
-                CString future;
-                future.Format(_T("%ld.%ld%s"), rcOS.dwMajorVersion, rcOS.dwMinorVersion, VER_NT_WORKSTATION ? _T("") : _T(" Server"));
-                info += future;
-                break;
+            default: ASSERT(false); info += _T("future version"); break;
             }
             break;
-        default:
-        {
-            CString future;
-            future.Format(_T("%ld.%ld%s"), rcOS.dwMajorVersion, rcOS.dwMinorVersion, VER_NT_WORKSTATION ? _T("") : _T(" Server"));
-            info += future;
-            break;
+        default: ASSERT(false); info += _T("future version"); break;
         }
         if (_tcslen(rcOS.szCSDVersion) > 0)
         {
@@ -362,7 +325,6 @@ CString GetSystemInformation()
             info += rcOS.szCSDVersion;
         }
     }
-#endif
     return info;
 }
 
@@ -513,7 +475,7 @@ FileMedia::FileMedia(LPCTSTR pszFilename, bool bAppend, bool bFlush, bool bNewFi
 //  }
 //
 //
-//  // РЎРѕР·РґР°РґРёРј РґР»СЏ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ С„Р°Р№Р»Сѓ РјСЊСЋС‚РµРєСЃ
+//  // Создадим для доступа к этому файлу мьютекс
 //  CString sMtx(m_sFilename);
 //  sMtx.ToUpper();
 //  for (CString::iterator it = sMtx.begin(), end = sMtx.end(); it != end; ++it)
@@ -553,7 +515,7 @@ FileMedia::FileMedia(LPCTSTR pszFilename, bool bAppend, bool bFlush, bool bNewFi
 //          , (LPCTSTR)GetSystemInformation()
 //          , (LPCTSTR)GetModuleInformation());
 //
-//      LONG dwDistanceToMoveHigh = 0; // РќСѓР¶РµРЅ, С‡С‚РѕР±С‹ РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»С‹ Р±РѕР»СЊС€Рµ 4Р“Р±
+//      LONG dwDistanceToMoveHigh = 0; // Нужен, чтобы писать в файлы больше 4Гб
 //      VERIFY(SetFilePointer(m_hFile, 0, &dwDistanceToMoveHigh, FILE_END) != INVALID_SET_FILE_POINTER || GetLastError() == NO_ERROR);
 //      CStringA headerA = header;
 //      DWORD dwWritten;
@@ -578,7 +540,7 @@ FileMedia::~FileMedia()
 //          _T("=================================================\r\n")
 //          , st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 //
-//      LONG dwDistanceToMoveHigh = 0; // РќСѓР¶РµРЅ, С‡С‚РѕР±С‹ РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»С‹ Р±РѕР»СЊС€Рµ 4Р“Р±
+//      LONG dwDistanceToMoveHigh = 0; // Нужен, чтобы писать в файлы больше 4Гб
 //      VERIFY(SetFilePointer(m_hFile, 0, &dwDistanceToMoveHigh, FILE_END) != INVALID_SET_FILE_POINTER || GetLastError() == NO_ERROR);
 //      CStringA headerA = header;
 //      DWORD dwWritten;
@@ -601,7 +563,7 @@ void FileMedia::CloseLogFile()
             _T("=================================================\r\n")
             , st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond);
 
-        LONG dwDistanceToMoveHigh = 0; // РќСѓР¶РµРЅ, С‡С‚РѕР±С‹ РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»С‹ Р±РѕР»СЊС€Рµ 4Р“Р±
+        LONG dwDistanceToMoveHigh = 0; // Нужен, чтобы писать в файлы больше 4Гб
         VERIFY(SetFilePointer(m_hFile, 0, &dwDistanceToMoveHigh, FILE_END) != INVALID_SET_FILE_POINTER || GetLastError() == NO_ERROR);
         CStringA headerA = header;
         DWORD dwWritten;
@@ -647,7 +609,7 @@ void FileMedia::OpenLogFile()
     }
 
 
-    // РЎРѕР·РґР°РґРёРј РґР»СЏ РґРѕСЃС‚СѓРїР° Рє СЌС‚РѕРјСѓ С„Р°Р№Р»Сѓ РјСЊСЋС‚РµРєСЃ
+    // Создадим для доступа к этому файлу мьютекс
     CString sMtx(m_sFilename);
     sMtx.MakeUpper();
     for (int i = 0, size = sMtx.GetLength(); i < size; ++i)
@@ -687,7 +649,7 @@ void FileMedia::OpenLogFile()
             , (LPCTSTR)GetSystemInformation()
             , (LPCTSTR)GetModuleInformation());
 
-        LONG dwDistanceToMoveHigh = 0; // РќСѓР¶РµРЅ, С‡С‚РѕР±С‹ РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»С‹ Р±РѕР»СЊС€Рµ 4Р“Р±
+        LONG dwDistanceToMoveHigh = 0; // Нужен, чтобы писать в файлы больше 4Гб
         VERIFY(SetFilePointer(m_hFile, 0, &dwDistanceToMoveHigh, FILE_END) != INVALID_SET_FILE_POINTER || GetLastError() == NO_ERROR);
         CStringA headerA = header;
         DWORD dwWritten;
@@ -731,7 +693,7 @@ void FileMedia::Write(ELogMessageType type, ELogMessageLevel nLevel, LPCTSTR psz
         }
     }
 
-    LONG dwDistanceToMoveHigh = 0; // РќСѓР¶РµРЅ, С‡С‚РѕР±С‹ РїРёСЃР°С‚СЊ РІ С„Р°Р№Р»С‹ Р±РѕР»СЊС€Рµ 4Р“Р±
+    LONG dwDistanceToMoveHigh = 0; // Нужен, чтобы писать в файлы больше 4Гб
     if (SetFilePointer(m_hFile, 0, &dwDistanceToMoveHigh, FILE_END) == INVALID_SET_FILE_POINTER
         && GetLastError() != NO_ERROR)
     {
@@ -855,7 +817,7 @@ void LogMediaColl::Write(ELogMessageType type, ELogMessageLevel nLevel, LPCTSTR 
 bool LogMediaColl::Check(ELogMessageType type, ELogMessageLevel nLevel, LPCTSTR pszModule)
 {
     CriticalSection::SyncLock lock(m_cs);
-    // Р•СЃР»Рё С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ Р»РѕРі РїСЂРѕРїСѓСЃРєР°РµС‚, С‚Рѕ Рё РјС‹ РїСЂРѕРїСѓСЃРєР°РµРј.
+    // Если хотя бы один лог пропускает, то и мы пропускаем.
     for (MediaColl::iterator it = m_MediaColl.begin(), end = m_MediaColl.end(); it != end; ++it)
         if ((*it)->Check(type, nLevel, pszModule))
             return true;
@@ -947,9 +909,9 @@ void LogBase::WriteVA(ELogMessageType type,
                         LPCTSTR pszMessage,
                         va_list args)  throw()
 {
-    if (IsFiltered(type, nLevel)) // РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ, РµСЃР»Рё РѕРЅРѕ РЅРµ РїРѕРїР°РґР°РµС‚ РІ Р»РѕРі
+    if (IsFiltered(type, nLevel)) // не обрабатываем сообщение, если оно не попадает в лог
         return;
-    // 75% РІСЂРµРјРµРЅРё С‚СЂР°С‚РёС‚СЃСЏ РЅР° new Рё delete, РїРѕСЌС‚РѕРјСѓ РїРµСЂРІСѓСЋ РїРѕРїС‹С‚РєСѓ РїРѕРїСЂРѕР±СѓРµРј СЃРґРµР»Р°С‚СЊ Р±РµР· РЅРµРіРѕ.
+    // 75% времени тратится на new и delete, поэтому первую попытку попробуем сделать без него.
     StackResizableBuf<TCHAR, 16*1024> buf;
     int pos;
     for (;;)
@@ -957,7 +919,7 @@ void LogBase::WriteVA(ELogMessageType type,
         pos = _vsntprintf_s(buf.data, buf.size, buf.size - 1, pszMessage, args);
         if (pos != -1)
             break;
-        // BUG 16456 FIX, СЃРј. РІ РєРѕРЅРµС† WriteVAW РїРѕС‡РµРјСѓ
+        // BUG 16456 FIX, см. в конец WriteVAW почему
         //if (buf.size >= 1024 * 256)
         if (buf.size >= 1024 * 1024 * 10) //Increased limit for DumpServer
         {
@@ -990,9 +952,9 @@ void LogBase::WriteVAW(ELogMessageType type,
     WriteVA(type, nLevel, pszModule, pszMessage, args);
 #else
 
-    if (IsFiltered(type, nLevel)) // РЅРµ РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј СЃРѕРѕР±С‰РµРЅРёРµ, РµСЃР»Рё РѕРЅРѕ РЅРµ РїРѕРїР°РґР°РµС‚ РІ Р»РѕРі
+    if (IsFiltered(type, nLevel)) // не обрабатываем сообщение, если оно не попадает в лог
         return;
-    // 75% РІСЂРµРјРµРЅРё С‚СЂР°С‚РёС‚СЃСЏ РЅР° new Рё delete, РїРѕСЌС‚РѕРјСѓ РїРµСЂРІСѓСЋ РїРѕРїС‹С‚РєСѓ РїРѕРїСЂРѕР±СѓРµРј СЃРґРµР»Р°С‚СЊ Р±РµР· РЅРµРіРѕ.
+    // 75% времени тратится на new и delete, поэтому первую попытку попробуем сделать без него.
     StackResizableBuf<WCHAR, 1024> buf;
     int pos;
     for (;;)
@@ -1000,7 +962,7 @@ void LogBase::WriteVAW(ELogMessageType type,
         pos = _vsnwprintf(buf.data, buf.size - 1, pszMessage, args);
         if (pos != -1)
             break;
-        // BUG 16456 FIX, СЃРј. РІ РєРѕРЅРµС† WriteVAW РїРѕС‡РµРјСѓ
+        // BUG 16456 FIX, см. в конец WriteVAW почему
         if (buf.size >= 1024 * 256)
         {
             pos = buf.size - 1;
@@ -1043,12 +1005,12 @@ void LogBase::WriteVAW(ELogMessageType type,
     }
 #endif
     /* BUG 16456 FIX
-    _vsnwprintf СЃРїРѕС‚С‹РєР°РµС‚СЃСЏ РЅР° СЃС‚СЂРѕРєР°С… СЃ СЃРёРјРІРѕР»РѕРј 0xFFFF,
-    РІРѕР·РІСЂР°С‰Р°РµС‚ -1 РїСЂРё Р»СЋР±РѕР№ РґР»РёРЅРµ Р±СѓС„РµСЂР°. РЎРѕРѕС‚РІРµС‚СЃРІС‚РІРµРЅРЅРѕ
-    Р±СѓС„РµСЂ СѓРІРµР»РёС‡РёРІР°РµС‚СЃСЏ (Resize) РїРѕРєР° РЅРµ С…РІР°С‚РёС‚ РїР°РјСЏС‚Рё,
-    Р° РїРѕС‚РѕРј РІС‹Р·С‹РІР°РµС‚СЃСЏ _vsnwprintf РЅР° NULL.
-    Р РµС€РµРЅРёРµ: Рў.Рє. _vsnwprintf, РґР°Р¶Рµ РµСЃР»Рё РЅРµС…РІР°С‚Р°РµС‚ Р±СѓС„РµСЂР°, РЅР°С‡Р°Р»Рѕ Р·Р°РїРѕР»РЅСЏРµС‚,
-            С‚Рѕ РїСЂРѕСЃС‚Рѕ РѕРіСЂР°РЅРёС‡РёРј Р±СѓС„РµСЂ 256РєР± (Р° 0 РЅР° РєРѕРЅС†Рµ Рё С‚Р°Рє СЃС‚Р°РІРёРј РЅР° РІСЃСЏРєРёР№ СЃР»СѓС‡Р°Р№)
+    _vsnwprintf спотыкается на строках с символом 0xFFFF,
+    возвращает -1 при любой длине буфера. Соответсвтвенно
+    буфер увеличивается (Resize) пока не хватит памяти,
+    а потом вызывается _vsnwprintf на NULL.
+    Решение: Т.к. _vsnwprintf, даже если нехватает буфера, начало заполняет,
+            то просто ограничим буфер 256кб (а 0 на конце и так ставим на всякий случай)
 
     #include <stdarg.h>
     #include <stdio.h>
@@ -1057,7 +1019,7 @@ void LogBase::WriteVAW(ELogMessageType type,
     {
         wchar_t buf[1000];
         int n = _vsnwprintf(buf, 1000, pszMessage, args);
-        printf("Return %i\nBuf is: \"%ls\"", n, buf); // n Р±СѓРґРµС‚ -1, С…РѕС‚СЏ Р±СѓС„РµСЂР° С…РІР°С‚Р°РµС‚ !!!
+        printf("Return %i\nBuf is: \"%ls\"", n, buf); // n будет -1, хотя буфера хватает !!!
     }
     void WriteW(wchar_t* pszMessage, ...)
     {

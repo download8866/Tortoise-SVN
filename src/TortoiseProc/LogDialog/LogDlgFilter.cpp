@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2014 - TortoiseSVN
+// Copyright (C) 2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -128,7 +128,7 @@ bool CLogDlgFilter::Match (char* text, size_t size) const
                 // lowercase won't work: we first have to convert
                 // the string to wide-char. Very very slow, but unavoidable
                 // if we want to make this work right.
-                CStringA as = CStringA(text, (int)size);
+                CStringA as = CStringA(text, size);
                 CString s = CUnicodeUtils::GetUnicode(as);
                 s.MakeLower();
                 as = CUnicodeUtils::GetUTF8(s);
@@ -177,11 +177,11 @@ bool CLogDlgFilter::Match (char* text, size_t size) const
     }
     else
     {
-        for ( std::vector<std::tr1::regex>::const_iterator it = patterns.begin()
+        for ( vector<tr1::regex>::const_iterator it = patterns.begin()
             ; it != patterns.end()
             ; ++it)
         {
-            if (!regex_search(text, text + size, *it, std::tr1::regex_constants::match_any))
+            if (!regex_search(text, text + size, *it, tr1::regex_constants::match_any))
                 return false;
         }
     }
@@ -189,7 +189,7 @@ bool CLogDlgFilter::Match (char* text, size_t size) const
     return true;
 }
 
-std::vector<CHARRANGE> CLogDlgFilter::GetMatchRanges (std::wstring& textUTF16) const
+std::vector<CHARRANGE> CLogDlgFilter::GetMatchRanges (wstring& textUTF16) const
 {
     std::vector<CHARRANGE> ranges;
 
@@ -227,10 +227,10 @@ std::vector<CHARRANGE> CLogDlgFilter::GetMatchRanges (std::wstring& textUTF16) c
     }
     else
     {
-        for (std::vector<std::tr1::regex>::const_iterator it = patterns.begin(); it != patterns.end(); ++it)
+        for (vector<tr1::regex>::const_iterator it = patterns.begin(); it != patterns.end(); ++it)
         {
-            const std::tr1::sregex_iterator end;
-            for (std::tr1::sregex_iterator it2(textUTF8.begin(), textUTF8.end(), *it); it2 != end; ++it2)
+            const tr1::sregex_iterator end;
+            for (tr1::sregex_iterator it2(textUTF8.begin(), textUTF8.end(), *it); it2 != end; ++it2)
             {
                 ptrdiff_t matchposID = it2->position(0);
                 CHARRANGE range = {(LONG)(matchposID), (LONG)(matchposID+(*it2)[0].str().size())};
@@ -283,21 +283,21 @@ std::vector<CHARRANGE> CLogDlgFilter::GetMatchRanges (std::wstring& textUTF16) c
 
 // called to parse a (potentially incorrect) regex spec
 
-bool CLogDlgFilter::ValidateRegexp (const char* regexp_str, std::vector<std::tr1::regex>& patterns)
+bool CLogDlgFilter::ValidateRegexp (const char* regexp_str, vector<tr1::regex>& patterns)
 {
     try
     {
-        std::tr1::regex pat;
-        std::tr1::regex_constants::syntax_option_type type
+        tr1::regex pat;
+        tr1::regex_constants::syntax_option_type type
             = caseSensitive
-            ? std::tr1::regex_constants::ECMAScript
-            : std::tr1::regex_constants::ECMAScript | std::tr1::regex_constants::icase;
+            ? tr1::regex_constants::ECMAScript
+            : tr1::regex_constants::ECMAScript | tr1::regex_constants::icase;
 
-        pat = std::tr1::regex(regexp_str, type);
+        pat = tr1::regex(regexp_str, type);
         patterns.push_back(pat);
         return true;
     }
-    catch (std::exception) {}
+    catch (exception) {}
     return false;
 }
 
@@ -484,7 +484,7 @@ CLogDlgFilter::CLogDlgFilter
 
             // ordinary sub-string
 
-            AddSubString (filterText.Tokenize (L" ", curPos), prefix);
+            AddSubString (filterText.Tokenize (_T(" "), curPos), prefix);
         }
     }
 }
@@ -495,7 +495,7 @@ namespace
 {
     // concatenate strings
 
-    void AppendString (CStringBuffer& target, const std::string& toAppend)
+    void AppendString (CStringBuffer& target, const string& toAppend)
     {
         target.Append (' ');
         target.Append (toAppend);
@@ -510,7 +510,7 @@ namespace
         target.Append ('|');
         char* buffer = target.GetBuffer (MAX_PATH + 16);
         size_t size = path.GetPath (buffer, MAX_PATH) - buffer;
-        SecureZeroMemory (buffer + size, 16);
+        ZeroMemory (buffer + size, 16);
 
         // relative path strings are never empty
 
@@ -540,7 +540,7 @@ bool CLogDlgFilter::operator() (const CLogEntryData& entry) const
     if (patterns.empty() && subStringConditions.empty())
         return !negate;
 
-    if (hideNonMergeable && mergedrevs && !mergedrevs->empty())
+    if (hideNonMergeable && mergedrevs && mergedrevs->size())
     {
         if (mergedrevs->find(entry.GetRevision()) != mergedrevs->end())
             return false;
@@ -576,7 +576,7 @@ bool CLogDlgFilter::operator() (const CLogEntryData& entry) const
 
                     scratch.Append ('|');
 
-                    char buffer[10] = { 0 };
+                    char buffer[10];
                     _itoa_s (cpath.GetCopyFromRev(), buffer, 10);
                     scratch.Append (buffer);
                 }
@@ -593,7 +593,7 @@ bool CLogDlgFilter::operator() (const CLogEntryData& entry) const
     {
         scratch.Append (' ');
 
-        char buffer[10] = { 0 };
+        char buffer[10];
         _itoa_s (entry.GetRevision(), buffer, 10);
         scratch.Append (buffer);
     }

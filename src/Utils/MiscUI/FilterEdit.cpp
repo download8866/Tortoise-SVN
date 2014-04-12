@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009, 2011-2014 - TortoiseSVN
+// Copyright (C) 2007, 2009, 2011-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,9 @@
 
 
 const UINT CFilterEdit::WM_FILTEREDIT_INFOCLICKED
-                = ::RegisterWindowMessage(L"TSVNWM_FILTEREDIT_INFOCLICKED");
+                = ::RegisterWindowMessage(_T("TSVNWM_FILTEREDIT_INFOCLICKED"));
 const UINT CFilterEdit::WM_FILTEREDIT_CANCELCLICKED
-                = ::RegisterWindowMessage(L"TSVNWM_FILTEREDIT_CANCELCLICKED");
+                = ::RegisterWindowMessage(_T("TSVNWM_FILTEREDIT_CANCELCLICKED"));
 
 IMPLEMENT_DYNAMIC(CFilterEdit, CEdit)
 
@@ -72,7 +72,6 @@ BEGIN_MESSAGE_MAP(CFilterEdit, CEdit)
     ON_WM_PAINT()
     ON_CONTROL_REFLECT(EN_KILLFOCUS, &CFilterEdit::OnEnKillfocus)
     ON_CONTROL_REFLECT(EN_SETFOCUS, &CFilterEdit::OnEnSetfocus)
-    ON_MESSAGE(WM_PASTE,OnPaste)
 END_MESSAGE_MAP()
 
 
@@ -134,9 +133,9 @@ BOOL CFilterEdit::SetCueBanner(LPCWSTR lpcwText)
 {
     if (lpcwText)
     {
-        size_t len = wcslen(lpcwText);
-        m_pCueBanner.reset (new TCHAR[len+1]);
-        wcscpy_s(m_pCueBanner.get(), len+1, lpcwText);
+        size_t len = _tcslen(lpcwText);
+        m_pCueBanner.reset (len+1);
+        _tcscpy_s(m_pCueBanner, len+1, lpcwText);
         InvalidateRect(NULL, TRUE);
         return TRUE;
     }
@@ -230,7 +229,7 @@ void CFilterEdit::OnLButtonUp(UINT nFlags, CPoint point)
     InvalidateRect(NULL);
     if (m_rcButtonArea.PtInRect(point))
     {
-        SetWindowText(L"");
+        SetWindowText(_T(""));
         CWnd *pOwner = GetOwner();
         if (pOwner)
         {
@@ -322,10 +321,10 @@ void CFilterEdit::Validate()
     if (m_pValidator)
     {
         int len = GetWindowTextLength();
-        std::unique_ptr<TCHAR[]> pBuf (new TCHAR[len+1]);
-        GetWindowText(pBuf.get(), len+1);
+        auto_buffer<TCHAR> pBuf (len+1);
+        GetWindowText(pBuf, len+1);
         m_backColor = GetSysColor(COLOR_WINDOW);
-        if (!m_pValidator->Validate(pBuf.get()))
+        if (!m_pValidator->Validate(pBuf))
         {
             // Use a background color slightly shifted to red.
             // We do this by increasing red component and decreasing green and blue.
@@ -349,26 +348,17 @@ void CFilterEdit::Validate()
 
 void CFilterEdit::OnPaint()
 {
-    LRESULT defres = Default();
+    Default();
 
     DrawDimText();
-    if (defres)
-    {
-        // the Default() call did not process the WM_PAINT message!
-        // Validate the update region ourselves to avoid
-        // an endless loop repainting
-        CRect rc;
-        GetUpdateRect(&rc, FALSE);
-        if (!rc.IsRectEmpty())
-            ValidateRect(rc);
-    }
+    ValidateRect(NULL);
 
     return;
 }
 
 void CFilterEdit::DrawDimText()
 {
-    if (m_pCueBanner.get() == NULL)
+    if (m_pCueBanner == NULL)
         return;
     if (GetWindowTextLength())
         return;
@@ -387,7 +377,7 @@ void CFilterEdit::DrawDimText()
     dcDraw.SelectObject((*GetFont()));
     dcDraw.SetTextColor(GetSysColor(COLOR_GRAYTEXT));
     dcDraw.SetBkColor(GetSysColor(COLOR_WINDOW));
-    dcDraw.DrawText(m_pCueBanner.get(), (int)wcslen(m_pCueBanner.get()), &rRect, DT_CENTER | DT_VCENTER);
+    dcDraw.DrawText(m_pCueBanner, (int)_tcslen(m_pCueBanner), &rRect, DT_CENTER | DT_VCENTER);
     dcDraw.RestoreDC(iState);
     return;
 }
@@ -400,49 +390,4 @@ void CFilterEdit::OnEnKillfocus()
 void CFilterEdit::OnEnSetfocus()
 {
     InvalidateRect(NULL);
-}
-
-LRESULT CFilterEdit::OnPaste(WPARAM, LPARAM)
-{
-    if (OpenClipboard())
-    {
-        HANDLE hData = GetClipboardData (CF_TEXT);
-        CString toInsert ((const char*)GlobalLock(hData));
-        GlobalUnlock (hData);
-        CloseClipboard();
-
-        // elimate control chars, especially newlines
-
-        toInsert.Replace(L"\r\n", L" ");
-        toInsert.Replace('\r', ' ');
-        toInsert.Replace('\n', ' ');
-        toInsert.Replace('\t', ' ');
-
-        // get the current text
-
-        int len = GetWindowTextLength();
-        std::unique_ptr<TCHAR[]> pBuf (new TCHAR[len+1]);
-        GetWindowText(pBuf.get(), len+1);
-        CString text = pBuf.get();
-
-        // construct the new text
-
-        int from, to;
-        GetSel(from, to);
-        text.Delete (from, to - from);
-        text.Insert (from, toInsert);
-        from += toInsert.GetLength();
-
-        // update & notify controls
-
-        SetWindowText (text);
-        SetSel (from, from, FALSE);
-        SetModify (TRUE);
-
-        GetParent()->SendMessage(WM_COMMAND,
-                                 MAKEWPARAM(GetDlgCtrlID(), EN_CHANGE),
-                                 (LPARAM)GetSafeHwnd());
-    }
-
-    return 0;
 }

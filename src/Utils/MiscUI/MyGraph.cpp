@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <memory>
+using namespace std;
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -216,8 +217,8 @@ CString MyGraphSeries::GetTipText(int nGroup, const CString &unitString) const
 
     CString sTip;
 
-    sTip.Format(L"%d %s (%d%%)", m_dwaValues.GetAt(nGroup),
-        (LPCTSTR)unitString,
+    sTip.Format(_T("%d %s (%d%%)"), m_dwaValues.GetAt(nGroup),
+        unitString,
         GetDataTotal() ? (int) (100.0 * (double) m_dwaValues.GetAt(nGroup) /
         (double) GetDataTotal()) : 0);
 
@@ -232,8 +233,6 @@ CString MyGraphSeries::GetTipText(int nGroup, const CString &unitString) const
 MyGraph::MyGraph(GraphType eGraphType /* = MyGraph::Pie */ , bool bStackedGraph /* = false */)
     : m_nXAxisWidth(0)
     , m_nYAxisHeight(0)
-    , m_nAxisLabelHeight(0)
-    , m_nAxisTickLabelHeight(0)
     , m_eGraphType(eGraphType)
     , m_bStackedGraph(bStackedGraph)
 {
@@ -381,7 +380,7 @@ CString MyGraph::GetTipText() const
     else {
         POSITION pos(m_olMyGraphSeries.GetHeadPosition());
 
-        while (pos && sTip.IsEmpty()) {
+        while (pos && sTip=="") {
             MyGraphSeries* pSeries = m_olMyGraphSeries.GetNext(pos);
             ASSERT_VALID(pSeries);
 
@@ -391,9 +390,9 @@ CString MyGraph::GetTipText() const
 
                 if (-1 != nGroup) {
                     if("" != sTip){
-                        sTip += L", ";
+                        sTip += _T(", ");
                     }
-                    sTip += m_saLegendLabels.GetAt(nGroup) + L": ";
+                    sTip += m_saLegendLabels.GetAt(nGroup) + _T(": ");
                     sTip += pSeries->GetTipText(nGroup, m_sYAxisLabel);
                     nGroup++;
                 }
@@ -532,7 +531,7 @@ int MyGraph::GetNonZeroSeriesCount() const
         }
     }
 
-    return nCount ? nCount : 1;
+    return nCount;
 }
 
 // Returns the group number for the sent label; -1 if not found.
@@ -719,7 +718,7 @@ void MyGraph::DrawTitle(CDC& dc)
     // Create the title font.
     CFont fontTitle;
     VERIFY(fontTitle.CreatePointFont(max(m_rcGraph.Width() / TITLE_DIVISOR, MIN_FONT_SIZE),
-        L"Arial", &dc));
+        _T("Arial"), &dc));
     CFont* pFontOld = dc.SelectObject(&fontTitle);
     ASSERT_VALID(pFontOld);
 
@@ -764,14 +763,14 @@ void MyGraph::SetupAxes(CDC& dc)
         m_nAxisTickLabelHeight = max(int(m_nAxisLabelHeight*0.8), MIN_FONT_SIZE);
 
         CFont fontTickLabels;
-        VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, L"Arial", &dc));
+        VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, _T("Arial"), &dc));
         // Select font and store the old.
         CFont* pFontOld = dc.SelectObject(&fontTickLabels);
         ASSERT_VALID(pFontOld);
 
         // Obtain tick label dimensions.
         CString sTickLabel;
-        sTickLabel.Format(L"%d", GetMaxDataValue());
+        sTickLabel.Format(_T("%d"), GetMaxDataValue());
         CSize sizTickLabel(dc.GetTextExtent(sTickLabel));
 
         // Set old font object again and delete temporary font object.
@@ -797,7 +796,7 @@ void MyGraph::DrawLegend(CDC& dc)
     // Create the legend font.
     CFont fontLegend;
     int pointFontHeight = max(m_rcGraph.Height() / LEGEND_DIVISOR, MIN_FONT_SIZE);
-    VERIFY(fontLegend.CreatePointFont(pointFontHeight, L"Arial", &dc));
+    VERIFY(fontLegend.CreatePointFont(pointFontHeight, _T("Arial"), &dc));
 
     // Get the height of each label.
     LOGFONT lf;
@@ -822,7 +821,7 @@ void MyGraph::DrawLegend(CDC& dc)
     // If the optimalPointFontHeight is different from the initial one, create a new legend font
     if (optimalPointFontHeight != pointFontHeight) {
         fontLegend.DeleteObject();
-        VERIFY(fontLegend.CreatePointFont(optimalPointFontHeight, L"Arial", &dc));
+        VERIFY(fontLegend.CreatePointFont(optimalPointFontHeight, _T("Arial"), &dc));
         VERIFY(fontLegend.GetLogFont(&lf));
         nLabelHeight = abs(lf.lfHeight);
     }
@@ -868,7 +867,7 @@ void MyGraph::DrawLegend(CDC& dc)
         {
             if (nGroup == skipped_row) {
                 // draw the dots
-                VERIFY(dc.TextOut(m_rcLegend.left + GAP_PIXELS, nLabelTop, L"..." ));
+                VERIFY(dc.TextOut(m_rcLegend.left + GAP_PIXELS, nLabelTop, _T("...") ));
                 continue;
             }
             if (nGroup == nShownAuthors-1) {
@@ -936,7 +935,7 @@ void MyGraph::DrawAxes(CDC& dc) const
 
     // Create the x-axis label font.
     CFont fontXAxis;
-    VERIFY(fontXAxis.CreatePointFont(m_nAxisLabelHeight, L"Arial", &dc));
+    VERIFY(fontXAxis.CreatePointFont(m_nAxisLabelHeight, _T("Arial"), &dc));
 
     // Obtain the height of the font in device coordinates.
     LOGFONT pLF;
@@ -959,14 +958,14 @@ void MyGraph::DrawAxes(CDC& dc) const
         CLIP_DEFAULT_PRECIS,
         PROOF_QUALITY,
         VARIABLE_PITCH | FF_DONTCARE,
-        L"Arial")
+        _T("Arial"))
     );
 
     // Set the y-axis label font and draw the label.
     CFont* pFontOld = dc.SelectObject(&fontYAxis);
     ASSERT_VALID(pFontOld);
     CSize sizYLabel(dc.GetTextExtent(m_sYAxisLabel));
-    VERIFY(dc.TextOut(GAP_PIXELS, (m_rcGraph.Height() + sizYLabel.cx) / 2,
+    VERIFY(dc.TextOut(GAP_PIXELS, (m_rcGraph.Height() - sizYLabel.cy) / 2,
         m_sYAxisLabel));
 
     // Set the x-axis label font and draw the label.
@@ -977,7 +976,6 @@ void MyGraph::DrawAxes(CDC& dc) const
 
     // chose suitable tick step (1, 2, 5, 10, 20, 50, etc.)
     int nMaxDataValue(GetMaxDataValue());
-    nMaxDataValue = max(nMaxDataValue, 1);
     int nTickStep = 1;
     while (10 * nTickStep * Y_AXIS_TICK_COUNT_TARGET <= nMaxDataValue)
         nTickStep *= 10;
@@ -993,7 +991,7 @@ void MyGraph::DrawAxes(CDC& dc) const
 
     // create tick label font and set it in the device context
     CFont fontTickLabels;
-    VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, L"Arial", &dc));
+    VERIFY(fontTickLabels.CreatePointFont(m_nAxisTickLabelHeight, _T("Arial"), &dc));
     VERIFY(dc.SelectObject(&fontTickLabels));
 
     for (int nTick = 0; nTick < nTickCount; ++nTick)
@@ -1004,7 +1002,7 @@ void MyGraph::DrawAxes(CDC& dc) const
 
         // Draw tick label.
         CString sTickLabel;
-        sTickLabel.Format(L"%d", nTickStep * (nTick+1));
+        sTickLabel.Format(_T("%d"), nTickStep * (nTick+1));
         CSize sizTickLabel(dc.GetTextExtent(sTickLabel));
 
         VERIFY(dc.TextOut(m_ptOrigin.x - GAP_PIXELS - sizTickLabel.cx - TICK_PIXELS,
@@ -1025,6 +1023,7 @@ void MyGraph::DrawAxes(CDC& dc) const
             0 < pSeries->GetNonZeroElementCount()) {
 
             // Get the spacing of the series.
+            _ASSERTE(GetNonZeroSeriesCount()  &&  "Div by zero coming");
             int nSeriesSpace(0);
 
             if (m_saLegendLabels.GetSize()) {
@@ -1117,10 +1116,8 @@ void MyGraph::DrawSeriesBar(CDC& dc) const
 
                 if (pSeries->GetData(nGroup)) {
 
-                    int nMaxDataValue(GetMaxDataValue());
-                    nMaxDataValue = max(nMaxDataValue, 1);
                     double barTop = m_ptOrigin.y - (double)m_nYAxisHeight *
-                        pSeries->GetData(nGroup) / (double)nMaxDataValue - stackAccumulator;
+                        pSeries->GetData(nGroup) / (double)GetMaxDataValue() - stackAccumulator;
 
                     CRect rcBar;
                     rcBar.left = (int)runningLeft;
@@ -1181,9 +1178,7 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
         }
 
         // Determine width of bars.
-        int nMaxSeriesSize(GetMaxSeriesSize());
-        nMaxSeriesSize = max(nMaxSeriesSize, 1);
-        int nBarWidth(nSeriesSpace / nMaxSeriesSize);
+        int nBarWidth(nSeriesSpace / GetMaxSeriesSize());
 
         if (1 < m_olMyGraphSeries.GetCount()) {
             nBarWidth = (int) ((double) nBarWidth * INTERSERIES_PERCENT_USED);
@@ -1215,10 +1210,8 @@ void MyGraph::DrawSeriesLine(CDC& dc) const
             ptLoc.x = m_ptOrigin.x + (((nSeries + 1) * nSeriesSpace) -
                 (nSeriesSpace / 2));
 
-            int nMaxDataValue(GetMaxDataValue());
-            nMaxDataValue = max(nMaxDataValue, 1);
             double dLineHeight(pSeries->GetData(nGroup) * m_nYAxisHeight /
-                nMaxDataValue);
+                GetMaxDataValue());
 
             ptLoc.y = (int) ((double) m_ptOrigin.y - dLineHeight);
 
@@ -1278,9 +1271,7 @@ void MyGraph::DrawSeriesLineStacked(CDC& dc) const
         nSeriesSpace = m_nXAxisWidth / nSeriesCount;
     }
 
-    int nMaxDataValue(GetMaxDataValue());
-    nMaxDataValue = max(nMaxDataValue, 1);
-    double dYScaling = double(m_nYAxisHeight) / nMaxDataValue;
+    double dYScaling = double(m_nYAxisHeight) / GetMaxDataValue();
 
     // Iterate the groups.
     for (int nGroup = 0; nGroup < GetMaxSeriesSize(); nGroup++) {
@@ -1354,6 +1345,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
 {
     VALIDATE;
     ASSERT_VALID(&dc);
+    _ASSERTE(0 < GetNonZeroSeriesCount()  &&  "Div by zero");
 
     // Determine width of pie display area (pie and space).
     int nSeriesSpace(0);
@@ -1365,7 +1357,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
         // With legend box.
 
         horizontalSpace = m_nXAxisWidth - m_rcLegend.Width() - (GAP_PIXELS * 2);
-        int nPieAndSpaceWidth(horizontalSpace / (seriesCount ? seriesCount : 1));
+        int nPieAndSpaceWidth(horizontalSpace / seriesCount);
 
         // Height is limiting factor.
         if (nPieAndSpaceWidth > m_nYAxisHeight - (GAP_PIXELS * 2)) {
@@ -1382,12 +1374,12 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
         horizontalSpace = m_nXAxisWidth;
 
         // Height is limiting factor.
-        if (m_nXAxisWidth > m_nYAxisHeight * (seriesCount ? seriesCount : 1)) {
+        if (m_nXAxisWidth > m_nYAxisHeight * seriesCount) {
             nSeriesSpace = m_nYAxisHeight;
         }
         else {
             // Width is limiting factor.
-            nSeriesSpace = m_nXAxisWidth / (seriesCount ? seriesCount : 1);
+            nSeriesSpace = m_nXAxisWidth / seriesCount;
         }
     }
 
@@ -1397,7 +1389,7 @@ void MyGraph::DrawSeriesPie(CDC& dc) const
     // Create font for labels.
     CFont fontLabels;
     int pointFontHeight = max(m_rcGraph.Height() / Y_AXIS_LABEL_DIVISOR, MIN_FONT_SIZE);
-    VERIFY(fontLabels.CreatePointFont(pointFontHeight, L"Arial", &dc));
+    VERIFY(fontLabels.CreatePointFont(pointFontHeight, _T("Arial"), &dc));
     CFont* pFontOld = dc.SelectObject(&fontLabels);
     ASSERT_VALID(pFontOld);
 

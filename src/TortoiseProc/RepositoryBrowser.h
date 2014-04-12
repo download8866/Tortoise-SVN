@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,15 +22,15 @@
 #include "RepositoryBar.h"
 #include "StandAloneDlg.h"
 #include "ProjectProperties.h"
-#include "LogDialog/LogDlg.h"
+#include "LogDialog\LogDlg.h"
 #include "HintCtrl.h"
 #include "RepositoryLister.h"
 #include "ReaderWriterLock.h"
 
-#include <list>
-
 #define REPOBROWSER_CTRL_MIN_WIDTH  20
 #define REPOBROWSER_FETCHTIMER      101
+
+using namespace std;
 
 class CInputLogDlg;
 class CTreeDropTarget;
@@ -51,8 +51,6 @@ public:
         , has_child_folders(false)
         , is_external(false)
         , kind(svn_node_unknown)
-        , svnparentpathroot(false)
-        , bookmark(false)
     {
     }
 
@@ -63,11 +61,9 @@ public:
     bool            is_external;                ///< if set, several operations may not be available
     bool            children_fetched;           ///< whether the contents of the folder are known/fetched or not
     bool            has_child_folders;
-    std::deque<CItem>    children;
+    deque<CItem>    children;
     CString         error;
     svn_node_kind_t kind;
-    bool            svnparentpathroot;
-    bool            bookmark;
 };
 
 
@@ -96,22 +92,18 @@ public:
 
     /// switches to the \c url at \c rev. If the url is valid and exists,
     /// the repository browser will show the content of that url.
-    bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked) override;
+    bool ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChecked);
 
-    CString GetRepoRoot() override { return m_repository.root; }
+    CString GetRepoRoot() { return m_repository.root; }
     std::map<CString,svn_depth_t> GetCheckoutDepths() { return m_checkoutDepths; }
     std::map<CString,svn_depth_t> GetUpdateDepths() { return m_updateDepths; }
 
-    void OnCbenDragbeginUrlcombo(NMHDR *pNMHDR, LRESULT *pResult) override;
+    void OnCbenDragbeginUrlcombo(NMHDR *pNMHDR, LRESULT *pResult);
 
-    HWND GetHWND() const override { return GetSafeHwnd(); }
-    size_t GetHistoryForwardCount() const override { return m_UrlHistoryForward.size(); }
-    size_t GetHistoryBackwardCount() const override { return m_UrlHistory.size(); }
+    void SetSparseCheckoutMode() { m_bSparseCheckoutMode = true; m_bStandAlone = false; }
     bool IsThreadRunning() const override { return m_bThreadRunning; }
-    void SetSparseCheckoutMode(const CTSVNPath& path) { m_bSparseCheckoutMode = true; m_bStandAlone = false; m_wcPath = path; }
-
     /// overwrite SVN callbacks
-    virtual BOOL Cancel() override;
+    virtual BOOL Cancel();
 
     enum
     {
@@ -138,6 +130,8 @@ protected:
     afx_msg void OnTvnSelchangedRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnItemexpandingRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnItemChangedRepotree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnNMClickRepotree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnTvnKeydownRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMDblclkRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnHdnItemclickRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedRepolist(NMHDR *pNMHDR, LRESULT *pResult);
@@ -161,8 +155,6 @@ protected:
     afx_msg void OnRefresh();
     afx_msg void OnDelete();
     afx_msg void OnGoUp();
-    afx_msg void OnUrlHistoryBack();
-    afx_msg void OnUrlHistoryForward();
 
     DECLARE_MESSAGE_MAP()
 
@@ -208,9 +200,6 @@ protected:
      * control is refilled again.
      */
     bool RefreshNode(HTREEITEM hNode, bool force = false);
-    /// fetches the status of the associated working copy, used to fill
-    /// the check states in sparse checkout mode
-    void GetStatus();
     /// Fills the list control with all the children of \c pTreeItem.
     void FillList(CTreeItem * pTreeItem);
     /// Open / enter folder for entry number \ref item
@@ -268,32 +257,16 @@ protected:
     /// extract info from controls before they get destroyed
     void StoreSelectedURLs();
 
-    /// tries to fetch the html page returned by an apache server
-    /// set up with the SVNParentPath directive, parse all the listed
-    /// repositories and fill them in to the repo browser
-    bool TrySVNParentPath();
-
     /// resizes the control so that the divider is at position 'point'
     void HandleDividerMove(CPoint point, bool bDraw);
     bool CheckoutDepthForItem( HTREEITEM hItem );
     void CheckTreeItem( HTREEITEM hItem, bool bCheck );
-    void CheckTreeItemRecursive( HTREEITEM hItem, bool bCheck );
-    bool HaveAllChildrenSameCheckState( HTREEITEM hItem, bool bChecked = false );
-    void CheckParentsOfTreeItem( HTREEITEM hItem );
     bool CheckAndConfirmPath(const CTSVNPath& path);
     void SaveDividerPosition();
 
     void ShowText(const CString& sText, bool forceupdate = false);
     static void FilterInfinityDepthItems(std::map<CString,svn_depth_t>& depths);
     void SetListItemInfo( int index, const CItem * it );
-
-    bool RunStartCommit(const CTSVNPathList& pathlist, CString& sLogMsg);
-    bool RunPreCommit(const CTSVNPathList& pathlist, svn_depth_t depth, CString& sMsg);
-    bool RunPostCommit(const CTSVNPathList& pathlist, svn_depth_t depth, svn_revnum_t revEnd, const CString& sMsg);
-    void LoadBookmarks();
-    void SaveBookmarks();
-    HTREEITEM FindBookmarkRoot();
-    void RefreshBookmarks();
 protected:
     bool                m_bInitDone;
     CRepositoryBar      m_barRepository;
@@ -313,23 +286,19 @@ private:
     bool                m_bSparseCheckoutMode;
     CString             m_InitialUrl;
     CTSVNPath           m_redirectedUrl;
-    CTSVNPath           m_wcPath;
     CString             m_selectedURLs; ///< only valid after <OK>
     bool                m_bThreadRunning;
     static const UINT   m_AfterInitMessage;
     bool                m_bFetchChildren;
     bool                m_bShowExternals;
     bool                m_bShowLocks;
-    bool                m_bTrySVNParentPath;
     CTreeItem *         m_pListCtrlTreeItem;
 
-    int                 m_nBookmarksIcon;
     int                 m_nIconFolder;
     int                 m_nOpenIconFolder;
     int                 m_nExternalOvl;
-    int                 m_nSVNParentPath;
 
-    volatile int        m_blockEvents;
+    volatile bool       m_blockEvents;
 
     static bool         s_bSortLogical;
     bool                m_bSortAscending;
@@ -352,11 +321,7 @@ private:
     CRepositoryLister   m_lister;
     std::map<CString,svn_depth_t> m_checkoutDepths;
     std::map<CString,svn_depth_t> m_updateDepths;
-    std::list<CString>  m_UrlHistory;
-    std::list<CString>  m_UrlHistoryForward;
-    std::map<CString, svn_depth_t> m_wcDepths;
 
-    std::set<std::wstring>  m_bookmarks;
     std::unique_ptr<EditFileCommand>    m_EditFileCommand;
 
     /// used to execute user ops (e.g. context menu actions) in the background
@@ -364,5 +329,5 @@ private:
     CReaderWriterLock    m_guard;
 };
 
-static UINT WM_AFTERINIT = RegisterWindowMessage(L"TORTOISESVN_AFTERINIT_MSG");
+static UINT WM_AFTERINIT = RegisterWindowMessage(_T("TORTOISESVN_AFTERINIT_MSG"));
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,14 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 
 #include "SVNLogQuery.h"
 #include "ILogReceiver.h"
 
 #pragma warning(push)
 #include "svn_time.h"
-#include "private/svn_sorts_private.h"
+#include "svn_sorts.h"
 #include "svn_compat.h"
 #include "svn_props.h"
 #pragma warning(pop)
@@ -32,7 +32,7 @@
 #include "SVNError.h"
 #include "SVNHelpers.h"
 #include "TSVNPath.h"
-#include "SVNTrace.h"
+#include "svntrace.h"
 #include "Hooks.h"
 
 // SVN API utility
@@ -43,7 +43,7 @@ void CSVNLogQuery::AppendStrings ( SVNPool& pool
 {
     for (size_t i = 0; i  < strings.size(); ++i)
     {
-        const std::string& utf8String = strings[i];
+        const string& utf8String = strings[i];
 
         size_t size = utf8String.length()+1;
         char * aprString = reinterpret_cast<char *>(apr_palloc (pool, size));
@@ -181,7 +181,7 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
                     = (svn_log_changed_path2_t *) apr_hash_get ( log_entry->changed_paths2
                     , item->key
                     , item->klen);
-                static const char actionKeys[7] = "AMRDVE";
+                static const char actionKeys[5] = "AMRD";
                 const char* actionKey = strchr (actionKeys, log_item->action);
 
                 entry.action = actionKey == NULL
@@ -235,7 +235,7 @@ svn_error_t* CSVNLogQuery::LogReceiver ( void *baton
                     = (svn_log_changed_path_t *) apr_hash_get ( log_entry->changed_paths
                                                               , item->key
                                                               , item->klen);
-                static const char actionKeys[7] = "AMRDVE";
+                static const char actionKeys[5] = "AMRD";
                 const char* actionKey = strchr (actionKeys, log_item->action);
 
                 entry.action = actionKey == NULL
@@ -403,14 +403,13 @@ void CSVNLogQuery::Log ( const CTSVNPathList& targets
 
     CHooks::Instance().PreConnect(targets);
     SVNTRACE (
-        svn_error_t *result = svn_client_log6 ( targets.MakePathArray (localpool)
+        svn_error_t *result = svn_client_log5 ( targets.MakePathArray (localpool)
                                               , peg_revision
                                               , revision_ranges
                                               , limit
                                               , includeChanges
                                               , strictNodeHistory
                                               , includeMerges
-                                              , svn_move_behavior_auto_moves
                                               , revprops
                                               , LogReceiver
                                               , (void *)&baton

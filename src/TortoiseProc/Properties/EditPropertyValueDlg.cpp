@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "EditPropertyValueDlg.h"
+#include "auto_buffer.h"
 #include "SmartHandle.h"
 
 IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
@@ -30,7 +31,7 @@ IMPLEMENT_DYNAMIC(CEditPropertyValueDlg, CResizableStandAloneDialog)
 CEditPropertyValueDlg::CEditPropertyValueDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CEditPropertyValueDlg::IDD, pParent)
     , EditPropBase()
-    , m_sPropValue(L"")
+    , m_sPropValue(_T(""))
 {
 }
 
@@ -83,8 +84,6 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
         {
             m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_EXTERNALS));
             m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_IGNORE));
-            m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_INHERITABLE_IGNORES));
-            m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_INHERITABLE_AUTO_PROPS));
         }
         m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_KEYWORDS));
         m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_NEEDS_LOCK));
@@ -93,14 +92,11 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
             m_PropNames.AddString(CUnicodeUtils::GetUnicode(SVN_PROP_MERGEINFO));
         if (!m_ProjectProperties.sFPPath.IsEmpty())
         {
-            resToken = m_ProjectProperties.sFPPath.Tokenize(L"\n",curPos);
-            while (!resToken.IsEmpty())
+            resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
+            while (resToken != "")
             {
-                int equalpos = resToken.Find('=');
-                if (equalpos >= 0)
-                    resToken = resToken.Left(equalpos);
                 m_PropNames.AddString(resToken);
-                resToken = m_ProjectProperties.sFPPath.Tokenize(L"\n",curPos);
+                resToken = m_ProjectProperties.sFPPath.Tokenize(_T("\n"),curPos);
             }
         }
 
@@ -143,15 +139,12 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
             if (!m_ProjectProperties.sDPPath.IsEmpty())
             {
                 curPos = 0;
-                resToken = m_ProjectProperties.sDPPath.Tokenize(L"\n",curPos);
+                resToken = m_ProjectProperties.sDPPath.Tokenize(_T("\n"),curPos);
 
-                while (!resToken.IsEmpty())
+                while (resToken != "")
                 {
-                    int equalpos = resToken.Find('=');
-                    if (equalpos >= 0)
-                        resToken = resToken.Left(equalpos);
                     m_PropNames.AddString(resToken);
-                    resToken = m_ProjectProperties.sDPPath.Tokenize(L"\n",curPos);
+                    resToken = m_ProjectProperties.sDPPath.Tokenize(_T("\n"),curPos);
                 }
             }
         }
@@ -189,7 +182,7 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
     AdjustControlSize(IDC_PROPRECURSIVE);
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || m_bRemote ? SW_HIDE : SW_SHOW);
+    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps ? SW_HIDE : SW_SHOW);
 
     AddAnchor(IDC_PROPNAME, TOP_LEFT, TOP_CENTER);
     AddAnchor(IDC_PROPNAMECOMBO, TOP_CENTER, TOP_RIGHT);
@@ -200,7 +193,7 @@ BOOL CEditPropertyValueDlg::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"EditPropertyValueDlg");
+    EnableSaveRestore(_T("EditPropertyValueDlg"));
 
     if (!bFound)
     {
@@ -232,7 +225,7 @@ void CEditPropertyValueDlg::SetPropertyValue(const std::string& sValue)
     {
         m_bIsBinary = false;
         m_sPropValue = CUnicodeUtils::UTF8ToUTF16 (sValue);
-        m_sPropValue.Replace(L"\n", L"\r\n");
+        m_sPropValue.Replace(_T("\n"), _T("\r\n"));
     }
 }
 
@@ -252,8 +245,8 @@ void CEditPropertyValueDlg::OnOK()
     UpdateData();
     if (!m_bIsBinary)
     {
-        m_sPropValue.Replace(L"\r\n", L"\n");
-        m_sPropValue.Replace(L"\n\n", L"\n");
+        m_sPropValue.Replace(_T("\r\n"), _T("\n"));
+        m_sPropValue.Replace(_T("\n\n"), _T("\n"));
         m_PropValue = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sPropValue);
     }
     m_PropNames.GetWindowText(m_sPropName);
@@ -301,10 +294,6 @@ void CEditPropertyValueDlg::CheckRecursive()
             nText = IDS_PROP_TT_MIMETYPE;
         if (nameUTF8.compare(SVN_PROP_IGNORE)==0)
             nText = IDS_PROP_TT_IGNORE;
-        if (nameUTF8.compare(SVN_PROP_INHERITABLE_IGNORES)==0)
-            nText = IDS_PROP_TT_INHERITABLEIGNORE;
-        if (nameUTF8.compare(SVN_PROP_INHERITABLE_AUTO_PROPS)==0)
-            nText = IDS_PROP_TT_INHERITABLEAUTOPROPS;
         if (nameUTF8.compare(SVN_PROP_KEYWORDS)==0)
             nText = IDS_PROP_TT_KEYWORDS;
         if (nameUTF8.compare(SVN_PROP_EOL_STYLE)==0)
@@ -422,7 +411,7 @@ BOOL CEditPropertyValueDlg::PreTranslateMessage(MSG* pMsg)
 void CEditPropertyValueDlg::OnBnClickedLoadprop()
 {
     CString openPath;
-    if (!CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_OPEN, IDS_COMMONFILEFILTER, true, CString(), m_hWnd))
+    if (!CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_OPEN, IDS_COMMONFILEFILTER, true, m_hWnd))
     {
         return;
     }
@@ -432,11 +421,11 @@ void CEditPropertyValueDlg::OnBnClickedLoadprop()
     {
         DWORD size = GetFileSize(hFile, NULL);
         FILE * stream;
-        _tfopen_s(&stream, openPath, L"rbS");
-        std::unique_ptr<char[]> buf(new char[size]);
-        if (fread(buf.get(), sizeof(char), size, stream)==size)
+        _tfopen_s(&stream, openPath, _T("rbS"));
+        auto_buffer<char> buf(size);
+        if (fread(buf, sizeof(char), size, stream)==size)
         {
-            m_PropValue.assign(buf.get(), size);
+            m_PropValue.assign(buf, size);
         }
         fclose(stream);
         // see if the loaded file contents are binary

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2011-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -95,23 +95,21 @@ private:
     static  BOOL CALLBACK EnumResNameCallback(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam);
     static  BOOL CALLBACK EnumResNameWriteCallback(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, LONG_PTR lParam);
     static  BOOL CALLBACK EnumResWriteLangCallback(HMODULE hModule, LPCTSTR lpszType, LPTSTR lpszName, WORD wLanguage, LONG_PTR lParam);
-    BOOL    ExtractString(LPCTSTR lpszType);
-    BOOL    ExtractDialog(LPCTSTR lpszType);
-    BOOL    ExtractMenu(LPCTSTR lpszType);
-    BOOL    ExtractRibbon(LPCTSTR lpszType);
-    BOOL    ReplaceString(LPCTSTR lpszType, WORD wLanguage);
-    BOOL    ReplaceDialog(LPCTSTR lpszType, WORD wLanguage);
-    BOOL    ReplaceMenu(LPCTSTR lpszType, WORD wLanguage);
-    BOOL    ExtractAccelerator(LPCTSTR lpszType);
-    BOOL    ReplaceAccelerator(LPCTSTR lpszType, WORD wLanguage);
-    BOOL    ReplaceRibbon(LPCTSTR lpszType, WORD wLanguage);
+    BOOL    ExtractString(UINT nID);
+    BOOL    ExtractDialog(UINT nID);
+    BOOL    ExtractMenu(UINT nID);
+    BOOL    ReplaceString(UINT nID, WORD wLanguage);
+    BOOL    ReplaceDialog(UINT nID, WORD wLanguage);
+    BOOL    ReplaceMenu(UINT nID, WORD wLanguage);
+    BOOL    ExtractAccelerator(UINT nID);
+    BOOL    ReplaceAccelerator(UINT nID, WORD wLanguage);
 
     const WORD* ParseMenuResource(const WORD * res);
     const WORD* CountMemReplaceMenuResource(const WORD * res, size_t * wordcount, WORD * newMenu);
     const WORD* ParseMenuExResource(const WORD * res);
     const WORD* CountMemReplaceMenuExResource(const WORD * res, size_t * wordcount, WORD * newMenu);
-    const WORD* GetControlInfo(const WORD* p, LPDLGITEMINFO lpDlgItemInfo, BOOL dialogEx, LPBOOL bIsID) const;
-    const WORD* GetDialogInfo(const WORD * pTemplate, LPDIALOGINFO lpDlgInfo) const;
+    const WORD* GetControlInfo(const WORD* p, LPDLGITEMINFO lpDlgItemInfo, BOOL dialogEx, LPBOOL bIsID);
+    const WORD* GetDialogInfo(const WORD * pTemplate, LPDIALOGINFO lpDlgInfo);
     const WORD* CountMemReplaceDialogResource(const WORD * res, size_t * wordcount, WORD * newMenu);
     const WORD* ReplaceControlInfo(const WORD * res, size_t * wordcount, WORD * newDialog, BOOL bEx);
 
@@ -136,8 +134,6 @@ private:
     int             m_bDefaultMenuStrings;
     int             m_bTranslatedAcceleratorStrings;
     int             m_bDefaultAcceleratorStrings;
-    int             m_bTranslatedRibbonTexts;
-    int             m_bDefaultRibbonTexts;
 
     WORD            m_wTargetLang;
 };

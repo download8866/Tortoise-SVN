@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 #include "DirFileEnum.h"
 #include "CacheInterface.h"
 #include <WinInet.h>
-#include "cachedlg.h"
+#include ".\cachedlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -34,7 +34,6 @@
 CCacheDlg::CCacheDlg(CWnd* pParent /*=NULL*/)
 : CDialog(CCacheDlg::IDD, pParent)
 , m_sRootPath(_T(""))
-, m_hEvent(INVALID_HANDLE_VALUE)
 , m_hPipe(INVALID_HANDLE_VALUE)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
@@ -129,6 +128,7 @@ UINT CCacheDlg::TestThread()
 
     CTime starttime = CTime::GetCurrentTime();
     GetDlgItem(IDC_STARTTIME)->SetWindowText(starttime.Format(_T("%H:%M:%S")));
+    int filecounter = 0;
 
     DWORD startticks = GetTickCount();
 
@@ -280,7 +280,7 @@ bool CCacheDlg::GetStatusFromRemoteCache(const CTSVNPath& Path, bool bRecursive)
     {
         request.flags |= TSVNCACHE_FLAGS_RECUSIVE_STATUS;
     }
-    wcsncpy_s(request.path, Path.GetWinPath(), MAX_PATH);
+    wcsncpy(request.path, Path.GetWinPath(), MAX_PATH);
     ZeroMemory(&m_Overlapped, sizeof(OVERLAPPED));
     m_Overlapped.hEvent = m_hEvent;
     // Do the transaction in overlapped mode.
@@ -355,7 +355,7 @@ void CCacheDlg::RemoveFromCache(const CString& path)
             DWORD cbWritten;
             TSVNCacheCommand cmd;
             cmd.command = TSVNCACHECOMMAND_CRAWL;
-            wcsncpy_s(cmd.path, path, MAX_PATH);
+            wcsncpy(cmd.path, path, MAX_PATH);
             BOOL fSuccess = WriteFile(
                 hPipe,          // handle to pipe
                 &cmd,           // buffer to write from
@@ -416,6 +416,7 @@ UINT CCacheDlg::WatchTestThread()
 
     CTime starttime = CTime::GetCurrentTime();
     GetDlgItem(IDC_STARTTIME)->SetWindowText(starttime.Format(_T("%H:%M:%S")));
+    int filecounter = 0;
 
     DWORD startticks = GetTickCount();
 

@@ -35,10 +35,10 @@ static inline bool IsAWordChar(const int ch) {
 }
 
 inline bool isMMIXALOperator(char ch) {
-	if (IsASCII(ch) && isalnum(ch))
+	if (isascii(ch) && isalnum(ch))
 		return false;
 	if (ch == '+' || ch == '-' || ch == '|' || ch == '^' ||
-		ch == '*' || ch == '/' ||
+		ch == '*' || ch == '/' || ch == '/' ||
 		ch == '%' || ch == '<' || ch == '>' || ch == '&' ||
 		ch == '~' || ch == '$' ||
 		ch == ',' || ch == '(' || ch == ')' ||

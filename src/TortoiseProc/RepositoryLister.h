@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2014 - TortoiseSVN
+// Copyright (C) 2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 #include "TSVNPath.h"
 #include "SVN.h"
 
-#include "registry.h"
+#include "Registry.h"
 
 #include "JobBase.h"
 #include "JobScheduler.h"
@@ -121,7 +121,7 @@ public:
     {
         LPCTSTR start = relPath;
         LPCTSTR end = start + relPath.GetLength();
-        return static_cast<int>(std::count (start, end, '/'));
+        return static_cast<int>(std::count (start, end, _T('/')));
     }
 
 public:
@@ -184,7 +184,7 @@ private:
         CString error;
 
         /// in case of a redirect
-
+        
         CString redirectedUrl;
 
         /// copy copying supported
@@ -236,7 +236,7 @@ private:
 
         /// actual job code: fetch externals and parse them
 
-        virtual void InternalExecute() override;
+        virtual void InternalExecute();
 
         /// not meant to be destroyed directly
 
@@ -277,18 +277,17 @@ private:
             apr_time_t time, const CString& author, const CString& locktoken,
             const CString& lockowner, const CString& lockcomment,
             bool is_dav_comment, apr_time_t lock_creationdate,
-            apr_time_t lock_expirationdate, const CString& absolutepath,
-            const CString& externalParentUrl, const CString& externalTarget) override;
+            apr_time_t lock_expirationdate, const CString& absolutepath);
 
         /// early termination
 
-        virtual BOOL Cancel() override;
+        virtual BOOL Cancel();
 
     protected:
 
         /// actual job code: just call \ref SVN::List
 
-        virtual void InternalExecute() override;
+        virtual void InternalExecute();
 
         /// not meant to be destroyed directly
 
@@ -308,7 +307,7 @@ private:
 
         /// cancel the svn:externals sub query as well
 
-        virtual void Terminate() override;
+        virtual void Terminate();
 
         /// access additional results
 
@@ -370,6 +369,10 @@ private:
     /// the job queue to execute the list requests
 
     async::CJobScheduler scheduler;
+
+    /// registry settings
+
+    CRegDWORD fetchingExternalsEnabled;
 
     /// cleanup utilities
 

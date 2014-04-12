@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2007-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "IgnoreCommand.h"
 
+#include "MessageBox.h"
 #include "PathUtils.h"
 #include "SVNProperties.h"
 #include "SVN.h"
@@ -27,30 +28,23 @@ bool IgnoreCommand::Execute()
 {
     BOOL err = FALSE;
     std::set<CString> addeditems;
-    bool bRecursive = !!parser.HasKey(L"recursive");
     for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
     {
         CString name = CPathUtils::PathPatternEscape(pathList[nPath].GetFileOrDirectoryName());
-        if (parser.HasKey(L"onlymask"))
+        if (parser.HasKey(_T("onlymask")))
         {
-            name = L"*"+CPathUtils::PathPatternEscape(pathList[nPath].GetFileOrDirExtension());
+            name = _T("*")+CPathUtils::PathPatternEscape(pathList[nPath].GetFileOrDirExtension());
         }
         addeditems.insert(name);
         CTSVNPath parentfolder = pathList[nPath].GetContainingDirectory();
-        SVNProperties props(parentfolder, SVNRev::REV_WC, false, false);
+        SVNProperties props(parentfolder, SVNRev::REV_WC, false);
         CString value;
         for (int i=0; i<props.GetCount(); i++)
         {
-            if (!bRecursive && (props.GetItemName(i).compare(SVN_PROP_IGNORE)==0))
+            if (props.GetItemName(i).compare(SVN_PROP_IGNORE)==0)
             {
                 //treat values as normal text even if they're not
                 value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
-                break;
-            }
-            else if (bRecursive && (props.GetItemName(i).compare(SVN_PROP_INHERITABLE_IGNORES)==0))
-            {
-                value = CUnicodeUtils::GetUnicode(props.GetItemValue(i).c_str());
-                break;
             }
         }
         if (value.IsEmpty())
@@ -62,32 +56,32 @@ bool IgnoreCommand::Execute()
             ignoreItems.insert(name);
             CString token;
             int curPos = 0;
-            token = value.Tokenize(L"\n",curPos);
-            while (!token.IsEmpty())
+            token = value.Tokenize(_T("\n"),curPos);
+            while (token != _T(""))
             {
                 token.Trim();
                 ignoreItems.insert(token);
-                token = value.Tokenize(L"\n", curPos);
+                token = value.Tokenize(_T("\n"), curPos);
             };
             value.Empty();
             for (std::set<CString>::iterator it = ignoreItems.begin(); it != ignoreItems.end(); ++it)
             {
                 value += *it;
-                value += L"\n";
+                value += _T("\n");
             }
         }
-        if (!props.Add(bRecursive ? SVN_PROP_INHERITABLE_IGNORES : SVN_PROP_IGNORE, (LPCSTR)CUnicodeUtils::GetUTF8(value)))
+        if (!props.Add(SVN_PROP_IGNORE, (LPCSTR)CUnicodeUtils::GetUTF8(value)))
         {
             CString temp;
             temp.Format(IDS_ERR_FAILEDIGNOREPROPERTY, (LPCTSTR)name);
-            temp += L"\n";
+            temp += _T("\n");
             temp += props.GetLastErrorMessage();
-            MessageBox(GetExplorerHWND(), temp, L"TortoiseSVN", MB_ICONERROR);
+            MessageBox(GetExplorerHWND(), temp, _T("TortoiseSVN"), MB_ICONERROR);
             err = TRUE;
             break;
         }
     }
-    if ((err == FALSE)&&(parser.HasKey(L"delete")))
+    if ((err == FALSE)&&(parser.HasKey(_T("delete"))))
     {
         SVN svn;
         if (!svn.Remove(pathList, TRUE))
@@ -105,8 +99,8 @@ bool IgnoreCommand::Execute()
             filelist += L"\n";
         }
         CString temp;
-        temp.Format(bRecursive ? IDS_PROC_IGNORERECURSIVESUCCESS : IDS_PROC_IGNORESUCCESS, (LPCTSTR)filelist);
-        MessageBox(GetExplorerHWND(), temp, L"TortoiseSVN", MB_ICONINFORMATION);
+        temp.Format(IDS_PROC_IGNORESUCCESS, (LPCTSTR)filelist);
+        MessageBox(GetExplorerHWND(), temp, _T("TortoiseSVN"), MB_ICONINFORMATION);
         return true;
     }
     return false;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2012-2014 - TortoiseSVN
+// Copyright (C) 2007-2009, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 #include "MergeWizard.h"
 #include "MergeWizardOptions.h"
 #include "SVNProgressDlg.h"
-#include "WaitDlg.h"
+
 
 IMPLEMENT_DYNAMIC(CMergeWizardOptions, CMergeWizardBasePage)
 
@@ -46,25 +46,17 @@ void CMergeWizardOptions::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_IGNOREEOL, ((CMergeWizard*)GetParent())->m_bIgnoreEOL);
     DDX_Check(pDX, IDC_RECORDONLY, ((CMergeWizard*)GetParent())->m_bRecordOnly);
     DDX_Check(pDX, IDC_FORCE, ((CMergeWizard*)GetParent())->m_bForce);
-    DDX_Check(pDX, IDC_REINTEGRATEOLDSTYLE, ((CMergeWizard*)GetParent())->bReintegrate);
 }
 
 
 BEGIN_MESSAGE_MAP(CMergeWizardOptions, CMergeWizardBasePage)
     ON_BN_CLICKED(IDC_DRYRUN, &CMergeWizardOptions::OnBnClickedDryrun)
-    ON_BN_CLICKED(IDC_REINTEGRATEOLDSTYLE, &CMergeWizardOptions::OnBnClickedReintegrateoldstyle)
 END_MESSAGE_MAP()
 
 
 BOOL CMergeWizardOptions::OnInitDialog()
 {
     CMergeWizardBasePage::OnInitDialog();
-
-    CMergeWizard * pWizard = (CMergeWizard*)GetParent();
-
-    CString sRegOptionIgnoreAncestry = L"Software\\TortoiseSVN\\Merge\\IgnoreAncestry_" + pWizard->sUUID;
-    CRegDWORD regIgnoreAncestryOpt(sRegOptionIgnoreAncestry, FALSE);
-    pWizard->m_bIgnoreAncestry = (DWORD)regIgnoreAncestryOpt;
 
     m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_WORKING)));
     m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
@@ -106,7 +98,6 @@ BOOL CMergeWizardOptions::OnInitDialog()
     AdjustControlSize(IDC_IGNOREALLWHITESPACES);
     AdjustControlSize(IDC_FORCE);
     AdjustControlSize(IDC_RECORDONLY);
-    AdjustControlSize(IDC_REINTEGRATEOLDSTYLE);
 
     AddAnchor(IDC_MERGEOPTIONSGROUP, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_MERGEOPTIONSDEPTHLABEL, TOP_LEFT);
@@ -118,10 +109,7 @@ BOOL CMergeWizardOptions::OnInitDialog()
     AddAnchor(IDC_IGNOREALLWHITESPACES, TOP_LEFT);
     AddAnchor(IDC_FORCE, TOP_LEFT);
     AddAnchor(IDC_RECORDONLY, TOP_LEFT);
-    AddAnchor(IDC_REINTEGRATEOLDSTYLE, TOP_LEFT);
     AddAnchor(IDC_DRYRUN, BOTTOM_RIGHT);
-
-    UpdateData(FALSE);
 
     return TRUE;
 }
@@ -133,39 +121,28 @@ LRESULT CMergeWizardOptions::OnWizardBack()
 
 BOOL CMergeWizardOptions::OnWizardFinish()
 {
-    UpdateData();
-    CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
     switch (m_depthCombo.GetCurSel())
     {
     case 0:
-        pWizard->m_depth = svn_depth_unknown;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_unknown;
         break;
     case 1:
-        pWizard->m_depth = svn_depth_infinity;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_infinity;
         break;
     case 2:
-        pWizard->m_depth = svn_depth_immediates;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_immediates;
         break;
     case 3:
-        pWizard->m_depth = svn_depth_files;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_files;
         break;
     case 4:
-        pWizard->m_depth = svn_depth_empty;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_empty;
         break;
     default:
-        pWizard->m_depth = svn_depth_empty;
+        ((CMergeWizard*)GetParent())->m_depth = svn_depth_empty;
         break;
     }
-    pWizard->m_IgnoreSpaces = GetIgnores();
-
-    if ((pWizard->nRevRangeMerge == MERGEWIZARD_REVRANGE) && (!pWizard->bReintegrate))
-    {
-        pWizard->bAllowMixedRev = false;
-    }
-
-    CString sRegOptionIgnoreAncestry = L"Software\\TortoiseSVN\\Merge\\IgnoreAncestry_" + pWizard->sUUID;
-    CRegDWORD regIgnoreAncestryOpt(sRegOptionIgnoreAncestry, FALSE);
-    regIgnoreAncestryOpt = pWizard->m_bIgnoreAncestry;
+    ((CMergeWizard*)GetParent())->m_IgnoreSpaces = GetIgnores();
 
     return CMergeWizardBasePage::OnWizardFinish();
 }
@@ -176,7 +153,9 @@ BOOL CMergeWizardOptions::OnSetActive()
     psheet->SetWizardButtons(PSWIZB_BACK|PSWIZB_FINISH);
     SetButtonTexts();
     CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
-    GetDlgItem(IDC_REINTEGRATEOLDSTYLE)->EnableWindow((pWizard->nRevRangeMerge == MERGEWIZARD_REVRANGE) && (pWizard->revRangeArray.GetCount() == 0));
+    GetDlgItem(IDC_RECORDONLY)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
+    GetDlgItem(IDC_DEPTH)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
+    GetDlgItem(IDC_FORCE)->EnableWindow(pWizard->nRevRangeMerge != MERGEWIZARD_REINTEGRATE);
 
     CString sTitle;
     switch (pWizard->nRevRangeMerge)
@@ -187,8 +166,11 @@ BOOL CMergeWizardOptions::OnSetActive()
     case MERGEWIZARD_TREE:
         sTitle.LoadString(IDS_MERGEWIZARD_TREETITLE);
         break;
+    case MERGEWIZARD_REINTEGRATE:
+        sTitle.LoadString(IDS_MERGEWIZARD_REINTEGRATETITLE);
+        break;
     }
-    sTitle += L" : " + CString(MAKEINTRESOURCE(IDS_MERGEWIZARD_OPTIONSTITLE));
+    sTitle += _T(" : ") + CString(MAKEINTRESOURCE(IDS_MERGEWIZARD_OPTIONSTITLE));
     SetDlgItemText(IDC_MERGEOPTIONSGROUP, sTitle);
 
     return CMergeWizardBasePage::OnSetActive();
@@ -225,8 +207,6 @@ void CMergeWizardOptions::OnBnClickedDryrun()
                 tempRevArray.AddRevRange(1, SVNRev::REV_HEAD);
                 progDlg.SetRevisionRanges(tempRevArray);
             }
-            if (pWizard->bReintegrate)
-                progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrateOldStyle);
         }
         break;
     case MERGEWIZARD_TREE:
@@ -240,6 +220,11 @@ void CMergeWizardOptions::OnBnClickedDryrun()
                 tempRevArray.AddRevRange(pWizard->startRev, pWizard->endRev);
                 progDlg.SetRevisionRanges(tempRevArray);
             }
+        }
+        break;
+    case MERGEWIZARD_REINTEGRATE:
+        {
+            progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
         }
         break;
     }
@@ -276,12 +261,4 @@ svn_diff_file_ignore_space_t CMergeWizardOptions::GetIgnores()
     }
 
     return ignores;
-}
-
-void CMergeWizardOptions::OnBnClickedReintegrateoldstyle()
-{
-    UpdateData();
-    CMergeWizard * pWizard = ((CMergeWizard*)GetParent());
-    if (pWizard)
-        GetDlgItem(IDC_RECORDONLY)->EnableWindow(!pWizard->bReintegrate);
 }

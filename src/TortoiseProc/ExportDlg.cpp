@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "TortoiseProc.h"
 #include "ExportDlg.h"
 #include "RepositoryBrowser.h"
+#include "Messagebox.h"
 #include "PathUtils.h"
 #include "BrowseFolder.h"
 #include "AppUtils.h"
@@ -29,15 +30,13 @@
 IMPLEMENT_DYNAMIC(CExportDlg, CResizableStandAloneDialog)
 CExportDlg::CExportDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CExportDlg::IDD, pParent)
-    , Revision(L"HEAD")
-    , m_strExportDirectory(L"")
-    , m_sExportDirOrig(L"")
+    , Revision(_T("HEAD"))
+    , m_strExportDirectory(_T(""))
+    , m_sExportDirOrig(_T(""))
     , m_bNoExternals(FALSE)
     , m_bNoKeywords(FALSE)
     , m_pLogDlg(NULL)
     , m_blockPathAdjustments(FALSE)
-    , m_bAutoCreateTargetName(false)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -117,7 +116,7 @@ BOOL CExportDlg::OnInitDialog()
     // will change that below
     CString origurl = m_URL;
     m_URLCombo.SetURLHistory(true, true);
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
     m_URLCombo.SetCurSel(0);
 
     m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_INFINITE)));
@@ -129,7 +128,7 @@ BOOL CExportDlg::OnInitDialog()
     // set radio buttons according to the revision
     SetRevision(Revision);
 
-    m_editRevision.SetWindowText(L"");
+    m_editRevision.SetWindowText(_T(""));
 
     if (!origurl.IsEmpty())
         m_URLCombo.SetWindowText(origurl);
@@ -147,18 +146,18 @@ BOOL CExportDlg::OnInitDialog()
     SHAutoComplete(GetDlgItem(IDC_CHECKOUTDIRECTORY)->m_hWnd, SHACF_FILESYSTEM);
 
     // fill the combobox with the choices of eol styles
-    m_eolCombo.AddString(L"default");
-    m_eolCombo.AddString(L"CRLF");
-    m_eolCombo.AddString(L"LF");
-    m_eolCombo.AddString(L"CR");
-    m_eolCombo.SelectString(0, L"default");
+    m_eolCombo.AddString(_T("default"));
+    m_eolCombo.AddString(_T("CRLF"));
+    m_eolCombo.AddString(_T("LF"));
+    m_eolCombo.AddString(_T("CR"));
+    m_eolCombo.SelectString(0, _T("default"));
 
     if (!Revision.IsHead())
     {
         // if the revision is not HEAD, change the radio button and
         // fill in the revision in the edit box
         CString temp;
-        temp.Format(L"%ld", (LONG)Revision);
+        temp.Format(_T("%ld"), (LONG)Revision);
         m_editRevision.SetWindowText(temp);
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     }
@@ -167,7 +166,7 @@ BOOL CExportDlg::OnInitDialog()
 
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"ExportDlg");
+    EnableSaveRestore(_T("ExportDlg"));
     return TRUE;
 }
 
@@ -198,7 +197,7 @@ void CExportDlg::OnOK()
     if (::PathIsRelative(m_strExportDirectory))
     {
         ExportDirectory = CTSVNPath(sOrigCWD);
-        ExportDirectory.AppendPathString(L"\\" + m_strExportDirectory);
+        ExportDirectory.AppendPathString(_T("\\") + m_strExportDirectory);
         m_strExportDirectory = ExportDirectory.GetWinPathString();
     }
     else
@@ -212,7 +211,7 @@ void CExportDlg::OnOK()
     // check if the specified revision is valid
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        Revision = SVNRev(L"HEAD");
+        Revision = SVNRev(_T("HEAD"));
     }
     else
         Revision = SVNRev(m_sRevision);
@@ -252,19 +251,27 @@ void CExportDlg::OnOK()
     // maybe the user doesn't want to overwrite the existing files.
     if (!PathIsDirectoryEmpty(m_strExportDirectory))
     {
+        bool doIt = false;
         CString message;
         message.Format(CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY)),(LPCTSTR)m_strExportDirectory);
-        CTaskDialog taskdlg(message,
-                            CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK2)),
-                            L"TortoiseSVN",
-                            0,
-                            TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
-        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK3_1)));
-        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK4)));
-        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-        taskdlg.SetDefaultCommandControl(2);
-        taskdlg.SetMainIcon(TD_WARNING_ICON);
-        bool doIt = (taskdlg.DoModal(GetExplorerHWND()) == 1);
+        if (CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskdlg(message,
+                                CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK2)),
+                                L"TortoiseSVN",
+                                0,
+                                TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK3_1)));
+            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_FOLDERNOTEMPTY_TASK4)));
+            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+            taskdlg.SetDefaultCommandControl(2);
+            taskdlg.SetMainIcon(TD_WARNING_ICON);
+            doIt = (taskdlg.DoModal(GetExplorerHWND()) == 1);
+        }
+        else
+        {
+            doIt = (::MessageBox(this->m_hWnd, message, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES);
+        }
 
         if (!doIt)
         {
@@ -273,7 +280,7 @@ void CExportDlg::OnOK()
         }
     }
     m_eolCombo.GetWindowText(m_eolStyle);
-    if (m_eolStyle.Compare(L"default")==0)
+    if (m_eolStyle.Compare(_T("default"))==0)
         m_eolStyle.Empty();
 
     switch (m_depthCombo.GetCurSel())
@@ -383,7 +390,7 @@ void CExportDlg::OnBnClickedShowlog()
 LPARAM CExportDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%ld"), lParam);
     SetDlgItemText(IDC_REVISION_NUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
@@ -410,7 +417,7 @@ void CExportDlg::SetRevision(const SVNRev& rev)
     {
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
         CString sRev;
-        sRev.Format(L"%ld", (LONG)rev);
+        sRev.Format(_T("%ld"), (LONG)rev);
         SetDlgItemText(IDC_REVISION_NUM, sRev);
     }
 }
@@ -431,7 +438,7 @@ void CExportDlg::OnCbnEditchangeUrlcombo()
     if ((m_sExportDirOrig.IsEmpty())||(m_blockPathAdjustments))
         return;
     CString name = CAppUtils::GetProjectNameFromURL(m_URL);
-    m_strExportDirectory = m_sExportDirOrig+'\\'+name;
-    m_strExportDirectory.Replace(L":\\\\", L":\\");
+    m_strExportDirectory = m_sExportDirOrig+_T('\\')+name;
+    m_strExportDirectory.Replace(_T(":\\\\"), _T(":\\"));
     UpdateData(FALSE);
 }

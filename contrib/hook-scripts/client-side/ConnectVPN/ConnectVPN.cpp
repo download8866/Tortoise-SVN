@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010, 2012 - TortoiseSVN
+// Copyright (C) 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,9 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-
 #include "stdafx.h"
-#include <memory>
+
+#include "..\..\..\..\src\Utils\auto_buffer.h"
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
@@ -44,7 +44,7 @@ bool IsConnected(const wchar_t *szConnectionName)
         dwCb = (dwConnections * sizeof(RASCONN));
     }
 
-    std::unique_ptr<RASCONN[]> rasCons(new RASCONN[dwConnections]);
+    auto_buffer<RASCONN> rasCons(dwConnections);
 
     // First RASCONN structure must have its size set.
     // (And this may be larger than the OS's RASCONN size! See above.)
@@ -94,9 +94,9 @@ bool IsConnected(const wchar_t *szConnectionName)
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
-                       HINSTANCE hPrevInstance,
-                       LPTSTR    lpCmdLine,
-                       int       nCmdShow)
+    HINSTANCE hPrevInstance,
+    LPTSTR    lpCmdLine,
+    int       nCmdShow)
 {
     UNREFERENCED_PARAMETER(hInstance);
     UNREFERENCED_PARAMETER(hPrevInstance);

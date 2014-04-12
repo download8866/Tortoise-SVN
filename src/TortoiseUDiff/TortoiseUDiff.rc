@@ -60,14 +60,12 @@ IDI_TORTOISEUDIFF       ICON                    "TortoiseUDiff.ico"
 IDC_TORTOISEUDIFF ACCELERATORS
 BEGIN
     "W",            ID_FILE_EXIT,           VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
-    "S",            ID_FILE_SAVEAS,         VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_ESCAPE,      IDM_FINDEXIT,           VIRTKEY, NOINVERT
     VK_F3,          IDM_FINDNEXT,           VIRTKEY, NOINVERT
     VK_F3,          IDM_FINDPREV,           VIRTKEY, SHIFT, NOINVERT
     "F",            IDM_SHOWFINDBAR,        VIRTKEY, CONTROL, NOINVERT
-    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVEAS,         VIRTKEY, SHIFT, CONTROL, NOINVERT
 END
 
 
@@ -83,13 +81,6 @@ BEGIN
         MENUITEM "&Open",                       ID_FILE_OPEN
         MENUITEM "&Save",                       ID_FILE_SAVE
         MENUITEM "Save &as",                    ID_FILE_SAVEAS
-        MENUITEM SEPARATOR
-        MENUITEM "P&age setup",                 ID_FILE_PAGESETUP
-        MENUITEM "&Print",                      ID_FILE_PRINT
-        MENUITEM SEPARATOR
-        MENUITEM "Se&ttings",                   ID_FILE_SETTINGS
-        MENUITEM SEPARATOR
-        MENUITEM "Apply &Patch...",             ID_FILE_APPLYPATCH
         MENUITEM SEPARATOR
         MENUITEM "&Exit",                       ID_FILE_EXIT
     END

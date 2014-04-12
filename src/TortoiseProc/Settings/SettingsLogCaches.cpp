@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SettingsLogCaches.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "SVNError.h"
 #include "LogCachePool.h"
@@ -28,7 +29,6 @@
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
 #include "Access/CSVWriter.h"
-#include "AppUtils.h"
 
 using namespace LogCache;
 
@@ -40,7 +40,6 @@ CSettingsLogCaches::CSettingsLogCaches()
     : ISettingsPropPage(CSettingsLogCaches::IDD)
     , progress(NULL)
     , m_bThreadRunning(0)
-    , headRevision(-1)
 {
 }
 
@@ -116,32 +115,6 @@ BOOL CSettingsLogCaches::OnInitDialog()
 BOOL CSettingsLogCaches::PreTranslateMessage(MSG* pMsg)
 {
     m_tooltips.RelayEvent(pMsg);
-
-    if (pMsg->message == WM_KEYDOWN)
-    {
-        switch (pMsg->wParam)
-        {
-        case 'A':
-            {
-                if (GetAsyncKeyState(VK_CONTROL)&0x8000)
-                {
-                    // select all entries
-                    const int itemCount = m_cRepositoryList.GetItemCount();
-                    for (int i=0; i<itemCount; ++i)
-                    {
-                        m_cRepositoryList.SetItemState(i, LVIS_SELECTED, LVIS_SELECTED);
-                    }
-                    return TRUE;
-                }
-            }
-            break;
-        case VK_DELETE:
-            {
-                OnBnClickedDelete();
-            }
-            break;
-        }
-    }
     return ISettingsPropPage::PreTranslateMessage(pMsg);
 }
 
@@ -168,14 +141,14 @@ void CSettingsLogCaches::OnBnClickedExport()
     TRepo repo = GetSelectedRepo();
     if (!repo.first.IsEmpty())
     {
-        CString path;
-        if (CAppUtils::FileOpenSave(path, NULL, IDS_SETTINGS_LOGCACHE_EXPORT, IDS_LOGCACHE_EXPORTFILTER, false, CString(), GetSafeHwnd()))
+        CFileDialog dialog (FALSE);
+        if (dialog.DoModal() == IDOK)
         {
             SVN svn;
             CCachedLogInfo* cache
                 = svn.GetLogCachePool()->GetCache (repo.second, repo.first);
             CCSVWriter writer;
-            writer.Write(*cache, (LPCTSTR)path);
+            writer.Write (*cache, (LPCTSTR)dialog.GetFileName());
         }
     }
 }
@@ -185,17 +158,25 @@ void CSettingsLogCaches::OnBnClickedDelete()
     int nSelCount = m_cRepositoryList.GetSelectedCount();
     CString sQuestion;
     sQuestion.Format(IDS_SETTINGS_CACHEDELETEQUESTION, nSelCount);
-    CTaskDialog taskdlg(sQuestion,
-                        CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK2)),
-                        L"TortoiseSVN",
-                        0,
-                        TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK3)));
-    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK4)));
-    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-    taskdlg.SetDefaultCommandControl(2);
-    taskdlg.SetMainIcon(TD_WARNING_ICON);
-    bool bDelete = (taskdlg.DoModal(m_hWnd) == 1);
+    bool bDelete = false;
+    if (CTaskDialog::IsSupported())
+    {
+        CTaskDialog taskdlg(sQuestion,
+                            CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK2)),
+                            L"TortoiseSVN",
+                            0,
+                            TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK3)));
+        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_SETTINGS_CACHEDELETEQUESTION_TASK4)));
+        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+        taskdlg.SetDefaultCommandControl(2);
+        taskdlg.SetMainIcon(TD_WARNING_ICON);
+        bDelete = (taskdlg.DoModal(m_hWnd)==1);
+    }
+    else
+    {
+        bDelete = (TSVNMessageBox(m_hWnd, sQuestion, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION) == IDYES);
+    }
 
     if (bDelete)
     {
@@ -247,7 +228,7 @@ void CSettingsLogCaches::FillRepositoryList()
         size_t fileSize = caches->FileSize (iter->second, url) / 1024;
 
         CString sizeText;
-        sizeText.Format(L"%Iu", fileSize);
+        sizeText.Format(TEXT("%d"), fileSize);
         m_cRepositoryList.SetItemText (count, 1, sizeText);
     }
 }
@@ -267,10 +248,10 @@ void CSettingsLogCaches::ReceiveLog ( TChangedPaths*
 
     // update progress bar and check for user pressing "Cancel"
 
-    static ULONGLONG lastProgressCall = 0;
-    if (lastProgressCall < GetTickCount64() - 500UL)
+    static DWORD lastProgressCall = 0;
+    if (lastProgressCall < GetTickCount() - 500)
     {
-        lastProgressCall = GetTickCount64();
+        lastProgressCall = GetTickCount();
 
         CString temp;
         temp.LoadString(IDS_REVGRAPH_PROGGETREVS);

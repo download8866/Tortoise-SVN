@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2010, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@ CSysImageList * CSysImageList::instance = 0;
 CSysImageList::CSysImageList()
 {
     SHFILEINFO ssfi;
-    TCHAR windir[MAX_PATH] = { 0 };
+    TCHAR windir[MAX_PATH];
     GetWindowsDirectory(windir, _countof(windir));  // MAX_PATH ok.
     HIMAGELIST hSystemImageList =
         (HIMAGELIST)SHGetFileInfo(
@@ -67,17 +67,17 @@ int CSysImageList::AddIcon(const HICON hIcon)
 
 int CSysImageList::GetDirIconIndex() const
 {
-    return GetFileIcon(L"Doesn't matter", FILE_ATTRIBUTE_DIRECTORY, 0);
+    return GetFileIcon(_T("Doesn't matter"), FILE_ATTRIBUTE_DIRECTORY, 0);
 }
 
 int CSysImageList::GetDirOpenIconIndex() const
 {
-    return GetFileIcon(L"Doesn't matter", FILE_ATTRIBUTE_DIRECTORY, SHGFI_OPENICON);
+    return GetFileIcon(_T("Doesn't matter"), FILE_ATTRIBUTE_DIRECTORY, SHGFI_OPENICON);
 }
 
 int CSysImageList::GetDefaultIconIndex() const
 {
-    return GetFileIcon(L"", FILE_ATTRIBUTE_NORMAL, 0);
+    return GetFileIcon(_T(""), FILE_ATTRIBUTE_NORMAL, 0);
 }
 
 int CSysImageList::GetFileIconIndex(const CString& file) const

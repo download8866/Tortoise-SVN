@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013 - TortoiseSVN
+// Copyright (C) 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 class PropValue
 {
 public:
-    PropValue(void) : count(0), allthesamevalue(true), isbinary(false), remove(false), isinherited(false) {};
+    PropValue(void) : count(0), allthesamevalue(true), isbinary(false), remove(false) {};
 
     std::string value;
     tstring     value_without_newlines;
@@ -32,8 +32,6 @@ public:
     bool        allthesamevalue;
     bool        isbinary;
     bool        remove;
-    bool        isinherited;
-    std::wstring inheritedfrom;
 };
 
 typedef std::map<std::string, PropValue> TProperties;
@@ -60,11 +58,10 @@ public:
     virtual void            SetProperties(const TProperties& props) { m_properties = props; }
     virtual TProperties     GetProperties() const { return m_properties; }
     virtual bool            HasMultipleProperties() { return false; }
-    virtual bool            IsFolderOnlyProperty() { return false; }
 
     virtual void            SetFolder() {m_bFolder = true;}
     virtual void            SetMultiple() {m_bMultiple = true;}
-    virtual void            SetPathList(const CTSVNPathList& pathlist);
+    virtual void            SetPathList(const CTSVNPathList& pathlist) {m_pathList = pathlist;}
 
     virtual void            SetDialogTitle(const CString& sTitle) {m_sTitle = sTitle;}
     virtual void            RevProps(bool bRevProps = false) {m_bRevProps = bRevProps;}
@@ -78,7 +75,6 @@ protected:
     bool                    m_bIsBinary;
     bool                    m_bChanged;
     BOOL                    m_bRecursive;
-    bool                    m_bRemote;
     bool                    m_bRevProps;
     CTSVNPathList           m_pathList;
     CString                 m_sTitle;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "LockDlg.h"
+#include ".\lockdlg.h"
 #include "UnicodeUtils.h"
 #include "SVNProperties.h"
 #include "SVN.h"
@@ -73,10 +73,10 @@ BOOL CLockDlg::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDC_STEALLOCKS);
     m_aeroControls.SubclassOkCancelHelp(this);
 
-    m_History.SetMaxHistoryItems((LONG)CRegDWORD(L"Software\\TortoiseSVN\\MaxHistoryItems", 25));
-    m_History.Load(L"Software\\TortoiseSVN\\History\\commit", L"logmsgs");
+    m_History.SetMaxHistoryItems((LONG)CRegDWORD(_T("Software\\TortoiseSVN\\MaxHistoryItems"), 25));
+    m_History.Load(_T("Software\\TortoiseSVN\\History\\commit"), _T("logmsgs"));
 
-    m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK, L"LockDlg");
+    m_cFileList.Init(SVNSLC_COLEXT | SVNSLC_COLLOCK, _T("LockDlg"));
     m_cFileList.SetSelectButton(&m_SelectAll);
     m_cFileList.SetConfirmButton((CButton*)GetDlgItem(IDOK));
     m_cFileList.SetCancelBool(&m_bCancelled);
@@ -86,7 +86,7 @@ BOOL CLockDlg::OnInitDialog()
         m_cEdit.Init(*m_ProjectProperties);
     else
         m_cEdit.Init();
-    m_cEdit.SetFont((CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Courier New"), (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 8));
+    m_cEdit.SetFont((CString)CRegString(_T("Software\\TortoiseSVN\\LogFontName"), _T("Courier New")), (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\LogFontSize"), 8));
 
     if (!m_sLockMessage.IsEmpty())
         m_cEdit.SetText(m_sLockMessage);
@@ -121,7 +121,7 @@ BOOL CLockDlg::OnInitDialog()
 
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"LockDlg");
+    EnableSaveRestore(_T("LockDlg"));
 
     // start a thread to obtain the file list with the status without
     // blocking the dialog
@@ -277,7 +277,6 @@ void CLockDlg::OnBnClickedSelectall()
         m_SelectAll.SetCheck(state);
     }
     m_cFileList.SelectAll(state == BST_CHECKED);
-    OnEnChangeLockmessage();
 }
 
 void CLockDlg::OnBnClickedHistory()
@@ -352,7 +351,7 @@ LRESULT CLockDlg::OnFileDropped(WPARAM, LPARAM lParam)
 
     // Always start the timer, since the status of an existing item might have changed
     SetTimer(REFRESHTIMER, 200, NULL);
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Item %s dropped, timer started\n", path.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Item %s dropped, timer started\n"), path.GetWinPath());
     return 0;
 }
 

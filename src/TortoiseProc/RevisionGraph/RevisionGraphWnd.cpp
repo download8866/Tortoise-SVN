@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,8 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
-#include "RevisionGraphWnd.h"
+#include "Revisiongraphwnd.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "AppUtils.h"
 #include "PathUtils.h"
@@ -39,7 +40,6 @@
 #include "RevisionGraph/UpsideDownLayout.h"
 #include "SysInfo.h"
 #include "FormatMessageWrapper.h"
-#include <strsafe.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -49,6 +49,10 @@ static char THIS_FILE[] = __FILE__;
 
 using namespace Gdiplus;
 
+#if (_WIN32_WINNT < 0x0600)
+#define WM_MOUSEHWHEEL                  0x020E
+#endif
+
 
 enum RevisionGraphContextMenuCommands
 {
@@ -57,7 +61,6 @@ enum RevisionGraphContextMenuCommands
     ID_SHOWLOG = 1,
     ID_CFM = 2,
     ID_BROWSEREPO,
-    ID_CHECKOUT,
     ID_COMPAREREVS = 0x100,
     ID_COMPAREHEADS,
     ID_UNIDIFFREVS,
@@ -98,14 +101,13 @@ CRevisionGraphWnd::CRevisionGraphWnd()
     , m_previewWidth(0)
     , m_previewHeight(0)
     , m_previewZoom(1)
-    , m_ullTicks(0)
 {
-    SecureZeroMemory(&m_lfBaseFont, sizeof(LOGFONT));
+    memset(&m_lfBaseFont, 0, sizeof(LOGFONT));
     std::fill_n(m_apFonts, MAXFONTS, (CFont*)NULL);
 
     WNDCLASS wndcls;
     HINSTANCE hInst = AfxGetInstanceHandle();
-#define REVGRAPH_CLASSNAME L"Revgraph_windowclass"
+#define REVGRAPH_CLASSNAME _T("Revgraph_windowclass")
     if (!(::GetClassInfo(hInst, REVGRAPH_CLASSNAME, &wndcls)))
     {
         // otherwise we need to register a new class
@@ -122,10 +124,8 @@ CRevisionGraphWnd::CRevisionGraphWnd()
         RegisterClass(&wndcls);
     }
 
-    m_bTweakTrunkColors = CRegDWORD(L"Software\\TortoiseSVN\\RevisionGraph\\TweakTrunkColors", TRUE) != FALSE;
-    m_bTweakTagsColors = CRegDWORD(L"Software\\TortoiseSVN\\RevisionGraph\\TweakTagsColors", TRUE) != FALSE;
-    m_szTip[0]  = 0;
-    m_wszTip[0] = 0;
+    m_bTweakTrunkColors = CRegDWORD(_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTrunkColors"), TRUE) != FALSE;
+    m_bTweakTagsColors = CRegDWORD(_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTagsColors"), TRUE) != FALSE;
 }
 
 CRevisionGraphWnd::~CRevisionGraphWnd()
@@ -172,7 +172,7 @@ void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
 {
     WNDCLASS wndcls;
     HINSTANCE hInst = AfxGetInstanceHandle();
-#define REVGRAPH_CLASSNAME L"Revgraph_windowclass"
+#define REVGRAPH_CLASSNAME _T("Revgraph_windowclass")
     if (!(::GetClassInfo(hInst, REVGRAPH_CLASSNAME, &wndcls)))
     {
         // otherwise we need to register a new class
@@ -190,7 +190,7 @@ void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
     }
 
     if (!IsWindow(m_hWnd))
-        CreateEx(WS_EX_CLIENTEDGE, REVGRAPH_CLASSNAME, L"RevGraph", WS_CHILD|WS_VISIBLE|WS_TABSTOP, *rect, pParent, 0);
+        CreateEx(WS_EX_CLIENTEDGE, REVGRAPH_CLASSNAME, _T("RevGraph"), WS_CHILD|WS_VISIBLE|WS_TABSTOP, *rect, pParent, 0);
     m_pDlgTip = new CToolTipCtrl;
     if(!m_pDlgTip->Create(this))
     {
@@ -198,7 +198,7 @@ void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
     }
     EnableToolTips();
 
-    SecureZeroMemory(&m_lfBaseFont, sizeof(m_lfBaseFont));
+    memset(&m_lfBaseFont, 0, sizeof(m_lfBaseFont));
     m_lfBaseFont.lfHeight = 0;
     m_lfBaseFont.lfWeight = FW_NORMAL;
     m_lfBaseFont.lfItalic = FALSE;
@@ -208,7 +208,7 @@ void CRevisionGraphWnd::Init(CWnd * pParent, LPRECT rect)
     m_lfBaseFont.lfQuality = DEFAULT_QUALITY;
     m_lfBaseFont.lfPitchAndFamily = DEFAULT_PITCH;
 
-    m_ullTicks = GetTickCount64();
+    m_dwTicks = GetTickCount();
 
     m_parent = dynamic_cast<CRevisionGraphDlg*>(pParent);
 }
@@ -656,7 +656,7 @@ BOOL CRevisionGraphWnd::OnToolTipNotify(UINT /*id*/, NMHDR *pNMHDR, LRESULT *pRe
     {
         TOOLTIPTEXTW* pTTTW = (TOOLTIPTEXTW*)pNMHDR;
         ::SendMessage(pNMHDR->hwndFrom, TTM_SETMAXTIPWIDTH, 0, tooltipSize.cx);
-        StringCchCopy(m_wszTip, _countof(m_wszTip), strTipText);
+        lstrcpyn(m_wszTip, strTipText, strTipText.GetLength()+1);
         pTTTW->lpszText = m_wszTip;
     }
 
@@ -703,7 +703,7 @@ CString CRevisionGraphWnd::DisplayableText ( const CString& wholeText
         // no access to the device context -> truncate hard at 1000 chars
 
         return wholeText.GetLength() >= MAX_TT_LENGTH_DEFAULT
-            ? wholeText.Left (MAX_TT_LENGTH_DEFAULT-4) + L" ..."
+            ? wholeText.Left (MAX_TT_LENGTH_DEFAULT-4) + _T(" ...")
             : wholeText;
     }
 
@@ -711,6 +711,10 @@ CString CRevisionGraphWnd::DisplayableText ( const CString& wholeText
 
     NONCLIENTMETRICS metrics;
     metrics.cbSize = sizeof (metrics);
+    if (!SysInfo::Instance().IsVistaOrLater())
+    {
+        metrics.cbSize -= sizeof(int);  // subtract the size of the iPaddedBorderWidth member which is not available on XP
+    }
     SystemParametersInfo (SPI_GETNONCLIENTMETRICS, metrics.cbSize, &metrics, 0);
 
     CFont font;
@@ -752,7 +756,7 @@ CString CRevisionGraphWnd::DisplayableText ( const CString& wholeText
         remainingHeight -= size.cy;
         if (remainingHeight <= size.cy)
         {
-            result += L"...";
+            result += _T("...");
             break;
         }
 
@@ -786,11 +790,11 @@ CString CRevisionGraphWnd::TooltipText (index_t index)
 void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
 {
     CString extension = CPathUtils::GetFileExtFromPath(sSavePath);
-    if (extension.CompareNoCase(L".wmf")==0)
+    if (extension.CompareNoCase(_T(".wmf"))==0)
     {
         // save the graph as an enhanced metafile
         CMetaFileDC wmfDC;
-        wmfDC.CreateEnhanced(NULL, sSavePath, NULL, L"TortoiseSVN\0Revision Graph\0\0");
+        wmfDC.CreateEnhanced(NULL, sSavePath, NULL, _T("TortoiseSVN\0Revision Graph\0\0"));
         float fZoom = m_fZoomFactor;
         m_fZoomFactor = DEFAULT_ZOOM;
         DoZoom(m_fZoomFactor);
@@ -804,7 +808,7 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
         m_fZoomFactor = fZoom;
         DoZoom(m_fZoomFactor);
     }
-    else if (extension.CompareNoCase(L".svg")==0)
+    else if (extension.CompareNoCase(_T(".svg"))==0)
     {
         // save the graph as a scalable vector graphic
         SVG svg;
@@ -835,7 +839,7 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
             {
                 CFormatMessageWrapper errorDetails;
                 if( errorDetails )
-                    MessageBox( errorDetails, L"Error", MB_OK | MB_ICONINFORMATION );
+                    MessageBox( errorDetails, _T("Error"), MB_OK | MB_ICONINFORMATION );
 
                 return;
             }
@@ -860,7 +864,7 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
             hbm = CreateDIBSection(ddc.m_hDC, &bmi, DIB_RGB_COLORS,(void **)&pBits, NULL, 0);
             if (hbm==0)
             {
-                TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_REVGRAPH_ERR_NOMEMORY), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                TSVNMessageBox(m_hWnd, IDS_REVGRAPH_ERR_NOMEMORY, IDS_APPNAME, MB_ICONERROR);
                 return;
             }
             HBITMAP oldbm = (HBITMAP)dc.SelectObject(hbm);
@@ -876,19 +880,19 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
                 {
                     // Get the CLSID of the encoder.
                     int ret = 0;
-                    if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(L".png")==0)
+                    if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(_T(".png"))==0)
                         ret = GetEncoderClsid(L"image/png", &encoderClsid);
-                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(L".jpg")==0)
+                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(_T(".jpg"))==0)
                         ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(L".jpeg")==0)
+                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(_T(".jpeg"))==0)
                         ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(L".bmp")==0)
+                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(_T(".bmp"))==0)
                         ret = GetEncoderClsid(L"image/bmp", &encoderClsid);
-                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(L".gif")==0)
+                    else if (CPathUtils::GetFileExtFromPath(sSavePath).CompareNoCase(_T(".gif"))==0)
                         ret = GetEncoderClsid(L"image/gif", &encoderClsid);
                     else
                     {
-                        sSavePath += L".jpg";
+                        sSavePath += _T(".jpg");
                         ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
                     }
                     if (ret >= 0)
@@ -911,15 +915,15 @@ void CRevisionGraphWnd::SaveGraphAs(CString sSavePath)
             dc.DeleteDC();
             if (!sErrormessage.IsEmpty())
             {
-                ::MessageBox(m_hWnd, sErrormessage, L"TortoiseSVN", MB_ICONERROR);
+                ::MessageBox(m_hWnd, sErrormessage, _T("TortoiseSVN"), MB_ICONERROR);
             }
         }
         catch (CException * pE)
         {
-            TCHAR szErrorMsg[2048] = { 0 };
+            TCHAR szErrorMsg[2048];
             pE->GetErrorMessage(szErrorMsg, 2048);
             pE->Delete();
-            ::MessageBox(m_hWnd, szErrorMsg, L"TortoiseSVN", MB_ICONERROR);
+            ::MessageBox(m_hWnd, szErrorMsg, _T("TortoiseSVN"), MB_ICONERROR);
         }
     }
 }
@@ -1023,27 +1027,21 @@ void CRevisionGraphWnd::AddSVNOps (CMenu& popup)
         if (!m_SelectedEntry1->GetClassification().Is (CNodeClassification::IS_MODIFIED_WC))
             AppendMenu (popup, IDS_LOG_BROWSEREPO, ID_BROWSEREPO);
         if (PathIsDirectory(m_sPath))
-        {
-            if (m_SelectedEntry1->GetClassification().Is(CNodeClassification::IS_MODIFIED_WC))
-                AppendMenu(popup, IDS_REVGRAPH_POPUP_CFM, ID_CFM);
+            if (m_SelectedEntry1->GetClassification().Is (CNodeClassification::IS_MODIFIED_WC))
+                AppendMenu (popup, IDS_REVGRAPH_POPUP_CFM, ID_CFM);
             else
-                AppendMenu(popup, IDS_LOG_POPUP_MERGEREV, ID_MERGETO);
-            if (!m_SelectedEntry1->GetClassification().Is(CNodeClassification::IS_DELETED))
-                AppendMenu(popup, IDS_MENUCHECKOUT, ID_CHECKOUT);
-        }
+                AppendMenu (popup, IDS_LOG_POPUP_MERGEREV, ID_MERGETO);
 
         if (!CTSVNPath (m_sPath).IsUrl())
-        {
             if (GetWCURL() == GetSelectedURL())
             {
-                AppendMenu(popup, IDS_REVGRAPH_POPUP_UPDATE, ID_UPDATE);
+                AppendMenu (popup, IDS_REVGRAPH_POPUP_UPDATE, ID_UPDATE);
             }
             else
             {
-                AppendMenu(popup, IDS_REVGRAPH_POPUP_SWITCHTOHEAD, ID_SWITCHTOHEAD);
-                AppendMenu(popup, IDS_REVGRAPH_POPUP_SWITCH, ID_SWITCH);
+                AppendMenu (popup, IDS_REVGRAPH_POPUP_SWITCHTOHEAD, ID_SWITCHTOHEAD);
+                AppendMenu (popup, IDS_REVGRAPH_POPUP_SWITCH, ID_SWITCH);
             }
-        }
         AppendMenu(popup, IDS_REPOBROWSE_URLTOCLIPBOARD, ID_COPYURL);
     }
 
@@ -1158,28 +1156,16 @@ void CRevisionGraphWnd::DoShowLog()
     CString URL = GetSelectedURL();
 
     CString sCmd;
-    sCmd.Format(L"/command:log /path:\"%s\" /startrev:%ld",
+    sCmd.Format(_T("/command:log /path:\"%s\" /startrev:%ld"),
         (LPCTSTR)URL,
         m_SelectedEntry1->GetRevision());
 
     if (!SVN::PathIsURL(CTSVNPath(m_sPath)))
     {
-        sCmd += L" /propspath:\"";
+        sCmd += _T(" /propspath:\"");
         sCmd += m_sPath;
-        sCmd += L"\"";
+        sCmd += _T("\"");
     }
-
-    CAppUtils::RunTortoiseProc(sCmd);
-}
-
-void CRevisionGraphWnd::DoCheckout()
-{
-    CString URL = GetSelectedURL();
-
-    CString sCmd;
-    sCmd.Format(L"/command:checkout /url:\"%s\" /revision:%ld",
-                (LPCTSTR)URL,
-                m_SelectedEntry1->GetRevision());
 
     CAppUtils::RunTortoiseProc(sCmd);
 }
@@ -1255,7 +1241,7 @@ void CRevisionGraphWnd::DoSwitchToHead()
 void CRevisionGraphWnd::DoBrowseRepo()
 {
     CString sCmd;
-    sCmd.Format(L"/command:repobrowser /path:\"%s\" /rev:%d",
+    sCmd.Format(_T("/command:repobrowser /path:\"%s\" /rev:%d"),
       (LPCTSTR)GetSelectedURL(), m_SelectedEntry1->GetRevision());
 
     CAppUtils::RunTortoiseProc(sCmd);
@@ -1343,9 +1329,6 @@ void CRevisionGraphWnd::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         break;
     case ID_SHOWLOG:
         DoShowLog();
-        break;
-    case ID_CHECKOUT:
-        DoCheckout();
         break;
     case ID_CFM:
         DoCheckForModification();

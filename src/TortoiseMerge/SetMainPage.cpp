@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "SetMainPage.h"
+#include ".\setmainpage.h"
 
 
 // CSetMainPage dialog
@@ -37,27 +38,28 @@ CSetMainPage::CSetMainPage()
     , m_bIgnoreEOL(FALSE)
     , m_bOnePane(FALSE)
     , m_bViewLinenumbers(FALSE)
+    , m_bStrikeout(FALSE)
     , m_bReloadNeeded(FALSE)
+    , m_bDisplayBinDiff(TRUE)
     , m_bCaseInsensitive(FALSE)
     , m_bUTF8Default(FALSE)
     , m_bAutoAdd(TRUE)
-    , m_nMaxInline(3000)
-    , m_dwFontSize(0)
 {
-    m_regBackup = CRegDWORD(L"Software\\TortoiseMerge\\Backup");
-    m_regFirstDiffOnLoad = CRegDWORD(L"Software\\TortoiseMerge\\FirstDiffOnLoad", TRUE);
-    m_regFirstConflictOnLoad = CRegDWORD(L"Software\\TortoiseMerge\\FirstConflictOnLoad", TRUE);
-    m_regTabSize = CRegDWORD(L"Software\\TortoiseMerge\\TabSize", 4);
-    m_regIgnoreEOL = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreEOL", TRUE);
-    m_regOnePane = CRegDWORD(L"Software\\TortoiseMerge\\OnePane");
-    m_regViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
-    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Courier New");
-    m_regFontSize = CRegDWORD(L"Software\\TortoiseMerge\\FontSize", 10);
-    m_regCaseInsensitive = CRegDWORD(L"Software\\TortoiseMerge\\CaseInsensitive", FALSE);
-    m_regUTF8Default = CRegDWORD(L"Software\\TortoiseMerge\\UseUTF8", FALSE);
-    m_regAutoAdd = CRegDWORD(L"Software\\TortoiseMerge\\AutoAdd", TRUE);
-    m_regMaxInline = CRegDWORD(L"Software\\TortoiseMerge\\InlineDiffMaxLineLength", 3000);
-    m_regUseRibbons = CRegDWORD(L"Software\\TortoiseMerge\\UseRibbons", TRUE);
+    m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
+    m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE);
+    m_regFirstConflictOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstConflictOnLoad"), TRUE);
+    m_regTabSize = CRegDWORD(_T("Software\\TortoiseMerge\\TabSize"), 4);
+    m_regIgnoreEOL = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreEOL"), TRUE);
+    m_regOnePane = CRegDWORD(_T("Software\\TortoiseMerge\\OnePane"));
+    m_regIgnoreWS = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreWS"));
+    m_regViewLinenumbers = CRegDWORD(_T("Software\\TortoiseMerge\\ViewLinenumbers"), 1);
+    m_regStrikeout = CRegDWORD(_T("Software\\TortoiseMerge\\StrikeOut"), TRUE);
+    m_regFontName = CRegString(_T("Software\\TortoiseMerge\\FontName"), _T("Courier New"));
+    m_regFontSize = CRegDWORD(_T("Software\\TortoiseMerge\\FontSize"), 10);
+    m_regDisplayBinDiff = CRegDWORD(_T("Software\\TortoiseMerge\\DisplayBinDiff"), TRUE);
+    m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
+    m_regUTF8Default = CRegDWORD(_T("Software\\TortoiseMerge\\UseUTF8"), FALSE);
+    m_regAutoAdd = CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE);
 
     m_bBackup = m_regBackup;
     m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
@@ -65,12 +67,13 @@ CSetMainPage::CSetMainPage()
     m_nTabSize = m_regTabSize;
     m_bIgnoreEOL = m_regIgnoreEOL;
     m_bOnePane = m_regOnePane;
+    m_nIgnoreWS = m_regIgnoreWS;
     m_bViewLinenumbers = m_regViewLinenumbers;
+    m_bStrikeout = m_regStrikeout;
+    m_bDisplayBinDiff = m_regDisplayBinDiff;
     m_bCaseInsensitive = m_regCaseInsensitive;
     m_bUTF8Default = m_regUTF8Default;
     m_bAutoAdd = m_regAutoAdd;
-    m_nMaxInline = m_regMaxInline;
-    m_bUseRibbons = m_regUseRibbons;
 }
 
 CSetMainPage::~CSetMainPage()
@@ -93,15 +96,15 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
     {
         CString t;
         m_cFontSizes.GetWindowText(t);
-        m_dwFontSize = _wtoi(t);
+        m_dwFontSize = _ttoi(t);
     }
     DDX_Control(pDX, IDC_FONTNAMES, m_cFontNames);
     DDX_Check(pDX, IDC_LINENUMBERS, m_bViewLinenumbers);
+    DDX_Check(pDX, IDC_STRIKEOUT, m_bStrikeout);
+    DDX_Check(pDX, IDC_USEBDIFF, m_bDisplayBinDiff);
     DDX_Check(pDX, IDC_CASEINSENSITIVE, m_bCaseInsensitive);
     DDX_Check(pDX, IDC_UTF8DEFAULT, m_bUTF8Default);
     DDX_Check(pDX, IDC_AUTOADD, m_bAutoAdd);
-    DDX_Text(pDX, IDC_MAXINLINE, m_nMaxInline);
-    DDX_Check(pDX, IDC_USERIBBONS, m_bUseRibbons);
 }
 
 void CSetMainPage::SaveData()
@@ -112,14 +115,15 @@ void CSetMainPage::SaveData()
     m_regTabSize = m_nTabSize;
     m_regIgnoreEOL = m_bIgnoreEOL;
     m_regOnePane = m_bOnePane;
+    m_regIgnoreWS = m_nIgnoreWS;
     m_regFontName = m_sFontName;
     m_regFontSize = m_dwFontSize;
     m_regViewLinenumbers = m_bViewLinenumbers;
+    m_regStrikeout = m_bStrikeout;
+    m_regDisplayBinDiff = m_bDisplayBinDiff;
     m_regCaseInsensitive = m_bCaseInsensitive;
     m_regUTF8Default = m_bUTF8Default;
     m_regAutoAdd = m_bAutoAdd;
-    m_regMaxInline = m_nMaxInline;
-    m_regUseRibbons = m_bUseRibbons;
 }
 
 BOOL CSetMainPage::OnApply()
@@ -146,22 +150,41 @@ BOOL CSetMainPage::OnInitDialog()
     m_nTabSize = m_regTabSize;
     m_bIgnoreEOL = m_regIgnoreEOL;
     m_bOnePane = m_regOnePane;
+    m_nIgnoreWS = m_regIgnoreWS;
+    m_bDisplayBinDiff = m_regDisplayBinDiff;
     m_sFontName = m_regFontName;
     m_dwFontSize = m_regFontSize;
     m_bViewLinenumbers = m_regViewLinenumbers;
+    m_bStrikeout = m_regStrikeout;
     m_bCaseInsensitive = m_regCaseInsensitive;
     m_bUTF8Default = m_regUTF8Default;
     m_bAutoAdd = m_regAutoAdd;
-    m_nMaxInline = m_regMaxInline;
-    m_bUseRibbons = m_regUseRibbons;
 
     DialogEnableWindow(IDC_FIRSTCONFLICTONLOAD, m_bFirstDiffOnLoad);
+
+    UINT uRadio = IDC_WSCOMPARE;
+    switch (m_nIgnoreWS)
+    {
+    case 0:
+        uRadio = IDC_WSCOMPARE;
+        break;
+    case 1:
+        uRadio = IDC_WSIGNOREALL;
+        break;
+    case 2:
+        uRadio = IDC_WSIGNORECHANGED;
+        break;
+    default:
+        break;
+    }
+
+    CheckRadioButton(IDC_WSCOMPARE, IDC_WSIGNORECHANGED, uRadio);
 
     CString temp;
     int count = 0;
     for (int i=6; i<32; i=i+2)
     {
-        temp.Format(L"%d", i);
+        temp.Format(_T("%d"), i);
         m_cFontSizes.AddString(temp);
         m_cFontSizes.SetItemData(count++, i);
     }
@@ -176,7 +199,7 @@ BOOL CSetMainPage::OnInitDialog()
     }
     if (!foundfont)
     {
-        temp.Format(L"%lu", m_dwFontSize);
+        temp.Format(_T("%d"), m_dwFontSize);
         m_cFontSizes.SetWindowText(temp);
     }
     m_cFontNames.Setup(DEVICE_FONTTYPE|RASTER_FONTTYPE|TRUETYPE_FONTTYPE, 1, FIXED_PITCH);
@@ -193,15 +216,18 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
     ON_BN_CLICKED(IDC_ONEPANE, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_FIRSTDIFFONLOAD, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_FIRSTCONFLICTONLOAD, &CSetMainPage::OnModified)
+    ON_BN_CLICKED(IDC_WSCOMPARE, &CSetMainPage::OnBnClickedWhitespace)
+    ON_BN_CLICKED(IDC_WSIGNORECHANGED, &CSetMainPage::OnBnClickedWhitespace)
+    ON_BN_CLICKED(IDC_WSIGNOREALL, &CSetMainPage::OnBnClickedWhitespace)
     ON_BN_CLICKED(IDC_LINENUMBERS, &CSetMainPage::OnModified)
+    ON_BN_CLICKED(IDC_STRIKEOUT, &CSetMainPage::OnModified)
     ON_EN_CHANGE(IDC_TABSIZE, &CSetMainPage::OnModified)
     ON_CBN_SELCHANGE(IDC_FONTSIZES, &CSetMainPage::OnModified)
     ON_CBN_SELCHANGE(IDC_FONTNAMES, &CSetMainPage::OnModified)
+    ON_BN_CLICKED(IDC_USEBDIFF, &CSetMainPage::OnModifiedWithReload)
     ON_BN_CLICKED(IDC_CASEINSENSITIVE, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_UTF8DEFAULT, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_AUTOADD, &CSetMainPage::OnModified)
-    ON_EN_CHANGE(IDC_MAXINLINE, &CSetMainPage::OnModifiedWithReload)
-    ON_BN_CLICKED(IDC_USERIBBONS, &CSetMainPage::OnModified)
 END_MESSAGE_MAP()
 
 
@@ -224,6 +250,21 @@ void CSetMainPage::OnBnClickedWhitespace()
 {
     m_bReloadNeeded = TRUE;
     SetModified();
+    UINT uRadio = GetCheckedRadioButton(IDC_WSCOMPARE, IDC_WSIGNORECHANGED);
+    switch (uRadio)
+    {
+    case IDC_WSCOMPARE:
+        m_nIgnoreWS = 0;
+        break;
+    case IDC_WSIGNOREALL:
+        m_nIgnoreWS = 1;
+        break;
+    case IDC_WSIGNORECHANGED:
+        m_nIgnoreWS = 2;
+        break;
+    default:
+        break;
+    }
 }
 
 BOOL CSetMainPage::DialogEnableWindow(UINT nID, BOOL bEnable)
@@ -239,3 +280,4 @@ BOOL CSetMainPage::DialogEnableWindow(UINT nID, BOOL bEnable)
     }
     return pwndDlgItem->EnableWindow(bEnable);
 }
+

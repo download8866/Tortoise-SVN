@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,7 +32,6 @@ CConflictResolveDlg::CConflictResolveDlg(CWnd* pParent /*=NULL*/)
     , m_pConflictDescription(NULL)
     , m_choice(svn_wc_conflict_choose_postpone)
     , m_bCancelled(false)
-    , m_bIsImage(false)
 {
 
 }
@@ -137,7 +136,7 @@ BOOL CConflictResolveDlg::OnInitDialog()
         break;
     }
 
-    sInfoText = filepath + L"\r\n" + sActionText + L" " + sReasonText;
+    sInfoText = filepath + _T("\r\n") + sActionText + _T(" ") + sReasonText;
     SetDlgItemText(IDC_INFOLABEL, sInfoText);
 
     // if we deal with a binary file, editing the conflict isn't possible
@@ -145,25 +144,9 @@ BOOL CConflictResolveDlg::OnInitDialog()
     // use it as the result of the edit.
     if (m_pConflictDescription->is_binary)
     {
-        // in case the binary file is an image, we can use TortoiseIDiff
-        m_bIsImage = false;
-        if (m_pConflictDescription->property_name == nullptr)
-        {
-            if (m_pConflictDescription->base_abspath)
-                m_bIsImage |= IsImage(m_pConflictDescription->base_abspath);
-            if (m_pConflictDescription->local_abspath)
-                m_bIsImage |= IsImage(m_pConflictDescription->local_abspath);
-            if (m_pConflictDescription->my_abspath)
-                m_bIsImage |= IsImage(m_pConflictDescription->my_abspath);
-            if (m_pConflictDescription->their_abspath)
-                m_bIsImage |= IsImage(m_pConflictDescription->their_abspath);
-        }
-        if (!m_bIsImage && m_pConflictDescription->merged_file)
-        {
-            GetDlgItem(IDC_RESOLVELABEL)->EnableWindow(FALSE);
-            GetDlgItem(IDC_EDITCONFLICT)->EnableWindow(FALSE);
-            GetDlgItem(IDC_RESOLVED)->EnableWindow(FALSE);
-        }
+        GetDlgItem(IDC_RESOLVELABEL)->EnableWindow(FALSE);
+        GetDlgItem(IDC_EDITCONFLICT)->EnableWindow(FALSE);
+        GetDlgItem(IDC_RESOLVED)->EnableWindow(FALSE);
     }
 
     // the "resolved" button must not be enabled as long as the user hasn't used
@@ -206,14 +189,13 @@ void CConflictResolveDlg::OnBnClickedUserepo()
 
 void CConflictResolveDlg::OnBnClickedEditconflict()
 {
-    CString filename, n1, n2, n3, n4;
+    CString filename, n1, n2, n3;
     if (m_pConflictDescription->property_name)
     {
         filename = CUnicodeUtils::GetUnicode(m_pConflictDescription->property_name);
         n1.Format(IDS_DIFF_PROP_WCNAME, (LPCTSTR)filename);
         n2.Format(IDS_DIFF_PROP_BASENAME, (LPCTSTR)filename);
         n3.Format(IDS_DIFF_PROP_REMOTENAME, (LPCTSTR)filename);
-        n4.Format(IDS_DIFF_PROP_MERGENAME, (LPCTSTR)filename);
     }
     else
     {
@@ -222,44 +204,29 @@ void CConflictResolveDlg::OnBnClickedEditconflict()
         n1.Format(IDS_DIFF_WCNAME, (LPCTSTR)filename);
         n2.Format(IDS_DIFF_BASENAME, (LPCTSTR)filename);
         n3.Format(IDS_DIFF_REMOTENAME, (LPCTSTR)filename);
-        n4.Format(IDS_DIFF_MERGEDNAME, (LPCTSTR)filename);
     }
 
-    m_mergedfile = CTempFiles::Instance().GetTempFilePath(false, CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->local_abspath))).GetWinPath();
-    CAppUtils::MergeFlags flags;
-    flags.bAlternativeTool = (GetKeyState(VK_SHIFT)&0x8000) != 0;
-    flags.bReadOnly = true;
-    CTSVNPath basefile;
-    CTSVNPath theirfile;
-    CTSVNPath myfile;
-    if (m_pConflictDescription->base_abspath)
-        basefile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->base_abspath));
-    else
-        basefile = CTempFiles::Instance().GetTempFilePath(true);
-    if (m_pConflictDescription->their_abspath && (m_pConflictDescription->kind != svn_wc_conflict_kind_property))
-        theirfile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->their_abspath));
+    if (m_pConflictDescription->base_abspath == NULL)
+    {
+        CAppUtils::DiffFlags flags;
+        // no base file, start TortoiseMerge in Two-way diff mode
+        CTSVNPath myFile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->my_abspath));
+        CAppUtils::StartExtDiff(CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->their_abspath)),
+            myFile, n3, n1, myFile, myFile, SVNRev(), SVNRev::REV_WC, SVNRev(), flags, 0);
+    }
     else
     {
-        if (m_pConflictDescription->merged_file)
-            theirfile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->merged_file));
-        else
-            theirfile = CTempFiles::Instance().GetTempFilePath(true);
+        m_mergedfile = CTempFiles::Instance().GetTempFilePath(false, CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->local_abspath))).GetWinPath();
+        CAppUtils::MergeFlags flags;
+        flags.bAlternativeTool = (GetKeyState(VK_SHIFT)&0x8000) != 0;
+        flags.bReadOnly = true;
+        CAppUtils::StartExtMerge(flags,
+                                CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->base_abspath)),
+                                CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->their_abspath)),
+                                CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->my_abspath)),
+                                CTSVNPath(m_mergedfile),
+                                n2, n3, n1, CString());
     }
-    if (m_pConflictDescription->my_abspath)
-        myfile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->my_abspath));
-    else
-    {
-        if (m_pConflictDescription->merged_file)
-            myfile = CTSVNPath(CUnicodeUtils::GetUnicode(m_pConflictDescription->merged_file));
-        else
-            myfile = CTempFiles::Instance().GetTempFilePath(true);
-    }
-    CAppUtils::StartExtMerge(flags,
-                             basefile,
-                             theirfile,
-                             myfile,
-                             CTSVNPath(m_mergedfile), true,
-                             n2, n3, n1, n4, filename);
 
     GetDlgItem(IDC_RESOLVED)->EnableWindow(TRUE);
 }
@@ -295,27 +262,4 @@ void CConflictResolveDlg::OnBnClickedAbort()
     m_bCancelled = true;
     m_choice = svn_wc_conflict_choose_postpone;
     CResizableStandAloneDialog::OnCancel();
-}
-
-bool CConflictResolveDlg::IsImage( const std::string& path )
-{
-    size_t dotpos = path.find_last_of('.');
-    if (dotpos != std::string::npos)
-    {
-        std::string sExt = path.substr(dotpos+1);
-        if ( (_stricmp(sExt.c_str(), "jpg") == 0) ||
-             (_stricmp(sExt.c_str(), "jpeg") == 0) ||
-             (_stricmp(sExt.c_str(), "bmp") == 0) ||
-             (_stricmp(sExt.c_str(), "gif") == 0) ||
-             (_stricmp(sExt.c_str(), "png") == 0) ||
-             (_stricmp(sExt.c_str(), "ico") == 0) ||
-             (_stricmp(sExt.c_str(), "tif") == 0) ||
-             (_stricmp(sExt.c_str(), "tiff") == 0) ||
-             (_stricmp(sExt.c_str(), "dib") == 0) ||
-             (_stricmp(sExt.c_str(), "emf") == 0))
-        {
-            return true;
-        }
-    }
-    return false;
 }

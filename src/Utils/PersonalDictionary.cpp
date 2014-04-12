@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008, 2010, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <fstream>
 #include "PersonalDictionary.h"
 #include "PathUtils.h"
@@ -39,19 +39,19 @@ bool CPersonalDictionary::Load()
 
     if (m_bLoaded)
         return true;
-    TCHAR path[MAX_PATH] = { 0 };       //MAX_PATH ok here.
-    wcscpy_s (path, CPathUtils::GetAppDataDirectory());
+    TCHAR path[MAX_PATH];       //MAX_PATH ok here.
+    _tcscpy_s (path, CPathUtils::GetAppDataDirectory());
 
     if (m_lLanguage==0)
         m_lLanguage = GetUserDefaultLCID();
 
-    TCHAR sLang[10] = { 0 };
-    swprintf_s(sLang, L"%ld", m_lLanguage);
-    wcscat_s(path, sLang);
-    wcscat_s(path, L".dic");
+    TCHAR sLang[10];
+    _stprintf_s(sLang, _T("%ld"), m_lLanguage);
+    _tcscat_s(path, sLang);
+    _tcscat_s(path, _T(".dic"));
 
     std::wifstream File;
-    char filepath[MAX_PATH + 1] = { 0 };
+    char filepath[MAX_PATH+1];
     SecureZeroMemory(filepath, sizeof(filepath));
     WideCharToMultiByte(CP_ACP, NULL, path, -1, filepath, _countof(filepath)-1, NULL, NULL);
     File.open(filepath);
@@ -96,25 +96,25 @@ bool CPersonalDictionary::Save()
 {
     if (!m_bLoaded)
         return false;
-    TCHAR path[MAX_PATH] = { 0 };       //MAX_PATH ok here.
-    wcscpy_s (path, CPathUtils::GetAppDataDirectory());
+    TCHAR path[MAX_PATH];       //MAX_PATH ok here.
+    _tcscpy_s (path, CPathUtils::GetAppDataDirectory());
 
     if (m_lLanguage==0)
         m_lLanguage = GetUserDefaultLCID();
 
-    TCHAR sLang[10] = { 0 };
-    swprintf_s(sLang, L"%ld", m_lLanguage);
-    wcscat_s(path, sLang);
-    wcscat_s(path, L".dic");
+    TCHAR sLang[10];
+    _stprintf_s(sLang, _T("%ld"), m_lLanguage);
+    _tcscat_s(path, sLang);
+    _tcscat_s(path, _T(".dic"));
 
     std::wofstream File;
-    char filepath[MAX_PATH + 1] = { 0 };
+    char filepath[MAX_PATH+1];
     SecureZeroMemory(filepath, sizeof(filepath));
     WideCharToMultiByte(CP_ACP, NULL, path, -1, filepath, _countof(filepath)-1, NULL, NULL);
     File.open(filepath, std::ios_base::binary);
     for (std::set<CString>::iterator it = dict.begin(); it != dict.end(); ++it)
     {
-        File << (LPCTSTR)*it << L"\n";
+        File << (LPCTSTR)*it << _T("\n");
     }
     File.close();
     return true;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,8 +21,8 @@
 // include base classes
 
 #include "CopyFilterOptions.h"
-#include "RevisionGraphOptionsImpl.h"
-#include "resource.h"
+#include "revisiongraphoptionsimpl.h"
+#include "Resource.h"
 
 /** "Pin" all Head nodes, i.e. keep them from being removed by other rules.
 */
@@ -40,5 +40,5 @@ public:
 
     /// implement ICopyFilterOption
 
-    virtual EResult ShallRemove (const CFullGraphNode* node) const override;
+    virtual EResult ShallRemove (const CFullGraphNode* node) const;
 };

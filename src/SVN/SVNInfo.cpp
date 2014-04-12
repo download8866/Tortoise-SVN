@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,14 +33,6 @@
 #include "SVNTrace.h"
 
 SVNConflictData::SVNConflictData()
-    : treeconflict_binary(false)
-    , kind(svn_wc_conflict_kind_text)
-    , treeconflict_nodekind(svn_node_none)
-    , treeconflict_action(svn_wc_conflict_action_edit)
-    , treeconflict_reason(svn_wc_conflict_reason_edited)
-    , treeconflict_operation(svn_wc_operation_none)
-    , src_right_version_kind(svn_node_none)
-    , src_left_version_kind(svn_node_none)
 {
 }
 
@@ -72,11 +64,16 @@ SVNInfo::SVNInfo (bool)
 {
     m_pool = svn_pool_create (NULL);
 
-    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(m_pool), m_pool));
+    svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
 
 #ifdef _MFC_VER
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
     // set up authentication
     m_prompt.Init(m_pool, m_pctx);
+#else
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
 #endif
     m_pctx->cancel_func = cancel;
     m_pctx->cancel_baton = this;
@@ -91,6 +88,12 @@ SVNInfo::SVNInfo (bool)
         svn_error_clear(Err);
         svn_pool_destroy (m_pool);                  // free the allocated memory
     }
+#ifdef _MFC_VER
+    else
+    {
+        SVNConfig::SetUpSSH(m_pctx);
+    }
+#endif
 }
 
 SVNInfo::~SVNInfo(void)
@@ -115,8 +118,8 @@ svn_error_t* SVNInfo::cancel(void *baton)
 }
 
 const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision,
-                                              svn_depth_t depth /*= svn_depth_empty*/,
-                                              bool fetchExcluded /*= true */, bool fetchActualOnly /*= true*/, bool includeExternals /*= false */)
+                                              svn_depth_t depth /* = svn_depth_empty*/,
+                                              bool fetchExcluded /* = true */, bool fetchActualOnly /* = true */)
 {
     svn_error_clear(Err);
     Err = NULL;
@@ -131,13 +134,12 @@ const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegr
         CHooks::Instance().PreConnect(CTSVNPathList(path));
 #endif
     SVNTRACE (
-        Err = svn_client_info4(svnPath, pegrev, revision, depth, fetchExcluded, fetchActualOnly, includeExternals, NULL, infoReceiver, this, m_pctx, m_pool),
+        Err = svn_client_info3(svnPath, pegrev, revision, depth, fetchExcluded, fetchActualOnly, NULL, infoReceiver, this, m_pctx, m_pool),
         svnPath
     )
-    ClearCAPIAuthCacheOnError();
     if (Err != NULL)
         return NULL;
-    if (m_arInfo.empty())
+    if (m_arInfo.size() == 0)
         return NULL;
     return &m_arInfo[0];
 }
@@ -207,10 +209,7 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_cl
         data.working_size64 = info->wc_info->recorded_size;
         if (info->wc_info->wcroot_abspath)
             data.wcroot = CUnicodeUtils::GetUnicode(info->wc_info->wcroot_abspath);
-        if (info->wc_info->moved_from_abspath)
-            data.moved_from_abspath = CUnicodeUtils::GetUnicode(info->wc_info->moved_from_abspath);
-        if (info->wc_info->moved_to_abspath)
-            data.moved_to_abspath = CUnicodeUtils::GetUnicode(info->wc_info->moved_to_abspath);
+
 
         if (info->wc_info->conflicts)
         {

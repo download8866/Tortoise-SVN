@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2009-2010, 2013-2014 - TortoiseSVN
+// Copyright (C) 2006-2007, 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,9 @@
 #include "AboutDlg.h"
 #include "svn_version.h"
 #include "svn_diff.h"
-#include "../../apr/include/apr_version.h"
-#include "../../apr-util/include/apu_version.h"
-#include "../version.h"
+#include "..\..\\apr\include\apr_version.h"
+#include "..\..\apr-util\include\apu_version.h"
+#include "..\version.h"
 
 // CAboutDlg dialog
 
@@ -69,7 +69,7 @@ BOOL CAboutDlg::OnInitDialog()
         APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
         APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION);
     SetDlgItemText(IDC_VERSIONABOUT, temp);
-    this->SetWindowText(L"TortoiseMerge");
+    this->SetWindowText(_T("TortoiseMerge"));
 
     CPictureHolder tmpPic;
     tmpPic.CreateFromBitmap(IDB_LOGOFLIPPED);
@@ -80,8 +80,8 @@ BOOL CAboutDlg::OnInitDialog()
     SetTimer(ID_EFFECTTIMER, 40, NULL);
     SetTimer(ID_DROPTIMER, 300, NULL);
 
-    m_cWebLink.SetURL(L"http://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"http://tortoisesvn.tigris.org/contributors.html");
+    m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
+    m_cSupportLink.SetURL(_T("http://tortoisesvn.tigris.org/contributors.html"));
 
     return TRUE;  // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE

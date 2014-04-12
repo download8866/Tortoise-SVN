@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "resource.h"
+#include "Resource.h"
 #include "StandAloneDlg.h"
 
 
@@ -156,7 +156,7 @@ bool CResizableStandAloneDialog::OnEnterPressed()
 #endif
         if ( pOkBtn && pOkBtn->IsWindowEnabled() )
         {
-            if (DWORD(CRegStdDWORD(L"Software\\TortoiseSVN\\CtrlEnter", TRUE)))
+            if (DWORD(CRegStdDWORD(_T("Software\\TortoiseSVN\\CtrlEnter"), TRUE)))
                 PostMessage(WM_COMMAND, IDOK);
         }
         return true;

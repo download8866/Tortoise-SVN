@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2005-2006, 2013-2014 - TortoiseSVN
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 #include "ShellUpdater.h"
 #include "WCRoots.h"
 #include "ReaderWriterLock.h"
-#include <atlcoll.h>
+#include "atlcoll.h"
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ public:
     /// in the list of handled shell requests to avoid deadlocks.
     void UpdateShell(const CTSVNPath& path);
 
-    size_t GetCacheSize() const {return m_directoryCache.size();}
+    size_t GetCacheSize() {return m_directoryCache.size();}
     int GetNumberOfWatchedPaths() {return watcher.GetNumberOfWatchedPaths();}
 
     void Init();
@@ -90,11 +90,10 @@ public:
 
     bool IsPathAllowed(const CTSVNPath& path) {return !!m_shellCache.IsPathAllowed(path.GetWinPath());}
     bool IsUnversionedAsModified() {return !!m_shellCache.IsUnversionedAsModified();}
-    bool IsIgnoreOnCommitIgnored() {return !!m_shellCache.IsIgnoreOnCommitIgnored();}
     bool IsPathGood(const CTSVNPath& path);
     bool IsPathWatched(const CTSVNPath& path) {return watcher.IsPathWatched(path);}
     bool AddPathToWatch(const CTSVNPath& path) {return watcher.AddPath(path);}
-    bool BlockPath(const CTSVNPath& path, bool specific, ULONGLONG timeout = 0);
+    bool BlockPath(const CTSVNPath& path, bool specific, DWORD timeout = 0);
     bool UnBlockPath(const CTSVNPath& path);
     bool RemoveTimedoutBlocks();
 
@@ -104,13 +103,12 @@ public:
     bool m_bClearMemory;
 private:
     bool RemoveCacheForDirectory(CCachedDirectory * cdir);
-    static CString GetSpecialFolder(REFKNOWNFOLDERID rfid);
     CReaderWriterLock   m_guard;
     CAtlList<CString> m_askedList;
     CCachedDirectory::CachedDirMap m_directoryCache;
 
     CComAutoCriticalSection m_NoWatchPathCritSec;
-    std::map<CTSVNPath, ULONGLONG> m_NoWatchPaths;  ///< paths to block from getting crawled, and the time in ms until they're unblocked
+    std::map<CTSVNPath, DWORD> m_NoWatchPaths;  ///< paths to block from getting crawled, and the time in ms until they're unblocked
 
     SVNHelper m_svnHelp;
     ShellCache  m_shellCache;
@@ -124,7 +122,7 @@ private:
     CComAutoCriticalSection m_critSec;
     CTSVNPath m_mostRecentAskedPath;
     CStatusCacheEntry m_mostRecentStatus;
-    LONGLONG m_mostRecentExpiresAt;
+    long m_mostRecentExpiresAt;
 
     CDirectoryWatcher watcher;
 

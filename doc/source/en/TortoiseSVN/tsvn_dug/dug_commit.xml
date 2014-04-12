@@ -51,11 +51,6 @@
             just check that file to add it to the commit.
         </para>
         <para>
-            For information on the coloring and overlays of the items
-            according to their status, please see
-            <xref linkend="tsvn-dug-wcstatus-2"/>.
-        </para>
-        <para>
             Items which have been switched to a different repository path are
             also indicated using an <literal>(s)</literal> marker. You may have
             switched something while working on a branch and forgotten to switch
@@ -99,19 +94,6 @@
                             which you set the <literal>svn:ignore</literal> property.
                             Using the SVN Property Dialog, you can alter the
                             <literal>svn:ignore</literal> property for a directory.
-                        </para>
-                    </listitem>
-                    <listitem>
-                        <para>
-                            add the file to the <literal>svn:global-ignores</literal> list
-                            using
-                            <menuchoice>
-                                <guimenu>TortoiseSVN</guimenu>
-                                <guimenuitem>Add to ignore list (recursively)</guimenuitem>
-                            </menuchoice>
-                            This will affect the directory on
-                            which you set the <literal>svn:global-ignores</literal> property
-                            and all subfolders as well.
                         </para>
                     </listitem>
                 </itemizedlist>
@@ -208,55 +190,6 @@
             The commit dialog supports Subversion's changelist feature to help
             with grouping related files together. Find out about this feature
             in <xref linkend="tsvn-dug-changelists"/>.
-        </para>
-    </sect2>
-    <sect2 id="tsvn-dug-commit-restore">
-        <title>Commit only parts of files</title>
-        <para>
-            Sometimes you want to only commit parts of the changes
-            you made to a file. Such a situation usually happens when
-            you're working on something but then an urgent fix needs
-            to be committed, and that fix happens to be in the same file
-            you're working on.
-        </para>
-        <para>
-            <action>right click</action> on the file and use
-            <menuchoice>
-                <guimenu>Context Menu</guimenu>
-                <guimenuitem>Restore after commit</guimenuitem>
-            </menuchoice>.
-            This will create a copy of the file as it is. Then you
-            can edit the file, e.g. in a text editor and undo all
-            the changes you don't want to commit. After saving those
-            changes you can commit the file.
-            <tip>
-                <title>Using TortoiseMerge</title>
-                <para>
-                    If you use TortoiseMerge to edit the file, you can either edit
-                    the changes as you're used to, or mark
-                    all the changes that you want to include. <action>right click</action>
-                    on a modified block and use
-                    <menuchoice>
-                        <guimenu>Context Menu</guimenu>
-                        <guimenuitem>Mark this change</guimenuitem>
-                    </menuchoice>
-                    to include that change.
-                    Finally <action>right click</action>
-                    and use
-                    <menuchoice>
-                        <guimenu>Context Menu</guimenu>
-                        <guimenuitem>Leave only marked changes</guimenuitem>
-                    </menuchoice>
-                    which will change the right view to only include the
-                    changes you've marked before and undo the changes you
-                    have not marked.
-                </para>
-            </tip>
-        </para>
-        <para>
-            After the commit is done, the copy of the file is restored
-            automatically, and you have the file with all your modifications
-            that were not committed back.
         </para>
     </sect2>
     <sect2 id="tsvn-dug-commit-ignore">

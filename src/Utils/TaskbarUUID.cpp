@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2014 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,21 +17,22 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "TaskbarUUID.h"
 #include "registry.h"
 #include "CmdLineParser.h"
 
 #include <Shobjidl.h>
-#include <atlbase.h>
+#include "Win7.h"
 
-#define APPID (L"TSVN.TSVN.1")
+
+#define APPID (_T("TSVN.TSVN.1"))
 
 
 void SetTaskIDPerUUID()
 {
     typedef HRESULT STDAPICALLTYPE SetCurrentProcessExplicitAppUserModelIDFN(PCWSTR AppID);
-    HMODULE hShell = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+    HMODULE hShell = ::LoadLibrary(_T("shell32.dll"));
     if (hShell)
     {
         SetCurrentProcessExplicitAppUserModelIDFN *pfnSetCurrentProcessExplicitAppUserModelID = (SetCurrentProcessExplicitAppUserModelIDFN*)GetProcAddress(hShell, "SetCurrentProcessExplicitAppUserModelID");
@@ -46,7 +47,7 @@ void SetTaskIDPerUUID()
 
 std::wstring GetTaskIDPerUUID(LPCTSTR uuid /*= NULL */)
 {
-    CRegStdDWORD r = CRegStdDWORD(L"Software\\TortoiseSVN\\GroupTaskbarIconsPerRepo", 3);
+    CRegStdDWORD r = CRegStdDWORD(_T("Software\\TortoiseSVN\\GroupTaskbarIconsPerRepo"), 3);
     std::wstring id = APPID;
     if ((r < 2)||(r == 3))
     {
@@ -81,9 +82,9 @@ extern CString g_sGroupingUUID;
 
 void SetUUIDOverlayIcon( HWND hWnd )
 {
-    if (CRegStdDWORD(L"Software\\TortoiseSVN\\GroupTaskbarIconsPerRepo", 3))
+    if (CRegStdDWORD(_T("Software\\TortoiseSVN\\GroupTaskbarIconsPerRepo"), 3))
     {
-        if (CRegStdDWORD(L"Software\\TortoiseSVN\\GroupTaskbarIconsPerRepoOverlay", TRUE))
+        if (CRegStdDWORD(_T("Software\\TortoiseSVN\\GroupTaskbarIconsPerRepoOverlay"), TRUE))
         {
             std::wstring uuid;
 #ifdef _MFC_VER
@@ -103,7 +104,7 @@ void SetUUIDOverlayIcon( HWND hWnd )
                     int foundUUIDIndex = 0;
                     do
                     {
-                        wchar_t buf[MAX_PATH] = { 0 };
+                        wchar_t buf[MAX_PATH];
                         swprintf_s(buf, _countof(buf), L"%s%d", L"Software\\TortoiseSVN\\LastUsedUUIDsForGrouping\\", foundUUIDIndex);
                         CRegStdString r = CRegStdString(buf);
                         std::wstring sr = r;

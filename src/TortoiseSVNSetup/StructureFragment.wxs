@@ -41,6 +41,7 @@
             <File Id="F__openssllicense" Name="OpenSSL License.txt" DiskId="1" Source="include\OpenSSL_License.txt" />
             <File Id="F__aprlicense" Name="apr License.txt" DiskId="1" Source="..\..\ext\apr\LICENSE" />
             <File Id="F__sasllicense" Name="CyrusSASL License.txt" DiskId="1" Source="include\CyrusSASL_License.txt" />
+            <!-- <File Id="F__crashlicense" Name="CrashRpt License.txt" DiskId="1" Source="include\CrashRpt_License.txt" /> -->
           </Component>
 
           <Component Id="C__ProgramMenuFolder" Guid="$(var.GuidProgramMenuFolder)" Win64="$(var.Win64YesNo)">
@@ -92,7 +93,7 @@
 
             <?if $(env.IncludeCrashReportDll) = 1 ?>
             <Component Id="C__crash" Guid="$(var.GuidCrashRpt)" Win64="$(var.Win64YesNo)">
-              <!--
+              <!-- 
               <File Id="F__crashrpt" Name="CrashRpt1300.dll" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\CrashRpt1300.dll" KeyPath="yes" />
               <File Id="F__crashsender" Name="CrashSender1300.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\CrashSender1300.exe" />
               <File Id="F__crashlang" Name="crashrpt_lang.ini" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\crashrpt_lang.ini" />
@@ -172,7 +173,7 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\shellex\PropertySheetHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" ForceCreateOnInstall="yes"/>
+              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\DragDropHandlers\TortoiseSVN" />
@@ -185,57 +186,57 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" />
               <RegistryValue Root="HKLM" Key="Software\Classes\lnkfile\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\InternetShortcut\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\*\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
@@ -256,7 +257,7 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\shellex\PropertySheetHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" ForceCreateOnInstall="yes"/>
+              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\DragDropHandlers\TortoiseSVN" />
@@ -269,57 +270,57 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" />
               <RegistryValue Root="HKLM" Key="Software\Classes\lnkfile\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\InternetShortcut\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\*\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
@@ -746,7 +747,7 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\shellex\PropertySheetHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Directory\Background\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" ForceCreateOnInstall="yes"/>
+              <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ColumnHandlers\{$(var.GuidUncontrolled)}" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" />
               <RegistryValue Root="HKLM" Key="Software\Classes\Folder\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryKey Root="HKLM" Key="Software\Classes\Folder\shellex\DragDropHandlers\TortoiseSVN" />
@@ -759,57 +760,57 @@
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidAdded)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidLocked)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDeleted)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidNormal)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidReadonly)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUncontrolled)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidModified)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidDropHandler)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidConflict)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidIgnored)}\shellex\NoRecentDocs" />
               <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Name="ThreadingModel" Value="Apartment" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\InProcServer32" Value="[INSTALLDIR]bin\TortoiseStub32.dll" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}" Value="TortoiseSVN" Type="string" />
-              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" ForceCreateOnInstall="yes" />
+              <RegistryKey Root="HKLM" Key="Software\Classes\CLSID\{$(var.GuidUnversioned)}\shellex\NoRecentDocs" />
               <RegistryValue Root="HKLM" Key="Software\Classes\lnkfile\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\InternetShortcut\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
               <RegistryValue Root="HKLM" Key="Software\Classes\*\shellex\ContextMenuHandlers\TortoiseSVN" Value="{$(var.GuidUncontrolled)}" Type="string" />
@@ -1020,8 +1021,6 @@
               Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="TortoiseSVN" Arguments="/command:rtfm" Show="normal" />
               <Shortcut Id="S__TortoiseProc" Directory="D_TortoisePrgMenu" Name="Help" Advertise="no"
               Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="Documentation about TortoiseSVN" Arguments="/command:help" Show="normal" />
-              <Shortcut Id="S__TortoiseRepoBrowser" Directory="D_TortoisePrgMenu" Name="TortoiseSVN Repository Browser" Advertise="no"
-              Target="[INSTALLDIR]bin\TortoiseProc.exe" Description="TortoiseSVN Repository Browser" Arguments="/command:repobrowser" Show="normal" />
             </Component>
 
             <Component Id="C__TortoiseMerge" Guid="$(var.GuidTortoiseMerge)" Win64="$(var.Win64YesNo)">
@@ -1073,12 +1072,10 @@
               <File Id="F__CLIsvnadmin" Name="svnadmin.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnadmin.exe" />
               <File Id="F__CLIsvndumpfilter" Name="svndumpfilter.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svndumpfilter.exe" />
               <File Id="F__CLIsvnlook" Name="svnlook.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnlook.exe" />
-              <File Id="F__CLIsvnmucc" Name="svnmucc.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnmucc.exe" />
               <File Id="F__CLIsvnrdump" Name="svnrdump.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnrdump.exe" />
               <File Id="F__CLIsvnserve" Name="svnserve.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnserve.exe" />
               <File Id="F__CLIsvnsync" Name="svnsync.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnsync.exe" />
               <File Id="F__CLIsvnversion" Name="svnversion.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svnversion.exe" />
-              <File Id="F__CLIsvnbench" Name="svn-bench.exe" DiskId="1" Source="..\..\bin\$(var.ReleasePath)\bin\svn-bench.exe" />
             </Component>
 
             <Component Id="C__CLIREG" Guid="$(var.GuidCLIREG)" Win64="$(var.Win64YesNo)" Permanent="yes">
@@ -1105,15 +1102,19 @@
 
           <Directory Id="D__Languages" Name="Languages" >
 
+            <?if $(env.DictionaryENGB) = 1 ?>
             <Component Id="C__DictionaryENGB" Guid="$(var.GuidDictionaryENGB)" Win64="$(var.Win64YesNo)">
-              <File Id="F__ENGBSPELLAFF" Name="en_GB.aff" Source="..\..\ext\Spell\en_GB.aff" DiskId="1" />
-              <File Id="F__ENGBSPELLDIC" Name="en_GB.dic" Source="..\..\ext\Spell\en_GB.dic" DiskId="1" />
+              <File Id="F__ENGBSPELLAFF" Name="en_GB.aff" Source="..\..\..\Common\Spell\en_GB.aff" DiskId="1" />
+              <File Id="F__ENGBSPELLDIC" Name="en_GB.dic" Source="..\..\..\Common\Spell\en_GB.dic" DiskId="1" />
             </Component>
+            <?endif ?>
 
+            <?if $(env.DictionaryENUS) = 1 ?>
             <Component Id="C__DictionaryENUS" Guid="$(var.GuidDictionaryENUS)" Win64="$(var.Win64YesNo)">
-              <File Id="F__ENSPELLAFF" Name="en_US.aff" Source="..\..\ext\Spell\en_US.aff" DiskId="1" />
-              <File Id="F__ENSPELLDIC" Name="en_US.dic" Source="..\..\ext\Spell\en_US.dic" DiskId="1" />
+              <File Id="F__ENSPELLAFF" Name="en_US.aff" Source="..\..\..\Common\Spell\en_US.aff" DiskId="1" />
+              <File Id="F__ENSPELLDIC" Name="en_US.dic" Source="..\..\..\Common\Spell\en_US.dic" DiskId="1" />
             </Component>
+            <?endif ?>
 
           </Directory>
 

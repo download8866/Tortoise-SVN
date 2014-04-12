@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2009, 2012 by Stefan Fuhrmann                           *
+ *   Copyright (C) 2009 by Stefan Fuhrmann                                 *
  *   stefanfuhrmann@alice-dsl.de                                           *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,7 +26,7 @@ namespace async
 {
 
 /**
- * Execute a call to a function returning @a void asynchronously
+ * Execute a call to a funtion returning @a void asynchronuously
  * in the background.
  *
  * Accepts a pointer to some free function or member function plus
@@ -67,7 +67,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             func();
         }
@@ -86,7 +86,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (*func)();
         }
@@ -108,7 +108,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (instance->*func)();
         }
@@ -130,7 +130,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (*func)(parameter1);
         }
@@ -154,7 +154,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (instance->*func)(parameter1);
         }
@@ -178,7 +178,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (*func)(parameter1, parameter2);
         }
@@ -204,7 +204,7 @@ private:
         {
         }
 
-        virtual void Execute() override
+        virtual void Execute()
         {
             (instance->*func)(parameter1, parameter2);
         }

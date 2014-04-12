@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,12 +29,12 @@ CRegBase::CRegBase()
 CRegBase::CRegBase (const CString& key, bool force, HKEY base, REGSAM sam)
     : CRegBaseCommon<CString> (key, force, base, sam)
 {
-    m_key.TrimLeft(L"\\");
+    m_key.TrimLeft(_T("\\"));
     int backslashpos = m_key.ReverseFind('\\');
     m_path = m_key.Left(backslashpos);
-    m_path.TrimRight(L"\\");
+    m_path.TrimRight(_T("\\"));
     m_key = m_key.Mid(backslashpos);
-    m_key.Trim(L"\\");
+    m_key.Trim(_T("\\"));
 }
 #endif
 
@@ -47,7 +47,7 @@ CRegStdBase::CRegStdBase()
 CRegStdBase::CRegStdBase (const tstring& key, bool force, HKEY base, REGSAM sam)
     : CRegBaseCommon<tstring> (key, force, base, sam)
 {
-    tstring::size_type pos = key.find_last_of('\\');
+    tstring::size_type pos = key.find_last_of(_T('\\'));
     m_path = key.substr(0, pos);
     m_key = key.substr(pos + 1);
 }
@@ -74,7 +74,7 @@ void CRegRect::InternalRead (HKEY hKey, CRect& value)
 
     if (LastError == ERROR_SUCCESS)
     {
-        std::unique_ptr<char[]> buffer (new char[size]);
+        auto_buffer<char> buffer (size);
         if ((LastError = RegQueryValueEx(hKey, m_key, NULL, &type, (BYTE*) buffer.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_BINARY);
@@ -112,7 +112,7 @@ void CRegPoint::InternalRead (HKEY hKey, CPoint& value)
 
     if (LastError == ERROR_SUCCESS)
     {
-        std::unique_ptr<char[]> buffer(new char[size]);
+        auto_buffer<char> buffer(size);
         if ((LastError = RegQueryValueEx(hKey, m_key, NULL, &type, (BYTE*) buffer.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_BINARY);
@@ -136,7 +136,7 @@ CRegistryKey::CRegistryKey(const CString& key, HKEY base, REGSAM sam)
     m_hKey = NULL;
     m_sam = sam;
     m_path = key;
-    m_path.TrimLeft(L"\\");
+    m_path.TrimLeft(_T("\\"));
 }
 
 CRegistryKey::~CRegistryKey()
@@ -148,7 +148,7 @@ CRegistryKey::~CRegistryKey()
 DWORD CRegistryKey::createKey()
 {
     DWORD disp;
-    DWORD rc = RegCreateKeyEx(m_base, m_path, 0, L"", REG_OPTION_NON_VOLATILE, KEY_WRITE|m_sam, NULL, &m_hKey, &disp);
+    DWORD rc = RegCreateKeyEx(m_base, m_path, 0, _T(""), REG_OPTION_NON_VOLATILE, KEY_WRITE|m_sam, NULL, &m_hKey, &disp);
     if (rc != ERROR_SUCCESS)
     {
         return rc;
@@ -170,7 +170,7 @@ bool CRegistryKey::getValues(CStringList& values)
     {
         for (int i = 0, rc = ERROR_SUCCESS; rc == ERROR_SUCCESS; i++)
         {
-            TCHAR value[255] = { 0 };
+            TCHAR value[255];
             DWORD size = _countof(value);
             rc = RegEnumValue(m_hKey, i, value, &size, NULL, NULL, NULL, NULL);
             if (rc == ERROR_SUCCESS)
@@ -191,7 +191,7 @@ bool CRegistryKey::getSubKeys(CStringList& subkeys)
     {
         for (int i = 0, rc = ERROR_SUCCESS; rc == ERROR_SUCCESS; i++)
         {
-            TCHAR value[1024] = { 0 };
+            TCHAR value[1024];
             DWORD size = _countof(value);
             FILETIME last_write_time;
             rc = RegEnumKeyEx(m_hKey, i, value, &size, NULL, NULL, NULL, &last_write_time);

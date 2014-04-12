@@ -8,12 +8,6 @@
     <indexterm>
         <primary>create working copy</primary>
     </indexterm>
-    <indexterm>
-        <primary>sparse checkout</primary>
-    </indexterm>
-    <indexterm>
-        <primary>partial checkout</primary>
-    </indexterm>
     <?dbhh topicname="HIDD_CHECKOUT"?>
     <para>
         To obtain a working copy you need to do a <firstterm>checkout</firstterm>
@@ -35,17 +29,6 @@
         If you enter a folder name that does not yet exist, then a
         directory with that name is created.
     </para>
-    <important>
-        <para>
-            In the default setting, the checkout menu item is not
-            located in the TortoiseSVN submenu but is shown at the top
-            explorer menu. TortoiseSVN commands that are not in the submenu
-            have <literal>SVN</literal> prepended:
-            <menuchoice>
-                <guimenuitem>SVN Checkout...</guimenuitem>
-            </menuchoice>
-        </para>
-    </important>
     <sect2 id="tsvn-dug-checkout-depth">
         <title>Checkout Depth</title>
         <para>
@@ -127,54 +110,36 @@
         <para>
             If you check out a sparse working copy (i.e., by choosing something other
             than <literal>fully recursive</literal> for the checkout depth), you can
-            easily add or remove sub-folders later using one of the following methods.
+            fetch additional sub-folders later by using the repository browser
+            (<xref linkend="tsvn-dug-repobrowser" />) or the check for modifications dialog
+            (<xref linkend="tsvn-dug-wcstatus-2" />).
         </para>
-        <sect3 id="tsvn-dug-checkout-sparse-update">
-            <title>Sparse Update using Update to Revision</title>
-            <para>
-                <action>Right click</action> on the checked out folder, then use
-                <menuchoice>
-                    <guimenu>TortoiseSVN</guimenu>
-                    <guimenuitem>Update to Revision</guimenuitem>
-                </menuchoice>
-                and select <guibutton>Choose items...</guibutton>.
-                This opens the same dialog that was available in the original checkout
-                and allows you to select or deselect items to include in the checkout.
-                This method is very flexible but can be slow as every item in the folder
-                is updated individually.
-            </para>
-        </sect3>
-        <sect3 id="tsvn-dug-checkout-sparse-repo-browser">
-            <title>Sparse Update using Repo Browser</title>
-            <para>
-                <action>Right click</action> on the checked out folder, then use
-                <menuchoice>
-                    <guimenu>TortoiseSVN</guimenu>
-                    <guimenuitem>Repo-Browser</guimenuitem>
-                </menuchoice>
-                to bring up the repository browser. Find the sub-folder you would like
-                to add to your working copy, then use
-                <menuchoice>
-                    <guimenu>Context Menu</guimenu>
-                    <guimenuitem>Update item to revision...</guimenuitem>
-                </menuchoice>.
-            </para>
-        </sect3>
-        <sect3 id="tsvn-dug-checkout-sparse-cfm">
-            <title>Sparse Update using Check for Modifications</title>
-            <para>
-                In the check for modifications dialog, first <keycap>shift</keycap> click on the button
-                <guibutton>Check repository</guibutton>. The dialog will show all
-                the files and folders which are in the repository but which you
-                have not checked out as <literal>remotely added</literal>.
-                <action>Right click</action> on the folder(s) you would like to add
-                to your working copy, then use
-                <menuchoice>
-                    <guimenu>Context menu</guimenu>
-                    <guimenuitem>Update</guimenuitem>
-                </menuchoice>.
-            </para>
-        </sect3>
+        <para>
+            In windows explorer,
+            <action>Right click</action> on the checked out folder, then use
+            <menuchoice>
+                <guimenu>TortoiseSVN</guimenu>
+                <guimenuitem>Repo-Browser</guimenuitem>
+            </menuchoice>
+            to bring up the repository browser. Find the sub-folder you would like
+            to add to your working copy, then use
+            <menuchoice>
+                <guimenu>Context Menu</guimenu>
+                <guimenuitem>Update item to revision...</guimenuitem>
+            </menuchoice>.
+        </para>
+        <para>
+            In the check for modifications dialog, first click on the button
+            <guibutton>Check repository</guibutton>. The dialog will show all
+            the files and folders which are in the repository but which you
+            have not checked out as <literal>remotely added</literal>.
+            <action>Right click</action> on the folder(s) you would like to add
+            to your working copy, then use
+            <menuchoice>
+                <guimenu>Context menu</guimenu>
+                <guimenuitem>Update</guimenuitem>
+            </menuchoice>.
+        </para>
         <para>
             This feature is very useful when you only want to checkout parts of a
             large tree, but you want the convenience of updating a single working
@@ -239,7 +204,7 @@
                     <guimenu>Context menu</guimenu>
                     <guimenuitem>Update item to revision...</guimenuitem>
                 </menuchoice>.
-                In that dialog, be sure to check the
+                In that dialog, be sure to check the 
                 <guilabel>Make depth sticky</guilabel> checkbox.
             </para>
         </tip>

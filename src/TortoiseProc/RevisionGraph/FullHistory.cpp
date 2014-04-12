@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,11 +16,11 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "FullHistory.h"
+#include "StdAfx.h"
+#include "fullHistory.h"
 
 #include "resource.h"
-#include "Client.h"
+#include "client.h"
 #include "registry.h"
 #include "UnicodeUtils.h"
 #include "PathUtils.h"
@@ -60,7 +60,6 @@ CFullHistory::CFullHistory(void)
     , copyFromRelationEnd (NULL)
     , cache (NULL)
     , Err (NULL)
-    , startRevision(0)
     , diskIOScheduler (2, 0, true)  // two threads for crawling the disk
                                     // (they will both query info from the same place,
                                     // i.e. read different portions of the same WC status)
@@ -68,14 +67,20 @@ CFullHistory::CFullHistory(void)
                                     // plus as much as we got left from the shared pool
 {
     parentpool = svn_pool_create(NULL);
+    svn_error_clear(svn_client_create_context(&ctx, parentpool));
+
     pool = svn_pool_create (parentpool);
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), parentpool));
+    // set up the configuration
+    ctx->config = SVNConfig::Instance().GetConfig(pool);
 
     // set up authentication
     prompt.Init(pool, ctx);
 
     ctx->cancel_func = cancel;
     ctx->cancel_baton = this;
+
+    //set up the SVN_SSH param
+    SVNConfig::SetUpSSH(ctx);
 }
 
 CFullHistory::~CFullHistory(void)
@@ -138,10 +143,10 @@ void CFullHistory::ReceiveLog ( TChangedPaths* changes
 
     // update progress bar and check for user pressing "Cancel" somewhere
 
-    static ULONGLONG lastProgressCall = 0;
-    if (lastProgressCall < GetTickCount64() - 200UL)
+    static DWORD lastProgressCall = 0;
+    if (lastProgressCall < GetTickCount() - 200)
     {
-        lastProgressCall = GetTickCount64();
+        lastProgressCall = GetTickCount();
 
         if (progress)
         {
@@ -327,10 +332,10 @@ bool CFullHistory::FetchRevisionData ( CString path
         {
             cache = query->GetCache();
 
-            // This should never happen:
+			// This should never happen:
 
-            if (cache == NULL)
-                return false;
+			if (cache == NULL)
+				return false;
         }
         else
         {

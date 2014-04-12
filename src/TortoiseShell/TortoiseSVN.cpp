@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ HINSTANCE           g_hmodThisDll = NULL;           ///< handle to this DLL itse
 int                 g_cAprInit = 0;
 ShellCache          g_ShellCache;                   ///< caching of registry entries, ...
 DWORD               g_langid;
-ULONGLONG           g_langTimeout = 0;
+DWORD               g_langTimeout = 0;
 HINSTANCE           g_hResInst = NULL;
 tstring         g_filepath;
 svn_wc_status_kind  g_filestatus = svn_wc_status_none;  ///< holds the corresponding status to the file/dir above
@@ -46,7 +46,7 @@ bool                g_ignoredovlloaded = false;
 bool                g_unversionedovlloaded = false;
 CComCriticalSection g_csGlobalCOMGuard;
 
-LPCTSTR             g_MenuIDString = L"TortoiseSVN";
+LPCTSTR             g_MenuIDString = _T("TortoiseSVN");
 
 ShellObjects        g_shellObjects;
 
@@ -63,15 +63,15 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
     if (!SysInfo::Instance().IsWin7OrLater())
     {
         bool bInShellTest = false;
-        TCHAR buf[MAX_PATH + 1] = { 0 };       // MAX_PATH ok, the test really is for debugging anyway.
-        DWORD pathLength = GetModuleFileName(NULL, buf, MAX_PATH);
+        TCHAR buf[_MAX_PATH + 1];       // MAX_PATH ok, the test really is for debugging anyway.
+        DWORD pathLength = GetModuleFileName(NULL, buf, _MAX_PATH);
         if(pathLength >= 14)
         {
-            if ((_wcsicmp(&buf[pathLength-14], L"\\ShellTest.exe")) == 0)
+            if ((_tcsicmp(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
             {
                 bInShellTest = true;
             }
-            if ((_wcsicmp(&buf[pathLength-13], L"\\verclsid.exe")) == 0)
+            if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
             {
                 bInShellTest = true;
             }

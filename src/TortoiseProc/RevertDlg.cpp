@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,11 +18,12 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
+#include "messagebox.h"
 #include "SVN.h"
-#include "registry.h"
+#include "Registry.h"
 #include "PathUtils.h"
 #include "AppUtils.h"
-#include "RevertDlg.h"
+#include "Revertdlg.h"
 
 #define REFRESHTIMER   100
 
@@ -30,10 +31,8 @@ IMPLEMENT_DYNAMIC(CRevertDlg, CResizableStandAloneDialog)
 CRevertDlg::CRevertDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CRevertDlg::IDD, pParent)
     , m_bSelectAll(TRUE)
-    , m_bClearChangeLists(TRUE)
     , m_bThreadRunning(FALSE)
     , m_bCancelled(false)
-    , m_bRecursive(false)
 {
 }
 
@@ -46,7 +45,6 @@ void CRevertDlg::DoDataExchange(CDataExchange* pDX)
     CResizableStandAloneDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_REVERTLIST, m_RevertList);
     DDX_Check(pDX, IDC_SELECTALL, m_bSelectAll);
-    DDX_Check(pDX, IDC_CLEARCHANGELISTS, m_bClearChangeLists);
     DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 }
 
@@ -70,13 +68,12 @@ BOOL CRevertDlg::OnInitDialog()
 
     ExtendFrameIntoClientArea(IDC_REVERTLIST, IDC_REVERTLIST, IDC_REVERTLIST, IDC_REVERTLIST);
     m_aeroControls.SubclassControl(this, IDC_SELECTALL);
-    m_aeroControls.SubclassControl(this, IDC_CLEARCHANGELISTS);
     m_aeroControls.SubclassControl(this, IDC_UNVERSIONEDITEMS);
     m_aeroControls.SubclassControl(this, IDC_DELUNVERSIONED);
     m_aeroControls.SubclassControl(this, ID_OK);
     m_aeroControls.SubclassOkCancelHelp(this);
 
-    m_RevertList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS, L"RevertDlg");
+    m_RevertList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLPROPSTATUS, _T("RevertDlg"));
     m_RevertList.SetConfirmButton((CButton*)GetDlgItem(ID_OK));
     m_RevertList.SetSelectButton(&m_SelectAll);
     m_RevertList.SetCancelBool(&m_bCancelled);
@@ -87,11 +84,9 @@ BOOL CRevertDlg::OnInitDialog()
     GetWindowText(m_sWindowTitle);
 
     AdjustControlSize(IDC_SELECTALL);
-    AdjustControlSize(IDC_CLEARCHANGELISTS);
 
     AddAnchor(IDC_REVERTLIST, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
-    AddAnchor(IDC_CLEARCHANGELISTS, BOTTOM_LEFT);
     AddAnchor(IDC_UNVERSIONEDITEMS, BOTTOM_RIGHT);
     AddAnchor(IDC_DELUNVERSIONED, BOTTOM_LEFT);
     AddAnchor(ID_OK, BOTTOM_RIGHT);
@@ -99,7 +94,7 @@ BOOL CRevertDlg::OnInitDialog()
     AddAnchor(IDHELP, BOTTOM_RIGHT);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"RevertDlg");
+    EnableSaveRestore(_T("RevertDlg"));
 
     // first start a thread to obtain the file list with the status without
     // blocking the dialog
@@ -141,7 +136,7 @@ UINT CRevertDlg::RevertThread()
 
     if (m_RevertList.HasUnversionedItems())
     {
-        if (DWORD(CRegStdDWORD(L"Software\\TortoiseSVN\\UnversionedAsModified", FALSE)))
+        if (DWORD(CRegStdDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE)))
         {
             GetDlgItem(IDC_UNVERSIONEDITEMS)->ShowWindow(SW_SHOW);
         }
@@ -310,7 +305,7 @@ LRESULT CRevertDlg::OnFileDropped(WPARAM, LPARAM lParam)
 
     // Always start the timer, since the status of an existing item might have changed
     SetTimer(REFRESHTIMER, 200, NULL);
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Item %s dropped, timer started\n", path.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Item %s dropped, timer started\n"), path.GetWinPath());
     return 0;
 }
 
@@ -339,7 +334,7 @@ void CRevertDlg::OnBnClickedDelunversioned()
 {
     CString sCmd;
 
-    sCmd.Format(L"/command:delunversioned /path:\"%s\"",
+    sCmd.Format(_T("/command:delunversioned /path:\"%s\""),
         (LPCTSTR)m_pathList.CreateAsteriskSeparatedString());
     CAppUtils::RunTortoiseProc(sCmd);
 }

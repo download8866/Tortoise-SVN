@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009, 2011-2013 - TortoiseSVN
+// Copyright (C) 2007,2009,2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,8 +18,10 @@
 //
 #pragma once
 #include "SVN.h"
+
 #include <map>
 
+using namespace std;
 
 /**
  * \ingroup SVN
@@ -48,7 +50,7 @@ public:
      * \return              full list of all copy operations
      */
     std::vector<std::pair<CTSVNPath, SVNRev> >
-    GetCopyHistory(const CTSVNPath& url, const SVNRev& pegrev);
+    SVNLogHelper::GetCopyHistory(const CTSVNPath& url, const SVNRev& pegrev);
 
     /**
      * Finds the lastest common (path,revision) pair in the history of the two

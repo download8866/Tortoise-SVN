@@ -11,7 +11,7 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;png</Extensions>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{86122444-e84e-4ca5-b744-20a0ac7af3ff}</UniqueIdentifier>
@@ -21,9 +21,6 @@
     </Filter>
     <Filter Include="Utils\Header Files">
       <UniqueIdentifier>{6cd59bb0-ec91-4069-85a4-a8602fc39f64}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="SVN">
-      <UniqueIdentifier>{a8c77361-1abb-4157-ab31-bb861784661e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -63,7 +60,13 @@
     <ClCompile Include="MainFrm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\MessageBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="OpenDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Patch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\MiscUI\ProgressDlg.cpp">
@@ -82,6 +85,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Svn\SVNAdminDir.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\SVN\SVNLineDiff.cpp">
@@ -156,6 +162,9 @@
     <ClCompile Include="XSplitter.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\SVN\SVNHelpers.cpp">
+      <Filter>Utils\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="MovedBlocks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -186,6 +195,12 @@
     <ClCompile Include="..\SVN\TSVNPath.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\XMessageBox.cpp">
+      <Filter>Utils\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SVN\SVNRev.cpp">
+      <Filter>Utils\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Utils\MiscUI\IconBitmapUtils.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
@@ -195,38 +210,11 @@
     <ClCompile Include="..\Utils\TaskbarUUID.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GotoLineDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\SVN\SVNConfig.cpp">
-      <Filter>SVN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVN\SVNGlobal.cpp">
-      <Filter>SVN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVN\SVNHelpers.cpp">
-      <Filter>SVN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVN\SVNRev.cpp">
-      <Filter>SVN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\SVN\SVNAdminDir.cpp">
-      <Filter>SVN</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\PreserveChdir.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EncodingDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EOL.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RegexFiltersDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RegexFilterDlg.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\SVN\SVNGlobal.cpp">
+      <Filter>Utils\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,6 +287,9 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Svn\SVNAdminDir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\SVN\SVNLineDiff.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -347,6 +338,9 @@
     <ClInclude Include="..\Utils\MiscUI\HyperLink.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\MessageBox.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\PathUtils.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
@@ -366,6 +360,9 @@
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\WaterEffect.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\SVN\SVNHelpers.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="MovedBlocks.h">
@@ -395,7 +392,13 @@
     <ClInclude Include="..\SVN\TSVNPath.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\SVN\SVNRev.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\XMessageBox.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\IconMenu.h">
@@ -407,43 +410,13 @@
     <ClInclude Include="..\Utils\TaskbarUUID.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GotoLineDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVN\SVNPatch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\SVN\SVNConfig.h">
-      <Filter>SVN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVN\SVNRev.h">
-      <Filter>SVN</Filter>
+      <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\SVN\SVNGlobal.h">
-      <Filter>SVN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVN\SVNHelpers.h">
-      <Filter>SVN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\SVN\SVNAdminDir.h">
-      <Filter>SVN</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\PreserveChdir.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CustomMFCRibbonButton.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EncodingDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\SimpleIni.h">
-      <Filter>Utils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegexFiltersDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegexFilterDlg.h">
+    <ClInclude Include="..\SVN\SVNPatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -475,9 +448,6 @@
     <None Include="..\Resources\lineequal.ico">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\linemarked.ico">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\Resources\lineremoved.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -505,34 +475,16 @@
     <None Include="..\Resources\moved.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="Margin.cur">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\Margin.cur">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="aerobackground.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\aerobackground.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon.mfcribbon-ms">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\TortoiseMerge.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonlarge.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonlargehdpi.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonsmall.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonsmallhdpi.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\RegexFilter.ini">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ignorecomments.txt">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -540,10 +492,5 @@
     <ResourceCompile Include="..\Resources\TortoiseMergeENG.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Manifest Include="..\compatibility.manifest">
-      <Filter>Source Files</Filter>
-    </Manifest>
   </ItemGroup>
 </Project>

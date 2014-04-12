@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -111,7 +111,6 @@ public:
      * \remark the path returned has a trailing backslash
      */
     static CString GetAppDataDirectory();
-    static CString GetLocalAppDataDirectory();
 
     /**
      * Replaces escaped sequences with the corresponding characters in a string.
@@ -132,10 +131,10 @@ public:
 
     /**
      * Returns the version string from the VERSION resource of a dll or exe.
-     * \param p_strFilename path to the dll or exe
+     * \param p_strDateiname path to the dll or exe
      * \return the version string
      */
-    static CString GetVersionFromFile(const CString & p_strFilename);
+    static CString GetVersionFromFile(const CString & p_strDateiname);
 
     /**
      * Combines two url parts, taking care of slashes.

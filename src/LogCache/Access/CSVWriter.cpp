@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2014 - TortoiseSVN
+// Copyright (C) 2007-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -272,7 +272,7 @@ void CCSVWriter::WriteRevisions (std::ostream& os, const CCachedLogInfo& cache)
             = (presenceFlags & CRevisionInfoContainer::HAS_USERREVPROPS) != 0;
 
         enum {BUFFER_SIZE = 100};
-        char buffer[BUFFER_SIZE] = { 0 };
+        char buffer[BUFFER_SIZE];
 
         __time64_t timestamp = logInfo.GetTimeStamp(index);
 
@@ -336,23 +336,23 @@ CCSVWriter::~CCSVWriter(void)
 void CCSVWriter::Write ( const CCachedLogInfo& cache
                        , const TFileName& fileName)
 {
-    std::ofstream authors ((fileName + L".authors.csv").c_str());
+    std::ofstream authors ((fileName + _T(".authors.csv")).c_str());
     WriteStringList (authors, cache.GetLogInfo().GetAuthors());
-    std::ofstream userRevPropNames ((fileName + L".revpropnames.csv").c_str());
+    std::ofstream userRevPropNames ((fileName + _T(".revpropnames.csv")).c_str());
     WriteStringList (userRevPropNames, cache.GetLogInfo().GetUserRevProps());
-    std::ofstream paths ((fileName + L".paths.csv").c_str());
+    std::ofstream paths ((fileName + _T(".paths.csv")).c_str());
     WritePathList (paths, cache.GetLogInfo().GetPaths());
 
-    std::ofstream changes ((fileName + L".changes.csv").c_str());
+    std::ofstream changes ((fileName + _T(".changes.csv")).c_str());
     WriteChanges (changes, cache);
-    std::ofstream merges ((fileName + L".merges.csv").c_str());
+    std::ofstream merges ((fileName + _T(".merges.csv")).c_str());
     WriteMerges (merges, cache);
-    std::ofstream userRevProps ((fileName + L".userrevprops.csv").c_str());
+    std::ofstream userRevProps ((fileName + _T(".userrevprops.csv")).c_str());
     WriteRevProps (userRevProps, cache);
 
-    std::ofstream revisions ((fileName + L".revisions.csv").c_str());
+    std::ofstream revisions ((fileName + _T(".revisions.csv")).c_str());
     WriteRevisions (revisions, cache);
-    std::ofstream skipranges ((fileName + L".skipranges.csv").c_str());
+    std::ofstream skipranges ((fileName + _T(".skipranges.csv")).c_str());
     WriteSkipRanges (skipranges, cache);
 }
 

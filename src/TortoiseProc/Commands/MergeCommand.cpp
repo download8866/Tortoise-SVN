@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MergeCommand.h"
 
 #include "MergeWizard.h"
@@ -26,33 +26,35 @@
 bool MergeCommand::Execute()
 {
     DWORD nMergeWizardMode =
-        (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\MergeWizardMode", 0);
+        (DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWizardMode"), 0);
 
-    if (parser.HasVal(L"fromurl"))
+    if (parser.HasVal(_T("fromurl")))
     {
         // fromurl means merging a revision range
         nMergeWizardMode = 2;
     }
-    if (parser.HasVal(L"tourl"))
+    if (parser.HasVal(_T("tourl")))
     {
         // tourl means merging a tree
         nMergeWizardMode = 1;
     }
+    if (parser.HasKey(L"reintegrate"))
+        nMergeWizardMode = 4;
 
     CMergeWizard wizard(IDS_PROGRS_CMDINFO, NULL, nMergeWizardMode);
     wizard.wcPath = cmdLinePath;
 
-    if (parser.HasVal(L"fromurl"))
+    if (parser.HasVal(_T("fromurl")))
     {
-        wizard.URL1 = parser.GetVal(L"fromurl");
-        wizard.url = parser.GetVal(L"fromurl");
-        wizard.revRangeArray.FromListString(parser.GetVal(L"revrange"));
+        wizard.URL1 = parser.GetVal(_T("fromurl"));
+        wizard.url = parser.GetVal(_T("fromurl"));
+        wizard.revRangeArray.FromListString(parser.GetVal(_T("revrange")));
     }
-    if (parser.HasVal(L"tourl"))
+    if (parser.HasVal(_T("tourl")))
     {
-        wizard.URL2 = parser.GetVal(L"tourl");
-        wizard.startRev = SVNRev(parser.GetVal(L"fromrev"));
-        wizard.endRev = SVNRev(parser.GetVal(L"torev"));
+        wizard.URL2 = parser.GetVal(_T("tourl"));
+        wizard.startRev = SVNRev(parser.GetVal(_T("fromrev")));
+        wizard.endRev = SVNRev(parser.GetVal(_T("torev")));
     }
     if (wizard.DoModal() == ID_WIZFINISH)
     {
@@ -61,7 +63,6 @@ bool MergeCommand::Execute()
         int options = wizard.m_bIgnoreAncestry ? ProgOptIgnoreAncestry : 0;
         options |= wizard.m_bRecordOnly ? ProgOptRecordOnly : 0;
         options |= wizard.m_bForce ? ProgOptForce : 0;
-        options |= wizard.bAllowMixedRev ? ProgOptAllowMixedRev : 0;
         progDlg.SetOptions(options);
         progDlg.SetPathList(CTSVNPathList(wizard.wcPath));
         progDlg.SetUrl(wizard.URL1);
@@ -77,10 +78,13 @@ bool MergeCommand::Execute()
                 }
                 else
                 {
-                    if (wizard.bReintegrate)
-                        progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrateOldStyle);
+                    SVNRevRangeArray tempRevArray;
+                    if (wizard.pegRev.IsValid())
+                        // only merge up to the peg rev is no rev range is specified.
+                        tempRevArray.AddRevRange(1, wizard.pegRev);
                     else
-                        progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
+                        tempRevArray.AddRevRange(1, SVNRev::REV_HEAD);
+                    progDlg.SetRevisionRanges(tempRevArray);
                 }
                 progDlg.SetPegRevision(wizard.pegRev);
             }
@@ -96,6 +100,11 @@ bool MergeCommand::Execute()
                     tempRevArray.AddRevRange(wizard.startRev, wizard.endRev);
                     progDlg.SetRevisionRanges(tempRevArray);
                 }
+            }
+            break;
+        case MERGEWIZARD_REINTEGRATE:
+            {
+                progDlg.SetCommand(CSVNProgressDlg::SVNProgress_MergeReintegrate);
             }
             break;
         }

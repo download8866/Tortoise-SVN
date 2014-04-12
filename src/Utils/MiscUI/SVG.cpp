@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2014 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -154,13 +154,13 @@ font-style:%s;\
 font-weight:%s;\
 stroke:none;\
 text-anchor: middle;\
-fill:#%06lx;\"><![CDATA[%s]]></text>",
+fill:#%06lx;\">%s</text>",
         x, y, font, fontsize, italic ? "italic" : "none", bold ? "bold" : "none", GetColor(color), text);
 
     objects.push_back(sObj);
 }
 
-DWORD SVG::GetColor( Gdiplus::Color c ) const
+DWORD SVG::GetColor( Gdiplus::Color c )
 {
     return ((DWORD)c.GetRed() << 16) | ((DWORD)c.GetGreen() << 8) | ((DWORD)c.GetBlue());
 }

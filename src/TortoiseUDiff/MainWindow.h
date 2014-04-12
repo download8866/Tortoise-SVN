@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009-2013 - TortoiseSVN
+// Copyright (C) 2007,2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,11 +20,13 @@
 #include "BaseWindow.h"
 #include "SciLexer.h"
 #include "Scintilla.h"
-#include "registry.h"
+#include "Registry.h"
 #include "resource.h"
 #include "FindBar.h"
 #include <string>
 #include <stdio.h>
+
+using namespace std;
 
 /**
  * \ingroup TortoiseUDiff
@@ -48,8 +50,6 @@ public:
     bool                LoadFile(HANDLE hFile);
     bool                SaveFile(LPCTSTR filename);
     void                SetTitle(LPCTSTR title);
-    std::wstring        GetAppDirectory();
-    void                RunCommand(const std::wstring& command);
 
 protected:
     /// the message handler for this window
@@ -74,8 +74,8 @@ private:
     CFindBar            m_FindBar;
     bool                m_bShowFindBar;
     bool                m_bMatchCase;
-    std::wstring        m_findtext;
-    std::wstring        m_filename;
+    wstring             m_findtext;
+    wstring             m_filename;
 
-    void loadOrSaveFile( bool doLoad, const std::wstring& filename = L"" );
+    void loadOrSaveFile( bool doLoad, const wstring& filename = L"" );
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "resource.h"
+#include "Resource.h"
 #include "LayoutOptions.h"
 #include "RevisionGraphOptionsImpl.h"
 
@@ -41,13 +41,13 @@ private:
         , std::vector<long>& branchColumnStarts
         , std::vector<long>& branchColumnEnds
         , std::vector<long>& localColumnStarts
-        , std::vector<long>& localColumnEnds) const;
+        , std::vector<long>& localColumnEnds);
     void AppendBranch
         ( CStandardLayoutNodeInfo* start
         , std::vector<long>& columnStarts
         , std::vector<long>& columnEnds
         , std::vector<long>& localColumnStarts
-        , std::vector<long>& localColumnEnds) const;
+        , std::vector<long>& localColumnEnds);
     void PlaceBranch
         ( CStandardLayoutNodeInfo* start
         , std::vector<long>& columnStarts
@@ -72,5 +72,5 @@ public:
     /// cast @a layout pointer to the respective modification
     /// interface and write the data.
 
-    virtual void ApplyTo (IRevisionGraphLayout* layout) override;
+    virtual void ApplyTo (IRevisionGraphLayout* layout);
 };

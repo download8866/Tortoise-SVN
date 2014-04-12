@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2013-2014 - TortoiseSVN
+// Copyright (C) 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ class CDwmApiImpl
 {
 private:
     HINSTANCE m_hDwmApiLib;
-    BOOL IsInitialized(void) const;
+    BOOL IsInitialized(void);
 
 public:
     CDwmApiImpl(void);
@@ -39,6 +39,7 @@ public:
     BOOL Initialize(void);
     HRESULT DwmExtendFrameIntoClientArea(HWND hWnd,const MARGINS* pMarInset);
     BOOL IsDwmCompositionEnabled(void);
+    HRESULT DwmEnableComposition(UINT uCompositionAction);
 };
 
 /// macros stolen from dwmapi.h:
@@ -55,7 +56,7 @@ class CUxThemeAeroImpl
 {
 private:
     HINSTANCE m_hUxThemeLib;
-    BOOL IsInitialized(void) const;
+    BOOL IsInitialized(void);
 
 public:
     CUxThemeAeroImpl(void);

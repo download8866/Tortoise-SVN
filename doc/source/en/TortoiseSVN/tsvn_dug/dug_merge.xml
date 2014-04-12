@@ -15,7 +15,7 @@
         It is important to understand how branching and merging works in
         Subversion before you start using it, as it can become quite complex.
         It is highly recommended that you read the chapter
-        <ulink url="http://svnbook.red-bean.com/en/1.8/svn.branchmerge.html">
+        <ulink url="http://svnbook.red-bean.com/en/1.7/svn.branchmerge.html">
             <citetitle>Branching and Merging</citetitle>
         </ulink>
         in the Subversion book, which gives a full description and many
@@ -60,10 +60,44 @@
                     of branch A [TO] revision 7 of branch A, and apply those changes
                     to my working copy (of trunk or branch B).</quote>
                 </para>
+            </listitem>
+        </varlistentry>
+        <varlistentry>
+            <term>Reintegrate a branch</term>
+            <listitem>
                 <para>
-                    If you leave the revision range empty, Subversion uses the
-                    merge-tracking features to calculate the correct revision range
-                    to use. This is known as a reintegrate or automatic merge.
+                    This method covers the case when you have made a feature branch
+                    as discussed in the Subversion book. All trunk changes have been
+                    ported to the feature branch, week by week, and now the feature
+                    is complete you want to merge it back into the trunk. Because
+                    you have kept the feature branch synchronized with the trunk,
+                    the latest versions of branch and trunk will be absolutely
+                    identical except for your branch changes.
+                </para>
+                <para>
+                    This is a special case of the tree merge described below,
+                    and it requires only the URL to merge from (normally) your
+                    development branch. It uses the merge-tracking features of
+                    Subversion to calculate the correct revision ranges to use,
+                    and perform additional checks which ensure that the branch has
+                    been fully updated with trunk changes. This ensures that you don't
+                    accidentally undo work that others have committed to trunk since
+                    you last synchronized changes.
+                </para>
+                <para>
+                    After the merge, all branch development has been completely
+                    merged back into the main development line. The branch is now
+                    redundant and can be deleted.
+                </para>
+                <para>
+                    Once you have performed a reintegrate merge you should not
+                    continue to use it for development. The reason for this is that
+                    if you try to resynchronize your existing branch from trunk later on,
+                    merge tracking will see your reintegration as a trunk change
+                    that has not yet been merged into the branch, and will try to
+                    merge the branch-to-trunk merge back into the branch!
+                    The solution to this is simply to create a new branch from trunk
+                    to continue the next phase of your development.
                 </para>
             </listitem>
         </varlistentry>
@@ -84,7 +118,7 @@
                     Another use case occurs when you are using vendor branches
                     and you need to merge the changes following a new vendor drop
                     into your trunk code. For more information read the chapter on
-                    <ulink url="http://svnbook.red-bean.com/en/1.8/svn.advanced.vendorbr.html">
+                    <ulink url="http://svnbook.red-bean.com/en/1.7/svn.advanced.vendorbr.html">
                         <citetitle>vendor branches</citetitle>
                     </ulink>
                     in the Subversion Book.
@@ -113,13 +147,6 @@
             If you have merged from this branch before, then just
             use the drop down list which shows a history of
             previously used URLs.
-        </para>
-        <para>
-            If you are merging from a renamed or deleted branch then you will
-            have to go back to a revision where that branch still existed. In this
-            case you will also need to specify that revision as a peg revision
-            in the range of revisions being merged (see below), otherwise
-            the merge will fail when it can't find that path at HEAD.
         </para>
         <para>
             In the <guilabel>Revision range to merge</guilabel> field
@@ -156,7 +183,7 @@
             </para>
             <para>
                 If you are merging revisions in chunks, the method
-                shown in the Subversion book will have you merge
+                shown in the subversion book will have you merge
                 100-200 this time and 200-300 next time. With
                 TortoiseSVN you would merge 100-200 this time and
                 201-300 next time.
@@ -223,10 +250,31 @@
             after your last update.
         </para>
         <para>
-            If you leave the range of revisions empty or have the
-            radio button <guilabel>all revisions</guilabel> checked, then
-            Subversion merges all not-yet merged revisions. This is known
-            as a reintegrate or automatic merge.
+            Click <guibutton>Next</guibutton> and go to
+            <xref linkend="tsvn-dug-merge-options"/>.
+        </para>
+    </sect2>
+    <sect2 id="tsvn-dug-merge-reintegrate">
+        <title>Reintegrate a branch</title>
+        <?dbhh topicname="HIDD_MERGEWIZARD_REINTEGRATE"?>
+        <indexterm>
+            <primary>merge</primary>
+            <secondary>reintegrate</secondary>
+        </indexterm>
+        <para>
+            <figure id="tsvn-dug-merge-wizard-reintegrate">
+                <title>The Merge Wizard - Reintegrate Merge</title>
+                <graphic fileref="../images/MergeWizardReintegrate.png"/>
+            </figure>
+            To merge a feature branch back into the trunk you must start the
+            merge wizard from within a working copy of the trunk.
+        </para>
+        <para>
+            In the <guilabel>From URL:</guilabel> field enter the full
+            folder URL of the branch that you want to merge back.
+            You may also click
+            <guibutton>...</guibutton>
+            to browse the repository.
         </para>
         <para>
             There are some conditions which apply to a reintegrate merge.
@@ -237,10 +285,6 @@
             All changes to trunk made during branch development must have
             been merged across to the branch (or marked as having been merged).
             The range of revisions to merge will be calculated automatically.
-        </para>
-        <para>
-            Click <guibutton>Next</guibutton> and go to
-            <xref linkend="tsvn-dug-merge-options"/>.
         </para>
     </sect2>
     <sect2 id="tsvn-dug-merge-tree">
@@ -314,7 +358,7 @@
             differences rather than history-based differences, check the
             <guilabel>Ignore ancestry</guilabel> box. Read more about this
             topic in the Subversion book,
-            <ulink url="http://svnbook.red-bean.com/en/1.8/svn.branchmerge.advanced.html#svn.branchmerge.advanced.ancestry">
+            <ulink url="http://svnbook.red-bean.com/en/1.7/svn.branchmerge.advanced.html#svn.branchmerge.advanced.ancestry">
                 <citetitle>Noticing or Ignoring Ancestry</citetitle>
             </ulink>.
         </para>
@@ -373,19 +417,6 @@
             merge and see if it's as expected. Merging is usually quite complicated.
             Conflicts often arise if the branch has drifted far from the trunk.
         </para>
-        <tip>
-            <para>
-                Whenever revisions are merged into a working copy,
-                TortoiseSVN generates a log message from all the
-                merged revisions. Those are then available from the
-                <guibutton>Recent Messages</guibutton> button in the
-                commit dialog.
-            </para>
-            <para>
-                To customize that generated message, set the corresponding
-                project properties on your working copy. See <xref linkend="tsvn_dug_propertypage-edit-mergelogmsgtemplate"/>
-            </para>
-        </tip>
         <para>
             For Subversion clients and servers prior to 1.5, no merge information
             is stored and merged revisions have to be tracked manually.
@@ -493,7 +524,7 @@
         </para>
         <para>
             Find out more about merge tracking from Subversion's
-            <ulink url="http://svn.apache.org/repos/asf/Subversion/trunk/notes/merge-tracking/index.html">
+            <ulink url="http://svn.apache.org/repos/asf/subversion/trunk/notes/merge-tracking/index.html">
                 <citetitle>Merge tracking documentation</citetitle>
             </ulink>.
         </para>

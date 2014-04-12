@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ IMPLEMENT_DYNAMIC(CEditPropMimeType, CStandAloneDialog)
 CEditPropMimeType::CEditPropMimeType(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CEditPropMimeType::IDD, pParent)
     , EditPropBase()
-    , m_sCustomMimeType(L"")
+    , m_sCustomMimeType(_T(""))
 {
 
 }
@@ -79,7 +79,7 @@ BOOL CEditPropMimeType::OnInitDialog()
     DialogEnableWindow(IDC_CUSTOMMIMETYPE, false);
     if (m_PropValue.compare("application/octet-stream") == 0)
         CheckRadioButton(IDC_MIMETEXT, IDC_MIMECUSTOM, IDC_MIMEBIN);
-    else if (m_PropValue.empty())
+    else if (m_PropValue.size() == 0)
         CheckRadioButton(IDC_MIMETEXT, IDC_MIMECUSTOM, IDC_MIMETEXT);
     else
     {
@@ -91,7 +91,7 @@ BOOL CEditPropMimeType::OnInitDialog()
     }
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(!m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || (!m_bFolder && !m_bMultiple) || m_bRemote ? SW_HIDE : SW_SHOW);
+    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || (!m_bFolder && !m_bMultiple) ? SW_HIDE : SW_SHOW);
 
     if (m_bFolder)
     {

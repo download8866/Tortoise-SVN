@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "SVNStatusListCtrl.h"
 #include "ProjectProperties.h"
 #include "RegHistory.h"
-#include "registry.h"
+#include "Registry.h"
 #include "SciEdit.h"
 #include "SplitterControl.h"
 #include "LinkControl.h"
@@ -30,10 +30,11 @@
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
 #include "Tooltip.h"
-#include "../IBugTraqProvider/IBugTraqProvider_h.h"
+#include "..\IBugTraqProvider\IBugTraqProvider_h.h"
 #include "PathEdit.h"
 
 #include <regex>
+using namespace std;
 
 #define ENDDIALOGTIMER 100
 #define REFRESHTIMER   101
@@ -52,8 +53,8 @@ public:
     virtual ~CCommitDlg();
 
     // CSciEditContextMenuInterface
-    virtual void        InsertMenuItems(CMenu& mPopup, int& nCmd) override;
-    virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit) override;
+    virtual void        InsertMenuItems(CMenu& mPopup, int& nCmd);
+    virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit);
 
 private:
     static UINT StatusThreadEntry(LPVOID pVoid);
@@ -66,32 +67,8 @@ private:
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    // extracted from OnInitDialog
-    void ShowBalloonInCaseOfError();
-    void GetAsyncFileListStatus();
-    void AddDirectoriesToPathWatcher();
-    void AdjustDialogSizeAndPanes();
-    void CenterWindowWhenLaunchedFromExplorer();
-    void SaveDialogAndLogMessageControlRectangles();
-    void AddAnchorsToFacilitateResizing();
-    void LineupControlsAndAdjustSizes();
-    void ConvertStaticToLinkControl();
-    void AdjustControlSizes();
-    void SetCommitWindowTitleAndEnableStatus();
-    void SetupLogMessageDefaultText();
-    void ShowOrHideBugIdAndLabelControls();
-    void HideBugIdAndLabel();
-    void RestoreBugIdAndLabelFromProjectProperties();
-    void SetupBugTraqControlsIfConfigured();
-    void HideAndDisableBugTraqButton();
-    void SetupToolTips();
-    void SetControlAccessibilityProperties();
-    void InitializeLogMessageControl();
-    void InitializeListControl();
-    void SubclassControls();
-    void ReadPersistedDialogSettings();
 
+    virtual BOOL OnInitDialog();
     virtual void OnOK();
     virtual void OnCancel();
     virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -101,10 +78,8 @@ protected:
     afx_msg void OnBnClickedShowunversioned();
     afx_msg void OnBnClickedHistory();
     afx_msg void OnBnClickedBugtraqbutton();
-    afx_msg void OnBnClickedLog();
     afx_msg void OnEnChangeLogmessage();
     afx_msg void OnStnClickedExternalwarning();
-    afx_msg BOOL OnQueryEndSession();
     afx_msg LRESULT OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM);
     afx_msg LRESULT OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM);
     afx_msg LRESULT OnSVNStatusListCtrlCheckChanged(WPARAM, LPARAM);
@@ -128,13 +103,11 @@ protected:
 
 
 public:
-    ProjectProperties   m_ProjectProperties;
     CTSVNPathList       m_pathList;
     CTSVNPathList       m_updatedPathList;
     CTSVNPathList       m_selectedPathList;
     CTSVNPathList       m_checkedPathList;
     BOOL                m_bRecursive;
-    bool                m_bUnchecked;
     CSciEdit            m_cLogMessage;
     CString             m_sLogMessage;
     std::map<CString, CString> m_revProps;
@@ -145,7 +118,7 @@ public:
     INT_PTR             m_itemsCount;
     bool                m_bSelectFilesForCommit;
     CComPtr<IBugTraqProvider> m_BugTraqProvider;
-    std::map<CString, std::tuple<CString, CString>> m_restorepaths;
+
 private:
     CWinThread*         m_pThread;
     std::set<CString>   m_autolist;
@@ -159,6 +132,7 @@ private:
     CRegDWORD           m_regAddBeforeCommit;
     CRegDWORD           m_regKeepChangelists;
     CRegDWORD           m_regShowExternals;
+    ProjectProperties   m_ProjectProperties;
     CString             m_sWindowTitle;
     static UINT         WM_AUTOLISTREADY;
     int                 m_nPopupPasteListCmd;
@@ -172,6 +146,5 @@ private:
     CPathEdit           m_CommitTo;
     CBugTraqAssociation m_bugtraq_association;
     CHyperLink          m_cUpdateLink;
-public:
-    afx_msg void OnBnClickedRunhook();
+
 };

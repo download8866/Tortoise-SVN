@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2012, 2014 - TortoiseSVN
+// Copyright (C) 2006-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ IMPLEMENT_DYNAMIC(CLocatorBar, CPaneDialog)
 CLocatorBar::CLocatorBar() : CPaneDialog()
     , m_pMainFrm(NULL)
     , m_pCacheBitmap(NULL)
-    , m_regUseFishEye(L"Software\\TortoiseMerge\\UseFishEye", TRUE)
+    , m_regUseFishEye(_T("Software\\TortoiseMerge\\UseFishEye"), TRUE)
     , m_nLines(-1)
 {
 }
@@ -53,7 +53,6 @@ BEGIN_MESSAGE_MAP(CLocatorBar, CPaneDialog)
     ON_WM_LBUTTONDOWN()
     ON_WM_MOUSEMOVE()
     ON_WM_LBUTTONUP()
-    ON_MESSAGE(WM_MOUSELEAVE, OnMouseLeave)
 END_MESSAGE_MAP()
 
 void CLocatorBar::DocumentUpdated()
@@ -217,20 +216,7 @@ void CLocatorBar::OnMouseMove(UINT nFlags, CPoint point)
         ScrollOnMouseMove(point);
     }
 
-    TRACKMOUSEEVENT Tme;
-    Tme.cbSize = sizeof(TRACKMOUSEEVENT);
-    Tme.dwFlags = TME_LEAVE;
-    Tme.hwndTrack = m_hWnd;
-    TrackMouseEvent(&Tme);
-
-
     Invalidate();
-}
-
-LRESULT CLocatorBar::OnMouseLeave(WPARAM /*wParam*/, LPARAM /*lParam*/)
-{
-    Invalidate();
-    return 0;
 }
 
 void CLocatorBar::OnLButtonUp(UINT nFlags, CPoint point)
@@ -301,21 +287,6 @@ void CLocatorBar::PaintView(CDC& cacheDC, CBaseView* view, CDWordArray& indents,
             }
         }
     }
-    if (view->GetFindString()[0])
-    {
-        COLORREF color, color2;
-        CDiffColors::GetInstance().GetColors(DIFFSTATE_NORMAL, color, color2);
-        color = CAppUtils::IntenseColor(30, color);
-        for (size_t i=0; i<view->m_arFindStringLines.size(); ++i)
-        {
-            if (view->m_arFindStringLines[i])
-            {
-                cacheDC.FillSolidRect(rect.left + (width*stripeIndex/3), (int)(height*i/m_nLines),
-                    barwidth, max(height/m_nLines,2), color);
-            }
-        }
-    }
-
 }
 
 void CLocatorBar::DrawFishEye(CDC& cacheDC, const CRect& rect )

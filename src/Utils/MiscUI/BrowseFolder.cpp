@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,11 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include <windowsx.h>
 #include "BrowseFolder.h"
 #include "PathUtils.h"
 #include "SmartHandle.h"
-#include <strsafe.h>
 
 BOOL CBrowseFolder::m_bCheck = FALSE;
 BOOL CBrowseFolder::m_bCheck2 = FALSE;
@@ -39,9 +38,9 @@ CBrowseFolder::CBrowseFolder(void)
 :   m_style(0),
     m_root(NULL)
 {
-    SecureZeroMemory(m_displayName, sizeof(m_displayName));
-    SecureZeroMemory(m_title, sizeof(m_title));
-    SecureZeroMemory(m_CheckText, sizeof(m_CheckText));
+    memset(m_displayName, 0, sizeof(m_displayName));
+    memset(m_title, 0, sizeof(m_title));
+    memset(m_CheckText, 0, sizeof(m_CheckText));
 }
 
 CBrowseFolder::~CBrowseFolder(void)
@@ -57,7 +56,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, LPTSTR path, size_t pathl
     if (szDefaultPath)
         sDefault = szDefaultPath;
     CBrowseFolder::retVal ret = Show(parent, temp, sDefault);
-    wcscpy_s(path, pathlen, temp);
+    _tcscpy_s(path, pathlen, temp);
     return ret;
 }
 CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CString& sDefaultPath /* = CString() */)
@@ -71,7 +70,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
             CString p = path.Left(path.ReverseFind('\\'));
             if ((p.GetLength() == 2)&&(p[1] == ':'))
             {
-                p += L"\\";
+                p += _T("\\");
                 if (p.Compare(path) == 0)
                     p.Empty();
             }
@@ -100,7 +99,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         // Set a title
         if (SUCCEEDED(hr))
         {
-            TCHAR * nl = wcschr(m_title, '\n');
+            TCHAR * nl = _tcschr(m_title, '\n');
             if (nl)
                 *nl = 0;
             pfd->SetTitle(m_title);
@@ -109,12 +108,22 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         // set the default folder
         if (SUCCEEDED(hr))
         {
-            IShellItem *psiDefault = 0;
-            hr = SHCreateItemFromParsingName(m_sDefaultPath, NULL, IID_PPV_ARGS(&psiDefault));
-            if (SUCCEEDED(hr))
+            typedef HRESULT (WINAPI *SHCIFPN)(PCWSTR pszPath, IBindCtx * pbc, REFIID riid, void ** ppv);
+
+            CAutoLibrary hLib = LoadLibrary(L"shell32.dll");
+            if (hLib)
             {
-                hr = pfd->SetFolder(psiDefault);
-                psiDefault->Release();
+                SHCIFPN pSHCIFPN = (SHCIFPN)GetProcAddress(hLib, "SHCreateItemFromParsingName");
+                if (pSHCIFPN)
+                {
+                    IShellItem *psiDefault = 0;
+                    hr = pSHCIFPN(m_sDefaultPath, NULL, IID_PPV_ARGS(&psiDefault));
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = pfd->SetFolder(psiDefault);
+                        psiDefault->Release();
+                    }
+                }
             }
         }
 
@@ -180,7 +189,7 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
         browseInfo.lParam           = (LPARAM)this;
         browseInfo.lpfn             = BrowseCallBackProc;
 
-        PCIDLIST_ABSOLUTE itemIDList = SHBrowseForFolder(&browseInfo);
+        LPITEMIDLIST itemIDList = SHBrowseForFolder(&browseInfo);
 
         //is the dialog canceled?
         if (!itemIDList)
@@ -193,7 +202,15 @@ CBrowseFolder::retVal CBrowseFolder::Show(HWND parent, CString& path, const CStr
 
             path.ReleaseBuffer();
 
-            CoTaskMemFree((LPVOID)itemIDList);
+            LPMALLOC shellMalloc = 0;
+            hr = SHGetMalloc(&shellMalloc);
+            if (SUCCEEDED(hr))
+            {
+                //free memory
+                shellMalloc->Free(itemIDList);
+                //release interface
+                shellMalloc->Release();
+            }
         }
     }
 
@@ -205,7 +222,7 @@ void CBrowseFolder::SetInfo(LPCTSTR title)
     ASSERT(title);
 
     if (title)
-        wcscpy_s(m_title, title);
+        _tcscpy_s(m_title, title);
 }
 
 void CBrowseFolder::SetCheckBoxText(LPCTSTR checktext)
@@ -213,7 +230,7 @@ void CBrowseFolder::SetCheckBoxText(LPCTSTR checktext)
     ASSERT(checktext);
 
     if (checktext)
-        wcscpy_s(m_CheckText, checktext);
+        _tcscpy_s(m_CheckText, checktext);
 }
 
 void CBrowseFolder::SetCheckBoxText2(LPCTSTR checktext)
@@ -221,7 +238,7 @@ void CBrowseFolder::SetCheckBoxText2(LPCTSTR checktext)
     ASSERT(checktext);
 
     if (checktext)
-        wcscpy_s(m_CheckText2, checktext);
+        _tcscpy_s(m_CheckText2, checktext);
 }
 
 void CBrowseFolder::SetFont(HWND hwnd,LPTSTR FontName,int FontSize)
@@ -234,7 +251,7 @@ void CBrowseFolder::SetFont(HWND hwnd,LPTSTR FontName,int FontSize)
     GetObject(GetWindowFont(hwnd),sizeof(lf),&lf);
     lf.lfWeight = FW_REGULAR;
     lf.lfHeight = (LONG)FontSize;
-    StringCchCopy( lf.lfFaceName, _countof(lf.lfFaceName), FontName );
+    lstrcpy( lf.lfFaceName, FontName );
     hf=CreateFontIndirect(&lf);
     SetBkMode(hdc,OPAQUE);
     SendMessage(hwnd,WM_SETFONT,(WPARAM)hf,TRUE);
@@ -252,7 +269,7 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
             bool bSecondCheckbox = (m_CheckText2[0] != 0);
             //Rectangles for getting the positions
             checkbox = CreateWindowEx(  0,
-                L"BUTTON",
+                _T("BUTTON"),
                 m_CheckText,
                 WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|BS_AUTOCHECKBOX,
                 0,100,100,50,
@@ -267,7 +284,7 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
             {
                 //Rectangles for getting the positions
                 checkbox2 = CreateWindowEx( 0,
-                    L"BUTTON",
+                    _T("BUTTON"),
                     m_CheckText2,
                     WS_CHILD|WS_VISIBLE|WS_CLIPCHILDREN|BS_AUTOCHECKBOX,
                     0,100,100,50,
@@ -279,9 +296,9 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
                     return 0;
             }
 
-            ListView = FindWindowEx(hwnd,NULL,L"SysTreeView32",NULL);
+            ListView = FindWindowEx(hwnd,NULL,_T("SysTreeView32"),NULL);
             if (ListView == NULL)
-                ListView = FindWindowEx(hwnd,NULL,L"SHBrowseForFolder ShellNameSpace Control",NULL);
+                ListView = FindWindowEx(hwnd,NULL,_T("SHBrowseForFolder ShellNameSpace Control"),NULL);
 
             if (ListView == NULL)
                 return 0;
@@ -321,7 +338,7 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
                     controlHeight,
                     SWP_NOZORDER);
             }
-            HWND label = FindWindowEx(hwnd, NULL, L"STATIC", NULL);
+            HWND label = FindWindowEx(hwnd, NULL, _T("STATIC"), NULL);
             if (label)
             {
                 HFONT hFont = (HFONT)::SendMessage(label, WM_GETFONT, 0, 0);
@@ -335,9 +352,9 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
             else
             {
                 //Sets the fonts of static controls
-                SetFont(checkbox,L"MS Sans Serif",12);
+                SetFont(checkbox,_T("MS Sans Serif"),12);
                 if (bSecondCheckbox)
-                    SetFont(checkbox2,L"MS Sans Serif",12);
+                    SetFont(checkbox2,_T("MS Sans Serif"),12);
             }
 
             // Subclass the checkbox control.
@@ -360,8 +377,8 @@ int CBrowseFolder::BrowseCallBackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARA
     if (uMsg == BFFM_SELCHANGED)
     {
         // Set the status window to the currently selected path.
-        TCHAR szDir[MAX_PATH] = { 0 };
-        if (SHGetPathFromIDList((PCIDLIST_ABSOLUTE)lParam, szDir))
+        TCHAR szDir[MAX_PATH];
+        if (SHGetPathFromIDList((LPITEMIDLIST)lParam, szDir))
         {
             SendMessage(hwnd,BFFM_SETSTATUSTEXT, 0, (LPARAM)szDir);
         }

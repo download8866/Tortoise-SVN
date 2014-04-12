@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -67,7 +67,7 @@ BOOL CEditPropTSVNLang::OnInitDialog()
 
     // fill the combo box with all available languages
     EnumSystemLocales(EnumLocalesProc, LCID_SUPPORTED);
-    int index = m_langCombo.AddString(L"(none)");
+    int index = m_langCombo.AddString(_T("(none)"));
     m_langCombo.SetItemData(index, 0);
 
     DWORD projLang = 0;
@@ -75,7 +75,7 @@ BOOL CEditPropTSVNLang::OnInitDialog()
     {
         if (it->first.compare(PROJECTPROPNAME_LOGFILELISTLANG) == 0)
         {
-            m_bKeepEnglish = it->second.value.empty();
+            m_bKeepEnglish = it->second.value.size() == 0;
         }
         else if (it->first.compare(PROJECTPROPNAME_PROJECTLANGUAGE) == 0)
         {
@@ -91,9 +91,6 @@ BOOL CEditPropTSVNLang::OnInitDialog()
             break;
         }
     }
-
-    GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
-    GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || (!m_bFolder && !m_bMultiple) || m_bRemote ? SW_HIDE : SW_SHOW);
 
     CString sWindowTitle;
     GetWindowText(sWindowTitle);
@@ -111,8 +108,8 @@ void CEditPropTSVNLang::OnOK()
     TProperties newProps;
     PropValue pVal;
 
-    char numBuf[20] = { 0 };
-    sprintf_s(numBuf, "%Id", m_langCombo.GetItemData(m_langCombo.GetCurSel()));
+    char numBuf[20];
+    sprintf_s(numBuf, "%ld", m_langCombo.GetItemData(m_langCombo.GetCurSel()));
     pVal.value = numBuf;
     pVal.remove = (m_langCombo.GetItemData(m_langCombo.GetCurSel()) == 0);
     newProps[PROJECTPROPNAME_PROJECTLANGUAGE] = pVal;
@@ -129,7 +126,7 @@ void CEditPropTSVNLang::OnOK()
 
 BOOL CEditPropTSVNLang::EnumLocalesProc(LPTSTR lpLocaleString)
 {
-    DWORD langID = wcstol(lpLocaleString, NULL, 16);
+    DWORD langID = _tcstol(lpLocaleString, NULL, 16);
 
     TCHAR buf[MAX_PATH] = {0};
     GetLocaleInfo(langID, LOCALE_SNATIVELANGNAME, buf, _countof(buf));
@@ -137,9 +134,9 @@ BOOL CEditPropTSVNLang::EnumLocalesProc(LPTSTR lpLocaleString)
     GetLocaleInfo(langID, LOCALE_SNATIVECTRYNAME, buf, _countof(buf));
     if (buf[0])
     {
-        sLang += L" (";
+        sLang += _T(" (");
         sLang += buf;
-        sLang += L")";
+        sLang += _T(")");
     }
 
     int index = m_langCombo.AddString(sLang);

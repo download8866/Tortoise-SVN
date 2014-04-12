@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 #include "ShellExt.h"
 #include "SVNFolderStatus.h"
 #include "UnicodeUtils.h"
-#include "../TSVNCache/CacheInterface.h"
+#include "..\TSVNCache\CacheInterface.h"
 #include "SVNConfig.h"
 #include "SVNGlobal.h"
 #include "SmartHandle.h"
@@ -86,7 +86,6 @@ SVNFolderStatus::SVNFolderStatus(void)
     : m_TimeStamp(0)
     , m_nCounter(0)
     , dirstatus(NULL)
-    , m_mostRecentStatus(nullptr)
 {
     emptyString[0] = 0;
     invalidstatus.author = emptyString;
@@ -102,7 +101,7 @@ SVNFolderStatus::SVNFolderStatus(void)
 
     rootpool = svn_pool_create (NULL);
 
-    m_hInvalidationEvent = CreateEvent(NULL, FALSE, FALSE, L"TortoiseSVNCacheInvalidationEvent");
+    m_hInvalidationEvent = CreateEvent(NULL, FALSE, FALSE, _T("TortoiseSVNCacheInvalidationEvent"));
 }
 
 SVNFolderStatus::~SVNFolderStatus(void)
@@ -121,7 +120,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
     //access of the .svn directory).
     if (g_ShellCache.BlockStatus())
     {
-        CAutoGeneralHandle TSVNMutex = ::CreateMutex(NULL, FALSE, L"TortoiseProc.exe");
+        CAutoGeneralHandle TSVNMutex = ::CreateMutex(NULL, FALSE, _T("TortoiseProc.exe"));
         if (TSVNMutex != NULL)
         {
             if (::GetLastError() == ERROR_ALREADY_EXISTS)
@@ -134,7 +133,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
     pool = svn_pool_create (rootpool);              // create the memory pool
 
     ClearCache();
-    svn_error_clear(svn_client_create_context2(&localctx, NULL, pool));
+    svn_error_clear(svn_client_create_context(&localctx, pool));
     // set up the configuration
     // Note: I know this is an 'expensive' call, but without this, ignores
     // done in the global ignore pattern won't show up.
@@ -147,7 +146,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
     urls.clear();
     owners.clear();
 
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": building cache for %s\n", filepath);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": building cache for %s\n"), filepath);
     if (bIsFolder)
     {
         if (bDirectFolder)
@@ -210,7 +209,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
                 dirstat.lock = dirstatus->lock;
             }
             m_cache[filepath.GetWinPath()] = dirstat;
-            m_TimeStamp = GetTickCount64();
+            m_TimeStamp = GetTickCount();
             svn_error_clear(err);
             svn_pool_destroy (pool);                //free allocated memory
             return &dirstat;
@@ -268,7 +267,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
 
     svn_error_clear(err);
     svn_pool_destroy (pool);                //free allocated memory
-    m_TimeStamp = GetTickCount64();
+    m_TimeStamp = GetTickCount();
     const FileStatusCacheEntry * ret = NULL;
     FileStatusMap::const_iterator iter;
     if ((iter = m_cache.find(filepath.GetWinPath())) != m_cache.end())
@@ -284,7 +283,7 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
         // path too before giving up.
         // This is especially true when right-clicking directly on a SUBST'ed
         // drive to get the context menu
-        if (wcslen(filepath.GetWinPath())==3)
+        if (_tcslen(filepath.GetWinPath())==3)
         {
             if ((iter = m_cache.find((LPCTSTR)filepath.GetWinPathString().Left(2))) != m_cache.end())
             {
@@ -299,10 +298,10 @@ const FileStatusCacheEntry * SVNFolderStatus::BuildCache(const CTSVNPath& filepa
     return &invalidstatus;
 }
 
-ULONGLONG SVNFolderStatus::GetTimeoutValue() const
+DWORD SVNFolderStatus::GetTimeoutValue()
 {
-    ULONGLONG timeout = SVNFOLDERSTATUS_CACHETIMEOUT;
-    ULONGLONG factor = (ULONGLONG)m_cache.size() / 200UL;
+    DWORD timeout = SVNFOLDERSTATUS_CACHETIMEOUT;
+    DWORD factor = (DWORD)m_cache.size()/200;
     if (factor==0)
         factor = 1;
     return factor*timeout;
@@ -352,12 +351,12 @@ const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& fil
     if(m_mostRecentPath.IsEquivalentTo(CTSVNPath(sCacheKey.c_str())))
     {
         // We've hit the same result as we were asked for last time
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": fast cache hit for %s\n", filepath);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": fast cache hit for %s\n"), filepath);
         retVal = m_mostRecentStatus;
     }
     else if ((iter = m_cache.find(sCacheKey)) != m_cache.end())
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": cache found for %s\n", filepath);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": cache found for %s\n"), filepath);
         retVal = &iter->second;
         m_mostRecentStatus = retVal;
         m_mostRecentPath = CTSVNPath(sCacheKey.c_str());
@@ -370,7 +369,7 @@ const FileStatusCacheEntry * SVNFolderStatus::GetCachedItem(const CTSVNPath& fil
     if(retVal != NULL)
     {
         // We found something in a cache - check that the cache is not timed-out or force-invalidated
-        ULONGLONG now = GetTickCount64();
+        DWORD now = GetTickCount();
 
         if ((now >= m_TimeStamp)&&((now - m_TimeStamp) > GetTimeoutValue()))
         {
@@ -395,7 +394,16 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, con
 {
     SVNFolderStatus * Stat = (SVNFolderStatus *)baton;
     FileStatusMap * cache = &Stat->m_cache;
-    FileStatusCacheEntry s;
+    FileStatusCacheEntry s = {  svn_wc_status_none,          // state
+                                "",                          // author
+                                "",                          // url
+                                "",                          // owner
+                                false,                       // needslock
+                                -1,                          // rev
+                                SVNFOLDERSTATUS_CACHETIMES,  // askedcounter
+                                NULL,                        // lock
+                                false,                       // tree_conflict;
+                             };
     if (status)
     {
         s.author = Stat->authors.GetString(status->changed_author);
@@ -414,7 +422,7 @@ svn_error_t* SVNFolderStatus::fillstatusmap(void * baton, const char * path, con
         std::replace(str.begin(), str.end(), '/', '\\');
     }
     else
-        str = L" ";
+        str = _T(" ");
     (*cache)[str] = s;
 
     return SVN_NO_ERROR;

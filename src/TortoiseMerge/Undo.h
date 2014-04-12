@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2006-2007,2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,20 +29,18 @@ class CBaseView;
  */
 typedef struct viewstate
 {
-    std::map<int, CString>  difflines;
-    std::map<int, DWORD>    linestates;
-    std::map<int, DWORD>    linelines;
-    std::map<int, EOL>      linesEOL;
-    std::map<int, bool>     markedlines;
-    std::list<int>          addedlines;
+    std::map<int, CString> difflines;
+    std::map<int, DWORD> linestates;
+    std::map<int, DWORD> linelines;
+    std::map<int, EOL> linesEOL;
+    std::list<int> addedlines;
 
     std::map<int, viewdata> removedlines;
     std::map<int, viewdata> replacedlines;
-    bool                    modifies; ///< this step modifies view (save before and after save differs)
 
     void    AddViewLineFromView(CBaseView *pView, int nViewLine, bool bAddEmptyLine);
     void    Clear();
-    bool    IsEmpty() const { return difflines.empty() && linestates.empty() && linelines.empty() && linesEOL.empty() && markedlines.empty() && addedlines.empty() && removedlines.empty() && replacedlines.empty(); }
+    bool    IsEmpty() { return (difflines.size()==0) && (linestates.size()==0) && (linelines.size()==0) && (linesEOL.size()==0) && (addedlines.size()==0) && (removedlines.size()==0) && (replacedlines.size()==0); }
 } viewstate;
 
 /**
@@ -56,7 +54,7 @@ struct allviewstate
     viewstate left;
 
     void    Clear() { right.Clear(); bottom.Clear(); left.Clear(); }
-    bool    IsEmpty() const { return right.IsEmpty() && bottom.IsEmpty() && left.IsEmpty(); }
+    bool    IsEmpty() { return right.IsEmpty() && bottom.IsEmpty() && left.IsEmpty(); }
 };
 
 /**
@@ -71,23 +69,20 @@ public:
 
     bool Undo(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom);
     void AddState(const allviewstate& allstate, POINT pt);
-    bool CanUndo() const {return !m_viewstates.empty();}
+    bool CanUndo() {return (m_viewstates.size() > 0);}
 
-    bool IsGrouping() const { return m_groups.size() % 2 == 1; }
+    bool IsGrouping() { return m_groups.size() % 2 == 1; }
     void BeginGrouping() { if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); m_groupCount++; }
     void EndGrouping(){ m_groupCount--; if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); }
     void Clear();
-    void MarkAllAsOriginalState() { MarkAsOriginalState(true, true, true); }
-    void MarkAsOriginalState(bool Left, bool Right, bool Bottom);
+    void MarkAsOriginalState() { m_originalstate = m_viewstates.size(); }
 protected:
     void Undo(const viewstate& state, CBaseView * pView, const POINT& pt);
     void UndoOne(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom);
     std::list<allviewstate> m_viewstates;
     std::list<POINT> m_caretpoints;
     std::list< std::list<int>::size_type > m_groups;
-    size_t m_originalstateLeft;
-    size_t m_originalstateRight;
-    size_t m_originalstateBottom;
+    size_t m_originalstate;
     int m_groupCount;
 private:
     CUndo();

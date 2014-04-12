@@ -83,6 +83,9 @@
     <ClInclude Include="MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\MemDC.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="NiceTrackbar.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -95,7 +98,7 @@
     <ClInclude Include="..\Utils\registry.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
+    <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
@@ -110,79 +113,66 @@
     <ClInclude Include="..\Utils\TaskbarUUID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\ResString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\alphatoggle.ico">
+    <None Include="alphatoggle.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\blend.ico">
+    </None>
+    <None Include="blend.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\fitinwindow.ico">
+    </None>
+    <None Include="fitinwindow.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\imginfo.ico">
+    </None>
+    <None Include="fittogether.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\link.ico">
+    </None>
+    <None Include="imginfo.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\origsize.ico">
+    </None>
+    <None Include="link.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\overlap.ico">
+    </None>
+    <None Include="origsize.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\player_fwd.ico">
+    </None>
+    <None Include="overlap.ico">
       <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\player_rew.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\player_start.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\player_stop.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\TortoiseIDiff.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\vertical.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\zoomin.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\zoomout.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\fitheights.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\fitwidths.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="TortoiseIDiff.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
+    </None>
     <None Include="..\Resources\pan.cur">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\pandown.cur">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="player_fwd.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="player_rew.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="player_start.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="player_stop.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="TortoiseIDiff.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="vertical.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="zoomin.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="zoomout.ico">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Manifest Include="..\compatibility.manifest">
+    <ResourceCompile Include="TortoiseIDiff.rc">
       <Filter>Resource Files</Filter>
-    </Manifest>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

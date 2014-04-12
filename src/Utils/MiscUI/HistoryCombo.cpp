@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,6 @@ CHistoryCombo::CHistoryCombo(BOOL bAllowSortStyle /*=FALSE*/ )
     , m_bDyn(FALSE)
     , m_bTrim(TRUE)
 {
-    SecureZeroMemory(&m_ToolInfo, sizeof(m_ToolInfo));
 }
 
 CHistoryCombo::~CHistoryCombo()
@@ -55,38 +54,29 @@ BOOL CHistoryCombo::PreCreateWindow(CREATESTRUCT& cs)
 
 BOOL CHistoryCombo::PreTranslateMessage(MSG* pMsg)
 {
-    switch (pMsg->message)
+    if (pMsg->message == WM_KEYDOWN)
     {
-    case WM_KEYDOWN:
-        {
-            bool bShift = !!(GetKeyState(VK_SHIFT) & 0x8000);
-            int nVirtKey = (int) pMsg->wParam;
+        bool bShift = !!(GetKeyState(VK_SHIFT) & 0x8000);
+        int nVirtKey = (int) pMsg->wParam;
 
-            if (nVirtKey == VK_RETURN)
-                return OnReturnKeyPressed();
-            else if (nVirtKey == VK_DELETE && bShift && GetDroppedState() )
-            {
-                RemoveSelectedItem();
-                return TRUE;
-            }
-        }
-        break;
-    case WM_MOUSEMOVE:
+        if (nVirtKey == VK_RETURN)
+            return OnReturnKeyPressed();
+        else if (nVirtKey == VK_DELETE && bShift && GetDroppedState() )
         {
-            if ((pMsg->wParam & MK_LBUTTON) == 0)
-            {
-                CPoint pt;
-                pt.x = LOWORD(pMsg->lParam);
-                pt.y = HIWORD(pMsg->lParam);
-                OnMouseMove((UINT)pMsg->wParam, pt);
-                return TRUE;
-            }
-        }
-        break;
-    case WM_MOUSEWHEEL:
-    case WM_MOUSEHWHEEL:
-        if (!GetDroppedState())
+            RemoveSelectedItem();
             return TRUE;
+        }
+    }
+    if (pMsg->message == WM_MOUSEMOVE)
+    {
+        if ((pMsg->wParam & MK_LBUTTON) == 0)
+        {
+            CPoint pt;
+            pt.x = LOWORD(pMsg->lParam);
+            pt.y = HIWORD(pMsg->lParam);
+            OnMouseMove((UINT)pMsg->wParam, pt);
+            return TRUE;
+        }
     }
     return CComboBoxEx::PreTranslateMessage(pMsg);
 }
@@ -102,14 +92,6 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
     if (str.IsEmpty())
         return -1;
 
-    //truncate list to m_nMaxHistoryItems
-    int nNumItems = GetCount();
-    for (int n = m_nMaxHistoryItems; n < nNumItems; n++)
-    {
-        DeleteItem(m_nMaxHistoryItems);
-        m_arEntries.RemoveAt(m_nMaxHistoryItems);
-    }
-
     COMBOBOXEXITEM cbei;
     SecureZeroMemory(&cbei, sizeof cbei);
     cbei.mask = CBEIF_TEXT;
@@ -119,7 +101,7 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
     else
         cbei.iItem = pos;
     if (m_bTrim)
-        str.Trim(L" ");
+        str.Trim(_T(" "));
     CString combostring = str;
     combostring.Replace('\r', ' ');
     combostring.Replace('\n', ' ');
@@ -131,15 +113,15 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
         cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(str);
         if ((cbei.iImage == NULL) || (cbei.iImage == SYS_IMAGE_LIST().GetDefaultIconIndex()))
         {
-            if (str.Left(5) == L"http:")
-                cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(L".html");
-            else if (str.Left(6) == L"https:")
-                cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(L".html");
-            else if (str.Left(5) == L"file:")
+            if (str.Left(5) == _T("http:"))
+                cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(_T(".html"));
+            else if (str.Left(6) == _T("https:"))
+                cbei.iImage = SYS_IMAGE_LIST().GetFileIconIndex(_T(".html"));
+            else if (str.Left(5) == _T("file:"))
                 cbei.iImage = SYS_IMAGE_LIST().GetDirIconIndex();
-            else if (str.Left(4) == L"svn:")
+            else if (str.Left(4) == _T("svn:"))
                 cbei.iImage = SYS_IMAGE_LIST().GetDirIconIndex();
-            else if (str.Left(8) == L"svn+ssh:")
+            else if (str.Left(8) == _T("svn+ssh:"))
                 cbei.iImage = SYS_IMAGE_LIST().GetDirIconIndex();
         }
         cbei.iSelectedImage = cbei.iImage;
@@ -171,6 +153,14 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
         m_arEntries.RemoveAt(nIndex);
     }
 
+    //truncate list to m_nMaxHistoryItems
+    int nNumItems = GetCount();
+    for (int n = m_nMaxHistoryItems; n < nNumItems; n++)
+    {
+        DeleteItem(m_nMaxHistoryItems);
+        m_arEntries.RemoveAt(m_nMaxHistoryItems);
+    }
+
     SetCurSel(nRet);
     return nRet;
 }
@@ -178,7 +168,7 @@ int CHistoryCombo::AddString(CString str, INT_PTR pos)
 CString CHistoryCombo::LoadHistory(LPCTSTR lpszSection, LPCTSTR lpszKeyPrefix)
 {
     if (lpszSection == NULL || lpszKeyPrefix == NULL || *lpszSection == '\0')
-        return L"";
+        return _T("");
 
     m_sSection = lpszSection;
     m_sKeyPrefix = lpszKeyPrefix;
@@ -189,7 +179,7 @@ CString CHistoryCombo::LoadHistory(LPCTSTR lpszSection, LPCTSTR lpszKeyPrefix)
     {
         //keys are of form <lpszKeyPrefix><entrynumber>
         CString sKey;
-        sKey.Format(L"%s\\%s%d", (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n++);
+        sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n++);
         sText = CRegString(sKey);
         if (!sText.IsEmpty())
             AddString(sText);
@@ -225,7 +215,7 @@ void CHistoryCombo::SaveHistory()
     for (int n = 0; n < nMax; n++)
     {
         CString sKey;
-        sKey.Format(L"%s\\%s%d", (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
+        sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
         CRegString regkey = CRegString(sKey);
         regkey = m_arEntries.GetAt(n);
     }
@@ -233,7 +223,7 @@ void CHistoryCombo::SaveHistory()
     for (int n = nMax; ; n++)
     {
         CString sKey;
-        sKey.Format(L"%s\\%s%d", (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
+        sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
         CRegString regkey = CRegString(sKey);
         CString sText = regkey;
         if (sText.IsEmpty())
@@ -251,7 +241,7 @@ void CHistoryCombo::ClearHistory(BOOL bDeleteRegistryEntries/*=TRUE*/)
         CString sKey;
         for (int n = 0; ; n++)
         {
-            sKey.Format(L"%s\\%s%d", (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
+            sKey.Format(_T("%s\\%s%d"), (LPCTSTR)m_sSection, (LPCTSTR)m_sKeyPrefix, n);
             CRegString regkey = CRegString(sKey);
             CString sText = regkey;
             if (sText.IsEmpty())
@@ -381,7 +371,7 @@ BOOL CHistoryCombo::RemoveSelectedItem()
         // The one and only item has just been
         // deleted -> reset window text since
         // there is no item to select
-        SetWindowText(L"");
+        SetWindowText(_T(""));
     }
     else
     {
@@ -528,7 +518,7 @@ void CHistoryCombo::CreateToolTip()
         NULL);
 
     // initialize tool info struct
-    SecureZeroMemory(&m_ToolInfo, sizeof(m_ToolInfo));
+    memset(&m_ToolInfo, 0, sizeof(m_ToolInfo));
     m_ToolInfo.cbSize = sizeof(m_ToolInfo);
     m_ToolInfo.uFlags = TTF_TRANSPARENT;
     m_ToolInfo.hwnd = m_hWnd;

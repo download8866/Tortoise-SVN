@@ -13,7 +13,6 @@
 
 #include <string>
 #include <vector>
-#include <algorithm>
 
 #include "Platform.h"
 
@@ -28,7 +27,6 @@
 #include "CharClassify.h"
 #include "CharacterSet.h"
 #include "Decoration.h"
-#include "CaseFolder.h"
 #include "Document.h"
 #include "RESearch.h"
 #include "UniConversion.h"
@@ -37,11 +35,29 @@
 using namespace Scintilla;
 #endif
 
+// This is ASCII specific but is safe with chars >= 0x80
+static inline bool isspacechar(unsigned char ch) {
+	return (ch == ' ') || ((ch >= 0x09) && (ch <= 0x0d));
+}
+
 static inline bool IsPunctuation(char ch) {
-	return IsASCII(ch) && ispunct(ch);
+	return isascii(ch) && ispunct(ch);
+}
+
+static inline bool IsADigit(char ch) {
+	return isascii(ch) && isdigit(ch);
+}
+
+static inline bool IsLowerCase(char ch) {
+	return isascii(ch) && islower(ch);
+}
+
+static inline bool IsUpperCase(char ch) {
+	return isascii(ch) && isupper(ch);
 }
 
 void LexInterface::Colourise(int start, int end) {
+	ElapsedTime et;
 	if (pdoc && instance && !performingStyle) {
 		// Protect against reentrance, which may occur, for example, when
 		// fold points are discovered while performing styling and the folding
@@ -69,27 +85,14 @@ void LexInterface::Colourise(int start, int end) {
 	}
 }
 
-int LexInterface::LineEndTypesSupported() {
-	if (instance) {
-		int interfaceVersion = instance->Version();
-		if (interfaceVersion >= lvSubStyles) {
-			ILexerWithSubStyles *ssinstance = static_cast<ILexerWithSubStyles *>(instance);
-			return ssinstance->LineEndTypesSupported();
-		}
-	}
-	return 0;
-}
-
 Document::Document() {
 	refCount = 0;
-	pcf = NULL;
 #ifdef _WIN32
 	eolMode = SC_EOL_CRLF;
 #else
 	eolMode = SC_EOL_LF;
 #endif
 	dbcsCodePage = 0;
-	lineEndBitSet = SC_LINE_END_TYPE_DEFAULT;
 	stylingBits = 5;
 	stylingBitsMask = 0x1F;
 	stylingMask = 0;
@@ -104,11 +107,11 @@ Document::Document() {
 	useTabs = true;
 	tabIndents = true;
 	backspaceUnindents = false;
+	watchers = 0;
+	lenWatchers = 0;
 
 	matchesValid = false;
 	regex = 0;
-
-	UTF8BytesOfLeadInitialise();
 
 	perLineData[ldMarkers] = new LineMarkers();
 	perLineData[ldLevels] = new LineLevels();
@@ -122,59 +125,26 @@ Document::Document() {
 }
 
 Document::~Document() {
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifyDeleted(this, it->userData);
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifyDeleted(this, watchers[i].userData);
 	}
+	delete []watchers;
 	for (int j=0; j<ldSize; j++) {
 		delete perLineData[j];
 		perLineData[j] = 0;
 	}
+	watchers = 0;
+	lenWatchers = 0;
 	delete regex;
 	regex = 0;
 	delete pli;
 	pli = 0;
-	delete pcf;
-	pcf = 0;
 }
 
 void Document::Init() {
 	for (int j=0; j<ldSize; j++) {
 		if (perLineData[j])
 			perLineData[j]->Init();
-	}
-}
-
-int Document::LineEndTypesSupported() const {
-	if ((SC_CP_UTF8 == dbcsCodePage) && pli)
-		return pli->LineEndTypesSupported();
-	else
-		return 0;
-}
-
-bool Document::SetDBCSCodePage(int dbcsCodePage_) {
-	if (dbcsCodePage != dbcsCodePage_) {
-		dbcsCodePage = dbcsCodePage_;
-		SetCaseFolder(NULL);
-		cb.SetLineEndTypes(lineEndBitSet & LineEndTypesSupported());
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool Document::SetLineEndTypesAllowed(int lineEndBitSet_) {
-	if (lineEndBitSet != lineEndBitSet_) {
-		lineEndBitSet = lineEndBitSet_;
-		int lineEndBitSetActive = lineEndBitSet & LineEndTypesSupported();
-		if (lineEndBitSetActive != cb.GetLineEndTypes()) {
-			ModifiedAt(0);
-			cb.SetLineEndTypes(lineEndBitSetActive);
-			return true;
-		} else {
-			return false;
-		}
-	} else {
-		return false;
 	}
 }
 
@@ -199,7 +169,7 @@ int Document::AddRef() {
 
 // Decrease reference count and return its previous value.
 // Delete the document if reference count reaches zero.
-int SCI_METHOD Document::Release() {
+int Document::Release() {
 	int curRefCount = --refCount;
 	if (curRefCount == 0)
 		delete this;
@@ -213,10 +183,6 @@ void Document::SetSavePoint() {
 
 int Document::GetMark(int line) {
 	return static_cast<LineMarkers *>(perLineData[ldMarkers])->MarkValue(line);
-}
-
-int Document::MarkerNext(int lineStart, int mask) const {
-	return static_cast<LineMarkers *>(perLineData[ldMarkers])->MarkerNext(lineStart, mask);
 }
 
 int Document::AddMark(int line, int markerNum) {
@@ -278,25 +244,11 @@ int SCI_METHOD Document::LineStart(int line) const {
 	return cb.LineStart(line);
 }
 
-int SCI_METHOD Document::LineEnd(int line) const {
-	if (line >= LinesTotal() - 1) {
+int Document::LineEnd(int line) const {
+	if (line == LinesTotal() - 1) {
 		return LineStart(line + 1);
 	} else {
-		int position = LineStart(line + 1);
-		if (SC_CP_UTF8 == dbcsCodePage) {
-			unsigned char bytes[] = {
-				static_cast<unsigned char>(cb.CharAt(position-3)),
-				static_cast<unsigned char>(cb.CharAt(position-2)),
-				static_cast<unsigned char>(cb.CharAt(position-1)),
-			};
-			if (UTF8IsSeparator(bytes)) {
-				return position - UTF8SeparatorLength;
-			}
-			if (UTF8IsNEL(bytes+1)) {
-				return position - UTF8NELLength;
-			}
-		}
-		position--; // Back over CR or LF
+		int position = LineStart(line + 1) - 1;
 		// When line terminator is CR+LF, may need to go back one more
 		if ((position > LineStart(line)) && (cb.CharAt(position - 1) == '\r')) {
 			position--;
@@ -306,9 +258,9 @@ int SCI_METHOD Document::LineEnd(int line) const {
 }
 
 void SCI_METHOD Document::SetErrorStatus(int status) {
-	// Tell the watchers an error has occurred.
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifyErrorOccurred(this, it->userData, status);
+	// Tell the watchers the lexer has changed.
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifyErrorOccurred(this, watchers[i].userData, status);
 	}
 }
 
@@ -322,10 +274,6 @@ int Document::LineEndPosition(int position) const {
 
 bool Document::IsLineEndPosition(int position) const {
 	return LineEnd(LineFromPosition(position)) == position;
-}
-
-bool Document::IsPositionInLineEnd(int position) const {
-	return position >= LineEnd(LineFromPosition(position));
 }
 
 int Document::VCHomePosition(int position) const {
@@ -393,7 +341,7 @@ int Document::GetLastChild(int lineParent, int level, int lastLine) {
 	return lineMaxSubord;
 }
 
-int Document::GetFoldParent(int line) const {
+int Document::GetFoldParent(int line) {
 	int level = GetLevel(line) & SC_FOLDLEVELNUMBERMASK;
 	int lineLook = line - 1;
 	while ((lineLook > 0) && (
@@ -417,7 +365,7 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 	int lookLine = line;
 	int lookLineLevel = level;
 	int lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK;
-	while ((lookLine > 0) && ((lookLineLevel & SC_FOLDLEVELWHITEFLAG) ||
+	while ((lookLine > 0) && ((lookLineLevel & SC_FOLDLEVELWHITEFLAG) || 
 		((lookLineLevel & SC_FOLDLEVELHEADERFLAG) && (lookLineLevelNum >= (GetLevel(lookLine + 1) & SC_FOLDLEVELNUMBERMASK))))) {
 		lookLineLevel = GetLevel(--lookLine);
 		lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK;
@@ -450,8 +398,8 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 		}
 	}
 	if (firstChangeableLineBefore == -1) {
-		for (lookLine = line - 1, lookLineLevel = GetLevel(lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK;
-			lookLine >= beginFoldBlock;
+		for (lookLine = line - 1, lookLineLevel = GetLevel(lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK; 
+			lookLine >= beginFoldBlock; 
 			lookLineLevel = GetLevel(--lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK) {
 			if ((lookLineLevel & SC_FOLDLEVELWHITEFLAG) || (lookLineLevelNum > (level & SC_FOLDLEVELNUMBERMASK))) {
 				firstChangeableLineBefore = lookLine;
@@ -463,8 +411,8 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 		firstChangeableLineBefore = beginFoldBlock - 1;
 
 	int firstChangeableLineAfter = -1;
-	for (lookLine = line + 1, lookLineLevel = GetLevel(lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK;
-		lookLine <= endFoldBlock;
+	for (lookLine = line + 1, lookLineLevel = GetLevel(lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK; 
+		lookLine <= endFoldBlock; 
 		lookLineLevel = GetLevel(++lookLine), lookLineLevelNum = lookLineLevel & SC_FOLDLEVELNUMBERMASK) {
 		if ((lookLineLevel & SC_FOLDLEVELHEADERFLAG) && (lookLineLevelNum < (GetLevel(lookLine + 1) & SC_FOLDLEVELNUMBERMASK))) {
 			firstChangeableLineAfter = lookLine;
@@ -480,11 +428,11 @@ void Document::GetHighlightDelimiters(HighlightDelimiter &highlightDelimiter, in
 	highlightDelimiter.firstChangeableLineAfter = firstChangeableLineAfter;
 }
 
-int Document::ClampPositionIntoDocument(int pos) const {
+int Document::ClampPositionIntoDocument(int pos) {
 	return Platform::Clamp(pos, 0, Length());
 }
 
-bool Document::IsCrLf(int pos) const {
+bool Document::IsCrLf(int pos) {
 	if (pos < 0)
 		return false;
 	if (pos >= (Length() - 1))
@@ -498,13 +446,19 @@ int Document::LenChar(int pos) {
 	} else if (IsCrLf(pos)) {
 		return 2;
 	} else if (SC_CP_UTF8 == dbcsCodePage) {
-		const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(pos));
-		const int widthCharBytes = UTF8BytesOfLead[leadByte];
+		unsigned char ch = static_cast<unsigned char>(cb.CharAt(pos));
+		if (ch < 0x80)
+			return 1;
+		int len = 2;
+		if (ch >= (0x80 + 0x40 + 0x20 + 0x10))
+			len = 4;
+		else if (ch >= (0x80 + 0x40 + 0x20))
+			len = 3;
 		int lengthDoc = Length();
-		if ((pos + widthCharBytes) > lengthDoc)
-			return lengthDoc - pos;
+		if ((pos + len) > lengthDoc)
+			return lengthDoc -pos;
 		else
-			return widthCharBytes;
+			return len;
 	} else if (dbcsCodePage) {
 		return IsDBCSLeadByte(cb.CharAt(pos)) ? 2 : 1;
 	} else {
@@ -512,29 +466,51 @@ int Document::LenChar(int pos) {
 	}
 }
 
-bool Document::InGoodUTF8(int pos, int &start, int &end) const {
-	int trail = pos;
-	while ((trail>0) && (pos-trail < UTF8MaxBytes) && UTF8IsTrailByte(static_cast<unsigned char>(cb.CharAt(trail-1))))
-		trail--;
-	start = (trail > 0) ? trail-1 : trail;
+static bool IsTrailByte(int ch) {
+	return (ch >= 0x80) && (ch < (0x80 + 0x40));
+}
 
-	const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(start));
-	const int widthCharBytes = UTF8BytesOfLead[leadByte];
-	if (widthCharBytes == 1) {
+static int BytesFromLead(int leadByte) {
+	if (leadByte > 0xF4) {
+		// Characters longer than 4 bytes not possible in current UTF-8
+		return 0;
+	} else if (leadByte >= 0xF0) {
+		return 4;
+	} else if (leadByte >= 0xE0) {
+		return 3;
+	} else if (leadByte >= 0xC2) {
+		return 2;
+	}
+	return 0;
+}
+
+bool Document::InGoodUTF8(int pos, int &start, int &end) const {
+	int lead = pos;
+	while ((lead>0) && (pos-lead < 4) && IsTrailByte(static_cast<unsigned char>(cb.CharAt(lead-1))))
+		lead--;
+	start = 0;
+	if (lead > 0) {
+		start = lead-1;
+	}
+	int leadByte = static_cast<unsigned char>(cb.CharAt(start));
+	int bytes = BytesFromLead(leadByte);
+	if (bytes == 0) {
 		return false;
 	} else {
-		int trailBytes = widthCharBytes - 1;
-		int len = pos - start;
+		int trailBytes = bytes - 1;
+		int len = pos - lead + 1;
 		if (len > trailBytes)
 			// pos too far from lead
 			return false;
-		char charBytes[UTF8MaxBytes] = {static_cast<char>(leadByte),0,0,0};
-		for (int b=1; b<widthCharBytes && ((start+b) < Length()); b++)
-			charBytes[b] = cb.CharAt(static_cast<int>(start+b));
-		int utf8status = UTF8Classify(reinterpret_cast<const unsigned char *>(charBytes), widthCharBytes);
-		if (utf8status & UTF8MaskInvalid)
-			return false;
-		end = start + widthCharBytes;
+		// Check that there are enough trails for this lead
+		int trail = pos + 1;
+		while ((trail-lead<trailBytes) && (trail < Length())) {
+			if (!IsTrailByte(static_cast<unsigned char>(cb.CharAt(trail)))) {
+				return false;
+			}
+			trail++;
+		}
+		end = start + bytes;
 		return true;
 	}
 }
@@ -563,18 +539,14 @@ int Document::MovePositionOutsideChar(int pos, int moveDir, bool checkLineEnd) {
 	if (dbcsCodePage) {
 		if (SC_CP_UTF8 == dbcsCodePage) {
 			unsigned char ch = static_cast<unsigned char>(cb.CharAt(pos));
-			// If ch is not a trail byte then pos is valid intercharacter position
-			if (UTF8IsTrailByte(ch)) {
-				int startUTF = pos;
-				int endUTF = pos;
-				if (InGoodUTF8(pos, startUTF, endUTF)) {
-					// ch is a trail byte within a UTF-8 character
-					if (moveDir > 0)
-						pos = endUTF;
-					else
-						pos = startUTF;
-				}
-				// Else invalid UTF-8 so return position of isolated trail byte
+			int startUTF = pos;
+			int endUTF = pos;
+			if (IsTrailByte(ch) && InGoodUTF8(pos, startUTF, endUTF)) {
+				// ch is a trail byte within a UTF-8 character
+				if (moveDir > 0)
+					pos = endUTF;
+				else
+					pos = startUTF;
 			}
 		} else {
 			// Anchor DBCS calculations at start of line because start of line can
@@ -621,37 +593,16 @@ int Document::NextPosition(int pos, int moveDir) const {
 
 	if (dbcsCodePage) {
 		if (SC_CP_UTF8 == dbcsCodePage) {
-			if (increment == 1) {
-				// Simple forward movement case so can avoid some checks
-				const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(pos));
-				if (UTF8IsAscii(leadByte)) {
-					// Single byte character or invalid
-					pos++;
-				} else {
-					const int widthCharBytes = UTF8BytesOfLead[leadByte];
-					char charBytes[UTF8MaxBytes] = {static_cast<char>(leadByte),0,0,0};
-					for (int b=1; b<widthCharBytes; b++)
-						charBytes[b] = cb.CharAt(static_cast<int>(pos+b));
-					int utf8status = UTF8Classify(reinterpret_cast<const unsigned char *>(charBytes), widthCharBytes);
-					if (utf8status & UTF8MaskInvalid)
-						pos++;
-					else
-						pos += utf8status & UTF8MaskWidth;
-				}
-			} else {
-				// Examine byte before position
-				pos--;
-				unsigned char ch = static_cast<unsigned char>(cb.CharAt(pos));
-				// If ch is not a trail byte then pos is valid intercharacter position
-				if (UTF8IsTrailByte(ch)) {
-					// If ch is a trail byte in a valid UTF-8 character then return start of character
-					int startUTF = pos;
-					int endUTF = pos;
-					if (InGoodUTF8(pos, startUTF, endUTF)) {
-						pos = startUTF;
-					}
-					// Else invalid UTF-8 so return position of isolated trail byte
-				}
+			pos += increment;
+			unsigned char ch = static_cast<unsigned char>(cb.CharAt(pos));
+			int startUTF = pos;
+			int endUTF = pos;
+			if (IsTrailByte(ch) && InGoodUTF8(pos, startUTF, endUTF)) {
+				// ch is a trail byte within a UTF-8 character
+				if (moveDir > 0)
+					pos = endUTF;
+				else
+					pos = startUTF;
 			}
 		} else {
 			if (moveDir > 0) {
@@ -689,7 +640,7 @@ int Document::NextPosition(int pos, int moveDir) const {
 	return pos;
 }
 
-bool Document::NextCharacter(int &pos, int moveDir) const {
+bool Document::NextCharacter(int &pos, int moveDir) {
 	// Returns true if pos changed
 	int posNext = NextPosition(pos, moveDir);
 	if (posNext == pos) {
@@ -698,79 +649,6 @@ bool Document::NextCharacter(int &pos, int moveDir) const {
 		pos = posNext;
 		return true;
 	}
-}
-
-static inline int UnicodeFromBytes(const unsigned char *us) {
-	if (us[0] < 0xC2) {
-		return us[0];
-	} else if (us[0] < 0xE0) {
-		return ((us[0] & 0x1F) << 6) + (us[1] & 0x3F);
-	} else if (us[0] < 0xF0) {
-		return ((us[0] & 0xF) << 12) + ((us[1] & 0x3F) << 6) + (us[2] & 0x3F);
-	} else if (us[0] < 0xF5) {
-		return ((us[0] & 0x7) << 18) + ((us[1] & 0x3F) << 12) + ((us[2] & 0x3F) << 6) + (us[3] & 0x3F);
-	}
-	return us[0];
-}
-
-// Return -1  on out-of-bounds
-int SCI_METHOD Document::GetRelativePosition(int positionStart, int characterOffset) const {
-	int pos = positionStart;
-	if (dbcsCodePage) {
-		const int increment = (characterOffset > 0) ? 1 : -1;
-		while (characterOffset != 0) {
-			const int posNext = NextPosition(pos, increment);
-			if (posNext == pos)
-				return INVALID_POSITION;
-			pos = posNext;
-			characterOffset -= increment;
-		}
-	} else {
-		pos = positionStart + characterOffset;
-		if ((pos < 0) || (pos > Length()))
-			return INVALID_POSITION;
-	}
-	return pos;
-}
-
-int SCI_METHOD Document::GetCharacterAndWidth(int position, int *pWidth) const {
-	int character;
-	int bytesInCharacter = 1;
-	if (dbcsCodePage) {
-		const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(position));
-		if (SC_CP_UTF8 == dbcsCodePage) {
-			if (UTF8IsAscii(leadByte)) {
-				// Single byte character or invalid
-				character =  leadByte;
-			} else {
-				const int widthCharBytes = UTF8BytesOfLead[leadByte];
-				unsigned char charBytes[UTF8MaxBytes] = {leadByte,0,0,0};
-				for (int b=1; b<widthCharBytes; b++)
-					charBytes[b] = static_cast<unsigned char>(cb.CharAt(position+b));
-				int utf8status = UTF8Classify(charBytes, widthCharBytes);
-				if (utf8status & UTF8MaskInvalid) {
-					// Report as singleton surrogate values which are invalid Unicode
-					character =  0xDC80 + leadByte;
-				} else {
-					bytesInCharacter = utf8status & UTF8MaskWidth;
-					character = UnicodeFromBytes(charBytes);
-				}
-			}
-		} else {
-			if (IsDBCSLeadByte(leadByte)) {
-				bytesInCharacter = 2;
-				character = (leadByte << 8) | static_cast<unsigned char>(cb.CharAt(position+1));
-			} else {
-				character = leadByte;
-			}
-		}
-	} else {
-		character = cb.CharAt(position);
-	}
-	if (pWidth) {
-		*pWidth = bytesInCharacter;
-	}
-	return character;
 }
 
 int SCI_METHOD Document::CodePage() const {
@@ -785,7 +663,7 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const {
 			// Shift_jis
 			return ((uch >= 0x81) && (uch <= 0x9F)) ||
 				((uch >= 0xE0) && (uch <= 0xFC));
-				// Lead bytes F0 to FC may be a Microsoft addition.
+				// Lead bytes F0 to FC may be a Microsoft addition. 
 		case 936:
 			// GBK
 			return (uch >= 0x81) && (uch <= 0xFE);
@@ -805,7 +683,7 @@ bool SCI_METHOD Document::IsDBCSLeadByte(char ch) const {
 	return false;
 }
 
-static inline bool IsSpaceOrTab(int ch) {
+inline bool IsSpaceOrTab(int ch) {
 	return ch == ' ' || ch == '\t';
 }
 
@@ -820,12 +698,12 @@ static inline bool IsSpaceOrTab(int ch) {
 //   2) Break before punctuation
 //   3) Break after whole character
 
-int Document::SafeSegment(const char *text, int length, int lengthSegment) const {
+int Document::SafeSegment(const char *text, int length, int lengthSegment) {
 	if (length <= lengthSegment)
 		return length;
 	int lastSpaceBreak = -1;
 	int lastPunctuationBreak = -1;
-	int lastEncodingAllowedBreak = 0;
+	int lastEncodingAllowedBreak = -1;
 	for (int j=0; j < lengthSegment;) {
 		unsigned char ch = static_cast<unsigned char>(text[j]);
 		if (j > 0) {
@@ -839,7 +717,7 @@ int Document::SafeSegment(const char *text, int length, int lengthSegment) const
 		lastEncodingAllowedBreak = j;
 
 		if (dbcsCodePage == SC_CP_UTF8) {
-			j += UTF8BytesOfLead[ch];
+			j += (ch < 0x80) ? 1 : BytesFromLead(ch);
 		} else if (dbcsCodePage) {
 			j += IsDBCSLeadByte(ch) ? 2 : 1;
 		} else {
@@ -852,15 +730,6 @@ int Document::SafeSegment(const char *text, int length, int lengthSegment) const
 		return lastPunctuationBreak;
 	}
 	return lastEncodingAllowedBreak;
-}
-
-EncodingFamily Document::CodePageFamily() const {
-	if (SC_CP_UTF8 == dbcsCodePage)
-		return efUnicode;
-	else if (dbcsCodePage)
-		return efDBCS;
-	else
-		return efEightBit;
 }
 
 void Document::ModifiedAt(int pos) {
@@ -880,7 +749,7 @@ void Document::CheckReadOnly() {
 // SetStyleAt does not change the persistent state of a document
 
 bool Document::DeleteChars(int pos, int len) {
-	if (len <= 0)
+	if (len == 0)
 		return false;
 	if ((pos + len) > Length())
 		return false;
@@ -952,36 +821,16 @@ bool Document::InsertString(int position, const char *s, int insertLength) {
 	return !cb.IsReadOnly();
 }
 
-int SCI_METHOD Document::AddData(char *data, int length) {
-	try {
-		int position = Length();
-		InsertString(position, data, length);
-	} catch (std::bad_alloc &) {
-		return SC_STATUS_BADALLOC;
-	} catch (...) {
-		return SC_STATUS_FAILURE;
-	}
-	return 0;
-}
-
-void * SCI_METHOD Document::ConvertToDocument() {
-	return this;
-}
-
 int Document::Undo() {
 	int newPos = -1;
 	CheckReadOnly();
-	if ((enteredModification == 0) && (cb.IsCollectingUndo())) {
+	if (enteredModification == 0) {
 		enteredModification++;
 		if (!cb.IsReadOnly()) {
 			bool startSavePoint = cb.IsSavePoint();
 			bool multiLine = false;
 			int steps = cb.StartUndo();
 			//Platform::DebugPrintf("Steps=%d\n", steps);
-			int coalescedRemovePos = -1;
-			int coalescedRemoveLen = 0;
-			int prevRemoveActionPos = -1;
-			int prevRemoveActionLen = 0;
 			for (int step = 0; step < steps; step++) {
 				const int prevLinesTotal = LinesTotal();
 				const Action &action = cb.GetUndoStep();
@@ -992,20 +841,15 @@ int Document::Undo() {
 					DocModification dm(SC_MOD_CONTAINER | SC_PERFORMED_UNDO);
 					dm.token = action.position;
 					NotifyModified(dm);
-					if (!action.mayCoalesce) {
-						coalescedRemovePos = -1;
-						coalescedRemoveLen = 0;
-						prevRemoveActionPos = -1;
-						prevRemoveActionLen = 0;
-					}
 				} else {
 					NotifyModified(DocModification(
 									SC_MOD_BEFOREDELETE | SC_PERFORMED_UNDO, action));
 				}
 				cb.PerformUndoStep();
+				int cellPosition = action.position;
 				if (action.at != containerAction) {
-					ModifiedAt(action.position);
-					newPos = action.position;
+					ModifiedAt(cellPosition);
+					newPos = cellPosition;
 				}
 
 				int modFlags = SC_PERFORMED_UNDO;
@@ -1013,22 +857,8 @@ int Document::Undo() {
 				if (action.at == removeAction) {
 					newPos += action.lenData;
 					modFlags |= SC_MOD_INSERTTEXT;
-					if ((coalescedRemoveLen > 0) &&
-						(action.position == prevRemoveActionPos || action.position == (prevRemoveActionPos + prevRemoveActionLen))) {
-						coalescedRemoveLen += action.lenData;
-						newPos = coalescedRemovePos + coalescedRemoveLen;
-					} else {
-						coalescedRemovePos = action.position;
-						coalescedRemoveLen = action.lenData;
-					}
-					prevRemoveActionPos = action.position;
-					prevRemoveActionLen = action.lenData;
 				} else if (action.at == insertAction) {
 					modFlags |= SC_MOD_DELETETEXT;
-					coalescedRemovePos = -1;
-					coalescedRemoveLen = 0;
-					prevRemoveActionPos = -1;
-					prevRemoveActionLen = 0;
 				}
 				if (steps > 1)
 					modFlags |= SC_MULTISTEPUNDOREDO;
@@ -1040,7 +870,7 @@ int Document::Undo() {
 					if (multiLine)
 						modFlags |= SC_MULTILINEUNDOREDO;
 				}
-				NotifyModified(DocModification(modFlags, action.position, action.lenData,
+				NotifyModified(DocModification(modFlags, cellPosition, action.lenData,
 											   linesAdded, action.data));
 			}
 
@@ -1056,7 +886,7 @@ int Document::Undo() {
 int Document::Redo() {
 	int newPos = -1;
 	CheckReadOnly();
-	if ((enteredModification == 0) && (cb.IsCollectingUndo())) {
+	if (enteredModification == 0) {
 		enteredModification++;
 		if (!cb.IsReadOnly()) {
 			bool startSavePoint = cb.IsSavePoint();
@@ -1126,7 +956,12 @@ bool Document::InsertChar(int pos, char ch) {
  * Insert a null terminated string.
  */
 bool Document::InsertCString(int position, const char *s) {
-	return InsertString(position, s, static_cast<int>(s ? strlen(s) : 0));
+	return InsertString(position, s, static_cast<int>(strlen(s)));
+}
+
+void Document::ChangeChar(int pos, char ch) {
+	DeleteChars(pos, 1);
+	InsertChar(pos, ch);
 }
 
 void Document::DelChar(int pos) {
@@ -1146,23 +981,29 @@ void Document::DelCharBack(int pos) {
 	}
 }
 
+static bool isindentchar(char ch) {
+	return (ch == ' ') || (ch == '\t');
+}
+
 static int NextTab(int pos, int tabSize) {
 	return ((pos / tabSize) + 1) * tabSize;
 }
 
-static std::string CreateIndentation(int indent, int tabSize, bool insertSpaces) {
-	std::string indentation;
+static void CreateIndentation(char *linebuf, int length, int indent, int tabSize, bool insertSpaces) {
+	length--;	// ensure space for \0
 	if (!insertSpaces) {
-		while (indent >= tabSize) {
-			indentation += '\t';
+		while ((indent >= tabSize) && (length > 0)) {
+			*linebuf++ = '\t';
 			indent -= tabSize;
+			length--;
 		}
 	}
-	while (indent > 0) {
-		indentation += ' ';
+	while ((indent > 0) && (length > 0)) {
+		*linebuf++ = ' ';
 		indent--;
+		length--;
 	}
-	return indentation;
+	*linebuf = '\0';
 }
 
 int SCI_METHOD Document::GetLineIndentation(int line) {
@@ -1188,12 +1029,13 @@ void Document::SetLineIndentation(int line, int indent) {
 	if (indent < 0)
 		indent = 0;
 	if (indent != indentOfLine) {
-		std::string linebuf = CreateIndentation(indent, tabInChars, !useTabs);
+		char linebuf[1000];
+		CreateIndentation(linebuf, sizeof(linebuf), indent, tabInChars, !useTabs);
 		int thisLineStart = LineStart(line);
 		int indentPos = GetLineIndentPosition(line);
 		UndoGroup ug(this);
 		DeleteChars(thisLineStart, indentPos - thisLineStart);
-		InsertCString(thisLineStart, linebuf.c_str());
+		InsertCString(thisLineStart, linebuf);
 	}
 }
 
@@ -1202,7 +1044,7 @@ int Document::GetLineIndentPosition(int line) const {
 		return 0;
 	int pos = LineStart(line);
 	int length = Length();
-	while ((pos < length) && IsSpaceOrTab(cb.CharAt(pos))) {
+	while ((pos < length) && isindentchar(cb.CharAt(pos))) {
 		pos++;
 	}
 	return pos;
@@ -1232,20 +1074,6 @@ int Document::GetColumn(int pos) {
 	return column;
 }
 
-int Document::CountCharacters(int startPos, int endPos) {
-	startPos = MovePositionOutsideChar(startPos, 1, false);
-	endPos = MovePositionOutsideChar(endPos, -1, false);
-	int count = 0;
-	int i = startPos;
-	while (i < endPos) {
-		count++;
-		if (IsCrLf(i))
-			i++;
-		i = NextPosition(i, 1);
-	}
-	return count;
-}
-
 int Document::FindColumn(int line, int column) {
 	int position = LineStart(line);
 	if ((line >= 0) && (line < LinesTotal())) {
@@ -1254,8 +1082,6 @@ int Document::FindColumn(int line, int column) {
 			char ch = cb.CharAt(position);
 			if (ch == '\t') {
 				columnCurrent = NextTab(columnCurrent, tabInChars);
-				if (columnCurrent > column)
-					return position;
 				position++;
 			} else if (ch == '\r') {
 				return position;
@@ -1286,25 +1112,32 @@ void Document::Indent(bool forwards, int lineBottom, int lineTop) {
 
 // Convert line endings for a piece of text to a particular mode.
 // Stop at len or when a NUL is found.
-std::string Document::TransformLineEnds(const char *s, size_t len, int eolModeWanted) {
-	std::string dest;
-	for (size_t i = 0; (i < len) && (s[i]); i++) {
-		if (s[i] == '\n' || s[i] == '\r') {
+// Caller must delete the returned pointer.
+char *Document::TransformLineEnds(int *pLenOut, const char *s, size_t len, int eolModeWanted) {
+	char *dest = new char[2 * len + 1];
+	const char *sptr = s;
+	char *dptr = dest;
+	for (size_t i = 0; (i < len) && (*sptr != '\0'); i++) {
+		if (*sptr == '\n' || *sptr == '\r') {
 			if (eolModeWanted == SC_EOL_CR) {
-				dest.push_back('\r');
+				*dptr++ = '\r';
 			} else if (eolModeWanted == SC_EOL_LF) {
-				dest.push_back('\n');
+				*dptr++ = '\n';
 			} else { // eolModeWanted == SC_EOL_CRLF
-				dest.push_back('\r');
-				dest.push_back('\n');
+				*dptr++ = '\r';
+				*dptr++ = '\n';
 			}
-			if ((s[i] == '\r') && (i+1 < len) && (s[i+1] == '\n')) {
+			if ((*sptr == '\r') && (i+1 < len) && (*(sptr+1) == '\n')) {
 				i++;
+				sptr++;
 			}
+			sptr++;
 		} else {
-			dest.push_back(s[i]);
+			*dptr++ = *sptr++;
 		}
 	}
+	*dptr++ = '\0';
+	*pLenOut = (dptr - dest) - 1;
 	return dest;
 }
 
@@ -1358,7 +1191,7 @@ bool Document::IsWhiteLine(int line) const {
 	return true;
 }
 
-int Document::ParaUp(int pos) const {
+int Document::ParaUp(int pos) {
 	int line = LineFromPosition(pos);
 	line--;
 	while (line >= 0 && IsWhiteLine(line)) { // skip empty lines
@@ -1371,7 +1204,7 @@ int Document::ParaUp(int pos) const {
 	return LineStart(line);
 }
 
-int Document::ParaDown(int pos) const {
+int Document::ParaDown(int pos) {
 	int line = LineFromPosition(pos);
 	while (line < LinesTotal() && !IsWhiteLine(line)) { // skip non-empty lines
 		line++;
@@ -1385,8 +1218,8 @@ int Document::ParaDown(int pos) const {
 		return LineEnd(line-1);
 }
 
-CharClassify::cc Document::WordCharClass(unsigned char ch) const {
-	if ((SC_CP_UTF8 == dbcsCodePage) && (!UTF8IsAscii(ch)))
+CharClassify::cc Document::WordCharClass(unsigned char ch) {
+	if ((SC_CP_UTF8 == dbcsCodePage) && (ch >= 0x80))
 		return CharClassify::ccWord;
 	return charClass.GetClass(ch);
 }
@@ -1476,7 +1309,7 @@ int Document::NextWordEnd(int pos, int delta) {
  * Check that the character at the given position is a word or punctuation character and that
  * the previous character is of a different character class.
  */
-bool Document::IsWordStartAt(int pos) const {
+bool Document::IsWordStartAt(int pos) {
 	if (pos > 0) {
 		CharClassify::cc ccPos = WordCharClass(CharAt(pos));
 		return (ccPos == CharClassify::ccWord || ccPos == CharClassify::ccPunctuation) &&
@@ -1489,7 +1322,7 @@ bool Document::IsWordStartAt(int pos) const {
  * Check that the character at the given position is a word or punctuation character and that
  * the next character is of a different character class.
  */
-bool Document::IsWordEndAt(int pos) const {
+bool Document::IsWordEndAt(int pos) {
 	if (pos < Length()) {
 		CharClassify::cc ccPrev = WordCharClass(CharAt(pos-1));
 		return (ccPrev == CharClassify::ccWord || ccPrev == CharClassify::ccPunctuation) &&
@@ -1502,23 +1335,72 @@ bool Document::IsWordEndAt(int pos) const {
  * Check that the given range is has transitions between character classes at both
  * ends and where the characters on the inside are word or punctuation characters.
  */
-bool Document::IsWordAt(int start, int end) const {
+bool Document::IsWordAt(int start, int end) {
 	return IsWordStartAt(start) && IsWordEndAt(end);
 }
 
-bool Document::MatchesWordOptions(bool word, bool wordStart, int pos, int length) const {
+static inline char MakeLowerCase(char ch) {
+	if (ch < 'A' || ch > 'Z')
+		return ch;
+	else
+		return static_cast<char>(ch - 'A' + 'a');
+}
+
+static bool GoodTrailByte(int v) {
+	return (v >= 0x80) && (v < 0xc0);
+}
+
+size_t Document::ExtractChar(int pos, char *bytes) {
+	unsigned char ch = static_cast<unsigned char>(cb.CharAt(pos));
+	size_t widthChar = UTF8CharLength(ch);
+	bytes[0] = ch;
+	for (size_t i=1; i<widthChar; i++) {
+		bytes[i] = cb.CharAt(static_cast<int>(pos+i));
+		if (!GoodTrailByte(static_cast<unsigned char>(bytes[i]))) { // Bad byte
+			widthChar = 1;
+		}
+	}
+	return widthChar;
+}
+
+CaseFolderTable::CaseFolderTable() {
+	for (size_t iChar=0; iChar<sizeof(mapping); iChar++) {
+		mapping[iChar] = static_cast<char>(iChar);
+	}
+}
+
+CaseFolderTable::~CaseFolderTable() {
+}
+
+size_t CaseFolderTable::Fold(char *folded, size_t sizeFolded, const char *mixed, size_t lenMixed) {
+	if (lenMixed > sizeFolded) {
+		return 0;
+	} else {
+		for (size_t i=0; i<lenMixed; i++) {
+			folded[i] = mapping[static_cast<unsigned char>(mixed[i])];
+		}
+		return lenMixed;
+	}
+}
+
+void CaseFolderTable::SetTranslation(char ch, char chTranslation) {
+	mapping[static_cast<unsigned char>(ch)] = chTranslation;
+}
+
+void CaseFolderTable::StandardASCII() {
+	for (size_t iChar=0; iChar<sizeof(mapping); iChar++) {
+		if (iChar >= 'A' && iChar <= 'Z') {
+			mapping[iChar] = static_cast<char>(iChar - 'A' + 'a');
+		} else {
+			mapping[iChar] = static_cast<char>(iChar);
+		}
+	}
+}
+
+bool Document::MatchesWordOptions(bool word, bool wordStart, int pos, int length) {
 	return (!word && !wordStart) ||
 			(word && IsWordAt(pos, pos + length)) ||
 			(wordStart && IsWordStartAt(pos));
-}
-
-bool Document::HasCaseFolder(void) const {
-	return pcf != 0;
-}
-
-void Document::SetCaseFolder(CaseFolder *pcf_) {
-	delete pcf;
-	pcf = pcf_;
 }
 
 /**
@@ -1528,7 +1410,7 @@ void Document::SetCaseFolder(CaseFolder *pcf_) {
  */
 long Document::FindText(int minPos, int maxPos, const char *search,
                         bool caseSensitive, bool word, bool wordStart, bool regExp, int flags,
-                        int *length) {
+                        int *length, CaseFolder *pcf) {
 	if (*length <= 0)
 		return minPos;
 	if (regExp) {
@@ -1545,7 +1427,7 @@ long Document::FindText(int minPos, int maxPos, const char *search,
 		const int endPos = MovePositionOutsideChar(maxPos, increment, false);
 
 		// Compute actual search ranges needed
-		const int lengthFind = *length;
+		const int lengthFind = (*length == -1) ? static_cast<int>(strlen(search)) : *length;
 
 		//Platform::DebugPrintf("Find %d %d %s %d\n", startPos, endPos, ft->lpstrText, lengthFind);
 		const int limitPos = Platform::Maximum(startPos, endPos);
@@ -1556,61 +1438,49 @@ long Document::FindText(int minPos, int maxPos, const char *search,
 		}
 		if (caseSensitive) {
 			const int endSearch = (startPos <= endPos) ? endPos - lengthFind + 1 : endPos;
-			const char charStartSearch =  search[0];
 			while (forward ? (pos < endSearch) : (pos >= endSearch)) {
-				if (CharAt(pos) == charStartSearch) {
-					bool found = (pos + lengthFind) <= limitPos;
-					for (int indexSearch = 1; (indexSearch < lengthFind) && found; indexSearch++) {
-						found = CharAt(pos + indexSearch) == search[indexSearch];
-					}
-					if (found && MatchesWordOptions(word, wordStart, pos, lengthFind)) {
-						return pos;
-					}
+				bool found = (pos + lengthFind) <= limitPos;
+				for (int indexSearch = 0; (indexSearch < lengthFind) && found; indexSearch++) {
+					found = CharAt(pos + indexSearch) == search[indexSearch];
+				}
+				if (found && MatchesWordOptions(word, wordStart, pos, lengthFind)) {
+					return pos;
 				}
 				if (!NextCharacter(pos, increment))
 					break;
 			}
 		} else if (SC_CP_UTF8 == dbcsCodePage) {
+			const size_t maxBytesCharacter = 4;
 			const size_t maxFoldingExpansion = 4;
-			std::vector<char> searchThing(lengthFind * UTF8MaxBytes * maxFoldingExpansion + 1);
+			std::vector<char> searchThing(lengthFind * maxBytesCharacter * maxFoldingExpansion + 1);
 			const int lenSearch = static_cast<int>(
 				pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind));
-			char bytes[UTF8MaxBytes + 1];
-			char folded[UTF8MaxBytes * maxFoldingExpansion + 1];
 			while (forward ? (pos < endPos) : (pos >= endPos)) {
 				int widthFirstCharacter = 0;
-				int posIndexDocument = pos;
+				int indexDocument = 0;
 				int indexSearch = 0;
 				bool characterMatches = true;
-				for (;;) {
-					const unsigned char leadByte = static_cast<unsigned char>(cb.CharAt(posIndexDocument));
-					bytes[0] = leadByte;
-					int widthChar = 1;
-					if (!UTF8IsAscii(leadByte)) {
-						const int widthCharBytes = UTF8BytesOfLead[leadByte];
-						for (int b=1; b<widthCharBytes; b++) {
-							bytes[b] = cb.CharAt(posIndexDocument+b);
-						}
-						widthChar = UTF8Classify(reinterpret_cast<const unsigned char *>(bytes), widthCharBytes) & UTF8MaskWidth;
-					}
+				while (characterMatches &&
+					((pos + indexDocument) < limitPos) &&
+					(indexSearch < lenSearch)) {
+					char bytes[maxBytesCharacter + 1];
+					bytes[maxBytesCharacter] = 0;
+					const int widthChar = static_cast<int>(ExtractChar(pos + indexDocument, bytes));
 					if (!widthFirstCharacter)
 						widthFirstCharacter = widthChar;
-					if ((posIndexDocument + widthChar) > limitPos)
+					if ((pos + indexDocument + widthChar) > limitPos)
 						break;
+					char folded[maxBytesCharacter * maxFoldingExpansion + 1];
 					const int lenFlat = static_cast<int>(pcf->Fold(folded, sizeof(folded), bytes, widthChar));
 					folded[lenFlat] = 0;
 					// Does folded match the buffer
 					characterMatches = 0 == memcmp(folded, &searchThing[0] + indexSearch, lenFlat);
-					if (!characterMatches)
-						break;
-					posIndexDocument += widthChar;
+					indexDocument += widthChar;
 					indexSearch += lenFlat;
-					if (indexSearch >= lenSearch)
-						break;
 				}
 				if (characterMatches && (indexSearch == static_cast<int>(lenSearch))) {
-					if (MatchesWordOptions(word, wordStart, pos, posIndexDocument - pos)) {
-						*length = posIndexDocument - pos;
+					if (MatchesWordOptions(word, wordStart, pos, indexDocument)) {
+						*length = indexDocument;
 						return pos;
 					}
 				}
@@ -1693,16 +1563,31 @@ int Document::LinesTotal() const {
 	return cb.Lines();
 }
 
+void Document::ChangeCase(Range r, bool makeUpperCase) {
+	for (int pos = r.start; pos < r.end;) {
+		int len = LenChar(pos);
+		if (len == 1) {
+			char ch = CharAt(pos);
+			if (makeUpperCase) {
+				if (IsLowerCase(ch)) {
+					ChangeChar(pos, static_cast<char>(MakeUpperCase(ch)));
+				}
+			} else {
+				if (IsUpperCase(ch)) {
+					ChangeChar(pos, static_cast<char>(MakeLowerCase(ch)));
+				}
+			}
+		}
+		pos += len;
+	}
+}
+
 void Document::SetDefaultCharClasses(bool includeWordClass) {
     charClass.SetDefaultCharClasses(includeWordClass);
 }
 
 void Document::SetCharClasses(const unsigned char *chars, CharClassify::cc newCharClass) {
     charClass.SetCharClasses(chars, newCharClass);
-}
-
-int Document::GetCharsOfClass(CharClassify::cc characterClass, unsigned char *buffer) {
-    return charClass.GetCharsOfClass(characterClass, buffer);
 }
 
 void Document::SetStylingBits(int bits) {
@@ -1770,9 +1655,8 @@ void Document::EnsureStyledTo(int pos) {
 			pli->Colourise(endStyledTo, pos);
 		} else {
 			// Ask the watchers to style, and stop as soon as one responds.
-			for (std::vector<WatcherWithUserData>::iterator it = watchers.begin();
-				(pos > GetEndStyled()) && (it != watchers.end()); ++it) {
-				it->watcher->NotifyStyleNeeded(this, it->userData, pos);
+			for (int i = 0; pos > GetEndStyled() && i < lenWatchers; i++) {
+				watchers[i].watcher->NotifyStyleNeeded(this, watchers[i].userData, pos);
 			}
 		}
 	}
@@ -1780,8 +1664,8 @@ void Document::EnsureStyledTo(int pos) {
 
 void Document::LexerChanged() {
 	// Tell the watchers the lexer has changed.
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifyLexerChanged(this, it->userData);
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifyLexerChanged(this, watchers[i].userData);
 	}
 }
 
@@ -1807,7 +1691,7 @@ void SCI_METHOD Document::ChangeLexerState(int start, int end) {
 	NotifyModified(mh);
 }
 
-StyledText Document::MarginStyledText(int line) const {
+StyledText Document::MarginStyledText(int line) {
 	LineAnnotation *pla = static_cast<LineAnnotation *>(perLineData[ldMargin]);
 	return StyledText(pla->Length(line), pla->Text(line),
 		pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
@@ -1821,12 +1705,14 @@ void Document::MarginSetText(int line, const char *text) {
 
 void Document::MarginSetStyle(int line, int style) {
 	static_cast<LineAnnotation *>(perLineData[ldMargin])->SetStyle(line, style);
-	NotifyModified(DocModification(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line));
 }
 
 void Document::MarginSetStyles(int line, const unsigned char *styles) {
 	static_cast<LineAnnotation *>(perLineData[ldMargin])->SetStyles(line, styles);
-	NotifyModified(DocModification(SC_MOD_CHANGEMARGIN, LineStart(line), 0, 0, 0, line));
+}
+
+int Document::MarginLength(int line) const {
+	return static_cast<LineAnnotation *>(perLineData[ldMargin])->Length(line);
 }
 
 void Document::MarginClearAll() {
@@ -1837,21 +1723,23 @@ void Document::MarginClearAll() {
 	static_cast<LineAnnotation *>(perLineData[ldMargin])->ClearAll();
 }
 
-StyledText Document::AnnotationStyledText(int line) const {
+bool Document::AnnotationAny() const {
+	return static_cast<LineAnnotation *>(perLineData[ldAnnotation])->AnySet();
+}
+
+StyledText Document::AnnotationStyledText(int line) {
 	LineAnnotation *pla = static_cast<LineAnnotation *>(perLineData[ldAnnotation]);
 	return StyledText(pla->Length(line), pla->Text(line),
 		pla->MultipleStyles(line), pla->Style(line), pla->Styles(line));
 }
 
 void Document::AnnotationSetText(int line, const char *text) {
-	if (line >= 0 && line < LinesTotal()) {
-		const int linesBefore = AnnotationLines(line);
-		static_cast<LineAnnotation *>(perLineData[ldAnnotation])->SetText(line, text);
-		const int linesAfter = AnnotationLines(line);
-		DocModification mh(SC_MOD_CHANGEANNOTATION, LineStart(line), 0, 0, 0, line);
-		mh.annotationLinesAdded = linesAfter - linesBefore;
-		NotifyModified(mh);
-	}
+	const int linesBefore = AnnotationLines(line);
+	static_cast<LineAnnotation *>(perLineData[ldAnnotation])->SetText(line, text);
+	const int linesAfter = AnnotationLines(line);
+	DocModification mh(SC_MOD_CHANGEANNOTATION, LineStart(line), 0, 0, 0, line);
+	mh.annotationLinesAdded = linesAfter - linesBefore;
+	NotifyModified(mh);
 }
 
 void Document::AnnotationSetStyle(int line, int style) {
@@ -1861,9 +1749,11 @@ void Document::AnnotationSetStyle(int line, int style) {
 }
 
 void Document::AnnotationSetStyles(int line, const unsigned char *styles) {
-	if (line >= 0 && line < LinesTotal()) {
-		static_cast<LineAnnotation *>(perLineData[ldAnnotation])->SetStyles(line, styles);
-	}
+	static_cast<LineAnnotation *>(perLineData[ldAnnotation])->SetStyles(line, styles);
+}
+
+int Document::AnnotationLength(int line) const {
+	return static_cast<LineAnnotation *>(perLineData[ldAnnotation])->Length(line);
 }
 
 int Document::AnnotationLines(int line) const {
@@ -1891,34 +1781,54 @@ void SCI_METHOD Document::DecorationFillRange(int position, int value, int fillL
 }
 
 bool Document::AddWatcher(DocWatcher *watcher, void *userData) {
-	WatcherWithUserData wwud(watcher, userData);
-	std::vector<WatcherWithUserData>::iterator it =
-		std::find(watchers.begin(), watchers.end(), wwud);
-	if (it != watchers.end())
-		return false;
-	watchers.push_back(wwud);
+	for (int i = 0; i < lenWatchers; i++) {
+		if ((watchers[i].watcher == watcher) &&
+		        (watchers[i].userData == userData))
+			return false;
+	}
+	WatcherWithUserData *pwNew = new WatcherWithUserData[lenWatchers + 1];
+	for (int j = 0; j < lenWatchers; j++)
+		pwNew[j] = watchers[j];
+	pwNew[lenWatchers].watcher = watcher;
+	pwNew[lenWatchers].userData = userData;
+	delete []watchers;
+	watchers = pwNew;
+	lenWatchers++;
 	return true;
 }
 
 bool Document::RemoveWatcher(DocWatcher *watcher, void *userData) {
-	std::vector<WatcherWithUserData>::iterator it =
-		std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
-	if (it != watchers.end()) {
-		watchers.erase(it);
-		return true;
+	for (int i = 0; i < lenWatchers; i++) {
+		if ((watchers[i].watcher == watcher) &&
+		        (watchers[i].userData == userData)) {
+			if (lenWatchers == 1) {
+				delete []watchers;
+				watchers = 0;
+				lenWatchers = 0;
+			} else {
+				WatcherWithUserData *pwNew = new WatcherWithUserData[lenWatchers];
+				for (int j = 0; j < lenWatchers - 1; j++) {
+					pwNew[j] = (j < i) ? watchers[j] : watchers[j + 1];
+				}
+				delete []watchers;
+				watchers = pwNew;
+				lenWatchers--;
+			}
+			return true;
+		}
 	}
 	return false;
 }
 
 void Document::NotifyModifyAttempt() {
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifyModifyAttempt(this, it->userData);
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifyModifyAttempt(this, watchers[i].userData);
 	}
 }
 
 void Document::NotifySavePoint(bool atSavePoint) {
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifySavePoint(this, it->userData, atSavePoint);
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifySavePoint(this, watchers[i].userData, atSavePoint);
 	}
 }
 
@@ -1928,12 +1838,12 @@ void Document::NotifyModified(DocModification mh) {
 	} else if (mh.modificationType & SC_MOD_DELETETEXT) {
 		decorations.DeleteRange(mh.position, mh.length);
 	}
-	for (std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
-		it->watcher->NotifyModified(this, mh, it->userData);
+	for (int i = 0; i < lenWatchers; i++) {
+		watchers[i].watcher->NotifyModified(this, mh, watchers[i].userData);
 	}
 }
 
-bool Document::IsWordPartSeparator(char ch) const {
+bool Document::IsWordPartSeparator(char ch) {
 	return (WordCharClass(ch) == CharClassify::ccWord) && IsPunctuation(ch);
 }
 
@@ -1974,10 +1884,10 @@ int Document::WordPartLeft(int pos) {
 					--pos;
 				if (!isspacechar(cb.CharAt(pos)))
 					++pos;
-			} else if (!IsASCII(startChar)) {
-				while (pos > 0 && !IsASCII(cb.CharAt(pos)))
+			} else if (!isascii(startChar)) {
+				while (pos > 0 && !isascii(cb.CharAt(pos)))
 					--pos;
-				if (IsASCII(cb.CharAt(pos)))
+				if (isascii(cb.CharAt(pos)))
 					++pos;
 			} else {
 				++pos;
@@ -1995,8 +1905,8 @@ int Document::WordPartRight(int pos) {
 			++pos;
 		startChar = cb.CharAt(pos);
 	}
-	if (!IsASCII(startChar)) {
-		while (pos < length && !IsASCII(cb.CharAt(pos)))
+	if (!isascii(startChar)) {
+		while (pos < length && !isascii(cb.CharAt(pos)))
 			++pos;
 	} else if (IsLowerCase(startChar)) {
 		while (pos < length && IsLowerCase(cb.CharAt(pos)))
@@ -2103,9 +2013,10 @@ int Document::BraceMatch(int position, int /*maxReStyle*/) {
  */
 class BuiltinRegex : public RegexSearchBase {
 public:
-	explicit BuiltinRegex(CharClassify *charClassTable) : search(charClassTable) {}
+	BuiltinRegex(CharClassify *charClassTable) : search(charClassTable), substituted(NULL) {}
 
 	virtual ~BuiltinRegex() {
+		delete substituted;
 	}
 
 	virtual long FindText(Document *doc, int minPos, int maxPos, const char *s,
@@ -2116,7 +2027,7 @@ public:
 
 private:
 	RESearch search;
-	std::string substituted;
+	char *substituted;
 };
 
 // Define a way for the Regular Expression code to access the document
@@ -2211,8 +2122,6 @@ long BuiltinRegex::FindText(Document *doc, int minPos, int maxPos, const char *s
 		int success = search.Execute(di, startOfLine, endOfLine);
 		if (success) {
 			pos = search.bopat[0];
-			// Ensure only whole characters selected
-			search.eopat[0] = doc->MovePositionOutsideChar(search.eopat[0], 1, false);
 			lenRet = search.eopat[0] - search.bopat[0];
 			// There can be only one start of a line, so no need to look for last match in line
 			if ((increment == -1) && (s[0] != '^')) {
@@ -2238,55 +2147,86 @@ long BuiltinRegex::FindText(Document *doc, int minPos, int maxPos, const char *s
 }
 
 const char *BuiltinRegex::SubstituteByPosition(Document *doc, const char *text, int *length) {
-	substituted.clear();
+	delete []substituted;
+	substituted = 0;
 	DocumentIndexer di(doc, doc->Length());
-	search.GrabMatches(di);
+	if (!search.GrabMatches(di))
+		return 0;
+	unsigned int lenResult = 0;
+	for (int i = 0; i < *length; i++) {
+		if (text[i] == '\\') {
+			if (text[i + 1] >= '1' && text[i + 1] <= '9') {
+				unsigned int patNum = text[i + 1] - '0';
+				lenResult += search.eopat[patNum] - search.bopat[patNum];
+				i++;
+			} else {
+				switch (text[i + 1]) {
+				case 'a':
+				case 'b':
+				case 'f':
+				case 'n':
+				case 'r':
+				case 't':
+				case 'v':
+				case '\\':
+					i++;
+				}
+				lenResult++;
+			}
+		} else {
+			lenResult++;
+		}
+	}
+	substituted = new char[lenResult + 1];
+	char *o = substituted;
 	for (int j = 0; j < *length; j++) {
 		if (text[j] == '\\') {
-			if (text[j + 1] >= '0' && text[j + 1] <= '9') {
+			if (text[j + 1] >= '1' && text[j + 1] <= '9') {
 				unsigned int patNum = text[j + 1] - '0';
 				unsigned int len = search.eopat[patNum] - search.bopat[patNum];
-				if (!search.pat[patNum].empty())	// Will be null if try for a match that did not occur
-					substituted.append(search.pat[patNum].c_str(), len);
+				if (search.pat[patNum])	// Will be null if try for a match that did not occur
+					memcpy(o, search.pat[patNum], len);
+				o += len;
 				j++;
 			} else {
 				j++;
 				switch (text[j]) {
 				case 'a':
-					substituted.push_back('\a');
+					*o++ = '\a';
 					break;
 				case 'b':
-					substituted.push_back('\b');
+					*o++ = '\b';
 					break;
 				case 'f':
-					substituted.push_back('\f');
+					*o++ = '\f';
 					break;
 				case 'n':
-					substituted.push_back('\n');
+					*o++ = '\n';
 					break;
 				case 'r':
-					substituted.push_back('\r');
+					*o++ = '\r';
 					break;
 				case 't':
-					substituted.push_back('\t');
+					*o++ = '\t';
 					break;
 				case 'v':
-					substituted.push_back('\v');
+					*o++ = '\v';
 					break;
 				case '\\':
-					substituted.push_back('\\');
+					*o++ = '\\';
 					break;
 				default:
-					substituted.push_back('\\');
+					*o++ = '\\';
 					j--;
 				}
 			}
 		} else {
-			substituted.push_back(text[j]);
+			*o++ = text[j];
 		}
 	}
-	*length = static_cast<int>(substituted.length());
-	return substituted.c_str();
+	*o = '\0';
+	*length = lenResult;
+	return substituted;
 }
 
 #ifndef SCI_OWNREGEX

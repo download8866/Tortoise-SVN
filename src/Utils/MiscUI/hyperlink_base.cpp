@@ -2,11 +2,11 @@
  * Module ID: hyperlink.cpp
  * Title    : CHyperLink definition.
  *
- * Author   : Olivier Langlois <olivier@olivierlanglois.net>
+ * Author   : Olivier Langlois <olanglois@sympatico.ca>
  * Date     : November 15, 2005
  *
  * To read the article describing this class, visit
- * http://www.olivierlanglois.net/hyperlinkdemo.htm
+ * http://www3.sympatico.ca/olanglois/hyperlinkdemo.htm
  *
  * Note: Strongly inspired by Neal Stublen code
  *       Minor ideas come from Chris Maunder and Paul DiLascia code
@@ -20,7 +20,7 @@
  */
 #include "stdafx.h"
 #include "hyperlink_base.h"
-#include <shellapi.h>
+#include "shellapi.h"
 
 /*
  * If you do not wish to link with the windebug module,
@@ -47,13 +47,8 @@ class CGlobalAtom
 {
 public:
     CGlobalAtom(void)
-#ifdef _WIN64
-    { atom = GlobalAddAtom(TEXT("_Hyperlink_Object_Pointer64_")
-             TEXT("\\{AFEED740-CC6D-47c5-831D-9848FD916EEF}")); }
-#else
     { atom = GlobalAddAtom(TEXT("_Hyperlink_Object_Pointer_")
              TEXT("\\{AFEED740-CC6D-47c5-831D-9848FD916EEF}")); }
-#endif
     ~CGlobalAtom(void)
     { DeleteAtom(atom); }
 
@@ -66,7 +61,7 @@ public:
 static CGlobalAtom ga;
 
 /*
- * Static members initializations
+ * Static members initialization
  */
 COLORREF CHyperLink::g_crLinkColor     = RGB(  0,   0, 255);   // Blue;
 COLORREF CHyperLink::g_crVisitedColor  = RGB( 128,  0, 128);   // Purple;
@@ -330,12 +325,8 @@ LRESULT CALLBACK CHyperLink::_HyperlinkProc(HWND hwnd, UINT message,
                         // Fall through
     case WM_LBUTTONUP:
         {
-            if (pHyperLink->m_strURL && wcslen(pHyperLink->m_strURL))
-            {
-                pHyperLink->Navigate();
-                InvalidateRect(hwnd, NULL, FALSE);
-                return 0;
-            }
+            pHyperLink->Navigate();
+            return 0;
         }
     case WM_SETFOCUS:   // Fall through
     case WM_KILLFOCUS:

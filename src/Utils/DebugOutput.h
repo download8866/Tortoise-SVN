@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -62,32 +62,32 @@ public:
 private:
     CTraceToOutputDebugString()
     {
-        m_LastTick = GetTickCount64();
-        m_bActive = !!CRegStdDWORD(L"Software\\TortoiseSVN\\DebugOutputString", FALSE);
+        m_LastTick = GetTickCount();
+        m_bActive = !!CRegStdDWORD(_T("Software\\TortoiseSVN\\DebugOutputString"), FALSE);
     }
     ~CTraceToOutputDebugString()
     {
         delete m_pInstance;
     }
 
-    ULONGLONG m_LastTick;
+    DWORD m_LastTick;
     bool    m_bActive;
     static CTraceToOutputDebugString * m_pInstance;
 
     // Non Unicode output helper
-    void TraceV(PCSTR pszFormat, va_list args) const
+    void TraceV(PCSTR pszFormat, va_list args)
     {
         // Format the output buffer
         char szBuffer[1024];
-        _vsnprintf_s(szBuffer, _countof(szBuffer), _countof(szBuffer)-1, pszFormat, args);
+        _vsnprintf_s(szBuffer, 1024, _countof(szBuffer), pszFormat, args);
         OutputDebugStringA(szBuffer);
     }
 
     // Unicode output helper
-    void TraceV(PCWSTR pszFormat, va_list args) const
+    void TraceV(PCWSTR pszFormat, va_list args)
     {
         wchar_t szBuffer[1024];
-        _vsnwprintf_s(szBuffer, _countof(szBuffer), _countof(szBuffer)-1, pszFormat, args);
+        _vsnwprintf_s(szBuffer, 1024, _countof(szBuffer), pszFormat, args);
         OutputDebugStringW(szBuffer);
     }
 
@@ -96,10 +96,10 @@ private:
 #ifdef DEBUG
         return true;
 #else
-        if (GetTickCount64() - m_LastTick > 10000)
+        if (GetTickCount() - m_LastTick > 10000)
         {
-            m_LastTick = GetTickCount64();
-            m_bActive = !!CRegStdDWORD(L"Software\\TortoiseSVN\\DebugOutputString", FALSE);
+            m_LastTick = GetTickCount();
+            m_bActive = !!CRegStdDWORD(_T("Software\\TortoiseSVN\\DebugOutputString"), FALSE);
         }
         return m_bActive;
 #endif

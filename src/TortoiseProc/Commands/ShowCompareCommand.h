@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008, 2011-2012, 2014 - TortoiseSVN
+// Copyright (C) 2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,8 @@
 #pragma once
 #include "Command.h"
 
+#include "MessageBox.h"
+
 /**
  * \ingroup TortoiseProc
  * Shows the differences in various ways, according to the
@@ -30,8 +32,8 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override;
-    virtual bool            CheckPaths() override {return true;}
+    virtual bool            Execute();
+    virtual bool            CheckPaths() {return true;}
 };
 
 

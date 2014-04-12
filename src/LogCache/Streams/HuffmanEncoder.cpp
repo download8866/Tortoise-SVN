@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "HuffmanEncoder.h"
 #include "StreamException.h"
+#include "auto_buffer.h"
 
 // Huffman encoding stages:
 
@@ -312,7 +313,6 @@ void CHuffmanEncoder::WriteHuffmanEncoded ( const BYTE* source
 
     // main loop (9.5 clock ticks per 2 chars on Core2)
 
-    // cppcheck-suppress multiplySizeof
     const BYTE* blockEnd = source + (end - source) / sizeof (encode_block_type) * sizeof (encode_block_type);
     for ( ; source != blockEnd; source += sizeof (encode_block_type))
     {
@@ -384,10 +384,6 @@ void CHuffmanEncoder::WriteHuffmanEncoded ( const BYTE* source
 CHuffmanEncoder::CHuffmanEncoder()
     : sortedCount (0)
 {
-    SecureZeroMemory(&key, sizeof(key));
-    SecureZeroMemory(&keyLength, sizeof(keyLength));
-    SecureZeroMemory(&count, sizeof(count));
-    SecureZeroMemory(&sorted, sizeof(sorted));
 }
 
 // write local stream data and close the stream
@@ -409,7 +405,7 @@ CHuffmanEncoder::Encode (const BYTE* source, size_t byteCount)
 
     DWORD targetSize = std::min ( (DWORD)byteCount+MIN_HEADER_LENGTH
                                 , CalculatePackedSize());
-    std::unique_ptr<BYTE[]> buffer (new BYTE[targetSize]);
+    auto_buffer<BYTE> buffer (targetSize);
 
     // fill it
 

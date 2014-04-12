@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2014 - TortoiseSVN
+// Copyright (C) 2006-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,19 +25,12 @@
 #include "TempFile.h"
 #include "XSplitter.h"
 #include "SVNPatch.h"
-#include "SimpleIni.h"
-
-#include <tuple>
+#include "FindDlg.h"
 
 class CLeftView;
 class CRightView;
 class CBottomView;
 #define MOVESTOIGNORE 3
-
-#define TABMODE_NONE        0x00
-#define TABMODE_USESPACES   0x01
-#define TABMODE_SMARTINDENT 0x02
-
 
 /**
  * \ingroup TortoiseMerge
@@ -45,11 +38,13 @@ class CBottomView;
  */
 class CMainFrame : public CFrameWndEx, public CPatchFilesDlgCallBack //CFrameWndEx
 {
+
 public:
     CMainFrame();
     virtual ~CMainFrame();
 
     void            ShowDiffBar(bool bShow);
+    const CMFCToolBar *   GetToolbar() const { return &m_wndToolBar; }
 #ifdef _DEBUG
     virtual void    AssertValid() const;
     virtual void    Dump(CDumpContext& dc) const;
@@ -67,6 +62,7 @@ protected:
     void            ClearViewNamesAndPaths();
     void            SetWindowTitle();
 
+    afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnTaskbarButtonCreated(WPARAM wParam, LPARAM lParam);
     afx_msg void    OnApplicationLook(UINT id);
     afx_msg void    OnUpdateApplicationLook(CCmdUI* pCmdUI);
@@ -77,6 +73,9 @@ protected:
     afx_msg void    OnFileReload();
     afx_msg void    OnClose();
     afx_msg void    OnActivate(UINT, CWnd*, BOOL);
+    afx_msg void    OnEditFind();
+    afx_msg void    OnEditFindnext();
+    afx_msg void    OnEditFindprev();
     afx_msg void    OnViewWhitespaces();
     afx_msg int     OnCreate(LPCREATESTRUCT lpCreateStruct);
     afx_msg void    OnSize(UINT nType, int cx, int cy);
@@ -111,24 +110,15 @@ protected:
     afx_msg void    OnViewShowfilelist();
     afx_msg void    OnEditUndo();
     afx_msg void    OnUpdateEditUndo(CCmdUI *pCmdUI);
-    afx_msg void    OnEditEnable();
-    afx_msg void    OnUpdateEditEnable(CCmdUI *pCmdUI);
     afx_msg void    OnViewInlinediffword();
     afx_msg void    OnUpdateViewInlinediffword(CCmdUI *pCmdUI);
-    afx_msg void    OnViewInlinediff();
-    afx_msg void    OnUpdateViewInlinediff(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateEditCreateunifieddifffile(CCmdUI *pCmdUI);
     afx_msg void    OnEditCreateunifieddifffile();
-    afx_msg void    OnUpdateEditTabspace(CCmdUI *pCmdUI);
-    afx_msg void    OnEditTabspace();
-    afx_msg void    OnUpdateEditSmartTab(CCmdUI *pCmdUI);
-    afx_msg void    OnEditSmartTab();
     afx_msg void    OnUpdateViewLinediffbar(CCmdUI *pCmdUI);
     afx_msg void    OnViewLinediffbar();
     afx_msg void    OnUpdateViewLocatorbar(CCmdUI *pCmdUI);
     afx_msg void    OnViewLocatorbar();
     afx_msg void    OnEditUseleftblock();
-    afx_msg void    OnUpdateUseBlock(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateEditUseleftblock(CCmdUI *pCmdUI);
     afx_msg void    OnEditUseleftfile();
     afx_msg void    OnUpdateEditUseleftfile(CCmdUI *pCmdUI);
@@ -152,33 +142,12 @@ protected:
     afx_msg void    OnUpdateViewMovedBlocks(CCmdUI *pCmdUI);
     afx_msg void    OnViewWraplonglines();
     afx_msg void    OnUpdateViewWraplonglines(CCmdUI *pCmdUI);
-    afx_msg void    OnIndicatorLeftview();
-    afx_msg void    OnIndicatorRightview();
-    afx_msg void    OnIndicatorBottomview();
-    afx_msg void    OnTimer(UINT_PTR nIDEvent);
-    afx_msg void    OnViewIgnorecomments();
-    afx_msg void    OnUpdateViewIgnorecomments(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateViewRegexFilter(CCmdUI *pCmdUI);
-    afx_msg void    OnRegexfilter(UINT cmd);
-    afx_msg void    OnDummyEnabled() {};
-    afx_msg void    OnEncodingLeft(UINT cmd);
-    afx_msg void    OnEncodingRight(UINT cmd);
-    afx_msg void    OnEncodingBottom(UINT cmd);
-    afx_msg void    OnEOLLeft(UINT cmd);
-    afx_msg void    OnEOLRight(UINT cmd);
-    afx_msg void    OnEOLBottom(UINT cmd);
-    afx_msg void    OnUpdateEncodingLeft(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateEncodingRight(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateEncodingBottom(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateEOLLeft(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateEOLRight(CCmdUI *pCmdUI);
-    afx_msg void    OnUpdateEOLBottom(CCmdUI *pCmdUI);
 
     DECLARE_MESSAGE_MAP()
 protected:
     void            UpdateLayout();
-    virtual BOOL    PatchFile(CString sFilePath, bool bContentMods, bool bPropMods, CString sVersion, BOOL bAutoPatch) override;
-    virtual BOOL    DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString sRev2) override;
+    virtual BOOL    PatchFile(CString sFilePath, bool bContentMods, bool bPropMods, CString sVersion, BOOL bAutoPatch);
+    virtual BOOL    DiffFiles(CString sURL1, CString sRev1, CString sURL2, CString sRev2);
     int             CheckResolved();
     BOOL            MarkAsResolved();
     int             SaveFile(const CString& sFilePath);
@@ -187,24 +156,16 @@ protected:
     bool            FileSave(bool bCheckResolved=true);
     void            PatchSave();
     bool            FileSaveAs(bool bCheckResolved=true);
-    void            LoadIgnoreCommentData();
+    bool            StringFound(const CString&)const;
+    enum SearchDirection{SearchNext=0, SearchPrevious=1};
+    void            Search(SearchDirection);
+    int             FindSearchStart(int nDefault);
     /// checks if there are modifications and asks the user to save them first
     /// IDCANCEL is returned if the user wants to cancel.
     /// If the user wanted to save the modifications, this method does the saving
     /// itself.
     int             CheckForReload();
-    enum ECheckForSaveReason {
-        CHFSR_CLOSE, ///< closing apps
-        CHFSR_SWITCH, ///< switching views
-        CHFSR_RELOAD, ///< reload views also switching between 1 and 2 way diff
-        CHFSR_OPTIONS, ///< white space change, options
-        CHFSR_OPEN, ///< open open dialog
-    };
-    /// checks if there are modifications and asks the user to save them first
-    /// IDCANCEL is returned if the user wants to cancel.
-    /// If the user wanted to save the modifications, this method does the saving
-    /// itself.
-    int             CheckForSave(ECheckForSaveReason eReason/* = CHFSR_SWITCH*/);
+    int             CheckForSave();
     void            OnViewLineUpDown(int direction);
     void            OnViewLineLeftRight(int direction);
     bool            HasConflictsWontKeep();
@@ -219,13 +180,10 @@ protected:
     static bool     HasNextConflict(CBaseView* view);
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
-    void            BuildRegexSubitems();
-
-    static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
-
 protected:
+    CMFCMenuBar     m_wndMenuBar;
     CMFCStatusBar   m_wndStatusBar;
-    CMFCRibbonStatusBar m_wndRibbonStatusBar;
+    CMFCToolBar     m_wndToolBar;
     CLocatorBar     m_wndLocatorBar;
     CLineDiffBar    m_wndLineDiffBar;
     CXSplitter      m_wndSplitter;
@@ -236,30 +194,24 @@ protected:
     BOOL            m_bInitSplitter;
     bool            m_bCheckReload;
 
+    int             m_nSearchIndex;
+    CString         m_sFindText;
+    BOOL            m_bMatchCase;
+    bool            m_bLimitToDiff;
+    bool            m_bWholeWord;
+    static const UINT m_FindDialogMessage;
+    CFindDlg *      m_pFindDialog;
     bool            m_bHasConflicts;
 
     bool            m_bInlineWordDiff;
-    bool            m_bInlineDiff;
     bool            m_bLineDiff;
     bool            m_bLocatorBar;
-    bool            m_bUseRibbons;
-
-    CMFCRibbonBar               m_wndRibbonBar;
-    CMFCRibbonApplicationButton m_MainButton;
 
     CRegDWORD       m_regWrapLines;
     CRegDWORD       m_regViewModedBlocks;
     CRegDWORD       m_regOneWay;
     CRegDWORD       m_regCollapsed;
     CRegDWORD       m_regInlineDiff;
-    CRegDWORD       m_regUseRibbons;
-    CRegDWORD       m_regUseTaskDialog;
-    CRegDWORD       m_regIgnoreComments;
-    CRegDWORD       m_regTabMode;
-
-    std::map<CString, std::tuple<CString, CString, CString>>    m_IgnoreCommentsMap;
-    CSimpleIni      m_regexIni;
-    int             m_regexIndex;
 public:
     CLeftView *     m_pwndLeftView;
     CRightView *    m_pwndRightView;
@@ -273,15 +225,4 @@ public:
     bool            m_bCollapsed;
     bool            m_bViewMovedBlocks;
     bool            m_bWrapLines;
-    bool            m_bSaveRequired;
-    bool            m_bSaveRequiredOnConflicts;
-    HWND            resolveMsgWnd;
-    WPARAM          resolveMsgWParam;
-    LPARAM          resolveMsgLParam;
-
-    const CMFCToolBar *   GetToolbar() const { return &m_wndToolBar; }
-    void            FillEncodingButton( CMFCRibbonButton * pButton, int start );
-    void            FillEOLButton( CMFCRibbonButton * pButton, int start );
-    CMFCMenuBar     m_wndMenuBar;
-    CMFCToolBar     m_wndToolBar;
 };

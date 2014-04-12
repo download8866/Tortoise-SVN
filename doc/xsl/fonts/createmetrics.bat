@@ -3,10 +3,8 @@ rem place the configuration data in config.bat. You need the following four vari
 rem Example config.bat
 rem set LIBDIR=C:\DocTools\fop\lib\
 rem set LOCAL_FOP_HOME=C:\DocTools\fop\
-rem set CMD="java"
+rem set CMD="java" 
 rem set FONT_DIR=C:\Windows\Fonts
-
-pushd %~dp0
 
 rem auto-create configuration file
 if not exist config.bat copy config.bat.sample config.bat
@@ -23,7 +21,7 @@ set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xercesImpl-2.7.1.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xalan-2.7.0.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\serializer-2.7.0.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\batik-all-1.7.jar
-set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xmlgraphics-commons-1.5.jar
+set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\xmlgraphics-commons-1.4.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\avalon-framework-4.2.0.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\commons-io-1.3.1.jar
 set LOCALCLASSPATH=%LOCALCLASSPATH%;%LIBDIR%\commons-logging-1.0.4.jar
@@ -60,5 +58,3 @@ set CMD=%CMD% org.apache.fop.fonts.apps.TTFReader
 %CMD% -ttcname "MS YaHei Bold" %FONT_DIR%\msyhbd.ttc msyhbd.xml
 %CMD% -ttcname "SimHei" %FONT_DIR%\simhei.ttc simhei.xml
 %CMD% -ttcname "SimSun" %FONT_DIR%\simsun.ttc simsun.xml
-
-popd

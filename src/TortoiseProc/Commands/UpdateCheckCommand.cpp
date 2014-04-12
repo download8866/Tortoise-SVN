@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2014 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UpdateCheckCommand.h"
 
 #include "CheckForUpdatesDlg.h"
@@ -24,7 +24,7 @@
 bool UpdateCheckCommand::Execute()
 {
     CCheckForUpdatesDlg dlg;
-    if (parser.HasKey(L"visible"))
+    if (parser.HasKey(_T("visible")))
         dlg.m_bShowInfo = TRUE;
     dlg.DoModal();
     return true;

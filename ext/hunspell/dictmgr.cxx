@@ -1,20 +1,25 @@
 
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <cctype>
+#include <cstdio>
 
 #include "dictmgr.hxx"
 
-DictMgr::DictMgr(const char * dictpath, const char * etype) : numdict(0)
+using namespace std;
+
+DictMgr::DictMgr(const char * dictpath, const char * etype) 
 {
   // load list of etype entries
+  numdict = 0;
   pdentry = (dictentry *)malloc(MAXDICTIONARIES*sizeof(struct dictentry));
   if (pdentry) {
      if (parse_file(dictpath, etype)) {
         numdict = 0;
         // no dictionary.lst found is okay
      }
+  } else {
+     numdict = 0;
   }
 }
 
@@ -96,16 +101,6 @@ int  DictMgr::parse_file(const char * dictpath, const char * etype)
                  numdict++;
                  pdict++;
              } else {
-                 switch (i) {
-                    case 3:
-                       free(pdict->region);
-                       pdict->region=NULL;
-                    case 2: //deliberate fallthrough
-                       free(pdict->lang);
-                       pdict->lang=NULL;
-                    default:
-                        break;
-                 }
                  fprintf(stderr,"dictionary list corruption in line \"%s\"\n",line);
                  fflush(stderr);
              }
@@ -133,27 +128,25 @@ char * DictMgr::mystrsep(char ** stringp, const char delim)
 {
   char * rv = NULL;
   char * mp = *stringp;
-  size_t n = strlen(mp);
+  int n = strlen(mp);
   if (n > 0) {
      char * dp = (char *)memchr(mp,(int)((unsigned char)delim),n);
      if (dp) {
         *stringp = dp+1;
-        size_t nc = dp - mp; 
+        int nc = (int)((unsigned long)dp - (unsigned long)mp); 
         rv = (char *) malloc(nc+1);
-        if (rv) {
-           memcpy(rv,mp,nc);
-           *(rv+nc) = '\0';
-        }
+        memcpy(rv,mp,nc);
+        *(rv+nc) = '\0';
+        return rv;
      } else {
        rv = (char *) malloc(n+1);
-       if (rv) {
-          memcpy(rv, mp, n);
-          *(rv+n) = '\0';
-          *stringp = mp + n;
-       }
+       memcpy(rv, mp, n);
+       *(rv+n) = '\0';
+       *stringp = mp + n;
+       return rv;
      }
   }
-  return rv;
+  return NULL;
 }
 
 
@@ -162,9 +155,9 @@ char * DictMgr::mystrdup(const char * s)
 {
   char * d = NULL;
   if (s) {
-     int sl = strlen(s)+1;
-     d = (char *) malloc(sl);
-     if (d) memcpy(d,s,sl);
+     int sl = strlen(s);
+     d = (char *) malloc(((sl+1) * sizeof(char)));
+     if (d) memcpy(d,s,((sl+1)*sizeof(char)));
   }
   return d;
 }

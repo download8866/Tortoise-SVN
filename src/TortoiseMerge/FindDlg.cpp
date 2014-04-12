@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2011-2014 - TortoiseSVN
+// Copyright (C) 2006, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,18 +27,11 @@ IMPLEMENT_DYNAMIC(CFindDlg, CDialog)
 
 CFindDlg::CFindDlg(CWnd* pParent /*=NULL*/)
     : CDialog(CFindDlg::IDD, pParent)
-    , m_pParent(pParent)
     , m_bTerminating(false)
     , m_bFindNext(false)
     , m_bMatchCase(FALSE)
     , m_bLimitToDiffs(FALSE)
     , m_bWholeWord(FALSE)
-    , m_bSearchUp(FALSE)
-    , m_FindMsg(0)
-    , m_clrFindStatus(RGB(0, 0, 255))
-    , m_regMatchCase(L"Software\\TortoiseMerge\\FindMatchCase", FALSE)
-    , m_regLimitToDiffs(L"Software\\TortoiseMerge\\FindLimitToDiffs", FALSE)
-    , m_regWholeWord(L"Software\\TortoiseMerge\\FindWholeWord", FALSE)
 {
 }
 
@@ -52,16 +45,12 @@ void CFindDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_MATCHCASE, m_bMatchCase);
     DDX_Check(pDX, IDC_LIMITTODIFFS, m_bLimitToDiffs);
     DDX_Check(pDX, IDC_WHOLEWORD, m_bWholeWord);
-    DDX_Check(pDX, IDC_SEARCHUP, m_bSearchUp);
     DDX_Control(pDX, IDC_FINDCOMBO, m_FindCombo);
-    DDX_Control(pDX, IDC_FINDSTATUS, m_FindStatus);
 }
 
 
 BEGIN_MESSAGE_MAP(CFindDlg, CDialog)
     ON_CBN_EDITCHANGE(IDC_FINDCOMBO, &CFindDlg::OnCbnEditchangeFindcombo)
-    ON_BN_CLICKED(IDC_COUNT, &CFindDlg::OnBnClickedCount)
-    ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -70,10 +59,7 @@ END_MESSAGE_MAP()
 void CFindDlg::OnCancel()
 {
     m_bTerminating = true;
-    SetStatusText(L"");
-    if (m_pParent)
-        m_pParent->SendMessage(m_FindMsg);
-    else if (GetParent())
+    if (GetParent())
         GetParent()->SendMessage(m_FindMsg);
     DestroyWindow();
 }
@@ -86,18 +72,12 @@ void CFindDlg::PostNcDestroy()
 void CFindDlg::OnOK()
 {
     UpdateData();
-    SetStatusText(L"");
     m_FindCombo.SaveHistory();
-    m_regMatchCase = m_bMatchCase;
-    m_regLimitToDiffs = m_bLimitToDiffs;
-    m_regWholeWord = m_bWholeWord;
 
     if (m_FindCombo.GetString().IsEmpty())
         return;
     m_bFindNext = true;
-    if (m_pParent)
-        m_pParent->SendMessage(m_FindMsg);
-    else if (GetParent())
+    if (GetParent())
         GetParent()->SendMessage(m_FindMsg);
     m_bFindNext = false;
 }
@@ -107,14 +87,8 @@ BOOL CFindDlg::OnInitDialog()
     CDialog::OnInitDialog();
     m_FindMsg = RegisterWindowMessage(FINDMSGSTRING);
 
-    m_bMatchCase    = (BOOL)(DWORD)m_regMatchCase;
-    m_bLimitToDiffs = (BOOL)(DWORD)m_regLimitToDiffs;
-    m_bWholeWord    = (BOOL)(DWORD)m_regWholeWord;
-    UpdateData(FALSE);
-
     m_FindCombo.DisableTrimming();
-    m_FindCombo.LoadHistory(L"Software\\TortoiseMerge\\History\\Find", L"Search");
-    m_FindCombo.SetCurSel(0);
+    m_FindCombo.LoadHistory(_T("Software\\TortoiseMerge\\History\\Find"), _T("Search"));
 
     m_FindCombo.SetFocus();
 
@@ -125,47 +99,4 @@ void CFindDlg::OnCbnEditchangeFindcombo()
 {
     UpdateData();
     GetDlgItem(IDOK)->EnableWindow(!m_FindCombo.GetString().IsEmpty());
-}
-
-void CFindDlg::OnBnClickedCount()
-{
-    UpdateData();
-    SetStatusText(L"");
-    m_FindCombo.SaveHistory();
-    m_regMatchCase = m_bMatchCase;
-    m_regLimitToDiffs = m_bLimitToDiffs;
-    m_regWholeWord = m_bWholeWord;
-
-    if (m_FindCombo.GetString().IsEmpty())
-        return;
-    m_bFindNext = true;
-    if (m_pParent)
-        m_pParent->SendMessage(m_FindMsg, FindType::Count);
-    else if (GetParent())
-        GetParent()->SendMessage(m_FindMsg, FindType::Count);
-    m_bFindNext = false;
-}
-
-HBRUSH CFindDlg::OnCtlColor(CDC* pDC, CWnd *pWnd, UINT nCtlColor)
-{
-    switch (nCtlColor)
-    {
-    case CTLCOLOR_STATIC:
-        if (pWnd == &m_FindStatus)
-        {
-            HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
-            pDC->SetTextColor(m_clrFindStatus);
-            pDC->SetBkMode(TRANSPARENT);
-            return hbr;
-        }
-    default:
-        break;
-    }
-    return CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
-}
-
-void CFindDlg::SetStatusText(const CString& str, COLORREF color)
-{
-    m_clrFindStatus = color;
-    m_FindStatus.SetWindowText(str);
 }

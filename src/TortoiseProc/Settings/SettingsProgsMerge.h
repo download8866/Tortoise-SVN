@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,7 +34,7 @@ public:
     CSettingsProgsMerge();
     virtual ~CSettingsProgsMerge();
 
-    UINT GetIconID() override {return IDI_MERGE;}
+    UINT GetIconID() {return IDI_MERGE;}
 // Dialog Data
     enum { IDD = IDD_SETTINGSPROGSMERGE };
 
@@ -52,7 +52,7 @@ public:
     afx_msg void OnBnClickedExtmergeadvanced();
     afx_msg void OnEnChangeExtmerge();
 private:
-    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != L"#"; }
+    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
     void CheckProgComment();
 private:
     CString         m_sMergePath;

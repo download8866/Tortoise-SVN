@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,11 +27,10 @@ IMPLEMENT_DYNAMIC(CSetHooksAdv, CResizableStandAloneDialog)
 
 CSetHooksAdv::CSetHooksAdv(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CSetHooksAdv::IDD, pParent)
-    , m_sPath(L"")
-    , m_sCommandLine(L"")
+    , m_sPath(_T(""))
+    , m_sCommandLine(_T(""))
     , m_bWait(FALSE)
     , m_bHide(FALSE)
-    , m_bEnforce(FALSE)
 {
 }
 
@@ -46,7 +45,6 @@ void CSetHooksAdv::DoDataExchange(CDataExchange* pDX)
     DDX_Text(pDX, IDC_HOOKCOMMANDLINE, m_sCommandLine);
     DDX_Check(pDX, IDC_WAITCHECK, m_bWait);
     DDX_Check(pDX, IDC_HIDECHECK, m_bHide);
-    DDX_Check(pDX, IDC_ENFORCECHECK, m_bEnforce);
     DDX_Control(pDX, IDC_HOOKTYPECOMBO, m_cHookTypeCombo);
 }
 
@@ -64,7 +62,6 @@ BOOL CSetHooksAdv::OnInitDialog()
     ExtendFrameIntoClientArea(IDC_DWM);
     m_aeroControls.SubclassControl(this, IDC_WAITCHECK);
     m_aeroControls.SubclassControl(this, IDC_HIDECHECK);
-    m_aeroControls.SubclassControl(this, IDC_ENFORCECHECK);
     m_aeroControls.SubclassOkCancelHelp(this);
 
     // initialize the combo box with all the hook types we have
@@ -72,8 +69,6 @@ BOOL CSetHooksAdv::OnInitDialog()
     m_cHookTypeCombo.SetItemData(index, start_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_PRECOMMIT)));
     m_cHookTypeCombo.SetItemData(index, pre_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_MANUALPRECOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, manual_precommit);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_POSTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, post_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTUPDATE)));
@@ -101,7 +96,6 @@ BOOL CSetHooksAdv::OnInitDialog()
     m_sCommandLine = cmd.commandline;
     m_bWait = cmd.bWait;
     m_bHide = !cmd.bShow;
-    m_bEnforce = cmd.bEnforce;
     m_tooltips.Create(this);
     UpdateData(FALSE);
 
@@ -116,11 +110,10 @@ BOOL CSetHooksAdv::OnInitDialog()
     AddAnchor(IDC_DWM, TOP_RIGHT);
     AddAnchor(IDC_WAITCHECK, BOTTOM_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_HIDECHECK, BOTTOM_LEFT, BOTTOM_RIGHT);
-    AddAnchor(IDC_ENFORCECHECK, BOTTOM_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"SetHooksAdvDlg");
+    EnableSaveRestore(_T("SetHooksAdvDlg"));
     return TRUE;
 }
 
@@ -136,7 +129,6 @@ void CSetHooksAdv::OnOK()
         cmd.commandline = m_sCommandLine;
         cmd.bWait = !!m_bWait;
         cmd.bShow = !m_bHide;
-        cmd.bEnforce = !!m_bEnforce;
     }
     if (key.htype == unknown_hook)
     {
@@ -177,7 +169,7 @@ void CSetHooksAdv::OnBnClickedHookcommandbrowse()
     if (!PathFileExists(sCmdLine))
         sCmdLine.Empty();
     // Display the Open dialog box.
-    if (CAppUtils::FileOpenSave(sCmdLine, NULL, IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE, IDS_COMMONFILEFILTER, true, CString(), m_hWnd))
+    if (CAppUtils::FileOpenSave(sCmdLine, NULL, IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE, IDS_COMMONFILEFILTER, true, m_hWnd))
     {
         m_sCommandLine = sCmdLine;
         UpdateData(FALSE);

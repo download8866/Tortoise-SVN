@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2008-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ShowCompareCommand.h"
 #include "SVNDiff.h"
 
@@ -33,32 +33,31 @@ bool ShowCompareCommand::Execute()
     CString     diffoptions;
     svn_node_kind_t nodekind = svn_node_unknown;
 
-    CTSVNPath   url1 = CTSVNPath(parser.GetVal(L"url1"));
-    CTSVNPath   url2 = CTSVNPath(parser.GetVal(L"url2"));
-    bool        ignoreancestry = !!parser.HasKey(L"ignoreancestry");
-    bool        blame = !!parser.HasKey(L"blame");
-    bool        unified = !!parser.HasKey(L"unified");
-    bool        ignoreprops = !!parser.HasKey(L"ignoreprops");
+    CTSVNPath   url1 = CTSVNPath(parser.GetVal(_T("url1")));
+    CTSVNPath   url2 = CTSVNPath(parser.GetVal(_T("url2")));
+    bool        ignoreancestry = !!parser.HasKey(_T("ignoreancestry"));
+    bool        blame = !!parser.HasKey(_T("blame"));
+    bool        unified = !!parser.HasKey(_T("unified"));
 
-    if (parser.HasVal(L"revision1"))
-        rev1 = SVNRev(parser.GetVal(L"revision1"));
-    if (parser.HasVal(L"revision2"))
-        rev2 = SVNRev(parser.GetVal(L"revision2"));
-    if (parser.HasVal(L"pegrevision"))
-        pegrev = SVNRev(parser.GetVal(L"pegrevision"));
-    if (parser.HasVal(L"headpegrevision"))
-        diff.SetHEADPeg(SVNRev(parser.GetVal(L"headpegrevision")));
+    if (parser.HasVal(_T("revision1")))
+        rev1 = SVNRev(parser.GetVal(_T("revision1")));
+    if (parser.HasVal(_T("revision2")))
+        rev2 = SVNRev(parser.GetVal(_T("revision2")));
+    if (parser.HasVal(_T("pegrevision")))
+        pegrev = SVNRev(parser.GetVal(_T("pegrevision")));
+    if (parser.HasVal(_T("headpegrevision")))
+        diff.SetHEADPeg(SVNRev(parser.GetVal(_T("headpegrevision"))));
     if (parser.HasVal(L"diffoptions"))
         diffoptions = parser.GetVal(L"diffoptions");
-    diff.SetAlternativeTool(!!parser.HasKey(L"alternatediff"));
-    if (parser.HasVal(L"nodekind"))
-        nodekind = (svn_node_kind_t)parser.GetLongVal(L"nodekind");
-    diff.SetJumpLine(parser.GetLongVal(L"line"));
+    diff.SetAlternativeTool(!!parser.HasKey(_T("alternatediff")));
+    if (parser.HasVal(_T("nodekind")))
+        nodekind = (svn_node_kind_t)parser.GetLongVal(_T("nodekind"));
+    diff.SetJumpLine(parser.GetLongVal(_T("line")));
 
     if (unified)
         bRet = diff.ShowUnifiedDiff(url1, rev1, url2, rev2, pegrev, diffoptions, ignoreancestry);
     else
-        bRet = diff.ShowCompare(url1, rev1, url2, rev2, pegrev, ignoreprops, diffoptions, ignoreancestry, blame, nodekind);
+        bRet = diff.ShowCompare(url1, rev1, url2, rev2, pegrev, diffoptions, ignoreancestry, blame, nodekind);
 
     return bRet;
 }

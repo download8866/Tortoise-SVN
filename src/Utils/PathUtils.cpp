@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,24 +18,23 @@
 //
 #include "stdafx.h"
 #include "PathUtils.h"
-#include <shlobj.h>
+#include "shlobj.h"
+#include "auto_buffer.h"
 #include "UnicodeUtils.h"
 
 #include "SVNHelpers.h"
 #include "apr_uri.h"
 #include "svn_path.h"
-#include <emmintrin.h>
-#include <memory>
 
 static BOOL sse2supported = ::IsProcessorFeaturePresent( PF_XMMI64_INSTRUCTIONS_AVAILABLE );
 
 BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
-    const size_t len = wcslen(path);
+    const size_t len = _tcslen(path);
     const size_t fullLen = len+10;
-    std::unique_ptr<TCHAR[]> buf(new TCHAR[fullLen]);
-    std::unique_ptr<TCHAR[]> internalpathbuf(new TCHAR[fullLen]);
-    TCHAR * pPath = internalpathbuf.get();
+    auto_buffer<TCHAR> buf(fullLen);
+    auto_buffer<TCHAR> internalpathbuf(fullLen);
+    TCHAR * pPath = internalpathbuf;
     SECURITY_ATTRIBUTES attribs;
 
     SecureZeroMemory(&attribs, sizeof(SECURITY_ATTRIBUTES));
@@ -43,22 +42,22 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
     attribs.nLength = sizeof(SECURITY_ATTRIBUTES);
     attribs.bInheritHandle = FALSE;
 
-    ConvertToBackslash(internalpathbuf.get(), path, fullLen);
-    if (wcsncmp(internalpathbuf.get(), L"\\\\?\\", 4) == 0)
+    ConvertToBackslash(internalpathbuf, path, fullLen);
+    if (_tcsncmp(internalpathbuf, _T("\\\\?\\"), 4) == 0)
         pPath += 4;
     do
     {
-        SecureZeroMemory(buf.get(), fullLen*sizeof(TCHAR));
-        TCHAR * slashpos = wcschr(pPath, '\\');
+        SecureZeroMemory(buf, fullLen*sizeof(TCHAR));
+        TCHAR * slashpos = _tcschr(pPath, '\\');
         if (slashpos)
-            wcsncpy_s(buf.get(), fullLen, internalpathbuf.get(), slashpos - internalpathbuf.get());
+            _tcsncpy_s(buf, fullLen, internalpathbuf, slashpos - internalpathbuf);
         else
-            wcsncpy_s(buf.get(), fullLen, internalpathbuf.get(), fullLen);
-        CreateDirectory(buf.get(), &attribs);
-        pPath = wcschr(pPath, '\\');
-    } while ((pPath++)&&(wcschr(pPath, '\\')));
+            _tcsncpy_s(buf, fullLen, internalpathbuf, fullLen);
+        CreateDirectory(buf, &attribs);
+        pPath = _tcschr(pPath, '\\');
+    } while ((pPath++)&&(_tcschr(pPath, '\\')));
 
-    const BOOL bRet = CreateDirectory(internalpathbuf.get(), &attribs);
+    const BOOL bRet = CreateDirectory(internalpathbuf, &attribs);
     return bRet;
 }
 
@@ -120,6 +119,7 @@ char* CPathUtils::Unescape(char * psz)
             }
 
             char nValue = '?';
+            const char * pszLow = NULL;
             const char * pszHigh = NULL;
             pszSource++;
 
@@ -130,7 +130,7 @@ char* CPathUtils::Unescape(char * psz)
             {
                 pszSource++;
                 *pszSource = (char) toupper(*pszSource);
-                const char * pszLow = strchr(szHex, *pszSource);
+                pszLow = strchr(szHex, *pszSource);
 
                 if (pszLow != NULL)
                 {
@@ -229,7 +229,7 @@ static const char uri_char_validity[256] = {
 
 void CPathUtils::ConvertToBackslash(LPTSTR dest, LPCTSTR src, size_t len)
 {
-    wcscpy_s(dest, len, src);
+    _tcscpy_s(dest, len, src);
     TCHAR * p = dest;
     for (; *p != '\0'; ++p)
         if (*p == '/')
@@ -350,7 +350,7 @@ CString CPathUtils::GetLongPathname(const CString& path)
 {
     if (path.IsEmpty())
         return path;
-    TCHAR pathbufcanonicalized[MAX_PATH] = { 0 }; // MAX_PATH ok.
+    TCHAR pathbufcanonicalized[MAX_PATH]; // MAX_PATH ok.
     DWORD ret = 0;
     CString sRet = path;
     if (!PathIsURL(path) && PathIsRelative(path))
@@ -358,57 +358,53 @@ CString CPathUtils::GetLongPathname(const CString& path)
         ret = GetFullPathName(path, 0, NULL, NULL);
         if (ret)
         {
-            std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+1]);
-            if ((ret = GetFullPathName(path, ret, pathbuf.get(), NULL))!=0)
+            auto_buffer<TCHAR> pathbuf(ret+1);
+            if ((ret = GetFullPathName(path, ret, pathbuf, NULL))!=0)
             {
-                sRet = CString(pathbuf.get(), ret);
+                sRet = CString(pathbuf, ret);
             }
         }
     }
     else if (PathCanonicalize(pathbufcanonicalized, path))
     {
         ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
-        if (ret == 0)
-            return path;
-        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
-        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf.get(), ret+1);
+        auto_buffer<TCHAR> pathbuf(ret+2);
+        ret = ::GetLongPathName(pathbufcanonicalized, pathbuf, ret+1);
         // GetFullPathName() sometimes returns the full path with the wrong
-        // case. This is not a problem on Windows since its filesystem is
+        // case. This is not a problem on Windows since its filesystem is 
         // case-insensitive. But for SVN that's a problem if the wrong case
         // is inside a working copy: the svn wc database is case sensitive.
         // To fix the casing of the path, we use a trick:
         // convert the path to its short form, then back to its long form.
         // That will fix the wrong casing of the path.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        int shortret = ::GetShortPathName(pathbuf, NULL, 0);
         if (shortret)
         {
-            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            auto_buffer<TCHAR> shortpath(shortret+2);
+            if (::GetShortPathName(pathbuf, shortpath, shortret+1))
             {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                int ret2 = ::GetLongPathName(shortpath, pathbuf, ret+1);
                 if (ret2)
-                    sRet = CString(pathbuf.get(), ret2);
+                    sRet = CString(pathbuf, ret2);
             }
         }
     }
     else
     {
         ret = ::GetLongPathName(path, NULL, 0);
-        if (ret == 0)
-            return path;
-        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
-        ret = ::GetLongPathName(path, pathbuf.get(), ret+1);
-        sRet = CString(pathbuf.get(), ret);
+        auto_buffer<TCHAR> pathbuf(ret+2);
+        ret = ::GetLongPathName(path, pathbuf, ret+1);
+        sRet = CString(pathbuf, ret);
         // fix the wrong casing of the path. See above for details.
-        int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
+        int shortret = ::GetShortPathName(pathbuf, NULL, 0);
         if (shortret)
         {
-            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
-            if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
+            auto_buffer<TCHAR> shortpath(shortret+2);
+            if (::GetShortPathName(pathbuf, shortpath, shortret+1))
             {
-                int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
+                int ret2 = ::GetLongPathName(shortpath, pathbuf, ret+1);
                 if (ret2)
-                    sRet = CString(pathbuf.get(), ret2);
+                    sRet = CString(pathbuf, ret2);
             }
         }
     }
@@ -581,15 +577,15 @@ CString CPathUtils::ParsePathInString(const CString& Str)
 {
     CString sToken;
     int curPos = 0;
-    sToken = Str.Tokenize(L"'\t\r\n", curPos);
+    sToken = Str.Tokenize(_T("'\t\r\n"), curPos);
     while (!sToken.IsEmpty())
     {
         if ((sToken.Find('/')>=0)||(sToken.Find('\\')>=0))
         {
-            sToken.Trim(L"'\"");
+            sToken.Trim(_T("'\""));
             return sToken;
         }
-        sToken = Str.Tokenize(L"'\t\r\n", curPos);
+        sToken = Str.Tokenize(_T("'\t\r\n"), curPos);
     }
     sToken.Empty();
     return sToken;
@@ -597,39 +593,20 @@ CString CPathUtils::ParsePathInString(const CString& Str)
 
 CString CPathUtils::GetAppDataDirectory()
 {
-    PWSTR pszPath = NULL;
-    if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_CREATE, NULL, &pszPath) != S_OK)
+    TCHAR path[MAX_PATH];       //MAX_PATH ok here.
+    if (SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, path)!=S_OK)
         return CString();
 
-    CString path = pszPath;
-    CoTaskMemFree(pszPath);
-
-    path += L"\\TortoiseSVN";
+    _tcscat_s(path, _T("\\TortoiseSVN"));
     if (!PathIsDirectory(path))
         CreateDirectory(path, NULL);
 
-    return CString (path) + '\\';
-}
-
-CString CPathUtils::GetLocalAppDataDirectory()
-{
-    PWSTR pszPath = NULL;
-    if (SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_CREATE, NULL, &pszPath) != S_OK)
-        return CString();
-
-    CString path = pszPath;
-    CoTaskMemFree(pszPath);
-
-    path += L"\\TortoiseSVN";
-    if (!PathIsDirectory(path))
-        CreateDirectory(path, NULL);
-
-    return CString(path) + '\\';
+    return CString (path) + _T('\\');
 }
 
 CStringA CPathUtils::PathUnescape(const CStringA& path)
 {
-    std::unique_ptr<char[]> urlabuf (new char[path.GetLength()+1]);
+    auto_buffer<char> urlabuf (path.GetLength()+1);
 
     strcpy_s(urlabuf.get(), path.GetLength()+1, path);
     Unescape(urlabuf.get());
@@ -667,7 +644,7 @@ CString CPathUtils::PathUnescape (const char* path)
     return CUnicodeUtils::GetUnicode(path);
 }
 
-CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
+CString CPathUtils::GetVersionFromFile(const CString & p_strDateiname)
 {
     struct TRANSARRAY
     {
@@ -676,8 +653,8 @@ CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
     };
 
     CString strReturn;
-    DWORD dwReserved = 0;
-    DWORD dwBufferSize = GetFileVersionInfoSize((LPTSTR)(LPCTSTR)p_strFilename,&dwReserved);
+    DWORD dwReserved,dwBufferSize;
+    dwBufferSize = GetFileVersionInfoSize((LPTSTR)(LPCTSTR)p_strDateiname,&dwReserved);
 
     if (dwBufferSize > 0)
     {
@@ -686,33 +663,32 @@ CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
         if (pBuffer != (void*) NULL)
         {
             UINT        nInfoSize = 0,
-                        nFixedLength = 0;
+                nFixedLength = 0;
             LPSTR       lpVersion = NULL;
             VOID*       lpFixedPointer;
             TRANSARRAY* lpTransArray;
-            CString     strLangProductVersion;
+            CString     strLangProduktVersion;
 
-            GetFileVersionInfo((LPTSTR)(LPCTSTR)p_strFilename,
+            GetFileVersionInfo((LPTSTR)(LPCTSTR)p_strDateiname,
                 dwReserved,
                 dwBufferSize,
                 pBuffer);
 
             // Check the current language
             VerQueryValue(  pBuffer,
-                L"\\VarFileInfo\\Translation",
+                _T("\\VarFileInfo\\Translation"),
                 &lpFixedPointer,
                 &nFixedLength);
             lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-            strLangProductVersion.Format(L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+            strLangProduktVersion.Format(_T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
                 lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
 
             VerQueryValue(pBuffer,
-                (LPTSTR)(LPCTSTR)strLangProductVersion,
+                (LPTSTR)(LPCTSTR)strLangProduktVersion,
                 (LPVOID *)&lpVersion,
                 &nInfoSize);
-            if (nInfoSize && lpVersion)
-                strReturn = (LPCTSTR)lpVersion;
+            strReturn = (LPCTSTR)lpVersion;
             free(pBuffer);
         }
     }
@@ -725,19 +701,19 @@ CString CPathUtils::PathPatternEscape(const CString& path)
     CString result = path;
     // first remove already escaped patterns to avoid having those
     // escaped twice
-    result.Replace(L"\\[", L"[");
-    result.Replace(L"\\]", L"]");
+    result.Replace(_T("\\["), _T("["));
+    result.Replace(_T("\\]"), _T("]"));
     // now escape the patterns (again)
-    result.Replace(L"[", L"\\[");
-    result.Replace(L"]", L"\\]");
+    result.Replace(_T("["), _T("\\["));
+    result.Replace(_T("]"), _T("\\]"));
     return result;
 }
 
 CString CPathUtils::PathPatternUnEscape(const CString& path)
 {
     CString result = path;
-    result.Replace(L"\\[", L"[");
-    result.Replace(L"\\]", L"]");
+    result.Replace(_T("\\["), _T("["));
+    result.Replace(_T("\\]"), _T("]"));
     return result;
 }
 
@@ -745,7 +721,7 @@ CString CPathUtils::CombineUrls(CString first, CString second)
 {
     first.TrimRight('/');
     second.TrimLeft('/');
-    return first + L"/" + second;
+    return first + _T("/") + second;
 }
 
 #endif
@@ -780,13 +756,13 @@ private:
     }
     void UnescapeTest()
     {
-        CString test(L"file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest");
+        CString test(_T("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest"));
         CString test2 = CPathUtils::PathUnescape(test);
-        ATLASSERT(test2.Compare(L"file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest") == 0);
+        ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
         test2 = CPathUtils::PathUnescape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
-        ATLASSERT(test2.Compare(L"file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest") == 0);
+        ATLASSERT(test2.Compare(_T("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest")) == 0);
         test2 = CPathUtils::PathUnescape("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk");
-        ATLASSERT(test2.Compare(L"http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk") == 0);
+        ATLASSERT(test2.Compare(_T("http://tortoisesvn.tigris.org/svn/tortoisesvn/trunk")) == 0);
         CStringA test3 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS-100/Trunk/name with spaces/NewTest % NewTest");
         ATLASSERT(test3.Compare("file:///d:/REpos1/uCOS-100/Trunk/name%20with%20spaces/NewTest%20%25%20NewTest") == 0);
         CStringA test4 = CPathUtils::PathEscape("file:///d:/REpos1/uCOS 1.0/Trunk/name with spaces/NewTest % NewTest");
@@ -794,21 +770,21 @@ private:
     }
     void ExtTest()
     {
-        CString test(L"d:\\test\filename.ext");
-        ATLASSERT(CPathUtils::GetFileExtFromPath(test).Compare(L".ext") == 0);
-        test = L"filename.ext";
-        ATLASSERT(CPathUtils::GetFileExtFromPath(test).Compare(L".ext") == 0);
-        test = L"d:\\test\filename";
+        CString test(_T("d:\\test\filename.ext"));
+        ATLASSERT(CPathUtils::GetFileExtFromPath(test).Compare(_T(".ext")) == 0);
+        test = _T("filename.ext");
+        ATLASSERT(CPathUtils::GetFileExtFromPath(test).Compare(_T(".ext")) == 0);
+        test = _T("d:\\test\filename");
         ATLASSERT(CPathUtils::GetFileExtFromPath(test).IsEmpty());
-        test = L"filename";
+        test = _T("filename");
         ATLASSERT(CPathUtils::GetFileExtFromPath(test).IsEmpty());
     }
     void ParseTests()
     {
-        CString test(L"test 'd:\\testpath with spaces' test");
-        ATLASSERT(CPathUtils::ParsePathInString(test).Compare(L"d:\\testpath with spaces") == 0);
-        test = L"d:\\testpath with spaces";
-        ATLASSERT(CPathUtils::ParsePathInString(test).Compare(L"d:\\testpath with spaces") == 0);
+        CString test(_T("test 'd:\\testpath with spaces' test"));
+        ATLASSERT(CPathUtils::ParsePathInString(test).Compare(_T("d:\\testpath with spaces")) == 0);
+        test = _T("d:\\testpath with spaces");
+        ATLASSERT(CPathUtils::ParsePathInString(test).Compare(_T("d:\\testpath with spaces")) == 0);
     }
 
 } CPathTests;

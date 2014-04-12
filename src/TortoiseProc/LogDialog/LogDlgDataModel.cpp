@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2003-2007,2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -104,8 +104,6 @@ const std::string& CLogChangedPath::GetActionString (DWORD action)
     static std::string deleteActionString;
     static std::string replacedActionString;
     static std::string modifiedActionString;
-    static std::string movedActionString;
-    static std::string movereplacedActionString;
     static std::string empty;
 
     switch (action)
@@ -133,18 +131,6 @@ const std::string& CLogChangedPath::GetActionString (DWORD action)
             LoadString (replacedActionString, IDS_SVNACTION_REPLACED);
 
         return replacedActionString;
-
-    case LOGACTIONS_MOVED:
-        if (movedActionString.empty())
-            LoadString(movedActionString, IDS_SVNACTION_MOVED);
-
-        return movedActionString;
-
-    case LOGACTIONS_MOVEREPLACED:
-        if (movereplacedActionString.empty())
-            LoadString(movereplacedActionString, IDS_SVNACTION_MOVEREPLACED);
-
-        return movereplacedActionString;
 
     default:
         // there should always be an action
@@ -485,7 +471,7 @@ CLogDataVector::CLogDataVector()
 
 void CLogDataVector::ClearAll()
 {
-    if (!empty())
+    if (size() > 0)
     {
         for(iterator it=begin(); it!=end(); ++it)
             delete *it;
@@ -583,7 +569,7 @@ void CLogDataVector::AddSorted
         , item->GetAuthor()
         , item->GetMessage()
         , projectProperties
-        , NULL);
+        , false);
 }
 
 void CLogDataVector::RemoveLast()
@@ -633,13 +619,7 @@ size_t CLogDataVector::GetVisibleCount() const
 
 PLOGENTRYDATA CLogDataVector::GetVisible (size_t index) const
 {
-    if (index < visible.size())
-    {
-        size_t i = visible.at (index);
-        if (i < size())
-            return at (i);
-    }
-    return NULL;
+    return at (visible.at (index));
 }
 
 namespace
@@ -887,7 +867,7 @@ void CLogDataVector::Filter (__time64_t from, __time64_t to, bool hideNonMergeab
 
         if ((date >= from) && (date <= to))
         {
-            if (hideNonMergeable && mergedrevs && !mergedrevs->empty())
+            if (hideNonMergeable && mergedrevs && mergedrevs->size())
             {
                 if ((mergedrevs->find(entry->GetRevision()) == mergedrevs->end()) && (entry->GetRevision() >= minrev))
                     visible.push_back (i);
@@ -905,7 +885,7 @@ void CLogDataVector::ClearFilter(bool hideNonMergeables, std::set<svn_revnum_t> 
 
     for (size_t i=0, count = size(); i < count; ++i)
     {
-        if (hideNonMergeables && mergedrevs && !mergedrevs->empty())
+        if (hideNonMergeables && mergedrevs && mergedrevs->size())
         {
             svn_revnum_t r = inherited::operator[](i)->GetRevision();
             if ((r >= minrev) && (mergedrevs->find(r) == mergedrevs->end()))

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2012, 2014 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include <emmintrin.h>
 
 /**
  * Re-usable char[] buffer. In contrast to std::string, the
@@ -66,7 +65,7 @@ public:
     ~CStringBuffer();
 
     /// data access
-    operator char*() const;
+    operator char*();
     size_t GetSize() const;
 
     /// Get the first unused element in the buffer.
@@ -86,7 +85,7 @@ public:
     void Append (const char* s);
 };
 
-inline CStringBuffer::operator char*() const
+inline CStringBuffer::operator char*()
 {
     return buffer;
 }

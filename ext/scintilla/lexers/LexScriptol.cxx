@@ -27,7 +27,7 @@ using namespace Scintilla;
 
 static void ClassifyWordSol(unsigned int start, unsigned int end, WordList &keywords, Accessor &styler, char *prevWord)
 {
-    char s[100] = "";
+    char s[100];
     bool wordIsNumber = isdigit(styler[start]) != 0;
     for (unsigned int i = 0; i < end - start + 1 && i < 30; i++)
      {
@@ -368,7 +368,7 @@ static void FoldSolDoc(unsigned int startPos, int length, int initStyle,
 	int state = initStyle & 31;
 	int spaceFlags = 0;
         int indentCurrent = styler.IndentAmount(lineCurrent, &spaceFlags, IsSolComment);
-        if (state == SCE_SCRIPTOL_TRIPLE)
+        if ((state == SCE_SCRIPTOL_TRIPLE))
              indentCurrent |= SC_FOLDLEVELWHITEFLAG;
 	char chNext = styler[startPos];
 	for (int i = startPos; i < lengthDoc; i++)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2013 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -51,7 +51,6 @@ public:
     // ISubWCRev implementation
     //
     virtual HRESULT __stdcall GetWCInfo(/*[in]*/ BSTR   wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals);
-    virtual HRESULT __stdcall GetWCInfo2(/*[in]*/ BSTR   wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals, /*[in]*/VARIANT_BOOL externalsNoMixed);
 
     virtual HRESULT __stdcall get_Revision(/*[out, retval]*/VARIANT* rev);
 
@@ -66,14 +65,6 @@ public:
     virtual HRESULT __stdcall get_Author(/*[out, retval]*/VARIANT* author);
 
     virtual HRESULT __stdcall get_HasModifications(/*[out, retval]*/VARIANT_BOOL* modifications);
-
-    virtual HRESULT __stdcall get_HasUnversioned(/*[out, retval]*/VARIANT_BOOL* modifications);
-
-    virtual HRESULT __stdcall get_HasMixedRevisions(/*[out, retval]*/VARIANT_BOOL* modifications);
-
-    virtual HRESULT __stdcall get_HaveExternalsAllFixedRevision(/*[out, retval]*/VARIANT_BOOL* modifications);
-
-    virtual HRESULT __stdcall get_IsWcTagged(/*[out, retval]*/VARIANT_BOOL* modifications);
 
     virtual HRESULT __stdcall get_IsSvnItem(/*[out, retval]*/VARIANT_BOOL* svn_item);
 
@@ -95,7 +86,6 @@ private:
     static HRESULT BoolToVariantBool(BOOL value, VARIANT_BOOL* result);
     static HRESULT LongToVariant(LONG value, VARIANT* result);
     static HRESULT Utf8StringToVariant(const char* string, VARIANT* result );
-    HRESULT __stdcall GetWCInfoInternal(/*[in]*/ BSTR   wcPath, /*[in]*/VARIANT_BOOL folders, /*[in]*/VARIANT_BOOL externals);
 
     // Reference count
     long        m_cRef ;

@@ -143,8 +143,6 @@
 #define IDS_ERR_PROPNOMULTILINE         232
 #define IDS_MENUREVISIONGRAPH           233
 #define IDS_MENUDESCREVISIONGRAPH       234
-#define IDS_DROPEXPORTCHANGEDMENU       235
-#define IDS_MENUIGNOREGLOBAL            236
 #define IDS_MENUUNIGNORE                237
 #define IDS_MENUDESCUNIGNORE            238
 #define IDS_SVNREPORTEDANERROR          239
@@ -174,20 +172,12 @@
 #define IDS_PROPBIN                     263
 #define IDS_CLOSE                       264
 #define IDS_SVN_DEPTH_CUSTOM            265
-#define IDS_DROPVENDORMENU              266
-#define IDS_MENUDIFFLATER               267
 #define IDS_MENUDELUNVERSIONED          268
 #define IDS_MENUDESCDELUNVERSIONED      269
-#define IDS_MENUDESCDIFFLATER           270
 #define IDS_MENUREMOVEKEEP              271
 #define IDS_MENUDESCREMOVEKEEP          272
 #define IDS_YES                         273
 #define IDS_NO                          274
-#define IDS_MENUDIFFNOW                 275
-#define IDS_MENUDESCDIFFNOW             276
-#define IDS_MENUUNIDIFF                 277
-#define IDS_MENUUNIDESCDIFF             278
-#define IDS_DROPEXTERNAL                279
 #define IDS_SVN_DEPTH_INFINITE          300
 #define IDS_SVN_DEPTH_IMMEDIATE         301
 #define IDS_SVN_DEPTH_FILES             302
@@ -196,7 +186,6 @@
 #define IDS_SVN_DEPTH_UNKNOWN           305
 #define IDS_SVN_DEPTH_WORKING           306
 #define IDS_COLTITLESTATUSNUMBER        307
-#define IDS_SVNERR_RUNCLEANUP           308
 #define IDC_REVISION                    1001
 #define IDC_LOCKED                      1002
 #define IDC_REPOURL                     1003
@@ -249,7 +238,7 @@
 #define IDC_CHECKSUM                    11027
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        5165
