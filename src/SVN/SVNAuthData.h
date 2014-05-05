@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2014 - TortoiseSVN
+// Copyright (C) 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,16 +24,7 @@
 #include <vector>
 #include <tuple>
 
-struct SVNAuthDataInfo
-{
-    CString             username;
-    CString             hostname;
-    CString             validfrom;
-    CString             validuntil;
-    CString             issuer;
-    CString             fingerprint;
-    CString             failures;
-};
+
 
 /**
  * \ingroup SVN
@@ -48,8 +39,8 @@ public:
     SVNAuthData();
     ~SVNAuthData(void);
 
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> GetAuthList();
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> DeleteAuthList(const std::vector<std::tuple<CString, CString, SVNAuthDataInfo>>& delList);
+    std::vector<std::tuple<CString, CString>> GetAuthList();
+    std::vector<std::tuple<CString, CString>> DeleteAuthList(const std::vector<std::tuple<CString, CString>>& delList);
 
 protected:
     apr_pool_t *                m_pool;         ///< the memory pool

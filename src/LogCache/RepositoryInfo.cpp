@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,14 +52,14 @@ CString UniqueFileName (const CString& fileName)
     for (int i = 0, count = base.GetLength(); i < count; ++i)
     {
         TCHAR c = base[i];
-        if ((c == '?') || (c == '/') || (c == '\\') || (c == ':'))
-            base.SetAt (i, '_');
+        if ((c == _T('?')) || (c == _T('/')) || (c == _T('\\')) || (c == _T(':')))
+            base.SetAt (i, _T('_'));
     }
 
     int num = 0;
     CString result = base;
     while (GetFileAttributes (result) != INVALID_FILE_ATTRIBUTES)
-        result.Format (L"%s(%d)", (LPCTSTR)result, ++num);
+        result.Format (_T("%s(%d)"), (LPCTSTR)result, ++num);
 
     return result.MakeLower();
 }
@@ -387,7 +387,7 @@ CRepositoryInfo::CData CRepositoryInfo::data;
 
 CString CRepositoryInfo::GetFileName() const
 {
-    return cacheFolder + L"Repositories.dat";
+    return cacheFolder + _T("Repositories.dat");
 }
 
 // used to sync access to the global "data"
@@ -414,7 +414,7 @@ void CRepositoryInfo::Load()
 
 // does the user want to be this repository off-line?
 
-bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info) const
+bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info)
 {
     // is this repository already off-line?
 

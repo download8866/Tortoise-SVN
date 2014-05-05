@@ -47,23 +47,19 @@ STDMETHODIMP CCallback::Authenticate( HWND * phwnd, LPWSTR * pszUsername, LPWSTR
     *phwnd = m_hWnd;
     if (m_username.size())
     {
+        *pszUsername = (LPWSTR)CoTaskMemAlloc((m_username.size()+1)*2);
         if (pszUsername == nullptr)
-            return E_INVALIDARG;
-        *pszUsername = (LPWSTR)CoTaskMemAlloc((m_username.size() + 1) * 2);
-        if (*pszUsername == nullptr)
             return E_OUTOFMEMORY;
-        wcscpy_s(*pszUsername, m_username.size() + 1, m_username.c_str());
+        _tcscpy_s(*pszUsername, m_username.size() + 1, m_username.c_str());
     }
     else
         pszUsername = NULL;
     if (m_password.size())
     {
+        *pszPassword = (LPWSTR)CoTaskMemAlloc((m_password.size()+1)*2);
         if (pszPassword == nullptr)
-            return E_INVALIDARG;
-        *pszPassword = (LPWSTR)CoTaskMemAlloc((m_password.size() + 1) * 2);
-        if (*pszPassword == nullptr)
             return E_OUTOFMEMORY;
-        wcscpy_s(*pszPassword, m_password.size()+1, m_password.c_str());
+        _tcscpy_s(*pszPassword, m_password.size()+1, m_password.c_str());
     }
     else
         pszPassword = NULL;

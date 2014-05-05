@@ -14,8 +14,6 @@
 #include "Platform.h"
 
 #include "Scintilla.h"
-
-#include "StringCopy.h"
 #include "CallTip.h"
 
 #ifdef SCI_NAMESPACE
@@ -127,14 +125,16 @@ void CallTip::DrawChunk(Surface *surface, int &x, const char *s,
     						Point(centreX + halfWidth, centreY + halfWidth / 2),
     						Point(centreX, centreY - halfWidth + halfWidth / 2),
 						};
-						surface->Polygon(pts, ELEMENTS(pts), colourBG, colourBG);
+						surface->Polygon(pts, sizeof(pts) / sizeof(pts[0]),
+                 						colourBG, colourBG);
 					} else {            // Down arrow
 						Point pts[] = {
     						Point(centreX - halfWidth, centreY - halfWidth / 2),
     						Point(centreX + halfWidth, centreY - halfWidth / 2),
     						Point(centreX, centreY + halfWidth - halfWidth / 2),
 						};
-						surface->Polygon(pts, ELEMENTS(pts), colourBG, colourBG);
+						surface->Polygon(pts, sizeof(pts) / sizeof(pts[0]),
+                 						colourBG, colourBG);
 					}
 				}
 				xEnd = rcClient.right;

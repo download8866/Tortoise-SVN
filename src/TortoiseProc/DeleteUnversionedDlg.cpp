@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,6 +18,7 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "registry.h"
 #include "DeleteUnversionedDlg.h"
@@ -28,7 +29,6 @@ CDeleteUnversionedDlg::CDeleteUnversionedDlg(CWnd* pParent /*=NULL*/)
 : CResizableStandAloneDialog(CDeleteUnversionedDlg::IDD, pParent)
     , m_bSelectAll(TRUE)
     , m_bUseRecycleBin(TRUE)
-    , m_bHideIgnored(FALSE)
     , m_bThreadRunning(FALSE)
     , m_bCancelled(false)
 {
@@ -44,7 +44,6 @@ void CDeleteUnversionedDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_ITEMLIST, m_StatusList);
     DDX_Check(pDX, IDC_SELECTALL, m_bSelectAll);
     DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
-    DDX_Check(pDX, IDC_HIDEIGNORED, m_bHideIgnored);
     DDX_Check(pDX, IDC_USERECYCLEBIN, m_bUseRecycleBin);
 }
 
@@ -52,7 +51,6 @@ void CDeleteUnversionedDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CDeleteUnversionedDlg, CResizableStandAloneDialog)
     ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
     ON_REGISTERED_MESSAGE(CSVNStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-    ON_BN_CLICKED(IDC_HIDEIGNORED, &CDeleteUnversionedDlg::OnBnClickedHideignored)
 END_MESSAGE_MAP()
 
 
@@ -65,10 +63,9 @@ BOOL CDeleteUnversionedDlg::OnInitDialog()
     ExtendFrameIntoClientArea(IDC_ITEMLIST, IDC_ITEMLIST, IDC_ITEMLIST, IDC_ITEMLIST);
     m_aeroControls.SubclassControl(this, IDC_SELECTALL);
     m_aeroControls.SubclassControl(this, IDC_USERECYCLEBIN);
-    m_aeroControls.SubclassControl(this, IDC_HIDEIGNORED);
     m_aeroControls.SubclassOkCancel(this);
 
-    m_StatusList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS, L"DeleteUnversionedDlg", 0, true);
+    m_StatusList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS, _T("DeleteUnversionedDlg"), 0, true);
     m_StatusList.SetUnversionedRecurse(true);
     m_StatusList.PutUnversionedLast(false);
     m_StatusList.CheckChildrenWithParent(true);
@@ -83,13 +80,12 @@ BOOL CDeleteUnversionedDlg::OnInitDialog()
 
     AddAnchor(IDC_ITEMLIST, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_SELECTALL, BOTTOM_LEFT);
-    AddAnchor(IDC_HIDEIGNORED, BOTTOM_LEFT);
     AddAnchor(IDC_USERECYCLEBIN, BOTTOM_LEFT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"DeleteUnversionedDlg");
+    EnableSaveRestore(_T("DeleteUnversionedDlg"));
 
     // first start a thread to obtain the file list with the status without
     // blocking the dialog
@@ -97,6 +93,7 @@ BOOL CDeleteUnversionedDlg::OnInitDialog()
     {
         OnCantStartThread();
     }
+    InterlockedExchange(&m_bThreadRunning, TRUE);
 
     return TRUE;
 }
@@ -109,29 +106,24 @@ UINT CDeleteUnversionedDlg::StatusThreadEntry(LPVOID pVoid)
 
 UINT CDeleteUnversionedDlg::StatusThread()
 {
-    InterlockedExchange(&m_bThreadRunning, TRUE);
     // get the status of all selected file/folders recursively
     // and show the ones which are unversioned/ignored to the user
     // in a list control.
     DialogEnableWindow(IDOK, false);
-    DialogEnableWindow(IDC_HIDEIGNORED, false);
     m_bCancelled = false;
 
-    if (!m_StatusList.GetStatus(m_pathList, false, !m_bHideIgnored))
+    if (!m_StatusList.GetStatus(m_pathList, false, true))
     {
         m_StatusList.SetEmptyString(m_StatusList.GetLastErrorMessage());
     }
-    DWORD dwShow = SVNSLC_SHOWUNVERSIONED;
-    if (!m_bHideIgnored)
-        dwShow |= SVNSLC_SHOWIGNORED;
-    m_StatusList.Show(dwShow, CTSVNPathList(), dwShow, true, true);
+    m_StatusList.Show(SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWIGNORED, CTSVNPathList(),
+        SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWIGNORED, true, true);
 
     CTSVNPath commonDir = m_StatusList.GetCommonDirectory(false);
     CAppUtils::SetWindowTitle(m_hWnd, commonDir.GetWinPathString(), m_sWindowTitle);
 
     InterlockedExchange(&m_bThreadRunning, FALSE);
     RefreshCursor();
-    DialogEnableWindow(IDC_HIDEIGNORED, true);
 
     return 0;
 }
@@ -157,9 +149,6 @@ void CDeleteUnversionedDlg::OnCancel()
 
 void CDeleteUnversionedDlg::OnBnClickedSelectall()
 {
-    if (m_bThreadRunning)
-        return;
-
     UINT state = (m_SelectAll.GetState() & 0x0003);
     if (state == BST_INDETERMINATE)
     {
@@ -191,6 +180,8 @@ BOOL CDeleteUnversionedDlg::PreTranslateMessage(MSG* pMsg)
                     {
                         OnCantStartThread();
                     }
+                    else
+                        InterlockedExchange(&m_bThreadRunning, TRUE);
                 }
             }
             break;
@@ -207,15 +198,4 @@ LRESULT CDeleteUnversionedDlg::OnSVNStatusListCtrlNeedsRefresh(WPARAM, LPARAM)
         OnCantStartThread();
     }
     return 0;
-}
-
-void CDeleteUnversionedDlg::OnBnClickedHideignored()
-{
-    UpdateData();
-    if (m_bThreadRunning)
-        return;
-    if (AfxBeginThread(StatusThreadEntry, this) == 0)
-    {
-        OnCantStartThread();
-    }
 }

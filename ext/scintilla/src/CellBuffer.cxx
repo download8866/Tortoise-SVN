@@ -5,9 +5,9 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #include <stdarg.h>
 
 #include <algorithm>
@@ -190,10 +190,6 @@ const char *UndoHistory::AppendAction(actionType at, int position, const char *d
 			}
 			// See if current action can be coalesced into previous action
 			// Will work if both are inserts or deletes and position is same
-#if defined(_MSC_VER) && defined(_PREFAST_)
-			// Visual Studio 2013 Code Analysis wrongly believes actions can be NULL at its next reference
-			__analysis_assume(actions);
-#endif
 			if (currentAction == savePoint) {
 				currentAction++;
 			} else if (!actions[currentAction].mayCoalesce) {

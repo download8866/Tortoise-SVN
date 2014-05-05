@@ -337,10 +337,7 @@ int ProcessFile(const char *FName, const char *TName, int Action)
     if (Changed & Action)
     {
         // Replace original with temp file
-        if (fpout)
-        {
-            fclose(fpout);
-        }
+        fclose(fpout);
         if (remove(FName) != 0)
         {
             fprintf(stderr, "Cannot delete original file\n");

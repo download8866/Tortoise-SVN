@@ -1,9 +1,3 @@
-// testold
-// Last commit by:
-// $Author:$
-// $Date:$
-// $Rev:$
-
 #include "stdafx.h"
 #include "SysImageList.h"
 #include "TSVNPath.h"
@@ -49,7 +43,7 @@ void CSysImageList::Cleanup()
 	instance = 0;
 }
 
-void CSysImageList::Tejjjst()
+void CSysImageList::Test()
 {
 	return;
 }

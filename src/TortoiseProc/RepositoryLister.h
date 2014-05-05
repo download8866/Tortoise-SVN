@@ -123,7 +123,7 @@ public:
     {
         LPCTSTR start = relPath;
         LPCTSTR end = start + relPath.GetLength();
-        return static_cast<int>(std::count (start, end, '/'));
+        return static_cast<int>(std::count (start, end, _T('/')));
     }
 
 public:

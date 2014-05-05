@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -158,7 +158,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
     const TCHAR* pPath = pwszPath;
     // the shell sometimes asks overlays for invalid paths, e.g. for network
     // printers (in that case the path is "0", at least for me here).
-    if (wcslen(pPath)<2)
+    if (_tcslen(pPath)<2)
         return S_FALSE;
 
     PreserveChdir preserveChdir;
@@ -171,7 +171,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
     // To make sure that cache expires, clear it as soon as one handler is used.
 
     AutoLocker lock(g_csGlobalCOMGuard);
-    if (wcscmp(pPath, g_filepath.c_str())==0)
+    if (_tcscmp(pPath, g_filepath.c_str())==0)
     {
         status = g_filestatus;
         readonlyoverlay = g_readonlyoverlay;
@@ -296,7 +296,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
             }
             break;
         }
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Status %d for file %s\n", status, pwszPath);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Status %d for file %s\n"), status, pwszPath);
     }
     g_filepath.clear();
     g_filepath = pPath;

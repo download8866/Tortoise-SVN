@@ -32,6 +32,7 @@
         <arg value="no-gost" />
         <arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
         <arg value="-DOPENSSL_CAPIENG_DIALOG" />
+        <arg value="-D_USING_V110_SDK71_" />
       </exec>
       <exec program="cmd" workingdir="..\openssl">
         <arg value="/c" />
@@ -56,6 +57,7 @@
         <arg value="no-gost" />
         <arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
         <arg value="-DOPENSSL_CAPIENG_DIALOG" />
+        <arg value="-D_USING_V110_SDK71_" />
       </exec>
       <exec program="cmd" workingdir="..\openssl">
         <arg value="/c" />
@@ -64,7 +66,7 @@
       <loadfile file="..\openssl\ms\nt.mak" property="makefile">
         <filterchain>
           <replacestring from="/MT" to="/MD" />
-          <replacestring from="/Ox /O2" to="/O2 /GL" if="${configuration == 'release'}" />
+          <replacestring from="/Ox " to="/O2 /GL " if="${configuration == 'release'}" />
           <replacestring from="lib /nologo" to="lib /nologo /LTCG" if="${configuration == 'release'}" />
           <replacestring from="/opt:ref /debug" to="/opt:ref,icf /debug /LTCG" if="${configuration == 'release'}" />
           <replacestring from="OUT_D=out32" to="OUT_D=out64" />

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2014 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@
 
 CTreeDropTarget::CTreeDropTarget(CRepositoryBrowser * pRepoBrowser)
     : CBaseDropTarget(pRepoBrowser, pRepoBrowser->m_RepoTree.GetSafeHwnd())
-    , m_ullHoverStartTicks(0)
+    , m_dwHoverStartTicks(0)
     , hLastItem(NULL)
 {
 }
@@ -40,8 +40,6 @@ bool CTreeDropTarget::OnDrop(FORMATETC* pFmtEtc, STGMEDIUM& medium, DWORD *pdwEf
     {
         CTreeItem* pItem = (CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hDropTarget);
         if (pItem == NULL)
-            return false;
-        if (pItem->bookmark)
             return false;
 
         targetUrl = pItem->url;
@@ -64,7 +62,7 @@ HRESULT CTreeDropTarget::DragEnter(IDataObject __RPC_FAR *pDataObj, DWORD grfKey
         m_bFiles = true;
     else
         m_bFiles = false;
-    m_ullHoverStartTicks = 0;
+    m_dwHoverStartTicks = 0;
     hLastItem = NULL;
     SetDropDescription(DROPIMAGE_NONE, NULL, NULL);
     return hr;
@@ -79,13 +77,13 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
     hit.flags = TVHT_ONITEM;
     HTREEITEM hItem = TreeView_HitTest(m_hTargetWnd,&hit);
     if (hItem != hLastItem)
-        m_ullHoverStartTicks = 0;
+        m_dwHoverStartTicks = 0;
     hLastItem = hItem;
 
-    bool nodrop = false;
 
     if (hItem != NULL)
     {
+        TreeView_SelectDropTarget(m_hTargetWnd, hItem);
         TVITEMEX tvItem = {0};
         tvItem.mask = TVIF_TEXT;
         tvItem.hItem = hItem;
@@ -94,56 +92,42 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
         TreeView_GetItem(m_hTargetWnd, &tvItem);
         if ((m_pRepoBrowser->m_RepoTree.GetItemState(hItem, TVIS_EXPANDED)&TVIS_EXPANDED) != TVIS_EXPANDED)
         {
-            if (m_ullHoverStartTicks == 0)
-                m_ullHoverStartTicks = GetTickCount64();
+            if (m_dwHoverStartTicks == 0)
+                m_dwHoverStartTicks = GetTickCount();
             UINT timeout = 0;
             //SystemParametersInfo(SPI_GETMOUSEHOVERTIME, 0, &timeout, 0);
             timeout = 2000;
-            if ((GetTickCount64() - m_ullHoverStartTicks) > timeout)
+            if ((GetTickCount() - m_dwHoverStartTicks) > timeout)
             {
                 // expand the item
                 m_pRepoBrowser->m_RepoTree.Expand(hItem, TVE_EXPAND);
-                m_ullHoverStartTicks = 0;
+                m_dwHoverStartTicks = 0;
             }
         }
         else
-            m_ullHoverStartTicks = 0;
-        CTreeItem * pItem = (CTreeItem*)m_pRepoBrowser->m_RepoTree.GetItemData(hItem);
-        if (pItem && pItem->bookmark)
-        {
-            TreeView_SelectDropTarget(m_hTargetWnd, NULL);
-            *pdwEffect = DROPEFFECT_NONE;
-            SetDropDescription(DROPIMAGE_NONE, sNoDrop, targetName);
-            nodrop = true;
-        }
-        else
-            TreeView_SelectDropTarget(m_hTargetWnd, hItem);
+            m_dwHoverStartTicks = 0;
     }
     else
     {
         TreeView_SelectDropTarget(m_hTargetWnd, NULL);
         *pdwEffect = DROPEFFECT_NONE;
-        nodrop = true;
-        m_ullHoverStartTicks = 0;
+        m_dwHoverStartTicks = 0;
     }
 
-    if (!nodrop)
+    *pdwEffect = DROPEFFECT_MOVE;
+    if (m_bFiles)
     {
-        *pdwEffect = DROPEFFECT_MOVE;
-        if (m_bFiles)
-        {
-            *pdwEffect = DROPEFFECT_COPY;
-            SetDropDescription(DROPIMAGE_COPY, sImportDrop, targetName);
-        }
-        else if (grfKeyState & MK_CONTROL)
-        {
-            *pdwEffect = DROPEFFECT_COPY;
-            SetDropDescription(DROPIMAGE_COPY, sCopyDrop, targetName);
-        }
-        else
-        {
-            SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
-        }
+        *pdwEffect = DROPEFFECT_COPY;
+        SetDropDescription(DROPIMAGE_COPY, sImportDrop, targetName);
+    }
+    else if (grfKeyState & MK_CONTROL)
+    {
+        *pdwEffect = DROPEFFECT_COPY;
+        SetDropDescription(DROPIMAGE_COPY, sCopyDrop, targetName);
+    }
+    else
+    {
+        SetDropDescription(DROPIMAGE_MOVE, sMoveDrop, targetName);
     }
     m_pRepoBrowser->SetRightDrag((grfKeyState & MK_RBUTTON)!=0);
     CRect rect;
@@ -153,12 +137,12 @@ HRESULT CTreeDropTarget::DragOver(DWORD grfKeyState, POINTL pt, DWORD __RPC_FAR 
         if (pt.y > (rect.bottom-20))
         {
             m_pRepoBrowser->m_RepoTree.SendMessage(WM_VSCROLL, MAKEWPARAM (SB_LINEDOWN, 0), NULL);
-            m_ullHoverStartTicks = 0;
+            m_dwHoverStartTicks = 0;
         }
         if (pt.y < (rect.top+20))
         {
             m_pRepoBrowser->m_RepoTree.SendMessage(WM_VSCROLL, MAKEWPARAM (SB_LINEUP, 0), NULL);
-            m_ullHoverStartTicks = 0;
+            m_dwHoverStartTicks = 0;
         }
     }
 
@@ -169,7 +153,7 @@ HRESULT CTreeDropTarget::DragLeave(void)
 {
     TreeView_SelectDropTarget(m_hTargetWnd, NULL);
     SetDropDescription(DROPIMAGE_INVALID, NULL, NULL);
-    m_ullHoverStartTicks = 0;
+    m_dwHoverStartTicks = 0;
     return CIDropTarget::DragLeave();
 }
 
@@ -351,7 +335,7 @@ void CBaseDropTarget::HandleDropFormats(FORMATETC* pFmtEtc, STGMEDIUM& medium, D
             urls = pStr;
         }
         GlobalUnlock(medium.hGlobal);
-        urls.Replace(L"\r\n", L"*");
+        urls.Replace(_T("\r\n"), _T("*"));
         CTSVNPathList urlList;
         urlList.LoadFromAsteriskSeparatedString(urls);
 
@@ -367,7 +351,7 @@ void CBaseDropTarget::HandleDropFormats(FORMATETC* pFmtEtc, STGMEDIUM& medium, D
             urls = pStr;
         }
         GlobalUnlock(medium.hGlobal);
-        urls.Replace(L"\r\n", L"*");
+        urls.Replace(_T("\r\n"), _T("*"));
         CTSVNPathList urlListRevs;
         urlListRevs.LoadFromAsteriskSeparatedString(urls);
         CTSVNPathList urlList;

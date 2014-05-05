@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2011, 2014 - TortoiseSVN
+// External Cache Copyright (C) 2005-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -213,8 +213,9 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
     // In all most circumstances, we ask for the status of a member of this directory.
     ATLASSERT(m_directoryPath.IsEquivalentToWithoutCase(path.GetContainingDirectory()) || bRequestForSelf);
 
+    bool wcDbFileTimeChanged = false;
     long long dbFileTime = CSVNStatusCache::Instance().WCRoots()->GetDBFileTime(m_directoryPath);
-    bool wcDbFileTimeChanged = (m_wcDbFileTime != dbFileTime);
+    wcDbFileTimeChanged = (m_wcDbFileTime != dbFileTime);
 
     if ( !wcDbFileTimeChanged )
     {
@@ -313,7 +314,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTSVNPath& path, bo
             if(itMap != m_entryCache.end())
             {
                 // We've hit the cache - check for timeout
-                if (!itMap->second.HasExpired((LONGLONG)GetTickCount64()))
+                if(!itMap->second.HasExpired((long)GetTickCount()))
                 {
                     if(itMap->second.DoesFileTimeMatch(path.GetLastWriteTime()))
                     {
@@ -463,7 +464,7 @@ CCachedDirectory::AddEntry(const CTSVNPath& path, const svn_client_status_t* pSV
                     entry_it->second.GetEffectiveStatus() != nodestatus)
                 {
                     CSVNStatusCache::Instance().UpdateShell(path);
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": shell update for %s\n", path.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": shell update for %s\n"), path.GetWinPath());
                 }
             }
         }
@@ -504,7 +505,7 @@ CCachedDirectory::SvnUpdateMembersStatus()
     revision.kind = svn_opt_revision_unspecified;
 
     SVNPool subPool(CSVNStatusCache::Instance().m_svnHelp.Pool());
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": stat for %s\n", m_directoryPath.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": stat for %s\n"), m_directoryPath.GetWinPath());
 
     const char * svnapipath = m_directoryPath.GetSVNApiPath(subPool);
     if ((svnapipath == 0)||(svnapipath[0] == 0))
@@ -518,15 +519,14 @@ CCachedDirectory::SvnUpdateMembersStatus()
     svn_error_t * pErr = nullptr;
     if (m_pCtx)
     {
-        pErr = svn_client_status6 (
+        pErr = svn_client_status5 (
                                    NULL,
                                    m_pCtx,
                                    svnapipath,
                                    &revision,
                                    svn_depth_immediates,
                                    TRUE,       // get all
-                                   FALSE,      // check out-of-date
-                                   TRUE,       // check working copy
+                                   FALSE,      // update
                                    TRUE,       // no ignores
                                    FALSE,      // ignore externals
                                    TRUE,       // depth as sticky
@@ -738,7 +738,7 @@ bool
 CCachedDirectory::IsOwnStatusValid() const
 {
     return m_ownStatus.HasBeenSet() &&
-           !m_ownStatus.HasExpired(GetTickCount64()) &&
+           !m_ownStatus.HasExpired(GetTickCount()) &&
            // 'external' isn't a valid status. That just
            // means the folder is not part of the current working
            // copy but it still has its own 'real' status
@@ -796,7 +796,7 @@ void CCachedDirectory::UpdateCurrentStatus()
         if ((m_currentFullStatus != svn_wc_status_none)&&(m_ownStatus.GetEffectiveStatus() != svn_wc_status_ignored))
         {
             // Our status has changed - tell the shell
-            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Dir %s, status change from %d to %d\n", m_directoryPath.GetWinPath(), m_currentFullStatus, newStatus);
+            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Dir %s, status change from %d to %d\n"), m_directoryPath.GetWinPath(), m_currentFullStatus, newStatus);
             CSVNStatusCache::Instance().UpdateShell(m_directoryPath);
         }
         if (m_ownStatus.GetEffectiveStatus() != svn_wc_status_ignored)
@@ -873,9 +873,9 @@ void CCachedDirectory::RefreshStatus(bool bRecursive)
 
     CTSVNPathList updatePathList;
     CTSVNPathList crawlPathList;
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": RefreshStatus for %s\n", m_directoryPath.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": RefreshStatus for %s\n"), m_directoryPath.GetWinPath());
 
-    ULONGLONG now = GetTickCount64();
+    DWORD now = GetTickCount();
     {
         // get the file write times with FindFirstFile/FindNextFile since those
         // APIs only access the folder, not each file individually.
@@ -965,7 +965,7 @@ void CCachedDirectory::RefreshMostImportant(bool bUpdateShell /* = true */)
     }
     if (bUpdateShell && newStatus != m_mostImportantFileStatus)
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": status change of path %s\n", m_directoryPath.GetWinPath());
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": status change of path %s\n"), m_directoryPath.GetWinPath());
         CSVNStatusCache::Instance().UpdateShell(m_directoryPath);
     }
     m_mostImportantFileStatus = newStatus;

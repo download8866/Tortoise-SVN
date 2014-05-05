@@ -217,7 +217,7 @@ STDMETHODIMP CShellExt::GetItemData_Wrap(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA ps
         {
             case 0: // SVN Status
                 GetMainColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                SVNStatus::GetStatusString(g_hResInst, filestatus, buf, _countof(buf), (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+                SVNStatus::GetStatusString(g_hResInst, filestatus, buf, _countof(buf), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
                 szInfo = buf;
                 break;
             case 1: // SVN Revision
@@ -416,7 +416,7 @@ void CShellExt::SetExtraColumnStatus
     TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
 
     URL_COMPONENTS urlComponents;
-    SecureZeroMemory(&urlComponents, sizeof(URL_COMPONENTS));
+    memset(&urlComponents, 0, sizeof(URL_COMPONENTS));
     urlComponents.dwStructSize = sizeof(URL_COMPONENTS);
     urlComponents.dwUrlPathLength = INTERNET_MAX_URL_LENGTH;
     urlComponents.lpszUrlPath = urlpath;
@@ -426,9 +426,9 @@ void CShellExt::SetExtraColumnStatus
         // since the short url is shown as an additional column where the
         // file/foldername is shown too, we strip that name from the url
         // to make the url even shorter.
-        TCHAR * ptr = wcsrchr(urlComponents.lpszUrlPath, '/');
+        TCHAR * ptr = _tcsrchr(urlComponents.lpszUrlPath, '/');
         if (ptr == NULL)
-            ptr = wcsrchr(urlComponents.lpszUrlPath, '\\');
+            ptr = _tcsrchr(urlComponents.lpszUrlPath, '\\');
         if (ptr)
         {
             *ptr = '\0';
@@ -438,19 +438,19 @@ void CShellExt::SetExtraColumnStatus
             // Note: this will strip too much if such a folder is *below* the repository
             // root - but it's called 'short url' and we're free to shorten it the way we
             // like :)
-            ptr = wcsstr(urlComponents.lpszUrlPath, L"/trunk");
+            ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/trunk"));
             if (ptr == NULL)
-                ptr = wcsstr(urlComponents.lpszUrlPath, L"\\trunk");
+                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\trunk"));
             if ((ptr == NULL)||((*(ptr+6) != 0)&&(*(ptr+6) != '/')&&(*(ptr+6) != '\\')))
             {
-                ptr = wcsstr(urlComponents.lpszUrlPath, L"/branches");
+                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/branches"));
                 if (ptr == NULL)
-                    ptr = wcsstr(urlComponents.lpszUrlPath, L"\\branches");
+                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\branches"));
                 if ((ptr == NULL)||((*(ptr+9) != 0)&&(*(ptr+9) != '/')&&(*(ptr+9) != '\\')))
                 {
-                    ptr = wcsstr(urlComponents.lpszUrlPath, L"/tags");
+                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/tags"));
                     if (ptr == NULL)
-                        ptr = wcsstr(urlComponents.lpszUrlPath, L"\\tags");
+                        ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\tags"));
                     if ((ptr)&&(*(ptr+5) != 0)&&(*(ptr+5) != '/')&&(*(ptr+5) != '\\'))
                         ptr = NULL;
                 }
@@ -473,7 +473,7 @@ void CShellExt::SetExtraColumnStatus
 
 void CShellExt::GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
-    if (wcscmp(path, extracolumnfilepath.c_str())==0)
+    if (_tcscmp(path, extracolumnfilepath.c_str())==0)
         return;
 
     PreserveChdir preserveChdir;
@@ -505,7 +505,7 @@ void CShellExt::GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir)
 
 void CShellExt::GetMainColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
-    if (wcscmp(path, maincolumnfilepath.c_str())==0)
+    if (_tcscmp(path, maincolumnfilepath.c_str())==0)
         return;
 
     PreserveChdir preserveChdir;

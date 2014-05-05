@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -160,7 +160,7 @@ void CSettings::HandleRestart()
     {
         DWORD_PTR res = 0;
         ::SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0, SMTO_ABORTIFHUNG, 20, &res);
-        TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_SETTINGS_RESTARTSYSTEM), NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+        TSVNMessageBox(NULL, IDS_SETTINGS_RESTARTSYSTEM, IDS_APPNAME, MB_ICONINFORMATION);
     }
     if (restart & ISettingsPropPage::Restart_Cache)
     {
@@ -191,7 +191,7 @@ BOOL CSettings::OnInitDialog()
     margs.cxRightWidth = 0;
     margs.cyBottomHeight = BOTTOMMARG;
 
-    if ((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE))
+    if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE))
     {
         m_Dwm.Initialize();
         m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &margs);

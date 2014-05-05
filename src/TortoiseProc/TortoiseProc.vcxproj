@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,25 +28,25 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>Dynamic</UseOfMfc>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -69,6 +69,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
+    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\bin\$(Configuration)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\bin\$(Configuration)64\bin\</OutDir>
@@ -169,7 +170,9 @@
     <ClCompile Include="..\Utils\CommonAppUtils.cpp" />
     <ClCompile Include="..\Utils\DebugOutput.cpp" />
     <ClCompile Include="..\Utils\DirFileEnum.cpp" />
-    <ClCompile Include="..\Utils\DragDropImpl.cpp" />
+    <ClCompile Include="..\Utils\DragDropImpl.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Utils\Hooks.cpp" />
     <ClCompile Include="..\Utils\IconExtractor.cpp" />
     <ClCompile Include="..\Utils\JumpListHelpers.cpp" />
@@ -189,6 +192,7 @@
     <ClCompile Include="..\Utils\MiscUI\IconBitmapUtils.cpp" />
     <ClCompile Include="..\Utils\MiscUI\IconMenu.cpp" />
     <ClCompile Include="..\Utils\MiscUI\LinkControl.cpp" />
+    <ClCompile Include="..\Utils\MiscUI\MessageBox.cpp" />
     <ClCompile Include="..\Utils\MiscUI\MyGraph.cpp" />
     <ClCompile Include="..\Utils\MiscUI\OddButton.cpp" />
     <ClCompile Include="..\Utils\MiscUI\PathEdit.cpp" />
@@ -202,6 +206,7 @@
     <ClCompile Include="..\Utils\MiscUI\Tooltip.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaitCursorEx.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaterEffect.cpp" />
+    <ClCompile Include="..\Utils\MiscUI\XMessageBox.cpp" />
     <ClCompile Include="..\Utils\PathUtils.cpp" />
     <ClCompile Include="..\Utils\PathWatcher.cpp" />
     <ClCompile Include="..\Utils\PersonalDictionary.cpp" />
@@ -252,7 +257,6 @@
     <ClCompile Include="Commands\DropCopyAddCommand.cpp" />
     <ClCompile Include="Commands\DropCopyCommand.cpp" />
     <ClCompile Include="Commands\DropExportCommand.cpp" />
-    <ClCompile Include="Commands\DropExternalCommand.cpp" />
     <ClCompile Include="Commands\DropMoveCommand.cpp" />
     <ClCompile Include="Commands\DropVendorCommand.cpp" />
     <ClCompile Include="Commands\EditFileCommand.cpp" />
@@ -500,6 +504,7 @@
     <ClInclude Include="..\Utils\MiscUI\IconBitmapUtils.h" />
     <ClInclude Include="..\Utils\MiscUI\IconMenu.h" />
     <ClInclude Include="..\Utils\MiscUI\LinkControl.h" />
+    <ClInclude Include="..\Utils\MiscUI\MessageBox.h" />
     <ClInclude Include="..\Utils\MiscUI\MyGraph.h" />
     <ClInclude Include="..\Utils\MiscUI\OddButton.h" />
     <ClInclude Include="..\Utils\MiscUI\PathEdit.h" />
@@ -514,6 +519,7 @@
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h" />
     <ClInclude Include="..\Utils\MiscUI\WaitCursorEx.h" />
     <ClInclude Include="..\Utils\MiscUI\WaterEffect.h" />
+    <ClInclude Include="..\Utils\MiscUI\XMessageBox.h" />
     <ClInclude Include="..\Utils\PathUtils.h" />
     <ClInclude Include="..\Utils\PathWatcher.h" />
     <ClInclude Include="..\Utils\PersonalDictionary.h" />
@@ -573,7 +579,6 @@
     <ClInclude Include="Commands\DropCopyAddCommand.h" />
     <ClInclude Include="Commands\DropCopyCommand.h" />
     <ClInclude Include="Commands\DropExportCommand.h" />
-    <ClInclude Include="Commands\DropExternalCommand.h" />
     <ClInclude Include="Commands\DropMoveCommand.h" />
     <ClInclude Include="Commands\DropVendorCommand.h" />
     <ClInclude Include="Commands\EditFileCommand.h" />
@@ -899,6 +904,7 @@
     <None Include="..\Resources\UpdateBackground.ico" />
     <None Include="..\Resources\warning-general.ico" />
     <None Include="..\TortoiseBlame\TortoiseBlame.ico" />
+    <None Include="externalpeggedovl.ico" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Resources\TortoiseProcENG.rc" />
@@ -936,10 +942,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\actionmoved.ico" />
-    <Image Include="..\Resources\actionmovereplaced.ico" />
-    <Image Include="..\Resources\Bookmarks.ico" />
-    <Image Include="..\Resources\ccollabgui.ico" />
+    <Image Include="..\resources\ccollabgui.ico" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="..\compatibility.manifest" />
@@ -947,9 +950,4 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
-  <ProjectExtensions>
-    <VisualStudio>
-      <UserProperties RESOURCE_FILE="\Development\SVN\TortoiseSVN\src\Resources\TortoiseProcENG.rc" />
-    </VisualStudio>
-  </ProjectExtensions>
 </Project>

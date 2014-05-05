@@ -66,32 +66,8 @@ private:
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    // extracted from OnInitDialog
-    void ShowBalloonInCaseOfError();
-    void GetAsyncFileListStatus();
-    void AddDirectoriesToPathWatcher();
-    void AdjustDialogSizeAndPanes();
-    void CenterWindowWhenLaunchedFromExplorer();
-    void SaveDialogAndLogMessageControlRectangles();
-    void AddAnchorsToFacilitateResizing();
-    void LineupControlsAndAdjustSizes();
-    void ConvertStaticToLinkControl();
-    void AdjustControlSizes();
-    void SetCommitWindowTitleAndEnableStatus();
-    void SetupLogMessageDefaultText();
-    void ShowOrHideBugIdAndLabelControls();
-    void HideBugIdAndLabel();
-    void RestoreBugIdAndLabelFromProjectProperties();
-    void SetupBugTraqControlsIfConfigured();
-    void HideAndDisableBugTraqButton();
-    void SetupToolTips();
-    void SetControlAccessibilityProperties();
-    void InitializeLogMessageControl();
-    void InitializeListControl();
-    void SubclassControls();
-    void ReadPersistedDialogSettings();
 
+    virtual BOOL OnInitDialog();
     virtual void OnOK();
     virtual void OnCancel();
     virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -134,7 +110,6 @@ public:
     CTSVNPathList       m_selectedPathList;
     CTSVNPathList       m_checkedPathList;
     BOOL                m_bRecursive;
-    bool                m_bUnchecked;
     CSciEdit            m_cLogMessage;
     CString             m_sLogMessage;
     std::map<CString, CString> m_revProps;
@@ -145,7 +120,7 @@ public:
     INT_PTR             m_itemsCount;
     bool                m_bSelectFilesForCommit;
     CComPtr<IBugTraqProvider> m_BugTraqProvider;
-    std::map<CString, std::tuple<CString, CString>> m_restorepaths;
+    std::map<CString, CString> m_restorepaths;
 private:
     CWinThread*         m_pThread;
     std::set<CString>   m_autolist;
@@ -172,6 +147,4 @@ private:
     CPathEdit           m_CommitTo;
     CBugTraqAssociation m_bugtraq_association;
     CHyperLink          m_cUpdateLink;
-public:
-    afx_msg void OnBnClickedRunhook();
 };

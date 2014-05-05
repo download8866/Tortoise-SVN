@@ -239,7 +239,7 @@ std::string CProfilingInfo::GetReport() const
         RegQueryValueEx(hKey, L"~MHz", NULL, NULL, (LPBYTE) &dwMHz, &BufSize);
         RegCloseKey(hKey);
 
-        sprintf_s ( lineBuffer, "processor speed is %lu MHz\n", dwMHz);
+        sprintf_s ( lineBuffer, "processor speed is %ld MHz\n", dwMHz);
         result += lineBuffer;
     }
 

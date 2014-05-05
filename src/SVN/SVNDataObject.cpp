@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 CLIPFORMAT CF_FILECONTENTS = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILECONTENTS);
 CLIPFORMAT CF_FILEDESCRIPTOR = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
 CLIPFORMAT CF_PREFERREDDROPEFFECT = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
-CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(L"TSVN_SVNURL");
+CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(_T("TSVN_SVNURL"));
 CLIPFORMAT CF_INETURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_INETURL);
 CLIPFORMAT CF_SHELLURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_SHELLURL);
 
@@ -56,6 +56,10 @@ SVNDataObject::~SVNDataObject()
 //////////////////////////////////////////////////////////////////////////
 // IUnknown
 //////////////////////////////////////////////////////////////////////////
+
+#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
+#define IID_IDataObjectAsyncCapability IID_IAsyncOperation
+#endif
 
 STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
 {
@@ -248,7 +252,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 temp = CPathUtils::PathUnescape(temp);
                 if (m_bFilesAsUrlLinks)
                     temp += L".url";
-                temp.Replace(L"/", L"\\");
+                temp.Replace(_T("/"), _T("\\"));
             }
             else
             {
@@ -257,7 +261,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     temp += L".url";
             }
             if (temp.GetLength() < MAX_PATH)
-                wcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
+                _tcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
             else
             {
                 files->cItems--;
@@ -337,7 +341,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         CStringA texta = CUnicodeUtils::GetUTF8(text);
@@ -366,7 +370,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -374,7 +378,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -393,12 +397,12 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 if (m_svnPaths[i].IsUrl())
                 {
                     text += m_svnPaths[i].GetSVNPathString();
-                    text += L"?";
+                    text += _T("?");
                     text += m_revision.ToString();
                 }
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -406,7 +410,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -705,6 +709,7 @@ HRESULT SVNDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, L
     fetc.cfFormat = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_DROPDESCRIPTION);
     fetc.dwAspect = DVASPECT_CONTENT;
     fetc.lindex = -1;
+    fetc.tymed = TYMED_HGLOBAL;
     fetc.tymed = TYMED_HGLOBAL;
 
     STGMEDIUM medium = {0};

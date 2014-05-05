@@ -34,7 +34,7 @@ CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = NULL*/)
     , m_hWndEdit(NULL)
     , m_bMatchCase(false)
 {
-    SetWindowTitle(L"TortoiseUDiff");
+    SetWindowTitle(_T("TortoiseUDiff"));
 }
 
 CMainWindow::~CMainWindow(void)
@@ -251,7 +251,7 @@ LRESULT CMainWindow::DoCommand(int id)
         break;
     case ID_FILE_SETTINGS:
         {
-            tstring svnCmd = L" /command:settings /page:19";
+            tstring svnCmd = _T(" /command:settings /page:19");
             RunCommand(svnCmd);
         }
         break;
@@ -260,7 +260,7 @@ LRESULT CMainWindow::DoCommand(int id)
             std::wstring command = L" /diff:\"";
             command += m_filename;
             command += L"\"";
-            std::wstring tortoiseMergePath = GetAppDirectory() + L"TortoiseMerge.exe";
+            std::wstring tortoiseMergePath = GetAppDirectory() + _T("TortoiseMerge.exe");
             CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), const_cast<TCHAR*>(command.c_str()));
         }
         break;
@@ -535,7 +535,7 @@ std::wstring CMainWindow::GetAppDirectory()
 
 void CMainWindow::RunCommand(const std::wstring& command)
 {
-    tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
+    tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
     CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
@@ -551,8 +551,8 @@ LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 bool CMainWindow::Initialize()
 {
     m_hWndEdit = ::CreateWindow(
-        L"Scintilla",
-        L"Source",
+        _T("Scintilla"),
+        _T("Source"),
         WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -578,8 +578,8 @@ bool CMainWindow::Initialize()
         // Reusing TortoiseBlame's setting which already have an user friendly
         // pane in TortoiseSVN's Settings dialog, while there is no such
         // pane for TortoiseUDiff.
-        CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10),
-        CUnicodeUtils::StdGetUTF8(CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New")).c_str());
+        CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10),
+        CUnicodeUtils::StdGetUTF8(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New"))).c_str());
     SendEditor(SCI_SETTABWIDTH, 4);
     SendEditor(SCI_SETREADONLY, TRUE);
     LRESULT pix = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_99999");
@@ -598,10 +598,6 @@ bool CMainWindow::Initialize()
         SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
         SendEditor(SCI_SETBUFFEREDDRAW, 0);
     }
-    SendEditor(SCI_SETVIEWWS, 1);
-    SendEditor(SCI_SETWHITESPACESIZE, 2);
-    SendEditor(SCI_SETWHITESPACEFORE, true, ::GetSysColor(COLOR_3DSHADOW));
-    SendEditor(SCI_STYLESETVISIBLE, STYLE_CONTROLCHAR, TRUE);
 
     return true;
 }
@@ -628,7 +624,7 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 {
     InitEditor();
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"rb");
+    _tfopen_s(&fp, filename, _T("rb"));
     if (!fp)
         return false;
 
@@ -689,7 +685,7 @@ void CMainWindow::SetupWindow(bool bUTF8)
 bool CMainWindow::SaveFile(LPCTSTR filename)
 {
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"w+b");
+    _tfopen_s(&fp, filename, _T("w+b"));
     if (!fp)
         return false;
 
@@ -706,9 +702,9 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 
 void CMainWindow::SetTitle(LPCTSTR title)
 {
-    size_t len = wcslen(title);
+    size_t len = _tcslen(title);
     std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
-    swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
+    _stprintf_s(pBuf.get(), len+40, _T("%s - TortoiseUDiff"), title);
     SetWindowTitle(std::wstring(pBuf.get()));
 }
 

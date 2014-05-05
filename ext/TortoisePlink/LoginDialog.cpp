@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -136,7 +136,28 @@ void LoginDialog::RetrieveValues()
 }
 
 
+BOOL IsWinNT()
+{
+   OSVERSIONINFO vi;
+   vi.dwOSVersionInfoSize = sizeof(vi);
+   if (GetVersionEx(&vi))
+   {
+      if (vi.dwPlatformId == VER_PLATFORM_WIN32_NT)
+      {
+         return TRUE;
+      }
+   }
+   return FALSE;
+}
+
 HWND GetParentHwnd()
 {
-    return GetDesktopWindow();
+   if (IsWinNT())
+   {
+      return GetDesktopWindow();
+   }
+   else
+   {
+      return GetForegroundWindow();
+   }
 }

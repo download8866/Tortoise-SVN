@@ -38,7 +38,7 @@ AeroControlBase::AeroControlBase()
     : gdiplusToken(0)
 {
     GdiplusStartupInput gdiplusStartupInput;
-    m_regEnableDWMFrame = CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE);
+    m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
 
     if (GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL)==Ok)
     {
@@ -67,17 +67,17 @@ bool AeroControlBase::SubclassControl(HWND hControl)
     TCHAR szWndClassName[MAX_PATH] = { 0 };
     if (GetClassName(hControl, szWndClassName, _countof(szWndClassName)))
     {
-        if (!wcscmp(szWndClassName, L"Static"))
+        if (!_tcscmp(szWndClassName, _T("Static")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Static, (DWORD_PTR)this);
             subclassedControls[hControl] = Static;
         }
-        if (!wcscmp(szWndClassName, L"Button"))
+        if (!_tcscmp(szWndClassName, _T("Button")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Button, (DWORD_PTR)this);
             subclassedControls[hControl] = Button;
         }
-        if(!wcscmp(szWndClassName, L"msctls_progress32"))
+        if(!_tcscmp(szWndClassName, _T("msctls_progress32")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Progressbar, (DWORD_PTR)this);
             subclassedControls[hControl] = Progressbar;
@@ -849,7 +849,7 @@ LRESULT AeroControlBase::ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
 
-void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
+void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr)
 {
     std::unique_ptr<SolidBrush> pBrush(new SolidBrush(clr));
     std::unique_ptr<Graphics> myGraphics(new Graphics(hdcPaint));
@@ -858,7 +858,7 @@ void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
         prc->right - 1 - prc->left, prc->bottom - 1 - prc->top);
 }
 
-int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture) const
+int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture)
 {
     int iState = 0;
     switch (iPartId)
@@ -953,7 +953,7 @@ int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFoc
     return iState;
 }
 
-void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width) const
+void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width)
 {
     std::unique_ptr<Pen> myPen(new Pen(clr, width));
     myPen->SetDashStyle(dashStyle);
@@ -1070,7 +1070,7 @@ void AeroControlBase::ScreenToClient(HWND hWnd, LPRECT lprc)
     lprc->bottom = pt.y;
 }
 
-void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia) const
+void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia)
 {
     // diameter can't exceed width or height
     if(dia > r.Width)   dia = r.Width;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012, 2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ public:
 
     operator const TCHAR*() { return buffer.get(); }
     void Load(UINT stringId);
-    UINT GetCount() const { return (UINT)filternames.size(); }
+    UINT GetCount() { return (UINT)filternames.size(); }
     operator const COMDLG_FILTERSPEC*() { return filterspec.get(); }
 
 private:
@@ -52,20 +52,20 @@ inline void CSelectFileFilter::Load(UINT stringId)
     sFilter.LoadString(stringId);
     const int bufferLength = sFilter.GetLength()+4;
     buffer.reset(new TCHAR[bufferLength]);
-    wcscpy_s (buffer.get(), bufferLength, sFilter);
+    _tcscpy_s (buffer.get(), bufferLength, sFilter);
     CStringUtils::PipesToNulls(buffer.get());
     //Certificates|*.p12;*.pkcs12;*.pfx|All|*.*||
     int pos = 0;
     CString temp;
     for (;;)
     {
-        temp = sFilter.Tokenize(L"|", pos);
+        temp = sFilter.Tokenize(_T("|"), pos);
         if (temp.IsEmpty())
         {
             break;
         }
         filternames.push_back(temp);
-        temp = sFilter.Tokenize(L"|", pos);
+        temp = sFilter.Tokenize(_T("|"), pos);
         filtermasks.push_back(temp);
     }
     filterspec.reset(new COMDLG_FILTERSPEC[filternames.size()]);

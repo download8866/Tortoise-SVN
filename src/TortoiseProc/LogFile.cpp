@@ -25,7 +25,7 @@
 
 CLogFile::CLogFile(void)
 {
-    m_maxlines = CRegStdDWORD(L"Software\\TortoiseSVN\\MaxLinesInLogfile", 4000);
+    m_maxlines = CRegStdDWORD(_T("Software\\TortoiseSVN\\MaxLinesInLogfile"), 4000);
 }
 
 CLogFile::~CLogFile(void)
@@ -88,7 +88,7 @@ bool CLogFile::Close()
         for (std::deque<CString>::const_iterator it = m_newLines.begin(); it != m_newLines.end(); ++it)
         {
             file.WriteString(*it);
-            file.WriteString(L"\n");
+            file.WriteString(_T("\n"));
         }
         file.Close();
     }
@@ -111,7 +111,7 @@ bool CLogFile::AddTimeLine()
     GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, NULL, NULL, datebuf, 4096);
     sLine = datebuf;
     GetTimeFormat(LOCALE_USER_DEFAULT, 0, NULL, NULL, datebuf, 4096);
-    sLine += L" - ";
+    sLine += _T(" - ");
     sLine += datebuf;
     m_newLines.push_back(sLine);
     return true;

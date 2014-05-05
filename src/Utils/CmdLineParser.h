@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #pragma once
 #include <map>
 #include <string>
+#include "tstring.h"
 
 using std::map;
 
@@ -54,21 +55,21 @@ using std::map;
 class CCmdLineParser
 {
 public:
-    typedef map<std::wstring, std::wstring> CValsMap;
+    typedef map<tstring, tstring> CValsMap;
     typedef CValsMap::const_iterator ITERPOS;
 public:
     /**
      * Creates a CCmdLineParser object and parses the parameters in.
      * \param sCmdLine the command line
      */
-    CCmdLineParser(LPCWSTR sCmdLine = NULL);
+    CCmdLineParser(LPCTSTR sCmdLine = NULL);
     virtual ~CCmdLineParser();
 
     /**
      * returns the command line string this object was created on.
      * \return the command line
      */
-    LPCWSTR getCmdLine() const { return m_sCmdLine.c_str(); }
+    LPCTSTR getCmdLine() const { return m_sCmdLine.c_str(); }
 
     /**
      * Starts an iteration over all command line parameters.
@@ -85,7 +86,7 @@ public:
      * \param sValue returns the value
      * \return the next position
      */
-    ITERPOS getNext(ITERPOS& pos, std::wstring& sKey, std::wstring& sValue) const;
+    ITERPOS getNext(ITERPOS& pos, tstring& sKey, tstring& sValue) const;
 
     /**
      * Checks if the position is the last or if there are more key/value pairs in the command line.
@@ -99,21 +100,21 @@ public:
      * \param sKey the key to check for
      * \return TRUE if the key exists, FALSE if the key is not in command line
      */
-    BOOL HasKey(LPCWSTR sKey) const;
+    BOOL HasKey(LPCTSTR sKey) const;
 
     /**
      * Checks if a key also has a value or not.
      * \param sKey the key to check for a value
      * \return TRUE if the key has a value, FALSE if no value (or no key) was found
      */
-    BOOL HasVal(LPCWSTR sKey) const;
+    BOOL HasVal(LPCTSTR sKey) const;
 
     /**
      * Reads the value for a key. If the key has no value then NULL is returned.
      * \param sKey the key to get the value from
      * \return the value string of the key
      */
-    LPCWSTR GetVal(LPCWSTR sKey) const;
+    LPCTSTR GetVal(LPCTSTR sKey) const;
 
     /**
      * Reads the value for a key as a long. If the value is a string which can't be
@@ -121,19 +122,19 @@ public:
      * \param sKey the key to get the value from
      * \return the value converted to a long
      */
-    LONG GetLongVal(LPCWSTR sKey) const;
+    LONG GetLongVal(LPCTSTR sKey) const;
 
-    __int64 GetLongLongVal(LPCWSTR sKey) const;
+    __int64 GetLongLongVal(LPCTSTR sKey) const;
 private:
-    BOOL Parse(LPCWSTR sCmdLine);
-    CValsMap::const_iterator findKey(LPCWSTR sKey) const;
+    BOOL Parse(LPCTSTR sCmdLine);
+    CValsMap::const_iterator findKey(LPCTSTR sKey) const;
     const CValsMap& getVals() const { return m_valueMap; }
 private:
-    std::wstring    m_sCmdLine;
-    CValsMap        m_valueMap;
+    tstring     m_sCmdLine;
+    CValsMap    m_valueMap;
 
-    static const wchar_t m_sDelims[];
-    static const wchar_t m_sValueSep[];
-    static const wchar_t m_sQuotes[];
+    static const TCHAR m_sDelims[];
+    static const TCHAR m_sValueSep[];
+    static const TCHAR m_sQuotes[];
 };
 

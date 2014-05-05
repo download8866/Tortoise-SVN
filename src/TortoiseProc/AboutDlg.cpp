@@ -23,7 +23,6 @@
 #include "svn_version.h"
 #include "../version.h"
 #include "../../ext/serf/serf.h"
-#include "../../ext/sqlite/sqlite3.h"
 #include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
@@ -70,22 +69,16 @@ BOOL CAboutDlg::OnInitDialog()
     {
         svnvertag = L"-release";
     }
-    CString sIPV6;
 
-#if APR_HAVE_IPV6
-    sIPV6 = L"\r\nipv6 enabled";
-#endif
-
-    temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE), (LPCWSTR)sIPV6,
+    temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE),
         svnver->major, svnver->minor, svnver->patch, (LPCWSTR)svnvertag,
         APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
         APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION,
         SERF_MAJOR_VERSION, SERF_MINOR_VERSION, SERF_PATCH_VERSION,
         _T(OPENSSL_VERSION_TEXT),
-        _T(ZLIB_VERSION),
-        _T(SQLITE_VERSION));
+        _T(ZLIB_VERSION));
     SetDlgItemText(IDC_VERSIONABOUT, temp);
-    this->SetWindowText(L"TortoiseSVN");
+    this->SetWindowText(_T("TortoiseSVN"));
 
     CPictureHolder tmpPic;
     tmpPic.CreateFromBitmap(IDB_LOGOFLIPPED);
@@ -96,8 +89,8 @@ BOOL CAboutDlg::OnInitDialog()
     SetTimer(ID_EFFECTTIMER, 40, NULL);
     SetTimer(ID_DROPTIMER, 1500, NULL);
 
-    m_cWebLink.SetURL(L"http://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"http://tortoisesvn.net/donate.html");
+    m_cWebLink.SetURL(_T("http://tortoisesvn.net"));
+    m_cSupportLink.SetURL(_T("http://tortoisesvn.net/donate.html"));
 
     CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
     GetDlgItem(IDOK)->SetFocus();

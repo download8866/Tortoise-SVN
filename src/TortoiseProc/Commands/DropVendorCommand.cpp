@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2014 - TortoiseSVN
+// Copyright (C) 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,7 @@
 
 bool DropVendorCommand::Execute()
 {
-    CString droppath = parser.GetVal(L"droptarget");
+    CString droppath = parser.GetVal(_T("droptarget"));
     CTSVNPath droptsvnpath = CTSVNPath(droppath);
     if (droptsvnpath.IsAdminDir())
         return FALSE;
@@ -39,6 +39,7 @@ bool DropVendorCommand::Execute()
     CProgressDlg progress;
     progress.SetTitle(IDS_PROC_VENDORDROP_TITLE);
     progress.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROC_VENDORDROP_GETDATA1)));
+    progress.SetAnimation(IDR_MOVEANI);
     progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
 
     std::map<CString,bool> versionedFiles;
@@ -136,5 +137,5 @@ bool DropVendorCommand::Execute()
         svn.Remove(CTSVNPathList(delpath), true, false);
     }
 
-    return bSuccess != FALSE;
+    return bSuccess != false;
 }
