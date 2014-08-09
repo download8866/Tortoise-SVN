@@ -17,31 +17,31 @@ dim objArgs, objScript, objDiffNotebook
 Set objArgs = WScript.Arguments
 num = objArgs.Count
 if num < 2 then
-    MsgBox "Usage: [CScript | WScript] diff-nb.vbs base.nb new.nb", vbExclamation, "Invalid arguments"
+    MsgBox "Usage: [CScript | WScript] compare.vbs base.nb new.nb", vbExclamation, "Invalid arguments"
     WScript.Quit 1
 end if
 
-sBaseFile = objArgs(0)
-sNewFile = objArgs(1)
+sBaseDoc = objArgs(0)
+sNewDoc = objArgs(1)
 
 Set objScript = CreateObject("Scripting.FileSystemObject")
 
-If objScript.FileExists(sBaseFile) = False Then
-    MsgBox "File " + sBaseFile + " does not exist.  Cannot compare the notebooks.", vbExclamation, "File not found"
+If objScript.FileExists(sBaseDoc) = False Then
+    MsgBox "File " + sBaseDoc +" does not exist.  Cannot compare the notebooks.", vbExclamation, "File not found"
     Wscript.Quit 1
 Else
-    sBaseFile = objScript.GetAbsolutePathName(sBaseFile)
+    sBaseDoc = objScript.GetAbsolutePathName(sBaseDoc)
 End If
 
-If objScript.FileExists(sNewFile) = False Then
-    MsgBox "File " + sNewFile + " does not exist.  Cannot compare the notebooks.", vbExclamation, "File not found"
+If objScript.FileExists(sNewDoc) = False Then
+    MsgBox "File " + sNewDoc +" does not exist.  Cannot compare the notebooks.", vbExclamation, "File not found"
     Wscript.Quit 1
 Else
-    sNewFile = objScript.GetAbsolutePathName(sNewFile)
+    sNewDoc = objScript.GetAbsolutePathName(sNewDoc)
 End If
 
 On Error Resume Next
-Dim tfolder, tname
+Dim tfolder, tname, tfile
 Const TemporaryFolder = 2
 
 Set tfolder = objScript.GetSpecialFolder(TemporaryFolder)
@@ -55,8 +55,8 @@ objDiffNotebook.WriteLine "Notebook[{" + vbCrLf + _
 "ButtonFrame->""DialogBox"", Active->True, ButtonEvaluator->Automatic," + vbCrLf + _
 "ButtonFunction:>(Needs[""AuthorTools`""];" + vbCrLf + _
 "NotebookPut[Symbol[""NotebookDiff""][" + vbCrLf + _
-"""" + Replace(sBaseFile, "\", "\\") + """," + vbCrLf + _
-"""" + Replace(sNewFile, "\", "\\") + """" + vbCrLf + _
+"""" + Replace(sBaseDoc,"\","\\") + """," + vbCrLf + _
+"""" + Replace(sNewDoc,"\","\\") + """" + vbCrLf + _
 "]])]], NotebookDefault]" + vbCrLf + _
 "}, Saveable->False, Editable->False, Selectable->False, WindowToolbars->{}, WindowFrame->ModelessDialog, WindowElements->{}, WindowFrameElements->CloseBox, WindowTitle->""Diff"", ShowCellBracket->False, WindowSize->{Fit,Fit}]"
 

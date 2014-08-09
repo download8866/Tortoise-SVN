@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2005-2006, 2009-2010, 2014 - TortoiseSVN
+// Copyright (C) 2005-2006, 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,7 +15,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DirFileEnum.h"
 
 
@@ -35,8 +35,8 @@ CSimpleFileFind::CSimpleFileFind(const CString &sPath, LPCTSTR pPattern) :
             m_sPathPrefix += "\\";
         }
     }
-    if ((len >= 248)&&(m_sPathPrefix.Left(4).Compare(L"\\\\?\\")))
-        m_hFindFile = ::FindFirstFile((LPCTSTR)(L"\\\\?\\" + m_sPathPrefix + pPattern), &m_FindFileData);
+    if ((len >= 248)&&(m_sPathPrefix.Left(4).Compare(_T("\\\\?\\"))))
+        m_hFindFile = ::FindFirstFile((LPCTSTR)(_T("\\\\?\\") + m_sPathPrefix + pPattern), &m_FindFileData);
     else
         m_hFindFile = ::FindFirstFile((LPCTSTR)(m_sPathPrefix + pPattern), &m_FindFileData);
     if (m_hFindFile == INVALID_HANDLE_VALUE) {

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,9 +31,9 @@ extern  volatile LONG       g_cRefThisDll;          // Reference count of this D
 extern  HINSTANCE           g_hmodThisDll;          // Instance handle for this DLL
 extern  ShellCache          g_ShellCache;           // caching of registry entries, ...
 extern  DWORD               g_langid;
-extern  ULONGLONG           g_langTimeout;
+extern  DWORD               g_langTimeout;
 extern  HINSTANCE           g_hResInst;
-extern  tstring             g_filepath;
+extern  tstring         g_filepath;
 extern  svn_wc_status_kind  g_filestatus;           ///< holds the corresponding status to the file/dir above
 extern  bool                g_readonlyoverlay;      ///< whether to show the read only overlay or not
 extern  bool                g_lockedoverlay;        ///< whether to show the locked overlay or not
@@ -50,7 +50,7 @@ extern bool                 g_unversionedovlloaded;
 extern LPCTSTR              g_MenuIDString;
 
 extern  void                LoadLangDll();
-extern  tstring             GetAppDirectory();
+extern  tstring         GetAppDirectory();
 extern  CComCriticalSection g_csGlobalCOMGuard;
 typedef CComCritSecLock<CComCriticalSection> AutoLocker;
 
@@ -65,12 +65,12 @@ typedef DWORD ARGB;
  * split into several *.cpp files to keep them in a reasonable size.
  */
 class CShellExt : public IContextMenu3,
-                         IPersistFile,
-                         IColumnProvider,
-                         IShellExtInit,
-                         IShellIconOverlayIdentifier,
-                         IShellPropSheetExt,
-                         ICopyHookW
+                            IPersistFile,
+                            IColumnProvider,
+                            IShellExtInit,
+                            IShellIconOverlayIdentifier,
+                            IShellPropSheetExt,
+                            ICopyHookW
 
 // COMPILER ERROR? You need the latest version of the
 // platform SDK which has references to IColumnProvider
@@ -110,11 +110,8 @@ protected:
         ShellMenuRename,
         ShellMenuUpdateExt,
         ShellMenuDiff,
-        ShellMenuDiffLater,
-        ShellMenuDiffNow,
         ShellMenuPrevDiff,
         ShellMenuUrlDiff,
-        ShellMenuUnifiedDiff,
         ShellMenuDropCopyAdd,
         ShellMenuDropMoveAdd,
         ShellMenuDropMove,
@@ -123,9 +120,6 @@ protected:
         ShellMenuDropCopyRename,
         ShellMenuDropExport,
         ShellMenuDropExportExtended,
-        ShellMenuDropExportChanged,
-        ShellMenuDropExternals,
-        ShellMenuDropVendor,
         ShellMenuLog,
         ShellMenuConflictEditor,
         ShellMenuRelocate,
@@ -134,13 +128,9 @@ protected:
         ShellMenuIgnoreSub,
         ShellMenuDeleteIgnoreSub,
         ShellMenuIgnore,
-        ShellMenuIgnoreGlobal,
         ShellMenuDeleteIgnore,
-        ShellMenuDeleteIgnoreGlobal,
         ShellMenuIgnoreCaseSensitive,
-        ShellMenuIgnoreCaseSensitiveGlobal,
         ShellMenuDeleteIgnoreCaseSensitive,
-        ShellMenuDeleteIgnoreCaseSensitiveGlobal,
         ShellMenuRepoBrowse,
         ShellMenuBlame,
         ShellMenuApplyPatch,
@@ -148,9 +138,7 @@ protected:
         ShellMenuRevisionGraph,
         ShellMenuUnIgnoreSub,
         ShellMenuUnIgnoreCaseSensitive,
-        ShellMenuUnIgnoreCaseSensitiveGlobal,
         ShellMenuUnIgnore,
-        ShellMenuUnIgnoreGlobal,
         ShellMenuLock,
         ShellMenuUnlock,
         ShellMenuUnlockForce,
@@ -185,44 +173,41 @@ protected:
         std::wstring        verb;
     };
 
-    static MenuInfo                 menuInfo[];
-    FileState                       m_State;
-    ULONG                           m_cRef;
+    static MenuInfo menuInfo[];
+    FileState m_State;
+    ULONG   m_cRef;
     //std::map<int,std::string> verbMap;
     std::map<UINT_PTR, UINT_PTR>    myIDMap;
     std::map<UINT_PTR, UINT_PTR>    mySubMenuMap;
-    std::map<tstring, UINT_PTR>     myVerbsMap;
-    std::map<UINT_PTR, tstring>     myVerbsIDMap;
-    tstring                         folder_;
-    std::vector<tstring>            files_;
-    DWORD                           itemStates;         ///< see the globals.h file for the ITEMIS_* defines
-    DWORD                           itemStatesFolder;   ///< used for states of the folder_ (folder background and/or drop target folder)
-    tstring                         uuidSource;
-    tstring                         uuidTarget;
-    int                             space;
-    TCHAR                           stringtablebuffer[255];
-    tstring                         maincolumnfilepath; ///< holds the last file/dir path for the column provider
-    tstring                         extracolumnfilepath;///< holds the last file/dir path for the column provider
-    tstring                         columnauthor;       ///< holds the corresponding author of the file/dir above
-    tstring                         itemurl;
-    tstring                         itemshorturl;
-    tstring                         ignoredprops;
-    tstring                         ignoredglobalprops;
-    tstring                         owner;
-    svn_revnum_t                    columnrev;          ///< holds the corresponding revision to the file/dir above
-    svn_wc_status_kind              filestatus;
-    CRegStdString                   regDiffLater;
+    std::map<tstring, UINT_PTR> myVerbsMap;
+    std::map<UINT_PTR, tstring> myVerbsIDMap;
+    tstring folder_;
+    std::vector<tstring> files_;
+    DWORD itemStates;               ///< see the globals.h file for the ITEMIS_* defines
+    DWORD itemStatesFolder;         ///< used for states of the folder_ (folder background and/or drop target folder)
+    tstring uuidSource;
+    tstring uuidTarget;
+    int space;
+    TCHAR stringtablebuffer[255];
+    tstring maincolumnfilepath;     ///< holds the last file/dir path for the column provider
+    tstring extracolumnfilepath;    ///< holds the last file/dir path for the column provider
+    tstring columnauthor;           ///< holds the corresponding author of the file/dir above
+    tstring itemurl;
+    tstring itemshorturl;
+    tstring ignoredprops;
+    tstring owner;
+    svn_revnum_t columnrev;         ///< holds the corresponding revision to the file/dir above
+    svn_wc_status_kind  filestatus;
 
-    SVNFolderStatus                 m_CachedStatus;     // status cache
-    CRemoteCacheLink                m_remoteCacheLink;
-    IconBitmapUtils                 m_iconBitmapUtils;
+    SVNFolderStatus     m_CachedStatus;     // status cache
+    CRemoteCacheLink    m_remoteCacheLink;
+    IconBitmapUtils     m_iconBitmapUtils;
 
-    CString                         columnfolder;       ///< current folder of ColumnProvider
+    CString columnfolder;                                   ///< current folder of ColumnProvider
     typedef std::pair<std::wstring, std::string> columnuserprop; ///< type of user property of ColumnProvider
-    std::vector<columnuserprop>     columnuserprops;    ///< user properties of ColumnProvider
-    CCrashReportTSVN                m_crasher;
-
-#define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, _countof(stringtablebuffer), (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
+    std::vector<columnuserprop> columnuserprops;            ///< user properties of ColumnProvider
+    CCrashReportTSVN    m_crasher;
+#define MAKESTRING(ID) LoadStringEx(g_hResInst, ID, stringtablebuffer, _countof(stringtablebuffer), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)))
 private:
     void            InsertSVNMenu(BOOL istop, HMENU menu, UINT pos, UINT_PTR id, UINT stringid, UINT icon, UINT idCmdFirst, SVNCommands com, const tstring& verb);
     void            InsertIgnoreSubmenus(UINT &idCmd, UINT idCmdFirst, HMENU hMenu, HMENU subMenu, UINT &indexMenu, int &indexSubMenu, unsigned __int64 topmenu, bool bShowIcons);
@@ -274,7 +259,7 @@ private:
      * IShellExtInit wrapper functions to catch exceptions and send crash reports
      */
     //@{
-    STDMETHODIMP    Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+    STDMETHODIMP    Initialize_Wrap(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
     //@}
 
     /** \name IShellIconOverlayIdentifier wrappers
@@ -344,7 +329,7 @@ public:
      * IShellExtInit methods
      */
     //@{
-    STDMETHODIMP    Initialize(PCIDLIST_ABSOLUTE pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
+    STDMETHODIMP    Initialize(LPCITEMIDLIST pIDFolder, LPDATAOBJECT pDataObj, HKEY hKeyID);
     //@}
 
     /** \name IPersistFile

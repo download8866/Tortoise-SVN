@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,16 +16,11 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "UnicodeUtils.h"
-#include "StringUtils.h"
+#include "stringutils.h"
 #include "ClipboardHelper.h"
 #include "SmartHandle.h"
-#include <memory>
-#include <WinCrypt.h>
-#include <atlstr.h>
-
-#pragma comment(lib, "Crypt32.lib")
 
 int strwildcmp(const char *wild, const char *string)
 {
@@ -176,7 +171,7 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND h
             WCHAR* pchData = (WCHAR*)GlobalLock(hClipboardData);
             if (pchData)
             {
-                wcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
+                _tcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
                 GlobalUnlock(hClipboardData);
                 if (SetClipboardData(CF_UNICODETEXT, hClipboardData))
                 {
@@ -192,7 +187,7 @@ bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND h
 
 bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningWnd)
 {
-    UINT cFormat = RegisterClipboardFormat(L"TSVN_UNIFIEDDIFF");
+    UINT cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
     if (cFormat == 0)
         return false;
     CClipboardHelper clipboardHelper;
@@ -273,12 +268,12 @@ CString CStringUtils::LinesWrap(const CString& longstring, int limit /* = 80 */,
             break;
         lineposold = linepos;
         if (!retString.IsEmpty())
-            retString += L"\n";
+            retString += _T("\n");
         retString += WordWrap(temp, limit, bCompactPaths, false, 4);
     }
     temp = longstring.Mid(lineposold);
     if (!temp.IsEmpty())
-        retString += L"\n";
+        retString += _T("\n");
     retString += WordWrap(temp, limit, bCompactPaths, false, 4);
     retString.Trim();
     return retString;
@@ -317,7 +312,7 @@ CString CStringUtils::WordWrap(const CString& longstring, int limit, bool bCompa
                 {
                     if (((!PathIsFileSpec(longline))&&longline.Find(':')<3)||(PathIsURL(longline)))
                     {
-                        TCHAR buf[MAX_PATH] = { 0 };
+                        TCHAR buf[MAX_PATH];
                         PathCompactPathEx(buf, longline, limit+1, 0);
                         longline = buf;
                     }
@@ -345,7 +340,7 @@ CString CStringUtils::WordWrap(const CString& longstring, int limit, bool bCompa
         {
             if (((!PathIsFileSpec(longline))&&longline.Find(':')<3)||(PathIsURL(longline)))
             {
-                TCHAR buf[MAX_PATH] = { 0 };
+                TCHAR buf[MAX_PATH];
                 PathCompactPathEx(buf, longline, limit+1, 0);
                 longline = buf;
             }
@@ -418,6 +413,7 @@ int CStringUtils::FastCompareNoCase (const CStringW& lhs, const CStringW& rhs)
 
     return 0;
 }
+#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 /* = true */)
 {
@@ -443,7 +439,6 @@ bool CStringUtils::WriteStringToTextFile(const std::wstring& path, const std::ws
     }
     return true;
 }
-#endif // #if defined(CSTRING_AVAILABLE) || defined(_MFC_VER)
 
 inline static void PipeToNull(TCHAR* ptr)
 {
@@ -471,106 +466,6 @@ void CStringUtils::PipesToNulls(TCHAR* buffer)
     }
 }
 
-std::unique_ptr<char[]> CStringUtils::Decrypt(const char * text)
-{
-    DWORD dwLen = 0;
-    if (CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, NULL, &dwLen, NULL, NULL)==FALSE)
-        return NULL;
-
-    std::unique_ptr<BYTE[]> strIn(new BYTE[dwLen + 1]);
-    if (CryptStringToBinaryA(text, (DWORD)strlen(text), CRYPT_STRING_HEX, strIn.get(), &dwLen, NULL, NULL)==FALSE)
-        return NULL;
-
-    DATA_BLOB blobin;
-    blobin.cbData = dwLen;
-    blobin.pbData = strIn.get();
-    LPWSTR descr;
-    DATA_BLOB blobout = {0};
-    if (CryptUnprotectData(&blobin, &descr, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout)==FALSE)
-        return NULL;
-    SecureZeroMemory(blobin.pbData, blobin.cbData);
-
-    std::unique_ptr<char[]> result(new char[blobout.cbData + 1]);
-    strncpy_s(result.get(), blobout.cbData+1, (const char*)blobout.pbData, blobout.cbData);
-    SecureZeroMemory(blobout.pbData, blobout.cbData);
-    LocalFree(blobout.pbData);
-    LocalFree(descr);
-    return result;
-}
-
-std::unique_ptr<wchar_t[]> CStringUtils::Decrypt(const wchar_t * text)
-{
-    DWORD dwLen = 0;
-    if (CryptStringToBinaryW(text, (DWORD)wcslen(text), CRYPT_STRING_HEX, NULL, &dwLen, NULL, NULL)==FALSE)
-        return NULL;
-
-    std::unique_ptr<BYTE[]> strIn(new BYTE[dwLen + 1]);
-    if (CryptStringToBinaryW(text, (DWORD)wcslen(text), CRYPT_STRING_HEX, strIn.get(), &dwLen, NULL, NULL)==FALSE)
-        return NULL;
-
-    DATA_BLOB blobin;
-    blobin.cbData = dwLen;
-    blobin.pbData = strIn.get();
-    LPWSTR descr;
-    DATA_BLOB blobout = {0};
-    if (CryptUnprotectData(&blobin, &descr, NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout)==FALSE)
-        return NULL;
-    SecureZeroMemory(blobin.pbData, blobin.cbData);
-
-    std::unique_ptr<wchar_t[]> result(new wchar_t[(blobout.cbData) / sizeof(wchar_t) + 1]);
-    wcsncpy_s(result.get(), (blobout.cbData)/sizeof(wchar_t)+1, (const wchar_t*)blobout.pbData, blobout.cbData/sizeof(wchar_t));
-    SecureZeroMemory(blobout.pbData, blobout.cbData);
-    LocalFree(blobout.pbData);
-    LocalFree(descr);
-    return result;
-}
-
-CStringA CStringUtils::Encrypt( const char * text )
-{
-    DATA_BLOB blobin = {0};
-    DATA_BLOB blobout = {0};
-    CStringA result;
-
-    blobin.cbData = (DWORD)strlen(text);
-    blobin.pbData = (BYTE*) (LPCSTR)text;
-    if (CryptProtectData(&blobin, L"TSVNAuth", NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout)==FALSE)
-        return result;
-    DWORD dwLen = 0;
-    if (CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, NULL, &dwLen)==FALSE)
-        return result;
-    std::unique_ptr<char[]> strOut(new char[dwLen + 1]);
-    if (CryptBinaryToStringA(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, strOut.get(), &dwLen)==FALSE)
-        return result;
-    LocalFree(blobout.pbData);
-
-    result = strOut.get();
-
-    return result;
-}
-
-CStringW CStringUtils::Encrypt( const wchar_t * text )
-{
-    DATA_BLOB blobin = {0};
-    DATA_BLOB blobout = {0};
-    CStringW result;
-
-    blobin.cbData = (DWORD)wcslen(text)*sizeof(wchar_t);
-    blobin.pbData = (BYTE*) (LPCWSTR)text;
-    if (CryptProtectData(&blobin, L"TSVNAuth", NULL, NULL, NULL, CRYPTPROTECT_UI_FORBIDDEN, &blobout)==FALSE)
-        return result;
-    DWORD dwLen = 0;
-    if (CryptBinaryToStringW(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, NULL, &dwLen)==FALSE)
-        return result;
-    std::unique_ptr<wchar_t[]> strOut(new wchar_t[dwLen + 1]);
-    if (CryptBinaryToStringW(blobout.pbData, blobout.cbData, CRYPT_STRING_HEX, strOut.get(), &dwLen)==FALSE)
-        return result;
-    LocalFree(blobout.pbData);
-
-    result = strOut.get();
-
-    return result;
-}
-
 #define IsCharNumeric(C) (!IsCharAlpha(C) && IsCharAlphaNumeric(C))
 
 
@@ -581,40 +476,34 @@ static class StringUtilsTest
 public:
     StringUtilsTest()
     {
-        CString longline = L"this is a test of how a string can be splitted into several lines";
+        CString longline = _T("this is a test of how a string can be splitted into several lines");
         CString splittedline = CStringUtils::WordWrap(longline, 10, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
+        ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 10, true);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        longline = L"c:\\this_is_a_very_long\\path_on_windows and of course some other words added to make the line longer";
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+        longline = _T("c:\\this_is_a_very_long\\path_on_windows and of course some other words added to make the line longer");
         splittedline = CStringUtils::WordWrap(longline, 10, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
+        ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 10);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        longline = L"Forced failure in https://myserver.com/a_long_url_to_split PROPFIND error";
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+        longline = _T("Forced failure in https://myserver.com/a_long_url_to_split PROPFIND error");
         splittedline = CStringUtils::WordWrap(longline, 20, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
+        ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 20, true);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        longline = L"Forced\nfailure in https://myserver.com/a_long_url_to_split PROPFIND\nerror";
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+        longline = _T("Forced\nfailure in https://myserver.com/a_long_url_to_split PROPFIND\nerror");
         splittedline = CStringUtils::WordWrap(longline, 40, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
+        ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 40);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        longline = L"Failed to add file\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO1.java\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO2.java";
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+        longline = _T("Failed to add file\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO1.java\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO2.java");
         splittedline = CStringUtils::WordWrap(longline, 80, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
+        ATLTRACE(_T("WordWrap:\n%s\n"), splittedline);
         splittedline = CStringUtils::LinesWrap(longline);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        longline = L"The commit comment is not properly formatted.\nFormat:\n  Field 1 : Field 2 : Field 3\nWhere:\nField 1 - Team Name|Triage|Merge|Goal\nField 2 - V1 Backlog Item ID|Triage Number|SVNBranch|Goal Name\nField 3 - Description of change\nExamples:\n\nTeam Gamma : B-12345 : Changed some code\n  Triage : 123 : Fixed production release bug\n  Merge : sprint0812 : Merged sprint0812 into prod\n  Goal : Implement Pre-Commit Hook : Commit message hook impl";
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
+        longline = _T("The commit comment is not properly formatted.\nFormat:\n  Field 1 : Field 2 : Field 3\nWhere:\nField 1 - Team Name|Triage|Merge|Goal\nField 2 - V1 Backlog Item ID|Triage Number|SVNBranch|Goal Name\nField 3 - Description of change\nExamples:\n\nTeam Gamma : B-12345 : Changed some code\n  Triage : 123 : Fixed production release bug\n  Merge : sprint0812 : Merged sprint0812 into prod\n  Goal : Implement Pre-Commit Hook : Commit message hook impl");
         splittedline = CStringUtils::LinesWrap(longline, 80);
-        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
-        CString widecrypt = CStringUtils::Encrypt(L"test");
-        auto wide = CStringUtils::Decrypt(widecrypt);
-        ATLASSERT(wcscmp(wide.get(), L"test") == 0);
-        CStringA charcrypt = CStringUtils::Encrypt("test");
-        auto charnorm = CStringUtils::Decrypt(charcrypt);
-        ATLASSERT(strcmp(charnorm.get(), "test") == 0);
+        ATLTRACE(_T("LinesWrap:\n%s\n"), splittedline);
     }
 } StringUtilsTest;
 

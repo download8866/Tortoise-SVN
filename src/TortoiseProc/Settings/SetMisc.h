@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2011-2013 - TortoiseSVN
+// Copyright (C) 2003-2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 
 /**
  * \ingroup TortoiseProc
@@ -33,7 +33,7 @@ public:
     CSetMisc();
     virtual ~CSetMisc();
 
-    UINT GetIconID() override {return IDI_DIALOGS;}
+    UINT GetIconID() {return IDI_DIALOGS;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSMISC };
@@ -65,6 +65,4 @@ private:
     BOOL            m_bShowLockDlg;
     CRegDWORD       m_regAutoSelect;
     BOOL            m_bAutoSelect;
-    CRegDWORD       m_regIncompleteReopen;
-    BOOL            m_bIncompleteReopen;
 };

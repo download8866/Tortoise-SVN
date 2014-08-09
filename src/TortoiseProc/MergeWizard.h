@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2011-2013 - TortoiseSVN
+// Copyright (C) 2007-2009, 2011-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,11 +23,13 @@
 #include "MergeWizardTree.h"
 #include "MergeWizardRevRange.h"
 #include "MergeWizardOptions.h"
+#include "MergeWizardReintegrate.h"
 #include "AeroGlass.h"
 #include "AeroControls.h"
 
 #define MERGEWIZARD_REVRANGE    0
 #define MERGEWIZARD_TREE        1
+#define MERGEWIZARD_REINTEGRATE 2
 
 class CMergeWizard : public CResizableSheetEx
 {
@@ -52,6 +54,7 @@ protected:
     CMergeWizardTree                tree;
     CMergeWizardRevRange            revrange;
     CMergeWizardOptions             options;
+    CMergeWizardReintegrate         reintegrate;
 
 public:
     CTSVNPath                       wcPath;
@@ -66,8 +69,6 @@ public:
     SVNRev                          pegRev;
     SVNRevRangeArray                revRangeArray;
     BOOL                            bReverseMerge;
-    BOOL                            bReintegrate;
-    BOOL                            bAllowMixedRev;
 
     BOOL                            m_bRecordOnly;
 

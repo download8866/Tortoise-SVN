@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2010-2011, 2014 - TortoiseSVN
+// Copyright (C) 2007, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "LogFile.h"
 #include "PathUtils.h"
 
@@ -25,7 +25,7 @@
 
 CLogFile::CLogFile(void)
 {
-    m_maxlines = CRegStdDWORD(L"Software\\TortoiseSVN\\MaxLinesInLogfile", 4000);
+    m_maxlines = CRegStdDWORD(_T("Software\\TortoiseSVN\\MaxLinesInLogfile"), 4000);
 }
 
 CLogFile::~CLogFile(void)
@@ -34,7 +34,7 @@ CLogFile::~CLogFile(void)
 
 bool CLogFile::Open()
 {
-    CTSVNPath logfile = CTSVNPath(CPathUtils::GetLocalAppDataDirectory() + L"\\logfile.txt");
+    CTSVNPath logfile = CTSVNPath(CPathUtils::GetAppDataDirectory() + _T("\\logfile.txt"));
     return Open(logfile);
 }
 
@@ -60,6 +60,7 @@ bool CLogFile::AddLine(const CString& line)
 
 bool CLogFile::Close()
 {
+    std::deque<CString> lines;
     try
     {
         // limit log file growth
@@ -88,7 +89,7 @@ bool CLogFile::Close()
         for (std::deque<CString>::const_iterator it = m_newLines.begin(); it != m_newLines.end(); ++it)
         {
             file.WriteString(*it);
-            file.WriteString(L"\n");
+            file.WriteString(_T("\n"));
         }
         file.Close();
     }
@@ -111,7 +112,7 @@ bool CLogFile::AddTimeLine()
     GetDateFormat(LOCALE_USER_DEFAULT, DATE_SHORTDATE, NULL, NULL, datebuf, 4096);
     sLine = datebuf;
     GetTimeFormat(LOCALE_USER_DEFAULT, 0, NULL, NULL, datebuf, 4096);
-    sLine += L" - ";
+    sLine += _T(" - ");
     sLine += datebuf;
     m_newLines.push_back(sLine);
     return true;

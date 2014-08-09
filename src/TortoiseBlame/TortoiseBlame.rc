@@ -32,8 +32,6 @@ IDC_TORTOISEBLAME MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&Settings",                   ID_FILE_SETTINGS
-        MENUITEM SEPARATOR
         MENUITEM "E&xit",                       IDM_EXIT
     END
     POPUP "&Edit"
@@ -43,9 +41,7 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        MENUITEM "Color by &age, indexed",      ID_VIEW_COLORAGEOFLINES
-        MENUITEM "Color by age, &continuous",   ID_VIEW_COLORBYAGE
-        MENUITEM "Color by au&thor",            ID_VIEW_COLORBYAUTHOR
+        MENUITEM "&Color age of lines",         ID_VIEW_COLORAGEOFLINES
         MENUITEM "&Merge paths",                ID_VIEW_MERGEPATH
     END
 END
@@ -55,7 +51,6 @@ BEGIN
     POPUP "&Copy to clipboard"
     BEGIN
         MENUITEM "&Copy log message to clipboard", ID_COPYTOCLIPBOARD
-        MENUITEM "Copy &revision number to clipboard", ID_COPYTOCLIPBOARD_REV
         MENUITEM SEPARATOR
         MENUITEM "&Blame previous revision",    ID_BLAME_PREVIOUS_REVISION
         MENUITEM "Show &changes",               ID_DIFF_PREVIOUS_REVISION
@@ -72,12 +67,11 @@ END
 IDC_TORTOISEBLAME ACCELERATORS
 BEGIN
     "F",            ID_EDIT_FIND,           VIRTKEY, CONTROL, NOINVERT
-    VK_F3,          ID_EDIT_FINDNEXT,       VIRTKEY, NOINVERT
+    VK_F3,          ID_EDIT_FIND,           VIRTKEY, NOINVERT
     "G",            ID_EDIT_GOTOLINE,       VIRTKEY, CONTROL, NOINVERT
     "O",            ID_VIEW_COLORAGEOFLINES, VIRTKEY, CONTROL, NOINVERT
     VK_ESCAPE,      IDM_EXIT,               VIRTKEY, NOINVERT
     "W",            IDM_EXIT,               VIRTKEY, CONTROL, NOINVERT
-    VK_F3,          ID_EDIT_FINDSEL,        VIRTKEY, CONTROL, NOINVERT
 END
 
 

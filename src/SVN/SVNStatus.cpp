@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@
 #include "svn_config.h"
 #pragma warning(pop)
 #include "resource.h"
-#include "../TortoiseShell/resource.h"
+#include "..\TortoiseShell\resource.h"
 #include "SVNStatus.h"
 #include "UnicodeUtils.h"
 #include "SVNGlobal.h"
@@ -41,28 +41,16 @@
 SVNStatus::SVNStatus(bool * pbCancelled, bool suppressUI)
     : SVNBase()
     , status(NULL)
-    , headrev(-1)
-    , m_allstatus(svn_wc_status_none)
-    , m_statushash(NULL)
-    , m_statusarray(NULL)
-    , m_statushashindex(0)
-    , m_externalhash(NULL)
     , m_prompt (suppressUI)
 #else
 SVNStatus::SVNStatus(bool * pbCancelled, bool)
     : SVNBase()
     , status(NULL)
-    , headrev(-1)
-    , m_allstatus(svn_wc_status_none)
-    , m_statushash(NULL)
-    , m_statusarray(NULL)
-    , m_statushashindex(0)
-    , m_externalhash(NULL)
 #endif
 {
     m_pool = svn_pool_create (NULL);
 
-    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(m_pool), m_pool));
+    svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
 
     if (pbCancelled)
     {
@@ -73,6 +61,9 @@ SVNStatus::SVNStatus(bool * pbCancelled, bool)
 
 
 #ifdef _MFC_VER
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
+
     // set up authentication
     m_prompt.Init(m_pool, m_pctx);
 
@@ -83,6 +74,12 @@ SVNStatus::SVNStatus(bool * pbCancelled, bool)
         svn_pool_destroy (m_pool);                  // free the allocated memory
         exit(-1);
     }
+
+    SVNConfig::SetUpSSH(m_pctx);
+#else
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
+
 #endif
 }
 
@@ -104,10 +101,16 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
     svn_wc_status_kind          statuskind;
     apr_pool_t *                pool;
     svn_error_t *               err;
+    BOOL                        isDir;
+
+    isDir = path.IsDirectory();
 
     pool = svn_pool_create (NULL);              // create the memory pool
 
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(pool), pool));
+    svn_error_clear(svn_client_create_context(&ctx, pool));
+
+    // set up the configuration
+    ctx->config = SVNConfig::Instance().GetConfig(pool);
 
     svn_revnum_t youngest = SVN_INVALID_REVNUM;
     svn_opt_revision_t rev;
@@ -118,21 +121,20 @@ svn_wc_status_kind SVNStatus::GetAllStatus(const CTSVNPath& path, svn_depth_t de
     if ((svnPath == NULL)||(svnPath[0] == 0))
         return svn_wc_status_none;
     SVNTRACE (
-        err = svn_client_status6 (&youngest,
-                                  ctx,
-                                  svnPath,
-                                  &rev,
-                                  depth,
-                                  TRUE,           // get all
-                                  FALSE,          // check out-of-date
-                                  TRUE,           // check working copy
-                                  TRUE,           // no ignore
-                                  FALSE,          // ignore externals
-                                  TRUE,           // depth as sticky
-                                  NULL,
-                                  getallstatus,
-                                  &statuskind,
-                                  pool),
+        err = svn_client_status5 (&youngest,
+                                ctx,
+                                svnPath,
+                                &rev,
+                                depth,
+                                TRUE,           // get all
+                                FALSE,          // update
+                                TRUE,           // no ignore
+                                FALSE,          // ignore externals
+                                TRUE,           // depth as sticky
+                                NULL,
+                                getallstatus,
+                                &statuskind,
+                                pool),
         svnPath
     )
 
@@ -227,24 +229,22 @@ svn_revnum_t SVNStatus::GetStatus(const CTSVNPath& path, bool update /* = false 
         CHooks::Instance().PreConnect(CTSVNPathList(path));
 #endif
     SVNTRACE (
-        Err = svn_client_status6 (&youngest,
-                                  m_pctx,
-                                  svnPath,
-                                  &rev,
-                                  svn_depth_empty,        // depth
-                                  TRUE,                   // get all
-                                  update,                 // check out-of-date
-                                  true,                   // check working copy
-                                  noignore,
-                                  noexternals,
-                                  TRUE,           // depth as sticky
-                                  NULL,
-                                  getstatushash,
-                                  &hashbaton,
-                                  m_pool),
+        Err = svn_client_status5 (&youngest,
+                                m_pctx,
+                                svnPath,
+                                &rev,
+                                svn_depth_empty,        // depth
+                                TRUE,                   // get all
+                                update,                 // update
+                                noignore,
+                                noexternals,
+                                TRUE,           // depth as sticky
+                                NULL,
+                                getstatushash,
+                                &hashbaton,
+                                m_pool),
         svnPath
     );
-    ClearCAPIAuthCacheOnError();
 
     // Error present if function is not under version control
     if ((Err != NULL) || (apr_hash_count(statushash) == 0))
@@ -294,24 +294,22 @@ svn_client_status_t * SVNStatus::GetFirstFileStatus(const CTSVNPath& path, CTSVN
         CHooks::Instance().PreConnect(CTSVNPathList(path));
 #endif
     SVNTRACE (
-        Err = svn_client_status6 (&headrev,
-                                  m_pctx,
-                                  svnPath,
-                                  &rev,
-                                  depth,
-                                  TRUE,                   // get all
-                                  update,                 // check out-of-date
-                                  true,                   // check working copy
-                                  bNoIgnore,
-                                  bNoExternals,
-                                  TRUE,           // depth as sticky
-                                  NULL,
-                                  getstatushash,
-                                  &hashbaton,
-                                  m_pool),
+        Err = svn_client_status5 (&headrev,
+                                m_pctx,
+                                svnPath,
+                                &rev,
+                                depth,
+                                TRUE,           // get all
+                                update,         // update
+                                bNoIgnore,
+                                bNoExternals,
+                                TRUE,           // depth as sticky
+                                NULL,
+                                getstatushash,
+                                &hashbaton,
+                                m_pool),
         svnPath
     )
-    ClearCAPIAuthCacheOnError();
 
     // Error present if function is not under version control
     if ((Err != NULL) || (apr_hash_count(m_statushash) == 0))
@@ -411,52 +409,52 @@ void SVNStatus::GetStatusString(svn_wc_status_kind status, size_t buflen, TCHAR 
     switch (status)
     {
         case svn_wc_status_none:
-            buf = L"none\0";
+            buf = _T("none\0");
             break;
         case svn_wc_status_unversioned:
-            buf = L"unversioned\0";
+            buf = _T("unversioned\0");
             break;
         case svn_wc_status_normal:
-            buf = L"normal\0";
+            buf = _T("normal\0");
             break;
         case svn_wc_status_added:
-            buf = L"added\0";
+            buf = _T("added\0");
             break;
         case svn_wc_status_missing:
-            buf = L"missing\0";
+            buf = _T("missing\0");
             break;
         case svn_wc_status_deleted:
-            buf = L"deleted\0";
+            buf = _T("deleted\0");
             break;
         case svn_wc_status_replaced:
-            buf = L"replaced\0";
+            buf = _T("replaced\0");
             break;
         case svn_wc_status_modified:
-            buf = L"modified\0";
+            buf = _T("modified\0");
             break;
         case svn_wc_status_merged:
-            buf = L"merged\0";
+            buf = _T("merged\0");
             break;
         case svn_wc_status_conflicted:
-            buf = L"conflicted\0";
+            buf = _T("conflicted\0");
             break;
         case svn_wc_status_obstructed:
-            buf = L"obstructed\0";
+            buf = _T("obstructed\0");
             break;
         case svn_wc_status_ignored:
-            buf = L"ignored";
+            buf = _T("ignored");
             break;
         case svn_wc_status_external:
-            buf = L"external";
+            buf = _T("external");
             break;
         case svn_wc_status_incomplete:
-            buf = L"incomplete\0";
+            buf = _T("incomplete\0");
             break;
         default:
-            buf = L"\0";
+            buf = _T("\0");
             break;
     }
-    swprintf_s(string, buflen, L"%s", buf);
+    _stprintf_s(string, buflen, _T("%s"), buf);
 }
 
 void SVNStatus::GetStatusString(HINSTANCE hInst, svn_wc_status_kind status, TCHAR * string, int size, WORD lang)
@@ -670,16 +668,12 @@ svn_error_t * SVNStatus::getstatushash(void * baton, const char * path, const sv
         apr_hash_set (hash->exthash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, (const void*)1);
         return SVN_NO_ERROR;
     }
-    if (status->file_external)
-    {
-        apr_hash_set (hash->exthash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, (const void*)1);
-    }
     svn_client_status_t * statuscopy = svn_client_status_dup (status, hash->pThis->m_pool);
     apr_hash_set (hash->hash, apr_pstrdup(hash->pThis->m_pool, path), APR_HASH_KEY_STRING, statuscopy);
     return SVN_NO_ERROR;
 }
 
-void SVNStatus::notify(void *baton, const svn_wc_notify_t *notify, apr_pool_t * /*pool*/)
+void SVNStatus::notify(void *baton, const svn_wc_notify_t *notify, apr_pool_t *pool)
 {
     hashbaton_t * hash = (hashbaton_t *)baton;
 

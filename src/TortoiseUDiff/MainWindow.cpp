@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,25 +16,20 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "MainWindow.h"
 #include "UnicodeUtils.h"
 #include "StringUtils.h"
+#include "auto_buffer.h"
 #include "TaskbarUUID.h"
-#include "CreateProcessHelper.h"
-#include "SysInfo.h"
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
 CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = NULL*/)
     : CWindow(hInst, wcx)
     , m_bShowFindBar(false)
-    , m_directFunction(0)
-    , m_directPointer(0)
-    , m_hWndEdit(NULL)
-    , m_bMatchCase(false)
 {
-    SetWindowTitle(L"TortoiseUDiff");
+    SetWindowTitle(_T("TortoiseUDiff"));
 }
 
 CMainWindow::~CMainWindow(void)
@@ -53,8 +48,7 @@ bool CMainWindow::RegisterAndCreateWindow()
     wcx.cbWndExtra = 0;
     wcx.hInstance = hResource;
     wcx.hCursor = NULL;
-    ResString clsname(hResource, IDS_APP_TITLE);
-    wcx.lpszClassName = clsname;
+    wcx.lpszClassName = ResString(hResource, IDS_APP_TITLE);
     wcx.hIcon = LoadIcon(hResource, MAKEINTRESOURCE(IDI_TORTOISEUDIFF));
     wcx.hbrBackground = (HBRUSH)(COLOR_3DFACE+1);
     wcx.lpszMenuName = MAKEINTRESOURCE(IDC_TORTOISEUDIFF);
@@ -224,6 +218,7 @@ LRESULT CMainWindow::DoCommand(int id)
         }
         break;
     case IDM_FINDNEXT:
+        SendEditor(SCI_CHARRIGHT);
         SendEditor(SCI_SEARCHANCHOR);
         SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
         SendEditor(SCI_SCROLLCARET);
@@ -248,295 +243,12 @@ LRESULT CMainWindow::DoCommand(int id)
         else
             PostQuitMessage(0);
         break;
-    case ID_FILE_SETTINGS:
-        {
-            tstring svnCmd = L" /command:settings /page:19";
-            RunCommand(svnCmd);
-        }
-        break;
-    case ID_FILE_APPLYPATCH:
-        {
-            std::wstring command = L" /diff:\"";
-            command += m_filename;
-            command += L"\"";
-            std::wstring tortoiseMergePath = GetAppDirectory() + L"TortoiseMerge.exe";
-            CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), const_cast<TCHAR*>(command.c_str()));
-        }
-        break;
-    case ID_FILE_PAGESETUP:
-        {
-            TCHAR localeInfo[3] = { 0 };
-            GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
-            // Metric system. '1' is US System
-            int defaultMargin = localeInfo[0] == '0' ? 2540 : 1000;
-
-            PAGESETUPDLG pdlg = {0};
-            pdlg.lStructSize = sizeof(PAGESETUPDLG);
-            pdlg.hwndOwner = *this;
-            pdlg.hInstance = NULL;
-            pdlg.Flags = PSD_DEFAULTMINMARGINS|PSD_MARGINS|PSD_DISABLEPAPER|PSD_DISABLEORIENTATION;
-            if (localeInfo[0] == '0')
-                pdlg.Flags |= PSD_INHUNDREDTHSOFMILLIMETERS;
-
-            CRegStdDWORD m_regMargLeft   = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginleft", defaultMargin);
-            CRegStdDWORD m_regMargTop    = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmargintop", defaultMargin);
-            CRegStdDWORD m_regMargRight  = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginright", defaultMargin);
-            CRegStdDWORD m_regMargBottom = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginbottom", defaultMargin);
-
-            pdlg.rtMargin.left   = (long)(DWORD)m_regMargLeft;
-            pdlg.rtMargin.top    = (long)(DWORD)m_regMargTop;
-            pdlg.rtMargin.right  = (long)(DWORD)m_regMargRight;
-            pdlg.rtMargin.bottom = (long)(DWORD)m_regMargBottom;
-
-            if (!PageSetupDlg(&pdlg))
-                return false;
-
-            m_regMargLeft   = pdlg.rtMargin.left;
-            m_regMargTop    = pdlg.rtMargin.top;
-            m_regMargRight  = pdlg.rtMargin.right;
-            m_regMargBottom = pdlg.rtMargin.bottom;
-        }
-        break;
-    case ID_FILE_PRINT:
-        {
-            PRINTDLGEX pdlg = {0};
-            pdlg.lStructSize = sizeof(PRINTDLGEX);
-            pdlg.hwndOwner = *this;
-            pdlg.hInstance = NULL;
-            pdlg.Flags = PD_USEDEVMODECOPIESANDCOLLATE | PD_ALLPAGES | PD_RETURNDC | PD_NOCURRENTPAGE | PD_NOPAGENUMS;
-            pdlg.nMinPage = 1;
-            pdlg.nMaxPage = 0xffffU; // We do not know how many pages in the document
-            pdlg.nCopies = 1;
-            pdlg.hDC = 0;
-            pdlg.nStartPage = START_PAGE_GENERAL;
-
-            // See if a range has been selected
-            size_t startPos = SendEditor(SCI_GETSELECTIONSTART);
-            size_t endPos = SendEditor(SCI_GETSELECTIONEND);
-
-            if (startPos == endPos)
-                pdlg.Flags |= PD_NOSELECTION;
-            else
-                pdlg.Flags |= PD_SELECTION;
-
-            HRESULT hResult = PrintDlgEx(&pdlg);
-            if ((hResult != S_OK) || (pdlg.dwResultAction != PD_RESULT_PRINT))
-                return 0;
-
-            // reset all indicators
-            size_t endpos = SendEditor(SCI_GETLENGTH);
-            for (int i = INDIC_CONTAINER; i <= INDIC_MAX; ++i)
-            {
-                SendEditor(SCI_SETINDICATORCURRENT, i);
-                SendEditor(SCI_INDICATORCLEARRANGE, 0, endpos);
-            }
-            // store and reset UI settings
-            int viewws = (int)SendEditor(SCI_GETVIEWWS);
-            SendEditor(SCI_SETVIEWWS, 0);
-            int edgemode = (int)SendEditor(SCI_GETEDGEMODE);
-            SendEditor(SCI_SETEDGEMODE, EDGE_NONE);
-            SendEditor(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_END);
-
-            HDC hdc = pdlg.hDC;
-
-            RECT rectMargins, rectPhysMargins;
-            POINT ptPage;
-            POINT ptDpi;
-
-            // Get printer resolution
-            ptDpi.x = GetDeviceCaps(hdc, LOGPIXELSX);    // dpi in X direction
-            ptDpi.y = GetDeviceCaps(hdc, LOGPIXELSY);    // dpi in Y direction
-
-            // Start by getting the physical page size (in device units).
-            ptPage.x = GetDeviceCaps(hdc, PHYSICALWIDTH);   // device units
-            ptPage.y = GetDeviceCaps(hdc, PHYSICALHEIGHT);  // device units
-
-            // Get the dimensions of the unprintable
-            // part of the page (in device units).
-            rectPhysMargins.left = GetDeviceCaps(hdc, PHYSICALOFFSETX);
-            rectPhysMargins.top = GetDeviceCaps(hdc, PHYSICALOFFSETY);
-
-            // To get the right and lower unprintable area,
-            // we take the entire width and height of the paper and
-            // subtract everything else.
-            rectPhysMargins.right = ptPage.x                        // total paper width
-                - GetDeviceCaps(hdc, HORZRES)                       // printable width
-                - rectPhysMargins.left;                             // left unprintable margin
-
-            rectPhysMargins.bottom = ptPage.y                       // total paper height
-                - GetDeviceCaps(hdc, VERTRES)                       // printable height
-                - rectPhysMargins.top;                              // right unprintable margin
-
-            TCHAR localeInfo[3] = { 0 };
-            GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_IMEASURE, localeInfo, 3);
-            // Metric system. '1' is US System
-            int defaultMargin = localeInfo[0] == '0' ? 2540 : 1000;
-            RECT pagesetupMargin;
-            CRegStdDWORD m_regMargLeft   = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginleft", defaultMargin);
-            CRegStdDWORD m_regMargTop    = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmargintop", defaultMargin);
-            CRegStdDWORD m_regMargRight  = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginright", defaultMargin);
-            CRegStdDWORD m_regMargBottom = CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffpagesetupmarginbottom", defaultMargin);
-
-            pagesetupMargin.left   = (long)(DWORD)m_regMargLeft;
-            pagesetupMargin.top    = (long)(DWORD)m_regMargTop;
-            pagesetupMargin.right  = (long)(DWORD)m_regMargRight;
-            pagesetupMargin.bottom = (long)(DWORD)m_regMargBottom;
-
-            if (pagesetupMargin.left != 0 || pagesetupMargin.right != 0 ||
-                pagesetupMargin.top != 0 || pagesetupMargin.bottom != 0)
-            {
-                RECT rectSetup;
-
-                // Convert the hundredths of millimeters (HiMetric) or
-                // thousandths of inches (HiEnglish) margin values
-                // from the Page Setup dialog to device units.
-                // (There are 2540 hundredths of a mm in an inch.)
-                if (localeInfo[0] == '0')
-                {
-                    // Metric system. '1' is US System
-                    rectSetup.left      = MulDiv (pagesetupMargin.left, ptDpi.x, 2540);
-                    rectSetup.top       = MulDiv (pagesetupMargin.top, ptDpi.y, 2540);
-                    rectSetup.right     = MulDiv(pagesetupMargin.right, ptDpi.x, 2540);
-                    rectSetup.bottom    = MulDiv(pagesetupMargin.bottom, ptDpi.y, 2540);
-                }
-                else
-                {
-                    rectSetup.left      = MulDiv(pagesetupMargin.left, ptDpi.x, 1000);
-                    rectSetup.top       = MulDiv(pagesetupMargin.top, ptDpi.y, 1000);
-                    rectSetup.right     = MulDiv(pagesetupMargin.right, ptDpi.x, 1000);
-                    rectSetup.bottom    = MulDiv(pagesetupMargin.bottom, ptDpi.y, 1000);
-                }
-
-                // Don't reduce margins below the minimum printable area
-                rectMargins.left    = max(rectPhysMargins.left, rectSetup.left);
-                rectMargins.top     = max(rectPhysMargins.top, rectSetup.top);
-                rectMargins.right   = max(rectPhysMargins.right, rectSetup.right);
-                rectMargins.bottom  = max(rectPhysMargins.bottom, rectSetup.bottom);
-            }
-            else
-            {
-                rectMargins.left    = rectPhysMargins.left;
-                rectMargins.top     = rectPhysMargins.top;
-                rectMargins.right   = rectPhysMargins.right;
-                rectMargins.bottom  = rectPhysMargins.bottom;
-            }
-
-            // rectMargins now contains the values used to shrink the printable
-            // area of the page.
-
-            // Convert device coordinates into logical coordinates
-            DPtoLP(hdc, (LPPOINT) &rectMargins, 2);
-            DPtoLP(hdc, (LPPOINT)&rectPhysMargins, 2);
-
-            // Convert page size to logical units and we're done!
-            DPtoLP(hdc, (LPPOINT) &ptPage, 1);
-
-
-            DOCINFO di = {sizeof(DOCINFO), 0, 0, 0, 0};
-            di.lpszDocName = m_filename.c_str();
-            di.lpszOutput = 0;
-            di.lpszDatatype = 0;
-            di.fwType = 0;
-            if (::StartDoc(hdc, &di) < 0)
-            {
-                ::DeleteDC(hdc);
-                return 0;
-            }
-
-            size_t lengthDoc = SendEditor(SCI_GETLENGTH);
-            size_t lengthDocMax = lengthDoc;
-            size_t lengthPrinted = 0;
-
-            // Requested to print selection
-            if (pdlg.Flags & PD_SELECTION)
-            {
-                if (startPos > endPos)
-                {
-                    lengthPrinted = endPos;
-                    lengthDoc = startPos;
-                }
-                else
-                {
-                    lengthPrinted = startPos;
-                    lengthDoc = endPos;
-                }
-
-                if (lengthDoc > lengthDocMax)
-                    lengthDoc = lengthDocMax;
-            }
-
-            // We must subtract the physical margins from the printable area
-            Sci_RangeToFormat frPrint;
-            frPrint.hdc             = hdc;
-            frPrint.hdcTarget       = hdc;
-            frPrint.rc.left         = rectMargins.left - rectPhysMargins.left;
-            frPrint.rc.top          = rectMargins.top - rectPhysMargins.top;
-            frPrint.rc.right        = ptPage.x - rectMargins.right - rectPhysMargins.left;
-            frPrint.rc.bottom       = ptPage.y - rectMargins.bottom - rectPhysMargins.top;
-            frPrint.rcPage.left     = 0;
-            frPrint.rcPage.top      = 0;
-            frPrint.rcPage.right    = ptPage.x - rectPhysMargins.left - rectPhysMargins.right - 1;
-            frPrint.rcPage.bottom   = ptPage.y - rectPhysMargins.top - rectPhysMargins.bottom - 1;
-
-            // Print each page
-            while (lengthPrinted < lengthDoc)
-            {
-                ::StartPage(hdc);
-
-                frPrint.chrg.cpMin = (long)lengthPrinted;
-                frPrint.chrg.cpMax = (long)lengthDoc;
-
-                lengthPrinted = SendEditor(SCI_FORMATRANGE, true, reinterpret_cast<LPARAM>(&frPrint));
-
-                ::EndPage(hdc);
-            }
-
-            SendEditor(SCI_FORMATRANGE, FALSE, 0);
-
-            ::EndDoc(hdc);
-            ::DeleteDC(hdc);
-
-            if (pdlg.hDevMode != NULL)
-                GlobalFree(pdlg.hDevMode);
-            if (pdlg.hDevNames != NULL)
-                GlobalFree(pdlg.hDevNames);
-            if (pdlg.lpPageRanges != NULL)
-                GlobalFree(pdlg.lpPageRanges);
-
-            // reset the UI
-            SendEditor(SCI_SETVIEWWS, viewws);
-            SendEditor(SCI_SETEDGEMODE, edgemode);
-            SendEditor(SCI_SETWRAPVISUALFLAGS, SC_WRAPVISUALFLAG_NONE);
-        }
-        break;
     default:
         break;
     };
     return 1;
 }
 
-std::wstring CMainWindow::GetAppDirectory()
-{
-    std::wstring path;
-    DWORD len = 0;
-    DWORD bufferlen = MAX_PATH;     // MAX_PATH is not the limit here!
-    do
-    {
-        bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
-        len = GetModuleFileName(NULL, pBuf.get(), bufferlen);
-        path = std::wstring(pBuf.get(), len);
-    } while(len == bufferlen);
-    path = path.substr(0, path.rfind('\\') + 1);
-
-    return path;
-}
-
-void CMainWindow::RunCommand(const std::wstring& command)
-{
-    tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
-}
 
 LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -550,8 +262,8 @@ LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 bool CMainWindow::Initialize()
 {
     m_hWndEdit = ::CreateWindow(
-        L"Scintilla",
-        L"Source",
+        _T("Scintilla"),
+        _T("Source"),
         WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -577,8 +289,8 @@ bool CMainWindow::Initialize()
         // Reusing TortoiseBlame's setting which already have an user friendly
         // pane in TortoiseSVN's Settings dialog, while there is no such
         // pane for TortoiseUDiff.
-        CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10),
-        CUnicodeUtils::StdGetUTF8(CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New")).c_str());
+        CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10),
+        CUnicodeUtils::StdGetUTF8(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New"))).c_str());
     SendEditor(SCI_SETTABWIDTH, 4);
     SendEditor(SCI_SETREADONLY, TRUE);
     LRESULT pix = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_99999");
@@ -591,16 +303,6 @@ bool CMainWindow::Initialize()
     SendEditor(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
     SendEditor(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     SendEditor(SCI_SETCARETFORE, ::GetSysColor(COLOR_WINDOWTEXT));
-    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", FALSE);
-    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
-    {
-        SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
-        SendEditor(SCI_SETBUFFEREDDRAW, 0);
-    }
-    SendEditor(SCI_SETVIEWWS, 1);
-    SendEditor(SCI_SETWHITESPACESIZE, 2);
-    SendEditor(SCI_SETWHITESPACEFORE, true, ::GetSysColor(COLOR_3DSHADOW));
-    SendEditor(SCI_STYLESETVISIBLE, STYLE_CONTROLCHAR, TRUE);
 
     return true;
 }
@@ -608,7 +310,7 @@ bool CMainWindow::Initialize()
 bool CMainWindow::LoadFile(HANDLE hFile)
 {
     InitEditor();
-    char data[4096] = { 0 };
+    char data[4096];
     DWORD dwRead = 0;
 
     BOOL bRet = ReadFile(hFile, data, sizeof(data), &dwRead, NULL);
@@ -627,12 +329,12 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 {
     InitEditor();
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"rb");
+    _tfopen_s(&fp, filename, _T("rb"));
     if (!fp)
         return false;
 
     //SetTitle();
-    char data[4096] = { 0 };
+    char data[4096];
     size_t lenFile = fread(data, 1, sizeof(data), fp);
     bool bUTF8 = IsUTF8(data, lenFile);
     while (lenFile > 0)
@@ -688,14 +390,14 @@ void CMainWindow::SetupWindow(bool bUTF8)
 bool CMainWindow::SaveFile(LPCTSTR filename)
 {
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"w+b");
+    _tfopen_s(&fp, filename, _T("w+b"));
     if (!fp)
         return false;
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-    std::unique_ptr<char[]> data (new char[len+1]);
-    SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data.get())));
-    fwrite(data.get(), sizeof(char), len-1, fp);
+    auto_buffer<char> data (len+1);
+    SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data)));
+    fwrite(data, sizeof(char), len-1, fp);
     fclose(fp);
 
     SendEditor(SCI_SETSAVEPOINT);
@@ -705,10 +407,10 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 
 void CMainWindow::SetTitle(LPCTSTR title)
 {
-    size_t len = wcslen(title);
-    std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
-    swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
-    SetWindowTitle(std::wstring(pBuf.get()));
+    size_t len = _tcslen(title);
+    auto_buffer<TCHAR> pBuf(len+40);
+    _stprintf_s(pBuf, len+40, _T("%s - TortoiseUDiff"), title);
+    SetWindowTitle(std::wstring(pBuf));
 }
 
 void CMainWindow::SetAStyle(int style, COLORREF fore, COLORREF back, int size, const char *face)
@@ -763,7 +465,7 @@ bool CMainWindow::IsUTF8(LPVOID pBuffer, size_t cb)
                 return false;
             bUTF8 = true;
         }
-        else if ((*pVal8 & 0xF0)==0xE0)
+        if ((*pVal8 & 0xF0)==0xE0)
         {
             pVal8++;i++;
             if ((*pVal8 & 0xC0)!=0x80)
@@ -773,7 +475,7 @@ bool CMainWindow::IsUTF8(LPVOID pBuffer, size_t cb)
                 return false;
             bUTF8 = true;
         }
-        else if ((*pVal8 & 0xF8)==0xF0)
+        if ((*pVal8 & 0xF8)==0xF0)
         {
             pVal8++;i++;
             if ((*pVal8 & 0xC0)!=0x80)
@@ -786,9 +488,6 @@ bool CMainWindow::IsUTF8(LPVOID pBuffer, size_t cb)
                 return false;
             bUTF8 = true;
         }
-        else if (*pVal8 >= 0x80)
-            return false;
-
         pVal8++;
     }
     if (bUTF8)
@@ -796,7 +495,7 @@ bool CMainWindow::IsUTF8(LPVOID pBuffer, size_t cb)
     return false;
 }
 
-void CMainWindow::loadOrSaveFile(bool doLoad, const std::wstring& filename /* = L"" */)
+void CMainWindow::loadOrSaveFile(bool doLoad, const wstring& filename /* = L"" */)
 {
     OPENFILENAME ofn = {0};             // common dialog box structure
     TCHAR szFile[MAX_PATH] = {0};       // buffer for file name
@@ -805,7 +504,7 @@ void CMainWindow::loadOrSaveFile(bool doLoad, const std::wstring& filename /* = 
     ofn.hwndOwner = *this;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile)/sizeof(TCHAR);
-    TCHAR filter[1024] = { 0 };
+    TCHAR filter[1024];
     LoadString(hResource, IDS_PATCHFILEFILTER, filter, sizeof(filter)/sizeof(TCHAR));
     CStringUtils::PipesToNulls(filter);
     ofn.lpstrFilter = filter;
@@ -813,7 +512,7 @@ void CMainWindow::loadOrSaveFile(bool doLoad, const std::wstring& filename /* = 
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
-    TCHAR fileTitle[1024] = { 0 };
+    TCHAR fileTitle[1024];
     LoadString(hResource, doLoad ? IDS_OPENPATCH : IDS_SAVEPATCH, fileTitle, sizeof(fileTitle)/sizeof(TCHAR));
     ofn.lpstrTitle = fileTitle;
     ofn.Flags = OFN_ENABLESIZING | OFN_EXPLORER;

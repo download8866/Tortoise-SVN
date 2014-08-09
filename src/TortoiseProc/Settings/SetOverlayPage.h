@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 
 /**
  * \ingroup TortoiseProc
@@ -35,7 +35,7 @@ public:
     CSetOverlayPage();
     virtual ~CSetOverlayPage();
 
-    UINT GetIconID() override {return IDI_SET_OVERLAYS;}
+    UINT GetIconID() {return IDI_SET_OVERLAYS;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSOVERLAY };
@@ -59,7 +59,6 @@ private:
     BOOL            m_bRAM;
     BOOL            m_bUnknown;
     BOOL            m_bUnversionedAsModified;
-    BOOL            m_bIgnoreOnCommitIgnored;
     BOOL            m_bShowExcludedAsNormal;
     CRegDWORD       m_regOnlyExplorer;
     CRegDWORD       m_regDriveMaskRemovable;
@@ -70,7 +69,6 @@ private:
     CRegDWORD       m_regDriveMaskRAM;
     CRegDWORD       m_regDriveMaskUnknown;
     CRegDWORD       m_regUnversionedAsModified;
-    CRegDWORD       m_regIgnoreOnCommitIgnored;
     CRegDWORD       m_regShowExcludedAsNormal;
     CToolTips       m_tooltips;
     CRegString      m_regExcludePaths;

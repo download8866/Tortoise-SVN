@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,10 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "diff.h"
 #include "MovedBlocks.h"
 #include "DiffData.h"
-#include <set>
-#include <map>
 
 // This file implements moved blocks detection algorithm, based
 // on WinMerges(http:\\winmerge.org) one
@@ -35,7 +33,7 @@ public:
     bool IsPresent(int val) const;
     int GetSingle() const;
 private:
-    std::set<int>      m_set;
+    CMap<int, int, int, int> m_map;
 };
 
 struct EquivalencyGroup
@@ -46,7 +44,7 @@ struct EquivalencyGroup
     bool IsPerfectMatch() const;
 };
 
-class LineToGroupMap : public std::map<CString, EquivalencyGroup*>
+class LineToGroupMap : public CTypedPtrMap<CMapStringToPtr, CString, EquivalencyGroup *>
 {
 public:
     void Add(int lineno, const CString &line, int nside);
@@ -56,31 +54,31 @@ public:
 
 void IntSet::Add(int val)
 {
-    m_set.insert(val);
+    m_map.SetAt(val, 1);
 }
 
 void IntSet::Remove(int val)
 {
-    m_set.erase(val);
+    m_map.RemoveKey(val);
 }
 
 int IntSet::Count() const
 {
-    return (int)m_set.size();
+    return (int)m_map.GetCount();
 }
 
 bool IntSet::IsPresent(int val) const
 {
-    return m_set.find(val) != m_set.end();
+    int parm;
+    return !!m_map.Lookup(val, parm);
 }
 
 int IntSet::GetSingle() const
 {
-    if (!m_set.empty())
-    {
-        return *m_set.cbegin();
-    }
-    return 0;
+    int val, parm;
+    POSITION pos = m_map.GetStartPosition();
+    m_map.GetNextAssoc(pos, val, parm);
+    return val;
 }
 
 bool EquivalencyGroup::IsPerfectMatch() const
@@ -91,14 +89,11 @@ bool EquivalencyGroup::IsPerfectMatch() const
 void LineToGroupMap::Add(int lineno, const CString &line, int nside)
 {
     EquivalencyGroup *pGroup = NULL;
-    auto it = __super::find(line);
-    if ( it == cend() )
+    if ( !Lookup(line, pGroup) )
     {
         pGroup = new EquivalencyGroup;
-        insert(std::pair<CString, EquivalencyGroup*>(line, pGroup));
+        SetAt(line, pGroup);
     }
-    else
-        pGroup = it->second;
     if(nside)
     {
         pGroup->m_LinesRight.Add(lineno);
@@ -112,17 +107,18 @@ void LineToGroupMap::Add(int lineno, const CString &line, int nside)
 EquivalencyGroup *LineToGroupMap::find(const CString &line) const
 {
     EquivalencyGroup *pGroup = NULL;
-    auto it = __super::find(line);
-    if ( it != cend() )
-        pGroup = it->second;
+    Lookup(line, pGroup);
     return pGroup;
 }
 
 LineToGroupMap::~LineToGroupMap()
 {
-    for (auto it = cbegin(); it != cend(); ++it)
+    for (POSITION pos = GetStartPosition(); pos; )
     {
-        delete it->second;
+        CString str;
+        EquivalencyGroup *pGroup = NULL;
+        GetNextAssoc(pos, str, pGroup);
+        delete pGroup;
     }
 }
 
@@ -159,8 +155,8 @@ CString GetTrimmedString(const CString& s1, DWORD dwIgnoreWS)
         return s2;
     }
     else if(dwIgnoreWS == 2)
-        return CString(s1).TrimLeft(L" \t");
-    return CString(s1).TrimRight(L" \t");
+        return CString(s1).TrimLeft(_T(" \t"));
+    return CString(s1).TrimRight(_T(" \t"));
 }
 
 EquivalencyGroup * ExtractGroup(const LineToGroupMap & map, const CString & line, DWORD dwIgnoreWS)
@@ -184,8 +180,6 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
             continue;
 
         baseLine = (LONG)tempdiff->original_start;
-        if (m_arBaseFile.GetCount() <= (baseLine+tempdiff->original_length))
-            return NULL;
         for(int i = 0; i < tempdiff->original_length; ++i, ++baseLine)
         {
             const CString &sCurrentBaseLine = m_arBaseFile.GetAt(baseLine);
@@ -195,8 +189,6 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
                 map.Add(baseLine, sCurrentBaseLine, 0);
         }
         yourLine = (LONG)tempdiff->modified_start;
-        if (m_arYourFile.GetCount() <= (yourLine+tempdiff->modified_length))
-            return NULL;
         for(int i = 0; i < tempdiff->modified_length; ++i, ++yourLine)
         {
             const CString &sCurrentYourLine = m_arYourFile.GetAt(yourLine);
@@ -290,7 +282,7 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
             // so no right side on newob
             // newob will be the moved part only, later after we split off any suffix from it
             svn_diff_t * newob = (svn_diff_t *)apr_palloc(pool, sizeof(svn_diff_t));
-            SecureZeroMemory(newob, sizeof(*newob));
+            memset(newob, 0, sizeof(*newob));
 
             tail->base = newob;
             newob->type = svn_diff__type_diff_modified;
@@ -315,7 +307,7 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
             // break off any suffix from tempdiff
             // newob will be the suffix, and will get all the right side
             svn_diff_t * newob = (svn_diff_t *) apr_palloc(pool, sizeof (*newob));
-            SecureZeroMemory(newob, sizeof(*newob));
+            memset(newob, 0, sizeof(*newob));
             newob->type = svn_diff__type_diff_modified;
 
             newob->original_start = i2 + 1;
@@ -430,7 +422,7 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
             // so no right side on newob
             // newob will be the moved part only, later after we split off any suffix from it
             svn_diff_t * newob = (svn_diff_t *) apr_palloc(pool, sizeof (*newob));
-            SecureZeroMemory(newob, sizeof(*newob));
+            memset(newob, 0, sizeof(*newob));
             newob->type = svn_diff__type_diff_modified;
 
             if(existing == newTail)
@@ -463,7 +455,7 @@ tsvn_svn_diff_t_extension * CDiffData::MovedBlocksDetect(svn_diff_t * diffYourBa
             // break off any suffix from tempdiff
             // newob will be the suffix, and will get all the left side
             svn_diff_t * newob = (svn_diff_t *) apr_palloc(pool, sizeof (*newob));
-            SecureZeroMemory(newob, sizeof(*newob));
+            memset(newob, 0, sizeof(*newob));
             tsvn_svn_diff_t_extension * eNewOb = CreateDiffExtension(newob, pool);
 
             newob->type = svn_diff__type_diff_modified;

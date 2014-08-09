@@ -40,13 +40,8 @@ Email questions, comments or suggestions to quynhnguyenhuu@gmail.com
 // CReaderWriterLockNonReentrance implementation
 
 CReaderWriterLockNonReentrance::CReaderWriterLockNonReentrance()
-    : m_hSafeToReadEvent(NULL)
-    , m_hSafeToWriteEvent(NULL)
-    , m_iNumOfWriter(0)
-    , m_iNumOfReaderWaiting(0)
-    , m_iNumOfReaderEntered(0)
 {
-    SecureZeroMemory(this, sizeof(*this));
+    ZeroMemory(this, sizeof(*this));
 #if (_WIN32_WINNT >= 0x0403)
     InitializeCriticalSectionAndSpinCount(&m_cs, READER_WRITER_SPIN_COUNT);
 #else
@@ -160,7 +155,7 @@ bool CReaderWriterLockNonReentrance::_WriterWaitAndLeaveCSIfSuccess(DWORD dwTime
 
     // Increase Writer-counter & reset Reader-event if necessary
     INT _iNumOfWriter = ++m_iNumOfWriter;
-    if( (1 == _iNumOfWriter) && (NULL != m_hSafeToReadEvent) )
+    if(	(1 == _iNumOfWriter) && (NULL != m_hSafeToReadEvent) )
     {
         ResetEvent(m_hSafeToReadEvent);
     }

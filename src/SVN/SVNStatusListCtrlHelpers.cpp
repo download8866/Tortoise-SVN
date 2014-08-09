@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2014 - TortoiseSVN
+// Copyright (C) 2008-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 
 #include "stdafx.h"
 #include "resource.h"
-#include "../TortoiseShell/resource.h"
+#include "..\\TortoiseShell\\resource.h"
 #include "SVNStatusListCtrl.h"
 #include <iterator>
 
@@ -135,10 +135,10 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
     // where the settings are stored within the registry
 
     registryPrefix
-        = L"Software\\TortoiseSVN\\StatusColumns\\" + containerName;
+        = _T("Software\\TortoiseSVN\\StatusColumns\\") + containerName;
 
     // we accept only the current version
-    bool valid = (DWORD)CRegDWORD (registryPrefix + L"Version", 0xff) == SVNSLC_COL_VERSION;
+    bool valid = (DWORD)CRegDWORD (registryPrefix + _T("Version"), 0xff) == SVNSLC_COL_VERSION;
     if (valid)
     {
         // read (possibly different) column selection
@@ -149,16 +149,16 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
         // read user-prop lists
 
         CString userPropList
-            = CRegString (registryPrefix + L"UserProps");
+            = CRegString (registryPrefix + _T("UserProps"));
         CString shownUserProps
-            = CRegString (registryPrefix + L"ShownUserProps");
+            = CRegString (registryPrefix + _T("ShownUserProps"));
 
         ParseUserPropSettings (userPropList, shownUserProps);
 
         // read column widths
 
         CString colWidths
-            = CRegString (registryPrefix + L"_Width");
+            = CRegString (registryPrefix + _T("_Width"));
 
         ParseWidths (colWidths);
     }
@@ -181,7 +181,7 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
     // restore column ordering
 
     if (valid)
-        ParseColumnOrder (CRegString (registryPrefix + L"_Order"));
+        ParseColumnOrder (CRegString (registryPrefix + _T("_Order")));
     else
         ParseColumnOrder (CString());
 
@@ -197,7 +197,7 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
 
 void CSVNStatusListCtrl::ColumnManager::WriteSettings() const
 {
-    CRegDWORD regVersion (registryPrefix + L"Version", 0, TRUE);
+    CRegDWORD regVersion (registryPrefix + _T("Version"), 0, TRUE);
     regVersion = SVNSLC_COL_VERSION;
 
     // write (possibly different) column selection
@@ -207,20 +207,20 @@ void CSVNStatusListCtrl::ColumnManager::WriteSettings() const
 
     // write user-prop lists
 
-    CRegString regUserProps (registryPrefix + L"UserProps", CString(), TRUE);
+    CRegString regUserProps (registryPrefix + _T("UserProps"), CString(), TRUE);
     regUserProps = GetUserPropList();
 
-    CRegString regShownUserProps (registryPrefix + L"ShownUserProps", CString(), TRUE);
+    CRegString regShownUserProps (registryPrefix + _T("ShownUserProps"), CString(), TRUE);
     regShownUserProps = GetShownUserProps();
 
     // write column widths
 
-    CRegString regWidths (registryPrefix + L"_Width", CString(), TRUE);
+    CRegString regWidths (registryPrefix + _T("_Width"), CString(), TRUE);
     regWidths = GetWidthString();
 
     // write column ordering
 
-    CRegString regColumnOrder (registryPrefix + L"_Order", CString(), TRUE);
+    CRegString regColumnOrder (registryPrefix + _T("_Order"), CString(), TRUE);
     regColumnOrder = GetColumnOrderString();
 }
 
@@ -664,7 +664,7 @@ void CSVNStatusListCtrl::ColumnManager::ParseUserPropSettings
 {
     assert (userProps.empty());
 
-    static CString delimiters (L" ");
+    static CString delimiters (_T(" "));
 
     // parse list of visible user-props
 
@@ -715,7 +715,7 @@ void CSVNStatusListCtrl::ColumnManager::ParseWidths (const CString& widths)
 {
     for (int i = 0, count = widths.GetLength() / 8; i < count; ++i)
     {
-        long width = wcstol (widths.Mid (i*8, 8), NULL, 16);
+        long width = _tcstol (widths.Mid (i*8, 8), NULL, 16);
         if (i < SVNSLC_NUMCOLUMNS)
         {
             // a standard column
@@ -769,7 +769,7 @@ void CSVNStatusListCtrl::ColumnManager::ParseColumnOrder
     int limit = static_cast<int>(SVNSLC_USERPROPCOLOFFSET + userProps.size());
     for (int i = 0, count = widths.GetLength() / 2; i < count; ++i)
     {
-        int index = wcstol (widths.Mid (i*2, 2), NULL, 16);
+        int index = _tcstol (widths.Mid (i*2, 2), NULL, 16);
         if (   (index < SVNSLC_NUMCOLUMNS)
             || ((index >= SVNSLC_USERPROPCOLOFFSET) && (index < limit)))
         {
@@ -792,7 +792,7 @@ void CSVNStatusListCtrl::ColumnManager::ParseColumnOrder
 // map internal column order onto visible column order
 // (all invisibles in front)
 
-std::vector<int> CSVNStatusListCtrl::ColumnManager::GetGridColumnOrder() const
+std::vector<int> CSVNStatusListCtrl::ColumnManager::GetGridColumnOrder()
 {
     // extract order of used columns from order of all columns
 
@@ -860,7 +860,7 @@ CString CSVNStatusListCtrl::ColumnManager::GetUserPropList() const
     CString result;
 
     for (size_t i = 0, count = userProps.size(); i < count; ++i)
-        result += userProps[i].name + ' ';
+        result += userProps[i].name + _T(' ');
 
     return result;
 }
@@ -874,7 +874,7 @@ CString CSVNStatusListCtrl::ColumnManager::GetShownUserProps() const
         size_t index = static_cast<size_t>(columns[i].index);
         if (columns[i].visible && (index >= SVNSLC_USERPROPCOLOFFSET))
             result += userProps[index - SVNSLC_USERPROPCOLOFFSET].name
-                    + ' ';
+                    + _T(' ');
     }
 
     return result;
@@ -886,10 +886,10 @@ CString CSVNStatusListCtrl::ColumnManager::GetWidthString() const
 
     // regular columns
 
-    TCHAR buf[10] = { 0 };
+    TCHAR buf[10];
     for (size_t i = 0; i < SVNSLC_NUMCOLUMNS; ++i)
     {
-        swprintf_s (buf, L"%08X", columns[i].width);
+        _stprintf_s (buf, _T("%08X"), columns[i].width);
         result += buf;
     }
 
@@ -901,7 +901,7 @@ CString CSVNStatusListCtrl::ColumnManager::GetWidthString() const
 
     for (size_t i = 0, count = userProps.size(); i < count; ++i)
     {
-        swprintf_s (buf, L"%08X", userProps[i].width);
+        _stprintf_s (buf, _T("%08X"), userProps[i].width);
         result += buf;
     }
 
@@ -912,12 +912,12 @@ CString CSVNStatusListCtrl::ColumnManager::GetColumnOrderString() const
 {
     CString result;
 
-    TCHAR buf[3] = { 0 };
+    TCHAR buf[3];
     for (size_t i = 0, count = columnOrder.size(); i < count; ++i)
     {
         if (columnOrder[i] < SVNSLC_MAXCOLUMNCOUNT)
         {
-            swprintf_s (buf, L"%02X", columnOrder[i]);
+            _stprintf_s (buf, _T("%02X"), columnOrder[i]);
             result += buf;
         }
     }

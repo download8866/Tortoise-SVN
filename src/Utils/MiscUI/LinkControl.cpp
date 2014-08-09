@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2012-2014 - TortoiseSVN
+// Copyright (C) 2009, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@ class CGlobalAtom
 {
 public:
     CGlobalAtom(void)
-    { atom = GlobalAddAtom(L"_LinkControl_Object_Pointer_"
-             L"\\{62671D58-E5E8-46e0-A818-FD6547EC60B8}"); }
+    { atom = GlobalAddAtom(TEXT("_LinkControl_Object_Pointer_")
+             TEXT("\\{62671D58-E5E8-46e0-A818-FD6547EC60B8}")); }
     ~CGlobalAtom(void)
     { DeleteAtom(atom); }
 
@@ -38,7 +38,7 @@ public:
 static CGlobalAtom ga;
 
 const UINT CLinkControl::LK_LINKITEMCLICKED
-= ::RegisterWindowMessage(L"LK_LINKITEMCLICKED");
+= ::RegisterWindowMessage(_T("LK_LINKITEMCLICKED"));
 
 
 HCURSOR  CLinkControl::g_hLinkCursor     = NULL;
@@ -68,8 +68,8 @@ bool CLinkControl::ConvertStaticToLink(HWND hwndCtl)
         WNDPROC pfnOrigProc = (WNDPROC) GetWindowLongPtr(hwndParent, GWLP_WNDPROC);
         if (pfnOrigProc != _HyperlinkParentProc)
         {
-            if (SetProp(hwndParent, PROP_ORIGINAL_PROC, (HANDLE)pfnOrigProc))
-                SetWindowLongPtr(hwndParent, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)_HyperlinkParentProc);
+            SetProp(hwndParent, PROP_ORIGINAL_PROC, (HANDLE)pfnOrigProc);
+            SetWindowLongPtr(hwndParent, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)_HyperlinkParentProc);
         }
     }
 
@@ -91,8 +91,8 @@ bool CLinkControl::ConvertStaticToLink(HWND hwndCtl)
     // Subclass the existing control.
 
     m_pfnOrigCtlProc = (WNDPROC)GetWindowLongPtr(hwndCtl, GWLP_WNDPROC);
-    if (SetProp(hwndCtl, PROP_OBJECT_PTR, (HANDLE)this))
-        SetWindowLongPtr(hwndCtl, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)_HyperlinkProc);
+    SetProp(hwndCtl, PROP_OBJECT_PTR, (HANDLE)this);
+    SetWindowLongPtr(hwndCtl, GWLP_WNDPROC, (LONG_PTR)(WNDPROC)_HyperlinkProc);
 
     return true;
 }
@@ -201,7 +201,6 @@ LRESULT CALLBACK CLinkControl::_HyperlinkProc(HWND hwnd, UINT message,
             return 0;
         }
         break;
-    case BM_CLICK:
         PostMessage(::GetParent(hwnd), LK_LINKITEMCLICKED, (WPARAM)hwnd, (LPARAM)0);
         break;
     case WM_LBUTTONDOWN:
@@ -219,11 +218,9 @@ LRESULT CALLBACK CLinkControl::_HyperlinkProc(HWND hwnd, UINT message,
             LRESULT lres = CallWindowProc(pHyperLink->m_pfnOrigCtlProc, hwnd, message, wParam, lParam);
             // we want all keys to get the return key
             lres |= DLGC_WANTALLKEYS;
-            lres |= DLGC_BUTTON;
             // but we don't want the tab key since that should be used in dialogs
             // to switch the focus
             lres &= ~DLGC_WANTTAB;
-            lres &= ~DLGC_STATIC;
             if (lParam &&
                 ((MSG *)lParam)->message == WM_KEYDOWN &&
                 ((MSG *)lParam)->wParam == VK_TAB)

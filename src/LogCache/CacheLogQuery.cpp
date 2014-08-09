@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 
 #include "CacheLogQuery.h"
 
@@ -394,7 +394,7 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 
         if (currentPath.get())
         {
-            oldestReported = std::min (oldestReported, revision);
+            oldestReported = min (oldestReported, revision);
             if (options.GetReceiver() != NULL)
             {
                 if (options.GetRevsOnly())
@@ -422,9 +422,7 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 
         if (    (  (cache->GetLogInfo().GetSumChanges (index)
                  & (  CRevisionInfoContainer::ACTION_ADDED
-                    | CRevisionInfoContainer::ACTION_REPLACED
-                    | CRevisionInfoContainer::ACTION_MOVED
-                    | CRevisionInfoContainer::ACTION_MOVEREPLACED)) != 0)
+                    | CRevisionInfoContainer::ACTION_REPLACED)) != 0)
              && (currentPath.get() != NULL))
         {
             // create the appropriate iterator to follow the potential path change
@@ -532,7 +530,6 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
         if (   receiverError
             || e.GetCode() == SVN_ERR_CANCELLED
             || e.GetCode() == SVN_ERR_FS_NOT_FOUND  // deleted paths etc.
-            || e.GetCode() == SVN_ERR_FS_NO_SUCH_REVISION
             || !repositoryInfoCache->IsOffline (uuid, root, true))
         {
             // we want to cache whatever data we could receive so far ..
@@ -564,11 +561,11 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
         bool limitReached = (limit > 0) && (receiveCount >= limit);
         if ((receiveCount == 0) || !limitReached)
         {
-            AutoAddSkipRange (std::max (endRevision, (revision_t)1)-1);
+            AutoAddSkipRange (max (endRevision, (revision_t)1)-1);
         }
     }
 
-    return std::min (oldestReported, firstNARevision+1);
+    return min (oldestReported, firstNARevision+1);
 }
 
 ///////////////////////////////////////////////////////////////
@@ -643,7 +640,7 @@ CCacheLogQuery::NextAvailableRevision ( const CDictionaryBasedTempPath& path
                                       , const CDataAvailable& dataAvailable) const
 {
     const CRevisionIndex& revisions = cache->GetRevisions();
-    revision_t lastRevisionToCheck = std::min ( endRevision
+    revision_t lastRevisionToCheck = min ( endRevision
                                          , revisions.GetFirstRevision());
 
     while ((startRevision >= endRevision) && (startRevision != NO_REVISION))
@@ -802,7 +799,7 @@ revision_t CCacheLogQuery::FillLog ( revision_t startRevision
                         , uuid
                         , svnQuery
                         , startRevision
-                        , std::max (std::min (startRevision, endRevision), (revision_t)0)
+                        , max (min (startRevision, endRevision), (revision_t)0)
                         , startPath
                         , limit
                         , options);

@@ -119,7 +119,7 @@ static int ClassifyWordRb(unsigned int start, unsigned int end, WordList &keywor
 		chAttr = SCE_RB_MODULE_NAME;
 	else if (0 == strcmp(prevWord, "def"))
 		chAttr = SCE_RB_DEFNAME;
-    else if (keywords.InList(s) && ((start == 0) || !followsDot(start - 1, styler))) {
+    else if (keywords.InList(s) && !followsDot(start - 1, styler)) {
         if (keywordIsAmbiguous(s)
             && keywordIsModifier(s, start, styler)) {
 
@@ -254,7 +254,7 @@ class QuoteCls {
     char Up;
     char Down;
     QuoteCls() {
-        New();
+        this->New();
     }
     void New() {
         Count = 0;
@@ -465,9 +465,7 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
     }
     prevStyle = styler.StyleAt(firstWordPosn);
     // If we have '<<' following a keyword, it's not a heredoc
-    if (prevStyle != SCE_RB_IDENTIFIER
-        && prevStyle != SCE_RB_INSTANCE_VAR
-        && prevStyle != SCE_RB_CLASS_VAR) {
+    if (prevStyle != SCE_RB_IDENTIFIER) {
         return definitely_not_a_here_doc;
     }
     int newStyle = prevStyle;
@@ -497,9 +495,6 @@ static bool sureThisIsNotHeredoc(int lt2StartPos,
         } else {
             break;
         }
-        // on second and next passes, only identifiers may appear since
-        // class and instance variable are private
-        prevStyle = SCE_RB_IDENTIFIER;
     }
     // Skip next batch of white-space
     firstWordPosn = skipWhitespace(firstWordPosn, lt2StartPos, styler);
@@ -705,7 +700,8 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
 	char chPrev = styler.SafeGetCharAt(startPos - 1);
 	char chNext = styler.SafeGetCharAt(startPos);
 	bool is_real_number = true;   // Differentiate between constants and ?-sequences.
-	styler.StartAt(startPos);
+	// Ruby uses a different mask because bad indentation is marked by oring with 32
+	styler.StartAt(startPos, 127);
 	styler.StartSegment(startPos);
 
     static int q_states[] = {SCE_RB_STRING_Q,
@@ -730,7 +726,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
 
     // If anyone runs into this problem, I recommend raising this
     // value slightly higher to replacing the fixed array with a linked
-    // list.  Keep in mind this code will be called every time the lexer
+    // list.  Keep in mind this code will be called everytime the lexer
     // is invoked.
 
 #define INNER_STRINGS_MAX_COUNT 5
@@ -792,13 +788,13 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
 				state = SCE_RB_COMMENTLINE;
 			} else if (ch == '=') {
 				// =begin indicates the start of a comment (doc) block
-                if ((i == 0 || isEOLChar(chPrev))
+                if (i == 0 || (isEOLChar(chPrev)
                     && chNext == 'b'
                     && styler.SafeGetCharAt(i + 2) == 'e'
                     && styler.SafeGetCharAt(i + 3) == 'g'
                     && styler.SafeGetCharAt(i + 4) == 'i'
                     && styler.SafeGetCharAt(i + 5) == 'n'
-                    && !isSafeWordcharOrHigh(styler.SafeGetCharAt(i + 6))) {
+                    && !isSafeWordcharOrHigh(styler.SafeGetCharAt(i + 6)))) {
                     styler.ColourTo(i - 1, state);
                     state = SCE_RB_POD;
 				} else {
@@ -1196,6 +1192,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                     state = SCE_RB_DEFAULT;
                     i--;
                     chNext = ch;
+                    chNext2 = chNext;
                     preferRE = false;
                 } else if (HereDoc.Quoted) {
 					if (ch == HereDoc.Quote) { // closing quote => end of delimiter
@@ -1352,6 +1349,7 @@ static void ColouriseRbDoc(unsigned int startPos, int length, int initStyle,
                         }
                     }
                     chNext = styler.SafeGetCharAt(i + 1);
+                    chNext2 = styler.SafeGetCharAt(i + 2);
                 }
             }
         // Quotes of all kinds...
@@ -1440,8 +1438,7 @@ static bool keywordIsAmbiguous(const char *prevWord)
         || !strcmp(prevWord, "do")
         || !strcmp(prevWord, "while")
         || !strcmp(prevWord, "unless")
-        || !strcmp(prevWord, "until")
-        || !strcmp(prevWord, "for")) {
+        || !strcmp(prevWord, "until")) {
         return true;
     } else {
         return false;
@@ -1559,7 +1556,6 @@ static bool keywordIsModifier(const char *word,
 
 #define WHILE_BACKWARDS "elihw"
 #define UNTIL_BACKWARDS "litnu"
-#define FOR_BACKWARDS "rof"
 
 // Nothing fancy -- look to see if we follow a while/until somewhere
 // on the current line
@@ -1597,8 +1593,7 @@ static bool keywordDoStartsLoop(int pos,
             *dst = 0;
             // Did we see our keyword?
             if (!strcmp(prevWord, WHILE_BACKWARDS)
-                || !strcmp(prevWord, UNTIL_BACKWARDS)
-                || !strcmp(prevWord, FOR_BACKWARDS)) {
+                || !strcmp(prevWord, UNTIL_BACKWARDS)) {
                 return true;
             }
             // We can move pos to the beginning of the keyword, and then
@@ -1775,4 +1770,4 @@ static const char * const rubyWordListDesc[] = {
 	0
 };
 
-LexerModule lmRuby(SCLEX_RUBY, ColouriseRbDoc, "ruby", FoldRbDoc, rubyWordListDesc);
+LexerModule lmRuby(SCLEX_RUBY, ColouriseRbDoc, "ruby", FoldRbDoc, rubyWordListDesc, 6);

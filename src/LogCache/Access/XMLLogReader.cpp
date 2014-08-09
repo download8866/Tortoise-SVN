@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,8 +17,8 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "stdafx.h"
-#include "XMLLogReader.h"
-#include "FormatTime.h"
+#include "./XMLLogReader.h"
+#include "./FormatTime.h"
 #include "../Streams/MappedInFile.h"
 
 ///////////////////////////////////////////////////////////////
@@ -261,14 +261,6 @@ void CXMLLogReader::ParseChanges (const char* current
 
             case 'D':
                 action = CRevisionInfoContainer::ACTION_DELETED;
-                break;
-
-            case 'V':
-                action = CRevisionInfoContainer::ACTION_MOVED;
-                break;
-
-            case 'E':
-                action = CRevisionInfoContainer::ACTION_MOVEREPLACED;
                 break;
 
             default:

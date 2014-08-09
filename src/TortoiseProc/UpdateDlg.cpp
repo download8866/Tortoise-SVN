@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2003-2007,2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,18 +20,17 @@
 #include "TortoiseProc.h"
 #include "UpdateDlg.h"
 #include "registry.h"
-#include "LogDialog/LogDlg.h"
+#include "LogDialog\LogDlg.h"
 #include "AppUtils.h"
 #include "RepositoryBrowser.h"
 
 IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CUpdateDlg::IDD, pParent)
-    , Revision(L"HEAD")
+    , Revision(_T("HEAD"))
     , m_bNoExternals(FALSE)
     , m_bStickyDepth(TRUE)
     , m_pLogDlg(NULL)
-    , m_depth(svn_depth_unknown)
 {
 }
 
@@ -118,7 +117,7 @@ void CUpdateDlg::OnOK()
     Revision = SVNRev(m_sRevision);
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        Revision = SVNRev(L"HEAD");
+        Revision = SVNRev(_T("HEAD"));
     }
     if (!Revision.IsValid())
     {
@@ -184,7 +183,7 @@ void CUpdateDlg::OnBnClickedShowLog()
 LPARAM CUpdateDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%ld"), lParam);
     SetDlgItemText(IDC_REVNUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
@@ -224,7 +223,7 @@ void CUpdateDlg::OnBnClickedSparse()
     CString strUrl = svn.GetURLFromPath(m_wcPath);
 
     CRepositoryBrowser browser(strUrl, SVNRev::REV_HEAD, this);
-    browser.SetSparseCheckoutMode(m_wcPath);
+    browser.SetSparseCheckoutMode();
     if (browser.DoModal() == IDOK)
     {
         m_checkoutDepths = browser.GetUpdateDepths();

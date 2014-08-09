@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010, 2011-2013 - TortoiseSVN
+// Copyright (C) 2008-2010, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,6 +23,7 @@
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
 #include "JobScheduler.h"
+#include "Win7.h"
 
 class CFullGraphNode;
 
@@ -214,6 +215,6 @@ private:
                     , svn_revnum_t rev
                     , const StandardRevProps* stdRevProps
                     , UserRevPropArray* userRevProps
-                    , const MergeInfo* mergeInfo) override;
+                    , const MergeInfo* mergeInfo);
 
 };

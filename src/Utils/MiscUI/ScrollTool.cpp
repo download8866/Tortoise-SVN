@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006,2009-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@ CScrollTool::CScrollTool()
     : m_bInitCalled(false)
     , m_bRightAligned(false)
 {
-    SecureZeroMemory(&ti, sizeof(ti));
 }
 
 CScrollTool::~CScrollTool()
@@ -61,7 +60,7 @@ bool CScrollTool::Init(LPPOINT pos, bool bRightAligned /* = false */)
         ti.hwnd = NULL;
         ti.hinst = NULL;
         ti.uId = 0;
-        ti.lpszText = L" ";
+        ti.lpszText = _T(" ");
 
         // ToolTip control will cover the whole window
         ti.rect.left = 0;
@@ -85,11 +84,11 @@ bool CScrollTool::Init(LPPOINT pos, bool bRightAligned /* = false */)
 
 void CScrollTool::SetText(LPPOINT pos, const TCHAR * fmt, ...)
 {
-    if (!m_bInitCalled)
-    {
-        ASSERT( 0 );
-        return;
-    }
+	if (!m_bInitCalled)
+	{
+		ASSERT( 0 );
+		return;
+	}
 
     CString s;
     va_list marker;
@@ -125,7 +124,7 @@ void CScrollTool::Clear()
 LONG CScrollTool::GetTextWidth(LPCTSTR szText)
 {
     CDC *pDC = GetDC();
-    CSize textsize = pDC->GetTextExtent(szText, (int)wcslen(szText));
+    CSize textsize = pDC->GetTextExtent(szText, (int)_tcslen(szText));
     ReleaseDC(pDC);
     return textsize.cx;
 }

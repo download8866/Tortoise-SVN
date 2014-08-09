@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "stdafx.h"
-#include "../TortoiseShell/resource.h"
+#include "..\\TortoiseShell\\resource.h"
 #include "tstring.h"
 #include "SVNReadProperties.h"
 #include "SVNStatus.h"
@@ -38,6 +38,7 @@
 #include "registry.h"
 extern  HINSTANCE           g_hResInst;
 #endif
+
 
 struct log_msg_baton3
 {
@@ -64,30 +65,13 @@ svn_error_t* svn_get_log_message(const char **log_msg,
     return SVN_NO_ERROR;
 }
 
-svn_error_t * cancelfunc(void * cancelbaton)
-{
-    SVNReadProperties * pReadProps = (SVNReadProperties*)cancelbaton;
-    if ((pReadProps) && (pReadProps->m_bCancelled) && (*pReadProps->m_bCancelled))
-    {
-#ifdef IDS_SVN_USERCANCELLED
-        CString temp;
-        temp.LoadString(IDS_SVN_USERCANCELLED);
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, CUnicodeUtils::GetUTF8(temp));
-#else
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, "");
-#endif
-    }
-    return NULL;
-}
-
 svn_error_t*    SVNReadProperties::Refresh()
 {
     svn_opt_revision_t          rev;
     svn_opt_revision_t          peg_rev;
     svn_error_clear(Err);
     Err = NULL;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
+
     if (m_propCount > 0)
     {
         m_propCount = 0;
@@ -128,27 +112,24 @@ svn_error_t*    SVNReadProperties::Refresh()
                                                 m_pool),
             svnPath
         )
-        ClearCAPIAuthCacheOnError();
         if (Err == NULL)
             m_props = apr_hash_copy(m_pool, props);
     }
     else
     {
         SVNTRACE (
-            Err = svn_client_proplist4 (svnPath,
-                                        &peg_rev,
-                                        &rev,
-                                        svn_depth_empty,
-                                        NULL,
-                                        m_includeInherited,
-                                        proplist_receiver,
-                                        this,
-                                        m_pctx,
-                                        m_pool),
+            Err = svn_client_proplist3 (svnPath,
+                                            &peg_rev,
+                                            &rev,
+                                            svn_depth_empty,
+                                            NULL,
+                                            proplist_receiver,
+                                            this,
+                                            m_pctx,
+                                            m_pool),
             svnPath
         )
     }
-    ClearCAPIAuthCacheOnError();
     if(Err != NULL)
         return Err;
 
@@ -164,12 +145,22 @@ void SVNReadProperties::Construct()
 
     m_pool = svn_pool_create (NULL);                // create the memory pool
     Err = NULL;
-    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(m_pool), m_pool));
+    svn_error_clear(svn_client_create_context(&m_pctx, m_pool));
 
 #ifdef _MFC_VER
 
+    // set up the configuration
+    m_pctx->config = SVNConfig::Instance().GetConfig(m_pool);
     if (m_pctx->config == nullptr)
     {
+        Err = svn_config_get_config (&(m_pctx->config), g_pConfigDir, m_pool);
+    }
+
+    if (Err)
+    {
+        ShowErrorDialog(NULL);
+        svn_error_clear(Err);
+        Err = NULL;
         svn_pool_destroy (m_pool);                  // free the allocated memory
         return;
     }
@@ -178,71 +169,60 @@ void SVNReadProperties::Construct()
 
     m_pctx->log_msg_func3 = svn_get_log_message;
 
+    SVNConfig::SetUpSSH(m_pctx);
+
 #endif
-    m_pctx->cancel_func = cancelfunc;
-    m_pctx->cancel_baton = this;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
 }
 
 #ifdef _MFC_VER
-SVNReadProperties::SVNReadProperties(SVNRev rev, bool bRevProps, bool includeInherited)
+SVNReadProperties::SVNReadProperties(SVNRev rev, bool bRevProps)
     : SVNBase()
     , m_rev(rev)
     , m_peg_rev(rev)
     , m_bRevProps (bRevProps)
-    , m_includeInherited(includeInherited)
     , m_pProgress(NULL)
 #else
-SVNReadProperties::SVNReadProperties(bool bRevProps, bool includeInherited)
+SVNReadProperties::SVNReadProperties(bool bRevProps)
     : SVNBase()
     , m_bRevProps (bRevProps)
-    , m_includeInherited(includeInherited)
 #endif
     , m_propCount(0)
     , m_props(NULL)
-    , m_inheritedprops(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
 }
 
 #ifdef _MFC_VER
-SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps, bool includeInherited)
+SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps)
     : SVNBase()
     , m_path (filepath)
     , m_rev(rev)
     , m_peg_rev(rev)
-    , m_includeInherited(includeInherited)
     , m_pProgress(NULL)
 #else
-SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, bool bRevProps, bool includeInherited)
+SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, bool bRevProps)
     : SVNBase()
     , m_path (filepath)
-    , m_includeInherited(includeInherited)
 #endif
     , m_bRevProps (bRevProps)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();
 }
 
 #ifdef _MFC_VER
-SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, SVNRev rev, bool suppressUI, bool includeInherited)
+SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, SVNRev rev, bool suppressUI)
     : SVNBase()
     , m_path (filepath)
     , m_peg_rev (pegRev)
     , m_rev (rev)
     , m_bRevProps (false)
-    , m_includeInherited(includeInherited)
     , m_pProgress(NULL)
     , m_prompt (suppressUI)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();
@@ -454,7 +434,7 @@ std::string SVNReadProperties::GetSerializedForm() const
     return result;
 }
 
-svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_array_header_t *inherited_props, apr_pool_t *pool)
+svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path, apr_hash_t *prop_hash, apr_pool_t *pool)
 {
     SVNReadProperties * pThis = (SVNReadProperties*)baton;
     if (pThis)
@@ -462,44 +442,7 @@ svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path
         svn_error_t * error;
         const char *node_name_native;
         error = svn_utf_cstring_from_utf8 (&node_name_native, path, pool);
-        if (error == SVN_NO_ERROR)
-        {
-            if (inherited_props)
-            {
-                // properties further down the tree override the properties from above
-                pThis->m_inheritedprops = apr_array_make (pool, 1, sizeof(svn_prop_inherited_item_t*));
-                pThis->m_inheritedProperties.clear();
-                for (int i = 0; i < inherited_props->nelts; i++)
-                {
-                    svn_prop_inherited_item_t * iitem = (APR_ARRAY_IDX (inherited_props, i, svn_prop_inherited_item_t*));
-                    if (pThis->m_props)
-                    {
-                        pThis->m_props = apr_hash_overlay(pThis->m_pool, iitem->prop_hash, pThis->m_props);
-                    }
-                    else
-                        pThis->m_props = apr_hash_copy(pThis->m_pool, iitem->prop_hash);
-
-                    // just in case someone needs the properties from above even though the same
-                    // property is set further below, we store all props in a custom array.
-                    std::map<std::string,std::string> propmap;
-                    for (apr_hash_index_t * hi = apr_hash_first(pool, iitem->prop_hash); hi; hi = apr_hash_next(hi))
-                    {
-                        const void *key;
-                        void *val;
-                        apr_hash_this(hi, &key, NULL, &val);
-                        svn_string_t * propval = (svn_string_t *)val;
-                        const char * pname_utf8 = (char *)key;
-                        propmap[pname_utf8] = std::string(propval->data, propval->len);
-                    }
-                    pThis->m_inheritedProperties.push_back(std::make_tuple(iitem->path_or_url, propmap));
-                }
-            }
-            if (pThis->m_props && prop_hash)
-                pThis->m_props = apr_hash_overlay(pThis->m_pool, prop_hash, pThis->m_props);
-            else if (prop_hash)
-                pThis->m_props = apr_hash_copy(pThis->m_pool, prop_hash);
-        }
-
+        pThis->m_props = apr_hash_copy(pThis->m_pool, prop_hash);
         return error;
     }
     return SVN_NO_ERROR;
@@ -517,15 +460,6 @@ bool SVNReadProperties::IsFolderOnlyProperty( const std::string& name ) const
         return true;
     if (name.compare("svn:ignore") == 0)
         return true;
-
-    if (!m_folderprops.empty())
-    {
-        for (auto it = m_folderprops.cbegin(); it != m_folderprops.cend(); ++it)
-        {
-            if (it->compare(name)==0)
-                return true;
-        }
-    }
 
     return false;
 }

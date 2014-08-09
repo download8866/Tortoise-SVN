@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,16 +19,17 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 
+#include "MessageBox.h"
 #include "InputLogDlg.h"
 #include "PropDlg.h"
 #include "Properties/EditPropertiesDlg.h"
 #include "Blame.h"
 #include "BlameDlg.h"
 #include "WaitCursorEx.h"
-#include "RepositoryBrowser.h"
+#include "Repositorybrowser.h"
 #include "BrowseFolder.h"
 #include "RenameDlg.h"
-#include "RevisionGraph/RevisionGraphDlg.h"
+#include "RevisionGraph\RevisionGraphDlg.h"
 #include "CheckoutDlg.h"
 #include "ExportDlg.h"
 #include "SVNProgressDlg.h"
@@ -46,18 +47,11 @@
 #include "SVNLogHelper.h"
 #include "IconMenu.h"
 #include "SysInfo.h"
-#include <Shlwapi.h>
+#include "Shlwapi.h"
 #include "RepositoryBrowserSelection.h"
-#include "Commands/EditFileCommand.h"
+#include "Commands\EditFileCommand.h"
 #include "AsyncCall.h"
 #include "DiffOptionsDlg.h"
-#include "Callback.h"
-#include "SVNStatus.h"
-
-#include <fstream>
-#include <sstream>
-#include <Urlmon.h>
-#pragma comment(lib, "Urlmon.lib")
 
 #define OVERLAY_EXTERNAL        1
 
@@ -86,21 +80,15 @@ enum RepoBrowserContextMenuCommands
     ID_RENAME,
     ID_COPYTOWC,
     ID_COPYTO,
-    ID_FULLTOCLIPBOARD,
     ID_URLTOCLIPBOARD,
-    ID_NAMETOCLIPBOARD,
-    ID_AUTHORTOCLIPBOARD,
-    ID_REVISIONTOCLIPBOARD,
     ID_PROPS,
     ID_REVPROPS,
     ID_GNUDIFF,
     ID_DIFF,
-    ID_DIFF_CONTENTONLY,
     ID_PREPAREDIFF,
     ID_UPDATE,
     ID_CREATELINK,
-    ID_ADDTOBOOKMARKS,
-    ID_REMOVEBOOKMARKS,
+
 };
 
 IMPLEMENT_DYNAMIC(CRepositoryBrowser, CResizableStandAloneDialog)
@@ -112,7 +100,7 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev)
     , m_bSparseCheckoutMode(false)
     , m_InitialUrl(url)
     , m_bInitDone(false)
-    , m_blockEvents(0)
+    , m_blockEvents(false)
     , m_bSortAscending(true)
     , m_nSortedColumn(0)
     , m_pTreeDropTarget(NULL)
@@ -123,16 +111,6 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev)
     , bDragMode(FALSE)
     , m_backgroundJobs(0, 1, true)
     , m_pListCtrlTreeItem(nullptr)
-    , m_bThreadRunning(false)
-    , m_nIconFolder(0)
-    , m_nOpenIconFolder(0)
-    , m_nExternalOvl(0)
-    , m_nSVNParentPath(0)
-    , m_bRightDrag(false)
-    , oldy(0)
-    , oldx(0)
-    , m_nBookmarksIcon(0)
-    , m_bTrySVNParentPath(true)
 {
     ConstructorInit(rev);
 }
@@ -144,7 +122,7 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev, CW
     , m_bSparseCheckoutMode(false)
     , m_InitialUrl(url)
     , m_bInitDone(false)
-    , m_blockEvents(0)
+    , m_blockEvents(false)
     , m_bSortAscending(true)
     , m_nSortedColumn(0)
     , m_pTreeDropTarget(NULL)
@@ -155,16 +133,6 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev, CW
     , bDragMode(FALSE)
     , m_backgroundJobs(0, 1, true)
     , m_pListCtrlTreeItem(nullptr)
-    , m_bThreadRunning(false)
-    , m_nIconFolder(0)
-    , m_nOpenIconFolder(0)
-    , m_nExternalOvl(0)
-    , m_nSVNParentPath(0)
-    , m_bRightDrag(false)
-    , oldy(0)
-    , oldx(0)
-    , m_nBookmarksIcon(0)
-    , m_bTrySVNParentPath(true)
 {
     ConstructorInit(rev);
 }
@@ -172,23 +140,18 @@ CRepositoryBrowser::CRepositoryBrowser(const CString& url, const SVNRev& rev, CW
 
 void CRepositoryBrowser::ConstructorInit(const SVNRev& rev)
 {
-    SecureZeroMemory(&m_arColumnWidths, sizeof(m_arColumnWidths));
-    SecureZeroMemory(&m_arColumnAutoWidths, sizeof(m_arColumnAutoWidths));
     m_repository.revision = rev;
     s_bSortLogical   = !CRegDWORD(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoStrCmpLogical", 0, false, HKEY_CURRENT_USER);
     if (s_bSortLogical)
         s_bSortLogical = !CRegDWORD(L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\Explorer\\NoStrCmpLogical", 0, false, HKEY_LOCAL_MACHINE);
     std::fill_n(m_arColumnWidths, _countof(m_arColumnWidths), 0);
-    m_bFetchChildren    = false;
-    m_bShowExternals    = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowExternals", true);
-    m_bShowLocks        = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", true);
-    m_bTrySVNParentPath = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserTrySVNParentPath", true);
-    LoadBookmarks();
+    m_bFetchChildren = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserPrefetch", true);
+    m_bShowExternals = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowExternals", true);
+    m_bShowLocks     = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", true);
 }
 
 CRepositoryBrowser::~CRepositoryBrowser()
 {
-    SaveBookmarks();
 }
 
 void CRepositoryBrowser::RecursiveRemove(HTREEITEM hItem, bool bChildrenOnly /* = false */)
@@ -199,32 +162,28 @@ void CRepositoryBrowser::RecursiveRemove(HTREEITEM hItem, bool bChildrenOnly /* 
     if (m_RepoTree.ItemHasChildren(hItem))
     {
         HTREEITEM childItem;
-        for (childItem = m_RepoTree.GetChildItem(hItem);childItem != NULL;)
+        for (childItem = m_RepoTree.GetChildItem(hItem);childItem != NULL; childItem = m_RepoTree.GetNextItem(childItem, TVGN_NEXT))
         {
             RecursiveRemove(childItem);
             if (bChildrenOnly)
             {
                 CTreeItem * pTreeItem = (CTreeItem*)m_RepoTree.GetItemData(childItem);
-                if (pTreeItem && !pTreeItem->bookmark && (m_pListCtrlTreeItem == pTreeItem))
+                if (m_pListCtrlTreeItem == pTreeItem)
                 {
                     m_RepoList.DeleteAllItems();
                     m_pListCtrlTreeItem = nullptr;
                 }
                 delete pTreeItem;
                 m_RepoTree.SetItemData(childItem, 0);
-                HTREEITEM hDelItem = childItem;
-                childItem = m_RepoTree.GetNextItem(childItem, TVGN_NEXT);
-                m_RepoTree.DeleteItem(hDelItem);
+                m_RepoTree.DeleteItem(childItem);
             }
-            else
-                childItem = m_RepoTree.GetNextItem(childItem, TVGN_NEXT);
         }
     }
 
     if ((hItem)&&(!bChildrenOnly))
     {
         CTreeItem * pTreeItem = (CTreeItem*)m_RepoTree.GetItemData(hItem);
-        if (pTreeItem && !pTreeItem->bookmark && (m_pListCtrlTreeItem == pTreeItem))
+        if (m_pListCtrlTreeItem == pTreeItem)
         {
             m_RepoList.DeleteAllItems();
             m_pListCtrlTreeItem = nullptr;
@@ -239,13 +198,7 @@ void CRepositoryBrowser::ClearUI()
     CAutoWriteLock locker(m_guard);
     m_RepoList.DeleteAllItems();
 
-    HTREEITEM hRoot = m_RepoTree.GetRootItem();
-    do
-    {
-        RecursiveRemove(hRoot);
-        m_RepoTree.DeleteItem(hRoot);
-        hRoot = m_RepoTree.GetRootItem();
-    } while (hRoot);
+    RecursiveRemove (m_RepoTree.GetRootItem());
 
     m_RepoTree.DeleteAllItems();
 }
@@ -292,12 +245,11 @@ BEGIN_MESSAGE_MAP(CRepositoryBrowser, CResizableStandAloneDialog)
     ON_NOTIFY(TVN_BEGINDRAG, IDC_REPOTREE, &CRepositoryBrowser::OnTvnBegindragRepotree)
     ON_NOTIFY(TVN_BEGINRDRAG, IDC_REPOTREE, &CRepositoryBrowser::OnTvnBeginrdragRepotree)
     ON_NOTIFY(TVN_ITEMCHANGED, IDC_REPOTREE, &CRepositoryBrowser::OnTvnItemChangedRepotree)
+    ON_NOTIFY(NM_CLICK, IDC_REPOTREE, &CRepositoryBrowser::OnNMClickRepotree)
+    ON_NOTIFY(TVN_KEYDOWN, IDC_REPOTREE, &CRepositoryBrowser::OnTvnKeydownRepotree)
     ON_WM_CAPTURECHANGED()
     ON_REGISTERED_MESSAGE(WM_SVNAUTHCANCELLED, OnAuthCancelled)
     ON_NOTIFY(NM_CUSTOMDRAW, IDC_REPOLIST, &CRepositoryBrowser::OnNMCustomdrawRepolist)
-    ON_COMMAND(ID_URL_HISTORY_BACK, &CRepositoryBrowser::OnUrlHistoryBack)
-    ON_COMMAND(ID_URL_HISTORY_FORWARD, &CRepositoryBrowser::OnUrlHistoryForward)
-    ON_NOTIFY(NM_CUSTOMDRAW, IDC_REPOTREE, &CRepositoryBrowser::OnNMCustomdrawRepotree)
 END_MESSAGE_MAP()
 
 SVNRev CRepositoryBrowser::GetRevision() const
@@ -316,7 +268,6 @@ BOOL CRepositoryBrowser::OnInitDialog()
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
     ExtendFrameIntoClientArea(IDC_REPOS_BAR_CNR, IDC_REPOS_BAR_CNR, IDC_REPOS_BAR_CNR, IDC_REPOTREE);
-    m_aeroControls.SubclassControl(this, IDC_INFOLABEL);
     m_aeroControls.SubclassOkCancelHelp(this);
 
     GetWindowText(m_origDlgTitle);
@@ -327,7 +278,6 @@ BOOL CRepositoryBrowser::OnInitDialog()
     m_nExternalOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_EXTERNALOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
     if (m_nExternalOvl >= 0)
         SYS_IMAGE_LIST().SetOverlayImage(m_nExternalOvl, OVERLAY_EXTERNAL);
-    m_nSVNParentPath = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_CACHE), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
 
     m_cnrRepositoryBar.SubclassDlgItem(IDC_REPOS_BAR_CNR, this);
     m_barRepository.Create(&m_cnrRepositoryBar, 12345);
@@ -373,11 +323,6 @@ BOOL CRepositoryBrowser::OnInitDialog()
         GetDlgItem(IDCANCEL)->ShowWindow(SW_HIDE);
         ScreenToClient(rect_cancel);
         GetDlgItem(IDOK)->MoveWindow(rect_cancel);
-        CRect inforect;
-        GetDlgItem(IDC_INFOLABEL)->GetWindowRect(inforect);
-        inforect.right += rect_cancel.Width();
-        ScreenToClient(inforect);
-        GetDlgItem(IDC_INFOLABEL)->MoveWindow(inforect);
     }
 
     m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
@@ -392,7 +337,7 @@ BOOL CRepositoryBrowser::OnInitDialog()
         // set up the list control
         // set the extended style of the list control
         // the style LVS_EX_FULLROWSELECT interferes with the background watermark image but it's more important to be able to select in the whole row.
-        CRegDWORD regFullRowSelect(L"Software\\TortoiseSVN\\FullRowSelect", TRUE);
+        CRegDWORD regFullRowSelect(_T("Software\\TortoiseSVN\\FullRowSelect"), TRUE);
         DWORD exStyle = LVS_EX_HEADERDRAGDROP | LVS_EX_DOUBLEBUFFER | LVS_EX_INFOTIP | LVS_EX_SUBITEMIMAGES;
         if (DWORD(regFullRowSelect))
             exStyle |= LVS_EX_FULLROWSELECT;
@@ -400,16 +345,14 @@ BOOL CRepositoryBrowser::OnInitDialog()
         m_RepoList.SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
         ShowText(CString(MAKEINTRESOURCE(IDS_REPOBROWSE_INITWAIT)));
     }
-    m_nBookmarksIcon = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_BOOKMARKS), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
     m_RepoTree.SetImageList(&SYS_IMAGE_LIST(), TVSIL_NORMAL);
-    // TVS_EX_FADEINOUTEXPANDOS style must not be set:
-    // if it is set, there's a UI glitch when editing labels:
-    // the text vanishes if the mouse cursor is moved away from
-    // the edit control
-    DWORD exStyle = TVS_EX_AUTOHSCROLL | TVS_EX_DOUBLEBUFFER;
-    if (m_bSparseCheckoutMode)
-        exStyle |= TVS_EX_MULTISELECT;
-    m_RepoTree.SetExtendedStyle(exStyle, exStyle);
+    if (SysInfo::Instance().IsVistaOrLater())
+    {
+        DWORD exStyle = TVS_EX_FADEINOUTEXPANDOS | TVS_EX_AUTOHSCROLL | TVS_EX_DOUBLEBUFFER;
+        if (m_bSparseCheckoutMode)
+            exStyle |= TVS_EX_MULTISELECT;
+        m_RepoTree.SetExtendedStyle(exStyle, exStyle);
+    }
 
     SetWindowTheme(m_RepoList.GetSafeHwnd(), L"Explorer", NULL);
     SetWindowTheme(m_RepoTree.GetSafeHwnd(), L"Explorer", NULL);
@@ -418,14 +361,13 @@ BOOL CRepositoryBrowser::OnInitDialog()
     AddAnchor(IDC_REPOTREE, TOP_LEFT, BOTTOM_LEFT);
     AddAnchor(IDC_REPOLIST, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
-    AddAnchor(IDC_INFOLABEL, BOTTOM_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"RepositoryBrowser");
+    EnableSaveRestore(_T("RepositoryBrowser"));
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
 
-    DWORD xPos = CRegDWORD(L"Software\\TortoiseSVN\\TortoiseProc\\ResizableState\\RepobrowserDivider");
+    DWORD xPos = CRegDWORD(_T("Software\\TortoiseSVN\\TortoiseProc\\ResizableState\\RepobrowserDivider"));
     bDragMode = true;
     if (!m_bSparseCheckoutMode)
         HandleDividerMove(CPoint(xPos+20, 10), false);
@@ -463,13 +405,6 @@ void CRepositoryBrowser::InitRepo()
 
     m_lister.Cancel();
 
-    if (m_bSparseCheckoutMode && !m_wcPath.IsEmpty())
-    {
-        new async::CAsyncCall ( this
-            , &CRepositoryBrowser::GetStatus
-            , &m_backgroundJobs);
-    }
-
     // repository properties
 
     m_InitialUrl = CPathUtils::PathUnescape(m_InitialUrl);
@@ -481,18 +416,18 @@ void CRepositoryBrowser::InitRepo()
         CString revString = m_InitialUrl.Mid(questionMarkIndex+1);
         CString pegRevString = revString;
 
-        int ampPos = revString.Find('&');
+        int ampPos = revString.Find(_T('&'));
         if (ampPos >= 0)
         {
             revString = revString.Mid (ampPos+1);
             pegRevString = pegRevString.Left (ampPos);
         }
 
-        pegRevString.Trim(L"p=");
+        pegRevString.Trim(_T("p="));
         if (!pegRevString.IsEmpty())
             m_repository.peg_revision = SVNRev(pegRevString);
 
-        revString.Trim(L"r=");
+        revString.Trim(_T("r="));
         if (!revString.IsEmpty())
             m_repository.revision = SVNRev(revString);
 
@@ -513,7 +448,7 @@ void CRepositoryBrowser::InitRepo()
     // we have to first find out the real url here and store that real/final
     // url in m_InitialUrl.
     SVNInfo inf;
-    const SVNInfoData * pInfData = inf.GetFirstFileInfo(CTSVNPath(m_InitialUrl), m_repository.peg_revision.IsValid() ? m_repository.peg_revision : m_repository.revision, m_repository.revision);
+    const SVNInfoData * pInfData = inf.GetFirstFileInfo(CTSVNPath(m_InitialUrl), m_repository.peg_revision, m_repository.revision);
     if (pInfData)
     {
         m_repository.root = CPathUtils::PathUnescape(pInfData->reposRoot);
@@ -521,14 +456,7 @@ void CRepositoryBrowser::InitRepo()
         m_InitialUrl = CPathUtils::PathUnescape(pInfData->url);
     }
     else
-    {
-        if ((m_InitialUrl.Left(7) == L"http://")||(m_InitialUrl.Left(8) == L"https://"))
-        {
-            if (TrySVNParentPath())
-                return;
-        }
         m_repository.root = CPathUtils::PathUnescape(GetRepositoryRootAndUUID (CTSVNPath (m_InitialUrl), true, m_repository.uuid));
-    }
 
     // problem: SVN reports the repository root without the port number if it's
     // the default port!
@@ -541,7 +469,15 @@ void CRepositoryBrowser::InitRepo()
         m_InitialUrl.Replace(L":443/", L"/");
     m_InitialUrl.TrimRight('/');
 
-    m_backgroundJobs.WaitForEmptyQueue();
+    // let's (try to) access all levels in the folder path
+    SVNRev pegRev = m_repository.peg_revision;
+    if (!m_repository.root.IsEmpty())
+        for ( CString path = m_InitialUrl
+            ; path.GetLength() >= m_repository.root.GetLength()
+            ; path = path.Left (path.ReverseFind ('/')))
+        {
+            m_lister.Enqueue (path, pegRev, m_repository, path==m_InitialUrl, !m_bSparseCheckoutMode && m_bShowExternals);
+        }
 
     // (try to) fetch the HEAD revision
 
@@ -552,14 +488,12 @@ void CRepositoryBrowser::InitRepo()
     CString userCancelledError;
     userCancelledError.LoadStringW (IDS_SVN_USERCANCELLED);
 
-    SVNRev pegRev = m_repository.peg_revision.IsValid() ? m_repository.peg_revision : m_repository.revision;
-
     std::deque<CItem> dummy;
     CString redirectedUrl;
     CString error
         = m_cancelled
         ? userCancelledError
-        : m_lister.GetList (m_InitialUrl, pegRev, m_repository, false, false, dummy, redirectedUrl);
+        : m_lister.GetList (m_InitialUrl, pegRev, m_repository, true, !m_bSparseCheckoutMode && m_bShowExternals, dummy, redirectedUrl);
 
     if (!redirectedUrl.IsEmpty() && svn_path_is_url(CUnicodeUtils::GetUTF8(m_InitialUrl)))
         m_InitialUrl = CPathUtils::PathUnescape(redirectedUrl);
@@ -575,7 +509,7 @@ void CRepositoryBrowser::InitRepo()
     if (error == wasFileError)
     {
         m_InitialUrl = m_InitialUrl.Left (m_InitialUrl.ReverseFind ('/'));
-        error = m_lister.GetList (m_InitialUrl, pegRev, m_repository, false, false, dummy, redirectedUrl);
+        error = m_lister.GetList (m_InitialUrl, pegRev, m_repository, true, !m_bSparseCheckoutMode && m_bShowExternals, dummy, redirectedUrl);
     }
 
     // exit upon cancel
@@ -585,17 +519,6 @@ void CRepositoryBrowser::InitRepo()
         m_InitialUrl.Empty();
         ShowText(error, true);
         return;
-    }
-
-    // let's (try to) access all levels in the folder path
-    if (!m_repository.root.IsEmpty())
-    {
-        for ( CString path = m_InitialUrl
-            ; path.GetLength() >= m_repository.root.GetLength()
-            ; path = path.Left (path.ReverseFind ('/')))
-        {
-            m_lister.Enqueue (path, pegRev, m_repository, false, !m_bSparseCheckoutMode && m_bShowExternals);
-        }
     }
 
     // did our optimistic strategy work?
@@ -623,17 +546,17 @@ void CRepositoryBrowser::InitRepo()
                 // in case the url is not a valid directory, try the parent dir
                 // until there's no more parent dir
                 m_InitialUrl = m_InitialUrl.Left(m_InitialUrl.ReverseFind('/'));
-                if ((m_InitialUrl.Compare(L"http://") == 0) ||
-                    (m_InitialUrl.Compare(L"http:/") == 0)||
-                    (m_InitialUrl.Compare(L"https://") == 0)||
-                    (m_InitialUrl.Compare(L"https:/") == 0)||
-                    (m_InitialUrl.Compare(L"svn://") == 0)||
-                    (m_InitialUrl.Compare(L"svn:/") == 0)||
-                    (m_InitialUrl.Compare(L"svn+ssh:/") == 0)||
-                    (m_InitialUrl.Compare(L"svn+ssh://") == 0)||
-                    (m_InitialUrl.Compare(L"file:///") == 0)||
-                    (m_InitialUrl.Compare(L"file://") == 0)||
-                    (m_InitialUrl.Compare(L"file:/") == 0))
+                if ((m_InitialUrl.Compare(_T("http://")) == 0) ||
+                    (m_InitialUrl.Compare(_T("http:/")) == 0)||
+                    (m_InitialUrl.Compare(_T("https://")) == 0)||
+                    (m_InitialUrl.Compare(_T("https:/")) == 0)||
+                    (m_InitialUrl.Compare(_T("svn://")) == 0)||
+                    (m_InitialUrl.Compare(_T("svn:/")) == 0)||
+                    (m_InitialUrl.Compare(_T("svn+ssh:/")) == 0)||
+                    (m_InitialUrl.Compare(_T("svn+ssh://")) == 0)||
+                    (m_InitialUrl.Compare(_T("file:///")) == 0)||
+                    (m_InitialUrl.Compare(_T("file://")) == 0)||
+                    (m_InitialUrl.Compare(_T("file:/")) == 0))
                 {
                     m_InitialUrl.Empty();
                 }
@@ -666,24 +589,24 @@ void CRepositoryBrowser::InitRepo()
     // repository root returned would still be file://
     // to avoid string length comparison faults, we adjust
     // the repository root here to match the initial url
-    if ((m_InitialUrl.Left(9).CompareNoCase(L"file:///\\") == 0) &&
-        (m_repository.root.Left(9).CompareNoCase(L"file:///\\") != 0))
-        m_repository.root.Replace(L"file://", L"file:///\\");
+    if ((m_InitialUrl.Left(9).CompareNoCase(_T("file:///\\")) == 0) &&
+        (m_repository.root.Left(9).CompareNoCase(_T("file:///\\")) != 0))
+        m_repository.root.Replace(_T("file://"), _T("file:///\\"));
 
     // now check the repository root for the url type, then
     // set the corresponding background image
     if (!m_repository.root.IsEmpty())
     {
         UINT nID = IDI_REPO_UNKNOWN;
-        if (m_repository.root.Left(7).CompareNoCase(L"http://")==0)
+        if (m_repository.root.Left(7).CompareNoCase(_T("http://"))==0)
             nID = IDI_REPO_HTTP;
-        if (m_repository.root.Left(8).CompareNoCase(L"https://")==0)
+        if (m_repository.root.Left(8).CompareNoCase(_T("https://"))==0)
             nID = IDI_REPO_HTTPS;
-        if (m_repository.root.Left(6).CompareNoCase(L"svn://")==0)
+        if (m_repository.root.Left(6).CompareNoCase(_T("svn://"))==0)
             nID = IDI_REPO_SVN;
-        if (m_repository.root.Left(10).CompareNoCase(L"svn+ssh://")==0)
+        if (m_repository.root.Left(10).CompareNoCase(_T("svn+ssh://"))==0)
             nID = IDI_REPO_SVNSSH;
-        if (m_repository.root.Left(7).CompareNoCase(L"file://")==0)
+        if (m_repository.root.Left(7).CompareNoCase(_T("file://"))==0)
             nID = IDI_REPO_FILE;
 
         if (IsAppThemed())
@@ -740,9 +663,6 @@ LRESULT CRepositoryBrowser::OnAfterInitDialog(WPARAM /*wParam*/, LPARAM /*lParam
     m_barRepository.SetRevision (m_repository.revision);
     m_barRepository.ShowUrl (m_InitialUrl, m_repository.revision);
     ChangeToUrl (m_InitialUrl, m_repository.revision, true);
-    RefreshBookmarks();
-
-    m_bFetchChildren = !!CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserPrefetch", true);
 
     m_bInitDone = TRUE;
     return 0;
@@ -763,6 +683,8 @@ LRESULT CRepositoryBrowser::OnRefreshURL(WPARAM /*wParam*/, LPARAM lParam)
 
 void CRepositoryBrowser::OnOK()
 {
+    RevokeDragDrop(m_RepoList.GetSafeHwnd());
+    RevokeDragDrop(m_RepoTree.GetSafeHwnd());
     if (m_blockEvents)
         return;
     if (m_RepoTree.GetEditControl())
@@ -787,16 +709,12 @@ void CRepositoryBrowser::OnOK()
         return;
     }
 
-    if (m_EditFileCommand)
-    {
-        if (m_EditFileCommand->StopWaitingForEditor())
-            return;
-    }
-
     m_cancelled = TRUE;
     m_lister.Cancel();
 
 
+    if (m_EditFileCommand)
+        m_EditFileCommand->StopWaitingForEditor();
     m_backgroundJobs.WaitForEmptyQueue();
     if (!m_bSparseCheckoutMode)
     {
@@ -816,19 +734,11 @@ void CRepositoryBrowser::OnOK()
 
     ClearUI();
 
-    RevokeDragDrop(m_RepoList.GetSafeHwnd());
-    RevokeDragDrop(m_RepoTree.GetSafeHwnd());
-
     CResizableStandAloneDialog::OnOK();
 }
 
 void CRepositoryBrowser::OnCancel()
 {
-    if (m_EditFileCommand)
-    {
-        if (m_EditFileCommand->StopWaitingForEditor())
-            return;
-    }
     m_cancelled = TRUE;
     m_lister.Cancel();
 
@@ -838,6 +748,8 @@ void CRepositoryBrowser::OnCancel()
     RevokeDragDrop(m_RepoList.GetSafeHwnd());
     RevokeDragDrop(m_RepoTree.GetSafeHwnd());
 
+    if (m_EditFileCommand)
+        m_EditFileCommand->StopWaitingForEditor();
     m_backgroundJobs.WaitForEmptyQueue();
     if (!m_bSparseCheckoutMode)
     {
@@ -1146,6 +1058,8 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
     CString partUrl = url;
     if ((LONG(rev) != LONG(m_repository.revision)) || urlHasDifferentRoot)
     {
+        // if the revision changed, then invalidate everything
+        ClearUI();
         ShowText(CString(MAKEINTRESOURCE(IDS_REPOBROWSE_WAIT)), true);
 
         // if the repository root has changed, initialize all data from scratch
@@ -1154,10 +1068,7 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
             m_ProjectProperties = ProjectProperties();
         m_InitialUrl = url;
         m_repository.revision = rev;
-        // if the revision changed, then invalidate everything
-        ClearUI();
         InitRepo();
-        RefreshBookmarks();
 
         if (m_repository.root.IsEmpty())
             return false;
@@ -1165,12 +1076,6 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
         m_path = CTSVNPath(m_repository.root);
         CAppUtils::SetWindowTitle(m_hWnd, m_path.GetUIPathString(), m_origDlgTitle);
         root = m_repository.root;
-
-        if (m_InitialUrl.Compare(url))
-        {
-            // url changed (redirect), update the combobox control
-            url = m_InitialUrl;
-        }
     }
 
     HTREEITEM hItem = AutoInsert (url);
@@ -1183,16 +1088,16 @@ bool CRepositoryBrowser::ChangeToUrl(CString& url, SVNRev& rev, bool bAlreadyChe
         return FALSE;
 
     if (!m_RepoList.HasText())
-        ShowText(L" ", true);
+        ShowText(_T(" "), true);
 
     RefreshNode(hItem);
     m_RepoTree.Expand(hItem, TVE_EXPAND);
     FillList(pTreeItem);
 
-    ++m_blockEvents;
+    m_blockEvents = true;
     m_RepoTree.EnsureVisible(hItem);
     m_RepoTree.SelectItem(hItem);
-    --m_blockEvents;
+    m_blockEvents = false;
 
     m_RepoList.ClearText();
     m_RepoTree.ClearText();
@@ -1249,14 +1154,8 @@ void CRepositoryBrowser::FillList(CTreeItem * pTreeItem)
         // column 6: lock owner
         temp.LoadString(IDS_STATUSLIST_COLLOCK);
         m_RepoList.InsertColumn(c++, temp, LVCFMT_LEFT, LVSCW_AUTOSIZE_USEHEADER);
-        //
-        // column 7: lock comment
-        temp.LoadString(IDS_STATUSLIST_COLLOCKCOMMENT);
-        m_RepoList.InsertColumn(c++, temp, LVCFMT_LEFT, LVSCW_AUTOSIZE_USEHEADER);
     }
 
-    int files = 0;
-    int folders = 0;
     // special case: error to show
     if (!pTreeItem->error.IsEmpty() && pTreeItem->children.empty())
     {
@@ -1272,15 +1171,9 @@ void CRepositoryBrowser::FillList(CTreeItem * pTreeItem)
         {
             int icon_idx;
             if (it->kind == svn_node_dir)
-            {
                 icon_idx =  m_nIconFolder;
-                folders++;
-            }
             else
-            {
                 icon_idx = SYS_IMAGE_LIST().GetFileIconIndex(it->path);
-                files++;
-            }
             int index = m_RepoList.InsertItem(nCount, it->path, icon_idx);
             SetListItemInfo(index, &(*it));
         }
@@ -1290,7 +1183,7 @@ void CRepositoryBrowser::FillList(CTreeItem * pTreeItem)
     }
     if (m_arColumnWidths[0] == 0)
     {
-        CRegString regColWidths(L"Software\\TortoiseSVN\\RepoBrowserColumnWidth");
+        CRegString regColWidths(_T("Software\\TortoiseSVN\\RepoBrowserColumnWidth"));
         StringToWidthArray(regColWidths, m_arColumnWidths);
     }
 
@@ -1307,19 +1200,6 @@ void CRepositoryBrowser::FillList(CTreeItem * pTreeItem)
     }
 
     m_RepoList.SetRedraw(true);
-
-    temp.FormatMessage(IDS_REPOBROWSE_INFO,
-                      (LPCTSTR)pTreeItem->unescapedname,
-                      files, folders, files+folders);
-    if (!pTreeItem->error.IsEmpty() && pTreeItem->children.empty())
-        SetDlgItemText(IDC_INFOLABEL, L"");
-    else
-        SetDlgItemText(IDC_INFOLABEL, temp);
-
-    if (m_UrlHistory.empty() || m_UrlHistory.front() != pTreeItem->url)
-        m_UrlHistory.push_front(pTreeItem->url);
-    if (m_UrlHistoryForward.empty() || m_UrlHistoryForward.front() != GetPath())
-        m_UrlHistoryForward.clear();
 }
 
 HTREEITEM CRepositoryBrowser::FindUrl (const CString& fullurl)
@@ -1394,24 +1274,17 @@ void CRepositoryBrowser::FetchChildren (HTREEITEM node)
                                             , !m_bSparseCheckoutMode && m_bShowExternals
                                             , children
                                             , redirectedUrl);
-        if (!pTreeItem->error.IsEmpty() && pTreeItem->unversioned)
-        {
-            pTreeItem->error.Empty();
-            pTreeItem->has_child_folders = true;
-        }
     }
 
     // add parent sub-tree externals
 
-    CString relPath;
-    for (
+    CString relPath = pTreeItem->unescapedname + _T('/');
+    for ( node = m_RepoTree.GetParentItem (node)
         ; node && pTreeItem->error.IsEmpty()
         ; node = m_RepoTree.GetParentItem (node))
     {
         CTreeItem* parentItem = (CTreeItem *)m_RepoTree.GetItemData (node);
         if (parentItem == NULL)
-            continue;
-        if (parentItem->svnparentpathroot)
             continue;
         parentItem->error = m_lister.AddSubTreeExternals ( parentItem->url
                                                          , parentItem->is_external
@@ -1420,12 +1293,7 @@ void CRepositoryBrowser::FetchChildren (HTREEITEM node)
                                                          , parentItem->repository
                                                          , relPath
                                                          , children);
-        if (!parentItem->error.IsEmpty() && parentItem->unversioned)
-        {
-            parentItem->error.Empty();
-            parentItem->has_child_folders = true;
-        }
-        relPath = parentItem->unescapedname + '/' + relPath;
+        relPath = parentItem->unescapedname + _T('/') + relPath;
     }
 
     // done
@@ -1475,15 +1343,6 @@ HTREEITEM CRepositoryBrowser::AutoInsert (const CString& path)
         {
             CAutoWriteLock locker(m_guard);
             node = m_RepoTree.GetRootItem();
-            if (node)
-            {
-                CAutoReadLock locker(m_guard);
-                CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData (node);
-                if (pTreeItem == nullptr)
-                    node = NULL;
-                else if (pTreeItem->bookmark)
-                    node = NULL;
-            }
             if (node == NULL)
             {
                 // the tree view is empty, just fill in the repository root
@@ -1496,7 +1355,7 @@ HTREEITEM CRepositoryBrowser::AutoInsert (const CString& path)
 
                 TVINSERTSTRUCT tvinsert = {0};
                 tvinsert.hParent = TVI_ROOT;
-                tvinsert.hInsertAfter = TVI_FIRST;
+                tvinsert.hInsertAfter = TVI_ROOT;
                 tvinsert.itemex.mask = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
                 tvinsert.itemex.pszText = currentPath.GetBuffer (currentPath.GetLength());
                 tvinsert.itemex.cChildren = 1;
@@ -1685,7 +1544,6 @@ HTREEITEM CRepositoryBrowser::Insert
     pTreeItem->repository = item.repository;
     pTreeItem->is_external = item.is_external;
     pTreeItem->kind = item.kind;
-    pTreeItem->unversioned = item.unversioned;
 
     bool isSelectedForDiff
         = pTreeItem->url.CompareNoCase (m_diffURL.GetSVNPathString()) == 0;
@@ -1705,7 +1563,7 @@ HTREEITEM CRepositoryBrowser::Insert
 
     TVINSERTSTRUCT tvinsert = {0};
     tvinsert.hParent = hParent;
-    tvinsert.hInsertAfter = TVI_FIRST;
+    tvinsert.hInsertAfter = TVI_SORT;
     tvinsert.itemex.mask = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
     tvinsert.itemex.state = state;
     tvinsert.itemex.stateMask = stateMask;
@@ -1726,41 +1584,6 @@ HTREEITEM CRepositoryBrowser::Insert
     }
     HTREEITEM hNewItem = m_RepoTree.InsertItem(&tvinsert);
     name.ReleaseBuffer();
-
-    if (m_bSparseCheckoutMode)
-    {
-        auto it = m_wcDepths.find(pTreeItem->url);
-        if (it != m_wcDepths.end())
-        {
-            switch (it->second)
-            {
-            case svn_depth_infinity:
-            case svn_depth_immediates:
-            case svn_depth_files:
-            case svn_depth_empty:
-            case svn_depth_unknown:
-                m_RepoTree.SetCheck(hNewItem);
-                break;
-            default:
-                m_RepoTree.SetCheck(hNewItem, false);
-                break;
-            }
-        }
-        else
-        {
-            if (!m_wcPath.IsEmpty() || m_RepoTree.GetRootItem() == hParent)
-            {
-                // node without depth in already checked out WC or item on second (below root) level.
-                // this nodes should be unchecked
-                m_RepoTree.SetCheck(hNewItem, false);
-            }
-            else
-            {
-                // other nodes inherit parent state
-                m_RepoTree.SetCheck(hNewItem, m_RepoTree.GetCheck(hParent));
-            }
-        }
-    }
 
     return hNewItem;
 }
@@ -1792,7 +1615,7 @@ void CRepositoryBrowser::RefreshChildren (HTREEITEM node)
     for (size_t i = 0, count = pTreeItem->children.size(); i < count; ++i)
     {
         const CItem& item = pTreeItem->children[i];
-        if ((item.kind == svn_node_dir)&&(!item.absolutepath.IsEmpty()))
+        if ((item.kind == svn_node_dir)&&(item.absolutepath.GetLength() > 0))
         {
             pTreeItem->has_child_folders = true;
             if (m_bFetchChildren && (pTreeItem->children.size() < 30))
@@ -1818,13 +1641,10 @@ bool CRepositoryBrowser::RefreshNode(HTREEITEM hNode, bool force /* = false*/)
     CWaitCursorEx wait;
     CAutoReadLock locker(m_guard);
     // block all events until the list control is refreshed as well
-    ++m_blockEvents;
+    m_blockEvents = true;
     CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData(hNode);
-    if (!pTreeItem || pTreeItem->svnparentpathroot)
-    {
-        --m_blockEvents;
+    if (!pTreeItem)
         return false;
-    }
     HTREEITEM hSel1 = m_RepoTree.GetSelectedItem();
     if (m_RepoTree.ItemHasChildren(hNode))
     {
@@ -1857,7 +1677,7 @@ bool CRepositoryBrowser::RefreshNode(HTREEITEM hNode, bool force /* = false*/)
     if (pTreeItem->children_fetched && pTreeItem->error.IsEmpty())
         if ((force)||(hSel1 == hNode)||(hSel1 != m_RepoTree.GetSelectedItem())||(m_pListCtrlTreeItem == nullptr))
             FillList(pTreeItem);
-    --m_blockEvents;
+    m_blockEvents = false;
     return true;
 }
 
@@ -1926,7 +1746,7 @@ void CRepositoryBrowser::OnDelete()
         {
             CItem * pItem = (CItem *)m_RepoList.GetItemData(index);
             CString absPath = pItem->absolutepath;
-            absPath.Replace(L"\\", L"%5C");
+            absPath.Replace(_T("\\"), _T("%5C"));
             urlList.AddPath(CTSVNPath(EscapeUrl(CTSVNPath(absPath))));
             repositories.push_back (pItem->repository);
         }
@@ -1949,14 +1769,9 @@ void CRepositoryBrowser::OnDelete()
     if (urlList.GetCount() == 0)
         return;
 
-    CString sLogMsg;
-    if (!RunStartCommit(urlList, sLogMsg))
-        return;
+
     CWaitCursorEx wait_cursor;
     CInputLogDlg input(this);
-    input.SetPathList(urlList);
-    input.SetRootPath(CTSVNPath(m_InitialUrl));
-    input.SetLogText(sLogMsg);
     input.SetUUID (repositories[0].uuid);
     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEDEL);
     CString hint;
@@ -1967,11 +1782,7 @@ void CRepositoryBrowser::OnDelete()
     input.SetActionText(hint);
     if (input.DoModal() == IDOK)
     {
-        sLogMsg = input.GetLogMessage();
-        if (!RunPreCommit(urlList, svn_depth_unknown, sLogMsg))
-            return;
-        bool bRet = Remove(urlList, true, false, sLogMsg, input.m_revProps);
-        RunPostCommit(urlList, svn_depth_unknown, m_commitRev, sLogMsg);
+        bool bRet = Remove(urlList, true, false, input.GetLogMessage());
         if (!bRet || !PostCommitErr.IsEmpty())
         {
             wait_cursor.Hide();
@@ -2016,13 +1827,13 @@ void CRepositoryBrowser::OnCopy()
         url += CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8(pItem->absolutepath)));
         if (!GetRevision().IsHead())
         {
-            url += L"?r=" + GetRevision().ToString();
+            url += _T("?r=") + GetRevision().ToString();
         }
-        url += L"\r\n";
+        url += _T("\r\n");
     }
     if (!url.IsEmpty())
     {
-        url.TrimRight(L"\r\n");
+        url.TrimRight(_T("\r\n"));
         CStringUtils::WriteAsciiStringToClipboard(url);
     }
 }
@@ -2035,7 +1846,7 @@ void CRepositoryBrowser::OnInlineedit()
     if (pos == NULL)
         return;
     int selIndex = m_RepoList.GetNextSelectedItem(pos);
-    ++m_blockEvents;
+    m_blockEvents = true;
     if (selIndex >= 0)
     {
         CAutoReadLock locker(m_guard);
@@ -2054,18 +1865,18 @@ void CRepositoryBrowser::OnInlineedit()
         if (hTreeItem != m_RepoTree.GetRootItem())
         {
             CTreeItem* pItem = (CTreeItem*)m_RepoTree.GetItemData (hTreeItem);
-            if (!pItem->is_external && !pItem->bookmark)
+            if (!pItem->is_external)
                 m_RepoTree.EditLabel(hTreeItem);
         }
     }
-    --m_blockEvents;
+    m_blockEvents = false;
 }
 
 void CRepositoryBrowser::OnRefresh()
 {
     CWaitCursorEx waitCursor;
 
-    ++m_blockEvents;
+    m_blockEvents = true;
 
     // try to get the tree node to refresh
 
@@ -2075,7 +1886,6 @@ void CRepositoryBrowser::OnRefresh()
 
     if (hSelected == NULL)
     {
-        --m_blockEvents;
         if (m_InitialUrl.IsEmpty())
             return;
         // try re-init
@@ -2092,7 +1902,7 @@ void CRepositoryBrowser::OnRefresh()
 
     RefreshNode(m_RepoTree.GetSelectedItem(), true);
 
-    --m_blockEvents;
+    m_blockEvents = false;
 }
 
 void CRepositoryBrowser::OnTvnSelchangedRepotree(NMHDR *pNMHDR, LRESULT *pResult)
@@ -2124,30 +1934,17 @@ void CRepositoryBrowser::OnTimer(UINT_PTR nIDEvent)
             CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData(hSelItem);
             if (pTreeItem)
             {
-                if (pTreeItem->bookmark)
+                if (!pTreeItem->children_fetched && pTreeItem->error.IsEmpty())
                 {
-                    if (!pTreeItem->url.IsEmpty())
-                    {
-                        SVNRev r = SVNRev::REV_HEAD;
-                        CString url = pTreeItem->url;
-                        ChangeToUrl(url, r, false);
-                        m_barRepository.ShowUrl (url, r);
-                    }
+                    CAutoWriteLock locker(m_guard);
+                    m_RepoList.DeleteAllItems();
+                    RefreshNode(hSelItem);
                 }
-                else
-                {
-                    if (!pTreeItem->children_fetched && pTreeItem->error.IsEmpty())
-                    {
-                        CAutoWriteLock locker(m_guard);
-                        m_RepoList.DeleteAllItems();
-                        RefreshNode(hSelItem);
-                    }
 
-                    FillList(pTreeItem);
+                FillList(pTreeItem);
 
-                    m_barRepository.ShowUrl ( pTreeItem->url
-                                            , pTreeItem->repository.revision);
-                }
+                m_barRepository.ShowUrl ( pTreeItem->url
+                                        , pTreeItem->repository.revision);
             }
         }
     }
@@ -2167,8 +1964,6 @@ void CRepositoryBrowser::OnTvnItemexpandingRepotree(NMHDR *pNMHDR, LRESULT *pRes
     CTreeItem * pTreeItem = (CTreeItem *)pNMTreeView->itemNew.lParam;
 
     if (pTreeItem == NULL)
-        return;
-    if (pTreeItem->bookmark)
         return;
 
     if (pNMTreeView->action == TVE_COLLAPSE)
@@ -2196,7 +1991,7 @@ void CRepositoryBrowser::OnTvnItemexpandingRepotree(NMHDR *pNMHDR, LRESULT *pRes
     {
         // if there are no child folders, remove the '+' in front of the node
 
-        if (!pTreeItem->has_child_folders && (!m_bSparseCheckoutMode && (pTreeItem->children.empty())))
+        if (!pTreeItem->has_child_folders && (!m_bSparseCheckoutMode && (pTreeItem->children.size()==0)))
         {
             TVITEM tvitem = {0};
             tvitem.hItem = pNMTreeView->itemNew.hItem;
@@ -2257,6 +2052,7 @@ void CRepositoryBrowser::OpenFile(const CTSVNPath& url, const CTSVNPath& urlEsca
     CWaitCursorEx wait_cursor;
     CProgressDlg progDlg;
     progDlg.SetTitle(IDS_APPNAME);
+    progDlg.SetAnimation(IDR_DOWNLOAD);
     CString sInfoLine;
     sInfoLine.FormatMessage(IDS_PROGRESSGETFILEREVISION, (LPCTSTR)url.GetFileOrDirectoryName(), (LPCTSTR)revision.ToString());
     progDlg.SetLine(1, sInfoLine, true);
@@ -2277,15 +2073,14 @@ void CRepositoryBrowser::OpenFile(const CTSVNPath& url, const CTSVNPath& urlEsca
     SetFileAttributes(tempfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
     if (bOpenWith)
     {
-        OPENASINFO oi = { 0 };
-        oi.pcszFile = tempfile.GetWinPath();
-        oi.oaifInFlags = OAIF_EXEC;
-        SHOpenWithDialog(GetSafeHwnd(), &oi);
+        CString c = _T("RUNDLL32 Shell32,OpenAs_RunDLL ");
+        c += tempfile.GetWinPathString();
+        CAppUtils::LaunchApplication(c, NULL, false);
     }
     else
     {
         ShellExecute ( NULL
-                      , L"open"
+                      , _T("open")
                       , tempfile.GetWinPathString()
                       , NULL
                       , NULL
@@ -2297,7 +2092,7 @@ void CRepositoryBrowser::EditFile(CTSVNPath url, CTSVNPath urlEscaped)
 {
     SVNRev revision = GetRevision();
     CString paramString
-        = L"/closeonend:1 /closeforlocal /hideprogress /revision:";
+        = _T("/closeonend:1 /closeforlocal /hideprogress /revision:");
     CCmdLineParser parameters (paramString + revision.ToString());
 
     m_EditFileCommand = std::unique_ptr<EditFileCommand>(new EditFileCommand());
@@ -2310,7 +2105,7 @@ void CRepositoryBrowser::EditFile(CTSVNPath url, CTSVNPath urlEscaped)
         m_lister.RefreshSubTree (revision, dir);
 
         // Memory will be allocated by malloc() - call free() once the message has been handled
-        const TCHAR* lParam = _wcsdup((LPCTSTR)dir);
+        const TCHAR* lParam = _tcsdup((LPCTSTR)dir);
         PostMessage(WM_REFRESHURL, 0, reinterpret_cast<LPARAM>(lParam));
     }
 }
@@ -2326,10 +2121,10 @@ void CRepositoryBrowser::OnHdnItemclickRepolist(NMHDR *pNMHDR, LRESULT *pResult)
         m_bSortAscending = !m_bSortAscending;
     m_nSortedColumn = phdr->iItem;
 
-    ++m_blockEvents;
+    m_blockEvents = true;
     ListView_SortItemsEx(m_RepoList, ListSort, this);
     SetSortArrow();
-    --m_blockEvents;
+    m_blockEvents = false;
     *pResult = 0;
 }
 
@@ -2404,14 +2199,6 @@ int CRepositoryBrowser::TreeSort(LPARAM lParam1, LPARAM lParam2, LPARAM /*lParam
 {
     CTreeItem * Item1 = (CTreeItem*)lParam1;
     CTreeItem * Item2 = (CTreeItem*)lParam2;
-
-    // directories are always above the other nodes
-    if(Item1->kind == svn_node_dir && Item2->kind != svn_node_dir)
-        return -1;
-
-    if(Item1->kind != svn_node_dir && Item2->kind == svn_node_dir)
-        return 1;
-
     return SortStrCmp(Item1->unescapedname, Item2->unescapedname);
 }
 
@@ -2452,37 +2239,7 @@ void CRepositoryBrowser::OnLvnItemchangedRepolist(NMHDR *pNMHDR, LRESULT *pResul
             {
                 m_barRepository.ShowUrl ( pItem->absolutepath
                     , pItem->repository.revision);
-                CString temp;
-                CString rev;
-
-                if (pItem->is_external)
-                {
-                    temp.FormatMessage(IDS_REPOBROWSE_INFOEXT,
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 0),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 2),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 5));
-                }
-                else if (pItem->kind == svn_node_dir)
-                {
-                    temp.FormatMessage(IDS_REPOBROWSE_INFODIR,
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 0),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 2),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 3),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 5));
-                }
-                else
-                {
-                    temp.FormatMessage(IDS_REPOBROWSE_INFOFILE,
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 0),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 2),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 3),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 4),
-                        (LPCTSTR)m_RepoList.GetItemText(pNMLV->iItem, 5));
-                }
-                SetDlgItemText(IDC_INFOLABEL, temp);
             }
-            else
-                SetDlgItemText(IDC_INFOLABEL, L"");
         }
     }
 }
@@ -2521,33 +2278,20 @@ void CRepositoryBrowser::OnLvnEndlabeleditRepolist(NMHDR *pNMHDR, LRESULT *pResu
         absolutepath = pItem->absolutepath;
     }
 
-    CString sLogMsg;
-    CTSVNPathList plist = CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(absolutepath))));
-    if (!RunStartCommit(plist, sLogMsg))
-        return;
     CInputLogDlg input(this);
-    input.SetPathList(plist);
-    input.SetRootPath(CTSVNPath(m_InitialUrl));
-    input.SetLogText(sLogMsg);
     input.SetUUID (uuid);
     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEMOVE);
     CString sHint;
     sHint.FormatMessage(IDS_INPUT_RENAME, (LPCTSTR)(absolutepath), (LPCTSTR)targetUrl.GetUIPathString());
     input.SetActionText(sHint);
-    //input.SetForceFocus (true);
+    input.SetForceFocus (true);
     if (input.DoModal() == IDOK)
     {
-        sLogMsg = input.GetLogMessage();
-        if (!RunPreCommit(plist, svn_depth_unknown, sLogMsg))
-            return;
         CWaitCursorEx wait_cursor;
 
-        bool bRet = Move(plist,
+        bool bRet = Move(CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(absolutepath)))),
                          targetUrl,
-                         sLogMsg,
-                         false, false, false, false,
-                         input.m_revProps);
-        RunPostCommit(plist, svn_depth_unknown, m_commitRev, sLogMsg);
+                         input.GetLogMessage());
         if (!bRet || !PostCommitErr.IsEmpty())
         {
             wait_cursor.Hide();
@@ -2600,33 +2344,20 @@ void CRepositoryBrowser::OnTvnEndlabeleditRepotree(NMHDR *pNMHDR, LRESULT *pResu
     CTSVNPath targetUrl = CTSVNPath(EscapeUrl(CTSVNPath(pItem->url.Left(pItem->url.ReverseFind('/')+1)+pTVDispInfo->item.pszText)));
     if(!CheckAndConfirmPath(targetUrl))
         return;
-    CTSVNPathList plist = CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(pItem->url))));
-    CString sLogMsg;
-    if (!RunStartCommit(plist, sLogMsg))
-        return;
     CInputLogDlg input(this);
-    input.SetPathList(plist);
-    input.SetRootPath(CTSVNPath(m_InitialUrl));
-    input.SetLogText(sLogMsg);
     input.SetUUID(pItem->repository.uuid);
     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEMOVE);
     CString sHint;
     sHint.FormatMessage(IDS_INPUT_RENAME, (LPCTSTR)(pItem->url), (LPCTSTR)targetUrl.GetUIPathString());
     input.SetActionText(sHint);
-    //input.SetForceFocus (true);
+    input.SetForceFocus (true);
     if (input.DoModal() == IDOK)
     {
-        sLogMsg = input.GetLogMessage();
-        if (!RunPreCommit(plist, svn_depth_unknown, sLogMsg))
-            return;
         CWaitCursorEx wait_cursor;
 
-        bool bRet = Move(plist,
+        bool bRet = Move(CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(pItem->url)))),
                          targetUrl,
-                         sLogMsg,
-                         false, false, false, false,
-                         input.m_revProps);
-        RunPostCommit(plist, svn_depth_unknown, m_commitRev, sLogMsg);
+                         input.GetLogMessage());
         if (!bRet || !PostCommitErr.IsEmpty())
         {
             wait_cursor.Hide();
@@ -2744,11 +2475,7 @@ void CRepositoryBrowser::OnBeginDragTree(NMHDR *pNMHDR)
 
     CRepositoryBrowserSelection selection;
     LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-    CTreeItem * pItem = (CTreeItem *)pNMTreeView->itemNew.lParam;
-    if (pItem && pItem->bookmark)
-        return;
-
-    selection.Add (pItem);
+    selection.Add ((CTreeItem *)pNMTreeView->itemNew.lParam);
 
     BeginDrag(m_RepoTree, selection, pNMTreeView->ptDrag, false);
 }
@@ -2757,7 +2484,7 @@ bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CString& root, co
 {
     if (m_bSparseCheckoutMode)
         return false;
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": dropped %ld items on %s, source revision is %s, dwEffect is %ld\n", pathlist.GetCount(), (LPCTSTR)target.GetSVNPathString(), srcRev.ToString(), dwEffect);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": dropped %ld items on %s, source revision is %s, dwEffect is %ld\n"), pathlist.GetCount(), (LPCTSTR)target.GetSVNPathString(), srcRev.ToString(), dwEffect);
     if (pathlist.GetCount() == 0)
         return false;
 
@@ -2871,38 +2598,42 @@ bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CString& root, co
             }
             if (pathListIsSpecial)
             {
-                CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK1)),
-                                    CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK2)),
-                                    L"TortoiseSVN",
-                                    0,
-                                    TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-                taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK3)));
-                taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK4)));
-                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                taskdlg.SetDefaultCommandControl(2);
-                taskdlg.SetMainIcon(TD_WARNING_ICON);
-                if (taskdlg.DoModal(m_hWnd) != 1)
-                    return false;
+                if (CTaskDialog::IsSupported())
+                {
+                    CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK1)),
+                                        CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK2)),
+                                        L"TortoiseSVN",
+                                        0,
+                                        TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK3)));
+                    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY_TASK4)));
+                    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                    taskdlg.SetDefaultCommandControl(2);
+                    taskdlg.SetMainIcon(TD_WARNING_ICON);
+                    if (taskdlg.DoModal(m_hWnd) != 1)
+                        return false;
+                }
+                else
+                {
+                    if (TSVNMessageBox(GetSafeHwnd(), IDS_WARN_CONFIRM_MOVE_SPECIAL_DIRECTORY, IDS_APPNAME, MB_ICONQUESTION | MB_YESNO) != IDYES)
+                    {
+                        return false;
+                    }
+                }
             }
         }
 
         // drag-n-drop inside the repobrowser
-        CString sLogMsg;
-        if (!RunStartCommit(pathlist, sLogMsg))
-            return false;
         CInputLogDlg input(this);
-        input.SetPathList(pathlist);
-        input.SetRootPath(CTSVNPath(m_InitialUrl));
-        input.SetLogText(sLogMsg);
         input.SetUUID(m_repository.uuid);
         input.SetProjectProperties(&m_ProjectProperties, dwEffect == DROPEFFECT_COPY ? PROJECTPROPNAME_LOGTEMPLATEBRANCH : PROJECTPROPNAME_LOGTEMPLATEMOVE);
         CString sHint;
         if (pathlist.GetCount() == 1)
         {
             if (dwEffect == DROPEFFECT_COPY)
-                sHint.FormatMessage(IDS_INPUT_COPY, (LPCTSTR)pathlist[0].GetSVNPathString(), (LPCTSTR)(target.GetSVNPathString()+L"/"+targetName));
+                sHint.FormatMessage(IDS_INPUT_COPY, (LPCTSTR)pathlist[0].GetSVNPathString(), (LPCTSTR)(target.GetSVNPathString()+_T("/")+targetName));
             else
-                sHint.FormatMessage(IDS_INPUT_MOVE, (LPCTSTR)pathlist[0].GetSVNPathString(), (LPCTSTR)(target.GetSVNPathString()+L"/"+targetName));
+                sHint.FormatMessage(IDS_INPUT_MOVE, (LPCTSTR)pathlist[0].GetSVNPathString(), (LPCTSTR)(target.GetSVNPathString()+_T("/")+targetName));
         }
         else
         {
@@ -2914,22 +2645,18 @@ bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CString& root, co
         input.SetActionText(sHint);
         if (input.DoModal() == IDOK)
         {
-            sLogMsg = input.GetLogMessage();
-            if (!RunPreCommit(pathlist, svn_depth_unknown, sLogMsg))
-                return false;
             CWaitCursorEx wait_cursor;
             BOOL bRet = FALSE;
             if (dwEffect == DROPEFFECT_COPY)
                 if (pathlist.GetCount() == 1)
-                    bRet = Copy(pathlist, CTSVNPath(target.GetSVNPathString() + L"/" + targetName), srcRev, srcRev, sLogMsg, false, false, false, input.m_revProps);
+                    bRet = Copy(pathlist, CTSVNPath(target.GetSVNPathString() + _T("/") + targetName), srcRev, srcRev, input.GetLogMessage(), false);
                 else
-                    bRet = Copy(pathlist, target, srcRev, srcRev, sLogMsg, true, false, false, input.m_revProps);
+                    bRet = Copy(pathlist, target, srcRev, srcRev, input.GetLogMessage(), true);
             else
                 if (pathlist.GetCount() == 1)
-                    bRet = Move(pathlist, CTSVNPath(target.GetSVNPathString() + L"/" + targetName), sLogMsg, false, false, false, false, input.m_revProps);
+                    bRet = Move(pathlist, CTSVNPath(target.GetSVNPathString() + _T("/") + targetName), input.GetLogMessage(), false);
                 else
-                    bRet = Move(pathlist, target, sLogMsg, true, false, false, false, input.m_revProps);
-            RunPostCommit(pathlist, svn_depth_unknown, m_commitRev, sLogMsg);
+                    bRet = Move(pathlist, target, input.GetLogMessage(), true);
             if (!bRet || !PostCommitErr.IsEmpty())
             {
                 wait_cursor.Hide();
@@ -3008,55 +2735,53 @@ bool CRepositoryBrowser::OnDrop(const CTSVNPath& target, const CString& root, co
         // import files dragged onto us
         if (pathlist.GetCount() > 1)
         {
-            CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK1)),
-                                CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK2)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK3)));
-            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK4)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetDefaultCommandControl(2);
-            taskdlg.SetMainIcon(TD_WARNING_ICON);
-            if (taskdlg.DoModal(m_hWnd) != 1)
-                return false;
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK1)),
+                                    CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK2)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK3)));
+                taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_REPOBROWSE_MULTIIMPORT_TASK4)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetDefaultCommandControl(2);
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                if (taskdlg.DoModal(m_hWnd) != 1)
+                    return false;
+            }
+            else
+            {
+                if (TSVNMessageBox(m_hWnd, IDS_REPOBROWSE_MULTIIMPORT, IDS_APPNAME, MB_YESNO | MB_ICONQUESTION)!=IDYES)
+                    return false;
+            }
         }
 
-        CString sLogMsg;
-        if (!RunStartCommit(pathlist, sLogMsg))
-            return false;
         CInputLogDlg input(this);
-        input.SetPathList(pathlist);
-        input.SetRootPath(CTSVNPath(m_InitialUrl));
-        input.SetLogText(sLogMsg);
         input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEIMPORT);
         input.SetUUID(m_repository.root);
         CString sHint;
         if (pathlist.GetCount() == 1)
-            sHint.FormatMessage(IDS_INPUT_IMPORTFILEFULL, pathlist[0].GetWinPath(), (LPCTSTR)(target.GetSVNPathString() + L"/" + pathlist[0].GetFileOrDirectoryName()));
+            sHint.FormatMessage(IDS_INPUT_IMPORTFILEFULL, pathlist[0].GetWinPath(), (LPCTSTR)(target.GetSVNPathString() + _T("/") + pathlist[0].GetFileOrDirectoryName()));
         else
             sHint.Format(IDS_INPUT_IMPORTFILES, pathlist.GetCount());
         input.SetActionText(sHint);
 
         if (input.DoModal() == IDOK)
         {
-            sLogMsg = input.GetLogMessage();
-            if (!RunPreCommit(pathlist, svn_depth_unknown, sLogMsg))
-                return false;
             for (int importindex = 0; importindex<pathlist.GetCount(); ++importindex)
             {
                 CString filename = pathlist[importindex].GetFileOrDirectoryName();
                 bool bRet = Import(pathlist[importindex],
-                                   CTSVNPath(target.GetSVNPathString()+L"/"+filename),
-                                   sLogMsg, &m_ProjectProperties, svn_depth_infinity, true, true, false, input.m_revProps);
+                                   CTSVNPath(target.GetSVNPathString()+_T("/")+filename),
+                                   input.GetLogMessage(), &m_ProjectProperties, svn_depth_infinity, true, true, false);
                 if (!bRet || !PostCommitErr.IsEmpty())
                 {
                     ShowErrorDialog(m_hWnd);
                     if (!bRet)
-                        break;
+                        return false;
                 }
             }
-            RunPostCommit(pathlist, svn_depth_unknown, m_commitRev, sLogMsg);
             if (GetRevision().IsHead())
             {
                 // if the import operation was to the currently shown url,
@@ -3126,8 +2851,6 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         }
     }
 
-    bool bSVNParentPathUrl = false;
-    bool bIsBookmark = false;
     CRepositoryBrowserSelection selection;
     if (pWnd == &m_RepoList)
     {
@@ -3152,19 +2875,15 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             {
                 // Seems to be a right-click on the list view background.
                 // Use the currently selected item in the tree view as the source.
-                ++m_blockEvents;
+                m_blockEvents = true;
                 hSelectedTreeItem = m_RepoTree.GetSelectedItem();
                 if (hSelectedTreeItem)
                 {
                     m_RepoTree.SetItemState(hSelectedTreeItem, 0, TVIS_SELECTED);
-                    --m_blockEvents;
+                    m_blockEvents = false;
                     m_RepoTree.SetItemState(hSelectedTreeItem, TVIS_DROPHILITED, TVIS_DROPHILITED);
-                    CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData (hSelectedTreeItem);
-                    bSVNParentPathUrl = pTreeItem->svnparentpathroot;
-                    selection.Add (pTreeItem);
+                    selection.Add ((CTreeItem *)m_RepoTree.GetItemData (hSelectedTreeItem));
                 }
-                else
-                    --m_blockEvents;
             }
         }
     }
@@ -3180,24 +2899,16 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         // the context menu will work on
         if ((hItem) && (uFlags & TVHT_ONITEM) && (hItem != m_RepoTree.GetSelectedItem()))
         {
-            ++m_blockEvents;
+            m_blockEvents = true;
             hSelectedTreeItem = m_RepoTree.GetSelectedItem();
             m_RepoTree.SetItemState(hSelectedTreeItem, 0, TVIS_SELECTED);
-            --m_blockEvents;
+            m_blockEvents = false;
             m_RepoTree.SetItemState(hItem, TVIS_DROPHILITED, TVIS_DROPHILITED);
         }
         if (hItem)
         {
             hChosenTreeItem = hItem;
-            CTreeItem * pTreeItem = (CTreeItem *)m_RepoTree.GetItemData (hItem);
-            bSVNParentPathUrl = pTreeItem->svnparentpathroot;
-            if (pTreeItem->bookmark)
-            {
-                bIsBookmark = true;
-                if (pTreeItem->url.IsEmpty())
-                    return;
-            }
-            selection.Add (pTreeItem);
+            selection.Add ((CTreeItem *)m_RepoTree.GetItemData (hItem));
         }
     }
 
@@ -3205,63 +2916,52 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         return;
 
     CIconMenu popup;
-    CIconMenu clipSubMenu;
     if (popup.CreatePopupMenu())
     {
-        if (!bSVNParentPathUrl && !bIsBookmark)
+        if (selection.GetPathCount (0) == 1)
         {
-            if (selection.GetPathCount (0) == 1)
+            if (selection.GetFolderCount (0) == 0)
             {
-                if (selection.GetFolderCount (0) == 0)
-                {
-                    // Let "Open" be the very first entry, like in Explorer
-                    popup.AppendMenuIcon(ID_OPEN, IDS_REPOBROWSE_OPEN, IDI_OPEN);       // "open"
-                    popup.AppendMenuIcon(ID_OPENWITH, IDS_LOG_POPUP_OPENWITH, IDI_OPEN);    // "open with..."
-                    popup.AppendMenuIcon(ID_EDITFILE, IDS_REPOBROWSE_EDITFILE);     // "edit"
-                    popup.AppendMenu(MF_SEPARATOR, NULL);
-                }
+                // Let "Open" be the very first entry, like in Explorer
+                popup.AppendMenuIcon(ID_OPEN, IDS_REPOBROWSE_OPEN, IDI_OPEN);       // "open"
+                popup.AppendMenuIcon(ID_OPENWITH, IDS_LOG_POPUP_OPENWITH, IDI_OPEN);    // "open with..."
+                popup.AppendMenuIcon(ID_EDITFILE, IDS_REPOBROWSE_EDITFILE);     // "edit"
+                popup.AppendMenu(MF_SEPARATOR, NULL);
             }
-            if ( (selection.GetPathCount (0) == 1) ||
-                ((selection.GetPathCount (0) == 2) && (selection.GetFolderCount (0) != 1)) )
+            popup.AppendMenuIcon(ID_SHOWLOG, IDS_REPOBROWSE_SHOWLOG, IDI_LOG);          // "Show Log..."
+            // the revision graph on the repository root would be empty. We
+            // don't show the context menu entry there.
+            if (!selection.IsRoot (0, 0))
             {
-                popup.AppendMenuIcon(ID_SHOWLOG, IDS_REPOBROWSE_SHOWLOG, IDI_LOG);          // "Show Log..."
+                popup.AppendMenuIcon(ID_REVGRAPH, IDS_MENUREVISIONGRAPH, IDI_REVISIONGRAPH); // "Revision graph"
             }
-            if (selection.GetPathCount (0) == 1)
+            if (!selection.IsFolder (0, 0))
             {
-                // the revision graph on the repository root would be empty. We
-                // don't show the context menu entry there.
-                if (!selection.IsRoot (0, 0))
-                {
-                    popup.AppendMenuIcon(ID_REVGRAPH, IDS_MENUREVISIONGRAPH, IDI_REVISIONGRAPH); // "Revision graph"
-                }
-                if (!selection.IsFolder (0, 0))
-                {
-                    popup.AppendMenuIcon(ID_BLAME, IDS_MENUBLAME, IDI_BLAME);       // "Blame..."
-                }
-                if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
-                {
-                    popup.AppendMenuIcon(ID_VIEWREV, IDS_LOG_POPUP_VIEWREV);        // "View revision in webviewer"
-                }
-                if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
-                {
-                    popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_VIEWPATHREV);    // "View revision for path in webviewer"
-                }
-                if ((!m_ProjectProperties.sWebViewerPathRev.IsEmpty())||
-                    (!m_ProjectProperties.sWebViewerRev.IsEmpty()))
-                {
-                    popup.AppendMenu(MF_SEPARATOR, NULL);
-                }
-
-                // we can export files and folders alike, but for files we have "save as"
-                if (selection.IsFolder (0, 0))
-                    popup.AppendMenuIcon(ID_EXPORT, IDS_MENUEXPORT, IDI_EXPORT);        // "Export"
+                popup.AppendMenuIcon(ID_BLAME, IDS_MENUBLAME, IDI_BLAME);       // "Blame..."
+            }
+            if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
+            {
+                popup.AppendMenuIcon(ID_VIEWREV, IDS_LOG_POPUP_VIEWREV);        // "View revision in webviewer"
+            }
+            if (!m_ProjectProperties.sWebViewerPathRev.IsEmpty())
+            {
+                popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_VIEWPATHREV);    // "View revision for path in webviewer"
+            }
+            if ((!m_ProjectProperties.sWebViewerPathRev.IsEmpty())||
+                (!m_ProjectProperties.sWebViewerRev.IsEmpty()))
+            {
+                popup.AppendMenu(MF_SEPARATOR, NULL);
             }
 
-            // We allow checkout of multiple paths at once (we do that one by one)
-            popup.AppendMenuIcon(ID_CHECKOUT, IDS_MENUCHECKOUT, IDI_CHECKOUT);      // "Checkout.."
+            // we can export files and folders alike, but for files we have "save as"
+            if (selection.IsFolder (0, 0))
+                popup.AppendMenuIcon(ID_EXPORT, IDS_MENUEXPORT, IDI_EXPORT);        // "Export"
         }
 
-        if ((selection.GetPathCount (0) == 1) && !bIsBookmark)
+        // We allow checkout of multiple paths at once (we do that one by one)
+        popup.AppendMenuIcon(ID_CHECKOUT, IDS_MENUCHECKOUT, IDI_CHECKOUT);      // "Checkout.."
+
+        if (selection.GetPathCount (0) == 1)
         {
             if (selection.IsFolder (0, 0))
             {
@@ -3269,132 +2969,102 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             }
             popup.AppendMenu(MF_SEPARATOR, NULL);
 
-            if (!bSVNParentPathUrl)
+            if (selection.GetRepository(0).revision.IsHead())
             {
-                if (selection.GetRepository(0).revision.IsHead())
-                {
-                    if (selection.IsFolder (0, 0))
-                    {
-                        popup.AppendMenuIcon(ID_MKDIR, IDS_REPOBROWSE_MKDIR, IDI_MKDIR);    // "create directory"
-                        popup.AppendMenuIcon(ID_IMPORT, IDS_REPOBROWSE_IMPORT, IDI_IMPORT); // "Add/Import File"
-                        popup.AppendMenuIcon(ID_IMPORTFOLDER, IDS_REPOBROWSE_IMPORTFOLDER, IDI_IMPORT); // "Add/Import Folder"
-                        popup.AppendMenu(MF_SEPARATOR, NULL);
-                    }
-
-                    if (!selection.IsExternal (0, 0) && !selection.IsRoot (0, 0))
-                        popup.AppendMenuIcon(ID_RENAME, IDS_REPOBROWSE_RENAME, IDI_RENAME);     // "Rename"
-                }
-                if (selection.IsLocked (0, 0))
-                {
-                    popup.AppendMenuIcon(ID_BREAKLOCK, IDS_MENU_UNLOCKFORCE, IDI_UNLOCK);   // "Break Lock"
-                }
-            }
-            popup.AppendMenuIcon(ID_ADDTOBOOKMARKS, IDS_REPOBROWSE_ADDBOOKMARK, IDI_BOOKMARKS); // "add to bookmarks"
-        }
-
-        if (!bSVNParentPathUrl && !bIsBookmark)
-        {
-            if (selection.GetRepository(0).revision.IsHead() && !selection.IsRoot (0, 0))
-            {
-                popup.AppendMenuIcon(ID_DELETE, IDS_REPOBROWSE_DELETE, IDI_DELETE);     // "Remove"
-            }
-            if (selection.GetFolderCount(0) == 0)
-            {
-                popup.AppendMenuIcon(ID_SAVEAS, IDS_REPOBROWSE_SAVEAS, IDI_SAVEAS);     // "Save as..."
-            }
-        }
-        if (clipSubMenu.CreatePopupMenu())
-        {
-            if (pWnd == &m_RepoList)
-                clipSubMenu.AppendMenuIcon(ID_FULLTOCLIPBOARD, IDS_LOG_POPUP_CLIPBOARD_FULL, IDI_COPYCLIP);
-            clipSubMenu.AppendMenuIcon(ID_URLTOCLIPBOARD, IDS_LOG_POPUP_CLIPBOARD_URL, IDI_COPYCLIP);
-            clipSubMenu.AppendMenuIcon(ID_NAMETOCLIPBOARD, IDS_LOG_POPUP_CLIPBOARD_FILENAMES, IDI_COPYCLIP);
-            if (pWnd == &m_RepoList)
-            {
-                clipSubMenu.AppendMenuIcon(ID_REVISIONTOCLIPBOARD, IDS_LOG_POPUP_CLIPBOARD_REVS, IDI_COPYCLIP);
-                clipSubMenu.AppendMenuIcon(ID_AUTHORTOCLIPBOARD, IDS_LOG_POPUP_CLIPBOARD_AUTHORS, IDI_COPYCLIP);
-            }
-
-            CString temp;
-            temp.LoadString(IDS_LOG_POPUP_COPYTOCLIPBOARD);
-            popup.InsertMenu((UINT)-1, MF_BYPOSITION | MF_POPUP, (UINT_PTR)clipSubMenu.m_hMenu, temp);
-
-        }
-        if (!bSVNParentPathUrl && !bIsBookmark)
-        {
-            if (   (selection.GetFolderCount(0) == selection.GetPathCount(0))
-                || (selection.GetFolderCount(0) == 0))
-            {
-                popup.AppendMenuIcon(ID_COPYTOWC, IDS_REPOBROWSE_COPYTOWC); // "Copy To Working Copy..."
-            }
-
-            if (selection.GetPathCount(0) == 1)
-            {
-                popup.AppendMenuIcon(ID_COPYTO, IDS_REPOBROWSE_COPY, IDI_COPY);         // "Copy To..."
-                popup.AppendMenu(MF_SEPARATOR, NULL);
-                popup.AppendMenuIcon(ID_PROPS, IDS_REPOBROWSE_SHOWPROP, IDI_PROPERTIES);            // "Show Properties"
-                // Revision properties are not associated to paths
-                // so we only show that context menu on the repository root
-                if (selection.IsRoot (0, 0))
-                {
-                    popup.AppendMenuIcon(ID_REVPROPS, IDS_REPOBROWSE_SHOWREVPROP, IDI_PROPERTIES);  // "Show Revision Properties"
-                }
                 if (selection.IsFolder (0, 0))
                 {
+                    popup.AppendMenuIcon(ID_MKDIR, IDS_REPOBROWSE_MKDIR, IDI_MKDIR);    // "create directory"
+                    popup.AppendMenuIcon(ID_IMPORT, IDS_REPOBROWSE_IMPORT, IDI_IMPORT); // "Add/Import File"
+                    popup.AppendMenuIcon(ID_IMPORTFOLDER, IDS_REPOBROWSE_IMPORTFOLDER, IDI_IMPORT); // "Add/Import Folder"
                     popup.AppendMenu(MF_SEPARATOR, NULL);
-                    popup.AppendMenuIcon(ID_PREPAREDIFF, IDS_REPOBROWSE_PREPAREDIFF);   // "Mark for comparison"
-
-                    CTSVNPath root (selection.GetRepository(0).root);
-                    if (   (m_diffKind == svn_node_dir)
-                        && !m_diffURL.IsEquivalentTo (selection.GetURL (0, 0))
-                        && root.IsAncestorOf (m_diffURL))
-                    {
-                        popup.AppendMenuIcon(ID_GNUDIFF, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);      // "Show differences as unified diff"
-                        popup.AppendMenuIcon(ID_DIFF, IDS_REPOBROWSE_SHOWDIFF, IDI_DIFF);       // "Compare URLs"
-                        popup.AppendMenuIcon(ID_DIFF_CONTENTONLY, IDS_REPOBROWSE_SHOWDIFF_CONTENTONLY, IDI_DIFF);       // "Compare URLs"
-                    }
                 }
-            }
 
-            if (   (selection.GetPathCount (0) == 2)
-                && (selection.GetFolderCount (0) != 1))
+                if (!selection.IsExternal (0, 0) && !selection.IsRoot (0, 0))
+                    popup.AppendMenuIcon(ID_RENAME, IDS_REPOBROWSE_RENAME, IDI_RENAME);     // "Rename"
+            }
+            if (selection.IsLocked (0, 0))
+            {
+                popup.AppendMenuIcon(ID_BREAKLOCK, IDS_MENU_UNLOCKFORCE, IDI_UNLOCK);   // "Break Lock"
+            }
+        }
+
+        if (selection.GetRepository(0).revision.IsHead() && !selection.IsRoot (0, 0))
+        {
+            popup.AppendMenuIcon(ID_DELETE, IDS_REPOBROWSE_DELETE, IDI_DELETE);     // "Remove"
+        }
+        if (selection.GetFolderCount(0) == 0)
+        {
+            popup.AppendMenuIcon(ID_SAVEAS, IDS_REPOBROWSE_SAVEAS, IDI_SAVEAS);     // "Save as..."
+        }
+        popup.AppendMenuIcon(ID_URLTOCLIPBOARD, IDS_REPOBROWSE_URLTOCLIPBOARD, IDI_COPYCLIP);   // "Copy URL to clipboard"
+        if (   (selection.GetFolderCount(0) == selection.GetPathCount(0))
+            || (selection.GetFolderCount(0) == 0))
+        {
+            popup.AppendMenuIcon(ID_COPYTOWC, IDS_REPOBROWSE_COPYTOWC); // "Copy To Working Copy..."
+        }
+
+        if (selection.GetPathCount(0) == 1)
+        {
+            popup.AppendMenuIcon(ID_COPYTO, IDS_REPOBROWSE_COPY, IDI_COPY);         // "Copy To..."
+            popup.AppendMenu(MF_SEPARATOR, NULL);
+            popup.AppendMenuIcon(ID_PROPS, IDS_REPOBROWSE_SHOWPROP, IDI_PROPERTIES);            // "Show Properties"
+            // Revision properties are not associated to paths
+            // so we only show that context menu on the repository root
+            if (selection.IsRoot (0, 0))
+            {
+                popup.AppendMenuIcon(ID_REVPROPS, IDS_REPOBROWSE_SHOWREVPROP, IDI_PROPERTIES);  // "Show Revision Properties"
+            }
+            if (selection.IsFolder (0, 0))
             {
                 popup.AppendMenu(MF_SEPARATOR, NULL);
-                popup.AppendMenuIcon(ID_GNUDIFF, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);      // "Show differences as unified diff"
-                popup.AppendMenuIcon(ID_DIFF, IDS_REPOBROWSE_SHOWDIFF, ID_DIFF);        // "Compare URLs"
-                popup.AppendMenuIcon(ID_DIFF_CONTENTONLY, IDS_REPOBROWSE_SHOWDIFF_CONTENTONLY, IDI_DIFF);       // "Compare URLs"
-                popup.AppendMenu(MF_SEPARATOR, NULL);
-            }
+                popup.AppendMenuIcon(ID_PREPAREDIFF, IDS_REPOBROWSE_PREPAREDIFF);   // "Mark for comparison"
 
-            if (m_path.Exists() &&
-                CTSVNPath(m_InitialUrl).IsAncestorOf (selection.GetURL (0, 0)))
-            {
-                CTSVNPath wcPath = m_path;
-                wcPath.AppendPathString(selection.GetURL (0, 0).GetWinPathString().Mid(m_InitialUrl.GetLength()));
-                if (!wcPath.Exists())
+                CTSVNPath root (selection.GetRepository(0).root);
+                if (   (m_diffKind == svn_node_dir)
+                    && !m_diffURL.IsEquivalentTo (selection.GetURL (0, 0))
+                    && root.IsAncestorOf (m_diffURL))
                 {
-                    bool bWCPresent = false;
-                    while (!bWCPresent && m_path.IsAncestorOf(wcPath))
-                    {
-                        bWCPresent = wcPath.GetContainingDirectory().Exists();
-                        wcPath = wcPath.GetContainingDirectory();
-                    }
-                    if (bWCPresent)
-                    {
-                        popup.AppendMenu(MF_SEPARATOR, NULL);
-                        popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATEREV, IDI_UPDATE);      // "Update item to revision"
-                    }
+                    popup.AppendMenuIcon(ID_GNUDIFF, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);      // "Show differences as unified diff"
+                    popup.AppendMenuIcon(ID_DIFF, IDS_REPOBROWSE_SHOWDIFF, IDI_DIFF);       // "Compare URLs"
                 }
-                else
+            }
+        }
+
+        if (   (selection.GetPathCount (0) == 2)
+            && (selection.GetFolderCount (0) != 1))
+        {
+            popup.AppendMenu(MF_SEPARATOR, NULL);
+            popup.AppendMenuIcon(ID_GNUDIFF, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);      // "Show differences as unified diff"
+            popup.AppendMenuIcon(ID_DIFF, IDS_REPOBROWSE_SHOWDIFF, ID_DIFF);        // "Compare URLs"
+            popup.AppendMenu(MF_SEPARATOR, NULL);
+        }
+
+        if (m_path.Exists() &&
+            CTSVNPath(m_InitialUrl).IsAncestorOf (selection.GetURL (0, 0)))
+        {
+            CTSVNPath wcPath = m_path;
+            wcPath.AppendPathString(selection.GetURL (0, 0).GetWinPathString().Mid(m_InitialUrl.GetLength()));
+            if (!wcPath.Exists())
+            {
+                bool bWCPresent = false;
+                while (!bWCPresent && m_path.IsAncestorOf(wcPath))
+                {
+                    bWCPresent = wcPath.GetContainingDirectory().Exists();
+                    wcPath = wcPath.GetContainingDirectory();
+                }
+                if (bWCPresent)
                 {
                     popup.AppendMenu(MF_SEPARATOR, NULL);
                     popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATEREV, IDI_UPDATE);      // "Update item to revision"
                 }
             }
+            else
+            {
+                popup.AppendMenu(MF_SEPARATOR, NULL);
+                popup.AppendMenuIcon(ID_UPDATE, IDS_LOG_POPUP_UPDATEREV, IDI_UPDATE);      // "Update item to revision"
+            }
         }
         popup.AppendMenuIcon(ID_CREATELINK, IDS_REPOBROWSE_CREATELINK, IDI_LINK);
-        if (bIsBookmark)
-            popup.AppendMenuIcon(ID_REMOVEBOOKMARKS, IDS_REPOBROWSE_REMOVEBOOKMARK, IDI_BOOKMARKS);
         int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY | TPM_RIGHTBUTTON, point.x, point.y, this, 0);
 
         auto stopJobs (m_lister.SuspendJobs());
@@ -3408,23 +3078,22 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             // restore the previously selected item state
             if ((hItem) && (uFlags & TVHT_ONITEM) && (hItem != m_RepoTree.GetSelectedItem()))
             {
-                ++m_blockEvents;
+                m_blockEvents = true;
                 m_RepoTree.SetItemState(hSelectedTreeItem, TVIS_SELECTED, TVIS_SELECTED);
-                --m_blockEvents;
+                m_blockEvents = false;
                 m_RepoTree.SetItemState(hItem, 0, TVIS_DROPHILITED);
             }
         }
         if (hSelectedTreeItem)
         {
             CAutoWriteLock locker(m_guard);
-            ++m_blockEvents;
+            m_blockEvents = true;
             m_RepoTree.SetItemState(hSelectedTreeItem, 0, TVIS_DROPHILITED);
             m_RepoTree.SetItemState(hSelectedTreeItem, TVIS_SELECTED, TVIS_SELECTED);
-            --m_blockEvents;
+            m_blockEvents = false;
         }
         DialogEnableWindow(IDOK, FALSE);
         bool bOpenWith = false;
-        bool bIgnoreProps = false;
         switch (cmd)
         {
         case ID_UPDATE:
@@ -3442,7 +3111,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     CTSVNPath tempFile = CTempFiles::Instance().GetTempFilePath(false);
                     VERIFY(updateList.WriteToFile(tempFile.GetWinPathString()));
                     CString sCmd;
-                    sCmd.Format(L"/command:update /pathfile:\"%s\" /rev /deletepathfile",
+                    sCmd.Format(_T("/command:update /pathfile:\"%s\" /rev /deletepathfile"),
                         tempFile.GetWinPath());
 
                     CAppUtils::RunTortoiseProc(sCmd);
@@ -3479,87 +3148,20 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             }
             break;
         case ID_URLTOCLIPBOARD:
-        case ID_FULLTOCLIPBOARD:
-        case ID_NAMETOCLIPBOARD:
-        case ID_AUTHORTOCLIPBOARD:
-        case ID_REVISIONTOCLIPBOARD:
             {
-                CString sClipboard;
-
-                if (pWnd == &m_RepoList)
+                CString url;
+                for (size_t i=0; i < selection.GetPathCount(0); ++i)
                 {
-                    POSITION pos = m_RepoList.GetFirstSelectedItemPosition();
-                    if (pos)
+                    CString path = selection.GetURL (0, i).GetSVNPathString();
+                    url += CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8 (path)));
+                    if (!GetRevision().IsHead())
                     {
-                        int index = -1;
-                        while ((index = m_RepoList.GetNextSelectedItem(pos))>=0)
-                        {
-                            CItem * pItem = (CItem *)m_RepoList.GetItemData (index);
-                            if ((cmd == ID_URLTOCLIPBOARD) || (cmd == ID_FULLTOCLIPBOARD))
-                            {
-                                CString path = pItem->absolutepath;
-                                path.Replace (L"\\", L"%5C");
-                                sClipboard += CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8 (path)));
-                            }
-                            if (cmd == ID_FULLTOCLIPBOARD)
-                                sClipboard += L", ";
-                            if (cmd == ID_URLTOCLIPBOARD)
-                            {
-                                if (!GetRevision().IsHead())
-                                {
-                                    sClipboard += L"?r=" + GetRevision().ToString();
-                                }
-                            }
-                            if (cmd == ID_NAMETOCLIPBOARD)
-                            {
-                                CString u = pItem->absolutepath;
-                                u.Replace (L"\\", L"%5C");
-                                CTSVNPath path = CTSVNPath(u);
-                                CString name = path.GetFileOrDirectoryName();
-                                sClipboard += name;
-                            }
-                            if ((cmd == ID_AUTHORTOCLIPBOARD) || (cmd == ID_FULLTOCLIPBOARD))
-                            {
-                                sClipboard += pItem->author;
-                            }
-                            if (cmd == ID_FULLTOCLIPBOARD)
-                                sClipboard += L", ";
-                            if ((cmd == ID_REVISIONTOCLIPBOARD) || (cmd == ID_FULLTOCLIPBOARD))
-                            {
-                                CString temp;
-                                temp.Format(L"%ld", pItem->created_rev);
-                                sClipboard += temp;
-                            }
-                            sClipboard += L"\r\n";
-                        }
+                        url += _T("?r=") + GetRevision().ToString();
                     }
+                    url += _T("\r\n");
                 }
-                else
-                {
-                    for (size_t i=0; i < selection.GetPathCount(0); ++i)
-                    {
-                        if ((cmd == ID_URLTOCLIPBOARD) || (cmd == ID_FULLTOCLIPBOARD))
-                        {
-                            CString path = selection.GetURL (0, i).GetSVNPathString();
-                            sClipboard += CUnicodeUtils::GetUnicode(CPathUtils::PathEscape(CUnicodeUtils::GetUTF8 (path)));
-                        }
-                        if (cmd == ID_URLTOCLIPBOARD)
-                        {
-                            if (!GetRevision().IsHead())
-                            {
-                                sClipboard += L"?r=" + GetRevision().ToString();
-                            }
-                        }
-                        if (cmd == ID_NAMETOCLIPBOARD)
-                        {
-                            CString name = selection.GetURL (0, i).GetFileOrDirectoryName();
-                            sClipboard += name;
-                        }
-                        sClipboard += L"\r\n";
-                    }
-                }
-                sClipboard.TrimRight(L"\r\n");
-                CStringUtils::WriteAsciiStringToClipboard(sClipboard);
+                url.TrimRight(_T("\r\n"));
+                CStringUtils::WriteAsciiStringToClipboard(url);
             }
             break;
         case ID_SAVEAS:
@@ -3577,6 +3179,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     const SVNRev& revision = selection.GetRepository(0).revision;
 
                     progDlg.SetTitle(IDS_REPOBROWSE_SAVEASPROGTITLE);
+                    progDlg.SetAnimation(IDR_DOWNLOAD);
                     progDlg.ShowModeless(GetSafeHwnd());
                     progDlg.SetProgress(0, pathCount);
                     SetAndClearProgressInfo(&progDlg);
@@ -3627,23 +3230,23 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     {
                         // no common copy from URL, so showing a log between
                         // the two urls is not possible.
-                        TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_ERR_NOCOMMONCOPYFROM), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                        TSVNMessageBox(m_hWnd, IDS_ERR_NOCOMMONCOPYFROM, IDS_APPNAME, MB_ICONERROR);
                         break;
                     }
 
                     // show log from pegrev to there
 
                     CString sCmd;
-                    sCmd.Format(L"/command:log /path:\"%s\" /startrev:%s /endrev:%s",
+                    sCmd.Format(_T("/command:log /path:\"%s\" /startrev:%s /endrev:%s"),
                         (LPCTSTR)firstPath.GetSVNPathString(),
                         (LPCTSTR)pegRevision.ToString(),
                         (LPCTSTR)commonSource.second.ToString());
 
                     if (!m_path.IsUrl())
                     {
-                        sCmd += L" /propspath:\"";
+                        sCmd += _T(" /propspath:\"");
                         sCmd += m_path.GetWinPathString();
-                        sCmd += L"\"";
+                        sCmd += _T("\"");
                     }
 
                     CAppUtils::RunTortoiseProc(sCmd);
@@ -3651,14 +3254,14 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 else
                 {
                     CString sCmd;
-                    sCmd.Format(L"/command:log /path:\"%s\" /startrev:%s",
+                    sCmd.Format(_T("/command:log /path:\"%s\" /startrev:%s"),
                         (LPCTSTR)firstPath.GetSVNPathString(), (LPCTSTR)pegRevision.ToString());
 
                     if (!m_path.IsUrl())
                     {
-                        sCmd += L" /propspath:\"";
+                        sCmd += _T(" /propspath:\"");
                         sCmd += m_path.GetWinPathString();
-                        sCmd += L"\"";
+                        sCmd += _T("\"");
                     }
 
                     CAppUtils::RunTortoiseProc(sCmd);
@@ -3671,9 +3274,9 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 CString weburl = m_ProjectProperties.sWebViewerRev;
                 weburl = CAppUtils::GetAbsoluteUrlFromRelativeUrl(repository.root, weburl);
                 SVNRev headrev = selection.GetRepository(0).revision.IsHead() ? m_barRepository.GetHeadRevision() : selection.GetRepository(0).revision;
-                weburl.Replace(L"%REVISION%", headrev.ToString());
+                weburl.Replace(_T("%REVISION%"), headrev.ToString());
                 if (!weburl.IsEmpty())
-                    ShellExecute(this->m_hWnd, L"open", weburl, NULL, NULL, SW_SHOWDEFAULT);
+                    ShellExecute(this->m_hWnd, _T("open"), weburl, NULL, NULL, SW_SHOWDEFAULT);
             }
             break;
         case ID_VIEWPATHREV:
@@ -3684,10 +3287,10 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 CString weburl = m_ProjectProperties.sWebViewerPathRev;
                 weburl = CAppUtils::GetAbsoluteUrlFromRelativeUrl(repository.root, weburl);
                 SVNRev headrev = selection.GetRepository(0).revision.IsHead() ? m_barRepository.GetHeadRevision() : selection.GetRepository(0).revision;
-                weburl.Replace(L"%REVISION%", headrev.ToString());
-                weburl.Replace(L"%PATH%", relurl);
+                weburl.Replace(_T("%REVISION%"), headrev.ToString());
+                weburl.Replace(_T("%PATH%"), relurl);
                 if (!weburl.IsEmpty())
-                    ShellExecute(this->m_hWnd, L"open", weburl, NULL, NULL, SW_SHOWDEFAULT);
+                    ShellExecute(this->m_hWnd, _T("open"), weburl, NULL, NULL, SW_SHOWDEFAULT);
             }
             break;
         case ID_CHECKOUT:
@@ -3695,11 +3298,11 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 CString itemsToCheckout;
                 for (size_t i=0; i < selection.GetPathCount(0); ++i)
                 {
-                    itemsToCheckout += selection.GetURL (0, i).GetSVNPathString() + L"*";
+                    itemsToCheckout += selection.GetURL (0, i).GetSVNPathString() + _T("*");
                 }
                 itemsToCheckout.TrimRight('*');
                 CString sCmd;
-                sCmd.Format ( L"/command:checkout /url:\"%s\" /revision:%s"
+                sCmd.Format ( _T("/command:checkout /url:\"%s\" /revision:%s")
                             , (LPCTSTR)itemsToCheckout
                             , (LPCTSTR)selection.GetRepository(0).revision.ToString());
 
@@ -3708,7 +3311,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             break;
         case ID_EXPORT:
             {
-                CExportDlg dlg(this);
+                CExportDlg dlg;
                 dlg.m_URL = selection.GetURL (0, 0).GetSVNPathString();
                 dlg.Revision = selection.GetRepository (0).revision;
                 if (dlg.DoModal()==IDOK)
@@ -3720,11 +3323,11 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     int opts = 0;
                     if (dlg.m_bNoExternals)
                         opts |= ProgOptIgnoreExternals;
-                    if (dlg.m_eolStyle.CompareNoCase(L"CRLF")==0)
+                    if (dlg.m_eolStyle.CompareNoCase(_T("CRLF"))==0)
                         opts |= ProgOptEolCRLF;
-                    if (dlg.m_eolStyle.CompareNoCase(L"CR")==0)
+                    if (dlg.m_eolStyle.CompareNoCase(_T("CR"))==0)
                         opts |= ProgOptEolCR;
-                    if (dlg.m_eolStyle.CompareNoCase(L"LF")==0)
+                    if (dlg.m_eolStyle.CompareNoCase(_T("LF"))==0)
                         opts |= ProgOptEolLF;
                     progDlg.SetCommand(CSVNProgressDlg::SVNProgress_Export);
                     progDlg.SetOptions(opts);
@@ -3739,7 +3342,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         case ID_REVGRAPH:
             {
                 CString sCmd;
-                sCmd.Format ( L"/command:revisiongraph /path:\"%s\" /pegrev:%s"
+                sCmd.Format ( _T("/command:revisiongraph /path:\"%s\" /pegrev:%s")
                             , (LPCTSTR)selection.GetURLEscaped (0, 0).GetSVNPathString()
                             , (LPCTSTR)selection.GetRepository (0).revision.ToString());
 
@@ -3765,13 +3368,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         case ID_DELETE:
             {
                 CWaitCursorEx wait_cursor;
-                CString sLogMsg;
-                if (!RunStartCommit(selection.GetURLsEscaped(0), sLogMsg))
-                    break;
                 CInputLogDlg input(this);
-                input.SetPathList(selection.GetURLsEscaped(0));
-                input.SetRootPath(CTSVNPath(m_InitialUrl));
-                input.SetLogText(sLogMsg);
                 input.SetUUID(selection.GetRepository(0).uuid);
                 input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEDEL);
                 CString hint;
@@ -3783,11 +3380,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 input.SetActionText(hint);
                 if (input.DoModal() == IDOK)
                 {
-                    sLogMsg = input.GetLogMessage();
-                    if (!RunPreCommit(selection.GetURLsEscaped(0), svn_depth_unknown, sLogMsg))
-                        break;
-                    bool bRet = Remove (selection.GetURLsEscaped (0), true, false, sLogMsg, input.m_revProps);
-                    RunPostCommit(selection.GetURLsEscaped(0), svn_depth_unknown, m_commitRev, sLogMsg);
+                    bool bRet = Remove (selection.GetURLsEscaped (0), true, false, input.GetLogMessage());
                     if (!bRet || !PostCommitErr.IsEmpty())
                     {
                         wait_cursor.Hide();
@@ -3829,25 +3422,16 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     CTSVNPath svnPath(path);
                     CWaitCursorEx wait_cursor;
                     CString filename = svnPath.GetFileOrDirectoryName();
-                    CString sLogMsg;
-                    if (!RunStartCommit(selection.GetURLsEscaped(0), sLogMsg))
-                        break;
                     CInputLogDlg input(this);
-                    input.SetPathList(selection.GetURLsEscaped(0));
-                    input.SetRootPath(CTSVNPath(m_InitialUrl));
-                    input.SetLogText(sLogMsg);
                     input.SetUUID(selection.GetRepository(0).uuid);
                     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEIMPORT);
 
                     const CTSVNPath& url = selection.GetURL (0, 0);
                     CString sHint;
-                    sHint.FormatMessage(IDS_INPUT_IMPORTFOLDER, (LPCTSTR)svnPath.GetSVNPathString(), (LPCTSTR)(url.GetSVNPathString()+L"/"+filename));
+                    sHint.FormatMessage(IDS_INPUT_IMPORTFOLDER, (LPCTSTR)svnPath.GetSVNPathString(), (LPCTSTR)(url.GetSVNPathString()+_T("/")+filename));
                     input.SetActionText(sHint);
                     if (input.DoModal() == IDOK)
                     {
-                        sLogMsg = input.GetLogMessage();
-                        if (!RunPreCommit(selection.GetURLsEscaped(0), svn_depth_unknown, sLogMsg))
-                            break;
                         InvalidateDataParents (selection);
 
                         CProgressDlg progDlg;
@@ -3858,12 +3442,11 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                         SetAndClearProgressInfo(&progDlg);
                         progDlg.ShowModeless(m_hWnd);
                         bool bRet = Import(svnPath,
-                                           CTSVNPath(EscapeUrl(CTSVNPath(url.GetSVNPathString()+L"/"+filename))),
-                                           sLogMsg,
+                                           CTSVNPath(EscapeUrl(CTSVNPath(url.GetSVNPathString()+_T("/")+filename))),
+                                           input.GetLogMessage(),
                                            &m_ProjectProperties,
                                            svn_depth_infinity,
-                                           true, false, false, input.m_revProps);
-                        RunPostCommit(selection.GetURLsEscaped(0), svn_depth_unknown, m_commitRev, sLogMsg);
+                                           true, false, false);
                         if (!bRet || !PostCommitErr.IsEmpty())
                         {
                             progDlg.Stop();
@@ -3885,30 +3468,21 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             {
                 // Display the Open dialog box.
                 CString openPath;
-                if (CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_IMPORT, IDS_COMMONFILEFILTER, true, m_path.IsUrl() ? CString() : m_path.GetDirectory().GetWinPathString(), m_hWnd))
+                if (CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_IMPORT, IDS_COMMONFILEFILTER, true, m_hWnd))
                 {
                     CTSVNPath path(openPath);
                     CWaitCursorEx wait_cursor;
                     CString filename = path.GetFileOrDirectoryName();
-                    CString sLogMsg;
-                    if (!RunStartCommit(selection.GetURLsEscaped(0), sLogMsg))
-                        break;
                     CInputLogDlg input(this);
-                    input.SetPathList(selection.GetURLsEscaped(0));
-                    input.SetRootPath(CTSVNPath(m_InitialUrl));
-                    input.SetLogText(sLogMsg);
                     input.SetUUID(selection.GetRepository(0).uuid);
                     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEIMPORT);
 
                     const CTSVNPath& url = selection.GetURL (0, 0);
                     CString sHint;
-                    sHint.FormatMessage(IDS_INPUT_IMPORTFILEFULL, path.GetWinPath(), (LPCTSTR)(url.GetSVNPathString()+L"/"+filename));
+                    sHint.FormatMessage(IDS_INPUT_IMPORTFILEFULL, path.GetWinPath(), (LPCTSTR)(url.GetSVNPathString()+_T("/")+filename));
                     input.SetActionText(sHint);
                     if (input.DoModal() == IDOK)
                     {
-                        sLogMsg = input.GetLogMessage();
-                        if (!RunPreCommit(selection.GetURLsEscaped(0), svn_depth_unknown, sLogMsg))
-                            break;
                         InvalidateDataParents (selection);
 
                         CProgressDlg progDlg;
@@ -3919,12 +3493,11 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                         SetAndClearProgressInfo(&progDlg);
                         progDlg.ShowModeless(m_hWnd);
                         bool bRet = Import(path,
-                                           CTSVNPath(EscapeUrl(CTSVNPath(url.GetSVNPathString()+L"/"+filename))),
-                                           sLogMsg,
+                                           CTSVNPath(EscapeUrl(CTSVNPath(url.GetSVNPathString()+_T("/")+filename))),
+                                           input.GetLogMessage(),
                                            &m_ProjectProperties,
                                            svn_depth_empty,
-                                           true, true, false, input.m_revProps);
-                        RunPostCommit(selection.GetURLsEscaped(0), svn_depth_unknown, m_commitRev, sLogMsg);
+                                           true, true, false);
                         if (!bRet || !PostCommitErr.IsEmpty())
                         {
                             progDlg.Stop();
@@ -3978,7 +3551,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 const CTSVNPath& path = selection.GetURL (0, 0);
                 const SVNRev& revision = selection.GetRepository(0).revision;
 
-                CRenameDlg dlg(this);
+                CRenameDlg dlg;
                 dlg.m_name = path.GetSVNPathString();
                 dlg.m_windowtitle.LoadString(IDS_REPOBROWSE_COPY);
                 dlg.SetRenameRequired(GetRevision().IsHead() != FALSE);
@@ -3988,13 +3561,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     CWaitCursorEx wait_cursor;
                     if(!CheckAndConfirmPath(CTSVNPath(dlg.m_name)))
                         break;
-                    CString sLogMsg;
-                    if (!RunStartCommit(selection.GetURLsEscaped(0), sLogMsg))
-                        break;
                     CInputLogDlg input(this);
-                    input.SetPathList(selection.GetURLsEscaped(0));
-                    input.SetRootPath(CTSVNPath(m_InitialUrl));
-                    input.SetLogText(sLogMsg);
                     input.SetUUID(selection.GetRepository(0).uuid);
                     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEBRANCH);
                     CString sHint;
@@ -4003,13 +3570,9 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     input.SetActionText(sHint);
                     if (input.DoModal() == IDOK)
                     {
-                        sLogMsg = input.GetLogMessage();
-                        if (!RunPreCommit(selection.GetURLsEscaped(0), svn_depth_unknown, sLogMsg))
-                            break;
                         InvalidateDataParents (selection);
 
-                        bool bRet = Copy(selection.GetURLsEscaped (0), CTSVNPath(dlg.m_name), revision, revision, sLogMsg, true, true, false, input.m_revProps);
-                        RunPostCommit(selection.GetURLsEscaped(0), svn_depth_unknown, m_commitRev, sLogMsg);
+                        bool bRet = Copy(selection.GetURLsEscaped (0), CTSVNPath(dlg.m_name), revision, revision, input.GetLogMessage());
                         if (!bRet || !PostCommitErr.IsEmpty())
                         {
                             wait_cursor.Hide();
@@ -4037,6 +3600,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     CWaitCursorEx wait_cursor;
 
                     CProgressDlg progDlg;
+                    progDlg.SetAnimation(IDR_DOWNLOAD);
                     progDlg.SetTitle(IDS_APPNAME);
                     SetAndClearProgressInfo(&progDlg);
                     progDlg.ShowModeless(m_hWnd);
@@ -4061,36 +3625,25 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
         case ID_MKDIR:
             {
                 const CTSVNPath& path = selection.GetURL (0, 0);
-                CRenameDlg dlg(this);
-                dlg.m_name = L"";
+                CRenameDlg dlg;
+                dlg.m_name = _T("");
                 dlg.m_windowtitle.LoadString(IDS_REPOBROWSE_MKDIR);
                 CStringUtils::RemoveAccelerators(dlg.m_windowtitle);
                 if (dlg.DoModal() == IDOK)
                 {
                     CWaitCursorEx wait_cursor;
-                    CTSVNPathList plist = CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(path.GetSVNPathString()+L"/"+dlg.m_name.Trim()))));
-                    CString sLogMsg;
-                    if (!RunStartCommit(plist, sLogMsg))
-                        break;
                     CInputLogDlg input(this);
-                    input.SetPathList(plist);
-                    input.SetRootPath(CTSVNPath(m_InitialUrl));
-                    input.SetLogText(sLogMsg);
                     input.SetUUID(selection.GetRepository(0).uuid);
                     input.SetProjectProperties(&m_ProjectProperties, PROJECTPROPNAME_LOGTEMPLATEMKDIR);
                     CString sHint;
-                    sHint.Format(IDS_INPUT_MKDIR, (LPCTSTR)(path.GetSVNPathString()+L"/"+dlg.m_name.Trim()));
+                    sHint.Format(IDS_INPUT_MKDIR, (LPCTSTR)(path.GetSVNPathString()+_T("/")+dlg.m_name.Trim()));
                     input.SetActionText(sHint);
                     if (input.DoModal() == IDOK)
                     {
-                        sLogMsg = input.GetLogMessage();
-                        if (!RunPreCommit(plist, svn_depth_unknown, sLogMsg))
-                            break;
                         InvalidateDataParents (selection);
 
                         // when creating the new folder, also trim any whitespace chars from it
-                        bool bRet = MakeDir(plist, sLogMsg, true, input.m_revProps);
-                        RunPostCommit(plist, svn_depth_unknown, m_commitRev, sLogMsg);
+                        bool bRet = MakeDir(CTSVNPathList(CTSVNPath(EscapeUrl(CTSVNPath(path.GetSVNPathString()+_T("/")+dlg.m_name.Trim())))), input.GetLogMessage(), true);
                         if (!bRet || !PostCommitErr.IsEmpty())
                         {
                             wait_cursor.Hide();
@@ -4127,25 +3680,23 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 {
                     if (PromptShown())
                         diff.ShowUnifiedDiff (path, revision,
-                                            CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), options, false, false, false);
+                                            CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), options);
                     else
                         CAppUtils::StartShowUnifiedDiff(m_hWnd, path, revision,
-                                            CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), SVNRev(), options, false, false, false, false);
+                                            CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), SVNRev(), options);
                 }
                 else
                 {
                     const CTSVNPath& path2 = selection.GetURLEscaped (0, 1);
                     if (PromptShown())
                         diff.ShowUnifiedDiff(path, revision,
-                                            path2, revision, SVNRev(), options, false, false, false);
+                                            path2, revision, SVNRev(), options);
                     else
                         CAppUtils::StartShowUnifiedDiff(m_hWnd, path, revision,
-                                            path2, revision, SVNRev(), SVNRev(), options, false, false, false, false);
+                                            path2, revision, SVNRev(), SVNRev(), options);
                 }
             }
             break;
-        case ID_DIFF_CONTENTONLY:
-            bIgnoreProps = true;
         case ID_DIFF:
             {
                 const CTSVNPath& path = selection.GetURLEscaped (0, 0);
@@ -4158,10 +3709,10 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 {
                     if (PromptShown())
                         diff.ShowCompare(path, revision,
-                        CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), bIgnoreProps, L"", true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
+                        CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), L"", true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
                     else
                         CAppUtils::StartShowCompare(m_hWnd, path, revision,
-                                        CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), SVNRev(), bIgnoreProps, L"",
+                                        CTSVNPath(EscapeUrl(m_diffURL)), revision, SVNRev(), SVNRev(), L"",
                                         !!(GetAsyncKeyState(VK_SHIFT) & 0x8000), true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
                 }
                 else
@@ -4169,10 +3720,10 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                     const CTSVNPath& path2 = selection.GetURLEscaped (0, 1);
                     if (PromptShown())
                         diff.ShowCompare(path, revision,
-                                        path2, revision, SVNRev(), bIgnoreProps, L"", true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
+                                        path2, revision, SVNRev(), L"", true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
                     else
                         CAppUtils::StartShowCompare(m_hWnd, path, revision,
-                                        path2, revision, SVNRev(), SVNRev(), bIgnoreProps, L"",
+                                        path2, revision, SVNRev(), SVNRev(), L"",
                                         !!(GetAsyncKeyState(VK_SHIFT) & 0x8000), true, false, nFolders > 0 ? svn_node_dir : svn_node_file);
                 }
             }
@@ -4182,7 +3733,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 const SVNRev& revision = selection.GetRepository(0).revision;
                 if (revision.IsHead())
                 {
-                    CEditPropertiesDlg dlg(this);
+                    CEditPropertiesDlg dlg;
                     dlg.SetProjectProperties(&m_ProjectProperties);
                     dlg.SetUUID(selection.GetRepository(0).uuid);
                     dlg.SetPathList(selection.GetURLsEscaped(0));
@@ -4192,7 +3743,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 }
                 else
                 {
-                    CPropDlg dlg(this);
+                    CPropDlg dlg;
                     dlg.m_rev = revision;
                     dlg.m_Path = selection.GetURLEscaped (0,0);
                     dlg.DoModal();
@@ -4201,7 +3752,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             break;
         case ID_REVPROPS:
             {
-                CEditPropertiesDlg dlg(this);
+                CEditPropertiesDlg dlg;
                 dlg.SetProjectProperties(&m_ProjectProperties);
                 dlg.SetUUID(selection.GetRepository(0).uuid);
                 dlg.SetPathList(selection.GetURLsEscaped(0));
@@ -4212,7 +3763,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
             break;
         case ID_BLAME:
             {
-                CBlameDlg dlg(this);
+                CBlameDlg dlg;
                 dlg.EndRev = selection.GetRepository(0).revision;
                 dlg.PegRev = m_repository.revision;
                 if (dlg.DoModal() == IDOK)
@@ -4238,7 +3789,7 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                         }
                         else
                         {
-                            CString sParams = L"/path:\"" + path.GetSVNPathString() + L"\" ";
+                            CString sParams = _T("/path:\"") + path.GetSVNPathString() + _T("\" ");
                             if(!CAppUtils::LaunchTortoiseBlame ( tempfile
                                                                , CPathUtils::GetFileNameFromPath(selection.GetURL (0,0).GetFileOrDirectoryName())
                                                                , sParams
@@ -4263,28 +3814,16 @@ void CRepositoryBrowser::OnContextMenu(CWnd* pWnd, CPoint point)
                 CTSVNPath tempFile;
                 if (AskForSavePath(selection, tempFile, false))
                 {
-                    if (tempFile.GetFileExtension().Compare(L".url"))
+                    if (tempFile.GetFileExtension().Compare(_T(".url")))
                     {
-                        tempFile.AppendRawString(L".url");
+                        tempFile.AppendRawString(_T(".url"));
                     }
                     CString urlCmd = selection.GetURLEscaped(0, 0).GetSVNPathString();
                     SVNRev r = selection.GetRepository(0).revision;
                     if (r.IsNumber())
-                        urlCmd += L"?r=" + r.ToString();
+                        urlCmd += _T("?r=") + r.ToString();
                     CAppUtils::CreateShortcutToURL((LPCTSTR)urlCmd, tempFile.GetWinPath());
                 }
-            }
-            break;
-        case ID_ADDTOBOOKMARKS:
-            {
-                m_bookmarks.insert((LPCWSTR)selection.GetURL(0, 0).GetSVNPathString());
-                RefreshBookmarks();
-            }
-            break;
-        case ID_REMOVEBOOKMARKS:
-            {
-                m_bookmarks.erase((LPCWSTR)selection.GetURL(0, 0).GetSVNPathString());
-                RefreshBookmarks();
             }
             break;
         default:
@@ -4303,7 +3842,7 @@ bool CRepositoryBrowser::AskForSavePath
     if ((!bFolder)&&(selection.GetPathCount(0) == 1))
     {
         CString savePath = selection.GetURL (0, 0).GetFilename();
-        bSavePathOK = CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_COMMONFILEFILTER, false, m_path.IsUrl() ? CString() : m_path.GetDirectory().GetWinPathString(), m_hWnd);
+        bSavePathOK = CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_COMMONFILEFILTER, false, m_hWnd);
         if (bSavePathOK)
             tempfile.SetFromWin(savePath);
     }
@@ -4338,7 +3877,7 @@ bool CRepositoryBrowser::StringToWidthArray(const CString& WidthString, int Widt
         }
         else
         {
-            WidthArray[i] = wcstol(hex, &endchar, 16);
+            WidthArray[i] = _tcstol(hex, &endchar, 16);
         }
     }
     return true;
@@ -4347,10 +3886,10 @@ bool CRepositoryBrowser::StringToWidthArray(const CString& WidthString, int Widt
 CString CRepositoryBrowser::WidthArrayToString(int WidthArray[])
 {
     CString sResult;
-    TCHAR buf[10] = { 0 };
+    TCHAR buf[10];
     for (int i=0; i<7; ++i)
     {
-        swprintf_s(buf, L"%08X", WidthArray[i]);
+        _stprintf_s(buf, _T("%08X"), WidthArray[i]);
         sResult += buf;
     }
     return sResult;
@@ -4358,7 +3897,7 @@ CString CRepositoryBrowser::WidthArrayToString(int WidthArray[])
 
 void CRepositoryBrowser::SaveColumnWidths(bool bSaveToRegistry /* = false */)
 {
-    CRegString regColWidth(L"Software\\TortoiseSVN\\RepoBrowserColumnWidth");
+    CRegString regColWidth(_T("Software\\TortoiseSVN\\RepoBrowserColumnWidth"));
     int maxcol = ((CHeaderCtrl*)(m_RepoList.GetDlgItem(0)))->GetItemCount()-1;
     // first clear the width array
     std::fill_n(m_arColumnWidths, _countof(m_arColumnWidths), 0);
@@ -4383,8 +3922,6 @@ void CRepositoryBrowser::InvalidateData (HTREEITEM node)
     {
         CAutoReadLock locker(m_guard);
         CTreeItem * pItem = (CTreeItem *)m_RepoTree.GetItemData (node);
-        if (pItem->bookmark)
-            return;
         r = pItem->repository.revision;
     }
     InvalidateData (node, r);
@@ -4399,8 +3936,6 @@ void CRepositoryBrowser::InvalidateData (HTREEITEM node, const SVNRev& revision)
         if (node != NULL)
         {
             pItem = (CTreeItem *)m_RepoTree.GetItemData (node);
-            if (pItem->bookmark)
-                return;
             url = pItem->url;
         }
     }
@@ -4509,7 +4044,7 @@ void CRepositoryBrowser::OnTvnItemChangedRepotree(NMHDR *pNMHDR, LRESULT *pResul
     NMTVITEMCHANGE *pNMTVItemChange = reinterpret_cast<NMTVITEMCHANGE*>(pNMHDR);
     *pResult = 0;
 
-    if (!m_bSparseCheckoutMode || m_blockEvents)
+    if (!m_bSparseCheckoutMode)
         return;
 
     if (pNMTVItemChange->uStateOld == 0 && pNMTVItemChange->uStateNew == 0)
@@ -4529,8 +4064,6 @@ void CRepositoryBrowser::OnTvnItemChangedRepotree(NMHDR *pNMHDR, LRESULT *pResul
 
     bChecked = m_RepoTree.GetCheck(pNMTVItemChange->hItem);
 
-    m_blockEvents++;
-
     CheckTreeItem(pNMTVItemChange->hItem, !!bChecked);
 
     if (pNMTVItemChange->uStateNew & TVIS_SELECTED)
@@ -4547,7 +4080,6 @@ void CRepositoryBrowser::OnTvnItemChangedRepotree(NMHDR *pNMHDR, LRESULT *pResul
             hItem = m_RepoTree.GetNextItem(hItem, TVGN_NEXTSELECTED);
         }
     }
-    m_blockEvents--;
 }
 
 bool CRepositoryBrowser::CheckoutDepthForItem( HTREEITEM hItem )
@@ -4595,101 +4127,83 @@ bool CRepositoryBrowser::CheckoutDepthForItem( HTREEITEM hItem )
     return bChecked;
 }
 
-void CRepositoryBrowser::CheckParentsOfTreeItem( HTREEITEM hItem )
+
+
+
+void CRepositoryBrowser::OnNMClickRepotree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-    HTREEITEM hParent = m_RepoTree.GetParentItem(hItem);
-    while (hParent)
+    *pResult = 0;
+    if (SysInfo::Instance().IsVistaOrLater())
+        return;
+
+    // on XP, there's no TVN_ITEMCHANGED message, so we have to handle
+    // mouse clicks on the checkbox ourselves
+
+    DWORD dwpos = GetMessagePos();
+
+    TVHITTESTINFO ht = {0};
+    ht.pt.x = GET_X_LPARAM(dwpos);
+    ht.pt.y = GET_Y_LPARAM(dwpos);
+    ::MapWindowPoints(HWND_DESKTOP, pNMHDR->hwndFrom, &ht.pt, 1);
+
+    TreeView_HitTest(pNMHDR->hwndFrom, &ht);
+
+    if (TVHT_ONITEMSTATEICON & ht.flags)
     {
-        m_RepoTree.SetCheck(hParent, TRUE);
-        hParent = m_RepoTree.GetParentItem(hParent);
+        CheckTreeItem(ht.hItem, !m_RepoTree.GetCheck(ht.hItem));
     }
 }
 
-void CRepositoryBrowser::CheckTreeItemRecursive( HTREEITEM hItem, bool bCheck )
-{
-    // process item
-    m_RepoTree.SetCheck(hItem, bCheck);
-
-    // process all children
-    HTREEITEM hChild = m_RepoTree.GetChildItem(hItem);
-    while (hChild)
-    {
-        CheckTreeItemRecursive(hChild, bCheck);
-        hChild = m_RepoTree.GetNextItem(hChild, TVGN_NEXT);
-    }
-}
-
-bool CRepositoryBrowser::HaveAllChildrenSameCheckState( HTREEITEM hItem, bool bChecked /* = false */ )
-{
-    // analyze all children
-    HTREEITEM hChild = m_RepoTree.GetChildItem(hItem);
-    while (hChild)
-    {
-        // child item doesn't have expected state. interrupt walk and return false
-        if(!!m_RepoTree.GetCheck(hChild) != bChecked)
-            return false;
-
-        // check condition on all descendants.
-        if(!HaveAllChildrenSameCheckState(hChild))
-            return false;
-
-        hChild = m_RepoTree.GetNextItem(hChild, TVGN_NEXT);
-    }
-
-    return true;
-}
-
-// Check item has next logic for emulate tri-state checkbox:
-// if user click collapsed item or selected more then one item or item without children - proposed check
-// state propogated to whole subtree. (depth: 'Fully recursive' or 'Exclude')
-// otherwise:
-// if user click unchecked item - only this item will be checked. (Depth: 'Only this item')
-// if user click checked item and all children unchecked then item and all children
-// will be checked. (subtree depth: 'Fully recursive')
-//
-// summary: item will be cyclicaly switched:
-// unchecked -> checked only item -> checked whole subtree -> unchecked whole subtree
-// for collapsed items (and when more than one item selected) will be cyclicaly switched:
-// unchecked -> checked whole subtree -> unchecked whole subtree
 void CRepositoryBrowser::CheckTreeItem( HTREEITEM hItem, bool bCheck )
 {
-    bool itemExpanded = !!(m_RepoTree.GetItemState(hItem, TVIS_EXPANDED) & TVIS_EXPANDED);
-    bool multiselectMode = m_RepoTree.GetSelectedCount() > 1;
-
-    // tri-state logic will be emulated for expanded, checked items, in single selection mode,
-    // with at least one child, when all children unchecked
-    if(!bCheck && !multiselectMode && itemExpanded && m_RepoTree.GetChildItem(hItem) != NULL && HaveAllChildrenSameCheckState(hItem))
+    if (bCheck)
     {
-        // instead of reseting item itself - set all children to checked state
-        CheckTreeItemRecursive(hItem, TRUE);
-        return;
-    }
-
-    if(bCheck)
-    {
-        if(!itemExpanded || multiselectMode)
-        {
-            // perform check recursively for special cases
-            CheckTreeItemRecursive(hItem, bCheck);
-        }
-        else
-        {
-            // 'Only this item' depth
-            m_RepoTree.SetCheck(hItem, bCheck);
-        }
-
         // check all parents
-        CheckParentsOfTreeItem(hItem);
+        HTREEITEM hParent = m_RepoTree.GetParentItem(hItem);
+        while (hParent)
+        {
+            m_RepoTree.SetCheck(hParent, TRUE);
+            CheckTreeItem(hParent, true);
+            hParent = m_RepoTree.GetParentItem(hParent);
+        }
     }
     else
     {
-        // uncheck item and all children
-        CheckTreeItemRecursive(hItem, bCheck);
-
+        // uncheck all children
+        HTREEITEM hChild = m_RepoTree.GetChildItem(hItem);
+        while (hChild)
+        {
+            m_RepoTree.SetCheck(hChild, FALSE);
+            CheckTreeItem(hChild, false);
+            hChild = m_RepoTree.GetNextItem(hChild, TVGN_NEXT);
+        }
         // force the root item to be checked
         if (hItem == m_RepoTree.GetRootItem())
         {
             m_RepoTree.SetCheck(hItem);
+        }
+    }
+
+}
+
+
+void CRepositoryBrowser::OnTvnKeydownRepotree(NMHDR *pNMHDR, LRESULT *pResult)
+{
+    LPNMTVKEYDOWN pTVKeyDown = reinterpret_cast<LPNMTVKEYDOWN>(pNMHDR);
+    *pResult = 0;
+    if (SysInfo::Instance().IsVistaOrLater())
+        return;
+
+    // on XP, there's no TVN_ITEMCHANGED message, so we have to handle
+    // changes of the check state with the space key ourselves
+
+    if (pTVKeyDown -> wVKey == VK_SPACE)
+    {
+        HTREEITEM item = m_RepoTree.GetSelectedItem();
+
+        if (item)
+        {
+            CheckTreeItem(item, !m_RepoTree.GetCheck(item));
         }
     }
 }
@@ -4699,27 +4213,31 @@ bool CRepositoryBrowser::CheckAndConfirmPath(const CTSVNPath& targetUrl)
     if (targetUrl.IsValidOnWindows())
         return true;
 
-    CString sInfo;
-    sInfo.Format(IDS_WARN_NOVALIDPATH_TASK1, (LPCTSTR)targetUrl.GetUIPathString());
-    CTaskDialog taskdlg(sInfo,
-                        CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK2)),
-                        L"TortoiseSVN",
-                        0,
-                        TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK3)));
-    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK4)));
-    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-    taskdlg.SetExpansionArea(CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK5)));
-    taskdlg.SetDefaultCommandControl(2);
-    taskdlg.SetMainIcon(TD_WARNING_ICON);
-    return (taskdlg.DoModal(GetExplorerHWND()) == 1);
+    if (CTaskDialog::IsSupported())
+    {
+        CString sInfo;
+        sInfo.Format(IDS_WARN_NOVALIDPATH_TASK1, (LPCTSTR)targetUrl.GetUIPathString());
+        CTaskDialog taskdlg(sInfo,
+                            CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK2)),
+                            L"TortoiseSVN",
+                            0,
+                            TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK3)));
+        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK4)));
+        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+        taskdlg.SetExpansionArea(CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH_TASK5)));
+        taskdlg.SetDefaultCommandControl(2);
+        taskdlg.SetMainIcon(TD_WARNING_ICON);
+        return (taskdlg.DoModal(GetExplorerHWND()) == 1);
+    }
+    return (MessageBox(CString(MAKEINTRESOURCE(IDS_WARN_NOVALIDPATH)), CString(MAKEINTRESOURCE(IDS_APPNAME)), MB_ICONINFORMATION|MB_YESNO) == IDYES);
 }
 
 void CRepositoryBrowser::SaveDividerPosition()
 {
     RECT rc;
     GetDlgItem(IDC_REPOTREE)->GetClientRect(&rc);
-    CRegDWORD xPos = CRegDWORD(L"Software\\TortoiseSVN\\TortoiseProc\\ResizableState\\RepobrowserDivider");
+    CRegDWORD xPos = CRegDWORD(_T("Software\\TortoiseSVN\\TortoiseProc\\ResizableState\\RepobrowserDivider"));
     xPos = rc.right-rc.left;
 }
 
@@ -4740,7 +4258,7 @@ void CRepositoryBrowser::ShowText( const CString& sText, bool forceupdate /*= fa
 
 void CRepositoryBrowser::FilterInfinityDepthItems(std::map<CString,svn_depth_t>& depths)
 {
-    if (depths.empty())
+    if (depths.size() == 0)
         return;
 
     // now go through the whole list and remove all children of items that have infinity depth
@@ -4778,14 +4296,14 @@ void CRepositoryBrowser::SetListItemInfo( int index, const CItem * it )
     // pointer to the CItem structure
     m_RepoList.SetItemData(index, (DWORD_PTR)&(*it));
 
-    if (!it->complete || it->unversioned)
+    if (!it->complete)
         return;
 
     // revision
     if ((it->created_rev == SVN_IGNORED_REVNUM) && (it->is_external))
-        temp = it->time != 0 ? L"" : L"HEAD";
+        temp = it->time != 0 ? _T("") : _T("HEAD");
     else
-        temp.Format(L"%ld", it->created_rev);
+        temp.Format(_T("%ld"), it->created_rev);
     m_RepoList.SetItemText(index, 2, temp);
 
     // author
@@ -4800,7 +4318,7 @@ void CRepositoryBrowser::SetListItemInfo( int index, const CItem * it )
     }
 
     // date
-    TCHAR date_native[SVN_DATE_BUFFER] = { 0 };
+    TCHAR date_native[SVN_DATE_BUFFER];
     if ((it->time == 0) && (it->is_external))
         date_native[0] = 0;
     else
@@ -4811,8 +4329,6 @@ void CRepositoryBrowser::SetListItemInfo( int index, const CItem * it )
     {
         // lock owner
         m_RepoList.SetItemText(index, 6, it->lockowner);
-        // lock comment
-        m_RepoList.SetItemText(index, 7, m_ProjectProperties.MakeShortMessage(it->lockcomment));
     }
 }
 
@@ -4826,7 +4342,7 @@ void CRepositoryBrowser::OnNMCustomdrawRepolist(NMHDR *pNMHDR, LRESULT *pResult)
     if (m_RepoList.HasText())
         return;
 
-    // Draw incomplete and unversioned items in gray.
+    // Draw incomplete items in gray.
     if ( CDDS_PREPAINT == pLVCD->nmcd.dwDrawStage )
     {
         *pResult = CDRF_NOTIFYITEMDRAW;
@@ -4836,12 +4352,12 @@ void CRepositoryBrowser::OnNMCustomdrawRepolist(NMHDR *pNMHDR, LRESULT *pResult)
         // Tell Windows to paint the control itself.
         *pResult = CDRF_DODEFAULT;
 
-        if (m_RepoList.GetItemCount() > (int)pLVCD->nmcd.dwItemSpec)
+        if (m_RepoList.GetItemCount() > pLVCD->nmcd.dwItemSpec)
         {
             COLORREF crText = GetSysColor(COLOR_WINDOWTEXT);
             CAutoReadLock locker(m_guard);
             CItem * pItem = (CItem*)m_RepoList.GetItemData((int)pLVCD->nmcd.dwItemSpec);
-            if (pItem && (!pItem->complete || pItem->unversioned))
+            if (pItem && !pItem->complete)
             {
                 crText = GetSysColor(COLOR_GRAYTEXT);
             }
@@ -4850,399 +4366,3 @@ void CRepositoryBrowser::OnNMCustomdrawRepolist(NMHDR *pNMHDR, LRESULT *pResult)
         }
     }
 }
-
-void CRepositoryBrowser::OnNMCustomdrawRepotree(NMHDR *pNMHDR, LRESULT *pResult)
-{
-    NMTVCUSTOMDRAW* pTVCD = reinterpret_cast<NMTVCUSTOMDRAW*>(pNMHDR);
-    // Take the default processing unless we set this to something else below.
-    *pResult = CDRF_DODEFAULT;
-    // Draw incomplete and unversioned items in gray.
-    if (CDDS_PREPAINT == pTVCD->nmcd.dwDrawStage)
-    {
-        *pResult = CDRF_NOTIFYITEMDRAW;
-    }
-    else if (CDDS_ITEMPREPAINT == pTVCD->nmcd.dwDrawStage)
-    {
-        // Tell Windows to paint the control itself.
-        *pResult = CDRF_DODEFAULT;
-
-        CTreeItem * pItem = (CTreeItem *)m_RepoTree.GetItemData((HTREEITEM)pTVCD->nmcd.dwItemSpec);
-        if (pItem && pItem->unversioned)
-        {
-            // Store the color back in the NMLVCUSTOMDRAW struct.
-            pTVCD->clrText = GetSysColor(COLOR_GRAYTEXT);
-        }
-    }
-}
-
-bool CRepositoryBrowser::TrySVNParentPath()
-{
-    if (m_bSparseCheckoutMode)
-        return false;
-    if (!m_bTrySVNParentPath)
-        return false;
-
-    CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(true);
-    // custom callback object required to bypass invalid SSL certificates
-    // and handle possible authentication dialogs
-    std::unique_ptr<CCallback> callback(new CCallback());
-    callback->SetAuthParentWindow(GetSafeHwnd());
-
-    HRESULT hResUDL = URLDownloadToFile(NULL, m_InitialUrl+L"/", tempfile.GetWinPath(), 0, callback.get());
-    if (hResUDL != S_OK)
-    {
-        hResUDL = URLDownloadToFile(NULL, m_InitialUrl, tempfile.GetWinPath(), 0, callback.get());
-    }
-    if (hResUDL == S_OK)
-    {
-        // set up the SVNParentPath url as the repo root, even though it isn't a real repo root
-        m_repository.root = m_InitialUrl;
-        m_repository.revision = SVNRev::REV_HEAD;
-        m_repository.peg_revision = SVNRev::REV_HEAD;
-
-        // insert our pseudo repo root into the tree view.
-        CTreeItem * pTreeItem = new CTreeItem();
-        pTreeItem->unescapedname = m_InitialUrl;
-        pTreeItem->url = m_InitialUrl;
-        pTreeItem->logicalPath = m_InitialUrl;
-        pTreeItem->repository = m_repository;
-        pTreeItem->kind = svn_node_dir;
-        pTreeItem->svnparentpathroot = true;
-        TVINSERTSTRUCT tvinsert = {0};
-        tvinsert.hParent = TVI_ROOT;
-        tvinsert.hInsertAfter = TVI_ROOT;
-        tvinsert.itemex.mask = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
-        tvinsert.itemex.pszText = m_InitialUrl.GetBuffer (m_InitialUrl.GetLength());
-        tvinsert.itemex.cChildren = 1;
-        tvinsert.itemex.lParam = (LPARAM)pTreeItem;
-        tvinsert.itemex.iImage = m_nSVNParentPath;
-        tvinsert.itemex.iSelectedImage = m_nSVNParentPath;
-
-        HTREEITEM hRoot = m_RepoTree.InsertItem(&tvinsert);
-        m_InitialUrl.ReleaseBuffer();
-
-        // we got a web page! But we can't be sure that it's the page from SVNParentPath.
-        // Use a regex to parse the website and find out...
-        std::ifstream fs(tempfile.GetWinPath());
-        string in;
-        if (!fs.bad())
-        {
-            in.reserve((unsigned int)fs.rdbuf()->in_avail());
-            char c;
-            while (fs.get(c))
-            {
-                if (in.capacity() == in.size())
-                    in.reserve(in.capacity() * 3);
-                in.append(1, c);
-            }
-            fs.close();
-
-            // make sure this is a html page from an SVNParentPathList
-            // we do this by checking for header titles looking like
-            // "<h2>Revision XX: /</h2> - if we find that, it's a html
-            // page from inside a repository
-            const char * reTitle = "<\\s*h2\\s*>[^/]+/\\s*<\\s*/\\s*h2\\s*>";
-            // xsl transformed pages don't have an easy way to determine
-            // the inside from outside of a repository.
-            // We therefore check for <index rev="0" to make sure it's either
-            // an empty repository or really an SVNParentPathList
-            const char * reTitle2 = "<\\s*index\\s*rev\\s*=\\s*\"0\"";
-            const tr1::regex titex(reTitle, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-            const tr1::regex titex2(reTitle2, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-            if (tr1::regex_search(in.begin(), in.end(), titex, tr1::regex_constants::match_default))
-            {
-                TRACE(L"found repository url instead of SVNParentPathList\n");
-                return false;
-            }
-
-            const char * re = "<\\s*LI\\s*>\\s*<\\s*A\\s+[^>]*HREF\\s*=\\s*\"([^\"]*)\"\\s*>([^<]+)<\\s*/\\s*A\\s*>\\s*<\\s*/\\s*LI\\s*>";
-            const char * re2 = "<\\s*DIR\\s*name\\s*=\\s*\"([^\"]*)\"\\s*HREF\\s*=\\s*\"([^\"]*)\"\\s*/\\s*>";
-
-            const tr1::regex expression(re, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-            const tr1::regex expression2(re2, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
-            int nCountNewEntries = 0;
-            const tr1::sregex_iterator end;
-            for (tr1::sregex_iterator i(in.begin(), in.end(), expression); i != end; ++i)
-            {
-                const tr1::smatch match = *i;
-                // what[0] contains the whole string
-                // what[1] contains the url part.
-                // what[2] contains the name
-                CString sMatch = CUnicodeUtils::GetUnicode(std::string(match[1]).c_str());
-                sMatch.TrimRight('/');
-                CString url = m_InitialUrl + L"/" + sMatch;
-                CItem item;
-                item.absolutepath = url;
-                item.kind = svn_node_dir;
-                item.path = sMatch;
-                SRepositoryInfo repoinfo;
-                repoinfo.root = url;
-                repoinfo.revision = SVNRev::REV_HEAD;
-                repoinfo.peg_revision = SVNRev::REV_HEAD;
-                item.repository = repoinfo;
-                AutoInsert(hRoot, item);
-                ++nCountNewEntries;
-            }
-            if (!regex_search(in.begin(), in.end(), titex2))
-            {
-                TRACE(L"found repository url instead of SVNParentPathList\n");
-                return false;
-            }
-            for (tr1::sregex_iterator i(in.begin(), in.end(), expression2); i != end; ++i)
-            {
-                const tr1::smatch match = *i;
-                // what[0] contains the whole string
-                // what[1] contains the url part.
-                // what[2] contains the name
-                CString sMatch = CUnicodeUtils::GetUnicode(std::string(match[1]).c_str());
-                sMatch.TrimRight('/');
-                CString url = m_InitialUrl + L"/" + sMatch;
-                CItem item;
-                item.absolutepath = url;
-                item.kind = svn_node_dir;
-                item.path = sMatch;
-                SRepositoryInfo repoinfo;
-                repoinfo.root = url;
-                repoinfo.revision = SVNRev::REV_HEAD;
-                repoinfo.peg_revision = SVNRev::REV_HEAD;
-                item.repository = repoinfo;
-                AutoInsert(hRoot, item);
-                ++nCountNewEntries;
-            }
-            return (nCountNewEntries>0);
-        }
-    }
-    return false;
-}
-
-void CRepositoryBrowser::OnUrlHistoryBack()
-{
-    if (m_UrlHistory.empty())
-        return;
-
-    CString url = m_UrlHistory.front();
-    if (url == GetPath())
-    {
-        m_UrlHistory.pop_front();
-        if (m_UrlHistory.empty())
-            return;
-        url = m_UrlHistory.front();
-    }
-    SVNRev r = GetRevision();
-    m_UrlHistoryForward.push_front(GetPath());
-    ChangeToUrl(url, r, true);
-    m_UrlHistory.pop_front();
-    m_barRepository.ShowUrl (url, r);
-}
-
-void CRepositoryBrowser::OnUrlHistoryForward()
-{
-    if (m_UrlHistoryForward.empty())
-        return;
-
-    CString url = m_UrlHistoryForward.front();
-    if (url == GetPath())
-    {
-        m_UrlHistoryForward.pop_front();
-        if (m_UrlHistoryForward.empty())
-            return;
-        url = m_UrlHistoryForward.front();
-    }
-    SVNRev r = GetRevision();
-    m_barRepository.ShowUrl (url, r);
-    ChangeToUrl(url, r, true);
-    m_UrlHistoryForward.pop_front();
-    m_barRepository.ShowUrl (url, r);
-}
-
-void CRepositoryBrowser::GetStatus()
-{
-    if (!m_bSparseCheckoutMode || m_wcPath.IsEmpty())
-        return;
-
-    CTSVNPath retPath;
-    SVNStatus status(m_pbCancel, true);
-    svn_client_status_t * s = NULL;
-    s = status.GetFirstFileStatus(m_wcPath, retPath, false, svn_depth_infinity, true, true);
-    while ((s) && (!m_pbCancel))
-    {
-        CStringA url = s->repos_root_url;
-        url += '/';
-        url += s->repos_relpath;
-        m_wcDepths[CUnicodeUtils::GetUnicode(url)] = s->depth;
-
-        s = status.GetNextFileStatus(retPath);
-    }
-}
-
-bool CRepositoryBrowser::RunStartCommit( const CTSVNPathList& pathlist, CString& sLogMsg )
-{
-    DWORD exitcode = 0;
-    CString error;
-    CHooks::Instance().SetProjectProperties(CTSVNPath(m_InitialUrl), m_ProjectProperties);
-    if (CHooks::Instance().StartCommit(GetSafeHwnd(), pathlist, sLogMsg, exitcode, error))
-    {
-        if (exitcode)
-        {
-            CString sErrorMsg;
-            sErrorMsg.Format(IDS_ERR_HOOKFAILED, (LPCWSTR)error);
-
-            CTaskDialog taskdlg(sErrorMsg,
-                                CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK2)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK3)));
-            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK4)));
-            taskdlg.SetDefaultCommandControl(1);
-            taskdlg.SetMainIcon(TD_ERROR_ICON);
-            return (taskdlg.DoModal(GetSafeHwnd()) == 1);
-        }
-    }
-    return true;
-}
-
-bool CRepositoryBrowser::RunPreCommit( const CTSVNPathList& pathlist, svn_depth_t depth, CString& sMsg )
-{
-    DWORD exitcode = 0;
-    CString error;
-    CHooks::Instance().SetProjectProperties(CTSVNPath(m_InitialUrl), m_ProjectProperties);
-    if (CHooks::Instance().PreCommit(GetSafeHwnd(), pathlist, depth, sMsg, exitcode, error))
-    {
-        if (exitcode)
-        {
-            CString sErrorMsg;
-            sErrorMsg.Format(IDS_ERR_HOOKFAILED, (LPCWSTR)error);
-
-            CTaskDialog taskdlg(sErrorMsg,
-                                CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK2)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK3)));
-            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_HOOKFAILED_TASK4)));
-            taskdlg.SetDefaultCommandControl(1);
-            taskdlg.SetMainIcon(TD_ERROR_ICON);
-            return (taskdlg.DoModal(GetSafeHwnd()) == 1);
-        }
-    }
-    return true;
-}
-
-bool CRepositoryBrowser::RunPostCommit( const CTSVNPathList& pathlist, svn_depth_t depth, svn_revnum_t revEnd, const CString& sMsg )
-{
-    DWORD exitcode = 0;
-    CString error;
-    CHooks::Instance().SetProjectProperties(CTSVNPath(m_InitialUrl), m_ProjectProperties);
-    if (CHooks::Instance().PostCommit(GetSafeHwnd(), pathlist, depth, revEnd, sMsg, exitcode, error))
-    {
-        if (exitcode)
-        {
-            CString temp;
-            temp.Format(IDS_ERR_HOOKFAILED, (LPCTSTR)error);
-            ::MessageBox(GetSafeHwnd(), temp, L"TortoiseSVN", MB_ICONERROR);
-            return false;
-        }
-    }
-    return true;
-}
-
-HTREEITEM CRepositoryBrowser::FindBookmarkRoot()
-{
-    HTREEITEM hRoot = m_RepoTree.GetRootItem();
-    while (hRoot)
-    {
-        CTreeItem * pItem = (CTreeItem *)m_RepoTree.GetItemData(hRoot);
-        if (pItem && pItem->bookmark)
-            return hRoot;
-        hRoot = m_RepoTree.GetNextItem(hRoot, TVGN_NEXT);
-    }
-    return NULL;
-}
-
-void CRepositoryBrowser::RefreshBookmarks()
-{
-    HTREEITEM hBookmarkRoot = FindBookmarkRoot();
-    if (hBookmarkRoot)
-        RecursiveRemove(hBookmarkRoot, true);
-    else
-    {
-        if (m_bSparseCheckoutMode)
-            return;
-        // the tree view is empty, just fill in the repository root
-        CTreeItem * pTreeItem = new CTreeItem();
-        pTreeItem->kind = svn_node_dir;
-        pTreeItem->bookmark = true;
-
-        CString sBook(MAKEINTRESOURCE(IDS_BOOKMARKS));
-        TVINSERTSTRUCT tvinsert = {0};
-        tvinsert.hParent = TVI_ROOT;
-        tvinsert.hInsertAfter = TVI_LAST;
-        tvinsert.itemex.mask = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
-        tvinsert.itemex.pszText = sBook.GetBuffer();
-        tvinsert.itemex.cChildren = 1;
-        tvinsert.itemex.lParam = (LPARAM)pTreeItem;
-        tvinsert.itemex.iImage = m_nBookmarksIcon;
-        tvinsert.itemex.iSelectedImage = m_nBookmarksIcon;
-        hBookmarkRoot = m_RepoTree.InsertItem(&tvinsert);
-        sBook.ReleaseBuffer();
-    }
-    if (hBookmarkRoot)
-    {
-        for (const auto& bm : m_bookmarks)
-        {
-            CString bookmark = bm.c_str();
-            CTreeItem * pTreeItem = new CTreeItem();
-            pTreeItem->kind = svn_node_file;
-            pTreeItem->bookmark = true;
-            pTreeItem->url = bookmark;
-
-            CString sBook(MAKEINTRESOURCE(IDS_BOOKMARKS));
-            TVINSERTSTRUCT tvinsert = {0};
-            tvinsert.hParent = hBookmarkRoot;
-            tvinsert.hInsertAfter = TVI_LAST;
-            tvinsert.itemex.mask = TVIF_CHILDREN | TVIF_DI_SETITEM | TVIF_PARAM | TVIF_TEXT | TVIF_IMAGE | TVIF_SELECTEDIMAGE | TVIF_STATE;
-            tvinsert.itemex.pszText = bookmark.GetBuffer();
-            tvinsert.itemex.cChildren = 0;
-            tvinsert.itemex.lParam = (LPARAM)pTreeItem;
-            tvinsert.itemex.iImage = m_nIconFolder;
-            tvinsert.itemex.iSelectedImage = m_nOpenIconFolder;
-            m_RepoTree.InsertItem(&tvinsert);
-            bookmark.ReleaseBuffer();
-        }
-    }
-}
-
-void CRepositoryBrowser::LoadBookmarks()
-{
-    m_bookmarks.clear();
-    CString sFilepath = CPathUtils::GetAppDataDirectory() + L"repobrowserbookmarks";
-    CStdioFile file;
-    if (file.Open(sFilepath, CFile::typeBinary | CFile::modeRead | CFile::shareDenyWrite))
-    {
-        CString strLine;
-        while (file.ReadString(strLine))
-        {
-            m_bookmarks.insert((LPCWSTR)strLine);
-        }
-        file.Close();
-    }
-}
-
-void CRepositoryBrowser::SaveBookmarks()
-{
-    CString sFilepath = CPathUtils::GetAppDataDirectory() + L"repobrowserbookmarks";
-
-    CStdioFile file;
-    if (file.Open(sFilepath, CFile::typeBinary | CFile::modeReadWrite | CFile::modeCreate))
-    {
-        for (const auto& bm : m_bookmarks)
-        {
-            file.WriteString(bm.c_str());
-            file.WriteString(L"\n");
-        }
-        file.Close();
-    }
-}
-
-

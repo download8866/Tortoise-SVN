@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009, 2012-2013 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #pragma once
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 
 
 /**
@@ -34,7 +34,7 @@ public:
     CSetDialogs();
     virtual ~CSetDialogs();
 
-    UINT GetIconID() override {return IDI_DIALOGS;}
+    UINT GetIconID() {return IDI_DIALOGS;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSDIALOGS };
@@ -43,6 +43,8 @@ protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
     DECLARE_MESSAGE_MAP()
+
+    CString GetVersionFromFile(const CString & p_strDateiname);
 
 private:
     CToolTips       m_tooltips;

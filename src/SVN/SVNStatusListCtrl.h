@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -137,11 +137,8 @@ SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
 #define SVNSLC_POPCHECKFORMODS          0x00400000
 #define SVNSLC_POPREPAIRCOPY            0x00800000
 #define SVNSLC_POPSWITCH                0x01000000
-#define SVNSLC_POPCOMPARETWO            0x02000000
-#define SVNSLC_POPRESTORE               0x04000000
-#define SVNSLC_POPEXPORT                0x08000000
 
-#define SVNSLC_IGNORECHANGELIST         L"ignore-on-commit"
+#define SVNSLC_IGNORECHANGELIST         _T("ignore-on-commit")
 
 // This gives up to 64 standard properties and menu entries
 // plus 192 user-defined properties (should be plenty).
@@ -167,9 +164,6 @@ typedef CComCritSecLock<CComCriticalSection> Locker;
 #define OVL_DEPTHFILES      3
 #define OVL_DEPTHIMMEDIATES 4
 #define OVL_DEPTHEMPTY      5
-#define OVL_RESTORE         6
-#define OVL_MERGEINFO       7
-#define OVL_EXTERNALPEGGED  8
 
 /**
  * \ingroup SVN
@@ -310,13 +304,9 @@ public:
             , isNested(false)
             , Revision(0)
             , isConflicted(false)
-            , onlyMergeInfoMods(false)
-            , onlyMergeInfoModsKnown(false)
             , working_size(SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN)
             , depth(svn_depth_unknown)
-            , peggedexternal(false)
             , kind(svn_node_unknown)
-            , id(0)
         {
         }
         const CTSVNPath& GetPath() const
@@ -344,10 +334,6 @@ public:
         const bool IsInExternal() const
         {
             return inexternal;
-        }
-        const bool IsPeggedExternal() const
-        {
-            return peggedexternal;
         }
         const bool IsNested() const
         {
@@ -387,10 +373,6 @@ public:
         {
             return url;
         }
-        CString GetRestorePath() const
-        {
-            return restorepath;
-        }
     public:
         svn_wc_status_kind      status;                 ///< local status
         svn_wc_status_kind      textstatus;             ///< local text status
@@ -407,7 +389,6 @@ public:
         CString                 lock_remoteowner;       ///< the username which owns the lock in the repository
         CString                 lock_remotetoken;       ///< the unique URI in the repository of the lock
         CString                 lock_comment;           ///< the message for the lock
-        CString                 restorepath;            ///< path to a copy of the file, to be restored after a commit
         apr_time_t              lock_date;              ///< the date when this item was locked
         CString                 changelist;             ///< the name of the changelist the item belongs to
         CString                 last_commit_author;     ///< the author which last committed this item
@@ -419,24 +400,18 @@ public:
         bool                    checked;                ///< if the file is checked in the list control
         bool                    inunversionedfolder;    ///< if the file is inside an unversioned folder
         bool                    inexternal;             ///< if the item is in an external folder
-        bool                    peggedexternal;         ///< if inexternal is true, then this is true if the external the item refers to is pegged to a specific revision, not HEAD
         bool                    differentrepo;          ///< if the item is from a different repository than the rest
         bool                    direct;                 ///< directly included (TRUE) or just a child of a folder
         bool                    isfolder;               ///< TRUE if entry refers to a folder
         svn_node_kind_t         kind;                   ///< file/folder kind, used to know the 'unspecified' type
         bool                    isNested;               ///< TRUE if the folder from a different repository and/or path
         bool                    isConflicted;           ///< TRUE if a file entry is conflicted, i.e. if it has the conflicted paths set
-        bool                    onlyMergeInfoMods;      ///< TRUE if only the svn:mergeinfo property has mods, no other properties
-        bool                    onlyMergeInfoModsKnown; ///< TRUE if onlyMergeInfoMods has been calculated
         svn_revnum_t            Revision;               ///< the base revision
         svn_filesize_t          working_size;           ///< Size of the file after being translated into local representation or SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN
         svn_depth_t             depth;                  ///< the depth of this entry
         bool                    file_external;          ///< if the item is a file that was added to the working copy with an svn:externals; if file_external is TRUE, then switched is always FALSE.
         CString                 copyfrom_url_string;    ///< contains the url which this item was copied from. Note: this is not filled in by the status call but only
                                                         ///< filled in when needed. This member is only here as a cache.
-        CString                 moved_from_abspath;     ///< Set to the local absolute path that this node was moved from
-        CString                 moved_to_abspath;       ///< Set to the local absolute path that this node was moved to
-        _int64                  id;                     ///< id/index of the entry, stays the same even after resorting
         friend class CSVNStatusListCtrl;
         friend class CSVNStatusListCtrlDropTarget;
         friend class CSorter;
@@ -526,7 +501,7 @@ public:
         /// map internal column order onto visible column order
         /// (all invisibles in front)
 
-        std::vector<int> GetGridColumnOrder() const;
+        std::vector<int> GetGridColumnOrder();
         void ApplyColumnOrder();
 
         /// utilities used when writing data to the registry
@@ -612,7 +587,7 @@ public:
      *                       Use the SVNSLC_POPxxx defines.
      * \param bHasCheckboxes TRUE if the control should show check boxes on the left of each file entry.
      */
-    void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = ((SVNSLC_POPALL ^ SVNSLC_POPCOMMIT) ^ SVNSLC_POPRESTORE), bool bHasCheckboxes = true);
+    void Init(DWORD dwColumns, const CString& sColumnInfoContainer, DWORD dwContextMenus = (SVNSLC_POPALL ^ SVNSLC_POPCOMMIT), bool bHasCheckboxes = true);
     /**
      * Sets a background image for the list control.
      * The image is shown in the right bottom corner.
@@ -654,10 +629,7 @@ public:
     /**
      * Populates the list control with the previously (with GetStatus) gathered status information.
      * \param dwShow mask of file types to show. Use the SVNSLC_SHOWxxx defines.
-     * \param checkedList
      * \param dwCheck mask of file types to check. Use SVNLC_SHOWxxx defines. Default (0) means 'use the entry's stored check status'
-     * \param bShowFolders
-     * \param bShowFiles
      */
     void Show(DWORD dwShow, const CTSVNPathList& checkedList, DWORD dwCheck, bool bShowFolders, bool bShowFiles);
 
@@ -666,7 +638,7 @@ public:
      * are separated by newlines.
      * \param dwCols the columns to copy. Each column is separated by a tab.
      */
-    bool CopySelectedEntriesToClipboard(DWORD dwCols, int cmd);
+    bool CopySelectedEntriesToClipboard(DWORD dwCols);
 
     /**
      * If during the call to GetStatus() some svn:externals are found from different
@@ -739,14 +711,12 @@ public:
     /**
      * Select/unselect all entries in the list control.
      * \param bSelect TRUE to check, FALSE to uncheck.
-     * \param bIncludeNoCommits
      */
     void SelectAll(bool bSelect, bool bIncludeNoCommits = false);
 
     /**
      * Checks all specified items, removes the checks from the ones not specified
      * \param dwCheck SVNLC_SHOWxxx defines
-     * \param uncheckNonMatches
      */
     void Check(DWORD dwCheck, bool uncheckNonMatches);
 
@@ -762,8 +732,6 @@ public:
 
     /** fills in \a lMin and \a lMax with the lowest/highest revision of all
      * files/folders in the working copy.
-     * \param rMin min revision found
-     * \param rMax max revision found
      * \param bShownOnly if true, the min/max revisions are calculated only for shown items
      * \param bCheckedOnly if true, the min/max revisions are calculated only for items
      *                   which are checked.
@@ -860,12 +828,6 @@ public:
      */
     DWORD GetShowFlags() {return m_dwShow;}
 
-    /**
-     * Sets restore paths from a previous run
-     */
-    void SetRestorePaths(const std::map<CString,std::tuple<CString, CString>>& restorepaths) {m_restorepaths = restorepaths;}
-    const std::map<CString,std::tuple<CString, CString>>& GetRestorePaths() const { return m_restorepaths; }
-
     CString GetLastErrorMessage() {return m_sLastError;}
 
     void BusyCursor(bool bBusy) { m_bWaitCursor = bBusy; }
@@ -903,10 +865,10 @@ private:
     void AddEntry(FileEntry * entry, int listIndex);    ///< add an entry to the control
     void RemoveListEntry(int index);                    ///< removes an entry from the listcontrol and both arrays
     bool BuildStatistics(bool repairCaseRenames);       ///< build the statistics and correct the case of files/folders
-    void StartDiff(int fileindex, bool ignoreprops);    ///< start the external diff program
-    void StartDiff(FileEntry * entry, bool ignoreprops);
+    void StartDiff(int fileindex);                      ///< start the external diff program
+    void StartDiff(FileEntry * entry);
     void StartDiffOrResolve(int fileindex);
-    void StartConflictEditor(const CTSVNPath& filepath, __int64 id);
+    void StartConflictEditor(const CTSVNPath& filepath);
     void AddPropsPath(const CTSVNPath& filepath, CString& command );
 
     /// fetch all user properties for all items
@@ -960,7 +922,7 @@ private:
     void SetCheckOnAllDescendentsOf(const FileEntry* parentEntry, bool bCheck);
 
     /// Build a path list of all the selected items in the list (NOTE - SELECTED, not CHECKED)
-    void FillListOfSelectedItemPaths(CTSVNPathList& pathList, bool bNoIgnored = false, bool bNoUnversioned = false);
+    void FillListOfSelectedItemPaths(CTSVNPathList& pathList, bool bNoIgnored = false);
 
     /// Enables/Disables group view and adds all groups to the list control.
     /// If bForce is true, then group view is enabled and the 'null' group is added.
@@ -1001,9 +963,10 @@ private:
     int GetGroupId(int itemIndex) const;
     void RemoveListEntries(const std::vector<CString>& paths);
     void RemoveListEntries(const std::vector<int>& indices);
-    CString BuildIgnoreList(const CString& fileOrDirectoryName, SVNProperties& properties, bool bRecursive);
-    void OnIgnoreMask(const CTSVNPath& path, bool bRecursive);
-    void OnIgnore(const CTSVNPath& path, bool bRecursive);
+    CString BuildIgnoreList(const CString& fileOrDirectoryName,
+        SVNProperties& properties);
+    void OnIgnoreMask(const CTSVNPath& path);
+    void OnIgnore(const CTSVNPath& path);
     void OnResolve(svn_wc_conflict_choice_t resolveStrategy);
     void AddEntryOnIgnore(const CTSVNPath& parentFolder, const CTSVNPath& basepath);
     void OnUnlock(bool bForce);
@@ -1013,12 +976,10 @@ private:
     void OnContextMenuListDefault(FileEntry * entry, int command, const CTSVNPath& path);
     void SendNeedsRefresh();
     void Open(const CTSVNPath& filepath, FileEntry * entry, bool bOpenWith);
-    bool CheckMultipleDiffs();
 
     virtual void PreSubclassWindow();
     virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual INT_PTR OnToolHitTest(CPoint point, TOOLINFO* pTI) const;
-    virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
     afx_msg void OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult);
     afx_msg BOOL OnToolTipText(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnHdnItemclick(NMHDR *pNMHDR, LRESULT *pResult);
@@ -1039,7 +1000,6 @@ private:
     afx_msg void OnHdnBegintrack(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnHdnItemchanging(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnDestroy();
-    afx_msg LRESULT OnResolveMsg(WPARAM, LPARAM);
 
 private:
     bool *                      m_pbCanceled;
@@ -1099,10 +1059,13 @@ private:
     bool                        m_bFileDropsEnabled;
     bool                        m_bOwnDrag;
     bool                        m_bDepthInfinity;
-    bool                        m_bResortAfterShow;
-    bool                        m_bAllowPeggedExternals;
 
     int                         m_nIconFolder;
+    int                         m_nExternalOvl;
+    int                         m_nNestedOvl;
+    int                         m_nDepthFilesOvl;
+    int                         m_nDepthImmediatesOvl;
+    int                         m_nDepthEmptyOvl;
 
     CWnd *                      m_pStatLabel;
     CButton *                   m_pSelectButton;
@@ -1122,16 +1085,10 @@ private:
 
     ColumnManager               m_ColumnManager;
 
-    WCHAR                       m_tooltipbuf[4096];
-
     std::map<CString,bool>      m_mapFilenameToChecked; ///< Remember manually de-/selected items
-    int                         m_nBlockItemChangeHandler;
+    int                         m_bBlockItemChangeHandler;
     std::set<CTSVNPath>         m_externalSet;
-    std::map<CString, std::tuple<CString, CString>>  m_restorepaths;
     mutable CReaderWriterLock   m_guard;
-
-    HMENU                       m_hShellMenu;
-    LPCONTEXTMENU               m_pContextMenu;
 
     friend class CSVNStatusListCtrlDropTarget;
 };

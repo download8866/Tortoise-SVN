@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2006-2014 - TortoiseSVN
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +22,6 @@
 #include "TSVNPath.h"
 #include "SVNRev.h"
 
-class ProjectProperties;
-
 /**
  * \ingroup TortoiseProc
  * enumeration of all client hook types
@@ -38,9 +36,7 @@ typedef enum hooktype
     pre_update_hook,
     post_update_hook,
     issue_tracker_hook,
-    pre_connect_hook,
-    manual_precommit,
-    check_commit_hook
+    pre_connect_hook
 } hooktype;
 
 /**
@@ -70,13 +66,9 @@ public:
  */
 typedef struct hookcmd
 {
-    CString         commandline;    ///< command line to be executed
-    bool            bWait;          ///< wait until the hook exited
-    bool            bShow;          ///< show hook executable window
-    bool            bEnforce;       ///< hook can not be skipped
-    bool            bApproved;      ///< user explicitly approved
-    bool            bStored;        ///< use decision is stored in reg
-    CString         sRegKey;
+    CString         commandline;
+    bool            bWait;
+    bool            bShow;
 } hookcmd;
 
 typedef std::map<hookkey, hookcmd>::iterator hookiterator;
@@ -116,15 +108,12 @@ public:
      * Adds a new hook script. To make the change persistent, call Save().
      */
     void                Add(hooktype ht, const CTSVNPath& Path, LPCTSTR szCmd,
-                            bool bWait, bool bShow, bool bEnforce);
+                            bool bWait, bool bShow);
 
     /// returns the string representation of the hook type.
     static CString      GetHookTypeString(hooktype t);
     /// returns the hooktype from a string representation of the same.
     static hooktype     GetHookType(const CString& s);
-
-    /// Add hook script data from project properties
-    void                SetProjectProperties(const CTSVNPath& wcPath, const ProjectProperties& pp);
 
     /**
      * Executes the Start-Update-Hook that first matches one of the paths in
@@ -137,7 +126,7 @@ public:
      * in \c pathList, separated by newlines. The hook script can parse this
      * file to get all the paths the update is about to be done on.
      */
-    bool                StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitcode,
+    bool                StartUpdate(const CTSVNPathList& pathList, DWORD& exitcode,
                                     CString& error);
     /**
      * Executes the Pre-Update-Hook that first matches one of the paths in
@@ -155,7 +144,7 @@ public:
      * to the \c bRecursive parameter. And the string "%REVISION%" is replaced with
      * the string representation of \c rev.
      */
-    bool                PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PreUpdate(const CTSVNPathList& pathList, svn_depth_t depth,
                                     SVNRev rev, DWORD& exitcode, CString& error);
     /**
      * Executes the Post-Update-Hook that first matches one of the paths in
@@ -163,7 +152,6 @@ public:
      * \param pathList a list of paths to look for the hook scripts
      * \param depth the depth of the commit
      * \param rev the revision the update was done to
-     * \param updatedList list of paths that were touched by the update in some way
      * \param exitcode on return, contains the exit code of the hook script
      * \param error the data the hook script outputs to stderr
      * \remark the string "%PATHS% in the command line of the hook script is
@@ -174,8 +162,8 @@ public:
      * to the \c bRecursive parameter. And the string "%REVISION%" is replaced with
      * the string representation of \c rev.
      */
-    bool                PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
-                                    SVNRev rev, const CTSVNPathList& updatedList, DWORD& exitcode, CString& error);
+    bool                PostUpdate(const CTSVNPathList& pathList, svn_depth_t depth,
+                                    SVNRev rev, DWORD& exitcode, CString& error);
 
     /**
      * Executes the Start-Commit-Hook that first matches one of the paths in
@@ -192,24 +180,7 @@ public:
      * \c message. If the script finishes successfully, contents of this file
      * is read back into \c message parameter.
      */
-    bool                StartCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message,
-                                    DWORD& exitcode, CString& error);
-    /**
-     * Executes the Start-Commit-Hook that first matches one of the paths in
-     * \c pathList.
-     * \param pathList a list of paths to look for the hook scripts
-     * \param message a commit message
-     * \param exitcode on return, contains the exit code of the hook script
-     * \param error the data the hook script outputs to stderr
-     * \remark the string "%PATHS% in the command line of the hook script is
-     * replaced with the path to a temporary file which contains a list of files
-     * in \c pathList, separated by newlines. The hook script can parse this
-     * file to get all the paths the commit is about to be done on.
-     * The string %MESSAGEFILE% is replaced with path to temporary file containing
-     * \c message. If the script finishes successfully, contents of this file
-     * is read back into \c message parameter.
-     */
-    bool                CheckCommit(HWND hWnd, const CTSVNPathList& pathList, CString& message,
+    bool                StartCommit(const CTSVNPathList& pathList, CString& message,
                                     DWORD& exitcode, CString& error);
     /**
      * Executes the Pre-Commit-Hook that first matches one of the paths in
@@ -227,23 +198,9 @@ public:
      * svn_depth_t parameter. See the Subversion source documentation about the
      * values.
      */
-    bool                PreCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PreCommit(const CTSVNPathList& pathList, svn_depth_t depth,
                                     CString& message, DWORD& exitcode,
                                     CString& error);
-    /**
-     * Executes the Manual Pre-Commit-Hook
-     * \param pathList a list of paths that are checked in the commit dialog
-     * \param message the commit message if there already is one
-     * \param exitcode on return, contains the exit code of the hook script
-     * \param error the data the hook script outputs to stderr
-     * \remark the string "%PATHS% in the command line of the hook script is
-     * replaced with the path to a temporary file which contains a list of files
-     * in \c pathList, separated by newlines. The hook script can parse this
-     * file to get all the paths the update is about to be done on.
-     */
-    bool                ManualPreCommit(HWND hWnd, const CTSVNPathList& pathList,
-                                        CString& message, DWORD& exitcode,
-                                        CString& error);
     /**
      * Executes the Post-Commit-Hook that first matches one of the paths in
      * \c pathList.
@@ -261,7 +218,7 @@ public:
      * svn_depth_t parameter. See the Subversion source documentation about the
      * values.
      */
-    bool                PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth,
+    bool                PostCommit(const CTSVNPathList& pathList, svn_depth_t depth,
                                     SVNRev rev, const CString& message,
                                     DWORD& exitcode, CString& error);
 
@@ -274,19 +231,6 @@ public:
      * SVN functions that contact a repository.
      */
     bool                PreConnect(const CTSVNPathList& pathList);
-
-    /**
-     * Returns cc true if the hook(s) \c t for the paths given in \c pathList
-     * cannot be ignored, i.e. if the user configured it as "forced execution".
-     * \param pathList a list of paths to look for the hook scripts
-     */
-    bool                IsHookExecutionEnforced(hooktype t, const CTSVNPathList& pathList);
-
-    /**
-     * Returns true if the hook \c t for the paths given in \c pathList
-     * exists.
-     */
-    bool                IsHookPresent(hooktype t, const CTSVNPathList& pathList);
 
 private:
     /**
@@ -303,22 +247,7 @@ private:
      * path in \c pathList.
      */
     hookiterator        FindItem(hooktype t, const CTSVNPathList& pathList);
-
-    /**
-     * Parses the hook information from a project property string
-     */
-    bool                ParseAndInsertProjectProperty(hooktype t, const CString& strhooks, const CTSVNPath& wcPath,
-                                                      const CString& rootPath, const CString& rootUrl,
-                                                      const CString& repoRootUrl);
-
-    /**
-     * Checks whether the hook script has been validated already and
-     * if not, asks the user to validate it.
-     */
-    bool                ApproveHook(HWND hWnd, hookiterator it);
-
     static CHooks *     m_pInstance;
-    ULONGLONG           m_lastPreConnectTicks;
+    DWORD               m_lastPreConnectTicks;
     bool                m_PathsConvertedToUrls;
-    CTSVNPath           m_wcRootPath;
 };

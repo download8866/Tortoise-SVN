@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2014 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "resource.h"
 #include "StandardLayoutNodeList.h"
 #include "VisibleGraphNode.h"
@@ -78,7 +78,7 @@ namespace
         toAdd.Format (id);
         target = target.IsEmpty()
                ? toAdd
-               : target + L", " + toAdd;
+               : target + _T(", ") + toAdd;
     }
 }
 
@@ -121,7 +121,7 @@ CString CStandardLayoutNodeList::GetToolTip (index_t index) const
 
     // get standard revprops
 
-    TCHAR date[SVN_DATE_BUFFER] = { 0 };
+    TCHAR date[SVN_DATE_BUFFER];
     apr_time_t timeStamp = revisionInfo.GetTimeStamp (revisionIndex);
     SVN::formatDate(date, timeStamp);
 
@@ -244,7 +244,7 @@ CString CStandardLayoutNodeList::GetToolTip (index_t index) const
                 if (attributes.IsEmpty())
                     attributes = attribute;
                 else
-                    attributes += L", " + attribute;
+                    attributes += _T(", ") + attribute;
             }
 
             CString tagInfo;
@@ -266,7 +266,7 @@ CString CStandardLayoutNodeList::GetToolTip (index_t index) const
                                         , CUnicodeUtils::StdGetUnicode (tagPath).c_str());
             }
 
-            tags +=   L"\r\n"
+            tags +=   _T("\r\n")
                     + CString (' ', (int)tag->GetDepth() * 6)
                     + tagInfo;
         }

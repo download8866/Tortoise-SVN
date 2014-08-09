@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2011-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 
 #include "SettingsPropPage.h"
 #include "Tooltip.h"
-#include "registry.h"
+#include "Registry.h"
 
 /**
  * \ingroup TortoiseProc
@@ -34,7 +34,7 @@ public:
     CSetLookAndFeelPage();
     virtual ~CSetLookAndFeelPage();
 
-    UINT GetIconID() override {return IDI_MISC;}
+    UINT GetIconID() {return IDI_MISC;}
 
 // Dialog Data
     enum { IDD = IDD_SETTINGSLOOKANDFEEL };
@@ -72,7 +72,4 @@ private:
 
     CString             m_sNoContextPaths;
     CRegString          m_regNoContextPaths;
-
-    CRegDWORD           m_regEnableDragContextMenu;
-    BOOL                m_bEnableDragContextMenu;
 };

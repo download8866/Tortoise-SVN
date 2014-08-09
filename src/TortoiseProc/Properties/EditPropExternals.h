@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2013 - TortoiseSVN
+// Copyright (C) 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include <afxcmn.h>
+#include "afxcmn.h"
 #include "EditPropBase.h"
 #include "StandAloneDlg.h"
 #include "SVNExternals.h"
@@ -41,16 +41,14 @@ protected:
     afx_msg void OnBnClickedAdd();
     afx_msg void OnBnClickedEdit();
     afx_msg void OnBnClickedRemove();
-    afx_msg void OnBnClickedFindhead();
     afx_msg void OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMDblclkExternalslist(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
     afx_msg void OnBnClickedHelp();
 
     DECLARE_MESSAGE_MAP()
 
-    INT_PTR DoModal() override { return CResizableStandAloneDialog::DoModal(); }
+    INT_PTR DoModal() { return CResizableStandAloneDialog::DoModal(); }
 
 private:
     CListCtrl       m_ExtList;

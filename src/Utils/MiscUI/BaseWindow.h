@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2010, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,12 +16,23 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-
 #pragma once
-#include "ResString.h"
-
 #include <string>
 
+
+/**
+ * \ingroup Utils
+ * Loads a string from the application resources.
+ */
+class ResString
+{
+    enum { MAX_RESSTRING = 1024 };
+public:
+    ResString (HINSTANCE hInst, int resId);
+    operator TCHAR const * () const { return _buf; }
+private:
+    TCHAR _buf [MAX_RESSTRING + 1];
+};
 
 /**
  * \ingroup Utils
@@ -32,9 +43,8 @@
 class CWindow
 {
 public:
-    virtual bool RegisterWindow(UINT style, HICON hIcon, HCURSOR hCursor,
-                                HBRUSH hbrBackground, LPCTSTR lpszMenuName,
-                                LPCTSTR lpszClassName, HICON hIconSm);
+    virtual bool RegisterWindow(UINT style, HICON hIcon, HCURSOR hCursor, HBRUSH hbrBackground,
+        LPCTSTR lpszMenuName, LPCTSTR lpszClassName, HICON hIconSm);
     virtual bool RegisterWindow(CONST WNDCLASSEX* wcx);
 
     /// static message handler to put in WNDCLASSEX structure
@@ -63,7 +73,7 @@ public:
 
     virtual bool Create();
     virtual bool Create(DWORD dwStyles, HWND hParent = NULL, RECT* rect = NULL);
-    virtual bool CreateEx(DWORD dwExStyles, DWORD dwStyles, HWND hParent = NULL, RECT* rect = NULL, LPCTSTR classname = NULL);
+    virtual bool CreateEx(DWORD dwExStyles, DWORD dwStyles, HWND hParent = NULL, RECT* rect = NULL);
 
     //void MsgLoop();
     bool IsWindowClosed() const { return bWindowClosed; };
@@ -72,7 +82,6 @@ public:
 protected:
     HINSTANCE hResource;
     HWND m_hwnd;
-    HWND m_hParent;
     bool bWindowClosed;
     std::wstring sClassName;
     std::wstring sWindowTitle;
@@ -81,10 +90,8 @@ protected:
     bool bWindowRestored;
 
     //constructor
-    CWindow(HINSTANCE hInst, CONST WNDCLASSEX* wcx = NULL)
-        : m_hwnd(NULL)
+    CWindow(HINSTANCE hInst, CONST WNDCLASSEX* wcx = NULL) : m_hwnd(NULL)
         , hResource(NULL)
-        , m_hParent(NULL)
         , bWindowClosed(FALSE)
         , bWindowRestored(false)
     {
@@ -102,3 +109,4 @@ protected:
         return (CWindow *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
     }
 };
+

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@
 #include "TortoiseProc.h"
 #include "SVNProperties.h"
 #include "UnicodeUtils.h"
-#include "PropDlg.h"
-#include "registry.h"
+#include "Propdlg.h"
+#include "Registry.h"
 #include "AppUtils.h"
 
 
@@ -29,7 +29,6 @@ IMPLEMENT_DYNAMIC(CPropDlg, CResizableStandAloneDialog)
 CPropDlg::CPropDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CPropDlg::IDD, pParent)
     , m_rev(SVNRev::REV_WC)
-    , m_hThread(NULL)
 {
 }
 
@@ -79,7 +78,7 @@ BOOL CPropDlg::OnInitDialog()
 
     AddAnchor(IDC_PROPERTYLIST, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDOK, BOTTOM_CENTER);
-    EnableSaveRestore(L"PropDlg");
+    EnableSaveRestore(_T("PropDlg"));
     return TRUE;
 }
 
@@ -103,7 +102,7 @@ UINT CPropDlg::PropThreadEntry(LPVOID pVoid)
 
 UINT CPropDlg::PropThread()
 {
-    SVNProperties props(m_Path, m_rev, false, false);
+    SVNProperties props(m_Path, m_rev, false);
 
     m_proplist.SetRedraw(false);
     int row = 0;
@@ -116,7 +115,7 @@ UINT CPropDlg::PropThread()
         int nFound = -1;
         do
         {
-            nFound = val.FindOneOf(L"\r\n");
+            nFound = val.FindOneOf(_T("\r\n"));
             m_proplist.InsertItem(row, name);
             if (nFound >= 0)
                 m_proplist.SetItemText(row++, 1, val.Left(nFound));

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,16 +16,17 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "resource.h"
+#include "StdAfx.h"
+#include "Resource.h"
 #include "FindBar.h"
-#include "registry.h"
+#include "Registry.h"
 #include <string>
 #include <Commdlg.h>
+#include "auto_buffer.h"
+
+using namespace std;
 
 CFindBar::CFindBar()
-    : m_hParent(NULL)
-    , m_hIcon(NULL)
 {
 }
 
@@ -59,7 +60,7 @@ LRESULT CFindBar::DoCommand(int id, int msg)
     {
     case IDC_FINDPREV:
         bFindPrev = true;
-        // fallthrough
+		// fallthrough
     case IDC_FINDNEXT:
         {
             DoFind(bFindPrev);
@@ -86,10 +87,9 @@ LRESULT CFindBar::DoCommand(int id, int msg)
 void CFindBar::DoFind(bool bFindPrev)
 {
     int len = ::GetWindowTextLength(GetDlgItem(*this, IDC_FINDTEXT));
-    std::unique_ptr<TCHAR[]> findtext(new TCHAR[len+1]);
-    if (!::GetWindowText(GetDlgItem(*this, IDC_FINDTEXT), findtext.get(), len + 1))
-        return;
-    std::wstring ft = std::wstring(findtext.get());
+    auto_buffer<TCHAR> findtext(len+1);
+    ::GetWindowText(GetDlgItem(*this, IDC_FINDTEXT), findtext, len+1);
+    wstring ft = wstring(findtext);
     const bool bCaseSensitive = !!SendMessage(GetDlgItem(*this, IDC_MATCHCASECHECK), BM_GETCHECK, 0, NULL);
     const UINT message = bFindPrev ? COMMITMONITOR_FINDMSGPREV : COMMITMONITOR_FINDMSGNEXT;
     ::SendMessage(m_hParent, message, (WPARAM)bCaseSensitive, (LPARAM)ft.c_str());

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,7 @@
 //
 #pragma once
 
-#include "resource.h"
+#include "Resource.h"
 #include "LayoutOptions.h"
 #include "RevisionGraphOptionsImpl.h"
 
@@ -35,10 +35,10 @@ private:
 
     void GetMinMaxY
         ( IStandardLayoutNodeAccess* nodeAccess
-        , std::vector<int>& minY) const;
+        , std::vector<int>& minY);
     void MirrorY
         ( IStandardLayoutNodeAccess* nodeAccess
-        , const std::vector<int>& minY) const;
+        , const std::vector<int>& minY);
 
 public:
 
@@ -49,5 +49,5 @@ public:
     /// cast @a layout pointer to the respective modification
     /// interface and write the data.
 
-    virtual void ApplyTo (IRevisionGraphLayout* layout) override;
+    virtual void ApplyTo (IRevisionGraphLayout* layout);
 };

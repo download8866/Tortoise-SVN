@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,12 +18,10 @@
 #pragma once
 
 #include "resource.h"
-#include <Commdlg.h>
+#include "Commdlg.h"
 #include "Scintilla.h"
 #include "SciLexer.h"
 #include "registry.h"
-
-#include <set>
 
 const COLORREF black = RGB(0,0,0);
 const COLORREF white = RGB(0xff,0xff,0xff);
@@ -35,10 +33,10 @@ const COLORREF lightBlue = RGB(0xA6, 0xCA, 0xF0);
 const int blockSize = 128 * 1024;
 
 #define BLAMESPACE 20
-#define HEADER_HEIGHT 40
+#define HEADER_HEIGHT 18
 #define LOCATOR_WIDTH 20
 
-#define MAX_LOG_LENGTH 20000
+#define MAX_LOG_LENGTH 2000
 
 
 #ifndef GET_X_LPARAM
@@ -91,18 +89,15 @@ public:
     void DrawHeader(HDC hDC);
     void DrawLocatorBar(HDC hDC);
     void StartSearch();
-    void StartSearchSel();
-    void DoSearchNext();
     void CopySelectedLogToClipboard();
-    void CopySelectedRevToClipboard();
     void BlamePreviousRevision();
-    void DiffPreviousRevision() const;
+    void DiffPreviousRevision();
     void ShowLog();
     bool DoSearch(LPTSTR what, DWORD flags);
     bool GotoLine(long line);
     bool ScrollToLine(long line);
     void GotoLineDlg();
-    void SelectLine(int yPos, bool bAlwaysSelect) const;
+    void SelectLine(int yPos, bool bAlwaysSelect);
     static INT_PTR CALLBACK GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void SetSelectedLine(LONG line) { m_selectedLine=line;};
@@ -116,7 +111,7 @@ public:
     static long                 m_gotoLine;
     long                        m_lowestRev;
     long                        m_highestRev;
-    int                         m_colorby;
+    bool                        m_colorAge;
 
     std::vector<svn_revnum_t>   m_revs;
     std::vector<svn_revnum_t>   m_mergedRevs;
@@ -126,24 +121,17 @@ public:
     std::vector<tstring>        m_mergedAuthors;
     std::vector<tstring>        m_mergedPaths;
     std::map<LONG, tstring>     m_logMessages;
-    std::set<svn_revnum_t>      m_revset;
-    std::set<tstring>           m_authorset;
-    std::map<svn_revnum_t, COLORREF>    m_revcolormap;
-    std::map<tstring, COLORREF>         m_authorcolormap;
     char                        m_szTip[MAX_LOG_LENGTH*2+6];
     wchar_t                     m_wszTip[MAX_LOG_LENGTH*2+6];
-    void StringExpand(LPSTR str) const;
-    void StringExpand(LPWSTR str) const;
+    void StringExpand(LPSTR str);
+    void StringExpand(LPWSTR str);
     BOOL                        m_ttVisible;
 protected:
     void CreateFont();
     void SetupLexer(LPCTSTR fileName);
     void SetupCppLexer();
-    COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider) const;
-    COLORREF GetLineColor(int line, bool bLocatorBar);
-    void SetupColoring();
+    COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
     static std::wstring GetAppDirectory();
-
     //std::vector<COLORREF>     m_colors;
     HFONT                       m_font;
     HFONT                       m_italicFont;
@@ -172,7 +160,6 @@ protected:
     CRegStdDWORD                m_regNewLinesColor;
     CRegStdDWORD                m_regLocatorOldLinesColor;
     CRegStdDWORD                m_regLocatorNewLinesColor;
-    CRegStdDWORD                m_regcolorby;
 
 private:
     static void MakeLower(TCHAR* buffer, size_t length );

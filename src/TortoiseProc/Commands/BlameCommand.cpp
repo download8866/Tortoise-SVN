@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "BlameCommand.h"
 
 #include "BlameDlg.h"
@@ -35,7 +35,7 @@ bool BlameCommand::Execute()
     dlg.EndRev = SVNRev::REV_HEAD;
     dlg.m_path = cmdLinePath;
 
-    if (!cmdLinePath.IsUrl() && (!parser.HasKey(L"startrev") || !parser.HasKey(L"pegrev")))
+    if (!cmdLinePath.IsUrl() && (!parser.HasKey(_T("startrev")) || !parser.HasKey(_T("pegrev"))))
     {
         // if the file has been moved/deleted/renamed in HEAD, the default
         // range from 1 to HEAD won't work so we find the WC revision
@@ -49,17 +49,17 @@ bool BlameCommand::Execute()
         }
     }
 
-    if (parser.HasKey(L"pegrev"))
-        dlg.PegRev = SVNRev(parser.GetVal(L"pegrev"));
+    if (parser.HasKey(_T("pegrev")))
+        dlg.PegRev = SVNRev(parser.GetVal(_T("pegrev")));
 
-    if (parser.HasKey(L"startrev") && parser.HasKey(L"endrev"))
+    if (parser.HasKey(_T("startrev")) && parser.HasKey(_T("endrev")))
     {
         bShowDialog = false;
-        dlg.StartRev = parser.GetLongVal(L"startrev");
-        dlg.EndRev = parser.GetLongVal(L"endrev");
-        if (parser.HasKey(L"ignoreeol") || parser.HasKey(L"ignorespaces") || parser.HasKey(L"ignoreallspaces"))
+        dlg.StartRev = parser.GetLongVal(_T("startrev"));
+        dlg.EndRev = parser.GetLongVal(_T("endrev"));
+        if (parser.HasKey(_T("ignoreeol")) || parser.HasKey(_T("ignorespaces")) || parser.HasKey(_T("ignoreallspaces")))
         {
-            options = SVN::GetOptionsString(!!parser.HasKey(L"ignoreeol"), !!parser.HasKey(L"ignorespaces"), !!parser.HasKey(L"ignoreallspaces"));
+            options = SVN::GetOptionsString(!!parser.HasKey(_T("ignoreeol")), !!parser.HasKey(_T("ignorespaces")), !!parser.HasKey(_T("ignoreallspaces")));
         }
     }
 
@@ -89,35 +89,35 @@ bool BlameCommand::Execute()
             else
             {
                 CString sVal;
-                if (parser.HasVal(L"line"))
+                if (parser.HasVal(_T("line")))
                 {
-                    sVal = L"/line:";
-                    sVal += parser.GetVal(L"line");
-                    sVal += L" ";
+                    sVal = _T("/line:");
+                    sVal += parser.GetVal(_T("line"));
+                    sVal += _T(" ");
                 }
-                sVal += L"/path:\"" + cmdLinePath.GetSVNPathString() + L"\" ";
+                sVal += _T("/path:\"") + cmdLinePath.GetSVNPathString() + _T("\" ");
 
                 if (bShowDialog)
                 {
                     if (dlg.m_bIgnoreEOL)
-                        sVal += L"/ignoreeol ";
+                        sVal += _T("/ignoreeol ");
                     switch (dlg.m_IgnoreSpaces)
                     {
                     case svn_diff_file_ignore_space_change:
-                        sVal += L"/ignorespaces ";
+                        sVal += _T("/ignorespaces ");
                         break;
                     case svn_diff_file_ignore_space_all:
-                        sVal += L"/ignoreallspaces ";
+                        sVal += _T("/ignoreallspaces ");
                     }
                 }
                 else
                 {
-                    if (parser.HasKey(L"ignoreeol"))
-                        sVal += L"/ignoreeol ";
-                    if (parser.HasKey(L"ignorespaces"))
-                        sVal += L"/ignorespaces ";
-                    if (parser.HasKey(L"ignoreallspaces"))
-                        sVal += L"/ignoreallspaces ";
+                    if (parser.HasKey(_T("ignoreeol")))
+                        sVal += _T("/ignoreeol ");
+                    if (parser.HasKey(_T("ignorespaces")))
+                        sVal += _T("/ignorespaces ");
+                    if (parser.HasKey(_T("ignoreallspaces")))
+                        sVal += _T("/ignoreallspaces ");
                 }
 
                 bRet = CAppUtils::LaunchTortoiseBlame(tempfile,

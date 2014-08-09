@@ -52,9 +52,8 @@ inline void CResizableDialog::PrivateConstruct()
 {
     m_bEnableSaveRestore = FALSE;
     m_dwGripTempState = 1;
-    m_hDwmApiLib = AtlLoadSystemLibraryUsingFullPath(L"dwmapi.dll");
+    m_hDwmApiLib = LoadLibraryW(L"dwmapi.dll");
     m_bShowGrip = !IsDwmCompositionEnabled();
-    m_bRectOnly = FALSE;
 }
 
 CResizableDialog::CResizableDialog()
@@ -153,6 +152,12 @@ void CResizableDialog::OnSize(UINT nType, int cx, int cy)
     // on Vista, the redrawing doesn't work right, so we have to work
     // around this by invalidating the whole dialog so the DWM recognizes
     // that it has to update the application window.
+    OSVERSIONINFOEX inf;
+    SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+    inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    GetVersionEx((OSVERSIONINFO *)&inf);
+    WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+    if (fullver >= 0x0600)
         Invalidate();
 }
 

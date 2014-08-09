@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2012-2013 - TortoiseSVN
+// Copyright (C) 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -178,7 +178,7 @@ public:
     //! Sends assertion violation report from this point and continue execution.
     //! \sa ExceptionAssertionViolated
     //! \note Functions prefixed with "CrashServer_" will be ignored in stack parsing.
-    void CrashServer_SendAssertionViolated() const
+    void CrashServer_SendAssertionViolated()
     {
         if (!m_InitCrashHandler)
             return;
@@ -192,11 +192,7 @@ private:
 
         // hCrshhndlDll should not be unloaded, crash may appear even after return from main().
         // So hCrshhndlDll is not saved after construction.
-        BOOL bIsWow = FALSE;
-        IsWow64Process(GetCurrentProcess(), &bIsWow);
-        HMODULE hCrshhndlDll = NULL;
-        if (bIsWow == FALSE)
-            hCrshhndlDll = ::LoadLibraryW(L"crshhndl.dll");
+        HMODULE hCrshhndlDll = ::LoadLibraryW(L"crshhndl.dll");
         if (hCrshhndlDll != NULL)
         {
             m_InitCrashHandler = (pfnInitCrashHandler) GetProcAddress(hCrshhndlDll, "InitCrashHandler");
@@ -254,13 +250,12 @@ public:
 
     //! Installs exception handlers to the caller process
     CCrashReportTSVN(LPCTSTR appname, bool bOwnProcess = true)
-        : m_nInstallStatus(0)
     {
-        char s_month[6] = { 0 };
+        char s_month[6];
         int month, day, year;
         struct tm t = {0};
         static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
-        sscanf_s(__DATE__, "%s %d %d", s_month, (unsigned int)_countof(s_month)-1, &day, &year);
+        sscanf_s(__DATE__, "%s %d %d", s_month, _countof(s_month)-1, &day, &year);
         month = (int)((strstr(month_names, s_month)-month_names))/3;
 
         t.tm_mon = month;
@@ -275,7 +270,7 @@ public:
         if ((now - compiletime)<(60*60*24*31*3))
         {
             ApplicationInfo appInfo;
-            SecureZeroMemory(&appInfo, sizeof(appInfo));
+            memset(&appInfo, 0, sizeof(appInfo));
             appInfo.ApplicationInfoSize = sizeof(ApplicationInfo);
             appInfo.ApplicationGUID = "71040f62-f78a-4953-b5b3-5c148349fed7";
             appInfo.Prefix = "tsvn";
@@ -289,7 +284,7 @@ public:
             appInfo.V[3] = TSVN_VERBUILD;
 
             HandlerSettings handlerSettings;
-            SecureZeroMemory(&handlerSettings, sizeof(handlerSettings));
+            memset(&handlerSettings, 0, sizeof(handlerSettings));
             handlerSettings.HandlerSettingsSize = sizeof(handlerSettings);
             handlerSettings.LeaveDumpFilesInTempFolder = FALSE;
             handlerSettings.UseWER = FALSE;

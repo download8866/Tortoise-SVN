@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007, 2009-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007, 2009-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,14 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "RevisionGraphCommand.h"
 
-#include "RevisionGraph/RevisionGraphDlg.h"
+#include "RevisionGraph\RevisionGraphDlg.h"
 
 bool RevisionGraphCommand::Execute()
 {
-    CString val = parser.GetVal(L"pegrev");
+    CString val = parser.GetVal(_T("pegrev"));
     SVNRev pegrev = val.IsEmpty() ? SVNRev() : SVNRev(val);
 
     std::unique_ptr<CRevisionGraphDlg> dlg(new CRevisionGraphDlg());

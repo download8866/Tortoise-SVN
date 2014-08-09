@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012, 2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ public:
      * their respective values. If the replacements should fail,
      * the string will be returned unaltered.
      */
-    static CString ExpandEnvironmentStrings (const CString& s);
+    static CString CCommonAppUtils::ExpandEnvironmentStrings (const CString& s);
 
     /**
      * Finds the standard application to open / process the given file
@@ -116,7 +116,7 @@ public:
 
     static void ExtendControlOverHiddenControl(CWnd* parent, UINT controlToExtend, UINT hiddenControl);
 
-    static bool FileOpenSave(CString& path, int * filterindex, UINT title, UINT filter, bool bOpen, const CString& initialDir = CString(), HWND hwndOwner = NULL);
+    static bool FileOpenSave(CString& path, int * filterindex, UINT title, UINT filter, bool bOpen, HWND hwndOwner = NULL);
 
     static bool AddClipboardUrlToWindow(HWND hWnd);
 
@@ -124,7 +124,6 @@ public:
 
     static void MarkWindowAsUnpinnable(HWND hWnd);
 
-    static HRESULT EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorkingDirectory = NULL, AUTOCOMPLETELISTOPTIONS acloOptions = ACLO_NONE, AUTOCOMPLETEOPTIONS acoOptions = ACO_AUTOSUGGEST, REFCLSID clsid = CLSID_ACListISF);
 protected:
     CCommonAppUtils(void){};
     ~CCommonAppUtils(void){};

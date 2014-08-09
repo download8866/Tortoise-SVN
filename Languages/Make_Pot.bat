@@ -1,16 +1,7 @@
 @echo off
-setlocal
+SETLOCAL ENABLEDELAYEDEXPANSION
 
-pushd %~dp0
-
-if not exist ..\bin\release\bin\ResText.exe (
-  echo "..\bin\release\bin\ResText.exe" isn't present. Did you forget to build it?
-  goto end
-)
-
-..\bin\release\bin\ResText.exe extract ..\bin\release\bin\TortoiseProcLang.dll^
- ..\bin\release\bin\TortoiseMergeLang.dll ..\bin\release\bin\TortoiseIDiffLang.dll^
- ..\bin\release\bin\TortoiseBlameLang.dll -useheaderfile TortoiseUIPotHeader.txt TortoiseUI.pot
+..\bin\release\bin\ResText extract ..\bin\release\bin\TortoiseProcLang.dll ..\bin\release\bin\TortoiseMergeLang.dll ..\bin\release\bin\TortoiseIDiffLang.dll ..\bin\release\bin\TortoiseBlameLang.dll TortoiseUI.pot
 
 rem leave the next two lines commented. The msgremove tool changes the
 rem sequence "\r\n" to "r\n" - removing the backslash before the r!!!
@@ -20,7 +11,5 @@ rem del Tmp.pot
 rem leave this line commented. I fear it destroys the asian .po files
 rem FOR %%i in (*.po) do msgmerge --no-wrap -s %%i Tortoise.pot -o %%i
 
-:end
-popd
-endlocal
-exit /b
+ENDLOCAL
+goto :eof

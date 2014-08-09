@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,32 +22,28 @@
    in this custom action dll! The runtimes might not be installed yet!
 */
 
-#include <windows.h>
-#include <tchar.h>
-#include <msi.h>
-#include <msiquery.h>
-#include <shlwapi.h>
-#include <shellapi.h>
-
+#include "stdafx.h"
+#include "shlwapi.h"
+#include "shellapi.h"
 #pragma comment(lib, "shlwapi")
 #pragma comment(lib, "shell32")
 
 #ifdef _WIN64
-#define TSVN_CACHE_WINDOW_NAME L"TSVNCacheWindow64"
+#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow64")
 #else
-#define TSVN_CACHE_WINDOW_NAME L"TSVNCacheWindow"
+#define TSVN_CACHE_WINDOW_NAME _T("TSVNCacheWindow")
 #endif
 
 
-BOOL APIENTRY DllMain( HANDLE /*hModule*/,
-                       DWORD  /*ul_reason_for_call*/,
-                       LPVOID /*lpReserved*/
+BOOL APIENTRY DllMain( HANDLE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
                      )
 {
     return TRUE;
 }
 
-UINT __stdcall TerminateCache(MSIHANDLE /*hModule*/)
+UINT __stdcall TerminateCache(MSIHANDLE hModule)
 {
     HWND hWnd = FindWindow(TSVN_CACHE_WINDOW_NAME, TSVN_CACHE_WINDOW_NAME);
     if (hWnd)
@@ -71,14 +67,14 @@ UINT __stdcall TerminateCache(MSIHANDLE /*hModule*/)
     return ERROR_SUCCESS;
 }
 
-UINT __stdcall OpenDonatePage(MSIHANDLE /*hModule*/)
+UINT __stdcall OpenDonatePage(MSIHANDLE hModule)
 {
-    ShellExecute(NULL, L"open", L"http://tortoisesvn.net/donate.html", NULL, NULL, SW_SHOW);
+    ShellExecute(NULL, _T("open"), _T("http://tortoisesvn.tigris.org/donate.html"), NULL,NULL, SW_SHOW);
     return ERROR_SUCCESS;
 }
 
-UINT __stdcall MsgBox(MSIHANDLE /*hModule*/)
+UINT __stdcall MsgBox(MSIHANDLE hModule)
 {
-    MessageBox(NULL, L"CustomAction \"MsgBox\" running", L"Installer", MB_ICONINFORMATION);
+    MessageBox(NULL, _T("CustomAction \"MsgBox\" running"), _T("Installer"), MB_ICONINFORMATION);
     return ERROR_SUCCESS;
 }

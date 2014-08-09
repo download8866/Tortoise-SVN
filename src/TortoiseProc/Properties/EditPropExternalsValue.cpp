@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -58,7 +58,6 @@ BEGIN_MESSAGE_MAP(CEditPropExternalsValue, CResizableStandAloneDialog)
     ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CEditPropExternalsValue::OnRevSelected)
     ON_WM_SIZING()
     ON_EN_CHANGE(IDC_REVISION_NUM, &CEditPropExternalsValue::OnEnChangeRevisionNum)
-    ON_EN_CHANGE(IDC_PEGREV, &CEditPropExternalsValue::OnEnChangeRevisionNum)
     ON_BN_CLICKED(IDHELP, &CEditPropExternalsValue::OnBnClickedHelp)
 END_MESSAGE_MAP()
 
@@ -74,30 +73,19 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     m_aeroControls.SubclassOkCancelHelp(this);
 
     m_sWCPath = m_External.targetDir;
-
     SVNRev rev = m_External.revision;
-    SVNRev pegRev = SVNRev(m_External.pegrevision);
-
-    if ((pegRev.IsValid() && !pegRev.IsHead()) || (rev.IsValid() && !rev.IsHead()))
-    {
-        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
-
-        if (m_External.revision.value.number == m_External.pegrevision.value.number)
-        {
-            m_sPegRev = pegRev.ToString();
-        }
-        else
-        {
-            m_sRevision = rev.ToString();
-            m_sPegRev = pegRev.ToString();
-        }
-    }
+    if (!rev.IsValid() || rev.IsHead())
+        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     else
     {
-        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
+        CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
+        m_sRevision = rev.ToString();
     }
+    SVNRev pegRev = SVNRev(m_External.pegrevision);
+    if (pegRev.IsValid() && !pegRev.IsHead())
+        m_sPegRev = pegRev.ToString();
 
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
     m_URLCombo.SetURLHistory(true, false);
     m_URLCombo.SetWindowText(CPathUtils::PathUnescape(m_External.url));
 
@@ -117,8 +105,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     AddAnchor(IDC_URLCOMBO, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_BROWSE, TOP_RIGHT);
     AddAnchor(IDC_PEGLABEL, TOP_LEFT);
-    AddAnchor(IDC_OPERATIVELABEL, TOP_LEFT);
-    AddAnchor(IDC_PEGREV, TOP_LEFT, TOP_RIGHT);
+    AddAnchor(IDC_PEGREV, TOP_LEFT);
     AddAnchor(IDC_GROUPBOTTOM, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_REVISION_HEAD, TOP_LEFT);
     AddAnchor(IDC_REVISION_N, TOP_LEFT);
@@ -128,7 +115,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"EditPropExternalsValue");
+    EnableSaveRestore(_T("EditPropEcternalsValue"));
 
     return TRUE;
 }
@@ -183,7 +170,7 @@ void CEditPropExternalsValue::OnOK()
     }
 
     if (m_sPegRev.IsEmpty())
-        m_External.pegrevision = *SVNRev(L"HEAD");
+        m_External.pegrevision = *SVNRev(_T("HEAD"));
     else
         m_External.pegrevision = *SVNRev(m_sPegRev);
     m_External.targetDir = m_sWCPath;
@@ -195,26 +182,6 @@ void CEditPropExternalsValue::OnBnClickedBrowse()
 {
     SVNRev rev = SVNRev::REV_HEAD;
     CAppUtils::BrowseRepository(m_URLCombo, this, rev, false, m_RepoRoot.GetSVNPathString(), m_URL.GetSVNPathString());
-
-    // if possible, create a repository-root relative url
-    CString strURLs;
-    m_URLCombo.GetWindowText(strURLs);
-    if (strURLs.IsEmpty())
-        strURLs = m_URLCombo.GetString();
-    strURLs.Replace('\\', '/');
-    strURLs.Replace(L"%", L"%25");
-
-    CString root = m_RepoRoot.GetSVNPathString();
-    int rootlength = root.GetLength();
-    if (strURLs.Left(rootlength).Compare(root)==0)
-    {
-        if ((strURLs.GetLength() > rootlength) && (strURLs.GetAt(rootlength) == '/'))
-        {
-            strURLs = L"^/" + strURLs.Mid(rootlength);
-            strURLs.Replace(L"^//", L"^/");
-            m_URLCombo.SetWindowText(strURLs);
-        }
-    }
 }
 
 void CEditPropExternalsValue::OnBnClickedShowLog()
@@ -223,25 +190,79 @@ void CEditPropExternalsValue::OnBnClickedShowLog()
     if (::IsWindow(m_pLogDlg->GetSafeHwnd())&&(m_pLogDlg->IsWindowVisible()))
         return;
     CString urlString = m_URLCombo.GetString();
-    CTSVNPath logUrl = m_URL;
     if (urlString.GetLength()>1)
     {
-        logUrl = CTSVNPath(SVNExternals::GetFullExternalUrl(urlString, m_RepoRoot.GetSVNPathString(), m_URL.GetSVNPathString()));
+        if (urlString[0] == '^')
+        {
+            // relative to repo root
+            urlString = urlString.Mid(1);
+            m_URL = m_RepoRoot;
+            m_URL.AppendPathString(urlString);
+        }
+        else if ((urlString[0] == '/')&&(urlString[1] == '/'))
+        {
+            // relative to scheme
+            CString scheme = m_URL.GetSVNPathString();
+            int pos = scheme.Find(L"://");
+            if (pos >= 0)
+            {
+                m_URL = CTSVNPath(scheme.Left(pos));
+                m_URL.AppendPathString(urlString);
+            }
+        }
+        else if (urlString[0] == '/')
+        {
+            // relative to servers hostname
+            URL_COMPONENTS components = {0};
+            TCHAR urlpath[INTERNET_MAX_PATH_LENGTH+1];
+            TCHAR scheme[INTERNET_MAX_SCHEME_LENGTH+1];
+            TCHAR hostname[INTERNET_MAX_HOST_NAME_LENGTH+1];
+            TCHAR username[INTERNET_MAX_USER_NAME_LENGTH+1];
+            TCHAR password[INTERNET_MAX_PASSWORD_LENGTH+1];
+            components.dwStructSize = sizeof(URL_COMPONENTS);
+            components.dwUrlPathLength = _countof(urlpath) - 1;
+            components.lpszUrlPath = urlpath;
+            components.lpszScheme = scheme;
+            components.dwSchemeLength = _countof(scheme) - 1;
+            components.lpszHostName = hostname;
+            components.dwHostNameLength = _countof(hostname) - 1;
+            components.lpszUserName = username;
+            components.dwUserNameLength = _countof(username) - 1;
+            components.lpszPassword = password;
+            components.dwPasswordLength = _countof(password) - 1;
+            InternetCrackUrl((LPCTSTR)m_RepoRoot.GetSVNPathString(), m_RepoRoot.GetUIPathString().GetLength(), 0, &components);
+            components.dwUrlPathLength = 0;
+            components.lpszUrlPath = NULL;
+            components.dwExtraInfoLength = 0;
+            components.lpszExtraInfo = NULL;
+            WCHAR root[INTERNET_MAX_PATH_LENGTH] = {0};
+            DWORD dwSize = INTERNET_MAX_PATH_LENGTH;
+            InternetCreateUrl(&components, 0, root, &dwSize);
+            m_URL = CTSVNPath(root);
+            m_URL.AppendPathString(urlString);
+        }
+        else if (urlString[0] == '.')
+        {
+            // relative to parent url
+            m_URL.AppendPathString(urlString);
+        }
+        else
+            m_URL = CTSVNPath(urlString);
     }
     else
     {
-        logUrl = m_RepoRoot;
-        logUrl.AppendPathString(urlString);
+        m_URL = m_RepoRoot;
+        m_URL.AppendPathString(urlString);
     }
 
-    if (!logUrl.IsEmpty())
+    if (!m_URL.IsEmpty())
     {
         delete m_pLogDlg;
         m_pLogDlg = new CLogDlg();
         m_pLogDlg->SetSelect(true);
         m_pLogDlg->m_pNotifyWindow = this;
         m_pLogDlg->m_wParam = 0;
-        m_pLogDlg->SetParams(CTSVNPath(logUrl), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, TRUE);
+        m_pLogDlg->SetParams(CTSVNPath(m_URL), SVNRev::REV_HEAD, SVNRev::REV_HEAD, 1, TRUE);
         m_pLogDlg->ContinuousSelection(true);
         m_pLogDlg->Create(IDD_LOGMESSAGE, this);
         m_pLogDlg->ShowWindow(SW_SHOW);
@@ -252,9 +273,8 @@ void CEditPropExternalsValue::OnBnClickedShowLog()
 LPARAM CEditPropExternalsValue::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
-    SetDlgItemText(IDC_PEGREV, temp);
-    SetDlgItemText(IDC_REVISION_NUM, CString());
+    temp.Format(_T("%ld"), lParam);
+    SetDlgItemText(IDC_REVISION_NUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
 }
@@ -281,7 +301,7 @@ void CEditPropExternalsValue::OnSizing(UINT fwSide, LPRECT pRect)
 void CEditPropExternalsValue::OnEnChangeRevisionNum()
 {
     UpdateData();
-    if (m_sRevision.IsEmpty() && m_sPegRev.IsEmpty())
+    if (m_sRevision.IsEmpty())
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     else
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);

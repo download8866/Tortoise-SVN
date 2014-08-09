@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@
 #include "Blame.h"
 #include "ProgressDlg.h"
 #include "TSVNPath.h"
-#include "registry.h"
+#include "Registry.h"
 #include "UnicodeUtils.h"
 #include "TempFile.h"
 
@@ -36,8 +36,6 @@ CBlame::CBlame()
     , extBlame(FALSE)
     , m_nFormatLine(2)
     , m_bSetProgress(true)
-    , m_bHasMerges(false)
-    , m_bIncludeMerge(false)
 {
 }
 CBlame::~CBlame()
@@ -65,7 +63,7 @@ BOOL CBlame::BlameCallback(LONG linenumber, bool /*localchange*/, svn_revnum_t r
         CStringA dateA(date);
         CStringA authorA(author);
         CStringA pathA(merged_path);
-        char c = ' ';
+        TCHAR c = ' ';
         if ((merged_revision > 0)&&(merged_revision < revision))
         {
             dateA = CStringA(merged_date);
@@ -189,30 +187,31 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev e
     // if the user specified to use another tool to show the blames, there's no
     // need to fetch the log later: only TortoiseBlame uses those logs to give
     // the user additional information for the blame.
-    extBlame = CRegDWORD(L"Software\\TortoiseSVN\\TextBlame", FALSE);
+    extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
     m_bIncludeMerge = !!includemerge;
     CString temp;
     m_sSavePath = CTempFiles::Instance().GetTempFilePath(false).GetWinPathString();
     if (m_sSavePath.IsEmpty())
-        return L"";
+        return _T("");
     temp = path.GetFileExtension();
     if (!temp.IsEmpty() && !extBlame)
         m_sSavePath += temp;
     if (!m_saveFile.Open(m_sSavePath, (extBlame ? CFile::typeText : CFile::typeBinary) | CFile::modeReadWrite | CFile::modeCreate))
-        return L"";
+        return _T("");
     CString headline;
     m_bNoLineNo = false;
     if (extBlame)
     {
         if(includemerge)
-            headline.Format(L"%c %-6s %-8s %-8s %-30s %-60s %-30s %-s \n", ' ', L"line", L"rev", L"merged", L"date", L"path", L"author", L"content");
+            headline.Format(_T("%c %-6s %-8s %-8s %-30s %-60s %-30s %-s \n"), ' ', _T("line"), _T("rev"), _T("merged"), _T("date"), _T("path"), _T("author"), _T("content"));
         else
-            headline.Format(L"%c %-6s %-8s %-8s %-30s %-30s %-s \n", ' ', L"line", L"rev", L"merged", L"date",L"author", L"content");
+            headline.Format(_T("%c %-6s %-8s %-8s %-30s %-30s %-s \n"), ' ', _T("line"), _T("rev"), _T("merged"), _T("date"),_T("author"), _T("content"));
         m_saveFile.WriteString(headline);
-        m_saveFile.WriteString(L"\n");
+        m_saveFile.WriteString(_T("\n"));
     }
 
     m_progressDlg.SetTitle(IDS_BLAME_PROGRESSTITLE);
+    m_progressDlg.SetAnimation(IDR_DOWNLOAD);
     m_progressDlg.SetShowProgressBar(TRUE);
     if (showprogress)
     {

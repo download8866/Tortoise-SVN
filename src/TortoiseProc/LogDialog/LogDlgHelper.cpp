@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2003-2007,2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "CachedLogInfo.h"
 #include "RevisionIndex.h"
 #include "CacheLogQuery.h"
-#include "TortoiseProc.h"
 
 CStoreSelection::CStoreSelection(CLogDlg* dlg)
 {
@@ -148,7 +147,7 @@ bool CLogCacheUtility::IsCached (svn_revnum_t revision) const
     return (data.GetPresenceFlags (index) & MASK) == MASK;
 }
 
-std::unique_ptr<LOGENTRYDATA> CLogCacheUtility::GetRevisionData(svn_revnum_t revision)
+PLOGENTRYDATA CLogCacheUtility::GetRevisionData (svn_revnum_t revision)
 {
     // don't try to return what we don't have
 
@@ -183,16 +182,5 @@ std::unique_ptr<LOGENTRYDATA> CLogCacheUtility::GetRevisionData(svn_revnum_t rev
 
     // done here
 
-    return result;
+    return result.release();
 }
-
-CLogWndHourglass::CLogWndHourglass()
-{
-    theApp.DoWaitCursor(1);
-}
-
-CLogWndHourglass::~CLogWndHourglass()
-{
-    theApp.DoWaitCursor(-1);
-}
-

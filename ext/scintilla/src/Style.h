@@ -14,40 +14,41 @@ namespace Scintilla {
 
 struct FontSpecification {
 	const char *fontName;
-	int weight;
+	bool bold;
 	bool italic;
 	int size;
 	int characterSet;
 	int extraFontFlag;
 	FontSpecification() :
 		fontName(0),
-		weight(SC_WEIGHT_NORMAL),
+		bold(false),
 		italic(false),
-		size(10 * SC_FONT_SIZE_MULTIPLIER),
+		size(10),
 		characterSet(0),
 		extraFontFlag(0) {
 	}
-	bool operator==(const FontSpecification &other) const;
-	bool operator<(const FontSpecification &other) const;
+	bool EqualTo(const FontSpecification &other) const;
 };
 
 // Just like Font but only has a copy of the FontID so should not delete it
 class FontAlias : public Font {
-	// Private so FontAlias objects can not be assigned except for intiialization
+	// Private so FontAlias objects can not be copied
+	FontAlias(const FontAlias &);
 	FontAlias &operator=(const FontAlias &);
 public:
 	FontAlias();
-	FontAlias(const FontAlias &);
 	virtual ~FontAlias();
 	void MakeAlias(Font &fontOrigin);
 	void ClearFont();
 };
 
 struct FontMeasurements {
+	unsigned int lineHeight;
 	unsigned int ascent;
 	unsigned int descent;
-	XYPOSITION aveCharWidth;
-	XYPOSITION spaceWidth;
+	unsigned int externalLeading;
+	unsigned int aveCharWidth;
+	unsigned int spaceWidth;
 	int sizeZoomed;
 	FontMeasurements();
 	void Clear();
@@ -57,8 +58,8 @@ struct FontMeasurements {
  */
 class Style : public FontSpecification, public FontMeasurements {
 public:
-	ColourDesired fore;
-	ColourDesired back;
+	ColourPair fore;
+	ColourPair back;
 	bool eolFilled;
 	bool underline;
 	enum ecaseForced {caseMixed, caseUpper, caseLower};
@@ -76,9 +77,9 @@ public:
 	void Clear(ColourDesired fore_, ColourDesired back_,
 	           int size_,
 	           const char *fontName_, int characterSet_,
-	           int weight_, bool italic_, bool eolFilled_,
+	           bool bold_, bool italic_, bool eolFilled_,
 	           bool underline_, ecaseForced caseForce_,
-	           bool visible_, bool changeable_, bool hotspot_);
+		   bool visible_, bool changeable_, bool hotspot_);
 	void ClearTo(const Style &source);
 	void Copy(Font &font_, const FontMeasurements &fm_);
 	bool IsProtected() const { return !(changeable && visible);}

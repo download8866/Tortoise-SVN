@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007, 2013 - TortoiseSVN
+// Copyright (C) 2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,21 +25,9 @@
 enum EOL
 {
     EOL_AUTOLINE,
-    // MS native
-    EOL_CRLF,  ///< CR (U+000D) followed by LF (U+000A)
-    // foregin
-    EOL_LF,    ///< Line Feed, U+000A
-    EOL_CR,    ///< Carriage Return, U+000D
-    // exotic - diff needs conversion
+    EOL_LF,
+    EOL_CRLF,
     EOL_LFCR,
-    EOL_VT,    ///< Vertical Tab, U+000B
-    EOL_FF,    ///< Form Feed, U+000C
-    EOL_NEL,   ///< Next Line, U+0085
-    EOL_LS,    ///< Line Separator, U+2028
-    EOL_PS,    ///< Paragraph Separator, U+2029
+    EOL_CR,
     EOL_NOENDING,
-
-    EOL__COUNT
 };
-
-extern const wchar_t * GetEolName(EOL eEol);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,14 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "FullGraphFinalizer.h"
 #include "FullHistory.h"
 #include "FullGraph.h"
 #include "CachedLogInfo.h"
-#include "registry.h"
+#include "Registry.h"
 #include "UnicodeUtils.h"
-#include "Access/CopyFollowingLogIterator.h"
+#include "./Access/CopyFollowingLogIterator.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -39,9 +39,9 @@ CFullGraphFinalizer::CFullGraphFinalizer
 {
     // initialize path classificator
 
-    CRegStdString trunkPattern (L"Software\\TortoiseSVN\\RevisionGraph\\TrunkPattern", L"trunk");
-    CRegStdString branchesPattern (L"Software\\TortoiseSVN\\RevisionGraph\\BranchPattern", L"branches");
-    CRegStdString tagsPattern (L"Software\\TortoiseSVN\\RevisionGraph\\TagsPattern", L"tags");
+    CRegStdString trunkPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\TrunkPattern"), _T("trunk"));
+    CRegStdString branchesPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\BranchPattern"), _T("branches"));
+    CRegStdString tagsPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\TagsPattern"), _T("tags"));
 
     const CPathDictionary& paths = history.GetCache()->GetLogInfo().GetPaths();
     pathClassification.reset
@@ -228,7 +228,7 @@ void CFullGraphFinalizer::MarkRoot (CFullGraphNode* node)
         node->AddClassification (CNodeClassification::IS_FIRST);
 }
 
-void CFullGraphFinalizer::MarkCopySource (CFullGraphNode* node) const
+void CFullGraphFinalizer::MarkCopySource (CFullGraphNode* node)
 {
     if (node->GetFirstCopyTarget() != NULL)
         node->AddClassification (CNodeClassification::IS_COPY_SOURCE);
@@ -284,7 +284,7 @@ void CFullGraphFinalizer::MarkWCRevisions (CFullGraphNode* node)
     }
 }
 
-void CFullGraphFinalizer::MarkHead (CFullGraphNode* node) const
+void CFullGraphFinalizer::MarkHead (CFullGraphNode* node)
 {
     // scan all "latest" nodes
     // (they must be either HEADs or special nodes)

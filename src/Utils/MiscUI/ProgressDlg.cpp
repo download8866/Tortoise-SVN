@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2012 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,8 +24,6 @@ CProgressDlg::CProgressDlg()
     , m_isVisible(false)
     , m_dwDlgFlags(PROGDLG_NORMAL)
     , m_hWndProgDlg(NULL)
-    , m_OrigProc(NULL)
-    , m_hWndParent(NULL)
 {
     EnsureValid();
 }

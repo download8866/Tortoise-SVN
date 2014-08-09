@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2006,2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,7 @@
 #include "stdafx.h"
 #include <assert.h>
 #include "LangDll.h"
-#include "../version.h"
+#include "..\version.h"
 
 #pragma comment(lib, "Version.lib")
 
@@ -35,24 +35,24 @@ CLangDll::~CLangDll()
 
 HINSTANCE CLangDll::Init(LPCTSTR appname, unsigned long langID)
 {
-    TCHAR langpath[MAX_PATH] = { 0 };
-    TCHAR sVer[MAX_PATH] = { 0 };
-    wcscpy_s(sVer, _T(STRPRODUCTVER));
+    TCHAR langpath[MAX_PATH];
+    TCHAR langdllpath[MAX_PATH];
+    TCHAR sVer[MAX_PATH];
+    _tcscpy_s(sVer, _T(STRPRODUCTVER));
     GetModuleFileName(NULL, langpath, _countof(langpath));
-    TCHAR * pSlash = wcsrchr(langpath, '\\');
+    TCHAR * pSlash = _tcsrchr(langpath, '\\');
     if (pSlash)
     {
         *pSlash = 0;
-        pSlash = wcsrchr(langpath, '\\');
+        pSlash = _tcsrchr(langpath, '\\');
         if (pSlash)
         {
             *pSlash = 0;
-            wcscat_s(langpath, L"\\Languages\\");
+            _tcscat_s(langpath, _T("\\Languages\\"));
             assert(m_hInstance == NULL);
             do
             {
-                TCHAR langdllpath[MAX_PATH] = { 0 };
-                swprintf_s(langdllpath, L"%s%s%lu.dll", langpath, appname, langID);
+                _stprintf_s(langdllpath, _T("%s%s%d.dll"), langpath, appname, langID);
 
                 m_hInstance = LoadLibrary(langdllpath);
 
@@ -87,7 +87,7 @@ void CLangDll::Close()
     }
 }
 
-bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
+bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll)
 {
     struct TRANSARRAY
     {
@@ -96,8 +96,8 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
     };
 
     bool bReturn = false;
-    DWORD dwReserved = 0;
-    DWORD dwBufferSize = GetFileVersionInfoSize((LPTSTR)langDll,&dwReserved);
+    DWORD dwReserved,dwBufferSize;
+    dwBufferSize = GetFileVersionInfoSize((LPTSTR)langDll,&dwReserved);
 
     if (dwBufferSize > 0)
     {
@@ -105,12 +105,12 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
 
         if (pBuffer != (void*) NULL)
         {
-            UINT        nInfoSize = 0;
-            UINT        nFixedLength = 0;
+            UINT        nInfoSize = 0,
+                nFixedLength = 0;
             LPSTR       lpVersion = NULL;
             VOID*       lpFixedPointer;
             TRANSARRAY* lpTransArray;
-            TCHAR       strLangProductVersion[MAX_PATH] = { 0 };
+            TCHAR       strLangProduktVersion[MAX_PATH];
 
             GetFileVersionInfo((LPTSTR)langDll,
                 dwReserved,
@@ -118,22 +118,22 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
                 pBuffer);
 
             VerQueryValue(  pBuffer,
-                L"\\VarFileInfo\\Translation",
+                _T("\\VarFileInfo\\Translation"),
                 &lpFixedPointer,
                 &nFixedLength);
             lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-            swprintf_s(strLangProductVersion,
-                        L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+            _stprintf_s(strLangProduktVersion,
+                        _T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
                         lpTransArray[0].wLanguageID,
                         lpTransArray[0].wCharacterSet);
 
             VerQueryValue(pBuffer,
-                (LPTSTR)strLangProductVersion,
+                (LPTSTR)strLangProduktVersion,
                 (LPVOID *)&lpVersion,
                 &nInfoSize);
-            if (lpVersion && nInfoSize)
-                bReturn = (wcscmp(sVer, (LPCTSTR)lpVersion)==0);
+
+            bReturn = (_tcscmp(sVer, (LPCTSTR)lpVersion)==0);
             free(pBuffer);
         }
     }

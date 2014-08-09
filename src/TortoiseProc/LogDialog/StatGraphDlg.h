@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@
 class CMyMetaFileDC : public CMetaFileDC
 {
 public:
-    HGDIOBJ SelectObject(HGDIOBJ hObject)
+    HGDIOBJ CMyMetaFileDC::SelectObject(HGDIOBJ hObject)
     {
         return (hObject != NULL) ? ::SelectObject(m_hDC, hObject) : NULL;
     }
@@ -182,7 +182,6 @@ protected:
     int                     GetUnit(const CTime& time);
     CStatGraphDlg::UnitType GetUnitType();
     CString                 GetUnitString();
-    CString                 GetUnitsString();
     CString                 GetUnitLabel(int unit, CTime &lasttime);
 
     void EnableDisableMenu();

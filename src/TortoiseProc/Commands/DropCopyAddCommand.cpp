@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,16 +16,17 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "DropCopyAddCommand.h"
 #include "FormatMessageWrapper.h"
 #include "SVNProgressDlg.h"
+#include "MessageBox.h"
 #include "StringUtils.h"
 
 bool DropCopyAddCommand::Execute()
 {
     bool bRet = false;
-    CString droppath = parser.GetVal(L"droptarget");
+    CString droppath = parser.GetVal(_T("droptarget"));
     if (CTSVNPath(droppath).IsAdminDir())
         return FALSE;
 
@@ -39,9 +40,9 @@ bool DropCopyAddCommand::Execute()
 
         //copy the file to the new location
         CString name = pathList[nPath].GetFileOrDirectoryName();
-        if (::PathFileExists(droppath+L"\\"+name))
+        if (::PathFileExists(droppath+_T("\\")+name))
         {
-            if (::PathIsDirectory(droppath+L"\\"+name))
+            if (::PathIsDirectory(droppath+_T("\\")+name))
             {
                 if (pathList[nPath].IsDirectory())
                     continue;
@@ -49,8 +50,8 @@ bool DropCopyAddCommand::Execute()
 
             UINT ret = defaultRet;
             CString strMessage;
-            strMessage.Format(IDS_PROC_OVERWRITE_CONFIRM, (LPCTSTR)(droppath+L"\\"+name));
-            if (defaultRet == 0)
+            strMessage.Format(IDS_PROC_OVERWRITE_CONFIRM, (LPCTSTR)(droppath+_T("\\")+name));
+            if (CTaskDialog::IsSupported() && (defaultRet == 0))
             {
                 CTaskDialog taskdlg(strMessage,
                                     CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK2)),
@@ -67,6 +68,13 @@ bool DropCopyAddCommand::Execute()
                 if (taskdlg.GetVerificationCheckboxState())
                     defaultRet = ret;
             }
+            else
+            {
+                CString sBtn1(MAKEINTRESOURCE(IDS_PROC_OVERWRITEEXPORT_OVERWRITE));
+                CString sBtn2(MAKEINTRESOURCE(IDS_PROC_OVERWRITEEXPORT_CANCEL));
+                ret = TSVNMessageBox(GetExplorerHWND(), strMessage, _T("TortoiseSVN"), MB_DEFBUTTON1|MB_ICONQUESTION, sBtn1, sBtn2);
+            }
+
 
             if (ret == IDCANCEL)
             {
@@ -74,7 +82,7 @@ bool DropCopyAddCommand::Execute()
             }
             if (ret == IDYES)
             {
-                if (!::CopyFile(pathList[nPath].GetWinPath(), droppath+L"\\"+name, FALSE))
+                if (!::CopyFile(pathList[nPath].GetWinPath(), droppath+_T("\\")+name, FALSE))
                 {
                     //the copy operation failed! Get out of here!
                     ShowErrorMessage();
@@ -88,28 +96,28 @@ bool DropCopyAddCommand::Execute()
             {
                 CString fromPath = pathList[nPath].GetWinPathString() + L"||";
                 CString toPath = droppath + L"\\" + name + L"||";
-                std::unique_ptr<TCHAR[]> fromBuf(new TCHAR[fromPath.GetLength()+2]);
-                std::unique_ptr<TCHAR[]> toBuf(new TCHAR[toPath.GetLength()+2]);
-                wcscpy_s(fromBuf.get(), fromPath.GetLength()+2, fromPath);
-                wcscpy_s(toBuf.get(), toPath.GetLength()+2, toPath);
-                CStringUtils::PipesToNulls(fromBuf.get(), fromPath.GetLength()+2);
-                CStringUtils::PipesToNulls(toBuf.get(), toPath.GetLength()+2);
+                auto_buffer<TCHAR> fromBuf(fromPath.GetLength()+2);
+                auto_buffer<TCHAR> toBuf(toPath.GetLength()+2);
+                wcscpy_s(fromBuf, fromPath.GetLength()+2, fromPath);
+                wcscpy_s(toBuf, toPath.GetLength()+2, toPath);
+                CStringUtils::PipesToNulls(fromBuf, fromPath.GetLength()+2);
+                CStringUtils::PipesToNulls(toBuf, toPath.GetLength()+2);
 
                 SHFILEOPSTRUCT fileop = {0};
                 fileop.wFunc = FO_COPY;
-                fileop.pFrom = fromBuf.get();
-                fileop.pTo = toBuf.get();
-                fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NOCONFIRMMKDIR | FOF_NOCOPYSECURITYATTRIBS | FOF_SILENT;
+                fileop.pFrom = fromBuf;
+                fileop.pTo = toBuf;
+                fileop.fFlags = FOF_NO_CONNECTED_ELEMENTS | FOF_NOCONFIRMATION | FOF_NOERRORUI | FOF_NOCONFIRMATION | FOF_NOCONFIRMMKDIR | FOF_NOCOPYSECURITYATTRIBS | FOF_SILENT;
                 SHFileOperation(&fileop);
             }
-            else if (!CopyFile(pathList[nPath].GetWinPath(), droppath+L"\\"+name, FALSE))
+            else if (!CopyFile(pathList[nPath].GetWinPath(), droppath+_T("\\")+name, FALSE))
             {
                 //the copy operation failed! Get out of here!
                 ShowErrorMessage();
                 return FALSE;
             }
         }
-        copiedFiles.AddPath(CTSVNPath(droppath+L"\\"+name));     //add the new filepath
+        copiedFiles.AddPath(CTSVNPath(droppath+_T("\\")+name));     //add the new filepath
     }
     //now add all the newly copied files to the working copy
     CSVNProgressDlg progDlg;
@@ -125,10 +133,10 @@ bool DropCopyAddCommand::Execute()
     return bRet;
 }
 
-void DropCopyAddCommand::ShowErrorMessage() const
+void DropCopyAddCommand::ShowErrorMessage()
 {
     CFormatMessageWrapper errorDetails;
     CString strMessage;
     strMessage.Format(IDS_ERR_COPYFILES, (LPCTSTR)errorDetails);
-    MessageBox(GetExplorerHWND(), strMessage, L"TortoiseSVN", MB_OK | MB_ICONINFORMATION);
+    MessageBox(GetExplorerHWND(), strMessage, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION);
 }

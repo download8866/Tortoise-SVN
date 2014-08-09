@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2011, 2014 - TortoiseSVN
+// Copyright (C) 2007-2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "ImportCommand.h"
 
 #include "ImportDlg.h"
@@ -27,20 +27,20 @@ bool ImportCommand::Execute()
 {
     bool bRet = false;
     CString msg;
-    if (parser.HasKey(L"logmsg"))
+    if (parser.HasKey(_T("logmsg")))
     {
-        msg = parser.GetVal(L"logmsg");
+        msg = parser.GetVal(_T("logmsg"));
     }
-    if (parser.HasKey(L"logmsgfile"))
+    if (parser.HasKey(_T("logmsgfile")))
     {
-        CString logmsgfile = parser.GetVal(L"logmsgfile");
+        CString logmsgfile = parser.GetVal(_T("logmsgfile"));
         CStringUtils::ReadStringFromTextFile(logmsgfile, msg);
     }
     CImportDlg dlg;
     dlg.m_path = cmdLinePath;
     dlg.m_sMessage = msg;
-    if (parser.HasVal(L"url"))
-        dlg.m_url = parser.GetVal(L"url");
+    if (parser.HasVal(_T("url")))
+        dlg.m_url = parser.GetVal(_T("url"));
     if (dlg.DoModal() == IDOK)
     {
         CSVNProgressDlg progDlg;

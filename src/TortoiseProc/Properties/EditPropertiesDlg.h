@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "tstring.h"
 #include "PathEdit.h"
 #include "CriticalSection.h"
-#include "UserProperties.h"
 
 /**
  * \ingroup TortoiseProc
@@ -48,7 +47,6 @@ public:
     void    SetUUID(const CString& sUUID) {m_sUUID = sUUID;}
     void    RevProps(bool bRevProps = false) {m_bRevProps = bRevProps;}
     void    UrlIsFolder(bool bFolder) {m_bUrlIsFolder = bFolder;}
-    void    SetInitPropName(const std::wstring& pn) { m_propname = pn; }
 // Dialog Data
     enum { IDD = IDD_EDITPROPERTIES };
 
@@ -70,8 +68,6 @@ protected:
     afx_msg void OnBnClickedImport();
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
-    /// called after the thread has finished
-    LRESULT OnAfterThread(WPARAM /*wParam*/, LPARAM /*lParam*/);
 
     DECLARE_MESSAGE_MAP()
 private:
@@ -98,16 +94,13 @@ protected:
     SVNRev          m_revision;
     CToolTips       m_tooltips;
     CPathEdit       m_PropPath;
-    std::vector<UserProp>   m_userProperties;
+
     CMFCMenuButton  m_btnNew;
     CMFCMenuButton  m_btnEdit;
     CMenu           m_editMenu;
     CMenu           m_newMenu;
-    std::wstring    m_propname;
+
 
     CString         m_sUUID;
     ProjectProperties * m_pProjectProperties;
-    bool            m_bCancelled;
 };
-
-static UINT WM_AFTERTHREAD = RegisterWindowMessage(L"TORTOISESVN_AFTERTHREAD_MSG");

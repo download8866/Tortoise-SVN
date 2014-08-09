@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -40,10 +40,8 @@ public:
         : state(DIFFSTATE_UNKNOWN)
         , linenumber(-1)
         , movedIndex(-1)
-        , movedFrom(true)
         , ending(EOL_AUTOLINE)
         , hidestate(HIDESTATE_HIDDEN)
-        , marked(false)
     {
     }
 
@@ -53,14 +51,12 @@ public:
             int linenumberInit,
             EOL endingInit,
             HIDESTATE hideInit,
-            bool markedInit = false)
+            int movedIndexInit)
         : state(stateInit)
         , linenumber(linenumberInit)
-        , movedIndex(-1)
-        , movedFrom(true)
+        , movedIndex(movedIndexInit)
         , ending(endingInit)
         , hidestate(hideInit)
-        , marked(markedInit)
     {
         sLine=sLineInit;
     }
@@ -69,10 +65,8 @@ public:
     DiffStates                  state;
     int                         linenumber;
     int                         movedIndex;
-    bool                        movedFrom;
     EOL                         ending;
     HIDESTATE                   hidestate;
-    bool                        marked;
 };
 
 /**
@@ -87,22 +81,18 @@ public:
 
     void            AddData(const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
     void            AddData(const viewdata& data);
-    void            AddEmpty() {AddData(CString(), DIFFSTATE_EMPTY, -1, EOL_NOENDING, HIDESTATE_SHOWN, -1);}
     void            InsertData(int index, const CString& sLine, DiffStates state, int linenumber, EOL ending, HIDESTATE hide, int movedline);
     void            InsertData(int index, const viewdata& data);
     void            RemoveData(int index) {m_data.erase(m_data.begin() + index);}
 
-    const viewdata& GetData(int index) const {return m_data[index];}
+    const viewdata& GetData(int index) {return m_data[index];}
     const CString&  GetLine(int index) const {return m_data[index].sLine;}
     DiffStates      GetState(int index) const {return m_data[index].state;}
-    HIDESTATE       GetHideState(int index) const {return m_data[index].hidestate;}
-    int             GetLineNumber(int index) const {return m_data.size() ? m_data[index].linenumber : 0;}
-    int             GetMovedIndex(int index) const {return m_data.size() ? m_data[index].movedIndex: 0;}
-    bool            IsMoved(int index) const {return m_data.size() ? m_data[index].movedIndex >= 0 : false;}
-    bool            IsMovedFrom(int index) const {return m_data.size() ? m_data[index].movedFrom : true;}
-    int             FindLineNumber(int number) const;
+    HIDESTATE       GetHideState(int index) {return m_data[index].hidestate;}
+    int             GetLineNumber(int index) {return m_data.size() ? m_data[index].linenumber : 0;}
+    int             GetMovedIndex(int index) {return m_data.size() ? m_data[index].movedIndex: 0;}
+    int             FindLineNumber(int number);
     EOL             GetLineEnding(int index) const {return m_data[index].ending;}
-    bool            GetMarked(int index) const {return m_data[index].marked;}
 
     int             GetCount() const {return (int)m_data.size();}
 
@@ -111,9 +101,8 @@ public:
     void            SetLine(int index, const CString& sLine) {m_data[index].sLine = sLine;}
     void            SetLineNumber(int index, int linenumber) {m_data[index].linenumber = linenumber;}
     void            SetLineEnding(int index, EOL ending) {m_data[index].ending = ending;}
-    void            SetMovedIndex(int index, int movedIndex, bool movedFrom) {m_data[index].movedIndex = movedIndex; m_data[index].movedFrom = movedFrom;}
+    void            SetMovedIndex(int index, int movedIndex) {m_data[index].movedIndex = movedIndex;}
     void            SetLineHideState(int index, HIDESTATE state) {m_data[index].hidestate = state;}
-    void            SetMarked(int index, bool marked) {m_data[index].marked = marked;}
 
     void            Clear() {m_data.clear();}
     void            Reserve(int length) {m_data.reserve(length);}

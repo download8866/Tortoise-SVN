@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,14 +33,14 @@ public:
     /**
      * Executes the command.
      */
-    virtual bool            Execute() override
+    virtual bool            Execute()
     {
-        MessageBox(NULL, L"You are testing the crashhandler.\nDo NOT send the crashreport!!!!", L"TortoiseSVN", MB_ICONINFORMATION);
+        MessageBox(NULL, _T("You are testing the crashhandler.\nDo NOT send the crashreport!!!!"), _T("TortoiseSVN"), MB_ICONINFORMATION);
         CrashProgram();
-        TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_ERR_NOCOMMAND), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+        TSVNMessageBox(NULL, IDS_ERR_NOCOMMAND, IDS_APPNAME, MB_ICONERROR);
         return true;
     }
-    virtual bool            CheckPaths() override {return true;}
+    virtual bool            CheckPaths() {return true;}
 
     void CrashProgram()
     {

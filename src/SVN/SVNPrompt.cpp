@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,15 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "SVNPrompt.h"
 #include "PromptDlg.h"
 #include "SimplePrompt.h"
 #include "Dlgs.h"
-#include "registry.h"
+#include "Registry.h"
 #include "TortoiseProc.h"
 #include "UnicodeUtils.h"
+#include "MessageBox.h"
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "TSVNAuth.h"
@@ -33,9 +34,9 @@
 #include "TempFile.h"
 #include "PathUtils.h"
 
-#define IDCUSTOM1           23
-#define IDCUSTOM2           24
-#define IDCUSTOM3           25
+#include <Cryptuiapi.h>
+
+#pragma comment(lib, "Cryptui.lib")
 
 SVNPrompt::SVNPrompt(bool suppressUI)
 {
@@ -57,7 +58,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
     svn_auth_provider_object_t *provider;
 
     /* The whole list of registered providers */
-    apr_array_header_t *providers = apr_array_make (pool, 14, sizeof (svn_auth_provider_object_t *));
+    apr_array_header_t *providers = apr_array_make (pool, 13, sizeof (svn_auth_provider_object_t *));
 
     if (ctx->config != nullptr)
     {
@@ -78,15 +79,11 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
     svn_auth_get_username_provider (&provider, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
 
-    // The server-cert, client-cert, and client-cert-password providers.
-    svn_auth_get_platform_specific_provider(&provider, "windows", "ssl_server_trust", pool);
+    /* The server-cert, client-cert, and client-cert-password providers. */
+    svn_auth_get_platform_specific_provider (&provider, "windows", "ssl_server_trust", pool);
     if (provider)
         APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
-    // The windows ssl authority certificate CRYPTOAPI provider.
-    svn_auth_get_platform_specific_provider(&provider, "windows", "ssl_server_authority", pool);
-    if (provider)
-        APR_ARRAY_PUSH(providers, svn_auth_provider_object_t *) = provider;
-    svn_auth_get_ssl_server_trust_file_provider(&provider, pool);
+    svn_auth_get_ssl_server_trust_file_provider (&provider, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
     svn_auth_get_ssl_client_cert_file_provider (&provider, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
@@ -104,7 +101,7 @@ void SVNPrompt::Init(apr_pool_t *pool, svn_client_ctx_t* ctx)
     and client-cert-passphrases.  */
     svn_auth_get_ssl_server_trust_prompt_provider (&provider, sslserverprompt, this, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
-    svn_auth_get_ssl_client_cert_prompt_provider (&provider, sslclientprompt, this, 2, pool);
+    svn_auth_get_tsvn_ssl_client_cert_prompt_provider (&provider, sslclientprompt, this, 2, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
     svn_auth_get_ssl_client_cert_pw_prompt_provider (&provider, sslpwprompt, this, 2, pool);
     APR_ARRAY_PUSH (providers, svn_auth_provider_object_t *) = provider;
@@ -163,7 +160,7 @@ BOOL SVNPrompt::SimplePrompt(CString& username, CString& password, const CString
 void SVNPrompt::ShowErrorMessage()
 {
     CFormatMessageWrapper errorDetails;
-    MessageBox( FindParentWindow(m_hParentWnd), errorDetails, L"TortoiseSVN", MB_OK | MB_ICONINFORMATION );
+    MessageBox( FindParentWindow(m_hParentWnd), errorDetails, _T("TortoiseSVN"), MB_OK | MB_ICONINFORMATION );
 }
 
 svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton, const char * realm, svn_boolean_t may_save, apr_pool_t *pool)
@@ -184,8 +181,6 @@ svn_error_t* SVNPrompt::userprompt(svn_auth_cred_username_t **cred, void *baton,
     }
     else
     {
-        if (svn->m_bSuppressed)
-            svn->m_bPromptShown = true;
         *cred = NULL;
         if (!svn->m_bSuppressed)
             ::SendMessage(FindParentWindow(svn->m_hParentWnd), WM_SVNAUTHCANCELLED, 0, 0);
@@ -214,8 +209,6 @@ svn_error_t* SVNPrompt::simpleprompt(svn_auth_cred_simple_t **cred, void *baton,
     }
     else
     {
-        if (svn->m_bSuppressed)
-            svn->m_bPromptShown = true;
         *cred = NULL;
         if (!svn->m_bSuppressed)
             ::SendMessage(FindParentWindow(svn->m_hParentWnd), WM_SVNAUTHCANCELLED, 0, 0);
@@ -233,7 +226,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
 
     CString msg;
     msg.Format(IDS_ERR_SSL_VALIDATE, (LPCTSTR)CUnicodeUtils::GetUnicode(realm));
-    msg += L"\n";
+    msg += _T("\n");
     CString temp;
     if (failures & SVN_AUTH_SSL_UNKNOWNCA)
     {
@@ -244,7 +237,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_CNMISMATCH)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_CNMISMATCH, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->hostname));
         msg += temp;
         prev = TRUE;
@@ -252,7 +245,7 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_NOTYETVALID)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_NOTYETVALID, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->valid_from));
         msg += temp;
         prev = TRUE;
@@ -260,13 +253,13 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     if (failures & SVN_AUTH_SSL_EXPIRED)
     {
         if (prev)
-            msg += L"\n";
+            msg += _T("\n");
         temp.Format(IDS_ERR_SSL_EXPIRED, (LPCTSTR)CUnicodeUtils::GetUnicode(cert_info->valid_until));
         msg += temp;
         prev = TRUE;
     }
     if (prev)
-        msg += L"\n";
+        msg += _T("\n");
     temp.LoadString(IDS_SSL_ACCEPTQUESTION);
     msg += temp;
 
@@ -275,16 +268,28 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
     {
         if (may_save)
         {
-            CTaskDialog taskdlg(msg,
-                                CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTALWAYS_TASK)));
-            taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetMainIcon(TD_WARNING_ICON);
-            UINT ret = (UINT)taskdlg.DoModal(svn->m_hParentWnd);
+            UINT ret = 0;
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskdlg(msg,
+                                    CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTALWAYS_TASK)));
+                taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                ret = (UINT)taskdlg.DoModal(svn->m_hParentWnd);
+            }
+            else
+            {
+                CString sAcceptAlways, sAcceptTemp, sReject;
+                sAcceptAlways.LoadString(IDS_SSL_ACCEPTALWAYS);
+                sAcceptTemp.LoadString(IDS_SSL_ACCEPTTEMP);
+                sReject.LoadString(IDS_SSL_REJECT);
+                ret = TSVNMessageBox(svn->m_hParentWnd, msg, _T("TortoiseSVN"), MB_DEFBUTTON3|MB_ICONQUESTION, sAcceptAlways, sAcceptTemp, sReject);
+            }
             if (ret == IDCUSTOM1)
             {
                 *cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
@@ -300,17 +305,25 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
         }
         else
         {
-            CTaskDialog taskdlg(msg,
-                                CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
-            taskdlg.AddCommandControl(IDCUSTOM3, CString(MAKEINTRESOURCE(IDS_SSL_REJECT_TASK)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetDefaultCommandControl(IDCUSTOM3);
-            taskdlg.SetMainIcon(TD_WARNING_ICON);
-            bool bAccept = (taskdlg.DoModal(svn->m_hParentWnd) == IDCUSTOM2);
+            bool bAccept = false;
+            if (CTaskDialog::IsSupported())
+            {
+                CTaskDialog taskdlg(msg,
+                                    CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTQUESTION_TASK)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_SSL_ACCEPTTEMP_TASK)));
+                taskdlg.AddCommandControl(IDCUSTOM3, CString(MAKEINTRESOURCE(IDS_SSL_REJECT_TASK)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetDefaultCommandControl(IDCUSTOM3);
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                bAccept = (taskdlg.DoModal(svn->m_hParentWnd) == IDCUSTOM2);
+            }
+            else
+            {
+                bAccept = (TSVNMessageBox(svn->m_hParentWnd, msg, _T("TortoiseSVN"), MB_YESNO | MB_ICONQUESTION)==IDYES);
+            }
             if (bAccept)
             {
                 *cred_p = (svn_auth_cred_ssl_server_trust_t*)apr_pcalloc (pool, sizeof (**cred_p));
@@ -319,152 +332,107 @@ svn_error_t* SVNPrompt::sslserverprompt(svn_auth_cred_ssl_server_trust_t **cred_
             }
         }
     }
-    if (svn->m_bSuppressed)
-        svn->m_bPromptShown = true;
 
     if (svn->m_app)
         svn->m_app->DoWaitCursor(0);
     return SVN_NO_ERROR;
 }
 
-svn_error_t* SVNPrompt::sslclientprompt(svn_auth_cred_ssl_client_cert_t **cred, void *baton, const char * realm, svn_boolean_t /*may_save*/, apr_pool_t *pool)
+svn_error_t* SVNPrompt::sslclientprompt(int trycount, svn_auth_cred_ssl_client_cert_t **cred, void *baton, const char * realm, svn_boolean_t /*may_save*/, apr_pool_t *pool)
 {
     SVNPrompt * svn = (SVNPrompt *)baton;
     const char *cert_file = NULL;
-
     svn->m_bPromptShown = true;
-    CString filename;
 
-    BOOL bOpenRet = FALSE;
-    bool may_save = false;
+    *cred = NULL;
 
-    HRESULT hr;
-    // Create a new common save file dialog
-    CComPtr<IFileOpenDialog> pfd = NULL;
-    hr = pfd.CoCreateInstance(CLSID_FileOpenDialog, NULL, CLSCTX_INPROC_SERVER);
-    if (SUCCEEDED(hr))
+    svn_checksum_t *checksum;
+    svn_checksum(&checksum, svn_checksum_md5, realm, strlen(realm), pool);
+    const char * hexname = svn_checksum_to_cstring(checksum, pool);
+    CString hex = CUnicodeUtils::GetUnicode(hexname);
+    DWORD index = (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\auth\\" + hex, (DWORD)-1, HKEY_CURRENT_USER);
+    if (trycount == 2)
+        index = (DWORD)-1;  // second try: skip the saved auth index!
+
+    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM,
+                                     0,
+                                     NULL,
+                                     CERT_SYSTEM_STORE_CURRENT_USER|CERT_STORE_OPEN_EXISTING_FLAG|CERT_STORE_READONLY_FLAG,
+                                     L"MY");
+    if (store == NULL)
+        return SVN_NO_ERROR;
+
+    PCCERT_CONTEXT cert = NULL;
+    if (index != DWORD(-1))
     {
-        // Set the dialog options
-        DWORD dwOptions;
-        if (SUCCEEDED(hr = pfd->GetOptions(&dwOptions)))
+        PCCERT_CONTEXT incert = NULL;
+        for(DWORD i = 0;;i++)
         {
-            hr = pfd->SetOptions(dwOptions | FOS_FILEMUSTEXIST | FOS_FORCEFILESYSTEM | FOS_PATHMUSTEXIST);
-        }
-
-        // Set a title
-        if (SUCCEEDED(hr))
-        {
-            CString temp;
-            temp.LoadString(IDS_SSL_CLIENTCERTIFICATEFILENAME);
-            CStringUtils::RemoveAccelerators(temp);
-            pfd->SetTitle(temp);
-        }
-        CSelectFileFilter fileFilter(IDS_CERTIFICATESFILEFILTER);
-
-        hr = pfd->SetFileTypes(fileFilter.GetCount(), fileFilter);
-
-        CComPtr<IFileDialogCustomize> pfdCustomize;
-        hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
-        if (SUCCEEDED(hr))
-        {
-            pfdCustomize->AddCheckButton(101, CString(MAKEINTRESOURCE(IDS_SSL_SAVE_CERTPATH)), FALSE);
-        }
-
-        // Show the save file dialog
-        if (SUCCEEDED(hr) && SUCCEEDED(hr = pfd->Show(GetExplorerHWND())))
-        {
-            CComPtr<IFileDialogCustomize> pfdCustomize;
-            hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
-            if (SUCCEEDED(hr))
+            incert = CertEnumCertificatesInStore(store, incert);
+            if (!incert)
+                break;
+            if (i == index)
             {
-                BOOL bChecked = FALSE;
-                pfdCustomize->GetCheckButtonState(101, &bChecked);
-                may_save = (bChecked!=0);
+                cert = incert;
+                break;
             }
+        }
+        if ((incert)&&(cert==NULL))
+            CertFreeCertificateContext(incert);
+    }
 
-            // Get the selection from the user
-            CComPtr<IShellItem> psiResult = NULL;
-            hr = pfd->GetResult(&psiResult);
-            if (SUCCEEDED(hr))
+    if (cert == NULL)
+    {
+        // Display a selection of certificates to choose from.
+        cert = CryptUIDlgSelectCertificateFromStore(store,
+                                                    svn->m_hParentWnd,
+                                                    NULL,
+                                                    NULL,
+                                                    CRYPTUI_SELECT_EXPIRATION_COLUMN |
+                                                    CRYPTUI_SELECT_LOCATION_COLUMN |
+                                                    CRYPTUI_SELECT_FRIENDLYNAME_COLUMN |
+                                                    CRYPTUI_SELECT_INTENDEDUSE_COLUMN,
+                                                    0,
+                                                    NULL);
+        if (cert)
+        {
+            // save the certificate index
+            PCCERT_CONTEXT incert = NULL;
+            for(DWORD i = 0;;i++)
             {
-                PWSTR pszPath = NULL;
-                hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszPath);
-                if (SUCCEEDED(hr))
+                incert = CertEnumCertificatesInStore(store, incert);
+                if (!incert)
+                    break;
+                if (memcmp(incert->pbCertEncoded, cert->pbCertEncoded, cert->cbCertEncoded) == 0)
                 {
-                    filename = CString(pszPath);
-                    bOpenRet = TRUE;
+                    CRegDWORD reg = CRegDWORD(L"Software\\TortoiseSVN\\auth\\" + hex, (DWORD)-1, HKEY_CURRENT_USER);
+                    reg = i;
+                    break;
                 }
             }
+            if (incert)
+                CertFreeCertificateContext(incert);
         }
     }
-    else
+    if (cert)
     {
-        OPENFILENAME ofn = {0};             // common dialog box structure
-        TCHAR szFile[MAX_PATH] = {0};       // buffer for file name
-        // Initialize OPENFILENAME
-        ofn.lStructSize = sizeof(OPENFILENAME);
-        ofn.hwndOwner = svn->m_hParentWnd;
-        ofn.lpstrFile = szFile;
-        ofn.nMaxFile = _countof(szFile);
-        CSelectFileFilter fileFilter(IDS_CERTIFICATESFILEFILTER);
-        ofn.lpstrFilter = fileFilter;
-        ofn.nFilterIndex = 1;
-        ofn.lpstrFileTitle = NULL;
-        ofn.nMaxFileTitle = 0;
-        ofn.lpstrInitialDir = NULL;
-        CString temp;
-        temp.LoadString(IDS_SSL_CLIENTCERTIFICATEFILENAME);
-        CStringUtils::RemoveAccelerators(temp);
-        ofn.lpstrTitle = temp;
-        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_ENABLEHOOK | OFN_ENABLESIZING | OFN_EXPLORER;
-        ofn.lpfnHook = SVNPrompt::OFNHookProc;
-
-        // Display the Open dialog box.
-        svn->m_server.Empty();
-        bOpenRet = GetOpenFileName(&ofn);
-        if (bOpenRet)
+        CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(true);
         {
-            filename = CString(ofn.lpstrFile);
-            may_save = ((ofn.Flags & OFN_READONLY)!=0);
-        }
-    }
-    if (!svn->m_bSuppressed && (bOpenRet==TRUE))
-    {
-        cert_file = apr_pstrdup(pool, CUnicodeUtils::GetUTF8(filename));
-        /* Build and return the credentials. */
-        *cred = (svn_auth_cred_ssl_client_cert_t*)apr_pcalloc (pool, sizeof (**cred));
-        (*cred)->cert_file = cert_file;
-        (*cred)->may_save = may_save;
+            CAutoFile file = CreateFile(tempfile.GetWinPath(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+            if (file.IsValid())
+            {
+                DWORD nWritten = 0;
+                WriteFile(file, cert->pbCertEncoded, cert->cbCertEncoded, &nWritten, NULL);
 
-        // the svn library doesn't have a save_credentials() function for cert files
-        // (yet?). It would get implemented in subversion\libsvn_subr\ssl_client_cert_providers.c
-        //
-        // We do the saving here ourselves (until subversion implements its own saving)
-        if (may_save)
-        {
-            CString regpath = L"Software\\tigris.org\\Subversion\\Servers\\";
-            CString groups = regpath;
-            groups += L"groups\\";
-            CString server = CString(realm);
-            int f1 = server.Find('<')+9;
-            int len = server.Find(':', 10)-f1;
-            server = server.Mid(f1, len);
-            svn->m_server = server;
-            groups += server;
-            CRegString server_groups = CRegString(groups);
-            server_groups = server;
-            regpath += server;
-            regpath += L"\\ssl-client-cert-file";
-            CRegString client_cert_filepath_reg = CRegString(regpath);
-            client_cert_filepath_reg = filename;
+                cert_file = apr_pstrdup(pool, CUnicodeUtils::GetUTF8(tempfile.GetWinPath()));
+                *cred = (svn_auth_cred_ssl_client_cert_t*)apr_pcalloc (pool, sizeof (**cred));
+                (*cred)->cert_file = cert_file;
+            }
         }
+        CertFreeCertificateContext(cert);
     }
-    else
-    {
-        if (svn->m_bSuppressed)
-            svn->m_bPromptShown = true;
-        *cred = NULL;
-    }
+    CertCloseStore(store, CERT_CLOSE_STORE_FORCE_FLAG);
+
     if (svn->m_app)
         svn->m_app->DoWaitCursor(0);
     return SVN_NO_ERROR;
@@ -504,11 +472,7 @@ svn_error_t* SVNPrompt::sslpwprompt(svn_auth_cred_ssl_client_cert_pw_t **cred, v
         *cred = ret;
     }
     else
-    {
-        if (svn->m_bSuppressed)
-            svn->m_bPromptShown = true;
         *cred = NULL;
-    }
     if (svn->m_app)
         svn->m_app->DoWaitCursor(0);
     return SVN_NO_ERROR;

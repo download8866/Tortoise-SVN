@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2008, 2013-2014 - TortoiseSVN
+// Copyright (C) 2006-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,7 +50,6 @@ protected:
     virtual BOOL OnApply();
 
     afx_msg void OnBnClickedColor();
-    afx_msg void OnBnClickedRestore();
 
     DECLARE_MESSAGE_MAP()
 
@@ -67,6 +66,8 @@ protected:
     CMFCColorButton m_cBkEmpty;
     CMFCColorButton m_cBkConflict;
     CMFCColorButton m_cBkConflictResolved;
+    CMFCColorButton m_cBkMovedFrom;
+    CMFCColorButton m_cBkMovedTo;
     CMFCColorButton m_cBkModified;
     CMFCColorButton m_cFgWhitespaces;
 };

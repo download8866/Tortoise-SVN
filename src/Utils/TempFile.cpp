@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,8 +16,9 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "TempFile.h"
+#include "auto_buffer.h"
 #include "PathUtils.h"
 #include "DirFileEnum.h"
 #include "SmartHandle.h"
@@ -37,17 +38,17 @@ CTempFiles& CTempFiles::Instance()
     return instance;
 }
 
-CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& revision) const
+CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& revision)
 {
     DWORD len = ::GetTempPath(0, NULL);
-    std::unique_ptr<TCHAR[]> temppath (new TCHAR[len+1]);
-    std::unique_ptr<TCHAR[]> tempF (new TCHAR[len+50]);
-    ::GetTempPath (len+1, temppath.get());
+    auto_buffer<TCHAR> temppath (len+1);
+    auto_buffer<TCHAR> tempF (len+50);
+    ::GetTempPath (len+1, temppath);
     CTSVNPath tempfile;
     CString possibletempfile;
     if (path.IsEmpty())
     {
-        ::GetTempFileName (temppath.get(), L"svn", 0, tempF.get());
+        ::GetTempFileName (temppath, TEXT("svn"), 0, tempF);
         tempfile = CTSVNPath (tempF.get());
     }
     else
@@ -71,11 +72,11 @@ CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& rev
             {
                 if (revision.IsValid())
                 {
-                    possibletempfile.Format(L"%s%s-rev%s.svn%3.3x.tmp%s", temppath.get(), (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
+                    possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
                 }
                 else
                 {
-                    possibletempfile.Format(L"%s%s.svn%3.3x.tmp%s", temppath.get(), (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
+                    possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath, (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
                 }
                 tempfile.SetFromWin(possibletempfile);
                 filename = filename.Left(filename.GetLength()-1);
@@ -160,8 +161,8 @@ CTSVNPath CTempFiles::GetTempDirPath(bool bRemoveAtEnd, const CTSVNPath& path /*
 void CTempFiles::DeleteOldTempFiles(LPCTSTR wildCard)
 {
     DWORD len = ::GetTempPath(0, NULL);
-    std::unique_ptr<TCHAR[]> path(new TCHAR[len + 100]);
-    len = ::GetTempPath (len+100, path.get());
+    auto_buffer<TCHAR> path(len + 100);
+    len = ::GetTempPath (len+100, path);
     if (len == 0)
         return;
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008, 2010-2011, 2014 - TortoiseSVN
+// Copyright (C) 2008, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PasteCopyCommand.h"
 
 #include "SVNProgressDlg.h"
@@ -29,7 +29,7 @@
 
 bool PasteCopyCommand::Execute()
 {
-    CString sDroppath = parser.GetVal(L"droptarget");
+    CString sDroppath = parser.GetVal(_T("droptarget"));
     CTSVNPath dropPath(sDroppath);
     ProjectProperties props;
     props.ReadProps(dropPath);
@@ -42,6 +42,7 @@ bool PasteCopyCommand::Execute()
     pathList.RemoveAdminPaths();
     CProgressDlg progress;
     progress.SetTitle(IDS_PROC_COPYING);
+    progress.SetAnimation(IDR_MOVEANI);
     progress.SetTime(true);
     progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
     for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
@@ -60,7 +61,6 @@ bool PasteCopyCommand::Execute()
             // Offer a rename
             progress.Stop();
             CRenameDlg dlg;
-            dlg.SetFileSystemAutoComplete();
             dlg.SetInputValidator(this);
             m_renPath = sourcePath;
             dlg.m_windowtitle.Format(IDS_PROC_NEWNAMECOPY, (LPCTSTR)sourcePath.GetUIFileOrDirectoryName());
@@ -71,6 +71,7 @@ bool PasteCopyCommand::Execute()
             // rebuild the progress dialog
             progress.EnsureValid();
             progress.SetTitle(IDS_PROC_COPYING);
+            progress.SetAnimation(IDR_MOVEANI);
             progress.SetTime(true);
             progress.SetProgress(count, pathList.GetCount());
             progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
@@ -111,7 +112,7 @@ bool PasteCopyCommand::Execute()
         }
         if ((progress.IsValid())&&(progress.HasUserCancelled()))
         {
-            TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_SVN_USERCANCELLED), NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+            TSVNMessageBox(GetExplorerHWND(), IDS_SVN_USERCANCELLED, IDS_APPNAME, MB_ICONINFORMATION);
             return false;
         }
     }

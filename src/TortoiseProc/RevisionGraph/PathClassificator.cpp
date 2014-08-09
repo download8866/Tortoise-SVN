@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2013 - TortoiseSVN
+// Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PathClassificator.h"
 
 static inline bool CompareCI (char lhs, char rhs)
@@ -53,7 +53,10 @@ static inline bool CompareCI (char lhs, char rhs)
 bool CPathClassificator::CWildCardPattern::WildCardMatch
     (const char* s, const char* pattern) const
 {
-    for (;;)
+#pragma warning(push)
+#pragma warning(disable: 4127)  // conditional expression is constant
+    while (1)
+#pragma warning(pop)
     {
         // consume one pattern char per loop
 
@@ -114,6 +117,9 @@ bool CPathClassificator::CWildCardPattern::WildCardMatch
     }
 
     // we should never get here
+
+    assert (0);
+    return false;
 }
 
 bool CPathClassificator::CWildCardPattern::StraightMatch

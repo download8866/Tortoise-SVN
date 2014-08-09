@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2011-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2008,2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 
 #include "stdafx.h"
 #include "SubTooltipListCtrl.h"
-#include <strsafe.h>
 
 BEGIN_MESSAGE_MAP(CSubTooltipListCtrl, CListCtrl)
     ON_NOTIFY_EX_RANGE(TTN_NEEDTEXTW, 0, 0xFFFF, &CSubTooltipListCtrl::OnToolTipText)
@@ -67,7 +66,7 @@ INT_PTR CSubTooltipListCtrl::OnToolHitTest(CPoint point, TOOLINFO * pTI) const
 
         //Fill in the TOOLINFO structure
         pTI->hwnd = m_hWnd;
-        pTI->uId = (UINT_PTR)((nItem<<10)+(nSubItem&0x3ff)+1);
+        pTI->uId = (UINT)((nItem<<10)+(nSubItem&0x3ff)+1);
         pTI->lpszText = LPSTR_TEXTCALLBACK;
         pTI->rect = rcClient;
 
@@ -122,14 +121,14 @@ BOOL CSubTooltipListCtrl::OnToolTipText(UINT /*id*/, NMHDR * pNMHDR, LRESULT * p
         //Deal with UNICODE
 #ifndef _UNICODE
         if (pNMHDR->code == TTN_NEEDTEXTA)
-            StringCchCopy(pTTTA->szText, _countof(pTTTA->szText), strTipText);
+            lstrcpyn(pTTTA->szText, strTipText, 80);
         else
             _mbstowcsz(pTTTW->szText, strTipText, 80);
 #else
         if (pNMHDR->code == TTN_NEEDTEXTA)
             _wcstombsz(pTTTA->szText, strTipText, 80);
         else
-            StringCchCopy(pTTTW->szText, _countof(pTTTW->szText), strTipText);
+            lstrcpyn(pTTTW->szText, strTipText, 80);
 #endif
         return TRUE;    //We found a tool tip,
         //tell the framework this message has been handled

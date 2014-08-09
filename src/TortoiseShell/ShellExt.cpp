@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,14 +18,17 @@
 //
 #include "stdafx.h"
 
+#pragma warning (disable : 4786)
+
 // Initialize GUIDs (should be done only and at-least once per DLL/EXE)
 #include <initguid.h>
 #include "Guids.h"
 
 #include "ShellExt.h"
 #include "ShellObjects.h"
-#include "../version.h"
+#include "..\version.h"
 #include "libintl.h"
+#include "auto_buffer.h"
 #undef swprintf
 
 extern ShellObjects g_shellObjects;
@@ -33,7 +36,7 @@ extern ShellObjects g_shellObjects;
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
     : m_crasher(L"TortoiseSVN", false)
-    , regDiffLater(L"Software\\TortoiseMerge\\DiffLater", L"")
+
 {
     m_State = state;
 
@@ -62,11 +65,11 @@ CShellExt::~CShellExt()
 
 void LoadLangDll()
 {
-    if ((g_langid != g_ShellCache.GetLangID())&&((g_langTimeout == 0)||(g_langTimeout < GetTickCount64())))
+    if ((g_langid != g_ShellCache.GetLangID())&&((g_langTimeout == 0)||(g_langTimeout < GetTickCount())))
     {
         g_langid = g_ShellCache.GetLangID();
         DWORD langId = g_langid;
-        TCHAR langDll[MAX_PATH * 4] = { 0 };
+        TCHAR langDll[MAX_PATH*4];
         HINSTANCE hInst = NULL;
         TCHAR langdir[MAX_PATH] = {0};
         char langdirA[MAX_PATH] = {0};
@@ -74,13 +77,13 @@ void LoadLangDll()
             return;
         if (GetModuleFileNameA(g_hmodThisDll, langdirA, _countof(langdirA))==0)
             return;
-        TCHAR * dirpoint = wcsrchr(langdir, '\\');
+        TCHAR * dirpoint = _tcsrchr(langdir, '\\');
         char * dirpointA = strrchr(langdirA, '\\');
         if (dirpoint)
             *dirpoint = 0;
         if (dirpointA)
             *dirpointA = 0;
-        dirpoint = wcsrchr(langdir, '\\');
+        dirpoint = _tcsrchr(langdir, '\\');
         dirpointA = strrchr(langdirA, '\\');
         if (dirpoint)
             *dirpoint = 0;
@@ -95,9 +98,9 @@ void LoadLangDll()
         do
         {
             if (bIsWow)
-                swprintf_s(langDll, L"%s\\Languages\\TortoiseProc32%lu.dll", langdir, langId);
+                _stprintf_s(langDll, _T("%s\\Languages\\TortoiseProc32%d.dll"), langdir, langId);
             else
-                swprintf_s(langDll, L"%s\\Languages\\TortoiseProc%lu.dll", langdir, langId);
+                _stprintf_s(langDll, _T("%s\\Languages\\TortoiseProc%d.dll"), langdir, langId);
             BOOL versionmatch = TRUE;
 
             struct TRANSARRAY
@@ -111,7 +114,7 @@ void LoadLangDll()
 
             if (dwBufferSize > 0)
             {
-                std::unique_ptr<char[]> buffer(new char[dwBufferSize]);
+                auto_buffer<char> buffer(dwBufferSize);
 
                 if (buffer.get() != 0)
                 {
@@ -119,6 +122,8 @@ void LoadLangDll()
                     UINT        nFixedLength = 0;
                     LPSTR       lpVersion = NULL;
                     VOID*       lpFixedPointer;
+                    TRANSARRAY* lpTransArray;
+                    TCHAR       strLangProduktVersion[MAX_PATH];
 
                     if (GetFileVersionInfo((LPTSTR)langDll,
                         dwReserved,
@@ -127,22 +132,21 @@ void LoadLangDll()
                     {
                         // Query the current language
                         if (VerQueryValue( buffer.get(),
-                            L"\\VarFileInfo\\Translation",
+                            _T("\\VarFileInfo\\Translation"),
                             &lpFixedPointer,
                             &nFixedLength))
                         {
-                            TRANSARRAY* lpTransArray = (TRANSARRAY*) lpFixedPointer;
+                            lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-                            TCHAR       strLangProductVersion[MAX_PATH];
-                            swprintf_s(strLangProductVersion, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+                            _stprintf_s(strLangProduktVersion, _T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
                                 lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
 
                             if (VerQueryValue(buffer.get(),
-                                (LPTSTR)strLangProductVersion,
+                                (LPTSTR)strLangProduktVersion,
                                 (LPVOID *)&lpVersion,
                                 &nInfoSize))
                             {
-                                versionmatch = (wcscmp((LPCTSTR)lpVersion, _T(STRPRODUCTVER)) == 0);
+                                versionmatch = (_tcscmp((LPCTSTR)lpVersion, _T(STRPRODUCTVER)) == 0);
                             }
 
                         }
@@ -184,7 +188,7 @@ void LoadLangDll()
             g_langid = 1033;
             // set a timeout of 10 seconds
             if (g_ShellCache.GetLangID() != 1033)
-                g_langTimeout = GetTickCount64() + 10000;
+                g_langTimeout = GetTickCount() + 10000;
         }
         else
             g_langTimeout = 0;
@@ -199,9 +203,9 @@ tstring GetAppDirectory()
     do
     {
         bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
-        len = GetModuleFileName(g_hmodThisDll, pBuf.get(), bufferlen);
-        path = tstring(pBuf.get(), len);
+        auto_buffer<TCHAR> pBuf(bufferlen);
+        len = GetModuleFileName(g_hmodThisDll, pBuf, bufferlen);
+        path = tstring(pBuf, len);
     } while(len == bufferlen);
     path = path.substr(0, path.rfind('\\') + 1);
 
@@ -292,7 +296,7 @@ UINT __stdcall CShellExt::CopyCallback(HWND hWnd, UINT wFunc, UINT wFlags, LPCTS
     {
         return CopyCallback_Wrap(hWnd, wFunc, wFlags, pszSrcFile, dwSrcAttribs, pszDestFile, dwDestAttribs);
     }
-    __except(GetExceptionCode() == 0xc0000194/*EXCEPTION_POSSIBLE_DEADLOCK*/ ? EXCEPTION_CONTINUE_EXECUTION : CCrashReport::Instance().SendReport(GetExceptionInformation()))
+    __except(CCrashReport::Instance().SendReport(GetExceptionInformation()))
     {
     }
     return IDYES;
@@ -310,8 +314,6 @@ UINT __stdcall CShellExt::CopyCallback_Wrap(HWND /*hWnd*/, UINT wFunc, UINT /*wF
             if (g_ShellCache.IsPathAllowed(pszSrcFile))
                 m_remoteCacheLink.ReleaseLockForPath(CTSVNPath(pszSrcFile));
         }
-        break;
-    default:
         break;
     }
 

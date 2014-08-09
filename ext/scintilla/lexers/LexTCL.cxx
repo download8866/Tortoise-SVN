@@ -309,7 +309,6 @@ next:
 					break;
 				case '}':
 					sc.SetState(SCE_TCL_OPERATOR);
-					expected = true;
 					--currentLevel;
 					break;
 				case '[':
@@ -358,7 +357,7 @@ static const char * const tclWordListDesc[] = {
             "TK Keywords",
             "iTCL Keywords",
             "tkCommands",
-            "expand",
+            "expand"
             "user1",
             "user2",
             "user3",

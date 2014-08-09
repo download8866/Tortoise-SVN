@@ -28,10 +28,10 @@ public:
  */
 class FontNames {
 private:
-	std::vector<char *> names;
+	char **names;
+	int size;
+	int max;
 
-	// Private so FontNames objects can not be copied
-	FontNames(const FontNames &);
 public:
 	FontNames();
 	~FontNames();
@@ -39,94 +39,85 @@ public:
 	const char *Save(const char *name);
 };
 
-class FontRealised : public FontMeasurements {
+class FontRealised : public FontSpecification, public FontMeasurements {
 	// Private so FontRealised objects can not be copied
 	FontRealised(const FontRealised &);
 	FontRealised &operator=(const FontRealised &);
 public:
 	Font font;
-	FontRealised();
+	FontRealised *frNext;
+	FontRealised(const FontSpecification &fs);
 	virtual ~FontRealised();
-	void Realise(Surface &surface, int zoomLevel, int technology, const FontSpecification &fs);
+	void Realise(Surface &surface, int zoomLevel);
+	FontRealised *Find(const FontSpecification &fs);
+	void FindMaxAscentDescent(unsigned int &maxAscent, unsigned int &maxDescent);
 };
 
 enum IndentView {ivNone, ivReal, ivLookForward, ivLookBoth};
 
 enum WhiteSpaceVisibility {wsInvisible=0, wsVisibleAlways=1, wsVisibleAfterIndent=2};
 
-typedef std::map<FontSpecification, FontRealised *> FontMap;
-
-enum WrapMode { eWrapNone, eWrapWord, eWrapChar, eWrapWhitespace };
-
-class ColourOptional : public ColourDesired {
-public:
-	bool isSet;
-	ColourOptional(ColourDesired colour_=ColourDesired(0,0,0), bool isSet_=false) : ColourDesired(colour_), isSet(isSet_) {
-	}
-	ColourOptional(uptr_t wParam, sptr_t lParam) : ColourDesired(static_cast<long>(lParam)), isSet(wParam != 0) {
-	}
-};
-
-struct ForeBackColours {
-	ColourOptional fore;
-	ColourOptional back;
-};
-
 /**
  */
 class ViewStyle {
-	FontNames fontNames;
-	FontMap fonts;
 public:
-	std::vector<Style> styles;
-	size_t nextExtendedStyle;
+	FontNames fontNames;
+	FontRealised *frFirst;
+	size_t stylesSize;
+	Style *styles;
 	LineMarker markers[MARKER_MAX + 1];
-	int largestMarkerHeight;
 	Indicator indicators[INDIC_MAX + 1];
-	int technology;
 	int lineHeight;
 	unsigned int maxAscent;
 	unsigned int maxDescent;
-	XYPOSITION aveCharWidth;
-	XYPOSITION spaceWidth;
-	XYPOSITION tabWidth;
-	ForeBackColours selColours;
-	ColourDesired selAdditionalForeground;
-	ColourDesired selAdditionalBackground;
-	ColourDesired selBackground2;
+	unsigned int aveCharWidth;
+	unsigned int spaceWidth;
+	bool selforeset;
+	ColourPair selforeground;
+	ColourPair selAdditionalForeground;
+	bool selbackset;
+	ColourPair selbackground;
+	ColourPair selAdditionalBackground;
+	ColourPair selbackground2;
 	int selAlpha;
 	int selAdditionalAlpha;
 	bool selEOLFilled;
-	ForeBackColours whitespaceColours;
-	int controlCharSymbol;
-	XYPOSITION controlCharWidth;
-	ColourDesired selbar;
-	ColourDesired selbarlight;
-	ColourOptional foldmarginColour;
-	ColourOptional foldmarginHighlightColour;
-	ForeBackColours hotspotColours;
+	bool whitespaceForegroundSet;
+	ColourPair whitespaceForeground;
+	bool whitespaceBackgroundSet;
+	ColourPair whitespaceBackground;
+	ColourPair selbar;
+	ColourPair selbarlight;
+	bool foldmarginColourSet;
+	ColourPair foldmarginColour;
+	bool foldmarginHighlightColourSet;
+	ColourPair foldmarginHighlightColour;
+	bool hotspotForegroundSet;
+	ColourPair hotspotForeground;
+	bool hotspotBackgroundSet;
+	ColourPair hotspotBackground;
 	bool hotspotUnderline;
 	bool hotspotSingleLine;
 	/// Margins are ordered: Line Numbers, Selection Margin, Spacing Margin
+	enum { margins=5 };
 	int leftMarginWidth;	///< Spacing margin on left of text
-	int rightMarginWidth;	///< Spacing margin on right of text
+	int rightMarginWidth;	///< Spacing margin on left of text
+	bool symbolMargin;
 	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
-	MarginStyle ms[SC_MAX_MARGIN+1];
-	int fixedColumnWidth;	///< Total width of margins
-	bool marginInside;	///< true: margin included in text view, false: separate views
-	int textStart;	///< Starting x position of text within the view
+	MarginStyle ms[margins];
+	int fixedColumnWidth;
 	int zoomLevel;
 	WhiteSpaceVisibility viewWhitespace;
 	int whitespaceSize;
 	IndentView viewIndentationGuides;
 	bool viewEOL;
-	ColourDesired caretcolour;
-	ColourDesired additionalCaretColour;
+	bool showMarkedLines;
+	ColourPair caretcolour;
+	ColourPair additionalCaretColour;
 	bool showCaretLineBackground;
-	bool alwaysShowCaretLineBackground;
-	ColourDesired caretLineBackground;
+	ColourPair caretLineBackground;
 	int caretLineAlpha;
-	ColourDesired edgecolour;
+	ColourPair edgecolour;
 	int edgeState;
 	int caretStyle;
 	int caretWidth;
@@ -142,48 +133,21 @@ public:
 	int braceHighlightIndicator;
 	bool braceBadLightIndicatorSet;
 	int braceBadLightIndicator;
-	int theEdge;
-	int marginNumberPadding; // the right-side padding of the number margin
-	int ctrlCharPadding; // the padding around control character text blobs
-	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs
-
-	// Wrapping support
-	WrapMode wrapState;
-	int wrapVisualFlags;
-	int wrapVisualFlagsLocation;
-	int wrapVisualStartIndent;
-	int wrapIndentMode; // SC_WRAPINDENT_FIXED, _SAME, _INDENT
 
 	ViewStyle();
 	ViewStyle(const ViewStyle &source);
 	~ViewStyle();
-	void Init(size_t stylesSize_=256);
-	void Refresh(Surface &surface, int tabInChars);
-	void ReleaseAllExtendedStyles();
-	int AllocateExtendedStyles(int numberStyles);
+	void Init(size_t stylesSize_=64);
+	void CreateFont(const FontSpecification &fs);
+	void RefreshColourPalette(Palette &pal, bool want);
+	void Refresh(Surface &surface);
+	void AllocStyles(size_t sizeNew);
 	void EnsureStyle(size_t index);
 	void ResetDefaultStyle();
 	void ClearStyles();
 	void SetStyleFontName(int styleIndex, const char *name);
 	bool ProtectionActive() const;
-	int ExternalMarginWidth() const;
 	bool ValidStyle(size_t styleIndex) const;
-	void CalcLargestMarkerHeight();
-	ColourOptional Background(int marksOfLine, bool caretActive, bool lineContainsCaret) const;
-	ColourDesired WrapColour() const;
-	bool SetWrapState(int wrapState_);
-	bool SetWrapVisualFlags(int wrapVisualFlags_);
-	bool SetWrapVisualFlagsLocation(int wrapVisualFlagsLocation_);
-	bool SetWrapVisualStartIndent(int wrapVisualStartIndent_);
-	bool SetWrapIndentMode(int wrapIndentMode_);
-
-private:
-	void AllocStyles(size_t sizeNew);
-	void CreateAndAddFont(const FontSpecification &fs);
-	FontRealised *Find(const FontSpecification &fs);
-	void FindMaxAscentDescent();
-	// Private so can only be copied through copy constructor which ensures font names initialised correctly
-	ViewStyle &operator=(const ViewStyle &);
 };
 
 #ifdef SCI_NAMESPACE

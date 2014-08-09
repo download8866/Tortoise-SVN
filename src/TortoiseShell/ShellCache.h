@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,8 +33,8 @@ typedef CComCritSecLock<CComCriticalSection> Locker;
 
 struct BoolTimeout
 {
-    bool        bBool;
-    ULONGLONG   timeout;
+    bool    bBool;
+    DWORD   timeout;
 };
 
 /**
@@ -64,7 +64,6 @@ public:
     BOOL IsFolderOverlay();
     BOOL HasShellMenuAccelerators();
     BOOL IsUnversionedAsModified();
-    BOOL IsIgnoreOnCommitIgnored();
     BOOL IsGetLockTop();
     BOOL ShowExcludedAsNormal();
     BOOL AlwaysExtended();
@@ -129,7 +128,7 @@ private:
 
             bool operator<(const SEntry& rhs) const
             {
-                int diff = _wcsicmp (path.c_str(), rhs.path.c_str());
+                int diff = _tcsicmp (path.c_str(), rhs.path.c_str());
                 return (diff < 0)
                     || ((diff == 0) && recursive && !rhs.recursive);
             }
@@ -215,7 +214,6 @@ private:
     CRegStdDWORD menumasklow_cu;
     CRegStdDWORD menumaskhigh_cu;
     CRegStdDWORD unversionedasmodified;
-    CRegStdDWORD ignoreoncommitignored;
     CRegStdDWORD excludedasnormal;
     CRegStdDWORD alwaysextended;
     CRegStdDWORD hidemenusforunversioneditems;
@@ -223,25 +221,24 @@ private:
 
     CPathFilter pathFilter;
 
-    ULONGLONG cachetypeticker;
-    ULONGLONG recursiveticker;
-    ULONGLONG folderoverlayticker;
-    ULONGLONG getlocktopticker;
-    ULONGLONG driveticker;
-    ULONGLONG drivetypeticker;
-    ULONGLONG layoutticker;
-    ULONGLONG menumaskticker;
-    ULONGLONG langticker;
-    ULONGLONG blockstatusticker;
-    ULONGLONG columnrevformatticker;
-    ULONGLONG pathfilterticker;
-    ULONGLONG shellmenuacceleratorsticker;
-    ULONGLONG unversionedasmodifiedticker;
-    ULONGLONG ignoreoncommitignoredticker;
-    ULONGLONG excludedasnormalticker;
-    ULONGLONG alwaysextendedticker;
-    ULONGLONG hidemenusforunversioneditemsticker;
-    ULONGLONG columnseverywhereticker;
+    DWORD cachetypeticker;
+    DWORD recursiveticker;
+    DWORD folderoverlayticker;
+    DWORD getlocktopticker;
+    DWORD driveticker;
+    DWORD drivetypeticker;
+    DWORD layoutticker;
+    DWORD menumaskticker;
+    DWORD langticker;
+    DWORD blockstatusticker;
+    DWORD columnrevformatticker;
+    DWORD pathfilterticker;
+    DWORD shellmenuacceleratorsticker;
+    DWORD unversionedasmodifiedticker;
+    DWORD excludedasnormalticker;
+    DWORD alwaysextendedticker;
+    DWORD hidemenusforunversioneditemsticker;
+    DWORD columnseverywhereticker;
     UINT  drivetypecache[27];
     TCHAR drivetypepathcache[MAX_PATH];     // MAX_PATH ok.
     NUMBERFMT columnrevformat;
@@ -251,7 +248,7 @@ private:
     CRegStdString nocontextpaths;
     tstring excludecontextstr;
     std::vector<tstring> excontextvector;
-    ULONGLONG excontextticker;
+    DWORD excontextticker;
     CComCriticalSection m_critSec;
 };
 
@@ -259,12 +256,12 @@ inline bool operator<
     ( const ShellCache::CPathFilter::SEntry& lhs
     , const std::pair<LPCTSTR, size_t>& rhs)
 {
-    return _wcsnicmp (lhs.path.c_str(), rhs.first, rhs.second) < 0;
+    return _tcsnicmp (lhs.path.c_str(), rhs.first, rhs.second) < 0;
 }
 
 inline bool operator<
     ( const std::pair<LPCTSTR, size_t>& lhs
     , const ShellCache::CPathFilter::SEntry& rhs)
 {
-    return _wcsnicmp (lhs.first, rhs.path.c_str(), lhs.second) < 0;
+    return _tcsnicmp (lhs.first, rhs.path.c_str(), lhs.second) < 0;
 }

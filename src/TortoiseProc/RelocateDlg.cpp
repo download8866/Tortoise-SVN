@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,10 +24,9 @@
 IMPLEMENT_DYNAMIC(CRelocateDlg, CResizableStandAloneDialog)
 CRelocateDlg::CRelocateDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CRelocateDlg::IDD, pParent)
-    , m_sToUrl(L"")
-    , m_sFromUrl(L"")
+    , m_sToUrl(_T(""))
+    , m_sFromUrl(_T(""))
     , m_bIncludeExternals(FALSE)
-    , m_height(0)
 {
 }
 
@@ -59,7 +58,6 @@ BOOL CRelocateDlg::OnInitDialog()
     m_aeroControls.SubclassOkCancelHelp(this);
 
     m_URLCombo.SetURLHistory(true, true);
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
     m_URLCombo.SetCurSel(0);
 
     RECT rect;
@@ -83,14 +81,13 @@ BOOL CRelocateDlg::OnInitDialog()
     m_URLCombo.SetWindowText(m_sFromUrl);
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"RelocateDlg");
+    EnableSaveRestore(_T("RelocateDlg"));
     return TRUE;
 }
 
 void CRelocateDlg::OnOK()
 {
     UpdateData(TRUE);
-    m_URLCombo.SaveHistory();
     m_sToUrl = m_URLCombo.GetString();
     UpdateData(FALSE);
 

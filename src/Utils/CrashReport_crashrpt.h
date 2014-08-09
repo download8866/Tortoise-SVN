@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2012-2014 - TortoiseSVN
+// Copyright (C) 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -185,15 +185,15 @@ public:
     CCrashReportTSVN(LPCTSTR appname)
     {
         CR_INSTALL_INFO info;
-        SecureZeroMemory(&info, sizeof(CR_INSTALL_INFO));
+        memset(&info, 0, sizeof(CR_INSTALL_INFO));
         info.cb = sizeof(CR_INSTALL_INFO);
         info.pszAppName = appname;
         info.pszAppVersion = _T(STRPRODUCTVER);
         TCHAR subject[MAX_PATH] = {0};
-        swprintf_s(subject, L"Crash report for %s, Version %d.%d.%d.%d", appname, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
+        _stprintf_s(subject, _T("Crash report for %s, Version %d.%d.%d.%d"), appname, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
         info.pszEmailSubject = subject;
-        info.pszEmailTo = L"tortoisesvn@gmail.com";
-        info.pszUrl = L"http://tortoisesvn.net/scripts/crashrpt.php";
+        info.pszEmailTo = _T("tortoisesvn@gmail.com");
+        info.pszUrl = _T("http://tortoisesvn.net/scripts/crashrpt.php");
         info.uPriorities[CR_HTTP] = 1;  // First (and only) try send report over HTTP
         info.uPriorities[CR_SMTP] = CR_NEGATIVE_PRIORITY;  // don't send report over SMTP
         info.uPriorities[CR_SMAPI] = CR_NEGATIVE_PRIORITY; // don't send report over Simple MAPI
@@ -203,15 +203,15 @@ public:
         info.dwFlags |= CR_INST_APP_RESTART;
         info.dwFlags |= CR_INST_SEND_QUEUED_REPORTS;
         // Define the Privacy Policy URL
-        info.pszPrivacyPolicyURL = L"http://tortoisesvn.net/crashreport_privacy.html";
+        info.pszPrivacyPolicyURL = _T("http://tortoisesvn.net/crashreport_privacy.html");
 
         TCHAR module[MAX_PATH] = {0};
         GetModuleFileName(NULL, module, MAX_PATH);
         info.pszCustomSenderIcon = module;
 
         m_nInstallStatus = CCrashReport::Instance().Install(&info);
-        CCrashReport::Instance().AddRegKey(L"HKEY_CURRENT_USER\\Software\\TortoiseSVN", L"regkey1.xml", 0);
-        CCrashReport::Instance().AddRegKey(L"HKEY_CURRENT_USER\\Software\\TortoiseMerge", L"regkey2.xml", 0);
+        CCrashReport::Instance().AddRegKey(_T("HKEY_CURRENT_USER\\Software\\TortoiseSVN"), _T("regkey1.xml"), 0);
+        CCrashReport::Instance().AddRegKey(_T("HKEY_CURRENT_USER\\Software\\TortoiseMerge"), _T("regkey2.xml"), 0);
     }
 
 

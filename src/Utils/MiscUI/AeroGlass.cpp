@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2012-2014 - TortoiseSVN
+// Copyright (C) 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,11 +36,11 @@ BOOL CDwmApiImpl::Initialize(void)
         return FALSE;
     }
 
-    m_hDwmApiLib = AtlLoadSystemLibraryUsingFullPath(L"dwmapi.dll");
+    m_hDwmApiLib = LoadLibraryW(L"dwmapi.dll");
     return IsInitialized();
 }
 
-BOOL CDwmApiImpl::IsInitialized(void) const
+BOOL CDwmApiImpl::IsInitialized(void)
 {
     return (NULL!=m_hDwmApiLib);
 }
@@ -82,6 +82,20 @@ BOOL CDwmApiImpl::IsDwmCompositionEnabled(void)
     return SUCCEEDED(hRes) && bEnabled;
 }
 
+HRESULT CDwmApiImpl::DwmEnableComposition(UINT uCompositionAction)
+{
+    if(!IsInitialized())
+    {
+        SetLastError((DWORD)OLE_E_BLANK);
+        return FALSE;
+    }
+    DWM_ENABLE_COMPOSITION pfnDwmEnableComposition = (DWM_ENABLE_COMPOSITION)GetProcAddress(m_hDwmApiLib, "DwmEnableComposition");
+    if(!pfnDwmEnableComposition)
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    return pfnDwmEnableComposition(uCompositionAction);
+}
+
 CUxThemeAeroImpl::CUxThemeAeroImpl(void) : m_hUxThemeLib(NULL)
 {
 }
@@ -94,7 +108,7 @@ BOOL CUxThemeAeroImpl::Initialize(void)
         return FALSE;
     }
 
-    m_hUxThemeLib = AtlLoadSystemLibraryUsingFullPath(L"uxtheme.dll");
+    m_hUxThemeLib = LoadLibraryW(L"uxtheme.dll");
     return IsInitialized();
 }
 
@@ -121,7 +135,7 @@ typedef HRESULT (__stdcall *GET_THEME_MARGINS)(HTHEME hTheme, HDC hdc, int iPart
 typedef HRESULT (__stdcall *GET_THEME_METRIC)(HTHEME hTheme, HDC hdc, int iPartId, int iStateId, int iPropId, int *piVal);
 typedef HRESULT (__stdcall *GET_THEME_RECT)(HTHEME hTheme, int iPartId, int iStateId, int iPropId, LPRECT pRect);
 
-BOOL CUxThemeAeroImpl::IsInitialized(void) const
+BOOL CUxThemeAeroImpl::IsInitialized(void)
 {
     return (NULL!=m_hUxThemeLib);
 }

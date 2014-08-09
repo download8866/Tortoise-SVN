@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 #include "stdafx.h"
-#include "../TortoiseShell/resource.h"
+#include "..\\TortoiseShell\\resource.h"
 #include "tstring.h"
 #include "SVNProperties.h"
 #include "SVNStatus.h"
@@ -49,24 +49,22 @@ struct log_msg_baton3
 };
 
 #ifdef _MFC_VER
-SVNProperties::SVNProperties(SVNRev rev, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties(rev, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(SVNRev rev, bool bRevProps)
+    : SVNReadProperties(rev, bRevProps)
 #else
-SVNProperties::SVNProperties(bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(bool bRevProps)
+    : SVNReadProperties (bRevProps)
 #endif
-    , rev_set(0)
 {
 }
 
 #ifdef _MFC_VER
-SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (filepath, rev, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(const CTSVNPath& filepath, SVNRev rev, bool bRevProps)
+    : SVNReadProperties (filepath, rev, bRevProps)
 #else
-SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps, bool bIncludeInherited)
-    : SVNReadProperties (filepath, bRevProps, bIncludeInherited)
+SVNProperties::SVNProperties(const CTSVNPath& filepath, bool bRevProps)
+    : SVNReadProperties (filepath, bRevProps)
 #endif
-    , rev_set(0)
 {
 }
 
@@ -93,8 +91,8 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
         CStringA tempA = CUnicodeUtils::GetUTF8(temp);
         Err = svn_error_create(NULL, NULL, tempA);
 #else
-        TCHAR string[1024] = { 0 };
-        LoadStringEx(g_hResInst, IDS_ERR_PROPNOTONFILE, string, _countof(string), (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+        TCHAR string[1024];
+        LoadStringEx(g_hResInst, IDS_ERR_PROPNOTONFILE, string, _countof(string), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
         std::string stringA = CUnicodeUtils::StdGetUTF8(string);
         Err = svn_error_create(NULL, NULL, stringA.c_str());
 #endif
@@ -113,8 +111,8 @@ BOOL SVNProperties::Add(const std::string& name, const std::string& Value, bool 
                 CStringA tempA = CUnicodeUtils::GetUTF8(temp);
                 Err = svn_error_create(NULL, NULL, tempA);
 #else
-                TCHAR string[1024] = { 0 };
-                LoadStringEx(g_hResInst, IDS_ERR_PROPNOMULTILINE, string, 1024, (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+                TCHAR string[1024];
+                LoadStringEx(g_hResInst, IDS_ERR_PROPNOMULTILINE, string, 1024, (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
                 std::string stringA = CUnicodeUtils::StdGetUTF8(string);
                 Err = svn_error_create(NULL, NULL, stringA.c_str());
 #endif
@@ -362,8 +360,8 @@ void SVNProperties::PrepareMsgForUrl( const TCHAR * message, SVNPool& subpool )
 {
     if (m_path.IsUrl())
     {
-        CString msg = message ? message : L"";
-        msg.Remove('\r');
+        CString msg = message ? message : _T("");
+        msg.Remove(_T('\r'));
         log_msg_baton3* baton = (log_msg_baton3 *) apr_palloc (subpool, sizeof (*baton));
         baton->message = apr_pstrdup(subpool, CUnicodeUtils::GetUTF8(msg));
         baton->base_dir = "";
@@ -374,7 +372,7 @@ void SVNProperties::PrepareMsgForUrl( const TCHAR * message, SVNPool& subpool )
     }
 }
 
-svn_error_t* SVNProperties::CommitCallback( const svn_commit_info_t *commit_info, void *baton, apr_pool_t * /*pool*/ )
+svn_error_t* SVNProperties::CommitCallback( const svn_commit_info_t *commit_info, void *baton, apr_pool_t *pool )
 {
     svn_revnum_t* pRev = (svn_revnum_t*)baton;
     *pRev = commit_info->revision;

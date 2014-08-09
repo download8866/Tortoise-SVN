@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,15 +18,14 @@
 //
 #include "stdafx.h"
 #include "ShellExt.h"
-#include "Guids.h"
+#include "guids.h"
 #include "PreserveChdir.h"
 #include "SVNProperties.h"
 #include "UnicodeUtils.h"
 #include "SVNStatus.h"
 #include "PathUtils.h"
 #include "SysInfo.h"
-#include "../TSVNCache/CacheInterface.h"
-#include <strsafe.h>
+#include "..\TSVNCache\CacheInterface.h"
 
 
 const static int ColumnFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_ONBYDEFAULT;
@@ -87,9 +86,9 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->csFlags = SHCOLSTATE_TYPE_INT | SHCOLSTATE_ONBYDEFAULT;
 
             MAKESTRING(IDS_COLTITLEREV);
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
             MAKESTRING(IDS_COLDESCREV);
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
             break;
         case 2: // SVN Url
             if (cachetype == ShellCache::none)
@@ -141,9 +140,9 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->cChars = 15;
             psci->csFlags = SHCOLSTATE_TYPE_INT;
             MAKESTRING(IDS_COLTITLESTATUSNUMBER);
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+            lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
             MAKESTRING(IDS_COLDESCSTATUS);
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+            lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
             break;
         default:
             // SVN custom properties
@@ -155,8 +154,8 @@ STDMETHODIMP CShellExt::GetColumnInfo_Wrap(DWORD dwIndex, SHCOLUMNINFO *psci)
             psci->fmt = LVCFMT_LEFT;
             psci->cChars = 30;
             psci->csFlags = SHCOLSTATE_TYPE_STR | SHCOLSTATE_SECONDARYUI | SHCOLSTATE_SLOW;
-            StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), columnuserprops.at(psci->scid.pid).first.c_str());
-            StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), columnuserprops.at(psci->scid.pid).first.c_str());
+            lstrcpynW(psci->wszTitle, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_NAME_LEN);
+            lstrcpynW(psci->wszDescription, columnuserprops.at(psci->scid.pid).first.c_str(), MAX_COLUMN_DESC_LEN);
             break;
     }
 
@@ -173,9 +172,9 @@ void CShellExt::GetColumnInfo(SHCOLUMNINFO* psci, DWORD dwIndex, UINT characters
     psci->csFlags = ColumnFlags;
 
     MAKESTRING(titleId);
-    StringCchCopy(psci->wszTitle, _countof(psci->wszTitle), stringtablebuffer);
+    lstrcpynW(psci->wszTitle, stringtablebuffer, MAX_COLUMN_NAME_LEN);
     MAKESTRING(descriptionId);
-    StringCchCopy(psci->wszDescription, _countof(psci->wszDescription), stringtablebuffer);
+    lstrcpynW(psci->wszDescription, stringtablebuffer, MAX_COLUMN_DESC_LEN);
 }
 
 STDMETHODIMP CShellExt::GetItemData(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA pscd, VARIANT *pvarData)
@@ -217,7 +216,7 @@ STDMETHODIMP CShellExt::GetItemData_Wrap(LPCSHCOLUMNID pscid, LPCSHCOLUMNDATA ps
         {
             case 0: // SVN Status
                 GetMainColumnStatus(path, pscd->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
-                SVNStatus::GetStatusString(g_hResInst, filestatus, buf, _countof(buf), (WORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
+                SVNStatus::GetStatusString(g_hResInst, filestatus, buf, _countof(buf), (WORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)));
                 szInfo = buf;
                 break;
             case 1: // SVN Revision
@@ -354,7 +353,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(LPCSHCOLUMNINIT psci)
             {
                 if(!g_ShellCache.IsVersioned(svnpath.GetWinPath(), true, true))
                     break;  // beyond root of working copy
-                SVNProperties props(svnpath, false, false);
+                SVNProperties props(svnpath, false);
                 for (int i=0; i<props.GetCount(); ++i)
                 {
                     std::string name = props.GetItemName(i);
@@ -416,7 +415,7 @@ void CShellExt::SetExtraColumnStatus
     TCHAR urlpath[INTERNET_MAX_URL_LENGTH+1];
 
     URL_COMPONENTS urlComponents;
-    SecureZeroMemory(&urlComponents, sizeof(URL_COMPONENTS));
+    memset(&urlComponents, 0, sizeof(URL_COMPONENTS));
     urlComponents.dwStructSize = sizeof(URL_COMPONENTS);
     urlComponents.dwUrlPathLength = INTERNET_MAX_URL_LENGTH;
     urlComponents.lpszUrlPath = urlpath;
@@ -426,9 +425,9 @@ void CShellExt::SetExtraColumnStatus
         // since the short url is shown as an additional column where the
         // file/foldername is shown too, we strip that name from the url
         // to make the url even shorter.
-        TCHAR * ptr = wcsrchr(urlComponents.lpszUrlPath, '/');
+        TCHAR * ptr = _tcsrchr(urlComponents.lpszUrlPath, '/');
         if (ptr == NULL)
-            ptr = wcsrchr(urlComponents.lpszUrlPath, '\\');
+            ptr = _tcsrchr(urlComponents.lpszUrlPath, '\\');
         if (ptr)
         {
             *ptr = '\0';
@@ -438,19 +437,19 @@ void CShellExt::SetExtraColumnStatus
             // Note: this will strip too much if such a folder is *below* the repository
             // root - but it's called 'short url' and we're free to shorten it the way we
             // like :)
-            ptr = wcsstr(urlComponents.lpszUrlPath, L"/trunk");
+            ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/trunk"));
             if (ptr == NULL)
-                ptr = wcsstr(urlComponents.lpszUrlPath, L"\\trunk");
+                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\trunk"));
             if ((ptr == NULL)||((*(ptr+6) != 0)&&(*(ptr+6) != '/')&&(*(ptr+6) != '\\')))
             {
-                ptr = wcsstr(urlComponents.lpszUrlPath, L"/branches");
+                ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/branches"));
                 if (ptr == NULL)
-                    ptr = wcsstr(urlComponents.lpszUrlPath, L"\\branches");
+                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\branches"));
                 if ((ptr == NULL)||((*(ptr+9) != 0)&&(*(ptr+9) != '/')&&(*(ptr+9) != '\\')))
                 {
-                    ptr = wcsstr(urlComponents.lpszUrlPath, L"/tags");
+                    ptr = _tcsstr(urlComponents.lpszUrlPath, _T("/tags"));
                     if (ptr == NULL)
-                        ptr = wcsstr(urlComponents.lpszUrlPath, L"\\tags");
+                        ptr = _tcsstr(urlComponents.lpszUrlPath, _T("\\tags"));
                     if ((ptr)&&(*(ptr+5) != 0)&&(*(ptr+5) != '/')&&(*(ptr+5) != '\\'))
                         ptr = NULL;
                 }
@@ -464,7 +463,7 @@ void CShellExt::SetExtraColumnStatus
 
     if (status)
     {
-        char url[INTERNET_MAX_URL_LENGTH] = { 0 };
+        char url[INTERNET_MAX_URL_LENGTH];
         strcpy_s(url, status->url);
         CPathUtils::Unescape(url);
         itemurl = CUnicodeUtils::StdGetUnicode(url);
@@ -473,7 +472,7 @@ void CShellExt::SetExtraColumnStatus
 
 void CShellExt::GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
-    if (wcscmp(path, extracolumnfilepath.c_str())==0)
+    if (_tcscmp(path, extracolumnfilepath.c_str())==0)
         return;
 
     PreserveChdir preserveChdir;
@@ -505,7 +504,7 @@ void CShellExt::GetExtraColumnStatus(const TCHAR * path, BOOL bIsDir)
 
 void CShellExt::GetMainColumnStatus(const TCHAR * path, BOOL bIsDir)
 {
-    if (wcscmp(path, maincolumnfilepath.c_str())==0)
+    if (_tcscmp(path, maincolumnfilepath.c_str())==0)
         return;
 
     PreserveChdir preserveChdir;
@@ -548,7 +547,7 @@ void CShellExt::GetMainColumnStatus(const TCHAR * path, BOOL bIsDir)
 
 void CShellExt::ExtractProperty(const TCHAR* path, const char* propertyName, tstring& to)
 {
-    SVNProperties props(CTSVNPath(path), false, false);
+    SVNProperties props(CTSVNPath(path), false);
     for (int i=0; i<props.GetCount(); i++)
     {
         if (props.GetItemName(i).compare(propertyName)==0)

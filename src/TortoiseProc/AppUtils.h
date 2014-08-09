@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -65,9 +65,8 @@ public:
      */
     static BOOL StartExtMerge(const MergeFlags& flags,
         const CTSVNPath& basefile, const CTSVNPath& theirfile, const CTSVNPath& yourfile, const CTSVNPath& mergedfile,
-        bool bSaveRequired,
         const CString& basename = CString(), const CString& theirname = CString(), const CString& yourname = CString(),
-        const CString& mergedname = CString(), const CString& filename = CString());
+        const CString& mergedname = CString());
 
     /**
      * Starts the external patch program (currently always TortoiseMerge)
@@ -82,7 +81,7 @@ public:
     static bool StartExtDiff(
         const CTSVNPath& file1, const CTSVNPath& file2,
         const CString& sName1, const CString& sName2, const DiffFlags& flags,
-        int line, const CString& sName);
+        int line);
 
     /**
      * Starts the external diff application
@@ -93,7 +92,7 @@ public:
         const CTSVNPath& url1, const CTSVNPath& url2,
         const SVNRev& rev1, const SVNRev& rev2,
         const SVNRev& pegRev, const DiffFlags& flags,
-        int line, const CString& sName);
+        int line);
 
     /**
      * Starts the external diff application for properties
@@ -128,13 +127,8 @@ public:
      */
     static bool FormatTextInRichEditControl(CWnd * pWnd);
 
-    static std::vector<CHARRANGE> FindRegexMatches (const std::wstring& text, const CString& matchstring, const CString& matchsubstring = L".*");
+    static std::vector<CHARRANGE> FindRegexMatches (const std::wstring& text, const CString& matchstring, const CString& matchsubstring = _T(".*"));
 
-	/**
-	 * implements URL searching with the same logic as CSciEdit::StyleURLs
-	 */
-	static std::vector<CHARRANGE> FindURLMatches (const CString& msg);
-	
     static bool FindStyleChars(const CString& sText, TCHAR stylechar, int& start, int& end);
 
     static bool BrowseRepository(CHistoryCombo& combo, CWnd * pParent, SVNRev& rev, bool multiSelection = false, const CString& root = CString(), const CString& selUrl = CString());
@@ -154,24 +148,23 @@ public:
                                     const CString& options,
                                     bool bAlternateDiff = false,
                                     bool bIgnoreAncestry = false,
-                                    bool  blame  = false,
-                                    bool bIgnoreProperties = true);
+                                    bool /* blame */ = false);
 
     /**
      * Replacement for SVNDiff::ShowCompare(), but started as a separate process.
      */
     static bool StartShowCompare(HWND hWnd, const CTSVNPath& url1, const SVNRev& rev1,
-                                 const CTSVNPath& url2, const SVNRev& rev2,
-                                 const SVNRev& peg, const SVNRev& headpeg,
-                                 bool ignoreprops, const CString& options,
-                                 bool bAlternateDiff = false, bool bIgnoreAncestry = false,
-                                 bool blame = false, svn_node_kind_t nodekind = svn_node_unknown,
-                                 int line = 0);
+                                const CTSVNPath& url2, const SVNRev& rev2,
+                                const SVNRev& peg, const SVNRev& headpeg,
+                                const CString& options,
+                                bool bAlternateDiff = false, bool ignoreancestry = false,
+                                bool blame = false, svn_node_kind_t nodekind = svn_node_unknown,
+                                int line = 0);
 
     /**
      * Sets up all the default diff and merge scripts.
      * \param force if true, overwrite all existing entries
-     * \param type either "Diff", "Merge" or an empty string
+     * \param either "Diff", "Merge" or an empty string
      */
     static bool SetupDiffScripts(bool force, const CString& type);
 

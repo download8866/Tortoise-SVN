@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2014 - TortoiseSVN
+// Copyright (C) 2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "EditFileCommand.h"
 #include "TempFile.h"
 #include "SVN.h"
@@ -103,7 +103,7 @@ bool EditFileCommand::AutoLock()
 {
     // needs lock?
 
-    SVNProperties properties (path, SVNRev::REV_WC, false, false);
+    SVNProperties properties (path, SVNRev::REV_WC, false);
     if (!properties.HasProperty (SVN_PROP_NEEDS_LOCK))
         return true;
 
@@ -129,12 +129,12 @@ bool EditFileCommand::Edit()
 {
     CString cmdLine
         = CAppUtils::GetAppForFile ( path.GetWinPathString()
-                                   , L""
-                                   , L"edit"
+                                   , _T("")
+                                   , _T("edit")
                                    , true );
     if (cmdLine.IsEmpty())
     {
-        if (CAppUtils::FileOpenSave(cmdLine, NULL, IDS_REPOBROWSE_OPEN, IDS_PROGRAMSFILEFILTER, true, CString(), FindParentWindow(NULL)))
+        if (CAppUtils::FileOpenSave(cmdLine, NULL, IDS_REPOBROWSE_OPEN, IDS_PROGRAMSFILEFILTER, true, FindParentWindow(NULL)))
         {
             cmdLine = cmdLine + L" \"" + path.GetWinPathString() + L"\"";
         }
@@ -146,7 +146,7 @@ bool EditFileCommand::Edit()
 bool EditFileCommand::AutoCheckin()
 {
     // no-op, if not modified
-    hWaitHandle = NULL;
+
     if (!IsModified())
         return true;
 
@@ -192,8 +192,8 @@ bool EditFileCommand::Execute()
 {
     // make sure, the data is in a wc
 
-    if (parser.HasKey (L"revision"))
-        revision = SVNRev(parser.GetVal (L"revision"));
+    if (parser.HasKey (_T("revision")))
+        revision = SVNRev(parser.GetVal (_T("revision")));
 
     // the sequence
 
@@ -209,7 +209,6 @@ bool EditFileCommand::StopWaitingForEditor()
     {
         SetEvent(hWaitHandle);
         abandonedWait = true;
-        hWaitHandle = NULL;
         return true;
     }
     return false;

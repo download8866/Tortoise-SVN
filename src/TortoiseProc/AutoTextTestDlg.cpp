@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009, 2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,15 +24,16 @@
 #include <regex>
 #include <string>
 
+using namespace std;
 // CAutoTextTestDlg dialog
 
 IMPLEMENT_DYNAMIC(CAutoTextTestDlg, CDialog)
 
 CAutoTextTestDlg::CAutoTextTestDlg(CWnd* pParent /*=NULL*/)
     : CDialog(CAutoTextTestDlg::IDD, pParent)
-    , m_sRegex(L"")
-    , m_sResult(L"")
-    , m_sTimingLabel(L"")
+    , m_sRegex(_T(""))
+    , m_sResult(_T(""))
+    , m_sTimingLabel(_T(""))
 {
 
 }
@@ -78,21 +79,22 @@ void CAutoTextTestDlg::OnBnClickedAutotextscan()
         try
         {
             std::set<CString> autolist;
-            std::wstring s = m_sContent;
+            wstring s = m_sContent;
             CHighResClock timer;
 
-            std::tr1::wregex regCheck;
-            regCheck = std::tr1::wregex(m_sRegex, std::tr1::regex_constants::icase | std::tr1::regex_constants::ECMAScript);
-            const std::tr1::wsregex_iterator end;
-            for (std::tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
+            tr1::wregex regCheck;
+            std::map<CString, tr1::wregex>::const_iterator regIt;
+            regCheck = tr1::wregex(m_sRegex, tr1::regex_constants::icase | tr1::regex_constants::ECMAScript);
+            const tr1::wsregex_iterator end;
+            for (tr1::wsregex_iterator it(s.begin(), s.end(), regCheck); it != end; ++it)
             {
-                const std::tr1::wsmatch match = *it;
+                const tr1::wsmatch match = *it;
                 for (size_t i=1; i<match.size(); ++i)
                 {
                     if (match[i].second-match[i].first)
                     {
-                        ATLTRACE(L"matched keyword : %s\n", std::wstring(match[i]).c_str());
-                        std::wstring result = std::wstring(match[i]);
+                        ATLTRACE(_T("matched keyword : %s\n"), wstring(match[i]).c_str());
+                        wstring result = wstring(match[i]);
                         if (!result.empty())
                         {
                             autolist.insert(result.c_str());
@@ -104,13 +106,13 @@ void CAutoTextTestDlg::OnBnClickedAutotextscan()
             for (std::set<CString>::iterator it = autolist.begin(); it != autolist.end(); ++it)
             {
                 m_sResult += *it;
-                m_sResult += L"\r\n";
+                m_sResult += _T("\r\n");
             }
-            m_sTimingLabel.Format(L"Parse time: %ld uSecs", timer.GetMusecsTaken());
+            m_sTimingLabel.Format(_T("Parse time: %ld uSecs"), timer.GetMusecsTaken());
         }
-        catch (std::exception &ex)
+        catch (exception)
         {
-            m_sResult = L"Regex is invalid!\r\n" + CString(ex.what());
+            m_sResult = _T("Regex is invalid!");
         }
     }
     UpdateData(FALSE);

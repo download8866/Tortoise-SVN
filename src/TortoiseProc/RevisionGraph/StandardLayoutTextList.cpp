@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2014 - TortoiseSVN
+// Copyright (C) 2003-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "StandardLayoutTextList.h"
 #include "UnicodeUtils.h"
 #include "VisibleGraphNode.h"
@@ -98,7 +98,7 @@ CStandardLayoutTextList::GetText (index_t index) const
                                    - nodeInfo.skipStartPathElements
                                    - nodeInfo.skipTailPathElements;
         text = CUnicodeUtils::StdGetUnicode (path[localindex]).c_str();
-        text.Insert (0, '/');
+        text.Insert (0, _T('/'));
 
         // add "...." pre- and post-fixes, if elements have been skipped
 
@@ -108,7 +108,7 @@ CStandardLayoutTextList::GetText (index_t index) const
         if (   (visibleElementCount == (size_t)textInfo.subPathIndex)
             && (nodeInfo.skipTailPathElements != 0))
         {
-            text.AppendChar ('/');
+            text.AppendChar (_T('/'));
             text.Append (CString ('.', nodeInfo.skipTailPathElements));
         }
     }
@@ -121,7 +121,7 @@ CStandardLayoutTextList::GetText (index_t index) const
         }
         else
         {
-            TCHAR buffer[20] = { 0 };
+            TCHAR buffer[20];
             _itot_s (nodeInfo.node->GetRevision(), buffer, 10);
             text = buffer;
         }

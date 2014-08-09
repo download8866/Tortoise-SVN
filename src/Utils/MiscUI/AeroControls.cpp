@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2014 - TortoiseSVN
+// Copyright (C) 2009-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,14 +38,13 @@ AeroControlBase::AeroControlBase()
     : gdiplusToken(0)
 {
     GdiplusStartupInput gdiplusStartupInput;
-    m_regEnableDWMFrame = CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE);
+    m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
 
     if (GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL)==Ok)
     {
         m_dwm.Initialize();
     }
     m_theme.Initialize();
-    m_theme.BufferedPaintInit();
 }
 
 AeroControlBase::~AeroControlBase()
@@ -54,7 +53,6 @@ AeroControlBase::~AeroControlBase()
     {
         RemoveWindowSubclass(it->first, SubclassProc, it->second);
     }
-    m_theme.BufferedPaintUnInit();
     if (gdiplusToken)
         GdiplusShutdown(gdiplusToken);
 }
@@ -64,20 +62,20 @@ bool AeroControlBase::SubclassControl(HWND hControl)
     bool bRet = false;
     if (!(DWORD)m_regEnableDWMFrame)
         return bRet;
-    TCHAR szWndClassName[MAX_PATH] = { 0 };
+    TCHAR szWndClassName[MAX_PATH];
     if (GetClassName(hControl, szWndClassName, _countof(szWndClassName)))
     {
-        if (!wcscmp(szWndClassName, L"Static"))
+        if (!_tcscmp(szWndClassName, _T("Static")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Static, (DWORD_PTR)this);
             subclassedControls[hControl] = Static;
         }
-        if (!wcscmp(szWndClassName, L"Button"))
+        if (!_tcscmp(szWndClassName, _T("Button")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Button, (DWORD_PTR)this);
             subclassedControls[hControl] = Button;
         }
-        if(!wcscmp(szWndClassName, L"msctls_progress32"))
+        if(!_tcscmp(szWndClassName, _T("msctls_progress32")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Progressbar, (DWORD_PTR)this);
             subclassedControls[hControl] = Progressbar;
@@ -514,9 +512,17 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
                             int iState = GetStateFromBtnState(dwStyle, bHot, bFocus, dwCheckState, iPartId, FALSE);
 
-                            int bmWidth = int(ceil(13.0 * GetDeviceCaps(hdcPaint, LOGPIXELSX) / 96.0));
 
-                            UINT uiHalfWidth = (RECTWIDTH(rcClient) - bmWidth)/2;
+                            HBITMAP hbmp = NULL;
+                            VERIFY(S_OK==m_theme.GetThemeBitmap(hTheme, iPartId, iState, 0,
+                                GBF_DIRECT, &hbmp));
+                            SIZE st;
+                            VERIFY(GetBitmapDimensionEx(hbmp, &st));
+                            BITMAP bm;
+                            GetObject(hbmp, sizeof(BITMAP), &bm);
+
+
+                            UINT uiHalfWidth = (RECTWIDTH(rcClient) - bm.bmWidth)/2;
 
                             ///
                             /// we have to use the whole client area, otherwise we get only partially
@@ -537,30 +543,22 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
 
                             ///
-                            /// we assume that bmWidth is both the horizontal and the vertical
+                            /// we assume that bm.bmWidth is both the horizontal and the vertical
                             /// dimension of the control bitmap and that it is square. bm.bmHeight
                             /// seems to be the height of a striped bitmap because it is an absurdly
                             /// high dimension value
                             ///
                             if((dwButtonStyle&BS_VCENTER)==BS_VCENTER) /// BS_VCENTER is BS_TOP|BS_BOTTOM
                             {
-                                int h = RECTHEIGHT(rcPaint);
-                                rcPaint.top = (h - bmWidth) / 2;
-                                rcPaint.bottom = rcPaint.top + bmWidth;
+                                /// nothing to do, verticallly centered
                             }
                             else if(dwButtonStyle&BS_TOP)
                             {
-                                rcPaint.bottom = rcPaint.top + bmWidth;
+                                rcPaint.bottom = rcPaint.top + bm.bmWidth;
                             }
                             else if(dwButtonStyle&BS_BOTTOM)
                             {
-                                rcPaint.top =  rcPaint.bottom - bmWidth;
-                            }
-                            else // default: center the checkbox/radiobutton vertically
-                            {
-                                int h = RECTHEIGHT(rcPaint);
-                                rcPaint.top = (h - bmWidth) / 2;
-                                rcPaint.bottom = rcPaint.top + bmWidth;
+                                rcPaint.top =  rcPaint.bottom - bm.bmWidth;
                             }
 
 
@@ -571,9 +569,9 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             VERIFY(S_OK==m_theme.GetThemeBackgroundContentRect(hTheme, hdcPaint, iPartId, iState, &rcPaint, &rc));
 
                             if(dwButtonStyle & BS_LEFTTEXT)
-                                rc.right -= bmWidth + 2 * GetSystemMetrics(SM_CXEDGE);
+                                rc.right -= bm.bmWidth+(bm.bmWidth>>1);
                             else
-                                rc.left += bmWidth + 2 * GetSystemMetrics(SM_CXEDGE);
+                                rc.left += bm.bmWidth+(bm.bmWidth>>1);
 
                             DTTOPTS DttOpts = {sizeof(DTTOPTS)};
                             DttOpts.dwFlags = DTT_COMPOSITED | DTT_GLOWSIZE;
@@ -849,7 +847,7 @@ LRESULT AeroControlBase::ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
 
-void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
+void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr)
 {
     std::unique_ptr<SolidBrush> pBrush(new SolidBrush(clr));
     std::unique_ptr<Graphics> myGraphics(new Graphics(hdcPaint));
@@ -858,7 +856,7 @@ void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
         prc->right - 1 - prc->left, prc->bottom - 1 - prc->top);
 }
 
-int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture) const
+int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture)
 {
     int iState = 0;
     switch (iPartId)
@@ -953,7 +951,7 @@ int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFoc
     return iState;
 }
 
-void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width) const
+void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width)
 {
     std::unique_ptr<Pen> myPen(new Pen(clr, width));
     myPen->SetDashStyle(dashStyle);
@@ -1070,7 +1068,7 @@ void AeroControlBase::ScreenToClient(HWND hWnd, LPRECT lprc)
     lprc->bottom = pt.y;
 }
 
-void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia) const
+void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia)
 {
     // diameter can't exceed width or height
     if(dia > r.Width)   dia = r.Width;

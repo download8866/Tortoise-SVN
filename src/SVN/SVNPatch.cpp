@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,14 +16,13 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
-#include "resource.h"
+#include "StdAfx.h"
+#include "Resource.h"
 #include "SVNPatch.h"
 #include "UnicodeUtils.h"
 #include "ProgressDlg.h"
 #include "DirFileEnum.h"
 #include "SVNAdminDir.h"
-#include "SVNConfig.h"
 #include "StringUtils.h"
 
 #pragma warning(push)
@@ -38,15 +37,12 @@
 int SVNPatch::abort_on_pool_failure (int /*retcode*/)
 {
     abort ();
-    //return -1;
+    return -1;
 }
 
 SVNPatch::SVNPatch()
     : m_pool(NULL)
     , m_nStrip(0)
-    , m_bSuccessfullyPatched(false)
-    , m_nRejected(0)
-    , m_pProgDlg(NULL)
 {
     apr_initialize();
     svn_dso_initialize2();
@@ -68,7 +64,7 @@ void SVNPatch::notify( void *baton, const svn_wc_notify_t *notify, apr_pool_t * 
     if (pThis && notify)
     {
         PathRejects * pInfo = NULL;
-        if (!pThis->m_filePaths.empty())
+        if (pThis->m_filePaths.size())
             pInfo = &pThis->m_filePaths[pThis->m_filePaths.size()-1];
         if ((notify->action == svn_wc_notify_skip)||(notify->action == svn_wc_notify_patch_rejected_hunk))
         {
@@ -174,7 +170,7 @@ int SVNPatch::Init( const CString& patchfile, const CString& targetpath, CProgre
     m_targetpath.Replace('\\', '/');
 
     apr_pool_create_ex(&scratchpool, m_pool, abort_on_pool_failure, NULL);
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(m_pool), scratchpool));
+    svn_error_clear(svn_client_create_context(&ctx, scratchpool));
     ctx->notify_func2 = notify;
     ctx->notify_baton2 = this;
 
@@ -221,33 +217,29 @@ int SVNPatch::Init( const CString& patchfile, const CString& targetpath, CProgre
     if ((m_nRejected > ((int)m_filePaths.size() / 3)) && !m_testPath.IsEmpty())
     {
         m_nStrip++;
+        bool found = false;
         for (m_nStrip = 0; m_nStrip < STRIP_LIMIT; ++m_nStrip)
         {
-            int nExisting = 0;
             for (std::vector<PathRejects>::iterator it = m_filePaths.begin(); it != m_filePaths.end(); ++it)
             {
-                CString p = Strip(it->path);
-                if (p.IsEmpty())
+                if (Strip(it->path).IsEmpty())
                 {
-                    m_nStrip = STRIP_LIMIT;
+                    found = true;
+                    m_nStrip--;
                     break;
                 }
-                else if (PathFileExists(p))
-                    ++nExisting;
             }
-            if (nExisting > int(m_filePaths.size()-m_nRejected))
+            if (found)
                 break;
         }
     }
 
-    if (m_nStrip >= STRIP_LIMIT)
-    {
-        m_nStrip = 0;
-    }
+    if (m_nStrip == STRIP_LIMIT)
+        m_filePaths.clear();
     else if (m_nStrip > 0)
     {
         apr_pool_create_ex(&scratchpool, m_pool, abort_on_pool_failure, NULL);
-        svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(m_pool), scratchpool));
+        svn_error_clear(svn_client_create_context(&ctx, scratchpool));
         ctx->notify_func2 = notify;
         ctx->notify_baton2 = this;
 
@@ -293,7 +285,7 @@ bool SVNPatch::PatchPath( const CString& path )
     m_filetopatch.Replace('\\', '/');
 
     apr_pool_create_ex(&scratchpool, m_pool, abort_on_pool_failure, NULL);
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(m_pool), scratchpool));
+    svn_error_clear(svn_client_create_context(&ctx, scratchpool));
 
     m_nRejected = 0;
     err = svn_client_patch(svn_dirent_canonicalize(CUnicodeUtils::GetUTF8(m_patchfile), scratchpool),    // patch_abspath
@@ -341,8 +333,7 @@ int SVNPatch::GetPatchResult(const CString& sPath, CString& sSavePath, CString& 
 CString SVNPatch::CheckPatchPath( const CString& path )
 {
     // first check if the path already matches
-    int origMatches = CountMatches(path);
-    if (origMatches > (GetNumberOfFiles() / 3))
+    if (CountMatches(path) > (GetNumberOfFiles()/3))
         return path;
 
     CProgressDlg progress;
@@ -361,7 +352,7 @@ CString SVNPatch::CheckPatchPath( const CString& path )
         progress.SetLine(2, upperpath, true);
         if (progress.HasUserCancelled())
             return path;
-        if (CountMatches(upperpath) > origMatches)
+        if (CountMatches(upperpath) > (GetNumberOfFiles()/3))
             return upperpath;
     }
     // still no match found. So try sub folders
@@ -377,7 +368,7 @@ CString SVNPatch::CheckPatchPath( const CString& path )
         if (g_SVNAdminDir.IsAdminDirPath(subpath))
             continue;
         progress.SetLine(2, subpath, true);
-        if (CountMatches(subpath) > origMatches)
+        if (CountMatches(subpath) > (GetNumberOfFiles()/3))
             return subpath;
     }
 
@@ -392,7 +383,7 @@ CString SVNPatch::CheckPatchPath( const CString& path )
         progress.SetLine(2, upperpath, true);
         if (progress.HasUserCancelled())
             return path;
-        if (CountDirMatches(upperpath) > origMatches)
+        if (CountDirMatches(upperpath) > (GetNumberOfFiles()/3))
             return upperpath;
     }
 
@@ -408,7 +399,7 @@ int SVNPatch::CountMatches( const CString& path ) const
         temp.Replace('/', '\\');
         if ((PathIsRelative(temp)) ||
             ((temp.GetLength() > 1) && (temp[0]=='\\') && (temp[1]!='\\')) )
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         if (PathFileExists(temp))
             matches++;
     }
@@ -423,7 +414,7 @@ int SVNPatch::CountDirMatches( const CString& path ) const
         CString temp = GetStrippedPath(i);
         temp.Replace('/', '\\');
         if (PathIsRelative(temp))
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         // remove the filename
         temp = temp.Left(temp.ReverseFind('\\'));
         if (PathFileExists(temp))
@@ -435,14 +426,14 @@ int SVNPatch::CountDirMatches( const CString& path ) const
 CString SVNPatch::GetStrippedPath( int nIndex ) const
 {
     if (nIndex < 0)
-        return L"";
+        return _T("");
     if (nIndex < (int)m_filePaths.size())
     {
         CString filepath = Strip(GetFilePath(nIndex));
         return filepath;
     }
 
-    return L"";
+    return _T("");
 }
 
 CString SVNPatch::Strip( const CString& filename ) const
@@ -463,7 +454,7 @@ CString SVNPatch::Strip( const CString& filename ) const
             //       "ts/my-working-copy/dir/file.txt"
             //          "my-working-copy/dir/file.txt"
             //                          "dir/file.txt"
-            int p = s.FindOneOf(L"/\\");
+            int p = s.FindOneOf(_T("/\\"));
             if (p < 0)
             {
                 s.Empty();
@@ -487,7 +478,7 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
         while (ErrPtr->child)
         {
             ErrPtr = ErrPtr->child;
-            msg += L"\n";
+            msg += _T("\n");
             temp = GetErrorMessageForNode(ErrPtr);
             msg += temp;
         }
@@ -495,9 +486,10 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
     return msg;
 }
 
-CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
+CString	 SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
 {
     CString msg;
+    char errbuf[256];
     if (Err != NULL)
     {
         svn_error_t * ErrPtr = Err;
@@ -505,7 +497,6 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
             msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
         else
         {
-            char errbuf[256] = {0};
             /* Is this a Subversion-specific error code? */
             if ((ErrPtr->apr_err > APR_OS_START_USEERR)
                 && (ErrPtr->apr_err <= APR_OS_START_CANONERR))
@@ -521,7 +512,7 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
                 if (temp_err)
                 {
                     svn_error_clear (temp_err);
-                    msg = L"Can't recode error string from APR";
+                    msg = _T("Can't recode error string from APR");
                 }
                 else
                 {
@@ -541,7 +532,7 @@ bool SVNPatch::RemoveFile( const CString& path )
     svn_client_ctx_t *          ctx         = NULL;
 
     apr_pool_create_ex(&scratchpool, m_pool, abort_on_pool_failure, NULL);
-    svn_error_clear(svn_client_create_context2(&ctx, SVNConfig::Instance().GetConfig(m_pool), scratchpool));
+    svn_error_clear(svn_client_create_context(&ctx, scratchpool));
 
     apr_array_header_t *targets = apr_array_make (scratchpool, 1, sizeof(const char *));
 
@@ -558,3 +549,4 @@ bool SVNPatch::RemoveFile( const CString& path )
     }
     return true;
 }
+

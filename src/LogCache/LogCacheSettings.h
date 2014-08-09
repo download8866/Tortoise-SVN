@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,8 @@
 #include "ConnectionState.h"
 
 #ifdef WIN32
-#include "registry.h"
+#include "Registry.h"
+#include "MiscUI/MessageBox.h"
 #else
 #include <iostream>
 #include "RegistryDummy.h"
@@ -80,7 +81,7 @@ private:
         registryKey = value;
         if (registryKey.GetLastError() != ERROR_SUCCESS)
     #ifdef WIN32
-            ::MessageBox (NULL, registryKey.getErrorString(), L"TortoiseSVN", MB_ICONERROR);
+            ::MessageBox (NULL, registryKey.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
     #else
             std::cerr << "Could not store settings" << std::endl;
     #endif

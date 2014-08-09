@@ -12,10 +12,10 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <assert.h>
-#include <ctype.h>
 
 #include "ILexer.h"
 #include "Scintilla.h"
@@ -51,7 +51,7 @@ static inline bool IsAWordStart(const int ch) {
 }
 
 /***************************************/
-static inline bool IsABlank(unsigned int ch) {
+inline bool IsABlank(unsigned int ch) {
     return (ch == ' ') || (ch == 0x09) || (ch == 0x0b) ;
 }
 
@@ -127,6 +127,9 @@ static void ColouriseVHDLDoc(
         sc.SetState(SCE_VHDL_NUMBER);
       } else if (IsAWordStart(sc.ch)) {
         sc.SetState(SCE_VHDL_IDENTIFIER);
+      } else if (sc.Match('-', '-')) {
+        sc.SetState(SCE_VHDL_COMMENT);
+        sc.Forward();
       } else if (sc.Match('-', '-')) {
         if (sc.Match("--!"))  // Nice to have a different comment style
           sc.SetState(SCE_VHDL_COMMENTLINEBANG);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2010, 2014 - TortoiseSVN
+// External Cache Copyright (C) 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "WCRoots.h"
 #include "SVNAdminDir.h"
 
@@ -42,12 +42,12 @@ __int64 CWCRoots::GetDBFileTime( const CTSVNPath& path )
     {
         if (it->first.IsAncestorOf(path))
         {
-            ULONGLONG ticks = GetTickCount64();
+            DWORD ticks = GetTickCount();
             if (ticks - it->second.LastTicks > DBTIMEOUT)
             {
                 // refresh the file time
                 CTSVNPath wcDbFile(it->first);
-                wcDbFile.AppendPathString(g_SVNAdminDir.GetAdminDirName() + L"\\wc.db");
+                wcDbFile.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\wc.db"));
                 if (wcDbFile.Exists())
                 {
                     WCRootsTimes dbTimes;
@@ -88,13 +88,13 @@ std::map<CTSVNPath, WCRootsTimes>::iterator CWCRoots::AddPathInternal( const CTS
     do
     {
         CTSVNPath dbPath(p);
-        dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + L"\\wc.db");
+        dbPath.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\wc.db"));
         if (!dbPath.Exists())
             p = p.GetContainingDirectory();
         else
         {
             WCRootsTimes dbTimes;
-            dbTimes.LastTicks = GetTickCount64();
+            dbTimes.LastTicks = GetTickCount();
             dbTimes.FileTime = dbPath.GetLastWriteTime();
             return m_WCDBs.insert(std::pair<CTSVNPath, WCRootsTimes>(p, dbTimes)).first;
         }
@@ -108,11 +108,10 @@ bool CWCRoots::AddPath( const CTSVNPath& path )
     return AddPathInternal(path) != m_WCDBs.end();
 }
 
-bool CWCRoots::NotifyChange( const CTSVNPath& path )
+void CWCRoots::NotifyChange( const CTSVNPath& path )
 {
     AutoLocker lock(m_critSec);
     CTSVNPath p(path);
-    bool changed = true;
     while (p.IsAdminDir())
     {
         p = p.GetContainingDirectory();
@@ -124,13 +123,12 @@ bool CWCRoots::NotifyChange( const CTSVNPath& path )
         {
             // refresh the file time
             CTSVNPath wcDbFile(it->first);
-            wcDbFile.AppendPathString(g_SVNAdminDir.GetAdminDirName() + L"\\wc.db");
+            wcDbFile.AppendPathString(g_SVNAdminDir.GetAdminDirName() + _T("\\wc.db"));
             if (wcDbFile.Exists())
             {
                 WCRootsTimes dbTimes;
-                dbTimes.LastTicks = GetTickCount64();
+                dbTimes.LastTicks = GetTickCount();
                 dbTimes.FileTime = wcDbFile.GetLastWriteTime();
-                changed = (dbTimes.FileTime != it->second.FileTime);
                 it->second = dbTimes;
             }
             else
@@ -140,5 +138,4 @@ bool CWCRoots::NotifyChange( const CTSVNPath& path )
             }
         }
     }
-    return changed;
 }

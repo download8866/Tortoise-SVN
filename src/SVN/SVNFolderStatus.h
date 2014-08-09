@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2006,2008-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -71,26 +71,9 @@ private:
     char emptyString[1];
 };
 
-#define SVNFOLDERSTATUS_CACHETIMES              10
-#define SVNFOLDERSTATUS_CACHETIMEOUT            2000
-#define SVNFOLDERSTATUS_RECURSIVECACHETIMEOUT   4000
-#define SVNFOLDERSTATUS_FOLDER                  500
 
-class FileStatusCacheEntry
+typedef struct FileStatusCacheEntry
 {
-public:
-    FileStatusCacheEntry()
-        : status(svn_wc_status_none)
-        , author("")
-        , url("")
-        , owner("")
-        , needslock(false)
-        , rev(-1)
-        , askedcounter(SVNFOLDERSTATUS_CACHETIMES)
-        , lock(nullptr)
-        , tree_conflict(false)
-    {
-    }
     svn_wc_status_kind      status;
     const char*             author;     ///< points to a (possibly) shared value
     const char*             url;        ///< points to a (possibly) shared value
@@ -100,8 +83,12 @@ public:
     int                     askedcounter;
     const svn_lock_t *      lock;
     bool                    tree_conflict;
-};
+} FileStatusCacheEntry;
 
+#define SVNFOLDERSTATUS_CACHETIMES              10
+#define SVNFOLDERSTATUS_CACHETIMEOUT            2000
+#define SVNFOLDERSTATUS_RECURSIVECACHETIMEOUT   4000
+#define SVNFOLDERSTATUS_FOLDER                  500
 /**
  * \ingroup TortoiseShell
  * This class represents a caching mechanism for the
@@ -128,7 +115,7 @@ public:
 
 private:
     const FileStatusCacheEntry * BuildCache(const CTSVNPath& filepath, BOOL bIsFolder, BOOL bDirectFolder = FALSE);
-    ULONGLONG           GetTimeoutValue() const;
+    DWORD               GetTimeoutValue();
     static svn_error_t* fillstatusmap (void *baton, const char *path, const svn_client_status_t *status, apr_pool_t *pool);
     static svn_error_t* findfolderstatus (void *baton, const char *path, const svn_client_status_t *status, apr_pool_t *pool);
     static CTSVNPath    folderpath;
@@ -137,7 +124,7 @@ private:
     int                 m_nCounter;
     typedef std::map<tstring, FileStatusCacheEntry> FileStatusMap;
     FileStatusMap           m_cache;
-    ULONGLONG               m_TimeStamp;
+    DWORD                   m_TimeStamp;
     FileStatusCacheEntry    dirstat;
     const svn_client_status_t * dirstatus;
     apr_pool_t *            rootpool;

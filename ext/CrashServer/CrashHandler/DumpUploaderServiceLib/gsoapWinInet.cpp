@@ -741,7 +741,6 @@ wininet_fsend(
             {
             case ERROR_INTERNET_CANNOT_CONNECT:
                 nResult = SOAP_TCP_ERROR;
-                break;
             default:
                 nResult = SOAP_HTTP_ERROR;
             }

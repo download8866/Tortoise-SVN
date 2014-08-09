@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010, 2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,7 +16,7 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "CatCommand.h"
 
 #include "PathUtils.h"
@@ -24,9 +24,9 @@
 
 bool CatCommand::Execute()
 {
-    CString savepath = CPathUtils::GetLongPathname(parser.GetVal(L"savepath"));
-    CString revision = parser.GetVal(L"revision");
-    CString pegrevision = parser.GetVal(L"pegrevision");
+    CString savepath = CPathUtils::GetLongPathname(parser.GetVal(_T("savepath")));
+    CString revision = parser.GetVal(_T("revision"));
+    CString pegrevision = parser.GetVal(_T("pegrevision"));
     SVNRev rev = SVNRev(revision);
     if (!rev.IsValid())
         rev = SVNRev::REV_HEAD;
