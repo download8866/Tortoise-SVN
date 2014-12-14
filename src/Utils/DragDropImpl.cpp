@@ -7,7 +7,6 @@
 **************************************************************************/
 // IDataObjectImpl.cpp: implementation of the CIDataObjectImpl class.
 //////////////////////////////////////////////////////////////////////
-#include "stdafx.h"
 #include <shlobj.h>
 #include <atlbase.h>
 #include "DragDropImpl.h"
@@ -365,7 +364,7 @@ STDMETHODIMP CIDropSource::GiveFeedback(
     if (m_pIDataObj)
     {
         FORMATETC fetc = {0};
-        fetc.cfFormat = (CLIPFORMAT)RegisterClipboardFormat(L"DragWindow");
+        fetc.cfFormat = (CLIPFORMAT)RegisterClipboardFormat(_T("DragWindow"));
         fetc.dwAspect = DVASPECT_CONTENT;
         fetc.lindex = -1;
         fetc.tymed = TYMED_HGLOBAL;

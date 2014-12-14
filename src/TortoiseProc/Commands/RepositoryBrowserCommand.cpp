@@ -32,12 +32,12 @@ bool RepositoryBrowserCommand::Execute()
     SVN svn;
     if (!cmdLinePath.IsEmpty())
     {
-        if (cmdLinePath.GetSVNPathString().Left(4).CompareNoCase(L"svn:")==0)
+        if (cmdLinePath.GetSVNPathString().Left(4).CompareNoCase(_T("svn:"))==0)
         {
             // If the path starts with "svn:" and there is another protocol
             // found in the path (a "://" found after the "svn:") then
             // remove "svn:" from the beginning of the path.
-            if (cmdLinePath.GetSVNPathString().Find(L"://", 4)>=0)
+            if (cmdLinePath.GetSVNPathString().Find(_T("://"), 4)>=0)
                 cmdLinePath.SetFromSVN(cmdLinePath.GetSVNPathString().Mid(4));
         }
 
@@ -56,15 +56,15 @@ bool RepositoryBrowserCommand::Execute()
                 {
                     CString p = cmdLinePath.GetWinPathString();
                     p.TrimLeft('\\');
-                    url = L"file://"+p;
+                    url = _T("file://")+p;
                 }
                 else
-                    url = L"file:///"+cmdLinePath.GetWinPathString();
+                    url = _T("file:///")+cmdLinePath.GetWinPathString();
                 url.Replace('\\', '/');
             }
         }
     }
-    if (cmdLinePath.GetUIPathString().Left(7).CompareNoCase(L"file://")==0)
+    if (cmdLinePath.GetUIPathString().Left(7).CompareNoCase(_T("file://"))==0)
     {
         cmdLinePath.SetFromUnknown(cmdLinePath.GetUIPathString().Mid(7));
     }
@@ -80,16 +80,16 @@ bool RepositoryBrowserCommand::Execute()
         cmdLinePath = CTSVNPath(url);
     }
 
-    CString val = parser.GetVal(L"rev");
+    CString val = parser.GetVal(_T("rev"));
     SVNRev rev(val);
     CRepositoryBrowser dlg(url, rev);
     if (!cmdLinePath.IsUrl())
         dlg.m_ProjectProperties.ReadProps(cmdLinePath);
     else
     {
-        if (parser.HasVal(L"projectpropertiespath"))
+        if (parser.HasVal(_T("projectpropertiespath")))
         {
-            dlg.m_ProjectProperties.ReadProps(CTSVNPath(parser.GetVal(L"projectpropertiespath")));
+            dlg.m_ProjectProperties.ReadProps(CTSVNPath(parser.GetVal(_T("projectpropertiespath"))));
         }
     }
     if (parser.HasKey(L"sparse"))

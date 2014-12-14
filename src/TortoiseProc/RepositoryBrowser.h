@@ -52,7 +52,6 @@ public:
         , is_external(false)
         , kind(svn_node_unknown)
         , svnparentpathroot(false)
-        , bookmark(false)
         , unversioned(false)
     {
     }
@@ -69,7 +68,6 @@ public:
     CString         error;
     svn_node_kind_t kind;
     bool            svnparentpathroot;
-    bool            bookmark;
 };
 
 
@@ -140,11 +138,12 @@ protected:
     afx_msg void OnTvnSelchangedRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnItemexpandingRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnItemChangedRepotree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnNMClickRepotree(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnTvnKeydownRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMDblclkRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnHdnItemclickRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnItemchangedRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnNMCustomdrawRepolist(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnNMCustomdrawRepotree(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnBegindragRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnBeginrdragRepolist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnTvnBegindragRepotree(NMHDR *pNMHDR, LRESULT *pResult);
@@ -293,10 +292,6 @@ protected:
     bool RunStartCommit(const CTSVNPathList& pathlist, CString& sLogMsg);
     bool RunPreCommit(const CTSVNPathList& pathlist, svn_depth_t depth, CString& sMsg);
     bool RunPostCommit(const CTSVNPathList& pathlist, svn_depth_t depth, svn_revnum_t revEnd, const CString& sMsg);
-    void LoadBookmarks();
-    void SaveBookmarks();
-    HTREEITEM FindBookmarkRoot();
-    void RefreshBookmarks();
 protected:
     bool                m_bInitDone;
     CRepositoryBar      m_barRepository;
@@ -326,7 +321,6 @@ private:
     bool                m_bTrySVNParentPath;
     CTreeItem *         m_pListCtrlTreeItem;
 
-    int                 m_nBookmarksIcon;
     int                 m_nIconFolder;
     int                 m_nOpenIconFolder;
     int                 m_nExternalOvl;
@@ -359,7 +353,6 @@ private:
     std::list<CString>  m_UrlHistoryForward;
     std::map<CString, svn_depth_t> m_wcDepths;
 
-    std::set<std::wstring>  m_bookmarks;
     std::unique_ptr<EditFileCommand>    m_EditFileCommand;
 
     /// used to execute user ops (e.g. context menu actions) in the background
@@ -367,5 +360,5 @@ private:
     CReaderWriterLock    m_guard;
 };
 
-static UINT WM_AFTERINIT = RegisterWindowMessage(L"TORTOISESVN_AFTERINIT_MSG");
+static UINT WM_AFTERINIT = RegisterWindowMessage(_T("TORTOISESVN_AFTERINIT_MSG"));
 

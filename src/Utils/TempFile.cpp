@@ -37,7 +37,7 @@ CTempFiles& CTempFiles::Instance()
     return instance;
 }
 
-CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& revision) const
+CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& revision)
 {
     DWORD len = ::GetTempPath(0, NULL);
     std::unique_ptr<TCHAR[]> temppath (new TCHAR[len+1]);
@@ -47,7 +47,7 @@ CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& rev
     CString possibletempfile;
     if (path.IsEmpty())
     {
-        ::GetTempFileName (temppath.get(), L"svn", 0, tempF.get());
+        ::GetTempFileName (temppath.get(), _T("svn"), 0, tempF.get());
         tempfile = CTSVNPath (tempF.get());
     }
     else
@@ -73,11 +73,11 @@ CTSVNPath CTempFiles::ConstructTempPath(const CTSVNPath& path, const SVNRev& rev
             {
                 if (revision.IsValid())
                 {
-                    possibletempfile.Format(L"%s%s-rev%s.svn%3.3x.tmp%s", temppath.get(), (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
+                    possibletempfile.Format(_T("%s%s-rev%s.svn%3.3x.tmp%s"), temppath.get(), (LPCTSTR)filename, (LPCTSTR)revision.ToString(), i, (LPCTSTR)path.GetFileExtension());
                 }
                 else
                 {
-                    possibletempfile.Format(L"%s%s.svn%3.3x.tmp%s", temppath.get(), (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
+                    possibletempfile.Format(_T("%s%s.svn%3.3x.tmp%s"), temppath.get(), (LPCTSTR)filename, i, (LPCTSTR)path.GetFileExtension());
                 }
                 tempfile.SetFromWin(possibletempfile);
                 filename = filename.Left(filename.GetLength()-1);

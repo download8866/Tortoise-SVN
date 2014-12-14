@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012, 2014 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -38,13 +38,6 @@ public:
     CString             conflict_new;
     CString             conflict_wrk;
     CString             prejfile;
-
-    // property conflict data
-    std::string         propname;
-    std::string         propvalue_base;
-    std::string         propvalue_working;
-    std::string         propvalue_incoming_old;
-    std::string         propvalue_incoming_new;
 
     // tree conflict data
     CString             treeconflict_path;
@@ -116,7 +109,7 @@ public:
     std::deque<SVNConflictData> conflicts;
     // convenience methods:
 
-    bool IsValid() const {return rev.IsValid() != FALSE;}
+    bool IsValid() {return rev.IsValid() != FALSE;}
 
 };
 
@@ -144,7 +137,7 @@ public:
      * \param fetchActualOnly if true, also fetch nodes that don't exist as versioned but are still tree conflicted
      * for all children of \a path.
      */
-    const SVNInfoData * GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, svn_depth_t depth = svn_depth_empty, bool fetchExcluded = true , bool fetchActualOnly = true, bool includeExternals = false );
+    const SVNInfoData * GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision, svn_depth_t depth = svn_depth_empty, bool fetchExcluded  = true , bool fetchActualOnly  = true );
     size_t GetFileCount() const {return m_arInfo.size();}
     /**
      * Returns the info of the next file in the file list. If no more files are in the list then NULL is returned.

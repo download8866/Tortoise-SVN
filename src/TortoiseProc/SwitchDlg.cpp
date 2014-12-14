@@ -28,10 +28,10 @@
 IMPLEMENT_DYNAMIC(CSwitchDlg, CResizableStandAloneDialog)
 CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CSwitchDlg::IDD, pParent)
-    , m_URL(L"")
-    , Revision(L"HEAD")
+    , m_URL(_T(""))
+    , Revision(_T("HEAD"))
     , m_pLogDlg(NULL)
-    , m_bNoExternals(CRegDWORD(L"Software\\TortoiseSVN\\noext"))
+    , m_bNoExternals(FALSE)
     , m_bStickyDepth(FALSE)
     , m_bIgnoreAncestry(FALSE)
     , m_bFolder(false)
@@ -92,7 +92,7 @@ BOOL CSwitchDlg::OnInitDialog()
     {
         destUrl = m_URL;
     }
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoPaths\\"+sUUID, L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoPaths\\")+sUUID, _T("url"));
     m_URLCombo.SetCurSel(0);
     if (!url.IsEmpty())
     {
@@ -155,7 +155,7 @@ BOOL CSwitchDlg::OnInitDialog()
 
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"SwitchDlg");
+    EnableSaveRestore(_T("SwitchDlg"));
     return TRUE;
 }
 
@@ -200,7 +200,7 @@ void CSwitchDlg::OnOK()
     // if head revision, set revision as HEAD
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        m_rev = L"HEAD";
+        m_rev = _T("HEAD");
     }
     Revision = SVNRev(m_rev);
     if (!Revision.IsValid())
@@ -238,10 +238,6 @@ void CSwitchDlg::OnOK()
     }
 
     UpdateData(FALSE);
-
-    CRegDWORD regNoExt(L"Software\\TortoiseSVN\\noext");
-    regNoExt = m_bNoExternals;
-
     CResizableStandAloneDialog::OnOK();
 }
 
@@ -296,7 +292,7 @@ void CSwitchDlg::OnBnClickedLog()
 LPARAM CSwitchDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_REVISION_NUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;

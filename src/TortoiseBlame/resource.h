@@ -31,18 +31,15 @@
 #define ID_VIEW_COLORBYAUTHOR           32793
 #define ID_VIEW_COLORBYAGE              32794
 #define ID_FILE_SETTINGS                32795
-#define ID_COPYTOCLIPBOARD_REV          32797
-#define ID_EDIT_FINDPREV                32798
-#define ID_EDIT_FINDSELREVERSE          32799
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
-// 
+//
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
 #define _APS_NEXT_RESOURCE_VALUE        131
-#define _APS_NEXT_COMMAND_VALUE         32800
+#define _APS_NEXT_COMMAND_VALUE         32796
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           110
 #endif

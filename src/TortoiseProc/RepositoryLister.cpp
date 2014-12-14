@@ -35,7 +35,7 @@
 
 // auto-schedule upon construction
 
-CRegDWORD fetchingLocksEnabled(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", TRUE);
+CRegDWORD fetchingLocksEnabled(_T("Software\\TortoiseSVN\\RepoBrowserShowLocks"), TRUE);
 
 
 CRepositoryLister::CQuery::CQuery
@@ -129,7 +129,7 @@ BOOL CRepositoryLister::CListQuery::ReportList
     // store dir entry
 
     bool abspath_has_slash = (absolutepath.GetAt(absolutepath.GetLength()-1) == '/');
-    CString relPath = absolutepath + (abspath_has_slash ? L"" : L"/");
+    CString relPath = absolutepath + (abspath_has_slash ? _T("") : _T("/"));
     CItem entry
         ( path
         , externalTarget
@@ -803,7 +803,6 @@ CString CRepositoryLister::AddSubTreeExternals
                     item.kind = svn_node_dir;
                     item.path = subpath;
                     item.unversioned = true;
-                    item.is_external = false;
                     item.absolutepath = url + L"/" + subpath;
                     items.push_back(item);
                 }

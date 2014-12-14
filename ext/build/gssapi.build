@@ -20,6 +20,7 @@
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
+      <arg value="/GF" if="${configuration == 'release'}" />
       <arg value="/EHsc" />
       <arg value="/MD" if="${configuration == 'release'}" />
       <arg value="/MDd" if="${configuration == 'debug'}" />
@@ -30,12 +31,12 @@
       <arg value="/Zi" />
       <arg value="/GL" if="${configuration == 'release'}" />
       <arg value="/arch:IA32" if="${configuration == 'release' and platform == 'win32'}" />
-      <arg value="/d2Zi+" if="${configuration == 'release'}" />
       <sources>
         <include name="gssapi.cpp" />
       </sources>
       <defines>
         <define name="WIN64" if="${platform == 'x64'}" />
+        <define name="_USING_V110_SDK71_" />
       </defines>
     </cl>
 

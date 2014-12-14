@@ -1,0 +1,2 @@
+* switch to html5
+* fix the validation errors

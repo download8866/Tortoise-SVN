@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005-2012, 2014 - TortoiseSVN
+// External Cache Copyright (C) 2005-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 
 CFolderCrawler::CFolderCrawler(void)
     : m_lCrawlInhibitSet(0)
-    , m_crawlHoldoffReleasesAt((LONGLONG)GetTickCount64())
+    , m_crawlHoldoffReleasesAt((long)GetTickCount())
     , m_bRun(false)
     , m_bPathsAddedSinceLastCrawl(false)
     , m_bItemsAddedSinceLastCrawl(false)
@@ -72,7 +72,7 @@ void CFolderCrawler::Initialise()
     m_bRun = true;
     unsigned int threadId = 0;
     m_hThread = (HANDLE)_beginthreadex(NULL,0,ThreadEntry,this,0,&threadId);
-    SetThreadPriority(m_hThread, THREAD_PRIORITY_BELOW_NORMAL);
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_IDLE);
 }
 
 void CFolderCrawler::AddDirectoryForUpdate(const CTSVNPath& path)
@@ -116,10 +116,16 @@ void CFolderCrawler::WorkerThread()
     hWaitHandles[0] = m_hTerminationEvent;
     hWaitHandles[1] = m_hWakeEvent;
     CTSVNPath workingPath;
+    bool bFirstRunAfterWakeup = false;
 
     for(;;)
     {
-        bool bRecursive = !!(DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\RecursiveOverlay", TRUE);
+        bool bRecursive = !!(DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\RecursiveOverlay"), TRUE);
+
+        if (SysInfo::Instance().IsVistaOrLater())
+        {
+            SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
+        }
         DWORD waitResult = WaitForMultipleObjects(_countof(hWaitHandles), hWaitHandles, FALSE, INFINITE);
 
         // exit event/working loop if the first event (m_hTerminationEvent)
@@ -136,10 +142,8 @@ void CFolderCrawler::WorkerThread()
         // However, it's important that we don't do our crawling while
         // the shell is still asking for items
         //
-        bool bFirstRunAfterWakeup = true;
-        SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
-        OnOutOfScope(SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END));
-        for (;;)
+        bFirstRunAfterWakeup = true;
+        for(;;)
         {
             if (!m_bRun)
                 break;
@@ -167,7 +171,7 @@ void CFolderCrawler::WorkerThread()
                 bFirstRunAfterWakeup = false;
                 continue;
             }
-            if ((m_blockReleasesAt < GetTickCount64())&&(!m_blockedPath.IsEmpty()))
+            if ((m_blockReleasesAt < GetTickCount())&&(!m_blockedPath.IsEmpty()))
             {
                 m_blockedPath.Reset();
             }
@@ -201,7 +205,7 @@ void CFolderCrawler::WorkerThread()
                 if (!CSVNStatusCache::Instance().IsPathGood(workingPath))
                     continue;
                 // check if the changed path is inside an .svn folder
-                if ((workingPath.IsDirectory() && (SVNHelper::IsVersioned(workingPath, true))) || workingPath.IsAdminDir())
+                if ((workingPath.IsDirectory()&&(SVNHelper::IsVersioned(workingPath, true)))||workingPath.IsAdminDir())
                 {
                     // we don't crawl for paths changed in a tmp folder inside an .svn folder.
                     // Because we also get notifications for those even if we just ask for the status!
@@ -211,9 +215,9 @@ void CFolderCrawler::WorkerThread()
                     {
                         CString lowerpath = workingPath.GetWinPathString();
                         lowerpath.MakeLower();
-                        if (lowerpath.Find(L"\\wc.db-journal")>0)
+                        if (lowerpath.Find(_T("\\wc.db-journal"))>0)
                             continue;
-                        if (lowerpath.Find(L"\\wc.db")>0)
+                        if (lowerpath.Find(_T("\\wc.db"))>0)
                         {
                             bool changed = CSVNStatusCache::Instance().WCRoots()->NotifyChange(workingPath);
                             // do nothing if the file hasn't really changed
@@ -240,11 +244,11 @@ void CFolderCrawler::WorkerThread()
 
                     {
                         AutoLocker print(critSec);
-                        _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, L"Invalidating and refreshing folder: %s", workingPath.GetWinPath());
+                        _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, _T("Invalidating and refreshing folder: %s"), workingPath.GetWinPath());
                         nCurrentCrawledpathIndex++;
                         if (nCurrentCrawledpathIndex >= MAX_CRAWLEDPATHS)
                             nCurrentCrawledpathIndex = 0;
-                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Invalidating/refreshing folder %s\n", workingPath.GetWinPath());
+                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Invalidating/refreshing folder %s\n"), workingPath.GetWinPath());
                     }
                     InvalidateRect(hWnd, NULL, FALSE);
                     {
@@ -294,11 +298,11 @@ void CFolderCrawler::WorkerThread()
                     }
                     {
                         AutoLocker print(critSec);
-                        _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, L"Updating path: %s", workingPath.GetWinPath());
+                        _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, _T("Updating path: %s"), workingPath.GetWinPath());
                         nCurrentCrawledpathIndex++;
                         if (nCurrentCrawledpathIndex >= MAX_CRAWLEDPATHS)
                             nCurrentCrawledpathIndex = 0;
-                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": updating path %s\n", workingPath.GetWinPath());
+                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": updating path %s\n"), workingPath.GetWinPath());
                     }
                     InvalidateRect(hWnd, NULL, FALSE);
                     {
@@ -330,6 +334,10 @@ void CFolderCrawler::WorkerThread()
             }
             if (m_foldersToUpdate.size())
             {
+                if (SysInfo::Instance().IsVistaOrLater())
+                {
+                    SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+                }
                 {
                     AutoLocker lock(m_critSec);
 
@@ -356,11 +364,11 @@ void CFolderCrawler::WorkerThread()
 
                 {
                     AutoLocker print(critSec);
-                    _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, L"Crawling folder: %s", workingPath.GetWinPath());
+                    _sntprintf_s(szCurrentCrawledPath[nCurrentCrawledpathIndex], MAX_CRAWLEDPATHSLEN, _TRUNCATE, _T("Crawling folder: %s"), workingPath.GetWinPath());
                     nCurrentCrawledpathIndex++;
                     if (nCurrentCrawledpathIndex >= MAX_CRAWLEDPATHS)
                         nCurrentCrawledpathIndex = 0;
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Crawling folder %s\n", workingPath.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Crawling folder %s\n"), workingPath.GetWinPath());
                 }
                 InvalidateRect(hWnd, NULL, FALSE);
                 {
@@ -403,15 +411,15 @@ void CFolderCrawler::WorkerThread()
 
 bool CFolderCrawler::SetHoldoff(DWORD milliseconds /* = 500*/)
 {
-    LONGLONG tick = (LONGLONG)GetTickCount64();
+    long tick = (long)GetTickCount();
     bool ret = ((tick - m_crawlHoldoffReleasesAt) > 0);
     m_crawlHoldoffReleasesAt = tick + milliseconds;
     return ret;
 }
 
-bool CFolderCrawler::IsHoldOff() const
+bool CFolderCrawler::IsHoldOff()
 {
-    return (((LONGLONG)GetTickCount64() - m_crawlHoldoffReleasesAt) < 0);
+    return (((long)GetTickCount() - m_crawlHoldoffReleasesAt) < 0);
 }
 
 void CFolderCrawler::BlockPath(const CTSVNPath& path, DWORD ticks)
@@ -419,7 +427,7 @@ void CFolderCrawler::BlockPath(const CTSVNPath& path, DWORD ticks)
     AutoLocker lock(m_critSec);
     m_blockedPath = path;
     if (ticks == 0)
-        m_blockReleasesAt = GetTickCount64()+10000;
+        m_blockReleasesAt = GetTickCount()+10000;
     else
-        m_blockReleasesAt = GetTickCount64()+ticks;
+        m_blockReleasesAt = GetTickCount()+ticks;
 }

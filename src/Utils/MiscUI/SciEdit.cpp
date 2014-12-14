@@ -78,7 +78,7 @@ CSciEdit::CSciEdit(void) : m_DirectFunction(NULL)
     , m_separator(' ')
     , m_nAutoCompleteMinChars(3)
 {
-    m_hModule = ::LoadLibrary(L"SciLexer.DLL");
+    m_hModule = ::LoadLibrary(_T("SciLexer.DLL"));
 }
 
 CSciEdit::~CSciEdit(void)
@@ -125,14 +125,14 @@ void CSciEdit::Init(LONG lLanguage)
     }
     Call(SCI_SETWORDCHARS, 0, (LPARAM)(LPCSTR)sWordChars);
     Call(SCI_SETWHITESPACECHARS, 0, (LPARAM)(LPCSTR)sWhiteSpace);
-    m_bDoStyle = ((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\StyleCommitMessages", TRUE))==TRUE;
-    m_nAutoCompleteMinChars= (int)(DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\AutoCompleteMinChars", 3);
+    m_bDoStyle = ((DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\StyleCommitMessages"), TRUE))==TRUE;
+    m_nAutoCompleteMinChars= (int)(DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\AutoCompleteMinChars"), 3);
     // look for dictionary files and use them if found
     long langId = GetUserDefaultLCID();
 
     if (lLanguage >= 0)
     {
-        if ((lLanguage != 0)||(((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\Spellchecker", FALSE))==FALSE))
+        if ((lLanguage != 0)||(((DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\Spellchecker"), FALSE))==FALSE))
         {
             if (!((lLanguage)&&(!LoadDictionaries(lLanguage))))
             {
@@ -159,10 +159,10 @@ void CSciEdit::Init(LONG lLanguage)
     Call(SCI_ASSIGNCMDKEY, SCK_END + (SCMOD_SHIFT << 16), SCI_LINEENDWRAPEXTEND);
     Call(SCI_ASSIGNCMDKEY, SCK_HOME, SCI_HOMEWRAP);
     Call(SCI_ASSIGNCMDKEY, SCK_HOME + (SCMOD_SHIFT << 16), SCI_HOMEWRAPEXTEND);
-    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
+    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", FALSE);
     if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
     {
-        Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITERETAIN);
+        Call(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
         Call(SCI_SETBUFFEREDDRAW, 0);
     }
 }
@@ -197,64 +197,64 @@ BOOL CSciEdit::LoadDictionaries(LONG lLanguageID)
 
     GetLocaleInfo(MAKELCID(lLanguageID, SORT_DEFAULT), LOCALE_SISO639LANGNAME, buf, _countof(buf));
     sFile = buf;
-    sFile += L"_";
+    sFile += _T("_");
     GetLocaleInfo(MAKELCID(lLanguageID, SORT_DEFAULT), LOCALE_SISO3166CTRYNAME, buf, _countof(buf));
     sFile += buf;
     if (pChecker==NULL)
     {
-        if ((PathFileExists(sFolder + sFile + L".aff")) &&
-            (PathFileExists(sFolder + sFile + L".dic")))
+        if ((PathFileExists(sFolder + sFile + _T(".aff"))) &&
+            (PathFileExists(sFolder + sFile + _T(".dic"))))
         {
-            pChecker = new Hunspell(CStringA(sFolder + sFile + L".aff"), CStringA(sFolder + sFile + L".dic"));
+            pChecker = new Hunspell(CStringA(sFolder + sFile + _T(".aff")), CStringA(sFolder + sFile + _T(".dic")));
         }
-        else if ((PathFileExists(sFolder + L"dic\\" + sFile + L".aff")) &&
-            (PathFileExists(sFolder + L"dic\\" + sFile + L".dic")))
+        else if ((PathFileExists(sFolder + _T("dic\\") + sFile + _T(".aff"))) &&
+            (PathFileExists(sFolder + _T("dic\\") + sFile + _T(".dic"))))
         {
-            pChecker = new Hunspell(CStringA(sFolder + L"dic\\" + sFile + L".aff"), CStringA(sFolder + L"dic\\" + sFile + L".dic"));
+            pChecker = new Hunspell(CStringA(sFolder + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolder + _T("dic\\") + sFile + _T(".dic")));
         }
-        else if ((PathFileExists(sFolderUp + sFile + L".aff")) &&
-            (PathFileExists(sFolderUp + sFile + L".dic")))
+        else if ((PathFileExists(sFolderUp + sFile + _T(".aff"))) &&
+            (PathFileExists(sFolderUp + sFile + _T(".dic"))))
         {
-            pChecker = new Hunspell(CStringA(sFolderUp + sFile + L".aff"), CStringA(sFolderUp + sFile + L".dic"));
+            pChecker = new Hunspell(CStringA(sFolderUp + sFile + _T(".aff")), CStringA(sFolderUp + sFile + _T(".dic")));
         }
-        else if ((PathFileExists(sFolderUp + L"dic\\" + sFile + L".aff")) &&
-            (PathFileExists(sFolderUp + L"dic\\" + sFile + L".dic")))
+        else if ((PathFileExists(sFolderUp + _T("dic\\") + sFile + _T(".aff"))) &&
+            (PathFileExists(sFolderUp + _T("dic\\") + sFile + _T(".dic"))))
         {
-            pChecker = new Hunspell(CStringA(sFolderUp + L"dic\\" + sFile + L".aff"), CStringA(sFolderUp + L"dic\\" + sFile + L".dic"));
+            pChecker = new Hunspell(CStringA(sFolderUp + _T("dic\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("dic\\") + sFile + _T(".dic")));
         }
-        else if ((PathFileExists(sFolderUp + L"Languages\\" + sFile + L".aff")) &&
-            (PathFileExists(sFolderUp + L"Languages\\" + sFile + L".dic")))
+        else if ((PathFileExists(sFolderUp + _T("Languages\\") + sFile + _T(".aff"))) &&
+            (PathFileExists(sFolderUp + _T("Languages\\") + sFile + _T(".dic"))))
         {
-            pChecker = new Hunspell(CStringA(sFolderUp + L"Languages\\" + sFile + L".aff"), CStringA(sFolderUp + L"Languages\\" + sFile + L".dic"));
+            pChecker = new Hunspell(CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".aff")), CStringA(sFolderUp + _T("Languages\\") + sFile + _T(".dic")));
         }
     }
 #if THESAURUS
     if (pThesaur==NULL)
     {
-        if ((PathFileExists(sFolder + L"th_" + sFile + L"_v2.idx")) &&
-            (PathFileExists(sFolder + L"th_" + sFile + L"_v2.dat")))
+        if ((PathFileExists(sFolder + _T("th_") + sFile + _T("_v2.idx"))) &&
+            (PathFileExists(sFolder + _T("th_") + sFile + _T("_v2.dat"))))
         {
-            pThesaur = new MyThes(CStringA(sFolder + sFile + L"_v2.idx"), CStringA(sFolder + sFile + L"_v2.dat"));
+            pThesaur = new MyThes(CStringA(sFolder + sFile + _T("_v2.idx")), CStringA(sFolder + sFile + _T("_v2.dat")));
         }
-        else if ((PathFileExists(sFolder + L"dic\\th_" + sFile + L"_v2.idx")) &&
-            (PathFileExists(sFolder + L"dic\\th_" + sFile + L"_v2.dat")))
+        else if ((PathFileExists(sFolder + _T("dic\\th_") + sFile + _T("_v2.idx"))) &&
+            (PathFileExists(sFolder + _T("dic\\th_") + sFile + _T("_v2.dat"))))
         {
-            pThesaur = new MyThes(CStringA(sFolder + L"dic\\" + sFile + L"_v2.idx"), CStringA(sFolder + L"dic\\" + sFile + L"_v2.dat"));
+            pThesaur = new MyThes(CStringA(sFolder + _T("dic\\") + sFile + _T("_v2.idx")), CStringA(sFolder + _T("dic\\") + sFile + _T("_v2.dat")));
         }
-        else if ((PathFileExists(sFolderUp + L"th_" + sFile + L"_v2.idx")) &&
-            (PathFileExists(sFolderUp + L"th_" + sFile + L"_v2.dat")))
+        else if ((PathFileExists(sFolderUp + _T("th_") + sFile + _T("_v2.idx"))) &&
+            (PathFileExists(sFolderUp + _T("th_") + sFile + _T("_v2.dat"))))
         {
-            pThesaur = new MyThes(CStringA(sFolderUp + L"th_" + sFile + L"_v2.idx"), CStringA(sFolderUp + L"th_" + sFile + L"_v2.dat"));
+            pThesaur = new MyThes(CStringA(sFolderUp + _T("th_") + sFile + _T("_v2.idx")), CStringA(sFolderUp + _T("th_") + sFile + _T("_v2.dat")));
         }
-        else if ((PathFileExists(sFolderUp + L"dic\\th_" + sFile + L"_v2.idx")) &&
-            (PathFileExists(sFolderUp + L"dic\\th_" + sFile + L"_v2.dat")))
+        else if ((PathFileExists(sFolderUp + _T("dic\\th_") + sFile + _T("_v2.idx"))) &&
+            (PathFileExists(sFolderUp + _T("dic\\th_") + sFile + _T("_v2.dat"))))
         {
-            pThesaur = new MyThes(CStringA(sFolderUp + L"dic\\th_" + sFile + L"_v2.idx"), CStringA(sFolderUp + L"dic\\th_" + sFile + L"_v2.dat"));
+            pThesaur = new MyThes(CStringA(sFolderUp + _T("dic\\th_") + sFile + _T("_v2.idx")), CStringA(sFolderUp + _T("dic\\th_") + sFile + _T("_v2.dat")));
         }
-        else if ((PathFileExists(sFolderUp + L"Languages\\th_" + sFile + L"_v2.idx")) &&
-            (PathFileExists(sFolderUp + L"Languages\\th_" + sFile + L"_v2.dat")))
+        else if ((PathFileExists(sFolderUp + _T("Languages\\th_") + sFile + _T("_v2.idx"))) &&
+            (PathFileExists(sFolderUp + _T("Languages\\th_") + sFile + _T("_v2.dat"))))
         {
-            pThesaur = new MyThes(CStringA(sFolderUp + L"Languages\\th_" + sFile + L"_v2.idx"), CStringA(sFolderUp + L"Languages\\th_" + sFile + L"_v2.dat"));
+            pThesaur = new MyThes(CStringA(sFolderUp + _T("Languages\\th_") + sFile + _T("_v2.idx")), CStringA(sFolderUp + _T("Languages\\th_") + sFile + _T("_v2.dat")));
         }
     }
 #endif
@@ -548,7 +548,7 @@ void CSciEdit::SuggestSpellingAlternatives()
         return;
     CStringA sWordA = GetWordForSpellCkecker(word);
 
-    char ** wlst = NULL;
+    char ** wlst;
     int ns = pChecker->suggest(&wlst, sWordA);
     if (ns > 0)
     {
@@ -565,9 +565,8 @@ void CSciEdit::SuggestSpellingAlternatives()
         Call(SCI_AUTOCSETSEPARATOR, (WPARAM)CStringA(m_separator).GetAt(0));
         Call(SCI_AUTOCSETDROPRESTOFWORD, 1);
         Call(SCI_AUTOCSHOW, 0, (LPARAM)(LPCSTR)StringForControl(suggestions));
-        return;
     }
-    free(wlst);
+
 }
 
 void CSciEdit::DoAutoCompletion(int nMinPrefixLength)
@@ -613,10 +612,6 @@ void CSciEdit::DoAutoCompletion(int nMinPrefixLength)
             words.push_back(wordHigher.Mid(pos+1));
     }
 
-    // note: the m_autolist is case-sensitive because
-    // its contents are also used to mark words in it
-    // as correctly spelled. If it would be case-insensitive,
-    // case spelling mistakes would not show up as misspelled.
     std::set<CString> wordset;
     for (const auto& w : words)
     {
@@ -704,10 +699,10 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
                 else
                 {
                     url = m_sUrl;
-                    url.Replace(L"%BUGID%", StringFromControl(textbuffer.get()));
+                    url.Replace(_T("%BUGID%"), StringFromControl(textbuffer.get()));
 
                     // is the URL a relative one?
-                    if (url.Left(2).Compare(L"^/") == 0)
+                    if (url.Left(2).Compare(_T("^/")) == 0)
                     {
                         // URL is relative to the repository root
                         CString url1 = m_sRepositoryRoot + url.Mid(1);
@@ -723,7 +718,7 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
                         // URL is relative to the server's hostname
                         CString sHost;
                         // find the server's hostname
-                        int schemepos = m_sRepositoryRoot.Find(L"//");
+                        int schemepos = m_sRepositoryRoot.Find(_T("//"));
                         if (schemepos >= 0)
                         {
                             sHost = m_sRepositoryRoot.Left(m_sRepositoryRoot.Find('/', schemepos+3));
@@ -738,7 +733,7 @@ BOOL CSciEdit::OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT
                     }
                 }
                 if (!url.IsEmpty())
-                    ShellExecute(GetParent()->GetSafeHwnd(), L"open", url, NULL, NULL, SW_SHOWDEFAULT);
+                    ShellExecute(GetParent()->GetSafeHwnd(), _T("open"), url, NULL, NULL, SW_SHOWDEFAULT);
             }
             break;
         }
@@ -883,7 +878,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         // check if the word under the cursor is spelled wrong
         if ((pChecker)&&(!worda.IsEmpty()))
         {
-            char ** wlst = NULL;
+            char ** wlst;
             // get the spell suggestions
             int ns = pChecker->suggest(&wlst,worda);
             if (ns > 0)
@@ -898,8 +893,6 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                 }
                 free(wlst);
             }
-            else
-                free(wlst);
         }
         // only add a separator if spelling correction suggestions were added
         if (bSpellAdded)
@@ -991,7 +984,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                     sMenuItemText.LoadString(IDS_SPELLEDIT_THESAURUS);
                     popup.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)thesaurs.m_hMenu, sMenuItemText);
 #else
-                    popup.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)thesaurs.m_hMenu, L"Thesaurus");
+                    popup.InsertMenu((UINT)-1, MF_POPUP, (UINT_PTR)thesaurs.m_hMenu, _T("Thesaurus"));
 #endif
                     nThesaurs = nCustoms;
                 }

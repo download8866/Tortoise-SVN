@@ -28,7 +28,7 @@ IMPLEMENT_DYNAMIC(CMergeWizardRevRange, CMergeWizardBasePage)
 
 CMergeWizardRevRange::CMergeWizardRevRange()
     : CMergeWizardBasePage(CMergeWizardRevRange::IDD)
-    , m_sRevRange(L"")
+    , m_sRevRange(_T(""))
     , m_pLogDlg(NULL)
     , m_pLogDlg2(NULL)
 {
@@ -128,8 +128,8 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
 
     m_URLCombo.SaveHistory();
 
-    CString sRegKey = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLFor" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
-    CRegString regMergeUrlForWC(sRegKey);
+    CString sRegKey = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLFor") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CRegString regMergeUrlForWC = CRegString(sRegKey);
     regMergeUrlForWC = sUrl;
 
     ((CMergeWizard*)GetParent())->URL1 = sUrl;
@@ -142,14 +142,14 @@ LRESULT CMergeWizardRevRange::OnWizardNext()
     // ask the server what the HEAD revision is: the SVNRevList can only deal
     // with numerical revisions because we have to sort the list to get the
     // ranges correctly
-    if (m_sRevRange.Find(L"HEAD") >= 0)
+    if (m_sRevRange.Find(_T("HEAD")) >= 0)
     {
         if (!m_HEAD.IsValid())
         {
             SVN svn;
             m_HEAD = svn.GetHEADRevision(CTSVNPath(((CMergeWizard*)GetParent())->URL1));
         }
-        m_sRevRange.Replace(L"HEAD", m_HEAD.ToString());
+        m_sRevRange.Replace(_T("HEAD"), m_HEAD.ToString());
     }
     int atpos = -1;
     if ((atpos = m_sRevRange.ReverseFind('@')) >= 0)
@@ -172,13 +172,13 @@ BOOL CMergeWizardRevRange::OnInitDialog()
 
     CMergeWizard * pWizard = (CMergeWizard*)GetParent();
 
-    CString sRegKey = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLFor" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CString sRegKey = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLFor") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
     CString sMergeUrlForWC = CRegString(sRegKey);
 
     CString sUUID = pWizard->sUUID;
     m_URLCombo.SetURLHistory(true, false);
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS\\"+sUUID, L"url");
-    if (!(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\MergeWCURL", FALSE))
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
+    if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
         m_URLCombo.SetCurSel(0);
     else if (!sMergeUrlForWC.IsEmpty())
         m_URLCombo.SetWindowText(CPathUtils::PathUnescape(sMergeUrlForWC));

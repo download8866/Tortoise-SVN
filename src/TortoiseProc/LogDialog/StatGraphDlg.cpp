@@ -23,6 +23,7 @@
 #include "AppUtils.h"
 #include "StringUtils.h"
 #include "PathUtils.h"
+#include "MessageBox.h"
 #include "registry.h"
 #include "FormatMessageWrapper.h"
 
@@ -161,8 +162,8 @@ BOOL CStatGraphDlg::OnInitDialog()
         m_pToolTip->Activate(TRUE);
     }
 
-    m_bAuthorsCaseSensitive = DWORD(CRegDWORD(L"Software\\TortoiseSVN\\StatAuthorsCaseSensitive"));
-    m_bSortByCommitCount = DWORD(CRegDWORD(L"Software\\TortoiseSVN\\StatSortByCommitCount"));
+    m_bAuthorsCaseSensitive = DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\StatAuthorsCaseSensitive")));
+    m_bSortByCommitCount = DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\StatSortByCommitCount")));
     UpdateData(FALSE);
 
     //Load statistical queries
@@ -238,7 +239,7 @@ BOOL CStatGraphDlg::OnInitDialog()
     AddAnchor(IDC_SKIPPER, BOTTOM_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_SKIPPERLABEL, BOTTOM_LEFT);
     AddAnchor(IDOK, BOTTOM_RIGHT);
-    EnableSaveRestore(L"StatGraphDlg");
+    EnableSaveRestore(_T("StatGraphDlg"));
 
     // gather statistics data, only needs to be updated when the checkbox with
     // the case sensitivity of author names is changed
@@ -248,7 +249,7 @@ BOOL CStatGraphDlg::OnInitDialog()
     SetSkipper (true);
 
     // we use a stats page encoding here, 0 stands for the statistics dialog
-    CRegDWORD lastStatsPage = CRegDWORD(L"Software\\TortoiseSVN\\LastViewedStatsPage", 0);
+    CRegDWORD lastStatsPage = CRegDWORD(_T("Software\\TortoiseSVN\\LastViewedStatsPage"), 0);
 
     // open last viewed statistics page as first page
     int graphtype = lastStatsPage / 10;
@@ -282,9 +283,9 @@ BOOL CStatGraphDlg::OnInitDialog()
         default : return TRUE;
     }
 
-    LCID m_locale = MAKELCID((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)), SORT_DEFAULT);
+    LCID m_locale = MAKELCID((DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)), SORT_DEFAULT);
 
-    bool bUseSystemLocale = !!(DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\UseSystemLocaleForDates", TRUE);
+    bool bUseSystemLocale = !!(DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\UseSystemLocaleForDates"), TRUE);
     LCID locale = bUseSystemLocale ? MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), SORT_DEFAULT) : m_locale;
 
     TCHAR l[2] = {0};
@@ -791,7 +792,7 @@ void CStatGraphDlg::ShowCommitsByDate()
     tstring othersName;
     if (!others.empty())
     {
-        temp.Format(L" (%Iu)", others.size());
+        temp.Format(_T(" (%ld)"), others.size());
         sOthers += temp;
         othersName = (LPCWSTR)sOthers;
         authorGraphMap[othersName] = m_graph.AppendGroup(sOthers);
@@ -944,7 +945,7 @@ void CStatGraphDlg::ShowStats()
         nWeeks = 1;
     // Adjust the labels with the unit type (week, month, ...)
     CString labelText;
-    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, GetUnitsString());
+    labelText.Format(IDS_STATGRAPH_NUMBEROFUNIT, GetUnitString());
     SetDlgItemText(IDC_NUMWEEK, labelText);
     labelText.Format(IDS_STATGRAPH_COMMITSBYUNIT, GetUnitString());
     SetDlgItemText(IDC_COMMITSEACHWEEK, labelText);
@@ -952,56 +953,56 @@ void CStatGraphDlg::ShowStats()
     SetDlgItemText(IDC_FILECHANGESEACHWEEK, labelText);
     // We have now all data we want and we can fill in the labels...
     CString number;
-    number.Format(L"%d", nWeeks);
+    number.Format(_T("%ld"), nWeeks);
     SetDlgItemText(IDC_NUMWEEKVALUE, number);
-    number.Format(L"%Iu", nAuthors);
+    number.Format(_T("%ld"), nAuthors);
     SetDlgItemText(IDC_NUMAUTHORVALUE, number);
-    number.Format(L"%Id", m_nTotalCommits);
+    number.Format(_T("%Id"), m_nTotalCommits);
     SetDlgItemText(IDC_NUMCOMMITSVALUE, number);
-    number.Format(L"%ld", m_nTotalFileChanges);
+    number.Format(_T("%ld"), m_nTotalFileChanges);
     SetDlgItemText(IDC_NUMFILECHANGESVALUE, number);
 
-    number.Format(L"%Id", m_parAuthors->GetCount() / nWeeks);
+    number.Format(_T("%Id"), m_parAuthors->GetCount() / nWeeks);
     SetDlgItemText(IDC_COMMITSEACHWEEKAVG, number);
-    number.Format(L"%ld", nCommitsMax);
+    number.Format(_T("%ld"), nCommitsMax);
     SetDlgItemText(IDC_COMMITSEACHWEEKMAX, number);
-    number.Format(L"%ld", nCommitsMin);
+    number.Format(_T("%ld"), nCommitsMin);
     SetDlgItemText(IDC_COMMITSEACHWEEKMIN, number);
 
-    number.Format(L"%ld", m_nTotalFileChanges / nWeeks);
+    number.Format(_T("%ld"), m_nTotalFileChanges / nWeeks);
     SetDlgItemText(IDC_FILECHANGESEACHWEEKAVG, number);
-    number.Format(L"%ld", nFileChangesMax);
+    number.Format(_T("%ld"), nFileChangesMax);
     SetDlgItemText(IDC_FILECHANGESEACHWEEKMAX, number);
-    number.Format(L"%ld", nFileChangesMin);
+    number.Format(_T("%ld"), nFileChangesMin);
     SetDlgItemText(IDC_FILECHANGESEACHWEEKMIN, number);
 
     if (nAuthors == 0)
     {
-        SetDlgItemText(IDC_MOSTACTIVEAUTHORNAME, L"");
-        SetDlgItemText(IDC_MOSTACTIVEAUTHORAVG, L"0");
-        SetDlgItemText(IDC_MOSTACTIVEAUTHORMAX, L"0");
-        SetDlgItemText(IDC_MOSTACTIVEAUTHORMIN, L"0");
-        SetDlgItemText(IDC_LEASTACTIVEAUTHORNAME, L"");
-        SetDlgItemText(IDC_LEASTACTIVEAUTHORAVG, L"0");
-        SetDlgItemText(IDC_LEASTACTIVEAUTHORMAX, L"0");
-        SetDlgItemText(IDC_LEASTACTIVEAUTHORMIN, L"0");
+        SetDlgItemText(IDC_MOSTACTIVEAUTHORNAME, _T(""));
+        SetDlgItemText(IDC_MOSTACTIVEAUTHORAVG, _T("0"));
+        SetDlgItemText(IDC_MOSTACTIVEAUTHORMAX, _T("0"));
+        SetDlgItemText(IDC_MOSTACTIVEAUTHORMIN, _T("0"));
+        SetDlgItemText(IDC_LEASTACTIVEAUTHORNAME, _T(""));
+        SetDlgItemText(IDC_LEASTACTIVEAUTHORAVG, _T("0"));
+        SetDlgItemText(IDC_LEASTACTIVEAUTHORMAX, _T("0"));
+        SetDlgItemText(IDC_LEASTACTIVEAUTHORMIN, _T("0"));
     }
     else
     {
         SetDlgItemText(IDC_MOSTACTIVEAUTHORNAME, mostActiveAuthor.c_str());
-        number.Format(L"%ld", m_commitsPerAuthor[mostActiveAuthor] / nWeeks);
+        number.Format(_T("%ld"), m_commitsPerAuthor[mostActiveAuthor] / nWeeks);
         SetDlgItemText(IDC_MOSTACTIVEAUTHORAVG, number);
-        number.Format(L"%ld", nMostActiveMaxCommits);
+        number.Format(_T("%ld"), nMostActiveMaxCommits);
         SetDlgItemText(IDC_MOSTACTIVEAUTHORMAX, number);
-        number.Format(L"%ld", nMostActiveMinCommits);
+        number.Format(_T("%ld"), nMostActiveMinCommits);
         SetDlgItemText(IDC_MOSTACTIVEAUTHORMIN, number);
 
         SetDlgItemText(IDC_LEASTACTIVEAUTHORNAME, leastActiveAuthor.c_str());
-        number.Format(L"%ld", m_commitsPerAuthor[leastActiveAuthor] / nWeeks);
+        number.Format(_T("%ld"), m_commitsPerAuthor[leastActiveAuthor] / nWeeks);
         SetDlgItemText(IDC_LEASTACTIVEAUTHORAVG, number);
-        number.Format(L"%ld", nLeastActiveMaxCommits);
+        number.Format(_T("%ld"), nLeastActiveMaxCommits);
         SetDlgItemText(IDC_LEASTACTIVEAUTHORMAX, number);
-        number.Format(L"%ld", nLeastActiveMinCommits);
+        number.Format(_T("%ld"), nLeastActiveMinCommits);
         SetDlgItemText(IDC_LEASTACTIVEAUTHORMIN, number);
     }
 }
@@ -1091,19 +1092,6 @@ CString CStatGraphDlg::GetUnitString()
     return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXYEAR));
 }
 
-CString CStatGraphDlg::GetUnitsString()
-{
-    if (m_nDays < 8)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXDAYS));
-    if (m_nWeeks < 15)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXWEEKS));
-    if (m_nWeeks < 80)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXMONTHS));
-    if (m_nWeeks < 320)
-        return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXQUARTERS));
-    return CString(MAKEINTRESOURCE(IDS_STATGRAPH_COMMITSBYDATEXYEARS));
-}
-
 CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
 {
     CString temp;
@@ -1117,14 +1105,14 @@ CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
             switch (m_langOrder)
             {
             case 0: // month day year
-                temp.Format(L"%d/%d/%.2d", month, day, lasttime.GetYear()%100);
+                temp.Format(_T("%d/%d/%.2d"), month, day, lasttime.GetYear()%100);
                 break;
             case 1: // day month year
             default:
-                temp.Format(L"%d/%d/%.2d", day, month, lasttime.GetYear()%100);
+                temp.Format(_T("%d/%d/%.2d"), day, month, lasttime.GetYear()%100);
                 break;
             case 2: // year month day
-                temp.Format(L"%.2d/%d/%d", lasttime.GetYear()%100, month, day);
+                temp.Format(_T("%.2d/%d/%d"), lasttime.GetYear()%100, month, day);
                 break;
             }
         }
@@ -1140,10 +1128,10 @@ CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
             case 0: // month day year
             case 1: // day month year
             default:
-                temp.Format(L"%d/%.2d", unit, year%100);
+                temp.Format(_T("%d/%.2d"), unit, year%100);
                 break;
             case 2: // year month day
-                temp.Format(L"%.2d/%d", year%100, unit);
+                temp.Format(_T("%.2d/%d"), year%100, unit);
                 break;
             }
         }
@@ -1154,10 +1142,10 @@ CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
         case 0: // month day year
         case 1: // day month year
         default:
-            temp.Format(L"%d/%.2d", unit, lasttime.GetYear()%100);
+            temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
             break;
         case 2: // year month day
-            temp.Format(L"%.2d/%d", lasttime.GetYear()%100, unit);
+            temp.Format(_T("%.2d/%d"), lasttime.GetYear()%100, unit);
             break;
         }
         break;
@@ -1167,15 +1155,15 @@ CString CStatGraphDlg::GetUnitLabel(int unit, CTime &lasttime)
         case 0: // month day year
         case 1: // day month year
         default:
-            temp.Format(L"%d/%.2d", unit, lasttime.GetYear()%100);
+            temp.Format(_T("%d/%.2d"), unit, lasttime.GetYear()%100);
             break;
         case 2: // year month day
-            temp.Format(L"%.2d/%d", lasttime.GetYear()%100, unit);
+            temp.Format(_T("%.2d/%d"), lasttime.GetYear()%100, unit);
             break;
         }
         break;
     case Years:
-        temp.Format(L"%d", unit);
+        temp.Format(_T("%d"), unit);
         break;
     }
     return temp;
@@ -1328,7 +1316,7 @@ void CStatGraphDlg::OnFileSavestatgraphas()
 {
     CString tempfile;
     int filterindex = 0;
-    if (CAppUtils::FileOpenSave(tempfile, &filterindex, IDS_REVGRAPH_SAVEPIC, IDS_PICTUREFILEFILTER, false, CString(), m_hWnd))
+    if (CAppUtils::FileOpenSave(tempfile, &filterindex, IDS_REVGRAPH_SAVEPIC, IDS_PICTUREFILEFILTER, false, m_hWnd))
     {
         // if the user doesn't specify a file extension, default to
         // wmf and add that extension to the filename. But only if the
@@ -1341,7 +1329,7 @@ void CStatGraphDlg::OnFileSavestatgraphas()
             extension = tempfile.Mid(dotPos);
         if ((filterindex == 1)&&(extension.IsEmpty()))
         {
-            extension = L".wmf";
+            extension = _T(".wmf");
             tempfile += extension;
         }
         SaveGraph(tempfile);
@@ -1351,11 +1339,11 @@ void CStatGraphDlg::OnFileSavestatgraphas()
 void CStatGraphDlg::SaveGraph(CString sFilename)
 {
     CString extension = CPathUtils::GetFileExtFromPath(sFilename);
-    if (extension.CompareNoCase(L".wmf")==0)
+    if (extension.CompareNoCase(_T(".wmf"))==0)
     {
         // save the graph as an enhanced meta file
         CMyMetaFileDC wmfDC;
-        wmfDC.CreateEnhanced(NULL, sFilename, NULL, L"TortoiseSVN\0Statistics\0\0");
+        wmfDC.CreateEnhanced(NULL, sFilename, NULL, _T("TortoiseSVN\0Statistics\0\0"));
         wmfDC.SetAttribDC(GetDC()->GetSafeHdc());
         RedrawGraph();
         m_graph.DrawGraph(wmfDC);
@@ -1400,19 +1388,19 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
                     {
                         // Get the CLSID of the encoder.
                         int ret = 0;
-                        if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(L".png")==0)
+                        if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(_T(".png"))==0)
                             ret = GetEncoderClsid(L"image/png", &encoderClsid);
-                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(L".jpg")==0)
+                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(_T(".jpg"))==0)
                             ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(L".jpeg")==0)
+                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(_T(".jpeg"))==0)
                             ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
-                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(L".bmp")==0)
+                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(_T(".bmp"))==0)
                             ret = GetEncoderClsid(L"image/bmp", &encoderClsid);
-                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(L".gif")==0)
+                        else if (CPathUtils::GetFileExtFromPath(sFilename).CompareNoCase(_T(".gif"))==0)
                             ret = GetEncoderClsid(L"image/gif", &encoderClsid);
                         else
                         {
-                            sFilename += L".jpg";
+                            sFilename += _T(".jpg");
                             ret = GetEncoderClsid(L"image/jpeg", &encoderClsid);
                         }
                         if (ret >= 0)
@@ -1440,7 +1428,7 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
             dc.DeleteDC();
             if (!sErrormessage.IsEmpty())
             {
-                ::MessageBox(m_hWnd, sErrormessage, L"TortoiseSVN", MB_ICONERROR);
+                ::MessageBox(m_hWnd, sErrormessage, _T("TortoiseSVN"), MB_ICONERROR);
             }
         }
         catch (CException * pE)
@@ -1448,7 +1436,7 @@ void CStatGraphDlg::SaveGraph(CString sFilename)
             TCHAR szErrorMsg[2048] = { 0 };
             pE->GetErrorMessage(szErrorMsg, 2048);
             pE->Delete();
-            ::MessageBox(m_hWnd, szErrorMsg, L"TortoiseSVN", MB_ICONERROR);
+            ::MessageBox(m_hWnd, szErrorMsg, _T("TortoiseSVN"), MB_ICONERROR);
         }
     }
 }
@@ -1513,13 +1501,13 @@ void CStatGraphDlg::StoreCurrentGraphType()
     }
 
     // store current chart type in registry
-    CRegDWORD lastStatsPage(L"Software\\TortoiseSVN\\LastViewedStatsPage", 0);
+    CRegDWORD lastStatsPage = CRegDWORD(_T("Software\\TortoiseSVN\\LastViewedStatsPage"), 0);
     lastStatsPage = statspage;
 
-    CRegDWORD regAuthors(L"Software\\TortoiseSVN\\StatAuthorsCaseSensitive");
+    CRegDWORD regAuthors = CRegDWORD(_T("Software\\TortoiseSVN\\StatAuthorsCaseSensitive"));
     regAuthors = m_bAuthorsCaseSensitive;
 
-    CRegDWORD regSort(L"Software\\TortoiseSVN\\StatSortByCommitCount");
+    CRegDWORD regSort = CRegDWORD(_T("Software\\TortoiseSVN\\StatSortByCommitCount"));
     regSort = m_bSortByCommitCount;
 }
 
@@ -1527,7 +1515,7 @@ void CStatGraphDlg::ShowErrorMessage()
 {
     CFormatMessageWrapper errorDetails;
     if (errorDetails)
-        MessageBox( errorDetails, L"Error", MB_OK | MB_ICONINFORMATION );
+        MessageBox( errorDetails, _T("Error"), MB_OK | MB_ICONINFORMATION );
 }
 
 void CStatGraphDlg::ShowSelectStat(Metrics SelectedMetric, bool reloadSkiper /* = false */)
@@ -1568,7 +1556,7 @@ void CStatGraphDlg::DrawOthers(const std::list<tstring> &others, MyGraphSeries *
     }
 
     CString temp;
-    temp.Format(L" (%Iu)", others.size());
+    temp.Format(_T(" (%ld)"), others.size());
 
     CString sOthers(MAKEINTRESOURCE(IDS_STATGRAPH_OTHERGROUP));
     sOthers += temp;

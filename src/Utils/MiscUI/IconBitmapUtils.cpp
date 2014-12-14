@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2012, 2014 - TortoiseSVN
+// Copyright (C) 2009-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,10 +21,23 @@
 #include "SysInfo.h"
 #include "registry.h"
 
-#pragma comment(lib, "UxTheme.lib")
-
 IconBitmapUtils::IconBitmapUtils()
+    : hUxTheme(NULL)
+    , pfnGetBufferedPaintBits(NULL)
+    , pfnBeginBufferedPaint(NULL)
+    , pfnEndBufferedPaint(NULL)
 {
+    if (SysInfo::Instance().IsVistaOrLater())
+    {
+        hUxTheme = AtlLoadSystemLibraryUsingFullPath(_T("UXTHEME.DLL"));
+
+        if (hUxTheme)
+        {
+            pfnGetBufferedPaintBits = (FN_GetBufferedPaintBits)::GetProcAddress(hUxTheme, "GetBufferedPaintBits");
+            pfnBeginBufferedPaint = (FN_BeginBufferedPaint)::GetProcAddress(hUxTheme, "BeginBufferedPaint");
+            pfnEndBufferedPaint = (FN_EndBufferedPaint)::GetProcAddress(hUxTheme, "EndBufferedPaint");
+        }
+    }
 }
 
 IconBitmapUtils::~IconBitmapUtils()
@@ -35,6 +48,8 @@ IconBitmapUtils::~IconBitmapUtils()
         ::DeleteObject(it->second);
     }
     bitmaps.clear();
+    if (hUxTheme)
+        FreeLibrary(hUxTheme);
 }
 
 HBITMAP IconBitmapUtils::IconToBitmap(HINSTANCE hInst, UINT uIcon)
@@ -138,6 +153,9 @@ HBITMAP IconBitmapUtils::IconToBitmapPARGB32(HICON hIcon)
     if (!hIcon)
         return NULL;
 
+    if (pfnBeginBufferedPaint == NULL || pfnEndBufferedPaint == NULL || pfnGetBufferedPaintBits == NULL)
+        return NULL;
+
     SIZE sizIcon;
     sizIcon.cx = GetSystemMetrics(SM_CXSMICON);
     sizIcon.cy = GetSystemMetrics(SM_CYSMICON);
@@ -161,7 +179,7 @@ HBITMAP IconBitmapUtils::IconToBitmapPARGB32(HICON hIcon)
                 paintParams.pBlendFunction = &bfAlpha;
 
                 HDC hdcBuffer;
-                HPAINTBUFFER hPaintBuffer = BeginBufferedPaint(hdcDest, &rcIcon, BPBF_DIB, &paintParams, &hdcBuffer);
+                HPAINTBUFFER hPaintBuffer = pfnBeginBufferedPaint(hdcDest, &rcIcon, BPBF_DIB, &paintParams, &hdcBuffer);
                 if (hPaintBuffer)
                 {
                     if (DrawIconEx(hdcBuffer, 0, 0, hIcon, sizIcon.cx, sizIcon.cy, 0, NULL, DI_NORMAL))
@@ -171,7 +189,7 @@ HBITMAP IconBitmapUtils::IconToBitmapPARGB32(HICON hIcon)
                     }
 
                     // This will write the buffer contents to the destination bitmap
-                    EndBufferedPaint(hPaintBuffer, TRUE);
+                    pfnEndBufferedPaint(hPaintBuffer, TRUE);
                 }
 
                 SelectObject(hdcDest, hbmpOld);
@@ -184,7 +202,7 @@ HBITMAP IconBitmapUtils::IconToBitmapPARGB32(HICON hIcon)
     return hBmp;
 }
 
-HRESULT IconBitmapUtils::Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp) const
+HRESULT IconBitmapUtils::Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp)
 {
     if (psize == 0)
         return E_INVALIDARG;
@@ -220,7 +238,7 @@ HRESULT IconBitmapUtils::ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC h
 {
     RGBQUAD *prgbQuad;
     int cxRow;
-    HRESULT hr = GetBufferedPaintBits(hPaintBuffer, &prgbQuad, &cxRow);
+    HRESULT hr = pfnGetBufferedPaintBits(hPaintBuffer, &prgbQuad, &cxRow);
     if (SUCCEEDED(hr))
     {
         Gdiplus::ARGB *pargb = reinterpret_cast<Gdiplus::ARGB *>(prgbQuad);
@@ -243,7 +261,7 @@ HRESULT IconBitmapUtils::ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC h
     return hr;
 }
 
-bool IconBitmapUtils::HasAlpha(__in Gdiplus::ARGB *pargb, SIZE& sizImage, int cxRow) const
+bool IconBitmapUtils::HasAlpha(__in Gdiplus::ARGB *pargb, SIZE& sizImage, int cxRow)
 {
     ULONG cxDelta = cxRow - sizImage.cx;
     for (ULONG y = sizImage.cy; y; --y)
@@ -262,7 +280,7 @@ bool IconBitmapUtils::HasAlpha(__in Gdiplus::ARGB *pargb, SIZE& sizImage, int cx
     return false;
 }
 
-HRESULT IconBitmapUtils::ConvertToPARGB32(HDC hdc, __inout Gdiplus::ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow) const
+HRESULT IconBitmapUtils::ConvertToPARGB32(HDC hdc, __inout Gdiplus::ARGB *pargb, HBITMAP hbmp, SIZE& sizImage, int cxRow)
 {
     BITMAPINFO bmi;
     SecureZeroMemory(&bmi, sizeof(bmi));

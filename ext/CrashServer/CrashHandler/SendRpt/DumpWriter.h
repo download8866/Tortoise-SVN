@@ -1,8 +1,8 @@
-// Copyright 2014 Idol Software, Inc.
+// Copyright 2012 Idol Software, Inc.
 //
-// This file is part of Doctor Dump SDK.
+// This file is part of CrashHandler library.
 //
-// Doctor Dump SDK is free software: you can redistribute it and/or modify
+// CrashHandler library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -19,17 +19,14 @@
 
 #include <wtypes.h>
 #include <dbghelp.h>
-#include <map>
-#include "DoctorDump.h"
-#include "../../CommonLibs/Log/log.h"
 
 class DumpWriter
 {
 public:
-    DumpWriter(Log& log);
+    DumpWriter();
     ~DumpWriter();
 
-    void Init(LPCWSTR dbgHelpPath);
+    void Init();
 
     bool WriteMiniDump(
         HANDLE hProcess,
@@ -40,39 +37,18 @@ public:
         MINIDUMP_CALLBACK_INFORMATION* pCallback);
 
 private:
-    typedef BOOL (WINAPI *fnMiniDumpWriteDump)(
-        HANDLE hProcess,
-        DWORD ProcessId,
-        HANDLE hFile,
-        MINIDUMP_TYPE DumpType,
-        CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam,
-        CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-        CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+    void CreateDbghelp();
 
-    Log& m_log;
-    CStringW m_dbgHelpPath;
+    typedef BOOL (WINAPI *fnMiniDumpWriteDump)(
+        IN HANDLE hProcess,
+        IN DWORD ProcessId,
+        IN HANDLE hFile,
+        IN MINIDUMP_TYPE DumpType,
+        IN CONST PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, OPTIONAL
+        IN CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, OPTIONAL
+        IN CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam OPTIONAL);
+
+    TCHAR m_szDbghelpPath[MAX_PATH];
     HINSTANCE m_hDbgHelp;
     fnMiniDumpWriteDump m_pfnMiniDumpWriteDump;
-};
-
-class DumpFilter
-{
-public:
-    DumpFilter(bool& cancel, DWORD saveOnlyThisThreadID = 0);
-
-    operator MINIDUMP_CALLBACK_INFORMATION*() { return &m_callback; }
-
-private:
-    MINIDUMP_CALLBACK_INFORMATION m_callback;
-    bool& m_cancel;
-    DWORD m_saveOnlyThisThreadID;
-
-    BOOL MinidumpCallback(
-        const PMINIDUMP_CALLBACK_INPUT CallbackInput,
-        PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
-
-    static BOOL CALLBACK _MinidumpCallback(
-        PVOID CallbackParam,
-        const PMINIDUMP_CALLBACK_INPUT CallbackInput,
-        PMINIDUMP_CALLBACK_OUTPUT CallbackOutput);
 };

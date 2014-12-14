@@ -30,27 +30,11 @@
 #include "StringUtils.h"
 #include "UnicodeUtils.h"
 #include <algorithm>
-#include <fstream>
 
-CRegStdString regTagsPattern = CRegStdString(L"Software\\TortoiseSVN\\RevisionGraph\\TagsPattern", L"tags");
+#pragma warning(push)
+#pragma warning(disable:4127)   //conditional expression is constant (cause of SVN_ERR)
 
-void LoadIgnorePatterns(const char * wc, SubWCRev_t * SubStat)
-{
-    std::string path = wc;
-    std::string ignorepath = path + "/.subwcrevignore";
-
-    std::ifstream infile;
-    infile.open(ignorepath);
-    if (infile.good())
-    {
-        std::string line;
-        while (std::getline(infile, line))
-        {
-            if (!line.empty())
-                SubStat->ignorepatterns.insert(line);
-        }
-    }
-}
+CRegStdString regTagsPattern = CRegStdString(_T("Software\\TortoiseSVN\\RevisionGraph\\TagsPattern"), _T("tags"));
 
 // Copy the URL from src to dest, unescaping on the fly.
 void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
@@ -81,6 +65,7 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
             }
 
             char nValue = '?';
+            char * pszLow = NULL;
             char * pszHigh = NULL;
             pszSource++;
 
@@ -91,7 +76,7 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
             {
                 pszSource++;
                 up = (char) toupper(*pszSource);
-                char *pszLow = strchr(szHex, up);
+                pszLow = strchr(szHex, up);
 
                 if (pszLow != NULL)
                 {
@@ -120,8 +105,8 @@ void UnescapeCopy(const char * root, const char * src, char * dest, int buf_len)
 tstring Tokenize(const _TCHAR* str, const _TCHAR* delim, tstring::size_type& iStart)
 {
     const _TCHAR* pstr = str + iStart;
-    const _TCHAR* r = wcsstr(pstr, delim);
-    tstring::size_type dlen = wcslen(delim);
+    const _TCHAR* r = _tcsstr(pstr, delim);
+    tstring::size_type dlen = _tcslen(delim);
 
     while( r )
     {
@@ -131,12 +116,12 @@ tstring Tokenize(const _TCHAR* str, const _TCHAR* delim, tstring::size_type& iSt
             return tstring(pstr, tstring::size_type(r - pstr));
         }
         pstr = r + dlen;
-        r = wcsstr(pstr, delim);
+        r = _tcsstr(pstr, delim);
     }
 
-    if( wcslen(pstr) > 0)
+    if( _tcslen(pstr) > 0)
     {
-        iStart = tstring::size_type(wcslen(str));
+        iStart = tstring::size_type(_tcslen(str));
         return tstring(pstr);
     }
     return tstring();
@@ -160,7 +145,7 @@ bool IsTaggedVersion(const char * url)
     tstring temp;
     while (!isTag)
     {
-        temp = Tokenize(sTags.c_str(), L";", pos);
+        temp = Tokenize(sTags.c_str(), _T(";"), pos);
         if (!temp.length())
             break;
 
@@ -168,11 +153,11 @@ bool IsTaggedVersion(const char * url)
         tstring temp2;
         for(;;)
         {
-            temp2 = Tokenize(urllower.c_str(), L"/", urlpos);
+            temp2 = Tokenize(urllower.c_str(), _T("/"), urlpos);
             if (!temp2.length())
                 break;
 
-            if (wcswildcmp(temp.c_str(), temp2.c_str()))
+            if (_tcswildcmp(temp.c_str(), temp2.c_str()))
             {
                 isTag = true;
                 break;
@@ -216,15 +201,6 @@ svn_error_t * getallstatus(void * baton, const char * path, const svn_client_sta
     if((NULL == status) || (NULL == sb) || (NULL == sb->SubStat))
     {
         return SVN_NO_ERROR;
-    }
-
-    if (status->repos_relpath && !sb->SubStat->ignorepatterns.empty())
-    {
-        for (const auto& pattern : sb->SubStat->ignorepatterns)
-        {
-            if (strwildcmp(pattern.c_str(), status->repos_relpath))
-                return SVN_NO_ERROR;
-        }
     }
 
     if (status->kind == svn_node_dir)
@@ -366,27 +342,27 @@ svn_status (    const char *path,
                 apr_pool_t *pool)
 {
     SubWCRev_StatusBaton_t sb;
-    auto extarray = std::make_unique<std::vector<SubWcExtData_t>>();
+    std::vector<SubWcExtData_t> * extarray = new std::vector<SubWcExtData_t>;
     sb.SubStat = (SubWCRev_t *)status_baton;
-    sb.extarray = extarray.get();
+    sb.extarray = extarray;
     sb.pool = pool;
     sb.wc_ctx = ctx->wc_ctx;
 
     svn_opt_revision_t wcrev;
     wcrev.kind = svn_opt_revision_working;
 
-    SVN_ERR(svn_client_status6(NULL, ctx, path, &wcrev, svn_depth_empty, true, false, true, true, true, true, NULL, getfirststatus, &sb, pool));
-    SVN_ERR(svn_client_status6(NULL, ctx, path, &wcrev, svn_depth_infinity, true, false, true, true, true, true, NULL, getallstatus, &sb, pool));
+    SVN_ERR(svn_client_status5(NULL, ctx, path, &wcrev, svn_depth_empty, true, false, true, true, true, NULL, getfirststatus, &sb, pool));
+    SVN_ERR(svn_client_status5(NULL, ctx, path, &wcrev, svn_depth_infinity, true, false, true, true, true, NULL, getallstatus, &sb, pool));
 
 
     // now crawl through all externals
     for (std::vector<SubWcExtData_t>::iterator I = extarray->begin(); I != extarray->end(); ++I)
     {
         SubWcExtData_t extdata = *I;
+        svn_revnum_t minRev = -1;
+        svn_revnum_t maxRev = -1;
         if (strcmp(path, extdata.Path))
         {
-            svn_revnum_t minRev = -1;
-            svn_revnum_t maxRev = -1;
             if (sb.SubStat->bExternalsNoMixedRevision && (extdata.Revision.kind == svn_opt_revision_number))
             {
                 minRev = sb.SubStat->MinRev;
@@ -422,5 +398,8 @@ svn_status (    const char *path,
         }
     }
 
+    delete extarray;
+
     return SVN_NO_ERROR;
 }
+#pragma warning(pop)

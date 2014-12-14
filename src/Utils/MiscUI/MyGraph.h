@@ -14,7 +14,7 @@ class MyGraphSeries : public CObject
 
 // Construction.
 public:
-    MyGraphSeries(const CString& sLabel = L"");
+    MyGraphSeries(const CString& sLabel = _T(""));
     virtual ~MyGraphSeries();
 
 // Declared but not defined.

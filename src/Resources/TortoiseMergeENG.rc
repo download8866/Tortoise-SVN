@@ -39,7 +39,6 @@ IDI_CONFLICTEDIGNOREDLINE ICON                    "lineconflictedignored.ico"
 IDI_LINEEDITED          ICON                    "lineedited.ico"
 IDI_MOVEDLINE           ICON                    "moved.ico"
 IDI_AEROBACKGROUND      ICON                    "aerobackground.ico"
-IDI_LINEMARKED          ICON                    "linemarked.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -103,6 +102,13 @@ END
 
 IDB_LOGOFLIPPED         BITMAP                  "tortoisemerge_logoflipped.bmp"
 IDB_TTF_BMP             BITMAP                  "ttf_glyph.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AVI
+//
+
+IDR_DOWNLOAD            AVI                     "download.avi"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -196,12 +202,9 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,56,236,10
     CONTROL         "Show linenumber&s",IDC_LINENUMBERS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,67,236,10
     CONTROL         "Add new files automatically to SVN",IDC_AUTOADD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,79,236,10
-    CONTROL         "Use Ribbons",IDC_USERIBBONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,90,109,10
-    CONTROL         "Use spaces",IDC_USESPACES,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,103,95,10
-    CONTROL         "Smart tab char",IDC_SMARTTABCHAR,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,130,103,95,10
+    CONTROL         "Use Ribbons",IDC_USERIBBONS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,90,236,10
     LTEXT           "&Tab size:",IDC_STATIC,15,118,54,8
     EDITTEXT        IDC_TABSIZE,80,115,41,14,ES_AUTOHSCROLL | ES_NUMBER
-    CONTROL         "Enable EditorConfig",IDC_ENABLEEDITORCONFIG,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,149,118,102,10
     LTEXT           "&Font:",IDC_STATIC,15,135,52,8
     COMBOBOX        IDC_FONTNAMES,80,133,122,90,CBS_DROPDOWNLIST | CBS_OWNERDRAWVARIABLE | CBS_SORT | CBS_HASSTRINGS | WS_VSCROLL | WS_TABSTOP
     COMBOBOX        IDC_FONTSIZES,211,133,40,47,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
@@ -211,8 +214,6 @@ BEGIN
     CONTROL         "Ignore case cha&nges",IDC_CASEINSENSITIVE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,15,196,236,10
     GROUPBOX        "Misc",IDC_MISCGROUP,7,0,251,151
     GROUPBOX        "Diffing",IDC_DIFFGROUP,7,161,251,82
-    LTEXT           "Context lines for patches",IDC_STATIC,16,210,172,8
-    EDITTEXT        IDC_CONTEXTLINES,211,207,40,14,ES_RIGHT | ES_AUTOHSCROLL | ES_NUMBER
 END
 
 IDD_SETCOLORPAGE DIALOGEX 0, 0, 265, 257
@@ -220,7 +221,7 @@ STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_DISABLED | WS_CAPTION
 CAPTION "Colors"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
-    GROUPBOX        "Line differences",IDC_STATIC,7,7,251,149
+    GROUPBOX        "Line differences",IDC_STATIC,7,7,251,161
     LTEXT           "Normal",IDC_STATIC,15,16,113,8,0,WS_EX_RIGHT
     PUSHBUTTON      "",IDC_BKNORMAL,152,14,50,14
     LTEXT           "Added",IDC_STATIC,15,32,113,8,0,WS_EX_RIGHT
@@ -235,15 +236,14 @@ BEGIN
     PUSHBUTTON      "",IDC_BKCONFLICTRESOLVED,152,98,50,14
     LTEXT           "Empty",IDC_STATIC,15,116,113,8,0,WS_EX_RIGHT
     PUSHBUTTON      "",IDC_BKEMPTY,152,114,50,14
-    GROUPBOX        "Inline differences",IDC_STATIC,7,158,251,43
-    LTEXT           "Added",IDC_STATIC,15,169,113,8,0,WS_EX_RIGHT
-    PUSHBUTTON      "",IDC_BKWHITESPACES,152,167,50,14
-    LTEXT           "Removed",IDC_STATIC,15,185,113,8,0,WS_EX_RIGHT
-    PUSHBUTTON      "",IDC_BKWHITESPACEDIFF,152,183,50,14
-    GROUPBOX        "Misc",IDC_STATIC,7,201,251,26
-    RTEXT           "Whitespaces",IDC_STATIC,15,211,113,8
-    PUSHBUTTON      "",IDC_FGWHITESPACES,152,209,50,14
-    PUSHBUTTON      "Restore Default",IDC_RESTORE,176,236,82,14
+    GROUPBOX        "Inline differences",IDC_STATIC,7,171,251,43
+    LTEXT           "Added",IDC_STATIC,15,181,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKWHITESPACES,152,179,50,14
+    LTEXT           "Removed",IDC_STATIC,15,197,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKWHITESPACEDIFF,152,195,50,14
+    GROUPBOX        "Misc",IDC_STATIC,7,217,251,33
+    RTEXT           "Whitespaces",IDC_STATIC,15,232,113,8
+    PUSHBUTTON      "",IDC_FGWHITESPACES,152,228,50,14
 END
 
 IDD_PATCH_FILE_OPEN_CUSTOM DIALOGEX 0, 0, 122, 28
@@ -253,26 +253,19 @@ BEGIN
     PUSHBUTTON      "Open from clipboard",IDC_PATCH_TO_CLIPBOARD,7,7,108,14
 END
 
-IDD_FIND DIALOGEX 0, 0, 345, 108
+IDD_FIND DIALOGEX 0, 0, 311, 73
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Find"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     LTEXT           "Search for:",IDC_STATIC,7,10,79,8
     CONTROL         "",IDC_FINDCOMBO,"ComboBoxEx32",CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP,90,7,154,95
-    LTEXT           "Replace with:",IDC_STATIC,7,28,79,8
-    CONTROL         "",IDC_REPLACECOMBO,"ComboBoxEx32",CBS_DROPDOWN | CBS_AUTOHSCROLL | WS_VSCROLL | WS_TABSTOP,90,26,154,95
-    CONTROL         "Match &case",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,42,90,10
+    CONTROL         "Match &case",IDC_MATCHCASE,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,26,200,10
     CONTROL         "&Limit search to modified lines",IDC_LIMITTODIFFS,
-                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,55,169,10
-    CONTROL         "Search &up",IDC_SEARCHUP,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,67,79,10
-    CONTROL         "&Whole word",IDC_WHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,80,98,10
-    DEFPUSHBUTTON   "&Find",IDOK,248,7,90,14,WS_DISABLED
-    PUSHBUTTON      "&Replace",IDC_REPLACE,248,26,90,14,WS_DISABLED
-    PUSHBUTTON      "Replace &All",IDC_REPLACEALL,248,45,90,14,WS_DISABLED
-    PUSHBUTTON      "Coun&t",IDC_COUNT,248,65,90,14
-    PUSHBUTTON      "Cancel",IDCANCEL,248,81,90,14
-    LTEXT           "",IDC_FINDSTATUS,7,98,331,8
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,41,200,10
+    CONTROL         "&Whole word",IDC_WHOLEWORD,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,56,200,10
+    DEFPUSHBUTTON   "&Find",IDOK,248,7,56,14,WS_DISABLED
+    PUSHBUTTON      "Cancel",IDCANCEL,248,28,56,14
 END
 
 IDD_ENCODING DIALOGEX 0, 0, 229, 92
@@ -298,34 +291,6 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,118,48,50,14
     LTEXT           "&Line number",IDC_LINELABEL,7,7,161,8
     EDITTEXT        IDC_NUMBER,7,20,161,14,ES_AUTOHSCROLL | ES_NUMBER
-END
-
-IDD_REGEXFILTERS DIALOGEX 0, 0, 321, 183
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Regex Filters"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,211,162,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,264,162,50,14
-    CONTROL         "",IDC_REGEXLIST,"SysListView32",LVS_REPORT | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,7,7,307,131
-    PUSHBUTTON      "&Add Filter",IDC_ADD,92,141,68,14
-    PUSHBUTTON      "&Edit Filter",IDC_EDIT,169,141,68,14,WS_DISABLED
-    PUSHBUTTON      "&Delete Filter",IDC_REMOVE,246,141,68,14,WS_DISABLED
-END
-
-IDD_REGEXFILTER DIALOGEX 0, 0, 309, 86
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Regex Filter"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,198,65,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,252,65,50,14
-    LTEXT           "Name:",IDC_STATIC,7,9,61,8
-    EDITTEXT        IDC_NAME,74,7,228,14,ES_AUTOHSCROLL
-    LTEXT           "Regex:",IDC_STATIC,7,26,61,8
-    EDITTEXT        IDC_REGEX,74,24,228,14,ES_AUTOHSCROLL
-    LTEXT           "Replace:",IDC_STATIC,7,45,61,8
-    EDITTEXT        IDC_REPLACE,74,42,228,14,ES_AUTOHSCROLL
 END
 
 
@@ -390,13 +355,13 @@ BEGIN
     IDD_FIND, DIALOG
     BEGIN
         LEFTMARGIN, 7
-        RIGHTMARGIN, 338
+        RIGHTMARGIN, 304
         VERTGUIDE, 86
         VERTGUIDE, 90
         VERTGUIDE, 244
         VERTGUIDE, 248
         TOPMARGIN, 7
-        BOTTOMMARGIN, 106
+        BOTTOMMARGIN, 66
     END
 
     IDD_ENCODING, DIALOG
@@ -414,25 +379,6 @@ BEGIN
         RIGHTMARGIN, 168
         TOPMARGIN, 7
         BOTTOMMARGIN, 62
-    END
-
-    IDD_REGEXFILTERS, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 314
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 176
-        HORZGUIDE, 155
-    END
-
-    IDD_REGEXFILTER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        VERTGUIDE, 68
-        VERTGUIDE, 74
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 79
     END
 END
 #endif    // APSTUDIO_INVOKED
@@ -679,14 +625,6 @@ IDR_RIBBON              RT_RIBBON_XML           "ribbon.mfcribbon-ms"
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// CONFIG
-//
-
-IDR_REGEXFILTERINI      CONFIG                  "RegexFilter.ini"
-IDR_IGNORECOMMENTSTXT   CONFIG                  "ignorecomments.txt"
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // String Table
 //
 
@@ -694,28 +632,6 @@ STRINGTABLE
 BEGIN
     IDR_MAINFRAME           "TortoiseMerge"
     IDS_TITLE_REJECTEDHUNKS "Rejected patch hunks for '%s'"
-    IDS_CONFIGUREREGEXES    "Configure Filter Regexes"
-    IDS_ASKFORSAVE_MARKEDBLOCKS "Marked Blocks"
-    IDS_WARNMARKEDBLOCKS    "You have marked changed blocks. How should those blocks be saved?"
-    IDS_MARKEDBLOCKSSAVEINCLUDE 
-                            "Save and include\nYour changes are saved and the marked blocks are included"
-    IDS_MARKEDBLOCKSSAVEEXCLUDE 
-                            "Save and exclude\nYour changes are saved and the original content is used"
-    IDS_MARKEDBLCOKSSAVEIGNORE 
-                            "Save and ignore marked blocks\nOnly your manual edits are saved, marked blocks are left as they are"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_FIND_COUNT          "Count: %u matches."
-END
-
-STRINGTABLE
-BEGIN
-    IDS_FIND_NOTFOUND       "Find: Can't find the text ""%s"""
-    IDS_FIND_BOTTOMREACHED  "Find: First occurrence from the top found. End of document reached."
-    IDS_FIND_TOPREACHED     "Find: First occurrence from the bottom found. Beginning of document reached."
-    IDS_FIND_REPLACED       "Replaced %d matches"
 END
 
 STRINGTABLE
@@ -816,8 +732,14 @@ BEGIN
     IDS_ERR_PATCH_NOINDEX   "The line 'Index: ' was not found!\nEither this is not a diff file or the diff is empty."
     IDS_ERR_PATCH_NOEQUATIONCHARLINE 
                             "The line '====' was expected in line %d !"
+    IDS_ERR_PATCH_NOREMOVEFILELINE 
+                            "The line indicating the old file was expected in line %d !"
     IDS_ERR_PATCH_NOADDFILELINE 
                             "The line indicating the new file was expected in line %d !"
+    IDS_ERR_PATCH_RENAMINGNOTSUPPORTED 
+                            "The old file does not match the new file.\nRenaming of files is not (yet) supported!"
+    IDS_ERR_PATCH_CHUNKSTARTNOTFOUND 
+                            "The chunk start '@@' was expected in line %d !"
     IDS_ERR_PATCH_UNKOWNLINETYPE "An unknown line type was found in line %d !"
     IDS_ERR_PATCH_CHUNKMISMATCH 
                             "The chunk size did not match the number of added/removed lines!"
@@ -830,6 +752,7 @@ BEGIN
                             "The file %s was not found in the patch file!"
     IDS_ERR_PATCH_DOESNOTMATCH 
                             "The patch seems outdated! The file line\n%1!s!\nand the patchline\n%2!s!\ndo not match!"
+    IDS_ERR_PATCH_FILESAVE  "Could not save the file %s!"
 END
 
 STRINGTABLE
@@ -883,15 +806,6 @@ END
 
 STRINGTABLE
 BEGIN
-    IDS_VIEWCONTEXTMENU_EOL "End of Line Style"
-    IDS_VIEWCONTEXTMENU_ENCODING "File Encoding"
-    IDS_VIEWCONTEXTMENU_MARKBLOCK "Mark this change"
-    IDS_VIEWCONTEXTMENU_UNMARKBLOCK "Unmark this change"
-    IDS_VIEWCONTEXTMENU_LEAVEONLYMARKEDBLOCKS "Leave only marked changes"
-END
-
-STRINGTABLE
-BEGIN
     IDS_SAVEASTITLE         "Save as..."
     IDS_COMMANDLINEHELP     "Valid command line options are:\n/base:<path to base file>\n/theirs:<path to their file>\n/mine:<path to your file>\n/merged:<path to resulting merged file>\n/diff:<path to unified diff file>\n/patchpath:<path to folder>"
     IDS_OPENDIFFFILETITLE   "Apply Patch..."
@@ -899,6 +813,7 @@ BEGIN
     IDS_GETVERSIONOFFILE    "Fetching revision %s of file:"
     IDS_WARNMODIFIEDLOOSECHANGES 
                             "There are unsaved modifications!\nDo you want to save your changes?"
+    IDS_ASKFORSAVE          "Do you want to save your changes?"
     IDS_WARNMODIFIEDLOOSECHANGESOPTIONS 
                             "Do you want to reload the documents to reflect the settings changes?\nNote: you will lose all changes you've made!"
 END
@@ -935,6 +850,7 @@ STRINGTABLE
 BEGIN
     IDS_COMMONFILEFILTER    "All Files (*.*)|*.*||"
     IDS_PATCHFILEFILTER     "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
+    IDS_PROGRAMSFILEFILTER  "Programs (*.exe)|*.exe|All Files (*.*)|*.*||"
 END
 
 STRINGTABLE
@@ -981,6 +897,10 @@ BEGIN
     IDS_WARNBETTERPATCHPATHFOUND 
                             "The path\n%1!s!\nseems not to match the paths in the patchfile.\nBut TortoiseMerge found the path\n%2!s!\nmatches it better. Do you want to use the suggested path instead?"
     IDS_NOTFOUNDVIEWTITLEINDICATOR "(not found)"
+    IDS_WARNABSOLUTEPATHFOUND 
+                            "The path\n%1!s!\nin the patchfile does not exist.\nTortoiseMerge found the relative path\n%2!s!\nwhich seems to match the directory you're applying the patch.\n\nDo you want to use the suggested path? Answering 'no' will quit TortoiseMerge."
+    IDS_WARNABSOLUTEPATHNOTFOUND 
+                            "The path\n%s\nin the patchfile does not exist.\nTortoiseMerge tried to apply the patch by stripping prefixes but no matching path could be found."
     IDS_DELETEWHENEMPTY     "The file \n%s\nis empty.\nDo you want to remove the file?"
     IDS_EMPTYLINETT         "(no line number)"
     IDS_WARNMODIFIEDOUTSIDELOOSECHANGES 
@@ -1101,8 +1021,11 @@ STRINGTABLE
 BEGIN
     IDS_ERR_DIFFVIEWSTART   "Could not start diff viewer!\n%s"
     IDS_ERR_PATCHPATHS      "Both the path to the patch file and the target path must be absolute paths!"
-    IDS_ERR_ERROR           "Error"
-    IDS_ERR_INVALIDREGEX    "The regular expression is invalid!\nPlease enter a valid regular expression."
+END
+
+STRINGTABLE
+BEGIN
+    IDS_UTILS_SELECTTEXTVIEWER "Select text editor application"
 END
 
 STRINGTABLE
@@ -1140,6 +1063,7 @@ BEGIN
     IDS_ASKFORSAVE_NOSAVE_OPEN 
                             "Don't save\nClose the views without saving the modifications"
     IDS_ASKFORSAVE_CANCEL_OPEN "Cancel\nStay with current files"
+    IDS_ASKFORSAVE_CANCEL_RELOAD "Cancel\nDon't reload views"
     IDS_ASKFORSAVE_CANCEL_OPTIONS "Cancel\nStay with current settings"
 END
 
@@ -1151,7 +1075,6 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_IGNORECOMMENTS  "Remove all comments before doing the diff so changes inside comments don't show as different"
     ID_LOGOBUTTON           "TortoiseMerge"
 END
 
@@ -1167,6 +1090,34 @@ END
 
 STRINGTABLE
 BEGIN
+    IDS_MSGBOX_OK           "&OK"
+    IDS_MSGBOX_CANCEL       "&Cancel"
+    IDS_MSGBOX_IGNORE       "Ignore"
+    IDS_MSGBOX_RETRY        "Retry"
+    IDS_MSGBOX_ABORT        "Abort"
+    IDS_MSGBOX_HELP         "&Help"
+    IDS_MSGBOX_YES          "Yes"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_MSGBOX_NO           "No"
+    IDS_MSGBOX_CONTINUE     "Continue"
+    IDS_MSGBOX_DONOTASKAGAIN "Don't ask me again"
+    IDS_MSGBOX_DONOTTELLAGAIN "Don't tell me again"
+    IDS_MSGBOX_DONOTSHOWAGAIN "Don't show this message again"
+    IDS_MSGBOX_YESTOALL     "Yes to all"
+    IDS_MSGBOX_NOTOALL      "No to all"
+    IDS_MSGBOX_TRYAGAIN     "Try again"
+    IDS_MSGBOX_REPORT       "Report"
+    IDS_MSGBOX_IGNOREALL    "Ignore all"
+    IDS_MSGBOX_SKIP         "Skip"
+    IDS_MSGBOX_SKIPALL      "Skip all"
+END
+
+STRINGTABLE
+BEGIN
+    IDS_ASKFORSAVE_TASK9    "When resolving conflicts, you always have to save even if there is no conflict shown. TortoiseMerge can merge changes that SVN can't and won't show a conflict for those!"
     IDS_ASKFORSAVE_SAVELEFT "Save Left File\nThe modifications are saved to\n%s"
     IDS_ASKFORSAVE_SAVELEFTAS 
                             "Save Left File as\nYou're asked where to save the left file"
@@ -1200,19 +1151,6 @@ END
 STRINGTABLE
 BEGIN
     ID_EDIT_ENABLE          "Allow Editing for this view\nAllow Edit"
-END
-
-STRINGTABLE
-BEGIN
-    ID_REGEXFILTER          "Regex Filter"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_TEXTIDENTICAL_MAIN  "The text is identical, but the files do not match!\r\nThe following differences were found:"
-    IDS_TEXTIDENTICAL_WHITESPACE "Whitespace changes (tabs, spaces)"
-    IDS_TEXTIDENTICAL_ENCODING "Encoding"
-    IDS_TEXTIDENTICAL_EOL   "Newlines"
 END
 
 #endif    // English (United States) resources

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -60,8 +60,6 @@ void CSettings::AddPropPages()
     m_pBugTraqPage = new CSetBugTraq();
     m_pTBlamePage = new CSettingsTBlame();
     m_pAdvanced = new CSettingsAdvanced();
-    m_pSyncPage = new CSettingsSync();
-    m_pUDiffPage = new CSettingsUDiff();
 
     SetPageIcon(m_pMainPage, m_pMainPage->GetIconID());
     SetPageIcon(m_pOverlayPage, m_pOverlayPage->GetIconID());
@@ -84,8 +82,6 @@ void CSettings::AddPropPages()
     SetPageIcon(m_pBugTraqPage, m_pBugTraqPage->GetIconID());
     SetPageIcon(m_pTBlamePage, m_pTBlamePage->GetIconID());
     SetPageIcon(m_pAdvanced, m_pAdvanced->GetIconID());
-    SetPageIcon(m_pSyncPage, m_pSyncPage->GetIconID());
-    SetPageIcon(m_pUDiffPage, m_pUDiffPage->GetIconID());
 
     // don't change the order here, since the
     // page number can be passed on the command line!
@@ -109,8 +105,6 @@ void CSettings::AddPropPages()
     AddPage(m_pHooksPage);
     AddPage(m_pBugTraqPage);
     AddPage(m_pTBlamePage);
-    AddPage(m_pUDiffPage);
-    AddPage(m_pSyncPage);
     AddPage(m_pAdvanced);
 }
 
@@ -136,8 +130,6 @@ void CSettings::RemovePropPages()
     delete m_pHooksPage;
     delete m_pBugTraqPage;
     delete m_pTBlamePage;
-    delete m_pUDiffPage;
-    delete m_pSyncPage;
     delete m_pAdvanced;
 }
 
@@ -163,14 +155,12 @@ void CSettings::HandleRestart()
     restart |= m_pHooksPage->GetRestart();
     restart |= m_pBugTraqPage->GetRestart();
     restart |= m_pTBlamePage->GetRestart();
-    restart |= m_pUDiffPage->GetRestart();
-    restart |= m_pSyncPage->GetRestart();
     restart |= m_pAdvanced->GetRestart();
     if (restart & ISettingsPropPage::Restart_System)
     {
         DWORD_PTR res = 0;
         ::SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, 0, SMTO_ABORTIFHUNG, 20, &res);
-        TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_SETTINGS_RESTARTSYSTEM), NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+        TSVNMessageBox(NULL, IDS_SETTINGS_RESTARTSYSTEM, IDS_APPNAME, MB_ICONINFORMATION);
     }
     if (restart & ISettingsPropPage::Restart_Cache)
     {
@@ -201,7 +191,7 @@ BOOL CSettings::OnInitDialog()
     margs.cxRightWidth = 0;
     margs.cyBottomHeight = BOTTOMMARG;
 
-    if ((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE))
+    if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE))
     {
         m_Dwm.Initialize();
         m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &margs);

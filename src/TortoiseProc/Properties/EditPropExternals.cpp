@@ -21,7 +21,6 @@
 #include "EditPropExternals.h"
 #include "EditPropExternalsValue.h"
 #include "SVN.h"
-#include "SVNInfo.h"
 #include "AppUtils.h"
 #include "ProgressDlg.h"
 #include "IconMenu.h"
@@ -130,7 +129,7 @@ BOOL CEditPropExternals::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"EditPropsExternals");
+    EnableSaveRestore(_T("EditPropsExternals"));
 
     return TRUE;
 }
@@ -265,19 +264,19 @@ void CEditPropExternals::OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *p
                     break;
                 case 2: // peg
                     if ((ext.pegrevision.kind == svn_opt_revision_number) && (ext.pegrevision.value.number >= 0))
-                        swprintf_s(m_columnbuf, L"%ld", ext.pegrevision.value.number);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.pegrevision.value.number);
                     else
                         m_columnbuf[0] = 0;
                     break;
                 case 3: // operative
                     if ((ext.revision.kind == svn_opt_revision_number) && (ext.revision.value.number >= 0) && (ext.revision.value.number != ext.pegrevision.value.number))
-                        swprintf_s(m_columnbuf, L"%ld", ext.revision.value.number);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.revision.value.number);
                     else
                         m_columnbuf[0] = 0;
                     break;
                 case 4: // head revision
                     if (ext.headrev != SVN_INVALID_REVNUM)
-                        swprintf_s(m_columnbuf, L"%ld", ext.headrev);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.headrev);
                     else
                         m_columnbuf[0] = 0;
                     break;
@@ -314,7 +313,6 @@ void CEditPropExternals::OnBnClickedFindhead()
     DWORD count = 0;
     DWORD total = (DWORD)m_externals.size()*4;
     SVN svn;
-    SVNInfo svnInfo;
     for (auto it = m_externals.begin(); it != m_externals.end(); ++it)
     {
         progDlg.SetProgress(count++, total);
@@ -342,11 +340,7 @@ void CEditPropExternals::OnBnClickedFindhead()
             auto hi = headrevs.find(it->root);
             if (hi == headrevs.end())
             {
-                const SVNInfoData * pInfo = svnInfo.GetFirstFileInfo(CTSVNPath(it->fullurl), SVNRev(), SVNRev::REV_HEAD);
-                if ((pInfo == nullptr) || (pInfo->lastchangedrev <= 0))
-                    it->headrev = svn.GetHEADRevision(CTSVNPath(it->fullurl), true);
-                else
-                    it->headrev = pInfo->lastchangedrev;
+                it->headrev = svn.GetHEADRevision(CTSVNPath(it->fullurl), true);
                 headrevs[it->root] = it->headrev;
             }
             else
@@ -408,7 +402,6 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         case CMD_FETCH_AND_ADJUST:
             {
                 SVN svn;
-                SVNInfo svnInfo;
                 std::map<CString, svn_revnum_t> headrevs;
                 CProgressDlg progDlg;
                 progDlg.ShowModal(m_hWnd, TRUE);
@@ -436,11 +429,7 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                             auto hi = headrevs.find(m_externals[index].root);
                             if (hi == headrevs.end())
                             {
-                                const SVNInfoData * pInfo = svnInfo.GetFirstFileInfo(CTSVNPath(m_externals[index].fullurl), SVNRev(), SVNRev::REV_HEAD);
-                                if ((pInfo == nullptr) || (pInfo->lastchangedrev <= 0))
-                                    m_externals[index].headrev = svn.GetHEADRevision(CTSVNPath(m_externals[index].fullurl), true);
-                                else
-                                    m_externals[index].headrev = pInfo->lastchangedrev;
+                                m_externals[index].headrev = svn.GetHEADRevision(CTSVNPath(m_externals[index].fullurl), true);
                                 headrevs[m_externals[index].root] = m_externals[index].headrev;
                             }
                             else

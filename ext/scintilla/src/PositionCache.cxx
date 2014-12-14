@@ -10,15 +10,12 @@
 #include <stdio.h>
 #include <ctype.h>
 
-#include <stdexcept>
 #include <string>
 #include <vector>
 #include <map>
-#include <algorithm>
 
 #include "Platform.h"
 
-#include "ILexer.h"
 #include "Scintilla.h"
 
 #include "SplitVector.h"
@@ -34,15 +31,20 @@
 #include "ViewStyle.h"
 #include "CharClassify.h"
 #include "Decoration.h"
+#include "ILexer.h"
 #include "CaseFolder.h"
 #include "Document.h"
-#include "UniConversion.h"
 #include "Selection.h"
 #include "PositionCache.h"
 
 #ifdef SCI_NAMESPACE
 using namespace Scintilla;
 #endif
+
+static inline bool IsControlCharacter(int ch) {
+	// iscntrl returns true for lots of chars > 127 which are displayable
+	return ch >= 0 && ch < ' ';
+}
 
 LineLayout::LineLayout(int maxLineLength_) :
 	lineStarts(0),
@@ -55,12 +57,16 @@ LineLayout::LineLayout(int maxLineLength_) :
 	validity(llInvalid),
 	xHighlightGuide(0),
 	highlightColumn(0),
+	psel(NULL),
 	containsCaret(false),
 	edgeColumn(0),
 	chars(0),
 	styles(0),
+	styleBitsSet(0),
+	indicators(0),
 	positions(0),
-	hotspot(0,0),
+	hsStart(0),
+	hsEnd(0),
 	widthLine(wrapWidthInfinite),
 	lines(1),
 	wrapIndent(0) {
@@ -78,6 +84,7 @@ void LineLayout::Resize(int maxLineLength_) {
 		Free();
 		chars = new char[maxLineLength_ + 1];
 		styles = new unsigned char[maxLineLength_ + 1];
+		indicators = new char[maxLineLength_ + 1];
 		// Extra position allocated as sometimes the Windows
 		// GetTextExtentExPoint API writes an extra element.
 		positions = new XYPOSITION[maxLineLength_ + 1 + 1];
@@ -90,6 +97,8 @@ void LineLayout::Free() {
 	chars = 0;
 	delete []styles;
 	styles = 0;
+	delete []indicators;
+	indicators = 0;
 	delete []positions;
 	positions = 0;
 	delete []lineStarts;
@@ -121,10 +130,6 @@ int LineLayout::LineLastVisible(int line) const {
 	}
 }
 
-Range LineLayout::SubLineRange(int subLine) const {
-	return Range(LineStart(subLine), LineLastVisible(subLine));
-}
-
 bool LineLayout::InLine(int offset, int line) const {
 	return ((offset >= LineStart(line)) && (offset < LineStart(line + 1))) ||
 		((offset == numCharsInLine) && (line == (lines-1)));
@@ -147,7 +152,7 @@ void LineLayout::SetLineStart(int line, int start) {
 	lineStarts[line] = start;
 }
 
-void LineLayout::SetBracesHighlight(Range rangeLine, const Position braces[],
+void LineLayout::SetBracesHighlight(Range rangeLine, Position braces[],
                                     char bracesMatchStyle, int xHighlight, bool ignoreStyle) {
 	if (!ignoreStyle && rangeLine.ContainsCharacter(braces[0])) {
 		int braceOffset = braces[0] - rangeLine.start;
@@ -169,7 +174,7 @@ void LineLayout::SetBracesHighlight(Range rangeLine, const Position braces[],
 	}
 }
 
-void LineLayout::RestoreBracesHighlight(Range rangeLine, const Position braces[], bool ignoreStyle) {
+void LineLayout::RestoreBracesHighlight(Range rangeLine, Position braces[], bool ignoreStyle) {
 	if (!ignoreStyle && rangeLine.ContainsCharacter(braces[0])) {
 		int braceOffset = braces[0] - rangeLine.start;
 		if (braceOffset < numCharsInLine) {
@@ -196,47 +201,6 @@ int LineLayout::FindBefore(XYPOSITION x, int lower, int upper) const {
 		}
 	} while (lower < upper);
 	return lower;
-}
-
-
-int LineLayout::FindPositionFromX(XYPOSITION x, Range range, bool charPosition) const {
-	int pos = FindBefore(x, range.start, range.end);
-	while (pos < range.end) {
-		if (charPosition) {
-			if (x < (positions[pos + 1])) {
-				return pos;
-			}
-		} else {
-			if (x < ((positions[pos] + positions[pos + 1]) / 2)) {
-				return pos;
-			}
-		}
-		pos++;
-	}
-	return range.end;
-}
-
-Point LineLayout::PointFromPosition(int posInLine, int lineHeight) const {
-	Point pt;
-	// In case of very long line put x at arbitrary large position
-	if (posInLine > maxLineLength) {
-		pt.x = positions[maxLineLength] - positions[LineStart(lines)];
-	}
-
-	for (int subLine = 0; subLine < lines; subLine++) {
-		const Range rangeSubLine = SubLineRange(subLine);
-		if (posInLine >= rangeSubLine.start) {
-			pt.y = static_cast<XYPOSITION>(subLine*lineHeight);
-			if (posInLine <= rangeSubLine.end) {
-				pt.x = positions[posInLine] - positions[rangeSubLine.start];
-				if (rangeSubLine.start != 0)	// Wrapped lines may be indented
-					pt.x += wrapIndent;
-			}
-		} else {
-			break;
-		}
-	}
-	return pt;
 }
 
 int LineLayout::EndLineStyle() const {
@@ -372,175 +336,129 @@ void LineLayoutCache::Dispose(LineLayout *ll) {
 	}
 }
 
-// Simply pack the (maximum 4) character bytes into an int
-static inline int KeyFromString(const char *charBytes, size_t len) {
-	PLATFORM_ASSERT(len <= 4);
-	int k=0;
-	for (size_t i=0; i<len && charBytes[i]; i++) {
-		k = k * 0x100;
-		k += static_cast<unsigned char>(charBytes[i]);
-	}
-	return k;
-}
-
-SpecialRepresentations::SpecialRepresentations() {
-	std::fill(startByteHasReprs, startByteHasReprs+0x100, 0);
-}
-
-void SpecialRepresentations::SetRepresentation(const char *charBytes, const char *value) {
-	MapRepresentation::iterator it = mapReprs.find(KeyFromString(charBytes, UTF8MaxBytes));
-	if (it == mapReprs.end()) {
-		// New entry so increment for first byte
-		startByteHasReprs[static_cast<unsigned char>(charBytes[0])]++;
-	}
-	mapReprs[KeyFromString(charBytes, UTF8MaxBytes)] = Representation(value);
-}
-
-void SpecialRepresentations::ClearRepresentation(const char *charBytes) {
-	MapRepresentation::iterator it = mapReprs.find(KeyFromString(charBytes, UTF8MaxBytes));
-	if (it != mapReprs.end()) {
-		mapReprs.erase(it);
-		startByteHasReprs[static_cast<unsigned char>(charBytes[0])]--;
-	}
-}
-
-const Representation *SpecialRepresentations::RepresentationFromCharacter(const char *charBytes, size_t len) const {
-	PLATFORM_ASSERT(len <= 4);
-	if (!startByteHasReprs[static_cast<unsigned char>(charBytes[0])])
-		return 0;
-	MapRepresentation::const_iterator it = mapReprs.find(KeyFromString(charBytes, len));
-	if (it != mapReprs.end()) {
-		return &(it->second);
-	}
-	return 0;
-}
-
-bool SpecialRepresentations::Contains(const char *charBytes, size_t len) const {
-	PLATFORM_ASSERT(len <= 4);
-	if (!startByteHasReprs[static_cast<unsigned char>(charBytes[0])])
-		return false;
-	MapRepresentation::const_iterator it = mapReprs.find(KeyFromString(charBytes, len));
-	return it != mapReprs.end();
-}
-
-void SpecialRepresentations::Clear() {
-	mapReprs.clear();
-	std::fill(startByteHasReprs, startByteHasReprs+0x100, 0);
-}
-
 void BreakFinder::Insert(int val) {
-	if (val > nextBreak) {
-		const std::vector<int>::iterator it = std::lower_bound(selAndEdge.begin(), selAndEdge.end(), val);
-		if (it == selAndEdge.end()) {
-			selAndEdge.push_back(val);
-		} else if (*it != val) {
-			selAndEdge.insert(it, 1, val);
+	if (val >= nextBreak) {
+		for (std::vector<int>::iterator it = selAndEdge.begin(); it != selAndEdge.end(); ++it) {
+			if (val == *it) {
+				return;
+			}
+			if (val <*it) {
+				selAndEdge.insert(it, 1, val);
+				return;
+			}
 		}
+		// Not less than any so append
+		selAndEdge.push_back(val);
 	}
 }
 
-BreakFinder::BreakFinder(const LineLayout *ll_, const Selection *psel, Range lineRange_, int posLineStart_,
-	int xStart, bool breakForSelection, const Document *pdoc_, const SpecialRepresentations *preprs_) :
+extern bool BadUTF(const char *s, int len, int &trailBytes);
+
+static int NextBadU(const char *s, int p, int len, int &trailBytes) {
+	while (p < len) {
+		p++;
+		if (BadUTF(s + p, len - p, trailBytes))
+			return p;
+	}
+	return -1;
+}
+
+BreakFinder::BreakFinder(LineLayout *ll_, int lineStart_, int lineEnd_, int posLineStart_,
+	int xStart, bool breakForSelection, Document *pdoc_) :
 	ll(ll_),
-	lineRange(lineRange_),
+	lineStart(lineStart_),
+	lineEnd(lineEnd_),
 	posLineStart(posLineStart_),
-	nextBreak(lineRange_.start),
+	nextBreak(lineStart_),
 	saeCurrentPos(0),
 	saeNext(0),
 	subBreak(-1),
-	pdoc(pdoc_),
-	encodingFamily(pdoc_->CodePageFamily()),
-	preprs(preprs_) {
+	pdoc(pdoc_) {
 
 	// Search for first visible break
 	// First find the first visible character
-	if (xStart > 0.0f)
-		nextBreak = ll->FindBefore(static_cast<XYPOSITION>(xStart), lineRange.start, lineRange.end);
+	nextBreak = ll->FindBefore(xStart, lineStart, lineEnd);
 	// Now back to a style break
-	while ((nextBreak > lineRange.start) && (ll->styles[nextBreak] == ll->styles[nextBreak - 1])) {
+	while ((nextBreak > lineStart) && (ll->styles[nextBreak] == ll->styles[nextBreak - 1])) {
 		nextBreak--;
 	}
 
 	if (breakForSelection) {
 		SelectionPosition posStart(posLineStart);
-		SelectionPosition posEnd(posLineStart + lineRange.end);
+		SelectionPosition posEnd(posLineStart + lineEnd);
 		SelectionSegment segmentLine(posStart, posEnd);
-		for (size_t r=0; r<psel->Count(); r++) {
-			SelectionSegment portion = psel->Range(r).Intersect(segmentLine);
+		for (size_t r=0; r<ll->psel->Count(); r++) {
+			SelectionSegment portion = ll->psel->Range(r).Intersect(segmentLine);
 			if (!(portion.start == portion.end)) {
 				if (portion.start.IsValid())
-					Insert(portion.start.Position() - posLineStart);
+					Insert(portion.start.Position() - posLineStart - 1);
 				if (portion.end.IsValid())
-					Insert(portion.end.Position() - posLineStart);
+					Insert(portion.end.Position() - posLineStart - 1);
 			}
 		}
 	}
 
-	Insert(ll->edgeColumn);
-	Insert(lineRange.end);
+	Insert(ll->edgeColumn - 1);
+	Insert(lineEnd - 1);
+
+	if (pdoc && (SC_CP_UTF8 == pdoc->dbcsCodePage)) {
+		int trailBytes=0;
+		for (int pos = -1;;) {
+			pos = NextBadU(ll->chars, pos, lineEnd, trailBytes);
+			if (pos < 0)
+				break;
+			Insert(pos-1);
+			Insert(pos);
+		}
+	}
 	saeNext = (!selAndEdge.empty()) ? selAndEdge[0] : -1;
 }
 
 BreakFinder::~BreakFinder() {
 }
 
-TextSegment BreakFinder::Next() {
+int BreakFinder::First() const {
+	return nextBreak;
+}
+
+int BreakFinder::Next() {
 	if (subBreak == -1) {
 		int prev = nextBreak;
-		while (nextBreak < lineRange.end) {
-			int charWidth = 1;
-			if (encodingFamily == efUnicode)
-				charWidth = UTF8DrawBytes(reinterpret_cast<unsigned char *>(ll->chars) + nextBreak, lineRange.end - nextBreak);
-			else if (encodingFamily == efDBCS)
-				charWidth = pdoc->IsDBCSLeadByte(ll->chars[nextBreak]) ? 2 : 1;
-			const Representation *repr = preprs->RepresentationFromCharacter(ll->chars + nextBreak, charWidth);
-			if (((nextBreak > 0) && (ll->styles[nextBreak] != ll->styles[nextBreak - 1])) ||
-					repr ||
-					(nextBreak == saeNext)) {
-				while ((nextBreak >= saeNext) && (saeNext < lineRange.end)) {
+		while (nextBreak < lineEnd) {
+			if ((ll->styles[nextBreak] != ll->styles[nextBreak + 1]) ||
+					(nextBreak == saeNext) ||
+					IsControlCharacter(ll->chars[nextBreak]) || IsControlCharacter(ll->chars[nextBreak + 1])) {
+				if (nextBreak == saeNext) {
 					saeCurrentPos++;
-					saeNext = (saeCurrentPos < selAndEdge.size()) ? selAndEdge[saeCurrentPos] : lineRange.end;
+					saeNext = (saeCurrentPos < selAndEdge.size()) ? selAndEdge[saeCurrentPos] : -1;
 				}
-				if ((nextBreak > prev) || repr) {
-					// Have a segment to report
-					if (nextBreak == prev) {
-						nextBreak += charWidth;
-					} else {
-						repr = 0;	// Optimize -> should remember repr
-					}
-					if ((nextBreak - prev) < lengthStartSubdivision) {
-						return TextSegment(prev, nextBreak - prev, repr);
-					} else {
-						break;
-					}
+				nextBreak++;
+				if ((nextBreak - prev) < lengthStartSubdivision) {
+					return nextBreak;
 				}
+				break;
 			}
-			nextBreak += charWidth;
+			nextBreak++;
 		}
 		if ((nextBreak - prev) < lengthStartSubdivision) {
-			return TextSegment(prev, nextBreak - prev);
+			return nextBreak;
 		}
 		subBreak = prev;
 	}
 	// Splitting up a long run from prev to nextBreak in lots of approximately lengthEachSubdivision.
 	// For very long runs add extra breaks after spaces or if no spaces before low punctuation.
-	int startSegment = subBreak;
 	if ((nextBreak - subBreak) <= lengthEachSubdivision) {
 		subBreak = -1;
-		return TextSegment(startSegment, nextBreak - startSegment);
+		return nextBreak;
 	} else {
 		subBreak += pdoc->SafeSegment(ll->chars + subBreak, nextBreak-subBreak, lengthEachSubdivision);
 		if (subBreak >= nextBreak) {
 			subBreak = -1;
-			return TextSegment(startSegment, nextBreak - startSegment);
+			return nextBreak;
 		} else {
-			return TextSegment(startSegment, subBreak - startSegment);
+			return subBreak;
 		}
 	}
-}
-
-bool BreakFinder::More() const {
-	return (subBreak >= 0) || (nextBreak < lineRange.end);
 }
 
 PositionCacheEntry::PositionCacheEntry() :
@@ -556,9 +474,9 @@ void PositionCacheEntry::Set(unsigned int styleNumber_, const char *s_,
 	if (s_ && positions_) {
 		positions = new XYPOSITION[len + (len / 4) + 1];
 		for (unsigned int i=0; i<len; i++) {
-			positions[i] = positions_[i];
+			positions[i] = static_cast<XYPOSITION>(positions_[i]);
 		}
-		memcpy(reinterpret_cast<char *>(reinterpret_cast<void *>(positions + len)), s_, len);
+		memcpy(reinterpret_cast<char *>(positions + len), s_, len);
 	}
 }
 
@@ -577,7 +495,7 @@ void PositionCacheEntry::Clear() {
 bool PositionCacheEntry::Retrieve(unsigned int styleNumber_, const char *s_,
 	unsigned int len_, XYPOSITION *positions_) const {
 	if ((styleNumber == styleNumber_) && (len == len_) &&
-		(memcmp(reinterpret_cast<char *>(reinterpret_cast<void *>(positions + len)), s_, len)== 0)) {
+		(memcmp(reinterpret_cast<char *>(positions + len), s_, len)== 0)) {
 		for (unsigned int i=0; i<len; i++) {
 			positions_[i] = positions[i];
 		}
@@ -587,7 +505,7 @@ bool PositionCacheEntry::Retrieve(unsigned int styleNumber_, const char *s_,
 	}
 }
 
-unsigned int PositionCacheEntry::Hash(unsigned int styleNumber_, const char *s, unsigned int len_) {
+int PositionCacheEntry::Hash(unsigned int styleNumber_, const char *s, unsigned int len_) {
 	unsigned int ret = s[0] << 7;
 	for (unsigned int i=0; i<len_; i++) {
 		ret *= 1000003;
@@ -635,22 +553,22 @@ void PositionCache::SetSize(size_t size_) {
 	pces.resize(size_);
 }
 
-void PositionCache::MeasureWidths(Surface *surface, const ViewStyle &vstyle, unsigned int styleNumber,
+void PositionCache::MeasureWidths(Surface *surface, ViewStyle &vstyle, unsigned int styleNumber,
 	const char *s, unsigned int len, XYPOSITION *positions, Document *pdoc) {
 
 	allClear = false;
-	size_t probe = pces.size();	// Out of bounds
+	int probe = -1;
 	if ((!pces.empty()) && (len < 30)) {
 		// Only store short strings in the cache so it doesn't churn with
 		// long comments with only a single comment.
 
 		// Two way associative: try two probe positions.
-		unsigned int hashValue = PositionCacheEntry::Hash(styleNumber, s, len);
-		probe = hashValue % pces.size();
+		int hashValue = PositionCacheEntry::Hash(styleNumber, s, len);
+		probe = static_cast<int>(hashValue % pces.size());
 		if (pces[probe].Retrieve(styleNumber, s, len, positions)) {
 			return;
 		}
-		unsigned int probe2 = (hashValue * 37) % pces.size();
+		int probe2 = static_cast<int>((hashValue * 37) % pces.size());
 		if (pces[probe2].Retrieve(styleNumber, s, len, positions)) {
 			return;
 		}
@@ -665,8 +583,7 @@ void PositionCache::MeasureWidths(Surface *surface, const ViewStyle &vstyle, uns
 		XYPOSITION xStartSegment = 0;
 		while (startSegment < len) {
 			unsigned int lenSegment = pdoc->SafeSegment(s + startSegment, len - startSegment, BreakFinder::lengthEachSubdivision);
-			FontAlias fontStyle = vstyle.styles[styleNumber].font;
-			surface->MeasureWidths(fontStyle, s + startSegment, lenSegment, positions + startSegment);
+			surface->MeasureWidths(vstyle.styles[styleNumber].font, s + startSegment, lenSegment, positions + startSegment);
 			for (unsigned int inSeg = 0; inSeg < lenSegment; inSeg++) {
 				positions[startSegment + inSeg] += xStartSegment;
 			}
@@ -674,11 +591,9 @@ void PositionCache::MeasureWidths(Surface *surface, const ViewStyle &vstyle, uns
 			startSegment += lenSegment;
 		}
 	} else {
-		FontAlias fontStyle = vstyle.styles[styleNumber].font;
-		surface->MeasureWidths(fontStyle, s, len, positions);
+		surface->MeasureWidths(vstyle.styles[styleNumber].font, s, len, positions);
 	}
-	if (probe < pces.size()) {
-		// Store into cache
+	if (probe >= 0) {
 		clock++;
 		if (clock > 60000) {
 			// Since there are only 16 bits for the clock, wrap it round and

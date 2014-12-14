@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012,2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012,2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -76,7 +76,7 @@ public:
     /// The bCopiedSelf, bChecked and hasChildren members will always be
     /// @a FALSE; childStackDepth will be 0.
 
-    std::unique_ptr<LOGENTRYDATA> GetRevisionData(svn_revnum_t revision);
+    PLOGENTRYDATA GetRevisionData (svn_revnum_t revision);
 };
 
 /**
@@ -95,7 +95,7 @@ public:
         RevSelected2 = 0;
         RevHighest = 0;
         RevLowest = 0;
-        PathURL = L"";
+        PathURL = _T("");
         SelEntries.clear();
         RevisionRanges.Clear();
     }
@@ -136,9 +136,9 @@ public:
         OneRev = false;
         ChangedPaths.clear();
         ChangedLogPathIndices.clear();
-        sUrl = L"";
-        wcPath = L"";
-        fileUrl = L"";
+        sUrl = _T("");
+        wcPath = _T("");
+        fileUrl = _T("");
     }
 
     ~CContextMenuInfoForChangedPaths()

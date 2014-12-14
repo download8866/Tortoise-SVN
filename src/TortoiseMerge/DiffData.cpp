@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2014 - TortoiseSVN
+// Copyright (C) 2006-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -48,8 +48,8 @@ CDiffData::CDiffData(void)
 
     m_bBlame = false;
 
-    m_sPatchOriginal = L": original";
-    m_sPatchPatched = L": patched";
+    m_sPatchOriginal = _T(": original");
+    m_sPatchPatched = _T(": patched");
 }
 
 CDiffData::~CDiffData(void)
@@ -73,7 +73,7 @@ int CDiffData::GetLineCount() const
     return count;
 }
 
-svn_diff_file_ignore_space_t CDiffData::GetIgnoreSpaceMode(DWORD dwIgnoreWS) const
+svn_diff_file_ignore_space_t CDiffData::GetIgnoreSpaceMode(DWORD dwIgnoreWS)
 {
     switch (dwIgnoreWS)
     {
@@ -98,13 +98,13 @@ svn_diff_file_options_t * CDiffData::CreateDiffFileOptions(DWORD dwIgnoreWS, boo
 
 bool CDiffData::HandleSvnError(svn_error_t * svnerr)
 {
-    TRACE(L"diff-error in CDiffData::Load()\n");
-    TRACE(L"diff-error in CDiffData::Load()\n");
+    TRACE(_T("diff-error in CDiffData::Load()\n"));
+    TRACE(_T("diff-error in CDiffData::Load()\n"));
     CStringA sMsg = CStringA(svnerr->message);
     while (svnerr->child)
     {
         svnerr = svnerr->child;
-        sMsg += L"\n";
+        sMsg += _T("\n");
         sMsg += CStringA(svnerr->message);
     }
     CString readableMsg = CUnicodeUtils::GetUnicode(sMsg);
@@ -151,23 +151,23 @@ void CDiffData::TieMovedBlocks(int from, int to, apr_off_t length)
     }
 }
 
-bool CDiffData::CompareWithIgnoreWS(CString s1, CString s2, DWORD dwIgnoreWS) const
+bool CDiffData::CompareWithIgnoreWS(CString s1, CString s2, DWORD dwIgnoreWS)
 {
     if (dwIgnoreWS == 2)
     {
-        s1 = s1.TrimLeft(L" \t");
-        s2 = s2.TrimLeft(L" \t");
+        s1 = s1.TrimLeft(_T(" \t"));
+        s2 = s2.TrimLeft(_T(" \t"));
     }
     else
     {
-        s1 = s1.TrimRight(L" \t");
-        s2 = s2.TrimRight(L" \t");
+        s1 = s1.TrimRight(_T(" \t"));
+        s2 = s2.TrimRight(_T(" \t"));
     }
 
     return s1 != s2;
 }
 
-void CDiffData::StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_sticked, apr_off_t &modified_length_sticked) const
+void CDiffData::StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_sticked, apr_off_t &modified_length_sticked)
 {
     if((m_bViewMovedBlocks)&&(tempdiff->type == svn_diff__type_diff_modified))
     {
@@ -198,14 +198,12 @@ BOOL CDiffData::Load()
 
     m_Diff3.Clear();
 
-    CRegDWORD regIgnoreWS = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreWS");
-    CRegDWORD regIgnoreEOL = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreEOL", TRUE);
-    CRegDWORD regIgnoreCase = CRegDWORD(L"Software\\TortoiseMerge\\CaseInsensitive", FALSE);
-    CRegDWORD regIgnoreComments = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreComments", FALSE);
+    CRegDWORD regIgnoreWS = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreWS"));
+    CRegDWORD regIgnoreEOL = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreEOL"), TRUE);
+    CRegDWORD regIgnoreCase = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
     DWORD dwIgnoreWS = regIgnoreWS;
     bool bIgnoreEOL = ((DWORD)regIgnoreEOL)!=0;
     BOOL bIgnoreCase = ((DWORD)regIgnoreCase)!=0;
-    bool bIgnoreComments = ((DWORD)regIgnoreComments)!=0;
 
     // The Subversion diff API only can ignore whitespaces and eol styles.
     // It also can only handle one-byte charsets.
@@ -228,6 +226,13 @@ BOOL CDiffData::Load()
     bool bTheirIsUtf8 = false;
     bool bYourIsUtf8  = false;
 
+    // in case at least one of the files got converted or is UTF8
+    // we have to convert all non UTF8 (ASCII) files
+    // otherwise one file might be in ANSI and the other in UTF8 and we'll end up
+    // with lines marked as different throughout the files even though the lines
+    // would show no change at all in the viewer.
+    bool bIsNotUtf8 = false; // Any non UTF8 file ?
+
     if (IsBaseFileInUse())
     {
         if (!m_arBaseFile.Load(m_baseFile.GetFilename()))
@@ -235,8 +240,9 @@ BOOL CDiffData::Load()
             m_sError = m_arBaseFile.GetErrorString();
             return FALSE;
         }
-        bBaseNeedConvert = bIgnoreCase || bIgnoreComments || (m_arBaseFile.NeedsConversion()) || !m_rx._Empty();
+        bBaseNeedConvert = bIgnoreCase || (m_arBaseFile.NeedsConversion());
         bBaseIsUtf8 = (m_arBaseFile.GetUnicodeType()!=CFileTextLines::ASCII) || bBaseNeedConvert;
+        bIsNotUtf8 |= !bBaseIsUtf8;
     }
 
     if (IsTheirFileInUse())
@@ -248,8 +254,9 @@ BOOL CDiffData::Load()
             m_sError = m_arTheirFile.GetErrorString();
             return FALSE;
         }
-        bTheirNeedConvert = bIgnoreCase || bIgnoreComments || (m_arTheirFile.NeedsConversion()) || !m_rx._Empty();
+        bTheirNeedConvert = bIgnoreCase || (m_arTheirFile.NeedsConversion());
         bTheirIsUtf8 = (m_arTheirFile.GetUnicodeType()!=CFileTextLines::ASCII) || bTheirNeedConvert;
+        bIsNotUtf8 |= !bTheirIsUtf8;
     }
 
     if (IsYourFileInUse())
@@ -261,15 +268,10 @@ BOOL CDiffData::Load()
             m_sError = m_arYourFile.GetErrorString();
             return FALSE;
         }
-        bYourNeedConvert = bIgnoreCase || bIgnoreComments || (m_arYourFile.NeedsConversion()) || !m_rx._Empty();
+        bYourNeedConvert = bIgnoreCase || (m_arYourFile.NeedsConversion());
         bYourIsUtf8 = (m_arYourFile.GetUnicodeType()!=CFileTextLines::ASCII) || bYourNeedConvert;
+        bIsNotUtf8 |= !bYourIsUtf8;
     }
-
-    // in case at least one of the files got converted or is UTF8
-    // we have to convert all non UTF8 (ASCII) files
-    // otherwise one file might be in ANSI and the other in UTF8 and we'll end up
-    // with lines marked as different throughout the files even though the lines
-    // would show no change at all in the viewer.
 
     // convert all files we need to
     bool bIsUtf8 = bBaseIsUtf8 || bTheirIsUtf8 || bYourIsUtf8; // any file end as UTF8
@@ -278,27 +280,21 @@ BOOL CDiffData::Load()
     {
         sConvertedBaseFilename = CTempFiles::Instance().GetTempFilePathString();
         m_baseFile.SetConvertedFileName(sConvertedBaseFilename);
-        m_arBaseFile.Save(sConvertedBaseFilename, true, true, 0, bIgnoreCase, m_bBlame
-                        , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                        , m_rx, m_replacement);
+        m_arBaseFile.Save(sConvertedBaseFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
     bYourNeedConvert |= (IsYourFileInUse() && !bYourIsUtf8 && bIsUtf8);
     if (bYourNeedConvert)
     {
         sConvertedYourFilename = CTempFiles::Instance().GetTempFilePathString();
         m_yourFile.SetConvertedFileName(sConvertedYourFilename);
-        m_arYourFile.Save(sConvertedYourFilename, true, true, 0, bIgnoreCase, m_bBlame
-                        , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                        , m_rx, m_replacement);
+        m_arYourFile.Save(sConvertedYourFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
     bTheirNeedConvert |= (IsTheirFileInUse() && !bTheirIsUtf8 && bIsUtf8);
     if (bTheirNeedConvert)
     {
         sConvertedTheirFilename = CTempFiles::Instance().GetTempFilePathString();
         m_theirFile.SetConvertedFileName(sConvertedTheirFilename);
-        m_arTheirFile.Save(sConvertedTheirFilename, true, true, 0, bIgnoreCase, m_bBlame
-                         , bIgnoreComments, m_CommentLineStart, m_CommentBlockStart, m_CommentBlockEnd
-                         , m_rx, m_replacement);
+        m_arTheirFile.Save(sConvertedTheirFilename, true, true, 0, bIgnoreCase, m_bBlame);
     }
 
     // Calculate the number of lines in the largest of the three files
@@ -615,7 +611,7 @@ CDiffData::DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilena
         }
     }//*/
 
-    TRACE(L"done with 2-way diff\n");
+    TRACE(_T("done with 2-way diff\n"));
 
     HideUnchangedSections(&m_YourBaseLeft, &m_YourBaseRight, NULL);
 
@@ -637,7 +633,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
     m_arDiff3LinesYour.Reserve(lengthHint);
     m_arDiff3LinesTheir.Reserve(lengthHint);
 
-    CRegDWORD contextLines = CRegDWORD(L"Software\\TortoiseMerge\\ContextLines", 3);
+    CRegDWORD contextLines = CRegDWORD(_T("Software\\TortoiseMerge\\ContextLines"), 3);
     svn_diff_file_options_t * options = CreateDiffFileOptions(dwIgnoreWS, bIgnoreEOL, pool);
 
     // convert CString filenames (UTF-16 or ANSI) to UTF-8
@@ -656,8 +652,8 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
     LONG theirline = 0;
     LONG resline = 0;
     // common viewdata
-    const viewdata emptyConflictEmpty(L"", DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN);
-    const viewdata emptyIdenticalRemoved(L"", DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN);
+    const viewdata emptyConflictEmpty(_T(""), DIFFSTATE_CONFLICTEMPTY, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN);
+    const viewdata emptyIdenticalRemoved(_T(""), DIFFSTATE_IDENTICALREMOVED, DIFF_EMPTYLINENUMBER, EOL_NOENDING, HIDESTATE_SHOWN);
     while (tempdiff)
     {
         if (tempdiff->type == svn_diff__type_common)
@@ -800,7 +796,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
                 {
                     AddLines(baseline, yourline, theirline);
 
-                    m_Diff3.AddData(L"", DIFFSTATE_CONFLICTED, resline, EOL_NOENDING, HIDESTATE_SHOWN, -1);
+                    m_Diff3.AddData(_T(""), DIFFSTATE_CONFLICTED, resline, EOL_NOENDING, HIDESTATE_SHOWN, -1);
 
                     resline++;
                 }
@@ -918,7 +914,7 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
         }
         else
         {
-            TRACE(L"something bad happened during diff!\n");
+            TRACE(_T("something bad happened during diff!\n"));
         }
         tempdiff = tempdiff->next;
 
@@ -963,19 +959,19 @@ CDiffData::DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFile
     ASSERT(m_Diff3.GetCount() == m_YourBaseBoth.GetCount());
     ASSERT(m_TheirBaseBoth.GetCount() == m_YourBaseBoth.GetCount());
 
-    TRACE(L"done with 3-way diff\n");
+    TRACE(_T("done with 3-way diff\n"));
 
     HideUnchangedSections(&m_Diff3, &m_YourBaseBoth, &m_TheirBaseBoth);
 
     return true;
 }
 
-void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3) const
+void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3)
 {
     if (data1 == NULL)
         return;
 
-    CRegDWORD contextLines = CRegDWORD(L"Software\\TortoiseMerge\\ContextLines", 1);
+    CRegDWORD contextLines = CRegDWORD(_T("Software\\TortoiseMerge\\ContextLines"), 1);
 
     if (data1->GetCount() > 1)
     {
@@ -1035,17 +1031,4 @@ void CDiffData::HideUnchangedSections(CViewData * data1, CViewData * data2, CVie
             lastHideState = hideState;
         }
     }
-}
-
-void CDiffData::SetCommentTokens( const CString& sLineStart, const CString& sBlockStart, const CString& sBlockEnd )
-{
-    m_CommentLineStart  = sLineStart;
-    m_CommentBlockStart = sBlockStart;
-    m_CommentBlockEnd   = sBlockEnd;
-}
-
-void CDiffData::SetRegexTokens( const std::wregex& rx, const std::wstring& replacement )
-{
-    m_rx          = rx;
-    m_replacement = replacement;
 }

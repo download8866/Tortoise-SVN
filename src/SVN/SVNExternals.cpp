@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2014 - TortoiseSVN
+// Copyright (C) 2010-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -301,12 +301,12 @@ bool SVNExternals::Add(const CTSVNPath& path, const std::string& extvalue, bool 
                 ext.targetDir = CUnicodeUtils::GetUnicode(e->target_dir);
                 if (fetchrev)
                 {
+                    svn_revnum_t maxrev, minrev;
                     CTSVNPath p = path;
                     p.AppendPathString(ext.targetDir);
                     if (p.IsDirectory())
                     {
                         bool bswitched, bmodified, bsparse;
-                        svn_revnum_t maxrev, minrev;
                         if (svn.GetWCRevisionStatus(p, false, minrev, maxrev, bswitched, bmodified, bsparse))
                         {
                             ext.revision.kind = svn_opt_revision_number;
@@ -357,9 +357,9 @@ bool SVNExternals::TagExternals(bool bRemote, const CString& message, svn_revnum
         SVNRev pegrev = it->pegrevision;
         CString peg;
         if (pegrev.IsValid() && !pegrev.IsHead())
-            peg = L"@" + pegrev.ToString();
+            peg = _T("@") + pegrev.ToString();
         else if (it->adjust)
-            peg = L"@" + rev.ToString();
+            peg = _T("@") + rev.ToString();
         else
             peg.Empty();
 
@@ -369,11 +369,11 @@ bool SVNExternals::TagExternals(bool bRemote, const CString& message, svn_revnum
 
         CString temp;
         if (it->adjust && !rev.IsHead())
-            temp.Format(L"-r %s %s%s %s", (LPCWSTR)rev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
+            temp.Format(_T("-r %s %s%s %s"), (LPCWSTR)rev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
         else if (origrev.IsValid() && !origrev.IsHead())
-            temp.Format(L"-r %s %s%s %s", (LPCWSTR)origrev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
+            temp.Format(_T("-r %s %s%s %s"), (LPCWSTR)origrev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
         else
-            temp.Format(L"%s%s %s", (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
+            temp.Format(_T("%s%s %s"), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
 
         sb val = externals[it->path];
         if (!val.extvalue.empty())
@@ -444,7 +444,7 @@ std::string SVNExternals::GetValue(const CTSVNPath& path) const
             SVNRev pegrev = it->pegrevision;
             CString peg;
             if (pegrev.IsValid() && !pegrev.IsHead())
-                peg = L"@" + pegrev.ToString();
+                peg = _T("@") + pegrev.ToString();
             else
                 peg.Empty();
 
@@ -453,9 +453,9 @@ std::string SVNExternals::GetValue(const CTSVNPath& path) const
                 targetDir = L"'" + targetDir + L"'";
             CString temp;
             if (rev.IsValid() && !rev.IsHead() && (!rev.IsEqual(pegrev)))
-                temp.Format(L"-r %s %s%s %s", (LPCWSTR)rev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
+                temp.Format(_T("-r %s %s%s %s"), (LPCWSTR)rev.ToString(), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
             else
-                temp.Format(L"%s%s %s", (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
+                temp.Format(_T("%s%s %s"), (LPCWSTR)it->url, (LPCTSTR)peg, (LPCWSTR)targetDir);
             if (ret.size())
                 ret += "\n";
             ret += CUnicodeUtils::StdGetUTF8((LPCTSTR)temp);
