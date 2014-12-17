@@ -18,6 +18,8 @@
 //
 #include "stdafx.h"
 
+#pragma warning (disable : 4786)
+
 // Initialize GUIDs (should be done only and at-least once per DLL/EXE)
 #include <initguid.h>
 #include "Guids.h"
@@ -33,12 +35,7 @@ extern ShellObjects g_shellObjects;
 // *********************** CShellExt *************************
 CShellExt::CShellExt(FileState state)
     : m_crasher(L"TortoiseSVN", false)
-    , regDiffLater(L"Software\\TortoiseMerge\\DiffLater", L"")
-    , itemStates(0)
-    , itemStatesFolder(0)
-    , space(0)
-    , columnrev(0)
-    , filestatus(svn_wc_status_none)
+
 {
     m_State = state;
 
@@ -67,7 +64,7 @@ CShellExt::~CShellExt()
 
 void LoadLangDll()
 {
-    if ((g_langid != g_ShellCache.GetLangID())&&((g_langTimeout == 0)||(g_langTimeout < GetTickCount64())))
+    if ((g_langid != g_ShellCache.GetLangID())&&((g_langTimeout == 0)||(g_langTimeout < GetTickCount())))
     {
         g_langid = g_ShellCache.GetLangID();
         DWORD langId = g_langid;
@@ -79,13 +76,13 @@ void LoadLangDll()
             return;
         if (GetModuleFileNameA(g_hmodThisDll, langdirA, _countof(langdirA))==0)
             return;
-        TCHAR * dirpoint = wcsrchr(langdir, '\\');
+        TCHAR * dirpoint = _tcsrchr(langdir, '\\');
         char * dirpointA = strrchr(langdirA, '\\');
         if (dirpoint)
             *dirpoint = 0;
         if (dirpointA)
             *dirpointA = 0;
-        dirpoint = wcsrchr(langdir, '\\');
+        dirpoint = _tcsrchr(langdir, '\\');
         dirpointA = strrchr(langdirA, '\\');
         if (dirpoint)
             *dirpoint = 0;
@@ -100,9 +97,9 @@ void LoadLangDll()
         do
         {
             if (bIsWow)
-                swprintf_s(langDll, L"%s\\Languages\\TortoiseProc32%lu.dll", langdir, langId);
+                _stprintf_s(langDll, _T("%s\\Languages\\TortoiseProc32%d.dll"), langdir, langId);
             else
-                swprintf_s(langDll, L"%s\\Languages\\TortoiseProc%lu.dll", langdir, langId);
+                _stprintf_s(langDll, _T("%s\\Languages\\TortoiseProc%d.dll"), langdir, langId);
             BOOL versionmatch = TRUE;
 
             struct TRANSARRAY
@@ -124,6 +121,8 @@ void LoadLangDll()
                     UINT        nFixedLength = 0;
                     LPSTR       lpVersion = NULL;
                     VOID*       lpFixedPointer;
+                    TRANSARRAY* lpTransArray;
+                    TCHAR       strLangProduktVersion[MAX_PATH];
 
                     if (GetFileVersionInfo((LPTSTR)langDll,
                         dwReserved,
@@ -132,22 +131,21 @@ void LoadLangDll()
                     {
                         // Query the current language
                         if (VerQueryValue( buffer.get(),
-                            L"\\VarFileInfo\\Translation",
+                            _T("\\VarFileInfo\\Translation"),
                             &lpFixedPointer,
                             &nFixedLength))
                         {
-                            TRANSARRAY* lpTransArray = (TRANSARRAY*) lpFixedPointer;
+                            lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-                            TCHAR       strLangProductVersion[MAX_PATH];
-                            swprintf_s(strLangProductVersion, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+                            _stprintf_s(strLangProduktVersion, _T("\\StringFileInfo\\%04x%04x\\ProductVersion"),
                                 lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
 
                             if (VerQueryValue(buffer.get(),
-                                (LPTSTR)strLangProductVersion,
+                                (LPTSTR)strLangProduktVersion,
                                 (LPVOID *)&lpVersion,
                                 &nInfoSize))
                             {
-                                versionmatch = (wcscmp((LPCTSTR)lpVersion, _T(STRPRODUCTVER)) == 0);
+                                versionmatch = (_tcscmp((LPCTSTR)lpVersion, _T(STRPRODUCTVER)) == 0);
                             }
 
                         }
@@ -189,7 +187,7 @@ void LoadLangDll()
             g_langid = 1033;
             // set a timeout of 10 seconds
             if (g_ShellCache.GetLangID() != 1033)
-                g_langTimeout = GetTickCount64() + 10000;
+                g_langTimeout = GetTickCount() + 10000;
         }
         else
             g_langTimeout = 0;

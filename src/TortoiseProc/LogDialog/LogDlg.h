@@ -35,12 +35,17 @@
 #include "HintCtrl.h"
 #include "JobScheduler.h"
 #include "ListViewAccServer.h"
-#include "SimpleIni.h"
-#include "DragDropTreeCtrl.h"
-#include "ReaderWriterLock.h"
 
 // import EnvDTE for opening files in Visual Studio through COM
+#pragma warning(disable : 4278)
+#pragma warning(disable : 4146)
+#pragma warning(disable : 4298)
 #include "dte80a.tlh"
+#pragma warning(default : 4146)
+#pragma warning(default : 4278)
+#pragma warning(default : 4298)
+
+
 
 #define MERGE_REVSELECTSTART     1
 #define MERGE_REVSELECTEND       2
@@ -59,8 +64,6 @@
 #define LOGFILTER_DATERANGE     0x0100
 
 #define LOGFILTER_TIMER     101
-#define MONITOR_TIMER       102
-#define MONITOR_POPUP_TIMER 103
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 
@@ -70,55 +73,6 @@ enum RefreshEnum
     Simple,
     Cache
 };
-
-class MonitorItem
-{
-public:
-    MonitorItem(const CString& name, const CString& path = CString())
-        : Name(name)
-        , WCPathOrUrl(path)
-        , interval(5)
-        , minminutesinterval(0)
-        , lastchecked(0)
-        , lastcheckedrobots(0)
-        , lastHEAD(0)
-        , UnreadItems(0)
-        , unreadFirst(0)
-        , authfailed(false)
-    {}
-    MonitorItem()
-        : interval(5)
-        , minminutesinterval(0)
-        , lastchecked(0)
-        , lastcheckedrobots(0)
-        , lastHEAD(0)
-        , UnreadItems(0)
-        , unreadFirst(0)
-        , authfailed(false)
-    {}
-    ~MonitorItem() {}
-
-    CString                     Name;
-    CString                     WCPathOrUrl;
-    int                         interval;
-    int                         minminutesinterval;
-    __time64_t                  lastchecked;
-    __time64_t                  lastcheckedrobots;
-    svn_revnum_t                lastHEAD;
-    svn_revnum_t                unreadFirst;
-    int                         UnreadItems;
-    bool                        authfailed;
-    CString                     lastErrorMsg;
-    CString                     username;
-    CString                     password;
-    CString                     sMsgRegex;
-    std::wregex                 msgregex;
-    std::vector<std::string>    authorstoignore;
-    CString                     root;
-    CString                     uuid;
-};
-
-typedef std::function<bool(HTREEITEM)> MonitorItemHandler;
 
 // fwd declaration
 class CIconMenu;
@@ -139,11 +93,11 @@ public:
     virtual ~CLogDlg();
 
     void SetParams(const CTSVNPath& path, SVNRev pegrev, SVNRev startrev, SVNRev endrev,
-        BOOL bStrict = CRegDWORD(L"Software\\TortoiseSVN\\LastLogStrict", FALSE),
+        BOOL bStrict = CRegDWORD(_T("Software\\TortoiseSVN\\LastLogStrict"), FALSE),
         BOOL bSaveStrict = TRUE,
-        int limit = (int)(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\NumberOfLogs",
+        int limit = (int)(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\NumberOfLogs"),
         100));
-    void SetFilter(const CString& findstr, LONG findtype, bool findregex, const CString& sDateFrom, const CString& sDateTo);
+    void SetFilter(const CString& findstr, LONG findtype, bool findregex);
     void SetIncludeMerge(bool bInclude = true) {m_bIncludeMerges = bInclude;}
     void SetProjectPropertiesPath(const CTSVNPath& path) {m_ProjectProperties.ReadProps(path);}
     bool IsThreadRunning() {return !netScheduler.WaitForEmptyQueueOrTimeout(0);}
@@ -154,7 +108,6 @@ public:
 
     const SVNRevRangeArray& GetSelectedRevRanges() {return m_selectedRevs;}
     void SetSelectedRevRanges(const SVNRevRangeArray& revArray);
-    void SetMonitoringMode(bool starthidden) { m_bMonitoringMode = true; m_bKeepHidden = starthidden; }
 
 // Dialog Data
     enum { IDD = IDD_LOGMESSAGE };
@@ -172,9 +125,6 @@ protected:
 
     afx_msg LRESULT OnRefreshSelection(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnFindDialogMessage(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnTaskbarCreated(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnShowDlgMsg(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnReloadIniMsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedInfoIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedCancelFilter(WPARAM wParam, LPARAM lParam);
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
@@ -212,37 +162,19 @@ protected:
     afx_msg void OnLogCancel();
     afx_msg void OnLvnKeydownLoglist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnLvnKeydownFilelist(NMHDR *pNMHDR, LRESULT *pResult);
+    afx_msg void OnNMClickLoglist(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void OnEnscrollMsgview();
     afx_msg void OnDestroy();
-    afx_msg void OnClose();
-    afx_msg void OnMonitorCheckNow();
-    afx_msg void OnMonitorAddProject();
-    afx_msg void OnMonitorEditProject();
-    afx_msg void OnMonitorRemoveProject();
-    afx_msg void OnMonitorOptions();
-    afx_msg void OnMonitorMarkAllAsRead();
-    afx_msg void OnMonitorUpdateAll();
-    afx_msg void OnMonitorThreadFinished();
-    afx_msg void OnTvnSelchangedProjtree(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnTvnGetdispinfoProjtree(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg LRESULT OnTaskbarCallBack(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnNMClickProjtree(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg LRESULT OnMonitorNotifyClick(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnMonitorNotifySnarlReply(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnWindowPosChanging(WINDOWPOS* lpwndpos);
-    afx_msg LRESULT OnTreeDrop(WPARAM wParam, LPARAM lParam);
-    afx_msg void OnTvnEndlabeleditProjtree(NMHDR *pNMHDR, LRESULT *pResult);
-    afx_msg void OnInlineedit();
-    afx_msg BOOL OnQueryEndSession();
 
+    afx_msg void OnClose();
     virtual void OnCancel();
     virtual void OnOK();
     virtual BOOL OnInitDialog();
     virtual BOOL PreTranslateMessage(MSG* pMsg);
-    virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 
     void    FillLogMessageCtrl(bool bShow = true);
-    void DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2, bool blame, bool unified, bool ignoreprops);
+    void    DoDiffFromLog(INT_PTR selIndex, svn_revnum_t rev1, svn_revnum_t rev2,
+                                                            bool blame, bool unified);
 
     DECLARE_MESSAGE_MAP()
 
@@ -263,10 +195,6 @@ private:
     void CopySelectionToClipBoard(bool bIncludeChangedList);
     void CopyCommaSeparatedRevisionsToClipboard();
     void CopyChangedSelectionToClipBoard();
-    void CopyCommaSeparatedAuthorsToClipboard();
-    void CopyMessagesToClipboard();
-    void CopyChangedPathInfoToClipboard(ContextMenuInfoForChangedPathsPtr pCmi, int cmd);
-
     CTSVNPathList GetChangedPathsAndMessageSketchFromSelectedRevisions(CString& sMessageSketch,
                                                                 CLogChangedPathArray& currentChangedArray);
     void RecalculateShownList(svn_revnum_t revToKeep = -1);
@@ -281,9 +209,10 @@ private:
     void SaveSplitterPos();
     bool ValidateRegexp(LPCTSTR regexp_str, std::tr1::wregex& pat, bool bMatchCase);
     void CheckRegexpTooltip();
-    void DiffSelectedFile(bool ignoreprops);
+    void DiffSelectedFile();
     void DiffSelectedRevWithPrevious();
     void SetDlgTitle(bool bOffline);
+    void ToggleCheckbox(size_t item);
     void SelectAllVisibleRevisions();
     void AddMainAnchors();
     void RemoveMainAnchors();
@@ -325,7 +254,7 @@ private:
     void ResizeAllListCtrlCols(bool bOnlyVisible);
 
     void ShowContextMenuForRevisions(CWnd* pWnd, CPoint point);
-    void PopulateContextMenuForRevisions(ContextMenuInfoForRevisionsPtr& pCmi, CIconMenu& popup, CIconMenu& clipSubMenu);
+    void PopulateContextMenuForRevisions(ContextMenuInfoForRevisionsPtr& pCmi, CIconMenu& popup);
     bool GetContextMenuInfoForRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void AdjustContextMenuAnchorPointIfKeyboardInvoked(CPoint &point, int selIndex, CListCtrl& listControl);
     bool VerifyContextMenuForRevisionsAllowed(int selIndex);
@@ -365,14 +294,14 @@ private:
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteSaveAsChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteShowPropertiesChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
-    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex, bool ignoreprops);
+    void ExecuteDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, INT_PTR selIndex);
     void ExecuteGnuDiff1ChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameDiffChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteRevertChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     bool VerifyContextMenuForChangedPathsAllowed(INT_PTR selIndex);
     bool GetContextMenuInfoForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi);
-    bool PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi, CIconMenu& popup, CIconMenu& clipSubMenu);
-    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, bool ignoreprops);
+    bool PopulateContextMenuForChangedPaths(ContextMenuInfoForChangedPathsPtr& pCmi, CIconMenu& popup);
+    void ExecuteMultipleDiffChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
     bool CheckMultipleDiffs(UINT selCount);
     int  OpenWorkingCopyFileWithRegisteredProgram(CString& fullPath);
     void OpenSelectedWcFilesWithRegistedProgram(std::vector<size_t>& changedlogpathindices);
@@ -405,33 +334,6 @@ private:
     PTOKEN_USER GetUserTokenFromProcessId(DWORD pid);
     bool RunningInSameUserContextWithSameProcessIntegrity(DWORD pidVisualStudio);
 
-    // MonitoringMode
-    void InitMonitoringMode();
-
-    void RegisterSnarl();
-    void UnRegisterSnarl();
-
-    bool CreateToolbar();
-    void DoSizeV3(int delta);
-    void InitMonitorProjTree();
-    void RefreshMonitorProjTree();
-    void MonitorEditProject(MonitorItem * pProject);
-
-    HTREEITEM InsertMonitorItem(MonitorItem * pMonitorItem, const CString& sParentPath = CString());
-    HTREEITEM FindMonitorParent(const CString& parentTreePath);
-    HTREEITEM FindMonitorItem(const CString& wcpathorurl);
-    HTREEITEM RecurseMonitorTree(HTREEITEM hItem, MonitorItemHandler handler);
-    void SaveMonitorProjects(bool todisk);
-    void MonitorTimer();
-    void MonitorPopupTimer();
-    void MonitorThread();
-    void ShutDownMonitoring();
-    CString GetTreePath(HTREEITEM hItem);
-    bool IsRevisionRelatedToUrl(const CDictionaryBasedTempPath& basePath, PLOGENTRYDATA pLogItem);
-    void MonitorShowProject(HTREEITEM hItem, LRESULT * pResult);
-    void ShowContextMenuForMonitorTree(CWnd* pWnd, CPoint point);
-    static int CALLBACK TreeSort(LPARAM lParam1, LPARAM lParam2, LPARAM lParam3);
-    void MonitorShowDlg();
 public:
     CWnd *              m_pNotifyWindow;
     ProjectProperties   m_ProjectProperties;
@@ -494,8 +396,6 @@ private:
     CDateTimeCtrl       m_DateTo;
     __time64_t          m_tFrom;
     __time64_t          m_tTo;
-    __time64_t          m_TimeFromSetFromCmdLine;
-    __time64_t          m_TimeToSetFromCmdLine;
     int                 m_limit;
     int                 m_nSortColumn;
     bool                m_bAscending;
@@ -511,7 +411,6 @@ private:
     CString             m_sLogInfo;
     std::set<svn_revnum_t> m_mergedRevs;
     SVNRev              m_copyfromrev;
-    CString             m_sMultiLogFormat;
 
     CToolTips           m_tooltips;
 
@@ -525,10 +424,7 @@ private:
     HICON               m_hDeletedIcon;
     HICON               m_hMergedIcon;
     HICON               m_hReverseMergedIcon;
-    HICON               m_hMovedIcon;
-    HICON               m_hMoveReplacedIcon;
     int                 m_nIconFolder;
-    int                 m_nOpenIconFolder;
 
     HACCEL              m_hAccel;
 
@@ -547,39 +443,7 @@ private:
     ListViewAccServer * m_pChangedListAccServer;
 
     bool                m_bVisualStudioRunningAtStart;
-
-    // MonitoringMode
-    bool                m_bMonitoringMode;
-    bool                m_bKeepHidden;
-    HWND                m_hwndToolbar;
-    HIMAGELIST          m_hToolbarImages;
-    CRect               m_ProjTreeOrigRect;
-    CSplitterControl    m_wndSplitterLeft;
-    CHintCtrl<CDragDropTreeCtrl> m_projTree;
-    CSimpleIni          m_monitoringFile;
-    volatile LONG       m_bMonitorThreadRunning;
-    std::vector<MonitorItem>    m_monitorItemListForThread;
-    int                 m_nMonitorUrlIcon;
-    int                 m_nMonitorWCIcon;
-    int                 m_nErrorOvl;
-    CString             m_sMonitorNotificationTitle;
-    CString             m_sMonitorNotificationText;
-    CReaderWriterLock   m_monitorguard;
-    CReaderWriterLock   m_monitorpathguard;
-    CString             m_pathCurrentlyChecked;
-    NOTIFYICONDATA      m_SystemTray;
-    HICON               m_hMonitorIconNormal;
-    HICON               m_hMonitorIconNewCommits;
-    static const UINT   WM_TASKBARCREATED;
-    static const UINT   WM_TSVN_COMMITMONITOR_SHOWDLGMSG;
-    static const UINT   WM_TSVN_COMMITMONITOR_RELOADINI;
-    svn_revnum_t        m_revUnread;
-    bool                m_bPlaySound;
-    bool                m_bShowNotification;
-    CString             m_sMonitorMsgRegex;
-    bool                m_bSystemShutDown;
-    std::vector<std::string> m_MonitorAuthorsToIgnore;
 };
-static UINT WM_REVSELECTED = RegisterWindowMessage(L"TORTOISESVN_REVSELECTED_MSG");
-static UINT WM_REVLIST = RegisterWindowMessage(L"TORTOISESVN_REVLIST_MSG");
-static UINT WM_REVLISTONERANGE = RegisterWindowMessage(L"TORTOISESVN_REVLISTONERANGE_MSG");
+static UINT WM_REVSELECTED = RegisterWindowMessage(_T("TORTOISESVN_REVSELECTED_MSG"));
+static UINT WM_REVLIST = RegisterWindowMessage(_T("TORTOISESVN_REVLIST_MSG"));
+static UINT WM_REVLISTONERANGE = RegisterWindowMessage(_T("TORTOISESVN_REVLISTONERANGE_MSG"));

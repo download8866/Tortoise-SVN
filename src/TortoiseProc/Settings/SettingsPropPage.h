@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2011, 2014 - TortoiseSVN
+// Copyright (C) 2007-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,6 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
+#include "MessageBox.h"
 
 /**
  * \ingroup TortoiseProc
@@ -70,7 +71,7 @@ protected:
     {
         registryKey = value;
         if (registryKey.GetLastError() != ERROR_SUCCESS)
-            TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), registryKey.getErrorString(), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+            TSVNMessageBox(m_hWnd, registryKey.getErrorString(), _T("TortoiseSVN"), MB_ICONERROR);
     }
 
     /**
@@ -99,23 +100,5 @@ protected:
             SendMessage(WM_NEXTDLGCTL, 0, FALSE);
         }
         return pwndDlgItem->EnableWindow(bEnable);
-    }
-    /**
-    * Display a balloon with close button, anchored at a given edit control on this dialog.
-    */
-    void ShowEditBalloon(UINT nIdControl, UINT nIdText, UINT nIdTitle, int nIcon = TTI_WARNING)
-    {
-        CString text(MAKEINTRESOURCE(nIdText));
-        CString title(MAKEINTRESOURCE(nIdTitle));
-        ShowEditBalloon(nIdControl, text, title, nIcon);
-    }
-    void ShowEditBalloon(UINT nIdControl, const CString& text, const CString& title, int nIcon = TTI_WARNING)
-    {
-        EDITBALLOONTIP bt;
-        bt.cbStruct = sizeof(bt);
-        bt.pszText = text;
-        bt.pszTitle = title;
-        bt.ttiIcon = nIcon;
-        SendDlgItemMessage(nIdControl, EM_SHOWBALLOONTIP, 0, (LPARAM)&bt);
     }
 };

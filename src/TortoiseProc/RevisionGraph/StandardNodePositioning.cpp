@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2009, 2014 - TortoiseSVN
+// Copyright (C) 2003-2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ void CStandardNodePositioning::StackSubTree
     , std::vector<long>& branchColumnStarts
     , std::vector<long>& branchColumnEnds
     , std::vector<long>& localColumnStarts
-    , std::vector<long>& localColumnEnds) const
+    , std::vector<long>& localColumnEnds)
 {
     // the highest position allowed for any branch
     // (if actually reached, node must be at 0,0)
@@ -98,7 +98,7 @@ void CStandardNodePositioning::AppendBranch
     , std::vector<long>& columnStarts
     , std::vector<long>& columnEnds
     , std::vector<long>& localColumnStarts
-    , std::vector<long>& localColumnEnds) const
+    , std::vector<long>& localColumnEnds)
 {
     // push the new branch as far to the left as possible
 
@@ -205,8 +205,8 @@ void CStandardNodePositioning::ShiftNodes
     , CSize delta)
 {
     // walk along this branch
-    if (node != nullptr)
-        delta += node->treeShift;
+
+    delta += node->treeShift;
     for ( ; node != NULL; node = node->nextInBranch)
     {
         node->rect += delta;
@@ -228,9 +228,7 @@ CRect CStandardNodePositioning::BoundingRect
 {
     // walk along this branch
 
-    CRect result = { 0 };
-    if (node != nullptr)
-        result = node->rect;
+    CRect result = node->rect;
     for ( ; node != NULL; node = node->nextInBranch)
     {
         result.UnionRect (result, node->rect);

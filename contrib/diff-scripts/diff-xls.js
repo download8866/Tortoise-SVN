@@ -2,7 +2,7 @@
 //
 // TortoiseSVN Diff script for Excel files
 //
-// Copyright (C) 2004-2008, 2012-2014 the TortoiseSVN team
+// Copyright (C) 2004-2008 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -45,7 +45,7 @@ var vOffice2003 = 11;
 
 // ----- main -----
 
-var aWarningMessages = [];
+var aWarningMessages = Array();
 
 var objArgs = WScript.Arguments;
 if (objArgs.length < 2)
@@ -186,7 +186,7 @@ for (var i = 1; i <= length; i++)
 
 // Close the special workbook quietly
 objSpecialWorkbook.Saved = true;
-objSpecialWorkbook.Close();
+objSpecialWorkbook.Close;
 
 // Activate first Worksheet
 objBaseWorkbook.Sheets(1).Activate();
@@ -278,10 +278,10 @@ function ToAbsoluteReference(objWorksheet)
 function convertFormula(sFormula)
 {
     var worksheet = objSpecialWorkbook.Sheets(1);
-    var original_content = worksheet.Cells(1, 1).Formula;
-    worksheet.Cells(1, 1).Formula = sFormula;
-    sFormula = worksheet.Cells(1, 1).FormulaLocal;
-    worksheet.Cells(1, 1).Formula = original_content;
+    var original_content = worksheet.Cells(1,1).Formula;
+    worksheet.Cells(1,1).Formula = sFormula;
+    sFormula = worksheet.Cells(1,1).FormulaLocal;
+    worksheet.Cells(1,1).Formula = original_content;
     return sFormula;
 }
 

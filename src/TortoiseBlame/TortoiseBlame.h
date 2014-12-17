@@ -1,6 +1,6 @@
 // TortoiseBlame - a Viewer for Subversion Blames
 
-// Copyright (C) 2003-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -92,19 +92,16 @@ public:
     void DrawLocatorBar(HDC hDC);
     void StartSearch();
     void StartSearchSel();
-    void StartSearchSelReverse();
     void DoSearchNext();
-    void DoSearchPrev();
     void CopySelectedLogToClipboard();
-    void CopySelectedRevToClipboard();
     void BlamePreviousRevision();
-    void DiffPreviousRevision() const;
+    void DiffPreviousRevision();
     void ShowLog();
     bool DoSearch(LPTSTR what, DWORD flags);
     bool GotoLine(long line);
     bool ScrollToLine(long line);
     void GotoLineDlg();
-    void SelectLine(int yPos, bool bAlwaysSelect) const;
+    void SelectLine(int yPos, bool bAlwaysSelect);
     static INT_PTR CALLBACK GotoDlgProc(HWND hwndDlg, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
     void SetSelectedLine(LONG line) { m_selectedLine=line;};
@@ -134,14 +131,14 @@ public:
     std::map<tstring, COLORREF>         m_authorcolormap;
     char                        m_szTip[MAX_LOG_LENGTH*2+6];
     wchar_t                     m_wszTip[MAX_LOG_LENGTH*2+6];
-    void StringExpand(LPSTR str) const;
-    void StringExpand(LPWSTR str) const;
+    void StringExpand(LPSTR str);
+    void StringExpand(LPWSTR str);
     BOOL                        m_ttVisible;
 protected:
     void CreateFont();
     void SetupLexer(LPCTSTR fileName);
     void SetupCppLexer();
-    COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider) const;
+    COLORREF InterColor(COLORREF c1, COLORREF c2, int Slider);
     COLORREF GetLineColor(int line, bool bLocatorBar);
     void SetupColoring();
     static std::wstring GetAppDirectory();

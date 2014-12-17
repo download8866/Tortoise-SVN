@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009, 2011-2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009, 2011-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -121,7 +121,7 @@ tstring ItemIDList::toString(bool resolveLibraries /*= true*/)
     ret = szDisplayName;
     CoTaskMemFree(szDisplayName);
     if ((resolveLibraries) &&
-        (wcsncmp(ret.c_str(), L"::{", 3)==0))
+        (_tcsncmp(ret.c_str(), _T("::{"), 3)==0))
     {
         CComPtr<IShellLibrary> plib;
         HRESULT hr = CoCreateInstance(CLSID_ShellLibrary,
@@ -131,26 +131,30 @@ tstring ItemIDList::toString(bool resolveLibraries /*= true*/)
         if (SUCCEEDED(hr))
         {
             typedef HRESULT STDAPICALLTYPE SHCreateItemFromParsingNameFN(__in PCWSTR pszPath, __in_opt IBindCtx *pbc, __in REFIID riid, __deref_out void **ppv);
-            CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+            CAutoLibrary hShell = AtlLoadSystemLibraryUsingFullPath(_T("shell32.dll"));
             if (hShell)
             {
-                CComPtr<IShellItem> psiLibrary;
-                hr = SHCreateItemFromParsingName(ret.c_str(), NULL, IID_PPV_ARGS(&psiLibrary));
-                if (SUCCEEDED(hr))
+                SHCreateItemFromParsingNameFN *pfnSHCreateItemFromParsingName = (SHCreateItemFromParsingNameFN*)GetProcAddress(hShell, "SHCreateItemFromParsingName");
+                if (pfnSHCreateItemFromParsingName)
                 {
-                    hr = plib->LoadLibraryFromItem(psiLibrary, STGM_READ | STGM_SHARE_DENY_NONE);
+                    CComPtr<IShellItem> psiLibrary;
+                    hr = pfnSHCreateItemFromParsingName(ret.c_str(), NULL, IID_PPV_ARGS(&psiLibrary));
                     if (SUCCEEDED(hr))
                     {
-                        CComPtr<IShellItem> psiSaveLocation;
-                        hr = plib->GetDefaultSaveFolder(DSFT_DETECT, IID_PPV_ARGS(&psiSaveLocation));
+                        hr = plib->LoadLibraryFromItem (psiLibrary, STGM_READ|STGM_SHARE_DENY_NONE);
                         if (SUCCEEDED(hr))
                         {
-                            PWSTR pszName = NULL;
-                            hr = psiSaveLocation->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
+                            CComPtr<IShellItem> psiSaveLocation;
+                            hr = plib->GetDefaultSaveFolder(DSFT_DETECT, IID_PPV_ARGS(&psiSaveLocation));
                             if (SUCCEEDED(hr))
                             {
-                                ret = pszName;
-                                CoTaskMemFree(pszName);
+                                PWSTR pszName = NULL;
+                                hr = psiSaveLocation->GetDisplayName(SIGDN_FILESYSPATH, &pszName);
+                                if (SUCCEEDED(hr))
+                                {
+                                    ret = pszName;
+                                    CoTaskMemFree(pszName);
+                                }
                             }
                         }
                     }

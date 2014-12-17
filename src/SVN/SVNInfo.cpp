@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -115,8 +115,8 @@ svn_error_t* SVNInfo::cancel(void *baton)
 }
 
 const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegrev, SVNRev revision,
-                                              svn_depth_t depth /*= svn_depth_empty*/,
-                                              bool fetchExcluded /*= true */, bool fetchActualOnly /*= true*/, bool includeExternals /*= false */)
+                                              svn_depth_t depth /* = svn_depth_empty*/,
+                                              bool fetchExcluded /* = true */, bool fetchActualOnly /* = true */)
 {
     svn_error_clear(Err);
     Err = NULL;
@@ -131,7 +131,7 @@ const SVNInfoData * SVNInfo::GetFirstFileInfo(const CTSVNPath& path, SVNRev pegr
         CHooks::Instance().PreConnect(CTSVNPathList(path));
 #endif
     SVNTRACE (
-        Err = svn_client_info4(svnPath, pegrev, revision, depth, fetchExcluded, fetchActualOnly, includeExternals, NULL, infoReceiver, this, m_pctx, m_pool),
+        Err = svn_client_info3(svnPath, pegrev, revision, depth, fetchExcluded, fetchActualOnly, NULL, infoReceiver, this, m_pctx, m_pool),
         svnPath
     )
     ClearCAPIAuthCacheOnError();
@@ -232,19 +232,6 @@ svn_error_t * SVNInfo::infoReceiver(void* baton, const char * path, const svn_cl
                 case svn_wc_conflict_kind_property:
                     if (conflict->their_abspath)
                         cdata.prejfile = CUnicodeUtils::GetUnicode(conflict->their_abspath);
-                    if (conflict->prop_reject_abspath)
-                        cdata.prejfile = CUnicodeUtils::GetUnicode(conflict->prop_reject_abspath);
-                    if (conflict->property_name)
-                        cdata.propname = conflict->property_name;
-
-                    if (conflict->prop_value_base)
-                        cdata.propvalue_base = std::string(conflict->prop_value_base->data, conflict->prop_value_base->len);
-                    if (conflict->prop_value_working)
-                        cdata.propvalue_working = std::string(conflict->prop_value_working->data, conflict->prop_value_working->len);
-                    if (conflict->prop_value_incoming_old)
-                        cdata.propvalue_incoming_old = std::string(conflict->prop_value_incoming_old->data, conflict->prop_value_incoming_old->len);
-                    if (conflict->prop_value_incoming_new)
-                        cdata.propvalue_incoming_new = std::string(conflict->prop_value_incoming_new->data, conflict->prop_value_incoming_new->len);
                     break;
                 case svn_wc_conflict_kind_tree:
                     {

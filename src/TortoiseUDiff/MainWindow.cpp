@@ -23,8 +23,6 @@
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
 #include "SysInfo.h"
-#include "UDiffColors.h"
-#include "registry.h"
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
@@ -36,7 +34,7 @@ CMainWindow::CMainWindow(HINSTANCE hInst, const WNDCLASSEX* wcx /* = NULL*/)
     , m_hWndEdit(NULL)
     , m_bMatchCase(false)
 {
-    SetWindowTitle(L"TortoiseUDiff");
+    SetWindowTitle(_T("TortoiseUDiff"));
 }
 
 CMainWindow::~CMainWindow(void)
@@ -226,6 +224,7 @@ LRESULT CMainWindow::DoCommand(int id)
         }
         break;
     case IDM_FINDNEXT:
+        SendEditor(SCI_CHARRIGHT);
         SendEditor(SCI_SEARCHANCHOR);
         SendEditor(SCI_SEARCHNEXT, m_bMatchCase ? SCFIND_MATCHCASE : 0, (LPARAM)CUnicodeUtils::StdGetUTF8(m_findtext).c_str());
         SendEditor(SCI_SCROLLCARET);
@@ -252,7 +251,7 @@ LRESULT CMainWindow::DoCommand(int id)
         break;
     case ID_FILE_SETTINGS:
         {
-            tstring svnCmd = L" /command:settings /page:20";
+            tstring svnCmd = _T(" /command:settings /page:19");
             RunCommand(svnCmd);
         }
         break;
@@ -261,7 +260,7 @@ LRESULT CMainWindow::DoCommand(int id)
             std::wstring command = L" /diff:\"";
             command += m_filename;
             command += L"\"";
-            std::wstring tortoiseMergePath = GetAppDirectory() + L"TortoiseMerge.exe";
+            std::wstring tortoiseMergePath = GetAppDirectory() + _T("TortoiseMerge.exe");
             CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), const_cast<TCHAR*>(command.c_str()));
         }
         break;
@@ -536,7 +535,7 @@ std::wstring CMainWindow::GetAppDirectory()
 
 void CMainWindow::RunCommand(const std::wstring& command)
 {
-    tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
+    tstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
     CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
@@ -552,8 +551,8 @@ LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
 bool CMainWindow::Initialize()
 {
     m_hWndEdit = ::CreateWindow(
-        L"Scintilla",
-        L"Source",
+        _T("Scintilla"),
+        _T("Source"),
         WS_CHILD | WS_VSCROLL | WS_HSCROLL | WS_CLIPCHILDREN,
         CW_USEDEFAULT, CW_USEDEFAULT,
         CW_USEDEFAULT, CW_USEDEFAULT,
@@ -576,9 +575,12 @@ bool CMainWindow::Initialize()
 
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
     SetAStyle(STYLE_DEFAULT, ::GetSysColor(COLOR_WINDOWTEXT), ::GetSysColor(COLOR_WINDOW),
-        CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffFontSize", 10),
-        CUnicodeUtils::StdGetUTF8(CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Courier New")).c_str());
-    SendEditor(SCI_SETTABWIDTH, CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffTabSize", 4));
+        // Reusing TortoiseBlame's setting which already have an user friendly
+        // pane in TortoiseSVN's Settings dialog, while there is no such
+        // pane for TortoiseUDiff.
+        CRegStdDWORD(_T("Software\\TortoiseSVN\\BlameFontSize"), 10),
+        CUnicodeUtils::StdGetUTF8(CRegStdString(_T("Software\\TortoiseSVN\\BlameFontName"), _T("Courier New"))).c_str());
+    SendEditor(SCI_SETTABWIDTH, 4);
     SendEditor(SCI_SETREADONLY, TRUE);
     LRESULT pix = SendEditor(SCI_TEXTWIDTH, STYLE_LINENUMBER, (LPARAM)"_99999");
     SendEditor(SCI_SETMARGINWIDTHN, 0, pix);
@@ -590,16 +592,12 @@ bool CMainWindow::Initialize()
     SendEditor(SCI_SETSELFORE, TRUE, ::GetSysColor(COLOR_HIGHLIGHTTEXT));
     SendEditor(SCI_SETSELBACK, TRUE, ::GetSysColor(COLOR_HIGHLIGHT));
     SendEditor(SCI_SETCARETFORE, ::GetSysColor(COLOR_WINDOWTEXT));
-    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
+    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", FALSE);
     if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
     {
-        SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITERETAIN);
+        SendEditor(SCI_SETTECHNOLOGY, SC_TECHNOLOGY_DIRECTWRITE);
         SendEditor(SCI_SETBUFFEREDDRAW, 0);
     }
-    SendEditor(SCI_SETVIEWWS, 1);
-    SendEditor(SCI_SETWHITESPACESIZE, 2);
-    SendEditor(SCI_SETWHITESPACEFORE, true, ::GetSysColor(COLOR_3DSHADOW));
-    SendEditor(SCI_STYLESETVISIBLE, STYLE_CONTROLCHAR, TRUE);
 
     return true;
 }
@@ -626,7 +624,7 @@ bool CMainWindow::LoadFile(LPCTSTR filename)
 {
     InitEditor();
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"rb");
+    _tfopen_s(&fp, filename, _T("rb"));
     if (!fp)
         return false;
 
@@ -670,26 +668,13 @@ void CMainWindow::SetupWindow(bool bUTF8)
     SendEditor(SCI_SETSTYLEBITS, 5, 0);
 
     //SetAStyle(SCE_DIFF_DEFAULT, RGB(0, 0, 0));
-    SetAStyle(SCE_DIFF_COMMAND,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeCommandColor", UDIFF_COLORFORECOMMAND),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackCommandColor", UDIFF_COLORBACKCOMMAND));
-    SetAStyle(SCE_DIFF_POSITION,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForePositionColor", UDIFF_COLORFOREPOSITION),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackPositionColor", UDIFF_COLORBACKPOSITION));
-    SetAStyle(SCE_DIFF_HEADER,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeHeaderColor", UDIFF_COLORFOREHEADER),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackHeaderColor", UDIFF_COLORBACKHEADER));
-    SetAStyle(SCE_DIFF_COMMENT,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeCommentColor", UDIFF_COLORFORECOMMENT),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackCommentColor", UDIFF_COLORBACKCOMMENT));
+    SetAStyle(SCE_DIFF_COMMAND, RGB(0x0A, 0x24, 0x36));
+    SetAStyle(SCE_DIFF_POSITION, RGB(0xFF, 0, 0));
+    SetAStyle(SCE_DIFF_HEADER, RGB(0x80, 0, 0), RGB(0xFF, 0xFF, 0x80));
+    SetAStyle(SCE_DIFF_COMMENT, RGB(0, 0x80, 0));
     SendEditor(SCI_STYLESETBOLD, SCE_DIFF_COMMENT, TRUE);
-
-    SetAStyle(SCE_DIFF_ADDED,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeAddedColor", UDIFF_COLORFOREADDED),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackAddedColor", UDIFF_COLORBACKADDED));
-    SetAStyle(SCE_DIFF_DELETED,
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffForeRemovedColor", UDIFF_COLORFOREREMOVED),
-              CRegStdDWORD(L"Software\\TortoiseSVN\\UDiffBackRemovedColor", UDIFF_COLORBACKREMOVED));
+    SetAStyle(SCE_DIFF_DELETED, ::GetSysColor(COLOR_WINDOWTEXT), RGB(0xFF, 0x80, 0x80));
+    SetAStyle(SCE_DIFF_ADDED, ::GetSysColor(COLOR_WINDOWTEXT), RGB(0x80, 0xFF, 0x80));
 
     SendEditor(SCI_SETLEXER, SCLEX_DIFF);
     SendEditor(SCI_SETKEYWORDS, 0, (LPARAM)"revision");
@@ -700,7 +685,7 @@ void CMainWindow::SetupWindow(bool bUTF8)
 bool CMainWindow::SaveFile(LPCTSTR filename)
 {
     FILE *fp = NULL;
-    _tfopen_s(&fp, filename, L"w+b");
+    _tfopen_s(&fp, filename, _T("w+b"));
     if (!fp)
         return false;
 
@@ -717,9 +702,9 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 
 void CMainWindow::SetTitle(LPCTSTR title)
 {
-    size_t len = wcslen(title);
+    size_t len = _tcslen(title);
     std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
-    swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
+    _stprintf_s(pBuf.get(), len+40, _T("%s - TortoiseUDiff"), title);
     SetWindowTitle(std::wstring(pBuf.get()));
 }
 

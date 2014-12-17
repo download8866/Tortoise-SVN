@@ -27,8 +27,8 @@
 IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CUpdateDlg::IDD, pParent)
-    , Revision(L"HEAD")
-    , m_bNoExternals(CRegDWORD(L"Software\\TortoiseSVN\\noext"))
+    , Revision(_T("HEAD"))
+    , m_bNoExternals(FALSE)
     , m_bStickyDepth(TRUE)
     , m_pLogDlg(NULL)
     , m_depth(svn_depth_unknown)
@@ -118,7 +118,7 @@ void CUpdateDlg::OnOK()
     Revision = SVNRev(m_sRevision);
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        Revision = SVNRev(L"HEAD");
+        Revision = SVNRev(_T("HEAD"));
     }
     if (!Revision.IsValid())
     {
@@ -158,9 +158,6 @@ void CUpdateDlg::OnOK()
 
     UpdateData(FALSE);
 
-    CRegDWORD regNoExt(L"Software\\TortoiseSVN\\noext");
-    regNoExt = m_bNoExternals;
-
     CStandAloneDialog::OnOK();
 }
 
@@ -187,7 +184,7 @@ void CUpdateDlg::OnBnClickedShowLog()
 LPARAM CUpdateDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_REVNUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;

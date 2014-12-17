@@ -63,11 +63,11 @@ static void ImplWinMain()
 
     if ((argc >= 2) && (argc <= 5))
     {
-        if (wcscmp(argv[1], L"/automation")==0)
+        if (_tcscmp(argv[1], _T("/automation"))==0)
             AutomationMain();
-        else if (wcscmp(argv[1], L"unregserver")==0)
+        else if (_tcscmp(argv[1], _T("unregserver"))==0)
             DllUnregisterServer();
-        else if (wcscmp(argv[1], L"regserver")==0)
+        else if (_tcscmp(argv[1], _T("regserver"))==0)
             DllRegisterServer();
     }
     LocalFree(argv);
@@ -197,11 +197,6 @@ HRESULT SubWCRev::GetWCInfoInternal(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL f
     svn_client_ctx_t * ctx;
     svn_client_create_context2(&ctx, NULL, pool);
 
-    const char *wcroot;
-    svn_client_get_wc_root(&wcroot, internalpath, ctx, pool, pool);
-    LoadIgnorePatterns(wcroot, &SubStat);
-    LoadIgnorePatterns(internalpath, &SubStat);
-
     svn_error_t * svnerr = svn_status(  internalpath,   //path
         &SubStat,       //status_baton
         TRUE,           //noignore
@@ -225,6 +220,7 @@ HRESULT __stdcall SubWCRev::GetWCInfo2(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOO
     if (wcPath==NULL)
         return E_INVALIDARG;
 
+    memset (&SubStat, 0, sizeof (SubStat));
     SubStat.bExternalsNoMixedRevision = externalsNoMixed;
     return GetWCInfoInternal(wcPath, folders, externals);
 }
@@ -234,6 +230,7 @@ HRESULT __stdcall SubWCRev::GetWCInfo(/*[in]*/ BSTR wcPath, /*[in]*/VARIANT_BOOL
     if (wcPath==NULL)
         return E_INVALIDARG;
 
+    memset (&SubStat, 0, sizeof (SubStat));
     return GetWCInfoInternal(wcPath, folders, externals);
 }
 
@@ -263,10 +260,10 @@ HRESULT __stdcall SubWCRev::get_Date(/*[out, retval]*/VARIANT* date)
     HRESULT result = CopyDateToString(destbuf, _countof(destbuf), SubStat.CmtDate) ? S_OK : S_FALSE;
     if(S_FALSE == result)
     {
-        swprintf_s(destbuf, L"");
+        _stprintf_s(destbuf, _T(""));
     }
 
-    date->bstrVal = SysAllocStringLen(destbuf, (UINT)wcslen(destbuf));
+    date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
     return result;
 }
 
@@ -363,7 +360,7 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
     HRESULT result = S_OK;
     if(FALSE == IsLockDataAvailable())
     {
-        swprintf_s(destbuf, L"");
+        _stprintf_s(destbuf, _T(""));
         result = S_FALSE;
     }
     else
@@ -371,11 +368,11 @@ HRESULT __stdcall SubWCRev::get_LockCreationDate(/*[out, retval]*/VARIANT* date)
         result = CopyDateToString(destbuf, _countof(destbuf), SubStat.LockData.CreationDate) ? S_OK : S_FALSE;
         if(S_FALSE == result)
         {
-            swprintf_s(destbuf, L"");
+            _stprintf_s(destbuf, _T(""));
         }
     }
 
-    date->bstrVal = SysAllocStringLen(destbuf, (UINT)wcslen(destbuf));
+    date->bstrVal = SysAllocStringLen(destbuf, (UINT)_tcslen(destbuf));
     return result;
 }
 
@@ -462,7 +459,7 @@ BOOL SubWCRev::CopyDateToString(WCHAR *destbuf, int buflen, apr_time_t time)
     if (_localtime64_s(&newtime, &ttime))
         return FALSE;
     // Format the date/time in international format as yyyy/mm/dd hh:mm:ss
-    swprintf_s(destbuf, min_buflen, L"%04d/%02d/%02d %02d:%02d:%02d",
+    _stprintf_s(destbuf, min_buflen, _T("%04d/%02d/%02d %02d:%02d:%02d"),
         newtime.tm_year + 1900,
         newtime.tm_mon + 1,
         newtime.tm_mday,
@@ -655,9 +652,9 @@ STDAPI DllRegisterServer()
 
     HRESULT hr = RegisterServer(hModule,
         CLSID_SubWCRev,
-        L"SubWCRev Server Object",
-        L"SubWCRev.object",
-        L"SubWCRev.object.1",
+        _T("SubWCRev Server Object"),
+        _T("SubWCRev.object"),
+        _T("SubWCRev.object.1"),
         LIBID_LibSubWCRev) ;
     if (SUCCEEDED(hr))
     {
@@ -674,8 +671,8 @@ STDAPI DllUnregisterServer()
     const HMODULE hModule = ::GetModuleHandle(NULL);
 
     HRESULT hr = UnregisterServer(CLSID_SubWCRev,
-        L"SubWCRev.object",
-        L"SubWCRev.object.1",
+        _T("SubWCRev.object"),
+        _T("SubWCRev.object.1"),
         LIBID_LibSubWCRev) ;
     if (SUCCEEDED(hr))
     {

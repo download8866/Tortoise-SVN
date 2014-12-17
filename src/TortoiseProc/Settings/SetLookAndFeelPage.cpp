@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,23 +32,20 @@ CSetLookAndFeelPage::CSetLookAndFeelPage()
     , m_bHideMenus(false)
     , m_bModified(false)
 {
-    m_regTopmenu = CRegDWORD(L"Software\\TortoiseSVN\\ContextMenuEntries", MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
-    m_regTopmenuhigh = CRegDWORD(L"Software\\TortoiseSVN\\ContextMenuEntrieshigh", 0);
+    m_regTopmenu = CRegDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntries"), MENUCHECKOUT | MENUUPDATE | MENUCOMMIT);
+    m_regTopmenuhigh = CRegDWORD(_T("Software\\TortoiseSVN\\ContextMenuEntrieshigh"), 0);
 
     m_topmenu = unsigned __int64(DWORD(m_regTopmenuhigh))<<32;
     m_topmenu |= unsigned __int64(DWORD(m_regTopmenu));
 
-    m_regGetLockTop = CRegDWORD(L"Software\\TortoiseSVN\\GetLockTop", TRUE);
+    m_regGetLockTop = CRegDWORD(_T("Software\\TortoiseSVN\\GetLockTop"), TRUE);
     m_bGetLockTop = m_regGetLockTop;
-    m_regHideMenus = CRegDWORD(L"Software\\TortoiseSVN\\HideMenusForUnversionedItems", FALSE);
+    m_regHideMenus = CRegDWORD(_T("Software\\TortoiseSVN\\HideMenusForUnversionedItems"), FALSE);
     m_bHideMenus = m_regHideMenus;
 
-    m_regNoContextPaths = CRegString(L"Software\\TortoiseSVN\\NoContextPaths", L"");
+    m_regNoContextPaths = CRegString(_T("Software\\TortoiseSVN\\NoContextPaths"), _T(""));
     m_sNoContextPaths = m_regNoContextPaths;
-    m_sNoContextPaths.Replace(L"\n", L"\r\n");
-
-    m_regEnableDragContextMenu = CRegDWORD(L"Software\\TortoiseSVN\\EnableDragContextMenu", TRUE);
-    m_bEnableDragContextMenu = m_regEnableDragContextMenu;
+    m_sNoContextPaths.Replace(_T("\n"), _T("\r\n"));
 }
 
 CSetLookAndFeelPage::~CSetLookAndFeelPage()
@@ -62,7 +59,6 @@ void CSetLookAndFeelPage::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_GETLOCKTOP, m_bGetLockTop);
     DDX_Check(pDX, IDC_HIDEMENUS, m_bHideMenus);
     DDX_Text(pDX, IDC_NOCONTEXTPATHS, m_sNoContextPaths);
-    DDX_Check(pDX, IDC_ENABLEDRAGCONTEXTMENU, m_bEnableDragContextMenu);
 }
 
 
@@ -71,7 +67,6 @@ BEGIN_MESSAGE_MAP(CSetLookAndFeelPage, ISettingsPropPage)
     ON_BN_CLICKED(IDC_GETLOCKTOP, OnChange)
     ON_BN_CLICKED(IDC_HIDEMENUS, OnChange)
     ON_EN_CHANGE(IDC_NOCONTEXTPATHS, &CSetLookAndFeelPage::OnEnChangeNocontextpaths)
-    ON_BN_CLICKED(IDC_ENABLEDRAGCONTEXTMENU, OnChange)
 END_MESSAGE_MAP()
 
 
@@ -84,7 +79,6 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
     m_tooltips.AddTool(IDC_GETLOCKTOP, IDS_SETTINGS_GETLOCKTOP_TT);
     m_tooltips.AddTool(IDC_HIDEMENUS, IDS_SETTINGS_HIDEMENUS_TT);
     m_tooltips.AddTool(IDC_NOCONTEXTPATHS, IDS_SETTINGS_EXCLUDECONTEXTLIST_TT);
-    m_tooltips.AddTool(IDC_ENABLEDRAGCONTEXTMENU, IDS_SETTINGS_ENABLEDRAGCONTEXTMENU_TT);
 
     m_cMenuList.SetExtendedStyle(LVS_EX_CHECKBOXES | LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER);
 
@@ -92,7 +86,7 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
     int c = ((CHeaderCtrl*)(m_cMenuList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_cMenuList.DeleteColumn(c--);
-    m_cMenuList.InsertColumn(0, L"");
+    m_cMenuList.InsertColumn(0, _T(""));
 
     SetWindowTheme(m_cMenuList.GetSafeHwnd(), L"Explorer", NULL);
 
@@ -101,13 +95,10 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
     m_imgList.Create(16, 16, ILC_COLOR16 | ILC_MASK, 4, 1);
 
     m_bBlock = true;
-
     InsertItem(IDS_MENUCHECKOUT, IDI_CHECKOUT, MENUCHECKOUT);
     InsertItem(IDS_MENUUPDATE, IDI_UPDATE, MENUUPDATE);
     InsertItem(IDS_MENUCOMMIT, IDI_COMMIT, MENUCOMMIT);
     InsertItem(IDS_MENUDIFF, IDI_DIFF, MENUDIFF);
-    InsertItem(IDS_MENUDIFFLATER, IDI_DIFF, MENUDIFFLATER);
-    InsertItem(IDS_MENUDIFFNOW, IDI_DIFF, MENUDIFFNOW);
     InsertItem(IDS_MENUPREVDIFF, IDI_DIFF, MENUPREVDIFF);
     InsertItem(IDS_MENUURLDIFF, IDI_DIFF, MENUURLDIFF);
     InsertItem(IDS_MENULOG, IDI_LOG, MENULOG);
@@ -127,14 +118,12 @@ BOOL CSetLookAndFeelPage::OnInitDialog()
     InsertItem(IDS_MENUBRANCH, IDI_COPY, MENUCOPY);
     InsertItem(IDS_MENUSWITCH, IDI_SWITCH, MENUSWITCH);
     InsertItem(IDS_MENUMERGE, IDI_MERGE, MENUMERGE);
-    InsertItem(IDS_MENUMERGEALL, IDI_MERGE, MENUMERGEALL);
     InsertItem(IDS_MENUEXPORT, IDI_EXPORT, MENUEXPORT);
     InsertItem(IDS_MENURELOCATE, IDI_RELOCATE, MENURELOCATE);
     InsertItem(IDS_MENUCREATEREPOS, IDI_CREATEREPOS, MENUCREATEREPOS);
     InsertItem(IDS_MENUADD, IDI_ADD, MENUADD);
     InsertItem(IDS_MENUIMPORT, IDI_IMPORT, MENUIMPORT);
     InsertItem(IDS_MENUBLAME, IDI_BLAME, MENUBLAME);
-    InsertItem(IDS_MENUCOPYURL, IDI_COPYURL, MENUCOPYURL);
     InsertItem(IDS_MENUIGNORE, IDI_IGNORE, MENUIGNORE);
     InsertItem(IDS_MENUCREATEPATCH, IDI_CREATEPATCH, MENUCREATEPATCH);
     InsertItem(IDS_MENUAPPLYPATCH, IDI_PATCH, MENUAPPLYPATCH);
@@ -170,15 +159,14 @@ BOOL CSetLookAndFeelPage::OnApply()
     Store ((DWORD)(m_topmenu >> 32), m_regTopmenuhigh);
     Store (m_bGetLockTop, m_regGetLockTop);
     Store (m_bHideMenus, m_regHideMenus);
-    Store (m_bEnableDragContextMenu, m_regEnableDragContextMenu);
 
-    m_sNoContextPaths.Remove('\r');
-    if (m_sNoContextPaths.Right(1).Compare(L"\n")!=0)
-        m_sNoContextPaths += L"\n";
+    m_sNoContextPaths.Remove(_T('\r'));
+    if (m_sNoContextPaths.Right(1).Compare(_T("\n"))!=0)
+        m_sNoContextPaths += _T("\n");
 
     Store (m_sNoContextPaths, m_regNoContextPaths);
 
-    m_sNoContextPaths.Replace(L"\n", L"\r\n");
+    m_sNoContextPaths.Replace(_T("\n"), _T("\r\n"));
     SetModified(FALSE);
     return ISettingsPropPage::OnApply();
 }
@@ -210,8 +198,6 @@ void CSetLookAndFeelPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUUPDATE : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOMMIT : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFF : 0;
-        m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFFLATER : 0;
-        m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUDIFFNOW : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUPREVDIFF : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUURLDIFF : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENULOG : 0;
@@ -231,14 +217,12 @@ void CSetLookAndFeelPage::OnLvnItemchangedMenulist(NMHDR * /*pNMHDR*/, LRESULT *
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOPY : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUSWITCH : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUMERGE : 0;
-        m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUMERGEALL : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUEXPORT : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENURELOCATE : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEREPOS : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUADD : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIMPORT : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUBLAME : 0;
-        m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCOPYURL : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUIGNORE : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUCREATEPATCH : 0;
         m_topmenu |= m_cMenuList.GetCheck(i++) ? MENUAPPLYPATCH : 0;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -78,8 +78,7 @@ CStoreSelection::~CStoreSelection()
 
         for (int i=0, count = (int)m_logdlg->m_logEntries.GetVisibleCount(); i < count; ++i)
         {
-            auto pLogEntry = m_logdlg->m_logEntries.GetVisible(i);
-            LONG nRevision = pLogEntry ? pLogEntry->GetRevision() : 0;
+            LONG nRevision = m_logdlg->m_logEntries.GetVisible(i)->GetRevision();
             if ( m_SetSelectedRevisions.contains (nRevision) )
             {
                 m_logdlg->m_LogList.SetSelectionMark(i);
@@ -149,7 +148,7 @@ bool CLogCacheUtility::IsCached (svn_revnum_t revision) const
     return (data.GetPresenceFlags (index) & MASK) == MASK;
 }
 
-std::unique_ptr<LOGENTRYDATA> CLogCacheUtility::GetRevisionData(svn_revnum_t revision)
+PLOGENTRYDATA CLogCacheUtility::GetRevisionData (svn_revnum_t revision)
 {
     // don't try to return what we don't have
 
@@ -184,7 +183,7 @@ std::unique_ptr<LOGENTRYDATA> CLogCacheUtility::GetRevisionData(svn_revnum_t rev
 
     // done here
 
-    return result;
+    return result.release();
 }
 
 CLogWndHourglass::CLogWndHourglass()

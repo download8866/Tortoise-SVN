@@ -343,17 +343,26 @@ void CResizableSheetEx::OnSize(UINT nType, int cx, int cy)
 
     ArrangeLayout();
 
+    OSVERSIONINFOEX inf;
+    ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+    inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    GetVersionEx((OSVERSIONINFO *)&inf);
+    WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+
     if (IsWizard97())
     {
         // refresh header area
         CRect rect;
         GetHeaderRect(rect);
-        InvalidateRect(rect, TRUE);
+        InvalidateRect(rect, fullver >= 0x0600);
     }
     // on Vista, the redrawing doesn't work right, so we have to work
     // around this by invalidating the whole dialog so the DWM recognizes
     // that it has to update the application window.
+    if (fullver >= 0x0600)
+    {
         InvalidateRect(NULL, FALSE);
+    }
 }
 
 BOOL CResizableSheetEx::OnPageChanging(NMHDR* /*pNotifyStruct*/, LRESULT* /*pResult*/)

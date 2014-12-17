@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -27,22 +27,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <CharacterSet>Unicode</CharacterSet>
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -65,6 +65,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\obj\$(ProjectName)\$(Configuration)64\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\obj\$(ProjectName)\$(Configuration)\</IntDir>
@@ -137,7 +138,6 @@
     <ClCompile Include="lexers\LexBaan.cxx" />
     <ClCompile Include="lexers\LexBash.cxx" />
     <ClCompile Include="lexers\LexBasic.cxx" />
-    <ClCompile Include="lexers\LexBibTeX.cxx" />
     <ClCompile Include="lexers\LexBullant.cxx" />
     <ClCompile Include="lexers\LexCaml.cxx" />
     <ClCompile Include="lexers\LexCLW.cxx" />
@@ -150,8 +150,6 @@
     <ClCompile Include="lexers\LexCsound.cxx" />
     <ClCompile Include="lexers\LexCSS.cxx" />
     <ClCompile Include="lexers\LexD.cxx" />
-    <ClCompile Include="lexers\LexDMAP.cxx" />
-    <ClCompile Include="lexers\LexDMIS.cxx" />
     <ClCompile Include="lexers\LexECL.cxx" />
     <ClCompile Include="lexers\LexEiffel.cxx" />
     <ClCompile Include="lexers\LexErlang.cxx" />
@@ -165,7 +163,6 @@
     <ClCompile Include="lexers\LexHTML.cxx" />
     <ClCompile Include="lexers\LexInno.cxx" />
     <ClCompile Include="lexers\LexKix.cxx" />
-    <ClCompile Include="lexers\LexKVIrc.cxx" />
     <ClCompile Include="lexers\LexLaTeX.cxx" />
     <ClCompile Include="lexers\LexLisp.cxx" />
     <ClCompile Include="lexers\LexLout.cxx" />
@@ -197,9 +194,7 @@
     <ClCompile Include="lexers\LexPython.cxx" />
     <ClCompile Include="lexers\LexR.cxx" />
     <ClCompile Include="lexers\LexRebol.cxx" />
-    <ClCompile Include="lexers\LexRegistry.cxx" />
     <ClCompile Include="lexers\LexRuby.cxx" />
-    <ClCompile Include="lexers\LexRust.cxx" />
     <ClCompile Include="lexers\LexScriptol.cxx" />
     <ClCompile Include="lexers\LexSmalltalk.cxx" />
     <ClCompile Include="lexers\LexSML.cxx" />
@@ -240,14 +235,11 @@
     <ClCompile Include="src\ContractionState.cxx" />
     <ClCompile Include="src\Decoration.cxx" />
     <ClCompile Include="src\Document.cxx" />
-    <ClCompile Include="src\EditModel.cxx" />
     <ClCompile Include="src\Editor.cxx" />
-    <ClCompile Include="src\EditView.cxx" />
     <ClCompile Include="src\ExternalLexer.cxx" />
     <ClCompile Include="src\Indicator.cxx" />
     <ClCompile Include="src\KeyMap.cxx" />
     <ClCompile Include="src\LineMarker.cxx" />
-    <ClCompile Include="src\MarginView.cxx" />
     <ClCompile Include="src\PerLine.cxx" />
     <ClCompile Include="src\PositionCache.cxx" />
     <ClCompile Include="src\RESearch.cxx" />
@@ -277,7 +269,6 @@
     <ClInclude Include="lexlib\OptionSet.h" />
     <ClInclude Include="lexlib\PropSetSimple.h" />
     <ClInclude Include="lexlib\SparseState.h" />
-    <ClInclude Include="lexlib\StringCopy.h" />
     <ClInclude Include="lexlib\StyleContext.h" />
     <ClInclude Include="lexlib\WordList.h" />
     <ClInclude Include="src\AutoComplete.h" />
@@ -290,15 +281,12 @@
     <ClInclude Include="src\ContractionState.h" />
     <ClInclude Include="src\Decoration.h" />
     <ClInclude Include="src\Document.h" />
-    <ClInclude Include="src\EditModel.h" />
     <ClInclude Include="src\Editor.h" />
-    <ClInclude Include="src\EditView.h" />
     <ClInclude Include="src\ExternalLexer.h" />
     <ClInclude Include="src\FontQuality.h" />
     <ClInclude Include="src\Indicator.h" />
     <ClInclude Include="src\KeyMap.h" />
     <ClInclude Include="src\LineMarker.h" />
-    <ClInclude Include="src\MarginView.h" />
     <ClInclude Include="src\Partitioning.h" />
     <ClInclude Include="src\PerLine.h" />
     <ClInclude Include="src\PositionCache.h" />

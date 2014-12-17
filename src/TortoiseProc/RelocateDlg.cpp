@@ -24,8 +24,8 @@
 IMPLEMENT_DYNAMIC(CRelocateDlg, CResizableStandAloneDialog)
 CRelocateDlg::CRelocateDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CRelocateDlg::IDD, pParent)
-    , m_sToUrl(L"")
-    , m_sFromUrl(L"")
+    , m_sToUrl(_T(""))
+    , m_sFromUrl(_T(""))
     , m_bIncludeExternals(FALSE)
     , m_height(0)
 {
@@ -83,7 +83,7 @@ BOOL CRelocateDlg::OnInitDialog()
     m_URLCombo.SetWindowText(m_sFromUrl);
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"RelocateDlg");
+    EnableSaveRestore(_T("RelocateDlg"));
     return TRUE;
 }
 

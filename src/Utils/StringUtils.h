@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2013-2014 - TortoiseSVN
+// Copyright (C) 2003-2010, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,7 +19,6 @@
 #pragma once
 
 #include <atlstr.h>
-#include <memory>
 
 #ifdef UNICODE
 #define _tcswildcmp wcswildcmp
@@ -53,77 +52,6 @@
 int strwildcmp(const char * wild, const char * string);
 int wcswildcmp(const wchar_t * wild, const wchar_t * string);
 
-template <typename Container>
-void stringtok(Container &container, const std::wstring  &in, bool trim,
-               const wchar_t * const delimiters = L"|", bool append = false)
-{
-    const std::string::size_type len = in.length();
-    std::string::size_type i = 0;
-    if (!append)
-        container.clear();
-
-    while (i < len)
-    {
-        if (trim)
-        {
-            // eat leading whitespace
-            i = in.find_first_not_of(delimiters, i);
-            if (i == std::string::npos)
-                return;   // nothing left but white space
-        }
-
-        // find the end of the token
-        std::string::size_type j = in.find_first_of(delimiters, i);
-
-        // push token
-        if (j == std::string::npos)
-        {
-            container.push_back(in.substr(i));
-            return;
-        }
-        else
-            container.push_back(in.substr(i, j - i));
-
-        // set up for next loop
-        i = j + 1;
-    }
-}
-
-template <typename Container>
-void stringtok(Container &container, const std::string  &in, bool trim,
-               const char * const delimiters = "|", bool append = false)
-{
-    const std::string::size_type len = in.length();
-    std::string::size_type i = 0;
-    if (!append)
-        container.clear();
-
-    while (i < len)
-    {
-        if (trim)
-        {
-            // eat leading whitespace
-            i = in.find_first_not_of(delimiters, i);
-            if (i == std::string::npos)
-                return;   // nothing left but white space
-        }
-
-        // find the end of the token
-        std::string::size_type j = in.find_first_of(delimiters, i);
-
-        // push token
-        if (j == std::string::npos)
-        {
-            container.push_back(in.substr(i));
-            return;
-        }
-        else
-            container.push_back(in.substr(i, j - i));
-
-        // set up for next loop
-        i = j + 1;
-    }
-}
 
 /**
  * \ingroup Utils
@@ -180,7 +108,6 @@ public:
      * depending on the \c bUTF8 param.
      */
     static bool WriteStringToTextFile(const std::wstring& path, const std::wstring& text, bool bUTF8 = true);
-    static bool WriteStringToTextFile(const std::wstring& path, const std::string& text);
 #endif
 
     /**
@@ -191,14 +118,10 @@ public:
     static void PipesToNulls(TCHAR* buffer);
 
 
-    static std::unique_ptr<char[]>      Decrypt(const char * text);
-    static CStringA                     Encrypt(const char * text);
-    static std::unique_ptr<wchar_t[]>   Decrypt(const wchar_t * text);
-    static CStringW                     Encrypt(const wchar_t * text);
+    static char *       Decrypt(const char * text);
+    static CStringA     Encrypt(const char * text);
+    static wchar_t *    Decrypt(const wchar_t * text);
+    static CStringW     Encrypt(const wchar_t * text);
 
-    static std::string                  Encrypt(const std::string& s, const std::string& password);
-    static std::string                  Decrypt(const std::string& s, const std::string& password);
-    static std::string                  ToHexString(BYTE* pSrc, int nSrcLen);
-    static bool                         FromHexString(const std::string& src, BYTE* pDest);
 };
 

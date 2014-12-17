@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "RenameCommand.h"
 
+#include "MessageBox.h"
 #include "SVNProgressDlg.h"
 #include "ProgressDlg.h"
 #include "RenameDlg.h"
@@ -41,14 +42,12 @@ bool RenameCommand::Execute()
     {
         CRenameDlg dlg;
         dlg.m_name = filename;
-        if (!SVN::PathIsURL(cmdLinePath))
-            dlg.SetFileSystemAutoComplete();
         if (dlg.DoModal() != IDOK)
             return FALSE;
         sNewName = dlg.m_name;
     } while(PathIsRelative(sNewName) && !PathIsURL(sNewName) && (sNewName.IsEmpty() || (sNewName.Compare(filename)==0)));
 
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": rename file %s to %s\n", (LPCTSTR)cmdLinePath.GetWinPathString(), (LPCTSTR)sNewName);
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": rename file %s to %s\n"), (LPCTSTR)cmdLinePath.GetWinPathString(), (LPCTSTR)sNewName);
     CTSVNPath destinationPath(basePath);
     if (PathIsRelative(sNewName) && !PathIsURL(sNewName))
         destinationPath.AppendPathString(sNewName);
@@ -103,9 +102,9 @@ bool RenameCommand::Execute()
                 break;
         }
 
-        if (sFilemask.ReverseFind('.') >= slashpos)
+        if (sFilemask.ReverseFind('.')>=slashpos)
         {
-            while (sFilemask.ReverseFind('.') >= slashpos)
+            while (sFilemask.ReverseFind('.')>=slashpos)
                 sFilemask = sFilemask.Left(sFilemask.ReverseFind('.'));
         }
         else
@@ -138,7 +137,7 @@ bool RenameCommand::Execute()
             // at once because those files belong together.
             // e.g. file.aspx, file.aspx.cs, file.aspx.resx
             CTSVNPathList renlist;
-            CSimpleFileFind filefind(cmdLinePath.GetDirectory().GetWinPathString(), sFilemask+L".*");
+            CSimpleFileFind filefind(cmdLinePath.GetDirectory().GetWinPathString(), sFilemask+_T(".*"));
             while (filefind.FindNextFileNoDots())
             {
                 if (!filefind.IsDirectory())
@@ -164,18 +163,19 @@ bool RenameCommand::Execute()
                 {
                     CString sFilename = renlist[i].GetFilename();
                     CString sNewFilename = sNewMask + sFilename.Mid(sFilemask.GetLength());
-                    sTemp.Format(L"\n%s -> %s", (LPCTSTR)sFilename, (LPCTSTR)sNewFilename);
+                    sTemp.Format(_T("\n%s -> %s"), (LPCTSTR)sFilename, (LPCTSTR)sNewFilename);
                     if (!renlist[i].IsEquivalentTo(cmdLinePath))
                         sRenList += sTemp;
-                    renmap[renlist[i].GetWinPathString()] = renlist[i].GetContainingDirectory().GetWinPathString()+L"\\"+sNewFilename;
+                    renmap[renlist[i].GetWinPathString()] = renlist[i].GetContainingDirectory().GetWinPathString()+_T("\\")+sNewFilename;
                 }
                 CString sRenameMultipleQuestion;
                 sRenameMultipleQuestion.Format(IDS_PROC_MULTIRENAME, (LPCTSTR)sRenList);
-                UINT idret = ::MessageBox(GetExplorerHWND(), sRenameMultipleQuestion, L"TortoiseSVN", MB_ICONQUESTION|MB_YESNOCANCEL);
+                UINT idret = ::MessageBox(GetExplorerHWND(), sRenameMultipleQuestion, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNOCANCEL);
                 if (idret == IDYES)
                 {
                     CProgressDlg progress;
                     progress.SetTitle(IDS_PROC_MOVING);
+                    progress.SetAnimation(IDR_MOVEANI);
                     progress.SetTime(true);
                     progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
                     DWORD count = 1;
@@ -215,7 +215,7 @@ bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathLis
                                       const CTSVNPath &destPath,
                                       const CString &message /* = L"" */,
                                       bool move_as_child /* = false */,
-                                      bool make_parents /* = false */) const
+                                      bool make_parents /* = false */)
 {
     SVN svn;
     UINT idret = IDYES;
@@ -225,21 +225,28 @@ bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathLis
         CString sReplace;
         sReplace.Format(IDS_PROC_REPLACEEXISTING, destPath.GetWinPath());
 
-        CTaskDialog taskdlg(sReplace,
-                            CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
-                            L"TortoiseSVN",
-                            0,
-                            TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-        taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
-        taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
-        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-        taskdlg.SetDefaultCommandControl(2);
-        taskdlg.SetMainIcon(TD_WARNING_ICON);
-        INT_PTR ret = taskdlg.DoModal(hWnd);
-        if (ret == 1) // replace
-            idret = IDYES;
+        if (CTaskDialog::IsSupported())
+        {
+            CTaskDialog taskdlg(sReplace,
+                                CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK2)),
+                                L"TortoiseSVN",
+                                0,
+                                TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+            taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK3)));
+            taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_REPLACEEXISTING_TASK4)));
+            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+            taskdlg.SetDefaultCommandControl(2);
+            taskdlg.SetMainIcon(TD_WARNING_ICON);
+            INT_PTR ret = taskdlg.DoModal(hWnd);
+            if (ret == 1) // replace
+                idret = IDYES;
+            else
+                idret = IDNO;
+        }
         else
-            idret = IDNO;
+        {
+            idret = TSVNMessageBox(hWnd, sReplace, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO);
+        }
 
         if (idret == IDYES)
         {
@@ -249,7 +256,7 @@ bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathLis
             }
         }
     }
-    if ((idret != IDNO)&&(!svn.Move(srcPathList, destPath, message, move_as_child, make_parents)))
+    if ((idret != IDCANCEL)&&(!svn.Move(srcPathList, destPath, message, move_as_child, make_parents)))
     {
         auto apr_err = svn.GetSVNError()->apr_err;
         if ((apr_err == SVN_ERR_ENTRY_NOT_FOUND) || (apr_err == SVN_ERR_WC_PATH_NOT_FOUND))
@@ -262,7 +269,7 @@ bool RenameCommand::RenameWithReplace(HWND hWnd, const CTSVNPathList &srcPathLis
             bRet = false;
         }
     }
-    if (idret == IDNO)
+    if (idret == IDCANCEL)
         bRet = false;
     return bRet;
 }

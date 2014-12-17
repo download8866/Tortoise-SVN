@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2014 - TortoiseSVN
+// Copyright (C) 2007-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -422,9 +422,7 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 
         if (    (  (cache->GetLogInfo().GetSumChanges (index)
                  & (  CRevisionInfoContainer::ACTION_ADDED
-                    | CRevisionInfoContainer::ACTION_REPLACED
-                    | CRevisionInfoContainer::ACTION_MOVED
-                    | CRevisionInfoContainer::ACTION_MOVEREPLACED)) != 0)
+                    | CRevisionInfoContainer::ACTION_REPLACED)) != 0)
              && (currentPath.get() != NULL))
         {
             // create the appropriate iterator to follow the potential path change
@@ -532,7 +530,6 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
         if (   receiverError
             || e.GetCode() == SVN_ERR_CANCELLED
             || e.GetCode() == SVN_ERR_FS_NOT_FOUND  // deleted paths etc.
-            || e.GetCode() == SVN_ERR_FS_NO_SUCH_REVISION
             || !repositoryInfoCache->IsOffline (uuid, root, true))
         {
             // we want to cache whatever data we could receive so far ..

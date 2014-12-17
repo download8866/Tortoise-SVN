@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@
 #include "../IBugTraqProvider/IBugTraqProvider_h.h"
 #include "LinkControl.h"
 #include "Hooks.h"
-#include "LogDialog/LogDlgDataModel.h"
 
 class CCmdLineParser;
 
@@ -63,7 +62,6 @@ typedef enum
     ProgOptMakeParents              = 0x40000,
     ProgOptAllowMixedRev            = 0x80000,
     ProgOptSkipPreChecks            = 0x100000,
-    ProgOptClearChangeLists         = 0x200000,
 } ProgressOptions;
 
 typedef enum
@@ -145,8 +143,7 @@ public:
     void SetRevisionRanges(const SVNRevRangeArray& revArray) {m_revisionArray = revArray;}
     void SetBugTraqProvider(const CComPtr<IBugTraqProvider>& pBugtraqProvider) { m_BugTraqProvider = pBugtraqProvider;}
     void SetRevisionProperties(const RevPropHash& revProps) {m_revProps = revProps;}
-    void SetRestorePaths(const std::map<CString,std::tuple<CString, CString>>& restorepaths) {m_restorepaths = restorepaths;}
-    std::map<CString,std::tuple<CString, CString>> GetRestorePaths() const { return m_restorepaths; }
+    void SetRestorePaths(const std::map<CString,CString>& restorepaths) {m_restorepaths = restorepaths;}
     /**
      * If the number of items for which the operation is done on is known
      * beforehand, that number can be set here. It is then used to show a more
@@ -287,9 +284,7 @@ private:
     void        ResetVars();
     void        MergeAfterCommit();
     void        GenerateMergeLogMessage();
-    bool        IsRevisionRelatedToMerge(const CDictionaryBasedTempPath& basePath, PLOGENTRYDATA pLogItem);
     void        CompareWithWC(NotificationData * data);
-    CTSVNPathList GetPathsForUpdateHook(const CTSVNPathList& pathList);
 
     /**
      * Resizes the columns of the progress list so that the headings are visible.
@@ -354,7 +349,7 @@ private:
     RevPropHash             m_revProps;
     SVNExternals            m_externals;
     std::map<CString,svn_depth_t> m_pathdepths;
-    std::map<CString,std::tuple<CString, CString>> m_restorepaths;
+    std::map<CString,CString> m_restorepaths;
 
     DWORD                   m_dwCloseOnEnd;
     DWORD                   m_bCloseLocalOnEnd;
@@ -413,5 +408,5 @@ private:
     CString                 sForce;
 };
 
-static UINT WM_TASKBARBTNCREATED = RegisterWindowMessage(L"TaskbarButtonCreated");
-static UINT TORTOISESVN_CLOSEONEND_MSG = RegisterWindowMessage(L"TORTOISESVN_CLOSEONEND_MSG");
+static UINT WM_TASKBARBTNCREATED = RegisterWindowMessage(_T("TaskbarButtonCreated"));
+static UINT TORTOISESVN_CLOSEONEND_MSG = RegisterWindowMessage(_T("TORTOISESVN_CLOSEONEND_MSG"));

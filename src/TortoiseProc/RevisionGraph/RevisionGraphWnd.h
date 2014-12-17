@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -160,7 +160,7 @@ public:
     void            BuildPreview();
 
 protected:
-    ULONGLONG       m_ullTicks;
+    DWORD           m_dwTicks;
     CRect           m_OverviewPosRect;
     CRect           m_OverviewRect;
 
@@ -284,7 +284,6 @@ private:
     CString         GetSelectedURL() const;
     CString         GetWCURL() const;
     void            DoShowLog();
-    void            DoCheckout();
     void            DoCheckForModification();
     void            DoMergeTo();
     void            DoUpdate();

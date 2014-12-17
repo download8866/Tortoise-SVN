@@ -42,7 +42,7 @@ protected:
     CStandAloneDialogTmpl(UINT nIDTemplate, CWnd* pParentWnd = NULL) : BaseType(nIDTemplate, pParentWnd)
     {
         m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
-        m_regEnableDWMFrame = CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE);
+        m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
         m_margins.cxLeftWidth = 0;
         m_margins.cyTopHeight = 0;
         m_margins.cxRightWidth = 0;
@@ -97,7 +97,7 @@ protected:
 
     BOOL OnEraseBkgnd(CDC*  pDC)
     {
-        BOOL baseRet = BaseType::OnEraseBkgnd(pDC);
+        BaseType::OnEraseBkgnd(pDC);
         if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
         {
             // draw the frame margins in black
@@ -130,7 +130,7 @@ protected:
                 pDC->FillSolidRect(rc.left, rc.bottom-m_margins.cyBottomHeight, rc.right-rc.left, m_margins.cyBottomHeight, RGB(0,0,0));
             }
         }
-        return baseRet;
+        return TRUE;
     }
 
     LRESULT OnNcHitTest(CPoint pt)
@@ -429,7 +429,7 @@ private:
         CWaitCursor wait;
 
         CString cmd;
-        cmd.Format(L"HH.exe -mapid %Iu \"%s\"", dwData, pApp->m_pszHelpFilePath);
+        cmd.Format(_T("HH.exe -mapid %Iu \"%s\""), dwData, pApp->m_pszHelpFilePath);
         if (!CCreateProcessHelper::CreateProcessDetached(NULL,
             cmd.GetBuffer()))
         {
@@ -533,7 +533,6 @@ private:
     bool        m_bVertical;
     bool        m_bHorizontal;
     CRect       m_rcOrgWindowRect;
-    int         m_stickySize;
 };
 
 class CStandAloneDialog : public CStandAloneDialogTmpl<CDialog>

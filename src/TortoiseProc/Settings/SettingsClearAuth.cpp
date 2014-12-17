@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2014 - TortoiseSVN
+// Copyright (C) 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -75,7 +75,7 @@ BOOL CSettingsClearAuth::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"SettingsClearAuth");
+    EnableSaveRestore(_T("SettingsClearAuth"));
 
     return TRUE;  // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
@@ -84,7 +84,7 @@ BOOL CSettingsClearAuth::OnInitDialog()
 
 void CSettingsClearAuth::OnOK()
 {
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> delList;
+    std::vector<std::tuple<CString, CString>> delList;
     for (int i = 0; i < m_cAuthList.GetItemCount(); ++i)
     {
         if (m_cAuthList.GetCheck(i))
@@ -95,7 +95,7 @@ void CSettingsClearAuth::OnOK()
             }
             else
             {
-                auto data = std::make_tuple(m_cAuthList.GetItemText(i, 0), m_cAuthList.GetItemText(i, 1), SVNAuthDataInfo());
+                auto data = std::make_tuple(m_cAuthList.GetItemText(i, 0), m_cAuthList.GetItemText(i, 1));
                 delList.push_back(data);
             }
         }
@@ -123,8 +123,6 @@ void CSettingsClearAuth::FillAuthListControl()
     m_cAuthList.InsertColumn(0, temp);
     temp.LoadString(IDS_SETTINGSCLEAR_COL2);
     m_cAuthList.InsertColumn(1, temp);
-    temp.LoadString(IDS_SETTINGSCLEAR_COL3);
-    m_cAuthList.InsertColumn(2, temp);
 
     SVNAuthData authData;
     auto authList = authData.GetAuthList();
@@ -133,7 +131,6 @@ void CSettingsClearAuth::FillAuthListControl()
     {
         m_cAuthList.InsertItem (iItem,    std::get<0>(it));
         m_cAuthList.SetItemText(iItem, 1, std::get<1>(it));
-        m_cAuthList.SetItemText(iItem, 2, std::get<2>(it).username);
         ++iItem;
     }
 
@@ -143,12 +140,11 @@ void CSettingsClearAuth::FillAuthListControl()
     for (POSITION pos = certList.GetHeadPosition(); pos != NULL; )
     {
         CString certHash = certList.GetNext(pos);
-        CRegDWORD regCert(L"Software\\TortoiseSVN\\CAPIAuthz\\"+certHash);
+        CRegDWORD regCert(_T("Software\\TortoiseSVN\\CAPIAuthz\\")+certHash);
         m_cAuthList.InsertItem (iItem,    L"certificate");
         m_cAuthList.SetItemText(iItem, 1, certHash);
         temp.Format(L"%d", (int)(DWORD)regCert);
         m_cAuthList.SetItemText(iItem, 2, temp);
-        m_cAuthList.SetItemText(iItem, 3, L"");
         ++iItem;
     }
 

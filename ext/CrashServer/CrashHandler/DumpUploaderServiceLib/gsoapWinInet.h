@@ -165,9 +165,6 @@ Bug fix.
 
 17 March 2009: Brodie Thiesfield (code@jellycan.com)
 Clean up and re-release.
-
-10 December 2011: Robert van Engelen (engelen@acm.org)
-Build-related fixes.
 */
 
 #ifndef INCLUDED_gsoapWinInet2_h
@@ -180,7 +177,11 @@ Build-related fixes.
 extern "C" {
 #endif
 
-typedef enum { rseFalse = 0, rseTrue, rseDisplayDlg } wininet_rseReturn;
+typedef enum {
+    rseFalse = 0,
+    rseTrue,
+    rseDisplayDlg
+} wininet_rseReturn;
 
 typedef wininet_rseReturn(*wininet_rse_callback)(HINTERNET a_hHttpRequest, DWORD a_dwErrorCode);
 

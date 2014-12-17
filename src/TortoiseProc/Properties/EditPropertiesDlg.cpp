@@ -18,6 +18,7 @@
 //
 #include "stdafx.h"
 #include "SVNProperties.h"
+#include "MessageBox.h"
 #include "TortoiseProc.h"
 #include "EditPropertiesDlg.h"
 #include "UnicodeUtils.h"
@@ -52,10 +53,6 @@
 #define ID_CMD_PROP_EDIT        3
 
 
-#define IDCUSTOM1           23
-#define IDCUSTOM2           24
-
-
 IMPLEMENT_DYNAMIC(CEditPropertiesDlg, CResizableStandAloneDialog)
 
 CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
@@ -66,7 +63,6 @@ CEditPropertiesDlg::CEditPropertiesDlg(CWnd* pParent /*=NULL*/)
     , m_pProjectProperties(NULL)
     , m_bUrlIsFolder(false)
     , m_bThreadRunning(false)
-    , m_bCancelled(false)
 {
 }
 
@@ -170,23 +166,23 @@ BOOL CEditPropertiesDlg::OnInitDialog()
     if (m_pProjectProperties)
     {
         int curPos = 0;
-        CString resToken = m_pProjectProperties->sFPPath.Tokenize(L"\n",curPos);
+        CString resToken = m_pProjectProperties->sFPPath.Tokenize(_T("\n"),curPos);
         while (!resToken.IsEmpty())
         {
             UserProp up(true);
             if (up.Parse(resToken))
                 m_userProperties.push_back(up);
-            resToken = m_pProjectProperties->sFPPath.Tokenize(L"\n",curPos);
+            resToken = m_pProjectProperties->sFPPath.Tokenize(_T("\n"),curPos);
         }
 
         curPos = 0;
-        resToken = m_pProjectProperties->sDPPath.Tokenize(L"\n",curPos);
+        resToken = m_pProjectProperties->sDPPath.Tokenize(_T("\n"),curPos);
         while (!resToken.IsEmpty())
         {
             UserProp up(false);
             if (up.Parse(resToken))
                 m_userProperties.push_back(up);
-            resToken = m_pProjectProperties->sDPPath.Tokenize(L"\n",curPos);
+            resToken = m_pProjectProperties->sDPPath.Tokenize(_T("\n"),curPos);
         }
     }
 
@@ -269,7 +265,7 @@ BOOL CEditPropertiesDlg::OnInitDialog()
     AddAnchor(IDHELP, BOTTOM_RIGHT);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"EditPropertiesDlg");
+    EnableSaveRestore(_T("EditPropertiesDlg"));
 
     InterlockedExchange(&m_bThreadRunning, TRUE);
     if (AfxBeginThread(PropsThreadEntry, this)==NULL)
@@ -304,7 +300,6 @@ UINT CEditPropertiesDlg::PropsThreadEntry(LPVOID pVoid)
 void CEditPropertiesDlg::ReadProperties (int first, int last)
 {
     SVNProperties props (m_revision, m_bRevProps, false);
-    props.m_bCancelled = &m_bCancelled;
     for (int i=first; i < last; ++i)
     {
         props.SetFilePath(m_pathlist[i]);
@@ -329,7 +324,7 @@ void CEditPropertiesDlg::ReadProperties (int first, int last)
                 it->second.value = prop_value;
                 CString stemp = value.c_str();
                 stemp.Replace('\n', ' ');
-                stemp.Remove('\r');
+                stemp.Remove(_T('\r'));
                 it->second.value_without_newlines = tstring((LPCTSTR)stemp);
                 it->second.count = 1;
                 it->second.allthesamevalue = true;
@@ -360,7 +355,7 @@ void CEditPropertiesDlg::ReadProperties (int first, int last)
                 it->second.value = prop_value;
                 CString stemp = value.c_str();
                 stemp.Replace('\n', ' ');
-                stemp.Remove('\r');
+                stemp.Remove(_T('\r'));
                 it->second.value_without_newlines = tstring((LPCTSTR)stemp);
                 it->second.count = 1;
                 it->second.allthesamevalue = true;
@@ -389,7 +384,6 @@ UINT CEditPropertiesDlg::PropsThread()
 {
     enum {CHUNK_SIZE = 100};
 
-    m_bCancelled = false;
     // get all properties in multiple threads
     async::CJobScheduler jobs (0, async::CJobScheduler::GetHWThreadCount());
     {
@@ -449,17 +443,11 @@ UINT CEditPropertiesDlg::PropsThread()
         }
         index++;
     }
-
-    int maxcol = ((CHeaderCtrl*)(m_propList.GetDlgItem(0)))->GetItemCount() - 1;
+    int maxcol = ((CHeaderCtrl*)(m_propList.GetDlgItem(0)))->GetItemCount()-1;
     for (int col = 0; col <= maxcol; col++)
     {
-        m_propList.SetColumnWidth(col, LVSCW_AUTOSIZE);
+        m_propList.SetColumnWidth(col, LVSCW_AUTOSIZE_USEHEADER);
     }
-    // resize the middle column so that all columns fit into the client area
-    RECT rc;
-    m_propList.GetClientRect(&rc);
-    const int bordersize = 20;
-    m_propList.SetColumnWidth(1, rc.right - m_propList.GetColumnWidth(0) - m_propList.GetColumnWidth(2) - bordersize);
 
     InterlockedExchange(&m_bThreadRunning, FALSE);
     m_propList.SetRedraw(TRUE);
@@ -646,8 +634,6 @@ EditPropBase * CEditPropertiesDlg::GetPropDialog(bool bDefault, const std::strin
         dlg = new CEditPropTSVNLang(this);
     else if ((sName.compare(PROJECTPROPNAME_STARTCOMMITHOOK) == 0) ||
         (sName.compare(PROJECTPROPNAME_PRECOMMITHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_CHECKCOMMITHOOK) == 0) ||
-        (sName.compare(PROJECTPROPNAME_MANUALPRECOMMITHOOK) == 0) ||
         (sName.compare(PROJECTPROPNAME_POSTCOMMITHOOK) == 0) ||
         (sName.compare(PROJECTPROPNAME_STARTUPDATEHOOK) == 0) ||
         (sName.compare(PROJECTPROPNAME_PREUPDATEHOOK) == 0) ||
@@ -881,10 +867,7 @@ void CEditPropertiesDlg::EditProps(bool bDefault, const std::string& propName /*
                                     if (props.GetCommitRev() == SVN_INVALID_REVNUM)
                                         m_revision = LONG(m_revision)+1;
                                     else
-                                    {
-                                        if (props.GetCommitRev() != 0)
-                                            m_revision = props.GetCommitRev();
-                                    }
+                                        m_revision = props.GetCommitRev();
                                 }
                             }
                         }
@@ -931,22 +914,33 @@ void CEditPropertiesDlg::RemoveProps()
             CString sQuestion;
             sQuestion.Format(IDS_EDITPROPS_RECURSIVEREMOVEQUESTION, sUName.c_str());
 
-            CTaskDialog taskdlg(sQuestion,
-                                CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK2)),
-                                L"TortoiseSVN",
-                                0,
-                                TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW);
-            taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK3)));
-            taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK4)));
-            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-            taskdlg.SetDefaultCommandControl(IDCUSTOM1);
-            if ((m_pathlist.GetCount() > 1) || (selCount > 1))
-                taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK6)));
-            ret = (UINT)taskdlg.DoModal(GetSafeHwnd());
-            if ((m_pathlist.GetCount() > 1) || (selCount > 1))
+            if (CTaskDialog::IsSupported())
             {
-                if (taskdlg.GetVerificationCheckboxState())
-                    defaultRet = ret;
+                CTaskDialog taskdlg(sQuestion,
+                                    CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK2)),
+                                    L"TortoiseSVN",
+                                    0,
+                                    TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                taskdlg.AddCommandControl(IDCUSTOM1, CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK3)));
+                taskdlg.AddCommandControl(IDCUSTOM2, CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK4)));
+                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                taskdlg.SetDefaultCommandControl(IDCUSTOM1);
+                if ((m_pathlist.GetCount() > 1) || (selCount > 1))
+                    taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVEREMOVE_TASK6)));
+                taskdlg.SetMainIcon(TD_WARNING_ICON);
+                ret = (UINT)taskdlg.DoModal(GetSafeHwnd());
+                if ((m_pathlist.GetCount() > 1) || (selCount > 1))
+                {
+                    if (taskdlg.GetVerificationCheckboxState())
+                        defaultRet = ret;
+                }
+            }
+            else
+            {
+                CString sRecursive(MAKEINTRESOURCE(IDS_EDITPROPS_RECURSIVE));
+                CString sNotRecursive(MAKEINTRESOURCE(IDS_EDITPROPS_NOTRECURSIVE));
+                CString sCancel(MAKEINTRESOURCE(IDS_EDITPROPS_CANCEL));
+                ret = TSVNMessageBox(m_hWnd, sQuestion, _T("TortoiseSVN"), MB_DEFBUTTON1|MB_ICONQUESTION, sRecursive, sNotRecursive, sCancel);
             }
         }
         else if (ret == 0)
@@ -1001,10 +995,7 @@ void CEditPropertiesDlg::OnOK()
 void CEditPropertiesDlg::OnCancel()
 {
     if (m_bThreadRunning)
-    {
-        m_bCancelled = true;
         return;
-    }
     CStandAloneDialogTmpl<CResizableDialog>::OnCancel();
 }
 
@@ -1056,12 +1047,12 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
         if (prop.allthesamevalue)
         {
             CString savePath;
-            if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, 0, false, CString(), m_hWnd))
+            if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, 0, false, m_hWnd))
                 return;
 
             FILE * stream;
             errno_t err = 0;
-            if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, L"wbS"))==0)
+            if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, _T("wbS")))==0)
             {
                 fwrite(prop.value.c_str(), sizeof(char), prop.value.size(), stream);
                 fclose(stream);
@@ -1069,8 +1060,8 @@ void CEditPropertiesDlg::OnBnClickedSaveprop()
             else
             {
                 TCHAR strErr[4096] = {0};
-                _wcserror_s(strErr, 4096, err);
-                ::MessageBox(m_hWnd, strErr, L"TortoiseSVN", MB_ICONERROR);
+                _tcserror_s(strErr, 4096, err);
+                ::MessageBox(m_hWnd, strErr, _T("TortoiseSVN"), MB_ICONERROR);
             }
         }
     }
@@ -1083,13 +1074,13 @@ void CEditPropertiesDlg::OnBnClickedExport()
         return;
 
     CString savePath;
-    if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_PROPSFILEFILTER, false, CString(), m_hWnd))
+    if (!CAppUtils::FileOpenSave(savePath, NULL, IDS_REPOBROWSE_SAVEAS, IDS_PROPSFILEFILTER, false, m_hWnd))
         return;
 
-    if (CPathUtils::GetFileExtFromPath(savePath).Compare(L".svnprops"))
+    if (CPathUtils::GetFileExtFromPath(savePath).Compare(_T(".svnprops")))
     {
         // append the default ".svnprops" extension since the user did not specify it himself
-        savePath += L".svnprops";
+        savePath += _T(".svnprops");
     }
     // we save the list of selected properties not in a text file but in our own
     // binary format. That's because properties can be binary themselves, a text
@@ -1099,7 +1090,7 @@ void CEditPropertiesDlg::OnBnClickedExport()
     FILE * stream;
     errno_t err = 0;
 
-    if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, L"wbS"))==0)
+    if ((err = _tfopen_s(&stream, (LPCTSTR)savePath, _T("wbS")))==0)
     {
         POSITION pos = m_propList.GetFirstSelectedItemPosition();
         int len = m_propList.GetSelectedCount();
@@ -1123,8 +1114,8 @@ void CEditPropertiesDlg::OnBnClickedExport()
     else
     {
         TCHAR strErr[4096] = {0};
-        _wcserror_s(strErr, 4096, err);
-        ::MessageBox(m_hWnd, strErr, L"TortoiseSVN", MB_ICONERROR);
+        _tcserror_s(strErr, 4096, err);
+        ::MessageBox(m_hWnd, strErr, _T("TortoiseSVN"), MB_ICONERROR);
     }
 }
 
@@ -1132,20 +1123,20 @@ void CEditPropertiesDlg::OnBnClickedImport()
 {
     m_tooltips.Pop();   // hide the tooltips
     CString openPath;
-    if (!CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_OPEN, IDS_PROPSFILEFILTER, true, CString(), m_hWnd))
+    if (!CAppUtils::FileOpenSave(openPath, NULL, IDS_REPOBROWSE_OPEN, IDS_PROPSFILEFILTER, true, m_hWnd))
     {
         return;
     }
     // first check the size of the file
     FILE * stream = nullptr;
-    _tfopen_s(&stream, openPath, L"rbS");
+    _tfopen_s(&stream, openPath, _T("rbS"));
     int nProperties = 0;
     if (fread(&nProperties, sizeof(int), 1, stream) == 1)
     {
         bool bFailed = false;
         if ((nProperties < 0)||(nProperties > 4096))
         {
-            TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+            TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
             bFailed = true;
         }
         CProgressDlg prog;
@@ -1165,7 +1156,7 @@ void CEditPropertiesDlg::OnBnClickedImport()
                 if ((nNameBytes < 0)||(nNameBytes > 4096))
                 {
                     prog.Stop();
-                    TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                    TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
                     bFailed = true;
                     continue;
                 }
@@ -1219,28 +1210,28 @@ void CEditPropertiesDlg::OnBnClickedImport()
                         else
                         {
                             prog.Stop();
-                            TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                            TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
                             bFailed = true;
                         }
                     }
                     else
                     {
                         prog.Stop();
-                        TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                        TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
                         bFailed = true;
                     }
                 }
                 else
                 {
                     prog.Stop();
-                    TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                    TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
                     bFailed = true;
                 }
             }
             else
             {
                 prog.Stop();
-                TaskDialog(GetSafeHwnd(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_EDITPROPS_ERRIMPORTFORMAT), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+                TSVNMessageBox(m_hWnd, IDS_EDITPROPS_ERRIMPORTFORMAT, IDS_APPNAME, MB_ICONERROR);
                 bFailed = true;
             }
         }

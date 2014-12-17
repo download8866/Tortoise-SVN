@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,7 +31,7 @@ bool CheckoutCommand::Execute()
     // specified in the settings dialog, and fall back to the current
     // working directory instead if no such path was specified.
     CTSVNPath checkoutDirectory;
-    CRegString regDefCheckoutPath(L"Software\\TortoiseSVN\\DefaultCheckoutPath");
+    CRegString regDefCheckoutPath(_T("Software\\TortoiseSVN\\DefaultCheckoutPath"));
     if (cmdLinePath.IsEmpty())
     {
         if (CString(regDefCheckoutPath).IsEmpty())
@@ -40,7 +40,7 @@ bool CheckoutCommand::Execute()
             DWORD len = ::GetTempPath(0, NULL);
             std::unique_ptr<TCHAR[]> tszPath(new TCHAR[len]);
             ::GetTempPath(len, tszPath.get());
-            if (_wcsnicmp(checkoutDirectory.GetWinPath(), tszPath.get(), len-2 /* \\ and \0 */) == 0)
+            if (_tcsncicmp(checkoutDirectory.GetWinPath(), tszPath.get(), len-2 /* \\ and \0 */) == 0)
             {
                 // if the current directory is set to a temp directory,
                 // we don't use that but leave it empty instead.
@@ -58,7 +58,7 @@ bool CheckoutCommand::Execute()
     }
 
     CCheckoutDlg dlg;
-    dlg.m_URLs.LoadFromAsteriskSeparatedString (parser.GetVal(L"url"));
+    dlg.m_URLs.LoadFromAsteriskSeparatedString (parser.GetVal(_T("url")));
     if (dlg.m_URLs.GetCount()==0)
     {
         SVN svn;
@@ -72,10 +72,10 @@ bool CheckoutCommand::Execute()
             {
                 CString p = cmdLinePath.GetWinPathString();
                 p.TrimLeft('\\');
-                url = L"file://"+p;
+                url = _T("file://")+p;
             }
             else
-                url = L"file:///"+cmdLinePath.GetWinPathString();
+                url = _T("file:///")+cmdLinePath.GetWinPathString();
             url.Replace('\\', '/');
             dlg.m_URLs.AddPath(CTSVNPath(url));
             checkoutDirectory.AppendRawString(L"wc");
@@ -84,7 +84,7 @@ bool CheckoutCommand::Execute()
     dlg.m_strCheckoutDirectory = checkoutDirectory.GetWinPathString();
     // if there is no url specified on the command line, check if there's one
     // specified in the settings dialog to use as the default and use that
-    CRegString regDefCheckoutUrl(L"Software\\TortoiseSVN\\DefaultCheckoutUrl");
+    CRegString regDefCheckoutUrl(_T("Software\\TortoiseSVN\\DefaultCheckoutUrl"));
     if (!CString(regDefCheckoutUrl).IsEmpty())
     {
         // if the URL specified is a child of the default URL, we also
@@ -103,7 +103,7 @@ bool CheckoutCommand::Execute()
             if (CTSVNPath::CheckChild(CTSVNPath(CString(regDefCheckoutPath)), CTSVNPath(dlg.m_strCheckoutDirectory)))
             {
                 dlg.m_strCheckoutDirectory = CString(regDefCheckoutPath) + clurl.GetWinPathString().Mid(defurl.GetWinPathString().GetLength());
-                dlg.m_strCheckoutDirectory.Replace(L"\\\\", L"\\");
+                dlg.m_strCheckoutDirectory.Replace(_T("\\\\"), _T("\\"));
             }
         }
         if (dlg.m_URLs.GetCount() == 0)
@@ -113,7 +113,7 @@ bool CheckoutCommand::Execute()
     for (int i = 0; i < dlg.m_URLs.GetCount(); ++i)
     {
         CString pathString = dlg.m_URLs[i].GetWinPathString();
-        if (pathString.Left(5).Compare(L"tsvn:")==0)
+        if (pathString.Left(5).Compare(_T("tsvn:"))==0)
         {
             pathString = pathString.Mid(5);
             if (pathString.Find('?') >= 0)
@@ -125,9 +125,9 @@ bool CheckoutCommand::Execute()
 
         dlg.m_URLs[i].SetFromWin (pathString);
     }
-    if (parser.HasKey(L"revision"))
+    if (parser.HasKey(_T("revision")))
     {
-        SVNRev Rev = SVNRev(parser.GetVal(L"revision"));
+        SVNRev Rev = SVNRev(parser.GetVal(_T("revision")));
         dlg.Revision = Rev;
     }
     dlg.m_blockPathAdjustments = parser.HasKey(L"blockpathadjustments");
@@ -144,14 +144,14 @@ bool CheckoutCommand::Execute()
 
         progDlg.SetCommand
             (useStandardCheckout
-                ? !dlg.m_checkoutDepths.empty()
+                ? dlg.m_checkoutDepths.size()
                     ? CSVNProgressDlg::SVNProgress_SparseCheckout
                     : CSVNProgressDlg::SVNProgress_Checkout
                 : dlg.m_parentExists && (dlg.m_URLs.GetCount() == 1)
                     ? CSVNProgressDlg::SVNProgress_Update
                     : CSVNProgressDlg::SVNProgress_SingleFileCheckout);
 
-        if (!dlg.m_checkoutDepths.empty())
+        if (dlg.m_checkoutDepths.size())
             progDlg.SetPathDepths(dlg.m_checkoutDepths);
         progDlg.SetAutoClose (parser);
         progDlg.SetOptions(dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone);

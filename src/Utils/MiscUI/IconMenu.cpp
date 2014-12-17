@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009, 2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2008-2009, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,7 @@
 
 CIconMenu::CIconMenu(void) : CMenu()
 {
-    bShowIcons = !!DWORD(CRegDWORD(L"Software\\TortoiseSVN\\ShowAppContextMenuIcons", TRUE));
+    bShowIcons = !!DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\ShowAppContextMenuIcons"), TRUE));
 }
 
 CIconMenu::~CIconMenu(void)
@@ -54,9 +54,12 @@ BOOL CIconMenu::CreatePopupMenu()
 
 BOOL CIconMenu::SetMenuStyle(void)
 {
+    if (!SysInfo::Instance().IsVistaOrLater())
+        return FALSE;
+
     MENUINFO MenuInfo;
 
-    SecureZeroMemory(&MenuInfo, sizeof(MenuInfo));
+    memset(&MenuInfo, 0, sizeof(MenuInfo));
 
     MenuInfo.cbSize  = sizeof(MenuInfo);
     MenuInfo.fMask   = MIM_STYLE | MIM_APPLYTOSUBMENUS;
@@ -70,7 +73,7 @@ BOOL CIconMenu::SetMenuStyle(void)
 BOOL CIconMenu::AppendMenuIcon(UINT_PTR nIDNewItem, LPCTSTR lpszNewItem, UINT uIcon /* = 0 */)
 {
     TCHAR menutextbuffer[255] = {0};
-    wcscpy_s(menutextbuffer, lpszNewItem);
+    _tcscpy_s(menutextbuffer, lpszNewItem);
 
     if ((uIcon == 0)||(!bShowIcons))
         return CMenu::AppendMenu(MF_STRING | MF_ENABLED, nIDNewItem, menutextbuffer);
@@ -81,7 +84,14 @@ BOOL CIconMenu::AppendMenuIcon(UINT_PTR nIDNewItem, LPCTSTR lpszNewItem, UINT uI
     info.fType = MFT_STRING;
     info.wID = (UINT)nIDNewItem;
     info.dwTypeData = menutextbuffer;
-    info.hbmpItem = bitmapUtils.IconToBitmapPARGB32(AfxGetResourceHandle(), uIcon);
+    if (SysInfo::Instance().IsVistaOrLater())
+    {
+        info.hbmpItem = bitmapUtils.IconToBitmapPARGB32(AfxGetResourceHandle(), uIcon);
+    }
+    else
+    {
+        info.hbmpItem = HBMMENU_CALLBACK;
+    }
     icons[nIDNewItem] = uIcon;
 
     return InsertMenuItem((UINT)nIDNewItem, &info);
@@ -101,7 +111,7 @@ BOOL CIconMenu::AppendMenuIcon( UINT_PTR nIDNewItem, UINT_PTR nNewItem, HICON hI
     temp.LoadString((UINT)nNewItem);
 
     TCHAR menutextbuffer[255] = {0};
-    wcscpy_s(menutextbuffer, temp);
+    _tcscpy_s(menutextbuffer, temp);
 
     if ((hIcon == 0)||(!bShowIcons))
         return CMenu::AppendMenu(MF_STRING | MF_ENABLED, nIDNewItem, menutextbuffer);
@@ -112,7 +122,14 @@ BOOL CIconMenu::AppendMenuIcon( UINT_PTR nIDNewItem, UINT_PTR nNewItem, HICON hI
     info.fType = MFT_STRING;
     info.wID = (UINT)nIDNewItem;
     info.dwTypeData = menutextbuffer;
-    info.hbmpItem = bitmapUtils.IconToBitmapPARGB32(hIcon);
+    if (SysInfo::Instance().IsVistaOrLater())
+    {
+        info.hbmpItem = bitmapUtils.IconToBitmapPARGB32(hIcon);
+    }
+    else
+    {
+        info.hbmpItem = HBMMENU_CALLBACK;
+    }
     iconhandles[nIDNewItem] = hIcon;
 
     return InsertMenuItem((UINT)nIDNewItem, &info);

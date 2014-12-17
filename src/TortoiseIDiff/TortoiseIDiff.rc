@@ -30,23 +30,22 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_TORTOISEIDIFF       ICON                    "Resources\\TortoiseIDiff.ico"
-IDI_OVERLAP             ICON                    "Resources\\overlap.ico"
-IDI_FITINWINDOW         ICON                    "Resources\\fitinwindow.ico"
-IDI_ORIGSIZE            ICON                    "Resources\\origsize.ico"
-IDI_ZOOMIN              ICON                    "Resources\\zoomin.ico"
-IDI_ZOOMOUT             ICON                    "Resources\\zoomout.ico"
-IDI_IMGINFO             ICON                    "Resources\\imginfo.ico"
-IDI_FORWARD             ICON                    "Resources\\player_fwd.ico"
-IDI_BACKWARD            ICON                    "Resources\\player_rew.ico"
-IDI_START               ICON                    "Resources\\player_start.ico"
-IDI_STOP                ICON                    "Resources\\player_stop.ico"
-IDI_VERTICAL            ICON                    "Resources\\vertical.ico"
-IDI_LINK                ICON                    "Resources\\link.ico"
-IDI_ALPHATOGGLE         ICON                    "Resources\\alphatoggle.ico"
-IDI_FITWIDTHS           ICON                    "Resources\\fitwidths.ico"
-IDI_BLEND               ICON                    "Resources\\blend.ico"
-IDI_FITHEIGHTS          ICON                    "Resources\\fitheights.ico"
+IDI_TORTOISEIDIFF       ICON                    "resources\\TortoiseIDiff.ico"
+IDI_OVERLAP             ICON                    "resources\\overlap.ico"
+IDI_FITINWINDOW         ICON                    "resources\\fitinwindow.ico"
+IDI_ORIGSIZE            ICON                    "resources\\origsize.ico"
+IDI_ZOOMIN              ICON                    "resources\\zoomin.ico"
+IDI_ZOOMOUT             ICON                    "resources\\zoomout.ico"
+IDI_IMGINFO             ICON                    "resources\\imginfo.ico"
+IDI_FORWARD             ICON                    "resources\\player_fwd.ico"
+IDI_BACKWARD            ICON                    "resources\\player_rew.ico"
+IDI_START               ICON                    "resources\\player_start.ico"
+IDI_STOP                ICON                    "resources\\player_stop.ico"
+IDI_VERTICAL            ICON                    "resources\\vertical.ico"
+IDI_LINK                ICON                    "resources\\link.ico"
+IDI_ALPHATOGGLE         ICON                    "resources\\alphatoggle.ico"
+IDI_FITTOGETHER         ICON                    "resources\\fittogether.ico"
+IDI_BLEND               ICON                    "resources\\blend.ico"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -114,29 +113,7 @@ BEGIN
         MENUITEM "&Overlay images",             ID_VIEW_OVERLAPIMAGES
         MENUITEM "Blend alpha",                 ID_VIEW_BLENDALPHA
         MENUITEM "&Link image positions",       ID_VIEW_LINKIMAGESTOGETHER, CHECKED
-        MENUITEM "Fit image &widths",           ID_VIEW_FITIMAGEWIDTHS
-        MENUITEM "Fit image &heights",          ID_VIEW_FITIMAGEHEIGHTS
-        MENUITEM "&Fit images in window",       ID_VIEW_FITIMAGESINWINDOW
-        MENUITEM "Ori&ginal size",              ID_VIEW_ORININALSIZE
-        MENUITEM "Transparent &color...",       ID_VIEW_TRANSPARENTCOLOR
-        MENUITEM SEPARATOR
-        MENUITEM "Zoo&m out",                   ID_VIEW_ZOOMOUT
-        MENUITEM "Zoom i&n",                    ID_VIEW_ZOOMIN
-        MENUITEM SEPARATOR
-        MENUITEM "&Image info",                 ID_VIEW_IMAGEINFO
-        MENUITEM "Arrange &vertical",           ID_VIEW_ARRANGEVERTICAL
-    END
-    MENUITEM "?",                           ID_ABOUT
-END
-
-IDC_TORTOISEIDIFF2 MENU
-BEGIN
-    POPUP "&File"
-    BEGIN
-        MENUITEM "E&xit",                       IDM_EXIT
-    END
-    POPUP "&View"
-    BEGIN
+        MENUITEM "Fit image &sizes",            ID_VIEW_FITTOGETHER
         MENUITEM "&Fit images in window",       ID_VIEW_FITIMAGESINWINDOW
         MENUITEM "Ori&ginal size",              ID_VIEW_ORININALSIZE
         MENUITEM "Transparent &color...",       ID_VIEW_TRANSPARENTCOLOR
@@ -238,8 +215,7 @@ BEGIN
     VK_OEM_MINUS,   ID_VIEW_ZOOMOUT,        VIRTKEY, NOINVERT
     VK_SUBTRACT,    ID_VIEW_ZOOMOUT,        VIRTKEY, NOINVERT
     VK_ESCAPE,      IDM_EXIT,               VIRTKEY, NOINVERT
-    "W",            ID_VIEW_FITIMAGEWIDTHS, VIRTKEY, NOINVERT
-    "H",            ID_VIEW_FITIMAGEHEIGHTS, VIRTKEY, NOINVERT
+    "T",            ID_VIEW_FITTOGETHER,    VIRTKEY, NOINVERT
 END
 
 
@@ -266,7 +242,6 @@ STRINGTABLE
 BEGIN
     IDS_DUALIMAGEINFOTT     "File size:\t\t%s (%s)\nWidth:\t\t\t%ld pixel\nHeight:\t\t\t%ld pixel\nHorizontal Resolution:\t%.1f dpi\nVertical Resolution:\t%.1f dpi\nDepth:\t\t\t%d bit\nZoom:\t\t\t%d%%\n\nFile size:\t\t%s (%s)\nWidth:\t\t\t%ld pixel\nHeight:\t\t\t%ld pixel\nHorizontal Resolution:\t%.1f dpi\nVertical Resolution:\t%.1f dpi\nDepth:\t\t\t%d bit\nZoom:\t\t\t%d%%"
     IDS_ALPHABUTTONTT       "%i%% alpha\nclick to toggle alpha\ndouble click to automatically toggle alpha"
-    IDS_SELECT              "Select"
 END
 
 #endif    // English (United States) resources

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2009-2014 - TortoiseSVN
+// Copyright (C) 2006-2007, 2009-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,6 @@ typedef struct viewstate
     std::map<int, DWORD>    linestates;
     std::map<int, DWORD>    linelines;
     std::map<int, EOL>      linesEOL;
-    std::map<int, bool>     markedlines;
     std::list<int>          addedlines;
 
     std::map<int, viewdata> removedlines;
@@ -42,7 +41,7 @@ typedef struct viewstate
 
     void    AddViewLineFromView(CBaseView *pView, int nViewLine, bool bAddEmptyLine);
     void    Clear();
-    bool    IsEmpty() const { return difflines.empty() && linestates.empty() && linelines.empty() && linesEOL.empty() && markedlines.empty() && addedlines.empty() && removedlines.empty() && replacedlines.empty(); }
+    bool    IsEmpty() { return difflines.empty() && linestates.empty() && linelines.empty() && linesEOL.empty() && addedlines.empty() && removedlines.empty() && replacedlines.empty(); }
 } viewstate;
 
 /**
@@ -56,7 +55,7 @@ struct allviewstate
     viewstate left;
 
     void    Clear() { right.Clear(); bottom.Clear(); left.Clear(); }
-    bool    IsEmpty() const { return right.IsEmpty() && bottom.IsEmpty() && left.IsEmpty(); }
+    bool    IsEmpty() { return right.IsEmpty() && bottom.IsEmpty() && left.IsEmpty(); }
 };
 
 /**
@@ -71,9 +70,9 @@ public:
 
     bool Undo(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom);
     void AddState(const allviewstate& allstate, POINT pt);
-    bool CanUndo() const {return !m_viewstates.empty();}
+    bool CanUndo() {return !m_viewstates.empty();}
 
-    bool IsGrouping() const { return m_groups.size() % 2 == 1; }
+    bool IsGrouping() { return m_groups.size() % 2 == 1; }
     void BeginGrouping() { if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); m_groupCount++; }
     void EndGrouping(){ m_groupCount--; if (m_groupCount==0) m_groups.push_back(m_caretpoints.size()); }
     void Clear();

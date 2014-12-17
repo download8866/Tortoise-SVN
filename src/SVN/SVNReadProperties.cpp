@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,30 +64,13 @@ svn_error_t* svn_get_log_message(const char **log_msg,
     return SVN_NO_ERROR;
 }
 
-svn_error_t * cancelfunc(void * cancelbaton)
-{
-    SVNReadProperties * pReadProps = (SVNReadProperties*)cancelbaton;
-    if ((pReadProps) && (pReadProps->m_bCancelled) && (*pReadProps->m_bCancelled))
-    {
-#ifdef IDS_SVN_USERCANCELLED
-        CString temp;
-        temp.LoadString(IDS_SVN_USERCANCELLED);
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, CUnicodeUtils::GetUTF8(temp));
-#else
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, "");
-#endif
-    }
-    return NULL;
-}
-
 svn_error_t*    SVNReadProperties::Refresh()
 {
     svn_opt_revision_t          rev;
     svn_opt_revision_t          peg_rev;
     svn_error_clear(Err);
     Err = NULL;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
+
     if (m_propCount > 0)
     {
         m_propCount = 0;
@@ -179,10 +162,6 @@ void SVNReadProperties::Construct()
     m_pctx->log_msg_func3 = svn_get_log_message;
 
 #endif
-    m_pctx->cancel_func = cancelfunc;
-    m_pctx->cancel_baton = this;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
 }
 
 #ifdef _MFC_VER
@@ -202,7 +181,6 @@ SVNReadProperties::SVNReadProperties(bool bRevProps, bool includeInherited)
     , m_propCount(0)
     , m_props(NULL)
     , m_inheritedprops(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
 }
@@ -224,7 +202,6 @@ SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, bool bRevProps, 
     , m_bRevProps (bRevProps)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();
@@ -242,7 +219,6 @@ SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, S
     , m_prompt (suppressUI)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();

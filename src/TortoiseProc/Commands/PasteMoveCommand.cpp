@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008, 2010-2011, 2014 - TortoiseSVN
+// Copyright (C) 2008, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 
 bool PasteMoveCommand::Execute()
 {
-    CString sDroppath = parser.GetVal(L"droptarget");
+    CString sDroppath = parser.GetVal(_T("droptarget"));
     CTSVNPath dropPath(sDroppath);
     ProjectProperties props;
     props.ReadProps(dropPath);
@@ -41,15 +41,16 @@ bool PasteMoveCommand::Execute()
     CString sNewName;
     CProgressDlg progress;
     progress.SetTitle(IDS_PROC_MOVING);
+    progress.SetAnimation(IDR_MOVEANI);
     progress.SetTime(true);
     progress.ShowModeless(CWnd::FromHandle(GetExplorerHWND()));
     for(int nPath = 0; nPath < pathList.GetCount(); nPath++)
     {
         CTSVNPath destPath;
         if (sNewName.IsEmpty())
-            destPath = CTSVNPath(sDroppath+L"\\"+pathList[nPath].GetFileOrDirectoryName());
+            destPath = CTSVNPath(sDroppath+_T("\\")+pathList[nPath].GetFileOrDirectoryName());
         else
-            destPath = CTSVNPath(sDroppath+L"\\"+sNewName);
+            destPath = CTSVNPath(sDroppath+_T("\\")+sNewName);
         if (destPath.Exists())
         {
             CString name = pathList[nPath].GetFileOrDirectoryName();
@@ -57,7 +58,6 @@ bool PasteMoveCommand::Execute()
                 name = sNewName;
             progress.Stop();
             CRenameDlg dlg;
-            dlg.SetFileSystemAutoComplete();
             dlg.m_name = name;
             dlg.SetInputValidator(this);
             m_renPath = pathList[nPath];
@@ -66,7 +66,7 @@ bool PasteMoveCommand::Execute()
             {
                 return FALSE;
             }
-            destPath.SetFromWin(sDroppath+L"\\"+dlg.m_name);
+            destPath.SetFromWin(sDroppath+_T("\\")+dlg.m_name);
         }
         svn_wc_status_kind s = status.GetAllStatus(pathList[nPath]);
         if ((s == svn_wc_status_none)||(s == svn_wc_status_unversioned)||(s == svn_wc_status_ignored))
@@ -99,7 +99,7 @@ bool PasteMoveCommand::Execute()
         }
         if ((progress.IsValid())&&(progress.HasUserCancelled()))
         {
-            TaskDialog(GetExplorerHWND(), AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_SVN_USERCANCELLED), NULL, TDCBF_OK_BUTTON, TD_INFORMATION_ICON, NULL);
+            TSVNMessageBox(GetExplorerHWND(), IDS_SVN_USERCANCELLED, IDS_APPNAME, MB_ICONINFORMATION);
             return FALSE;
         }
     }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2013-2014 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,64 +27,49 @@
 bool DiffCommand::Execute()
 {
     bool bRet = false;
-    CString path2 = CPathUtils::GetLongPathname(parser.GetVal(L"path2"));
-    bool bAlternativeTool = !!parser.HasKey(L"alternative");
-    bool bBlame = !!parser.HasKey(L"blame");
-    bool ignoreprops = !!parser.HasKey(L"ignoreprops");
+    CString path2 = CPathUtils::GetLongPathname(parser.GetVal(_T("path2")));
+    bool bAlternativeTool = !!parser.HasKey(_T("alternative"));
+    bool bBlame = !!parser.HasKey(_T("blame"));
     if (path2.IsEmpty())
     {
         SVNDiff diff(NULL, GetExplorerHWND());
         diff.SetAlternativeTool(bAlternativeTool);
-        diff.SetJumpLine(parser.GetLongVal(L"line"));
-        if ( parser.HasKey(L"startrev") && parser.HasKey(L"endrev") )
+        diff.SetJumpLine(parser.GetLongVal(_T("line")));
+        if ( parser.HasKey(_T("startrev")) && parser.HasKey(_T("endrev")) )
         {
-            SVNRev StartRevision = SVNRev(parser.GetLongVal(L"startrev"));
-            SVNRev EndRevision = SVNRev(parser.GetLongVal(L"endrev"));
+            SVNRev StartRevision = SVNRev(parser.GetLongVal(_T("startrev")));
+            SVNRev EndRevision = SVNRev(parser.GetLongVal(_T("endrev")));
             SVNRev pegRevision;
             if (parser.HasVal(L"pegrevision"))
                 pegRevision = SVNRev(parser.GetVal(L"pegrevision"));
             CString diffoptions;
             if (parser.HasVal(L"diffoptions"))
                 diffoptions = parser.GetVal(L"diffoptions");
-            bRet = diff.ShowCompare(cmdLinePath, StartRevision, cmdLinePath, EndRevision, pegRevision, ignoreprops, diffoptions, false, bBlame);
+            bRet = diff.ShowCompare(cmdLinePath, StartRevision, cmdLinePath, EndRevision, pegRevision, diffoptions, false, bBlame);
         }
         else
         {
             svn_revnum_t baseRev = 0;
-            if (parser.HasKey(L"unified"))
+            if (cmdLinePath.IsDirectory())
             {
-                SVNRev pegRevision;
-                if (parser.HasVal(L"pegrevision"))
-                    pegRevision = SVNRev(parser.GetVal(L"pegrevision"));
-                CString diffoptions;
-                if (parser.HasVal(L"diffoptions"))
-                    diffoptions = parser.GetVal(L"diffoptions");
-                diff.ShowUnifiedDiff(cmdLinePath, SVNRev::REV_BASE, cmdLinePath, SVNRev::REV_WC, pegRevision, diffoptions, false, bBlame, false);
+                bRet = diff.DiffProps(cmdLinePath, SVNRev::REV_WC, SVNRev::REV_BASE, baseRev);
+                if (bRet == false)
+                {
+                    CChangedDlg dlg;
+                    dlg.m_pathList = CTSVNPathList(cmdLinePath);
+                    dlg.DoModal();
+                    bRet = true;
+                }
             }
             else
             {
-                if (cmdLinePath.IsDirectory())
-                {
-                    if (!ignoreprops)
-                        bRet = diff.DiffProps(cmdLinePath, SVNRev::REV_WC, SVNRev::REV_BASE, baseRev);
-                    if (bRet == false)
-                    {
-                        CChangedDlg dlg;
-                        dlg.m_pathList = CTSVNPathList(cmdLinePath);
-                        dlg.DoModal();
-                        bRet = true;
-                    }
-                }
-                else
-                {
-                    bRet = diff.DiffFileAgainstBase(cmdLinePath, baseRev, ignoreprops);
-                }
+                bRet = diff.DiffFileAgainstBase(cmdLinePath, baseRev);
             }
         }
     }
     else
         bRet = CAppUtils::StartExtDiff(
             CTSVNPath(path2), cmdLinePath, CString(), CString(),
-            CAppUtils::DiffFlags().AlternativeTool(bAlternativeTool), parser.GetLongVal(L"line"), L"");
+            CAppUtils::DiffFlags().AlternativeTool(bAlternativeTool), parser.GetLongVal(_T("line")));
     return bRet;
 }
