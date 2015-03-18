@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,27 +36,27 @@ CSetOverlayPage::CSetOverlayPage()
     , m_bRAM(FALSE)
     , m_bUnknown(FALSE)
     , m_bOnlyExplorer(FALSE)
-    , m_sExcludePaths(L"")
-    , m_sIncludePaths(L"")
+    , m_sExcludePaths(_T(""))
+    , m_sIncludePaths(_T(""))
     , m_bUnversionedAsModified(FALSE)
     , m_bIgnoreOnCommitIgnored(TRUE)
     , m_bFloppy(FALSE)
     , m_bShowExcludedAsNormal(TRUE)
 {
-    m_regOnlyExplorer = CRegDWORD(L"Software\\TortoiseSVN\\LoadDllOnlyInExplorer", FALSE);
-    m_regDriveMaskRemovable = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskRemovable");
-    m_regDriveMaskFloppy = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskFloppy");
-    m_regDriveMaskRemote = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskRemote");
-    m_regDriveMaskFixed = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskFixed", TRUE);
-    m_regDriveMaskCDROM = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskCDROM");
-    m_regDriveMaskRAM = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskRAM");
-    m_regDriveMaskUnknown = CRegDWORD(L"Software\\TortoiseSVN\\DriveMaskUnknown");
-    m_regExcludePaths = CRegString(L"Software\\TortoiseSVN\\OverlayExcludeList");
-    m_regIncludePaths = CRegString(L"Software\\TortoiseSVN\\OverlayIncludeList");
-    m_regCacheType = CRegDWORD(L"Software\\TortoiseSVN\\CacheType", GetSystemMetrics(SM_REMOTESESSION) ? 2 : 1);
-    m_regUnversionedAsModified = CRegDWORD(L"Software\\TortoiseSVN\\UnversionedAsModified", FALSE);
+    m_regOnlyExplorer = CRegDWORD(_T("Software\\TortoiseSVN\\LoadDllOnlyInExplorer"), FALSE);
+    m_regDriveMaskRemovable = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemovable"));
+    m_regDriveMaskFloppy = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskFloppy"));
+    m_regDriveMaskRemote = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRemote"));
+    m_regDriveMaskFixed = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskFixed"), TRUE);
+    m_regDriveMaskCDROM = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskCDROM"));
+    m_regDriveMaskRAM = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskRAM"));
+    m_regDriveMaskUnknown = CRegDWORD(_T("Software\\TortoiseSVN\\DriveMaskUnknown"));
+    m_regExcludePaths = CRegString(_T("Software\\TortoiseSVN\\OverlayExcludeList"));
+    m_regIncludePaths = CRegString(_T("Software\\TortoiseSVN\\OverlayIncludeList"));
+    m_regCacheType = CRegDWORD(_T("Software\\TortoiseSVN\\CacheType"), GetSystemMetrics(SM_REMOTESESSION) ? 2 : 1);
+    m_regUnversionedAsModified = CRegDWORD(_T("Software\\TortoiseSVN\\UnversionedAsModified"), FALSE);
     m_regIgnoreOnCommitIgnored = CRegDWORD(L"Software\\TortoiseSVN\\IgnoreOnCommitIgnored", TRUE);
-    m_regShowExcludedAsNormal = CRegDWORD(L"Software\\TortoiseSVN\\ShowExcludedFoldersAsNormal", FALSE);
+    m_regShowExcludedAsNormal = CRegDWORD(_T("Software\\TortoiseSVN\\ShowExcludedFoldersAsNormal"), FALSE);
 
     m_bOnlyExplorer = m_regOnlyExplorer;
     m_bRemovable = m_regDriveMaskRemovable;
@@ -70,9 +70,9 @@ CSetOverlayPage::CSetOverlayPage()
     m_bIgnoreOnCommitIgnored = m_regIgnoreOnCommitIgnored;
     m_bShowExcludedAsNormal = m_regShowExcludedAsNormal;
     m_sExcludePaths = m_regExcludePaths;
-    m_sExcludePaths.Replace(L"\n", L"\r\n");
+    m_sExcludePaths.Replace(_T("\n"), _T("\r\n"));
     m_sIncludePaths = m_regIncludePaths;
-    m_sIncludePaths.Replace(L"\n", L"\r\n");
+    m_sIncludePaths.Replace(_T("\n"), _T("\r\n"));
     m_dwCacheType = m_regCacheType;
 }
 
@@ -136,6 +136,7 @@ BOOL CSetOverlayPage::OnInitDialog()
     }
     DialogEnableWindow(IDC_UNVERSIONEDASMODIFIED, m_dwCacheType == 1);
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_ONLYEXPLORER, IDS_SETTINGS_ONLYEXPLORER_TT);
     m_tooltips.AddTool(IDC_EXCLUDEPATHSLABEL, IDS_SETTINGS_EXCLUDELIST_TT);
     m_tooltips.AddTool(IDC_EXCLUDEPATHS, IDS_SETTINGS_EXCLUDELIST_TT);
@@ -145,12 +146,17 @@ BOOL CSetOverlayPage::OnInitDialog()
     m_tooltips.AddTool(IDC_CACHESHELL, IDS_SETTINGS_CACHESHELL_TT);
     m_tooltips.AddTool(IDC_CACHENONE, IDS_SETTINGS_CACHENONE_TT);
     m_tooltips.AddTool(IDC_UNVERSIONEDASMODIFIED, IDS_SETTINGS_UNVERSIONEDASMODIFIED_TT);
-    m_tooltips.AddTool(IDC_IGNOREONCOMMITIGNORE, IDS_SETTINGS_IGNOREONCOMMITIGNORE_TT);
     m_tooltips.AddTool(IDC_SHOWEXCLUDEDASNORMAL, IDS_SETTINGS_SHOWEXCLUDEDASNORMAL_TT);
 
     UpdateData(FALSE);
 
     return TRUE;
+}
+
+BOOL CSetOverlayPage::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return ISettingsPropPage::PreTranslateMessage(pMsg);
 }
 
 void CSetOverlayPage::OnChange()
@@ -208,18 +214,18 @@ BOOL CSetOverlayPage::OnApply()
 
     if (m_sExcludePaths.Compare(CString(m_regExcludePaths)))
         m_restart = Restart_Cache;
-    m_sExcludePaths.Remove('\r');
-    if (m_sExcludePaths.Right(1).Compare(L"\n")!=0)
-        m_sExcludePaths += L"\n";
+    m_sExcludePaths.Remove(_T('\r'));
+    if (m_sExcludePaths.Right(1).Compare(_T("\n"))!=0)
+        m_sExcludePaths += _T("\n");
     Store (m_sExcludePaths, m_regExcludePaths);
-    m_sExcludePaths.Replace(L"\n", L"\r\n");
-    m_sIncludePaths.Remove('\r');
-    if (m_sIncludePaths.Right(1).Compare(L"\n")!=0)
-        m_sIncludePaths += L"\n";
+    m_sExcludePaths.Replace(_T("\n"), _T("\r\n"));
+    m_sIncludePaths.Remove(_T('\r'));
+    if (m_sIncludePaths.Right(1).Compare(_T("\n"))!=0)
+        m_sIncludePaths += _T("\n");
     if (m_sIncludePaths.Compare(CString(m_regIncludePaths)))
         m_restart = Restart_Cache;
     Store (m_sIncludePaths, m_regIncludePaths);
-    m_sIncludePaths.Replace(L"\n", L"\r\n");
+    m_sIncludePaths.Replace(_T("\n"), _T("\r\n"));
 
     if (DWORD(m_regUnversionedAsModified) != DWORD(m_bUnversionedAsModified))
         m_restart = Restart_Cache;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -45,6 +45,7 @@
 #include "SVNLogQuery.h"
 #include "CacheLogQuery.h"
 #include "RepositoryInfo.h"
+#include "MessageBox.h"
 #include "LogCacheSettings.h"
 #include "CriticalSection.h"
 #include "SVNTrace.h"
@@ -57,11 +58,9 @@
 static char THIS_FILE[] = __FILE__;
 #endif
 
-#define IDYESTOALL          19
 
-
-LCID SVN::s_locale = MAKELCID((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)), SORT_DEFAULT);
-bool SVN::s_useSystemLocale = !!(DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\UseSystemLocaleForDates", TRUE);
+LCID SVN::s_locale = MAKELCID((DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\LanguageID"), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT)), SORT_DEFAULT);
+bool SVN::s_useSystemLocale = !!(DWORD)CRegStdDWORD(_T("Software\\TortoiseSVN\\UseSystemLocaleForDates"), TRUE);
 
 /* Number of micro-seconds between the beginning of the Windows epoch
 * (Jan. 1, 1601) and the Unix epoch (Jan. 1, 1970)
@@ -111,29 +110,17 @@ SVN::SVN(bool suppressUI)
     , progress_lastTicks(0)
     , m_resolvekind((svn_wc_conflict_kind_t)-1)
     , m_resolveresult(svn_wc_conflict_choose_postpone)
-    , m_bAssumeCacheEnabled(false)
 {
     parentpool = svn_pool_create(NULL);
+    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(parentpool), parentpool));
+
     pool = svn_pool_create (parentpool);
-
-    SVNInit();
-}
-
-void SVN::SVNReInit()
-{
-    svn_pool_clear(pool);
-    SVNInit();
-}
-
-void SVN::SVNInit()
-{
     svn_ra_initialize(pool);
 
-    svn_error_clear(svn_client_create_context2(&m_pctx, SVNConfig::Instance().GetConfig(parentpool), pool));
     if (m_pctx->config == nullptr)
     {
-        svn_pool_destroy(pool);
-        svn_pool_destroy(parentpool);
+        svn_pool_destroy (pool);
+        svn_pool_destroy (parentpool);
         exit(-1);
     }
 
@@ -141,7 +128,7 @@ void SVN::SVNInit()
     m_prompt.Init(parentpool, m_pctx);
 
     m_pctx->log_msg_func3 = svn_cl__get_log_message;
-    m_pctx->log_msg_baton3 = logMessage(L"");
+    m_pctx->log_msg_baton3 = logMessage(_T(""));
     m_pctx->notify_func2 = notify;
     m_pctx->notify_baton2 = this;
     m_pctx->notify_func = NULL;
@@ -288,7 +275,7 @@ bool SVN::Remove(const CTSVNPathList& pathlist, bool force, bool keeplocal, cons
     return true;
 }
 
-bool SVN::Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, bool recurse, bool clearchangelists, bool metadataonly)
+bool SVN::Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, bool recurse)
 {
     TRACE("Reverting list of %d files\n", pathlist.GetCount());
     SVNPool subpool(pool);
@@ -297,11 +284,9 @@ bool SVN::Revert(const CTSVNPathList& pathlist, const CStringArray& changelists,
     Prepare();
 
     SVNTRACE(
-        Err = svn_client_revert3(pathlist.MakePathArray(subpool),
+        Err = svn_client_revert2(pathlist.MakePathArray(subpool),
             recurse ? svn_depth_infinity : svn_depth_empty,
             clists,
-            clearchangelists,
-            metadataonly,
             m_pctx,
             subpool) ,
         NULL
@@ -342,7 +327,7 @@ bool SVN::Add(const CTSVNPathList& pathList, ProjectProperties * props, svn_dept
 
     for(int nItem = 0; nItem < pathList.GetCount(); nItem++)
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": add file %s\n", pathList[nItem].GetWinPath());
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": add file %s\n"), pathList[nItem].GetWinPath());
         if (Cancel())
         {
             Err = svn_error_create(SVN_ERR_CANCELLED, NULL, CUnicodeUtils::GetUTF8(CString(MAKEINTRESOURCE(IDS_SVN_USERCANCELLED))));
@@ -354,6 +339,11 @@ bool SVN::Add(const CTSVNPathList& pathList, ProjectProperties * props, svn_dept
         {
             return false;
         }
+        if ((props)&&(pathList[nItem].IsDirectory()))
+        {
+            // try adding the project properties
+            props->AddAutoProps(pathList[nItem]);
+        }
     }
 
     return true;
@@ -364,13 +354,10 @@ bool SVN::AddToChangeList(const CTSVNPathList& pathList, const CString& changeli
     SVNPool subpool(pool);
     Prepare();
 
-    if (changelist.IsEmpty())
-        return RemoveFromChangeList(pathList, CStringArray(), depth);
-
     apr_array_header_t *clists = MakeChangeListArray(changelists, subpool);
 
     Err = svn_client_add_to_changelist(pathList.MakePathArray(subpool),
-        (LPCSTR)CUnicodeUtils::GetUTF8(changelist),
+        changelist.IsEmpty() ? NULL : (LPCSTR)CUnicodeUtils::GetUTF8(changelist),
         depth,
         clists,
         m_pctx,
@@ -452,7 +439,7 @@ svn_revnum_t SVN::Commit(const CTSVNPathList& pathlist, const CString& message,
                                   localpool),
         NULL
     );
-    m_pctx->log_msg_baton3 = logMessage(L"");
+    m_pctx->log_msg_baton3 = logMessage(_T(""));
     ClearCAPIAuthCacheOnError();
     if(Err != NULL)
     {
@@ -466,8 +453,7 @@ svn_revnum_t SVN::Commit(const CTSVNPathList& pathlist, const CString& message,
 
 bool SVN::Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
                const SVNRev& revision, const SVNRev& pegrev, const CString& logmsg, bool copy_as_child,
-               bool make_parents, bool ignoreExternals, bool pin_externals, SVNExternals externalsToTag,
-               const RevPropHash& revProps)
+               bool make_parents, bool ignoreExternals, const RevPropHash& revProps)
 {
     SVNPool subpool(pool);
 
@@ -476,23 +462,14 @@ bool SVN::Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
     m_pctx->log_msg_baton3 = logMessage(logmsg);
     apr_hash_t * revPropHash = MakeRevPropHash(revProps, subpool);
 
-    apr_hash_t * externals_to_pin = nullptr;
-    if (!externalsToTag.empty())
-    {
-        externals_to_pin = externalsToTag.GetHash(revision.IsWorking() || revision.IsBase(), subpool);
-    }
-
     CallPreConnectHookIfUrl(srcPathList, destPath);
 
     SVNTRACE(
-        Err = svn_client_copy7 (MakeCopyArray(srcPathList, revision, pegrev),
+        Err = svn_client_copy6 (MakeCopyArray(srcPathList, revision, pegrev),
                                 destPath.GetSVNApiPath(subpool),
                                 copy_as_child,
                                 make_parents,
                                 ignoreExternals,
-                                false,  // metadata only
-                                pin_externals,
-                                externals_to_pin,
                                 revPropHash,
                                 commitcallback2,
                                 this,
@@ -510,7 +487,7 @@ bool SVN::Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
 }
 
 bool SVN::Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
-               const CString& message /* = L""*/,
+               const CString& message /* = _T("")*/,
                bool move_as_child /* = false*/, bool make_parents /* = false */,
                bool allow_mixed /* = false */,
                bool metadata_only /* = false */,
@@ -573,30 +550,17 @@ bool SVN::MakeDir(const CTSVNPathList& pathlist, const CString& message, bool ma
     return true;
 }
 
-bool SVN::CleanUp(const CTSVNPath& path, bool breaklocks, bool fixtimestamps, bool cleardavcache, bool vacuumpristines, bool includeexternals)
+bool SVN::CleanUp(const CTSVNPath& path)
 {
     Prepare();
     SVNPool subpool(pool);
     const char* svnPath = path.GetSVNApiPath(subpool);
     SVNTRACE (
-        Err = svn_client_cleanup2 (svnPath, breaklocks, fixtimestamps, cleardavcache, vacuumpristines, includeexternals, m_pctx, subpool),
+        Err = svn_client_cleanup (svnPath, m_pctx, subpool),
         svnPath
     )
 
     return (Err == NULL);
-}
-
-bool SVN::Vacuum(const CTSVNPath& path, bool unversioned, bool ignored, bool fixtimestamps, bool pristines, bool includeExternals)
-{
-    Prepare();
-    SVNPool subpool(pool);
-    const char* svnPath = path.GetSVNApiPath(subpool);
-    SVNTRACE(
-        Err = svn_client_vacuum(svnPath, unversioned, ignored, fixtimestamps, pristines, includeExternals, m_pctx, subpool),
-        svnPath
-        )
-
-        return (Err == NULL);
 }
 
 bool SVN::Resolve(const CTSVNPath& path, svn_wc_conflict_choice_t result, bool recurse, bool typeonly, svn_wc_conflict_kind_t kind)
@@ -692,6 +656,7 @@ bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
         // BUG?: If a folder is marked as deleted, we export that folder too!
         CProgressDlg progress;
         progress.SetTitle(IDS_PROC_EXPORT_3);
+        progress.SetAnimation(IDR_MOVEANI);
         progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
         progress.SetTime(true);
         progress.ShowModeless(hWnd);
@@ -780,20 +745,29 @@ bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNR
                         UINT ret = 0;
                         CString strMessage;
                         strMessage.Format(IDS_PROC_OVERWRITE_CONFIRM, it->second.GetWinPath());
-                        CTaskDialog taskdlg(strMessage,
-                                            CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK2)),
-                                            L"TortoiseSVN",
-                                            0,
-                                            TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
-                        taskdlg.AddCommandControl(IDYES, CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK3)));
-                        taskdlg.AddCommandControl(IDCANCEL, CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK4)));
-                        taskdlg.SetDefaultCommandControl(IDCANCEL);
-                        taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                        taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK5)));
-                        taskdlg.SetMainIcon(TD_WARNING_ICON);
-                        ret = (UINT)taskdlg.DoModal(GetExplorerHWND());
-                        if (taskdlg.GetVerificationCheckboxState())
-                            force = true;
+                        if (CTaskDialog::IsSupported())
+                        {
+                            CTaskDialog taskdlg(strMessage,
+                                                CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK2)),
+                                                L"TortoiseSVN",
+                                                0,
+                                                TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                            taskdlg.AddCommandControl(IDYES, CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK3)));
+                            taskdlg.AddCommandControl(IDCANCEL, CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK4)));
+                            taskdlg.SetDefaultCommandControl(IDCANCEL);
+                            taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                            taskdlg.SetVerificationCheckboxText(CString(MAKEINTRESOURCE(IDS_PROC_OVERWRITE_CONFIRM_TASK5)));
+                            taskdlg.SetMainIcon(TD_WARNING_ICON);
+                            ret = (UINT)taskdlg.DoModal(GetExplorerHWND());
+                            if (taskdlg.GetVerificationCheckboxState())
+                                force = true;
+                        }
+                        else
+                        {
+                            ret = TSVNMessageBox(GetExplorerHWND(), strMessage, _T("TortoiseSVN"), MB_YESNO|MB_YESTOALL|MB_ICONQUESTION);
+                            if (ret == IDYESTOALL)
+                                force = true;
+                        }
 
                         if ((ret == IDYESTOALL)||(ret == IDYES))
                         {
@@ -945,7 +919,7 @@ bool SVN::Import(const CTSVNPath& path, const CTSVNPath& url, const CString& mes
                                  subpool),
         svnPath
     );
-    m_pctx->log_msg_baton3 = logMessage(L"");
+    m_pctx->log_msg_baton3 = logMessage(_T(""));
     ClearCAPIAuthCacheOnError();
     if(Err != NULL)
     {
@@ -1037,7 +1011,7 @@ bool SVN::MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, c
     const char* svnPath = source.GetSVNApiPath(subpool);
     CHooks::Instance().PreConnect(CTSVNPathList(source));
 
-#pragma warning(disable: 4996)   // disable deprecated warning: we use svn_client_merge_reintegrate specifically for 'old style' merges
+#pragma warning(disable:4996)   // disable deprecated warning: we use svn_client_merge_reintegrate specifically for 'old style' merges
     SVNTRACE (
         Err = svn_client_merge_reintegrate(svnPath,
             pegrevision,
@@ -1048,7 +1022,7 @@ bool SVN::MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, c
             subpool),
         svnPath
     );
-#pragma warning(default: 4996)
+#pragma warning(default:4996)
 
     ClearCAPIAuthCacheOnError();
     return (Err == NULL);
@@ -1373,7 +1347,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
         CSVNLogQuery svnQuery (m_pctx, localpool);
 
         // cached-based queries.
-        // Use & update existing cache
+        // Use & update exisiting cache
 
         std::unique_ptr<CCacheLogQuery> cacheQuery
             (new CCacheLogQuery (GetLogCachePool(), &svnQuery));
@@ -1385,7 +1359,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // select query and run it
 
-        ILogQuery* query = !(GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled) || refresh
+        ILogQuery* query = !GetLogCachePool()->IsEnabled() || refresh
                          ? tempQuery.get()
                          : cacheQuery.get();
 
@@ -1418,7 +1392,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // merge temp results with permanent cache, if applicable
 
-        if (refresh && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
+        if (refresh && GetLogCachePool()->IsEnabled())
         {
             // handle cache refresh results
 
@@ -1441,7 +1415,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
         // return the cache that contains the log info
 
         return std::unique_ptr<const CCacheLogQuery>
-            ((GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled)
+            (GetLogCachePool()->IsEnabled()
                 ? cacheQuery.release()
                 : tempQuery.release() );
     }
@@ -1479,7 +1453,7 @@ bool SVN::Cat(const CTSVNPath& url, const SVNRev& pegrevision, const SVNRev& rev
     if (url.IsUrl() || (!pegrevision.IsWorking() && !pegrevision.IsValid()) || (!revision.IsWorking() && !revision.IsValid()))
         CHooks::Instance().PreConnect(CTSVNPathList(url));
     SVNTRACE (
-        Err = svn_client_cat3(NULL, stream, svnPath, pegrevision, revision, true, m_pctx, localpool, localpool),
+        Err = svn_client_cat2(stream, svnPath, pegrevision, revision, m_pctx, localpool),
         svnPath
     );
 
@@ -1639,7 +1613,7 @@ svn_error_t* SVN::blameReceiver(void *baton,
         formatDate(date_native, time_temp, true);
     }
     else
-        wcscat_s(date_native, L"(no date)");
+        _tcscat_s(date_native, _T("(no date)"));
 
     prop = svn_prop_get_value(merged_rev_props, SVN_PROP_REVISION_DATE);
     if (prop)
@@ -1654,7 +1628,7 @@ svn_error_t* SVN::blameReceiver(void *baton,
         formatDate(merged_date_native, time_temp, true);
     }
     else
-        wcscat_s(merged_date_native, L"(no date)");
+        _tcscat_s(merged_date_native, _T("(no date)"));
 
 
     if (!svn->BlameCallback((LONG)line_no, !!local_change, revision, author_native, date_native, merged_revision, merged_author_native, merged_date_native, merged_path_native, line_native, log_msg, merged_log_msg))
@@ -1854,7 +1828,7 @@ void SVN::cancel()
 
 void * SVN::logMessage (CString message, char * baseDirectory)
 {
-    message.Remove('\r');
+    message.Remove(_T('\r'));
 
     log_msg_baton3* baton = (log_msg_baton3 *) apr_palloc (pool, sizeof (*baton));
     baton->message = apr_pstrdup(pool, (LPCSTR)CUnicodeUtils::GetUTF8(message));
@@ -1871,17 +1845,17 @@ void SVN::PathToUrl(CString &path)
 {
     bool bUNC = false;
     path.Trim();
-    if (path.Left(2).Compare(L"\\\\")==0)
+    if (path.Left(2).Compare(_T("\\\\"))==0)
         bUNC = true;
     // convert \ to /
     path.Replace('\\','/');
     path.TrimLeft('/');
     // prepend file://
     if (bUNC)
-        path.Insert(0, L"file://");
+        path.Insert(0, _T("file://"));
     else
-        path.Insert(0, L"file:///");
-    path.TrimRight(L"/\\");          //remove trailing slashes
+        path.Insert(0, _T("file:///"));
+    path.TrimRight(_T("/\\"));          //remove trailing slashes
 }
 
 void SVN::UrlToPath(CString &url)
@@ -1899,7 +1873,7 @@ void SVN::UrlToPath(CString &url)
     // if we don't have a ':' we assume it points to an UNC path, and those
     // actually _need_ the slashes before the paths
     if ((url.Find(':')<0) && (url.Find('|')<0))
-        url.Insert(0, L"\\\\");
+        url.Insert(0, _T("\\\\"));
     SVN::preparePath(url);
     // now we need to unescape the url
     url = CPathUtils::PathUnescape(url);
@@ -1908,20 +1882,20 @@ void SVN::UrlToPath(CString &url)
 void SVN::preparePath(CString &path)
 {
     path.Trim();
-    path.TrimRight(L"/\\");          //remove trailing slashes
+    path.TrimRight(_T("/\\"));          //remove trailing slashes
     path.Replace('\\','/');
 
-    if (path.Left(10).CompareNoCase(L"file://///")==0)
+    if (path.Left(10).CompareNoCase(_T("file://///"))==0)
     {
         if (path.Find('%')<0)
-            path.Replace(L"file://///", L"file://");
+            path.Replace(_T("file://///"), _T("file://"));
         else
-            path.Replace(L"file://///", L"file:////");
+            path.Replace(_T("file://///"), _T("file:////"));
     }
-    else if (path.Left(9).CompareNoCase(L"file:////")==0)
+    else if (path.Left(9).CompareNoCase(_T("file:////"))==0)
     {
         if (path.Find('%')<0)
-            path.Replace(L"file:////", L"file://");
+            path.Replace(_T("file:////"), _T("file://"));
     }
 }
 
@@ -1950,9 +1924,9 @@ CString SVN::GetURLFromPath(const CTSVNPath& path)
     SVNPool subpool(pool);
     Err = svn_client_url_from_path2 (&URL, path.GetSVNApiPath(subpool), m_pctx, subpool, subpool);
     if (Err)
-        return L"";
+        return _T("");
     if (URL==NULL)
-        return L"";
+        return _T("");
     return CString(URL);
 }
 
@@ -2043,7 +2017,7 @@ bool SVN::IsRepository(const CTSVNPath& path)
     if (rootPath)
     {
         svn_repos_t* pRepos = NULL;
-        Err = svn_repos_open3 (&pRepos, rootPath, NULL, subPool, subPool);
+        Err = svn_repos_open2 (&pRepos, rootPath, NULL, subPool);
         if ((Err)&&(Err->apr_err == SVN_ERR_FS_BERKELEY_DB))
             return true;
         if (Err == NULL)
@@ -2055,7 +2029,7 @@ bool SVN::IsRepository(const CTSVNPath& path)
 
 CString SVN::GetRepositoryRootAndUUID(const CTSVNPath& path, bool useLogCache, CString& sUUID)
 {
-    if (useLogCache && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
+    if (useLogCache && GetLogCachePool()->IsEnabled())
         return GetLogCachePool()->GetRepositoryInfo().GetRepositoryRootAndUUID (path, sUUID);
 
     const char * returl = nullptr;
@@ -2104,7 +2078,7 @@ svn_revnum_t SVN::GetHEADRevision(const CTSVNPath& path, bool cacheAllowed)
 {
     svn_ra_session_t *ra_session;
     const char * urla;
-    svn_revnum_t rev = -1;
+    svn_revnum_t rev;
 
     SVNPool localpool(pool);
     Prepare();
@@ -2417,11 +2391,11 @@ CString SVN::RevPropertyGet(const CString& sName, const CTSVNPath& URL, const SV
     );
     ClearCAPIAuthCacheOnError();
     if (Err)
-        return L"";
+        return _T("");
     if (propval==NULL)
-        return L"";
-    if (propval->len == 0)
-        return L"";
+        return _T("");
+    if (propval->len <= 0)
+        return _T("");
     return CUnicodeUtils::GetUnicode(propval->data);
 }
 
@@ -2466,7 +2440,7 @@ void SVN::formatDate(TCHAR date_native[], apr_time_t date_svn, bool force_short_
 {
     if (date_svn == 0)
     {
-        wcscpy_s(date_native, SVN_DATE_BUFFER, L"(no date)");
+        _tcscpy_s(date_native, SVN_DATE_BUFFER, _T("(no date)"));
         return;
     }
 
@@ -2485,6 +2459,7 @@ void SVN::formatDate(TCHAR date_native[], FILETIME& filetime, bool force_short_f
                                            , {0, 0}, {0, 0}, {0, 0}, {0, 0} };
     static TCHAR lastResult[CACHE_SIZE][SVN_DATE_BUFFER];
     static bool formats[CACHE_SIZE];
+    static size_t victim = 0;
 
     // we have to serialize access to the cache
 
@@ -2508,7 +2483,6 @@ void SVN::formatDate(TCHAR date_native[], FILETIME& filetime, bool force_short_f
     {
         // evict an entry from the cache
 
-        static size_t victim = 0;
         lastTime[victim] = filetime;
         result = lastResult[victim];
         formats[victim] = force_short_fmt;
@@ -2535,21 +2509,21 @@ void SVN::formatDate(TCHAR date_native[], FILETIME& filetime, bool force_short_f
 
         /// reusing this instance is vital for \ref formatDate performance
 
-        static CRegDWORD logDateFormat (500, L"Software\\TortoiseSVN\\LogDateFormat");
+        static CRegDWORD logDateFormat (500, _T("Software\\TortoiseSVN\\LogDateFormat"));
         DWORD flags = force_short_fmt || (logDateFormat == 1)
                     ? DATE_SHORTDATE
                     : DATE_LONGDATE;
 
         GetDateFormat(locale, flags, &localsystime, NULL, datebuf, SVN_DATE_BUFFER);
         GetTimeFormat(locale, 0, &localsystime, NULL, timebuf, SVN_DATE_BUFFER);
-        wcsncat_s(result, SVN_DATE_BUFFER, datebuf, SVN_DATE_BUFFER);
-        wcsncat_s(result, SVN_DATE_BUFFER, L" ", SVN_DATE_BUFFER);
-        wcsncat_s(result, SVN_DATE_BUFFER, timebuf, SVN_DATE_BUFFER);
+        _tcsncat_s(result, SVN_DATE_BUFFER, datebuf, SVN_DATE_BUFFER);
+        _tcsncat_s(result, SVN_DATE_BUFFER, _T(" "), SVN_DATE_BUFFER);
+        _tcsncat_s(result, SVN_DATE_BUFFER, timebuf, SVN_DATE_BUFFER);
     }
 
     // copy formatted string to result
 
-    wcsncpy_s (date_native, SVN_DATE_BUFFER, result, SVN_DATE_BUFFER);
+    _tcsncpy_s (date_native, SVN_DATE_BUFFER, result, SVN_DATE_BUFFER);
 }
 
 CString SVN::formatDate(apr_time_t date_svn)
@@ -2574,7 +2548,7 @@ CString SVN::formatDate(apr_time_t date_svn)
     }
     catch ( ... )
     {
-        wcscpy_s(datebuf, L"(no date)");
+        _tcscpy_s(datebuf, _T("(no date)"));
     }
 
     return datebuf;
@@ -2606,7 +2580,7 @@ CString SVN::formatTime (apr_time_t date_svn)
     }
     catch ( ... )
     {
-        wcscpy_s(timebuf, L"(no time)");
+        _tcscpy_s(timebuf, _T("(no time)"));
     }
 
     return timebuf;
@@ -2659,11 +2633,11 @@ CString SVN::GetOptionsString(bool bIgnoreEOL, bool bIgnoreSpaces, bool bIgnoreA
 {
     CString opts;
     if (bIgnoreEOL)
-        opts += L"--ignore-eol-style ";
+        opts += _T("--ignore-eol-style ");
     if (bIgnoreAllSpaces)
-        opts += L"-w";
+        opts += _T("-w");
     else if (bIgnoreSpaces)
-        opts += L"-b";
+        opts += _T("-b");
     opts.Trim();
     return opts;
 }
@@ -2672,14 +2646,14 @@ CString SVN::GetOptionsString(bool bIgnoreEOL, svn_diff_file_ignore_space_t spac
 {
     CString opts;
     if (bIgnoreEOL)
-        opts += L"--ignore-eol-style ";
+        opts += _T("--ignore-eol-style ");
     switch (space)
     {
     case svn_diff_file_ignore_space_change:
-        opts += L"-b";
+        opts += _T("-b");
         break;
     case svn_diff_file_ignore_space_all:
-        opts += L"-w";
+        opts += _T("-w");
         break;
     }
     opts.Trim();
@@ -2710,7 +2684,7 @@ LogCache::CLogCachePool* SVN::GetLogCachePool()
 
     if (logCachePool.get() == NULL)
     {
-        CString cacheFolder = CPathUtils::GetAppDataDirectory() + L"logcache\\";
+        CString cacheFolder = CPathUtils::GetAppDataDirectory() + _T("logcache\\");
         logCachePool.reset (new LogCache::CLogCachePool (*this, cacheFolder));
     }
 
@@ -2723,7 +2697,7 @@ LogCache::CLogCachePool* SVN::GetLogCachePool()
 void SVN::ResetLogCachePool()
 {
     // this should be called by the ~SVN only but we make sure that
-    // (illegal) concurrent access won't see zombie objects.
+    // (illegal) concurrent access won't see zombi objects.
 
     async::CCriticalSectionLock lock (GetLogCachePoolMutex());
     if (logCachePool.get() != NULL)
@@ -2824,10 +2798,10 @@ svn_error_t * SVN::commitcallback2(const svn_commit_info_t * commit_info, void *
         pThis->m_commitRev = commit_info->revision;
         if (SVN_IS_VALID_REVNUM(commit_info->revision))
         {
-            pThis->Notify(CTSVNPath(), CTSVNPath(), svn_wc_notify_update_completed, svn_node_none, L"",
+            pThis->Notify(CTSVNPath(), CTSVNPath(), svn_wc_notify_update_completed, svn_node_none, _T(""),
                     svn_wc_notify_state_unknown, svn_wc_notify_state_unknown,
                     commit_info->revision, NULL, svn_wc_notify_lock_state_unchanged,
-                    L"", L"", NULL, NULL, localpool);
+                    _T(""), _T(""), NULL, NULL, localpool);
         }
         if (commit_info->post_commit_err)
         {
@@ -2844,7 +2818,7 @@ void SVN::SetAndClearProgressInfo(HWND hWnd)
     progress_total = 0;
     progress_lastprogress = 0;
     progress_lasttotal = 0;
-    progress_lastTicks = GetTickCount64();
+    progress_lastTicks = GetTickCount();
 }
 
 void SVN::SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgressBar/* = false*/)
@@ -2854,7 +2828,7 @@ void SVN::SetAndClearProgressInfo(CProgressDlg * pProgressDlg, bool bShowProgres
     progress_total = 0;
     progress_lastprogress = 0;
     progress_lasttotal = 0;
-    progress_lastTicks = GetTickCount64();
+    progress_lastTicks = GetTickCount();
     m_bShowProgressBar = bShowProgressBar;
 }
 
@@ -2885,13 +2859,21 @@ void SVN::progress_func(apr_off_t progress, apr_off_t total, void *baton, apr_po
     if ((pSVN==0)||((pSVN->m_progressWnd == 0)&&(pSVN->m_pProgressDlg == 0)))
         return;
     apr_off_t delta = progress;
-    if ((progress >= pSVN->progress_lastprogress)&&((total == pSVN->progress_lasttotal) || (total < 0)))
+    if ((progress >= pSVN->progress_lastprogress)&&(total == pSVN->progress_lasttotal))
         delta = progress - pSVN->progress_lastprogress;
+    // because of http://subversion.tigris.org/issues/show_bug.cgi?id=3260
+    // the progress information can be horribly wrong.
+    // We cut the delta here to 8kb because SVN does not send/receive packets
+    // bigger than this, and we can therefore reduce the error that way a little bit
+    if (delta > 8192LL)
+    {
+        delta = delta % 8192LL;
+    }
 
     pSVN->progress_lastprogress = progress;
     pSVN->progress_lasttotal = total;
 
-    ULONGLONG ticks = GetTickCount64();
+    DWORD ticks = GetTickCount();
     pSVN->progress_vector.push_back(delta);
     pSVN->progress_total += delta;
     //ATLTRACE("progress = %I64d, total = %I64d, delta = %I64d, overall total is : %I64d\n", progress, total, delta, pSVN->progress_total);
@@ -2934,18 +2916,7 @@ void SVN::progress_func(apr_off_t progress, apr_off_t total, void *baton, apr_po
         {
             if ((pSVN->m_bShowProgressBar && (progress > 1000LL) && (total > 0LL)))
                 pSVN->m_pProgressDlg->SetProgress64(progress, total);
-
-            CString sTotal;
-            CString temp;
-            if (pSVN->m_SVNProgressMSG.overall_total < 1024LL)
-                sTotal.Format(IDS_SVN_PROGRESS_TOTALBYTESTRANSFERRED, pSVN->m_SVNProgressMSG.overall_total);
-            else if (pSVN->m_SVNProgressMSG.overall_total < 1200000LL)
-                sTotal.Format(IDS_SVN_PROGRESS_TOTALTRANSFERRED, pSVN->m_SVNProgressMSG.overall_total / 1024LL);
-            else
-                sTotal.Format(IDS_SVN_PROGRESS_TOTALMBTRANSFERRED, (double)((double)pSVN->m_SVNProgressMSG.overall_total / 1024000.0));
-            temp.FormatMessage(IDS_SVN_PROGRESS_TOTALANDSPEED, (LPCTSTR)sTotal, (LPCTSTR)pSVN->m_SVNProgressMSG.SpeedString);
-
-            pSVN->m_pProgressDlg->SetLine(2, temp);
+            pSVN->m_pProgressDlg->SetLine(2, pSVN->m_SVNProgressMSG.SpeedString);
         }
         pSVN->progress_vector.clear();
     }
@@ -2986,23 +2957,6 @@ void SVN::Prepare()
     PostCommitErr.Empty();
 }
 
-void SVN::SetAuthInfo(const CString& username, const CString& password)
-{
-    if (m_pctx)
-    {
-        if (!username.IsEmpty())
-        {
-            svn_auth_set_parameter(m_pctx->auth_baton,
-                                   SVN_AUTH_PARAM_DEFAULT_USERNAME, apr_pstrdup(pool, CUnicodeUtils::GetUTF8(username)));
-        }
-        if (!password.IsEmpty())
-        {
-            svn_auth_set_parameter(m_pctx->auth_baton,
-                                   SVN_AUTH_PARAM_DEFAULT_PASSWORD, apr_pstrdup(pool, CUnicodeUtils::GetUTF8(password)));
-        }
-    }
-}
-
 svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
                                            const char *file, int line,
                                            const char *expr)
@@ -3015,11 +2969,11 @@ svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
     CString sErr(MAKEINTRESOURCE(IDS_ERR_SVNEXCEPTION));
     if (err)
     {
-        sErr += L"\n\n" + SVN::GetErrorString(err);
-        ::MessageBox(NULL, sErr, L"Subversion Exception!", MB_ICONERROR);
+        sErr += _T("\n\n") + SVN::GetErrorString(err);
+        ::MessageBox(NULL, sErr, _T("Subversion Exception!"), MB_ICONERROR);
         if (can_return)
             return err;
-        if (CRegDWORD(L"Software\\TortoiseSVN\\Debug", FALSE)==FALSE)
+        if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
         {
             CCrashReport::Instance().AddUserInfoToReport(L"SVNException", sErr);
             CCrashReport::Instance().Uninstall();
@@ -3029,8 +2983,8 @@ svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
 
     CString sFormatErr;
     sFormatErr.FormatMessage(IDS_ERR_SVNFORMATEXCEPTION, CUnicodeUtils::GetUnicode(file), line, CUnicodeUtils::GetUnicode(expr));
-    ::MessageBox(NULL, sFormatErr, L"Subversion Exception!", MB_ICONERROR);
-    if (CRegDWORD(L"Software\\TortoiseSVN\\Debug", FALSE)==FALSE)
+    ::MessageBox(NULL, sFormatErr, _T("Subversion Exception!"), MB_ICONERROR);
+    if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
     {
         CCrashReport::Instance().AddUserInfoToReport(L"SVNException", sFormatErr);
         CCrashReport::Instance().Uninstall();

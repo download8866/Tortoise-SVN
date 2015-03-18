@@ -29,10 +29,10 @@ IMPLEMENT_DYNAMIC(CMergeWizardTree, CMergeWizardBasePage)
 
 CMergeWizardTree::CMergeWizardTree()
     : CMergeWizardBasePage(CMergeWizardTree::IDD)
-    , m_URLFrom(L"")
-    , m_URLTo(L"")
+    , m_URLFrom(_T(""))
+    , m_URLTo(_T(""))
     , StartRev(0)
-    , EndRev(L"HEAD")
+    , EndRev(_T("HEAD"))
     , m_pLogDlg(NULL)
     , m_pLogDlg2(NULL)
     , m_pLogDlg3(NULL)
@@ -94,17 +94,17 @@ BOOL CMergeWizardTree::OnInitDialog()
     CMergeWizard * pWizard = (CMergeWizard*)GetParent();
     CString sUUID = pWizard->sUUID;
     m_URLCombo.SetURLHistory(true, false);
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS\\"+sUUID, L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
     m_URLCombo2.SetURLHistory(true, false);
-    m_URLCombo2.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS\\"+sUUID, L"url");
+    m_URLCombo2.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS\\")+sUUID, _T("url"));
     m_URLCombo2.SetCurSel(0);
 
-    CString sRegKeyFrom = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForFrom" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CString sRegKeyFrom = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForFrom") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
     CString sMergeUrlForWCFrom = CRegString(sRegKeyFrom);
-    CString sRegKeyTo = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForTo" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CString sRegKeyTo = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForTo") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
     CString sMergeUrlForWCTo = CRegString(sRegKeyTo);
 
-    if (!(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\MergeWCURL", FALSE))
+    if (!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\MergeWCURL"), FALSE))
         m_URLCombo.SetCurSel(0);
     else
     {
@@ -182,7 +182,7 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
     EndRev = SVNRev(m_sEndRev);
     if (GetCheckedRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1) == IDC_REVISION_HEAD1)
     {
-        StartRev = SVNRev(L"HEAD");
+        StartRev = SVNRev(_T("HEAD"));
     }
     if (!StartRev.IsValid())
     {
@@ -194,7 +194,7 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
     // if head revision, set revision as -1
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        EndRev = SVNRev(L"HEAD");
+        EndRev = SVNRev(_T("HEAD"));
     }
     if (!EndRev.IsValid())
     {
@@ -225,11 +225,11 @@ BOOL CMergeWizardTree::CheckData(bool bShowErrors /* = true */)
     m_URLCombo2.SaveHistory();
     m_URLTo = m_URLCombo2.GetString();
 
-    CString sRegKeyFrom = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForFrom" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
-    CRegString regMergeUrlForWCFrom(sRegKeyFrom);
+    CString sRegKeyFrom = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForFrom") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CRegString regMergeUrlForWCFrom = CRegString(sRegKeyFrom);
     regMergeUrlForWCFrom = m_URLFrom;
-    CString sRegKeyTo = L"Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForTo" + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
-    CRegString regMergeUrlForWCTo(sRegKeyTo);
+    CString sRegKeyTo = _T("Software\\TortoiseSVN\\History\\repoURLS\\MergeURLForTo") + ((CMergeWizard*)GetParent())->wcPath.GetSVNPathString();
+    CRegString regMergeUrlForWCTo = CRegString(sRegKeyTo);
     regMergeUrlForWCTo = m_URLTo;
 
     ((CMergeWizard*)GetParent())->URL1 = m_URLFrom;
@@ -383,13 +383,13 @@ LPARAM CMergeWizardTree::OnRevSelected(WPARAM wParam, LPARAM lParam)
     {
         if (wParam & MERGE_REVSELECTMINUSONE)
             lParam--;
-        temp.Format(L"%Id", lParam);
+        temp.Format(_T("%Id"), lParam);
         SetDlgItemText(IDC_REVISION_START, temp);
         CheckRadioButton(IDC_REVISION_HEAD1, IDC_REVISION_N1, IDC_REVISION_N1);
     }
     if (wParam & MERGE_REVSELECTEND)
     {
-        temp.Format(L"%Id", lParam);
+        temp.Format(_T("%Id"), lParam);
         SetDlgItemText(IDC_REVISION_END, temp);
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     }

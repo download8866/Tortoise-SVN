@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,9 +32,9 @@ SettingsDialogs3::SettingsDialogs3()
     , m_bIncludeExternals(FALSE)
     , m_bIncludeLocks(FALSE)
 {
-    m_regPreFetch = CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserPrefetch", TRUE);
-    m_regIncludeExternals = CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowExternals", TRUE);
-    m_regIncludeLocks = CRegDWORD(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", TRUE);
+    m_regPreFetch = CRegDWORD(_T("Software\\TortoiseSVN\\RepoBrowserPrefetch"), TRUE);
+    m_regIncludeExternals = CRegDWORD(_T("Software\\TortoiseSVN\\RepoBrowserShowExternals"), TRUE);
+    m_regIncludeLocks = CRegDWORD(_T("Software\\TortoiseSVN\\RepoBrowserShowLocks"), TRUE);
 }
 
 SettingsDialogs3::~SettingsDialogs3()
@@ -75,6 +75,7 @@ BOOL SettingsDialogs3::OnInitDialog()
     m_bIncludeExternals = m_regIncludeExternals;
     m_bIncludeLocks = m_regIncludeLocks;
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_ALLOWPREFETCH, IDS_SETTINGS_REPOBROWSER_PREFETCH_TT);
     m_tooltips.AddTool(IDC_SHOWEXTERNALS, IDS_SETTINGS_REPOBROWSER_EXTERNALS_TT);
     m_tooltips.AddTool(IDC_SHOWEXTERNALS, IDS_SETTINGS_REPOBROWSER_LOCKS_TT);
@@ -94,4 +95,10 @@ BOOL SettingsDialogs3::OnApply()
     return ISettingsPropPage::OnApply();
 }
 
+BOOL SettingsDialogs3::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+
+    return ISettingsPropPage::PreTranslateMessage(pMsg);
+}
 

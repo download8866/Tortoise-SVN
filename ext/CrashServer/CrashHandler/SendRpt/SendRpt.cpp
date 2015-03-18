@@ -1,8 +1,8 @@
-// Copyright 2014 Idol Software, Inc.
+// Copyright 2012 Idol Software, Inc.
 //
-// This file is part of Doctor Dump SDK.
+// This file is part of CrashHandler library.
 //
-// Doctor Dump SDK is free software: you can redistribute it and/or modify
+// CrashHandler library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -42,6 +42,8 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     setlocale(LC_ALL, ".ACP");
 
     LoadLibrary(_T("riched20"));
+
+    // CAskSendFullDumpDlg(L"Sample App", L"Idol Software", L"http://www.idolsoftware.ru").DoModal(); return 0;
 
     int argc;
     LPWSTR* argv = CommandLineToArgvW(GetCommandLineW(), &argc);

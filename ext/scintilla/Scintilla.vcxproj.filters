@@ -399,36 +399,6 @@
     <ClCompile Include="src\CaseConvert.cxx">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="lexers\LexKVIrc.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexRust.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexDMAP.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexDMIS.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexRegistry.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="src\MarginView.cxx">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EditModel.cxx">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\EditView.cxx">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexBibTeX.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexHex.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ILexer.h">
@@ -570,18 +540,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\UnicodeFromUTF8.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\StringCopy.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="src\MarginView.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EditModel.h">
-      <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="src\EditView.h">
       <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>

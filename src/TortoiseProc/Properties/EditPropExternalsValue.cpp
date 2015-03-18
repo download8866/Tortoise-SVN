@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2015 - TortoiseSVN
+// Copyright (C) 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,6 +32,7 @@ IMPLEMENT_DYNAMIC(CEditPropExternalsValue, CResizableStandAloneDialog)
 CEditPropExternalsValue::CEditPropExternalsValue(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CEditPropExternalsValue::IDD, pParent)
     , m_pLogDlg(NULL)
+    , m_height(0)
 {
 
 }
@@ -55,6 +56,7 @@ BEGIN_MESSAGE_MAP(CEditPropExternalsValue, CResizableStandAloneDialog)
     ON_BN_CLICKED(IDC_BROWSE, &CEditPropExternalsValue::OnBnClickedBrowse)
     ON_BN_CLICKED(IDC_SHOW_LOG, &CEditPropExternalsValue::OnBnClickedShowLog)
     ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CEditPropExternalsValue::OnRevSelected)
+    ON_WM_SIZING()
     ON_EN_CHANGE(IDC_REVISION_NUM, &CEditPropExternalsValue::OnEnChangeRevisionNum)
     ON_EN_CHANGE(IDC_PEGREV, &CEditPropExternalsValue::OnEnChangeRevisionNum)
     ON_BN_CLICKED(IDHELP, &CEditPropExternalsValue::OnBnClickedHelp)
@@ -67,7 +69,6 @@ BOOL CEditPropExternalsValue::OnInitDialog()
 {
     CResizableStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
-    BlockResize(DIALOG_BLOCKVERTICAL);
 
     ExtendFrameIntoClientArea(IDC_GROUPBOTTOM);
     m_aeroControls.SubclassOkCancelHelp(this);
@@ -96,11 +97,15 @@ BOOL CEditPropExternalsValue::OnInitDialog()
         CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_HEAD);
     }
 
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
     m_URLCombo.SetURLHistory(true, false);
     m_URLCombo.SetWindowText(CPathUtils::PathUnescape(m_External.url));
 
     UpdateData(false);
+
+    RECT rect;
+    GetWindowRect(&rect);
+    m_height = rect.bottom - rect.top;
 
     CString sWindowTitle;
     GetWindowText(sWindowTitle);
@@ -123,7 +128,7 @@ BOOL CEditPropExternalsValue::OnInitDialog()
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"EditPropExternalsValue");
+    EnableSaveRestore(_T("EditPropExternalsValue"));
 
     return TRUE;
 }
@@ -178,7 +183,7 @@ void CEditPropExternalsValue::OnOK()
     }
 
     if (m_sPegRev.IsEmpty())
-        m_External.pegrevision = *SVNRev(L"HEAD");
+        m_External.pegrevision = *SVNRev(_T("HEAD"));
     else
         m_External.pegrevision = *SVNRev(m_sPegRev);
     m_External.targetDir = m_sWCPath;
@@ -197,7 +202,7 @@ void CEditPropExternalsValue::OnBnClickedBrowse()
     if (strURLs.IsEmpty())
         strURLs = m_URLCombo.GetString();
     strURLs.Replace('\\', '/');
-    strURLs.Replace(L"%", L"%25");
+    strURLs.Replace(_T("%"), _T("%25"));
 
     CString root = m_RepoRoot.GetSVNPathString();
     int rootlength = root.GetLength();
@@ -247,11 +252,30 @@ void CEditPropExternalsValue::OnBnClickedShowLog()
 LPARAM CEditPropExternalsValue::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_PEGREV, temp);
     SetDlgItemText(IDC_REVISION_NUM, CString());
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
+}
+
+void CEditPropExternalsValue::OnSizing(UINT fwSide, LPRECT pRect)
+{
+    // don't allow the dialog to be changed in height
+    switch (fwSide)
+    {
+    case WMSZ_BOTTOM:
+    case WMSZ_BOTTOMLEFT:
+    case WMSZ_BOTTOMRIGHT:
+        pRect->bottom = pRect->top + m_height;
+        break;
+    case WMSZ_TOP:
+    case WMSZ_TOPLEFT:
+    case WMSZ_TOPRIGHT:
+        pRect->top = pRect->bottom - m_height;
+        break;
+    }
+    CResizableStandAloneDialog::OnSizing(fwSide, pRect);
 }
 
 void CEditPropExternalsValue::OnEnChangeRevisionNum()

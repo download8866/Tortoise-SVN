@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -64,30 +64,13 @@ svn_error_t* svn_get_log_message(const char **log_msg,
     return SVN_NO_ERROR;
 }
 
-svn_error_t * cancelfunc(void * cancelbaton)
-{
-    SVNReadProperties * pReadProps = (SVNReadProperties*)cancelbaton;
-    if ((pReadProps) && (pReadProps->m_bCancelled) && (*pReadProps->m_bCancelled))
-    {
-#ifdef IDS_SVN_USERCANCELLED
-        CString temp;
-        temp.LoadString(IDS_SVN_USERCANCELLED);
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, CUnicodeUtils::GetUTF8(temp));
-#else
-        return svn_error_create(SVN_ERR_CANCELLED, NULL, "");
-#endif
-    }
-    return NULL;
-}
-
 svn_error_t*    SVNReadProperties::Refresh()
 {
     svn_opt_revision_t          rev;
     svn_opt_revision_t          peg_rev;
     svn_error_clear(Err);
     Err = NULL;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
+
     if (m_propCount > 0)
     {
         m_propCount = 0;
@@ -114,7 +97,6 @@ svn_error_t*    SVNReadProperties::Refresh()
     if ((svnPath == 0)||(svnPath[0] == 0))
         return NULL;
     m_props = NULL;
-    m_inheritedProperties.clear();
     if (m_bRevProps)
     {
         svn_revnum_t rev_set;
@@ -180,10 +162,6 @@ void SVNReadProperties::Construct()
     m_pctx->log_msg_func3 = svn_get_log_message;
 
 #endif
-    m_pctx->cancel_func = cancelfunc;
-    m_pctx->cancel_baton = this;
-    if (m_bCancelled)
-        (*m_bCancelled) = false;
 }
 
 #ifdef _MFC_VER
@@ -202,7 +180,7 @@ SVNReadProperties::SVNReadProperties(bool bRevProps, bool includeInherited)
 #endif
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
+    , m_inheritedprops(NULL)
 {
     Construct();
 }
@@ -224,7 +202,6 @@ SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, bool bRevProps, 
     , m_bRevProps (bRevProps)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();
@@ -242,7 +219,6 @@ SVNReadProperties::SVNReadProperties(const CTSVNPath& filepath, SVNRev pegRev, S
     , m_prompt (suppressUI)
     , m_propCount(0)
     , m_props(NULL)
-    , m_bCancelled(nullptr)
 {
     Construct();
     Refresh();
@@ -467,6 +443,8 @@ svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path
             if (inherited_props)
             {
                 // properties further down the tree override the properties from above
+                pThis->m_inheritedprops = apr_array_make (pool, 1, sizeof(svn_prop_inherited_item_t*));
+                pThis->m_inheritedProperties.clear();
                 for (int i = 0; i < inherited_props->nelts; i++)
                 {
                     svn_prop_inherited_item_t * iitem = (APR_ARRAY_IDX (inherited_props, i, svn_prop_inherited_item_t*));
@@ -479,7 +457,7 @@ svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path
 
                     // just in case someone needs the properties from above even though the same
                     // property is set further below, we store all props in a custom array.
-                    std::multimap<std::string,std::string> propmap;
+                    std::map<std::string,std::string> propmap;
                     for (apr_hash_index_t * hi = apr_hash_first(pool, iitem->prop_hash); hi; hi = apr_hash_next(hi))
                     {
                         const void *key;
@@ -487,7 +465,7 @@ svn_error_t * SVNReadProperties::proplist_receiver(void *baton, const char *path
                         apr_hash_this(hi, &key, NULL, &val);
                         svn_string_t * propval = (svn_string_t *)val;
                         const char * pname_utf8 = (char *)key;
-                        propmap.insert(std::make_pair(pname_utf8, std::string(propval->data, propval->len)));
+                        propmap[pname_utf8] = std::string(propval->data, propval->len);
                     }
                     pThis->m_inheritedProperties.push_back(std::make_tuple(iitem->path_or_url, propmap));
                 }

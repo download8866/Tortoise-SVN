@@ -26,6 +26,7 @@
 #include "HintCtrl.h"
 #include "Colors.h"
 #include "FilterEdit.h"
+#include "Tooltip.h"
 #include "JobScheduler.h"
 
 
@@ -89,7 +90,7 @@ protected:
                                             bool propchanged,
                                             svn_node_kind_t node) override;
 
-    void                DoDiff(int selIndex, bool bText, bool bProps, bool blame, bool bDefault);
+    void                DoDiff(int selIndex, bool bText, bool bProps, bool blame);
     void                DiffProps(int selIndex);
     void                SetURLLabels();
     void                Filter(CString sFilterText);
@@ -102,6 +103,8 @@ private:
     void                GetSelectedPaths(CTSVNPathList& urls1, CTSVNPathList& urls2);
 
     virtual BOOL        Cancel() override {return m_bCancelled;}
+
+    CToolTips           m_tooltips;
 
     CButton             m_cRev1Btn;
     CButton             m_cRev2Btn;

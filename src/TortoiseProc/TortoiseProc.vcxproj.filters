@@ -168,12 +168,6 @@
     <Filter Include="Commands\RepoCreate">
       <UniqueIdentifier>{02543189-d6fa-451f-be9e-4531c5051a70}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Commands\Monitor">
-      <UniqueIdentifier>{997c6825-059b-49ae-b4b2-3729b98d2d83}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Commands\Sync">
-      <UniqueIdentifier>{ed2e5dcd-b25e-4267-bee1-9929efa3a30a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\Utils\accHelper.cpp">
@@ -243,6 +237,9 @@
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\ShellUpdater.cpp">
+      <Filter>Utils\General</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utils\SoundUtils.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\StdioFileT.cpp">
@@ -911,6 +908,9 @@
     <ClCompile Include="SimplePrompt.cpp">
       <Filter>Utility Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="SVNProgressDlg.cpp">
+      <Filter>Utility Dialogs</Filter>
+    </ClCompile>
     <ClCompile Include="URLDlg.cpp">
       <Filter>Utility Dialogs</Filter>
     </ClCompile>
@@ -992,6 +992,12 @@
     <ClCompile Include="..\Utils\StringBuffer.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\XMessageBox.cpp">
+      <Filter>Utils\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\MessageBox.cpp">
+      <Filter>Utils\UI</Filter>
+    </ClCompile>
     <ClCompile Include="DiffOptionsDlg.cpp">
       <Filter>Utility Dialogs</Filter>
     </ClCompile>
@@ -1065,40 +1071,7 @@
       <Filter>Utils\General</Filter>
     </ClCompile>
     <ClCompile Include="CodeCollaboratorSettingsDlg.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\DropExternalCommand.cpp">
-      <Filter>Commands\Drop</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\MonitorCommand.cpp">
-      <Filter>Commands\Monitor</Filter>
-    </ClCompile>
-    <ClCompile Include="MonitorProjectDlg.cpp">
-      <Filter>Commands\Monitor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\DragDropTreeCtrl.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="MonitorOptionsDlg.cpp">
-      <Filter>Commands\Monitor</Filter>
-    </ClCompile>
-    <ClCompile Include="Commands\SyncCommand.cpp">
-      <Filter>Commands\Sync</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\SettingsSync.cpp">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="PasswordDlg.cpp">
-      <Filter>Utility Dialogs</Filter>
-    </ClCompile>
-    <ClCompile Include="Settings\SettingsTUDiff.cpp">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\ext\snarl\SnarlInterface.cpp">
-      <Filter>Utils\3rd Party</Filter>
-    </ClCompile>
-    <ClCompile Include="SVNProgressDlg.cpp">
-      <Filter>Subversion</Filter>
+      <Filter>Utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1187,6 +1160,9 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\ShellUpdater.h">
+      <Filter>Utils\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\SoundUtils.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\stdex_vector.h">
@@ -1879,6 +1855,9 @@
     <ClInclude Include="SimplePrompt.h">
       <Filter>Utility Dialogs</Filter>
     </ClInclude>
+    <ClInclude Include="SVNProgressDlg.h">
+      <Filter>Utility Dialogs</Filter>
+    </ClInclude>
     <ClInclude Include="URLDlg.h">
       <Filter>Utility Dialogs</Filter>
     </ClInclude>
@@ -1981,6 +1960,12 @@
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h">
       <Filter>Utils\UI</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\XMessageBox.h">
+      <Filter>Utils\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\MessageBox.h">
+      <Filter>Utils\UI</Filter>
+    </ClInclude>
     <ClInclude Include="DiffOptionsDlg.h">
       <Filter>Utility Dialogs</Filter>
     </ClInclude>
@@ -2060,46 +2045,13 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="CodeCollaboratorSettingsDlg.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\DropExternalCommand.h">
-      <Filter>Commands\Drop</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\MonitorCommand.h">
-      <Filter>Commands\Monitor</Filter>
-    </ClInclude>
-    <ClInclude Include="MonitorProjectDlg.h">
-      <Filter>Commands\Monitor</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\DragDropTreeCtrl.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="MonitorOptionsDlg.h">
-      <Filter>Commands\Monitor</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\CopyUrlsCommand.h">
-      <Filter>Commands\Misc</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\OnOutOfScope.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands\SyncCommand.h">
-      <Filter>Commands\Sync</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\SettingsSync.h">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="PasswordDlg.h">
-      <Filter>Utility Dialogs</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings\SettingsTUDiff.h">
-      <Filter>Commands\Settings\Settings Dialog</Filter>
-    </ClInclude>
-    <ClInclude Include="SVNProgressDlg.h">
-      <Filter>Subversion</Filter>
+      <Filter>Utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="externalpeggedovl.ico">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\actionadded.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -2116,6 +2068,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\AddBackground.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\bin167.avi">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\bin168.avi">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\bugtraq.ico">
@@ -2137,6 +2095,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\CheckoutBackground.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\cleananim.avi">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\CommitBackground.ico">
@@ -2164,6 +2125,9 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\dialogs.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="..\Resources\download.avi">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\Drives.ico">
@@ -2412,6 +2376,9 @@
     <None Include="..\Resources\saveddata.ico">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="..\Resources\search.avi">
+      <Filter>Resource Files</Filter>
+    </None>
     <None Include="..\Resources\ssh.ico">
       <Filter>Resource Files</Filter>
     </None>
@@ -2491,73 +2458,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\Resources\ccollabgui.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\Bookmarks.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\actionmoved.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\actionmovereplaced.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_add.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_edit.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_getall.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_options.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_remove.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitorurl.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitorwc.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\Icons\XPStyle\ModifiedIcon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\MonitorCommits.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\MonitorNormal.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_markallasread.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\sync.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\TortoiseUDiff\TortoiseUDiff.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\monitor_update.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\link2.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\spell.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\file.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\code.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="..\Resources\snippet.ico">
+    <Image Include="..\resources\ccollabgui.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

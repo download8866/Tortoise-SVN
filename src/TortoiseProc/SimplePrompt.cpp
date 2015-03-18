@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010, 2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,15 +19,14 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SimplePrompt.h"
-#include "SVNConfig.h"
 
 IMPLEMENT_DYNAMIC(CSimplePrompt, CStandAloneDialog)
 CSimplePrompt::CSimplePrompt(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CSimplePrompt::IDD, pParent)
-    , m_sUsername(L"")
-    , m_sPassword(L"")
+    , m_sUsername(_T(""))
+    , m_sPassword(_T(""))
     , m_bSaveAuthentication(FALSE)
-    , m_sRealm(L"")
+    , m_sRealm(_T(""))
     , m_hParentWnd(NULL)
 {
 }
@@ -56,11 +55,6 @@ BOOL CSimplePrompt::OnInitDialog()
     ExtendFrameIntoClientArea(IDC_PASSEDIT);
     m_aeroControls.SubclassControl(this, IDC_SAVECHECK);
     m_aeroControls.SubclassOkCancel(this);
-
-    BOOL bAllowAuthSave = (BOOL)(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\AllowAuthSave", TRUE);
-    DialogEnableWindow(IDC_SAVECHECK, bAllowAuthSave);
-    if (bAllowAuthSave)
-        CheckDlgButton(IDC_SAVECHECK, SVNConfig::Instance().ConfigGetBool(SVN_CONFIG_SECTION_AUTH, SVN_CONFIG_OPTION_STORE_PASSWORDS, true) ? BST_CHECKED : BST_UNCHECKED);
 
     GetDlgItem(IDC_USEREDIT)->SetFocus();
     if ((m_hParentWnd==NULL)&&(GetExplorerHWND()))

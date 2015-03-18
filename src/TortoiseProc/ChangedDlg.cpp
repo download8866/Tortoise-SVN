@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "ChangedDlg.h"
+#include "MessageBox.h"
 #include "AppUtils.h"
 
 
@@ -96,11 +97,12 @@ BOOL CChangedDlg::OnInitDialog()
 
     GetWindowText(m_sTitle);
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_CHECKREPO, IDS_REPOSTATUS_TT_REPOCHECK);
 
-    m_regAddBeforeCommit = CRegDWORD(L"Software\\TortoiseSVN\\AddBeforeCommit", TRUE);
+    m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseSVN\\AddBeforeCommit"), TRUE);
     m_bShowUnversioned = m_regAddBeforeCommit;
-    m_regShowUserProps = CRegDWORD(L"Software\\TortoiseSVN\\ShowUserProps", TRUE);
+    m_regShowUserProps = CRegDWORD(_T("Software\\TortoiseSVN\\ShowUserProps"), TRUE);
     m_bShowUserProps = m_regShowUserProps;
     UpdateData(FALSE);
 
@@ -108,7 +110,7 @@ BOOL CChangedDlg::OnInitDialog()
                         SVNSLC_COLREMOTETEXT | SVNSLC_COLREMOTEPROP |
                         SVNSLC_COLLOCK | SVNSLC_COLLOCKCOMMENT |
                         SVNSLC_COLAUTHOR |
-                        SVNSLC_COLREVISION | SVNSLC_COLDATE, L"ChangedDlg",
+                        SVNSLC_COLREVISION | SVNSLC_COLDATE, _T("ChangedDlg"),
                         SVNSLC_POPALL ^ SVNSLC_POPRESTORE, false);
     m_FileListCtrl.SetCancelBool(&m_bCanceled);
     m_FileListCtrl.SetBackgroundImage(IDI_CFM_BKG);
@@ -139,9 +141,9 @@ BOOL CChangedDlg::OnInitDialog()
     SetPromptParentWindow(m_hWnd);
     if (GetExplorerHWND())
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"ChangedDlg");
+    EnableSaveRestore(_T("ChangedDlg"));
 
-    m_bRemote = !!(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\CheckRepo", FALSE);
+    m_bRemote = !!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\CheckRepo"), FALSE);
     if(m_bContactRepository){m_bRemote = true;}
     // first start a thread to obtain the status without
     // blocking the dialog
@@ -209,7 +211,7 @@ UINT CChangedDlg::ChangedStatusThread()
     DialogEnableWindow(IDC_SHOWFOLDERS, TRUE);
     InterlockedExchange(&m_bBlock, FALSE);
     // revert the remote flag back to the default
-    m_bRemote = !!(DWORD)CRegDWORD(L"Software\\TortoiseSVN\\CheckRepo", FALSE);
+    m_bRemote = !!(DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\CheckRepo"), FALSE);
     RefreshCursor();
     return 0;
 }
@@ -333,6 +335,7 @@ LRESULT CChangedDlg::OnSVNStatusListCtrlItemCountChanged(WPARAM, LPARAM)
 
 BOOL CChangedDlg::PreTranslateMessage(MSG* pMsg)
 {
+    m_tooltips.RelayEvent(pMsg);
     if (pMsg->message == WM_KEYDOWN)
     {
         switch (pMsg->wParam)
@@ -381,8 +384,8 @@ void CChangedDlg::UpdateStatistics()
     }
     GetDlgItem(IDC_SUMMARYTEXT)->Invalidate();
     temp = m_FileListCtrl.GetStatisticsString();
-    temp.Replace(L" = ", L"=");
-    temp.Replace(L"\n", L", ");
+    temp.Replace(_T(" = "), _T("="));
+    temp.Replace(_T("\n"), _T(", "));
     SetDlgItemText(IDC_INFOLABEL, temp);
     GetDlgItem(IDC_INFOLABEL)->Invalidate();
 }

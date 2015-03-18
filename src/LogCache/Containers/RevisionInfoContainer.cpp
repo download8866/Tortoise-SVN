@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2014 - TortoiseSVN
+// Copyright (C) 2007-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -542,8 +542,6 @@ namespace
             , change ( (unsigned char) iter->GetRawChange() )
             , textModifies ( (unsigned char) iter->GetTextModifies() )
             , propsModifies ( (unsigned char) iter->GetPropsModifies() )
-            , copyFromPath( (index_t) NO_INDEX)
-            , copyFromRevision(0)
         {
             if (iter->HasFromPath())
             {

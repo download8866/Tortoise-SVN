@@ -38,27 +38,27 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 
     const int nOverlayLimit = 12;
 
-    bool dropIgnored = DropHandler(L"ShowIgnoredOverlay");
+    bool dropIgnored = DropHandler(_T("ShowIgnoredOverlay"));
     if (dropIgnored)
         nInstalledOverlays--;
 
-    bool dropUnversioned = DropHandler(L"ShowUnversionedOverlay");
+    bool dropUnversioned = DropHandler(_T("ShowUnversionedOverlay"));
     if (dropUnversioned)
         nInstalledOverlays--;
 
-    bool dropAdded = DropHandler(L"ShowAddedOverlay");
+    bool dropAdded = DropHandler(_T("ShowAddedOverlay"));
     if (dropAdded)
         nInstalledOverlays--;
 
-    bool dropLocked = DropHandler(L"ShowLockedOverlay");
+    bool dropLocked = DropHandler(_T("ShowLockedOverlay"));
     if (dropLocked)
         nInstalledOverlays--;
 
-    bool dropReadonly = DropHandler(L"ShowReadonlyOverlay");
+    bool dropReadonly = DropHandler(_T("ShowReadonlyOverlay"));
     if (dropReadonly)
         nInstalledOverlays--;
 
-    bool dropDeleted = DropHandler(L"ShowDeletedOverlay");
+    bool dropDeleted = DropHandler(_T("ShowDeletedOverlay"));
     if (dropDeleted)
         nInstalledOverlays--;
     // The conflict, modified and normal overlays must not be disabled since
@@ -101,15 +101,15 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 
     switch (m_State)
     {
-        case FileStateNormal        : iconName = L"NormalIcon"; break;
-        case FileStateModified      : iconName = L"ModifiedIcon"; break;
-        case FileStateConflict      : iconName = L"ConflictIcon"; break;
-        case FileStateDeleted       : iconName = L"DeletedIcon"; break;
-        case FileStateReadOnly      : iconName = L"ReadOnlyIcon"; break;
-        case FileStateLocked        : iconName = L"LockedIcon"; break;
-        case FileStateAdded         : iconName = L"AddedIcon"; break;
-        case FileStateIgnored       : iconName = L"IgnoredIcon"; break;
-        case FileStateUnversioned   : iconName = L"UnversionedIcon"; break;
+        case FileStateNormal        : iconName = _T("NormalIcon"); break;
+        case FileStateModified      : iconName = _T("ModifiedIcon"); break;
+        case FileStateConflict      : iconName = _T("ConflictIcon"); break;
+        case FileStateDeleted       : iconName = _T("DeletedIcon"); break;
+        case FileStateReadOnly      : iconName = _T("ReadOnlyIcon"); break;
+        case FileStateLocked        : iconName = _T("LockedIcon"); break;
+        case FileStateAdded         : iconName = _T("AddedIcon"); break;
+        case FileStateIgnored       : iconName = _T("IgnoredIcon"); break;
+        case FileStateUnversioned   : iconName = _T("UnversionedIcon"); break;
         default: return S_FALSE;
     }
 
@@ -127,7 +127,7 @@ STDMETHODIMP CShellExt::GetOverlayInfo(LPWSTR pwszIconFile, int cchMax, int *pIn
 
         HKEY hkey = 0;
         if (::RegOpenKeyEx (hkeys[i],
-            L"Software\\TortoiseOverlays",
+            _T("Software\\TortoiseOverlays"),
                     0,
                     KEY_QUERY_VALUE,
                     &hkey) != ERROR_SUCCESS)
@@ -234,7 +234,7 @@ int CShellExt::GetInstalledOverlays()
     // scan the registry for installed overlay handlers
     HKEY hKey;
     if (RegOpenKeyEx(HKEY_LOCAL_MACHINE,
-        L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers",
+        _T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers"),
         0, KEY_ENUMERATE_SUB_KEYS, &hKey)==ERROR_SUCCESS)
     {
         TCHAR value[2048] = { 0 };
@@ -247,8 +247,8 @@ int CShellExt::GetInstalledOverlays()
             if (rc == ERROR_SUCCESS)
             {
                 // check if there's a 'default' entry with a guid
-                wcscpy_s(keystring, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers\\");
-                wcscat_s(keystring, value);
+                _tcscpy_s(keystring, _T("Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\ShellIconOverlayIdentifiers\\"));
+                _tcscat_s(keystring, value);
                 DWORD dwType = 0;
                 DWORD dwSize = _countof(value); // the API docs only specify "The size of the destination data buffer",
                                                 // but better be safe than sorry using _countof instead of sizeof
@@ -272,15 +272,15 @@ void CShellExt::LoadHandlers(LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD
     const TCHAR* name = 0;
     switch (m_State)
     {
-    case FileStateNormal        : name = L"Software\\TortoiseOverlays\\Normal"; break;
-    case FileStateModified      : name = L"Software\\TortoiseOverlays\\Modified"; break;
-    case FileStateConflict      : name = L"Software\\TortoiseOverlays\\Conflict"; break;
-    case FileStateDeleted       : name = L"Software\\TortoiseOverlays\\Deleted"; break;
-    case FileStateReadOnly      : name = L"Software\\TortoiseOverlays\\ReadOnly"; break;
-    case FileStateLocked        : name = L"Software\\TortoiseOverlays\\Locked"; break;
-    case FileStateAdded         : name = L"Software\\TortoiseOverlays\\Added"; break;
-    case FileStateIgnored       : name = L"Software\\TortoiseOverlays\\Ignored"; break;
-    case FileStateUnversioned   : name = L"Software\\TortoiseOverlays\\Unversioned"; break;
+    case FileStateNormal        : name = _T("Software\\TortoiseOverlays\\Normal"); break;
+    case FileStateModified      : name = _T("Software\\TortoiseOverlays\\Modified"); break;
+    case FileStateConflict      : name = _T("Software\\TortoiseOverlays\\Conflict"); break;
+    case FileStateDeleted       : name = _T("Software\\TortoiseOverlays\\Deleted"); break;
+    case FileStateReadOnly      : name = _T("Software\\TortoiseOverlays\\ReadOnly"); break;
+    case FileStateLocked        : name = _T("Software\\TortoiseOverlays\\Locked"); break;
+    case FileStateAdded         : name = _T("Software\\TortoiseOverlays\\Added"); break;
+    case FileStateIgnored       : name = _T("Software\\TortoiseOverlays\\Ignored"); break;
+    case FileStateUnversioned   : name = _T("Software\\TortoiseOverlays\\Unversioned"); break;
     default: return;
     }
 
@@ -300,10 +300,10 @@ void CShellExt::LoadHandlers(LPWSTR pwszIconFile, int cchMax, int *pIndex, DWORD
             {
                 TCHAR comobj[MAX_PATH] = { 0 };
                 TCHAR modpath[MAX_PATH] = { 0 };
-                wcscpy_s(comobj, L"CLSID\\");
-                wcscat_s(comobj, value);
-                wcscat_s(comobj, L"\\InprocServer32");
-                if (SHRegGetPath(HKEY_CLASSES_ROOT, comobj, L"", modpath, 0) == ERROR_SUCCESS)
+                _tcscpy_s(comobj, _T("CLSID\\"));
+                _tcscat_s(comobj, value);
+                _tcscat_s(comobj, _T("\\InprocServer32"));
+                if (SHRegGetPath(HKEY_CLASSES_ROOT, comobj, _T(""), modpath, 0) == ERROR_SUCCESS)
                 {
                     LoadRealLibrary(modpath, value, pwszIconFile, cchMax, pIndex, pdwFlags);
                 }
@@ -372,7 +372,7 @@ bool CShellExt::DropHandler(LPCWSTR registryKey)
     DWORD dwType = REG_NONE;
     DWORD dwData = 0;
     DWORD dwDataSize = sizeof(dwData);
-    if (SHGetValue(HKEY_CURRENT_USER, L"Software\\TortoiseOverlays", registryKey, &dwType, &dwData, &dwDataSize) == ERROR_SUCCESS)
+    if (SHGetValue(HKEY_CURRENT_USER, _T("Software\\TortoiseOverlays"), registryKey, &dwType, &dwData, &dwDataSize) == ERROR_SUCCESS)
     {
         if (dwType == REG_DWORD)
         {

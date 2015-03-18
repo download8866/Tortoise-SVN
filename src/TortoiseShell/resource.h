@@ -175,21 +175,12 @@
 #define IDS_CLOSE                       264
 #define IDS_SVN_DEPTH_CUSTOM            265
 #define IDS_DROPVENDORMENU              266
-#define IDS_MENUDIFFLATER               267
 #define IDS_MENUDELUNVERSIONED          268
 #define IDS_MENUDESCDELUNVERSIONED      269
-#define IDS_MENUDESCDIFFLATER           270
 #define IDS_MENUREMOVEKEEP              271
 #define IDS_MENUDESCREMOVEKEEP          272
 #define IDS_YES                         273
 #define IDS_NO                          274
-#define IDS_MENUDIFFNOW                 275
-#define IDS_MENUDESCDIFFNOW             276
-#define IDS_MENUUNIDIFF                 277
-#define IDS_MENUUNIDESCDIFF             278
-#define IDS_DROPEXTERNAL                279
-#define IDS_MENUCOPYURL                 280
-#define IDS_MENUDESCCOPYURL             281
 #define IDS_SVN_DEPTH_INFINITE          300
 #define IDS_SVN_DEPTH_IMMEDIATE         301
 #define IDS_SVN_DEPTH_FILES             302
@@ -240,7 +231,6 @@
 #define IDI_DELUNVERSIONED              5159
 #define IDI_APPSMALL                    5160
 #define IDI_CLIPPASTE                   5164
-#define IDI_COPYURL                     5165
 #define IDC_LOCKOWNER                   11019
 #define IDC_LOCKDATE                    11020
 #define IDC_EDITPROPERTIES              11021
@@ -255,7 +245,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        5166
+#define _APS_NEXT_RESOURCE_VALUE        5165
 #define _APS_NEXT_COMMAND_VALUE         40001
 #define _APS_NEXT_CONTROL_VALUE         11026
 #define _APS_NEXT_SYMED_VALUE           5101

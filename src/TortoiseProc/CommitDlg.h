@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013, 2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,6 +29,7 @@
 #include "HyperLink.h"
 #include "PathWatcher.h"
 #include "BugTraqAssociations.h"
+#include "Tooltip.h"
 #include "../IBugTraqProvider/IBugTraqProvider_h.h"
 #include "PathEdit.h"
 
@@ -53,7 +54,6 @@ public:
     // CSciEditContextMenuInterface
     virtual void        InsertMenuItems(CMenu& mPopup, int& nCmd) override;
     virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit) override;
-    virtual void        HandleSnippet(int type, const CString &text, CSciEdit *pSciEdit);
 
 private:
     static UINT StatusThreadEntry(LPVOID pVoid);
@@ -66,32 +66,8 @@ private:
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-    virtual BOOL OnInitDialog();
-    // extracted from OnInitDialog
-    void ShowBalloonInCaseOfError();
-    void GetAsyncFileListStatus();
-    void AddDirectoriesToPathWatcher();
-    void AdjustDialogSizeAndPanes();
-    void CenterWindowWhenLaunchedFromExplorer();
-    void SaveDialogAndLogMessageControlRectangles();
-    void AddAnchorsToFacilitateResizing();
-    void LineupControlsAndAdjustSizes();
-    void ConvertStaticToLinkControl();
-    void AdjustControlSizes();
-    void SetCommitWindowTitleAndEnableStatus();
-    void SetupLogMessageDefaultText();
-    void ShowOrHideBugIdAndLabelControls();
-    void HideBugIdAndLabel();
-    void RestoreBugIdAndLabelFromProjectProperties();
-    void SetupBugTraqControlsIfConfigured();
-    void HideAndDisableBugTraqButton();
-    void SetupToolTips();
-    void SetControlAccessibilityProperties();
-    void InitializeLogMessageControl();
-    void InitializeListControl();
-    void SubclassControls();
-    void ReadPersistedDialogSettings();
 
+    virtual BOOL OnInitDialog();
     virtual void OnOK();
     virtual void OnCancel();
     virtual BOOL PreTranslateMessage(MSG* pMsg);
@@ -115,13 +91,12 @@ protected:
     afx_msg void OnTimer(UINT_PTR nIDEvent);
     afx_msg void OnSize(UINT nType, int cx, int cy);
     void Refresh();
-    void GetAutocompletionList(std::map<CString, int>& autolist);
-    void ScanFile(std::map<CString, int>& autolist, const CString& sFilePath, const CString& sRegex, const CString& sExt);
+    void GetAutocompletionList();
+    void ScanFile(const CString& sFilePath, const CString& sRegex, const CString& sExt);
     void DoSize(int delta);
     void SetSplitterRange();
     void SaveSplitterPos();
     void ParseRegexFile(const CString& sFile, std::map<CString, CString>& mapRegex);
-    void ParseSnippetFile(const CString& sFile, std::map<CString, CString>& mapSnippet);
     void UpdateCheckLinks();
     void VersionCheck();
 
@@ -135,7 +110,6 @@ public:
     CTSVNPathList       m_selectedPathList;
     CTSVNPathList       m_checkedPathList;
     BOOL                m_bRecursive;
-    bool                m_bUnchecked;
     CSciEdit            m_cLogMessage;
     CString             m_sLogMessage;
     std::map<CString, CString> m_revProps;
@@ -146,16 +120,17 @@ public:
     INT_PTR             m_itemsCount;
     bool                m_bSelectFilesForCommit;
     CComPtr<IBugTraqProvider> m_BugTraqProvider;
-    std::map<CString, std::tuple<CString, CString>> m_restorepaths;
+    std::map<CString, CString> m_restorepaths;
 private:
     CWinThread*         m_pThread;
-    std::map<CString, CString>  m_snippet;
+    std::set<CString>   m_autolist;
     CSVNStatusListCtrl  m_ListCtrl;
     BOOL                m_bShowUnversioned;
     BOOL                m_bShowExternals;
     volatile LONG       m_bBlock;
     volatile LONG       m_bThreadRunning;
     volatile LONG       m_bRunThread;
+    CToolTips           m_tooltips;
     CRegDWORD           m_regAddBeforeCommit;
     CRegDWORD           m_regKeepChangelists;
     CRegDWORD           m_regShowExternals;
@@ -172,6 +147,4 @@ private:
     CPathEdit           m_CommitTo;
     CBugTraqAssociation m_bugtraq_association;
     CHyperLink          m_cUpdateLink;
-public:
-    afx_msg void OnBnClickedRunhook();
 };

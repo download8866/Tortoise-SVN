@@ -27,10 +27,9 @@
 CLIPFORMAT CF_FILECONTENTS = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILECONTENTS);
 CLIPFORMAT CF_FILEDESCRIPTOR = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILEDESCRIPTOR);
 CLIPFORMAT CF_PREFERREDDROPEFFECT = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
-CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(L"TSVN_SVNURL");
+CLIPFORMAT CF_SVNURL = (CLIPFORMAT)RegisterClipboardFormat(_T("TSVN_SVNURL"));
 CLIPFORMAT CF_INETURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_INETURL);
 CLIPFORMAT CF_SHELLURL = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_SHELLURL);
-CLIPFORMAT CF_FILE_ATTRIBUTES_ARRAY = (CLIPFORMAT)RegisterClipboardFormat(CFSTR_FILE_ATTRIBUTES_ARRAY);
 
 SVNDataObject::SVNDataObject(const CTSVNPathList& svnpaths, SVNRev peg, SVNRev rev, bool bFilesAsUrlLinks) : m_svnPaths(svnpaths)
     , m_pegRev(peg)
@@ -57,6 +56,10 @@ SVNDataObject::~SVNDataObject()
 //////////////////////////////////////////////////////////////////////////
 // IUnknown
 //////////////////////////////////////////////////////////////////////////
+
+#ifndef __IDataObjectAsyncCapability_FWD_DEFINED__
+#define IID_IDataObjectAsyncCapability IID_IAsyncOperation
+#endif
 
 STDMETHODIMP SVNDataObject::QueryInterface(REFIID riid, void** ppvObject)
 {
@@ -153,10 +156,6 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         HRESULT res = SHCreateStreamOnFileEx(filepath.GetWinPath(), STGM_READ, FILE_ATTRIBUTE_NORMAL, FALSE, NULL, &pIStream);
         if (res == S_OK)
         {
-            // http://blogs.msdn.com/b/oldnewthing/archive/2014/09/18/10558763.aspx
-            LARGE_INTEGER liZero = { 0, 0 };
-            pIStream->Seek(liZero, STREAM_SEEK_END, NULL);
-
             pmedium->pstm = pIStream;
             pmedium->tymed = TYMED_ISTREAM;
             return S_OK;
@@ -230,7 +229,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 temp = CPathUtils::PathUnescape(temp);
                 if (m_bFilesAsUrlLinks)
                     temp += L".url";
-                temp.Replace(L"/", L"\\");
+                temp.Replace(_T("/"), _T("\\"));
             }
             else
             {
@@ -239,7 +238,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     temp += L".url";
             }
             if (temp.GetLength() < MAX_PATH)
-                wcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
+                _tcscpy_s(files->fgd[index].cFileName, (LPCTSTR)temp);
             else
             {
                 files->cItems--;
@@ -319,7 +318,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         CStringA texta = CUnicodeUtils::GetUTF8(text);
@@ -348,7 +347,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                     text += m_svnPaths[i].GetSVNPathString();
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -356,7 +355,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -375,12 +374,12 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
                 if (m_svnPaths[i].IsUrl())
                 {
                     text += m_svnPaths[i].GetSVNPathString();
-                    text += L"?";
+                    text += _T("?");
                     text += m_revision.ToString();
                 }
                 else
                     text += m_svnPaths[i].GetWinPathString();
-                text += L"\r\n";
+                text += _T("\r\n");
             }
         }
         pmedium->tymed = TYMED_HGLOBAL;
@@ -388,7 +387,7 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
         if (pmedium->hGlobal)
         {
             TCHAR* pMem = (TCHAR*)GlobalLock(pmedium->hGlobal);
-            wcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
+            _tcscpy_s(pMem, text.GetLength()+1, (LPCTSTR)text);
             GlobalUnlock(pmedium->hGlobal);
         }
         pmedium->pUnkForRelease = NULL;
@@ -428,37 +427,6 @@ STDMETHODIMP SVNDataObject::GetData(FORMATETC* pformatetcIn, STGMEDIUM* pmedium)
 
         pmedium->tymed = TYMED_HGLOBAL;
         pmedium->hGlobal = GlobalAlloc(GMEM_ZEROINIT|GMEM_MOVEABLE|GMEM_DDESHARE, nBufferSize);
-        if (pmedium->hGlobal)
-        {
-            LPVOID pMem = ::GlobalLock(pmedium->hGlobal);
-            if (pMem)
-                memcpy(pMem, pBuffer.get(), nBufferSize);
-            GlobalUnlock(pmedium->hGlobal);
-        }
-        pmedium->pUnkForRelease = NULL;
-        return S_OK;
-    }
-    else if ((pformatetcIn->tymed & TYMED_HGLOBAL) && (pformatetcIn->dwAspect == DVASPECT_CONTENT) && (pformatetcIn->cfFormat == CF_FILE_ATTRIBUTES_ARRAY))
-    {
-        int nBufferSize = sizeof(FILE_ATTRIBUTES_ARRAY) + m_svnPaths.GetCount()*sizeof(DWORD);
-        std::unique_ptr<char[]> pBuffer(new char[nBufferSize]);
-
-        SecureZeroMemory(pBuffer.get(), nBufferSize);
-
-        FILE_ATTRIBUTES_ARRAY* cf = (FILE_ATTRIBUTES_ARRAY*)pBuffer.get();
-        cf->cItems = m_svnPaths.GetCount();
-        cf->dwProductFileAttributes = DWORD_MAX;
-        cf->dwSumFileAttributes = 0;
-        for (int i = 0; i < m_svnPaths.GetCount(); i++)
-        {
-            DWORD fileattribs = m_svnPaths[i].IsUrl() ? FILE_ATTRIBUTE_NORMAL : m_svnPaths[i].GetFileAttributes();
-            cf->rgdwFileAttributes[i] = fileattribs;
-            cf->dwProductFileAttributes &= fileattribs;
-            cf->dwSumFileAttributes |= fileattribs;
-        }
-
-        pmedium->tymed = TYMED_HGLOBAL;
-        pmedium->hGlobal = GlobalAlloc(GMEM_ZEROINIT | GMEM_MOVEABLE | GMEM_DDESHARE, nBufferSize);
         if (pmedium->hGlobal)
         {
             LPVOID pMem = ::GlobalLock(pmedium->hGlobal);
@@ -520,12 +488,6 @@ STDMETHODIMP SVNDataObject::QueryGetData(FORMATETC* pformatetc)
         (pformatetc->dwAspect == DVASPECT_CONTENT) &&
         (pformatetc->cfFormat == CF_HDROP) &&
         m_revision.IsWorking())
-    {
-        return S_OK;
-    }
-    if ((pformatetc->tymed & TYMED_HGLOBAL) &&
-        (pformatetc->dwAspect == DVASPECT_CONTENT) &&
-        (pformatetc->cfFormat == CF_FILE_ATTRIBUTES_ARRAY))
     {
         return S_OK;
     }
@@ -725,6 +687,7 @@ HRESULT SVNDataObject::SetDropDescription(DROPIMAGETYPE image, LPCTSTR format, L
     fetc.dwAspect = DVASPECT_CONTENT;
     fetc.lindex = -1;
     fetc.tymed = TYMED_HGLOBAL;
+    fetc.tymed = TYMED_HGLOBAL;
 
     STGMEDIUM medium = {0};
     medium.hGlobal = GlobalAlloc(GHND, sizeof(DROPDESCRIPTION));
@@ -773,13 +736,6 @@ void CSVNEnumFormatEtc::Init(bool localonly)
     index++;
 
     m_formats[index].cfFormat = CF_SHELLURL;
-    m_formats[index].dwAspect = DVASPECT_CONTENT;
-    m_formats[index].lindex = -1;
-    m_formats[index].ptd = NULL;
-    m_formats[index].tymed = TYMED_HGLOBAL;
-    index++;
-
-    m_formats[index].cfFormat = CF_FILE_ATTRIBUTES_ARRAY;
     m_formats[index].dwAspect = DVASPECT_CONTENT;
     m_formats[index].lindex = -1;
     m_formats[index].ptd = NULL;

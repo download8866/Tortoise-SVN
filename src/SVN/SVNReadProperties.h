@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -153,7 +153,7 @@ public:
     /**
      * Returns the object with all inherited properties.
      */
-    std::vector<std::tuple<std::string, std::multimap<std::string,std::string>>> GetInheritedProperties() const { return m_inheritedProperties; }
+    std::vector<std::tuple<std::string, std::map<std::string,std::string>>> GetInheritedProperties() const { return m_inheritedProperties; }
 
     CTSVNPath GetPath() const { return m_path; }
 
@@ -162,10 +162,6 @@ public:
      */
     SVNRev GetRevision() const { return m_rev; }
 
-    /**
-     * Set to true to cancel operations
-     */
-    bool * m_bCancelled;
 private:        //methods
     /**
      * Builds the properties (again) and fills the apr_array_header_t structure.
@@ -182,7 +178,8 @@ protected:        //members
     apr_pool_t *                m_pool;             ///< memory pool baton
     CTSVNPath                   m_path;             ///< the path to the file/directory this properties object acts upon
     apr_hash_t *                m_props;
-    std::vector<std::tuple<std::string, std::multimap<std::string,std::string>>>  m_inheritedProperties;
+    apr_array_header_t *        m_inheritedprops;
+    std::vector<std::tuple<std::string, std::map<std::string,std::string>>>  m_inheritedProperties;
     int                         m_propCount;        ///< number of properties found
     SVNRev                      m_rev;
     bool                        m_bRevProps;

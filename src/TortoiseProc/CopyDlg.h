@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2013, 2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@
 #include "TSVNPath.h"
 #include "SVNRev.h"
 #include "SVN.h"
+#include "Tooltip.h"
 #include "PathEdit.h"
 #include "SVNExternals.h"
 #include "HintCtrl.h"
@@ -90,6 +91,7 @@ protected:
     void            SetRevision(const SVNRev& rev);
     void            ToggleCheckbox(int index);
     void            OnComError( HRESULT hr );
+    void            ScanWC(const CTSVNPath& path, const std::string& sUUID);
 public:
     CString         m_URL;
     CTSVNPath       m_path;
@@ -110,6 +112,7 @@ private:
     CString         m_wcURL;
     CButton         m_butBrowse;
     CRegHistory     m_History;
+    CToolTips       m_tooltips;
     CPathEdit       m_FromUrl;
     CPathEdit       m_DestUrl;
     CHintCtrl<CListCtrl> m_ExtList;

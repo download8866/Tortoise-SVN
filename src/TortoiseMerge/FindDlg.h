@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2010, 2013-2014 - TortoiseSVN
+// Copyright (C) 2006-2007, 2010, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,9 +21,6 @@
 #include <afxcmn.h>
 #include "HistoryCombo.h"
 
-#define REPLACEMSGSTRINGW  L"TortoiseMerge_FindReplace"
-
-
 /**
  * \ingroup TortoiseMerge
  * Find dialog used in TortoiseMerge.
@@ -41,22 +38,10 @@ public:
     bool MatchCase() {return !!m_bMatchCase;}
     bool LimitToDiffs() {return !!m_bLimitToDiffs;}
     bool WholeWord() {return !!m_bWholeWord;}
-    bool SearchUp() { return !!m_bSearchUp; }
-    CString GetFindString() { return m_FindCombo.GetString(); }
-    CString GetReplaceString() { return m_ReplaceCombo.GetString(); }
-    void SetFindString(const CString& str) { if (!str.IsEmpty()) { m_FindCombo.SetWindowText(str); } }
-    void SetStatusText(const CString& str, COLORREF color = RGB(0, 0, 255));
-    void SetReadonly(bool bReadonly);
+    CString GetFindString() {return m_FindCombo.GetString();}
+    void SetFindString(const CString& str) { if (!str.IsEmpty()){ m_FindCombo.SetWindowText(str);} }
 // Dialog Data
     enum { IDD = IDD_FIND };
-
-    enum FindType
-    {
-        Find,
-        Count,
-        Replace,
-        ReplaceAll
-    };
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
@@ -67,10 +52,6 @@ protected:
     virtual void OnOK();
     virtual BOOL OnInitDialog();
     afx_msg void OnCbnEditchangeFindcombo();
-    afx_msg void OnBnClickedCount();
-    afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd *pWnd, UINT nCtlColor);
-    afx_msg void OnBnClickedReplace();
-    afx_msg void OnBnClickedReplaceall();
 private:
     UINT            m_FindMsg;
     bool            m_bTerminating;
@@ -78,14 +59,9 @@ private:
     BOOL            m_bMatchCase;
     BOOL            m_bLimitToDiffs;
     BOOL            m_bWholeWord;
-    BOOL            m_bSearchUp;
     CHistoryCombo   m_FindCombo;
-    CHistoryCombo   m_ReplaceCombo;
-    CStatic         m_FindStatus;
     CWnd *          m_pParent;
     CRegDWORD       m_regMatchCase;
     CRegDWORD       m_regLimitToDiffs;
     CRegDWORD       m_regWholeWord;
-    COLORREF        m_clrFindStatus;
-    bool            m_bReadonly;
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2007-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,6 +25,7 @@
 #include "ProgressDlg.h"
 #include "BrowseFolder.h"
 #include "DirFileEnum.h"
+#include "MessageBox.h"
 #include "SVNStatus.h"
 #include "SVN.h"
 
@@ -46,9 +47,9 @@ bool ExportCommand::Execute()
             dlg.m_URL = cmdLinePath.GetSVNPathString();
         else
             dlg.m_strExportDirectory = cmdLinePath.GetWinPathString();
-        if (parser.HasKey(L"revision"))
+        if (parser.HasKey(_T("revision")))
         {
-            SVNRev Rev = SVNRev(parser.GetVal(L"revision"));
+            SVNRev Rev = SVNRev(parser.GetVal(_T("revision")));
             dlg.Revision = Rev;
         }
         dlg.m_blockPathAdjustments = parser.HasKey(L"blockpathadjustments");
@@ -62,11 +63,11 @@ bool ExportCommand::Execute()
             progDlg.SetAutoClose (parser);
             DWORD options = dlg.m_bNoExternals ? ProgOptIgnoreExternals : ProgOptNone;
             options |= dlg.m_bNoKeywords ? ProgOptIgnoreKeywords : ProgOptNone;
-            if (dlg.m_eolStyle.CompareNoCase(L"CRLF")==0)
+            if (dlg.m_eolStyle.CompareNoCase(_T("CRLF"))==0)
                 options |= ProgOptEolCRLF;
-            if (dlg.m_eolStyle.CompareNoCase(L"CR")==0)
+            if (dlg.m_eolStyle.CompareNoCase(_T("CR"))==0)
                 options |= ProgOptEolCR;
-            if (dlg.m_eolStyle.CompareNoCase(L"LF")==0)
+            if (dlg.m_eolStyle.CompareNoCase(_T("LF"))==0)
                 options |= ProgOptEolLF;
             progDlg.SetOptions(options);
             progDlg.SetPathList(CTSVNPathList(exportPath));
@@ -90,7 +91,7 @@ bool ExportCommand::Execute()
         strTemp.LoadString(IDS_PROC_OMMITEXTERNALS);
         folderBrowser.SetCheckBoxText2(strTemp);
         folderBrowser.DisableCheckBox2WhenCheckbox1IsEnabled(true);
-        CRegDWORD regExtended = CRegDWORD(L"Software\\TortoiseSVN\\ExportExtended", FALSE);
+        CRegDWORD regExtended = CRegDWORD(_T("Software\\TortoiseSVN\\ExportExtended"), FALSE);
         CBrowseFolder::m_bCheck = regExtended;
         TCHAR saveto[MAX_PATH] = { 0 };
         if (folderBrowser.Show(GetExplorerHWND(), saveto, _countof(saveto))==CBrowseFolder::OK)
@@ -103,21 +104,31 @@ bool ExportCommand::Execute()
                 // remove all svn admin dirs, effectively unversion the 'exported' folder.
                 CString msg;
                 msg.Format(IDS_PROC_EXPORTUNVERSION, (LPCTSTR)saveplace);
-                CTaskDialog taskdlg(msg,
-                                    CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK2)),
-                                    L"TortoiseSVN",
-                                    0,
-                                    TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
-                taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK3)));
-                taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK4)));
-                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                taskdlg.SetDefaultCommandControl(1);
-                taskdlg.SetMainIcon(TD_WARNING_ICON);
-                bool bUnversion = (taskdlg.DoModal(GetExplorerHWND()) == 1);
+                bool bUnversion = false;
+                if (CTaskDialog::IsSupported())
+                {
+                    CTaskDialog taskdlg(msg,
+                                        CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK2)),
+                                        L"TortoiseSVN",
+                                        0,
+                                        TDF_ENABLE_HYPERLINKS|TDF_USE_COMMAND_LINKS|TDF_ALLOW_DIALOG_CANCELLATION|TDF_POSITION_RELATIVE_TO_WINDOW);
+                    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK3)));
+                    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_PROC_EXPORTUNVERSION_TASK4)));
+                    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                    taskdlg.SetDefaultCommandControl(1);
+                    taskdlg.SetMainIcon(TD_WARNING_ICON);
+                    bUnversion = (taskdlg.DoModal(GetExplorerHWND()) == 1);
+                }
+                else
+                {
+                    bUnversion = (MessageBox(GetExplorerHWND(), msg, _T("TortoiseSVN"), MB_ICONQUESTION|MB_YESNO) == IDYES);
+                }
+
                 if (bUnversion)
                 {
                     CProgressDlg progress;
                     progress.SetTitle(IDS_PROC_UNVERSION);
+                    progress.SetAnimation(IDR_MOVEANI);
                     progress.FormatNonPathLine(1, IDS_SVNPROGRESS_EXPORTINGWAIT);
                     progress.SetTime(true);
                     progress.ShowModeless(GetExplorerHWND());
@@ -150,7 +161,7 @@ bool ExportCommand::Execute()
             }
             else
             {
-                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": export %s to %s\n", (LPCTSTR)cmdLinePath.GetUIPathString(), (LPCTSTR)saveto);
+                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": export %s to %s\n"), (LPCTSTR)cmdLinePath.GetUIPathString(), (LPCTSTR)saveto);
                 SVN svn;
                 if (!svn.Export(cmdLinePath, CTSVNPath(saveplace), SVNRev::REV_WC,
                     SVNRev::REV_WC, false, !!folderBrowser.m_bCheck2, false, svn_depth_infinity,

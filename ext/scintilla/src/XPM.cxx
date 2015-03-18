@@ -5,8 +5,8 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include <vector>
 #include <map>
@@ -47,7 +47,7 @@ ColourDesired XPM::ColourFromCode(int ch) const {
 
 void XPM::FillRun(Surface *surface, int code, int startX, int y, int x) {
 	if ((code != codeTransparent) && (startX != x)) {
-		PRectangle rc = PRectangle::FromInts(startX, y, x, y + 1);
+		PRectangle rc(startX, y, x, y+1);
 		surface->FillRectangle(rc, ColourFromCode(code));
 	}
 }
@@ -61,9 +61,11 @@ XPM::XPM(const char *const *linesForm) {
 }
 
 XPM::~XPM() {
+	Clear();
 }
 
 void XPM::Init(const char *textForm) {
+	Clear();
 	// Test done is two parts to avoid possibility of overstepping the memory
 	// if memcmp implemented strangely. Must be 4 bytes at least at destination.
 	if ((0 == memcmp(textForm, "/* X", 4)) && (0 == memcmp(textForm, "/* XPM */", 9))) {
@@ -79,6 +81,7 @@ void XPM::Init(const char *textForm) {
 }
 
 void XPM::Init(const char *const *linesForm) {
+	Clear();
 	height = 1;
 	width = 1;
 	nColours = 1;
@@ -109,7 +112,7 @@ void XPM::Init(const char *const *linesForm) {
 		if (*colourDef == '#') {
 			colour.Set(colourDef);
 		} else {
-			codeTransparent = static_cast<char>(code);
+			codeTransparent = code;
 		}
 		colourCodeTable[code] = colour;
 	}
@@ -117,9 +120,12 @@ void XPM::Init(const char *const *linesForm) {
 	for (int y=0; y<height; y++) {
 		const char *lform = linesForm[y+nColours+1];
 		size_t len = MeasureLength(lform);
-		for (size_t x = 0; x<len; x++)
+		for (size_t x = 0; x<len; x++) 
 			pixels[y * width + x] = static_cast<unsigned char>(lform[x]);
 	}
+}
+
+void XPM::Clear() {
 }
 
 void XPM::Draw(Surface *surface, PRectangle &rc) {
@@ -127,8 +133,8 @@ void XPM::Draw(Surface *surface, PRectangle &rc) {
 		return;
 	}
 	// Centre the pixmap
-	int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
-	int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
+	int startY = rc.top + (rc.Height() - height) / 2;
+	int startX = rc.left + (rc.Width() - width) / 2;
 	for (int y=0; y<height; y++) {
 		int prevCode = 0;
 		int xStartRun = 0;
@@ -238,7 +244,7 @@ void RGBAImage::SetPixel(int x, int y, ColourDesired colour, int alpha) {
 	pixel[3] = static_cast<unsigned char>(alpha);
 }
 
-RGBAImageSet::RGBAImageSet() : height(-1), width(-1) {
+RGBAImageSet::RGBAImageSet() : height(-1), width(-1){
 }
 
 RGBAImageSet::~RGBAImageSet() {

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010, 2012-2015 - TortoiseSVN
+// Copyright (C) 2008-2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "SetBugTraqAdv.h"
 #include "BrowseFolder.h"
 #include "COMError.h"
+#include "MessageBox.h"
 #include "BugTraqAssociations.h"
 #include "../IBugTraqProvider/IBugTraqProvider_h.h"
 
@@ -96,6 +97,7 @@ BOOL CSetBugTraqAdv::OnInitDialog()
             break;
         }
     }
+    m_tooltips.Create(this);
 
     UpdateData(FALSE);
     CheckHasOptions();
@@ -112,7 +114,7 @@ BOOL CSetBugTraqAdv::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"SetBugTraqAdvDlg");
+    EnableSaveRestore(_T("SetBugTraqAdvDlg"));
     return TRUE;
 }
 
@@ -149,8 +151,7 @@ void CSetBugTraqAdv::OnOK()
     VARIANT_BOOL valid;
     ATL::CComBSTR parameters;
     parameters.Attach(m_sParameters.AllocSysString());
-    hr = pProvider->ValidateParameters(GetSafeHwnd(), parameters, &valid);
-    if (FAILED(hr))
+    if (FAILED(hr = pProvider->ValidateParameters(GetSafeHwnd(), parameters, &valid)))
     {
         ShowEditBalloon(IDC_BUGTRAQPARAMETERS, IDS_ERR_PROVIDER_VALIDATE_FAILED, IDS_ERR_ERROR, TTI_ERROR);
         return;
@@ -179,11 +180,13 @@ void CSetBugTraqAdv::OnBnClickedBugTraqbrowse()
 {
     CBrowseFolder browser;
     CString sPath;
-    GetDlgItemText(IDC_BUGTRAQPATH, sPath);
     browser.SetInfo(CString(MAKEINTRESOURCE(IDS_SETTINGS_BUGTRAQ_SELECTFOLDERPATH)));
     browser.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
     if (browser.Show(m_hWnd, sPath) == CBrowseFolder::OK)
-        SetDlgItemText(IDC_BUGTRAQPATH, sPath);
+    {
+        m_sPath = sPath;
+        UpdateData(FALSE);
+    }
 }
 
 void CSetBugTraqAdv::OnBnClickedHelp()
@@ -263,8 +266,13 @@ void CSetBugTraqAdv::OnBnClickedOptions()
             COMError ce(hr);
             CString sErr;
             sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, ce.GetSource().c_str(), ce.GetMessageAndDescription().c_str());
-            ::MessageBox(m_hWnd, sErr, L"TortoiseSVN", MB_ICONERROR);
+            ::MessageBox(m_hWnd, sErr, _T("TortoiseSVN"), MB_ICONERROR);
         }
     }
 }
 
+BOOL CSetBugTraqAdv::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
+}

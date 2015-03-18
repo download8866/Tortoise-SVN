@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2008, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "SettingsPropPage.h"
 #include "SetProgsAdvDlg.h"
 #include "FileDropEdit.h"
+#include "Tooltip.h"
 
 /**
  * \ingroup TortoiseProc
@@ -43,6 +44,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 public:
     virtual BOOL OnInitDialog();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual BOOL OnApply();
     afx_msg void OnBnClickedExtmergeOff();
     afx_msg void OnBnClickedExtmergeOn();
@@ -50,13 +52,14 @@ public:
     afx_msg void OnBnClickedExtmergeadvanced();
     afx_msg void OnEnChangeExtmerge();
 private:
-    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != L"#"; }
+    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
     void CheckProgComment();
 private:
     CString         m_sMergePath;
     CRegString      m_regMergePath;
     int             m_iExtMerge;
     CSetProgsAdvDlg m_dlgAdvMerge;
+    CToolTips       m_tooltips;
 
     CFileDropEdit   m_cMergeEdit;
 };

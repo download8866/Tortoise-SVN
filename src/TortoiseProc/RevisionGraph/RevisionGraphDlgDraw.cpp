@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "TortoiseProc.h"
 #include "MyMemDC.h"
 #include "RevisionGraphDlg.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "TempFile.h"
 #include "UnicodeUtils.h"
@@ -60,7 +61,7 @@ CFont* CRevisionGraphWnd::GetFont(BOOL bItalic /*= FALSE*/, BOOL bBold /*= FALSE
         ReleaseDC(pDC);
         // use the empty font name, so GDI takes the first font which matches
         // the specs. Maybe this will help render chinese/japanese chars correctly.
-        wcsncpy_s(m_lfBaseFont.lfFaceName, L"MS Shell Dlg 2", 32);
+        _tcsncpy_s(m_lfBaseFont.lfFaceName, _T("MS Shell Dlg 2"), 32);
         if (!m_apFonts[nIndex]->CreateFontIndirect(&m_lfBaseFont))
         {
             delete m_apFonts[nIndex];
@@ -695,7 +696,7 @@ void CRevisionGraphWnd::IndicateGlyphDirection
 
     // draw the indication (only one condition should match)
 
-    RectF glyphCenter = (indicateAbove ^ upsideDown)
+    RectF glyphCenter = indicateAbove ^ upsideDown
         ? RectF (nodeRect.X, nodeRect.Y - 1.0f, 0.0f, 0.0f)
         : RectF (nodeRect.X, nodeRect.GetBottom() - 1.0f, 0.0f, 0.0f);
 

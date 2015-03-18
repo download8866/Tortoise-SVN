@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,14 +31,15 @@ CEditPropBugtraq::CEditPropBugtraq(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CEditPropBugtraq::IDD, pParent)
     , EditPropBase()
     , m_bWarnIfNoIssue(FALSE)
-    , m_sBugtraqUrl(L"")
-    , m_sBugtraqMessage(L"")
-    , m_sBugtraqLabel(L"")
-    , m_sBugtraqRegex1(L"")
-    , m_sBugtraqRegex2(L"")
-    , m_sProviderUUID(L"")
-    , m_sProviderUUID64(L"")
-    , m_sProviderParams(L"")
+    , m_sBugtraqUrl(_T(""))
+    , m_sBugtraqMessage(_T(""))
+    , m_sBugtraqLabel(_T(""))
+    , m_sBugtraqRegex1(_T(""))
+    , m_sBugtraqRegex2(_T(""))
+    , m_sProviderUUID(_T(""))
+    , m_sProviderUUID64(_T(""))
+    , m_sProviderParams(_T(""))
+    , m_height(0)
 {
 
 }
@@ -67,6 +68,7 @@ void CEditPropBugtraq::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CEditPropBugtraq, CResizableStandAloneDialog)
     ON_BN_CLICKED(IDHELP, &CEditPropBugtraq::OnBnClickedHelp)
+    ON_WM_SIZING()
     ON_BN_CLICKED(IDC_TESTREGEX, &CEditPropBugtraq::OnBnClickedTestregex)
 END_MESSAGE_MAP()
 
@@ -77,7 +79,6 @@ BOOL CEditPropBugtraq::OnInitDialog()
 {
     CResizableStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
-    BlockResize(DIALOG_BLOCKVERTICAL);
 
     ExtendFrameIntoClientArea(IDC_DWM);
     m_aeroControls.SubclassControl(this, IDC_PROPRECURSIVE);
@@ -86,7 +87,7 @@ BOOL CEditPropBugtraq::OnInitDialog()
     CheckRadioButton(IDC_TOPRADIO, IDC_BOTTOMRADIO, IDC_BOTTOMRADIO);
     CheckRadioButton(IDC_TEXTRADIO, IDC_NUMERICRADIO, IDC_NUMERICRADIO);
 
-    for (auto it = m_properties.begin(); it != m_properties.end(); ++it)
+    for (IT it = m_properties.begin(); it != m_properties.end(); ++it)
     {
         if (it->second.isinherited)
             continue;
@@ -129,18 +130,18 @@ BOOL CEditPropBugtraq::OnInitDialog()
         else if (it->first.compare(BUGTRAQPROPNAME_WARNIFNOISSUE) == 0)
         {
             CString sYesNo = CUnicodeUtils::StdGetUnicode(it->second.value).c_str();
-            m_bWarnIfNoIssue = ((sYesNo.CompareNoCase(L"yes") == 0)||((sYesNo.CompareNoCase(L"true") == 0)));
+            m_bWarnIfNoIssue = ((sYesNo.CompareNoCase(_T("yes")) == 0)||((sYesNo.CompareNoCase(_T("true")) == 0)));
         }
         else if (it->first.compare(BUGTRAQPROPNAME_APPEND) == 0)
         {
             CString sYesNo = CUnicodeUtils::StdGetUnicode(it->second.value).c_str();
-            if ((sYesNo.CompareNoCase(L"no") == 0)||((sYesNo.CompareNoCase(L"false") == 0)))
+            if ((sYesNo.CompareNoCase(_T("no")) == 0)||((sYesNo.CompareNoCase(_T("false")) == 0)))
                 CheckRadioButton(IDC_TOPRADIO, IDC_BOTTOMRADIO, IDC_TOPRADIO);
         }
         else if (it->first.compare(BUGTRAQPROPNAME_NUMBER) == 0)
         {
             CString sYesNo = CUnicodeUtils::StdGetUnicode(it->second.value).c_str();
-            if ((sYesNo.CompareNoCase(L"no") == 0)||((sYesNo.CompareNoCase(L"false") == 0)))
+            if ((sYesNo.CompareNoCase(_T("no")) == 0)||((sYesNo.CompareNoCase(_T("false")) == 0)))
                 CheckRadioButton(IDC_TEXTRADIO, IDC_NUMERICRADIO, IDC_TEXTRADIO);
         }
     }
@@ -149,6 +150,7 @@ BOOL CEditPropBugtraq::OnInitDialog()
     GetWindowText(sWindowTitle);
     CAppUtils::SetWindowTitle(m_hWnd, m_pathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_TESTREGEX, IDS_EDITPROPS_TESTREGEX_TT);
     UpdateData(false);
 
@@ -158,6 +160,10 @@ BOOL CEditPropBugtraq::OnInitDialog()
     AdjustControlSize(IDC_TOPRADIO);
     AdjustControlSize(IDC_BOTTOMRADIO);
     AdjustControlSize(IDC_PROPRECURSIVE);
+
+    RECT rect;
+    GetWindowRect(&rect);
+    m_height = rect.bottom - rect.top;
 
     GetDlgItem(IDC_PROPRECURSIVE)->EnableWindow(m_bFolder || m_bMultiple);
     GetDlgItem(IDC_PROPRECURSIVE)->ShowWindow(m_bRevProps || m_bRemote ? SW_HIDE : SW_SHOW);
@@ -198,7 +204,7 @@ BOOL CEditPropBugtraq::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"EditPropBugtraq");
+    EnableSaveRestore(_T("EditPropBugtraq"));
 
     GetDlgItem(IDC_BUGTRAQURL)->SetFocus();
     return FALSE;
@@ -239,7 +245,7 @@ void CEditPropBugtraq::OnOK()
     std::string propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqUrl);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_URL, pVal));
+    newProps[BUGTRAQPROPNAME_URL] = pVal;
 
     // bugtraq:warnifnoissue
     if (m_bWarnIfNoIssue)
@@ -247,19 +253,19 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value = "";
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_WARNIFNOISSUE, pVal));
+    newProps[BUGTRAQPROPNAME_WARNIFNOISSUE] = pVal;
 
     // bugtraq:message
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqMessage);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_MESSAGE, pVal));
+    newProps[BUGTRAQPROPNAME_MESSAGE] = pVal;
 
     // bugtraq:label
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sBugtraqLabel);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_LABEL, pVal));
+    newProps[BUGTRAQPROPNAME_LABEL] = pVal;
 
     // bugtraq:number
     int checked = GetCheckedRadioButton(IDC_TEXTRADIO, IDC_NUMERICRADIO);
@@ -268,7 +274,7 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value.clear();
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_NUMBER, pVal));
+    newProps[BUGTRAQPROPNAME_NUMBER] = pVal;
 
     // bugtraq:append
     checked = GetCheckedRadioButton(IDC_TOPRADIO, IDC_BOTTOMRADIO);
@@ -277,10 +283,10 @@ void CEditPropBugtraq::OnOK()
     else
         pVal.value.clear();
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_APPEND, pVal));
+    newProps[BUGTRAQPROPNAME_APPEND] = pVal;
 
     // bugtraq:logregex
-    CString sLogRegex = m_sBugtraqRegex2 + L"\n" + m_sBugtraqRegex1;
+    CString sLogRegex = m_sBugtraqRegex2 + _T("\n") + m_sBugtraqRegex1;
     if (m_sBugtraqRegex1.IsEmpty() && m_sBugtraqRegex2.IsEmpty())
         sLogRegex.Empty();
     if (m_sBugtraqRegex2.IsEmpty() && !m_sBugtraqRegex1.IsEmpty())
@@ -290,31 +296,50 @@ void CEditPropBugtraq::OnOK()
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)sLogRegex);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_LOGREGEX, pVal));
+    newProps[BUGTRAQPROPNAME_LOGREGEX] = pVal;
 
     // bugtraq:providerparams
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderParams);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERPARAMS, pVal));
+    newProps[BUGTRAQPROPNAME_PROVIDERPARAMS] = pVal;
 
     // bugtraq:provideruuid
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderUUID);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERUUID, pVal));
+    newProps[BUGTRAQPROPNAME_PROVIDERUUID] = pVal;
 
     // bugtraq:provideruuid64
     propVal = CUnicodeUtils::StdGetUTF8((LPCTSTR)m_sProviderUUID64);
     pVal.value = propVal;
     pVal.remove = (pVal.value.empty());
-    newProps.insert(std::make_pair(BUGTRAQPROPNAME_PROVIDERUUID64, pVal));
+    newProps[BUGTRAQPROPNAME_PROVIDERUUID64] = pVal;
 
     m_bChanged = true;
 
     m_properties = newProps;
 
     CResizableStandAloneDialog::OnOK();
+}
+
+void CEditPropBugtraq::OnSizing(UINT fwSide, LPRECT pRect)
+{
+    // don't allow the dialog to be changed in height
+    switch (fwSide)
+    {
+    case WMSZ_BOTTOM:
+    case WMSZ_BOTTOMLEFT:
+    case WMSZ_BOTTOMRIGHT:
+        pRect->bottom = pRect->top + m_height;
+        break;
+    case WMSZ_TOP:
+    case WMSZ_TOPLEFT:
+    case WMSZ_TOPRIGHT:
+        pRect->top = pRect->bottom - m_height;
+        break;
+    }
+    CResizableStandAloneDialog::OnSizing(fwSide, pRect);
 }
 
 void CEditPropBugtraq::OnBnClickedHelp()
@@ -334,5 +359,12 @@ void CEditPropBugtraq::OnBnClickedTestregex()
         m_sBugtraqRegex2 = dlg.m_sBugtraqRegex2;
         UpdateData(FALSE);
     }
+}
+
+BOOL CEditPropBugtraq::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+
+    return __super::PreTranslateMessage(pMsg);
 }
 

@@ -115,55 +115,52 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Resources\alphatoggle.ico">
+    <Image Include="resources\alphatoggle.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\blend.ico">
+    <Image Include="resources\blend.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\fitinwindow.ico">
+    <Image Include="resources\fitinwindow.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\imginfo.ico">
+    <Image Include="resources\fittogether.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\link.ico">
+    <Image Include="resources\imginfo.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\origsize.ico">
+    <Image Include="resources\link.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\overlap.ico">
+    <Image Include="resources\origsize.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\player_fwd.ico">
+    <Image Include="resources\overlap.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\player_rew.ico">
+    <Image Include="resources\player_fwd.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\player_start.ico">
+    <Image Include="resources\player_rew.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\player_stop.ico">
+    <Image Include="resources\player_start.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\TortoiseIDiff.ico">
+    <Image Include="resources\player_stop.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\vertical.ico">
+    <Image Include="resources\TortoiseIDiff.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\zoomin.ico">
+    <Image Include="resources\vertical.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\zoomout.ico">
+    <Image Include="resources\zoomin.ico">
       <Filter>Resource Files</Filter>
     </Image>
-    <Image Include="Resources\fitheights.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="Resources\fitwidths.ico">
+    <Image Include="resources\zoomout.ico">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

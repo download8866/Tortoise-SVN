@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013, 2015 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,17 +24,7 @@
 #include "ProjectProperties.h"
 #include "PersonalDictionary.h"
 #include <regex>
-#include <spellcheck.h>
 
-#define AUTOCOMPLETE_SPELLING       0
-#define AUTOCOMPLETE_FILENAME       1
-#define AUTOCOMPLETE_PROGRAMCODE    2
-#define AUTOCOMPLETE_SNIPPET        3
-
-_COM_SMARTPTR_TYPEDEF(ISpellCheckerFactory, __uuidof(ISpellCheckerFactory));
-_COM_SMARTPTR_TYPEDEF(ISpellChecker, __uuidof(ISpellChecker));
-_COM_SMARTPTR_TYPEDEF(IEnumSpellingError, __uuidof(IEnumSpellingError));
-_COM_SMARTPTR_TYPEDEF(ISpellingError, __uuidof(ISpellingError));
 
 //forward declaration
 class CSciEdit;
@@ -65,7 +55,6 @@ public:
      * it should return \a false
      */
     virtual bool        HandleMenuItemClick(int cmd, CSciEdit * pSciEdit);
-    virtual void        HandleSnippet(int type, const CString &text, CSciEdit *pSciEdit);
 };
 
 /**
@@ -86,8 +75,6 @@ public:
      */
     void        Init(const ProjectProperties& props);
     void        Init(LONG lLanguage = 0);
-    void        SetIcon(const std::map<int, UINT> &icons);
-
     /**
      * Execute a scintilla command, e.g. SCI_GETLINE.
      */
@@ -114,7 +101,7 @@ public:
     /**
      * Adds a list of words for use in auto completion.
      */
-    void        SetAutoCompletionList(std::map<CString, int>&& list, TCHAR separator = ';', TCHAR typeSeparator = '?');
+    void        SetAutoCompletionList(const std::set<CString>& list, const TCHAR separator = ';');
     /**
      * Returns the word located under the cursor.
      */
@@ -135,9 +122,8 @@ private:
     Hunspell *  pChecker;
     MyThes *    pThesaur;
     UINT        m_spellcodepage;
-    std::map<CString, int> m_autolist;
+    std::set<CString> m_autolist;
     TCHAR       m_separator;
-    TCHAR       m_typeSeparator;
     CStringA    m_sCommand;
     CStringA    m_sBugID;
     CString     m_sUrl;
@@ -146,8 +132,6 @@ private:
     CPersonalDictionary m_personalDict;
     bool        m_bDoStyle;
     int         m_nAutoCompleteMinChars;
-    ISpellCheckerFactoryPtr     m_spellCheckerFactory;
-    ISpellCheckerPtr            m_SpellChecker;
     static bool IsValidURLChar(unsigned char ch);
 protected:
     virtual BOOL OnChildNotify(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pLResult);

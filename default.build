@@ -21,8 +21,8 @@
   <!-- default: we build in a user session -->
   <property name="schedule" value="no" />
   <!-- the ${subsystem} to use -->
-  <property name="subsystem" value="/SUBSYSTEM:WINDOWS" />
-  <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE" />
+  <property name="subsystem" value="/SUBSYSTEM:WINDOWS,5.01" />
+  <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE,5.01" />
 
   <!-- make sure the user config file exists -->
   <property name="userconfigfile"
@@ -71,8 +71,8 @@
     </description>
     <property name="platform" value="x64" />
     <property name="bindirextension" value="64" />
-    <property name="subsystem" value="/SUBSYSTEM:WINDOWS" />
-    <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE" />
+    <property name="subsystem" value="/SUBSYSTEM:WINDOWS,5.02" />
+    <property name="subsystemcl" value="/SUBSYSTEM:CONSOLE,5.02" />
   </target>
 
   <target name="cross" depends="x64">
@@ -106,6 +106,19 @@
   <!-- ====================================================================== -->
   <!-- Project targets                                                        -->
   <!-- ====================================================================== -->
+
+  <target name="xp">
+    <!--
+      To target Windows XP with VS2012 as well, we have to set a few
+      environment variables up.
+    -->
+    <setenv>
+      <variable name="INCLUDE" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%" />
+      <variable name="PATH" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Bin;%PATH%" />
+      <variable name="LIB" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib;%LIB%" if="${platform == 'win32'}" />
+      <variable name="LIB" value="%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Lib\x64;%LIB%" if="${platform == 'x64'}" />
+    </setenv>
+  </target>
 
   <target name="clean" depends="VSNET">
     <description>
@@ -221,7 +234,7 @@
     </nant>
   </target>
 
-  <target name="TortoiseSVN" depends="VSNET,env,editorconfig">
+  <target name="TortoiseSVN" depends="VSNET,env">
     <description>
       Builds TortoiseSVN. The libraries must have been built
       before.
@@ -229,18 +242,6 @@
     <nant target="TortoiseSVN">
       <buildfiles>
         <include name="src\TortoiseSVN.build" />
-      </buildfiles>
-    </nant>
-  </target>
-
-  <target name="editorconfig" depends="VSNET,env">
-    <description>
-      Builds editorconfig. The library must have been built
-      before TortoiseMerge.
-    </description>
-    <nant target="build">
-      <buildfiles>
-        <include name="ext\build\editorconfig.build" />
       </buildfiles>
     </nant>
   </target>
@@ -311,32 +312,6 @@
     </if>
   </target>
 
-  <target name="tabspace" depends="env">
-    <description>
-      Runs the tabspace utility on our source files, including the doc xml files
-    </description>
-    <foreach item="Folder" property="foldername">
-      <in>
-        <items>
-          <include name="src" />
-          <include name="doc\source\en" />
-          <include name="contrib\diff-scripts" />
-          <include name="contrib\hook-scripts" />
-        </items>
-      </in>
-      <do>
-        <echo message="tabspace for folder ${foldername}" />
-        <exec program="tabspace${bindirextension}.exe">
-          <arg value="/path:${foldername}" />
-          <!-- include all our own files -->
-          <arg value="/ext:c;cc;cpp;cs;cxx;h;hpp;hxx;build;txt;in;wxs;wxi;def;rc2;bat;js;vbs;idl;tmpl;sh" />
-          <!-- exclude generated source files -->
-          <arg value="/exclude:resource.h;dlldata.c;IBugTraqProvider_h.h;IBugTraqProvider_i.c;IBugTraqProvider_p.c;SubWCRevCOM_h.h;SubWCRevCOM_i.c" />
-        </exec>
-      </do>
-    </foreach>
-  </target>
-
   <target name="MakeRelease" depends="VSNET,env,clean,setup">
     <description>
       executes all Nant targets required for a release.
@@ -346,7 +321,7 @@
   <target name="uploadsymbols" depends="env,VersionInfo">
     <description>
       Uploads all the debug symbols and binaries to the crash report
-      server http://drdump.com
+      server http://crash-server.com
     </description>
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
     <property name="platformfoldername" value=""   if="${platform == 'win32'}" />
@@ -361,7 +336,6 @@
       <try>
         <exec program="ext\CrashServer\SymUpload.exe">
           <arg value="-publish" />
-          <arg value="-noprogress" />
           <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
           <arg value="${verstring}" />
           <arg value="0" />
@@ -374,7 +348,6 @@
           <try>
             <exec program="ext\CrashServer\SymUpload.exe">
               <arg value="-publish" />
-              <arg value="-noprogress" />
               <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
               <arg value="${verstring}" />
               <arg value="0" />
@@ -387,7 +360,6 @@
               <try>
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -398,7 +370,6 @@
                 <sleep minutes="5" />
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -415,7 +386,6 @@
       <try>
         <exec program="ext\CrashServer\SymUpload.exe">
           <arg value="-publish" />
-          <arg value="-noprogress" />
           <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
           <arg value="${verstring}" />
           <arg value="0" />
@@ -428,7 +398,6 @@
           <try>
             <exec program="ext\CrashServer\SymUpload.exe">
               <arg value="-publish" />
-              <arg value="-noprogress" />
               <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
               <arg value="${verstring}" />
               <arg value="0" />
@@ -441,7 +410,6 @@
               <try>
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -452,7 +420,6 @@
                 <sleep minutes="5" />
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -469,7 +436,6 @@
       <try>
         <exec program="ext\CrashServer\SymUpload.exe">
           <arg value="-publish" />
-          <arg value="-noprogress" />
           <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
           <arg value="${verstring}" />
           <arg value="0" />
@@ -482,7 +448,6 @@
           <try>
             <exec program="ext\CrashServer\SymUpload.exe">
               <arg value="-publish" />
-              <arg value="-noprogress" />
               <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
               <arg value="${verstring}" />
               <arg value="0" />
@@ -495,7 +460,6 @@
               <try>
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -506,7 +470,6 @@
                 <sleep minutes="5" />
                 <exec program="ext\CrashServer\SymUpload.exe">
                   <arg value="-publish" />
-                  <arg value="-noprogress" />
                   <arg value="71040f62-f78a-4953-b5b3-5c148349fed7" />
                   <arg value="${verstring}" />
                   <arg value="0" />
@@ -518,26 +481,6 @@
         </trycatch>
       </catch>
     </trycatch>
-  </target>
-
-  <target name="init" depends="VSNET,env">
-    <description>
-      Initializes the build, fetches the tools if not already available
-    </description>
-    <if test="${not file::exists(userconfigfile)}">
-      <echo>
-        The file ${userconfigfile} is missing. We will auto-create it
-        from the ${userconfigtemplate} file. Please consider adapting
-        it to your needs.
-      </echo>
-      <copy file="${userconfigtemplate}" tofile="${userconfigfile}" />
-    </if>
-
-    <if test="${not directory::exists('Tools') or not file::exists('Tools/ver-1.8.0')}">
-      <get src="https://tortoisesvn.googlecode.com/files/Tools-1.8.0.zip" dest="tools.zip" />
-      <unzip zipfile="tools.zip" />
-      <touch file="Tools\ver-1.8.0" />
-    </if>
   </target>
 
   <target name="changelog" depends="VSNET,env,VersionInfo">
@@ -674,7 +617,6 @@ Make sure to also check the [changelog of Subversion](http://svn.apache.org/repo
     <echo message="You must specify a target to tell us what you want to build!" />
     <echo />
     <echo message="The following targets are available:" />
-    <echo message="init         : initializes the build tools if required" />
     <echo message="binaries     : builds all binaries (TortoiseSVN, Subversion, Libs)" />
     <echo message="setup        : creates an msi installer for TortoiseSVN" />
     <echo />
@@ -689,20 +631,19 @@ Make sure to also check the [changelog of Subversion](http://svn.apache.org/repo
     <echo message="LanguagePacks: creates the Languagepack installers" />
     <echo message="msi          : creates the msi, but doesn't build the libs first" />
     <echo message="Overlays     : builds the TortoiseOverlays module" />
-    <echo message="tabspace     : cleans the code and documents up replacing tabs with spaces" />
     <echo />
     <echo message="The following targets can be used to tweak the builds:" />
-    <echo message="clean    : clean those targets which are built next" />
-    <echo message="debug    : if this target is called before other build targets," />
-    <echo message="           those targets are built with debug support" />
-    <echo message="release  : call this if you want to create official releases." />
-    <echo message="           It removes the '-dev' string from some builds" />
-    <echo message="x64      : call this if you want to create native 64 bit builds." />
-    <echo message="           (AMD64/EM64T only -- will not work on Itanium systems.)" />
-    <echo message="cross    : cross-compile on win32 for the given target platform." />
-    <echo message="           (currently only available with x64.)" />
-    <echo message="ipv6     : builds the packages with IPv6 support" />
-
+    <echo message="clean   : clean those targets which are built next" />
+    <echo message="debug   : if this target is called before other build targets," />
+    <echo message="          those targets are built with debug support" />
+    <echo message="release : call this if you want to create official releases." />
+    <echo message="          It removes the '-dev' string from some builds" />
+    <echo message="xp      : target Windows XP" />
+    <echo message="x64     : call this if you want to create native 64 bit builds." />
+    <echo message="          (AMD64/EM64T only -- will not work on Itanium systems.)" />
+    <echo message="cross   : cross-compile on win32 for the given target platform." />
+    <echo message="          (currently only available with x64.)" />
+    <echo message="ipv6    : builds the packages with IPv6 support" />
     <echo />
     <echo message="Please specify the configuration targets BEFORE the main target." />
     <echo message="Examples:" />
@@ -711,9 +652,6 @@ Make sure to also check the [changelog of Subversion](http://svn.apache.org/repo
     <echo message="nant release setup" />
     <echo message="nant -v x64 debug binaries" />
     <echo message="nant cross x64 setup" />
-    <echo />
-    <echo message="Remember to use the correct Visual Studio command prompt environment for your" />
-    <echo message="target [x64, cross, default x86] each build with different Visual Studio command prompts!" />
     <echo />
   </target>
 </project>

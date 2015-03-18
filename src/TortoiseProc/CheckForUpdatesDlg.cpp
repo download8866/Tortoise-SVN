@@ -19,11 +19,12 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "../version.h"
+#include "MessageBox.h"
 #include "CheckForUpdatesDlg.h"
 #include "registry.h"
 #include "AppUtils.h"
 #include "TempFile.h"
-
+#include "SysInfo.h"
 
 IMPLEMENT_DYNAMIC(CCheckForUpdatesDlg, CStandAloneDialog)
 CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
@@ -32,7 +33,7 @@ CCheckForUpdatesDlg::CCheckForUpdatesDlg(CWnd* pParent /*=NULL*/)
     , m_bVisible(FALSE)
     , m_bThreadRunning(FALSE)
 {
-    m_sUpdateDownloadLink = L"http://tortoisesvn.net";
+    m_sUpdateDownloadLink = _T("http://tortoisesvn.net");
 }
 
 CCheckForUpdatesDlg::~CCheckForUpdatesDlg()
@@ -74,7 +75,7 @@ BOOL CCheckForUpdatesDlg::OnInitDialog()
 
     if (AfxBeginThread(CheckThreadEntry, this)==NULL)
     {
-        TaskDialog(this->m_hWnd, AfxGetResourceHandle(), MAKEINTRESOURCE(IDS_APPNAME), MAKEINTRESOURCE(IDS_ERR_ERROROCCURED), MAKEINTRESOURCE(IDS_ERR_THREADSTARTFAILED), TDCBF_OK_BUTTON, TD_ERROR_ICON, NULL);
+        TSVNMessageBox(this->m_hWnd, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
     }
 
     SetTimer(100, 1000, NULL);
@@ -108,14 +109,14 @@ UINT CCheckForUpdatesDlg::CheckThread()
     CString temp;
     CString tempfile = CTempFiles::Instance().GetTempFilePath(true).GetWinPathString();
 
-    CRegString checkurluser = CRegString(L"Software\\TortoiseSVN\\UpdateCheckURL", L"");
-    CRegString checkurlmachine = CRegString(L"Software\\TortoiseSVN\\UpdateCheckURL", L"", FALSE, HKEY_LOCAL_MACHINE);
+    CRegString checkurluser = CRegString(_T("Software\\TortoiseSVN\\UpdateCheckURL"), _T(""));
+    CRegString checkurlmachine = CRegString(_T("Software\\TortoiseSVN\\UpdateCheckURL"), _T(""), FALSE, HKEY_LOCAL_MACHINE);
     CString sCheckURL = checkurluser;
     if (sCheckURL.IsEmpty())
     {
         sCheckURL = checkurlmachine;
         if (sCheckURL.IsEmpty())
-            sCheckURL = L"http://tortoisesvn.googlecode.com/svn/trunk/version.txt";
+            sCheckURL = _T("http://tortoisesvn.googlecode.com/svn/trunk/version.txt");
     }
     HRESULT res = URLDownloadToFile(NULL, sCheckURL, tempfile, 0, NULL);
     if (res == S_OK)
@@ -127,31 +128,37 @@ UINT CCheckForUpdatesDlg::CheckThread()
             if (file.ReadString(ver))
             {
                 CString vertemp = ver;
-                int major = _wtoi(vertemp);
+                int major = _ttoi(vertemp);
                 vertemp = vertemp.Mid(vertemp.Find('.')+1);
-                int minor = _wtoi(vertemp);
+                int minor = _ttoi(vertemp);
                 vertemp = vertemp.Mid(vertemp.Find('.')+1);
-                int micro = _wtoi(vertemp);
+                int micro = _ttoi(vertemp);
                 vertemp = vertemp.Mid(vertemp.Find('.')+1);
-                int build = _wtoi(vertemp);
+                int build = _ttoi(vertemp);
                 BOOL bNewer = FALSE;
                 if (major > TSVN_VERMAJOR)
-                    bNewer = TRUE;
+                {
+                    if (SysInfo::Instance().IsVistaOrLater())
+                        bNewer = TRUE;
+                }
                 else if ((minor > TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
-                    bNewer = TRUE;
-                else if ((micro > TSVN_VERMICRO)&&(minor == TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
+                {
+                    if (SysInfo::Instance().IsVistaOrLater())
+                        bNewer = TRUE;
+                }
+                else if ((micro > TSVN_VERMICRO) && (minor == TSVN_VERMINOR) && (major == TSVN_VERMAJOR))
                     bNewer = TRUE;
                 else if ((build > TSVN_VERBUILD)&&(micro == TSVN_VERMICRO)&&(minor == TSVN_VERMINOR)&&(major == TSVN_VERMAJOR))
                     bNewer = TRUE;
 
-                if (_wtoi(ver)!=0)
+                if (_ttoi(ver)!=0)
                 {
                     temp.Format(IDS_CHECKNEWER_CURRENTVERSION, (LPCTSTR)ver);
                     SetDlgItemText(IDC_CURRENTVERSION, temp);
-                    temp.Format(L"%d.%d.%d.%d", TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
+                    temp.Format(_T("%d.%d.%d.%d"), TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD);
                 }
 
-                if (_wtoi(ver)==0)
+                if (_ttoi(ver)==0)
                 {
                     temp.LoadString(IDS_CHECKNEWER_NETERROR);
                     SetDlgItemText(IDC_CHECKRESULT, temp);
@@ -161,7 +168,7 @@ UINT CCheckForUpdatesDlg::CheckThread()
                     if(file.ReadString(temp) && !temp.IsEmpty())
                     {   // Read the next line, it could contain a message for the user
                         CString tempLink;
-                        CRegString regDownLink(L"Software\\TortoiseSVN\\NewVersionLink");
+                        CRegString regDownLink(_T("Software\\TortoiseSVN\\NewVersionLink"));
                         regDownLink = tempLink;
                         if(file.ReadString(tempLink) && !tempLink.IsEmpty())
                         {   // Read another line to find out the download link-URL, if any
@@ -173,14 +180,14 @@ UINT CCheckForUpdatesDlg::CheckThread()
                     {
                         temp.LoadString(IDS_CHECKNEWER_NEWERVERSIONAVAILABLE);
                     }
-                    CRegString regDownText(L"Software\\TortoiseSVN\\NewVersionText");
+                    CRegString regDownText(_T("Software\\TortoiseSVN\\NewVersionText"));
                     regDownText = temp;
                     SetDlgItemText(IDC_CHECKRESULT, temp);
                     // only show the dialog for newer versions if the 'old style' update check
                     // is requested. The current update check shows the info in the commit dialog.
-                    if (DWORD(CRegDWORD(L"Software\\TortoiseSVN\\OldVersionCheck")))
+                    if (DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\OldVersionCheck"))))
                         m_bShowInfo = TRUE;
-                    CRegString regVer(L"Software\\TortoiseSVN\\NewVersion");
+                    CRegString regVer(_T("Software\\TortoiseSVN\\NewVersion"));
                     regVer = ver;
                 }
                 else
@@ -230,10 +237,10 @@ UINT CCheckForUpdatesDlg::CheckThread()
 void CCheckForUpdatesDlg::OnStnClickedCheckresult()
 {
     // user clicked on the label, start the browser with our web page
-    HINSTANCE result = ShellExecute(NULL, L"opennew", m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
+    HINSTANCE result = ShellExecute(NULL, _T("opennew"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
     if ((UINT)result <= HINSTANCE_ERROR)
     {
-        ShellExecute(NULL, L"open", m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
+        ShellExecute(NULL, _T("open"), m_sUpdateDownloadLink, NULL,NULL, SW_SHOWNORMAL);
     }
 }
 

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2009-2010, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2006, 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,8 +34,6 @@ public:
 
     void SetInputValidator(IInputValidator * validator) { m_pInputValidator = validator; }
     void SetRenameRequired(bool renameRequired) { m_renameRequired = renameRequired; }
-    void SetFileSystemAutoComplete() { m_bFSAutoComplete = true; }
-    void SetAutoComplete(bool bAutoComplete) { m_bAutoComplete = bAutoComplete; }
     enum { IDD = IDD_RENAME };
 
 protected:
@@ -43,9 +41,9 @@ protected:
 
     virtual BOOL OnInitDialog();
     virtual void OnOK();
-    virtual void OnCancel();
 
-    afx_msg void OnEnSetfocusName();
+    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
+    afx_msg void OnEnChangeName();
 
     DECLARE_MESSAGE_MAP()
 
@@ -55,10 +53,7 @@ public:
     CString m_label;
 
 private:
-    bool                m_bBalloonVisible;
     bool                m_renameRequired;
-    bool                m_bFSAutoComplete;
-    bool                m_bAutoComplete;
     CString             m_originalName;
     IInputValidator *   m_pInputValidator;
 };

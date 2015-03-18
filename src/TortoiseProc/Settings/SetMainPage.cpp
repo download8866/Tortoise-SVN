@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,16 +33,16 @@
 IMPLEMENT_DYNAMIC(CSetMainPage, ISettingsPropPage)
 CSetMainPage::CSetMainPage()
     : ISettingsPropPage(CSetMainPage::IDD)
-    , m_sTempExtensions(L"")
+    , m_sTempExtensions(_T(""))
     , m_bLastCommitTime(FALSE)
     , m_bUseAero(TRUE)
     , m_dwLanguage(0)
 {
-    m_regLanguage = CRegDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
+    m_regLanguage = CRegDWORD(_T("Software\\TortoiseSVN\\LanguageID"), 1033);
     CString temp(SVN_CONFIG_DEFAULT_GLOBAL_IGNORES);
-    m_regExtensions = CRegString(L"Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores", temp);
-    m_regLastCommitTime = CRegString(L"Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times", L"");
-    m_regUseAero = CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE);
+    m_regExtensions = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\global-ignores"), temp);
+    m_regLastCommitTime = CRegString(_T("Software\\Tigris.org\\Subversion\\Config\\miscellany\\use-commit-times"), _T(""));
+    m_regUseAero = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
 }
 
 CSetMainPage::~CSetMainPage()
@@ -88,8 +88,9 @@ BOOL CSetMainPage::OnInitDialog()
 
     CString temp;
     temp = m_regLastCommitTime;
-    m_bLastCommitTime = (temp.CompareNoCase(L"yes")==0);
+    m_bLastCommitTime = (temp.CompareNoCase(_T("yes"))==0);
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_TEMPEXTENSIONSLABEL, IDS_SETTINGS_TEMPEXTENSIONS_TT);
     m_tooltips.AddTool(IDC_TEMPEXTENSIONS, IDS_SETTINGS_TEMPEXTENSIONS_TT);
     m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
@@ -103,14 +104,14 @@ BOOL CSetMainPage::OnInitDialog()
     m_LanguageCombo.AddString(buf);
     m_LanguageCombo.SetItemData(0, 1033);
     CString path = CPathUtils::GetAppParentDirectory();
-    path = path + L"Languages\\";
-    CSimpleFileFind finder(path, L"*.dll");
+    path = path + _T("Languages\\");
+    CSimpleFileFind finder(path, _T("*.dll"));
     int langcount = 1;
     while (finder.FindNextFileNoDirectories())
     {
         CString file = finder.GetFilePath();
         CString filename = finder.GetFileName();
-        if (filename.Left(12).CompareNoCase(L"TortoiseProc")==0)
+        if (filename.Left(12).CompareNoCase(_T("TortoiseProc"))==0)
         {
             CString sVer = _T(STRPRODUCTVER);
             sVer = sVer.Left(sVer.ReverseFind('.'));
@@ -128,9 +129,9 @@ BOOL CSetMainPage::OnInitDialog()
             GetLocaleInfo(loc, LOCALE_SNATIVECTRYNAME, buf, _countof(buf));
             if (buf[0])
             {
-                sLang += L" (";
+                sLang += _T(" (");
                 sLang += buf;
-                sLang += L")";
+                sLang += _T(")");
             }
             m_LanguageCombo.AddString(sLang);
             m_LanguageCombo.SetItemData(langcount++, loc);
@@ -147,6 +148,12 @@ BOOL CSetMainPage::OnInitDialog()
     return TRUE;
 }
 
+BOOL CSetMainPage::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return ISettingsPropPage::PreTranslateMessage(pMsg);
+}
+
 void CSetMainPage::OnModified()
 {
     SetModified();
@@ -161,7 +168,7 @@ BOOL CSetMainPage::OnApply()
         Store (m_sTempExtensions, m_regExtensions);
         m_restart = Restart_Cache;
     }
-    Store ((m_bLastCommitTime ? L"yes" : L"no"), m_regLastCommitTime);
+    Store ((m_bLastCommitTime ? _T("yes") : _T("no")), m_regLastCommitTime);
     Store (m_bUseAero, m_regUseAero);
 
     SetModified(FALSE);
@@ -170,17 +177,12 @@ BOOL CSetMainPage::OnApply()
 
 void CSetMainPage::OnBnClickedEditconfig()
 {
+    TCHAR buf[MAX_PATH] = { 0 };
     SVN::EnsureConfigFile();
-
-    PWSTR pszPath = NULL;
-    if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_CREATE, NULL, &pszPath) == S_OK)
-    {
-        CString path = pszPath;
-        CoTaskMemFree(pszPath);
-
-        path += L"\\Subversion\\config";
-        CAppUtils::StartTextViewer(path);
-    }
+    SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, buf);
+    CString path = buf;
+    path += _T("\\Subversion\\config");
+    CAppUtils::StartTextViewer(path);
 }
 
 void CSetMainPage::OnBnClickedChecknewerbutton()
@@ -193,7 +195,10 @@ void CSetMainPage::OnBnClickedChecknewerbutton()
 
 void CSetMainPage::OnBnClickedSounds()
 {
-    CAppUtils::LaunchApplication(L"RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,2", NULL, false);
+    if (SysInfo::Instance().IsVistaOrLater())
+        CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,2"), NULL, false);
+    else
+        CAppUtils::LaunchApplication(_T("RUNDLL32 Shell32,Control_RunDLL mmsys.cpl,,1"), NULL, false);
 }
 
 void CSetMainPage::OnBnClickedCreatelib()

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013, 2015 - TortoiseSVN
+// Copyright (C) 2010-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -36,7 +36,8 @@ public:
     std::wstring inheritedfrom;
 };
 
-typedef std::multimap<std::string, PropValue> TProperties;
+typedef std::map<std::string, PropValue> TProperties;
+typedef TProperties::iterator IT;
 
 /**
  * \ingroup TortoiseProc

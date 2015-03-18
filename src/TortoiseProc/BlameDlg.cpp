@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,20 +22,20 @@
 #include "registry.h"
 #include "AppUtils.h"
 
-IMPLEMENT_DYNAMIC(CBlameDlg, CStateStandAloneDialog)
+IMPLEMENT_DYNAMIC(CBlameDlg, CStandAloneDialog)
 CBlameDlg::CBlameDlg(CWnd* pParent /*=NULL*/)
-    : CStateStandAloneDialog(CBlameDlg::IDD, pParent)
+    : CStandAloneDialog(CBlameDlg::IDD, pParent)
     , StartRev(1)
     , EndRev(0)
-    , m_sStartRev(L"1")
+    , m_sStartRev(_T("1"))
     , m_bTextView(FALSE)
     , m_bIgnoreEOL(TRUE)
     , m_bIncludeMerge(TRUE)
     , m_IgnoreSpaces(svn_diff_file_ignore_space_none)
 {
-    m_regTextView = CRegDWORD(L"Software\\TortoiseSVN\\TextBlame", FALSE);
+    m_regTextView = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
     m_bTextView = m_regTextView;
-    m_regIncludeMerge = CRegDWORD(L"Software\\TortoiseSVN\\BlameIncludeMerge", FALSE);
+    m_regIncludeMerge = CRegDWORD(_T("Software\\TortoiseSVN\\BlameIncludeMerge"), FALSE);
     m_bIncludeMerge = m_regIncludeMerge;
 }
 
@@ -45,7 +45,7 @@ CBlameDlg::~CBlameDlg()
 
 void CBlameDlg::DoDataExchange(CDataExchange* pDX)
 {
-    CStateStandAloneDialog::DoDataExchange(pDX);
+    CStandAloneDialog::DoDataExchange(pDX);
     DDX_Text(pDX, IDC_REVISON_START, m_sStartRev);
     DDX_Text(pDX, IDC_REVISION_END, m_sEndRev);
     DDX_Check(pDX, IDC_USETEXTVIEWER, m_bTextView);
@@ -54,7 +54,7 @@ void CBlameDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CBlameDlg, CStateStandAloneDialog)
+BEGIN_MESSAGE_MAP(CBlameDlg, CStandAloneDialog)
     ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
     ON_EN_CHANGE(IDC_REVISION_END, &CBlameDlg::OnEnChangeRevisionEnd)
 END_MESSAGE_MAP()
@@ -63,7 +63,7 @@ END_MESSAGE_MAP()
 
 BOOL CBlameDlg::OnInitDialog()
 {
-    CStateStandAloneDialog::OnInitDialog();
+    CStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
     ExtendFrameIntoClientArea(IDC_DIFFGROUP);
@@ -98,8 +98,6 @@ BOOL CBlameDlg::OnInitDialog()
 
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"BlameDlg");
-
     return TRUE;
 }
 
@@ -120,14 +118,14 @@ void CBlameDlg::OnOK()
     EndRev = SVNRev(m_sEndRev);
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        EndRev = SVNRev(L"HEAD");
+        EndRev = SVNRev(_T("HEAD"));
     }
     if (!EndRev.IsValid())
     {
         ShowEditBalloon(IDC_REVISION_END, IDS_ERR_INVALIDREV, IDS_ERR_ERROR, TTI_ERROR);
         return;
     }
-    BOOL extBlame = CRegDWORD(L"Software\\TortoiseSVN\\TextBlame", FALSE);
+    BOOL extBlame = CRegDWORD(_T("Software\\TortoiseSVN\\TextBlame"), FALSE);
     if (extBlame)
         m_bTextView = true;
 
@@ -148,7 +146,7 @@ void CBlameDlg::OnOK()
 
     UpdateData(FALSE);
 
-    CStateStandAloneDialog::OnOK();
+    CStandAloneDialog::OnOK();
 }
 
 void CBlameDlg::OnBnClickedHelp()

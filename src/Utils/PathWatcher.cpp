@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2007-2012, 2014-2015 - TortoiseSVN
+// External Cache Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -163,13 +163,13 @@ bool CPathWatcher::AddPath(const CTSVNPath& path)
     }
     if (!newroot.IsEmpty())
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": add path to watch %s\n", newroot.GetWinPath());
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": add path to watch %s\n"), newroot.GetWinPath());
         watchedPaths.AddPath(newroot);
         watchedPaths.RemoveChildren();
         m_hCompPort.CloseHandle();
         return true;
     }
-    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": add path to watch %s\n", path.GetWinPath());
+    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": add path to watch %s\n"), path.GetWinPath());
     watchedPaths.AddPath(path);
     m_hCompPort.CloseHandle();
     return true;
@@ -233,7 +233,8 @@ void CPathWatcher::WorkerThread()
                         break;
                     }
 
-                    std::unique_ptr<CDirWatchInfo> pDirInfo (new CDirWatchInfo(hDir.Detach(), watchedPaths[i]));// the new CDirWatchInfo object owns the handle now
+                    std::unique_ptr<CDirWatchInfo> pDirInfo (new CDirWatchInfo(hDir, watchedPaths[i]));
+                    hDir.Detach();  // the new CDirWatchInfo object owns the handle now
                     m_hCompPort = CreateIoCompletionPort(pDirInfo->m_hDir, m_hCompPort, (ULONG_PTR)pDirInfo.get(), 0);
                     if (m_hCompPort == NULL)
                     {
@@ -259,7 +260,7 @@ void CPathWatcher::WorkerThread()
                         break;
                     }
                     AutoLocker lock(m_critSec);
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": watching path %s\n", pDirInfo->m_DirName.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": watching path %s\n"), pDirInfo->m_DirName.GetWinPath());
                     watchInfoMap[pDirInfo->m_hDir] = pDirInfo.get();
                     pDirInfo.release();
                 }
@@ -285,8 +286,8 @@ void CPathWatcher::WorkerThread()
                     {
                         nOffset = pnotify->NextEntryOffset;
                         SecureZeroMemory(buf, bufferSize*sizeof(TCHAR));
-                        wcsncpy_s(buf, bufferSize, pdi->m_DirPath, bufferSize);
-                        errno_t err = wcsncat_s(buf+pdi->m_DirPath.GetLength(), bufferSize-pdi->m_DirPath.GetLength(), pnotify->FileName, min(bufferSize-pdi->m_DirPath.GetLength(), int(pnotify->FileNameLength/sizeof(TCHAR))));
+                        _tcsncpy_s(buf, bufferSize, pdi->m_DirPath, bufferSize);
+                        errno_t err = _tcsncat_s(buf+pdi->m_DirPath.GetLength(), bufferSize-pdi->m_DirPath.GetLength(), pnotify->FileName, min(bufferSize-pdi->m_DirPath.GetLength(), int(pnotify->FileNameLength/sizeof(TCHAR))));
                         if (err == STRUNCATE)
                         {
                             pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
@@ -294,7 +295,7 @@ void CPathWatcher::WorkerThread()
                         }
                         buf[min(bufferSize-1, pdi->m_DirPath.GetLength()+(pnotify->FileNameLength/sizeof(WCHAR)))] = 0;
                         pnotify = (PFILE_NOTIFY_INFORMATION)((LPBYTE)pnotify + nOffset);
-                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": change notification: %s\n", buf);
+                        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": change notification: %s\n"), buf);
                         {
                             AutoLocker lock(m_critSec);
                             if (m_changedPaths.GetCount() < MAX_CHANGED_PATHS)
@@ -357,10 +358,10 @@ CPathWatcher::CDirWatchInfo::CDirWatchInfo(HANDLE hDir, const CTSVNPath& Directo
 {
     ATLASSERT( hDir && !DirectoryName.IsEmpty());
     m_Buffer[0] = 0;
-    SecureZeroMemory(&m_Overlapped, sizeof(m_Overlapped));
+    memset(&m_Overlapped, 0, sizeof(m_Overlapped));
     m_DirPath = m_DirName.GetWinPathString();
     if (m_DirPath.GetAt(m_DirPath.GetLength()-1) != '\\')
-        m_DirPath += L"\\";
+        m_DirPath += _T("\\");
 }
 
 CPathWatcher::CDirWatchInfo::~CDirWatchInfo()

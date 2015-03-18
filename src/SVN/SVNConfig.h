@@ -85,8 +85,6 @@ public:
 
     BOOL KeepLocks();
 
-    BOOL ConfigGetBool(const char * section, const char * option, bool defbool);
-
 private:
     bool SetUpSSH();
 

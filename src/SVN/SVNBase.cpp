@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2015 - TortoiseSVN
+// Copyright (C) 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,8 +23,6 @@
 #include "PathUtils.h"
 #include "SmartHandle.h"
 #include <Commctrl.h>
-
-#pragma comment(lib, "Comctl32.lib")
 
 #ifdef HAVE_APPUTILS
 #include "AppUtils.h"
@@ -59,9 +57,9 @@ CString SVNBase::GetLastErrorMessage(int wrap /* = 80 */)
     if (!PostCommitErr.IsEmpty())
     {
 #ifdef _MFC_VER
-        msg += L"\n" + CStringUtils::LinesWrap(PostCommitErr, wrap);
+        msg += _T("\n") + CStringUtils::LinesWrap(PostCommitErr, wrap);
 #else
-        msg += L"\n" + CStringUtils::LinesWrap(PostCommitErr, wrap);
+        msg += _T("\n") + CStringUtils::LinesWrap(PostCommitErr, wrap);
 #endif
     }
     return msg;
@@ -71,10 +69,10 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
 {
     CString msg;
     CString temp;
+    char errbuf[256] = { 0 };
 
     if (Err != NULL)
     {
-        char errbuf[256] = { 0 };
         svn_error_t * ErrPtr = Err;
         if (ErrPtr->message)
             msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
@@ -93,7 +91,7 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
                 if (temp_err)
                 {
                     svn_error_clear (temp_err);
-                    msg = L"Can't recode error string from APR";
+                    msg = _T("Can't recode error string from APR");
                 }
                 else
                 {
@@ -105,7 +103,7 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
         while (ErrPtr->child)
         {
             ErrPtr = ErrPtr->child;
-            msg += L"\n";
+            msg += _T("\n");
             if (ErrPtr->message)
                 temp = CUnicodeUtils::GetUnicode(ErrPtr->message);
             else
@@ -123,7 +121,7 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
                     if (temp_err)
                     {
                         svn_error_clear (temp_err);
-                        temp = L"Can't recode error string from APR";
+                        temp = _T("Can't recode error string from APR");
                     }
                     else
                     {
@@ -193,12 +191,12 @@ CString SVNBase::GetErrorString(svn_error_t * Err, int wrap /* = 80 */)
         }
         if (!temp.IsEmpty())
         {
-            msg += L"\n" + temp;
+            msg += _T("\n") + temp;
         }
 #endif
         return msg;
     }
-    return L"";
+    return _T("");
 }
 
 int SVNBase::ShowErrorDialog( HWND hParent)
@@ -211,60 +209,72 @@ int SVNBase::ShowErrorDialog( HWND hParent, const CTSVNPath& wcPath, const CStri
     UNREFERENCED_PARAMETER(wcPath);
     int ret = -1;
 
+    typedef HRESULT (WINAPI *TDLG)(const TASKDIALOGCONFIG *pTaskConfig, int *pnButton, int *pnRadioButton, BOOL *pfVerificationFlagChecked);
+
     CString sError = Err ? GetErrorString(Err) : PostCommitErr;
     if (!sErr.IsEmpty())
         sError = sErr;
 
-    CString sCleanup = CString(MAKEINTRESOURCE(IDS_RUNCLEANUPNOW));
-    CString sClose = CString(MAKEINTRESOURCE(IDS_CLOSE));
-    CString sInstruction = CString(MAKEINTRESOURCE(IDS_SVNREPORTEDANERROR));
+    CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"Comctl32.dll");
+    if (hLib)
+    {
+        TDLG pTDLG = (TDLG)GetProcAddress(hLib, "TaskDialogIndirect");
+        if (pTDLG)
+        {
+            CString sCleanup = CString(MAKEINTRESOURCE(IDS_RUNCLEANUPNOW));
+            CString sClose = CString(MAKEINTRESOURCE(IDS_CLOSE));
+            CString sInstruction = CString(MAKEINTRESOURCE(IDS_SVNREPORTEDANERROR));
 
-    TASKDIALOGCONFIG tconfig = { 0 };
-    tconfig.cbSize = sizeof(TASKDIALOGCONFIG);
-    tconfig.hwndParent = hParent;
-    tconfig.dwFlags = TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT;
-    tconfig.dwCommonButtons = TDCBF_CLOSE_BUTTON;
-    tconfig.pszWindowTitle = L"TortoiseSVN";
-    tconfig.pszMainIcon = TD_ERROR_ICON;
-    tconfig.pszMainInstruction = sInstruction;
-    tconfig.pszContent = (LPCTSTR)sError;
+            TASKDIALOGCONFIG tconfig = {0};
+            tconfig.cbSize = sizeof(TASKDIALOGCONFIG);
+            tconfig.hwndParent = hParent;
+            tconfig.dwFlags = TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW;
+            tconfig.dwCommonButtons = TDCBF_CLOSE_BUTTON;
+            tconfig.pszWindowTitle = L"TortoiseSVN";
+            tconfig.pszMainIcon = TD_ERROR_ICON;
+            tconfig.pszMainInstruction = sInstruction;
+            tconfig.pszContent = (LPCTSTR)sError;
 #ifdef HAVE_APPUTILS
-    TASKDIALOG_BUTTON aCustomButtons[2];
-    aCustomButtons[0].nButtonID = 1000;
-    aCustomButtons[0].pszButtonText = sCleanup;
-    aCustomButtons[1].nButtonID = IDOK;
-    aCustomButtons[1].pszButtonText = sClose;
-    if (Err && (Err->apr_err == SVN_ERR_WC_CLEANUP_REQUIRED) && (!wcPath.IsEmpty()))
-    {
-        tconfig.dwCommonButtons = 0;
-        tconfig.dwFlags |= TDF_USE_COMMAND_LINKS;
-        tconfig.pButtons = aCustomButtons;
-        tconfig.cButtons = _countof(aCustomButtons);
-    }
+            TASKDIALOG_BUTTON aCustomButtons[2];
+            aCustomButtons[0].nButtonID = 1000;
+            aCustomButtons[0].pszButtonText = sCleanup;
+            aCustomButtons[1].nButtonID = IDOK;
+            aCustomButtons[1].pszButtonText = sClose;
+            if (Err && (Err->apr_err == SVN_ERR_WC_CLEANUP_REQUIRED) && (!wcPath.IsEmpty()))
+            {
+                tconfig.dwCommonButtons = 0;
+                tconfig.dwFlags |= TDF_USE_COMMAND_LINKS;
+                tconfig.pButtons = aCustomButtons;
+                tconfig.cButtons = _countof(aCustomButtons);
+            }
 #endif
-    TaskDialogIndirect(&tconfig, &ret, NULL, NULL);
+            pTDLG(&tconfig, &ret, NULL, NULL);
 #ifdef HAVE_APPUTILS
-    if (ret == 1000)
-    {
-        // run cleanup
-        CString sCmd;
-        sCmd.Format(L"/command:cleanup /path:\"%s\" /cleanup /nodlg /hwnd:%p",
+            if (ret == 1000)
+            {
+                // run cleanup
+                CString sCmd;
+                sCmd.Format(_T("/command:cleanup /path:\"%s\" /cleanup /nodlg /hwnd:%p"),
                     wcPath.GetDirectory().GetWinPath(), (void*)hParent);
-        CAppUtils::RunTortoiseProc(sCmd);
-    }
+                CAppUtils::RunTortoiseProc(sCmd);
+            }
 #endif
+            return ret;
+        }
+    }
+
+    ret = MessageBox(hParent, (LPCTSTR)sError, L"TortoiseSVN", MB_ICONERROR);
     return ret;
 }
 
-void SVNBase::ClearCAPIAuthCacheOnError() const
+void SVNBase::ClearCAPIAuthCacheOnError()
 {
     if (Err != NULL)
     {
         if ( (SVN_ERROR_IN_CATEGORY(Err->apr_err, SVN_ERR_AUTHN_CATEGORY_START)) ||
              (SVN_ERROR_IN_CATEGORY(Err->apr_err, SVN_ERR_AUTHZ_CATEGORY_START)) ||
-             (Err->apr_err == SVN_ERR_RA_DAV_FORBIDDEN) ||
-             (Err->apr_err == SVN_ERR_RA_CANNOT_CREATE_SESSION))
-             TSVN_ClearLastUsedAuthCache();
+             (Err->apr_err == SVN_ERR_RA_DAV_FORBIDDEN))
+            TSVN_ClearLastUsedAuthCache();
     }
 }
 

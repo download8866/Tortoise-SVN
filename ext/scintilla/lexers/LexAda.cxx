@@ -511,5 +511,5 @@ static inline bool IsWordCharacter(int ch) {
 }
 
 static inline bool IsWordStartCharacter(int ch) {
-	return (IsASCII(ch) && isalpha(ch)) || ch == '_';
+	return (isascii(ch) && isalpha(ch)) || ch == '_';
 }

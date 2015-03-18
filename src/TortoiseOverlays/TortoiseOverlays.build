@@ -1,13 +1,11 @@
 <?xml version="1.0"?>
 <project name="TortoiseSVN" default="all">
 
-  <property name="SubWCRevFileName" value="..\..\bin\${configuration}${bindirextension}\bin\SubWCRev.exe" />
+  <property name="SubWCRevFileName" value="bin\${configuration}${bindirextension}\bin\SubWCRev.exe" />
   <property name="solutionname" value="TortoiseOverlays.sln" />
 
   <target name="all">
-    <if test="${not file::exists(SubWCRevFileName)}">
-      <property name="SubWCRevFileName" value="SubWCRev.exe" />
-    </if>
+
     <exec program="${SubWCRevFileName}">
       <arg value="." />
       <arg value="version.build.in" />
@@ -52,23 +50,16 @@
     <property name="verstring" value="${environment::get-variable('MajorVersion')}.${environment::get-variable('MinorVersion')}.${environment::get-variable('MicroVersion')}.${environment::get-variable('WCREV')}" />
 
 
-    <exec program="msbuild.exe">
+    <exec program="devenv.com">
       <arg value="${solutionname}" />
-      <arg value="/t:rebuild" />
-      <arg value="/p:Configuration=Release" />
-      <arg value="/p:Platform=Win32" />
-      <arg value="/verbosity:minimal" />
-      <arg value="/maxcpucount" />
+      <arg value="/rebuild" />
+      <arg value="release|win32" />
     </exec>
-    <exec program="msbuild.exe">
+    <exec program="devenv.com">
       <arg value="${solutionname}" />
-      <arg value="/t:Rebuild" />
-      <arg value="/p:Configuration=Release" />
-      <arg value="/p:Platform=x64" />
-      <arg value="/verbosity:minimal" />
-      <arg value="/maxcpucount" />
+      <arg value="/rebuild" />
+      <arg value="release|x64" />
     </exec>
-
     <setenv>
       <variable name="Platform" value="win32" />
     </setenv>

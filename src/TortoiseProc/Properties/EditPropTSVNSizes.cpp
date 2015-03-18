@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -69,7 +69,7 @@ BOOL CEditPropTSVNSizes::OnInitDialog()
     m_aeroControls.SubclassControl(this, IDC_PROPRECURSIVE);
     m_aeroControls.SubclassOkCancelHelp(this);
 
-    for (auto it = m_properties.begin(); it != m_properties.end(); ++it)
+    for (IT it = m_properties.begin(); it != m_properties.end(); ++it)
     {
         if (it->second.isinherited)
             continue;
@@ -107,20 +107,20 @@ void CEditPropTSVNSizes::OnOK()
     PropValue pVal;
 
     char numBuf[20] = { 0 };
-    sprintf_s(numBuf, "%d", m_LogMinSize);
+    sprintf_s(numBuf, "%ld", m_LogMinSize);
     pVal.value = numBuf;
     pVal.remove = (m_LogMinSize == 0);
-    newProps.insert(std::make_pair(PROJECTPROPNAME_LOGMINSIZE, pVal));
+    newProps[PROJECTPROPNAME_LOGMINSIZE] = pVal;
 
-    sprintf_s(numBuf, "%d", m_LockMinSize);
+    sprintf_s(numBuf, "%ld", m_LockMinSize);
     pVal.value = numBuf;
     pVal.remove = (m_LockMinSize == 0);
-    newProps.insert(std::make_pair(PROJECTPROPNAME_LOCKMSGMINSIZE, pVal));
+    newProps[PROJECTPROPNAME_LOCKMSGMINSIZE] = pVal;
 
-    sprintf_s(numBuf, "%d", m_Border);
+    sprintf_s(numBuf, "%ld", m_Border);
     pVal.value = numBuf;
     pVal.remove = (m_Border == 0);
-    newProps.insert(std::make_pair(PROJECTPROPNAME_LOGWIDTHLINE, pVal));
+    newProps[PROJECTPROPNAME_LOGWIDTHLINE] = pVal;
 
     m_bChanged = true;
     m_properties = newProps;

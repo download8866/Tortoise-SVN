@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015 - TortoiseSVN
+// Copyright (C) 2009-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,7 @@
 
 // auto-schedule upon construction
 
-CRegDWORD fetchingLocksEnabled(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", TRUE);
+CRegDWORD fetchingLocksEnabled(_T("Software\\TortoiseSVN\\RepoBrowserShowLocks"), TRUE);
 
 
 CRepositoryLister::CQuery::CQuery
@@ -129,7 +129,7 @@ BOOL CRepositoryLister::CListQuery::ReportList
     // store dir entry
 
     bool abspath_has_slash = (absolutepath.GetAt(absolutepath.GetLength()-1) == '/');
-    CString relPath = absolutepath + (abspath_has_slash ? L"" : L"/");
+    CString relPath = absolutepath + (abspath_has_slash ? _T("") : _T("/"));
     CItem entry
         ( path
         , externalTarget
@@ -266,7 +266,7 @@ const std::deque<CItem>& CRepositoryLister::CListQuery::GetSubPathExternals()
     return subPathExternals;
 }
 
-// true, if this query has been run silently and some error occurred
+// true, if this query has been run silently and some error occured
 
 bool CRepositoryLister::CListQuery::ShouldBeRerun()
 {
@@ -335,6 +335,8 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
 
                 CTSVNPath url;
                 url.SetFromSVN (absoluteURL);
+                externalRepository.root
+                    = svn.GetRepositoryRootAndUUID (url, true, externalRepository.uuid);
                 if (HasBeenTerminated())
                     break;
                 SVNInfo info;
@@ -342,8 +344,6 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
                 if (HasBeenTerminated())
                     break;
 
-                if (pInfoData)
-                    externalRepository.root = pInfoData->reposRoot;
                 externalRepository.revision = external->revision;
                 externalRepository.peg_revision = external->peg_revision;
 
@@ -577,7 +577,7 @@ void CRepositoryLister::Cancel()
 {
     async::CCriticalSectionLock lock (mutex);
 
-    // move all unfinished queries to the dumpster
+    // move all unfinsiehd queries to the dumpster
 
     for ( TQueries::iterator iter = queries.begin(); iter != queries.end(); )
     {
@@ -803,7 +803,6 @@ CString CRepositoryLister::AddSubTreeExternals
                     item.kind = svn_node_dir;
                     item.path = subpath;
                     item.unversioned = true;
-                    item.is_external = false;
                     item.absolutepath = url + L"/" + subpath;
                     items.push_back(item);
                 }

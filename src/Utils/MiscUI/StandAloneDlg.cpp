@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -53,7 +53,6 @@ CResizableStandAloneDialog::CResizableStandAloneDialog(UINT nIDTemplate, CWnd* p
     : CStandAloneDialogTmpl<CResizableDialog>(nIDTemplate, pParentWnd)
     , m_bVertical(false)
     , m_bHorizontal(false)
-    , m_stickySize(CRegDWORD(L"Software\\TortoiseSVN\\DlgStickySize", 3))
 {
 }
 
@@ -68,81 +67,12 @@ void CResizableStandAloneDialog::OnSizing(UINT fwSide, LPRECT pRect)
 {
     m_bVertical = m_bVertical && (fwSide == WMSZ_LEFT || fwSide == WMSZ_RIGHT);
     m_bHorizontal = m_bHorizontal && (fwSide == WMSZ_TOP || fwSide == WMSZ_BOTTOM);
-    if (m_nResizeBlock & DIALOG_BLOCKVERTICAL)
-    {
-        // don't allow the dialog to be changed in height
-        switch (fwSide)
-        {
-            case WMSZ_BOTTOM:
-            case WMSZ_BOTTOMLEFT:
-            case WMSZ_BOTTOMRIGHT:
-                pRect->bottom = pRect->top + m_height;
-                break;
-            case WMSZ_TOP:
-            case WMSZ_TOPLEFT:
-            case WMSZ_TOPRIGHT:
-                pRect->top = pRect->bottom - m_height;
-                break;
-        }
-    }
-    if (m_nResizeBlock & DIALOG_BLOCKHORIZONTAL)
-    {
-        // don't allow the dialog to be changed in width
-        switch (fwSide)
-        {
-            case WMSZ_RIGHT:
-            case WMSZ_TOPRIGHT:
-            case WMSZ_BOTTOMRIGHT:
-                pRect->right = pRect->left + m_width;
-                break;
-            case WMSZ_LEFT:
-            case WMSZ_TOPLEFT:
-            case WMSZ_BOTTOMLEFT:
-                pRect->left = pRect->right - m_width;
-                break;
-        }
-    }
     CStandAloneDialogTmpl<CResizableDialog>::OnSizing(fwSide, pRect);
 }
 
 void CResizableStandAloneDialog::OnMoving(UINT fwSide, LPRECT pRect)
 {
     m_bVertical = m_bHorizontal = false;
-    if (pRect)
-    {
-        HMONITOR hMonitor = MonitorFromRect(pRect, MONITOR_DEFAULTTONEAREST);
-        if (hMonitor)
-        {
-            MONITORINFO minfo = { 0 };
-            minfo.cbSize = sizeof(minfo);
-            if (GetMonitorInfo(hMonitor, &minfo))
-            {
-                int width = pRect->right - pRect->left;
-                int heigth = pRect->bottom - pRect->top;
-                if (abs(pRect->left - minfo.rcWork.left) < m_stickySize)
-                {
-                    pRect->left = minfo.rcWork.left;
-                    pRect->right = pRect->left + width;
-                }
-                if (abs(pRect->right - minfo.rcWork.right) < m_stickySize)
-                {
-                    pRect->right = minfo.rcWork.right;
-                    pRect->left = pRect->right - width;
-                }
-                if (abs(pRect->top - minfo.rcWork.top) < m_stickySize)
-                {
-                    pRect->top = minfo.rcWork.top;
-                    pRect->bottom = pRect->top + heigth;
-                }
-                if (abs(pRect->bottom - minfo.rcWork.bottom) < m_stickySize)
-                {
-                    pRect->bottom = minfo.rcWork.bottom;
-                    pRect->top = pRect->bottom - heigth;
-                }
-            }
-        }
-    }
-
     CStandAloneDialogTmpl<CResizableDialog>::OnMoving(fwSide, pRect);
 }
 
@@ -226,7 +156,7 @@ bool CResizableStandAloneDialog::OnEnterPressed()
 #endif
         if ( pOkBtn && pOkBtn->IsWindowEnabled() )
         {
-            if (DWORD(CRegStdDWORD(L"Software\\TortoiseSVN\\CtrlEnter", TRUE)))
+            if (DWORD(CRegStdDWORD(_T("Software\\TortoiseSVN\\CtrlEnter"), TRUE)))
                 PostMessage(WM_COMMAND, IDOK);
         }
         return true;
@@ -235,5 +165,4 @@ bool CResizableStandAloneDialog::OnEnterPressed()
 }
 
 BEGIN_MESSAGE_MAP(CStateDialog, CDialog)
-    ON_WM_DESTROY()
 END_MESSAGE_MAP()
