@@ -1,0 +1,4 @@
+EXPORTS
+    TerminateCache
+    OpenDonatePage
+    MsgBox
