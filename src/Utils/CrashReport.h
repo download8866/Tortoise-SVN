@@ -39,7 +39,7 @@ __forceinline HMODULE get_my_module_handle(void)
 
 /**
  * \ingroup Utils
- * helper class for the DoctorDumpSDK
+ * helper class for the CrashServerSDK
  */
 class CCrashReport
 {
@@ -51,16 +51,6 @@ private:
 
     ~CCrashReport(void)
     {
-        if (!m_IsReadyToExit)
-            return;
-
-        // If crash has happen not in main thread we should wait here until report will be sent
-        // or else program will be terminated after return from main() and report sending will be halted.
-        while (!m_IsReadyToExit())
-            ::Sleep(100);
-
-        if (m_bSkipAssertsAdded)
-            RemoveVectoredExceptionHandler(SkipAsserts);
     }
 
 public:
@@ -76,50 +66,26 @@ public:
         return AddFileToReport(pszFile, pszDestFile) ? 1 : 0;
     }
 
-    //! Checks that crash handling was enabled.
-    //! \return Return \b true if crash handling was enabled.
-    bool IsCrashHandlingEnabled() const
-    {
-        return m_bWorking;
-    }
 
     //! Initializes crash handler.
     //! \note You may call this function multiple times if some data has changed.
     //! \return Return \b true if crash handling was enabled.
     bool InitCrashHandler(
         ApplicationInfo* applicationInfo,   //!< [in] Pointer to the ApplicationInfo structure that identifies your application.
-        HandlerSettings* handlerSettings,   //!< [in] Pointer to the HandlerSettings structure that customizes crash handling behavior. This parameter can be \b NULL.
+        HandlerSettings* handlerSettings,   //!< [in] Pointer to the HandlerSettings structure that customizes crash handling behavior. This paramenter can be \b NULL.
         BOOL    ownProcess = TRUE           //!< [in] If you own the process your code running in set this option to \b TRUE. If don't (for example you write
-                                            //!<      a plugin to some external application) set this option to \b FALSE. In that case you need to explicitly
-                                            //!<      catch exceptions. See \ref SendReport for more information.
+        //!<      a plugin to some external application) set this option to \b FALSE. In that case you need to explicitly
+        //!<      catch exceptions. See \ref SendReport for more information.
         ) throw()
     {
         if (!m_InitCrashHandler)
             return false;
 
-        m_bWorking = m_InitCrashHandler(applicationInfo, handlerSettings, ownProcess) != FALSE;
-
-        return m_bWorking;
-    }
-
-    //! \note This function is experimental and may not be available and may not be support by Doctor Dump in the future.
-    //! You may set custom information for your possible report.
-    //! This text will be available on Doctor Dump dumps page.
-    //! The text should not contain private information.
-    //! \return If the function succeeds, the return value is \b true.
-    bool SetCustomInfo(
-        LPCWSTR text                        //!< [in] custom info for the report. The text will be cut to 100 characters.
-        )
-    {
-        if (!m_SetCustomInfo)
-            return false;
-        m_SetCustomInfo(text);
-        return true;
+        return m_InitCrashHandler(applicationInfo, handlerSettings, ownProcess) != FALSE;
     }
 
     //! You may add any key/value pair to crash report.
     //! \return If the function succeeds, the return value is \b true.
-    //! \note This function is thread safe.
     bool AddUserInfoToReport(
         LPCWSTR key,                        //!< [in] key string that will be added to the report.
         LPCWSTR value                       //!< [in] value for the key.
@@ -131,23 +97,9 @@ public:
         return true;
     }
 
-    //! You may remove any key that was added previously to crash report by \a AddUserInfoToReport.
-    //! \return If the function succeeds, the return value is \b true.
-    //! \note This function is thread safe.
-    bool RemoveUserInfoFromReport(
-        LPCWSTR key                        //!< [in] key string that will be removed from the report.
-        )
-    {
-        if (!m_RemoveUserInfoFromReport)
-            return false;
-        m_RemoveUserInfoFromReport(key);
-        return true;
-    }
-
     //! You may add any file to crash report. This file will be read when crash appears and will be sent within the report.
     //! Multiple files may be added. Filename of the file in the report may be changed to any name.
     //! \return If the function succeeds, the return value is \b true.
-    //! \note This function is thread safe.
     bool AddFileToReport(
         LPCWSTR path,                       //!< [in] Path to the file, that will be added to the report.
         LPCWSTR reportFileName /* = NULL */ //!< [in] Filename that will be used in report for this file. If parameter is \b NULL, original name from path will be used.
@@ -161,7 +113,6 @@ public:
 
     //! Remove from report the file that was registered earlier to be sent within report.
     //! \return If the function succeeds, the return value is \b true.
-    //! \note This function is thread safe.
     bool RemoveFileFromReport(
         LPCWSTR path    //!< [in] Path to the file, that will be removed from the report.
         ) throw()
@@ -216,7 +167,7 @@ public:
     //! \endcode
     LONG SendReport(
         EXCEPTION_POINTERS* exceptionPointers   //!< [in] Pointer to EXCEPTION_POINTERS structure. You should get it using GetExceptionInformation()
-                                                //!<      function inside __except keyword.
+        //!<      function inside __except keyword.
         )
     {
         if (!m_SendReport)
@@ -230,110 +181,72 @@ public:
     //! To send a report about violated assertion you can throw exception with this exception code
     //! using: \code RaiseException(CrashHandler::ExceptionAssertionViolated, 0, 0, NULL); \endcode
     //! Execution will continue after report will be sent (EXCEPTION_CONTINUE_EXECUTION would be used).
-    //! You may pass grouping string as first parameter (see \a SkipDoctorDump_SendAssertionViolated).
-    //! \note If you called CrashHandler constructor and crshhndl.dll was missing you still may using this exception.
-    //!       It will be caught, ignored and execution will continue. \ref SendReport function also works safely
-    //!       when crshhndl.dll was missing.
+    //! \note If you called CrashHandler constructor and crshhdnl.dll was missing you still may using this exception.
+    //!       It will be catched, ignored and execution will continue. \ref SendReport function also works safely
+    //!       when crshhdnl.dll was missing.
     static const DWORD ExceptionAssertionViolated = ((DWORD)0xCCE17000);
 
     //! Sends assertion violation report from this point and continue execution.
     //! \sa ExceptionAssertionViolated
-    //! \note Functions containing "SkipDoctorDump" will be ignored in stack parsing.
-    void SkipDoctorDump_SendAssertionViolated(
-        LPCSTR dumpGroup = NULL     //!< [in] All dumps with that group will be separated from dumps with same stack but another group. Set parameter to \b NULL if no grouping is required.
-        ) const
+    //! \note Functions prefixed with "CrashServer_" will be ignored in stack parsing.
+    void CrashServer_SendAssertionViolated() const
     {
-        if (!m_bWorking)
+        if (!m_InitCrashHandler)
             return;
-        if (dumpGroup)
-            ::RaiseException(CrashHandler::ExceptionAssertionViolated, 0, 1, reinterpret_cast<ULONG_PTR*>(&dumpGroup));
-        else
-            ::RaiseException(CrashHandler::ExceptionAssertionViolated, 0, 0, NULL);
+        ::RaiseException(CrashHandler::ExceptionAssertionViolated, 0, 0, NULL);
     }
 
 private:
-    bool LoadDll(LPCWSTR crashHandlerPath = NULL) throw()
+    bool LoadDll() throw()
     {
-        m_bLoaded = false;
-        m_bWorking = false;
-        m_bSkipAssertsAdded = false;
-        m_InitCrashHandler = NULL;
-        m_SendReport = NULL;
-        m_IsReadyToExit = NULL;
-        m_SetCustomInfo = NULL;
-        m_AddUserInfoToReport = NULL;
-        m_RemoveUserInfoFromReport = NULL;
-        m_AddFileToReport = NULL;
-        m_RemoveFileFromReport = NULL;
-        m_GetVersionFromApp = NULL;
-        m_GetVersionFromFile = NULL;
+        bool result = false;
 
-        // hCrashHandlerDll should not be unloaded, crash may appear even after return from main().
-        // So hCrashHandlerDll is not saved after construction.
+        // hCrshhndlDll should not be unloaded, crash may appear even after return from main().
+        // So hCrshhndlDll is not saved after construction.
         BOOL bIsWow = FALSE;
         IsWow64Process(GetCurrentProcess(), &bIsWow);
-        HMODULE hCrashHandlerDll = NULL;
+        HMODULE hCrshhndlDll = NULL;
         if (bIsWow == FALSE)
         {
-            if (crashHandlerPath == nullptr)
+            HMODULE hDll = get_my_module_handle();
+            wchar_t modpath[1024] = { 0 };
+            if (GetModuleFileName(hDll, modpath, _countof(modpath)))
             {
-                HMODULE hDll = get_my_module_handle();
-                wchar_t modpath[1024] = { 0 };
-                if (GetModuleFileName(hDll, modpath, _countof(modpath)))
+                wchar_t * dirpoint = wcsrchr(modpath, '\\');
+                if (dirpoint)
                 {
-                    wchar_t * dirpoint = wcsrchr(modpath, '\\');
-                    if (dirpoint)
-                    {
-                        *dirpoint = 0;
-                        wcscat_s(modpath, L"\\crshhndl.dll");
-                        hCrashHandlerDll = ::LoadLibraryW(modpath);
-                    }
-                    else
-                        hCrashHandlerDll = ::LoadLibraryW(L"crshhndl.dll");
+                    *dirpoint = 0;
+                    wcscat_s(modpath, L"\\crshhndl.dll");
+                    hCrshhndlDll = ::LoadLibraryW(modpath);
                 }
                 else
-                    hCrashHandlerDll = ::LoadLibraryW(L"crshhndl.dll");
+                    hCrshhndlDll = ::LoadLibraryW(L"crshhndl.dll");
             }
             else
-                hCrashHandlerDll = ::LoadLibraryW(crashHandlerPath);
+                hCrshhndlDll = ::LoadLibraryW(L"crshhndl.dll");
         }
-        if (hCrashHandlerDll != NULL)
+        if (hCrshhndlDll != NULL)
         {
-            m_InitCrashHandler = (pfnInitCrashHandler) GetProcAddress(hCrashHandlerDll, "InitCrashHandler");
-            m_SendReport = (pfnSendReport) GetProcAddress(hCrashHandlerDll, "SendReport");
-            m_IsReadyToExit = (pfnIsReadyToExit) GetProcAddress(hCrashHandlerDll, "IsReadyToExit");
-            m_SetCustomInfo = (pfnSetCustomInfo) GetProcAddress(hCrashHandlerDll, "SetCustomInfo");
-            m_AddUserInfoToReport = (pfnAddUserInfoToReport) GetProcAddress(hCrashHandlerDll, "AddUserInfoToReport");
-            m_RemoveUserInfoFromReport = (pfnRemoveUserInfoFromReport) GetProcAddress(hCrashHandlerDll, "RemoveUserInfoFromReport");
-            m_AddFileToReport = (pfnAddFileToReport) GetProcAddress(hCrashHandlerDll, "AddFileToReport");
-            m_RemoveFileFromReport = (pfnRemoveFileFromReport) GetProcAddress(hCrashHandlerDll, "RemoveFileFromReport");
-            m_GetVersionFromApp = (pfnGetVersionFromApp) GetProcAddress(hCrashHandlerDll, "GetVersionFromApp");
-            m_GetVersionFromFile = (pfnGetVersionFromFile) GetProcAddress(hCrashHandlerDll, "GetVersionFromFile");
+            m_InitCrashHandler = (pfnInitCrashHandler) GetProcAddress(hCrshhndlDll, "InitCrashHandler");
+            m_SendReport = (pfnSendReport) GetProcAddress(hCrshhndlDll, "SendReport");
+            m_IsReadyToExit = (pfnIsReadyToExit) GetProcAddress(hCrshhndlDll, "IsReadyToExit");
+            m_AddUserInfoToReport = (pfnAddUserInfoToReport) GetProcAddress(hCrshhndlDll, "AddUserInfoToReport");
+            m_AddFileToReport = (pfnAddFileToReport) GetProcAddress(hCrshhndlDll, "AddFileToReport");
+            m_RemoveFileFromReport = (pfnRemoveFileFromReport) GetProcAddress(hCrshhndlDll, "RemoveFileFromReport");
+            m_GetVersionFromApp = (pfnGetVersionFromApp) GetProcAddress(hCrshhndlDll, "GetVersionFromApp");
+            m_GetVersionFromFile = (pfnGetVersionFromFile) GetProcAddress(hCrshhndlDll, "GetVersionFromFile");
 
-            m_bLoaded = m_InitCrashHandler
+            result = m_InitCrashHandler
                 && m_SendReport
                 && m_IsReadyToExit
-                && m_SetCustomInfo
                 && m_AddUserInfoToReport
-                && m_RemoveUserInfoFromReport
                 && m_AddFileToReport
                 && m_RemoveFileFromReport
                 && m_GetVersionFromApp
                 && m_GetVersionFromFile;
         }
 
-#if 0 // TSVN don't use it
-#if _WIN32_WINNT >= 0x0501 /*_WIN32_WINNT_WINXP*/
-        // if no crash processing was started, we need to ignore ExceptionAssertionViolated exceptions.
-        if (!m_bLoaded)
-        {
-            ::AddVectoredExceptionHandler(TRUE, SkipAsserts);
-            m_bSkipAssertsAdded = true;
-        }
-#endif
-#endif
-
-        return m_bLoaded;
+        return result;
     }
 
     static LONG CALLBACK SkipAsserts(EXCEPTION_POINTERS* pExceptionInfo)
@@ -343,16 +256,10 @@ private:
         return EXCEPTION_CONTINUE_SEARCH;
     }
 
-    bool m_bLoaded;
-    bool m_bWorking;
-    bool m_bSkipAssertsAdded;
-
     typedef BOOL (*pfnInitCrashHandler)(ApplicationInfo* applicationInfo, HandlerSettings* handlerSettings, BOOL ownProcess);
     typedef LONG (*pfnSendReport)(EXCEPTION_POINTERS* exceptionPointers);
     typedef BOOL (*pfnIsReadyToExit)();
-    typedef void (*pfnSetCustomInfo)(LPCWSTR text);
     typedef void (*pfnAddUserInfoToReport)(LPCWSTR key, LPCWSTR value);
-    typedef void (*pfnRemoveUserInfoFromReport)(LPCWSTR key);
     typedef void (*pfnAddFileToReport)(LPCWSTR path, LPCWSTR reportFileName /* = NULL */);
     typedef void (*pfnRemoveFileFromReport)(LPCWSTR path);
     typedef BOOL (*pfnGetVersionFromApp)(ApplicationInfo* appInfo);
@@ -361,14 +268,13 @@ private:
     pfnInitCrashHandler m_InitCrashHandler;
     pfnSendReport m_SendReport;
     pfnIsReadyToExit m_IsReadyToExit;
-    pfnSetCustomInfo m_SetCustomInfo;
     pfnAddUserInfoToReport m_AddUserInfoToReport;
-    pfnRemoveUserInfoFromReport m_RemoveUserInfoFromReport;
     pfnAddFileToReport m_AddFileToReport;
     pfnRemoveFileFromReport m_RemoveFileFromReport;
     pfnGetVersionFromApp m_GetVersionFromApp;
     pfnGetVersionFromFile m_GetVersionFromFile;
 };
+
 
 class CCrashReportTSVN
 {
@@ -378,29 +284,48 @@ public:
     CCrashReportTSVN(LPCTSTR appname, bool bOwnProcess = true)
         : m_nInstallStatus(0)
     {
-        ApplicationInfo appInfo;
-        SecureZeroMemory(&appInfo, sizeof(appInfo));
-        appInfo.ApplicationInfoSize = sizeof(ApplicationInfo);
-        appInfo.ApplicationGUID = "71040f62-f78a-4953-b5b3-5c148349fed7";
-        appInfo.Prefix = "tsvn";
-        appInfo.AppName = appname;
-        appInfo.Company = L"TortoiseSVN";
+        char s_month[6] = { 0 };
+        int month, day, year;
+        struct tm t = {0};
+        static const char month_names[] = "JanFebMarAprMayJunJulAugSepOctNovDec";
+        sscanf_s(__DATE__, "%s %d %d", s_month, (unsigned int)_countof(s_month)-1, &day, &year);
+        month = (int)((strstr(month_names, s_month)-month_names))/3;
 
-        appInfo.Hotfix = 0;
-        appInfo.V[0] = TSVN_VERMAJOR;
-        appInfo.V[1] = TSVN_VERMINOR;
-        appInfo.V[2] = TSVN_VERMICRO;
-        appInfo.V[3] = TSVN_VERBUILD;
+        t.tm_mon = month;
+        t.tm_mday = day;
+        t.tm_year = year - 1900;
+        t.tm_isdst = -1;
+        __time64_t compiletime = _mktime64(&t);
 
-        HandlerSettings handlerSettings;
-        SecureZeroMemory(&handlerSettings, sizeof(handlerSettings));
-        handlerSettings.HandlerSettingsSize = sizeof(handlerSettings);
-        handlerSettings.LeaveDumpFilesInTempFolder = FALSE;
-        handlerSettings.UseWER = FALSE;
-        handlerSettings.OpenProblemInBrowser = TRUE;
-        handlerSettings.SubmitterID = 0;
+        __time64_t now;
+        _time64(&now);
 
-        CCrashReport::Instance().InitCrashHandler(&appInfo, &handlerSettings, bOwnProcess);
+        if ((now - compiletime)<(60*60*24*31*3))
+        {
+            ApplicationInfo appInfo;
+            memset(&appInfo, 0, sizeof(appInfo));
+            appInfo.ApplicationInfoSize = sizeof(ApplicationInfo);
+            appInfo.ApplicationGUID = "71040f62-f78a-4953-b5b3-5c148349fed7";
+            appInfo.Prefix = "tsvn";
+            appInfo.AppName = appname;
+            appInfo.Company = L"TortoiseSVN";
+
+            appInfo.Hotfix = 0;
+            appInfo.V[0] = TSVN_VERMAJOR;
+            appInfo.V[1] = TSVN_VERMINOR;
+            appInfo.V[2] = TSVN_VERMICRO;
+            appInfo.V[3] = TSVN_VERBUILD;
+
+            HandlerSettings handlerSettings;
+            memset(&handlerSettings, 0, sizeof(handlerSettings));
+            handlerSettings.HandlerSettingsSize = sizeof(handlerSettings);
+            handlerSettings.LeaveDumpFilesInTempFolder = FALSE;
+            handlerSettings.UseWER = FALSE;
+            handlerSettings.OpenProblemInBrowser = TRUE;
+            handlerSettings.SubmitterID = 0;
+
+            CCrashReport::Instance().InitCrashHandler(&appInfo, &handlerSettings, bOwnProcess);
+        }
     }
 
 

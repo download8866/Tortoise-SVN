@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2015 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -97,8 +97,8 @@ public:
 
         /// factory interface
 
-        CVisibleGraphNode* Create ( const CFullGraphNode* baseNode
-                                  , CVisibleGraphNode* prevNode
+        CVisibleGraphNode* Create ( const CFullGraphNode* base
+                                  , CVisibleGraphNode* prev
                                   , bool preserveNode);
         void Destroy (CVisibleGraphNode* node);
 
@@ -106,7 +106,7 @@ public:
 
         CFoldedTag* Create ( const CFullGraphNode* tagNode
                            , size_t depth
-                           , CFoldedTag* nextTag);
+                           , CFoldedTag* next);
         void Destroy (CFoldedTag* tag);
 
         /// instance tracking

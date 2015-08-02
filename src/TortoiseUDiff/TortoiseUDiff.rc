@@ -60,7 +60,6 @@ IDI_TORTOISEUDIFF       ICON                    "TortoiseUDiff.ico"
 IDC_TORTOISEUDIFF ACCELERATORS
 BEGIN
     "W",            ID_FILE_EXIT,           VIRTKEY, CONTROL, NOINVERT
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
     "S",            ID_FILE_SAVEAS,         VIRTKEY, SHIFT, CONTROL, NOINVERT
     VK_ESCAPE,      IDM_FINDEXIT,           VIRTKEY, NOINVERT
@@ -80,19 +79,18 @@ IDC_TORTOISEUDIFF MENU
 BEGIN
     POPUP "&File"
     BEGIN
-        MENUITEM "&Open\t(Ctrl+O)",             ID_FILE_OPEN
-        MENUITEM "&Save\t(Ctrl+S)",             ID_FILE_SAVE
-        MENUITEM "Save &as\t(Ctrl+Shift+S)",    ID_FILE_SAVEAS
+        MENUITEM "&Open",                       ID_FILE_OPEN
+        MENUITEM "&Save",                       ID_FILE_SAVE
+        MENUITEM "Save &as",                    ID_FILE_SAVEAS
         MENUITEM SEPARATOR
         MENUITEM "P&age setup",                 ID_FILE_PAGESETUP
-        MENUITEM "&Print\t(Ctrl+P)",            ID_FILE_PRINT
+        MENUITEM "&Print",                      ID_FILE_PRINT
         MENUITEM SEPARATOR
         MENUITEM "Se&ttings",                   ID_FILE_SETTINGS
         MENUITEM SEPARATOR
-        MENUITEM "&Find\t(Ctrl+F)",             IDM_SHOWFINDBAR
         MENUITEM "Apply &Patch...",             ID_FILE_APPLYPATCH
         MENUITEM SEPARATOR
-        MENUITEM "&Exit\t(Ctrl+W)",             ID_FILE_EXIT
+        MENUITEM "&Exit",                       ID_FILE_EXIT
     END
 END
 
@@ -102,33 +100,17 @@ END
 // Dialog
 //
 
-IDD_FINDBAR DIALOGEX 0, 0, 377, 21
+IDD_FINDBAR DIALOGEX 0, 0, 246, 21
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD | WS_SYSMENU
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
-    PUSHBUTTON      "",IDC_FINDEXIT,0,3,15,14,BS_ICON | NOT WS_TABSTOP
-    LTEXT           "Find:",IDC_STATIC,19,5,41,8
-    EDITTEXT        IDC_FINDTEXT,65,2,55,14,ES_AUTOHSCROLL
-    PUSHBUTTON      "< &Previous",IDC_FINDPREV,125,2,80,14
-    PUSHBUTTON      "&Next >",IDC_FINDNEXT,209,2,80,14
-    CONTROL         "Mat&ch case",IDC_MATCHCASECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,293,4,78,10
+    PUSHBUTTON      "",IDC_FINDEXIT,0,3,15,14,BS_ICON | NOT WS_TABSTOP,WS_EX_TRANSPARENT
+    LTEXT           "Find:",IDC_STATIC,19,5,17,8
+    EDITTEXT        IDC_FINDTEXT,40,2,55,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "< &Previous",IDC_FINDPREV,100,2,58,14
+    PUSHBUTTON      "&Next >",IDC_FINDNEXT,160,2,58,14
+    CONTROL         "Mat&ch case",IDC_MATCHCASECHECK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,222,4,52,10
 END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_FINDBAR, DIALOG
-    BEGIN
-        RIGHTMARGIN, 376
-    END
-END
-#endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -143,7 +125,6 @@ BEGIN
     IDS_PATCHFILEFILTER     "Patchfiles (*.diff, *.patch)|*.diff;*.patch|All (*.*)|*.*||"
     IDS_OPENPATCH           "Open patch file"
     IDS_SAVEPATCH           "Save patch file"
-    IDS_PIPETITLE           "diff from pipe"
     IDC_TORTOISEUDIFF       "TORTOISEUDIFF"
 END
 

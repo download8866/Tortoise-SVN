@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,13 +28,14 @@
 IMPLEMENT_DYNAMIC(CSwitchDlg, CResizableStandAloneDialog)
 CSwitchDlg::CSwitchDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CSwitchDlg::IDD, pParent)
-    , m_URL(L"")
-    , Revision(L"HEAD")
+    , m_URL(_T(""))
+    , Revision(_T("HEAD"))
     , m_pLogDlg(NULL)
-    , m_bNoExternals(CRegDWORD(L"Software\\TortoiseSVN\\noext"))
+    , m_bNoExternals(FALSE)
     , m_bStickyDepth(FALSE)
     , m_bIgnoreAncestry(FALSE)
     , m_bFolder(false)
+    , m_height(0)
     , m_depth(svn_depth_unknown)
 {
 }
@@ -65,6 +66,7 @@ BEGIN_MESSAGE_MAP(CSwitchDlg, CResizableStandAloneDialog)
     ON_EN_CHANGE(IDC_REVISION_NUM, &CSwitchDlg::OnEnChangeRevisionNum)
     ON_BN_CLICKED(IDC_LOG, &CSwitchDlg::OnBnClickedLog)
     ON_REGISTERED_MESSAGE(WM_REVSELECTED, &CSwitchDlg::OnRevSelected)
+    ON_WM_SIZING()
     ON_CBN_EDITCHANGE(IDC_URLCOMBO, &CSwitchDlg::OnCbnEditchangeUrlcombo)
 END_MESSAGE_MAP()
 
@@ -72,7 +74,6 @@ BOOL CSwitchDlg::OnInitDialog()
 {
     CResizableStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
-    BlockResize(DIALOG_BLOCKVERTICAL);
 
     ExtendFrameIntoClientArea(IDC_REVGROUP);
     m_aeroControls.SubclassControl(this, IDC_IGNOREANCESTRY);
@@ -91,7 +92,7 @@ BOOL CSwitchDlg::OnInitDialog()
     {
         destUrl = m_URL;
     }
-    m_URLCombo.LoadHistory(L"Software\\TortoiseSVN\\History\\repoPaths\\"+sUUID, L"url");
+    m_URLCombo.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoPaths\\")+sUUID, _T("url"));
     m_URLCombo.SetCurSel(0);
     if (!url.IsEmpty())
     {
@@ -120,9 +121,14 @@ BOOL CSwitchDlg::OnInitDialog()
     m_depthCombo.AddString(CString(MAKEINTRESOURCE(IDS_SVN_DEPTH_EXCLUDE)));
     m_depthCombo.SetCurSel(0);
 
+    m_tooltips.Create(this);
     m_tooltips.AddTool(IDC_STICKYDEPTH, IDS_SWITCH_STICKYDEPTH_TT);
 
     UpdateData(FALSE);
+
+    RECT rect;
+    GetWindowRect(&rect);
+    m_height = rect.bottom - rect.top;
 
     AddAnchor(IDC_SWITCHLABEL, TOP_LEFT, TOP_RIGHT);
     AddAnchor(IDC_SWITCHPATH, TOP_LEFT, TOP_RIGHT);
@@ -149,7 +155,7 @@ BOOL CSwitchDlg::OnInitDialog()
 
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"SwitchDlg");
+    EnableSaveRestore(_T("SwitchDlg"));
     return TRUE;
 }
 
@@ -194,7 +200,7 @@ void CSwitchDlg::OnOK()
     // if head revision, set revision as HEAD
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        m_rev = L"HEAD";
+        m_rev = _T("HEAD");
     }
     Revision = SVNRev(m_rev);
     if (!Revision.IsValid())
@@ -232,10 +238,6 @@ void CSwitchDlg::OnOK()
     }
 
     UpdateData(FALSE);
-
-    CRegDWORD regNoExt(L"Software\\TortoiseSVN\\noext");
-    regNoExt = m_bNoExternals;
-
     CResizableStandAloneDialog::OnOK();
 }
 
@@ -290,15 +292,39 @@ void CSwitchDlg::OnBnClickedLog()
 LPARAM CSwitchDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_REVISION_NUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;
 }
 
+void CSwitchDlg::OnSizing(UINT fwSide, LPRECT pRect)
+{
+    // don't allow the dialog to be changed in height
+    switch (fwSide)
+    {
+    case WMSZ_BOTTOM:
+    case WMSZ_BOTTOMLEFT:
+    case WMSZ_BOTTOMRIGHT:
+        pRect->bottom = pRect->top + m_height;
+        break;
+    case WMSZ_TOP:
+    case WMSZ_TOPLEFT:
+    case WMSZ_TOPRIGHT:
+        pRect->top = pRect->bottom - m_height;
+        break;
+    }
+    CResizableStandAloneDialog::OnSizing(fwSide, pRect);
+}
 
 void CSwitchDlg::OnCbnEditchangeUrlcombo()
 {
     SetDlgItemText(IDC_DESTURL, CTSVNPath(CPathUtils::CombineUrls(m_repoRoot, m_URLCombo.GetWindowString())).GetUIPathString());
 }
 
+BOOL CSwitchDlg::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+
+    return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
+}

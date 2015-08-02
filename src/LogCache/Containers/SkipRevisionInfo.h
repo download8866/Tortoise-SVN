@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2007, 2015 - TortoiseSVN
+// Copyright (C) 2007-2007 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -128,18 +128,18 @@ private:
 
         /// dictionary lookup
 
-        const value_type& value (index_type ind) const
+        const value_type& value (index_type index) const
         {
-            assert (data->size() >= ind);
-            return (*data)[ind]->pathID;
+            assert (data->size() >= index);
+            return (*data)[index]->pathID;
         }
 
         /// lookup and comparison
 
-        bool equal (const value_type& value, index_type ind) const
+        bool equal (const value_type& value, index_type index) const
         {
-            assert (data->size() > ind);
-            return (*data)[ind]->pathID == value;
+            assert (data->size() > index);
+            return (*data)[index]->pathID == value;
         }
     };
 
@@ -238,10 +238,10 @@ public:
     /// r/o data access
 
     size_t GetPathCount() const;
-    CDictionaryBasedPath GetPath (size_t ind) const;
+    CDictionaryBasedPath GetPath (size_t index) const;
 
     typedef std::vector<std::pair<revision_t, revision_t> > TRanges;
-    TRanges GetRanges (size_t ind) const;
+    TRanges GetRanges (size_t index) const;
 
     /// stream I/O
 

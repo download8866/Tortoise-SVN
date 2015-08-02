@@ -32,6 +32,7 @@
         <arg value="no-gost" />
         <arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
         <arg value="-DOPENSSL_CAPIENG_DIALOG" />
+        <arg value="-D_USING_V110_SDK71_" />
       </exec>
       <exec program="cmd" workingdir="..\openssl">
         <arg value="/c" />
@@ -40,8 +41,7 @@
       <loadfile file="..\openssl\ms\nt.mak" property="makefile">
         <filterchain>
           <replacestring from="/MT" to="/MD" />
-          <replacestring from="-W3 " to="-W0 " />
-          <replacestring from="/Ox " to="/O2 /GL /arch:IA32 " if="${configuration == 'release'}" />
+          <replacestring from="/Ox /O2" to="/O2 /GL /arch:IA32" if="${configuration == 'release'}" />
           <replacestring from="lib /nologo" to="lib /nologo /LTCG" if="${configuration == 'release'}" />
           <replacestring from="/opt:ref /debug" to="/opt:ref,icf /debug /LTCG" if="${configuration == 'release'}" />
           <replacestring from="all: banner $(TMP_D) $(BIN_D) $(TEST_D) $(LIB_D) $(INCO_D) headers lib exe" to="all: banner $(TMP_D) $(BIN_D) $(TEST_D) $(LIB_D) $(INCO_D) headers lib" />
@@ -57,6 +57,7 @@
         <arg value="no-gost" />
         <arg value="-DOPENSSL_SSL_CLIENT_ENGINE_AUTO=capi" />
         <arg value="-DOPENSSL_CAPIENG_DIALOG" />
+        <arg value="-D_USING_V110_SDK71_" />
       </exec>
       <exec program="cmd" workingdir="..\openssl">
         <arg value="/c" />
@@ -65,7 +66,6 @@
       <loadfile file="..\openssl\ms\nt.mak" property="makefile">
         <filterchain>
           <replacestring from="/MT" to="/MD" />
-          <replacestring from="-W3 " to="-W0 " />
           <replacestring from="/Ox " to="/O2 /GL " if="${configuration == 'release'}" />
           <replacestring from="lib /nologo" to="lib /nologo /LTCG" if="${configuration == 'release'}" />
           <replacestring from="/opt:ref /debug" to="/opt:ref,icf /debug /LTCG" if="${configuration == 'release'}" />

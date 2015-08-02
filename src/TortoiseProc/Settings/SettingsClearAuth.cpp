@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2015 - TortoiseSVN
+// Copyright (C) 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,13 +22,6 @@
 #include "SettingsClearAuth.h"
 #include "SVNAuthData.h"
 #include "AppUtils.h"
-#include "UnicodeUtils.h"
-#include "SVNHelpers.h"
-
-#pragma warning(push)
-#include "svn_base64.h"
-#pragma warning(pop)
-
 #include <afxdialogex.h>
 
 
@@ -38,7 +31,6 @@ IMPLEMENT_DYNAMIC(CSettingsClearAuth, CResizableStandAloneDialog)
 
 CSettingsClearAuth::CSettingsClearAuth(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CSettingsClearAuth::IDD, pParent)
-    , m_bShowPasswords(false)
 {
 
 }
@@ -55,7 +47,6 @@ void CSettingsClearAuth::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CSettingsClearAuth, CResizableStandAloneDialog)
-    ON_NOTIFY(NM_DBLCLK, IDC_AUTHDATALIST, &CSettingsClearAuth::OnNMDblclkAuthdatalist)
 END_MESSAGE_MAP()
 
 
@@ -84,7 +75,7 @@ BOOL CSettingsClearAuth::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
 
-    EnableSaveRestore(L"SettingsClearAuth");
+    EnableSaveRestore(_T("SettingsClearAuth"));
 
     return TRUE;  // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
@@ -93,7 +84,7 @@ BOOL CSettingsClearAuth::OnInitDialog()
 
 void CSettingsClearAuth::OnOK()
 {
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> delList;
+    std::vector<std::tuple<CString, CString>> delList;
     for (int i = 0; i < m_cAuthList.GetItemCount(); ++i)
     {
         if (m_cAuthList.GetCheck(i))
@@ -104,7 +95,7 @@ void CSettingsClearAuth::OnOK()
             }
             else
             {
-                auto data = std::make_tuple(m_cAuthList.GetItemText(i, 0), m_cAuthList.GetItemText(i, 1), SVNAuthDataInfo());
+                auto data = std::make_tuple(m_cAuthList.GetItemText(i, 0), m_cAuthList.GetItemText(i, 1));
                 delList.push_back(data);
             }
         }
@@ -132,13 +123,6 @@ void CSettingsClearAuth::FillAuthListControl()
     m_cAuthList.InsertColumn(0, temp);
     temp.LoadString(IDS_SETTINGSCLEAR_COL2);
     m_cAuthList.InsertColumn(1, temp);
-    temp.LoadString(IDS_SETTINGSCLEAR_COL3);
-    m_cAuthList.InsertColumn(2, temp);
-    if (m_bShowPasswords)
-    {
-        temp.LoadString(IDS_SETTINGSCLEAR_COL4);
-        m_cAuthList.InsertColumn(3, temp);
-    }
 
     SVNAuthData authData;
     auto authList = authData.GetAuthList();
@@ -147,24 +131,6 @@ void CSettingsClearAuth::FillAuthListControl()
     {
         m_cAuthList.InsertItem (iItem,    std::get<0>(it));
         m_cAuthList.SetItemText(iItem, 1, std::get<1>(it));
-        m_cAuthList.SetItemText(iItem, 2, std::get<2>(it).username);
-        if (m_bShowPasswords)
-        {
-            SVNPool pool;
-            CStringA pwa = CUnicodeUtils::GetUTF8(std::get<2>(it).password);
-            if (pwa.IsEmpty())
-                pwa = CUnicodeUtils::GetUTF8(std::get<2>(it).passphrase);
-            svn_string_t svns;
-            svns.data = pwa;
-            svns.len = pwa.GetLength();
-            auto dd = SVNAuthData::decrypt_data(&svns, pool);
-            if (dd)
-            {
-                CStringA pw(dd->data, (int)dd->len);
-                CString colString = CUnicodeUtils::GetUnicode(pw);
-                m_cAuthList.SetItemText(iItem, 3, colString);
-            }
-        }
         ++iItem;
     }
 
@@ -174,12 +140,11 @@ void CSettingsClearAuth::FillAuthListControl()
     for (POSITION pos = certList.GetHeadPosition(); pos != NULL; )
     {
         CString certHash = certList.GetNext(pos);
-        CRegDWORD regCert(L"Software\\TortoiseSVN\\CAPIAuthz\\"+certHash);
+        CRegDWORD regCert(_T("Software\\TortoiseSVN\\CAPIAuthz\\")+certHash);
         m_cAuthList.InsertItem (iItem,    L"certificate");
         m_cAuthList.SetItemText(iItem, 1, certHash);
         temp.Format(L"%d", (int)(DWORD)regCert);
         m_cAuthList.SetItemText(iItem, 2, temp);
-        m_cAuthList.SetItemText(iItem, 3, L"");
         ++iItem;
     }
 
@@ -191,15 +156,4 @@ void CSettingsClearAuth::FillAuthListControl()
     }
 
     m_cAuthList.SetRedraw(true);
-}
-
-
-void CSettingsClearAuth::OnNMDblclkAuthdatalist(NMHDR * /*pNMHDR*/, LRESULT *pResult)
-{
-    *pResult = 0;
-    if ((GetKeyState(VK_CONTROL) & 0x8000) && (GetKeyState(VK_SHIFT) & 0x8000))
-    {
-        m_bShowPasswords = true;
-        FillAuthListControl();
-    }
 }

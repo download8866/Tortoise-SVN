@@ -29,13 +29,23 @@ static char THIS_FILE[] = __FILE__;
 /////////////////////////////////////////////////////////////////////////////
 // CResizableSheetEx
 
+typedef HRESULT (__stdcall *DWM_EXTEND_FRAME_INTO_CLIENT_AREA)(HWND ,const MARGINS* );
+typedef HRESULT (__stdcall *DWM_IS_COMPOSITION_ENABLED)(BOOL *pfEnabled);
+typedef HRESULT (__stdcall *DWM_ENABLE_COMPOSITION)(UINT uCompositionAction);
+
 
 BOOL CResizableSheetEx::IsDwmCompositionEnabled(void)
 {
-    HIGHCONTRAST hc = { sizeof(HIGHCONTRAST) };
-    SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
+    if(m_hDwmApiLib == NULL)
+    {
+        return FALSE;
+    }
+    DWM_IS_COMPOSITION_ENABLED pfnDwmIsCompositionEnabled = (DWM_IS_COMPOSITION_ENABLED)GetProcAddress(m_hDwmApiLib, "DwmIsCompositionEnabled");
+    if(!pfnDwmIsCompositionEnabled)
+        return FALSE;
     BOOL bEnabled = FALSE;
-    return (((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled);
+    HRESULT hRes = pfnDwmIsCompositionEnabled(&bEnabled);
+    return SUCCEEDED(hRes) && bEnabled;
 }
 
 
@@ -49,6 +59,7 @@ inline void CResizableSheetEx::PrivateConstruct()
     m_bLayoutDone = FALSE;
     m_bRectOnly = FALSE;
     m_nCallbackID = 0;
+    m_hDwmApiLib = AtlLoadSystemLibraryUsingFullPath(L"dwmapi.dll");
     m_bShowGrip = !IsDwmCompositionEnabled();
 }
 
@@ -88,6 +99,9 @@ CResizableSheetEx::CResizableSheetEx(LPCTSTR pszCaption, CWnd* pParentWnd,
 
 CResizableSheetEx::~CResizableSheetEx()
 {
+    if (m_hDwmApiLib)
+        FreeLibrary(m_hDwmApiLib);
+    m_hDwmApiLib = NULL;
 }
 
 BEGIN_MESSAGE_MAP(CResizableSheetEx, CPropertySheetEx)
@@ -329,17 +343,26 @@ void CResizableSheetEx::OnSize(UINT nType, int cx, int cy)
 
     ArrangeLayout();
 
+    OSVERSIONINFOEX inf;
+    ZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
+    inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
+    GetVersionEx((OSVERSIONINFO *)&inf);
+    WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
+
     if (IsWizard97())
     {
         // refresh header area
         CRect rect;
         GetHeaderRect(rect);
-        InvalidateRect(rect, TRUE);
+        InvalidateRect(rect, fullver >= 0x0600);
     }
     // on Vista, the redrawing doesn't work right, so we have to work
     // around this by invalidating the whole dialog so the DWM recognizes
     // that it has to update the application window.
+    if (fullver >= 0x0600)
+    {
         InvalidateRect(NULL, FALSE);
+    }
 }
 
 BOOL CResizableSheetEx::OnPageChanging(NMHDR* /*pNotifyStruct*/, LRESULT* /*pResult*/)

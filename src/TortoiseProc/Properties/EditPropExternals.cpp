@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2015 - TortoiseSVN
+// Copyright (C) 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "EditPropExternals.h"
 #include "EditPropExternalsValue.h"
 #include "SVN.h"
-#include "SVNInfo.h"
 #include "AppUtils.h"
 #include "ProgressDlg.h"
 #include "IconMenu.h"
@@ -130,7 +129,7 @@ BOOL CEditPropExternals::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"EditPropsExternals");
+    EnableSaveRestore(_T("EditPropsExternals"));
 
     return TRUE;
 }
@@ -245,12 +244,12 @@ void CEditPropExternals::OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *p
                 {
                 case 0: // folder or file
                     {
-                        lstrcpyn(m_columnbuf, ext.targetDir, pDispInfo->item.cchTextMax - 1);
+                        lstrcpyn(m_columnbuf, ext.targetDir, pDispInfo->item.cchTextMax);
                     }
                     break;
                 case 1: // url
                     {
-                        lstrcpyn(m_columnbuf, ext.url, pDispInfo->item.cchTextMax - 1);
+                        lstrcpyn(m_columnbuf, ext.url, pDispInfo->item.cchTextMax);
                         int cWidth = m_ExtList.GetColumnWidth(1);
                         cWidth = max(14, cWidth-14);
                         CDC * pDC = m_ExtList.GetDC();
@@ -265,19 +264,19 @@ void CEditPropExternals::OnLvnGetdispinfoExternalslist(NMHDR *pNMHDR, LRESULT *p
                     break;
                 case 2: // peg
                     if ((ext.pegrevision.kind == svn_opt_revision_number) && (ext.pegrevision.value.number >= 0))
-                        swprintf_s(m_columnbuf, L"%ld", ext.pegrevision.value.number);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.pegrevision.value.number);
                     else
                         m_columnbuf[0] = 0;
                     break;
                 case 3: // operative
                     if ((ext.revision.kind == svn_opt_revision_number) && (ext.revision.value.number >= 0) && (ext.revision.value.number != ext.pegrevision.value.number))
-                        swprintf_s(m_columnbuf, L"%ld", ext.revision.value.number);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.revision.value.number);
                     else
                         m_columnbuf[0] = 0;
                     break;
                 case 4: // head revision
                     if (ext.headrev != SVN_INVALID_REVNUM)
-                        swprintf_s(m_columnbuf, L"%ld", ext.headrev);
+                        _stprintf_s(m_columnbuf, _T("%ld"), ext.headrev);
                     else
                         m_columnbuf[0] = 0;
                     break;
@@ -314,9 +313,6 @@ void CEditPropExternals::OnBnClickedFindhead()
     DWORD count = 0;
     DWORD total = (DWORD)m_externals.size()*4;
     SVN svn;
-    svn.SetPromptParentWindow(m_hWnd);
-    SVNInfo svnInfo;
-    svnInfo.SetPromptParentWindow(m_hWnd);
     for (auto it = m_externals.begin(); it != m_externals.end(); ++it)
     {
         progDlg.SetProgress(count++, total);
@@ -344,11 +340,7 @@ void CEditPropExternals::OnBnClickedFindhead()
             auto hi = headrevs.find(it->root);
             if (hi == headrevs.end())
             {
-                const SVNInfoData * pInfo = svnInfo.GetFirstFileInfo(CTSVNPath(it->fullurl), SVNRev(), SVNRev::REV_HEAD);
-                if ((pInfo == nullptr) || (pInfo->lastchangedrev <= 0))
-                    it->headrev = svn.GetHEADRevision(CTSVNPath(it->fullurl), true);
-                else
-                    it->headrev = pInfo->lastchangedrev;
+                it->headrev = svn.GetHEADRevision(CTSVNPath(it->fullurl), true);
                 headrevs[it->root] = it->headrev;
             }
             else
@@ -410,9 +402,6 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         case CMD_FETCH_AND_ADJUST:
             {
                 SVN svn;
-                svn.SetPromptParentWindow(m_hWnd);
-                SVNInfo svnInfo;
-                svnInfo.SetPromptParentWindow(m_hWnd);
                 std::map<CString, svn_revnum_t> headrevs;
                 CProgressDlg progDlg;
                 progDlg.ShowModal(m_hWnd, TRUE);
@@ -420,10 +409,10 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                 progDlg.SetLine(1, CString(MAKEINTRESOURCE(IDS_EDITPROPS_PROG_FINDHEADREVS)));
                 DWORD count = 0;
                 DWORD total = m_ExtList.GetSelectedCount();
-                POSITION p = m_ExtList.GetFirstSelectedItemPosition();
-                while (p)
+                POSITION pos = m_ExtList.GetFirstSelectedItemPosition();
+                while (pos)
                 {
-                    int index = m_ExtList.GetNextSelectedItem(p);
+                    int index = m_ExtList.GetNextSelectedItem(pos);
                     progDlg.SetProgress(count++, total);
                     if ((index >= 0)&&(index < (int)m_externals.size()))
                     {
@@ -432,19 +421,15 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                         {
                             if (m_externals[index].root.IsEmpty())
                             {
-                                CTSVNPath path_ = m_externals[index].path;
-                                path_.AppendPathString(m_externals[index].targetDir);
-                                m_externals[index].root = svn.GetRepositoryRoot(path_);
+                                CTSVNPath p = m_externals[index].path;
+                                p.AppendPathString(m_externals[index].targetDir);
+                                m_externals[index].root = svn.GetRepositoryRoot(p);
                             }
 
                             auto hi = headrevs.find(m_externals[index].root);
                             if (hi == headrevs.end())
                             {
-                                const SVNInfoData * pInfo = svnInfo.GetFirstFileInfo(CTSVNPath(m_externals[index].fullurl), SVNRev(), SVNRev::REV_HEAD);
-                                if ((pInfo == nullptr) || (pInfo->lastchangedrev <= 0))
-                                    m_externals[index].headrev = svn.GetHEADRevision(CTSVNPath(m_externals[index].fullurl), true);
-                                else
-                                    m_externals[index].headrev = pInfo->lastchangedrev;
+                                m_externals[index].headrev = svn.GetHEADRevision(CTSVNPath(m_externals[index].fullurl), true);
                                 headrevs[m_externals[index].root] = m_externals[index].headrev;
                             }
                             else
@@ -457,10 +442,10 @@ void CEditPropExternals::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
             // intentional fall through
         case CMD_ADJUST:
             {
-                POSITION p = m_ExtList.GetFirstSelectedItemPosition();
-                while (p)
+                POSITION pos = m_ExtList.GetFirstSelectedItemPosition();
+                while (pos)
                 {
-                    int index = m_ExtList.GetNextSelectedItem(p);
+                    int index = m_ExtList.GetNextSelectedItem(pos);
                     if ((index >= 0)&&(index < (int)m_externals.size()))
                     {
                         if (m_externals[index].headrev != SVN_INVALID_REVNUM)

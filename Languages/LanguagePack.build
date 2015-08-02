@@ -113,13 +113,6 @@ NAnt build script for the TortoiseSVN language pack installers
       <arg value="${langISO}\TortoiseUI.po" />
       <arg value="-adjusteols" />
     </exec>
-    <exec program="${ResTextFileName}" failonerror="false">
-      <arg value="apply" />
-      <arg value="..\bin\${platformfolder}\bin\TortoiseUDiffLang.dll" />
-      <arg value="..\bin\TortoiseUDiff${langCC}.dll" />
-      <arg value="${langISO}\TortoiseUI.po" />
-      <arg value="-adjusteols" />
-    </exec>
 
     <!-- create the mo files -->
     <property name="PoFileName" value="..\ext\Subversion\Subversion\po\${langISO}.po" />
@@ -241,11 +234,9 @@ NAnt build script for the TortoiseSVN language pack installers
 
     <delete file="LanguagePack_${langISO}.wxs" failonerror="false" />
     <delete file="..\bin\TortoiseProc${langCC}.dll" failonerror="false" />
-    <delete file="..\bin\TortoiseProc32${langCC}.dll" failonerror="false" />
     <delete file="..\bin\TortoiseMerge${langCC}.dll" failonerror="false" />
     <delete file="..\bin\TortoiseBlame${langCC}.dll" failonerror="false" />
     <delete file="..\bin\TortoiseIDiff${langCC}.dll" failonerror="false" />
-    <delete file="..\bin\TortoiseUDiff${langCC}.dll" failonerror="false" />
     <delete file="subversion.mo" failonerror="false" />
   </target>
 

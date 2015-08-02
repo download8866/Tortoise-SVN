@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,17 +20,11 @@
 
 #include "ResizableDialog.h"
 #include "registry.h"
+#include "AeroGlass.h"
 #include "AeroControls.h"
 #include "CreateProcessHelper.h"
 #include "TaskbarUUID.h"
-#include "Tooltip.h"
-
-#include <Dwmapi.h>
-#pragma comment(lib, "Dwmapi.lib")
 #pragma comment(lib, "htmlhelp.lib")
-
-#define DIALOG_BLOCKHORIZONTAL 1
-#define DIALOG_BLOCKVERTICAL 2
 
 /**
  * \ingroup TortoiseProc
@@ -48,6 +42,7 @@ protected:
     CStandAloneDialogTmpl(UINT nIDTemplate, CWnd* pParentWnd = NULL) : BaseType(nIDTemplate, pParentWnd)
     {
         m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+        m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
         m_margins.cxLeftWidth = 0;
         m_margins.cyTopHeight = 0;
         m_margins.cxRightWidth = 0;
@@ -55,10 +50,6 @@ protected:
         m_bkgndIconWidth = 0;
         m_bkgndIconHeight = 0;
         m_hBkgndIcon = 0;
-        m_nResizeBlock = 0;
-        m_height = 0;
-        m_width = 0;
-
         SetBackgroundIcon(IDI_AEROBACKGROUND, 256, 256);
     }
     ~CStandAloneDialogTmpl()
@@ -68,6 +59,7 @@ protected:
     }
     virtual BOOL OnInitDialog()
     {
+        m_Dwm.Initialize();
         BaseType::OnInitDialog();
 
         // Set the icon for this dialog.  The framework does this automatically
@@ -75,36 +67,7 @@ protected:
         SetIcon(m_hIcon, TRUE);         // Set big icon
         SetIcon(m_hIcon, FALSE);        // Set small icon
 
-        RECT rect;
-        GetWindowRect(&rect);
-        m_height = rect.bottom - rect.top;
-        m_width = rect.right - rect.left;
-        EnableToolTips();
-        m_tooltips.Create(this);
-
         return FALSE;
-    }
-
-    virtual BOOL PreTranslateMessage(MSG* pMsg)
-    {
-        m_tooltips.RelayEvent(pMsg, this);
-        if (pMsg->message == WM_KEYDOWN)
-        {
-            int nVirtKey = (int)pMsg->wParam;
-
-            if (nVirtKey == 'A' && (GetKeyState(VK_CONTROL) & 0x8000))
-            {
-                wchar_t buffer[129];
-                ::GetClassName(pMsg->hwnd, buffer, 128);
-
-                if (_wcsnicmp(buffer, L"EDIT", 128) == 0)
-                {
-                    ::PostMessage(pMsg->hwnd, EM_SETSEL, 0, -1);
-                    return TRUE;
-                }
-            }
-        }
-        return BaseType::PreTranslateMessage(pMsg);
     }
 
     afx_msg void OnPaint()
@@ -134,8 +97,8 @@ protected:
 
     BOOL OnEraseBkgnd(CDC*  pDC)
     {
-        BOOL baseRet = BaseType::OnEraseBkgnd(pDC);
-        if (m_aeroControls.AeroDialogsEnabled())
+        BaseType::OnEraseBkgnd(pDC);
+        if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
         {
             // draw the frame margins in black
             CRect rc;
@@ -167,12 +130,12 @@ protected:
                 pDC->FillSolidRect(rc.left, rc.bottom-m_margins.cyBottomHeight, rc.right-rc.left, m_margins.cyBottomHeight, RGB(0,0,0));
             }
         }
-        return baseRet;
+        return TRUE;
     }
 
     LRESULT OnNcHitTest(CPoint pt)
     {
-        if (m_aeroControls.AeroDialogsEnabled())
+        if ((m_Dwm.IsDwmCompositionEnabled())&&((DWORD)m_regEnableDWMFrame))
         {
             CRect rc;
             GetClientRect(&rc);
@@ -202,7 +165,7 @@ protected:
      */
     void ExtendFrameIntoClientArea(UINT leftControl, UINT topControl, UINT rightControl, UINT botomControl)
     {
-        if (!m_aeroControls.AeroDialogsEnabled())
+        if (!(DWORD)m_regEnableDWMFrame)
             return;
         RECT rc, rc2;
         GetWindowRect(&rc);
@@ -268,7 +231,10 @@ protected:
             m_margins.cxRightWidth = -1;
             m_margins.cyBottomHeight = -1;
         }
-        DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
+        if (m_Dwm.IsDwmCompositionEnabled())
+        {
+            m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
+        }
     }
 
     /**
@@ -435,18 +401,13 @@ protected:
         HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(idi), IMAGE_ICON, width, height, LR_DEFAULTCOLOR);
         SetBackgroundIcon(hIcon, width, height);
     }
-    void BlockResize(int block)
-    {
-        m_nResizeBlock = block;
-    }
+
 
 protected:
+    CDwmApiImpl     m_Dwm;
     MARGINS         m_margins;
+    CRegDWORD       m_regEnableDWMFrame;
     AeroControlBase m_aeroControls;
-    CToolTips       m_tooltips;
-    int             m_nResizeBlock;
-    long            m_width;
-    long            m_height;
 
     DECLARE_MESSAGE_MAP()
 private:
@@ -468,7 +429,7 @@ private:
         CWaitCursor wait;
 
         CString cmd;
-        cmd.Format(L"HH.exe -mapid %Iu \"%s\"", dwData, pApp->m_pszHelpFilePath);
+        cmd.Format(_T("HH.exe -mapid %Iu \"%s\""), dwData, pApp->m_pszHelpFilePath);
         if (!CCreateProcessHelper::CreateProcessDetached(NULL,
             cmd.GetBuffer()))
         {
@@ -480,9 +441,9 @@ private:
 
     void OnCompositionChanged()
     {
-        if (m_aeroControls.AeroDialogsEnabled())
+        if (m_Dwm.IsDwmCompositionEnabled())
         {
-            DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
+            m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &m_margins);
         }
         BaseType::OnCompositionChanged();
     }
@@ -492,7 +453,6 @@ private:
         SetUUIDOverlayIcon(m_hWnd);
         return 0;
     }
-
     HICON           m_hIcon;
     HICON           m_hBkgndIcon;
     int             m_bkgndIconWidth;
@@ -502,14 +462,14 @@ private:
 class CStateDialog : public CDialog, public CResizableWndState
 {
 public:
-    CStateDialog() : CDialog()
-        , m_bEnableSaveRestore(false)
+    CStateDialog()
+        : m_bEnableSaveRestore(false)
         , m_bRectOnly(false){}
-    CStateDialog(UINT nIDTemplate, CWnd* pParentWnd = NULL) : CDialog(nIDTemplate, pParentWnd)
-        , m_bEnableSaveRestore(false)
+    CStateDialog(UINT /*nIDTemplate*/, CWnd* /*pParentWnd = NULL*/)
+        : m_bEnableSaveRestore(false)
         , m_bRectOnly(false){}
-    CStateDialog(LPCTSTR lpszTemplateName, CWnd* pParentWnd = NULL) : CDialog(lpszTemplateName, pParentWnd)
-        , m_bEnableSaveRestore(false)
+    CStateDialog(LPCTSTR /*lpszTemplateName*/, CWnd* /*pParentWnd = NULL*/)
+        : m_bEnableSaveRestore(false)
         , m_bRectOnly(false){}
     virtual ~CStateDialog(){};
 
@@ -564,7 +524,6 @@ protected:
     afx_msg void    OnMoving(UINT fwSide, LPRECT pRect);
     afx_msg void    OnNcMButtonUp(UINT nHitTest, CPoint point);
     afx_msg void    OnNcRButtonUp(UINT nHitTest, CPoint point);
-    afx_msg LRESULT OnNcHitTest(CPoint point);
     void            OnCantStartThread();
     bool            OnEnterPressed();
 
@@ -574,8 +533,6 @@ private:
     bool        m_bVertical;
     bool        m_bHorizontal;
     CRect       m_rcOrgWindowRect;
-    int         m_stickySize;
-public:
 };
 
 class CStandAloneDialog : public CStandAloneDialogTmpl<CDialog>

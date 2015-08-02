@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2010-2015 - TortoiseSVN
+// Copyright (C) 2010-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -109,7 +109,7 @@ svn_error_t * SVNPatch::patch_func( void *baton, svn_boolean_t * filtered, const
     {
         CString abspath = CUnicodeUtils::GetUnicode(canon_path_from_patchfile);
         PathRejects pr;
-        pr.path = PathIsRelative(abspath) ? abspath : pThis->Strip(abspath);
+        pr.path = PathIsRelative(abspath) ? abspath : abspath.Mid(pThis->m_targetpath.GetLength());
         pr.rejects = 0;
         pr.resultPath = CUnicodeUtils::GetUnicode(patch_abspath);
         pr.resultPath.Replace('/', '\\');
@@ -204,26 +204,6 @@ int SVNPatch::Init( const CString& patchfile, const CString& targetpath, CProgre
                            this,                                    // patch_baton
                            ctx,                                     // client context
                            scratchpool);
-    if (m_filePaths.empty() && (m_nStrip == 0))
-    {
-        // in case no paths matched, try again with one strip.
-        // because if the patch paths are absolute, only stripping
-        // the drive letter will get the svn_client_patch to call
-        // the patch_func and we then get the data we need to later
-        // adjust the strip value correctly.
-        m_nStrip++;
-        err = svn_client_patch(tsvnpatchfile.GetSVNApiPath(scratchpool),     // patch_abspath
-                               tsvntargetpath.GetSVNApiPath(scratchpool),    // local_abspath
-                               true,                                    // dry_run
-                               m_nStrip,                                // strip_count
-                               false,                                   // reverse
-                               true,                                    // ignore_whitespace
-                               false,                                   // remove_tempfiles
-                               patch_func,                              // patch_func
-                               this,                                    // patch_baton
-                               ctx,                                     // client context
-                               scratchpool);
-    }
 
     m_pProgDlg = NULL;
     apr_pool_destroy(scratchpool);
@@ -240,7 +220,7 @@ int SVNPatch::Init( const CString& patchfile, const CString& targetpath, CProgre
 
     if ((m_nRejected > ((int)m_filePaths.size() / 3)) && !m_testPath.IsEmpty())
     {
-        auto startStrip = m_nStrip;
+        m_nStrip++;
         for (m_nStrip = 0; m_nStrip < STRIP_LIMIT; ++m_nStrip)
         {
             int nExisting = 0;
@@ -252,14 +232,11 @@ int SVNPatch::Init( const CString& patchfile, const CString& targetpath, CProgre
                     m_nStrip = STRIP_LIMIT;
                     break;
                 }
-                else if (PathFileExists(m_targetpath + L"\\" + p))
+                else if (PathFileExists(p))
                     ++nExisting;
             }
             if (nExisting > int(m_filePaths.size()-m_nRejected))
-            {
-                m_nStrip += startStrip;
                 break;
-            }
         }
     }
 
@@ -348,7 +325,7 @@ int SVNPatch::GetPatchResult(const CString& sPath, CString& sSavePath, CString& 
 {
     for (std::vector<PathRejects>::const_iterator it = m_filePaths.begin(); it != m_filePaths.end(); ++it)
     {
-        if (it->path.CompareNoCase(sPath) == 0)
+        if (Strip(it->path).CompareNoCase(sPath)==0)
         {
             sSavePath = it->resultPath;
             if (it->rejects > 0)
@@ -427,11 +404,11 @@ int SVNPatch::CountMatches( const CString& path ) const
     int matches = 0;
     for (int i=0; i<GetNumberOfFiles(); ++i)
     {
-        CString temp = GetFilePath(i);
+        CString temp = GetStrippedPath(i);
         temp.Replace('/', '\\');
         if ((PathIsRelative(temp)) ||
             ((temp.GetLength() > 1) && (temp[0]=='\\') && (temp[1]!='\\')) )
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         if (PathFileExists(temp))
             matches++;
     }
@@ -443,10 +420,10 @@ int SVNPatch::CountDirMatches( const CString& path ) const
     int matches = 0;
     for (int i=0; i<GetNumberOfFiles(); ++i)
     {
-        CString temp = GetFilePath(i);
+        CString temp = GetStrippedPath(i);
         temp.Replace('/', '\\');
         if (PathIsRelative(temp))
-            temp = path + L"\\"+ temp;
+            temp = path + _T("\\")+ temp;
         // remove the filename
         temp = temp.Left(temp.ReverseFind('\\'));
         if (PathFileExists(temp))
@@ -458,14 +435,14 @@ int SVNPatch::CountDirMatches( const CString& path ) const
 CString SVNPatch::GetStrippedPath( int nIndex ) const
 {
     if (nIndex < 0)
-        return L"";
+        return _T("");
     if (nIndex < (int)m_filePaths.size())
     {
         CString filepath = Strip(GetFilePath(nIndex));
         return filepath;
     }
 
-    return L"";
+    return _T("");
 }
 
 CString SVNPatch::Strip( const CString& filename ) const
@@ -486,7 +463,7 @@ CString SVNPatch::Strip( const CString& filename ) const
             //       "ts/my-working-copy/dir/file.txt"
             //          "my-working-copy/dir/file.txt"
             //                          "dir/file.txt"
-            int p = s.FindOneOf(L"/\\");
+            int p = s.FindOneOf(_T("/\\"));
             if (p < 0)
             {
                 s.Empty();
@@ -510,7 +487,7 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
         while (ErrPtr->child)
         {
             ErrPtr = ErrPtr->child;
-            msg += L"\n";
+            msg += _T("\n");
             temp = GetErrorMessageForNode(ErrPtr);
             msg += temp;
         }
@@ -518,9 +495,10 @@ CString SVNPatch::GetErrorMessage(svn_error_t * Err) const
     return msg;
 }
 
-CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
+CString	 SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
 {
     CString msg;
+    char errbuf[256];
     if (Err != NULL)
     {
         svn_error_t * ErrPtr = Err;
@@ -528,7 +506,6 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
             msg = CUnicodeUtils::GetUnicode(ErrPtr->message);
         else
         {
-            char errbuf[256] = {0};
             /* Is this a Subversion-specific error code? */
             if ((ErrPtr->apr_err > APR_OS_START_USEERR)
                 && (ErrPtr->apr_err <= APR_OS_START_CANONERR))
@@ -544,7 +521,7 @@ CString SVNPatch::GetErrorMessageForNode(svn_error_t* Err) const
                 if (temp_err)
                 {
                     svn_error_clear (temp_err);
-                    msg = L"Can't recode error string from APR";
+                    msg = _T("Can't recode error string from APR");
                 }
                 else
                 {
@@ -581,3 +558,4 @@ bool SVNPatch::RemoveFile( const CString& path )
     }
     return true;
 }
+

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,7 +22,6 @@
 #include "RevisionDlg.h"
 #include "SVNInfo.h"
 #include "SVN.h"
-#include "SVNHelpers.h"
 #include "WaitCursorEx.h"
 
 #define IDC_URL_COMBO     10000
@@ -33,11 +32,15 @@
 
 IMPLEMENT_DYNAMIC(CRepositoryBar, CReBarCtrl)
 
-CRepositoryBar::CRepositoryBar()
-    : m_cbxUrl(this)
+#pragma warning(push)
+#pragma warning(disable: 4355)  // 'this' used in base member initializer list
+
+CRepositoryBar::CRepositoryBar() : m_cbxUrl(this)
     , m_pRepo(NULL)
 {
 }
+
+#pragma warning(pop)
 
 CRepositoryBar::~CRepositoryBar()
 {
@@ -100,11 +103,11 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         int bandpos = 0;
         // Create the "Back" button control to be added
         rect = CRect(0, 0, 24, 24);
-        m_btnBack.Create(L"BACK", WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_BACK_BTN);
+        m_btnBack.Create(_T("BACK"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_BACK_BTN);
         m_btnBack.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_BACKWARD), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-        m_btnBack.SetWindowText(L"");
+        m_btnBack.SetWindowText(_T(""));
         m_btnBack.Invalidate();
-        rbbi.lpText     = L"";
+        rbbi.lpText     = _T("");
         rbbi.hwndChild  = m_btnBack.m_hWnd;
         rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
         rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
@@ -115,11 +118,11 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
             return false;
         // Create the "Forward" button control to be added
         rect = CRect(0, 0, 24, 24);
-        m_btnForward.Create(L"FORWARD", WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_FORWARD_BTN);
+        m_btnForward.Create(_T("FORWARD"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_FORWARD_BTN);
         m_btnForward.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_FORWARD), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-        m_btnForward.SetWindowText(L"");
+        m_btnForward.SetWindowText(_T(""));
         m_btnForward.Invalidate();
-        rbbi.lpText     = L"";
+        rbbi.lpText     = _T("");
         rbbi.hwndChild  = m_btnForward.m_hWnd;
         rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
         rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
@@ -134,7 +137,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
         m_cbxUrl.Create(WS_CHILD | WS_TABSTOP | CBS_DROPDOWN, rect, this, IDC_URL_COMBO);
         m_cbxUrl.SetURLHistory(true, false);
         m_cbxUrl.SetFont(font);
-        m_cbxUrl.LoadHistory(L"Software\\TortoiseSVN\\History\\repoURLS", L"url");
+        m_cbxUrl.LoadHistory(_T("Software\\TortoiseSVN\\History\\repoURLS"), _T("url"));
         temp.LoadString(IDS_REPO_BROWSEURL);
         rbbi.lpText     = const_cast<LPTSTR>((LPCTSTR)temp);
         rbbi.hwndChild  = m_cbxUrl.m_hWnd;
@@ -152,11 +155,11 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
         // Create the "Up" button control to be added
         rect = CRect(0, 0, 24, m_cbxUrl.GetItemHeight(-1) + 8);
-        m_btnUp.Create(L"UP", WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_UP_BTN);
+        m_btnUp.Create(_T("UP"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON | BS_ICON, rect, this, IDC_UP_BTN);
         m_btnUp.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_UP), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
-        m_btnUp.SetWindowText(L"");
+        m_btnUp.SetWindowText(_T(""));
         m_btnUp.Invalidate();
-        rbbi.lpText     = L"";
+        rbbi.lpText     = _T("");
         rbbi.hwndChild  = m_btnUp.m_hWnd;
         rbbi.clrFore    = ::GetSysColor(COLOR_WINDOWTEXT);
         rbbi.clrBack    = ::GetSysColor(COLOR_BTNFACE);
@@ -168,7 +171,7 @@ bool CRepositoryBar::Create(CWnd* parent, UINT id, bool in_dialog)
 
         // Create the "Revision" button control to be added
         rect = CRect(0, 0, 60, m_cbxUrl.GetItemHeight(-1) + 10);
-        m_btnRevision.Create(L"HEAD", WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON, rect, this, IDC_REVISION_BTN);
+        m_btnRevision.Create(_T("HEAD"), WS_CHILD | WS_TABSTOP | BS_PUSHBUTTON, rect, this, IDC_REVISION_BTN);
         m_btnRevision.SetFont(font);
         temp.LoadString(IDS_REPO_BROWSEREV);
         rbbi.lpText     = const_cast<LPTSTR>((LPCTSTR)temp);
@@ -259,13 +262,6 @@ void CRepositoryBar::GotoUrl(const CString& url, SVNRev rev, bool bAlreadyChecke
 
     if (m_pRepo)
     {
-        if (!CTSVNPath(new_url).IsCanonical())
-        {
-            CString sErr;
-            sErr.Format(IDS_ERR_INVALIDURLORPATH, (LPCWSTR)new_url);
-            ::MessageBox(GetSafeHwnd(), sErr, L"TortoiseSVN", MB_ICONERROR);
-            return;
-        }
         SVNRev r = new_rev;
         m_headRev = SVNRev();
         m_pRepo->ChangeToUrl(new_url, r, bAlreadyChecked);

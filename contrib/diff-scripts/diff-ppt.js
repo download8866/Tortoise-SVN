@@ -2,7 +2,7 @@
 //
 // TortoiseSVN Diff script for Powerpoint files
 //
-// Copyright (C) 2004-2010, 2012-2013, 2015 the TortoiseSVN team
+// Copyright (C) 2004-2009 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -34,7 +34,10 @@ function PptAppMajorVersion(PowerPoint)
         {
             return 0;
         }
-        return parseInt(pptVersion, 10);
+        else
+        {
+            return parseInt(pptVersion, 10);
+        }
     }
     catch (e)
     {

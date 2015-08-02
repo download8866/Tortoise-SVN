@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,7 +21,6 @@
 #include "Guids.h"
 #include "ShellExtClassFactory.h"
 #include "ShellObjects.h"
-#include "SysInfo.h"
 #include "svn_dso.h"
 
 volatile LONG       g_cRefThisDll = 0;              ///< reference count of this DLL.
@@ -29,7 +28,7 @@ HINSTANCE           g_hmodThisDll = NULL;           ///< handle to this DLL itse
 int                 g_cAprInit = 0;
 ShellCache          g_ShellCache;                   ///< caching of registry entries, ...
 DWORD               g_langid;
-ULONGLONG           g_langTimeout = 0;
+DWORD               g_langTimeout = 0;
 HINSTANCE           g_hResInst = NULL;
 tstring         g_filepath;
 svn_wc_status_kind  g_filestatus = svn_wc_status_none;  ///< holds the corresponding status to the file/dir above
@@ -47,7 +46,7 @@ bool                g_ignoredovlloaded = false;
 bool                g_unversionedovlloaded = false;
 CComCriticalSection g_csGlobalCOMGuard;
 
-LPCTSTR             g_MenuIDString = L"TortoiseSVN";
+LPCTSTR             g_MenuIDString = _T("TortoiseSVN");
 
 ShellObjects        g_shellObjects;
 
@@ -68,11 +67,11 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
         DWORD pathLength = GetModuleFileName(NULL, buf, MAX_PATH);
         if(pathLength >= 14)
         {
-            if ((_wcsicmp(&buf[pathLength-14], L"\\ShellTest.exe")) == 0)
+            if ((_tcsicmp(&buf[pathLength-14], _T("\\ShellTest.exe"))) == 0)
             {
                 bInShellTest = true;
             }
-            if ((_wcsicmp(&buf[pathLength-13], L"\\verclsid.exe")) == 0)
+            if ((_tcsicmp(&buf[pathLength-13], _T("\\verclsid.exe"))) == 0)
             {
                 bInShellTest = true;
             }

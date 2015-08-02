@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -158,7 +158,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
     const TCHAR* pPath = pwszPath;
     // the shell sometimes asks overlays for invalid paths, e.g. for network
     // printers (in that case the path is "0", at least for me here).
-    if (wcslen(pPath)<2)
+    if (_tcslen(pPath)<2)
         return S_FALSE;
 
     PreserveChdir preserveChdir;
@@ -171,7 +171,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
     // To make sure that cache expires, clear it as soon as one handler is used.
 
     AutoLocker lock(g_csGlobalCOMGuard);
-    if (wcscmp(pPath, g_filepath.c_str())==0)
+    if (_tcscmp(pPath, g_filepath.c_str())==0)
     {
         status = g_filestatus;
         readonlyoverlay = g_readonlyoverlay;
@@ -296,7 +296,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
             }
             break;
         }
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": Status %d for file %s\n", status, pwszPath);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": Status %d for file %s\n"), status, pwszPath);
     }
     g_filepath.clear();
     g_filepath = pPath;
@@ -312,9 +312,7 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
     {
         // note: we can show other overlays if due to lack of enough free overlay
         // slots some of our overlays aren't loaded. But we assume that
-        // at least the 'normal' overlay is available.
-        // if the 'modified' overlay isn't available, we show the 'normal' overlay,
-        // but in this case the overlays don't really provide anything useful anymore.
+        // at least the 'normal' and 'modified' overlay are available.
         case svn_wc_status_none:
             return S_FALSE;
 
@@ -365,16 +363,8 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
         case svn_wc_status_replaced:
         case svn_wc_status_modified:
         case svn_wc_status_merged:
-            if (g_modifiedovlloaded)
-            {
-                if (m_State != FileStateModified)
-                    return S_FALSE;
-            }
-            else
-            {
-                if (m_State != FileStateVersioned)
-                    return S_FALSE;
-            }
+            if (m_State != FileStateModified)
+                return S_FALSE;
             break;
 
         case svn_wc_status_added:

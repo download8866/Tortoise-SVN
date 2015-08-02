@@ -1,7 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011, 2015 - TortoiseSVN
-// Copyright (C) 2015 - TortoiseGit
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -56,14 +55,9 @@ public:
         return CleanUp();
     }
 
-    HandleType Detach()
+    void Detach()
     {
-        HandleType p;
-
-        p = m_Handle;
         m_Handle = NULL_VALUE;
-
-        return p;
     }
 
     operator HandleType()

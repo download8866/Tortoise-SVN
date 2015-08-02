@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2007-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,14 +52,14 @@ CString UniqueFileName (const CString& fileName)
     for (int i = 0, count = base.GetLength(); i < count; ++i)
     {
         TCHAR c = base[i];
-        if ((c == '?') || (c == '/') || (c == '\\') || (c == ':'))
-            base.SetAt (i, '_');
+        if ((c == _T('?')) || (c == _T('/')) || (c == _T('\\')) || (c == _T(':')))
+            base.SetAt (i, _T('_'));
     }
 
     int num = 0;
     CString result = base;
     while (GetFileAttributes (result) != INVALID_FILE_ATTRIBUTES)
-        result.Format (L"%s(%d)", (LPCTSTR)result, ++num);
+        result.Format (_T("%s(%d)"), (LPCTSTR)result, ++num);
 
     return result.MakeLower();
 }
@@ -387,7 +387,7 @@ CRepositoryInfo::CData CRepositoryInfo::data;
 
 CString CRepositoryInfo::GetFileName() const
 {
-    return cacheFolder + L"Repositories.dat";
+    return cacheFolder + _T("Repositories.dat");
 }
 
 // used to sync access to the global "data"
@@ -414,7 +414,7 @@ void CRepositoryInfo::Load()
 
 // does the user want to be this repository off-line?
 
-bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info) const
+bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info)
 {
     // is this repository already off-line?
 
@@ -423,7 +423,7 @@ bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info) const
 
     // something went wrong.
 
-    if ((CSettings::GetDefaultConnectionState() == online) && !svn.IsSuppressedUI())
+    if (CSettings::GetDefaultConnectionState() == online)
     {
         // Default behavior is "Ask the user what to do"
 
@@ -457,8 +457,8 @@ bool CRepositoryInfo::IsOffline (SPerRepositoryInfo* info) const
 
 void CRepositoryInfo::SetHeadFromCache (SPerRepositoryInfo* info)
 {
-    SVN _svn;
-    CCachedLogInfo* cache = _svn.GetLogCachePool()->GetCache (info->uuid, info->root);
+    SVN svn;
+    CCachedLogInfo* cache = svn.GetLogCachePool()->GetCache (info->uuid, info->root);
     info->headRevision = cache != NULL
         ? cache->GetRevisions().GetLastCachedRevision()-1
         : NO_REVISION;
@@ -585,7 +585,7 @@ revision_t CRepositoryInfo::GetHeadRevision (CString uuid, const CTSVNPath& url)
         // if we couldn't connect to the server, ask the user
 
         bool cancelled = svn.GetSVNError() && (svn.GetSVNError()->apr_err == SVN_ERR_CANCELLED);
-        if (   !svn.IsSuppressedUI() && !cancelled
+        if (   !cancelled
             && (info->headRevision == NO_REVISION)
             && IsOffline (info))
         {

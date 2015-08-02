@@ -11,7 +11,7 @@
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;png</Extensions>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx</Extensions>
     </Filter>
     <Filter Include="Utils">
       <UniqueIdentifier>{86122444-e84e-4ca5-b744-20a0ac7af3ff}</UniqueIdentifier>
@@ -63,6 +63,9 @@
     <ClCompile Include="MainFrm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\MessageBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="OpenDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -100,6 +103,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Utils\MiscUI\AeroControls.cpp">
+      <Filter>Utils\Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\AeroGlass.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
     <ClCompile Include="AppUtils.cpp">
@@ -183,6 +189,9 @@
     <ClCompile Include="..\SVN\TSVNPath.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\MiscUI\XMessageBox.cpp">
+      <Filter>Utils\Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\Utils\MiscUI\IconBitmapUtils.cpp">
       <Filter>Utils\Source Files</Filter>
     </ClCompile>
@@ -218,21 +227,6 @@
     </ClCompile>
     <ClCompile Include="EOL.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RegexFiltersDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RegexFilterDlg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="EditorConfigWrapper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\Tooltip.cpp">
-      <Filter>Utils\Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\SysImageList.cpp">
-      <Filter>Utils\Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -281,6 +275,9 @@
     <ClInclude Include="OpenDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Patch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\ProgressDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -320,6 +317,9 @@
     <ClInclude Include="..\Utils\MiscUI\AeroControls.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\AeroGlass.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="AppUtils.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
@@ -345,6 +345,9 @@
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\HyperLink.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\MessageBox.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\PathUtils.h">
@@ -398,6 +401,9 @@
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Utils\MiscUI\XMessageBox.h">
+      <Filter>Utils\Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\IconMenu.h">
       <Filter>Utils\Header Files</Filter>
     </ClInclude>
@@ -437,27 +443,6 @@
     <ClInclude Include="EncodingDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Utils\SimpleIni.h">
-      <Filter>Utils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegexFiltersDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegexFilterDlg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EditorConfigWrapper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\Tooltip.h">
-      <Filter>Utils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\SysImageList.h">
-      <Filter>Utils\Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CustomMFCRibbonStatusBar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Resources\download.avi">
@@ -485,9 +470,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\lineequal.ico">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\linemarked.ico">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="..\Resources\lineremoved.ico">
@@ -532,19 +514,7 @@
     <None Include="..\Resources\ribbon\ribbonlarge.png">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="..\Resources\ribbon\ribbonlargehdpi.png">
-      <Filter>Resource Files</Filter>
-    </None>
     <None Include="..\Resources\ribbon\ribbonsmall.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ribbon\ribbonsmallhdpi.png">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\RegexFilter.ini">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="..\Resources\ignorecomments.txt">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
@@ -552,6 +522,12 @@
     <ResourceCompile Include="..\Resources\TortoiseMergeENG.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\Resources\ribbon\ribbonsmall.png" />
+    <Image Include="..\Resources\ribbon\ribbonlarge.png" />
+    <Image Include="..\Resources\ribbon\ribbonsmallhdpi.png" />
+    <Image Include="..\Resources\ribbon\ribbonlargehdpi.png" />
   </ItemGroup>
   <ItemGroup>
     <Manifest Include="..\compatibility.manifest">

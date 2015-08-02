@@ -78,6 +78,7 @@
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
+      <arg value="/GF" if="${configuration == 'release'}" />
       <arg value="/EHsc" />
       <arg value="/MD" if="${configuration == 'release'}" />
       <arg value="/MDd" if="${configuration == 'debug'}" />
@@ -89,7 +90,6 @@
       <arg value="/MP" />
       <arg value="/GL" if="${configuration == 'release'}" />
       <arg value="/arch:IA32" if="${configuration == 'release' and platform == 'win32'}" />
-      <arg value="/d2Zi+" if="${configuration == 'release'}" />
       <sources>
         <include name="network_io\win32\*.c" />
         <include name="network_io\unix\inet_ntop.c" />
@@ -139,17 +139,18 @@
         <define name="_WINDOWS" />
         <define name="_WIN32" />
         <define name="WINNT" />
-        <define name="_WIN32_WINNT" value="0x0600" />
+        <define name="_WIN32_WINNT" value="0x0501" />
         <define name="WIN64" if="${platform == 'x64'}" />
         <define name="_WINDLL" />
         <define name="NDEBUG" if="${configuration == 'release'}" />
         <define name="_DEBUG" if="${configuration == 'debug'}" />
+        <define name="_USING_V110_SDK71_" />
       </defines>
     </cl>
     <link
       output="${configuration}_${platform}\libapr_tsvn${platext}.dll"
-      options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:"${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" /DEBUG /PDB:"${configuration}_${platform}\libapr_tsvn.pdb" /DLL ${subsystem} /BASE:"0x6EEC0000" /IMPLIB:"${configuration}_${platform}\libapr_tsvn.lib" ${machineoption} ${configuration}_${platform}\libapr_tsvn.res ws2_32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib Shell32.lib'>
-      <arg line="/LTCG /RELEASE /OPT:REF /OPT:ICF" if="${configuration == 'release'}" />
+      options='/INCREMENTAL:NO /NOLOGO /DYNAMICBASE /NXCOMPAT /MANIFEST /MANIFESTFILE:"${configuration}_${platform}\libapr_tsvn.dll.intermediate.manifest" /DEBUG /PDB:"${configuration}_${platform}\libapr_tsvn.pdb" /DLL ${subsystem} /OPT:REF /OPT:ICF /BASE:"0x6EEC0000" /IMPLIB:"${configuration}_${platform}\libapr_tsvn.lib" ${machineoption} ${configuration}_${platform}\libapr_tsvn.res ws2_32.lib mswsock.lib rpcrt4.lib kernel32.lib advapi32.lib Shell32.lib'>
+      <arg line="/LTCG /RELEASE" if="${configuration == 'release'}" />
       <sources>
         <include name="${configuration}_${platform}\*.obj" />
       </sources>

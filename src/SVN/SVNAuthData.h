@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2013-2015 - TortoiseSVN
+// Copyright (C) 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,20 +24,7 @@
 #include <vector>
 #include <tuple>
 
-struct SVNAuthDataInfo
-{
-    CString             username;
-    CString             password;
-    CString             passphrase;
-    CString             passtype;
-    CString             subject;
-    CString             hostname;
-    CString             validfrom;
-    CString             validuntil;
-    CString             issuer;
-    CString             fingerprint;
-    CString             failures;
-};
+
 
 /**
  * \ingroup SVN
@@ -52,23 +39,14 @@ public:
     SVNAuthData();
     ~SVNAuthData(void);
 
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> GetAuthList();
-    std::vector<std::tuple<CString, CString, SVNAuthDataInfo>> DeleteAuthList(const std::vector<std::tuple<CString, CString, SVNAuthDataInfo>>& delList);
-
-    bool ExportAuthData(const CString& targetpath, const CString& password, bool overwrite = false);
-    bool ImportAuthData(const CString& importpath, const CString& password, bool overwrite = false);
-
-    static const svn_string_t * decrypt_data(const svn_string_t *crypted, apr_pool_t *pool);
-    static const svn_string_t * encrypt_data(const svn_string_t *orig, apr_pool_t *pool);
+    std::vector<std::tuple<CString, CString>> GetAuthList();
+    std::vector<std::tuple<CString, CString>> DeleteAuthList(const std::vector<std::tuple<CString, CString>>& delList);
 
 protected:
     apr_pool_t *                m_pool;         ///< the memory pool
     SVNPrompt                   m_prompt;       ///< auth_baton setup helper
 
     static svn_error_t * cleanup_callback(svn_boolean_t *delete_cred, void *cleanup_baton,
-                                          const char *cred_kind, const char *realmstring,
-                                          apr_hash_t *hash, apr_pool_t *scratch_pool);
-    static svn_error_t * auth_callback(svn_boolean_t *delete_cred, void *auth_baton,
                                           const char *cred_kind, const char *realmstring,
                                           apr_hash_t *hash, apr_pool_t *scratch_pool);
 };

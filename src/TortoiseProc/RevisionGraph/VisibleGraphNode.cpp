@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2015 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,24 +25,24 @@
 
 bool CVisibleGraphNode::CFoldedTag::IsAlias() const
 {
-    const CFullGraphNode* prevSrc = tagNode->GetSource();
+    const CFullGraphNode* prev = tagNode->GetSource();
 
     // skip all non-modifying nodes and make prev point to
     // either the copy node or the last modification
 
-    while (   (prevSrc != NULL)
-           && (!prevSrc->GetClassification().IsAnyOf
+    while (   (prev != NULL)
+           && (!prev->GetClassification().IsAnyOf
                   (CNodeClassification::IS_OPERATION_MASK)))
     {
-        prevSrc = prevSrc->GetPrevious();
+        prev = prev->GetPrevious();
     }
 
     // it's an alias if the previous node is a tag and has
     // not been modified since
 
-    return    (prevSrc != NULL)
-           && prevSrc->GetClassification().Is (CNodeClassification::IS_TAG)
-           && prevSrc->GetClassification().IsAnyOf (  CNodeClassification::IS_ADDED
+    return    (prev != NULL)
+           && prev->GetClassification().Is (CNodeClassification::IS_TAG)
+           && prev->GetClassification().IsAnyOf (  CNodeClassification::IS_ADDED
                                                  + CNodeClassification::IS_RENAMED);
 }
 
@@ -66,12 +66,12 @@ CVisibleGraphNode::CFactory::~CFactory()
 // factory interface
 
 CVisibleGraphNode* CVisibleGraphNode::CFactory::Create
-    ( const CFullGraphNode* baseNode
-    , CVisibleGraphNode* prevNode
+    ( const CFullGraphNode* base
+    , CVisibleGraphNode* prev
     , bool preserveNode)
 {
     CVisibleGraphNode * result = static_cast<CVisibleGraphNode *>(nodePool.malloc());
-    new (result) CVisibleGraphNode (baseNode, prevNode, copyTargetFactory, preserveNode);
+    new (result) CVisibleGraphNode (base, prev, copyTargetFactory, preserveNode);
 
     ++nodeCount;
     return result;
@@ -98,10 +98,10 @@ void CVisibleGraphNode::CFactory::Destroy (CCopyTarget*& copyTarget)
 CVisibleGraphNode::CFoldedTag* CVisibleGraphNode::CFactory::Create
     ( const CFullGraphNode* tagNode
     , size_t depth
-    , CFoldedTag* nextTag)
+    , CFoldedTag* next)
 {
     CFoldedTag * result = static_cast<CFoldedTag *>(tagPool.malloc());
-    new (result) CFoldedTag (tagNode, depth, nextTag);
+    new (result) CFoldedTag (tagNode, depth, next);
     return result;
 }
 
@@ -351,12 +351,12 @@ void CVisibleGraphNode::DropSubTree (CVisibleGraph* graph)
 
         // remove from original list and attach it to *this for destruction
 
-        CCopyTarget* nextTarget = (*copy)->next();
+        CCopyTarget* next = (*copy)->next();
         (*copy)->next() = firstCopyTarget;
         (*copy)->value() = NULL;
 
         firstCopyTarget = *copy;
-        *copy = nextTarget;
+        *copy = next;
     }
 
     // destruct this

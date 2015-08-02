@@ -51,9 +51,6 @@
     <ClCompile Include="..\Utils\SysInfo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\LangDll.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Utils\MiscUI\BaseDialog.h">
@@ -99,12 +96,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\MiscUI\ResString.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="UDiffColors.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\LangDll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

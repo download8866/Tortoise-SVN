@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2015 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,11 +24,11 @@
 #include "AppUtils.h"
 #include "RepositoryBrowser.h"
 
-IMPLEMENT_DYNAMIC(CUpdateDlg, CStateStandAloneDialog)
+IMPLEMENT_DYNAMIC(CUpdateDlg, CStandAloneDialog)
 CUpdateDlg::CUpdateDlg(CWnd* pParent /*=NULL*/)
-    : CStateStandAloneDialog(CUpdateDlg::IDD, pParent)
-    , Revision(L"HEAD")
-    , m_bNoExternals(CRegDWORD(L"Software\\TortoiseSVN\\noext"))
+    : CStandAloneDialog(CUpdateDlg::IDD, pParent)
+    , Revision(_T("HEAD"))
+    , m_bNoExternals(FALSE)
     , m_bStickyDepth(TRUE)
     , m_pLogDlg(NULL)
     , m_depth(svn_depth_unknown)
@@ -42,7 +42,7 @@ CUpdateDlg::~CUpdateDlg()
 
 void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
 {
-    CStateStandAloneDialog::DoDataExchange(pDX);
+    CStandAloneDialog::DoDataExchange(pDX);
     DDX_Text(pDX, IDC_REVNUM, m_sRevision);
     DDX_Check(pDX, IDC_NOEXTERNALS, m_bNoExternals);
     DDX_Check(pDX, IDC_STICKYDEPTH, m_bStickyDepth);
@@ -50,7 +50,7 @@ void CUpdateDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CUpdateDlg, CStateStandAloneDialog)
+BEGIN_MESSAGE_MAP(CUpdateDlg, CStandAloneDialog)
     ON_BN_CLICKED(IDC_LOG, OnBnClickedShowLog)
     ON_REGISTERED_MESSAGE(WM_REVSELECTED, OnRevSelected)
     ON_EN_CHANGE(IDC_REVNUM, &CUpdateDlg::OnEnChangeRevnum)
@@ -60,7 +60,7 @@ END_MESSAGE_MAP()
 
 BOOL CUpdateDlg::OnInitDialog()
 {
-    CStateStandAloneDialog::OnInitDialog();
+    CStandAloneDialog::OnInitDialog();
     CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
     ExtendFrameIntoClientArea(IDC_GROUPMISC);
@@ -90,9 +90,6 @@ BOOL CUpdateDlg::OnInitDialog()
     GetDlgItem(IDC_REVNUM)->SetFocus();
     if ((m_pParentWnd==NULL)&&(GetExplorerHWND()))
         CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-
-    EnableSaveRestore(L"UpdateDlg");
-
     return FALSE;
 }
 
@@ -104,7 +101,7 @@ void CUpdateDlg::OnCancel()
         return;
     }
 
-    CStateStandAloneDialog::OnCancel();
+    CStandAloneDialog::OnCancel();
 }
 
 void CUpdateDlg::OnOK()
@@ -121,7 +118,7 @@ void CUpdateDlg::OnOK()
     Revision = SVNRev(m_sRevision);
     if (GetCheckedRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N) == IDC_REVISION_HEAD)
     {
-        Revision = SVNRev(L"HEAD");
+        Revision = SVNRev(_T("HEAD"));
     }
     if (!Revision.IsValid())
     {
@@ -161,10 +158,7 @@ void CUpdateDlg::OnOK()
 
     UpdateData(FALSE);
 
-    CRegDWORD regNoExt(L"Software\\TortoiseSVN\\noext");
-    regNoExt = m_bNoExternals;
-
-    CStateStandAloneDialog::OnOK();
+    CStandAloneDialog::OnOK();
 }
 
 void CUpdateDlg::OnBnClickedShowLog()
@@ -190,7 +184,7 @@ void CUpdateDlg::OnBnClickedShowLog()
 LPARAM CUpdateDlg::OnRevSelected(WPARAM /*wParam*/, LPARAM lParam)
 {
     CString temp;
-    temp.Format(L"%Id", lParam);
+    temp.Format(_T("%Id"), lParam);
     SetDlgItemText(IDC_REVNUM, temp);
     CheckRadioButton(IDC_REVISION_HEAD, IDC_REVISION_N, IDC_REVISION_N);
     return 0;

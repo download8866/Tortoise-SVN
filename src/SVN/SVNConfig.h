@@ -85,13 +85,11 @@ public:
 
     BOOL KeepLocks();
 
-    BOOL ConfigGetBool(const char * section, const char * option, bool defbool);
-
 private:
     bool SetUpSSH();
 
     apr_pool_t *                parentpool;
-    apr_pool_t *                m_pool;
+    apr_pool_t *                pool;
     apr_pool_t *                wcignorespool;
     apr_hash_t *                config;
     apr_array_header_t *        patterns;

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012, 2015 - TortoiseSVN
+// Copyright (C) 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,6 +52,7 @@ protected:
     afx_msg void OnBnClickedBrowse();
     afx_msg void OnBnClickedShowLog();
     afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
+    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
     afx_msg void OnEnChangeRevisionNum();
     afx_msg void OnBnClickedHelp();
 
@@ -60,6 +61,7 @@ private:
     CTSVNPath       m_RepoRoot;
     SVNExternal     m_External;
     CLogDlg *       m_pLogDlg;
+    int             m_height;
 
     CHistoryCombo   m_URLCombo;
     CString         m_sRevision;

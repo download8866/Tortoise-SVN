@@ -1,16 +1,9 @@
-// testold
-// Last commit by:
-// $Author:$
-// $Date:$
-// $Rev:$
-
 #include "stdafx.h"
 #include "SysImageList.h"
 #include "TSVNPath.h"
 
-const char * commenttest = "http://test.com";
 
-// Singleton constructor and destructor
+// Singleton constructor and destructor (private)
 
 CSysImageList * CSysImageList::instance = 0;
 
@@ -50,7 +43,7 @@ void CSysImageList::Cleanup()
 	instance = 0;
 }
 
-void CSysImageList::Tejjjst()
+void CSysImageList::Test()
 {
 	return;
 }

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015 - TortoiseSVN
+// Copyright (C) 2009-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -85,15 +85,11 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
     settings[i++].def.l = 0;
 
-    settings[i].sName = L"DiffBlamesWithTortoiseMerge";
+    settings[i].sName   = L"DiffBlamesWithTortoiseMerge";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = false;
 
-    settings[i].sName   = L"DlgStickySize";
-    settings[i].type    = CSettingsAdvanced::SettingTypeNumber;
-    settings[i++].def.l = 3;
-
-    settings[i].sName = L"FixCaseRenames";
+    settings[i].sName   = L"FixCaseRenames";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
@@ -117,9 +113,9 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
     settings[i++].def.b = true;
 
-    settings[i].sName   = L"LogMultiRevFormat";
-    settings[i].type    = CSettingsAdvanced::SettingTypeString;
-    settings[i++].def.s = L"r%1!ld!\n%2!s!\n---------------------\n";
+    settings[i].sName   = L"LogFindCopyFrom";
+    settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
+    settings[i++].def.b = false;
 
     settings[i].sName   = L"LogStatusCheck";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
@@ -147,7 +143,7 @@ CSettingsAdvanced::CSettingsAdvanced()
 
     settings[i].sName   = L"ScintillaDirect2D";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
-    settings[i++].def.b = true;
+    settings[i++].def.b = false;
 
     settings[i].sName   = L"ShellMenuAccelerators";
     settings[i].type    = CSettingsAdvanced::SettingTypeBoolean;
@@ -177,7 +173,7 @@ CSettingsAdvanced::CSettingsAdvanced()
     settings[i].type    = CSettingsAdvanced::SettingTypeNone;
     settings[i++].def.b = false;
 
-    // 38 so far...
+    // 37 so far...
     ASSERT(i < _countof(settings));
 }
 
@@ -227,20 +223,20 @@ BOOL CSettingsAdvanced::OnInitDialog()
         {
         case SettingTypeBoolean:
             {
-                CRegDWORD s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.b);
-                m_ListCtrl.SetItemText(i, 0, DWORD(s) ? L"true" : L"false");
+                CRegDWORD s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.b);
+                m_ListCtrl.SetItemText(i, 0, DWORD(s) ? _T("true") : _T("false"));
             }
             break;
         case SettingTypeNumber:
             {
-                CRegDWORD s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.l);
-                temp.Format(L"%ld", (DWORD)s);
+                CRegDWORD s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.l);
+                temp.Format(_T("%ld"), (DWORD)s);
                 m_ListCtrl.SetItemText(i, 0, temp);
             }
             break;
         case SettingTypeString:
             {
-                CRegString s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.s);
+                CRegString s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.s);
                 m_ListCtrl.SetItemText(i, 0, CString(s));
             }
         }
@@ -272,12 +268,12 @@ BOOL CSettingsAdvanced::OnApply()
         {
         case SettingTypeBoolean:
             {
-                CRegDWORD s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.b);
+                CRegDWORD s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.b);
                 if (sValue.IsEmpty())
                     s.removeValue();
                 else
                 {
-                    DWORD newValue = sValue.Compare(L"true") == 0;
+                    DWORD newValue = sValue.Compare(_T("true")) == 0;
                     if (DWORD(s) != newValue)
                     {
                         s = newValue;
@@ -287,7 +283,7 @@ BOOL CSettingsAdvanced::OnApply()
             break;
         case SettingTypeNumber:
             {
-                CRegDWORD s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.l);
+                CRegDWORD s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.l);
                 if (DWORD(_tstol(sValue)) != DWORD(s))
                 {
                     s = _tstol(sValue);
@@ -296,7 +292,7 @@ BOOL CSettingsAdvanced::OnApply()
             break;
         case SettingTypeString:
             {
-                CRegString s(L"Software\\TortoiseSVN\\"+settings[i].sName, settings[i].def.s);
+                CRegString s(_T("Software\\TortoiseSVN\\")+settings[i].sName, settings[i].def.s);
                 if (sValue.Compare(CString(s)))
                 {
                     s = sValue;
@@ -328,8 +324,8 @@ void CSettingsAdvanced::OnLvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
     case SettingTypeBoolean:
         {
             if ( (pDispInfo->item.pszText[0] == 0) ||
-                 (wcscmp(pDispInfo->item.pszText, L"true") == 0) ||
-                 (wcscmp(pDispInfo->item.pszText, L"false") == 0) )
+                 (_tcscmp(pDispInfo->item.pszText, _T("true")) == 0) ||
+                 (_tcscmp(pDispInfo->item.pszText, _T("false")) == 0) )
             {
                 allowEdit = true;
             }

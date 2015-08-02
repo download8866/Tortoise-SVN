@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2015 - TortoiseSVN
+// Copyright (C) 2007-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,6 +19,7 @@
 #include "stdafx.h"
 #include "CleanupCommand.h"
 
+#include "MessageBox.h"
 #include "SVN.h"
 #include "SVNGlobal.h"
 #include "SVNAdminDir.h"
@@ -38,9 +39,6 @@ bool CleanupCommand::Execute()
     bool bDelIgnored        = !!parser.HasKey(L"delignored");
     bool bRefreshShell      = !!parser.HasKey(L"refreshshell");
     bool bIncludeExternals  = !!parser.HasKey(L"externals");
-    bool bBreakLocks        = !!parser.HasKey(L"breaklocks");
-    bool bFixTimestamps     = !!parser.HasKey(L"fixtimestamps");
-    bool bVacuum            = !!parser.HasKey(L"vacuum");
 
     if (!parser.HasKey(L"noui") && !parser.HasKey(L"nodlg"))
     {
@@ -53,15 +51,12 @@ bool CleanupCommand::Execute()
         bDelIgnored         = !!dlg.m_bDelIgnored;
         bRefreshShell       = !!dlg.m_bRefreshShell;
         bIncludeExternals   = !!dlg.m_bExternals;
-        bBreakLocks         = !!dlg.m_bBreakLocks;
-        bFixTimestamps      = !!dlg.m_bFixTimestamps;
-        bVacuum             = !!dlg.m_bVacuum;
     }
 
     if (!bCleanup && !bRevert && !bDelUnversioned && !bDelIgnored && !bRefreshShell)
         return false;
 
-    bool bUseTrash = DWORD(CRegDWORD(L"Software\\TortoiseSVN\\RevertWithRecycleBin", TRUE)) != 0;
+    bool bUseTrash = DWORD(CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE)) != 0;
     int actionTotal = 0;
     if (bCleanup)
         actionTotal += pathList.GetCount();
@@ -78,10 +73,11 @@ bool CleanupCommand::Execute()
     int actionCounter = 0;
     CProgressDlg progress;
     progress.SetTitle(IDS_PROC_CLEANUP);
+    progress.SetAnimation(IDR_CLEANUPANI);
     progress.FormatNonPathLine(2, IDS_PROC_CLEANUP_INFO1, L"");
     progress.SetLine(1, CString(MAKEINTRESOURCE(IDS_PROC_CLEANUP_INFO2)));
     progress.SetProgress(actionCounter++, actionTotal);
-    if (!parser.HasKey(L"noprogressui"))
+    if (!parser.HasKey(_T("noprogressui")))
         progress.ShowModeless(GetExplorerHWND());
 
     CString strFailedString;
@@ -89,7 +85,7 @@ bool CleanupCommand::Execute()
     bool bCleanupFailed = false;
     if (bCleanup)
     {
-        bCleanupFailed = CleanupPaths(progress, actionCounter, actionTotal, bBreakLocks, bFixTimestamps, bVacuum, strFailedString);
+        bCleanupFailed = CleanupPaths(progress, actionCounter, actionTotal, strFailedString);
     }
     CTSVNPathList itemsToRevert, unversionedItems, ignoredItems, externals;
     if (bRevert || bDelUnversioned || bDelIgnored || bIncludeExternals)
@@ -110,7 +106,7 @@ bool CleanupCommand::Execute()
                 progress.FormatPathLine(2, IDS_PROC_CLEANUP_INFO1, (LPCTSTR)externals[i].GetFileOrDirectoryName());
                 progress.SetProgress(actionCounter++, actionTotal);
                 CBlockCacheForPath cacheBlock (externals[i].GetWinPath());
-                if (!svn.CleanUp(externals[i], bBreakLocks, bFixTimestamps, true, bVacuum, false))
+                if (!svn.CleanUp(externals[i]))
                 {
                     strFailedString = externals[i].GetWinPathString();
                     strFailedString += L"\n" + svn.GetLastErrorMessage();
@@ -122,7 +118,7 @@ bool CleanupCommand::Execute()
     }
     if (bCleanupFailed && bCleanup && bIncludeExternals && !bFailed)
     {
-        bFailed = CleanupPaths(progress, actionCounter, actionTotal, bBreakLocks, bFixTimestamps, bVacuum, strFailedString);
+        bFailed = CleanupPaths(progress, actionCounter, actionTotal, strFailedString);
     }
     if (!bFailed && bRevert)
     {
@@ -140,7 +136,7 @@ bool CleanupCommand::Execute()
                 rec.EndTime(count);
             }
             SVN svn;
-            if (!svn.Revert(revertItems, CStringArray(), false, false, false))
+            if (!svn.Revert(revertItems, CStringArray(), false))
             {
                 // just assume the first path failed...
                 strFailedString = pathList[0].GetWinPathString();
@@ -197,7 +193,7 @@ bool CleanupCommand::Execute()
             for (INT_PTR j=0; j<updateList.GetCount(); ++j)
             {
                 SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH, updateList[j].GetWinPath(), NULL);
-                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": notify change for path %s\n", updateList[j].GetWinPath());
+                CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": notify change for path %s\n"), updateList[j].GetWinPath());
             }
         }
     }
@@ -218,13 +214,13 @@ bool CleanupCommand::Execute()
     if ( !strFailedString.IsEmpty() )
     {
         if (!strMessage.IsEmpty())
-            strMessage += L"\n";
+            strMessage += _T("\n");
         CString tmp;
         tmp.Format(IDS_PROC_CLEANUPFINISHED_FAILED, (LPCTSTR)strFailedString);
         strMessage += tmp;
     }
-    if (!parser.HasKey(L"noui"))
-        MessageBox(GetExplorerHWND(), strMessage, L"TortoiseSVN", MB_OK | (strFailedString.IsEmpty()?MB_ICONINFORMATION:MB_ICONERROR));
+    if (!parser.HasKey(_T("noui")))
+        MessageBox(GetExplorerHWND(), strMessage, _T("TortoiseSVN"), MB_OK | (strFailedString.IsEmpty()?MB_ICONINFORMATION:MB_ICONERROR));
 
     return !bFailed;
 }
@@ -256,8 +252,7 @@ CString CleanupCommand::GetCleanupPaths( const CTSVNPathList& paths, CTSVNPathLi
         case svn_wc_status_normal:
             break;
         case svn_wc_status_external:
-            if (!s->file_external)
-                externals.AddPath(retPath);
+            externals.AddPath(retPath);
             break;
         default:
             reverts.AddPath(retPath);
@@ -277,8 +272,7 @@ CString CleanupCommand::GetCleanupPaths( const CTSVNPathList& paths, CTSVNPathLi
             case svn_wc_status_normal:
                 break;
             case svn_wc_status_external:
-                if (!s->file_external)
-                    externals.AddPath(retPath);
+                externals.AddPath(retPath);
                 break;
             default:
                 reverts.AddPath(retPath);
@@ -293,11 +287,10 @@ CString CleanupCommand::GetCleanupPaths( const CTSVNPathList& paths, CTSVNPathLi
                 externals.AddPath(*it);
         }
     }
-    externals.RemoveDuplicates();
     return L"";
 }
 
-bool CleanupCommand::CleanupPaths(CProgressDlg &progress, int &actionCounter, int actionTotal, bool bBreakLocks, bool bFixTimestamps, bool bVacuum, CString &strFailedString)
+bool CleanupCommand::CleanupPaths(CProgressDlg &progress, int &actionCounter, int actionTotal, CString &strFailedString)
 {
     bool bCleanupFailed = false;
     SVN svn;
@@ -306,7 +299,7 @@ bool CleanupCommand::CleanupPaths(CProgressDlg &progress, int &actionCounter, in
         progress.FormatPathLine(2, IDS_PROC_CLEANUP_INFO1, (LPCTSTR)pathList[i].GetFileOrDirectoryName());
         progress.SetProgress(actionCounter++, actionTotal);
         CBlockCacheForPath cacheBlock (pathList[i].GetWinPath());
-        if (!svn.CleanUp(pathList[i], bBreakLocks, bFixTimestamps, true, bVacuum, false))
+        if (!svn.CleanUp(pathList[i]))
         {
             if ((pathList.GetCount() > 1) && !SVNHelper::IsVersioned(pathList[i], false))
                 continue;   // ignore failures for unversioned paths
@@ -324,7 +317,7 @@ bool CleanupCommand::CleanupPaths(CProgressDlg &progress, int &actionCounter, in
         {
             bCleanupFailed = false;
             CBlockCacheForPath cacheBlock (wcroot.GetWinPath());
-            if (!svn.CleanUp(wcroot, bBreakLocks, bFixTimestamps, true, bVacuum, false))
+            if (!svn.CleanUp(wcroot))
             {
                 strFailedString = wcroot.GetWinPathString();
                 strFailedString += L"\n" + svn.GetLastErrorMessage();

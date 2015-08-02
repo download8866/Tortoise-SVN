@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -55,7 +55,7 @@ private:
 
     // conversion utility
 
-    CString GetUIPath (const CDictionaryBasedPath& p) const;
+    CString GetUIPath (const CDictionaryBasedPath& path) const;
 
 public:
 
@@ -165,13 +165,11 @@ private:
     struct
     {
         unsigned childStackDepth:24;
-        unsigned int checked:1;
-        unsigned int hasParent:1;
-        unsigned int hasChildren:1;
-        unsigned int nonInheritable:1;
-        unsigned int subtractiveMerge:1;
-        unsigned int unread:1;
-        mutable unsigned int bugIDsPending:1;
+        int checked:1;
+        int hasChildren:1;
+        int nonInheritable:1;
+        int subtractiveMerge:1;
+        mutable int bugIDsPending:1;
     };
 
     /// no copy support
@@ -218,7 +216,6 @@ public:
 
     CLogEntryData* GetParent() {return parent;}
     const CLogEntryData* GetParent() const {return parent;}
-    bool HasParent() const { return hasParent != FALSE; }
     bool HasChildren() const {return hasChildren != FALSE;}
     bool IsNonInheritable() const {return nonInheritable != FALSE;}
     bool IsSubtractiveMerge() const {return subtractiveMerge != FALSE;}
@@ -236,9 +233,6 @@ public:
     const CLogChangedPathArray& GetChangedPaths() const {return changedPaths;}
 
     bool GetChecked() const {return checked != FALSE;}
-
-    bool GetUnread() const { return unread != FALSE; }
-    void SetUnread(bool ur) { unread = ur; }
 };
 
 typedef CLogEntryData LOGENTRYDATA, *PLOGENTRYDATA;
@@ -283,14 +277,6 @@ private:
         , size_t first
         , size_t last);
 
-    /// returns true if the result vector already contains a parent entry
-
-    template<class T>
-    bool contains(std::vector<T> const &v, T const &x)
-    {
-        return std::find(v.begin(), v.end(), x) != v.end();
-    }
-
 public:
 
     /// construction
@@ -316,7 +302,7 @@ public:
 
     /// finalization (call this after receiving all log entries)
 
-    void Finalize ( std::unique_ptr<const CCacheLogQuery> aQuery
+    void Finalize ( std::unique_ptr<const CCacheLogQuery> query
                   , const CString& startLogPath, bool bMerge);
 
     /// access to unfiltered info

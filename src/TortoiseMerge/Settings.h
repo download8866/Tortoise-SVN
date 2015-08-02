@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009, 2015 - TortoiseSVN
+// Copyright (C) 2006, 2009 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,6 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
+#include "AeroGlass.h"
 #include "AeroControls.h"
 
 class CSetMainPage;
@@ -48,6 +49,7 @@ private:
 private:
     CSetMainPage *      m_pMainPage;
     CSetColorPage *     m_pColorPage;
+    CDwmApiImpl         m_Dwm;
     AeroControlBase     m_aeroControls;
 
 public:

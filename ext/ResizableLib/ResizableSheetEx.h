@@ -66,6 +66,7 @@ private:
     // internal status
     CString m_sSection;         // section name (identifies a parent window)
 
+    HINSTANCE m_hDwmApiLib;
     BOOL IsDwmCompositionEnabled(void);
 
 // Operations

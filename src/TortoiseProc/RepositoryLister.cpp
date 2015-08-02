@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015 - TortoiseSVN
+// Copyright (C) 2009-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,6 @@
 #include "SVNHelpers.h"
 
 #include "RepositoryInfo.h"
-#include <xfunctional>
 
 /////////////////////////////////////////////////////////////////////
 // CRepositoryLister::CQuery
@@ -36,17 +35,17 @@
 
 // auto-schedule upon construction
 
-CRegDWORD fetchingLocksEnabled(L"Software\\TortoiseSVN\\RepoBrowserShowLocks", TRUE);
+CRegDWORD fetchingLocksEnabled(_T("Software\\TortoiseSVN\\RepoBrowserShowLocks"), TRUE);
 
 
 CRepositoryLister::CQuery::CQuery
     ( const CTSVNPath& path
     , const SVNRev& pegRevision
-    , apr_uint32_t dirent
+    , bool complete
     , const SRepositoryInfo& repository)
     : path (path)
     , pegRevision (pegRevision)
-    , dirent (dirent)
+    , complete (complete)
     , repository (repository)
 {
 }
@@ -98,10 +97,11 @@ bool CRepositoryLister::CQuery::Succeeded()
 // callback from the SVN::List() method which stores all the information
 
 BOOL CRepositoryLister::CListQuery::ReportList
-    ( const CString& path_
+    ( const CString& path
     , svn_node_kind_t kind
     , svn_filesize_t size
     , bool has_props
+    , bool complete
     , svn_revnum_t created_rev
     , apr_time_t time
     , const CString& author
@@ -119,7 +119,7 @@ BOOL CRepositoryLister::CListQuery::ReportList
     UNREFERENCED_PARAMETER(externalTarget);
     // skip the parent path
 
-    if (path_.IsEmpty())
+    if (path.IsEmpty())
     {
         // terminate with an error if this was actually a file
 
@@ -129,13 +129,14 @@ BOOL CRepositoryLister::CListQuery::ReportList
     // store dir entry
 
     bool abspath_has_slash = (absolutepath.GetAt(absolutepath.GetLength()-1) == '/');
-    CString relPath = absolutepath + (abspath_has_slash ? L"" : L"/");
+    CString relPath = absolutepath + (abspath_has_slash ? _T("") : _T("/"));
     CItem entry
-        ( path_
+        ( path
         , externalTarget
         , kind
         , size
         , has_props
+        , complete
         , created_rev
         , time
         , author
@@ -145,7 +146,7 @@ BOOL CRepositoryLister::CListQuery::ReportList
         , is_dav_comment
         , lock_creationdate
         , lock_expirationdate
-        , repository.root + relPath + path_
+        , repository.root + relPath + path
         , repository);
 
     result.push_back (entry);
@@ -170,8 +171,8 @@ void CRepositoryLister::CListQuery::InternalExecute()
                , GetRevision()
                , GetPegRevision()
                , svn_depth_immediates
-               , fetchLocks
-               , dirent
+               , complete && fetchLocks     // only fetch locks if we also fetch all list properties
+               , complete
                , false))
     {
         // something went wrong or query was cancelled
@@ -233,11 +234,11 @@ CRepositoryLister::CListQuery::CListQuery
     ( const CTSVNPath& path
     , const SVNRev& pegRevision
     , const SRepositoryInfo& repository
-    , apr_uint32_t dirent
+    , bool complete
     , bool includeExternals
     , bool runSilently
     , async::CJobScheduler* scheduler)
-    : CQuery (path, pegRevision, dirent, repository)
+    : CQuery (path, pegRevision, complete, repository)
     , SVN (runSilently)
     , externalsQuery
         (includeExternals
@@ -265,7 +266,7 @@ const std::deque<CItem>& CRepositoryLister::CListQuery::GetSubPathExternals()
     return subPathExternals;
 }
 
-// true, if this query has been run silently and some error occurred
+// true, if this query has been run silently and some error occured
 
 bool CRepositoryLister::CListQuery::ShouldBeRerun()
 {
@@ -334,6 +335,8 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
 
                 CTSVNPath url;
                 url.SetFromSVN (absoluteURL);
+                externalRepository.root
+                    = svn.GetRepositoryRootAndUUID (url, true, externalRepository.uuid);
                 if (HasBeenTerminated())
                     break;
                 SVNInfo info;
@@ -341,8 +344,6 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
                 if (HasBeenTerminated())
                     break;
 
-                if (pInfoData)
-                    externalRepository.root = pInfoData->reposRoot;
                 externalRepository.revision = external->revision;
                 externalRepository.peg_revision = external->peg_revision;
 
@@ -360,6 +361,7 @@ void CRepositoryLister::CExternalsQuery::InternalExecute()
 
                       // actually, we don't know for sure whether the target
                       // URL has props but its the safe default to say 'yes'
+                    , true
                     , true
                       // explicit revision, HEAD or DATE
                     , external->revision.kind == svn_opt_revision_number
@@ -430,7 +432,7 @@ void CRepositoryLister::ClearDumpster()
 {
     std::for_each ( dumpster.begin()
                   , dumpster.end()
-                  , std::bind2nd (std::mem_fun (&CQuery::WaitUntilDone), true));
+                  , std::bind2nd (std::mem_fun1 (&CQuery::WaitUntilDone), true));
 
     CompactDumpster();
 }
@@ -465,7 +467,7 @@ void CRepositoryLister::Enqueue
     ( const CString& url
     , const SVNRev& pegRev
     , const SRepositoryInfo& repository
-    , apr_uint32_t dirent
+    , bool complete
     , bool includeExternals
     , bool runSilently)
 {
@@ -521,11 +523,8 @@ void CRepositoryLister::Enqueue
         // return the externals queries that have not been cancelled
 
         for (size_t i = 0, count = removed.size(); i < count; ++i)
-        {
-            auto rQuery = dynamic_cast<CQuery*>(removed[i]);
-            if (rQuery && !rQuery->HasBeenTerminated())
-                scheduler.Schedule(removed[i], false);
-        }
+            if (!dynamic_cast<CQuery*>(removed[i])->HasBeenTerminated())
+                scheduler.Schedule (removed[i], false);
 
         // remove terminated queries from our lookup tables
 
@@ -566,7 +565,7 @@ void CRepositoryLister::Enqueue
     queries[key] = new CListQuery ( escapedURL
                                     , pegRev
                                     , repository
-                                    , dirent
+                                    , complete
                                     , includeExternals
                                     , runSilently
                                     , &scheduler);
@@ -578,7 +577,7 @@ void CRepositoryLister::Cancel()
 {
     async::CCriticalSectionLock lock (mutex);
 
-    // move all unfinished queries to the dumpster
+    // move all unfinsiehd queries to the dumpster
 
     for ( TQueries::iterator iter = queries.begin(); iter != queries.end(); )
     {
@@ -704,12 +703,12 @@ CRepositoryLister::CListQuery* CRepositoryLister::FindQuery
     ( const CString& url
     , const SVNRev& pegRev
     , const SRepositoryInfo& repository
-    , apr_uint32_t dirent
+    , bool complete
     , bool includeExternals)
 {
     // ensure there is a suitable query
 
-    Enqueue (url, pegRev, repository, dirent, includeExternals, false);
+    Enqueue (url, pegRev, repository, complete, includeExternals, false);
 
     // return that query
 
@@ -721,7 +720,7 @@ CString CRepositoryLister::GetList
     ( const CString& url
     , const SVNRev& pegRev
     , const SRepositoryInfo& repository
-    , apr_uint32_t dirent
+    , bool complete
     , bool includeExternals
     , std::deque<CItem>& items
     , CString& redirUrl)
@@ -730,7 +729,7 @@ CString CRepositoryLister::GetList
 
     // find that query
 
-    CListQuery* query = FindQuery (url, pegRev, repository, dirent, includeExternals);
+    CListQuery* query = FindQuery (url, pegRev, repository, complete, includeExternals);
     if (query == NULL)
     {
         // something went very wrong.
@@ -804,7 +803,6 @@ CString CRepositoryLister::AddSubTreeExternals
                     item.kind = svn_node_dir;
                     item.path = subpath;
                     item.unversioned = true;
-                    item.is_external = false;
                     item.absolutepath = url + L"/" + subpath;
                     items.push_back(item);
                 }

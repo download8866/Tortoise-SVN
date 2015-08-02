@@ -3,27 +3,20 @@
 
   <target name="clean">
     <if test="${cleanup == 'yes'}">
-      <exec program="msbuild.exe">
+      <exec program="devenv.com">
         <arg value="crashhandler.sln" />
-        <arg value="/t:Clean" />
-        <arg value="/p:Configuration=${configuration}" />
-        <arg value="/p:Platform=${platform}" />
-        <arg value="/verbosity:quiet" />
-        <arg value="/maxcpucount" />
+        <arg value="/clean" />
+        <arg value="${configuration}|${platform}" />
       </exec>
     </if>
   </target>
 
   <target name="build" depends="clean">
-    <exec program="msbuild.exe">
+    <exec program="devenv.com">
       <arg value="crashhandler.sln" />
-      <arg value="/t:Rebuild" />
-      <arg value="/p:Configuration=${configuration}" />
-      <arg value="/p:Platform=${platform}" />
-      <arg value="/verbosity:minimal" />
-      <arg value="/maxcpucount" />
+      <arg value="/rebuild" />
+      <arg value="${configuration}|${platform}" />
     </exec>
-
     <property name="crashplat" value="\x64" if="${platform == 'x64'}" />
     <property name="crashplat" value="" if="${platform == 'win32'}" />
 
@@ -31,7 +24,6 @@
       <fileset>
         <include name="out\${platform}\${configuration}\crshhndl.dll" />
         <include name="out\${platform}\${configuration}\SendRpt.exe" />
-        <include name="out\${platform}\${configuration}\dbghelp.dll" />
       </fileset>
     </copy>
   </target>

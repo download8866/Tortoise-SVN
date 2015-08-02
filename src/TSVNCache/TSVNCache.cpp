@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2009, 2011-2012, 2014-2015 - TortoiseSVN
+// External Cache Copyright (C) 2005 - 2009, 2011-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -54,7 +54,7 @@ unsigned int __stdcall CommandThread(LPVOID);
 LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 bool                bRun = true;
 NOTIFYICONDATA      niData;
-HWND                hWndHidden;
+HWND                hWnd;
 HWND                hTrayWnd;
 TCHAR               szCurrentCrawledPath[MAX_CRAWLEDPATHS][MAX_CRAWLEDPATHSLEN];
 int                 nCurrentCrawledpathIndex = 0;
@@ -79,7 +79,7 @@ svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
         } while ((errtemp = errtemp->child) != NULL);
         if (can_return)
             return err;
-        if (CRegDWORD(L"Software\\TortoiseSVN\\Debug", FALSE)==FALSE)
+        if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
         {
             CCrashReport::Instance().Uninstall();
             CAutoWriteWeakLock writeLock(CSVNStatusCache::Instance().GetGuard(), 5000);
@@ -91,7 +91,7 @@ svn_error_t * svn_error_handle_malfunction(svn_boolean_t can_return,
     CStringA sFormatErr;
     sFormatErr.Format("Subversion error in TSVNCache: file %s, line %ld, error %s\n", file, line, expr);
     OutputDebugStringA(sFormatErr);
-    if (CRegDWORD(L"Software\\TortoiseSVN\\Debug", FALSE)==FALSE)
+    if (CRegDWORD(_T("Software\\TortoiseSVN\\Debug"), FALSE)==FALSE)
     {
         CCrashReport::Instance().Uninstall();
         CAutoWriteWeakLock writeLock(CSVNStatusCache::Instance().GetGuard(), 5000);
@@ -143,13 +143,13 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
     SecureZeroMemory(szCurrentCrawledPath, sizeof(szCurrentCrawledPath));
 
     // create a hidden window to receive window messages.
-    hWndHidden = CreateHiddenWindow(hInstance);
-    hTrayWnd = hWndHidden;
-    if (hWndHidden == NULL)
+    hWnd = CreateHiddenWindow(hInstance);
+    hTrayWnd = hWnd;
+    if (hWnd == NULL)
     {
         return 0;
     }
-    if (CRegStdDWORD(L"Software\\TortoiseSVN\\CacheTrayIcon", FALSE)==TRUE)
+    if (CRegStdDWORD(_T("Software\\TortoiseSVN\\CacheTrayIcon"), FALSE)==TRUE)
     {
         SecureZeroMemory(&niData,sizeof(NOTIFYICONDATA));
 
@@ -166,7 +166,7 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
             niData.cbSize = NOTIFYICONDATA_V1_SIZE;
 
         niData.uID = TRAY_ID;       // own tray icon ID
-        niData.hWnd  = hWndHidden;
+        niData.hWnd  = hWnd;
         niData.uFlags = NIF_ICON|NIF_MESSAGE;
 
         // load the icon
@@ -239,7 +239,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         case WM_MOUSEMOVE:
             {
                 CString sInfoTip;
-                sInfoTip.Format(L"Cached Directories : %Id\nWatched paths : %d",
+                sInfoTip.Format(_T("Cached Directories : %Id\nWatched paths : %d"),
                     CSVNStatusCache::Instance().GetCacheSize(),
                     CSVNStatusCache::Instance().GetNumberOfWatchedPaths());
 
@@ -248,7 +248,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 SystemTray.hWnd   = hTrayWnd;
                 SystemTray.uID    = TRAY_ID;
                 SystemTray.uFlags = NIF_TIP;
-                wcscpy_s(SystemTray.szTip, sInfoTip);
+                _tcscpy_s(SystemTray.szTip, sInfoTip);
                 Shell_NotifyIcon(NIM_MODIFY, &SystemTray);
             }
             break;
@@ -260,7 +260,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 HMENU hMenu = CreatePopupMenu();
                 if(hMenu)
                 {
-                    InsertMenu(hMenu, (UINT)-1, MF_BYPOSITION, TRAYPOP_EXIT, L"Exit");
+                    InsertMenu(hMenu, (UINT)-1, MF_BYPOSITION, TRAYPOP_EXIT, _T("Exit"));
                     SetForegroundWindow(hWnd);
                     TrackPopupMenu(hMenu, TPM_BOTTOMALIGN, pt.x, pt.y, 0, hWnd, NULL);
                     DestroyMenu(hMenu);
@@ -284,16 +284,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             int line = 0;
             SIZE fontsize = {0};
             AutoLocker print(critSec);
-            GetTextExtentPoint32( hdc, szCurrentCrawledPath[0], (int)wcslen(szCurrentCrawledPath[0]), &fontsize );
+            GetTextExtentPoint32( hdc, szCurrentCrawledPath[0], (int)_tcslen(szCurrentCrawledPath[0]), &fontsize );
             for (int i=nCurrentCrawledpathIndex; i<MAX_CRAWLEDPATHS; ++i)
             {
-                TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)wcslen(szCurrentCrawledPath[i]));
-                ++line;
+                TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)_tcslen(szCurrentCrawledPath[i]));
+                line++;
             }
             for (int i=0; i<nCurrentCrawledpathIndex; ++i)
             {
-                TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)wcslen(szCurrentCrawledPath[i]));
-                ++line;
+                TextOut(hdc, 0, line*fontsize.cy, szCurrentCrawledPath[i], (int)_tcslen(szCurrentCrawledPath[i]));
+                line++;
             }
 
 
@@ -386,7 +386,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         {
                             TCHAR driveletter = 'A' + i;
                             CString drive = CString(driveletter);
-                            drive += L":\\";
+                            drive += _T(":\\");
                             CSVNStatusCache::Instance().CloseWatcherHandles(CTSVNPath(drive));
                         }
                     }
@@ -425,12 +425,12 @@ VOID GetAnswerToRequest(const TSVNCacheRequest* pRequest, TSVNCacheResponse* pRe
 
     if (readLock.IsAcquired())
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": app asked for status of %s\n", pRequest->path);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": app asked for status of %s\n"), pRequest->path);
         CSVNStatusCache::Instance().GetStatusForPath(path, pRequest->flags, false).BuildCacheResponse(*pReply, *pResponseLength);
     }
     else
     {
-        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": timeout for asked status of %s\n", pRequest->path);
+        CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": timeout for asked status of %s\n"), pRequest->path);
         CStatusCacheEntry entry;
         entry.BuildCacheResponse(*pReply, *pResponseLength);
     }
@@ -440,7 +440,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
 {
     CCrashReportThread crashthread;
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": PipeThread started\n");
-    bool * bThreadRun = (bool *)lpvParam;
+    bool * bRun = (bool *)lpvParam;
     // The main loop creates an instance of the named pipe and
     // then waits for a client to connect to it. When the client
     // connects, a thread is created to handle communications
@@ -449,7 +449,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
     BOOL fConnected;
     CAutoFile hPipe;
 
-    while (*bThreadRun)
+    while (*bRun)
     {
         hPipe = CreateNamedPipe(
             GetCachePipeName(),
@@ -467,7 +467,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
         {
             //OutputDebugStringA("TSVNCache: CreatePipe failed\n");
             //DebugOutputLastError();
-            if (*bThreadRun)
+            if (*bRun)
                 Sleep(200);
             continue; // never leave the thread!
         }
@@ -476,7 +476,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
         // the function returns a nonzero value. If the function returns
         // zero, GetLastError returns ERROR_PIPE_CONNECTED.
         fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
-        if (fConnected && (*bThreadRun))
+        if (fConnected && (*bRun))
         {
             // Create a thread for this client.
             CAutoGeneralHandle hInstanceThread = (HANDLE)_beginthreadex(NULL, 0, InstanceThread, (HANDLE)hPipe, 0, &dwThreadId);
@@ -489,7 +489,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
                 // since we're now closing this thread, we also have to close the whole application!
                 // otherwise the thread is dead, but the app is still running, refusing new instances
                 // but no pipe will be available anymore.
-                PostMessage(hWndHidden, WM_CLOSE, 0, 0);
+                PostMessage(hWnd, WM_CLOSE, 0, 0);
                 return 1;
             }
             // detach the handle, since we passed it to the thread
@@ -501,7 +501,7 @@ unsigned int __stdcall PipeThread(LPVOID lpvParam)
             //OutputDebugStringA("TSVNCache: ConnectNamedPipe failed\n");
             //DebugOutputLastError();
             hPipe.CloseHandle();
-            if (*bThreadRun)
+            if (*bRun)
                 Sleep(200);
             continue;   // don't end the thread!
         }
@@ -514,7 +514,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
 {
     CCrashReportThread crashthread;
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": CommandWaitThread started\n");
-    bool * bThreadRun = (bool *)lpvParam;
+    bool * bRun = (bool *)lpvParam;
     // The main loop creates an instance of the named pipe and
     // then waits for a client to connect to it. When the client
     // connects, a thread is created to handle communications
@@ -523,7 +523,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
     BOOL fConnected;
     CAutoFile hPipe;
 
-    while (*bThreadRun)
+    while (*bRun)
     {
         hPipe = CreateNamedPipe(
             GetCacheCommandPipeName(),
@@ -541,7 +541,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
         {
             //OutputDebugStringA("TSVNCache: CreatePipe failed\n");
             //DebugOutputLastError();
-            if (*bThreadRun)
+            if (*bRun)
                 Sleep(200);
             continue; // never leave the thread!
         }
@@ -550,7 +550,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
         // the function returns a nonzero value. If the function returns
         // zero, GetLastError returns ERROR_PIPE_CONNECTED.
         fConnected = ConnectNamedPipe(hPipe, NULL) ? TRUE : (GetLastError() == ERROR_PIPE_CONNECTED);
-        if (fConnected && (*bThreadRun))
+        if (fConnected && (*bRun))
         {
             // Create a thread for this client.
             CAutoGeneralHandle hCommandThread = (HANDLE)_beginthreadex(NULL, 0, CommandThread, (HANDLE)hPipe, 0, &dwThreadId);
@@ -563,7 +563,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
                 // since we're now closing this thread, we also have to close the whole application!
                 // otherwise the thread is dead, but the app is still running, refusing new instances
                 // but no pipe will be available anymore.
-                PostMessage(hWndHidden, WM_CLOSE, 0, 0);
+                PostMessage(hWnd, WM_CLOSE, 0, 0);
                 return 1;
             }
             // detach the handle, since we passed it to the thread
@@ -575,7 +575,7 @@ unsigned int __stdcall CommandWaitThread(LPVOID lpvParam)
             //OutputDebugStringA("TSVNCache: ConnectNamedPipe failed\n");
             //DebugOutputLastError();
             hPipe.CloseHandle();
-            if (*bThreadRun)
+            if (*bRun)
                 Sleep(200);
             continue;   // don't end the thread!
         }
@@ -590,6 +590,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": InstanceThread started\n");
     TSVNCacheResponse response;
     DWORD cbBytesRead, cbWritten;
+    BOOL fSuccess;
     CAutoFile hPipe;
 
     // The thread's parameter is a handle to a pipe instance.
@@ -600,7 +601,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
     {
         // Read client requests from the pipe.
         TSVNCacheRequest request;
-        BOOL fSuccess = ReadFile(
+        fSuccess = ReadFile(
             hPipe,        // handle to pipe
             &request,    // buffer to receive data
             sizeof(request), // size of buffer
@@ -624,7 +625,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
         for (size_t i = MAX_PATH+1; (i > 0) && (request.path[i-1] != 0); --i)
             request.path[i-1] = 0;
 
-        size_t pathLength = wcslen (request.path);
+        size_t pathLength = _tcslen (request.path);
         SecureZeroMemory ( request.path + pathLength
                          , sizeof (request.path) - pathLength * sizeof (TCHAR));
 
@@ -665,6 +666,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
     CCrashReportThread crashthread;
     CTraceToOutputDebugString::Instance()(__FUNCTION__ ": CommandThread started\n");
     DWORD cbBytesRead;
+    BOOL fSuccess;
     CAutoFile hPipe;
 
     // The thread's parameter is a handle to a pipe instance.
@@ -675,7 +677,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
     {
         // Read client requests from the pipe.
         TSVNCacheCommand command;
-        BOOL fSuccess = ReadFile(
+        fSuccess = ReadFile(
             hPipe,              // handle to pipe
             &command,           // buffer to receive data
             sizeof(command),    // size of buffer
@@ -698,7 +700,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
         for (size_t i = MAX_PATH+1; (i > 0) && (command.path[i-1] != 0); --i)
             command.path[i-1] = 0;
 
-        size_t pathLength = wcslen (command.path);
+        size_t pathLength = _tcslen (command.path);
         SecureZeroMemory ( command.path + pathLength
                          , sizeof (command.path) - pathLength * sizeof (TCHAR));
 
@@ -732,7 +734,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
                 {
                     CTSVNPath changedpath;
                     changedpath.SetFromWin(command.path, true);
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": release handle for path %s\n", changedpath.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": release handle for path %s\n"), changedpath.GetWinPath());
                     CAutoWriteLock writeLock(CSVNStatusCache::Instance().GetGuard());
                     CSVNStatusCache::Instance().CloseWatcherHandles(changedpath);
                     CSVNStatusCache::Instance().RemoveCacheForPath(changedpath);
@@ -742,7 +744,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
                 {
                     CTSVNPath changedpath;
                     changedpath.SetFromWin(command.path);
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": block path %s\n", changedpath.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": block path %s\n"), changedpath.GetWinPath());
                     CSVNStatusCache::Instance().BlockPath(changedpath, false);
                 }
                 break;
@@ -750,7 +752,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
                 {
                     CTSVNPath changedpath;
                     changedpath.SetFromWin(command.path);
-                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": unblock path %s\n", changedpath.GetWinPath());
+                    CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) _T(": unblock path %s\n"), changedpath.GetWinPath());
                     CSVNStatusCache::Instance().UnBlockPath(changedpath);
                 }
                 break;

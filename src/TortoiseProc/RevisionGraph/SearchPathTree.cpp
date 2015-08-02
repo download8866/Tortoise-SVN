@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2012, 2015 - TortoiseSVN
+// Copyright (C) 2007-2008, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -157,14 +157,14 @@ CSearchPathTree::~CSearchPathTree()
 
 // add a node for the given path and rev. to the tree
 
-CSearchPathTree* CSearchPathTree::Insert ( const CDictionaryBasedTempPath& p
+CSearchPathTree* CSearchPathTree::Insert ( const CDictionaryBasedTempPath& path
                                          , revision_t startrev)
 {
     assert (startrev != NO_REVISION);
 
     // exact match (will happen on root node only)?
 
-    if (this->path == p)
+    if (this->path == path)
     {
         startRevision = startrev;
         return this;
@@ -172,15 +172,15 @@ CSearchPathTree* CSearchPathTree::Insert ( const CDictionaryBasedTempPath& p
 
     // (partly or fully) overlap with an existing child?
 
-    CDictionaryBasedPath cachedPath = p.GetBasePath();
+    CDictionaryBasedPath cachedPath = path.GetBasePath();
     for (CSearchPathTree* child = firstChild; child != NULL; child = child->next)
     {
         CDictionaryBasedTempPath commonPath
-            = child->path.GetCommonRoot (p);
+            = child->path.GetCommonRoot (path);
 
         if (commonPath != this->path)
         {
-            if (child->path == p)
+            if (child->path == path)
             {
                 // there is already a node for the exact same path
                 // -> use it, if unused so far; append a new node otherwise
@@ -188,13 +188,13 @@ CSearchPathTree* CSearchPathTree::Insert ( const CDictionaryBasedTempPath& p
                 if (child->startRevision == NO_REVISION)
                     child->startRevision = startrev;
                 else
-                    return new CSearchPathTree (p, startrev, this);
+                    return new CSearchPathTree (path, startrev, this);
             }
             else
             {
                 // the path is a (true) sub-node of the child
 
-                return child->Insert (p, startrev);
+                return child->Insert (path, startrev);
             }
         }
     }
@@ -202,7 +202,7 @@ CSearchPathTree* CSearchPathTree::Insert ( const CDictionaryBasedTempPath& p
     // no overlap with any existing node
     // -> create a new child
 
-    return new CSearchPathTree (p, startrev, this);
+    return new CSearchPathTree (path, startrev, this);
 }
 
 void CSearchPathTree::Remove()

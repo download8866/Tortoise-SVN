@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015 - TortoiseSVN
+// Copyright (C) 2009-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -186,7 +186,7 @@ bool CLogDlgFilter::Match (char* text, size_t size) const
                 if (!regex_search(text, text + size, *it, std::tr1::regex_constants::match_any))
                     return false;
             }
-            catch (std::exception& /*e*/)
+            catch (std::exception&e)
             {
                 return false;
             }
@@ -290,7 +290,7 @@ std::vector<CHARRANGE> CLogDlgFilter::GetMatchRanges (std::wstring& textUTF16) c
 
 // called to parse a (potentially incorrect) regex spec
 
-bool CLogDlgFilter::ValidateRegexp (const char* regexp_str, std::vector<std::tr1::regex>& pattrns)
+bool CLogDlgFilter::ValidateRegexp (const char* regexp_str, std::vector<std::tr1::regex>& patterns)
 {
     try
     {
@@ -301,7 +301,7 @@ bool CLogDlgFilter::ValidateRegexp (const char* regexp_str, std::vector<std::tr1
             : std::tr1::regex_constants::ECMAScript | std::tr1::regex_constants::icase;
 
         pat = std::tr1::regex(regexp_str, type);
-        pattrns.push_back(pat);
+        patterns.push_back(pat);
         return true;
     }
     catch (std::exception) {}
@@ -491,7 +491,7 @@ CLogDlgFilter::CLogDlgFilter
 
             // ordinary sub-string
 
-            AddSubString (filterText.Tokenize (L" ", curPos), prefix);
+            AddSubString (filterText.Tokenize (_T(" "), curPos), prefix);
         }
     }
 }

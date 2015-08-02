@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009, 2012-2015 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,10 +20,7 @@
 #include "tstring.h"
 #include <string>
 #include <ocidl.h>
-#pragma warning(push)
-#pragma warning(disable: 4458) // declaration of 'xxx' hides class member
-#include <gdiplus.h>
-#pragma warning(pop)
+#include <GdiPlus.h>
 
 using namespace Gdiplus;
 
@@ -156,13 +153,7 @@ public:
      */
     long SetActiveFrame(UINT frame);
 
-    /**
-     * frees the allocated memory that holds the IPicture interface data and
-     * clear picture information
-     */
-    void FreePictureData();
-
-    DWORD GetFileSize() const {return m_nSize;}
+    DWORD GetFileSize() {return m_nSize;}
     tstring GetFileSizeAsText(bool bAbbrev = true);
     CPicture();
     virtual ~CPicture();
@@ -186,6 +177,12 @@ protected:
      * \return TRUE if succeeded
      */
     bool LoadPictureData(BYTE* pBuffer, int nSize);
+
+    /**
+     * frees the allocated memory that holds the IPicture interface data and
+     * clear picture information
+     */
+    void FreePictureData();
 
 private:
     GdiplusStartupInput gdiplusStartupInput;

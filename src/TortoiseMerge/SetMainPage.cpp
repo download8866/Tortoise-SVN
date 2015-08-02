@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2006-2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include "SetMainPage.h"
-#include "MainFrm.h"
 
 
 // CSetMainPage dialog
@@ -34,11 +33,7 @@ CSetMainPage::CSetMainPage()
     , m_bBackup(FALSE)
     , m_bFirstDiffOnLoad(FALSE)
     , m_bFirstConflictOnLoad(FALSE)
-    , m_bUseSpaces(FALSE)
-    , m_bSmartTabChar(FALSE)
     , m_nTabSize(0)
-    , m_bEnableEditorConfig(FALSE)
-    , m_nContextLines(0)
     , m_bIgnoreEOL(FALSE)
     , m_bOnePane(FALSE)
     , m_bViewLinenumbers(FALSE)
@@ -49,32 +44,25 @@ CSetMainPage::CSetMainPage()
     , m_nMaxInline(3000)
     , m_dwFontSize(0)
 {
-    m_regBackup = CRegDWORD(L"Software\\TortoiseMerge\\Backup");
-    m_regFirstDiffOnLoad = CRegDWORD(L"Software\\TortoiseMerge\\FirstDiffOnLoad", TRUE);
-    m_regFirstConflictOnLoad = CRegDWORD(L"Software\\TortoiseMerge\\FirstConflictOnLoad", TRUE);
-    m_regTabMode = CRegDWORD(_T("Software\\TortoiseMerge\\TabMode"), 0);
-    m_regTabSize = CRegDWORD(L"Software\\TortoiseMerge\\TabSize", 4);
-    m_regEnableEditorConfig = CRegDWORD(L"Software\\TortoiseMerge\\EnableEditorConfig", FALSE);
-    m_regIgnoreEOL = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreEOL", TRUE);
-    m_regOnePane = CRegDWORD(L"Software\\TortoiseMerge\\OnePane");
-    m_regViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
-    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Courier New");
-    m_regFontSize = CRegDWORD(L"Software\\TortoiseMerge\\FontSize", 10);
-    m_regCaseInsensitive = CRegDWORD(L"Software\\TortoiseMerge\\CaseInsensitive", FALSE);
-    m_regUTF8Default = CRegDWORD(L"Software\\TortoiseMerge\\UseUTF8", FALSE);
-    m_regAutoAdd = CRegDWORD(L"Software\\TortoiseMerge\\AutoAdd", TRUE);
-    m_regMaxInline = CRegDWORD(L"Software\\TortoiseMerge\\InlineDiffMaxLineLength", 3000);
+    m_regBackup = CRegDWORD(_T("Software\\TortoiseMerge\\Backup"));
+    m_regFirstDiffOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstDiffOnLoad"), TRUE);
+    m_regFirstConflictOnLoad = CRegDWORD(_T("Software\\TortoiseMerge\\FirstConflictOnLoad"), TRUE);
+    m_regTabSize = CRegDWORD(_T("Software\\TortoiseMerge\\TabSize"), 4);
+    m_regIgnoreEOL = CRegDWORD(_T("Software\\TortoiseMerge\\IgnoreEOL"), TRUE);
+    m_regOnePane = CRegDWORD(_T("Software\\TortoiseMerge\\OnePane"));
+    m_regViewLinenumbers = CRegDWORD(_T("Software\\TortoiseMerge\\ViewLinenumbers"), 1);
+    m_regFontName = CRegString(_T("Software\\TortoiseMerge\\FontName"), _T("Courier New"));
+    m_regFontSize = CRegDWORD(_T("Software\\TortoiseMerge\\FontSize"), 10);
+    m_regCaseInsensitive = CRegDWORD(_T("Software\\TortoiseMerge\\CaseInsensitive"), FALSE);
+    m_regUTF8Default = CRegDWORD(_T("Software\\TortoiseMerge\\UseUTF8"), FALSE);
+    m_regAutoAdd = CRegDWORD(_T("Software\\TortoiseMerge\\AutoAdd"), TRUE);
+    m_regMaxInline = CRegDWORD(_T("Software\\TortoiseMerge\\InlineDiffMaxLineLength"), 3000);
     m_regUseRibbons = CRegDWORD(L"Software\\TortoiseMerge\\UseRibbons", TRUE);
-    m_regContextLines = CRegDWORD(L"Software\\TortoiseMerge\\ContextLines", 0);
 
     m_bBackup = m_regBackup;
     m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
     m_bFirstConflictOnLoad = m_regFirstConflictOnLoad;
-    m_bUseSpaces = (m_regTabMode & TABMODE_USESPACES) ? TRUE : FALSE;
-    m_bSmartTabChar = (m_regTabMode & TABMODE_SMARTINDENT) ? TRUE : FALSE;
     m_nTabSize = m_regTabSize;
-    m_bEnableEditorConfig = m_regEnableEditorConfig;
-    m_nContextLines = m_regContextLines;
     m_bIgnoreEOL = m_regIgnoreEOL;
     m_bOnePane = m_regOnePane;
     m_bViewLinenumbers = m_regViewLinenumbers;
@@ -95,13 +83,8 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_BACKUP, m_bBackup);
     DDX_Check(pDX, IDC_FIRSTDIFFONLOAD, m_bFirstDiffOnLoad);
     DDX_Check(pDX, IDC_FIRSTCONFLICTONLOAD, m_bFirstConflictOnLoad);
-    DDX_Check(pDX, IDC_USESPACES, m_bUseSpaces);
-    DDX_Check(pDX, IDC_SMARTTABCHAR, m_bSmartTabChar);
     DDX_Text(pDX, IDC_TABSIZE, m_nTabSize);
     DDV_MinMaxInt(pDX, m_nTabSize, 1, 1000);
-    DDX_Check(pDX, IDC_ENABLEEDITORCONFIG, m_bEnableEditorConfig);
-    DDX_Text(pDX, IDC_CONTEXTLINES, m_nContextLines);
-    DDV_MinMaxInt(pDX, m_nContextLines, 0, 1000);
     DDX_Check(pDX, IDC_IGNORELF, m_bIgnoreEOL);
     DDX_Check(pDX, IDC_ONEPANE, m_bOnePane);
     DDX_Control(pDX, IDC_FONTSIZES, m_cFontSizes);
@@ -110,7 +93,7 @@ void CSetMainPage::DoDataExchange(CDataExchange* pDX)
     {
         CString t;
         m_cFontSizes.GetWindowText(t);
-        m_dwFontSize = _wtoi(t);
+        m_dwFontSize = _ttoi(t);
     }
     DDX_Control(pDX, IDC_FONTNAMES, m_cFontNames);
     DDX_Check(pDX, IDC_LINENUMBERS, m_bViewLinenumbers);
@@ -126,10 +109,7 @@ void CSetMainPage::SaveData()
     m_regBackup = m_bBackup;
     m_regFirstDiffOnLoad = m_bFirstDiffOnLoad;
     m_regFirstConflictOnLoad = m_bFirstConflictOnLoad;
-    m_regTabMode = (m_bUseSpaces ? TABMODE_USESPACES : TABMODE_NONE) | (m_bSmartTabChar ? TABMODE_SMARTINDENT : TABMODE_NONE);
     m_regTabSize = m_nTabSize;
-    m_regEnableEditorConfig = m_bEnableEditorConfig;
-    m_regContextLines = m_nContextLines;
     m_regIgnoreEOL = m_bIgnoreEOL;
     m_regOnePane = m_bOnePane;
     m_regFontName = m_sFontName;
@@ -163,11 +143,7 @@ BOOL CSetMainPage::OnInitDialog()
     m_bBackup = m_regBackup;
     m_bFirstDiffOnLoad = m_regFirstDiffOnLoad;
     m_bFirstConflictOnLoad = m_regFirstConflictOnLoad;
-    m_bUseSpaces = (m_regTabMode & TABMODE_USESPACES) ? TRUE : FALSE;
-    m_bSmartTabChar = (m_regTabMode & TABMODE_SMARTINDENT) ? TRUE : FALSE;
     m_nTabSize = m_regTabSize;
-    m_bEnableEditorConfig = m_regEnableEditorConfig;
-    m_nContextLines = m_regContextLines;
     m_bIgnoreEOL = m_regIgnoreEOL;
     m_bOnePane = m_regOnePane;
     m_sFontName = m_regFontName;
@@ -185,7 +161,7 @@ BOOL CSetMainPage::OnInitDialog()
     int count = 0;
     for (int i=6; i<32; i=i+2)
     {
-        temp.Format(L"%d", i);
+        temp.Format(_T("%d"), i);
         m_cFontSizes.AddString(temp);
         m_cFontSizes.SetItemData(count++, i);
     }
@@ -200,7 +176,7 @@ BOOL CSetMainPage::OnInitDialog()
     }
     if (!foundfont)
     {
-        temp.Format(L"%lu", m_dwFontSize);
+        temp.Format(_T("%d"), m_dwFontSize);
         m_cFontSizes.SetWindowText(temp);
     }
     m_cFontNames.Setup(DEVICE_FONTTYPE|RASTER_FONTTYPE|TRUETYPE_FONTTYPE, 1, FIXED_PITCH);
@@ -218,11 +194,7 @@ BEGIN_MESSAGE_MAP(CSetMainPage, CPropertyPage)
     ON_BN_CLICKED(IDC_FIRSTDIFFONLOAD, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_FIRSTCONFLICTONLOAD, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_LINENUMBERS, &CSetMainPage::OnModified)
-    ON_BN_CLICKED(IDC_USESPACES, &CSetMainPage::OnModified)
-    ON_BN_CLICKED(IDC_SMARTTABCHAR, &CSetMainPage::OnModified)
     ON_EN_CHANGE(IDC_TABSIZE, &CSetMainPage::OnModified)
-    ON_BN_CLICKED(IDC_ENABLEEDITORCONFIG, &CSetMainPage::OnModified)
-    ON_EN_CHANGE(IDC_CONTEXTLINES, &CSetMainPage::OnModified)
     ON_CBN_SELCHANGE(IDC_FONTSIZES, &CSetMainPage::OnModified)
     ON_CBN_SELCHANGE(IDC_FONTNAMES, &CSetMainPage::OnModified)
     ON_BN_CLICKED(IDC_CASEINSENSITIVE, &CSetMainPage::OnModified)
@@ -267,3 +239,4 @@ BOOL CSetMainPage::DialogEnableWindow(UINT nID, BOOL bEnable)
     }
     return pwndDlgItem->EnableWindow(bEnable);
 }
+

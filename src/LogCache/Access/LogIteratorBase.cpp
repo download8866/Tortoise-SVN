@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2009, 2011-2015 - TortoiseSVN
+// Copyright (C) 2007-2009, 2011-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -178,8 +178,6 @@ bool CLogIteratorBase::InternalHandleCopyAndDelete
 
             case CRevisionInfoContainer::ACTION_ADDED:
             case CRevisionInfoContainer::ACTION_REPLACED:
-            case CRevisionInfoContainer::ACTION_MOVED:
-            case CRevisionInfoContainer::ACTION_MOVEREPLACED:
             {
                 if (iter.HasFromPath())
                 {
@@ -416,9 +414,9 @@ void CLogIteratorBase::Retry (revision_t last)
     InternalAdvance (last);
 }
 
-void CLogIteratorBase::SetPath (const CDictionaryBasedTempPath& p)
+void CLogIteratorBase::SetPath (const CDictionaryBasedTempPath& path)
 {
-    this->path = p;
+    this->path = path;
 }
 
 // end namespace LogCache

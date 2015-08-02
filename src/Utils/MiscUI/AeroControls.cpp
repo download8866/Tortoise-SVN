@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2015 - TortoiseSVN
+// Copyright (C) 2009-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 //
 #include "stdafx.h"
 #include "AeroControls.h"
-#include "SysInfo.h"
 
 enum ControlType
 {
@@ -39,12 +38,14 @@ AeroControlBase::AeroControlBase()
     : gdiplusToken(0)
 {
     GdiplusStartupInput gdiplusStartupInput;
-    m_regEnableDWMFrame = CRegDWORD(L"Software\\TortoiseSVN\\EnableDWMFrame", TRUE);
+    m_regEnableDWMFrame = CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE);
 
     if (GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL)==Ok)
     {
+        m_dwm.Initialize();
     }
-    BufferedPaintInit();
+    m_theme.Initialize();
+    m_theme.BufferedPaintInit();
 }
 
 AeroControlBase::~AeroControlBase()
@@ -53,7 +54,7 @@ AeroControlBase::~AeroControlBase()
     {
         RemoveWindowSubclass(it->first, SubclassProc, it->second);
     }
-    BufferedPaintUnInit();
+    m_theme.BufferedPaintUnInit();
     if (gdiplusToken)
         GdiplusShutdown(gdiplusToken);
 }
@@ -61,22 +62,22 @@ AeroControlBase::~AeroControlBase()
 bool AeroControlBase::SubclassControl(HWND hControl)
 {
     bool bRet = false;
-    if (!AeroDialogsEnabled())
+    if (!(DWORD)m_regEnableDWMFrame)
         return bRet;
     TCHAR szWndClassName[MAX_PATH] = { 0 };
     if (GetClassName(hControl, szWndClassName, _countof(szWndClassName)))
     {
-        if (!wcscmp(szWndClassName, L"Static"))
+        if (!_tcscmp(szWndClassName, _T("Static")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Static, (DWORD_PTR)this);
             subclassedControls[hControl] = Static;
         }
-        if (!wcscmp(szWndClassName, L"Button"))
+        if (!_tcscmp(szWndClassName, _T("Button")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Button, (DWORD_PTR)this);
             subclassedControls[hControl] = Button;
         }
-        if(!wcscmp(szWndClassName, L"msctls_progress32"))
+        if(!_tcscmp(szWndClassName, _T("msctls_progress32")))
         {
             bRet = !!SetWindowSubclass(hControl, SubclassProc, Progressbar, (DWORD_PTR)this);
             subclassedControls[hControl] = Progressbar;
@@ -103,34 +104,12 @@ void AeroControlBase::SubclassOkCancelHelp(CWnd* parent)
     SubclassControl(parent, IDHELP);
 }
 
-bool AeroControlBase::AeroDialogsEnabled()
-{
-    // disable aero dialogs in high contrast mode and on Windows 10:
-    // in high contrast mode, while DWM is still active, the aero effect is not
-    // in Win 10, the dialog title bar is not rendered transparent, so the dialogs would
-    // look really ugly and not symmetric.
-    HIGHCONTRAST hc = { sizeof(HIGHCONTRAST) };
-    SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
-    BOOL bEnabled = FALSE;
-    if ((DWORD)m_regEnableDWMFrame && !SysInfo::Instance().IsWin10OrLater())
-    {
-        if (((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 LRESULT AeroControlBase::SubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uidSubclass, DWORD_PTR dwRefData)
 {
     AeroControlBase * pThis = (AeroControlBase*)dwRefData;
     if (pThis)
     {
-        HIGHCONTRAST hc = { sizeof(HIGHCONTRAST) };
-        SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
-        BOOL bEnabled = FALSE;
-        if (((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled)
+        if (pThis->m_dwm.IsDwmCompositionEnabled())
         {
             switch (uidSubclass)
             {
@@ -149,30 +128,6 @@ LRESULT AeroControlBase::SubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
-
-BOOL AeroControlBase::DetermineGlowSize(int *piSize, LPCWSTR pszClassIdList /*= NULL*/)
-{
-    if (!piSize)
-    {
-        SetLastError(ERROR_INVALID_PARAMETER);
-        return FALSE;
-    }
-
-    if (!pszClassIdList)
-        pszClassIdList = L"CompositedWindow::Window";
-
-    HTHEME hThemeWindow = OpenThemeData(NULL, pszClassIdList);
-    if (hThemeWindow != NULL)
-    {
-        VERIFY(SUCCEEDED(GetThemeInt(hThemeWindow, 0, 0, TMT_TEXTGLOWSIZE, piSize)));
-        VERIFY(SUCCEEDED(CloseThemeData(hThemeWindow)));
-        return TRUE;
-    }
-
-    SetLastError(ERROR_FILE_NOT_FOUND);
-    return FALSE;
-}
-
 
 LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -201,7 +156,7 @@ LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                 LONG_PTR dwStyle = GetWindowLongPtr(hWnd, GWL_STYLE);
                 LONG_PTR dwStyleEx = GetWindowLongPtr(hWnd, GWL_EXSTYLE);
 
-                HTHEME hTheme = OpenThemeData(NULL, L"ControlPanelStyle");
+                HTHEME hTheme = m_theme.OpenThemeData(NULL, L"ControlPanelStyle");
                 if(hTheme)
                 {
                     HPAINTBUFFER hBufferedPaint = NULL;
@@ -215,15 +170,15 @@ LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                         blendf.AlphaFormat = AC_SRC_ALPHA;
                         blendf.SourceConstantAlpha = 255;
                         paintParams.pBlendFunction = &blendf;
-                        hBufferedPaint = BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &paintParams, &hdcPaint);
+                        hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &paintParams, &hdcPaint);
                     }
                     else
-                        hBufferedPaint = BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, NULL, &hdcPaint);
+                        hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, NULL, &hdcPaint);
 
                     if (hdcPaint)
                     {
                         VERIFY(PatBlt(hdcPaint, 0, 0, RECTWIDTH(rcClient), RECTHEIGHT(rcClient), BLACKNESS));
-                        VERIFY(S_OK==BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
+                        VERIFY(S_OK==m_theme.BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
                         LONG_PTR dwStaticStyle = dwStyle&0x1F;
 
 
@@ -287,7 +242,7 @@ LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             DttOpts.crText   = RGB(255, 255, 255);
                             DttOpts.iGlowSize = 12; // Default value
 
-                            VERIFY(DetermineGlowSize(&DttOpts.iGlowSize));
+                            VERIFY(m_theme.DetermineGlowSize(&DttOpts.iGlowSize));
 
                             HFONT hFontOld = (HFONT)SendMessage(hWnd, WM_GETFONT, 0L, NULL);
                             if(hFontOld)
@@ -337,7 +292,7 @@ LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                         if(dwStyle & SS_NOPREFIX)
                                             dwFlags |= DT_NOPREFIX;
 
-                                        VERIFY(S_OK==DrawThemeTextEx(hTheme, hdcPaint, 0, 0,
+                                        VERIFY(S_OK==m_theme.DrawThemeTextEx(hTheme, hdcPaint, 0, 0,
                                             szText, -1, dwFlags, &rcClient, &DttOpts));
 
                                         if(dwStyle&SS_SUNKEN || dwStyle&WS_BORDER)
@@ -354,10 +309,10 @@ LRESULT AeroControlBase::StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             }
                         }
 
-                        VERIFY(S_OK==EndBufferedPaint(hBufferedPaint, TRUE));
+                        VERIFY(S_OK==m_theme.EndBufferedPaint(hBufferedPaint, TRUE));
                     }
 
-                    VERIFY(S_OK==CloseThemeData(hTheme));
+                    VERIFY(S_OK==m_theme.CloseThemeData(hTheme));
                 }
             }
 
@@ -405,7 +360,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                     ///
                     /// it must be a group box
                     ///
-                    HTHEME hTheme = OpenThemeData(hWnd, L"Button");
+                    HTHEME hTheme = m_theme.OpenThemeData(hWnd, L"Button");
                     if(hTheme)
                     {
                         BP_PAINTPARAMS params = { sizeof(BP_PAINTPARAMS) };
@@ -441,7 +396,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                         VERIFY(InflateRect(&rcExclusion, -1, -1*RECTHEIGHT(rcDraw)));
 
                         HDC hdcPaint = NULL;
-                        HPAINTBUFFER hBufferedPaint = BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB,
+                        HPAINTBUFFER hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB,
                             &params, &hdcPaint);
                         if (hdcPaint)
                         {
@@ -456,7 +411,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
 
                             VERIFY(PatBlt(hdcPaint, 0, 0, RECTWIDTH(rcClient), RECTHEIGHT(rcClient), BLACKNESS));
 
-                            VERIFY(S_OK==BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
+                            VERIFY(S_OK==m_theme.BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
                             int iPartId = BP_GROUPBOX;
 
                             int iState = GetStateFromBtnState(dwStyle, FALSE, FALSE, 0L, iPartId, FALSE);
@@ -466,7 +421,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             DttOpts.crText   = RGB(255, 255, 255);
                             DttOpts.iGlowSize = 12; // Default value
 
-                            VERIFY(DetermineGlowSize(&DttOpts.iGlowSize));
+                            VERIFY(m_theme.DetermineGlowSize(&DttOpts.iGlowSize));
 
                             COLORREF cr = RGB(0x00, 0x00, 0x00);
                             VERIFY(GetEditBorderColor(hWnd, &cr));
@@ -506,7 +461,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                         VERIFY(PatBlt(hdcPaint, rcDraw.left, rcDraw.top , RECTWIDTH(rcDraw) + 3, RECTHEIGHT(rcDraw), BLACKNESS));
                                         rcDraw.left++;
                                         rcDraw.right++;
-                                        VERIFY(S_OK==DrawThemeTextEx(hTheme, hdcPaint, iPartId, iState, szText, -1,
+                                        VERIFY(S_OK==m_theme.DrawThemeTextEx(hTheme, hdcPaint, iPartId, iState, szText, -1,
                                             dwFlags, &rcDraw, &DttOpts));
 
                                     }
@@ -521,29 +476,29 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                 hFontOld    = NULL;
                             }
 
-                            VERIFY(S_OK==EndBufferedPaint(hBufferedPaint, TRUE));
+                            VERIFY(S_OK==m_theme.EndBufferedPaint(hBufferedPaint, TRUE));
 
                         }
 
-                        VERIFY(S_OK==CloseThemeData(hTheme));
+                        VERIFY(S_OK==m_theme.CloseThemeData(hTheme));
                     }
                 }
 
                 else if(dwButtonType==BS_CHECKBOX || dwButtonType==BS_AUTOCHECKBOX ||
                     dwButtonType==BS_3STATE || dwButtonType==BS_AUTO3STATE || dwButtonType==BS_RADIOBUTTON || dwButtonType==BS_AUTORADIOBUTTON)
                 {
-                    HTHEME hTheme = OpenThemeData(hWnd, L"Button");
+                    HTHEME hTheme = m_theme.OpenThemeData(hWnd, L"Button");
                     if(hTheme)
                     {
                         HDC hdcPaint = NULL;
                         BP_PAINTPARAMS params = { sizeof(BP_PAINTPARAMS) };
                         params.dwFlags        = BPPF_ERASE;
-                        HPAINTBUFFER hBufferedPaint = BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &params, &hdcPaint);
+                        HPAINTBUFFER hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &params, &hdcPaint);
                         if (hdcPaint)
                         {
                             VERIFY(PatBlt(hdcPaint, 0, 0, RECTWIDTH(rcClient), RECTHEIGHT(rcClient), BLACKNESS));
 
-                            VERIFY(S_OK==BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
+                            VERIFY(S_OK==m_theme.BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
 
                             LRESULT dwCheckState = SendMessage(hWnd, BM_GETCHECK, 0, NULL);
                             POINT pt;
@@ -609,11 +564,11 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             }
 
 
-                            VERIFY(S_OK==DrawThemeBackground(hTheme, hdcPaint, iPartId, iState, &rcPaint, NULL));
+                            VERIFY(S_OK==m_theme.DrawThemeBackground(hTheme, hdcPaint, iPartId, iState, &rcPaint, NULL));
                             rcPaint = rcClient;
 
 
-                            VERIFY(S_OK==GetThemeBackgroundContentRect(hTheme, hdcPaint, iPartId, iState, &rcPaint, &rc));
+                            VERIFY(S_OK==m_theme.GetThemeBackgroundContentRect(hTheme, hdcPaint, iPartId, iState, &rcPaint, &rc));
 
                             if(dwButtonStyle & BS_LEFTTEXT)
                                 rc.right -= bmWidth + 2 * GetSystemMetrics(SM_CXEDGE);
@@ -625,7 +580,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             DttOpts.crText   = RGB(255, 255, 255);
                             DttOpts.iGlowSize = 12; // Default value
 
-                            VERIFY(DetermineGlowSize(&DttOpts.iGlowSize));
+                            VERIFY(m_theme.DetermineGlowSize(&DttOpts.iGlowSize));
 
 
                             HFONT hFontOld = (HFONT)SendMessage(hWnd, WM_GETFONT, 0L, NULL);
@@ -666,7 +621,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                         else
                                             dwFlags|=DT_VCENTER;
 
-                                        VERIFY(S_OK==DrawThemeTextEx(hTheme, hdcPaint, iPartId,
+                                        VERIFY(S_OK==m_theme.DrawThemeTextEx(hTheme, hdcPaint, iPartId,
                                             iState, szText, -1, dwFlags, &rc, &DttOpts));
 
                                         ///
@@ -717,9 +672,9 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                 hFontOld    = NULL;
                             }
 
-                            VERIFY(S_OK==EndBufferedPaint(hBufferedPaint, TRUE));
+                            VERIFY(S_OK==m_theme.EndBufferedPaint(hBufferedPaint, TRUE));
                         }
-                        VERIFY(S_OK==CloseThemeData(hTheme));
+                        VERIFY(S_OK==m_theme.CloseThemeData(hTheme));
                     }
 
 
@@ -729,18 +684,18 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                     ///
                     /// it is a push button
                     ///
-                    HTHEME hTheme = OpenThemeData(hWnd, L"Button");
+                    HTHEME hTheme = m_theme.OpenThemeData(hWnd, L"Button");
                     if(hTheme)
                     {
                         HDC hdcPaint = NULL;
                         BP_PAINTPARAMS params = { sizeof(BP_PAINTPARAMS) };
                         params.dwFlags        = BPPF_ERASE;
-                        HPAINTBUFFER hBufferedPaint = BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &params, &hdcPaint);
+                        HPAINTBUFFER hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rcClient, BPBF_TOPDOWNDIB, &params, &hdcPaint);
                         if (hdcPaint)
                         {
                             VERIFY(PatBlt(hdcPaint, 0, 0, RECTWIDTH(rcClient), RECTHEIGHT(rcClient), BLACKNESS));
 
-                            VERIFY(S_OK==BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
+                            VERIFY(S_OK==m_theme.BufferedPaintSetAlpha(hBufferedPaint, &ps.rcPaint, 0x00));
 
                             LRESULT dwCheckState = SendMessage(hWnd, BM_GETCHECK, 0, NULL);
                             POINT pt;
@@ -762,10 +717,10 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             /// drawn areas:
                             ///
                             RECT rcPaint = rcClient;
-                            VERIFY(S_OK==DrawThemeBackground(hTheme, hdcPaint, iPartId, iState, &rcPaint, NULL));
+                            VERIFY(S_OK==m_theme.DrawThemeBackground(hTheme, hdcPaint, iPartId, iState, &rcPaint, NULL));
 
 
-                            VERIFY(S_OK==GetThemeBackgroundContentRect(hTheme, hdcPaint, iPartId, iState, &rcPaint, &rc));
+                            VERIFY(S_OK==m_theme.GetThemeBackgroundContentRect(hTheme, hdcPaint, iPartId, iState, &rcPaint, &rc));
 
 
                             DTTOPTS DttOpts = {sizeof(DTTOPTS)};
@@ -773,7 +728,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                             DttOpts.crText   = RGB(255, 255, 255);
                             DttOpts.iGlowSize = 12; // Default value
 
-                            VERIFY(DetermineGlowSize(&DttOpts.iGlowSize));
+                            VERIFY(m_theme.DetermineGlowSize(&DttOpts.iGlowSize));
 
 
                             HFONT hFontOld = (HFONT)SendMessage(hWnd, WM_GETFONT, 0L, NULL);
@@ -791,7 +746,7 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                     if(iLen)
                                     {
                                         DWORD dwFlags = DT_SINGLELINE | DT_CENTER | DT_VCENTER;
-                                        VERIFY(S_OK==DrawThemeTextEx(hTheme, hdcPaint,
+                                        VERIFY(S_OK==m_theme.DrawThemeTextEx(hTheme, hdcPaint,
                                             iPartId, iState, szText, -1, dwFlags, &rc, &DttOpts));
 
                                         ///
@@ -816,9 +771,9 @@ LRESULT AeroControlBase::ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, L
                                 hFontOld    = NULL;
                             }
 
-                            VERIFY(S_OK==EndBufferedPaint(hBufferedPaint, TRUE));
+                            VERIFY(S_OK==m_theme.EndBufferedPaint(hBufferedPaint, TRUE));
                         }
-                        VERIFY(S_OK==CloseThemeData(hTheme));
+                        VERIFY(S_OK==m_theme.CloseThemeData(hTheme));
                     }
                 }
                 else
@@ -867,7 +822,7 @@ LRESULT AeroControlBase::ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
                 BP_PAINTPARAMS params = { sizeof(BP_PAINTPARAMS) };
                 params.dwFlags = 0L;
                 HDC hdcPaint = NULL;
-                HPAINTBUFFER hBufferedPaint = BeginBufferedPaint(hdc, &rc, BPBF_TOPDOWNDIB, &params, &hdcPaint);
+                HPAINTBUFFER hBufferedPaint = m_theme.BeginBufferedPaint(hdc, &rc, BPBF_TOPDOWNDIB, &params, &hdcPaint);
                 if (hdcPaint)
                 {
                     COLORREF cr = RGB(0x00, 0x00, 0x00);
@@ -876,7 +831,7 @@ LRESULT AeroControlBase::ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
                     SetPixel(hdcPaint, RECTWIDTH(rc) - 1, 0, cr);
                     SetPixel(hdcPaint, RECTWIDTH(rc) - 1, RECTHEIGHT(rc) - 1, cr);
 
-                    EndBufferedPaint(hBufferedPaint, TRUE);
+                    m_theme.EndBufferedPaint(hBufferedPaint, TRUE);
                 }
             }
 
@@ -894,7 +849,7 @@ LRESULT AeroControlBase::ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wPar
     return DefSubclassProc(hWnd, uMsg, wParam, lParam);
 }
 
-void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
+void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr)
 {
     std::unique_ptr<SolidBrush> pBrush(new SolidBrush(clr));
     std::unique_ptr<Graphics> myGraphics(new Graphics(hdcPaint));
@@ -903,7 +858,7 @@ void AeroControlBase::FillRect(LPRECT prc, HDC hdcPaint, Color clr) const
         prc->right - 1 - prc->left, prc->bottom - 1 - prc->top);
 }
 
-int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture) const
+int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture)
 {
     int iState = 0;
     switch (iPartId)
@@ -998,7 +953,7 @@ int AeroControlBase::GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFoc
     return iState;
 }
 
-void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width) const
+void AeroControlBase::DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width)
 {
     std::unique_ptr<Pen> myPen(new Pen(clr, width));
     myPen->SetDashStyle(dashStyle);
@@ -1019,14 +974,14 @@ void AeroControlBase::PaintControl(HWND hWnd, HDC hdc, RECT* prc, bool bDrawBord
 
     if(bDrawBorder)
         VERIFY(InflateRect(prc, 1, 1));
-    HPAINTBUFFER hBufferedPaint = BeginBufferedPaint(hdc, prc, BPBF_TOPDOWNDIB, NULL, &hdcPaint);
+    HPAINTBUFFER hBufferedPaint = m_theme.BeginBufferedPaint(hdc, prc, BPBF_TOPDOWNDIB, NULL, &hdcPaint);
     if (hdcPaint)
     {
         RECT rc;
         VERIFY(GetWindowRect(hWnd, &rc));
 
         PatBlt(hdcPaint, 0, 0, RECTWIDTH(rc), RECTHEIGHT(rc), BLACKNESS);
-        VERIFY(S_OK==BufferedPaintSetAlpha(hBufferedPaint, &rc, 0x00));
+        VERIFY(S_OK==m_theme.BufferedPaintSetAlpha(hBufferedPaint, &rc, 0x00));
 
         ///
         /// first blit white so list ctrls don't look ugly:
@@ -1047,8 +1002,8 @@ void AeroControlBase::PaintControl(HWND hWnd, HDC hdc, RECT* prc, bool bDrawBord
         // don't make a possible border opaque, only the inner part of the control
         VERIFY(InflateRect(prc, -2, -2));
         // Make every pixel opaque
-        VERIFY(S_OK == BufferedPaintSetAlpha(hBufferedPaint, prc, 255));
-        VERIFY(S_OK==EndBufferedPaint(hBufferedPaint, TRUE));
+        VERIFY(S_OK==m_theme.BufferedPaintMakeOpaque_(hBufferedPaint, prc));
+        VERIFY(S_OK==m_theme.EndBufferedPaint(hBufferedPaint, TRUE));
     }
 }
 
@@ -1056,11 +1011,11 @@ BOOL AeroControlBase::GetEditBorderColor(HWND hWnd, COLORREF *pClr)
 {
     ASSERT(pClr);
 
-    HTHEME hTheme = OpenThemeData(hWnd, L"Edit");
+    HTHEME hTheme = m_theme.OpenThemeData(hWnd, L"Edit");
     if(hTheme)
     {
-        VERIFY(S_OK==GetThemeColor(hTheme, EP_BACKGROUNDWITHBORDER, EBWBS_NORMAL, TMT_BORDERCOLOR, pClr));
-        VERIFY(S_OK==CloseThemeData(hTheme));
+        VERIFY(S_OK==m_theme.GetThemeColor(hTheme, EP_BACKGROUNDWITHBORDER, EBWBS_NORMAL, TMT_BORDERCOLOR, pClr));
+        VERIFY(S_OK==m_theme.CloseThemeData(hTheme));
         return TRUE;
     }
 
@@ -1115,7 +1070,7 @@ void AeroControlBase::ScreenToClient(HWND hWnd, LPRECT lprc)
     lprc->bottom = pt.y;
 }
 
-void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia) const
+void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia)
 {
     // diameter can't exceed width or height
     if(dia > r.Width)   dia = r.Width;

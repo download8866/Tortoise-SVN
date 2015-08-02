@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2010-2011, 2015 - TortoiseSVN
+// Copyright (C) 2007-2008, 2010-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -165,6 +165,8 @@ BOOL CSetLogCache::OnInitDialog()
 
     // tooltips
 
+    m_tooltips.Create(this);
+
     m_tooltips.AddTool(IDC_ENABLELOGCACHING, IDS_SETTINGS_LOGCACHE_ENABLE);
     m_tooltips.AddTool(IDC_SUPPORTAMBIGUOUSURL, IDS_SETTINGS_LOGCACHE_AMBIGUOUSURL);
     m_tooltips.AddTool(IDC_SUPPORTAMBIGUOUSUUID, IDS_SETTINGS_LOGCACHE_AMBIGUOUSUUID);
@@ -185,4 +187,10 @@ BOOL CSetLogCache::OnInitDialog()
     m_tooltips.AddTool(IDC_CACHEPOWERDEFAULTS, IDS_SETTINGS_LOGCACHE_POWERDEFAULT);
 
     return TRUE;
+}
+
+BOOL CSetLogCache::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return ISettingsPropPage::PreTranslateMessage(pMsg);
 }

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2008, 2010-2014 - TortoiseSVN
+// Copyright (C) 2006-2008, 2010-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -47,8 +47,6 @@ public:
     void                        SetMovedBlocks(bool bViewMovedBlocks = true);
     int                         GetLineCount() const;
     CString                     GetError() const  {return m_sError;}
-    void                        SetCommentTokens(const CString& sLineStart, const CString& sBlockStart, const CString& sBlockEnd);
-    void                        SetRegexTokens(const std::wregex& rx, const std::wstring& replacement);
 
     bool    IsBaseFileInUse() const     { return m_baseFile.InUse(); }
     bool    IsTheirFileInUse() const    { return m_theirFile.InUse(); }
@@ -57,7 +55,7 @@ public:
 private:
     bool DoTwoWayDiff(const CString& sBaseFilename, const CString& sYourFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool);
 
-    void StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_sticked, apr_off_t &modified_length_sticked) const;
+    void StickAndSkip(svn_diff_t * &tempdiff, apr_off_t &original_length_sticked, apr_off_t &modified_length_sticked);
     bool DoThreeWayDiff(const CString& sBaseFilename, const CString& sYourFilename, const CString& sTheirFilename, DWORD dwIgnoreWS, bool bIgnoreEOL, bool bIgnoreCase, apr_pool_t * pool);
 /**
 * Moved blocks detection for further highlighting,
@@ -67,12 +65,12 @@ private:
 
     void TieMovedBlocks(int from, int to, apr_off_t length);
 
-    void HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3) const;
+    void HideUnchangedSections(CViewData * data1, CViewData * data2, CViewData * data3);
 
-    svn_diff_file_ignore_space_t GetIgnoreSpaceMode(DWORD dwIgnoreWS) const;
+    svn_diff_file_ignore_space_t GetIgnoreSpaceMode(DWORD dwIgnoreWS);
     svn_diff_file_options_t * CreateDiffFileOptions(DWORD dwIgnoreWS, bool bIgnoreEOL, apr_pool_t * pool);
     bool HandleSvnError(svn_error_t * svnerr);
-    bool CompareWithIgnoreWS(CString s1, CString s2, DWORD dwIgnoreWS) const;
+    bool CompareWithIgnoreWS(CString s1, CString s2, DWORD dwIgnoreWS);
 public:
     CWorkingFile                m_baseFile;
     CWorkingFile                m_theirFile;
@@ -106,9 +104,4 @@ public:
 protected:
     bool                        m_bBlame;
     bool                        m_bViewMovedBlocks;
-    CString                     m_CommentLineStart;
-    CString                     m_CommentBlockStart;
-    CString                     m_CommentBlockEnd;
-    std::wregex                 m_rx;
-    std::wstring                m_replacement;
 };

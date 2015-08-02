@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,9 @@
 //
 #include "stdafx.h"
 #include "TortoiseProc.h"
+#include <gdiplus.h>
 #include "RevisionGraphDlg.h"
+#include "MessageBox.h"
 #include "SVN.h"
 #include "TempFile.h"
 #include "UnicodeUtils.h"
@@ -33,11 +35,6 @@
 #include "RevisionGraph/StandardLayout.h"
 #include "RevisionGraph/ShowWC.h"
 #include "RevisionGraph/ShowWCModification.h"
-
-#pragma warning(push)
-#pragma warning(disable: 4458) // declaration of 'xxx' hides class member
-#include <gdiplus.h>
-#pragma warning(pop)
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -354,12 +351,12 @@ void CRevisionGraphWnd::CompareRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowCompare (url1, rev1, url2, rev2, peg, false, L"");
+        diff.ShowCompare (url1, rev1, url2, rev2, peg, L"");
     }
     else
     {
         CAppUtils::StartShowCompare (m_hWnd, url1, rev1,
-            url2, rev2, peg, SVNRev(), false, L"", alternativeTool);
+            url2, rev2, peg, SVNRev(), L"", alternativeTool);
     }
 }
 
@@ -384,13 +381,13 @@ void CRevisionGraphWnd::UnifiedDiffRevs(bool bHead)
     {
         SVNDiff diff (svn.get(), this->m_hWnd);
         diff.SetAlternativeTool (alternativeTool);
-        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, L"", false, false, false);
+        diff.ShowUnifiedDiff (url1, rev1, url2, rev2, peg, L"");
     }
     else
     {
         CAppUtils::StartShowUnifiedDiff(m_hWnd, url1, rev1,
             url2, rev2, peg,
-            SVNRev(), L"", alternativeTool, false, false, false);
+            SVNRev(), L"", alternativeTool);
     }
 }
 

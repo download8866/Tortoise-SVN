@@ -171,11 +171,6 @@ public:
      */
     bool EnsureValid();
 
-    /**
-     * returns the HWND of the progress dialog
-     */
-    HWND GetHwnd() const { return m_hWndProgDlg; }
-
 protected:
     ATL::CComPtr<IProgressDialog> m_pIDlg;
     bool                m_isVisible;

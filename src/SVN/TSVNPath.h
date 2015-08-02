@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2015 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,16 +74,6 @@ public:
      */
     const char* GetSVNApiPath(apr_pool_t *pool) const;
     /**
-     * Returns true if the path returned by GetSVNApiPath() is properly
-     * canonicalized so it won't throw an error later when passed to an
-     * svn API.
-     * Note that for this check a temporary memory pool needs to be
-     * created if no own pool is specified, which is a somewhat expensive task.
-     * Do not call this too often!
-     **/
-    bool IsCanonical() const;
-    bool IsCanonical(apr_pool_t *pool) const;
-    /**
      * Returns the path for showing in an UI.
      *
      * URL's are returned with forward slashes, unescaped if necessary
@@ -134,11 +124,6 @@ public:
      */
     CString GetFileExtension() const;
     CString GetFileOrDirExtension() const;
-
-    /**
-     * returns the file attributes
-     */
-    DWORD GetFileAttributes() const;
 
     bool IsEmpty() const;
     void Reset();
@@ -225,7 +210,7 @@ public:
     bool IsAdminDir() const;
 
     void SetCustomData(LPARAM lp) {m_customData = lp;}
-    LPARAM GetCustomData() const {return m_customData;}
+    LPARAM GetCustomData() {return m_customData;}
 
     /**
      * Checks if the path or URL is valid on Windows.
@@ -282,7 +267,6 @@ private:
     mutable bool m_bLastWriteTimeKnown;
     mutable bool m_bURLKnown;
     mutable bool m_bIsURL;
-    mutable bool m_bIsAttributesKnown;
     mutable __int64 m_lastWriteTime;
     mutable __int64 m_fileSize;
     mutable bool m_bIsReadOnly;
@@ -299,7 +283,6 @@ private:
     mutable LPARAM m_customData;
     mutable bool m_bIsSpecialDirectoryKnown;
     mutable bool m_bIsSpecialDirectory;
-    mutable DWORD m_attributes;
 
     friend bool operator<(const CTSVNPath& left, const CTSVNPath& right);
 };

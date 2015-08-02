@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2008, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,6 +20,7 @@
 #include "SettingsPropPage.h"
 #include "SetProgsAdvDlg.h"
 #include "FileDropEdit.h"
+#include "Tooltip.h"
 
 
 /**
@@ -44,6 +45,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 protected:
     virtual BOOL OnInitDialog();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
     virtual BOOL OnApply();
     afx_msg void OnBnClickedExtdiffOff();
     afx_msg void OnBnClickedExtdiffOn();
@@ -60,7 +62,7 @@ protected:
     afx_msg void OnBnClickedDiffviewerbrowse();
     afx_msg void OnEnChangeDiffviewer();
 
-    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != L"#"; }
+    bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
     void CheckProgComment();
     void CheckProgCommentProps();
 
@@ -72,6 +74,7 @@ private:
     int             m_iExtDiff;
     int             m_iExtDiffProps;
     CSetProgsAdvDlg m_dlgAdvDiff;
+    CToolTips       m_tooltips;
     CRegDWORD       m_regConvertBase;   ///< registry value for the "Don't Convert" flag
     BOOL            m_bConvertBase;     ///< don't convert files when diffing against BASE
     CString         m_sDiffViewerPath;

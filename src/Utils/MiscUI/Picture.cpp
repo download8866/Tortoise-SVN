@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,14 +24,9 @@
 #include "Picture.h"
 #include "SmartHandle.h"
 #include <atlbase.h>
-#include <Wincodec.h>
 
 #pragma comment(lib, "shlwapi.lib")
 #pragma comment(lib, "gdiplus.lib")
-// note: linking with Windowscodecs.lib does not make the exe require the dll
-// which means it still runs on XP even if the WIC isn't installed - WIC won't work
-// but the exe still runs
-#pragma comment(lib, "Windowscodecs.lib")
 
 #define HIMETRIC_INCH 2540
 
@@ -89,9 +84,6 @@ void CPicture::FreePictureData()
         hIcons = NULL;
     }
     delete [] lpIcons;
-    lpIcons = nullptr;
-    delete pBitmap;
-    pBitmap = nullptr;
 }
 
 // Util function to ease loading of FreeImage library
@@ -116,7 +108,7 @@ tstring CPicture::GetFileSizeAsText(bool bAbbrev /* = true */)
     if (bAbbrev)
         StrFormatByteSize(m_nSize, buf, _countof(buf));
     else
-        swprintf_s(buf, L"%lu Bytes", m_nSize);
+        _stprintf_s(buf, _T("%ld Bytes"), m_nSize);
 
     return tstring(buf);
 }
@@ -135,7 +127,7 @@ bool CPicture::Load(tstring sFilePathName)
         return true;
 
     // Load & initialize the GDI+ library if available
-    HMODULE hGdiPlusLib = AtlLoadSystemLibraryUsingFullPath(L"gdiplus.dll");
+    HMODULE hGdiPlusLib = AtlLoadSystemLibraryUsingFullPath(_T("gdiplus.dll"));
     if (hGdiPlusLib && GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL) == Ok)
     {
         bHaveGDIPlus = true;
@@ -170,11 +162,9 @@ bool CPicture::Load(tstring sFilePathName)
         // For that reason, we don't rely on gdiplus telling us if
         // the image format is "icon" or not, we also check the
         // file extension for ".ico".
-        auto lowerfilename = sFilePathName;
-        std::transform(lowerfilename.begin(), lowerfilename.end(), lowerfilename.begin(), ::tolower);
-        bIsIcon = (guid == ImageFormatIcon) || (wcsstr(lowerfilename.c_str(), L".ico") != NULL) || (wcsstr(lowerfilename.c_str(), L".cur") != NULL);
-        bIsTiff = (guid == ImageFormatTIFF) || (wcsstr(lowerfilename.c_str(), L".tiff") != NULL);
-        m_Name = sFilePathName;
+        std::transform(sFilePathName.begin(), sFilePathName.end(), sFilePathName.begin(), ::tolower);
+        bIsIcon = (guid == ImageFormatIcon) || (_tcsstr(sFilePathName.c_str(), _T(".ico")) != NULL);
+        bIsTiff = (guid == ImageFormatTIFF) || (_tcsstr(sFilePathName.c_str(), _T(".tiff")) != NULL);
 
         if (bIsIcon)
         {
@@ -212,7 +202,7 @@ bool CPicture::Load(tstring sFilePathName)
                                     nCurrentIcon = 0;
                                     hIcons = new HICON[lpIconDir->idCount];
                                     // check that the pointers point to data that we just loaded
-                                    if (((BYTE*)lpIconDir->idEntries > (BYTE*)lpIconDir) &&
+                                    if (((BYTE*)lpIconDir->idEntries > (BYTE*)lpIconDir) && 
                                         (((BYTE*)lpIconDir->idEntries) + (lpIconDir->idCount * sizeof(ICONDIRENTRY)) < ((BYTE*)lpIconDir) + fileinfo.nFileSizeLow))
                                     {
                                         m_Width = lpIconDir->idEntries[0].bWidth;
@@ -278,7 +268,7 @@ bool CPicture::Load(tstring sFilePathName)
 
             // NOTE: Currently just loading via FreeImage & using GDI+ for drawing.
             // It might be nice to remove this dependency in the future.
-            HMODULE hFreeImageLib = LoadLibrary(L"FreeImage.dll");
+            HMODULE hFreeImageLib = LoadLibrary(_T("FreeImage.dll"));
 
             // FreeImage DLL functions
             typedef const char* (__stdcall *FreeImage_GetVersion_t)(void);
@@ -452,22 +442,22 @@ bool CPicture::LoadPictureData(BYTE *pBuffer, int nSize)
 {
     bool bResult = false;
 
-    HGLOBAL hGlobalMem = GlobalAlloc(GMEM_MOVEABLE, nSize);
+    HGLOBAL hGlobal = GlobalAlloc(GMEM_MOVEABLE, nSize);
 
-    if(hGlobalMem == NULL)
+    if(hGlobal == NULL)
     {
         return(false);
     }
 
-    void* pData = GlobalLock(hGlobalMem);
+    void* pData = GlobalLock(hGlobal);
     if (pData == NULL)
         return false;
     memcpy(pData, pBuffer, nSize);
-    GlobalUnlock(hGlobalMem);
+    GlobalUnlock(hGlobal);
 
     IStream* pStream = NULL;
 
-    if ((CreateStreamOnHGlobal(hGlobalMem, true, &pStream) == S_OK)&&(pStream))
+    if ((CreateStreamOnHGlobal(hGlobal, true, &pStream) == S_OK)&&(pStream))
     {
         HRESULT hr = OleLoadPicture(pStream, nSize, false, IID_IPicture, (LPVOID *)&m_IPicture);
         pStream->Release();
@@ -476,7 +466,7 @@ bool CPicture::LoadPictureData(BYTE *pBuffer, int nSize)
         bResult = hr == S_OK;
     }
 
-    FreeResource(hGlobalMem); // 16Bit Windows Needs This (32Bit - Automatic Release)
+    FreeResource(hGlobal); // 16Bit Windows Needs This (32Bit - Automatic Release)
 
     return(bResult);
 }
@@ -519,7 +509,6 @@ bool CPicture::Show(HDC hDC, RECT DrawRect)
         Graphics graphics(hDC);
         graphics.SetInterpolationMode(m_ip);
         graphics.SetPixelOffsetMode(PixelOffsetModeHighQuality);
-        graphics.SetPixelOffsetMode(PixelOffsetModeHalf);
         ImageAttributes attr;
         attr.SetWrapMode(WrapModeTileFlipXY);
         Rect rect(DrawRect.left, DrawRect.top, DrawRect.right-DrawRect.left, DrawRect.bottom-DrawRect.top);
@@ -554,63 +543,6 @@ UINT CPicture::GetColorDepth() const
         LPICONDIR lpIconDir = (LPICONDIR)lpIcons;
         return lpIconDir->idEntries[nCurrentIcon].wBitCount;
     }
-
-    // try first with WIC to get the pixel format since GDI+ often returns 32-bit even if it's not
-    // Create the image factory.
-    UINT bpp = 0;
-    IWICImagingFactory * pFactory = NULL;
-    HRESULT hr = CoCreateInstance(CLSID_WICImagingFactory,
-                                  NULL,
-                                  CLSCTX_INPROC_SERVER,
-                                  IID_IWICImagingFactory,
-                                  (LPVOID*) &pFactory);
-
-    // Create a decoder from the file.
-    if (SUCCEEDED(hr))
-    {
-        IWICBitmapDecoder * pDecoder = NULL;
-        hr = pFactory->CreateDecoderFromFilename(m_Name.c_str(),
-                                                 NULL,
-                                                 GENERIC_READ,
-                                                 WICDecodeMetadataCacheOnDemand,
-                                                 &pDecoder);
-        if (SUCCEEDED(hr))
-        {
-            IWICBitmapFrameDecode * pBitmapFrameDecode = NULL;
-            hr = pDecoder->GetFrame(0, &pBitmapFrameDecode);
-            if (SUCCEEDED(hr))
-            {
-                IWICBitmapSource * pSource = NULL;
-                pSource = pBitmapFrameDecode;
-                pSource->AddRef();
-                WICPixelFormatGUID pixelFormat;
-                hr = pSource->GetPixelFormat(&pixelFormat);
-                if (SUCCEEDED(hr))
-                {
-                    IWICComponentInfo * piCompInfo = NULL;
-                    hr = pFactory->CreateComponentInfo(pixelFormat, &piCompInfo);
-                    if (SUCCEEDED(hr))
-                    {
-                        IWICPixelFormatInfo * piPixelFormatInfo = NULL;
-                        hr = piCompInfo->QueryInterface(IID_IWICPixelFormatInfo,(LPVOID *) &piPixelFormatInfo);
-                        if (SUCCEEDED(hr))
-                        {
-                            hr = piPixelFormatInfo->GetBitsPerPixel(&bpp);
-                            piPixelFormatInfo->Release();
-                        }
-                        piCompInfo->Release();
-                    }
-                    pSource->Release();
-                }
-                pBitmapFrameDecode->Release();
-            }
-            pDecoder->Release();
-        }
-        pFactory->Release();
-    }
-    if (bpp)
-        return bpp;
-
     switch (GetPixelFormat())
     {
     case PixelFormat1bppIndexed:
@@ -631,9 +563,6 @@ UINT CPicture::GetColorDepth() const
     case PixelFormat32bppRGB:
         return 32;
     case PixelFormat48bppRGB:
-        // note: GDI+ converts images with bit depths > 32 automatically
-        // on loading, so PixelFormat48bppRGB, PixelFormat64bppARGB and
-        // PixelFormat64bppPARGB will never be used here.
         return 48;
     case PixelFormat64bppARGB:
     case PixelFormat64bppPARGB:

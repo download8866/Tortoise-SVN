@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2008, 2011, 2014-2015 - TortoiseSVN
+// Copyright (C) 2007-2008, 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,11 +24,11 @@ IMPLEMENT_DYNAMIC(CSettingsRevisionGraph, ISettingsPropPage)
 
 CSettingsRevisionGraph::CSettingsRevisionGraph()
     : ISettingsPropPage(CSettingsRevisionGraph::IDD)
-    , regTrunkPattern (L"Software\\TortoiseSVN\\RevisionGraph\\TrunkPattern", L"trunk")
-    , regBranchesPattern (L"Software\\TortoiseSVN\\RevisionGraph\\BranchPattern", L"branches")
-    , regTagsPattern (L"Software\\TortoiseSVN\\RevisionGraph\\TagsPattern", L"tags")
-    , regTweakTrunkColors (L"Software\\TortoiseSVN\\RevisionGraph\\TweakTrunkColors", TRUE)
-    , regTweakTagsColors (L"Software\\TortoiseSVN\\RevisionGraph\\TweakTagsColors", TRUE)
+    , regTrunkPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\TrunkPattern"), _T("trunk"))
+    , regBranchesPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\BranchPattern"), _T("branches"))
+    , regTagsPattern (_T("Software\\TortoiseSVN\\RevisionGraph\\TagsPattern"), _T("tags"))
+    , regTweakTrunkColors (_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTrunkColors"), TRUE)
+    , regTweakTagsColors (_T("Software\\TortoiseSVN\\RevisionGraph\\TweakTagsColors"), TRUE)
     , trunkPattern (regTrunkPattern)
     , branchesPattern (regBranchesPattern)
     , tagsPattern (regTagsPattern)
@@ -90,6 +90,8 @@ BOOL CSettingsRevisionGraph::OnInitDialog()
 
     // tooltips
 
+    m_tooltips.Create(this);
+
     CString patternInfo;
     patternInfo.LoadString (IDS_SETTINGS_PATTERN_INFO);
 
@@ -110,3 +112,8 @@ BOOL CSettingsRevisionGraph::OnInitDialog()
     return TRUE;
 }
 
+BOOL CSettingsRevisionGraph::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return ISettingsPropPage::PreTranslateMessage(pMsg);
+}

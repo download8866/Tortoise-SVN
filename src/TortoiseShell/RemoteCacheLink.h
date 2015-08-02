@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2014 - TortoiseSVN
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,7 +37,7 @@ public:
     bool ReleaseLockForPath(const CTSVNPath& path);
 
 private:
-    bool InternalEnsurePipeOpen ( CAutoFile& hPipe, const CString& pipeName) const;
+    bool InternalEnsurePipeOpen ( CAutoFile& hPipe, const CString& pipeName);
 
     bool EnsurePipeOpen();
     void ClosePipe();
@@ -45,9 +45,9 @@ private:
     bool EnsureCommandPipeOpen();
     void CloseCommandPipe();
 
-    DWORD GetProcessIntegrityLevel() const;
+    DWORD GetProcessIntegrityLevel();
     bool RunTsvnCacheProcess();
-    CString GetTsvnCachePath() const;
+    CString GetTsvnCachePath();
 
 private:
     CAutoFile m_hPipe;
@@ -59,6 +59,6 @@ private:
 
     CComCriticalSection m_critSec;
     svn_client_status_t m_dummyStatus;
-    LONGLONG m_lastTimeout;
+    long m_lastTimeout;
 
 };

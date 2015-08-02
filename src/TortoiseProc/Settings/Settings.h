@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2015 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -41,9 +41,8 @@
 #include "TreePropSheet.h"
 #include "SettingsAdvanced.h"
 #include "SettingsDialogs3.h"
-#include "SettingsSync.h"
-#include "SettingsTUDiff.h"
 
+#include "AeroGlass.h"
 #include "AeroControls.h"
 
 using namespace TreePropSheet;
@@ -92,10 +91,9 @@ private:
     CSettingsTBlame *               m_pTBlamePage;
     CSettingsAdvanced *             m_pAdvanced;
     SettingsDialogs3 *              m_pDialogs3Page;
-    CSettingsSync *                 m_pSyncPage;
-    CSettingsUDiff *                m_pUDiffPage;
 
     HICON                           m_hIcon;
+    CDwmApiImpl                     m_Dwm;
     AeroControlBase                 m_aeroControls;
 public:
     CSettings(UINT nIDCaption, CWnd* pParentWnd = NULL, UINT iSelectPage = 0);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2012, 2015 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008-2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,7 @@
 #include "HistoryCombo.h"
 #include "SVNRev.h"
 #include "PathEdit.h"
+#include "Tooltip.h"
 
 /// forward declarations
 
@@ -50,10 +51,12 @@ protected:
     virtual BOOL OnInitDialog();
     virtual void OnOK();
     virtual void OnCancel();
+    virtual BOOL PreTranslateMessage(MSG* pMsg);
     afx_msg void OnBnClickedBrowse();
     afx_msg void OnBnClickedHelp();
     afx_msg void OnEnChangeRevisionNum();
     afx_msg void OnBnClickedLog();
+    afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
     afx_msg LRESULT OnRevSelected(WPARAM wParam, LPARAM lParam);
     afx_msg void OnCbnEditchangeUrlcombo();
 
@@ -68,9 +71,11 @@ protected:
     CString         m_repoRoot;
     CLogDlg *       m_pLogDlg;
     CComboBox       m_depthCombo;
+    int             m_height;
     CPathEdit       m_SwitchPath;
     CPathEdit       m_DestUrl;
     CPathEdit       m_SrcUrl;
+    CToolTips       m_tooltips;
 
 public:
     CString         m_path;

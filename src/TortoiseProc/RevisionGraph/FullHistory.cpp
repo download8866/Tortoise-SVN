@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -138,10 +138,10 @@ void CFullHistory::ReceiveLog ( TChangedPaths* changes
 
     // update progress bar and check for user pressing "Cancel" somewhere
 
-    static ULONGLONG lastProgressCall = 0;
-    if (lastProgressCall < GetTickCount64() - 200UL)
+    static DWORD lastProgressCall = 0;
+    if (lastProgressCall < GetTickCount() - 200)
     {
-        lastProgressCall = GetTickCount64();
+        lastProgressCall = GetTickCount();
 
         if (progress)
         {
@@ -174,7 +174,7 @@ bool CFullHistory::FetchRevisionData ( CString path
                                      , SVNRev pegRev
                                      , bool showWCRev
                                      , bool showWCModification
-                                     , CProgressDlg* progressDlg
+                                     , CProgressDlg* progress
                                      , ITaskbarList3 * pTaskBarList
                                      , HWND hWnd)
 {
@@ -189,7 +189,7 @@ bool CFullHistory::FetchRevisionData ( CString path
 
     // set some text on the progress dialog, before we wait
     // for the log operation to start
-    this->progress = progressDlg;
+    this->progress = progress;
     this->taskbarlist = pTaskBarList;
     this->hwnd = hWnd;
 
@@ -255,15 +255,15 @@ bool CFullHistory::FetchRevisionData ( CString path
         bool cacheIsComplete = false;
         if (svn.GetLogCachePool()->IsEnabled())
         {
-            CLogCachePool* cachepool = svn.GetLogCachePool();
-            query.reset (new CCacheLogQuery (cachepool, svnQuery.get()));
+            CLogCachePool* pool = svn.GetLogCachePool();
+            query.reset (new CCacheLogQuery (pool, svnQuery.get()));
 
             // get the cache and the lowest missing revision
             // (in off-line mode, the query may not find the cache as
             // it cannot contact the server to get the UUID)
 
-            uuid = cachepool->GetRepositoryInfo().GetRepositoryUUID (rootPath);
-            cache = cachepool->GetCache (uuid, escapedRepoRoot);
+            uuid = pool->GetRepositoryInfo().GetRepositoryUUID (rootPath);
+            cache = pool->GetCache (uuid, escapedRepoRoot);
 
             firstRevision = cache != NULL
                           ? cache->GetRevisions().GetFirstMissingRevision(1)
@@ -418,14 +418,14 @@ void CFullHistory::QueryWCRevision (bool commitRevs, CString path)
 
         bool switched, modified, sparse;
 
-        SVNForwardedCancel svntmp (progress);
-        if (svntmp.GetWCRevisionStatus(CTSVNPath(path)
-                                       , commitRevs    // get the "commit" revision
-                                       , minrev
-                                       , maxrev
-                                       , switched
-                                       , modified
-                                       , sparse))
+        SVNForwardedCancel svn (progress);
+        if (svn.GetWCRevisionStatus ( CTSVNPath (path)
+                                    , commitRevs    // get the "commit" revision
+                                    , minrev
+                                    , maxrev
+                                    , switched
+                                    , modified
+                                    , sparse))
         {
             // we want to report the oldest revision as WC revision:
             // If you commit at $WC/path/ and after that ask for the

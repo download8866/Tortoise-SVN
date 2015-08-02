@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2015 - TortoiseSVN
+// Copyright (C) 2007-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -86,17 +86,17 @@ CCacheLogQuery::CLogOptions::CLogOptions ( const CLogOptions& rhs
 ///////////////////////////////////////////////////////////////
 
 ILogIterator* CCacheLogQuery::CLogOptions::CreateIterator
-    ( CCachedLogInfo* cache_
+    ( CCachedLogInfo* cache
     , revision_t startRevision
     , const CDictionaryBasedTempPath& startPath) const
 {
     return strictNodeHistory
         ? static_cast<ILogIterator*>
-            (new CStrictLogIterator ( cache_
+            (new CStrictLogIterator ( cache
                                     , startRevision
                                     , startPath))
         : static_cast<ILogIterator*>
-            (new CCopyFollowingLogIterator ( cache_
+            (new CCopyFollowingLogIterator ( cache
                                            , startRevision
                                            , startPath));
 }
@@ -422,9 +422,7 @@ void CCacheLogQuery::CLogFiller::ReceiveLog
 
         if (    (  (cache->GetLogInfo().GetSumChanges (index)
                  & (  CRevisionInfoContainer::ACTION_ADDED
-                    | CRevisionInfoContainer::ACTION_REPLACED
-                    | CRevisionInfoContainer::ACTION_MOVED
-                    | CRevisionInfoContainer::ACTION_MOVEREPLACED)) != 0)
+                    | CRevisionInfoContainer::ACTION_REPLACED)) != 0)
              && (currentPath.get() != NULL))
         {
             // create the appropriate iterator to follow the potential path change
@@ -477,21 +475,21 @@ CCacheLogQuery::CLogFiller::~CLogFiller()
 // return the last revision sent to the receiver
 
 revision_t
-CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
-                                    , const CStringA& _URL
-                                    , CString _uuid
-                                    , ILogQuery* _svnQuery
+CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* cache
+                                    , const CStringA& URL
+                                    , CString uuid
+                                    , ILogQuery* svnQuery
                                     , revision_t startRevision
                                     , revision_t endRevision
                                     , const CDictionaryBasedTempPath& startPath
                                     , int limit
-                                    , const CLogOptions& _options)
+                                    , const CLogOptions& options)
 {
-    this->cache = _cache;
-    this->URL = _URL;
-    this->uuid = _uuid;
-    this->svnQuery = _svnQuery;
-    this->options = _options;
+    this->cache = cache;
+    this->URL = URL;
+    this->uuid = uuid;
+    this->svnQuery = svnQuery;
+    this->options = options;
     this->receiveCount = 0;
 
     firstNARevision = startRevision;
@@ -507,7 +505,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
     else
         path.SetFromSVN (URL + startPath.GetPath().c_str());
 
-    CString rooturl = CUnicodeUtils::GetUnicode (URL);
+    CString root = CUnicodeUtils::GetUnicode (URL);
 
     try
     {
@@ -532,8 +530,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
         if (   receiverError
             || e.GetCode() == SVN_ERR_CANCELLED
             || e.GetCode() == SVN_ERR_FS_NOT_FOUND  // deleted paths etc.
-            || e.GetCode() == SVN_ERR_FS_NO_SUCH_REVISION
-            || !repositoryInfoCache->IsOffline (uuid, rooturl, true))
+            || !repositoryInfoCache->IsOffline (uuid, root, true))
         {
             // we want to cache whatever data we could receive so far ..
 
@@ -551,7 +548,7 @@ CCacheLogQuery::CLogFiller::FillLog ( CCachedLogInfo* _cache
 
     // update skip ranges etc. if we are still connected
 
-    if (!repositoryInfoCache->IsOffline (uuid, rooturl, false))
+    if (!repositoryInfoCache->IsOffline (uuid, root, false))
     {
         // do we miss some data at the end of the log?
         // (no-op, if end-of-log was reached;
@@ -1268,8 +1265,8 @@ revision_t CCacheLogQuery::DecodeRevision ( const CTSVNPath& path
 
             const CRevisionIndex& revisions = cache->GetRevisions();
             result = cache->FindRevisionByDate (revision.GetDate());
-            CString sURL = url.GetSVNPathString();
-            bool offline = repositoryInfoCache->IsOffline (uuid, sURL, false);
+            CString URL = url.GetSVNPathString();
+            bool offline = repositoryInfoCache->IsOffline (uuid, URL, false);
 
             // special case: date is before revision 1 / first cached revision
 
@@ -1352,7 +1349,7 @@ revision_t CCacheLogQuery::DecodeRevision ( const CTSVNPath& path
 
                 // (Probably) a server access errror. Retry off-line.
 
-                if (repositoryInfoCache->IsOffline (uuid, sURL, true))
+                if (repositoryInfoCache->IsOffline (uuid, URL, true))
                     return DecodeRevision (path, url, revision, peg);
                 else
                     throw SVNError(info.GetSVNError());
@@ -1539,12 +1536,12 @@ void CCacheLogQuery::LogRevision ( revision_t revision
         // but we will not send them to the receiver, yet (cache fill only)
 
         CLogOptions fillOptions (options, NULL);
-        CDictionaryBasedTempPath rootpath ( &cache->GetLogInfo().GetPaths()
-                                           , std::string());
+        CDictionaryBasedTempPath root ( &cache->GetLogInfo().GetPaths()
+                                      , std::string());
 
         FillLog ( revision
                 , 0
-                , rootpath
+                , root
                 , 100
                 , fillOptions
                 , dataAvailable);
@@ -1588,30 +1585,30 @@ void CCacheLogQuery::UpdateCache (CCacheLogQuery* targetQuery) const
     CTSVNPath path;
     path.SetFromSVN (URL);
 
-    CString sUUID = repositoryInfoCache->GetRepositoryUUID (path);
+    CString uuid = repositoryInfoCache->GetRepositoryUUID (path);
 
     // UUID may be unknown if there is no repository list entry
     // (e.g. this is a temp. cache object) and there is no server connection
 
-    if (sUUID.IsEmpty())
+    if (uuid.IsEmpty())
         return;
 
     // load / create cache and merge it with our results
 
-    assert(!sUUID.IsEmpty());
+    assert(!uuid.IsEmpty());
 
-    CLogCachePool* cachepool
+    CLogCachePool* caches
         = targetQuery->repositoryInfoCache->GetSVN().GetLogCachePool();
-    CCachedLogInfo* c
-        = cachepool->GetCache (sUUID, CUnicodeUtils::GetUnicode (URL));
-    if ((c != this->cache) && (this->cache != NULL))
+    CCachedLogInfo* cache
+        = caches->GetCache (uuid, CUnicodeUtils::GetUnicode (URL));
+    if ((cache != this->cache) && (this->cache != NULL))
     {
-        c->Update (*this->cache);
+        cache->Update (*this->cache);
 
         //
 
-        targetQuery->cache = c;
-        targetQuery->uuid = sUUID;
+        targetQuery->cache = cache;
+        targetQuery->uuid = uuid;
         targetQuery->URL = URL;
     }
 }

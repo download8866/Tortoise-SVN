@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009-2010, 2014-2015 - TortoiseSVN
+// Copyright (C) 2006, 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -91,9 +91,10 @@ BOOL CSettings::OnInitDialog()
     margs.cxRightWidth = 0;
     margs.cyBottomHeight = BOTTOMMARG;
 
-    if (m_aeroControls.AeroDialogsEnabled())
+    if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE))
     {
-        DwmExtendFrameIntoClientArea(m_hWnd, &margs);
+        m_Dwm.Initialize();
+        m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &margs);
         m_aeroControls.SubclassOkCancelHelp(this);
         m_aeroControls.SubclassControl(this, ID_APPLY_NOW);
     }
@@ -104,7 +105,7 @@ BOOL CSettings::OnEraseBkgnd(CDC* pDC)
 {
     CPropertySheet::OnEraseBkgnd(pDC);
 
-    if (m_aeroControls.AeroDialogsEnabled())
+    if (m_Dwm.IsDwmCompositionEnabled())
     {
         // draw the frame margins in black
         RECT rc;

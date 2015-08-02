@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2010, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2007, 2010, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -66,8 +66,9 @@ public:
     virtual bool CreateEx(DWORD dwExStyles, DWORD dwStyles, HWND hParent = NULL, RECT* rect = NULL, LPCTSTR classname = NULL);
 
     //void MsgLoop();
-    bool IsWindowClosed() const { return bWindowClosed; };
+    bool IsWindowClosed() { return bWindowClosed; };
 
+    operator HWND() {return m_hwnd;}
     operator HWND() const {return m_hwnd;}
 protected:
     HINSTANCE hResource;
@@ -81,14 +82,14 @@ protected:
     bool bWindowRestored;
 
     //constructor
-    CWindow(HINSTANCE hInstance, CONST WNDCLASSEX* wcx = NULL)
+    CWindow(HINSTANCE hInst, CONST WNDCLASSEX* wcx = NULL)
         : m_hwnd(NULL)
         , hResource(NULL)
         , m_hParent(NULL)
         , bWindowClosed(FALSE)
         , bWindowRestored(false)
     {
-        hResource = hInstance;
+        hResource = hInst;
         if (wcx != NULL)
             RegisterWindow(wcx);
     };

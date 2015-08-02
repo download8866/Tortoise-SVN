@@ -2,7 +2,7 @@
 //
 // TortoiseSVN Diff script for Excel files
 //
-// Copyright (C) 2004-2008, 2012-2015 the TortoiseSVN team
+// Copyright (C) 2004-2008 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -45,7 +45,7 @@ var vOffice2003 = 11;
 
 // ----- main -----
 
-var aWarningMessages = [];
+var aWarningMessages = Array();
 
 var objArgs = WScript.Arguments;
 if (objArgs.length < 2)
@@ -186,7 +186,7 @@ for (var i = 1; i <= length; i++)
 
 // Close the special workbook quietly
 objSpecialWorkbook.Saved = true;
-objSpecialWorkbook.Close();
+objSpecialWorkbook.Close;
 
 // Activate first Worksheet
 objBaseWorkbook.Sheets(1).Activate();
@@ -248,21 +248,23 @@ function UnhideWorksheet(objWorksheet)
             }
         }
     }
-    else if (objWorksheet.Parent.ProtectStructure)
-    {
-        StoreWarning("Unable to unhide " +
-            ToAbsoluteReference(objWorksheet) +
-            " because the Workbook's structure is protected.");
-    }
     else
     {
-        objWorksheet.Visible = true;
-        if (fExcelVersion >= vOffice2003)
+        if (objWorksheet.Parent.ProtectStructure)
         {
-            objWorksheet.Tab.ColorIndex = 10;   // 10:Green RGB(0,128,0)
+            StoreWarning("Unable to unhide " +
+                ToAbsoluteReference(objWorksheet) +
+                " because the Workbook's structure is protected.");
+        }
+        else
+        {
+            objWorksheet.Visible = true;
+            if (fExcelVersion >= vOffice2003)
+            {
+                objWorksheet.Tab.ColorIndex = 10;   // 10:Green RGB(0,128,0)
+            }
         }
     }
-
 }
 
 // Generate Absolute Reference Formula of Worksheet.
@@ -276,10 +278,10 @@ function ToAbsoluteReference(objWorksheet)
 function convertFormula(sFormula)
 {
     var worksheet = objSpecialWorkbook.Sheets(1);
-    var originalContent = worksheet.Cells(1, 1).Formula;
-    worksheet.Cells(1, 1).Formula = sFormula;
-    sFormula = worksheet.Cells(1, 1).FormulaLocal;
-    worksheet.Cells(1, 1).Formula = originalContent;
+    var original_content = worksheet.Cells(1,1).Formula;
+    worksheet.Cells(1,1).Formula = sFormula;
+    sFormula = worksheet.Cells(1,1).FormulaLocal;
+    worksheet.Cells(1,1).Formula = original_content;
     return sFormula;
 }
 
@@ -298,14 +300,14 @@ function ShowWarning()
         return;
     }
     var sMessage = "The following warnings occurred while processing.\n";
-    for (var j = 0; j < aWarningMessages.length; j++)
+    for (var i = 0; i < aWarningMessages.length; i++)
     {
-        if (j >= 10)
+        if (i >= 10)
         {
-            sMessage += "... And more " + (aWarningMessages.length - j) + " messages";
+            sMessage += "... And more " + (aWarningMessages.length - i) + " messages";
             break;
         }
-        sMessage += "[" + (j + 1) + "] " + aWarningMessages[j] + "\n";
+        sMessage += "[" + (i + 1) + "] " + aWarningMessages[i] + "\n";
     }
     MsgBox(sMessage, vbExclamation, "Warning");
 }

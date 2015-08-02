@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2008, 2010-2011, 2013, 2015 - TortoiseSVN
+// Copyright (C) 2006, 2008, 2010-2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -94,6 +94,7 @@ protected:
     CString                     m_sPath;
     CListCtrl                   m_cFileList;
     CDWordArray                 m_arFileStates;
+    CImageList                  m_ImgList;
     BOOL                        m_bMinimized;
     int                         m_nWindowHeight;
     CWnd *                      m_pMainFrame;
@@ -120,5 +121,4 @@ protected:
     void SetTitleWithPath(int width);
     void PatchAll();
     void PatchSelected();
-    void SetStateText(int i, int state);
 };

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2015 - TortoiseSVN
+// Copyright (C) 2007-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -102,19 +102,19 @@ BOOL CMergeWizard::OnInitDialog()
     margs.cxRightWidth = 0;
     margs.cyBottomHeight = BOTTOMMARG;
 
-    if (m_aeroControls.AeroDialogsEnabled())
+    if ((DWORD)CRegDWORD(_T("Software\\TortoiseSVN\\EnableDWMFrame"), TRUE))
     {
-        DwmExtendFrameIntoClientArea(m_hWnd, &margs);
-        ShowGrip(false);
+        m_Dwm.Initialize();
+        if (m_Dwm.IsDwmCompositionEnabled())
+        {
+            m_Dwm.DwmExtendFrameIntoClientArea(m_hWnd, &margs);
+            ShowGrip(false);
+        }
         m_aeroControls.SubclassOkCancelHelp(this);
         m_aeroControls.SubclassControl(this, ID_WIZFINISH);
         m_aeroControls.SubclassControl(this, ID_WIZBACK);
         m_aeroControls.SubclassControl(this, ID_WIZNEXT);
     }
-
-    if ((m_pParentWnd == NULL) && (GetExplorerHWND()))
-        CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
-    EnableSaveRestore(L"MergeWizard");
 
     return bResult;
 }
@@ -144,7 +144,7 @@ void CMergeWizard::OnCancel()
 }
 void CMergeWizard::SaveMode()
 {
-    CRegDWORD regMergeWizardMode(L"Software\\TortoiseSVN\\MergeWizardMode", 0);
+    CRegDWORD regMergeWizardMode(_T("Software\\TortoiseSVN\\MergeWizardMode"), 0);
     if (DWORD(regMergeWizardMode))
     {
         switch (nRevRangeMerge)
@@ -208,10 +208,7 @@ BOOL CMergeWizard::OnEraseBkgnd(CDC* pDC)
 {
     CResizableSheetEx::OnEraseBkgnd(pDC);
 
-    HIGHCONTRAST hc = { sizeof(HIGHCONTRAST) };
-    SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
-    BOOL bEnabled = FALSE;
-    if (((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled)
+    if (m_Dwm.IsDwmCompositionEnabled())
     {
         // draw the frame margins in black
         RECT rc;

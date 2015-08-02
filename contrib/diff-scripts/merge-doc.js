@@ -2,7 +2,7 @@
 //
 // TortoiseSVN Merge script for Word Doc files
 //
-// Copyright (C) 2004-2008, 2011-2015 the TortoiseSVN team
+// Copyright (C) 2004-2008, 2011 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -17,12 +17,7 @@
 //
 
 var objArgs, num, sTheirDoc, sMyDoc, sBaseDoc, sMergedDoc,
-    objScript, word, baseDoc, myDoc, WSHShell;
-
-// ----- constants -----
-//var vbCritical = 0x10;
-var vbExclamation = 0x30;
-//var vbInformation = 0x40;
+    objScript, word, baseDoc, myDoc, theirDoc, WSHShell;
 
 // Microsoft Office versions for Microsoft Windows OS
 var vOffice2000 = 9;
@@ -97,16 +92,19 @@ else
 {
     //2010 - handle slightly differently as the basic merge isn't that good
     //note this is designed specifically for svn 3 way merges, during the commit conflict resolution process
+    theirDoc = baseDoc;
     baseDoc = word.Documents.Open(sBaseDoc);
     myDoc = word.Documents.Open(sMyDoc);
 
-    baseDoc.Activate(); // required otherwise it compares the wrong docs !!!
+    baseDoc.Activate(); //required otherwise it compares the wrong docs !!!
     baseDoc.Compare(sTheirDoc, "theirs", wdCompareTargetSelected, true, true);
 
-    baseDoc.Activate(); // required otherwise it compares the wrong docs !!!
+    baseDoc.Activate(); //required otherwise it compares the wrong docs !!!
     baseDoc.Compare(sMyDoc, "mine", wdCompareTargetSelected, true, true);
 
-    myDoc.Activate(); // required? just in case
+    //theirDoc.Save();
+    //myDoc.Save();
+    myDoc.Activate(); //required? just in case
     myDoc.Merge(sTheirDoc, wdMergeTargetCurrent);
 }
 
@@ -117,7 +115,7 @@ if (parseInt(word.Version, 10) < vOffice2007)
 }
 
 // Close the first document
-if (parseInt(word.Version, 10) >= vOffice2002 && parseInt(word.Version, 10) < vOffice2010)
+if ((parseInt(word.Version, 10) >= vOffice2002) && (parseInt(word.Version, 10) < vOffice2010))
 {
     baseDoc.Close();
 }

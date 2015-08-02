@@ -360,9 +360,4 @@
       <Filter>Resource Files</Filter>
     </Manifest>
   </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\Resources\copy.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-  </ItemGroup>
 </Project>

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2010-2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2008, 2010-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,18 +21,12 @@
 #include "MainWindow.h"
 #include "CmdLineParser.h"
 #include "TaskbarUUID.h"
-#include "LangDll.h"
-#include "../Utils/CrashReport.h"
 
-#include <algorithm>
 #include <commctrl.h>
 #pragma comment(lib, "comctl32.lib")
 
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
-
-HINSTANCE hInst;                                // current instance
-HINSTANCE hResource;                            // the resource dll
 
 
 int APIENTRY _tWinMain(HINSTANCE hInstance,
@@ -45,23 +39,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     MSG msg;
     HACCEL hAccelTable;
 
-    CCrashReportTSVN crasher(L"TortoiseUDiff " _T(APP_X64_STRING));
-    CCrashReport::Instance().AddUserInfoToReport(L"CommandLine", GetCommandLine());
-    CRegStdDWORD loc = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
-    long langId = loc;
-    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
-
-    CLangDll langDLL;
-    hResource = langDLL.Init(L"TortoiseUDiff", langId);
-    if (hResource == NULL)
-        hResource = hInstance;
-
     CCmdLineParser parser(lpCmdLine);
 
-    if (parser.HasKey(L"?") || parser.HasKey(L"help"))
+    if (parser.HasKey(_T("?")) || parser.HasKey(_T("help")))
     {
-        ResString rHelp(hResource, IDS_COMMANDLINEHELP);
-        MessageBox(NULL, rHelp, L"TortoiseUDiff", MB_ICONINFORMATION);
+        TCHAR buf[1024] = { 0 };
+        LoadString(hInstance, IDS_COMMANDLINEHELP, buf, sizeof(buf)/sizeof(TCHAR));
+        MessageBox(NULL, buf, _T("TortoiseUDiff"), MB_ICONINFORMATION);
         return 0;
     }
 
@@ -72,21 +56,18 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     InitCommonControlsEx(&used);
 
 
-    HMODULE hSciLexerDll = ::LoadLibrary(L"SciLexer.DLL");
+    HMODULE hSciLexerDll = ::LoadLibrary(_T("SciLexer.DLL"));
     if (hSciLexerDll == NULL)
         return FALSE;
 
-    CMainWindow mainWindow(hResource);
-    mainWindow.SetRegistryPath(L"Software\\TortoiseSVN\\UDiffViewerWindowPos");
-    if (parser.HasVal(L"title"))
-        mainWindow.SetTitle(parser.GetVal(L"title"));
-    else if (parser.HasVal(L"patchfile"))
-        mainWindow.SetTitle(parser.GetVal(L"patchfile"));
+    CMainWindow mainWindow(hInstance);
+    mainWindow.SetRegistryPath(_T("Software\\TortoiseSVN\\UDiffViewerWindowPos"));
+    if (parser.HasVal(_T("title")))
+        mainWindow.SetTitle(parser.GetVal(_T("title")));
+    else if (parser.HasVal(_T("patchfile")))
+        mainWindow.SetTitle(parser.GetVal(_T("patchfile")));
     else
-    {
-        ResString rPipeTitle(hResource, IDS_PIPETITLE);
-        mainWindow.SetTitle(rPipeTitle);
-    }
+        mainWindow.SetTitle(_T("diff from pipe"));
 
     if (!mainWindow.RegisterAndCreateWindow())
     {
@@ -96,7 +77,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
     bool bLoadedSuccessfully = false;
     if ( (lpCmdLine[0] == 0) ||
-        (parser.HasKey(L"p")) )
+        (parser.HasKey(_T("p"))) )
     {
         // input from console pipe
         // set console to raw mode
@@ -106,15 +87,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
         bLoadedSuccessfully = mainWindow.LoadFile(GetStdHandle(STD_INPUT_HANDLE));
     }
-    else if (parser.HasVal(L"patchfile"))
-        bLoadedSuccessfully = mainWindow.LoadFile(parser.GetVal(L"patchfile"));
+    else if (parser.HasVal(_T("patchfile")))
+        bLoadedSuccessfully = mainWindow.LoadFile(parser.GetVal(_T("patchfile")));
     else if (lpCmdLine[0] != 0)
-    {
-        // remove double quotes
-        std::wstring path = lpCmdLine;
-        path.erase(std::remove(path.begin(), path.end(), '"'), path.end());
-        bLoadedSuccessfully = mainWindow.LoadFile(path.c_str());
-    }
+        bLoadedSuccessfully = mainWindow.LoadFile(lpCmdLine);
 
 
     if (!bLoadedSuccessfully)
@@ -126,7 +102,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     ::ShowWindow(mainWindow.GetHWNDEdit(), SW_SHOW);
     ::SetFocus(mainWindow.GetHWNDEdit());
 
-    hAccelTable = LoadAccelerators(hResource, MAKEINTRESOURCE(IDC_TORTOISEUDIFF));
+    hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_TORTOISEUDIFF));
 
     // Main message loop:
     while (GetMessage(&msg, NULL, 0, 0))

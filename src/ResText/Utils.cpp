@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2012-2014 - TortoiseSVN
+// Copyright (C) 2003-2006, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -32,10 +32,10 @@ void CUtils::StringExtend(LPTSTR str)
     TCHAR * cPos = str;
     do
     {
-        cPos = wcschr(cPos, '\\');
+        cPos = _tcschr(cPos, '\\');
         if (cPos)
         {
-            memmove(cPos+1, cPos, wcslen(cPos)*sizeof(TCHAR));
+            memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
             *cPos = '\\';
             *(cPos+1) = '\\';
             cPos++;
@@ -45,10 +45,10 @@ void CUtils::StringExtend(LPTSTR str)
     cPos = str;
     do
     {
-        cPos = wcschr(cPos, '\n');
+        cPos = _tcschr(cPos, '\n');
         if (cPos)
         {
-            memmove(cPos+1, cPos, wcslen(cPos)*sizeof(TCHAR));
+            memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
             *cPos = '\\';
             *(cPos+1) = 'n';
         }
@@ -56,10 +56,10 @@ void CUtils::StringExtend(LPTSTR str)
     cPos = str;
     do
     {
-        cPos = wcschr(cPos, '\r');
+        cPos = _tcschr(cPos, '\r');
         if (cPos)
         {
-            memmove(cPos+1, cPos, wcslen(cPos)*sizeof(TCHAR));
+            memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
             *cPos = '\\';
             *(cPos+1) = 'r';
         }
@@ -67,10 +67,10 @@ void CUtils::StringExtend(LPTSTR str)
     cPos = str;
     do
     {
-        cPos = wcschr(cPos, '\t');
+        cPos = _tcschr(cPos, '\t');
         if (cPos)
         {
-            memmove(cPos+1, cPos, wcslen(cPos)*sizeof(TCHAR));
+            memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
             *cPos = '\\';
             *(cPos+1) = 't';
         }
@@ -78,10 +78,10 @@ void CUtils::StringExtend(LPTSTR str)
     cPos = str;
     do
     {
-        cPos = wcschr(cPos, '"');
+        cPos = _tcschr(cPos, '"');
         if (cPos)
         {
-            memmove(cPos+1, cPos, wcslen(cPos)*sizeof(TCHAR));
+            memmove(cPos+1, cPos, _tcslen(cPos)*sizeof(TCHAR));
             *cPos = '\\';
             *(cPos+1) = '"';
             cPos++;
@@ -95,33 +95,33 @@ void CUtils::StringCollapse(LPTSTR str)
     TCHAR * cPos = str;
     do
     {
-        cPos = wcschr(cPos, '\\');
+        cPos = _tcschr(cPos, '\\');
         if (cPos)
         {
             if (*(cPos+1) == 'n')
             {
                 *cPos = '\n';
-                memmove(cPos+1, cPos+2, (wcslen(cPos+2)+1)*sizeof(TCHAR));
+                memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
             }
             else if (*(cPos+1) == 'r')
             {
                 *cPos = '\r';
-                memmove(cPos+1, cPos+2, (wcslen(cPos+2)+1)*sizeof(TCHAR));
+                memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
             }
             else if (*(cPos+1) == 't')
             {
                 *cPos = '\t';
-                memmove(cPos+1, cPos+2, (wcslen(cPos+2)+1)*sizeof(TCHAR));
+                memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
             }
             else if (*(cPos+1) == '"')
             {
                 *cPos = '"';
-                memmove(cPos+1, cPos+2, (wcslen(cPos+2)+1)*sizeof(TCHAR));
+                memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
             }
             else if (*(cPos+1) == '\\')
             {
                 *cPos = '\\';
-                memmove(cPos+1, cPos+2, (wcslen(cPos+2)+1)*sizeof(TCHAR));
+                memmove(cPos+1, cPos+2, (_tcslen(cPos+2)+1)*sizeof(TCHAR));
             }
             cPos++;
         }
@@ -132,14 +132,14 @@ void CUtils::Error()
 {
     CFormatMessageWrapper errorDetails;
     if (errorDetails)
-        _ftprintf (stderr, L"%s\n", (LPCTSTR)errorDetails);
+        _ftprintf (stderr, _T("%s\n"), (LPCTSTR)errorDetails);
 }
 
 void CUtils::SearchReplace(std::wstring& str, const std::wstring& toreplace, const std::wstring& replacewith)
 {
     std::wstring result;
     std::wstring::size_type pos = 0;
-    for ( ; ; ) // while (true)
+    for ( ; ; )	// while (true)
     {
         std::wstring::size_type next = str.find(toreplace, pos);
         result.append(str, pos, next-pos);

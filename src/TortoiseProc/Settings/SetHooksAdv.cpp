@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2015 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -27,8 +27,8 @@ IMPLEMENT_DYNAMIC(CSetHooksAdv, CResizableStandAloneDialog)
 
 CSetHooksAdv::CSetHooksAdv(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CSetHooksAdv::IDD, pParent)
-    , m_sPath(L"")
-    , m_sCommandLine(L"")
+    , m_sPath(_T(""))
+    , m_sCommandLine(_T(""))
     , m_bWait(FALSE)
     , m_bHide(FALSE)
     , m_bEnforce(FALSE)
@@ -72,8 +72,6 @@ BOOL CSetHooksAdv::OnInitDialog()
     m_cHookTypeCombo.SetItemData(index, start_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_PRECOMMIT)));
     m_cHookTypeCombo.SetItemData(index, pre_commit_hook);
-    index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_MANUALPRECOMMIT)));
-    m_cHookTypeCombo.SetItemData(index, manual_precommit);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_POSTCOMMIT)));
     m_cHookTypeCombo.SetItemData(index, post_commit_hook);
     index = m_cHookTypeCombo.AddString(CString(MAKEINTRESOURCE(IDS_HOOKTYPE_STARTUPDATE)));
@@ -102,6 +100,7 @@ BOOL CSetHooksAdv::OnInitDialog()
     m_bWait = cmd.bWait;
     m_bHide = !cmd.bShow;
     m_bEnforce = cmd.bEnforce;
+    m_tooltips.Create(this);
     UpdateData(FALSE);
 
     AddAnchor(IDC_HOOKTYPELABEL, TOP_LEFT, TOP_RIGHT);
@@ -119,7 +118,7 @@ BOOL CSetHooksAdv::OnInitDialog()
     AddAnchor(IDOK, BOTTOM_RIGHT);
     AddAnchor(IDCANCEL, BOTTOM_RIGHT);
     AddAnchor(IDHELP, BOTTOM_RIGHT);
-    EnableSaveRestore(L"SetHooksAdvDlg");
+    EnableSaveRestore(_T("SetHooksAdvDlg"));
     return TRUE;
 }
 
@@ -176,7 +175,7 @@ void CSetHooksAdv::OnBnClickedHookcommandbrowse()
     if (!PathFileExists(sCmdLine))
         sCmdLine.Empty();
     // Display the Open dialog box.
-    if (CAppUtils::FileOpenSave(sCmdLine, NULL, IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE, IDS_COMMONFILEFILTER, true, CString(), m_hWnd))
+    if (CAppUtils::FileOpenSave(sCmdLine, NULL, IDS_SETTINGS_HOOKS_SELECTSCRIPTFILE, IDS_COMMONFILEFILTER, true, m_hWnd))
     {
         m_sCommandLine = sCmdLine;
         UpdateData(FALSE);
@@ -187,4 +186,8 @@ void CSetHooksAdv::OnBnClickedHelp()
 {
     OnHelp();
 }
-
+BOOL CSetHooksAdv::PreTranslateMessage(MSG* pMsg)
+{
+    m_tooltips.RelayEvent(pMsg);
+    return CResizableStandAloneDialog::PreTranslateMessage(pMsg);
+}

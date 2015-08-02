@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011, 2013-2015 - TortoiseSVN
+// Copyright (C) 2010-2011, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -67,11 +67,11 @@ BOOL CEditPropTSVNLang::OnInitDialog()
 
     // fill the combo box with all available languages
     EnumSystemLocales(EnumLocalesProc, LCID_SUPPORTED);
-    int index = m_langCombo.AddString(L"(none)");
+    int index = m_langCombo.AddString(_T("(none)"));
     m_langCombo.SetItemData(index, 0);
 
     DWORD projLang = 0;
-    for (auto it = m_properties.begin(); it != m_properties.end(); ++it)
+    for (IT it = m_properties.begin(); it != m_properties.end(); ++it)
     {
         if (it->second.isinherited)
             continue;
@@ -117,11 +117,11 @@ void CEditPropTSVNLang::OnOK()
     sprintf_s(numBuf, "%Id", m_langCombo.GetItemData(m_langCombo.GetCurSel()));
     pVal.value = numBuf;
     pVal.remove = (m_langCombo.GetItemData(m_langCombo.GetCurSel()) == 0);
-    newProps.insert(std::make_pair(PROJECTPROPNAME_PROJECTLANGUAGE, pVal));
+    newProps[PROJECTPROPNAME_PROJECTLANGUAGE] = pVal;
 
     pVal.value = m_bKeepEnglish ? "" : "false";
     pVal.remove = !!m_bKeepEnglish;
-    newProps.insert(std::make_pair(PROJECTPROPNAME_LOGFILELISTLANG, pVal));
+    newProps[PROJECTPROPNAME_LOGFILELISTLANG] = pVal;
 
     m_bChanged = true;
     m_properties = newProps;
@@ -131,7 +131,7 @@ void CEditPropTSVNLang::OnOK()
 
 BOOL CEditPropTSVNLang::EnumLocalesProc(LPTSTR lpLocaleString)
 {
-    DWORD langID = wcstol(lpLocaleString, NULL, 16);
+    DWORD langID = _tcstol(lpLocaleString, NULL, 16);
 
     TCHAR buf[MAX_PATH] = {0};
     GetLocaleInfo(langID, LOCALE_SNATIVELANGNAME, buf, _countof(buf));
@@ -139,9 +139,9 @@ BOOL CEditPropTSVNLang::EnumLocalesProc(LPTSTR lpLocaleString)
     GetLocaleInfo(langID, LOCALE_SNATIVECTRYNAME, buf, _countof(buf));
     if (buf[0])
     {
-        sLang += L" (";
+        sLang += _T(" (");
         sLang += buf;
-        sLang += L")";
+        sLang += _T(")");
     }
 
     int index = m_langCombo.AddString(sLang);

@@ -97,6 +97,7 @@ protected:
     DECLARE_MESSAGE_MAP()
 
 
+    HINSTANCE m_hDwmApiLib;
     BOOL IsDwmCompositionEnabled(void);
 };
 

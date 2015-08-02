@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,7 +25,6 @@
 #include "SVNPrompt.h"
 #include "SVNRev.h"
 #include "SVNGlobal.h"
-#include "SVNExternals.h"
 #include "ProjectProperties.h"
 
 #include "ILogReceiver.h"
@@ -91,7 +90,7 @@ public:
                             const CStringA& line, const CStringA& log_msg, const CStringA& merged_log_msg);
     virtual svn_error_t* DiffSummarizeCallback(const CTSVNPath& path, svn_client_diff_summarize_kind_t kind, bool propchanged, svn_node_kind_t node);
     virtual BOOL ReportList(const CString& path, svn_node_kind_t kind,
-                            svn_filesize_t size, bool has_props,
+                            svn_filesize_t size, bool has_props, bool complete,
                             svn_revnum_t created_rev, apr_time_t time,
                             const CString& author,
                             const CString& locktoken, const CString& lockowner,
@@ -109,7 +108,7 @@ public:
         __time64_t creation_date;
         __time64_t expiration_date;
 
-        /// Ensure a defined initial state
+        /// Ensure a definined initial state
         SVNLock();
     };
 
@@ -121,7 +120,7 @@ public:
         apr_off_t BytesPerSecond;   ///< Speed in bytes per second
         CString   SpeedString;      ///< String for speed. Either "xxx Bytes/s" or "xxx kBytes/s"
 
-        /// Ensure a defined initial state
+        /// Ensure a definined initial state
         SVNProgress();
     };
 
@@ -175,7 +174,7 @@ public:
      * for deletion in the repository. After the next commit, the file/dir will be unversioned.
      * \return TRUE if successful
      */
-    bool Remove(const CTSVNPathList& pathlist, bool force, bool keeplocal = true, const CString& message = L"", const RevPropHash& revProps = RevPropHash());
+    bool Remove(const CTSVNPathList& pathlist, bool force, bool keeplocal = true, const CString& message = _T(""), const RevPropHash& revProps = RevPropHash());
     /**
      * Reverts a list of files/directories to its pristine state. I.e. its reverted to the state where it
      * was last updated with the repository.
@@ -184,7 +183,7 @@ public:
      * \param recurse
      * \return TRUE if successful
      */
-    bool Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, bool recurse, bool clearchangelists, bool metadataonly);
+    bool Revert(const CTSVNPathList& pathlist, const CStringArray& changelists, bool recurse);
     /**
      * Schedule a working copy path for addition to the repository.
      * path's parent must be under revision control already, but path is
@@ -292,7 +291,6 @@ public:
     bool Copy(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
         const SVNRev& revision, const SVNRev& pegrev, const CString& logmsg = CString(),
         bool copy_as_child = false, bool make_parents = false, bool ignoreExternals = false,
-        bool pin_externals = false, SVNExternals externalsToTag = SVNExternals(),
         const RevPropHash& revProps = RevPropHash());
     /**
      * Move srcPath to destPath.
@@ -323,7 +321,7 @@ public:
      * \return TRUE if successful
      */
     bool Move(const CTSVNPathList& srcPathList, const CTSVNPath& destPath,
-                const CString& message = L"", bool move_as_child = false,
+                const CString& message = _T(""), bool move_as_child = false,
                 bool make_parents = false, bool allow_mixed = false, bool metadata_only = false, const RevPropHash& revProps = RevPropHash());
     /**
      * If path is a URL, use the message to immediately
@@ -345,17 +343,7 @@ public:
      * \param path the file/directory to clean up
      * \return TRUE if successful
      */
-    bool CleanUp(const CTSVNPath& path, bool breaklocks, bool fixtimestamps, bool cleardavcache, bool vacuumpristines, bool includeexternals);
-    /**
-     * Recursively vacuum a working copy directory dir, removing unnecessary data.
-     * \param path the path to the working copy
-     * \param unversioned if true, remove all unversioned items
-     * \param ignored if true, remove all ignored items
-     * \param fixtimestamps if true, fix all timestamps on files
-     * \param pristines if true, remove unnecessary pristine copies
-     * \param includeexternals if true, recurse into externals as well
-     */
-    bool Vacuum(const CTSVNPath& path, bool unversioned, bool ignored, bool fixtimestamps, bool pristines, bool includeExternals);
+    bool CleanUp(const CTSVNPath& path);
     /**
      * Remove the 'conflicted' state on a working copy PATH.  This will
      * not semantically resolve conflicts;  it just allows path to be
@@ -677,7 +665,7 @@ public:
      * If \c fetchlocks is true, include locks when reporting directory entries.
      * \return TRUE if successful
      */
-    bool List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks, apr_uint32_t dirents, bool includeExternals);
+    bool List(const CTSVNPath& url, const SVNRev& revision, const SVNRev& pegrev, svn_depth_t depth, bool fetchlocks, bool complete, bool includeExternals);
 
     /**
      * Relocates a working copy to a new/changes repository URL. Use this function
@@ -841,7 +829,7 @@ public:
      * \param fstype repository file system type. Default is fsfs.
      * \return TRUE if operation was successful
      */
-    static bool CreateRepository(const CTSVNPath& path, const CString& fstype = L"fsfs");
+    static bool CreateRepository(const CTSVNPath& path, const CString& fstype = _T("fsfs"));
 
     /**
      * Convert Windows Path to Local Repository URL
@@ -952,33 +940,17 @@ public:
     void SetCancelBool(bool * bCancel) { m_pbCancel = bCancel; }
 
     const CTSVNPath& GetRedirectedUrlPath() const {return m_redirectedUrl;}
-
-    /// override the cache enabled setting and assume the cache is enabled
-    void AssumeCacheEnabled(bool bEnable) { m_bAssumeCacheEnabled = bEnable; }
-
-    /// suppresses all UI dialogs like authentication dialogs
-    void SuppressUI(bool bSuppress) { m_prompt.SuppressUI(bSuppress); }
-    bool IsSuppressedUI() { return m_prompt.IsSilent(); }
-    void SetAuthInfo(const CString& username, const CString& password);
-
-    /**
-     * Reinitializes the client context structure m_pctx.
-     * This is required to get rid of file locks on wc.db files because
-     * svn uses the pool used to create the client context to open the SQLite
-     * database files. And those files are only closed when the pool is cleared!
-     */
-    void SVNReInit();
-
 protected:
     apr_pool_t *                parentpool;     ///< the main memory pool
-    apr_pool_t *                m_pool;         ///< 'root' memory pool
+    apr_pool_t *                pool;           ///< 'root' memory pool
     SVNPrompt                   m_prompt;
     svn_revnum_t                m_commitRev;    ///< revision of the last commit/add/mkdir
     bool *                      m_pbCancel;
+    bool                        m_bListComplete;///< used for the List() command
     CTSVNPath                   m_redirectedUrl;///< the target url in case of a redirect
     svn_wc_conflict_kind_t      m_resolvekind;  ///< resolve kind for the conflict resolver callback
     svn_wc_conflict_choice_t    m_resolveresult;///< resolve result for the conflict resolver callback
-    bool                        m_bAssumeCacheEnabled;  ///< if true, overrides the log cache enabled setting and assumes it is enabled
+
     static LCID                 s_locale;
     static bool                 s_useSystemLocale;
 
@@ -991,7 +963,6 @@ protected:
 
     void                 CallPreConnectHookIfUrl(const CTSVNPathList& pathList, const CTSVNPath& path = CTSVNPath());
     void                 Prepare();
-    void                 SVNInit();
 
     void cancel();
     static svn_error_t* cancel(void *baton);
@@ -1057,7 +1028,7 @@ protected:
     apr_off_t   progress_averagehelper;
     apr_off_t   progress_lastprogress;
     apr_off_t   progress_lasttotal;
-    ULONGLONG   progress_lastTicks;
+    DWORD       progress_lastTicks;
     std::vector<apr_off_t> progress_vector;
 
 private:
@@ -1067,6 +1038,6 @@ private:
     std::unique_ptr<LogCache::CLogCachePool> logCachePool;
 };
 
-static UINT WM_SVNPROGRESS = RegisterWindowMessage(L"TORTOISESVN_SVNPROGRESS_MSG");
+static UINT WM_SVNPROGRESS = RegisterWindowMessage(_T("TORTOISESVN_SVNPROGRESS_MSG"));
 
 void AprTimeToFileTime(LPFILETIME pft, apr_time_t t);

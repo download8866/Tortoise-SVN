@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010, 2012-2014 - TortoiseSVN
+// Copyright (C) 2010, 2012-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -75,7 +75,7 @@ public:
     svn_client_ctx_t * GetSVNClientContext() const { return m_pctx; }
 
 protected:
-    void ClearCAPIAuthCacheOnError() const;
+    void ClearCAPIAuthCacheOnError();
 
 #ifdef CSTRING_AVAILABLE
     CString                     PostCommitErr;  ///< error string from post commit hook script

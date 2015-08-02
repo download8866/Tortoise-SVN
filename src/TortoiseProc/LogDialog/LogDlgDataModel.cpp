@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2009-2015 - TortoiseSVN
+// Copyright (C) 2003-2007, 2009-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -34,9 +34,9 @@
 
 // conversion utility
 
-CString CLogChangedPath::GetUIPath (const CDictionaryBasedPath& p) const
+CString CLogChangedPath::GetUIPath (const CDictionaryBasedPath& path) const
 {
-    std::string utf8Path = p.GetPath();
+    std::string utf8Path = path.GetPath();
 
     // we don't need to adjust the path length as
     // the conversion will automatically stop at \0.
@@ -104,8 +104,6 @@ const std::string& CLogChangedPath::GetActionString (DWORD action)
     static std::string deleteActionString;
     static std::string replacedActionString;
     static std::string modifiedActionString;
-    static std::string movedActionString;
-    static std::string movereplacedActionString;
     static std::string empty;
 
     switch (action)
@@ -133,18 +131,6 @@ const std::string& CLogChangedPath::GetActionString (DWORD action)
             LoadString (replacedActionString, IDS_SVNACTION_REPLACED);
 
         return replacedActionString;
-
-    case LOGACTIONS_MOVED:
-        if (movedActionString.empty())
-            LoadString(movedActionString, IDS_SVNACTION_MOVED);
-
-        return movedActionString;
-
-    case LOGACTIONS_MOVEREPLACED:
-        if (movereplacedActionString.empty())
-            LoadString(movereplacedActionString, IDS_SVNACTION_MOVEREPLACED);
-
-        return movereplacedActionString;
 
     default:
         // there should always be an action
@@ -319,7 +305,6 @@ CLogEntryData::CLogEntryData
     , ProjectProperties* projectProperties
     , const MergeInfo* mergeInfo)
     : parent (parent)
-    , hasParent(false)
     , hasChildren (false)   // we don't read that from the "mergesFollow" flag
                             // (just to be sure that we actually have sub-nodes)
     , nonInheritable (mergeInfo && mergeInfo->nonInheritable)
@@ -331,7 +316,6 @@ CLogEntryData::CLogEntryData
     , projectProperties (projectProperties)
     , checked (false)
     , bugIDsPending (true)
-    , unread(false)
 {
     // derived header info
 
@@ -340,10 +324,7 @@ CLogEntryData::CLogEntryData
     // update nesting info
 
     if (parent)
-    {
-        hasParent = true;
         parent->hasChildren = true;
-    }
 }
 
 CLogEntryData::~CLogEntryData()
@@ -490,7 +471,7 @@ CLogDataVector::CLogDataVector()
 
 void CLogDataVector::ClearAll()
 {
-    if (!empty())
+    if (size() > 0)
     {
         for(iterator it=begin(); it!=end(); ++it)
             delete *it;
@@ -829,26 +810,9 @@ CLogDataVector::FilterRange
 
     CLogDlgFilter privateFilter (*filter);
 
-    size_t parentEntry = first;
     for (size_t i = first; i < last; ++i)
-    {
         if (privateFilter(*inherited::operator[](i)))
-        {
-            if (inherited::operator[](i)->HasParent() && !contains(result, parentEntry))
-            {
-                // Filter didn't match the parent, but it matched it's child,
-                // so still show the child's parent as well
-                result.push_back(parentEntry);
-            }
-
-            result.push_back(i);
-        }
-
-        if (!inherited::operator[](i)->HasParent())
-        {
-            parentEntry = i; // remember parent's position
-        }
-    }
+            result.push_back (i);
 
     return result;
 }

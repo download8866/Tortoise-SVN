@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2010, 2012, 2013-2015 - TortoiseSVN
+// Copyright (C) 2007-2010, 2012, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -136,12 +136,12 @@ private:
             return hash_value % capacity();
         }
 
-        size_t next (size_t ind) const
+        size_t next (size_t index) const
         {
-            ind += nextStride;
-            if (ind >= capacity())
-                ind -= capacity();
-            return ind;
+            index += nextStride;
+            if (index >= capacity())
+                index -= capacity();
+            return index;
         }
 
         const statistics_t& get_statistics() const
@@ -327,7 +327,7 @@ public:
         TPair* temp = tempBuffer.get();
 
         size_t used[MAX_CLUSTERS];
-        SecureZeroMemory(used, sizeof(used));
+        memset (used, 0, sizeof (used));
 
         // sort main: fill bucket chains
 
@@ -354,13 +354,13 @@ public:
                     ; iter != end
                     ; ++iter)
                 {
-                    size_t nbucket = iter->first;
-                    index_type* target = data + nbucket;
+                    size_t bucket = iter->first;
+                    index_type* target = data + bucket;
 
                     while (*target != NO_INDEX)
                     {
-                        nbucket = grower.next (nbucket);
-                        target = data + nbucket;
+                        bucket = grower.next (bucket);
+                        target = data + bucket;
                         ++collisions_count;
                     }
 
@@ -419,7 +419,7 @@ public:
     }
 
     /// assignment
-    // cppcheck-suppress operatorEqVarError
+
     quick_hash& operator=(const quick_hash& rhs)
     {
         if (this != &rhs)

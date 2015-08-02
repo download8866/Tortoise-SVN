@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2010, 2014-2015 - TortoiseSVN
+// Copyright (C) 2009-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,12 +18,10 @@
 //
 
 #pragma once
+#include "AeroGlass.h"
 #include "registry.h"
 #include <map>
-#pragma warning(push)
-#pragma warning(disable: 4458) // declaration of 'xxx' hides class member
 #include <gdiplus.h>
-#pragma warning(pop)
 using namespace Gdiplus;
 
 class AeroControlBase
@@ -37,26 +35,25 @@ public:
     void SubclassOkCancel(CWnd* parent);
     void SubclassOkCancelHelp(CWnd* parent);
 
-    bool AeroDialogsEnabled();
-
 private:
     static LRESULT CALLBACK SubclassProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uidSubclass, DWORD_PTR dwRefData);
     LRESULT StaticWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT ButtonWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
     LRESULT ProgressbarWindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-    BOOL DetermineGlowSize(int *piSize, LPCWSTR pszClassIdList = NULL);
     void DrawFocusRect(LPRECT prcFocus, HDC hdcPaint);
-    void DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width) const;
-    void FillRect(LPRECT prc, HDC hdcPaint, Color clr) const;
-    int GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture) const;
+    void DrawRect(LPRECT prc, HDC hdcPaint, DashStyle dashStyle, Color clr, REAL width);
+    void FillRect(LPRECT prc, HDC hdcPaint, Color clr);
+    int GetStateFromBtnState(LONG_PTR dwStyle, BOOL bHot, BOOL bFocus, LRESULT dwCheckState, int iPartId, BOOL bHasMouseCapture);
     void PaintControl(HWND hWnd, HDC hdc, RECT* prc, bool bDrawBorder);
     void ScreenToClient(HWND hWnd, LPRECT lprc);
     void DrawSolidWndRectOnParent(HWND hWnd, Color clr);
     void DrawEditBorder(HWND hWnd);
     BOOL GetEditBorderColor(HWND hWnd, COLORREF *pClr);
-    void GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia) const;
+    void GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia);
 
+    CDwmApiImpl                 m_dwm;
+    CUxThemeAeroImpl            m_theme;
     CRegDWORD                   m_regEnableDWMFrame;
     std::map<HWND, UINT_PTR>    subclassedControls;
     ULONG_PTR                   gdiplusToken;

@@ -1,8 +1,8 @@
-// Copyright 2014 Idol Software, Inc.
+// Copyright 2012 Idol Software, Inc.
 //
-// This file is part of Doctor Dump SDK.
+// This file is part of CrashHandler library.
 //
-// Doctor Dump SDK is free software: you can redistribute it and/or modify
+// CrashHandler library is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
@@ -96,35 +96,10 @@ Serializer& operator << (Serializer& ser, std::vector<T>& val)
 {
     size_t size = val.size();
     ser.SerSimpleType((BYTE*)&size, sizeof(size));
-    if (ser.IsReading())
+    if (ser.m_buf)
         val.resize(size);
     for (size_t i = 0;  i < val.size(); ++i)
         ser << val[i];
-    return ser;
-}
-
-template <typename K, typename V>
-Serializer& operator << (Serializer& ser, std::map<K, V>& val)
-{
-    size_t size = val.size();
-    ser.SerSimpleType((BYTE*)&size, sizeof(size));
-    if (ser.IsReading())
-    {
-        for (size_t i = 0;  i < size; ++i)
-        {
-            std::pair<K, V> item;
-            ser << item;
-            val.insert(item);
-        }
-    }
-    else
-    {
-        for (std::map<K, V>::iterator it = val.begin(); it != val.end(); ++it)
-        {
-            std::pair<K, V> item = *it;
-            ser << item;
-        }
-    }
     return ser;
 }
 
@@ -142,15 +117,9 @@ Serializer& operator << (Serializer& ser, Config& cfg)
         << cfg.OpenProblemInBrowser
         << cfg.UseWER
         << cfg.SubmitterID
-        << cfg.SendAdditionalDataWithoutApproval
-        << cfg.FullDumpType
         << cfg.ProcessName
-        << cfg.LangFilePath
-        << cfg.SendRptPath
-        << cfg.DbgHelpPath
         << cfg.FilesToAttach
-        << cfg.UserInfo
-        << cfg.CustomInfo;
+        << cfg.UserInfo;
 }
 
 Serializer& operator << (Serializer& ser, Params& param)
@@ -159,6 +128,5 @@ Serializer& operator << (Serializer& ser, Params& param)
         << param.ProcessId
         << param.ExceptInfo
         << param.WasAssert
-        << param.ReportReady
-        << param.Group;
+        << param.ReportReady;
 }

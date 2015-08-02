@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011-2014 - TortoiseSVN
+// Copyright (C) 2011-2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ IMPLEMENT_DYNAMIC(CRecycleBinDlg, CStandAloneDialog)
 CRecycleBinDlg::CRecycleBinDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CRecycleBinDlg::IDD, pParent)
     , m_regDontDoAgain(L"Software\\TortoiseSVN\\RecycleBinSlowDontAskAgain")
-    , m_sLabel(L"")
+    , m_sLabel(_T(""))
     , m_bDontAskAgain(FALSE)
     , m_startTicks(0)
 {
@@ -68,16 +68,16 @@ BOOL CRecycleBinDlg::OnInitDialog()
     return TRUE;
 }
 
-ULONGLONG CRecycleBinDlg::StartTime()
+DWORD CRecycleBinDlg::StartTime()
 {
-    m_startTicks = GetTickCount64();
+    m_startTicks = GetTickCount();
     return m_startTicks;
 }
 
 void CRecycleBinDlg::EndTime(int filecount)
 {
     bool tooSlow = false;
-    if (((GetTickCount64() - m_startTicks)/1000) > (5UL+filecount))
+    if (((GetTickCount() - m_startTicks)/1000) > (5UL+filecount))
         tooSlow = true;
 
     if ((tooSlow)&&(DWORD(m_regDontDoAgain)==0))
@@ -104,7 +104,7 @@ void CRecycleBinDlg::OnBnClickedEmptybin()
 
 void CRecycleBinDlg::OnBnClickedDontusebin()
 {
-    CRegDWORD reg(L"Software\\TortoiseSVN\\RevertWithRecycleBin", TRUE);
+    CRegDWORD reg = CRegDWORD(_T("Software\\TortoiseSVN\\RevertWithRecycleBin"), TRUE);
     reg = FALSE;
     CStandAloneDialog::OnCancel();
 }

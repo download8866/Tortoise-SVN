@@ -2,7 +2,7 @@
 
 #set -x
 
-BASEURL="https://svn.code.sf.net/p/tortoisesvn/code"
+BASEURL="http://tortoisesvn.googlecode.com/svn"
 SVNCMD="svn co"
 SVNPRM="--ignore-externals"
 TXCMD="tx"

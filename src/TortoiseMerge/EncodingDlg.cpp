@@ -47,7 +47,7 @@ const EOL eolArray[] =
     EOL_PS
 };
 
-// dialog
+// CFindDlg dialog
 
 IMPLEMENT_DYNAMIC(CEncodingDlg, CDialog)
 
@@ -74,7 +74,7 @@ BEGIN_MESSAGE_MAP(CEncodingDlg, CDialog)
 END_MESSAGE_MAP()
 
 
-// message handlers
+// CFindDlg message handlers
 
 void CEncodingDlg::OnCancel()
 {
