@@ -62,6 +62,7 @@
                         <li><a href="#noauthor">Why is there no 'author' shown in the logs when I commit changes via svn+ssh?</a></li>
                         <li><a href="#detectmodification">Why does TortoiseSVN not recognize that a file has been modified?</a></li>
                         <li><a href="#commitremoved">When I remove a file it vanishes, how do I commit it?</a></li>
+                        <li><a href="#powerdesk">The explorer crashes on every right-click on a folder with PowerDesk installed.</a></li>
                         <li><a href="#samba">Permission problems with working copies on a SAMBA share.</a></li>
                         <li><a href="#slowbrowse">Browsing very slow in explorer and file/open dialog.</a></li>
                         <li><a href="#bugtraq">The bugtraq: properties don't work for dialogs started from the repository browser.</a></li>
@@ -71,7 +72,6 @@
                         <li><a href="#eclipse">TortoiseSVN does not work well with Eclipse</a></li>
                         <li><a href="#iesecurity">Security warnings when uploading files in Internet Explorer</a></li>
                         <li><a href="#smartcard">Repeated dialogs to insert smart card</a></li>
-                        <li><a href="#wrongdifftool">&quot;compare with working copy&quot; does not use the configured diff viewer</a></li>
                         <li><a href="#debug">Where are the debug symbols?</a></li>
                     </ul>
 
@@ -244,13 +244,12 @@
                         <p>
                         You may find that not all of these icons are used on your system. This is because
                         the number of overlays allowed by Windows is limited to 15. Windows uses 4 of
-                        those, and the remaining 11 can be used by other applications. And if you have
-                        OneDrive installed, that uses another 5 slots. If you then have another
-                        cloud drive tool installed, those slots can be used up.
+                        those, and the remaining 11 can be used by other applications. If you are also
+                        using TortoiseCVS, then there are not enough overlay slots available, so
                         TortoiseSVN tries to be a "Good Citizen (TM)"? and limits its use of overlays
                         to give other apps a chance.</p>
                         <ul>
-                            <li>Normal, Modified and Conflicted are always loaded and visible (if possible!).</li>
+                            <li>Normal, Modified and Conflicted are always loaded and visible.</li>
                             <li>Deleted is loaded if possible, but falls back to Modified if there are not enough slots.</li>
                             <li>ReadOnly is loaded if possible, but falls back to Normal if there are not enough slots.</li>
                             <li>Locked is only loaded if there are less than 13 overlays already loaded. It falls back to Normal if there are not enough slots.</li>
@@ -262,17 +261,10 @@
                         Other apps which are known to use overlays:
                         <ul>
                             <li>Windows itself. Vista and Win7 use more than XP.</li>
-                            <li>OneDrive</li>
-                            <li>GDrive</li>
-                            <li>Mega</li>
+                            <li>Other Tortoise clients like TCVS. Newer versions of these used a shared icon set, TortoiseOverlays.dll, but you should check what your version uses.</li>
                             <li>Dropbox</li>
-                            <li>many others</li>
+                            <li>Microsoft Groove (part of Office 2007/2010)</li>
                         </ul>
-                        <p>
-                        If there are too many overlay handlers installed and TortoiseSVN does not show any overlays, you can
-                        try to delete some of the installed handlers from the registry. But be careful when editing the
-                        registry!
-                        </p>
                         </div>
 
                         <div class="h3" id="ovlonlylocal">
@@ -591,6 +583,15 @@
                         show you every modification as well as added or deleted files.</p>
                         </div>
 
+                        <div class="h3" id="powerdesk">
+                        <h3>The explorer crashes on every right-click on a folder with PowerDesk installed.</h3>
+                        <p>This is a bug in PowerDesk. You have to install a patch from their website to fix
+                        this issue. Go to
+                        <a href="http://kb.avanquestusa.com/">http://kb.avanquestusa.com</a> and then search for
+                        the article named "PowerDesk crashes when right-clicking on some files and folders".
+                        </p>
+                        </div>
+
                         <div class="h3" id="samba">
                         <h3>Permission problems with working copies on a SAMBA share.</h3>
                         <p>After upgrading to TortoiseSVN 1.5.x or later, you get a lot of "Access denied" errors for most
@@ -703,20 +704,6 @@ force security mode = 0600</pre>
                         </p>
                         </div>
 
-                        <div class="h3" id="wrongdifftool">
-                        <h3>&quot;compare with working copy&quot; does not use the configured diff viewer</h3>
-                        <p>When you run a &quot;compare with working copy&quot; from the log dialog, TortoiseMerge
-                        is started even if you have configured a different diff viewer tool to be used.
-                        </p>
-                        <p>
-                        This is not a bug: this command does not compare two files even though it may
-                        appear like it. It actually creates a patch file and then starts TortoiseMerge
-                        to show what applying that patch file to the working copy would look like.
-                        And since we don't know of any other UI tool that can apply patch files, TortoiseMerge
-                        is started. Your configured diff viewer can not do that.
-                        </p>
-                        </div>
-
                         <div class="h3" id="debug">
                         <h3>Where are the debug symbols?</h3>
                         <p>All debug symbols, both for the official releases and the
@@ -724,7 +711,7 @@ force security mode = 0600</pre>
                         <p>To access the debug symbols, configure your debugger to use the
                         symbol server at <em>http://www.crash-server.com:8080/public/tsvn/71040F62-F78A-4953-B5B3-5C148349FED7/symsrv</em></p>
                         <p>To figure out how to use a debug symbol server, have
-                        look at this <a href="https://support.microsoft.com/en-us/kb/311503">article</a>.
+                        look at this <a href="https://support.microsoft.com/kb/311503">article</a>.
                         </p>
                         </div>
 
@@ -897,7 +884,7 @@ force security mode = 0600</pre>
                         <p>
                         Note: there's a bug in Win7 which causes this error message to appear a lot more
                         than necessary. The bug is fixed with service pack 1.
-                        See <a href="https://social.technet.microsoft.com/Forums/windows/en-US/df935a52-a0a9-4f67-ac82-bc39e0585148/getting-errorfilecorrupt-when-moving-a-file-result-chkdsk-at-reboot-reproducable-and?forum=w7itprogeneral">this post</a> for details.
+                        See <a href="http://social.technet.microsoft.com/Forums/en/w7itprogeneral/thread/df935a52-a0a9-4f67-ac82-bc39e0585148">this post</a> for details.
                         </p>
                         </div>
 
@@ -1091,7 +1078,4 @@ Folder/File2 : revision 2</pre>
             </div>
         </div> <!-- .content -->
 
-    @@include("_includes/footer.html", {
-        "bottomHtml": "<script async src=\"//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js\"></script>"
-    })
-
+    @@include("_includes/footer.html")
