@@ -5,9 +5,9 @@
 })
 <body>
 <ul class="langselection">
-    <li><a href="/downloads.html">EN</a></li>
-    <li><a href="/downloads.de.html">DE</a></li>
-    <li><a href="/downloads.zh.html">ZH</a></li>
+    <li><a href="downloads.html">EN</a></li>
+    <li><a href="downloads.de.html">DE</a></li>
+    <li><a href="downloads.zh.html">ZH</a></li>
 </ul>
 <div class="wrapper">
     @@include("_includes/menu.zh.html")
@@ -20,8 +20,8 @@
                 <div class="entry">
                     <h1>当前版本是 @@TSVNSHORTVERSION</h1>
                     <p>最新更新内容，请查看
-                    <a href="/Changelog.txt">changelog</a>
-                    and the <a href="/tsvn_1.9_releasenotes.html">release notes</a>.
+                    <a href="Changelog.txt">changelog</a>
+                    and the <a href="tsvn_1.8_releasenotes.html">release notes</a>.
                     </p>
                     <p>当前版本 @@TSVNSHORTVERSION 连接的
                     Subversion 库是 @@SVNVERSION.</p>
@@ -52,8 +52,13 @@
 
                     <p>
                     验证文件完整性，请遵循以下
-                    <a href="/msiverify.html">步骤说明</a>
+                    <a href="msiverify.html">步骤说明</a>
                     </p>
+
+                    <!-- SmartSVN advert -->
+                    <a class="smartsvn" href="http://www.smartsvn.com/download?source=tortoisesvn" target="_blank">
+                        <img src="/img/smartsvn-download-ad.jpg" alt="SmartSVN" width="592" height="66">
+                    </a>
 
                     <div class="important">
                     <h3>升级</h3>
@@ -64,7 +69,7 @@
                     </p>
                     <p>
                     如果你想了解为什么必须需要使用修复安装，请阅读
-                    <a href="/majorupgrade.html">关于修复安装的说明</a>
+                    <a href="majorupgrade.html">关于修复安装的说明</a>
                     </p>
                     </div>
                     <br/>
@@ -383,6 +388,61 @@
                     </table>
                 </div>
             </div>
+            <!--
+            <div class="post">
+                <h1 class="title">Other Releases</h1>
+                <div class="entry">
+                    <h1>Forthcoming Releases</h1>
+                    <p>To find out what is happening with the project and when
+                    you can expect the next major release, take a look at our
+                    <a href="status.html">project status</a> page.</p>
+
+                    <h1>Stable Branch Builds</h1>
+                    <p>We maintain ongoing
+                    <a href="http://nightlybuilds.tortoisesvn.net/1.8.x/">Release Candidates</a>
+                    as well. These contain the latest official release plus latest bugfixes and will eventually become
+                    the next official release. They are not built nightly, but on demand from the current release branch,
+                    typically once a week if there has been any significant bugfix activity. If you find that a
+                    certain bug has been fixed and you do not want to wait until the next release, install one of these.
+                    Because they are built from the stable branch they should be completely compatible with
+                    the current official release and with other compatible Subversion clients.
+                    You would also help us tremendously by installing and testing release candidates.
+                    Note that the stable branch accepts bugfixes only, not new features.</p>
+
+                    <h1>Trunk Nightly Builds</h1>
+                    <p><a href="http://nightlybuilds.tortoisesvn.net/latest/">Nightly Builds</a> are
+                    available too. They are built from the current development head and are for testing only.
+                    This represents the bleeding edge and may be linked against a newer version of the subversion
+                    libraries than is used for the current release. Working copies may be upgraded automatically
+                    and become incompatible with the official release and with other subversion clients.
+                    We would love you to test these builds, but you should be aware of the potential problems
+                    and install only on a machine where your working copies are not critical.
+                    Please read <a href="http://nightlybuilds.tortoisesvn.net/latest/Readme.txt">Readme.txt</a> first.</p>
+
+                    <h1>Older Releases</h1>
+                    <p>Older releases are available from the
+                    <a href="https://sourceforge.net/projects/tortoisesvn/files/">SourceForge files</a> section.</p>
+
+                    <h1>Source Code</h1>
+                    <p>TortoiseSVN is under the GPL license. That means you can
+                    get the whole source code and build the program yourself.
+                    <br/>
+                    The source code is hosted on
+                    <a href="https://sourceforge.net/">SourceForge.net</a>
+                    in our own Subversion repository. You can browse the
+                    source code with your favorite web browser directly on the
+                    <a href="https://sourceforge.net/p/tortoisesvn/code/HEAD/tree/">repository</a>.
+                    <br/>
+                    If you have TortoiseSVN installed, you can check out the
+                    whole source code by clicking on the tortoise icon below:
+                    <br/>
+                    <a href="tsvn:https://svn.code.sf.net/p/tortoisesvn/code/trunk">
+                        <img src="/img/TortoiseCheckout.png" alt="Tortoise logo" title="Click me to get the source code!" width="48" height="48">
+                    </a>
+                    </p>
+                </div>
+            </div>
+            -->
         </div> <!-- .content -->
 
     @@include("_includes/sf-accel.html")

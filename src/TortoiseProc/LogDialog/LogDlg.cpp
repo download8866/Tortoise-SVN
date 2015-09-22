@@ -62,9 +62,7 @@
 #include "Callback.h"
 #include "SVNDataObject.h"
 #include "RenameDlg.h"
-#include "SysInfo.h"
 #include "..\..\ext\snarl\SnarlInterface.h"
-#include "ToastNotifications.h"
 #include <tlhelp32.h>
 #include <shlwapi.h>
 #include <fstream>
@@ -212,7 +210,6 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     , m_copyfromrev(0)
     , m_bStartRevIsHead(true)
     , m_boldFont(NULL)
-    , m_boldItalicFont(NULL)
     , m_bStrict(false)
     , m_bSaveStrict(false)
     , m_hasWC(false)
@@ -301,8 +298,6 @@ CLogDlg::~CLogDlg()
     }
     if (m_boldFont)
         DeleteObject(m_boldFont);
-    if (m_boldItalicFont)
-        DeleteObject(m_boldItalicFont);
     if (m_hToolbarImages)
         ImageList_Destroy(m_hToolbarImages);
 }
@@ -334,7 +329,6 @@ BEGIN_MESSAGE_MAP(CLogDlg, CResizableStandAloneDialog)
     ON_REGISTERED_MESSAGE(WM_TASKBARCREATED, OnTaskbarCreated)
     ON_REGISTERED_MESSAGE(WM_TSVN_COMMITMONITOR_SHOWDLGMSG, OnShowDlgMsg)
     ON_REGISTERED_MESSAGE(WM_TSVN_COMMITMONITOR_RELOADINI, OnReloadIniMsg)
-    ON_REGISTERED_MESSAGE(WM_TOASTNOTIFICATION, OnToastNotification)
     ON_MESSAGE(WM_TSVN_REFRESH_SELECTION, OnRefreshSelection)
     ON_MESSAGE(WM_TSVN_MONITOR_TASKBARCALLBACK, OnTaskbarCallBack)
     ON_MESSAGE(WM_TSVN_MONITOR_NOTIFY_CLICK, OnMonitorNotifyClick)
@@ -485,8 +479,6 @@ void CLogDlg::SetupDialogFonts()
     GetObject(hFont, sizeof(LOGFONT), &lf);
     lf.lfWeight = FW_BOLD;
     m_boldFont = CreateFontIndirect(&lf);
-    lf.lfItalic = TRUE;
-    m_boldItalicFont = CreateFontIndirect(&lf);
     CAppUtils::CreateFontForLogs(m_logFont);
 }
 
@@ -3442,7 +3434,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
                         crText = GetSysColor(COLOR_GRAYTEXT);
                     if ((data->GetRevision() == m_wcRev) || data->GetUnread())
                     {
-                        SelectObject(pLVCD->nmcd.hdc, data->GetUnread() ? m_boldFont : m_boldItalicFont);
+                        SelectObject(pLVCD->nmcd.hdc, m_boldFont);
                         // We changed the font, so we're returning CDRF_NEWFONT. This
                         // tells the control to recalculate the extent of the text.
                         *pResult = CDRF_NOTIFYSUBITEMDRAW | CDRF_NEWFONT;
@@ -4885,16 +4877,7 @@ void CLogDlg::ResizeAllListCtrlCols(bool bOnlyVisible)
             if (index < m_logEntries.GetVisibleCount())
             {
                 PLOGENTRYDATA pCurLogEntry = m_logEntries.GetVisible(index);
-                if ((pCurLogEntry) && (pCurLogEntry->GetRevision() == m_wcRev))
-                {
-                    HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
-                    // set the bold font and ask for the string width again
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldItalicFont, NULL);
-                    linewidth = m_LogList.GetStringWidth(m_LogList.GetItemText((int)index, col)) + 14;
-                    // restore the system font
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
-                }
-                if (pCurLogEntry && pCurLogEntry->GetUnread())
+                if ((pCurLogEntry)&&(pCurLogEntry->GetRevision() == m_wcRev))
                 {
                     HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
@@ -8452,41 +8435,23 @@ void CLogDlg::MonitorPopupTimer()
             }
             else
             {
-                bool toastShown = false;
-                if (SysInfo::Instance().IsWin10OrLater() && ((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\UseWin10ToastNotifications", TRUE)))
-                {
-                    std::vector<std::wstring> lines;
-                    if (!m_sMonitorNotificationTitle.IsEmpty())
-                        lines.push_back((LPCWSTR)m_sMonitorNotificationTitle);
-                    if (!m_sMonitorNotificationText.IsEmpty())
-                        lines.push_back((LPCWSTR)m_sMonitorNotificationText);
-                    if (!lines.empty())
-                    {
-                        ToastNotifications toastnotifier;
-                        auto hr = toastnotifier.ShowToast(GetSafeHwnd(), L"TSVN.MONITOR.1", CPathUtils::GetAppDirectory() + L"tsvn-logo.png", lines);
-                        toastShown = SUCCEEDED(hr);
-                    }
-                }
-                if (!toastShown)
-                {
-                    MonitorAlertWnd * pPopup = new MonitorAlertWnd(GetSafeHwnd());
+                MonitorAlertWnd * pPopup = new MonitorAlertWnd(GetSafeHwnd());
 
-                    pPopup->SetAnimationType(CMFCPopupMenu::ANIMATION_TYPE::FADE);
-                    pPopup->SetAnimationSpeed(40);
-                    pPopup->SetTransparency(200);
-                    pPopup->SetSmallCaption(TRUE);
-                    pPopup->SetAutoCloseTime(5000);
+                pPopup->SetAnimationType(CMFCPopupMenu::ANIMATION_TYPE::FADE);
+                pPopup->SetAnimationSpeed(40);
+                pPopup->SetTransparency(200);
+                pPopup->SetSmallCaption(TRUE);
+                pPopup->SetAutoCloseTime(5000);
 
-                    // Create indirect:
-                    CMFCDesktopAlertWndInfo params;
+                // Create indirect:
+                CMFCDesktopAlertWndInfo params;
 
-                    params.m_hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME),
-                                                      IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
-                    params.m_strText = m_sMonitorNotificationTitle + L"\n" + m_sMonitorNotificationText;
-                    params.m_strURL = CString(MAKEINTRESOURCE(IDS_MONITOR_NOTIFY_LINK));
-                    params.m_nURLCmdID = 101;
-                    pPopup->Create(this, params);
-                }
+                params.m_hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME),
+                                                  IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+                params.m_strText = m_sMonitorNotificationTitle + L"\n" + m_sMonitorNotificationText;
+                params.m_strURL = CString(MAKEINTRESOURCE(IDS_MONITOR_NOTIFY_LINK));
+                params.m_nURLCmdID = 101;
+                pPopup->Create(this, params);
             }
         }
 
@@ -9401,27 +9366,6 @@ LRESULT CLogDlg::OnShowDlgMsg(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
     MonitorShowDlg();
     return 0;
-}
-
-LRESULT CLogDlg::OnToastNotification(WPARAM wParam, LPARAM /*lParam*/)
-{
-    switch (wParam)
-    {
-        case ToastNotificationAction::Activate:                           // notification activated
-        MonitorShowDlg();
-        return TRUE;
-        break;
-        case ToastNotificationAction::Dismiss_UserCanceled:               // The user dismissed this toast
-        case ToastNotificationAction::Dismiss_TimedOut:                   // The toast has timed out
-        return TRUE;
-        break;
-        case ToastNotificationAction::Dismiss_ApplicationHidden:          // The application hid the toast using ToastNotifier.hide()
-        case ToastNotificationAction::Dismiss_NotActivated:               // Toast not activated
-        case ToastNotificationAction::Failed:                             // The toast encountered an error
-        default:
-        break;
-    }
-    return TRUE;
 }
 
 void CLogDlg::MonitorShowDlg()
