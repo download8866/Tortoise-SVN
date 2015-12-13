@@ -178,7 +178,6 @@ protected:
     afx_msg LRESULT OnReloadIniMsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedInfoIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedCancelFilter(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnToastNotification(WPARAM wParam, LPARAM lParam);
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
     afx_msg void OnBnClickedGetall();
@@ -442,7 +441,6 @@ public:
     WORD                m_wParam;
 private:
     HFONT               m_boldFont;
-    HFONT               m_boldItalicFont;
     CString             m_sRelativeRoot;
     CString             m_sRepositoryRoot;
     CString             m_sURL;

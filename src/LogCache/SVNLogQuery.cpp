@@ -61,9 +61,9 @@ const TRevPropNames& CSVNLogQuery::GetStandardRevProps()
 
     if (standardRevProps.empty())
     {
-        standardRevProps.emplace_back(SVN_PROP_REVISION_LOG);
-        standardRevProps.emplace_back(SVN_PROP_REVISION_DATE);
-        standardRevProps.emplace_back(SVN_PROP_REVISION_AUTHOR);
+        standardRevProps.push_back (std::string (SVN_PROP_REVISION_LOG));
+        standardRevProps.push_back (std::string (SVN_PROP_REVISION_DATE));
+        standardRevProps.push_back (std::string (SVN_PROP_REVISION_AUTHOR));
     }
 
     return standardRevProps;

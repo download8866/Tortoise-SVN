@@ -239,6 +239,7 @@
     <ClCompile Include="..\Utils\Registry.cpp" />
     <ClCompile Include="..\Utils\StringUtils.cpp" />
     <ClCompile Include="..\Utils\SVNTrace.cpp" />
+    <ClCompile Include="..\Utils\SysInfo.cpp" />
     <ClCompile Include="..\Utils\UnicodeUtils.cpp" />
     <ClCompile Include="ColumnProvider.cpp" />
     <ClCompile Include="ContextMenu.cpp" />
@@ -320,6 +321,7 @@
     <ClInclude Include="..\Utils\PreserveChdir.h" />
     <ClInclude Include="..\Utils\registry.h" />
     <ClInclude Include="..\Utils\SVNTrace.h" />
+    <ClInclude Include="..\Utils\SysInfo.h" />
     <ClInclude Include="..\Utils\UnicodeUtils.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="Guids.h" />

@@ -257,6 +257,9 @@
     <ClCompile Include="..\Utils\SysImageList.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\SysInfo.cpp">
+      <Filter>Utils\General</Filter>
+    </ClCompile>
     <ClCompile Include="..\Utils\TempFile.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
@@ -1094,9 +1097,6 @@
     <ClCompile Include="SVNProgressDlg.cpp">
       <Filter>Subversion</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppUtils.h">
@@ -1199,6 +1199,9 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\SysImageList.h">
+      <Filter>Utils\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\SysInfo.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\TempFile.h">
@@ -2088,12 +2091,6 @@
     </ClInclude>
     <ClInclude Include="SVNProgressDlg.h">
       <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\StringReferenceWrapper.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h">
-      <Filter>Utils\UI</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

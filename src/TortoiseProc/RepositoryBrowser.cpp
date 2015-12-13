@@ -804,18 +804,6 @@ void CRepositoryBrowser::OnOK()
     m_cancelled = TRUE;
     m_lister.Cancel();
 
-    if (m_RepoList.GetSelectedCount() == 1)
-    {
-        POSITION pos = m_RepoList.GetFirstSelectedItemPosition();
-        if (pos)
-        {
-            int selIndex = m_RepoList.GetNextSelectedItem(pos);
-            CAutoReadLock locker(m_guard);
-            CItem * pItem = (CItem *)m_RepoList.GetItemData(selIndex);
-            if (pItem)
-                m_barRepository.ShowUrl(pItem->absolutepath, pItem->repository.revision);
-        }
-    }
 
     m_backgroundJobs.WaitForEmptyQueue();
     if (!m_bSparseCheckoutMode)
@@ -1694,7 +1682,7 @@ void CRepositoryBrowser::AutoInsert (HTREEITEM hParent, const std::deque<CItem>&
 
     for (size_t i = 0, count = items.size(); i < count; ++i)
         if ((items[i].kind == svn_node_dir)||(m_bSparseCheckoutMode))
-            newItems.emplace(items[i].path, &items[i]);
+            newItems.insert (std::make_pair (items[i].path, &items[i]));
 
     {
         CAutoReadLock locker(m_guard);
@@ -2523,6 +2511,8 @@ void CRepositoryBrowser::OnLvnItemchangedRepolist(NMHDR *pNMHDR, LRESULT *pResul
             CItem * pItem = (CItem*)m_RepoList.GetItemData(pNMLV->iItem);
             if (pItem)
             {
+                m_barRepository.ShowUrl ( pItem->absolutepath
+                    , pItem->repository.revision);
                 CString temp;
                 CString rev;
 

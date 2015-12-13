@@ -260,7 +260,7 @@ CSVNStatusCache::~CSVNStatusCache(void)
 
 void CSVNStatusCache::Refresh()
 {
-    m_shellCache.RefreshIfNeeded();
+    m_shellCache.ForceRefresh();
     SVNConfig::Instance().Refresh();
     if (!m_pInstance->m_directoryCache.empty())
     {

@@ -594,7 +594,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {
@@ -669,7 +669,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {

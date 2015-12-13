@@ -1,6 +1,5 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2015 - TortoiseGit
 // Copyright (C) 2003-2008, 2010-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -18,16 +17,10 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #include "stdafx.h"
 #include "Utils.h"
-#include "UnicodeUtils.h"
 #include "ResModule.h"
 #include <regex>
 #include <memory>
-#include <fstream>
-#include <string>
-#include <algorithm>
-#include <functional>
-#include <locale>
-#include <codecvt>
+
 #ifndef RT_RIBBON
 #define RT_RIBBON MAKEINTRESOURCE(28)
 #endif
@@ -42,12 +35,6 @@ static const WORD * AlignWORD(const WORD * pWord)
     return res;
 }
 
-std::wstring NumToStr(INT_PTR num)
-{
-    wchar_t buf[100];
-    swprintf_s(buf, L"%Id", num);
-    return buf;
-}
 
 CResModule::CResModule(void)
     : m_bTranslatedStrings(0)
@@ -77,21 +64,7 @@ BOOL CResModule::ExtractResources(std::vector<std::wstring> filelist, LPCTSTR lp
 {
     for (std::vector<std::wstring>::iterator I = filelist.begin(); I != filelist.end(); ++I)
     {
-        std::wstring filepath = *I;
-        m_currentHeaderDataDialogs.clear();
-        m_currentHeaderDataStrings.clear();
-        m_currentHeaderDataMenus.clear();
-        auto starpos = I->find('*');
-        if (starpos != std::wstring::npos)
-            filepath = I->substr(0, starpos);
-        while (starpos != std::wstring::npos)
-        {
-            auto starposnext = I->find('*', starpos + 1);
-            std::wstring headerfile = I->substr(starpos + 1, starposnext - starpos - 1);
-            ScanHeaderFile(headerfile);
-            starpos = starposnext;
-        }
-        m_hResDll = LoadLibraryEx(filepath.c_str(), NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE | LOAD_LIBRARY_AS_DATAFILE);
+        m_hResDll = LoadLibraryEx(I->c_str(), NULL, LOAD_LIBRARY_AS_IMAGE_RESOURCE|LOAD_LIBRARY_AS_DATAFILE);
         if (m_hResDll == NULL)
             MYERROR;
 
@@ -320,7 +293,7 @@ BOOL CResModule::ExtractString(LPCTSTR lpszType)
         {
             std::wstring str = std::wstring(pBuf);
             RESOURCEENTRY entry = m_StringEntries[str];
-            InsertResourceIDs(RT_STRING, 0, entry, ((INT_PTR)lpszType - 1) * 16 + i, L"");
+            entry.resourceIDs.insert(((INT_PTR)lpszType - 1) * 16 + i);
             if (wcschr(str.c_str(), '%'))
                 entry.flag = L"#, c-format";
             m_StringEntries[str] = entry;
@@ -676,7 +649,7 @@ const WORD* CResModule::ParseMenuResource(const WORD * res)
             std::wstring wstr = std::wstring(pBuf);
             RESOURCEENTRY entry = m_StringEntries[wstr];
             if (id)
-                InsertResourceIDs(RT_MENU, 0, entry, id, L" - PopupMenu");
+                entry.resourceIDs.insert(id);
 
             m_StringEntries[wstr] = entry;
             delete [] pBuf;
@@ -693,7 +666,7 @@ const WORD* CResModule::ParseMenuResource(const WORD * res)
 
             std::wstring wstr = std::wstring(pBuf);
             RESOURCEENTRY entry = m_StringEntries[wstr];
-            InsertResourceIDs(RT_MENU, 0, entry, id, L" - Menu");
+            entry.resourceIDs.insert(id);
 
             TCHAR szTempBuf[1024] = { 0 };
             swprintf(szTempBuf, L"#: MenuEntry; ID:%u", id);
@@ -817,7 +790,7 @@ const WORD* CResModule::ParseMenuExResource(const WORD * res)
             // Popup has a DWORD help entry on a DWORD boundary - skip over it
             res += 2;
 
-            InsertResourceIDs(RT_MENU, 0, entry, menuId, L" - PopupMenuEx");
+            entry.resourceIDs.insert(menuId);
             TCHAR szTempBuf[1024] = { 0 };
             swprintf(szTempBuf, L"#: MenuExPopupEntry; ID:%lu", menuId);
             MENUENTRY menu_entry;
@@ -839,7 +812,7 @@ const WORD* CResModule::ParseMenuExResource(const WORD * res)
 
             std::wstring wstr = std::wstring(pBuf);
             RESOURCEENTRY entry = m_StringEntries[wstr];
-            InsertResourceIDs(RT_MENU, 0, entry, menuId, L" - MenuEx");
+            entry.resourceIDs.insert(menuId);
 
             TCHAR szTempBuf[1024] = { 0 };
             swprintf(szTempBuf, L"#: MenuExEntry; ID:%lu", menuId);
@@ -1236,7 +1209,7 @@ BOOL CResModule::ExtractDialog(LPCTSTR lpszType)
 
         std::wstring wstr = std::wstring(pBuf);
         RESOURCEENTRY entry = m_StringEntries[wstr];
-        InsertResourceIDs(RT_DIALOG, (INT_PTR)lpszType, entry, (INT_PTR)lpszType, L"");
+        entry.resourceIDs.insert((INT_PTR)lpszType);
 
         m_StringEntries[wstr] = entry;
         delete [] pBuf;
@@ -1259,7 +1232,7 @@ BOOL CResModule::ExtractDialog(LPCTSTR lpszType)
 
             std::wstring wstr = std::wstring(szTitle);
             RESOURCEENTRY entry = m_StringEntries[wstr];
-            InsertResourceIDs(RT_DIALOG, (INT_PTR)lpszType, entry, dlgItem.id, L"");
+            entry.resourceIDs.insert(dlgItem.id);
 
             m_StringEntries[wstr] = entry;
         }
@@ -1878,14 +1851,6 @@ BOOL CResModule::ExtractRibbon(LPCTSTR lpszType)
     {
         size_t len;
 
-        std::string str1 = (*it)[1];
-        len = str1.size();
-        std::unique_ptr<wchar_t[]> bufw1(new wchar_t[len * 4 + 1]);
-        SecureZeroMemory(bufw1.get(), (len * 4 + 1) * sizeof(wchar_t));
-        MultiByteToWideChar(CP_UTF8, 0, str1.c_str(), -1, bufw1.get(), (int)len * 4);
-        std::wstring strIdNameVal = bufw1.get();
-        strIdNameVal += L" - Ribbon name";
-
         std::string str2 = (*it)[2];
         len = str2.size();
         std::unique_ptr<wchar_t[]> bufw2(new wchar_t[len * 4 + 1]);
@@ -1901,7 +1866,7 @@ BOOL CResModule::ExtractRibbon(LPCTSTR lpszType)
         std::wstring str = bufw3.get();
 
         RESOURCEENTRY entry = m_StringEntries[str];
-        InsertResourceIDs(RT_RIBBON, 0, entry, std::stoi(strIdVal), strIdNameVal.c_str());
+        entry.resourceIDs.insert(std::stoi(strIdVal));
         if (wcschr(str.c_str(), '%'))
             entry.flag = L"#, c-format";
         m_StringEntries[str] = entry;
@@ -1920,7 +1885,7 @@ BOOL CResModule::ExtractRibbon(LPCTSTR lpszType)
         MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, bufw.get(), (int)len*4);
         std::wstring ret = bufw.get();
         RESOURCEENTRY entry = m_StringEntries[ret];
-        InsertResourceIDs(RT_RIBBON, 0, entry, (INT_PTR)lpszType, L" - Ribbon element");
+        entry.resourceIDs.insert((INT_PTR)lpszType);
         if (wcschr(ret.c_str(), '%'))
             entry.flag = L"#, c-format";
         m_StringEntries[ret] = entry;
@@ -2157,133 +2122,4 @@ void CResModule::ReplaceStr(LPCWSTR src, WORD * dest, size_t * count, int * tran
             (*def)++;
     }
     delete [] pBuf;
-}
-
-size_t CResModule::ScanHeaderFile(const std::wstring & filepath)
-{
-    size_t count = 0;
-
-    // open the file and read the contents
-    DWORD reqLen = GetFullPathName(filepath.c_str(), 0, NULL, NULL);
-    auto wcfullPath = std::make_unique<TCHAR[]>(reqLen + 1);
-    GetFullPathName(filepath.c_str(), reqLen, wcfullPath.get(), NULL);
-    std::wstring fullpath = wcfullPath.get();
-
-
-    // first treat the file as ASCII and try to get the defines
-    {
-        std::ifstream  fin(fullpath);
-        std::string    file_line;
-        while (std::getline(fin, file_line))
-        {
-            auto defpos = file_line.find("#define");
-            if (defpos != std::string::npos)
-            {
-                std::string text = file_line.substr(defpos + 7);
-                trim(text);
-                auto spacepos = text.find(' ');
-                if (spacepos == std::string::npos)
-                    spacepos = text.find('\t');
-                if (spacepos != std::string::npos)
-                {
-                    auto value = atol(text.substr(spacepos).c_str());
-                    text = text.substr(0, spacepos);
-                    trim(text);
-                    if (text.find("IDS_") == 0)
-                    {
-                        m_currentHeaderDataStrings[value] = CUnicodeUtils::StdGetUnicode(text);
-                        ++count;
-                    }
-                    else if (text.find("IDD_") == 0)
-                    {
-                        m_currentHeaderDataDialogs[value] = CUnicodeUtils::StdGetUnicode(text);
-                        ++count;
-                    }
-                    else if (text.find("ID_") == 0)
-                    {
-                        m_currentHeaderDataMenus[value] = CUnicodeUtils::StdGetUnicode(text);
-                        ++count;
-                    }
-                }
-
-            }
-        }
-    }
-
-    // now try the same with the file treated as utf16
-    {
-        // open as a byte stream
-        std::wifstream wfin(fullpath, std::ios::binary);
-        // apply BOM-sensitive UTF-16 facet
-        wfin.imbue(std::locale(wfin.getloc(), new std::codecvt_utf16<wchar_t, 0x10ffff, std::consume_header>));
-        //std::wifstream wfin(fullpath);
-        std::wstring   wfile_line;
-        while (std::getline(wfin, wfile_line))
-        {
-            auto defpos = wfile_line.find(L"#define");
-            if (defpos != std::wstring::npos)
-            {
-                std::wstring text = wfile_line.substr(defpos + 7);
-                trim(text);
-                auto spacepos = text.find(' ');
-                if (spacepos == std::wstring::npos)
-                    spacepos = text.find('\t');
-                if (spacepos != std::wstring::npos)
-                {
-                    auto value = _wtol(text.substr(spacepos).c_str());
-                    text = text.substr(0, spacepos);
-                    trim(text);
-                    if (text.find(L"IDS_") == 0)
-                    {
-                        m_currentHeaderDataStrings[value] = text;
-                        ++count;
-                    }
-                    else if (text.find(L"IDD_") == 0)
-                    {
-                        m_currentHeaderDataDialogs[value] = text;
-                        ++count;
-                    }
-                    else if (text.find(L"ID_") == 0)
-                    {
-                        m_currentHeaderDataMenus[value] = text;
-                        ++count;
-                    }
-                }
-            }
-        }
-    }
-
-    return count;
-}
-
-void CResModule::InsertResourceIDs(LPCWSTR lpType, INT_PTR mainId, RESOURCEENTRY& entry, INT_PTR id, LPCWSTR infotext)
-{
-    if (lpType == RT_DIALOG)
-    {
-        auto foundIt = m_currentHeaderDataDialogs.find(mainId);
-        if (foundIt != m_currentHeaderDataDialogs.end())
-            entry.resourceIDs.insert(L"Dialog " + foundIt->second + L": Control id " + NumToStr(id) + infotext);
-        else
-            entry.resourceIDs.insert(NumToStr(id) + infotext);
-    }
-    else if (lpType == RT_STRING)
-    {
-        auto foundIt = m_currentHeaderDataStrings.find(id);
-        if (foundIt != m_currentHeaderDataStrings.end())
-            entry.resourceIDs.insert(foundIt->second + infotext);
-        else
-            entry.resourceIDs.insert(NumToStr(id) + infotext);
-    }
-    else if (lpType == RT_MENU)
-    {
-        auto foundIt = m_currentHeaderDataMenus.find(id);
-        if (foundIt != m_currentHeaderDataMenus.end())
-            entry.resourceIDs.insert(foundIt->second + infotext);
-        else
-            entry.resourceIDs.insert(NumToStr(id) + infotext);
-    }
-    else if (lpType == RT_RIBBON && infotext && wcsstr(infotext, L"ID") == infotext)
-        entry.resourceIDs.insert(infotext);
-    else
-        entry.resourceIDs.insert(NumToStr(id) + infotext);
 }

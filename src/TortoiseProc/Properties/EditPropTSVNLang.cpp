@@ -117,11 +117,11 @@ void CEditPropTSVNLang::OnOK()
     sprintf_s(numBuf, "%Id", m_langCombo.GetItemData(m_langCombo.GetCurSel()));
     pVal.value = numBuf;
     pVal.remove = (m_langCombo.GetItemData(m_langCombo.GetCurSel()) == 0);
-    newProps.emplace(PROJECTPROPNAME_PROJECTLANGUAGE, pVal);
+    newProps.insert(std::make_pair(PROJECTPROPNAME_PROJECTLANGUAGE, pVal));
 
     pVal.value = m_bKeepEnglish ? "" : "false";
     pVal.remove = !!m_bKeepEnglish;
-    newProps.emplace(PROJECTPROPNAME_LOGFILELISTLANG, pVal);
+    newProps.insert(std::make_pair(PROJECTPROPNAME_LOGFILELISTLANG, pVal));
 
     m_bChanged = true;
     m_properties = newProps;

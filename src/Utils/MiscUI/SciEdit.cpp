@@ -25,6 +25,7 @@
 #include <string>
 #include "registry.h"
 #include "SciEdit.h"
+#include "SysInfo.h"
 
 
 
@@ -120,7 +121,7 @@ static LPBYTE Icon2Image(HICON hIcon)
     infoheader.bmiHeader.biCompression = BI_RGB;
     infoheader.bmiHeader.biSizeImage = size;
 
-    std::unique_ptr<BYTE[]> ptrb(new BYTE[(size * 2 + height * width * 4)]);
+    std::unique_ptr<BYTE> ptrb(new BYTE[(size * 2 + height * width * 4)]);
     LPBYTE pixelsIconRGB = ptrb.get();
     LPBYTE alphaPixels = pixelsIconRGB + size;
     HDC hDC = CreateCompatibleDC(nullptr);
@@ -273,7 +274,7 @@ void CSciEdit::Init(LONG lLanguage)
     Call(SCI_ASSIGNCMDKEY, SCK_HOME + (SCMOD_SHIFT << 16), SCI_HOMEWRAPEXTEND);
 
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
     {
         // set font quality for the popup window, since that window does not use D2D
         Call(SCI_SETFONTQUALITY, SC_EFF_QUALITY_LCD_OPTIMIZED);
@@ -509,6 +510,7 @@ CString CSciEdit::GetWordUnderCursor(bool bSelectWord)
 
 void CSciEdit::SetFont(CString sFontName, int iFontSizeInPoints)
 {
+    CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     CStringA fontName = CUnicodeUtils::GetUTF8(sFontName);
     Call(SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)(LPCSTR)fontName);
     Call(SCI_STYLESETSIZE, STYLE_DEFAULT, iFontSizeInPoints);
@@ -548,7 +550,7 @@ void CSciEdit::SetAutoCompletionList(std::map<CString, int>&& list, TCHAR separa
 BOOL CSciEdit::IsMisspelled(const CString& sWord)
 {
     // convert the string from the control to the encoding of the spell checker module.
-    CStringA sWordA = GetWordForSpellChecker(sWord);
+    CStringA sWordA = GetWordForSpellCkecker(sWord);
 
     // words starting with a digit are treated as correctly spelled
     if (_istdigit(sWord.GetAt(0)))
@@ -624,7 +626,7 @@ BOOL CSciEdit::IsMisspelled(const CString& sWord)
                 }
                 else if (pChecker)
                 {
-                    sWordA = GetWordForSpellChecker(sWord.Mid(wordstart, wordend - wordstart));
+                    sWordA = GetWordForSpellCkecker(sWord.Mid(wordstart, wordend - wordstart));
                     if ((sWordA.GetLength() > 2) && (!pChecker->spell(sWordA)))
                     {
                         return TRUE;
@@ -731,7 +733,7 @@ void CSciEdit::SuggestSpellingAlternatives()
     Call(SCI_SETCURRENTPOS, Call(SCI_WORDSTARTPOSITION, Call(SCI_GETCURRENTPOS), TRUE));
     if (word.IsEmpty())
         return;
-    CStringA sWordA = GetWordForSpellChecker(word);
+    CStringA sWordA = GetWordForSpellCkecker(word);
 
     CString suggestions;
     if (m_SpellChecker)
@@ -762,7 +764,7 @@ void CSciEdit::SuggestSpellingAlternatives()
         {
             for (int i = 0; i < ns; i++)
             {
-                suggestions.AppendFormat(L"%s%c%d%c", (LPCWSTR)GetWordFromSpellChecker(wlst[i]), m_typeSeparator, AUTOCOMPLETE_SPELLING, m_separator);
+                suggestions.AppendFormat(L"%s%c%d%c", (LPCWSTR)GetWordFromSpellCkecker(wlst[i]), m_typeSeparator, AUTOCOMPLETE_SPELLING, m_separator);
                 free(wlst[i]);
             }
         }
@@ -837,7 +839,7 @@ void CSciEdit::DoAutoCompletion(int nMinPrefixLength)
                 continue;
             else if (compare == 0)
             {
-                wordset.emplace(lowerit->first, lowerit->second);
+                wordset.insert(std::make_pair(lowerit->first, lowerit->second));
             }
             else
             {
@@ -1128,7 +1130,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
         }
         else
             sWord = GetWordUnderCursor();
-        CStringA worda = GetWordForSpellChecker(sWord);
+        CStringA worda = GetWordForSpellCkecker(sWord);
 
         int nCorrections = 1;
         bool bSpellAdded = false;
@@ -1167,7 +1169,7 @@ void CSciEdit::OnContextMenu(CWnd* /*pWnd*/, CPoint point)
                     for (int i = 0; i < ns; i++)
                     {
                         bSpellAdded = true;
-                        CString sug = GetWordFromSpellChecker(wlst[i]);
+                        CString sug = GetWordFromSpellCkecker(wlst[i]);
                         popup.InsertMenu((UINT)-1, 0, nCorrections++, sug);
                         free(wlst[i]);
                     }
@@ -1677,7 +1679,7 @@ bool CSciEdit::IsUrl(const CStringA& sText)
     return false;
 }
 
-CStringA CSciEdit::GetWordForSpellChecker( const CString& sWord )
+CStringA CSciEdit::GetWordForSpellCkecker( const CString& sWord )
 {
     // convert the string from the control to the encoding of the spell checker module.
     CStringA sWordA;
@@ -1699,7 +1701,7 @@ CStringA CSciEdit::GetWordForSpellChecker( const CString& sWord )
     return sWordA;
 }
 
-CString CSciEdit::GetWordFromSpellChecker( const CStringA& sWordA )
+CString CSciEdit::GetWordFromSpellCkecker( const CStringA& sWordA )
 {
     CString sWord;
     if (m_spellcodepage)
