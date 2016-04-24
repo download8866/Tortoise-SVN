@@ -151,7 +151,7 @@ BOOL CFileDiffDlg::OnInitDialog()
     m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
     m_cFileList.SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
-    m_SwitchButton.SetImage(CCommonAppUtils::LoadIconEx(IDI_SWITCHLEFTRIGHT, 16, 16, LR_DEFAULTCOLOR));
+    m_SwitchButton.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_SWITCHLEFTRIGHT), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_SwitchButton.Invalidate();
 
     m_cFilter.SetCancelBitmaps(IDI_CANCELNORMAL, IDI_CANCELPRESSED);
@@ -160,7 +160,7 @@ BOOL CFileDiffDlg::OnInitDialog()
     temp = L"   "+temp;
     m_cFilter.SetCueBanner(temp);
 
-    int c = m_cFileList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_cFileList.DeleteColumn(c--);
     temp.LoadString(IDS_FILEDIFF_FILE);

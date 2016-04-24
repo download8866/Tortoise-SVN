@@ -374,7 +374,8 @@ void CSplitterControl::SetRange(int nSubtraction, int nAddition, int nRoot)
 void CSplitterControl::PreSubclassWindow()
 {
     // Enable notifications - CStatic has this disabled by default
-    ModifyStyle(0, SS_NOTIFY);
+    DWORD dwStyle = GetStyle();
+    ::SetWindowLong(GetSafeHwnd(), GWL_STYLE, dwStyle | SS_NOTIFY);
 
     CRect rc;
     GetClientRect(rc);

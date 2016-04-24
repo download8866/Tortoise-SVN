@@ -291,7 +291,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                     UINT len = DragQueryFile(drop, i, NULL, 0);
                     if (len == 0)
                         continue;
-                    auto szFileName = std::make_unique<TCHAR[]>(len + 1);
+                    std::unique_ptr<TCHAR[]> szFileName(new TCHAR[len+1]);
                     if (0 == DragQueryFile(drop, i, szFileName.get(), len+1))
                     {
                         continue;
@@ -345,7 +345,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                             {
                                 size_t slen = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                                 slen += 2;
-                                auto url = std::make_unique<char[]>(slen);
+                                std::unique_ptr<char[]> url(new char[slen]);
                                 strcpy_s(url.get(), slen, stat.status->repos_root_url);
                                 strcat_s(url.get(), slen, "/");
                                 strcat_s(url.get(), slen, stat.status->repos_relpath);
@@ -397,60 +397,8 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                 BOOL statfetched = FALSE;
                 for (int i = 0; i < count; ++i)
                 {
-                    ItemIDList child(GetPIDLItem(cida, i), &parent);
-                    if (i == 0)
-                    {
-                        if (g_ShellCache.IsVersioned(child.toString().c_str(), (itemStates & ITEMIS_FOLDER) != 0, false))
-                            itemStates |= ITEMIS_INVERSIONEDFOLDER;
-                    }
-
+                    ItemIDList child (GetPIDLItem (cida, i), &parent);
                     tstring str = child.toString();
-                    // resolve shortcuts if it's a multi-selection (single selections are resolved by the shell!)
-                    // and only if the parent directory is not versioned: a shortcut inside a working copy
-                    // should not be resolved so it can be added to version control and handled as versioned later
-                    if ((count > 1) && ((itemStates & ITEMIS_INVERSIONEDFOLDER) == 0))
-                    {
-                        // test if the item is a shortcut
-                        SHFILEINFO fi = { 0 };
-                        fi.dwAttributes = SFGAO_LINK;
-                        auto pidlAbsolute  = ILCombine(GetPIDLFolder(cida), GetPIDLItem(cida, i));
-                        if (pidlAbsolute)
-                        {
-                            DWORD_PTR dwResult = SHGetFileInfo((LPCWSTR)pidlAbsolute, 0, &fi, sizeof(fi),
-                                                               SHGFI_ATTR_SPECIFIED | SHGFI_ATTRIBUTES | SHGFI_PIDL);
-                            if (dwResult != 0)
-                            {
-                                if (fi.dwAttributes & SFGAO_LINK)
-                                {
-                                    // it is a shortcut, so resolve that shortcut
-                                    IShellLink * pShLink = nullptr;
-                                    if (SUCCEEDED(CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER,
-                                                                   IID_IShellLink, (LPVOID*)&pShLink)))
-                                    {
-                                        IPersistFile * ppf = nullptr;
-                                        if (SUCCEEDED(pShLink->QueryInterface(IID_IPersistFile, (LPVOID*)&ppf)))
-                                        {
-                                            if (SUCCEEDED(ppf->Load(str.c_str(), STGM_READ)))
-                                            {
-                                                if (SUCCEEDED(pShLink->Resolve(NULL, SLR_NO_UI)))
-                                                {
-                                                    wchar_t shortcutpath[MAX_PATH] = { 0 };
-                                                    if (SUCCEEDED(pShLink->GetPath(shortcutpath, MAX_PATH, NULL, 0)))
-                                                    {
-                                                        str = shortcutpath;
-                                                    }
-                                                }
-
-                                            }
-                                            ppf->Release();
-                                        }
-                                        pShLink->Release();
-                                    }
-                                }
-                            }
-                            ILFree(pidlAbsolute);
-                        }
-                    }
                     if (str.empty()||(!g_ShellCache.IsContextPathAllowed(str.c_str())))
                         continue;
                     //check if our menu is requested for a subversion admin directory
@@ -508,7 +456,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                             {
                                 size_t len = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                                 len += 2;
-                                auto url = std::make_unique<char[]>(len);
+                                std::unique_ptr<char[]> url(new char[len]);
                                 strcpy_s(url.get(), len, stat.status->repos_root_url);
                                 strcat_s(url.get(), len, "/");
                                 strcat_s(url.get(), len, stat.status->repos_relpath);
@@ -575,6 +523,9 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                     if (status == svn_wc_status_deleted)
                         itemStates |= ITEMIS_DELETED;
                 } // for (int i = 0; i < count; ++i)
+                ItemIDList child (GetPIDLItem (cida, 0), &parent);
+                if (g_ShellCache.IsVersioned(child.toString().c_str(), (itemStates & ITEMIS_FOLDER) != 0, false))
+                    itemStates |= ITEMIS_INVERSIONEDFOLDER;
                 GlobalUnlock(medium.hGlobal);
 
                 // if the item is a versioned folder, check if there's a patch file
@@ -644,7 +595,7 @@ STDMETHODIMP CShellExt::Initialize_Wrap(PCIDLIST_ABSOLUTE pIDFolder,
                         {
                             size_t len = strlen(stat.status->repos_relpath) + strlen(stat.status->repos_root_url);
                             len += 2;
-                            auto url = std::make_unique<char[]>(len);
+                            std::unique_ptr<char[]> url(new char[len]);
                             strcpy_s(url.get(), len, stat.status->repos_root_url);
                             strcat_s(url.get(), len, "/");
                             strcat_s(url.get(), len, stat.status->repos_relpath);
@@ -821,8 +772,8 @@ bool CShellExt::WriteClipboardPathsToTempFile(tstring& tempfile)
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(pathlength + 1);
-    auto tempFile = std::make_unique<TCHAR[]>(pathlength + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
+    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
     GetTempPath (pathlength+1, path.get());
     GetTempFileName (path.get(), L"svn", 0, tempFile.get());
     tempfile = tstring(tempFile.get());
@@ -877,8 +828,8 @@ tstring CShellExt::WriteFileListToTempFile()
     //write all selected files and paths to a temporary file
     //for TortoiseProc.exe to read out again.
     DWORD pathlength = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(pathlength + 1);
-    auto tempFile = std::make_unique<TCHAR[]>(pathlength + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[pathlength+1]);
+    std::unique_ptr<TCHAR[]> tempFile(new TCHAR[pathlength + 100]);
     GetTempPath (pathlength+1, path.get());
     GetTempFileName (path.get(), L"svn", 0, tempFile.get());
     tstring retFilePath = tstring(tempFile.get());
@@ -1644,8 +1595,8 @@ STDMETHODIMP CShellExt::InvokeCommand_Wrap(LPCMINVOKECOMMANDINFO lpcmi)
                     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
                     DWORD len = GetTempPath(0, NULL);
-                    auto path = std::make_unique<TCHAR[]>(len + 1);
-                    auto tempF = std::make_unique<TCHAR[]>(len + 100);
+                    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
+                    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
                     GetTempPath (len+1, path.get());
                     GetTempFileName (path.get(), L"svn", 0, tempF.get());
                     std::wstring sTempFile = std::wstring(tempF.get());

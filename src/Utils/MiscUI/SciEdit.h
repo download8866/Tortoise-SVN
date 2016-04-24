@@ -17,7 +17,6 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "../SmartHandle.h"
 #include "scintilla.h"
 #include "SciLexer.h"
 #include "../../../ext/hunspell/hunspell.hxx"
@@ -130,11 +129,11 @@ public:
 
     void        RestyleBugIDs();
 private:
-    CAutoLibrary m_hModule;
+    HMODULE     m_hModule;
     LRESULT     m_DirectFunction;
     LRESULT     m_DirectPointer;
-    std::unique_ptr<Hunspell> pChecker;
-    std::unique_ptr<MyThes>   pThesaur;
+    Hunspell *  pChecker;
+    MyThes *    pThesaur;
     UINT        m_spellcodepage;
     std::map<CString, int> m_autolist;
     TCHAR       m_separator;
@@ -166,8 +165,8 @@ protected:
     BOOL        IsMisspelled(const CString& sWord);
     DWORD       GetStyleAt(int pos) { return (DWORD)Call(SCI_GETSTYLEAT, pos) & 0x1f; }
     bool        IsUrl(const CStringA& sText);
-    CStringA    GetWordForSpellChecker(const CString& sWord);
-    CString     GetWordFromSpellChecker(const CStringA& sWordA);
+    CStringA    GetWordForSpellCkecker(const CString& sWord);
+    CString     GetWordFromSpellCkecker(const CStringA& sWordA);
 
     afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
     afx_msg void OnContextMenu(CWnd* /*pWnd*/, CPoint /*point*/);

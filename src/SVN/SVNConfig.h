@@ -32,11 +32,9 @@
 class SVNConfig
 {
 private:
+    SVNConfig(const SVNConfig&){}
     SVNConfig(void);
     ~SVNConfig(void);
-    // prevent cloning
-    SVNConfig(const SVNConfig&) = delete;
-    SVNConfig& operator=(const SVNConfig&) = delete;
 public:
     static SVNConfig& Instance()
     {

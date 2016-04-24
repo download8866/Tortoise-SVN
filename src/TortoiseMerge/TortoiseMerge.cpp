@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2014, 2016 - TortoiseSVN
+// Copyright (C) 2006-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ BOOL CTortoiseMergeApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            auto originalCurrentDirectory = std::make_unique<TCHAR[]>(len);
+            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
             if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
             {
                 sOrigCWD = originalCurrentDirectory.get();
@@ -327,7 +327,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 
             {
                 CComPtr<IFileDialogCustomize> pfdCustomize;
-                hr = pfd.QueryInterface(&pfdCustomize);
+                hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
                 if (SUCCEEDED(hr))
                 {
                     // check if there's a unified diff on the clipboard and
@@ -592,8 +592,8 @@ bool CTortoiseMergeApp::TrySavePatchFromClipboard(std::wstring& resultFile)
     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
     DWORD len = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(len + 1);
-    auto tempF = std::make_unique<TCHAR[]>(len + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
+    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
     GetTempPath (len+1, path.get());
     GetTempFileName (path.get(), L"tsm", 0, tempF.get());
     std::wstring sTempFile = std::wstring(tempF.get());

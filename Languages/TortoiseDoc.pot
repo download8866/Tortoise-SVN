@@ -1,6 +1,6 @@
 #
 # Translation of the TortoiseSVN manuals
-# Copyright (C) 2004-2016 the TortoiseSVN team
+# Copyright (C) 2004-2015 the TortoiseSVN team
 #
 # This file is distributed under the same license as TortoiseSVN
 #
@@ -4711,34 +4711,6 @@ msgid "As stated above, this option tries to get an inconsistent working copy in
 msgstr ""
 
 #. (term)
-msgid "Break write locks"
-msgstr ""
-
-#. (para)
-msgid "If checked, all write locks are removed from the working copy database. For most situations, this is required for the cleanup to work!"
-msgstr ""
-
-#. (para)
-msgid "Only uncheck this option if the working copy is used by other users/clients at the time. But if the cleanup then fails, you have to check this option for the cleanup to succeed."
-msgstr ""
-
-#. (term)
-msgid "Fix time stamps"
-msgstr ""
-
-#. (para)
-msgid "Changes all file times to the time of the last commit."
-msgstr ""
-
-#. (term)
-msgid "Vacuum pristine copies"
-msgstr ""
-
-#. (para)
-msgid "Removes unused pristine copies and compresses all remaining pristine copies of working copy files."
-msgstr ""
-
-#. (term)
 msgid "Refresh shell overlays"
 msgstr ""
 
@@ -5063,7 +5035,7 @@ msgid "In the Commit dialog you have the option to paste in the list of changed 
 msgstr ""
 
 #. (para)
-msgid "TortoiseSVN can use a spell checker. On Windows 10, the spell checker of the OS is used. On earlier Windows versions, it can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
+msgid "TortoiseSVN can use spell checker modules which are also used by OpenOffice and Mozilla. If you have those installed this property will determine which spell checker to use, i.e. in which language the log messages for your project should be written. <literal>tsvn:projectlanguage</literal> sets the language module the spell checking engine should use when you enter a log message. You can find the values for your language on this page: <ulink url=\"http://msdn2.microsoft.com/en-us/library/ms776260.aspx\"><citetitle>MSDN: Language Identifiers</citetitle></ulink>."
 msgstr ""
 
 #. (para)
@@ -5535,7 +5507,7 @@ msgstr ""
 
 #. (para)
 #. (para)
-msgid "If the external project is in a different repository, any changes you make to the external project will be shown or indicated when you commit the main project, but you have to commit those external changes separately."
+msgid "If the external project is in a different repository, any changes you make to the external project will be notified when you commit the main project, but you have to commit those external changes separately."
 msgstr ""
 
 #. (para)
@@ -8481,11 +8453,11 @@ msgid "The peg revision, if available, without quotes"
 msgstr ""
 
 #. (para)
-msgid "The name of the file. This is an empty string if two different files are diffed instead of two states of the same file."
+msgid "The name of the conflicted file"
 msgstr ""
 
 #. (para)
-msgid "The name of the file, without quotes"
+msgid "The name of the conflicted file, without quotes"
 msgstr ""
 
 #. (para)
@@ -8572,11 +8544,11 @@ msgid "The window title for the merged file, without quotes"
 msgstr ""
 
 #. (para)
-msgid "The name of the conflicted file"
+msgid "The name of the file. This is an empty string if two different files are diffed instead of two states of the same file."
 msgstr ""
 
 #. (para)
-msgid "The name of the conflicted file, without quotes"
+msgid "The name of the file, without quotes"
 msgstr ""
 
 #. (para)
@@ -9691,18 +9663,10 @@ msgstr ""
 
 #. (para)
 msgid ""
-"You can specify ignore patterns for SubWCRev to prevent specific files and paths from being considered. The patterns are read from a file named <filename>.subwcrevignore</filename>. The file is read from the specified path, and also from the working copy root. If the file does not exist, no files or paths are ignored. The <filename>.subwcrevignore</filename> file can contain multiple patterns, separated by newlines. The patterns are matched against the paths relative to the repository root and paths relative to the path of the <filename>.subwcrevignore</filename> file. For example, to ignore all files in the <filename>doc</filename> folder of the TortoiseSVN working copy, the <filename>.subwcrevignore</filename> would contain the following lines: <screen>\n"
+"You can specify ignore patterns for SubWCRev to prevent specific files and paths from being considered. The patterns are read from a file named <filename>.subwcrevignore</filename>. The file is read from the specified path, and also from the working copy root. If the file does not exist, no files or paths are ignored. The <filename>.subwcrevignore</filename> file can contain multiple patterns, separated by newlines. The patterns are matched against the paths relative to the repository root. For example, to ignore all files in the <filename>doc</filename> folder of the TortoiseSVN working copy, the <filename>.subwcrevignore</filename> would contain the following lines: <screen>\n"
 "/trunk/doc\n"
 "/trunk/doc/*\n"
-"</screen> Or, assuming the <filename>.subwcrevignore</filename> file is in the working copy root which is checked out from trunk, using the patterns <screen>\n"
-"doc\n"
-"doc/*\n"
-"</screen> is the same as the example above."
-msgstr ""
-
-#. (para)
-msgid ""
-"To ignore all images, the ignore patterns could be set like this: <screen>\n"
+"</screen> To ignore all images, the ignore patterns could be set like this: <screen>\n"
 "*.png\n"
 "*.jpg\n"
 "*.ico\n"
@@ -11806,16 +11770,8 @@ msgstr ""
 msgid "/externals"
 msgstr ""
 
-#. (option)
-msgid "/fixtimestamps"
-msgstr ""
-
-#. (option)
-msgid "/vacuum"
-msgstr ""
-
 #. (entry)
-msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from popping up (either telling about the cleanup being finished or showing an error message). <placeholder-3/> also disables the progress dialog. <placeholder-4/> disables showing the cleanup dialog where the user can choose what exactly should be done in the cleanup. The available actions can be specified with the options <placeholder-5/> for status cleanup, <placeholder-6/>, <placeholder-7/>, <placeholder-8/>, <placeholder-9/>, <placeholder-10/>, <placeholder-11/> and <placeholder-12/>."
+msgid "Cleans up interrupted or aborted operations and unlocks the working copy in <placeholder-1/>. Use <placeholder-2/> to prevent the result dialog from popping up (either telling about the cleanup being finished or showing an error message). <placeholder-3/> also disables the progress dialog. <placeholder-4/> disables showing the cleanup dialog where the user can choose what exactly should be done in the cleanup. The available actions can be specified with the options <placeholder-5/> for status cleanup, <placeholder-6/>, <placeholder-7/>, <placeholder-8/>, <placeholder-9/> and <placeholder-10/>."
 msgstr ""
 
 #. (option)

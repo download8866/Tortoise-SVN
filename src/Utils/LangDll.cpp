@@ -1,7 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2016 - TortoiseGit
-// Copyright (C) 2003-2006, 2008, 2013-2015 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,8 +21,6 @@
 #include "LangDll.h"
 #include "../version.h"
 
-#include <memory>
-
 #pragma comment(lib, "Version.lib")
 
 CLangDll::CLangDll()
@@ -43,50 +40,51 @@ HINSTANCE CLangDll::Init(LPCTSTR appname, unsigned long langID)
     wcscpy_s(sVer, _T(STRPRODUCTVER));
     GetModuleFileName(NULL, langpath, _countof(langpath));
     TCHAR * pSlash = wcsrchr(langpath, '\\');
-    if (!pSlash)
-        return m_hInstance;
-
-    *pSlash = 0;
-    pSlash = wcsrchr(langpath, '\\');
-    if (!pSlash)
-        return m_hInstance;
-
-    *pSlash = 0;
-    wcscat_s(langpath, L"\\Languages\\");
-    assert(m_hInstance == NULL);
-    do
+    if (pSlash)
     {
-        TCHAR langdllpath[MAX_PATH] = { 0 };
-        swprintf_s(langdllpath, L"%s%s%lu.dll", langpath, appname, langID);
-
-        m_hInstance = LoadLibrary(langdllpath);
-
-        if (!DoVersionStringsMatch(sVer, langdllpath))
+        *pSlash = 0;
+        pSlash = wcsrchr(langpath, '\\');
+        if (pSlash)
         {
-            FreeLibrary(m_hInstance);
-            m_hInstance = nullptr;
-        }
-        if (!m_hInstance)
-        {
-            DWORD lid = SUBLANGID(langID);
-            lid--;
-            if (lid > 0)
-                langID = MAKELANGID(PRIMARYLANGID(langID), lid);
-            else
-                langID = 0;
-        }
-    } while (!m_hInstance && (langID != 0));
+            *pSlash = 0;
+            wcscat_s(langpath, L"\\Languages\\");
+            assert(m_hInstance == NULL);
+            do
+            {
+                TCHAR langdllpath[MAX_PATH] = { 0 };
+                swprintf_s(langdllpath, L"%s%s%lu.dll", langpath, appname, langID);
 
+                m_hInstance = LoadLibrary(langdllpath);
+
+                if (!DoVersionStringsMatch(sVer, langdllpath))
+                {
+                    FreeLibrary(m_hInstance);
+                    m_hInstance = NULL;
+                }
+                if (m_hInstance == NULL)
+                {
+                    DWORD lid = SUBLANGID(langID);
+                    lid--;
+                    if (lid > 0)
+                    {
+                        langID = MAKELANGID(PRIMARYLANGID(langID), lid);
+                    }
+                    else
+                        langID = 0;
+                }
+            } while ((m_hInstance == NULL) && (langID != 0));
+        }
+    }
     return m_hInstance;
 }
 
 void CLangDll::Close()
 {
-    if (!m_hInstance)
-        return;
-
-    FreeLibrary(m_hInstance);
-    m_hInstance = nullptr;
+    if (m_hInstance)
+    {
+        FreeLibrary(m_hInstance);
+        m_hInstance = NULL;
+    }
 }
 
 bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
@@ -97,33 +95,49 @@ bool CLangDll::DoVersionStringsMatch(LPCTSTR sVer, LPCTSTR langDll) const
         WORD wCharacterSet;
     };
 
+    bool bReturn = false;
     DWORD dwReserved = 0;
     DWORD dwBufferSize = GetFileVersionInfoSize((LPTSTR)langDll,&dwReserved);
-    if (dwBufferSize <= 0)
-        return false;
 
-    auto pBuffer = std::make_unique<BYTE[]>(dwBufferSize);
-    if (!pBuffer)
-        return false;
+    if (dwBufferSize > 0)
+    {
+        LPVOID pBuffer = (void*) malloc(dwBufferSize);
 
-    UINT        nInfoSize = 0;
-    UINT        nFixedLength = 0;
-    LPSTR       lpVersion = nullptr;
-    VOID*       lpFixedPointer;
-    TRANSARRAY* lpTransArray;
-    TCHAR       strLangProductVersion[MAX_PATH] = { 0 };
+        if (pBuffer != (void*) NULL)
+        {
+            UINT        nInfoSize = 0;
+            UINT        nFixedLength = 0;
+            LPSTR       lpVersion = NULL;
+            VOID*       lpFixedPointer;
+            TRANSARRAY* lpTransArray;
+            TCHAR       strLangProductVersion[MAX_PATH] = { 0 };
 
-    if (!GetFileVersionInfo((LPTSTR)langDll, dwReserved, dwBufferSize, pBuffer.get()))
-        return false;
+            GetFileVersionInfo((LPTSTR)langDll,
+                dwReserved,
+                dwBufferSize,
+                pBuffer);
 
-    VerQueryValue(pBuffer.get(), L"\\VarFileInfo\\Translation", &lpFixedPointer, &nFixedLength);
-    lpTransArray = (TRANSARRAY*)lpFixedPointer;
+            VerQueryValue(  pBuffer,
+                L"\\VarFileInfo\\Translation",
+                &lpFixedPointer,
+                &nFixedLength);
+            lpTransArray = (TRANSARRAY*) lpFixedPointer;
 
-    swprintf_s(strLangProductVersion, L"\\StringFileInfo\\%04x%04x\\ProductVersion", lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
+            swprintf_s(strLangProductVersion,
+                        L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+                        lpTransArray[0].wLanguageID,
+                        lpTransArray[0].wCharacterSet);
 
-    VerQueryValue(pBuffer.get(), (LPTSTR)strLangProductVersion, (LPVOID*)&lpVersion, &nInfoSize);
-    if (lpVersion && nInfoSize)
-        return (wcscmp(sVer, (LPCTSTR)lpVersion) == 0);
-    return false;
+            VerQueryValue(pBuffer,
+                (LPTSTR)strLangProductVersion,
+                (LPVOID *)&lpVersion,
+                &nInfoSize);
+            if (lpVersion && nInfoSize)
+                bReturn = (wcscmp(sVer, (LPCTSTR)lpVersion)==0);
+            free(pBuffer);
+        }
+    }
+
+    return bReturn;
 }
 

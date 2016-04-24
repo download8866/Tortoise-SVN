@@ -9,10 +9,11 @@
  * and set "Wait for the script to finish"
  */
 
-var forReading = 1;
-var objArgs = WScript.Arguments;
-var num = objArgs.length;
-
+var ForReading = 1;
+var objArgs;
+var num;
+objArgs = WScript.Arguments;
+num = objArgs.length;
 if (num !== 4 && num !== 3)
 {
     WScript.Echo("Usage: [CScript | WScript] checkyear.js path/to/pathsfile depth path/to/messagefile path/to/CWD");
@@ -28,15 +29,12 @@ function readPaths(path)
 {
     var retPaths = [];
     var fileSystem = new ActiveXObject("Scripting.FileSystemObject");
-
     if (fileSystem.FileExists(path))
     {
-        var textFile = fileSystem.OpenTextFile(path, forReading);
-
+        var textFile = fileSystem.OpenTextFile(path, ForReading);
         while (!textFile.AtEndOfStream)
         {
             var line = textFile.ReadLine();
-
             retPaths.push(line);
         }
         textFile.Close();
@@ -46,27 +44,25 @@ function readPaths(path)
 
 var found = true;
 var files = readPaths(objArgs(0));
-var fileIndex = files.length;
-var errorMessage = "";
+var fileindex = files.length;
+var errormsg = "";
 
-while (fileIndex--)
+while (fileindex--)
 {
-    var f = files[fileIndex];
-    var fso = new ActiveXObject("Scripting.FileSystemObject");
+    var f = files[fileindex];
+    var fs = new ActiveXObject("Scripting.FileSystemObject");
 
     if (f.match(filere) !== null)
     {
-        if (fso.FileExists(f))
+        if (fs.FileExists(f))
         {
-            var a = fso.OpenTextFile(f, forReading, false);
+            var a = fs.OpenTextFile(f, ForReading, false);
             var copyrightFound = false;
             var yearFound = false;
-
             while (!a.AtEndOfStream && !yearFound)
             {
                 var r = a.ReadLine();
                 var rv = r.match(basere);
-
                 if (rv !== null)
                 {
                     rv = r.match(re);
@@ -82,11 +78,11 @@ while (fileIndex--)
 
             if (copyrightFound && !yearFound)
             {
-                if (errorMessage !== "")
+                if (errormsg !== "")
                 {
-                    errorMessage += "\n";
+                    errormsg += "\n";
                 }
-                errorMessage += f;
+                errormsg += f;
                 found = false;
             }
         }
@@ -95,8 +91,8 @@ while (fileIndex--)
 
 if (found === false)
 {
-    errorMessage = "the file(s):\n" + errorMessage + "\nhave not the correct copyright year!";
-    WScript.stderr.writeLine(errorMessage);
+    errormsg = "the file(s):\n" + errormsg + "\nhave not the correct copyright year!";
+    WScript.stderr.writeLine(errormsg);
 }
 
 WScript.Quit(!found);

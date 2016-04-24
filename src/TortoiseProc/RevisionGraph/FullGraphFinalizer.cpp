@@ -106,8 +106,8 @@ void CFullGraphFinalizer::InitWCRevs()
            && (revisions.back() >= pathRevision)
            && path.IsValid())
     {
-        wcRevs.emplace( wcRevs.begin()
-                      , revisions.back(), path.GetBasePath());
+        wcRevs.insert ( wcRevs.begin()
+                      , std::make_pair (revisions.back(), path.GetBasePath()));
         revisions.pop_back();
     }
 
@@ -142,8 +142,8 @@ void CFullGraphFinalizer::InitWCRevs()
         }
 
         if (path.IsValid())
-            wcRevs.emplace( wcRevs.begin()
-                          , revision, path.GetBasePath());
+            wcRevs.insert ( wcRevs.begin()
+                          , std::make_pair (revision, path.GetBasePath()));
     }
 }
 

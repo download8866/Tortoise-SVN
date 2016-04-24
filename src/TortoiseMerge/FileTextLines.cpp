@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007-2016 - TortoiseSVN
+// Copyright (C) 2007-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -52,7 +52,6 @@ UINT64 inline DwordSwapBytes(UINT64 nValue)
 
 CFileTextLines::CFileTextLines(void)
     : m_bNeedsConversion(false)
-    , m_bKeepEncoding(false)
 {
     m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
@@ -210,8 +209,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 {
     WCHAR exceptionError[1000] = {0};
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
-    if (!m_bKeepEncoding)
-        m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
+    m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     RemoveAll();
     if(lengthHint != 0)
     {
@@ -279,9 +277,9 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
     if (m_SaveParams.m_UnicodeType == CFileTextLines::AUTOTYPE)
     {
         m_SaveParams.m_UnicodeType = this->CheckUnicodeType((LPVOID)oFile, dwReadBytes);
+        // enforce conversion for all but ASCII and UTF8 type
+        m_bNeedsConversion = (m_SaveParams.m_UnicodeType!=CFileTextLines::UTF8)&&(m_SaveParams.m_UnicodeType!=CFileTextLines::ASCII);
     }
-    // enforce conversion for all but ASCII and UTF8 type
-    m_bNeedsConversion = (m_SaveParams.m_UnicodeType != CFileTextLines::UTF8) && (m_SaveParams.m_UnicodeType != CFileTextLines::ASCII);
 
     // we may have to convert the file content - CString is UTF16LE
     try
@@ -492,7 +490,7 @@ BOOL CFileTextLines::Save( const CString& sFilePath
         }
 
         CStdioFile file;            // Hugely faster than CFile for big file writes - because it uses buffering
-        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary | CFile::shareDenyNone))
+        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
         {
             const_cast<CString *>(&m_sErrorString)->Format(IDS_ERR_FILE_OPEN, (LPCTSTR)sFilePath);
             return FALSE;

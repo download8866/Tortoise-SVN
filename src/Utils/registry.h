@@ -806,7 +806,7 @@ void CRegStringCommon<Base>::InternalRead (HKEY hKey, typename Base::StringT& va
 
     if (LastError == ERROR_SUCCESS)
     {
-        auto pStr = std::make_unique<TCHAR[]>(size);
+        std::unique_ptr<TCHAR[]> pStr (new TCHAR[size]);
         if ((LastError = RegQueryValueEx(hKey, GetPlainString (m_key), NULL, &type, (BYTE*) pStr.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_SZ || type==REG_EXPAND_SZ);
@@ -1126,7 +1126,7 @@ T& CKeyList<T>::GetAt (int index) const
         typename T::StringT indexKey = key + _T ('\\') + buffer;
 
         T* newElement = new T (indexKey, GetDefault (index), false, base);
-        iter = elements.emplace(index, newElement).first;
+        iter = elements.insert (std::make_pair (index, newElement)).first;
     }
 
     return *iter->second;

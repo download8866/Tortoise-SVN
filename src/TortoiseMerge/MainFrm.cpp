@@ -289,12 +289,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         }
         m_wndRibbonStatusBar.AddElement(new CMFCRibbonStatusBarPane(ID_SEPARATOR, CString(MAKEINTRESOURCE(AFX_IDS_IDLEMESSAGE)), TRUE), L"");
 
-        CString sTooltip(MAKEINTRESOURCE(IDS_ENCODING_COMBO_TOOLTIP));
-        auto apBtnGroupLeft = std::make_unique<CMFCRibbonButtonsGroup>();
+        std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupLeft(new CMFCRibbonButtonsGroup);
         apBtnGroupLeft->SetID(ID_INDICATOR_LEFTVIEW);
         apBtnGroupLeft->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_LEFTVIEW)), TRUE));
         CMFCRibbonButton * pButton = new CMFCRibbonButton(ID_INDICATOR_LEFTVIEWCOMBOENCODING, L"");
-        pButton->SetToolTipText(sTooltip);
         FillEncodingButton(pButton, ID_INDICATOR_LEFTENCODINGSTART);
         apBtnGroupLeft->AddButton(pButton);
         pButton = new CMFCRibbonButton(ID_INDICATOR_LEFTVIEWCOMBOEOL, L"");
@@ -306,11 +304,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
         apBtnGroupLeft->AddButton(new CMFCRibbonStatusBarPane(ID_INDICATOR_LEFTVIEW,   L"", TRUE));
         m_wndRibbonStatusBar.AddExtendedElement(apBtnGroupLeft.release(), L"");
 
-        auto apBtnGroupRight = std::make_unique<CMFCRibbonButtonsGroup>();
+        std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupRight(new CMFCRibbonButtonsGroup);
         apBtnGroupRight->SetID(ID_INDICATOR_RIGHTVIEW);
         apBtnGroupRight->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_RIGHTVIEW)), TRUE));
         pButton = new CMFCRibbonButton(ID_INDICATOR_RIGHTVIEWCOMBOENCODING, L"");
-        pButton->SetToolTipText(sTooltip);
         FillEncodingButton(pButton, ID_INDICATOR_RIGHTENCODINGSTART);
         apBtnGroupRight->AddButton(pButton);
         pButton = new CMFCRibbonButton(ID_INDICATOR_RIGHTVIEWCOMBOEOL, L"");
@@ -1811,8 +1808,6 @@ void CMainFrame::OnViewOptions()
 
 void CMainFrame::OnClose()
 {
-    if (!IsWindowEnabled())
-        return; // just in case someone sends a WM_CLOSE to the main window while another window (dialog,...) is open
     if (CheckForSave(CHFSR_CLOSE)!=IDCANCEL)
     {
         WINDOWPLACEMENT    wp;
@@ -3238,58 +3233,12 @@ void CMainFrame::FillTabModeButton(CMFCRibbonButton * pButton, int start)
     pButton->AddSubItem(new CMFCRibbonButton(start + ENABLEEDITORCONFIG, L"EditorConfig"));
 }
 
-bool CMainFrame::AdjustUnicodeTypeForLoad(CFileTextLines::UnicodeType& type)
-{
-    switch (type)
-    {
-        case CFileTextLines::UnicodeType::AUTOTYPE:
-        case CFileTextLines::UnicodeType::BINARY:
-        return false;
-
-        case CFileTextLines::UnicodeType::ASCII:
-        case CFileTextLines::UnicodeType::UTF16_LE:
-        case CFileTextLines::UnicodeType::UTF16_BE:
-        case CFileTextLines::UnicodeType::UTF32_LE:
-        case CFileTextLines::UnicodeType::UTF32_BE:
-        case CFileTextLines::UnicodeType::UTF8:
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF16_LEBOM:
-        type = CFileTextLines::UnicodeType::UTF16_LE;
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF16_BEBOM:
-        type = CFileTextLines::UnicodeType::UTF16_BE;
-        return true;
-
-        case CFileTextLines::UnicodeType::UTF8BOM:
-        type = CFileTextLines::UnicodeType::UTF8;
-        return true;
-    }
-    return false;
-}
-
 void CMainFrame::OnEncodingLeft( UINT cmd )
 {
     if (m_pwndLeftView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arBaseFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_LEFTENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arBaseFile.SetSaveParams(saveparams);
-                m_Data.m_arBaseFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndLeftView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_LEFTENCODINGSTART));
-            m_pwndLeftView->RefreshViews();
-        }
+        m_pwndLeftView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_LEFTENCODINGSTART));
+        m_pwndLeftView->RefreshViews();
     }
 }
 
@@ -3297,23 +3246,8 @@ void CMainFrame::OnEncodingRight( UINT cmd )
 {
     if (m_pwndRightView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arYourFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_RIGHTENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arYourFile.SetSaveParams(saveparams);
-                m_Data.m_arYourFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndRightView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_RIGHTENCODINGSTART));
-            m_pwndRightView->RefreshViews();
-        }
+        m_pwndRightView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_RIGHTENCODINGSTART));
+        m_pwndRightView->RefreshViews();
     }
 }
 
@@ -3321,23 +3255,8 @@ void CMainFrame::OnEncodingBottom( UINT cmd )
 {
     if (m_pwndBottomView)
     {
-        if (GetKeyState(VK_CONTROL) & 0x8000)
-        {
-            // reload with selected encoding
-            auto saveparams = m_Data.m_arTheirFile.GetSaveParams();
-            saveparams.m_UnicodeType = CFileTextLines::UnicodeType(cmd - ID_INDICATOR_BOTTOMENCODINGSTART);
-            if (AdjustUnicodeTypeForLoad(saveparams.m_UnicodeType))
-            {
-                m_Data.m_arTheirFile.SetSaveParams(saveparams);
-                m_Data.m_arTheirFile.KeepEncoding();
-                LoadViews();
-            }
-        }
-        else
-        {
-            m_pwndBottomView->SetTextType(CFileTextLines::UnicodeType(cmd - ID_INDICATOR_BOTTOMENCODINGSTART));
-            m_pwndBottomView->RefreshViews();
-        }
+        m_pwndBottomView->SetTextType(CFileTextLines::UnicodeType(cmd-ID_INDICATOR_BOTTOMENCODINGSTART));
+        m_pwndBottomView->RefreshViews();
     }
 }
 
@@ -3410,7 +3329,7 @@ void CMainFrame::OnUpdateEncodingLeft( CCmdUI *pCmdUI )
     if (m_pwndLeftView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_LEFTENCODINGSTART) == m_pwndLeftView->GetTextType());
-        pCmdUI->Enable(m_pwndLeftView->IsWritable() || (GetKeyState(VK_CONTROL)&0x8000));
+        pCmdUI->Enable(m_pwndLeftView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);
@@ -3421,7 +3340,7 @@ void CMainFrame::OnUpdateEncodingRight( CCmdUI *pCmdUI )
     if (m_pwndRightView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_RIGHTENCODINGSTART) == m_pwndRightView->GetTextType());
-        pCmdUI->Enable(m_pwndRightView->IsWritable() || (GetKeyState(VK_CONTROL) & 0x8000));
+        pCmdUI->Enable(m_pwndRightView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);
@@ -3432,7 +3351,7 @@ void CMainFrame::OnUpdateEncodingBottom( CCmdUI *pCmdUI )
     if (m_pwndBottomView)
     {
         pCmdUI->SetCheck(CFileTextLines::UnicodeType(pCmdUI->m_nID - ID_INDICATOR_BOTTOMENCODINGSTART) == m_pwndBottomView->GetTextType());
-        pCmdUI->Enable(m_pwndBottomView->IsWritable() || (GetKeyState(VK_CONTROL) & 0x8000));
+        pCmdUI->Enable(m_pwndBottomView->IsWritable());
     }
     else
         pCmdUI->Enable(FALSE);

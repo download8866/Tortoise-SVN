@@ -67,7 +67,30 @@ CTSVNPath::~CTSVNPath(void)
 {
 }
 // Create a TSVNPath object from an unknown path type (same as using SetFromUnknown)
-CTSVNPath::CTSVNPath(const CString& sUnknownPath) : CTSVNPath()
+CTSVNPath::CTSVNPath(const CString& sUnknownPath) :
+    m_bDirectoryKnown(false),
+    m_bIsDirectory(false),
+    m_bIsURL(false),
+    m_bURLKnown(false),
+    m_bHasAdminDirKnown(false),
+    m_bHasAdminDir(false),
+    m_bIsValidOnWindowsKnown(false),
+    m_bIsValidOnWindows(false),
+    m_bIsReadOnly(false),
+    m_bIsAdminDirKnown(false),
+    m_bIsAdminDir(false),
+    m_bIsWCRootKnown(false),
+    m_bIsWCRoot(false),
+    m_bExists(false),
+    m_bExistsKnown(false),
+    m_bLastWriteTimeKnown(0),
+    m_lastWriteTime(0),
+    m_fileSize(0),
+    m_customData(NULL),
+    m_bIsSpecialDirectoryKnown(false),
+    m_bIsSpecialDirectory(false),
+    m_bIsAttributesKnown(false),
+    m_attributes(0)
 {
     SetFromUnknown(sUnknownPath);
 }
@@ -342,7 +365,7 @@ bool CTSVNPath::Delete(bool bTrash) const
     {
         if ((bTrash)||(IsDirectory()))
         {
-            auto buf = std::make_unique<TCHAR[]>(m_sBackslashPath.GetLength() + 2);
+            std::unique_ptr<TCHAR[]> buf(new TCHAR[m_sBackslashPath.GetLength()+2]);
             wcscpy_s(buf.get(), m_sBackslashPath.GetLength()+2, m_sBackslashPath);
             buf[m_sBackslashPath.GetLength()] = 0;
             buf[m_sBackslashPath.GetLength()+1] = 0;
@@ -892,7 +915,7 @@ bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
     }
     catch (CFileException* pE)
     {
-        auto error = std::make_unique<TCHAR[]>(10000);
+        std::unique_ptr<TCHAR[]> error(new TCHAR[10000]);
         pE->GetErrorMessage(error.get(), 10000);
         ::MessageBox(NULL, error.get(), L"TortoiseSVN", MB_ICONERROR);
         pE->Delete();
@@ -1434,8 +1457,7 @@ private:
         testPath.SetFromWin(L"c:\\windows");
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\"))==false);
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows")));
-        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windowsdummy")) == false);
-        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows test")) == false);
+        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windowsdummy"))==false);
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows\\test.txt")));
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows\\system32\\test.txt")));
     }

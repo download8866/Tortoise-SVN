@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2016 - TortoiseSVN
+// Copyright (C) 2010-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,6 @@
 #include "SelectFileFilter.h"
 #include "SmartHandle.h"
 #include "PreserveChdir.h"
-#include "OnOutOfScope.h"
 #include <WinInet.h>
 #include <oleacc.h>
 #include <initguid.h>
@@ -291,12 +290,12 @@ bool CCommonAppUtils::RunTortoiseProc(const CString& sCommandLine)
 
 void CCommonAppUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)
 {
-    CHeaderCtrl * pHdrCtrl = pListCtrl->GetHeaderCtrl();
+    int maxcol = ((CHeaderCtrl*)(pListCtrl->GetDlgItem(0)))->GetItemCount()-1;
     int nItemCount = pListCtrl->GetItemCount();
     TCHAR textbuf[MAX_PATH] = { 0 };
+    CHeaderCtrl * pHdrCtrl = (CHeaderCtrl*)(pListCtrl->GetDlgItem(0));
     if (pHdrCtrl)
     {
-        int maxcol = pHdrCtrl->GetItemCount() - 1;
         int imgWidth = 0;
         CImageList * pImgList = pListCtrl->GetImageList(LVSIL_SMALL);
         if ((pImgList)&&(pImgList->GetImageCount()))
@@ -325,6 +324,7 @@ void CCommonAppUtils::ResizeAllListCtrlCols(CListCtrl * pListCtrl)
                     cx = linewidth;
             }
             pListCtrl->SetColumnWidth(col, cx);
+
         }
     }
 }
@@ -337,41 +337,47 @@ bool CCommonAppUtils::SetListCtrlBackgroundImage(HWND hListCtrl, UINT nID, int w
     HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(nID), IMAGE_ICON, width, height, LR_DEFAULTCOLOR);
     if (!hIcon)
         return false;
-    OnOutOfScope(DestroyIcon(hIcon));
 
     RECT rect = {0};
     rect.right = width;
     rect.bottom = height;
+    HBITMAP bmp = NULL;
 
     HWND desktop = ::GetDesktopWindow();
-    if (!desktop)
+    if (desktop)
+    {
+        HDC screen_dev = ::GetDC(desktop);
+        if (screen_dev)
+        {
+            // Create a compatible DC
+            HDC dst_hdc = ::CreateCompatibleDC(screen_dev);
+            if (dst_hdc)
+            {
+                // Create a new bitmap of icon size
+                bmp = ::CreateCompatibleBitmap(screen_dev, rect.right, rect.bottom);
+                if (bmp)
+                {
+                    // Select it into the compatible DC
+                    HBITMAP old_dst_bmp = (HBITMAP)::SelectObject(dst_hdc, bmp);
+                    // Fill the background of the compatible DC with the given color
+                    ::SetBkColor(dst_hdc, bkColor);
+                    ::ExtTextOut(dst_hdc, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
+
+                    // Draw the icon into the compatible DC
+                    ::DrawIconEx(dst_hdc, 0, 0, hIcon, rect.right, rect.bottom, 0, NULL, DI_NORMAL);
+                    ::SelectObject(dst_hdc, old_dst_bmp);
+                }
+                ::DeleteDC(dst_hdc);
+            }
+            ::ReleaseDC(desktop, screen_dev);
+        }
+    }
+
+    // Restore settings
+    DestroyIcon(hIcon);
+
+    if (bmp == NULL)
         return false;
-
-    HDC screen_dev = ::GetDC(desktop);
-    if (!screen_dev)
-        return false;
-    OnOutOfScope(::ReleaseDC(desktop, screen_dev));
-
-    // Create a compatible DC
-    HDC dst_hdc = ::CreateCompatibleDC(screen_dev);
-    if (!dst_hdc)
-        return false;
-    OnOutOfScope(::DeleteDC(dst_hdc));
-
-    // Create a new bitmap of icon size
-    HBITMAP bmp = ::CreateCompatibleBitmap(screen_dev, rect.right, rect.bottom);
-    if (!bmp)
-        return false;
-
-    // Select it into the compatible DC
-    HBITMAP old_dst_bmp = (HBITMAP)::SelectObject(dst_hdc, bmp);
-    // Fill the background of the compatible DC with the given color
-    ::SetBkColor(dst_hdc, bkColor);
-    ::ExtTextOut(dst_hdc, 0, 0, ETO_OPAQUE, &rect, NULL, 0, NULL);
-
-    // Draw the icon into the compatible DC
-    ::DrawIconEx(dst_hdc, 0, 0, hIcon, rect.right, rect.bottom, 0, NULL, DI_NORMAL);
-    ::SelectObject(dst_hdc, old_dst_bmp);
 
     LVBKIMAGE lv;
     lv.ulFlags = LVBKIF_TYPE_WATERMARK;
@@ -757,28 +763,31 @@ void CCommonAppUtils::MarkWindowAsUnpinnable( HWND hWnd )
 
 HRESULT CCommonAppUtils::EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorkingDirectory, AUTOCOMPLETELISTOPTIONS acloOptions, AUTOCOMPLETEOPTIONS acoOptions, REFCLSID clsid)
 {
-    CComPtr<IAutoComplete> pac;
-    HRESULT hr = pac.CoCreateInstance(CLSID_AutoComplete,
-                                      NULL,
-                                      CLSCTX_INPROC_SERVER);
+    IAutoComplete *pac;
+    HRESULT hr = CoCreateInstance(CLSID_AutoComplete,
+                                  NULL,
+                                  CLSCTX_INPROC_SERVER,
+                                  IID_PPV_ARGS(&pac));
     if (FAILED(hr))
     {
         return hr;
     }
 
-    CComPtr<IUnknown> punkSource;
-    hr = punkSource.CoCreateInstance(clsid,
-                                     NULL,
-                                     CLSCTX_INPROC_SERVER);
+    IUnknown *punkSource;
+    hr = CoCreateInstance(clsid,
+                          NULL,
+                          CLSCTX_INPROC_SERVER,
+                          IID_PPV_ARGS(&punkSource));
     if (FAILED(hr))
     {
+        pac->Release();
         return hr;
     }
 
     if ((acloOptions != ACLO_NONE) || (szCurrentWorkingDirectory != NULL))
     {
-        CComPtr<IACList2> pal2;
-        hr = punkSource.QueryInterface(&pal2);
+        IACList2 *pal2;
+        hr = punkSource->QueryInterface(IID_PPV_ARGS(&pal2));
         if (SUCCEEDED(hr))
         {
             if (acloOptions != ACLO_NONE)
@@ -788,13 +797,16 @@ HRESULT CCommonAppUtils::EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorki
 
             if (szCurrentWorkingDirectory != NULL)
             {
-                CComPtr<ICurrentWorkingDirectory> pcwd;
-                hr = pal2.QueryInterface(&pcwd);
+                ICurrentWorkingDirectory *pcwd;
+                hr = pal2->QueryInterface(IID_PPV_ARGS(&pcwd));
                 if (SUCCEEDED(hr))
                 {
                     hr = pcwd->SetDirectory(szCurrentWorkingDirectory);
+                    pcwd->Release();
                 }
             }
+
+            pal2->Release();
         }
     }
 
@@ -802,19 +814,16 @@ HRESULT CCommonAppUtils::EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorki
 
     if (acoOptions != ACO_NONE)
     {
-        CComPtr<IAutoComplete2> pac2;
-        hr = pac.QueryInterface(&pac2);
+        IAutoComplete2 *pac2;
+        hr = pac->QueryInterface(IID_PPV_ARGS(&pac2));
         if (SUCCEEDED(hr))
         {
             hr = pac2->SetOptions(acoOptions);
+            pac2->Release();
         }
     }
 
+    punkSource->Release();
+    pac->Release();
     return hr;
-}
-
-HICON CCommonAppUtils::LoadIconEx(UINT resourceId, UINT cx, UINT cy, UINT fuLoad)
-{
-    return (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(resourceId),
-                            IMAGE_ICON, cx, cy, fuLoad);
 }

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2007-2008, 2011, 2013, 2015 - TortoiseSVN
+// Copyright (C) 2007-2008, 2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -97,7 +97,4 @@ protected:
 private:
     CDiffColors(void);
     ~CDiffColors(void);
-    // prevent cloning
-    CDiffColors(const CDiffColors&) = delete;
-    CDiffColors& operator=(const CDiffColors&) = delete;
 };

@@ -69,8 +69,6 @@ void CCopyDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Control(pDX, IDC_FROMURL, m_FromUrl);
     DDX_Control(pDX, IDC_DESTURL, m_DestUrl);
     DDX_Control(pDX, IDC_EXTERNALSLIST, m_ExtList);
-    DDX_Control(pDX, IDC_CHECKALL, m_CheckAll);
-    DDX_Control(pDX, IDC_CHECKNONE, m_CheckNone);
 }
 
 
@@ -229,6 +227,9 @@ BOOL CCopyDlg::OnInitDialog()
 
     OnEnChangeLogmessage();
 
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKALL);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKNONE);
+
     // line up all controls and adjust their sizes.
 #define LINKSPACING 9
     RECT rc = AdjustControlSize(IDC_SELECTLABEL);
@@ -239,6 +240,9 @@ BOOL CCopyDlg::OnInitDialog()
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, L"Alt+"+CString(CAppUtils::FindAcceleratorKey(this, IDC_INVISIBLE)));
+
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
 
     CAppUtils::SetAccProperty(m_URLCombo.GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, L"Alt+"+CString(CAppUtils::FindAcceleratorKey(this, IDC_TOURLLABEL)));
     CAppUtils::SetAccProperty(GetDlgItem(IDC_FROMURL)->GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, L"Alt+"+CString(CAppUtils::FindAcceleratorKey(this, IDC_COPYSTARTLABEL)));
@@ -817,7 +821,7 @@ LPARAM CCopyDlg::OnRevFound(WPARAM /*wParam*/, LPARAM /*lParam*/)
     m_ExtList.SetRedraw(false);
     m_ExtList.DeleteAllItems();
 
-    int c = m_ExtList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_ExtList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_ExtList.DeleteColumn(c--);
     CString temp;

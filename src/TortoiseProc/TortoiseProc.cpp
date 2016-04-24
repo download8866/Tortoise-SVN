@@ -46,7 +46,6 @@
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
 #include "SVNConfig.h"
-#include <random>
 
 #define STRUCT_IOVEC_DEFINED
 #include "sasl.h"
@@ -440,7 +439,7 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            auto originalCurrentDirectory = std::make_unique<TCHAR[]>(len);
+            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
             if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
             {
                 sOrigCWD = originalCurrentDirectory.get();
@@ -530,11 +529,9 @@ void CTortoiseProcApp::CheckUpgrade()
     }
     if (lVersion <= 0x01081100)
     {
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::uniform_int_distribution<int> dist(0, 6);
+        srand((unsigned)time(0));
         CRegDWORD checkNewerWeekDay = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewerWeekDay"), 0);
-        checkNewerWeekDay = dist(mt);
+        checkNewerWeekDay = rand() % 7;
     }
     CAppUtils::SetupDiffScripts(false, CString());
 

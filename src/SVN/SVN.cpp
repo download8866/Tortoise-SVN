@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -1385,7 +1385,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // select query and run it
 
-        ILogQuery* query = !IsLogCacheEnabled() || refresh
+        ILogQuery* query = !(GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled) || refresh
                          ? tempQuery.get()
                          : cacheQuery.get();
 
@@ -1418,7 +1418,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // merge temp results with permanent cache, if applicable
 
-        if (refresh && IsLogCacheEnabled())
+        if (refresh && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
         {
             // handle cache refresh results
 
@@ -1441,7 +1441,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
         // return the cache that contains the log info
 
         return std::unique_ptr<const CCacheLogQuery>
-            (IsLogCacheEnabled()
+            ((GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled)
                 ? cacheQuery.release()
                 : tempQuery.release() );
     }
@@ -2066,7 +2066,7 @@ bool SVN::IsRepository(const CTSVNPath& path)
 
 CString SVN::GetRepositoryRootAndUUID(const CTSVNPath& path, bool useLogCache, CString& sUUID)
 {
-    if (useLogCache && IsLogCacheEnabled())
+    if (useLogCache && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
         return GetLogCachePool()->GetRepositoryInfo().GetRepositoryRootAndUUID (path, sUUID);
 
     const char * returl = nullptr;
@@ -2565,25 +2565,6 @@ void SVN::formatDate(TCHAR date_native[], FILETIME& filetime, bool force_short_f
     wcsncpy_s(date_native, SVN_DATE_BUFFER, result, SVN_DATE_BUFFER - 1);
 }
 
-bool SVN::AprTimeExplodeLocal(apr_time_exp_t *exploded_time, apr_time_t date_svn)
-{
-    // apr_time_exp_lt() can crash because it does not check the return values of APIs it calls.
-    // Put the call to apr_time_exp_lt() in a __try/__except to avoid those crashes.
-    __try
-    {
-        return apr_time_exp_lt(exploded_time, date_svn) == APR_SUCCESS;
-    }
-    __except(TRUE)
-    {
-        return false;
-    }
-}
-
-bool SVN::IsLogCacheEnabled()
-{
-    return GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled;
-}
-
 CString SVN::formatDate(apr_time_t date_svn)
 {
     apr_time_exp_t exploded_time = {0};
@@ -2593,15 +2574,21 @@ CString SVN::formatDate(apr_time_t date_svn)
 
     LCID locale = s_useSystemLocale ? MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), SORT_DEFAULT) : s_locale;
 
-    if (!AprTimeExplodeLocal(&exploded_time, date_svn))
-        return L"(no date)";
+    try
+    {
+        apr_time_exp_lt (&exploded_time, date_svn);
 
-    systime.wDay = (WORD)exploded_time.tm_mday;
-    systime.wDayOfWeek = (WORD)exploded_time.tm_wday;
-    systime.wMonth = (WORD)exploded_time.tm_mon+1;
-    systime.wYear = (WORD)exploded_time.tm_year+1900;
+        systime.wDay = (WORD)exploded_time.tm_mday;
+        systime.wDayOfWeek = (WORD)exploded_time.tm_wday;
+        systime.wMonth = (WORD)exploded_time.tm_mon+1;
+        systime.wYear = (WORD)exploded_time.tm_year+1900;
 
-    GetDateFormat(locale, DATE_SHORTDATE, &systime, NULL, datebuf, SVN_DATE_BUFFER);
+        GetDateFormat(locale, DATE_SHORTDATE, &systime, NULL, datebuf, SVN_DATE_BUFFER);
+    }
+    catch ( ... )
+    {
+        wcscpy_s(datebuf, L"(no date)");
+    }
 
     return datebuf;
 }
@@ -2615,19 +2602,25 @@ CString SVN::formatTime (apr_time_t date_svn)
 
     LCID locale = s_useSystemLocale ? MAKELCID(MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), SORT_DEFAULT) : s_locale;
 
-    if (!AprTimeExplodeLocal(&exploded_time, date_svn))
-        return L"(no time)";
+    try
+    {
+        apr_time_exp_lt (&exploded_time, date_svn);
 
-    systime.wDay = (WORD)exploded_time.tm_mday;
-    systime.wDayOfWeek = (WORD)exploded_time.tm_wday;
-    systime.wHour = (WORD)exploded_time.tm_hour;
-    systime.wMilliseconds = (WORD)(exploded_time.tm_usec/1000);
-    systime.wMinute = (WORD)exploded_time.tm_min;
-    systime.wMonth = (WORD)exploded_time.tm_mon+1;
-    systime.wSecond = (WORD)exploded_time.tm_sec;
-    systime.wYear = (WORD)exploded_time.tm_year+1900;
+        systime.wDay = (WORD)exploded_time.tm_mday;
+        systime.wDayOfWeek = (WORD)exploded_time.tm_wday;
+        systime.wHour = (WORD)exploded_time.tm_hour;
+        systime.wMilliseconds = (WORD)(exploded_time.tm_usec/1000);
+        systime.wMinute = (WORD)exploded_time.tm_min;
+        systime.wMonth = (WORD)exploded_time.tm_mon+1;
+        systime.wSecond = (WORD)exploded_time.tm_sec;
+        systime.wYear = (WORD)exploded_time.tm_year+1900;
 
-    GetTimeFormat(locale, 0, &systime, NULL, timebuf, SVN_DATE_BUFFER);
+        GetTimeFormat(locale, 0, &systime, NULL, timebuf, SVN_DATE_BUFFER);
+    }
+    catch ( ... )
+    {
+        wcscpy_s(timebuf, L"(no time)");
+    }
 
     return timebuf;
 }

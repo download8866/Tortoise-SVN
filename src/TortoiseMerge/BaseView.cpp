@@ -410,7 +410,7 @@ void CBaseView::UpdateStatusBar()
             if ((m_nStatusBarID == ID_INDICATOR_BOTTOMVIEW) && (IsViewGood(this)))
             {
                 m_pwndRibbonStatusBar->RemoveElement(ID_INDICATOR_BOTTOMVIEW);
-                auto apBtnGroupBottom = std::make_unique<CMFCRibbonButtonsGroup>();
+                std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupBottom(new CMFCRibbonButtonsGroup);
                 apBtnGroupBottom->SetID(ID_INDICATOR_BOTTOMVIEW);
                 apBtnGroupBottom->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_BOTTOMVIEW)), TRUE));
                 CMFCRibbonButton * pButton = new CMFCRibbonButton(ID_INDICATOR_BOTTOMVIEWCOMBOENCODING, L"");
@@ -1922,7 +1922,7 @@ void CBaseView::DrawTextLine(
                 if (nLeft < 0)
                 {
                     int fit = nTextLength;
-                    auto posBuffer = std::make_unique<int[]>(fit);
+                    std::unique_ptr<int> posBuffer(new int[fit]);
                     GetTextExtentExPoint(pDC->GetSafeHdc(), p_zBlockText, nTextLength, INT_MAX, &fit, posBuffer.get(), &Size);
                     int lower = 0, upper = fit - 1;
                     do
@@ -3270,13 +3270,13 @@ void CBaseView::OnLButtonDblClk(UINT nFlags, CPoint point)
         SetCaretPosition(ptCaretPos);
         ClearSelection();
 
-        POINT ptViewCaret = GetCaretViewPosition();
-        nViewLine = ptViewCaret.y;
+        POINT ptViewCarret = GetCaretViewPosition();
+        nViewLine = ptViewCarret.y;
         if (nViewLine >= GetViewCount())
             return;
         const CString &sLine = GetViewLine(nViewLine);
         int nLineLength = sLine.GetLength();
-        int nBasePos = ptViewCaret.x;
+        int nBasePos = ptViewCarret.x;
         // get target char group
         ECharGroup eLeft = CHG_UNKNOWN;
         if (nBasePos > 0)
@@ -3710,7 +3710,7 @@ int CBaseView::CalcColFromPoint(int xpos, int lineIndex)
     {
         CString text = ExpandChars(GetLineChars(lineIndex), 0);
         int fit = text.GetLength();
-        auto posBuffer = std::make_unique<int[]>(fit);
+        std::unique_ptr<int> posBuffer(new int[fit]);
         pDC->SelectObject(GetFont()); // is this right font ?
         SIZE size;
         GetTextExtentExPoint(pDC->GetSafeHdc(), text, fit, INT_MAX, &fit, posBuffer.get(), &size);

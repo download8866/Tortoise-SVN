@@ -26,10 +26,9 @@ typedef struct tagResourceEntry
     WORD                        menuID;
     std::vector<std::wstring>   translatorcomments;
     std::vector<std::wstring>   automaticcomments;
-    std::set<std::wstring>      resourceIDs;
+    std::set<INT_PTR>           resourceIDs;
     std::wstring                flag;
     std::wstring                msgstr;
-    std::wstring                headerfile;
 } RESOURCEENTRY, * LPRESOURCEENTRY;
 
 /**

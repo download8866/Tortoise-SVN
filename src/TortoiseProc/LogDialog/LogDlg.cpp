@@ -63,7 +63,6 @@
 #include "SVNDataObject.h"
 #include "RenameDlg.h"
 #include "..\..\ext\snarl\SnarlInterface.h"
-#include "ToastNotifications.h"
 #include <tlhelp32.h>
 #include <shlwapi.h>
 #include <fstream>
@@ -172,6 +171,7 @@ enum LogDlgShowBtnCommands
     ID_CMD_SHOWRANGE,
 };
 
+
 IMPLEMENT_DYNAMIC(CLogDlg, CResizableStandAloneDialog)
 CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     : CResizableStandAloneDialog(CLogDlg::IDD, pParent)
@@ -209,6 +209,7 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     , m_bHideNonMergeables(FALSE)
     , m_copyfromrev(0)
     , m_bStartRevIsHead(true)
+    , m_boldFont(NULL)
     , m_bStrict(false)
     , m_bSaveStrict(false)
     , m_hasWC(false)
@@ -233,6 +234,7 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     , m_bMonitoringMode(false)
     , m_bKeepHidden(false)
     , m_hwndToolbar(NULL)
+    , m_hToolbarImages(NULL)
     , m_bMonitorThreadRunning(FALSE)
     , m_nMonitorUrlIcon(0)
     , m_nMonitorWCIcon(0)
@@ -255,10 +257,14 @@ CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
     m_sMultiLogFormat = CRegString(L"Software\\TortoiseSVN\\LogMultiRevFormat", L"r%1!ld!\n%2!s!\n---------------------\n");
     m_sMultiLogFormat.Replace(L"\\r", L"\r");
     m_sMultiLogFormat.Replace(L"\\n", L"\n");
-
     // just in case the user sets an impossible/illegal format string: try to use that format
     // string and handle possible exceptions. In case of an exception, fall back to the default.
-    if (!CStringUtils::ValidateFormatString(m_sMultiLogFormat, 0, L"test"))
+    try
+    {
+        CString sRevMsg;
+        sRevMsg.FormatMessage(m_sMultiLogFormat, 0, L"test");
+    }
+    catch (...)
     {
         // fall back to the default
         m_sMultiLogFormat = L"r%1!ld!\n%2!s!\n---------------------\n";
@@ -290,6 +296,10 @@ CLogDlg::~CLogDlg()
         delete m_pStoreSelection;
         m_pStoreSelection = NULL;
     }
+    if (m_boldFont)
+        DeleteObject(m_boldFont);
+    if (m_hToolbarImages)
+        ImageList_Destroy(m_hToolbarImages);
 }
 
 void CLogDlg::DoDataExchange(CDataExchange* pDX)
@@ -319,7 +329,6 @@ BEGIN_MESSAGE_MAP(CLogDlg, CResizableStandAloneDialog)
     ON_REGISTERED_MESSAGE(WM_TASKBARCREATED, OnTaskbarCreated)
     ON_REGISTERED_MESSAGE(WM_TSVN_COMMITMONITOR_SHOWDLGMSG, OnShowDlgMsg)
     ON_REGISTERED_MESSAGE(WM_TSVN_COMMITMONITOR_RELOADINI, OnReloadIniMsg)
-    ON_REGISTERED_MESSAGE(WM_TOASTNOTIFICATION, OnToastNotification)
     ON_MESSAGE(WM_TSVN_REFRESH_SELECTION, OnRefreshSelection)
     ON_MESSAGE(WM_TSVN_MONITOR_TASKBARCALLBACK, OnTaskbarCallBack)
     ON_MESSAGE(WM_TSVN_MONITOR_NOTIFY_CLICK, OnMonitorNotifyClick)
@@ -465,15 +474,11 @@ void CLogDlg::SetupDialogFonts()
     // use the default GUI font, create a copy of it and
     // change the copy to BOLD (leave the rest of the font
     // the same)
-    CFont *font = m_LogList.GetFont();
+    HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
     LOGFONT lf = {0};
-    font->GetLogFont(&lf);
-
+    GetObject(hFont, sizeof(LOGFONT), &lf);
     lf.lfWeight = FW_BOLD;
-    m_boldFont.CreateFontIndirect(&lf);
-
-    lf.lfItalic = TRUE;
-    m_boldItalicFont.CreateFontIndirect(&lf);
+    m_boldFont = CreateFontIndirect(&lf);
     CAppUtils::CreateFontForLogs(m_logFont);
 }
 
@@ -532,21 +537,29 @@ void CLogDlg::SetupLogListControl()
 void CLogDlg::LoadIconsForActionColumns()
 {
     // load the icons for the action columns
-    m_hModifiedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONMODIFIED, 0, 0, LR_DEFAULTSIZE);
-    m_hReplacedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONREPLACED, 0, 0, LR_DEFAULTSIZE);
-    m_hAddedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONADDED, 0, 0, LR_DEFAULTSIZE);
-    m_hDeletedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONDELETED, 0, 0, LR_DEFAULTSIZE);
-    m_hMergedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONMERGED, 0, 0, LR_DEFAULTSIZE);
-    m_hReverseMergedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONREVERSEMERGED, 0, 0, LR_DEFAULTSIZE);
-    m_hMovedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONREPLACED, 0, 0, LR_DEFAULTSIZE);
-    m_hMoveReplacedIcon = CCommonAppUtils::LoadIconEx(IDI_ACTIONREPLACED, 0, 0, LR_DEFAULTSIZE);
+    m_hModifiedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONMODIFIED),
+                                                                        IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hReplacedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONREPLACED),
+                                                                        IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hAddedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONADDED),
+                                                                        IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hDeletedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONDELETED),
+                                                                        IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hMergedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONMERGED),
+                                                                        IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hReverseMergedIcon = (HICON)LoadImage(AfxGetResourceHandle(),
+                                MAKEINTRESOURCE(IDI_ACTIONREVERSEMERGED), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hMovedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONREPLACED),
+                                       IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+    m_hMoveReplacedIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_ACTIONREPLACED),
+                                       IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
 }
 
 void CLogDlg::ConfigureColumnsForLogListControl()
 {
     CString temp;
     // set up the columns
-    int c = m_LogList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_LogList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_LogList.DeleteColumn(c--);
     temp.LoadString(IDS_LOG_REVISION);
@@ -586,7 +599,7 @@ void CLogDlg::ConfigureColumnsForChangedFileListControl()
     CString temp;
     m_ChangedFileListCtrl.SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
     m_ChangedFileListCtrl.SetExtendedStyle ( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
-    int c = m_ChangedFileListCtrl.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_ChangedFileListCtrl.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_ChangedFileListCtrl.DeleteColumn(c--);
     temp.LoadString(IDS_PROGRS_PATH);
@@ -1503,24 +1516,21 @@ BOOL CLogDlg::Log(svn_revnum_t rev, const std::string& author, const std::string
     if (m_startrev == -1)
         m_startrev = rev;
 
-    PLOGENTRYDATA logItem = m_logEntries[m_logEntries.size() - 1];
-    if (logItem->GetDepth() > 0)
-        m_cMergedRevisionsReceived++;
-
     if (m_limit != 0)
     {
-        m_LogProgress.SetPos ((int)(m_logEntries.size() - m_prevLogEntriesSize - m_cMergedRevisionsReceived));
+        m_LogProgress.SetPos ((int)(m_logEntries.size() - m_prevLogEntriesSize));
         if (!m_bMonitoringMode && m_pTaskbarList)
         {
             int l,u;
             m_LogProgress.GetRange(l, u);
             m_pTaskbarList->SetProgressState(m_hWnd, TBPF_NORMAL);
-            m_pTaskbarList->SetProgressValue(m_hWnd, m_logEntries.size() - m_prevLogEntriesSize - l - m_cMergedRevisionsReceived, u-l);
+            m_pTaskbarList->SetProgressValue(m_hWnd, m_logEntries.size() - m_prevLogEntriesSize - l, u-l);
         }
     }
     else if (m_startrev.IsNumber() && m_endrev.IsNumber())
     {
-        if (!logItem->HasParent() && rev < m_temprev)
+        svn_revnum_t range = (svn_revnum_t)m_startrev - (svn_revnum_t)m_endrev;
+        if ((rev > m_temprev) || (m_temprev - rev) > (range / 100))
         {
             m_temprev = rev;
             m_LogProgress.SetPos((svn_revnum_t)m_startrev-rev+(svn_revnum_t)m_endrev);
@@ -1697,15 +1707,9 @@ void CLogDlg::LogThread()
         m_pTaskbarList->SetProgressState(m_hWnd, TBPF_INDETERMINATE);
     }
     if (m_limit != 0)
-    {
-        m_cMergedRevisionsReceived = 0;
         m_LogProgress.SetRange32(0, m_limit);
-    }
     else
-    {
         m_LogProgress.SetRange32(m_endrev, m_startrev);
-        m_temprev = m_startrev;
-    }
 
     if (!m_pegrev.IsValid())
         m_pegrev = m_startrev;
@@ -1887,7 +1891,7 @@ void CLogDlg::LogThread()
             if (m_bMonitoringMode && m_revUnread)
             {
                 // in monitoring mode, select the first _unread_ revision
-                for (; selIndex < (int)m_logEntries.size(); ++selIndex)
+                for (; selIndex < m_logEntries.size(); ++selIndex)
                 {
                     if (m_logEntries.GetVisible(selIndex)->GetRevision() < m_revUnread)
                         break;
@@ -3358,7 +3362,7 @@ void CLogDlg::OnBnClickedStatbutton()
         if (entry)
         {
             if (revisionsCovered.insert (entry->GetRevision()).second)
-                revsByDate.emplace(entry->GetDate(), entry);
+                revsByDate.insert (std::make_pair (entry->GetDate(), entry));
         }
     }
 
@@ -3438,7 +3442,7 @@ void CLogDlg::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
                         crText = GetSysColor(COLOR_GRAYTEXT);
                     if ((data->GetRevision() == m_wcRev) || data->GetUnread())
                     {
-                        SelectObject(pLVCD->nmcd.hdc, data->GetUnread() ? m_boldFont : m_boldItalicFont);
+                        SelectObject(pLVCD->nmcd.hdc, m_boldFont);
                         // We changed the font, so we're returning CDRF_NEWFONT. This
                         // tells the control to recalculate the extent of the text.
                         *pResult = CDRF_NOTIFYSUBITEMDRAW | CDRF_NEWFONT;
@@ -4853,7 +4857,7 @@ void CLogDlg::OnLvnColumnclickChangedFileList(NMHDR *pNMHDR, LRESULT *pResult)
 
 void CLogDlg::ResizeAllListCtrlCols(bool bOnlyVisible)
 {
-    CHeaderCtrl * pHdrCtrl = m_LogList.GetHeaderCtrl();
+    CHeaderCtrl * pHdrCtrl = (CHeaderCtrl*)(m_LogList.GetDlgItem(0));
     if (pHdrCtrl == 0)
         return;
 
@@ -4882,20 +4886,11 @@ void CLogDlg::ResizeAllListCtrlCols(bool bOnlyVisible)
             if (index < m_logEntries.GetVisibleCount())
             {
                 PLOGENTRYDATA pCurLogEntry = m_logEntries.GetVisible(index);
-                if ((pCurLogEntry) && (pCurLogEntry->GetRevision() == m_wcRev))
+                if ((pCurLogEntry)&&(pCurLogEntry->GetRevision() == m_wcRev))
                 {
                     HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldItalicFont.GetSafeHandle(), NULL);
-                    linewidth = m_LogList.GetStringWidth(m_LogList.GetItemText((int)index, col)) + 14;
-                    // restore the system font
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
-                }
-                if (pCurLogEntry && pCurLogEntry->GetUnread())
-                {
-                    HFONT hFont = (HFONT)m_LogList.SendMessage(WM_GETFONT);
-                    // set the bold font and ask for the string width again
-                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont.GetSafeHandle(), NULL);
+                    m_LogList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont, NULL);
                     linewidth = m_LogList.GetStringWidth(m_LogList.GetItemText((int)index, col)) + 14;
                     // restore the system font
                     m_LogList.SendMessage(WM_SETFONT, (WPARAM)hFont, NULL);
@@ -5214,7 +5209,6 @@ void CLogDlg::PopulateContextMenuForRevisions(ContextMenuInfoForRevisionsPtr& pC
         }
 
         popup.AppendMenuIcon(ID_REPOBROWSE, IDS_LOG_BROWSEREPO, IDI_REPOBROWSE);
-        popup.AppendMenuIcon(ID_GETMERGELOGS, IDS_LOG_POPUP_GETMERGELOGS, IDI_LOG);
         popup.AppendMenuIcon(ID_COPY, IDS_LOG_POPUP_COPY, IDI_COPY);
         if (m_hasWC)
         {
@@ -5378,9 +5372,6 @@ void CLogDlg::ShowContextMenuForRevisions(CWnd* /*pWnd*/, CPoint point)
             break;
         case ID_REPOBROWSE:
             ExecuteRepoBrowseMenuRevisions(pCmi);
-            break;
-        case ID_GETMERGELOGS:
-            ExecuteGetMergeLogs(pCmi);
             break;
         case ID_EDITLOG:
             EditLogMessage(selIndex);
@@ -6119,24 +6110,6 @@ void CLogDlg::ExecuteViewPathRevMenuRevisions(ContextMenuInfoForRevisionsPtr& pC
         ShellExecute(this->m_hWnd, L"open", url, NULL, NULL, SW_SHOWDEFAULT);
 }
 
-void CLogDlg::ExecuteGetMergeLogs(ContextMenuInfoForRevisionsPtr & pCmi)
-{
-    DialogEnableWindow(IDOK, FALSE);
-    SetPromptApp(&theApp);
-    OnOutOfScope(EnableOKButton());
-    m_bCancelled = false;
-    svn_revnum_t logrev = pCmi->RevSelected;
-    CString sCmd;
-
-    sCmd.Format(L"/command:log /path:\"%s\" /startrev:%ld /endrev:%ld /merge",
-                (LPCTSTR)pCmi->PathURL, logrev, logrev);
-
-    if (m_pegrev.IsValid())
-        sCmd.AppendFormat(L" /pegrev:%s", (LPCWSTR) m_pegrev.ToString());
-
-    CAppUtils::RunTortoiseProc(sCmd);
-}
-
 void CLogDlg::ShowContextMenuForChangedPaths(CWnd* /*pWnd*/, CPoint point)
 {
     m_bCancelled = false;
@@ -6219,7 +6192,7 @@ void CLogDlg::ShowContextMenuForChangedPaths(CWnd* /*pWnd*/, CPoint point)
         ExecuteBlameChangedPaths(pCmi, changedlogpath);
         break;
     case ID_GETMERGELOGS:
-        ExecuteShowMergedLogs(pCmi);
+        ExecuteShowLogChangedPaths(pCmi, changedlogpath, true);
         break;
     case ID_LOG:
         ExecuteShowLogChangedPaths(pCmi, changedlogpath, false);
@@ -6246,7 +6219,7 @@ void CLogDlg::OnDtnDropdownDatefrom(NMHDR * /*pNMHDR*/, LRESULT *pResult)
     // the date control should not show the "today" button
     CMonthCalCtrl * pCtrl = m_DateFrom.GetMonthCalCtrl();
     if (pCtrl)
-        pCtrl->ModifyStyle(0, MCS_NOTODAY);
+        SetWindowLongPtr(pCtrl->GetSafeHwnd(), GWL_STYLE, LONG_PTR(pCtrl->GetStyle() | MCS_NOTODAY));
     *pResult = 0;
 }
 
@@ -6255,7 +6228,7 @@ void CLogDlg::OnDtnDropdownDateto(NMHDR * /*pNMHDR*/, LRESULT *pResult)
     // the date control should not show the "today" button
     CMonthCalCtrl * pCtrl = m_DateTo.GetMonthCalCtrl();
     if (pCtrl)
-        pCtrl->ModifyStyle(0, MCS_NOTODAY);
+        SetWindowLongPtr(pCtrl->GetSafeHwnd(), GWL_STYLE, LONG_PTR(pCtrl->GetStyle() | MCS_NOTODAY));
     *pResult = 0;
 }
 
@@ -7538,26 +7511,6 @@ void CLogDlg::ExecuteShowLogChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi
     CAppUtils::RunTortoiseProc(sCmd);
 }
 
-void CLogDlg::ExecuteShowMergedLogs(ContextMenuInfoForChangedPathsPtr pCmi)
-{
-    DialogEnableWindow(IDOK, FALSE);
-    SetPromptApp(&theApp);
-    OnOutOfScope(EnableOKButton());
-    if (pCmi->sUrl.IsEmpty())
-    {
-        ReportNoUrlOfFile(m_path.GetWinPath());
-        return;
-    }
-    m_bCancelled = false;
-    svn_revnum_t logrev = pCmi->Rev1;
-    CString sCmd;
-
-    sCmd.Format(L"/command:log /path:\"%s\" /pegrev:%ld /startrev:%ld /endrev:%ld /merge",
-                (LPCTSTR)pCmi->fileUrl, logrev, logrev, logrev);
-
-    CAppUtils::RunTortoiseProc(sCmd);
-}
-
 void CLogDlg::ExecuteBrowseRepositoryChangedPaths( ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath )
 {
     DialogEnableWindow(IDOK, FALSE);
@@ -7662,13 +7615,14 @@ bool CLogDlg::CreateToolbar()
 #define MONITORMODE_TOOLBARBUTTONCOUNT  10
     TBBUTTON tbb[MONITORMODE_TOOLBARBUTTONCOUNT] = { 0 };
     // create an image list containing the icons for the toolbar
-    if (!m_toolbarImages.Create(24, 24, ILC_COLOR32 | ILC_MASK, MONITORMODE_TOOLBARBUTTONCOUNT, 4))
+    m_hToolbarImages = ImageList_Create(24, 24, ILC_COLOR32 | ILC_MASK, MONITORMODE_TOOLBARBUTTONCOUNT, 4);
+    if (m_hToolbarImages == NULL)
         return false;
     auto iString = ::SendMessage(m_hwndToolbar, TB_ADDSTRING,
                                  (WPARAM)AfxGetResourceHandle(), (LPARAM)IDS_MONITOR_TOOLBARTEXTS);
     int index = 0;
-    HICON hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_GETALL, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    HICON hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_GETALL), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_LOGDLG_MONITOR_CHECKREPOSITORIESNOW;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
@@ -7682,24 +7636,24 @@ bool CLogDlg::CreateToolbar()
     tbb[index].dwData = 0;
     tbb[index++].iString = 0;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_ADD, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_ADD), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_LOGDLG_MONITOR_ADDPROJECT;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
     tbb[index].dwData = 0;
     tbb[index++].iString = iString++;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_EDIT, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_EDIT), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_LOGDLG_MONITOR_EDIT;
     tbb[index].fsState = BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
     tbb[index].dwData = 0;
     tbb[index++].iString = iString++;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_REMOVE, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_REMOVE), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_LOGDLG_MONITOR_REMOVE;
     tbb[index].fsState = BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
@@ -7713,16 +7667,16 @@ bool CLogDlg::CreateToolbar()
     tbb[index].dwData = 0;
     tbb[index++].iString = 0;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_MARKALLASREAD, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_MARKALLASREAD), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_MISC_MARKALLASREAD;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
     tbb[index].dwData = 0;
     tbb[index++].iString = iString++;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_UPDATE, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_UPDATE), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_MISC_UPDATE;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
@@ -7736,15 +7690,15 @@ bool CLogDlg::CreateToolbar()
     tbb[index].dwData = 0;
     tbb[index++].iString = 0;
 
-    hIcon = CCommonAppUtils::LoadIconEx(IDI_MONITOR_OPTIONS, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-    tbb[index].iBitmap = m_toolbarImages.Add(hIcon);
+    hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITOR_OPTIONS), IMAGE_ICON, 0, 0, LR_VGACOLOR | LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
+    tbb[index].iBitmap = ImageList_AddIcon(m_hToolbarImages, hIcon);
     tbb[index].idCommand = ID_MISC_OPTIONS;
     tbb[index].fsState = TBSTATE_ENABLED | BTNS_SHOWTEXT;
     tbb[index].fsStyle = BTNS_BUTTON;
     tbb[index].dwData = 0;
     tbb[index++].iString = iString++;
 
-    ::SendMessage(m_hwndToolbar, TB_SETIMAGELIST, 0, (LPARAM)m_toolbarImages.GetSafeHandle());
+    ::SendMessage(m_hwndToolbar, TB_SETIMAGELIST, 0, (LPARAM)m_hToolbarImages);
     ::SendMessage(m_hwndToolbar, TB_ADDBUTTONS, (WPARAM)index, (LPARAM)(LPTBBUTTON)&tbb);
     ::SendMessage(m_hwndToolbar, TB_AUTOSIZE, 0, 0);
     return true;
@@ -7815,9 +7769,9 @@ void CLogDlg::InitMonitoringMode()
     DWORD exStyle = TVS_EX_AUTOHSCROLL | TVS_EX_DOUBLEBUFFER;
     m_projTree.SetExtendedStyle(exStyle, exStyle);
     SetWindowTheme(m_projTree.GetSafeHwnd(), L"Explorer", NULL);
-    m_nMonitorUrlIcon = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MONITORURL, 0, 0, LR_DEFAULTSIZE));
-    m_nMonitorWCIcon = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MONITORWC, 0, 0, LR_DEFAULTSIZE));
-    m_nErrorOvl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MODIFIEDOVL, 0, 0, LR_DEFAULTSIZE));
+    m_nMonitorUrlIcon = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITORURL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
+    m_nMonitorWCIcon = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MONITORWC), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
+    m_nErrorOvl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MODIFIEDOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
     if (m_nErrorOvl >= 0)
         SYS_IMAGE_LIST().SetOverlayImage(m_nErrorOvl, OVERLAY_MODIFIED);
     m_projTree.SetImageList(&SYS_IMAGE_LIST(), TVSIL_NORMAL);
@@ -8499,40 +8453,23 @@ void CLogDlg::MonitorPopupTimer()
             }
             else
             {
-                bool toastShown = false;
-                if (IsWindows10OrGreater() && ((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\UseWin10ToastNotifications", TRUE)))
-                {
-                    std::vector<std::wstring> lines;
-                    if (!m_sMonitorNotificationTitle.IsEmpty())
-                        lines.push_back((LPCWSTR)m_sMonitorNotificationTitle);
-                    if (!m_sMonitorNotificationText.IsEmpty())
-                        lines.push_back((LPCWSTR)m_sMonitorNotificationText);
-                    if (!lines.empty())
-                    {
-                        ToastNotifications toastnotifier;
-                        auto hr = toastnotifier.ShowToast(GetSafeHwnd(), L"TSVN.MONITOR.1", CPathUtils::GetAppDirectory() + L"tsvn-logo.png", lines);
-                        toastShown = SUCCEEDED(hr);
-                    }
-                }
-                if (!toastShown)
-                {
-                    MonitorAlertWnd * pPopup = new MonitorAlertWnd(GetSafeHwnd());
+                MonitorAlertWnd * pPopup = new MonitorAlertWnd(GetSafeHwnd());
 
-                    pPopup->SetAnimationType(CMFCPopupMenu::ANIMATION_TYPE::FADE);
-                    pPopup->SetAnimationSpeed(40);
-                    pPopup->SetTransparency(200);
-                    pPopup->SetSmallCaption(TRUE);
-                    pPopup->SetAutoCloseTime(5000);
+                pPopup->SetAnimationType(CMFCPopupMenu::ANIMATION_TYPE::FADE);
+                pPopup->SetAnimationSpeed(40);
+                pPopup->SetTransparency(200);
+                pPopup->SetSmallCaption(TRUE);
+                pPopup->SetAutoCloseTime(5000);
 
-                    // Create indirect:
-                    CMFCDesktopAlertWndInfo params;
+                // Create indirect:
+                CMFCDesktopAlertWndInfo params;
 
-                    params.m_hIcon = CCommonAppUtils::LoadIconEx(IDR_MAINFRAME, 0, 0, LR_DEFAULTSIZE);
-                    params.m_strText = m_sMonitorNotificationTitle + L"\n" + m_sMonitorNotificationText;
-                    params.m_strURL = CString(MAKEINTRESOURCE(IDS_MONITOR_NOTIFY_LINK));
-                    params.m_nURLCmdID = 101;
-                    pPopup->Create(this, params);
-                }
+                params.m_hIcon = (HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDR_MAINFRAME),
+                                                  IMAGE_ICON, 0, 0, LR_DEFAULTSIZE);
+                params.m_strText = m_sMonitorNotificationTitle + L"\n" + m_sMonitorNotificationText;
+                params.m_strURL = CString(MAKEINTRESOURCE(IDS_MONITOR_NOTIFY_LINK));
+                params.m_nURLCmdID = 101;
+                pPopup->Create(this, params);
             }
         }
 
@@ -9083,9 +9020,6 @@ LRESULT CLogDlg::OnTaskbarCallBack(WPARAM /*wParam*/, LPARAM lParam)
                 case ID_POPUP_SHOWMONITOR:
                     MonitorShowDlg();
                     break;
-                case ID_POPUP_UPDATEALL:
-                    OnMonitorUpdateAll();
-                    break;
             }
         }
             break;
@@ -9378,13 +9312,11 @@ void CLogDlg::ShowContextMenuForMonitorTree(CWnd* /*pWnd*/, CPoint point)
             popup.AppendMenuIcon(ID_UPDATE, IDS_MENUUPDATE, IDI_UPDATE);
             popup.AppendMenuIcon(ID_EXPLORE, IDS_LOG_POPUP_EXPLORE, IDI_EXPLORER);
             popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_OPENURL, IDI_URL);
-            popup.AppendMenuIcon(ID_REPOBROWSE, IDS_LOG_BROWSEREPO, IDI_REPOBROWSE);
         }
         else if (::PathIsURL(pItem->WCPathOrUrl) && !pItem->WCPathOrUrl.IsEmpty())
         {
             popup.AppendMenu(MF_SEPARATOR, NULL);
             popup.AppendMenuIcon(ID_VIEWPATHREV, IDS_LOG_POPUP_OPENURL, IDI_URL);
-            popup.AppendMenuIcon(ID_REPOBROWSE, IDS_LOG_BROWSEREPO, IDI_REPOBROWSE);
         }
     }
     int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY |
@@ -9433,15 +9365,6 @@ void CLogDlg::ShowContextMenuForMonitorTree(CWnd* /*pWnd*/, CPoint point)
             ShellExecute(this->m_hWnd, L"open", url, NULL, NULL, SW_SHOWDEFAULT);
         }
         break;
-        case ID_REPOBROWSE:
-        {
-            CString sCmd;
-            sCmd.Format(L"/command:repobrowser /path:\"%s\"",
-                        (LPCTSTR)pItem->WCPathOrUrl);
-
-            CAppUtils::RunTortoiseProc(sCmd);
-        }
-        break;
         default:
             break;
     } // switch (cmd)
@@ -9468,27 +9391,6 @@ LRESULT CLogDlg::OnShowDlgMsg(WPARAM /*wParam*/, LPARAM /*lParam*/)
 {
     MonitorShowDlg();
     return 0;
-}
-
-LRESULT CLogDlg::OnToastNotification(WPARAM wParam, LPARAM /*lParam*/)
-{
-    switch (wParam)
-    {
-        case ToastNotificationAction::Activate:                           // notification activated
-        MonitorShowDlg();
-        return TRUE;
-        break;
-        case ToastNotificationAction::Dismiss_UserCanceled:               // The user dismissed this toast
-        case ToastNotificationAction::Dismiss_TimedOut:                   // The toast has timed out
-        return TRUE;
-        break;
-        case ToastNotificationAction::Dismiss_ApplicationHidden:          // The application hid the toast using ToastNotifier.hide()
-        case ToastNotificationAction::Dismiss_NotActivated:               // Toast not activated
-        case ToastNotificationAction::Failed:                             // The toast encountered an error
-        default:
-        break;
-    }
-    return TRUE;
 }
 
 void CLogDlg::MonitorShowDlg()

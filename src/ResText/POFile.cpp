@@ -67,7 +67,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting, bool bAdjustEOLs)
         _ftprintf(stderr, L"can't open input file %s\n", szPath);
         return FALSE;
     }
-    auto line = std::make_unique<TCHAR[]>(2 * MAX_STRING_LENGTH);
+    std::unique_ptr<TCHAR[]> line(new TCHAR[2*MAX_STRING_LENGTH]);
     std::vector<std::wstring> entry;
     do
     {
@@ -253,7 +253,7 @@ BOOL CPOFile::SaveFile(LPCTSTR szPath, LPCTSTR lpszHeaderFile)
         {
             File << L"#. Resource IDs: (";
 
-            auto II = I->second.resourceIDs.begin();
+            std::set<INT_PTR>::const_iterator II = I->second.resourceIDs.begin();
             File << (*II);
             ++II;
             while (II != I->second.resourceIDs.end())

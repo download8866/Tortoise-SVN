@@ -31,6 +31,7 @@
 #include <ioevent.h>
 #include "svn_dso.h"
 #include "SmartHandle.h"
+#include "DllVersion.h"
 
 #include <ShellAPI.h>
 
@@ -154,7 +155,18 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
     {
         SecureZeroMemory(&niData,sizeof(NOTIFYICONDATA));
 
-        niData.cbSize = sizeof(NOTIFYICONDATA);
+        DWORD dwMajor = 0;
+        DWORD dwMinor = 0;
+        GetShellVersion(&dwMajor, &dwMinor);
+        DWORD dwVersion = PACKVERSION(dwMajor, dwMinor);
+
+        if (dwVersion >= PACKVERSION(6,0))
+            niData.cbSize = sizeof(NOTIFYICONDATA);
+        else if (dwVersion >= PACKVERSION(5,0))
+            niData.cbSize = NOTIFYICONDATA_V2_SIZE;
+        else
+            niData.cbSize = NOTIFYICONDATA_V1_SIZE;
+
         niData.uID = TRAY_ID;       // own tray icon ID
         niData.hWnd  = hWndHidden;
         niData.uFlags = NIF_ICON|NIF_MESSAGE;
@@ -585,7 +597,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {
@@ -660,7 +672,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {

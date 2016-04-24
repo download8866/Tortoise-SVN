@@ -21,7 +21,6 @@
 #include "../TSVNCache/CacheInterface.h"
 #include "registry.h"
 #include "SmartHandle.h"
-#include "OnOutOfScope.h"
 
 CShellUpdater::CShellUpdater(void)
 {
@@ -68,13 +67,13 @@ void CShellUpdater::AddPathsForUpdate(const CTSVNPathList& pathList)
 
 void CShellUpdater::Flush()
 {
-    if (m_pathsForUpdating.IsEmpty())
-        return;
+    if(m_pathsForUpdating.GetCount() > 0)
+    {
+        CTraceToOutputDebugString::Instance()(__FUNCTION__ ": Flushing shell update list\n");
 
-    CTraceToOutputDebugString::Instance()(__FUNCTION__ ": Flushing shell update list\n");
-
-    UpdateShell();
-    m_pathsForUpdating.Clear();
+        UpdateShell();
+        m_pathsForUpdating.Clear();
+    }
 }
 
 void CShellUpdater::UpdateShell()
@@ -161,18 +160,18 @@ bool CShellUpdater::RebuildIcons()
 {
     const int BUFFER_SIZE = 1024;
     TCHAR buf[BUFFER_SIZE] = { 0 };
-    HKEY hRegKey = nullptr;
+    HKEY hRegKey = 0;
     DWORD dwRegValue;
     DWORD dwRegValueTemp;
     DWORD dwSize;
     DWORD_PTR dwResult;
     LONG lRegResult;
+    bool bResult = false;
 
     lRegResult = RegOpenKeyEx(HKEY_CURRENT_USER, L"Control Panel\\Desktop\\WindowMetrics",
         0, KEY_READ | KEY_WRITE, &hRegKey);
     if (lRegResult != ERROR_SUCCESS)
-        return false;
-    OnOutOfScope(RegCloseKey(hRegKey));
+        goto Cleanup;
 
     // we're going to change the Shell Icon Size value
     const TCHAR* sRegValueName = L"Shell Icon Size";
@@ -190,7 +189,7 @@ bool CShellUpdater::RebuildIcons()
         _sntprintf_s(buf, BUFFER_SIZE, BUFFER_SIZE, L"%d", iDefaultIconSize);
     }
     else if (lRegResult != ERROR_SUCCESS)
-        return false;
+        goto Cleanup;
 
     // Change registry value
     dwRegValue = _wtoi(buf);
@@ -200,7 +199,8 @@ bool CShellUpdater::RebuildIcons()
     lRegResult = RegSetValueEx(hRegKey, sRegValueName, 0, REG_SZ,
         (LPBYTE) buf, dwSize);
     if (lRegResult != ERROR_SUCCESS)
-        return false;
+        goto Cleanup;
+
 
     // Update all windows
     SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETNONCLIENTMETRICS,
@@ -210,12 +210,19 @@ bool CShellUpdater::RebuildIcons()
     dwSize = _sntprintf_s(buf, BUFFER_SIZE, BUFFER_SIZE, L"%lu", dwRegValue) + sizeof(TCHAR);
     lRegResult = RegSetValueEx(hRegKey, sRegValueName, 0, REG_SZ,
         (LPBYTE) buf, dwSize);
-    if (lRegResult != ERROR_SUCCESS)
-        return false;
+    if(lRegResult != ERROR_SUCCESS)
+        goto Cleanup;
 
     // Update all windows
     SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, SPI_SETNONCLIENTMETRICS,
         0, SMTO_ABORTIFHUNG, 5000, &dwResult);
 
-    return true;
+    bResult = true;
+
+Cleanup:
+    if (hRegKey != 0)
+    {
+        RegCloseKey(hRegKey);
+    }
+    return bResult;
 }

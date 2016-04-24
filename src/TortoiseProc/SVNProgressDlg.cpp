@@ -116,6 +116,7 @@ CSVNProgressDlg::CSVNProgressDlg(CWnd* pParent /*=NULL*/)
     , iFirstResized(0)
     , bSecondResized(false)
     , nEnsureVisibleCount(0)
+    , m_boldFont(NULL)
     , sIgnoredIncluded(MAKEINTRESOURCE(IDS_PROGRS_IGNOREDINCLUDED))
     , sExtExcluded(MAKEINTRESOURCE(IDS_PROGRS_EXTERNALSEXCLUDED))
     , sExtIncluded(MAKEINTRESOURCE(IDS_PROGRS_EXTERNALSINCLUDED))
@@ -137,13 +138,14 @@ CSVNProgressDlg::~CSVNProgressDlg()
         delete data;
     }
     delete m_pThread;
+    if (m_boldFont)
+        DeleteObject(m_boldFont);
 }
 
 void CSVNProgressDlg::DoDataExchange(CDataExchange* pDX)
 {
     CResizableStandAloneDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_SVNPROGRESS, m_ProgList);
-    DDX_Control(pDX, IDC_JUMPCONFLICT, m_jumpConflictControl);
 }
 
 BEGIN_MESSAGE_MAP(CSVNProgressDlg, CResizableStandAloneDialog)
@@ -1116,7 +1118,7 @@ void CSVNProgressDlg::ResizeColumns()
 
     TCHAR textbuf[MAX_PATH] = { 0 };
 
-    CHeaderCtrl * pHeaderCtrl = m_ProgList.GetHeaderCtrl();
+    CHeaderCtrl * pHeaderCtrl = (CHeaderCtrl*)(m_ProgList.GetDlgItem(0));
     if (pHeaderCtrl)
     {
         int maxcol = pHeaderCtrl->GetItemCount()-1;
@@ -1139,7 +1141,7 @@ void CSVNProgressDlg::ResizeColumns()
                 {
                     hFont = (HFONT)m_ProgList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
-                    m_ProgList.SendMessage(WM_SETFONT, (WPARAM) m_boldFont.GetSafeHandle(), NULL);
+                    m_ProgList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont, NULL);
                 }
 
                 // get the width of the string and add 14 pixels for the column separator and margins
@@ -1211,7 +1213,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
     SetWindowTheme(m_ProgList.GetSafeHwnd(), L"Explorer", NULL);
 
     m_ProgList.DeleteAllItems();
-    int c = m_ProgList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_ProgList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_ProgList.DeleteColumn(c--);
     CString temp;
@@ -1229,7 +1231,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
     LOGFONT lf = {0};
     GetObject(hFont, sizeof(LOGFONT), &lf);
     lf.lfWeight = FW_BOLD;
-    m_boldFont.CreateFontIndirect(&lf);
+    m_boldFont = CreateFontIndirect(&lf);
 
     UpdateData(FALSE);
 
@@ -1241,6 +1243,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
 
     AdjustControlSize(IDC_JUMPCONFLICT);
     CAppUtils::SetAccProperty(GetDlgItem(IDC_JUMPCONFLICT)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_JUMPCONFLICT);
 
     AddAnchor(IDC_SVNPROGRESS, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_PROGRESSLABEL, BOTTOM_LEFT, BOTTOM_CENTER);
@@ -1858,6 +1861,7 @@ void CSVNProgressDlg::OnHdnItemclickSvnprogress(NMHDR *pNMHDR, LRESULT *pResult)
     m_nSortedColumn = phdr->iItem;
     Sort();
 
+    CString temp;
     m_ProgList.SetRedraw(FALSE);
     m_ProgList.DeleteAllItems();
     m_ProgList.SetItemCountEx (static_cast<int>(m_arData.size()));
@@ -2843,68 +2847,63 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
         CTSVNPath parentPath = m_origPathList[0].GetContainingDirectory();
         if (!parentPath.IsEquivalentTo(m_origPathList[0]))
         {
-            bool bFound = false;
-            SVNExternals exts;
-            do
+            SVNProperties props(parentPath, SVNRev::REV_WC, false, false);
+            if (props.HasProperty("svn:externals"))
             {
-                SVNProperties props(parentPath, SVNRev::REV_WC, false, false);
-                if (props.HasProperty("svn:externals"))
+                std::string extval = props.GetItemValue(props.IndexOf("svn:externals"));
+                SVNExternals exts;
+                exts.Add(parentPath, extval, false);
+                bool bFound = false;
+                for (auto it = exts.begin(); it != exts.end(); ++it)
                 {
-                    std::string extval = props.GetItemValue(props.IndexOf("svn:externals"));
-                    exts.Add(parentPath, extval, false);
-                    for (auto it = exts.begin(); it != exts.end(); ++it)
+                    if (it->targetDir.CompareNoCase(m_origPathList[0].GetFileOrDirectoryName()) == 0)
                     {
-                        if (it->targetDir.CompareNoCase(m_origPathList[0].GetFileOrDirectoryName()) == 0)
+                        if ((it->pegrevision.kind != svn_opt_revision_head) || (it->origrevision.kind != svn_opt_revision_head))
                         {
-                            if ((it->pegrevision.kind != svn_opt_revision_head) || (it->origrevision.kind != svn_opt_revision_head))
-                            {
-                                it->pegrevision.kind = ((const svn_opt_revision_t*)m_RevisionEnd)->kind;
-                                it->pegrevision.value = ((const svn_opt_revision_t*)m_RevisionEnd)->value;
-                                it->revision.kind = svn_opt_revision_head;
-                                it->revision.value.number = (svn_revnum_t)-1;
-                                it->origrevision.kind = svn_opt_revision_head;
-                                it->origrevision.value.number = (svn_revnum_t)-1;
-                                it->adjust = true;
-                                bFound = true;
-                                break;
-                            }
+                            it->pegrevision.kind = ((const svn_opt_revision_t*)m_RevisionEnd)->kind;
+                            it->pegrevision.value = ((const svn_opt_revision_t*)m_RevisionEnd)->value;
+                            it->revision.kind = svn_opt_revision_head;
+                            it->revision.value.number = (svn_revnum_t)-1;
+                            it->origrevision.kind = svn_opt_revision_head;
+                            it->origrevision.value.number = (svn_revnum_t)-1;
+                            it->adjust = true;
+                            bFound = true;
+                            break;
                         }
                     }
                 }
-                parentPath = parentPath.GetContainingDirectory();
-            } while (!bFound && !parentPath.IsEmpty() && !parentPath.IsWCRoot());
-
-            if (bFound)
-            {
-                // now ask the user whether to tag the external to the new HEAD revision after this commit
-                bool bTag = false;
-                // tagging external
-                // You've committed changes to external item that is tagged to a specific revision.
-                // Do you want to change the tagged revision now to the just committed revision?
-                //
-                // Change the tagged revision
-                //  The svn:external property of the parent folder is changed accordingly
-                // Cancel
-                //  The tagged revision of the external is left as is
-                CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK1)),
-                                    CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK2)),
-                                    L"TortoiseSVN",
-                                    0,
-                                    TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
-                taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK3)));
-                taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK4)));
-                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                taskdlg.SetDefaultCommandControl(2);
-                taskdlg.SetMainIcon(TD_INFORMATION_ICON);
-                if (taskdlg.DoModal(GetExplorerHWND()) == 1)
-                    bTag = true;
-                if (bTag)
+                if (bFound)
                 {
-                    exts.TagExternals(false);
-                    // now start the commit dialog with the folder where we changed the external tag
-                    CString sCmd;
-                    sCmd.Format(L"/command:commit /path:\"%s\"", parentPath.GetWinPath());
-                    CAppUtils::RunTortoiseProc(sCmd);
+                    // now ask the user whether to tag the external to the new HEAD revision after this commit
+                    bool bTag = false;
+                    // tagging external
+                    // You've committed changes to external item that is tagged to a specific revision.
+                    // Do you want to change the tagged revision now to the just committed revision?
+                    //
+                    // Change the tagged revision
+                    //  The svn:external property of the parent folder is changed accordingly
+                    // Cancel
+                    //  The tagged revision of the external is left as is
+                    CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK1)),
+                                        CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK2)),
+                                        L"TortoiseSVN",
+                                        0,
+                                        TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
+                    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK3)));
+                    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK4)));
+                    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                    taskdlg.SetDefaultCommandControl(2);
+                    taskdlg.SetMainIcon(TD_INFORMATION_ICON);
+                    if (taskdlg.DoModal(GetExplorerHWND()) == 1)
+                        bTag = true;
+                    if (bTag)
+                    {
+                        exts.TagExternals(false);
+                        // now start the commit dialog with the folder where we changed the external tag
+                        CString sCmd;
+                        sCmd.Format(L"/command:commit /path:\"%s\"", parentPath.GetWinPath());
+                        CAppUtils::RunTortoiseProc(sCmd);
+                    }
                 }
             }
         }
@@ -3740,11 +3739,8 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
             }
         }
         // if all targets are from the same repository and we're updating to HEAD,
-        // find the HEAD revision number and update specifically to that for PreUpdate
-        // hook
-        if (m_Revision.IsHead() && !multipleUUIDs &&
-            (wcroots.size() > 1 ||
-             CHooks::Instance().IsHookPresent(pre_update_hook, m_targetPathList)))
+        // find the HEAD revision number and update specifically to that.
+        if (m_Revision.IsHead() && !multipleUUIDs)
         {
             // don't use the cache to fetch the HEAD here, we need the current HEAD
             m_Revision = GetHEADRevision(m_targetPathList[0], false);

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -82,15 +82,6 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
     DDX_Check(pDX, IDC_KEEPLISTS, m_bKeepChangeList);
     DDX_Control(pDX, IDC_COMMIT_TO, m_CommitTo);
     DDX_Control(pDX, IDC_NEWVERSIONLINK, m_cUpdateLink);
-    DDX_Control(pDX, IDC_CHECKALL, m_CheckAll);
-    DDX_Control(pDX, IDC_CHECKNONE, m_CheckNone);
-    DDX_Control(pDX, IDC_CHECKUNVERSIONED, m_CheckUnversioned);
-    DDX_Control(pDX, IDC_CHECKVERSIONED, m_CheckVersioned);
-    DDX_Control(pDX, IDC_CHECKADDED, m_CheckAdded);
-    DDX_Control(pDX, IDC_CHECKDELETED, m_CheckDeleted);
-    DDX_Control(pDX, IDC_CHECKMODIFIED, m_CheckModified);
-    DDX_Control(pDX, IDC_CHECKFILES, m_CheckFiles);
-    DDX_Control(pDX, IDC_CHECKDIRECTORIES, m_CheckDirectories);
 }
 
 BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
@@ -135,13 +126,14 @@ BOOL CCommitDlg::OnInitDialog()
     SetupLogMessageDefaultText();
     SetCommitWindowTitleAndEnableStatus();
     AdjustControlSizes();
+    ConvertStaticToLinkControl();
     LineupControlsAndAdjustSizes();
     SaveDialogAndLogMessageControlRectangles();
     AddAnchorsToFacilitateResizing();
     CenterWindowWhenLaunchedFromExplorer();
     AdjustDialogSizeAndPanes();
     AddDirectoriesToPathWatcher();
-    StartStatusThread();
+    GetAsyncFileListStatus();
     ShowBalloonInCaseOfError();
     GetDlgItem(IDC_RUNHOOK)->ShowWindow(CHooks::Instance().IsHookPresent(manual_precommit, m_pathList) ? SW_SHOW : SW_HIDE);
     return FALSE;  // return TRUE unless you set the focus to a control
@@ -155,7 +147,15 @@ void CCommitDlg::OnOK()
     if (m_bThreadRunning)
     {
         m_bCancelled = true;
-        StopStatusThread();
+        InterlockedExchange(&m_bRunThread, FALSE);
+        WaitForSingleObject(m_pThread->m_hThread, 1000);
+        if (m_bThreadRunning)
+        {
+            // we gave the thread a chance to quit. Since the thread didn't
+            // listen to us we have to kill it.
+            TerminateThread(m_pThread->m_hThread, (DWORD)-1);
+            InterlockedExchange(&m_bThreadRunning, FALSE);
+        }
     }
     CString id;
     GetDlgItemText(IDC_BUGID, id);
@@ -615,6 +615,15 @@ UINT CCommitDlg::StatusThread()
     DialogEnableWindow(IDC_CHECKMODIFIED, false);
     DialogEnableWindow(IDC_CHECKFILES, false);
     DialogEnableWindow(IDC_CHECKDIRECTORIES, false);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
 
     // read the list of recent log entries before querying the WC for status
     // -> the user may select one and modify / update it while we are crawling the WC
@@ -740,7 +749,15 @@ void CCommitDlg::OnCancel()
     m_pathwatcher.Stop();
     if (m_bThreadRunning)
     {
-        StopStatusThread();
+        InterlockedExchange(&m_bRunThread, FALSE);
+        WaitForSingleObject(m_pThread->m_hThread, 1000);
+        if (m_bThreadRunning)
+        {
+            // we gave the thread a chance to quit. Since the thread didn't
+            // listen to us we have to kill it.
+            TerminateThread(m_pThread->m_hThread, (DWORD)-1);
+            InterlockedExchange(&m_bThreadRunning, FALSE);
+        }
     }
     UpdateData();
     m_sBugID.Trim();
@@ -814,19 +831,16 @@ void CCommitDlg::Refresh()
     if (m_bThreadRunning)
         return;
 
-    StartStatusThread();
-}
-
-void CCommitDlg::StartStatusThread()
-{
     if (InterlockedExchange(&m_bBlock, TRUE) != FALSE)
         return;
+    if (m_pThread)
+    {
+        delete m_pThread;
+        m_pThread = NULL;
+    }
 
-    delete m_pThread;
-    m_pThread = NULL;
-
-    m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL, 0, CREATE_SUSPENDED);
-    if (m_pThread == NULL)
+    m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
+    if (m_pThread==NULL)
     {
         OnCantStartThread();
         InterlockedExchange(&m_bBlock, FALSE);
@@ -837,19 +851,6 @@ void CCommitDlg::StartStatusThread()
         InterlockedExchange(&m_bRunThread, TRUE);   // if this is set to FALSE, the thread should stop
         m_pThread->m_bAutoDelete = FALSE;
         m_pThread->ResumeThread();
-    }
-}
-
-void CCommitDlg::StopStatusThread()
-{
-    InterlockedExchange(&m_bRunThread, FALSE);
-    WaitForSingleObject(m_pThread->m_hThread, 1000);
-    if (m_bThreadRunning)
-    {
-        // we gave the thread a chance to quit. Since the thread didn't
-        // listen to us we have to kill it.
-        TerminateThread(m_pThread->m_hThread, (DWORD)-1);
-        InterlockedExchange(&m_bThreadRunning, FALSE);
     }
 }
 
@@ -1077,7 +1078,7 @@ void CCommitDlg::GetAutocompletionList(std::map<CString, int>& autolist)
     if (PathFileExists(sSnippetFile))
         ParseSnippetFile(sSnippetFile, m_snippet);
     for (auto snip : m_snippet)
-        autolist.emplace(snip.first, AUTOCOMPLETE_SNIPPET);
+        autolist.insert(std::make_pair(snip.first, AUTOCOMPLETE_SNIPPET));
 
     ULONGLONG starttime = GetTickCount64();
 
@@ -1102,7 +1103,7 @@ void CCommitDlg::GetAutocompletionList(std::map<CString, int>& autolist)
 
         // add the path parts to the auto completion list too
         CString sPartPath = entry->GetRelativeSVNPath(false);
-        autolist.emplace(sPartPath, AUTOCOMPLETE_FILENAME);
+        autolist.insert(std::make_pair(sPartPath, AUTOCOMPLETE_FILENAME));
 
         int pos = 0;
         int lastPos = 0;
@@ -1110,7 +1111,7 @@ void CCommitDlg::GetAutocompletionList(std::map<CString, int>& autolist)
         {
             pos++;
             lastPos = pos;
-            autolist.emplace(sPartPath.Mid(pos), AUTOCOMPLETE_FILENAME);
+            autolist.insert(std::make_pair(sPartPath.Mid(pos), AUTOCOMPLETE_FILENAME));
         }
 
         // Last inserted entry is a file name.
@@ -1119,7 +1120,7 @@ void CCommitDlg::GetAutocompletionList(std::map<CString, int>& autolist)
         {
             int dotPos = sPartPath.ReverseFind('.');
             if ((dotPos >= 0) && (dotPos > lastPos))
-                autolist.emplace(sPartPath.Mid(lastPos, dotPos - lastPos), AUTOCOMPLETE_FILENAME);
+                autolist.insert(std::make_pair(sPartPath.Mid(lastPos, dotPos - lastPos), AUTOCOMPLETE_FILENAME));
         }
     }
     for (int i = 0; i < nListItems && m_bRunThread && !m_bCancelled; ++i)
@@ -1172,7 +1173,7 @@ void CCommitDlg::ScanFile(std::map<CString, int>& autolist, const CString& sFile
             return;
         }
         // allocate memory to hold file contents
-        auto buffer = std::make_unique<char[]>(size);
+        std::unique_ptr<char[]> buffer(new char[size]);
         DWORD readbytes;
         if (!ReadFile(hFile, buffer.get(), size, &readbytes, NULL))
             return;
@@ -1189,7 +1190,7 @@ void CCommitDlg::ScanFile(std::map<CString, int>& autolist, const CString& sFile
         if ((opts & IS_TEXT_UNICODE_NOT_UNICODE_MASK)||(opts == 0))
         {
             const int ret = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer.get(), readbytes, NULL, 0);
-            auto pWideBuf = std::make_unique<wchar_t[]>(ret);
+            std::unique_ptr<wchar_t[]> pWideBuf(new wchar_t[ret]);
             const int ret2 = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, (LPCSTR)buffer.get(), readbytes, pWideBuf.get(), ret);
             if (ret2 == ret)
                 sFileContent = std::wstring(pWideBuf.get(), ret);
@@ -1222,7 +1223,7 @@ void CCommitDlg::ScanFile(std::map<CString, int>& autolist, const CString& sFile
             {
                 if (match[i].second-match[i].first)
                 {
-                    autolist.emplace(std::wstring(match[i]).c_str(), AUTOCOMPLETE_PROGRAMCODE);
+                    autolist.insert(std::make_pair(std::wstring(match[i]).c_str(), AUTOCOMPLETE_PROGRAMCODE));
                 }
             }
         }
@@ -1641,6 +1642,17 @@ void CCommitDlg::UpdateCheckLinks()
     DialogEnableWindow(IDC_CHECKMODIFIED, m_ListCtrl.GetModifiedCount() > 0);
     DialogEnableWindow(IDC_CHECKFILES, m_ListCtrl.GetFileCount() > 0);
     DialogEnableWindow(IDC_CHECKDIRECTORIES, m_ListCtrl.GetFolderCount() > 0);
+    long disabledstate = STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE;
+
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetUnversionedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetItemCount() > m_ListCtrl.GetUnversionedCount() ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetAddedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetDeletedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetModifiedCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetFileCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_STATE, m_ListCtrl.GetFolderCount() > 0 ? STATE_SYSTEM_READONLY : disabledstate);
 }
 
 void CCommitDlg::VersionCheck()
@@ -1754,6 +1766,15 @@ void CCommitDlg::SetControlAccessibilityProperties()
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_TEXT);
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_HELP, CString(MAKEINTRESOURCE(IDS_INPUT_ENTERLOG)));
     CAppUtils::SetAccProperty(m_cLogMessage.GetSafeHwnd(), PROPID_ACC_KEYBOARDSHORTCUT, L"Alt+"+CString(CAppUtils::FindAcceleratorKey(this, IDC_INVISIBLE)));
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKALL)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKNONE)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKUNVERSIONED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKVERSIONED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKADDED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDELETED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKMODIFIED)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKFILES)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
+    CAppUtils::SetAccProperty(GetDlgItem(IDC_CHECKDIRECTORIES)->GetSafeHwnd(), PROPID_ACC_ROLE, ROLE_SYSTEM_LINK);
 }
 
 void CCommitDlg::SetupToolTips()
@@ -1848,6 +1869,19 @@ void CCommitDlg::AdjustControlSizes()
 {
     AdjustControlSize(IDC_SHOWUNVERSIONED);
     AdjustControlSize(IDC_KEEPLOCK);
+}
+
+void CCommitDlg::ConvertStaticToLinkControl()
+{
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKALL);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKNONE);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKUNVERSIONED);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKVERSIONED);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKADDED);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDELETED);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKMODIFIED);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKFILES);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_CHECKDIRECTORIES);
 }
 
 void CCommitDlg::LineupControlsAndAdjustSizes()
@@ -1955,6 +1989,26 @@ void CCommitDlg::AddDirectoriesToPathWatcher()
             m_pathwatcher.AddPath(m_pathList[i]);
     }
     m_updatedPathList = m_pathList;
+}
+
+void CCommitDlg::GetAsyncFileListStatus()
+{
+    //first start a thread to obtain the file list with the status without
+    //blocking the dialog
+    InterlockedExchange(&m_bBlock, TRUE);
+    m_pThread = AfxBeginThread(StatusThreadEntry, this, THREAD_PRIORITY_NORMAL,0,CREATE_SUSPENDED);
+    if (m_pThread==NULL)
+    {
+        OnCantStartThread();
+        InterlockedExchange(&m_bBlock, FALSE);
+    }
+    else
+    {
+        InterlockedExchange(&m_bThreadRunning, TRUE);// so the main thread knows that this thread is still running
+        InterlockedExchange(&m_bRunThread, TRUE);   // if this is set to FALSE, the thread should stop
+        m_pThread->m_bAutoDelete = FALSE;
+        m_pThread->ResumeThread();
+    }
 }
 
 void CCommitDlg::ShowBalloonInCaseOfError()

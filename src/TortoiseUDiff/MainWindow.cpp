@@ -22,9 +22,9 @@
 #include "StringUtils.h"
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
+#include "SysInfo.h"
 #include "UDiffColors.h"
 #include "registry.h"
-#include <VersionHelpers.h>
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
@@ -525,7 +525,7 @@ std::wstring CMainWindow::GetAppDirectory()
     do
     {
         bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        auto pBuf = std::make_unique<TCHAR[]>(bufferlen);
+        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
         len = GetModuleFileName(NULL, pBuf.get(), bufferlen);
         path = std::wstring(pBuf.get(), len);
     } while(len == bufferlen);
@@ -577,7 +577,7 @@ bool CMainWindow::Initialize()
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     bool enabled2d = false;
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
         enabled2d = true;
     std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Courier New");
     std::string fontName;
@@ -710,7 +710,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
         return false;
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-    auto data = std::make_unique<char[]>(len + 1);
+    std::unique_ptr<char[]> data (new char[len+1]);
     SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data.get())));
     fwrite(data.get(), sizeof(char), len-1, fp);
     fclose(fp);
@@ -723,7 +723,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 void CMainWindow::SetTitle(LPCTSTR title)
 {
     size_t len = wcslen(title);
-    auto pBuf = std::make_unique<TCHAR[]>(len + 40);
+    std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
     swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
     SetWindowTitle(std::wstring(pBuf.get()));
 }
