@@ -176,7 +176,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 
 	bool hasFocus;
 	bool mouseDownCaptures;
-	bool mouseWheelCaptures;
 
 	int xCaretMargin;	///< Ensure this many pixels visible on both sides of caret
 	bool horizontalScrollBarVisible;
@@ -391,8 +390,7 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void ChangeSize();
 
 	void FilterSelections();
-	int RealizeVirtualSpace(int position, unsigned int virtualSpace);
-	SelectionPosition RealizeVirtualSpace(const SelectionPosition &position);
+	int InsertSpace(int position, unsigned int spaces);
 	void AddChar(char ch);
 	virtual void AddCharUTF(const char *s, unsigned int len, bool treatAsDBCS=false);
 	void ClearBeforeTentativeStart();
@@ -571,7 +569,6 @@ protected:	// ScintillaBase subclass needs access to much of Editor
 	void AddStyledText(char *buffer, int appendLength);
 
 	virtual sptr_t DefWndProc(unsigned int iMessage, uptr_t wParam, sptr_t lParam) = 0;
-	bool ValidMargin(uptr_t wParam);
 	void StyleSetMessage(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 	sptr_t StyleGetMessage(unsigned int iMessage, uptr_t wParam, sptr_t lParam);
 

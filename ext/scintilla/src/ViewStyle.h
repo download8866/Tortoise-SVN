@@ -17,7 +17,6 @@ namespace Scintilla {
 class MarginStyle {
 public:
 	int style;
-	ColourDesired back;
 	int width;
 	int mask;
 	bool sensitive;
@@ -73,17 +72,6 @@ struct ForeBackColours {
 	ColourOptional back;
 };
 
-struct EdgeProperties {
-	int column;
-	ColourDesired colour;
-	EdgeProperties(int column_ = 0, ColourDesired colour_ = ColourDesired(0)) :
-		column(column_), colour(colour_) {
-	}
-	EdgeProperties(uptr_t wParam, sptr_t lParam) :
-		column(static_cast<int>(wParam)), colour(static_cast<long>(lParam)) {
-	}
-};
-
 /**
  */
 class ViewStyle {
@@ -127,7 +115,7 @@ public:
 	int rightMarginWidth;	///< Spacing margin on right of text
 	int maskInLine;	///< Mask for markers to be put into text because there is nowhere for them to go in margin
 	int maskDrawInText;	///< Mask for markers that always draw in text
-	std::vector<MarginStyle> ms;
+	MarginStyle ms[SC_MAX_MARGIN+1];
 	int fixedColumnWidth;	///< Total width of margins
 	bool marginInside;	///< true: margin included in text view, false: separate views
 	int textStart;	///< Starting x position of text within the view
@@ -142,6 +130,8 @@ public:
 	bool alwaysShowCaretLineBackground;
 	ColourDesired caretLineBackground;
 	int caretLineAlpha;
+	ColourDesired edgecolour;
+	int edgeState;
 	int caretStyle;
 	int caretWidth;
 	bool someStylesProtected;
@@ -156,9 +146,7 @@ public:
 	int braceHighlightIndicator;
 	bool braceBadLightIndicatorSet;
 	int braceBadLightIndicator;
-	int edgeState;
-	EdgeProperties theEdge;
-	std::vector<EdgeProperties> theMultiEdge;
+	int theEdge;
 	int marginNumberPadding; // the right-side padding of the number margin
 	int ctrlCharPadding; // the padding around control character text blobs
 	int lastSegItalicsOffset; // the offset so as not to clip italic characters at EOLs

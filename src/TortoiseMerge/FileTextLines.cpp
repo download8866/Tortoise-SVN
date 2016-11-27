@@ -53,7 +53,6 @@ UINT64 inline DwordSwapBytes(UINT64 nValue)
 
 CFileTextLines::CFileTextLines(void)
     : m_bNeedsConversion(false)
-    , m_bKeepEncoding(false)
 {
     m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
@@ -109,30 +108,33 @@ CFileTextLines::UnicodeType CFileTextLines::CheckUnicodeType(LPVOID pBuffer, int
     int nNeedData = 0;
     int i=0;
     int nullcount = 0;
-    for (; i < cb; ++i)
+    if (!bNonANSI)
     {
-        if (pVal8[i] == 0)
+        for (; i<cb; ++i)
         {
-            ++nullcount;
-            // count the null chars, we do not want to treat an ASCII/UTF8 file
-            // as UTF16 just because of some null chars that might be accidentally
-            // in the file.
-            // Use an arbitrary value of one fiftieth of the file length as
-            // the limit after which a file is considered UTF16.
-            if (nullcount > (cb / 50))
+            if (pVal8[i] == 0)
             {
-                // null-chars are not allowed for ASCII or UTF8, that means
-                // this file is most likely UTF16 encoded
-                if (i % 2)
-                    return CFileTextLines::UTF16_LE;
-                else
-                    return CFileTextLines::UTF16_BE;
+                ++nullcount;
+                // count the null chars, we do not want to treat an ASCII/UTF8 file
+                // as UTF16 just because of some null chars that might be accidentally
+                // in the file.
+                // Use an arbitrary value of one fiftieth of the file length as
+                // the limit after which a file is considered UTF16.
+                if (nullcount > (cb / 50))
+                {
+                    // null-chars are not allowed for ASCII or UTF8, that means
+                    // this file is most likely UTF16 encoded
+                    if (i%2)
+                        return CFileTextLines::UTF16_LE;
+                    else
+                        return CFileTextLines::UTF16_BE;
+                }
             }
-        }
-        if ((pVal8[i] & 0x80) != 0) // non ASCII
-        {
-            bNonANSI = true;
-            break;
+            if ((pVal8[i] & 0x80)!=0) // non ASCII
+            {
+                bNonANSI = true;
+                break;
+            }
         }
     }
     // check remaining text for UTF-8 validity
@@ -208,8 +210,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 {
     WCHAR exceptionError[1000] = {0};
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
-    if (!m_bKeepEncoding)
-        m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
+    m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     RemoveAll();
     if(lengthHint != 0)
     {
@@ -277,9 +278,9 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
     if (m_SaveParams.m_UnicodeType == CFileTextLines::AUTOTYPE)
     {
         m_SaveParams.m_UnicodeType = this->CheckUnicodeType((LPVOID)oFile, dwReadBytes);
+        // enforce conversion for all but ASCII and UTF8 type
+        m_bNeedsConversion = (m_SaveParams.m_UnicodeType!=CFileTextLines::UTF8)&&(m_SaveParams.m_UnicodeType!=CFileTextLines::ASCII);
     }
-    // enforce conversion for all but ASCII and UTF8 type
-    m_bNeedsConversion = (m_SaveParams.m_UnicodeType != CFileTextLines::UTF8) && (m_SaveParams.m_UnicodeType != CFileTextLines::ASCII);
 
     // we may have to convert the file content - CString is UTF16LE
     try
@@ -490,7 +491,7 @@ BOOL CFileTextLines::Save( const CString& sFilePath
         }
 
         CStdioFile file;            // Hugely faster than CFile for big file writes - because it uses buffering
-        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary | CFile::shareDenyNone))
+        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
         {
             const_cast<CString *>(&m_sErrorString)->Format(IDS_ERR_FILE_OPEN, (LPCTSTR)sFilePath);
             return FALSE;

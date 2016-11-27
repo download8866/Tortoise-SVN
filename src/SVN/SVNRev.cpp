@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2014, 2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -270,7 +270,7 @@ int SVNRevRangeArray::AddRevision(const SVNRev& revision, bool reverse)
             return count;
         }
     }
-    m_array.emplace_back(revision, revision);
+    m_array.push_back(SVNRevRange(revision, revision));
     return GetCount();
 }
 
@@ -293,14 +293,14 @@ void SVNRevRangeArray::AddRevisions(const std::vector<svn_revnum_t>& revisions)
         else
         {
             if (startRev != -1)
-                m_array.emplace_back(startRev, lastRev);
+                m_array.push_back (SVNRevRange (startRev, lastRev));
 
             startRev = *iter;
             lastRev = startRev;
         }
     }
 
-    m_array.emplace_back(startRev, lastRev);
+    m_array.push_back (SVNRevRange (startRev, lastRev));
 }
 
 void SVNRevRangeArray::AdjustForMerge(bool bReverse /* = false */)

@@ -111,7 +111,7 @@ void CSVNStatusCache::Create()
                             goto error;
                         }
                         sKey.ReleaseBuffer(value);
-                        auto cacheddir = std::make_unique<CCachedDirectory>();
+                        std::unique_ptr<CCachedDirectory> cacheddir (new CCachedDirectory());
                         if (!cacheddir.get() || !cacheddir->LoadFromDisk(pFile))
                         {
                             cacheddir.reset();
@@ -260,7 +260,7 @@ CSVNStatusCache::~CSVNStatusCache(void)
 
 void CSVNStatusCache::Refresh()
 {
-    m_shellCache.RefreshIfNeeded();
+    m_shellCache.ForceRefresh();
     SVNConfig::Instance().Refresh();
     if (!m_pInstance->m_directoryCache.empty())
     {
@@ -511,7 +511,7 @@ CCachedDirectory * CSVNStatusCache::GetDirectoryCacheEntry(const CTSVNPath& path
             // again. If that's the case, just do nothing
             if (path.IsDirectory()||(!path.Exists()))
             {
-                auto newcdir = std::make_unique<CCachedDirectory>(path);
+                std::unique_ptr<CCachedDirectory> newcdir (new CCachedDirectory (path));
                 if (newcdir.get())
                 {
                     itMap = m_directoryCache.lower_bound (path);

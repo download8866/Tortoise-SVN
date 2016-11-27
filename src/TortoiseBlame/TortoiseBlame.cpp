@@ -27,12 +27,12 @@
 #include "TaskbarUUID.h"
 #include "BlameIndexColors.h"
 #include "../Utils/CrashReport.h"
+#include "../Utils/SysInfo.h"
 
 #include <algorithm>
 #include <cctype>
 #include <regex>
 #include <strsafe.h>
-#include <VersionHelpers.h>
 
 #define MAX_LOADSTRING 1000
 
@@ -586,10 +586,10 @@ void TortoiseBlame::InitialiseEditor()
     m_directPointer = SendMessage(wEditor, SCI_GETDIRECTPOINTER, 0, 0);
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     bool enabled2d = false;
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
         enabled2d = true;
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
-    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
+    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New");
     std::string fontName = CUnicodeUtils::StdGetUTF8(fontNameW);
     SetAStyle(STYLE_DEFAULT, black, white, (DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10), fontName.c_str());
     //SetAStyle(STYLE_MARK, black, ::GetSysColor(COLOR_HIGHLIGHT));
@@ -1265,7 +1265,7 @@ LONG TortoiseBlame::GetBlameWidth()
     HDC hDC = ::GetDC(wBlame);
     HFONT oldfont = (HFONT)::SelectObject(hDC, m_font);
     TCHAR buf[MAX_PATH] = { 0 };
-    swprintf_s(buf, L"*%8d ", 88888888);
+    swprintf_s(buf, L"*%8ld ", 88888888);
     ::GetTextExtentPoint(hDC, buf, (int)wcslen(buf), &width);
     m_revWidth = width.cx + BLAMESPACE;
     blamewidth += m_revWidth;
@@ -1317,7 +1317,7 @@ void TortoiseBlame::CreateFont()
     HDC hDC = ::GetDC(wBlame);
     lf.lfHeight = -MulDiv((DWORD)CRegStdDWORD(L"Software\\TortoiseSVN\\BlameFontSize", 10), GetDeviceCaps(hDC, LOGPIXELSY), 72);
     lf.lfCharSet = DEFAULT_CHARSET;
-    CRegStdString fontname = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Consolas");
+    CRegStdString fontname = CRegStdString(L"Software\\TortoiseSVN\\BlameFontName", L"Courier New");
     wcscpy_s(lf.lfFaceName, ((tstring)fontname).c_str());
     m_font = ::CreateFontIndirect(&lf);
 
@@ -1595,7 +1595,7 @@ void TortoiseBlame::MakeLower(TCHAR* buffer, size_t len)
 void TortoiseBlame::RunCommand(const tstring& command)
 {
     tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), command.c_str());
+    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
 static void ProcessWindowsMessage(HWND window, HACCEL table, MSG& message)

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2016 - TortoiseSVN
+// Copyright (C) 2007-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,17 +50,31 @@ bool CreatePatchCommand::Execute()
         if (parser.HasKey(L"showoptions"))
         {
             CDiffOptionsDlg optionsdlg(CWnd::FromHandle(GetExplorerHWND()));
-            optionsdlg.SetDiffOptions(dlg.m_diffOptions);
             if (optionsdlg.DoModal() == IDOK)
-                dlg.m_diffOptions = optionsdlg.GetDiffOptions();
+                dlg.m_sDiffOptions = optionsdlg.GetDiffOptionsString();
             else
                 return false;
         }
-        bRet = CreatePatch(pathList.GetCommonRoot(), dlg.m_pathList, dlg.m_diffOptions, CTSVNPath(savepath));
+        bRet = CreatePatch(pathList.GetCommonRoot(), dlg.m_pathList, dlg.m_sDiffOptions, CTSVNPath(savepath));
         SVN svn;
         svn.Revert(dlg.m_filesToRevert, CStringArray(), false, false, false);
     }
     return bRet;
+}
+
+UINT_PTR CALLBACK CreatePatchCommand::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM /*lParam*/)
+{
+    if(uiMsg == WM_COMMAND && LOWORD(wParam) == IDC_PATCH_TO_CLIPBOARD)
+    {
+        HWND hFileDialog = GetParent(hDlg);
+
+        CString strFilename = CTempFiles::Instance().GetTempFilePath(false).GetWinPathString() + PATCH_TO_CLIPBOARD_PSEUDO_FILENAME;
+
+        CommDlg_OpenSave_SetControlText(hFileDialog, edt1, (LPCTSTR)strFilename);
+
+        PostMessage(hFileDialog, WM_COMMAND, MAKEWPARAM(IDOK, BM_CLICK), (LPARAM)(GetDlgItem(hDlg, IDOK)));
+    }
+    return 0;
 }
 
 bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList& paths, const CString& diffoptions, const CTSVNPath& cmdLineSavePath)
@@ -103,11 +117,16 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
             // set the default folder
             if (SUCCEEDED(hr))
             {
-                CComPtr<IShellItem> psiDefault = 0;
-                hr = SHCreateItemFromParsingName(root.GetWinPath(), NULL, IID_PPV_ARGS(&psiDefault));
-                if (SUCCEEDED(hr))
+                CAutoLibrary hLib = AtlLoadSystemLibraryUsingFullPath(L"shell32.dll");
+                if (hLib)
                 {
-                    hr = pfd->SetFolder(psiDefault);
+                    IShellItem* psiDefault = 0;
+                    hr = SHCreateItemFromParsingName(root.GetWinPath(), NULL, IID_PPV_ARGS(&psiDefault));
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = pfd->SetFolder(psiDefault);
+                        psiDefault->Release();
+                    }
                 }
             }
             bool bAdvised = false;
@@ -117,7 +136,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
 
             {
                 CComPtr<IFileDialogCustomize> pfdCustomize;
-                hr = pfd.QueryInterface(&pfdCustomize);
+                hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
                 if (SUCCEEDED(hr))
                 {
                     pfdCustomize->StartVisualGroup(100, L"");
@@ -136,7 +155,7 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
             if (SUCCEEDED(hr) && SUCCEEDED(hr = pfd->Show(GetExplorerHWND())))
             {
                 CComPtr<IFileDialogCustomize> pfdCustomize;
-                hr = pfd.QueryInterface(&pfdCustomize);
+                hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
                 if (SUCCEEDED(hr))
                 {
                     pfdCustomize->GetCheckButtonState(101, &gitFormat);
@@ -172,6 +191,48 @@ bool CreatePatchCommand::CreatePatch(const CTSVNPath& root, const CTSVNPathList&
                 if (bAdvised)
                     pfd->Unadvise(dwCookie);
                 return FALSE;
+            }
+        }
+        else
+        {
+            TCHAR szFile[MAX_PATH + 1] = {0};// buffer for file name
+            OPENFILENAME ofn = {0};         // common dialog box structure
+            // Initialize OPENFILENAME
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = GetExplorerHWND();
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = _countof(szFile);
+            ofn.lpstrInitialDir = root.GetWinPath();
+
+            if (paths.GetCount() == 1)
+                wcscpy_s(szFile, paths[0].GetFilename() + L".patch");
+
+            CString temp;
+            temp.LoadString(IDS_REPOBROWSE_SAVEAS);
+            CStringUtils::RemoveAccelerators(temp);
+            if (temp.IsEmpty())
+                ofn.lpstrTitle = NULL;
+            else
+                ofn.lpstrTitle = temp;
+            ofn.Flags = OFN_OVERWRITEPROMPT | OFN_ENABLETEMPLATE | OFN_EXPLORER | OFN_ENABLEHOOK;
+
+            ofn.hInstance = AfxGetResourceHandle();
+            ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
+            ofn.lpfnHook = CreatePatchFileOpenHook;
+
+            CSelectFileFilter fileFilter(IDS_PATCHFILEFILTER);
+            ofn.lpstrFilter = fileFilter;
+            ofn.nFilterIndex = 1;
+            // Display the Open dialog box.
+            if (GetSaveFileName(&ofn)==FALSE)
+            {
+                return FALSE;
+            }
+            savePath = CTSVNPath(ofn.lpstrFile);
+            if (ofn.nFilterIndex == 1)
+            {
+                if (savePath.GetFileExtension().IsEmpty())
+                    savePath.AppendRawString(L".patch");
             }
         }
     }

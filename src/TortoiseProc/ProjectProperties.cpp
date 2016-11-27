@@ -214,8 +214,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
         CheckStringProp(sStartUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_STARTUPDATEHOOK);
         CheckStringProp(sPreUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_PREUPDATEHOOK);
         CheckStringProp(sPostUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_POSTUPDATEHOOK);
-        CheckStringProp(sPreLockHook, sPropName, sPropVal, PROJECTPROPNAME_PRELOCKHOOK);
-        CheckStringProp(sPostLockHook, sPropName, sPropVal, PROJECTPROPNAME_POSTLOCKHOOK);
 
         CheckStringProp(sMergeLogTemplateTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATETITLE);
         CheckStringProp(sMergeLogTemplateReverseTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATEREVERSETITLE);
@@ -743,8 +741,6 @@ void ProjectProperties::SaveToIni(CSimpleIni& inifile, const CString& section, c
     inifile.SetValue(section, prefix + L"sPreUpdateHook", sPreUpdateHook);
     inifile.SetValue(section, prefix + L"sPostUpdateHook", sPostUpdateHook);
     inifile.SetValue(section, prefix + L"sPreConnectHook", sPreConnectHook);
-    inifile.SetValue(section, prefix + L"sPreLockHook", sPreLockHook);
-    inifile.SetValue(section, prefix + L"sPostLockHook", sPostLockHook);
     inifile.SetValue(section, prefix + L"sRepositoryRootUrl", sRepositoryRootUrl);
     inifile.SetValue(section, prefix + L"sRepositoryPathUrl", sRepositoryPathUrl);
     inifile.SetValue(section, prefix + L"sMergeLogTemplateTitle", sMergeLogTemplateTitle);
@@ -800,8 +796,6 @@ void ProjectProperties::LoadFromIni(CSimpleIni& inifile, const CString& section,
     sPreUpdateHook = inifile.GetValue(section, prefix + L"sPreUpdateHook", L"");
     sPostUpdateHook = inifile.GetValue(section, prefix + L"sPostUpdateHook", L"");
     sPreConnectHook = inifile.GetValue(section, prefix + L"sPreConnectHook", L"");
-    sPreLockHook = inifile.GetValue(section, prefix + L"sPreLockHook", L"");
-    sPostLockHook = inifile.GetValue(section, prefix + L"sPostLockHook", L"");
     sRepositoryRootUrl = inifile.GetValue(section, prefix + L"sRepositoryRootUrl", L"");
     sRepositoryPathUrl = inifile.GetValue(section, prefix + L"sRepositoryPathUrl", L"");
     sMergeLogTemplateTitle = inifile.GetValue(section, prefix + L"sMergeLogTemplateTitle", L"");

@@ -71,7 +71,6 @@ const UINT CSVNStatusListCtrl::SVNSLNM_CHANGELISTCHANGED
                     = ::RegisterWindowMessage(L"SVNSLNM_CHANGELISTCHANGED");
 
 static UINT WM_RESOLVEMSG = RegisterWindowMessage(L"TORTOISESVN_RESOLVEDONE_MSG");
-static UINT WM_REFRESH_STATUS_MSG = RegisterWindowMessage(L"TORTOISESVN_REFRESH_STATUS_MSG");
 
 const static CString svnPropIgnore (SVN_PROP_IGNORE);
 const static CString svnPropGlobalIgnore (SVN_PROP_INHERITABLE_IGNORES);
@@ -200,7 +199,7 @@ HRESULT STDMETHODCALLTYPE CIShellFolderHook::GetUIObjectOf(HWND hwndOwner, UINT 
             nLength += 1; // '\0' separator
         }
         int nBufferSize = sizeof(DROPFILES) + ((nLength + 5)*sizeof(TCHAR));
-        auto pBuffer = std::make_unique<char[]>(nBufferSize);
+        std::unique_ptr<char[]> pBuffer(new char[nBufferSize]);
         SecureZeroMemory(pBuffer.get(), nBufferSize);
         DROPFILES* df = (DROPFILES*)pBuffer.get();
         df->pFiles = sizeof(DROPFILES);
@@ -299,7 +298,6 @@ BEGIN_MESSAGE_MAP(CSVNStatusListCtrl, CListCtrl)
     ON_NOTIFY_REFLECT(LVN_BEGINDRAG, OnBeginDrag)
     ON_NOTIFY_REFLECT(LVN_ITEMCHANGING, &CSVNStatusListCtrl::OnLvnItemchanging)
     ON_REGISTERED_MESSAGE(WM_RESOLVEMSG, &CSVNStatusListCtrl::OnResolveMsg)
-    ON_REGISTERED_MESSAGE(WM_REFRESH_STATUS_MSG, &CSVNStatusListCtrl::OnRefreshStatusMsg)
 END_MESSAGE_MAP()
 
 
@@ -466,21 +464,21 @@ void CSVNStatusListCtrl::Init(DWORD dwColumns, const CString& sColumnInfoContain
         SetWindowTheme(m_hWnd, L"Explorer", NULL);
 
         m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
-        int ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALOVL, 0, 0, LR_DEFAULTSIZE));
+        int ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_EXTERNALOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_EXTERNAL);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_EXTERNALPEGGEDOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_EXTERNALPEGGEDOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_EXTERNALPEGGED);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_NESTEDOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_NESTEDOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_NESTED);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHFILESOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_DEPTHFILESOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHFILES);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHIMMEDIATEDOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_DEPTHIMMEDIATEDOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHIMMEDIATES);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_DEPTHEMPTYOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_DEPTHEMPTYOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_DEPTHEMPTY);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_RESTOREOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_RESTOREOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_RESTORE);
-        ovl = SYS_IMAGE_LIST().AddIcon(CCommonAppUtils::LoadIconEx(IDI_MERGEINFOOVL, 0, 0, LR_DEFAULTSIZE));
+        ovl = SYS_IMAGE_LIST().AddIcon((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_MERGEINFOOVL), IMAGE_ICON, 0, 0, LR_DEFAULTSIZE));
         SYS_IMAGE_LIST().SetOverlayImage(ovl, OVL_MERGEINFO);
         SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
@@ -1624,7 +1622,7 @@ void CSVNStatusListCtrl::Show(DWORD dwShow, const CTSVNPathList& checkedList, DW
 
     // resizing the columns trigger redraw messages, so we have to do
     // this after releasing the write lock.
-    int maxcol = GetHeaderCtrl()->GetItemCount()-1;
+    int maxcol = ((CHeaderCtrl*)(GetDlgItem(0)))->GetItemCount()-1;
     for (int col = 0; col <= maxcol; col++)
         SetColumnWidth (col, m_ColumnManager.GetWidth (col, true));
 
@@ -2792,7 +2790,7 @@ void CSVNStatusListCtrl::Delete (const CTSVNPath& filepath, int selIndex)
     }
     filelist += L"|";
     int len = filelist.GetLength();
-    auto buf = std::make_unique<TCHAR[]>(len + 2);
+    std::unique_ptr<TCHAR[]> buf(new TCHAR[len+2]);
     wcscpy_s(buf.get(), len+2, filelist);
     CStringUtils::PipesToNulls(buf.get(), len);
     SHFILEOPSTRUCT fileop;
@@ -3381,19 +3379,15 @@ void CSVNStatusListCtrl::OnContextMenuList(CWnd * pWnd, CPoint point)
                     popup.AppendMenuIcon(IDSVNLC_OPEN, IDS_REPOBROWSE_OPEN, IDI_OPEN);
                     popup.AppendMenuIcon(IDSVNLC_OPENWITH, IDS_LOG_POPUP_OPENWITH, IDI_OPEN);
                 }
+                if (m_dwContextMenus & SVNSLC_POPEXPLORE)
+                {
+                    popup.AppendMenuIcon(IDSVNLC_EXPLORE, IDS_STATUSLIST_CONTEXT_EXPLORE, IDI_EXPLORER);
+                }
                 if ((m_dwContextMenus & SVNSLC_POPCHECKFORMODS)&&(entry->IsFolder()))
                 {
                     popup.AppendMenuIcon(IDSVNLC_CHECKFORMODS, IDS_MENUSHOWCHANGED, IDI_SHOWCHANGED);
                 }
             }
-            if (filepath.Exists() && (GetSelectedCount() == 1))
-            {
-                if (m_dwContextMenus & SVNSLC_POPEXPLORE)
-                {
-                    popup.AppendMenuIcon(IDSVNLC_EXPLORE, IDS_STATUSLIST_CONTEXT_EXPLORE, IDI_EXPLORER);
-                }
-            }
-
             if (selectedCount > 0)
             {
                 if ((   (wcStatus == svn_wc_status_unversioned)
@@ -4592,8 +4586,7 @@ void CSVNStatusListCtrl::StartDiffOrResolve(int fileindex)
 void CSVNStatusListCtrl::StartConflictEditor(const CTSVNPath& filepath, __int64 id)
 {
     CString sCmd;
-    sCmd.Format(L"/command:conflicteditor /path:\"%s\" /resolvemsghwnd:%I64d /resolvemsgwparam:%I64d /refreshmsghwnd:%I64d",
-                (LPCTSTR)(filepath.GetWinPath()), (__int64)GetSafeHwnd(), id, (__int64)GetSafeHwnd());
+    sCmd.Format(L"/command:conflicteditor /path:\"%s\" /resolvemsghwnd:%I64d /resolvemsgwparam:%I64d", (LPCTSTR)(filepath.GetWinPath()), (__int64)GetSafeHwnd(), id);
     AddPropsPath(filepath, sCmd);
     CAppUtils::RunTortoiseProc(sCmd);
 }
@@ -5202,7 +5195,7 @@ INT_PTR CSVNStatusListCtrl::OnToolHitTest(CPoint point, TOOLINFO* pTI) const
 int CSVNStatusListCtrl::CellRectFromPoint(CPoint& point, RECT *cellrect, int *col) const
 {
     // Make sure that the ListView is in LVS_REPORT
-    if ((GetStyle() & LVS_TYPEMASK) != LVS_REPORT)
+    if ((GetWindowLong(m_hWnd, GWL_STYLE) & LVS_TYPEMASK) != LVS_REPORT)
         return -1;
 
     // Get the top and bottom row visible
@@ -5212,7 +5205,7 @@ int CSVNStatusListCtrl::CellRectFromPoint(CPoint& point, RECT *cellrect, int *co
         bottom = GetItemCount();
 
     // Get the number of columns
-    CHeaderCtrl* pHeader = GetHeaderCtrl();
+    CHeaderCtrl* pHeader = (CHeaderCtrl*)GetDlgItem(0);
     int nColumnCount = pHeader->GetItemCount();
 
     // Loop through the visible rows
@@ -5511,7 +5504,7 @@ void CSVNStatusListCtrl::OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult)
     if (pathList.GetCount() == 0)
         return;
 
-    auto pdsrc = std::make_unique<CIDropSource>();
+    std::unique_ptr<CIDropSource> pdsrc(new CIDropSource);
     if (pdsrc == NULL)
         return;
     pdsrc->AddRef();
@@ -5559,7 +5552,7 @@ void CSVNStatusListCtrl::OnBeginDrag(NMHDR* pNMHDR, LRESULT* pResult)
 
 void CSVNStatusListCtrl::SaveColumnWidths(bool bSaveToRegistry /* = false */)
 {
-    int maxcol = GetHeaderCtrl()->GetItemCount()-1;
+    int maxcol = ((CHeaderCtrl*)(GetDlgItem(0)))->GetItemCount()-1;
     for (int col = 0; col <= maxcol; col++)
         if (m_ColumnManager.IsVisible (col))
             m_ColumnManager.ColumnResized (col);
@@ -6505,12 +6498,6 @@ LRESULT CSVNStatusListCtrl::OnResolveMsg( WPARAM wParam, LPARAM)
     return 0;
 }
 
-LRESULT CSVNStatusListCtrl::OnRefreshStatusMsg(WPARAM, LPARAM)
-{
-    SendNeedsRefresh();
-    return 0;
-}
-
 bool CSVNStatusListCtrl::CheckMultipleDiffs()
 {
     UINT selCount = GetSelectedCount();
@@ -6797,13 +6784,13 @@ BOOL CSVNStatusListCtrl::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LR
                     PIDLIST_RELATIVE pidl = NULL;
 
                     int bufsize = 1024;
-                    auto filepath = std::make_unique<WCHAR[]>(bufsize);
+                    std::unique_ptr<WCHAR[]> filepath(new WCHAR[bufsize]);
                     for (int i = 0; i < nItems; i++)
                     {
                         if (bufsize < targetList[i].GetWinPathString().GetLength())
                         {
                             bufsize = targetList[i].GetWinPathString().GetLength() + 3;
-                            filepath = std::make_unique<WCHAR[]>(bufsize);
+                            filepath = std::unique_ptr<WCHAR[]>(new WCHAR[bufsize]);
                         }
                         wcscpy_s(filepath.get(), bufsize, targetList[i].GetWinPath());
                         if (SUCCEEDED(g_psfDesktopFolder->ParseDisplayName(NULL, 0, filepath.get(), NULL, &pidl, NULL)))

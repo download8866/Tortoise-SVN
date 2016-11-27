@@ -257,6 +257,9 @@
     <ClCompile Include="..\Utils\SysImageList.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
+    <ClCompile Include="..\Utils\SysInfo.cpp">
+      <Filter>Utils\General</Filter>
+    </ClCompile>
     <ClCompile Include="..\Utils\TempFile.cpp">
       <Filter>Utils\General</Filter>
     </ClCompile>
@@ -1094,21 +1097,6 @@
     <ClCompile Include="SVNProgressDlg.cpp">
       <Filter>Subversion</Filter>
     </ClCompile>
-    <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp">
-      <Filter>Utils\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Utils\LruCache.cpp">
-      <Filter>Utils\General</Filter>
-    </ClCompile>
-    <ClCompile Include="NewTreeConflictEditorDlg.cpp">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClCompile>
-    <ClCompile Include="SVNConflictInfo.cpp">
-      <Filter>Subversion</Filter>
-    </ClCompile>
-    <ClCompile Include="SVNDiffOptions.cpp">
-      <Filter>Subversion</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AppUtils.h">
@@ -1211,6 +1199,9 @@
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\SysImageList.h">
+      <Filter>Utils\General</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Utils\SysInfo.h">
       <Filter>Utils\General</Filter>
     </ClInclude>
     <ClInclude Include="..\Utils\TempFile.h">
@@ -2099,30 +2090,6 @@
       <Filter>Commands\Settings\Settings Dialog</Filter>
     </ClInclude>
     <ClInclude Include="SVNProgressDlg.h">
-      <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\StringReferenceWrapper.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\LruCache.h">
-      <Filter>Utils\General</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\AutoThemeData.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Utils\MiscUI\CommonDialogFunctions.h">
-      <Filter>Utils\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="NewTreeConflictEditorDlg.h">
-      <Filter>Commands\ConflictEditor</Filter>
-    </ClInclude>
-    <ClInclude Include="SVNConflictInfo.h">
-      <Filter>Subversion</Filter>
-    </ClInclude>
-    <ClInclude Include="SVNDiffOptions.h">
       <Filter>Subversion</Filter>
     </ClInclude>
   </ItemGroup>

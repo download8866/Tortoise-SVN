@@ -54,6 +54,7 @@
 #define IDB_LOGOFLIPPED                 168
 #define IDR_IGNORECOMMENTSTXT           169
 #define IDI_LINEMARKED                  170
+#define IDD_PATCH_FILE_OPEN_CUSTOM      180
 #define IDS_SELECTFILE                  200
 #define IDS_SELECTDIFFFILE              201
 #define IDD_ENCODING                    300
@@ -109,6 +110,7 @@
 #define IDC_FGWHITESPACEREMOVED         1034
 #define IDC_BKWHITESPACEDIFF            1034
 #define IDC_BKADDED                     1035
+#define IDC_BKWHITESPACEDIFF2           1036
 #define IDC_FGWHITESPACES               1036
 #define IDC_FGADDED                     1037
 #define IDC_BKWHITESPACEADDED           1038
@@ -116,6 +118,7 @@
 #define IDS_ERR_MAINFRAME_FILEVERSIONNOTFOUND 1040
 #define IDC_BKEMPTY                     1040
 #define IDS_ERR_MAINFRAME_FILEHASCONFLICTS 1041
+#define IDC_FGEMPTY                     1041
 #define IDC_BKCONFLICTRESOLVED          1041
 #define IDC_BKCONFLICTED                1042
 #define IDC_FGCONFLICTED                1043
@@ -138,9 +141,7 @@
 #define IDC_FGYOURSADDED                1059
 #define IDC_BKYOURSREMOVED              1060
 #define IDC_FGYOURSREMOVED              1061
-#define IDC_FGCONFLICTRESOLVED          1062
 #define IDC_LANGUAGECOMBO               1062
-#define IDC_FGEMPTY                     1063
 #define IDC_LINENUMBERS                 1063
 #define IDC_MATCHCASE                   1064
 #define IDC_PATCHFROMCLIPBOARD          1064
@@ -262,7 +263,6 @@
 #define IDS_STATUSBAR_RIGHTVIEW         3004
 #define IDS_STATUSBAR_CONFLICTS         3005
 #define IDS_STATUSBAR_BOTTOMVIEW        3006
-#define IDS_ENCODING_COMBO_TOOLTIP      3010
 #define IDS_VIEWCONTEXTMENU_USETHISBLOCK 4000
 #define IDS_VIEWCONTEXTMENU_USETHEIRBLOCK 4001
 #define IDS_VIEWCONTEXTMENU_USEYOURBLOCK 4002

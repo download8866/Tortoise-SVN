@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2014, 2016 - TortoiseSVN
+// Copyright (C) 2006-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -88,7 +88,7 @@ BOOL CTortoiseMergeApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            auto originalCurrentDirectory = std::make_unique<TCHAR[]>(len);
+            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
             if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
             {
                 sOrigCWD = originalCurrentDirectory.get();
@@ -327,7 +327,7 @@ BOOL CTortoiseMergeApp::InitInstance()
 
             {
                 CComPtr<IFileDialogCustomize> pfdCustomize;
-                hr = pfd.QueryInterface(&pfdCustomize);
+                hr = pfd->QueryInterface(IID_PPV_ARGS(&pfdCustomize));
                 if (SUCCEEDED(hr))
                 {
                     // check if there's a unified diff on the clipboard and
@@ -379,6 +379,41 @@ BOOL CTortoiseMergeApp::InitInstance()
                     pfd->Unadvise(dwCookie);
                 return FALSE;
             }
+        }
+        else
+        {
+            OPENFILENAME ofn = {0};         // common dialog box structure
+            TCHAR szFile[MAX_PATH] = {0};   // buffer for file name
+            // Initialize OPENFILENAME
+            ofn.lStructSize = sizeof(OPENFILENAME);
+            ofn.hwndOwner = pFrame->m_hWnd;
+            ofn.lpstrFile = szFile;
+            ofn.nMaxFile = _countof(szFile);
+            CString temp;
+            temp.LoadString(IDS_OPENDIFFFILETITLE);
+            if (temp.IsEmpty())
+                ofn.lpstrTitle = NULL;
+            else
+                ofn.lpstrTitle = temp;
+
+            ofn.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY | OFN_EXPLORER;
+            if( HasClipboardPatch() ) {
+                ofn.Flags |= ( OFN_ENABLETEMPLATE | OFN_ENABLEHOOK );
+                ofn.hInstance = AfxGetResourceHandle();
+                ofn.lpTemplateName = MAKEINTRESOURCE(IDD_PATCH_FILE_OPEN_CUSTOM);
+                ofn.lpfnHook = CreatePatchFileOpenHook;
+            }
+
+            CSelectFileFilter fileFilter(IDS_PATCHFILEFILTER);
+            ofn.lpstrFilter = fileFilter;
+            ofn.nFilterIndex = 1;
+
+            // Display the Open dialog box.
+            if (GetOpenFileName(&ofn)==FALSE)
+            {
+                return FALSE;
+            }
+            pFrame->m_Data.m_sDiffFile = ofn.lpstrFile;
         }
     }
 
@@ -491,6 +526,25 @@ void CTortoiseMergeApp::OnAppAbout()
     aboutDlg.DoModal();
 }
 
+UINT_PTR CALLBACK
+CTortoiseMergeApp::CreatePatchFileOpenHook(HWND hDlg, UINT uiMsg, WPARAM wParam, LPARAM /*lParam*/)
+{
+    if(uiMsg == WM_COMMAND && LOWORD(wParam) == IDC_PATCH_TO_CLIPBOARD)
+    {
+        HWND hFileDialog = GetParent(hDlg);
+
+        // if there's a patchfile in the clipboard, we save it
+        // to a temporary file and tell TortoiseMerge to use that one
+        std::wstring sTempFile;
+        if (TrySavePatchFromClipboard(sTempFile))
+        {
+            CommDlg_OpenSave_SetControlText(hFileDialog, edt1, sTempFile.c_str());
+            PostMessage(hFileDialog, WM_COMMAND, MAKEWPARAM(IDOK, BM_CLICK), (LPARAM)(GetDlgItem(hDlg, IDOK)));
+        }
+    }
+    return 0;
+}
+
 int CTortoiseMergeApp::ExitInstance()
 {
     // Look for temporary files left around by TortoiseMerge and
@@ -538,8 +592,8 @@ bool CTortoiseMergeApp::TrySavePatchFromClipboard(std::wstring& resultFile)
     LPCSTR lpstr = (LPCSTR)GlobalLock(hglb);
 
     DWORD len = GetTempPath(0, NULL);
-    auto path = std::make_unique<TCHAR[]>(len + 1);
-    auto tempF = std::make_unique<TCHAR[]>(len + 100);
+    std::unique_ptr<TCHAR[]> path(new TCHAR[len+1]);
+    std::unique_ptr<TCHAR[]> tempF(new TCHAR[len+100]);
     GetTempPath (len+1, path.get());
     GetTempFileName (path.get(), L"tsm", 0, tempF.get());
     std::wstring sTempFile = std::wstring(tempF.get());

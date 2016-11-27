@@ -149,8 +149,6 @@ static void ColourisePowerShellDoc(Sci_PositionU startPos, Sci_Position length, 
 				sc.SetState(SCE_POWERSHELL_OPERATOR);
 			} else if (IsAWordChar(sc.ch)) {
 				sc.SetState(SCE_POWERSHELL_IDENTIFIER);
-			} else if (sc.ch == '`') {
-				sc.Forward(); // skip next escaped character
 			}
 		}
 	}

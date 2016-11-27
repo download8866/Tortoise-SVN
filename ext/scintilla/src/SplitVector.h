@@ -29,17 +29,15 @@ protected:
 	void GapTo(int position) {
 		if (position != part1Length) {
 			if (position < part1Length) {
-				// Moving the gap towards start so moving elements towards end
-				std::copy_backward(
+				memmove(
+					body + position + gapLength,
 					body + position,
-					body + part1Length,
-					body + gapLength + part1Length);
+					sizeof(T) * (part1Length - position));
 			} else {	// position > part1Length
-				// Moving the gap towards end so moving elements towards start
-				std::copy(
+				memmove(
+					body + part1Length,
 					body + part1Length + gapLength,
-					body + gapLength + position,
-					body + part1Length);
+					sizeof(T) * (position - part1Length));
 			}
 			part1Length = position;
 		}
@@ -95,7 +93,7 @@ public:
 			GapTo(lengthBody);
 			T *newBody = new T[newSize];
 			if ((size != 0) && (body != 0)) {
-				std::copy(body, body + lengthBody, newBody);
+				memmove(newBody, body, sizeof(T) * lengthBody);
 				delete []body;
 			}
 			body = newBody;
@@ -207,7 +205,7 @@ public:
 			}
 			RoomFor(insertLength);
 			GapTo(positionToInsert);
-			std::copy(s + positionFrom, s + positionFrom + insertLength, body + part1Length);
+			memmove(body + part1Length, s + positionFrom, sizeof(T) * insertLength);
 			lengthBody += insertLength;
 			part1Length += insertLength;
 			gapLength -= insertLength;
@@ -256,11 +254,11 @@ public:
 			if (range1Length > part1AfterPosition)
 				range1Length = part1AfterPosition;
 		}
-		std::copy(body + position, body + position + range1Length, buffer);
+		memcpy(buffer, body + position, range1Length * sizeof(T));
 		buffer += range1Length;
 		position = position + range1Length + gapLength;
 		int range2Length = retrieveLength - range1Length;
-		std::copy(body + position, body + position + range2Length, buffer);
+		memcpy(buffer, body + position, range2Length * sizeof(T));
 	}
 
 	T *BufferPointer() {

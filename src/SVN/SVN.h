@@ -68,9 +68,10 @@ typedef std::map<CString, CString> RevPropHash;
  */
 class SVN : public SVNBase, private ILogReceiver
 {
+private:
+    SVN(const SVN&){}
+    SVN& operator=(SVN&) /*{ return *this; }*/;
 public:
-    SVN(const SVN&) = delete;
-    SVN& operator=(SVN&) = delete;
     SVN(bool suppressUI = false);
     virtual ~SVN(void);
 
@@ -968,20 +969,6 @@ public:
      */
     void SVNReInit();
 
-    /**
-     * Resolves tree conflict.
-     */
-    bool ResolveTreeConflict(svn_client_conflict_t *conflict, svn_client_conflict_option_t *option);
-    /**
-     * Resolves text conflict.
-     */
-    bool ResolveTextConflict(svn_client_conflict_t * conflict, svn_client_conflict_option_t * option);
-
-    /**
-     * Resolves property conflict.
-     */
-    bool ResolvePropConflict(svn_client_conflict_t * conflict, const CString & propName, svn_client_conflict_option_t * option);
-
 protected:
     apr_pool_t *                parentpool;     ///< the main memory pool
     apr_pool_t *                m_pool;         ///< 'root' memory pool
@@ -1006,7 +993,6 @@ protected:
     void                 Prepare();
     void                 SVNInit();
     static bool          AprTimeExplodeLocal(apr_time_exp_t *exploded_time, apr_time_t date_svn);
-    bool                 IsLogCacheEnabled();
 
     void cancel();
     static svn_error_t* cancel(void *baton);

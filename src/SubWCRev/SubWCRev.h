@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 #pragma once
 #include <vector>
 #include <set>
-#include <tuple>
 
 #include "apr_pools.h"
 #include "svn_error.h"
@@ -92,7 +91,7 @@ struct SubWCRev_t
     BOOL  bIsExternalsNotFixed; // True if one external is not fixed to a specified revision
     BOOL  bIsExternalMixed; // True if one external, which is fixed has not the explicit revision set
     BOOL  bIsTagged;   // True if working copy URL contains "tags" keyword
-    std::set<std::tuple<std::string, size_t>> ignorepatterns;   // a list of file patterns to ignore
+    std::set<std::string> ignorepatterns;   // a list of file patterns to ignore
 };
 
 /**

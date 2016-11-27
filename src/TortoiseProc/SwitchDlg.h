@@ -71,7 +71,6 @@ protected:
     CPathEdit       m_SwitchPath;
     CPathEdit       m_DestUrl;
     CPathEdit       m_SrcUrl;
-    CString         m_sUUID;
 
 public:
     CString         m_path;

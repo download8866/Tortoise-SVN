@@ -43,7 +43,6 @@ class CBlockCacheForPath
 private:
 
     WCHAR path[MAX_PATH];
-    bool m_bBlocked;
 
 public:
 

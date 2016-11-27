@@ -34,7 +34,8 @@
 #include "SVNGlobal.h"
 #include "svn_types.h"
 #include "svn_dso.h"
-#include "openssl/crypto.h"
+#include "openssl/ssl.h"
+#include "openssl/err.h"
 #include "Commands/Command.h"
 #include "../version.h"
 #include "JumpListHelpers.h"
@@ -45,7 +46,6 @@
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
 #include "SVNConfig.h"
-#include <random>
 
 #define STRUCT_IOVEC_DEFINED
 #include "sasl.h"
@@ -86,7 +86,9 @@ CTortoiseProcApp::~CTortoiseProcApp()
     // global application exit cleanup (after all SSL activity is shutdown)
     // we have to clean up SSL ourselves, since serf doesn't do that (can't do it)
     // because those cleanup functions work globally per process.
-    OPENSSL_cleanup();
+    ERR_free_strings();
+    EVP_cleanup();
+    CRYPTO_cleanup_all_ex_data();
 
     // since it is undefined *when* the global object SVNAdminDir is
     // destroyed, we tell it to destroy the memory pools and terminate apr
@@ -437,7 +439,7 @@ BOOL CTortoiseProcApp::InitInstance()
         DWORD len = GetCurrentDirectory(0, NULL);
         if (len)
         {
-            auto originalCurrentDirectory = std::make_unique<TCHAR[]>(len);
+            std::unique_ptr<TCHAR[]> originalCurrentDirectory(new TCHAR[len]);
             if (GetCurrentDirectory(len, originalCurrentDirectory.get()))
             {
                 sOrigCWD = originalCurrentDirectory.get();
@@ -527,11 +529,9 @@ void CTortoiseProcApp::CheckUpgrade()
     }
     if (lVersion <= 0x01081100)
     {
-        std::random_device rd;
-        std::mt19937 mt(rd());
-        std::uniform_int_distribution<int> dist(0, 6);
+        srand((unsigned)time(0));
         CRegDWORD checkNewerWeekDay = CRegDWORD(_T("Software\\TortoiseSVN\\CheckNewerWeekDay"), 0);
-        checkNewerWeekDay = dist(mt);
+        checkNewerWeekDay = rand() % 7;
     }
     CAppUtils::SetupDiffScripts(false, CString());
 

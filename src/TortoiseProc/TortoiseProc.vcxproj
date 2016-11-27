@@ -80,7 +80,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -93,7 +93,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;SVN_DEBUG;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -106,7 +106,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc32;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -119,7 +119,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\..\ext\openssl\include;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\ext\apr-util\include;..\..\ext\apr-util\xml\expat\lib;..\..\ext\Subversion\subversion\include;..\..\ext\Subversion\subversion\libsvn_client;..\..\ext\apr\include;..\..\ext\boost;..\TortoiseProc;..\Utils;..\SVN;..\..\ext\ResizableLib;..\TortoiseShell;..\..\ext\libintl\gettext-0.14.6\gettext-runtime\intl;..\..\ext\scintilla\include;..\..\ext\TreePropSheet;..\Utils\ColourPickerXP;..\Utils\NewMenu;..\Utils\MiscUI;..\LogCache;..\LogCache\Containers;..\AsyncFramework;..\..\ext\cyrus-sasl\include;..\..\ext\openssl\inc64;RevisionGraph;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>HUNSPELL_STATIC;THESAURUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ResourceCompile>
@@ -177,7 +177,6 @@
     <ClCompile Include="..\Utils\JumpListHelpers.cpp" />
     <ClCompile Include="..\Utils\Libraries.cpp" />
     <ClCompile Include="..\Utils\ListViewAccServer.cpp" />
-    <ClCompile Include="..\Utils\LruCache.cpp" />
     <ClCompile Include="..\Utils\MiscUI\AeroControls.cpp" />
     <ClCompile Include="..\Utils\MiscUI\BrowseFolder.cpp" />
     <ClCompile Include="..\Utils\MiscUI\BufferDC.cpp" />
@@ -202,7 +201,6 @@
     <ClCompile Include="..\Utils\MiscUI\StandAloneDlg.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SubTooltipListCtrl.cpp" />
     <ClCompile Include="..\Utils\MiscUI\SVG.cpp" />
-    <ClCompile Include="..\Utils\MiscUI\ToastNotifications.cpp" />
     <ClCompile Include="..\Utils\MiscUI\Tooltip.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaitCursorEx.cpp" />
     <ClCompile Include="..\Utils\MiscUI\WaterEffect.cpp" />
@@ -220,6 +218,7 @@
     <ClCompile Include="..\Utils\StringUtils.cpp" />
     <ClCompile Include="..\Utils\SVNTrace.cpp" />
     <ClCompile Include="..\Utils\SysImageList.cpp" />
+    <ClCompile Include="..\Utils\SysInfo.cpp" />
     <ClCompile Include="..\Utils\TaskbarUUID.cpp" />
     <ClCompile Include="..\Utils\TempFile.cpp" />
     <ClCompile Include="..\Utils\UnicodeUtils.cpp" />
@@ -320,7 +319,6 @@
     <ClCompile Include="MergeWizardTree.cpp" />
     <ClCompile Include="MonitorOptionsDlg.cpp" />
     <ClCompile Include="MonitorProjectDlg.cpp" />
-    <ClCompile Include="NewTreeConflictEditorDlg.cpp" />
     <ClCompile Include="PasswordDlg.cpp" />
     <ClCompile Include="ProjectProperties.cpp" />
     <ClCompile Include="PromptDlg.cpp" />
@@ -440,8 +438,6 @@
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SVNConflictInfo.cpp" />
-    <ClCompile Include="SVNDiffOptions.cpp" />
     <ClCompile Include="SVNProgressDlg.cpp" />
     <ClCompile Include="SwitchDlg.cpp" />
     <ClCompile Include="TortoiseProc.cpp" />
@@ -474,7 +470,6 @@
     <ClInclude Include="..\SVN\SVNStatusListCtrl.h" />
     <ClInclude Include="..\SVN\TSVNAuth.h" />
     <ClInclude Include="..\SVN\TSVNPath.h" />
-    <ClInclude Include="..\Utils\AutoThemeData.h" />
     <ClInclude Include="..\Utils\BugTraqAssociations.h" />
     <ClInclude Include="..\Utils\Callback.h" />
     <ClInclude Include="..\Utils\ClipboardHelper.h" />
@@ -495,11 +490,9 @@
     <ClInclude Include="..\Utils\JumpListHelpers.h" />
     <ClInclude Include="..\Utils\Libraries.h" />
     <ClInclude Include="..\Utils\ListViewAccServer.h" />
-    <ClInclude Include="..\Utils\LruCache.h" />
     <ClInclude Include="..\Utils\MiscUI\AeroControls.h" />
     <ClInclude Include="..\Utils\MiscUI\BrowseFolder.h" />
     <ClInclude Include="..\Utils\MiscUI\BufferDC.h" />
-    <ClInclude Include="..\Utils\MiscUI\CommonDialogFunctions.h" />
     <ClInclude Include="..\Utils\MiscUI\ControlsBridge.h" />
     <ClInclude Include="..\Utils\MiscUI\DIB.h" />
     <ClInclude Include="..\Utils\MiscUI\DragDropTreeCtrl.h" />
@@ -525,7 +518,6 @@
     <ClInclude Include="..\Utils\MiscUI\StandAloneDlg.h" />
     <ClInclude Include="..\Utils\MiscUI\SubTooltipListCtrl.h" />
     <ClInclude Include="..\Utils\MiscUI\SVG.h" />
-    <ClInclude Include="..\Utils\MiscUI\ToastNotifications.h" />
     <ClInclude Include="..\Utils\MiscUI\Tooltip.h" />
     <ClInclude Include="..\Utils\MiscUI\TripleClick.h" />
     <ClInclude Include="..\Utils\MiscUI\WaitCursorEx.h" />
@@ -548,10 +540,10 @@
     <ClInclude Include="..\Utils\stdex_vector.h" />
     <ClInclude Include="..\Utils\StdioFileT.h" />
     <ClInclude Include="..\Utils\StringBuffer.h" />
-    <ClInclude Include="..\Utils\StringReferenceWrapper.h" />
     <ClInclude Include="..\Utils\StringUtils.h" />
     <ClInclude Include="..\Utils\SVNTrace.h" />
     <ClInclude Include="..\Utils\SysImageList.h" />
+    <ClInclude Include="..\Utils\SysInfo.h" />
     <ClInclude Include="..\Utils\TaskbarUUID.h" />
     <ClInclude Include="..\Utils\TempFile.h" />
     <ClInclude Include="..\Utils\UnicodeUtils.h" />
@@ -659,7 +651,6 @@
     <ClInclude Include="MergeWizardTree.h" />
     <ClInclude Include="MonitorOptionsDlg.h" />
     <ClInclude Include="MonitorProjectDlg.h" />
-    <ClInclude Include="NewTreeConflictEditorDlg.h" />
     <ClInclude Include="PasswordDlg.h" />
     <ClInclude Include="ProjectProperties.h" />
     <ClInclude Include="PromptDlg.h" />
@@ -780,8 +771,6 @@
     <ClInclude Include="Settings\ToolAssocDlg.h" />
     <ClInclude Include="SimplePrompt.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="SVNConflictInfo.h" />
-    <ClInclude Include="SVNDiffOptions.h" />
     <ClInclude Include="SVNProgressDlg.h" />
     <ClInclude Include="SwitchDlg.h" />
     <ClInclude Include="TortoiseProc.h" />
@@ -991,7 +980,7 @@
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties RESOURCE_FILE="" />
+      <UserProperties RESOURCE_FILE="\Development\SVN\TortoiseSVN\src\Resources\TortoiseProcENG.rc" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

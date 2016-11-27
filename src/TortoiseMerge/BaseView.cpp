@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -120,7 +120,7 @@ CBaseView::CBaseView()
     m_InlineAddedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineAdded", INLINEADDED_COLOR);
     m_InlineRemovedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineRemoved", INLINEREMOVED_COLOR);
     m_ModifiedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\ColorModifiedB", MODIFIED_COLOR);
-    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_3DSHADOW));
+    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_GRAYTEXT));
     m_sWordSeparators = CRegString(L"Software\\TortoiseMerge\\WordSeparators", L"[]();:.,{}!@#$%^&*-+=|/\\<>'`~\"?");
     m_bIconLFs = CRegDWORD(L"Software\\TortoiseMerge\\IconLFs", 0);
     m_nTabSize = (int)(DWORD)CRegDWORD(L"Software\\TortoiseMerge\\TabSize", 4);
@@ -253,7 +253,7 @@ void CBaseView::DocumentUpdated()
     m_InlineAddedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineAdded", INLINEADDED_COLOR);
     m_InlineRemovedBk = CRegDWORD(L"Software\\TortoiseMerge\\InlineRemoved", INLINEREMOVED_COLOR);
     m_ModifiedBk = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\ColorModifiedB", MODIFIED_COLOR);
-    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_3DSHADOW));
+    m_WhiteSpaceFg = CRegDWORD(L"Software\\TortoiseMerge\\Colors\\Whitespace", GetSysColor(COLOR_GRAYTEXT));
     m_bIconLFs = CRegDWORD(L"Software\\TortoiseMerge\\IconLFs", 0);
     m_nInlineDiffMaxLineLength = CRegDWORD(L"Software\\TortoiseMerge\\InlineDiffMaxLineLength", 3000);
     m_Eols[EOL_AUTOLINE] = m_Eols[m_lineendings==EOL_AUTOLINE
@@ -410,7 +410,7 @@ void CBaseView::UpdateStatusBar()
             if ((m_nStatusBarID == ID_INDICATOR_BOTTOMVIEW) && (IsViewGood(this)))
             {
                 m_pwndRibbonStatusBar->RemoveElement(ID_INDICATOR_BOTTOMVIEW);
-                auto apBtnGroupBottom = std::make_unique<CMFCRibbonButtonsGroup>();
+                std::unique_ptr<CMFCRibbonButtonsGroup> apBtnGroupBottom(new CMFCRibbonButtonsGroup);
                 apBtnGroupBottom->SetID(ID_INDICATOR_BOTTOMVIEW);
                 apBtnGroupBottom->AddButton(new CMFCRibbonStatusBarPane(ID_SEPARATOR,   CString(MAKEINTRESOURCE(IDS_STATUSBAR_BOTTOMVIEW)), TRUE));
                 CMFCRibbonButton * pButton = new CMFCRibbonButton(ID_INDICATOR_BOTTOMVIEWCOMBOENCODING, L"");
@@ -499,7 +499,7 @@ CFont* CBaseView::GetFont(BOOL bItalic /*= FALSE*/, BOOL bBold /*= FALSE*/)
             m_lfBaseFont.lfHeight = -MulDiv((DWORD)CRegDWORD(L"Software\\TortoiseMerge\\FontSize", 10), GetDeviceCaps(pDC->m_hDC, LOGPIXELSY), 72);
             ReleaseDC(pDC);
         }
-        wcsncpy_s(m_lfBaseFont.lfFaceName, (LPCTSTR)(CString)CRegString(L"Software\\TortoiseMerge\\FontName", L"Consolas"), _countof(m_lfBaseFont.lfFaceName) - 1);
+        wcsncpy_s(m_lfBaseFont.lfFaceName, (LPCTSTR)(CString)CRegString(L"Software\\TortoiseMerge\\FontName", L"Courier New"), _countof(m_lfBaseFont.lfFaceName) - 1);
         if (!m_apFonts[nIndex]->CreateFontIndirect(&m_lfBaseFont))
         {
             delete m_apFonts[nIndex];
@@ -1922,7 +1922,7 @@ void CBaseView::DrawTextLine(
                 if (nLeft < 0)
                 {
                     int fit = nTextLength;
-                    auto posBuffer = std::make_unique<int[]>(fit);
+                    std::unique_ptr<int> posBuffer(new int[fit]);
                     GetTextExtentExPoint(pDC->GetSafeHdc(), p_zBlockText, nTextLength, INT_MAX, &fit, posBuffer.get(), &Size);
                     int lower = 0, upper = fit - 1;
                     do
@@ -2040,6 +2040,7 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
         xpos -= m_nOffsetChar * GetCharWidth();
 
         CPen pen(PS_SOLID, 0, m_WhiteSpaceFg);
+        CPen pen2(PS_SOLID, 2, m_WhiteSpaceFg);
         while (*pszChars)
         {
             switch (*pszChars)
@@ -2072,12 +2073,13 @@ void CBaseView::DrawSingleLine(CDC *pDC, const CRect &rc, int nLineIndex)
                 {
                     xpos += pDC->GetTextExtent(pLastSpace, (int)(pszChars - pLastSpace)).cx;
                     pLastSpace = pszChars + 1;
+                    // draw a small dot
                     if (xpos >= 0)
                     {
-                        const int whitespaceSize = 2;
-                        // draw 2-pixel rectangle, like Scintilla editor.
-                        pDC->FillSolidRect(xpos + rc.left + GetCharWidth() / 2 - whitespaceSize/2, y,
-                                           whitespaceSize, whitespaceSize, m_WhiteSpaceFg);
+                        CPen * oldPen = pDC->SelectObject(&pen2);
+                        pDC->MoveTo(xpos + rc.left + GetCharWidth() / 2 - 1, y);
+                        pDC->LineTo(xpos + rc.left + GetCharWidth()/2+1, y);
+                        pDC->SelectObject(oldPen);
                     }
                     xpos += GetCharWidth();
                     nChars++;
@@ -3268,13 +3270,13 @@ void CBaseView::OnLButtonDblClk(UINT nFlags, CPoint point)
         SetCaretPosition(ptCaretPos);
         ClearSelection();
 
-        POINT ptViewCaret = GetCaretViewPosition();
-        nViewLine = ptViewCaret.y;
+        POINT ptViewCarret = GetCaretViewPosition();
+        nViewLine = ptViewCarret.y;
         if (nViewLine >= GetViewCount())
             return;
         const CString &sLine = GetViewLine(nViewLine);
         int nLineLength = sLine.GetLength();
-        int nBasePos = ptViewCaret.x;
+        int nBasePos = ptViewCarret.x;
         // get target char group
         ECharGroup eLeft = CHG_UNKNOWN;
         if (nBasePos > 0)
@@ -3708,7 +3710,7 @@ int CBaseView::CalcColFromPoint(int xpos, int lineIndex)
     {
         CString text = ExpandChars(GetLineChars(lineIndex), 0);
         int fit = text.GetLength();
-        auto posBuffer = std::make_unique<int[]>(fit);
+        std::unique_ptr<int> posBuffer(new int[fit]);
         pDC->SelectObject(GetFont()); // is this right font ?
         SIZE size;
         GetTextExtentExPoint(pDC->GetSafeHdc(), text, fit, INT_MAX, &fit, posBuffer.get(), &size);
@@ -5306,16 +5308,8 @@ void CBaseView::OnEditFind()
     if (m_pFindDialog)
         return;
 
-    int id = 0;
-    if (this == m_pwndLeft)
-        id = 1;
-    if (this == m_pwndRight)
-        id = 2;
-    if (this == m_pwndBottom)
-        id = 3;
-
     m_pFindDialog = new CFindDlg(this);
-    m_pFindDialog->Create(this, id);
+    m_pFindDialog->Create(this);
 
     m_pFindDialog->SetFindString(HasTextSelection() ? GetSelectedText() : L"");
     m_pFindDialog->SetReadonly(m_bReadonly);

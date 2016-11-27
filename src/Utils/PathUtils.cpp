@@ -37,8 +37,8 @@ BOOL CPathUtils::MakeSureDirectoryPathExists(LPCTSTR path)
 {
     const size_t len = wcslen(path);
     const size_t fullLen = len+10;
-    auto buf = std::make_unique<TCHAR[]>(fullLen);
-    auto internalpathbuf = std::make_unique<TCHAR[]>(fullLen);
+    std::unique_ptr<TCHAR[]> buf(new TCHAR[fullLen]);
+    std::unique_ptr<TCHAR[]> internalpathbuf(new TCHAR[fullLen]);
     TCHAR * pPath = internalpathbuf.get();
     SECURITY_ATTRIBUTES attribs;
 
@@ -255,7 +255,7 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
         if (iri_escape_chars[c])
         {
             // no escaping needed for that char
-            ret2.AppendChar((unsigned char)path[i]);
+            ret2 += (unsigned char)path[i];
         }
         else
         {
@@ -282,7 +282,7 @@ CStringA CPathUtils::PathEscape(const CStringA& path)
             else
             {
                 // no escaping needed for that char
-                ret.AppendChar((unsigned char)ret2[i]);
+                ret += (unsigned char)ret2[i];
             }
         }
         else
@@ -372,7 +372,7 @@ CString CPathUtils::GetLongPathname(const CString& path)
         ret = GetFullPathName(path, 0, NULL, NULL);
         if (ret)
         {
-            auto pathbuf = std::make_unique<TCHAR[]>(ret + 1);
+            std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+1]);
             if ((ret = GetFullPathName(path, ret, pathbuf.get(), NULL))!=0)
             {
                 sRet = CString(pathbuf.get(), ret);
@@ -384,7 +384,7 @@ CString CPathUtils::GetLongPathname(const CString& path)
         ret = ::GetLongPathName(pathbufcanonicalized, NULL, 0);
         if (ret == 0)
             return path;
-        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
+        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
         ret = ::GetLongPathName(pathbufcanonicalized, pathbuf.get(), ret+1);
         // GetFullPathName() sometimes returns the full path with the wrong
         // case. This is not a problem on Windows since its filesystem is
@@ -396,7 +396,7 @@ CString CPathUtils::GetLongPathname(const CString& path)
         int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
         if (shortret)
         {
-            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
+            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
             if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
             {
                 int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
@@ -410,14 +410,14 @@ CString CPathUtils::GetLongPathname(const CString& path)
         ret = ::GetLongPathName(path, NULL, 0);
         if (ret == 0)
             return path;
-        auto pathbuf = std::make_unique<TCHAR[]>(ret + 2);
+        std::unique_ptr<TCHAR[]> pathbuf(new TCHAR[ret+2]);
         ret = ::GetLongPathName(path, pathbuf.get(), ret+1);
         sRet = CString(pathbuf.get(), ret);
         // fix the wrong casing of the path. See above for details.
         int shortret = ::GetShortPathName(pathbuf.get(), NULL, 0);
         if (shortret)
         {
-            auto shortpath = std::make_unique<TCHAR[]>(shortret + 2);
+            std::unique_ptr<TCHAR[]> shortpath(new TCHAR[shortret+2]);
             if (::GetShortPathName(pathbuf.get(), shortpath.get(), shortret+1))
             {
                 int ret2 = ::GetLongPathName(shortpath.get(), pathbuf.get(), ret+1);
@@ -643,7 +643,7 @@ CString CPathUtils::GetLocalAppDataDirectory()
 
 CStringA CPathUtils::PathUnescape(const CStringA& path)
 {
-    auto urlabuf = std::make_unique<char[]>(path.GetLength() + 1);
+    std::unique_ptr<char[]> urlabuf (new char[path.GetLength()+1]);
 
     strcpy_s(urlabuf.get(), path.GetLength()+1, path);
     Unescape(urlabuf.get());
@@ -695,9 +695,9 @@ CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
 
     if (dwBufferSize > 0)
     {
-        auto pBuffer = std::make_unique<BYTE[]>(dwBufferSize);
+        LPVOID pBuffer = (void*) malloc(dwBufferSize);
 
-        if (pBuffer)
+        if (pBuffer != (void*) NULL)
         {
             UINT        nInfoSize = 0,
                         nFixedLength = 0;
@@ -709,10 +709,10 @@ CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
             GetFileVersionInfo((LPTSTR)(LPCTSTR)p_strFilename,
                 dwReserved,
                 dwBufferSize,
-                pBuffer.get());
+                pBuffer);
 
             // Check the current language
-            VerQueryValue(  pBuffer.get(),
+            VerQueryValue(  pBuffer,
                 L"\\VarFileInfo\\Translation",
                 &lpFixedPointer,
                 &nFixedLength);
@@ -721,12 +721,13 @@ CString CPathUtils::GetVersionFromFile(const CString & p_strFilename)
             strLangProductVersion.Format(L"\\StringFileInfo\\%04x%04x\\ProductVersion",
                 lpTransArray[0].wLanguageID, lpTransArray[0].wCharacterSet);
 
-            VerQueryValue(pBuffer.get(),
+            VerQueryValue(pBuffer,
                 (LPTSTR)(LPCTSTR)strLangProductVersion,
                 (LPVOID *)&lpVersion,
                 &nInfoSize);
             if (nInfoSize && lpVersion)
                 strReturn = (LPCTSTR)lpVersion;
+            free(pBuffer);
         }
     }
 

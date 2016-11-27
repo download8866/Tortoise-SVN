@@ -290,7 +290,6 @@ private:
     bool        IsRevisionRelatedToMerge(const CDictionaryBasedTempPath& basePath, PLOGENTRYDATA pLogItem);
     void        CompareWithWC(NotificationData * data);
     CTSVNPathList GetPathsForUpdateHook(const CTSVNPathList& pathList);
-    void        ResolvePostOperationConflicts();
 
     /**
      * Resizes the columns of the progress list so that the headings are visible.
@@ -384,10 +383,10 @@ private:
     int                     nEnsureVisibleCount;
 
     CString                 m_sTotalBytesTransferred;
-    CLinkControl            m_jumpConflictControl;
+    CLinkControl            m_linkControl;
 
     CColors                 m_Colors;
-    CFont                   m_boldFont;
+    HFONT                   m_boldFont;
 
 
     bool                    m_bLockWarning;

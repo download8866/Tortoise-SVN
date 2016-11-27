@@ -1,6 +1,6 @@
 ﻿// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2011-2016 - TortoiseSVN
+// Copyright (C) 2003-2008, 2011-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -67,7 +67,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting, bool bAdjustEOLs)
         _ftprintf(stderr, L"can't open input file %s\n", szPath);
         return FALSE;
     }
-    auto line = std::make_unique<TCHAR[]>(2 * MAX_STRING_LENGTH);
+    std::unique_ptr<TCHAR[]> line(new TCHAR[2*MAX_STRING_LENGTH]);
     std::vector<std::wstring> entry;
     do
     {
@@ -77,29 +77,13 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting, bool bAdjustEOLs)
             //empty line means end of entry!
             RESOURCEENTRY resEntry = {0};
             std::wstring msgid;
-            std::wstring regexsearch, regexreplace;
             int type = 0;
             for (std::vector<std::wstring>::iterator I = entry.begin(); I != entry.end(); ++I)
             {
                 if (wcsncmp(I->c_str(), L"# ", 2)==0)
                 {
                     //user comment
-                    if (wcsncmp(I->c_str(), L"# regexsearch=", 14) == 0)
-                    {
-                        regexsearch = I->substr(14);
-                    }
-                    else if (wcsncmp(I->c_str(), L"# regexreplace=", 15) == 0)
-                    {
-                        regexreplace = I->substr(15);
-                    }
-                    else
-                        resEntry.translatorcomments.push_back(I->c_str());
-                    if (!regexsearch.empty() && !regexreplace.empty())
-                    {
-                        m_regexes.push_back(std::make_tuple(regexsearch, regexreplace));
-                        regexsearch.clear();
-                        regexreplace.clear();
-                    }
+                    resEntry.translatorcomments.push_back(I->c_str());
                     type = 0;
                 }
                 if (wcsncmp(I->c_str(), L"#.", 2)==0)
@@ -177,7 +161,7 @@ BOOL CPOFile::ParseFile(LPCTSTR szPath, BOOL bUpdateExisting, bool bAdjustEOLs)
             entry.push_back(line.get());
         }
     } while (File.gcount() > 0);
-    printf("%s", File.getloc().name().c_str());
+    printf(File.getloc().name().c_str());
     File.close();
     RESOURCEENTRY emptyentry = {0};
     (*this)[std::wstring(L"")] = emptyentry;
@@ -269,7 +253,7 @@ BOOL CPOFile::SaveFile(LPCTSTR szPath, LPCTSTR lpszHeaderFile)
         {
             File << L"#. Resource IDs: (";
 
-            auto II = I->second.resourceIDs.begin();
+            std::set<INT_PTR>::const_iterator II = I->second.resourceIDs.begin();
             File << (*II);
             ++II;
             while (II != I->second.resourceIDs.end())

@@ -43,7 +43,6 @@
 #include "SVNConfig.h"
 #include "SVNError.h"
 #include "SVNLogQuery.h"
-#include "SVNDiffOptions.h"
 #include "CacheLogQuery.h"
 #include "RepositoryInfo.h"
 #include "LogCacheSettings.h"
@@ -667,51 +666,6 @@ bool SVN::Resolve(const CTSVNPath& path, svn_wc_conflict_choice_t result, bool r
     return (Err == NULL);
 }
 
-bool SVN::ResolveTreeConflict(svn_client_conflict_t *conflict, svn_client_conflict_option_t *option)
-{
-    SVNPool scratchpool(m_pool);
-    Prepare();
-
-    const char* svnPath = svn_client_conflict_get_local_abspath(conflict);
-
-    SVNTRACE(
-        Err = svn_client_conflict_tree_resolve(conflict, option, m_pctx, scratchpool),
-        svnPath
-    );
-
-    return (Err == NULL);
-}
-
-bool SVN::ResolveTextConflict(svn_client_conflict_t *conflict, svn_client_conflict_option_t *option)
-{
-    SVNPool scratchpool(m_pool);
-    Prepare();
-
-    const char* svnPath = svn_client_conflict_get_local_abspath(conflict);
-
-    SVNTRACE(
-        Err = svn_client_conflict_text_resolve(conflict, option, m_pctx, scratchpool),
-        svnPath
-    );
-
-    return (Err == NULL);
-}
-
-bool SVN::ResolvePropConflict(svn_client_conflict_t *conflict, const CString & propName, svn_client_conflict_option_t *option)
-{
-    SVNPool scratchpool(m_pool);
-    Prepare();
-
-    const char* svnPath = svn_client_conflict_get_local_abspath(conflict);
-
-    SVNTRACE(
-        Err = svn_client_conflict_prop_resolve(conflict, CUnicodeUtils::GetUTF8(propName), option, m_pctx, scratchpool),
-        svnPath
-    );
-
-    return (Err == NULL);
-}
-
 bool SVN::Export(const CTSVNPath& srcPath, const CTSVNPath& destPath, const SVNRev& pegrev, const SVNRev& revision,
                  bool force, bool bIgnoreExternals, bool bIgnoreKeywords, svn_depth_t depth, HWND hWnd,
                  SVNExportType extended, const CString& eol)
@@ -1083,8 +1037,7 @@ bool SVN::MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, c
     const char* svnPath = source.GetSVNApiPath(subpool);
     CHooks::Instance().PreConnect(CTSVNPathList(source));
 
-#pragma warning(push)
-#pragma warning(disable:4996)   // disable deprecated warning: we use svn_client_merge_reintegrate specifically for 'old style' merges
+#pragma warning(disable: 4996)   // disable deprecated warning: we use svn_client_merge_reintegrate specifically for 'old style' merges
     SVNTRACE (
         Err = svn_client_merge_reintegrate(svnPath,
             pegrevision,
@@ -1095,7 +1048,7 @@ bool SVN::MergeReintegrate(const CTSVNPath& source, const SVNRev& pegrevision, c
             subpool),
         svnPath
     );
-#pragma warning(pop)
+#pragma warning(default: 4996)
 
     ClearCAPIAuthCacheOnError();
     return (Err == NULL);
@@ -1432,7 +1385,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // select query and run it
 
-        ILogQuery* query = !IsLogCacheEnabled() || refresh
+        ILogQuery* query = !(GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled) || refresh
                          ? tempQuery.get()
                          : cacheQuery.get();
 
@@ -1465,7 +1418,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
 
         // merge temp results with permanent cache, if applicable
 
-        if (refresh && IsLogCacheEnabled())
+        if (refresh && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
         {
             // handle cache refresh results
 
@@ -1488,7 +1441,7 @@ SVN::ReceiveLog (const CTSVNPathList& pathlist, const SVNRev& revisionPeg,
         // return the cache that contains the log info
 
         return std::unique_ptr<const CCacheLogQuery>
-            (IsLogCacheEnabled()
+            ((GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled)
                 ? cacheQuery.release()
                 : tempQuery.release() );
     }
@@ -2113,7 +2066,7 @@ bool SVN::IsRepository(const CTSVNPath& path)
 
 CString SVN::GetRepositoryRootAndUUID(const CTSVNPath& path, bool useLogCache, CString& sUUID)
 {
-    if (useLogCache && IsLogCacheEnabled())
+    if (useLogCache && (GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled))
         return GetLogCachePool()->GetRepositoryInfo().GetRepositoryRootAndUUID (path, sUUID);
 
     const char * returl = nullptr;
@@ -2626,11 +2579,6 @@ bool SVN::AprTimeExplodeLocal(apr_time_exp_t *exploded_time, apr_time_t date_svn
     }
 }
 
-bool SVN::IsLogCacheEnabled()
-{
-    return GetLogCachePool()->IsEnabled() || m_bAssumeCacheEnabled;
-}
-
 CString SVN::formatDate(apr_time_t date_svn)
 {
     apr_time_exp_t exploded_time = {0};
@@ -2724,20 +2672,32 @@ bool SVN::EnsureConfigFile()
 
 CString SVN::GetOptionsString(bool bIgnoreEOL, bool bIgnoreSpaces, bool bIgnoreAllSpaces)
 {
+    CString opts;
+    if (bIgnoreEOL)
+        opts += L"--ignore-eol-style ";
     if (bIgnoreAllSpaces)
-        return GetOptionsString(bIgnoreEOL, svn_diff_file_ignore_space_all);
+        opts += L"-w";
     else if (bIgnoreSpaces)
-        return GetOptionsString(bIgnoreEOL, svn_diff_file_ignore_space_change);
-    else
-        return GetOptionsString(bIgnoreEOL, svn_diff_file_ignore_space_none);
+        opts += L"-b";
+    opts.Trim();
+    return opts;
 }
 
 CString SVN::GetOptionsString(bool bIgnoreEOL, svn_diff_file_ignore_space_t space)
 {
-    SVNDiffOptions opts;
-    opts.SetIgnoreEOL(bIgnoreEOL);
-    opts.SetIgnoreSpace(space);
-
+    CString opts;
+    if (bIgnoreEOL)
+        opts += L"--ignore-eol-style ";
+    switch (space)
+    {
+    case svn_diff_file_ignore_space_change:
+        opts += L"-b";
+        break;
+    case svn_diff_file_ignore_space_all:
+        opts += L"-w";
+        break;
+    }
+    opts.Trim();
     return opts;
 }
 

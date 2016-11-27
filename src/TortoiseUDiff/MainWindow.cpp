@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -22,9 +22,9 @@
 #include "StringUtils.h"
 #include "TaskbarUUID.h"
 #include "CreateProcessHelper.h"
+#include "SysInfo.h"
 #include "UDiffColors.h"
 #include "registry.h"
-#include <VersionHelpers.h>
 
 const UINT TaskBarButtonCreated = RegisterWindowMessage(L"TaskbarButtonCreated");
 
@@ -262,7 +262,7 @@ LRESULT CMainWindow::DoCommand(int id)
             command += m_filename;
             command += L"\"";
             std::wstring tortoiseMergePath = GetAppDirectory() + L"TortoiseMerge.exe";
-            CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), command.c_str());
+            CCreateProcessHelper::CreateProcessDetached(tortoiseMergePath.c_str(), const_cast<TCHAR*>(command.c_str()));
         }
         break;
     case ID_FILE_PAGESETUP:
@@ -525,7 +525,7 @@ std::wstring CMainWindow::GetAppDirectory()
     do
     {
         bufferlen += MAX_PATH;      // MAX_PATH is not the limit here!
-        auto pBuf = std::make_unique<TCHAR[]>(bufferlen);
+        std::unique_ptr<TCHAR[]> pBuf(new TCHAR[bufferlen]);
         len = GetModuleFileName(NULL, pBuf.get(), bufferlen);
         path = std::wstring(pBuf.get(), len);
     } while(len == bufferlen);
@@ -537,7 +537,7 @@ std::wstring CMainWindow::GetAppDirectory()
 void CMainWindow::RunCommand(const std::wstring& command)
 {
     tstring tortoiseProcPath = GetAppDirectory() + L"TortoiseProc.exe";
-    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), command.c_str());
+    CCreateProcessHelper::CreateProcessDetached(tortoiseProcPath.c_str(), const_cast<TCHAR*>(command.c_str()));
 }
 
 LRESULT CMainWindow::SendEditor(UINT Msg, WPARAM wParam, LPARAM lParam)
@@ -577,9 +577,9 @@ bool CMainWindow::Initialize()
     // Set up the global default style. These attributes are used wherever no explicit choices are made.
     CRegStdDWORD used2d(L"Software\\TortoiseSVN\\ScintillaDirect2D", TRUE);
     bool enabled2d = false;
-    if (IsWindows7OrGreater() && DWORD(used2d))
+    if (SysInfo::Instance().IsWin7OrLater() && DWORD(used2d))
         enabled2d = true;
-    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Consolas");
+    std::wstring fontNameW = CRegStdString(L"Software\\TortoiseSVN\\UDiffFontName", L"Courier New");
     std::string fontName;
     fontName = CUnicodeUtils::StdGetUTF8(fontNameW);
     SetAStyle(STYLE_DEFAULT, ::GetSysColor(COLOR_WINDOWTEXT), ::GetSysColor(COLOR_WINDOW),
@@ -710,7 +710,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
         return false;
 
     LRESULT len = SendEditor(SCI_GETTEXT, 0, 0);
-    auto data = std::make_unique<char[]>(len + 1);
+    std::unique_ptr<char[]> data (new char[len+1]);
     SendEditor(SCI_GETTEXT, len, reinterpret_cast<LPARAM>(static_cast<char *>(data.get())));
     fwrite(data.get(), sizeof(char), len-1, fp);
     fclose(fp);
@@ -723,7 +723,7 @@ bool CMainWindow::SaveFile(LPCTSTR filename)
 void CMainWindow::SetTitle(LPCTSTR title)
 {
     size_t len = wcslen(title);
-    auto pBuf = std::make_unique<TCHAR[]>(len + 40);
+    std::unique_ptr<TCHAR[]> pBuf(new TCHAR[len+40]);
     swprintf_s(pBuf.get(), len+40, L"%s - TortoiseUDiff", title);
     SetWindowTitle(std::wstring(pBuf.get()));
 }

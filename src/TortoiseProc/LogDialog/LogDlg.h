@@ -178,7 +178,6 @@ protected:
     afx_msg LRESULT OnReloadIniMsg(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedInfoIcon(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnClickedCancelFilter(WPARAM wParam, LPARAM lParam);
-    afx_msg LRESULT OnToastNotification(WPARAM wParam, LPARAM lParam);
     afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
     afx_msg void OnBnClickedGetall();
@@ -355,7 +354,6 @@ private:
     void ExecuteCheckoutMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteViewRevMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteViewPathRevMenuRevisions(ContextMenuInfoForRevisionsPtr& pCmi);
-    void ExecuteGetMergeLogs(ContextMenuInfoForRevisionsPtr& pCmi);
     void ExecuteAddCodeCollaboratorReview();
     CString GetSpaceSeparatedSelectedRevisions();
     CString GetUrlOfTrunk();
@@ -364,7 +362,6 @@ private:
     void ExecuteViewPathRevisionChangedPaths(INT_PTR selIndex);
     void ExecuteBrowseRepositoryChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     void ExecuteShowLogChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath, bool bMergeLog);
-    void ExecuteShowMergedLogs(ContextMenuInfoForChangedPathsPtr pCmi);
     void ExecuteBlameChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi, const CLogChangedPath& changedlogpath);
     void ExecuteOpenChangedPaths(INT_PTR selIndex, ContextMenuInfoForChangedPathsPtr pCmi, bool bOpenWith);
     void ExecuteExportTreeChangedPaths(ContextMenuInfoForChangedPathsPtr pCmi);
@@ -443,8 +440,7 @@ public:
     ProjectProperties   m_ProjectProperties;
     WORD                m_wParam;
 private:
-    CFont               m_boldFont;
-    CFont               m_boldItalicFont;
+    HFONT               m_boldFont;
     CString             m_sRelativeRoot;
     CString             m_sRepositoryRoot;
     CString             m_sURL;
@@ -539,7 +535,7 @@ private:
 
     HACCEL              m_hAccel;
 
-    std::unique_ptr<CStoreSelection>  m_pStoreSelection;
+    CStoreSelection*    m_pStoreSelection;
     bool                m_bEnsureSelection;
     CLogDataVector      m_logEntries;
     size_t              m_prevLogEntriesSize;
@@ -559,7 +555,7 @@ private:
     bool                m_bMonitoringMode;
     bool                m_bKeepHidden;
     HWND                m_hwndToolbar;
-    CImageList          m_toolbarImages;
+    HIMAGELIST          m_hToolbarImages;
     CRect               m_ProjTreeOrigRect;
     CSplitterControl    m_wndSplitterLeft;
     CHintCtrl<CDragDropTreeCtrl> m_projTree;

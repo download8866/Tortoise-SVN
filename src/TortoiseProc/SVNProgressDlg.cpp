@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -35,7 +35,6 @@
 #include "ConflictResolveDlg.h"
 #include "EditPropConflictDlg.h"
 #include "TreeConflictEditorDlg.h"
-#include "NewTreeConflictEditorDlg.h"
 #include "LogFile.h"
 #include "ShellUpdater.h"
 #include "IconMenu.h"
@@ -117,6 +116,7 @@ CSVNProgressDlg::CSVNProgressDlg(CWnd* pParent /*=NULL*/)
     , iFirstResized(0)
     , bSecondResized(false)
     , nEnsureVisibleCount(0)
+    , m_boldFont(NULL)
     , sIgnoredIncluded(MAKEINTRESOURCE(IDS_PROGRS_IGNOREDINCLUDED))
     , sExtExcluded(MAKEINTRESOURCE(IDS_PROGRS_EXTERNALSEXCLUDED))
     , sExtIncluded(MAKEINTRESOURCE(IDS_PROGRS_EXTERNALSINCLUDED))
@@ -138,13 +138,14 @@ CSVNProgressDlg::~CSVNProgressDlg()
         delete data;
     }
     delete m_pThread;
+    if (m_boldFont)
+        DeleteObject(m_boldFont);
 }
 
 void CSVNProgressDlg::DoDataExchange(CDataExchange* pDX)
 {
     CResizableStandAloneDialog::DoDataExchange(pDX);
     DDX_Control(pDX, IDC_SVNPROGRESS, m_ProgList);
-    DDX_Control(pDX, IDC_JUMPCONFLICT, m_jumpConflictControl);
 }
 
 BEGIN_MESSAGE_MAP(CSVNProgressDlg, CResizableStandAloneDialog)
@@ -174,14 +175,88 @@ BOOL CSVNProgressDlg::Cancel()
     return m_bCancelled;
 }
 
-LRESULT CSVNProgressDlg::OnShowConflictResolver(WPARAM /*wParam*/, LPARAM /*lParam*/)
+LRESULT CSVNProgressDlg::OnShowConflictResolver(WPARAM /*wParam*/, LPARAM lParam)
 {
+    const svn_wc_conflict_description2_t *description = (svn_wc_conflict_description2_t *)lParam;
+    if (description)
+    {
+        svn_wc_conflict_choice_t retVal = svn_wc_conflict_choose_postpone;
+        if (m_pTaskbarList)
+        {
+            m_pTaskbarList->SetProgressState(m_hWnd, TBPF_PAUSED);
+        }
+        switch (description->kind)
+        {
+        case svn_wc_conflict_kind_property:
+        case svn_wc_conflict_kind_text:
+            {
+                CConflictResolveDlg dlg(this);
+                dlg.SetConflictDescription(description);
+                if (dlg.DoModal() == IDOK)
+                {
+                    if (dlg.GetResult() == svn_wc_conflict_choose_postpone)
+                    {
+                        // if the result is conflicted and the dialog returned IDOK,
+                        // that means we should not ask again in case of a conflict
+                        m_AlwaysConflicted = true;
+                    }
+                }
+                m_mergedfile = dlg.GetMergedFile();
+                m_bCancelled = dlg.IsCancelled();
+                retVal = dlg.GetResult();
+            }
+            break;
+        case svn_wc_conflict_kind_tree:
+            {
+                CTSVNPath treeConflictPath;
+                treeConflictPath.SetFromSVN(description->merged_file);
+                if (treeConflictPath.IsEmpty())
+                    treeConflictPath.SetFromSVN(description->local_abspath);
+
+                CTreeConflictEditorDlg dlg;
+                dlg.SetInteractive();
+                dlg.SetPath(treeConflictPath);
+                dlg.SetConflictSources(description->src_left_version, description->src_right_version);
+                dlg.SetConflictReason(description->reason);
+                dlg.SetConflictAction(description->action);
+                dlg.SetConflictOperation(description->operation);
+                dlg.SetKind(description->node_kind);
+                if (dlg.DoModal() == IDOK)
+                {
+                    if (dlg.GetResult() == svn_wc_conflict_choose_postpone)
+                    {
+                        // if the result is conflicted and the dialog returned IDOK,
+                        // that means we should not ask again in case of a conflict
+                        m_AlwaysConflicted = true;
+                    }
+                }
+                retVal = dlg.GetResult();
+                m_bCancelled = dlg.IsCancelled();
+            }
+        default:
+            break;
+        }
+        if (m_pTaskbarList)
+            m_pTaskbarList->SetProgressState(m_hWnd, TBPF_INDETERMINATE);
+
+        return retVal;
+    }
     return svn_wc_conflict_choose_postpone;
 }
 
-svn_wc_conflict_choice_t CSVNProgressDlg::ConflictResolveCallback(const svn_wc_conflict_description2_t * /*description*/, CString& /*mergedfile*/)
+svn_wc_conflict_choice_t CSVNProgressDlg::ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile)
 {
-    // Postpone all conflicts: we resolve them after operation.
+    // we only bother the user when merging
+    if (((m_Command == SVNProgress_Merge)||(m_Command == SVNProgress_MergeAll)||(m_Command == SVNProgress_MergeReintegrateOldStyle)||(m_Command == SVNProgress_MergeReintegrate))&&(!m_AlwaysConflicted)&&(description))
+    {
+        // we're in a worker thread here. That means we must not show a dialog from the thread
+        // but let the UI thread do it.
+        // To do that, we send a message to the UI thread and let it show the conflict resolver dialog.
+        LRESULT dlgResult = ::SendMessage(GetSafeHwnd(), WM_SHOWCONFLICTRESOLVER, 0, (LPARAM)description);
+        mergedfile = m_mergedfile;
+        return (svn_wc_conflict_choice_t)dlgResult;
+    }
+
     return svn_wc_conflict_choose_postpone;
 }
 
@@ -368,9 +443,6 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
         data->sActionColumnText.LoadString(IDS_SVNACTION_REVERT);
         break;
     case svn_wc_notify_resolved:
-    case svn_wc_notify_resolved_prop:
-    case svn_wc_notify_resolved_text:
-    case svn_wc_notify_resolved_tree:
         data->sActionColumnText.LoadString(IDS_SVNACTION_RESOLVE);
         if (bInInteractiveResolving)
         {
@@ -409,6 +481,8 @@ BOOL CSVNProgressDlg::Notify(const CTSVNPath& path, const CTSVNPath& url, svn_wc
                                     removeit = rind;
                                 break;
                             }
+                            if ((*down)->bAuxItem)
+                                break;
                             ++rind;
                         }
                     }
@@ -1044,7 +1118,7 @@ void CSVNProgressDlg::ResizeColumns()
 
     TCHAR textbuf[MAX_PATH] = { 0 };
 
-    CHeaderCtrl * pHeaderCtrl = m_ProgList.GetHeaderCtrl();
+    CHeaderCtrl * pHeaderCtrl = (CHeaderCtrl*)(m_ProgList.GetDlgItem(0));
     if (pHeaderCtrl)
     {
         int maxcol = pHeaderCtrl->GetItemCount()-1;
@@ -1067,7 +1141,7 @@ void CSVNProgressDlg::ResizeColumns()
                 {
                     hFont = (HFONT)m_ProgList.SendMessage(WM_GETFONT);
                     // set the bold font and ask for the string width again
-                    m_ProgList.SendMessage(WM_SETFONT, (WPARAM) m_boldFont.GetSafeHandle(), NULL);
+                    m_ProgList.SendMessage(WM_SETFONT, (WPARAM)m_boldFont, NULL);
                 }
 
                 // get the width of the string and add 14 pixels for the column separator and margins
@@ -1139,7 +1213,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
     SetWindowTheme(m_ProgList.GetSafeHwnd(), L"Explorer", NULL);
 
     m_ProgList.DeleteAllItems();
-    int c = m_ProgList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_ProgList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_ProgList.DeleteColumn(c--);
     CString temp;
@@ -1157,7 +1231,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
     LOGFONT lf = {0};
     GetObject(hFont, sizeof(LOGFONT), &lf);
     lf.lfWeight = FW_BOLD;
-    m_boldFont.CreateFontIndirect(&lf);
+    m_boldFont = CreateFontIndirect(&lf);
 
     UpdateData(FALSE);
 
@@ -1169,6 +1243,7 @@ BOOL CSVNProgressDlg::OnInitDialog()
 
     AdjustControlSize(IDC_JUMPCONFLICT);
     CAppUtils::SetAccProperty(GetDlgItem(IDC_JUMPCONFLICT)->GetSafeHwnd(), PROPID_ACC_STATE, STATE_SYSTEM_READONLY|STATE_SYSTEM_UNAVAILABLE);
+    m_linkControl.ConvertStaticToLink(m_hWnd, IDC_JUMPCONFLICT);
 
     AddAnchor(IDC_SVNPROGRESS, TOP_LEFT, BOTTOM_RIGHT);
     AddAnchor(IDC_PROGRESSLABEL, BOTTOM_LEFT, BOTTOM_CENTER);
@@ -1425,22 +1500,6 @@ UINT CSVNProgressDlg::ProgressThread()
             logfile.AddLine(sFinalInfo);
         logfile.Close();
     }
-
-    if (m_pTaskbarList)
-        m_pTaskbarList->SetProgressState(m_hWnd, TBPF_PAUSED);
-
-    // svn_wc_notify_conflict_resolver_starting
-    Notify(CTSVNPath(), CTSVNPath(), svn_wc_notify_conflict_resolver_starting,
-           svn_node_none, CString(), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown,
-           0, NULL, svn_wc_notify_lock_state_unknown, CString(), CString(), NULL, NULL, m_pool);
-
-    ResolvePostOperationConflicts();
-
-    // svn_wc_notify_conflict_resolver_done
-    Notify(CTSVNPath(), CTSVNPath(), svn_wc_notify_conflict_resolver_done,
-        svn_node_none, CString(), svn_wc_notify_state_unknown, svn_wc_notify_state_unknown,
-        0, NULL, svn_wc_notify_lock_state_unknown, CString(), CString(), NULL, NULL, m_pool);
-
     GetDlgItem(IDC_JUMPCONFLICT)->ShowWindow(m_nTotalConflicts ? SW_SHOW : SW_HIDE);
 
     m_bCancelled = TRUE;
@@ -1802,6 +1861,7 @@ void CSVNProgressDlg::OnHdnItemclickSvnprogress(NMHDR *pNMHDR, LRESULT *pResult)
     m_nSortedColumn = phdr->iItem;
     Sort();
 
+    CString temp;
     m_ProgList.SetRedraw(FALSE);
     m_ProgList.DeleteAllItems();
     m_ProgList.SetItemCountEx (static_cast<int>(m_arData.size()));
@@ -2508,11 +2568,9 @@ bool CSVNProgressDlg::CmdSparseCheckout(CString& sWindowTitle, bool& /*localoper
     sWindowTitle.LoadString(IDS_PROGRS_TITLE_CHECKOUT);
     SetBackgroundImage(IDI_CHECKOUT_BKG);
 
-    std::map<CString, svn_depth_t> unknowns;
     CString sCmdInfo;
     int index = 0;
     CString rootUrl;
-
     for (std::map<CString,svn_depth_t>::iterator it = m_pathdepths.begin(); it != m_pathdepths.end(); ++it)
     {
         if (index == 0)
@@ -2529,7 +2587,6 @@ bool CSVNProgressDlg::CmdSparseCheckout(CString& sWindowTitle, bool& /*localoper
         }
         if ((depth == svn_depth_unknown)&&(checkoutdir.Exists()))
         {
-            unknowns[it->first] = it->second;
             ++index;
             continue;
         }
@@ -2585,30 +2642,6 @@ bool CSVNProgressDlg::CmdSparseCheckout(CString& sWindowTitle, bool& /*localoper
             }
         }
         ++index;
-    }
-
-    for (std::map<CString,svn_depth_t>::iterator it = unknowns.begin(); it != unknowns.end(); ++it)
-    {
-        CTSVNPath url = CTSVNPath(it->first);
-        CTSVNPath checkoutdir = m_targetPathList[0];
-        CString dir = it->first.Mid(rootUrl.GetLength());
-        if (it->first.Compare((LPCWSTR)rootUrl)!=0)
-        {
-            dir = CPathUtils::PathUnescape(dir);
-            checkoutdir.AppendPathString(dir);
-            dir.TrimLeft('/');
-        }
-
-        CAppUtils::SetWindowTitle(m_hWnd, url.GetUIFileOrDirectoryName(), sWindowTitle);
-        sCmdInfo.FormatMessage(IDS_PROGRS_CMD_SPARSEUPDATE, (LPCTSTR)dir, (LPCTSTR)SVNStatus::GetDepthString(svn_depth_unknown));
-        ReportCmd(sCmdInfo);
-
-        CBlockCacheForPath cacheBlock(checkoutdir.GetWinPath());
-        if (!Update(CTSVNPathList(checkoutdir), m_Revision, svn_depth_unknown, true, (m_options & ProgOptIgnoreExternals) != 0, true, false))
-        {
-            ReportSVNError();
-            return false;
-        }
     }
 
     DWORD exitcode = 0;
@@ -2814,68 +2847,63 @@ bool CSVNProgressDlg::CmdCommit(CString& sWindowTitle, bool& /*localoperation*/)
         CTSVNPath parentPath = m_origPathList[0].GetContainingDirectory();
         if (!parentPath.IsEquivalentTo(m_origPathList[0]))
         {
-            bool bFound = false;
-            SVNExternals exts;
-            do
+            SVNProperties props(parentPath, SVNRev::REV_WC, false, false);
+            if (props.HasProperty("svn:externals"))
             {
-                SVNProperties props(parentPath, SVNRev::REV_WC, false, false);
-                if (props.HasProperty("svn:externals"))
+                std::string extval = props.GetItemValue(props.IndexOf("svn:externals"));
+                SVNExternals exts;
+                exts.Add(parentPath, extval, false);
+                bool bFound = false;
+                for (auto it = exts.begin(); it != exts.end(); ++it)
                 {
-                    std::string extval = props.GetItemValue(props.IndexOf("svn:externals"));
-                    exts.Add(parentPath, extval, false);
-                    for (auto it = exts.begin(); it != exts.end(); ++it)
+                    if (it->targetDir.CompareNoCase(m_origPathList[0].GetFileOrDirectoryName()) == 0)
                     {
-                        if (it->targetDir.CompareNoCase(m_origPathList[0].GetFileOrDirectoryName()) == 0)
+                        if ((it->pegrevision.kind != svn_opt_revision_head) || (it->origrevision.kind != svn_opt_revision_head))
                         {
-                            if ((it->pegrevision.kind != svn_opt_revision_head) || (it->origrevision.kind != svn_opt_revision_head))
-                            {
-                                it->pegrevision.kind = ((const svn_opt_revision_t*)m_RevisionEnd)->kind;
-                                it->pegrevision.value = ((const svn_opt_revision_t*)m_RevisionEnd)->value;
-                                it->revision.kind = svn_opt_revision_head;
-                                it->revision.value.number = (svn_revnum_t)-1;
-                                it->origrevision.kind = svn_opt_revision_head;
-                                it->origrevision.value.number = (svn_revnum_t)-1;
-                                it->adjust = true;
-                                bFound = true;
-                                break;
-                            }
+                            it->pegrevision.kind = ((const svn_opt_revision_t*)m_RevisionEnd)->kind;
+                            it->pegrevision.value = ((const svn_opt_revision_t*)m_RevisionEnd)->value;
+                            it->revision.kind = svn_opt_revision_head;
+                            it->revision.value.number = (svn_revnum_t)-1;
+                            it->origrevision.kind = svn_opt_revision_head;
+                            it->origrevision.value.number = (svn_revnum_t)-1;
+                            it->adjust = true;
+                            bFound = true;
+                            break;
                         }
                     }
                 }
-                parentPath = parentPath.GetContainingDirectory();
-            } while (!bFound && !parentPath.IsEmpty() && !parentPath.IsWCRoot());
-
-            if (bFound)
-            {
-                // now ask the user whether to tag the external to the new HEAD revision after this commit
-                bool bTag = false;
-                // tagging external
-                // You've committed changes to external item that is tagged to a specific revision.
-                // Do you want to change the tagged revision now to the just committed revision?
-                //
-                // Change the tagged revision
-                //  The svn:external property of the parent folder is changed accordingly
-                // Cancel
-                //  The tagged revision of the external is left as is
-                CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK1)),
-                                    CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK2)),
-                                    L"TortoiseSVN",
-                                    0,
-                                    TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
-                taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK3)));
-                taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK4)));
-                taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
-                taskdlg.SetDefaultCommandControl(2);
-                taskdlg.SetMainIcon(TD_INFORMATION_ICON);
-                if (taskdlg.DoModal(GetExplorerHWND()) == 1)
-                    bTag = true;
-                if (bTag)
+                if (bFound)
                 {
-                    exts.TagExternals(false);
-                    // now start the commit dialog with the folder where we changed the external tag
-                    CString sCmd;
-                    sCmd.Format(L"/command:commit /path:\"%s\"", parentPath.GetWinPath());
-                    CAppUtils::RunTortoiseProc(sCmd);
+                    // now ask the user whether to tag the external to the new HEAD revision after this commit
+                    bool bTag = false;
+                    // tagging external
+                    // You've committed changes to external item that is tagged to a specific revision.
+                    // Do you want to change the tagged revision now to the just committed revision?
+                    //
+                    // Change the tagged revision
+                    //  The svn:external property of the parent folder is changed accordingly
+                    // Cancel
+                    //  The tagged revision of the external is left as is
+                    CTaskDialog taskdlg(CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK1)),
+                                        CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK2)),
+                                        L"TortoiseSVN",
+                                        0,
+                                        TDF_ENABLE_HYPERLINKS | TDF_USE_COMMAND_LINKS | TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_SIZE_TO_CONTENT);
+                    taskdlg.AddCommandControl(1, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK3)));
+                    taskdlg.AddCommandControl(2, CString(MAKEINTRESOURCE(IDS_ADJUST_EXTERNAL_AFTER_COMMIT_TASK4)));
+                    taskdlg.SetCommonButtons(TDCBF_CANCEL_BUTTON);
+                    taskdlg.SetDefaultCommandControl(2);
+                    taskdlg.SetMainIcon(TD_INFORMATION_ICON);
+                    if (taskdlg.DoModal(GetExplorerHWND()) == 1)
+                        bTag = true;
+                    if (bTag)
+                    {
+                        exts.TagExternals(false);
+                        // now start the commit dialog with the folder where we changed the external tag
+                        CString sCmd;
+                        sCmd.Format(L"/command:commit /path:\"%s\"", parentPath.GetWinPath());
+                        CAppUtils::RunTortoiseProc(sCmd);
+                    }
                 }
             }
         }
@@ -3072,18 +3100,6 @@ bool CSVNProgressDlg::CmdLock(CString& sWindowTitle, bool& /*localoperation*/)
     CAppUtils::SetWindowTitle(m_hWnd, m_targetPathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
     SetBackgroundImage(IDI_LOCK_BKG);
     ReportCmd(CString(MAKEINTRESOURCE(IDS_PROGRS_CMD_LOCK)));
-
-    DWORD exitcode = 0;
-    CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks) && (CHooks::Instance().PreLock(m_hWnd, m_selectedPaths, true, (m_options & ProgOptForce) != 0, m_sMessage, exitcode, error)))
-    {
-        if (exitcode)
-        {
-            ReportHookFailed(pre_lock_hook, m_selectedPaths, error);
-            return false;
-        }
-    }
     if (!Lock(m_targetPathList, (m_options & ProgOptForce) != 0, m_sMessage))
     {
         ReportSVNError();
@@ -3114,14 +3130,6 @@ bool CSVNProgressDlg::CmdLock(CString& sWindowTitle, bool& /*localoperation*/)
                 ReportSVNError();
                 return false;
             }
-            if ((!m_bNoHooks) && (CHooks::Instance().PreLock(m_hWnd, m_selectedPaths, true, (m_options & ProgOptForce) != 0, m_sMessage, exitcode, error)))
-            {
-                if (exitcode)
-                {
-                    ReportHookFailed(pre_lock_hook, m_selectedPaths, error);
-                    return false;
-                }
-            }
             if (!Lock(m_targetPathList, (m_options & ProgOptForce) != 0, m_sMessage))
             {
                 ReportSVNError();
@@ -3140,14 +3148,6 @@ bool CSVNProgressDlg::CmdLock(CString& sWindowTitle, bool& /*localoperation*/)
             ReportString(CString(MAKEINTRESOURCE(IDS_SVNPROGRESS_LOCKHINT)), CString(MAKEINTRESOURCE(IDS_WARN_NOTE)));
         }
         return false;
-    }
-    if ((!m_bNoHooks) && (CHooks::Instance().PostLock(m_hWnd, m_selectedPaths, true, (m_options & ProgOptForce) != 0, m_sMessage, exitcode, error)))
-    {
-        if (exitcode)
-        {
-            ReportHookFailed(post_lock_hook, m_selectedPaths, error);
-            return false;
-        }
     }
     return true;
 }
@@ -3674,29 +3674,10 @@ bool CSVNProgressDlg::CmdUnlock(CString& sWindowTitle, bool& /*localoperation*/)
     CAppUtils::SetWindowTitle(m_hWnd, m_targetPathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
     SetBackgroundImage(IDI_UNLOCK_BKG);
     ReportCmd(CString(MAKEINTRESOURCE(IDS_PROGRS_CMD_UNLOCK)));
-    DWORD exitcode = 0;
-    CString error;
-    CHooks::Instance().SetProjectProperties(m_targetPathList.GetCommonRoot(), m_ProjectProperties);
-    if ((!m_bNoHooks) && (CHooks::Instance().PreLock(m_hWnd, m_selectedPaths, false, (m_options & ProgOptForce) != 0, m_sMessage, exitcode, error)))
-    {
-        if (exitcode)
-        {
-            ReportHookFailed(pre_lock_hook, m_selectedPaths, error);
-            return false;
-        }
-    }
     if (!Unlock(m_targetPathList, (m_options & ProgOptForce) != 0))
     {
         ReportSVNError();
         return false;
-    }
-    if ((!m_bNoHooks) && (CHooks::Instance().PreLock(m_hWnd, m_selectedPaths, false, (m_options & ProgOptForce) != 0, m_sMessage, exitcode, error)))
-    {
-        if (exitcode)
-        {
-            ReportHookFailed(post_lock_hook, m_selectedPaths, error);
-            return false;
-        }
     }
     CShellUpdater::Instance().AddPathsForUpdate(m_targetPathList);
     return true;
@@ -3758,11 +3739,8 @@ bool CSVNProgressDlg::CmdUpdate(CString& sWindowTitle, bool& /*localoperation*/)
             }
         }
         // if all targets are from the same repository and we're updating to HEAD,
-        // find the HEAD revision number and update specifically to that for PreUpdate
-        // hook
-        if (m_Revision.IsHead() && !multipleUUIDs &&
-            (wcroots.size() > 1 ||
-             CHooks::Instance().IsHookPresent(pre_update_hook, m_targetPathList)))
+        // find the HEAD revision number and update specifically to that.
+        if (m_Revision.IsHead() && !multipleUUIDs)
         {
             // don't use the cache to fetch the HEAD here, we need the current HEAD
             m_Revision = GetHEADRevision(m_targetPathList[0], false);
@@ -4336,116 +4314,6 @@ CTSVNPathList CSVNProgressDlg::GetPathsForUpdateHook( const CTSVNPathList& pathL
         }
     }
     return updatedList;
-}
-
-void CSVNProgressDlg::ResolvePostOperationConflicts()
-{
-    // we only bother the user when merging
-    if (((m_Command == SVNProgress_Merge) || (m_Command == SVNProgress_MergeAll) || (m_Command == SVNProgress_MergeReintegrateOldStyle) || (m_Command == SVNProgress_MergeReintegrate)) && (!m_AlwaysConflicted))
-    {
-        for (int i = 0; i < (int)m_arData.size(); ++i)
-        {
-            NotificationData * data = m_arData[i];
-            if (data->bConflictedActionItem)
-            {
-                // Make a copy of NotificationData::path because it data pointer
-                // may become invalid during processing conflict resolution callbacks.
-                CTSVNPath path = data->path;
-                m_ProgList.SetItemState(-1, 0, LVIS_SELECTED);
-                m_ProgList.SetItemState(i, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
-                m_ProgList.EnsureVisible(i, FALSE);
-                m_ProgList.SetFocus();
-                m_ProgList.SetSelectionMark(i);
-
-                // Use Subversion 1.10 API to resolve possible tree conlifcts.
-                SVNConflictInfo conflict;
-                if (!conflict.Get(path))
-                {
-                    conflict.ShowErrorDialog(m_hWnd);
-                    return ;
-                }
-
-                // Resolve tree conflicts first.
-                if (conflict.HasTreeConflict())
-                {
-                    CProgressDlg progressDlg;
-                    progressDlg.SetTitle(IDS_PROC_EDIT_TREE_CONFLICTS);
-                    CString sProgressLine;
-                    sProgressLine.LoadString(IDS_PROGRS_FETCHING_TREE_CONFLICT_INFO);
-                    progressDlg.SetLine(1, sProgressLine);
-                    progressDlg.SetShowProgressBar(false);
-                    progressDlg.ShowModal(GetExplorerHWND(), FALSE);
-                    conflict.SetProgressDlg(&progressDlg);
-                    if (!conflict.FetchTreeDetails())
-                    {
-                        // Ignore errors while fetching additional tree conflict information.
-                        // Use still may want to resolve it manually.
-                        conflict.ClearSVNError();
-                    }
-                    progressDlg.Stop();
-                    conflict.SetProgressDlg(NULL);
-
-                    CNewTreeConflictEditorDlg dlg;
-                    dlg.SetConflictInfo(&conflict);
-                    dlg.SetSVNContext(this);
-                    dlg.DoModal(m_hWnd);
-                    if (dlg.IsCancelled())
-                    {
-                        m_AlwaysConflicted = true;
-                        return;
-                    }
-
-                    if (dlg.GetResult() == svn_wc_conflict_choose_postpone)
-                        continue;
-
-                    // Update conflict information.
-                    if (!conflict.Get(path))
-                    {
-                        conflict.ShowErrorDialog(m_hWnd);
-                        return ;
-                    }
-                }
-
-                // Resolve text conflicts if any.
-                if (conflict.HasTextConflict())
-                {
-                    CConflictResolveDlg dlg(this);
-                    dlg.SetSVNContext(this);
-                    dlg.SetTextConflict(&conflict);
-                    dlg.DoModal();
-                    if (dlg.IsCancelled())
-                    {
-                        m_AlwaysConflicted = true;
-                        return;
-                    }
-
-                    // Update conflict information.
-                    if (!conflict.Get(path))
-                    {
-                        conflict.ShowErrorDialog(m_hWnd);
-                        return;
-                    }
-                }
-
-                // Resolve text conflicts if any.
-                if (conflict.HasPropConflict())
-                {
-                    for (int propertyIdx = 0; propertyIdx < conflict.GetPropConflictCount(); propertyIdx++)
-                    {
-                        CConflictResolveDlg dlg(this);
-                        dlg.SetSVNContext(this);
-                        dlg.SetPropertyConflict(&conflict, conflict.GetPropConflictName(propertyIdx));
-                        dlg.DoModal();
-                        if (dlg.IsCancelled())
-                        {
-                            m_AlwaysConflicted = true;
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 bool CSVNProgressDlg::IsRevisionRelatedToMerge(const CDictionaryBasedTempPath& basePath, PLOGENTRYDATA pLogItem)

@@ -25,9 +25,12 @@
 #include <shlobj.h>
 #pragma warning(pop)
 
+#define REGISTRYTIMEOUT 2000
+#define EXCLUDELISTTIMEOUT 5000
 #define ADMINDIRTIMEOUT 10000
 #define DRIVETYPETIMEOUT 300000     // 5 min
 #define NUMBERFMTTIMEOUT 300000
+#define MENUTIMEOUT 100
 
 typedef CComCritSecLock<CComCriticalSection> Locker;
 
@@ -52,9 +55,9 @@ public:
         dll
     };
     ShellCache();
-    ~ShellCache();
+    ~ShellCache() {}
 
-    bool RefreshIfNeeded();
+    void ForceRefresh();
     CacheType GetCacheType();
     DWORD BlockStatus();
     unsigned __int64 GetMenuLayout();
@@ -86,6 +89,7 @@ public:
 
 private:
 
+    void DriveValid();
     void ExcludeContextValid();
     void ValidatePathFilter();
 
@@ -222,8 +226,25 @@ private:
 
     CPathFilter pathFilter;
 
+    ULONGLONG cachetypeticker;
+    ULONGLONG recursiveticker;
+    ULONGLONG folderoverlayticker;
+    ULONGLONG getlocktopticker;
+    ULONGLONG driveticker;
     ULONGLONG drivetypeticker;
+    ULONGLONG layoutticker;
+    ULONGLONG menumaskticker;
+    ULONGLONG langticker;
+    ULONGLONG blockstatusticker;
     ULONGLONG columnrevformatticker;
+    ULONGLONG pathfilterticker;
+    ULONGLONG shellmenuacceleratorsticker;
+    ULONGLONG unversionedasmodifiedticker;
+    ULONGLONG ignoreoncommitignoredticker;
+    ULONGLONG excludedasnormalticker;
+    ULONGLONG alwaysextendedticker;
+    ULONGLONG hidemenusforunversioneditemsticker;
+    ULONGLONG columnseverywhereticker;
     UINT  drivetypecache[27];
     TCHAR drivetypepathcache[MAX_PATH];     // MAX_PATH ok.
     NUMBERFMT columnrevformat;
@@ -233,9 +254,8 @@ private:
     CRegStdString nocontextpaths;
     tstring excludecontextstr;
     std::vector<tstring> excontextvector;
+    ULONGLONG excontextticker;
     CComCriticalSection m_critSec;
-    HANDLE m_registryChangeEvent;
-    HKEY m_hNotifyRegKey;
 };
 
 inline bool operator<
