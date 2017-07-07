@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,6 +74,8 @@ typedef enum
     CLOSE_NOMERGES,
     CLOSE_LOCAL
 } ProgressCloseOptions;
+
+#define WM_SHOWCONFLICTRESOLVER (WM_APP + 100)
 
 /**
  * \ingroup TortoiseProc
@@ -223,6 +225,7 @@ protected:
         const CString& propertyName,
         svn_merge_range_t * range,
         svn_error_t * err, apr_pool_t * pool) override;
+    virtual svn_wc_conflict_choice_t    ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile) override;
     virtual BOOL                        Cancel() override;
 
     virtual BOOL                        OnInitDialog();
@@ -234,6 +237,8 @@ protected:
     afx_msg void    OnLvnGetdispinfoSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void    OnNMDblclkSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void    OnBnClickedLogbutton();
+    afx_msg void    OnBnClickedOk();
+    afx_msg void    OnBnClickedNoninteractive();
     afx_msg void    OnHdnItemclickSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg BOOL    OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
     afx_msg void    OnClose();
@@ -242,10 +247,10 @@ protected:
     afx_msg void    OnTimer(UINT_PTR nIDEvent);
     afx_msg void    OnLvnBegindragSvnprogress(NMHDR *pNMHDR, LRESULT *pResult);
     afx_msg void    OnSize(UINT nType, int cx, int cy);
+    LRESULT         OnShowConflictResolver(WPARAM, LPARAM);
     afx_msg LRESULT OnTaskbarBtnCreated(WPARAM wParam, LPARAM lParam);
     afx_msg LRESULT OnCloseOnEnd(WPARAM /*wParam*/, LPARAM /*lParam*/);
     afx_msg void    OnBnClickedRetrynohooks();
-    afx_msg void    OnBnClickedRetryDifferentUser();
     afx_msg LRESULT OnCheck(WPARAM wnd, LPARAM);
     afx_msg LRESULT OnResolveMsg(WPARAM, LPARAM);
 
@@ -285,7 +290,6 @@ private:
     bool        IsRevisionRelatedToMerge(const CDictionaryBasedTempPath& basePath, PLOGENTRYDATA pLogItem);
     void        CompareWithWC(NotificationData * data);
     CTSVNPathList GetPathsForUpdateHook(const CTSVNPathList& pathList);
-    void        ResolvePostOperationConflicts();
 
     /**
      * Resizes the columns of the progress list so that the headings are visible.
@@ -373,17 +377,16 @@ private:
     bool                    m_bHookError;
     bool                    m_bNoHooks;
     bool                    m_bHooksAreOptional;
-    bool                    m_bAuthorizationError;
 
     int                     iFirstResized;
     BOOL                    bSecondResized;
     int                     nEnsureVisibleCount;
 
     CString                 m_sTotalBytesTransferred;
-    CLinkControl            m_jumpConflictControl;
+    CLinkControl            m_linkControl;
 
     CColors                 m_Colors;
-    CFont                   m_boldFont;
+    HFONT                   m_boldFont;
 
 
     bool                    m_bLockWarning;
@@ -393,6 +396,8 @@ private:
 
     INT_PTR                 m_itemCount;
     INT_PTR                 m_itemCountTotal;
+
+    bool                    m_AlwaysConflicted;
 
     CComPtr<IBugTraqProvider> m_BugTraqProvider;
     CComPtr<ITaskbarList3>  m_pTaskbarList;

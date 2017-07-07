@@ -164,47 +164,47 @@ class LexerRegistry : public ILexer {
 public:
 	LexerRegistry() {}
 	virtual ~LexerRegistry() {}
-	int SCI_METHOD Version() const override {
+	virtual int SCI_METHOD Version() const {
 		return lvOriginal;
 	}
-	void SCI_METHOD Release() override {
+	virtual void SCI_METHOD Release() {
 		delete this;
 	}
-	const char *SCI_METHOD PropertyNames() override {
+	virtual const char *SCI_METHOD PropertyNames() {
 		return optSetRegistry.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) override {
+	virtual int SCI_METHOD PropertyType(const char *name) {
 		return optSetRegistry.PropertyType(name);
 	}
-	const char *SCI_METHOD DescribeProperty(const char *name) override {
+	virtual const char *SCI_METHOD DescribeProperty(const char *name) {
 		return optSetRegistry.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override {
+	virtual Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) {
 		if (optSetRegistry.PropertySet(&options, key, val)) {
 			return 0;
 		}
 		return -1;
 	}
-	Sci_Position SCI_METHOD WordListSet(int, const char *) override {
+	virtual Sci_Position SCI_METHOD WordListSet(int, const char *) {
 		return -1;
 	}
-	void *SCI_METHOD PrivateCall(int, void *) override {
+	virtual void *SCI_METHOD PrivateCall(int, void *) {
 		return 0;
 	}
 	static ILexer *LexerFactoryRegistry() {
 		return new LexerRegistry;
 	}
-	const char *SCI_METHOD DescribeWordListSets() override {
+	virtual const char *SCI_METHOD DescribeWordListSets() {
 		return optSetRegistry.DescribeWordListSets();
 	}
-	void SCI_METHOD Lex(Sci_PositionU startPos,
+	virtual void SCI_METHOD Lex(Sci_PositionU startPos,
 								Sci_Position length,
 								int initStyle,
-								IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos,
+								IDocument *pAccess);
+	virtual void SCI_METHOD Fold(Sci_PositionU startPos,
 								 Sci_Position length,
 								 int initStyle,
-								 IDocument *pAccess) override;
+								 IDocument *pAccess);
 };
 
 void SCI_METHOD LexerRegistry::Lex(Sci_PositionU startPos,

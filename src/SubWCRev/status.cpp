@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2017 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,7 +30,6 @@
 #include "StringUtils.h"
 #include "UnicodeUtils.h"
 #include <algorithm>
-#include <tuple>
 #include <fstream>
 
 CRegStdString regTagsPattern = CRegStdString(L"Software\\TortoiseSVN\\RevisionGraph\\TagsPattern", L"tags");
@@ -48,7 +47,7 @@ void LoadIgnorePatterns(const char * wc, SubWCRev_t * SubStat)
         while (std::getline(infile, line))
         {
             if (!line.empty())
-                SubStat->ignorepatterns.emplace(line, path.size());
+                SubStat->ignorepatterns.insert(line);
         }
     }
 }
@@ -135,7 +134,7 @@ tstring Tokenize(const _TCHAR* str, const _TCHAR* delim, tstring::size_type& iSt
         r = wcsstr(pstr, delim);
     }
 
-    if( pstr[0] != 0)
+    if( wcslen(pstr) > 0)
     {
         iStart = tstring::size_type(wcslen(str));
         return tstring(pstr);
@@ -153,7 +152,7 @@ bool IsTaggedVersion(const char * url)
     }
 
     tstring urllower = Utf8ToWide(url);
-    std::transform(urllower.begin(), urllower.end(), urllower.begin(), ::towlower);
+    std::transform(urllower.begin(), urllower.end(), urllower.begin(), tolower);
 
     // look for the tag pattern inside in the url
     tstring sTags = regTagsPattern;
@@ -223,22 +222,7 @@ svn_error_t * getallstatus(void * baton, const char * path, const svn_client_sta
     {
         for (const auto& pattern : sb->SubStat->ignorepatterns)
         {
-            if (strwildcmp(std::get<0>(pattern).c_str(), status->repos_relpath))
-                return SVN_NO_ERROR;
-        }
-    }
-    if (status->local_abspath && !sb->SubStat->ignorepatterns.empty())
-    {
-        auto la_len = strlen(status->local_abspath);
-        for (const auto& pattern : sb->SubStat->ignorepatterns)
-        {
-            auto offset = std::get<1>(pattern);
-            if (la_len <= offset)
-                continue;
-            const char * relativepath = &status->local_abspath[offset];
-            if (*relativepath == '/')
-                ++relativepath;
-            if (strwildcmp(std::get<0>(pattern).c_str(), relativepath))
+            if (strwildcmp(pattern.c_str(), status->repos_relpath))
                 return SVN_NO_ERROR;
         }
     }

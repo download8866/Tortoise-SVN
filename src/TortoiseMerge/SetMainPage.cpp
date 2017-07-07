@@ -58,7 +58,7 @@ CSetMainPage::CSetMainPage()
     m_regIgnoreEOL = CRegDWORD(L"Software\\TortoiseMerge\\IgnoreEOL", TRUE);
     m_regOnePane = CRegDWORD(L"Software\\TortoiseMerge\\OnePane");
     m_regViewLinenumbers = CRegDWORD(L"Software\\TortoiseMerge\\ViewLinenumbers", 1);
-    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Consolas");
+    m_regFontName = CRegString(L"Software\\TortoiseMerge\\FontName", L"Courier New");
     m_regFontSize = CRegDWORD(L"Software\\TortoiseMerge\\FontSize", 10);
     m_regCaseInsensitive = CRegDWORD(L"Software\\TortoiseMerge\\CaseInsensitive", FALSE);
     m_regUTF8Default = CRegDWORD(L"Software\\TortoiseMerge\\UseUTF8", FALSE);
@@ -257,7 +257,7 @@ void CSetMainPage::OnBnClickedWhitespace()
 BOOL CSetMainPage::DialogEnableWindow(UINT nID, BOOL bEnable)
 {
     CWnd * pwndDlgItem = GetDlgItem(nID);
-    if (!pwndDlgItem)
+    if (pwndDlgItem == NULL)
         return FALSE;
     if (bEnable)
         return pwndDlgItem->EnableWindow(bEnable);

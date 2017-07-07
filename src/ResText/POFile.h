@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2007, 2011, 2015-2016 - TortoiseSVN
+// Copyright (C) 2003-2007, 2011, 2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -20,17 +20,15 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <tuple>
 
 typedef struct tagResourceEntry
 {
     WORD                        menuID;
     std::vector<std::wstring>   translatorcomments;
     std::vector<std::wstring>   automaticcomments;
-    std::set<std::wstring>      resourceIDs;
+    std::set<INT_PTR>           resourceIDs;
     std::wstring                flag;
     std::wstring                msgstr;
-    std::wstring                headerfile;
 } RESOURCEENTRY, * LPRESOURCEENTRY;
 
 /**
@@ -51,7 +49,6 @@ public:
     BOOL SaveFile(LPCTSTR szPath, LPCTSTR lpszHeaderFile);
     void SetQuiet(BOOL bQuiet = TRUE) {m_bQuiet = bQuiet;}
 
-    std::vector<std::tuple<std::wstring, std::wstring>> m_regexes;
 private:
     void AdjustEOLs(std::wstring& str);
     BOOL m_bQuiet;

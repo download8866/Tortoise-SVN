@@ -450,12 +450,6 @@
     <ClCompile Include="lexers\LexJSON.cxx">
       <Filter>lexers</Filter>
     </ClCompile>
-    <ClCompile Include="lexers\LexEDIFACT.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexIndent.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ILexer.h">

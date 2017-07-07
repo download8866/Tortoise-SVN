@@ -46,11 +46,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     SetTaskIDPerUUID();
     CRegStdDWORD loc = CRegStdDWORD(L"Software\\TortoiseSVN\\LanguageID", 1033);
     long langId = loc;
-    CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+    CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 
     CLangDll langDLL;
     hResource = langDLL.Init(L"TortoiseIDiff", langId);
-    if (!hResource)
+    if (hResource == NULL)
         hResource = hInstance;
 
     CCmdLineParser parser(lpCmdLine);
@@ -59,7 +59,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     {
         TCHAR buf[1024] = { 0 };
         LoadString(hResource, IDS_COMMANDLINEHELP, buf, _countof(buf));
-        MessageBox(nullptr, buf, L"TortoiseIDiff", MB_ICONINFORMATION);
+        MessageBox(NULL, buf, L"TortoiseIDiff", MB_ICONINFORMATION);
         langDLL.Close();
         return 0;
     }
@@ -78,7 +78,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     curHand = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_PANCUR), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
     curHandDown = (HCURSOR)LoadImage(hInst, MAKEINTRESOURCE(IDC_PANDOWNCUR), IMAGE_CURSOR, 0, 0, LR_DEFAULTSIZE);
 
-    auto mainWindow = std::make_unique<CMainWindow>(hResource);
+    std::unique_ptr<CMainWindow> mainWindow(new CMainWindow(hResource));
     mainWindow->SetRegistryPath(L"Software\\TortoiseSVN\\TortoiseIDiffWindowPos");
     std::wstring leftfile = parser.HasVal(L"left") ? parser.GetVal(L"left") : L"";
     std::wstring rightfile = parser.HasVal(L"right") ? parser.GetVal(L"right") : L"";
@@ -86,15 +86,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     {
         int nArgs;
         LPWSTR * szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-        if (szArglist)
+        if( szArglist )
         {
-            if (nArgs == 3)
+            if ( nArgs==3 )
             {
                 // Four parameters:
                 // [0]: Program name
                 // [1]: left file
                 // [2]: right file
-                if (PathFileExists(szArglist[1]) && PathFileExists(szArglist[2]))
+                if ( PathFileExists(szArglist[1]) && PathFileExists(szArglist[2]) )
                 {
                     leftfile = szArglist[1];
                     rightfile = szArglist[2];
@@ -144,7 +144,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
             PostMessage(*mainWindow, WM_COMMAND, ID_VIEW_IMAGEINFO, 0);
         }
         // Main message loop:
-        while (GetMessage(&msg, nullptr, 0, 0))
+        while (GetMessage(&msg, NULL, 0, 0))
         {
             if (!TranslateAccelerator(*mainWindow, hAccelTable, &msg))
             {

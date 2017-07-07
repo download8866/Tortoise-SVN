@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2007-2017 - TortoiseSVN
+// Copyright (C) 2007-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -129,17 +129,15 @@ bool CHooks::Create()
 void CHooks::SetProjectProperties( const CTSVNPath& wcRootPath, const ProjectProperties& pp )
 {
     m_wcRootPath = wcRootPath;
-    auto propsPath = pp.GetPropsPath().GetWinPathString();
-    ParseAndInsertProjectProperty(check_commit_hook, pp.sCheckCommitHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(pre_commit_hook, pp.sPreCommitHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(start_commit_hook, pp.sStartCommitHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(post_commit_hook, pp.sPostCommitHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(pre_update_hook, pp.sPreUpdateHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(start_update_hook, pp.sStartUpdateHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(post_update_hook, pp.sPostUpdateHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(manual_precommit, pp.sManualPreCommitHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(pre_lock_hook, pp.sPreLockHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
-    ParseAndInsertProjectProperty(post_lock_hook, pp.sPostLockHook, wcRootPath, propsPath, pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    CString sLocalPath = pp.sRepositoryRootUrl;
+    ParseAndInsertProjectProperty(check_commit_hook, pp.sCheckCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(pre_commit_hook, pp.sPreCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(start_commit_hook, pp.sStartCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(post_commit_hook, pp.sPostCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(pre_update_hook, pp.sPreUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(start_update_hook, pp.sStartUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(post_update_hook, pp.sPostUpdateHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
+    ParseAndInsertProjectProperty(manual_precommit, pp.sManualPreCommitHook, wcRootPath, pp.GetPropsPath().GetWinPathString(), pp.sRepositoryPathUrl, pp.sRepositoryRootUrl);
 }
 
 CHooks& CHooks::Instance()
@@ -179,7 +177,7 @@ bool CHooks::Save()
     return true;
 }
 
-bool CHooks::Remove(const hookkey& key)
+bool CHooks::Remove(hookkey key)
 {
     return (erase(key) > 0);
 }
@@ -226,10 +224,6 @@ CString CHooks::GetHookTypeString(hooktype t)
         return L"pre_connect_hook";
     case manual_precommit:
         return L"manual_precommit_hook";
-    case pre_lock_hook:
-        return L"pre_lock_hook";
-    case post_lock_hook:
-        return L"post_lock_hook";
     }
     return L"";
 }
@@ -254,10 +248,6 @@ hooktype CHooks::GetHookType(const CString& s)
         return pre_connect_hook;
     if (s.Compare(L"manual_precommit_hook")==0)
         return manual_precommit;
-    if (s.Compare(L"pre_lock_hook") == 0)
-        return pre_lock_hook;
-    if (s.Compare(L"post_lock_hook") == 0)
-        return post_lock_hook;
     return unknown_hook;
 }
 
@@ -396,7 +386,7 @@ bool CHooks::ManualPreCommit( HWND hWnd, const CTSVNPathList& pathList, CString&
 }
 
 
-bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, const SVNRev& rev, const CString& message, DWORD& exitcode, CString& error)
+bool CHooks::PostCommit(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CString& message, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(post_commit_hook, pathList);
     if (it == end())
@@ -428,7 +418,7 @@ bool CHooks::StartUpdate(HWND hWnd, const CTSVNPathList& pathList, DWORD& exitco
     return true;
 }
 
-bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, const SVNRev& rev, DWORD& exitcode, CString& error)
+bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(pre_update_hook, pathList);
     if (it == end())
@@ -444,7 +434,7 @@ bool CHooks::PreUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t dep
     return true;
 }
 
-bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, const SVNRev& rev, const CTSVNPathList& updatedList, DWORD& exitcode, CString& error)
+bool CHooks::PostUpdate(HWND hWnd, const CTSVNPathList& pathList, svn_depth_t depth, SVNRev rev, const CTSVNPathList& updatedList, DWORD& exitcode, CString& error)
 {
     hookiterator it = FindItem(post_update_hook, pathList);
     if (it == end())
@@ -498,45 +488,6 @@ bool CHooks::PreConnect(const CTSVNPathList& pathList)
         return true;
     }
     return false;
-}
-
-bool CHooks::PreLock(HWND hWnd, const CTSVNPathList & pathList,bool lock, bool steal, CString & message, DWORD & exitcode, CString & error)
-{
-    hookiterator it = FindItem(pre_lock_hook, pathList);
-    if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
-        return false;
-    CString sCmd = it->second.commandline;
-    AddPathParam(sCmd, pathList);
-    AddParam(sCmd, lock ? L"true" : L"false");
-    AddParam(sCmd, steal ? L"true" : L"false");
-    CTSVNPath temppath = AddMessageFileParam(sCmd, message);
-    AddCWDParam(sCmd, pathList);
-    exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
-    if (!exitcode && !temppath.IsEmpty())
-    {
-        CStringUtils::ReadStringFromTextFile(temppath.GetWinPathString(), message);
-    }
-    return true;
-}
-
-bool CHooks::PostLock(HWND hWnd, const CTSVNPathList & pathList, bool lock, bool steal, const CString & message, DWORD & exitcode, CString & error)
-{
-    hookiterator it = FindItem(post_lock_hook, pathList);
-    if (it == end())
-        return false;
-    if (!ApproveHook(hWnd, it))
-        return false;
-    CString sCmd = it->second.commandline;
-    AddPathParam(sCmd, pathList);
-    AddParam(sCmd, lock ? L"true" : L"false");
-    AddParam(sCmd, steal ? L"true" : L"false");
-    AddMessageFileParam(sCmd, message);
-    AddErrorParam(sCmd, error);
-    AddCWDParam(sCmd, pathList);
-    exitcode = RunScript(sCmd, pathList, error, it->second.bWait, it->second.bShow);
-    return true;
 }
 
 bool CHooks::IsHookExecutionEnforced(hooktype t, const CTSVNPathList& pathList)
@@ -880,7 +831,7 @@ bool CHooks::ApproveHook( HWND hWnd, hookiterator it )
         return it->second.bApproved;
 
     CString sQuestion;
-    sQuestion.Format(IDS_HOOKS_APPROVE_TASK1, (LPCWSTR)it->second.commandline);
+    sQuestion.Format(IDS_HOOKS_APPROVE_TASK1, it->second.commandline);
     bool bApproved = false;
     bool bDoNotAskAgain = false;
     CTaskDialog taskdlg(sQuestion,

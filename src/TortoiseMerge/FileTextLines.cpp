@@ -53,7 +53,6 @@ UINT64 inline DwordSwapBytes(UINT64 nValue)
 
 CFileTextLines::CFileTextLines(void)
     : m_bNeedsConversion(false)
-    , m_bKeepEncoding(false)
 {
     m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
@@ -109,30 +108,33 @@ CFileTextLines::UnicodeType CFileTextLines::CheckUnicodeType(LPVOID pBuffer, int
     int nNeedData = 0;
     int i=0;
     int nullcount = 0;
-    for (; i < cb; ++i)
+    if (!bNonANSI)
     {
-        if (pVal8[i] == 0)
+        for (; i<cb; ++i)
         {
-            ++nullcount;
-            // count the null chars, we do not want to treat an ASCII/UTF8 file
-            // as UTF16 just because of some null chars that might be accidentally
-            // in the file.
-            // Use an arbitrary value of one fiftieth of the file length as
-            // the limit after which a file is considered UTF16.
-            if (nullcount > (cb / 50))
+            if (pVal8[i] == 0)
             {
-                // null-chars are not allowed for ASCII or UTF8, that means
-                // this file is most likely UTF16 encoded
-                if (i % 2)
-                    return CFileTextLines::UTF16_LE;
-                else
-                    return CFileTextLines::UTF16_BE;
+                ++nullcount;
+                // count the null chars, we do not want to treat an ASCII/UTF8 file
+                // as UTF16 just because of some null chars that might be accidentally
+                // in the file.
+                // Use an arbitrary value of one fiftieth of the file length as
+                // the limit after which a file is considered UTF16.
+                if (nullcount > (cb / 50))
+                {
+                    // null-chars are not allowed for ASCII or UTF8, that means
+                    // this file is most likely UTF16 encoded
+                    if (i%2)
+                        return CFileTextLines::UTF16_LE;
+                    else
+                        return CFileTextLines::UTF16_BE;
+                }
             }
-        }
-        if ((pVal8[i] & 0x80) != 0) // non ASCII
-        {
-            bNonANSI = true;
-            break;
+            if ((pVal8[i] & 0x80)!=0) // non ASCII
+            {
+                bNonANSI = true;
+                break;
+            }
         }
     }
     // check remaining text for UTF-8 validity
@@ -208,8 +210,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 {
     WCHAR exceptionError[1000] = {0};
     m_SaveParams.m_LineEndings = EOL_AUTOLINE;
-    if (!m_bKeepEncoding)
-        m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
+    m_SaveParams.m_UnicodeType = CFileTextLines::AUTOTYPE;
     RemoveAll();
     if(lengthHint != 0)
     {
@@ -228,7 +229,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
         return TRUE;
     }
 
-    CAutoFile hFile = CreateFile(sFilePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING, 0, nullptr);
+    CAutoFile hFile = CreateFile(sFilePath, GENERIC_READ, FILE_SHARE_READ|FILE_SHARE_DELETE|FILE_SHARE_WRITE, NULL, OPEN_EXISTING, NULL, NULL);
     if (!hFile)
     {
         SetErrorString();
@@ -266,7 +267,7 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
 
     // load file
     DWORD dwReadBytes = 0;
-    if (!ReadFile(hFile, (void*)oFile, fsize.LowPart, &dwReadBytes, nullptr))
+    if (!ReadFile(hFile, (void *)oFile, fsize.LowPart, &dwReadBytes, NULL))
     {
         SetErrorString();
         return FALSE;
@@ -277,14 +278,14 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
     if (m_SaveParams.m_UnicodeType == CFileTextLines::AUTOTYPE)
     {
         m_SaveParams.m_UnicodeType = this->CheckUnicodeType((LPVOID)oFile, dwReadBytes);
+        // enforce conversion for all but ASCII and UTF8 type
+        m_bNeedsConversion = (m_SaveParams.m_UnicodeType!=CFileTextLines::UTF8)&&(m_SaveParams.m_UnicodeType!=CFileTextLines::ASCII);
     }
-    // enforce conversion for all but ASCII and UTF8 type
-    m_bNeedsConversion = (m_SaveParams.m_UnicodeType != CFileTextLines::UTF8) && (m_SaveParams.m_UnicodeType != CFileTextLines::ASCII);
 
     // we may have to convert the file content - CString is UTF16LE
     try
     {
-        CBaseFilter* pFilter = nullptr;
+        CBaseFilter * pFilter = NULL;
         switch (m_SaveParams.m_UnicodeType)
         {
         case BINARY:
@@ -292,25 +293,25 @@ BOOL CFileTextLines::Load(const CString& sFilePath, int lengthHint /* = 0*/)
             return FALSE;
         case UTF8:
         case UTF8BOM:
-            pFilter = new CUtf8Filter(nullptr);
+            pFilter = new CUtf8Filter(NULL);
             break;
         default:
         case ASCII:
-            pFilter = new CAsciiFilter(nullptr);
+            pFilter = new CAsciiFilter(NULL);
             break;
         case UTF16_BE:
         case UTF16_BEBOM:
-            pFilter = new CUtf16beFilter(nullptr);
+            pFilter = new CUtf16beFilter(NULL);
             break;
         case UTF16_LE:
         case UTF16_LEBOM:
-            pFilter = new CUtf16leFilter(nullptr);
+            pFilter = new CUtf16leFilter(NULL);
             break;
         case UTF32_BE:
-            pFilter = new CUtf32beFilter(nullptr);
+            pFilter = new CUtf32beFilter(NULL);
             break;
         case UTF32_LE:
-            pFilter = new CUtf32leFilter(nullptr);
+            pFilter = new CUtf32leFilter(NULL);
             break;
         }
         pFilter->Decode(oFile);
@@ -483,20 +484,20 @@ BOOL CFileTextLines::Save( const CString& sFilePath
         {
             if (!PathIsDirectory(destPath.Left(destPath.Find('\\', ind))))
             {
-                if (!CreateDirectory(destPath.Left(destPath.Find('\\', ind)), nullptr))
+                if (!CreateDirectory(destPath.Left(destPath.Find('\\', ind)), NULL))
                     return FALSE;
             }
             ind = destPath.Find('\\', ind)+1;
         }
 
         CStdioFile file;            // Hugely faster than CFile for big file writes - because it uses buffering
-        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary | CFile::shareDenyNone))
+        if (!file.Open(sFilePath, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
         {
             const_cast<CString *>(&m_sErrorString)->Format(IDS_ERR_FILE_OPEN, (LPCTSTR)sFilePath);
             return FALSE;
         }
 
-        CBaseFilter* pFilter = nullptr;
+        CBaseFilter * pFilter = NULL;
         bool bSaveBom = true;
         CFileTextLines::UnicodeType eUnicodeType = bSaveAsUTF8 ? CFileTextLines::UTF8 : m_SaveParams.m_UnicodeType;
         switch (eUnicodeType)
@@ -760,7 +761,7 @@ bool CBaseFilter::Decode(/*in out*/ CBuffer & data)
 {
     int nFlags = (m_nCodePage==CP_ACP) ? MB_PRECOMPOSED : 0;
     // dry decode is around 8 times faster then real one, alternatively we can set buffer to max length
-    int nReadChars = MultiByteToWideChar(m_nCodePage, nFlags, (LPCSTR)data, data.GetLength(), nullptr, 0);
+    int nReadChars = MultiByteToWideChar(m_nCodePage, nFlags, (LPCSTR)data, data.GetLength(), NULL, 0);
     m_oBuffer.SetLength(nReadChars*sizeof(wchar_t));
     int ret2 = MultiByteToWideChar(m_nCodePage, nFlags, (LPCSTR)data, data.GetLength(), (LPWSTR)(void *)m_oBuffer, nReadChars);
     if (ret2 != nReadChars)
@@ -771,10 +772,10 @@ bool CBaseFilter::Decode(/*in out*/ CBuffer & data)
     return TRUE;
 }
 
-const CBuffer & CBaseFilter::Encode(const CString& s)
+const CBuffer & CBaseFilter::Encode(const CString s)
 {
     m_oBuffer.SetLength(s.GetLength()*3+1); // set buffer to guessed max size
-    int nConvertedLen = WideCharToMultiByte(m_nCodePage, 0, (LPCTSTR)s, s.GetLength(), (LPSTR)m_oBuffer, m_oBuffer.GetLength(), nullptr, nullptr);
+    int nConvertedLen = WideCharToMultiByte(m_nCodePage, 0, (LPCTSTR)s, s.GetLength(), (LPSTR)m_oBuffer, m_oBuffer.GetLength(), NULL, NULL);
     m_oBuffer.SetLength(nConvertedLen); // set buffer to used size
     return m_oBuffer;
 }
@@ -787,7 +788,7 @@ bool CUtf16leFilter::Decode(/*in out*/ CBuffer & /*data*/)
     return TRUE;
 }
 
-const CBuffer & CUtf16leFilter::Encode(const CString& s)
+const CBuffer & CUtf16leFilter::Encode(const CString s)
 {
     int nNeedBytes = s.GetLength()*sizeof(TCHAR);
     m_oBuffer.SetLength(nNeedBytes);
@@ -816,7 +817,7 @@ bool CUtf16beFilter::Decode(/*in out*/ CBuffer & data)
     return CUtf16leFilter::Decode(data);
 }
 
-const CBuffer & CUtf16beFilter::Encode(const CString& s)
+const CBuffer & CUtf16beFilter::Encode(const CString s)
 {
     int nNeedBytes = s.GetLength()*sizeof(TCHAR);
     m_oBuffer.SetLength(nNeedBytes);
@@ -882,7 +883,7 @@ bool CUtf32leFilter::Decode(/*in out*/ CBuffer & data)
     return TRUE;
 }
 
-const CBuffer & CUtf32leFilter::Encode(const CString& s)
+const CBuffer & CUtf32leFilter::Encode(const CString s)
 {
     int nInWords = s.GetLength();
     m_oBuffer.SetLength(nInWords*2);
@@ -936,7 +937,7 @@ bool CUtf32beFilter::Decode(/*in out*/ CBuffer & data)
     return CUtf32leFilter::Decode(data);
 }
 
-const CBuffer & CUtf32beFilter::Encode(const CString& s)
+const CBuffer & CUtf32beFilter::Encode(const CString s)
 {
     CUtf32leFilter::Encode(s);
 

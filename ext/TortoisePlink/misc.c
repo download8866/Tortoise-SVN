@@ -394,19 +394,15 @@ int toint(unsigned u)
  *    directive we don't know about, we should panic and die rather
  *    than run any risk.
  */
-static char *dupvprintf_inner(char *buf, int oldlen, int *oldsize,
+static char *dupvprintf_inner(char *buf, int oldlen, int oldsize,
                               const char *fmt, va_list ap)
 {
-    int len, size, newsize;
+    int len, size;
 
-    assert(*oldsize >= oldlen);
-    size = *oldsize - oldlen;
+    size = oldsize - oldlen;
     if (size == 0) {
         size = 512;
-        newsize = oldlen + size;
-        buf = sresize(buf, newsize, char);
-    } else {
-        newsize = *oldsize;
+        buf = sresize(buf, oldlen + size, char);
     }
 
     while (1) {
@@ -434,7 +430,6 @@ static char *dupvprintf_inner(char *buf, int oldlen, int *oldsize,
 	if (len >= 0 && len < size) {
 	    /* This is the C99-specified criterion for snprintf to have
 	     * been completely successful. */
-            *oldsize = newsize;
 	    return buf;
 	} else if (len > 0) {
 	    /* This is the C99 error condition: the returned length is
@@ -445,15 +440,13 @@ static char *dupvprintf_inner(char *buf, int oldlen, int *oldsize,
 	     * buffer wasn't big enough, so we enlarge it a bit and hope. */
 	    size += 512;
 	}
-        newsize = oldlen + size;
-        buf = sresize(buf, newsize, char);
+	buf = sresize(buf, oldlen + size, char);
     }
 }
 
 char *dupvprintf(const char *fmt, va_list ap)
 {
-    int size = 0;
-    return dupvprintf_inner(NULL, 0, &size, fmt, ap);
+    return dupvprintf_inner(NULL, 0, 0, fmt, ap);
 }
 char *dupprintf(const char *fmt, ...)
 {
@@ -495,7 +488,7 @@ char *strbuf_to_str(strbuf *buf)
 }
 void strbuf_catfv(strbuf *buf, const char *fmt, va_list ap)
 {
-    buf->s = dupvprintf_inner(buf->s, buf->len, &buf->size, fmt, ap);
+    buf->s = dupvprintf_inner(buf->s, buf->len, buf->size, fmt, ap);
     buf->len += strlen(buf->s + buf->len);
 }
 void strbuf_catf(strbuf *buf, const char *fmt, ...)

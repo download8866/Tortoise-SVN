@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -83,7 +83,7 @@ BOOL CInputLogDlg::OnInitDialog()
     else
         m_cInput.Init();
 
-    m_cInput.SetFont(CAppUtils::GetLogFontName(), CAppUtils::GetLogFontSize());
+    m_cInput.SetFont((CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Courier New"), (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 8));
 
     if (m_pProjectProperties)
     {
@@ -493,7 +493,7 @@ void CInputLogDlg::OnComError( HRESULT hr )
 {
     COMError ce(hr);
     CString sErr;
-    sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, (LPCWSTR)m_bugtraq_association.GetProviderName(), ce.GetMessageAndDescription().c_str());
+    sErr.FormatMessage(IDS_ERR_FAILEDISSUETRACKERCOM, m_bugtraq_association.GetProviderName(), ce.GetMessageAndDescription().c_str());
     ::MessageBox(m_hWnd, sErr, L"TortoiseSVN", MB_ICONERROR);
 }
 

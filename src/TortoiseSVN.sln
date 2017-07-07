@@ -1,10 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C654C2E8-557C-4C63-A9D1-E52A38D5509E}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
 		..\doc\notes\AutolistDoc.txt = ..\doc\notes\AutolistDoc.txt
 		..\build.txt = ..\build.txt
 		Changelog.txt = Changelog.txt
@@ -499,6 +498,7 @@ Global
 		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Debug|x64.Build.0 = Debug|x64
 		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Release|Win32.ActiveCfg = Release|Win32
 		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Release|Win32.Build.0 = Release|Win32
+		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Release|Win32.Deploy.0 = Release|Win32
 		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Release|x64.ActiveCfg = Release|x64
 		{53609BB3-D874-465C-AF7B-DF626DB0D89B}.Release|x64.Build.0 = Release|x64
 		{D3AFBFBE-5501-4077-B3B4-3D28BBCA8F20}.Debug|Win32.ActiveCfg = Debug|Win32

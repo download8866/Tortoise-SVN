@@ -64,7 +64,8 @@ BOOL CHyperLink::PreTranslateMessage(MSG* pMsg)
 void CHyperLink::PreSubclassWindow()
 {
     // Enable notifications - CStatic has this disabled by default
-    ModifyStyle(0, SS_NOTIFY);
+    DWORD dwStyle = GetStyle();
+    ::SetWindowLong(GetSafeHwnd(), GWL_STYLE, dwStyle | SS_NOTIFY);
 
     // By default use the label text as the URL
     if (m_strURL.IsEmpty())

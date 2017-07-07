@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2012-2016 - TortoiseSVN
+// Copyright (C) 2006-2007, 2012-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -154,8 +154,6 @@ public:
     const CString&  GetAt(int index) const { return CStdFileLineArray::GetAt(index).sLine; }
     EOL             GetLineEnding(int index) const { return CStdFileLineArray::GetAt(index).eEnding; }
     void            SetSaveParams(const SaveParams& sp) { m_SaveParams = sp; }
-    SaveParams      GetSaveParams() const { return m_SaveParams; }
-    void            KeepEncoding(bool bKeep = true) { m_bKeepEncoding = bKeep; }
     //void            SetLineEnding(int index, EOL ending) { CStdFileLineArray::GetAt(index).eEnding = ending; }
 
     static const wchar_t * GetEncodingName(UnicodeType);
@@ -178,7 +176,6 @@ private:
 private:
     CString             m_sErrorString;
     bool                m_bNeedsConversion;
-    bool                m_bKeepEncoding;
     SaveParams          m_SaveParams;
     CString             m_sCommentLine;
     CString             m_sCommentBlockStart;
@@ -210,7 +207,7 @@ public:
 private:
     void Copy(const CBuffer & Src);
     void Free() { delete [] m_pBuffer; }
-    void Init() { m_pBuffer = nullptr; m_nUsed = 0; m_nAllocated = 0; }
+    void Init() { m_pBuffer=NULL; m_nUsed=0; m_nAllocated=0; }
 
     BYTE * m_pBuffer;
     int m_nUsed;
@@ -225,9 +222,9 @@ public:
     virtual ~CBaseFilter() {}
 
     virtual bool Decode(/*in out*/ CBuffer & s);
-    virtual const CBuffer & Encode(const CString& data);
+    virtual const CBuffer & Encode(const CString data);
     const CBuffer & GetBuffer() const {return m_oBuffer; }
-    void Write(const CString& s) { Write(Encode(s)); } ///< encode into buffer and write
+    void Write(const CString s) { Write(Encode(s)); } ///< encode into buffer and write
     void Write() { Write(m_oBuffer); } ///< write preencoded internal buffer
     void Write(const CBuffer & buffer) { if (buffer.GetLength()) m_pFile->Write((void*)buffer, buffer.GetLength()); } ///< write preencoded buffer
 
@@ -266,7 +263,7 @@ public:
     virtual ~CUtf16leFilter() {}
 
     virtual bool Decode(/*in out*/ CBuffer & data);
-    virtual const CBuffer & Encode(const CString& s);
+    virtual const CBuffer & Encode(const CString s);
 };
 
 
@@ -277,7 +274,7 @@ public:
     virtual ~CUtf16beFilter() {}
 
     virtual bool Decode(/*in out*/ CBuffer & data);
-    virtual const CBuffer & Encode(const CString& s);
+    virtual const CBuffer & Encode(const CString s);
 };
 
 
@@ -288,7 +285,7 @@ public:
     virtual ~CUtf32leFilter() {}
 
     virtual bool Decode(/*in out*/ CBuffer & data);
-    virtual const CBuffer & Encode(const CString& s);
+    virtual const CBuffer & Encode(const CString s);
 };
 
 
@@ -299,5 +296,5 @@ public:
     virtual ~CUtf32beFilter() {}
 
     virtual bool Decode(/*in out*/ CBuffer & data);
-    virtual const CBuffer & Encode(const CString& s);
+    virtual const CBuffer & Encode(const CString s);
 };

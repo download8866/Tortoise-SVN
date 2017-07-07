@@ -12,62 +12,51 @@
 namespace Scintilla {
 #endif
 
-template<class T>
-class SparseVector;
-
 /**
  */
 class ContractionState {
 	// These contain 1 element for every document line.
-	std::unique_ptr<RunStyles> visible;
-	std::unique_ptr<RunStyles> expanded;
-	std::unique_ptr<RunStyles> heights;
-	std::unique_ptr<SparseVector<UniqueString>> foldDisplayTexts;
-	std::unique_ptr<Partitioning> displayLines;
-	Sci::Line linesInDocument;
+	RunStyles *visible;
+	RunStyles *expanded;
+	RunStyles *heights;
+	Partitioning *displayLines;
+	int linesInDocument;
 
 	void EnsureData();
 
 	bool OneToOne() const {
 		// True when each document line is exactly one display line so need for
 		// complex data structures.
-		return visible == nullptr;
+		return visible == 0;
 	}
 
 public:
 	ContractionState();
-	// Deleted so ContractionState objects can not be copied.
-	ContractionState(const ContractionState &) = delete;
-	void operator=(const ContractionState &) = delete;
 	virtual ~ContractionState();
 
 	void Clear();
 
-	Sci::Line LinesInDoc() const;
-	Sci::Line LinesDisplayed() const;
-	Sci::Line DisplayFromDoc(Sci::Line lineDoc) const;
-	Sci::Line DisplayLastFromDoc(Sci::Line lineDoc) const;
-	Sci::Line DocFromDisplay(Sci::Line lineDisplay) const;
+	int LinesInDoc() const;
+	int LinesDisplayed() const;
+	int DisplayFromDoc(int lineDoc) const;
+	int DisplayLastFromDoc(int lineDoc) const;
+	int DocFromDisplay(int lineDisplay) const;
 
-	void InsertLine(Sci::Line lineDoc);
-	void InsertLines(Sci::Line lineDoc, Sci::Line lineCount);
-	void DeleteLine(Sci::Line lineDoc);
-	void DeleteLines(Sci::Line lineDoc, Sci::Line lineCount);
+	void InsertLine(int lineDoc);
+	void InsertLines(int lineDoc, int lineCount);
+	void DeleteLine(int lineDoc);
+	void DeleteLines(int lineDoc, int lineCount);
 
-	bool GetVisible(Sci::Line lineDoc) const;
-	bool SetVisible(Sci::Line lineDocStart, Sci::Line lineDocEnd, bool isVisible);
+	bool GetVisible(int lineDoc) const;
+	bool SetVisible(int lineDocStart, int lineDocEnd, bool isVisible);
 	bool HiddenLines() const;
 
-	const char *GetFoldDisplayText(Sci::Line lineDoc) const;
-	bool SetFoldDisplayText(Sci::Line lineDoc, const char *text);
+	bool GetExpanded(int lineDoc) const;
+	bool SetExpanded(int lineDoc, bool isExpanded);
+	int ContractedNext(int lineDocStart) const;
 
-	bool GetExpanded(Sci::Line lineDoc) const;
-	bool SetExpanded(Sci::Line lineDoc, bool isExpanded);
-	bool GetFoldDisplayTextShown(Sci::Line lineDoc) const;
-	Sci::Line ContractedNext(Sci::Line lineDocStart) const;
-
-	int GetHeight(Sci::Line lineDoc) const;
-	bool SetHeight(Sci::Line lineDoc, int height);
+	int GetHeight(int lineDoc) const;
+	bool SetHeight(int lineDoc, int height);
 
 	void ShowAll();
 	void Check() const;

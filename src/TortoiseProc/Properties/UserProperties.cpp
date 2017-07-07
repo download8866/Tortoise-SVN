@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011, 2013, 2015-2016 - TortoiseSVN
+// Copyright (C) 2011, 2013 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -116,7 +116,7 @@ bool UserProp::Parse( const CString& line )
                     }
                     resToken = temp.Tokenize(L";",curPos);
                     if (!sText.IsEmpty() && !sVal.IsEmpty())
-                        stateEntries.emplace_back(sVal, sText);
+                        stateEntries.push_back(std::make_pair(sVal, sText));
                     else
                     {
                         // property has invalid format!
@@ -139,7 +139,7 @@ bool UserProp::Parse( const CString& line )
                 std::wregex regCheck = std::wregex (temp);
                 validationRegex = temp;
             }
-            catch (std::exception&)
+            catch (std::exception)
             {
             }
         }
@@ -153,7 +153,7 @@ bool UserProp::Parse( const CString& line )
                 std::wregex regCheck = std::wregex (temp);
                 validationRegex = temp;
             }
-            catch (std::exception&)
+            catch (std::exception)
             {
             }
         }

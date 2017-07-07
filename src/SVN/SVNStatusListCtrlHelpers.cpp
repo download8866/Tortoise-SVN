@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2015 - TortoiseSVN
+// Copyright (C) 2008-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,7 +42,7 @@ CSVNStatusListCtrl::PropertyList::operator= (const char* rhs)
         const char* next = strchr (rhs, ' ');
 
         CString name (rhs, static_cast<int>(next == NULL ? strlen (rhs) : next - rhs));
-        properties.emplace(name, CString());
+        properties.insert (std::make_pair (name, CString()));
 
         rhs = next == NULL ? NULL : next+1;
     }
@@ -169,7 +169,7 @@ void CSVNStatusListCtrl::ColumnManager::ReadSettings
 
     // clear all previously set header columns
 
-    int c = control->GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(control->GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         control->DeleteColumn(c--);
 
@@ -837,7 +837,7 @@ void CSVNStatusListCtrl::ColumnManager::ApplyColumnOrder()
     // we must have placed all columns or something is really fishy ..
 
     assert (gridColumnOrder.size() == columns.size());
-    assert (GetColumnCount() == control->GetHeaderCtrl()->GetItemCount());
+    assert (GetColumnCount() == ((CHeaderCtrl*)(control->GetDlgItem(0)))->GetItemCount());
 
     // o.k., apply our column ordering
 

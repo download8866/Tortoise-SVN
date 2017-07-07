@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -190,13 +190,8 @@ STDMETHODIMP CShellExt::IsMemberOf_Wrap(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
             }
             return S_FALSE;
         }
-        auto cacheType = g_ShellCache.GetCacheType();
-        if (g_ShellCache.IsOnlyNonElevated() && g_ShellCache.IsProcessElevated())
-        {
-            cacheType = ShellCache::none;
-            CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": elevated overlays blocked\n");
-        }
-        switch (cacheType)
+
+        switch (g_ShellCache.GetCacheType())
         {
         case ShellCache::exe:
             {

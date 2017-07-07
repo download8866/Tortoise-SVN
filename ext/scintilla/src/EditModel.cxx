@@ -5,11 +5,12 @@
 // Copyright 1998-2014 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <cstddef>
-#include <cstdlib>
-#include <cassert>
-#include <cstring>
-#include <cmath>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <math.h>
+#include <assert.h>
+#include <ctype.h>
 
 #include <stdexcept>
 #include <string>
@@ -25,7 +26,6 @@
 
 #include "StringCopy.h"
 #include "Position.h"
-#include "UniqueString.h"
 #include "SplitVector.h"
 #include "Partitioning.h"
 #include "RunStyles.h"
@@ -57,17 +57,16 @@ EditModel::EditModel() {
 	inOverstrike = false;
 	xOffset = 0;
 	trackLineWidth = false;
-	posDrag = SelectionPosition(Sci::invalidPosition);
-	braces[0] = Sci::invalidPosition;
-	braces[1] = Sci::invalidPosition;
+	posDrag = SelectionPosition(invalidPosition);
+	braces[0] = invalidPosition;
+	braces[1] = invalidPosition;
 	bracesMatchStyle = STYLE_BRACEBAD;
 	highlightGuideColumn = 0;
 	primarySelection = true;
 	imeInteraction = imeWindowed;
 	foldFlags = 0;
-	foldDisplayTextStyle = SC_FOLDDISPLAYTEXT_HIDDEN;
-	hotspot = Range(Sci::invalidPosition);
-	hoverIndicatorPos = Sci::invalidPosition;
+	hotspot = Range(invalidPosition);
+	hoverIndicatorPos = invalidPosition;
 	wrapWidth = LineLayout::wrapWidthInfinite;
 	pdoc = new Document();
 	pdoc->AddRef();

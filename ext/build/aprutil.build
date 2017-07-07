@@ -47,9 +47,9 @@
       </includedirs>
     </rc>
 
-    <mkdir dir="${configuration}_${platform}_static" if="${platform == 'win32'}"/>
+    <mkdir dir="${configuration}_${platform}_static" if="${configuration == 'release' and platform == 'win32'}"/>
     <property name="machineoption" value="/MACHINE:X86" />
-    <cl outputdir="${configuration}_${platform}_static" if="${platform == 'win32'}">
+    <cl outputdir="${configuration}_${platform}_static" if="${configuration == 'release' and platform == 'win32'}">
       <arg value="/O2" if="${configuration == 'release'}" />
       <arg value="/Oy-" if="${configuration == 'release' and platform == 'win32'}" />
       <arg value="/Od" if="${configuration == 'debug'}" />
@@ -68,7 +68,6 @@
       <sources>
         <include name="buckets\*.c" />
         <include name="crypto\*.c" />
-        <exclude name="crypto\apr_siphash.c" />
         <include name="dbd\*.c" />
         <include name="dbm\*.c" />
         <include name="dbm\sdbm\*.c" />
@@ -80,14 +79,14 @@
         <include name="strmatch\*.c" />
         <include name="uri\apr_uri.c" />
         <include name="xml\apr_xml.c" />
-        <include name="..\expat\lib\xmlparse.c" />
-        <include name="..\expat\lib\xmlrole.c" />
-        <include name="..\expat\lib\xmltok.c" />
+        <include name="xml\expat\lib\xmlparse.c" />
+        <include name="xml\expat\lib\xmlrole.c" />
+        <include name="xml\expat\lib\xmltok.c" />
       </sources>
       <includedirs>
         <include name="include" />
         <include name="include\private" />
-        <include name="..\expat\lib" />
+        <include name="xml\expat\lib" />
         <include name="..\apr\include" />
       </includedirs>
       <defines>
@@ -107,7 +106,7 @@
     </cl>
     <lib
       output="${configuration}_${platform}_static\libaprutil_tsvn.lib"
-      options='/NOLOGO ${subsystem} ${machineoption}' if="${platform == 'win32'}">
+      options='/NOLOGO ${subsystem} ${machineoption}' if="${configuration == 'release' and platform == 'win32'}">
       <sources>
         <include name="${configuration}_${platform}_static\*.obj" />
       </sources>
@@ -132,7 +131,6 @@
       <sources>
         <include name="buckets\*.c" />
         <include name="crypto\*.c" />
-        <exclude name="crypto\apr_siphash.c" />
         <include name="dbd\*.c" />
         <include name="dbm\*.c" />
         <include name="dbm\sdbm\*.c" />
@@ -144,14 +142,14 @@
         <include name="strmatch\*.c" />
         <include name="uri\apr_uri.c" />
         <include name="xml\apr_xml.c" />
-        <include name="..\expat\lib\xmlparse.c" />
-        <include name="..\expat\lib\xmlrole.c" />
-        <include name="..\expat\lib\xmltok.c" />
+        <include name="xml\expat\lib\xmlparse.c" />
+        <include name="xml\expat\lib\xmlrole.c" />
+        <include name="xml\expat\lib\xmltok.c" />
       </sources>
       <includedirs>
         <include name="include" />
         <include name="include\private" />
-        <include name="..\expat\lib" />
+        <include name="xml\expat\lib" />
         <include name="..\apr\include" />
       </includedirs>
       <defines>

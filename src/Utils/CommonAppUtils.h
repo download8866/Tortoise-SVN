@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2012, 2014, 2016-2017 - TortoiseSVN
+// Copyright (C) 2010-2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -104,8 +104,8 @@ public:
      * \param propid the id of the property to set, e.g., PROPID_ACC_DESCRIPTION
      * \param text the text for the property
      */
-    static bool SetAccProperty(HWND hWnd, const MSAAPROPID& propid, const CString& text);
-    static bool SetAccProperty(HWND hWnd, const MSAAPROPID& propid, long value);
+    static bool SetAccProperty(HWND hWnd, MSAAPROPID propid, const CString& text);
+    static bool SetAccProperty(HWND hWnd, MSAAPROPID propid, long value);
 
     /**
      * finds the accelerator char from a dialog control
@@ -120,17 +120,11 @@ public:
 
     static bool AddClipboardUrlToWindow(HWND hWnd);
 
-    static CString FormatWindowTitle(const CString& urlorpath, const CString& dialogname);
     static void SetWindowTitle(HWND hWnd, const CString& urlorpath, const CString& dialogname);
 
     static void MarkWindowAsUnpinnable(HWND hWnd);
 
     static HRESULT EnableAutoComplete(HWND hWndEdit, LPWSTR szCurrentWorkingDirectory = NULL, AUTOCOMPLETELISTOPTIONS acloOptions = ACLO_NONE, AUTOCOMPLETEOPTIONS acoOptions = ACO_AUTOSUGGEST, REFCLSID clsid = CLSID_ACListISF);
-
-    // Wrapper for LoadImage(IMAGE_ICON)
-    static HICON LoadIconEx(UINT resourceId, UINT cx, UINT cy, UINT fuLoad);
-
-    static bool StartHtmlHelp(DWORD_PTR id);
 protected:
     CCommonAppUtils(void){};
     ~CCommonAppUtils(void){};

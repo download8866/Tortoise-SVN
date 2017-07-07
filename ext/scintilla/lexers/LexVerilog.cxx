@@ -217,63 +217,63 @@ public:
 		subStyles(styleSubable, 0x80, 0x40, activeFlag) {
 		}
 	virtual ~LexerVerilog() {}
-	int SCI_METHOD Version() const override {
+	int SCI_METHOD Version() const {
 		return lvSubStyles;
 	}
-	void SCI_METHOD Release() override {
+	void SCI_METHOD Release() {
 		delete this;
 	}
-	const char* SCI_METHOD PropertyNames() override {
+	const char* SCI_METHOD PropertyNames() {
 		return osVerilog.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char* name) override {
+	int SCI_METHOD PropertyType(const char* name) {
 		return osVerilog.PropertyType(name);
 	}
-	const char* SCI_METHOD DescribeProperty(const char* name) override {
+	const char* SCI_METHOD DescribeProperty(const char* name) {
 		return osVerilog.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val) override {
+	Sci_Position SCI_METHOD PropertySet(const char* key, const char* val) {
 	    return osVerilog.PropertySet(&options, key, val);
 	}
-	const char* SCI_METHOD DescribeWordListSets() override {
+	const char* SCI_METHOD DescribeWordListSets() {
 		return osVerilog.DescribeWordListSets();
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char* wl) override;
-	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess) override;
-	void* SCI_METHOD PrivateCall(int, void*) override {
+	Sci_Position SCI_METHOD WordListSet(int n, const char* wl);
+	void SCI_METHOD Lex(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void SCI_METHOD Fold(Sci_PositionU startPos, Sci_Position length, int initStyle, IDocument *pAccess);
+	void* SCI_METHOD PrivateCall(int, void*) {
 		return 0;
 	}
-	int SCI_METHOD LineEndTypesSupported() override {
+	int SCI_METHOD LineEndTypesSupported() {
 		return SC_LINE_END_TYPE_UNICODE;
 	}
-	int SCI_METHOD AllocateSubStyles(int styleBase, int numberStyles) override {
+	int SCI_METHOD AllocateSubStyles(int styleBase, int numberStyles) {
 		return subStyles.Allocate(styleBase, numberStyles);
 	}
-	int SCI_METHOD SubStylesStart(int styleBase) override {
+	int SCI_METHOD SubStylesStart(int styleBase) {
 		return subStyles.Start(styleBase);
 	}
-	int SCI_METHOD SubStylesLength(int styleBase) override {
+	int SCI_METHOD SubStylesLength(int styleBase) {
 		return subStyles.Length(styleBase);
 	}
-	int SCI_METHOD StyleFromSubStyle(int subStyle) override {
+	int SCI_METHOD StyleFromSubStyle(int subStyle) {
 		int styleBase = subStyles.BaseStyle(MaskActive(subStyle));
 		int active = subStyle & activeFlag;
 		return styleBase | active;
 	}
-	int SCI_METHOD PrimaryStyleFromStyle(int style) override {
+	int SCI_METHOD PrimaryStyleFromStyle(int style) {
 		return MaskActive(style);
  	}
-	void SCI_METHOD FreeSubStyles() override {
+	void SCI_METHOD FreeSubStyles() {
 		subStyles.Free();
 	}
-	void SCI_METHOD SetIdentifiers(int style, const char *identifiers) override {
+	void SCI_METHOD SetIdentifiers(int style, const char *identifiers) {
 		subStyles.SetIdentifiers(style, identifiers);
 	}
-	int SCI_METHOD DistanceToSecondaryStyles() override {
+	int SCI_METHOD DistanceToSecondaryStyles() {
 		return activeFlag;
 	}
-	const char * SCI_METHOD GetSubStyleBases() override {
+	const char * SCI_METHOD GetSubStyleBases() {
 		return styleSubable;
 	}
 	static ILexer* LexerFactoryVerilog() {

@@ -40,7 +40,7 @@
 #include "CmdLineParser.h"
 
 
-bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype, const SVNRev& rev /*= SVNRev::REV_WC*/)
+bool CAppUtils::GetMimeType(const CTSVNPath& file, CString& mimetype, SVNRev rev /*= SVNRev::REV_WC*/)
 {
     // only fetch the mime-type for local paths, or for urls if a mime-type specific diff tool
     // is configured.
@@ -285,8 +285,6 @@ BOOL CAppUtils::StartExtMerge(const MergeFlags& flags,
 
     if ((flags.bReadOnly)&&(bInternal))
         com += L" /readonly";
-    if ((flags.bPreventSVNResolve) && (bInternal))
-        com += L" /nosvnresolve";
 
     if(!LaunchApplication(com, IDS_ERR_EXTMERGESTART, false))
     {
@@ -589,21 +587,11 @@ BOOL CAppUtils::CheckForEmptyDiff(const CTSVNPath& sDiffPath)
 
 }
 
-CString CAppUtils::GetLogFontName()
-{
-    return (CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Consolas");
-}
-
-DWORD CAppUtils::GetLogFontSize()
-{
-    return (DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 9);
-}
-
 void CAppUtils::CreateFontForLogs(CFont& fontToCreate)
 {
     LOGFONT logFont;
     HDC hScreenDC = ::GetDC(NULL);
-    logFont.lfHeight         = -MulDiv(GetLogFontSize(), GetDeviceCaps(hScreenDC, LOGPIXELSY), 72);
+    logFont.lfHeight         = -MulDiv((DWORD)CRegDWORD(L"Software\\TortoiseSVN\\LogFontSize", 8), GetDeviceCaps(hScreenDC, LOGPIXELSY), 72);
     ::ReleaseDC(NULL, hScreenDC);
     logFont.lfWidth          = 0;
     logFont.lfEscapement     = 0;
@@ -617,7 +605,7 @@ void CAppUtils::CreateFontForLogs(CFont& fontToCreate)
     logFont.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
     logFont.lfQuality        = DRAFT_QUALITY;
     logFont.lfPitchAndFamily = FF_DONTCARE | FIXED_PITCH;
-    wcscpy_s(logFont.lfFaceName, (LPCTSTR) GetLogFontName());
+    wcscpy_s(logFont.lfFaceName, (LPCTSTR)(CString)CRegString(L"Software\\TortoiseSVN\\LogFontName", L"Courier New"));
     VERIFY(fontToCreate.CreateFontIndirect(&logFont));
 }
 
@@ -739,7 +727,7 @@ CAppUtils::FindRegexMatches
             }
         }
     }
-    catch (std::exception&) {}
+    catch (std::exception) {}
 
     return result;
 }
@@ -754,17 +742,10 @@ namespace {
             ch == L'|' || ch == L'>' || ch == L'<' || ch == L'!' || ch == L'@' || ch == L'~';
     }
 
-    bool IsUrlOrEmail(const CString& sText)
+    bool IsUrl(const CString& sText)
     {
         if (!PathIsURLW(sText))
-        {
-            auto atpos = sText.Find('@');
-            if (atpos <= 0)
-                return false;
-            if (sText.ReverseFind('.') > atpos)
-                return true;
             return false;
-        }
         if (sText.Find(L"://") >= 0)
             return true;
         return false;
@@ -803,14 +784,16 @@ CAppUtils::FindURLMatches(const CString& msg)
                     while (i < len && msg[i] != '\r' && msg[i] != '\n' && msg[i] != '>') // find first '>' or new line after resetting i to start position
                         ++i;
                 }
-                int skipTrailing = 0;
-                while (strip && i - skipTrailing - 1 > starturl && (msg[i - skipTrailing - 1] == '.' || msg[i - skipTrailing - 1] == '-' || msg[i - skipTrailing - 1] == '?' || msg[i - skipTrailing - 1] == ';' || msg[i - skipTrailing - 1] == ':' || msg[i - skipTrailing - 1] == '>' || msg[i - skipTrailing - 1] == '<' || msg[i - skipTrailing - 1] == '!'))
-                    ++skipTrailing;
-                if (!IsUrlOrEmail(msg.Mid(starturl, i - starturl - skipTrailing)))
+                if (!IsUrl(msg.Mid(starturl, i - starturl)))
                 {
                     starturl = -1;
                     continue;
                 }
+
+                int skipTrailing = 0;
+                while (strip && i - skipTrailing - 1 > starturl && (msg[i - skipTrailing - 1] == '.' || msg[i - skipTrailing - 1] == '-' || msg[i - skipTrailing - 1] == '?' || msg[i - skipTrailing - 1] == ';' || msg[i - skipTrailing - 1] == ':' || msg[i - skipTrailing - 1] == '>' || msg[i - skipTrailing - 1] == '<'))
+                    ++skipTrailing;
+
                 CHARRANGE range = { starturl, i - skipTrailing };
                 result.push_back(range);
             }

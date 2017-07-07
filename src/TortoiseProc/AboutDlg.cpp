@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014, 2016-2017 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@
 #include "../version.h"
 #include "../../ext/serf/serf.h"
 #include "../../ext/sqlite/sqlite3.h"
-#include "../../ext/openssl/include/openssl/opensslv.h"
 #include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
@@ -97,8 +96,8 @@ BOOL CAboutDlg::OnInitDialog()
     SetTimer(ID_EFFECTTIMER, 40, NULL);
     SetTimer(ID_DROPTIMER, 1500, NULL);
 
-    m_cWebLink.SetURL(L"https://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"https://tortoisesvn.net/donate.html");
+    m_cWebLink.SetURL(L"http://tortoisesvn.net");
+    m_cSupportLink.SetURL(L"http://tortoisesvn.net/donate.html");
 
     CenterWindow(CWnd::FromHandle(GetExplorerHWND()));
     GetDlgItem(IDOK)->SetFocus();

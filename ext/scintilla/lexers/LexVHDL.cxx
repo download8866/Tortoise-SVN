@@ -398,17 +398,15 @@ static void FoldNoBoxVHDLDoc(
             strcmp(s, "entity") == 0         ||
             strcmp(s, "configuration") == 0 )
           {
-            if (strcmp(prevWord, "end") != 0)
+            if (strcmp(prevWord, "end") != 0 && lastStart)
             { // check for instantiated unit by backward searching for the colon.
               Sci_PositionU pos = lastStart;
-              char chAtPos=0, styleAtPos;
+              char chAtPos, styleAtPos;
               do{// skip white spaces
-                if(!pos)
-                  break;
                 pos--;
                 styleAtPos = styler.StyleAt(pos);
                 chAtPos = styler.SafeGetCharAt(pos);
-              }while(pos &&
+              }while(pos>0 &&
                      (chAtPos == ' ' || chAtPos == '\t' ||
                       chAtPos == '\n' || chAtPos == '\r' ||
                       IsCommentStyle(styleAtPos)));

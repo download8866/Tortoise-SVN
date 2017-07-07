@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2010, 2012-2017 - TortoiseSVN
+// Copyright (C) 2003-2010, 2012-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -193,7 +193,7 @@ public:
      * Get the file modification time - returns zero for files which don't exist
      * Returns a FILETIME structure cast to an __int64, for easy comparisons
      */
-    __int64 GetLastWriteTime(bool force = false) const;
+    __int64 GetLastWriteTime() const;
 
     /**
      * Get the file size. Returns zero for directories or files that don't exist.
@@ -338,23 +338,12 @@ public:
     CString CreateAsteriskSeparatedString() const;
 
     int GetCount() const;
-    bool IsEmpty() const { return m_paths.empty(); }
     void Clear();
     CTSVNPath& operator[](INT_PTR index);
     const CTSVNPath& operator[](INT_PTR index) const;
     bool AreAllPathsFiles() const;
     bool AreAllPathsFilesInOneDirectory() const;
-    /**
-     * returns the directory which all items have in common.
-     * if not all paths are in the same directory, then
-     * an empty path is returned
-     */
     CTSVNPath GetCommonDirectory() const;
-    /**
-     * returns the root path of all paths in the list.
-     * only returns an empty path if not all paths are on
-     * the same drive/root.
-     */
     CTSVNPath GetCommonRoot() const;
     void SortByPathname(bool bReverse = false);
     /**

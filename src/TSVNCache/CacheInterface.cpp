@@ -48,7 +48,7 @@ CString GetCacheID()
         GetTokenInformation(token, TokenStatistics, NULL, 0, &len);
         if (len >= sizeof (TOKEN_STATISTICS))
         {
-            auto data = std::make_unique<BYTE[]>(len);
+            std::unique_ptr<BYTE[]> data (new BYTE[len]);
             GetTokenInformation(token, TokenStatistics, data.get(), len, &len);
             LUID uid = ((PTOKEN_STATISTICS)data.get())->AuthenticationId;
             t.Format(L"-%08x%08x", uid.HighPart, uid.LowPart);
@@ -163,28 +163,28 @@ CBlockCacheForPath::CBlockCacheForPath(const WCHAR * aPath)
 {
     wcsncpy_s(path, aPath, MAX_PATH - 1);
 
-    if (!SendCacheCommand(TSVNCACHECOMMAND_BLOCK, path))
-        return;
-
-    // Wait a short while to make sure the cache has
-    // processed this command. Without this, we risk
-    // executing the svn command before the cache has
-    // blocked the path and already gets change notifications.
-    Sleep(20);
-    m_bBlocked = true;
+    if (SendCacheCommand(TSVNCACHECOMMAND_BLOCK, path))
+    {
+        // Wait a short while to make sure the cache has
+        // processed this command. Without this, we risk
+        // executing the svn command before the cache has
+        // blocked the path and already gets change notifications.
+        Sleep(20);
+        m_bBlocked = true;
+    }
 }
 
 CBlockCacheForPath::~CBlockCacheForPath()
 {
-    if (!m_bBlocked)
-        return;
-
-    for (int retry = 0; retry < 3; retry++)
+    if (m_bBlocked)
     {
-        if (retry > 0)
-            Sleep(10);
+        for (int retry = 0; retry < 3; retry++)
+        {
+            if (retry > 0)
+                Sleep(10);
 
-        if (SendCacheCommand(TSVNCACHECOMMAND_UNBLOCK, path))
-            break;
+            if (SendCacheCommand(TSVNCACHECOMMAND_UNBLOCK, path))
+                break;
+        }
     }
 }

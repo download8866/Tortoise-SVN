@@ -49,7 +49,7 @@
         </setenv>
       </if>
 
-      <!-- we're using VS2017 -->
+      <!-- we're using VS2015 -->
       <setenv>
         <variable name="VCVERSION" value="140" />
       </setenv>

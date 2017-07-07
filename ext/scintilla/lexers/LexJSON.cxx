@@ -208,28 +208,28 @@ class LexerJSON : public ILexer {
 		setKeywordJSON(CharacterSet::setAlpha, "$_") {
 	}
 	virtual ~LexerJSON() {}
-	int SCI_METHOD Version() const override {
+	virtual int SCI_METHOD Version() const {
 		return lvOriginal;
 	}
-	void SCI_METHOD Release() override {
+	virtual void SCI_METHOD Release() {
 		delete this;
 	}
-	const char *SCI_METHOD PropertyNames() override {
+	virtual const char *SCI_METHOD PropertyNames() {
 		return optSetJSON.PropertyNames();
 	}
-	int SCI_METHOD PropertyType(const char *name) override {
+	virtual int SCI_METHOD PropertyType(const char *name) {
 		return optSetJSON.PropertyType(name);
 	}
-	const char *SCI_METHOD DescribeProperty(const char *name) override {
+	virtual const char *SCI_METHOD DescribeProperty(const char *name) {
 		return optSetJSON.DescribeProperty(name);
 	}
-	Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) override {
+	virtual Sci_Position SCI_METHOD PropertySet(const char *key, const char *val) {
 		if (optSetJSON.PropertySet(&options, key, val)) {
 			return 0;
 		}
 		return -1;
 	}
-	Sci_Position SCI_METHOD WordListSet(int n, const char *wl) override {
+	virtual Sci_Position SCI_METHOD WordListSet(int n, const char *wl) {
 		WordList *wordListN = 0;
 		switch (n) {
 			case 0:
@@ -250,23 +250,23 @@ class LexerJSON : public ILexer {
 		}
 		return firstModification;
 	}
-	void *SCI_METHOD PrivateCall(int, void *) override {
+	virtual void *SCI_METHOD PrivateCall(int, void *) {
 		return 0;
 	}
 	static ILexer *LexerFactoryJSON() {
 		return new LexerJSON;
 	}
-	const char *SCI_METHOD DescribeWordListSets() override {
+	virtual const char *SCI_METHOD DescribeWordListSets() {
 		return optSetJSON.DescribeWordListSets();
 	}
-	void SCI_METHOD Lex(Sci_PositionU startPos,
+	virtual void SCI_METHOD Lex(Sci_PositionU startPos,
 								Sci_Position length,
 								int initStyle,
-								IDocument *pAccess) override;
-	void SCI_METHOD Fold(Sci_PositionU startPos,
+								IDocument *pAccess);
+	virtual void SCI_METHOD Fold(Sci_PositionU startPos,
 								 Sci_Position length,
 								 int initStyle,
-								 IDocument *pAccess) override;
+								 IDocument *pAccess);
 };
 
 void SCI_METHOD LexerJSON::Lex(Sci_PositionU startPos,
@@ -457,9 +457,7 @@ void SCI_METHOD LexerJSON::Fold(Sci_PositionU startPos,
 	LexAccessor styler(pAccess);
 	Sci_PositionU currLine = styler.GetLine(startPos);
 	Sci_PositionU endPos = startPos + length;
-	int currLevel = SC_FOLDLEVELBASE;
-	if (currLine > 0)
-		currLevel = styler.LevelAt(currLine - 1) >> 16;
+	int currLevel = styler.LevelAt(currLine) & SC_FOLDLEVELNUMBERMASK;
 	int nextLevel = currLevel;
 	int visibleChars = 0;
 	for (Sci_PositionU i = startPos; i < endPos; i++) {
@@ -474,7 +472,7 @@ void SCI_METHOD LexerJSON::Fold(Sci_PositionU startPos,
 			}
 		}
 		if (atEOL || i == (endPos-1)) {
-			int level = currLevel | nextLevel << 16;
+			int level = currLevel;
 			if (!visibleChars && options.foldCompact) {
 				level |= SC_FOLDLEVELWHITEFLAG;
 			} else if (nextLevel > currLevel) {

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006, 2009-2010, 2014-2015, 2017 - TortoiseSVN
+// Copyright (C) 2006, 2009-2010, 2014-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,15 +26,15 @@
 IMPLEMENT_DYNAMIC(CSettings, CPropertySheet)
 CSettings::CSettings(UINT nIDCaption, CWnd* pParentWnd, UINT iSelectPage)
     : CPropertySheet(nIDCaption, pParentWnd, iSelectPage)
-    , m_pMainPage(nullptr)
-    , m_pColorPage(nullptr)
+    , m_pMainPage(NULL)
+    , m_pColorPage(NULL)
 {
 }
 
 CSettings::CSettings(LPCTSTR pszCaption, CWnd* pParentWnd, UINT iSelectPage)
     : CPropertySheet(pszCaption, pParentWnd, iSelectPage)
-    , m_pMainPage(nullptr)
-    , m_pColorPage(nullptr)
+    , m_pMainPage(NULL)
+    , m_pColorPage(NULL)
 {
     AddPropPages();
 }
@@ -51,19 +51,14 @@ void CSettings::AddPropPages()
 
     AddPage(m_pMainPage);
     AddPage(m_pColorPage);
-
-    // remove the "apply" button: changes show only after the settings dialog
-    // is closed, so the OK button is enough and the "apply" button only
-    // confuses users.
-    m_psh.dwFlags |= PSH_NOAPPLYNOW;
 }
 
 void CSettings::RemovePropPages()
 {
     delete m_pMainPage;
-    m_pMainPage = nullptr;
+    m_pMainPage = NULL;
     delete m_pColorPage;
-    m_pColorPage = nullptr;
+    m_pColorPage = NULL;
 }
 
 void CSettings::SaveData()

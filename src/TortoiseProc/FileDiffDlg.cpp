@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -112,7 +112,7 @@ BEGIN_MESSAGE_MAP(CFileDiffDlg, CResizableStandAloneDialog)
 END_MESSAGE_MAP()
 
 
-void CFileDiffDlg::SetDiff(const CTSVNPath& path, const SVNRev& peg, const SVNRev& rev1, const SVNRev& rev2, svn_depth_t depth, bool ignoreancestry)
+void CFileDiffDlg::SetDiff(const CTSVNPath& path, SVNRev peg, SVNRev rev1, SVNRev rev2, svn_depth_t depth, bool ignoreancestry)
 {
     m_bDoPegDiff = true;
     m_path1 = path;
@@ -124,7 +124,7 @@ void CFileDiffDlg::SetDiff(const CTSVNPath& path, const SVNRev& peg, const SVNRe
     m_bIgnoreancestry = ignoreancestry;
 }
 
-void CFileDiffDlg::SetDiff(const CTSVNPath& path1, const SVNRev& rev1, const CTSVNPath& path2, const SVNRev& rev2, svn_depth_t depth, bool ignoreancestry)
+void CFileDiffDlg::SetDiff(const CTSVNPath& path1, SVNRev rev1, const CTSVNPath& path2, SVNRev rev2, svn_depth_t depth, bool ignoreancestry)
 {
     m_bDoPegDiff = false;
     m_path1 = path1;
@@ -151,9 +151,7 @@ BOOL CFileDiffDlg::OnInitDialog()
     m_nIconFolder = SYS_IMAGE_LIST().GetDirIconIndex();
     m_cFileList.SetImageList(&SYS_IMAGE_LIST(), LVSIL_SMALL);
 
-    int iconWidth = GetSystemMetrics(SM_CXSMICON);
-    int iconHeight = GetSystemMetrics(SM_CYSMICON);
-    m_SwitchButton.SetImage(CCommonAppUtils::LoadIconEx(IDI_SWITCHLEFTRIGHT, iconWidth, iconHeight, LR_DEFAULTCOLOR));
+    m_SwitchButton.SetImage((HICON)LoadImage(AfxGetResourceHandle(), MAKEINTRESOURCE(IDI_SWITCHLEFTRIGHT), IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR));
     m_SwitchButton.Invalidate();
 
     m_cFilter.SetCancelBitmaps(IDI_CANCELNORMAL, IDI_CANCELPRESSED, 14, 14);
@@ -162,7 +160,7 @@ BOOL CFileDiffDlg::OnInitDialog()
     temp = L"   "+temp;
     m_cFilter.SetCueBanner(temp);
 
-    int c = m_cFileList.GetHeaderCtrl()->GetItemCount()-1;
+    int c = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
     while (c>=0)
         m_cFileList.DeleteColumn(c--);
     temp.LoadString(IDS_FILEDIFF_FILE);
@@ -298,6 +296,7 @@ void CFileDiffDlg::DoDiff(int selIndex, bool bText, bool bProps, bool blame, boo
         return;
 
     CTSVNPath tempfile = CTempFiles::Instance().GetTempFilePath(false, m_path1, m_rev1);
+    CString sTemp;
     CProgressDlg progDlg;
     progDlg.SetTitle(IDS_PROGRESSWAIT);
     progDlg.ShowModeless(this);
@@ -939,6 +938,7 @@ UINT CFileDiffDlg::ExportThread()
             continue;
         }
 
+        CString sTemp;
         m_pProgDlg->FormatPathLine(1, IDS_PROGRESSGETFILE, (LPCTSTR)url1.GetSVNPathString());
 
         CTSVNPath savepath = CTSVNPath(m_strExportDir);

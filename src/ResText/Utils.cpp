@@ -41,7 +41,7 @@ void CUtils::StringExtend(LPTSTR str)
             cPos++;
             cPos++;
         }
-    } while (cPos);
+    } while (cPos != NULL);
     cPos = str;
     do
     {
@@ -52,7 +52,7 @@ void CUtils::StringExtend(LPTSTR str)
             *cPos = '\\';
             *(cPos+1) = 'n';
         }
-    } while (cPos);
+    } while (cPos != NULL);
     cPos = str;
     do
     {
@@ -63,7 +63,7 @@ void CUtils::StringExtend(LPTSTR str)
             *cPos = '\\';
             *(cPos+1) = 'r';
         }
-    } while (cPos);
+    } while (cPos != NULL);
     cPos = str;
     do
     {
@@ -74,7 +74,7 @@ void CUtils::StringExtend(LPTSTR str)
             *cPos = '\\';
             *(cPos+1) = 't';
         }
-    } while (cPos);
+    } while (cPos != NULL);
     cPos = str;
     do
     {
@@ -87,7 +87,7 @@ void CUtils::StringExtend(LPTSTR str)
             cPos++;
             cPos++;
         }
-    } while (cPos);
+    } while (cPos != NULL);
 }
 
 void CUtils::StringCollapse(LPTSTR str)
@@ -125,7 +125,7 @@ void CUtils::StringCollapse(LPTSTR str)
             }
             cPos++;
         }
-    } while (cPos);
+    } while (cPos != NULL);
 }
 
 void CUtils::Error()

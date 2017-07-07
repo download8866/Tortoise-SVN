@@ -26,7 +26,7 @@
 
 IMPLEMENT_DYNAMIC(CGotoLineDlg, CDialogEx)
 
-CGotoLineDlg::CGotoLineDlg(CWnd* pParent /*=nullptr*/)
+CGotoLineDlg::CGotoLineDlg(CWnd* pParent /*=NULL*/)
     : CDialogEx(CGotoLineDlg::IDD, pParent)
     , m_nLine(0)
     , m_nLow(-1)

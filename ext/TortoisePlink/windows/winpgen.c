@@ -319,12 +319,6 @@ static INT_PTR CALLBACK AboutProc(HWND hwnd, UINT msg,
 	    EnableWindow(hwnd, 1);
 	    SetActiveWindow(hwnd);
 	    return 0;
-	  case 102:
-	    /* Load web browser */
-	    ShellExecute(hwnd, "open",
-			 "http://www.chiark.greenend.org.uk/~sgtatham/putty/",
-			 0, 0, SW_SHOWDEFAULT);
-	    return 0;
 	}
 	return 0;
       case WM_CLOSE:
@@ -1529,7 +1523,7 @@ int WINAPI WinMain(HINSTANCE inst, HINSTANCE prev, LPSTR cmdline, int show)
 
     dll_hijacking_protection();
 
-    init_common_controls();
+    InitCommonControls();
     hinst = inst;
     hwnd = NULL;
 

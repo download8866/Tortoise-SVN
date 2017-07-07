@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2016 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -593,17 +593,20 @@ void CRevisionGraphWnd::DrawGlyphs
     {
         PointF leftTop (center.X - 0.5f * squareSize, center.Y - 0.5f * squareSize);
         DrawGlyph (graphics, glyphs, leftTop, glyph1, position);
-        visibleGlyphs->emplace_back(state1, leftTop, node);
+        visibleGlyphs->push_back
+            (CRevisionGraphState::SVisibleGlyph (state1, leftTop, node));
     }
     else
     {
         PointF leftTop1 (center.X - squareSize, center.Y - 0.5f * squareSize);
         DrawGlyph (graphics, glyphs, leftTop1, glyph1, position);
-        visibleGlyphs->emplace_back(state1, leftTop1, node);
+        visibleGlyphs->push_back
+            (CRevisionGraphState::SVisibleGlyph (state1, leftTop1, node));
 
         PointF leftTop2 (center.X, center.Y - 0.5f * squareSize);
         DrawGlyph (graphics, glyphs, leftTop2, glyph2, position);
-        visibleGlyphs->emplace_back(state2, leftTop2, node);
+        visibleGlyphs->push_back
+            (CRevisionGraphState::SVisibleGlyph (state2, leftTop2, node));
     }
 }
 
@@ -1106,6 +1109,7 @@ void CRevisionGraphWnd::DrawGraph(GraphicsDevice& graphics, const CRect& rect, i
         graphics.pDC->DrawEdge(&m_OverviewRect, EDGE_BUMP, BF_RECT);
         // now draw a rectangle where the current view is located in the overview
 
+        CRect viewRect = GetViewRect();
         LONG width = (long)(rect.Width() * m_previewZoom / m_fZoomFactor);
         LONG height = (long)(rect.Height() * m_previewZoom / m_fZoomFactor);
         LONG xpos = (long)(nHScrollPos * m_previewZoom / m_fZoomFactor);

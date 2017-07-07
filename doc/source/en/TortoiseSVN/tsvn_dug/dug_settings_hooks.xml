@@ -61,7 +61,7 @@
             If this is specified, the commit dialog shows a button
             <guibutton>Run Hook</guibutton> which when clicked runs
             the specified hook script. The hook script receives a list
-            of all checked files and folders and the commit message
+            of all checkec files and folders and the commit message
             if there was one entered.
           </para>
         </listitem>
@@ -133,22 +133,6 @@
           </para>
         </listitem>
       </varlistentry>
-      <varlistentry>
-        <term>Pre-lock</term>
-        <listitem>
-          <para>
-            Called before an attempt to lock a file.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Post-lock</term>
-        <listitem>
-          <para>
-            Called after a file has been locked.
-          </para>
-        </listitem>
-      </varlistentry>
     </variablelist>
   </para>
   <para>
@@ -181,16 +165,6 @@
       </varlistentry>
       <varlistentry>
         <term>Manual Pre-commit</term>
-        <listitem condition="pot">
-          <para>
-            <literal>PATH</literal>
-            <literal>MESSAGEFILE</literal>
-            <literal>CWD</literal>
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Check-commit</term>
         <listitem condition="pot">
           <para>
             <literal>PATH</literal>
@@ -262,32 +236,6 @@
           <para>
             no parameters are passed to this script. You can pass
             a custom parameter by appending it to the script path.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Pre-lock</term>
-        <listitem condition="pot">
-          <para>
-            <literal>PATH</literal>
-            <literal>LOCK</literal>
-            <literal>FORCE</literal>
-            <literal>MESSAGEFILE</literal>
-            <literal>ERROR</literal>
-            <literal>CWD</literal>
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Post-lock</term>
-        <listitem condition="pot">
-          <para>
-            <literal>PATH</literal>
-            <literal>LOCK</literal>
-            <literal>FORCE</literal>
-            <literal>MESSAGEFILE</literal>
-            <literal>ERROR</literal>
-            <literal>CWD</literal>
           </para>
         </listitem>
       </varlistentry>
@@ -391,23 +339,6 @@
           <para>
             The repository revision to which the update should
             be done or after a commit completes.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term condition="pot">LOCK</term>
-        <listitem>
-          <para>
-            Either <literal>true</literal> when locking, or <literal>false</literal> when unlocking.
-          </para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term condition="pot">FORCE</term>
-        <listitem>
-          <para>
-            Either <literal>true</literal> or <literal>false</literal>, depending
-            on whether the operation was forced or not.
           </para>
         </listitem>
       </varlistentry>

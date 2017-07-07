@@ -129,7 +129,7 @@ bool CUndo::Undo(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom)
     else
         UndoOne(pLeft, pRight, pBottom);
 
-    CBaseView* pActiveView = nullptr;
+    CBaseView * pActiveView = NULL;
 
     if (pBottom && pBottom->IsTarget())
     {
@@ -268,7 +268,7 @@ bool CUndo::Redo(CBaseView * pLeft, CBaseView * pRight, CBaseView * pBottom)
     else
         RedoOne(pLeft, pRight, pBottom);
 
-    CBaseView* pActiveView = nullptr;
+    CBaseView * pActiveView = NULL;
 
     if (pBottom && pBottom->IsTarget())
     {
