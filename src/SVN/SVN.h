@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2017 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -68,9 +68,10 @@ typedef std::map<CString, CString> RevPropHash;
  */
 class SVN : public SVNBase, private ILogReceiver
 {
+private:
+    SVN(const SVN&){}
+    SVN& operator=(SVN&) /*{ return *this; }*/;
 public:
-    SVN(const SVN&) = delete;
-    SVN& operator=(SVN&) = delete;
     SVN(bool suppressUI = false);
     virtual ~SVN(void);
 
@@ -97,6 +98,7 @@ public:
                             const CString& lockcomment, bool is_dav_comment,
                             apr_time_t lock_creationdate, apr_time_t lock_expirationdate,
                             const CString& absolutepath, const CString& externalParentUrl, const CString& externalTarget);
+    virtual svn_wc_conflict_choice_t ConflictResolveCallback(const svn_wc_conflict_description2_t *description, CString& mergedfile);
 
     struct SVNLock
     {
@@ -967,21 +969,6 @@ public:
      */
     void SVNReInit();
 
-    /**
-     * Resolves tree conflict.
-     * In case there's no preferred move target, set those values to -1
-     */
-    bool ResolveTreeConflict(svn_client_conflict_t *conflict, svn_client_conflict_option_t *option, int preferred_moved_target_idx, int preferred_moved_reltarget_idx);
-    /**
-     * Resolves text conflict.
-     */
-    bool ResolveTextConflict(svn_client_conflict_t * conflict, svn_client_conflict_option_t * option);
-
-    /**
-     * Resolves property conflict.
-     */
-    bool ResolvePropConflict(svn_client_conflict_t * conflict, const CString & propName, svn_client_conflict_option_t * option);
-
 protected:
     apr_pool_t *                parentpool;     ///< the main memory pool
     apr_pool_t *                m_pool;         ///< 'root' memory pool
@@ -1006,7 +993,6 @@ protected:
     void                 Prepare();
     void                 SVNInit();
     static bool          AprTimeExplodeLocal(apr_time_exp_t *exploded_time, apr_time_t date_svn);
-    bool                 IsLogCacheEnabled();
 
     void cancel();
     static svn_error_t* cancel(void *baton);

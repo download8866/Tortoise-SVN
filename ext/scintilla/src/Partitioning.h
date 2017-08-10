@@ -22,17 +22,14 @@ public:
 		SetGrowSize(growSize_);
 		ReAllocate(growSize_);
 	}
-	// Deleted so SplitVectorWithRangeAdd objects can not be copied.
-	SplitVectorWithRangeAdd(const SplitVectorWithRangeAdd &) = delete;
-	void operator=(const SplitVectorWithRangeAdd &) = delete;
 	~SplitVectorWithRangeAdd() {
 	}
 	void RangeAddDelta(int start, int end, int delta) {
 		// end is 1 past end, so end-start is number of elements to change
 		int i = 0;
-		const int rangeLength = end - start;
+		int rangeLength = end - start;
 		int range1Length = rangeLength;
-		const int part1Left = part1Length - start;
+		int part1Left = part1Length - start;
 		if (range1Length > part1Left)
 			range1Length = part1Left;
 		while (i < range1Length) {
@@ -60,7 +57,7 @@ private:
 	// there may be a step somewhere in the list.
 	int stepPartition;
 	int stepLength;
-	std::unique_ptr<SplitVectorWithRangeAdd> body;
+	SplitVectorWithRangeAdd *body;
 
 	// Move step forward
 	void ApplyStep(int partitionUpTo) {
@@ -83,7 +80,7 @@ private:
 	}
 
 	void Allocate(int growSize) {
-		body.reset(new SplitVectorWithRangeAdd(growSize));
+		body = new SplitVectorWithRangeAdd(growSize);
 		stepPartition = 0;
 		stepLength = 0;
 		body->Insert(0, 0);	// This value stays 0 for ever
@@ -95,11 +92,9 @@ public:
 		Allocate(growSize);
 	}
 
-	// Deleted so Partitioning objects can not be copied.
-	Partitioning(const Partitioning &) = delete;
-	void operator=(const Partitioning &) = delete;
-
 	~Partitioning() {
+		delete body;
+		body = 0;
 	}
 
 	int Partitions() const {
@@ -175,7 +170,7 @@ public:
 		int lower = 0;
 		int upper = body->Length()-1;
 		do {
-			const int middle = (upper + lower + 1) / 2; 	// Round high
+			int middle = (upper + lower + 1) / 2; 	// Round high
 			int posMiddle = body->ValueAt(middle);
 			if (middle > stepPartition)
 				posMiddle += stepLength;
@@ -189,7 +184,9 @@ public:
 	}
 
 	void DeleteAll() {
-		Allocate(body->GetGrowSize());
+		int growSize = body->GetGrowSize();
+		delete body;
+		Allocate(growSize);
 	}
 };
 

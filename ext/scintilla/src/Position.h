@@ -16,7 +16,6 @@
 namespace Sci {
 
 typedef int Position;
-typedef int Line;
 
 // A later version (4.x) of this file may:
 //#if defined(SCI_LARGE_FILE_SUPPORT)

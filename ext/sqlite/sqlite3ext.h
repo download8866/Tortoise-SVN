@@ -282,8 +282,6 @@ struct sqlite3_api_routines {
   /* Version 3.14.0 and later */
   int (*trace_v2)(sqlite3*,unsigned,int(*)(unsigned,void*,void*,void*),void*);
   char *(*expanded_sql)(sqlite3_stmt*);
-  /* Version 3.18.0 and later */
-  void (*set_last_insert_rowid)(sqlite3*,sqlite3_int64);
 };
 
 /*
@@ -542,8 +540,6 @@ typedef int (*sqlite3_loadext_entry)(
 /* Version 3.14.0 and later */
 #define sqlite3_trace_v2               sqlite3_api->trace_v2
 #define sqlite3_expanded_sql           sqlite3_api->expanded_sql
-/* Version 3.18.0 and later */
-#define sqlite3_set_last_insert_rowid  sqlite3_api->set_last_insert_rowid
 #endif /* !defined(SQLITE_CORE) && !defined(SQLITE_OMIT_LOAD_EXTENSION) */
 
 #if !defined(SQLITE_CORE) && !defined(SQLITE_OMIT_LOAD_EXTENSION)

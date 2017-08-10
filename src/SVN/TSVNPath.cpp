@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2017 - TortoiseSVN
+// Copyright (C) 2003-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -68,7 +68,30 @@ CTSVNPath::~CTSVNPath(void)
 {
 }
 // Create a TSVNPath object from an unknown path type (same as using SetFromUnknown)
-CTSVNPath::CTSVNPath(const CString& sUnknownPath) : CTSVNPath()
+CTSVNPath::CTSVNPath(const CString& sUnknownPath) :
+    m_bDirectoryKnown(false),
+    m_bIsDirectory(false),
+    m_bIsURL(false),
+    m_bURLKnown(false),
+    m_bHasAdminDirKnown(false),
+    m_bHasAdminDir(false),
+    m_bIsValidOnWindowsKnown(false),
+    m_bIsValidOnWindows(false),
+    m_bIsReadOnly(false),
+    m_bIsAdminDirKnown(false),
+    m_bIsAdminDir(false),
+    m_bIsWCRootKnown(false),
+    m_bIsWCRoot(false),
+    m_bExists(false),
+    m_bExistsKnown(false),
+    m_bLastWriteTimeKnown(0),
+    m_lastWriteTime(0),
+    m_fileSize(0),
+    m_customData(NULL),
+    m_bIsSpecialDirectoryKnown(false),
+    m_bIsSpecialDirectory(false),
+    m_bIsAttributesKnown(false),
+    m_attributes(0)
 {
     SetFromUnknown(sUnknownPath);
 }
@@ -343,7 +366,7 @@ bool CTSVNPath::Delete(bool bTrash) const
     {
         if ((bTrash)||(IsDirectory()))
         {
-            auto buf = std::make_unique<TCHAR[]>(m_sBackslashPath.GetLength() + 2);
+            std::unique_ptr<TCHAR[]> buf(new TCHAR[m_sBackslashPath.GetLength()+2]);
             wcscpy_s(buf.get(), m_sBackslashPath.GetLength()+2, m_sBackslashPath);
             buf[m_sBackslashPath.GetLength()] = 0;
             buf[m_sBackslashPath.GetLength()+1] = 0;
@@ -359,9 +382,9 @@ bool CTSVNPath::Delete(bool bTrash) const
     return bRet;
 }
 
-__int64  CTSVNPath::GetLastWriteTime(bool force) const
+__int64  CTSVNPath::GetLastWriteTime() const
 {
-    if(!m_bLastWriteTimeKnown || force)
+    if(!m_bLastWriteTimeKnown)
     {
         UpdateAttributes();
     }
@@ -790,7 +813,7 @@ bool CTSVNPath::IsValidOnWindows() const
         if (std::tr1::regex_search(checkPath, rx2, std::tr1::regex_constants::match_default))
             m_bIsValidOnWindows = false;
     }
-    catch (std::exception&) {}
+    catch (std::exception) {}
 
     m_bIsValidOnWindowsKnown = true;
     return m_bIsValidOnWindows;
@@ -894,7 +917,7 @@ bool CTSVNPathList::LoadFromFile(const CTSVNPath& filename)
     }
     catch (CFileException* pE)
     {
-        auto error = std::make_unique<TCHAR[]>(10000);
+        std::unique_ptr<TCHAR[]> error(new TCHAR[10000]);
         pE->GetErrorMessage(error.get(), 10000);
         ::MessageBox(NULL, error.get(), L"TortoiseSVN", MB_ICONERROR);
         pE->Delete();
@@ -1436,8 +1459,7 @@ private:
         testPath.SetFromWin(L"c:\\windows");
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\"))==false);
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows")));
-        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windowsdummy")) == false);
-        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows test")) == false);
+        ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windowsdummy"))==false);
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows\\test.txt")));
         ATLASSERT(testPath.IsAncestorOf(CTSVNPath(L"c:\\windows\\system32\\test.txt")));
     }

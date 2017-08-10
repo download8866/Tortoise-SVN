@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2016 - TortoiseSVN
+// Copyright (C) 2003-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -509,11 +509,10 @@ void CRevisionGraphWnd::OnLButtonDown(UINT nFlags, CPoint point)
     else
         uEnable |= MF_GRAYED;
 
-    auto hMenu = GetParent()->GetMenu()->m_hMenu;
-    EnableMenuItem(hMenu, ID_VIEW_COMPAREREVISIONS, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_COMPAREHEADREVISIONS, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_UNIFIEDDIFF, uEnable);
-    EnableMenuItem(hMenu, ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_COMPAREREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_COMPAREHEADREVISIONS, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_UNIFIEDDIFF, uEnable);
+    EnableMenuItem(GetParent()->GetMenu()->m_hMenu, ID_VIEW_UNIFIEDDIFFOFHEADREVISIONS, uEnable);
 
     __super::OnLButtonDown(nFlags, point);
 }
@@ -1408,6 +1407,7 @@ void CRevisionGraphWnd::OnMouseMove(UINT nFlags, CPoint point)
         if (m_bShowOverview && (m_OverviewRect.PtInRect(point))&&(nFlags & MK_LBUTTON))
         {
             // scrolling
+            CRect viewRect = GetViewRect();
             int x = (int)((point.x-m_OverviewRect.left - (m_OverviewPosRect.Width()/2)) / m_previewZoom  * m_fZoomFactor);
             int y = (int)((point.y - (m_OverviewPosRect.Height()/2)) / m_previewZoom  * m_fZoomFactor);
             x = max(0, x);

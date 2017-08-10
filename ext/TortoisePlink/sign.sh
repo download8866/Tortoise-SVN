@@ -10,27 +10,11 @@
 set -e
 
 keyname=EEF20295D15F7E8A
-preliminary=false
 
-while :; do
-    case "$1" in
-        -r)
-            shift
-            keyname=9DFE2648B43434E4
-            ;;
-        -p)
-            shift
-            preliminary=true
-            ;;
-        -*)
-            echo "Unknown option '$1'" >&2
-            exit 1
-            ;;
-        *)
-            break
-            ;;
-    esac
-done
+if test "x$1" = "x-r"; then
+    shift
+    keyname=9DFE2648B43434E4
+fi
 
 sign() {
   # Check for the prior existence of the signature, so we can
@@ -43,16 +27,9 @@ sign() {
 
 cd "$1"
 echo "===== Signing with key '$keyname'"
-if $preliminary; then
-    sign --clearsign sha512sums ../sha512sums-preliminary.gpg
-else
-    for i in putty*src.zip putty*.tar.gz \
-             w32/*.exe w32/*.zip w32/*.msi \
-             w64/*.exe w64/*.zip w64/*.msi \
-             w32old/*.exe w32old/*.zip; do
-        sign --detach-sign "$i" "$i.gpg"
-    done
-    for i in md5sums sha1sums sha256sums sha512sums; do
-        sign --clearsign "$i" "$i.gpg"
-    done
-fi
+for i in putty*src.zip putty*.tar.gz w32/*.exe w32/*.zip w32/*.msi w64/*.exe w64/*.zip w64/*.msi w32old/*.exe w32old/*.zip; do
+    sign --detach-sign "$i" "$i.gpg"
+done
+for i in md5sums sha1sums sha256sums sha512sums; do
+    sign --clearsign "$i" "$i.gpg"
+done

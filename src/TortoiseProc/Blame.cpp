@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2014, 2016 - TortoiseSVN
+// Copyright (C) 2003-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -182,7 +182,7 @@ BOOL CBlame::Cancel()
     return m_bCancelled;
 }
 
-CString CBlame::BlameToTempFile(const CTSVNPath& path, const SVNRev& startrev, const SVNRev& endrev, SVNRev pegrev,
+CString CBlame::BlameToTempFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev pegrev,
                                 const CString& options, BOOL includemerge,
                                 BOOL showprogress, BOOL ignoremimetype)
 {
@@ -205,9 +205,9 @@ CString CBlame::BlameToTempFile(const CTSVNPath& path, const SVNRev& startrev, c
     if (extBlame)
     {
         if(includemerge)
-            headline.Format(L"%c %-6s %-8s %-8s %-30s %-60s %-30s %-s \n", L' ', L"line", L"rev", L"merged", L"date", L"path", L"author", L"content");
+            headline.Format(L"%c %-6s %-8s %-8s %-30s %-60s %-30s %-s \n", ' ', L"line", L"rev", L"merged", L"date", L"path", L"author", L"content");
         else
-            headline.Format(L"%c %-6s %-8s %-8s %-30s %-30s %-s \n", L' ', L"line", L"rev", L"merged", L"date",L"author", L"content");
+            headline.Format(L"%c %-6s %-8s %-8s %-30s %-30s %-s \n", ' ', L"line", L"rev", L"merged", L"date",L"author", L"content");
         m_saveFile.WriteString(headline);
         m_saveFile.WriteString(L"\n");
     }
@@ -272,10 +272,11 @@ BOOL CBlame::Notify(const CTSVNPath& /*path*/, const CTSVNPath& /*url*/, svn_wc_
     return TRUE;
 }
 
-bool CBlame::BlameToFile(const CTSVNPath& path, const SVNRev& startrev, const SVNRev& endrev, SVNRev peg,
+bool CBlame::BlameToFile(const CTSVNPath& path, SVNRev startrev, SVNRev endrev, SVNRev peg,
                          const CTSVNPath& tofile, const CString& options, BOOL ignoremimetype, BOOL includemerge)
 {
     extBlame = TRUE;
+    CString temp;
     if (!m_saveFile.Open(tofile.GetWinPathString(), CFile::typeText | CFile::modeReadWrite | CFile::modeCreate))
         return false;
     m_bNoLineNo = true;

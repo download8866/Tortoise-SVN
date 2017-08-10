@@ -5,14 +5,12 @@
 // Copyright 1998-2001 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <cstdlib>
-#include <cstring>
-#include <cstdio>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
 #include <stdexcept>
 #include <string>
-#include <algorithm>
-#include <memory>
 
 #include "Platform.h"
 
@@ -91,7 +89,7 @@ void CallTip::DrawChunk(Surface *surface, int &x, const char *s,
 	int posStart, int posEnd, int ytext, PRectangle rcClient,
 	bool highlight, bool draw) {
 	s += posStart;
-	const int len = posEnd - posStart;
+	int len = posEnd - posStart;
 
 	// Divide the text into sections that are all text, or that are
 	// single arrows or single tab characters (if tabSize > 0).
@@ -114,7 +112,7 @@ void CallTip::DrawChunk(Surface *surface, int &x, const char *s,
 		if (endSeg > startSeg) {
 			if (IsArrowCharacter(s[startSeg])) {
 				xEnd = x + widthArrow;
-				const bool upArrow = s[startSeg] == '\001';
+				bool upArrow = s[startSeg] == '\001';
 				rcClient.left = static_cast<XYPOSITION>(x);
 				rcClient.right = static_cast<XYPOSITION>(xEnd);
 				if (draw) {
@@ -190,14 +188,14 @@ int CallTip::PaintContents(Surface *surfaceWindow, bool draw) {
 			chunkEnd = chunkVal + strlen(chunkVal);
 			moreChunks = false;
 		}
-		const int chunkOffset = static_cast<int>(chunkVal - val.c_str());
-		const int chunkLength = static_cast<int>(chunkEnd - chunkVal);
-		const int chunkEndOffset = chunkOffset + chunkLength;
-		int thisStartHighlight = std::max(startHighlight, chunkOffset);
-		thisStartHighlight = std::min(thisStartHighlight, chunkEndOffset);
+		int chunkOffset = static_cast<int>(chunkVal - val.c_str());
+		int chunkLength = static_cast<int>(chunkEnd - chunkVal);
+		int chunkEndOffset = chunkOffset + chunkLength;
+		int thisStartHighlight = Platform::Maximum(startHighlight, chunkOffset);
+		thisStartHighlight = Platform::Minimum(thisStartHighlight, chunkEndOffset);
 		thisStartHighlight -= chunkOffset;
-		int thisEndHighlight = std::max(endHighlight, chunkOffset);
-		thisEndHighlight = std::min(thisEndHighlight, chunkEndOffset);
+		int thisEndHighlight = Platform::Maximum(endHighlight, chunkOffset);
+		thisEndHighlight = Platform::Minimum(thisEndHighlight, chunkEndOffset);
 		thisEndHighlight -= chunkOffset;
 		rcClient.top = static_cast<XYPOSITION>(ytext - ascent - 1);
 
@@ -213,7 +211,7 @@ int CallTip::PaintContents(Surface *surfaceWindow, bool draw) {
 		chunkVal = chunkEnd + 1;
 		ytext += lineHeight;
 		rcClient.bottom += lineHeight;
-		maxWidth = std::max(maxWidth, x);
+		maxWidth = Platform::Maximum(maxWidth, x);
 	}
 	return maxWidth;
 }
@@ -252,14 +250,16 @@ void CallTip::MouseClick(Point pt) {
 		clickPlace = 2;
 }
 
-PRectangle CallTip::CallTipStart(Sci::Position pos, Point pt, int textHeight, const char *defn,
+PRectangle CallTip::CallTipStart(int pos, Point pt, int textHeight, const char *defn,
                                  const char *faceName, int size,
                                  int codePage_, int characterSet,
 								 int technology, Window &wParent) {
 	clickPlace = 0;
 	val = defn;
 	codePage = codePage_;
-	std::unique_ptr<Surface> surfaceMeasure(Surface::Allocate(technology));
+	Surface *surfaceMeasure = Surface::Allocate(technology);
+	if (!surfaceMeasure)
+		return PRectangle();
 	surfaceMeasure->Init(wParent.GetID());
 	surfaceMeasure->SetUnicodeMode(SC_CP_UTF8 == codePage);
 	surfaceMeasure->SetDBCSMode(codePage);
@@ -278,7 +278,7 @@ PRectangle CallTip::CallTipStart(Sci::Position pos, Point pt, int textHeight, co
 	rectUp = PRectangle(0,0,0,0);
 	rectDown = PRectangle(0,0,0,0);
 	offsetMain = insetX;            // changed to right edge of any arrows
-	const int width = PaintContents(surfaceMeasure.get(), false) + insetX;
+	int width = PaintContents(surfaceMeasure, false) + insetX;
 	while ((newline = strchr(look, '\n')) != NULL) {
 		look = newline + 1;
 		numLines++;
@@ -289,6 +289,7 @@ PRectangle CallTip::CallTipStart(Sci::Position pos, Point pt, int textHeight, co
 	// rectangle is aligned to the right edge of the last arrow encountered in
 	// the tip text, else to the tip text left edge.
 	int height = lineHeight * numLines - static_cast<int>(surfaceMeasure->InternalLeading(font)) + borderHeight * 2;
+	delete surfaceMeasure;
 	if (above) {
 		return PRectangle(pt.x - offsetMain, pt.y - verticalOffset - height, pt.x + width - offsetMain, pt.y - verticalOffset);
 	} else {

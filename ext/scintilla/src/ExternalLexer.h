@@ -38,15 +38,26 @@ public:
 	virtual void SetExternal(GetLexerFactoryFunction fFactory, int index);
 };
 
-/// LexerLibrary exists for every External Lexer DLL, contains ExternalLexerModules.
-class LexerLibrary {
-	std::unique_ptr<DynamicLibrary> lib;
-	std::vector<std::unique_ptr<ExternalLexerModule>> modules;
+/// LexerMinder points to an ExternalLexerModule - so we don't leak them.
+class LexerMinder {
 public:
-	explicit LexerLibrary(const char *moduleName_);
-	~LexerLibrary();
+	ExternalLexerModule *self;
+	LexerMinder *next;
+};
 
-	std::string moduleName;
+/// LexerLibrary exists for every External Lexer DLL, contains LexerMinders.
+class LexerLibrary {
+	DynamicLibrary	*lib;
+	LexerMinder		*first;
+	LexerMinder		*last;
+
+public:
+	explicit LexerLibrary(const char *ModuleName);
+	~LexerLibrary();
+	void Release();
+
+	LexerLibrary	*next;
+	std::string			m_sModuleName;
 };
 
 /// LexerManager manages external lexers, contains LexerLibrarys.
@@ -62,8 +73,11 @@ public:
 
 private:
 	LexerManager();
-	static std::unique_ptr<LexerManager> theInstance;
-	std::vector<std::unique_ptr<LexerLibrary>> libraries;
+	static LexerManager *theInstance;
+
+	void LoadLexerLibrary(const char *module);
+	LexerLibrary *first;
+	LexerLibrary *last;
 };
 
 class LMMinder {

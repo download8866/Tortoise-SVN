@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2011, 2013-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,9 +25,12 @@
 #include <shlobj.h>
 #pragma warning(pop)
 
+#define REGISTRYTIMEOUT 2000
+#define EXCLUDELISTTIMEOUT 5000
 #define ADMINDIRTIMEOUT 10000
 #define DRIVETYPETIMEOUT 300000     // 5 min
 #define NUMBERFMTTIMEOUT 300000
+#define MENUTIMEOUT 100
 
 typedef CComCritSecLock<CComCriticalSection> Locker;
 
@@ -52,16 +55,14 @@ public:
         dll
     };
     ShellCache();
-    ~ShellCache();
+    ~ShellCache() {}
 
-    bool RefreshIfNeeded();
+    void ForceRefresh();
     CacheType GetCacheType();
     DWORD BlockStatus();
     unsigned __int64 GetMenuLayout();
     unsigned __int64 GetMenuMask();
-    bool IsProcessElevated();
 
-    BOOL IsOnlyNonElevated();
     BOOL IsRecursive();
     BOOL IsFolderOverlay();
     BOOL HasShellMenuAccelerators();
@@ -85,8 +86,10 @@ public:
     NUMBERFMT * GetNumberFmt();
     BOOL IsVersioned(LPCTSTR path, bool bIsDir, bool mustbeok);
     bool IsColumnsEveryWhere();
+
 private:
 
+    void DriveValid();
     void ExcludeContextValid();
     void ValidatePathFilter();
 
@@ -197,7 +200,6 @@ private:
     CRegStdDWORD cachetype;
     CRegStdDWORD blockstatus;
     CRegStdDWORD langid;
-    CRegStdDWORD onlynonelevated;
     CRegStdDWORD showrecursive;
     CRegStdDWORD folderoverlay;
     CRegStdDWORD getlocktop;
@@ -224,8 +226,25 @@ private:
 
     CPathFilter pathFilter;
 
+    ULONGLONG cachetypeticker;
+    ULONGLONG recursiveticker;
+    ULONGLONG folderoverlayticker;
+    ULONGLONG getlocktopticker;
+    ULONGLONG driveticker;
     ULONGLONG drivetypeticker;
+    ULONGLONG layoutticker;
+    ULONGLONG menumaskticker;
+    ULONGLONG langticker;
+    ULONGLONG blockstatusticker;
     ULONGLONG columnrevformatticker;
+    ULONGLONG pathfilterticker;
+    ULONGLONG shellmenuacceleratorsticker;
+    ULONGLONG unversionedasmodifiedticker;
+    ULONGLONG ignoreoncommitignoredticker;
+    ULONGLONG excludedasnormalticker;
+    ULONGLONG alwaysextendedticker;
+    ULONGLONG hidemenusforunversioneditemsticker;
+    ULONGLONG columnseverywhereticker;
     UINT  drivetypecache[27];
     TCHAR drivetypepathcache[MAX_PATH];     // MAX_PATH ok.
     NUMBERFMT columnrevformat;
@@ -235,10 +254,8 @@ private:
     CRegStdString nocontextpaths;
     tstring excludecontextstr;
     std::vector<tstring> excontextvector;
+    ULONGLONG excontextticker;
     CComCriticalSection m_critSec;
-    HANDLE m_registryChangeEvent;
-    HKEY m_hNotifyRegKey;
-    bool isElevated;
 };
 
 inline bool operator<

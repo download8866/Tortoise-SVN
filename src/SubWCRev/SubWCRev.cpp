@@ -118,7 +118,7 @@ TrueText if the tested condition is true, and FalseText if false.\n\
 $WCMODS$        True if local modifications found\n\
 $WCMIXED$       True if mixed update revisions found\n\
 $WCEXTALLFIXED$ True if all externals are fixed to an explicit revision\n\
-$WCISTAGGED$    True if the repository URL contains the tags pattern\n\
+$WCISTAGGED$    True if the repository URL contains the tags classification pattern\n\
 $WCINSVN$       True if the item is versioned\n\
 $WCNEEDSLOCK$   True if the svn:needs-lock property is set\n\
 $WCISLOCKED$    True if the item is locked\n"
@@ -999,10 +999,9 @@ int _tmain(int argc, _TCHAR* argv[])
     GetFullPathName(wc, MAX_PATH, wcfullpath, &dummy);
     apr_status_t e = 0;
     if (svnerr)
-    {
         e = svnerr->apr_err;
+    if (svnerr)
         svn_error_clear(svnerr);
-    }
     apr_terminate2();
     if (svnerr)
     {

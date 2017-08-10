@@ -653,7 +653,7 @@ protected:  // variables
     {
     public:
         Screen2View()
-            : m_pViewData(nullptr)
+            : m_pViewData(NULL)
         {m_bFull=false; }
 
         int             GetViewLineForScreen(int screenLine);

@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2007, 2009-2010, 2013-2014, 2016-2017 - TortoiseSVN
+// Copyright (C) 2006-2007, 2009-2010, 2013-2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@
 // CAboutDlg dialog
 
 IMPLEMENT_DYNAMIC(CAboutDlg, CStandAloneDialog)
-CAboutDlg::CAboutDlg(CWnd* pParent /*=nullptr*/)
+CAboutDlg::CAboutDlg(CWnd* pParent /*=NULL*/)
     : CStandAloneDialog(CAboutDlg::IDD, pParent)
 {
 }
@@ -65,7 +65,7 @@ BOOL CAboutDlg::OnInitDialog()
     SetDlgItemText(IDC_VERSIONBOX, boxtitle);
     const svn_version_t * diffver = svn_diff_version();
     temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD, _T(TSVN_PLATFORM), _T(TSVN_VERDATE),
-        diffver->major, diffver->minor, diffver->patch, (LPCWSTR)CString(diffver->tag),
+        diffver->major, diffver->minor, diffver->patch, CString(diffver->tag),
         APR_MAJOR_VERSION, APR_MINOR_VERSION, APR_PATCH_VERSION,
         APU_MAJOR_VERSION, APU_MINOR_VERSION, APU_PATCH_VERSION);
     SetDlgItemText(IDC_VERSIONABOUT, temp);
@@ -77,11 +77,11 @@ BOOL CAboutDlg::OnInitDialog()
     m_renderDest.Create32BitFromPicture(&tmpPic,468,64);
 
     m_waterEffect.Create(468,64);
-    SetTimer(ID_EFFECTTIMER, 40, nullptr);
-    SetTimer(ID_DROPTIMER, 300, nullptr);
+    SetTimer(ID_EFFECTTIMER, 40, NULL);
+    SetTimer(ID_DROPTIMER, 300, NULL);
 
-    m_cWebLink.SetURL(L"https://tortoisesvn.net");
-    m_cSupportLink.SetURL(L"https://tortoisesvn.tigris.org/contributors.html");
+    m_cWebLink.SetURL(L"http://tortoisesvn.net");
+    m_cSupportLink.SetURL(L"http://tortoisesvn.tigris.org/contributors.html");
 
     return TRUE;  // return TRUE unless you set the focus to a control
     // EXCEPTION: OCX Property Pages should return FALSE
@@ -116,7 +116,7 @@ void CAboutDlg::OnMouseMove(UINT nFlags, CPoint point)
     r.right = r.left + m_renderSrc.GetWidth();
     r.bottom = r.top + m_renderSrc.GetHeight();
 
-    if(r.PtInRect(point) != FALSE)
+    if(r.PtInRect(point) == TRUE)
     {
         // dibs are drawn upside down...
         point.y -= 20;

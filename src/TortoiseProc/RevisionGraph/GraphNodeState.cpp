@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008, 2015 - TortoiseSVN
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -429,7 +429,7 @@ CGraphNodeStates::TSavedData CGraphNodeStates::SaveData() const
     {
         TNodeDescriptor key ( iter->first->GetRevision()
                             , iter->first->GetPath());
-        result.emplace(key, iter->second);
+        result.insert (std::make_pair (key, iter->second));
     }
 
     return result;

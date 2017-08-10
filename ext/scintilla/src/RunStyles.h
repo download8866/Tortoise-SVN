@@ -16,18 +16,17 @@ namespace Scintilla {
 
 class RunStyles {
 private:
-	std::unique_ptr<Partitioning> starts;
-	std::unique_ptr<SplitVector<int>> styles;
+	Partitioning *starts;
+	SplitVector<int> *styles;
 	int RunFromPosition(int position) const;
 	int SplitRun(int position);
 	void RemoveRun(int run);
 	void RemoveRunIfEmpty(int run);
 	void RemoveRunIfSameAsPrevious(int run);
+	// Private so RunStyles objects can not be copied
+	RunStyles(const RunStyles &);
 public:
 	RunStyles();
-	// Deleted so RunStyles objects can not be copied.
-	RunStyles(const RunStyles &) = delete;
-	void operator=(const RunStyles &) = delete;
 	~RunStyles();
 	int Length() const;
 	int ValueAt(int position) const;

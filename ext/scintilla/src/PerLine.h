@@ -19,22 +19,19 @@ namespace Scintilla {
 struct MarkerHandleNumber {
 	int handle;
 	int number;
-	MarkerHandleNumber(int handle_, int number_) : handle(handle_), number(number_) {}
+	MarkerHandleNumber *next;
 };
 
 /**
  * A marker handle set contains any number of MarkerHandleNumbers.
  */
 class MarkerHandleSet {
-	std::forward_list<MarkerHandleNumber> mhList;
+	MarkerHandleNumber *root;
 
 public:
 	MarkerHandleSet();
-	// Deleted so MarkerHandleSet objects can not be copied.
-	MarkerHandleSet(const MarkerHandleSet &) = delete;
-	void operator=(const MarkerHandleSet &) = delete;
 	~MarkerHandleSet();
-	bool Empty() const;
+	int Length() const;
 	int MarkValue() const;	///< Bit set of marker numbers.
 	bool Contains(int handle) const;
 	bool InsertHandle(int handle, int markerNum);
@@ -44,46 +41,38 @@ public:
 };
 
 class LineMarkers : public PerLine {
-	SplitVector<std::unique_ptr<MarkerHandleSet>> markers;
+	SplitVector<MarkerHandleSet *> markers;
 	/// Handles are allocated sequentially and should never have to be reused as 32 bit ints are very big.
 	int handleCurrent;
 public:
 	LineMarkers() : handleCurrent(0) {
 	}
-	// Deleted so Worker objects can not be copied.
-	LineMarkers(const LineMarkers &) = delete;
-	void operator=(const LineMarkers &) = delete;
 	virtual ~LineMarkers();
-	void Init() override;
-	void InsertLine(Sci::Line line) override;
-	void RemoveLine(Sci::Line line) override;
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
 
-	int MarkValue(Sci::Line line);
-	Sci::Line MarkerNext(Sci::Line lineStart, int mask) const;
-	int AddMark(Sci::Line line, int markerNum, Sci::Line lines);
-	void MergeMarkers(Sci::Line line);
-	bool DeleteMark(Sci::Line line, int markerNum, bool all);
+	int MarkValue(int line);
+	int MarkerNext(int lineStart, int mask) const;
+	int AddMark(int line, int marker, int lines);
+	void MergeMarkers(int pos);
+	bool DeleteMark(int line, int markerNum, bool all);
 	void DeleteMarkFromHandle(int markerHandle);
-	Sci::Line LineFromHandle(int markerHandle);
+	int LineFromHandle(int markerHandle);
 };
 
 class LineLevels : public PerLine {
 	SplitVector<int> levels;
 public:
-	LineLevels() {
-	}
-	// Deleted so Worker objects can not be copied.
-	LineLevels(const LineLevels &) = delete;
-	void operator=(const LineLevels &) = delete;
 	virtual ~LineLevels();
-	void Init() override;
-	void InsertLine(Sci::Line line) override;
-	void RemoveLine(Sci::Line line) override;
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
 
-	void ExpandLevels(Sci::Line sizeNew=-1);
+	void ExpandLevels(int sizeNew=-1);
 	void ClearLevels();
-	int SetLevel(Sci::Line line, int level, Sci::Line lines);
-	int GetLevel(Sci::Line line) const;
+	int SetLevel(int line, int level, int lines);
+	int GetLevel(int line) const;
 };
 
 class LineState : public PerLine {
@@ -91,62 +80,53 @@ class LineState : public PerLine {
 public:
 	LineState() {
 	}
-	// Deleted so Worker objects can not be copied.
-	LineState(const LineState &) = delete;
-	void operator=(const LineState &) = delete;
 	virtual ~LineState();
-	void Init() override;
-	void InsertLine(Sci::Line line) override;
-	void RemoveLine(Sci::Line line) override;
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
 
-	int SetLineState(Sci::Line line, int state);
-	int GetLineState(Sci::Line line);
-	Sci::Line GetMaxLineState() const;
+	int SetLineState(int line, int state);
+	int GetLineState(int line);
+	int GetMaxLineState() const;
 };
 
 class LineAnnotation : public PerLine {
-	SplitVector<std::unique_ptr<char []>> annotations;
+	SplitVector<char *> annotations;
 public:
 	LineAnnotation() {
 	}
-	// Deleted so Worker objects can not be copied.
-	LineAnnotation(const LineAnnotation &) = delete;
-	void operator=(const LineAnnotation &) = delete;
 	virtual ~LineAnnotation();
-	void Init() override;
-	void InsertLine(Sci::Line line) override;
-	void RemoveLine(Sci::Line line) override;
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
 
-	bool MultipleStyles(Sci::Line line) const;
-	int Style(Sci::Line line) const;
-	const char *Text(Sci::Line line) const;
-	const unsigned char *Styles(Sci::Line line) const;
-	void SetText(Sci::Line line, const char *text);
+	bool MultipleStyles(int line) const;
+	int Style(int line) const;
+	const char *Text(int line) const;
+	const unsigned char *Styles(int line) const;
+	void SetText(int line, const char *text);
 	void ClearAll();
-	void SetStyle(Sci::Line line, int style);
-	void SetStyles(Sci::Line line, const unsigned char *styles);
-	int Length(Sci::Line line) const;
-	int Lines(Sci::Line line) const;
+	void SetStyle(int line, int style);
+	void SetStyles(int line, const unsigned char *styles);
+	int Length(int line) const;
+	int Lines(int line) const;
 };
 
 typedef std::vector<int> TabstopList;
 
 class LineTabstops : public PerLine {
-	SplitVector<std::unique_ptr<TabstopList>> tabstops;
+	SplitVector<TabstopList *> tabstops;
 public:
 	LineTabstops() {
 	}
-	// Deleted so Worker objects can not be copied.
-	LineTabstops(const LineTabstops &) = delete;
-	void operator=(const LineTabstops &) = delete;
 	virtual ~LineTabstops();
-	void Init() override;
-	void InsertLine(Sci::Line line) override;
-	void RemoveLine(Sci::Line line) override;
+	virtual void Init();
+	virtual void InsertLine(int line);
+	virtual void RemoveLine(int line);
 
-	bool ClearTabstops(Sci::Line line);
-	bool AddTabstop(Sci::Line line, int x);
-	int GetNextTabstop(Sci::Line line, int x) const;
+	bool ClearTabstops(int line);
+	bool AddTabstop(int line, int x);
+	int GetNextTabstop(int line, int x) const;
 };
 
 #ifdef SCI_NAMESPACE

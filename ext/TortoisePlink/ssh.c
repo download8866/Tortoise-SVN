@@ -303,7 +303,7 @@ enum {
  * macros look impenetrable to you, you might find it helpful to
  * read
  * 
- *   https://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
+ *   http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html
  * 
  * which explains the theory behind these macros.
  * 
@@ -1036,20 +1036,20 @@ static void parse_ttymodes(Ssh ssh,
     int i;
     const struct ssh_ttymode *mode;
     char *val;
+    char default_val[2];
+
+    strcpy(default_val, "A");
 
     for (i = 0; i < lenof(ssh_ttymodes); i++) {
         mode = ssh_ttymodes + i;
-	/* Every mode known to the current version of the code should be
-	 * mentioned; this was ensured when settings were loaded. */
-        val = conf_get_str_str(ssh->conf, CONF_ttymodes, mode->mode);
+        val = conf_get_str_str_opt(ssh->conf, CONF_ttymodes, mode->mode);
+        if (!val)
+            val = default_val;
 
 	/*
-	 * val[0] can be
-	 *  - 'V', indicating that an explicit value follows it;
-	 *  - 'A', indicating that we should pass the value through from
-	 *    the local environment via get_ttymode; or
-	 *  - 'N', indicating that we should explicitly not send this
-	 *    mode.
+	 * val[0] is either 'V', indicating that an explicit value
+	 * follows it, or 'A' indicating that we should pass the
+	 * value through from the local environment via get_ttymode.
 	 */
 	if (val[0] == 'A') {
 	    val = get_ttymode(ssh->frontend, mode->mode);
@@ -1057,9 +1057,8 @@ static void parse_ttymodes(Ssh ssh,
 		do_mode(data, mode, val);
 		sfree(val);
 	    }
-	} else if (val[0] == 'V') {
+	} else
             do_mode(data, mode, val + 1);              /* skip the 'V' */
-	} /* else 'N', or something from the future we don't understand */
     }
 }
 
@@ -3560,8 +3559,8 @@ void ssh_connshare_log(Ssh ssh, int event, const char *logtext,
     }
 }
 
-static void ssh_closing(Plug plug, const char *error_msg, int error_code,
-			int calling_back)
+static int ssh_closing(Plug plug, const char *error_msg, int error_code,
+		       int calling_back)
 {
     Ssh ssh = (Ssh) plug;
     int need_notify = ssh_do_close(ssh, FALSE);
@@ -3583,15 +3582,18 @@ static void ssh_closing(Plug plug, const char *error_msg, int error_code,
 	logevent(error_msg);
     if (!ssh->close_expected || !ssh->clean_exit)
 	connection_fatal(ssh->frontend, "%s", error_msg);
+    return 0;
 }
 
-static void ssh_receive(Plug plug, int urgent, char *data, int len)
+static int ssh_receive(Plug plug, int urgent, char *data, int len)
 {
     Ssh ssh = (Ssh) plug;
     ssh_gotdata(ssh, (unsigned char *)data, len);
     if (ssh->state == SSH_STATE_CLOSED) {
 	ssh_do_close(ssh, TRUE);
+	return 0;
     }
+    return 1;
 }
 
 static void ssh_sent(Plug plug, int bufsize)
@@ -8496,37 +8498,18 @@ static void ssh2_msg_channel_open_confirmation(Ssh ssh, struct Packet *pktin)
         ssh_channel_try_eof(c);        /* in case we had a pending EOF */
 }
 
-static char *ssh2_channel_open_failure_error_text(struct Packet *pktin)
-{
-    static const char *const reasons[] = {
-        NULL,
-        "Administratively prohibited",
-        "Connect failed",
-        "Unknown channel type",
-        "Resource shortage",
-    };
-    unsigned reason_code;
-    const char *reason_code_string;
-    char reason_code_buf[256];
-    char *reason_string;
-    int reason_length;
-
-    reason_code = ssh_pkt_getuint32(pktin);
-    if (reason_code < lenof(reasons) && reasons[reason_code]) {
-        reason_code_string = reasons[reason_code];
-    } else {
-        reason_code_string = reason_code_buf;
-        sprintf(reason_code_buf, "unknown reason code %#x", reason_code);
-    }
-
-    ssh_pkt_getstring(pktin, &reason_string, &reason_length);
-
-    return dupprintf("%s [%.*s]", reason_code_string,
-                     reason_length, NULLTOEMPTY(reason_string));
-}
-
 static void ssh2_msg_channel_open_failure(Ssh ssh, struct Packet *pktin)
 {
+    static const char *const reasons[] = {
+	"<unknown reason code>",
+	    "Administratively prohibited",
+	    "Connect failed",
+	    "Unknown channel type",
+	    "Resource shortage",
+    };
+    unsigned reason_code;
+    char *reason_string;
+    int reason_length;
     struct ssh_channel *c;
 
     c = ssh_channel_msg(ssh, pktin);
@@ -8535,9 +8518,14 @@ static void ssh2_msg_channel_open_failure(Ssh ssh, struct Packet *pktin)
     assert(c->halfopen); /* ssh_channel_msg will have enforced this */
 
     if (c->type == CHAN_SOCKDATA) {
-        char *errtext = ssh2_channel_open_failure_error_text(pktin);
-        logeventf(ssh, "Forwarded connection refused by server: %s", errtext);
-        sfree(errtext);
+        reason_code = ssh_pkt_getuint32(pktin);
+        if (reason_code >= lenof(reasons))
+            reason_code = 0; /* ensure reasons[reason_code] in range */
+        ssh_pkt_getstring(pktin, &reason_string, &reason_length);
+        logeventf(ssh, "Forwarded connection refused by server: %s [%.*s]",
+                  reasons[reason_code], reason_length,
+                  NULLTOEMPTY(reason_string));
+
         pfd_close(c->u.pfd.pf);
     } else if (c->type == CHAN_ZOMBIE) {
         /*
@@ -10741,24 +10729,15 @@ static void do_ssh2_authconn(Ssh ssh, const unsigned char *in, int inlen,
 	    ssh->ncmode = FALSE;
 	}
 	crWaitUntilV(pktin);
-        if (pktin->type != SSH2_MSG_CHANNEL_OPEN_CONFIRMATION &&
-            pktin->type != SSH2_MSG_CHANNEL_OPEN_FAILURE) {
-            bombout(("Server sent strange packet %d in response to main "
-                     "channel open request", pktin->type));
+	if (pktin->type != SSH2_MSG_CHANNEL_OPEN_CONFIRMATION) {
+	    bombout(("Server refused to open channel"));
 	    crStopV;
-        }
+	    /* FIXME: error data comes back in FAILURE packet */
+	}
 	if (ssh_pkt_getuint32(pktin) != ssh->mainchan->localid) {
-	    bombout(("Server's response to main channel open cited wrong"
-                     " channel number"));
+	    bombout(("Server's channel confirmation cited wrong channel"));
 	    crStopV;
 	}
-	if (pktin->type == SSH2_MSG_CHANNEL_OPEN_FAILURE) {
-            char *errtext = ssh2_channel_open_failure_error_text(pktin);
-            bombout(("Server refused to open main channel: %s", errtext));
-            sfree(errtext);
-	    crStopV;
-	}
-
 	ssh->mainchan->remoteid = ssh_pkt_getuint32(pktin);
 	ssh->mainchan->halfopen = FALSE;
 	ssh->mainchan->type = CHAN_MAINSESSION;

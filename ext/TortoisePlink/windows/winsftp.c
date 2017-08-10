@@ -498,6 +498,7 @@ char *do_select(SOCKET skt, int startup)
     }
     return NULL;
 }
+extern int select_result(WPARAM, LPARAM);
 
 int do_eventsel_loop(HANDLE other_event)
 {
@@ -546,6 +547,7 @@ int do_eventsel_loop(HANDLE other_event)
 	WSANETWORKEVENTS things;
 	SOCKET socket;
 	extern SOCKET first_socket(int *), next_socket(int *);
+	extern int select_result(WPARAM, LPARAM);
 	int i, socketstate;
 
 	/*

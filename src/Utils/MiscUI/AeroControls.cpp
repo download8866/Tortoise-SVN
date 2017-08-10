@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2009-2016 - TortoiseSVN
+// Copyright (C) 2009-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,15 +18,7 @@
 //
 #include "stdafx.h"
 #include "AeroControls.h"
-#include <VersionHelpers.h>
-// SDKs prior to Win10 don't have the IsWindows10OrGreater API in the versionhelpers header, so
-// we define it here just in case:
-#ifndef _WIN32_WINNT_WIN10
-#define _WIN32_WINNT_WIN10 0x0A00
-#define _WIN32_WINNT_WINTHRESHOLD 0x0A00
-#define  IsWindows10OrGreater() (IsWindowsVersionOrGreater(HIBYTE(_WIN32_WINNT_WIN10), LOBYTE(_WIN32_WINNT_WIN10), 0))
-#endif
-
+#include "SysInfo.h"
 
 enum ControlType
 {
@@ -120,7 +112,7 @@ bool AeroControlBase::AeroDialogsEnabled()
     HIGHCONTRAST hc = { sizeof(HIGHCONTRAST) };
     SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
     BOOL bEnabled = FALSE;
-    if ((DWORD)m_regEnableDWMFrame && !IsWindows10OrGreater())
+    if ((DWORD)m_regEnableDWMFrame && !SysInfo::Instance().IsWin10OrLater())
     {
         if (((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled)
         {
@@ -1123,7 +1115,7 @@ void AeroControlBase::ScreenToClient(HWND hWnd, LPRECT lprc)
     lprc->bottom = pt.y;
 }
 
-void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, const Rect& r, int dia) const
+void AeroControlBase::GetRoundRectPath(GraphicsPath *pPath, Rect r, int dia) const
 {
     // diameter can't exceed width or height
     if(dia > r.Width)   dia = r.Width;

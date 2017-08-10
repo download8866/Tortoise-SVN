@@ -6,8 +6,6 @@
 // Copyright 2015 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <string>
-
 #include <windows.h>
 
 #include "UniConversion.h"
@@ -112,7 +110,7 @@ int GetHangulOfHanja(wchar_t *inout) {
 			if (dict.IsHanja(static_cast<int>(inout[i]))) { // Pass hanja only!
 				conv[0] = inout[i];
 				BSTR bstrHanja = SysAllocString(conv);
-				const HRESULT hr = dict.HJinterface->HanjaToHangul(bstrHanja, &bstrHangul);
+				HRESULT hr = dict.HJinterface->HanjaToHangul(bstrHanja, &bstrHangul);
 				if (SUCCEEDED(hr)) {
 					inout[i] = static_cast<wchar_t>(bstrHangul[0]);
 					changed += 1;

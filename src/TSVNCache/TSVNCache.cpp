@@ -31,6 +31,7 @@
 #include <ioevent.h>
 #include "svn_dso.h"
 #include "SmartHandle.h"
+#include "DllVersion.h"
 
 #include <ShellAPI.h>
 
@@ -150,6 +151,44 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
     {
         return 0;
     }
+    if (CRegStdDWORD(L"Software\\TortoiseSVN\\CacheTrayIcon", FALSE)==TRUE)
+    {
+        SecureZeroMemory(&niData,sizeof(NOTIFYICONDATA));
+
+        DWORD dwMajor = 0;
+        DWORD dwMinor = 0;
+        GetShellVersion(&dwMajor, &dwMinor);
+        DWORD dwVersion = PACKVERSION(dwMajor, dwMinor);
+
+        if (dwVersion >= PACKVERSION(6,0))
+            niData.cbSize = sizeof(NOTIFYICONDATA);
+        else if (dwVersion >= PACKVERSION(5,0))
+            niData.cbSize = NOTIFYICONDATA_V2_SIZE;
+        else
+            niData.cbSize = NOTIFYICONDATA_V1_SIZE;
+
+        niData.uID = TRAY_ID;       // own tray icon ID
+        niData.hWnd  = hWndHidden;
+        niData.uFlags = NIF_ICON|NIF_MESSAGE;
+
+        // load the icon
+        niData.hIcon =
+            (HICON)LoadImage(hInstance,
+            MAKEINTRESOURCE(IDI_TSVNCACHE),
+            IMAGE_ICON,
+            GetSystemMetrics(SM_CXSMICON),
+            GetSystemMetrics(SM_CYSMICON),
+            LR_DEFAULTCOLOR);
+
+        // set the message to send
+        // note: the message value should be in the
+        // range of WM_APP through 0xBFFF
+        niData.uCallbackMessage = TRAY_CALLBACK;
+        Shell_NotifyIcon(NIM_ADD,&niData);
+        // free icon handle
+        if(niData.hIcon && DestroyIcon(niData.hIcon))
+            niData.hIcon = NULL;
+    }
 
     // Create a thread which waits for incoming pipe connections
     unsigned int threadId = 0;
@@ -163,34 +202,6 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
         (HANDLE)_beginthreadex(NULL, 0, CommandWaitThread, &bRun, 0, &threadId);
     if (hCommandWaitThread)
     {
-        if (CRegStdDWORD(L"Software\\TortoiseSVN\\CacheTrayIcon", FALSE) == TRUE)
-        {
-            SecureZeroMemory(&niData, sizeof(NOTIFYICONDATA));
-
-            niData.cbSize = sizeof(NOTIFYICONDATA);
-            niData.uID = TRAY_ID;       // own tray icon ID
-            niData.hWnd = hWndHidden;
-            niData.uFlags = NIF_ICON | NIF_MESSAGE;
-
-            // load the icon
-            niData.hIcon =
-                (HICON)LoadImage(hInstance,
-                    MAKEINTRESOURCE(IDI_TSVNCACHE),
-                    IMAGE_ICON,
-                    GetSystemMetrics(SM_CXSMICON),
-                    GetSystemMetrics(SM_CYSMICON),
-                    LR_DEFAULTCOLOR);
-
-            // set the message to send
-            // note: the message value should be in the
-            // range of WM_APP through 0xBFFF
-            niData.uCallbackMessage = TRAY_CALLBACK;
-            Shell_NotifyIcon(NIM_ADD, &niData);
-            // free icon handle
-            if (niData.hIcon && DestroyIcon(niData.hIcon))
-                niData.hIcon = NULL;
-        }
-
         // loop to handle window messages.
         MSG msg;
         while (bRun)
@@ -586,7 +597,7 @@ unsigned int __stdcall InstanceThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {
@@ -661,7 +672,7 @@ unsigned int __stdcall CommandThread(LPVOID lpvParam)
 
     // The thread's parameter is a handle to a pipe instance.
 
-    hPipe = std::move((HANDLE) lpvParam);
+    hPipe = (HANDLE) lpvParam;
 
     while (bRun)
     {

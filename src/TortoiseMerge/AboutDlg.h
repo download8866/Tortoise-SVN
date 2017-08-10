@@ -37,7 +37,7 @@ class CAboutDlg : public CStandAloneDialog
     DECLARE_DYNAMIC(CAboutDlg)
 
 public:
-    CAboutDlg(CWnd* pParent = nullptr);   // standard constructor
+    CAboutDlg(CWnd* pParent = NULL);   // standard constructor
     virtual ~CAboutDlg();
 
 // Dialog Data

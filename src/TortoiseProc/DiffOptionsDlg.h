@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2011, 2016 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,7 +18,6 @@
 //
 #pragma once
 #include "StandAloneDlg.h"
-#include "SVNDiffOptions.h"
 
 /**
  * Helper dialog to chose options for diffing
@@ -33,9 +32,7 @@ public:
 
     enum { IDD = IDD_DIFFOPTIONS };
 
-    void SetDiffOptions(const SVNDiffOptions & opts);
-    SVNDiffOptions GetDiffOptions();
-    CString GetDiffOptionsString() { return GetDiffOptions().GetOptionsString(); }
+    CString GetDiffOptionsString();
 
 protected:
     virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support

@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2015 - TortoiseSVN
+// Copyright (C) 2003-2006 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -30,9 +30,6 @@ class CShellUpdater
 private:
     CShellUpdater(void);
     ~CShellUpdater(void);
-    // prevent cloning
-    CShellUpdater(const CShellUpdater&) = delete;
-    CShellUpdater& operator=(const CShellUpdater&) = delete;
 public:
     static CShellUpdater& Instance();
 

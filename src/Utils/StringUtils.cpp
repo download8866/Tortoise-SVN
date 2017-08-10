@@ -1,7 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2011, 2013-2017 - TortoiseSVN
-// Copyright (C) 2016 - TortoiseGit
+// Copyright (C) 2003-2011, 2013-2016 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -133,61 +132,62 @@ void CStringUtils::RemoveAccelerators(CString& text)
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringA& sClipdata, LCID lcid, HWND hOwningWnd)
 {
     CClipboardHelper clipboardHelper;
-    if (!clipboardHelper.Open(hOwningWnd))
-        return false;
-
-    EmptyClipboard();
-    HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength() + 1);
-    if (!hClipboardData)
-        return false;
-
-    char* pchData = (char*)GlobalLock(hClipboardData);
-    if (!pchData)
-        return false;
-
-    strcpy_s(pchData, sClipdata.GetLength() + 1, (LPCSTR)sClipdata);
-    GlobalUnlock(hClipboardData);
-    if (!SetClipboardData(CF_TEXT, hClipboardData))
-        return false;
-
-    HANDLE hlocmem = CClipboardHelper::GlobalAlloc(sizeof(LCID));
-    if (!hlocmem)
-        return false;
-
-    PLCID plcid = (PLCID)GlobalLock(hlocmem);
-    if (plcid)
+    if (clipboardHelper.Open(hOwningWnd))
     {
-        *plcid = lcid;
-        SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));
+        EmptyClipboard();
+        HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength()+1);
+        if (hClipboardData)
+        {
+            char* pchData = (char*)GlobalLock(hClipboardData);
+            if (pchData)
+            {
+                strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
+                GlobalUnlock(hClipboardData);
+                if (SetClipboardData(CF_TEXT, hClipboardData))
+                {
+                    HANDLE hlocmem = CClipboardHelper::GlobalAlloc(sizeof(LCID));
+                    if (hlocmem)
+                    {
+                        PLCID plcid = (PLCID)GlobalLock(hlocmem);
+                        if (plcid)
+                        {
+                            *plcid = lcid;
+                            SetClipboardData(CF_LOCALE, static_cast<HANDLE>(plcid));
+                        }
+                        GlobalUnlock(hlocmem);
+                    }
+                    return true;
+                }
+            }
+        }
     }
-    GlobalUnlock(hlocmem);
-
-    return true;
+    return false;
 }
 
 bool CStringUtils::WriteAsciiStringToClipboard(const CStringW& sClipdata, HWND hOwningWnd)
 {
     CClipboardHelper clipboardHelper;
-    if (!clipboardHelper.Open(hOwningWnd))
-        return false;
-
-    EmptyClipboard();
-    HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc((sClipdata.GetLength() + 1) * sizeof(WCHAR));
-    if (!hClipboardData)
-        return false;
-
-    WCHAR* pchData = (WCHAR*)GlobalLock(hClipboardData);
-    if (!pchData)
-        return false;
-
-    _tcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
-    GlobalUnlock(hClipboardData);
-    if (!SetClipboardData(CF_UNICODETEXT, hClipboardData))
-        return false;
-
-    // no need to also set CF_TEXT : the OS does this
-    // automatically.
-    return true;
+    if (clipboardHelper.Open(hOwningWnd))
+    {
+        EmptyClipboard();
+        HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc((sClipdata.GetLength()+1)*sizeof(WCHAR));
+        if (hClipboardData)
+        {
+            WCHAR* pchData = (WCHAR*)GlobalLock(hClipboardData);
+            if (pchData)
+            {
+                wcscpy_s(pchData, sClipdata.GetLength()+1, (LPCWSTR)sClipdata);
+                GlobalUnlock(hClipboardData);
+                if (SetClipboardData(CF_UNICODETEXT, hClipboardData))
+                {
+                    // no need to also set CF_TEXT : the OS does this
+                    // automatically.
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningWnd)
@@ -196,40 +196,44 @@ bool CStringUtils::WriteDiffToClipboard(const CStringA& sClipdata, HWND hOwningW
     if (cFormat == 0)
         return false;
     CClipboardHelper clipboardHelper;
-    if (!clipboardHelper.Open(hOwningWnd))
-        return false;
-
-    EmptyClipboard();
-    HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength() + 1);
-    if (!hClipboardData)
-        return false;
-
-    char* pchData = (char*)GlobalLock(hClipboardData);
-    if (!pchData)
-        return false;
-
-    strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
-    GlobalUnlock(hClipboardData);
-    if (!SetClipboardData(cFormat,hClipboardData))
-        return false;
-    if (!SetClipboardData(CF_TEXT, hClipboardData))
-        return false;
-
-    CString sClipdataW = CUnicodeUtils::GetUnicode(sClipdata);
-    auto hClipboardDataW = CClipboardHelper::GlobalAlloc((sClipdataW.GetLength() + 1) * sizeof(wchar_t));
-    if (!hClipboardDataW)
-        return false;
-
-    wchar_t* pchDataW = (wchar_t*)GlobalLock(hClipboardDataW);
-    if (!pchDataW)
-        return false;
-
-    wcscpy_s(pchDataW, sClipdataW.GetLength() + 1, (LPCWSTR)sClipdataW);
-    GlobalUnlock(hClipboardDataW);
-    if (!SetClipboardData(CF_UNICODETEXT, hClipboardDataW))
-        return false;
-
-    return true;
+    if (clipboardHelper.Open(hOwningWnd))
+    {
+        EmptyClipboard();
+        HGLOBAL hClipboardData = CClipboardHelper::GlobalAlloc(sClipdata.GetLength()+1);
+        if (hClipboardData)
+        {
+            char* pchData = (char*)GlobalLock(hClipboardData);
+            if (pchData)
+            {
+                strcpy_s(pchData, sClipdata.GetLength()+1, (LPCSTR)sClipdata);
+                GlobalUnlock(hClipboardData);
+                if (SetClipboardData(cFormat,hClipboardData)==NULL)
+                {
+                    return false;
+                }
+                if (SetClipboardData(CF_TEXT,hClipboardData)==NULL)
+                {
+                    return false;
+                }
+                CString sClipdataW = CUnicodeUtils::GetUnicode(sClipdata);
+                auto hClipboardDataW = CClipboardHelper::GlobalAlloc(sClipdataW.GetLength()*sizeof(wchar_t) + 1);
+                if (hClipboardDataW)
+                {
+                    wchar_t * pchDataW = (wchar_t*)GlobalLock(hClipboardDataW);
+                    if (pchDataW)
+                    {
+                        wcscpy_s(pchDataW, sClipdataW.GetLength() + 1, (LPCWSTR)sClipdataW);
+                        GlobalUnlock(hClipboardDataW);
+                        if (SetClipboardData(CF_UNICODETEXT, hClipboardDataW))
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
 }
 
 bool CStringUtils::ReadStringFromTextFile(const CString& path, CString& text)
@@ -798,32 +802,32 @@ public:
     {
         CString longline = L"this is a test of how a string can be splitted into several lines";
         CString splittedline = CStringUtils::WordWrap(longline, 10, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 10, true);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         longline = L"c:\\this_is_a_very_long\\path_on_windows and of course some other words added to make the line longer";
         splittedline = CStringUtils::WordWrap(longline, 10, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 10);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         longline = L"Forced failure in https://myserver.com/a_long_url_to_split PROPFIND error";
         splittedline = CStringUtils::WordWrap(longline, 20, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 20, true);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         longline = L"Forced\nfailure in https://myserver.com/a_long_url_to_split PROPFIND\nerror";
         splittedline = CStringUtils::WordWrap(longline, 40, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
         splittedline = CStringUtils::LinesWrap(longline, 40);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         longline = L"Failed to add file\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO1.java\nc:\\export\\spare\\Devl-JBoss\\development\\head\\src\\something\\CoreApplication\\somethingelse\\src\\com\\yetsomthingelse\\shipper\\DAO\\ShipmentInfoDAO2.java";
         splittedline = CStringUtils::WordWrap(longline, 80, true, false, 4);
-        ATLTRACE(L"WordWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"WordWrap:\n%s\n", splittedline);
         splittedline = CStringUtils::LinesWrap(longline);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         longline = L"The commit comment is not properly formatted.\nFormat:\n  Field 1 : Field 2 : Field 3\nWhere:\nField 1 - Team Name|Triage|Merge|Goal\nField 2 - V1 Backlog Item ID|Triage Number|SVNBranch|Goal Name\nField 3 - Description of change\nExamples:\n\nTeam Gamma : B-12345 : Changed some code\n  Triage : 123 : Fixed production release bug\n  Merge : sprint0812 : Merged sprint0812 into prod\n  Goal : Implement Pre-Commit Hook : Commit message hook impl";
         splittedline = CStringUtils::LinesWrap(longline, 80);
-        ATLTRACE(L"LinesWrap:\n%s\n", (LPCWSTR)splittedline);
+        ATLTRACE(L"LinesWrap:\n%s\n", splittedline);
         CString widecrypt = CStringUtils::Encrypt(L"test");
         auto wide = CStringUtils::Decrypt(widecrypt);
         ATLASSERT(wcscmp(wide.get(), L"test") == 0);

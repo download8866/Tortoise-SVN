@@ -5,13 +5,12 @@
 // Copyright 1998-2003 by Neil Hodgson <neilh@scintilla.org>
 // The License.txt file describes the conditions under which this software may be distributed.
 
-#include <cstdlib>
-#include <cstring>
+#include <stdlib.h>
+#include <string.h>
 
 #include <stdexcept>
 #include <vector>
 #include <map>
-#include <memory>
 
 #include "Platform.h"
 
@@ -23,13 +22,13 @@ using namespace Scintilla;
 
 static const char *NextField(const char *s) {
 	// In case there are leading spaces in the string
-	while (*s == ' ') {
+	while (*s && *s == ' ') {
 		s++;
 	}
 	while (*s && *s != ' ') {
 		s++;
 	}
-	while (*s == ' ') {
+	while (*s && *s == ' ') {
 		s++;
 	}
 	return s;
@@ -47,7 +46,7 @@ ColourDesired XPM::ColourFromCode(int ch) const {
 	return colourCodeTable[ch];
 }
 
-void XPM::FillRun(Surface *surface, int code, int startX, int y, int x) const {
+void XPM::FillRun(Surface *surface, int code, int startX, int y, int x) {
 	if ((code != codeTransparent) && (startX != x)) {
 		PRectangle rc = PRectangle::FromInts(startX, y, x, y + 1);
 		surface->FillRectangle(rc, ColourFromCode(code));
@@ -118,24 +117,24 @@ void XPM::Init(const char *const *linesForm) {
 
 	for (int y=0; y<height; y++) {
 		const char *lform = linesForm[y+nColours+1];
-		const size_t len = MeasureLength(lform);
+		size_t len = MeasureLength(lform);
 		for (size_t x = 0; x<len; x++)
 			pixels[y * width + x] = static_cast<unsigned char>(lform[x]);
 	}
 }
 
-void XPM::Draw(Surface *surface, const PRectangle &rc) {
+void XPM::Draw(Surface *surface, PRectangle &rc) {
 	if (pixels.empty()) {
 		return;
 	}
 	// Centre the pixmap
-	const int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
-	const int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
+	int startY = static_cast<int>(rc.top + (rc.Height() - height) / 2);
+	int startX = static_cast<int>(rc.left + (rc.Width() - width) / 2);
 	for (int y=0; y<height; y++) {
 		int prevCode = 0;
 		int xStartRun = 0;
 		for (int x=0; x<width; x++) {
-			const int code = pixels[y * width + x];
+			int code = pixels[y * width + x];
 			if (code != prevCode) {
 				FillRun(surface, prevCode, startX + xStartRun, startY + y, startX + x);
 				xStartRun = x;
@@ -249,6 +248,10 @@ RGBAImageSet::~RGBAImageSet() {
 
 /// Remove all images.
 void RGBAImageSet::Clear() {
+	for (ImageMap::iterator it=images.begin(); it != images.end(); ++it) {
+		delete it->second;
+		it->second = 0;
+	}
 	images.clear();
 	height = -1;
 	width = -1;
@@ -258,9 +261,10 @@ void RGBAImageSet::Clear() {
 void RGBAImageSet::Add(int ident, RGBAImage *image) {
 	ImageMap::iterator it=images.find(ident);
 	if (it == images.end()) {
-		images[ident] = std::unique_ptr<RGBAImage>(image);
+		images[ident] = image;
 	} else {
-		it->second.reset(image);
+		delete it->second;
+		it->second = image;
 	}
 	height = -1;
 	width = -1;
@@ -270,17 +274,17 @@ void RGBAImageSet::Add(int ident, RGBAImage *image) {
 RGBAImage *RGBAImageSet::Get(int ident) {
 	ImageMap::iterator it = images.find(ident);
 	if (it != images.end()) {
-		return it->second.get();
+		return it->second;
 	}
-	return nullptr;
+	return NULL;
 }
 
 /// Give the largest height of the set.
 int RGBAImageSet::GetHeight() const {
 	if (height < 0) {
-		for (const std::pair<const int, std::unique_ptr<RGBAImage>> &image : images) {
-			if (height < image.second->GetHeight()) {
-				height = image.second->GetHeight();
+		for (ImageMap::const_iterator it=images.begin(); it != images.end(); ++it) {
+			if (height < it->second->GetHeight()) {
+				height = it->second->GetHeight();
 			}
 		}
 	}
@@ -290,9 +294,9 @@ int RGBAImageSet::GetHeight() const {
 /// Give the largest width of the set.
 int RGBAImageSet::GetWidth() const {
 	if (width < 0) {
-		for (const std::pair<const int, std::unique_ptr<RGBAImage>> &image : images) {
-			if (width < image.second->GetWidth()) {
-				width = image.second->GetWidth();
+		for (ImageMap::const_iterator it=images.begin(); it != images.end(); ++it) {
+			if (width < it->second->GetWidth()) {
+				width = it->second->GetWidth();
 			}
 		}
 	}

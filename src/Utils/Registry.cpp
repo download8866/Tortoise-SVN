@@ -1,6 +1,6 @@
 // TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2006, 2008-2010, 2012, 2014-2015 - TortoiseSVN
+// Copyright (C) 2003-2006, 2008-2010, 2012, 2014 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -74,7 +74,7 @@ void CRegRect::InternalRead (HKEY hKey, CRect& value)
 
     if (LastError == ERROR_SUCCESS)
     {
-        auto buffer = std::make_unique<char[]>(size);
+        std::unique_ptr<char[]> buffer (new char[size]);
         if ((LastError = RegQueryValueEx(hKey, m_key, NULL, &type, (BYTE*) buffer.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_BINARY);
@@ -112,7 +112,7 @@ void CRegPoint::InternalRead (HKEY hKey, CPoint& value)
 
     if (LastError == ERROR_SUCCESS)
     {
-        auto buffer = std::make_unique<char[]>(size);
+        std::unique_ptr<char[]> buffer(new char[size]);
         if ((LastError = RegQueryValueEx(hKey, m_key, NULL, &type, (BYTE*) buffer.get(), &size))==ERROR_SUCCESS)
         {
             ASSERT(type==REG_BINARY);
@@ -180,7 +180,7 @@ bool CRegistryKey::getValues(CStringList& values)
         }
     }
 
-    return !values.IsEmpty();
+    return values.GetCount() > 0;
 }
 
 bool CRegistryKey::getSubKeys(CStringList& subkeys)
@@ -202,7 +202,7 @@ bool CRegistryKey::getSubKeys(CStringList& subkeys)
         }
     }
 
-    return !subkeys.IsEmpty();
+    return subkeys.GetCount() > 0;
 }
 #endif
 

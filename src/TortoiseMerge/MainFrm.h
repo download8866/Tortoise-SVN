@@ -1,6 +1,6 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2015, 2017 - TortoiseSVN
+// Copyright (C) 2006-2015 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -57,9 +57,6 @@ public:
     virtual ~CMainFrame();
 
     void            ShowDiffBar(bool bShow);
-    void            DiffLeftToBase();
-    void            DiffRightToBase();
-
 #ifdef _DEBUG
     virtual void    AssertValid() const;
     virtual void    Dump(CDumpContext& dc) const;
@@ -191,7 +188,6 @@ protected:
     afx_msg void    OnUpdateTabModeLeft(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateTabModeRight(CCmdUI *pCmdUI);
     afx_msg void    OnUpdateTabModeBottom(CCmdUI *pCmdUI);
-    afx_msg void    OnNcCalcSize(BOOL bCalcValidRects, NCCALCSIZE_PARAMS* lpncsp);
 
     DECLARE_MESSAGE_MAP()
 protected:
@@ -242,8 +238,6 @@ protected:
     static bool     HasPrevInlineDiff(CBaseView* view);
     static bool     HasNextInlineDiff(CBaseView* view);
     void            BuildRegexSubitems(CMFCPopupMenu* pMenuPopup = nullptr);
-    bool            AdjustUnicodeTypeForLoad(CFileTextLines::UnicodeType& type);
-    void            DiffTwo(const CWorkingFile& file1, const CWorkingFile& file2);
 
     static svn_error_t * getallstatus(void * baton, const char * path, const svn_client_status_t * status, apr_pool_t * pool);
 
@@ -298,7 +292,6 @@ public:
     bool            m_bWrapLines;
     bool            m_bSaveRequired;
     bool            m_bSaveRequiredOnConflicts;
-    bool            m_bAskToMarkAsResolved;
     HWND            resolveMsgWnd;
     WPARAM          resolveMsgWParam;
     LPARAM          resolveMsgLParam;

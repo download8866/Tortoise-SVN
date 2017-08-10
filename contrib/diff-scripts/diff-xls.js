@@ -2,7 +2,7 @@
 //
 // TortoiseSVN Diff script for Excel files
 //
-// Copyright (C) 2004-2008, 2012-2016 the TortoiseSVN team
+// Copyright (C) 2004-2008, 2012-2015 the TortoiseSVN team
 // This file is distributed under the same license as TortoiseSVN
 //
 // Last commit by:
@@ -143,17 +143,15 @@ var length = objNewWorkbook.Worksheets.Count;
 for (var i = 1; i <= length; i++)
 {
     var objBaseWorksheet = null;
-    if (i <= objBaseWorkbook.Worksheets.Count) {
+    if (i <= objBaseWorkbook.Worksheets.Count)
         objBaseWorksheet = objBaseWorkbook.Worksheets(i);
-    }
     var objNewWorksheet = objNewWorkbook.Worksheets(i);
 
-    if (objBaseWorksheet !== null) {
+    if (objBaseWorksheet != null)
         UnhideWorksheet(objBaseWorksheet);
-    }
     UnhideWorksheet(objNewWorksheet);
 
-    if (!bFastMode && objBaseWorksheet !== null)
+    if (!bFastMode && (objBaseWorksheet != null))
     {
         objBaseWorkbook.Sheets(i).Copy(null, objNewWorkbook.Sheets(objNewWorkbook.Sheets.Count));
         var objDummyWorksheet = objNewWorkbook.Sheets(objNewWorkbook.Sheets.Count);
@@ -161,7 +159,7 @@ for (var i = 1; i <= length; i++)
         objDummyWorksheet.Visible = true;
         if (fExcelVersion >= vOffice2003)
         {
-            objDummyWorksheet.Tab.ColorIndex = 16;  // 16: Dark gray RGB(128,128,128)
+            objDummyWorksheet.Tab.ColorIndex = 16;  // 16:Dark gray RGB(128,128,128)
         }
     }
 
@@ -175,7 +173,7 @@ for (var i = 1; i <= length; i++)
     {
         objNewWorksheet.Cells.FormatConditions.Delete();
         var sFormula;
-        if (bFastMode && objBaseWorksheet !== null)
+        if (bFastMode && (objBaseWorksheet != null))
         {
             sFormula = "=INDIRECT(\"" + ToAbsoluteReference(objBaseWorksheet) + "!\"&ADDRESS(ROW(),COLUMN()))";
         }
@@ -230,8 +228,8 @@ function Abort(sMessage, sTitle)
 
 // Unhide the Worksheet if it is hidden.
 // This also sets color to the tab, if Office2003 or later.
-//  - 46 (Orange)      : Hidden Worksheet
-//  - xlNone (default) : Not hidden Worksheet
+//  - 46(Orange)      : Hidden Worksheet
+//  - xlNone(default) : Not hidden Worksheet
 function UnhideWorksheet(objWorksheet)
 {
     if (objWorksheet.Visible)
@@ -298,18 +296,16 @@ function StoreWarning(sMessage)
 // To avoid make huge message dialog, this limits message count to show.
 function ShowWarning()
 {
-    var aWarningMessagesLength = aWarningMessages.length;
-    if (aWarningMessagesLength === 0)
+    if (aWarningMessages.length === 0)
     {
         return;
     }
-
     var sMessage = "The following warnings occurred while processing.\n";
-    for (var j = 0; j < aWarningMessagesLength; j++)
+    for (var j = 0; j < aWarningMessages.length; j++)
     {
         if (j >= 10)
         {
-            sMessage += "... And more " + (aWarningMessagesLength - j) + " messages";
+            sMessage += "... And more " + (aWarningMessages.length - j) + " messages";
             break;
         }
         sMessage += "[" + (j + 1) + "] " + aWarningMessages[j] + "\n";

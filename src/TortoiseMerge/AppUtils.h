@@ -42,7 +42,7 @@ public:
      * \param hWnd the window handle of the calling app
      * \return TRUE if successful
      */
-    static BOOL GetVersionedFile(CString sPath, CString sVersion, CString sSavePath, CProgressDlg * progDlg, HWND hWnd = nullptr);
+    static BOOL GetVersionedFile(CString sPath, CString sVersion, CString sSavePath, CProgressDlg * progDlg, HWND hWnd = NULL);
 
     /**
      * Creates a unified diff from two files

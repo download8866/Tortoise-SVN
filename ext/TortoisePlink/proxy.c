@@ -201,8 +201,8 @@ static void plug_proxy_log(Plug plug, int type, SockAddr addr, int port,
     plug_log(ps->plug, type, addr, port, error_msg, error_code);
 }
 
-static void plug_proxy_closing (Plug p, const char *error_msg,
-				int error_code, int calling_back)
+static int plug_proxy_closing (Plug p, const char *error_msg,
+			       int error_code, int calling_back)
 {
     Proxy_Plug pp = (Proxy_Plug) p;
     Proxy_Socket ps = pp->proxy_socket;
@@ -211,13 +211,13 @@ static void plug_proxy_closing (Plug p, const char *error_msg,
 	ps->closing_error_msg = error_msg;
 	ps->closing_error_code = error_code;
 	ps->closing_calling_back = calling_back;
-	ps->negotiate(ps, PROXY_CHANGE_CLOSING);
-    } else {
-        plug_closing(ps->plug, error_msg, error_code, calling_back);
+	return ps->negotiate(ps, PROXY_CHANGE_CLOSING);
     }
+    return plug_closing(ps->plug, error_msg,
+			error_code, calling_back);
 }
 
-static void plug_proxy_receive (Plug p, int urgent, char *data, int len)
+static int plug_proxy_receive (Plug p, int urgent, char *data, int len)
 {
     Proxy_Plug pp = (Proxy_Plug) p;
     Proxy_Socket ps = pp->proxy_socket;
@@ -231,10 +231,9 @@ static void plug_proxy_receive (Plug p, int urgent, char *data, int len)
 	ps->receive_urgent = urgent;
 	ps->receive_data = data;
 	ps->receive_len = len;
-	ps->negotiate(ps, PROXY_CHANGE_RECEIVE);
-    } else {
-        plug_receive(ps->plug, urgent, data, len);
+	return ps->negotiate(ps, PROXY_CHANGE_RECEIVE);
     }
+    return plug_receive(ps->plug, urgent, data, len);
 }
 
 static void plug_proxy_sent (Plug p, int bufsize)
@@ -645,9 +644,9 @@ int proxy_http_negotiate (Proxy_Socket p, int change)
 	 * a socket close, then some error must have occurred. we'll
 	 * just pass those errors up to the backend.
 	 */
-	plug_closing(p->plug, p->closing_error_msg, p->closing_error_code,
-		     p->closing_calling_back);
-	return 0; /* ignored */
+	return plug_closing(p->plug, p->closing_error_msg,
+			    p->closing_error_code,
+			    p->closing_calling_back);
     }
 
     if (change == PROXY_CHANGE_SENT) {
@@ -848,9 +847,9 @@ int proxy_socks4_negotiate (Proxy_Socket p, int change)
 	 * a socket close, then some error must have occurred. we'll
 	 * just pass those errors up to the backend.
 	 */
-	plug_closing(p->plug, p->closing_error_msg, p->closing_error_code,
-		     p->closing_calling_back);
-	return 0; /* ignored */
+	return plug_closing(p->plug, p->closing_error_msg,
+			    p->closing_error_code,
+			    p->closing_calling_back);
     }
 
     if (change == PROXY_CHANGE_SENT) {
@@ -988,9 +987,9 @@ int proxy_socks5_negotiate (Proxy_Socket p, int change)
 	 * a socket close, then some error must have occurred. we'll
 	 * just pass those errors up to the backend.
 	 */
-        plug_closing(p->plug, p->closing_error_msg, p->closing_error_code,
-		     p->closing_calling_back);
-	return 0; /* ignored */
+	return plug_closing(p->plug, p->closing_error_msg,
+			    p->closing_error_code,
+			    p->closing_calling_back);
     }
 
     if (change == PROXY_CHANGE_SENT) {
@@ -1562,9 +1561,9 @@ int proxy_telnet_negotiate (Proxy_Socket p, int change)
 	 * a socket close, then some error must have occurred. we'll
 	 * just pass those errors up to the backend.
 	 */
-	plug_closing(p->plug, p->closing_error_msg, p->closing_error_code,
-		     p->closing_calling_back);
-	return 0; /* ignored */
+	return plug_closing(p->plug, p->closing_error_msg,
+			    p->closing_error_code,
+			    p->closing_calling_back);
     }
 
     if (change == PROXY_CHANGE_SENT) {

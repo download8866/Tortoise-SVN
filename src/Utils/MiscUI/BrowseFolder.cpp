@@ -59,7 +59,6 @@ CBrowseFolder::CBrowseFolder(void)
 :   m_style(0),
     m_DisableCheckbox2WhenCheckbox1IsChecked(false)
 {
-    SecureZeroMemory(&m_title, sizeof(m_title));
 }
 
 CBrowseFolder::~CBrowseFolder(void)

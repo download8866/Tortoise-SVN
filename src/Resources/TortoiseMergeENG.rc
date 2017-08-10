@@ -27,33 +27,19 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "TortoiseMerge.ico"
-
 IDI_REMOVEDLINE         ICON                    "lineremoved.ico"
-
 IDI_ADDEDLINE           ICON                    "lineadded.ico"
-
 IDI_CONFLICTEDLINE      ICON                    "lineconflicted.ico"
-
 IDI_WHITESPACELINE      ICON                    "linewhitespace.ico"
-
 IDI_EQUALLINE           ICON                    "lineequal.ico"
-
 IDI_LINEENDINGCR        ICON                    "LineEndingCR.ico"
-
 IDI_LINEENDINGCRLF      ICON                    "LineEndingCRLF.ico"
-
 IDI_LINEENDINGLF        ICON                    "LineEndingLF.ico"
-
 IDI_CONFLICTEDIGNOREDLINE ICON                    "lineconflictedignored.ico"
-
 IDI_LINEEDITED          ICON                    "lineedited.ico"
-
 IDI_MOVEDLINE           ICON                    "moved.ico"
-
 IDI_AEROBACKGROUND      ICON                    "aerobackground.ico"
-
 IDI_LINEMARKED          ICON                    "linemarked.ico"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -116,9 +102,7 @@ END
 //
 
 IDB_LOGOFLIPPED         BITMAP                  "tortoisemerge_logoflipped.bmp"
-
 IDB_TTF_BMP             BITMAP                  "ttf_glyph.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -127,22 +111,16 @@ IDB_TTF_BMP             BITMAP                  "ttf_glyph.bmp"
 
 IDC_MARGINCURSOR        CURSOR                  "Margin.cur"
 
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // PNG
 //
 
 IDB_RIBBONLARGE         PNG                     "ribbon\\ribbonlarge.png"
-
 IDB_RIBBONSMALL         PNG                     "ribbon\\ribbonsmall.png"
-
 IDB_LOGO                PNG                     "ribbon\\TortoiseMerge.png"
-
 IDB_RIBBONSMALLHDPI     PNG                     "ribbon\\ribbonsmallhdpi.png"
-
 IDB_RIBBONLARGEHDPI     PNG                     "ribbon\\ribbonlargehdpi.png"
-
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -243,37 +221,36 @@ CAPTION "Colors"
 FONT 8, "MS Shell Dlg", 0, 0, 0x0
 BEGIN
     GROUPBOX        "Line differences",IDC_STATIC,7,7,251,149
-    LTEXT           "Foreground",IDC_STATIC,96,18,76,8,0,WS_EX_RIGHT
-    LTEXT           "Background",IDC_STATIC,181,17,75,8
-    LTEXT           "Normal",IDC_STATIC,15,32,90,8
-    PUSHBUTTON      "",IDC_FGNORMAL,122,31,50,14
-    PUSHBUTTON      "",IDC_BKNORMAL,181,30,50,14
-    LTEXT           "Added",IDC_STATIC,15,48,90,8
-    PUSHBUTTON      "",IDC_FGADDED,122,47,50,14
-    PUSHBUTTON      "",IDC_BKADDED,181,46,50,14
-    LTEXT           "Removed",IDC_STATIC,15,65,90,8
-    PUSHBUTTON      "",IDC_FGREMOVED,122,63,50,14
-    PUSHBUTTON      "",IDC_BKREMOVED,181,63,50,14
-    LTEXT           "Modified",IDC_STATIC,15,82,90,8
-    PUSHBUTTON      "",IDC_BKMODIFIED,181,80,50,14
-    LTEXT           "Conflicted",IDC_STATIC,15,99,90,8
-    PUSHBUTTON      "",IDC_FGCONFLICTED,122,98,50,14
-    PUSHBUTTON      "",IDC_BKCONFLICTED,181,97,50,14
-    LTEXT           "Conflict resolved",IDC_STATIC,15,116,90,8
-    PUSHBUTTON      "",IDC_FGCONFLICTRESOLVED,122,114,50,14
-    PUSHBUTTON      "",IDC_BKCONFLICTRESOLVED,181,114,50,14
-    LTEXT           "Empty",IDC_STATIC,15,132,90,8
-    PUSHBUTTON      "",IDC_FGEMPTY,122,130,50,14
-    PUSHBUTTON      "",IDC_BKEMPTY,181,130,50,14
+    LTEXT           "Normal",IDC_STATIC,15,16,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKNORMAL,152,14,50,14
+    LTEXT           "Added",IDC_STATIC,15,32,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKADDED,152,30,50,14
+    LTEXT           "Removed",IDC_STATIC,15,49,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKREMOVED,152,47,50,14
+    LTEXT           "Modified",IDC_STATIC,15,66,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKMODIFIED,152,64,50,14
+    LTEXT           "Conflicted",IDC_STATIC,15,83,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKCONFLICTED,152,81,50,14
+    LTEXT           "Conflict resolved",IDC_STATIC,15,100,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKCONFLICTRESOLVED,152,98,50,14
+    LTEXT           "Empty",IDC_STATIC,15,116,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKEMPTY,152,114,50,14
     GROUPBOX        "Inline differences",IDC_STATIC,7,158,251,43
-    LTEXT           "Added",IDC_STATIC,15,169,90,8
-    PUSHBUTTON      "",IDC_BKWHITESPACES,181,167,50,14
-    LTEXT           "Removed",IDC_STATIC,15,185,90,8
-    PUSHBUTTON      "",IDC_BKWHITESPACEDIFF,181,183,50,14
+    LTEXT           "Added",IDC_STATIC,15,169,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKWHITESPACES,152,167,50,14
+    LTEXT           "Removed",IDC_STATIC,15,185,113,8,0,WS_EX_RIGHT
+    PUSHBUTTON      "",IDC_BKWHITESPACEDIFF,152,183,50,14
     GROUPBOX        "Misc",IDC_STATIC,7,201,251,26
-    LTEXT           "Whitespaces",IDC_STATIC,15,211,90,8
-    PUSHBUTTON      "",IDC_FGWHITESPACES,122,210,50,14
+    RTEXT           "Whitespaces",IDC_STATIC,15,211,113,8
+    PUSHBUTTON      "",IDC_FGWHITESPACES,152,209,50,14
     PUSHBUTTON      "Restore Default",IDC_RESTORE,176,236,82,14
+END
+
+IDD_PATCH_FILE_OPEN_CUSTOM DIALOGEX 0, 0, 122, 28
+STYLE DS_SETFONT | DS_3DLOOK | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CLIPSIBLINGS | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Open from clipboard",IDC_PATCH_TO_CLIPBOARD,7,7,108,14
 END
 
 IDD_FIND DIALOGEX 0, 0, 345, 108
@@ -402,6 +379,14 @@ BEGIN
         BOTTOMMARGIN, 250
     END
 
+    IDD_PATCH_FILE_OPEN_CUSTOM, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 87
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 21
+    END
+
     IDD_FIND, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -459,7 +444,6 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "Toolbar.bmp"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -706,9 +690,7 @@ IDR_RIBBON              RT_RIBBON_XML           "ribbon.mfcribbon-ms"
 //
 
 IDR_REGEXFILTERINI      CONFIG                  "RegexFilter.ini"
-
 IDR_IGNORECOMMENTSTXT   CONFIG                  "ignorecomments.txt"
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -1128,9 +1110,6 @@ BEGIN
     IDS_ERR_PATCHPATHS      "Both the path to the patch file and the target path must be absolute paths!"
     IDS_ERR_ERROR           "Error"
     IDS_ERR_INVALIDREGEX    "The regular expression is invalid!\nPlease enter a valid regular expression."
-    IDS_ERR_REGEX_INVALID   "Regex is invalid!"
-    IDS_ERR_REGEX_INVALIDRETRY 
-                            "Regex error caught!\r\n%S\r\nTrying to recover by unsetting it again."
 END
 
 STRINGTABLE
@@ -1179,7 +1158,7 @@ END
 
 STRINGTABLE
 BEGIN
-    ID_VIEW_IGNORECOMMENTS  "Ignore comment changes\nIgnore Comments"
+    ID_VIEW_IGNORECOMMENTS  "Ignore Comments"
     ID_LOGOBUTTON           "TortoiseMerge"
 END
 
@@ -1249,18 +1228,6 @@ BEGIN
     IDS_STATE               "State"
     IDS_STATE_ERROR         "failed hunks: %d"
     IDS_STATE_PATCHED       "patched"
-END
-
-STRINGTABLE
-BEGIN
-    IDS_ENCODING_COMBO_TOOLTIP 
-                            "Encoding\nConvert to the specified encoding\nHold down the Ctrl key to reload the file with the specified encoding."
-END
-
-STRINGTABLE
-BEGIN
-    IDS_HEADER_DIFFLEFTTOBASE "Show diff separately"
-    IDS_HEADER_DIFFRIGHTTOBASE "Show diff separately"
 END
 
 #endif    // English (United States) resources

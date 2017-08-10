@@ -214,8 +214,6 @@ BOOL ProjectProperties::ReadProps(CTSVNPath path)
         CheckStringProp(sStartUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_STARTUPDATEHOOK);
         CheckStringProp(sPreUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_PREUPDATEHOOK);
         CheckStringProp(sPostUpdateHook, sPropName, sPropVal, PROJECTPROPNAME_POSTUPDATEHOOK);
-        CheckStringProp(sPreLockHook, sPropName, sPropVal, PROJECTPROPNAME_PRELOCKHOOK);
-        CheckStringProp(sPostLockHook, sPropName, sPropVal, PROJECTPROPNAME_POSTLOCKHOOK);
 
         CheckStringProp(sMergeLogTemplateTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATETITLE);
         CheckStringProp(sMergeLogTemplateReverseTitle, sPropName, sPropVal, PROJECTPROPNAME_MERGELOGTEMPLATEREVERSETITLE);
@@ -351,7 +349,7 @@ void ProjectProperties::AutoUpdateRegex()
             regCheck = std::tr1::wregex (sCheckRe);
             regBugID = std::tr1::wregex (sBugIDRe);
         }
-        catch (std::exception&)
+        catch (std::exception)
         {
         }
 
@@ -389,7 +387,7 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
                     }
                 }
             }
-            catch (std::exception&) {}
+            catch (std::exception) {}
         }
         else
         {
@@ -411,7 +409,7 @@ std::vector<CHARRANGE> ProjectProperties::FindBugIDPositions(const CString& msg)
                     }
                 }
             }
-            catch (std::exception&) {}
+            catch (std::exception) {}
         }
     }
     else if (result.empty()&&(!sMessage.IsEmpty()))
@@ -580,7 +578,7 @@ BOOL ProjectProperties::HasBugID(const CString& sMsg)
             AutoUpdateRegex();
             return std::tr1::regex_search((LPCTSTR)sMsg, regCheck);
         }
-        catch (std::exception&) {}
+        catch (std::exception) {}
     }
     return FALSE;
 }
@@ -641,7 +639,7 @@ CString ProjectProperties::GetLogSummary(const CString& sMsg)
                 }
             }
         }
-        catch (std::exception&) {}
+        catch (std::exception) {}
     }
     sRet.Trim();
 
@@ -743,8 +741,6 @@ void ProjectProperties::SaveToIni(CSimpleIni& inifile, const CString& section, c
     inifile.SetValue(section, prefix + L"sPreUpdateHook", sPreUpdateHook);
     inifile.SetValue(section, prefix + L"sPostUpdateHook", sPostUpdateHook);
     inifile.SetValue(section, prefix + L"sPreConnectHook", sPreConnectHook);
-    inifile.SetValue(section, prefix + L"sPreLockHook", sPreLockHook);
-    inifile.SetValue(section, prefix + L"sPostLockHook", sPostLockHook);
     inifile.SetValue(section, prefix + L"sRepositoryRootUrl", sRepositoryRootUrl);
     inifile.SetValue(section, prefix + L"sRepositoryPathUrl", sRepositoryPathUrl);
     inifile.SetValue(section, prefix + L"sMergeLogTemplateTitle", sMergeLogTemplateTitle);
@@ -800,8 +796,6 @@ void ProjectProperties::LoadFromIni(CSimpleIni& inifile, const CString& section,
     sPreUpdateHook = inifile.GetValue(section, prefix + L"sPreUpdateHook", L"");
     sPostUpdateHook = inifile.GetValue(section, prefix + L"sPostUpdateHook", L"");
     sPreConnectHook = inifile.GetValue(section, prefix + L"sPreConnectHook", L"");
-    sPreLockHook = inifile.GetValue(section, prefix + L"sPreLockHook", L"");
-    sPostLockHook = inifile.GetValue(section, prefix + L"sPostLockHook", L"");
     sRepositoryRootUrl = inifile.GetValue(section, prefix + L"sRepositoryRootUrl", L"");
     sRepositoryPathUrl = inifile.GetValue(section, prefix + L"sRepositoryPathUrl", L"");
     sMergeLogTemplateTitle = inifile.GetValue(section, prefix + L"sMergeLogTemplateTitle", L"");

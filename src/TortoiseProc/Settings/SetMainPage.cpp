@@ -26,6 +26,7 @@
 #include "../version.h"
 #include "SetMainPage.h"
 #include "SVN.h"
+#include "SysInfo.h"
 #include "Libraries.h"
 #include "SmartHandle.h"
 
@@ -83,7 +84,7 @@ BOOL CSetMainPage::OnInitDialog()
     SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST), &hc, FALSE);
     BOOL bEnabled = FALSE;
     DialogEnableWindow(IDC_AERODWM, ((hc.dwFlags & HCF_HIGHCONTRASTON) == 0) && SUCCEEDED(DwmIsCompositionEnabled(&bEnabled)) && bEnabled);
-    if (IsWindows10OrGreater())
+    if (SysInfo::Instance().IsWin10OrLater())
         GetDlgItem(IDC_AERODWM)->ShowWindow(SW_HIDE);
     CString temp;
     temp = m_regLastCommitTime;
@@ -94,7 +95,7 @@ BOOL CSetMainPage::OnInitDialog()
     m_tooltips.AddTool(IDC_COMMITFILETIMES, IDS_SETTINGS_COMMITFILETIMES_TT);
     m_tooltips.AddTool(IDC_CREATELIB, IDS_SETTINGS_CREATELIB_TT);
 
-    DialogEnableWindow(IDC_CREATELIB, IsWindows7OrGreater());
+    DialogEnableWindow(IDC_CREATELIB, SysInfo::Instance().IsWin7OrLater());
 
     // set up the language selecting combobox
     TCHAR buf[MAX_PATH] = { 0 };

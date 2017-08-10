@@ -350,8 +350,8 @@ void CDirectoryWatcher::WorkerThread()
                     pDirInfo->m_hDevNotify = NotificationFilter.dbch_hdevnotify;
 
 
-                    CAutoGeneralHandle port = CreateIoCompletionPort(pDirInfo->m_hDir, m_hCompPort, (ULONG_PTR)pDirInfo, 0);
-                    if (!port)
+                    HANDLE port = CreateIoCompletionPort(pDirInfo->m_hDir, m_hCompPort, (ULONG_PTR)pDirInfo, 0);
+                    if (port == NULL)
                     {
                         CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": CreateIoCompletionPort failed. Can't watch directory %s\n", watchedPath.GetWinPath());
 
@@ -367,7 +367,7 @@ void CDirectoryWatcher::WorkerThread()
                         watchedPaths.RemovePath(watchedPath);
                         break;
                     }
-                    m_hCompPort = std::move(port);
+                    m_hCompPort = port;
 
                     if (!ReadDirectoryChangesW(pDirInfo->m_hDir,
                                                 pDirInfo->m_Buffer,
@@ -474,7 +474,7 @@ void CDirectoryWatcher::WorkerThread()
                                     continue;
                                 }
                                 CTraceToOutputDebugString::Instance()(_T(__FUNCTION__) L": change notification for %s\n", buf);
-                                notifyPaths.emplace_back(buf);
+                                notifyPaths.push_back(CTSVNPath(buf));
                             }
                         } while ((nOffset > 0)&&(nOffset < READ_DIR_CHANGE_BUFFER_SIZE));
 
@@ -598,11 +598,11 @@ bool CDirectoryWatcher::CloseHandlesForPath(const CTSVNPath& path)
     return true;
 }
 
-CDirectoryWatcher::CDirWatchInfo::CDirWatchInfo(CAutoFile && hDir, const CTSVNPath& DirectoryName)
-    : m_hDir(std::move(hDir))
+CDirectoryWatcher::CDirWatchInfo::CDirWatchInfo(HANDLE hDir, const CTSVNPath& DirectoryName)
+    : m_hDir(hDir)
     , m_DirName(DirectoryName)
 {
-    ATLASSERT(m_hDir && !DirectoryName.IsEmpty());
+    ATLASSERT(hDir && !DirectoryName.IsEmpty());
     m_Buffer[0] = 0;
     SecureZeroMemory(&m_Overlapped, sizeof(m_Overlapped));
     m_DirPath = m_DirName.GetWinPathString();
