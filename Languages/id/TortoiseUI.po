@@ -18,6 +18,7 @@
 # Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
 # omixen <omixen@gmail.com>, 2011
 # omixen <omixen@gmail.com>, 2011
+# Radhitya Wawan Yunarko <radhitwaw@gmail.com>, 2017
 # uring <uringinteristi@gmail.com>, 2011
 # uring <uringinteristi@gmail.com>, 2011
 # uring <uringinteristi@gmail.com>, 2011
@@ -26,7 +27,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-02-11 08:14+0000\n"
+"PO-Revision-Date: 2017-11-17 01:34+0000\n"
 "Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Indonesian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/id/)\n"
@@ -202,7 +203,7 @@ msgstr "%I64d kByte ditransfer"
 #. Resource IDs: (62186)
 #, c-format
 msgid "%Ts [Recovered]"
-msgstr ""
+msgstr "%Ts [Dipulihkan]"
 
 #. Resource IDs: (61585, 61586)
 #, c-format

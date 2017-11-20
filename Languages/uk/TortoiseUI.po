@@ -14,6 +14,7 @@
 # Alexander Stulnikov <alarstyle@gmail.com>, 2015
 # ktretyak <ktretyak.in.ua@gmail.com>, 2013
 # Max Lyashuk <m_lyashuk@ukr.net>, 2013
+# Vitaliy Grabchuk <vitaliygrabchuk@gmail.com>, 2017
 # Vitaliy Katerusha <vitali_kat@hotmail.com>, 2011
 # Віктор Лелейко <victor.leleyko@gmail.com>, 2013
 msgid ""
@@ -21,7 +22,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-02-11 08:14+0000\n"
+"PO-Revision-Date: 2017-11-17 01:34+0000\n"
 "Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Ukrainian (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/uk/)\n"
@@ -146,6 +147,8 @@ msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Date %4!ls!"
 msgstr ""
+"%1!ls!\r\n"
+"Модифікація %2!ls!, Автор %3!ls!, Дата %4!ls!"
 
 #. Resource IDs: (1667)
 #, c-format
@@ -153,6 +156,8 @@ msgid ""
 "%1!ls!\r\n"
 "Revision %2!ls!, Author %3!ls!, Size %4!ls!, Date %5!ls!"
 msgstr ""
+"%1!ls!\r\n"
+"Модифікація %2!ls!, Автор %3!ls!, Розмір %4!ls!, Дата %5!ls!"
 
 #. Resource IDs: (1664)
 #, c-format
@@ -160,6 +165,8 @@ msgid ""
 "%1!ls!\r\n"
 "Showing %2!d! files and %3!d! folders, %4!d! items in total"
 msgstr ""
+"%1!ls!\r\n"
+"Відображено %2!d! файлів та %3!d! папок, %4!d! разом"
 
 #. Resource IDs: (61744)
 #, c-format
@@ -244,7 +251,7 @@ msgstr "%ls (не в мережі)"
 #. Resource IDs: (236)
 #, c-format
 msgid "%ls (recursively)"
-msgstr ""
+msgstr "%ls (рекурсивно)"
 
 #. Resource IDs: (2413)
 #, c-format
@@ -583,7 +590,7 @@ msgstr ""
 
 #. Resource IDs: (126)
 msgid "&Clean up..."
-msgstr ""
+msgstr "&Очистити..."
 
 #. Resource IDs: (1562)
 msgid "&Clear Changelists"
@@ -683,7 +690,7 @@ msgstr "Зни&щити (залишити локально)"
 
 #. Resource IDs: (1507)
 msgid "&Delete Filter"
-msgstr ""
+msgstr "Видалити фільтр"
 
 #. Resource IDs: (1514)
 msgid "&Delete unversioned items..."
@@ -747,7 +754,7 @@ msgstr "&Редагувати..."
 
 #. Resource IDs: (1542)
 msgid "&Empty the recycle bin now"
-msgstr ""
+msgstr "Очистити корзину"
 
 #. Resource IDs: (1023)
 msgid "&Enable Proxy Server"
@@ -799,7 +806,7 @@ msgstr "&Знайти"
 
 #. Resource IDs: (32771)
 msgid "&Find...\t(Ctrl+F)"
-msgstr ""
+msgstr "&Пошук...\t(Ctrl+F)"
 
 #. Resource IDs: (32778)
 msgid "&Fit images in window\t(F)"
@@ -843,7 +850,7 @@ msgstr "&Від: (початковий URL і модифікація діапа�
 
 #. Resource IDs: (32779)
 msgid "&Go To Line...\t(Ctrl+G)"
-msgstr ""
+msgstr "Перейти до рядка...\t(Ctrl+G)"
 
 #. Resource IDs: (65535)
 msgid "&Green:"
@@ -1230,7 +1237,7 @@ msgstr "Ви&далити"
 
 #. Resource IDs: (1035)
 msgid "&Remove project"
-msgstr ""
+msgstr "Видалити Проект"
 
 #. Resource IDs: (1031)
 msgid ""
@@ -1500,11 +1507,11 @@ msgstr "&Оновити"
 
 #. Resource IDs: (1215)
 msgid "&Update item to revision"
-msgstr ""
+msgstr "&Оновити до модифікації"
 
 #. Resource IDs: (1823)
 msgid "&Update item to revision..."
-msgstr ""
+msgstr "&Оновити до модифікації..."
 
 #. Resource IDs: (170)
 msgid "&Update to revision..."
@@ -1952,7 +1959,7 @@ msgstr ""
 #. Resource IDs: (9804)
 #, c-format
 msgid "Add to %1"
-msgstr ""
+msgstr "Додати до %1"
 
 #. Resource IDs: (194)
 msgid "Add to &ignore list"
@@ -3608,7 +3615,7 @@ msgstr "Копіює виділене та кладе його до буфера
 #. Resource IDs: (9802)
 #, c-format
 msgid "Copy to %1"
-msgstr ""
+msgstr "Копіювати до %1"
 
 #. Resource IDs: (1809)
 msgid "Copy to clipboard"
@@ -3845,7 +3852,7 @@ msgstr "Створити у сховищі копію з:"
 
 #. Resource IDs: (1562)
 msgid "Create intermediate folders"
-msgstr ""
+msgstr "Створити проміжні каталоги"
 
 #. Resource IDs: (2013)
 #, c-format
@@ -3858,7 +3865,7 @@ msgstr ""
 
 #. Resource IDs: (32828)
 msgid "Create patch file"
-msgstr ""
+msgstr "Створити латку"
 
 #. Resource IDs: (123)
 msgid "Create repositor&y here"
@@ -3974,7 +3981,7 @@ msgstr "Дата"
 
 #. Resource IDs: (1858)
 msgid "Date Range"
-msgstr ""
+msgstr "Діапазон дат"
 
 #. Resource IDs: (16114, 32842)
 msgid "Default"
@@ -4157,7 +4164,7 @@ msgstr "Розміри та розташування діалогів"
 
 #. Resource IDs: (156)
 msgid "Diff"
-msgstr ""
+msgstr "Відмінності"
 
 #. Resource IDs: (325)
 msgid "Diff Options"
@@ -5306,7 +5313,7 @@ msgstr "Фільтрувати шляхи"
 
 #. Resource IDs: (1644)
 msgid "Filter:"
-msgstr ""
+msgstr "Фільтр:"
 
 #. Resource IDs: (139, 57636)
 msgid "Find"
@@ -7529,7 +7536,7 @@ msgstr "Тезаурус припущень не має"
 
 #. Resource IDs: (65535)
 msgid "Node Status:"
-msgstr ""
+msgstr "Стан Вузла:"
 
 #. Resource IDs: (65535)
 msgid "Node colors"
@@ -7934,11 +7941,11 @@ msgstr "Параметри:"
 
 #. Resource IDs: (370)
 msgid "Password"
-msgstr ""
+msgstr "Пароль"
 
 #. Resource IDs: (9923)
 msgid "Password is wrong"
-msgstr ""
+msgstr "Пароль не вірний"
 
 #. Resource IDs: (5573)
 msgid "Password/phrase"
@@ -8303,7 +8310,7 @@ msgstr "Прогрес"
 
 #. Resource IDs: (65535)
 msgid "Project"
-msgstr ""
+msgstr "Проект"
 
 #. Resource IDs: (177, 226, 257)
 msgid "Properties"
@@ -8720,7 +8727,7 @@ msgstr ""
 
 #. Resource IDs: (3306)
 msgid "Remote property status"
-msgstr "Статус віддаленої властивоссті"
+msgstr "Статус віддаленої властивості"
 
 #. Resource IDs: (3318)
 msgid "Remote revision"
@@ -8750,15 +8757,15 @@ msgstr "Видалити %ls"
 
 #. Resource IDs: (1620)
 msgid "Remove Bookmark"
-msgstr ""
+msgstr "Видалити Закладку"
 
 #. Resource IDs: (1029)
 msgid "Remove Project"
-msgstr ""
+msgstr "Видалити Проект"
 
 #. Resource IDs: (348)
 msgid "Remove Saved Authentication Data"
-msgstr ""
+msgstr "Видалити збережені паролі"
 
 #. Resource IDs: (237)
 msgid "Remove from &ignore list"
@@ -8923,7 +8930,7 @@ msgstr ""
 
 #. Resource IDs: (1512)
 msgid "Replace &All"
-msgstr ""
+msgstr "Замінити все"
 
 #. Resource IDs: (57641)
 msgid ""
@@ -8935,11 +8942,11 @@ msgstr ""
 
 #. Resource IDs: (65535)
 msgid "Replace with:"
-msgstr ""
+msgstr "Замінити на:"
 
 #. Resource IDs: (65535)
 msgid "Replace:"
-msgstr ""
+msgstr "Замінити:"
 
 #. Resource IDs: (1507)
 #, c-format
@@ -9795,7 +9802,7 @@ msgstr "Налаштування - TortoiseSVN"
 
 #. Resource IDs: (9852)
 msgid "Shall I update the working copy and retry?"
-msgstr ""
+msgstr "Оновити робочу копію і повторити?"
 
 #. Resource IDs: (1270, 3349)
 msgid "Shell"
@@ -10200,7 +10207,7 @@ msgstr ""
 
 #. Resource IDs: (4237)
 msgid "Skipped, access denied"
-msgstr ""
+msgstr "Пропущено, доступ заборонений"
 
 #. Resource IDs: (4233)
 msgid "Skipped, no versioned parent"
@@ -10351,7 +10358,7 @@ msgstr "Зачіпка початку оновлення"
 
 #. Resource IDs: (1542)
 msgid "Start registry editor"
-msgstr ""
+msgstr "Відкрити редактор реєстру"
 
 #. Resource IDs: (1562)
 msgid "Start with &Windows"
@@ -10377,7 +10384,7 @@ msgstr ""
 
 #. Resource IDs: (2705)
 msgid "State"
-msgstr ""
+msgstr "Стан"
 
 #. Resource IDs: (16514)
 msgid "Static"
@@ -10393,7 +10400,7 @@ msgstr "Стан"
 
 #. Resource IDs: (59393)
 msgid "Status Bar"
-msgstr ""
+msgstr "Рядок стану"
 
 #. Resource IDs: (17087)
 msgid "Status Bar Configuration"
@@ -10531,7 +10538,7 @@ msgstr ""
 
 #. Resource IDs: (239)
 msgid "Subversion reported an error:"
-msgstr ""
+msgstr "Subversion повернув помилку:"
 
 #. Resource IDs: (65535)
 msgid "Subversion server file:"
@@ -10552,7 +10559,7 @@ msgstr "Перемкнути"
 #. Resource IDs: (3652)
 #, c-format
 msgid "Switch %1!ls! to %2!ls!, Revision %3!ls!"
-msgstr ""
+msgstr "Перемкнути %1!ls! на %2!ls!, Модифікація %3!ls!"
 
 #. Resource IDs: (1377)
 msgid "Switch Depth"
@@ -10576,7 +10583,7 @@ msgstr ""
 
 #. Resource IDs: (32775)
 msgid "Switch between single and double pane view"
-msgstr ""
+msgstr "Переключитися між одно та двопанельним поданням"
 
 #. Resource IDs: (32775)
 msgid ""
@@ -10675,7 +10682,7 @@ msgstr "Вузли зрізів"
 
 #. Resource IDs: (1429)
 msgid "Target folder is not empty"
-msgstr ""
+msgstr "Цільовий каталог не порожній"
 
 #. Resource IDs: (1278)
 msgid "Tasks"

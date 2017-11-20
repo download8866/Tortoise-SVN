@@ -21,14 +21,14 @@
 # Muhammet Kara <muhammetk@gmail.com>, 2014
 # Vural Göze <turinhurinov@yahoo.com>, 2011
 # Vural Göze <turinhurinov@yahoo.com>, 2011
-# Vural Göze <turinhurinov@yahoo.com>, 2016
+# Vural Göze <turinhurinov@yahoo.com>, 2016-2017
 # Vural Göze <turinhurinov@yahoo.com>, 2012-2013,2015
 msgid ""
 msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-04-26 00:25+0000\n"
+"PO-Revision-Date: 2017-11-17 01:34+0000\n"
 "Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "tr/)\n"
@@ -3504,7 +3504,7 @@ msgstr "Bir önceki revizyon ile karşılaştır ve sorumlusunu göster."
 
 #. Resource IDs: (1825)
 msgid "Compare revisions (&properties only)"
-msgstr ""
+msgstr "Revizyonları karşılaştır (sadece &özellikler)"
 
 #. Resource IDs: (1824)
 msgid "Compare revisions (conten&t only)"
@@ -6102,7 +6102,7 @@ msgstr "ID:57643:V C +Z"
 
 #. Accelerator Entry for Menu ID:57644; ''
 msgid "ID:57644:V C +Y"
-msgstr ""
+msgstr "ID:57644:V C +Y"
 
 #. Accelerator Entry for Menu ID:57665; 'E&xit'
 msgid "ID:57665:V C +Q"

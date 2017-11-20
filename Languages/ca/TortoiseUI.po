@@ -21,7 +21,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-09-19 09:11+0000\n"
+"PO-Revision-Date: 2017-11-18 18:15+0000\n"
 "Last-Translator: Joan Monguillot <jmonguillot@gmail.com>\n"
 "Language-Team: Catalan (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "ca/)\n"
@@ -437,7 +437,7 @@ msgstr "&..."
 
 #. Resource IDs: (57664)
 msgid "&About TortoiseMerge..."
-msgstr "&Quant a TortoiseMerge..."
+msgstr "&Quant al TortoiseMerge..."
 
 #. Resource IDs: (9757)
 msgid "&Accept current working copy state (mark as resolved)"
@@ -1902,11 +1902,11 @@ msgstr "Quant a"
 
 #. Resource IDs: (136)
 msgid "About TortoiseMerge"
-msgstr "Quant a TortoiseMerge"
+msgstr "Quant al TortoiseMerge"
 
 #. Resource IDs: (129)
 msgid "About TortoiseSVN"
-msgstr "Quant a TortoiseSVN"
+msgstr "Quant al TortoiseSVN"
 
 #. Resource IDs: (2359)
 msgid ""
@@ -5915,8 +5915,8 @@ msgid ""
 "Hide/Show the patch file list\n"
 "Hides or shows the patch file list"
 msgstr ""
-"Amaga/Mostra el llistat de fitxers pedaç\n"
-"Amaga o mostra el llistat de fitxers pedaç"
+"Amaga/Mostra la llista de fitxers pedaç\n"
+"Amaga o mostra la llista de fitxers pedaç"
 
 #. Resource IDs: (5411)
 msgid "Highest revision number in the cache"
