@@ -27,8 +27,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-08-04 10:12+0000\n"
-"Last-Translator: Arith Hsu <arithmandar@gmail.com>\n"
+"PO-Revision-Date: 2017-11-17 01:34+0000\n"
+"Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/luebbe/tortoisesvn/"
 "language/zh_TW/)\n"
 "MIME-Version: 1.0\n"
@@ -6278,7 +6278,7 @@ msgstr "(建議)忽略換行(&E)"
 
 #. Resource IDs: (282)
 msgid "Ignore multiple items by &extension"
-msgstr ""
+msgstr "依副檔名忽略多個項目 (&E)"
 
 #. Resource IDs: (1529)
 msgid "Ignore whitespace &changes"

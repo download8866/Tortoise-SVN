@@ -21,6 +21,7 @@
 # Erik Chacon <erikchacon@gmail.com>, 2011
 # Eugenio Avila <avilamqz@hotmail.com>, 2017
 # Fernando Reyes <fernando.reyes@gmail.com>, 2016
+# German Angel <german.abarron@gmail.com>, 2017
 # Javi <inactive+japaol@transifex.com>, 2014
 # Javi <inactive+japaol@transifex.com>, 2014
 # juancentro <jmtruppia@gmail.com>, 2011
@@ -42,7 +43,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-09-19 09:11+0000\n"
+"PO-Revision-Date: 2017-11-17 01:34+0000\n"
 "Last-Translator: Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>\n"
 "Language-Team: Spanish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "es/)\n"
