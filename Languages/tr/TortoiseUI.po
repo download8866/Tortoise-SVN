@@ -29,7 +29,7 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-23 11:20+0000\n"
+"PO-Revision-Date: 2017-11-28 05:32+0000\n"
 "Last-Translator: Murat DEMİRTAŞ <muratdemirtastr@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "tr/)\n"
@@ -8039,7 +8039,7 @@ msgstr "Bir üst klasörü Aç"
 
 #. Resource IDs: (1846)
 msgid "Open repository &Url"
-msgstr ""
+msgstr "Repository Aç &Url"
 
 #. Resource IDs: (1807)
 msgid "Open with..."
@@ -8141,7 +8141,7 @@ msgstr ""
 
 #. Resource IDs: (65535)
 msgid "POPUP"
-msgstr ""
+msgstr "POPUP"
 
 #. Resource IDs: (61507)
 #, c-format
@@ -8179,7 +8179,7 @@ msgstr "Şifre hatalı"
 
 #. Resource IDs: (5573)
 msgid "Password/phrase"
-msgstr ""
+msgstr "Şifre/İfade"
 
 #. Resource IDs: (1101, 65535)
 msgid "Password:"
@@ -10979,11 +10979,11 @@ msgstr "Karşılaştırmayı değiştirir Sol<->Sağ"
 
 #. Resource IDs: (368)
 msgid "Sync"
-msgstr ""
+msgstr "Senkronize et"
 
 #. Resource IDs: (65535)
 msgid "Sync setup"
-msgstr ""
+msgstr "Senkronizasyon ayarları"
 
 #. Resource IDs: (1529)
 msgid "Sync stored auth data"
@@ -12466,7 +12466,7 @@ msgstr "'%1!ls!' öğesi yükseltiliyor"
 
 #. Resource IDs: (1843)
 msgid "Urls"
-msgstr ""
+msgstr "Urls"
 
 #. Resource IDs: (16530)
 msgid "Use &Default Image: "
@@ -12588,7 +12588,7 @@ msgstr ""
 
 #. Resource IDs: (1091)
 msgid "Use spaces"
-msgstr ""
+msgstr "Boşluk kullan"
 
 #. Resource IDs: (1426)
 msgid "Use system locale for date/time"
@@ -12826,7 +12826,7 @@ msgstr "Komut-dosyasının çalışmasının bitmesini bekleyiniz"
 
 #. Resource IDs: (1046)
 msgid "Waiting for monitoring thread to finish..."
-msgstr ""
+msgstr "Bitiş için monitoring thread işlemi bekleniyor."
 
 #. Resource IDs: (280)
 msgid "Want to go offline?"
@@ -13678,7 +13678,7 @@ msgstr "çeyrek yıl"
 
 #. Resource IDs: (3953)
 msgid "quarters of year"
-msgstr ""
+msgstr "Yılın çeyreği"
 
 #. Resource IDs: (3110)
 msgid "readonly"
