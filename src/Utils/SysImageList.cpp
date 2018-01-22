@@ -38,7 +38,7 @@ CSysImageList::CSysImageList()
 
     int cx, cy;
     ImageList_GetIconSize(hSystemImageList, &cx, &cy);
-    auto emptyImageList = ImageList_Create(cx, cy, ILC_COLOR32, ImageList_GetImageCount(hSystemImageList), 10);
+    auto emptyImageList = ImageList_Create(cx, cy, ILC_COLOR32 | ILC_MASK, ImageList_GetImageCount(hSystemImageList), 10);
     Attach(emptyImageList);
 
     m_dirIconIndex = GetFileIcon(L"Doesn't matter", FILE_ATTRIBUTE_DIRECTORY, 0);
@@ -101,7 +101,7 @@ int CSysImageList::GetPathIconIndex(const CTSVNPath& filePath)
     {
         // We don't have this extension in the map
         int iconIndex = GetFileIconIndex(filePath.GetFilename());
-        it = m_indexCache.insert(it, std::make_pair(strExtension, iconIndex));
+        it = m_indexCache.emplace_hint(it, strExtension, iconIndex);
     }
     // We must have found it
     return it->second;
