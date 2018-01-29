@@ -14,7 +14,8 @@
 # Emre Can OZTAS <mynameisemre@hotmail.com.tr>, 2015
 # Huseyin <hyagli@hotmail.com>, 2013
 # ibrahim YENER <jdavide222@hotmail.com>, 2014
-# Lübbe TortoiseSVN <luebbe.tortoisesvn@gmail.com>, 2011
+# Kaya Kucuk <kaya.kucuk@gmail.com>, 2018
+# Lübbe Onken <luebbe.opensource@gmail.com>, 2011
 # Mehmet Keçeci <mk@mehmetkececi.com>, 2016
 # Muhammed Yasin Erdoğan <obsessio@gmail.com>, 2015
 # Muhammet Kara <muhammetk@gmail.com>, 2011-2012,2014
@@ -29,8 +30,8 @@ msgstr ""
 "Project-Id-Version: TortoiseSVN\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 1900-01-01 00:00+0000\n"
-"PO-Revision-Date: 2017-11-28 05:32+0000\n"
-"Last-Translator: Murat DEMİRTAŞ <muratdemirtastr@gmail.com>\n"
+"PO-Revision-Date: 2018-01-25 20:47+0000\n"
+"Last-Translator: Kaya Kucuk <kaya.kucuk@gmail.com>\n"
 "Language-Team: Turkish (http://www.transifex.com/luebbe/tortoisesvn/language/"
 "tr/)\n"
 "MIME-Version: 1.0\n"
@@ -6819,7 +6820,7 @@ msgstr "Kalan yerel değişiklikler"
 
 #. Resource IDs: (9434)
 msgid "Like above, but used for reverse merges"
-msgstr ""
+msgstr "Yukarıdaki gibi, ancak ters birleştirmeler için kullanılır"
 
 #. Resource IDs: (303)
 msgid "Line"
@@ -6839,21 +6840,21 @@ msgstr ""
 
 #. Resource IDs: (32853)
 msgid "Line diff bar"
-msgstr "Satır karşılaştırma çubuğunu göster "
+msgstr "Satır karşılaştırma çubuğu"
 
 #. Resource IDs: (65535)
 msgid "Line differences"
-msgstr "Dizin farklılıkları"
+msgstr "Satır farklılıkları"
 
 #. Resource IDs: (2810)
 #, c-format
 msgid "Line moved from line %ld"
-msgstr "Satır %ld satırından taşındı"
+msgstr "Satır %ld. satırdan taşındı"
 
 #. Resource IDs: (2811)
 #, c-format
 msgid "Line moved to line %ld"
-msgstr ""
+msgstr "Satır %ld. satıra taşındı."
 
 #. Resource IDs: (65535)
 msgid "Line:"
@@ -6897,12 +6898,17 @@ msgid ""
 "Load changes\n"
 "Changes made in TortoiseMerge are lost and replaced with the new content."
 msgstr ""
+"Değişiklikleri yükle\n"
+"TortoiseMerge içinde yapılan değişiklikler kaybolur ve yeni içerikle "
+"değiştirilir."
 
 #. Resource IDs: (5031)
 msgid ""
 "Load changes\n"
 "The views are updated with the new content."
 msgstr ""
+"Değişiklikleri yükle\n"
+"Görünümler yeni içerikle birlikte güncellenir."
 
 #. Resource IDs: (32861)
 msgid "Local &Hooks"
@@ -6910,7 +6916,7 @@ msgstr "&Yerel Yakalayıcılar"
 
 #. Resource IDs: (334)
 msgid "Local hook scripts"
-msgstr ""
+msgstr "Yerel kanca komutları"
 
 #. Resource IDs: (1500)
 msgid ""
@@ -7074,7 +7080,7 @@ msgstr "Subversion özelliklerini yönet:"
 
 #. Resource IDs: (9107)
 msgid "Manual Pre-Commit Hook"
-msgstr ""
+msgstr "Manuel teslim öncesi kancası."
 
 #. Resource IDs: (65535)
 msgid "Manual import/export"
@@ -7089,6 +7095,8 @@ msgid ""
 "Mark all projects as read\n"
 "Hold down the shift key to also clear all fetch errors."
 msgstr ""
+"Tüm projeleri okundu olarak işaretle.\n"
+"Tüm getirme(fetch) hatalarını da temizlemek içim Shift tuşuna basılı tutun."
 
 #. Resource IDs: (9760)
 msgid "Mark as &resolved (the move will become a copy)"
@@ -7136,7 +7144,7 @@ msgstr "Bu değişikliği işaretle"
 
 #. Resource IDs: (103)
 msgid "Marked Blocks"
-msgstr ""
+msgstr "İşaretli Bloklar"
 
 #. Resource IDs: (65535)
 msgid "Markers"
@@ -7155,6 +7163,8 @@ msgid ""
 "Marks the conflict as resolved.\r\n"
 "Note: this does not resolve the conflict, only marks it as resolved!"
 msgstr ""
+"Çakışmayı çözüldü olarak işaretler.\n"
+"Not: Bu işlem çakışmayı çözmez, sadece çözüldü olarak işaretler!"
 
 #. Resource IDs: (9520)
 msgid ""
@@ -7388,7 +7398,7 @@ msgstr "Değiştirilmiş düğüm"
 
 #. Resource IDs: (65535)
 msgid "Monitor interval in minutes:"
-msgstr ""
+msgstr "İzleme sıklığı (dakika):"
 
 #. Resource IDs: (17107)
 msgid "More"
@@ -7461,6 +7471,8 @@ msgid ""
 "Move and add\n"
 "The file is moved to the destination and added to version control."
 msgstr ""
+"Taşı ve ekle\n"
+"Dosya hedefe taşınır ve versiyon kontrolüne eklenir."
 
 #. Resource IDs: (2336)
 msgid "Move and rename"
@@ -7472,7 +7484,7 @@ msgstr "Elemanı buraya taşı ve yeniden adlandır"
 
 #. Resource IDs: (4242)
 msgid "Move broken"
-msgstr ""
+msgstr "Kırıkları taşı."
 
 #. Resource IDs: (1647)
 msgid "Move items to here"
@@ -7485,7 +7497,7 @@ msgstr "Özel dosya ya da dizini taşı"
 #. Resource IDs: (9803)
 #, c-format
 msgid "Move to %1"
-msgstr ""
+msgstr "%1'e taşı"
 
 #. Resource IDs: (3340)
 msgid "Move to changelist"
@@ -7493,7 +7505,7 @@ msgstr "Değişim listesine taşı"
 
 #. Resource IDs: (4244)
 msgid "Move-Replaced"
-msgstr ""
+msgstr "Taşı-Değiştirilen(ler)"
 
 #. Resource IDs: (3661)
 msgid "Move/Rename"
@@ -7583,6 +7595,8 @@ msgid ""
 "Navigate to a specific line in the view\n"
 "Goto Line"
 msgstr ""
+"Görünümdeki belirli bir satıra git\n"
+"Satıra git"
 
 #. Resource IDs: (17004)
 msgid "Navigation Pane Options"
@@ -7635,7 +7649,7 @@ msgstr ""
 
 #. Resource IDs: (1506)
 msgid "New name must not be empty or the same as the original name!"
-msgstr ""
+msgstr "Yeni isim boş olmamalıdır ya da orijinal isimle aynı olmamalıdır."
 
 #. Resource IDs: (1603)
 msgid "Newlines"
@@ -8276,7 +8290,7 @@ msgstr ""
 
 #. Resource IDs: (3913)
 msgid "Percent of authorship"
-msgstr "Yaratıcı yüzdesi"
+msgstr "Yazarlık yüzdesi"
 
 #. Resource IDs: (3914)
 msgid "Percents"
@@ -13703,7 +13717,7 @@ msgstr "revizyon %1!ls!-%2!ls!, revizyon %3!ls!-%4!ls!"
 
 #. Resource IDs: (65535)
 msgid "revision count: "
-msgstr "Revizyon numarası:"
+msgstr "Revizyon sayısı:"
 
 #. Resource IDs: (10000)
 msgid "revision has already been merged"
@@ -13812,6 +13826,8 @@ msgid ""
 "svn:global-ignores\r\n"
 "A newline separated list of file patterns to ignore recursively."
 msgstr ""
+"svn:global-ignores\n"
+"Ardışık olarak gözardı etmek için yeni satır ile ayrılmış desenler dosyası."
 
 #. Resource IDs: (9200)
 msgid ""
@@ -13819,7 +13835,7 @@ msgid ""
 "A newline separated list of file patterns to ignore."
 msgstr ""
 "svn:ignore\r\n"
-"Aldırılmayacaklar için satır ile ayrılmış dosya şablonlarının listesi."
+"Gözardı etmek için yeni satır ile ayrılmış desenler dosyası."
 
 #. Resource IDs: (317)
 msgid "svn:keywords"
@@ -13926,7 +13942,7 @@ msgstr "Metin [Simge sayısı]: "
 
 #. Resource IDs: (10001)
 msgid "the working copy is at this revision"
-msgstr "çalışan kopya bu revizyonda"
+msgstr "çalışan kopya bu revizyondadır"
 
 #. Resource IDs: (9320)
 msgid "there are conflicting modifications."
