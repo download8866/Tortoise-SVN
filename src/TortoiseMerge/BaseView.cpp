@@ -1,6 +1,6 @@
 ﻿// TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2003-2015, 2017 - TortoiseSVN
+// Copyright (C) 2003-2018 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -593,7 +593,10 @@ int CBaseView::GetMaxLineLength()
         m_nMaxLineLength = 0;
         int nLineCount = GetLineCount();
         if (nLineCount == 1)
-            return GetLineLengthWithTabsConverted(0);
+        {
+            m_nMaxLineLength = GetLineLengthWithTabsConverted(0);
+            return m_nMaxLineLength;
+        }
         for (int i=0; i<nLineCount; i++)
         {
             int nActualLength = GetLineLengthWithTabsConverted(i);
@@ -3184,6 +3187,7 @@ void CBaseView::OnLButtonDown(UINT nFlags, CPoint point)
             {
                 // select the whole line
                 m_ptSelectionViewPosStart = m_ptSelectionViewPosEnd = GetCaretViewPosition();
+                m_ptSelectionViewPosStart.x = 0;
                 m_ptSelectionViewPosEnd.x = GetViewLineLength(m_ptSelectionViewPosEnd.y);
             }
         }
@@ -5315,6 +5319,7 @@ void CBaseView::WrapChanged()
 {
     m_nMaxLineLength = -1;
     m_nOffsetChar = 0;
+    RecalcHorzScrollBar();
 }
 
 void CBaseView::OnEditFind()
